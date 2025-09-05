@@ -23,6 +23,7 @@
 #ifndef H2_MIDI_OUTPUT_H
 #define H2_MIDI_OUTPUT_H
 
+#include <core/Helpers/Time.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
 
@@ -114,7 +115,7 @@ class MidiOutput : public virtual Object<MidiOutput>
 		bool m_bSendClockTick;
 		bool m_bNotifyOnNextTick;
 		std::chrono::duration<float> m_interval;
-		std::chrono::time_point< std::chrono::high_resolution_clock > m_lastTick;
+		TimePoint m_lastTick;
 		long long m_nTickCount;
 		/** @} */
 

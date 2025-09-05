@@ -40,6 +40,7 @@
 #include <core/FX/Effects.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Random.h>
+#include <core/Helpers/Time.h>
 #include <core/IO/AlsaAudioDriver.h>
 #include <core/IO/AlsaMidiDriver.h>
 #include <core/IO/CoreAudioDriver.h>
@@ -54,9 +55,6 @@
 #include <core/IO/PulseAudioDriver.h>
 
 #define AUDIO_ENGINE_DEBUG 0
-
-using Clock = std::chrono::high_resolution_clock;
-using TimePoint = std::chrono::time_point<Clock>;
 
 namespace H2Core
 {

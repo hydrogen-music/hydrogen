@@ -24,6 +24,7 @@
 
 #include <QString>
 
+#include <core/Helpers/Time.h>
 #include <core/Object.h>
 
 #include <chrono>
@@ -136,7 +137,7 @@ class MidiAction : public H2Core::Object<MidiAction> {
 		void setValue( const QString& text );
 
 		const Type& getType() const;
-		const std::chrono::time_point< std::chrono::high_resolution_clock >& getTimePoint() const;
+		const TimePoint& getTimePoint() const;
 
 	/**
 	 * @returns whether the current MidiAction and @a pOther identically in all
@@ -204,7 +205,7 @@ class MidiAction : public H2Core::Object<MidiAction> {
 		QString m_sParameter2;
 		QString m_sParameter3;
 		QString m_sValue;
-		std::chrono::time_point< std::chrono::high_resolution_clock > m_timePoint;
+		TimePoint m_timePoint;
 };
 
 inline const QString& MidiAction::getParameter1() const {
@@ -242,7 +243,7 @@ inline void MidiAction::setValue( const QString& text ){
 inline const MidiAction::Type& MidiAction::getType() const {
 	return m_type;
 }
-inline const std::chrono::time_point< std::chrono::high_resolution_clock >& MidiAction::getTimePoint() const {
+inline const TimePoint& MidiAction::getTimePoint() const {
 	return m_timePoint;
 }
 

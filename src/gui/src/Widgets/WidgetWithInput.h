@@ -32,6 +32,7 @@
 #include "MidiLearnable.h"
 
 #include <core/Basics/Event.h>
+#include <core/Helpers/Time.h>
 
 /** Base class for active user input widget, which are not based on
  * a high-level Qt widget.
@@ -140,7 +141,7 @@ protected:
 
 	/** All key input will be appended to this string.*/
 	QString m_sInputBuffer;
-		std::chrono::time_point< std::chrono::high_resolution_clock > m_lastInputEvent;
+		TimePoint m_lastInputEvent;
 
 	/** Whether Hydrogen::setIsModified() is invoked with `true` as
 		soon as the value of the widget does change.*/

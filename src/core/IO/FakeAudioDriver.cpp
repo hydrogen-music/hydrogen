@@ -26,9 +26,6 @@
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 
-using Clock = std::chrono::high_resolution_clock;
-using TimePoint = std::chrono::time_point<Clock>;
-
 namespace H2Core {
 
 FakeAudioDriver::FakeAudioDriver( audioProcessCallback processCallback )
@@ -120,6 +117,8 @@ QString FakeAudioDriver::toQString( const QString& sPrefix, bool bShort ) const 
 		sOutput = QString( "%1[FakeAudioDriver]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_processInterval: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_processInterval.count() ) )
+			.append( QString( "%1%2m_lastRun: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( H2Core::timePointToQString( m_lastRun ) ) )
 			.append( QString( "%1%2m_nBufferSize: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nBufferSize ) )
 			.append( QString( "%1%2m_nSampleRate: %3\n" ).arg( sPrefix ).arg( s )
@@ -128,6 +127,8 @@ QString FakeAudioDriver::toQString( const QString& sPrefix, bool bShort ) const 
 		sOutput = QString( "[FakeAudioDriver]" )
 			.append( QString( ", m_processIntercal: %1" )
 					 .arg( m_processInterval.count() ) )
+			.append( QString( ", m_lastRun: %1" )
+					 .arg( H2Core::timePointToQString( m_lastRun ) ) )
 			.append( QString( ", m_nBufferSize: %1" ).arg( m_nBufferSize ) )
 			.append( QString( ", m_nSampleRate: %1" ).arg( m_nSampleRate ) );
 	}

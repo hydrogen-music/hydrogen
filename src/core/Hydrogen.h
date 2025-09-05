@@ -25,6 +25,7 @@
 #include <core/Basics/Event.h>
 #include <core/Basics/Song.h>
 #include <core/config.h>
+#include <core/Helpers/Time.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
@@ -276,9 +277,7 @@ public:
 		song is set.*/
 	bool getIsModified() const;
 
-	void			onTapTempoAccelEvent(
-		std::chrono::time_point< std::chrono::high_resolution_clock> start =
-		std::chrono::time_point< std::chrono::high_resolution_clock >() );
+	void			onTapTempoAccelEvent( TimePoint start = TimePoint() );
 
 	void			restartLadspaFX();
 	/** \return #m_nSelectedPatternNumber*/
@@ -329,9 +328,7 @@ public:
 	void			setBeatCounterBeatLength( float fBeatLength );
 	float			getBeatCounterBeatLength() const;
 	int			getBeatCounterEventCount() const;
-	bool			handleBeatCounter(
-		std::chrono::time_point< std::chrono::high_resolution_clock> start =
-		std::chrono::time_point< std::chrono::high_resolution_clock >() );
+	bool			handleBeatCounter( TimePoint start = TimePoint() );
 	void			updateBeatCounterSettings();
 
 	/** Calling JackAudioDriver::releaseTimebaseControl() directly from
@@ -512,12 +509,12 @@ private:
 	int			m_nBeatCounterEventCount;		///< beatcounter event
 	int			m_nBeatCounterBeatCount;		///< beatcounter beat to count
 	std::vector<double>			m_beatCounterDiffs;	///< beat diff
-	std::chrono::time_point< std::chrono::high_resolution_clock > m_lastBeatCounterTimePoint;
+		TimePoint m_lastBeatCounterTimePoint;
 	int			m_nBeatCounterDriftCompensation;		///ms default 0
 	int			m_nBeatCounterStartOffset;		///ms default 0
 	// ~ beatcounter
 
-		std::chrono::time_point< std::chrono::high_resolution_clock > m_lastTapTempoTimePoint;
+		TimePoint m_lastTapTempoTimePoint;
 		float m_fTapTempoAverageBpm;
 		/** Number of events constituting #m_fTapTempoAverageBpm. This is
 		 * required to calculate the cumulative average. */

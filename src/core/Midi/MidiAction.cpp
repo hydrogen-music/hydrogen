@@ -22,13 +22,6 @@
 
 #include "MidiAction.h"
 
-#include <ctime>
-#include <iomanip>
-#include <sstream>
-
-using Clock = std::chrono::high_resolution_clock;
-using TimePoint = std::chrono::time_point<Clock>;
-
 using namespace H2Core;
 
 QString MidiAction::typeToQString( const Type &type ) {
@@ -365,14 +358,6 @@ QString MidiAction::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
 
-	// Convert the time point into a string.
-	auto t = Clock::to_time_t( m_timePoint );
-    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-		m_timePoint.time_since_epoch() ) % 1000;
-    std::ostringstream timePointStringStream;
-    timePointStringStream << std::put_time( std::gmtime( &t ), "%Y-%m-%dT%H:%M:%S")
-        << '.' << std::setfill( '0' ) << std::setw( 3 ) << ms.count();
-
 	if ( ! bShort ) {
 		sOutput = QString( "%1[MidiAction]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix )
@@ -386,7 +371,7 @@ QString MidiAction::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_sParameter3: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_sParameter3 ) )
 			.append( QString( "%1%2m_timePoint: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( QString::fromStdString( timePointStringStream.str() ) ) );
+					 .arg( s ).arg( H2Core::timePointToQString( m_timePoint ) ) );
 	}
 	else {
 		sOutput = QString( "[MidiAction]" )
@@ -397,7 +382,7 @@ QString MidiAction::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_sParameter2: %1" ).arg( m_sParameter2 ) )
 			.append( QString( ", m_sParameter3: %1" ).arg( m_sParameter3 ) )
 			.append( QString( ", m_timePoint: %1" )
-					 .arg( QString::fromStdString( timePointStringStream.str() ) ) );
+					 .arg( H2Core::timePointToQString( m_timePoint ) ) );
 	}
 	
 	return sOutput;

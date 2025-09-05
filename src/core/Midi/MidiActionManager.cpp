@@ -39,9 +39,6 @@
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
-using Clock = std::chrono::high_resolution_clock;
-using TimePoint = std::chrono::time_point<Clock>;
-
 namespace H2Core {
 
 MidiActionManager::MidiActionManager() : m_nTickIntervalIndex( 0 )

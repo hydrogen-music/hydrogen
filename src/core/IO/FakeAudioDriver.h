@@ -23,6 +23,7 @@
 #ifndef FAKE_DRIVER_H
 #define FAKE_DRIVER_H
 
+#include <core/Helpers/Time.h>
 #include <core/IO/AudioOutput.h>
 
 #include <chrono>
@@ -72,7 +73,7 @@ private:
 		 * order to properly simulate an audio driver. */
 		std::chrono::duration<float> m_processInterval;
 		/** Point in time the last run of the process callback did finish. */
-		std::chrono::time_point< std::chrono::high_resolution_clock > m_lastRun;
+		TimePoint m_lastRun;
 
 		audioProcessCallback m_processCallback;
 		unsigned m_nBufferSize;

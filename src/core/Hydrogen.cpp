@@ -79,9 +79,6 @@
 #include "OscServer.h"
 #endif
 
-using Clock = std::chrono::high_resolution_clock;
-using TimePoint = std::chrono::time_point<Clock>;
-
 namespace H2Core
 {
 //----------------------------------------------------------------------------
