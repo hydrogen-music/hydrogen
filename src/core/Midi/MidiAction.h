@@ -26,6 +26,7 @@
 
 #include <core/Object.h>
 
+#include <chrono>
 #include <memory>
 
 /**
@@ -130,11 +131,12 @@ class MidiAction : public H2Core::Object<MidiAction> {
 		void setValue( const QString& text );
 
 		const Type& getType() const;
+		const std::chrono::time_point< std::chrono::high_resolution_clock >& getTimeStamp() const;
 
 	/**
-	 * @returns whether the current MidiAction and @a pOther identically
-	 *   in all member except of #m_sValue. If true, they are associated
-	 *   with the same widget. The value will differ depending on the
+	 * @returns whether the current MidiAction and @a pOther identically in all
+	 *   member except of #m_sValue and #m_timePoint. If true, they are
+	 *   associated with the same widget. The value will differ depending on the
 	 *   incoming MIDI event.
 	 */
 	bool isEquivalentTo( const std::shared_ptr<MidiAction> pOther ) const;
@@ -144,14 +146,16 @@ class MidiAction : public H2Core::Object<MidiAction> {
 				 lhs.m_sParameter1 == rhs.m_sParameter1 &&
 				 lhs.m_sParameter2 == rhs.m_sParameter2 &&
 				 lhs.m_sParameter3 == rhs.m_sParameter3 &&
-				 lhs.m_sValue == rhs.m_sValue );
+				 lhs.m_sValue == rhs.m_sValue &&
+				 lhs.m_timePoint == rhs.m_timePoint );
 	}
 	friend bool operator !=(const MidiAction& lhs, const MidiAction& rhs ) {
 		return ( lhs.m_type != rhs.m_type ||
 				 lhs.m_sParameter1 != rhs.m_sParameter1 ||
 				 lhs.m_sParameter2 != rhs.m_sParameter2 ||
 				 lhs.m_sParameter3 != rhs.m_sParameter3 ||
-				 lhs.m_sValue != rhs.m_sValue );
+				 lhs.m_sValue != rhs.m_sValue ||
+				 lhs.m_timePoint != rhs.m_timePoint );
 	}
 	friend bool operator ==( std::shared_ptr<MidiAction> lhs,
 							 std::shared_ptr<MidiAction> rhs ) {
@@ -162,7 +166,8 @@ class MidiAction : public H2Core::Object<MidiAction> {
 				 lhs->m_sParameter1 == rhs->m_sParameter1 &&
 				 lhs->m_sParameter2 == rhs->m_sParameter2 &&
 				 lhs->m_sParameter3 == rhs->m_sParameter3 &&
-				 lhs->m_sValue == rhs->m_sValue );
+				 lhs->m_sValue == rhs->m_sValue &&
+				 lhs->m_timePoint == rhs->m_timePoint );
 	}
 	friend bool operator !=( std::shared_ptr<MidiAction> lhs,
 							 std::shared_ptr<MidiAction> rhs ) {
@@ -173,7 +178,8 @@ class MidiAction : public H2Core::Object<MidiAction> {
 				 lhs->m_sParameter1 != rhs->m_sParameter1 ||
 				 lhs->m_sParameter2 != rhs->m_sParameter2 ||
 				 lhs->m_sParameter3 != rhs->m_sParameter3 ||
-				 lhs->m_sValue != rhs->m_sValue );
+				 lhs->m_sValue != rhs->m_sValue ||
+				 lhs->m_timePoint != rhs->m_timePoint );
 	}
 
 		/** Formatted string version for debugging purposes.
@@ -193,6 +199,7 @@ class MidiAction : public H2Core::Object<MidiAction> {
 		QString m_sParameter2;
 		QString m_sParameter3;
 		QString m_sValue;
+		std::chrono::time_point< std::chrono::high_resolution_clock > m_timePoint;
 };
 
 inline const QString& MidiAction::getParameter1() const {
@@ -229,6 +236,9 @@ inline void MidiAction::setValue( const QString& text ){
 
 inline const MidiAction::Type& MidiAction::getType() const {
 	return m_type;
+}
+inline const std::chrono::time_point< std::chrono::high_resolution_clock >& MidiAction::getTimeStamp() const {
+	return m_timePoint;
 }
 
 #endif
