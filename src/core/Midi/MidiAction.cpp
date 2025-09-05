@@ -335,6 +335,17 @@ MidiAction::MidiAction( const std::shared_ptr<MidiAction> pOther ) {
 	}
 }
 
+std::shared_ptr<MidiAction> MidiAction::from( const std::shared_ptr<MidiAction> pOther ) {
+	if ( pOther == nullptr ) {
+		return nullptr;
+	}
+
+	auto pNew = std::make_shared<MidiAction>( pOther );
+	pNew->m_timePoint = Clock::now();
+
+	return pNew;
+}
+
 bool MidiAction::isNull() const {
 	return m_type == Type::Null;
 }

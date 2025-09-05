@@ -241,7 +241,7 @@ void MidiInput::handleControlChangeMessage(
 
 	for ( const auto& ppAction : pMidiMap->getCCActions( msg.getData1() ) ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
-			auto pNewAction = std::make_shared<MidiAction>( ppAction );
+			auto pNewAction = MidiAction::from( ppAction );
 			pNewAction->setValue( QString::number( msg.getData2() ) );
 			pMidiActionManager->handleMidiActionAsync( pNewAction );
 			pHandledInput->actionTypes.push_back( pNewAction->getType() );
@@ -265,7 +265,7 @@ void MidiInput::handleProgramChangeMessage(
 
 	for ( const auto& ppAction : pMidiMap->getPCActions() ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
-			auto pNewAction = std::make_shared<MidiAction>( ppAction );
+			auto pNewAction = MidiAction::from( ppAction );
 			pNewAction->setValue( QString::number( msg.getData1() ) );
 			pMidiActionManager->handleMidiActionAsync( pNewAction );
 			pHandledInput->actionTypes.push_back( pNewAction->getType() );
@@ -298,7 +298,7 @@ void MidiInput::handleNoteOnMessage(
 	bool bActionSuccess = false;
 	for ( const auto& ppAction : pMidiMap->getNoteActions( msg.getData1() ) ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
-			auto pNewAction = std::make_shared<MidiAction>( ppAction );
+			auto pNewAction = MidiAction::from( ppAction );
 			pNewAction->setValue( QString::number( msg.getData2() ) );
 			if ( pMidiActionManager->handleMidiActionAsync( pNewAction ) ) {
 				bActionSuccess = true;

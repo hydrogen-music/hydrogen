@@ -116,6 +116,11 @@ class MidiAction : public H2Core::Object<MidiAction> {
 	MidiAction( Type type );
 	MidiAction( const std::shared_ptr<MidiAction> pMidiAction );
 
+		/** Similar to the copy constructor but instead of creating a true copy,
+		 * the new action will be assigned a fresh time point. */
+		static std::shared_ptr<MidiAction> from(
+			const std::shared_ptr<MidiAction> pOther );
+
 	bool isNull() const;
 
 		const QString& getParameter1() const;
@@ -131,7 +136,7 @@ class MidiAction : public H2Core::Object<MidiAction> {
 		void setValue( const QString& text );
 
 		const Type& getType() const;
-		const std::chrono::time_point< std::chrono::high_resolution_clock >& getTimeStamp() const;
+		const std::chrono::time_point< std::chrono::high_resolution_clock >& getTimePoint() const;
 
 	/**
 	 * @returns whether the current MidiAction and @a pOther identically in all
@@ -237,7 +242,7 @@ inline void MidiAction::setValue( const QString& text ){
 inline const MidiAction::Type& MidiAction::getType() const {
 	return m_type;
 }
-inline const std::chrono::time_point< std::chrono::high_resolution_clock >& MidiAction::getTimeStamp() const {
+inline const std::chrono::time_point< std::chrono::high_resolution_clock >& MidiAction::getTimePoint() const {
 	return m_timePoint;
 }
 
