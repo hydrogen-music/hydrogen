@@ -736,8 +736,12 @@ std::shared_ptr<MidiBaseDriver> Hydrogen::getMidiDriver() const {
 	return m_pAudioEngine->getMidiDriver();
 }
 
-void Hydrogen::onTapTempoAccelEvent() {
-	const auto now = Clock::now();
+void Hydrogen::onTapTempoAccelEvent( TimePoint start ) {
+	auto now = start;
+	if ( now == TimePoint() ) {
+		// Default value. No time stamp was provided.
+		now = Clock::now();
+	}
 
 	const float fInterval = std::chrono::duration_cast<std::chrono::milliseconds>(
 		now - m_lastTapTempoTimePoint ).count();
@@ -902,11 +906,15 @@ void Hydrogen::setBeatCounterBeatLength( float fBeatLength ) {
 	}
 }
 
-bool Hydrogen::handleBeatCounter()
+bool Hydrogen::handleBeatCounter( TimePoint start )
 {
 	auto pEventQueue = EventQueue::get_instance();
 
-	const auto now = Clock::now();
+	auto now = start;
+	if ( now == TimePoint() ) {
+		// Default value. No time stamp was provided.
+		now = Clock::now();
+	}
 	double fTimeDeltaSeconds;
 	if ( m_nBeatCounterBeatCount == 1 ) {
 		// Reset or initialize

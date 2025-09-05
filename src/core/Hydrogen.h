@@ -276,7 +276,9 @@ public:
 		song is set.*/
 	bool getIsModified() const;
 
-	void			onTapTempoAccelEvent();
+	void			onTapTempoAccelEvent(
+		std::chrono::time_point< std::chrono::high_resolution_clock> start =
+		std::chrono::time_point< std::chrono::high_resolution_clock >() );
 
 	void			restartLadspaFX();
 	/** \return #m_nSelectedPatternNumber*/
@@ -327,7 +329,9 @@ public:
 	void			setBeatCounterBeatLength( float fBeatLength );
 	float			getBeatCounterBeatLength() const;
 	int			getBeatCounterEventCount() const;
-	bool			handleBeatCounter();
+	bool			handleBeatCounter(
+		std::chrono::time_point< std::chrono::high_resolution_clock> start =
+		std::chrono::time_point< std::chrono::high_resolution_clock >() );
 	void			updateBeatCounterSettings();
 
 	/** Calling JackAudioDriver::releaseTimebaseControl() directly from

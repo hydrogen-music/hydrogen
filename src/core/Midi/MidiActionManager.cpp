@@ -420,7 +420,11 @@ bool MidiActionManager::stripSoloToggle( std::shared_ptr<MidiAction> pAction ) {
 		nLine, !pInstr->isSoloed(), false );
 }
 
-bool MidiActionManager::beatcounter( std::shared_ptr<MidiAction>  ) {
+bool MidiActionManager::beatcounter( std::shared_ptr<MidiAction> pAction ) {
+	if ( pAction == nullptr ) {
+		return false;
+	}
+
 	auto pHydrogen = Hydrogen::get_instance();
 
 	// Preventive measure to avoid bad things.
@@ -429,10 +433,14 @@ bool MidiActionManager::beatcounter( std::shared_ptr<MidiAction>  ) {
 		return false;
 	}
 	
-	return pHydrogen->handleBeatCounter();
+	return pHydrogen->handleBeatCounter( pAction->getTimePoint() );
 }
 
-bool MidiActionManager::tapTempo( std::shared_ptr<MidiAction>  ) {
+bool MidiActionManager::tapTempo( std::shared_ptr<MidiAction> pAction ) {
+	if ( pAction == nullptr ) {
+		return false;
+	}
+
 	auto pHydrogen = Hydrogen::get_instance();
 
 	// Preventive measure to avoid bad things.
@@ -441,7 +449,7 @@ bool MidiActionManager::tapTempo( std::shared_ptr<MidiAction>  ) {
 		return false;
 	}
 	
-	pHydrogen->onTapTempoAccelEvent();
+	pHydrogen->onTapTempoAccelEvent( pAction->getTimePoint() );
 	return true;
 }
 
