@@ -78,6 +78,8 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 	}
 
 	if ( ! bIsChannelValid ) {
+		INFOLOG( QString( "Dropping message due to invalid channel: [%1]" )
+				 .arg( msg.toQString() ) );
 		return pHandledInput;
 	}
 
