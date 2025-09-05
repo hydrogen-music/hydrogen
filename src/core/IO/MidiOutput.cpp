@@ -74,7 +74,7 @@ std::shared_ptr<MidiOutput::HandledOutput> MidiOutput::sendMessage(
 		return pHandledOutput;
 	}
 
-	pHandledOutput->timestamp = QTime::currentTime();
+	pHandledOutput->timePoint = Clock::now();
 	pHandledOutput->type = msg.getType();
 	pHandledOutput->nData1 = msg.getData1();
 	pHandledOutput->nData2 = msg.getData2();
@@ -173,8 +173,8 @@ void MidiOutput::midiClockStream() {
 }
 
 QString MidiOutput::HandledOutput::toQString() const {
-	return QString( "timestamp: %1, msg type: %2, nData1: %3, nData2: %4, nChannel: %5" )
-		.arg( timestamp.toString( "HH:mm:ss.zzz" ) )
+	return QString( "timePoint: %1, msg type: %2, nData1: %3, nData2: %4, nChannel: %5" )
+		.arg( H2Core::timePointToQString( timePoint ) )
 		.arg( MidiMessage::TypeToQString( type ) ).arg( nData1 ).arg( nData2 )
 		.arg( nChannel );
 }

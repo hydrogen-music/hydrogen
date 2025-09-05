@@ -49,7 +49,7 @@ class MidiOutput : public virtual Object<MidiOutput>
 
 	public:
 		struct HandledOutput {
-			QTime timestamp;
+			TimePoint timePoint;
 			MidiMessage::Type type;
 			int nData1;
 			int nData2;

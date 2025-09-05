@@ -49,7 +49,7 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 	const MidiMessage& msg )
 {
 	auto pHandledInput = std::make_shared<HandledInput>();
-	pHandledInput->timestamp = QTime::currentTime();
+	pHandledInput->timePoint = Clock::now();
 	pHandledInput->type = msg.getType();
 	pHandledInput->nData1 = msg.getData1();
 	pHandledInput->nData2 = msg.getData2();
@@ -463,8 +463,8 @@ QString MidiInput::HandledInput::toQString() const {
 	for ( const auto& ttype : actionTypes ) {
 		types << MidiAction::typeToQString( ttype );
 	}
-	return QString( "timestamp: %1, msg type: %2, nData1: %3, nData2: %4, nChannel: %5, actionTypes: [%6], mappedInstrument: [%7]" )
-		.arg( timestamp.toString( "HH:mm:ss.zzz" ) )
+	return QString( "timePoint: %1, msg type: %2, nData1: %3, nData2: %4, nChannel: %5, actionTypes: [%6], mappedInstrument: [%7]" )
+		.arg( H2Core::timePointToQString( timePoint ) )
 		.arg( MidiMessage::TypeToQString( type ) ).arg( nData1 ).arg( nData2 )
 		.arg( nChannel ).arg( types.join( "," ) )
 		.arg( mappedInstruments.join( ", " ) );

@@ -29,7 +29,6 @@
 
 #include <QString>
 #include <QtCore/QMutex>
-#include <QTime>
 
 #include <deque>
 #include <vector>
