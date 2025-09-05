@@ -244,7 +244,7 @@ class OscServer : public H2Core::Object<OscServer>
 
 		/**
 		 * Creates an MidiAction of type @b PLAY and passes its
-		 * references to MidiActionManager::handleMidiAction().
+		 * references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -253,7 +253,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void PLAY_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b PLAY/STOP_TOGGLE and passes
-		 * its references to MidiActionManager::handleMidiAction().
+		 * its references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -262,7 +262,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void PLAY_STOP_TOGGLE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b PLAY/PAUSE_TOGGLE and passes
-		 * its references to MidiActionManager::handleMidiAction().
+		 * its references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -271,7 +271,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void PLAY_PAUSE_TOGGLE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b STOP and passes its
-		 * references to MidiActionManager::handleMidiAction().
+		 * references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -280,7 +280,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void STOP_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b PAUSE and passes its
-		 * references to MidiActionManager::handleMidiAction().
+		 * references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -289,7 +289,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void PAUSE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b RECORD_READY and passes its
-		 * references to MidiActionManager::handleMidiAction().
+		 * references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -298,7 +298,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void RECORD_READY_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b RECORD/STROBE_TOGGLE and passes its
-		 * references to MidiActionManager::handleMidiAction().
+		 * references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -307,7 +307,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void RECORD_STROBE_TOGGLE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b RECORD_STROBE and passes its
-		 * references to MidiActionManager::handleMidiAction().
+		 * references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -316,7 +316,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void RECORD_STROBE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b EXIT and passes its
-		 * references to MidiActionManager::handleMidiAction().
+		 * references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -325,7 +325,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void RECORD_EXIT_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b MUTE and passes its
-		 * references to MidiActionManager::handleMidiAction().
+		 * references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -334,7 +334,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void MUTE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b UNMUTE and passes its
-		 * references to MidiActionManager::handleMidiAction().
+		 * references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -343,7 +343,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void UNMUTE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b MUTE_TOGGLE and passes its
-		 * references to MidiActionManager::handleMidiAction().
+		 * references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -352,7 +352,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void MUTE_TOGGLE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b >>_NEXT_BAR and passes its
-		 * references to MidiActionManager::handleMidiAction().
+		 * references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -361,7 +361,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void NEXT_BAR_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b <<_PREVIOUS_BAR and passes its
-		 * references to MidiActionManager::handleMidiAction().
+		 * references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -379,7 +379,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void BPM_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b BPM_INCR and passes its
-		 * references to MidiActionManager::handleMidiAction().
+		 * references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * The first argument in @a argv will be used to set
 		 * MidiAction::parameter1.
@@ -391,7 +391,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void BPM_INCR_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b BPM_DECR and passes its
-		 * references to MidiActionManager::handleMidiAction().
+		 * references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * The first argument in @a argv will be used to set
 		 * MidiAction::parameter1.
@@ -403,7 +403,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void BPM_DECR_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b MASTER_VOLUME_RELATIVE and
-		 * passes its references to MidiActionManager::handleMidiAction().
+		 * passes its references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * The first argument in @a argv will be used to set
 		 * MidiAction::parameter2.
@@ -424,7 +424,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void MASTER_VOLUME_ABSOLUTE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b STRIP_VOLUME_RELATIVE and
-		 * passes its references to MidiActionManager::handleMidiAction().
+		 * passes its references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param param1 Sets MidiAction::parameter1 of the newly created
 		 * MidiAction.
@@ -443,7 +443,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2);
 		/**
 		 * Creates an MidiAction of type @b SELECT_NEXT_PATTERN and
-		 * passes its references to MidiActionManager::handleMidiAction().
+		 * passes its references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * The first argument in @a argv will be used to set
 		 * MidiAction::parameter1.
@@ -455,7 +455,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void SELECT_NEXT_PATTERN_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b SELECT_ONLY_NEXT_PATTERN and
-		 * passes its references to MidiActionManager::handleMidiAction().
+		 * passes its references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * The first argument in @a argv will be used to set
 		 * MidiAction::parameter1.
@@ -467,7 +467,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void SELECT_ONLY_NEXT_PATTERN_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b SELECT_AND_PLAY_PATTERN and
-		 * passes its references to MidiActionManager::handleMidiAction().
+		 * passes its references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * The first argument in @a argv will be used to set
 		 * MidiAction::parameter1.
@@ -481,7 +481,7 @@ class OscServer : public H2Core::Object<OscServer>
 		/**
 		 * Creates an MidiAction of type @b FILTER_CUTOFF_LEVEL_ABSOLUTE
 		 * and passes its references to
-		 * MidiActionManager::handleMidiAction().
+		 * MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param param1 Sets MidiAction::parameter1 of the newly created
 		 * MidiAction.
@@ -491,7 +491,7 @@ class OscServer : public H2Core::Object<OscServer>
 														  const QString& param2);
 		/**
 		 * Creates an MidiAction of type @b BEATCOUNTER and passes its
-		 * references to MidiActionManager::handleMidiAction().
+		 * references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -500,7 +500,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void BEATCOUNTER_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b TAP_TEMPO and passes its
-		 * references to MidiActionManager::handleMidiAction().
+		 * references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -509,7 +509,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void TAP_TEMPO_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b PLAYLIST_SONG and
-		 * passes its references to MidiActionManager::handleMidiAction().
+		 * passes its references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * The first argument in @a argv will be used to set
 		 * MidiAction::parameter1.
@@ -521,7 +521,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void PLAYLIST_SONG_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b PLAYLIST_NEXT_SONG and passes
-		 * its references to MidiActionManager::handleMidiAction().
+		 * its references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -530,7 +530,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void PLAYLIST_NEXT_SONG_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b PLAYLIST_PREV_SONG and passes
-		 * its references to MidiActionManager::handleMidiAction().
+		 * its references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -539,7 +539,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void PLAYLIST_PREV_SONG_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b TOGGLE_METRONOME and passes
-		 * its references to MidiActionManager::handleMidiAction().
+		 * its references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -548,7 +548,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void TOGGLE_METRONOME_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b SELECT_INSTRUMENT and
-		 * passes its references to MidiActionManager::handleMidiAction().
+		 * passes its references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * The first argument in @a argv will be used to set
 		 * MidiAction::parameter2.
@@ -560,7 +560,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void SELECT_INSTRUMENT_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b UNDO_ACTION and passes its
-		 * references to MidiActionManager::handleMidiAction().
+		 * references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -569,7 +569,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void UNDO_ACTION_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b REDO_ACTION and passes its
-		 * references to MidiActionManager::handleMidiAction().
+		 * references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.

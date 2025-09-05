@@ -2010,6 +2010,8 @@ void MidiActionTest::sendMessage( const MidiMessage& msg ) {
 		++nnTry;
 		std::this_thread::sleep_for( std::chrono::milliseconds( 5 ) );
 	}
+
+	waitForWorkerThread();
 }
 
 void MidiActionTest::waitForAudioDriver() {
@@ -2037,6 +2039,25 @@ void MidiActionTest::waitForAudioDriver() {
 
 		++nnTry;
 		std::this_thread::sleep_for( std::chrono::milliseconds( 5 ) );
+	}
+	CPPUNIT_ASSERT( nnTry < nMaxTries );
+}
+
+void MidiActionTest::waitForWorkerThread() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiActionManager = pHydrogen->getMidiActionManager();
+
+	// Since incoming MIDI events are handled asynchronously, we pause execution
+	// till all are handled.
+	const int nMaxTries = 100;
+	int nnTry = 0;
+	while ( nnTry < nMaxTries ) {
+		if ( pMidiActionManager->getActionQueueSize() == 0 ) {
+			break;
+		}
+
+		++nnTry;
+		std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
 	}
 	CPPUNIT_ASSERT( nnTry < nMaxTries );
 }

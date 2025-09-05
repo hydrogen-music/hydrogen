@@ -29,9 +29,14 @@
 #include <QTime>
 
 #include <cassert>
+#include <condition_variable>
+#include <deque>
 #include <map>
 #include <memory>
+#include <mutex>
+#include <queue>
 #include <set>
+#include <thread>
 #include <vector>
 
 namespace H2Core {
@@ -58,31 +63,53 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		/** When calculating the tempo based on incoming MIDI clock messages, we
 		 * for this amount of messages until we average. */
 		static constexpr int nMidiClockIntervals = 10;
+		static constexpr int nActionQueueMaxSize = 200;
 
 		MidiActionManager();
 		~MidiActionManager();
 
 		/**
-		 * Handles multiple actions at once and calls handleAction()
-		 * on them.
+		 * Handles multiple actions at once and calls handleMidiActionAsync() on
+		 * them.
 		 *
-		 * \return true - if at least one MidiAction was handled
+		 * This variant should be called from threads which strive to for
+		 * realtime handling of incoming event, like MIDI driver and OSC
+		 * handler.
+		 *
+		 * \return true - if at least one MidiAction was queued
 		 *   successfully. Calling functions should treat the event
 		 *   resulting in @a actions as consumed.
 		 */
-		bool handleMidiActions( const std::vector<std::shared_ptr<MidiAction>>& actions );
+		bool handleMidiActionsAsync( const std::vector<std::shared_ptr<MidiAction>>& actions );
 		/**
-		 * The handleAction method is the heart of the
-		 * MidiActionManager class. It executes the operations that
-		 * are needed to carry the desired MidiAction.
+		 * This is the heart of the MidiActionManager class. It queues the
+		 * operations to be executed in its worker thread.
 		 *
-		 * @return true - if @a MidiAction was handled successfully.
+		 * This variant should be called from threads which strive to for
+		 * realtime handling of incoming event, like MIDI driver and OSC
+		 * handler.
+		 *
+		 * @return true - if @a MidiAction was queued successfully.
 		 */
-		bool handleMidiAction( const std::shared_ptr<MidiAction> MidiAction );
+		bool handleMidiActionAsync( const std::shared_ptr<MidiAction> MidiAction );
+
+		/**
+		 * Instead of using #m_actionQueue and the worker thread to handle the
+		 * provided action, it will be executed right away.
+		 *
+		 * This flavour of handleMidiActionAsync() should be called for actions
+		 * triggered by the GUI or core itself. Those should not enter the queue
+		 * in order to allow for a more realtime-ish handling of incoming MIDI
+		 * and OSC events.
+		 *
+		 * @return true - if @a MidiAction was executed successfully.
+		 */
+		bool handleMidiActionSync( const std::shared_ptr<MidiAction> MidiAction );
 
 		const std::set<MidiAction::Type>& getMidiActions() const {
 			return m_midiActions;
 		}
+		int getActionQueueSize();
 
 		/** \return -1 in case the @a couldn't be found. */
 		int getParameterNumber( const MidiAction::Type& type ) const;
@@ -92,6 +119,7 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		void resetTimingClockTicks();
 
 	private:
+
 		/** Holds all Actions which Hydrogen is able to interpret. */
 		std::set<MidiAction::Type> m_midiActions;
 
@@ -163,6 +191,11 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool nextPatternSelection( int nPatternNumber );
 		bool onlyNextPatternSelection( int nPatternNumber );
 
+		/** @a pInstance is expecting a pointer to the instance of the class for
+		 * which the message handling thread is spawned. */
+		static void workerThread( void* pInstance );
+
+
 		int m_nLastBpmChangeCCParameter;
 
 		//! Members required to handle incoming MIDI clock messages.
@@ -180,6 +213,21 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		 * former message. */
 		bool m_bPendingStart;
 		//! @}
+
+		std::shared_ptr< std::thread > m_pWorkerThread;
+
+		bool m_bWorkerShutdown;
+
+		/** Shared data
+		 * @{ */
+		std::condition_variable m_workerThreadCV;
+		std::mutex m_workerThreadMutex;
+		/** Since MIDI driver input handler and OSC handler are both kept fast
+		 * and lean, it should be more or less guaranteed that incoming
+		 * #MidiAction are ordered chronologically. No need to increase
+		 * complexity by e.g. using a priority_queue. */
+		std::deque< std::shared_ptr<MidiAction> > m_actionQueue;
+		/** @}*/
 };
 
 inline void MidiActionManager::setPendingStart( bool bPending ) {

@@ -39,11 +39,15 @@
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
+using Clock = std::chrono::high_resolution_clock;
+using TimePoint = std::chrono::time_point<Clock>;
+
 namespace H2Core {
 
 MidiActionManager::MidiActionManager() : m_nTickIntervalIndex( 0 )
 									   , m_bMidiClockReady( false )
 									   , m_bPendingStart( false )
+									   , m_bWorkerShutdown( false )
 {
 	m_tickIntervals.resize( MidiActionManager::nMidiClockIntervals );
 	for ( int ii = 0; ii < m_tickIntervals.size(); ++ii ) {
@@ -222,10 +226,21 @@ MidiActionManager::MidiActionManager() : m_nTickIntervalIndex( 0 )
 					  .arg( MidiAction::typeToQString( ppAction.first ) ) );
 		}
 	}
+
+	m_pWorkerThread = std::make_shared< std::thread >(
+		MidiActionManager::workerThread, ( void* )this );
 }
 
-
 MidiActionManager::~MidiActionManager() {
+	m_bWorkerShutdown = true;
+	if ( m_pWorkerThread != nullptr ) {
+		{
+			std::scoped_lock lock{ m_workerThreadMutex };
+			m_workerThreadCV.notify_all();
+		}
+		m_pWorkerThread->join();
+		m_pWorkerThread = nullptr;
+	}
 }
 
 bool MidiActionManager::play( std::shared_ptr<MidiAction> pAction ) {
@@ -1478,13 +1493,13 @@ bool MidiActionManager::clearPattern( std::shared_ptr<MidiAction> pAction ) {
 	return true;
 }
 
-bool MidiActionManager::handleMidiActions( const std::vector<std::shared_ptr<MidiAction>>& midiActions ) {
+bool MidiActionManager::handleMidiActionsAsync( const std::vector<std::shared_ptr<MidiAction>>& midiActions ) {
 
 	bool bResult = false;
 	
 	for ( const auto& ppMidiAction : midiActions ) {
 		if ( ppMidiAction != nullptr ) {
-			if ( handleMidiAction( ppMidiAction ) ) {
+			if ( handleMidiActionAsync( ppMidiAction ) ) {
 				bResult = true;
 			}
 		}
@@ -1493,9 +1508,41 @@ bool MidiActionManager::handleMidiActions( const std::vector<std::shared_ptr<Mid
 	return bResult;
 }
 
-bool MidiActionManager::handleMidiAction( const std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::handleMidiActionAsync( const std::shared_ptr<MidiAction> pAction ) {
 
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pAction == nullptr || m_pWorkerThread == nullptr ) {
+		return false;
+	}
+
+	//pAction->timePoint = Clock::now();
+
+	// Check whether there is an actual action associated with the MidiAction.
+	if ( m_midiActionMap.find( pAction->getType() ) == m_midiActionMap.end() ) {
+		return false;
+	}
+
+    std::scoped_lock lock{ m_workerThreadMutex };
+
+	m_actionQueue.push_back( pAction );
+	if ( m_actionQueue.size() > MidiActionManager::nActionQueueMaxSize ) {
+		QString sWarning( "Message queue is full. Dropping first message" );
+		const auto pAction = m_actionQueue.front();
+		if ( pAction != nullptr ) {
+			sWarning.append( QString( " %1" ).arg( pAction->toQString() ) );
+		}
+		m_actionQueue.pop_front();
+		WARNINGLOG( sWarning );
+	}
+
+	m_workerThreadCV.notify_all();
+
+	return true;
+}
+
+bool MidiActionManager::handleMidiActionSync( const std::shared_ptr<MidiAction> pAction ) {
+
+	auto pHydrogen = Hydrogen::get_instance();
 	/*
 		return false if Midiaction is null
 		(for example if no MidiAction exists for an event)
@@ -1516,4 +1563,49 @@ bool MidiActionManager::handleMidiAction( const std::shared_ptr<MidiAction> pAct
 
 	return false;
 }
+
+int MidiActionManager::getActionQueueSize() {
+	std::scoped_lock lock{ m_workerThreadMutex };
+	return m_actionQueue.size();
+}
+
+void MidiActionManager::workerThread( void* pInstance ) {
+	auto pMidiActionManager = static_cast<MidiActionManager*>( pInstance );
+	if ( pMidiActionManager == nullptr ) {
+		ERRORLOG( "Invalid instance provided. Shutting down." );
+		return;
+	}
+
+	while ( ! pMidiActionManager->m_bWorkerShutdown ) {
+		std::unique_lock lock{ pMidiActionManager->m_workerThreadMutex };
+		pMidiActionManager->m_workerThreadCV.wait(
+			lock, [&]{ return pMidiActionManager->m_actionQueue.size() > 0 ||
+					pMidiActionManager->m_bWorkerShutdown; } );
+
+		if ( pMidiActionManager->m_bWorkerShutdown ) {
+			return;
+		}
+
+		while ( pMidiActionManager->m_actionQueue.size() > 0 ) {
+			const auto pAction = pMidiActionManager->m_actionQueue.front();
+			pMidiActionManager->m_actionQueue.pop_front();
+			if ( pAction == nullptr ) {
+				continue;
+			}
+
+			auto foundActionPair = pMidiActionManager->m_midiActionMap.find(
+				pAction->getType() );
+			if ( foundActionPair != pMidiActionManager->m_midiActionMap.end() ) {
+				auto midiAction = foundActionPair->second.first;
+				(pMidiActionManager->*midiAction)( pAction );
+			}
+			else {
+				ERRORLOG( QString( "MIDI MidiAction type [%1] couldn't be found" )
+						  .arg( MidiAction::typeToQString(
+									pAction->getType() ) ) );
+			}
+		}
+	}
+}
+
 };
