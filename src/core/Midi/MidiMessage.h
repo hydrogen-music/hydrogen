@@ -123,6 +123,7 @@ class MidiMessage
 		 * individual drivers. */
 		static Type deriveType( int nStatusByte );
 
+		static MidiMessage from( const MidiMessage& msg );
 		static MidiMessage from( const ControlChange& controlChange );
 		static MidiMessage from( std::shared_ptr<Note> pNote );
 		static MidiMessage from( const NoteOff& noteOff );

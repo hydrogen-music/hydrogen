@@ -147,6 +147,23 @@ MidiMessage::Type MidiMessage::deriveType( int nStatusByte ) {
 	}
 }
 
+MidiMessage MidiMessage::from( const MidiMessage& otherMsg ) {
+	MidiMessage msg;
+	msg.m_type = otherMsg.m_type;
+	msg.m_nData1 = otherMsg.m_nData1;
+	msg.m_nData2 = otherMsg.m_nData2;
+	msg.m_nChannel = otherMsg.m_nChannel;
+
+	if ( otherMsg.m_sysexData.size() > 0 ) {
+		msg.m_sysexData.resize( otherMsg.m_sysexData.size() );
+		for ( int ii = 0; ii < otherMsg.m_sysexData.size(); ++ii ) {
+			msg.m_sysexData[ ii ] = otherMsg.m_sysexData[ ii ];
+		}
+	}
+
+	return msg;
+}
+
 MidiMessage MidiMessage::from( const ControlChange& controlChange ) {
 	MidiMessage msg;
 	if ( controlChange.nChannel > 0 ) {
