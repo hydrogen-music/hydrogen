@@ -36,10 +36,6 @@ https://www.gnu.org/licenses
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 
-#include <ctime>
-#include <iomanip>
-#include <sstream>
-
 using namespace H2Core;
 
 MidiControlDialog::MidiControlDialog( QWidget* pParent )
@@ -441,18 +437,6 @@ void MidiControlDialog::onPreferencesChanged(
 	}
 }
 
-QString MidiControlDialog::timestampToQString( TimePoint timePoint ) {
-	auto t = Clock::to_time_t( timePoint );
-	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-		timePoint.time_since_epoch() ) % 1000;
-	std::ostringstream timePointStringStream;
-	timePointStringStream
-		<< std::put_time( std::gmtime( &t ), "%H:%M:%S")
-		<< '.' << std::setfill( '0' ) << std::setw( 3 ) << ms.count();
-
-	return std::move( QString::fromStdString( timePointStringStream.str() ) );
-}
-
 void MidiControlDialog::hideEvent( QHideEvent* pEvent ) {
 	UNUSED( pEvent );
 
@@ -528,7 +512,7 @@ void MidiControlDialog::updateInputTable() {
 			auto ppLabel = dynamic_cast<QLabel*>(
 				m_pMidiInputTable->cellWidget( ii, 0 ) );
 			if ( ppLabel == nullptr || handledInputs[ ii ] != nullptr ||
-				 ppLabel->text() != timestampToQString(
+				 ppLabel->text() != H2Core::timePointToQString(
 					 handledInputs[ ii ]->timePoint ) ) {
 				bInvalid = true;
 				break;
@@ -551,7 +535,7 @@ void MidiControlDialog::updateInputTable() {
 			return;
 		}
 		m_pMidiInputTable->setCellWidget(
-			nRow, 0, newLabel( timestampToQString( pHandledInput->timePoint ) ) );
+			nRow, 0, newLabel( H2Core::timePointToQString( pHandledInput->timePoint ) ) );
 		m_pMidiInputTable->setCellWidget(
 			nRow, 1, newLabel( MidiMessage::TypeToQString( pHandledInput->type ) ) );
 		m_pMidiInputTable->setCellWidget(
@@ -579,7 +563,7 @@ void MidiControlDialog::updateInputTable() {
 		auto ppLabelTimestamp = dynamic_cast<QLabel*>(
 			m_pMidiInputTable->cellWidget( nRow, 0 ) );
 		if ( ppLabelTimestamp != nullptr ) {
-			ppLabelTimestamp->setText( timestampToQString( pHandledInput->timePoint ) );
+			ppLabelTimestamp->setText( H2Core::timePointToQString( pHandledInput->timePoint ) );
 		}
 		auto ppLabelType = dynamic_cast<QLabel*>(
 			m_pMidiInputTable->cellWidget( nRow, 1 ) );
@@ -665,7 +649,7 @@ void MidiControlDialog::updateOutputTable() {
 			auto ppLabel = dynamic_cast<QLabel*>(
 				m_pMidiOutputTable->cellWidget( ii, 0 ) );
 			if ( ppLabel == nullptr || handledOutputs[ ii ] == nullptr ||
-				 ppLabel->text() != timestampToQString(
+				 ppLabel->text() != H2Core::timePointToQString(
 					 handledOutputs[ ii ]->timePoint ) ) {
 				bInvalid = true;
 				break;
@@ -689,7 +673,7 @@ void MidiControlDialog::updateOutputTable() {
 			return;
 		}
 		m_pMidiOutputTable->setCellWidget(
-			nRow, 0, newLabel( timestampToQString( pHandledOutput->timePoint ) ) );
+			nRow, 0, newLabel( H2Core::timePointToQString( pHandledOutput->timePoint ) ) );
 		m_pMidiOutputTable->setCellWidget(
 			nRow, 1, newLabel( MidiMessage::TypeToQString( pHandledOutput->type ) ) );
 		m_pMidiOutputTable->setCellWidget(
@@ -708,7 +692,7 @@ void MidiControlDialog::updateOutputTable() {
 		auto ppLabelTimestamp = dynamic_cast<QLabel*>(
 			m_pMidiOutputTable->cellWidget( nRow, 0 ) );
 		if ( ppLabelTimestamp != nullptr ) {
-			ppLabelTimestamp->setText( timestampToQString( pHandledOutput->timePoint ) );
+			ppLabelTimestamp->setText( H2Core::timePointToQString( pHandledOutput->timePoint ) );
 		}
 		auto ppLabelType = dynamic_cast<QLabel*>(
 			m_pMidiOutputTable->cellWidget( nRow, 1 ) );

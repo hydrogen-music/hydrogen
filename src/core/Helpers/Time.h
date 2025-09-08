@@ -41,7 +41,7 @@ namespace H2Core {
 			timePoint.time_since_epoch() ) % 1000;
 		std::ostringstream timePointStringStream;
 		timePointStringStream
-			<< std::put_time( std::gmtime( &t ), "%Y-%m-%dT%H:%M:%S")
+			<< std::put_time( std::gmtime( &t ), "%H:%M:%S")
 			<< '.' << std::setfill( '0' ) << std::setw( 3 ) << ms.count();
 
 		return std::move( QString::fromStdString( timePointStringStream.str() ) );

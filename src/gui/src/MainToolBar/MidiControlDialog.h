@@ -65,8 +65,6 @@ public slots:
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 private:
-		static QString timestampToQString( TimePoint );
-
 		void hideEvent( QHideEvent* pEvent ) override;
 		void showEvent( QShowEvent* pEvent ) override;
 
