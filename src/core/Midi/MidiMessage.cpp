@@ -26,14 +26,23 @@
 namespace H2Core
 {
 
+MidiMessage::MidiMessage() : m_timePoint( Clock::now() )
+						   , m_type( Type::Unknown )
+						   , m_nData1( -1 )
+						   , m_nData2( -1 )
+						   , m_nChannel( -1 ) {
+}
+
 MidiMessage::MidiMessage( Type type, int nData1, int nData2, int nChannel )
-	: m_type( type )
+	: m_timePoint( Clock::now() )
+	, m_type( type )
 	, m_nData1( nData1 )
 	, m_nData2( nData2 )
 	, m_nChannel( nChannel ) {
 }
 
 void MidiMessage::clear() {
+	m_timePoint = Clock::now();
 	m_type = Type::Unknown;
 	m_nData1 = -1;
 	m_nData2 = -1;
@@ -212,6 +221,8 @@ QString MidiMessage::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[MidiMessage]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_timePoint: %3\n" )
+					 .arg( H2Core::timePointToQString( m_timePoint ) ) )
 			.append( QString( "%1%2m_type: %3\n" )
 					 .arg( TypeToQString( m_type ) ) )
 			.append( QString( "%1%2m_nData1: %3\n" )
@@ -235,7 +246,9 @@ QString MidiMessage::toQString( const QString& sPrefix, bool bShort ) const {
 	}
 	else {
 		sOutput = QString( "[MidiMessage] " )
-			.append( QString( "m_type: %1" ).arg( TypeToQString( m_type ) ) )
+			.append( QString( "m_timePoint: %1" )
+					 .arg( H2Core::timePointToQString( m_timePoint ) ) )
+			.append( QString( ", m_type: %1" ).arg( TypeToQString( m_type ) ) )
 			.append( QString( ", m_nData1: %1" ).arg( m_nData1 ) )
 			.append( QString( ", m_nData2: %1" ).arg( m_nData2 ) )
 			.append( QString( ", m_nChannel: %1" ).arg( m_nChannel ) )

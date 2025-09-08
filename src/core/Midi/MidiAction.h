@@ -114,13 +114,14 @@ class MidiAction : public H2Core::Object<MidiAction> {
 		static QString typeToQString( const Type& type );
 		static Type parseType( const QString& sType );
 
-	MidiAction( Type type );
+	MidiAction( Type type, TimePoint timePoint = TimePoint() );
 	MidiAction( const std::shared_ptr<MidiAction> pMidiAction );
 
 		/** Similar to the copy constructor but instead of creating a true copy,
 		 * the new action will be assigned a fresh time point. */
 		static std::shared_ptr<MidiAction> from(
-			const std::shared_ptr<MidiAction> pOther );
+			const std::shared_ptr<MidiAction> pOther,
+			TimePoint timePoint = TimePoint() );
 
 	bool isNull() const;
 

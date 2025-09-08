@@ -308,13 +308,19 @@ MidiAction::Type MidiAction::parseType( const QString &sType ) {
 	}
 }
 
-MidiAction::MidiAction( Type type ) : m_type( type )
-									, m_sParameter1( "0" )
-									, m_sParameter2( "0" )
-									, m_sParameter3( "0" )
-									, m_sValue( "0" )
-									, m_timePoint( Clock::now() )
+MidiAction::MidiAction( Type type, TimePoint timePoint )
+	: m_type( type )
+	, m_sParameter1( "0" )
+	, m_sParameter2( "0" )
+	, m_sParameter3( "0" )
+	, m_sValue( "0" )
 {
+	if ( timePoint == TimePoint() ) {
+		m_timePoint = Clock::now();
+	}
+	else {
+		m_timePoint = timePoint;
+	}
 }
 
 MidiAction::MidiAction( const std::shared_ptr<MidiAction> pOther ) {
@@ -328,13 +334,19 @@ MidiAction::MidiAction( const std::shared_ptr<MidiAction> pOther ) {
 	}
 }
 
-std::shared_ptr<MidiAction> MidiAction::from( const std::shared_ptr<MidiAction> pOther ) {
+std::shared_ptr<MidiAction> MidiAction::from( const std::shared_ptr<MidiAction> pOther,
+											  TimePoint timePoint ) {
 	if ( pOther == nullptr ) {
 		return nullptr;
 	}
 
 	auto pNew = std::make_shared<MidiAction>( pOther );
-	pNew->m_timePoint = Clock::now();
+	if ( timePoint == TimePoint() ) {
+		pNew->m_timePoint = Clock::now();
+	}
+	else {
+		pNew->m_timePoint = timePoint;
+	}
 
 	return pNew;
 }

@@ -24,7 +24,9 @@
 #define MIDI_MESSAGE_H
 
 #include <core/config.h>
+#include <core/Helpers/Time.h>
 #include <core/Object.h>
+
 #include <string>
 #include <vector>
 
@@ -106,11 +108,7 @@ class MidiMessage
 			int nChannel;
 		};
 
-		MidiMessage()
-			: m_type( Type::Unknown )
-			, m_nData1( -1 )
-			, m_nData2( -1 )
-			, m_nChannel( -1 ) {}
+		MidiMessage();
 		MidiMessage( Type type, int nData1, int Data2, int nChannel );
 
 		/** Reset message */
@@ -128,6 +126,8 @@ class MidiMessage
 		static MidiMessage from( const ControlChange& controlChange );
 		static MidiMessage from( std::shared_ptr<Note> pNote );
 		static MidiMessage from( const NoteOff& noteOff );
+
+		const TimePoint& getTimePoint() const;
 
 		Type getType() const;
 		void setType( Type type );
@@ -159,6 +159,7 @@ class MidiMessage
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 
 	private:
+		TimePoint m_timePoint;
 		Type m_type;
 		int m_nData1;
 		int m_nData2;
@@ -167,6 +168,9 @@ class MidiMessage
 
 };
 
+inline const TimePoint& MidiMessage::getTimePoint() const {
+	return m_timePoint;
+}
 inline MidiMessage::Type MidiMessage::getType() const {
 	return m_type;
 }

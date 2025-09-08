@@ -88,6 +88,7 @@ void* PortMidiDriver_thread( void* param )
 
 				if ( nEventType == 240 ) {
 					// New SysEx message
+					sysExMsg = MidiMessage();
 					sysExMsg.setType( MidiMessage::Type::Sysex );
 					if ( PortMidiDriver::appendSysExData( &sysExMsg,
 														  buffer[0].message ) ) {

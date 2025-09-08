@@ -69,7 +69,6 @@ void JackMidiDriver::JackMidiWrite( jack_nframes_t nframes ) {
 #endif
 
 	for (i = 0; i < events; i++) {
-		MidiMessage msg;
 
 #ifdef JACK_MIDI_NEEDS_NFRAMES
 		error = jack_midi_event_get(&event, buf, i, nframes);
@@ -83,6 +82,8 @@ void JackMidiDriver::JackMidiWrite( jack_nframes_t nframes ) {
 		if (running < 1) {
 			continue;
 		}
+
+		MidiMessage msg;
 
 		error = event.size;
 		if (error > (int)sizeof(buffer)) {

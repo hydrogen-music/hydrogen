@@ -48,8 +48,10 @@ MidiInput::~MidiInput() {
 std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 	const MidiMessage& msg )
 {
+	const auto timePoint = msg.getTimePoint();
+
 	auto pHandledInput = std::make_shared<HandledInput>();
-	pHandledInput->timePoint = Clock::now();
+	pHandledInput->timePoint = timePoint;
 	pHandledInput->type = msg.getType();
 	pHandledInput->nData1 = msg.getData1();
 	pHandledInput->nData2 = msg.getData2();
@@ -126,7 +128,8 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 			if ( ! pPref->getMidiClockInputHandling() ) {
 				// Start right away
 				pMidiActionManager->handleMidiActionAsync(
-					std::make_shared<MidiAction>( MidiAction::Type::Play ) );
+					std::make_shared<MidiAction>( MidiAction::Type::Play,
+												  timePoint ) );
 			}
 			else {
 				pMidiActionManager->setPendingStart( true );
@@ -143,7 +146,8 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 			if ( ! pPref->getMidiClockInputHandling() ) {
 				// Start right away
 				pMidiActionManager->handleMidiActionAsync(
-					std::make_shared<MidiAction>( MidiAction::Type::Play ) );
+					std::make_shared<MidiAction>( MidiAction::Type::Play,
+												  timePoint ) );
 			}
 			else {
 				pMidiActionManager->setPendingStart( true );
@@ -157,7 +161,8 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 		// v4.2.1 stopping should always be done immediately.
 		if ( pPref->getMidiTransportInputHandling() ) {
 			pMidiActionManager->handleMidiActionAsync(
-				std::make_shared<MidiAction>( MidiAction::Type::Pause ) );
+				std::make_shared<MidiAction>( MidiAction::Type::Pause,
+											  timePoint ) );
 		}
 		break;
 	}
@@ -184,14 +189,14 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 				}
 				else {
 					auto pAction = std::make_shared<MidiAction>(
-						MidiAction::Type::PlaylistSong );
+						MidiAction::Type::PlaylistSong, timePoint );
 					pAction->setParameter1( QString::number( msg.getData1() ) );
 					pMidiActionManager->handleMidiActionAsync( pAction );
 				}
 			}
 			else {
 				auto pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::SelectNextPattern );
+					MidiAction::Type::SelectNextPattern, timePoint );
 				pAction->setParameter1( QString::number( msg.getData1() ) );
 				pMidiActionManager->handleMidiActionAsync( pAction );
 			}
@@ -201,7 +206,8 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 	case MidiMessage::Type::TimingClock:
 		if ( pPref->getMidiClockInputHandling() ) {
 			pMidiActionManager->handleMidiActionAsync(
-				std::make_shared<MidiAction>( MidiAction::Type::TimingClockTick ));
+				std::make_shared<MidiAction>( MidiAction::Type::TimingClockTick,
+											  timePoint ));
 		}
 		break;
 
@@ -241,7 +247,7 @@ void MidiInput::handleControlChangeMessage(
 
 	for ( const auto& ppAction : pMidiMap->getCCActions( msg.getData1() ) ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
-			auto pNewAction = MidiAction::from( ppAction );
+			auto pNewAction = MidiAction::from( ppAction, msg.getTimePoint() );
 			pNewAction->setValue( QString::number( msg.getData2() ) );
 			pMidiActionManager->handleMidiActionAsync( pNewAction );
 			pHandledInput->actionTypes.push_back( pNewAction->getType() );
@@ -265,7 +271,7 @@ void MidiInput::handleProgramChangeMessage(
 
 	for ( const auto& ppAction : pMidiMap->getPCActions() ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
-			auto pNewAction = MidiAction::from( ppAction );
+			auto pNewAction = MidiAction::from( ppAction, msg.getTimePoint() );
 			pNewAction->setValue( QString::number( msg.getData1() ) );
 			pMidiActionManager->handleMidiActionAsync( pNewAction );
 			pHandledInput->actionTypes.push_back( pNewAction->getType() );
@@ -298,7 +304,7 @@ void MidiInput::handleNoteOnMessage(
 	bool bActionSuccess = false;
 	for ( const auto& ppAction : pMidiMap->getNoteActions( msg.getData1() ) ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
-			auto pNewAction = MidiAction::from( ppAction );
+			auto pNewAction = MidiAction::from( ppAction, msg.getTimePoint() );
 			pNewAction->setValue( QString::number( msg.getData2() ) );
 			if ( pMidiActionManager->handleMidiActionAsync( pNewAction ) ) {
 				bActionSuccess = true;
