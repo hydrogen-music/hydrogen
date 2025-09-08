@@ -80,28 +80,36 @@ void MidiActionTest::testBeatCounterAction() {
 	// during the next process cycle, we just check whether the next value did
 	// change.
 	pAudioEngine->lock( RIGHT_HERE );
-	const auto fOldTempoBC = pAudioEngine->getNextBpm();
+	const auto fOldBpm = pAudioEngine->getNextBpm();
 	pAudioEngine->unlock();
+
+	const float fIntervalMs = 170;
+	const auto interval = std::chrono::duration<float, std::milli>{ fIntervalMs };
+	const float fTargetBpm = 60000.0 / fIntervalMs;
+	CPPUNIT_ASSERT( fTargetBpm < MAX_BPM );
 
 	const auto beatCounterMessage = MidiMessage(
 		MidiMessage::Type::ControlChange, nBeatCounterPara, 0, 0 );
 	sendMessage( beatCounterMessage );
-	std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
+	std::this_thread::sleep_for( interval );
 	sendMessage( beatCounterMessage );
-	std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
+	std::this_thread::sleep_for( interval );
 	sendMessage( beatCounterMessage );
-	std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
+	std::this_thread::sleep_for( interval );
 	sendMessage( beatCounterMessage );
 
 	// Wait for the audio engine to adopt the new tempo.
 	waitForAudioDriver();
 
 	pAudioEngine->lock( RIGHT_HERE );
-	const auto fNewTempoBC = pAudioEngine->getNextBpm();
+	const auto fNewBpm = pAudioEngine->getNextBpm();
 	pAudioEngine->unlock();
 
-	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldTempoBC ).arg( fNewTempoBC ) );
-	CPPUNIT_ASSERT( fNewTempoBC != fOldTempoBC );
+	const float fTolerance = 3.0;
+	___INFOLOG( QString( "[%1] -> [%2] target [%3 +/- %4]" ).arg( fOldBpm )
+				.arg( fNewBpm ).arg( fTargetBpm ).arg( fTolerance ) );
+	CPPUNIT_ASSERT( fNewBpm != fOldBpm );
+	CPPUNIT_ASSERT( std::abs( fTargetBpm - fNewBpm ) < fTolerance );
 
 	___INFOLOG("done");
 }
@@ -1868,24 +1876,29 @@ void MidiActionTest::testTapTempoAction() {
 	const auto fOldBpm = pTransportPosition->getBpm();
 	pAudioEngine->unlock();
 
+	const float fTargetBpm = 378.4;
+	const float fIntervalMs = 60000.0 / fTargetBpm;
+	const auto interval = std::chrono::duration<float, std::milli>{ fIntervalMs };
+	CPPUNIT_ASSERT( fTargetBpm < MAX_BPM );
+
 	const auto tapTempoMessage = MidiMessage(
 		MidiMessage::Type::ControlChange, nParameter, 0, 0 );
 	sendMessage( tapTempoMessage );
-	std::this_thread::sleep_for( std::chrono::milliseconds( 15 ) );
+	std::this_thread::sleep_for( interval );
 	sendMessage( tapTempoMessage );
-	std::this_thread::sleep_for( std::chrono::milliseconds( 15 ) );
+	std::this_thread::sleep_for( interval );
 	sendMessage( tapTempoMessage );
-	std::this_thread::sleep_for( std::chrono::milliseconds( 15 ) );
+	std::this_thread::sleep_for( interval );
 	sendMessage( tapTempoMessage );
-	std::this_thread::sleep_for( std::chrono::milliseconds( 15 ) );
+	std::this_thread::sleep_for( interval );
 	sendMessage( tapTempoMessage );
-	std::this_thread::sleep_for( std::chrono::milliseconds( 15 ) );
+	std::this_thread::sleep_for( interval );
 	sendMessage( tapTempoMessage );
-	std::this_thread::sleep_for( std::chrono::milliseconds( 15 ) );
+	std::this_thread::sleep_for( interval );
 	sendMessage( tapTempoMessage );
-	std::this_thread::sleep_for( std::chrono::milliseconds( 15 ) );
+	std::this_thread::sleep_for( interval );
 	sendMessage( tapTempoMessage );
-	std::this_thread::sleep_for( std::chrono::milliseconds( 15 ) );
+	std::this_thread::sleep_for( interval );
 
 	// Wait for the audio engine to adopt the new tempo.
 	waitForAudioDriver();
@@ -1894,8 +1907,11 @@ void MidiActionTest::testTapTempoAction() {
 	const auto fNewBpm = pTransportPosition->getBpm();
 	pAudioEngine->unlock();
 
-	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldBpm ).arg( fNewBpm ) );
+	const float fTolerance = 3.0;
+	___INFOLOG( QString( "[%1] -> [%2] target [%3 +/- %4]" ).arg( fOldBpm )
+				.arg( fNewBpm ).arg( fTargetBpm ).arg( fTolerance ) );
 	CPPUNIT_ASSERT( fNewBpm != fOldBpm );
+	CPPUNIT_ASSERT( std::abs( fTargetBpm - fNewBpm ) < fTolerance );
 
 	___INFOLOG("done");
 }
