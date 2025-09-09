@@ -27,28 +27,31 @@
 #include <core/Hydrogen.h>
 
 class TimeTest : public CppUnit::TestFixture {
-	CPPUNIT_TEST_SUITE( TimeTest );
-	CPPUNIT_TEST( testElapsedTime );
-	CPPUNIT_TEST_SUITE_END();
-	
-private:
-	QString m_sValidPath;
-	
-public:
-	void setUp();
-	void tearDown();
+		CPPUNIT_TEST_SUITE( TimeTest );
+		CPPUNIT_TEST( testElapsedTime );
+		CPPUNIT_TEST( testHighResolutionSleep );
+		CPPUNIT_TEST_SUITE_END();
 
-	/**
-	 * \param nPatternPos Index of the pattern group to locate to
-	 *
-	 * \return float Time in seconds passed at @a nPatternPos since
-	 * the beginning of the song.
-	 */
-	float locateAndLookupTime( int nPatternPos );
+	public:
+		void setUp();
+		void tearDown();
 
-	/**
-	 * Adds a couple of tempo markers and moves to various places
-	 * within the song to check the calculation of the elapsed time.
-	 */
-	void testElapsedTime();
+		/** Adds a couple of tempo markers and moves to various places within
+		 * the song to check the calculation of the elapsed time.
+		 */
+		void testElapsedTime();
+
+		void testHighResolutionSleep();
+
+	private:
+
+		/**
+		 * \param nPatternPos Index of the pattern group to locate to
+		 *
+		 * \return float Time in seconds passed at @a nPatternPos since the
+		 *   beginning of the song.
+		 */
+		float locateAndLookupTime( int nPatternPos );
+
+		QString m_sValidPath;
 };
