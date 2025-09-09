@@ -142,7 +142,7 @@ void MidiOutput::midiClockStream() {
 			}
 			else {
 				// Compensate for the processing time.
-				std::this_thread::sleep_for(
+				H2Core::highResolutionSleep(
 					pMidiDriver->m_interval - ( start - pMidiDriver->m_lastTick ) );
 			}
 		}
