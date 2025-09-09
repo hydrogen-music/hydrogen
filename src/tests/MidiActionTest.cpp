@@ -83,19 +83,21 @@ void MidiActionTest::testBeatCounterAction() {
 	const auto fOldBpm = pAudioEngine->getNextBpm();
 	pAudioEngine->unlock();
 
-	const float fIntervalMs = 170;
+	const float fTargetBpm = 338.4;
+	const float fIntervalMs = 60000.0 / fTargetBpm;
 	const auto interval = std::chrono::duration<float, std::milli>{ fIntervalMs };
-	const float fTargetBpm = 60000.0 / fIntervalMs;
 	CPPUNIT_ASSERT( fTargetBpm < MAX_BPM );
+
+	___DEBUGLOG( QString( "interval: %1" ).arg( fIntervalMs ) );
 
 	const auto beatCounterMessage = MidiMessage(
 		MidiMessage::Type::ControlChange, nBeatCounterPara, 0, 0 );
 	sendMessage( beatCounterMessage );
-	std::this_thread::sleep_for( interval );
+	H2Core::highResolutionSleep( interval );
 	sendMessage( beatCounterMessage );
-	std::this_thread::sleep_for( interval );
+	H2Core::highResolutionSleep( interval );
 	sendMessage( beatCounterMessage );
-	std::this_thread::sleep_for( interval );
+	H2Core::highResolutionSleep( interval );
 	sendMessage( beatCounterMessage );
 
 	// Wait for the audio engine to adopt the new tempo.
@@ -1881,24 +1883,26 @@ void MidiActionTest::testTapTempoAction() {
 	const auto interval = std::chrono::duration<float, std::milli>{ fIntervalMs };
 	CPPUNIT_ASSERT( fTargetBpm < MAX_BPM );
 
+	___DEBUGLOG( QString( "interval: %1" ).arg( fIntervalMs ) );
+
 	const auto tapTempoMessage = MidiMessage(
 		MidiMessage::Type::ControlChange, nParameter, 0, 0 );
 	sendMessage( tapTempoMessage );
-	std::this_thread::sleep_for( interval );
+	H2Core::highResolutionSleep( interval );
 	sendMessage( tapTempoMessage );
-	std::this_thread::sleep_for( interval );
+	H2Core::highResolutionSleep( interval );
 	sendMessage( tapTempoMessage );
-	std::this_thread::sleep_for( interval );
+	H2Core::highResolutionSleep( interval );
 	sendMessage( tapTempoMessage );
-	std::this_thread::sleep_for( interval );
+	H2Core::highResolutionSleep( interval );
 	sendMessage( tapTempoMessage );
-	std::this_thread::sleep_for( interval );
+	H2Core::highResolutionSleep( interval );
 	sendMessage( tapTempoMessage );
-	std::this_thread::sleep_for( interval );
+	H2Core::highResolutionSleep( interval );
 	sendMessage( tapTempoMessage );
-	std::this_thread::sleep_for( interval );
+	H2Core::highResolutionSleep( interval );
 	sendMessage( tapTempoMessage );
-	std::this_thread::sleep_for( interval );
+	H2Core::highResolutionSleep( interval );
 
 	// Wait for the audio engine to adopt the new tempo.
 	waitForAudioDriver();
