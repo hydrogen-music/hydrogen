@@ -201,7 +201,7 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		//! Members required to handle incoming MIDI clock messages.
 		//! @{
 		TimePoint m_lastTick;
-		std::vector<int> m_tickIntervals;
+		std::vector<double> m_tickIntervals;
 		int m_nTickIntervalIndex;
 		/** Whether we already retrieved #nMidiClockTicks events in a row. */
 		bool m_bMidiClockReady;

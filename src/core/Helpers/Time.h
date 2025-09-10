@@ -51,7 +51,7 @@ namespace H2Core {
 		return std::move( QString::fromStdString( timePointStringStream.str() ) );
 	}
 
-	static void highResolutionSleep( std::chrono::duration<float, std::milli> interval ) {
+	static void highResolutionSleep( std::chrono::duration<float, std::micro> interval ) {
 		const auto start = Clock::now();
 
 		// Giving up control and relying on the OS scheduler to retrieve it

@@ -740,12 +740,12 @@ void Hydrogen::onTapTempoAccelEvent( TimePoint start ) {
 		now = Clock::now();
 	}
 
-	const float fInterval = std::chrono::duration_cast<std::chrono::milliseconds>(
-		now - m_lastTapTempoTimePoint ).count();
+	const double fInterval = std::chrono::duration_cast<std::chrono::microseconds>(
+		now - m_lastTapTempoTimePoint ).count() / 1000.0 / 1000.0;
 
 	m_lastTapTempoTimePoint = now;
 
-	const float fBpm = 60000.0 / fInterval;
+	const float fBpm = 60.0 / fInterval;
 
 	// We divide by a factor of two in order to allow for tempi smaller than
 	// the minimum one enter the calculation of the average. Else the minimum
@@ -919,10 +919,10 @@ bool Hydrogen::handleBeatCounter( TimePoint start )
 		fTimeDeltaSeconds = 0;
 	}
 	else {
-		fTimeDeltaSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(
+		fTimeDeltaSeconds = std::chrono::duration_cast<std::chrono::microseconds>(
 			now - m_lastBeatCounterTimePoint -
 			std::chrono::duration<double, std::milli>(m_nBeatCounterDriftCompensation)
-			).count() / 1000.0;
+			).count() / 1000.0 / 1000.0;
 	}
 
 	m_nBeatCounterEventCount++;

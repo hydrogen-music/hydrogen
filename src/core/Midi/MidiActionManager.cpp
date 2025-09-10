@@ -465,11 +465,12 @@ bool MidiActionManager::timingClockTick( std::shared_ptr<MidiAction> pAction ) {
 	}
 
 	const auto tick = QTime::currentTime();
-	const int nIntervalMs = std::chrono::duration_cast<std::chrono::milliseconds>(
-		pAction->getTimePoint() - m_lastTick ).count();
+	// In seconds
+	const double fInterval = std::chrono::duration_cast<std::chrono::microseconds>(
+		pAction->getTimePoint() - m_lastTick ).count() / 1000.0 / 1000.0;
 	m_lastTick = pAction->getTimePoint();
 
-	if ( nIntervalMs >= 60000.0 * 2 / static_cast<float>(MIN_BPM) / 24.0 ) {
+	if ( fInterval >= 60.0 * 2 / static_cast<float>(MIN_BPM) / 24.0 ) {
 		// Waiting time was too long. We start all over again.
 		m_bMidiClockReady = false;
 		m_nTickIntervalIndex = 0;
@@ -481,7 +482,7 @@ bool MidiActionManager::timingClockTick( std::shared_ptr<MidiAction> pAction ) {
 
 	m_tickIntervals[
 		std::clamp( m_nTickIntervalIndex, 0,
-					static_cast<int>(m_tickIntervals.size()) - 1 ) ] = nIntervalMs;
+					static_cast<int>(m_tickIntervals.size()) - 1 ) ] = fInterval;
 
 	++m_nTickIntervalIndex;
 	if ( m_nTickIntervalIndex >= MidiActionManager::nMidiClockIntervals ) {
@@ -494,12 +495,13 @@ bool MidiActionManager::timingClockTick( std::shared_ptr<MidiAction> pAction ) {
 	}
 
 	if ( m_bMidiClockReady ) {
-		float fAverageInterval = 0;
+		double fAverageInterval = 0;
 		for ( const auto& nnInterval : m_tickIntervals ) {
-			fAverageInterval += static_cast<float>(nnInterval);
+			fAverageInterval += static_cast<double>(nnInterval);
 		}
-		const float fBpm = 60000.0 * m_tickIntervals.size() /
-			fAverageInterval / 24.0;
+		const float fBpm = static_cast<float>(
+			60.0 * static_cast<double>(m_tickIntervals.size()) /
+			fAverageInterval / 24.0 );
 
 		pAudioEngine->lock( RIGHT_HERE );
 		pAudioEngine->setNextBpm( fBpm );
