@@ -139,7 +139,7 @@ void MidiDriverTest::testMidiClock() {
 
 	const std::vector<float> referenceTempos{
 		80.0, 123.4, 210.1 };
-	const float fTolerance = 8;
+	const float fTolerance = 1;
 
 	for ( const auto& ffTempo : referenceTempos ) {
 		pAudioEngine->lock( RIGHT_HERE );
@@ -166,13 +166,9 @@ void MidiDriverTest::testMidiClock() {
 		}
 		CPPUNIT_ASSERT( nnTry < nMaxTries );
 
-		if ( std::abs( fCurrentBpm - ffTempo ) >= fTolerance ) {
-			___ERRORLOG( QString( "Current tempo [%1] exceeds references [%2] by [%3 (%4 tolerance)]" )
-						 .arg( fCurrentBpm ).arg( ffTempo )
-						 .arg( std::abs( fCurrentBpm - ffTempo ) )
-						 .arg( fTolerance ) );
-		}
-		CPPUNIT_ASSERT( std::abs( fCurrentBpm - ffTempo ) < fTolerance );
+		___INFOLOG( QString( "fCurrentBpm: [%1], references: [%2], tolerance: [%3]" )
+					 .arg( fCurrentBpm ).arg( ffTempo ).arg( fTolerance ) );
+		CPPUNIT_ASSERT( std::abs( fCurrentBpm - ffTempo ) <= fTolerance );
 
 		pMidiDriver->stopMidiClockStream();
 
