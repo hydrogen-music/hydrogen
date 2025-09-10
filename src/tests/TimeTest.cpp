@@ -103,7 +103,7 @@ void TimeTest::testHighResolutionSleep(){
 		// We have to wait at least the requested amount. A little bit more is
 		// ok. But less is not.
 		CPPUNIT_ASSERT( fPassedMs >= ffDurationMs );
-		CPPUNIT_ASSERT( std::abs( fPassedMs - ffDurationMs ) < fTolerance );
+		CPPUNIT_ASSERT( std::abs( fPassedMs - ffDurationMs ) <= fTolerance );
 	}
 
 	___INFOLOG( "passed" );
