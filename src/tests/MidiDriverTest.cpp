@@ -21,6 +21,8 @@
 
 #include "MidiDriverTest.h"
 
+#include "TestHelper.h"
+
 #include <chrono>
 
 #include <core/AudioEngine/AudioEngine.h>
@@ -173,6 +175,11 @@ void MidiDriverTest::testMidiClock() {
 		CPPUNIT_ASSERT( std::abs( fCurrentBpm - ffTempo ) < fTolerance );
 
 		pMidiDriver->stopMidiClockStream();
+
+		// Wait till all MIDI clock messages are flushed from the
+		// LoopBackMidiDriver and handled by MidiActionManager.
+		TestHelper::waitForMidiDriver();
+		TestHelper::waitForMidiActionManagerWorkerThread();
 
 		pAudioEngine->lock( RIGHT_HERE );
 		pMidiActionManager->resetTimingClockTicks();
