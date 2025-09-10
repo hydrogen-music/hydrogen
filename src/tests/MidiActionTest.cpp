@@ -107,7 +107,7 @@ void MidiActionTest::testBeatCounterAction() {
 	sendMessage( beatCounterMessage );
 
 	// Wait for the audio engine to adopt the new tempo.
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 
 	pAudioEngine->lock( RIGHT_HERE );
 	const auto fNewBpm = pAudioEngine->getNextBpm();
@@ -147,13 +147,13 @@ void MidiActionTest::testBpmCcRelativeAction() {
 	pAudioEngine->unlock();
 
 	// Wait for the audio engine to pick up the new tempo.
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
 
 	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
 							  nParameter, 0, 0 ) );
 
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 
 	pAudioEngine->lock( RIGHT_HERE );
 	const auto fNewBpm = pTransportPosition->getBpm();
@@ -192,13 +192,13 @@ void MidiActionTest::testBpmDecreaseAction() {
 	pAudioEngine->unlock();
 
 	// Wait for the audio engine to pick up the new tempo.
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
 
 	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
 							  nParameter, 0, 0 ) );
 
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 
 	pAudioEngine->lock( RIGHT_HERE );
 	const auto fNewBpm = pAudioEngine->getNextBpm();
@@ -236,13 +236,13 @@ void MidiActionTest::testBpmFineCcRelativeAction() {
 	pAudioEngine->unlock();
 
 	// Wait for the audio engine to pick up the new tempo.
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
 
 	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
 							  nParameter, 0, 0 ) );
 
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 
 	pAudioEngine->lock( RIGHT_HERE );
 	const auto fNewBpm = pTransportPosition->getBpm();
@@ -283,13 +283,13 @@ void MidiActionTest::testBpmIncreaseAction() {
 	pAudioEngine->unlock();
 
 	// Wait for the audio engine to pick up the new tempo.
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
 
 	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
 							  nParameter, 0, 0 ) );
 
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 
 	pAudioEngine->lock( RIGHT_HERE );
 	const auto fNewBpm = pTransportPosition->getBpm();
@@ -954,13 +954,13 @@ void MidiActionTest::testPauseAction() {
 	pMidiMap->registerCCEvent( nParameter, pAction );
 
 	pAudioEngine->play();
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 
 	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
 							  nParameter, 0, 0 ) );
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 	CPPUNIT_ASSERT( pTransportPosition->getFrame() != 0 );
 
@@ -1035,13 +1035,13 @@ void MidiActionTest::testPlayAction() {
 	pMidiMap->registerCCEvent( nParameter, pAction );
 
 	pAudioEngine->stop();
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 
 	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
 							  nParameter, 0, 0 ) );
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 
 	pAudioEngine->stop();
@@ -1222,18 +1222,18 @@ void MidiActionTest::testPlayPauseToggleAction() {
 	pMidiMap->registerCCEvent( nParameter, pAction );
 
 	pAudioEngine->stop();
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 
 	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
 							  nParameter, 0, 0 ) );
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 
 	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
 							  nParameter, 0, 0 ) );
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 	CPPUNIT_ASSERT( pTransportPosition->getFrame() != 0 );
 
@@ -1262,18 +1262,18 @@ void MidiActionTest::testPlayStopToggleAction() {
 	pMidiMap->registerCCEvent( nParameter, pAction );
 
 	pAudioEngine->stop();
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 
 	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
 							  nParameter, 0, 0 ) );
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 
 	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
 							  nParameter, 0, 0 ) );
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 	CPPUNIT_ASSERT( pTransportPosition->getFrame() == 0 );
 
@@ -1371,7 +1371,7 @@ void MidiActionTest::testRecordReadyAction() {
 	CPPUNIT_ASSERT( ! pHydrogen->getRecordEnabled() );
 
 	pHydrogen->sequencerPlay();
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 
 	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
 							  nParameter, 0, 0 ) );
@@ -1494,13 +1494,13 @@ void MidiActionTest::testSelectAndPlayPatternAction() {
 	pMidiMap->registerCCEvent( nParameter, pAction );
 
 	pHydrogen->sequencerStop();
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 
 	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
 							  nParameter, 0, 0 ) );
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 	CPPUNIT_ASSERT( pTransportPosition->getFrame() != 0 );
 	CPPUNIT_ASSERT( pHydrogen->getSelectedPatternNumber() == nPatternNumber );
@@ -1704,13 +1704,13 @@ void MidiActionTest::testStopAction() {
 	pMidiMap->registerCCEvent( nParameter, pAction );
 
 	pAudioEngine->play();
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 
 	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
 							  nParameter, 0, 0 ) );
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 	CPPUNIT_ASSERT( pTransportPosition->getFrame() == 0 );
 
@@ -1918,7 +1918,7 @@ void MidiActionTest::testTapTempoAction() {
 	sendMessage( tapTempoMessage );
 
 	// Wait for the audio engine to adopt the new tempo.
-	waitForAudioDriver();
+	TestHelper::waitForAudioDriver();
 
 	pAudioEngine->lock( RIGHT_HERE );
 	const auto fNewBpm = pTransportPosition->getBpm();
@@ -2035,62 +2035,6 @@ void MidiActionTest::sendMessage( const MidiMessage& msg ) {
 
 	// Wait till the LoopBackMidiDriver did send, receive, and handle the
 	// message.
-	const int nMaxTries = 100;
-	int nnTry = 0;
-	while ( pDriver->getBacklogMessages().size() == 0 ) {
-		CPPUNIT_ASSERT( nnTry < nMaxTries );
-
-		++nnTry;
-		std::this_thread::sleep_for( std::chrono::milliseconds( 5 ) );
-	}
-
-	waitForWorkerThread();
-}
-
-void MidiActionTest::waitForAudioDriver() {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-
-	// The realtime frames are update in each loop of the process cycle. By
-	// checking for a new value, we ensure a whole process cycle - including the
-	// adoption of a new tempo or state - has passed.
-	pAudioEngine->lock( RIGHT_HERE );
-	const auto nOldRealtimeFrame = pAudioEngine->getRealtimeFrame();
-	pAudioEngine->unlock();
-
-	int nNewRealtimeFrame;
-	const int nMaxTries = 100;
-	int nnTry = 0;
-	while ( nnTry < nMaxTries ) {
-		pAudioEngine->lock( RIGHT_HERE );
-		nNewRealtimeFrame = pAudioEngine->getRealtimeFrame();
-		pAudioEngine->unlock();
-
-		if ( nNewRealtimeFrame != nOldRealtimeFrame ) {
-			break;
-		}
-
-		++nnTry;
-		std::this_thread::sleep_for( std::chrono::milliseconds( 5 ) );
-	}
-	CPPUNIT_ASSERT( nnTry < nMaxTries );
-}
-
-void MidiActionTest::waitForWorkerThread() {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiActionManager = pHydrogen->getMidiActionManager();
-
-	// Since incoming MIDI events are handled asynchronously, we pause execution
-	// till all are handled.
-	const int nMaxTries = 100;
-	int nnTry = 0;
-	while ( nnTry < nMaxTries ) {
-		if ( pMidiActionManager->getActionQueueSize() == 0 ) {
-			break;
-		}
-
-		++nnTry;
-		std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
-	}
-	CPPUNIT_ASSERT( nnTry < nMaxTries );
+	TestHelper::waitForMidiDriver();
+	TestHelper::waitForMidiActionManagerWorkerThread();
 }

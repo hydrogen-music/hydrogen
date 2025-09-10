@@ -22,22 +22,26 @@
 
 #include "TestHelper.h"
 
-#include <core/config.h>
-#include "core/Object.h"
-#include "core/Hydrogen.h"
-#include "core/Helpers/Filesystem.h"
-#include "core/Preferences/Preferences.h"
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/Song.h>
+#include <core/config.h>
+#include <core/Hydrogen.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/IO/DiskWriterDriver.h>
+#include <core/IO/LoopBackMidiDriver.h>
+#include <core/Midi/MidiActionManager.h>
+#include <core/Object.h>
+#include <core/Preferences/Preferences.h>
 
+#include <chrono>
+#include <exception>
+#include <random>
 #include <QProcess>
 #include <QProcessEnvironment>
 #include <QStringList>
-#include <exception>
-#include <random>
-#include <chrono>
+#include <thread>
 
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -256,4 +260,71 @@ void TestHelper::exportMIDI( const QString& sSongFile, const QString& sFileName,
 	auto t1 = std::chrono::high_resolution_clock::now();
 	double t = std::chrono::duration<double>( t1 - t0 ).count();
 	___INFOLOG( QString("MIDI track export took %1 seconds").arg(t) );
+}
+
+void TestHelper::waitForAudioDriver() {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	pAudioEngine->lock( RIGHT_HERE );
+	const auto nOldRealtimeFrame = pAudioEngine->getRealtimeFrame();
+	pAudioEngine->unlock();
+
+	int nNewRealtimeFrame;
+	const int nMaxTries = 100;
+	int nnTry = 0;
+	while ( nnTry < nMaxTries ) {
+		pAudioEngine->lock( RIGHT_HERE );
+		nNewRealtimeFrame = pAudioEngine->getRealtimeFrame();
+		pAudioEngine->unlock();
+
+		if ( nNewRealtimeFrame != nOldRealtimeFrame ) {
+			break;
+		}
+
+		++nnTry;
+		std::this_thread::sleep_for( std::chrono::milliseconds( 5 ) );
+	}
+	CPPUNIT_ASSERT( nnTry < nMaxTries );
+}
+
+void TestHelper::waitForMidiDriver() {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );
+
+	auto pDriver = dynamic_cast<H2Core::LoopBackMidiDriver*>(
+		pAudioEngine->getMidiDriver().get() );
+	CPPUNIT_ASSERT( pDriver != nullptr );
+
+	// Wait till the LoopBackMidiDriver did send, receive, and handle the
+	// message.
+	const int nMaxTries = 100;
+	int nnTry = 0;
+	while ( pDriver->getBacklogMessages().size() == 0 ) {
+		CPPUNIT_ASSERT( nnTry < nMaxTries );
+
+		++nnTry;
+		std::this_thread::sleep_for( std::chrono::milliseconds( 5 ) );
+	}
+}
+
+void TestHelper::waitForMidiActionManagerWorkerThread() {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pMidiActionManager = pHydrogen->getMidiActionManager();
+
+	// Since incoming MIDI events are handled asynchronously, we pause execution
+	// till all are handled.
+	const int nMaxTries = 100;
+	int nnTry = 0;
+	while ( nnTry < nMaxTries ) {
+		if ( pMidiActionManager->getActionQueueSize() == 0 ) {
+			break;
+		}
+
+		++nnTry;
+		std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
+	}
+	CPPUNIT_ASSERT( nnTry < nMaxTries );
 }

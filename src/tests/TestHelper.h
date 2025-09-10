@@ -89,7 +89,22 @@ class TestHelper {
 	static void exportMIDI( const QString& sSongFile, const QString& sFileName,
 							std::shared_ptr<H2Core::SMFWriter> pWriter,
 							bool bUseHumanization );
-	
+
+		/** Blocks till the audio processing callback was called again (the
+		 * current realtime frames got incremented).
+		 *
+		 * The realtime frames are update in each loop of the process cycle. By
+		 * checking for a new value, we ensure a whole process cycle - including
+		 * the adoption of a new tempo or state - has passed. */
+		static void waitForAudioDriver();
+		/** Wait till the LoopBackMidiDriver did send, receive, and handle the
+		 * message. */
+		static void waitForMidiDriver();
+		/** Since incoming MIDI events are handled asynchronously, we pause
+		 * execution till all are handled. */
+		static void waitForMidiActionManagerWorkerThread();
+
+
 	static void			createInstance();
 	static TestHelper*	get_instance();
 };
