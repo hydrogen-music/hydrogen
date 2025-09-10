@@ -30,12 +30,14 @@
 namespace H2Core
 {
 
-MidiOutput::MidiOutput() : m_bSendClockTick( false )
-						 , m_bNotifyOnNextTick( false )
-						 , m_interval( 20.0 )
-						 , m_lastTick( TimePoint() )
-						 , m_nTickCount( 0 )
-						 , m_pClockThread( nullptr )
+MidiOutput::MidiOutput()
+	: m_bSendClockTick( false )
+	, m_bNotifyOnNextTick( false )
+	, m_interval( 20.0 )
+	, m_lastProcessingInterval( std::chrono::microseconds::zero() )
+	, m_lastTick( TimePoint() )
+	, m_nTickCount( 0 )
+	, m_pClockThread( nullptr )
 {
 }
 
@@ -93,8 +95,8 @@ void MidiOutput::startMidiClockStream( float fBpm ) {
 	}
 
 	// 24 MIDI Clock messages should make up a quarter.
-	const float fInterval = 60000 / fBpm / 24.0;
-	m_interval = std::chrono::duration<float, std::milli>(fInterval);
+	const double fInterval = 60000 / fBpm / 24.0;
+	m_interval = std::chrono::duration<double, std::milli>(fInterval);
 
 	m_bSendClockTick = true;
 	m_nTickCount = 0;
@@ -114,6 +116,7 @@ void MidiOutput::stopMidiClockStream() {
 	// call to startMidiClockStream() will send a message right away instead of
 	// waiting for the provided interval or logging failure to do so.
 	m_lastTick = TimePoint();
+	m_lastProcessingInterval = std::chrono::microseconds::zero();
 }
 
 void MidiOutput::waitForNextMidiClockTick() {
@@ -143,7 +146,8 @@ void MidiOutput::midiClockStream() {
 			else {
 				// Compensate for the processing time.
 				H2Core::highResolutionSleep(
-					pMidiDriver->m_interval - ( start - pMidiDriver->m_lastTick ) );
+					pMidiDriver->m_interval - pMidiDriver->m_lastProcessingInterval -
+					( start - pMidiDriver->m_lastTick ) );
 			}
 		}
 
@@ -152,7 +156,18 @@ void MidiOutput::midiClockStream() {
 			MidiMessage( MidiMessage::Type::TimingClock, 0, 0, 0 ) );
 		++pMidiDriver->m_nTickCount;
 
-		pMidiDriver->m_lastTick = Clock::now();
+		const auto end = Clock::now();
+
+		// Sending the message itself as well as systematic errors during
+		// sleeping - which is platform dependent and only guaranteed to wait
+		// _at least_ the provided amount of time - do incrase the distance
+		// between consecutive ticks. We have to compensate for this delay or
+		// the resulting tempo will always be too low.
+		if ( end - start > pMidiDriver->m_interval ) {
+			pMidiDriver->m_lastProcessingInterval =
+				end - start - pMidiDriver->m_interval;
+		}
+		pMidiDriver->m_lastTick = end;
 
 		// Send notification - if required.
 		//

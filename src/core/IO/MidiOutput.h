@@ -115,6 +115,7 @@ class MidiOutput : public virtual Object<MidiOutput>
 		bool m_bSendClockTick;
 		bool m_bNotifyOnNextTick;
 		std::chrono::duration<float> m_interval;
+		std::chrono::duration<float> m_lastProcessingInterval;
 		TimePoint m_lastTick;
 		long long m_nTickCount;
 		/** @} */
