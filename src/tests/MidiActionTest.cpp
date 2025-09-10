@@ -73,8 +73,10 @@ void MidiActionTest::testBeatCounterAction() {
 								   MidiAction::Type::BeatCounter ) );
 	pPref->m_bpmTap = Preferences::BpmTap::BeatCounter;
 	pPref->m_beatCounter = Preferences::BeatCounter::Tap;
+	pPref->m_nBeatCounterDriftCompensation = 0;
 	pHydrogen->setBeatCounterTotalBeats( 4 );
 	pHydrogen->setBeatCounterBeatLength( 1 );
+	pHydrogen->updateBeatCounterSettings();
 
 	// Since we do not have a proper audio driver here picking up the new BPM
 	// during the next process cycle, we just check whether the next value did
@@ -92,12 +94,16 @@ void MidiActionTest::testBeatCounterAction() {
 
 	const auto beatCounterMessage = MidiMessage(
 		MidiMessage::Type::ControlChange, nBeatCounterPara, 0, 0 );
+	auto tick = Clock::now();
 	sendMessage( beatCounterMessage );
-	H2Core::highResolutionSleep( interval );
+	// Compensate for the time spent in sendMessage().
+	H2Core::highResolutionSleep( interval - ( Clock::now() - tick ) );
+	tick = Clock::now();
 	sendMessage( beatCounterMessage );
-	H2Core::highResolutionSleep( interval );
+	H2Core::highResolutionSleep( interval - ( Clock::now() - tick ) );
+	tick = Clock::now();
 	sendMessage( beatCounterMessage );
-	H2Core::highResolutionSleep( interval );
+	H2Core::highResolutionSleep( interval - ( Clock::now() - tick ) );
 	sendMessage( beatCounterMessage );
 
 	// Wait for the audio engine to adopt the new tempo.
@@ -1887,22 +1893,29 @@ void MidiActionTest::testTapTempoAction() {
 
 	const auto tapTempoMessage = MidiMessage(
 		MidiMessage::Type::ControlChange, nParameter, 0, 0 );
+	auto tick = Clock::now();
 	sendMessage( tapTempoMessage );
-	H2Core::highResolutionSleep( interval );
+	// Compensate for the time spent within sendMessage().
+	H2Core::highResolutionSleep( interval - ( Clock::now() - tick ) );
+	tick = Clock::now();
 	sendMessage( tapTempoMessage );
-	H2Core::highResolutionSleep( interval );
+	H2Core::highResolutionSleep( interval - ( Clock::now() - tick ) );
+	tick = Clock::now();
 	sendMessage( tapTempoMessage );
-	H2Core::highResolutionSleep( interval );
+	H2Core::highResolutionSleep( interval - ( Clock::now() - tick ) );
+	tick = Clock::now();
 	sendMessage( tapTempoMessage );
-	H2Core::highResolutionSleep( interval );
+	H2Core::highResolutionSleep( interval - ( Clock::now() - tick ) );
+	tick = Clock::now();
 	sendMessage( tapTempoMessage );
-	H2Core::highResolutionSleep( interval );
+	H2Core::highResolutionSleep( interval - ( Clock::now() - tick ) );
+	tick = Clock::now();
 	sendMessage( tapTempoMessage );
-	H2Core::highResolutionSleep( interval );
+	H2Core::highResolutionSleep( interval - ( Clock::now() - tick ) );
+	tick = Clock::now();
 	sendMessage( tapTempoMessage );
-	H2Core::highResolutionSleep( interval );
+	H2Core::highResolutionSleep( interval - ( Clock::now() - tick ) );
 	sendMessage( tapTempoMessage );
-	H2Core::highResolutionSleep( interval );
 
 	// Wait for the audio engine to adopt the new tempo.
 	waitForAudioDriver();
