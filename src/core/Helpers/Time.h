@@ -37,7 +37,10 @@ using TimePoint = std::chrono::time_point<Clock>;
 namespace H2Core {
 
 	static QString timePointToQString( const TimePoint& timePoint ) {
-		auto t = Clock::to_time_t( timePoint );
+		// We do not use `Clock` defined above since `high_resolution_clock` on
+		// macOS is an alias for `steady_clock`, which - in contrast to
+		// `system_clock` - does not have a `to_time_t` member.
+		auto t = std::chrono::system_clock::to_time_t( timePoint );
 		auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			timePoint.time_since_epoch() ) % 1000;
 		std::ostringstream timePointStringStream;
