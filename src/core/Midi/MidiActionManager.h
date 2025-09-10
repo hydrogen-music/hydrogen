@@ -22,11 +22,11 @@
 #ifndef MIDI_ACTION_MANAGER_H
 #define MIDI_ACTION_MANAGER_H
 
+#include <core/Helpers/Time.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Object.h>
 
 #include <QString>
-#include <QTime>
 
 #include <cassert>
 #include <condition_variable>
@@ -185,7 +185,7 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool clearPattern( std::shared_ptr<MidiAction> );
 		bool loadNextDrumkit( std::shared_ptr<MidiAction> );
 		bool loadPrevDrumkit( std::shared_ptr<MidiAction> );
-		bool timingClockTick( std::shared_ptr<MidiAction> );
+		bool timingClockTick( std::shared_ptr<MidiAction> pAction );
 
 		bool setSongFromPlaylist( int nSongNumber );
 		bool nextPatternSelection( int nPatternNumber );
@@ -200,7 +200,7 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 
 		//! Members required to handle incoming MIDI clock messages.
 		//! @{
-		QTime m_lastTick;
+		TimePoint m_lastTick;
 		std::vector<int> m_tickIntervals;
 		int m_nTickIntervalIndex;
 		/** Whether we already retrieved #nMidiClockTicks events in a row. */

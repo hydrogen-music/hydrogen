@@ -450,7 +450,7 @@ bool MidiActionManager::tapTempo( std::shared_ptr<MidiAction> pAction ) {
 	return true;
 }
 
-bool MidiActionManager::timingClockTick( std::shared_ptr<MidiAction> ) {
+bool MidiActionManager::timingClockTick( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
@@ -460,14 +460,23 @@ bool MidiActionManager::timingClockTick( std::shared_ptr<MidiAction> ) {
 		return false;
 	}
 
+	if ( pAction == nullptr ) {
+		return false;
+	}
+
 	const auto tick = QTime::currentTime();
-	const int nIntervalMs = m_lastTick.msecsTo( tick );
-	m_lastTick = tick;
+	const int nIntervalMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+		pAction->getTimePoint() - m_lastTick ).count();
+	m_lastTick = pAction->getTimePoint();
 
 	if ( nIntervalMs >= 60000.0 * 2 / static_cast<float>(MIN_BPM) / 24.0 ) {
 		// Waiting time was too long. We start all over again.
 		m_bMidiClockReady = false;
 		m_nTickIntervalIndex = 0;
+
+		// We return early since we do not want this large interval to be part
+		// of the average.
+		return true;
 	}
 
 	m_tickIntervals[
@@ -512,6 +521,7 @@ bool MidiActionManager::timingClockTick( std::shared_ptr<MidiAction> ) {
 void MidiActionManager::resetTimingClockTicks() {
 	m_bMidiClockReady = false;
 	m_nTickIntervalIndex = 0;
+	m_lastTick = TimePoint();
 }
 
 bool MidiActionManager::selectNextPattern( std::shared_ptr<MidiAction> pAction ) {
