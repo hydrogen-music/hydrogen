@@ -24,10 +24,13 @@
 #include "TestHelper.h"
 
 #include <chrono>
+#include <numeric>
+#include <vector>
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Event.h>
+#include <core/Helpers/Time.h>
 #include <core/Hydrogen.h>
 #include <core/IO/LoopBackMidiDriver.h>
 #include <core/Midi/MidiActionManager.h>
@@ -182,7 +185,83 @@ void MidiDriverTest::testMidiClock() {
 		// Flush any BPM changes that are still transient.
 		pAudioEngine->setNextBpm( fCurrentBpm );
 		pAudioEngine->unlock();
+
+void MidiDriverTest::testMidiClockDrift() {
+	___INFOLOG("");
+
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pTransportPosition = pAudioEngine->getTransportPosition();
+	auto pMidiActionManager = pHydrogen->getMidiActionManager();
+	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );
+
+	auto pMidiDriver = dynamic_cast<H2Core::LoopBackMidiDriver*>(
+		pAudioEngine->getMidiDriver().get() );
+	CPPUNIT_ASSERT( pMidiDriver != nullptr );
+
+	const float fReferenceBpm = 320.7;
+
+	pAudioEngine->lock( RIGHT_HERE );
+	const auto fOldBpm = pTransportPosition->getBpm();
+	pAudioEngine->unlock();
+
+	pMidiDriver->startMidiClockStream( fReferenceBpm );
+
+	// In milliseconds
+	const int nCheckInterval = 125;
+	const auto checkInterval =
+		std::chrono::duration<float, std::milli>( nCheckInterval );
+	const int nSleepTimes = std::floor(2000.0 / static_cast<float>(nCheckInterval));
+
+	std::vector<float> deviations;
+
+	for ( int ii = 0; ii <= nSleepTimes; ++ii ) {
+		H2Core::highResolutionSleep( checkInterval );
+
+		pAudioEngine->lock( RIGHT_HERE );
+		deviations.push_back( fReferenceBpm - pTransportPosition->getBpm() );
+		pAudioEngine->unlock();
 	}
+
+	pMidiDriver->stopMidiClockStream();
+
+	// We do not want a drift which would manifest as ever increasing or
+	// decreasing differences. We check for it by fitting a line to our
+	// differences and requiring its slope to be around zero.
+	std::vector<float> x;
+	x.resize( deviations.size() );
+	for ( int ii = 0; ii < deviations.size(); ++ii ) {
+		x[ ii ] = ii;
+	}
+	const auto n = x.size();
+    const auto s_x = std::accumulate( x.begin(), x.end(), 0.0 );
+    const auto s_y = std::accumulate( deviations.begin(), deviations.end(), 0.0 );
+    const auto s_xx = std::inner_product( x.begin(), x.end(), x.begin(), 0.0) ;
+    const auto s_xy = std::inner_product( x.begin(), x.end(),
+										  deviations.begin(), 0.0);
+    const auto fSlope = ( n * s_xy - s_x * s_y ) / ( n * s_xx - s_x * s_x );
+
+	// We do not want to have a systematic error (thus expect the deviations to
+	// cancel each other according to the law of large numbers),
+	const float fAverage = std::accumulate(
+		deviations.begin(), deviations.end(), 0.0 ) /
+		static_cast<float>( deviations.size() );
+
+	QStringList deviationStrings;
+	for ( const auto& ffDeviation : deviations ) {
+		deviationStrings << QString::number( ffDeviation );
+	}
+	___INFOLOG( QString( "deviations: [%1], slope: [%2], average: [%3]" )
+				.arg( deviationStrings.join( ", " ) ).arg( fSlope )
+				.arg( fAverage ) );
+
+	CPPUNIT_ASSERT( std::abs( fSlope ) < 0.1 );
+	CPPUNIT_ASSERT( std::abs( fAverage ) < 0.1 );
+
+	// Flush all queues as part of the clanup.
+	TestHelper::waitForMidiDriver();
+	TestHelper::waitForMidiActionManagerWorkerThread();
+	pMidiActionManager->resetTimingClockTicks();
 
 	___INFOLOG("done");
 }

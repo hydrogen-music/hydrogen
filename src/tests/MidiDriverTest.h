@@ -30,6 +30,7 @@ class MidiDriverTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( MidiDriverTest );
 	CPPUNIT_TEST( testLoopBackMidiDriver );
 	CPPUNIT_TEST( testMidiClock );
+	CPPUNIT_TEST( testMidiClockDrift );
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -43,6 +44,10 @@ class MidiDriverTest : public CppUnit::TestCase {
 		 * AudioEngine adopts the same tempo via the incoming MIDI messages of
 		 * the #LoopBackMidiDriver. */
 		void testMidiClock();
+
+		/** Check for systematic and/or steadily increasing errors in the MIDI
+		 * clock signal sent by Hydrogen. */
+		void testMidiClockDrift();
 
 	private:
 
