@@ -34,7 +34,8 @@ MidiOutput::MidiOutput()
 	: m_bSendClockTick( false )
 	, m_bNotifyOnNextTick( false )
 	, m_interval( 20.0 )
-	, m_lastProcessingInterval( std::chrono::microseconds::zero() )
+	, m_intervalCompensation( std::chrono::microseconds::zero() )
+	, m_nAverageIntervalNs( 0 )
 	, m_lastTick( TimePoint() )
 	, m_nTickCount( 0 )
 	, m_pClockThread( nullptr )
@@ -116,7 +117,8 @@ void MidiOutput::stopMidiClockStream() {
 	// call to startMidiClockStream() will send a message right away instead of
 	// waiting for the provided interval or logging failure to do so.
 	m_lastTick = TimePoint();
-	m_lastProcessingInterval = std::chrono::microseconds::zero();
+	m_intervalCompensation = std::chrono::microseconds::zero();
+	m_nAverageIntervalNs = 0;
 }
 
 void MidiOutput::waitForNextMidiClockTick() {
@@ -137,19 +139,38 @@ void MidiOutput::midiClockStream() {
 	while ( pMidiDriver->m_bSendClockTick ) {
 		auto start = Clock::now();
 
+		long nSleepBiasNs = 0;
 		if ( pMidiDriver->m_lastTick != TimePoint() ) {
-			if ( start - pMidiDriver->m_lastTick >= pMidiDriver->m_interval ) {
-				WARNINGLOG( QString( "MIDI Clock message could not be sent in time. Duration: [%1], Interval: [%2]" )
+			if ( start - pMidiDriver->m_lastTick >=
+				 pMidiDriver->m_interval + pMidiDriver->m_intervalCompensation ) {
+				WARNINGLOG( QString( "MIDI Clock message could not be sent in time. Duration: [%1], Interval: [%2], compensation: [%3]" )
 							.arg( ( pMidiDriver->m_lastTick - start ).count() )
-							.arg( pMidiDriver->m_interval.count() ) );
+							.arg( pMidiDriver->m_interval.count() )
+							.arg( pMidiDriver->m_intervalCompensation.count() ) );
 			}
 			else {
 				// Compensate for the processing time.
-				H2Core::highResolutionSleep(
-					pMidiDriver->m_interval - pMidiDriver->m_lastProcessingInterval -
-					( start - pMidiDriver->m_lastTick ) );
+				const auto sleepDuration = pMidiDriver->m_interval +
+					pMidiDriver->m_intervalCompensation -
+					( start - pMidiDriver->m_lastTick );
+
+				const auto preSleep = Clock::now();
+				H2Core::highResolutionSleep( sleepDuration );
+				const auto postSleep = Clock::now();
+
+				// Sleep routines only guarantee to sleep for _at least_ the
+				// provided amount of time. The additional sleep time we have to
+				// compensate on the next tick.
+				nSleepBiasNs = std::chrono::duration_cast<
+					std::chrono::nanoseconds>(
+						postSleep - preSleep - sleepDuration ).count();
 			}
 		}
+
+		// Sending the message itself does increase the distance between
+		// consecutive ticks. We have to compensate for this delay or the
+		// resulting tempo will always be too low.
+		const auto preSend = Clock::now();
 
 		// Send event
 		pMidiDriver->sendSystemRealTimeMessage(
@@ -158,15 +179,36 @@ void MidiOutput::midiClockStream() {
 
 		const auto end = Clock::now();
 
-		// Sending the message itself as well as systematic errors during
-		// sleeping - which is platform dependent and only guaranteed to wait
-		// _at least_ the provided amount of time - do incrase the distance
-		// between consecutive ticks. We have to compensate for this delay or
-		// the resulting tempo will always be too low.
-		if ( end - start > pMidiDriver->m_interval ) {
-			pMidiDriver->m_lastProcessingInterval =
-				end - start - pMidiDriver->m_interval;
+		// Due to systematic errors, like biases in processing routines, the
+		// interval using which MIDI clock signals are being sent could be off
+		// and resulting tempo would drift away from our internal one. In order
+		// to prevent this from happening, we keep track of the average interval
+		// on which MIDI clock messages have been sent and compensate in such a
+		// way that the next average would be our target interval.
+		//
+		// Skip the first round in order to have a valid m_lastTick.
+		if ( pMidiDriver->m_nTickCount > 1 ) {
+			// Cumulative average.
+			pMidiDriver->m_nAverageIntervalNs =
+				( std::chrono::duration_cast<std::chrono::nanoseconds>(
+					end - pMidiDriver->m_lastTick ).count() +
+				  pMidiDriver->m_nAverageIntervalNs *
+				  ( pMidiDriver->m_nTickCount - 2 ) ) /
+				( pMidiDriver->m_nTickCount - 1 );
+
+			pMidiDriver->m_intervalCompensation =
+				( pMidiDriver->m_nTickCount - 1 ) * ( pMidiDriver->m_interval -
+				std::chrono::duration<long, std::nano>(
+					pMidiDriver->m_nAverageIntervalNs ) );
 		}
+
+		// Componesate for the surplus time consumed during sleep.
+		pMidiDriver->m_intervalCompensation -=
+			std::chrono::duration<long, std::nano>( nSleepBiasNs );
+
+		// Compensate for the processing time of sending the MIDI message
+		pMidiDriver->m_intervalCompensation -= ( end - preSend );
+
 		pMidiDriver->m_lastTick = end;
 
 		// Send notification - if required.

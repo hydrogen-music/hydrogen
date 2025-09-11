@@ -95,7 +95,6 @@ class MidiOutput : public virtual Object<MidiOutput>
 		void startMidiClockStream( float fBpm );
 		void stopMidiClockStream();
 
-		void midiClockDriftCorrection( int nCurrentFrame );
 		/** Blocks the invoking thread till the next MIDI clock tick was sent by
 		 * Hydrogen. */
 		void waitForNextMidiClockTick();
@@ -115,7 +114,8 @@ class MidiOutput : public virtual Object<MidiOutput>
 		bool m_bSendClockTick;
 		bool m_bNotifyOnNextTick;
 		std::chrono::duration<float> m_interval;
-		std::chrono::duration<float> m_lastProcessingInterval;
+		std::chrono::duration<float> m_intervalCompensation;
+		long m_nAverageIntervalNs;
 		TimePoint m_lastTick;
 		long long m_nTickCount;
 		/** @} */
