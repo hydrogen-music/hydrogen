@@ -167,11 +167,6 @@ void MidiDriverTest::testMidiClock() {
 			std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
 			++nnTry;
 		}
-		CPPUNIT_ASSERT( nnTry < nMaxTries );
-
-		___INFOLOG( QString( "fCurrentBpm: [%1], references: [%2], tolerance: [%3]" )
-					 .arg( fCurrentBpm ).arg( ffTempo ).arg( fTolerance ) );
-		CPPUNIT_ASSERT( std::abs( fCurrentBpm - ffTempo ) <= fTolerance );
 
 		pMidiDriver->stopMidiClockStream();
 
@@ -185,6 +180,16 @@ void MidiDriverTest::testMidiClock() {
 		// Flush any BPM changes that are still transient.
 		pAudioEngine->setNextBpm( fCurrentBpm );
 		pAudioEngine->unlock();
+
+		CPPUNIT_ASSERT( nnTry < nMaxTries );
+
+		___INFOLOG( QString( "fCurrentBpm: [%1], references: [%2], tolerance: [%3]" )
+					 .arg( fCurrentBpm ).arg( ffTempo ).arg( fTolerance ) );
+		CPPUNIT_ASSERT( std::abs( fCurrentBpm - ffTempo ) <= fTolerance );
+	}
+
+	___INFOLOG("done");
+}
 
 void MidiDriverTest::testMidiClockDrift() {
 	___INFOLOG("");
