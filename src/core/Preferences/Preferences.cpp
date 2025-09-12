@@ -125,6 +125,7 @@ Preferences::Preferences()
 	, m_bJackTimebaseEnabled( false )
 	, m_bJackTimebaseMode( NO_JACK_TIMEBASE_CONTROL )
 	, m_nAutosavesPerHour( 60 )
+	, m_bCountIn( false )
 	, m_sDefaultEditor( "" )
 	, m_sPreferredLanguage( "" )
 	, m_bUseRelativeFilenamesForPlaylists( false )
@@ -302,6 +303,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_bJackTimebaseMode( pOther->m_bJackTimebaseMode )
 	, m_nAutosavesPerHour( pOther->m_nAutosavesPerHour )
 	, m_sRubberBandCLIexecutable( pOther->m_sRubberBandCLIexecutable )
+	, m_bCountIn( pOther->m_bCountIn )
 	, m_sDefaultEditor( pOther->m_sDefaultEditor )
 	, m_sPreferredLanguage( pOther->m_sPreferredLanguage )
 	, m_bUseRelativeFilenamesForPlaylists( pOther->m_bUseRelativeFilenamesForPlaylists )
@@ -562,6 +564,9 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			"buffer_size", pPref->m_nBufferSize, false, false, bSilent );
 		pPref->m_nSampleRate = audioEngineNode.read_int(
 			"samplerate", pPref->m_nSampleRate, false, false, bSilent );
+		pPref->setCountIn( audioEngineNode.read_bool(
+			"countIn", pPref->getCountIn(), /*inexistent_ok*/true,
+			/*empty_ok*/false, bSilent ) );
 
 		//// OSS DRIVER ////
 		const XMLNode ossDriverNode =
@@ -1136,6 +1141,7 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 		audioEngineNode.write_int( "maxNotes", m_nMaxNotes );
 		audioEngineNode.write_int( "buffer_size", m_nBufferSize );
 		audioEngineNode.write_int( "samplerate", m_nSampleRate );
+		audioEngineNode.write_bool( "countIn", m_bCountIn );
 
 		//// OSS DRIVER ////
 		XMLNode ossDriverNode = audioEngineNode.createNode( "oss_driver" );
@@ -1768,6 +1774,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_nAutosavesPerHour ) )
 			.append( QString( "%1%2m_sRubberBandCLIexecutable: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_sRubberBandCLIexecutable ) )
+			.append( QString( "%1%2m_bCountIn: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bCountIn ) )
 			.append( QString( "%1%2m_sDefaultEditor: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_sDefaultEditor ) )
 			.append( QString( "%1%2m_sPreferredLanguage: %3\n" ).arg( sPrefix )
@@ -2008,6 +2016,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_nAutosavesPerHour ) )
 			.append( QString( ", m_sRubberBandCLIexecutable: %1" )
 					 .arg( m_sRubberBandCLIexecutable ) )
+			.append( QString( ", m_bCountIn: %1" )
+					 .arg( m_bCountIn ) )
 			.append( QString( ", m_sDefaultEditor: %1" )
 					 .arg( m_sDefaultEditor ) )
 			.append( QString( ", m_sPreferredLanguage: %1" )
