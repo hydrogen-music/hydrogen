@@ -3015,6 +3015,10 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <source>Switch metronome on/off</source>
         <translation>Active/désactive le métronome</translation>
     </message>
+    <message>
+        <source>Count in and play/ Pause</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterLine</name>

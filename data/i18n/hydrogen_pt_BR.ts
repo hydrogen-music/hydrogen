@@ -3011,6 +3011,10 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <source>Switch metronome on/off</source>
         <translation>Metrônomo Lig./Des.</translation>
     </message>
+    <message>
+        <source>Count in and play/ Pause</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterLine</name>

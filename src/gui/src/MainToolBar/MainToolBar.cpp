@@ -84,10 +84,10 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 	};
 
 	auto createButton = [&]( const QString& sText, bool bCheckable ) {
-		auto pAction = new MidiLearnableToolButton( this, sText );
-		pAction->setCheckable( bCheckable );
+		auto pButton = new MidiLearnableToolButton( this, sText );
+		pButton->setCheckable( bCheckable );
 
-		return pAction;
+		return pButton;
 	};
 	////////////////////////////////////////////////////////////////////////////
 
@@ -174,10 +174,47 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 	m_pPlayButton = createButton( tr( "Play/ Pause" ), true );
 	m_pPlayButton->setObjectName( "MainToolBarPlayButton" );
 	connect( m_pPlayButton, &QToolButton::clicked, [&]() {
+		DEBUGLOG( "click" );
 		playBtnClicked();
 	} );
+
+	m_pPlayMidiAction = std::make_shared<MidiAction>(
+		MidiAction::Type::PlayPauseToggle );
+	m_pPlayAction = new QAction( this );
+	m_pPlayAction->setText( tr( "Play/ Pause" ) );
+	connect( m_pPlayAction, &QAction::triggered, [=]() {
+		auto pPref = Preferences::get_instance();
+		if ( pPref->getCountIn() ) {
+			pPref->setCountIn( false );
+		}
+		if ( m_pPlayButton->defaultAction() != m_pPlayAction ) {
+			m_pPlayButton->setDefaultAction( m_pPlayAction );
+		}
+		m_pPlayButton->setMidiAction( m_pPlayMidiAction );
+		DEBUGLOG( "play" );
+	} );
+	m_pCountInMidiAction = std::make_shared<MidiAction>(
+		MidiAction::Type::PlayPauseToggle );
+	m_pCountInAction = new QAction( this );
+	m_pCountInAction->setText( tr( "Count in and play/ Pause" ) );
+	connect( m_pCountInAction, &QAction::triggered, [=]() {
+		auto pPref = Preferences::get_instance();
+		if ( ! pPref->getCountIn() ) {
+			pPref->setCountIn( true );
+		}
+		if ( m_pPlayButton->defaultAction() != m_pCountInAction ) {
+			m_pPlayButton->setDefaultAction( m_pCountInAction );
+		}
+		m_pPlayButton->setMidiAction( m_pCountInMidiAction );
+		DEBUGLOG( "count in" );
+	} );
+
+	m_pPlayButton->addAction( m_pPlayAction );
+	m_pPlayButton->addAction( m_pCountInAction );
+	m_pPlayButton->setDefaultAction(
+		pPref->getCountIn() ? m_pCountInAction : m_pPlayAction );
 	m_pPlayButton->setMidiAction(
-		std::make_shared<MidiAction>( MidiAction::Type::PlayPauseToggle ) );
+		pPref->getCountIn() ? m_pCountInMidiAction : m_pPlayMidiAction );
 	addWidget( m_pPlayButton );
 
 	// Stop button
@@ -911,7 +948,8 @@ void MainToolBar::updateIcons() {
 	m_pRwdButton->setIcon( QIcon( sIconPath + "rewind.svg" ) );
 	m_pRecButton->setIcon(
 		QIcon( sIconPath + "record.svg" ) );
-	m_pPlayButton->setIcon( QIcon( sIconPath + "play.svg" ) );
+	m_pPlayAction->setIcon( QIcon( sIconPath + "play.svg" ) );
+	m_pCountInAction->setIcon( QIcon( sIconPath + "play_count_in.svg" ) );
 	m_pStopButton->setIcon( QIcon( sIconPath + "stop.svg" ) );
 	m_pFfwdButton->setIcon( QIcon( sIconPath + "fast_forward.svg" ) );
 	m_pSongLoopAction->setIcon( QIcon( sIconPath + "loop.svg" ) );

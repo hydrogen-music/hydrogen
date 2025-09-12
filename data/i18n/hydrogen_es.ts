@@ -3013,6 +3013,10 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <source>Switch metronome on/off</source>
         <translation>Encender/apagar metrónomo</translation>
     </message>
+    <message>
+        <source>Count in and play/ Pause</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterLine</name>

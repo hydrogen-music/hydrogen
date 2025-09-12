@@ -2981,6 +2981,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <source>Switch metronome on/off</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Count in and play/ Pause</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterLine</name>
