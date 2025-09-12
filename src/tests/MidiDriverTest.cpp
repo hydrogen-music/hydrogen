@@ -227,11 +227,17 @@ void MidiDriverTest::testMidiClockDrift() {
 		H2Core::highResolutionSleep( checkInterval );
 
 		pAudioEngine->lock( RIGHT_HERE );
-		deviations.push_back( fReferenceBpm - pTransportPosition->getBpm() );
+		const auto fCurrentBpm = pTransportPosition->getBpm();
 		pAudioEngine->unlock();
-	}
+		___DEBUGLOG( QString( "post current: %1" ).arg( fCurrentBpm ) );
 
+		if ( fCurrentBpm != fOldBpm ) {
+			deviations.push_back( fReferenceBpm - fCurrentBpm );
+		}
+	}
 	pMidiDriver->stopMidiClockStream();
+
+	CPPUNIT_ASSERT( deviations.size() > 0 );
 
 	// We do not want a drift which would manifest as ever increasing or
 	// decreasing differences. We check for it by fitting a line to our
