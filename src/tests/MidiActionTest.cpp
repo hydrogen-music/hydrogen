@@ -53,6 +53,8 @@ using namespace H2Core;
 void MidiActionTest::setUp() {
 	auto pPref = Preferences::get_instance();
 	pPref->m_nMidiChannelFilter = -1;
+
+	CoreActionController::activateTimeline( false );
 }
 
 void MidiActionTest::tearDown() {
