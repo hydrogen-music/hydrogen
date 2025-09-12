@@ -23,6 +23,7 @@
 #include "TestHelper.h"
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/Song.h>
@@ -270,6 +271,11 @@ void TestHelper::waitForAudioDriver() {
 	pAudioEngine->lock( RIGHT_HERE );
 	const auto nOldRealtimeFrame = pAudioEngine->getRealtimeFrame();
 	pAudioEngine->unlock();
+
+	___INFOLOG( QString( "current bpm: %1, next bpm: %2, tempo source: %3" )
+			   .arg( pAudioEngine->getTransportPosition()->getBpm() )
+			   .arg( pAudioEngine->getNextBpm() )
+			   .arg( static_cast<int>(pHydrogen->getTempoSource() ) ) );
 
 	int nNewRealtimeFrame;
 	const int nMaxTries = 100;
