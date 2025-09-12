@@ -174,11 +174,13 @@ void MidiDriverTest::testMidiClock() {
 		// LoopBackMidiDriver and handled by MidiActionManager.
 		TestHelper::waitForMidiDriver();
 		TestHelper::waitForMidiActionManagerWorkerThread();
+		TestHelper::waitForAudioDriver();
 
 		pAudioEngine->lock( RIGHT_HERE );
+		// Get the latest tempo (after all MIDI clock messages have been
+		// processed).
+		fCurrentBpm = pTransportPosition->getBpm();
 		pMidiActionManager->resetTimingClockTicks();
-		// Flush any BPM changes that are still transient.
-		pAudioEngine->setNextBpm( fCurrentBpm );
 		pAudioEngine->unlock();
 
 		CPPUNIT_ASSERT( nnTry < nMaxTries );
