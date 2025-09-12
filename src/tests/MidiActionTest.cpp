@@ -74,7 +74,7 @@ void MidiActionTest::testBeatCounterAction() {
 	pPref->m_bpmTap = Preferences::BpmTap::BeatCounter;
 	pPref->m_beatCounter = Preferences::BeatCounter::Tap;
 	pPref->m_nBeatCounterDriftCompensation = 0;
-	pHydrogen->setBeatCounterTotalBeats( 4 );
+	pHydrogen->setBeatCounterTotalBeats( 8 );
 	pHydrogen->setBeatCounterBeatLength( 1 );
 	pHydrogen->updateBeatCounterSettings();
 
@@ -94,17 +94,23 @@ void MidiActionTest::testBeatCounterAction() {
 
 	const auto beatCounterMessage = MidiMessage(
 		MidiMessage::Type::ControlChange, nBeatCounterPara, 0, 0 );
-	auto tick = Clock::now();
-	sendMessage( beatCounterMessage );
-	// Compensate for the time spent in sendMessage().
-	H2Core::highResolutionSleep( interval - ( Clock::now() - tick ) );
-	tick = Clock::now();
-	sendMessage( beatCounterMessage );
-	H2Core::highResolutionSleep( interval - ( Clock::now() - tick ) );
-	tick = Clock::now();
-	sendMessage( beatCounterMessage );
-	H2Core::highResolutionSleep( interval - ( Clock::now() - tick ) );
-	sendMessage( beatCounterMessage );
+
+	auto intervalCompensation = std::chrono::duration<float, std::milli>( 0 );
+	for ( int nnMessage = 0; nnMessage < 8; ++nnMessage ) {
+		const auto preSleep = Clock::now();
+		H2Core::highResolutionSleep( interval - intervalCompensation );
+		const auto postSleep = Clock::now();
+
+		const auto preSend = Clock::now();
+		sendMessage( beatCounterMessage );
+		const auto postSend = Clock::now();
+
+		// Compensate the additional time spent during sleep as well as while
+		// sending the MIDI message.
+		intervalCompensation =
+			( postSleep - preSleep - ( interval - intervalCompensation ) ) +
+			( postSend - preSend );
+	}
 
 	// Wait for the audio engine to adopt the new tempo.
 	TestHelper::waitForAudioDriver();
@@ -113,7 +119,7 @@ void MidiActionTest::testBeatCounterAction() {
 	const auto fNewBpm = pAudioEngine->getNextBpm();
 	pAudioEngine->unlock();
 
-	const float fTolerance = 3.0;
+	const float fTolerance = 1;
 	___INFOLOG( QString( "[%1] -> [%2] target [%3 +/- %4]" ).arg( fOldBpm )
 				.arg( fNewBpm ).arg( fTargetBpm ).arg( fTolerance ) );
 	CPPUNIT_ASSERT( fNewBpm != fOldBpm );
@@ -1893,29 +1899,23 @@ void MidiActionTest::testTapTempoAction() {
 
 	const auto tapTempoMessage = MidiMessage(
 		MidiMessage::Type::ControlChange, nParameter, 0, 0 );
-	auto tick = Clock::now();
-	sendMessage( tapTempoMessage );
-	// Compensate for the time spent within sendMessage().
-	H2Core::highResolutionSleep( interval - ( Clock::now() - tick ) );
-	tick = Clock::now();
-	sendMessage( tapTempoMessage );
-	H2Core::highResolutionSleep( interval - ( Clock::now() - tick ) );
-	tick = Clock::now();
-	sendMessage( tapTempoMessage );
-	H2Core::highResolutionSleep( interval - ( Clock::now() - tick ) );
-	tick = Clock::now();
-	sendMessage( tapTempoMessage );
-	H2Core::highResolutionSleep( interval - ( Clock::now() - tick ) );
-	tick = Clock::now();
-	sendMessage( tapTempoMessage );
-	H2Core::highResolutionSleep( interval - ( Clock::now() - tick ) );
-	tick = Clock::now();
-	sendMessage( tapTempoMessage );
-	H2Core::highResolutionSleep( interval - ( Clock::now() - tick ) );
-	tick = Clock::now();
-	sendMessage( tapTempoMessage );
-	H2Core::highResolutionSleep( interval - ( Clock::now() - tick ) );
-	sendMessage( tapTempoMessage );
+
+	auto intervalCompensation = std::chrono::duration<float, std::milli>( 0 );
+	for ( int nnMessage = 0; nnMessage < 8; ++nnMessage ) {
+		const auto preSleep = Clock::now();
+		H2Core::highResolutionSleep( interval - intervalCompensation );
+		const auto postSleep = Clock::now();
+
+		const auto preSend = Clock::now();
+		sendMessage( tapTempoMessage );
+		const auto postSend = Clock::now();
+
+		// Compensate the additional time spent during sleep as well as while
+		// sending the MIDI message.
+		intervalCompensation =
+			( postSleep - preSleep - ( interval - intervalCompensation ) ) +
+			( postSend - preSend );
+	}
 
 	// Wait for the audio engine to adopt the new tempo.
 	TestHelper::waitForAudioDriver();
@@ -1924,7 +1924,7 @@ void MidiActionTest::testTapTempoAction() {
 	const auto fNewBpm = pTransportPosition->getBpm();
 	pAudioEngine->unlock();
 
-	const float fTolerance = 3.0;
+	const float fTolerance = 1;
 	___INFOLOG( QString( "[%1] -> [%2] target [%3 +/- %4]" ).arg( fOldBpm )
 				.arg( fNewBpm ).arg( fTargetBpm ).arg( fTolerance ) );
 	CPPUNIT_ASSERT( fNewBpm != fOldBpm );
