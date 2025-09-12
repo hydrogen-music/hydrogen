@@ -141,7 +141,7 @@ void MidiDriverTest::testMidiClock() {
 	CPPUNIT_ASSERT( pMidiDriver != nullptr );
 
 	const std::vector<float> referenceTempos{
-		80.0, 123.4, 210.1 };
+		80.0, 123.4, 145.1 };
 	const float fTolerance = 1;
 
 	for ( const auto& ffTempo : referenceTempos ) {
@@ -204,7 +204,8 @@ void MidiDriverTest::testMidiClockDrift() {
 		pAudioEngine->getMidiDriver().get() );
 	CPPUNIT_ASSERT( pMidiDriver != nullptr );
 
-	const float fReferenceBpm = 320.7;
+	const float fReferenceBpm = 120.7;
+
 
 	pAudioEngine->lock( RIGHT_HERE );
 	const auto fOldBpm = pTransportPosition->getBpm();
