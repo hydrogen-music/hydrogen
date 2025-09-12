@@ -740,6 +740,7 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame,
 
 void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 										Event::Trigger trigger ) {
+	DEBUGLOG( "" );
 	if ( ! ( m_state == State::Playing ||
 			 m_state == State::Ready ||
 			 m_state == State::Testing ) ) {
@@ -761,6 +762,7 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 		   tempoSource == Hydrogen::Tempo::Song ) &&
 		 fNewBpm != m_fNextBpm ) {
 		fNewBpm = m_fNextBpm;
+		DEBUGLOG( fNewBpm );
 	}
 
 	if ( fNewBpm != fOldBpm ) {
@@ -779,6 +781,9 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 	const float fOldTickSize = pPos->getTickSize();
 	const float fNewTickSize = AudioEngine::computeTickSize(
 		static_cast<float>(m_pAudioDriver->getSampleRate()), fNewBpm );
+
+	DEBUGLOG( QString( "ts diff: %1" )
+			  .arg( fOldTickSize - fNewTickSize ) );
 
 	// Nothing changed - avoid recomputing
 #if defined(WIN32) and !defined(WIN64)
@@ -1736,6 +1741,7 @@ void AudioEngine::setState( const AudioEngine::State& state,
 }
 
 void AudioEngine::setNextBpm( float fNextBpm ) {
+	DEBUGLOG( fNextBpm );
 	if ( fNextBpm > MAX_BPM ) {
 		m_fNextBpm = MAX_BPM;
 		AE_WARNINGLOG( QString( "Provided bpm %1 is too high. Assigning upper bound %2 instead" )

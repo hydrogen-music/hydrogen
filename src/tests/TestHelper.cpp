@@ -263,6 +263,7 @@ void TestHelper::exportMIDI( const QString& sSongFile, const QString& sFileName,
 }
 
 void TestHelper::waitForAudioDriver() {
+	___INFOLOG( "" );
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
@@ -277,8 +278,11 @@ void TestHelper::waitForAudioDriver() {
 		pAudioEngine->lock( RIGHT_HERE );
 		nNewRealtimeFrame = pAudioEngine->getRealtimeFrame();
 		pAudioEngine->unlock();
+		___INFOLOG( QString( "try: %1, old RF: %2, new RF: %3" )
+					.arg( nnTry ).arg( nOldRealtimeFrame ).arg( nNewRealtimeFrame ) );
 
 		if ( nNewRealtimeFrame != nOldRealtimeFrame ) {
+			___DEBUGLOG( "break" );
 			break;
 		}
 
@@ -286,6 +290,7 @@ void TestHelper::waitForAudioDriver() {
 		std::this_thread::sleep_for( std::chrono::milliseconds( 5 ) );
 	}
 	CPPUNIT_ASSERT( nnTry < nMaxTries );
+	___INFOLOG( "done" );
 }
 
 void TestHelper::waitForMidiDriver() {
