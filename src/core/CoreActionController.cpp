@@ -2535,6 +2535,12 @@ bool CoreActionController::setBpm( float fBpm ) {
 	return true;
 }
 
+bool CoreActionController::startCountIn() {
+	DEBUGLOG( "" );
+
+	return true;
+}
+
 std::shared_ptr<Playlist> CoreActionController::loadPlaylist( const QString& sPath,
 															  const QString& sRecoverPath ) {
 	auto pHydrogen = Hydrogen::get_instance();

@@ -174,13 +174,13 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 	m_pPlayButton = createButton( tr( "Play/ Pause" ), true );
 	m_pPlayButton->setObjectName( "MainToolBarPlayButton" );
 	connect( m_pPlayButton, &QToolButton::clicked, [&]() {
-		DEBUGLOG( "click" );
 		playBtnClicked();
 	} );
 
 	m_pPlayMidiAction = std::make_shared<MidiAction>(
 		MidiAction::Type::PlayPauseToggle );
 	m_pPlayAction = new QAction( this );
+	m_pPlayAction->setCheckable( true );
 	m_pPlayAction->setText( tr( "Play/ Pause" ) );
 	connect( m_pPlayAction, &QAction::triggered, [=]() {
 		auto pPref = Preferences::get_instance();
@@ -191,11 +191,11 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 			m_pPlayButton->setDefaultAction( m_pPlayAction );
 		}
 		m_pPlayButton->setMidiAction( m_pPlayMidiAction );
-		DEBUGLOG( "play" );
 	} );
 	m_pCountInMidiAction = std::make_shared<MidiAction>(
 		MidiAction::Type::PlayPauseToggle );
 	m_pCountInAction = new QAction( this );
+	m_pCountInAction->setCheckable( true );
 	m_pCountInAction->setText( tr( "Count in and play/ Pause" ) );
 	connect( m_pCountInAction, &QAction::triggered, [=]() {
 		auto pPref = Preferences::get_instance();
@@ -206,7 +206,6 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 			m_pPlayButton->setDefaultAction( m_pCountInAction );
 		}
 		m_pPlayButton->setMidiAction( m_pCountInMidiAction );
-		DEBUGLOG( "count in" );
 	} );
 
 	m_pPlayButton->addAction( m_pPlayAction );
@@ -621,8 +620,10 @@ void MainToolBar::recBtnClicked() {
 
 /// Start audio engine
 void MainToolBar::playBtnClicked() {
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	// Hint that something is wrong in case there is no proper audio
 	// driver set.
@@ -634,14 +635,20 @@ void MainToolBar::playBtnClicked() {
 							  .arg( pCommonStrings->getAudioDriverErrorHint() ) );
 		return;
 	}
-	
+
 	if ( m_pPlayButton->isChecked() ) {
-		pHydrogen->sequencerPlay();
-		(HydrogenApp::get_instance())->showStatusBarMessage( tr("Playing.") );
+		if ( pPref->getCountIn() ) {
+			CoreActionController::startCountIn();
+			pHydrogenApp->showStatusBarMessage( tr( "Counting in" ) );
+		}
+		else {
+			pHydrogen->sequencerPlay();
+			pHydrogenApp->showStatusBarMessage( tr( "Playing." ) );
+		}
 	}
 	else {
 		pHydrogen->sequencerStop();
-		(HydrogenApp::get_instance())->showStatusBarMessage( tr("Pause.") );
+		pHydrogenApp->showStatusBarMessage( tr( "Pause." ) );
 	}
 }
 

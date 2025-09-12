@@ -426,6 +426,16 @@ void Shortcuts::createActionInfoMap() {
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Switch to previous drumkit of soundlibrary" ) );
 
+	insertActionInfo( Shortcuts::Action::CountIn, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Count in and start playback" ) );
+	insertActionInfo( Shortcuts::Action::CountInPauseToggle, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Count in and start/pause playback" ) );
+	insertActionInfo( Shortcuts::Action::CountInStopToggle, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Count in and start/stop playback" ) );
+
 	// commands with 1 argument
 	insertActionInfo( Shortcuts::Action::BPM, Category::Command1Args,
 					  QT_TRANSLATE_NOOP( "Shortcuts", "Set BPM" ) );

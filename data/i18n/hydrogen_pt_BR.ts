@@ -3015,6 +3015,10 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <source>Count in and play/ Pause</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Counting in</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterLine</name>
@@ -5633,6 +5637,18 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Add component to current instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Count in and start playback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Count in and start/pause playback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Count in and start/stop playback</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

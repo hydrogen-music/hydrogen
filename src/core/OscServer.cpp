@@ -920,6 +920,26 @@ void OscServer::CLEAR_PATTERN_Handler( lo_arg **argv, int i )
 	MidiActionManager::get_instance()->handleMidiAction( pAction );
 }
 
+void OscServer::COUNT_IN_Handler( lo_arg **argv, int i ) {
+	INFOLOG( "processing message" );
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::CountIn );
+	MidiActionManager::get_instance()->handleMidiAction( pAction );
+}
+
+void OscServer::COUNT_IN_PAUSE_TOGGLE_Handler( lo_arg **argv, int i ) {
+	INFOLOG( "processing message" );
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::CountInPauseToggle );
+	MidiActionManager::get_instance()->handleMidiAction( pAction );
+}
+
+void OscServer::COUNT_IN_STOP_TOGGLE_Handler( lo_arg **argv, int i ) {
+	INFOLOG( "processing message" );
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::CountInStopToggle );
+	MidiActionManager::get_instance()->handleMidiAction( pAction );
+}
+
 void OscServer::NOTE_ON_Handler( lo_arg **argv, int i )
 {
 	const int nNote = static_cast<int>( std::round( argv[0]->f ) );
@@ -1382,6 +1402,16 @@ bool OscServer::init()
 								CLEAR_SELECTED_INSTRUMENT_Handler);
 	m_pServerThread->add_method("/Hydrogen/CLEAR_PATTERN", "", CLEAR_PATTERN_Handler);
 	m_pServerThread->add_method("/Hydrogen/CLEAR_PATTERN", "f", CLEAR_PATTERN_Handler);
+	m_pServerThread->add_method("/Hydrogen/COUNT_IN", "", COUNT_IN_Handler);
+	m_pServerThread->add_method("/Hydrogen/COUNT_IN", "f", COUNT_IN_Handler);
+	m_pServerThread->add_method("/Hydrogen/COUNT_IN_PAUSE_TOGGLE", "",
+								COUNT_IN_PAUSE_TOGGLE_Handler);
+	m_pServerThread->add_method("/Hydrogen/COUNT_IN_PAUSE_TOGGLE", "f",
+								COUNT_IN_PAUSE_TOGGLE_Handler);
+	m_pServerThread->add_method("/Hydrogen/COUNT_IN_STOP_TOGGLE", "",
+								COUNT_IN_STOP_TOGGLE_Handler);
+	m_pServerThread->add_method("/Hydrogen/COUNT_IN_STOP_TOGGLE", "f",
+								COUNT_IN_STOP_TOGGLE_Handler);
 
 	m_pServerThread->add_method("/Hydrogen/NOTE_ON", "ff", NOTE_ON_Handler);
 	m_pServerThread->add_method("/Hydrogen/NOTE_OFF", "f", NOTE_OFF_Handler);

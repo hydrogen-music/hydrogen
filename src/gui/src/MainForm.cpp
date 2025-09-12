@@ -3123,6 +3123,19 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 								   pSoundLibraryDataBase->getPreviousDrumkit() ) );
 				break;
 
+			case Shortcuts::Action::CountIn:
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::CountIn );
+				break;
+			case Shortcuts::Action::CountInPauseToggle:
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::CountInPauseToggle );
+				break;
+			case Shortcuts::Action::CountInStopToggle:
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::CountInStopToggle );
+				break;
+
 				//////////////////////////////////////////////////////
 				// GUI Actions
 

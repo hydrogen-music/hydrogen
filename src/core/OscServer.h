@@ -751,6 +751,10 @@ class OscServer : public H2Core::Object<OscServer>
 		 */
 		static void CLEAR_PATTERN_Handler(lo_arg **argv, int argc);
 
+		static void COUNT_IN_Handler(lo_arg **argv, int argc);
+		static void COUNT_IN_PAUSE_TOGGLE_Handler(lo_arg **argv, int argc);
+		static void COUNT_IN_STOP_TOGGLE_Handler(lo_arg **argv, int argc);
+
 		/**
 		 * Provides a similar behavior as a NOTE_ON MIDI message.
 		 *

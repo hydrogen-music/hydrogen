@@ -73,6 +73,15 @@ MidiActionManager::MidiActionManager() {
 		std::make_pair( MidiAction::Type::ClearSelectedInstrument,
 					   std::make_pair( &MidiActionManager::clearSelectedInstrument, 0 ) ));
 	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::CountIn,
+					   std::make_pair( &MidiActionManager::countIn, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::CountInPauseToggle,
+					   std::make_pair( &MidiActionManager::countInPauseToggle, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::CountInStopToggle,
+					   std::make_pair( &MidiActionManager::countInStopToggle, 0 ) ));
+	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::EffectLevelAbsolute,
 					   std::make_pair( &MidiActionManager::effectLevelAbsolute, 2 ) ));
 	m_midiActionMap.insert(
@@ -1405,6 +1414,49 @@ bool MidiActionManager::clearPattern( std::shared_ptr<MidiAction> pAction ) {
 	pPattern->clear( true );
 
 	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, 0 );
+
+	return true;
+}
+
+bool MidiActionManager::countIn( std::shared_ptr<MidiAction> ) {
+	return CoreActionController::startCountIn();
+}
+
+bool MidiActionManager::countInPauseToggle( std::shared_ptr<MidiAction> pAction ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	switch ( pHydrogen->getAudioEngine()->getState() ) {
+	case AudioEngine::State::Ready:
+		CoreActionController::startCountIn();
+		break;
+
+	case AudioEngine::State::Playing:
+		pHydrogen->sequencerStop();
+		break;
+
+	default:
+		ERRORLOG( "AudioEngine not ready yet." );
+		return false;
+	}
+
+	return true;
+}
+
+bool MidiActionManager::countInStopToggle( std::shared_ptr<MidiAction> pAction ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	switch ( pHydrogen->getAudioEngine()->getState() ) {
+	case AudioEngine::State::Ready:
+		CoreActionController::startCountIn();
+		break;
+
+	case AudioEngine::State::Playing:
+		CoreActionController::locateToColumn( 0 );
+		pHydrogen->sequencerStop();
+		break;
+
+	default:
+		ERRORLOG( "AudioEngine not ready yet." );
+		return false;
+	}
 
 	return true;
 }

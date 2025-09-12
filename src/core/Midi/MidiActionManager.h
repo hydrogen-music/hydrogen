@@ -126,6 +126,9 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool bpmIncrease( std::shared_ptr<MidiAction> );
 		bool clearPattern( std::shared_ptr<MidiAction> );
 		bool clearSelectedInstrument( std::shared_ptr<MidiAction> );
+		bool countIn( std::shared_ptr<MidiAction> );
+		bool countInPauseToggle( std::shared_ptr<MidiAction> );
+		bool countInStopToggle( std::shared_ptr<MidiAction> );
 		bool effectLevelAbsolute( std::shared_ptr<MidiAction> );
 		bool effectLevelRelative( std::shared_ptr<MidiAction> );
 		bool filterCutoffLevelAbsolute( std::shared_ptr<MidiAction> );
