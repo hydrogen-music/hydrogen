@@ -740,7 +740,6 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame,
 
 void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 										Event::Trigger trigger ) {
-	DEBUGLOG( "" );
 	if ( ! ( m_state == State::Playing ||
 			 m_state == State::Ready ||
 			 m_state == State::Testing ) ) {
@@ -782,9 +781,6 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 	const float fNewTickSize = AudioEngine::computeTickSize(
 		static_cast<float>(m_pAudioDriver->getSampleRate()), fNewBpm );
 
-	DEBUGLOG( QString( "ts diff: %1" )
-			  .arg( fOldTickSize - fNewTickSize ) );
-
 	// Nothing changed - avoid recomputing
 #if defined(WIN32) and !defined(WIN64)
 	// For some reason two identical numbers (according to their
@@ -798,6 +794,9 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 #endif
 		return;
 	}
+	DEBUGLOG( QString( "ts diff: %1" )
+			  .arg( fOldTickSize - fNewTickSize ) );
+
 
 	if ( fNewTickSize == 0 ) {
 		AE_ERRORLOG( QString( "[%1] Something went wrong while calculating the tick size. [oldTS: %2, newTS: %3]" )
