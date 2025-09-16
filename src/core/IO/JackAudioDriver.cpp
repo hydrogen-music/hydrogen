@@ -940,17 +940,25 @@ void JackAudioDriver::updateTransportPosition()
 
 	switch ( m_JackTransportState ) {
 	case JackTransportStopped: // Transport is halted
-		pAudioEngine->setNextState( AudioEngine::State::Ready );
+		if ( pAudioEngine->getState() != AudioEngine::State::Ready ||
+			 pAudioEngine->getState() != AudioEngine::State::CountIn ) {
+			pAudioEngine->setNextState( AudioEngine::State::Ready );
+		}
 		break;
 
 	case JackTransportRolling: // Transport is playing
-		pAudioEngine->setNextState( AudioEngine::State::Playing );
+		if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
+			pAudioEngine->setNextState( AudioEngine::State::Playing );
+		}
 		break;
 
 	case JackTransportStarting:
 		// Waiting for sync ready. If there are slow-sync clients,
 		// this can take more than one cycle.
-		pAudioEngine->setNextState( AudioEngine::State::Ready );
+		if ( pAudioEngine->getState() != AudioEngine::State::Ready ||
+			 pAudioEngine->getState() != AudioEngine::State::CountIn ) {
+			pAudioEngine->setNextState( AudioEngine::State::Ready );
+		}
 		break;
 
 	default:

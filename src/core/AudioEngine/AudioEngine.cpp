@@ -753,7 +753,7 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame,
 }
 
 void AudioEngine::startCountIn() {
-	m_nextState = State::CountIn;
+	setState( State::CountIn );
 
 	m_nCountInMetronomeTicks = 0;
 
@@ -1569,7 +1569,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		return 0;
 	}
 
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
 
 	// Sync transport with server (in case the current audio driver is
 	// designed that way)
@@ -1593,11 +1593,13 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// Update the state of the audio engine depending on whether it
 	// was started or stopped by the user.
 	if ( pAudioEngine->m_nextState == State::Playing ) {
-		if ( pAudioEngine->getState() == State::Ready ) {
+		if ( pAudioEngine->getState() == State::Ready ||
+			 pAudioEngine->getState() == State::CountIn ) {
 			pAudioEngine->startPlayback();
 		}
 		
-		pAudioEngine->setRealtimeFrame( pAudioEngine->m_pTransportPosition->getFrame() );
+		pAudioEngine->setRealtimeFrame(
+			pAudioEngine->m_pTransportPosition->getFrame() );
 	} else {
 		if ( pAudioEngine->getState() == State::Playing ) {
 			pAudioEngine->stopPlayback();
@@ -1653,7 +1655,6 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 		// We are done counting in.
 		if ( pAudioEngine->m_nRealtimeFrame > pAudioEngine->m_nCountInEndFrame ) {
-			pAudioEngine->m_nextState = State::Playing;
 
 			// Advance the current transport position by the number of frames
 			// exceeding the end of the count in. We do this in order to provide
@@ -1676,6 +1677,19 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			// The queuing position will be left as is in order to not loose any
 			// notes. (It will be behind the transport posution and only move
 			// infront of it during the next processing cycle.)
+
+#ifdef H2CORE_HAVE_JACK
+			if ( pHydrogen->hasJackTransport() ) {
+				// Tell all other JACK clients to start as well and wait for the
+				// JACK server to give the signal.
+				static_cast<JackAudioDriver*>( pAudioEngine->m_pAudioDriver )
+					->startTransport();
+			}
+			else
+#endif
+			{
+				pAudioEngine->setNextState( State::Playing );
+			}
 		}
 	}
 
@@ -2686,7 +2700,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 			float fVelocity = VELOCITY_DEFAULT;
 
 			if ( m_nCountInMetronomeTicks == 0 ) {
-				fPitch=  3;
+				fPitch = 3;
 				fVelocity = VELOCITY_MAX;
 			}
 			++m_nCountInMetronomeTicks;
