@@ -109,6 +109,8 @@ AudioEngine::AudioEngine()
 		, m_fLastTickEnd( 0 )
 		, m_bLookaheadApplied( false )
 		, m_nLoopsDone( 0 )
+		, m_nCountInMetronomeTicks( 0 )
+		, m_nCountInEndFrame( 0 )
 {
 	m_pTransportPosition = std::make_shared<TransportPosition>( "Transport" );
 	m_pQueuingPosition = std::make_shared<TransportPosition>( "Queuing" );
@@ -307,8 +309,8 @@ void AudioEngine::startPlayback()
 {
 	AE_INFOLOG( "" );
 
-	if ( getState() != State::Ready ) {
-	   AE_ERRORLOG( "Error the audio engine is not in State::Ready" );
+	if ( getState() != State::Ready && getState() != State::CountIn ) {
+		AE_ERRORLOG( "Error the audio engine is not ready" );
 		return;
 	}
 
@@ -332,6 +334,10 @@ void AudioEngine::stopPlayback( Event::Trigger trigger )
 
 void AudioEngine::reset( bool bWithJackBroadcast, Event::Trigger trigger ) {
 	const auto pHydrogen = Hydrogen::get_instance();
+
+	if ( getState() == State::CountIn ) {
+		setState( State::Ready );
+	}
 	
 	clearNoteQueues();
 	
@@ -401,6 +407,12 @@ float AudioEngine::getElapsedTime() const {
 void AudioEngine::locate( const double fTick, bool bWithJackBroadcast,
 						  Event::Trigger trigger ) {
 	const auto pHydrogen = Hydrogen::get_instance();
+
+	// We stop counting in right away in case the user interact with the audio
+	// engine.
+	if ( getState() == State::CountIn ) {
+		setNextState( State::Ready );
+	}
 
 #ifdef H2CORE_HAVE_JACK
 	// In case Hydrogen is using the JACK server to sync transport, it
@@ -740,10 +752,32 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame,
 
 }
 
+void AudioEngine::startCountIn() {
+	m_nextState = State::CountIn;
+
+	m_nCountInMetronomeTicks = 0;
+
+	// Count in as many frames as the longest active pattern.
+	double fCountInTicks;
+	if ( m_pTransportPosition->getPlayingPatterns() != nullptr &&
+		 m_pTransportPosition->getPlayingPatterns()->size() > 0 ) {
+		fCountInTicks = m_pTransportPosition->getPlayingPatterns()
+			->longestPatternLength();
+	}
+	else {
+		fCountInTicks = 4 * H2Core::nTicksPerQuarter;
+	}
+	double fMismatch;
+	m_nCountInEndFrame = TransportPosition::computeFrameFromTick(
+		TransportPosition::computeTickFromFrame( m_nRealtimeFrame ) +
+		fCountInTicks, &fMismatch );
+}
+
 void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 										Event::Trigger trigger ) {
 	if ( ! ( m_state == State::Playing ||
 			 m_state == State::Ready ||
+			 m_state == State::CountIn ||
 			 m_state == State::Testing ) ) {
 		return;
 	}
@@ -897,6 +931,7 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 
 #ifdef H2CORE_HAVE_LADSPA
 	if ( getState() == State::Ready ||
+		 getState() == State::CountIn ||
 		 getState() == State::Playing ||
 		 getState() == State::Testing ) {
 		Effects* pEffects = Effects::get_instance();
@@ -1087,8 +1122,9 @@ void AudioEngine::stopAudioDriver( Event::Trigger trigger )
 		this->stopPlayback();
 	}
 
-	if ( ( m_state != State::Prepared )
-		 && ( m_state != State::Ready ) ) {
+	if ( m_state != State::Prepared &&
+		 m_state != State::Ready &&
+		 m_state != State::CountIn ) {
 		AE_ERRORLOG( QString( "Audio engine is not in unsupported [%1]" )
 				  .arg( AudioEngine::StateToQString( m_state ) ) );
 		this->unlock();
@@ -1480,6 +1516,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// locking or message logging.
 	if ( pAudioEngine->m_pAudioDriver == nullptr ||
 		 ( ! ( pAudioEngine->getState() == AudioEngine::State::Ready ||
+			   pAudioEngine->getState() == AudioEngine::State::CountIn ||
 			   pAudioEngine->getState() == AudioEngine::State::Playing ) &&
 		   dynamic_cast<JackAudioDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) ) {
 		return 0;
@@ -1526,6 +1563,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 	// Now that the engine is locked we properly check its state.
 	if ( ! ( pAudioEngine->getState() == AudioEngine::State::Ready ||
+			 pAudioEngine->getState() == AudioEngine::State::CountIn ||
 			 pAudioEngine->getState() == AudioEngine::State::Playing ) ) {
 		pAudioEngine->unlock();
 		return 0;
@@ -1609,6 +1647,35 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		else {
 			// We are not at the end of the song, keep rolling.
 			pAudioEngine->incrementTransportPosition( nframes );
+		}
+	}
+	else if ( pAudioEngine->getState() == AudioEngine::State::CountIn ) {
+
+		// We are done counting in.
+		if ( pAudioEngine->m_nRealtimeFrame > pAudioEngine->m_nCountInEndFrame ) {
+			pAudioEngine->m_nextState = State::Playing;
+
+			// Advance the current transport position by the number of frames
+			// exceeding the end of the count in. We do this in order to provide
+			// a seemless and frame-accurate count in regardless of the buffer
+			// size.
+			const long long nNewTransportFrame =
+				pAudioEngine->getTransportPosition()->getFrame() +
+				pAudioEngine->m_nRealtimeFrame - pAudioEngine->m_nCountInEndFrame;
+			const auto fNewTransportTick = TransportPosition::computeTickFromFrame(
+				nNewTransportFrame );
+			DEBUGLOG( QString( "transport update frame: %1 -> %2, tick: %3 -> %4" )
+					  .arg( pAudioEngine->getTransportPosition()->getFrame() )
+					  .arg( nNewTransportFrame )
+					  .arg( pAudioEngine->getTransportPosition()->getTick() )
+					  .arg( fNewTransportTick ) );
+			pAudioEngine->updateTransportPosition(
+				fNewTransportTick, nNewTransportFrame,
+				pAudioEngine->getTransportPosition(), Event::Trigger::Default );
+
+			// The queuing position will be left as is in order to not loose any
+			// notes. (It will be behind the transport posution and only move
+			// infront of it during the next processing cycle.)
 		}
 	}
 
@@ -1792,7 +1859,7 @@ void AudioEngine::prepare( Event::Trigger trigger ) {
 		this->stopPlayback( trigger );
 	}
 
-	if ( getState() != State::Ready ) {
+	if ( getState() != State::Ready && getState() != State::CountIn ) {
 		AE_ERRORLOG( QString( "Error the audio engine is not in ready [%1]" )
 				  .arg( AudioEngine::StateToQString( getState() ) ) );
 		return;
@@ -2464,7 +2531,7 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 
 	long long nFrameStart, nFrameEnd;
 
-	if ( getState() == State::Ready ) {
+	if ( getState() == State::Ready || getState() == State::CountIn ) {
 		// In case the playback is stopped we pretend it is still
 		// rolling using the realtime ticks while disregarding tempo
 		// changes in the Timeline. This is important as we want to
@@ -2598,6 +2665,45 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 		}
 	}
 
+	const long nTickStart = static_cast<long>(coarseGrainTick( fTickStartComp ));
+	const long nTickEnd = static_cast<long>(coarseGrainTick( fTickEndComp ));
+
+	// Counting is done without the audio engine rolling. Therefore, triggering
+	// metronome notes have to be handled separately.
+	if ( getState() == State::CountIn ) {
+		for ( long nnTick = H2Core::nTicksPerQuarter *
+				  std::ceil( static_cast<float>(nTickStart) /
+							 static_cast<float>(H2Core::nTicksPerQuarter) );
+			  nnTick < nTickEnd;
+			  nnTick += H2Core::nTicksPerQuarter ) {
+			DEBUGLOG( QString( "nnTick: %1, start: %2, end: %3, TPQ: %4" )
+					  .arg( nnTick ).arg( nTickStart ).arg( nTickEnd )
+					  .arg( H2Core::nTicksPerQuarter ) );
+
+			// We do not check whether the metronome is enabled or not as the
+			// user explicitly requested to count in.
+			float fPitch = PITCH_DEFAULT;
+			float fVelocity = VELOCITY_DEFAULT;
+
+			if ( m_nCountInMetronomeTicks == 0 ) {
+				fPitch=  3;
+				fVelocity = VELOCITY_MAX;
+			}
+			++m_nCountInMetronomeTicks;
+
+			auto pMetronomeNote = std::make_shared<Note>(
+				m_pMetronomeInstrument,
+				nnTick,
+				fVelocity,
+				PAN_DEFAULT, // pan
+				LENGTH_ENTIRE_SAMPLE,
+				fPitch );
+			m_pMetronomeInstrument->enqueue( pMetronomeNote );
+			pMetronomeNote->computeNoteStart();
+			m_songNoteQueue.push( pMetronomeNote );
+		}
+	}
+
 	if ( getState() != State::Playing && getState() != State::Testing ) {
 		return;
 	}
@@ -2611,9 +2717,6 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 	if ( ! m_bLookaheadApplied ) {
 		m_bLookaheadApplied = true;
 	}
-	
-	const long nTickStart = static_cast<long>(coarseGrainTick( fTickStartComp ));
-	const long nTickEnd = static_cast<long>(coarseGrainTick( fTickEndComp ));
 
 	// Only store the last tick interval end if transport is
 	// rolling. Else the realtime frame processing will mess things
@@ -2817,6 +2920,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 void AudioEngine::noteOn( std::shared_ptr<Note> pNote )
 {
 	if ( ! ( getState() == State::Playing ||
+			 getState() == State::CountIn ||
 			 getState() == State::Ready ||
 			 getState() == State::Testing ) ) {
 		AE_ERRORLOG( QString( "Error the audio engine is not in unsupported state [%1]" )
@@ -3127,6 +3231,8 @@ QString AudioEngine::StateToQString( const State& state ) {
 		return "Prepared";
 	case State::Ready:
 		return "Ready";
+	case State::CountIn:
+		return "CountIn";
 	case State::Playing:
 		return "Playing";
 	case State::Testing:

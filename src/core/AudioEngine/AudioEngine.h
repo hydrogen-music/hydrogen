@@ -115,17 +115,19 @@ public:
 		 * Ready to process audio.
 		 */
 		Ready = 4,
+		/** Transport rolling yet. But a specific number of metronome */
+		CountIn = 5,
 		/**
 		 * Transport is rolling.
 		 */
-		Playing = 5,
+		Playing = 6,
 		/**
 		 * State used during the unit tests of the
 		 * AudioEngine. Transport is not rolling but when calling a
 		 * function of the process cycle it is ensured all its code
 		 * and subsequent functions will be executed.
 		 */
-		Testing = 6
+		Testing = 7
 	};
 		static QString StateToQString( const State& state );
 
@@ -465,6 +467,7 @@ public:
 		std::shared_ptr<Instrument> );
 	friend bool CoreActionController::replaceInstrument(
 		std::shared_ptr<Instrument>, std::shared_ptr<Instrument> );
+	friend bool CoreActionController::startCountIn();
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeDriver::connect();
 
@@ -556,6 +559,8 @@ private:
 	void			updatePatternTransportPosition( double fTick, long long nFrame,
 													std::shared_ptr<TransportPosition> pPos,
 													Event::Trigger trigger = Event::Trigger::Default );
+
+		void startCountIn();
 
 	/**
 	 * Updates all notes in #m_songNoteQueue and #m_midiNoteQueue to
@@ -710,6 +715,16 @@ private:
 	/** Indicates how many loops the transport already did when the user presses
 	 * the Loop button again. */
 	int m_nLoopsDone;
+
+		/** Count in stuff.
+		 * @{
+		 * How many metronome notes we have already issued. Used to emphasize
+		 * the first one. */
+		int m_nCountInMetronomeTicks;
+		/** Up to which realtime frame #m_nRealtimeFrame we will continue to
+		 * count in.
+		 * @} */
+		long long m_nCountInEndFrame;
 };
 
 #ifdef H2CORE_HAVE_DEBUG

@@ -2502,7 +2502,8 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		ERRORLOG( QString( "Unknown object class" ) );
 	}
 
-	if ( pAudioEngine->getState() == H2Core::AudioEngine::State::Ready ) {
+	if ( pAudioEngine->getState() == H2Core::AudioEngine::State::Ready ||
+		 pAudioEngine->getState() == H2Core::AudioEngine::State::CountIn ) {
 		pHydrogen->sequencerPlay();
 	}
 }

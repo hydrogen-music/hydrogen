@@ -247,7 +247,8 @@ bool MidiActionManager::play( std::shared_ptr<MidiAction> pAction ) {
 		return false;
 	}
 	
-	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Ready ) {
+	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Ready ||
+		 pHydrogen->getAudioEngine()->getState() == AudioEngine::State::CountIn ) {
 		pHydrogen->sequencerPlay();
 	}
 	return true;
@@ -287,6 +288,7 @@ bool MidiActionManager::playPauseToggle( std::shared_ptr<MidiAction> pAction ) {
 
 	switch ( pHydrogen->getAudioEngine()->getState() ) {
 	case AudioEngine::State::Ready:
+	case AudioEngine::State::CountIn:
 		pHydrogen->sequencerPlay();
 		break;
 
@@ -310,6 +312,7 @@ bool MidiActionManager::playStopToggle( std::shared_ptr<MidiAction> pAction ) {
 	
 	switch ( pHydrogen->getAudioEngine()->getState() ) {
 	case AudioEngine::State::Ready:
+	case AudioEngine::State::CountIn:
 		pHydrogen->sequencerPlay();
 		break;
 
@@ -542,7 +545,8 @@ bool MidiActionManager::selectAndPlayPattern( std::shared_ptr<MidiAction> pActio
 		return false;
 	}
 
-	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Ready ) {
+	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Ready ||
+		 pHydrogen->getAudioEngine()->getState() == AudioEngine::State::CountIn ) {
 		pHydrogen->sequencerPlay();
 	}
 
@@ -1426,6 +1430,7 @@ bool MidiActionManager::countInPauseToggle( std::shared_ptr<MidiAction> pAction 
 	auto pHydrogen = Hydrogen::get_instance();
 	switch ( pHydrogen->getAudioEngine()->getState() ) {
 	case AudioEngine::State::Ready:
+	case AudioEngine::State::CountIn:
 		CoreActionController::startCountIn();
 		break;
 
@@ -1445,6 +1450,7 @@ bool MidiActionManager::countInStopToggle( std::shared_ptr<MidiAction> pAction )
 	auto pHydrogen = Hydrogen::get_instance();
 	switch ( pHydrogen->getAudioEngine()->getState() ) {
 	case AudioEngine::State::Ready:
+	case AudioEngine::State::CountIn:
 		CoreActionController::startCountIn();
 		break;
 

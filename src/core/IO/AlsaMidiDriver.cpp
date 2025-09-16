@@ -203,8 +203,9 @@ void AlsaMidiDriver::close() {
 
 void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle ) {
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
-	if ( ( pAudioEngine->getState() != AudioEngine::State::Ready ) &&
-		 ( pAudioEngine->getState() != AudioEngine::State::Playing ) ) {
+	if ( pAudioEngine->getState() != AudioEngine::State::Ready &&
+		 pAudioEngine->getState() != AudioEngine::State::CountIn &&
+		 pAudioEngine->getState() != AudioEngine::State::Playing ) {
 // 		ERRORLOG( "Skipping midi event! Audio Engine not ready." );
 		return;
 	}

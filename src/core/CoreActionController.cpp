@@ -2536,7 +2536,18 @@ bool CoreActionController::setBpm( float fBpm ) {
 }
 
 bool CoreActionController::startCountIn() {
+	auto pHydrogen = Hydrogen::get_instance();
+	assert( pHydrogen );
+	if ( pHydrogen == nullptr ) {
+		ERRORLOG( "Core not ready yet!" );
+		return false;
+	}
+
 	DEBUGLOG( "" );
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	pAudioEngine->lock( RIGHT_HERE );
+	pAudioEngine->startCountIn();
+	pAudioEngine->unlock();
 
 	return true;
 }
