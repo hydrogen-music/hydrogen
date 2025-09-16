@@ -323,7 +323,7 @@ void AudioEngine::stopPlayback( Event::Trigger trigger )
 
 	if ( getState() != State::Playing ) {
 		AE_ERRORLOG( QString( "Error the audio engine is not in State::Playing but [%1]" )
-				  .arg( static_cast<int>( getState() ) ) );
+				  .arg( AudioEngine::StateToQString( getState() ) ) );
 		return;
 	}
 
@@ -1042,7 +1042,7 @@ void AudioEngine::startAudioDriver( Event::Trigger trigger ) {
 	
 	if ( getState() != State::Initialized ) {
 		AE_ERRORLOG( QString( "Audio engine is not in State::Initialized but [%1]" )
-				  .arg( static_cast<int>( getState() ) ) );
+				  .arg( AudioEngine::StateToQString( getState() ) ) );
 		return;
 	}
 
@@ -1089,8 +1089,8 @@ void AudioEngine::stopAudioDriver( Event::Trigger trigger )
 
 	if ( ( m_state != State::Prepared )
 		 && ( m_state != State::Ready ) ) {
-		AE_ERRORLOG( QString( "Audio engine is not in State::Prepared or State::Ready but [%1]" )
-				  .arg( static_cast<int>(m_state) ) );
+		AE_ERRORLOG( QString( "Audio engine is not in unsupported [%1]" )
+				  .arg( AudioEngine::StateToQString( m_state ) ) );
 		this->unlock();
 		return;
 	}
@@ -1750,7 +1750,7 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	
 	if ( getState() != State::Prepared ) {
 		AE_ERRORLOG( QString( "Error the audio engine is not in State::Prepared but [%1]" )
-				  .arg( static_cast<int>( getState() ) ) );
+				  .arg( AudioEngine::StateToQString( getState() ) ) );
 	}
 
 	if ( m_pAudioDriver != nullptr ) {
@@ -1793,8 +1793,8 @@ void AudioEngine::prepare( Event::Trigger trigger ) {
 	}
 
 	if ( getState() != State::Ready ) {
-		AE_ERRORLOG( QString( "Error the audio engine is not in State::Ready but [%1]" )
-				  .arg( static_cast<int>( getState() ) ) );
+		AE_ERRORLOG( QString( "Error the audio engine is not in ready [%1]" )
+				  .arg( AudioEngine::StateToQString( getState() ) ) );
 		return;
 	}
 
@@ -2819,8 +2819,8 @@ void AudioEngine::noteOn( std::shared_ptr<Note> pNote )
 	if ( ! ( getState() == State::Playing ||
 			 getState() == State::Ready ||
 			 getState() == State::Testing ) ) {
-		AE_ERRORLOG( QString( "Error the audio engine is not in State::Ready, State::Playing, or State::Testing but [%1]" )
-					 .arg( static_cast<int>( getState() ) ) );
+		AE_ERRORLOG( QString( "Error the audio engine is not in unsupported state [%1]" )
+					 .arg( AudioEngine::StateToQString( getState() ) ) );
 		return;
 	}
 
