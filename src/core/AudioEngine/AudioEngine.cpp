@@ -110,6 +110,8 @@ AudioEngine::AudioEngine()
 		, m_bLookaheadApplied( false )
 		, m_nLoopsDone( 0 )
 		, m_nCountInMetronomeTicks( 0 )
+		, m_nCountInStartTick( 0 )
+		, m_nCountInEndTick( 0 )
 		, m_nCountInEndFrame( 0 )
 {
 	m_pTransportPosition = std::make_shared<TransportPosition>( "Transport" );
@@ -767,10 +769,16 @@ void AudioEngine::startCountIn() {
 	else {
 		fCountInTicks = 4 * H2Core::nTicksPerQuarter;
 	}
+
+	// We do not start the count in at the very frame this method was called on
+	// but on the next proper (integer) tick.
+	m_nCountInStartTick = static_cast<long>(
+		std::ceil( TransportPosition::computeTickFromFrame( m_nRealtimeFrame ) ) );
+	m_nCountInEndTick = m_nCountInStartTick +
+		static_cast<long>( std::floor( fCountInTicks ) );
 	double fMismatch;
 	m_nCountInEndFrame = TransportPosition::computeFrameFromTick(
-		TransportPosition::computeTickFromFrame( m_nRealtimeFrame ) +
-		fCountInTicks, &fMismatch );
+		m_nCountInStartTick + fCountInTicks, &fMismatch );
 }
 
 void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
@@ -2655,8 +2663,8 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 
 	double fTickStartComp, fTickEndComp;
 
-	long long nLeadLagFactor =
-		computeTickInterval( &fTickStartComp, &fTickEndComp, nIntervalLengthInFrames );
+	long long nLeadLagFactor = computeTickInterval(
+		&fTickStartComp, &fTickEndComp, nIntervalLengthInFrames );
 
 	// MIDI events get put into the `m_songNoteQueue` as well.
 	while ( m_midiNoteQueue.size() > 0 ) {
@@ -2685,10 +2693,20 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 	// Counting is done without the audio engine rolling. Therefore, triggering
 	// metronome notes have to be handled separately.
 	if ( getState() == State::CountIn ) {
+		const long nCountInTickStart = static_cast<long>(
+			coarseGrainTick( TransportPosition::computeTickFromFrame(
+								m_nRealtimeFrame ) ) );
+		const long nCountInTickEnd = std::min( static_cast<long>(
+			coarseGrainTick( TransportPosition::computeTickFromFrame(
+								m_nRealtimeFrame +
+								static_cast<long>( nIntervalLengthInFrames ) ) ) ),
+											   m_nCountInEndTick );
 		for ( long nnTick = H2Core::nTicksPerQuarter *
-				  std::ceil( static_cast<float>(nTickStart) /
-							 static_cast<float>(H2Core::nTicksPerQuarter) );
-			  nnTick < nTickEnd;
+				  std::ceil( static_cast<float>(
+								 nCountInTickStart - m_nCountInStartTick) /
+							 static_cast<float>(H2Core::nTicksPerQuarter) ) +
+				  m_nCountInStartTick;
+			  nnTick < nCountInTickEnd;
 			  nnTick += H2Core::nTicksPerQuarter ) {
 			DEBUGLOG( QString( "nnTick: %1, start: %2, end: %3, TPQ: %4" )
 					  .arg( nnTick ).arg( nTickStart ).arg( nTickEnd )

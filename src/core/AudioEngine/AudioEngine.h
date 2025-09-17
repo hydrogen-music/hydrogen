@@ -721,6 +721,12 @@ private:
 		 * How many metronome notes we have already issued. Used to emphasize
 		 * the first one. */
 		int m_nCountInMetronomeTicks;
+		/** At this tick the count in will be started. It also serves as a
+		 * references for calculating which tick is supposed to be paired with a
+		 * metronome note. */
+		long m_nCountInStartTick;
+		/** First tick which will be _not_ included into the count in. */
+		long m_nCountInEndTick;
 		/** Up to which realtime frame #m_nRealtimeFrame we will continue to
 		 * count in.
 		 * @} */
