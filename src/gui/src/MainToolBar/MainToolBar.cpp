@@ -520,7 +520,9 @@ void MainToolBar::metronomeEvent( int nValue ) {
 		return;
 	}
 
-	if ( ! pPref->m_bUseMetronome ) {
+	if ( ! pPref->m_bUseMetronome &&
+		 Hydrogen::get_instance()->getAudioEngine()->getState() !=
+		 AudioEngine::State::CountIn ) {
 		return;
 	}
 
