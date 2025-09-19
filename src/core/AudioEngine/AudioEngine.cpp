@@ -606,7 +606,7 @@ void AudioEngine::updateTransportPosition( double fTick, long long nFrame,
 	}
 
 	if ( pHydrogen->getSendBbtChangeEvents() &&
-		 pPos == m_pTransportPosition && bBBTChanged &&
+		 pPos->getType() == TransportPosition::Type::Transport && bBBTChanged &&
 		 trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->pushEvent( Event::Type::BbtChanged, 0 );
 	}
@@ -735,7 +735,7 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame,
 
 		updatePlayingPatternsPos( pPos, trigger );
 
-		if ( pPos == m_pTransportPosition ) {
+		if ( pPos->getType() == TransportPosition::Type::Transport ) {
 			if ( trigger == Event::Trigger::Suppress ) {
 				handleSelectedPattern( trigger  );
 			}
@@ -812,7 +812,7 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 
 	if ( fNewBpm != fOldBpm ) {
 		pPos->setBpm( fNewBpm );
-		if ( pPos == m_pTransportPosition &&
+		if ( pPos->getType() == TransportPosition::Type::Transport &&
 			 trigger != Event::Trigger::Suppress ) {
 			EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, 0 );
 		}
@@ -908,7 +908,7 @@ void AudioEngine::calculateTransportOffsetOnBpmChange( std::shared_ptr<Transport
 		pPos->setFrame( nNewFrame );
 	}
 
-	if ( pPos == m_pTransportPosition ) {
+	if ( pPos->getType() == TransportPosition::Type::Transport ) {
 		handleTempoChange();
 	}
 }
@@ -2226,7 +2226,8 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 			pPos->setPatternSize( 4 * H2Core::nTicksPerQuarter );
 
-			if ( pPos == m_pTransportPosition && nPrevPatternNumber > 0 &&
+			if ( pPos->getType() == TransportPosition::Type::Transport &&
+				 nPrevPatternNumber > 0 &&
 				 trigger != Event::Trigger::Suppress ) {
 				EventQueue::get_instance()->pushEvent( Event::Type::PlayingPatternsChanged, 0 );
 			}
@@ -2254,7 +2255,8 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 		if ( pPos == m_pTransportPosition &&
 			 trigger != Event::Trigger::Suppress &&
 			 ( nPrevPatternNumber != 0 || pPlayingPatterns->size() != 0 ) ) {
-			EventQueue::get_instance()->pushEvent( Event::Type::PlayingPatternsChanged, 0 );
+			EventQueue::get_instance()->pushEvent(
+				Event::Type::PlayingPatternsChanged, 0 );
 		}
 	}
 	else if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
@@ -2298,7 +2300,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 				// GUI does not care about the internals of the audio
 				// engine and just moves along the transport position.
-				if ( pPos == m_pTransportPosition &&
+				if ( pPos->getType() == TransportPosition::Type::Transport &&
 					 trigger != Event::Trigger::Suppress ) {
 					EventQueue::get_instance()->pushEvent( Event::Type::PlayingPatternsChanged, 0 );
 				}
