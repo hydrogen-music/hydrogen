@@ -113,6 +113,7 @@ AudioEngine::AudioEngine()
 		, m_nCountInMetronomeTicks( 0 )
 		, m_nCountInStartTick( 0 )
 		, m_nCountInEndTick( 0 )
+		, m_fCountInTickInterval( 0 )
 		, m_fCountInTickSizeStart( 0 )
 		, m_nCountInEndFrame( 0 )
 {
@@ -762,30 +763,21 @@ void AudioEngine::startCountIn() {
 	setState( State::CountIn );
 	setNextState( State::CountIn );
 
-	m_nCountInMetronomeTicks = 0;
+	m_nCountInMetronomeTicks = -1;
 	m_nRealtimeFrameScaled = m_nRealtimeFrame;
 	m_fCountInTickSizeStart = m_pTransportPosition->getTickSize();
 
 	// Count in as many frames as the longest active pattern.
-	double fCountInTicks;
 	if ( m_pTransportPosition->getPlayingPatterns() != nullptr &&
 		 m_pTransportPosition->getPlayingPatterns()->size() > 0 ) {
-		fCountInTicks = m_pTransportPosition->getPlayingPatterns()
+		m_fCountInTickInterval = m_pTransportPosition->getPlayingPatterns()
 			->longestPatternLength();
 	}
 	else {
-		fCountInTicks = 4 * H2Core::nTicksPerQuarter;
+		m_fCountInTickInterval = 4 * H2Core::nTicksPerQuarter;
 	}
 
-	// We do not start the count in at the very frame this method was called on
-	// but on the next proper (integer) tick.
-	m_nCountInStartTick = static_cast<long>(
-		std::ceil( TransportPosition::computeTickFromFrame( m_nRealtimeFrame ) ) );
-	m_nCountInEndTick = m_nCountInStartTick +
-		static_cast<long>( std::floor( fCountInTicks ) );
-	double fMismatch;
-	m_nCountInEndFrame = TransportPosition::computeFrameFromTick(
-		m_nCountInEndTick, &fMismatch );
+	DEBUGLOG( QString( "m_fCountInTickInterval: %1, RT tick %2, rt frame: %3, ts: %4, transport tick: %5" )
 }
 
 void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
@@ -2729,13 +2721,34 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 	// Counting is done without the audio engine rolling. Therefore, triggering
 	// metronome notes have to be handled separately.
 	if ( getState() == State::CountIn ) {
+
+		// We do not calculate the ticks to cover in the count in within
+		// startCountIn(). On higher speeds the realtime frames would have
+		// already moved to the next tick when first arriving in here and we
+		// would miss the first metronome hit.
+		if ( m_nCountInMetronomeTicks == -1 ) {
+			m_nCountInMetronomeTicks = 0;
+
+			// We do not start the count in at the very frame this method was
+			// called on but on the next proper (integer) tick.
+			m_nCountInStartTick = static_cast<long>(
+				std::ceil( TransportPosition::computeTickFromFrame(
+							   m_nRealtimeFrameScaled ) ) );
+			m_nCountInEndTick = m_nCountInStartTick +
+				static_cast<long>( std::floor( m_fCountInTickInterval ) );
+			double fMismatch;
+			m_nCountInEndFrame = TransportPosition::computeFrameFromTick(
+				m_nCountInEndTick, &fMismatch );
+
+		}
+
 		// We use the scaled version of the realtime frame to keep the tick
 		// interval processed in here aligned in case of tempo changes.
-		const long nCountInTickStart = static_cast<long>(
+		const long nTickIntervalStart = static_cast<long>(
 			coarseGrainTick( TransportPosition::computeTick(
 								m_nRealtimeFrameScaled,
 								m_pTransportPosition->getTickSize() ) ) );
-		const long nCountInTickEnd = std::min( static_cast<long>(
+		const long nTickIntervalEnd = std::min( static_cast<long>(
 			coarseGrainTick( TransportPosition::computeTick(
 								m_nRealtimeFrameScaled +
 								static_cast<long long>( nIntervalLengthInFrames ),
@@ -2743,10 +2756,10 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 											   m_nCountInEndTick );
 		for ( long nnTick = H2Core::nTicksPerQuarter *
 				  std::ceil( static_cast<float>(
-								 nCountInTickStart - m_nCountInStartTick) /
+								 nTickIntervalStart - m_nCountInStartTick) /
 							 static_cast<float>(H2Core::nTicksPerQuarter) ) +
 				  m_nCountInStartTick;
-			  nnTick < nCountInTickEnd;
+			  nnTick < nTickIntervalEnd;
 			  nnTick += H2Core::nTicksPerQuarter ) {
 
 			// We do not check whether the metronome is enabled or not as the

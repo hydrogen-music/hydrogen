@@ -748,6 +748,7 @@ private:
 		long m_nCountInStartTick;
 		/** First tick which will be _not_ included into the count in. */
 		long m_nCountInEndTick;
+		double m_fCountInTickInterval;
 		float m_fCountInTickSizeStart;
 		/** Up to which realtime frame #m_nRealtimeFrame we will continue to
 		 * count in.
