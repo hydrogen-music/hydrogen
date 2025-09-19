@@ -22,12 +22,75 @@
 
 #include "CoreActionControllerTest.h"
 
+#include "TestHelper.h"
+
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/Helpers/Filesystem.h>
 
+#include <chrono>
+#include <thread>
+
 using namespace H2Core;
+
+void CoreActionControllerTest::testCountIn() {
+	___INFOLOG( "" );
+	auto pSongSizeChanged = Song::load(
+		QString( H2TEST_FILE( "song/AE_songSizeChanged.h2song" ) ) );
+	ASSERT_SONG( pSongSizeChanged );
+	CoreActionController::setSong( pSongSizeChanged );
+	CoreActionController::activateSongMode( true );
+
+	// Move to different columns in song mode and start the count in. Since
+	// patterns of different length are present in those columns, we should see
+	// different numbers of count in ticks.
+
+	auto countInTicksForColumn = []( int nColumn ) {
+		auto pHydrogen = Hydrogen::get_instance();
+		auto pAudioEngine = pHydrogen->getAudioEngine();
+
+		CPPUNIT_ASSERT( CoreActionController::locateToColumn( nColumn ) );
+		CPPUNIT_ASSERT( CoreActionController::startCountIn() );
+		CPPUNIT_ASSERT( CoreActionController::setBpm( MAX_BPM ) );
+
+		// Right away the AudioEngine should be in State::CountIn.
+		pAudioEngine->lock( RIGHT_HERE );
+		const auto state = pAudioEngine->getState();
+		pAudioEngine->unlock();
+		CPPUNIT_ASSERT( state == AudioEngine::State::CountIn );
+
+		// Wait till count in is done.
+		int nnTry = 0;
+		const int nMaxTries = 50;
+		while( nnTry < nMaxTries ) {
+			pAudioEngine->lock( RIGHT_HERE );
+			const auto currentState = pAudioEngine->getState();
+			pAudioEngine->unlock();
+
+			if ( currentState != AudioEngine::State::CountIn ) {
+				break;
+			}
+
+			++nnTry;
+			std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+		}
+		CPPUNIT_ASSERT( nnTry < nMaxTries );
+
+		return pAudioEngine->getCountInMetronomeTicks();
+	};
+
+	std::vector< std::pair<int, int> > results{ {0, 1}, {1, 10}, {2,4} };
+	for ( const auto [ nnColumn, nnTicks ] : results ) {
+		const auto nTicksReal = countInTicksForColumn( nnColumn );
+		___INFOLOG( QString( "column: %1, ticks: %2, reference: %3" )
+					.arg( nnColumn ).arg( nTicksReal ).arg( nnTicks ) );
+		CPPUNIT_ASSERT( nnTicks == nTicksReal );
+	}
+
+	___INFOLOG( "passed" );
+}
 
 void CoreActionControllerTest::testSessionManagement() {
 	___INFOLOG( "" );
