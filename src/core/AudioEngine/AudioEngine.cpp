@@ -114,8 +114,10 @@ AudioEngine::AudioEngine()
 		, m_nCountInEndTick( 0 )
 		, m_nCountInEndFrame( 0 )
 {
-	m_pTransportPosition = std::make_shared<TransportPosition>( "Transport" );
-	m_pQueuingPosition = std::make_shared<TransportPosition>( "Queuing" );
+	m_pTransportPosition = std::make_shared<TransportPosition>(
+		TransportPosition::Type::Transport );
+	m_pQueuingPosition = std::make_shared<TransportPosition>(
+		TransportPosition::Type::Queuing );
 	
 	m_pSampler = new Sampler;
 
@@ -691,7 +693,7 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame,
 
 	if ( fTick < 0 ) {
 		AE_ERRORLOG( QString( "[%1] Provided tick [%2] is negative!" )
-				  .arg( pPos->getLabel() )
+				  .arg( TransportPosition::TypeToQString( pPos->getType() ) )
 				  .arg( fTick, 0, 'f' ) );
 		return;
 	}
@@ -836,7 +838,7 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 
 	if ( fNewTickSize == 0 ) {
 		AE_ERRORLOG( QString( "[%1] Something went wrong while calculating the tick size. [oldTS: %2, newTS: %3]" )
-				  .arg( pPos->getLabel() )
+				  .arg( TransportPosition::TypeToQString( pPos->getType() ) )
 				  .arg( fOldTickSize, 0, 'f' ).arg( fNewTickSize, 0, 'f' ) );
 		return;
 	}
@@ -849,7 +851,7 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 
 #if AUDIO_ENGINE_DEBUG
 	AE_DEBUGLOG(QString( "[%1] [%7,%8] sample rate: %2, tick size: %3 -> %4, bpm: %5 -> %6" )
-			 .arg( pPos->getLabel() )
+			 .arg( TransportPosition::TypeToQString( pPos->getType() ) )
 			 .arg( static_cast<float>(m_pAudioDriver->getSampleRate()))
 			 .arg( fOldTickSize, 0, 'f' )
 			 .arg( fNewTickSize, 0, 'f' )
@@ -885,7 +887,7 @@ void AudioEngine::calculateTransportOffsetOnBpmChange( std::shared_ptr<Transport
 
 #if AUDIO_ENGINE_DEBUG
 		AE_DEBUGLOG( QString( "[%1 : [%2] timeline] old frame: %3, new frame: %4, tick: %5, nNewLookahead: %6, pPos->getFrameOffsetTempo(): %7, pPos->getTickOffsetQueuing(): %8, fNewTickEnd: %9, m_fLastTickEnd: %10" )
-				  .arg( pPos->getLabel() )
+				  .arg( TransportPosition::TypeToQString( pPos->getType() ) )
 				  .arg( Hydrogen::get_instance()->isTimelineEnabled() )
 				  .arg( pPos->getFrame() )
 				  .arg( nNewFrame )

@@ -1567,7 +1567,8 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 			pPos = pAudioEngine->getTransportPosition();
 		}
 		else {
-			pPos = std::make_shared<TransportPosition>( "JackTimebaseCallback" );
+			pPos = std::make_shared<TransportPosition>(
+				TransportPosition::Type::JackTimebaseCallback );
 			const auto fTick = TransportPosition::computeTickFromFrame(
 				nFrame );
 			pAudioEngine->updateTransportPosition( fTick, nFrame, pPos );
