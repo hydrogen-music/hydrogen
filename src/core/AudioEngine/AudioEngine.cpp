@@ -98,6 +98,7 @@ AudioEngine::AudioEngine()
 		, m_pMetronomeInstrument( nullptr )
 		, m_fSongSizeInTicks( 4 * H2Core::nTicksPerQuarter )
 		, m_nRealtimeFrame( 0 )
+		, m_nRealtimeFrameScaled( 0 )
 		, m_fMasterPeak_L( 0.0f )
 		, m_fMasterPeak_R( 0.0f )
 		, m_nextState( State::Ready )
@@ -112,6 +113,7 @@ AudioEngine::AudioEngine()
 		, m_nCountInMetronomeTicks( 0 )
 		, m_nCountInStartTick( 0 )
 		, m_nCountInEndTick( 0 )
+		, m_fCountInTickSizeStart( 0 )
 		, m_nCountInEndFrame( 0 )
 {
 	m_pTransportPosition = std::make_shared<TransportPosition>(
@@ -760,6 +762,8 @@ void AudioEngine::startCountIn() {
 	setState( State::CountIn );
 
 	m_nCountInMetronomeTicks = 0;
+	m_nRealtimeFrameScaled = m_nRealtimeFrame;
+	m_fCountInTickSizeStart = m_pTransportPosition->getTickSize();
 
 	// Count in as many frames as the longest active pattern.
 	double fCountInTicks;
@@ -780,7 +784,7 @@ void AudioEngine::startCountIn() {
 		static_cast<long>( std::floor( fCountInTicks ) );
 	double fMismatch;
 	m_nCountInEndFrame = TransportPosition::computeFrameFromTick(
-		m_nCountInStartTick + fCountInTicks, &fMismatch );
+		m_nCountInEndTick, &fMismatch );
 }
 
 void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
@@ -863,10 +867,14 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 	
 	pPos->setTickSize( fNewTickSize );
 	
-	calculateTransportOffsetOnBpmChange( pPos );
+	calculateTransportOffsetOnBpmChange( pPos, fOldTickSize, fNewTickSize );
 }
 
-void AudioEngine::calculateTransportOffsetOnBpmChange( std::shared_ptr<TransportPosition> pPos ) {
+void AudioEngine::calculateTransportOffsetOnBpmChange(
+	std::shared_ptr<TransportPosition> pPos,
+	float fTickSizeOld,
+	float fTickSizeNew
+ ) {
 
 	// If we deal with a single speed for the whole song, the frames
 	// since the beginning of the song are tempo-dependent and have to
@@ -909,6 +917,12 @@ void AudioEngine::calculateTransportOffsetOnBpmChange( std::shared_ptr<Transport
 	}
 
 	if ( pPos->getType() == TransportPosition::Type::Transport ) {
+		if ( getState() == State::CountIn &&
+			 std::abs( fTickSizeOld - fTickSizeNew ) > 1e-2 ) {
+			m_nRealtimeFrameScaled *= fTickSizeNew / fTickSizeOld;
+			m_nCountInEndFrame *= fTickSizeNew / fTickSizeOld;
+		}
+
 		handleTempoChange();
 	}
 }
@@ -1610,6 +1624,8 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		
 		pAudioEngine->setRealtimeFrame(
 			pAudioEngine->m_pTransportPosition->getFrame() );
+		pAudioEngine->m_nRealtimeFrameScaled +=
+			pAudioEngine->m_pTransportPosition->getFrame();
 	} else {
 		if ( pAudioEngine->getState() == State::Playing ) {
 			pAudioEngine->stopPlayback();
@@ -1619,6 +1635,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		// to support our realtime keyboard and midi event timing
 		pAudioEngine->setRealtimeFrame( pAudioEngine->getRealtimeFrame() +
 										 static_cast<long long>(nframes) );
+		pAudioEngine->m_nRealtimeFrameScaled += static_cast<long long>(nframes);
 	}
 
 	// always update note queue.. could come from pattern or realtime input
@@ -1664,7 +1681,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	else if ( pAudioEngine->getState() == AudioEngine::State::CountIn ) {
 
 		// We are done counting in.
-		if ( pAudioEngine->m_nRealtimeFrame > pAudioEngine->m_nCountInEndFrame ) {
+		if ( pAudioEngine->m_nRealtimeFrameScaled > pAudioEngine->m_nCountInEndFrame ) {
 
 			// Advance the current transport position by the number of frames
 			// exceeding the end of the count in. We do this in order to provide
@@ -1672,7 +1689,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			// size.
 			const long long nNewTransportFrame =
 				pAudioEngine->getTransportPosition()->getFrame() +
-				pAudioEngine->m_nRealtimeFrame - pAudioEngine->m_nCountInEndFrame;
+				pAudioEngine->m_nRealtimeFrameScaled - pAudioEngine->m_nCountInEndFrame;
 			const auto fNewTransportTick = TransportPosition::computeTickFromFrame(
 				nNewTransportFrame );
 			DEBUGLOG( QString( "transport update frame: %1 -> %2, tick: %3 -> %4" )
@@ -1690,6 +1707,12 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 #ifdef H2CORE_HAVE_JACK
 			if ( pHydrogen->hasJackTransport() ) {
+				// It takes a full processing cycle till JACK informs us about
+				// the state change to Playing. We reset the current state in
+				// here to Ready in order to ensure this section is only entered
+				// once at the end of the count in.
+				pAudioEngine->setState( State::Ready );
+
 				// Tell all other JACK clients to start as well and wait for the
 				// JACK server to give the signal.
 				static_cast<JackAudioDriver*>( pAudioEngine->m_pAudioDriver )
@@ -2126,7 +2149,9 @@ void AudioEngine::updateSongSize( Event::Trigger trigger ) {
 #else
 	if ( fOldTickSize == m_pTransportPosition->getTickSize() ) {
 #endif
-		calculateTransportOffsetOnBpmChange( m_pTransportPosition );
+		calculateTransportOffsetOnBpmChange(
+			m_pTransportPosition, fOldTickSize,
+			m_pTransportPosition->getTickSize() );
 	}
 	
 	// Updating the queuing position by the same offset to keep them
@@ -2443,7 +2468,9 @@ void AudioEngine::handleTimelineChange() {
 		// good, as it makes a significant difference to be located at
 		// tick X with e.g. 120 bpm tempo and at X with a 120 bpm
 		// tempo marker active but several others located prior to X. 
-		calculateTransportOffsetOnBpmChange( m_pTransportPosition );
+		calculateTransportOffsetOnBpmChange(
+			m_pTransportPosition, fOldTickSize,
+			m_pTransportPosition->getTickSize() );
 	}
 
 #if AUDIO_ENGINE_DEBUG
@@ -2691,19 +2718,20 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 		}
 	}
 
-	const long nTickStart = static_cast<long>(coarseGrainTick( fTickStartComp ));
-	const long nTickEnd = static_cast<long>(coarseGrainTick( fTickEndComp ));
-
 	// Counting is done without the audio engine rolling. Therefore, triggering
 	// metronome notes have to be handled separately.
 	if ( getState() == State::CountIn ) {
+		// We use the scaled version of the realtime frame to keep the tick
+		// interval processed in here aligned in case of tempo changes.
 		const long nCountInTickStart = static_cast<long>(
-			coarseGrainTick( TransportPosition::computeTickFromFrame(
-								m_nRealtimeFrame ) ) );
+			coarseGrainTick( TransportPosition::computeTick(
+								m_nRealtimeFrameScaled,
+								m_pTransportPosition->getTickSize() ) ) );
 		const long nCountInTickEnd = std::min( static_cast<long>(
-			coarseGrainTick( TransportPosition::computeTickFromFrame(
-								m_nRealtimeFrame +
-								static_cast<long>( nIntervalLengthInFrames ) ) ) ),
+			coarseGrainTick( TransportPosition::computeTick(
+								m_nRealtimeFrameScaled +
+								static_cast<long long>( nIntervalLengthInFrames ),
+							 m_pTransportPosition->getTickSize() ) ) ),
 											   m_nCountInEndTick );
 		for ( long nnTick = H2Core::nTicksPerQuarter *
 				  std::ceil( static_cast<float>(
@@ -2712,9 +2740,6 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 				  m_nCountInStartTick;
 			  nnTick < nCountInTickEnd;
 			  nnTick += H2Core::nTicksPerQuarter ) {
-			DEBUGLOG( QString( "nnTick: %1, start: %2, end: %3, TPQ: %4" )
-					  .arg( nnTick ).arg( nTickStart ).arg( nTickEnd )
-					  .arg( H2Core::nTicksPerQuarter ) );
 
 			// We do not check whether the metronome is enabled or not as the
 			// user explicitly requested to count in.
@@ -2727,9 +2752,13 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 			}
 			++m_nCountInMetronomeTicks;
 
+			// Since note processing will be done based on m_nRealtimeFrame we
+			// have to use this value when setting the note position. Otherwise,
+			// it will be located in the future or past on tempo changes.
 			auto pMetronomeNote = std::make_shared<Note>(
 				m_pMetronomeInstrument,
-				nnTick,
+				TransportPosition::computeTickFromFrame(
+					m_nRealtimeFrame ),
 				fVelocity,
 				PAN_DEFAULT, // pan
 				LENGTH_ENTIRE_SAMPLE,
@@ -2743,6 +2772,9 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 	if ( getState() != State::Playing && getState() != State::Testing ) {
 		return;
 	}
+
+	const long nTickStart = static_cast<long>(coarseGrainTick( fTickStartComp ));
+	const long nTickEnd = static_cast<long>(coarseGrainTick( fTickEndComp ));
 
 	AutomationPath* pAutomationPath = pSong->getVelocityAutomationPath();
 

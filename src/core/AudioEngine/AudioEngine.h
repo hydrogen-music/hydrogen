@@ -523,8 +523,10 @@ private:
 	long long 		computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nIntervalLengthInFrames );
 	void			updateBpmAndTickSize( std::shared_ptr<TransportPosition> pTransportPosition,
 										  Event::Trigger trigger = Event::Trigger::Default );
-	void			calculateTransportOffsetOnBpmChange( std::shared_ptr<TransportPosition> pTransportPosition );
-    
+	void			calculateTransportOffsetOnBpmChange(
+		std::shared_ptr<TransportPosition> pTransportPosition,
+		float fTickSizeOld, float fTickSizeNew );
+
 	void			setRealtimeFrame( long long nFrame );
 	void updatePlayingPatternsPos( std::shared_ptr<TransportPosition> pPos,
 								   Event::Trigger trigger );
@@ -677,8 +679,25 @@ private:
 	 * incremented (as audioEngine_process() would do at the beginning
 	 * of each cycle) to support realtime keyboard and MIDI event
 	 * timing.
+	 *
+	 * This member is monotonically increasing regardless of ongoing tempo, song
+	 * size, etc. changes.
 	 */
 	long long		m_nRealtimeFrame;
+	/**
+	 * Version of #m_nRealtimeFrame which is rescaled upon tempo changes.
+	 *
+	 * If tempo changes, the tick size (number of frames per tick) is changed as
+	 * well. Since Hydrogen's #AudioEngine is based on ticks, all frame-based
+	 * values do have to be rescaled in order to still represent the same
+	 * position (in ticks) as before. #m_nRealtimeFrame itself does not
+	 * correspond to any position in the song, timeline etc. It is just a
+	 * monotonically increasing number used to handle realtime events, like
+	 * MIDI, virtual keyboard, or OSC. But when relying on it for #H2Core::Note
+	 * placement, as when counting in, we have to properly rescale it too in
+	 * order for our notes to still end up in the right position after the user
+	 * changes tempo. */
+	long long		m_nRealtimeFrameScaled;
 
 	/**
 	 * Current state of the H2Core::AudioEngine.
@@ -727,6 +746,7 @@ private:
 		long m_nCountInStartTick;
 		/** First tick which will be _not_ included into the count in. */
 		long m_nCountInEndTick;
+		float m_fCountInTickSizeStart;
 		/** Up to which realtime frame #m_nRealtimeFrame we will continue to
 		 * count in.
 		 * @} */
