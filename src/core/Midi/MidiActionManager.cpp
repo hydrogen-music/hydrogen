@@ -1428,10 +1428,14 @@ bool MidiActionManager::countIn( std::shared_ptr<MidiAction> ) {
 
 bool MidiActionManager::countInPauseToggle( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
-	switch ( pHydrogen->getAudioEngine()->getState() ) {
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	switch ( pAudioEngine->getState() ) {
 	case AudioEngine::State::Ready:
-	case AudioEngine::State::CountIn:
 		CoreActionController::startCountIn();
+		break;
+
+	case AudioEngine::State::CountIn:
+		pAudioEngine->stop();
 		break;
 
 	case AudioEngine::State::Playing:
@@ -1448,10 +1452,14 @@ bool MidiActionManager::countInPauseToggle( std::shared_ptr<MidiAction> pAction 
 
 bool MidiActionManager::countInStopToggle( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
-	switch ( pHydrogen->getAudioEngine()->getState() ) {
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	switch ( pAudioEngine->getState() ) {
 	case AudioEngine::State::Ready:
-	case AudioEngine::State::CountIn:
 		CoreActionController::startCountIn();
+		break;
+
+	case AudioEngine::State::CountIn:
+		pAudioEngine->stop();
 		break;
 
 	case AudioEngine::State::Playing:
