@@ -760,6 +760,7 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame,
 
 void AudioEngine::startCountIn() {
 	setState( State::CountIn );
+	setNextState( State::CountIn );
 
 	m_nCountInMetronomeTicks = 0;
 	m_nRealtimeFrameScaled = m_nRealtimeFrame;
@@ -1626,9 +1627,16 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			pAudioEngine->m_pTransportPosition->getFrame() );
 		pAudioEngine->m_nRealtimeFrameScaled +=
 			pAudioEngine->m_pTransportPosition->getFrame();
-	} else {
+	}
+	else {
 		if ( pAudioEngine->getState() == State::Playing ) {
 			pAudioEngine->stopPlayback();
+		}
+		else if ( pAudioEngine->getState() == State::CountIn &&
+				  pAudioEngine->m_nextState == State::Ready ) {
+			// We only move from CountIn -> Ready in here. The reverse is only
+			// allowed within startCountIn().
+			pAudioEngine->setState( State::Ready );
 		}
 		
 		// go ahead and increment the realtimeframes by nFrames
@@ -3033,6 +3041,12 @@ void AudioEngine::stop() {
 #if AUDIO_ENGINE_DEBUG
 		AE_DEBUGLOG( "Stopping engine via JACK server" );
 #endif
+
+		// The Count In is done within Hydrogen directly and not coupled to JACK
+		// transport.
+		if ( getState() == State::CountIn ) {
+			setNextState( State::Ready );
+		}
 
 		// Tell all other JACK clients to stop as well and wait for
 		// the JACK server to give the signal.
