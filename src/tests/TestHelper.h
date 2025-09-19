@@ -26,6 +26,8 @@
 #include <QString>
 #include <cassert>
 
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/Song.h>
 #include <core/Midi/SMF.h>
 
 class TestHelper {
