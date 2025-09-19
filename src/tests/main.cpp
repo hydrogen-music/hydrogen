@@ -58,12 +58,14 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
 	}
 	/* Test helper */
 	TestHelper::createInstance();
-	TestHelper* test_helper = TestHelper::get_instance();
+	auto pTestHelper = TestHelper::get_instance();
 	/* Base */
 	H2Core::Base::bootstrap( pLogger, true );
 	/* Filesystem */
 	H2Core::Filesystem::bootstrap(
-		pLogger, test_helper->getDataDir(), sUserDataFolder, "", sLogFilePath );
+		pLogger, pTestHelper->getDataDir(), sUserDataFolder,
+		pTestHelper->getTestDataDir().append( "/preferences/current.conf" ),
+		sLogFilePath );
 	H2Core::Filesystem::info();
 	
 	/* Use fake audio driver */
