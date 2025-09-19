@@ -345,6 +345,8 @@ public:
 
 	double getSongSizeInTicks() const;
 
+		int getCountInMetronomeTicks() const;
+
 	/**
 	 * Marks the audio engine to be started during the next call of
 	 * the audioEngine_process() callback function.
@@ -854,6 +856,9 @@ inline const std::shared_ptr<TransportPosition> AudioEngine::getTransportPositio
 }
 inline double AudioEngine::getSongSizeInTicks() const {
 	return m_fSongSizeInTicks;
+}
+inline int AudioEngine::getCountInMetronomeTicks() const {
+	return m_nCountInMetronomeTicks;
 }
 inline std::shared_ptr<Instrument> AudioEngine::getMetronomeInstrument() const {
 	return m_pMetronomeInstrument;
