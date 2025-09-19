@@ -30,21 +30,8 @@ class CoreActionControllerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testSessionManagement );
 	CPPUNIT_TEST( testIsPathValid );
 	CPPUNIT_TEST_SUITE_END();
-	
-private:
-	H2Core::Hydrogen* m_pHydrogen;
 
-	QString m_sFileNameImproper;
-	QString m_sFileName;
-	QString m_sFileName2;
-	
 public:
-	// Initializes the private member variables and loads an empty
-	// song into Hydrogen.
-	void setUp();
-	// Loads an empty song into Hydrogen and deletes all temporary
-	// files.
-	void tearDown();
 	
 	// Tests the CoreActionController::loadSong(),
 	// CoreActionController::setSong(),
