@@ -191,6 +191,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 			m_pPlayButton->setDefaultAction( m_pPlayAction );
 		}
 		m_pPlayButton->setMidiAction( m_pPlayMidiAction );
+		updateTransportControl();
 	} );
 	m_pCountInMidiAction = std::make_shared<MidiAction>(
 		MidiAction::Type::PlayPauseToggle );
@@ -206,6 +207,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 			m_pPlayButton->setDefaultAction( m_pCountInAction );
 		}
 		m_pPlayButton->setMidiAction( m_pCountInMidiAction );
+		updateTransportControl();
 	} );
 
 	m_pPlayButton->addAction( m_pPlayAction );
@@ -638,7 +640,7 @@ void MainToolBar::playBtnClicked() {
 		return;
 	}
 
-	if ( m_pPlayButton->isChecked() ) {
+	if ( pHydrogen->getAudioEngine()->getState() != AudioEngine::State::Playing ) {
 		if ( pPref->getCountIn() ) {
 			CoreActionController::startCountIn();
 			pHydrogenApp->showStatusBarMessage( tr( "Counting in" ) );
