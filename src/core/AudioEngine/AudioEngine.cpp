@@ -2742,13 +2742,14 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 			// We do not start the count in at the very frame this method was
 			// called on but on the next proper (integer) tick.
 			m_nCountInStartTick = static_cast<long>(
-				std::ceil( TransportPosition::computeTickFromFrame(
-							   m_nRealtimeFrameScaled ) ) );
+				std::ceil( TransportPosition::computeTick(
+							   m_nRealtimeFrameScaled,
+							   m_pTransportPosition->getTickSize() ) ) );
 			m_nCountInEndTick = m_nCountInStartTick +
 				static_cast<long>( std::floor( m_fCountInTickInterval ) );
 			double fMismatch;
-			m_nCountInEndFrame = TransportPosition::computeFrameFromTick(
-				m_nCountInEndTick, &fMismatch );
+			m_nCountInEndFrame = TransportPosition::computeFrame(
+				m_nCountInEndTick, m_pTransportPosition->getTickSize() );
 
 		}
 
