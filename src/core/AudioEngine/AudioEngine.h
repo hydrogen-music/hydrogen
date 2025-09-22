@@ -750,6 +750,7 @@ private:
 		long m_nCountInEndTick;
 		double m_fCountInTickInterval;
 		float m_fCountInTickSizeStart;
+		long long m_nCountInFrameOffset;
 		/** Up to which realtime frame #m_nRealtimeFrame we will continue to
 		 * count in.
 		 * @} */

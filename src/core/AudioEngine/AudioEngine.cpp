@@ -115,6 +115,7 @@ AudioEngine::AudioEngine()
 		, m_nCountInEndTick( 0 )
 		, m_fCountInTickInterval( 0 )
 		, m_fCountInTickSizeStart( 0 )
+		, m_nCountInFrameOffset( 0 )
 		, m_nCountInEndFrame( 0 )
 {
 	m_pTransportPosition = std::make_shared<TransportPosition>(
@@ -764,6 +765,7 @@ void AudioEngine::startCountIn() {
 	setNextState( State::CountIn );
 
 	m_nCountInMetronomeTicks = -1;
+	m_nCountInFrameOffset = 0;
 	m_nRealtimeFrameScaled = m_nRealtimeFrame;
 	m_fCountInTickSizeStart = m_pTransportPosition->getTickSize();
 
@@ -1687,9 +1689,11 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			// exceeding the end of the count in. We do this in order to provide
 			// a seemless and frame-accurate count in regardless of the buffer
 			// size.
-			const long long nNewTransportFrame =
+			pAudioEngine->m_nCountInFrameOffset = pAudioEngine->m_nRealtimeFrameScaled -
+				pAudioEngine->m_nCountInEndFrame;
+			const auto nNewTransportFrame =
 				pAudioEngine->getTransportPosition()->getFrame() +
-				pAudioEngine->m_nRealtimeFrameScaled - pAudioEngine->m_nCountInEndFrame;
+				pAudioEngine->m_nCountInFrameOffset;
 			const auto fNewTransportTick = TransportPosition::computeTickFromFrame(
 				nNewTransportFrame );
 			DEBUGLOG( QString( "transport update frame: %1 -> %2, tick: %3 -> %4" )
@@ -2640,13 +2644,18 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 		nFrameStart += nLookahead;
 	}
 
+	if ( m_nCountInFrameOffset != 0 ) {
+		nFrameStart -= m_nCountInFrameOffset;
+		m_nCountInFrameOffset = 0;
+	}
+
 	*fTickStart = ( TransportPosition::computeTickFromFrame( nFrameStart ) +
 					pPos->getTickMismatch() ) - pPos->getTickOffsetQueuing() ;
 	*fTickEnd = TransportPosition::computeTickFromFrame( nFrameEnd ) -
 		pPos->getTickOffsetQueuing();
 
 #if AUDIO_ENGINE_DEBUG
-	AE_DEBUGLOG( QString( "nFrame: [%1,%2], fTick: [%3, %4], fTick (without offset): [%5,%6], m_pTransportPosition->getTickOffsetQueuing(): %7, nLookahead: %8, nIntervalLengthInFrames: %9, m_pTransportPosition: %10, m_pQueuingPosition: %11,_bLookaheadApplied: %12" )
+	AE_DEBUGLOG( QString( "nFrame: [%1,%2], fTick: [%3, %4], fTick (without offset): [%5,%6], m_pTransportPosition->getTickOffsetQueuing(): %7, nLookahead: %8, nIntervalLengthInFrames: %9, m_pTransportPosition: %10, m_pQueuingPosition: %11,_bLookaheadApplied: %12, m_nCountInFrameOffset: %13" )
 			 .arg( nFrameStart )
 			 .arg( nFrameEnd )
 			 .arg( *fTickStart, 0, 'f' )
@@ -2659,6 +2668,7 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 			 .arg( pPos->toQString() )
 			 .arg( m_pQueuingPosition->toQString() )
 			 .arg( m_bLookaheadApplied )
+				 .arg( m_nCountInFrameOffset )
 			 );
 #endif
 
