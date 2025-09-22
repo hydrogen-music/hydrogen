@@ -778,8 +778,6 @@ void AudioEngine::startCountIn() {
 	else {
 		m_fCountInTickInterval = 4 * H2Core::nTicksPerQuarter;
 	}
-
-	DEBUGLOG( QString( "m_fCountInTickInterval: %1, RT tick %2, rt frame: %3, ts: %4, transport tick: %5" )
 }
 
 void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
@@ -1696,11 +1694,16 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 				pAudioEngine->m_nCountInFrameOffset;
 			const auto fNewTransportTick = TransportPosition::computeTickFromFrame(
 				nNewTransportFrame );
-			DEBUGLOG( QString( "transport update frame: %1 -> %2, tick: %3 -> %4" )
-					  .arg( pAudioEngine->getTransportPosition()->getFrame() )
-					  .arg( nNewTransportFrame )
-					  .arg( pAudioEngine->getTransportPosition()->getTick() )
-					  .arg( fNewTransportTick ) );
+
+#if AUDIO_ENGINE_DEBUG
+			AE_DEBUGLOG( QString( "transport update frame: %1 -> %2, tick: %3 -> %4, m_nCountInFrameOffset: %5" )
+						.arg( pAudioEngine->getTransportPosition()->getFrame() )
+						.arg( nNewTransportFrame )
+						 .arg( pAudioEngine->getTransportPosition()->getTick() )
+						 .arg( fNewTransportTick )
+						.arg( pAudioEngine->m_nCountInFrameOffset ) );
+#endif
+
 			pAudioEngine->updateTransportPosition(
 				fNewTransportTick, nNewTransportFrame,
 				pAudioEngine->getTransportPosition(), Event::Trigger::Default );
@@ -2751,6 +2754,15 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 			m_nCountInEndFrame = TransportPosition::computeFrame(
 				m_nCountInEndTick, m_pTransportPosition->getTickSize() );
 
+#if AUDIO_ENGINE_DEBUG
+			AE_DEBUGLOG( QString( "m_fCountInTickInterval: %1, tick start: %2 (%3), tick end: %4, rt frame: %5, end frame: %6, ts: %7, transport tick: %8" )
+						 .arg( m_fCountInTickInterval ).arg( m_nCountInStartTick )
+						 .arg( TransportPosition::computeTickFromFrame( m_nRealtimeFrame ) )
+						 .arg( m_nCountInEndTick )
+						 .arg( m_nRealtimeFrame ).arg( m_nCountInEndFrame )
+						 .arg( m_fCountInTickSizeStart )
+						 .arg( m_pTransportPosition->getTick() ));
+#endif
 		}
 
 		// We use the scaled version of the realtime frame to keep the tick
@@ -2765,6 +2777,12 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 								static_cast<long long>( nIntervalLengthInFrames ),
 							 m_pTransportPosition->getTickSize() ) ) ),
 											   m_nCountInEndTick );
+#if AUDIO_ENGINE_DEBUG
+		AE_DEBUGLOG( QString( "m_nRealtimeFrameScale: %1, tick interval: [%2:%3]" )
+					 .arg( m_nRealtimeFrameScaled )
+					 .arg( nTickIntervalStart ).arg( nTickIntervalEnd ) );
+#endif
+
 		for ( long nnTick = H2Core::nTicksPerQuarter *
 				  std::ceil( static_cast<float>(
 								 nTickIntervalStart - m_nCountInStartTick) /
@@ -2798,6 +2816,11 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 			m_pMetronomeInstrument->enqueue( pMetronomeNote );
 			pMetronomeNote->computeNoteStart();
 			m_songNoteQueue.push( pMetronomeNote );
+#if AUDIO_ENGINE_DEBUG
+			AE_DEBUGLOG( QString( "Enqueue count in tick at position: %1, note start: %2" )
+					  .arg( pMetronomeNote->getPosition() )
+					  .arg( pMetronomeNote->getNoteStart() ) );
+#endif
 		}
 	}
 
