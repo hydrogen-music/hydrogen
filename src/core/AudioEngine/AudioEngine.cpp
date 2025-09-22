@@ -1704,10 +1704,6 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 						.arg( pAudioEngine->m_nCountInFrameOffset ) );
 #endif
 
-			pAudioEngine->updateTransportPosition(
-				fNewTransportTick, nNewTransportFrame,
-				pAudioEngine->getTransportPosition(), Event::Trigger::Default );
-
 			// The queuing position will be left as is in order to not loose any
 			// notes. (It will be behind the transport posution and only move
 			// infront of it during the next processing cycle.)
@@ -1723,12 +1719,19 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 				// Tell all other JACK clients to start as well and wait for the
 				// JACK server to give the signal.
 				static_cast<JackAudioDriver*>( pAudioEngine->m_pAudioDriver )
+					->locateTransport( nNewTransportFrame );
+				static_cast<JackAudioDriver*>( pAudioEngine->m_pAudioDriver )
 					->startTransport();
 			}
 			else
 #endif
 			{
+				pAudioEngine->updateTransportPosition(
+					fNewTransportTick, nNewTransportFrame,
+					pAudioEngine->getTransportPosition(),
+					Event::Trigger::Default );
 				pAudioEngine->setNextState( State::Playing );
+
 			}
 		}
 	}
@@ -2647,7 +2650,7 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 		nFrameStart += nLookahead;
 	}
 
-	if ( m_nCountInFrameOffset != 0 ) {
+	if ( m_nCountInFrameOffset != 0 && getState() == State::Playing ) {
 		nFrameStart -= m_nCountInFrameOffset;
 		m_nCountInFrameOffset = 0;
 	}
