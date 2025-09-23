@@ -59,6 +59,10 @@ void AudioDriverTest::testDriverSwitching() {
 			H2Core::Preferences::AudioDriver::Oss,
 			H2Core::Event::Trigger::Default );
 		pAudioEngine->stopAudioDriver( H2Core::Event::Trigger::Default );
+#ifndef Q_OS_MACX
+		// JACK support in our macOS pipeline is present but severly flawed. As
+		// of 2025-09-23 the JACK server routinely dies during switching causing
+		// the test to freeze.
 		if ( bCheckJack ) {
 			pDriver = pAudioEngine->createAudioDriver(
 				H2Core::Preferences::AudioDriver::Jack,
@@ -68,6 +72,7 @@ void AudioDriverTest::testDriverSwitching() {
 			}
 		}
 		pAudioEngine->stopAudioDriver( H2Core::Event::Trigger::Default );
+#endif
 		pAudioEngine->createAudioDriver(
 			H2Core::Preferences::AudioDriver::PortAudio,
 			H2Core::Event::Trigger::Default );
