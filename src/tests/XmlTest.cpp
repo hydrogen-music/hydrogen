@@ -574,7 +574,8 @@ void XmlTest::testSongLegacy() {
 			  << H2TEST_FILE( "song/legacy/test_song_1.0.2.h2song" )
 			  << H2TEST_FILE( "song/legacy/test_song_1.0.1.h2song" )
 			  << H2TEST_FILE( "song/legacy/test_song_1.0.0.h2song" )
-			  << H2TEST_FILE( "song/legacy/test_song_0.9.7.h2song" );
+			  << H2TEST_FILE( "song/legacy/test_song_0.9.7.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_0.9.6.h2song" );
 
 	for ( const auto& ssSong : testSongs ) {
 		___INFOLOG(ssSong);
