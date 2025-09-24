@@ -49,7 +49,12 @@ class Legacy : public H2Core::Object<Legacy> {
 	 *
 	 * This code was used to load a #Song of version <= 0.9.0.
 	 */
-	static std::shared_ptr<InstrumentComponent> loadInstrumentComponent( XMLNode* pNode, const QString& sDrumkitPath, const License& drumkitLicense, bool bSilent = false );
+	static std::shared_ptr<InstrumentComponent> loadInstrumentComponent(
+		XMLNode* pNode,
+		const QString& sDrumkitPath,
+		const QString& sSongPath,
+		const License& drumkitLicense,
+		bool bSilent = false );
 		/**
 		 * load pattern from a file
 		 * \param pattern_path is a path to an xml file

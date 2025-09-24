@@ -262,6 +262,7 @@ void Instrument::load_from( const QString& sDrumkitPath, const QString& sInstrum
 std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode,
 												   const QString& sDrumkitPath,
 												   const QString& sDrumkitName,
+												   const QString& sSongPath,
 												   const License& license,
 												   bool* pLegacyFormatEncountered,
 												   bool bSilent )
@@ -511,16 +512,19 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode,
 		XMLNode componentNode = pNode->firstChildElement( "instrumentComponent" );
 		while ( ! componentNode.isNull() ) {
 			pInstrument->get_components()->
-				push_back( InstrumentComponent::load_from( &componentNode,
-														   pInstrument->get_drumkit_path(),
-														   instrumentLicense, bSilent ) );
+				push_back( InstrumentComponent::load_from(
+							   &componentNode,
+							   pInstrument->get_drumkit_path(),
+							   sSongPath,
+							   instrumentLicense, bSilent ) );
 			componentNode = componentNode.nextSiblingElement( "instrumentComponent" );
 		}
 	}
 	else {
 		// back compatibility code
-		auto pCompo = Legacy::loadInstrumentComponent( pNode, pInstrument->get_drumkit_path(),
-													   instrumentLicense, bSilent );
+		auto pCompo = Legacy::loadInstrumentComponent(
+			pNode, pInstrument->get_drumkit_path(), sSongPath,
+			instrumentLicense, bSilent );
 		if ( pCompo == nullptr ) {
 			ERRORLOG( QString( "Unable to load component for instrument [%1]. Aborting." )
 					  .arg( pInstrument->get_name() ) );

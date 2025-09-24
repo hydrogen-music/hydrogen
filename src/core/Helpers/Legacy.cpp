@@ -45,7 +45,13 @@
 
 namespace H2Core {
 
-std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent( XMLNode* pNode, const QString& sDrumkitPath, const License& drumkitLicense, bool bSilent ) {
+std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
+	XMLNode* pNode,
+	const QString& sDrumkitPath,
+	const QString& sSongPath,
+	const License& drumkitLicense,
+	bool bSilent )
+{
 	if ( ! bSilent ) {
 		WARNINGLOG( "Using back compatibility code to load instrument component" );
 	}
@@ -64,8 +70,8 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent( XMLNode* p
 				break;
 			}
 
-			auto pLayer = InstrumentLayer::load_from( &layerNode, sDrumkitPath,
-													  drumkitLicense, bSilent );
+			auto pLayer = InstrumentLayer::load_from(
+				&layerNode, sDrumkitPath, sSongPath, drumkitLicense, bSilent );
 			if ( pLayer != nullptr ) {
 				pCompo->set_layer( pLayer, nLayer );
 				nLayer++;
