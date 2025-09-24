@@ -40,7 +40,7 @@
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <layer>
-    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMkit/kick_Dry_b.flac</filename>
+    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMRockKit/Kick-Hard.wav</filename>
     <ismodified>false</ismodified>
     <smode>forward</smode>
     <startframe>0</startframe>
@@ -82,7 +82,7 @@
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <layer>
-    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMkit/stick_Woody.flac</filename>
+    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMRockKit/SideStick-Hard.wav</filename>
     <ismodified>false</ismodified>
     <smode>forward</smode>
     <startframe>0</startframe>
@@ -124,7 +124,7 @@
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <layer>
-    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMkit/sn_Jazz_c.flac</filename>
+    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMRockKit/Snare-Hard.wav</filename>
     <ismodified>false</ismodified>
     <smode>forward</smode>
     <startframe>0</startframe>
@@ -166,7 +166,7 @@
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <layer>
-    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMkit/clap_Dry_c.flac</filename>
+    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMRockKit/HandClap.wav</filename>
     <ismodified>false</ismodified>
     <smode>forward</smode>
     <startframe>0</startframe>
@@ -208,7 +208,7 @@
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <layer>
-    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMkit/sn_Wet_b.flac</filename>
+    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMRockKit/SnareRimshot-Hard.wav</filename>
     <ismodified>false</ismodified>
     <smode>forward</smode>
     <startframe>0</startframe>
@@ -250,7 +250,7 @@
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <layer>
-    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMkit/tom_Rock_lo.flac</filename>
+    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMRockKit/TomFloor-Hard.wav</filename>
     <ismodified>false</ismodified>
     <smode>forward</smode>
     <startframe>0</startframe>
@@ -292,7 +292,7 @@
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <layer>
-    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMkit/hhc_Dry_a.flac</filename>
+    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMRockKit/HatClosed-Hard.wav</filename>
     <ismodified>false</ismodified>
     <smode>forward</smode>
     <startframe>0</startframe>
@@ -334,7 +334,7 @@
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <layer>
-    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMkit/tom_Rock_mid.flac</filename>
+    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMRockKit/Tom2-Hard.wav</filename>
     <ismodified>false</ismodified>
     <smode>forward</smode>
     <startframe>0</startframe>
@@ -376,7 +376,7 @@
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <layer>
-    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMkit/hhp_Dry_a.flac</filename>
+    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMRockKit/HatPedal-Hardest.wav</filename>
     <ismodified>false</ismodified>
     <smode>forward</smode>
     <startframe>0</startframe>
@@ -418,7 +418,7 @@
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <layer>
-    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMkit/tom_Rock_hi.flac</filename>
+    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMRockKit/Tom1-Hard.wav</filename>
     <ismodified>false</ismodified>
     <smode>forward</smode>
     <startframe>0</startframe>
@@ -460,7 +460,7 @@
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <layer>
-    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMkit/hhc_Rock_b.flac</filename>
+    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMRockKit/HatClosed-Med.wav</filename>
     <ismodified>false</ismodified>
     <smode>forward</smode>
     <startframe>0</startframe>
@@ -502,7 +502,7 @@
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <layer>
-    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMkit/misc_Cowbell.flac</filename>
+    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMRockKit/Cowbell-Hard.wav</filename>
     <ismodified>false</ismodified>
     <smode>forward</smode>
     <startframe>0</startframe>
@@ -544,7 +544,7 @@
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <layer>
-    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMkit/cym_Jazz.flac</filename>
+    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMRockKit/24Ride-1.wav</filename>
     <ismodified>false</ismodified>
     <smode>forward</smode>
     <startframe>0</startframe>
@@ -586,7 +586,7 @@
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <layer>
-    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMkit/cra_Rock_a.flac</filename>
+    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMRockKit/Crash-Hard.wav</filename>
     <ismodified>false</ismodified>
     <smode>forward</smode>
     <startframe>0</startframe>
@@ -628,7 +628,7 @@
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <layer>
-    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMkit/cym_Rock_b.flac</filename>
+    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMRockKit/Ride-Hard.wav</filename>
     <ismodified>false</ismodified>
     <smode>forward</smode>
     <startframe>0</startframe>
@@ -670,7 +670,7 @@
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <layer>
-    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMkit/cra_Jazz.flac</filename>
+    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMRockKit/Crash-Hard.wav</filename>
     <ismodified>false</ismodified>
     <smode>forward</smode>
     <startframe>0</startframe>
