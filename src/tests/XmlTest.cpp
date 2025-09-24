@@ -851,12 +851,19 @@ void XmlTest::testSongLegacy() {
 			  << H2TEST_FILE( "song/legacy/test_song_1.0.1.h2song" )
 			  << H2TEST_FILE( "song/legacy/test_song_1.0.0.h2song" )
 			  << H2TEST_FILE( "song/legacy/test_song_0.9.7.h2song" )
-			  << H2TEST_FILE( "song/legacy/test_song_0.9.6.h2song" );
+			  << H2TEST_FILE( "song/legacy/test_song_0.9.6.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_0.9.3.h2song" );
 
 	for ( const auto& ssSong : testSongs ) {
 		___INFOLOG(ssSong);
 		auto pSong = H2Core::Song::load( ssSong, false );
-		CPPUNIT_ASSERT( pSong != nullptr );
+		CPPUNIT_ASSERT( pSong != nullptr && pSong->getDrumkit() );
+		CPPUNIT_ASSERT( pSong->getDrumkit()->getInstruments() != nullptr );
+		CPPUNIT_ASSERT( pSong->getDrumkit()->getInstruments()->size() > 0 );
+		for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
+			CPPUNIT_ASSERT( ppInstrument != nullptr );
+			CPPUNIT_ASSERT( ppInstrument->hasSamples() );
+		}
 		CPPUNIT_ASSERT( ! pSong->hasMissingSamples() );
 	}
 
