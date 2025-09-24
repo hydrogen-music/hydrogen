@@ -561,6 +561,43 @@ void XmlTest::testSamplePathsWritten() {
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testSongLegacy() {
+	___INFOLOG( "" );
+	QStringList testSongs;
+	testSongs << H2TEST_FILE( "song/legacy/test_song_1.2.2.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_1.2.1.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_1.2.0.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_1.2.0-beta1.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_1.1.1.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_1.1.0.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_1.1.0-beta1.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_1.0.2.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_1.0.1.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_1.0.0.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_0.9.7.h2song" );
+
+	for ( const auto& ssSong : testSongs ) {
+		___INFOLOG(ssSong);
+		auto pSong = H2Core::Song::load( ssSong, false );
+		CPPUNIT_ASSERT( pSong != nullptr );
+		CPPUNIT_ASSERT( ! pSong->hasMissingSamples() );
+	}
+
+	// Check that invalid paths and drumkit names could indeed result in missing
+	// samples.
+	testSongs.clear();
+	testSongs << H2TEST_FILE( "song/legacy/test_song_invalid_drumkit_name.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_invalid_sample_path.h2song" );
+
+	for ( const auto& ssSong : testSongs ) {
+		___INFOLOG(ssSong);
+		auto pSong = H2Core::Song::load( ssSong, false );
+		CPPUNIT_ASSERT( pSong != nullptr );
+		CPPUNIT_ASSERT( pSong->hasMissingSamples() );
+	}
+	___INFOLOG( "passed" );
+}
+
 void XmlTest::tearDown() {
 
 	QDirIterator it( TestHelper::get_instance()->getTestDataDir(),
