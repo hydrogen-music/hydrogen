@@ -172,6 +172,13 @@ void XmlTest::testDrumkitLegacy()
 		const auto pDrumkit = H2Core::Drumkit::load(
 			legacyDir.filePath( ssDir ), false, nullptr, false );
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
+		CPPUNIT_ASSERT( pDrumkit->get_instruments() != nullptr );
+		CPPUNIT_ASSERT( pDrumkit->get_instruments() != nullptr );
+		for ( const auto& ppInstrument : *pDrumkit->get_instruments() ) {
+			CPPUNIT_ASSERT( ppInstrument != nullptr );
+			CPPUNIT_ASSERT( ppInstrument->hasSamples() );
+			CPPUNIT_ASSERT( ! ppInstrument->has_missing_samples() );
+		}
 	}
 
 	// Check wether the names stored in the DrumkitComponents in version 0.9.7 -
