@@ -28,6 +28,7 @@
 #include <unistd.h>
 
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
@@ -155,6 +156,35 @@ void XmlTest::testDrumkit()
 
 	// Cleanup
 	H2Core::Filesystem::rm( sDrumkitPath, true );
+	___INFOLOG( "passed" );
+}
+
+void XmlTest::testDrumkitLegacy()
+{
+	___INFOLOG( "" );
+
+	QDir legacyDir( H2TEST_FILE( "drumkits/legacyKits" ) );
+
+	// Check whether all contained kits can be loaded.
+	for ( const auto& ssDir : legacyDir.entryList( QDir::Dirs |
+													QDir::NoDotAndDotDot ) ) {
+		___INFOLOG( ssDir );
+		const auto pDrumkit = H2Core::Drumkit::load(
+			legacyDir.filePath( ssDir ), false, nullptr, false );
+		CPPUNIT_ASSERT( pDrumkit != nullptr );
+	}
+
+	// Check wether the names stored in the DrumkitComponents in version 0.9.7 -
+	// 1.2.X are properly ported to InstrumentComponents.
+	const auto pDrumkit = H2Core::Drumkit::load(
+		H2TEST_FILE( "drumkits/legacyKits/kit-1.2.3" ), false, nullptr, false );
+	CPPUNIT_ASSERT( pDrumkit != nullptr );
+	CPPUNIT_ASSERT( pDrumkit->get_instruments()->get( 0 ) != nullptr );
+	CPPUNIT_ASSERT( pDrumkit->getComponent( 3 ) != nullptr );
+	CPPUNIT_ASSERT( pDrumkit->getComponent( 36 ) != nullptr );
+	CPPUNIT_ASSERT( pDrumkit->getComponent( 3 )->get_name() == "First" );
+	CPPUNIT_ASSERT( pDrumkit->getComponent( 36 )->get_name() == "Second" );
+
 	___INFOLOG( "passed" );
 }
 

@@ -28,6 +28,7 @@
 class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE(XmlTest);
 	CPPUNIT_TEST(testDrumkit);
+	CPPUNIT_TEST(testDrumkitLegacy);
 	CPPUNIT_TEST(testDrumkit_invalidADSRValues);
 	CPPUNIT_TEST(testDrumkitUpgrade);
 	CPPUNIT_TEST(testPattern);
@@ -43,6 +44,7 @@ class XmlTest : public CppUnit::TestCase {
 		// Removes all .bak backup files from the test data folder.
 		void tearDown();
 		void testDrumkit();
+		void testDrumkitLegacy();
 		void testDrumkit_invalidADSRValues();
 		void testDrumkitUpgrade();
 		void testPattern();
