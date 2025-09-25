@@ -521,7 +521,7 @@
   </instrument>
   <instrument>
    <id>12</id>
-   <name>Ride Jazz</name>
+   <name>Crash 0.9.3</name>
    <volume>0.8</volume>
    <isMuted>false</isMuted>
    <pan_L>1</pan_L>
@@ -544,7 +544,7 @@
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <layer>
-    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/GMRockKit/24Ride-1.wav</filename>
+    <filename>/Applications/Hydrogen.app/Contents/MacOS/../Resources/data/drumkits/kit-0.9.3/Crash-Hard.wav</filename>
     <ismodified>false</ismodified>
     <smode>forward</smode>
     <startframe>0</startframe>

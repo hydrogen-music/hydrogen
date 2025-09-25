@@ -47,6 +47,8 @@
 #include <QTemporaryDir>
 #include <QTextStream>
 
+using namespace H2Core;
+
 static bool check_samples_data( std::shared_ptr<H2Core::Drumkit> dk, bool loaded )
 {
 	int count = 0;
@@ -600,6 +602,25 @@ void XmlTest::testSamplePathsWritten() {
 
 void XmlTest::testSongLegacy() {
 	___INFOLOG( "" );
+
+	// Install the legacy test kit into the current user data dir (a temporary
+	// one) to check whether file loading of legacy kits works as expected.
+	const QString& sKit = "kit-0.9.3";
+	const auto sKitDirTest = H2TEST_FILE(
+		QString( "drumkits/legacyKits/%1" ).arg( sKit ) );
+	const auto sKitDirUser = QString( "%1/%2" )
+		.arg( Filesystem::usr_drumkits_dir() ).arg( sKit );
+	___INFOLOG( QString( "sKitDirUser: %1" ).arg( sKitDirUser ) );
+	CPPUNIT_ASSERT( Filesystem::mkdir( sKitDirUser ) );
+	for ( const auto& ssEntry : QDir( sKitDirTest ).entryList(
+			  QDir::Files | QDir::Readable | QDir::NoDotAndDotDot ) ) {
+		CPPUNIT_ASSERT( Filesystem::file_copy(
+							sKitDirTest + "/" + ssEntry,
+							sKitDirUser + "/" + ssEntry,
+							false /* overwrite */,
+							false /* silent */) );
+	}
+
 	QStringList testSongs;
 	testSongs << H2TEST_FILE( "song/legacy/test_song_1.2.2.h2song" )
 			  << H2TEST_FILE( "song/legacy/test_song_1.2.1.h2song" )
@@ -640,6 +661,11 @@ void XmlTest::testSongLegacy() {
 		CPPUNIT_ASSERT( pSong != nullptr );
 		CPPUNIT_ASSERT( pSong->hasMissingSamples() );
 	}
+
+	// cleanup
+	CPPUNIT_ASSERT( Filesystem::rm( sKitDirUser, true /* recursive */,
+									false /* bSilent */ ) );
+
 	___INFOLOG( "passed" );
 }
 
