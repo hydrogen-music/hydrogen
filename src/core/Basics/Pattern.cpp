@@ -95,14 +95,6 @@ Pattern* Pattern::load_file( const QString& sPatternPath,
 		return nullptr;
 	}
 
-	// Legacy formats use `pattern_name` over `name` to store the name of the
-	// pattern.
-	XMLNode legacyPatternNameNode = patternNode.firstChildElement( "pattern_name" );
-	if ( ! legacyPatternNameNode.isNull() ) {
-		// Try former pattern version
-		return Legacy::load_drumkit_pattern( sPatternPath, pInstrumentList );
-	}
-
 	// Check whether the file was created using a newer version of Hydrogen.
 	auto formatVersionNode = patternNode.firstChildElement( "formatVersion" );
 	if ( ! formatVersionNode.isNull() ) {
@@ -115,8 +107,13 @@ Pattern* Pattern::load_file( const QString& sPatternPath,
 
 Pattern* Pattern::load_from( XMLNode* node, std::shared_ptr<InstrumentList> pInstrumentList, bool bSilent )
 {
+	QString sName = node->read_string( "name", "", false, false );
+	if ( sName.isEmpty() ) {
+		// Fall back to previous version.
+	    sName = node->read_string( "pattern_name", "unknown", false, false );
+	}
 	Pattern* pPattern = new Pattern(
-	    node->read_string( "name", nullptr, false, false ),
+		sName,
 	    node->read_string( "info", "", false, true ),
 	    node->read_string( "category", "unknown", false, true, true ),
 	    node->read_int( "size", -1, false, false ),
@@ -129,7 +126,7 @@ Pattern* Pattern::load_from( XMLNode* node, std::shared_ptr<InstrumentList> pIns
 	}
 	
 	XMLNode note_list_node = node->firstChildElement( "noteList" );
-	if ( !note_list_node.isNull() ) {
+	if ( ! note_list_node.isNull() ) {
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
 		while ( !note_node.isNull() ) {
 			Note* pNote = Note::load_from( &note_node, pInstrumentList, bSilent );
@@ -138,6 +135,25 @@ Pattern* Pattern::load_from( XMLNode* node, std::shared_ptr<InstrumentList> pIns
 				pPattern->insert_note( pNote );
 			}
 			note_node = note_node.nextSiblingElement( "note" );
+		}
+	}
+	else {
+		// Old format < 0.9.4
+		const XMLNode sequenceListNode = node->firstChildElement( "sequenceList" );
+		XMLNode sequenceNode = sequenceListNode.firstChildElement( "sequence" );
+		while ( ! sequenceNode.isNull()  ) {
+			const XMLNode noteListNode = sequenceNode.firstChildElement(
+				"noteList" );
+			XMLNode noteNode = noteListNode.firstChildElement( "note" );
+			while ( ! noteNode.isNull() ) {
+				const auto pNote = Note::load_from(
+					&noteNode, pInstrumentList, bSilent );
+				if ( pNote != nullptr ) {
+					pPattern->insert_note( pNote );
+				}
+				noteNode = noteNode.nextSiblingElement( "note" );
+			}
+			sequenceNode = sequenceNode.nextSiblingElement( "sequence" );
 		}
 	}
 	
