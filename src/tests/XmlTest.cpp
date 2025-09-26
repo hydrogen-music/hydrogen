@@ -647,6 +647,7 @@ void XmlTest::testSongLegacy() {
 			CPPUNIT_ASSERT( ppInstrument->hasSamples() );
 		}
 		CPPUNIT_ASSERT( ! pSong->hasMissingSamples() );
+		CPPUNIT_ASSERT( pSong->getAllNotes().size() > 0 );
 	}
 
 	// Check that invalid paths and drumkit names could indeed result in missing
