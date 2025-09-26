@@ -29,6 +29,7 @@
 #include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Time.h>
+#include <core/Helpers/TimeHelper.h>
 #include <core/Hydrogen.h>
 
 #include <cmath>
@@ -86,12 +87,14 @@ void TimeTest::testElapsedTime(){
 void TimeTest::testHighResolutionSleep(){
 	___INFOLOG( "" );
 
+	auto pHydrogen = Hydrogen::get_instance();
+
 	const float fTolerance = 1;
 	std::vector<int> durationsMs{ 2, 10, 65, 234 };
 
 	for ( const auto ffDurationMs : durationsMs ) {
 		const auto start = Clock::now();
-		H2Core::highResolutionSleep(
+		pHydrogen->getTimeHelper()->highResolutionSleep(
 			std::chrono::duration<float, std::milli>( ffDurationMs ) );
 		const auto end = Clock::now();
 

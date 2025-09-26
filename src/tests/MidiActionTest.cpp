@@ -42,6 +42,7 @@
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
+#include <core/Helpers/TimeHelper.h>
 #include <core/Hydrogen.h>
 #include <core/IO/LoopBackMidiDriver.h>
 #include <core/Midi/MidiActionManager.h>
@@ -65,6 +66,7 @@ void MidiActionTest::testBeatCounterAction() {
 	___INFOLOG("");
 
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pTimeHelper = pHydrogen->getTimeHelper();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPref = Preferences::get_instance();
 	auto pMidiMap = Preferences::get_instance()->getMidiMap();
@@ -100,7 +102,7 @@ void MidiActionTest::testBeatCounterAction() {
 	auto intervalCompensation = std::chrono::duration<float, std::milli>( 0 );
 	for ( int nnMessage = 0; nnMessage < 8; ++nnMessage ) {
 		const auto preSleep = Clock::now();
-		H2Core::highResolutionSleep( interval - intervalCompensation );
+		pTimeHelper->highResolutionSleep( interval - intervalCompensation );
 		const auto postSleep = Clock::now();
 
 		const auto preSend = Clock::now();
@@ -1915,7 +1917,7 @@ void MidiActionTest::testTapTempoAction() {
 	auto intervalCompensation = std::chrono::duration<float, std::milli>( 0 );
 	for ( int nnMessage = 0; nnMessage < 8; ++nnMessage ) {
 		const auto preSleep = Clock::now();
-		H2Core::highResolutionSleep( interval - intervalCompensation );
+		pHydrogen->getTimeHelper()->highResolutionSleep( interval - intervalCompensation );
 		const auto postSleep = Clock::now();
 
 		const auto preSend = Clock::now();

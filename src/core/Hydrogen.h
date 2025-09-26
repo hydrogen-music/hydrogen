@@ -45,6 +45,7 @@ namespace H2Core
 	class MidiActionManager;
 	class Playlist;
 	class SoundLibraryDatabase;
+	class TimeHelper;
 
 ///
 /// Hydrogen Audio Engine.
@@ -167,6 +168,7 @@ public:
 	}
 	std::shared_ptr<Playlist> getPlaylist() const;
 	void setPlaylist( std::shared_ptr<Playlist> pPlaylist );
+		std::shared_ptr<TimeHelper> getTimeHelper() const;
 
 // ***** SEQUENCER ********
 	/// Start the internal sequencer
@@ -541,6 +543,9 @@ private:
 	 */
 	std::shared_ptr<Timeline>	m_pTimeline;
 
+		/** Helper class for time-specific methods. */
+		std::shared_ptr<TimeHelper> m_pTimeHelper;
+
 	/// Deleting instruments too soon leads to potential crashes.
 	std::list<std::shared_ptr<Instrument>> 	m_instrumentDeathRow;
 	
@@ -669,6 +674,9 @@ inline std::shared_ptr<Playlist> Hydrogen::getPlaylist() const {
 }
 inline void Hydrogen::setPlaylist( std::shared_ptr<Playlist> pPlaylist ){
 	m_pPlaylist = pPlaylist;
+}
+inline std::shared_ptr<TimeHelper> Hydrogen::getTimeHelper() const {
+	return m_pTimeHelper;
 }
 inline int Hydrogen::getHihatOpenness() const {
 	return m_nHihatOpenness;

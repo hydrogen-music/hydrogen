@@ -20,19 +20,26 @@
  *
  */
 
-#ifndef TIME_H
-#define TIME_H
+#ifndef TIME_HELPER_H
+#define TIME_HELPER_H
 
+#include <core/Helpers/Time.h>
+#include <core/Object.h>
 
 #include <chrono>
-#include <QString>
 
-using Clock = std::chrono::high_resolution_clock;
-using TimePoint = std::chrono::time_point<Clock>;
+namespace H2Core
+{
 
-namespace H2Core {
+class TimeHelper : public Object<TimeHelper>
+{
+		H2_OBJECT(TimeHelper)
+	public:
+			TimeHelper();
+			~TimeHelper();
 
-	QString timePointToQString( const TimePoint& timePoint );
-
+			void highResolutionSleep(
+				std::chrono::duration<float, std::micro> interval );
+	};
 };
 #endif

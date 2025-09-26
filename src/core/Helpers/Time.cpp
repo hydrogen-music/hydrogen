@@ -25,10 +25,9 @@
 #include <ctime>
 #include <iomanip>
 #include <sstream>
-#include <thread>
+
 
 namespace H2Core {
-
 	QString timePointToQString( const TimePoint& timePoint ) {
 #ifdef Q_OS_MACX
 		// We do not use `Clock` defined above since `high_resolution_clock` on
@@ -49,22 +48,4 @@ namespace H2Core {
 		return std::move( QString::fromStdString( timePointStringStream.str() ) );
 #endif
 	}
-
-	void highResolutionSleep( std::chrono::duration<float, std::micro> interval ) {
-		const auto start = Clock::now();
-
-		// Giving up control and relying on the OS scheduler to retrieve it
-		// again is expensive. The C++ std method std::this_thread::sleep_for
-		// only guarantees to sleep for at least the provided amount. It could
-		// very sleep longer. And it does. To circumvent this problem, we ask it
-		// for sleeping a little bit less and just wait the remaining time.
-		const std::chrono::duration<float, std::milli> residualInterval{ 5 };
-		if ( interval > residualInterval ) {
-			std::this_thread::sleep_for( interval - residualInterval );
-		}
-
-		while ( Clock::now() - start < interval ) {
-		}
-	}
-
 };

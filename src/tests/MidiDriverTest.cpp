@@ -31,6 +31,7 @@
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Event.h>
 #include <core/Helpers/Time.h>
+#include <core/Helpers/TimeHelper.h>
 #include <core/Hydrogen.h>
 #include <core/IO/LoopBackMidiDriver.h>
 #include <core/Midi/MidiActionManager.h>
@@ -197,6 +198,7 @@ void MidiDriverTest::testMidiClockDrift() {
 	___INFOLOG("");
 
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pTimeHelper = pHydrogen->getTimeHelper();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pTransportPosition = pAudioEngine->getTransportPosition();
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
@@ -224,7 +226,7 @@ void MidiDriverTest::testMidiClockDrift() {
 	std::vector<float> deviations;
 
 	for ( int ii = 0; ii <= nSleepTimes; ++ii ) {
-		H2Core::highResolutionSleep( checkInterval );
+		pTimeHelper->highResolutionSleep( checkInterval );
 
 		pAudioEngine->lock( RIGHT_HERE );
 		const auto fCurrentBpm = pTransportPosition->getBpm();

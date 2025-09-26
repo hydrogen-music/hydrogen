@@ -53,6 +53,7 @@
 #include <core/FX/LadspaFX.h>
 #include <core/H2Exception.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Helpers/TimeHelper.h>
 #include <core/IO/AlsaAudioDriver.h>
 #include <core/IO/AlsaMidiDriver.h>
 #include <core/IO/AudioOutput.h>
@@ -128,6 +129,7 @@ Hydrogen::Hydrogen() : m_fBeatCounterBeatLength( 1 )
 	m_pAudioEngine = new AudioEngine();
 	m_pMidiActionManager = std::make_shared<MidiActionManager>();
 	m_pPlaylist = std::make_shared<Playlist>();
+	m_pTimeHelper = std::make_shared<TimeHelper>();
 
 	// Prevent double creation caused by calls from MIDI thread
 	__instance = this;

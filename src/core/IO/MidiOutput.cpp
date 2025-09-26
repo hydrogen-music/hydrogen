@@ -23,6 +23,7 @@
 #include <core/IO/MidiOutput.h>
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Helpers/TimeHelper.h>
 #include <core/Hydrogen.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/Midi/MidiMessage.h>
@@ -134,7 +135,8 @@ void MidiOutput::waitForNextMidiClockTick() {
 }
 
 void MidiOutput::midiClockStream() {
-	auto pMidiDriver = Hydrogen::get_instance()->getAudioEngine()->getMidiDriver();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiDriver = pHydrogen->getAudioEngine()->getMidiDriver();
 
 	while ( pMidiDriver->m_bSendClockTick ) {
 		auto start = Clock::now();
@@ -155,7 +157,7 @@ void MidiOutput::midiClockStream() {
 					( start - pMidiDriver->m_lastTick );
 
 				const auto preSleep = Clock::now();
-				H2Core::highResolutionSleep( sleepDuration );
+				pHydrogen->getTimeHelper()->highResolutionSleep( sleepDuration );
 				const auto postSleep = Clock::now();
 
 				// Sleep routines only guarantee to sleep for _at least_ the
