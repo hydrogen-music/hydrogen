@@ -86,6 +86,10 @@ public:
 		LoadNextDrumkit			 	=  34,
 		LoadPrevDrumkit			 	=  35,
 
+		CountIn						=  36,
+		CountInPauseToggle			=  37,
+		CountInStopToggle			=  38,
+
 		LastWith0Args			 	=  99,
 
 		// Command-based shortcuts with 1 arguments

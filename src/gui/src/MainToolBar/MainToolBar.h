@@ -23,6 +23,7 @@
 #ifndef MAIN_TOOL_BAR_H
 #define MAIN_TOOL_BAR_H
 
+#include <memory>
 #include <QtGui>
 #include <QtWidgets>
 
@@ -40,6 +41,7 @@ class ClickableLabel;
 class LCDSpinBox;
 class LCDDisplay;
 class LED;
+class MidiAction;
 class MidiControlButton;
 class MidiControlDialog;
 class MidiLearnableToolButton;
@@ -119,6 +121,10 @@ private:
 		MidiLearnableToolButton* m_pRwdButton;
 		MidiLearnableToolButton* m_pRecButton;
 		MidiLearnableToolButton* m_pPlayButton;
+		QAction* m_pPlayAction;
+		std::shared_ptr<MidiAction> m_pPlayMidiAction;
+		std::shared_ptr<MidiAction> m_pCountInMidiAction;
+		QAction* m_pCountInAction;
 		MidiLearnableToolButton* m_pStopButton;
 		MidiLearnableToolButton* m_pFfwdButton;
 		QAction* m_pSongLoopAction;

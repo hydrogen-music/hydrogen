@@ -2502,7 +2502,8 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		ERRORLOG( QString( "Unknown object class" ) );
 	}
 
-	if ( pAudioEngine->getState() == H2Core::AudioEngine::State::Ready ) {
+	if ( pAudioEngine->getState() == H2Core::AudioEngine::State::Ready ||
+		 pAudioEngine->getState() == H2Core::AudioEngine::State::CountIn ) {
 		pHydrogen->sequencerPlay();
 	}
 }
@@ -3121,6 +3122,19 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				// Pass copy to not alter the original kit.
 				switchDrumkit( std::shared_ptr<Drumkit>(
 								   pSoundLibraryDataBase->getPreviousDrumkit() ) );
+				break;
+
+			case Shortcuts::Action::CountIn:
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::CountIn );
+				break;
+			case Shortcuts::Action::CountInPauseToggle:
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::CountInPauseToggle );
+				break;
+			case Shortcuts::Action::CountInStopToggle:
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::CountInStopToggle );
 				break;
 
 				//////////////////////////////////////////////////////

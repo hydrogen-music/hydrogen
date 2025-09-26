@@ -50,11 +50,20 @@ class TransportPosition : public H2Core::Object<TransportPosition>
 	H2_OBJECT(TransportPosition)
 public:
 
-	TransportPosition( const QString& sLabel = "" );
+	enum class Type {
+		Transport,
+		Queuing,
+		JackTimebaseCallback,
+		Test0,
+		Test1
+	};
+	static QString TypeToQString( const Type& type );
+
+	TransportPosition( Type type );
 	TransportPosition( std::shared_ptr<TransportPosition> pOther );
 	~TransportPosition();
 
-	const QString& getLabel() const;
+	const Type& getType() const;
 	long long getFrame() const;
 	/**
 	 * Retrieve a rounded version of #m_fTick.
@@ -195,7 +204,7 @@ private:
 	/** Identifier of the transport position. Used to keep different
 	 * instances apart.
 	 */
-	const QString m_sLabel;
+	const Type m_type;
 
 	/** 
 	 * Current transport position in number of frames since the
@@ -412,8 +421,8 @@ private:
 	int m_nBeat;
 };
 
-inline const QString& TransportPosition::getLabel() const {
-	return m_sLabel;
+inline const TransportPosition::Type& TransportPosition::getType() const {
+	return m_type;
 }
 inline long long TransportPosition::getFrame() const {
 	return m_nFrame;

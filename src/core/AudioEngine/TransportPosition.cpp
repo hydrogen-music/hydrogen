@@ -20,16 +20,16 @@
  *
  */
 #include <core/AudioEngine/TransportPosition.h>
-#include <core/AudioEngine/AudioEngine.h>
 
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
+#include <core/config.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Timeline.h>
-#include <core/config.h>
 
 #define TRANSPORT_POSITION_DEBUG 0
 
@@ -39,8 +39,8 @@
 
 namespace H2Core {
 
-TransportPosition::TransportPosition( const QString& sLabel )
-	: m_sLabel( sLabel )
+TransportPosition::TransportPosition( Type type )
+	: m_type( type )
 {
 	m_pPlayingPatterns = std::make_shared<PatternList>();
 	m_pPlayingPatterns->setNeedsLock( true );
@@ -50,7 +50,9 @@ TransportPosition::TransportPosition( const QString& sLabel )
 	reset();
 }
 
-TransportPosition::TransportPosition( std::shared_ptr<TransportPosition> pOther ) {
+TransportPosition::TransportPosition( std::shared_ptr<TransportPosition> pOther )
+	: m_type( pOther->m_type )
+{
 	m_pPlayingPatterns = std::make_shared<PatternList>();
 	m_pPlayingPatterns->setNeedsLock( true );
 	m_pNextPatterns = std::make_shared<PatternList>();
@@ -117,11 +119,11 @@ void TransportPosition::reset() {
 void TransportPosition::setBpm( float fNewBpm ) {
 	if ( fNewBpm > MAX_BPM ) {
 		ERRORLOG( QString( "[%1] Provided bpm [%2] is too high. Assigning upper bound %3 instead" )
-				  .arg( m_sLabel ).arg( fNewBpm ).arg( MAX_BPM ) );
+				  .arg( TypeToQString( m_type ) ).arg( fNewBpm ).arg( MAX_BPM ) );
 		fNewBpm = MAX_BPM;
 	} else if ( fNewBpm < MIN_BPM ) {
 		ERRORLOG( QString( "[%1] Provided bpm [%2] is too low. Assigning lower bound %3 instead" )
-				  .arg( m_sLabel ).arg( fNewBpm ).arg( MIN_BPM ) );
+				  .arg( TypeToQString( m_type ) ).arg( fNewBpm ).arg( MIN_BPM ) );
 		fNewBpm = MIN_BPM;
 	}
 	
@@ -145,7 +147,7 @@ void TransportPosition::setBpm( float fNewBpm ) {
 void TransportPosition::setFrame( long long nNewFrame ) {
 	if ( nNewFrame < 0 ) {
 		ERRORLOG( QString( "[%1] Provided frame [%2] is negative. Setting frame 0 instead." )
-				  .arg( m_sLabel ).arg( nNewFrame ) );
+				  .arg( TypeToQString( m_type ) ).arg( nNewFrame ) );
 		nNewFrame = 0;
 	}
 	
@@ -155,7 +157,7 @@ void TransportPosition::setFrame( long long nNewFrame ) {
 void TransportPosition::setTick( double fNewTick ) {
 	if ( fNewTick < 0 ) {
 		ERRORLOG( QString( "[%1] Provided tick [%2] is negative. Setting frame 0 instead." )
-				  .arg( m_sLabel ).arg( fNewTick ) );
+				  .arg( TypeToQString( m_type ) ).arg( fNewTick ) );
 		fNewTick = 0;
 	}
 	
@@ -165,7 +167,7 @@ void TransportPosition::setTick( double fNewTick ) {
 void TransportPosition::setTickSize( float fNewTickSize ) {
 	if ( fNewTickSize <= 0 ) {
 		ERRORLOG( QString( "[%1] Provided tick size [%2] is too small. Using 400 as a fallback instead." )
-				  .arg( m_sLabel ).arg( fNewTickSize ) );
+				  .arg( TypeToQString( m_type ) ).arg( fNewTickSize ) );
 		fNewTickSize = 400;
 	}
 
@@ -175,7 +177,7 @@ void TransportPosition::setTickSize( float fNewTickSize ) {
 void TransportPosition::setPatternStartTick( long nPatternStartTick ) {
 	if ( nPatternStartTick < 0 ) {
 		ERRORLOG( QString( "[%1] Provided tick [%2] is negative. Setting frame 0 instead." )
-				  .arg( m_sLabel ).arg( nPatternStartTick ) );
+				  .arg( TypeToQString( m_type ) ).arg( nPatternStartTick ) );
 		nPatternStartTick = 0;
 	}
 	
@@ -185,7 +187,7 @@ void TransportPosition::setPatternStartTick( long nPatternStartTick ) {
 void TransportPosition::setPatternTickPosition( long nPatternTickPosition ) {
 	if ( nPatternTickPosition < 0 ) {
 		ERRORLOG( QString( "[%1] Provided tick [%2] is negative. Setting frame 0 instead." )
-				  .arg( m_sLabel ).arg( nPatternTickPosition ) );
+				  .arg( TypeToQString( m_type ) ).arg( nPatternTickPosition ) );
 		nPatternTickPosition = 0;
 	}
 	
@@ -195,7 +197,7 @@ void TransportPosition::setPatternTickPosition( long nPatternTickPosition ) {
 void TransportPosition::setColumn( int nColumn ) {
 	if ( nColumn < -1 ) {
 		ERRORLOG( QString( "[%1] Provided column [%2] it too small. Using [-1] as a fallback instead." )
-				  .arg( m_sLabel ).arg( nColumn ) );
+				  .arg( TypeToQString( m_type ) ).arg( nColumn ) );
 		nColumn = -1;
 	}
 
@@ -206,7 +208,7 @@ void TransportPosition::setColumn( int nColumn ) {
 void TransportPosition::setPatternSize( int nPatternSize ) {
 	if ( nPatternSize < 0 ) {
 		ERRORLOG( QString( "[%1] Provided pattern size [%2] it too small. Using [0] as a fallback instead." )
-				  .arg( m_sLabel ).arg( nPatternSize ) );
+				  .arg( TypeToQString( m_type ) ).arg( nPatternSize ) );
 		nPatternSize = 0;
 	}
 
@@ -215,7 +217,7 @@ void TransportPosition::setPatternSize( int nPatternSize ) {
 void TransportPosition::setBar( int nBar ) {
 	if ( nBar < 1 ) {
 		ERRORLOG( QString( "[%1] Provided bar [%2] it too small. Using [1] as a fallback instead." )
-				  .arg( m_sLabel ).arg( nBar ) );
+				  .arg( TypeToQString( m_type ) ).arg( nBar ) );
 		nBar = 1;
 	}
 	m_nBar = nBar;
@@ -224,7 +226,7 @@ void TransportPosition::setBar( int nBar ) {
 void TransportPosition::setBeat( int nBeat ) {
 	if ( nBeat < 1 ) {
 		ERRORLOG( QString( "[%1] Provided beat [%2] it too small. Using [1] as a fallback instead." )
-				  .arg( m_sLabel ).arg( nBeat ) );
+				  .arg( TypeToQString( m_type ) ).arg( nBeat ) );
 		nBeat = 1;
 	}
 	m_nBeat = nBeat;
@@ -791,8 +793,8 @@ QString TransportPosition::toQString( const QString& sPrefix, bool bShort ) cons
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[TransportPosition]\n" ).arg( sPrefix )
-			.append( QString( "%1%2m_sLabel: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_sLabel ) )
+			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( TypeToQString( m_type ) ) )
 			.append( QString( "%1%2m_nFrame: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nFrame ) )
 			.append( QString( "%1%2m_fTick: %3\n" ).arg( sPrefix ).arg( s )
@@ -842,7 +844,7 @@ QString TransportPosition::toQString( const QString& sPrefix, bool bShort ) cons
 	}
 	else {
 		sOutput = QString( "%1[TransportPosition]" ).arg( sPrefix )
-			.append( QString( " m_sLabel: %1" ).arg( m_sLabel ) )
+			.append( QString( " m_type: %1" ).arg( TypeToQString( m_type ) ) )
 			.append( QString( ", m_nFrame: %1" ).arg( m_nFrame ) )
 			.append( QString( ", m_fTick: %1" ).arg( m_fTick, 0, 'f' ) )
 			.append( QString( ", m_fTick (rounded): %1" ).arg( getTick() ) )
@@ -875,6 +877,23 @@ QString TransportPosition::toQString( const QString& sPrefix, bool bShort ) cons
 	}
 	
 	return sOutput;
+}
+
+QString TransportPosition::TypeToQString( const Type& type ) {
+	switch( type ) {
+	case Type::Transport:
+		return "Transport";
+	case Type::Queuing:
+		return "Queuing";
+	case Type::JackTimebaseCallback:
+		return "JackTimebaseCallback";
+	case Type::Test0:
+		return "Test0";
+	case Type::Test1:
+		return "Test1";
+	default:
+		return "Unknown type";
+	}
 }
 
 };

@@ -503,6 +503,11 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 */
 	static bool setBpm( float fBpm );
 
+		/** Makes the metronome count for the length of the largest pattern in
+		 * the current row (song mode)/largest active pattern (pattern mode)
+		 * before starting playback. */
+		static bool startCountIn();
+
 		/**
 		 * Opens the #H2Core::Playlist specified in @a sPath.
 		 *

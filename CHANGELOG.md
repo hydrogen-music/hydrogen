@@ -30,9 +30,15 @@ All notable changes to this project will be documented in this file.
   - `PLAYLIST_REMOVE_SONG`
   - `LOAD_PREV_DRUMKIT` (cycling through drumkits)
   - `LOAD_NEXT_DRUMKIT` (cycling through drumkits)
+  - `COUNT_IN`
+  - `COUNT_IN_PAUSE_TOGGLE`
+  - `COUNT_IN_STOP_TOGGLE`
 - new MIDI actions:
   - `LOAD_PREV_DRUMKIT` (cycling through drumkits)
   - `LOAD_NEXT_DRUMKIT` (cycling through drumkits)
+  - `COUNT_IN`
+  - `COUNT_IN_PAUSE_TOGGLE`
+  - `COUNT_IN_STOP_TOGGLE`
 - `.h2playlist` files are now backed up by and can be restored from autosave
   files as well.
 - CLI options:
@@ -164,6 +170,9 @@ All notable changes to this project will be documented in this file.
     usage of the plain tap tempo and use regular clicking to adjust tempo.
   - If JACK Timebase support was disabled in Preferences, the button is now
     hidden instead of disabled.
+  - The play button does now have two modes: regular start and count in. When in
+    count in, Hydrogen triggers metronome notes matching the length of the
+    current pattern before starting playback (#2194).
     
 
 ### Fixed

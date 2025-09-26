@@ -406,6 +406,11 @@ public:
 	///Rubberband CLI
 	QString				m_sRubberBandCLIexecutable;
 
+		/** Not set in the #PreferencesDialog but by chosing the appropriate
+		 * action in #MainToolBar. */
+		bool		getCountIn() const;
+		void		setCountIn( bool value );
+
 	const QString&	getDefaultEditor() const;
 	void			setDefaultEditor( const QString& editor);
 
@@ -617,6 +622,10 @@ private:
 	 * accessed with get_instance().
 	 */
 	static std::shared_ptr<Preferences>		__instance;
+
+		/** Not set in the #PreferencesDialog but by chosing the appropriate
+		 * action in #MainToolBar. */
+		bool			m_bCountIn;
 
 	/** Default text editor (used by Playlisteditor) */
 	QString				m_sDefaultEditor;
@@ -898,6 +907,13 @@ inline float Preferences::getExportCompressionLevel() const
 inline void Preferences::setExportCompressionLevel( float fCompressionLevel )
 {
 	m_fExportCompressionLevel = fCompressionLevel;
+}
+
+inline bool Preferences::getCountIn() const {
+	return m_bCountIn;
+}
+inline void Preferences::setCountIn( bool bActivate ){
+	m_bCountIn = bActivate;
 }
 
 inline const QString& Preferences::getDefaultEditor() const {

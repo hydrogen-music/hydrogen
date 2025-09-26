@@ -2535,6 +2535,23 @@ bool CoreActionController::setBpm( float fBpm ) {
 	return true;
 }
 
+bool CoreActionController::startCountIn() {
+	auto pHydrogen = Hydrogen::get_instance();
+	assert( pHydrogen );
+	if ( pHydrogen == nullptr ) {
+		ERRORLOG( "Core not ready yet!" );
+		return false;
+	}
+
+	DEBUGLOG( "" );
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	pAudioEngine->lock( RIGHT_HERE );
+	pAudioEngine->startCountIn();
+	pAudioEngine->unlock();
+
+	return true;
+}
+
 std::shared_ptr<Playlist> CoreActionController::loadPlaylist( const QString& sPath,
 															  const QString& sRecoverPath ) {
 	auto pHydrogen = Hydrogen::get_instance();

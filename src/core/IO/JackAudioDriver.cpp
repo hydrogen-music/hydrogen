@@ -940,17 +940,25 @@ void JackAudioDriver::updateTransportPosition()
 
 	switch ( m_JackTransportState ) {
 	case JackTransportStopped: // Transport is halted
-		pAudioEngine->setNextState( AudioEngine::State::Ready );
+		if ( pAudioEngine->getState() != AudioEngine::State::Ready &&
+			 pAudioEngine->getState() != AudioEngine::State::CountIn ) {
+			pAudioEngine->setNextState( AudioEngine::State::Ready );
+		}
 		break;
 
 	case JackTransportRolling: // Transport is playing
-		pAudioEngine->setNextState( AudioEngine::State::Playing );
+		if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
+			pAudioEngine->setNextState( AudioEngine::State::Playing );
+		}
 		break;
 
 	case JackTransportStarting:
 		// Waiting for sync ready. If there are slow-sync clients,
 		// this can take more than one cycle.
-		pAudioEngine->setNextState( AudioEngine::State::Ready );
+		if ( pAudioEngine->getState() != AudioEngine::State::Ready &&
+			 pAudioEngine->getState() != AudioEngine::State::CountIn ) {
+			pAudioEngine->setNextState( AudioEngine::State::Ready );
+		}
 		break;
 
 	default:
@@ -1542,6 +1550,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 
 	// Ensure the callback is not triggered during startup or teardown.
 	if ( pAudioEngine->getState() != AudioEngine::State::Ready &&
+		 pAudioEngine->getState() != AudioEngine::State::CountIn &&
 		 pAudioEngine->getState() != AudioEngine::State::Playing &&
 		 pAudioEngine->getState() != AudioEngine::State::Testing ) {
 		pAudioEngine->unlock();
@@ -1558,7 +1567,8 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 			pPos = pAudioEngine->getTransportPosition();
 		}
 		else {
-			pPos = std::make_shared<TransportPosition>( "JackTimebaseCallback" );
+			pPos = std::make_shared<TransportPosition>(
+				TransportPosition::Type::JackTimebaseCallback );
 			const auto fTick = TransportPosition::computeTickFromFrame(
 				nFrame );
 			pAudioEngine->updateTransportPosition( fTick, nFrame, pPos );
