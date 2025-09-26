@@ -662,6 +662,48 @@ void XmlTest::testSongLegacy() {
 		CPPUNIT_ASSERT( pSong->hasMissingSamples() );
 	}
 
+	// Load an song which contains absolute sample paths but no element
+	// indicating the corresponding drumkit yet. The song will have two samples
+	// with identical file names from two different kit. We have to check that
+	// both of them are properly loaded.
+	auto pSongLegacy = H2Core::Song::load(
+		H2TEST_FILE( "song/legacy/test_song_0.9.6.h2song" ), false );
+	CPPUNIT_ASSERT( pSongLegacy != nullptr );
+	CPPUNIT_ASSERT( pSongLegacy->getInstrumentList() != nullptr );
+	CPPUNIT_ASSERT( pSongLegacy->getInstrumentList()->size() > 0 );
+	for ( const auto& ppInstrument : *pSongLegacy->getInstrumentList() ) {
+		CPPUNIT_ASSERT( ppInstrument != nullptr );
+		CPPUNIT_ASSERT( ppInstrument->hasSamples() );
+	}
+	CPPUNIT_ASSERT( ! pSongLegacy->hasMissingSamples() );
+	const auto pInstrumentGMRockKit = pSongLegacy->getInstrumentList()->find( 13 );
+	CPPUNIT_ASSERT( pInstrumentGMRockKit != nullptr );
+	CPPUNIT_ASSERT( pInstrumentGMRockKit->get_components()->size() > 0 );
+	CPPUNIT_ASSERT( pInstrumentGMRockKit->get_components()->front() != nullptr );
+	CPPUNIT_ASSERT( pInstrumentGMRockKit->get_components()->front()
+					->get_layer( 0 ) != nullptr );
+	CPPUNIT_ASSERT( pInstrumentGMRockKit->get_components()->front()
+					->get_layer( 0 )->get_sample() != nullptr );
+	const auto sFilePathGMRockKit = pInstrumentGMRockKit->get_components()->front()
+		->get_layer( 0 )->get_sample()->get_raw_filepath();
+	const auto pInstrumentOld = pSongLegacy->getInstrumentList()->find( 12 );
+	CPPUNIT_ASSERT( pInstrumentOld != nullptr );
+	CPPUNIT_ASSERT( pInstrumentOld->get_components()->size() > 0 );
+	CPPUNIT_ASSERT( pInstrumentOld->get_components()->front() != nullptr );
+	CPPUNIT_ASSERT( pInstrumentOld->get_components()->front()
+					->get_layer( 0 ) != nullptr );
+	CPPUNIT_ASSERT( pInstrumentOld->get_components()->front()
+					->get_layer( 0 )->get_sample() != nullptr );
+	const auto sFilePathOld = pInstrumentOld->get_components()->front()
+		->get_layer( 0 )->get_sample()->get_raw_filepath();
+	___INFOLOG( QString( "loaded %1: %2 and %3: %4" )
+				.arg( pInstrumentGMRockKit->get_name() )
+				.arg( sFilePathGMRockKit )
+				.arg( pInstrumentOld->get_name() )
+				.arg( sFilePathOld ) );
+	CPPUNIT_ASSERT( sFilePathGMRockKit.contains( "GMRockKit/Crash-Hard.wav" ) );
+	CPPUNIT_ASSERT( sFilePathOld.contains( "kit-0.9.3/Crash-Hard.wav" ) );
+
 	// cleanup
 	CPPUNIT_ASSERT( Filesystem::rm( sKitDirUser, true /* recursive */,
 									false /* bSilent */ ) );
