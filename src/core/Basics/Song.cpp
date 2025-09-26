@@ -190,7 +190,7 @@ bool Song::isPatternActive( int nColumn, int nRow ) const {
 ///Load a song from file
 std::shared_ptr<Song> Song::load( const QString& sFilename, bool bSilent )
 {
-	QString sPath = Filesystem::absolute_path( sFilename, bSilent );
+	const QString sPath = Filesystem::absolute_path( sFilename, bSilent );
 	if ( sPath.isEmpty() ) {
 		return nullptr;
 	}
@@ -221,8 +221,7 @@ std::shared_ptr<Song> Song::load( const QString& sFilename, bool bSilent )
 					 .arg( get_version().c_str() ) );
 		}
 	}
-
-	auto pSong = Song::loadFrom( &songNode, sFilename, bSilent );
+	auto pSong = Song::loadFrom( &songNode, sFilename, sPath, bSilent );
 	if ( pSong != nullptr ) {
 		pSong->setFilename( sFilename );
 	}
@@ -230,7 +229,11 @@ std::shared_ptr<Song> Song::load( const QString& sFilename, bool bSilent )
 	return pSong;
 }
 
-std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilename, bool bSilent )
+std::shared_ptr<Song> Song::loadFrom(
+	XMLNode* pRootNode,
+	const QString& sFilename,
+	const QString& sSongPath,
+	bool bSilent )
 {
 	auto pPreferences = Preferences::get_instance();
 	
@@ -381,7 +384,8 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 		WARNINGLOG( QString( "Song [%1] was created with a more recent version of Hydrogen than the current one!" )
 					.arg( sFilename ) );
 		XMLNode drumkitNode = pRootNode->firstChildElement( "drumkit_info" );
-		const auto pDrumkit = Future::loadDrumkit( drumkitNode, "", bSilent );
+		const auto pDrumkit = Future::loadDrumkit(
+			drumkitNode, "", sSongPath, bSilent );
 		if ( pDrumkit != nullptr ) {
 			pSong->setInstrumentList( pDrumkit->get_instruments() );
 			pSong->getInstrumentList()->load_samples( fBpm );
@@ -424,6 +428,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 			pRootNode,
 			"", // sDrumkitPath
 			"", // sDrumkitName
+			sSongPath,
 			License(), // per-instrument licenses
 			nullptr, // check for legacy format is not required in here.
 			bSilent );

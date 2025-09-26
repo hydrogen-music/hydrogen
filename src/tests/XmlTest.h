@@ -28,6 +28,7 @@
 class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE(XmlTest);
 	CPPUNIT_TEST(testDrumkit);
+	CPPUNIT_TEST(testDrumkitLegacy);
 	CPPUNIT_TEST(testDrumkit_invalidADSRValues);
 	CPPUNIT_TEST(testDrumkitUpgrade);
 	CPPUNIT_TEST(testPattern);
@@ -36,12 +37,14 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(checkTestPatterns);
 	CPPUNIT_TEST(testSamplePathPortability);
 	CPPUNIT_TEST(testSamplePathsWritten);
+	CPPUNIT_TEST(testSongLegacy);
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
 		// Removes all .bak backup files from the test data folder.
 		void tearDown();
 		void testDrumkit();
+		void testDrumkitLegacy();
 		void testDrumkit_invalidADSRValues();
 		void testDrumkitUpgrade();
 		void testPattern();
@@ -66,7 +69,15 @@ class XmlTest : public CppUnit::TestCase {
 		 * loaded by the user, on the other hand, must hold an absolute file
 		 * path. */
 		void testSamplePathsWritten();
-	
+		/** In the beginning of the 1.X.X series we had a lot of changes
+		 * regarding how instruments are stored in a song and how the associated
+		 * samples are looked up. Unfortunately, shortcomings of the individual
+		 * approaches manifested only one at a time.
+		 *
+		 * This test loads song of various versions and checks whether all
+		 * samples could be loaded. */
+		void testSongLegacy();
+
 };
 
 

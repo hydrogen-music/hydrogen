@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<drumkit_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.hydrogen-music.org/drumkit">
+ <!--Copyright (C) 2024  Glen MacArthur / Sebastian Moors
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.-->
+ <name>Legacy-1.2.3</name>
+ <author>Hydrogen Dev</author>
+ <info></info>
+ <license>CC0</license>
+ <image></image>
+ <imageLicense>undefined license</imageLicense>
+ <componentList>
+  <drumkitComponent>
+   <id>3</id>
+   <name>First</name>
+   <volume>1</volume>
+  </drumkitComponent>
+  <drumkitComponent>
+   <id>36</id>
+   <name>Second</name>
+   <volume>1</volume>
+  </drumkitComponent>
+ </componentList>
+ <instrumentList>
+  <instrument>
+   <id>0</id>
+   <name>Kick</name>
+   <volume>1</volume>
+   <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
+   <pan_L>1</pan_L>
+   <pan_R>1</pan_R>
+   <pitchOffset>0</pitchOffset>
+   <randomPitchFactor>0</randomPitchFactor>
+   <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
+   <filterActive>false</filterActive>
+   <filterCutoff>1</filterCutoff>
+   <filterResonance>0</filterResonance>
+   <Attack>0</Attack>
+   <Decay>0</Decay>
+   <Sustain>1</Sustain>
+   <Release>999</Release>
+   <muteGroup>-1</muteGroup>
+   <midiOutChannel>-1</midiOutChannel>
+   <midiOutNote>36</midiOutNote>
+   <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
+   <FX1Level>0</FX1Level>
+   <FX2Level>0</FX2Level>
+   <FX3Level>0</FX3Level>
+   <FX4Level>0</FX4Level>
+   <instrumentComponent>
+    <component_id>36</component_id>
+    <gain>1</gain>
+    <layer>
+     <filename>emptySample.flac</filename>
+     <min>0</min>
+     <max>0.4</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+   </instrumentComponent>
+   <instrumentComponent>
+    <component_id>3</component_id>
+    <gain>1</gain>
+    <layer>
+     <filename>emptySample.flac</filename>
+     <min>0.4</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+   </instrumentComponent>
+  </instrument>
+ </instrumentList>
+</drumkit_info>

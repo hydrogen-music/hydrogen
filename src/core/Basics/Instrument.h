@@ -87,7 +87,8 @@ class Instrument : public H2Core::Object<Instrument>
 		 * \param instrument_name the instrument within the drumkit to load samples from
 		 * for the drumkit.
 		 */
-		void load_from( const QString& drumkit_path, const QString& instrument_name );
+		void load_from( const QString& drumkit_path,
+						const QString& instrument_name );
 
 		/**
 		 * loads instrument from a given instrument into a `live` Instrument object.
@@ -96,7 +97,8 @@ class Instrument : public H2Core::Object<Instrument>
 		 * \param lookup Where to search (system/user folder or both)
 		 * for the drumkit.
 		 */
-		void load_from( std::shared_ptr<Drumkit> drumkit, std::shared_ptr<Instrument> instrument );
+		void load_from( std::shared_ptr<Drumkit> drumkit,
+						std::shared_ptr<Instrument> instrument );
 
 		/**
 		 * Calls the InstrumentLayer::load_sample() member
@@ -132,6 +134,8 @@ class Instrument : public H2Core::Object<Instrument>
 		 *   data. If empty, it will be read from @a pNode.
 		 * \param sDrumkitName Name of the drumkit found in @a
 		 *   sDrumkitPath.
+		 * \param sSongPath path to the song to be loaded. Used in case some
+		 *   #H2Core::Sample have to be loaded relatively.
 		 * \param license License assigned to all Samples that will be
 		 *   loaded. If empty, the license will be read from @a
 		 *   sDrumkitPath.
@@ -143,12 +147,14 @@ class Instrument : public H2Core::Object<Instrument>
 		 *
 		 * \return a new Instrument instance
 		 */
-		static std::shared_ptr<Instrument> load_from( XMLNode* pNode,
-													  const QString& sDrumkitPath = "",
-													  const QString& sDrumkitName = "",
-													  const License& license = License(),
-													  bool* pLegacyFormatEncountered = nullptr,
-													  bool bSilent = false );
+		static std::shared_ptr<Instrument> load_from(
+			XMLNode* pNode,
+			const QString& sDrumkitPath,
+			const QString& sDrumkitName,
+			const QString& sSongPath,
+			const License& license = License(),
+			bool* pLegacyFormatEncountered = nullptr,
+			bool bSilent = false );
 
 		///< set the name of the instrument
 		void set_name( const QString& name );

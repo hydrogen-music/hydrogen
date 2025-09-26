@@ -1,0 +1,106 @@
+<drumkit_info>
+    <name>kit-0.9.3</name>
+    <author>Hydrogen dev team</author>
+    <info>Mock Drumkit derived from one created (probably) using 0.9.3 or previous. Licensed as CC-0.</info>
+    <instrumentList>
+        <instrument>
+            <id>0</id>
+            <name>Kick 0.9.3</name>
+            <volume>1</volume>
+            <isMuted>false</isMuted>
+            <isLocked>false</isLocked>
+            <pan_L>1</pan_L>
+            <pan_R>1</pan_R>
+            <randomPitchFactor>0</randomPitchFactor>
+            <gain>1</gain>
+            <filterActive>true</filterActive>
+            <filterCutoff>0.95</filterCutoff>
+            <filterResonance>0</filterResonance>
+            <Attack>0</Attack>
+            <Decay>0</Decay>
+            <Sustain>1</Sustain>
+            <Release>1000</Release>
+            <exclude />
+            <layer>
+                <filename>Kick-Hard.wav</filename>
+                <min>0</min>
+                <max>0.324786</max>
+                <gain>3</gain>
+                <pitch>0</pitch>
+            </layer>
+            <layer>
+                <filename>Kick-Hard.wav</filename>
+                <min>0.303419</min>
+                <max>0.675214</max>
+                <gain>2.7</gain>
+                <pitch>0</pitch>
+            </layer>
+            <layer>
+                <filename>Kick-Hard.wav</filename>
+                <min>0.662393</min>
+                <max>0.918803</max>
+                <gain>2.4</gain>
+                <pitch>0</pitch>
+            </layer>
+            <layer>
+                <filename>Kick-Hard.wav</filename>
+                <min>0.901709</min>
+                <max>1</max>
+                <gain>1.95</gain>
+                <pitch>0</pitch>
+            </layer>
+        </instrument>
+        <instrument>
+            <id>1</id>
+            <name>Crash 0.9.3</name>
+            <volume>0.69</volume>
+            <isMuted>false</isMuted>
+            <isLocked>false</isLocked>
+            <pan_L>1</pan_L>
+            <pan_R>1</pan_R>
+            <randomPitchFactor>0</randomPitchFactor>
+            <gain>1</gain>
+            <filterActive>false</filterActive>
+            <filterCutoff>1</filterCutoff>
+            <filterResonance>0</filterResonance>
+            <Attack>0</Attack>
+            <Decay>0</Decay>
+            <Sustain>1</Sustain>
+            <Release>1000</Release>
+            <exclude />
+            <layer>
+                <filename>Crash-Hard.wav</filename>
+                <min>0</min>
+                <max>0.491453</max>
+                <gain>4.25</gain>
+                <pitch>0</pitch>
+            </layer>
+            <layer>
+                <filename>Kick-Hard.wav</filename>
+                <min>0.452991</min>
+                <max>1</max>
+                <gain>2.55</gain>
+                <pitch>0</pitch>
+            </layer>
+        </instrument>
+        <instrument>
+            <id>31</id>
+            <name>32</name>
+            <volume>0.8</volume>
+            <isMuted>false</isMuted>
+            <isLocked>false</isLocked>
+            <pan_L>1</pan_L>
+            <pan_R>1</pan_R>
+            <randomPitchFactor>0</randomPitchFactor>
+            <gain>1</gain>
+            <filterActive>false</filterActive>
+            <filterCutoff>1</filterCutoff>
+            <filterResonance>0</filterResonance>
+            <Attack>0</Attack>
+            <Decay>0</Decay>
+            <Sustain>1</Sustain>
+            <Release>1000</Release>
+            <exclude />
+        </instrument>
+    </instrumentList>
+</drumkit_info>

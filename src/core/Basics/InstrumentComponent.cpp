@@ -91,7 +91,12 @@ int InstrumentComponent::getMaxLayers()
 	return m_nMaxLayers;
 }
 
-std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from( XMLNode* pNode, const QString& sDrumkitPath, const License& drumkitLicense, bool bSilent )
+std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from(
+	XMLNode* pNode,
+	const QString& sDrumkitPath,
+	const QString& sSongPath,
+	const License& drumkitLicense,
+	bool bSilent )
 {
 	// Component IDs are essential. But in InstrumentComponents created in
 	// version >= v2.0 they are not present anymore. Instead, we just fallback
@@ -112,8 +117,8 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from( XMLNode* pN
 			break;
 		}
 
-		auto pLayer = InstrumentLayer::load_from( &layer_node, sDrumkitPath,
-												  drumkitLicense, bSilent );
+		auto pLayer = InstrumentLayer::load_from(
+			&layer_node, sDrumkitPath, sSongPath, drumkitLicense, bSilent );
 		if ( pLayer != nullptr ) {
 			pInstrumentComponent->set_layer( pLayer, nLayer );
 			nLayer++;
