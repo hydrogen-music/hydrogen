@@ -563,7 +563,7 @@
   </instrument>
   <instrument>
    <id>13</id>
-   <name>Crash</name>
+   <name>Crash GMRockKit</name>
    <volume>0.69</volume>
    <isMuted>false</isMuted>
    <pan_L>1</pan_L>
