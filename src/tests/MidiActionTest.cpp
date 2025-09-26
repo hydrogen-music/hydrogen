@@ -797,6 +797,10 @@ void MidiActionTest::testNextBarAction() {
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::NextBar );
 	pMidiMap->registerCCEvent( nParameter, pAction );
 
+	const auto pPreviousSong = pHydrogen->getSong();
+	const auto pNewSong = Song::getEmptySong();
+	CPPUNIT_ASSERT( CoreActionController::setSong( pNewSong ) );
+
 	const int nPatternNumber = 0;
 	const int nColumn = 5;
 	CPPUNIT_ASSERT( CoreActionController::activateSongMode( true ) );
@@ -825,6 +829,7 @@ void MidiActionTest::testNextBarAction() {
 
 	CPPUNIT_ASSERT( CoreActionController::toggleGridCell(
 						GridPoint( nColumn, nPatternNumber ) ) );
+	CPPUNIT_ASSERT( CoreActionController::setSong( pPreviousSong ) );
 
 	___INFOLOG("done");
 }
@@ -1302,6 +1307,10 @@ void MidiActionTest::testPreviousBarAction() {
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::PreviousBar );
 	pMidiMap->registerCCEvent( nParameter, pAction );
 
+	const auto pPreviousSong = pHydrogen->getSong();
+	const auto pNewSong = Song::getEmptySong();
+	CPPUNIT_ASSERT( CoreActionController::setSong( pNewSong ) );
+
 	const int nPatternNumber = 0;
 	const int nColumn = 4;
 	CPPUNIT_ASSERT( CoreActionController::activateSongMode( true ) );
@@ -1330,6 +1339,7 @@ void MidiActionTest::testPreviousBarAction() {
 
 	CPPUNIT_ASSERT( CoreActionController::toggleGridCell(
 						GridPoint( nColumn, nPatternNumber ) ) );
+	CPPUNIT_ASSERT( CoreActionController::setSong( pPreviousSong ) );
 
 	___INFOLOG("done");
 }
