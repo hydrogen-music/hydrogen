@@ -536,7 +536,7 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode,
 		if ( pLegacyFormatEncountered != nullptr ) {
 			*pLegacyFormatEncountered = true;
 		}
-}
+	}
 
 	// Sanity checks
 
