@@ -224,11 +224,13 @@ void MidiDriverTest::testMidiClockDrift() {
 #else
 	const float fReferenceBpm = 120.7;
 #endif
+	const float fTolerance = 2;
 
 	pAudioEngine->lock( RIGHT_HERE );
 	const auto fOldBpm = pTransportPosition->getBpm();
 	pAudioEngine->unlock();
 
+	pMidiActionManager->resetTimingClockTicks();
 	pMidiDriver->startMidiClockStream( fReferenceBpm );
 
 	// In milliseconds
@@ -248,6 +250,7 @@ void MidiDriverTest::testMidiClockDrift() {
 		___DEBUGLOG( QString( "post current: %1" ).arg( fCurrentBpm ) );
 
 		if ( fCurrentBpm != fOldBpm ) {
+			CPPUNIT_ASSERT( std::abs( fCurrentBpm - fReferenceBpm ) < fTolerance );
 			deviations.push_back( fReferenceBpm - fCurrentBpm );
 		}
 	}
