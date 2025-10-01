@@ -89,7 +89,14 @@ void MidiActionTest::testBeatCounterAction() {
 	const auto fOldBpm = pAudioEngine->getNextBpm();
 	pAudioEngine->unlock();
 
+#ifdef Q_OS_MACX
+	// Maybe macOS itself - but at least our macOS AppVeyor pipeline is soo
+	// slow, we have to significantly lower target tempo in order for the system
+	// to trigger the required events in time.
+	const float fTargetBpm = 138.4;
+#else
 	const float fTargetBpm = 338.4;
+#endif
 	const float fIntervalMs = 60000.0 / fTargetBpm;
 	const auto interval = std::chrono::duration<float, std::milli>{ fIntervalMs };
 	CPPUNIT_ASSERT( fTargetBpm < MAX_BPM );
@@ -1904,7 +1911,14 @@ void MidiActionTest::testTapTempoAction() {
 	const auto fOldBpm = pTransportPosition->getBpm();
 	pAudioEngine->unlock();
 
+#ifdef Q_OS_MACX
+	// Maybe macOS itself - but at least our macOS AppVeyor pipeline is soo
+	// slow, we have to significantly lower target tempo in order for the system
+	// to trigger the required events in time.
+	const float fTargetBpm = 178.4;
+#else
 	const float fTargetBpm = 378.4;
+#endif
 	const float fIntervalMs = 60000.0 / fTargetBpm;
 	const auto interval = std::chrono::duration<float, std::milli>{ fIntervalMs };
 	CPPUNIT_ASSERT( fTargetBpm < MAX_BPM );
