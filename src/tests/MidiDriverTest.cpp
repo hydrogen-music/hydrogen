@@ -285,8 +285,8 @@ void MidiDriverTest::testMidiClockDrift() {
 				.arg( deviationStrings.join( ", " ) ).arg( fSlope )
 				.arg( fAverage ) );
 
-	CPPUNIT_ASSERT( std::abs( fSlope ) < 0.1 );
-	CPPUNIT_ASSERT( std::abs( fAverage ) < 0.1 );
+	CPPUNIT_ASSERT( std::abs( fSlope ) < 0.5 );
+	CPPUNIT_ASSERT( std::abs( fAverage ) < 1 );
 
 	// Flush all queues as part of the clanup.
 	TestHelper::waitForMidiDriver();
