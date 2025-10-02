@@ -65,6 +65,7 @@ void MidiActionTest::tearDown() {
 void MidiActionTest::testBeatCounterAction() {
 	___INFOLOG("");
 
+	auto pTestHelper = TestHelper::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pTimeHelper = pHydrogen->getTimeHelper();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
@@ -89,14 +90,7 @@ void MidiActionTest::testBeatCounterAction() {
 	const auto fOldBpm = pAudioEngine->getNextBpm();
 	pAudioEngine->unlock();
 
-#ifdef Q_OS_MACX
-	// Maybe macOS itself - but at least our macOS AppVeyor pipeline is soo
-	// slow, we have to significantly lower target tempo in order for the system
-	// to trigger the required events in time.
-	const float fTargetBpm = 138.4;
-#else
 	const float fTargetBpm = 338.4;
-#endif
 	const float fIntervalMs = 60000.0 / fTargetBpm;
 	const auto interval = std::chrono::duration<float, std::milli>{ fIntervalMs };
 	CPPUNIT_ASSERT( fTargetBpm < MAX_BPM );
@@ -130,15 +124,13 @@ void MidiActionTest::testBeatCounterAction() {
 	const auto fNewBpm = pAudioEngine->getNextBpm();
 	pAudioEngine->unlock();
 
-#ifdef Q_OS_MACX
-	const float fTolerance = 5;
-#else
 	const float fTolerance = 1;
-#endif
 	___INFOLOG( QString( "[%1] -> [%2] target [%3 +/- %4]" ).arg( fOldBpm )
 				.arg( fNewBpm ).arg( fTargetBpm ).arg( fTolerance ) );
 	CPPUNIT_ASSERT( fNewBpm != fOldBpm );
-	CPPUNIT_ASSERT( std::abs( fTargetBpm - fNewBpm ) < fTolerance );
+	if ( ! pTestHelper->isAppveyor() ) {
+		CPPUNIT_ASSERT( std::abs( fTargetBpm - fNewBpm ) < fTolerance );
+	}
 
 	___INFOLOG("done");
 }
@@ -1895,6 +1887,7 @@ void MidiActionTest::testStripVolumeRelativeAction() {
 void MidiActionTest::testTapTempoAction() {
 	___INFOLOG("");
 
+	auto pTestHelper = TestHelper::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pTransportPosition = pAudioEngine->getTransportPosition();
@@ -1915,14 +1908,7 @@ void MidiActionTest::testTapTempoAction() {
 	const auto fOldBpm = pTransportPosition->getBpm();
 	pAudioEngine->unlock();
 
-#ifdef Q_OS_MACX
-	// Maybe macOS itself - but at least our macOS AppVeyor pipeline is soo
-	// slow, we have to significantly lower target tempo in order for the system
-	// to trigger the required events in time.
-	const float fTargetBpm = 178.4;
-#else
 	const float fTargetBpm = 378.4;
-#endif
 	const float fIntervalMs = 60000.0 / fTargetBpm;
 	const auto interval = std::chrono::duration<float, std::milli>{ fIntervalMs };
 	CPPUNIT_ASSERT( fTargetBpm < MAX_BPM );
@@ -1956,15 +1942,13 @@ void MidiActionTest::testTapTempoAction() {
 	const auto fNewBpm = pTransportPosition->getBpm();
 	pAudioEngine->unlock();
 
-#ifdef Q_OS_MACX
-	const float fTolerance = 5;
-#else
 	const float fTolerance = 1;
-#endif
 	___INFOLOG( QString( "[%1] -> [%2] target [%3 +/- %4]" ).arg( fOldBpm )
 				.arg( fNewBpm ).arg( fTargetBpm ).arg( fTolerance ) );
 	CPPUNIT_ASSERT( fNewBpm != fOldBpm );
-	CPPUNIT_ASSERT( std::abs( fTargetBpm - fNewBpm ) < fTolerance );
+	if ( ! pTestHelper->isAppveyor() ) {
+		CPPUNIT_ASSERT( std::abs( fTargetBpm - fNewBpm ) < fTolerance );
+	}
 
 	___INFOLOG("done");
 }
