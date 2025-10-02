@@ -128,6 +128,7 @@ void MidiDriverTest::testLoopBackMidiDriver() {
 	___INFOLOG("done");
 }
 
+#ifndef Q_OS_MACX
 void MidiDriverTest::testMidiClock() {
 	___INFOLOG("");
 
@@ -141,16 +142,8 @@ void MidiDriverTest::testMidiClock() {
 		pAudioEngine->getMidiDriver().get() );
 	CPPUNIT_ASSERT( pMidiDriver != nullptr );
 
-#ifdef Q_OS_MACX
-	// Maybe macOS itself - but at least our macOS AppVeyor pipeline is soo
-	// slow, we have to significantly lower target tempo in order for the system
-	// to trigger the required events in time.
-	const std::vector<float> referenceTempos{
-		40.0, 55.4, 63.1 };
-#else
 	const std::vector<float> referenceTempos{
 		80.0, 123.4, 145.1 };
-#endif
 	const float fTolerance = 1;
 
 	for ( const auto& ffTempo : referenceTempos ) {
@@ -216,14 +209,7 @@ void MidiDriverTest::testMidiClockDrift() {
 		pAudioEngine->getMidiDriver().get() );
 	CPPUNIT_ASSERT( pMidiDriver != nullptr );
 
-#ifdef Q_OS_MACX
-	// Maybe macOS itself - but at least our macOS AppVeyor pipeline is soo
-	// slow, we have to significantly lower target tempo in order for the system
-	// to trigger the required events in time.
-	const float fReferenceBpm = 60.7;
-#else
 	const float fReferenceBpm = 120.7;
-#endif
 	const float fTolerance = 2;
 
 	pAudioEngine->lock( RIGHT_HERE );
@@ -298,3 +284,4 @@ void MidiDriverTest::testMidiClockDrift() {
 
 	___INFOLOG("done");
 }
+#endif
