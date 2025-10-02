@@ -48,16 +48,16 @@
 TestHelper* TestHelper::m_pInstance = nullptr;
 QString TestHelper::sRootDir = CMAKE_SOURCE_DIR;
 
-void TestHelper::createInstance()
+void TestHelper::createInstance( bool bAppveyor )
 {
 	if ( m_pInstance == nullptr ) {
 		m_pInstance = new TestHelper;
+		m_pInstance->m_bAppveyor = bAppveyor;
 	}
 }
 
 TestHelper::TestHelper()
 {
-	___INFOLOG( QString( "Using test data directory: %1" ).arg( sRootDir ) );
 	m_sDataDir = sRootDir + "/data/";
 	m_sTestDataDir = sRootDir + "/src/tests/data/";
 }

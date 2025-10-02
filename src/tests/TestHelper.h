@@ -32,10 +32,12 @@ class TestHelper {
 	static TestHelper*	m_pInstance;
 	QString m_sDataDir;
 	QString m_sTestDataDir;
+	bool m_bAppveyor;
 	
 	public:
 		TestHelper();
 
+	bool isAppveyor() const;
 		QString getDataDir() const;
 		QString getTestDataDir() const;
 		QString getTestFile(const QString& file) const;
@@ -105,13 +107,17 @@ class TestHelper {
 		static void waitForMidiActionManagerWorkerThread();
 
 
-	static void			createInstance();
+	static void			createInstance( bool bAppveyor );
 	static TestHelper*	get_instance();
 };
 
 inline TestHelper*	TestHelper::get_instance() 
 { 
 	assert(m_pInstance); return m_pInstance; 
+}
+
+inline bool TestHelper::isAppveyor() const {
+	return m_bAppveyor;
 }
 
 inline QString TestHelper::getDataDir() const 

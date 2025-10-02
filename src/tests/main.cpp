@@ -57,7 +57,6 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
 		pLogger = H2Core::Logger::bootstrap( log_level, "", true, true );
 	}
 	/* Test helper */
-	TestHelper::createInstance();
 	TestHelper* test_helper = TestHelper::get_instance();
 	/* Base */
 	H2Core::Base::bootstrap( pLogger, true );
@@ -147,6 +146,7 @@ int main( int argc, char **argv)
 
 	qDebug() << "Using transient data dir: [" << userDataDir.path() << "]";
 
+	TestHelper::createInstance( parser.isSet( appveyorOption ) );
 	setupEnvironment( logLevelOpt, sLogFilePath, userDataDir.path() );
 
 #ifdef HAVE_EXECINFO_H
