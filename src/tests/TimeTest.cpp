@@ -93,6 +93,13 @@ void TimeTest::testHighResolutionSleep(){
 	std::vector<int> durationsMs{ 2, 10, 65, 234 };
 
 	for ( const auto ffDurationMs : durationsMs ) {
+		// Perform one sleep without checking time. This allows for `TimeHelper`
+		// to adopt to the new system surplus (which might depend on the sleep
+		// duration) and produces results closer to those encountered in real
+		// life.
+		pHydrogen->getTimeHelper()->highResolutionSleep(
+			std::chrono::duration<float, std::milli>( ffDurationMs ) );
+
 		const auto start = Clock::now();
 		pHydrogen->getTimeHelper()->highResolutionSleep(
 			std::chrono::duration<float, std::milli>( ffDurationMs ) );
