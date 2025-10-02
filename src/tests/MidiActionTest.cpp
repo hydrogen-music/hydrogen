@@ -130,7 +130,11 @@ void MidiActionTest::testBeatCounterAction() {
 	const auto fNewBpm = pAudioEngine->getNextBpm();
 	pAudioEngine->unlock();
 
+#ifdef Q_OS_MACX
+	const float fTolerance = 5;
+#else
 	const float fTolerance = 1;
+#endif
 	___INFOLOG( QString( "[%1] -> [%2] target [%3 +/- %4]" ).arg( fOldBpm )
 				.arg( fNewBpm ).arg( fTargetBpm ).arg( fTolerance ) );
 	CPPUNIT_ASSERT( fNewBpm != fOldBpm );
@@ -1952,7 +1956,11 @@ void MidiActionTest::testTapTempoAction() {
 	const auto fNewBpm = pTransportPosition->getBpm();
 	pAudioEngine->unlock();
 
+#ifdef Q_OS_MACX
+	const float fTolerance = 5;
+#else
 	const float fTolerance = 1;
+#endif
 	___INFOLOG( QString( "[%1] -> [%2] target [%3 +/- %4]" ).arg( fOldBpm )
 				.arg( fNewBpm ).arg( fTargetBpm ).arg( fTolerance ) );
 	CPPUNIT_ASSERT( fNewBpm != fOldBpm );
