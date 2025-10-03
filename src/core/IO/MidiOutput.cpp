@@ -44,6 +44,9 @@ MidiOutput::MidiOutput()
 }
 
 MidiOutput::~MidiOutput() {
+	if ( m_pClockThread != nullptr ) {
+		stopMidiClockStream();
+	}
 }
 
 std::shared_ptr<MidiOutput::HandledOutput> MidiOutput::sendMessage(
