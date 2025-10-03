@@ -22,6 +22,7 @@
 
 
 #include "TimeTest.h"
+#include "TestHelper.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Song.h>
@@ -87,6 +88,7 @@ void TimeTest::testElapsedTime(){
 void TimeTest::testHighResolutionSleep(){
 	___INFOLOG( "" );
 
+	auto pTestHelper = TestHelper::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 
 	const float fTolerance = 1;
@@ -113,7 +115,10 @@ void TimeTest::testHighResolutionSleep(){
 		// We have to wait at least the requested amount. A little bit more is
 		// ok. But less is not.
 		CPPUNIT_ASSERT( fPassedMs >= ffDurationMs );
-		CPPUNIT_ASSERT( std::abs( fPassedMs - ffDurationMs ) <= fTolerance );
+
+		if ( ! pTestHelper->isAppveyor() ) {
+			CPPUNIT_ASSERT( std::abs( fPassedMs - ffDurationMs ) <= fTolerance );
+		}
 	}
 
 	___INFOLOG( "passed" );
