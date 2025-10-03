@@ -23,6 +23,7 @@
 #include <core/IO/MidiOutput.h>
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Helpers/TimeHelper.h>
 #include <core/Hydrogen.h>
 #include <core/IO/MidiBaseDriver.h>
@@ -41,6 +42,11 @@ MidiOutput::MidiOutput()
 	, m_nTickCount( 0 )
 	, m_pClockThread( nullptr )
 {
+	if ( Preferences::get_instance()->getMidiClockOutputSend() ) {
+		startMidiClockStream(
+							 Hydrogen::get_instance()->getAudioEngine()
+							 ->getTransportPosition()->getBpm() );
+	}
 }
 
 MidiOutput::~MidiOutput() {
@@ -105,7 +111,8 @@ void MidiOutput::startMidiClockStream( float fBpm ) {
 
 	m_bSendClockTick = true;
 	m_nTickCount = 0;
-	m_pClockThread = std::make_shared<std::thread>( MidiOutput::midiClockStream );
+	m_pClockThread = std::make_shared<std::thread>(
+		MidiOutput::midiClockStream, ( void* ) this );
 }
 
 void MidiOutput::stopMidiClockStream() {
@@ -136,9 +143,14 @@ void MidiOutput::waitForNextMidiClockTick() {
 	m_midiClockCV.wait( lock, [&]{ return ! m_bNotifyOnNextTick; });
 }
 
-void MidiOutput::midiClockStream() {
+void MidiOutput::midiClockStream( void* pInstance ) {
+	auto pMidiDriver = static_cast<MidiOutput*>( pInstance );
+	if ( pMidiDriver == nullptr ) {
+		ERRORLOG( "Invalid instance provided. Shutting down." );
+		return;
+	}
+
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiDriver = pHydrogen->getAudioEngine()->getMidiDriver();
 
 	while ( pMidiDriver->m_bSendClockTick ) {
 		auto start = Clock::now();

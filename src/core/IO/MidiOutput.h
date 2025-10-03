@@ -103,9 +103,10 @@ class MidiOutput : public virtual Object<MidiOutput>
 		virtual void sendControlChangeMessage( const MidiMessage& msg ) = 0;
 		virtual void sendNoteOffMessage( const MidiMessage& msg ) = 0;
 		virtual void sendNoteOnMessage( const MidiMessage& msg ) = 0;
-		virtual void sendSystemRealTimeMessage( const MidiMessage& msg ) = 0;
+	/** Not purely virtual since it is required in midiClockStream().  */
+	virtual void sendSystemRealTimeMessage( const MidiMessage& msg ){};
 
-		static void midiClockStream();
+		static void midiClockStream( void* pInstance );
 
 		/** Shared data
 		 * @{ */
