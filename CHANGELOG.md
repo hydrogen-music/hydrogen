@@ -107,6 +107,7 @@ All notable changes to this project will be documented in this file.
   - `TAP_TEMPO` is now using a cumulative average (reset on tempo deviations
     larger than 20 bpm) to increase precision and is supported on Windows as
     well.
+  - Precision of handling `TAP_TEMPO` and `BEAT_COUNTER` have been improved.
 - PlaylistEditor:
   - All actions can now be undone and redone.
   - Songs can be loaded by keyboard selection and pressing Enter key.
