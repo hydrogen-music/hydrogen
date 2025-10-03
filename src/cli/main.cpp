@@ -355,9 +355,6 @@ int main(int argc, char *argv[])
 		auto pPref = Preferences::get_instance();
 #ifdef H2CORE_HAVE_OSC
 		pPref->setOscServerEnabled( true );
-		if ( nOscPort != -1 ) {
-			pPref->m_nOscTemporaryPort = nOscPort;
-		}
 #endif
 		// See below for Hydrogen.
 
@@ -379,7 +376,7 @@ int main(int argc, char *argv[])
 				Preferences::parseAudioDriver( sSelectedDriver );
 		}
 
-		Hydrogen::create_instance();
+		Hydrogen::create_instance( nOscPort );
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 		// Tell the core that we are done initializing the most basic parts.

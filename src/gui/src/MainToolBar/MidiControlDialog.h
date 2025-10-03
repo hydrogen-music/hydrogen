@@ -51,7 +51,7 @@ public:
 		static constexpr int nColumnInstrumentWidth = 220;
 		static constexpr int nColumnTimestampWidth = 120;
 		static constexpr int nColumnTypeWidth = 220;
-		static constexpr int nColumnValueWidth = 70;
+		static constexpr int nColumnValueWidth = 80;
 
 		explicit MidiControlDialog( QWidget* pParent );
 		~MidiControlDialog();
@@ -60,6 +60,7 @@ public:
 		void midiDriverChangedEvent() override;
 		void midiInputEvent() override;
 		void midiOutputEvent() override;
+		void updatePreferencesEvent( int ) override;
 
 public slots:
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
@@ -74,6 +75,12 @@ private:
 		void updateOutputTable();
 
 		QTabWidget* m_pTabWidget;
+
+		QComboBox* m_pInputChannelFilterComboBox;
+		QCheckBox* m_pInputIgnoreNoteOffCheckBox;
+		QCheckBox* m_pInputDiscardAfterActionCheckBox;
+		QCheckBox* m_pInputNoteAsOutputCheckBox;
+		QCheckBox* m_pOutputEnableMidiFeedbackCheckBox;
 
 		QTableWidget* m_pMidiInputTable;
 		QToolButton* m_pInputBinButton;

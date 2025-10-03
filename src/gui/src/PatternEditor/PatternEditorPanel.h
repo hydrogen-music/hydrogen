@@ -188,6 +188,7 @@ class PatternEditorPanel : public QWidget,
 		virtual void songModeActivationEvent() override;
 		virtual void stackedModeActivationEvent( int ) override;
 		virtual void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
+		virtual void updatePreferencesEvent( int ) override;
 		virtual void updateSongEvent( int nValue ) override;
 		// ~ Implements EventListener interface
 
@@ -325,6 +326,7 @@ class PatternEditorPanel : public QWidget,
 		void updateDB();
 		void updateQuantization( QInputEvent* pEvent );
 
+		void updateResolutionCombo();
 		/** If set by the user, type labels in the sidebar will only be shown in
 		 * case there is a note not associated with the current drumkit in
 		 * #m_pPattern. */

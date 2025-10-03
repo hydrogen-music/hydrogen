@@ -901,6 +901,9 @@ bool CoreActionController::setPreferences( std::shared_ptr<Preferences> pPrefere
 		pPreferences->m_fMetronomeVolume );
 
 	InstrumentComponent::setMaxLayers( pPreferences->getMaxLayers() );
+	pHydrogen->restartAudioDriver();
+	pHydrogen->restartMidiDriver();
+	pHydrogen->recreateOscServer();
 
 	// If the GUI is active, we have to update it to reflect the
 	// changes in the preferences.
@@ -2544,6 +2547,23 @@ bool CoreActionController::setBpm( float fBpm ) {
 	pAudioEngine->unlock();
 
 	pHydrogen->setIsModified( true );
+
+	return true;
+}
+
+bool CoreActionController::startCountIn() {
+	auto pHydrogen = Hydrogen::get_instance();
+	assert( pHydrogen );
+	if ( pHydrogen == nullptr ) {
+		ERRORLOG( "Core not ready yet!" );
+		return false;
+	}
+
+	DEBUGLOG( "" );
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	pAudioEngine->lock( RIGHT_HERE );
+	pAudioEngine->startCountIn();
+	pAudioEngine->unlock();
 
 	return true;
 }

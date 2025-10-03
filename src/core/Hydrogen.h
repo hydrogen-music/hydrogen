@@ -147,7 +147,7 @@ public:
 	 * Creates all the instances used within Hydrogen in the right
 	 * order.
 	 */
-	static void		create_instance();
+	static void		create_instance( int nOscPort );
 	/**
 	 * Returns the current Hydrogen instance #__instance.
 	 */
@@ -322,7 +322,6 @@ public:
 	/** Destroys and recreates the OscServer singleton in order to
 		adopt a new OSC port.*/
 	void			recreateOscServer();
-	void			startNsmClient();
 
 	// beatconter
 	void			setBeatCounterTotalBeats( int nTotalBeats );

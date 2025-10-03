@@ -119,7 +119,7 @@ class NsmClient : public H2Core::Object<NsmClient>
 		 * management. This particular state will be indicated by
 		 * setting #m_bUnderSessionManagement to true.
 		 */
-		void createInitialClient();
+		void createInitialClient( const QString& sProcessName );
 
 		/** Causes the NSM client to not process events anymore.
 		 *
@@ -154,6 +154,9 @@ class NsmClient : public H2Core::Object<NsmClient>
 	bool getIsNewSession() const;
 	void setIsNewSession( bool bNew );
 
+		const QString& getClientId() const;
+		void setClientId( const QString& sId );
+
 	private:
 		/** Private constructor to allow construction only via
 		   create_instance().*/
@@ -187,6 +190,8 @@ class NsmClient : public H2Core::Object<NsmClient>
 	 * with an empty song.
 	 */
 	bool m_bIsNewSession;
+
+		QString m_sClientId;
 	
 	/**
 	 * Callback function for the NSM server to tell Hydrogen to open a
@@ -289,6 +294,12 @@ inline bool NsmClient::getIsNewSession() const {
 }
 inline void NsmClient::setIsNewSession( bool bNew ) {
 	m_bIsNewSession = bNew;
+}
+inline const QString& NsmClient::getClientId() const {
+	return m_sClientId;
+}
+inline void NsmClient::setClientId( const QString& sId ) {
+	m_sClientId = sId;
 }
 #endif /* H2CORE_HAVE_OSC */
 

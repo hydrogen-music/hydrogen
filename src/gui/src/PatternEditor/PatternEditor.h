@@ -140,8 +140,9 @@ public:
 											  int nNewOctave,
 											  int nOldOctave );
 
-		float getGridWidth() const { return m_fGridWidth; }
-		unsigned getGridHeight() const { return m_nGridHeight; }
+		float getGridWidth() const;
+		void setGridWidth( float fGridWith );
+		unsigned getGridHeight() const;
 
 		bool isSelectionMoving() const;
 
@@ -357,5 +358,17 @@ protected:
 		// instead and #NotePropertiesPanel does only contain a single row.
 		int m_nCursorPitch;
 };
+
+inline float PatternEditor::getGridWidth() const {
+	return m_fGridWidth;
+}
+inline void PatternEditor::setGridWidth( float fGridWidth ) {
+	if ( m_fGridWidth != fGridWidth ) {
+		m_fGridWidth = fGridWidth;
+	}
+}
+inline unsigned PatternEditor::getGridHeight() const {
+	return m_nGridHeight;
+}
 
 #endif // PATERN_EDITOR_H

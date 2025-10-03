@@ -31,7 +31,6 @@
 #include <cmath>
 #include <jack/metadata.h>
 
-#include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Drumkit.h>
@@ -42,10 +41,12 @@
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Song.h>
-#include <core/Helpers/Filesystem.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Globals.h>
 #include <core/EventQueue.h>
+#include <core/Globals.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Hydrogen.h>
+#include <core/NsmClient.h>
+#include <core/Preferences/Preferences.h>
 
 #define JACK_DEBUG 0
 
@@ -939,17 +940,25 @@ void JackAudioDriver::updateTransportPosition()
 
 	switch ( m_JackTransportState ) {
 	case JackTransportStopped: // Transport is halted
-		pAudioEngine->setNextState( AudioEngine::State::Ready );
+		if ( pAudioEngine->getState() != AudioEngine::State::Ready &&
+			 pAudioEngine->getState() != AudioEngine::State::CountIn ) {
+			pAudioEngine->setNextState( AudioEngine::State::Ready );
+		}
 		break;
 
 	case JackTransportRolling: // Transport is playing
-		pAudioEngine->setNextState( AudioEngine::State::Playing );
+		if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
+			pAudioEngine->setNextState( AudioEngine::State::Playing );
+		}
 		break;
 
 	case JackTransportStarting:
 		// Waiting for sync ready. If there are slow-sync clients,
 		// this can take more than one cycle.
-		pAudioEngine->setNextState( AudioEngine::State::Ready );
+		if ( pAudioEngine->getState() != AudioEngine::State::Ready &&
+			 pAudioEngine->getState() != AudioEngine::State::CountIn ) {
+			pAudioEngine->setNextState( AudioEngine::State::Ready );
+		}
 		break;
 
 	default:
@@ -1169,9 +1178,9 @@ int JackAudioDriver::init( unsigned bufferSize )
 	auto pPreferences = Preferences::get_instance();
 
 #ifdef H2CORE_HAVE_OSC
-	QString sNsmClientId = pPreferences->getNsmClientId();
+	const QString sNsmClientId = NsmClient::get_instance()->getClientId();
 
-	if( !sNsmClientId.isEmpty() ){
+	if ( ! sNsmClientId.isEmpty() ) {
 		m_sClientName = sNsmClientId;
 	}
 #endif
@@ -1541,6 +1550,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 
 	// Ensure the callback is not triggered during startup or teardown.
 	if ( pAudioEngine->getState() != AudioEngine::State::Ready &&
+		 pAudioEngine->getState() != AudioEngine::State::CountIn &&
 		 pAudioEngine->getState() != AudioEngine::State::Playing &&
 		 pAudioEngine->getState() != AudioEngine::State::Testing ) {
 		pAudioEngine->unlock();
@@ -1557,7 +1567,8 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 			pPos = pAudioEngine->getTransportPosition();
 		}
 		else {
-			pPos = std::make_shared<TransportPosition>( "JackTimebaseCallback" );
+			pPos = std::make_shared<TransportPosition>(
+				TransportPosition::Type::JackTimebaseCallback );
 			const auto fTick = TransportPosition::computeTickFromFrame(
 				nFrame );
 			pAudioEngine->updateTransportPosition( fTick, nFrame, pPos );

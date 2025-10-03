@@ -114,17 +114,19 @@ public:
 		 * Ready to process audio.
 		 */
 		Ready = 4,
+		/** Transport rolling yet. But a specific number of metronome */
+		CountIn = 5,
 		/**
 		 * Transport is rolling.
 		 */
-		Playing = 5,
+		Playing = 6,
 		/**
 		 * State used during the unit tests of the
 		 * AudioEngine. Transport is not rolling but when calling a
 		 * function of the process cycle it is ensured all its code
 		 * and subsequent functions will be executed.
 		 */
-		Testing = 6
+		Testing = 7
 	};
 		static QString StateToQString( const State& state );
 
@@ -342,6 +344,8 @@ public:
 
 	double getSongSizeInTicks() const;
 
+		int getCountInMetronomeTicks() const;
+
 	/**
 	 * Marks the audio engine to be started during the next call of
 	 * the audioEngine_process() callback function.
@@ -464,6 +468,7 @@ public:
 		std::shared_ptr<Instrument> );
 	friend bool CoreActionController::replaceInstrument(
 		std::shared_ptr<Instrument>, std::shared_ptr<Instrument> );
+	friend bool CoreActionController::startCountIn();
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeAudioDriver::connect();
 
@@ -519,8 +524,10 @@ private:
 	long long 		computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nIntervalLengthInFrames );
 	void			updateBpmAndTickSize( std::shared_ptr<TransportPosition> pTransportPosition,
 										  Event::Trigger trigger = Event::Trigger::Default );
-	void			calculateTransportOffsetOnBpmChange( std::shared_ptr<TransportPosition> pTransportPosition );
-    
+	void			calculateTransportOffsetOnBpmChange(
+		std::shared_ptr<TransportPosition> pTransportPosition,
+		float fTickSizeOld, float fTickSizeNew );
+
 	void			setRealtimeFrame( long long nFrame );
 	void updatePlayingPatternsPos( std::shared_ptr<TransportPosition> pPos,
 								   Event::Trigger trigger );
@@ -555,6 +562,8 @@ private:
 	void			updatePatternTransportPosition( double fTick, long long nFrame,
 													std::shared_ptr<TransportPosition> pPos,
 													Event::Trigger trigger = Event::Trigger::Default );
+
+		void startCountIn();
 
 	/**
 	 * Updates all notes in #m_songNoteQueue and #m_midiNoteQueue to
@@ -675,8 +684,25 @@ private:
 	 * incremented (as audioEngine_process() would do at the beginning
 	 * of each cycle) to support realtime keyboard and MIDI event
 	 * timing.
+	 *
+	 * This member is monotonically increasing regardless of ongoing tempo, song
+	 * size, etc. changes.
 	 */
 	long long		m_nRealtimeFrame;
+	/**
+	 * Version of #m_nRealtimeFrame which is rescaled upon tempo changes.
+	 *
+	 * If tempo changes, the tick size (number of frames per tick) is changed as
+	 * well. Since Hydrogen's #AudioEngine is based on ticks, all frame-based
+	 * values do have to be rescaled in order to still represent the same
+	 * position (in ticks) as before. #m_nRealtimeFrame itself does not
+	 * correspond to any position in the song, timeline etc. It is just a
+	 * monotonically increasing number used to handle realtime events, like
+	 * MIDI, virtual keyboard, or OSC. But when relying on it for #H2Core::Note
+	 * placement, as when counting in, we have to properly rescale it too in
+	 * order for our notes to still end up in the right position after the user
+	 * changes tempo. */
+	long long		m_nRealtimeFrameScaled;
 
 	/**
 	 * Current state of the H2Core::AudioEngine.
@@ -713,6 +739,25 @@ private:
 	/** Indicates how many loops the transport already did when the user presses
 	 * the Loop button again. */
 	int m_nLoopsDone;
+
+		/** Count in stuff.
+		 * @{
+		 * How many metronome notes we have already issued. Used to emphasize
+		 * the first one. */
+		int m_nCountInMetronomeTicks;
+		/** At this tick the count in will be started. It also serves as a
+		 * references for calculating which tick is supposed to be paired with a
+		 * metronome note. */
+		long m_nCountInStartTick;
+		/** First tick which will be _not_ included into the count in. */
+		long m_nCountInEndTick;
+		double m_fCountInTickInterval;
+		float m_fCountInTickSizeStart;
+		long long m_nCountInFrameOffset;
+		/** Up to which realtime frame #m_nRealtimeFrame we will continue to
+		 * count in.
+		 * @} */
+		long long m_nCountInEndFrame;
 };
 
 #ifdef H2CORE_HAVE_DEBUG
@@ -816,6 +861,9 @@ inline const std::shared_ptr<TransportPosition> AudioEngine::getTransportPositio
 }
 inline double AudioEngine::getSongSizeInTicks() const {
 	return m_fSongSizeInTicks;
+}
+inline int AudioEngine::getCountInMetronomeTicks() const {
+	return m_nCountInMetronomeTicks;
 }
 inline std::shared_ptr<Instrument> AudioEngine::getMetronomeInstrument() const {
 	return m_pMetronomeInstrument;

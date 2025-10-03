@@ -376,14 +376,16 @@ int OscServer::generic_handler(const char *	path,
 
 
 
-OscServer::OscServer() : m_bInitialized( false )
+OscServer::OscServer( int nOscPort ) : m_bInitialized( false )
+									 , m_nTemporaryPort( nOscPort )
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( pPref->getOscServerEnabled() ) {
 		int nPort;
-		if ( pPref->m_nOscTemporaryPort != -1  ) {
-			nPort = pPref->m_nOscTemporaryPort;
+		// Check whether an alternative value was provided via CLI argument.
+		if ( nOscPort != -1  ) {
+			nPort = nOscPort;
 		} else {
 			nPort = pPref->getOscServerPort();
 		}
@@ -404,7 +406,7 @@ OscServer::OscServer() : m_bInitialized( false )
 			ERRORLOG( QString("Could not start OSC server on port %1, using port %2 instead.")
 					  .arg( nPort ).arg( nTmpPort ) );
 
-			pPref->m_nOscTemporaryPort = nTmpPort;
+			m_nTemporaryPort = nTmpPort;
 			
 			H2Core::EventQueue::get_instance()->pushEvent(
 				H2Core::Event::Type::Error, H2Core::Hydrogen::OSC_CANNOT_CONNECT_TO_PORT );
@@ -426,10 +428,10 @@ OscServer::~OscServer(){
 	__instance = nullptr;
 }
 
-void OscServer::create_instance()
+void OscServer::create_instance( int nOscPort )
 {
 	if( __instance == nullptr ) {
-		__instance = new OscServer();
+		__instance = new OscServer( nOscPort );
 	}
 }
 
@@ -919,6 +921,26 @@ void OscServer::CLEAR_PATTERN_Handler( lo_arg **argv, int i )
 	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
+void OscServer::COUNT_IN_Handler( lo_arg **argv, int i ) {
+	INFOLOG( "processing message" );
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::CountIn );
+	MidiActionManager::get_instance()->handleMidiAction( pAction );
+}
+
+void OscServer::COUNT_IN_PAUSE_TOGGLE_Handler( lo_arg **argv, int i ) {
+	INFOLOG( "processing message" );
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::CountInPauseToggle );
+	MidiActionManager::get_instance()->handleMidiAction( pAction );
+}
+
+void OscServer::COUNT_IN_STOP_TOGGLE_Handler( lo_arg **argv, int i ) {
+	INFOLOG( "processing message" );
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::CountInStopToggle );
+	MidiActionManager::get_instance()->handleMidiAction( pAction );
+}
+
 void OscServer::NOTE_ON_Handler( lo_arg **argv, int i )
 {
 	const int nNote = static_cast<int>( std::round( argv[0]->f ) );
@@ -1357,8 +1379,8 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/SAVE_SONG", "", SAVE_SONG_Handler);
 	m_pServerThread->add_method("/Hydrogen/SAVE_SONG", "f", SAVE_SONG_Handler);
 	m_pServerThread->add_method("/Hydrogen/SAVE_SONG_AS", "s", SAVE_SONG_AS_Handler);
-	m_pServerThread->add_method("/Hydrogen/SAVE_PREFERENCES", "", SAVE_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/SAVE_PREFERENCES", "f", SAVE_SONG_Handler);
+	m_pServerThread->add_method("/Hydrogen/SAVE_PREFERENCES", "", SAVE_PREFERENCES_Handler);
+	m_pServerThread->add_method("/Hydrogen/SAVE_PREFERENCES", "f", SAVE_PREFERENCES_Handler);
 	m_pServerThread->add_method("/Hydrogen/QUIT", "", QUIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/QUIT", "f", QUIT_Handler);
 
@@ -1381,6 +1403,16 @@ bool OscServer::init()
 								CLEAR_SELECTED_INSTRUMENT_Handler);
 	m_pServerThread->add_method("/Hydrogen/CLEAR_PATTERN", "", CLEAR_PATTERN_Handler);
 	m_pServerThread->add_method("/Hydrogen/CLEAR_PATTERN", "f", CLEAR_PATTERN_Handler);
+	m_pServerThread->add_method("/Hydrogen/COUNT_IN", "", COUNT_IN_Handler);
+	m_pServerThread->add_method("/Hydrogen/COUNT_IN", "f", COUNT_IN_Handler);
+	m_pServerThread->add_method("/Hydrogen/COUNT_IN_PAUSE_TOGGLE", "",
+								COUNT_IN_PAUSE_TOGGLE_Handler);
+	m_pServerThread->add_method("/Hydrogen/COUNT_IN_PAUSE_TOGGLE", "f",
+								COUNT_IN_PAUSE_TOGGLE_Handler);
+	m_pServerThread->add_method("/Hydrogen/COUNT_IN_STOP_TOGGLE", "",
+								COUNT_IN_STOP_TOGGLE_Handler);
+	m_pServerThread->add_method("/Hydrogen/COUNT_IN_STOP_TOGGLE", "f",
+								COUNT_IN_STOP_TOGGLE_Handler);
 
 	m_pServerThread->add_method("/Hydrogen/NOTE_ON", "ff", NOTE_ON_Handler);
 	m_pServerThread->add_method("/Hydrogen/NOTE_OFF", "f", NOTE_OFF_Handler);
@@ -1436,8 +1468,8 @@ bool OscServer::start() {
 
 	int nOscPortUsed;
 	const auto pPref = H2Core::Preferences::get_instance();
-	if ( pPref->m_nOscTemporaryPort != -1 ) {
-		nOscPortUsed = pPref->m_nOscTemporaryPort;
+	if ( m_nTemporaryPort != -1 ) {
+		nOscPortUsed = m_nTemporaryPort;
 	} else {
 		nOscPortUsed = pPref->getOscServerPort();
 	}

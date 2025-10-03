@@ -38,6 +38,7 @@
 #include <core/IO/CoreAudioDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/IO/PortAudioDriver.h>
+#include <core/OscServer.h>
 #include <core/Sampler/Sampler.h>
 
 #include "../CommonStrings.h"
@@ -176,8 +177,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	// General tab
 	QSize generalTabWidgetSize( 60, 24 );
 	
-	useRelativePlaylistPathsCheckbox->setChecked( pPref->isPlaylistUsingRelativeFilenames() );
-	hideKeyboardCursor->setChecked( pPref->hideKeyboardCursor() );
+	useRelativePlaylistPathsCheckbox->setChecked(
+		pPref->getUseRelativeFilenamesForPlaylists() );
+	hideKeyboardCursor->setChecked( pPref->getHideKeyboardCursor() );
 
 	m_pBeatCounterDriftCompensationSpinBox->setSize( generalTabWidgetSize );
 	m_pBeatCounterDriftCompensationSpinBox->setValue(
@@ -411,7 +413,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	incomingOscPortSpinBox->setSize( QSize( 66, 24 ) );
 	incomingOscPortSpinBox->setValue( pPref->getOscServerPort() );
 
-	if ( pPref->m_nOscTemporaryPort != -1 ) {
+#ifdef H2CORE_HAVE_OSC
+	if ( OscServer::get_instance()->getTemporaryPort() != -1 ) {
 		oscTemporaryPortLabel->show();
 		oscTemporaryPortLabel->setText( QString( "<b><i><font color=" )
 										.append( m_sColorRed )
@@ -420,8 +423,12 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 										.append( "</font></i></b>" ) );
 		oscTemporaryPort->show();
 		oscTemporaryPort->setEnabled( false );
-		oscTemporaryPort->setText( QString::number( pPref->m_nOscTemporaryPort ) );
+		oscTemporaryPort->setText(
+			QString::number( OscServer::get_instance()->getTemporaryPort() ) );
 	} else {
+#else
+	{
+#endif
 		oscTemporaryPortLabel->hide();
 		oscTemporaryPort->hide();
 	}
@@ -986,13 +993,13 @@ void PreferencesDialog::on_okBtn_clicked()
 	//////////////////////////////////////////////////////////////////
 	bool bGeneralOptionAltered = false;
 	
-	if ( pPref->isPlaylistUsingRelativeFilenames() !=
+	if ( pPref->getUseRelativeFilenamesForPlaylists() !=
 		 useRelativePlaylistPathsCheckbox->isChecked() ) {
 		pPref->setUseRelativeFilenamesForPlaylists( useRelativePlaylistPathsCheckbox->isChecked() );
 		bGeneralOptionAltered = true;
 	}
 	
-	if ( pPref->hideKeyboardCursor() != hideKeyboardCursor->isChecked() ) {
+	if ( pPref->getHideKeyboardCursor() != hideKeyboardCursor->isChecked() ) {
 		pPref->setHideKeyboardCursor( hideKeyboardCursor->isChecked() );
 		bGeneralOptionAltered = true;
 	}
@@ -1579,20 +1586,92 @@ void PreferencesDialog::onLevel3FontComboBoxActivated( int ) {
 }
 
 void PreferencesDialog::onRejected() {
+	if ( m_changes == Preferences::Changes::None ) {
+		// No need to reload the previous state.
+		return;
+	}
 
-	auto pPref = CoreActionController::loadPreferences(
+	auto pOldPref = CoreActionController::loadPreferences(
 		Filesystem::usr_config_path() );
-
-	if ( pPref != nullptr ) {
-		pPref->setTheme( m_previousTheme );
-		CoreActionController::setPreferences( pPref );
+	if ( pOldPref == nullptr ) {
+		WARNINGLOG( "Unable to load user-level preferences. Falling back to system one." );
+		pOldPref = CoreActionController::loadPreferences(
+			Filesystem::sys_config_path() );
 	}
-	else {
-		// This happens when opening the preferences dialog during the first
-		// startup. There is no user-level Preferences file yet.
-		Preferences::get_instance()->setTheme( m_previousTheme );
+	if ( pOldPref == nullptr ) {
+		ERRORLOG( "Unable to restore preferences" );
+		return;
 	}
 
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pCurrentPref = Preferences::get_instance();
+
+	if ( ( m_changes & Preferences::Changes::Font ) ||
+		 ( m_changes & Preferences::Changes::Colors ) ||
+		 ( m_changes & Preferences::Changes::AppearanceTab ) ) {
+		pCurrentPref->setTheme( Theme( pOldPref->getTheme() ) );
+	}
+
+	if ( m_changes & Preferences::Changes::GeneralTab ) {
+		pCurrentPref->setUseRelativeFilenamesForPlaylists(
+			pOldPref->getUseRelativeFilenamesForPlaylists() );
+		pCurrentPref->setHideKeyboardCursor(
+			pOldPref->getHideKeyboardCursor() );
+		pCurrentPref->m_sRubberBandCLIexecutable =
+			pOldPref->m_sRubberBandCLIexecutable;
+		pCurrentPref->m_nBeatCounterDriftCompensation =
+			pOldPref->m_nBeatCounterDriftCompensation;
+		pCurrentPref->m_nBeatCounterStartOffset =
+			pOldPref->m_nBeatCounterStartOffset;
+		pCurrentPref->setMaxBars( pOldPref->getMaxBars() );
+		pCurrentPref->setMaxLayers( pOldPref->getMaxLayers() );
+		pCurrentPref->m_nAutosavesPerHour = pOldPref->m_nAutosavesPerHour;
+		pCurrentPref->setPreferredLanguage( pOldPref->getPreferredLanguage() );
+		pHydrogen->updateBeatCounterSettings();
+	}
+
+	if ( m_changes & Preferences::Changes::AudioTab ) {
+		pCurrentPref->m_fMetronomeVolume = pOldPref->m_fMetronomeVolume;
+		pCurrentPref->m_nMaxNotes = pOldPref->m_nMaxNotes;
+		pCurrentPref->m_audioDriver = pOldPref->m_audioDriver;
+		pCurrentPref->m_sAlsaAudioDevice = pOldPref->m_sAlsaAudioDevice;
+		pCurrentPref->m_sOSSDevice = pOldPref->m_sOSSDevice;
+		pCurrentPref->m_sPortAudioDevice = pOldPref->m_sPortAudioDevice;
+		pCurrentPref->m_sPortAudioHostAPI = pOldPref->m_sPortAudioHostAPI;
+		pCurrentPref->m_nLatencyTarget = pOldPref->m_nLatencyTarget;
+		pCurrentPref->m_sCoreAudioDevice = pOldPref->m_sCoreAudioDevice;
+		pCurrentPref->m_bJackConnectDefaults = pOldPref->m_bJackConnectDefaults;
+		pCurrentPref->m_bJackTrackOuts = pOldPref->m_bJackTrackOuts;
+		pCurrentPref->setJackEnforceInstrumentName(
+			pOldPref->getJackEnforceInstrumentName() );
+		pCurrentPref->m_bJackTimebaseEnabled = pOldPref->m_bJackTimebaseEnabled;
+		pCurrentPref->m_JackTrackOutputMode = pOldPref->m_JackTrackOutputMode;
+		pCurrentPref->m_nBufferSize = pOldPref->m_nBufferSize;
+		pCurrentPref->m_nSampleRate = pOldPref->m_nSampleRate;
+
+		pHydrogen->restartAudioDriver();
+	}
+
+	if ( m_changes & Preferences::Changes::MidiTab ) {
+		pCurrentPref->m_midiDriver = pOldPref->m_midiDriver;
+		pCurrentPref->m_sMidiPortName = pOldPref->m_sMidiPortName;
+		pCurrentPref->m_sMidiOutputPortName = pOldPref->m_sMidiOutputPortName;
+		pHydrogen->restartMidiDriver();
+	}
+
+	if ( m_changes & Preferences::Changes::OscTab ) {
+		pCurrentPref->setOscServerEnabled( pOldPref->getOscServerEnabled() );
+		pCurrentPref->setOscFeedbackEnabled( pOldPref->getOscFeedbackEnabled() );
+		pCurrentPref->setOscServerPort( pOldPref->getOscServerPort() );
+		pHydrogen->recreateOscServer();
+	}
+
+	if ( m_changes & Preferences::Changes::ShortcutTab ) {
+		pCurrentPref->setShortcuts(
+			std::make_shared<Shortcuts>(pOldPref->getShortcuts()) );
+	}
+
+	// Notify other components of Hydrogen about what has been resetted.
 	HydrogenApp::get_instance()->changePreferences( m_changes );
 }
 
@@ -1871,10 +1950,12 @@ void PreferencesDialog::toggleOscCheckBox(bool toggled)
 		enableOscFeedbackCheckbox->show();
 		incomingOscPortSpinBox->show();
 		incomingOscPortLabel->show();
-		if ( Preferences::get_instance()->m_nOscTemporaryPort != -1 ) {
+#ifdef H2CORE_HAVE_OSC
+		if ( OscServer::get_instance()->getTemporaryPort() != -1 ) {
 			oscTemporaryPortLabel->show();
 			oscTemporaryPort->show();
 		}
+#endif
 	} else {
 		enableOscFeedbackCheckbox->hide();
 		incomingOscPortSpinBox->hide();

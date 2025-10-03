@@ -100,12 +100,14 @@ class OscServer : public H2Core::Object<OscServer>
 		 */
 		~OscServer();
 	
-		static void create_instance();
+		static void create_instance( int nOscPort );
 		/**
 		 * Returns a pointer to the current OscServer
 		 * singleton stored in #__instance.
 		 */
 		static OscServer* get_instance() { assert(__instance); return __instance; }
+
+		int getTemporaryPort() const;
 
 		/**
 		 * Converts a data @a data of type @a type into a printable
@@ -749,6 +751,10 @@ class OscServer : public H2Core::Object<OscServer>
 		 */
 		static void CLEAR_PATTERN_Handler(lo_arg **argv, int argc);
 
+		static void COUNT_IN_Handler(lo_arg **argv, int argc);
+		static void COUNT_IN_PAUSE_TOGGLE_Handler(lo_arg **argv, int argc);
+		static void COUNT_IN_STOP_TOGGLE_Handler(lo_arg **argv, int argc);
+
 		/**
 		 * Provides a similar behavior as a NOTE_ON MIDI message.
 		 *
@@ -879,7 +885,7 @@ class OscServer : public H2Core::Object<OscServer>
 								int argc, lo_message data, void *user_data);
 
 	private:
-		OscServer();
+		OscServer( int nOscPort );
 		
 		/** Helper function which sends a message with msgText to all 
 		 * connected clients. **/
@@ -909,10 +915,21 @@ class OscServer : public H2Core::Object<OscServer>
 		 * propagated to all registered clients.
 		 */
 		std::list<lo_address> m_pClientRegistry;
+
+		/**
+		 * In case #Preferences::m_nOscServerPort is already occupied by another
+		 * client, the alternative - random - port number provided by the OSC
+		 * server will be stored in this variable. If the connection using the
+		 * default/CLI port succeeded, the variable will be set to -1.
+		 */
+		int					m_nTemporaryPort;
 };
 
 inline lo::ServerThread* OscServer::getServerThread() const {
 	return m_pServerThread;
+}
+inline int OscServer::getTemporaryPort() const {
+	return m_nTemporaryPort;
 }
 
 #endif /* H2CORE_HAVE_OSC */

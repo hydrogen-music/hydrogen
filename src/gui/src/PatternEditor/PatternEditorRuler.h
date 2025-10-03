@@ -76,6 +76,7 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 		void zoomIn();
 		void zoomOut();
 		float getGridWidth() const;
+		void setGridWidth( float fGridWidth );
 		int getWidthActive() const;
 
 		void createBackground();
@@ -114,6 +115,11 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 
 inline float PatternEditorRuler::getGridWidth() const {
 	return m_fGridWidth;
+}
+inline void PatternEditorRuler::setGridWidth( float fGridWidth ) {
+	if ( m_fGridWidth != fGridWidth ) {
+		m_fGridWidth = fGridWidth;
+	}
 }
 inline int PatternEditorRuler::getWidthActive() const {
 	return m_nWidthActive;

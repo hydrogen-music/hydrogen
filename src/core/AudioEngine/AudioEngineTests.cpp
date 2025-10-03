@@ -2180,7 +2180,8 @@ void AudioEngineTests::testUpdateTransportPosition() {
 	auto pQueuingOld =
 		std::make_shared<TransportPosition>( pAE->m_pQueuingPosition );
 
-	auto pTestPos = std::make_shared<TransportPosition>( "test" );
+	auto pTestPos = std::make_shared<TransportPosition>(
+		TransportPosition::Type::Test0 );
 	const long long nFrame = 3521;
 	const auto fTick = TransportPosition::computeTickFromFrame( nFrame );
 	pAE->updateTransportPosition( fTick, nFrame, pTestPos );
@@ -2209,7 +2210,8 @@ void AudioEngineTests::testUpdateTransportPosition() {
 	pHydrogen->setSong( nullptr );
 
 	pAE->lock( RIGHT_HERE );
-	auto pNullPos = std::make_shared<TransportPosition>( "null" );
+	auto pNullPos = std::make_shared<TransportPosition>(
+		TransportPosition::Type::Test1 );
 	pAE->updateTransportPosition( fTick, nFrame, pNullPos );
 	pAE->unlock();
 

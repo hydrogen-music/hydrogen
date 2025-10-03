@@ -45,8 +45,16 @@ MidiActionTable::MidiActionTable( QWidget *pParent )
 	, m_nMinComboWidth( 100 )
 	, m_nMaxComboWidth( 1460 )
 	, m_nDefaultComboWidth( 146 )
-	, m_nSpinBoxWidth( 60 )
+	, m_nSpinBoxWidth( 75 )
  {
+	 // Add an "empty" action used to reset the combo box.
+	 m_availableActions << "";
+
+	 const auto pActionHandler = MidiActionManager::get_instance();
+	 for ( const auto& ttype : pActionHandler->getMidiActions() ) {
+		m_availableActions << MidiAction::typeToQString( ttype );
+	}
+
 	m_nRowCount = 0;
 	setupMidiActionTable();
 
@@ -146,7 +154,7 @@ void MidiActionTable::insertNewRow( std::shared_ptr<MidiAction> pAction,
 	
 	int oldRowCount = m_nRowCount;
 
-	++m_nRowCount;
+	setRowCount( ++m_nRowCount );
 
 	QString sIconPath( Skin::getSvgImagePath() );
 	if ( H2Core::Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
@@ -195,16 +203,11 @@ void MidiActionTable::insertNewRow( std::shared_ptr<MidiAction> pAction,
 	connect( eventParameterSpinner, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( sendChanged() ) );
 
-	QStringList availableActions;
-	for ( const auto& ttype : pMidiActionManager->getMidiActions() ) {
-		availableActions << MidiAction::typeToQString( ttype );
-	}
-
 	LCDCombo *actionBox = new LCDCombo(this);
 	actionBox->setMinimumSize( QSize( m_nMinComboWidth, m_nRowHeight ) );
 	actionBox->setMaximumSize( QSize( m_nMaxComboWidth, m_nRowHeight ) );
 	actionBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
-	actionBox->insertItems( oldRowCount, availableActions );
+	actionBox->insertItems( oldRowCount, m_availableActions );
 	actionBox->setCurrentIndex(
 		actionBox->findText( MidiAction::typeToQString( pAction->getType() ) ) );
 	connect( actionBox , SIGNAL( currentIndexChanged( int ) ) , this , SLOT( updateTable() ) );
@@ -248,10 +251,13 @@ void MidiActionTable::setupMidiActionTable()
 {
 	const auto pMidiMap = H2Core::Preferences::get_instance()->getMidiMap();
 
+	clear();
+
 	QStringList items;
 	items << "" << tr("Incoming Event")  << tr("E. Para.")
 		  << tr("Action") <<  tr("Para. 1") << tr("Para. 2") << tr("Para. 3");
 
+	m_nRowCount = 0;
 	setRowCount( 0 );
 	setColumnCount( 7 );
 

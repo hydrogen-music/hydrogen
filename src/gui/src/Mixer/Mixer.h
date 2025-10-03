@@ -92,6 +92,7 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object<Mixer>
 		virtual void mixerSettingsChangedEvent() override;
 		virtual void noteOnEvent( int nInstrument ) override;
 		virtual void selectedInstrumentChangedEvent() override;
+		void updatePreferencesEvent( int ) override;
 		virtual void updateSongEvent( int nValue ) override;
 		// ~ Implements EventListener interface
 

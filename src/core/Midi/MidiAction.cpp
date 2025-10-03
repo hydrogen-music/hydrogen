@@ -40,6 +40,12 @@ QString MidiAction::typeToQString( const Type &type ) {
 		return "CLEAR_PATTERN";
 	case Type::ClearSelectedInstrument:
 		return "CLEAR_SELECTED_INSTRUMENT";
+	case Type::CountIn:
+		return "COUNT_IN";
+	case Type::CountInPauseToggle:
+		return "COUNT_IN_PAUSE_TOGGLE";
+	case Type::CountInStopToggle:
+		return "COUNT_IN_STOP_TOGGLE";
 	case Type::EffectLevelAbsolute:
 		return "EFFECT_LEVEL_ABSOLUTE";
 	case Type::EffectLevelRelative:
@@ -161,6 +167,15 @@ MidiAction::Type MidiAction::parseType( const QString &sType ) {
 	}
 	else if ( s == "clear_selected_instrument" ) {
 		return Type::ClearSelectedInstrument;
+	}
+	else if ( s == "count_in" ) {
+		return Type::CountIn;
+	}
+	else if ( s == "count_in_pause_toggle" ) {
+		return Type::CountInPauseToggle;
+	}
+	else if ( s == "count_in_stop_toggle" ) {
+		return Type::CountInStopToggle;
 	}
 	else if ( s == "effect_level_absolute" ) {
 		return Type::EffectLevelAbsolute;

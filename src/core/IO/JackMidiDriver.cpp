@@ -32,6 +32,7 @@
 #include <core/Globals.h>
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiMessage.h>
+#include <core/NsmClient.h>
 #include <core/Preferences/Preferences.h>
 
 namespace H2Core
@@ -242,11 +243,10 @@ JackMidiDriver::JackMidiDriver() : MidiBaseDriver() {
 	QString jackMidiClientId = "Hydrogen";
 
 #ifdef H2CORE_HAVE_OSC
-	auto  pPref = Preferences::get_instance();
-	QString nsmClientId = pPref->getNsmClientId();
+	const QString sNsmClientId = NsmClient::get_instance()->getClientId();
 
-	if(!nsmClientId.isEmpty()){
-		jackMidiClientId = nsmClientId;
+	if ( ! sNsmClientId.isEmpty() ) {
+		jackMidiClientId = sNsmClientId;
 	}
 #endif
 

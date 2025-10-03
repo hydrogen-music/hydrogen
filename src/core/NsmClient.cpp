@@ -70,6 +70,7 @@ int NsmClient::OpenCallback( const char *name,
 
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pPref = H2Core::Preferences::get_instance();
+	auto pNsmClient = NsmClient::get_instance();
 
 	if ( !name ) {
 		NsmClient::printError( "No `name` supplied in NSM open callback!" );
@@ -95,7 +96,7 @@ int NsmClient::OpenCallback( const char *name,
 
 	NsmClient::copyPreferences( name );
 
-	NsmClient::get_instance()->setSessionFolderPath( name );
+	pNsmClient->setSessionFolderPath( name );
 	
 	const QFileInfo sessionPath( name );
 	const QString sSongPath = QString( "%1/%2%3" )
@@ -108,17 +109,13 @@ int NsmClient::OpenCallback( const char *name,
 	// When restarting the JACK client (during song loading) the
 	// clientID will be used as the name of the freshly created
 	// instance.
-	if ( pPref != nullptr ){
-		if ( clientID ){
-			// Setup JACK here, client_id gets the JACK client name
-			pPref->setNsmClientId( QString( clientID ) );
-		} else {
-			NsmClient::printError( "No `clientID` supplied in NSM open callback!" );
-			return ERR_LAUNCH_FAILED;
-		}
-	} else {
-		NsmClient::printError( "Preferences instance is not ready yet!" );
-		return ERR_NOT_NOW;
+	if ( clientID ){
+		// Required for JACK setup, client_id gets the JACK client name
+		pNsmClient->setClientId( QString( clientID ) );
+	}
+	else {
+		NsmClient::printError( "No `clientID` supplied in NSM open callback!" );
+		return ERR_LAUNCH_FAILED;
 	}
 
 	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
@@ -149,7 +146,7 @@ int NsmClient::OpenCallback( const char *name,
 		// initial song save is required to generate the song file and
 		// link the associated drumkit in the session folder.
 		pSong->setIsModified( true );
-		NsmClient::get_instance()->setIsNewSession( true );
+		pNsmClient->setIsNewSession( true );
 	}
 
 	if ( ! H2Core::CoreActionController::setSong( pSong ) ) {
@@ -276,8 +273,7 @@ void NsmClient::shutdown()
 	NsmClient::bNsmShutdown = true;
 }
 
-void NsmClient::createInitialClient()
-{
+void NsmClient::createInitialClient( const QString& sProcessName ) {
 	/*
 	 * Make first contact with NSM server.
 	 */
@@ -285,8 +281,7 @@ void NsmClient::createInitialClient()
 	nsm_client_t* pNsm = nullptr;
 
 	const auto pPref = H2Core::Preferences::get_instance();
-	QString H2ProcessName = pPref->getH2ProcessName();
-	QByteArray byteArray = H2ProcessName.toLatin1();
+	QByteArray byteArray = sProcessName.toLatin1();
 
 	const char *nsm_url = getenv( "NSM_URL" );
 

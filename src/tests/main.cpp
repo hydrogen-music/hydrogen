@@ -57,12 +57,14 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
 		pLogger = H2Core::Logger::bootstrap( log_level, "", true, true );
 	}
 	/* Test helper */
-	TestHelper* test_helper = TestHelper::get_instance();
+	auto pTestHelper = TestHelper::get_instance();
 	/* Base */
 	H2Core::Base::bootstrap( pLogger, true );
 	/* Filesystem */
 	H2Core::Filesystem::bootstrap(
-		pLogger, test_helper->getDataDir(), sUserDataFolder, "", sLogFilePath );
+		pLogger, pTestHelper->getDataDir(), sUserDataFolder,
+		pTestHelper->getTestDataDir().append( "/preferences/current.conf" ),
+		sLogFilePath );
 	H2Core::Filesystem::info();
 	
 	/* Use fake audio driver */
@@ -72,8 +74,10 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
 	pPref->m_midiDriver = Preferences::MidiDriver::LoopBack;
 	pPref->m_nBufferSize = 1024;
 	pPref->setUseRelativeFilenamesForPlaylists( true );
-	
-	H2Core::Hydrogen::create_instance();
+
+	// Use a dedicated OSC port to not cause conflicts with (JACK) integration
+	// tests running in a different shell.
+	H2Core::Hydrogen::create_instance( 4563 );
 	H2Core::Hydrogen::get_instance()->setGUIState(
 		H2Core::Hydrogen::GUIState::headless );
 	// Prevent the EventQueue from flooding the log since we will push

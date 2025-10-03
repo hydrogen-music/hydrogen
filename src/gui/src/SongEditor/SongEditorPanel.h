@@ -70,6 +70,7 @@ class SongEditorPanel : public QWidget,
 
 		void showTimeline();
 		void showPlaybackTrack();
+		void updateAutomationPathVisibility();
 		void updatePlaybackTrack();
 
 		/**
@@ -106,6 +107,7 @@ class SongEditorPanel : public QWidget,
 		virtual void tempoChangedEvent( int ) override;
 		virtual void timelineActivationEvent() override;
 		virtual void timelineUpdateEvent( int ) override;
+		void updatePreferencesEvent( int ) override;
 		virtual void updateSongEvent( int ) override;
 
 	public slots:

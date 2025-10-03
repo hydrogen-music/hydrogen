@@ -208,39 +208,13 @@ void AudioEngineInfoForm::updateInfo()
  * Update engineStateLbl with the current audio engine state
  */
 void AudioEngineInfoForm::updateAudioEngineState() {
-	// Audio Engine state
-	QString stateTxt;
-	switch ( H2Core::Hydrogen::get_instance()->getAudioEngine()->getState() ) {
-	case H2Core::AudioEngine::State::Uninitialized:
-		stateTxt = "Uninitialized";
-		break;
-
-	case H2Core::AudioEngine::State::Initialized:
-		stateTxt = "Initialized";
-		break;
-
-	case H2Core::AudioEngine::State::Prepared:
-		stateTxt = "Prepared";
-		break;
-
-	case H2Core::AudioEngine::State::Ready:
-		stateTxt = "Ready";
-		break;
-
-	case H2Core::AudioEngine::State::Playing:
-		stateTxt = "Playing";
-		break;
-
-	default:
-		stateTxt = "Unknown!?";
-		break;
-	}
-	engineStateLbl->setText(stateTxt);
+	engineStateLbl->setText(
+		AudioEngine::StateToQString(
+			H2Core::Hydrogen::get_instance()->getAudioEngine()->getState() ) );
 }
 
 
-void AudioEngineInfoForm::stateChangedEvent( const H2Core::AudioEngine::State& state )
-{
+void AudioEngineInfoForm::stateChangedEvent( const H2Core::AudioEngine::State& state ) {
 	updateAudioEngineState();
 }
 
