@@ -68,7 +68,6 @@ void TimeHelper::highResolutionSleep(
 
 	const std::chrono::duration<long long, std::nano> residualInterval{
 		nSleepSurplusNs };
-	DEBUGLOG( QString( "Max surplus: %1" ).arg( nSleepSurplusNs ) );
 	if ( interval > residualInterval ) {
 
 		// We measure the time require for sleeping to do some statistics and
@@ -85,8 +84,6 @@ void TimeHelper::highResolutionSleep(
 		m_sleepSurplusNs[ m_nSleepSurplusIndex ] =
 			std::chrono::duration_cast<std::chrono::nanoseconds>(
 				postSleep - preSleep - interval + residualInterval ).count();
-		DEBUGLOG( QString( "Current surplus interval: %1" )
-.arg( m_sleepSurplusNs[ m_nSleepSurplusIndex ] ) );
 		++m_nSleepSurplusIndex;
 	}
 

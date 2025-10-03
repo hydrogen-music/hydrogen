@@ -2559,7 +2559,6 @@ bool CoreActionController::startCountIn() {
 		return false;
 	}
 
-	DEBUGLOG( "" );
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	pAudioEngine->lock( RIGHT_HERE );
 	pAudioEngine->startCountIn();

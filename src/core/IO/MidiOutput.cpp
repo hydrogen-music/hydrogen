@@ -109,7 +109,6 @@ void MidiOutput::startMidiClockStream( float fBpm ) {
 }
 
 void MidiOutput::stopMidiClockStream() {
-	DEBUGLOG( "Stopping MIDI clock" );
 	m_bSendClockTick = false;
 
 	if ( m_pClockThread != nullptr ) {
