@@ -1632,6 +1632,9 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	if ( pAudioEngine->m_nextState == State::Playing ) {
 		if ( pAudioEngine->getState() == State::Ready ||
 			 pAudioEngine->getState() == State::CountIn ) {
+			if ( Preferences::get_instance()->getMidiClockOutputSend() ) {
+				pAudioEngine->m_pMidiDriver->waitForNextMidiClockTick();
+			}
 			pAudioEngine->startPlayback();
 		}
 		
