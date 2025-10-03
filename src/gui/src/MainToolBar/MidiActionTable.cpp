@@ -50,7 +50,7 @@ MidiActionTable::MidiActionTable( QWidget *pParent )
 	 // Add an "empty" action used to reset the combo box.
 	 m_availableActions << "";
 
-	 const auto pActionHandler = MidiActionManager::get_instance();
+	 const auto pActionHandler = H2Core::Hydrogen::get_instance()->getMidiActionManager();
 	 for ( const auto& ttype : pActionHandler->getMidiActions() ) {
 		m_availableActions << MidiAction::typeToQString( ttype );
 	}

@@ -924,21 +924,21 @@ void OscServer::CLEAR_PATTERN_Handler( lo_arg **argv, int i )
 void OscServer::COUNT_IN_Handler( lo_arg **argv, int i ) {
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::CountIn );
-	MidiActionManager::get_instance()->handleMidiAction( pAction );
+	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
 void OscServer::COUNT_IN_PAUSE_TOGGLE_Handler( lo_arg **argv, int i ) {
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::CountInPauseToggle );
-	MidiActionManager::get_instance()->handleMidiAction( pAction );
+		H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
 void OscServer::COUNT_IN_STOP_TOGGLE_Handler( lo_arg **argv, int i ) {
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::CountInStopToggle );
-	MidiActionManager::get_instance()->handleMidiAction( pAction );
+		H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
 void OscServer::NOTE_ON_Handler( lo_arg **argv, int i )
