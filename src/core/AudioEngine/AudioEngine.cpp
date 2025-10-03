@@ -1220,6 +1220,7 @@ void AudioEngine::stopMidiDriver( Event::Trigger trigger )
 	this->lock( RIGHT_HERE );
 
 	if ( m_pMidiDriver != nullptr ) {
+		m_pMidiDriver->stopMidiClockStream();
 		m_pMidiDriver->close();
 		m_pMidiDriver = nullptr;
 	}
