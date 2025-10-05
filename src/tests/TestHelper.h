@@ -34,10 +34,12 @@ class TestHelper {
 	static TestHelper*	m_pInstance;
 	QString m_sDataDir;
 	QString m_sTestDataDir;
+	bool m_bAppveyor;
 	
 	public:
 		TestHelper();
 
+	bool isAppveyor() const;
 		QString getDataDir() const;
 		QString getTestDataDir() const;
 		QString getTestFile(const QString& file) const;
@@ -47,8 +49,8 @@ class TestHelper {
 
 	/**
 	 * Picks different combinations of sample rate and buffer size of
-	 * the FakeDriver, stores them in the Preferences instance, and
-	 * restarts the FakeDriver.
+	 * the FakeAudioDriver, stores them in the Preferences instance, and
+	 * restarts the FakeAudioDriver.
 	 *
 	 * \param nIndex Numbers 0 till 10 correspond to hard-coded
 	 * parameter combinations. For all others random values will be
@@ -91,14 +93,33 @@ class TestHelper {
 	static void exportMIDI( const QString& sSongFile, const QString& sFileName,
 							std::shared_ptr<H2Core::SMFWriter> pWriter,
 							bool bUseHumanization );
-	
-	static void			createInstance();
+
+		/** Blocks till the audio processing callback was called again (the
+		 * current realtime frames got incremented).
+		 *
+		 * The realtime frames are update in each loop of the process cycle. By
+		 * checking for a new value, we ensure a whole process cycle - including
+		 * the adoption of a new tempo or state - has passed. */
+		static void waitForAudioDriver();
+		/** Wait till the LoopBackMidiDriver did send, receive, and handle the
+		 * message. */
+		static void waitForMidiDriver();
+		/** Since incoming MIDI events are handled asynchronously, we pause
+		 * execution till all are handled. */
+		static void waitForMidiActionManagerWorkerThread();
+
+
+	static void			createInstance( bool bAppveyor );
 	static TestHelper*	get_instance();
 };
 
 inline TestHelper*	TestHelper::get_instance() 
 { 
 	assert(m_pInstance); return m_pInstance; 
+}
+
+inline bool TestHelper::isAppveyor() const {
+	return m_bAppveyor;
 }
 
 inline QString TestHelper::getDataDir() const 

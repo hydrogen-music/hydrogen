@@ -72,6 +72,7 @@ private:
 	void sendControlChangeMessage( const MidiMessage& msg ) override;
 	void sendNoteOnMessage( const MidiMessage& msg ) override;
 	void sendNoteOffMessage( const MidiMessage& msg ) override;
+	void sendSystemRealTimeMessage( const MidiMessage& msg ) override;
 
 	int m_nVirtualInputDeviceId;
 	int m_nVirtualOutputDeviceId;

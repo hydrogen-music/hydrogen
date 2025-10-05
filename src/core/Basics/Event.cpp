@@ -55,6 +55,8 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "LoopModeActivation";
 	case Event::Type::Metronome:
 		return "Metronome";
+	case Event::Type::MidiClockActivation:
+		return "MidiClockActivation";
 	case Event::Type::MidiDriverChanged:
 		return "MidiDriverChanged";
 	case Event::Type::MidiInput:

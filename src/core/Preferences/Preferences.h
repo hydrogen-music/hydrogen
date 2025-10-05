@@ -191,7 +191,8 @@ public:
 		CoreMidi,
 		Jack,
 		None,
-		PortMidi
+		PortMidi,
+		LoopBack
 	};
 	static MidiDriver parseMidiDriver( const QString& sDriver );
 	static QString midiDriverToQString( const MidiDriver& driver );
@@ -311,7 +312,15 @@ public:
 	bool				m_bMidiFixedMapping;
 	bool				m_bMidiDiscardNoteAfterAction;
 	bool				m_bEnableMidiFeedback;
-	
+	bool				getMidiClockInputHandling() const;
+	void				setMidiClockInputHandling( bool bHandle );
+	bool				getMidiTransportInputHandling() const;
+	void				setMidiTransportInputHandling( bool bHandle );
+	bool				getMidiClockOutputSend() const;
+	void				setMidiClockOutputSend( bool bHandle );
+	bool				getMidiTransportOutputSend() const;
+	void				setMidiTransportOutputSend( bool bHandle );
+
 	// OSC Server properties
 	/** \return #m_bOscServerEnabled*/
 	bool			getOscServerEnabled() const;
@@ -656,6 +665,19 @@ private:
 	/** Maximum number of layers to be used in the Instrument
 	 *  editor. */
 	int					m_nMaxLayers;
+
+		/** Whether Hydrogen will set its tempo according to incoming MIDI clock
+		 * ticks. */
+		bool m_bMidiClockInputHandling;
+		/** Whether Hydrogen will handle incoming MIDI START, STOP, CONTINUE,
+		 * and SONG_POSITION_POINTER events. */
+		bool m_bMidiTransportInputHandling;
+		/** Whether Hydrogen will send outgoing MIDI clock messages based on the
+		 * current tempo. */
+		bool m_bMidiClockOutputSend;
+		/** Whether Hydrogen will send outgoing MIDI START, STOP, CONTINUE,
+		 * and SONG_POSITION_POINTER messages on transport changes. */
+		bool m_bMidiTransportOutputSend;
 
 		/** In case the rubberband binary was not found in common places, this
 		 * variable indicated - if `true` - that Hydrogen should continue
@@ -1189,6 +1211,30 @@ inline int Preferences::getMaxLayers() const {
 	return m_nMaxLayers;
 }
 
+inline bool Preferences::getMidiClockInputHandling() const {
+	return m_bMidiClockInputHandling;
+}
+inline void Preferences::setMidiClockInputHandling( bool bHandle ) {
+	m_bMidiClockInputHandling = bHandle;
+}
+inline bool Preferences::getMidiTransportInputHandling() const {
+	return m_bMidiTransportInputHandling;
+}
+inline void Preferences::setMidiTransportInputHandling( bool bHandle ) {
+	m_bMidiTransportInputHandling = bHandle;
+}
+inline bool Preferences::getMidiClockOutputSend() const {
+	return m_bMidiClockOutputSend;
+}
+inline void Preferences::setMidiClockOutputSend( bool bHandle ) {
+	m_bMidiClockOutputSend = bHandle;
+}
+inline bool Preferences::getMidiTransportOutputSend() const {
+	return m_bMidiTransportOutputSend;
+}
+inline void Preferences::setMidiTransportOutputSend( bool bHandle ) {
+	m_bMidiTransportOutputSend = bHandle;
+}
 inline bool Preferences::getOscServerEnabled() const {
 	return m_bOscServerEnabled;
 }

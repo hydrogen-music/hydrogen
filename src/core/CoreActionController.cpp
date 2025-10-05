@@ -609,15 +609,13 @@ bool CoreActionController::handleOutgoingControlChanges( const std::vector<int>&
 	const auto pPref = Preferences::get_instance();
 	auto pMidiDriver = pHydrogen->getMidiDriver();
 
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "no song set" );
+	if ( pHydrogen->getSong() == nullptr || pMidiDriver == nullptr ) {
 		return false;
 	}
 
 	MidiMessage::ControlChange controlChange;
 	for ( const auto& param : params ) {
-		if ( pMidiDriver != nullptr &&
-			 pPref->m_bEnableMidiFeedback && param >= 0 ){
+		if ( pPref->m_bEnableMidiFeedback && param >= 0 ){
 			controlChange.nParameter = param;
 			controlChange.nValue = nValue;
 			// For now the MIDI feedback channel is always 0.
@@ -961,12 +959,17 @@ bool CoreActionController::activateTimeline( bool bActivate ) {
 	}
 
 	pHydrogen->setIsTimelineActivated( bActivate );
-	
-	if ( pHydrogen->getJackTimebaseState() ==
-		 JackAudioDriver::Timebase::Listener ) {
+
+	const auto tempoSource = pHydrogen->getTempoSource();
+	if ( tempoSource == Hydrogen::Tempo::Jack ) {
 		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But these changes won't have an effect as long as there is still an external JACK Timebase controller." )
 					.arg( bActivate ? "enabled" : "disabled" ) );
-	} else if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
+	}
+	else if ( tempoSource == Hydrogen::Tempo::Midi ) {
+		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But these changes won't have an effect as long as MIDI clock handling is enabled." )
+					.arg( bActivate ? "enabled" : "disabled" ) );
+	}
+	else if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
 		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But these changes won't have an effect as long as Pattern Mode is still activated." )
 					.arg( bActivate ? "enabled" : "disabled" ) );
 	}
@@ -2050,7 +2053,22 @@ bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast ) {
 	pAudioEngine->locate( nTick, bWithJackBroadcast );
 	
 	pAudioEngine->unlock();
-	
+
+	if ( Preferences::get_instance()->getMidiTransportOutputSend() ) {
+		auto pMidiDriver = pHydrogen->getMidiDriver();
+
+		if ( pMidiDriver != nullptr ) {
+			// A song position provided via MIDI has the lowest resolution of a
+			// 1/16 note / 6 MIDI clocks. 24 MIDI clocks make a quarter.
+			MidiMessage midiMessage;
+			midiMessage.setType( MidiMessage::Type::SongPos );
+			midiMessage.setData1(
+				pAudioEngine->getTransportPosition()->getTick() *
+				24 / 6 / H2Core::nTicksPerQuarter );
+			pMidiDriver->sendMessage( midiMessage );
+		}
+	}
+
 	EventQueue::get_instance()->pushEvent( Event::Type::Relocation, 0 );
 	return true;
 }
@@ -2529,8 +2547,6 @@ bool CoreActionController::setBpm( float fBpm ) {
 	pAudioEngine->unlock();
 
 	pHydrogen->setIsModified( true );
-	
-	EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, -1 );
 
 	return true;
 }
@@ -2543,7 +2559,6 @@ bool CoreActionController::startCountIn() {
 		return false;
 	}
 
-	DEBUGLOG( "" );
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	pAudioEngine->lock( RIGHT_HERE );
 	pAudioEngine->startCountIn();
@@ -2755,6 +2770,68 @@ bool CoreActionController::sendAllNoteOffMessages() {
 			noteOff.nKey = ppInstrument->getMidiOutNote();
 			noteOff.nChannel = ppInstrument->getMidiOutChannel();
 			pMidiDriver->sendMessage( MidiMessage::from( noteOff ) );
+		}
+	}
+
+	return true;
+}
+
+bool CoreActionController::setMidiClockInputHandling( bool bHandle ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	auto pPref = Preferences::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return false;
+	}
+
+	if ( pPref->getMidiClockInputHandling() == bHandle ) {
+		return false;
+	}
+
+	pPref->setMidiClockInputHandling( bHandle );
+
+	EventQueue::get_instance()->pushEvent(
+		H2Core::Event::Type::MidiClockActivation, 0 );
+
+	if ( ! bHandle && pHydrogen->getTempoSource() == Hydrogen::Tempo::Song ) {
+		// Restore the previous tempo.
+		auto pAudioEngine = pHydrogen->getAudioEngine();
+		pAudioEngine->lock( RIGHT_HERE );
+		pAudioEngine->setNextBpm( pSong->getBpm() );
+		pAudioEngine->unlock();
+	}
+
+	return true;
+}
+
+bool CoreActionController::setMidiClockOutputSend( bool bHandle ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	auto pPref = Preferences::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return false;
+	}
+
+	if ( pPref->getMidiClockOutputSend() == bHandle ) {
+		return false;
+	}
+
+	pPref->setMidiClockOutputSend( bHandle );
+
+	// Jump start sending MIDI clock messages. Else they would only be send on
+	// the next tempo change or start of the audio engine.
+	auto pMidiDriver = pHydrogen->getAudioEngine()->getMidiDriver();
+	if ( pMidiDriver != nullptr ) {
+		if ( bHandle ) {
+			pMidiDriver->startMidiClockStream(
+				pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
+		}
+		else {
+			pMidiDriver->stopMidiClockStream();
 		}
 	}
 

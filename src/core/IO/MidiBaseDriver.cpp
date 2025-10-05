@@ -22,15 +22,40 @@
 
 #include <core/IO/MidiBaseDriver.h>
 
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/EventQueue.h>
+#include <core/Helpers/TimeHelper.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
 
 #include <QMutexLocker>
 
 namespace H2Core {
 
-MidiBaseDriver::MidiBaseDriver() : MidiInput(), MidiOutput() {
+MidiBaseDriver::MidiBaseDriver()
+ : MidiInput()
+   , MidiOutput()
+   , m_bSendClockTick( false )
+   , m_bNotifyOnNextTick( false )
+   , m_interval( 20.0 )
+   , m_intervalCompensation( std::chrono::microseconds::zero() )
+   , m_nAverageIntervalNs( 0 )
+   , m_lastTick( TimePoint() )
+   , m_nTickCount( 0 )
+   , m_pClockThread( nullptr )
+{
+	if ( Preferences::get_instance()->getMidiClockOutputSend() ) {
+		startMidiClockStream(
+							 Hydrogen::get_instance()->getAudioEngine()
+							 ->getTransportPosition()->getBpm() );
+	}
 }
+
 MidiBaseDriver::~MidiBaseDriver() {
+	if ( m_pClockThread != nullptr ) {
+		stopMidiClockStream();
+	}
 }
 
 QString MidiBaseDriver::portTypeToQString( const PortType& portType ) {
@@ -106,5 +131,153 @@ std::vector< std::shared_ptr<MidiOutput::HandledOutput> > MidiBaseDriver::getHan
 	}
 
 	return std::move( outputs );
+}
+
+void MidiBaseDriver::startMidiClockStream( float fBpm ) {
+	// Ensure there is just a single thread.
+	m_bSendClockTick = false;
+	if ( m_pClockThread != nullptr ) {
+		m_pClockThread->join();
+		m_pClockThread = nullptr;
+	}
+
+	// 24 MIDI Clock messages should make up a quarter.
+	const double fInterval = 60000 / fBpm / 24.0;
+	m_interval = std::chrono::duration<double, std::milli>(fInterval);
+
+	m_bSendClockTick = true;
+	m_nTickCount = 0;
+	m_pClockThread = std::make_shared<std::thread>(
+		MidiBaseDriver::midiClockStream, ( void* ) this );
+}
+
+void MidiBaseDriver::stopMidiClockStream() {
+	m_bSendClockTick = false;
+
+	if ( m_pClockThread != nullptr ) {
+		m_pClockThread->join();
+		m_pClockThread = nullptr;
+	}
+
+	// By resetting the time point of the last MIDI clock message sent the next
+	// call to startMidiClockStream() will send a message right away instead of
+	// waiting for the provided interval or logging failure to do so.
+	m_lastTick = TimePoint();
+	m_intervalCompensation = std::chrono::microseconds::zero();
+	m_nAverageIntervalNs = 0;
+}
+
+void MidiBaseDriver::waitForNextMidiClockTick() {
+	if ( ! m_bSendClockTick || m_pClockThread == nullptr ) {
+		return;
+	}
+
+    std::unique_lock lock{ m_midiClockMutex };
+
+	m_bNotifyOnNextTick = true;
+
+	m_midiClockCV.wait( lock, [&]{ return ! m_bNotifyOnNextTick; });
+}
+
+void MidiBaseDriver::midiClockStream( void* pInstance ) {
+	auto pMidiDriver = static_cast<MidiBaseDriver*>( pInstance );
+	if ( pMidiDriver == nullptr ) {
+		ERRORLOG( "Invalid instance provided. Shutting down." );
+		return;
+	}
+
+	auto pHydrogen = Hydrogen::get_instance();
+
+	while ( pMidiDriver->m_bSendClockTick ) {
+		auto start = Clock::now();
+
+		long nSleepBiasNs = 0;
+		if ( pMidiDriver->m_lastTick != TimePoint() ) {
+			if ( start - pMidiDriver->m_lastTick >=
+				 pMidiDriver->m_interval + pMidiDriver->m_intervalCompensation ) {
+				WARNINGLOG( QString( "MIDI Clock message could not be sent in time. Duration: [%1], Interval: [%2], compensation: [%3]" )
+							.arg( ( pMidiDriver->m_lastTick - start ).count() )
+							.arg( pMidiDriver->m_interval.count() )
+							.arg( pMidiDriver->m_intervalCompensation.count() ) );
+			}
+			else {
+				// Compensate for the processing time.
+				const auto sleepDuration = pMidiDriver->m_interval +
+					pMidiDriver->m_intervalCompensation -
+					( start - pMidiDriver->m_lastTick );
+
+				const auto preSleep = Clock::now();
+				pHydrogen->getTimeHelper()->highResolutionSleep( sleepDuration );
+				const auto postSleep = Clock::now();
+
+				// Sleep routines only guarantee to sleep for _at least_ the
+				// provided amount of time. The additional sleep time we have to
+				// compensate on the next tick.
+				nSleepBiasNs = std::chrono::duration_cast<
+					std::chrono::nanoseconds>(
+						postSleep - preSleep - sleepDuration ).count();
+			}
+		}
+
+		// Sending the message itself does increase the distance between
+		// consecutive ticks. We have to compensate for this delay or the
+		// resulting tempo will always be too low.
+		const auto preSend = Clock::now();
+
+		// Send event
+		pMidiDriver->sendMessage(
+			MidiMessage( MidiMessage::Type::TimingClock, 0, 0, 0 ) );
+		++pMidiDriver->m_nTickCount;
+
+		const auto end = Clock::now();
+
+		// Due to systematic errors, like biases in processing routines, the
+		// interval using which MIDI clock signals are being sent could be off
+		// and resulting tempo would drift away from our internal one. In order
+		// to prevent this from happening, we keep track of the average interval
+		// on which MIDI clock messages have been sent and compensate in such a
+		// way that the next average would be our target interval.
+		//
+		// Skip the first round in order to have a valid m_lastTick.
+		if ( pMidiDriver->m_nTickCount > 1 ) {
+			// Cumulative average.
+			pMidiDriver->m_nAverageIntervalNs =
+				( std::chrono::duration_cast<std::chrono::nanoseconds>(
+					end - pMidiDriver->m_lastTick ).count() +
+				  pMidiDriver->m_nAverageIntervalNs *
+				  ( pMidiDriver->m_nTickCount - 2 ) ) /
+				( pMidiDriver->m_nTickCount - 1 );
+
+			pMidiDriver->m_intervalCompensation =
+				( pMidiDriver->m_nTickCount - 1 ) * ( pMidiDriver->m_interval -
+				std::chrono::duration<long, std::nano>(
+					pMidiDriver->m_nAverageIntervalNs ) );
+		}
+
+		// Componesate for the surplus time consumed during sleep.
+		pMidiDriver->m_intervalCompensation -=
+			std::chrono::duration<long, std::nano>( nSleepBiasNs );
+
+		// Compensate for the processing time of sending the MIDI message
+		pMidiDriver->m_intervalCompensation -= ( end - preSend );
+
+		pMidiDriver->m_lastTick = end;
+
+		// Send notification - if required.
+		//
+		// A notification on a tick event is only required for starting
+		// transport. This occurs very seldomly compared to sending a tick
+		// without. It is not 100% clean but we omit locking the mutex when
+		// accessing the atomic shared data pMidiDriver->m_bNotifyOnNextTick because of its
+		// average cost.
+		if ( pMidiDriver->m_bNotifyOnNextTick ) {
+			std::scoped_lock lock{ pMidiDriver->m_midiClockMutex };
+
+			pMidiDriver->m_bNotifyOnNextTick = false;
+
+			pMidiDriver->m_midiClockCV.notify_all();
+		}
+
+	}
 }
 };

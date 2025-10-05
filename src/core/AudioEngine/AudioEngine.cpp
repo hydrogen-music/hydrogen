@@ -22,13 +22,6 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 
-#ifdef WIN32
-#    include "core/Timehelper.h"
-#else
-#    include <unistd.h>
-#    include <sys/time.h>
-#endif
-
 #include <limits>
 #include <sstream>
 
@@ -47,24 +40,19 @@
 #include <core/FX/Effects.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Random.h>
-#include <core/Hydrogen.h>
+#include <core/Helpers/Time.h>
 #include <core/IO/AlsaAudioDriver.h>
 #include <core/IO/AlsaMidiDriver.h>
-#include <core/IO/AudioOutput.h>
 #include <core/IO/CoreAudioDriver.h>
 #include <core/IO/CoreMidiDriver.h>
-#include <core/IO/DiskWriterDriver.h>
-#include <core/IO/FakeDriver.h>
-#include <core/IO/JackAudioDriver.h>
 #include <core/IO/JackMidiDriver.h>
+#include <core/IO/LoopBackMidiDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/IO/NullDriver.h>
 #include <core/IO/OssDriver.h>
 #include <core/IO/PortAudioDriver.h>
 #include <core/IO/PortMidiDriver.h>
 #include <core/IO/PulseAudioDriver.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Sampler/Sampler.h>
 
 #define AUDIO_ENGINE_DEBUG 0
 
@@ -80,15 +68,6 @@ namespace H2Core
 #define AE_DEBUGLOG(x) if ( __logger->should_log( Logger::Debug ) ) { \
 		__logger->log( Logger::Debug, _class_name(), __FUNCTION__, \
 					   QString( "%1" ).arg( x ), "\033[34;1m" ); }
-
-/** Gets the current time.
- * \return Current time obtained by gettimeofday()*/
-inline timeval currentTime2()
-{
-	struct timeval now;
-	gettimeofday( &now, nullptr );
-	return now;
-}
 
 AudioEngine::AudioEngine()
 		: m_pSampler( nullptr )
@@ -323,6 +302,18 @@ void AudioEngine::startPlayback()
 	}
 
 	setState( State::Playing );
+
+	if ( Preferences::get_instance()->getMidiTransportOutputSend() &&
+		 m_pMidiDriver != nullptr ) {
+		MidiMessage midiMessage;
+		if ( m_pTransportPosition->getTick() > 0 ) {
+			midiMessage.setType( MidiMessage::Type::Continue );
+		}
+		else {
+			midiMessage.setType( MidiMessage::Type::Start );
+		}
+		m_pMidiDriver->sendMessage( midiMessage );
+	}
 	
 	handleSelectedPattern();
 }
@@ -338,6 +329,13 @@ void AudioEngine::stopPlayback( Event::Trigger trigger )
 	}
 
 	setState( State::Ready, trigger );
+
+	if ( Preferences::get_instance()->getMidiTransportOutputSend() &&
+		 m_pMidiDriver != nullptr ) {
+		MidiMessage midiMessage;
+		midiMessage.setType( MidiMessage::Type::Stop );
+		m_pMidiDriver->sendMessage( midiMessage );
+	}
 }
 
 void AudioEngine::reset( bool bWithJackBroadcast, Event::Trigger trigger ) {
@@ -799,10 +797,9 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 	// there is no external application controling tempo of Hydrogen, we are
 	// free to apply a new tempo. This was set by the user either via UI or
 	// MIDI/OSC message.
-	if ( pHydrogen->getJackTimebaseState() !=
-		 JackAudioDriver::Timebase::Listener &&
-		 ( ( pSong != nullptr && ! pSong->getIsTimelineActivated() ) ||
-				pHydrogen->getMode() != Song::Mode::Song ) &&
+	const auto tempoSource = pHydrogen->getTempoSource();
+	if ( ( tempoSource == Hydrogen::Tempo::Midi ||
+		   tempoSource == Hydrogen::Tempo::Song ) &&
 		 fNewBpm != m_fNextBpm ) {
 		fNewBpm = m_fNextBpm;
 	}
@@ -812,6 +809,11 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 		if ( pPos->getType() == TransportPosition::Type::Transport &&
 			 trigger != Event::Trigger::Suppress ) {
 			EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, 0 );
+		}
+
+		if ( Preferences::get_instance()->getMidiClockOutputSend() &&
+			 m_pMidiDriver != nullptr ) {
+			m_pMidiDriver->startMidiClockStream( fNewBpm );
 		}
 	}
 
@@ -1003,7 +1005,7 @@ AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& dri
 	}
 	else if ( driver == Preferences::AudioDriver::Fake ) {
 		AE_WARNINGLOG( "*** Using FAKE audio driver ***" );
-		pAudioDriver = new FakeDriver( m_AudioProcessCallback );
+		pAudioDriver = new FakeAudioDriver( m_AudioProcessCallback );
 	}
 	else if ( driver == Preferences::AudioDriver::Disk ) {
 		pAudioDriver = new DiskWriterDriver( m_AudioProcessCallback );
@@ -1199,6 +1201,10 @@ void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 		m_pMidiDriver->open();
 #endif
 	}
+	else if ( pPref->m_midiDriver == Preferences::MidiDriver::LoopBack ) {
+		m_pMidiDriver = std::make_shared<LoopBackMidiDriver>();
+		m_pMidiDriver->open();
+	}
 
 	this->unlock();
 
@@ -1214,6 +1220,7 @@ void AudioEngine::stopMidiDriver( Event::Trigger trigger )
 	this->lock( RIGHT_HERE );
 
 	if ( m_pMidiDriver != nullptr ) {
+		m_pMidiDriver->stopMidiClockStream();
 		m_pMidiDriver->close();
 		m_pMidiDriver = nullptr;
 	}
@@ -1275,8 +1282,20 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 			AE_ERRORLOG( "Unable to retrieve tempo from JACK server" );
 		}
 	}
+	else if ( Preferences::get_instance()->getMidiClockInputHandling() ) {
+		// Change in speed due to incoming MIDI clock messages.
+		if ( pAudioEngine->getNextBpm() != fBpm ) {
+#if AUDIO_ENGINE_DEBUG
+			AE_DEBUGLOG( QString( "BPM changed via MIDI clock [%1] -> [%2]." )
+					  .arg( fBpm ).arg( pAudioEngine->getNextBpm() ) );
+			// We do not return AudioEngine::m_fNextBpm since it is considered
+			// transient until applied in updateBpmAndTickSize(). It's not the
+			// current tempo.
+#endif
+		}
+	}
 	else if ( pSong->getIsTimelineActivated() &&
-				pHydrogen->getMode() == Song::Mode::Song ) {
+			  pHydrogen->getMode() == Song::Mode::Song ) {
 
 		const float fTimelineBpm = pHydrogen->getTimeline()->getTempoAtColumn( nColumn );
 		if ( fTimelineBpm != fBpm ) {
@@ -1538,7 +1557,8 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		   dynamic_cast<JackAudioDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) ) {
 		return 0;
 	}
-	timeval startTimeval = currentTime2();
+
+	const auto startTimePoint = Clock::now();
 	const auto sDrivers = pAudioEngine->getDriverNames();
 
 	pAudioEngine->clearAudioBuffers( nframes );
@@ -1612,6 +1632,9 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	if ( pAudioEngine->m_nextState == State::Playing ) {
 		if ( pAudioEngine->getState() == State::Ready ||
 			 pAudioEngine->getState() == State::CountIn ) {
+			if ( Preferences::get_instance()->getMidiClockOutputSend() ) {
+				pAudioEngine->m_pMidiDriver->waitForNextMidiClockTick();
+			}
 			pAudioEngine->startPlayback();
 		}
 		
@@ -1662,16 +1685,6 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			// the song again since it only updates it in case transport
 			// is rolling.
 			EventQueue::get_instance()->pushEvent( Event::Type::Relocation, 0 );
-
-			if ( dynamic_cast<FakeDriver*>(pAudioEngine->m_pAudioDriver) !=
-				 nullptr ) {
-				___INFOLOG( QString( "[%1] End of song." ).arg( sDrivers ) );
-
-				// TODO This part of the code might not be reached
-				// anymore.
-				pAudioEngine->unlock();
-				return 1;	// kill the audio AudioDriver thread
-			}
 		}
 		else {
 			// We are not at the end of the song, keep rolling.
@@ -1736,11 +1749,11 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		}
 	}
 
-	timeval finishTimeval = currentTime2();
+	const auto finishTimePoint = Clock::now();
 	pAudioEngine->m_fProcessTime =
-			( finishTimeval.tv_sec - startTimeval.tv_sec ) * 1000.0
-			+ ( finishTimeval.tv_usec - startTimeval.tv_usec ) / 1000.0;
-	
+		std::chrono::duration_cast< std::chrono::milliseconds >(
+			finishTimePoint - startTimePoint).count();
+
 #ifdef CONFIG_DEBUG
 	if ( pAudioEngine->m_fProcessTime > pAudioEngine->m_fMaxProcessTime ) {
 		___WARNINGLOG( "" );
@@ -1785,7 +1798,7 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 	}
 
 #ifdef H2CORE_HAVE_LADSPA
-	timeval ladspaTime_start = currentTime2();
+	const auto ladspaStartTimePoint = Clock::now();
 
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		auto pFX = Effects::get_instance()->getLadspaFX( nFX );
@@ -1815,10 +1828,10 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 		}
 	}
 
-	timeval ladspaTime_end = currentTime2();
+	const auto ladspaEndTimePoint = Clock::now();
 	m_fLadspaTime =
-			( ladspaTime_end.tv_sec - ladspaTime_start.tv_sec ) * 1000.0
-			+ ( ladspaTime_end.tv_usec - ladspaTime_start.tv_usec ) / 1000.0;
+		std::chrono::duration_cast< std::chrono::milliseconds >(
+			ladspaEndTimePoint - ladspaStartTimePoint).count();
 #else
 	m_fLadspaTime = 0.0;
 #endif
@@ -3076,10 +3089,6 @@ void AudioEngine::play() {
 #endif
 
 	setNextState( State::Playing );
-
-	if ( dynamic_cast<FakeDriver*>(m_pAudioDriver) != nullptr ) {
-		static_cast<FakeDriver*>( m_pAudioDriver )->processCallback();
-	}
 }
 
 void AudioEngine::stop() {
@@ -3400,7 +3409,7 @@ QString AudioEngine::getDriverNames() const {
 	else if ( dynamic_cast<AlsaAudioDriver*>(m_pAudioDriver) != nullptr ) {
 		audioDriver = Preferences::AudioDriver::Alsa;
 	}
-	else if ( dynamic_cast<FakeDriver*>(m_pAudioDriver) != nullptr ) {
+	else if ( dynamic_cast<FakeAudioDriver*>(m_pAudioDriver) != nullptr ) {
 		audioDriver = Preferences::AudioDriver::Fake;
 	}
 	else if ( dynamic_cast<NullDriver*>(m_pAudioDriver) != nullptr ) {
@@ -3432,6 +3441,9 @@ QString AudioEngine::getDriverNames() const {
 				nullptr ) {
 		sMidiDriver = "JACK";
 #endif
+	} else if ( std::dynamic_pointer_cast<LoopBackMidiDriver>(m_pMidiDriver) !=
+				nullptr ) {
+		sMidiDriver = "LoopBack";
 	}
 		
 	auto res = QString( "%1|%2" )

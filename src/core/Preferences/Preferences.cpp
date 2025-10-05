@@ -139,6 +139,10 @@ Preferences::Preferences()
 	, m_recentFX( QStringList() )
 	, m_nMaxBars( 400 )
 	, m_nMaxLayers( 16 )
+	, m_bMidiClockInputHandling( false )
+	, m_bMidiTransportInputHandling( false )
+	, m_bMidiClockOutputSend( false )
+	, m_bMidiTransportOutputSend( false )
 	, m_bUseTheRubberbandBpmChangeEvent( false )
 	, m_bShowInstrumentPeaks( true )
 	, m_nPatternEditorGridResolution( 8 )
@@ -317,6 +321,10 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_bQuantizeEvents( pOther->m_bQuantizeEvents )
 	, m_nMaxBars( pOther->m_nMaxBars )
 	, m_nMaxLayers( pOther->m_nMaxLayers )
+	, m_bMidiClockInputHandling( pOther->m_bMidiClockInputHandling )
+	, m_bMidiTransportInputHandling( pOther->m_bMidiTransportInputHandling )
+	, m_bMidiClockOutputSend( pOther->m_bMidiClockOutputSend )
+	, m_bMidiTransportOutputSend( pOther->m_bMidiTransportOutputSend )
 	, m_bSearchForRubberbandOnLoad( pOther->m_bSearchForRubberbandOnLoad )
 	, m_bUseTheRubberbandBpmChangeEvent( pOther->m_bUseTheRubberbandBpmChangeEvent )
 	, m_bShowInstrumentPeaks( pOther->m_bShowInstrumentPeaks )
@@ -710,6 +718,22 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			pPref->m_bEnableMidiFeedback = midiDriverNode.read_bool(
 				"enable_midi_feedback",
 				pPref->m_bEnableMidiFeedback, false, true, bSilent );
+			pPref->setMidiClockInputHandling(
+				midiDriverNode.read_bool(
+					"midi_clock_input_handling",
+					pPref->getMidiClockInputHandling(), true, true, bSilent ) );
+			pPref->setMidiTransportInputHandling(
+				midiDriverNode.read_bool(
+					"midi_transport_input_handling",
+					pPref->getMidiTransportInputHandling(), true, true, bSilent ) );
+			pPref->setMidiClockOutputSend(
+				midiDriverNode.read_bool(
+					"midi_clock_output_send",
+					pPref->getMidiClockOutputSend(), true, true, bSilent ) );
+			pPref->setMidiTransportOutputSend(
+				midiDriverNode.read_bool(
+					"midi_transport_output_send",
+					pPref->getMidiTransportOutputSend(), true, true, bSilent ) );
 		}
 		else {
 			WARNINGLOG( "<midi_driver> node not found" );
@@ -1225,6 +1249,14 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 			midiDriverNode.write_bool( "enable_midi_feedback", m_bEnableMidiFeedback );
 			midiDriverNode.write_bool( "discard_note_after_action", m_bMidiDiscardNoteAfterAction );
 			midiDriverNode.write_bool( "fixed_mapping", m_bMidiFixedMapping );
+			midiDriverNode.write_bool( "midi_clock_input_handling",
+									   getMidiClockInputHandling() );
+			midiDriverNode.write_bool( "midi_transport_input_handling",
+									   getMidiTransportInputHandling() );
+			midiDriverNode.write_bool( "midi_clock_output_send",
+									   getMidiClockOutputSend() );
+			midiDriverNode.write_bool( "midi_transport_output_send",
+									   getMidiTransportOutputSend() );
 		}
 		
 		/// OSC ///
@@ -1448,6 +1480,8 @@ Preferences::MidiDriver Preferences::parseMidiDriver( const QString& sDriver ) {
 		return MidiDriver::CoreMidi;
 	}
 	else {
+		// The LoopBack driver is only used in unit tests. Thus, it should not
+		// be written to disk and does not have to be parsed.
 		if ( Logger::isAvailable() ) {
 			ERRORLOG( QString( "Unable to parse driver [%1]" ). arg( sDriver ) );
 		}
@@ -1467,6 +1501,8 @@ QString Preferences::midiDriverToQString( const Preferences::MidiDriver& driver 
 		return "nullptr";
 	case MidiDriver::PortMidi:
 		return "PortMidi";
+	case MidiDriver::LoopBack:
+		return "LoopBack";
 	default:
 		return "Unhandled driver type";
 	}
@@ -1736,6 +1772,14 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_bMidiDiscardNoteAfterAction ) )
 			.append( QString( "%1%2m_bEnableMidiFeedback: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bEnableMidiFeedback ) )
+			.append( QString( "%1%2m_bMidiClockInputHandling: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bMidiClockInputHandling ) )
+			.append( QString( "%1%2m_bMidiTransportInputHandling: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bMidiTransportInputHandling ) )
+			.append( QString( "%1%2m_bMidiClockOutputSend: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bMidiClockOutputSend ) )
+			.append( QString( "%1%2m_bMidiTransportOutputSend: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bMidiTransportOutputSend ) )
 			.append( QString( "%1%2m_bOscServerEnabled: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bOscServerEnabled ) )
 			.append( QString( "%1%2m_bOscFeedbackEnabled: %3\n" ).arg( sPrefix )
@@ -1978,6 +2022,14 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bMidiDiscardNoteAfterAction ) )
 			.append( QString( ", m_bEnableMidiFeedback: %1" )
 					 .arg( m_bEnableMidiFeedback ) )
+			.append( QString( ", m_bMidiClockInputHandling: %1" )
+					 .arg( m_bMidiClockInputHandling ) )
+			.append( QString( ", m_bMidiTransportInputHandling: %1" )
+					 .arg( m_bMidiTransportInputHandling ) )
+			.append( QString( ", m_bMidiClockOutputSend: %1" )
+					 .arg( m_bMidiClockOutputSend ) )
+			.append( QString( ", m_bMidiTransportOutputSend: %1" )
+					 .arg( m_bMidiTransportOutputSend ) )
 			.append( QString( ", m_bOscServerEnabled: %1" )
 					 .arg( m_bOscServerEnabled ) )
 			.append( QString( ", m_bOscFeedbackEnabled: %1" )

@@ -50,7 +50,7 @@ MidiActionTable::MidiActionTable( QWidget *pParent )
 	 // Add an "empty" action used to reset the combo box.
 	 m_availableActions << "";
 
-	 const auto pActionHandler = MidiActionManager::get_instance();
+	 const auto pActionHandler = H2Core::Hydrogen::get_instance()->getMidiActionManager();
 	 for ( const auto& ttype : pActionHandler->getMidiActions() ) {
 		m_availableActions << MidiAction::typeToQString( ttype );
 	}
@@ -144,10 +144,11 @@ void MidiActionTable::sendChanged() {
 	emit changed();
 }
 
-void MidiActionTable::insertNewRow(std::shared_ptr<MidiAction> pAction,
-							 const QString& eventString, int eventParameter)
-{
-	MidiActionManager *pActionHandler = MidiActionManager::get_instance();
+void MidiActionTable::insertNewRow( std::shared_ptr<MidiAction> pAction,
+									const QString& eventString,
+									int eventParameter ) {
+	auto pMidiActionManager =
+		H2Core::Hydrogen::get_instance()->getMidiActionManager();
 
 	insertRow( m_nRowCount );
 	
@@ -434,8 +435,9 @@ void MidiActionTable::updateRow( int nRow ) {
 
 	}
 	else {
-		const int nParameterNumber = MidiActionManager::get_instance()->getParameterNumber(
-			MidiAction::parseType( sActionType ) );
+		const int nParameterNumber = H2Core::Hydrogen::get_instance()
+			->getMidiActionManager()
+			->getParameterNumber( MidiAction::parseType( sActionType ) );
 		if ( nParameterNumber != -1 ) {
 			if ( nParameterNumber < 3 ) {
 				pActionSpinner3->hide();

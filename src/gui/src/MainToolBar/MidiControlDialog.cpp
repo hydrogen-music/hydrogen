@@ -36,7 +36,6 @@ https://www.gnu.org/licenses
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 
-
 using namespace H2Core;
 
 MidiControlDialog::MidiControlDialog( QWidget* pParent )
@@ -175,6 +174,29 @@ background-color: %1;" ).arg( borderColor.name() ) );
 			m_pInputNoteAsOutputCheckBox->isChecked();
 	} );
 
+	auto pInputMidiClockCheckBox = new QCheckBox( pInputSettingsWidget );
+	pInputMidiClockCheckBox->setChecked( pPref->getMidiClockInputHandling() );
+	pInputMidiClockCheckBox->setText( tr( "Handle MIDI Clock input" ) );
+	pInputSettingsLayout->addWidget( pInputMidiClockCheckBox );
+	connect( pInputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
+		CoreActionController::setMidiClockInputHandling(
+			pInputMidiClockCheckBox->isChecked() );
+	} );
+
+	auto pInputMidiTransportCheckBox = new QCheckBox( pInputSettingsWidget );
+	pInputMidiTransportCheckBox->setChecked( pPref->getMidiTransportInputHandling() );
+	/*: The character combination "\n" indicates a new line and must be
+	 *  conserved. All the capitalized words that follow are defined in the MIDI
+	 *  standard. Only translate them if you are sure the translated versions
+	 *  are of common usage. */
+	pInputMidiTransportCheckBox->setText(
+		tr( "Handle MIDI sync message\nSTART, STOP, CONTINUE, SONG_POSITION, SONG_SELECT" ) );
+	pInputSettingsLayout->addWidget( pInputMidiTransportCheckBox );
+	connect( pInputMidiTransportCheckBox, &QAbstractButton::toggled, [=]() {
+		Preferences::get_instance()->setMidiTransportInputHandling(
+			pInputMidiTransportCheckBox->isChecked() );
+	} );
+
 	auto pOutputSettingsWidget = new QWidget( pConfigWidget );
 	pConfigLayout->addWidget( pOutputSettingsWidget );
 	auto pOutputSettingsLayout = new QVBoxLayout( pOutputSettingsWidget );
@@ -206,6 +228,25 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	connect( m_pOutputEnableMidiFeedbackCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->m_bEnableMidiFeedback =
 			m_pOutputEnableMidiFeedbackCheckBox->isChecked();
+	} );
+
+	auto pOutputMidiClockCheckBox = new QCheckBox( pOutputSettingsWidget );
+	pOutputMidiClockCheckBox->setChecked( pPref->getMidiClockOutputSend() );
+	pOutputMidiClockCheckBox->setText( tr( "Send MIDI Clock messages" ) );
+	pOutputSettingsLayout->addWidget( pOutputMidiClockCheckBox );
+	connect( pOutputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
+		CoreActionController::setMidiClockOutputSend(
+			pOutputMidiClockCheckBox->isChecked() );
+	} );
+
+	auto pOutputMidiTransportCheckBox = new QCheckBox( pOutputSettingsWidget );
+	pOutputMidiTransportCheckBox->setChecked( pPref->getMidiTransportOutputSend() );
+	pOutputMidiTransportCheckBox->setText(
+		tr( "Send MIDI START, STOP, CONTINUE, and SONG_POSITION" ) );
+	pOutputSettingsLayout->addWidget( pOutputMidiTransportCheckBox );
+	connect( pOutputMidiTransportCheckBox, &QAbstractButton::toggled, [=]() {
+		Preferences::get_instance()->setMidiTransportOutputSend(
+			pOutputMidiTransportCheckBox->isChecked() );
 	} );
 
 	const int nLinkHeight = 24;
@@ -309,7 +350,10 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	};
 	m_pInputBinButton = addBinButton( pInputWidget );
 	connect( m_pInputBinButton, &QToolButton::clicked, [&]() {
-		Hydrogen::get_instance()->getMidiDriver()->clearHandledInput();
+		auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
+		if ( pMidiDriver != nullptr ) {
+			pMidiDriver->clearHandledInput();
+		}
 		updateInputTable();
 	});
 
@@ -341,7 +385,10 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	pOutputLayout->addWidget( m_pMidiOutputTable );
 	m_pOutputBinButton = addBinButton( pOutputWidget );
 	connect( m_pOutputBinButton, &QToolButton::clicked, [&]() {
-		Hydrogen::get_instance()->getMidiDriver()->clearHandledOutput();
+		auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
+		if ( pMidiDriver != nullptr ) {
+			pMidiDriver->clearHandledOutput();
+		}
 		updateOutputTable();
 	});
 
@@ -414,10 +461,6 @@ void MidiControlDialog::onPreferencesChanged(
 	}
 }
 
-QString MidiControlDialog::timestampToQString( QTime timestamp ) {
-	return timestamp.toString( "HH:mm:ss.zzz" );
-}
-
 void MidiControlDialog::hideEvent( QHideEvent* pEvent ) {
 	UNUSED( pEvent );
 
@@ -473,8 +516,12 @@ void MidiControlDialog::updateInputTable() {
 		return;
 	}
 
-	const auto handledInputs = Hydrogen::get_instance()->getAudioEngine()->
-		getMidiDriver()->getHandledInputs();
+	auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
+
+	std::vector< std::shared_ptr<MidiInput::HandledInput> > handledInputs;
+	if ( pMidiDriver != nullptr ) {
+		handledInputs = pMidiDriver->getHandledInputs();
+	}
 
 	const int nOldRowCount = m_pMidiInputTable->rowCount();
 	m_pMidiInputTable->setRowCount( handledInputs.size() );
@@ -489,8 +536,8 @@ void MidiControlDialog::updateInputTable() {
 			auto ppLabel = dynamic_cast<QLabel*>(
 				m_pMidiInputTable->cellWidget( ii, 0 ) );
 			if ( ppLabel == nullptr || handledInputs[ ii ] != nullptr ||
-				 ppLabel->text() != timestampToQString(
-					 handledInputs[ ii ]->timestamp ) ) {
+				 ppLabel->text() != H2Core::timePointToQString(
+					 handledInputs[ ii ]->timePoint ) ) {
 				bInvalid = true;
 				break;
 			}
@@ -512,7 +559,7 @@ void MidiControlDialog::updateInputTable() {
 			return;
 		}
 		m_pMidiInputTable->setCellWidget(
-			nRow, 0, newLabel( timestampToQString( pHandledInput->timestamp ) ) );
+			nRow, 0, newLabel( H2Core::timePointToQString( pHandledInput->timePoint ) ) );
 		m_pMidiInputTable->setCellWidget(
 			nRow, 1, newLabel( MidiMessage::TypeToQString( pHandledInput->type ) ) );
 		m_pMidiInputTable->setCellWidget(
@@ -540,7 +587,7 @@ void MidiControlDialog::updateInputTable() {
 		auto ppLabelTimestamp = dynamic_cast<QLabel*>(
 			m_pMidiInputTable->cellWidget( nRow, 0 ) );
 		if ( ppLabelTimestamp != nullptr ) {
-			ppLabelTimestamp->setText( timestampToQString( pHandledInput->timestamp ) );
+			ppLabelTimestamp->setText( H2Core::timePointToQString( pHandledInput->timePoint ) );
 		}
 		auto ppLabelType = dynamic_cast<QLabel*>(
 			m_pMidiInputTable->cellWidget( nRow, 1 ) );
@@ -608,8 +655,12 @@ void MidiControlDialog::updateOutputTable() {
 		return;
 	}
 
-	const auto handledOutputs = Hydrogen::get_instance()->getAudioEngine()->
-		getMidiDriver()->getHandledOutputs();
+	auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
+
+	std::vector< std::shared_ptr<MidiOutput::HandledOutput> > handledOutputs;
+	if ( pMidiDriver != nullptr ) {
+		handledOutputs = pMidiDriver->getHandledOutputs();
+	}
 
 	const int nOldRowCount = m_pMidiOutputTable->rowCount();
 	m_pMidiOutputTable->setRowCount( handledOutputs.size() );
@@ -622,8 +673,8 @@ void MidiControlDialog::updateOutputTable() {
 			auto ppLabel = dynamic_cast<QLabel*>(
 				m_pMidiOutputTable->cellWidget( ii, 0 ) );
 			if ( ppLabel == nullptr || handledOutputs[ ii ] == nullptr ||
-				 ppLabel->text() != timestampToQString(
-					 handledOutputs[ ii ]->timestamp ) ) {
+				 ppLabel->text() != H2Core::timePointToQString(
+					 handledOutputs[ ii ]->timePoint ) ) {
 				bInvalid = true;
 				break;
 			}
@@ -646,7 +697,7 @@ void MidiControlDialog::updateOutputTable() {
 			return;
 		}
 		m_pMidiOutputTable->setCellWidget(
-			nRow, 0, newLabel( timestampToQString( pHandledOutput->timestamp ) ) );
+			nRow, 0, newLabel( H2Core::timePointToQString( pHandledOutput->timePoint ) ) );
 		m_pMidiOutputTable->setCellWidget(
 			nRow, 1, newLabel( MidiMessage::TypeToQString( pHandledOutput->type ) ) );
 		m_pMidiOutputTable->setCellWidget(
@@ -665,7 +716,7 @@ void MidiControlDialog::updateOutputTable() {
 		auto ppLabelTimestamp = dynamic_cast<QLabel*>(
 			m_pMidiOutputTable->cellWidget( nRow, 0 ) );
 		if ( ppLabelTimestamp != nullptr ) {
-			ppLabelTimestamp->setText( timestampToQString( pHandledOutput->timestamp ) );
+			ppLabelTimestamp->setText( H2Core::timePointToQString( pHandledOutput->timePoint ) );
 		}
 		auto ppLabelType = dynamic_cast<QLabel*>(
 			m_pMidiOutputTable->cellWidget( nRow, 1 ) );

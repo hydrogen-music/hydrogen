@@ -29,23 +29,22 @@
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/IO/AudioOutput.h>
-#include <core/IO/JackAudioDriver.h>
 #include <core/IO/DiskWriterDriver.h>
-#include <core/IO/FakeDriver.h>
+#include <core/IO/FakeAudioDriver.h>
+#include <core/IO/JackAudioDriver.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
 
 
-#include <memory>
-#include <string>
 #include <cassert>
-#include <mutex>
-#include <thread>
 #include <chrono>
 #include <deque>
-#include <queue>
 #include <QString>
+#include <queue>
+#include <memory>
+#include <mutex>
+#include <thread>
 
 /** \def RIGHT_HERE
  * Macro intended to be used for the logging of the locking of the
@@ -471,7 +470,7 @@ public:
 		std::shared_ptr<Instrument>, std::shared_ptr<Instrument> );
 	friend bool CoreActionController::startCountIn();
 	/** Is allowed to set m_state to State::Ready via setState()*/
-	friend int FakeDriver::connect();
+	friend int FakeAudioDriver::connect();
 
 	friend class AudioEngineTests;
 		friend class JackAudioDriver;
@@ -664,8 +663,12 @@ private:
 		bool isLocked;
 	} m_pLocker;
 
+
+		/** In milliseconds. */
 	float				m_fProcessTime;
+		/** In milliseconds. */
 	float				m_fMaxProcessTime;
+		/** In milliseconds. */
 	float				m_fLadspaTime;
 
 	std::shared_ptr<TransportPosition> m_pTransportPosition;

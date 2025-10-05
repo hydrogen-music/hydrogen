@@ -25,14 +25,15 @@
 #include <core/Basics/Event.h>
 #include <core/Basics/Song.h>
 #include <core/config.h>
+#include <core/Helpers/Time.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
-#include <core/Timehelper.h>
 #include <core/Timeline.h>
 
 #include <stdint.h> // for uint32_t et al
 #include <cassert>
+#include <chrono>
 #include <memory>
 
 namespace H2Core
@@ -41,8 +42,10 @@ namespace H2Core
 	class AudioOutput;
 	class Drumkit;
 	class MidiBaseDriver;
+	class MidiActionManager;
 	class Playlist;
 	class SoundLibraryDatabase;
+	class TimeHelper;
 
 ///
 /// Hydrogen Audio Engine.
@@ -52,6 +55,11 @@ class Hydrogen : public H2Core::Object<Hydrogen>
 {
 	H2_OBJECT(Hydrogen)
 public:
+
+	/** If the new tap tempo interval results in a tempo deviating more than
+	 * this value from the current average, the average will be reset to the
+	 * newest tempo. */
+	static constexpr int nTapTempoMaxDiff = 20;
 	
 	/** Specifies where the #AudioEngine does get its current tempo
 		updates from.*/
@@ -62,12 +70,17 @@ public:
 		Song = 0,
 		/** Only tempo markers on the Timeline are considered.*/
 		Timeline = 1,
+		/** Hydrogen is synchronizing tempo and transport handling - like start,
+		 * stop, and relocation - to incoming MIDI (clock) events. This will
+		 * only work, if there is _no_ external JACK Timebase controller
+		 * present. */
+		Midi = 2,
 		/** Hydrogen will disregard all internal tempo settings and uses the
 			ones provided by the JACK server instead. This mode is only used in
 			case the JACK audio driver is used, JACK Timebase support is
 			activated in the Preferences, and an external Timebase controller is
 			registered to the JACK server.*/
-		Jack = 2
+		Jack = 3
 	};
 
 	enum ErrorMessages {
@@ -149,11 +162,13 @@ public:
 	 * return central instance of the audio engine
 	 */
 	AudioEngine*		getAudioEngine() const;
+		std::shared_ptr<MidiActionManager> getMidiActionManager() const;
 	std::shared_ptr<SoundLibraryDatabase> getSoundLibraryDatabase() const {
 		return m_pSoundLibraryDatabase;
 	}
 	std::shared_ptr<Playlist> getPlaylist() const;
 	void setPlaylist( std::shared_ptr<Playlist> pPlaylist );
+		std::shared_ptr<TimeHelper> getTimeHelper() const;
 
 // ***** SEQUENCER ********
 	/// Start the internal sequencer
@@ -264,7 +279,7 @@ public:
 		song is set.*/
 	bool getIsModified() const;
 
-	void			onTapTempoAccelEvent();
+	void			onTapTempoAccelEvent( TimePoint start = TimePoint() );
 
 	void			restartLadspaFX();
 	/** \return #m_nSelectedPatternNumber*/
@@ -314,7 +329,7 @@ public:
 	void			setBeatCounterBeatLength( float fBeatLength );
 	float			getBeatCounterBeatLength() const;
 	int			getBeatCounterEventCount() const;
-	bool			handleBeatCounter();
+	bool			handleBeatCounter( TimePoint start = TimePoint() );
 	void			updateBeatCounterSettings();
 
 	/** Calling JackAudioDriver::releaseTimebaseControl() directly from
@@ -495,11 +510,16 @@ private:
 	int			m_nBeatCounterEventCount;		///< beatcounter event
 	int			m_nBeatCounterBeatCount;		///< beatcounter beat to count
 	std::vector<double>			m_beatCounterDiffs;	///< beat diff
-	timeval 		m_beatCounterActivationTime;		///< timeval
+		TimePoint m_lastBeatCounterTimePoint;
 	int			m_nBeatCounterDriftCompensation;		///ms default 0
 	int			m_nBeatCounterStartOffset;		///ms default 0
 	// ~ beatcounter
 
+		TimePoint m_lastTapTempoTimePoint;
+		float m_fTapTempoAverageBpm;
+		/** Number of events constituting #m_fTapTempoAverageBpm. This is
+		 * required to calculate the cumulative average. */
+		long m_nTapTempoEventsAveraged;
 
 	// used for song export
 	Song::Mode		m_oldEngineMode;
@@ -521,6 +541,9 @@ private:
 	 * Local instance of the Timeline object.
 	 */
 	std::shared_ptr<Timeline>	m_pTimeline;
+
+		/** Helper class for time-specific methods. */
+		std::shared_ptr<TimeHelper> m_pTimeHelper;
 
 	/// Deleting instruments too soon leads to potential crashes.
 	std::list<std::shared_ptr<Instrument>> 	m_instrumentDeathRow;
@@ -557,6 +580,7 @@ private:
 	 * Central instance of the audio engine. 
 	 */
 	AudioEngine*	m_pAudioEngine;
+		std::shared_ptr<MidiActionManager> m_pMidiActionManager;
 
 	std::shared_ptr<SoundLibraryDatabase> m_pSoundLibraryDatabase;
 
@@ -598,6 +622,9 @@ inline bool Hydrogen::getIsExportSessionActive() const
 
 inline AudioEngine* Hydrogen::getAudioEngine() const {
 	return m_pAudioEngine;
+}
+inline std::shared_ptr<MidiActionManager> Hydrogen::getMidiActionManager() const {
+	return m_pMidiActionManager;
 }
 
 inline const Hydrogen::GUIState& Hydrogen::getGUIState() const {
@@ -646,6 +673,9 @@ inline std::shared_ptr<Playlist> Hydrogen::getPlaylist() const {
 }
 inline void Hydrogen::setPlaylist( std::shared_ptr<Playlist> pPlaylist ){
 	m_pPlaylist = pPlaylist;
+}
+inline std::shared_ptr<TimeHelper> Hydrogen::getTimeHelper() const {
+	return m_pTimeHelper;
 }
 inline int Hydrogen::getHihatOpenness() const {
 	return m_nHihatOpenness;

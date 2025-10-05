@@ -20,14 +20,18 @@
  *
  */
 
-#include <core/config.h>
 
 #include "TimeTest.h"
-#include <core/CoreActionController.h>
+#include "TestHelper.h"
+
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/Hydrogen.h>
 #include <core/Basics/Song.h>
+#include <core/config.h>
+#include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Time.h>
+#include <core/Helpers/TimeHelper.h>
+#include <core/Hydrogen.h>
 
 #include <cmath>
 #include <QTest>
@@ -63,11 +67,6 @@ void TimeTest::tearDown(){
 	}
 }
 
-float TimeTest::locateAndLookupTime( int nPatternPos ){
-	H2Core::CoreActionController::locateToColumn( nPatternPos );
-	return Hydrogen::get_instance()->getAudioEngine()->getElapsedTime();
-}
-
 void TimeTest::testElapsedTime(){
 	___INFOLOG( "" );
 
@@ -84,4 +83,48 @@ void TimeTest::testElapsedTime(){
 	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 5 ) - 10.8 ) < 0.0001 );
 	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 2 ) - 4 ) < 0.0001 );
 	___INFOLOG( "passed" );
+}
+
+void TimeTest::testHighResolutionSleep(){
+	___INFOLOG( "" );
+
+	auto pTestHelper = TestHelper::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
+
+	const float fTolerance = 1;
+	std::vector<int> durationsMs{ 2, 10, 65, 234 };
+
+	for ( const auto ffDurationMs : durationsMs ) {
+		// Perform one sleep without checking time. This allows for `TimeHelper`
+		// to adopt to the new system surplus (which might depend on the sleep
+		// duration) and produces results closer to those encountered in real
+		// life.
+		pHydrogen->getTimeHelper()->highResolutionSleep(
+			std::chrono::duration<float, std::milli>( ffDurationMs ) );
+
+		const auto start = Clock::now();
+		pHydrogen->getTimeHelper()->highResolutionSleep(
+			std::chrono::duration<float, std::milli>( ffDurationMs ) );
+		const auto end = Clock::now();
+
+		const auto fPassedMs = std::chrono::duration_cast<
+			std::chrono::milliseconds >( end - start ).count();
+
+		___INFOLOG( QString( "Interval: [%1], Milliseconds passed: [%2], tolerance: [%3]" )
+					.arg( ffDurationMs ).arg( fPassedMs ).arg( fTolerance ) );
+		// We have to wait at least the requested amount. A little bit more is
+		// ok. But less is not.
+		CPPUNIT_ASSERT( fPassedMs >= ffDurationMs );
+
+		if ( ! pTestHelper->isAppveyor() ) {
+			CPPUNIT_ASSERT( std::abs( fPassedMs - ffDurationMs ) <= fTolerance );
+		}
+	}
+
+	___INFOLOG( "passed" );
+}
+
+float TimeTest::locateAndLookupTime( int nPatternPos ){
+	H2Core::CoreActionController::locateToColumn( nPatternPos );
+	return Hydrogen::get_instance()->getAudioEngine()->getElapsedTime();
 }

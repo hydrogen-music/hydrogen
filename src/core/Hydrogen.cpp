@@ -21,14 +21,6 @@
  */
 #include <core/config.h>
 
-#ifdef WIN32
-#    include "core/Timehelper.h"
-#else
-#    include <unistd.h>
-#    include <sys/time.h>
-#endif
-
-
 #include <pthread.h>
 #include <cassert>
 #include <cstdio>
@@ -38,7 +30,6 @@
 #include <cmath>
 #include <algorithm>
 #include <thread>
-#include <chrono>
 
 #include <core/Hydrogen.h>
 
@@ -62,13 +53,14 @@
 #include <core/FX/LadspaFX.h>
 #include <core/H2Exception.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Helpers/TimeHelper.h>
 #include <core/IO/AlsaAudioDriver.h>
 #include <core/IO/AlsaMidiDriver.h>
 #include <core/IO/AudioOutput.h>
 #include <core/IO/CoreAudioDriver.h>
 #include <core/IO/CoreMidiDriver.h>
 #include <core/IO/DiskWriterDriver.h>
-#include <core/IO/FakeDriver.h>
+#include <core/IO/FakeAudioDriver.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/IO/JackMidiDriver.h>
 #include <core/IO/MidiBaseDriver.h>
@@ -88,7 +80,6 @@
 #include "OscServer.h"
 #endif
 
-
 namespace H2Core
 {
 //----------------------------------------------------------------------------
@@ -103,14 +94,17 @@ Hydrogen::Hydrogen() : m_fBeatCounterBeatLength( 1 )
 					 , m_nBeatCounterTotalBeats( 4 )
 					 , m_nBeatCounterEventCount( 1 )
 					 , m_nBeatCounterBeatCount( 1 )
+					 , m_lastBeatCounterTimePoint( TimePoint() )
+					 , m_lastTapTempoTimePoint( TimePoint() )
+					 , m_fTapTempoAverageBpm( MIN_BPM )
+					 , m_nTapTempoEventsAveraged( 0 )
 					 , m_nSelectedInstrumentNumber( 0 )
 					 , m_nSelectedPatternNumber( 0 )
 					 , m_bExportSessionIsActive( false )
 					 , m_GUIState( GUIState::startup )
 					 , m_lastMidiEvent( MidiMessage::Event::Null )
 					 , m_nLastMidiEventParameter( 0 )
-					 , m_beatCounterActivationTime( {0,0} )
-					 , m_oldEngineMode( Song::Mode::Song ) 
+					 , m_oldEngineMode( Song::Mode::Song )
 					 , m_bOldLoopEnabled( false )
 					 , m_nLastRecordedMIDINoteTick( 0 )
 					 , m_bRecordEnabled( false )
@@ -133,7 +127,9 @@ Hydrogen::Hydrogen() : m_fBeatCounterBeatLength( 1 )
 	m_pTimeline = std::make_shared<Timeline>();
 
 	m_pAudioEngine = new AudioEngine();
+	m_pMidiActionManager = std::make_shared<MidiActionManager>();
 	m_pPlaylist = std::make_shared<Playlist>();
+	m_pTimeHelper = std::make_shared<TimeHelper>();
 
 	// Prevent double creation caused by calls from MIDI thread
 	__instance = this;
@@ -180,7 +176,6 @@ void Hydrogen::create_instance( int nOscPort )
 	Logger::create_instance();
 	Preferences::create_instance();
 	EventQueue::create_instance();
-	MidiActionManager::create_instance();
 
 #ifdef H2CORE_HAVE_OSC
 	NsmClient::create_instance();
@@ -740,76 +735,50 @@ std::shared_ptr<MidiBaseDriver> Hydrogen::getMidiDriver() const {
 	return m_pAudioEngine->getMidiDriver();
 }
 
-void Hydrogen::onTapTempoAccelEvent()
-{
-#ifndef WIN32
-	static timeval oldTimeVal;
+void Hydrogen::onTapTempoAccelEvent( TimePoint start ) {
+	auto now = start;
+	if ( now == TimePoint() ) {
+		// Default value. No time stamp was provided.
+		now = Clock::now();
+	}
 
-	struct timeval now;
-	gettimeofday(&now, nullptr);
+	const double fInterval = std::chrono::duration_cast<std::chrono::microseconds>(
+		now - m_lastTapTempoTimePoint ).count() / 1000.0 / 1000.0;
 
-	float fInterval =
-			(now.tv_sec - oldTimeVal.tv_sec) * 1000.0
-			+ (now.tv_usec - oldTimeVal.tv_usec) / 1000.0;
+	m_lastTapTempoTimePoint = now;
 
-	oldTimeVal = now;
+	const float fBpm = 60.0 / fInterval;
 
-	// We multiply by a factor of two in order to allow for tempi
-	// smaller than the minimum one enter the calculation of the
-	// average. Else the minimum one could not be reached via tap
-	// tempo and it is clambed anyway.
-	if ( fInterval >= 60000.0 * 2 / static_cast<float>(MIN_BPM) ) {
+	// We divide by a factor of two in order to allow for tempi smaller than
+	// the minimum one enter the calculation of the average. Else the minimum
+	// one could not be reached via tap tempo and it is clambed anyway.
+	//
+	// This also covers the initial tap tempo handling with
+	// m_lastTapTempoTimePoint being initialized to TimePoint().
+	if ( fBpm <= static_cast<float>(MIN_BPM) / 2.0 ) {
+		// Reset the average.
+		m_nTapTempoEventsAveraged = 0;
 		return;
 	}
 
-	static float fOldBpm1 = -1;
-	static float fOldBpm2 = -1;
-	static float fOldBpm3 = -1;
-	static float fOldBpm4 = -1;
-	static float fOldBpm5 = -1;
-	static float fOldBpm6 = -1;
-	static float fOldBpm7 = -1;
-	static float fOldBpm8 = -1;
-
-	float fBPM = 60000.0 / fInterval;
-
-	if ( fabs( fOldBpm1 - fBPM ) > 20 ) {	// troppa differenza, niente media
-		fOldBpm1 = fBPM;
-		fOldBpm2 = fBPM;
-		fOldBpm3 = fBPM;
-		fOldBpm4 = fBPM;
-		fOldBpm5 = fBPM;
-		fOldBpm6 = fBPM;
-		fOldBpm7 = fBPM;
-		fOldBpm8 = fBPM;
+	if ( std::abs( fBpm - m_fTapTempoAverageBpm ) > Hydrogen::nTapTempoMaxDiff ) {
+		// New speed diverges too much. We reset the tempo instead.
+		m_nTapTempoEventsAveraged = 0;
 	}
 
-	if ( fOldBpm1 == -1 ) {
-		fOldBpm1 = fBPM;
-		fOldBpm2 = fBPM;
-		fOldBpm3 = fBPM;
-		fOldBpm4 = fBPM;
-		fOldBpm5 = fBPM;
-		fOldBpm6 = fBPM;
-		fOldBpm7 = fBPM;
-		fOldBpm8 = fBPM;
+	if ( m_nTapTempoEventsAveraged == 0 ) {
+		m_fTapTempoAverageBpm = fBpm;
+	}
+	else {
+		m_fTapTempoAverageBpm =
+			( fBpm + static_cast<float>(m_nTapTempoEventsAveraged) *
+			  m_fTapTempoAverageBpm ) /
+			static_cast<float>(m_nTapTempoEventsAveraged + 1);
 	}
 
-	fBPM = ( fBPM + fOldBpm1 + fOldBpm2 + fOldBpm3 + fOldBpm4 + fOldBpm5
-			 + fOldBpm6 + fOldBpm7 + fOldBpm8 ) / 9.0;
+	++m_nTapTempoEventsAveraged;
 
-	fOldBpm8 = fOldBpm7;
-	fOldBpm7 = fOldBpm6;
-	fOldBpm6 = fOldBpm5;
-	fOldBpm5 = fOldBpm4;
-	fOldBpm4 = fOldBpm3;
-	fOldBpm3 = fOldBpm2;
-	fOldBpm2 = fOldBpm1;
-	fOldBpm1 = fBPM;
-
-	CoreActionController::setBpm( fBPM );
-#endif
-
+	CoreActionController::setBpm( m_fTapTempoAverageBpm );
 }
 
 void Hydrogen::restartLadspaFX()
@@ -936,34 +905,34 @@ void Hydrogen::setBeatCounterBeatLength( float fBeatLength ) {
 	}
 }
 
-bool Hydrogen::handleBeatCounter()
+bool Hydrogen::handleBeatCounter( TimePoint start )
 {
-	if ( m_nBeatCounterBeatCount == 1 ) {
-		// Reset or initialize
-		gettimeofday( &m_beatCounterActivationTime, nullptr );
-	}
-	timeval lastTime = m_beatCounterActivationTime;
-
 	auto pEventQueue = EventQueue::get_instance();
 
+	auto now = start;
+	if ( now == TimePoint() ) {
+		// Default value. No time stamp was provided.
+		now = Clock::now();
+	}
+	double fTimeDeltaSeconds;
+	if ( m_nBeatCounterBeatCount == 1 ) {
+		// Reset or initialize
+		m_lastBeatCounterTimePoint = now;
+		fTimeDeltaSeconds = 0;
+	}
+	else {
+		fTimeDeltaSeconds = std::chrono::duration_cast<std::chrono::microseconds>(
+			now - m_lastBeatCounterTimePoint -
+			std::chrono::duration<double, std::milli>(m_nBeatCounterDriftCompensation)
+			).count() / 1000.0 / 1000.0;
+	}
+
 	m_nBeatCounterEventCount++;
-
-	// Get new time
-	gettimeofday( &m_beatCounterActivationTime, nullptr );
-
-	// time difference
-	const double fLastBeatTime = static_cast<double>(
-		lastTime.tv_sec + static_cast<double>(lastTime.tv_usec * US_DIVIDER) +
-		static_cast<double>(m_nBeatCounterDriftCompensation) * .0001 );
-	const double fCurrentBeatTime = static_cast<double>(
-		m_beatCounterActivationTime.tv_sec +
-		static_cast<double>(m_beatCounterActivationTime.tv_usec * US_DIVIDER) );
-	const double fTimeDelta = m_nBeatCounterBeatCount == 1 ? 0 :
-		fCurrentBeatTime - fLastBeatTime;
+	m_lastBeatCounterTimePoint = now;
 
 	// In case of too big differences, we reset the beatconter. If the user
 	// waits long enough, she can start anew.
-	if ( fTimeDelta > 3.001 * 1/m_fBeatCounterBeatLength ) {
+	if ( fTimeDeltaSeconds > 3.001 * 1/m_fBeatCounterBeatLength ) {
 		m_nBeatCounterEventCount = 1;
 		m_nBeatCounterBeatCount = 1;
 
@@ -972,7 +941,7 @@ bool Hydrogen::handleBeatCounter()
 	}
 
 	// Only accept differences big enough
-	if ( m_nBeatCounterBeatCount != 1 && fTimeDelta <= .001 ) {
+	if ( m_nBeatCounterBeatCount != 1 && fTimeDeltaSeconds <= .001 ) {
 		pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
 		return false;
 	}
@@ -980,7 +949,7 @@ bool Hydrogen::handleBeatCounter()
 	// Store the difference for later usage.
 	if ( m_nBeatCounterBeatCount > 1 &&
 		 m_nBeatCounterBeatCount <= m_beatCounterDiffs.size() ) {
-		m_beatCounterDiffs[ m_nBeatCounterBeatCount - 2 ] = fTimeDelta;
+		m_beatCounterDiffs[ m_nBeatCounterBeatCount - 2 ] = fTimeDeltaSeconds;
 	}
 
 	// Compute and reset
@@ -1211,6 +1180,7 @@ bool Hydrogen::isUnderSessionManagement() const {
 bool Hydrogen::isTimelineEnabled() const {
 	if ( m_pSong != nullptr && m_pSong->getIsTimelineActivated() &&
 		 getMode() == Song::Mode::Song &&
+		 ! Preferences::get_instance()->getMidiClockInputHandling() &&
 		 getJackTimebaseState() != JackAudioDriver::Timebase::Listener ) {
 		return true;
 	}
@@ -1317,6 +1287,9 @@ void Hydrogen::setPatternMode( const Song::PatternMode& mode )
 Hydrogen::Tempo Hydrogen::getTempoSource() const {
 	if ( getJackTimebaseState() == JackAudioDriver::Timebase::Listener ) {
 		return Tempo::Jack;
+	}
+	else if ( Preferences::get_instance()->getMidiClockInputHandling() ) {
+		return Tempo::Midi;
 	}
 	else if ( getMode() == Song::Mode::Song &&
 			  m_pSong != nullptr && m_pSong->getIsTimelineActivated() ) {
@@ -1590,12 +1563,14 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		for ( const auto& dd : m_beatCounterDiffs ) {
 			sOutput.append( QString( " %1" ).arg( dd ) );
 		}
-		sOutput.append( QString( "]\n%1%2m_beatCounterActivationTime: %3" ).arg( sPrefix ).arg( s )
-					 .arg( static_cast<long>(m_beatCounterActivationTime.tv_sec ) ) )
-			.append( QString( "%1%2m_nBeatCounterDriftCompensation: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nBeatCounterDriftCompensation ) )
+		sOutput.append( QString( "%1%2m_nBeatCounterDriftCompensation: %3\n" ).arg( sPrefix ).arg( s )
+						.arg( m_nBeatCounterDriftCompensation ) )
 			.append( QString( "%1%2m_nBeatCounterStartOffset: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nBeatCounterStartOffset ) )
+			.append( QString( "%1%2m_fTapTempoAverageBpm: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fTapTempoAverageBpm ) )
+			.append( QString( "%1%2m_nTapTempoEventsAveraged: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nTapTempoEventsAveraged ) )
 			.append( QString( "%1%2m_oldEngineMode: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( Song::ModeToQString( m_oldEngineMode ) ) )
 			.append( QString( "%1%2m_bOldLoopEnabled: %3\n" ).arg( sPrefix ).arg( s )
@@ -1667,11 +1642,14 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		for ( const auto& dd : m_beatCounterDiffs ) {
 			sOutput.append( QString( " %1" ).arg( dd ) );
 		}
-		sOutput.append( QString( "], m_beatCounterActivationTime: %1" ).arg( static_cast<long>( m_beatCounterActivationTime.tv_sec ) ) )
-			.append( QString( ", m_nBeatCounterDriftCompensation: %1" )
-					 .arg( m_nBeatCounterDriftCompensation ) )
+		sOutput.append( QString( ", m_nBeatCounterDriftCompensation: %1" )
+						 .arg( m_nBeatCounterDriftCompensation ) )
 			.append( QString( ", m_nBeatCounterStartOffset: %1" )
 					 .arg( m_nBeatCounterStartOffset ) )
+			.append( QString( ", m_fTapTempoAverageBpm: %1" )
+					 .arg( m_fTapTempoAverageBpm ) )
+			.append( QString( ", m_nTapTempoEventsAveraged: %1" )
+					 .arg( m_nTapTempoEventsAveraged ) )
 			.append( QString( ", m_oldEngineMode: %1" )
 					 .arg( Song::ModeToQString( m_oldEngineMode ) ) )
 			.append( QString( ", m_bOldLoopEnabled: %1" ).arg( m_bOldLoopEnabled ) )

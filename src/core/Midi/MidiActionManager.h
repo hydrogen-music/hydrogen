@@ -22,21 +22,24 @@
 #ifndef MIDI_ACTION_MANAGER_H
 #define MIDI_ACTION_MANAGER_H
 
+#include <core/Helpers/Time.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Object.h>
 
 #include <QString>
 
 #include <cassert>
+#include <condition_variable>
+#include <deque>
 #include <map>
 #include <memory>
+#include <mutex>
+#include <queue>
 #include <set>
+#include <thread>
 #include <vector>
 
-namespace H2Core
-{
-	class Hydrogen;
-}
+namespace H2Core {
 
 /**
 * @class MidiActionManager
@@ -57,54 +60,65 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 
 	public:
 
+		/** When calculating the tempo based on incoming MIDI clock messages, we
+		 * for this amount of messages until we average. */
+		static constexpr int nMidiClockIntervals = 10;
+		static constexpr int nActionQueueMaxSize = 200;
+
 		MidiActionManager();
 		~MidiActionManager();
-		/**
-		 * If #__instance equals 0, a new MidiActionManager
-		 * singleton will be created and stored in it.
-		 *
-		 * It is called in H2Core::Hydrogen::create_instance().
-		 */
-		static void create_instance();
-		/**
-		 * Returns a pointer to the current MidiActionManager
-		 * singleton stored in #__instance.
-		 */
-		static MidiActionManager* get_instance() { assert(__instance); return __instance; }
 
 		/**
-		 * Handles multiple actions at once and calls handleAction()
-		 * on them.
+		 * Handles multiple actions at once and calls handleMidiActionAsync() on
+		 * them.
 		 *
-		 * \return true - if at least one MidiAction was handled
+		 * This variant should be called from threads which strive to for
+		 * realtime handling of incoming event, like MIDI driver and OSC
+		 * handler.
+		 *
+		 * \return true - if at least one MidiAction was queued
 		 *   successfully. Calling functions should treat the event
 		 *   resulting in @a actions as consumed.
 		 */
-		bool handleMidiActions( const std::vector<std::shared_ptr<MidiAction>>& actions );
+		bool handleMidiActionsAsync( const std::vector<std::shared_ptr<MidiAction>>& actions );
 		/**
-		 * The handleAction method is the heart of the
-		 * MidiActionManager class. It executes the operations that
-		 * are needed to carry the desired MidiAction.
+		 * This is the heart of the MidiActionManager class. It queues the
+		 * operations to be executed in its worker thread.
 		 *
-		 * @return true - if @a MidiAction was handled successfully.
+		 * This variant should be called from threads which strive to for
+		 * realtime handling of incoming event, like MIDI driver and OSC
+		 * handler.
+		 *
+		 * @return true - if @a MidiAction was queued successfully.
 		 */
-		bool handleMidiAction( const std::shared_ptr<MidiAction> MidiAction );
+		bool handleMidiActionAsync( const std::shared_ptr<MidiAction> MidiAction );
+
+		/**
+		 * Instead of using #m_actionQueue and the worker thread to handle the
+		 * provided action, it will be executed right away.
+		 *
+		 * This flavour of handleMidiActionAsync() should be called for actions
+		 * triggered by the GUI or core itself. Those should not enter the queue
+		 * in order to allow for a more realtime-ish handling of incoming MIDI
+		 * and OSC events.
+		 *
+		 * @return true - if @a MidiAction was executed successfully.
+		 */
+		bool handleMidiActionSync( const std::shared_ptr<MidiAction> MidiAction );
 
 		const std::set<MidiAction::Type>& getMidiActions() const {
 			return m_midiActions;
 		}
+		int getActionQueueSize();
 
 		/** \return -1 in case the @a couldn't be found. */
 		int getParameterNumber( const MidiAction::Type& type ) const;
 
+		void setPendingStart( bool bPending );
+
+		void resetTimingClockTicks();
+
 	private:
-		/**
-		 * Object holding the current MidiActionManager
-		 * singleton. It is initialized with NULL, set with
-		 * create_instance(), and accessed with
-		 * get_instance().
-		 */
-		static MidiActionManager *__instance;
 
 		/** Holds all Actions which Hydrogen is able to interpret. */
 		std::set<MidiAction::Type> m_midiActions;
@@ -171,6 +185,7 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool stripVolumeAbsolute( std::shared_ptr<MidiAction> );
 		bool stripVolumeRelative( std::shared_ptr<MidiAction> );
 		bool tapTempo( std::shared_ptr<MidiAction> );
+		bool timingClockTick( std::shared_ptr<MidiAction> pAction );
 		bool toggleMetronome( std::shared_ptr<MidiAction> );
 		bool undoAction( std::shared_ptr<MidiAction> );
 		bool unmute( std::shared_ptr<MidiAction> );
@@ -179,6 +194,51 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool onlyNextPatternSelection( int nPatternNumber );
 		bool setSongFromPlaylist( int nSongNumber );
 
+		/** @a pInstance is expecting a pointer to the instance of the class for
+		 * which the message handling thread is spawned. */
+		static void workerThread( void* pInstance );
+
+
 		int m_nLastBpmChangeCCParameter;
+
+		//! Members required to handle incoming MIDI clock messages.
+		//! @{
+		TimePoint m_lastTick;
+		std::vector<double> m_tickIntervals;
+		int m_nTickIntervalIndex;
+		/** Whether we already retrieved #nMidiClockTicks events in a row. */
+		bool m_bMidiClockReady;
+
+		/** In MIDI sync mode as speficied in MIDI 1.0 - if both MIDI clock and
+		 * transport handling is enabled by the user - starting transport after
+		 * receiving CONTINUE or START MIDI messages will only start at the next
+		 * MIDI clock tick. This state indicates that we have received the
+		 * former message. */
+		bool m_bPendingStart;
+		//! @}
+
+		std::shared_ptr< std::thread > m_pWorkerThread;
+
+		bool m_bWorkerShutdown;
+
+		/** Shared data
+		 * @{ */
+		std::condition_variable m_workerThreadCV;
+		std::mutex m_workerThreadMutex;
+		/** Since MIDI driver input handler and OSC handler are both kept fast
+		 * and lean, it should be more or less guaranteed that incoming
+		 * #MidiAction are ordered chronologically. No need to increase
+		 * complexity by e.g. using a priority_queue. */
+		std::deque< std::shared_ptr<MidiAction> > m_actionQueue;
+		/** @}*/
 };
+
+inline void MidiActionManager::setPendingStart( bool bPending ) {
+	if ( m_bPendingStart != bPending ) {
+		m_bPendingStart = bPending;
+	}
+}
+
+};
+
 #endif

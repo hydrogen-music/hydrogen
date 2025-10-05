@@ -70,7 +70,6 @@ void JackMidiDriver::JackMidiWrite( jack_nframes_t nframes ) {
 #endif
 
 	for (i = 0; i < events; i++) {
-		MidiMessage msg;
 
 #ifdef JACK_MIDI_NEEDS_NFRAMES
 		error = jack_midi_event_get(&event, buf, i, nframes);
@@ -84,6 +83,8 @@ void JackMidiDriver::JackMidiWrite( jack_nframes_t nframes ) {
 		if (running < 1) {
 			continue;
 		}
+
+		MidiMessage msg;
 
 		error = event.size;
 		if (error > (int)sizeof(buffer)) {
@@ -354,6 +355,33 @@ void JackMidiDriver::sendNoteOffMessage( const MidiMessage& msg ) {
 
 	buffer[0] = 0x80 | msg.getChannel();	/* note off */
 	buffer[1] = msg.getData1();
+	buffer[2] = 0;
+	buffer[3] = 0;
+
+	JackMidiOutEvent(buffer, 3);
+}
+
+void JackMidiDriver::sendSystemRealTimeMessage( const MidiMessage& msg ) {
+	uint8_t buffer[4];
+
+	if ( msg.getType() == MidiMessage::Type::Start ) {
+		buffer[ 0 ] = 0xFA;
+	}
+	else if ( msg.getType() == MidiMessage::Type::Continue ) {
+		buffer[ 0 ] = 0xFB;
+	}
+	else if ( msg.getType() == MidiMessage::Type::Stop ) {
+		buffer[ 0 ] = 0xFC;
+	}
+	else if ( msg.getType() == MidiMessage::Type::TimingClock ) {
+		buffer[ 0 ] = 0xF8;
+	}
+	else {
+		ERRORLOG( QString( "Unsupported event [%1]" )
+				  .arg( MidiMessage::TypeToQString( msg.getType() ) ) );
+		return;
+	}
+	buffer[1] = 0;
 	buffer[2] = 0;
 	buffer[3] = 0;
 

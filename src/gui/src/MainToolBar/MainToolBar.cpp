@@ -428,21 +428,37 @@ void MainToolBar::setPreferencesVisibilityState( bool bChecked ) {
 
 void MainToolBar::updateActions() {
 	const auto pPref = Preferences::get_instance();
-	HydrogenApp *pH2App = HydrogenApp::get_instance();
+	const auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogenApp == nullptr ) {
+		return;
+	}
 
 	m_pMidiControlButton->setChecked( m_pMidiControlDialog->isVisible() );
 
-	m_pShowPlaylistEditorAction->setChecked(
-		pH2App->getPlaylistEditor()->isVisible() );
-	m_pShowDirectorAction->setChecked( pH2App->getDirector()->isVisible() );
-	m_pShowMixerAction->setChecked( pH2App->getMixer()->isVisible() );
-	m_pShowInstrumentRackAction->setChecked(
-		pH2App->getInstrumentRack()->isVisible() );
-	m_pShowAutomationAction->setChecked(
-		pH2App->getSongEditorPanel()->getAutomationPathView()->isVisible() );
-	m_pShowPlaybackTrackAction->setChecked(
-		pH2App->getSongEditorPanel()->getPlaybackTrackWaveDisplay()->isVisible() );
+	if ( pHydrogenApp->getPlaylistEditor() != nullptr ) {
+		m_pShowPlaylistEditorAction->setChecked(
+			pHydrogenApp->getPlaylistEditor()->isVisible() );
+	}
+	if ( pHydrogenApp->getDirector() != nullptr ) {
+		m_pShowDirectorAction->setChecked(
+			pHydrogenApp->getDirector()->isVisible() );
+	}
+	if ( pHydrogenApp->getMixer() != nullptr ) {
+		m_pShowMixerAction->setChecked( pHydrogenApp->getMixer()->isVisible() );
+	}
+	if ( pHydrogenApp->getInstrumentRack() != nullptr ) {
+		m_pShowInstrumentRackAction->setChecked(
+			pHydrogenApp->getInstrumentRack()->isVisible() );
+	}
+	if ( pHydrogenApp->getSongEditorPanel() != nullptr ) {
+		m_pShowAutomationAction->setChecked(
+			pHydrogenApp->getSongEditorPanel()->getAutomationPathView()
+			->isVisible() );
+		m_pShowPlaybackTrackAction->setChecked(
+			pHydrogenApp->getSongEditorPanel()->getPlaybackTrackWaveDisplay()
+			->isVisible() );
+	}
 
 	m_pMetronomeButton->setChecked( pPref->m_bUseMetronome );
 
@@ -511,6 +527,11 @@ void MainToolBar::jackTimebaseStateChangedEvent( int nState )
 
 void MainToolBar::loopModeActivationEvent() {
 	updateLoopMode();
+}
+
+void MainToolBar::midiClockActivationEvent() {
+	updateBpmSpinBox();
+	m_pBpmTap->updateBpmTap();
 }
 
 void MainToolBar::metronomeEvent( int nValue ) {
@@ -794,25 +815,60 @@ void MainToolBar::jackTimebaseBtnClicked()
 
 void MainToolBar::fastForwardBtnClicked() {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
 		const int nCurrentColumn =
 			pHydrogen->getAudioEngine()->getTransportPosition()->getColumn();
-		CoreActionController::locateToColumn(
-			std::max( nCurrentColumn, 0 ) + 1 );
+		if ( nCurrentColumn < pSong->getPatternGroupVector()->size() - 1 ) {
+			// Not within the last column
+			CoreActionController::locateToColumn(
+				std::max( nCurrentColumn, 0 ) + 1 );
+		}
+		else {
+			// Last one. If looping is enabled, we jump to the first column. If
+			// not, we "reach" the end of the song by stopping.
+			if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {
+				CoreActionController::locateToColumn( 0 );
+			} else {
+				stopBtnClicked();
+			}
+		}
 	}
 }
 
 void MainToolBar::rewindBtnClicked() {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
 		const int nCurrentColumn =
 			pHydrogen->getAudioEngine()->getTransportPosition()->getColumn();
-		CoreActionController::locateToColumn(
-			std::max( nCurrentColumn - 1, 0 ) );
+		int nNewColumn;
+		if ( nCurrentColumn > 0 ) {
+			nNewColumn = std::max( nCurrentColumn - 1, 0 );
+		}
+		else {
+			// Within the first column we either jump to the last one if loop
+			// mode is enabled, or to the beginning of the song.
+			if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {
+				nNewColumn = pSong->getPatternGroupVector()->size() - 1;
+			} else {
+				nNewColumn = 0;
+			}
+		}
+		CoreActionController::locateToColumn( nNewColumn );
 	}
 }
 
 void MainToolBar::updateBpmSpinBox() {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
 
 	m_pBpmSpinBox->setIsActive(
@@ -824,6 +880,10 @@ void MainToolBar::updateBpmSpinBox() {
 	switch ( pHydrogen->getTempoSource() ) {
 	case H2Core::Hydrogen::Tempo::Jack:
 		m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxJackTimebaseToolTip );
+		break;
+	case H2Core::Hydrogen::Tempo::Midi:
+		m_pBpmSpinBox->setToolTip(
+			pCommonStrings->getTimelineDisabledMidiClock() );
 		break;
 	case H2Core::Hydrogen::Tempo::Timeline:
 		m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxTimelineToolTip );

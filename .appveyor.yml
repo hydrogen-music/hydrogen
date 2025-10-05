@@ -196,6 +196,7 @@ for:
       if [ "$res" != "0" ]; then
           # The tests failed. Upload all output to ease debugging.
           appveyor PushArtifact testOutput.log
+          exit $res
       fi
 
       echo "Validating desktop file."
@@ -212,8 +213,6 @@ for:
       echo "Validating shipped XML files"
       xmllint --schema ../data/xsd/drumkit.xsd ../data/drumkits/GMRockKit/drumkit.xml || exit 1
       xmllint --schema ../data/xsd/drumkit.xsd ../data/drumkits/TR808EmulationKit/drumkit.xml || exit 1
-
-      ( exit $res )
 
   - 
     matrix:

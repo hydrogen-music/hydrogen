@@ -46,6 +46,7 @@ class EventListener
 		virtual void jackTimebaseStateChangedEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void loopModeActivationEvent(){}
 		virtual void metronomeEvent( int nValue ) { UNUSED( nValue ); }
+		virtual void midiClockActivationEvent(){}
 		virtual void midiDriverChangedEvent(){}
 		virtual void midiInputEvent() {}
 		virtual void midiMapChangedEvent(){}

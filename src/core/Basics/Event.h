@@ -101,6 +101,7 @@ public:
 			 * Handled by EventListener::metronomeEvent().
 			 */
 			Metronome,
+			MidiClockActivation,
 			MidiDriverChanged,
 			/** Hydrogen did received a MIDI event. */
 			MidiInput,

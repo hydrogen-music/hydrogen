@@ -132,6 +132,8 @@ QString MidiAction::typeToQString( const Type &type ) {
 		return "STRIP_VOLUME_RELATIVE";
 	case Type::TapTempo:
 		return "TAP_TEMPO";
+	case Type::TimingClockTick:
+		return "TIMING_CLOCK_TICK";
 	case Type::ToggleMetronome:
 		return "TOGGLE_METRONOME";
 	case Type::UndoAction:
@@ -304,6 +306,9 @@ MidiAction::Type MidiAction::parseType( const QString &sType ) {
 	else if ( s == "tap_tempo" ) {
 		return Type::TapTempo;
 	}
+	else if ( s == "timing_clock_tick" ) {
+		return Type::TimingClockTick;
+	}
 	else if ( s == "toggle_metronome" ) {
 		return Type::ToggleMetronome;
 	}
@@ -318,19 +323,47 @@ MidiAction::Type MidiAction::parseType( const QString &sType ) {
 	}
 }
 
-MidiAction::MidiAction( Type type ) : m_type( type )
-									, m_sParameter1( "0" )
-									, m_sParameter2( "0" )
-									, m_sParameter3( "0" )
-									, m_sValue( "0" ) {
+MidiAction::MidiAction( Type type, TimePoint timePoint )
+	: m_type( type )
+	, m_sParameter1( "0" )
+	, m_sParameter2( "0" )
+	, m_sParameter3( "0" )
+	, m_sValue( "0" )
+{
+	if ( timePoint == TimePoint() ) {
+		m_timePoint = Clock::now();
+	}
+	else {
+		m_timePoint = timePoint;
+	}
 }
 
 MidiAction::MidiAction( const std::shared_ptr<MidiAction> pOther ) {
+	if ( pOther != nullptr ) {
        m_type = pOther->m_type;
        m_sParameter1 = pOther->m_sParameter1;
        m_sParameter2 = pOther->m_sParameter2;
        m_sParameter3 = pOther->m_sParameter3;
        m_sValue = pOther->m_sValue;
+	   m_timePoint = pOther->m_timePoint;
+	}
+}
+
+std::shared_ptr<MidiAction> MidiAction::from( const std::shared_ptr<MidiAction> pOther,
+											  TimePoint timePoint ) {
+	if ( pOther == nullptr ) {
+		return nullptr;
+	}
+
+	auto pNew = std::make_shared<MidiAction>( pOther );
+	if ( timePoint == TimePoint() ) {
+		pNew->m_timePoint = Clock::now();
+	}
+	else {
+		pNew->m_timePoint = timePoint;
+	}
+
+	return pNew;
 }
 
 bool MidiAction::isNull() const {
@@ -351,6 +384,7 @@ bool MidiAction::isEquivalentTo( const std::shared_ptr<MidiAction> pOther ) cons
 QString MidiAction::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
+
 	if ( ! bShort ) {
 		sOutput = QString( "%1[MidiAction]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix )
@@ -362,7 +396,9 @@ QString MidiAction::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_sParameter2: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_sParameter2 ) )
 			.append( QString( "%1%2m_sParameter3: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_sParameter3 ) );
+					 .arg( s ).arg( m_sParameter3 ) )
+			.append( QString( "%1%2m_timePoint: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( H2Core::timePointToQString( m_timePoint ) ) );
 	}
 	else {
 		sOutput = QString( "[MidiAction]" )
@@ -371,7 +407,9 @@ QString MidiAction::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_sValue: %1" ).arg( m_sValue ) )
 			.append( QString( ", m_sParameter1: %1" ).arg( m_sParameter1 ) )
 			.append( QString( ", m_sParameter2: %1" ).arg( m_sParameter2 ) )
-			.append( QString( ", m_sParameter3: %1" ).arg( m_sParameter3 ) );
+			.append( QString( ", m_sParameter3: %1" ).arg( m_sParameter3 ) )
+			.append( QString( ", m_timePoint: %1" )
+					 .arg( H2Core::timePointToQString( m_timePoint ) ) );
 	}
 	
 	return sOutput;

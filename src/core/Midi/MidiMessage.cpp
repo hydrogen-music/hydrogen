@@ -26,7 +26,23 @@
 namespace H2Core
 {
 
+MidiMessage::MidiMessage() : m_timePoint( Clock::now() )
+						   , m_type( Type::Unknown )
+						   , m_nData1( -1 )
+						   , m_nData2( -1 )
+						   , m_nChannel( -1 ) {
+}
+
+MidiMessage::MidiMessage( Type type, int nData1, int nData2, int nChannel )
+	: m_timePoint( Clock::now() )
+	, m_type( type )
+	, m_nData1( nData1 )
+	, m_nData2( nData2 )
+	, m_nChannel( nChannel ) {
+}
+
 void MidiMessage::clear() {
+	m_timePoint = Clock::now();
 	m_type = Type::Unknown;
 	m_nData1 = -1;
 	m_nData2 = -1;
@@ -131,6 +147,23 @@ MidiMessage::Type MidiMessage::deriveType( int nStatusByte ) {
 	}
 }
 
+MidiMessage MidiMessage::from( const MidiMessage& otherMsg ) {
+	MidiMessage msg;
+	msg.m_type = otherMsg.m_type;
+	msg.m_nData1 = otherMsg.m_nData1;
+	msg.m_nData2 = otherMsg.m_nData2;
+	msg.m_nChannel = otherMsg.m_nChannel;
+
+	if ( otherMsg.m_sysexData.size() > 0 ) {
+		msg.m_sysexData.resize( otherMsg.m_sysexData.size() );
+		for ( int ii = 0; ii < otherMsg.m_sysexData.size(); ++ii ) {
+			msg.m_sysexData[ ii ] = otherMsg.m_sysexData[ ii ];
+		}
+	}
+
+	return msg;
+}
+
 MidiMessage MidiMessage::from( const ControlChange& controlChange ) {
 	MidiMessage msg;
 	if ( controlChange.nChannel > 0 ) {
@@ -177,12 +210,36 @@ MidiMessage MidiMessage::from( const NoteOff& noteOff ) {
 	return msg;
 }
 
+bool MidiMessage::operator==( const MidiMessage& other ) const {
+	if ( m_type != other.m_type ||
+		 m_nData1 != other.m_nData1 ||
+		 m_nData2 != other.m_nData2 ||
+		 m_nChannel != other.m_nChannel ||
+		 m_sysexData.size() != other.m_sysexData.size() ) {
+		return false;
+	}
+
+	for ( int ii = 0; ii < m_sysexData.size(); ++ii ) {
+		if ( m_sysexData[ ii ] != other.m_sysexData[ ii ] ) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool MidiMessage::operator!=( const MidiMessage& other ) const {
+	return ! MidiMessage::operator==( other );
+}
+
 QString MidiMessage::toQString( const QString& sPrefix, bool bShort ) const {
 
 	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[MidiMessage]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_timePoint: %3\n" )
+					 .arg( H2Core::timePointToQString( m_timePoint ) ) )
 			.append( QString( "%1%2m_type: %3\n" )
 					 .arg( TypeToQString( m_type ) ) )
 			.append( QString( "%1%2m_nData1: %3\n" )
@@ -206,7 +263,9 @@ QString MidiMessage::toQString( const QString& sPrefix, bool bShort ) const {
 	}
 	else {
 		sOutput = QString( "[MidiMessage] " )
-			.append( QString( "m_type: %1" ).arg( TypeToQString( m_type ) ) )
+			.append( QString( "m_timePoint: %1" )
+					 .arg( H2Core::timePointToQString( m_timePoint ) ) )
+			.append( QString( ", m_type: %1" ).arg( TypeToQString( m_type ) ) )
 			.append( QString( ", m_nData1: %1" ).arg( m_nData1 ) )
 			.append( QString( ", m_nData2: %1" ).arg( m_nData2 ) )
 			.append( QString( ", m_nChannel: %1" ).arg( m_nChannel ) )

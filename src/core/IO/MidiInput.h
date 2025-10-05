@@ -23,6 +23,7 @@
 #ifndef H2_MIDI_INPUT_H
 #define H2_MIDI_INPUT_H
 
+#include <core/Helpers/Time.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
@@ -45,7 +46,7 @@ class MidiInput : public virtual Object<MidiInput>
 	H2_OBJECT(MidiInput);
 public:
 		struct HandledInput {
-			QTime timestamp;
+			TimePoint timePoint;
 			MidiMessage::Type type;
 			int nData1;
 			int nData2;

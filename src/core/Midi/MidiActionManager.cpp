@@ -39,12 +39,17 @@
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
-using namespace H2Core;
+namespace H2Core {
 
-MidiActionManager* MidiActionManager::__instance = nullptr;
-
-MidiActionManager::MidiActionManager() {
-	__instance = this;
+MidiActionManager::MidiActionManager() : m_nTickIntervalIndex( 0 )
+									   , m_bMidiClockReady( false )
+									   , m_bPendingStart( false )
+									   , m_bWorkerShutdown( false )
+{
+	m_tickIntervals.resize( MidiActionManager::nMidiClockIntervals );
+	for ( int ii = 0; ii < m_tickIntervals.size(); ++ii ) {
+		m_tickIntervals[ ii ] = 0;
+	}
 
 	m_nLastBpmChangeCCParameter = -1;
 	/*
@@ -208,6 +213,9 @@ MidiActionManager::MidiActionManager() {
 		std::make_pair( MidiAction::Type::TapTempo,
 					   std::make_pair( &MidiActionManager::tapTempo, 0 ) ));
 	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::TimingClockTick,
+					   std::make_pair( &MidiActionManager::timingClockTick, 0 ) ));
+	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::ToggleMetronome,
 					   std::make_pair( &MidiActionManager::toggleMetronome, 0 ) ));
 	m_midiActionMap.insert(
@@ -224,17 +232,20 @@ MidiActionManager::MidiActionManager() {
 					  .arg( MidiAction::typeToQString( ppAction.first ) ) );
 		}
 	}
-}
 
+	m_pWorkerThread = std::make_shared< std::thread >(
+		MidiActionManager::workerThread, ( void* )this );
+}
 
 MidiActionManager::~MidiActionManager() {
-	//INFOLOG( "ActionManager delete" );
-	__instance = nullptr;
-}
-
-void MidiActionManager::create_instance() {
-	if ( __instance == nullptr ) {
-		__instance = new MidiActionManager;
+	m_bWorkerShutdown = true;
+	if ( m_pWorkerThread != nullptr ) {
+		{
+			std::scoped_lock lock{ m_workerThreadMutex };
+			m_workerThreadCV.notify_all();
+		}
+		m_pWorkerThread->join();
+		m_pWorkerThread = nullptr;
 	}
 }
 
@@ -317,8 +328,8 @@ bool MidiActionManager::playStopToggle( std::shared_ptr<MidiAction> pAction ) {
 		break;
 
 	case AudioEngine::State::Playing:
-		CoreActionController::locateToColumn( 0 );
 		pHydrogen->sequencerStop();
+		CoreActionController::locateToColumn( 0 );
 		break;
 
 	default:
@@ -418,7 +429,11 @@ bool MidiActionManager::stripSoloToggle( std::shared_ptr<MidiAction> pAction ) {
 		nLine, !pInstr->isSoloed(), false );
 }
 
-bool MidiActionManager::beatcounter( std::shared_ptr<MidiAction>  ) {
+bool MidiActionManager::beatcounter( std::shared_ptr<MidiAction> pAction ) {
+	if ( pAction == nullptr ) {
+		return false;
+	}
+
 	auto pHydrogen = Hydrogen::get_instance();
 
 	// Preventive measure to avoid bad things.
@@ -427,10 +442,14 @@ bool MidiActionManager::beatcounter( std::shared_ptr<MidiAction>  ) {
 		return false;
 	}
 	
-	return pHydrogen->handleBeatCounter();
+	return pHydrogen->handleBeatCounter( pAction->getTimePoint() );
 }
 
-bool MidiActionManager::tapTempo( std::shared_ptr<MidiAction>  ) {
+bool MidiActionManager::tapTempo( std::shared_ptr<MidiAction> pAction ) {
+	if ( pAction == nullptr ) {
+		return false;
+	}
+
 	auto pHydrogen = Hydrogen::get_instance();
 
 	// Preventive measure to avoid bad things.
@@ -439,8 +458,84 @@ bool MidiActionManager::tapTempo( std::shared_ptr<MidiAction>  ) {
 		return false;
 	}
 	
-	pHydrogen->onTapTempoAccelEvent();
+	pHydrogen->onTapTempoAccelEvent( pAction->getTimePoint() );
 	return true;
+}
+
+bool MidiActionManager::timingClockTick( std::shared_ptr<MidiAction> pAction ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	// Preventive measure to avoid bad things.
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return false;
+	}
+
+	if ( pAction == nullptr ) {
+		return false;
+	}
+
+	const auto tick = QTime::currentTime();
+	// In seconds
+	const double fInterval = std::chrono::duration_cast<std::chrono::microseconds>(
+		pAction->getTimePoint() - m_lastTick ).count() / 1000.0 / 1000.0;
+	m_lastTick = pAction->getTimePoint();
+
+	if ( fInterval >= 60.0 * 2 / static_cast<float>(MIN_BPM) / 24.0 ) {
+		// Waiting time was too long. We start all over again.
+		m_bMidiClockReady = false;
+		m_nTickIntervalIndex = 0;
+
+		// We return early since we do not want this large interval to be part
+		// of the average.
+		return true;
+	}
+
+	m_tickIntervals[
+		std::clamp( m_nTickIntervalIndex, 0,
+					static_cast<int>(m_tickIntervals.size()) - 1 ) ] = fInterval;
+
+	++m_nTickIntervalIndex;
+	if ( m_nTickIntervalIndex >= MidiActionManager::nMidiClockIntervals ) {
+		m_nTickIntervalIndex = 0;
+
+		// We got at least 10 messages. Let's start averaging.
+		if ( ! m_bMidiClockReady ) {
+			m_bMidiClockReady = true;
+		}
+	}
+
+	if ( m_bMidiClockReady ) {
+		double fAverageInterval = 0;
+		for ( const auto& nnInterval : m_tickIntervals ) {
+			fAverageInterval += static_cast<double>(nnInterval);
+		}
+		const float fBpm = static_cast<float>(
+			60.0 * static_cast<double>(m_tickIntervals.size()) /
+			fAverageInterval / 24.0 );
+
+		pAudioEngine->lock( RIGHT_HERE );
+		pAudioEngine->setNextBpm( fBpm );
+		pAudioEngine->unlock();
+	}
+
+	if ( m_bPendingStart ) {
+		if ( pHydrogen->getAudioEngine()->getState() ==
+			 AudioEngine::State::Ready ) {
+			pHydrogen->sequencerPlay();
+		}
+
+		m_bPendingStart = false;
+	}
+
+	return true;
+}
+
+void MidiActionManager::resetTimingClockTicks() {
+	m_bMidiClockReady = false;
+	m_nTickIntervalIndex = 0;
+	m_lastTick = TimePoint();
 }
 
 bool MidiActionManager::selectNextPattern( std::shared_ptr<MidiAction> pAction ) {
@@ -1357,14 +1452,20 @@ bool MidiActionManager::redoAction( std::shared_ptr<MidiAction> ) {
 
 bool MidiActionManager::loadNextDrumkit( std::shared_ptr<MidiAction> ) {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	// Pass copy to allow kit in the SoundLibraryDatabase to stay in a pristine
+	// shape.
 	return CoreActionController::setDrumkit(
-		pHydrogen->getSoundLibraryDatabase()->getNextDrumkit() );
+		std::make_shared<Drumkit>(
+			pHydrogen->getSoundLibraryDatabase()->getNextDrumkit() ) );
 }
 
 bool MidiActionManager::loadPrevDrumkit( std::shared_ptr<MidiAction> ) {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	// Pass copy to allow kit in the SoundLibraryDatabase to stay in a pristine
+	// shape.
 	return CoreActionController::setDrumkit(
-		pHydrogen->getSoundLibraryDatabase()->getPreviousDrumkit() );
+		std::make_shared<Drumkit>(
+			pHydrogen->getSoundLibraryDatabase()->getPreviousDrumkit() ) );
 }
 
 int MidiActionManager::getParameterNumber( const MidiAction::Type& type ) const {
@@ -1475,13 +1576,13 @@ bool MidiActionManager::countInStopToggle( std::shared_ptr<MidiAction> pAction )
 	return true;
 }
 
-bool MidiActionManager::handleMidiActions( const std::vector<std::shared_ptr<MidiAction>>& midiActions ) {
+bool MidiActionManager::handleMidiActionsAsync( const std::vector<std::shared_ptr<MidiAction>>& midiActions ) {
 
 	bool bResult = false;
 	
 	for ( const auto& ppMidiAction : midiActions ) {
 		if ( ppMidiAction != nullptr ) {
-			if ( handleMidiAction( ppMidiAction ) ) {
+			if ( handleMidiActionAsync( ppMidiAction ) ) {
 				bResult = true;
 			}
 		}
@@ -1490,9 +1591,41 @@ bool MidiActionManager::handleMidiActions( const std::vector<std::shared_ptr<Mid
 	return bResult;
 }
 
-bool MidiActionManager::handleMidiAction( const std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::handleMidiActionAsync( const std::shared_ptr<MidiAction> pAction ) {
 
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pAction == nullptr || m_pWorkerThread == nullptr ) {
+		return false;
+	}
+
+	//pAction->timePoint = Clock::now();
+
+	// Check whether there is an actual action associated with the MidiAction.
+	if ( m_midiActionMap.find( pAction->getType() ) == m_midiActionMap.end() ) {
+		return false;
+	}
+
+    std::scoped_lock lock{ m_workerThreadMutex };
+
+	m_actionQueue.push_back( pAction );
+	if ( m_actionQueue.size() > MidiActionManager::nActionQueueMaxSize ) {
+		QString sWarning( "Message queue is full. Dropping first message" );
+		const auto pAction = m_actionQueue.front();
+		if ( pAction != nullptr ) {
+			sWarning.append( QString( " %1" ).arg( pAction->toQString() ) );
+		}
+		m_actionQueue.pop_front();
+		WARNINGLOG( sWarning );
+	}
+
+	m_workerThreadCV.notify_all();
+
+	return true;
+}
+
+bool MidiActionManager::handleMidiActionSync( const std::shared_ptr<MidiAction> pAction ) {
+
+	auto pHydrogen = Hydrogen::get_instance();
 	/*
 		return false if Midiaction is null
 		(for example if no MidiAction exists for an event)
@@ -1513,3 +1646,49 @@ bool MidiActionManager::handleMidiAction( const std::shared_ptr<MidiAction> pAct
 
 	return false;
 }
+
+int MidiActionManager::getActionQueueSize() {
+	std::scoped_lock lock{ m_workerThreadMutex };
+	return m_actionQueue.size();
+}
+
+void MidiActionManager::workerThread( void* pInstance ) {
+	auto pMidiActionManager = static_cast<MidiActionManager*>( pInstance );
+	if ( pMidiActionManager == nullptr ) {
+		ERRORLOG( "Invalid instance provided. Shutting down." );
+		return;
+	}
+
+	while ( ! pMidiActionManager->m_bWorkerShutdown ) {
+		std::unique_lock lock{ pMidiActionManager->m_workerThreadMutex };
+		pMidiActionManager->m_workerThreadCV.wait(
+			lock, [&]{ return pMidiActionManager->m_actionQueue.size() > 0 ||
+					pMidiActionManager->m_bWorkerShutdown; } );
+
+		if ( pMidiActionManager->m_bWorkerShutdown ) {
+			return;
+		}
+
+		while ( pMidiActionManager->m_actionQueue.size() > 0 ) {
+			const auto pAction = pMidiActionManager->m_actionQueue.front();
+			pMidiActionManager->m_actionQueue.pop_front();
+			if ( pAction == nullptr ) {
+				continue;
+			}
+
+			auto foundActionPair = pMidiActionManager->m_midiActionMap.find(
+				pAction->getType() );
+			if ( foundActionPair != pMidiActionManager->m_midiActionMap.end() ) {
+				auto midiAction = foundActionPair->second.first;
+				(pMidiActionManager->*midiAction)( pAction );
+			}
+			else {
+				ERRORLOG( QString( "MIDI MidiAction type [%1] couldn't be found" )
+						  .arg( MidiAction::typeToQString(
+									pAction->getType() ) ) );
+			}
+		}
+	}
+}
+
+};

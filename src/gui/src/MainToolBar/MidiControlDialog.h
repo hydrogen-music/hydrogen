@@ -26,6 +26,7 @@
 #include <QtGui>
 #include <QtWidgets>
 
+#include <core/Helpers/Time.h>
 #include <core/Object.h>
 
 #include "../EventListener.h"
@@ -65,8 +66,6 @@ public slots:
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 private:
-		static QString timestampToQString( QTime );
-
 		void hideEvent( QHideEvent* pEvent ) override;
 		void showEvent( QShowEvent* pEvent ) override;
 

@@ -37,6 +37,8 @@
 #include "InstrumentListTest.cpp"
 #include "LicenseTest.h"
 #include "MemoryLeakageTest.h"
+#include "MidiActionTest.h"
+#include "MidiDriverTest.h"
 #include "MidiExportTest.h"
 #include "MidiNoteTest.cpp"
 #include "MimeTest.h"
@@ -70,6 +72,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION( InstrumentListTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LicenseTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MemoryLeakageTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MimeTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( MidiActionTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( MidiDriverTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MidiExportTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MidiNoteTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( NetworkTest );

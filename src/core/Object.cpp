@@ -23,17 +23,10 @@
 #include "core/Object.h"
 
 #include <cassert>
-#include <sstream>
-#include <iomanip>
 #include <cstdlib>
+#include <iomanip>
+#include <sstream>
 #include <typeinfo>
-
-#ifdef WIN32
-#    include "core/Timehelper.h"
-#else
-#    include <unistd.h>
-#    include <sys/time.h>
-#endif
 
 #ifdef HAVE_EXECINFO_H
 #include <execinfo.h>
@@ -61,7 +54,7 @@ std::atomic<int> Base::__objects_count(0);
 pthread_mutex_t Base::__mutex;
 object_internal_map_t Base::__objects_map;
 QString Base::sPrintIndention = "  ";
-timeval Base::__last_clock = { 0, 0 };
+TimePoint Base::m_lastTimePoint = TimePoint();
 
 int Base::bootstrap( Logger* pLogger, bool count ) {
 	if ( __logger == nullptr && pLogger != nullptr ) {
@@ -206,11 +199,8 @@ void Base::logBacktrace() const {
 #endif
 }
 
-QString Base::base_clock_in( const QString& sMsg )
-{
-	struct timeval now;
-	gettimeofday( &now, nullptr );
-	__last_clock = now;
+QString Base::base_clock_in( const QString& sMsg ) {
+	m_lastTimePoint = Clock::now();
 
 	QString sResult( "Start clocking" );
 	if ( ! sMsg.isEmpty() ) {
@@ -220,22 +210,21 @@ QString Base::base_clock_in( const QString& sMsg )
 	return std::move( sResult );
 }
 
-QString Base::base_clock( const QString& sMsg )
-{
-	struct timeval now;
-	gettimeofday( &now, nullptr );
+QString Base::base_clock( const QString& sMsg ) {
+	const auto now = Clock::now();
 
 	QString sResult;
-	if ( __last_clock.tv_sec == 0 && __last_clock.tv_usec == 0 ) {
+	if ( m_lastTimePoint == TimePoint() ) {
 		// Clock is invoked for the first time.
 		sResult = "Start clocking";
-	} else {
+	}
+	else {
 		sResult =  QString( "elapsed [%1]ms" )
-			.arg( ( now.tv_sec - __last_clock.tv_sec ) * 1000.0 +
-				  ( now.tv_usec - __last_clock.tv_usec ) / 1000.0 );
+			.arg( std::chrono::duration_cast<std::chrono::milliseconds>(
+					  now - m_lastTimePoint ).count() );
 	}
 
-	__last_clock = now;
+	m_lastTimePoint = now;
 
 	if ( ! sMsg.isEmpty() ) {
 		sResult = QString( "%1: %2" ).arg( sMsg ).arg( sResult );

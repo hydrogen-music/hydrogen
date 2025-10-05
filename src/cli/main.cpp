@@ -50,7 +50,6 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
-#include <core/Midi/MidiActionManager.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Interpolation.h>
 #include <core/Version.h>
@@ -640,8 +639,6 @@ int main(int argc, char *argv[])
 		delete pHydrogen;
 		delete pQueue;
 		delete pApp;
-
-		delete MidiActionManager::get_instance();
 
 		// There is no particular need to clean up the Preferences outselves.
 		// This is just done in order for it to not appear in the objects map

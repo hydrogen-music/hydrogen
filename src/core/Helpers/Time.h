@@ -20,38 +20,19 @@
  *
  */
 
-#include <core/config.h>
+#ifndef TIME_H
+#define TIME_H
 
-#include <cppunit/extensions/HelperMacros.h>
 
-#include <core/Hydrogen.h>
+#include <chrono>
+#include <QString>
 
-class TimeTest : public CppUnit::TestFixture {
-		CPPUNIT_TEST_SUITE( TimeTest );
-		CPPUNIT_TEST( testElapsedTime );
-		CPPUNIT_TEST( testHighResolutionSleep );
-		CPPUNIT_TEST_SUITE_END();
+using Clock = std::chrono::high_resolution_clock;
+using TimePoint = std::chrono::time_point<Clock>;
 
-	public:
-		void setUp();
-		void tearDown();
+namespace H2Core {
 
-		/** Adds a couple of tempo markers and moves to various places within
-		 * the song to check the calculation of the elapsed time.
-		 */
-		void testElapsedTime();
+	QString timePointToQString( const TimePoint& timePoint );
 
-		void testHighResolutionSleep();
-
-	private:
-
-		/**
-		 * \param nPatternPos Index of the pattern group to locate to
-		 *
-		 * \return float Time in seconds passed at @a nPatternPos since the
-		 *   beginning of the song.
-		 */
-		float locateAndLookupTime( int nPatternPos );
-
-		QString m_sValidPath;
 };
+#endif

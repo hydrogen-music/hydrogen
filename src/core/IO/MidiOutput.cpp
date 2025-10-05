@@ -22,6 +22,7 @@
 
 #include <core/IO/MidiOutput.h>
 
+#include <core/IO/MidiBaseDriver.h>
 #include <core/Midi/MidiMessage.h>
 
 namespace H2Core
@@ -52,13 +53,20 @@ std::shared_ptr<MidiOutput::HandledOutput> MidiOutput::sendMessage(
 		sendNoteOffMessage( msg );
 		break;
 
+	case MidiMessage::Type::Start:
+	case MidiMessage::Type::Continue:
+	case MidiMessage::Type::Stop:
+	case MidiMessage::Type::TimingClock:
+		sendSystemRealTimeMessage( msg );
+		break;
+
 	default:
 		// Not handled, we won't send the corresponding event.
 		pHandledOutput->type = MidiMessage::Type::Unknown;
 		return pHandledOutput;
 	}
 
-	pHandledOutput->timestamp = QTime::currentTime();
+	pHandledOutput->timePoint = Clock::now();
 	pHandledOutput->type = msg.getType();
 	pHandledOutput->nData1 = msg.getData1();
 	pHandledOutput->nData2 = msg.getData2();
@@ -67,9 +75,10 @@ std::shared_ptr<MidiOutput::HandledOutput> MidiOutput::sendMessage(
 	return pHandledOutput;
 }
 
+
 QString MidiOutput::HandledOutput::toQString() const {
-	return QString( "timestamp: %1, msg type: %2, nData1: %3, nData2: %4, nChannel: %5" )
-		.arg( timestamp.toString( "HH:mm:ss.zzz" ) )
+	return QString( "timePoint: %1, msg type: %2, nData1: %3, nData2: %4, nChannel: %5" )
+		.arg( H2Core::timePointToQString( timePoint ) )
 		.arg( MidiMessage::TypeToQString( type ) ).arg( nData1 ).arg( nData2 )
 		.arg( nChannel );
 }

@@ -23,19 +23,18 @@
 #ifndef H2C_OBJECT_H
 #define H2C_OBJECT_H
 
-#include "core/Logger.h"
 #include <core/config.h>
-#include "core/Globals.h"
+#include <core/Globals.h>
+#include <core/Helpers/Time.h>
+#include <core/Logger.h>
 
-#ifndef _WIN32
-#include <sys/time.h>
-#endif
-#include <unistd.h>
-#include <iostream>
 #include <atomic>
+#include <chrono>
+#include <iostream>
 #include <map>
-#include <QtCore>
 #include <QDebug>
+#include <QtCore>
+#include <unistd.h>
 
 namespace H2Core {
 
@@ -156,7 +155,7 @@ class Base {
 		static Logger * __logger;
 		static bool bLogColors;
 		static void registerClass(const char *name, const atomic_obj_cpt_t *counters);
-	static timeval __last_clock;
+		static TimePoint m_lastTimePoint;
 	
 	private:
 		static std::atomic<int> __objects_count;        ///< total objects count

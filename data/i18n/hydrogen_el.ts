@@ -1449,6 +1449,10 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Combo box item - e.g. used in the Settings tab of the MidiControl - * indicating that every option is permissible.</extracomment>
         <translation>Όλα</translation>
     </message>
+    <message>
+        <source>While MIDI clock handling is activated tempo can not be altered from within Hydrogen</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -3153,6 +3157,25 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>MIDI driver settings can be found in the Preferences Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Handle MIDI Clock input</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send MIDI Clock messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send MIDI START, STOP, CONTINUE, and SONG_POSITION</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Handle MIDI sync message
+START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
+        <extracomment>The character combination &quot;
+&quot; indicates a new line and must be * conserved. All the capitalized words that follow are defined in the MIDI * standard. Only translate them if you are sure the translated versions * are of common usage.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>

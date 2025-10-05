@@ -23,12 +23,12 @@
 #ifndef H2_MIDI_OUTPUT_H
 #define H2_MIDI_OUTPUT_H
 
+#include <core/Helpers/Time.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
 
 #include <QString>
 #include <memory>
-#include <vector>
 
 namespace H2Core {
 
@@ -44,7 +44,7 @@ class MidiOutput : public virtual Object<MidiOutput>
 
 	public:
 		struct HandledOutput {
-			QTime timestamp;
+			TimePoint timePoint;
 			MidiMessage::Type type;
 			int nData1;
 			int nData2;
@@ -67,9 +67,10 @@ class MidiOutput : public virtual Object<MidiOutput>
 		virtual std::shared_ptr<HandledOutput> sendMessage( const MidiMessage& msg );
 
 	private:
-		virtual void sendControlChangeMessage( const MidiMessage& msg ) = 0;
-		virtual void sendNoteOffMessage( const MidiMessage& msg ) = 0;
-		virtual void sendNoteOnMessage( const MidiMessage& msg ) = 0;
+	virtual void sendControlChangeMessage( const MidiMessage& msg ) {};
+	virtual void sendNoteOffMessage( const MidiMessage& msg ) {};
+	virtual void sendNoteOnMessage( const MidiMessage& msg ) {};
+	virtual void sendSystemRealTimeMessage( const MidiMessage& msg ) {};
 };
 
 };

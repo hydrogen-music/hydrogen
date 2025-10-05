@@ -2543,7 +2543,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 	auto pShortcuts = pPref->getShortcuts();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	auto pActionManager = MidiActionManager::get_instance();
+	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pCommonStrings = pHydrogenApp->getCommonStrings();
 	const auto pSoundLibraryDataBase = pHydrogen->getSoundLibraryDatabase();
@@ -2697,7 +2697,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::MasterVolume: {
 				auto pAction = std::make_shared<MidiAction>( midiActionType );
 				pAction->setValue( sArg );
-				pActionManager->handleMidiAction( pAction );
+				pMidiActionManager->handleMidiActionSync( pAction );
 				break;
 			}
 				
@@ -2716,7 +2716,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				} else if ( action == Shortcuts::Action::StripVolumeDecrease ) {
 					pAction->setValue( QString::number( -1 ) );
 				}
-				pActionManager->handleMidiAction( pAction );
+				pMidiActionManager->handleMidiActionSync( pAction );
 				break;
 			}
 
@@ -2819,7 +2819,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				auto pAction = std::make_shared<MidiAction>( midiActionType );
 				pAction->setValue( sArg1 );
 				pAction->setParameter1( sArg2 );
-				pActionManager->handleMidiAction( pAction );
+				pMidiActionManager->handleMidiActionSync( pAction );
 				break;
 			}
 
@@ -2885,7 +2885,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			pAction->setValue( sValue );
 			pAction->setParameter1( QString::number( nInstrument ) );
 			pAction->setParameter2( sFX );
-			pActionManager->handleMidiAction( pAction );
+			pMidiActionManager->handleMidiActionSync( pAction );
 		}
 		else if ( action == Shortcuts::Action::LayerPitch ||
 				  action == Shortcuts::Action::LayerGain ) {
@@ -2969,7 +2969,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			pAction->setParameter1( QString::number( nInstrument ) );
 			pAction->setParameter2( QString::number( nComponent ) );
 			pAction->setParameter3( QString::number( nLayer )  );
-			pActionManager->handleMidiAction( pAction );
+			pMidiActionManager->handleMidiActionSync( pAction );
 		}
 		else {
 			std::shared_ptr<MidiAction> pAction = nullptr;
@@ -3337,7 +3337,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			}
 
 			if ( pAction != nullptr ) {
-				pActionManager->handleMidiAction( pAction );
+				pMidiActionManager->handleMidiActionSync( pAction );
 			}
 		}
 	}

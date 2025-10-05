@@ -57,7 +57,6 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
 		pLogger = H2Core::Logger::bootstrap( log_level, "", true, true );
 	}
 	/* Test helper */
-	TestHelper::createInstance();
 	auto pTestHelper = TestHelper::get_instance();
 	/* Base */
 	H2Core::Base::bootstrap( pLogger, true );
@@ -72,6 +71,7 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
 	H2Core::Preferences::create_instance();
 	auto pPref = H2Core::Preferences::get_instance();
 	pPref->m_audioDriver = Preferences::AudioDriver::Fake;
+	pPref->m_midiDriver = Preferences::MidiDriver::LoopBack;
 	pPref->m_nBufferSize = 1024;
 	pPref->setUseRelativeFilenamesForPlaylists( true );
 
@@ -150,6 +150,7 @@ int main( int argc, char **argv)
 
 	qDebug() << "Using transient data dir: [" << userDataDir.path() << "]";
 
+	TestHelper::createInstance( parser.isSet( appveyorOption ) );
 	setupEnvironment( logLevelOpt, sLogFilePath, userDataDir.path() );
 
 #ifdef HAVE_EXECINFO_H

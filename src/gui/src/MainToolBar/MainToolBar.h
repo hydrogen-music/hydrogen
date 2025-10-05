@@ -83,6 +83,7 @@ public:
 		void jackTimebaseStateChangedEvent( int nState ) override;
 		void jackTransportActivationEvent() override;
 		void loopModeActivationEvent() override;
+		void midiClockActivationEvent() override;
 		void metronomeEvent( int ) override;
 		void recordingModeChangedEvent() override;
 		void songModeActivationEvent() override;
