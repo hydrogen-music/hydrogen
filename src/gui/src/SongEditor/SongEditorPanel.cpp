@@ -152,8 +152,9 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	m_pPatternEditorLockedButton->setCheckable( true );
 	m_pPatternEditorLockedButton->setObjectName( "PatternEditorLockedButton" );
 	connect( m_pPatternEditorLockedButton, &QToolButton::clicked, [=](){
-		Hydrogen::get_instance()->setIsPatternEditorLocked(
-			m_pPatternEditorLockedButton->isChecked() );
+		auto pHydrogen = Hydrogen::get_instance();
+		pHydrogen->setIsPatternEditorLocked(
+			! pHydrogen->isPatternEditorLocked() );
 	});
 	m_pToolBar->addWidget( m_pPatternEditorLockedButton );
 
