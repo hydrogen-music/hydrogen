@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 
 - OSC endpoint `/Hydrogen/SAVE_PREFERENCES` does now actually save the
   preferences (instead of the song).
+- Keyboard events for settings values on rotaries and faders are not shadowed by
+  the virtual keyboard anymore.
 
 ## [1.2.6] - 2025-07-29
 
