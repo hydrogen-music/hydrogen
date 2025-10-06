@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [1.2.7] - XXXX-XX-XX
 
+### Changed
+
+- When timeline is activated, tempo changes via keyboard shortcuts, MIDI, or OSC
+  commands are now discarded.
+
 ### Fixed
 
 - OSC endpoint `/Hydrogen/SAVE_PREFERENCES` does now actually save the
