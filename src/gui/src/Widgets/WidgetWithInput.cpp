@@ -25,6 +25,7 @@
 #include "../Compatibility/WheelEvent.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
+#include "../MainForm.h"
 #include "MidiSenseWidget.h"
 
 #include <core/Hydrogen.h>
@@ -331,7 +332,9 @@ void WidgetWithInput::keyPressEvent( QKeyEvent *ev ) {
 		return;
 	}
 	else {
-		// return without showing a tooltop
+		// Return without showing a tooltop. Let MainForm handle the event for
+		// virtual keyboard and shortcuts.
+		HydrogenApp::get_instance()->getMainForm()->eventFilter( this, ev );
 		return;
 	}
 	
