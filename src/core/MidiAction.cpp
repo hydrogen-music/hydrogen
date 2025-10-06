@@ -961,6 +961,11 @@ bool MidiActionManager::bpm_cc_relative( std::shared_ptr<Action> pAction, Hydrog
 		return false;
 	}
 
+	if ( pHydrogen->getTempoSource() != Hydrogen::Tempo::Song ) {
+		EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
+		return true;
+	}
+
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	const float fBpm = pAudioEngine->getTransportPosition()->getBpm();
 
@@ -1013,6 +1018,11 @@ bool MidiActionManager::bpm_fine_cc_relative( std::shared_ptr<Action> pAction, H
 		return false;
 	}
 
+	if ( pHydrogen->getTempoSource() != Hydrogen::Tempo::Song ) {
+		EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
+		return true;
+	}
+
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	const float fBpm = pAudioEngine->getTransportPosition()->getBpm();
 
@@ -1058,6 +1068,11 @@ bool MidiActionManager::bpm_increase( std::shared_ptr<Action> pAction, Hydrogen*
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
+
+	if ( pHydrogen->getTempoSource() != Hydrogen::Tempo::Song ) {
+		EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
+		return true;
+	}
 	
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	const float fBpm = pAudioEngine->getTransportPosition()->getBpm();
@@ -1082,6 +1097,11 @@ bool MidiActionManager::bpm_decrease( std::shared_ptr<Action> pAction, Hydrogen*
 	if ( pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
+	}
+
+	if ( pHydrogen->getTempoSource() != Hydrogen::Tempo::Song ) {
+		EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
+		return true;
 	}
 	
 	auto pAudioEngine = pHydrogen->getAudioEngine();
