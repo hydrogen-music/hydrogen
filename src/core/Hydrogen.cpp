@@ -804,6 +804,9 @@ void Hydrogen::raiseError( unsigned nErrorCode )
 
 void Hydrogen::onTapTempoAccelEvent()
 {
+	if ( getTempoSource() != Tempo::Song ) {
+		return;
+	}
 #ifndef WIN32
 	INFOLOG( "tap tempo" );
 	static timeval oldTimeVal;
@@ -1016,6 +1019,9 @@ void Hydrogen::setBcOffsetAdjust()
 
 bool Hydrogen::handleBeatCounter()
 {
+	if ( getTempoSource() != Tempo::Song ) {
+		return false;
+	}
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
 	// Get first time value:

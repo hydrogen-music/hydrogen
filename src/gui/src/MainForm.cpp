@@ -1632,14 +1632,18 @@ void MainForm::onRestartAccelEvent()
 void MainForm::onBPMPlusAccelEvent() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	
-	pHydrogen->getSong()->setBpm( pAudioEngine->getTransportPosition()->getBpm() + 0.1 );
 
-	pAudioEngine->lock( RIGHT_HERE );
-	pAudioEngine->setNextBpm( pAudioEngine->getTransportPosition()->getBpm() + 0.1 );
-	pAudioEngine->unlock();
-	
-	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
+	if ( pHydrogen->getTempoSource() == Hydrogen::Tempo::Song ) {
+		pHydrogen->getSong()->setBpm(
+			pAudioEngine->getTransportPosition()->getBpm() + 0.1 );
+
+		pAudioEngine->lock( RIGHT_HERE );
+		pAudioEngine->setNextBpm(
+			pAudioEngine->getTransportPosition()->getBpm() + 0.1 );
+		pAudioEngine->unlock();
+	}
+
+	EventQueue::get_instance()->push_event(EVENT_TEMPO_CHANGED, -1);
 }
 
 
@@ -1648,11 +1652,15 @@ void MainForm::onBPMMinusAccelEvent() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	
-	pHydrogen->getSong()->setBpm( pAudioEngine->getTransportPosition()->getBpm() - 0.1 );
+	if ( pHydrogen->getTempoSource() == Hydrogen::Tempo::Song ) {
+		pHydrogen->getSong()->setBpm(
+			pAudioEngine->getTransportPosition()->getBpm() - 0.1 );
 	
-	pAudioEngine->lock( RIGHT_HERE );
-	pAudioEngine->setNextBpm( pAudioEngine->getTransportPosition()->getBpm() - 0.1 );
-	pAudioEngine->unlock();
+		pAudioEngine->lock( RIGHT_HERE );
+		pAudioEngine->setNextBpm(
+			pAudioEngine->getTransportPosition()->getBpm() - 0.1 );
+		pAudioEngine->unlock();
+	}
 	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 }

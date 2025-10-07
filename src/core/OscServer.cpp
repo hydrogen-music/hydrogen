@@ -573,6 +573,11 @@ void OscServer::BPM_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	if ( pHydrogen->getTempoSource() != H2Core::Hydrogen::Tempo::Song ) {
+		H2Core::EventQueue::get_instance()->push_event(
+			H2Core::EVENT_TEMPO_CHANGED, -1 );
+		return;
+	}
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	float fNewBpm = argv[0]->f;
