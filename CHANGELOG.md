@@ -223,8 +223,9 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- When timeline is activated, tempo changes via keyboard shortcuts, MIDI, or OSC
-  commands are now discarded.
+- When timeline is activated or tempo is synced to an external application,
+  tempo changes via keyboard shortcuts, MIDI, or OSC commands as well as
+  Beat Counter and Tap Tempo are now discarded.
 
 ### Fixed
 

@@ -736,6 +736,10 @@ std::shared_ptr<MidiBaseDriver> Hydrogen::getMidiDriver() const {
 }
 
 void Hydrogen::onTapTempoAccelEvent( TimePoint start ) {
+	if ( getTempoSource() != Tempo::Song ) {
+		return;
+	}
+
 	auto now = start;
 	if ( now == TimePoint() ) {
 		// Default value. No time stamp was provided.
@@ -907,6 +911,10 @@ void Hydrogen::setBeatCounterBeatLength( float fBeatLength ) {
 
 bool Hydrogen::handleBeatCounter( TimePoint start )
 {
+	if ( getTempoSource() != Tempo::Song ) {
+		return false;
+	}
+
 	auto pEventQueue = EventQueue::get_instance();
 
 	auto now = start;
