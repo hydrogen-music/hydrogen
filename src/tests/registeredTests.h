@@ -33,6 +33,7 @@
 #include "CoreActionControllerTest.h"
 #include "EventQueueTest.cpp"
 #include "DrumkitExportTest.h"
+#include "EventQueueTest.cpp"
 #include "FilesystemTest.h"
 #include "InstrumentListTest.cpp"
 #include "LicenseTest.h"
@@ -67,6 +68,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( CoreActionControllerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( EventQueueTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitExportTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( EventQueueTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( InstrumentListTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LicenseTest );
