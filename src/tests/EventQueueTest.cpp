@@ -133,3 +133,38 @@ void EventQueueTest::testThreadedAccess() {
 	CPPUNIT_ASSERT( ev.type == EVENT_NONE );
 	___INFOLOG( "passed" );
 }
+
+void EventQueueTest::testEventDrop() {
+	___INFOLOG( "" );
+	auto pEventQueue = EventQueue::get_instance();
+	// Clear queue of any events from previous tests.
+	Event ev;
+	do {
+		ev = pEventQueue->pop_event();
+	} while ( ev.type != EVENT_NONE );
+	pEventQueue->dropEvents( EVENT_TEMPO_CHANGED );
+
+	// Fill queue with different events
+	const int nEvents = 20;
+	for ( int ii = 0; ii < nEvents; ii++ ) {
+		if ( ii % 2 == 0 ) {
+			pEventQueue->push_event( EVENT_PROGRESS, ii );
+		}
+		else {
+			pEventQueue->push_event( EVENT_TEMPO_CHANGED, ii );
+		}
+	}
+
+	pEventQueue->dropEvents( EVENT_TEMPO_CHANGED );
+
+	// Check that the queue contains the most recent MAX_EVENTS events
+	for ( int ii = 0; ii < nEvents / 2; ii++) {
+		ev = pEventQueue->pop_event();
+		CPPUNIT_ASSERT( ev.type == EVENT_PROGRESS );
+	}
+
+	ev = pEventQueue->pop_event();
+	CPPUNIT_ASSERT( ev.type == EVENT_NONE );
+
+	___INFOLOG( "passed" );
+}
