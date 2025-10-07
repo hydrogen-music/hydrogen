@@ -138,3 +138,37 @@ void EventQueueTest::testThreadedAccess() {
 	CPPUNIT_ASSERT( pEvent == nullptr );
 	___INFOLOG( "passed" );
 }
+
+void EventQueueTest::testEventDrop() {
+	___INFOLOG( "" );
+	auto pEventQueue = EventQueue::get_instance();
+	std::unique_ptr<Event> pEvent;
+	// Clear queue of any events from previous tests.
+	do {
+		pEvent = pEventQueue->popEvent();
+	} while ( pEvent != nullptr );
+	//pEventQueue->dropEvents( Event::Type::TempoChanged );
+
+	// Fill queue with different events
+	const int nEvents = 20;
+	for ( int ii = 0; ii < nEvents; ii++ ) {
+		if ( ii % 2 == 0 ) {
+			pEventQueue->pushEvent( Event::Type::Progress, ii );
+		}
+		else {
+			pEventQueue->pushEvent( Event::Type::TempoChanged, ii );
+		}
+	}
+
+	//pEventQueue->dropEvents( Event::Type::TempoChanged );
+
+	for ( int ii = 0; ii < nEvents / 2; ii++) {
+		pEvent = pEventQueue->popEvent();
+		CPPUNIT_ASSERT( pEvent->getType() == Event::Type::Progress );
+	}
+
+	pEvent = pEventQueue->popEvent();
+	CPPUNIT_ASSERT( pEvent == nullptr );
+
+	___INFOLOG( "passed" );
+}
