@@ -19,127 +19,117 @@
  *
  */
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <core/EventQueue.h>
+#include "EventQueueTest.h"
+
 #include <pthread.h>
 
 using namespace H2Core;
 
-const int nThreads = 16;
-const int nCountsPerThread = MAX_EVENTS / nThreads;
-
 static void *pushThread(void *p) {
 	int *pInt = (int *)p;
-	EventQueue *pQ = EventQueue::get_instance();
-	for ( int i = 0; i < nCountsPerThread; i++) {
+	auto pQ = EventQueue::get_instance();
+	for ( int i = 0; i < EventQueueTest::nCountsPerThread; i++) {
 		pQ->push_event( EVENT_METRONOME, *pInt );
 	}
 	return nullptr;
 }
 
-class EventQueueTest : public CppUnit::TestCase {
-	CPPUNIT_TEST_SUITE( EventQueueTest );
-	CPPUNIT_TEST( testPushPop );
-	CPPUNIT_TEST( testOverflow );
-	CPPUNIT_TEST( testThreadedAccess );
-	CPPUNIT_TEST_SUITE_END();
+void EventQueueTest::setUp() {
+	auto pEventQueue = EventQueue::get_instance();
+	pEventQueue->setSilent( false );
 
-	EventQueue *m_pQ;
+	// Clear queue of any events from previous tests.
+	Event ev;
+	do {
+		ev = pEventQueue->pop_event();
+	} while ( ev.type != EVENT_NONE );
+}
 
-public:
-
-	void setUp() override {
-		EventQueue::create_instance();
-		m_pQ = EventQueue::get_instance();
-		m_pQ->setSilent( false );
-		Event ev;
-
-		// Clear queue of any events from previous tests.
-		do {
-			ev = m_pQ->pop_event();
-		} while ( ev.type != EVENT_NONE );
-	}
-
-	void tearDown() override {
-		EventQueue::get_instance()->setSilent( true );
-	}
+void EventQueueTest::tearDown() {
+	EventQueue::get_instance()->setSilent( true );
+}
 	
-	void testPushPop() {
+void EventQueueTest::testPushPop() {
 	___INFOLOG( "" );
-		Event ev;
+	auto pEventQueue = EventQueue::get_instance();
+	Event ev;
 
-		// Fill the event queue to the maximum permissible size, drain the queue and then do it again.
-		for ( int pass = 0; pass < 2; pass++) {
-			for ( int i = 0; i < MAX_EVENTS; i++ ) {
-				m_pQ->push_event( EVENT_PROGRESS, i );
-			}
-			for ( int i = 0; i < MAX_EVENTS; i++ ) {
-				ev = m_pQ->pop_event();
-				CPPUNIT_ASSERT( ev.type == EVENT_PROGRESS && ev.value == i );
-			}
+	// Fill the event queue to the maximum permissible size, drain the queue and
+	// then do it again.
+	for ( int pass = 0; pass < 2; pass++) {
+		for ( int i = 0; i < MAX_EVENTS; i++ ) {
+			pEventQueue->push_event( EVENT_PROGRESS, i );
+		}
+		for ( int i = 0; i < MAX_EVENTS; i++ ) {
+			ev = pEventQueue->pop_event();
+			CPPUNIT_ASSERT( ev.type == EVENT_PROGRESS && ev.value == i );
+		}
 
-			// Queue should now be empty
-			ev = m_pQ->pop_event();
+		// Queue should now be empty
+		ev = pEventQueue->pop_event();
+		CPPUNIT_ASSERT( ev.type == EVENT_NONE );
+	}
+	___INFOLOG( "passed" );
+}
+
+void EventQueueTest::testOverflow() {
+	___INFOLOG( "" );
+	auto pEventQueue = EventQueue::get_instance();
+	Event ev;
+
+	// Overfill queue
+	for ( int i = 0; i < MAX_EVENTS + 100; i++) {
+		pEventQueue->push_event( EVENT_PROGRESS, i );
+	}
+	// Check that the queue contains the most recent MAX_EVENTS events
+	for ( int i = 0; i < MAX_EVENTS; i++) {
+		ev = pEventQueue->pop_event();
+		CPPUNIT_ASSERT( ev.type == EVENT_PROGRESS && ev.value == i + 100);
+	}
+	ev = pEventQueue->pop_event();
+	CPPUNIT_ASSERT( ev.type == EVENT_NONE );
+	___INFOLOG( "passed" );
+}
+
+void EventQueueTest::testThreadedAccess() {
+	___INFOLOG( "" );
+	pthread_t threads[ EventQueueTest::nThreads ];
+	int counters[ EventQueueTest::nThreads ];
+	int threadIds[ EventQueueTest::nThreads ];
+
+	auto pEventQueue = EventQueue::get_instance();
+
+	for ( int i = 0; i < EventQueueTest::nThreads; i++) {
+		counters[ i ] = 0;
+		threadIds[ i ] = i;
+	}
+
+	// Start writer threads
+	for ( int i = 0; i < EventQueueTest::nThreads; i++ ) {
+		int nRetVal = pthread_create(
+			&threads[ i ], nullptr, pushThread, &threadIds[ i ] );
+	}
+
+	// Reader counts up the number of events from each thread
+	for ( int nTotalEvents = 0;
+		 nTotalEvents < EventQueueTest::nCountsPerThread *
+						EventQueueTest::nThreads; ) {
+		Event ev = pEventQueue->pop_event();
+		if ( ev.type == EVENT_METRONOME ) {
+			CPPUNIT_ASSERT( ev.value < EventQueueTest::nThreads &&
+							ev.value >= 0 );
+			counters[ ev.value ]++;
+			CPPUNIT_ASSERT( ev.value <= EventQueueTest::nCountsPerThread );
+			nTotalEvents++;
+		} else {
 			CPPUNIT_ASSERT( ev.type == EVENT_NONE );
 		}
-	___INFOLOG( "passed" );
 	}
 
-	void testOverflow() {
-	___INFOLOG( "" );
-		Event ev;
-
-		// Overfill queue
-		for ( int i = 0; i < MAX_EVENTS + 100; i++) {
-			m_pQ->push_event( EVENT_PROGRESS, i );
-		}
-		// Check that the queue contains the most recent MAX_EVENTS events
-		for ( int i = 0; i < MAX_EVENTS; i++) {
-			ev = m_pQ->pop_event();
-			CPPUNIT_ASSERT( ev.type == EVENT_PROGRESS && ev.value == i + 100);
-		}
-		ev = m_pQ->pop_event();
-		CPPUNIT_ASSERT( ev.type == EVENT_NONE );
-	___INFOLOG( "passed" );
+	for ( int i = 0; i < EventQueueTest::nThreads; i++ ) {
+		CPPUNIT_ASSERT( counters[i] == EventQueueTest::nCountsPerThread );
 	}
-
-	void testThreadedAccess() {
-	___INFOLOG( "" );
-		pthread_t threads[ nThreads ];
-		int counters[ nThreads ];
-		int threadIds[ nThreads ];
-
-		for ( int i = 0; i < nThreads; i++) {
-			counters[ i ] = 0;
-			threadIds[ i ] = i;
-		}
-
-		// Start writer threads
-		for ( int i = 0; i < nThreads; i++ ) {
-			int nRetVal = pthread_create( &threads[ i ], nullptr, pushThread, &threadIds[ i ]);
-		}
-
-		// Reader counts up the number of events from each thread
-		for ( int nTotalEvents = 0; nTotalEvents < nCountsPerThread * nThreads; ) {
-			Event ev = m_pQ->pop_event();
-			if ( ev.type == EVENT_METRONOME ) {
-				CPPUNIT_ASSERT( ev.value < nThreads && ev.value >= 0 );
-				counters[ ev.value ]++;
-				CPPUNIT_ASSERT( ev.value <= nCountsPerThread );
-				nTotalEvents++;
-			} else {
-				CPPUNIT_ASSERT( ev.type == EVENT_NONE );
-			}
-		}
-
-		for ( int i = 0; i < nThreads; i++ ) {
-			CPPUNIT_ASSERT( counters[i] == nCountsPerThread );
-		}
-		Event ev = m_pQ->pop_event();
-		CPPUNIT_ASSERT( ev.type == EVENT_NONE );
+	Event ev = pEventQueue->pop_event();
+	CPPUNIT_ASSERT( ev.type == EVENT_NONE );
 	___INFOLOG( "passed" );
-	}
-
-};
-
-CPPUNIT_TEST_SUITE_REGISTRATION( EventQueueTest );
+}

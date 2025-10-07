@@ -28,7 +28,7 @@
 #include "AutomationPathTest.cpp"
 #include "CoreActionControllerTest.h"
 #include "DrumkitExportTest.h"
-#include "EventQueueTest.cpp"
+#include "EventQueueTest.h"
 #include "FilesystemTest.h"
 #include "ForwardCompatibilityTest.h"
 #include "FunctionalTests.cpp"
