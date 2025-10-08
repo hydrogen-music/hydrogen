@@ -192,7 +192,10 @@ Preferences::Preferences()
 	, m_bShowExportDrumkitLicenseWarning( true )
 	, m_bShowExportDrumkitCopyleftWarning( true )
 	, m_bShowExportDrumkitAttributionWarning( true )
-	, m_theme( Theme() )
+	, m_pTheme( std::make_shared<Theme>(
+		std::make_shared<ColorTheme>(),
+		std::make_shared<InterfaceTheme>(),
+		std::make_shared<FontTheme>() ) )
 	, m_pShortcuts( std::make_shared<Shortcuts>() )
 	, m_pMidiMap( std::make_shared<MidiMap>() )
 	, m_bLoadingSuccessful( false )
@@ -375,7 +378,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_bShowExportDrumkitLicenseWarning( pOther->m_bShowExportDrumkitLicenseWarning )
 	, m_bShowExportDrumkitCopyleftWarning( pOther->m_bShowExportDrumkitCopyleftWarning )
 	, m_bShowExportDrumkitAttributionWarning( pOther->m_bShowExportDrumkitAttributionWarning )
-	, m_theme( pOther->m_theme )
+	, m_pTheme( std::make_shared<Theme>(pOther->m_pTheme) )
 	, m_pShortcuts( pOther->m_pShortcuts )
 	, m_pMidiMap( pOther->m_pMidiMap )
 	, m_bLoadingSuccessful( pOther->m_bLoadingSuccessful )
@@ -423,9 +426,9 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 	auto pPref = std::make_shared<Preferences>();
 
 	//////// GENERAL ///////////
-	auto interfaceTheme = InterfaceTheme();
-	auto fontTheme = FontTheme();
-	auto colorTheme = ColorTheme();
+	auto pInterfaceTheme = std::make_shared<InterfaceTheme>();
+	auto pFontTheme = std::make_shared<FontTheme>();
+	auto pColorTheme = std::make_shared<ColorTheme>();
 
 	pPref->m_sPreferredLanguage = rootNode.read_string(
 		"preferredLanguage", pPref->m_sPreferredLanguage, false, "", bSilent );
@@ -446,13 +449,13 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 					.arg( pPref->m_nMaxLayers ) );
 		pPref->m_nMaxLayers = 16;
 	}
-	interfaceTheme.m_layout = static_cast<InterfaceTheme::Layout>(
+	pInterfaceTheme->m_layout = static_cast<InterfaceTheme::Layout>(
 		rootNode.read_int( "defaultUILayout",
-						   static_cast<int>(interfaceTheme.m_layout),
+						   static_cast<int>(pInterfaceTheme->m_layout),
 						   false, false, bSilent ));
-	interfaceTheme.m_uiScalingPolicy = static_cast<InterfaceTheme::ScalingPolicy>(
+	pInterfaceTheme->m_uiScalingPolicy = static_cast<InterfaceTheme::ScalingPolicy>(
 		rootNode.read_int( "uiScalingPolicy",
-						   static_cast<int>(interfaceTheme.m_uiScalingPolicy),
+						   static_cast<int>(pInterfaceTheme->m_uiScalingPolicy),
 						   false, false, bSilent ));
 	pPref->m_nLastOpenTab = rootNode.read_int(
 		"lastOpenTab", pPref->m_nLastOpenTab, false, false, bSilent );
@@ -760,30 +763,30 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 	XMLNode guiNode = rootNode.firstChildElement( "gui" );
 	if ( ! guiNode.isNull() ) {
 		QString sQTStyle = guiNode.read_string(
-			"QTStyle", interfaceTheme.m_sQTStyle, false, true, bSilent );
+			"QTStyle", pInterfaceTheme->m_sQTStyle, false, true, bSilent );
 
 		if ( sQTStyle == "Plastique" ){
 			sQTStyle = "Fusion";
 		}
-		interfaceTheme.m_sQTStyle = sQTStyle;
+		pInterfaceTheme->m_sQTStyle = sQTStyle;
 
-		fontTheme.m_sApplicationFontFamily = guiNode.read_string(
+		pFontTheme->m_sApplicationFontFamily = guiNode.read_string(
 			"application_font_family",
-			fontTheme.m_sApplicationFontFamily, false, false, bSilent );
-		fontTheme.m_sLevel2FontFamily = guiNode.read_string(
+			pFontTheme->m_sApplicationFontFamily, false, false, bSilent );
+		pFontTheme->m_sLevel2FontFamily = guiNode.read_string(
 			"level2_font_family",
-			fontTheme.m_sLevel2FontFamily, false, false, bSilent );
-		fontTheme.m_sLevel3FontFamily = guiNode.read_string(
+			pFontTheme->m_sLevel2FontFamily, false, false, bSilent );
+		pFontTheme->m_sLevel3FontFamily = guiNode.read_string(
 			"level3_font_family",
-			fontTheme.m_sLevel3FontFamily, false, false, bSilent );
-		fontTheme.m_fontSize = static_cast<FontTheme::FontSize>(
+			pFontTheme->m_sLevel3FontFamily, false, false, bSilent );
+		pFontTheme->m_fontSize = static_cast<FontTheme::FontSize>(
 			guiNode.read_int(
 				"font_size",
-				static_cast<int>( fontTheme.m_fontSize ), false, false, bSilent ) );
+				static_cast<int>( pFontTheme->m_fontSize ), false, false, bSilent ) );
 
-		interfaceTheme.m_fMixerFalloffSpeed = guiNode.read_float(
+		pInterfaceTheme->m_fMixerFalloffSpeed = guiNode.read_float(
 			"mixer_falloff_speed",
-			interfaceTheme.m_fMixerFalloffSpeed, false, false, bSilent );
+			pInterfaceTheme->m_fMixerFalloffSpeed, false, false, bSilent );
 
 		pPref->m_nPatternEditorGridResolution = guiNode.read_int(
 			"patternEditorGridResolution",
@@ -1000,28 +1003,28 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 
 		const XMLNode colorThemeNode = guiNode.firstChildElement( "colorTheme" );
 		if ( ! colorThemeNode.isNull() ) {
-			colorTheme = ColorTheme::loadFrom( colorThemeNode, bSilent );
+			pColorTheme = ColorTheme::loadFrom( colorThemeNode, bSilent );
 		}
 		else {
 			WARNINGLOG( "<colorTheme> node not found" );
 		}
 
 		// SongEditor coloring
-		interfaceTheme.m_coloringMethod = static_cast<InterfaceTheme::ColoringMethod>(
+		pInterfaceTheme->m_coloringMethod = static_cast<InterfaceTheme::ColoringMethod>(
 				guiNode.read_int( "SongEditor_ColoringMethod",
-								  static_cast<int>(interfaceTheme.m_coloringMethod),
+								  static_cast<int>(pInterfaceTheme->m_coloringMethod),
 								  false, false, bSilent ) );
 		std::vector<QColor> patternColors( InterfaceTheme::nMaxPatternColors );
 		for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
 			patternColors[ ii ] = guiNode.read_color(
 				QString( "SongEditor_pattern_color_%1" ).arg( ii ),
-				colorTheme.m_accentColor, false, false, bSilent );
+				pInterfaceTheme->m_patternColors[ ii ], false, false, bSilent );
 		}
-		interfaceTheme.m_patternColors = patternColors;
-		interfaceTheme.m_nVisiblePatternColors = std::clamp(
+		pInterfaceTheme->m_patternColors = patternColors;
+		pInterfaceTheme->m_nVisiblePatternColors = std::clamp(
 			guiNode.read_int(
 				"SongEditor_visible_pattern_colors",
-				interfaceTheme.m_nVisiblePatternColors, false, false, bSilent ),
+				pInterfaceTheme->m_nVisiblePatternColors, false, false, bSilent ),
 			0, 50 );
 	}
 	else {
@@ -1050,7 +1053,8 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		WARNINGLOG( "<midiMap> node not found" );
 	}
 
-	pPref->m_theme = Theme( colorTheme, interfaceTheme, fontTheme );
+	pPref->m_pTheme = std::make_shared<Theme>(
+		pColorTheme, pInterfaceTheme, pFontTheme );
 
 	// Shortcuts
 	pPref->m_pShortcuts = Shortcuts::loadFrom( rootNode, bSilent );
@@ -1071,8 +1075,8 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 		INFOLOG( QString( "Saving preferences file into [%1]" ).arg( sPath ) );
 	}
 
-	const auto interfaceTheme = m_theme.m_interface;
-	const auto fontTheme = m_theme.m_font;
+	auto pInterfaceTheme = m_pTheme->m_pInterface;
+	auto pFontTheme = m_pTheme->m_pFont;
 
 	XMLDoc doc;
 	XMLNode rootNode = doc.set_root( "hydrogen_preferences" );
@@ -1088,9 +1092,9 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 	rootNode.write_int( "maxLayers", m_nMaxLayers );
 
 	rootNode.write_int( "defaultUILayout", static_cast<int>(
-							interfaceTheme.m_layout) );
+							pInterfaceTheme->m_layout) );
 	rootNode.write_int( "uiScalingPolicy", static_cast<int>(
-							interfaceTheme.m_uiScalingPolicy) );
+							pInterfaceTheme->m_uiScalingPolicy) );
 	rootNode.write_int( "lastOpenTab", m_nLastOpenTab );
 
 	rootNode.write_bool( "useTheRubberbandBpmChangeEvent", m_bUseTheRubberbandBpmChangeEvent );
@@ -1272,17 +1276,17 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 	//---- GUI ----
 	XMLNode guiNode = rootNode.createNode( "gui" );
 	{
-		guiNode.write_string( "QTStyle", interfaceTheme.m_sQTStyle );
+		guiNode.write_string( "QTStyle", pInterfaceTheme->m_sQTStyle );
 		guiNode.write_string( "application_font_family",
-							  fontTheme.m_sApplicationFontFamily );
+							  pFontTheme->m_sApplicationFontFamily );
 		guiNode.write_string( "level2_font_family",
-							  fontTheme.m_sLevel2FontFamily );
+							  pFontTheme->m_sLevel2FontFamily );
 		guiNode.write_string( "level3_font_family",
-							  fontTheme.m_sLevel3FontFamily );
+							  pFontTheme->m_sLevel3FontFamily );
 		guiNode.write_int( "font_size",
-						   static_cast<int>(fontTheme.m_fontSize) );
+						   static_cast<int>(pFontTheme->m_fontSize) );
 		guiNode.write_float( "mixer_falloff_speed",
-							 interfaceTheme.m_fMixerFalloffSpeed );
+							 pInterfaceTheme->m_fMixerFalloffSpeed );
 		guiNode.write_int( "patternEditorGridResolution", m_nPatternEditorGridResolution );
 		guiNode.write_int( "patternEditorGridHeight", m_nPatternEditorGridHeight );
 		guiNode.write_int( "patternEditorGridWidth", m_nPatternEditorGridWidth );
@@ -1374,17 +1378,17 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 		guiNode.write_bool( "expandPatternItem", m_bExpandPatternItem );
 
 		// User interface style
-		m_theme.m_color.saveTo( guiNode );
+		m_pTheme->m_pColor->saveTo( guiNode );
 
 		//SongEditor coloring method
 		guiNode.write_int( "SongEditor_ColoringMethod",
-						   static_cast<int>(m_theme.m_interface.m_coloringMethod ) );
+						   static_cast<int>(pInterfaceTheme->m_coloringMethod ) );
 		for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
 			guiNode.write_color( QString( "SongEditor_pattern_color_%1" ).arg( ii ),
-								 m_theme.m_interface.m_patternColors[ ii ] );
+								 pInterfaceTheme->m_patternColors[ ii ] );
 		}
 		guiNode.write_int( "SongEditor_visible_pattern_colors",
-						   m_theme.m_interface.m_nVisiblePatternColors );
+						   pInterfaceTheme->m_nVisiblePatternColors );
 	}
 
 	//---- FILES ----
@@ -1956,8 +1960,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_bShowExportDrumkitCopyleftWarning ) )
 			.append( QString( "%1%2m_bShowExportDrumkitAttributionWarning: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bShowExportDrumkitAttributionWarning ) )
-			.append( QString( "%1%2m_theme: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_theme.toQString( s, bShort ) ) )
+			.append( QString( "%1%2m_pTheme: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_pTheme->toQString( s, bShort ) ) )
 			.append( QString( "%1%2m_pShortcuts: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_pShortcuts->toQString( s, bShort ) ) )
 			.append( QString( "%1%2m_pMidiMap: %3\n" ).arg( sPrefix )
@@ -2206,8 +2210,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bShowExportDrumkitCopyleftWarning ) )
 			.append( QString( ", m_bShowExportDrumkitAttributionWarning: %1" )
 					 .arg( m_bShowExportDrumkitAttributionWarning ) )
-			.append( QString( ", m_theme: %1" )
-					 .arg( m_theme.toQString( "", bShort ) ) )
+			.append( QString( ", m_pTheme: %1" )
+					 .arg( m_pTheme->toQString( "", bShort ) ) )
 			.append( QString( ", m_pShortcuts: %1" )
 					 .arg( m_pShortcuts->toQString( "", bShort ) ) )
 			.append( QString( ", m_pMidiMap: %1" )

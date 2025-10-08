@@ -553,13 +553,13 @@ void MainToolBar::metronomeEvent( int nValue ) {
 		m_pMetronomeButton->setStyleSheet( QString( "\
 #MetronomeButton {				 \
    background-color: %1;\
-}" ).arg( pPref->getTheme().m_color.m_highlightColor.name() ) );
+}" ).arg( pPref->getColorTheme()->m_highlightColor.name() ) );
 	}
 	else {
 		m_pMetronomeButton->setStyleSheet( QString( "\
 #MetronomeButton {\
    background-color: %1;\
-}" ).arg( pPref->getTheme().m_color.m_accentColor.name() ) );
+}" ).arg( pPref->getColorTheme()->m_accentColor.name() ) );
 	}
 
 	// Percentage [0,1] the button stays highlighted over the duration of a
@@ -910,7 +910,7 @@ void MainToolBar::updateJackTransport() {
 
 void MainToolBar::updateJackTimebase()
 {
-	const auto theme = Preferences::get_instance()->getTheme();
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const bool bVisible = pHydrogen->hasJackAudioDriver();
@@ -931,7 +931,7 @@ void MainToolBar::updateJackTimebase()
 			m_pJackTimebaseButton->setStyleSheet( QString( "\
 #JackTimebaseButton {\
     background-color: %1;\
-}" ).arg( theme.m_color.m_highlightColor.name() ) );
+}" ).arg( pColorTheme->m_highlightColor.name() ) );
 			m_pJackTimebaseButton->setToolTip(
 				pCommonStrings->getJackTimebaseControllerToolTip() );
 			break;
@@ -941,7 +941,7 @@ void MainToolBar::updateJackTimebase()
 			m_pJackTimebaseButton->setStyleSheet( QString( "\
 #JackTimebaseButton {\
     background-color: %1;\
-}" ).arg( theme.m_color.m_buttonRedColor.name() ) );
+}" ).arg( pColorTheme->m_buttonRedColor.name() ) );
 			m_pJackTimebaseButton->setToolTip(
 				pCommonStrings->getJackTimebaseListenerToolTip() );
 			break;
@@ -1007,7 +1007,7 @@ void MainToolBar::onPreferencesChanged( const H2Core::Preferences::Changes& chan
 
 void MainToolBar::updateIcons() {
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
+	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	} else {
@@ -1046,11 +1046,11 @@ void MainToolBar::updateIcons() {
 
 void MainToolBar::updateStyleSheet() {
 
-	const auto colorTheme =
-		H2Core::Preferences::get_instance()->getTheme().m_color;
+	const auto pColorTheme =
+		H2Core::Preferences::get_instance()->getColorTheme();
 
 	const QColor colorBackground =
-		colorTheme.m_songEditor_backgroundColor.darker( 110 );
+		pColorTheme->m_songEditor_backgroundColor.darker( 110 );
 
 	QColor colorBackgroundChecked, colorBackgroundHovered;
 	if ( Skin::moreBlackThanWhite( colorBackground ) ) {

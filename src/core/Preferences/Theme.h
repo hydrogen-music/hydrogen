@@ -44,14 +44,12 @@ class ColorTheme : public H2Core::Object<ColorTheme>
 	H2_OBJECT(ColorTheme)
 public:
 	ColorTheme();
-	ColorTheme( const ColorTheme& other ) = default;
-	ColorTheme& operator=( const ColorTheme& other ) = default;
-	ColorTheme( ColorTheme&& other ) = default;
-	ColorTheme& operator=( ColorTheme&& other ) = default;
+	ColorTheme( std::shared_ptr<ColorTheme> pOther ) = delete;
+	ColorTheme operator=( std::shared_ptr<ColorTheme> pOther ) = delete;
 
 	void saveTo( XMLNode& parent ) const;
-	static ColorTheme loadFrom( const XMLNode& parent,
-								const bool bSilent = false );
+	static std::shared_ptr<ColorTheme> loadFrom( const XMLNode& parent,
+												const bool bSilent = false );
 
 	QString toQString( const QString& sPrefix = "",
 					   bool bShort = true ) const override;
@@ -119,7 +117,7 @@ public:
 	QColor m_midColor;
 	/** Between Button and Dark.*/
 	QColor m_darkColor;
-	/** A very dark color. By default, the shadow color is Qt::black.*/
+	/** A very dark color. By delete, the shadow color is Qt::black.*/
 	QColor m_shadowTextColor;
 	/** A color to indicate a selected item or the current item.*/
 	QColor m_highlightColor;
@@ -153,10 +151,8 @@ class InterfaceTheme : public H2Core::Object<InterfaceTheme>
 	H2_OBJECT(InterfaceTheme)
 public:
 	InterfaceTheme();
-	InterfaceTheme( const InterfaceTheme& other ) = default;
-	InterfaceTheme& operator=( const InterfaceTheme& other ) = default;
-	InterfaceTheme( InterfaceTheme&& other ) = default;
-	InterfaceTheme& operator=( InterfaceTheme&& other ) = default;
+	InterfaceTheme( std::shared_ptr<InterfaceTheme> pOther ) = delete;
+	InterfaceTheme operator=( std::shared_ptr<InterfaceTheme> pOther ) = delete;
 
 	static float FALLOFF_SLOW;
 	static float FALLOFF_NORMAL;
@@ -215,10 +211,8 @@ class FontTheme : public H2Core::Object<FontTheme>
 	H2_OBJECT(FontTheme)
 public:
 	FontTheme();
-	FontTheme( const FontTheme& other ) = default;
-	FontTheme& operator=( const FontTheme& other ) = default;
-	FontTheme( FontTheme&& other ) = default;
-	FontTheme& operator=( FontTheme&& other ) = default;
+	FontTheme( std::shared_ptr<FontTheme> pOther ) = delete;
+	FontTheme operator=( std::shared_ptr<FontTheme> pOther ) = delete;
 
 	/** Enables custom scaling of the font size in the GUI.*/
 	enum class FontSize {
@@ -241,25 +235,22 @@ public:
 class Theme : public H2Core::Object<Theme> {
 	H2_OBJECT(Theme)
 public:
-	Theme( const ColorTheme& colorTheme = ColorTheme(),
-		   const InterfaceTheme& interfaceTheme = InterfaceTheme(),
-		   const FontTheme& fontTheme = FontTheme() );
+	Theme( std::shared_ptr<ColorTheme> pColorTheme,
+		   std::shared_ptr<InterfaceTheme> pInterfaceTheme,
+		   std::shared_ptr<FontTheme> pFontTheme );
 
-	Theme( const Theme& other );
-	Theme& operator=( const Theme& other );
+	Theme( const std::shared_ptr<const Theme> pOther );
+	Theme operator=( const std::shared_ptr<const Theme> pOther );
 
-	Theme( Theme&& other );
-	Theme& operator=( Theme&& other );
-
-	static std::unique_ptr<Theme> importFrom( const QString& sPath );
+	static std::shared_ptr<Theme> importFrom( const QString& sPath );
 	bool exportTo( const QString& sPath ) const;
 
 	QString toQString( const QString& sPrefix = "",
 					   bool bShort = true ) const override;
 
-	ColorTheme m_color;
-	InterfaceTheme m_interface;
-	FontTheme m_font;
+	std::shared_ptr<ColorTheme> m_pColor;
+	std::shared_ptr<InterfaceTheme> m_pInterface;
+	std::shared_ptr<FontTheme> m_pFont;
 };
 
 };

@@ -204,14 +204,14 @@ MixerLine::~MixerLine() {
 }
 
 void MixerLine::updateColors() {
-	const auto theme = Preferences::get_instance()->getTheme();
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 
-	m_pMuteBtn->setCheckedBackgroundColor( theme.m_color.m_muteColor );
+	m_pMuteBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
 	m_pMuteBtn->setCheckedBackgroundTextColor(
-		theme.m_color.m_muteTextColor );
-	m_pSoloBtn->setCheckedBackgroundColor( theme.m_color.m_soloColor );
+		pColorTheme->m_muteTextColor );
+	m_pSoloBtn->setCheckedBackgroundColor( pColorTheme->m_soloColor );
 	m_pSoloBtn->setCheckedBackgroundTextColor(
-		theme.m_color.m_soloTextColor );
+		pColorTheme->m_soloTextColor );
 }
 
 void MixerLine::updateLine() {
@@ -264,7 +264,7 @@ void MixerLine::updatePeaks()
 	}
 	auto pPref = Preferences::get_instance();
 	const float fFallOffSpeed =
-		pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
+		pPref->getInterfaceTheme()->m_fMixerFalloffSpeed;
 
 	float fNewPeak_L = m_pInstrument->getPeak_L();
 	float fNewPeak_R = m_pInstrument->getPeak_R();

@@ -597,9 +597,12 @@ public:
 	bool			m_bShowExportDrumkitCopyleftWarning;
 	bool			m_bShowExportDrumkitAttributionWarning;
 
-	const Theme& getTheme() const;
-	Theme& getThemeWritable();
-	void setTheme( const Theme& pTheme );
+	const std::shared_ptr<const Theme> getTheme() const;
+	const std::shared_ptr<const ColorTheme> getColorTheme() const;
+	const std::shared_ptr<const InterfaceTheme> getInterfaceTheme() const;
+	const std::shared_ptr<const FontTheme> getFontTheme() const;
+	std::shared_ptr<Theme> getThemeWritable();
+	void setTheme( std::shared_ptr<Theme> pTheme );
 
 	const std::shared_ptr<Shortcuts> getShortcuts() const;
 	void setShortcuts( const std::shared_ptr<Shortcuts> pShortcuts );
@@ -747,7 +750,7 @@ private:
     int						m_nMidiExportMode;
     bool					m_bMidiExportUseHumanization;
 
-	Theme					m_theme;
+	std::shared_ptr<Theme>		m_pTheme;
 
 	std::shared_ptr<Shortcuts>  m_pShortcuts;
 	std::shared_ptr<MidiMap> m_pMidiMap;
@@ -1277,14 +1280,23 @@ inline void Preferences::setLastOpenTab(int n){
 	m_nLastOpenTab = n;
 }
 
-inline void Preferences::setTheme( const Theme& theme ) {
-	m_theme = theme;
+inline void Preferences::setTheme( std::shared_ptr<Theme> pTheme ) {
+	m_pTheme = pTheme;
 }
-inline const Theme& Preferences::getTheme() const {
-	return m_theme;
+inline const std::shared_ptr<const Theme> Preferences::getTheme() const {
+	return m_pTheme;
 }
-inline Theme& Preferences::getThemeWritable() {
-	return m_theme;
+inline const std::shared_ptr<const ColorTheme> Preferences::getColorTheme() const {
+	return m_pTheme->m_pColor;
+}
+inline const std::shared_ptr<const InterfaceTheme> Preferences::getInterfaceTheme() const {
+	return m_pTheme->m_pInterface;
+}
+inline const std::shared_ptr<const FontTheme> Preferences::getFontTheme() const {
+	return m_pTheme->m_pFont;
+}
+inline std::shared_ptr<Theme> Preferences::getThemeWritable() {
+	return m_pTheme;
 }
 
 inline const std::shared_ptr<Shortcuts> Preferences::getShortcuts() const {

@@ -122,10 +122,10 @@ LadspaFXLine::~LadspaFXLine() {
 }
 
 void LadspaFXLine::updateColors() {
-	const auto theme = Preferences::get_instance()->getTheme();
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 
-	m_pBypassBtn->setCheckedBackgroundColor( theme.m_color.m_muteColor );
-	m_pBypassBtn->setCheckedBackgroundTextColor( theme.m_color.m_muteTextColor );
+	m_pBypassBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
+	m_pBypassBtn->setCheckedBackgroundTextColor( pColorTheme->m_muteTextColor );
 }
 
 void LadspaFXLine::updateLine() {

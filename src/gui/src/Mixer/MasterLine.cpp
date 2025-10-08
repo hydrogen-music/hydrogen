@@ -157,11 +157,11 @@ MasterLine::~MasterLine() {
 }
 
 void MasterLine::updateColors() {
-	const auto theme = Preferences::get_instance()->getTheme();
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 
-	m_pMuteBtn->setCheckedBackgroundColor( theme.m_color.m_muteColor );
+	m_pMuteBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
 	m_pMuteBtn->setCheckedBackgroundTextColor(
-		theme.m_color.m_muteTextColor );
+		pColorTheme->m_muteTextColor );
 }
 
 void MasterLine::updateLine() {
@@ -197,7 +197,7 @@ void MasterLine::updateLine() {
 void MasterLine::updatePeaks() {
 	const auto pPref = Preferences::get_instance();
 	const float fFallOffSpeed =
-		pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
+		pPref->getInterfaceTheme()->m_fMixerFalloffSpeed;
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 

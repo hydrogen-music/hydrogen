@@ -1006,7 +1006,7 @@ void SongEditor::paintEvent( QPaintEvent *ev ) {
 	// Draw cursor
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() &&
 		 m_pSongEditorPanel->hasSongEditorFocus() ) {
-		QPen cursorPen( pPref->getTheme().m_color.m_cursorColor );
+		QPen cursorPen( pPref->getColorTheme()->m_cursorColor );
 		cursorPen.setWidth( 2 );
 		painter.setRenderHint( QPainter::Antialiasing );
 		painter.setPen( cursorPen );
@@ -1027,7 +1027,7 @@ void SongEditor::drawFocus( QPainter& painter ) {
 		return;
 	}
 	
-	QColor color = H2Core::Preferences::get_instance()->getTheme().m_color.m_highlightColor;
+	QColor color = H2Core::Preferences::get_instance()->getColorTheme()->m_highlightColor;
 
 	// If the mouse is placed on the widget but the user hasn't
 	// clicked it yet, the highlight will be done more transparent to
@@ -1059,6 +1059,7 @@ void SongEditor::scrolled( int nValue ) {
 
 void SongEditor::createBackground() {
 	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pColorTheme = pPref->getColorTheme();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -1071,7 +1072,7 @@ void SongEditor::createBackground() {
 
 	updatePixmapSize();
 
-	m_pBackgroundPixmap->fill( pPref->getTheme().m_color.m_songEditor_backgroundColor );
+	m_pBackgroundPixmap->fill( pColorTheme->m_songEditor_backgroundColor );
 
 	QPainter p( m_pBackgroundPixmap );
 	
@@ -1085,14 +1086,14 @@ void SongEditor::createBackground() {
 		
 		if ( ii == nSelectedPatternNumber ) {
 			p.fillRect( 0, y, nMaxPatternSequence * m_nGridWidth, m_nGridHeight,
-						pPref->getTheme().m_color.m_songEditor_selectedRowColor );
+						pColorTheme->m_songEditor_selectedRowColor );
 		} else {
 			p.fillRect( 0, y, nMaxPatternSequence * m_nGridWidth, m_nGridHeight,
-						pPref->getTheme().m_color.m_songEditor_alternateRowColor );
+						pColorTheme->m_songEditor_alternateRowColor );
 		}
 	}
 
-	p.setPen( QPen( pPref->getTheme().m_color.m_songEditor_lineColor, 1,
+	p.setPen( QPen( pColorTheme->m_songEditor_lineColor, 1,
 					Qt::DotLine ) );
 
 	// vertical lines
@@ -1304,7 +1305,7 @@ void SongEditor::drawPattern( QPainter& painter, std::shared_ptr<GridCell> pCell
 	}
 	auto pPatternList = pSong->getPatternList();
 	const auto pPref = Preferences::get_instance();
-	const auto colorTheme = pPref->getTheme().m_color;
+	const auto pColorTheme = pPref->getColorTheme();
 
 	if ( m_selection.isSelected( pCell ) ) {
 		cellStyle = static_cast<CellStyle>(cellStyle | CellStyle::Selected);
@@ -1331,7 +1332,7 @@ void SongEditor::drawPattern( QPainter& painter, std::shared_ptr<GridCell> pCell
 		 *            chosen internally.
 		 * Custom: Number of steps as well as the colors used are defined
 		 *            by the user. */
-		if ( pPref->getTheme().m_interface.m_coloringMethod ==
+		if ( pPref->getInterfaceTheme()->m_coloringMethod ==
 			 H2Core::InterfaceTheme::ColoringMethod::Automatic ) {
 			// beware of the division by zero..
 			const int nSteps = std::max( 1, pPatternList->size() );
@@ -1342,10 +1343,10 @@ void SongEditor::drawPattern( QPainter& painter, std::shared_ptr<GridCell> pCell
 		else {
 			const int nIndex = std::clamp(
 				pCell->getRow() %
-				pPref->getTheme().m_interface.m_nVisiblePatternColors,
+				pPref->getInterfaceTheme()->m_nVisiblePatternColors,
 				0, InterfaceTheme::nMaxPatternColors );
-			cellColor = pPref->getTheme()
-				.m_interface.m_patternColors[ nIndex ].toHsv();
+			cellColor = pPref->getInterfaceTheme()
+				->m_patternColors[ nIndex ].toHsv();
 		}
 
 		if ( cellStyle & CellStyle::Virtual ) {
@@ -1358,9 +1359,9 @@ void SongEditor::drawPattern( QPainter& painter, std::shared_ptr<GridCell> pCell
 		if ( cellStyle & ( CellStyle::Selected | CellStyle::Hovered ) ) {
 			QColor highlightColor;
 			if ( m_pSongEditorPanel->hasSongEditorFocus() || m_bEntered ) {
-				highlightColor = colorTheme.m_selectionHighlightColor;
+				highlightColor = pColorTheme->m_selectionHighlightColor;
 			} else {
-				highlightColor = colorTheme.m_selectionInactiveColor;
+				highlightColor = pColorTheme->m_selectionInactiveColor;
 			}
 
 			if ( cellStyle & CellStyle::Hovered ) {

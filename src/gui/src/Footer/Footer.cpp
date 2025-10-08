@@ -167,7 +167,7 @@ void Footer::updateCpuLoad() {
 
 void Footer::updateCpuLoadLabelWidth() {
 	const int nMargin = 4 * getPointSize(
-		H2Core::Preferences::get_instance()->getTheme().m_font.m_fontSize );
+		H2Core::Preferences::get_instance()->getFontTheme()->m_fontSize );
 	const QString sText{ "CPU: 100%" };
 
 	m_pCpuGroup->setFixedWidth(
@@ -175,22 +175,20 @@ void Footer::updateCpuLoadLabelWidth() {
 }
 
 void Footer::updateFont() {
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
 
 	QFont newFont = font();
-	newFont.setFamily( theme.m_font.m_sLevel3FontFamily );
-	newFont.setPointSize( getPointSize( theme.m_font.m_fontSize ) );
+	newFont.setFamily( pFontTheme->m_sLevel3FontFamily );
+	newFont.setPointSize( getPointSize( pFontTheme->m_fontSize ) );
 	setFont( newFont );
 }
 
 void Footer::updateStyleSheet() {
+	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
 
-	const auto colorTheme =
-		H2Core::Preferences::get_instance()->getTheme().m_color;
-
-	const QColor colorText = colorTheme.m_windowTextColor;
-	const QColor colorFooter = colorTheme.m_baseColor;
-	const QColor colorRed = colorTheme.m_buttonRedColor;
+	const QColor colorText = pColorTheme->m_windowTextColor;
+	const QColor colorFooter = pColorTheme->m_baseColor;
+	const QColor colorRed = pColorTheme->m_buttonRedColor;
 
 	setStyleSheet( QString( "\
 QWidget#MainFooter {\

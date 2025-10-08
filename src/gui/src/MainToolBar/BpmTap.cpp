@@ -410,7 +410,7 @@ void BpmTap::updateBpmTap() {
 void BpmTap::updateIcons() {
 	QColor color;
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
+	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 		color = Qt::white;
@@ -434,11 +434,11 @@ void BpmTap::updateIcons() {
 
 void BpmTap::updateStyleSheet() {
 
-	const auto colorTheme =
-		H2Core::Preferences::get_instance()->getTheme().m_color;
+	const auto pColorTheme =
+		H2Core::Preferences::get_instance()->getColorTheme();
 
-	const QColor colorText = colorTheme.m_windowTextColor;
-	const QColor colorLabel = colorTheme.m_windowColor;
+	const QColor colorText = pColorTheme->m_windowTextColor;
+	const QColor colorLabel = pColorTheme->m_windowColor;
 
 	QColor colorBackgroundPressed, colorBackgroundHovered;
 	if ( Skin::moreBlackThanWhite( m_backgroundColor ) ) {

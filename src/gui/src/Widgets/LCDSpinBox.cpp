@@ -347,7 +347,7 @@ void LCDSpinBox::mouseReleaseEvent( QMouseEvent* ev ) {
 }
 
 void LCDSpinBox::paintEvent( QPaintEvent *ev ) {
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
 
 	QDoubleSpinBox::paintEvent( ev );
 
@@ -357,9 +357,9 @@ void LCDSpinBox::paintEvent( QPaintEvent *ev ) {
 
 		QColor colorHighlightActive;
 		if ( m_bIsActive ) {
-			colorHighlightActive = theme.m_color.m_highlightColor;
+			colorHighlightActive = pColorTheme->m_highlightColor;
 		} else {
-			colorHighlightActive = theme.m_color.m_lightColor;
+			colorHighlightActive = pColorTheme->m_lightColor;
 		}
 
 		// If the mouse is placed on the widget but the user hasn't
@@ -392,10 +392,10 @@ void LCDSpinBox::leaveEvent( QEvent* ev ) {
 }
 
 void LCDSpinBox::updateStyleSheet() {
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
 
-	QColor spinBoxColor = theme.m_color.m_spinBoxColor;
-	QColor spinBoxTextColor = theme.m_color.m_spinBoxTextColor;
+	QColor spinBoxColor = pColorTheme->m_spinBoxColor;
+	QColor spinBoxTextColor = pColorTheme->m_spinBoxTextColor;
 	QColor selectionColor = spinBoxColor.darker( 120 );
 
 	QColor spinBoxInactiveColor =

@@ -45,7 +45,7 @@ LCDTextEdit::LCDTextEdit( QWidget* pParent, bool bIsActive )
 	int nStepSize = 2;
 
 	m_fontPointSizes.resize( 3 );
-	switch ( H2Core::Preferences::get_instance()->getTheme().m_font.m_fontSize ) {
+	switch ( H2Core::Preferences::get_instance()->getFontTheme()->m_fontSize ) {
 	case H2Core::FontTheme::FontSize::Small:
 		m_fontPointSizes[ 0 ] = currentFont.pointSize();
 		break;
@@ -86,28 +86,28 @@ void LCDTextEdit::setIsActive( bool bIsActive ) {
 }
 
 void LCDTextEdit::updateFont() {
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
 
 	int nIndex = 1;
-	if ( theme.m_font.m_fontSize == H2Core::FontTheme::FontSize::Small ) {
+	if ( pFontTheme->m_fontSize == H2Core::FontTheme::FontSize::Small ) {
 		nIndex = 0;
-	} else if ( theme.m_font.m_fontSize == H2Core::FontTheme::FontSize::Large ) {
+	} else if ( pFontTheme->m_fontSize == H2Core::FontTheme::FontSize::Large ) {
 		nIndex = 2;
 	}
 
-	setFontFamily( theme.m_font.m_sLevel3FontFamily );
+	setFontFamily( pFontTheme->m_sLevel3FontFamily );
 	setFontPointSize( m_fontPointSizes[ nIndex ] );
 	setPlainText( toPlainText() );
 }
 
 void LCDTextEdit::updateStyleSheet() {
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
 
-	QColor textColor = theme.m_color.m_windowTextColor;
-	QColor textColorActive = theme.m_color.m_widgetTextColor;
+	QColor textColor = pColorTheme->m_windowTextColor;
+	QColor textColorActive = pColorTheme->m_widgetTextColor;
 
-	QColor backgroundColor = theme.m_color.m_windowColor;
-	QColor backgroundColorActive = theme.m_color.m_widgetColor;
+	QColor backgroundColor = pColorTheme->m_windowColor;
+	QColor backgroundColorActive = pColorTheme->m_widgetColor;
 
 	QString sStyleSheet = QString( "\
 QTextEdit:enabled { \
@@ -135,7 +135,7 @@ void LCDTextEdit::onPreferencesChanged( const H2Core::Preferences::Changes& chan
 }
 
 void LCDTextEdit::paintEvent( QPaintEvent *ev ) {
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
 
 	QTextEdit::paintEvent( ev );
 
@@ -145,9 +145,9 @@ void LCDTextEdit::paintEvent( QPaintEvent *ev ) {
 
 		QColor colorHighlightActive;
 		if ( m_bIsActive ) {
-			colorHighlightActive = theme.m_color.m_highlightColor;
+			colorHighlightActive = pColorTheme->m_highlightColor;
 		} else {
-			colorHighlightActive = theme.m_color.m_lightColor;
+			colorHighlightActive = pColorTheme->m_lightColor;
 		}
 
 		// If the mouse is placed on the widget but the user hasn't

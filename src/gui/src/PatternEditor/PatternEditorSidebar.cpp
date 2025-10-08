@@ -66,7 +66,7 @@ SidebarLabel::SidebarLabel( QWidget* pParent, Type type, const QSize& size,
 	, m_bShowCursor( false )
 	, m_bDimed( false )
 {
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
 
 	setFixedWidth( size.width() );
 	setFixedHeight( size.height() );
@@ -76,9 +76,9 @@ SidebarLabel::SidebarLabel( QWidget* pParent, Type type, const QSize& size,
 	setContentsMargins( 1, 1, 1, 1 );
 
 	updateFont();
-	setColor( theme.m_color.m_patternEditor_backgroundColor,
-			  theme.m_color.m_patternEditor_textColor,
-			  theme.m_color.m_cursorColor );
+	setColor( pColorTheme->m_patternEditor_backgroundColor,
+			  pColorTheme->m_patternEditor_textColor,
+			  pColorTheme->m_cursorColor );
 	updateStyle();
 }
 
@@ -177,7 +177,7 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 		const auto pPref = Preferences::get_instance();
 
 		int nLineWidth, nHeight;
-		switch ( pPref->getTheme().m_font.m_fontSize ) {
+		switch ( pPref->getFontTheme()->m_fontSize ) {
 		case H2Core::FontTheme::FontSize::Small:
 			nHeight = height() - 11;
             nLineWidth = 2;
@@ -195,7 +195,7 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
             return;
 		}
 
-		QColor color = m_bEntered ? pPref->getTheme().m_color.m_highlightColor :
+		QColor color = m_bEntered ? pPref->getColorTheme()->m_highlightColor :
 			m_textBaseColor;
 
 		if ( m_bDimed ) {
@@ -269,10 +269,10 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 }
 
 void SidebarLabel::updateFont() {
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
 
-	const QString sFontFamily = theme.m_font.m_sLevel2FontFamily;
-	const auto fontSize = theme.m_font.m_fontSize;
+	const QString sFontFamily = pFontTheme->m_sLevel2FontFamily;
+	const auto fontSize = pFontTheme->m_fontSize;
 
 	int nShrinkage = 7;
 	switch ( fontSize ) {
@@ -342,8 +342,6 @@ void SidebarLabel::setDimed( bool bDimed ) {
 }
 
 void SidebarLabel::updateStyle() {
-	const auto colorTheme = Preferences::get_instance()->getTheme().m_color;
-
 	m_textColor = m_textBaseColor;
 	if ( m_bDimed && m_type == Type::Type ) {
 		m_textColor = m_textColor.darker( SidebarLabel::nDimScaling );
@@ -378,8 +376,8 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	pHBox->setSpacing( 0 );
 	pHBox->setContentsMargins( 0, 0, 0, 0 );
 
-	QFont nameFont( pPref->getTheme().m_font.m_sLevel2FontFamily,
-					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont nameFont( pPref->getFontTheme()->m_sLevel2FontFamily,
+					getPointSize( pPref->getFontTheme()->m_fontSize ) );
 
 	m_pInstrumentNameLbl = new SidebarLabel(
 		this, SidebarLabel::Type::Instrument,
@@ -753,53 +751,53 @@ void SidebarRow::setDimed( bool bDimed ) {
 }
 
 void SidebarRow::updateStyleSheet() {
-	const auto colorTheme = Preferences::get_instance()->getTheme().m_color;
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 
 	QColor textColor, textPatternColor, backgroundPatternColor, backgroundColor;
 	if ( m_bIsSelected ) {
 		backgroundPatternColor =
-			colorTheme.m_patternEditor_selectedRowColor.darker(
+			pColorTheme->m_patternEditor_selectedRowColor.darker(
 				Skin::nListBackgroundColorScaling );
 		backgroundColor =
-			colorTheme.m_patternEditor_instrumentSelectedRowColor;
-		textPatternColor = colorTheme.m_patternEditor_selectedRowTextColor;
-		textColor = colorTheme.m_patternEditor_instrumentSelectedRowTextColor;
+			pColorTheme->m_patternEditor_instrumentSelectedRowColor;
+		textPatternColor = pColorTheme->m_patternEditor_selectedRowTextColor;
+		textColor = pColorTheme->m_patternEditor_instrumentSelectedRowTextColor;
 	}
 	else if ( m_row.bAlternate ) {
 		backgroundPatternColor =
-			colorTheme.m_patternEditor_alternateRowColor.darker(
+			pColorTheme->m_patternEditor_alternateRowColor.darker(
 				Skin::nListBackgroundColorScaling );
 		backgroundColor =
-			colorTheme.m_patternEditor_instrumentAlternateRowColor;
-		textPatternColor = colorTheme.m_patternEditor_textColor;
-		textColor = colorTheme.m_patternEditor_instrumentRowTextColor;
+			pColorTheme->m_patternEditor_instrumentAlternateRowColor;
+		textPatternColor = pColorTheme->m_patternEditor_textColor;
+		textColor = pColorTheme->m_patternEditor_instrumentRowTextColor;
 	}
 	else {
 		backgroundPatternColor =
-			colorTheme.m_patternEditor_backgroundColor.darker(
+			pColorTheme->m_patternEditor_backgroundColor.darker(
 				Skin::nListBackgroundColorScaling );
 		backgroundColor =
-			colorTheme.m_patternEditor_instrumentRowColor;
-		textPatternColor = colorTheme.m_patternEditor_textColor;
-		textColor = colorTheme.m_patternEditor_instrumentRowTextColor;
+			pColorTheme->m_patternEditor_instrumentRowColor;
+		textPatternColor = pColorTheme->m_patternEditor_textColor;
+		textColor = pColorTheme->m_patternEditor_instrumentRowTextColor;
 	}
 
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
 	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
-		backgroundInactiveColor = colorTheme.m_windowColor.lighter(
+		backgroundInactiveColor = pColorTheme->m_windowColor.lighter(
 			Skin::nEditorActiveScaling );
 	}
 	else {
-		backgroundInactiveColor = colorTheme.m_windowColor;
+		backgroundInactiveColor = pColorTheme->m_windowColor;
 	}
 
 	setColor( backgroundInactiveColor );
 
 	m_pInstrumentNameLbl->setColor(
-		backgroundColor, textColor, colorTheme.m_cursorColor );
+		backgroundColor, textColor, pColorTheme->m_cursorColor );
 	m_pTypeLbl->setColor(
-		backgroundPatternColor, textPatternColor, colorTheme.m_cursorColor );
+		backgroundPatternColor, textPatternColor, pColorTheme->m_cursorColor );
 }
 
 void SidebarRow::updateTypeLabelVisibility( bool bVisible ) {
@@ -952,12 +950,12 @@ void SidebarRow::mousePressEvent(QMouseEvent *ev)
 }
 
 void SidebarRow::updateColors() {
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 
-	m_pMuteBtn->setCheckedBackgroundColor( theme.m_color.m_muteColor );
-	m_pMuteBtn->setCheckedBackgroundTextColor( theme.m_color.m_muteTextColor );
-	m_pSoloBtn->setCheckedBackgroundColor( theme.m_color.m_soloColor );
-	m_pSoloBtn->setCheckedBackgroundTextColor( theme.m_color.m_soloTextColor );
+	m_pMuteBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
+	m_pMuteBtn->setCheckedBackgroundTextColor( pColorTheme->m_muteTextColor );
+	m_pSoloBtn->setCheckedBackgroundColor( pColorTheme->m_soloColor );
+	m_pSoloBtn->setCheckedBackgroundTextColor( pColorTheme->m_soloTextColor );
 }
 
 void SidebarRow::updateFont() {

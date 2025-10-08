@@ -204,62 +204,63 @@ void ColorTheme::saveTo( XMLNode& parent ) const {
 	widgetNode.write_color( "soloTextColor", m_soloTextColor );
 }
 
-ColorTheme ColorTheme::loadFrom( const XMLNode& parent, const bool bSilent ) {
-	auto colorTheme = ColorTheme();
+std::shared_ptr<ColorTheme> ColorTheme::loadFrom( const XMLNode& parent,
+												 const bool bSilent ) {
+	auto pColorTheme = std::make_shared<ColorTheme>();
 
 	// SONG EDITOR
 	const XMLNode songEditorNode = parent.firstChildElement( "songEditor" );
 	if ( ! songEditorNode.isNull() ) {
-		colorTheme.m_songEditor_backgroundColor = songEditorNode.read_color(
+		pColorTheme->m_songEditor_backgroundColor = songEditorNode.read_color(
 			"backgroundColor",
-			colorTheme.m_songEditor_backgroundColor, false, false, bSilent );
-		colorTheme.m_songEditor_alternateRowColor = songEditorNode.read_color(
+			pColorTheme->m_songEditor_backgroundColor, false, false, bSilent );
+		pColorTheme->m_songEditor_alternateRowColor = songEditorNode.read_color(
 			"alternateRowColor",
-			colorTheme.m_songEditor_alternateRowColor, false, false, bSilent );
-		colorTheme.m_songEditor_virtualRowColor = songEditorNode.read_color(
+			pColorTheme->m_songEditor_alternateRowColor, false, false, bSilent );
+		pColorTheme->m_songEditor_virtualRowColor = songEditorNode.read_color(
 			"virtualRowColor",
-			colorTheme.m_songEditor_virtualRowColor, false, false, bSilent );
-		colorTheme.m_songEditor_selectedRowColor = songEditorNode.read_color(
+			pColorTheme->m_songEditor_virtualRowColor, false, false, bSilent );
+		pColorTheme->m_songEditor_selectedRowColor = songEditorNode.read_color(
 			"selectedRowColor",
-			colorTheme.m_songEditor_selectedRowColor, false, false, bSilent );
-		colorTheme.m_songEditor_selectedRowTextColor = songEditorNode.read_color(
+			pColorTheme->m_songEditor_selectedRowColor, false, false, bSilent );
+		pColorTheme->m_songEditor_selectedRowTextColor = songEditorNode.read_color(
 			"selectedRowTextColor",
-			colorTheme.m_songEditor_selectedRowTextColor, false, false, bSilent );
-		colorTheme.m_songEditor_lineColor = songEditorNode.read_color(
+			pColorTheme->m_songEditor_selectedRowTextColor, false, false, bSilent );
+		pColorTheme->m_songEditor_lineColor = songEditorNode.read_color(
 			"lineColor",
-			colorTheme.m_songEditor_lineColor, false, false, bSilent );
-		colorTheme.m_songEditor_textColor = songEditorNode.read_color(
+			pColorTheme->m_songEditor_lineColor, false, false, bSilent );
+		pColorTheme->m_songEditor_textColor = songEditorNode.read_color(
 			"textColor",
-			colorTheme.m_songEditor_textColor, false, false, bSilent );
-		colorTheme.m_songEditor_automationBackgroundColor =
+			pColorTheme->m_songEditor_textColor, false, false, bSilent );
+		pColorTheme->m_songEditor_automationBackgroundColor =
 			songEditorNode.read_color(
 				"automationBackgroundColor",
-				colorTheme.m_songEditor_automationBackgroundColor, false, false,
+				pColorTheme->m_songEditor_automationBackgroundColor, false, false,
 				bSilent );
-		colorTheme.m_songEditor_automationLineColor =
+		pColorTheme->m_songEditor_automationLineColor =
 			songEditorNode.read_color(
 				"automationLineColor",
-				colorTheme.m_songEditor_automationLineColor, false, false,
+				pColorTheme->m_songEditor_automationLineColor, false, false,
 				bSilent );
-		colorTheme.m_songEditor_automationNodeColor =
+		pColorTheme->m_songEditor_automationNodeColor =
 			songEditorNode.read_color(
 				"automationNodeColor",
-				colorTheme.m_songEditor_automationNodeColor, false, false,
+				pColorTheme->m_songEditor_automationNodeColor, false, false,
 				bSilent );
-		colorTheme.m_songEditor_stackedModeOnColor =
+		pColorTheme->m_songEditor_stackedModeOnColor =
 			songEditorNode.read_color(
 				"stackedModeOnColor",
-				colorTheme.m_songEditor_stackedModeOnColor, false, false,
+				pColorTheme->m_songEditor_stackedModeOnColor, false, false,
 				bSilent );
-		colorTheme.m_songEditor_stackedModeOnNextColor =
+		pColorTheme->m_songEditor_stackedModeOnNextColor =
 			songEditorNode.read_color(
 				"stackedModeOnNextColor",
-				colorTheme.m_songEditor_stackedModeOnNextColor, false, false,
+				pColorTheme->m_songEditor_stackedModeOnNextColor, false, false,
 				bSilent );
-		colorTheme.m_songEditor_stackedModeOffNextColor =
+		pColorTheme->m_songEditor_stackedModeOffNextColor =
 			songEditorNode.read_color(
 				"stackedModeOffNextColor",
-				colorTheme.m_songEditor_stackedModeOffNextColor, false, false,
+				pColorTheme->m_songEditor_stackedModeOffNextColor, false, false,
 				bSilent );
 	}
 	else {
@@ -269,101 +270,101 @@ ColorTheme ColorTheme::loadFrom( const XMLNode& parent, const bool bSilent ) {
 	// PATTERN EDITOR
 	const XMLNode patternEditorNode = parent.firstChildElement( "patternEditor" );
 	if ( ! patternEditorNode.isNull() ) {
-		colorTheme.m_patternEditor_backgroundColor =
+		pColorTheme->m_patternEditor_backgroundColor =
 			patternEditorNode.read_color(
 				"backgroundColor",
-				colorTheme.m_patternEditor_backgroundColor, false, false, bSilent );
-		colorTheme.m_patternEditor_alternateRowColor =
+				pColorTheme->m_patternEditor_backgroundColor, false, false, bSilent );
+		pColorTheme->m_patternEditor_alternateRowColor =
 			patternEditorNode.read_color(
 				"alternateRowColor",
-				colorTheme.m_patternEditor_alternateRowColor, false, false, bSilent );
-		colorTheme.m_patternEditor_selectedRowColor =
+				pColorTheme->m_patternEditor_alternateRowColor, false, false, bSilent );
+		pColorTheme->m_patternEditor_selectedRowColor =
 			patternEditorNode.read_color(
 				"selectedRowColor",
-				colorTheme.m_patternEditor_selectedRowColor, false, false, bSilent );
-		colorTheme.m_patternEditor_selectedRowTextColor =
+				pColorTheme->m_patternEditor_selectedRowColor, false, false, bSilent );
+		pColorTheme->m_patternEditor_selectedRowTextColor =
 			patternEditorNode.read_color(
 				"selectedRowTextColor",
-				colorTheme.m_patternEditor_selectedRowTextColor, false, false, bSilent );
-		colorTheme.m_patternEditor_octaveRowColor =
+				pColorTheme->m_patternEditor_selectedRowTextColor, false, false, bSilent );
+		pColorTheme->m_patternEditor_octaveRowColor =
 			patternEditorNode.read_color(
 				"octaveRowColor",
-				colorTheme.m_patternEditor_octaveRowColor, false, false, bSilent );
-		colorTheme.m_patternEditor_textColor =
+				pColorTheme->m_patternEditor_octaveRowColor, false, false, bSilent );
+		pColorTheme->m_patternEditor_textColor =
 			patternEditorNode.read_color(
 				"textColor",
-				colorTheme.m_patternEditor_textColor, false, false, bSilent );
-		colorTheme.m_patternEditor_noteVelocityFullColor =
+				pColorTheme->m_patternEditor_textColor, false, false, bSilent );
+		pColorTheme->m_patternEditor_noteVelocityFullColor =
 			patternEditorNode.read_color(
 				"noteVelocityFullColor",
-				colorTheme.m_patternEditor_noteVelocityFullColor, false, false,
+				pColorTheme->m_patternEditor_noteVelocityFullColor, false, false,
 				bSilent );
-		colorTheme.m_patternEditor_noteVelocityDefaultColor =
+		pColorTheme->m_patternEditor_noteVelocityDefaultColor =
 			patternEditorNode.read_color(
 				"noteVelocityDefaultColor",
-				colorTheme.m_patternEditor_noteVelocityDefaultColor, false,
+				pColorTheme->m_patternEditor_noteVelocityDefaultColor, false,
 				false, bSilent );
-		colorTheme.m_patternEditor_noteVelocityHalfColor =
+		pColorTheme->m_patternEditor_noteVelocityHalfColor =
 			patternEditorNode.read_color(
 				"noteVelocityHalfColor",
-				colorTheme.m_patternEditor_noteVelocityHalfColor, false, false,
+				pColorTheme->m_patternEditor_noteVelocityHalfColor, false, false,
 				bSilent );
-		colorTheme.m_patternEditor_noteVelocityZeroColor =
+		pColorTheme->m_patternEditor_noteVelocityZeroColor =
 			patternEditorNode.read_color(
 				"noteVelocityZeroColor",
-				colorTheme.m_patternEditor_noteVelocityZeroColor, false, false,
+				pColorTheme->m_patternEditor_noteVelocityZeroColor, false, false,
 				bSilent );
-		colorTheme.m_patternEditor_noteOffColor =
+		pColorTheme->m_patternEditor_noteOffColor =
 			patternEditorNode.read_color(
 				"noteOffColor",
-				colorTheme.m_patternEditor_noteOffColor, false, false, bSilent );
-		colorTheme.m_patternEditor_lineColor =
+				pColorTheme->m_patternEditor_noteOffColor, false, false, bSilent );
+		pColorTheme->m_patternEditor_lineColor =
 			patternEditorNode.read_color(
 				"lineColor",
-				colorTheme.m_patternEditor_lineColor, false, false, bSilent );
-		colorTheme.m_patternEditor_line1Color =
+				pColorTheme->m_patternEditor_lineColor, false, false, bSilent );
+		pColorTheme->m_patternEditor_line1Color =
 			patternEditorNode.read_color(
 				"line1Color",
-				colorTheme.m_patternEditor_line1Color, false, false, bSilent );
-		colorTheme.m_patternEditor_line2Color =
+				pColorTheme->m_patternEditor_line1Color, false, false, bSilent );
+		pColorTheme->m_patternEditor_line2Color =
 			patternEditorNode.read_color(
 				"line2Color",
-				colorTheme.m_patternEditor_line2Color, false, false, bSilent );
-		colorTheme.m_patternEditor_line3Color =
+				pColorTheme->m_patternEditor_line2Color, false, false, bSilent );
+		pColorTheme->m_patternEditor_line3Color =
 			patternEditorNode.read_color(
 				"line3Color",
-				colorTheme.m_patternEditor_line3Color, false, false, bSilent );
-		colorTheme.m_patternEditor_line4Color =
+				pColorTheme->m_patternEditor_line3Color, false, false, bSilent );
+		pColorTheme->m_patternEditor_line4Color =
 			patternEditorNode.read_color(
 				"line4Color",
-				colorTheme.m_patternEditor_line4Color, false, false, bSilent );
-		colorTheme.m_patternEditor_line5Color = patternEditorNode.read_color(
-			"line5Color", colorTheme.m_patternEditor_line5Color, false, false,
+				pColorTheme->m_patternEditor_line4Color, false, false, bSilent );
+		pColorTheme->m_patternEditor_line5Color = patternEditorNode.read_color(
+			"line5Color", pColorTheme->m_patternEditor_line5Color, false, false,
 			bSilent );
-		colorTheme.m_patternEditor_instrumentRowColor =
+		pColorTheme->m_patternEditor_instrumentRowColor =
 			patternEditorNode.read_color(
 				"instrumentRowColor",
-				colorTheme.m_patternEditor_instrumentRowColor, false, false,
+				pColorTheme->m_patternEditor_instrumentRowColor, false, false,
 				bSilent );
-		colorTheme.m_patternEditor_instrumentRowTextColor =
+		pColorTheme->m_patternEditor_instrumentRowTextColor =
 			patternEditorNode.read_color(
 				"instrumentRowTextColor",
-				colorTheme.m_patternEditor_instrumentRowTextColor, false, false,
+				pColorTheme->m_patternEditor_instrumentRowTextColor, false, false,
 				bSilent );
-		colorTheme.m_patternEditor_instrumentAlternateRowColor =
+		pColorTheme->m_patternEditor_instrumentAlternateRowColor =
 			patternEditorNode.read_color(
 				"instrumentAlternateRowColor",
-				colorTheme.m_patternEditor_instrumentAlternateRowColor, false,
+				pColorTheme->m_patternEditor_instrumentAlternateRowColor, false,
 				false, bSilent );
-		colorTheme.m_patternEditor_instrumentSelectedRowColor =
+		pColorTheme->m_patternEditor_instrumentSelectedRowColor =
 			patternEditorNode.read_color(
 				"instrumentSelectedRowColor",
-				colorTheme.m_patternEditor_instrumentSelectedRowColor, false, false,
+				pColorTheme->m_patternEditor_instrumentSelectedRowColor, false, false,
 				bSilent );
-		colorTheme.m_patternEditor_instrumentSelectedRowTextColor =
+		pColorTheme->m_patternEditor_instrumentSelectedRowTextColor =
 			patternEditorNode.read_color(
 				"instrumentSelectedRowTextColor",
-				colorTheme.m_patternEditor_instrumentSelectedRowTextColor, false, false,
+				pColorTheme->m_patternEditor_instrumentSelectedRowTextColor, false, false,
 				bSilent );
 	}
 	else {
@@ -372,14 +373,14 @@ ColorTheme ColorTheme::loadFrom( const XMLNode& parent, const bool bSilent ) {
 
 	const XMLNode selectionNode = parent.firstChildElement( "selection" );
 	if ( ! selectionNode.isNull() ) {
-		colorTheme.m_selectionHighlightColor =
+		pColorTheme->m_selectionHighlightColor =
 			selectionNode.read_color(
 				"highlightColor",
-				colorTheme.m_selectionHighlightColor, false, false, bSilent );
-		colorTheme.m_selectionInactiveColor =
+				pColorTheme->m_selectionHighlightColor, false, false, bSilent );
+		pColorTheme->m_selectionInactiveColor =
 			selectionNode.read_color(
 				"inactiveColor",
-				colorTheme.m_selectionInactiveColor, false, false, bSilent );
+				pColorTheme->m_selectionInactiveColor, false, false, bSilent );
 	}
 	else {
 		WARNINGLOG( "<selection> node not found" );
@@ -387,70 +388,70 @@ ColorTheme ColorTheme::loadFrom( const XMLNode& parent, const bool bSilent ) {
 
 	const XMLNode paletteNode = parent.firstChildElement( "palette" );
 	if ( ! paletteNode.isNull() ) {
-		colorTheme.m_windowColor =
+		pColorTheme->m_windowColor =
 			paletteNode.read_color(
 				"windowColor",
-				colorTheme.m_windowColor, false, false, bSilent );
-		colorTheme.m_windowTextColor =
+				pColorTheme->m_windowColor, false, false, bSilent );
+		pColorTheme->m_windowTextColor =
 			paletteNode.read_color(
 				"windowTextColor",
-				colorTheme.m_windowTextColor, false, false, bSilent );
-		colorTheme.m_baseColor =
+				pColorTheme->m_windowTextColor, false, false, bSilent );
+		pColorTheme->m_baseColor =
 			paletteNode.read_color(
 				"baseColor",
-				colorTheme.m_baseColor, false, false, bSilent );
-		colorTheme.m_alternateBaseColor =
+				pColorTheme->m_baseColor, false, false, bSilent );
+		pColorTheme->m_alternateBaseColor =
 			paletteNode.read_color(
 				"alternateBaseColor",
-				colorTheme.m_alternateBaseColor, false, false, bSilent );
-		colorTheme.m_textColor =
+				pColorTheme->m_alternateBaseColor, false, false, bSilent );
+		pColorTheme->m_textColor =
 			paletteNode.read_color(
 				"textColor",
-				colorTheme.m_textColor, false, false, bSilent );
-		colorTheme.m_buttonColor =
+				pColorTheme->m_textColor, false, false, bSilent );
+		pColorTheme->m_buttonColor =
 			paletteNode.read_color(
 				"buttonColor",
-				colorTheme.m_buttonColor, false, false, bSilent );
-		colorTheme.m_buttonTextColor =
+				pColorTheme->m_buttonColor, false, false, bSilent );
+		pColorTheme->m_buttonTextColor =
 			paletteNode.read_color(
 				"buttonTextColor",
-				colorTheme.m_buttonTextColor, false, false, bSilent );
-		colorTheme.m_lightColor =
+				pColorTheme->m_buttonTextColor, false, false, bSilent );
+		pColorTheme->m_lightColor =
 			paletteNode.read_color(
 				"lightColor",
-				colorTheme.m_lightColor, false, false, bSilent );
-		colorTheme.m_midLightColor =
+				pColorTheme->m_lightColor, false, false, bSilent );
+		pColorTheme->m_midLightColor =
 			paletteNode.read_color(
 				"midLightColor",
-				colorTheme.m_midLightColor, false, false, bSilent );
-		colorTheme.m_midColor =
+				pColorTheme->m_midLightColor, false, false, bSilent );
+		pColorTheme->m_midColor =
 			paletteNode.read_color(
 				"midColor",
-				colorTheme.m_midColor, false, false, bSilent );
-		colorTheme.m_darkColor =
+				pColorTheme->m_midColor, false, false, bSilent );
+		pColorTheme->m_darkColor =
 			paletteNode.read_color(
 				"darkColor",
-				colorTheme.m_darkColor, false, false, bSilent );
-		colorTheme.m_shadowTextColor =
+				pColorTheme->m_darkColor, false, false, bSilent );
+		pColorTheme->m_shadowTextColor =
 			paletteNode.read_color(
 				"shadowTextColor",
-				colorTheme.m_shadowTextColor, false, false, bSilent );
-		colorTheme.m_highlightColor =
+				pColorTheme->m_shadowTextColor, false, false, bSilent );
+		pColorTheme->m_highlightColor =
 			paletteNode.read_color(
 				"highlightColor",
-				colorTheme.m_highlightColor, false, false, bSilent );
-		colorTheme.m_highlightedTextColor =
+				pColorTheme->m_highlightColor, false, false, bSilent );
+		pColorTheme->m_highlightedTextColor =
 			paletteNode.read_color(
 				"highlightedTextColor",
-				colorTheme.m_highlightedTextColor, false, false, bSilent );
-		colorTheme.m_toolTipBaseColor =
+				pColorTheme->m_highlightedTextColor, false, false, bSilent );
+		pColorTheme->m_toolTipBaseColor =
 			paletteNode.read_color(
 				"toolTipBaseColor",
-				colorTheme.m_toolTipBaseColor, false, false, bSilent );
-		colorTheme.m_toolTipTextColor =
+				pColorTheme->m_toolTipBaseColor, false, false, bSilent );
+		pColorTheme->m_toolTipTextColor =
 			paletteNode.read_color(
 				"toolTipTextColor",
-				colorTheme.m_toolTipTextColor, false, false, bSilent );
+				pColorTheme->m_toolTipTextColor, false, false, bSilent );
 	}
 	else {
 		WARNINGLOG( "<palette> node not found" );
@@ -458,68 +459,68 @@ ColorTheme ColorTheme::loadFrom( const XMLNode& parent, const bool bSilent ) {
 
 	const XMLNode widgetNode = parent.firstChildElement( "widget" );
 	if ( ! widgetNode.isNull() ) {
-		colorTheme.m_accentColor =
+		pColorTheme->m_accentColor =
 			widgetNode.read_color(
 				"accentColor",
-				colorTheme.m_accentColor, false, false, bSilent );
-		colorTheme.m_accentTextColor =
+				pColorTheme->m_accentColor, false, false, bSilent );
+		pColorTheme->m_accentTextColor =
 			widgetNode.read_color(
 				"accentTextColor",
-				colorTheme.m_accentTextColor, false, false, bSilent );
-		colorTheme.m_widgetColor =
+				pColorTheme->m_accentTextColor, false, false, bSilent );
+		pColorTheme->m_widgetColor =
 			widgetNode.read_color(
 				"widgetColor",
-				colorTheme.m_widgetColor, false, false, bSilent );
-		colorTheme.m_widgetTextColor =
+				pColorTheme->m_widgetColor, false, false, bSilent );
+		pColorTheme->m_widgetTextColor =
 			widgetNode.read_color(
 				"widgetTextColor",
-				colorTheme.m_widgetTextColor, false, false, bSilent );
-		colorTheme.m_buttonRedColor =
+				pColorTheme->m_widgetTextColor, false, false, bSilent );
+		pColorTheme->m_buttonRedColor =
 			widgetNode.read_color(
 				"buttonRedColor",
-				colorTheme.m_buttonRedColor, false, false, bSilent );
-		colorTheme.m_buttonRedTextColor =
+				pColorTheme->m_buttonRedColor, false, false, bSilent );
+		pColorTheme->m_buttonRedTextColor =
 			widgetNode.read_color(
 				"buttonRedTextColor",
-				colorTheme.m_buttonRedTextColor, false, false, bSilent );
-		colorTheme.m_spinBoxColor =
+				pColorTheme->m_buttonRedTextColor, false, false, bSilent );
+		pColorTheme->m_spinBoxColor =
 			widgetNode.read_color(
 				"spinBoxColor",
-				colorTheme.m_spinBoxColor, false, false, bSilent );
-		colorTheme.m_spinBoxTextColor =
+				pColorTheme->m_spinBoxColor, false, false, bSilent );
+		pColorTheme->m_spinBoxTextColor =
 			widgetNode.read_color(
 				"spinBoxTextColor",
-				colorTheme.m_spinBoxTextColor, false, false, bSilent );
-		colorTheme.m_playheadColor =
+				pColorTheme->m_spinBoxTextColor, false, false, bSilent );
+		pColorTheme->m_playheadColor =
 			widgetNode.read_color(
 				"playheadColor",
-				colorTheme.m_playheadColor, false, false, bSilent );
-		colorTheme.m_cursorColor =
+				pColorTheme->m_playheadColor, false, false, bSilent );
+		pColorTheme->m_cursorColor =
 			widgetNode.read_color(
 				"cursorColor",
-				colorTheme.m_cursorColor, false, false, bSilent );
-		colorTheme.m_muteColor =
+				pColorTheme->m_cursorColor, false, false, bSilent );
+		pColorTheme->m_muteColor =
 			widgetNode.read_color(
 				"muteColor",
-				colorTheme.m_muteColor, false, false, bSilent );
-		colorTheme.m_muteTextColor =
+				pColorTheme->m_muteColor, false, false, bSilent );
+		pColorTheme->m_muteTextColor =
 			widgetNode.read_color(
 				"muteTextColor",
-				colorTheme.m_muteTextColor, false, false, bSilent );
-		colorTheme.m_soloColor =
+				pColorTheme->m_muteTextColor, false, false, bSilent );
+		pColorTheme->m_soloColor =
 			widgetNode.read_color(
 				"soloColor",
-				colorTheme.m_soloColor, false, false, bSilent );
-		colorTheme.m_soloTextColor =
+				pColorTheme->m_soloColor, false, false, bSilent );
+		pColorTheme->m_soloTextColor =
 			widgetNode.read_color(
 				"soloTextColor",
-				colorTheme.m_soloTextColor, false, false, bSilent );
+				pColorTheme->m_soloTextColor, false, false, bSilent );
 }
 	else {
 		WARNINGLOG( "<widget> node not found" );
 	}
 
-	return colorTheme;
+	return pColorTheme;
 }
 
 QString ColorTheme::toQString( const QString& sPrefix, bool bShort ) const {
@@ -1015,44 +1016,29 @@ QString FontTheme::toQString( const QString& sPrefix, bool bShort ) const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Theme::Theme( const ColorTheme& colorTheme,
-			  const InterfaceTheme& interfaceTheme,
-			  const FontTheme& fontTheme )
-	: m_color{ colorTheme }
-	, m_interface{ interfaceTheme }
-	, m_font{ fontTheme } {
+Theme::Theme( std::shared_ptr<ColorTheme> pColorTheme,
+			  std::shared_ptr<InterfaceTheme> pInterfaceTheme,
+			  std::shared_ptr<FontTheme> pFontTheme )
+	: m_pColor{ pColorTheme }
+	, m_pInterface{ pInterfaceTheme }
+	, m_pFont{ pFontTheme } {
 }
 
-Theme::Theme( const Theme& other )
-	: m_color{ other.m_color }
-	, m_interface{ other.m_interface}
-	, m_font{ other.m_font } {
+Theme::Theme( const std::shared_ptr<const Theme> pOther )
+	: m_pColor{ pOther->m_pColor }
+	, m_pInterface{ pOther->m_pInterface}
+	, m_pFont{ pOther->m_pFont } {
 }
 
-Theme::Theme( Theme&& other )
-	: m_color{ other.m_color }
-	, m_interface{ other.m_interface }
-	, m_font{ other.m_font }
-{
-}
-
-Theme& Theme::operator=( const Theme& other ) {
-	m_color = other.m_color;
-	m_interface = other.m_interface;
-	m_font = other.m_font;
+Theme Theme::operator=( const std::shared_ptr<const Theme> pOther ) {
+	m_pColor = pOther->m_pColor;
+	m_pInterface = pOther->m_pInterface;
+	m_pFont = pOther->m_pFont;
 
 	return *this;
 }
 
-Theme& Theme::operator=( Theme&& other ) {
-	m_color = std::move( other.m_color );
-	m_interface = std::move( other.m_interface );
-	m_font = std::move( other.m_font );
-
-	return *this;
-}
-
-std::unique_ptr<Theme> Theme::importFrom( const QString& sPath ) {
+std::shared_ptr<Theme> Theme::importFrom( const QString& sPath ) {
 	if ( ! Filesystem::file_exists( sPath ) || ! Filesystem::file_readable( sPath ) ){
 		return nullptr;
 	}
@@ -1076,69 +1062,74 @@ std::unique_ptr<Theme> Theme::importFrom( const QString& sPath ) {
 		ERRORLOG( "'colorTheme' node not found" );
 		return nullptr;
 	}
-	auto colorTheme = ColorTheme::loadFrom( colorThemeNode );
+	auto pColorTheme = ColorTheme::loadFrom( colorThemeNode );
 	
 	XMLNode interfaceNode = rootNode.firstChildElement( "interfaceTheme" );
 	if ( interfaceNode.isNull() ) {
 		ERRORLOG( "'interfaceTheme' node not found" );
 		return nullptr;
 	}
-	auto interfaceTheme = InterfaceTheme();
-	interfaceTheme.m_layout =
+	auto pInterfaceTheme = std::make_shared<InterfaceTheme>();
+	pInterfaceTheme->m_layout =
 		static_cast<InterfaceTheme::Layout>(
 			interfaceNode.read_int( "defaultUILayout",
-									static_cast<int>(InterfaceTheme::Layout::SinglePane),
+									static_cast<int>(pInterfaceTheme->m_layout),
 									false, false ));
-	interfaceTheme.m_uiScalingPolicy =
+	pInterfaceTheme->m_uiScalingPolicy =
 		static_cast<InterfaceTheme::ScalingPolicy>(
 			interfaceNode.read_int( "uiScalingPolicy",
-									static_cast<int>(InterfaceTheme::ScalingPolicy::Smaller),
+									static_cast<int>(pInterfaceTheme->m_uiScalingPolicy),
 									false, false ));
 				
 	// QT Style
-	interfaceTheme.m_sQTStyle =
-		interfaceNode.read_string( "QTStyle", "Fusion", false, false );
+	pInterfaceTheme->m_sQTStyle =
+		interfaceNode.read_string(
+			"QTStyle", pInterfaceTheme->m_sQTStyle, false, false );
 
-	if ( interfaceTheme.m_sQTStyle == "Plastique" ){
-		interfaceTheme.m_sQTStyle = "Fusion";
+	if ( pInterfaceTheme->m_sQTStyle == "Plastique" ){
+		pInterfaceTheme->m_sQTStyle = "Fusion";
 	}
-	interfaceTheme.m_iconColor =
+	pInterfaceTheme->m_iconColor =
 		static_cast<InterfaceTheme::IconColor>(
 			interfaceNode.read_int( "iconColor",
-									static_cast<int>(InterfaceTheme::IconColor::Black),
+									static_cast<int>(pInterfaceTheme->m_iconColor),
 									false, false));
 
 	// Mixer falloff speed
-	interfaceTheme.m_fMixerFalloffSpeed =
+	pInterfaceTheme->m_fMixerFalloffSpeed =
 		interfaceNode.read_float( "mixer_falloff_speed",
-								  InterfaceTheme::FALLOFF_NORMAL, false, false );
+								  pInterfaceTheme->m_fMixerFalloffSpeed,
+								 false, false );
 
 	//SongEditor coloring
-	interfaceTheme.m_coloringMethod =
+	pInterfaceTheme->m_coloringMethod =
 		static_cast<InterfaceTheme::ColoringMethod>(
 			interfaceNode.read_int("SongEditor_ColoringMethod",
-								   static_cast<int>(InterfaceTheme::ColoringMethod::Custom),
+								   static_cast<int>(pInterfaceTheme->m_coloringMethod),
 								   false, false ));
-	std::vector<QColor> colors( interfaceTheme.nMaxPatternColors );
-	for ( int ii = 0; ii < interfaceTheme.nMaxPatternColors; ii++ ) {
+	std::vector<QColor> colors( pInterfaceTheme->nMaxPatternColors );
+	for ( int ii = 0; ii < pInterfaceTheme->nMaxPatternColors; ii++ ) {
 		colors[ ii ] = interfaceNode.read_color( QString( "SongEditor_pattern_color_%1" ).arg( ii ),
-												 colorTheme.m_accentColor,
+												 pInterfaceTheme->m_patternColors[ ii ],
 												 false, false );
 	}
-	interfaceTheme.m_patternColors = colors;
-	interfaceTheme.m_nVisiblePatternColors =
-		interfaceNode.read_int( "SongEditor_visible_pattern_colors", 1, false, false );
-	if ( interfaceTheme.m_nVisiblePatternColors > 50 ) {
-		interfaceTheme.m_nVisiblePatternColors = 50;
-	} else if ( interfaceTheme.m_nVisiblePatternColors < 0 ) {
-		interfaceTheme.m_nVisiblePatternColors = 0;
+	pInterfaceTheme->m_patternColors = colors;
+	pInterfaceTheme->m_nVisiblePatternColors =
+		interfaceNode.read_int( "SongEditor_visible_pattern_colors",
+							   pInterfaceTheme->m_nVisiblePatternColors,
+							   false, false );
+	if ( pInterfaceTheme->m_nVisiblePatternColors > 50 ) {
+		pInterfaceTheme->m_nVisiblePatternColors = 50;
+	} else if ( pInterfaceTheme->m_nVisiblePatternColors < 0 ) {
+		pInterfaceTheme->m_nVisiblePatternColors = 0;
 	}
 
-	interfaceTheme.m_bIndicateNotePlayback = interfaceNode.read_bool(
-		"indicate_note_playback", true, /* inexistent_ok */ true,
-		/* empty_ok */ false );
-	interfaceTheme.m_bIndicateEffectiveNoteLength = interfaceNode.read_bool(
-		"indicate_effective_note_length", true, /* inexistent_ok */ true,
+	pInterfaceTheme->m_bIndicateNotePlayback = interfaceNode.read_bool(
+		"indicate_note_playback", pInterfaceTheme->m_bIndicateNotePlayback,
+		/* inexistent_ok */ true, /* empty_ok */ false );
+	pInterfaceTheme->m_bIndicateEffectiveNoteLength = interfaceNode.read_bool(
+		"indicate_effective_note_length",
+		pInterfaceTheme->m_bIndicateEffectiveNoteLength, /* inexistent_ok */ true,
 		/* empty_ok */ false );
 			
 	XMLNode fontNode = rootNode.firstChildElement( "fontTheme" );
@@ -1147,25 +1138,25 @@ std::unique_ptr<Theme> Theme::importFrom( const QString& sPath ) {
 		return nullptr;
 	}
 
-	auto fontTheme = FontTheme();
+	auto pFontTheme = std::make_shared<FontTheme>();
 	// Font fun
-	fontTheme.m_sApplicationFontFamily =
+	pFontTheme->m_sApplicationFontFamily =
 		fontNode.read_string( "application_font_family",
-							  fontTheme.m_sApplicationFontFamily, false, false );
+							  pFontTheme->m_sApplicationFontFamily, false, false );
 	// The value defaults to m_sApplicationFontFamily on
 	// purpose to provide backward compatibility.
-	fontTheme.m_sLevel2FontFamily =
+	pFontTheme->m_sLevel2FontFamily =
 		fontNode.read_string( "level2_font_family",
-							  fontTheme.m_sLevel2FontFamily, false, false );
-	fontTheme.m_sLevel3FontFamily =
+							  pFontTheme->m_sLevel2FontFamily, false, false );
+	pFontTheme->m_sLevel3FontFamily =
 		fontNode.read_string( "level3_font_family",
-							  fontTheme.m_sLevel3FontFamily, false, false );
-	fontTheme.m_fontSize =
+							  pFontTheme->m_sLevel3FontFamily, false, false );
+	pFontTheme->m_fontSize =
 		static_cast<FontTheme::FontSize>(
 			fontNode.read_int( "font_size",
 							   static_cast<int>(FontTheme::FontSize::Medium), false, false ) );
 
-	return std::make_unique<Theme>(colorTheme, interfaceTheme, fontTheme );
+	return std::make_shared<Theme>(pColorTheme, pInterfaceTheme, pFontTheme );
 }
 
 bool Theme::exportTo( const QString& sPath ) const {
@@ -1177,40 +1168,40 @@ bool Theme::exportTo( const QString& sPath ) const {
 	// hydrogen version
 	rootNode.write_string( "version", QString( get_version().c_str() ) );
 	
-	m_color.saveTo( rootNode );
+	m_pColor->saveTo( rootNode );
 
 	XMLNode interfaceNode = rootNode.createNode( "interfaceTheme" );
 	interfaceNode.write_int( "defaultUILayout",
-							 static_cast<int>(m_interface.m_layout) );
+							 static_cast<int>(m_pInterface->m_layout) );
 	interfaceNode.write_int( "uiScalingPolicy",
-							 static_cast<int>(m_interface.m_uiScalingPolicy) );
-	interfaceNode.write_string( "QTStyle", m_interface.m_sQTStyle );
+							 static_cast<int>(m_pInterface->m_uiScalingPolicy) );
+	interfaceNode.write_string( "QTStyle", m_pInterface->m_sQTStyle );
 	interfaceNode.write_int( "iconColor",
-							 static_cast<int>(m_interface.m_iconColor) );
+							 static_cast<int>(m_pInterface->m_iconColor) );
 	interfaceNode.write_float( "mixer_falloff_speed",
-							   m_interface.m_fMixerFalloffSpeed );
+							   m_pInterface->m_fMixerFalloffSpeed );
 	interfaceNode.write_int( "SongEditor_ColoringMethod",
-							 static_cast<int>(m_interface.m_coloringMethod) );
-	for ( int ii = 0; ii < m_interface.nMaxPatternColors; ii++ ) {
+							 static_cast<int>(m_pInterface->m_coloringMethod) );
+	for ( int ii = 0; ii < m_pInterface->nMaxPatternColors; ii++ ) {
 		interfaceNode.write_color( QString( "SongEditor_pattern_color_%1" ).arg( ii ),
-								   m_interface.m_patternColors[ ii ] );
+								   m_pInterface->m_patternColors[ ii ] );
 	}
 	interfaceNode.write_int( "SongEditor_visible_pattern_colors",
-							 m_interface.m_nVisiblePatternColors );
+							 m_pInterface->m_nVisiblePatternColors );
 	interfaceNode.write_bool( "indicate_note_playback",
-							  m_interface.m_bIndicateNotePlayback );
+							  m_pInterface->m_bIndicateNotePlayback );
 	interfaceNode.write_bool( "indicate_effective_note_length",
-							  m_interface.m_bIndicateEffectiveNoteLength );
+							  m_pInterface->m_bIndicateEffectiveNoteLength );
 
 	XMLNode fontNode = rootNode.createNode( "fontTheme" );
 	fontNode.write_string( "application_font_family",
-						   m_font.m_sApplicationFontFamily );
+						   m_pFont->m_sApplicationFontFamily );
 	fontNode.write_string( "level2_font_family",
-						   m_font.m_sLevel2FontFamily );
+						   m_pFont->m_sLevel2FontFamily );
 	fontNode.write_string( "level3_font_family",
-						   m_font.m_sLevel3FontFamily );
+						   m_pFont->m_sLevel3FontFamily );
 	fontNode.write_int( "font_size",
-						static_cast<int>(m_font.m_fontSize) );
+						static_cast<int>(m_pFont->m_fontSize) );
 
 	return doc.write( sPath );
 }	
@@ -1221,20 +1212,20 @@ QString Theme::toQString( const QString& sPrefix, bool bShort ) const {
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Theme]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_color: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_color.toQString( sPrefix + s, bShort ) ) )
+					 .arg( m_pColor->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_interface: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_interface.toQString( sPrefix + s, bShort ) ) )
+					 .arg( m_pInterface->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_font: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_font.toQString( sPrefix + s, bShort ) ) );
+					 .arg( m_pFont->toQString( sPrefix + s, bShort ) ) );
 	}
 	else {
 		sOutput = QString( "[Theme] " )
-			.append( QString( "m_color: %1" )
-					 .arg( m_color.toQString( "", bShort ) ) )
-			.append( QString( ", m_interface: %1" )
-					 .arg( m_interface.toQString( "", bShort ) ) )
-			.append( QString( ", m_font: %1" )
-					 .arg( m_font.toQString( "", bShort ) ) );
+			.append( QString( "m_pColor: %1" )
+					 .arg( m_pColor->toQString( "", bShort ) ) )
+			.append( QString( ", m_pInterface: %1" )
+					 .arg( m_pInterface->toQString( "", bShort ) ) )
+			.append( QString( ", m_pFont: %1" )
+					 .arg( m_pFont->toQString( "", bShort ) ) );
 	}
 
 	return sOutput;

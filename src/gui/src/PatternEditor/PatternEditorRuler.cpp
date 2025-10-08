@@ -56,7 +56,7 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 	const auto pPref = Preferences::get_instance();
 
-	QColor backgroundColor( pPref->getTheme().m_color.m_patternEditor_backgroundColor );
+	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
 
 	m_fGridWidth = pPref->getPatternEditorGridWidth();
 
@@ -286,6 +286,7 @@ void PatternEditorRuler::invalidateBackground()
 void PatternEditorRuler::createBackground()
 {
 	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pColorTheme = pPref->getColorTheme();
 
 	// Resize pixmap if pixel ratio has changed
 	qreal pixelRatio = devicePixelRatio();
@@ -297,11 +298,11 @@ void PatternEditorRuler::createBackground()
 		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 	}
 
-	QColor backgroundColor( pPref->getTheme().m_color.m_patternEditor_alternateRowColor.darker( 120 ) );
-	QColor textColor = pPref->getTheme().m_color.m_patternEditor_textColor;
+	QColor backgroundColor( pColorTheme->m_patternEditor_alternateRowColor.darker( 120 ) );
+	QColor textColor = pColorTheme->m_patternEditor_textColor;
 	textColor.setAlpha( 220 );
 	
-	QColor lineColor = pPref->getTheme().m_color.m_patternEditor_lineColor;
+	QColor lineColor = pColorTheme->m_patternEditor_lineColor;
 
 	QPainter painter( m_pBackgroundPixmap );
 	
@@ -311,12 +312,13 @@ void PatternEditorRuler::createBackground()
 	if ( m_nRulerWidth - m_nWidthActive != 0 ) {
 		painter.fillRect( m_nWidthActive, 0, m_nRulerWidth - m_nWidthActive,
 						  m_nRulerHeight,
-						  pPref->getTheme().m_color.m_midLightColor );
+						  pColorTheme->m_midLightColor );
 	}
 
 	// numbers
 
-	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont font( pPref->getFontTheme()->m_sApplicationFontFamily,
+			   getPointSize( pPref->getFontTheme()->m_fontSize ) );
 	painter.setFont(font);
 
 	const int nResolution = m_pPatternEditorPanel->getResolution();
@@ -354,6 +356,7 @@ void PatternEditorRuler::createBackground()
 void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 {
 	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pColorTheme = pPref->getColorTheme();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
 	if (!isVisible()) {
@@ -380,7 +383,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 			PatternEditor::nMargin - 4 - m_fGridWidth * 5;
 
 		// Middle line to indicate the selected tick
-		painter.setPen( QPen( pPref->getTheme().m_color.m_cursorColor, 2 ) );
+		painter.setPen( QPen( pColorTheme->m_cursorColor, 2 ) );
 		painter.setRenderHint( QPainter::Antialiasing );
 		painter.drawLine( nCursorX + m_fGridWidth * 5 + 4, height() - 6,
 						  nCursorX + m_fGridWidth * 5 + 4, height() - 13 );

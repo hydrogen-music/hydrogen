@@ -74,8 +74,8 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 
 	const auto pPref = H2Core::Preferences::get_instance();
 	
-	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
-				getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont font( pPref->getFontTheme()->m_sApplicationFontFamily,
+				getPointSize( pPref->getFontTheme()->m_fontSize ) );
 	setFont( font );
 	m_pPlaylistTable->setFont( font );
 	for ( int ii = 0; ii < m_pPlaylistTable->horizontalHeader()->count(); ii++ ) {
@@ -185,7 +185,8 @@ void PlaylistEditor::populateMenuBar() {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const auto pPref = H2Core::Preferences::get_instance();
 	const auto pShortcuts = pPref->getShortcuts();
-	const QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	const QFont font( pPref->getFontTheme()->m_sApplicationFontFamily,
+					 getPointSize( pPref->getFontTheme()->m_fontSize ) );
 	
 	// menubar
 	m_pMenubar->clear();
@@ -1096,7 +1097,7 @@ void PlaylistEditor::update() {
 
 void PlaylistEditor::updateIcons() {
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
+	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	} else {
@@ -1110,10 +1111,10 @@ void PlaylistEditor::updateIcons() {
 }
 
 void PlaylistEditor::updateStyleSheet() {
-	const auto colorTheme =
-		H2Core::Preferences::get_instance()->getTheme().m_color;
+	const auto pColorTheme =
+		H2Core::Preferences::get_instance()->getColorTheme();
 
-	const QColor colorBackground = colorTheme.m_baseColor;
+	const QColor colorBackground = pColorTheme->m_baseColor;
 
 	QColor colorBackgroundChecked, colorBackgroundHovered;
 	if ( Skin::moreBlackThanWhite( colorBackground ) ) {
@@ -1184,8 +1185,8 @@ void PlaylistEditor::onPreferencesChanged( const H2Core::Preferences::Changes& c
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		
-		QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
-					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+		QFont font( pPref->getFontTheme()->m_sApplicationFontFamily,
+					getPointSize( pPref->getFontTheme()->m_fontSize ) );
 		setFont( font );
 		m_pMenubar->setFont( font );
 		m_pPlaylistMenu->setFont( font );
@@ -1419,23 +1420,23 @@ void PlaylistTableWidget::update() {
 	// Highlight cells corresponding to non-existing song files to indicate to
 	// the user that something is wrong.
 	auto colorNonExisting = [=]( QTableWidgetItem* pItem ) {
-		const auto colorTheme =
-			H2Core::Preferences::get_instance()->getTheme().m_color;
-		pItem->setBackground( QBrush( colorTheme.m_buttonRedColor ) );
-		pItem->setForeground( QBrush( colorTheme.m_buttonRedTextColor ) );
+		const auto pColorTheme =
+			H2Core::Preferences::get_instance()->getColorTheme();
+		pItem->setBackground( QBrush( pColorTheme->m_buttonRedColor ) );
+		pItem->setForeground( QBrush( pColorTheme->m_buttonRedTextColor ) );
 	};
 	auto colorDefault = [=]( QTableWidgetItem* pItem ) {
 		pItem->setBackground( QBrush( ) );
 		pItem->setForeground( QBrush( ) );
 	};
 	auto colorActive = [=]( QTableWidgetItem* pItem ) {
-		const auto colorTheme =
-			H2Core::Preferences::get_instance()->getTheme().m_color;
+		const auto pColorTheme =
+			H2Core::Preferences::get_instance()->getColorTheme();
 
 		// Highlighting of non-existing file has higher priority.
-		if ( pItem->background().color() != colorTheme.m_buttonRedColor ) {
-			pItem->setBackground( QBrush( colorTheme.m_accentColor ) );
-			pItem->setForeground( QBrush( colorTheme.m_accentTextColor ) );
+		if ( pItem->background().color() != pColorTheme->m_buttonRedColor ) {
+			pItem->setBackground( QBrush( pColorTheme->m_accentColor ) );
+			pItem->setForeground( QBrush( pColorTheme->m_accentTextColor ) );
 		}
 	};
 

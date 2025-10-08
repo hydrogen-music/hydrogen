@@ -94,19 +94,19 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	};
 
 	auto pPref = H2Core::Preferences::get_instance();
-	const auto gradientDefault = createGradient(
-		pPref->getTheme().m_color.m_accentColor );
-	const auto gradientMute = createGradient(
-		pPref->getTheme().m_color.m_muteColor );
-	const auto gradientSolo = createGradient(
-		pPref->getTheme().m_color.m_soloColor );
+	const auto pColorTheme = pPref->getColorTheme();
+	const auto pFontTheme = pPref->getFontTheme();
 
-	QFont fontText( pPref->getTheme().m_font.m_sLevel2FontFamily,
-					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
-	QFont fontButton( pPref->getTheme().m_font.m_sLevel2FontFamily,
+	const auto gradientDefault = createGradient( pColorTheme->m_accentColor );
+	const auto gradientMute = createGradient( pColorTheme->m_muteColor );
+	const auto gradientSolo = createGradient( pColorTheme->m_soloColor );
+
+	QFont fontText( pFontTheme->m_sLevel2FontFamily,
+					getPointSize( pFontTheme->m_fontSize ) );
+	QFont fontButton( pFontTheme->m_sLevel2FontFamily,
 					  getPointSizeButton() );
 	
-	p.fillRect( ev->rect(), pPref->getTheme().m_color.m_windowColor );
+	p.fillRect( ev->rect(), pColorTheme->m_windowColor );
 
 	auto pComponent = m_pComponentView->getComponent();
 	const int nSelectedLayer = m_pComponentView->getSelectedLayer();
@@ -124,9 +124,9 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	QColor layerLabelColor, highlightColor;
 	QLinearGradient segmentGradient;
 	if ( pComponent != nullptr ) {
-		highlightColor = pPref->getTheme().m_color.m_highlightColor;
+		highlightColor = pColorTheme->m_highlightColor;
 	} else {
-		highlightColor = pPref->getTheme().m_color.m_lightColor;
+		highlightColor = pColorTheme->m_lightColor;
 	}
 
 	int nLayer = 0;
@@ -157,11 +157,11 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 								static_cast<float>(nColorScalingWidth) ) ) -
 					nColorScalingWidth + 100;
 				layerLabelColor =
-					pPref->getTheme().m_color.m_windowColor.lighter( nColorScaling );
+					pColorTheme->m_windowColor.lighter( nColorScaling );
 
 				// Header
 				p.fillRect( x1, 0, x2 - x1, 19, layerLabelColor );
-				p.setPen( pPref->getTheme().m_color.m_windowTextColor );
+				p.setPen( pColorTheme->m_windowTextColor );
 				p.setFont( fontButton );
 				p.drawText( x1, 0, x2 - x1, 20, Qt::AlignCenter, QString("%1").arg( i + 1 ) );
 
@@ -170,13 +170,13 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 					p.setPen( highlightColor );
 				}
 				else {
-					p.setPen( pPref->getTheme().m_color.m_windowTextColor.darker( 145 ) );
+					p.setPen( pColorTheme->m_windowTextColor.darker( 145 ) );
 				}
 				p.drawRect( x1, 1, x2 - x1 - 1, 18 );	// bordino in alto
 					
 				// layer view
 				p.fillRect( 0, y, width(), LayerPreview::nLayerHeight,
-							pPref->getTheme().m_color.m_windowColor );
+							pColorTheme->m_windowColor );
 				if ( pSample != nullptr ) {
 					if ( pLayer->getIsMuted() ) {
 						segmentGradient = gradientMute;
@@ -192,7 +192,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 				}
 				else {
 					p.fillRect( x1, y, x2 - x1, LayerPreview::nLayerHeight,
-								pPref->getTheme().m_color.m_buttonRedColor );
+								pColorTheme->m_buttonRedColor );
 				}
 
 				nLayer++;
@@ -200,16 +200,16 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 			else {
 				// layer view
 				p.fillRect( 0, y, width(), LayerPreview::nLayerHeight,
-							pPref->getTheme().m_color.m_windowColor );
+							pColorTheme->m_windowColor );
 			}
 		}
 		else {
 			// layer view
 			p.fillRect( 0, y, width(), LayerPreview::nLayerHeight,
-						pPref->getTheme().m_color.m_windowColor );
+						pColorTheme->m_windowColor );
 		}
 
-		QColor layerTextColor = pPref->getTheme().m_color.m_windowTextColor;
+		QColor layerTextColor = pColorTheme->m_windowTextColor;
 		layerTextColor.setAlpha( 155 );
 		p.setPen( layerTextColor );
 		p.setFont( fontText );
@@ -491,7 +491,7 @@ int LayerPreview::getPointSizeButton() const
 	
 	int nPointSize;
 	
-	switch( pPref->getTheme().m_font.m_fontSize ) {
+	switch( pPref->getFontTheme()->m_fontSize ) {
 	case H2Core::FontTheme::FontSize::Small:
 		nPointSize = 6;
 		break;

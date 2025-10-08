@@ -113,6 +113,9 @@ void SongEditorPositionRuler::setGridWidth( int width )
 void SongEditorPositionRuler::createBackground()
 {
 	const auto pPref = Preferences::get_instance();
+	const auto pColorTheme = pPref->getColorTheme();
+	const auto pFontTheme = pPref->getFontTheme();
+
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -121,17 +124,17 @@ void SongEditorPositionRuler::createBackground()
 	auto pTimeline = pHydrogen->getTimeline();
 	auto tagVector = pTimeline->getAllTags();
 	
-	QColor textColor( pPref->getTheme().m_color.m_songEditor_textColor );
+	QColor textColor( pColorTheme->m_songEditor_textColor );
 	QColor textColorAlpha( textColor );
 	textColorAlpha.setAlpha( 45 );
 
-	QColor backgroundColor = pPref->getTheme().m_color.m_songEditor_alternateRowColor.darker( 115 );
-	QColor backgroundInactiveColor = pPref->getTheme().m_color.m_midLightColor;
+	QColor backgroundColor = pColorTheme->m_songEditor_alternateRowColor.darker( 115 );
+	QColor backgroundInactiveColor = pColorTheme->m_midLightColor;
 	QColor backgroundColorTempoMarkers = backgroundColor.darker( 120 );
 
-	QColor colorHighlight = pPref->getTheme().m_color.m_highlightColor;
+	QColor colorHighlight = pColorTheme->m_highlightColor;
 
-	QColor lineColor = pPref->getTheme().m_color.m_songEditor_lineColor;
+	QColor lineColor = pColorTheme->m_songEditor_lineColor;
 	QColor lineColorAlpha( lineColor );
 	lineColorAlpha.setAlpha( 45 );
 		
@@ -145,7 +148,8 @@ void SongEditorPositionRuler::createBackground()
 		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 	}
 
-	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont font( pFontTheme->m_sApplicationFontFamily,
+			   getPointSize( pFontTheme->m_fontSize ) );
 
 	QPainter p( m_pBackgroundPixmap );
 	p.setFont( font );
@@ -187,9 +191,9 @@ void SongEditorPositionRuler::createBackground()
 	}
 	
 	// draw tags
-	p.setPen( pPref->getTheme().m_color.m_accentTextColor );
+	p.setPen( pColorTheme->m_accentTextColor );
 	
-	QFont font2( pPref->getTheme().m_font.m_sApplicationFontFamily, 5 );
+	QFont font2( pFontTheme->m_sApplicationFontFamily, 5 );
 	p.setFont( font2 );
 		
 	for ( const auto& ttag : tagVector ){
@@ -197,7 +201,7 @@ void SongEditorPositionRuler::createBackground()
 		QRect rect( x, height() / 2 - 1 - m_nTagHeight,
 					m_nGridWidth - 6, m_nTagHeight );
 
-		p.fillRect( rect, pPref->getTheme().m_color.m_highlightColor.darker( 135 ) );
+		p.fillRect( rect, pColorTheme->m_highlightColor.darker( 135 ) );
 		p.drawText( rect, Qt::AlignCenter, "T");
 	}
 	p.setFont( font );
@@ -431,7 +435,8 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pTimeline = pHydrogen->getTimeline();
 	const auto pPref = Preferences::get_instance();
-	const auto theme = pPref->getTheme();
+	const auto pColorTheme = pPref->getColorTheme();
+	const auto pFontTheme = pPref->getFontTheme();
 	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 
 	qreal pixelRatio = devicePixelRatio();
@@ -444,20 +449,21 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		return;
 	}
 	
-	QColor textColor( theme.m_color.m_songEditor_textColor );
+	QColor textColor( pColorTheme->m_songEditor_textColor );
 	QColor textColorAlpha( textColor );
 	textColorAlpha.setAlpha( 45 );
-	QColor highlightColor = theme.m_color.m_highlightColor;
+	QColor highlightColor = pColorTheme->m_highlightColor;
 	QColor colorHovered( highlightColor );
 	colorHovered.setAlpha( 200 );
-	QColor backgroundColor = theme.m_color.m_songEditor_alternateRowColor.darker( 115 );
+	QColor backgroundColor = pColorTheme->m_songEditor_alternateRowColor.darker( 115 );
 	QColor backgroundColorTempoMarkers = backgroundColor.darker( 120 );
 
 	int nPunchInPos = pPref->getPunchInPos();
 	int nPunchOutPos = pPref->getPunchOutPos();
 
 	QPainter painter(this);
-	QFont font( theme.m_font.m_sApplicationFontFamily, getPointSize( theme.m_font.m_fontSize ) );
+	QFont font( pFontTheme->m_sApplicationFontFamily,
+			   getPointSize( pFontTheme->m_fontSize ) );
 	QRectF srcRect(
 			pixelRatio * ev->rect().x(),
 			pixelRatio * ev->rect().y(),
@@ -542,11 +548,11 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		QRect rect( x, height() / 2 - 1 - m_nTagHeight,
 					m_nGridWidth - 6, m_nTagHeight );
 	
-		QFont font2( theme.m_font.m_sApplicationFontFamily, 5 );
+		QFont font2( pFontTheme->m_sApplicationFontFamily, 5 );
 		painter.setFont( font2 );
 		
-		painter.fillRect( rect, theme.m_color.m_highlightColor );
-		painter.setPen( theme.m_color.m_highlightedTextColor );
+		painter.fillRect( rect, pColorTheme->m_highlightColor );
+		painter.setPen( pColorTheme->m_highlightedTextColor );
 		painter.drawText( rect, Qt::AlignCenter, "T");
 
 		painter.setFont( font );
@@ -643,7 +649,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		int nCursorX = columnToX(
 			pSongEditor->getCursorPosition().getColumn() ) + 2;
 
-		QColor cursorColor = theme.m_color.m_cursorColor;
+		QColor cursorColor = pColorTheme->m_cursorColor;
 
 		QPen p( cursorColor );
 		p.setWidth( 2 );
@@ -699,8 +705,8 @@ QRect SongEditorPositionRuler::calcTempoMarkerRect( std::shared_ptr<const Timeli
 		weight = QFont::Bold;
 	}
 	
-	const QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
-					  getPointSize( pPref->getTheme().m_font.m_fontSize ), weight );
+	const QFont font( pPref->getFontTheme()->m_sApplicationFontFamily,
+					  getPointSize( pPref->getFontTheme()->m_fontSize ), weight );
 
 	const int x = columnToX( pTempoMarker->nColumn );
 	int nWidth = QFontMetrics( font ).size(
@@ -741,14 +747,14 @@ void SongEditorPositionRuler::drawTempoMarker( std::shared_ptr<const Timeline::T
 		return;
 	}
 		
-	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont font( pPref->getFontTheme()->m_sApplicationFontFamily, getPointSize( pPref->getFontTheme()->m_fontSize ) );
 		
 	QRect rect = calcTempoMarkerRect( pTempoMarker, bEmphasize );
 
 	// Draw an additional small horizontal line at the top of the
 	// current column to better indicate the position of the tempo
 	// marker (for larger float values e.g. 130.67).
-	QColor textColor( pPref->getTheme().m_color.m_songEditor_textColor );
+	QColor textColor( pPref->getColorTheme()->m_songEditor_textColor );
 
 	if ( pTempoMarker->nColumn == 0 && pTimeline->isFirstTempoMarkerSpecial() ) {
 		textColor = textColor.darker( 150 );

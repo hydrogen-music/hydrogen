@@ -90,10 +90,11 @@ void LCDCombo::showPopup() {
 }
 
 void LCDCombo::updateStyleSheet() {
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
 
-	QColor widgetColor = theme.m_color.m_widgetColor;
-	QColor widgetTextColor = theme.m_color.m_widgetTextColor;
+	QColor widgetColor = pColorTheme->m_widgetColor;
+	QColor widgetTextColor = pColorTheme->m_widgetTextColor;
 	QColor widgetInactiveColor = 
 		Skin::makeWidgetColorInactive( widgetColor );
 	QColor widgetTextInactiveColor =
@@ -118,8 +119,8 @@ QComboBox QAbstractItemView { \
 }")
 				   .arg( widgetTextColor.name() )
 				   .arg( widgetColor.name() )
-				   .arg( theme.m_font.m_sLevel3FontFamily )
-				   .arg( getPointSize( theme.m_font.m_fontSize ) )
+				   .arg( pFontTheme->m_sLevel3FontFamily )
+				   .arg( getPointSize( pFontTheme->m_fontSize ) )
 				   .arg( widgetTextInactiveColor.name() )
 				   .arg( widgetInactiveColor.name() ) );
 }
@@ -133,7 +134,7 @@ void LCDCombo::onPreferencesChanged( const H2Core::Preferences::Changes& changes
 }
 
 void LCDCombo::paintEvent( QPaintEvent *ev ) {
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
 
 	QComboBox::paintEvent( ev );
 
@@ -142,9 +143,9 @@ void LCDCombo::paintEvent( QPaintEvent *ev ) {
 	
 		QColor colorHighlightActive;
 		if ( m_bIsActive ) {
-			colorHighlightActive = theme.m_color.m_highlightColor;
+			colorHighlightActive = pColorTheme->m_highlightColor;
 		} else {
-			colorHighlightActive = theme.m_color.m_lightColor;
+			colorHighlightActive = pColorTheme->m_lightColor;
 		}
 
 		// If the mouse is placed on the widget but the user hasn't

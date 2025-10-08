@@ -50,8 +50,8 @@ void InstrumentNameWidget::paintEvent( QPaintEvent* ev ) {
 
 	QPainter p( this );
 	
-	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
-				getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont font( pPref->getFontTheme()->m_sApplicationFontFamily,
+				getPointSize( pPref->getFontTheme()->m_fontSize ) );
 
 	p.setPen( QColor(230, 230, 230) );
 	p.setFont( font );

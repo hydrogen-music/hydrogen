@@ -239,7 +239,7 @@ HydrogenApp::~HydrogenApp()
 void HydrogenApp::setupSinglePanedInterface()
 {
 	const auto pPref = Preferences::get_instance();
-	InterfaceTheme::Layout layout = pPref->getTheme().m_interface.m_layout;
+	InterfaceTheme::Layout layout = pPref->getInterfaceTheme()->m_layout;
 
 	// MAINFORM
 	WindowProperties mainFormProp = pPref->getMainFormProperties();
@@ -738,8 +738,7 @@ void HydrogenApp::showMixer(bool show)
 		 *   otherwise open mixer window
 		 */
 
-	auto layout = Preferences::get_instance()->
-		getTheme().m_interface.m_layout;
+	auto layout = Preferences::get_instance()->getInterfaceTheme()->m_layout;
 
 	if ( layout == InterfaceTheme::Layout::Tabbed ) {
 		m_pTab->setCurrentIndex( 2 );
@@ -758,8 +757,7 @@ void HydrogenApp::showInstrumentRack(bool show)
 		 *   Switch to pattern editor/instrument tab in tabbed mode,
 		 *   otherwise hide instrument panel
 		 */
-	auto layout = Preferences::get_instance()->
-		getTheme().m_interface.m_layout;
+	auto layout = Preferences::get_instance()->getInterfaceTheme()->m_layout;
 
 	if ( layout == InterfaceTheme::Layout::Tabbed ) {
 		m_pTab->setCurrentIndex( 1 );
@@ -1327,7 +1325,7 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 		// selections etc.
 		// But we won't change the layout!
 		const auto pPref = Preferences::get_instance();
-		auto layout = pPref->getTheme().m_interface.m_layout;
+		auto layout = pPref->getInterfaceTheme()->m_layout;
 
 		WindowProperties audioEngineInfoProp = pPref->getAudioEngineInfoProperties();
 		setWindowProperties( m_pAudioEngineInfoForm, audioEngineInfoProp,

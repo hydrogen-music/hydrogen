@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
 		/* Apply user-specified rounding policy. This is mostly to handle non-integral factors on Windows. */
 		Qt::HighDpiScaleFactorRoundingPolicy policy;
 
-		switch ( pPref->getTheme().m_interface.m_uiScalingPolicy ) {
+		switch ( pPref->getInterfaceTheme()->m_uiScalingPolicy ) {
 		case H2Core::InterfaceTheme::ScalingPolicy::Smaller:
 			policy = Qt::HighDpiScaleFactorRoundingPolicy::RoundPreferFloor;
 			break;
@@ -273,10 +273,10 @@ int main(int argc, char *argv[])
 		// Force layout
 		if ( ! parser.getUiLayout().isEmpty() ) {
 			if ( parser.getUiLayout() == "tabbed" ) {
-				pPref->getThemeWritable().m_interface.m_layout =
+				pPref->getThemeWritable()->m_pInterface->m_layout =
 					H2Core::InterfaceTheme::Layout::Tabbed;
 			} else {
-				pPref->getThemeWritable().m_interface.m_layout =
+				pPref->getThemeWritable()->m_pInterface->m_layout =
 					H2Core::InterfaceTheme::Layout::SinglePane;
 			}
 		}
@@ -304,7 +304,7 @@ int main(int argc, char *argv[])
 		// warning dialogs before they are covered by the splash screen.
 		pQApp->processEvents();
 
-		QString family = pPref->getTheme().m_font.m_sApplicationFontFamily;
+		QString family = pPref->getFontTheme()->m_sApplicationFontFamily;
 		pQApp->setFont( QFont( family, 10 ) );
 
 		QTranslator qttor( nullptr );
@@ -342,7 +342,7 @@ int main(int argc, char *argv[])
 		}
 		pQApp->installTranslator( &tor );
 
-		const QString sStyle = pPref->getTheme().m_interface.m_sQTStyle;
+		const QString sStyle = pPref->getInterfaceTheme()->m_sQTStyle;
 		if ( !sStyle.isEmpty() ) {
 			pQApp->setStyle( sStyle );
 		}

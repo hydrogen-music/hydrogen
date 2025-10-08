@@ -94,9 +94,9 @@ void ColorSelectionButton::paintEvent( QPaintEvent* ev) {
 		QColor backgroundColor( "#333" );
 		if ( m_bMouseOver ) {
 			if ( isEnabled() ) {
-				backgroundColor = H2Core::Preferences::get_instance()->getTheme().m_color.m_highlightColor;
+				backgroundColor = H2Core::Preferences::get_instance()->getColorTheme()->m_highlightColor;
 			} else {
-				backgroundColor = H2Core::Preferences::get_instance()->getTheme().m_color.m_lightColor;
+				backgroundColor = H2Core::Preferences::get_instance()->getColorTheme()->m_lightColor;
 			}
 		}
 

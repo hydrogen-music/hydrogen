@@ -51,8 +51,8 @@ Button::Button( QWidget *pParent, const QSize& size, const Type& type,
 	, m_bUseCustomBackgroundColors( false )
 {
 	auto pPref = H2Core::Preferences::get_instance();
-	m_checkedBackgroundColor = pPref->getTheme().m_color.m_accentColor;
-	m_checkedBackgroundTextColor = pPref->getTheme().m_color.m_accentTextColor;
+	m_checkedBackgroundColor = pPref->getColorTheme()->m_accentColor;
+	m_checkedBackgroundTextColor = pPref->getColorTheme()->m_accentTextColor;
 
 	setFocusPolicy( Qt::NoFocus );
 	setSize( size );
@@ -96,7 +96,7 @@ void Button::setIsActive( bool bIsActive ) {
 
 void Button::updateIcon() {
 	if ( H2Core::Preferences::get_instance()->
-		 getTheme().m_interface.m_iconColor ==
+		 getInterfaceTheme()->m_iconColor ==
 		 H2Core::InterfaceTheme::IconColor::White ) {
 		setIcon( QIcon( Skin::getSvgImagePath() + "/icons/white/" + m_sIcon ) );
 	}
@@ -137,7 +137,7 @@ void Button::updateStyleSheet() {
 		return;
 	}
 
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
 	
 	const int nFactorGradient = 126;
 	const int nFactorGradientShadow = 225;
@@ -149,7 +149,7 @@ void Button::updateStyleSheet() {
 	const float y1 = 0;
 	const float y2 = 1;
 
-	const QColor baseColorBackground = theme.m_color.m_widgetColor;
+	const QColor baseColorBackground = pColorTheme->m_widgetColor;
 	const QColor backgroundLight = baseColorBackground.lighter( nFactorGradient );
 	const QColor backgroundDark = baseColorBackground.darker( nFactorGradient );
 	const QColor backgroundLightHover = baseColorBackground.lighter( nFactorGradient + nHover );
@@ -165,8 +165,8 @@ void Button::updateStyleSheet() {
 		backgroundCheckedColor = m_checkedBackgroundColor;
 		backgroundCheckedTextColor = m_checkedBackgroundTextColor;
 	} else {
-		backgroundCheckedColor = theme.m_color.m_accentColor;
-		backgroundCheckedTextColor = theme.m_color.m_accentTextColor;
+		backgroundCheckedColor = pColorTheme->m_accentColor;
+		backgroundCheckedTextColor = pColorTheme->m_accentTextColor;
 	}
 	const QColor backgroundCheckedLight =
 		backgroundCheckedColor.lighter( nFactorGradient );
@@ -185,7 +185,7 @@ void Button::updateStyleSheet() {
 	const QColor backgroundShadowCheckedDarkHover =
 		backgroundCheckedColor.darker( nFactorGradientShadow + nHover );
 
-	const QColor textColor = theme.m_color.m_widgetTextColor;
+	const QColor textColor = pColorTheme->m_widgetTextColor;
 	
 	const QColor backgroundInactiveLight =
 		Skin::makeWidgetColorInactive( backgroundLight );
@@ -381,10 +381,10 @@ void Button::setType( const Type& type ) {
 
 void Button::updateFont() {
 
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
 	
 	float fScalingFactor = 1.0;
-    switch ( theme.m_font.m_fontSize ) {
+    switch ( pFontTheme->m_fontSize ) {
     case H2Core::FontTheme::FontSize::Small:
 		fScalingFactor = 1.2;
 		break;
@@ -419,7 +419,7 @@ void Button::updateFont() {
 		nPixelSize = m_nFixedFontSize;
 	}
 
-	QFont font( theme.m_font.m_sLevel3FontFamily );
+	QFont font( pFontTheme->m_sLevel3FontFamily );
 	font.setPixelSize( nPixelSize );
 
 	if ( m_size.width() > m_size.height() ) {

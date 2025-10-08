@@ -119,7 +119,7 @@ SongPropertiesDialog::~SongPropertiesDialog() {
 
 void SongPropertiesDialog::updatePatternLicenseTable() {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
 	const auto pSong = H2Core::Hydrogen::get_instance()->getSong();
 
 	licensesTable->setColumnCount( 4 );
@@ -170,8 +170,8 @@ void SongPropertiesDialog::updatePatternLicenseTable() {
 			if ( ! ppPattern->getLicense().isEmpty() &&
 				 ppPattern->getLicense() != pSong->getLicense() ) {
 				QString sHighlight = QString( "color: %1; background-color: %2" )
-					.arg( theme.m_color.m_buttonRedTextColor.name() )
-					.arg( theme.m_color.m_buttonRedColor.name() );
+					.arg( pColorTheme->m_buttonRedTextColor.name() )
+					.arg( pColorTheme->m_buttonRedColor.name() );
 				pNameItem->setStyleSheet( sHighlight );
 				pVersionItem->setStyleSheet( sHighlight );
 				pAuthorItem->setStyleSheet( sHighlight );

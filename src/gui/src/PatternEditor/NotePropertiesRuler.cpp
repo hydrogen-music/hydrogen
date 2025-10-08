@@ -81,25 +81,25 @@ void KeyOctaveLabel::updateColors() {
 		QColor backgroundColor;
 		if ( m_bAlternateBackground ) {
 			backgroundColor =
-				pPref->getTheme().m_color.m_patternEditor_alternateRowColor;
+				pPref->getColorTheme()->m_patternEditor_alternateRowColor;
 		}
 		else {
 			backgroundColor =
-				pPref->getTheme().m_color.m_patternEditor_octaveRowColor;
+				pPref->getColorTheme()->m_patternEditor_octaveRowColor;
 		}
 		m_backgroundColor =
 			backgroundColor.darker( Skin::nListBackgroundColorScaling );
 	}
 
 	setStyleSheet( QString( "QLabel{ color: %1; }" )
-				   .arg( pPref->getTheme().m_color.m_patternEditor_textColor.name() ) );
+				   .arg( pPref->getColorTheme()->m_patternEditor_textColor.name() ) );
 }
 
 void KeyOctaveLabel::updateFont() {
 	auto pPref = Preferences::get_instance();
 
 	int nMargin;
-    switch( pPref->getTheme().m_font.m_fontSize ) {
+    switch( pPref->getFontTheme()->m_fontSize ) {
     case H2Core::FontTheme::FontSize::Small:
 		nMargin = 2;
 		break;
@@ -111,7 +111,7 @@ void KeyOctaveLabel::updateFont() {
 		break;
 	}
 
-	QFont font( pPref->getTheme().m_font.m_sLevel2FontFamily );
+	QFont font( pPref->getFontTheme()->m_sLevel2FontFamily );
 	font.setPixelSize( NotePropertiesRuler::nKeyLineHeight - nMargin );
 	font.setBold( true );
 
@@ -1080,26 +1080,24 @@ void NotePropertiesRuler::scrolled( int nValue ) {
 void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 												 int nIncrement ) {
 	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pColorTheme = pPref->getColorTheme();
 
-	QColor lineColor(
-		pPref->getTheme().m_color.m_patternEditor_line5Color );
-	QColor backgroundColor(
-		pPref->getTheme().m_color.m_patternEditor_backgroundColor );
+	QColor lineColor( pColorTheme->m_patternEditor_line5Color );
+	QColor backgroundColor( pColorTheme->m_patternEditor_backgroundColor );
 
 	// Everything beyond the current pattern (used when another, larger pattern
 	// is played as well).
 	const QColor lineInactiveColor(
-		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
+		pColorTheme->m_windowTextColor.darker( 170 ) );
 
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
 	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
-		backgroundInactiveColor =
-			pPref->getTheme().m_color.m_windowColor.lighter(
-				Skin::nEditorActiveScaling );
+		backgroundInactiveColor = pColorTheme->m_windowColor.lighter(
+			Skin::nEditorActiveScaling );
 	}
 	else {
-		backgroundInactiveColor = pPref->getTheme().m_color.m_windowColor;
+		backgroundInactiveColor = pColorTheme->m_windowColor;
 	}
 
 	if ( ! hasFocus() ) {
@@ -1404,30 +1402,29 @@ void NotePropertiesRuler::sortAndDrawNotes( QPainter& p,
 void NotePropertiesRuler::createBackground()
 {
 	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pColorTheme = pPref->getColorTheme();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 
-	QColor lineColor(
-		pPref->getTheme().m_color.m_patternEditor_lineColor );
-	QColor textColor( pPref->getTheme().m_color.m_patternEditor_textColor );
+	QColor lineColor( pColorTheme->m_patternEditor_lineColor );
+	QColor textColor( pColorTheme->m_patternEditor_textColor );
 	const QColor alternateRowColor =
-		pPref->getTheme().m_color.m_patternEditor_alternateRowColor;
+		pColorTheme->m_patternEditor_alternateRowColor;
 	const QColor octaveColor =
-		pPref->getTheme().m_color.m_patternEditor_octaveRowColor;
+		pColorTheme->m_patternEditor_octaveRowColor;
 
 	// Everything beyond the current pattern (used when another, larger pattern
 	// is played as well).
 	const QColor lineInactiveColor(
-		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
+		pColorTheme->m_windowTextColor.darker( 170 ) );
 
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
 	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
-		backgroundInactiveColor =
-			pPref->getTheme().m_color.m_windowColor.lighter(
-				Skin::nEditorActiveScaling );
+		backgroundInactiveColor = pColorTheme->m_windowColor.lighter(
+			Skin::nEditorActiveScaling );
 	}
 	else {
-		backgroundInactiveColor = pPref->getTheme().m_color.m_windowColor;
+		backgroundInactiveColor = pColorTheme->m_windowColor;
 	}
 
 	if ( ! hasFocus() ) {
