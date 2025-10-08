@@ -22,6 +22,8 @@
 
 #include <core/EventQueue.h>
 
+#include <vector>
+
 namespace H2Core
 {
 
@@ -98,6 +100,53 @@ Event EventQueue::pop_event()
 	nIndex = nIndex % MAX_EVENTS;
 //	INFOLOG( QString( "[popEvent] %1 : %2 %3" ).arg( nIndex ).arg( __events_buffer[ nIndex ].type ).arg( __events_buffer[ nIndex ].value ) );
 	return __events_buffer[ nIndex ];
+}
+
+void EventQueue::dropEvents( const EventType& type ) {
+	std::lock_guard< std::mutex > lock( m_mutex );
+
+	if ( __read_index == __write_index ) {
+		return;
+	}
+
+	// List of valid elements. Starting with the one nearest to __write_index.
+	std::vector<int> indices;
+	for ( int ii = __write_index; ii >= __read_index; --ii ) {
+		indices.push_back( ii % MAX_EVENTS );
+	}
+
+	int nNewIndex = 0;
+	for ( int ii = 0; ii < indices.size(); ++ii ) {
+		if ( __events_buffer[ indices[ ii ] ].type == type ) {
+			// Drop event
+			continue;
+		}
+
+		if ( ii == nNewIndex ) {
+			// Nothing to do
+			++nNewIndex;
+			continue;
+		}
+
+		// Copy an event to a new location.
+		__events_buffer[ indices[ nNewIndex ] ].type =
+			__events_buffer[ indices[ ii ] ].type;
+		__events_buffer[ indices[ nNewIndex ] ].value =
+			__events_buffer[ indices[ ii ] ].value;
+
+		++nNewIndex;
+	}
+
+	if ( nNewIndex == indices.size() ) {
+		return;
+	}
+
+	for ( int ii = nNewIndex; ii < indices.size(); ++ii ) {
+		__events_buffer[ indices[ ii ] ].type = EVENT_NONE;
+		__events_buffer[ indices[ ii ] ].value = 0;
+	}
+
+	__read_index += __write_index - __read_index - nNewIndex + 1;
 }
 
 };

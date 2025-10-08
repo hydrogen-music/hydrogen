@@ -28,6 +28,7 @@
 #include "AutomationPathTest.cpp"
 #include "CoreActionControllerTest.h"
 #include "DrumkitExportTest.h"
+#include "EventQueueTest.h"
 #include "FilesystemTest.h"
 #include "ForwardCompatibilityTest.h"
 #include "FunctionalTests.cpp"
@@ -51,6 +52,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathSerializerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( CoreActionControllerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitExportTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( EventQueueTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( ForwardCompatibilityTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FunctionalTest );

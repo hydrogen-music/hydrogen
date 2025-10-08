@@ -259,6 +259,9 @@ public:/**
 	 */
 	Event pop_event();
 
+	/** Removes all events of type @a type from the queue. */
+	void dropEvents( const EventType& type );
+
 	struct AddMidiNoteVector {
 		int m_column;       //position
 		int m_row;          //instrument row

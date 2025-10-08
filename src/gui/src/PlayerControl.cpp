@@ -1094,6 +1094,11 @@ void PlayerControl::tempoChangedEvent( int nValue )
 					H2Core::Hydrogen::Tempo::Jack ) {
 			QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK Timebase support or making Hydrogen take Timebase control.") );
 		}
+
+		// Discard all pending tempo change events in order to not create a
+		// flood of popups. Only after this method returns, the next event will
+		// be handled.
+		EventQueue::get_instance()->dropEvents( EVENT_TEMPO_CHANGED );
 	}
 }
 
