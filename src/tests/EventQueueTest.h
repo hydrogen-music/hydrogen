@@ -19,6 +19,9 @@
  *
  */
 
+#ifndef EVENT_QUEUE_TEST_H
+#define EVENT_QUEUE_TEST_H
+
 #include <cppunit/extensions/HelperMacros.h>
 #include <core/EventQueue.h>
 
@@ -43,3 +46,5 @@ public:
 	void testEventDrop();
 
 };
+
+#endif
