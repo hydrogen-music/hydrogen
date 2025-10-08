@@ -46,8 +46,6 @@ Rotary::Rotary( QWidget* parent, const Type& type, const QString& sBaseTooltip,
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 this, &Rotary::onPreferencesChanged );
 
-	installEventFilter( HydrogenApp::get_instance()->getMainForm() );
-
 	if ( type == Type::Small ) {
 		m_nWidgetWidth = Rotary::nWidthSmall;
 		m_nWidgetHeight = Rotary::nHeightSmall;

@@ -50,6 +50,7 @@ https://www.gnu.org/licenses
 #include <core/Basics/Event.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
+#include <core/EventQueue.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Hydrogen.h>
@@ -604,6 +605,11 @@ void MainToolBar::tempoChangedEvent( int nValue )
 			QMessageBox::warning( this, "Hydrogen",
 								  tr("A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK Timebase support or making Hydrogen take Timebase control.") );
 		}
+
+		// Discard all pending tempo change events in order to not create a
+		// flood of popups. Only after this method returns, the next event will
+		// be handled.
+		EventQueue::get_instance()->dropEvents( Event::Type::TempoChanged );
 	}
 }
 

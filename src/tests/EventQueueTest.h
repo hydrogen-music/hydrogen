@@ -1,6 +1,5 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  * Copyright(c) 2008-2025 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
@@ -20,28 +19,33 @@
  *
  */
 
+#ifndef EVENT_QUEUE_TEST_H
+#define EVENT_QUEUE_TEST_H
+
 #include <cppunit/extensions/HelperMacros.h>
+#include <core/EventQueue.h>
 
-#include <core/Hydrogen.h>
-#include <core/Basics/Song.h>
-
-class CoreActionControllerTest : public CppUnit::TestFixture {
-	CPPUNIT_TEST_SUITE( CoreActionControllerTest );
-	CPPUNIT_TEST( testCountIn );
-	CPPUNIT_TEST( testSessionManagement );
-	CPPUNIT_TEST( testIsPathValid );
+class EventQueueTest : public CppUnit::TestCase {
+	CPPUNIT_TEST_SUITE( EventQueueTest );
+	CPPUNIT_TEST( testPushPop );
+	CPPUNIT_TEST( testOverflow );
+	CPPUNIT_TEST( testThreadedAccess );
+	CPPUNIT_TEST( testEventDrop );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
+	static constexpr int nThreads = 16;
+	static constexpr int nCountsPerThread = H2Core::EventQueue::nMaxEvents /
+											nThreads;
 
-		void testCountIn();
+	void setUp() override;
+	void tearDown() override;
 	
-	// Tests the CoreActionController::loadSong(),
-	// CoreActionController::setSong(),
-	// CoreActionController::saveSong()
-	// CoreActionController::saveSongAs() methods.
-	void testSessionManagement();
-	
-	// Tests Filesystem::isPathValid()
-	void testIsPathValid();
+	void testPushPop();
+	void testOverflow();
+	void testThreadedAccess();
+	void testEventDrop();
+
 };
+
+#endif

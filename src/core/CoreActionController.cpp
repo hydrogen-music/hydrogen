@@ -2531,6 +2531,10 @@ bool CoreActionController::setBpm( float fBpm ) {
 		return false;
 	}
 
+	if ( pHydrogen->getTempoSource() != Hydrogen::Tempo::Song ) {
+		return false;
+	}
+
 	fBpm = std::clamp( fBpm, static_cast<float>(MIN_BPM),
 						  static_cast<float>(MAX_BPM) );
 

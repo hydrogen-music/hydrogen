@@ -152,8 +152,9 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	m_pPatternEditorLockedButton->setCheckable( true );
 	m_pPatternEditorLockedButton->setObjectName( "PatternEditorLockedButton" );
 	connect( m_pPatternEditorLockedButton, &QToolButton::clicked, [=](){
-		Hydrogen::get_instance()->setIsPatternEditorLocked(
-			m_pPatternEditorLockedButton->isChecked() );
+		auto pHydrogen = Hydrogen::get_instance();
+		pHydrogen->setIsPatternEditorLocked(
+			! pHydrogen->isPatternEditorLocked() );
 	});
 	m_pToolBar->addWidget( m_pPatternEditorLockedButton );
 
@@ -1129,13 +1130,11 @@ void SongEditorPanel::updateIcons() {
 
 	m_pClearAction->setIcon( QIcon( sIconPath + "bin.svg" ) );
 	m_pNewPatternAction->setIcon( QIcon( sIconPath + "plus.svg" ) );
-	m_pPatternEditorLockedButton->setIcon(
-		QIcon( sIconPath +
-			   ( Hydrogen::get_instance()->isPatternEditorLocked() ?
-				 "lock_open.svg" : "lock_closed" ) ) );
 	m_pSinglePatternModeButton->setIcon( QIcon( sIconPath + "single_layer.svg" ) );
 	m_pStackedPatternModeButton->setIcon(
 		QIcon( sIconPath + "multiple_layers.svg" ) );
+
+	updatePatternEditorLocked();
 }
 
 void SongEditorPanel::updateJacktimebaseState() {

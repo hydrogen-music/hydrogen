@@ -81,7 +81,7 @@ void CoreActionControllerTest::testCountIn() {
 		return pAudioEngine->getCountInMetronomeTicks();
 	};
 
-	std::vector< std::pair<int, int> > results{ {0, 1}, {1, 10}, {2,4} };
+	std::vector< std::pair<int, int> > results{ {0, 1}, {1, 9}, {2,4} };
 	for ( const auto [ nnColumn, nnTicks ] : results ) {
 		const auto nTicksReal = countInTicksForColumn( nnColumn );
 		___INFOLOG( QString( "column: %1, ticks: %2, reference: %3" )

@@ -56,8 +56,6 @@ Fader::Fader( QWidget *pParent, const Type& type, const QString& sBaseToolTip,
 	m_fDefaultValue = m_fMax;
 	m_fValue = m_fDefaultValue;
 
-	installEventFilter( HydrogenApp::get_instance()->getMainForm() );
-
 	if ( type == Type::Vertical ){ 
 		m_nWidgetWidth = 116;
 		m_nWidgetHeight = 23;

@@ -106,6 +106,9 @@ public:
 	 */
 	std::unique_ptr<Event> popEvent();
 
+	/** Removes all events of type @a type from the queue. */
+	void dropEvents( const Event::Type& type );
+
 	struct AddMidiNoteVector {
 		int m_column;       // position
 		int m_instrumentId; // specifies the instrument triggered
