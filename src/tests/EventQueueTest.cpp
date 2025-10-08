@@ -147,7 +147,7 @@ void EventQueueTest::testEventDrop() {
 	do {
 		pEvent = pEventQueue->popEvent();
 	} while ( pEvent != nullptr );
-	//pEventQueue->dropEvents( Event::Type::TempoChanged );
+	pEventQueue->dropEvents( Event::Type::TempoChanged );
 
 	// Fill queue with different events
 	const int nEvents = 20;
@@ -160,7 +160,7 @@ void EventQueueTest::testEventDrop() {
 		}
 	}
 
-	//pEventQueue->dropEvents( Event::Type::TempoChanged );
+	pEventQueue->dropEvents( Event::Type::TempoChanged );
 
 	for ( int ii = 0; ii < nEvents / 2; ii++) {
 		pEvent = pEventQueue->popEvent();

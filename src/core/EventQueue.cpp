@@ -87,6 +87,19 @@ std::unique_ptr<Event> EventQueue::popEvent() {
 	return std::move( pEvent );
 }
 
+void EventQueue::dropEvents( const Event::Type& type ) {
+	std::lock_guard< std::mutex > lock( m_mutex );
+
+	for ( auto it = m_eventQueue.begin(); it != m_eventQueue.end(); ) {
+        if ( *it != nullptr && (*it)->getType() == type ) {
+            it = m_eventQueue.erase( it );
+		}
+        else {
+            ++it;
+		}
+    }
+}
+
 QString EventQueue::toQString( const QString& sPrefix, bool bShort ) {
 	std::lock_guard< std::mutex > lock( m_mutex );
 
