@@ -51,7 +51,6 @@
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/MidiLearnableToolButton.h"
-#include "../Widgets/PatchBay.h"
 #include "../WidgetScrollArea.h"
 #include "../UndoActions.h"
 
@@ -266,16 +265,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pToolBar->addAction( m_pQuantizeAction );
 
 	m_pToolBar->addSeparator();
-
-	// m_pPatchBayBtn = new Button(
-	// 	pBtnContainer, buttonSize, Button::Type::Push, "patchBay.svg", "",
-	// 	iconSize, tr( "Show PatchBay" ) );
-	// m_pPatchBayBtn->hide();
-	// m_pPatchBayBtn->setObjectName( "ShowPatchBayBtn" );
-	// connect( m_pPatchBayBtn, SIGNAL( clicked() ),
-	// 		 this, SLOT( patchBayBtnClicked() ) );
-	// m_pPatchBayBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
-	// m_pToolBar->addWidget( m_pPatchBayBtn );
 
 	////////////////////////////////////////////////////////////////////////////
 	// Main toolbar containing the patter size and resolution widgets
@@ -1853,18 +1842,6 @@ NotePropertiesRuler::Property PatternEditorPanel::getSelectedNoteProperty() cons
 	}
 
 	return property;
-}
-
-void PatternEditorPanel::patchBayBtnClicked() {
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return;
-	}
-
-	auto pPatchBay = new PatchBay(
-		nullptr, pSong->getPatternList(), pSong->getDrumkit() );
-	pPatchBay->exec();
-	delete pPatchBay;
 }
 
 const DrumPatternRow PatternEditorPanel::getRowDB( int nRow ) const {
