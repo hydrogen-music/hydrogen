@@ -1125,14 +1125,6 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 	}
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-	int nInstruments = pInstrumentList->size();
-	if ( nInstruments >= MAX_INSTRUMENTS ) {
-		event->ignore();
-		QMessageBox::critical( this, "Hydrogen", tr( "Unable to insert further instruments. Maximum possible number" ) +
-							   QString( ": %1" ).arg( MAX_INSTRUMENTS ) );
-		return;
-	}
-
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();

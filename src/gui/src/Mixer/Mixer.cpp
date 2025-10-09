@@ -57,14 +57,13 @@ Mixer::Mixer( QWidget* pParent )
 	auto pPref = Preferences::get_instance();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	const int nMinimumFaderPanelWidth = MixerLine::nWidth * 4;
 	const int nFXFrameWidth = 213;
 	const int nFixedHeight = MasterLine::nHeight;
 
 	const int nScrollBarMarginX = 8;
 	const int nScrollBarMarginY = 6;
 	setMinimumSize(
-		nMinimumFaderPanelWidth + nFXFrameWidth + MasterLine::nWidth +
+		Mixer::nMinimumFaderPanelWidth + nFXFrameWidth + MasterLine::nWidth +
 		nScrollBarMarginX,
 		nFixedHeight + nScrollBarMarginY );
 
@@ -74,9 +73,8 @@ Mixer::Mixer( QWidget* pParent )
 	m_pFaderHBox->setContentsMargins( 0, 0, 0, 0 );
 
 	m_pFaderPanel = new QWidget( nullptr );
-	m_pFaderPanel->resize( MixerLine::nWidth * MAX_INSTRUMENTS, nFixedHeight );
 	m_pFaderPanel->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
-	m_pFaderPanel->setMinimumSize( nMinimumFaderPanelWidth, nFixedHeight );
+	m_pFaderPanel->setMinimumSize( Mixer::nMinimumFaderPanelWidth, nFixedHeight );
 	m_pFaderPanel->setMaximumSize( 16777215, nFixedHeight );
 	m_pFaderPanel->setLayout( m_pFaderHBox );
 
@@ -188,6 +186,7 @@ Mixer::Mixer( QWidget* pParent )
 			 this, &Mixer::onPreferencesChanged );
 
 	HydrogenApp::get_instance()->addEventListener( this );
+	resizeFaderPanel();
 	updateMixer();
 }
 
@@ -268,15 +267,6 @@ void Mixer::updateMixer()
 
 void Mixer::closeEvent( QCloseEvent* ev ) {
 	HydrogenApp::get_instance()->showMixer( false );
-}
-
-int Mixer::findMixerLineByRef(MixerLine* ref) {
-	for (int i = 0; i < MAX_INSTRUMENTS; i++) {
-		if (m_mixerLines[i] == ref) {
-			return i;
-		}
-	}
-	return 0;
 }
 
 void Mixer::updatePeaks()
@@ -361,6 +351,7 @@ void Mixer::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) 
 }
 
 void Mixer::drumkitLoadedEvent() {
+	resizeFaderPanel();
 	updateMixer();
 }
 
@@ -458,5 +449,19 @@ void Mixer::updatePreferencesEvent( int nValue ) {
 }
 
 void Mixer::updateSongEvent( int ) {
+	resizeFaderPanel();
 	updateMixer();
+}
+
+void Mixer::resizeFaderPanel() {
+	int nWidth = Mixer::nMinimumFaderPanelWidth;
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
+		nWidth = std::max( pSong->getDrumkit()->getInstruments()->size() *
+						   MixerLine::nWidth,
+						  Mixer::nMinimumFaderPanelWidth );
+	}
+
+	m_pFaderPanel->resize( nWidth, MasterLine::nHeight );
 }

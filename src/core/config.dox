@@ -63,11 +63,6 @@
 #define H2CORE_VERSION "@DISPLAY_VERSION@"
 
 
-/** \def MAX_INSTRUMENTS
- * Maximum number of instruments allowed in Hydrogen. Set by __cmake__
- * to 1000 (currently).
- */
-#define MAX_INSTRUMENTS		@MAX_INSTRUMENTS@
 /**
  * Maximum number of effects. Set by __cmake__ to 4 (currently).
  */

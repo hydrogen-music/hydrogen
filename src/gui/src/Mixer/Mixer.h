@@ -27,15 +27,16 @@
 #include <QtGui>
 #include <QtWidgets>
 
+#include <core/Globals.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
-#include <core/Globals.h>
+
+#include "MixerLine.h"
 #include "../EventListener.h"
 
 class Button;
 class LadspaFXLine;
 class MasterLine;
-class MixerLine;
 class PixmapWidget;
 
 /** \ingroup docGUI*/
@@ -47,6 +48,7 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object<Mixer>
 
 		/** Defines the rate using which the peaks in the Mixer are update. */
 		static constexpr int nPeakTimeoutMs = 50;
+	static constexpr int nMinimumFaderPanelWidth = MixerLine::nWidth * 4;
 
 		explicit Mixer(QWidget* parent);
 		~Mixer();
@@ -82,8 +84,6 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object<Mixer>
 
 		QTimer *				m_pUpdateTimer;
 
-		int					findMixerLineByRef(MixerLine* ref);
-
 		// Implements EventListener interface
 		virtual void drumkitLoadedEvent() override;
 		virtual void effectChangedEvent() override;
@@ -95,6 +95,8 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object<Mixer>
 		void updatePreferencesEvent( int ) override;
 		virtual void updateSongEvent( int nValue ) override;
 		// ~ Implements EventListener interface
+
+	void resizeFaderPanel();
 
 };
 

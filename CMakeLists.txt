@@ -255,7 +255,6 @@ else()
 endif()
 set(H2_USR_PATH ".hydrogen")
 
-set(MAX_INSTRUMENTS 1000 CACHE STRING "Maximum number of instruments")
 set(MAX_FX          4    CACHE STRING "Maximum number of effects")
 set(MAX_BUFFER_SIZE 8192 CACHE STRING "Maximum size of buffer")
 
