@@ -230,7 +230,11 @@ void MidiActionTable::insertNewRow( std::shared_ptr<MidiAction> pAction,
 		this, QSize( m_nSpinBoxWidth, m_nRowHeight ) );
 	actionParameterSpinner2->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	setCellWidget( oldRowCount , 5, actionParameterSpinner2 );
-	actionParameterSpinner2->setMaximum( std::max(MAX_FX, MAX_COMPONENTS) );
+	// Since this spinner handles both the FX and component number, this hard
+	// coded value could in principle - as the user is allowed to add arbitrary
+	// components to an instrument - be set too low. But I doubt this will ever
+	// happen in a real-world example.
+	actionParameterSpinner2->setMaximum( 999 );
 	actionParameterSpinner2->setValue( pAction->getParameter2().toInt(&ok,10) );
 	actionParameterSpinner2->hide();
 	connect( actionParameterSpinner2, SIGNAL( valueChanged( double ) ),

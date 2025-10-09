@@ -68,11 +68,6 @@
  * to 1000 (currently).
  */
 #define MAX_INSTRUMENTS		@MAX_INSTRUMENTS@
-/** \def MAX_COMPONENTS
- * Maximum number of components each Instrument is allowed to
- * have. Set by __cmake__ to 32 (currently).
- */
-#define MAX_COMPONENTS  	@MAX_COMPONENTS@
 /**
  * Maximum number of effects. Set by __cmake__ to 4 (currently).
  */
