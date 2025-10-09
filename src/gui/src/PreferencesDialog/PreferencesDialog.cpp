@@ -685,6 +685,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	m_pShortcuts = std::make_shared<H2Core::Shortcuts>( pPref->getShortcuts() );
 	initializeShortcutsTab();
+	updateShortcutsTab();
 }
 
 PreferencesDialog::~PreferencesDialog()
