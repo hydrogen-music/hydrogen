@@ -356,7 +356,7 @@ void Mixer::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) 
 	}
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {
-		setFont( QFont( pPref->getTheme().m_font.m_sApplicationFontFamily, 10 ) );
+		setFont( QFont( pPref->getFontTheme()->m_sApplicationFontFamily, 10 ) );
 	}
 }
 

@@ -63,20 +63,21 @@ void WaveDisplay::paintEvent( QPaintEvent *ev ) {
 
 void WaveDisplay::createBackground( QPainter* painter ) {
 	auto pPref = H2Core::Preferences::get_instance();
+	const auto pColorTheme = pPref->getColorTheme();
 
 	const QColor borderColor = Qt::black;
 	QColor textColor, backgroundColor, waveFormColor;
 	if ( m_pLayer != nullptr && m_pLayer->getIsMuted() ) {
-		textColor = pPref->getTheme().m_color.m_muteTextColor;
-		backgroundColor = pPref->getTheme().m_color.m_muteColor;
+		textColor = pColorTheme->m_muteTextColor;
+		backgroundColor = pColorTheme->m_muteColor;
 	}
 	else if ( m_pLayer != nullptr && m_pLayer->getIsSoloed() ){
-		textColor = pPref->getTheme().m_color.m_soloTextColor;
-		backgroundColor = pPref->getTheme().m_color.m_soloColor;
+		textColor = pColorTheme->m_soloTextColor;
+		backgroundColor = pColorTheme->m_soloColor;
 	}
 	else {
-		textColor = pPref->getTheme().m_color.m_accentTextColor;
-		backgroundColor = pPref->getTheme().m_color.m_accentColor;
+		textColor = pColorTheme->m_accentTextColor;
+		backgroundColor = pColorTheme->m_accentColor;
 	}
 	textColor.setAlpha( 200 );
 
@@ -107,8 +108,8 @@ void WaveDisplay::createBackground( QPainter* painter ) {
 		}
 	}
 	
-	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
-				getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont font( pPref->getFontTheme()->m_sApplicationFontFamily,
+				getPointSize( pPref->getFontTheme()->m_fontSize ) );
 	font.setWeight( QFont::Bold );
 	painter->setFont( font );
 	painter->setPen( textColor );

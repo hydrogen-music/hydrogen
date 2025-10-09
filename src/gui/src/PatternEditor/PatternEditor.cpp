@@ -1038,7 +1038,7 @@ void PatternEditor::paintEvent( QPaintEvent* ev ) {
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() &&
 		 m_pPatternEditorPanel->hasPatternEditorFocus() &&
 		 pPattern != nullptr ) {
-		QColor cursorColor( pPref->getTheme().m_color.m_cursorColor );
+		QColor cursorColor( pPref->getColorTheme()->m_cursorColor );
 		if ( ! hasFocus() ) {
 			cursorColor.setAlpha( Skin::nInactiveCursorAlpha );
 		}
@@ -2809,8 +2809,8 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 								QPen* pMovingPen, QBrush* pMovingBrush,
 								NoteStyle noteStyle ) const
 {
-	const auto colorTheme =
-		H2Core::Preferences::get_instance()->getTheme().m_color;
+	const auto pColorTheme =
+		H2Core::Preferences::get_instance()->getColorTheme();
 
 	const auto backgroundPenStyle = Qt::DotLine;
 	const auto backgroundBrushStyle = Qt::Dense4Pattern;
@@ -2826,7 +2826,7 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 	if ( ! pNote->getNoteOff() ) {
 		noteFillColor = PatternEditor::computeNoteColor( pNote->getVelocity() );
 	} else {
-		noteFillColor = colorTheme.m_patternEditor_noteOffColor;
+		noteFillColor = pColorTheme->m_patternEditor_noteOffColor;
 	}
 
 	// color base note will be filled with
@@ -2860,7 +2860,7 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 		// Use a more subtle version of the note off color. As this color is
 		// surrounded by the note outline - which is always black - we do not
 		// have to check the value but can always go for a more lighter color.
-		QColor effectiveLengthColor( colorTheme.m_patternEditor_noteOffColor );
+		QColor effectiveLengthColor( pColorTheme->m_patternEditor_noteOffColor );
 		effectiveLengthColor = effectiveLengthColor.lighter( 125 );
 		pNoteTailBrush->setColor( effectiveLengthColor );
 	}
@@ -2872,10 +2872,10 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 	// Highlight color
 	QColor selectionColor;
 	if ( m_pPatternEditorPanel->hasPatternEditorFocus() ) {
-		selectionColor = colorTheme.m_selectionHighlightColor;
+		selectionColor = pColorTheme->m_selectionHighlightColor;
 	}
 	else {
-		selectionColor = colorTheme.m_selectionInactiveColor;
+		selectionColor = pColorTheme->m_selectionInactiveColor;
 	}
 
 	QColor highlightColor;
@@ -2885,7 +2885,7 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 	}
 	else if ( noteStyle & NoteStyle::NoPlayback ) {
 		// Notes that won't be played back maintain their special color.
-		highlightColor = colorTheme.m_muteColor;
+		highlightColor = pColorTheme->m_muteColor;
 
 		// The color of the mute button itself would be too flash and draw too
 		// much attention to the note which are probably the ones the user does
@@ -2959,11 +2959,12 @@ QColor PatternEditor::computeNoteColor( float fVelocity ) {
 	float fRed, fGreen, fBlue;
 
 	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pColorTheme = pPref->getColorTheme();
 
-	QColor fullColor = pPref->getTheme().m_color.m_patternEditor_noteVelocityFullColor;
-	QColor defaultColor = pPref->getTheme().m_color.m_patternEditor_noteVelocityDefaultColor;
-	QColor halfColor = pPref->getTheme().m_color.m_patternEditor_noteVelocityHalfColor;
-	QColor zeroColor = pPref->getTheme().m_color.m_patternEditor_noteVelocityZeroColor;
+	QColor fullColor = pColorTheme->m_patternEditor_noteVelocityFullColor;
+	QColor defaultColor = pColorTheme->m_patternEditor_noteVelocityDefaultColor;
+	QColor halfColor = pColorTheme->m_patternEditor_noteVelocityHalfColor;
+	QColor zeroColor = pColorTheme->m_patternEditor_noteVelocityZeroColor;
 
 	// The colors defined in the Preferences correspond to fixed
 	// velocity values. In case the velocity lies between two of those
@@ -3006,11 +3007,11 @@ QColor PatternEditor::computeNoteColor( float fVelocity ) {
 
 void PatternEditor::drawBorders( QPainter& p ) {
 	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pColorTheme = pPref->getColorTheme();
 
-	const QColor borderColor(
-		pPref->getTheme().m_color.m_patternEditor_lineColor );
+	const QColor borderColor( pColorTheme->m_patternEditor_lineColor );
 	const QColor borderInactiveColor(
-		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
+		pColorTheme->m_windowTextColor.darker( 170 ) );
 
 	p.setPen( borderColor );
 	p.drawLine( 0, 0, m_nActiveWidth, 0 );
@@ -3039,7 +3040,7 @@ void PatternEditor::drawFocus( QPainter& p ) {
 
 	const auto pPref = H2Core::Preferences::get_instance();
 
-	QColor color = pPref->getTheme().m_color.m_highlightColor;
+	QColor color = pPref->getColorTheme()->m_highlightColor;
 
 	// If the mouse is placed on the widget but the user hasn't clicked it yet,
 	// the highlight will be done more transparent to indicate that keyboard
@@ -3121,19 +3122,20 @@ void PatternEditor::drawFocus( QPainter& p ) {
 void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) const
 {
 	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pColorTheme = pPref->getColorTheme();
 	const std::vector<QColor> colorsActive = {
-		QColor( pPref->getTheme().m_color.m_patternEditor_line1Color ),
-		QColor( pPref->getTheme().m_color.m_patternEditor_line2Color ),
-		QColor( pPref->getTheme().m_color.m_patternEditor_line3Color ),
-		QColor( pPref->getTheme().m_color.m_patternEditor_line4Color ),
-		QColor( pPref->getTheme().m_color.m_patternEditor_line5Color ),
+		QColor( pColorTheme->m_patternEditor_line1Color ),
+		QColor( pColorTheme->m_patternEditor_line2Color ),
+		QColor( pColorTheme->m_patternEditor_line3Color ),
+		QColor( pColorTheme->m_patternEditor_line4Color ),
+		QColor( pColorTheme->m_patternEditor_line5Color ),
 	};
 	const std::vector<QColor> colorsInactive = {
-		QColor( pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) ),
-		QColor( pPref->getTheme().m_color.m_windowTextColor.darker( 190 ) ),
-		QColor( pPref->getTheme().m_color.m_windowTextColor.darker( 210 ) ),
-		QColor( pPref->getTheme().m_color.m_windowTextColor.darker( 230 ) ),
-		QColor( pPref->getTheme().m_color.m_windowTextColor.darker( 250 ) ),
+		QColor( pColorTheme->m_windowTextColor.darker( 170 ) ),
+		QColor( pColorTheme->m_windowTextColor.darker( 190 ) ),
+		QColor( pColorTheme->m_windowTextColor.darker( 210 ) ),
+		QColor( pColorTheme->m_windowTextColor.darker( 230 ) ),
+		QColor( pColorTheme->m_windowTextColor.darker( 250 ) ),
 	};
 
 	// In case quantization as turned off, notes can be moved at all possible
@@ -3497,10 +3499,10 @@ void PatternEditor::drawPattern() {
 		return;
 	}
 	const auto pPref = H2Core::Preferences::get_instance();
-	const QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
-					  getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	const QFont font( pPref->getFontTheme()->m_sApplicationFontFamily,
+					  getPointSize( pPref->getFontTheme()->m_fontSize ) );
 	const QColor textColor(
-		pPref->getTheme().m_color.m_patternEditor_noteVelocityDefaultColor );
+		pPref->getColorTheme()->m_patternEditor_noteVelocityDefaultColor );
 	QColor textBackgroundColor( textColor );
 	textBackgroundColor.setAlpha( 150 );
 
@@ -3646,7 +3648,7 @@ int PatternEditor::calculateEffectiveNoteLength(
 
 	// Check for the closest note off or note of the same mute group.
 	if ( Preferences::get_instance()->
-		 getTheme().m_interface.m_bIndicateEffectiveNoteLength ) {
+		 getInterfaceTheme()->m_bIndicateEffectiveNoteLength ) {
 
 		const auto pInstrument = pNote->getInstrument();
 
@@ -3719,7 +3721,7 @@ int PatternEditor::calculateEffectiveNoteLength(
 
 bool PatternEditor::checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) const {
 	if ( ! Preferences::get_instance()->
-		 getTheme().m_interface.m_bIndicateNotePlayback ) {
+		 getInterfaceTheme()->m_bIndicateNotePlayback ) {
 		return true;
 	}
 

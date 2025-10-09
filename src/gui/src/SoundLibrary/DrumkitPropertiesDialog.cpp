@@ -208,8 +208,8 @@ QTextEdit { \
     color: %1; \
     background-color: %2; \
 }" )
-								.arg( pPref->getTheme().m_color.m_windowTextColor.name() )
-								.arg( pPref->getTheme().m_color.m_windowColor.name() ) );
+								.arg( pPref->getColorTheme()->m_windowTextColor.name() )
+								.arg( pPref->getColorTheme()->m_windowColor.name() ) );
 										
 	}
 
@@ -299,7 +299,7 @@ void DrumkitPropertiesDialog::showEvent( QShowEvent *e )
 }
 
 void DrumkitPropertiesDialog::updateLicensesTable() {
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
 	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
 
 	if ( m_pDrumkit == nullptr ){
@@ -337,8 +337,8 @@ void DrumkitPropertiesDialog::updateLicensesTable() {
 			// In case of a license mismatch we highlight the row
 			if ( ccontent->m_license != m_pDrumkit->getLicense() ) {
 				QString sHighlight = QString( "color: %1; background-color: %2" )
-					.arg( theme.m_color.m_buttonRedTextColor.name() )
-					.arg( theme.m_color.m_buttonRedColor.name() );
+					.arg( pColorTheme->m_buttonRedTextColor.name() )
+					.arg( pColorTheme->m_buttonRedColor.name() );
 				pInstrumentItem->setStyleSheet( sHighlight );
 				pComponentItem->setStyleSheet( sHighlight );
 				pSampleItem->setStyleSheet( sHighlight );
@@ -504,13 +504,13 @@ void DrumkitPropertiesDialog::imageLicenseComboBoxChanged( int ) {
 void DrumkitPropertiesDialog::updateImage( const QString& sFilePath )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto colorTheme = Preferences::get_instance()->getTheme().m_color;
+	auto pColorTheme = Preferences::get_instance()->getColorTheme();
 
 	//  Styling used in case we assign text not images.
 	drumkitImageLabel->setStyleSheet(
 		QString( "QLabel { color: %1; background-color: %2;}" )
-		.arg( colorTheme.m_windowTextColor.name() )
-		.arg( colorTheme.m_windowColor.name() ) );
+		.arg( pColorTheme->m_windowTextColor.name() )
+		.arg( pColorTheme->m_windowColor.name() ) );
 	drumkitImageLabel->show();
 
 	if ( ! Filesystem::file_exists( sFilePath, false ) ) {
@@ -981,12 +981,12 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 }
 
 void DrumkitPropertiesDialog::highlightDuplicates() {
-	const auto theme = Preferences::get_instance()->getTheme();
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 	QStringList duplicates;
 
 	const QString sHighlight = QString( "color: %1; background-color: %2" )
-		.arg( theme.m_color.m_buttonRedTextColor.name() )
-		.arg( theme.m_color.m_buttonRedColor.name() );
+		.arg( pColorTheme->m_buttonRedTextColor.name() )
+		.arg( pColorTheme->m_buttonRedColor.name() );
 
 	// Compile a list of all duplicated types.
 	std::set<QString> types;

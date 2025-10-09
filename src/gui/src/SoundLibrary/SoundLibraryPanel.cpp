@@ -167,17 +167,19 @@ SoundLibraryPanel::~SoundLibraryPanel()
 void SoundLibraryPanel::updateTree()
 {
 	const auto pPref = H2Core::Preferences::get_instance();
-	const auto theme = pPref->getTheme();
+	const auto pFontTheme = pPref->getFontTheme();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	__sound_library_tree->clear();
 
-	QFont boldFont( theme.m_font.m_sApplicationFontFamily, getPointSize( theme.m_font.m_fontSize ) );
+	QFont boldFont( pFontTheme->m_sApplicationFontFamily,
+				   getPointSize( pFontTheme->m_fontSize ) );
 	boldFont.setBold( true );
 
-	QFont childFont( theme.m_font.m_sLevel2FontFamily, getPointSize( theme.m_font.m_fontSize ) );
+	QFont childFont( pFontTheme->m_sLevel2FontFamily,
+					getPointSize( pFontTheme->m_fontSize ) );
 	setFont( childFont );
 	
 	m_pTreeSystemDrumkitsItem = nullptr;
@@ -833,12 +835,14 @@ void SoundLibraryPanel::test_expandedItems()
 }
 
 void SoundLibraryPanel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
 	
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		
-		QFont font( theme.m_font.m_sLevel2FontFamily, getPointSize( theme.m_font.m_fontSize ) );
-		QFont boldFont( theme.m_font.m_sApplicationFontFamily, getPointSize( theme.m_font.m_fontSize ) );
+		QFont font( pFontTheme->m_sLevel2FontFamily,
+				   getPointSize( pFontTheme->m_fontSize ) );
+		QFont boldFont( pFontTheme->m_sApplicationFontFamily,
+					   getPointSize( pFontTheme->m_fontSize ) );
 		boldFont.setBold( true );
 
 		int ii, jj;

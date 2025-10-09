@@ -51,7 +51,7 @@ void InfoBar::updateStyleSheet(){
 
 	setStyleSheet( QString( "background: %1;" ) .arg(
 					   H2Core::Preferences::get_instance()->
-					   getTheme().m_color.m_highlightColor.name() ) );
+					   getColorTheme()->m_highlightColor.name() ) );
 }
 
 void InfoBar::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {

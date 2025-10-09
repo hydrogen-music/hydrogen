@@ -363,12 +363,12 @@ InstrumentEditor::~InstrumentEditor() {
 }
 
 void InstrumentEditor::updateColors() {
-	const auto theme = Preferences::get_instance()->getTheme();
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 
 	m_pFilterBypassBtn->setCheckedBackgroundColor(
-		theme.m_color.m_muteColor );
+		pColorTheme->m_muteColor );
 	m_pFilterBypassBtn->setCheckedBackgroundTextColor(
-		theme.m_color.m_muteTextColor );
+		pColorTheme->m_muteTextColor );
 }
 
 void InstrumentEditor::updateEditor() {

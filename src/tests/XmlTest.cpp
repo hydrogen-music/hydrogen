@@ -951,7 +951,10 @@ void XmlTest::testShippedThemes() {
 
 	const QString sTmpFile =
 		H2Core::Filesystem::tmp_file_path( "check-default-theme-XXXX.conf" );
-	const auto pDefaultTheme = std::make_shared<H2Core::Theme>();
+	const auto pDefaultTheme = std::make_shared<H2Core::Theme>(
+		std::make_shared<H2Core::ColorTheme>(),
+		std::make_shared<H2Core::InterfaceTheme>(),
+		std::make_shared<H2Core::FontTheme>() );
 	pDefaultTheme->exportTo( sTmpFile );
 
 	H2TEST_ASSERT_THEME_FILES_EQUAL( sDefaultTheme, sTmpFile );

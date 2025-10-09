@@ -145,7 +145,8 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 	openFile( Filesystem::Type::Playlist, sPlaylistFilename,
 			  pPref->getLastPlaylistFilename() );
 
-	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont font( pPref->getFontTheme()->m_sApplicationFontFamily,
+			   getPointSize( pPref->getFontTheme()->m_fontSize ) );
 	setFont( font );
 	m_pQApp->setFont( font );
 
@@ -1869,10 +1870,10 @@ void MainForm::closeAll(){
 
 void MainForm::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	if ( changes & H2Core::Preferences::Changes::Font ) {
-		const auto theme = H2Core::Preferences::get_instance()->getTheme();
+		const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
 	
-		QFont font( theme.m_font.m_sApplicationFontFamily,
-					getPointSize( theme.m_font.m_fontSize ) );
+		QFont font( pFontTheme->m_sApplicationFontFamily,
+					getPointSize( pFontTheme->m_fontSize ) );
 		m_pQApp->setFont( font );
 		menuBar()->setFont( font );
 

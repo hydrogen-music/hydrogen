@@ -213,15 +213,15 @@ void AutomationPathView::paintEvent(QPaintEvent *ev)
 
 void AutomationPathView::createBackground() {
 	
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
 	updateAutomationPath();
 
 	QColor backgroundColor =
-		theme.m_color.m_songEditor_automationBackgroundColor;
+		pColorTheme->m_songEditor_automationBackgroundColor;
 	QColor automationLineColor =
-		theme.m_color.m_songEditor_automationLineColor;
-	QColor nodeColor = theme.m_color.m_songEditor_automationNodeColor;
-	QColor textColor = theme.m_color.m_songEditor_textColor;
+		pColorTheme->m_songEditor_automationLineColor;
+	QColor nodeColor = pColorTheme->m_songEditor_automationNodeColor;
+	QColor textColor = pColorTheme->m_songEditor_textColor;
 
 	// Resize pixmap if pixel ratio has changed
 	qreal pixelRatio = devicePixelRatio();
@@ -284,7 +284,7 @@ void AutomationPathView::createBackground() {
 	QPen circlePen( nodeColor );
 	circlePen.setWidth(1);
 	painter.setPen(circlePen);
-	painter.setBrush(QBrush( theme.m_color.m_windowColor ));
+	painter.setBrush(QBrush( pColorTheme->m_windowColor ));
 
 	for ( const auto& point : *_path) {
 

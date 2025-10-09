@@ -421,34 +421,34 @@ ComponentView::~ComponentView() {
 }
 
 void ComponentView::updateColors() {
-	const auto theme = Preferences::get_instance()->getTheme();
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 
-	m_pComponentMuteBtn->setCheckedBackgroundColor( theme.m_color.m_muteColor );
+	m_pComponentMuteBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
 	m_pComponentMuteBtn->setCheckedBackgroundTextColor(
-		theme.m_color.m_muteTextColor );
-	m_pComponentSoloBtn->setCheckedBackgroundColor( theme.m_color.m_soloColor );
+		pColorTheme->m_muteTextColor );
+	m_pComponentSoloBtn->setCheckedBackgroundColor( pColorTheme->m_soloColor );
 	m_pComponentSoloBtn->setCheckedBackgroundTextColor(
-		theme.m_color.m_soloTextColor );
+		pColorTheme->m_soloTextColor );
 
-	m_pLayerMuteBtn->setCheckedBackgroundColor( theme.m_color.m_muteColor );
+	m_pLayerMuteBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
 	m_pLayerMuteBtn->setCheckedBackgroundTextColor(
-		theme.m_color.m_muteTextColor );
-	m_pLayerSoloBtn->setCheckedBackgroundColor( theme.m_color.m_soloColor );
+		pColorTheme->m_muteTextColor );
+	m_pLayerSoloBtn->setCheckedBackgroundColor( pColorTheme->m_soloColor );
 	m_pLayerSoloBtn->setCheckedBackgroundTextColor(
-		theme.m_color.m_soloTextColor );
+		pColorTheme->m_soloTextColor );
 }
 
 void ComponentView::updateStyleSheet() {
-	const auto theme = Preferences::get_instance()->getTheme();
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 
-	const QColor headerColor = theme.m_color.m_windowColor;
-	const QColor headerTextColor = theme.m_color.m_windowTextColor;
+	const QColor headerColor = pColorTheme->m_windowColor;
+	const QColor headerTextColor = pColorTheme->m_windowTextColor;
 	const QColor borderHeaderLightColor = headerColor.lighter(
 		Skin::nListBackgroundLightBorderScaling );
 	const QColor borderHeaderDarkColor = headerColor.darker(
 		Skin::nListBackgroundDarkBorderScaling );
 
-	const QColor layerColor = theme.m_color.m_baseColor;
+	const QColor layerColor = pColorTheme->m_baseColor;
 	const QColor borderLayerLightColor = layerColor.lighter(
 		Skin::nListBackgroundLightBorderScaling );
 	const QColor borderLayerDarkColor = layerColor.darker(

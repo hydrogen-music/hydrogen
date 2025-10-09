@@ -157,7 +157,7 @@ void MidiActionTable::insertNewRow( std::shared_ptr<MidiAction> pAction,
 	setRowCount( ++m_nRowCount );
 
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( H2Core::Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
+	if ( H2Core::Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
 		 H2Core::InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	} else {

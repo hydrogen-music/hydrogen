@@ -91,7 +91,8 @@ Rotary::~ Rotary() {
 
 void Rotary::paintEvent( QPaintEvent* ev )
 {
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pColorTheme = pPref->getColorTheme();
 
 	ev->accept();
 	QPainter painter( this );
@@ -103,12 +104,12 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	QColor colorArcCenterSet;
 	QColor colorArcCenterUnset;
 	if ( m_bIsActive ) {
-		colorHighlightActive = theme.m_color.m_highlightColor;
+		colorHighlightActive = pColorTheme->m_highlightColor;
 		colorArc = Qt::red;
 		colorArcCenterSet = Qt::green;
 		colorArcCenterUnset = Qt::gray;
 	} else {
-		colorHighlightActive = theme.m_color.m_lightColor;
+		colorHighlightActive = pColorTheme->m_lightColor;
 		colorArc = Qt::darkGray;
 		colorArcCenterSet = Qt::darkGray;
 		colorArcCenterUnset = Qt::lightGray;
@@ -272,7 +273,7 @@ void Rotary::paintEvent( QPaintEvent* ev )
 		QRectF leftTextRec( 2, 16, 7, 7 );
 		QRectF rightTextRec( 34, 16, 9, 7 );
 
-		QFont font( theme.m_font.m_sApplicationFontFamily );
+		QFont font( pPref->getFontTheme()->m_sApplicationFontFamily );
 		painter.setPen( QPen( colorFont, 3 ) );
 		if ( std::fmod( m_fMin, 1 ) == 0 && std::fabs( m_fMin ) < 10 ) {
 			font.setPixelSize( 7 );

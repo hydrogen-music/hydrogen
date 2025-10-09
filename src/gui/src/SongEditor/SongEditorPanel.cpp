@@ -465,11 +465,10 @@ void SongEditorPanel::updatePlayHeadPosition()
 }
 
 void SongEditorPanel::highlightPatternEditorLocked() {
-	const auto theme = Preferences::get_instance()->getTheme();
 	m_pPatternEditorLockedButton->setStyleSheet( QString( "\
 #PatternEditorLockedButton {\
     background-color: %1;\
-}" ).arg( theme.m_color.m_buttonRedColor.name() ) );
+}" ).arg( Preferences::get_instance()->getColorTheme()->m_buttonRedColor.name() ) );
 
 	m_pHighlightLockedTimer->start( 250 );
 }
@@ -482,7 +481,7 @@ void SongEditorPanel::updatePlaybackFaderPeaks()
 
 	
 	bool bShowPeaks = pPref->showInstrumentPeaks();
-	float fallOff = pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
+	float fallOff = pPref->getInterfaceTheme()->m_fMixerFalloffSpeed;
 	
 	// fader
 	float fOldPeak_L = m_pPlaybackTrackFader->getPeak_L();
@@ -1119,7 +1118,7 @@ void SongEditorPanel::resizeEvent( QResizeEvent *ev )
 void SongEditorPanel::updateIcons() {
 	QColor color;
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
+	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 		color = Qt::white;
@@ -1144,7 +1143,7 @@ void SongEditorPanel::updateJacktimebaseState() {
 void SongEditorPanel::updatePatternEditorLocked() {
 	QColor color;
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
+	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 		color = Qt::white;
@@ -1199,17 +1198,17 @@ void SongEditorPanel::updatePatternMode() {
 }
 
 void SongEditorPanel::updateStyleSheet() {
-	const auto colorTheme = Preferences::get_instance()->getTheme().m_color;
-	const QColor colorToolBar = colorTheme.m_songEditor_backgroundColor;
-	const QColor colorToolBarText = colorTheme.m_songEditor_textColor;
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const QColor colorToolBar = pColorTheme->m_songEditor_backgroundColor;
+	const QColor colorToolBarText = pColorTheme->m_songEditor_textColor;
 
 	QColor backgroundInactiveColor;
 	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
-		backgroundInactiveColor = colorTheme.m_windowColor.lighter(
+		backgroundInactiveColor = pColorTheme->m_windowColor.lighter(
 		 	Skin::nEditorActiveScaling );
 	}
 	else {
-		backgroundInactiveColor = colorTheme.m_windowColor;
+		backgroundInactiveColor = pColorTheme->m_windowColor;
 	}
 
 	setStyleSheet( QString( "\
@@ -1265,9 +1264,9 @@ QToolButton:hover, QToolButton:pressed {\
 							   .arg( colorToolBarChecked.name() )
 							   .arg( colorToolBarHovered.name() ) );
 
-	m_pMutePlaybackBtn->setCheckedBackgroundColor( colorTheme.m_muteColor );
+	m_pMutePlaybackBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
 	m_pMutePlaybackBtn->setCheckedBackgroundTextColor(
-		colorTheme.m_muteTextColor );
+		pColorTheme->m_muteTextColor );
 
 }
 

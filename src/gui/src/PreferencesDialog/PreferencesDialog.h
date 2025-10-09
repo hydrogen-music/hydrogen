@@ -168,7 +168,7 @@ private:
 	void setAudioDriverInfoPulseAudio();
 	void writeAudioDriverPreferences();
 	void writeMidiDriverPreferences();
-	void updateAppearanceTab( const H2Core::Theme& pTheme );
+	void updateAppearanceTab( std::shared_ptr<H2Core::Theme> pTheme );
 
 	void initializeShortcutsTab();
 	void updateShortcutsTab();
@@ -187,8 +187,10 @@ private:
 	std::vector<std::pair<H2Core::Shortcuts::Action,QKeySequence>> m_lastShortcutsSelected;
 
 	void setIndexedTreeItemDirty( IndexedTreeItem* pItem );
-	std::unique_ptr<QColor> getColorById( int nId, const H2Core::ColorTheme& uiStyle ) const;
-	void setColorById( int nId, const QColor& color, H2Core::ColorTheme& uiStyle );
+	std::unique_ptr<QColor> getColorById(
+		int nId, std::shared_ptr<H2Core::ColorTheme> pColorTheme ) const;
+	void setColorById( int nId, const QColor& color,
+					  std::shared_ptr<H2Core::ColorTheme> pColorTheme );
 	void updateColorTree();
 	/**
 	 * Introduce a temporal smoothing. Otherwise, moving the slider
@@ -196,8 +198,8 @@ private:
 	 * triggering a recoloring of the whole GUI.
 	 */
 	void triggerColorSliderTimer();
-	H2Core::Theme m_currentTheme;
-	H2Core::Theme m_previousTheme;
+	std::shared_ptr<H2Core::Theme> m_pCurrentTheme;
+	std::shared_ptr<H2Core::Theme> m_pPreviousTheme;
 	std::unique_ptr<QColor> m_pCurrentColor;
 	int m_nCurrentId;
 	QTimer* m_pColorSliderTimer;

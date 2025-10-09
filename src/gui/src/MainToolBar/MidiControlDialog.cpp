@@ -477,11 +477,12 @@ void MidiControlDialog::showEvent( QShowEvent* pEvent ) {
 
 void MidiControlDialog::updateFont() {
 	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pFontTheme = pPref->getFontTheme();
 
-	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
-				getPointSize( pPref->getTheme().m_font.m_fontSize ) );
-	QFont childFont( pPref->getTheme().m_font.m_sLevel2FontFamily,
-					 getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont font( pFontTheme->m_sApplicationFontFamily,
+				getPointSize( pFontTheme->m_fontSize ) );
+	QFont childFont( pFontTheme->m_sLevel2FontFamily,
+					 getPointSize( pFontTheme->m_fontSize ) );
 	setFont( font );
 
 	// In order to affect the fonts of all child widgets in the table as well,
@@ -499,7 +500,7 @@ font-size: %2; \
 
 void MidiControlDialog::updateIcons() {
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
+	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	} else {

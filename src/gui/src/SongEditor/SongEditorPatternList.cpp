@@ -279,7 +279,7 @@ void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 		const auto cursorPoint = pSongEditor->gridPointToPoint(
 			pSongEditor->getCursorPosition() );
 
-		QPen cursorPen( pPref->getTheme().m_color.m_cursorColor );
+		QPen cursorPen( pPref->getColorTheme()->m_cursorColor );
 		cursorPen.setWidth( 2 );
 		painter.setPen( cursorPen );
 		painter.setBrush( Qt::NoBrush );
@@ -292,10 +292,12 @@ void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 void SongEditorPatternList::createBackground()
 {
 	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pColorTheme = pPref->getColorTheme();
 	auto pHydrogen = Hydrogen::get_instance();
 	m_bBackgroundInvalid = false;
 
-	QFont boldTextFont( pPref->getTheme().m_font.m_sLevel2FontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont boldTextFont( pPref->getFontTheme()->m_sLevel2FontFamily,
+					   getPointSize( pPref->getFontTheme()->m_fontSize ) );
 	boldTextFont.setBold( true );
 
 	//Do not redraw anything if Export is active.
@@ -329,19 +331,19 @@ void SongEditorPatternList::createBackground()
 		this->resize( SongEditorPatternList::nWidth, newHeight );
 	}
 
-	QColor backgroundColor = pPref->getTheme().m_color.m_songEditor_backgroundColor.darker( 120 );
-	QColor backgroundColorSelected = pPref->getTheme().m_color.m_songEditor_selectedRowColor.darker( 114 );
+	QColor backgroundColor = pColorTheme->m_songEditor_backgroundColor.darker( 120 );
+	QColor backgroundColorSelected = pColorTheme->m_songEditor_selectedRowColor.darker( 114 );
 	QColor backgroundColorAlternate =
-		pPref->getTheme().m_color.m_songEditor_alternateRowColor.darker( 132 );
+		pColorTheme->m_songEditor_alternateRowColor.darker( 132 );
 	QColor backgroundColorVirtual =
-		pPref->getTheme().m_color.m_songEditor_virtualRowColor;
+		pColorTheme->m_songEditor_virtualRowColor;
 
 	QPainter p( m_pBackgroundPixmap );
 
 
 	// Offset the pattern list by one pixel to align the dark shadows
 	// at the bottom of each row with the grid lines in the song editor.
-	p.fillRect( QRect( 0, 0, width(), 1 ), pPref->getTheme().m_color.m_windowColor );
+	p.fillRect( QRect( 0, 0, width(), 1 ), pColorTheme->m_windowColor );
 	
 	p.setFont( boldTextFont );
 	for ( int ii = 0; ii < nPatterns; ii++ ) {
@@ -402,10 +404,10 @@ void SongEditorPatternList::createBackground()
 	/// paint the foreground (pattern name etc.)
 	for ( int i = 0; i < nPatterns; i++ ) {
 		if ( i == nSelectedPattern ) {
-			p.setPen( pPref->getTheme().m_color.m_songEditor_selectedRowTextColor );
+			p.setPen( pColorTheme->m_songEditor_selectedRowTextColor );
 		}
 		else {
-			p.setPen( pPref->getTheme().m_color.m_songEditor_textColor );
+			p.setPen( pColorTheme->m_songEditor_textColor );
 		}
 
 		int text_y = i * m_nGridHeight;

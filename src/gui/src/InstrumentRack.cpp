@@ -35,7 +35,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
  : QWidget( pParent )
  , Object()
 {
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	setFixedWidth( InstrumentRack::nWidth );
@@ -45,8 +45,8 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	pVBoxMainLayout->setSpacing( 0 );
 	pVBoxMainLayout->setContentsMargins( 0, 0, 0, 0 );
 
-	QFont fontButtons( theme.m_font.m_sApplicationFontFamily,
-					   getPointSize( theme.m_font.m_fontSize ) );
+	QFont fontButtons( pFontTheme->m_sApplicationFontFamily,
+					   getPointSize( pFontTheme->m_fontSize ) );
 
 	// TAB buttons
 
@@ -110,11 +110,11 @@ InstrumentRack::~InstrumentRack()
 }
 
 void InstrumentRack::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {
-		QFont fontButtons( theme.m_font.m_sApplicationFontFamily,
-						   getPointSize( theme.m_font.m_fontSize ) );
+		QFont fontButtons( pFontTheme->m_sApplicationFontFamily,
+						   getPointSize( pFontTheme->m_fontSize ) );
 		m_pShowInstrumentEditorBtn->setFont( fontButtons );
 		m_pShowSoundLibraryBtn->setFont( fontButtons );
 	}

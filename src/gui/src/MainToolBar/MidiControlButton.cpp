@@ -119,7 +119,7 @@ void MidiControlButton::updateActivation() {
 
 void MidiControlButton::updateIcons() {
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
+	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	} else {
@@ -148,9 +148,9 @@ void MidiControlButton::paintEvent( QPaintEvent* pEvent ) {
 	QToolButton::paintEvent( pEvent );
 
 	const auto highlightColor =
-		H2Core::Preferences::get_instance()->getTheme().m_color.m_highlightColor;
+		H2Core::Preferences::get_instance()->getColorTheme()->m_highlightColor;
 	const auto disabledColor =
-		H2Core::Preferences::get_instance()->getTheme().m_color.m_lightColor;
+		H2Core::Preferences::get_instance()->getColorTheme()->m_lightColor;
 
 	QPainter painter( this );
 

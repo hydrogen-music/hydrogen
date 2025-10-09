@@ -153,8 +153,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_bIsUsingTriplets = pPref->isPatternEditorUsingTriplets();
 	m_bQuantized = pPref->getQuantizeEvents();
 
-	QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily,
-					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont boldFont( pPref->getFontTheme()->m_sApplicationFontFamily,
+					getPointSize( pPref->getFontTheme()->m_fontSize ) );
 	boldFont.setBold( true );
 
 	////////////////////////////////////////////////////////////////////////////
@@ -683,10 +683,10 @@ void PatternEditorPanel::createEditors() {
 
 void PatternEditorPanel::updateDrumkitLabel( )
 {
-	const auto pTheme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
 
-	QFont font( pTheme.m_font.m_sApplicationFontFamily,
-				getPointSize( pTheme.m_font.m_fontSize ) );
+	QFont font( pFontTheme->m_sApplicationFontFamily,
+				getPointSize( pFontTheme->m_fontSize ) );
 	font.setBold( true );
 	m_pDrumkitLabel->setFont( font );
 
@@ -1034,7 +1034,7 @@ void PatternEditorPanel::zoomOutBtnClicked()
 void PatternEditorPanel::updateIcons() {
 	QColor color;
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
+	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 		color = Qt::white;
@@ -1704,7 +1704,8 @@ void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Change
 		
 		// It's sufficient to check the properties of just one label
 		// because they will always carry the same.
-		QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+		QFont boldFont( pPref->getFontTheme()->m_sApplicationFontFamily,
+					   getPointSize( pPref->getFontTheme()->m_fontSize ) );
 		boldFont.setBold( true );
 		m_pDrumkitLabel->setFont( boldFont );
 		m_pTabBar->setFont( boldFont );
@@ -1728,26 +1729,26 @@ void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Change
 
 void PatternEditorPanel::updateStyleSheet() {
 
-	const auto colorTheme =
-		H2Core::Preferences::get_instance()->getTheme().m_color;
+	const auto pColorTheme =
+		H2Core::Preferences::get_instance()->getColorTheme();
 
 	const QColor colorDrumkit =
-		colorTheme.m_patternEditor_instrumentAlternateRowColor.darker( 120 );
+		pColorTheme->m_patternEditor_instrumentAlternateRowColor.darker( 120 );
 	const QColor colorDrumkitText =
-		colorTheme.m_patternEditor_instrumentRowTextColor;
+		pColorTheme->m_patternEditor_instrumentRowTextColor;
 	const QColor colorPatternLabel =
-		colorTheme.m_patternEditor_alternateRowColor.darker( 120 );
+		pColorTheme->m_patternEditor_alternateRowColor.darker( 120 );
 	const QColor colorToolBar =
-		colorTheme.m_patternEditor_selectedRowColor.darker( 134 );
-	const QColor colorPatternText = colorTheme.m_patternEditor_textColor;
+		pColorTheme->m_patternEditor_selectedRowColor.darker( 134 );
+	const QColor colorPatternText = pColorTheme->m_patternEditor_textColor;
 
 	QColor backgroundInactiveColor;
 	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
-		backgroundInactiveColor = colorTheme.m_windowColor.lighter(
+		backgroundInactiveColor = pColorTheme->m_windowColor.lighter(
 			Skin::nEditorActiveScaling );
 	}
 	else {
-		backgroundInactiveColor = colorTheme.m_windowColor;
+		backgroundInactiveColor = pColorTheme->m_windowColor;
 	}
 
 	QColor colorToolBarChecked, colorToolBarHovered;
