@@ -230,6 +230,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getMenuActionDelete() const { return m_sMenuActionDelete; }
 	const QString& getMenuActionRename() const { return m_sMenuActionRename; }
 	const QString& getMenuActionLoad() const { return m_sMenuActionLoad; }
+	const QString& getMenuActionSaveToSoundLibrary() const { return m_sMenuActionSaveToSoundLibrary; }
 	const QString& getMenuActionExport() const { return m_sMenuActionExport; }
 	const QString& getMenuActionProperties() const { return m_sMenuActionProperties; }
 	const QString& getMenuActionDuplicate() const { return m_sMenuActionDuplicate; }
@@ -531,6 +532,7 @@ private:
 	QString m_sMenuActionDelete;
 	QString m_sMenuActionRename;
 	QString m_sMenuActionLoad;
+	QString m_sMenuActionSaveToSoundLibrary;
 	QString m_sMenuActionExport;
 	QString m_sMenuActionProperties;
 	QString m_sMenuActionDuplicate;

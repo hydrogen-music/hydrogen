@@ -96,11 +96,18 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_pPatternPopup->addAction( pCommonStrings->getMenuActionDelete(), this,
 								SLOT( patternPopup_delete() ) );
 	m_pPatternPopup->addAction( tr("Fill/Clear..."),  this, SLOT( patternPopup_fill() ) );
+
+	m_pPatternPopup->addSection( tr( "File operations" ) );
+	m_pPatternPopup->addAction( tr( "Replace" ),  this,
+							   SLOT( patternPopup_load() ) );
+	m_pPatternPopup->addAction( pCommonStrings->getMenuActionSaveToSoundLibrary(),
+							   this, SLOT( patternPopup_save() ) );
+	m_pPatternPopup->addAction( pCommonStrings->getMenuActionExport(), this,
+							   SLOT( patternPopup_export() ) );
+
+	m_pPatternPopup->addSection( pCommonStrings->getSettings() );
 	m_pPatternPopup->addAction( pCommonStrings->getMenuActionProperties(), this,
 								SLOT( patternPopup_properties() ) );
-	m_pPatternPopup->addAction( tr("Load Pattern"),  this, SLOT( patternPopup_load() ) );
-	m_pPatternPopup->addAction( tr("Save Pattern"),  this, SLOT( patternPopup_save() ) );
-	m_pPatternPopup->addAction( tr("Export Pattern"),  this, SLOT( patternPopup_export() ) );
 	m_pPatternPopup->addAction( tr("Virtual Pattern"), this, SLOT( patternPopup_virtualPattern() ) );
 	m_pPatternPopup->setObjectName( "PatternListPopup" );
 

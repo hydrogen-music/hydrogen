@@ -1453,6 +1453,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>While MIDI clock handling is activated tempo can not be altered from within Hydrogen</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Save to Sound Library</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -5781,19 +5786,7 @@ Ben je zeker?</translation>
 <context>
     <name>SongEditorPatternList</name>
     <message>
-        <source>Save Pattern</source>
-        <translation>Patroon opslaan</translation>
-    </message>
-    <message>
-        <source>Load Pattern</source>
-        <translation>Patroon laden</translation>
-    </message>
-    <message>
         <source>Virtual Pattern</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export Pattern</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5822,6 +5815,14 @@ Ben je zeker?</translation>
     </message>
     <message>
         <source>Fill/remove range of pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File operations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
