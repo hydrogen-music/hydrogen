@@ -142,7 +142,7 @@ void Sampler::process( uint32_t nFrames )
 	std::shared_ptr<Note> pNote = nullptr;
 	while ( i < m_playingNotesQueue.size() ) {
 		pNote = m_playingNotesQueue[ i ];
-		if ( renderNote( pNote, nFrames ) ) {
+		if ( pNote != nullptr && renderNote( pNote, nFrames ) ) {
 			// End of note was reached during rendering.
 			m_playingNotesQueue.erase( m_playingNotesQueue.begin() + i );
 			if ( pNote->getInstrument() != nullptr ) {
@@ -152,7 +152,12 @@ void Sampler::process( uint32_t nFrames )
 						  .arg( pNote->prettyName() ) );
 			}
 			m_queuedNoteOffs.push_back( pNote );
-		} else {
+		}
+		else if ( pNote == nullptr ) {
+			// Pop invalid note.
+			m_playingNotesQueue.erase( m_playingNotesQueue.begin() + i );
+		}
+		else {
 			// As finished notes are poped above 
 			++i;
 		}
