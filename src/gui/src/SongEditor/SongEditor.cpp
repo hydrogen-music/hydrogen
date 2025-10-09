@@ -73,7 +73,7 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView,
 		m_nEditorHeight = pSong->getPatternList()->size() * m_nGridWidth;
 	}
 	else {
-		m_nEditorHeight = SongEditor::nMinimumHeight;
+		m_nEditorHeight = 0;
 	}
 	m_nEditorWidth = SongEditor::nMargin + pPref->getMaxBars() * m_nGridWidth;
 
@@ -846,9 +846,7 @@ bool SongEditor::updateWidth() {
 
 	const int nEditorWidth =
 		SongEditor::nMargin + pPref->getMaxBars() * m_nGridHeight;
-	const int nEditorHeight = std::max(
-		pSong->getPatternList()->size() * m_nGridHeight,
-		SongEditor::nMinimumHeight );
+	const int nEditorHeight = pSong->getPatternList()->size() * m_nGridHeight;
 
 	if ( m_nEditorHeight != nEditorHeight || m_nEditorWidth != nEditorWidth ) {
 		m_nEditorHeight = nEditorHeight;

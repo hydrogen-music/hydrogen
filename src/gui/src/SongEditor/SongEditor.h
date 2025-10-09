@@ -63,9 +63,6 @@ class SongEditor : public Editor::Base<std::shared_ptr<GridCell>>
 	public:
 
 		static constexpr int nMargin = 10;
-		/** Default value of Preferences::m_nSongEditorGridHeight * 5
-		 * (patterns)*/
-		static constexpr int nMinimumHeight = 90;
 		static constexpr int nMinGridWidth = 8;
 		static constexpr int nMaxGridWidth = 16;
 
