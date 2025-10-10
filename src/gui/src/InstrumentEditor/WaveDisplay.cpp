@@ -35,6 +35,7 @@ using namespace H2Core;
 WaveDisplay::WaveDisplay(QWidget* pParent)
  : QWidget( pParent )
  , m_nCurrentWidth( 0 )
+ , m_nActiveWidth( -1 )
  , m_sSampleName( "" )
  , m_pLayer( nullptr )
  , m_SampleNameAlignment( Qt::AlignCenter )
@@ -66,7 +67,7 @@ void WaveDisplay::createBackground( QPainter* painter ) {
 	const auto pColorTheme = pPref->getColorTheme();
 
 	const QColor borderColor = Qt::black;
-	QColor textColor, backgroundColor, waveFormColor;
+	QColor textColor, backgroundColor, waveFormColor, waveFormInactiveColor;
 	if ( m_pLayer != nullptr && m_pLayer->getIsMuted() ) {
 		textColor = pColorTheme->m_muteTextColor;
 		backgroundColor = pColorTheme->m_muteColor;
@@ -83,9 +84,11 @@ void WaveDisplay::createBackground( QPainter* painter ) {
 
 	if ( Skin::moreBlackThanWhite( backgroundColor ) ) {
 		waveFormColor = Qt::white;
+		waveFormInactiveColor = pColorTheme->m_lightColor;
 	}
 	else {
 		waveFormColor = Qt::black;
+		waveFormInactiveColor = pColorTheme->m_darkColor;
 	}
 	
 	painter->setRenderHint( QPainter::Antialiasing );
@@ -102,9 +105,25 @@ void WaveDisplay::createBackground( QPainter* painter ) {
 	if ( m_pLayer != nullptr ){
 		painter->setPen( waveFormColor );
 		int VCenter = height() / 2;
-		for ( int x = 0; x < width(); x++ ) {
-			painter->drawLine( x, VCenter, x, m_pPeakData[x] + VCenter );
-			painter->drawLine( x, VCenter, x, -m_pPeakData[x] + VCenter );
+
+		if ( m_nActiveWidth == -1 ) {
+			// Display does not support distinction between active and inactive
+			// region.
+			for ( int x = 0; x < width(); x++ ) {
+				painter->drawLine( x, VCenter, x, m_pPeakData[x] + VCenter );
+				painter->drawLine( x, VCenter, x, -m_pPeakData[x] + VCenter );
+			}
+		}
+		else {
+			for ( int x = 0; x < m_nActiveWidth; x++ ) {
+				painter->drawLine( x, VCenter, x, m_pPeakData[x] + VCenter );
+				painter->drawLine( x, VCenter, x, -m_pPeakData[x] + VCenter );
+			}
+			painter->setPen( waveFormInactiveColor );
+			for ( int x = m_nActiveWidth; x < width(); x++ ) {
+				painter->drawLine( x, VCenter, x, m_pPeakData[x] + VCenter );
+				painter->drawLine( x, VCenter, x, -m_pPeakData[x] + VCenter );
+			}
 		}
 	}
 	

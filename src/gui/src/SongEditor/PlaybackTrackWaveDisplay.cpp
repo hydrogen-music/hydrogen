@@ -114,6 +114,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Instrument
 
 	if ( pLayer == nullptr || nCurrentWidth <= 0 ){
 		m_pLayer = nullptr;
+		m_nActiveWidth = 0;
 		m_sSampleName = tr( "No playback track selected" );
 
 		QPainter painter( m_pBackgroundPixmap );
@@ -138,6 +139,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Instrument
 
 		m_sSampleName = m_pLayer->getSample()->getFilename();
 
+		const auto nSongLengthInTicks = pSong->lengthInTicks();
 		const auto pColumns = pSong->getPatternGroupVector();
 		const auto nMaxBars = pPref->getMaxBars();
 		auto pSampleData = pLayer->getSample()->getData_L();
@@ -200,6 +202,10 @@ void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Instrument
 			}
 			nRenderStartPosition += nSongEditorGridWidth;
 			nTotalFrames = nNextEndFrame;
+
+			if ( nTotalTicks <= nSongLengthInTicks ) {
+				m_nActiveWidth = nRenderStartPosition;
+			}
 
 			if ( nTotalFrames >= nSampleLength ) {
 				break;
