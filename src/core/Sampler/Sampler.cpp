@@ -1042,14 +1042,9 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	}
 
 	const auto pCompo = m_pPlaybackTrackInstrument->getComponents()->front();
-	if ( pCompo == nullptr ) {
-		ERRORLOG( "Invalid component of playback instrument" );
-		return true;
-	}
-
-	auto pSample = pCompo->getLayer(0)->getSample();
-	if ( pSample == nullptr ) {
-		ERRORLOG( "Unable to process playback track" );
+	if ( pCompo == nullptr || pCompo->getLayer( 0 ) == nullptr ||
+		pCompo->getLayer( 0 )->getSample() == nullptr ) {
+		ERRORLOG( "Invalid playback instrument" );
 		EventQueue::get_instance()->pushEvent( Event::Type::Error,
 												Hydrogen::ErrorMessages::PLAYBACK_TRACK_INVALID );
 		// Disable the playback track
@@ -1058,11 +1053,13 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 		return true;
 	}
 
+	auto pSample = pCompo->getLayer( 0 )->getSample();
+
 	auto pSample_data_L = pSample->getData_L();
 	auto pSample_data_R = pSample->getData_R();
 
 	int nAvail_bytes = 0;
-	int	nInitialBufferPos = 0;
+	int nInitialBufferPos = 0;
 
 	const long long nFrame = pAudioEngine->getTransportPosition()->getFrame() -
 							 pAudioEngine->getLastLoopFrame();
@@ -1077,6 +1074,10 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 							 nBufferSize );
 
 	int nFinalBufferPos = nInitialBufferPos + nAvail_bytes;
+	if ( nFinalBufferPos < 0 ) {
+		// end of sample reached.
+		return true;
+	}
 
 	// Output-rate buffer as temporary storage for sample data, resampled to output rate
 	float buffer_L[ nBufferSize ];
