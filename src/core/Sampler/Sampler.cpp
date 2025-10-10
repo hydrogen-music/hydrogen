@@ -768,11 +768,13 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 			  bAnyLayerIsSoloed && ! pLayer->getIsSoloed() );
 
 		bool bIsMuted = false;
-		if ( pInstr->isPreviewInstrument() ) {
-			// Preview is done for things not related to the current song or
-			// drumkit. But, then again, it should still be possible to prevent
-			// all audio output of Hydrogen. This can be done using the master
-			// mute button.
+		if ( pInstr->isPreviewInstrument() ||
+			 pInstr->getId() == METRONOME_INSTR_ID ) {
+			// Metronome and preview is done for things not related to the what
+			// is happening in the song and pattern editors or drumkit. But,
+			// then again, it should still be possible to prevent all audio
+			// output of Hydrogen. This can be done using the master mute
+			// button.
 			bIsMuted = pSong->getIsMuted();
 		}
 		else if ( bIsMutedForExport || pInstr->isMuted() || pSong->getIsMuted() ||

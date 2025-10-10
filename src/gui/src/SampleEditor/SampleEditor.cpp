@@ -630,7 +630,13 @@ void SampleEditor::on_PlayPushButton_clicked()
 	if ( pInstr == nullptr ) {
 		return;
 	}
-	auto pCompo = pInstr->getComponent( m_nSelectedComponent );
+	// Since we are in a separate dialog and working with a particular, we do
+	// not want rendering to be affected by whether some instruments of the
+	// current kit are soloed or muted.
+	auto pPreviewInstr = std::make_shared<Instrument>(pInstr);
+	pPreviewInstr->setIsPreviewInstrument( true );
+
+	auto pCompo = pPreviewInstr->getComponent( m_nSelectedComponent );
 	if ( pCompo == nullptr ) {
 		return;
 	}
@@ -645,7 +651,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 	pSelectedLayerInfo->pLayer = pLayer;
 
 	auto pNote = std::make_shared<Note>(
-		pInstr, 0, pLayer->getEndVelocity() - 0.01 );
+		pPreviewInstr, 0, pLayer->getEndVelocity() - 0.01 );
 	pNote->setSelectedLayerInfo( pSelectedLayerInfo, pCompo );
 
 	pHydrogen->getAudioEngine()->getSampler()->noteOn( pNote );
