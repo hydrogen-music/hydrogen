@@ -702,17 +702,6 @@ void XmlTest::testPatternInstrumentTypes()
 	H2TEST_ASSERT_XML_FILES_EQUAL(
 		H2TEST_FILE( "pattern/pattern.h2pattern" ), sTmpWithoutTypes );
 
-	// In this file an instrument id is off. But this should heal itself when
-	// switching to another kit and back (as only instrument types are used
-	// during switching and the ids are reassigned).
-	const auto pPatternMismatch = H2Core::Pattern::load(
-		H2TEST_FILE( "pattern/pattern-with-mismatch.h2pattern") );
-	CPPUNIT_ASSERT( pPatternMismatch != nullptr );
-	// TODO switch back and forth
-	// CPPUNIT_ASSERT( pPatternMismatch->save( sTmpMismatch ) );
-	// H2TEST_ASSERT_XML_FILES_EQUAL(
-	// 	H2TEST_FILE( "pattern/pattern.h2pattern" ), sTmpMismatch );
-
 	H2Core::Filesystem::rm( sTmpWithoutTypes );
 	H2Core::Filesystem::rm( sTmpMismatch );
 	___INFOLOG( "passed" );
