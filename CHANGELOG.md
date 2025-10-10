@@ -230,12 +230,14 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Support for songs and drumkits created with version `0.9.3` (#2193).
+- Linux man pages for the `h2cli` and `h2player` applications have been added.
 
 ### Changed
 
 - When timeline is activated or tempo is synced to an external application,
   tempo changes via keyboard shortcuts, MIDI, or OSC commands as well as
   Beat Counter and Tap Tempo are now discarded.
+- Big update of the `hydrogen` man page.
 
 ### Fixed
 
