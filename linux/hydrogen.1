@@ -28,34 +28,47 @@ Features:
 .br
 - Automate it using \fBMIDI\fR or \fBOSC\fR API
 .SH OPTIONS
-.HP
-\fB\-P\fR, \fB\-\-data\fR PATH \- Use an alternate system data path
-.HP
-\fB\-d\fR, \fB\-\-driver\fR AUDIODRIVER \- Use the selected audio driver (jack, alsa, oss)
-.HP
-\fB\-s\fR, \fB\-\-song\fR FILE \- Load a song (*.h2song) at startup
-.HP
-\fB\-p\fR, \fB\-\-playlist\fR FILE \- Load a playlist (*.h2playlist) at startup
-.HP
-\fB\-k\fR, \fB\-\-kit\fR drumkit_name - Load a drumkit at startup
-.HP
-\fB\-i\fR, \fB\-\-install\fR FILE - install a drumkit (*.h2drumkit)
-.HP
-\fB\-O\fR, \fB\-\-osc\-port\fR \- Use custom OSC port
-.HP
-\fB\-n\fR, \fB\-\-nosplash\fR \- Hide splash screen
-.HP
-\fB\-V[Level]\fR, \fB\-\-verbose\fR[=\fILevel\fR] \- Print a lot of debugging info
+.TP
+\fB\-P\fR, \fB\-\-data\fR=\fIPATH\fR
+Use an alternate system data path.
+.TP
+\fB\-d\fR, \fB\-\-driver\fR=[\fIAUDIO_DRIVER\fR]
+Use the selected audio driver (jack, alsa, oss).
+.TP
+\fB\-s\fR, \fB\-\-song\fR=\fIFILE\fR
+Load a song (*.h2song) at startup.
+.TP
+\fB\-p\fR, \fB\-\-playlist\fR=\fIFILE\fR
+Load a playlist (*.h2playlist) at startup.
+.TP
+\fB\-k\fR, \fB\-\-kit\fR=\fIDRUMKIT_NAME\fR
+Load a drumkit at startup
+.TP
+\fB\-i\fR, \fB\-\-install\fR=\fIFILE\fR
+Install a drumkit (*.h2drumkit).
+.TP
+\fB\-O\fR, \fB\-\-osc\-port\fR=\fIPORT\fR
+Use custom OSC port.
+.TP
+\fB\-n\fR, \fB\-\-nosplash\fR
+Hide splash screen.
+.TP
+\fB\-V\fR, \fB\-\-verbose\fR=[\fILEVEL\fR]
+Print a lot of debugging info
 .IP
 Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH
-.HP
-\fB\-L\fR, \fB\-\-log\-file\fR \- Use custom log file
-.HP
-\fB\-T\fR, \fB\-\-log\-timestamps\fR \- Add timestamps to all log messages
-.HP
-\fB\-v\fR, \fB\-\-version\fR \- Show version info
-.HP
-\fB\-h\fR, \fB\-\-help\fR \- Show this help message
+.TP
+\fB\-L\fR, \fB\-\-log\-file\fR=\fIFILE\fR
+Use custom log file.
+.TP
+\fB\-T\fR, \fB\-\-log\-timestamps\fR
+Add timestamps to all log messages.
+.TP
+\fB\-v\fR, \fB\-\-version\fR
+Show version info.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Show this help message.
 .SH FILES
 .TP
 .B hydrogen.conf
