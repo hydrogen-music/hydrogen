@@ -153,7 +153,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Instrument
 			nSongEditorGridWidth = 16;
 		}
 		
-		int nRenderStartPosition = 0.8 * nSongEditorGridWidth;
+		int nRenderStartPosition = SongEditor::nMargin;
 
 		int nTotalTicks = 0;
 		long long nTotalFrames = 0;
