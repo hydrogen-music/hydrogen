@@ -738,6 +738,7 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame,
 
 	// Check whether transport was looped
 	if ( pPos->getType() == TransportPosition::Type::Transport &&
+		 pSong->getLoopMode() == Song::LoopMode::Enabled &&
 		 ( pPos->getColumn() > nNewColumn ||
 		   ( pPos->getColumn() == nNewColumn && nNewColumn == 0 &&
 			 nOldPatternTickPosition > pPos->getPatternTickPosition() ) ) ) {

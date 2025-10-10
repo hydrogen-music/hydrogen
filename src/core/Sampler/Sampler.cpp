@@ -1064,7 +1064,8 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	int nAvail_bytes = 0;
 	int	nInitialBufferPos = 0;
 
-	const long long nFrame = pAudioEngine->getTransportPosition()->getFrame();
+	const long long nFrame = pAudioEngine->getTransportPosition()->getFrame() -
+							 pAudioEngine->getLastLoopFrame();
 	const long long nFrameOffset =
 		pAudioEngine->getTransportPosition()->getFrameOffsetTempo();
 
@@ -1517,7 +1518,7 @@ void Sampler::reinitializePlaybackTrack()
 		pSample = Sample::load( pSong->getPlaybackTrackFilename() );
 	}
 	
-	auto  pPlaybackTrackLayer = std::make_shared<InstrumentLayer>( pSample );
+	auto pPlaybackTrackLayer = std::make_shared<InstrumentLayer>( pSample );
 
 	m_pPlaybackTrackInstrument->getComponents()->front()->setLayer( pPlaybackTrackLayer, 0 );
 	m_nPlayBackSamplePosition = 0;
