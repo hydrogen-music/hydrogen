@@ -54,12 +54,12 @@ Use an alternate system data path.
 \fB\-\-user\-data\fR=\fIPATH\fR
 Use an alternate user data path.
 .IP
-The default one is \fI$HOME/.hydrogen\fR.
+The default one is \fB$HOME\fR/.hydrogen.
 .TP
 \fB\-\-config\fR=\fIPATH\fR
 Use an alternate config path.
 .IP
-The default one is \fI$HOME/.hydrogen/hydrogen.conf\fR.
+The default one is \fB$HOME\fR/.hydrogen/hydrogen.conf.
 .TP
 \fB\-\-layout\fR=\fLAYOUT\fR
 UI layout. Either \fItabbed\fR or \fIsingle\fR (default).
@@ -91,18 +91,38 @@ Show version info.
 Show this help message.
 .SH FILES
 .TP
-.B hydrogen.conf
-.PP
-Defaults and startup settings for Hydrogen.
+\fB$HOME\fR/.hydrogen/data/drumkits
+User-level drumkit folder. All drumkits you download via the online import as well as those you created manually will end up here. A portable version of a drumkit - the \fI.h2drumkit\fR tar archive file - can included into this folder using the \-\-install option. Only those kits residing either in this folder or in the system drumkit folder (for those kits you received via your package manager) will show up in the Sound Library.
 .TP
-.B data/*
-.PP
-Can contains user's data such as drumkits, patterns, playlists, songs, ...
+\fB$HOME\fR/.hydrogen/data/patterns
+If you save a pattern, it will be exported as \fI.h2pattern\fR XML file into this folder. Only the patterns residing in here will show up in the Sound Library.
+.TP
+\fB$HOME\fR/.hydrogen/data/playlists
+This folder may have been original designed for holding \fI.h2playlist\fR XML files. But it does not serve any special purpose anymore and you can put them where ever you want.
+.TP
+\fB$HOME\fR/.hydrogen/data/plugins
+In here you can put \fBLADSPA\fR plugins to be used by Hydrogen, which are not within \fBLADSPA_PATH\fR.
+.TP
+\fB$HOME\fR/.hydrogen/data/scripts
+Playlists in Hydrogen can be configured to run a \fBBASH\fR script before loading a particular song. This folder may have been original designed for holding those script but you can put them where ever you want.
+.TP
+\fB$HOME\fR/.hydrogen/data/songs
+If you want a \fI.h2song\fR XML file to show up in the Sound Library, you have to store it in here.
+.SH CONFIGURATION
+.TP
+\fB$HOME\fR/.hydrogen/hydrogen.conf
+XML file containing all configurations for Hydrogen.
+.TP
+\fB$HOME\fR/.hydrogen/data/emptySong.h2song
+Whenever you create a new song, it will be derived from this template.
+.TP
+\fB$HOME\fR/.hydrogen/data/themes/
+You can change colors, fonts, and many more in Hydrogen. These custom settings can be stored as \fI.h2theme\fR XML files in here by exporting the current theme in the Preferences dialog.
 .SH ENVIRONMENT
 .PP
 .B LADSPA_PATH
 .HP 
-Path to LADSPA plugins.
+Path to \fBLADSPA\fR plugins.
 .SH BUGS & FEATURES REQUEST
 .PP
 If you find any bug or if you would like to propose a new feature, please report it to https://github.com/hydrogen-music/hydrogen/issues
