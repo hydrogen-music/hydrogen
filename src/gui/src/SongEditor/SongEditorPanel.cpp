@@ -599,6 +599,7 @@ void SongEditorPanel::updatePlaybackTrack()
 		// Playback track was selected by the user and is ready to
 		// use.
 		m_pPlaybackTrackFader->setIsActive( true );
+		m_pPlaybackTrackFader->setValue( pSong->getPlaybackTrackVolume() );
 		m_pMutePlaybackBtn->setIsActive( true );
 		if ( pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::Muted ) {
 			m_pMutePlaybackBtn->setChecked( true );
