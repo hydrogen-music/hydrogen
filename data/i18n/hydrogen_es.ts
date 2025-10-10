@@ -3556,13 +3556,6 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
     </message>
 </context>
 <context>
-    <name>PatternEditorSidebar</name>
-    <message>
-        <source>Unable to insert further instruments. Maximum possible number</source>
-        <translation>No se pueden insrtar más instrumentos. Número máximo posible</translation>
-    </message>
-</context>
-<context>
     <name>PatternFillDialog</name>
     <message>
         <source>Fill with selected pattern</source>

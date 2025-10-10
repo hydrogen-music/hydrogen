@@ -89,12 +89,6 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 	int nCount = 0;
 	while ( !instrumentNode.isNull() ) {
 		nCount++;
-		if ( nCount > MAX_INSTRUMENTS ) {
-			ERRORLOG( QString( "instrument nCount >= %1 (MAX_INSTRUMENTS), stop reading instruments" )
-					  .arg( MAX_INSTRUMENTS ) );
-			break;
-		}
-
 		auto pInstrument = Instrument::loadFrom(
 			instrumentNode, sDrumkitPath, sDrumkitName, sSongPath,
 			license, bSongKit, pLegacyFormatEncountered, bSilent );
@@ -104,12 +98,11 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 		else {
 			ERRORLOG( QString( "Unable to load instrument [%1]. The drumkit is corrupted. Skipping instrument" )
 					  .arg( nCount ) );
-			nCount--;
 		}
 		instrumentNode = instrumentNode.nextSiblingElement( "instrument" );
 	}
 
-	if ( nCount == 0 ) {
+	if ( pInstrumentList->size() == 0 ) {
 		ERRORLOG( "Newly created instrument list does not contain any instruments. Aborting." );
 		return nullptr;
 	}

@@ -217,7 +217,8 @@ All notable changes to this project will be documented in this file.
   blank song/playlist, load a new one before quitting.
 - Component mixer strips have been dropped.
 - `LASH` support has been dropped (#1649).
-- `cmake` option `MAX_NOTES` has been dropped.
+- `cmake` option `MAX_NOTES`, `MAX_COMPONENTS`, and `MAX_INSTRUMENTS` have been
+  dropped. Instead, an arbitrary number of components and instruments is allowed.
 
 ## [1.2.7] - XXXX-XX-XX
 
