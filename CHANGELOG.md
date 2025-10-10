@@ -188,7 +188,9 @@ All notable changes to this project will be documented in this file.
   - The play button does now have two modes: regular start and count in. When in
     count in, Hydrogen triggers metronome notes matching the length of the
     current pattern before starting playback (#2194).
-    
+- Metronome and sample playback in `SampleEditor` are no longer affected by
+  instrument mute/solo state.
+
 
 ### Fixed
 
