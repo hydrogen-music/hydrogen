@@ -1178,7 +1178,8 @@ void SongEditor::updateGridCells() {
 				if ( pVPattern == nullptr ) {
 					continue;
 				}
-				const float fWidthVirtual = pVPattern->getLength() / nMaxLength;
+				const float fWidthVirtual = static_cast<float>(
+						pVPattern->getLength()) / static_cast<float>(nMaxLength);
 				const GridPoint gridPointVirtual(
 					nColumn, pPatternList->index( pVPattern ) );
 				if ( m_gridCells.find( gridPointVirtual ) != m_gridCells.end() ) {
@@ -1197,7 +1198,7 @@ void SongEditor::updateGridCells() {
 				}
 				else {
 					const auto pCell = std::make_shared<GridCell>(
-						gridPointVirtual, false, fWidth, true );
+						gridPointVirtual, false, fWidthVirtual, true );
 					m_gridCells.insert( { gridPointVirtual, pCell } );
 				}
 			}
