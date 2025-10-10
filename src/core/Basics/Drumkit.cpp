@@ -156,7 +156,13 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 											bool* pLegacyFormatEncountered,
 											bool bSilent )
 {
-	QString sDrumkitName = node.read_string( "name", "", false, false, bSilent );
+	auto pDrumkit = std::make_shared<Drumkit>();
+
+	// We do not fall back to the default name of a drumkit from the constructor
+	// since we want the drumkit load to fail in case no proper nmae was stored
+	// (several kits all named "empty" are not helpful).
+	QString sDrumkitName = node.read_string( "name", "", false,
+											false, bSilent );
 	if ( sDrumkitName.isEmpty() ) {
 		ERRORLOG( "Drumkit has no name, abort" );
 		return nullptr;
@@ -167,35 +173,36 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 		*pLegacyFormatEncountered = true;
 	}
 
-	std::shared_ptr<Drumkit> pDrumkit = std::make_shared<Drumkit>();
 
 	pDrumkit->m_sPath = sDrumkitPath;
 	pDrumkit->m_sName = sDrumkitName;
 	pDrumkit->m_nVersion = node.read_int(
-		"userVersion", pDrumkit->m_nVersion, true, false, bSilent );
-	pDrumkit->m_sAuthor = node.read_string( "author", "undefined author",
+		"userVersion", pDrumkit->getVersion(), true, false, bSilent );
+	pDrumkit->m_sAuthor = node.read_string( "author", pDrumkit->getAuthor(),
 											true, true, true );
-	pDrumkit->m_sInfo = node.read_string( "info", "No information available.",
+	pDrumkit->m_sInfo = node.read_string( "info", pDrumkit->getInfo(),
 										  true, true, bSilent  );
 
-	License license( node.read_string( "license", "undefined license",
-										true, true, bSilent  ),
-					 pDrumkit->m_sAuthor );
-	pDrumkit->setLicense( license );
+	pDrumkit->setLicense(
+		License( node.read_string( "license",
+								  pDrumkit->getLicense().getLicenseString(),
+								  true, true, bSilent  ),
+				pDrumkit->m_sAuthor ) );
 
 	// As of 2022 we have no drumkits featuring an image in
 	// stock. Thus, verbosity of this one will be turned of in order
 	// to make to log more concise.
-	pDrumkit->setImage( node.read_string( "image", "",
+	pDrumkit->setImage( node.read_string( "image", pDrumkit->getImage(),
 											true, true, true ) );
-	License imageLicense( node.read_string( "imageLicense", "undefined license",
-											 true, true, true  ),
-						  pDrumkit->m_sAuthor );
-	pDrumkit->setImageLicense( imageLicense );
+	pDrumkit->setImageLicense(
+		License( node.read_string( "imageLicense",
+								  pDrumkit->getImageLicense().getLicenseString(),
+								  true, true, true  ),
+						  pDrumkit->getAuthor() ) );
 
 	auto pInstrumentList = InstrumentList::loadFrom(
-		node, sDrumkitPath, sDrumkitName, sSongPath, license, bSongKit,
-		pLegacyFormatEncountered, false );
+		node, sDrumkitPath, sDrumkitName, sSongPath, pDrumkit->getLicense(),
+		bSongKit, pLegacyFormatEncountered, false );
 	// Required to assure backward compatibility.
 	if ( pInstrumentList == nullptr ) {
 		WARNINGLOG( "instrument list could not be loaded. Using empty one." );
