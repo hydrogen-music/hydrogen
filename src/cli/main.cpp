@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
 		QCommandLineOption targetOption(
 			QStringList() << "t" << "target",
 			"Target folder the extracted (-x) or upgraded (-u) drumkit will be stored in. The folder is created if it does not exists yet.",
-			"File" );
+			"Path" );
 		QCommandLineOption bitsOption(
 			QStringList() << "b" << "bits", "Set bits depth while exporting file",
 			"int", "16" );
