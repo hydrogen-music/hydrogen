@@ -86,7 +86,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_mode( Mode::Pattern )
 	, m_sPlaybackTrackFilename( "" )
 	, m_bPlaybackTrackEnabled( false )
-	, m_fPlaybackTrackVolume( 0.0 )
+	, m_fPlaybackTrackVolume( 0.5 )
 	, m_pVelocityAutomationPath( nullptr )
 	, m_license( License( "", sAuthor ) )
 	, m_actionMode( ActionMode::selectMode )
