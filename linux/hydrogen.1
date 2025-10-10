@@ -29,20 +29,18 @@ Features:
 - Automate it using \fBMIDI\fR or \fBOSC\fR API
 .SH OPTIONS
 .TP
-\fB\-P\fR, \fB\-\-data\fR=\fIPATH\fR
-Use an alternate system data path.
-.TP
 \fB\-d\fR, \fB\-\-driver\fR=[\fIAUDIO_DRIVER\fR]
-Use the selected audio driver (jack, alsa, oss).
+Use the selected audio driver. The description of this option in the -\-help output contains all audio
+drivers available on your system.
 .TP
 \fB\-s\fR, \fB\-\-song\fR=\fIFILE\fR
-Load a song (*.h2song) at startup.
+Load a song (*.h2song) at startup. Alternatively, you can just pass the filename without this option.
 .TP
 \fB\-p\fR, \fB\-\-playlist\fR=\fIFILE\fR
 Load a playlist (*.h2playlist) at startup.
 .TP
 \fB\-k\fR, \fB\-\-kit\fR=\fIDRUMKIT_NAME\fR
-Load a drumkit at startup
+Load a drumkit at startup.
 .TP
 \fB\-i\fR, \fB\-\-install\fR=\fIFILE\fR
 Install a drumkit (*.h2drumkit).
@@ -50,19 +48,41 @@ Install a drumkit (*.h2drumkit).
 \fB\-O\fR, \fB\-\-osc\-port\fR=\fIPORT\fR
 Use custom OSC port.
 .TP
+\fB\-P\fR, \fB\-\-data\fR=\fIPATH\fR
+Use an alternate system data path.
+.TP
+\fB\-\-user\-data\fR=\fIPATH\fR
+Use an alternate user data path.
+.IP
+The default one is \fI$HOME/.hydrogen\fR.
+.TP
+\fB\-\-config\fR=\fIPATH\fR
+Use an alternate config path.
+.IP
+The default one is \fI$HOME/.hydrogen/hydrogen.conf\fR.
+.TP
+\fB\-\-layout\fR=\fLAYOUT\fR
+UI layout. Either \fItabbed\fR or \fIsingle\fR (default).
+.TP
 \fB\-n\fR, \fB\-\-nosplash\fR
 Hide splash screen.
 .TP
 \fB\-V\fR, \fB\-\-verbose\fR=[\fILEVEL\fR]
 Print a lot of debugging info
 .IP
-Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH
+Level, if present, may be \fINone\fR, \fIError\fR, \fIWarning\fR, \fIInfo\fR, or \fIDebug\fR.
 .TP
 \fB\-L\fR, \fB\-\-log\-file\fR=\fIFILE\fR
 Use custom log file.
 .TP
 \fB\-T\fR, \fB\-\-log\-timestamps\fR
 Add timestamps to all log messages.
+.TP
+\fB\-\-log\-colors\fR
+Use ANSI colors in log messages (default).
+.TP
+\fB\-\-no\-log\-colors\fR
+Suppress ANSI colors in log messages.
 .TP
 \fB\-v\fR, \fB\-\-version\fR
 Show version info.
