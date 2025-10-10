@@ -72,7 +72,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_sAuthor( sAuthor )
 	, m_fVolume( fVolume )
 	, m_fMetronomeVolume( 0.5 )
-	, m_sNotes( "" )
+	, m_sNotes( "..." )
 	, m_pPatternList( std::make_shared<PatternList>() )
 	, m_pPatternGroupSequence( std::make_shared< std::vector<
 							   std::shared_ptr<PatternList> > >() )
@@ -91,8 +91,8 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_license( License( "", sAuthor ) )
 	, m_actionMode( ActionMode::selectMode )
 	, m_bIsPatternEditorLocked( false )
-	, m_nPanLawType ( Sampler::RATIO_STRAIGHT_POLYGONAL )
-	, m_fPanLawKNorm ( Sampler::K_NORM_DEFAULT )
+	, m_nPanLawType( Sampler::RATIO_STRAIGHT_POLYGONAL )
+	, m_fPanLawKNorm( Sampler::K_NORM_DEFAULT )
 	, m_sLastLoadedDrumkitPath( "" )
 	, m_pDrumkit( std::make_shared<Drumkit>() )
 	, m_pTimeline( std::make_shared<Timeline>() )
@@ -229,43 +229,48 @@ std::shared_ptr<Song> Song::load( const QString& sFilename, bool bSilent )
 std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sFilename, bool bSilent )
 {
 	auto pPreferences = Preferences::get_instance();
+	auto pSong = std::make_shared<Song>();
 
-	float fBpm = rootNode.read_float( "bpm", 120, false, false, bSilent );
-	float fVolume = rootNode.read_float( "volume", 0.5, false, false, bSilent );
-	const QString sName( rootNode.read_string( "name", "Untitled Song",
-											   false, false, bSilent ) );
-	const QString sAuthor( rootNode.read_string( "author", "Unknown Author",
-												 false, false, bSilent ) );
-
-	std::shared_ptr<Song> pSong = std::make_shared<Song>( sName, sAuthor, fBpm, fVolume );
-
-	pSong->m_nVersion = rootNode.read_int(
-		"userVersion", pSong->m_nVersion, true, false, bSilent );
-
-	pSong->setIsMuted( rootNode.read_bool( "isMuted", false, true, false,
-											 bSilent ) );
-	pSong->setMetronomeVolume( rootNode.read_float( "metronomeVolume", 0.5,
-													  false, false, bSilent ) );
-	pSong->setNotes( rootNode.read_string( "notes", "...", false, false, bSilent ) );
-	const License license =
-		License( rootNode.read_string( "license", "",
-									   false, false, bSilent ), sAuthor );
-	pSong->setLicense( license );
-	if ( rootNode.read_bool( "loopEnabled", false, false, false, bSilent ) ) {
+	pSong->setBpm( rootNode.read_float( "bpm", pSong->getBpm(), false, false,
+									   bSilent ) );
+	pSong->setVolume( rootNode.read_float( "volume", pSong->getVolume(), false,
+										  false, bSilent ) );
+	pSong->setName( rootNode.read_string( "name", pSong->getName(), false,
+										 false, bSilent ) );
+	pSong->setAuthor( rootNode.read_string( "author", pSong->getAuthor(), false,
+										   false, bSilent ) );
+	pSong->setVersion( rootNode.read_int( "userVersion", pSong->getVersion(),
+										 true, false, bSilent ) );
+	pSong->setIsMuted( rootNode.read_bool( "isMuted", pSong->getIsMuted(), true,
+										  false, bSilent ) );
+	pSong->setMetronomeVolume(
+		rootNode.read_float( "metronomeVolume", pSong->getMetronomeVolume(),
+							false, false, bSilent ) );
+	pSong->setNotes( rootNode.read_string( "notes", pSong->getNotes(), false,
+										  false, bSilent ) );
+	pSong->setLicense(
+		License( rootNode.read_string( "license",
+									  pSong->getLicense().getLicenseString(),
+									   false, false, bSilent ),
+				pSong->getAuthor() ) );
+	if ( rootNode.read_bool( "loopEnabled", pSong->isLoopEnabled(), false,
+							false, bSilent ) ) {
 		pSong->setLoopMode( Song::LoopMode::Enabled );
 	} else {
 		pSong->setLoopMode( Song::LoopMode::Disabled );
 	}
 
 	if ( rootNode.read_bool( "patternModeMode",
-							   static_cast<bool>(Song::PatternMode::Selected),
+							   static_cast<bool>(pSong->getPatternMode()),
 							   false, false, bSilent ) ) {
 		pSong->setPatternMode( Song::PatternMode::Selected );
 	} else {
 		pSong->setPatternMode( Song::PatternMode::Stacked );
 	}
 
-	if ( rootNode.read_string( "mode", "pattern", false, false, bSilent ) == "song" ) {
+	if ( rootNode.read_string( "mode",
+							  Song::ModeToQString( pSong->getMode() ).toLower(),
+							  false, false, bSilent ) == "song" ) {
 		pSong->setMode( Song::Mode::Song );
 	} else {
 		pSong->setMode( Song::Mode::Pattern );
@@ -273,8 +278,10 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 
 	const auto sSongPath = Filesystem::absolute_path( sFilename );
 
-	QString sPlaybackTrack( rootNode.read_string( "playbackTrackFilename", "",
-													false, true, bSilent ) );
+	QString sPlaybackTrack(
+		rootNode.read_string( "playbackTrackFilename",
+							 pSong->getPlaybackTrackFilename(), false, true,
+							 bSilent ) );
 	QFileInfo playbackTrackInfo( sPlaybackTrack );
 	if ( ! sPlaybackTrack.isEmpty() && playbackTrackInfo.isRelative() ) {
 		// Playback track has been made portable by manually
@@ -294,27 +301,36 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		sPlaybackTrack = "";
 	}
 	pSong->setPlaybackTrackFilename( sPlaybackTrack );
-	pSong->setPlaybackTrackEnabled( rootNode.read_bool( "playbackTrackEnabled", false,
-														  false, false, bSilent ) );
-	pSong->setPlaybackTrackVolume( rootNode.read_float( "playbackTrackVolume", 0.0,
-														  false, false, bSilent ) );
+	pSong->setPlaybackTrackEnabled(
+		rootNode.read_bool( "playbackTrackEnabled",
+						   pSong->getPlaybackTrackEnabled(),
+						   false, false, bSilent ) );
+	pSong->setPlaybackTrackVolume(
+		rootNode.read_float( "playbackTrackVolume",
+							pSong->getPlaybackTrackVolume(),
+							false, false, bSilent ) );
 
-	pSong->setHumanizeTimeValue( rootNode.read_float( "humanize_time", 0.0,
-														false, false, bSilent ) );
-	pSong->setHumanizeVelocityValue( rootNode.read_float( "humanize_velocity", 0.0,
-															false, false, bSilent ) );
-	pSong->setSwingFactor( rootNode.read_float( "swing_factor", 0.0, false, false, bSilent ) );
+	pSong->setHumanizeTimeValue(
+		rootNode.read_float( "humanize_time", pSong->getHumanizeTimeValue(),
+							false, false, bSilent ) );
+	pSong->setHumanizeVelocityValue(
+		rootNode.read_float( "humanize_velocity",
+							pSong->getHumanizeVelocityValue(),
+							false, false, bSilent ) );
+	pSong->setSwingFactor(
+		rootNode.read_float( "swing_factor", pSong->getSwingFactor(), false,
+							false, bSilent ) );
 	pSong->setActionMode( static_cast<Song::ActionMode>(
 		rootNode.read_int( "action_mode",
-							 static_cast<int>( Song::ActionMode::selectMode ),
+							 static_cast<int>( pSong->getActionMode() ),
 							 false, false, bSilent ) ) );
-	pSong->setIsPatternEditorLocked( rootNode.read_bool( "isPatternEditorLocked",
-														   false, true, false, true ) );
-
-	pSong->setIsTimelineActivated( rootNode.read_bool(
-									   "isTimelineActivated",
-									   pSong->getIsTimelineActivated(),
-									   true, false, true ) );
+	pSong->setIsPatternEditorLocked(
+		rootNode.read_bool( "isPatternEditorLocked",
+						   pSong->getIsPatternEditorLocked(),
+						   true, false, true ) );
+	pSong->setIsTimelineActivated(
+		rootNode.read_bool( "isTimelineActivated",
+						   pSong->getIsTimelineActivated(), true, false, true ) );
 
 	// pan law
 	QString sPanLawType( rootNode.read_string( "pan_law_type",
@@ -359,8 +375,8 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		}
 	}
 
-	float fPanLawKNorm = rootNode.read_float( "pan_law_k_norm", Sampler::K_NORM_DEFAULT,
-												false, false, bSilent );
+	float fPanLawKNorm = rootNode.read_float(
+		"pan_law_k_norm", pSong->getPanLawKNorm(), false, false, bSilent );
 	if ( fPanLawKNorm <= 0.0 ) {
 		if ( ! bSilent ) {
 			WARNINGLOG( QString( "Invalid pan law k in import song [%1] (<= 0). Set default k." )
@@ -392,8 +408,9 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 	}
 	pSong->setDrumkit( pDrumkit );
 	pSong->setLastLoadedDrumkitPath(
-		rootNode.read_string( "lastLoadedDrumkitPath", "", true, true,
-								bSilent ) );
+		rootNode.read_string( "lastLoadedDrumkitPath",
+							 pSong->getLastLoadedDrumkitPath(), true, true,
+							 bSilent ) );
 
 	// Pattern list
 	auto pPatternList = PatternList::loadFrom(

@@ -134,8 +134,8 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		 * properly initialized and can causes crashes (in the
 		 * #H2Core::AudioEngine) when used directly. Please use getEmptySong()
 		 * instead. */
-		Song( const QString& sName = "",
-			  const QString& sAuthor = "hydrogen",
+		Song( const QString& sName = "Untitled Song",
+			  const QString& sAuthor = "Unknown Author",
 			  float fBpm = 120,
 			  float fVolume = 0.5 );
 		~Song();
