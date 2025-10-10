@@ -57,6 +57,7 @@ DrumPatternEditor::DrumPatternEditor( QWidget* parent )
 	m_nActiveWidth = m_nEditorWidth;
 	resize( m_nEditorWidth, m_nEditorHeight );
 
+	updateWidth();
 	updatePixmapSize();
 }
 
