@@ -1,0 +1,62 @@
+.TH H2PLAYER "1" "July 29, 2025" "Hydrogen 1.2.6" "User Commands"
+.SH NAME
+h2player \- a CLI player for \fBHydrogen\fR songs.
+.SH SYNOPSIS
+.PP
+\fBh2player\fR \fI*.h2song\fR
+.SH DESCRIPTION
+.PP
+\fBh2player\fR can play a song created with \fBHydrogen\fR without starting its
+GUI. It does not support any options but can be controlled via keyboard inputs
+while running.
+.PP
+You start \fBh2player\fR using a particular song file. It will use all its
+solo/mute settings as well as audio driver and transport settings from your last
+Hydrogen session. If you do not hear any sounds, make sure you get some when
+opening the song in plain Hydrogen and hitting play right away.
+.PP
+While running, the application can be controlled using your keyboard. Typing one
+of the characters below will result in the following actions:
+.IP
+.B b
+\- Rewind to the beginning of the song.
+.IP
+.B p
+\- Start playback.
+.IP
+.B s
+\- Stop playback.
+.IP
+.B q
+\- Quit h2player.
+.IP
+.B f
+\- Show the current transport position in frames.
+.SH FILES
+For a comprehensive list of files, configuration, and environmental variables, please see the man page of \fBhydrogen\fR itself.
+.SH BUGS & FEATURES REQUEST
+.PP
+If you find any bug or if you would like to propose a new feature, please report it to https://github.com/hydrogen-music/hydrogen/issues
+.SH AUTHORS
+.PP
+The hydrogen development team. See complete list at Hydrogen's "About" Dialog. You can contact them at <hydrogen-devel@lists.sourceforge.net>.
+.TP
+Subscription to the mailing list can be done here :
+.br
+http://lists.sourceforge.net/lists/listinfo/hydrogen-devel .
+.SH SEE ALSO
+The main graphical application
+.RS
+\fBhydrogen\fR(1)
+.RE
+.PP
+A CLI tool for exporting songs and batch processing drumkits
+.RS
+\fBh2cli\fR(1)
+.RE
+.SH COPYRIGHT AND LICENSE
+\fBCopyright (C)\fR 2002\-2008 Alessandro Cominu
+.br
+\fBCopyright (C)\fR 2008\-2025 The hydrogen development team
+.PP
+\fBHydrogen\fR is free software; you can redistribute it and/or modify it under the terms of the GPL version 2 or later.
