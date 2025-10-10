@@ -546,8 +546,11 @@ void Note::saveTo( XMLNode& node ) const
 
 std::shared_ptr<Note> Note::loadFrom( const XMLNode& node, bool bSilent )
 {
+	auto pNote = std::make_shared<Note>();
+
 	bool bFound, bFound2;
-	float fPan = node.read_float( "pan", PAN_DEFAULT, &bFound, true, false, true );
+	float fPan = node.read_float( "pan", pNote->getPan(), &bFound, true, false,
+								 true );
 	if ( !bFound ) {
 		// check if pan is expressed in the old fashion (version <=
 		// 1.1 ) with the pair (pan_L, pan_R)
@@ -559,23 +562,27 @@ std::shared_ptr<Note> Note::loadFrom( const XMLNode& node, bool bSilent )
 			WARNINGLOG( QString( "Neither `pan` nor `pan_L` and `pan_R` were found. Falling back to `pan = 0`" ) );
 		}
 	}
+	pNote->setPan( fPan );
 
-	auto pNote = std::make_shared<Note>(
-		nullptr,
-		node.read_int( "position", 0, false, false, bSilent ),
-		node.read_float( "velocity", VELOCITY_DEFAULT, false, false, bSilent ),
-		fPan,
-		node.read_int( "length", LENGTH_ENTIRE_SAMPLE, true, false, bSilent ),
-		node.read_float( "pitch", PITCH_DEFAULT, false, false, bSilent )
-	);
-	pNote->setLeadLag(
-		node.read_float( "leadlag", LEAD_LAG_DEFAULT, false, false, bSilent ) );
+	pNote->setPosition( node.read_int( "position", pNote->getPosition(), false,
+									  false, bSilent ) );
+	pNote->setVelocity( node.read_float( "velocity", pNote->getVelocity(), false,
+										false, bSilent ) );
+	pNote->setLength( node.read_int( "length", pNote->getLength(), true, false,
+									bSilent ) );
+	pNote->m_fPitch = node.read_float( "pitch", pNote->getPitch(), false, false,
+									  bSilent );
+	pNote->setLeadLag( node.read_float( "leadlag", pNote->getLeadLag(), false,
+									   false, bSilent ) );
 	pNote->setKeyOctave( node.read_string( "key", "C0", false, false, bSilent ) );
-	pNote->setNoteOff( node.read_bool( "note_off", false, false, false, bSilent ) );
-	pNote->setInstrumentId( node.read_int( "instrument", EMPTY_INSTR_ID, false, false, bSilent ) );
-	pNote->setType( node.read_string( "type", "", true, true, bSilent ) );
-	pNote->setProbability(
-		node.read_float( "probability", PROBABILITY_DEFAULT, false, false, bSilent ));
+	pNote->setNoteOff( node.read_bool( "note_off", pNote->getNoteOff(), false,
+									  false, bSilent ) );
+	pNote->setInstrumentId( node.read_int( "instrument", pNote->getInstrumentId(),
+										  false, false, bSilent ) );
+	pNote->setType( node.read_string( "type", pNote->getType(), true, true,
+									 bSilent ) );
+	pNote->setProbability( node.read_float( "probability", pNote->getProbability(),
+										   false, false, bSilent ));
 
 	return pNote;
 }
