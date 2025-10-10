@@ -216,6 +216,11 @@ void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Instrument
 		m_sSampleName = "-";
 	}
 
+	// In pattern mode the playback track won't be played back at all.
+	if ( pSong->getMode() == Song::Mode::Pattern ) {
+		m_nActiveWidth = 0;
+	}
+
 	QPainter painter( m_pBackgroundPixmap );
 	createBackground( &painter );
 	update();

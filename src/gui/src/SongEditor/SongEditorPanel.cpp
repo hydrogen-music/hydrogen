@@ -769,6 +769,7 @@ void SongEditorPanel::songModeActivationEvent() {
 	updateTimeline();
 	updatePatternEditorLocked();
 	updatePatternMode();
+	updatePlaybackTrack();
 	updateStyleSheet();
 
 	m_pPatternList->updateEditor();
@@ -864,6 +865,7 @@ void SongEditorPanel::updateSongEvent( int nValue ) {
 	updatePatternMode();
 	updateJacktimebaseState();
 	updatePatternEditorLocked();
+	updatePlaybackTrack();
 	updateTimeline();
 	updateStyleSheet();
 
