@@ -91,7 +91,6 @@ void PlaybackTrackWaveDisplay::dragMoveEvent(QDragMoveEvent *event)
 
 void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer )
 {
-	INFOLOG("");
 	auto pH2App = HydrogenApp::get_instance();
 	const auto pPref = Preferences::get_instance();
 	auto pSong = Hydrogen::get_instance()->getSong();

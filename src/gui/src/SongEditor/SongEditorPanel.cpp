@@ -798,6 +798,8 @@ void SongEditorPanel::stateChangedEvent( const H2Core::AudioEngine::State& ) {
 }
 
 void SongEditorPanel::tempoChangedEvent( int nValue ) {
+	updatePlaybackTrack();
+
 	auto pTimeline = Hydrogen::get_instance()->getTimeline();
 	if ( ! pTimeline->isFirstTempoMarkerSpecial() ) {
 		return;
