@@ -459,37 +459,8 @@ std::shared_ptr<Instrument> Instrument::loadFrom( const XMLNode& node,
 			std::make_shared<InstrumentComponent>() );
 	}
 
-	// Check whether there are missing samples
-	bool bSampleFound = false;
-	for ( const auto& pComponent : *pInstrument->getComponents() ) {
-		if ( pComponent == nullptr ) {
-			ERRORLOG( "Invalid component. Something went wrong loading the instrument" );
-			pInstrument->setMuted( true );
-			pInstrument->setMissingSamples( true );
-			break;
-		}
+	pInstrument->checkForMissingSamples();
 
-		for ( const auto& pLayer : *pComponent ) {
-			if ( pLayer == nullptr ) {
-				// The component is filled with nullptr up to
-				// InstrumentComponent::m_nMaxLayers.
-				continue;
-			}
-
-			if ( pLayer->getSample() != nullptr ) {
-				if ( ! bSampleFound ) {
-					bSampleFound = true;
-				}
-			} else {
-				pInstrument->setMissingSamples( true );
-			}
-		}
-	}
-
-	if ( ! bSampleFound ) {
-		pInstrument->setMuted( true );
-	}
-	
 	return pInstrument;
 }
 
@@ -517,7 +488,7 @@ void Instrument::unloadSamples()
 	}
 }
 
-void Instrument::saveTo( XMLNode& node, bool bSongKit ) const
+void Instrument::saveTo( XMLNode& node, bool bSongKit )
 {
 	XMLNode InstrumentNode = node.createNode( "instrument" );
 	InstrumentNode.write_int( "id", m_nId );
@@ -578,6 +549,11 @@ void Instrument::saveTo( XMLNode& node, bool bSongKit ) const
 		} else {
 			ERRORLOG( "Invalid component!" );
 		}
+	}
+
+	// Instrument layers with missing samples will be discarded during saving.
+	if ( m_bHasMissingSamples ) {
+		checkForMissingSamples();
 	}
 }
 
@@ -693,6 +669,42 @@ int Instrument::getLongestSampleFrames() const {
 	}
 
 	return nLongestFrames;
+}
+
+void Instrument::checkForMissingSamples() {
+	m_bHasMissingSamples = false;
+
+	bool bSampleFound = false;
+	for ( const auto& pComponent : *getComponents() ) {
+		if ( pComponent == nullptr ) {
+			ERRORLOG( "Invalid component. Something went wrong loading the instrument" );
+			setMuted( true );
+			m_bHasMissingSamples = true;
+			return;
+		}
+
+		for ( const auto& pLayer : *pComponent ) {
+			if ( pLayer == nullptr ) {
+				// The component is filled with nullptr up to
+				// InstrumentComponent::m_nMaxLayers.
+				continue;
+			}
+
+			if ( pLayer->getSample() != nullptr ) {
+				if ( ! bSampleFound ) {
+					bSampleFound = true;
+				}
+			}
+			else {
+				m_bHasMissingSamples = true;
+			}
+		}
+	}
+
+	if ( ! bSampleFound ) {
+		setMuted( true );
+	}
+
 }
 
 QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {

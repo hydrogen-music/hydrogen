@@ -97,7 +97,7 @@ class Instrument : public H2Core::Object<Instrument>
 		 *   associated with a different kit and the lookup folder for the
 		 *   samples are stored on a per-instrument basis.
 		 */
-		void saveTo( XMLNode& node, bool bSongKit = false ) const;
+		void saveTo( XMLNode& node, bool bSongKit = false );
 
 		/**
 		 * load an instrument from an XMLNode
@@ -284,7 +284,6 @@ class Instrument : public H2Core::Object<Instrument>
 		void setCurrentlyExported( bool isCurrentlyExported );
 
 		bool hasMissingSamples() const { return m_bHasMissingSamples; }
-		void setMissingSamples( bool bHasMissingSamples ) { m_bHasMissingSamples = bHasMissingSamples; }
 
 	/** Whether the instrument contains at least one non-missing
 	 * sample */
@@ -306,6 +305,9 @@ class Instrument : public H2Core::Object<Instrument>
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	private:
+
+	void checkForMissingSamples();
+
 	        /** Identifier of an instrument, which should be
 		    unique. It is set by setId() and accessed via
 	        getId().*/
