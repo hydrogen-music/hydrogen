@@ -1081,7 +1081,7 @@ void MidiActionTest::testPlaylistNextSongAction() {
 	CPPUNIT_ASSERT( CoreActionController::setPlaylist( pPlaylist ) );
 	const int nOldSongNumber = 0;
 	CPPUNIT_ASSERT( CoreActionController::loadSong(
-						pPlaylist->getSongFilenameByNumber( nOldSongNumber ) ) );
+						pPlaylist->getSongFileNameByNumber( nOldSongNumber ) ) );
 	CPPUNIT_ASSERT( CoreActionController::activatePlaylistSong( nOldSongNumber ) );
 
 	auto pOldSong = pHydrogen->getSong();
@@ -1124,7 +1124,7 @@ void MidiActionTest::testPlaylistPrevSongAction() {
 	CPPUNIT_ASSERT( CoreActionController::setPlaylist( pPlaylist ) );
 	const int nOldSongNumber = 1;
 	CPPUNIT_ASSERT( CoreActionController::loadSong(
-						pPlaylist->getSongFilenameByNumber( nOldSongNumber ) ) );
+						pPlaylist->getSongFileNameByNumber( nOldSongNumber ) ) );
 	CPPUNIT_ASSERT( CoreActionController::activatePlaylistSong( nOldSongNumber ) );
 
 	auto pOldSong = pHydrogen->getSong();
@@ -1168,7 +1168,7 @@ void MidiActionTest::testPlaylistSongAction() {
 	const int nOldSongNumber = 0;
 	const int nNewSongNumber = 1;
 	CPPUNIT_ASSERT( CoreActionController::loadSong(
-						pPlaylist->getSongFilenameByNumber( nOldSongNumber ) ) );
+						pPlaylist->getSongFileNameByNumber( nOldSongNumber ) ) );
 	CPPUNIT_ASSERT( CoreActionController::activatePlaylistSong( nOldSongNumber ) );
 
 	auto pOldSong = pHydrogen->getSong();

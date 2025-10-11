@@ -210,11 +210,11 @@ class Sample : public H2Core::Object<Sample>
 		/** \return true if the associated sample file was loaded */
 		bool isLoaded() const;
 		const QString& getFilepath() const;
-		/** \return Filename part of #m_sFilepath */
+		/** \return FileName part of #m_sFilepath */
 		void setFilepath( const QString& sPath );
-		QString getFilename() const;
-		/** \param filename Filename part of #m_sFilepath*/
-		void setFilename( const QString& filename );
+		QString getFileName() const;
+		/** \param fileName FileName part of #m_sFilepath*/
+		void setFileName( const QString& fileName );
 
 		/** \return #m_nFrames accessor */
 		int getFrames() const;
@@ -340,7 +340,7 @@ inline void Sample::setFilepath( const QString& sPath ) {
 	m_sFilepath = sPath;
 }
 
-inline QString Sample::getFilename() const
+inline QString Sample::getFileName() const
 {
 	return m_sFilepath.section( "/", -1 );
 }

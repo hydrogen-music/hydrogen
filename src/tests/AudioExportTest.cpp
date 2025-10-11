@@ -136,7 +136,7 @@ void AudioExportTest::testFormats() {
 				for ( const auto& nnSampleDepth : sampleDepths ) {
 					for ( const auto& ffCompressionLevel : compressionLevels ) {
 						pSampler->setInterpolateMode( iinterpolationMode );
-						const QString sFilename = QString( "%1/song-%2-%3-%4-%5.%6" )
+						const QString sFileName = QString( "%1/song-%2-%3-%4-%5.%6" )
 							.arg( exportDir.path() )
 							.arg( Interpolation::ModeToQString( iinterpolationMode ) )
 							.arg( nnSampleRate )
@@ -181,7 +181,7 @@ void AudioExportTest::testFormats() {
 						}
 
 						TestHelper::exportSong(
-							sSong, sFilename, nnSampleRate, nnSampleDepth,
+							sSong, sFileName, nnSampleRate, nnSampleDepth,
 							ffCompressionLevel );
 					}
 				}

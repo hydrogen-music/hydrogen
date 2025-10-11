@@ -275,7 +275,7 @@ void XmlTest::testDrumkit_invalidADSRValues()
 	auto pSample = pLayer->getSample();
 	CPPUNIT_ASSERT( pSample != nullptr );
 	
-	CPPUNIT_ASSERT( pSample->getFilename() == QString("snare.wav"));
+	CPPUNIT_ASSERT( pSample->getFileName() == QString("snare.wav"));
 
 	___INFOLOG( "passed" );
 }

@@ -128,11 +128,11 @@ Preferences::Preferences()
 	, m_bCountIn( false )
 	, m_sDefaultEditor( "" )
 	, m_sPreferredLanguage( "" )
-	, m_bUseRelativeFilenamesForPlaylists( false )
+	, m_bUseRelativeFileNamesForPlaylists( false )
 	, m_bShowDevelWarning( false )
 	, m_bShowNoteOverwriteWarning( true )
-	, m_sLastSongFilename( "" )
-	, m_sLastPlaylistFilename( "" )
+	, m_sLastSongFileName( "" )
+	, m_sLastPlaylistFileName( "" )
 	, m_bHearNewNotes( true )
 	, m_bQuantizeEvents( true )
 	, m_recentFiles( QStringList() )
@@ -313,11 +313,11 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_bCountIn( pOther->m_bCountIn )
 	, m_sDefaultEditor( pOther->m_sDefaultEditor )
 	, m_sPreferredLanguage( pOther->m_sPreferredLanguage )
-	, m_bUseRelativeFilenamesForPlaylists( pOther->m_bUseRelativeFilenamesForPlaylists )
+	, m_bUseRelativeFileNamesForPlaylists( pOther->m_bUseRelativeFileNamesForPlaylists )
 	, m_bShowDevelWarning( pOther->m_bShowDevelWarning )
 	, m_bShowNoteOverwriteWarning( pOther->m_bShowNoteOverwriteWarning )
-	, m_sLastSongFilename( pOther->m_sLastSongFilename )
-	, m_sLastPlaylistFilename( pOther->m_sLastPlaylistFilename )
+	, m_sLastSongFileName( pOther->m_sLastSongFileName )
+	, m_sLastPlaylistFileName( pOther->m_sLastPlaylistFileName )
 	, m_bHearNewNotes( pOther->m_bHearNewNotes )
 	, m_nPunchInPos( pOther->m_nPunchInPos )
 	, m_nPunchOutPos( pOther->m_nPunchOutPos )
@@ -459,9 +459,9 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 						   false, false, bSilent ));
 	pPref->m_nLastOpenTab = rootNode.read_int(
 		"lastOpenTab", pPref->m_nLastOpenTab, false, false, bSilent );
-	pPref->m_bUseRelativeFilenamesForPlaylists = rootNode.read_bool(
+	pPref->m_bUseRelativeFileNamesForPlaylists = rootNode.read_bool(
 		"useRelativeFilenamesForPlaylists",
-		pPref->m_bUseRelativeFilenamesForPlaylists, false, false, bSilent );
+		pPref->m_bUseRelativeFileNamesForPlaylists, false, false, bSilent );
 	pPref->m_bHideKeyboardCursor = rootNode.read_bool(
 		"hideKeyboardCursorWhenUnused",
 		pPref->m_bHideKeyboardCursor, false, false, bSilent );
@@ -1034,11 +1034,11 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 	/////////////// FILES //////////////
 	const XMLNode filesNode = rootNode.firstChildElement( "files" );
 	if ( ! filesNode.isNull() ) {
-		pPref->m_sLastSongFilename = filesNode.read_string(
-			"lastSongFilename", pPref->m_sLastSongFilename, false, true, bSilent );
-		pPref->m_sLastPlaylistFilename = filesNode.read_string(
+		pPref->m_sLastSongFileName = filesNode.read_string(
+			"lastSongFilename", pPref->m_sLastSongFileName, false, true, bSilent );
+		pPref->m_sLastPlaylistFileName = filesNode.read_string(
 			"lastPlaylistFilename",
-			pPref->m_sLastPlaylistFilename, false, true, bSilent );
+			pPref->m_sLastPlaylistFileName, false, true, bSilent );
 		pPref->m_sDefaultEditor = filesNode.read_string(
 			"defaulteditor", pPref->m_sDefaultEditor, false, true, bSilent );
 	}
@@ -1099,7 +1099,7 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 
 	rootNode.write_bool( "useTheRubberbandBpmChangeEvent", m_bUseTheRubberbandBpmChangeEvent );
 
-	rootNode.write_bool( "useRelativeFilenamesForPlaylists", m_bUseRelativeFilenamesForPlaylists );
+	rootNode.write_bool( "useRelativeFilenamesForPlaylists", m_bUseRelativeFileNamesForPlaylists );
 	rootNode.write_bool( "hideKeyboardCursorWhenUnused", m_bHideKeyboardCursor );
 	
 	// instrument input mode
@@ -1395,8 +1395,8 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 	XMLNode filesNode = rootNode.createNode( "files" );
 	{
 		// last used song
-		filesNode.write_string( "lastSongFilename", m_sLastSongFilename );
-		filesNode.write_string( "lastPlaylistFilename", m_sLastPlaylistFilename );
+		filesNode.write_string( "lastSongFilename", m_sLastSongFileName );
+		filesNode.write_string( "lastPlaylistFilename", m_sLastPlaylistFileName );
 		filesNode.write_string( "defaulteditor", m_sDefaultEditor );
 	}
 
@@ -1828,16 +1828,16 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_sDefaultEditor ) )
 			.append( QString( "%1%2m_sPreferredLanguage: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_sPreferredLanguage ) )
-			.append( QString( "%1%2m_bUseRelativeFilenamesForPlaylists: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bUseRelativeFilenamesForPlaylists ) )
+			.append( QString( "%1%2m_bUseRelativeFileNamesForPlaylists: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bUseRelativeFileNamesForPlaylists ) )
 			.append( QString( "%1%2m_bShowDevelWarning: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bShowDevelWarning ) )
 			.append( QString( "%1%2m_bShowNoteOverwriteWarning: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bShowNoteOverwriteWarning ) )
-			.append( QString( "%1%2m_sLastSongFilename: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_sLastSongFilename ) )
-			.append( QString( "%1%2m_sLastPlaylistFilename: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_sLastPlaylistFilename ) )
+			.append( QString( "%1%2m_sLastSongFileName: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_sLastSongFileName ) )
+			.append( QString( "%1%2m_sLastPlaylistFileName: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_sLastPlaylistFileName ) )
 			.append( QString( "%1%2m_bHearNewNotes: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bHearNewNotes ) )
 			.append( QString( "%1%2m_nPunchInPos: %3\n" ).arg( sPrefix )
@@ -2078,16 +2078,16 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_sDefaultEditor ) )
 			.append( QString( ", m_sPreferredLanguage: %1" )
 					 .arg( m_sPreferredLanguage ) )
-			.append( QString( ", m_bUseRelativeFilenamesForPlaylists: %1" )
-					 .arg( m_bUseRelativeFilenamesForPlaylists ) )
+			.append( QString( ", m_bUseRelativeFileNamesForPlaylists: %1" )
+					 .arg( m_bUseRelativeFileNamesForPlaylists ) )
 			.append( QString( ", m_bShowDevelWarning: %1" )
 					 .arg( m_bShowDevelWarning ) )
 			.append( QString( ", m_bShowNoteOverwriteWarning: %1" )
 					 .arg( m_bShowNoteOverwriteWarning ) )
-			.append( QString( ", m_sLastSongFilename: %1" )
-					 .arg( m_sLastSongFilename ) )
-			.append( QString( ", m_sLastPlaylistFilename: %1" )
-					 .arg( m_sLastPlaylistFilename ) )
+			.append( QString( ", m_sLastSongFileName: %1" )
+					 .arg( m_sLastSongFileName ) )
+			.append( QString( ", m_sLastPlaylistFileName: %1" )
+					 .arg( m_sLastPlaylistFileName ) )
 			.append( QString( ", m_bHearNewNotes: %1" )
 					 .arg( m_bHearNewNotes ) )
 			.append( QString( ", m_nPunchInPos: %1" )

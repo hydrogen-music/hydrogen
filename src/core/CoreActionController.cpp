@@ -722,7 +722,7 @@ std::shared_ptr<Song> CoreActionController::loadSong( const QString& sPath,
 		// Use an autosave file to load the playlist
 		pSong = Song::load( sRecoverPath );
 		if ( pSong != nullptr ) {
-			pSong->setFilename( sPath );
+			pSong->setFileName( sPath );
 		} else {
 			ERRORLOG( QString( "Unable to recover changes from [%1]. Loading [%2] instead." )
 					  .arg( sRecoverPath ).arg( sPath ) );
@@ -773,16 +773,16 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 		// empty songs - created and set when hitting "New Song" in
 		// the main menu - aren't listed either.
 
-		if ( pSong->getFilename() ==
+		if ( pSong->getFileName() ==
 			 Filesystem::empty_path( Filesystem::Type::Song ) ) {
 			// To indicate that the user closed the previous song in favor of a
 			// new one, we store an empty string. This way the changes from the
 			// empty song can be recovered.
-			Preferences::get_instance()->setLastSongFilename( "" );
+			Preferences::get_instance()->setLastSongFileName( "" );
 		}
 		else {
-			insertRecentFile( pSong->getFilename() );
-			Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
+			insertRecentFile( pSong->getFileName() );
+			Preferences::get_instance()->setLastSongFileName( pSong->getFileName() );
 		}
 	}
 
@@ -793,9 +793,9 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 	}
 
 	// In case the song is read-only, autosave won't work.
-	if ( ! Filesystem::file_writable( pSong->getFilename() ) ) {
+	if ( ! Filesystem::file_writable( pSong->getFileName() ) ) {
 		WARNINGLOG( QString( "You don't have permissions to write to the song found in path [%1]. It will be opened as read-only (no autosave)." )
-					.arg( pSong->getFilename() ));
+					.arg( pSong->getFileName() ));
 		EventQueue::get_instance()->pushEvent( Event::Type::UpdateSong, 2 );
 	}
 
@@ -816,7 +816,7 @@ bool CoreActionController::saveSong() {
 	}
 	
 	// Extract the path to the associate .h2song file.
-	QString sSongPath = pSong->getFilename();
+	QString sSongPath = pSong->getFileName();
 	
 	if ( sSongPath.isEmpty() ) {
 		ERRORLOG( "Unable to save song. Empty filename!" );
@@ -839,7 +839,7 @@ bool CoreActionController::saveSong() {
 	return true;
 }
 
-bool CoreActionController::saveSongAs( const QString& sNewFilename ) {
+bool CoreActionController::saveSongAs( const QString& sNewFileName ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pSong = pHydrogen->getSong();
@@ -851,18 +851,18 @@ bool CoreActionController::saveSongAs( const QString& sNewFilename ) {
 	
 	// Check whether the provided path is valid.
 	if ( !Filesystem::isPathValid(
-			 Filesystem::Type::Song, sNewFilename ) ) {
+			 Filesystem::Type::Song, sNewFileName ) ) {
 		// Filesystem::isPathValid takes care of the error log message.
 		return false;
 	}
-	if ( ! Filesystem::file_writable( sNewFilename ) ) {
+	if ( ! Filesystem::file_writable( sNewFileName ) ) {
 		ERRORLOG( QString( "Song can not be written to read-only location [%1]" )
-				  .arg( sNewFilename ) );
+				  .arg( sNewFileName ) );
 		return false;
 	}
 
-	QString sPreviousFilename( pSong->getFilename() );
-	pSong->setFilename( sNewFilename );
+	QString sPreviousFileName( pSong->getFileName() );
+	pSong->setFileName( sNewFileName );
 	
 	// Actual saving
 	if ( ! saveSong() ) {
@@ -871,9 +871,9 @@ bool CoreActionController::saveSongAs( const QString& sNewFilename ) {
 
 	// Update the recentFiles list by replacing the former file name
 	// with the new one.
-	insertRecentFile( sNewFilename );
+	insertRecentFile( sNewFileName );
 	if ( ! pHydrogen->isUnderSessionManagement() ) {
-		Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
+		Preferences::get_instance()->setLastSongFileName( pSong->getFileName() );
 	}
 
 	EventQueue::get_instance()->pushEvent( Event::Type::UpdateSong, 1 );
@@ -2500,7 +2500,7 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 	return bSuccess;
 }
 
-void CoreActionController::insertRecentFile( const QString& sFilename ){
+void CoreActionController::insertRecentFile( const QString& sFileName ){
 	auto pPref = Preferences::get_instance();
 
 	// The most recent file will always be added on top and possible
@@ -2512,9 +2512,9 @@ void CoreActionController::insertRecentFile( const QString& sFilename ){
 	// We have to normalize directory separators. Else opening a
 	// song via double click from file browser and from within
     // Hydrogen will give to distinct entries on Windows.
-    const QString sFilenameCleaned = QDir::cleanPath( sFilename );
+    const QString sFileNameCleaned = QDir::cleanPath( sFileName );
 
-    recentFiles.push_front( sFilenameCleaned );
+    recentFiles.push_front( sFileNameCleaned );
 	recentFiles.removeDuplicates();
 
 	pPref->setRecentFiles( recentFiles );
@@ -2594,7 +2594,7 @@ std::shared_ptr<Playlist> CoreActionController::loadPlaylist( const QString& sPa
 		// Use an autosave file to load the playlist
 		pPlaylist = Playlist::load( sRecoverPath );
 		if ( pPlaylist != nullptr ) {
-			pPlaylist->setFilename( sPath );
+			pPlaylist->setFileName( sPath );
 		} else {
 			ERRORLOG( QString( "Unable to recover changes from [%1]. Loading [%2] instead." )
 					  .arg( sRecoverPath ).arg( sPath ) );
@@ -2623,24 +2623,24 @@ bool CoreActionController::setPlaylist( std::shared_ptr<Playlist> pPlaylist ) {
 	}
 	pHydrogen->setPlaylist( pPlaylist );
 
-	if ( pPlaylist->getFilename() ==
+	if ( pPlaylist->getFileName() ==
 		 Filesystem::empty_path( Filesystem::Type::Playlist ) ) {
 		// To indicate that the user closed the previous playlsit in favor
 		// of a new one, we store an empty string. This way the changes from
 		// the empty playlist can be recovered.
-		Preferences::get_instance()->setLastPlaylistFilename( "" );
+		Preferences::get_instance()->setLastPlaylistFileName( "" );
 	}
 	else {
-		Preferences::get_instance()->setLastPlaylistFilename(
-			pPlaylist->getFilename() );
+		Preferences::get_instance()->setLastPlaylistFileName(
+			pPlaylist->getFileName() );
 	}
 
 	EventQueue::get_instance()->pushEvent( Event::Type::PlaylistChanged, 0 );
 
 	// In case the playlist is read-only, autosave won't work.
-	if ( ! Filesystem::file_writable( pPlaylist->getFilename() ) ) {
+	if ( ! Filesystem::file_writable( pPlaylist->getFileName() ) ) {
 		WARNINGLOG( QString( "You don't have permissions to write to the playlist found in path [%1]. It will be opened as read-only (no autosave)." )
-					.arg( pPlaylist->getFilename() ));
+					.arg( pPlaylist->getFileName() ));
 		EventQueue::get_instance()->pushEvent( Event::Type::PlaylistChanged, 2 );
 	}
 
@@ -2679,7 +2679,7 @@ bool CoreActionController::savePlaylistAs( const QString& sPath ) {
 
 	pPlaylist->setIsModified( false );
 
-	Preferences::get_instance()->setLastPlaylistFilename( sPath );
+	Preferences::get_instance()->setLastPlaylistFileName( sPath );
 
 	EventQueue::get_instance()->pushEvent( Event::Type::PlaylistChanged, 0 );
 

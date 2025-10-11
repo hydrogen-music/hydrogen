@@ -139,7 +139,7 @@ int NsmClient::OpenCallback( const char *name,
 			NsmClient::printError( "Unable to open new Song." );
 			return ERR_LAUNCH_FAILED;
 		}
-		pSong->setFilename( sSongPath );
+		pSong->setFileName( sSongPath );
 		bEmptySongOpened = true;
 
 		// Mark empty song modified in order to emphasis that an

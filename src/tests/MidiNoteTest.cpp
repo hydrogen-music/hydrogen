@@ -134,10 +134,10 @@ private:
 	static QString get_test_file(const QString &name) {
 		std::vector<QString> paths = { "./src", "../src" };
 		for (auto const &path : paths) {
-			QString fileName = path + "/tests/data/" + name;
-			QFileInfo fi(fileName);
+			const QString sFileName = path + "/tests/data/" + name;
+			QFileInfo fi(sFileName);
 			if ( fi.exists() ) {
-				return fileName;
+				return sFileName;
 			}
 		}
 		throw std::runtime_error(std::string("Can't find test file ") + name.toStdString());

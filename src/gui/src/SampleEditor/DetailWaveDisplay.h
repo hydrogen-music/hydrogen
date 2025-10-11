@@ -43,7 +43,7 @@ class DetailWaveDisplay :  public QWidget,  public H2Core::Object<DetailWaveDisp
 		explicit DetailWaveDisplay(QWidget* pParent);
 		~DetailWaveDisplay();
 
-		void updateDisplay( const QString& filename );
+		void updateDisplay( const QString& sFileName );
 
 		virtual void paintEvent(QPaintEvent *ev) override;
 		void setDetailSamplePosition( unsigned posi, float zoomfactor,

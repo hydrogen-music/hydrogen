@@ -84,7 +84,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 
 	const auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
 	setWindowTitle( sWindowTitleBase + QString(" - ") +
-					 pPlaylist->getFilename() );
+					 pPlaylist->getFileName() );
 
 	installEventFilter( this );
 
@@ -387,7 +387,7 @@ void PlaylistEditor::addSong()
 void PlaylistEditor::addCurrentSong()
 {
 	const std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	const auto sPath = pSong->getFilename();
+	const auto sPath = pSong->getFileName();
 
 	if ( sPath == "" ) {
 		// just in case!
@@ -427,7 +427,7 @@ void PlaylistEditor::newPlaylist()
 	}
 
 	auto pNewPlaylist = std::make_shared<Playlist>();
-	pNewPlaylist->setFilename(
+	pNewPlaylist->setFileName(
 		Filesystem::empty_path( Filesystem::Type::Playlist ) );
 	auto pAction = new SE_replacePlaylistAction( pNewPlaylist );
 	m_pUndoStack->push( pAction );
@@ -476,11 +476,11 @@ void PlaylistEditor::openPlaylist() {
 
 	const QString sFilePath = fd.selectedFiles().first();
 
-	const auto sRecoverFilename = HydrogenApp::findAutoSaveFile(
+	const auto sRecoverFileName = HydrogenApp::findAutoSaveFile(
 		Filesystem::Type::Playlist, sFilePath );
 
 	auto pPlaylist = CoreActionController::loadPlaylist(
-		sFilePath, sRecoverFilename );
+		sFilePath, sRecoverFileName );
 	if ( pPlaylist == nullptr ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
@@ -524,11 +524,11 @@ void PlaylistEditor::newScript()
 	fd.setWindowTitle( tr( "New Script" ) );
 	fd.setDirectory( sPath );
 
-	QString defaultFilename;
+	QString defaultFileName;
 
-	defaultFilename += ".sh";
+	defaultFileName += ".sh";
 
-	fd.selectFile( defaultFilename );
+	fd.selectFile( defaultFileName );
 
 	if ( fd.exec() != QDialog::Accepted ) {
 		return;
@@ -609,7 +609,7 @@ bool PlaylistEditor::savePlaylistAs() {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pPlaylist = pHydrogen->getPlaylist();
-	const auto sLastFilename = pPlaylist->getFilename();
+	const auto sLastFileName = pPlaylist->getFileName();
 
 	QString sPath = pPref->getLastPlaylistDirectory();
 	if ( ! Filesystem::dir_writable( sPath, false ) ){
@@ -629,9 +629,9 @@ bool PlaylistEditor::savePlaylistAs() {
 		return false;
 	}
 
-	QString filename = fd.selectedFiles().first();
+	const QString sFileName = fd.selectedFiles().first();
 
-	if ( ! CoreActionController::savePlaylistAs( filename ) ) {
+	if ( ! CoreActionController::savePlaylistAs( sFileName ) ) {
 		QMessageBox::critical( nullptr, "Hydrogen",
 							   pCommonStrings->getPlaylistSaveFailure() );
 		return false;
@@ -639,13 +639,13 @@ bool PlaylistEditor::savePlaylistAs() {
 
 	pPref->setLastPlaylistDirectory( fd.directory().absolutePath() );
 
-	if ( sLastFilename == Filesystem::empty_path( Filesystem::Type::Playlist ) ) {
+	if ( sLastFileName == Filesystem::empty_path( Filesystem::Type::Playlist ) ) {
 		// In case we stored the playlist for the first time, we remove the
 		// autosave file corresponding to the empty one. Else, it might be
 		// loaded later when clicking "New Playlist" while not generating a new
 		// autosave file.
-		const QString sAutoSaveFile = Filesystem::getAutoSaveFilename(
-			Filesystem::Type::Playlist, sLastFilename );
+		const QString sAutoSaveFile = Filesystem::getAutoSaveFileName(
+			Filesystem::Type::Playlist, sLastFileName );
 		if ( Filesystem::file_exists( sAutoSaveFile, true ) ) {
 			Filesystem::rm( sAutoSaveFile );
 		}
@@ -661,8 +661,8 @@ bool PlaylistEditor::savePlaylist()
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pPlaylist = pHydrogen->getPlaylist();
 
-	if ( pPlaylist->getFilename().isEmpty() ||
-		 pPlaylist->getFilename() ==
+	if ( pPlaylist->getFileName().isEmpty() ||
+		 pPlaylist->getFileName() ==
 		 Filesystem::empty_path( Filesystem::Type::Playlist ) ) {
 		return savePlaylistAs();
 	}
@@ -697,7 +697,6 @@ void PlaylistEditor::loadScript() {
 	fd.setNameFilter( tr( "Hydrogen Playlist (*.sh)" ) );
 	fd.setWindowTitle( tr( "Add Script to selected Song" ) );
 
-	QString filename;
 	if ( fd.exec() != QDialog::Accepted ){
 		return;
 	}
@@ -775,11 +774,10 @@ void PlaylistEditor::editScript()
 
 		fd.setWindowTitle( tr( "Set your Default Editor" ) );
 
-		QString filename;
 		if ( fd.exec() == QDialog::Accepted ){
-			filename = fd.selectedFiles().first();
+			const auto sFileName = fd.selectedFiles().first();
 
-			pPref->setDefaultEditor( filename );
+			pPref->setDefaultEditor( sFileName );
 		}
 	}
 
@@ -913,7 +911,7 @@ void PlaylistEditor::playButtonClicked()
 		return;
 	}
 
-	if ( pEntry->getSongPath() != pHydrogen->getSong()->getFilename() ) {
+	if ( pEntry->getSongPath() != pHydrogen->getSong()->getFileName() ) {
 
 		if ( ! HydrogenApp::openFile( Filesystem::Type::Song,
 									  pEntry->getSongPath() ) ) {
@@ -1166,10 +1164,10 @@ void PlaylistEditor::updateWindowTitle() {
 
 
 	QString sWindowTitle = tr( "Playlist Browser" );
-	if ( ! pPlaylist->getFilename().isEmpty() &&
-		 pPlaylist->getFilename() !=
+	if ( ! pPlaylist->getFileName().isEmpty() &&
+		 pPlaylist->getFileName() !=
 		 Filesystem::empty_path( Filesystem::Type::Playlist ) ) {
-		sWindowTitle.append( QString(" - %1").arg( pPlaylist->getFilename() ) );
+		sWindowTitle.append( QString(" - %1").arg( pPlaylist->getFileName() ) );
 	}
 
 	if ( pPlaylist->getIsModified() ) {

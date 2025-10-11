@@ -44,7 +44,7 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
 	public:
 
 		unsigned				m_nSampleRate;
-		QString					m_sFilename;
+		QString					m_sFileName;
 		unsigned				m_nBufferSize;
 		int						m_nSampleDepth;
 		/** A value between 0.0 (maximum quality) and 1.0 (maximum
@@ -93,8 +93,8 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
 			return m_pOut_R;
 		}
 
-		void  setFileName( const QString& sFilename ){
-			m_sFilename = sFilename;
+		void  setFileName( const QString& sFileName ){
+			m_sFileName = sFileName;
 		}
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;

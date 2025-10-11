@@ -92,8 +92,8 @@ using namespace H2Core;
 
 int MainForm::sigusr1Fd[2];
 
-MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
-					const QString& sPlaylistFilename )
+MainForm::MainForm( QApplication * pQApplication, const QString& sSongFileName,
+					const QString& sPlaylistFileName )
 	: QMainWindow( nullptr )
 	, m_sPreviousAutoSaveSongFile( "" )
 	, m_bUnsavedChangesHandled( false )
@@ -134,16 +134,16 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 	// by the MainForm. The latter will just access the already
 	// loaded Song.
 	if ( ! pHydrogen->isUnderSessionManagement() ) {
-		if ( ! openFile( Filesystem::Type::Song, sSongFilename,
-						 pPref->getLastSongFilename() ) ) {
+		if ( ! openFile( Filesystem::Type::Song, sSongFileName,
+						 pPref->getLastSongFileName() ) ) {
 			// Fall back to an empty song.
 			HydrogenApp::openSong( H2Core::Song::getEmptySong() );		}
 	}
 
 	// We need no fallback for the playlist as a new one corresponds to an empty
 	// one.
-	openFile( Filesystem::Type::Playlist, sPlaylistFilename,
-			  pPref->getLastPlaylistFilename() );
+	openFile( Filesystem::Type::Playlist, sPlaylistFileName,
+			  pPref->getLastPlaylistFileName() );
 
 	QFont font( pPref->getFontTheme()->m_sApplicationFontFamily,
 			   getPointSize( pPref->getFontTheme()->m_fontSize ) );
@@ -759,41 +759,41 @@ bool MainForm::action_file_save_as()
 	
 	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::songs_dir() ) );
 
-	QString sDefaultFilename;
+	QString sDefaultFileName;
 
 	// Cache a couple of things we have to restore when under session
 	// management.
-	const QString sLastFilename = pSong->getFilename();
+	const QString sLastFileName = pSong->getFileName();
 
-	if ( sLastFilename == Filesystem::empty_path( Filesystem::Type::Song ) ) {
-		sDefaultFilename = Filesystem::default_song_name();
+	if ( sLastFileName == Filesystem::empty_path( Filesystem::Type::Song ) ) {
+		sDefaultFileName = Filesystem::default_song_name();
 	}
-	else if ( sLastFilename.isEmpty() ) {
-		sDefaultFilename = pSong->getName();
+	else if ( sLastFileName.isEmpty() ) {
+		sDefaultFileName = pSong->getName();
 	}
 	else {
-		QFileInfo fileInfo( sLastFilename );
-		sDefaultFilename = fileInfo.completeBaseName();
+		QFileInfo fileInfo( sLastFileName );
+		sDefaultFileName = fileInfo.completeBaseName();
 	}
-	sDefaultFilename += Filesystem::songs_ext;
+	sDefaultFileName += Filesystem::songs_ext;
 
-	fd.selectFile( sDefaultFilename );
+	fd.selectFile( sDefaultFileName );
 
 	if (fd.exec() == QDialog::Accepted) {
-		QString sNewFilename = fd.selectedFiles().first();
+		QString sNewFileName = fd.selectedFiles().first();
 
-		if ( ! sNewFilename.isEmpty() ) {
+		if ( ! sNewFileName.isEmpty() ) {
 			pPref->setLastSaveSongAsDirectory( fd.directory().absolutePath( ) );
 
-			if ( ! sNewFilename.endsWith( Filesystem::songs_ext ) ) {
-				sNewFilename += Filesystem::songs_ext;
+			if ( ! sNewFileName.endsWith( Filesystem::songs_ext ) ) {
+				sNewFileName += Filesystem::songs_ext;
 			}
 
 			// We do not use the CoreActionController::saveSongAs
 			// function directly since action_file_save as does some
 			// additional checks and prompts the user a warning dialog
 			// if required.
-			if ( ! action_file_save( sNewFilename ) ) {
+			if ( ! action_file_save( sNewFileName ) ) {
 				ERRORLOG( "Unable to save song" );
 				return false;
 			}
@@ -804,25 +804,25 @@ bool MainForm::action_file_save_as()
 		// backup of the song to a different place but keep working on
 		// the original.
 		if ( bUnderSessionManagement ) {
-			pSong->setFilename( sLastFilename );
+			pSong->setFileName( sLastFileName );
 
-			h2app->showStatusBarMessage( tr("Song exported as: ") + sDefaultFilename );
+			h2app->showStatusBarMessage( tr("Song exported as: ") + sDefaultFileName );
 			pHydrogen->setSessionIsExported( false );
 		}
 		else {
-			h2app->showStatusBarMessage( tr("Song saved as: ") + sDefaultFilename );
+			h2app->showStatusBarMessage( tr("Song saved as: ") + sDefaultFileName );
 		}
 #else
-		h2app->showStatusBarMessage( tr("Song saved as: ") + sDefaultFilename );
+		h2app->showStatusBarMessage( tr("Song saved as: ") + sDefaultFileName );
 #endif
 
-		if ( sLastFilename == Filesystem::empty_path( Filesystem::Type::Song ) ) {
+		if ( sLastFileName == Filesystem::empty_path( Filesystem::Type::Song ) ) {
 			// In case we stored the song for the first time, we remove the
 			// autosave file corresponding to the empty one. Else, it might be
 			// loaded later when clicking "New Song" while not generating a new
 			// autosave file.
-			const QString sAutoSaveFile = Filesystem::getAutoSaveFilename(
-				Filesystem::Type::Song, sLastFilename );
+			const QString sAutoSaveFile = Filesystem::getAutoSaveFileName(
+				Filesystem::Type::Song, sLastFileName );
 			if ( Filesystem::file_exists( sAutoSaveFile, true ) ) {
 				Filesystem::rm( sAutoSaveFile );
 			}
@@ -838,7 +838,7 @@ bool MainForm::action_file_save()
 {
 	return action_file_save( "" );
 }
-bool MainForm::action_file_save( const QString& sNewFilename,
+bool MainForm::action_file_save( const QString& sNewFileName,
 								 bool bTriggerMessage )
 {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
@@ -848,11 +848,11 @@ bool MainForm::action_file_save( const QString& sNewFilename,
 		return false;
 	}
 	
-	QString sFilename = pSong->getFilename();
+	QString sFileName = pSong->getFileName();
 
-	if ( sNewFilename.isEmpty() &&
-		 ( sFilename.isEmpty() ||
-		   sFilename == Filesystem::empty_path( Filesystem::Type::Song ) ) ) {
+	if ( sNewFileName.isEmpty() &&
+		 ( sFileName.isEmpty() ||
+		   sFileName == Filesystem::empty_path( Filesystem::Type::Song ) ) ) {
 		// The empty song is treated differently in order to allow
 		// recovering changes and unsaved sessions. Therefore the
 		// users are ask to store a new song using a different file
@@ -876,10 +876,10 @@ bool MainForm::action_file_save( const QString& sNewFilename,
 	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->clearSelection();
 
 	bool bSaved;
-	if ( sNewFilename.isEmpty() ) {
+	if ( sNewFileName.isEmpty() ) {
 		bSaved = H2Core::CoreActionController::saveSong();
 	} else {
-		bSaved = H2Core::CoreActionController::saveSongAs( sNewFilename );
+		bSaved = H2Core::CoreActionController::saveSongAs( sNewFileName );
 	}
 	
 	if( ! bSaved ) {
@@ -889,7 +889,7 @@ bool MainForm::action_file_save( const QString& sNewFilename,
 
 	if ( bTriggerMessage ) {
 		h2app->showStatusBarMessage( tr("Song saved into") + QString(": ") +
-									 sFilename );
+									 sFileName );
 	}
 
 	return true;
@@ -1073,9 +1073,9 @@ void MainForm::action_file_openPattern()
 	if ( fd.exec() == QDialog::Accepted ) {
 		pPref->setLastOpenPatternDirectory( fd.directory().absolutePath() );
 
-		for ( const auto& ssFilename : fd.selectedFiles() ) {
+		for ( const auto& ssFileName : fd.selectedFiles() ) {
 
-			auto pNewPattern = Pattern::load( ssFilename );
+			auto pNewPattern = Pattern::load( ssFileName );
 			if ( pNewPattern == nullptr ) {
 				QMessageBox::critical( this, "Hydrogen", HydrogenApp::get_instance()->getCommonStrings()->getPatternLoadError() );
 			} else {
@@ -1131,19 +1131,19 @@ void MainForm::openSongWithDialog( const QString& sWindowTitle, const QString& s
 	fd.setNameFilter( Filesystem::songs_filter_name );
 	fd.setWindowTitle( sWindowTitle );
 
-	QString sFilename;
+	QString sFileName;
 	if ( fd.exec() == QDialog::Accepted ) {
 		if ( ! bIsDemo ) {
 			Preferences::get_instance()->setLastOpenSongDirectory( fd.directory().absolutePath() );
 		}
-		sFilename = fd.selectedFiles().first();
+		sFileName = fd.selectedFiles().first();
 	}
 
-	if ( !sFilename.isEmpty() ) {
-		HydrogenApp::get_instance()->openFile( Filesystem::Type::Song, sFilename );
+	if ( !sFileName.isEmpty() ) {
+		HydrogenApp::get_instance()->openFile( Filesystem::Type::Song, sFileName );
 		if ( bIsDemo &&
 			 ! pHydrogen->isUnderSessionManagement() ) {
-			pHydrogen->getSong()->setFilename( "" );
+			pHydrogen->getSong()->setFileName( "" );
 		}
 	}
 
@@ -1936,10 +1936,10 @@ void MainForm::updateRecentUsedSongList()
 	const QStringList recentUsedSongs =
 		Preferences::get_instance()->getRecentFiles();
 
-	for ( const auto& ssFilename : recentUsedSongs ) {
-		if ( ! ssFilename.isEmpty() ) {
+	for ( const auto& ssFileName : recentUsedSongs ) {
+		if ( ! ssFileName.isEmpty() ) {
 			QAction *pAction = new QAction( this  );
-			pAction->setText( ssFilename );
+			pAction->setText( ssFileName );
 			m_pRecentFilesMenu->addAction( pAction );
 		}
 	}
@@ -2122,22 +2122,22 @@ void MainForm::action_file_export_lilypond()
 	fd.setWindowTitle( tr( "Export LilyPond file" ) );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 
-	QString sFilename;
+	QString sFileName;
 	if ( fd.exec() == QDialog::Accepted ) {
 		pPref->setLastExportLilypondDirectory( fd.directory().absolutePath() );
-		sFilename = fd.selectedFiles().first();
+		sFileName = fd.selectedFiles().first();
 	}
 
-	if ( !sFilename.isEmpty() ) {
-		if ( sFilename.endsWith( ".ly" ) == false ) {
-			sFilename += ".ly";
+	if ( !sFileName.isEmpty() ) {
+		if ( sFileName.endsWith( ".ly" ) == false ) {
+			sFileName += ".ly";
 		}
 
 		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 
 		LilyPond ly;
 		ly.extractData( *pSong );
-		ly.write( sFilename );
+		ly.write( sFileName );
 	}
 }
 
@@ -2260,40 +2260,40 @@ void MainForm::onAutoSaveTimer()
 	auto pPlaylist = pHydrogen->getPlaylist();
 
 	if ( pSong != nullptr && pSong->getIsModified() ) {
-		const QString sOldFilename = pSong->getFilename();
+		const QString sOldFileName = pSong->getFileName();
 
-		const QString sAutoSaveFilename = Filesystem::getAutoSaveFilename(
-			Filesystem::Type::Song, pSong->getFilename() );
-		if ( sAutoSaveFilename != m_sPreviousAutoSaveSongFile ) {
+		const QString sAutoSaveFileName = Filesystem::getAutoSaveFileName(
+			Filesystem::Type::Song, pSong->getFileName() );
+		if ( sAutoSaveFileName != m_sPreviousAutoSaveSongFile ) {
 			if ( ! m_sPreviousAutoSaveSongFile.isEmpty() ) {
 				QFile file( m_sPreviousAutoSaveSongFile );
 				file.remove();
 			}
-			m_sPreviousAutoSaveSongFile = sAutoSaveFilename;
+			m_sPreviousAutoSaveSongFile = sAutoSaveFileName;
 		}
 			
-		pSong->save( sAutoSaveFilename );
+		pSong->save( sAutoSaveFileName );
 
-		pSong->setFilename( sOldFilename );
+		pSong->setFileName( sOldFileName );
 		pSong->setIsModified( true );
 	}
 
 	if ( pPlaylist != nullptr && pPlaylist->getIsModified() ) {
-		const QString sOldFilename = pPlaylist->getFilename();
+		const QString sOldFileName = pPlaylist->getFileName();
 
-		const QString sAutoSaveFilename = Filesystem::getAutoSaveFilename(
-			Filesystem::Type::Playlist, pPlaylist->getFilename() );
-		if ( sAutoSaveFilename != m_sPreviousAutoSavePlaylistFile ) {
+		const QString sAutoSaveFileName = Filesystem::getAutoSaveFileName(
+			Filesystem::Type::Playlist, pPlaylist->getFileName() );
+		if ( sAutoSaveFileName != m_sPreviousAutoSavePlaylistFile ) {
 			if ( ! m_sPreviousAutoSavePlaylistFile.isEmpty() ) {
 				QFile file( m_sPreviousAutoSavePlaylistFile );
 				file.remove();
 			}
-			m_sPreviousAutoSavePlaylistFile = sAutoSaveFilename;
+			m_sPreviousAutoSavePlaylistFile = sAutoSaveFileName;
 		}
 
-		pPlaylist->saveAs( sAutoSaveFilename );
+		pPlaylist->saveAs( sAutoSaveFileName );
 
-		pPlaylist->setFilename( sOldFilename );
+		pPlaylist->setFileName( sOldFileName );
 		pPlaylist->setIsModified( true );
 
 	}
@@ -2319,7 +2319,7 @@ void MainForm::onPlaylistDisplayTimer()
 	}
 
 	if ( pSong->getName() == "Untitled Song" ){
-		songname = pSong->getFilename();
+		songname = pSong->getFileName();
 	} else {
 		songname = pSong->getName();
 	}

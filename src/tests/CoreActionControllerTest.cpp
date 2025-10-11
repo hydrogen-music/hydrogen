@@ -111,9 +111,9 @@ void CoreActionControllerTest::testSessionManagement() {
 	if ( fileProperName.open( QIODevice::ReadWrite ) ) {
 
 		auto pSong = H2Core::Song::getEmptySong();
-		pSong->setFilename( fileProperName.fileName() );
+		pSong->setFileName( fileProperName.fileName() );
 		CPPUNIT_ASSERT( H2Core::CoreActionController::setSong( pSong ) );
-		CPPUNIT_ASSERT( sFileName == pHydrogen->getSong()->getFilename() );
+		CPPUNIT_ASSERT( sFileName == pHydrogen->getSong()->getFileName() );
 	
 		// -----------------------------------------------------------
 		// Test CoreActionController::saveSong()
@@ -129,9 +129,9 @@ void CoreActionControllerTest::testSessionManagement() {
 	std::shared_ptr<H2Core::Song> pSong;
 	sFileName2 = QString( "%1_new.h2song" ).arg( sFileNameImproper );
 	pSong = H2Core::Song::getEmptySong();
-	pSong->setFilename( sFileName2 );
+	pSong->setFileName( sFileName2 );
 	CPPUNIT_ASSERT( H2Core::CoreActionController::setSong( pSong ) );
-	CPPUNIT_ASSERT( sFileName2 == pHydrogen->getSong()->getFilename() );
+	CPPUNIT_ASSERT( sFileName2 == pHydrogen->getSong()->getFileName() );
 
 	// ---------------------------------------------------------------
 	// Test CoreActionController::loadSong() and ::setSong();
@@ -143,14 +143,14 @@ void CoreActionControllerTest::testSessionManagement() {
 	CPPUNIT_ASSERT( ! H2Core::CoreActionController::setSong( pSong ) );
 	
 	// The previous action should have not affected the current song.
-	CPPUNIT_ASSERT( sFileName2 == pHydrogen->getSong()->getFilename() );
+	CPPUNIT_ASSERT( sFileName2 == pHydrogen->getSong()->getFileName() );
 	CPPUNIT_ASSERT( pSong != pHydrogen->getSong() );
 	
 	// Load the first song (which was saved).
 	pSong = H2Core::CoreActionController::loadSong( sFileName );
 	CPPUNIT_ASSERT( pSong != nullptr );
 	CPPUNIT_ASSERT( H2Core::CoreActionController::setSong( pSong ) );
-	CPPUNIT_ASSERT( sFileName == pHydrogen->getSong()->getFilename() );
+	CPPUNIT_ASSERT( sFileName == pHydrogen->getSong()->getFileName() );
 	CPPUNIT_ASSERT( pSong == pHydrogen->getSong() );
 
 	// Attempt to load the second song. This will fail since it should not be
@@ -169,10 +169,10 @@ void CoreActionControllerTest::testSessionManagement() {
 	// Check if everything worked out.
 	pSong = H2Core::CoreActionController::loadSong( sFileName );
 	CPPUNIT_ASSERT( H2Core::CoreActionController::setSong( pSong ) );
-	CPPUNIT_ASSERT( sFileName == pHydrogen->getSong()->getFilename() );
+	CPPUNIT_ASSERT( sFileName == pHydrogen->getSong()->getFileName() );
 	pSong = H2Core::CoreActionController::loadSong( sFileName2 );
 	CPPUNIT_ASSERT( H2Core::CoreActionController::setSong( pSong ) );
-	CPPUNIT_ASSERT( sFileName2 == pHydrogen->getSong()->getFilename() );
+	CPPUNIT_ASSERT( sFileName2 == pHydrogen->getSong()->getFileName() );
 
 	// ---------------------------------------------------------------
 	

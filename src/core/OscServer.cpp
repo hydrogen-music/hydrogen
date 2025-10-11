@@ -782,7 +782,7 @@ void OscServer::NEW_SONG_Handler(lo_arg **argv, int argc) {
 	}
 
 	auto pSong = H2Core::Song::getEmptySong();
-	pSong->setFilename( sPath );
+	pSong->setFileName( sPath );
 	H2Core::CoreActionController::setSong( pSong );
 }
 
@@ -1088,7 +1088,7 @@ void OscServer::PLAYLIST_ADD_CURRENT_SONG_Handler(lo_arg **argv, int argc) {
 		return;
 	}
 	auto pEntry = std::make_shared<H2Core::PlaylistEntry>();
-	pEntry->setSongPath( pSong->getFilename() );
+	pEntry->setSongPath( pSong->getFileName() );
 	// Append at the end
 	H2Core::CoreActionController::addToPlaylist( pEntry, -1 );
 }

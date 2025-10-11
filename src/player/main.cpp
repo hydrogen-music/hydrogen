@@ -76,7 +76,7 @@ int main(int argc, char** argv){
 	}
 	cout << "Hydrogen player starting..." << endl << endl;
 
-	QString filename = argv[1];
+	const QString sFileName = argv[1];
 
 	H2Core::Preferences::create_instance();
 	H2Core::Hydrogen::create_instance( -1 );
@@ -91,7 +91,7 @@ int main(int argc, char** argv){
 	// it is replaced while Hydrogen is running.
 	pPref = nullptr;
 
-	std::shared_ptr<H2Core::Song>pSong = H2Core::Song::load( filename );
+	std::shared_ptr<H2Core::Song>pSong = H2Core::Song::load( sFileName );
 	if (pSong == nullptr) {
 		cout << "Error loading song!" << endl;
 		exit(2);

@@ -167,7 +167,7 @@ class SMFWriter : public H2Core::Object<SMFWriter>
 public:
 	SMFWriter( SMFHeader::Format format, bool bOmitCopyright = false );
 	virtual ~SMFWriter();
-	void save( const QString& sFilename, std::shared_ptr<Song> pSong,
+	void save( const QString& sFileName, std::shared_ptr<Song> pSong,
 			   bool bUseHumanization );
 		const std::vector<SMFTimeSignatureFailure>& getTimeSignatureFailures() const;
 
@@ -188,7 +188,7 @@ protected:
 		bool m_bOmitCopyright;
 	
 private:
-	void saveSMF( const QString& sFilename, std::shared_ptr<SMF> pSmf );
+	void saveSMF( const QString& sFileName, std::shared_ptr<SMF> pSmf );
 };
 
 inline const std::vector<SMFTimeSignatureFailure>& SMFWriter::getTimeSignatureFailures() const {

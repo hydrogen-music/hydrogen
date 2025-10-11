@@ -228,23 +228,23 @@ void Hydrogen::mutePlaybackTrack( const bool bMuted )
 	EventQueue::get_instance()->pushEvent( Event::Type::PlaybackTrackChanged, 0 );
 }
 
-void Hydrogen::loadPlaybackTrack( const QString& sFilename )
+void Hydrogen::loadPlaybackTrack( const QString& sFileName )
 {
 	if ( m_pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return;
 	}
 
-	if ( ! sFilename.isEmpty() &&
-		 ! Filesystem::file_exists( sFilename, true ) || sFilename.isEmpty() ) {
+	if ( ! sFileName.isEmpty() &&
+		 ! Filesystem::file_exists( sFileName, true ) || sFileName.isEmpty() ) {
 		ERRORLOG( QString( "Invalid playback track filename [%1]. File does not exist or is empty." )
-				  .arg( sFilename ) );
-		m_pSong->setPlaybackTrackFilename( "" );
+				  .arg( sFileName ) );
+		m_pSong->setPlaybackTrackFileName( "" );
 		INFOLOG( "Disabling playback track" );
 		m_pSong->setPlaybackTrackEnabled( false );
 	}
 	else {
-		m_pSong->setPlaybackTrackFilename( sFilename );
+		m_pSong->setPlaybackTrackFileName( sFileName );
 		m_pSong->setPlaybackTrackEnabled( true );
 	}
 
@@ -272,13 +272,13 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 	if ( pCurrentSong != nullptr ) {
 		if ( isUnderSessionManagement() ) {
 #ifdef H2CORE_HAVE_OSC
-			if ( pCurrentSong->getFilename().contains(
+			if ( pCurrentSong->getFileName().contains(
 					 NsmClient::get_instance()->getSessionFolderPath() ) ) {
 				// When under session management Hydrogen is only allowed to
 				// replace the content of the session song but not to write to a
 				// different location.
 				if ( pSong != nullptr ) {
-					pSong->setFilename( pCurrentSong->getFilename() );
+					pSong->setFileName( pCurrentSong->getFileName() );
 				}
 			}
 #endif
@@ -677,7 +677,7 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth,
 }
 
 /// Export a song to a wav file
-void Hydrogen::startExportSong( const QString& filename)
+void Hydrogen::startExportSong( const QString& sFileName)
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	CoreActionController::locateToTick( 0 );
@@ -685,7 +685,7 @@ void Hydrogen::startExportSong( const QString& filename)
 	pAudioEngine->getSampler()->stopPlayingNotes();
 
 	DiskWriterDriver* pDiskWriterDriver = static_cast<DiskWriterDriver*>(pAudioEngine->getAudioDriver());
-	pDiskWriterDriver->setFileName( filename );
+	pDiskWriterDriver->setFileName( sFileName );
 	pDiskWriterDriver->write();
 }
 

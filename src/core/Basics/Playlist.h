@@ -110,10 +110,10 @@ class Playlist : public H2Core::Object<Playlist>
 
 		int		getActiveSongNumber() const;
 
-		QString	getSongFilenameByNumber( int nSongNumber ) const;
+		QString	getSongFileNameByNumber( int nSongNumber ) const;
 
-		const QString& getFilename() const;
-		void setFilename( const QString& filename );
+		const QString& getFileName() const;
+		void setFileName( const QString& sFileName );
 		bool getIsModified() const;
 		void setIsModified( bool IsModified );
 
@@ -139,7 +139,7 @@ class Playlist : public H2Core::Object<Playlist>
 
 		void setActiveSongNumber( int ActiveSongNumber );
 
-		QString m_sFilename;
+		QString m_sFileName;
 		std::vector<std::shared_ptr<PlaylistEntry>> m_entries;
 		int m_nActiveSongNumber;
 		bool m_bIsModified;
@@ -182,14 +182,14 @@ inline void Playlist::setActiveSongNumber( int ActiveSongNumber )
 	m_nActiveSongNumber = ActiveSongNumber ;
 }
 
-inline const QString& Playlist::getFilename() const
+inline const QString& Playlist::getFileName() const
 {
-	return m_sFilename;
+	return m_sFileName;
 }
 
-inline void Playlist::setFilename( const QString& filename )
+inline void Playlist::setFileName( const QString& sFileName )
 {
-	m_sFilename = filename;
+	m_sFileName = sFileName;
 }
 
 inline bool Playlist::getIsModified() const

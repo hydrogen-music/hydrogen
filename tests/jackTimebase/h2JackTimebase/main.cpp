@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
 		parser.process( *pApp );
 
 		// Deal with the options
-		const QString sSongFilename = parser.value( songFileOption );
+		const QString sSongFileName = parser.value( songFileOption );
 		const QString sVerbosityString = parser.value( verboseOption );
 		const QString sLogFile = parser.value( logFileOption );
 		const QString sConfigFilePath = parser.value( configFileOption );
@@ -273,8 +273,8 @@ int main(int argc, char *argv[])
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
 		std::shared_ptr<Song> pSong = nullptr;
 
-		if ( ! sSongFilename.isEmpty() ) {
-			pSong = Song::load( sSongFilename );
+		if ( ! sSongFileName.isEmpty() ) {
+			pSong = Song::load( sSongFileName );
 		}
 
 		/* Still not loaded */

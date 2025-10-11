@@ -427,18 +427,18 @@ public:
 	const QString&	getPreferredLanguage() const;
 	void			setPreferredLanguage( const QString& sLanguage );
 
-	bool			getUseRelativeFilenamesForPlaylists() const;
-	void			setUseRelativeFilenamesForPlaylists( bool value );
+	bool			getUseRelativeFileNamesForPlaylists() const;
+	void			setUseRelativeFileNamesForPlaylists( bool value );
 
 	bool			getShowDevelWarning() const;
 	void			setShowDevelWarning( bool value );
 	bool			getShowNoteOverwriteWarning() const;
 	void			setShowNoteOverwriteWarning( bool bValue );
 
-	const QString&	getLastSongFilename() const;
-	void			setLastSongFilename( const QString& filename );
-	const QString&	getLastPlaylistFilename() const;
-	void			setLastPlaylistFilename( const QString& filename );
+	const QString&	getLastSongFileName() const;
+	void			setLastSongFileName( const QString& sFileName );
+	const QString&	getLastPlaylistFileName() const;
+	void			setLastPlaylistFileName( const QString& sFileName );
 
 	bool			getHearNewNotes() const;
 	void			setHearNewNotes( bool value );
@@ -644,15 +644,15 @@ private:
 
 	QString				m_sPreferredLanguage;
 
-	bool				m_bUseRelativeFilenamesForPlaylists;
+	bool				m_bUseRelativeFileNamesForPlaylists;
 	
 	///< Show development version warning?
 	bool				m_bShowDevelWarning;
 	bool				m_bShowNoteOverwriteWarning;
 
 	///< Last song used
-	QString				m_sLastSongFilename;
-	QString				m_sLastPlaylistFilename;
+	QString				m_sLastSongFileName;
+	QString				m_sLastPlaylistFileName;
 
 	bool				m_bHearNewNotes;
 	int					m_nPunchInPos;
@@ -958,8 +958,8 @@ inline void Preferences::setPreferredLanguage( const QString& sLanguage ) {
 	m_sPreferredLanguage = sLanguage;
 }
 
-inline void Preferences::setUseRelativeFilenamesForPlaylists( bool value ) {
-	m_bUseRelativeFilenamesForPlaylists = value;
+inline void Preferences::setUseRelativeFileNamesForPlaylists( bool value ) {
+	m_bUseRelativeFileNamesForPlaylists = value;
 }
 
 inline void Preferences::setShowDevelWarning( bool value ) {
@@ -986,22 +986,22 @@ inline bool Preferences::getHideKeyboardCursor() const {
 	return m_bHideKeyboardCursor;
 }
 
-inline bool Preferences::getUseRelativeFilenamesForPlaylists() const {
-	return m_bUseRelativeFilenamesForPlaylists;
+inline bool Preferences::getUseRelativeFileNamesForPlaylists() const {
+	return m_bUseRelativeFileNamesForPlaylists;
 }
 
-inline void Preferences::setLastSongFilename( const QString& filename ) {
-	m_sLastSongFilename = filename;
+inline void Preferences::setLastSongFileName( const QString& sFileName ) {
+	m_sLastSongFileName = sFileName;
 }
-inline const QString& Preferences::getLastSongFilename() const {
-	return m_sLastSongFilename;
+inline const QString& Preferences::getLastSongFileName() const {
+	return m_sLastSongFileName;
 }
 
-inline void Preferences::setLastPlaylistFilename( const QString& filename ) {
-	m_sLastPlaylistFilename = filename;
+inline void Preferences::setLastPlaylistFileName( const QString& sFileName ) {
+	m_sLastPlaylistFileName = sFileName;
 }
-inline const QString& Preferences::getLastPlaylistFilename() const {
-	return m_sLastPlaylistFilename;
+inline const QString& Preferences::getLastPlaylistFileName() const {
+	return m_sLastPlaylistFileName;
 }
 
 inline void Preferences::setHearNewNotes( bool value ) {

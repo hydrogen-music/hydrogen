@@ -72,11 +72,11 @@ private:
 	bool		checkUseOfRubberband();
 
 	bool		instrumentHasNotes( int nInstrumentId );
-	QString		findUniqueExportFilenameForInstrument( std::shared_ptr<H2Core::Instrument> pInstrument );
+	QString		findUniqueExportFileNameForInstrument( std::shared_ptr<H2Core::Instrument> pInstrument );
 
 	void		exportTracks();
 	bool 		validateUserInput();
-	QString		createDefaultFilename();
+	QString		createDefaultFileName();
 
 	void		closeExport();
 	
@@ -91,7 +91,7 @@ private:
 	bool					m_bQfileDialog;
 
 		std::map<int, H2Core::Filesystem::AudioFormat> m_formatMap;
-	static QString 			sLastFilename;
+	static QString 			sLastFileName;
 };
 
 

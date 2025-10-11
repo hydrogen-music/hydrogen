@@ -54,13 +54,13 @@ class ExportMidiDialog :  public QDialog, public Ui_ExportMidiDialog_UI,  public
 	
 	private:
 		void 		exportTrack();
-		QString	 	createDefaultFilename();
+		QString	 	createDefaultFileName();
 		bool	 	validateUserInput();
 		
 		bool 					m_bFileSelected;
 		QString 				m_sExtension;
 		
-		static QString 			sLastFilename;
+		static QString 			sLastFileName;
 };
 
 

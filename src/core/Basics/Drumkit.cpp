@@ -469,7 +469,7 @@ bool Drumkit::saveSamples( const QString& sDrumkitFolder, bool bSilent ) const
 					auto pLayer = pComponent->getLayer( n );
 					if ( pLayer != nullptr && pLayer->getSample() != nullptr ) {
 						QString src = pLayer->getSample()->getFilepath();
-						QString dst = sDrumkitFolder + "/" + pLayer->getSample()->getFilename();
+						QString dst = sDrumkitFolder + "/" + pLayer->getSample()->getFileName();
 
 						if ( src != dst ) {
 							QString original_dst = dst;
@@ -480,7 +480,7 @@ bool Drumkit::saveSamples( const QString& sDrumkitFolder, bool bSilent ) const
 								insertPosition = original_dst.lastIndexOf(".");
 							}
 
-							pLayer->getSample()->setFilename( dst );
+							pLayer->getSample()->setFileName( dst );
 
 							if( ! Filesystem::file_copy( src, dst, bSilent ) ) {
 								return false;
@@ -986,7 +986,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
 						for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
 							const auto pLayer = pComponent->getLayer( n );
 							if ( pLayer != nullptr && pLayer->getSample() != nullptr ) {
-								if ( pLayer->getSample()->getFilename().compare( ssFile ) == 0 ) {
+								if ( pLayer->getSample()->getFileName().compare( ssFile ) == 0 ) {
 									filesUsed << sourceDir.filePath( ssFile );
 									bSampleFound = true;
 									break;
@@ -1087,22 +1087,22 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
 		return false;
 	}
 
-	for ( const auto& sFilename : filesUsed ) {
-		QFileInfo ffileInfo( sFilename );
-		QString sTargetFilename = sDrumkitName + "/" + ffileInfo.fileName();
+	for ( const auto& sFileName : filesUsed ) {
+		QFileInfo ffileInfo( sFileName );
+		QString sTargetFileName = sDrumkitName + "/" + ffileInfo.fileName();
 
 		// Small sanity check since the libarchive code won't fail
 		// gracefully but segfaults if the provided file does not
 		// exist.
-		if ( ! Filesystem::file_readable( sFilename, true ) ) {
+		if ( ! Filesystem::file_readable( sFileName, true ) ) {
 			ERRORLOG( QString( "Unable to export drumkit. File [%1] does not exists or is not readable." )
-					  .arg( sFilename ) );
+					  .arg( sFileName ) );
 			setName( sOldDrumkitName );
 			return false;
 		}
 
-		const auto sFilenameUtf8 = sFilename.toUtf8();
-		stat( sFilenameUtf8.constData(), &st );
+		const auto sFileNameUtf8 = sFileName.toUtf8();
+		stat( sFileNameUtf8.constData(), &st );
 		entry = archive_entry_new();
 		if ( entry == nullptr ) {
 			ERRORLOG( "Unable to create new archive entry" );
@@ -1110,16 +1110,16 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
 			return false;
 		}
 
-		const auto sTargetFilenameUtf8 = sTargetFilename.toUtf8();
+		const auto sTargetFileNameUtf8 = sTargetFileName.toUtf8();
 #if defined(WIN32) and ARCHIVE_VERSION_NUMBER >= 3005000
 		if ( bUseUtf8Encoding ) {
 			archive_entry_set_pathname_utf8(
-				entry, sTargetFilenameUtf8.constData());
+				entry, sTargetFileNameUtf8.constData());
 		} else {
 #else
 		{
 #endif
-			archive_entry_set_pathname(entry, sTargetFilenameUtf8.constData());
+			archive_entry_set_pathname(entry, sTargetFileNameUtf8.constData());
 		}
 		archive_entry_set_size(entry, st.st_size);
 		archive_entry_set_filetype(entry, AE_IFREG);
@@ -1127,16 +1127,16 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
 		nRet = archive_write_header(a, entry);
 		if ( nRet != ARCHIVE_OK ) {
 			ERRORLOG( QString("Couldn't write entry for [%1] to archive header: %2" )
-					  .arg( sFilename )
+					  .arg( sFileName )
 					  .arg( archive_error_string( a ) ) );
 			setName( sOldDrumkitName );
 			return false;
 		}
 
-		QFile file( sFilename );
+		QFile file( sFileName );
 		if ( ! file.open( QIODevice::ReadOnly ) ) {
 			ERRORLOG( QString( "Unable to open file [%1] for reading" )
-				  .arg( sFilename ) );
+				  .arg( sFileName ) );
 			archive_entry_free( entry );
 			continue;
 		}
@@ -1147,12 +1147,12 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
 			nRet = archive_write_data( a, buff, nBytesRead );
 			if ( nRet < 0 ) {
 				ERRORLOG( QString( "Error while writing data to entry of [%1]: %2" )
-						  .arg( sFilename ).arg( archive_error_string( a ) ) );
+						  .arg( sFileName ).arg( archive_error_string( a ) ) );
 				break;
 			}
 			else if ( nRet != nBytesRead ) {
 				WARNINGLOG( QString( "Only [%1/%2] bytes written to archive entry of [%3]" )
-							.arg( nRet ).arg( nBytesRead ).arg( sFilename ) );
+							.arg( nRet ).arg( nBytesRead ).arg( sFileName ) );
 			}
 
 			nBytesRead = stream.readRawData( buff, nBufferSize );

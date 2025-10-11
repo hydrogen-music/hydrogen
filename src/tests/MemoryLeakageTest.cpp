@@ -389,7 +389,7 @@ void MemoryLeakageTest::testLoading() {
 	}
 
 	{
-		pHydrogen->getSong()->setPlaybackTrackFilename( H2TEST_FILE( "drumkits/baseKit/kick.wav" ) );
+		pHydrogen->getSong()->setPlaybackTrackFileName( H2TEST_FILE( "drumkits/baseKit/kick.wav" ) );
 		auto pSampler = new H2Core::Sampler();
 		pSampler->reinitializePlaybackTrack();
 		delete pSampler;

@@ -62,7 +62,7 @@ void* diskWriterDriver_thread( void* param )
 	
 	___INFOLOG( "DiskWriterDriver thread started" );
 
-	const auto format = Filesystem::AudioFormatFromSuffix( pDriver->m_sFilename );
+	const auto format = Filesystem::AudioFormatFromSuffix( pDriver->m_sFileName );
 
 	SF_INFO soundInfo;
 	soundInfo.samplerate = pDriver->m_nSampleRate;
@@ -118,7 +118,7 @@ void* diskWriterDriver_thread( void* param )
 #endif
 	else {
 		___ERRORLOG( QString( "Unsupported file extension [%1] using libsndfile [%2]" )
-					.arg( pDriver->m_sFilename ).arg( sf_version_string() ) );
+					.arg( pDriver->m_sFileName ).arg( sf_version_string() ) );
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
 		EventQueue::get_instance()->pushEvent( Event::Type::Progress, 100 );
@@ -173,22 +173,22 @@ void* diskWriterDriver_thread( void* param )
 	// characters of the filename entered in the GUI right. No matter which
 	// encoding was used locally.
 	// We have to terminate the string using a null character ourselves.
-	QString sPaddedPath = pDriver->m_sFilename.append( '\0' );
-	wchar_t* encodedFilename = new wchar_t[ sPaddedPath.size() ];
+	QString sPaddedPath = pDriver->m_sFileName.append( '\0' );
+	wchar_t* encodedFileName = new wchar_t[ sPaddedPath.size() ];
 
-	sPaddedPath.toWCharArray( encodedFilename );
+	sPaddedPath.toWCharArray( encodedFileName );
 	
-	SNDFILE* pSndfile = sf_wchar_open( encodedFilename, SFM_WRITE,
+	SNDFILE* pSndfile = sf_wchar_open( encodedFileName, SFM_WRITE,
 								   &soundInfo );
-	delete encodedFilename;
+	delete encodedFileName;
 #else
-	SNDFILE* pSndfile = sf_open( pDriver->m_sFilename.toLocal8Bit(), SFM_WRITE,
+	SNDFILE* pSndfile = sf_open( pDriver->m_sFileName.toLocal8Bit(), SFM_WRITE,
 							   &soundInfo );
 #endif
 
 	if ( pSndfile == nullptr ) {
 		___ERRORLOG( QString( "Unable to open file [%1] with format [%2] using libsndfile [%3]: %4" )
-					.arg( pDriver->m_sFilename )
+					.arg( pDriver->m_sFileName )
 					.arg( Sample::sndfileFormatToQString( soundInfo.format ) )
 					.arg( sf_version_string() )
 					.arg( sf_strerror( pSndfile ) ) );
@@ -507,8 +507,8 @@ QString DiskWriterDriver::toQString( const QString& sPrefix, bool bShort ) const
 		sOutput = QString( "%1[DiskWriterDriver]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_nSampleRate: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nSampleRate ) )
-			.append( QString( "%1%2m_sFilename: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_sFilename ) )
+			.append( QString( "%1%2m_sFileName: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sFileName ) )
 			.append( QString( "%1%2m_nBufferSize: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nBufferSize ) )
 			.append( QString( "%1%2m_nSampleDepth: %3\n" ).arg( sPrefix ).arg( s )
@@ -524,7 +524,7 @@ QString DiskWriterDriver::toQString( const QString& sPrefix, bool bShort ) const
 	} else {
 		sOutput = QString( "[DiskWriterDriver]" )
 			.append( QString( " m_nSampleRate: %1" ).arg( m_nSampleRate ) )
-			.append( QString( ", m_sFilename: %1" ).arg( m_sFilename ) )
+			.append( QString( ", m_sFileName: %1" ).arg( m_sFileName ) )
 			.append( QString( ", m_nBufferSize: %1" ).arg( m_nBufferSize ) )
 			.append( QString( ", m_nSampleDepth: %1" ).arg( m_nSampleDepth ) )
 			.append( QString( ", m_bIsRunning: %1" ).arg( m_bIsRunning ) )

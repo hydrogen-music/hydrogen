@@ -456,14 +456,14 @@ std::shared_ptr<SMFTrack> SMFWriter::createTrack0( std::shared_ptr<Song> pSong )
 	return pTrack0;
 }
 
-void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong,
+void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 					  bool bUseHumanization ) {
 	if ( pSong == nullptr || pSong->getTimeline() == nullptr ||
 		 pSong->getDrumkit() == nullptr ) {
 		return;
 	}
 
-	INFOLOG( QString( "Export MIDI to [%1]" ).arg( sFilename ) );
+	INFOLOG( QString( "Export MIDI to [%1]" ).arg( sFileName ) );
 
 	// here writers must prepare to receive pattern events
 	prepareEvents( pSong );
@@ -659,20 +659,20 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong,
 	auto pSmf = std::make_shared<SMF>( m_format );
 	packEvents( pSong, pSmf );
 
-	saveSMF( sFilename, pSmf );
+	saveSMF( sFileName, pSmf );
 }
 
-void SMFWriter::saveSMF( const QString& sFilename, std::shared_ptr<SMF> pSmf ) {
+void SMFWriter::saveSMF( const QString& sFileName, std::shared_ptr<SMF> pSmf ) {
 	if ( pSmf == nullptr ) {
 		ERRORLOG( "Invalid SMF" );
 		return;
 	}
 
 	// save the midi file
-	QFile file( sFilename );
+	QFile file( sFileName );
 	if ( ! file.open( QIODevice::WriteOnly ) ) {
 		ERRORLOG( QString( "Unable to open file [%1] for writing" )
-				  .arg( sFilename ) );
+				  .arg( sFileName ) );
 		return;
 	}
 

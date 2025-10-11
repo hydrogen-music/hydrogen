@@ -140,7 +140,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 			if ( pLayer != nullptr && nLayers > 0 ) {
 				auto pSample = pLayer->getSample();
 				if ( pSample != nullptr ) {
-					label = pSample->getFilename();
+					label = pSample->getFileName();
 				}
 				else {
 					label = tr( "missing sample" );

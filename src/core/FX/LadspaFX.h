@@ -47,7 +47,7 @@ public:
 	LadspaFXInfo( const QString& sName );
 	~LadspaFXInfo();
 
-	QString m_sFilename;	///< plugin filename
+	QString m_sFileName;	///< plugin filename
 	QString m_sID;
 	QString m_sLabel;
 	QString m_sName;

@@ -160,7 +160,7 @@ namespace H2Core
 		 *
 		 * Empty songs are handled in Hydrogen as follows: Upon
 		 * creation, the empty song will be assigned a
-		 * Song::m_sFilename identical to the return value of this
+		 * Song::m_sFileName identical to the return value of this
 		 * function. This triggers autosave files to be generated
 		 * corresponding to empty song path. If the user attempts to
 		 * save the song from within the GUI, she will be prompted a
@@ -460,7 +460,7 @@ namespace H2Core
 		/**
 		 * Convert a direct to an absolute path.
 		 */
-		static QString absolute_path( const QString& sFilename, bool bSilent = false );
+		static QString absolute_path( const QString& sFileName, bool bSilent = false );
 		/**
 		 * writes to a file
 		 * \param dst the destination path
@@ -536,7 +536,7 @@ namespace H2Core
 			static QString removeUniquePrefix( const QString& sUniqueFilePath,
 											   bool bSilent = false );
 
-			static QString getAutoSaveFilename( const Type& type, const QString& sBaseName );
+			static QString getAutoSaveFileName( const Type& type, const QString& sBaseName );
 			/** Removes all characters not within the Latin-1 range of @a
 			 * sEncodedString. */
 			static QString removeUtf8Characters( const QString& sEncodedString );

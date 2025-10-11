@@ -1429,7 +1429,7 @@ QRect SongEditor::getKeyboardCursorRect() {
 				  QSize( m_nGridWidth, m_nGridHeight -1 ) );
 }
 
-void SongEditor::clearThePatternSequenceVector( const QString& filename )
+void SongEditor::clearThePatternSequenceVector( const QString& sFileName )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
@@ -1441,7 +1441,7 @@ void SongEditor::clearThePatternSequenceVector( const QString& filename )
 	pAudioEngine->lock( RIGHT_HERE );
 
 	//before deleting the sequence, write a temp sequence file to disk
-	pSong->saveTempPatternList( filename );
+	pSong->saveTempPatternList( sFileName );
 
 	auto pPatternGroupsVect = pSong->getPatternGroupVector();
 	for (int i = 0; i < pPatternGroupsVect->size(); i++) {

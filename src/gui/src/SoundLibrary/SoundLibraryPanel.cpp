@@ -772,10 +772,10 @@ void SoundLibraryPanel::editDrumkitProperties( bool bDuplicate ) {
 
 void SoundLibraryPanel::on_songLoadAction()
 {
-	const QString sFilename = Filesystem::song_path(
+	const QString sFileName = Filesystem::song_path(
 		__sound_library_tree->currentItem()->text( 0 ) );
 
-	HydrogenApp::openFile( Filesystem::Type::Song, sFilename );
+	HydrogenApp::openFile( Filesystem::Type::Song, sFileName );
 }
 
 

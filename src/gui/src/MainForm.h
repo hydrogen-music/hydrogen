@@ -61,8 +61,8 @@ class MainForm :  public QMainWindow,
 	public:
 		QApplication* m_pQApp;
 
-	MainForm( QApplication * pQApplication, const QString& sSongFilename,
-			  const QString& sPlaylistFilename = "" );
+	MainForm( QApplication * pQApplication, const QString& sSongFileName,
+			  const QString& sPlaylistFileName = "" );
 		~MainForm();
 
 		void updateMenuBar();
@@ -140,15 +140,15 @@ public slots:
 		/**
 		 * Saves the current song to disk.
 		 *
-		 * As Song::m_sFilename is not set by the GUI but by the core, this
-		 * function serves both the "save as" functionality (with sNewFilename
+		 * As Song::m_sFileName is not set by the GUI but by the core, this
+		 * function serves both the "save as" functionality (with sNewFileName
 		 * being non-empty) and the "save" one.
 		 *
 		 * Using @a bTriggerMessage the status message triggered by this method
 		 * can be suppressed (e.g. when the calling routine wants to trigger a
 		 * dedicated message instead).
 		 */
-		bool action_file_save( const QString& sNewFilename,
+		bool action_file_save( const QString& sNewFileName,
 							   bool bTriggerMessage = true );
 	bool action_file_save();
 
@@ -297,7 +297,7 @@ public slots:
 
 		void checkNecessaryDirectories();
 
-		QString getAutoSaveFilename();
+		QString getAutoSaveFileName();
 
 		InfoBar *m_pMidiSetupInfoBar;
 		InfoBar *m_pMissingSamplesInfoBar;

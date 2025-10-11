@@ -55,7 +55,7 @@ using namespace H2Core;
 
 
 SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent,
-							 int nSelectedLayer, const QString& sSampleFilename )
+							 int nSelectedLayer, const QString& sSampleFileName )
 		: QDialog ( pParent )
 		, Object ()
 {
@@ -75,7 +75,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent,
 	setClean();
 	m_nSelectedLayer = nSelectedLayer;
 	m_nSelectedComponent = nSelectedComponent;
-	m_sSampleName = sSampleFilename;
+	m_sSampleName = sSampleFileName;
 	m_fZoomfactor = 1;
 	m_pDetailFrame = 0;
 	m_sLineColor = "default";
@@ -88,18 +88,18 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent,
 	m_fRatio = 1.0f;
 	__rubberband.c_settings = 4;
 
-	QString newfilename = sSampleFilename.section( '/', -1 );
+	const QString sNewFileName = sSampleFileName.section( '/', -1 );
 
 	//init Displays
 	m_pMainSampleWaveDisplay = new MainSampleWaveDisplay( mainSampleview );
 	m_pSampleAdjustView = new DetailWaveDisplay( mainSampleAdjustView );
 	m_pTargetSampleView = new TargetWaveDisplay( targetSampleView );
 
-	setWindowTitle ( QString( tr( "SampleEditor " ) + newfilename) );
-	setModal ( true );
+	setWindowTitle( QString( tr( "SampleEditor " ) + sNewFileName ) );
+	setModal( true );
 
 	//this new sample give us the not changed real samplelength
-	m_pSampleFromFile = Sample::load( sSampleFilename );
+	m_pSampleFromFile = Sample::load( sSampleFileName );
 	if ( m_pSampleFromFile == nullptr ) {
 		reject();
 	}

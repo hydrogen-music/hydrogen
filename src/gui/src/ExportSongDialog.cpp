@@ -85,7 +85,7 @@ static int interpolateModeToComboBoxIndex(Interpolation::InterpolateMode interpo
 }
 
 // Here we are going to store export filename 
-QString ExportSongDialog::sLastFilename = "";
+QString ExportSongDialog::sLastFileName = "";
 
 ExportSongDialog::ExportSongDialog(QWidget* parent)
 	: QDialog(parent)
@@ -174,23 +174,23 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	}
 
 	// In case the filename used in the last session is invalid, we discard it.
-	if ( ! sLastFilename.isEmpty() ) {
-		QFileInfo info( sLastFilename );
+	if ( ! sLastFileName.isEmpty() ) {
+		QFileInfo info( sLastFileName );
 		if ( info.suffix().isEmpty() ||
 			 Filesystem::AudioFormatFromSuffix( info.suffix() ) ==
 			 Filesystem::AudioFormat::Unknown ) {
-			sLastFilename = "";
+			sLastFileName = "";
 		}
 	}
 
-	if ( sLastFilename.isEmpty() ) {
-		sLastFilename = createDefaultFilename();
+	if ( sLastFileName.isEmpty() ) {
+		sLastFileName = createDefaultFileName();
 	}
 
 	QDir lastExportDir = QDir( pPref->getLastExportSongDirectory() );
 
 	// joining filepath with dirname
-	const QString sFullPath = lastExportDir.absoluteFilePath( sLastFilename );
+	const QString sFullPath = lastExportDir.absoluteFilePath( sLastFileName );
 	exportNameTxt->setText( sFullPath );
 	exportNameTxt->setAlignment( Qt::AlignLeft );
 
@@ -249,26 +249,26 @@ ExportSongDialog::~ExportSongDialog()
 	}
 }
 
-QString ExportSongDialog::createDefaultFilename()
+QString ExportSongDialog::createDefaultFileName()
 {
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
 		return "";
 	}
-	QString sDefaultFilename = pSong->getFilename();
+	QString sDefaultFileName = pSong->getFileName();
 
 	// If song is not saved then use song name otherwise use the song filename
-	if( sDefaultFilename.isEmpty() ){
-		sDefaultFilename = pSong->getName();
+	if( sDefaultFileName.isEmpty() ){
+		sDefaultFileName = pSong->getName();
 	} else {
 		// extracting filename from full path
-		QFileInfo qDefaultFile( sDefaultFilename ); 
-		sDefaultFilename = qDefaultFile.fileName();
+		QFileInfo qDefaultFile( sDefaultFileName ); 
+		sDefaultFileName = qDefaultFile.fileName();
 	}
 
-	sDefaultFilename.replace( '*', "_" );
-	sDefaultFilename.replace( Filesystem::songs_ext, "" );
-	return QString( "%1.%2" ).arg( sDefaultFilename ).arg( m_sExtension );
+	sDefaultFileName.replace( '*', "_" );
+	sDefaultFileName.replace( Filesystem::songs_ext, "" );
+	return QString( "%1.%2" ).arg( sDefaultFileName ).arg( m_sExtension );
 }
 
 void ExportSongDialog::on_browseBtn_clicked()
@@ -327,32 +327,32 @@ void ExportSongDialog::on_browseBtn_clicked()
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 	fd.setWindowTitle( tr( "Export song" ) );
 
-	const QString sDefaultFilename = exportNameTxt->text();
+	const QString sDefaultFileName = exportNameTxt->text();
 
-	fd.selectFile( sDefaultFilename );
+	fd.selectFile( sDefaultFileName );
 
-	QString sFilename = "";
+	QString sFileName = "";
 	if ( fd.exec() ) {
-		sFilename = fd.selectedFiles().first();
+		sFileName = fd.selectedFiles().first();
 		m_bQfileDialog = true;
 	}
 
-	if ( !sFilename.isEmpty() ) {
+	if ( !sFileName.isEmpty() ) {
 		// this second extension check is mostly important if you leave a dot
-		// without a regular extionsion in a sFilename
-		if( ! sFilename.endsWith( m_sExtension ) ){
-			sFilename.append( QString( ".%1" ).arg( m_sExtension ) );
+		// without a regular extionsion in a sFileName
+		if( ! sFileName.endsWith( m_sExtension ) ){
+			sFileName.append( QString( ".%1" ).arg( m_sExtension ) );
 		}
 
-		exportNameTxt->setText( sFilename );
+		exportNameTxt->setText( sFileName );
 	}
 }
 
 bool ExportSongDialog::validateUserInput() 
 {
     // check if directory exists otherwise error
-	const QString filename = exportNameTxt->text();
-	QFileInfo file( filename );
+	const QString sFileName = exportNameTxt->text();
+	QFileInfo file( sFileName );
 	QDir dir = file.dir();
 	if( !dir.exists() ) {
 		QMessageBox::warning(
@@ -385,8 +385,8 @@ void ExportSongDialog::on_okBtn_clicked()
 	auto pPref = Preferences::get_instance();
 
 	// extracting dirname from export box
-	QString sFilename = exportNameTxt->text();
-	QFileInfo info( sFilename );
+	QString sFileName = exportNameTxt->text();
+	QFileInfo info( sFileName );
 	QDir dir = info.absoluteDir();
 	if ( !dir.exists() ) {
 		// very strange if it happens but better to check for it anyway
@@ -394,7 +394,7 @@ void ExportSongDialog::on_okBtn_clicked()
 	}
 
 	// saving filename for this session
-	sLastFilename = info.fileName();
+	sLastFileName = info.fileName();
 	pPref->setLastExportSongDirectory( dir.absolutePath() );
 	pPref->setExportModeIdx( exportTypeCombo->currentIndex() );
 	pPref->setExportFormat( m_formatMap[ formatCombo->currentIndex() ] );
@@ -541,14 +541,14 @@ void ExportSongDialog::on_okBtn_clicked()
 		exportTypeCombo->currentIndex() == EXPORT_TO_BOTH ){
 		m_bExportTrackouts = false;
 
-		QString filename = exportNameTxt->text();
+		QString sFileName = exportNameTxt->text();
 		if ( fileInfo.exists() == true && m_bQfileDialog == false ) {
 
 			int res;
 			if( exportTypeCombo->currentIndex() == EXPORT_TO_SINGLE_TRACK ){
-				res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), QMessageBox::Yes | QMessageBox::No );
+				res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(sFileName), QMessageBox::Yes | QMessageBox::No );
 			} else {
-				res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll);
+				res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(sFileName), QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll);
 			}
 
 			if (res == QMessageBox::YesToAll ){
@@ -575,7 +575,7 @@ void ExportSongDialog::on_okBtn_clicked()
 								   pCommonStrings->getExportSongFailure() );
 			return;
 		}
-		pHydrogen->startExportSong( filename );
+		pHydrogen->startExportSong( sFileName );
 		return;
 	}
 
@@ -620,7 +620,7 @@ bool ExportSongDialog::instrumentHasNotes( int nInstrumentId )
 	return false;
 }
 
-QString ExportSongDialog::findUniqueExportFilenameForInstrument( std::shared_ptr<Instrument> pInstrument )
+QString ExportSongDialog::findUniqueExportFileNameForInstrument( std::shared_ptr<Instrument> pInstrument )
 {
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
@@ -681,7 +681,7 @@ void ExportSongDialog::exportTracks()
 			sBaseName.chop( sSuffix.size() );
 		}
 
-		const QString sInstrumentName = findUniqueExportFilenameForInstrument(
+		const QString sInstrumentName = findUniqueExportFileNameForInstrument(
 			pInstrumentList->get( m_nInstrument ) );
 		QString sExportName;
 		if ( sBaseName.isEmpty() || sBaseName.endsWith( "/" ) ||
@@ -825,8 +825,8 @@ void ExportSongDialog::formatComboIndexChanged( int nIndex )
 	m_sExtension = Filesystem::AudioFormatToSuffix( format );
 
 	if ( ! exportNameTxt->text().isEmpty() ) {
-		const QString sPreviousFilename = exportNameTxt->text();
-		auto splitty = sPreviousFilename.split(".");
+		const QString sPreviousFileName = exportNameTxt->text();
+		auto splitty = sPreviousFileName.split(".");
 		splitty.removeLast();
 		exportNameTxt->setText( QString( "%1.%2" )
 								.arg( splitty.join( "." ) ).arg( m_sExtension ) );
@@ -835,13 +835,13 @@ void ExportSongDialog::formatComboIndexChanged( int nIndex )
 
 void ExportSongDialog::on_exportNameTxt_textChanged( const QString& )
 {
-	const QString sFilenameLower = exportNameTxt->text().toLower();
-	okBtn->setEnabled( ! sFilenameLower.isEmpty() );
+	const QString sFileNameLower = exportNameTxt->text().toLower();
+	okBtn->setEnabled( ! sFileNameLower.isEmpty() );
 
-	const auto splittedFilename = exportNameTxt->text().split(".");
+	const auto splittedFileName = exportNameTxt->text().split(".");
 
 	const auto format = Filesystem::AudioFormatFromSuffix(
-		splittedFilename.last(), true );
+		splittedFileName.last(), true );
 
 	if ( format == Filesystem::AudioFormat::Unknown ) {
 		WARNINGLOG( QString( "Unknown file format in filename [%1]" )

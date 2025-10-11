@@ -45,7 +45,7 @@ InstrumentLayer::InstrumentLayer( std::shared_ptr<Sample> pSample ) :
 	m_pSample( pSample )
 {
 	if ( pSample != nullptr ) {
-		m_sFallbackSampleFileName = pSample->getFilename();
+		m_sFallbackSampleFileName = pSample->getFileName();
 	}
 }
 
@@ -74,7 +74,7 @@ InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> pOther, std::
 	m_pSample( pSample )
 {
 	if ( pSample != nullptr ) {
-		m_sFallbackSampleFileName = pSample->getFilename();
+		m_sFallbackSampleFileName = pSample->getFileName();
 	}
 }
 
@@ -87,7 +87,7 @@ void InstrumentLayer::setSample( std::shared_ptr<Sample> pSample )
 	m_pSample = pSample;
 
 	if ( pSample != nullptr ) {
-		m_sFallbackSampleFileName = pSample->getFilename();
+		m_sFallbackSampleFileName = pSample->getFileName();
 	}
 }
 
@@ -294,7 +294,7 @@ void InstrumentLayer::saveTo( XMLNode& node, bool bSongKit ) const
 			sFileName = Filesystem::prepare_sample_path( pSample->getFilepath() );
 		}
 		else {
-			sFileName = pSample->getFilename();
+			sFileName = pSample->getFileName();
 		}
 	}
 	else {

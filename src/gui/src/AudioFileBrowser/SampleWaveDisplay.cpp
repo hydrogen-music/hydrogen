@@ -82,14 +82,14 @@ void SampleWaveDisplay::paintEvent(QPaintEvent *ev)
 
 
 
-void SampleWaveDisplay::updateDisplay( const QString& filename )
+void SampleWaveDisplay::updateDisplay( const QString& sFileName )
 {
 
-	auto pNewSample = Sample::load( filename );
+	auto pNewSample = Sample::load( sFileName );
 
 	if ( pNewSample != nullptr ) {
-		// Extract the filename from the complete path
-		QString sName = filename;
+		// Extract the sFileName from the complete path
+		QString sName = sFileName;
 		int nPos = sName.lastIndexOf( "/" );
 
 		if ( sName.endsWith("emptySample.wav")){

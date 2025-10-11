@@ -99,7 +99,7 @@ private:
 
 public:
 	ShotList( const QStringList& shots );
-	ShotList( const QString& sShotsFilename );
+	ShotList( const QString& sShotsFileName );
 	~ShotList();
 
 	void shoot();
@@ -115,7 +115,7 @@ class ShotList : public QObject, public EventListener {
 	Q_OBJECT
 public:
 		ShotList( QStringList shots ){};
-		ShotList( QString sShotsFilename ){};
+		ShotList( QString sShotsFileName ){};
 		~ShotList(){};
 
 		void shoot() {};

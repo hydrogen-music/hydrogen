@@ -123,11 +123,11 @@ Sample::~Sample()
 	}
 }
 
-void Sample::setFilename( const QString& filename )
+void Sample::setFileName( const QString& fileName )
 {
-	QFileInfo Filename = QFileInfo( filename );
+	QFileInfo FileName = QFileInfo( fileName );
 	QFileInfo Dest = QFileInfo( getFilepath() );
-	m_sFilepath = QDir(Dest.absolutePath()).filePath( Filename.fileName() );
+	m_sFilepath = QDir(Dest.absolutePath()).filePath( FileName.fileName() );
 }
 
 std::shared_ptr<Sample> Sample::load( const QString& sFilepath, const License& license )
@@ -163,13 +163,13 @@ bool Sample::load( float fBpm )
 	// We have to terminate the string using a null character ourselves.
 	QString sPath( getFilepath() );
 	const QString sPaddedPath = sPath.append( '\0' );
-	wchar_t* encodedFilename = new wchar_t[ sPaddedPath.size() ];
+	wchar_t* encodedFileName = new wchar_t[ sPaddedPath.size() ];
 
-	sPaddedPath.toWCharArray( encodedFilename );
+	sPaddedPath.toWCharArray( encodedFileName );
 
-	SNDFILE* file = sf_wchar_open( encodedFilename, SFM_READ,
+	SNDFILE* file = sf_wchar_open( encodedFileName, SFM_READ,
 								   &sound_info );
-	delete encodedFilename;
+	delete encodedFileName;
 #else
 	SNDFILE* file = sf_open( getFilepath().toLocal8Bit(), SFM_READ,
 							 &sound_info );
@@ -483,7 +483,7 @@ void Sample::applyRubberband( float fBpm ) {
 	float* out_data_l_tmp;
 	float* out_data_r_tmp;
 
-	DEBUGLOG( QString( "on %1\n\toptions\t\t: %2\n\ttime ratio\t: %3\n\tpitch\t\t: %4" ).arg( getFilename() ).arg( options ).arg( time_ratio ).arg( pitch_scale ) );
+	DEBUGLOG( QString( "on %1\n\toptions\t\t: %2\n\ttime ratio\t: %3\n\tpitch\t\t: %4" ).arg( getFileName() ).arg( options ).arg( time_ratio ).arg( pitch_scale ) );
 
 	float* ibuf[2];
 	int block_size = MAX_BUFFER_SIZE;
@@ -748,13 +748,13 @@ bool Sample::write( const QString& path, int format ) const
 	// encoding was used locally.
 	// We have to terminate the string using a null character ourselves.
 	QString sPaddedPath = QString( path ).append( '\0' );
-	wchar_t* encodedFilename = new wchar_t[ sPaddedPath.size() ];
+	wchar_t* encodedFileName = new wchar_t[ sPaddedPath.size() ];
 
-	sPaddedPath.toWCharArray( encodedFilename );
+	sPaddedPath.toWCharArray( encodedFileName );
 	
-	SNDFILE* sf_file = sf_wchar_open( encodedFilename, SFM_WRITE,
+	SNDFILE* sf_file = sf_wchar_open( encodedFileName, SFM_WRITE,
 								   &sf_info );
-	delete encodedFilename;
+	delete encodedFileName;
 #else
 	const auto sPathLocal8Bit = path.toLocal8Bit();
 	SNDFILE* sf_file = sf_open( sPathLocal8Bit.data(), SFM_WRITE, &sf_info );

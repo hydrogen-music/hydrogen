@@ -94,52 +94,52 @@ private:
 class SE_deletePatternSequenceAction : public QUndoCommand
 {
 public:
-	explicit SE_deletePatternSequenceAction( const QString& pFilename ){
+	explicit SE_deletePatternSequenceAction( const QString& pFileName ){
 		setText( QObject::tr( "Delete complete pattern-sequence" ) );
-		__pFilename = pFilename ;
+		__pFileName = pFileName ;
 	}
 	virtual void undo()
 	{
 		//qDebug() << "Delete complete pattern-sequence  undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->restoreGroupVector( __pFilename );
+		h2app->getSongEditorPanel()->restoreGroupVector( __pFileName );
 	}
 
 	virtual void redo()
 	{
 		//qDebug() << "Delete complete pattern-sequence redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditor()->clearThePatternSequenceVector( __pFilename );
+		h2app->getSongEditorPanel()->getSongEditor()->clearThePatternSequenceVector( __pFileName );
 	}
 private:
-	QString __pFilename;
+	QString __pFileName;
 };
 
 /** \ingroup docGUI*/
 class SE_deletePatternFromListAction : public QUndoCommand
 {
 public:
-	SE_deletePatternFromListAction( const QString& sPatternFilename,
-									const QString& sSequenceFilename,
+	SE_deletePatternFromListAction( const QString& sPatternFileName,
+									const QString& sSequenceFileName,
 									int nPatternPosition ){
 		setText( QObject::tr( "Delete pattern from list" ) );
-		m_sPatternFilename =  sPatternFilename;
-		m_sSequenceFilename = sSequenceFilename;
+		m_sPatternFileName =  sPatternFileName;
+		m_sSequenceFileName = sSequenceFileName;
 		m_nPatternPosition = nPatternPosition;
 	}
 	virtual void undo() {
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		H2Core::CoreActionController::openPattern( m_sPatternFilename,
+		H2Core::CoreActionController::openPattern( m_sPatternFileName,
 																		  m_nPatternPosition );
-		h2app->getSongEditorPanel()->restoreGroupVector( m_sSequenceFilename );
+		h2app->getSongEditorPanel()->restoreGroupVector( m_sSequenceFileName );
 	}
 
 	virtual void redo() {
 		H2Core::CoreActionController::removePattern( m_nPatternPosition );
 	}
 private:
-	QString m_sPatternFilename;
-	QString m_sSequenceFilename;
+	QString m_sPatternFileName;
+	QString m_sSequenceFileName;
 	int m_nPatternPosition;
 };
 
@@ -216,10 +216,10 @@ private:
 class SE_duplicatePatternAction : public QUndoCommand
 {
 public:
-	SE_duplicatePatternAction( const QString& patternFilename, int patternPosition ){
+	SE_duplicatePatternAction( const QString& patternFileName, int patternPosition ){
 		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 		setText( pCommonStrings->getActionDuplicatePattern() );
-		m_sPatternFilename = patternFilename;
+		m_sPatternFileName = patternFileName;
 		m_nPatternPosition = patternPosition;
 	}
 	virtual void undo() {
@@ -227,10 +227,10 @@ public:
 	}
 
 	virtual void redo() {
-		H2Core::CoreActionController::openPattern( m_sPatternFilename, m_nPatternPosition );
+		H2Core::CoreActionController::openPattern( m_sPatternFileName, m_nPatternPosition );
 	}
 private:
-	QString m_sPatternFilename;
+	QString m_sPatternFileName;
 	int m_nPatternPosition;
 };
 
@@ -267,12 +267,12 @@ class SE_loadPatternAction : public QUndoCommand
 public:
 	SE_loadPatternAction( const QString& sPatternName,
 						  const QString& sOldPatternName,
-						  const QString& sSequenceFilename, int nPatternPosition,
+						  const QString& sSequenceFileName, int nPatternPosition,
 						  bool bDragFromList){
 		setText( QObject::tr( "Load/drag pattern" ) );
 		m_sPatternName =  sPatternName;
 		m_sOldPatternName = sOldPatternName;
-		m_sSequenceFilename = sSequenceFilename;
+		m_sSequenceFileName = sSequenceFileName;
 		m_nPatternPosition = nPatternPosition;
 		m_bDragFromList = bDragFromList;
 	}
@@ -284,7 +284,7 @@ public:
 			H2Core::CoreActionController::openPattern( m_sOldPatternName, m_nPatternPosition );
 		}
 		HydrogenApp::get_instance()->getSongEditorPanel()
-			->restoreGroupVector( m_sSequenceFilename );
+			->restoreGroupVector( m_sSequenceFileName );
 	}
 
 	virtual void redo() {
@@ -296,7 +296,7 @@ public:
 private:
 	QString m_sPatternName;
 	QString m_sOldPatternName;
-	QString m_sSequenceFilename;
+	QString m_sSequenceFileName;
 	int m_nPatternPosition;
 	bool m_bDragFromList;
 };

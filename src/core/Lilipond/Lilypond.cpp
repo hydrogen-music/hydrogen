@@ -94,11 +94,11 @@ void H2Core::LilyPond::extractData( const Song &song ) {
 	}
 }
 
-void H2Core::LilyPond::write( const QString &sFilename ) const {
-	QFile file( sFilename );
+void H2Core::LilyPond::write( const QString &sFileName ) const {
+	QFile file( sFileName );
 	if ( ! file.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
 		ERRORLOG( QString( "Unable to open file [%1] for writing" )
-				  .arg( sFilename ) );
+				  .arg( sFileName ) );
 		return;
 	}
 

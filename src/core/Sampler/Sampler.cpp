@@ -83,16 +83,16 @@ Sampler::Sampler()
 
 	m_nMaxLayers = InstrumentComponent::getMaxLayers();
 
-	QString sEmptySampleFilename = Filesystem::empty_sample_path();
+	QString sEmptySampleFileName = Filesystem::empty_sample_path();
 
 	// instrument used in file preview
 	m_pDefaultPreviewInstrument = createInstrument(
-		EMPTY_INSTR_ID, sEmptySampleFilename, 0.8 );
+		EMPTY_INSTR_ID, sEmptySampleFileName, 0.8 );
 	m_pDefaultPreviewInstrument->setIsPreviewInstrument( true );
 	m_pPreviewInstrument = m_pDefaultPreviewInstrument;
 
 	// dummy instrument used for playback track
-	m_pPlaybackTrackInstrument = createInstrument( PLAYBACK_INSTR_ID, sEmptySampleFilename, 0.8 );
+	m_pPlaybackTrackInstrument = createInstrument( PLAYBACK_INSTR_ID, sEmptySampleFileName, 0.8 );
 	m_nPlayBackSamplePosition = 0;
 }
 
@@ -1516,7 +1516,7 @@ void Sampler::reinitializePlaybackTrack()
 	}
 
 	if( pHydrogen->getPlaybackTrackState() != Song::PlaybackTrack::Unavailable ){
-		pSample = Sample::load( pSong->getPlaybackTrackFilename() );
+		pSample = Sample::load( pSong->getPlaybackTrackFileName() );
 	}
 	
 	auto pPlaybackTrackLayer = std::make_shared<InstrumentLayer>( pSample );

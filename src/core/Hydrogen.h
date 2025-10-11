@@ -357,7 +357,7 @@ public:
 	bool			startExportSession( int nSampleRate, int nSampleDepth,
 										double fCompressionLevel = 0.0 );
 	void			stopExportSession();
-	void			startExportSong( const QString& filename );
+	void			startExportSong( const QString& sFileName );
 	void			stopExportSong();
 	
 	/************************************************************/
@@ -373,7 +373,7 @@ public:
 	/**
 	 * Wrapper function for loading the playback track.
 	 */
-	void			loadPlaybackTrack( const QString& sFilename );
+	void			loadPlaybackTrack( const QString& sFileName );
 	/************************************************************/
 
 	/**\return #m_GUIState*/

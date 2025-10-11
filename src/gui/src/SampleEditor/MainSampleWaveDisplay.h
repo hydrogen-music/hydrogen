@@ -48,7 +48,7 @@ class MainSampleWaveDisplay :  public QWidget,  public H2Core::Object<MainSample
 		explicit MainSampleWaveDisplay(QWidget* pParent);
 		~MainSampleWaveDisplay();
 
-		void updateDisplay( const QString& filename );
+		void updateDisplay( const QString& sFileName );
 		void updateDisplayPointer();
 
 		void paintLocatorEvent( int pos, bool last_event);

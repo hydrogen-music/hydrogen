@@ -100,7 +100,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 *    opened.
 		 * \param sRecoverSongPath If set to a value other than "",
 		 *    the corresponding path will be used to load the song and
-		 *    the latter is assigned @a songPath as Song::m_sFilename
+		 *    the latter is assigned @a songPath as Song::m_sFileName
 		 *    afterwards. Using this mechanism the GUI can use an
 		 *    autosave backup file to load a song without the core
 		 *    having to do some string magic to retrieve the original name.
@@ -125,19 +125,19 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 */
 		static bool saveSong();
 		/**
-		 * Saves the current #H2Core::Song to the path provided in @a sNewFilename.
+		 * Saves the current #H2Core::Song to the path provided in @a sNewFileName.
 		 *
 		 * The intended use of this function for session
 		 * management. Therefore, the function will *not* store the
-		 * provided @a sNewFilename in
-		 * #H2Core::Preferences::m_lastSongFilename and Hydrogen won't
+		 * provided @a sNewFileName in
+		 * #H2Core::Preferences::m_lastSongFileName and Hydrogen won't
 		 * resume with the corresponding song on restarting.
 		 *
-		 * \param sNewFilename Absolute path to the file to store the
+		 * \param sNewFileName Absolute path to the file to store the
 		 *   current #H2Core::Song in.
 		 * \return true on success
 		 */
-		static bool saveSongAs( const QString& sNewFilename );
+		static bool saveSongAs( const QString& sNewFileName );
 		/**
 		 * Loads an instance of #H2Core::Preferences from the corresponding XML
 		 * file. */
@@ -518,7 +518,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 *    opened.
 		 * \param sRecoverPath If set to a value other than "",
 		 *    the corresponding path will be used to load the playlist and
-		 *    the latter is assigned @a sPath as Playlist::m_sFilename
+		 *    the latter is assigned @a sPath as Playlist::m_sFileName
 		 *    afterwards. Using this mechanism the GUI can use an
 		 *    autosave backup file to load a playlist without the core
 		 *    having to do some string magic to retrieve the original name.
@@ -580,15 +580,15 @@ private:
 
 
 	/**
-	 * Add @a sFilename to the list of recent songs in
+	 * Add @a sFileName to the list of recent songs in
 	 * Preferences::m_recentFiles.
 	 *
 	 * The function will also take care of removing any duplicates in
-	 * the list in case @a sFilename is already present.
+	 * the list in case @a sFileName is already present.
 	 *
-	 * \param sFilename New song to be added on top of the list.
+	 * \param sFileName New song to be added on top of the list.
 	 */
-	static void insertRecentFile( const QString& sFilename );
+	static void insertRecentFile( const QString& sFileName );
 };
 
 }
