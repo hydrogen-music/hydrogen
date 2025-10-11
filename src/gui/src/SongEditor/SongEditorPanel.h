@@ -78,7 +78,7 @@ class SongEditorPanel : public QWidget,
 		 * temporarily to signal the user her last action was not permitted.
 		 */
 		void highlightPatternEditorLocked();
-		void restoreGroupVector( const QString& filename );
+		void restoreGroupVector( const QString& sFileName );
 
 		/** @returns `true` in case any of the child editors or sidebar has
 		 * focus.*/

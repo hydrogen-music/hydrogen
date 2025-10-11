@@ -148,8 +148,8 @@ bool Parser::parse( int argc, char* argv[] ) {
 	parser.process( *( QCoreApplication::instance() ) );
 
 	m_sAudioDriver = parser.value( audioDriverOption );
-	m_sPlaylistFilename = parser.value( playlistFileNameOption );
-	m_sSongFilename = parser.value ( songFileOption );
+	m_sPlaylistFileName = parser.value( playlistFileNameOption );
+	m_sSongFileName = parser.value ( songFileOption );
 	m_sDrumkitToLoad = parser.value( kitOption );
 
 	m_sInstallDrumkitPath = parser.value( installDrumkitOption );
@@ -211,13 +211,13 @@ bool Parser::parse( int argc, char* argv[] ) {
 	QString sArg;
 	foreach ( sArg, parser.positionalArguments() ) {
 		if ( sArg.endsWith( H2Core::Filesystem::songs_ext ) ) {
-			m_sSongFilename = sArg;
+			m_sSongFileName = sArg;
 		}
 		if ( sArg.endsWith( H2Core::Filesystem::drumkit_ext ) ) {
 			m_sInstallDrumkitPath = sArg;
 		}
 		if ( sArg.endsWith( H2Core::Filesystem::playlist_ext ) ) {
-			m_sPlaylistFilename = sArg;
+			m_sPlaylistFileName = sArg;
 		}
 	}
 

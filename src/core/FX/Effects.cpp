@@ -158,7 +158,7 @@ std::vector< std::shared_ptr<LadspaFXInfo> > Effects::getPluginList()
 				for ( unsigned i = 0; ( d = desc_func ( i ) ) != nullptr; i++ ) {
 					auto pFX = std::make_shared<LadspaFXInfo>(
 						QString::fromLocal8Bit(d->Name) );
-					pFX->m_sFilename = sAbsPath;
+					pFX->m_sFileName = sAbsPath;
 					pFX->m_sLabel = QString::fromLocal8Bit(d->Label);
 					pFX->m_sID = QString::number(d->UniqueID);
 					pFX->m_sMaker = QString::fromLocal8Bit(d->Maker);
@@ -294,17 +294,17 @@ void Effects::getRDF( std::shared_ptr<LadspaFXGroup> pGroup,
 
 	QFileInfoList list = dir.entryInfoList();
 	for ( int i = 0; i < list.size(); ++i ) {
-		QString sFilename = list.at( i ).fileName();
-		int pos = sFilename.indexOf( ".rdf" );
+		QString sFileName = list.at( i ).fileName();
+		int pos = sFileName.indexOf( ".rdf" );
 		if ( pos == -1 ) {
 			continue;
 		}
 
-		QString sRDFFile = QString( "file://%1/%2" ).arg( sDir ).arg( sFilename );
+		QString sRDFFile = QString( "file://%1/%2" ).arg( sDir ).arg( sFileName );
 
 		int err = lrdf_read_file( sRDFFile.toLocal8Bit() );
 		if ( err ) {
-			ERRORLOG( "Error parsing rdf file " + sFilename );
+			ERRORLOG( "Error parsing rdf file " + sFileName );
 		}
 
 		QString sBase = "http://ladspa.org/ontology#Plugin";

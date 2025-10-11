@@ -183,7 +183,7 @@ void WaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer
 	
 	if ( pLayer && pLayer->getSample() ) {
 		m_pLayer = pLayer;
-		m_sSampleName = pLayer->getSample()->getFilename();
+		m_sSampleName = pLayer->getSample()->getFileName();
 
 		//INFOLOG( "[updateDisplay] sample: " + m_sSampleName  );
 

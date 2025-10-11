@@ -342,7 +342,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 				if ( ppFXInfo->m_sName == sSelectedFX ) {
 					int nSampleRate = pAudioDriver->getSampleRate();
 					pFX = LadspaFX::load(
-						ppFXInfo->m_sFilename, ppFXInfo->m_sLabel, nSampleRate );
+						ppFXInfo->m_sFileName, ppFXInfo->m_sLabel, nSampleRate );
 					pFX->setEnabled( true );
 					break;
 				}

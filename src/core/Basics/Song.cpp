@@ -76,7 +76,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_pPatternList( std::make_shared<PatternList>() )
 	, m_pPatternGroupSequence( std::make_shared< std::vector<
 							   std::shared_ptr<PatternList> > >() )
-	, m_sFilename( "" )
+	, m_sFileName( "" )
 	, m_loopMode( LoopMode::Disabled )
 	, m_patternMode( PatternMode::Selected )
 	, m_fHumanizeTimeValue( 0.0 )
@@ -84,7 +84,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_fSwingFactor( 0.0 )
 	, m_bIsModified( false )
 	, m_mode( Mode::Pattern )
-	, m_sPlaybackTrackFilename( "" )
+	, m_sPlaybackTrackFileName( "" )
 	, m_bPlaybackTrackEnabled( false )
 	, m_fPlaybackTrackVolume( 0.5 )
 	, m_pVelocityAutomationPath( nullptr )
@@ -96,6 +96,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_sLastLoadedDrumkitPath( "" )
 	, m_pDrumkit( std::make_shared<Drumkit>() )
 	, m_pTimeline( std::make_shared<Timeline>() )
+	, m_bWasAskedAboutMissingSamples( false )
 {
 	if ( m_sName.isEmpty() ){
 		m_sName = Filesystem::untitled_song_name();
@@ -184,9 +185,9 @@ bool Song::isPatternActive( const GridPoint& gridPoint ) const {
 }
 
 ///Load a song from file
-std::shared_ptr<Song> Song::load( const QString& sFilename, bool bSilent )
+std::shared_ptr<Song> Song::load( const QString& sFileName, bool bSilent )
 {
-	QString sPath = Filesystem::absolute_path( sFilename, bSilent );
+	QString sPath = Filesystem::absolute_path( sFileName, bSilent );
 	if ( sPath.isEmpty() ) {
 		return nullptr;
 	}
@@ -196,9 +197,9 @@ std::shared_ptr<Song> Song::load( const QString& sFilename, bool bSilent )
 	}
 
 	XMLDoc doc;
-	if ( ! doc.read( sFilename ) && ! bSilent ) {
+	if ( ! doc.read( sFileName ) && ! bSilent ) {
 		ERRORLOG( QString( "Something went wrong while loading song [%1]" )
-				  .arg( sFilename ) );
+				  .arg( sFileName ) );
 	}
 
 	XMLNode songNode = doc.firstChildElement( "song" );
@@ -212,21 +213,21 @@ std::shared_ptr<Song> Song::load( const QString& sFilename, bool bSilent )
 		QString sSongVersion = songNode.read_string( "version", "Unknown version", false, false );
 		if ( sSongVersion != QString( get_version().c_str() ) ) {
 			INFOLOG( QString( "Trying to load a song [%1] created with a different version [%2] of hydrogen. Current version: %3" )
-					 .arg( sFilename )
+					 .arg( sFileName )
 					 .arg( sSongVersion )
 					 .arg( get_version().c_str() ) );
 		}
 	}
 
-	auto pSong = Song::loadFrom( songNode, sFilename, bSilent );
+	auto pSong = Song::loadFrom( songNode, sFileName, bSilent );
 	if ( pSong != nullptr ) {
-		pSong->setFilename( sFilename );
+		pSong->setFileName( sFileName );
 	}
 
 	return pSong;
 }
 
-std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sFilename, bool bSilent )
+std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sFileName, bool bSilent )
 {
 	auto pPreferences = Preferences::get_instance();
 	auto pSong = std::make_shared<Song>();
@@ -276,11 +277,11 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		pSong->setMode( Song::Mode::Pattern );
 	}
 
-	const auto sSongPath = Filesystem::absolute_path( sFilename );
+	const auto sSongPath = Filesystem::absolute_path( sFileName );
 
 	QString sPlaybackTrack(
 		rootNode.read_string( "playbackTrackFilename",
-							 pSong->getPlaybackTrackFilename(), false, true,
+							 pSong->getPlaybackTrackFileName(), false, true,
 							 bSilent ) );
 	QFileInfo playbackTrackInfo( sPlaybackTrack );
 	if ( ! sPlaybackTrack.isEmpty() && playbackTrackInfo.isRelative() ) {
@@ -300,7 +301,7 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 				  .arg( sPlaybackTrack ) )
 		sPlaybackTrack = "";
 	}
-	pSong->setPlaybackTrackFilename( sPlaybackTrack );
+	pSong->setPlaybackTrackFileName( sPlaybackTrack );
 	pSong->setPlaybackTrackEnabled(
 		rootNode.read_bool( "playbackTrackEnabled",
 						   pSong->getPlaybackTrackEnabled(),
@@ -548,22 +549,22 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 }
 
 /// Save a song to file
-bool Song::save( const QString& sFilename, bool bSilent )
+bool Song::save( const QString& sFileName, bool bKeepMissingSamples, bool bSilent )
 {
-	QFileInfo fi( sFilename );
-	if ( ( Filesystem::file_exists( sFilename, true ) &&
-		   ! Filesystem::file_writable( sFilename, true ) ) ||
-		 ( ! Filesystem::file_exists( sFilename, true ) &&
+	QFileInfo fi( sFileName );
+	if ( ( Filesystem::file_exists( sFileName, true ) &&
+		   ! Filesystem::file_writable( sFileName, true ) ) ||
+		 ( ! Filesystem::file_exists( sFileName, true ) &&
 		   ! Filesystem::dir_writable( fi.dir().absolutePath(), true ) ) ) {
 		// In case a read-only file is loaded by Hydrogen. Beware:
 		// .isWritable() will return false if the song does not exist.
 		ERRORLOG( QString( "Unable to save song to [%1]. Path is not writable!" )
-				  .arg( sFilename ) );
+				  .arg( sFileName ) );
 		return false;
 	}
 
 	if ( ! bSilent ) {
-		INFOLOG( QString( "Saving song to [%1]" ).arg( sFilename ) );
+		INFOLOG( QString( "Saving song to [%1]" ).arg( sFileName ) );
 	}
 
 	XMLDoc doc;
@@ -575,13 +576,13 @@ bool Song::save( const QString& sFilename, bool bSilent )
 		doc.appendChild( doc.createComment( License::getGPLLicenseNotice( getAuthor() ) ) );
 	}
 
-	saveTo( rootNode, bSilent );
+	saveTo( rootNode, bKeepMissingSamples, bSilent );
 
-	setFilename( sFilename );
+	setFileName( sFileName );
 	setIsModified( false );
 
-	if ( ! doc.write( sFilename ) ) {
-		ERRORLOG( QString( "Error writing song to [%1]" ).arg( sFilename ) );
+	if ( ! doc.write( sFileName ) ) {
+		ERRORLOG( QString( "Error writing song to [%1]" ).arg( sFileName ) );
 		return false;
 	}
 
@@ -737,7 +738,8 @@ void Song::savePatternGroupVectorTo( XMLNode& node, bool bSilent ) const {
 	}
 }
 
-void Song::saveTo( XMLNode& rootNode, bool bSilent ) const {
+void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples,
+				  bool bSilent ) const {
 	rootNode.write_string( "version", QString( get_version().c_str() ) );
 	rootNode.write_int( "formatVersion", nCurrentFormatVersion );
 	rootNode.write_float( "bpm", m_fBpm );
@@ -757,7 +759,7 @@ void Song::saveTo( XMLNode& rootNode, bool bSilent ) const {
 	}
 	rootNode.write_bool( "patternModeMode", bPatternMode );
 
-	rootNode.write_string( "playbackTrackFilename", m_sPlaybackTrackFilename );
+	rootNode.write_string( "playbackTrackFilename", m_sPlaybackTrackFileName );
 	rootNode.write_bool( "playbackTrackEnabled", m_bPlaybackTrackEnabled );
 	rootNode.write_float( "playbackTrackVolume", m_fPlaybackTrackVolume );
 	rootNode.write_int( "action_mode", static_cast<int>( m_actionMode ) );
@@ -822,8 +824,8 @@ void Song::saveTo( XMLNode& rootNode, bool bSilent ) const {
 	// ancient design desicion and we will stick to it.
 	auto drumkitNode = rootNode.createNode( "drumkit_info" );
 	m_pDrumkit->saveTo( drumkitNode,
-						true, // Enable per-instrument sample loading
-						bSilent );
+					   true, // Enable per-instrument sample loading
+					   bKeepMissingSamples, bSilent );
 
 	rootNode.write_string( "lastLoadedDrumkitPath", m_sLastLoadedDrumkitPath );
 
@@ -946,7 +948,7 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 	pPatternGroupVector->push_back( patternSequence );
 	pSong->setPatternGroupVector( pPatternGroupVector );
 
-	pSong->setFilename( Filesystem::empty_path( Filesystem::Type::Song ) );
+	pSong->setFileName( Filesystem::empty_path( Filesystem::Type::Song ) );
 
 	std::shared_ptr<SoundLibraryDatabase> pSoundLibraryDatabase;
 
@@ -1034,17 +1036,10 @@ bool Song::hasMissingSamples() const
 	return false;
 }
 
-void Song::clearMissingSamples() {
-	auto pInstrumentList = getDrumkit()->getInstruments();
-	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
-		pInstrumentList->get( i )->setMissingSamples( false );
-	}
-}
-
-void Song::loadTempPatternList( const QString& sFilename )
+void Song::loadTempPatternList( const QString& sFileName )
 {
 	XMLDoc doc;
-	if( !doc.read( sFilename ) ) {
+	if( !doc.read( sFileName ) ) {
 		return;
 	}
 	XMLNode root = doc.firstChildElement( "sequence" );
@@ -1057,7 +1052,7 @@ void Song::loadTempPatternList( const QString& sFilename )
 	loadPatternGroupVectorFrom( root, false );
 }
 
-bool Song::saveTempPatternList( const QString& sFilename ) const
+bool Song::saveTempPatternList( const QString& sFileName ) const
 {
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "sequence" );
@@ -1065,7 +1060,7 @@ bool Song::saveTempPatternList( const QString& sFilename ) const
 	saveVirtualPatternsTo( root, false );
 	savePatternGroupVectorTo( root, false );
 
-	return doc.write( sFilename );
+	return doc.write( sFileName );
 }
 
 void Song::setPanLawKNorm( float fKNorm ) {
@@ -1254,8 +1249,8 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			sOutput.append( QString( "%1%2m_pDrumkit: nullptr\n" ).arg( sPrefix )
 							.arg( s ) );
 		}
-		sOutput.append( QString( "%1%2m_sFilename: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_sFilename ) )
+		sOutput.append( QString( "%1%2m_sFileName: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sFileName ) )
 			.append( QString( "%1%2m_loopMode: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( LoopModeToQString( m_loopMode ) ) )
 			.append( QString( "%1%2m_patternMode: %3\n" ).arg( sPrefix ).arg( s )
@@ -1275,8 +1270,8 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		sOutput.append( QString( "%1%2m_mode: %3\n" ).arg( sPrefix ).arg( s )
 						.arg( ModeToQString( m_mode ) ) )
-			.append( QString( "%1%2m_sPlaybackTrackFilename: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_sPlaybackTrackFilename ) )
+			.append( QString( "%1%2m_sPlaybackTrackFileName: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sPlaybackTrackFileName ) )
 			.append( QString( "%1%2m_bPlaybackTrackEnabled: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_bPlaybackTrackEnabled ) )
 			.append( QString( "%1%2m_fPlaybackTrackVolume: %3\n" ).arg( sPrefix ).arg( s )
@@ -1298,8 +1293,10 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
-			sOutput.append( QString( "%1%2m_sLastLoadedDrumkitPath: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_sLastLoadedDrumkitPath ) );
+		sOutput.append( QString( "%1%2m_sLastLoadedDrumkitPath: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sLastLoadedDrumkitPath ) )
+				.append( QString( "%1%2m_bWasAskedAboutMissingSamples: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bWasAskedAboutMissingSamples ) );
 	} else {
 
 		sOutput = QString( "[Song]" )
@@ -1325,7 +1322,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( ", m_pDrumkit: nullptr" );
 		}
-		sOutput.append( QString( ", m_sFilename: %1" ).arg( m_sFilename ) )
+		sOutput.append( QString( ", m_sFileName: %1" ).arg( m_sFileName ) )
 			.append( QString( ", m_loopMode: %1" )
 					 .arg( LoopModeToQString( m_loopMode ) ) )
 			.append( QString( ", m_patternMode: %1" )
@@ -1340,7 +1337,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		sOutput.append( QString( ", m_mode: %1" )
 						.arg( ModeToQString( m_mode ) ) )
-			.append( QString( ", m_sPlaybackTrackFilename: %1" ).arg( m_sPlaybackTrackFilename ) )
+			.append( QString( ", m_sPlaybackTrackFileName: %1" ).arg( m_sPlaybackTrackFileName ) )
 			.append( QString( ", m_bPlaybackTrackEnabled: %1" ).arg( m_bPlaybackTrackEnabled ) )
 			.append( QString( ", m_fPlaybackTrackVolume: %1" ).arg( m_fPlaybackTrackVolume ) )
 			.append( QString( ", m_pVelocityAutomationPath: %1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix ) ) )
@@ -1357,8 +1354,10 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
-			sOutput.append( QString( ", m_sLastLoadedDrumkitPath: %1" )
-							.arg( m_sLastLoadedDrumkitPath ) );
+		sOutput.append( QString( ", m_sLastLoadedDrumkitPath: %1" )
+							.arg( m_sLastLoadedDrumkitPath ) )
+			.append( QString( ", m_bWasAskedAboutMissingSamples: %1" )
+							.arg( m_bWasAskedAboutMissingSamples ) );
 	}
 
 	return sOutput;

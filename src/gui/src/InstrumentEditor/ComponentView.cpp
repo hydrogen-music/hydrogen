@@ -720,7 +720,7 @@ void ComponentView::updateActivation() {
 		m_pLayerPitchFineRotary->setIsActive( true );
 
 		m_pRemoveLayerBtn->setIsActive( true );
-		m_pSampleEditorBtn->setIsActive( true );
+		m_pSampleEditorBtn->setIsActive( pLayer->getSample() != nullptr );
 
 		m_pWaveDisplay->updateDisplay( nullptr );
 	}
@@ -792,7 +792,7 @@ void ComponentView::showSampleEditor() {
 	if ( pSample != nullptr ) {
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		pHydrogenApp->showSampleEditor(
-			pSample->getFilepath(), pInstrument->index( m_pComponent ),
+			pSample->getFilePath(), pInstrument->index( m_pComponent ),
 			m_nSelectedLayer );
 	}
 }
@@ -820,7 +820,7 @@ void ComponentView::removeLayerButtonClicked() {
 		return;
 	}
 	const QString sLayerName = pLayer->getSample() != nullptr ?
-		pLayer->getSample()->getFilename() : "nullptr";
+		pLayer->getSample()->getFileName() : "nullptr";
 
 	auto pHydrogen = Hydrogen::get_instance();
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
@@ -866,7 +866,7 @@ void ComponentView::loadLayerBtnClicked() {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	QString sPath = Preferences::get_instance()->getLastOpenLayerDirectory();
-	QString sFilename = "";
+	QString sFileName = "";
 	if ( ! Filesystem::dir_readable( sPath, false ) ){
 		sPath = QDir::homePath();
 	}
@@ -880,17 +880,17 @@ void ComponentView::loadLayerBtnClicked() {
 			auto pSample = pLayer->getSample();
 
 			if ( pSample != nullptr ) {
-				if ( ! pSample->getFilepath().isEmpty() ) {
-					QFileInfo fileInfo( pSample->getFilepath() );
+				if ( ! pSample->getFilePath().isEmpty() ) {
+					QFileInfo fileInfo( pSample->getFilePath() );
 					sPath = fileInfo.absoluteDir().absolutePath();
-					sFilename = fileInfo.absoluteFilePath();
+					sFileName = fileInfo.absoluteFilePath();
 				}
 			}
 		}
 	}
 
 	AudioFileBrowser *pFileBrowser =
-		new AudioFileBrowser( nullptr, true, true, sPath, sFilename );
+		new AudioFileBrowser( nullptr, true, true, sPath, sFileName );
 	// The first two elements of this list will indicate whether the user has
 	// checked the additional options.
 	QStringList filename;
@@ -902,7 +902,7 @@ void ComponentView::loadLayerBtnClicked() {
 		// Only overwrite the default directory if we didn't start
 		// from an existing file or the final directory differs from
 		// the starting one.
-		if ( sFilename.isEmpty() ||
+		if ( sFileName.isEmpty() ||
 			 sPath != pFileBrowser->getSelectedDirectory() ) {
 			Preferences::get_instance()->setLastOpenLayerDirectory(
 				pFileBrowser->getSelectedDirectory() );

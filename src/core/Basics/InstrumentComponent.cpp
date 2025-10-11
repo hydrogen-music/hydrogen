@@ -23,6 +23,7 @@
 #include <core/Basics/InstrumentComponent.h>
 
 #include <cassert>
+#include <set>
 
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Helpers/Xml.h>
@@ -153,7 +154,8 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 	return pInstrumentComponent;
 }
 
-void InstrumentComponent::saveTo( XMLNode& node, bool bSongKit ) const
+void InstrumentComponent::saveTo( XMLNode& node, bool bSongKit,
+								 bool bKeepMissingSamples, bool bSilent )
 {
 	XMLNode component_node;
 	component_node = node.createNode( "instrumentComponent" );
@@ -174,11 +176,35 @@ void InstrumentComponent::saveTo( XMLNode& node, bool bSongKit ) const
 		break;
 	}
 
-	for ( int n = 0; n < m_nMaxLayers; n++ ) {
-		auto pLayer = getLayer( n );
+	std::set<int> indicesToRemove;
+	for ( int nn = 0; nn < m_layers.size(); nn++ ) {
+		auto pLayer = m_layers[ nn ];
 		if ( pLayer != nullptr ) {
-			pLayer->saveTo( component_node, bSongKit );
+			if ( pLayer->getSample() != nullptr || bKeepMissingSamples ) {
+				pLayer->saveTo( component_node, bSongKit );
+			}
+			else {
+				if ( ! bSilent ) {
+					INFOLOG( QString( "Discarding layer of missing sample [%1]" )
+							.arg( pLayer->getFallbackSampleFileName() ) );
+				}
+				else {
+					indicesToRemove.insert( nn );
+				}
+				// Remove the layer missing a sample from the component.
+			}
 		}
+	}
+
+	if ( ! bKeepMissingSamples && indicesToRemove.size() > 0 ) {
+		std::vector< std::shared_ptr<InstrumentLayer> > newLayers;
+		for ( int nn = 0; nn < m_layers.size(); ++nn ) {
+			if ( indicesToRemove.find( nn ) == indicesToRemove.end() ) {
+				newLayers.push_back( m_layers[ nn ] );
+			}
+		}
+
+		m_layers = newLayers;
 	}
 }
 

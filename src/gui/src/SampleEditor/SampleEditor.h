@@ -49,7 +49,7 @@ class SampleEditor :  public QDialog, public Ui_SampleEditor_UI,  public H2Core:
 	public:
 		
 		SampleEditor( QWidget* pParent, int nSelectedComponent,
-					  int nSelectedLayer, const QString& nSampleFilename );
+					  int nSelectedLayer, const QString& nSampleFileName );
 		~SampleEditor();
 
 		void setSampleName( const QString& name );

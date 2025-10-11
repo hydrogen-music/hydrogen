@@ -42,7 +42,7 @@ void rubberband_test( const QString& sample_path ) {
 		return;
 	}
 	___DEBUGLOG( QString( "input sample\n\tfilename\t: %1\n\tframes\t\t: %2\n\tsample rate\t: %3" )
-	             .arg( sample->getFilename().toLocal8Bit().data() )
+	             .arg( sample->getFileName().toLocal8Bit().data() )
 	             .arg( sample->getFrames() )
 	             .arg( sample->getSampleRate() )
 	             );

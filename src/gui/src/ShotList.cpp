@@ -30,8 +30,8 @@
 
 #ifndef H2CORE_HAVE_QT6
 
-ShotList::ShotList( const QString& sShotsFilename ) {
-	QFile shots( sShotsFilename );
+ShotList::ShotList( const QString& sShotsFileName ) {
+	QFile shots( sShotsFileName );
 	m_nNextShot = 0;
 	
 	if ( ! shots.open( QIODevice::ReadOnly ) ) {

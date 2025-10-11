@@ -63,9 +63,9 @@ EnvelopePoint::EnvelopePoint( const EnvelopePoint& other ) : Object(other), fram
 /* EnvelopePoint */
 
 
-Sample::Sample( const QString& filepath, const License& license, int frames, int sample_rate, float* data_l, float* data_r ) 
+Sample::Sample( const QString& sFilePath, const License& license, int frames, int sample_rate, float* data_l, float* data_r ) 
   : m_bIsLoaded( false ),
-	m_sFilepath( filepath ),
+	m_sFilePath( sFilePath ),
 	m_nFrames( frames ),
 	m_nSampleRate( sample_rate ),
 	m_data_L( data_l ),
@@ -73,7 +73,7 @@ Sample::Sample( const QString& filepath, const License& license, int frames, int
 	m_bIsModified( false ),
 	m_license( license )
 {
-	if ( filepath.lastIndexOf( "/" ) <= 0 ) {
+	if ( sFilePath.lastIndexOf( "/" ) <= 0 ) {
 		WARNINGLOG( QString( "Provided filepath [%1] does not seem like an absolute path. Sample will most probably be unable to load." ) );
 	}
 }
@@ -81,7 +81,7 @@ Sample::Sample( const QString& filepath, const License& license, int frames, int
 Sample::Sample( std::shared_ptr<Sample> pOther ) :
 	Object( *pOther ),
 	m_bIsLoaded( pOther->m_bIsLoaded ),
-	m_sFilepath( pOther->getFilepath() ),
+	m_sFilePath( pOther->getFilePath() ),
 	m_nFrames( pOther->getFrames() ),
 	m_nSampleRate( pOther->getSampleRate() ),
 	m_data_L( nullptr ),
@@ -123,23 +123,23 @@ Sample::~Sample()
 	}
 }
 
-void Sample::setFilename( const QString& filename )
+void Sample::setFileName( const QString& fileName )
 {
-	QFileInfo Filename = QFileInfo( filename );
-	QFileInfo Dest = QFileInfo( getFilepath() );
-	m_sFilepath = QDir(Dest.absolutePath()).filePath( Filename.fileName() );
+	QFileInfo FileName = QFileInfo( fileName );
+	QFileInfo Dest = QFileInfo( getFilePath() );
+	m_sFilePath = QDir(Dest.absolutePath()).filePath( FileName.fileName() );
 }
 
-std::shared_ptr<Sample> Sample::load( const QString& sFilepath, const License& license )
+std::shared_ptr<Sample> Sample::load( const QString& sFilePath, const License& license )
 {
 	std::shared_ptr<Sample> pSample;
 	
-	if( !Filesystem::file_readable( sFilepath ) ) {
-		ERRORLOG( QString( "Unable to read %1" ).arg( sFilepath ) );
+	if( !Filesystem::file_readable( sFilePath ) ) {
+		ERRORLOG( QString( "Unable to read %1" ).arg( sFilePath ) );
 		return nullptr;
 	}
 
-	pSample = std::make_shared<Sample>( sFilepath, license );
+	pSample = std::make_shared<Sample>( sFilePath, license );
 
 	// Samples loaded this way have no loops, rubberband, or envelopes
 	// set. Therefore, we do not have to pass a tempo in here.
@@ -161,22 +161,22 @@ bool Sample::load( float fBpm )
 	// characters of the filename entered in the GUI right. No matter which
 	// encoding was used locally.
 	// We have to terminate the string using a null character ourselves.
-	QString sPath( getFilepath() );
+	QString sPath( getFilePath() );
 	const QString sPaddedPath = sPath.append( '\0' );
-	wchar_t* encodedFilename = new wchar_t[ sPaddedPath.size() ];
+	wchar_t* encodedFileName = new wchar_t[ sPaddedPath.size() ];
 
-	sPaddedPath.toWCharArray( encodedFilename );
+	sPaddedPath.toWCharArray( encodedFileName );
 
-	SNDFILE* file = sf_wchar_open( encodedFilename, SFM_READ,
+	SNDFILE* file = sf_wchar_open( encodedFileName, SFM_READ,
 								   &sound_info );
-	delete encodedFilename;
+	delete encodedFileName;
 #else
-	SNDFILE* file = sf_open( getFilepath().toLocal8Bit(), SFM_READ,
+	SNDFILE* file = sf_open( getFilePath().toLocal8Bit(), SFM_READ,
 							 &sound_info );
 #endif
 	if ( file == nullptr ) {
 		ERRORLOG( QString( "Error loading file [%1] with format [%2]: %3" )
-				  .arg( getFilepath() )
+				  .arg( getFilePath() )
 				  .arg( sndfileFormatToQString( sound_info.format ) )
 				  .arg( sf_strerror( file ) ) );
 		return false;
@@ -205,12 +205,12 @@ bool Sample::load( float fBpm )
 	// encoding (e.g. 16 bit PCM).
 	sf_count_t count = sf_read_float( file, buffer, sound_info.frames * sound_info.channels );
 	if( count==0 ){
-		WARNINGLOG( QString( "%1 is an empty sample" ).arg( getFilepath() ) );
+		WARNINGLOG( QString( "%1 is an empty sample" ).arg( getFilePath() ) );
 	}
 	
 	// Deallocate the handler.
 	if ( sf_close( file ) != 0 ){
-		WARNINGLOG( QString( "Unable to close sample file %1" ).arg( getFilepath() ) );
+		WARNINGLOG( QString( "Unable to close sample file %1" ).arg( getFilePath() ) );
 	}
 	
 	// Flush the current content of the left and right channel and
@@ -483,7 +483,7 @@ void Sample::applyRubberband( float fBpm ) {
 	float* out_data_l_tmp;
 	float* out_data_r_tmp;
 
-	DEBUGLOG( QString( "on %1\n\toptions\t\t: %2\n\ttime ratio\t: %3\n\tpitch\t\t: %4" ).arg( getFilename() ).arg( options ).arg( time_ratio ).arg( pitch_scale ) );
+	DEBUGLOG( QString( "on %1\n\toptions\t\t: %2\n\ttime ratio\t: %3\n\tpitch\t\t: %4" ).arg( getFileName() ).arg( options ).arg( time_ratio ).arg( pitch_scale ) );
 
 	float* ibuf[2];
 	int block_size = MAX_BUFFER_SIZE;
@@ -630,8 +630,8 @@ bool Sample::execRubberbandCli( float fBpm )
 		return false;
 	}
 
-	QString outfilePath =  QDir::tempPath() + "/tmp_rb_outfile.wav";
-	if( !write( outfilePath ) ) {
+	QString sOutFilePath =  QDir::tempPath() + "/tmp_rb_outfile.wav";
+	if( !write( sOutFilePath ) ) {
 		ERRORLOG( "unable to write sample" );
 		return false;
 	};
@@ -661,7 +661,7 @@ bool Sample::execRubberbandCli( float fBpm )
 			  << "-P"						//aim for minimal time distortion
 			  << "-f" << rFs					//frequency
 			  << "-c" << rCs					//"crispness" levels
-			  << outfilePath 					//infile
+			  << sOutFilePath 					//infile
 			  << rubberResultPath;					//outfile
 
 	pRubberbandProc->start( program, arguments );
@@ -682,7 +682,7 @@ bool Sample::execRubberbandCli( float fBpm )
 		return false;
 	}
 
-	QFile( outfilePath ).remove();
+	QFile( sOutFilePath ).remove();
 
 	QFile( rubberResultPath ).remove();
 
@@ -748,13 +748,13 @@ bool Sample::write( const QString& path, int format ) const
 	// encoding was used locally.
 	// We have to terminate the string using a null character ourselves.
 	QString sPaddedPath = QString( path ).append( '\0' );
-	wchar_t* encodedFilename = new wchar_t[ sPaddedPath.size() ];
+	wchar_t* encodedFileName = new wchar_t[ sPaddedPath.size() ];
 
-	sPaddedPath.toWCharArray( encodedFilename );
+	sPaddedPath.toWCharArray( encodedFileName );
 	
-	SNDFILE* sf_file = sf_wchar_open( encodedFilename, SFM_WRITE,
+	SNDFILE* sf_file = sf_wchar_open( encodedFileName, SFM_WRITE,
 								   &sf_info );
-	delete encodedFilename;
+	delete encodedFileName;
 #else
 	const auto sPathLocal8Bit = path.toLocal8Bit();
 	SNDFILE* sf_file = sf_open( sPathLocal8Bit.data(), SFM_WRITE, &sf_info );
@@ -832,8 +832,8 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "%1[Sample]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_bIsLoaded: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_bIsLoaded ) )
-			.append( QString( "%1%2m_sFilepath: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_sFilepath ) )
+			.append( QString( "%1%2m_sFilePath: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sFilePath ) )
 			.append( QString( "%1%2m_nFrames: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nFrames ) )
 			.append( QString( "%1%2m_nSampleRate: %3\n" ).arg( sPrefix ).arg( s )
@@ -863,7 +863,7 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const {
 	else {
 		sOutput = QString( "[Sample]" )
 			.append( QString( " m_bIsLoaded: %1" ).arg( m_bIsLoaded ) )
-			.append( QString( ", m_sFilepath: %1" ).arg( m_sFilepath ) )
+			.append( QString( ", m_sFilePath: %1" ).arg( m_sFilePath ) )
 			.append( QString( ", m_nFrames: %1" ).arg( m_nFrames ) )
 			.append( QString( ", m_nSampleRate: %1" ).arg( m_nSampleRate ) )
 			.append( QString( ", m_bIsModified: %1" ).arg( m_bIsModified ) )

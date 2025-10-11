@@ -98,7 +98,7 @@ void XmlTest::testDrumkitFormatIntegrity() {
 	// function.
 	H2Core::XMLDoc doc;
 	H2Core::XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
-	pDrumkit->saveTo( root, false, false );
+	pDrumkit->saveTo( root, false, true, false );
 
 	CPPUNIT_ASSERT( doc.write( sTmpDrumkitXml ) );
 
@@ -275,7 +275,7 @@ void XmlTest::testDrumkit_invalidADSRValues()
 	auto pSample = pLayer->getSample();
 	CPPUNIT_ASSERT( pSample != nullptr );
 	
-	CPPUNIT_ASSERT( pSample->getFilename() == QString("snare.wav"));
+	CPPUNIT_ASSERT( pSample->getFileName() == QString("snare.wav"));
 
 	___INFOLOG( "passed" );
 }
@@ -521,7 +521,7 @@ void XmlTest::testShippedDrumkits()
 		root.appendChild( doc.createComment(
 							  H2Core::License::getGPLLicenseNotice(
 								  pDrumkit->getAuthor() ) ) );
-		pDrumkit->saveTo( root, false, false );
+		pDrumkit->saveTo( root, false, true, false );
 
 		CPPUNIT_ASSERT( doc.write( sTmpDrumkitXml ) );
 
@@ -794,7 +794,7 @@ void XmlTest::testSongFormatIntegrity() {
 
 	const QString sTmpSong =
 		H2Core::Filesystem::tmp_file_path( "current-format-integrity.h2song" );
-	CPPUNIT_ASSERT( pSong->save( sTmpSong ) );
+	CPPUNIT_ASSERT( pSong->save( sTmpSong, false, false ) );
 
 	H2TEST_ASSERT_H2SONG_FILES_EQUAL( sTestFile, sTmpSong );
 
@@ -815,7 +815,7 @@ void XmlTest::testSong()
 
 	// Test constructor
 	const auto pSongConstructor = std::make_shared<H2Core::Song>();
-	CPPUNIT_ASSERT( pSongConstructor->save( sTmpPathConstructor ) );
+	CPPUNIT_ASSERT( pSongConstructor->save( sTmpPathConstructor, false, false ) );
 	CPPUNIT_ASSERT( H2Core::Song::load( sTmpPathConstructor ) != nullptr );
 
 	H2TEST_ASSERT_H2SONG_FILES_EQUAL(
@@ -823,7 +823,7 @@ void XmlTest::testSong()
 
 	// Test empty song (which is using the default kit)
 	const auto pSongEmpty = H2Core::Song::getEmptySong();
-	CPPUNIT_ASSERT( pSongEmpty->save( sTmpPathEmpty ) );
+	CPPUNIT_ASSERT( pSongEmpty->save( sTmpPathEmpty, false, false ) );
 	CPPUNIT_ASSERT( H2Core::Song::load( sTmpPathEmpty ) != nullptr );
 
 	H2TEST_ASSERT_H2SONG_FILES_EQUAL(
@@ -1033,7 +1033,7 @@ void XmlTest::testSamplePathsWritten() {
 	pSong->setDrumkit( pNewKit );
 	const auto sSongPath = H2Core::Filesystem::tmp_file_path(
 		"testSamplePathsWritten.h2song");
-	CPPUNIT_ASSERT( pSong->save( sSongPath ) );
+	CPPUNIT_ASSERT( pSong->save( sSongPath, false, false ) );
 
 	// Load the new .h2song file and validate that there are no absolute paths.
 	H2Core::XMLDoc docSong;
@@ -1083,11 +1083,11 @@ void XmlTest::testSamplePathsWritten() {
 	CPPUNIT_ASSERT( pLayer != nullptr );
 	auto pSample = pLayer->getSample();
 	CPPUNIT_ASSERT( pSample != nullptr );
-	pSample->setFilepath( sCustomSamplePath );
+	pSample->setFilePath( sCustomSamplePath );
 
 	const auto sSongPathCustom = H2Core::Filesystem::tmp_file_path(
 		"testCustomSamplePathsWritten.h2song");
-	CPPUNIT_ASSERT( pSongCustom->save( sSongPathCustom ) );
+	CPPUNIT_ASSERT( pSongCustom->save( sSongPathCustom, false, false ) );
 
 	// Load the new .h2song file and validate that there is a single absolute
 	// path.

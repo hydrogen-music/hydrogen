@@ -42,10 +42,10 @@ using namespace H2Core;
 AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect,
 									 bool bShowInstrumentManipulationControls,
 									 const QString& sDefaultPath,
-									 const QString& sFilename )
+									 const QString& sFileName )
 		: QDialog ( pParent )
 		, Object ()
-		, m_sFilename( sFilename )
+		, m_sFileName( sFileName )
 {
 	setupUi ( this );
 
@@ -90,10 +90,10 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect,
 	m_pTree->setRootIndex( m_pDirModel->index( sDefaultPath ) );
 	
 	pathLineEdit->setText( sDefaultPath );
-	m_pSampleFilename = "";
+	m_pSampleFileName = "";
 	m_pSelectedFile << "false" << "false";
 
-	m_sEmptySampleFilename = Filesystem::empty_sample_path();
+	m_sEmptySampleFileName = Filesystem::empty_sample_path();
 
 	m_pPathUptoolButton->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/white/go-up.svg"));
 	m_pPathUptoolButton->setToolTip( QString( tr( "Parent Folder" )));
@@ -106,7 +106,7 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect,
 	m_pStopBtn->setToolTip( QString( tr( "Stop" )));
 
 	m_pSampleWaveDisplay = new SampleWaveDisplay( waveformview );
-	m_pSampleWaveDisplay->updateDisplay( m_sEmptySampleFilename );
+	m_pSampleWaveDisplay->updateDisplay( m_sEmptySampleFileName );
 	m_pSampleWaveDisplay->move( 3, 3 );
 
 	playSamplescheckBox->setChecked( Preferences::get_instance()->m_bPlaySamplesOnClicking );
@@ -119,9 +119,9 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect,
 		autoVelCheckBox->hide();
 	}
 	
-	if ( ! sFilename.isEmpty() ) {
-		m_pTree->setCurrentIndex( m_pDirModel->index( sFilename ) );
-		browseTree( m_pDirModel->index( sFilename ) );
+	if ( ! sFileName.isEmpty() ) {
+		m_pTree->setCurrentIndex( m_pDirModel->index( sFileName ) );
+		browseTree( m_pDirModel->index( sFileName ) );
 
 		// Right now in the constructor of AudioFileBrowser m_pTree is
 		// still busy doing something different or maybe some update
@@ -132,7 +132,7 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect,
 		// The 50 is a heuristic that worked on my machine. This might
 		// need a little more tweaking.
 		QTimer::singleShot( 50, [this]{
-			m_pTree->scrollTo( m_pDirModel->index( m_sFilename ),
+			m_pTree->scrollTo( m_pDirModel->index( m_sFileName ),
 							   QAbstractItemView::PositionAtCenter);} );
 	}
 
@@ -145,15 +145,15 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect,
 
 AudioFileBrowser::~AudioFileBrowser()
 {
-	auto pNewSample = Sample::load( m_sEmptySampleFilename );
+	auto pNewSample = Sample::load( m_sEmptySampleFileName );
 	H2Core::Hydrogen::get_instance()->getAudioEngine()->getSampler()->previewSample( pNewSample, 100 );
 	INFOLOG ( "DESTROY" );
 }
 
 
-bool AudioFileBrowser::isFileSupported( const QString& filename )
+bool AudioFileBrowser::isFileSupported( const QString& sFileName )
 {
-	return Filesystem::AudioFormatFromSuffix( filename ) !=
+	return Filesystem::AudioFormatFromSuffix( sFileName ) !=
 		Filesystem::AudioFormat::Unknown;
 }
 
@@ -249,7 +249,7 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 
 	QString path = m_pDirModel->filePath( index );
 	pathLineEdit->setText( path );
-	m_pSampleWaveDisplay->updateDisplay( m_sEmptySampleFilename );
+	m_pSampleWaveDisplay->updateDisplay( m_sEmptySampleFileName );
 
 	updateModelIndex(); //with this you have a navigation like konqueror
 
@@ -290,7 +290,7 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 			qsec = QString::asprintf( "%2.2f", sec );
 			m_pLengthLable->setText( tr( "Sample length: " ) + qsec + tr( " s" ) );
 
-			m_pSampleFilename = path2;
+			m_pSampleFileName = path2;
 
 			m_pSampleWaveDisplay->updateDisplay( path2 );
 			m_pPlayBtn->setEnabled( true );
@@ -317,11 +317,11 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 		m_pNBytesLable->setText( tr( "Size:" ) );
 		m_pSamplerateLable->setText( tr( "Samplerate:" ) );
 		m_pLengthLable->setText( tr( "Sample length:" ) );
-		m_pSampleWaveDisplay->updateDisplay( m_sEmptySampleFilename );
+		m_pSampleWaveDisplay->updateDisplay( m_sEmptySampleFileName );
 		m_pPlayBtn->setEnabled( false );
 		m_pStopBtn->setEnabled( false );
 		openBTN->setEnabled( false );
-		m_pSampleFilename = "";
+		m_pSampleFileName = "";
 	}
 	QApplication::restoreOverrideCursor();
 }
@@ -331,13 +331,13 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 void AudioFileBrowser::on_m_pPlayBtn_clicked()
 {
 
-	if( QFile( m_pSampleFilename ).exists() == false ) {
+	if( QFile( m_pSampleFileName ).exists() == false ) {
 		return;
 	}
 	
 	m_pStopBtn->setEnabled( true );
 	
-	auto pNewSample = Sample::load( m_pSampleFilename );
+	auto pNewSample = Sample::load( m_pSampleFileName );
 	if ( pNewSample ) {
 		assert(pNewSample->getSampleRate() != 0);
 		
@@ -350,7 +350,7 @@ void AudioFileBrowser::on_m_pPlayBtn_clicked()
 
 void AudioFileBrowser::on_m_pStopBtn_clicked()
 {
-	auto pNewSample = Sample::load( m_sEmptySampleFilename );
+	auto pNewSample = Sample::load( m_sEmptySampleFileName );
 	H2Core::Hydrogen::get_instance()->getAudioEngine()->getSampler()->previewSample( pNewSample, 100 );
 	m_pStopBtn->setEnabled( false );
 }

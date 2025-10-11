@@ -206,16 +206,16 @@ class XMLDoc : public H2Core::Object<XMLDoc>, public QDomDocument
 		XMLDoc( const QString& sSerialized );
 		/**
 		 * read the content of an xml file
-		 * \param filepath the path to the file to read from
+		 * \param sFilePath the path to the file to read from
 		 * \param bSilent Whether debug and info messages should be logged
 		 *   when anomalies are encountered while reading the XML nodes.
 		 */
-	bool read( const QString& filepath, bool bSilent = false );
+	bool read( const QString& sFilePath, bool bSilent = false );
 		/**
 		 * write itself into a file
-		 * \param filepath the path to the file to write to
+		 * \param sFilePath the path to the file to write to
 		 */
-		bool write( const QString& filepath );
+		bool write( const QString& sFilePath );
 		/**
 		 * create the xml header and root node
 		 * \param node_name the name of the rootnode to build

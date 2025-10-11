@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
 			exit( 1 );
 		}
 
-		QString sSongFilename = parser.getSongFilename();
+		QString sSongFileName = parser.getSongFileName();
 
 		std::cout << H2Core::getAboutText().toStdString();
 		
@@ -446,8 +446,8 @@ int main(int argc, char *argv[])
 		}
 
 		MainForm *pMainForm =
-			new MainForm( pQApp, sSongFilename,
-						  parser.getPlaylistFilename() );
+			new MainForm( pQApp, sSongFileName,
+						  parser.getPlaylistFileName() );
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		pMainForm->show();
 		// Update visibility button states.
@@ -474,7 +474,7 @@ int main(int argc, char *argv[])
 		// the modification flag. This does not apply in case we are
 		// restoring unsaved changes applied to an empty song during
 		// the previous session.
-		if ( pHydrogen->getSong()->getFilename() !=
+		if ( pHydrogen->getSong()->getFileName() !=
 			 H2Core::Filesystem::empty_path(
 				 H2Core::Filesystem::Type::Song ) ) {
 #ifdef H2CORE_HAVE_OSC

@@ -939,11 +939,11 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 
 		QString oldPatternName = pPattern->getName();
 
-		QString sequenceFilename = Filesystem::tmp_file_path( "SEQ.xml" );
+		QString sequenceFileName = Filesystem::tmp_file_path( "SEQ.xml" );
 		const bool bDrag = QString( tokens.at(0) ).contains( "drag pattern" );
 
 		SE_loadPatternAction *pAction = new SE_loadPatternAction(
-			sPatternName, oldPatternName, sequenceFilename, nTargetPattern,
+			sPatternName, oldPatternName, sequenceFileName, nTargetPattern,
 			bDrag );
 
 		HydrogenApp::get_instance()->pushUndoCommand( pAction );

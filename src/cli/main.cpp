@@ -92,7 +92,7 @@ void show_playlist (uint active )
 }
 
 bool convertKitToDrumkitMap( const QString& sKit,
-							 const QString& sOutFilename ) {
+							 const QString& sOutFileName ) {
 	bool bCompressed, bLegacyFormatEncountered;
 	QString sKitFolder, sTmpFolder;
 	const auto pKit = CoreActionController::retrieveDrumkit(
@@ -111,19 +111,19 @@ bool convertKitToDrumkitMap( const QString& sKit,
 	}
 
 	auto xmlDoc = pDrumkitMap->toXml();
-	if ( sOutFilename.isEmpty() ) {
+	if ( sOutFileName.isEmpty() ) {
 		// Write content to stdout
 		std::cout << xmlDoc.toString().toStdString();
 	}
 	else {
 		// Write content to file
 		if ( ! Filesystem::dir_readable(
-				 QFileInfo( sOutFilename ).dir().absolutePath(), false ) ) {
+				 QFileInfo( sOutFileName ).dir().absolutePath(), false ) ) {
 			___ERRORLOG( QString( "Unable to write output file [%1]. Dir not writable" )
-						 .arg( sOutFilename ) );
+						 .arg( sOutFileName ) );
 			return false;
 		}
-		xmlDoc.write( sOutFilename );
+		xmlDoc.write( sOutFileName );
 	}
 
 	return true;
@@ -275,12 +275,12 @@ int main(int argc, char *argv[])
 		parser.process( *pApp );
 
 		// Deal with the options
-		const QString sSongFilename = parser.value( songFileOption );
-		const QString sPlaylistFilename = parser.value( playlistFileNameOption );
+		const QString sSongFileName = parser.value( songFileOption );
+		const QString sPlaylistFileName = parser.value( playlistFileNameOption );
 		const QString sSysDataPath = parser.value( systemDataPathOption );
 		const QString sUsrDataPath = parser.value( userDataPathOption );
 		const QString sConfigFilePath = parser.value( configFileOption );
-		const QString sOutFilename = parser.value( outputFileOption );
+		const QString sOutFileName = parser.value( outputFileOption );
 		const QString sSelectedDriver = parser.value( audioDriverOption );
 		const QString sVerbosityString = parser.value( verboseOption );
 		const QString sInstallDrumkitName = parser.value( installDrumkitOption );
@@ -386,8 +386,8 @@ int main(int argc, char *argv[])
 		std::shared_ptr<Playlist> pPlaylist = nullptr;
 
 		// Load playlist
-		if ( ! sPlaylistFilename.isEmpty() ) {
-			pPlaylist = Playlist::load( sPlaylistFilename );
+		if ( ! sPlaylistFileName.isEmpty() ) {
+			pPlaylist = Playlist::load( sPlaylistFileName );
 			if ( pPlaylist == nullptr ) {
 				___ERRORLOG( "Error loading the playlist" );
 				return 1;
@@ -395,12 +395,12 @@ int main(int argc, char *argv[])
 
 			if ( ! CoreActionController::setPlaylist( pPlaylist ) ) {
 				___ERRORLOG( QString( "Unable to set playlist loaded from [%1]" )
-							 .arg( sPlaylistFilename ) );
+							 .arg( sPlaylistFileName ) );
 				return 1;
 			}
 
 			/* Load first song */
-			auto sSongPath = pPlaylist->getSongFilenameByNumber( 0 );
+			auto sSongPath = pPlaylist->getSongFileNameByNumber( 0 );
 			pSong = CoreActionController::loadSong( sSongPath );
 
 			if ( pSong != nullptr && CoreActionController::setSong( pSong ) ) {
@@ -412,12 +412,12 @@ int main(int argc, char *argv[])
 
 		// Load song - if wasn't already loaded with playlist
 		if ( pSong == nullptr ) {
-			if ( ! sSongFilename.isEmpty() ) {
-				pSong = CoreActionController::loadSong( sSongFilename, "" );
+			if ( ! sSongFileName.isEmpty() ) {
+				pSong = CoreActionController::loadSong( sSongFileName, "" );
 			}
 			else {
 				/* Try load last song */
-				const QString sSongPath = pPref->getLastSongFilename();
+				const QString sSongPath = pPref->getLastSongFileName();
 				if ( ! sSongPath.isEmpty() ) {
 					pSong = CoreActionController::loadSong( sSongPath, "" );
 				}
@@ -428,7 +428,7 @@ int main(int argc, char *argv[])
 				___INFOLOG( "Starting with empty song" );
 				pSong = Song::getEmptySong();
 
-				// We avoid setting LastSongFilename in the PPref
+				// We avoid setting LastSongFileName in the PPref
 				pHydrogen->setSong( pSong );
 			}
 			else {
@@ -473,13 +473,13 @@ int main(int argc, char *argv[])
 		// point the CLI has to be properly reworked. But as it seems not to be
 		// in common usage only support audio export or .h2map for now.
 		bool bExportMode = false;
-		if ( ! sOutFilename.isEmpty() && sKitToDrumkitMap.isEmpty() ) {
+		if ( ! sOutFileName.isEmpty() && sKitToDrumkitMap.isEmpty() ) {
 			auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 			for (auto i = 0; i < pInstrumentList->size(); i++) {
 				pInstrumentList->get(i)->setCurrentlyExported( true );
 			}
 			pHydrogen->startExportSession(nRate, bits, fCompressionLevel);
-			pHydrogen->startExportSong( sOutFilename );
+			pHydrogen->startExportSong( sOutFileName );
 			std::cout << "Export Progress ... ";
 			bExportMode = true;
 		}
@@ -568,7 +568,7 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! sKitToDrumkitMap.isEmpty() ) {
-			if ( ! convertKitToDrumkitMap( sKitToDrumkitMap, sOutFilename ) ) {
+			if ( ! convertKitToDrumkitMap( sKitToDrumkitMap, sOutFileName ) ) {
 				nReturnCode = 1;
 			} else {
 				nReturnCode = 0;

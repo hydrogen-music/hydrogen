@@ -110,12 +110,14 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 	return pInstrumentList;
 }
 
-void InstrumentList::saveTo( XMLNode& node, bool bSongKit ) const
+void InstrumentList::saveTo( XMLNode& node, bool bSongKit,
+							bool bKeepMissingSamples, bool bSilent ) const
 {
 	XMLNode instruments_node = node.createNode( "instrumentList" );
 	for ( const auto& pInstrument : m_pInstruments ) {
 		if ( pInstrument != nullptr && pInstrument->getAdsr() != nullptr ) {
-			pInstrument->saveTo( instruments_node, bSongKit );
+			pInstrument->saveTo( instruments_node, bSongKit,
+								bKeepMissingSamples, bSilent );
 		}
 		else {
 			ERRORLOG( "Invalid instrument!" );
@@ -280,8 +282,8 @@ std::vector<std::shared_ptr<InstrumentList::Content>> InstrumentList::summarizeC
 								results.push_back( std::make_shared<Content>(
 									ppInstrument->getName(), // m_sInstrumentName
 									ppInstrumentComponent->getName(),
-									pSample->getFilename(), // m_sSampleName
-									pSample->getFilepath(), // m_sFullSamplePath
+									pSample->getFileName(), // m_sSampleName
+									pSample->getFilePath(), // m_sFullSamplePath
 									pSample->getLicense() // m_license
 								    ) );
 							}

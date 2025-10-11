@@ -121,10 +121,10 @@ void DetailWaveDisplay::paintEvent(QPaintEvent *ev)
 
 
 
-void DetailWaveDisplay::updateDisplay( const QString& filename )
+void DetailWaveDisplay::updateDisplay( const QString& sFileName )
 {
 
-	auto pNewSample = Sample::load( filename );
+	auto pNewSample = Sample::load( sFileName );
 
 	if ( pNewSample != nullptr ) {
 

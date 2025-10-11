@@ -148,14 +148,17 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		static std::shared_ptr<Song> getEmptySong(
 			std::shared_ptr<SoundLibraryDatabase> pDB = nullptr );
 
-	static std::shared_ptr<Song> 	load( const QString& sFilename, bool bSilent = false );
+	static std::shared_ptr<Song> 	load( const QString& sFileName, bool bSilent = false );
 	/** Writes the song as .h2song to disk.
 	 *
-	 * @param sFilename Absolute path to write the song to.
+	 * @param sFileName Absolute path to write the song to.
+	 * @param bKeepMissingSamples Whether layers containing a missing sample
+	 *   should be kept or discarded.
 	 * \param bSilent if set to true, all log messages except of errors and
 	 *   warnings are suppressed.
 	 */
-	bool 			save( const QString& sFilename, bool bSilent = false );
+	bool 			save( const QString& sFileName, bool bKeepMissingSamples,
+						 bool bSilent = false );
 
 	bool getIsTimelineActivated() const;
 	void setIsTimelineActivated( bool bIsTimelineActivated );
@@ -214,8 +217,8 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		void			setAuthor( const QString& sAuthor );
 		const QString&		getAuthor() const;
 
-		const QString&		getFilename() const;
-		void			setFilename( const QString& sFilename );
+		const QString&		getFileName() const;
+		void			setFileName( const QString& sFileName );
 							
 		const LoopMode&	getLoopMode() const;
 		void			setLoopMode( const LoopMode& loopMode );
@@ -241,15 +244,15 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 		AutomationPath*	getVelocityAutomationPath() const;
 
-		void			loadTempPatternList( const QString& sFilename );
-		bool			saveTempPatternList( const QString& sFilename ) const;
+		void			loadTempPatternList( const QString& sFileName );
+		bool			saveTempPatternList( const QString& sFileName ) const;
 							
 		int			getLatestRoundRobin( float fStartVelocity ) const;
 		void			setLatestRoundRobin( float fStartVelocity, int nLatestRoundRobin );
-		/** \return #m_sPlaybackTrackFilename */
-		const QString&		getPlaybackTrackFilename() const;
-		/** \param sFilename Sets #m_sPlaybackTrackFilename. */
-		void			setPlaybackTrackFilename( const QString& sFilename );
+		/** \return #m_sPlaybackTrackFileName */
+		const QString&		getPlaybackTrackFileName() const;
+		/** \param sFileName Sets #m_sPlaybackTrackFileName. */
+		void			setPlaybackTrackFileName( const QString& sFileName );
 							
 		/** \return #m_bPlaybackTrackEnabled */
 		bool			getPlaybackTrackEnabled() const;
@@ -272,8 +275,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		/** Song was incompletely loaded from file (missing samples)
 		 */
 		bool hasMissingSamples() const;
-		void clearMissingSamples();
-		
+
 		void setPanLawType( int nPanLawType );
 		int getPanLawType() const;
 		void setPanLawKNorm( float fKNorm );
@@ -288,6 +290,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		const QString& getLastLoadedDrumkitPath() const;
 		void setLastLoadedDrumkitPath( const QString& sPath );
 
+	bool getWasAskedAboutMissingSamples() const;
+	void setWasAskedAboutMissingSamples( bool bValue );
+
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -301,9 +306,10 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 private:
 
 	static std::shared_ptr<Song> loadFrom( const XMLNode& pNode,
-										   const QString& sFilename,
+										   const QString& sFileName,
 										   bool bSilent = false );
-	void saveTo( XMLNode& pNode, bool bSilent = false ) const;
+	void saveTo( XMLNode& pNode, bool bKeepMissingSamples,
+				bool bSilent = false ) const;
 
 	void loadVirtualPatternsFrom( const XMLNode& pNode, bool bSilent = false );
 	void loadPatternGroupVectorFrom( const XMLNode& pNode, bool bSilent = false );
@@ -346,7 +352,7 @@ private:
 		 * `SoundLibraryDatabase` or is a brand new kit. */
 		std::shared_ptr<Drumkit> m_pDrumkit;
 
-		QString			m_sFilename;
+		QString			m_sFileName;
 
 		/**
 		 * The three states of this enum is just a way to handle the
@@ -377,13 +383,13 @@ private:
 		
 		/** Name of the file to be loaded as playback track.
 		*
-		 * It is set by setPlaybackTrackFilename() and
-		 * queried by getPlaybackTrackFilename().
+		 * It is set by setPlaybackTrackFileName() and
+		 * queried by getPlaybackTrackFileName().
 		 *
 		 * The playback track itself is loaded in
 		 * Sampler::reinitialize_playback_track().
 		 */
-		QString			m_sPlaybackTrackFilename;
+		QString			m_sPlaybackTrackFileName;
 		/** Whether the playback track should be used at all.
 		 *
 		 * It is set by setPlaybackTrackEnabled() and
@@ -438,6 +444,10 @@ private:
 	 * #H2Core::Drumkit. That's why this member variable was repurposed.
 	 */
 	QString m_sLastLoadedDrumkitPath;
+
+	/** In case the user opts for keeping missing samples, it would be quite
+         annoying if we ask about it every single time the song gets saved. */
+	bool m_bWasAskedAboutMissingSamples;
 
 		/** Used to indicate changes in the underlying XSD file. */
 		static constexpr int nCurrentFormatVersion = 2;
@@ -579,14 +589,14 @@ inline const QString& Song::getAuthor() const
 	return m_sAuthor;
 }
 
-inline const QString& Song::getFilename() const
+inline const QString& Song::getFileName() const
 {
-	return m_sFilename;
+	return m_sFileName;
 }
 
-inline void Song::setFilename( const QString& sFilename )
+inline void Song::setFileName( const QString& sFileName )
 {
-	m_sFilename = sFilename;
+	m_sFileName = sFileName;
 }
 
 inline bool Song::isLoopEnabled() const
@@ -667,14 +677,14 @@ inline void Song::setLatestRoundRobin( float fStartVelocity, int nLatestRoundRob
 	m_latestRoundRobins[ fStartVelocity ] = nLatestRoundRobin;
 }
 
-inline const QString& Song::getPlaybackTrackFilename() const
+inline const QString& Song::getPlaybackTrackFileName() const
 {
-	return m_sPlaybackTrackFilename;
+	return m_sPlaybackTrackFileName;
 }
 
-inline void Song::setPlaybackTrackFilename( const QString& sFilename )
+inline void Song::setPlaybackTrackFileName( const QString& sFileName )
 {
-	m_sPlaybackTrackFilename = sFilename;
+	m_sPlaybackTrackFileName = sFileName;
 }
 
 inline bool Song::getPlaybackTrackEnabled() const
@@ -697,7 +707,7 @@ inline void Song::setPlaybackTrackVolume( const float fVolume )
 	m_fPlaybackTrackVolume = fVolume;
 }
 inline Song::PlaybackTrack Song::getPlaybackTrackState() const {
-	if ( m_sPlaybackTrackFilename.isEmpty() ) {
+	if ( m_sPlaybackTrackFileName.isEmpty() ) {
 		return std::move( PlaybackTrack::Unavailable );
 	}
 
@@ -728,6 +738,12 @@ inline void Song::setLastLoadedDrumkitPath( const QString& sPath ) {
 }
 inline const QString& Song::getLastLoadedDrumkitPath() const {
 	return m_sLastLoadedDrumkitPath;
+}
+inline bool Song::getWasAskedAboutMissingSamples() const {
+	return m_bWasAskedAboutMissingSamples;
+}
+inline void Song::setWasAskedAboutMissingSamples( bool bValue ) {
+	m_bWasAskedAboutMissingSamples = bValue;
 }
 };
 

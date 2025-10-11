@@ -289,27 +289,27 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 	}
 	else {
 		// back compatibility code ( song version <= 0.9.0 )
-		QString sFilename = node.read_string( "filename", "", false, false, bSilent );
+		QString sFileName = node.read_string( "filename", "", false, false, bSilent );
 
-		if ( ! Filesystem::file_exists( sFilename ) && ! sDrumkitPath.isEmpty() ) {
-			sFilename = sDrumkitPath + "/" + sFilename;
+		if ( ! Filesystem::file_exists( sFileName ) && ! sDrumkitPath.isEmpty() ) {
+			sFileName = sDrumkitPath + "/" + sFileName;
 		}
 	
-		auto pSample = Sample::load( sFilename, drumkitLicense );
+		auto pSample = Sample::load( sFileName, drumkitLicense );
 		if ( pSample == nullptr ) {
 			// nel passaggio tra 0.8.2 e 0.9.0 il drumkit di default e' cambiato.
 			// Se fallisce provo a caricare il corrispettivo file in
 			// formato flac
 			if ( ! bSilent ) {
 				WARNINGLOG( "[readSong] Error loading sample: " +
-							sFilename + " not found. Trying to load a flac..." );
+							sFileName + " not found. Trying to load a flac..." );
 			}
-			sFilename = sFilename.left( sFilename.length() - 4 );
-			sFilename += ".flac";
-			pSample = Sample::load( sFilename, drumkitLicense );
+			sFileName = sFileName.left( sFileName.length() - 4 );
+			sFileName += ".flac";
+			pSample = Sample::load( sFileName, drumkitLicense );
 		}
 		if ( pSample == nullptr ) {
-			ERRORLOG( "Error loading sample: " + sFilename + " not found" );
+			ERRORLOG( "Error loading sample: " + sFileName + " not found" );
 		}
 	
 		auto pCompo = std::make_shared<InstrumentComponent>();
@@ -471,13 +471,13 @@ std::shared_ptr<Playlist> Legacy::load_playlist( const QString& sPath )
 		return nullptr;
 	}
 	QFileInfo fileInfo = QFileInfo( sPath );
-	QString filename = root.read_string( "Name", "", false, false );
-	if ( filename.isEmpty() ) {
+	const QString sFileName = root.read_string( "Name", "", false, false );
+	if ( sFileName.isEmpty() ) {
 		WARNINGLOG( "Playlist has no name, abort" );
 	}
 
 	auto pPlaylist = std::make_shared<Playlist>();
-	pPlaylist->setFilename( sPath );
+	pPlaylist->setFileName( sPath );
 
 	XMLNode songsNode = root.firstChildElement( "Songs" );
 	if ( !songsNode.isNull() ) {

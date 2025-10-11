@@ -678,8 +678,8 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 					for ( const auto& ppLayer : ppComponent->getLayers() ) {
 						if ( ppLayer != nullptr &&
 							 ppLayer->getSample() != nullptr &&
-							 ! ppLayer->getSample()->getFilepath().isEmpty() &&
-							 ppLayer->getSample()->getFilepath().contains(
+							 ! ppLayer->getSample()->getFilePath().isEmpty() &&
+							 ppLayer->getSample()->getFilePath().contains(
 								 sDrumkitPath ) ) {
 							bSampleContained = true;
 							break;
@@ -772,10 +772,10 @@ void SoundLibraryPanel::editDrumkitProperties( bool bDuplicate ) {
 
 void SoundLibraryPanel::on_songLoadAction()
 {
-	const QString sFilename = Filesystem::song_path(
+	const QString sFileName = Filesystem::song_path(
 		__sound_library_tree->currentItem()->text( 0 ) );
 
-	HydrogenApp::openFile( Filesystem::Type::Song, sFilename );
+	HydrogenApp::openFile( Filesystem::Type::Song, sFileName );
 }
 
 
@@ -814,6 +814,14 @@ void SoundLibraryPanel::on_patternDeleteAction()
 void SoundLibraryPanel::soundLibraryChangedEvent() {
 	test_expandedItems();
 	updateTree();
+}
+
+void SoundLibraryPanel::updateSongEvent( int nValue ) {
+	if ( nValue == 1 ) {
+		// A song was saved.
+		test_expandedItems();
+		updateTree();
+	}
 }
 
 void SoundLibraryPanel::test_expandedItems()

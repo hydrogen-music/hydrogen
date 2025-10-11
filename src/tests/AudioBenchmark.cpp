@@ -47,7 +47,7 @@ namespace Qt {
 
 bool AudioBenchmark::bEnabled = false;
 
-static long long exportCurrentSong( const QString &fileName, int nSampleRate )
+static long long exportCurrentSong( const QString &sFileName, int nSampleRate )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	EventQueue *pQueue = EventQueue::get_instance();
@@ -58,7 +58,7 @@ static long long exportCurrentSong( const QString &fileName, int nSampleRate )
 	}
 
 	pHydrogen->startExportSession( nSampleRate, 16 );
-	pHydrogen->startExportSong( fileName );
+	pHydrogen->startExportSong( sFileName );
 
 	long long nStartFrame = pHydrogen->getAudioEngine()->getTransportPosition()->getFrame();
 

@@ -133,7 +133,7 @@ void SoundLibraryOnlineImportDialog::onRepositoryComboBoxIndexChanged(int i)
 
 	if(!repositoryCombo->currentText().isEmpty())
 	{
-		QString cacheFile = getCachedFilename();
+		QString cacheFile = getCachedFileName();
 		if( !H2Core::Filesystem::file_exists( cacheFile, true ) )
 		{
 			SoundLibraryOnlineImportDialog::on_UpdateListBtn_clicked();
@@ -171,7 +171,7 @@ void SoundLibraryOnlineImportDialog::clearImageCache()
 	}
 }
 
-QString SoundLibraryOnlineImportDialog::getCachedFilename()
+QString SoundLibraryOnlineImportDialog::getCachedFileName()
 {
 	const QString sCacheDir = H2Core::Filesystem::repositories_cache_dir();
 	const QString sServerMd5 = QString(
@@ -180,7 +180,7 @@ QString SoundLibraryOnlineImportDialog::getCachedFilename()
 	return sCacheDir + "/" + sServerMd5;
 }
 
-QString SoundLibraryOnlineImportDialog::getCachedImageFilename()
+QString SoundLibraryOnlineImportDialog::getCachedImageFileName()
 {
 	const QString sCacheDir = H2Core::Filesystem::repositories_cache_dir();
 	const QString sKitNameMd5 = QString(
@@ -190,17 +190,17 @@ QString SoundLibraryOnlineImportDialog::getCachedImageFilename()
 }
 
 
-void SoundLibraryOnlineImportDialog::writeCachedData(const QString& fileName, const QString& data)
+void SoundLibraryOnlineImportDialog::writeCachedData(const QString& sFileName, const QString& data)
 {
 	if( data.isEmpty() )
 	{
 		return;
 	}
 
-	QFile outFile( fileName );
+	QFile outFile( sFileName );
 	if( !outFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
 	{
-		ERRORLOG( QString("Failed to open file for writing repository cache: %1").arg( fileName ) );
+		ERRORLOG( QString("Failed to open file for writing repository cache: %1").arg( sFileName ) );
 		return;
 	}
 
@@ -212,7 +212,7 @@ void SoundLibraryOnlineImportDialog::writeCachedData(const QString& fileName, co
 
 void SoundLibraryOnlineImportDialog::writeCachedImage( const QString& imageFile, const QPixmap& pixmap )
 {
-	QString cacheFile = getCachedImageFilename() ;
+	QString cacheFile = getCachedImageFileName() ;
 
 	QFile outFile( cacheFile );
 	if( !outFile.open( QIODevice::WriteOnly ) )
@@ -245,7 +245,7 @@ QString SoundLibraryOnlineImportDialog::readCachedData( const QString& sFileName
 
 QString SoundLibraryOnlineImportDialog::readCachedImage( const QString& imageFile )
 {
-	QString cacheFile = getCachedImageFilename() ;
+	QString cacheFile = getCachedImageFileName() ;
 
 	QFile file( cacheFile );
 	if( !file.exists() )
@@ -260,7 +260,7 @@ QString SoundLibraryOnlineImportDialog::readCachedImage( const QString& imageFil
 void SoundLibraryOnlineImportDialog::reloadRepositoryData()
 {
 	QString sDrumkitXML;
-	const QString sCacheFile = getCachedFilename();
+	const QString sCacheFile = getCachedFileName();
 
 	if ( H2Core::Filesystem::file_exists( sCacheFile, true ) ) {
 		sDrumkitXML = readCachedData( sCacheFile );
@@ -345,7 +345,7 @@ void SoundLibraryOnlineImportDialog::on_UpdateListBtn_clicked()
 	 */
 
 
-	QString cacheFile = getCachedFilename();
+	QString cacheFile = getCachedFileName();
 
 
 	writeCachedData(cacheFile, sDrumkitXML);

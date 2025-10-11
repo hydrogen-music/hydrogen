@@ -52,9 +52,9 @@ public:
 
 	/*
 	 * Write the LilyPond format into a file
-	 * @param sFilename name of output file
+	 * @param sFileName name of output file
 	 */
-	void write( const QString &sFilename ) const;
+	void write( const QString &sFileName ) const;
 
 private:
 	/*

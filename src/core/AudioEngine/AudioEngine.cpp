@@ -109,10 +109,10 @@ AudioEngine::AudioEngine()
 
 	// Create metronome instrument
 	// Get the path to the file of the metronome sound.
-	QString sMetronomeFilename = Filesystem::click_file_path();
+	QString sMetronomeFileName = Filesystem::click_file_path();
 	m_pMetronomeInstrument = std::make_shared<Instrument>( METRONOME_INSTR_ID, "metronome" );
 	
-	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( sMetronomeFilename ) );
+	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( sMetronomeFileName ) );
 	auto pComponent = m_pMetronomeInstrument->getComponent( 0 );
 	if ( pComponent != nullptr ) {
 		pComponent->setLayer( pLayer, 0 );

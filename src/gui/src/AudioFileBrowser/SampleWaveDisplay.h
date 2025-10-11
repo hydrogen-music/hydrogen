@@ -39,7 +39,7 @@ class SampleWaveDisplay :  public QWidget,  public H2Core::Object<SampleWaveDisp
 		explicit SampleWaveDisplay( QWidget* pParent );
 		~SampleWaveDisplay();
 
-		void updateDisplay( const QString& filename );
+		void updateDisplay( const QString& sFileName );
 
 		virtual void paintEvent(QPaintEvent *ev) override;
 

@@ -1138,12 +1138,12 @@ void Filesystem::info()
 	INFOLOG( QString( "Songs dir                  : %1" ).arg( songs_dir() ) );
 }
 
-QString Filesystem::absolute_path( const QString& sFilename, bool bSilent ) {
-	if ( QFile( sFilename ).exists() ) {
-		return QFileInfo( sFilename ).absoluteFilePath();
+QString Filesystem::absolute_path( const QString& sFileName, bool bSilent ) {
+	if ( QFile( sFileName ).exists() ) {
+		return QFileInfo( sFileName ).absoluteFilePath();
 	}
 	else if ( ! bSilent ) {
-		___ERRORLOG( QString( "File [%1] not found" ).arg( sFilename ) );
+		___ERRORLOG( QString( "File [%1] not found" ).arg( sFileName ) );
 	}
 
 	return QString();
@@ -1313,7 +1313,7 @@ QString Filesystem::removeUniquePrefix( const QString& sUniqueFilePath,
 	}
 }
 
-QString Filesystem::getAutoSaveFilename( const Type& type, const QString& sBaseName ) {
+QString Filesystem::getAutoSaveFileName( const Type& type, const QString& sBaseName ) {
 	QString sDefaultDir, sExtension, sType;
 	switch ( type ) {
 	case Type::Song:

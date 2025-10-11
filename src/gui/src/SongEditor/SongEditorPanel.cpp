@@ -656,8 +656,8 @@ void SongEditorPanel::clearSequence() {
 		return;
 	}
 
-	const QString sFilename = Filesystem::tmp_file_path( "SEQ.xml" );
-	auto pAction = new SE_deletePatternSequenceAction( sFilename );
+	const QString sFileName = Filesystem::tmp_file_path( "SEQ.xml" );
+	auto pAction = new SE_deletePatternSequenceAction( sFileName );
 	HydrogenApp::get_instance()->pushUndoCommand( pAction );
 }
 
@@ -676,7 +676,7 @@ bool SongEditorPanel::hasSongEditorFocus() const{
 		m_pPlaybackTrackWaveDisplay->hasFocus();
 }
 
-void SongEditorPanel::restoreGroupVector( const QString& filename )
+void SongEditorPanel::restoreGroupVector( const QString& sFileName )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -693,7 +693,7 @@ void SongEditorPanel::restoreGroupVector( const QString& filename )
 	pPatternGroupsVect->clear();
 
 	pAudioEngine->lock( RIGHT_HERE );
-	pSong->loadTempPatternList( filename );
+	pSong->loadTempPatternList( sFileName );
 	pHydrogen->updateSongSize();
 	pHydrogen->updateSelectedPattern( false );
 	pAudioEngine->unlock();
@@ -944,14 +944,14 @@ void SongEditorPanel::editPlaybackTrackBtnClicked()
 		pHydrogen->sequencerStop();
 	}
 
-	QString sPath, sFilename;
+	QString sPath, sFileName;
 
-	if ( ! pSong->getPlaybackTrackFilename().isEmpty() ) {
-		QFileInfo fileInfo( pSong->getPlaybackTrackFilename() );
-		sFilename = pSong->getPlaybackTrackFilename();
+	if ( ! pSong->getPlaybackTrackFileName().isEmpty() ) {
+		QFileInfo fileInfo( pSong->getPlaybackTrackFileName() );
+		sFileName = pSong->getPlaybackTrackFileName();
 		sPath = fileInfo.absoluteDir().absolutePath();
 	} else {
-		sFilename = "";
+		sFileName = "";
 		sPath = Preferences::get_instance()->getLastOpenPlaybackTrackDirectory();
 	}
 	
@@ -961,7 +961,7 @@ void SongEditorPanel::editPlaybackTrackBtnClicked()
 	
 	//use AudioFileBrowser, but don't allow multi-select. Also, hide all no necessary controls.
 	AudioFileBrowser *pFileBrowser =
-		new AudioFileBrowser( nullptr, false, false, sPath, sFilename );
+		new AudioFileBrowser( nullptr, false, false, sPath, sFileName );
 	
 	QStringList filenameList;
 	
@@ -970,7 +970,7 @@ void SongEditorPanel::editPlaybackTrackBtnClicked()
 		// Only overwrite the default directory if we didn't start
 		// from an existing file or the final directory differs from
 		// the starting one.
-		if ( sFilename.isEmpty() ||
+		if ( sFileName.isEmpty() ||
 			 sPath != pFileBrowser->getSelectedDirectory() ) {
 			Preferences::get_instance()->setLastOpenPlaybackTrackDirectory( pFileBrowser->getSelectedDirectory() );
 		}

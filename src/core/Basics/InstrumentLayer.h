@@ -97,6 +97,8 @@ namespace H2Core
 		/** get the sample of the layer */
 		std::shared_ptr<Sample> getSample() const;
 
+		const QString& getFallbackSampleFileName() const;
+
 		/**
 		 * Calls the #H2Core::Sample::load()
 		 * member function of #m_pSample.
@@ -160,6 +162,13 @@ namespace H2Core
 		bool				m_bIsMuted;
 		bool				m_bIsSoloed;
 		std::shared_ptr<Sample> m_pSample;           ///< the underlaying sample
+
+		/** In case we can not load the sample properly, we can use its path -
+         * stored in here - to avoid a loss of information.
+         *
+         * This is a transient property and not stored in a drumkit.xml or
+         * .h2song file. */
+		QString m_sFallbackSampleFileName;
 	};
 
 	// DEFINITIONS
@@ -212,10 +221,13 @@ inline bool InstrumentLayer::getIsSoloed() const {
 	return m_bIsSoloed;
 }
 
-	inline std::shared_ptr<Sample> InstrumentLayer::getSample() const
-	{
-		return m_pSample;
-	}
+inline std::shared_ptr<Sample> InstrumentLayer::getSample() const {
+	return m_pSample;
+}
+
+inline const QString& InstrumentLayer::getFallbackSampleFileName() const {
+	return m_sFallbackSampleFileName;
+}
 
 };
 

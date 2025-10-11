@@ -163,6 +163,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getButtonSave() const { return m_sButtonSave; }
 	const QString& getButtonCancel() const { return m_sButtonCancel; }
 	const QString& getButtonDiscard() const { return m_sButtonDiscard; }
+	const QString& getButtonKeep() const { return m_sButtonKeep; }
 	const QString& getButtonPlay() const { return m_sButtonPlay; }
 	const QString& getButtonPlayOriginalSample() const { return m_sButtonPlayOriginalSample; }
 	const QString& getButtonFill() const { return m_sButtonFill; }
@@ -468,6 +469,7 @@ private:
 	QString m_sButtonSave;
 	QString m_sButtonCancel;
 	QString m_sButtonDiscard;
+	QString m_sButtonKeep;
 	QString m_sButtonPlay;
 	QString m_sButtonFill;
 	QString m_sButtonClear;

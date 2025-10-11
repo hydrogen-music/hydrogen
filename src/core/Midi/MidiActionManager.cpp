@@ -1367,7 +1367,7 @@ bool MidiActionManager::setSongFromPlaylist( int nSongNumber ) {
 	if ( nSongNumber >= 0 && nSongNumber <= pPlaylist->size() - 1 ) {
 		if ( pPlaylist->getActiveSongNumber() != nSongNumber ) {
 			auto pSong = CoreActionController::loadSong(
-				pPlaylist->getSongFilenameByNumber( nSongNumber ) );
+				pPlaylist->getSongFileNameByNumber( nSongNumber ) );
 
 			if ( pSong == nullptr ||
 				 ! CoreActionController::setSong( pSong ) ) {

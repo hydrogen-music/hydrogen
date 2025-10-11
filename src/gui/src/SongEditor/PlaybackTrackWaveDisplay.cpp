@@ -136,7 +136,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Instrument
 	
 	if ( pLayer && pLayer->getSample() ) {
 
-		m_sSampleName = m_pLayer->getSample()->getFilename();
+		m_sSampleName = m_pLayer->getSample()->getFileName();
 
 		const auto nSongLengthInTicks = pSong->lengthInTicks();
 		const auto pColumns = pSong->getPatternGroupVector();

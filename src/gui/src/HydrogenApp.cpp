@@ -503,21 +503,21 @@ QString HydrogenApp::findAutoSaveFile( const Filesystem::Type& type,
 	QFileInfo autoSaveFileOld( QString( "%1/%2.autosave%3" )
 							   .arg( fileInfo.absoluteDir().absolutePath() )
 							   .arg( sBaseName ).arg( sExtension ) );
-	QString sRecoverFilename = "";
+	QString sRecoverFileName = "";
 	if ( autoSaveFileRecent.exists() &&
 		 autoSaveFileRecent.lastModified() > fileInfo.lastModified() ) {
-		sRecoverFilename = autoSaveFileRecent.absoluteFilePath();
+		sRecoverFileName = autoSaveFileRecent.absoluteFilePath();
 	}
 	else if ( autoSaveFileOld.exists() &&
 				autoSaveFileOld.lastModified() > fileInfo.lastModified() ) {
-		sRecoverFilename = autoSaveFileOld.absoluteFilePath();
+		sRecoverFileName = autoSaveFileOld.absoluteFilePath();
 	}
 	else if ( sBaseFile == Filesystem::empty_path( type ) &&
 			  autoSaveFileRecent.exists() ) {
-		sRecoverFilename = autoSaveFileRecent.absoluteFilePath();
+		sRecoverFileName = autoSaveFileRecent.absoluteFilePath();
 	}
 
-	if ( sRecoverFilename.isEmpty() ) {
+	if ( sRecoverFileName.isEmpty() ) {
 		return "";
 	}
 
@@ -541,14 +541,14 @@ QString HydrogenApp::findAutoSaveFile( const Filesystem::Type& type,
 	int nRet = msgBox.exec();
 
 	if ( nRet == QMessageBox::Ok ) {
-		return sRecoverFilename;
+		return sRecoverFileName;
 	}
 	else {
 		return "";
 	}
 }
 
-bool HydrogenApp::openFile( const Filesystem::Type& type, const QString& sFilename ) {
+bool HydrogenApp::openFile( const Filesystem::Type& type, const QString& sFileName ) {
 
 	QString sText;
 	switch( type ) {
@@ -567,32 +567,32 @@ bool HydrogenApp::openFile( const Filesystem::Type& type, const QString& sFilena
 	}
 
 	QString sPath;
-	if ( sFilename.isEmpty() ) {
+	if ( sFileName.isEmpty() ) {
 		sPath = H2Core::Filesystem::empty_path( type );
 	}
 	else {
-		sPath = H2Core::Filesystem::absolute_path( sFilename );
+		sPath = H2Core::Filesystem::absolute_path( sFileName );
 	}
-	const auto sRecoverFilename = findAutoSaveFile( type, sPath );
+	const auto sRecoverFileName = findAutoSaveFile( type, sPath );
 
 	bool bRet;
 	// Ensure the path to the file is not relative.
 	if ( type == Filesystem::Type::Song ) {
 		std::shared_ptr<Song> pSong;
-		if ( sFilename.isEmpty() && sRecoverFilename.isEmpty() ) {
+		if ( sFileName.isEmpty() && sRecoverFileName.isEmpty() ) {
 			pSong = Song::getEmptySong();
 		} else {
-			pSong = CoreActionController::loadSong( sPath, sRecoverFilename );
+			pSong = CoreActionController::loadSong( sPath, sRecoverFileName );
 		}
 
 		bRet = CoreActionController::setSong( pSong );
 	}
 	else {
 		std::shared_ptr<Playlist> pPlaylist;
-		if ( sFilename.isEmpty() && sRecoverFilename.isEmpty() ) {
+		if ( sFileName.isEmpty() && sRecoverFileName.isEmpty() ) {
 			pPlaylist = std::make_shared<Playlist>();
 		} else {
-			pPlaylist = CoreActionController::loadPlaylist( sPath, sRecoverFilename );
+			pPlaylist = CoreActionController::loadPlaylist( sPath, sRecoverFileName );
 		}
 
 		bRet = CoreActionController::setPlaylist( pPlaylist );
@@ -690,7 +690,7 @@ bool HydrogenApp::handleUnsavedChanges( const H2Core::Filesystem::Type& type )
 			bool bOk;
 
 			if ( type == Filesystem::Type::Song ) {
-				if ( ! pSong->getFilename().isEmpty() ) {
+				if ( ! pSong->getFileName().isEmpty() ) {
 					bOk = pHydrogenApp->getMainForm()->action_file_save();
 				} else {
 					// never been saved
@@ -698,7 +698,7 @@ bool HydrogenApp::handleUnsavedChanges( const H2Core::Filesystem::Type& type )
 				}
 			}
 			else {
-				if ( ! pPlaylist->getFilename().isEmpty() ) {
+				if ( ! pPlaylist->getFileName().isEmpty() ) {
 					bOk = pHydrogenApp->getPlaylistEditor()->savePlaylist();
 				} else {
 					// never been saved
@@ -808,7 +808,7 @@ void HydrogenApp::updateWindowTitle()
 	QString sTitle = Filesystem::untitled_song_name();
 
 	QString sSongName( pSong->getName() );
-	QString sFilePath( pSong->getFilename() );
+	QString sFilePath( pSong->getFileName() );
 
 	if ( sFilePath == Filesystem::empty_path( Filesystem::Type::Song ) ||
 		 sFilePath.isEmpty() ) {
@@ -1303,20 +1303,20 @@ void HydrogenApp::cleanupTemporaryFiles()
 
 void HydrogenApp::updatePreferencesEvent( int nValue ) {
 	
-	QString sPreferencesFilename;
+	QString sPreferencesFileName;
 	
 	// Local path of the preferences used during session management.
 	const QString sPreferencesOverwritePath = 
 		H2Core::Filesystem::getPreferencesOverwritePath();
 	if ( sPreferencesOverwritePath.isEmpty() ) {
-		sPreferencesFilename = Filesystem::usr_config_path();
+		sPreferencesFileName = Filesystem::usr_config_path();
 	} else {
-		sPreferencesFilename = sPreferencesOverwritePath;
+		sPreferencesFileName = sPreferencesOverwritePath;
 	}
 		
 	if ( nValue == 0 ) {
 		showStatusBarMessage( tr("Preferences saved.") + 
-							  QString(" Into: ") + sPreferencesFilename );
+							  QString(" Into: ") + sPreferencesFileName );
 	} else if ( nValue == 1 ) {
 		
 		// Since the Preferences have changed, we also have to reflect
@@ -1382,7 +1382,7 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 
 		// Inform the user about which file was loaded.
 		showStatusBarMessage( tr("Preferences loaded.") + 
-							  QString(" From: ") + sPreferencesFilename );
+							  QString(" From: ") + sPreferencesFileName );
 
 	
 	} else {

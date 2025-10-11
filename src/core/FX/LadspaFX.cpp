@@ -77,7 +77,7 @@ void LadspaFXGroup::sort() {
 ////////////////
 
 LadspaFXInfo::LadspaFXInfo( const QString& sName ) {
-	m_sFilename = "";
+	m_sFileName = "";
 	m_sLabel = "";
 	m_sName = sName;
 	m_nICPorts = 0;

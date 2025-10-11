@@ -85,12 +85,12 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		 * Specfial routine for song or playlist loading with failure dialog,
 		 * which is save to call even in case the GUI is not fully initialized.
 		 *
-		 * \param sFilename Absolute or relative path used to load the next
+		 * \param sFileName Absolute or relative path used to load the next
 		 *   #H2Core::Song or #H2Core::Playlist.
 		 * \return bool true on success
 		 */
 		static bool openFile( const H2Core::Filesystem::Type& type,
-							  const QString& sFilename );
+							  const QString& sFileName );
 		static bool openSong( std::shared_ptr<H2Core::Song> pSong );
 		static QString findAutoSaveFile( const H2Core::Filesystem::Type& type,
 										 const QString& sBaseFile );

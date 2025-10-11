@@ -178,7 +178,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	QSize generalTabWidgetSize( 60, 24 );
 	
 	useRelativePlaylistPathsCheckbox->setChecked(
-		pPref->getUseRelativeFilenamesForPlaylists() );
+		pPref->getUseRelativeFileNamesForPlaylists() );
 	hideKeyboardCursor->setChecked( pPref->getHideKeyboardCursor() );
 
 	m_pBeatCounterDriftCompensationSpinBox->setSize( generalTabWidgetSize );
@@ -994,9 +994,9 @@ void PreferencesDialog::on_okBtn_clicked()
 	//////////////////////////////////////////////////////////////////
 	bool bGeneralOptionAltered = false;
 	
-	if ( pPref->getUseRelativeFilenamesForPlaylists() !=
+	if ( pPref->getUseRelativeFileNamesForPlaylists() !=
 		 useRelativePlaylistPathsCheckbox->isChecked() ) {
-		pPref->setUseRelativeFilenamesForPlaylists( useRelativePlaylistPathsCheckbox->isChecked() );
+		pPref->setUseRelativeFileNamesForPlaylists( useRelativePlaylistPathsCheckbox->isChecked() );
 		bGeneralOptionAltered = true;
 	}
 	
@@ -1386,6 +1386,8 @@ void PreferencesDialog::updateMidiDriverInfo() {
 void PreferencesDialog::setAudioDriverInfoOss() {
 	const auto pPref = H2Core::Preferences::get_instance();
 	
+	m_pAudioDeviceTxt->show();
+	audioDeviceLbl->show();
 	m_pAudioDeviceTxt->setDriver( Preferences::AudioDriver::Oss );
 	m_pAudioDeviceTxt->setIsActive(true);
 	m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sOSSDevice );
@@ -1410,6 +1412,8 @@ void PreferencesDialog::setAudioDriverInfoOss() {
 void PreferencesDialog::setAudioDriverInfoAlsa() {
 	const auto pPref = H2Core::Preferences::get_instance();
 
+	m_pAudioDeviceTxt->show();
+	audioDeviceLbl->show();
 	m_pAudioDeviceTxt->setDriver( Preferences::AudioDriver::Alsa );
 	m_pAudioDeviceTxt->setIsActive(true);
 	m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sAlsaAudioDevice );
@@ -1437,6 +1441,8 @@ void PreferencesDialog::setAudioDriverInfoJack() {
 	m_pAudioDeviceTxt->setDriver( Preferences::AudioDriver::Jack );
 	m_pAudioDeviceTxt->setIsActive(false);
 	m_pAudioDeviceTxt->lineEdit()->setText( "" );
+	m_pAudioDeviceTxt->hide();
+	audioDeviceLbl->hide();
 	bufferSizeSpinBox->setIsActive(false);
 	sampleRateComboBox->setIsActive(false);
 	trackOutputComboBox->setIsActive( true );
@@ -1465,6 +1471,8 @@ void PreferencesDialog::setAudioDriverInfoJack() {
 void PreferencesDialog::setAudioDriverInfoCoreAudio() {
 	const auto pPref = H2Core::Preferences::get_instance();
 
+	m_pAudioDeviceTxt->show();
+	audioDeviceLbl->show();
 	m_pAudioDeviceTxt->setDriver( Preferences::AudioDriver::CoreAudio );
 	m_pAudioDeviceTxt->setIsActive( true );
 	m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sCoreAudioDevice );
@@ -1489,6 +1497,8 @@ void PreferencesDialog::setAudioDriverInfoCoreAudio() {
 void PreferencesDialog::setAudioDriverInfoPortAudio() {
 	const auto pPref = H2Core::Preferences::get_instance();
 
+	m_pAudioDeviceTxt->show();
+	audioDeviceLbl->show();
 	m_pAudioDeviceTxt->setDriver( Preferences::AudioDriver::PortAudio );
 	m_pAudioDeviceTxt->setIsActive( true );
 	m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sPortAudioDevice );
@@ -1526,6 +1536,8 @@ void PreferencesDialog::setAudioDriverInfoPulseAudio() {
 	m_pAudioDeviceTxt->setDriver( Preferences::AudioDriver::PulseAudio );
 	m_pAudioDeviceTxt->setIsActive(false);
 	m_pAudioDeviceTxt->lineEdit()->setText("");
+	m_pAudioDeviceTxt->hide();
+	audioDeviceLbl->hide();
 	bufferSizeSpinBox->setIsActive(true);
 	sampleRateComboBox->setIsActive(true);
 	trackOutputComboBox->hide();
@@ -1614,8 +1626,8 @@ void PreferencesDialog::onRejected() {
 	}
 
 	if ( m_changes & Preferences::Changes::GeneralTab ) {
-		pCurrentPref->setUseRelativeFilenamesForPlaylists(
-			pOldPref->getUseRelativeFilenamesForPlaylists() );
+		pCurrentPref->setUseRelativeFileNamesForPlaylists(
+			pOldPref->getUseRelativeFileNamesForPlaylists() );
 		pCurrentPref->setHideKeyboardCursor(
 			pOldPref->getHideKeyboardCursor() );
 		pCurrentPref->m_sRubberBandCLIexecutable =

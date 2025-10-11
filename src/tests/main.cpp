@@ -73,7 +73,7 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
 	pPref->m_audioDriver = Preferences::AudioDriver::Fake;
 	pPref->m_midiDriver = Preferences::MidiDriver::LoopBack;
 	pPref->m_nBufferSize = 1024;
-	pPref->setUseRelativeFilenamesForPlaylists( true );
+	pPref->setUseRelativeFileNamesForPlaylists( true );
 
 	// Use a dedicated OSC port to not cause conflicts with (JACK) integration
 	// tests running in a different shell.

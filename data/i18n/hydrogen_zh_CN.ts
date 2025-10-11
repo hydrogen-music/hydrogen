@@ -1459,6 +1459,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Keep</source>
+        <extracomment>Text displayed on a Keep button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -2419,10 +2424,6 @@ MIDI = %2</source>
         <translation>Dec. = %1
 MIDI = %2</translation>
     </message>
-    <message>
-        <source>missing sample</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>MainForm</name>
@@ -2493,12 +2494,6 @@ MIDI = %2</translation>
     <message>
         <source>&amp;About</source>
         <translation>关于(&amp;A)</translation>
-    </message>
-    <message>
-        <source>Some samples used by this song failed to load. If you save the song now these missing samples will be removed from the song entirely.
-Are you sure you want to save?</source>
-        <translation>该乐曲使用的某些采样无法加载。如果您现在保存乐曲，则这些缺失的采样将从该乐曲中完全删除。
-您确定要保存吗？</translation>
     </message>
     <message>
         <source>Could not save song.</source>
@@ -2856,6 +2851,10 @@ LilyPond 导出是一项实验性功能。
     </message>
     <message>
         <source>Drumkit exported to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Some samples used by this song failed to load. Do you wish to keep or discard them? </source>
         <translation type="unfinished"></translation>
     </message>
 </context>

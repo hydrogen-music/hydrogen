@@ -53,10 +53,10 @@ class Parser {
 
 		const QString& getAudioDriver() const {
 			return m_sAudioDriver; }
-		const QString& getPlaylistFilename() const {
-			return m_sPlaylistFilename; }
-		const QString& getSongFilename() const {
-			return m_sSongFilename; }
+		const QString& getPlaylistFileName() const {
+			return m_sPlaylistFileName; }
+		const QString& getSongFileName() const {
+			return m_sSongFileName; }
 		const QString& getDrumkitToLoad() const {
 			return m_sDrumkitToLoad; }
 
@@ -92,8 +92,8 @@ class Parser {
 
 	private:
 		QString  m_sAudioDriver;
-		QString  m_sPlaylistFilename;
-		QString  m_sSongFilename;
+		QString  m_sPlaylistFileName;
+		QString  m_sSongFileName;
 		QString  m_sDrumkitToLoad;
 
 		QString  m_sInstallDrumkitPath;

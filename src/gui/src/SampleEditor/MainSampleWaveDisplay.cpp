@@ -170,10 +170,10 @@ void MainSampleWaveDisplay::updateDisplayPointer()
 
 
 
-void MainSampleWaveDisplay::updateDisplay( const QString& filename )
+void MainSampleWaveDisplay::updateDisplay( const QString& sFileName )
 {
 
-	auto pNewSample = Sample::load( filename );
+	auto pNewSample = Sample::load( sFileName );
 	
 	if ( pNewSample ) {
 

@@ -90,18 +90,18 @@ void FilesystemTest::testUniquePrefix() {
 
 void FilesystemTest::testFilePathValidation() {
 	___INFOLOG( "" );
-	QStringList invalidFilenames, validFilenames;
+	QStringList invalidFileNames, validFileNames;
 
-	validFilenames << "test.h2song" << "123-te-s_t.h2drumkit"
+	validFileNames << "test.h2song" << "123-te-s_t.h2drumkit"
 		<< "ếИ£TestKit越.h2pattern";
-	invalidFilenames << "te/s/t/.h2song" << "test@h2song" << "t\\e\\s\\t.h2song"
+	invalidFileNames << "te/s/t/.h2song" << "test@h2song" << "t\\e\\s\\t.h2song"
 		<< "?!h2song" << "test*.%h2drumkit";
 
-	for ( const auto& ssName : validFilenames ) {
+	for ( const auto& ssName : validFileNames ) {
 		const auto ssValidated = Filesystem::validateFilePath( ssName );
 		CPPUNIT_ASSERT( ssName == ssValidated );
 	}
-	for ( const auto& ssName : invalidFilenames ) {
+	for ( const auto& ssName : invalidFileNames ) {
 		const auto ssValidated = Filesystem::validateFilePath( ssName );
 		const auto ssValidatedTwice = Filesystem::validateFilePath( ssValidated );
 		CPPUNIT_ASSERT( ssName != ssValidated );
