@@ -435,6 +435,8 @@ public:
 		void makeTrackPorts( std::shared_ptr<Song> pSong,
 							 std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
 
+	long long getLastLoopFrame() const;
+
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
 	 * every new line
@@ -739,6 +741,8 @@ private:
 	/** Indicates how many loops the transport already did when the user presses
 	 * the Loop button again. */
 	int m_nLoopsDone;
+	/** Last frame of the previous loop. */
+	long long m_nLastLoopFrame;
 
 		/** Count in stuff.
 		 * @{
@@ -870,6 +874,9 @@ inline std::shared_ptr<Instrument> AudioEngine::getMetronomeInstrument() const {
 }
 inline int AudioEngine::getEnqueuedNotesNumber() const {
 	return m_songNoteQueue.size();
+}
+inline long long AudioEngine::getLastLoopFrame() const {
+	return m_nLastLoopFrame;
 }
 };
 

@@ -190,6 +190,7 @@ All notable changes to this project will be documented in this file.
     current pattern before starting playback (#2194).
 - Metronome and sample playback in `SampleEditor` are no longer affected by
   instrument mute/solo state.
+- Playback track does now respect looping and is update on tempo changes.
 
 
 ### Fixed

@@ -599,6 +599,7 @@ void SongEditorPanel::updatePlaybackTrack()
 		// Playback track was selected by the user and is ready to
 		// use.
 		m_pPlaybackTrackFader->setIsActive( true );
+		m_pPlaybackTrackFader->setValue( pSong->getPlaybackTrackVolume() );
 		m_pMutePlaybackBtn->setIsActive( true );
 		if ( pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::Muted ) {
 			m_pMutePlaybackBtn->setChecked( true );
@@ -768,6 +769,7 @@ void SongEditorPanel::songModeActivationEvent() {
 	updateTimeline();
 	updatePatternEditorLocked();
 	updatePatternMode();
+	updatePlaybackTrack();
 	updateStyleSheet();
 
 	m_pPatternList->updateEditor();
@@ -796,6 +798,8 @@ void SongEditorPanel::stateChangedEvent( const H2Core::AudioEngine::State& ) {
 }
 
 void SongEditorPanel::tempoChangedEvent( int nValue ) {
+	updatePlaybackTrack();
+
 	auto pTimeline = Hydrogen::get_instance()->getTimeline();
 	if ( ! pTimeline->isFirstTempoMarkerSpecial() ) {
 		return;
@@ -863,6 +867,7 @@ void SongEditorPanel::updateSongEvent( int nValue ) {
 	updatePatternMode();
 	updateJacktimebaseState();
 	updatePatternEditorLocked();
+	updatePlaybackTrack();
 	updateTimeline();
 	updateStyleSheet();
 

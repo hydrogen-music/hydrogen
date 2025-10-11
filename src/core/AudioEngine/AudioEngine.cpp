@@ -89,6 +89,7 @@ AudioEngine::AudioEngine()
 		, m_fLastTickEnd( 0 )
 		, m_bLookaheadApplied( false )
 		, m_nLoopsDone( 0 )
+		, m_nLastLoopFrame( 0 )
 		, m_nCountInMetronomeTicks( 0 )
 		, m_nCountInStartTick( 0 )
 		, m_nCountInEndTick( 0 )
@@ -359,6 +360,7 @@ void AudioEngine::reset( bool bWithJackBroadcast, Event::Trigger trigger ) {
 
 	m_fLastTickEnd = 0;
 	m_nLoopsDone = 0;
+	m_nLastLoopFrame = 0;
 	m_bLookaheadApplied = false;
 
 	setNextBpm( 120 );
@@ -501,6 +503,7 @@ void AudioEngine::resetOffsets() {
 
 	m_fLastTickEnd = 0;
 	m_nLoopsDone = 0;
+	m_nLastLoopFrame = 0;
 	m_bLookaheadApplied = false;
 
 	m_pTransportPosition->setFrameOffsetTempo( 0 );
@@ -700,6 +703,7 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame,
 		return;
 	}
 
+	const auto nOldPatternTickPosition = pPos->getPatternTickPosition();
 	int nNewColumn;
 	if ( pSong == nullptr || pSong->getPatternGroupVector()->size() == 0 ) {
 		// There are no patterns in song.
@@ -731,7 +735,20 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame,
 			pPos->setPatternTickPosition( std::floor( fTick ) - nPatternStartTick );
 		}
 	}
-	
+
+	// Check whether transport was looped
+	if ( pPos->getType() == TransportPosition::Type::Transport &&
+		 pSong->getLoopMode() == Song::LoopMode::Enabled &&
+		 ( pPos->getColumn() > nNewColumn ||
+		   ( pPos->getColumn() == nNewColumn && nNewColumn == 0 &&
+			 nOldPatternTickPosition > pPos->getPatternTickPosition() ) ) ) {
+		m_nLastLoopFrame =
+			nFrame - TransportPosition::computeFrame(
+				pPos->getPatternTickPosition(), pPos->getTickSize() ) -
+			pPos->getFrameOffsetTempo();
+	}
+
+	// Update pattern
 	if ( pPos->getColumn() != nNewColumn ) {
 		pPos->setColumn( nNewColumn );
 
@@ -744,7 +761,7 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame,
 			else {
 				handleSelectedPattern( Event::Trigger::Force );
 			}
-		}
+				}
 	}
 
 #if AUDIO_ENGINE_DEBUG
@@ -1238,6 +1255,11 @@ void AudioEngine::handleLoopModeChanged() {
 		 pSong->getLoopMode() == Song::LoopMode::Finishing ) {
 		m_nLoopsDone = static_cast<int>(std::floor(
 			m_pTransportPosition->getDoubleTick() / m_fSongSizeInTicks ));
+
+		double f;
+		const auto nSongSizeInFrames = TransportPosition::computeFrameFromTick(
+			m_fSongSizeInTicks, &f );
+		m_nLastLoopFrame = m_nLoopsDone * nSongSizeInFrames;
 	}
 }
 
@@ -3251,6 +3273,8 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bLookaheadApplied ) )
 			.append( QString( "%1%2m_nLoopsDone: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nLoopsDone ) )
+			.append( QString( "%1%2m_nLastLoopFrame: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nLastLoopFrame ) )
 			.append( QString( "%1%2nMaxTimeHumanize: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( AudioEngine::nMaxTimeHumanize ) )
 			.append( QString( "%1%2fHumanizeVelocitySD: %3\n" ).arg( sPrefix ).arg( s )
@@ -3349,6 +3373,8 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bLookaheadApplied ) )
 			.append( QString( ", m_nLoopsDone: %1" )
 					 .arg( m_nLoopsDone ) )
+			.append( QString( ", m_nLastLoopFrame: %1" )
+					 .arg( m_nLastLoopFrame ) )
 			.append( QString( ", nMaxTimeHumanize: %1" )
 					 .arg( AudioEngine::nMaxTimeHumanize ) )
 			.append( QString( ", fHumanizeVelocitySD: %1" )

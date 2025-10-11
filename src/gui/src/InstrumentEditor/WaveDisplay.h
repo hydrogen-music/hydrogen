@@ -78,6 +78,7 @@ public slots:
 		 */
 		
 		int							m_nCurrentWidth;
+	int m_nActiveWidth;
 		
 		std::shared_ptr<H2Core::InstrumentLayer>	m_pLayer;
 };

@@ -137,7 +137,7 @@ class Note : public H2Core::Object<Note>
 		 * be used instead.
 		 * \param fPitch it's pitch
 		 */
-	Note( std::shared_ptr<Instrument> pInstrument, int nPosition = 0,
+	Note( std::shared_ptr<Instrument> pInstrument = nullptr, int nPosition = 0,
 		  float fVelocity = VELOCITY_DEFAULT, float fPan = PAN_DEFAULT,
 		  int nLength = LENGTH_ENTIRE_SAMPLE, float fPitch = PITCH_DEFAULT );
 

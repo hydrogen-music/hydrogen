@@ -245,6 +245,7 @@ void Hydrogen::loadPlaybackTrack( const QString& sFilename )
 	}
 	else {
 		m_pSong->setPlaybackTrackFilename( sFilename );
+		m_pSong->setPlaybackTrackEnabled( true );
 	}
 
 	m_pAudioEngine->getSampler()->reinitializePlaybackTrack();

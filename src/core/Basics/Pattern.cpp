@@ -128,13 +128,19 @@ std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
 											std::shared_ptr<Drumkit> pDrumkit,
 											bool bSilent )
 {
-	auto pPattern = std::make_shared<Pattern>(
-	    node.read_string( "name", nullptr, false, false ),
-	    node.read_string( "info", "", false, true ),
-	    node.read_string( "category", "unknown", false, true, true ),
-	    node.read_int( "size", -1, false, false ),
-	    node.read_int( "denominator", 4, false, false )
-	);
+	auto pPattern = std::make_shared<Pattern>();
+	pPattern->setName(
+	    node.read_string( "name", pPattern->getName(), false, false, bSilent ) );
+	pPattern->setInfo(
+		node.read_string( "info", pPattern->getInfo(), false, true, bSilent ) );
+	pPattern->setCategory(
+	    node.read_string( "category", pPattern->getCategory(), false, true,
+						 bSilent ) );
+	pPattern->setLength(
+	    node.read_int( "size", pPattern->getLength(), false, false, bSilent ) );
+	pPattern->setDenominator(
+	    node.read_int( "denominator", pPattern->getDenominator(), false, false,
+					  bSilent ) );
 
 	pPattern->setDrumkitName( sDrumkitName );
 	pPattern->m_nVersion = node.read_int(

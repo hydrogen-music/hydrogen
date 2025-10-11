@@ -8,14 +8,14 @@
  <metronomeVolume>0.5</metronomeVolume>
  <userVersion>0</userVersion>
  <name>Untitled Song</name>
- <author>hydrogen</author>
- <notes></notes>
+ <author>Unknown Author</author>
+ <notes>...</notes>
  <license>undefined license</license>
  <loopEnabled>false</loopEnabled>
  <patternModeMode>true</patternModeMode>
  <playbackTrackFilename></playbackTrackFilename>
  <playbackTrackEnabled>false</playbackTrackEnabled>
- <playbackTrackVolume>0</playbackTrackVolume>
+ <playbackTrackVolume>0.5</playbackTrackVolume>
  <action_mode>0</action_mode>
  <isPatternEditorLocked>false</isPatternEditorLocked>
  <isTimelineActivated>false</isTimelineActivated>

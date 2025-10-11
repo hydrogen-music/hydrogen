@@ -252,14 +252,16 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 	}
 
 	auto pLayer = std::make_shared<InstrumentLayer>( pSample );
-	pLayer->setStartVelocity( node.read_float( "min", 0.0,
-												   true, true, bSilent  ) );
-	pLayer->setEndVelocity( node.read_float( "max", 1.0,
-												 true, true, bSilent ) );
-	pLayer->setGain( node.read_float( "gain", 1.0,
-										 true, false, bSilent ) );
-	pLayer->setPitch( node.read_float( "pitch", 0.0,
-										  true, false, bSilent ) );
+	pLayer->setStartVelocity(
+		node.read_float( "min", pLayer->getStartVelocity(), true, true,
+						bSilent  ) );
+	pLayer->setEndVelocity(
+		node.read_float( "max", pLayer->getEndVelocity(), true, true,
+						bSilent ) );
+	pLayer->setGain( node.read_float( "gain", pLayer->getGain(), true, false,
+									 bSilent ) );
+	pLayer->setPitch( node.read_float( "pitch", pLayer->getPitch(), true, false,
+									  bSilent ) );
 	pLayer->m_bIsMuted = node.read_bool(
 		"isMuted", pLayer->m_bIsMuted, true, false, true );
 	pLayer->m_bIsSoloed = node.read_bool(
