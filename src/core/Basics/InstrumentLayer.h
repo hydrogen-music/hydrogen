@@ -97,6 +97,8 @@ namespace H2Core
 		/** get the sample of the layer */
 		std::shared_ptr<Sample> getSample() const;
 
+		const QString& getFallbackSampleFileName() const;
+
 		/**
 		 * Calls the #H2Core::Sample::load()
 		 * member function of #m_pSample.
@@ -219,10 +221,13 @@ inline bool InstrumentLayer::getIsSoloed() const {
 	return m_bIsSoloed;
 }
 
-	inline std::shared_ptr<Sample> InstrumentLayer::getSample() const
-	{
-		return m_pSample;
-	}
+inline std::shared_ptr<Sample> InstrumentLayer::getSample() const {
+	return m_pSample;
+}
+
+inline const QString& InstrumentLayer::getFallbackSampleFileName() const {
+	return m_sFallbackSampleFileName;
+}
 
 };
 

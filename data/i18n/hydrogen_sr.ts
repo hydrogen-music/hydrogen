@@ -2418,10 +2418,6 @@ MIDI = %2</source>
         <translation>Дец. = %1
 МИДИ = %2</translation>
     </message>
-    <message>
-        <source>missing sample</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>MainForm</name>

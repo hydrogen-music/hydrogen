@@ -132,7 +132,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	int nLayer = 0;
 	for ( int i = InstrumentComponent::getMaxLayers() - 1; i >= 0; i-- ) {
 		const int y = LayerPreview::nMargin + LayerPreview::nLayerHeight * i;
-		QString label = "< - >";
+		QString sLabel = "< - >";
 		
 		if ( pComponent != nullptr ) {
 			auto pLayer = pComponent->getLayer( i );
@@ -140,10 +140,10 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 			if ( pLayer != nullptr && nLayers > 0 ) {
 				auto pSample = pLayer->getSample();
 				if ( pSample != nullptr ) {
-					label = pSample->getFileName();
+					sLabel = pSample->getFileName();
 				}
 				else {
-					label = tr( "missing sample" );
+					sLabel = pLayer->getFallbackSampleFileName();
 				}
 
 				const int x1 = (int)( pLayer->getStartVelocity() * width() );
@@ -213,7 +213,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 		layerTextColor.setAlpha( 155 );
 		p.setPen( layerTextColor );
 		p.setFont( fontText );
-		p.drawText( 10, y, width() - 10, 20, Qt::AlignLeft, QString( "%1: %2" ).arg( i + 1 ).arg( label ) );
+		p.drawText( 10, y, width() - 10, 20, Qt::AlignLeft, QString( "%1: %2" ).arg( i + 1 ).arg( sLabel ) );
 		p.setPen( layerTextColor.darker( 145 ) );
 		p.drawRect( 0, y, width() - 1, LayerPreview::nLayerHeight );
 	}
