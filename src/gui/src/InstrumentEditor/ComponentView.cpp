@@ -720,7 +720,7 @@ void ComponentView::updateActivation() {
 		m_pLayerPitchFineRotary->setIsActive( true );
 
 		m_pRemoveLayerBtn->setIsActive( true );
-		m_pSampleEditorBtn->setIsActive( true );
+		m_pSampleEditorBtn->setIsActive( pLayer->getSample() != nullptr );
 
 		m_pWaveDisplay->updateDisplay( nullptr );
 	}
