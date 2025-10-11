@@ -861,7 +861,8 @@ bool MainForm::action_file_save( const QString& sNewFileName,
 	}
 
 	bool bKeepMissingSamples = true;
-	if ( pSong->hasMissingSamples() ) {
+	if ( pSong->hasMissingSamples() &&
+		 ! pSong->getWasAskedAboutMissingSamples() ) {
 		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 		QMessageBox missingSampleBox( this );
@@ -887,6 +888,9 @@ bool MainForm::action_file_save( const QString& sNewFileName,
 		else if ( missingSampleBox.clickedButton() == pRejectButton ) {
 			return false;
 		}
+
+		// Only ask once per song.
+		pSong->setWasAskedAboutMissingSamples( true );
 	}
 
 	// Clear the pattern editor selection to resolve any duplicates

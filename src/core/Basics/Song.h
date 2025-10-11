@@ -290,6 +290,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		const QString& getLastLoadedDrumkitPath() const;
 		void setLastLoadedDrumkitPath( const QString& sPath );
 
+	bool getWasAskedAboutMissingSamples() const;
+	void setWasAskedAboutMissingSamples( bool bValue );
+
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -441,6 +444,10 @@ private:
 	 * #H2Core::Drumkit. That's why this member variable was repurposed.
 	 */
 	QString m_sLastLoadedDrumkitPath;
+
+	/** In case the user opts for keeping missing samples, it would be quite
+         annoying if we ask about it every single time the song gets saved. */
+	bool m_bWasAskedAboutMissingSamples;
 
 		/** Used to indicate changes in the underlying XSD file. */
 		static constexpr int nCurrentFormatVersion = 2;
@@ -731,6 +738,12 @@ inline void Song::setLastLoadedDrumkitPath( const QString& sPath ) {
 }
 inline const QString& Song::getLastLoadedDrumkitPath() const {
 	return m_sLastLoadedDrumkitPath;
+}
+inline bool Song::getWasAskedAboutMissingSamples() const {
+	return m_bWasAskedAboutMissingSamples;
+}
+inline void Song::setWasAskedAboutMissingSamples( bool bValue ) {
+	m_bWasAskedAboutMissingSamples = bValue;
 }
 };
 

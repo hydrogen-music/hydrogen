@@ -96,6 +96,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_sLastLoadedDrumkitPath( "" )
 	, m_pDrumkit( std::make_shared<Drumkit>() )
 	, m_pTimeline( std::make_shared<Timeline>() )
+	, m_bWasAskedAboutMissingSamples( false )
 {
 	if ( m_sName.isEmpty() ){
 		m_sName = Filesystem::untitled_song_name();
@@ -1292,8 +1293,10 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
-			sOutput.append( QString( "%1%2m_sLastLoadedDrumkitPath: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_sLastLoadedDrumkitPath ) );
+		sOutput.append( QString( "%1%2m_sLastLoadedDrumkitPath: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sLastLoadedDrumkitPath ) )
+				.append( QString( "%1%2m_bWasAskedAboutMissingSamples: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bWasAskedAboutMissingSamples ) );
 	} else {
 
 		sOutput = QString( "[Song]" )
@@ -1351,8 +1354,10 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
-			sOutput.append( QString( ", m_sLastLoadedDrumkitPath: %1" )
-							.arg( m_sLastLoadedDrumkitPath ) );
+		sOutput.append( QString( ", m_sLastLoadedDrumkitPath: %1" )
+							.arg( m_sLastLoadedDrumkitPath ) )
+			.append( QString( ", m_bWasAskedAboutMissingSamples: %1" )
+							.arg( m_bWasAskedAboutMissingSamples ) );
 	}
 
 	return sOutput;
