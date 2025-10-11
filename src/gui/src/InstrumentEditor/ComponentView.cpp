@@ -792,7 +792,7 @@ void ComponentView::showSampleEditor() {
 	if ( pSample != nullptr ) {
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		pHydrogenApp->showSampleEditor(
-			pSample->getFilepath(), pInstrument->index( m_pComponent ),
+			pSample->getFilePath(), pInstrument->index( m_pComponent ),
 			m_nSelectedLayer );
 	}
 }
@@ -880,8 +880,8 @@ void ComponentView::loadLayerBtnClicked() {
 			auto pSample = pLayer->getSample();
 
 			if ( pSample != nullptr ) {
-				if ( ! pSample->getFilepath().isEmpty() ) {
-					QFileInfo fileInfo( pSample->getFilepath() );
+				if ( ! pSample->getFilePath().isEmpty() ) {
+					QFileInfo fileInfo( pSample->getFilePath() );
 					sPath = fileInfo.absoluteDir().absolutePath();
 					sFileName = fileInfo.absoluteFilePath();
 				}

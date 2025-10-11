@@ -738,7 +738,7 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 		tearDown();
 		return;
 	}
-	const QString sSamplePath = pLayer->getSample()->getFilepath();
+	const QString sSamplePath = pLayer->getSample()->getFilePath();
 	auto pNewSample = Sample::load( sSamplePath );
 	if ( pNewSample == nullptr ) {
 		ERRORLOG( QString( "Unable to load sample from [%1]" )

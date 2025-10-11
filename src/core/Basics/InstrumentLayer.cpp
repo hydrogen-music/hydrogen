@@ -291,7 +291,7 @@ void InstrumentLayer::saveTo( XMLNode& node, bool bSongKit ) const
 	QString sFileName;
 	if ( pSample != nullptr ) {
 		if ( bSongKit ) {
-			sFileName = Filesystem::prepare_sample_path( pSample->getFilepath() );
+			sFileName = Filesystem::prepare_sample_path( pSample->getFilePath() );
 		}
 		else {
 			sFileName = pSample->getFileName();
@@ -374,7 +374,7 @@ QString InstrumentLayer::toQString( const QString& sPrefix, bool bShort ) const 
 			.append( QString( ", m_bIsMuted: %1" ).arg( m_bIsMuted ) )
 			.append( QString( ", m_bIsSoloed: %1" ).arg( m_bIsSoloed ) );
 		if ( m_pSample != nullptr ) {
-			sOutput.append( QString( ", m_pSample: %1\n" ).arg( m_pSample->getFilepath() ) );
+			sOutput.append( QString( ", m_pSample: %1\n" ).arg( m_pSample->getFilePath() ) );
 		} else {
 			sOutput.append( QString( ", m_pSample: nullptr\n" ) );
 		}

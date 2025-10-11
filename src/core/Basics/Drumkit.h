@@ -211,7 +211,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 *   #Filesystem::removeUtf8Characters, those might be omitted and the
 		 *   directory and files created using `libarchive` might differ.
 		 * \param pEncodingIssuesDetected will be set to `true` in case at least
-		 *   one filepath of extracted kit had to be altered in order to not run
+		 *   one sFilePath of extracted kit had to be altered in order to not run
 		 *   into UTF-8 issues.
 		 * \param bSilent Whether debug and info messages should be logged.
 		 *

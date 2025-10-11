@@ -1083,7 +1083,7 @@ void XmlTest::testSamplePathsWritten() {
 	CPPUNIT_ASSERT( pLayer != nullptr );
 	auto pSample = pLayer->getSample();
 	CPPUNIT_ASSERT( pSample != nullptr );
-	pSample->setFilepath( sCustomSamplePath );
+	pSample->setFilePath( sCustomSamplePath );
 
 	const auto sSongPathCustom = H2Core::Filesystem::tmp_file_path(
 		"testCustomSamplePathsWritten.h2song");

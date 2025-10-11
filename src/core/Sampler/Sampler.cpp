@@ -55,11 +55,11 @@
 namespace H2Core
 {
 
-static std::shared_ptr<Instrument> createInstrument(int id, const QString& filepath, float volume )
+static std::shared_ptr<Instrument> createInstrument(int id, const QString& sFilePath, float volume )
 {
-	auto pInstrument = std::make_shared<Instrument>( id, filepath );
+	auto pInstrument = std::make_shared<Instrument>( id, sFilePath );
 	pInstrument->setVolume( volume );
-	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( filepath ) );
+	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( sFilePath ) );
 	auto pComponent = pInstrument->getComponent( 0 );
 	if ( pComponent != nullptr ) {
 		pComponent->setLayer( pLayer, 0 );

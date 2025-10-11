@@ -133,14 +133,14 @@ class Sample : public H2Core::Object<Sample>
 
 		/**
 		 * Sample constructor
-		 * \param filepath the path to the sample
+		 * \param sFilePath the path to the sample
 		 * \param license associated with the sample
 		 * \param frames the number of frames per channel in the sample
 		 * \param sample_rate the sample rate of the sample
 		 * \param data_l the left channel array of data
 		 * \param data_r the right channel array of data
 		 */
-		Sample( const QString& filepath, const License& license = License(), int frames=0, int sample_rate=0, float* data_l=nullptr, float* data_r=nullptr );
+		Sample( const QString& sFilePath, const License& license = License(), int frames=0, int sample_rate=0, float* data_l=nullptr, float* data_r=nullptr );
 		/** copy constructor */
 		Sample( std::shared_ptr<Sample> other );
 		/** destructor */
@@ -158,23 +158,23 @@ class Sample : public H2Core::Object<Sample>
 		/**
 		 * Load a sample from a file.
 		 *
-		 * This function checks whether the @a filepath is
+		 * This function checks whether the @a sFilePath is
 		 * readable, initializes a new Sample, and calls the
 		 * load() member on it.
 		 *
-		 * \param filepath the file to load audio data from
+		 * \param sFilePath the file to load audio data from
 		 * \param license associated with the sample
 		 *
 		 * \return Pointer to the newly initialized Sample. If
-		 * the provided @a filepath is not readable, a nullptr
+		 * the provided @a sFilePath is not readable, a nullptr
 		 * is returned instead.
 		 *
-		 * \fn load(const QString& filepath)
+		 * \fn load(const QString& sFilePath)
 		 */
-	static std::shared_ptr<Sample> load( const QString& filepath, const License& license = License() );
+	static std::shared_ptr<Sample> load( const QString& sFilePath, const License& license = License() );
 
 		/**
-		 * Load the sample stored in #m_sFilepath into
+		 * Load the sample stored in #m_sFilePath into
 		 * #m_data_L and #m_data_R.
 		 *
 		 * It uses libsndfile for reading both the content and
@@ -209,11 +209,11 @@ class Sample : public H2Core::Object<Sample>
 
 		/** \return true if the associated sample file was loaded */
 		bool isLoaded() const;
-		const QString& getFilepath() const;
-		/** \return FileName part of #m_sFilepath */
-		void setFilepath( const QString& sPath );
+		const QString& getFilePath() const;
+		/** \return FileName part of #m_sFilePath */
+		void setFilePath( const QString& sPath );
 		QString getFileName() const;
-		/** \param fileName FileName part of #m_sFilepath*/
+		/** \param fileName FileName part of #m_sFilePath*/
 		void setFileName( const QString& fileName );
 
 		/** \return #m_nFrames accessor */
@@ -298,7 +298,7 @@ class Sample : public H2Core::Object<Sample>
 
 		/** Convenience variable not written to disk. */
 		bool				m_bIsLoaded;
-		QString				m_sFilepath;          ///< filepath of the sample
+		QString				m_sFilePath;          ///< filePath of the sample
 		int					m_nFrames;            ///< number of frames in this sample
 		int					m_nSampleRate;       ///< samplerate for this sample
 		float*				m_data_L;            ///< left channel data
@@ -332,17 +332,17 @@ inline bool Sample::isLoaded() const {
 	return m_bIsLoaded;
 }
 
-inline const QString& Sample::getFilepath() const {
-	return m_sFilepath;
+inline const QString& Sample::getFilePath() const {
+	return m_sFilePath;
 }
 
-inline void Sample::setFilepath( const QString& sPath ) {
-	m_sFilepath = sPath;
+inline void Sample::setFilePath( const QString& sPath ) {
+	m_sFilePath = sPath;
 }
 
 inline QString Sample::getFileName() const
 {
-	return m_sFilepath.section( "/", -1 );
+	return m_sFilePath.section( "/", -1 );
 }
 
 inline int Sample::getFrames() const

@@ -281,7 +281,7 @@ std::vector<std::shared_ptr<InstrumentList::Content>> InstrumentList::summarizeC
 									ppInstrument->getName(), // m_sInstrumentName
 									ppInstrumentComponent->getName(),
 									pSample->getFileName(), // m_sSampleName
-									pSample->getFilepath(), // m_sFullSamplePath
+									pSample->getFilePath(), // m_sFullSamplePath
 									pSample->getLicense() // m_license
 								    ) );
 							}
