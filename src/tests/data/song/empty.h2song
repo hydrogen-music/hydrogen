@@ -15,7 +15,7 @@
  <patternModeMode>true</patternModeMode>
  <playbackTrackFilename></playbackTrackFilename>
  <playbackTrackEnabled>false</playbackTrackEnabled>
- <playbackTrackVolume>0</playbackTrackVolume>
+ <playbackTrackVolume>0.5</playbackTrackVolume>
  <action_mode>0</action_mode>
  <isPatternEditorLocked>false</isPatternEditorLocked>
  <isTimelineActivated>false</isTimelineActivated>
