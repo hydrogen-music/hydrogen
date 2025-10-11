@@ -805,7 +805,7 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 	return true;
 }
 
-bool CoreActionController::saveSong() {
+bool CoreActionController::saveSong( bool bKeepMissingSamples ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pSong = pHydrogen->getSong();
@@ -824,7 +824,7 @@ bool CoreActionController::saveSong() {
 	}
 
 	// Actual saving
-	bool bSaved = pSong->save( sSongPath );
+	bool bSaved = pSong->save( sSongPath, bKeepMissingSamples, true );
 	if ( ! bSaved ) {
 		ERRORLOG( QString( "Current song [%1] could not be saved!" )
 				  .arg( sSongPath ) );
@@ -839,7 +839,8 @@ bool CoreActionController::saveSong() {
 	return true;
 }
 
-bool CoreActionController::saveSongAs( const QString& sNewFileName ) {
+bool CoreActionController::saveSongAs( const QString& sNewFileName,
+									  bool bKeepMissingSamples ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pSong = pHydrogen->getSong();
@@ -865,7 +866,7 @@ bool CoreActionController::saveSongAs( const QString& sNewFileName ) {
 	pSong->setFileName( sNewFileName );
 	
 	// Actual saving
-	if ( ! saveSong() ) {
+	if ( ! saveSong( bKeepMissingSamples ) ) {
 		return false;
 	}
 

@@ -548,7 +548,7 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 }
 
 /// Save a song to file
-bool Song::save( const QString& sFileName, bool bSilent )
+bool Song::save( const QString& sFileName, bool bKeepMissingSamples, bool bSilent )
 {
 	QFileInfo fi( sFileName );
 	if ( ( Filesystem::file_exists( sFileName, true ) &&
@@ -575,7 +575,7 @@ bool Song::save( const QString& sFileName, bool bSilent )
 		doc.appendChild( doc.createComment( License::getGPLLicenseNotice( getAuthor() ) ) );
 	}
 
-	saveTo( rootNode, bSilent );
+	saveTo( rootNode, bKeepMissingSamples, bSilent );
 
 	setFileName( sFileName );
 	setIsModified( false );
@@ -737,7 +737,8 @@ void Song::savePatternGroupVectorTo( XMLNode& node, bool bSilent ) const {
 	}
 }
 
-void Song::saveTo( XMLNode& rootNode, bool bSilent ) const {
+void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples,
+				  bool bSilent ) const {
 	rootNode.write_string( "version", QString( get_version().c_str() ) );
 	rootNode.write_int( "formatVersion", nCurrentFormatVersion );
 	rootNode.write_float( "bpm", m_fBpm );
@@ -822,8 +823,8 @@ void Song::saveTo( XMLNode& rootNode, bool bSilent ) const {
 	// ancient design desicion and we will stick to it.
 	auto drumkitNode = rootNode.createNode( "drumkit_info" );
 	m_pDrumkit->saveTo( drumkitNode,
-						true, // Enable per-instrument sample loading
-						bSilent );
+					   true, // Enable per-instrument sample loading
+					   bKeepMissingSamples, bSilent );
 
 	rootNode.write_string( "lastLoadedDrumkitPath", m_sLastLoadedDrumkitPath );
 

@@ -1458,6 +1458,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Keep</source>
+        <extracomment>Text displayed on a Keep button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -2742,12 +2747,6 @@ MIDI = %2</translation>
         <translation>Canção salva como:</translation>
     </message>
     <message>
-        <source>Some samples used by this song failed to load. If you save the song now these missing samples will be removed from the song entirely.
-Are you sure you want to save?</source>
-        <translation>Algumas amostras usadas nessa canção não foram carregadas. Se você salvar essa canção agora, as amostras faltantes serão removidas da canção.
-Você tem certeza que quer salvar?</translation>
-    </message>
-    <message>
         <source>Import song into Session</source>
         <translation>Importar canção para a Sessão</translation>
     </message>
@@ -2856,6 +2855,10 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     <message>
         <source>Drumkit exported to</source>
         <translation>Drumkit exportado para</translation>
+    </message>
+    <message>
+        <source>Some samples used by this song failed to load. Do you wish to keep or discard them? </source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

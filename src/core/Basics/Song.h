@@ -152,10 +152,13 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	/** Writes the song as .h2song to disk.
 	 *
 	 * @param sFileName Absolute path to write the song to.
+	 * @param bKeepMissingSamples Whether layers containing a missing sample
+	 *   should be kept or discarded.
 	 * \param bSilent if set to true, all log messages except of errors and
 	 *   warnings are suppressed.
 	 */
-	bool 			save( const QString& sFileName, bool bSilent = false );
+	bool 			save( const QString& sFileName, bool bKeepMissingSamples,
+						 bool bSilent = false );
 
 	bool getIsTimelineActivated() const;
 	void setIsTimelineActivated( bool bIsTimelineActivated );
@@ -302,7 +305,8 @@ private:
 	static std::shared_ptr<Song> loadFrom( const XMLNode& pNode,
 										   const QString& sFileName,
 										   bool bSilent = false );
-	void saveTo( XMLNode& pNode, bool bSilent = false ) const;
+	void saveTo( XMLNode& pNode, bool bKeepMissingSamples,
+				bool bSilent = false ) const;
 
 	void loadVirtualPatternsFrom( const XMLNode& pNode, bool bSilent = false );
 	void loadPatternGroupVectorFrom( const XMLNode& pNode, bool bSilent = false );

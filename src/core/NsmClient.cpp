@@ -244,7 +244,10 @@ void NsmClient::printMessage( const QString& msg ) {
 }
 
 int NsmClient::SaveCallback( char** outMsg, void* userData ) {
-	if ( ! H2Core::CoreActionController::saveSong() ) {
+	// Discarding missing samples and their corresponding instrument layer is an
+	// operation with information loss. This is only allowed to be performed
+	// explicitly via the GUI.
+	if ( ! H2Core::CoreActionController::saveSong( /* bKeepMissingSamples */ true ) ) {
 		NsmClient::printError( "Unable to save Song!" );
 		return ERR_GENERAL;
 	}

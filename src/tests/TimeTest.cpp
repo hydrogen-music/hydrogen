@@ -48,7 +48,7 @@ void TimeTest::setUp(){
 	auto pSong = H2Core::CoreActionController::loadSong(
 		QString( "%1/GM_kit_demo3.h2song" ).arg( Filesystem::demos_dir() ) );
 	H2Core::CoreActionController::setSong( pSong );
-	H2Core::CoreActionController::saveSongAs( m_sValidPath );
+	H2Core::CoreActionController::saveSongAs( m_sValidPath, true );
 	
 	H2Core::CoreActionController::activateTimeline( true );
 	H2Core::CoreActionController::addTempoMarker( 0, 120 );

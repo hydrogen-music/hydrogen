@@ -167,8 +167,13 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 *   filenames. In the former case, each instrument might be
 		 *   associated with a different kit and the lookup folder for the
 		 *   samples are stored on a per-instrument basis.
+		 * @param bKeepMissingSamples Whether layers containing a missing sample
+		 *   should be kept or discarded.
+		 * \param bSilent if set to true, all log messages except of errors and
+		 *   warnings are suppressed.
 		 */
-		void saveTo( XMLNode& node, bool bSongKit = false ) const;
+		void saveTo( XMLNode& node, bool bSongKit,
+					bool bKeepMissingSamples, bool bSilent ) const;
 
 		/**
 		 * load an instrument list from an XMLNode

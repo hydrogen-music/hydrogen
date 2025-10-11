@@ -374,6 +374,10 @@ CommonStrings::CommonStrings(){
 	  after the '&' symbol can be used as a hotkey and the '&' symbol
 	  itself will not be displayed.*/
 	m_sButtonDiscard = tr( "&Discard" );
+	/*: Text displayed on a Keep button of a dialog. The character
+	  after the '&' symbol can be used as a hotkey and the '&' symbol
+	  itself will not be displayed.*/
+	m_sButtonKeep = tr( "&Keep" );
 	/*: Text displayed on a Play button which will start playback. The
 	  character after the '&' symbol can be used as a hotkey and the
 	  '&' symbol itself will not be displayed.*/

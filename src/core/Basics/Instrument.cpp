@@ -488,7 +488,8 @@ void Instrument::unloadSamples()
 	}
 }
 
-void Instrument::saveTo( XMLNode& node, bool bSongKit )
+void Instrument::saveTo( XMLNode& node, bool bSongKit, bool bKeepMissingSamples,
+						bool bSilent )
 {
 	XMLNode InstrumentNode = node.createNode( "instrument" );
 	InstrumentNode.write_int( "id", m_nId );
@@ -545,7 +546,8 @@ void Instrument::saveTo( XMLNode& node, bool bSongKit )
 
 	for ( const auto& pComponent : *m_pComponents ) {
 		if ( pComponent != nullptr ) {
-			pComponent->saveTo( InstrumentNode, bSongKit );
+			pComponent->saveTo( InstrumentNode, bSongKit, bKeepMissingSamples,
+							   bSilent );
 		} else {
 			ERRORLOG( "Invalid component!" );
 		}

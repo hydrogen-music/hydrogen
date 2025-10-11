@@ -860,14 +860,31 @@ bool MainForm::action_file_save( const QString& sNewFileName,
 		return action_file_save_as();
 	}
 
+	bool bKeepMissingSamples = true;
 	if ( pSong->hasMissingSamples() ) {
-		if ( QMessageBox::information( this, "Hydrogen",
-		                               tr( "Some samples used by this song failed to load. If you save the song now "
-		                                   "these missing samples will be removed from the song entirely.\n"
-			                               "Are you sure you want to save?" ),
-		                               QMessageBox::Save | QMessageBox::Cancel,
-		                               QMessageBox::Save )
-		     == QMessageBox::Cancel ) {
+		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+		QMessageBox missingSampleBox( this );
+		missingSampleBox.setWindowTitle( "Hydrogen" );
+		missingSampleBox.setText(
+			tr( "Some samples used by this song failed to load."
+				" Do you wish to keep or discard them? " ) );
+		missingSampleBox.setTextFormat( Qt::RichText );
+
+		missingSampleBox.addButton( pCommonStrings->getButtonKeep(),
+								  QMessageBox::AcceptRole );
+		auto pDiscardButton =
+			missingSampleBox.addButton( pCommonStrings->getButtonDiscard(),
+									  QMessageBox::YesRole );
+		auto pRejectButton =
+			missingSampleBox.addButton( pCommonStrings->getButtonCancel(),
+									  QMessageBox::RejectRole );
+		missingSampleBox.exec();
+
+		if ( missingSampleBox.clickedButton() == pDiscardButton ) {
+			bKeepMissingSamples = false;
+		}
+		else if ( missingSampleBox.clickedButton() == pRejectButton ) {
 			return false;
 		}
 	}
@@ -877,9 +894,10 @@ bool MainForm::action_file_save( const QString& sNewFileName,
 
 	bool bSaved;
 	if ( sNewFileName.isEmpty() ) {
-		bSaved = H2Core::CoreActionController::saveSong();
+		bSaved = H2Core::CoreActionController::saveSong( bKeepMissingSamples );
 	} else {
-		bSaved = H2Core::CoreActionController::saveSongAs( sNewFileName );
+		bSaved = H2Core::CoreActionController::saveSongAs(
+			sNewFileName, bKeepMissingSamples );
 	}
 	
 	if( ! bSaved ) {
@@ -2272,7 +2290,8 @@ void MainForm::onAutoSaveTimer()
 			m_sPreviousAutoSaveSongFile = sAutoSaveFileName;
 		}
 			
-		pSong->save( sAutoSaveFileName );
+		pSong->save( sAutoSaveFileName, /* bKeepMissingSamples */ true,
+					/* bSilent */ true );
 
 		pSong->setFileName( sOldFileName );
 		pSong->setIsModified( true );

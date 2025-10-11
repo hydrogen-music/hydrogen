@@ -119,7 +119,7 @@ void CoreActionControllerTest::testSessionManagement() {
 		// Test CoreActionController::saveSong()
 		// -----------------------------------------------------------
 		
-		CPPUNIT_ASSERT( H2Core::CoreActionController::saveSong() );
+		CPPUNIT_ASSERT( H2Core::CoreActionController::saveSong( true ) );
 
 		// -----------------------------------------------------------
 	
@@ -164,7 +164,7 @@ void CoreActionControllerTest::testSessionManagement() {
 	
 	// But we can, instead, make a copy of the current song by saving
 	// it to sFileName2.
-	CPPUNIT_ASSERT( H2Core::CoreActionController::saveSongAs( sFileName2 ) );
+	CPPUNIT_ASSERT( H2Core::CoreActionController::saveSongAs( sFileName2, true ) );
 	
 	// Check if everything worked out.
 	pSong = H2Core::CoreActionController::loadSong( sFileName );

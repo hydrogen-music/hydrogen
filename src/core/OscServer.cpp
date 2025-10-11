@@ -795,12 +795,21 @@ void OscServer::OPEN_SONG_Handler(lo_arg **argv, int argc) {
 
 void OscServer::SAVE_SONG_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	H2Core::CoreActionController::saveSong();
+
+	// Discarding missing samples and their corresponding instrument layer is an
+	// operation with information loss. This is only allowed to be performed
+	// explicitly via the GUI.
+	H2Core::CoreActionController::saveSong( /* bKeepMissingSamples */ true );
 }
 
 void OscServer::SAVE_SONG_AS_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	H2Core::CoreActionController::saveSongAs( QString::fromUtf8( &argv[0]->s ) );
+
+	// Discarding missing samples and their corresponding instrument layer is an
+	// operation with information loss. This is only allowed to be performed
+	// explicitly via the GUI.
+	H2Core::CoreActionController::saveSongAs( QString::fromUtf8( &argv[0]->s ),
+											  /* bKeepMissingSamples */ true );
 }
 
 void OscServer::SAVE_PREFERENCES_Handler(lo_arg **argv, int argc) {

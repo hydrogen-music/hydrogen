@@ -121,9 +121,12 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		/**
 		 * Saves the current #H2Core::Song.
 		 *
+		 * @param bKeepMissingSamples Whether layers containing a missing sample
+		 *   should be kept or discarded.
+		 *
 		 * \return true on success
 		 */
-		static bool saveSong();
+		static bool saveSong( bool bKeepMissingSamples );
 		/**
 		 * Saves the current #H2Core::Song to the path provided in @a sNewFileName.
 		 *
@@ -135,9 +138,12 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 *
 		 * \param sNewFileName Absolute path to the file to store the
 		 *   current #H2Core::Song in.
+		 * @param bKeepMissingSamples Whether layers containing a missing sample
+		 *   should be kept or discarded.
 		 * \return true on success
 		 */
-		static bool saveSongAs( const QString& sNewFileName );
+		static bool saveSongAs( const QString& sNewFileName,
+							   bool bKeepMissingSamples );
 		/**
 		 * Loads an instance of #H2Core::Preferences from the corresponding XML
 		 * file. */

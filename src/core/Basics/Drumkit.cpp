@@ -411,14 +411,18 @@ bool Drumkit::save( const QString& sDrumkitPath, bool bSilent )
 	if ( m_license.getType() == License::GPL ) {
 		root.appendChild( doc.createComment( License::getGPLLicenseNotice( m_sAuthor ) ) );
 	}
-	
-	saveTo( root, false, bSilent );
+
+	// When saving a Drumkit on its own, we want it to be both self-contained
+	// and portable. Missing samples have to be discarded.
+	saveTo( root, /* bSongKit */ false,
+		   /* bKeepMissingSamples */ false, bSilent );
 	return doc.write( Filesystem::drumkit_file( sDrumkitFolder ) );
 }
 
 void Drumkit::saveTo( XMLNode& node,
-					  bool bSongKit,
-					  bool bSilent ) const
+					 bool bSongKit,
+					 bool bKeepMissingSamples,
+					 bool bSilent ) const
 {
 	node.write_int( "formatVersion", nCurrentFormatVersion );
 	node.write_string( "name", m_sName );
@@ -442,14 +446,14 @@ void Drumkit::saveTo( XMLNode& node,
 	node.write_string( "imageLicense", m_imageLicense.getLicenseString() );
 
 	if ( m_pInstruments != nullptr && m_pInstruments->size() > 0 ) {
-		m_pInstruments->saveTo( node, bSongKit );
+		m_pInstruments->saveTo( node, bSongKit, bKeepMissingSamples, bSilent );
 	}
 	else {
 		WARNINGLOG( "Drumkit has no instruments. Storing an InstrumentList with a single empty Instrument as fallback." );
 		auto pInstrumentList = std::make_shared<InstrumentList>();
 		auto pInstrument = std::make_shared<Instrument>();
 		pInstrumentList->insert( 0, pInstrument );
-		pInstrumentList->saveTo( node, bSongKit );
+		pInstrumentList->saveTo( node, bSongKit, true, bSilent );
 	}
 }
 

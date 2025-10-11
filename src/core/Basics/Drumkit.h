@@ -148,10 +148,13 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 *   filenames. In the former case, each instrument might be
 		 *   associated with a different kit and the lookup folder for the
 		 *   samples are stored on a per-instrument basis.
+		 * @param bKeepMissingSamples Whether layers containing a missing sample
+		 *   should be kept or discarded.
 		 */
 		void saveTo( XMLNode& pNode,
-					 bool bSongKit = false,
-					 bool bSilent = false ) const;
+					bool bSongKit,
+					bool bKeepMissingSamples,
+					bool bSilent = false ) const;
 
 
 		/**
