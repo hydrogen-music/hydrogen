@@ -35,15 +35,18 @@
 namespace H2Core
 {
 
-InstrumentLayer::InstrumentLayer( std::shared_ptr<Sample> sample ) :
+InstrumentLayer::InstrumentLayer( std::shared_ptr<Sample> pSample ) :
 	m_fStartVelocity( 0.0 ),
 	m_fEndVelocity( 1.0 ),
 	m_fPitch( 0.0 ),
 	m_fGain( 1.0 ),
 	m_bIsMuted( false ),
 	m_bIsSoloed( false ),
-	m_pSample( sample )
+	m_pSample( pSample )
 {
+	if ( pSample != nullptr ) {
+		m_sFallbackSampleFileName = pSample->getFilename();
+	}
 }
 
 InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> pOther ) : Object( *pOther ),
@@ -53,31 +56,39 @@ InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> pOther ) : Ob
 	m_fGain( pOther->getGain() ),
 	m_bIsMuted( pOther->m_bIsMuted ),
 	m_bIsSoloed( pOther->m_bIsSoloed ),
-	m_pSample( nullptr )
+	m_pSample( nullptr ),
+	m_sFallbackSampleFileName( pOther->m_sFallbackSampleFileName )
 {
 	if ( pOther->m_pSample != nullptr ) {
 		m_pSample = std::make_shared<Sample>( pOther->m_pSample );
 	}
 }
 
-InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> pOther, std::shared_ptr<Sample> sample ) : Object( *pOther ),
+InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> pOther, std::shared_ptr<Sample> pSample ) : Object( *pOther ),
 	m_fStartVelocity( pOther->getStartVelocity() ),
 	m_fEndVelocity( pOther->getEndVelocity() ),
 	m_fPitch( pOther->getPitch() ),
 	m_fGain( pOther->getGain() ),
 	m_bIsMuted( pOther->m_bIsMuted ),
 	m_bIsSoloed( pOther->m_bIsSoloed ),
-	m_pSample( sample )
+	m_pSample( pSample )
 {
+	if ( pSample != nullptr ) {
+		m_sFallbackSampleFileName = pSample->getFilename();
+	}
 }
 
 InstrumentLayer::~InstrumentLayer()
 {
 }
 
-void InstrumentLayer::setSample( std::shared_ptr<Sample> sample )
+void InstrumentLayer::setSample( std::shared_ptr<Sample> pSample )
 {
-	m_pSample = sample;
+	m_pSample = pSample;
+
+	if ( pSample != nullptr ) {
+		m_sFallbackSampleFileName = pSample->getFilename();
+	}
 }
 
 void InstrumentLayer::setPitch( float fValue )
@@ -266,26 +277,34 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 		"isMuted", pLayer->m_bIsMuted, true, false, true );
 	pLayer->m_bIsSoloed = node.read_bool(
 		"isSoloed", pLayer->m_bIsSoloed, true, false, true );
+	pLayer->m_sFallbackSampleFileName = sFileName;
+
 	return pLayer;
 }
 
 void InstrumentLayer::saveTo( XMLNode& node, bool bSongKit ) const
 {
-	auto pHydrogen = Hydrogen::get_instance();
 	auto pSample = getSample();
-	if ( pSample == nullptr ) {
-		ERRORLOG( "No sample associated with layer. Skipping it" );
-		return;
-	}
 	
 	XMLNode layer_node = node.createNode( "layer" );
 
 	QString sFileName;
-	if ( bSongKit ) {
-		sFileName = Filesystem::prepare_sample_path( pSample->getFilepath() );
+	if ( pSample != nullptr ) {
+		if ( bSongKit ) {
+			sFileName = Filesystem::prepare_sample_path( pSample->getFilepath() );
+		}
+		else {
+			sFileName = pSample->getFilename();
+		}
 	}
 	else {
-		sFileName = pSample->getFilename();
+		sFileName = m_sFallbackSampleFileName;
+	}
+
+	// In case the layer does not have a proper sample, we store the values
+	// corresponding to the default constructor.
+	if ( pSample == nullptr ) {
+		pSample = std::make_shared<Sample>( sFileName );
 	}
 	
 	layer_node.write_string( "filename", sFileName );
@@ -343,7 +362,9 @@ QString InstrumentLayer::toQString( const QString& sPrefix, bool bShort ) const 
 		} else {
 			sOutput.append( QString( "%1%2m_pSample: nullptr\n" ).arg( sPrefix ).arg( s ) );
 		}
-	}
+		sOutput.append( QString( "%1%2m_sFallbackSampleFileName: %3\n" )
+						.arg( sPrefix ).arg( s ).arg( m_sFallbackSampleFileName ) );
+}
 	else {
 		sOutput = QString( "[InstrumentLayer]" )
 			.append( QString( " m_fGain: %1" ).arg( m_fGain ) )
@@ -357,6 +378,8 @@ QString InstrumentLayer::toQString( const QString& sPrefix, bool bShort ) const 
 		} else {
 			sOutput.append( QString( ", m_pSample: nullptr\n" ) );
 		}
+		sOutput.append( QString( ", m_sFallbackSampleFileName: %1\n" )
+					   .arg( m_sFallbackSampleFileName ) );
 	}
 	
 	return sOutput;

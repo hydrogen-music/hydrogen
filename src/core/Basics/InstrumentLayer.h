@@ -160,6 +160,13 @@ namespace H2Core
 		bool				m_bIsMuted;
 		bool				m_bIsSoloed;
 		std::shared_ptr<Sample> m_pSample;           ///< the underlaying sample
+
+		/** In case we can not load the sample properly, we can use its path -
+         * stored in here - to avoid a loss of information.
+         *
+         * This is a transient property and not stored in a drumkit.xml or
+         * .h2song file. */
+		QString m_sFallbackSampleFileName;
 	};
 
 	// DEFINITIONS
