@@ -272,8 +272,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		/** Song was incompletely loaded from file (missing samples)
 		 */
 		bool hasMissingSamples() const;
-		void clearMissingSamples();
-		
+
 		void setPanLawType( int nPanLawType );
 		int getPanLawType() const;
 		void setPanLawKNorm( float fKNorm );

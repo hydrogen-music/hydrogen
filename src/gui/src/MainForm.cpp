@@ -870,7 +870,6 @@ bool MainForm::action_file_save( const QString& sNewFilename,
 		     == QMessageBox::Cancel ) {
 			return false;
 		}
-		pSong->clearMissingSamples();
 	}
 
 	// Clear the pattern editor selection to resolve any duplicates

@@ -1034,13 +1034,6 @@ bool Song::hasMissingSamples() const
 	return false;
 }
 
-void Song::clearMissingSamples() {
-	auto pInstrumentList = getDrumkit()->getInstruments();
-	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
-		pInstrumentList->get( i )->setMissingSamples( false );
-	}
-}
-
 void Song::loadTempPatternList( const QString& sFilename )
 {
 	XMLDoc doc;
