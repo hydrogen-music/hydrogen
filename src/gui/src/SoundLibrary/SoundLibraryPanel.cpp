@@ -816,6 +816,14 @@ void SoundLibraryPanel::soundLibraryChangedEvent() {
 	updateTree();
 }
 
+void SoundLibraryPanel::updateSongEvent( int nValue ) {
+	if ( nValue == 1 ) {
+		// A song was saved.
+		test_expandedItems();
+		updateTree();
+	}
+}
+
 void SoundLibraryPanel::test_expandedItems()
 {
 	assert( __sound_library_tree );

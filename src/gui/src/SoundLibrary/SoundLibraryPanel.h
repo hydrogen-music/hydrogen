@@ -54,7 +54,8 @@ public:
 		static void switchDrumkit( std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
 								   std::shared_ptr<H2Core::Drumkit> pOldDrumkit );
 	
-	virtual void soundLibraryChangedEvent() override;
+	void soundLibraryChangedEvent() override;
+	void updateSongEvent( int nValue ) override;
 
 public slots:
 	void on_drumkitLoadAction();
