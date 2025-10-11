@@ -823,6 +823,8 @@ bool CoreActionController::saveSong( bool bKeepMissingSamples ) {
 		return false;
 	}
 
+	const bool bHadMissingSamples = pSong->hasMissingSamples();
+
 	// Actual saving
 	bool bSaved = pSong->save( sSongPath, bKeepMissingSamples, true );
 	if ( ! bSaved ) {
@@ -833,7 +835,14 @@ bool CoreActionController::saveSong( bool bKeepMissingSamples ) {
 	
 	// Update the status bar.
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
-		EventQueue::get_instance()->pushEvent( Event::Type::UpdateSong, 1 );
+		if ( ! bKeepMissingSamples && bHadMissingSamples ) {
+			// Some instrument layers might have been discarded. Reload the
+			// entire drumkit.
+			EventQueue::get_instance()->pushEvent( Event::Type::UpdateSong, 0 );
+		}
+		else {
+			EventQueue::get_instance()->pushEvent( Event::Type::UpdateSong, 1 );
+		}
 	}
 	
 	return true;
