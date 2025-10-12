@@ -676,11 +676,9 @@ int Instrument::getLongestSampleFrames() const {
 void Instrument::checkForMissingSamples() {
 	m_bHasMissingSamples = false;
 
-	bool bSampleFound = false;
 	for ( const auto& pComponent : *getComponents() ) {
 		if ( pComponent == nullptr ) {
 			ERRORLOG( "Invalid component. Something went wrong loading the instrument" );
-			setMuted( true );
 			m_bHasMissingSamples = true;
 			return;
 		}
@@ -692,21 +690,11 @@ void Instrument::checkForMissingSamples() {
 				continue;
 			}
 
-			if ( pLayer->getSample() != nullptr ) {
-				if ( ! bSampleFound ) {
-					bSampleFound = true;
-				}
-			}
-			else {
+			if ( pLayer->getSample() == nullptr ) {
 				m_bHasMissingSamples = true;
 			}
 		}
 	}
-
-	if ( ! bSampleFound ) {
-		setMuted( true );
-	}
-
 }
 
 QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
