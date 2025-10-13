@@ -98,6 +98,11 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 		SongEditorPanel::addNewPattern(); } );
 	m_pPatternPopup->addAction( pCommonStrings->getMenuActionDuplicate(), this,
 								SLOT( patternPopup_duplicate() ) );
+	auto pRenameAction = m_pPatternPopup->addAction(
+		pCommonStrings->getMenuActionRename() );
+	connect( pRenameAction, &QAction::triggered, this, [=]() {
+		inlineEditPatternName( m_nRowClicked );
+	});
 	m_pPatternPopup->addAction( pCommonStrings->getMenuActionDelete(), this,
 								SLOT( patternPopup_delete() ) );
 	m_pPatternPopup->addAction( tr("Fill/Clear..."),  this, SLOT( patternPopup_fill() ) );
