@@ -91,6 +91,8 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_playingPattern_empty_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_empty.png" );
 
 	m_pPatternPopup = new QMenu( this );
+	m_pPatternPopup->addAction( tr("Fill/Clear cells"),  this,
+							   SLOT( patternPopup_fill() ) );
 	m_pPatternPopup->addSection( pCommonStrings->getPattern() );
 	auto pAddAction = m_pPatternPopup->addAction(
 		pCommonStrings->getMenuActionAdd() );
@@ -105,7 +107,6 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	});
 	m_pPatternPopup->addAction( pCommonStrings->getMenuActionDelete(), this,
 								SLOT( patternPopup_delete() ) );
-	m_pPatternPopup->addAction( tr("Fill/Clear..."),  this, SLOT( patternPopup_fill() ) );
 	m_pPatternPopup->addAction( pCommonStrings->getMenuActionProperties(), this,
 								SLOT( patternPopup_properties() ) );
 	m_pPatternPopup->addAction( tr("Virtual Pattern"), this, SLOT( patternPopup_virtualPattern() ) );
