@@ -152,6 +152,7 @@ public slots:
 		QMenu *m_pFunctionPopup;
 		QMenu *m_pFunctionPopupSub;
 		QAction* m_pRenameInstrumentAction;
+		QAction* m_pDuplicateInstrumentAction;
 		QAction* m_pDeleteInstrumentAction;
 		QAction* m_pTypeLabelVisibilityAction;
 		SidebarLabel* m_pInstrumentNameLbl;

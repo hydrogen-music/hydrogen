@@ -249,6 +249,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		const QString& getActionIrreversible() const { return m_sActionIrreversible; }
 
 		const QString& getActionAddInstrument() const { return m_sActionAddInstrument; }
+		const QString& getActionDuplicateInstrument() const {
+			return m_sActionDuplicateInstrument; }
 		const QString& getActionDeleteInstrument() const { return m_sActionDeleteInstrument; }
 		const QString& getActionDropInstrument() const { return m_sActionDropInstrument; }
 		const QString& getActionRenameInstrument() const { return m_sActionRenameInstrument; }
@@ -551,6 +553,7 @@ private:
 		QString m_sActionIrreversible;
 
 		QString m_sActionAddInstrument;
+		QString m_sActionDuplicateInstrument;
 		QString m_sActionDeleteInstrument;
 		QString m_sActionDropInstrument;
 		QString m_sActionRenameInstrument;

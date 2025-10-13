@@ -578,6 +578,9 @@ CommonStrings::CommonStrings(){
 	 * names the action presenting when right-clicking the instrument list in
 	 * the pattern editor. */
 	m_sActionAddInstrument = tr( "Add instrument" );
+	/*: Representing an instrument duplication in the undo history and in the
+       popup menu of the sidebar of the pattern editor.  */
+	m_sActionDuplicateInstrument = tr( "Duplicate instrument" );
 	/*: Representing an instrument deletion in the undo history */
 	m_sActionDeleteInstrument = tr( "Delete instrument" );
 	/*: Representing a drag&drop event for an instrument in the undo history */

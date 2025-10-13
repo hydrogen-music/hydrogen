@@ -608,6 +608,11 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	connect( m_pRenameInstrumentAction, &QAction::triggered, this, [=](){
 		MainForm::action_drumkit_renameInstrument(
 			m_pPatternEditorPanel->getRowIndexDB( m_row ) );} );
+	m_pDuplicateInstrumentAction =
+		m_pFunctionPopup->addAction( pCommonStrings->getActionDuplicateInstrument() );
+	connect( m_pDuplicateInstrumentAction, &QAction::triggered, this, [=](){
+		MainForm::action_drumkit_duplicateInstrument(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ) );} );
 	m_pDeleteInstrumentAction =
 		m_pFunctionPopup->addAction( pCommonStrings->getActionDeleteInstrument() );
 	connect( m_pDeleteInstrumentAction, &QAction::triggered, this, [=](){
@@ -664,6 +669,7 @@ void SidebarRow::set( const DrumPatternRow& row )
 				m_pMuteBtn->show();
 				m_pSoloBtn->show();
 				m_pRenameInstrumentAction->setEnabled( true );
+				m_pDuplicateInstrumentAction->setEnabled( true );
 				m_pDeleteInstrumentAction->setEnabled( true );
 
 				if ( ! pInstrument->getDrumkitPath().isEmpty() ) {
@@ -694,6 +700,7 @@ void SidebarRow::set( const DrumPatternRow& row )
 		m_pSoloBtn->hide();
 		m_pSampleWarning->hide();
 		m_pRenameInstrumentAction->setEnabled( false );
+		m_pDuplicateInstrumentAction->setEnabled( false );
 		m_pDeleteInstrumentAction->setEnabled( false );
 	}
 
