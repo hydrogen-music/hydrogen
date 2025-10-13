@@ -789,6 +789,8 @@ CommonStrings::CommonStrings(){
 	/*: Indicates a menu section in which behavioural customizations can be
 	 *  done. */
 	m_sSettings = tr( "Settings" );
+	/*: Indicates a menu section which affects patterns. */
+	m_sPattern = tr( "Pattern" );
 }
 
 CommonStrings::~CommonStrings(){}

@@ -1469,6 +1469,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Representing an instrument duplication in the undo history and in the popup menu of the sidebar of the pattern editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Pattern</source>
+        <extracomment>Indicates a menu section which affects patterns.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -5805,10 +5810,6 @@ N&apos;estàs segur?</translation>
         <translation>Patrón desat.</translation>
     </message>
     <message>
-        <source>Fill/Clear...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Could not save pattern to temporary directory.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5826,6 +5827,14 @@ N&apos;estàs segur?</translation>
     </message>
     <message>
         <source>Replace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill/Clear cells</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select cells</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

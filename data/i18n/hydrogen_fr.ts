@@ -1469,6 +1469,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Representing an instrument duplication in the undo history and in the popup menu of the sidebar of the pattern editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Pattern</source>
+        <extracomment>Indicates a menu section which affects patterns.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -5865,10 +5870,6 @@ Voulez-vous continuer?</translation>
         <translation>Impossible de sauvegarder le motif dans le répertoire temporaire.</translation>
     </message>
     <message>
-        <source>Fill/Clear...</source>
-        <translation>Remplir/effacer...</translation>
-    </message>
-    <message>
         <source>Open Pattern to Replace </source>
         <translation>Ouvrir un motif pour remplacer </translation>
     </message>
@@ -5882,6 +5883,14 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Replace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill/Clear cells</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select cells</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
