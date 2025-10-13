@@ -603,15 +603,15 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	m_pFunctionPopup->addAction( pCommonStrings->getActionAddInstrument(),
 								 HydrogenApp::get_instance()->getMainForm(),
 								 SLOT( action_drumkit_addInstrument() ) );
-	m_pRenameInstrumentAction = m_pFunctionPopup->addAction(
-		pCommonStrings->getActionRenameInstrument() );
-	connect( m_pRenameInstrumentAction, &QAction::triggered, this, [=](){
-		MainForm::action_drumkit_renameInstrument(
-			m_pPatternEditorPanel->getRowIndexDB( m_row ) );} );
 	m_pDuplicateInstrumentAction =
 		m_pFunctionPopup->addAction( pCommonStrings->getActionDuplicateInstrument() );
 	connect( m_pDuplicateInstrumentAction, &QAction::triggered, this, [=](){
 		MainForm::action_drumkit_duplicateInstrument(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ) );} );
+	m_pRenameInstrumentAction = m_pFunctionPopup->addAction(
+		pCommonStrings->getActionRenameInstrument() );
+	connect( m_pRenameInstrumentAction, &QAction::triggered, this, [=](){
+		MainForm::action_drumkit_renameInstrument(
 			m_pPatternEditorPanel->getRowIndexDB( m_row ) );} );
 	m_pDeleteInstrumentAction =
 		m_pFunctionPopup->addAction( pCommonStrings->getActionDeleteInstrument() );
