@@ -124,7 +124,7 @@ class SongEditorPatternList :  public QWidget
 		virtual void mouseMoveEvent(QMouseEvent *event) override;
 	virtual void leaveEvent( QEvent *ev ) override;
 
-	QPoint __drag_start_position;
+	QPoint m_dragStartPosition;
 
 	/**
 	 * Specifies the row the mouse cursor is currently hovered

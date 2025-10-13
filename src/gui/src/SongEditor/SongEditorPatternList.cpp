@@ -141,7 +141,7 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 {
 	auto pEv = static_cast<MouseEvent*>( ev );
 
-	__drag_start_position = pEv->position().toPoint();
+	m_dragStartPosition = pEv->position().toPoint();
 	
 	// -1 to compensate for the 1 pixel offset to align shadows and
 	// -grid lines.
@@ -1014,7 +1014,7 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 	if (!(event->buttons() & Qt::LeftButton)) {
 		return;
 	}
-	if ( (pEv->position().y() / m_nGridHeight) == (__drag_start_position.y() / m_nGridHeight) ) {
+	if ( (pEv->position().y() / m_nGridHeight) == (m_dragStartPosition.y() / m_nGridHeight) ) {
 		return;
 	}
 	auto pHydrogen = Hydrogen::get_instance();
@@ -1024,7 +1024,7 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 	}
 
 	auto pPatternList = pSong->getPatternList();
-	int row = (__drag_start_position.y() / m_nGridHeight);
+	int row = (m_dragStartPosition.y() / m_nGridHeight);
 	if ( row >= (int)pPatternList->size() ) {
 		return;
 	}
