@@ -239,6 +239,7 @@ void AudioFileBrowser::doubleClicked( const QModelIndex& index )
 {
 	if(!m_SingleClick) {
 		browseTree( index );
+		on_openBTN_clicked();
 	}
 }
 
