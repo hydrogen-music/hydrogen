@@ -84,6 +84,8 @@ class SongEditorPanel : public QWidget,
 		 * focus.*/
 		bool hasSongEditorFocus() const;
 
+	static void addNewPattern();
+
 		// Implements EventListener interface
 		/** Updates the associated buttons if the action mode was
 		 * changed within the core.
@@ -119,7 +121,6 @@ class SongEditorPanel : public QWidget,
 		void vScrollTo( int value );
 		void hScrollTo( int value );
 
-		void newPatBtnClicked();
 		void clearSequence();
 		
 		void updatePlaybackFaderPeaks();

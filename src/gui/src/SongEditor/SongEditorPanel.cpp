@@ -118,7 +118,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 
 	m_pNewPatternAction = createAction( tr( "Create new pattern" ), false );
 	connect( m_pNewPatternAction, &QAction::triggered, [=]() {
-		newPatBtnClicked();
+		addNewPattern();
 	});
 	m_pToolBar->addAction( m_pNewPatternAction );
 
@@ -617,7 +617,7 @@ void SongEditorPanel::updatePlaybackTrack()
 ///
 /// Create a new pattern
 ///
-void SongEditorPanel::newPatBtnClicked()
+void SongEditorPanel::addNewPattern()
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -629,7 +629,7 @@ void SongEditorPanel::newPatBtnClicked()
 		tr( "Pattern %1" ).arg( pPatternList->size() + 1 ) );
 	pNewPattern->setAuthor( pSong->getAuthor() );
 	pNewPattern->setLicense( pSong->getLicense() );
-	PatternPropertiesDialog *pDialog = new PatternPropertiesDialog( this, pNewPattern, 0, true );
+	auto pDialog = new PatternPropertiesDialog( nullptr, pNewPattern, 0, true );
 
 	if ( pDialog->exec() == QDialog::Accepted ) {
 		int nRow;
