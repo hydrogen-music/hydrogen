@@ -91,6 +91,11 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_playingPattern_empty_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_empty.png" );
 
 	m_pPatternPopup = new QMenu( this );
+	m_pPatternPopup->addSection( pCommonStrings->getPattern() );
+	auto pAddAction = m_pPatternPopup->addAction(
+		pCommonStrings->getMenuActionAdd() );
+	connect( pAddAction, &QAction::triggered, this, [=]() {
+		SongEditorPanel::addNewPattern(); } );
 	m_pPatternPopup->addAction( pCommonStrings->getMenuActionDuplicate(), this,
 								SLOT( patternPopup_duplicate() ) );
 	m_pPatternPopup->addAction( pCommonStrings->getMenuActionDelete(), this,
