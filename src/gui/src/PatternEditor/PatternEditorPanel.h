@@ -380,8 +380,6 @@ class PatternEditorPanel : public QWidget,
 	void patternSizeChanged( double );
 	void switchPatternSizeFocus();
 
-		void patchBayBtnClicked();
-
 	private:
 
 		void updateIcons();
@@ -425,7 +423,6 @@ class PatternEditorPanel : public QWidget,
 		QAction* m_pQuantizeAction;
 		MidiLearnableToolButton* m_pDrumPatternButton;
 		MidiLearnableToolButton* m_pPianoRollButton;
-		//QAction* m_pPatchBayAction;
 
 		LCDSpinBox* m_pLCDSpinBoxNumerator;
 		ClickableLabel* m_pPatternSizeSeparatorLabel;

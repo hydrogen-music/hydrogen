@@ -121,3 +121,10 @@ When switching back to **Kit 2** we get the exact same state we started from.
 
 
 https://github.com/hydrogen-music/hydrogen/discussions/1984
+
+---
+
+Update 2025-10-08:
+
+Since the overhaul of the sidebar (instrument list) it is quite easy to change
+the instrument types of the whole drumkit. I will drop the `PatchBay`.
