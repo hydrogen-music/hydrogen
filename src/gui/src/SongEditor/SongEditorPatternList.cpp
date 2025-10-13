@@ -93,6 +93,12 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_pPatternPopup = new QMenu( this );
 	m_pPatternPopup->addAction( tr("Fill/Clear cells"),  this,
 							   SLOT( patternPopup_fill() ) );
+	auto pSelectAction = m_pPatternPopup->addAction( tr( "Select cells" ) );
+	connect( pSelectAction, &QAction::triggered, this, [=]() {
+		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()
+		->selectAllCellsInRow( m_nRowClicked );
+	});
+
 	m_pPatternPopup->addSection( pCommonStrings->getPattern() );
 	auto pAddAction = m_pPatternPopup->addAction(
 		pCommonStrings->getMenuActionAdd() );

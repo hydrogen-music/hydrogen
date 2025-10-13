@@ -1456,3 +1456,13 @@ void SongEditor::clearThePatternSequenceVector( const QString& sFileName )
 	pHydrogen->setIsModified( true );
 	updateEditor( Editor::Update::Content );
 }
+
+void SongEditor::selectAllCellsInRow( int nRow ) {
+	m_selection.clearSelection();
+
+	for ( const auto [ _, ppCell ] : m_gridCells ) {
+		if ( ppCell != nullptr && ppCell->getRow() == nRow ) {
+			m_selection.addToSelection( ppCell );
+		}
+	}
+}
