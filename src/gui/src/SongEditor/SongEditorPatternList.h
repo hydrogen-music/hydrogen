@@ -41,6 +41,8 @@ namespace H2Core {
 	class Pattern;
 }
 
+class InlineEdit;
+
 ///
 /// Song editor pattern list
 ///
@@ -54,6 +56,7 @@ class SongEditorPatternList :  public QWidget
 
 	public:
 		static constexpr int nWidth = 200;
+		static constexpr int nMargin = 25;
 	
 		explicit SongEditorPatternList( QWidget *parent );
 		~SongEditorPatternList();
@@ -90,8 +93,8 @@ class SongEditorPatternList :  public QWidget
 		void patternPopup_duplicate();
 		void patternPopup_fill();
 		void patternPopup_virtualPattern();
-		void inlineEditingFinished();
-		void inlineEditingEntered();
+		void inlineEditingAccepted();
+		void inlineEditingRejected();
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
 
@@ -111,7 +114,7 @@ class SongEditorPatternList :  public QWidget
 		QPixmap				m_playingPattern_empty_Pixmap;
 							
 		QMenu *				m_pPatternPopup;
-		QLineEdit *			m_pLineEdit;
+		InlineEdit*			m_pInlineEdit;
 		std::shared_ptr<H2Core::Pattern>	m_pPatternBeingEdited;
 
 		DragScroller *		m_pDragScroller;
