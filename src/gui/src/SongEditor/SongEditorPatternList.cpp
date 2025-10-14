@@ -224,12 +224,10 @@ void SongEditorPatternList::inlineEditPatternName( int row )
 		return;
 	}
 	m_pPatternBeingEdited = pPatternList->get( row );
-	m_pInlineEdit->setGeometry( 1, row * m_nGridHeight + 1 ,
-							   SongEditorPatternList::nWidth - 2, m_nGridHeight - 1  );
-	m_pInlineEdit->setText( m_pPatternBeingEdited->getName() );
-	m_pInlineEdit->selectAll();
-	m_pInlineEdit->show();
-	m_pInlineEdit->setFocus();
+	m_pInlineEdit->startEditing(
+		QRect( 1, row * m_nGridHeight + 1 ,
+			  SongEditorPatternList::nWidth - 2, m_nGridHeight - 1  ),
+		m_pPatternBeingEdited->getName() );
 }
 
 void SongEditorPatternList::inlineEditingAccepted()

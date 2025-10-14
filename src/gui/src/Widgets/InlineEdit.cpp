@@ -36,6 +36,14 @@ InlineEdit::InlineEdit( QWidget* pParent ) : QLineEdit( pParent )
 InlineEdit::~InlineEdit() {
 }
 
+void InlineEdit::startEditing( QRect rect, const QString& sText ) {
+	setGeometry( rect );
+	setText( sText );
+	selectAll();
+	show();
+	setFocus();
+}
+
 void InlineEdit::keyPressEvent( QKeyEvent* pEvent ) {
 	if ( pEvent->key() == Qt::Key_Escape ) {
 		emit editRejected();

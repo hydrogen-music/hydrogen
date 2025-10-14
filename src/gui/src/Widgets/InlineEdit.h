@@ -43,6 +43,8 @@ public:
 	InlineEdit( QWidget* pParent );
 	~InlineEdit();
 
+	void startEditing( QRect rect, const QString& sText  );
+
 signals:
 	void editAccepted();
 	void editRejected();
