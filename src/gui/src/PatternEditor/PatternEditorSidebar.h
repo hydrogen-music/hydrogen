@@ -47,7 +47,7 @@ namespace H2Core
 
 class Button;
 
-class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
+class SidebarLabel : public QLineEdit, public H2Core::Object<SidebarLabel>
 {
 	H2_OBJECT(SidebarLabel)
 	Q_OBJECT
@@ -60,7 +60,7 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		};
 
 		SidebarLabel( QWidget* pParent, Type type, const QSize& size,
-					  const QString& sText, int nIndent );
+					  const QString& sText, int nLeftMargin );
 		~SidebarLabel();
 
 		/** Text will be cleared on showPlusSign() */
@@ -97,7 +97,6 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		QWidget* m_pParent;
 		Type m_type;
 		QString m_sText;
-		int m_nIndent;
 		bool m_bShowPlusSign;
 		QColor m_backgroundColor;
 		QColor m_textColor;

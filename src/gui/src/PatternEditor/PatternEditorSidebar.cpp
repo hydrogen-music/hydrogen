@@ -55,11 +55,10 @@
 using namespace H2Core;
 
 SidebarLabel::SidebarLabel( QWidget* pParent, Type type, const QSize& size,
-							const QString& sText, int nIndent )
-	: QLabel( pParent )
+							const QString& sText, int nLeftMargin )
+	: QLineEdit( pParent )
 	, m_pParent( pParent )
 	, m_type( type )
-	, m_nIndent( nIndent )
 	, m_bShowPlusSign( false )
 	, m_bEntered( false )
 	, m_sText( sText )
@@ -68,12 +67,13 @@ SidebarLabel::SidebarLabel( QWidget* pParent, Type type, const QSize& size,
 {
 	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
 
+	setReadOnly( true );
 	setFixedWidth( size.width() );
 	setFixedHeight( size.height() );
+	setFocusPolicy( Qt::NoFocus );
 	setText( sText );
 	setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
-	setIndent( nIndent );
-	setContentsMargins( 1, 1, 1, 1 );
+	setTextMargins( nLeftMargin , 0, 0, 0 );
 
 	updateFont();
 	setColor( pColorTheme->m_patternEditor_backgroundColor,
@@ -220,7 +220,7 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 			const QString sReferenceText = QString( "0" ).repeated(
 				QString::number( nIdMax ).length() );
 
-			const int nTextWidth = margin() * 2 + indent() +
+			const int nTextWidth = textMargins().left() + textMargins().right() +
 				QFontMetrics( font() ).size( Qt::TextSingleLine,
 											 sReferenceText ).width();
 			nMidX = std::round(( width() - nTextWidth ) / 2 ) + nTextWidth;
@@ -265,7 +265,7 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 		p.drawRoundedRect( QRect( 1, 1, width() - 2, height() - 2 ), 4, 4 );
 	}
 
-	QLabel::paintEvent( ev );
+	QLineEdit::paintEvent( ev );
 }
 
 void SidebarLabel::updateFont() {
@@ -308,7 +308,7 @@ void SidebarLabel::updateFont() {
 	// Check whether the width of the text fits the available frame
 	// width of the label
 	while ( QFontMetrics( font ).size( Qt::TextSingleLine, sText ).width() >
-			width() - m_nIndent && sText.size() > 3 ) {
+			width() - textMargins().left() - 4 && sText.size() > 3 ) {
 		if ( sText.at( sText.size() - 2 ) != sEllipsis ) {
 			// First trim action
 			sText.replace( sText.size() - 2, 1, sEllipsis );
@@ -319,7 +319,7 @@ void SidebarLabel::updateFont() {
 	}
 
 	if ( sText != text() ) {
-		QLabel::setText( sText );
+		QLineEdit::setText( sText );
 	}
 }
 
@@ -351,8 +351,9 @@ void SidebarLabel::updateStyle() {
 	}
 
 	setStyleSheet( QString( "\
-QLabel {\
+QLineEdit {\
    color: %1;\
+   background: transparent;\
    font-weight: bold;\
  }" ).arg( m_textColor.name( QColor::HexArgb ) ) );
 }
