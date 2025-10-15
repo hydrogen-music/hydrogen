@@ -8,10 +8,20 @@ All notable changes to this project will be documented in this file.
 
 - Support for songs and drumkits created with version `0.9.3` (#2193).
 
+### Changed
+
+- When timeline is activated or tempo is synced to an external application,
+  tempo changes via keyboard shortcuts, MIDI, or OSC commands as well as
+  Beat Counter and Tap Tempo are now discarded.
+
 ### Fixed
 
 - OSC endpoint `/Hydrogen/SAVE_PREFERENCES` does now actually save the
   preferences (instead of the song).
+- Keyboard events for settings values on rotaries and faders are not shadowed by
+  the virtual keyboard anymore.
+- Using bpm, beat counter, and tap tempo MIDI actions or OSC commands while
+  timeline is activate does no longer result in countless popups.
 
 ## [1.2.6] - 2025-07-29
 
