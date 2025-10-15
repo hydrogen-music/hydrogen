@@ -109,7 +109,7 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 		if ( pInstrument != nullptr && pSong != nullptr &&
 			 pSong->getDrumkit() != nullptr ) {
 			MainForm::action_drumkit_renameInstrument(
-				pSong->getDrumkit()->getInstruments()->index( pInstrument ) );}
+				pSong->getDrumkit()->getInstruments()->index( pInstrument ), "" );}
 	} );
 
 	m_pPitchLCD = new LCDDisplay(

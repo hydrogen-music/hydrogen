@@ -75,6 +75,8 @@ class SidebarLabel : public QLineEdit, public H2Core::Object<SidebarLabel>
 		void setDimed( bool bDimed );
 
 	signals:
+		void editAccepted();
+		void editRejected();
 		void labelClicked( QMouseEvent* pEvent );
 		void labelDoubleClicked( QMouseEvent* pEvent );
 
@@ -87,6 +89,7 @@ class SidebarLabel : public QLineEdit, public H2Core::Object<SidebarLabel>
 #else
 		virtual void enterEvent( QEvent *ev ) override;
 #endif
+	void keyPressEvent( QKeyEvent* pEvent ) override;
 		virtual void leaveEvent( QEvent *ev ) override;
 		virtual void mousePressEvent( QMouseEvent* pEvent ) override;
 		virtual void mouseDoubleClickEvent( QMouseEvent* pEvent ) override;

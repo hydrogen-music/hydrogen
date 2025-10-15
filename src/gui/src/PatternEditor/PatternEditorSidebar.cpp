@@ -75,11 +75,27 @@ SidebarLabel::SidebarLabel( QWidget* pParent, Type type, const QSize& size,
 	setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
 	setTextMargins( nLeftMargin , 0, 0, 0 );
 
+	// Prevent the default context menu (popup) from showing up since we ship
+	// our own one.
+	setContextMenuPolicy( Qt::NoContextMenu );
+
 	updateFont();
 	setColor( pColorTheme->m_patternEditor_backgroundColor,
 			  pColorTheme->m_patternEditor_textColor,
 			  pColorTheme->m_cursorColor );
 	updateStyle();
+
+	connect( this, &QLineEdit::editingFinished, this, [=]() {
+		// Ensure the new text fits the width.
+		setText( text() );
+		// When rejecting the input, the readOnly property has already been
+		// reset and we must not emit a second event.
+		if ( ! isReadOnly() ) {
+			setReadOnly( true );
+			clearFocus();
+			emit editAccepted();
+		}
+	} );
 }
 
 SidebarLabel::~SidebarLabel() {
@@ -145,6 +161,17 @@ void SidebarLabel::leaveEvent( QEvent* ev ) {
 	update();
 }
 
+void SidebarLabel::keyPressEvent( QKeyEvent* pEvent ) {
+	if ( pEvent->key() == Qt::Key_Escape ) {
+		setReadOnly( true );
+		clearFocus();
+		emit editRejected();
+		return;
+	}
+
+	QLineEdit::keyPressEvent( pEvent );
+}
+
 void SidebarLabel::mousePressEvent( QMouseEvent* pEvent ) {
 
 	auto pSidebarRow = dynamic_cast<SidebarRow*>( m_pParent );
@@ -156,7 +183,14 @@ void SidebarLabel::mousePressEvent( QMouseEvent* pEvent ) {
 }
 
 void SidebarLabel::mouseDoubleClickEvent( QMouseEvent* pEvent ) {
-	emit labelDoubleClicked( pEvent );
+	if ( m_type == Type::Instrument ) {
+		setReadOnly( false );
+		selectAll();
+		setFocus();
+	}
+	else {
+		emit labelDoubleClicked( pEvent );
+	}
 }
 
 void SidebarLabel::paintEvent( QPaintEvent* ev )
@@ -432,14 +466,29 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 				}
 			}
 	} );
-	connect( m_pInstrumentNameLbl, &SidebarLabel::labelDoubleClicked,
-			 [=]( QMouseEvent* pEvent ) {
-				 if ( pEvent->button() == Qt::LeftButton &&
-					  m_row.nInstrumentID != EMPTY_INSTR_ID ) {
-					 MainForm::action_drumkit_renameInstrument(
-						 m_pPatternEditorPanel->getRowIndexDB( m_row ) );
-				 }
-			 } );
+	connect( m_pInstrumentNameLbl, &SidebarLabel::editAccepted, [=]() {
+		if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
+		 MainForm::action_drumkit_renameInstrument(
+			 m_pPatternEditorPanel->getRowIndexDB( m_row ),
+			 m_pInstrumentNameLbl->text() );
+		}
+	} );
+	connect( m_pInstrumentNameLbl, &SidebarLabel::editRejected, this, [&]() {
+		// Reset the typed instrument name with the one in the current drumkit.
+		if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
+			auto pSong = Hydrogen::get_instance()->getSong();
+			if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+				return;
+			}
+			auto pInstrument = pSong->getDrumkit()->getInstruments()
+				->get( m_pPatternEditorPanel->getRowIndexDB( m_row ) );
+			if ( pInstrument == nullptr ) {
+				return;
+			}
+
+			m_pInstrumentNameLbl->setText( pInstrument->getName() );
+		}
+	} );
 
 	m_pSampleWarning = new Button(
 		this, QSize( 15, 13 ), Button::Type::Icon, "warning.svg", "", QSize(),
@@ -612,8 +661,10 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	m_pRenameInstrumentAction = m_pFunctionPopup->addAction(
 		pCommonStrings->getActionRenameInstrument() );
 	connect( m_pRenameInstrumentAction, &QAction::triggered, this, [=](){
-		MainForm::action_drumkit_renameInstrument(
-			m_pPatternEditorPanel->getRowIndexDB( m_row ) );} );
+		m_pInstrumentNameLbl->setReadOnly( false );
+		m_pInstrumentNameLbl->selectAll();
+		m_pInstrumentNameLbl->setFocus();
+	} );
 	m_pDeleteInstrumentAction =
 		m_pFunctionPopup->addAction( pCommonStrings->getActionDeleteInstrument() );
 	connect( m_pDeleteInstrumentAction, &QAction::triggered, this, [=](){

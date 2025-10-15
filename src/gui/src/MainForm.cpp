@@ -1532,7 +1532,8 @@ void MainForm::action_drumkit_deleteInstrument( int nInstrumentIndex )
 		.arg( pSelectedInstrument->getName() ) );
 }
 
-void MainForm::action_drumkit_renameInstrument( int nInstrumentIndex )
+void MainForm::action_drumkit_renameInstrument( int nInstrumentIndex,
+											   const QString& sNewName )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
@@ -1549,25 +1550,19 @@ void MainForm::action_drumkit_renameInstrument( int nInstrumentIndex )
 	}
 
 	const QString sOldName = pInstrument->getName();
-	bool bIsOkPressed;
-	const QString sNewName = QInputDialog::getText(
-		nullptr, "Hydrogen", pCommonStrings->getActionRenameInstrument(),
-		QLineEdit::Normal, sOldName, &bIsOkPressed );
-	if ( bIsOkPressed ) {
-		auto pNewInstrument = std::make_shared<Instrument>(pInstrument);
-		pNewInstrument->setName( sNewName );
+	auto pNewInstrument = std::make_shared<Instrument>(pInstrument);
+	pNewInstrument->setName( sNewName );
 
-		pHydrogenApp->pushUndoCommand(
-			new SE_replaceInstrumentAction(
-				pNewInstrument, pInstrument,
-				SE_replaceInstrumentAction::Type::RenameInstrument,
-				sNewName, sOldName ) );
+	pHydrogenApp->pushUndoCommand(
+		new SE_replaceInstrumentAction(
+			pNewInstrument, pInstrument,
+			SE_replaceInstrumentAction::Type::RenameInstrument,
+			sNewName, sOldName ) );
 
-		pHydrogenApp->showStatusBarMessage(
-			QString( "%1 [%2] -> [%3]" )
-			.arg( pCommonStrings->getActionRenameInstrument() )
-			.arg( sOldName ).arg( sNewName ) );
-	}
+	pHydrogenApp->showStatusBarMessage(
+		QString( "%1 [%2] -> [%3]" )
+		.arg( pCommonStrings->getActionRenameInstrument() )
+		.arg( sOldName ).arg( sNewName ) );
 }
 
 void MainForm::action_drumkit_export() {

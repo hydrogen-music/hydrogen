@@ -192,7 +192,8 @@ public slots:
 			std::shared_ptr<H2Core::Instrument> pInstrument = nullptr );
 		static void action_drumkit_duplicateInstrument( int nInstrumentIndex );
 		static void action_drumkit_deleteInstrument( int nInstrumentIndex );
-		static void action_drumkit_renameInstrument( int nInstrumentIndex );
+		static void action_drumkit_renameInstrument( int nInstrumentIndex,
+													const QString& sNewName );
 
 		void action_window_showMixer();
 		void action_window_showPlaylistEditor();
