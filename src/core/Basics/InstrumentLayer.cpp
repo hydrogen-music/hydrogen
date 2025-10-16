@@ -93,50 +93,74 @@ void InstrumentLayer::unload_sample()
 	}
 }
 
-std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from( XMLNode* pNode, const QString& sDrumkitPath, const License& drumkitLicense, bool bSilent )
+std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
+	XMLNode* pNode,
+	const QString& sDrumkitPath,
+	const QString& sSongPath,
+	const License& drumkitLicense,
+	bool bSilent )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	
 	const QString sFileName = pNode->read_string(
 		"filename", "", false, false, bSilent );
-	QString sFilePath = sFileName;
 
-	// In case just the filename is provided, like "sample.wav", the
-	// corresponding sample will be searched in the folder of the corresponding
-	// drumkit.
-	if ( ! Filesystem::file_exists( sFileName, true ) && ! sDrumkitPath.isEmpty() &&
-		 ! sFileName.startsWith( "/" ) ) {
-
+	QFileInfo filenameInfo( sFileName );
+	QString sFilePath;
+	if ( filenameInfo.isAbsolute() ) {
+		// Samples with absolute filenames are those added using the
+		// InstrumentEditor.
+		sFilePath = sFileName;
+	}
+	else {
+		// QFileInfo::isRelative() can not be used in here as samples of
+		// drumkits within the user or system drumkit folder are stored
+		// relatively as well (by saving just the filename).
+		if ( ( sFileName.contains( "\\" ) || sFileName.contains( "/" ) ) &&
+			 ! sSongPath.isEmpty() ) {
 #ifdef H2CORE_HAVE_OSC
-		if ( pHydrogen->isUnderSessionManagement() ) {
-			// If we use the NSM support and the sample files to save
-			// are corresponding to the drumkit linked/located in the
-			// session folder, we have to ensure the relative paths
-			// are loaded. This is vital in order to support
-			// renaming, duplicating, and porting sessions.
+			// If we use the NSM support and the sample files to save are
+			// corresponding to the drumkit linked/located in the session
+			// folder, we have to ensure the relative paths are loaded. This is
+			// vital in order to support renaming, duplicating, and porting
+			// sessions.
 
-			// QFileInfo::isRelative() can not be used in here as
-			// samples within drumkits within the user or system
-			// drumkit folder are stored relatively as well (by saving
-			// just the filename).
-			if ( sFileName.left( 2 ) == "./" ||
-				 sFileName.left( 2 ) == ".\\" ) {
+			// QFileInfo::isRelative() can not be used in here as samples
+			// within drumkits within the user or system drumkit folder are
+			// stored relatively as well (by saving just the filename).
+			if ( pHydrogen->isUnderSessionManagement() &&
+				 ( sFileName.left( 2 ) == "./" ||
+				   sFileName.left( 2 ) == ".\\" ) ) {
 				// Removing the leading "." of the relative path in
 				// sFileName while still using the associated folder
 				// separator.
 				sFilePath = NsmClient::get_instance()->getSessionFolderPath() +
 					sFileName.right( sFileName.size() - 1 );
 			}
-			else {
-				sFilePath = sDrumkitPath + "/" + sFileName;
+			else
+#endif
+			{
+				// Sample path can be stored relative to the .h2song file. This
+				// is mainly present to allow for more thorough unit test. It,
+				// however, has to be written manually. Hydrogen itself does not
+				// store paths relatively (except when under session management)
+				// to increase portability.
+				QFileInfo songPathInfo( sSongPath );
+				sFilePath = songPathInfo.absoluteDir().absoluteFilePath( sFileName );
 			}
 		}
-		else {
-			sFilePath = sDrumkitPath + "/" + sFileName;
+		else if ( ! sDrumkitPath.isEmpty() ){
+			// Plain filenames of samples associated with an installed drumkit.
+			QFileInfo drumkitPathInfo( sDrumkitPath );
+			if ( drumkitPathInfo.isDir() ) {
+				sFilePath = QDir( sDrumkitPath ).absoluteFilePath( sFileName );
+			} else {
+				// Path to drumkit.xml was entered. Not standard. Probably done
+				// manually.
+				sFilePath = drumkitPathInfo.absoluteDir().absoluteFilePath(
+					sFileName );
+			}
 		}
-#else
-		sFilePath = sDrumkitPath + "/" + sFileName;
-#endif
 	}
 
 	// If the sample still could not be found, this could be e.g. due to an

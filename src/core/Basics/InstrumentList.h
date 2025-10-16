@@ -194,6 +194,8 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * \param node the XMLDode to read from
 		 * \param sDrumkitPath the directory holding the #Drumkit
 		 * \param sDrumkitName name of the #Drumkit found in @a sDrumkitPath
+		 * \param sSongPath path to the song to be loaded. Used in case some
+		 *   #H2Core::Sample have to be loaded relatively.
 		 * \param license License assigned to all Samples that will be
 		 *   loaded. If empty, the license will be read from @a dk_path.
 		 * \param pLegacyFormatEncountered will be set to `true` is any of the
@@ -208,6 +210,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		XMLNode* node,
 		const QString& sDrumkitPath,
 		const QString& sDrumkitName,
+		const QString& sSongPath,
 		const License& license = License(),
 		bool* pLegacyFormatEncountered = nullptr,
 		bool bSilent = false );

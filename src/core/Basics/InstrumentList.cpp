@@ -67,12 +67,14 @@ void InstrumentList::unload_samples()
 	}
 }
 
-std::shared_ptr<InstrumentList> InstrumentList::load_from( XMLNode* pNode,
-														   const QString& sDrumkitPath,
-														   const QString& sDrumkitName,
-														   const License& license,
-														   bool* pLegacyFormatEncountered,
-														   bool bSilent )
+std::shared_ptr<InstrumentList> InstrumentList::load_from(
+	XMLNode* pNode,
+	const QString& sDrumkitPath,
+	const QString& sDrumkitName,
+	const QString& sSongPath,
+	const License& license,
+	bool* pLegacyFormatEncountered,
+	bool bSilent )
 {
 	XMLNode instrumentListNode = pNode->firstChildElement( "instrumentList" );
 	if ( instrumentListNode.isNull() ) {
@@ -92,7 +94,7 @@ std::shared_ptr<InstrumentList> InstrumentList::load_from( XMLNode* pNode,
 		}
 
 		auto pInstrument = Instrument::load_from(
-			&instrumentNode, sDrumkitPath, sDrumkitName, license,
+			&instrumentNode, sDrumkitPath, sDrumkitName, sSongPath, license,
 			pLegacyFormatEncountered, bSilent );
 		if ( pInstrument != nullptr ) {
 			( *pInstrumentList ) << pInstrument;

@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [1.2.7] - XXXX-XX-XX
 
+### Added
+
+- Support for songs and drumkits created with version `0.9.3` (#2193).
+
 ### Changed
 
 - When timeline is activated or tempo is synced to an external application,

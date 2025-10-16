@@ -30,9 +30,12 @@
 
 namespace H2Core {
 
-std::shared_ptr<H2Core::Drumkit> Future::loadDrumkit( XMLNode& node,
-													  const QString& sDrumkitPath,
-													  bool bSilent ) {
+std::shared_ptr<H2Core::Drumkit> Future::loadDrumkit(
+	XMLNode& node,
+	const QString& sDrumkitPath,
+	const QString& sSongPath,
+	bool bSilent )
+{
 	QString sDrumkitName = node.read_string( "name", "", false, false, bSilent );
 	if ( sDrumkitName.isEmpty() ) {
 		ERRORLOG( "Drumkit has no name, abort" );
@@ -95,8 +98,8 @@ std::shared_ptr<H2Core::Drumkit> Future::loadDrumkit( XMLNode& node,
 		}
 
 		auto pInstrument = Instrument::load_from(
-			&instrumentNode, sDrumkitPath, sDrumkitName, license, nullptr,
-			bSilent );
+			&instrumentNode, sDrumkitPath, sDrumkitName, sSongPath, license,
+			nullptr, bSilent );
 		if ( pInstrument != nullptr ) {
 			auto pInstrumentComponents = pInstrument->get_components();
 

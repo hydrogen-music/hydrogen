@@ -107,6 +107,8 @@ namespace H2Core
 		 * load an instrument layer from an XMLNode
 		 * \param pNode the XMLDode to read from
 		 * \param sDrumkitPath the directory holding the drumkit data
+		 * \param sSongPath path to the song to be loaded. Used in case some
+		 *   #H2Core::Sample have to be loaded relatively.
 		 * \param drumkitLicense License assigned to all #Sample
 		 * contain in the loaded #InstrumentLayer.
 		 * \param bSilent if set to true, all log messages except of
@@ -114,10 +116,12 @@ namespace H2Core
 		 *
 		 * \return a new InstrumentLayer instance
 		 */
-		static std::shared_ptr<InstrumentLayer> load_from( XMLNode* pNode,
-														   const QString& sDrumkitPath,
-														   const License& drumkitLicense = License(),
-														   bool bSilent = false );
+		static std::shared_ptr<InstrumentLayer> load_from(
+			XMLNode* pNode,
+			const QString& sDrumkitPath,
+			const QString& sSongPath,
+			const License& drumkitLicense = License(),
+			bool bSilent = false );
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line

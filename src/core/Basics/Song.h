@@ -300,7 +300,11 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	
 private:
 
-	static std::shared_ptr<Song> loadFrom( XMLNode* pNode, const QString& sFilename, bool bSilent = false );
+	static std::shared_ptr<Song> loadFrom(
+		XMLNode* pNode,
+		const QString& sFilename,
+		const QString& sSongPath,
+		bool bSilent = false );
 	void writeTo( XMLNode* pNode, bool bSilent = false );
 
 	void loadVirtualPatternsFrom( XMLNode* pNode, bool bSilent = false );

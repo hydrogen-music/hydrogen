@@ -41,7 +41,9 @@ class Future : public H2Core::Object<Future> {
 		H2_OBJECT(Future)
 public:
 		static std::shared_ptr<H2Core::Drumkit> loadDrumkit(
-			XMLNode& node, const QString& sDrumkitPath,
+			XMLNode& node,
+			const QString& sDrumkitPath,
+			const QString& sSongPath,
 			bool bSilent = false );
 	static std::vector<std::shared_ptr<DrumkitComponent>> loadDrumkitComponentsFromKit(
 		XMLNode* pNode );

@@ -127,7 +127,7 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath,
 		// Even in case the future version is invalid with respect to the XSD
 		// file, the most recent version of the format will be the most
 		// successful one.
-		pDrumkit = Future::loadDrumkit( root, sDrumkitDir, bSilent );
+		pDrumkit = Future::loadDrumkit( root, sDrumkitDir, "", bSilent );
 	}
 	else {
 		pDrumkit = Drumkit::load_from( &root, sDrumkitDir,
@@ -208,7 +208,7 @@ std::shared_ptr<Drumkit> Drumkit::load_from( XMLNode* node,
 	}
 
 	auto pInstrumentList = InstrumentList::load_from(
-		node, sDrumkitPath, sDrumkitName, license, pLegacyFormatEncountered,
+		node, sDrumkitPath, sDrumkitName, "", license, pLegacyFormatEncountered,
 		false );
 	// Required to assure backward compatibility.
 	if ( pInstrumentList == nullptr ) {
