@@ -1,0 +1,133 @@
+.TH H2CLI "1" "July 29, 2025" "Hydrogen 1.2.6" "User Commands"
+.SH NAME
+h2cli \- a CLI version of the advanced drum machine Hydrogen.
+.SH SYNOPSIS
+.PP
+\fBh2cli\fR \fIoptions\fR
+.SH DESCRIPTION
+.PP
+\fBh2cli\fR does not start up the GUI of \fBHydrogen\fR but allows to do some batch processing using its core. It can be used in two different ways. Either for exporting a song into an audio file or for checking, extracting, installing, or upgrading an existing drumkit.
+.SH OPTIONS
+.TP
+\fB\-d\fR, \fB\-\-driver\fR=[\fIAUDIO_DRIVER\fR]
+Use the selected audio driver. The description of this option in the -\-help output contains all audio
+drivers available on your system.
+.TP
+\fB\-s\fR, \fB\-\-song\fR=\fIFILE\fR
+Load a song (\fI*.h2song\fR) at startup. Alternatively, you can just pass the filename without this option.
+.TP
+\fB\-p\fR, \fB\-\-playlist\fR=\fIFILE\fR
+Load a playlist (\fI*.h2playlist\fR) at startup.
+.TP
+\fB\-k\fR, \fB\-\-kit\fR=\fIDRUMKIT_NAME\fR
+Load a drumkit at startup.
+.TP
+\fB\-o\fR, \fB\-\-outfile\fR=\fIPATH\fR
+Destination file (export).
+.TP
+\fB\-r\fR, \fB\-\-rate\fR=\fIINT\fR
+Set bitrate while exporting a song.
+.TP
+\fB\-b\fR, \fB\-\-bits\fR=\fIINT\fR
+Set bit depth while exporting a song.
+.TP
+\fB\-\-compression\-level\fR=\fIDOUBLE\fR
+Trade-off between max. quality (\fI0.0\fR) and max. compression (\fI1.0\fR) while exporting a song.
+.TP
+\fB\-I\fR, \fB\-\-interpolation\fR=\fIINT\fR
+Type of interpolation used during resampling (if required) while exporting a song. Available options are \fI0\fR (linear) [default], \fI1\fR (cosine), \fI2\fR (third), \fI3\fR (cubic), and \fI4\fR (hermite).
+.TP
+\fB\-i\fR, \fB\-\-install\fR=\fIFILE\fR
+Install a drumkit (\fI*.h2drumkit\fR).
+.TP
+\fB\-c\fR, \fB\-\-check\fR=\fIFILE\fR
+Validates a drumkit (\fI*.h2drumkit\fR) against the current drumkit format.
+.TP
+\fB\-l\fR, \fB\-\-legacy\-check\fR=\fIFILE\fR
+Validates a drumkit (\fI*.h2drumkit\fR) against the current as well as legacy drumkit formats.
+.TP
+\fB\-u\fR, \fB\-\-upgrade\fR=\fIFILE\fR
+Upgrades a drumkit. The provided file can be either an absolute path to a folder
+containing a drumkit, an absolute path to a drumkit file (\fIdrumkit.xml\fR)
+itself, or an absolute path to a compressed drumkit (\fI*.h2drumkit\fR). If no
+target folder was specified using the -t option, a backup of the drumkit is
+created and the original one is upgraded in place. If a compressed drumkit is
+provided as first argument, the upgraded drumkit will be compressed as well.
+.TP
+\fB\-x\fR, \fB\-\-extract\fR=\fIFILE\fR
+Extracts the content of a drumkit (\fI*.h2drumkit\fR). If no target is specified
+using the -t option, this command behaves like --install.
+.TP
+\fB\-t\fR, \fB\-\-target\fR=\fIFOLDER\fR
+Target folder the extracted (-x) or upgraded (-u) drumkit will be stored in. The
+folder is created if it does not exists yet.
+.TP
+\fB\-O\fR, \fB\-\-osc\-port\fR=\fIPORT\fR
+Use custom OSC port.
+.TP
+\fB\-P\fR, \fB\-\-data\fR=\fIPATH\fR
+Use an alternate system data path.
+.TP
+\fB\-\-user\-data\fR=\fIPATH\fR
+Use an alternate user data path.
+.IP
+The default one is \fB$HOME\fR/.hydrogen.
+.TP
+\fB\-\-config\fR=\fIPATH\fR
+Use an alternate config path.
+.IP
+The default one is \fB$HOME\fR/.hydrogen/hydrogen.conf.
+.TP
+\fB\-V\fR, \fB\-\-verbose\fR=[\fILEVEL\fR]
+Print a lot of debugging info
+.IP
+Level, if present, may be \fINone\fR, \fIError\fR, \fIWarning\fR, \fIInfo\fR, or \fIDebug\fR.
+.TP
+\fB\-L\fR, \fB\-\-log\-file\fR=\fIFILE\fR
+Use custom log file.
+.TP
+\fB\-T\fR, \fB\-\-log\-timestamps\fR
+Add timestamps to all log messages.
+.TP
+\fB\-v\fR, \fB\-\-version\fR
+Show version info.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Show this help message.
+.SH FILES
+For a comprehensive list of files, configuration, and environmental variables, please see the man page of \fBhydrogen\fR itself.
+.SH EXAMPLES
+Exporting a song into an audio file
+.IP
+h2cli -s /usr/share/hydrogen/data/demo_songs/GM_kit_demo1.h2song \
+        -d GMRockKit -d auto -o ./example.wav
+.PP
+Check the format of a drumkit
+.IP
+h2cli -c /usr/share/hydrogen/data/drumkits/GMRockKit
+.SH BUGS & FEATURES REQUEST
+.PP
+If you find any bug or if you would like to propose a new feature, please report it to https://github.com/hydrogen-music/hydrogen/issues
+.SH AUTHORS
+.PP
+The hydrogen development team. See complete list at Hydrogen's "About" Dialog. You can contact them at <hydrogen-devel@lists.sourceforge.net>.
+.TP
+Subscription to the mailing list can be done here :
+.br
+http://lists.sourceforge.net/lists/listinfo/hydrogen-devel .
+.SH SEE ALSO
+The main graphical application
+.RS
+\fBhydrogen\fR(1)
+.RE
+.PP
+A player Hydrogen-based songs on the command line
+.RS
+\fBh2player\fR(1)
+.RE
+.SH COPYRIGHT AND LICENSE
+\fBCopyright (C)\fR 2002\-2008 Alessandro Cominu
+.br
+\fBCopyright (C)\fR 2008\-2025 The hydrogen development team
+.PP
+\fBHydrogen\fR is free software; you can redistribute it and/or modify it under the terms of the GPL version 2 or later.

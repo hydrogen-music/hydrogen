@@ -1,65 +1,128 @@
-.TH HYDROGEN "29" "July 2025" "Hydrogen 1.2.6" "User Commands"
+.TH HYDROGEN "1" "July 29, 2025" "Hydrogen 1.2.6" "User Commands"
 .SH NAME
-hydrogen \- a simple drum machine/step sequencer.
+Hydrogen \- an advanced drum machine and step sequencer.
 .SH SYNOPSIS
 .PP
 .B hydrogen
-[\fI-v\fR] [\fI-h\fR] \fI-s file\fR
+[options] [file]
 .SH DESCRIPTION
 .PP
-Hydrogen 1.2.6 [http://www.hydrogen\-music.org].
-Copyright 2002\-2008 Alessandro Cominu,
-Copyright 2008\-2025 The hydrogen development team.
+\fBHydrogen\fR is both a drum sequencer for pattern-based programming and a drum
+synth. Its simple yet feature-rich design makes it a versatile companion, be it
+for quick practice at home, professional usage as fully-fledged drum machine in
+your studio, or drum looper on steroids for your live performance.
 .PP
-Hydrogen is an advanced drum machine for GNU/Linux.
-It's main goal is to bring professional yet simple and intuitive pattern-based drum programming.
-.PP
-Hydrogen comes with ABSOLUTELY NO WARRANTY.
-This is free software, and you are welcome to redistribute it
-under certain conditions. See the file COPYING for details.
+Features:
+.br
+- First-class \fBMIDI\fR support
+.br
+- Highly customizable
+.br
+- Stable and performant
+.br
+- Loads of drumkits to choose from
+.br
+- In-depth control of instrument, sample, and note properties
+.br
+- High quality time-stretching and pitch shifting
+.br
+- Automate it using \fBMIDI\fR or \fBOSC\fR API
 .SH OPTIONS
-.HP
-\fB\-P\fR, \fB\-\-data\fR PATH \- Use an alternate system data path
-.HP
-\fB\-d\fR, \fB\-\-driver\fR AUDIODRIVER \- Use the selected audio driver (jack, alsa, oss)
-.HP
-\fB\-s\fR, \fB\-\-song\fR FILE \- Load a song (*.h2song) at startup
-.HP
-\fB\-p\fR, \fB\-\-playlist\fR FILE \- Load a playlist (*.h2playlist) at startup
-.HP
-\fB\-k\fR, \fB\-\-kit\fR drumkit_name - Load a drumkit at startup
-.HP
-\fB\-i\fR, \fB\-\-install\fR FILE - install a drumkit (*.h2drumkit)
-.HP
-\fB\-O\fR, \fB\-\-osc\-port\fR \- Use custom OSC port
-.HP
-\fB\-n\fR, \fB\-\-nosplash\fR \- Hide splash screen
-.HP
-\fB\-V[Level]\fR, \fB\-\-verbose\fR[=\fILevel\fR] \- Print a lot of debugging info
+.TP
+\fB\-d\fR, \fB\-\-driver\fR=[\fIAUDIO_DRIVER\fR]
+Use the selected audio driver. The description of this option in the -\-help output contains all audio
+drivers available on your system.
+.TP
+\fB\-s\fR, \fB\-\-song\fR=\fIFILE\fR
+Load a song (\fI*.h2song\fR) at startup. Alternatively, you can just pass the filename without this option.
+.TP
+\fB\-p\fR, \fB\-\-playlist\fR=\fIFILE\fR
+Load a playlist (\fI*.h2playlist\fR) at startup.
+.TP
+\fB\-k\fR, \fB\-\-kit\fR=\fIDRUMKIT_NAME\fR
+Load a drumkit at startup.
+.TP
+\fB\-i\fR, \fB\-\-install\fR=\fIFILE\fR
+Install a drumkit (\fI*.h2drumkit\fR).
+.TP
+\fB\-O\fR, \fB\-\-osc\-port\fR=\fIPORT\fR
+Use custom OSC port.
+.TP
+\fB\-P\fR, \fB\-\-data\fR=\fIPATH\fR
+Use an alternate system data path.
+.TP
+\fB\-\-user\-data\fR=\fIPATH\fR
+Use an alternate user data path.
 .IP
-Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH
-.HP
-\fB\-L\fR, \fB\-\-log\-file\fR \- Use custom log file
-.HP
-\fB\-T\fR, \fB\-\-log\-timestamps\fR \- Add timestamps to all log messages
-.HP
-\fB\-v\fR, \fB\-\-version\fR \- Show version info
-.HP
-\fB\-h\fR, \fB\-\-help\fR \- Show this help message
+The default one is \fB$HOME\fR/.hydrogen.
+.TP
+\fB\-\-config\fR=\fIPATH\fR
+Use an alternate config path.
+.IP
+The default one is \fB$HOME\fR/.hydrogen/hydrogen.conf.
+.TP
+\fB\-\-layout\fR=\fLAYOUT\fR
+UI layout. Either \fItabbed\fR or \fIsingle\fR (default).
+.TP
+\fB\-n\fR, \fB\-\-nosplash\fR
+Hide splash screen.
+.TP
+\fB\-V\fR, \fB\-\-verbose\fR=[\fILEVEL\fR]
+Print a lot of debugging info
+.IP
+Level, if present, may be \fINone\fR, \fIError\fR, \fIWarning\fR, \fIInfo\fR, or \fIDebug\fR.
+.TP
+\fB\-L\fR, \fB\-\-log\-file\fR=\fIFILE\fR
+Use custom log file.
+.TP
+\fB\-T\fR, \fB\-\-log\-timestamps\fR
+Add timestamps to all log messages.
+.TP
+\fB\-\-log\-colors\fR
+Use ANSI colors in log messages (default).
+.TP
+\fB\-\-no\-log\-colors\fR
+Suppress ANSI colors in log messages.
+.TP
+\fB\-v\fR, \fB\-\-version\fR
+Show version info.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Show this help message.
 .SH FILES
 .TP
-.B hydrogen.conf
-.PP
-Defaults and startup settings for Hydrogen.
+\fB$HOME\fR/.hydrogen/data/drumkits
+User-level drumkit folder. All drumkits you download via the online import as well as those you created manually will end up here. A portable version of a drumkit - the \fI.h2drumkit\fR tar archive file - can included into this folder using the \-\-install option. Only those kits residing either in this folder or in the system drumkit folder (for those kits you received via your package manager) will show up in the Sound Library.
 .TP
-.B data/*
-.PP
-Can contains user's data such as drumkits, patterns, playlists, songs, ...
+\fB$HOME\fR/.hydrogen/data/patterns
+If you save a pattern, it will be exported as \fI.h2pattern\fR XML file into this folder. Only the patterns residing in here will show up in the Sound Library.
+.TP
+\fB$HOME\fR/.hydrogen/data/playlists
+This folder may have been original designed for holding \fI.h2playlist\fR XML files. But it does not serve any special purpose anymore and you can put them where ever you want.
+.TP
+\fB$HOME\fR/.hydrogen/data/plugins
+In here you can put \fBLADSPA\fR plugins to be used by Hydrogen, which are not within \fBLADSPA_PATH\fR.
+.TP
+\fB$HOME\fR/.hydrogen/data/scripts
+Playlists in Hydrogen can be configured to run a \fBBASH\fR script before loading a particular song. This folder may have been original designed for holding those script but you can put them where ever you want.
+.TP
+\fB$HOME\fR/.hydrogen/data/songs
+If you want a \fI.h2song\fR XML file to show up in the Sound Library, you have to store it in here.
+.SH CONFIGURATION
+.TP
+\fB$HOME\fR/.hydrogen/hydrogen.conf
+XML file containing all configurations for Hydrogen.
+.TP
+\fB$HOME\fR/.hydrogen/data/emptySong.h2song
+Whenever you create a new song, it will be derived from this template.
+.TP
+\fB$HOME\fR/.hydrogen/data/themes/
+You can change colors, fonts, and many more in Hydrogen. These custom settings can be stored as \fI.h2theme\fR XML files in here by exporting the current theme in the Preferences dialog.
 .SH ENVIRONMENT
 .PP
 .B LADSPA_PATH
 .HP 
-Path to LADSPA plugins.
+Path to \fBLADSPA\fR plugins.
 .SH BUGS & FEATURES REQUEST
 .PP
 If you find any bug or if you would like to propose a new feature, please report it to https://github.com/hydrogen-music/hydrogen/issues
@@ -70,5 +133,19 @@ The hydrogen development team. See complete list at Hydrogen's "About" Dialog. Y
 Subscription to the mailing list can be done here :
 .br
 http://lists.sourceforge.net/lists/listinfo/hydrogen-devel .
-.SH MISC
-This manual page was written by Olivier Humbert <trebmuh@tuxfamily.org> as a part of the Hydrogen project.
+.SH SEE ALSO
+A CLI tool for exporting songs and batch processing drumkits
+.RS
+\fBh2cli\fR(1)
+.RE
+.PP
+A player Hydrogen-based songs on the command line
+.RS
+\fBh2player\fR(1)
+.RE
+.SH COPYRIGHT AND LICENSE
+\fBCopyright (C)\fR 2002\-2008 Alessandro Cominu
+.br
+\fBCopyright (C)\fR 2008\-2025 The hydrogen development team
+.PP
+\fBHydrogen\fR is free software; you can redistribute it and/or modify it under the terms of the GPL version 2 or later.
