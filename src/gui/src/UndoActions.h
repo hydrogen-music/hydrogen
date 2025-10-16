@@ -823,7 +823,9 @@ class SE_addInstrumentAction : public QUndoCommand {
 			/** Create and add a new instrument */
 			AddEmptyInstrument = 0,
 			/** Add an instrument from another drumkit. */
-			DropInstrument = 1
+			DropInstrument = 1,
+			/** Duplicate an instrument already present in the drumkit */
+			DuplicateInstrument = 2
 		};
 		SE_addInstrumentAction( std::shared_ptr<H2Core::Instrument> pInstrument,
 								int nIndex, Type type )
@@ -837,6 +839,11 @@ class SE_addInstrumentAction : public QUndoCommand {
 			case Type::DropInstrument:
 				setText( QString( "%1 [%2]" )
 						 .arg( pCommonStrings->getActionDropInstrument() )
+						 .arg( pInstrument != nullptr ? pInstrument->getName() :
+							   "nullptr" ) );
+			case Type::DuplicateInstrument:
+				setText( QString( "%1 [%2]" )
+						 .arg( pCommonStrings->getActionDuplicateInstrument() )
 						 .arg( pInstrument != nullptr ? pInstrument->getName() :
 							   "nullptr" ) );
 				break;

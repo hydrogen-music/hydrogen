@@ -35,6 +35,7 @@
 
 class Button;
 class ClickableLabel;
+class InlineEdit;
 class InstrumentEditorPanel;
 class LCDDisplay;
 class LCDSpinBox;
@@ -67,6 +68,7 @@ class InstrumentEditor :  public QWidget,
 
 		PixmapWidget *m_pInstrumentProp;
 		ClickableLabel *m_pNameLbl;
+		InlineEdit *m_pInlineEdit;
 
 		// ADSR
 		Rotary *m_pAttackRotary;

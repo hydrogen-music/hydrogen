@@ -55,11 +55,10 @@
 using namespace H2Core;
 
 SidebarLabel::SidebarLabel( QWidget* pParent, Type type, const QSize& size,
-							const QString& sText, int nIndent )
-	: QLabel( pParent )
+							const QString& sText, int nLeftMargin )
+	: QLineEdit( pParent )
 	, m_pParent( pParent )
 	, m_type( type )
-	, m_nIndent( nIndent )
 	, m_bShowPlusSign( false )
 	, m_bEntered( false )
 	, m_sText( sText )
@@ -68,18 +67,35 @@ SidebarLabel::SidebarLabel( QWidget* pParent, Type type, const QSize& size,
 {
 	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
 
+	setReadOnly( true );
 	setFixedWidth( size.width() );
 	setFixedHeight( size.height() );
+	setFocusPolicy( Qt::NoFocus );
 	setText( sText );
 	setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
-	setIndent( nIndent );
-	setContentsMargins( 1, 1, 1, 1 );
+	setTextMargins( nLeftMargin , 0, 0, 0 );
+
+	// Prevent the default context menu (popup) from showing up since we ship
+	// our own one.
+	setContextMenuPolicy( Qt::NoContextMenu );
 
 	updateFont();
 	setColor( pColorTheme->m_patternEditor_backgroundColor,
 			  pColorTheme->m_patternEditor_textColor,
 			  pColorTheme->m_cursorColor );
 	updateStyle();
+
+	connect( this, &QLineEdit::editingFinished, this, [=]() {
+		// Ensure the new text fits the width.
+		setText( text() );
+		// When rejecting the input, the readOnly property has already been
+		// reset and we must not emit a second event.
+		if ( ! isReadOnly() ) {
+			setReadOnly( true );
+			clearFocus();
+			emit editAccepted();
+		}
+	} );
 }
 
 SidebarLabel::~SidebarLabel() {
@@ -145,6 +161,17 @@ void SidebarLabel::leaveEvent( QEvent* ev ) {
 	update();
 }
 
+void SidebarLabel::keyPressEvent( QKeyEvent* pEvent ) {
+	if ( pEvent->key() == Qt::Key_Escape ) {
+		setReadOnly( true );
+		clearFocus();
+		emit editRejected();
+		return;
+	}
+
+	QLineEdit::keyPressEvent( pEvent );
+}
+
 void SidebarLabel::mousePressEvent( QMouseEvent* pEvent ) {
 
 	auto pSidebarRow = dynamic_cast<SidebarRow*>( m_pParent );
@@ -156,7 +183,14 @@ void SidebarLabel::mousePressEvent( QMouseEvent* pEvent ) {
 }
 
 void SidebarLabel::mouseDoubleClickEvent( QMouseEvent* pEvent ) {
-	emit labelDoubleClicked( pEvent );
+	if ( m_type == Type::Instrument ) {
+		setReadOnly( false );
+		selectAll();
+		setFocus();
+	}
+	else {
+		emit labelDoubleClicked( pEvent );
+	}
 }
 
 void SidebarLabel::paintEvent( QPaintEvent* ev )
@@ -220,7 +254,7 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 			const QString sReferenceText = QString( "0" ).repeated(
 				QString::number( nIdMax ).length() );
 
-			const int nTextWidth = margin() * 2 + indent() +
+			const int nTextWidth = textMargins().left() + textMargins().right() +
 				QFontMetrics( font() ).size( Qt::TextSingleLine,
 											 sReferenceText ).width();
 			nMidX = std::round(( width() - nTextWidth ) / 2 ) + nTextWidth;
@@ -265,7 +299,7 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 		p.drawRoundedRect( QRect( 1, 1, width() - 2, height() - 2 ), 4, 4 );
 	}
 
-	QLabel::paintEvent( ev );
+	QLineEdit::paintEvent( ev );
 }
 
 void SidebarLabel::updateFont() {
@@ -308,7 +342,7 @@ void SidebarLabel::updateFont() {
 	// Check whether the width of the text fits the available frame
 	// width of the label
 	while ( QFontMetrics( font ).size( Qt::TextSingleLine, sText ).width() >
-			width() - m_nIndent && sText.size() > 3 ) {
+			width() - textMargins().left() - 4 && sText.size() > 3 ) {
 		if ( sText.at( sText.size() - 2 ) != sEllipsis ) {
 			// First trim action
 			sText.replace( sText.size() - 2, 1, sEllipsis );
@@ -319,7 +353,7 @@ void SidebarLabel::updateFont() {
 	}
 
 	if ( sText != text() ) {
-		QLabel::setText( sText );
+		QLineEdit::setText( sText );
 	}
 }
 
@@ -351,8 +385,9 @@ void SidebarLabel::updateStyle() {
 	}
 
 	setStyleSheet( QString( "\
-QLabel {\
+QLineEdit {\
    color: %1;\
+   background: transparent;\
    font-weight: bold;\
  }" ).arg( m_textColor.name( QColor::HexArgb ) ) );
 }
@@ -431,14 +466,29 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 				}
 			}
 	} );
-	connect( m_pInstrumentNameLbl, &SidebarLabel::labelDoubleClicked,
-			 [=]( QMouseEvent* pEvent ) {
-				 if ( pEvent->button() == Qt::LeftButton &&
-					  m_row.nInstrumentID != EMPTY_INSTR_ID ) {
-					 MainForm::action_drumkit_renameInstrument(
-						 m_pPatternEditorPanel->getRowIndexDB( m_row ) );
-				 }
-			 } );
+	connect( m_pInstrumentNameLbl, &SidebarLabel::editAccepted, [=]() {
+		if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
+		 MainForm::action_drumkit_renameInstrument(
+			 m_pPatternEditorPanel->getRowIndexDB( m_row ),
+			 m_pInstrumentNameLbl->text() );
+		}
+	} );
+	connect( m_pInstrumentNameLbl, &SidebarLabel::editRejected, this, [&]() {
+		// Reset the typed instrument name with the one in the current drumkit.
+		if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
+			auto pSong = Hydrogen::get_instance()->getSong();
+			if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+				return;
+			}
+			auto pInstrument = pSong->getDrumkit()->getInstruments()
+				->get( m_pPatternEditorPanel->getRowIndexDB( m_row ) );
+			if ( pInstrument == nullptr ) {
+				return;
+			}
+
+			m_pInstrumentNameLbl->setText( pInstrument->getName() );
+		}
+	} );
 
 	m_pSampleWarning = new Button(
 		this, QSize( 15, 13 ), Button::Type::Icon, "warning.svg", "", QSize(),
@@ -603,11 +653,18 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	m_pFunctionPopup->addAction( pCommonStrings->getActionAddInstrument(),
 								 HydrogenApp::get_instance()->getMainForm(),
 								 SLOT( action_drumkit_addInstrument() ) );
+	m_pDuplicateInstrumentAction =
+		m_pFunctionPopup->addAction( pCommonStrings->getActionDuplicateInstrument() );
+	connect( m_pDuplicateInstrumentAction, &QAction::triggered, this, [=](){
+		MainForm::action_drumkit_duplicateInstrument(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ) );} );
 	m_pRenameInstrumentAction = m_pFunctionPopup->addAction(
 		pCommonStrings->getActionRenameInstrument() );
 	connect( m_pRenameInstrumentAction, &QAction::triggered, this, [=](){
-		MainForm::action_drumkit_renameInstrument(
-			m_pPatternEditorPanel->getRowIndexDB( m_row ) );} );
+		m_pInstrumentNameLbl->setReadOnly( false );
+		m_pInstrumentNameLbl->selectAll();
+		m_pInstrumentNameLbl->setFocus();
+	} );
 	m_pDeleteInstrumentAction =
 		m_pFunctionPopup->addAction( pCommonStrings->getActionDeleteInstrument() );
 	connect( m_pDeleteInstrumentAction, &QAction::triggered, this, [=](){
@@ -664,6 +721,7 @@ void SidebarRow::set( const DrumPatternRow& row )
 				m_pMuteBtn->show();
 				m_pSoloBtn->show();
 				m_pRenameInstrumentAction->setEnabled( true );
+				m_pDuplicateInstrumentAction->setEnabled( true );
 				m_pDeleteInstrumentAction->setEnabled( true );
 
 				if ( ! pInstrument->getDrumkitPath().isEmpty() ) {
@@ -694,6 +752,7 @@ void SidebarRow::set( const DrumPatternRow& row )
 		m_pSoloBtn->hide();
 		m_pSampleWarning->hide();
 		m_pRenameInstrumentAction->setEnabled( false );
+		m_pDuplicateInstrumentAction->setEnabled( false );
 		m_pDeleteInstrumentAction->setEnabled( false );
 	}
 

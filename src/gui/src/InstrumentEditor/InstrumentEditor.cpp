@@ -36,6 +36,7 @@
 #include "../InstrumentRack.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/ClickableLabel.h"
+#include "../Widgets/InlineEdit.h"
 #include "../Widgets/LCDDisplay.h"
 #include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/Rotary.h"
@@ -54,6 +55,15 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 	m_pInstrumentProp = new PixmapWidget( this );
 	m_pInstrumentProp->move( 0, 0 );
 	m_pInstrumentProp->setPixmap( "/instrumentEditor/instrumentTab.png" );
+
+	m_pInlineEdit = new InlineEdit( m_pInstrumentProp );
+	m_pInlineEdit->hide();
+	m_pInlineEdit->setAlignment( Qt::AlignCenter );
+	m_pInlineEdit->setTextMargins( 0, 0, 0, 0 );
+	m_pInlineEdit->setContentsMargins( 0, 0, 0, 0 );
+	m_pInlineEdit->setStyleSheet( "\
+font-weight: bold;\
+font-size: 21px;" );
 
 	m_pNameLbl = new ClickableLabel(
 		m_pInstrumentProp, QSize( InstrumentRack::nWidth -
@@ -104,13 +114,32 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 	/////////////
 
 	connect( m_pNameLbl, &ClickableLabel::labelClicked, this, [=](){
+		m_pInlineEdit->startEditing( m_pNameLbl->geometry(),
+									m_pNameLbl->text() );
+		m_pNameLbl->hide();
+	} );
+
+	connect( m_pInlineEdit, &InlineEdit::editAccepted, [=]() {
+		if ( ! m_pInlineEdit->isVisible() ) {
+			// Already rejected
+			return;
+		}
+
+		m_pNameLbl->show();
+		m_pInlineEdit->hide();
 		auto pSong = Hydrogen::get_instance()->getSong();
 		auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
 		if ( pInstrument != nullptr && pSong != nullptr &&
 			 pSong->getDrumkit() != nullptr ) {
 			MainForm::action_drumkit_renameInstrument(
-				pSong->getDrumkit()->getInstruments()->index( pInstrument ) );}
+				pSong->getDrumkit()->getInstruments()->index( pInstrument ),
+				m_pInlineEdit->text() );}
 	} );
+
+	connect( m_pInlineEdit, &InlineEdit::editRejected, [=]() {
+		m_pNameLbl->show();
+		m_pInlineEdit->hide();
+		} );
 
 	m_pPitchLCD = new LCDDisplay(
 		m_pInstrumentProp, QSize( 56, 22 ), false, false );

@@ -59,6 +59,7 @@ All notable changes to this project will be documented in this file.
   ports for metronome, playback track, and sample preview (#1150).
 - Button in main toolbar indicating both MIDI input and output signals and
   opening a dialog showing the latest MIDI events.
+- Instruments can now be duplicated via popup context menu (#1925).
 
 ### Changed
 

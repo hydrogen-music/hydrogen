@@ -1457,6 +1457,44 @@ void MainForm::action_drumkit_addInstrument(
 	pPatternEditorPanel->ensureCursorIsVisible();
 }
 
+void MainForm::action_drumkit_duplicateInstrument( int nInstrumentIndex )
+{
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+	auto pSelectedInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nInstrumentIndex );
+	if ( pSelectedInstrument == nullptr ) {
+		ERRORLOG( QString( "Could not find instrument corresponding to index [%1]" )
+				  .arg( nInstrumentIndex ) );
+		return;
+	}
+
+	auto pNewInstrument = std::make_shared<Instrument>( pSelectedInstrument );
+	pNewInstrument->setName(
+		Filesystem::appendNumberOrIncrement( pNewInstrument->getName() ) );
+
+	// Duplicate the instrument and insert the new one below.
+	auto pAction = new SE_addInstrumentAction(
+		pNewInstrument, nInstrumentIndex + 1,
+	  SE_addInstrumentAction::Type::DuplicateInstrument );
+	pHydrogenApp->pushUndoCommand( pAction );
+
+	// Select the new instrument
+	pHydrogen->setSelectedInstrumentNumber(
+		pSong->getDrumkit()->getInstruments()->index( pNewInstrument ),
+		Event::Trigger::Default );
+
+	pHydrogenApp->showStatusBarMessage(
+		QString( "%1 [%2]" ).arg( pCommonStrings->getActionDuplicateInstrument() )
+		.arg( pSelectedInstrument->getName() ) );
+}
+
 void MainForm::action_drumkit_deleteInstrument( int nInstrumentIndex )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
@@ -1494,7 +1532,8 @@ void MainForm::action_drumkit_deleteInstrument( int nInstrumentIndex )
 		.arg( pSelectedInstrument->getName() ) );
 }
 
-void MainForm::action_drumkit_renameInstrument( int nInstrumentIndex )
+void MainForm::action_drumkit_renameInstrument( int nInstrumentIndex,
+											   const QString& sNewName )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
@@ -1511,25 +1550,19 @@ void MainForm::action_drumkit_renameInstrument( int nInstrumentIndex )
 	}
 
 	const QString sOldName = pInstrument->getName();
-	bool bIsOkPressed;
-	const QString sNewName = QInputDialog::getText(
-		nullptr, "Hydrogen", pCommonStrings->getActionRenameInstrument(),
-		QLineEdit::Normal, sOldName, &bIsOkPressed );
-	if ( bIsOkPressed ) {
-		auto pNewInstrument = std::make_shared<Instrument>(pInstrument);
-		pNewInstrument->setName( sNewName );
+	auto pNewInstrument = std::make_shared<Instrument>(pInstrument);
+	pNewInstrument->setName( sNewName );
 
-		pHydrogenApp->pushUndoCommand(
-			new SE_replaceInstrumentAction(
-				pNewInstrument, pInstrument,
-				SE_replaceInstrumentAction::Type::RenameInstrument,
-				sNewName, sOldName ) );
+	pHydrogenApp->pushUndoCommand(
+		new SE_replaceInstrumentAction(
+			pNewInstrument, pInstrument,
+			SE_replaceInstrumentAction::Type::RenameInstrument,
+			sNewName, sOldName ) );
 
-		pHydrogenApp->showStatusBarMessage(
-			QString( "%1 [%2] -> [%3]" )
-			.arg( pCommonStrings->getActionRenameInstrument() )
-			.arg( sOldName ).arg( sNewName ) );
-	}
+	pHydrogenApp->showStatusBarMessage(
+		QString( "%1 [%2] -> [%3]" )
+		.arg( pCommonStrings->getActionRenameInstrument() )
+		.arg( sOldName ).arg( sNewName ) );
 }
 
 void MainForm::action_drumkit_export() {

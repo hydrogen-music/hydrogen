@@ -50,6 +50,7 @@ using namespace H2Core;
 #include "../PatternPropertiesDialog.h"
 #include "../Skin.h"
 #include "../Widgets/FileDialog.h"
+#include "../Widgets/InlineEdit.h"
 
 struct PatternDisplayInfo {
 	bool bActive;
@@ -77,12 +78,13 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 
 	m_pPatternBeingEdited = nullptr;
 
-	m_pLineEdit = new QLineEdit( "Inline Pattern Name", this );
-	m_pLineEdit->setFrame( false );
-	m_pLineEdit->hide();
-	m_pLineEdit->setAcceptDrops( false );
-	connect( m_pLineEdit, SIGNAL(editingFinished()), this, SLOT(inlineEditingFinished()) );
-	connect( m_pLineEdit, SIGNAL(returnPressed()), this, SLOT(inlineEditingEntered()) );
+	m_pInlineEdit = new InlineEdit( this );
+	m_pInlineEdit->hide();
+	m_pInlineEdit->setTextMargins( SongEditorPatternList::nMargin - 3, 0, 0, 0 );
+	connect( m_pInlineEdit, SIGNAL( editRejected() ), this,
+			SLOT( inlineEditingRejected() ) );
+	connect( m_pInlineEdit, SIGNAL( editAccepted() ), this,
+			SLOT( inlineEditingAccepted() ) );
 
 	this->resize( SongEditorPatternList::nWidth, m_nInitialHeight );
 
@@ -91,11 +93,31 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_playingPattern_empty_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_empty.png" );
 
 	m_pPatternPopup = new QMenu( this );
+	m_pPatternPopup->addAction( tr("Fill/Clear cells"),  this,
+							   SLOT( patternPopup_fill() ) );
+	auto pSelectAction = m_pPatternPopup->addAction( tr( "Select cells" ) );
+	connect( pSelectAction, &QAction::triggered, this, [=]() {
+		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()
+		->selectAllCellsInRow( m_nRowClicked );
+	});
+
+	m_pPatternPopup->addSection( pCommonStrings->getPattern() );
+	auto pAddAction = m_pPatternPopup->addAction(
+		pCommonStrings->getMenuActionAdd() );
+	connect( pAddAction, &QAction::triggered, this, [=]() {
+		SongEditorPanel::addNewPattern(); } );
 	m_pPatternPopup->addAction( pCommonStrings->getMenuActionDuplicate(), this,
 								SLOT( patternPopup_duplicate() ) );
+	auto pRenameAction = m_pPatternPopup->addAction(
+		pCommonStrings->getMenuActionRename() );
+	connect( pRenameAction, &QAction::triggered, this, [=]() {
+		inlineEditPatternName( m_nRowClicked );
+	});
 	m_pPatternPopup->addAction( pCommonStrings->getMenuActionDelete(), this,
 								SLOT( patternPopup_delete() ) );
-	m_pPatternPopup->addAction( tr("Fill/Clear..."),  this, SLOT( patternPopup_fill() ) );
+	m_pPatternPopup->addAction( pCommonStrings->getMenuActionProperties(), this,
+								SLOT( patternPopup_properties() ) );
+	m_pPatternPopup->addAction( tr("Virtual Pattern"), this, SLOT( patternPopup_virtualPattern() ) );
 
 	m_pPatternPopup->addSection( tr( "File operations" ) );
 	m_pPatternPopup->addAction( tr( "Replace" ),  this,
@@ -105,10 +127,6 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_pPatternPopup->addAction( pCommonStrings->getMenuActionExport(), this,
 							   SLOT( patternPopup_export() ) );
 
-	m_pPatternPopup->addSection( pCommonStrings->getSettings() );
-	m_pPatternPopup->addAction( pCommonStrings->getMenuActionProperties(), this,
-								SLOT( patternPopup_properties() ) );
-	m_pPatternPopup->addAction( tr("Virtual Pattern"), this, SLOT( patternPopup_virtualPattern() ) );
 	m_pPatternPopup->setObjectName( "PatternListPopup" );
 
 	QScrollArea *pScrollArea = dynamic_cast< QScrollArea * >( parentWidget()->parentWidget() );
@@ -136,7 +154,7 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 {
 	auto pEv = static_cast<MouseEvent*>( ev );
 
-	__drag_start_position = pEv->position().toPoint();
+	m_dragStartPosition = pEv->position().toPoint();
 	
 	// -1 to compensate for the 1 pixel offset to align shadows and
 	// -grid lines.
@@ -206,16 +224,18 @@ void SongEditorPatternList::inlineEditPatternName( int row )
 		return;
 	}
 	m_pPatternBeingEdited = pPatternList->get( row );
-	m_pLineEdit->setGeometry( 23, row * m_nGridHeight + 1 , SongEditorPatternList::nWidth - 23, m_nGridHeight  );
-	m_pLineEdit->setText( m_pPatternBeingEdited->getName() );
-	m_pLineEdit->selectAll();
-	m_pLineEdit->show();
-	m_pLineEdit->setFocus();
+	m_pInlineEdit->startEditing(
+		QRect( 1, row * m_nGridHeight + 1 ,
+			  SongEditorPatternList::nWidth - 2, m_nGridHeight - 1  ),
+		m_pPatternBeingEdited->getName() );
 }
 
-void SongEditorPatternList::inlineEditingEntered()
+void SongEditorPatternList::inlineEditingAccepted()
 {
-	assert( m_pPatternBeingEdited != nullptr );
+	if ( m_pPatternBeingEdited == nullptr ) {
+		// input was already rejected by the user.
+		return;
+	}
 	
 	auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
@@ -228,7 +248,7 @@ void SongEditorPatternList::inlineEditingEntered()
 	 * If it is not, use an unused pattern name.
 	 */
 	
-	QString patternName = pPatternList->findUnusedPatternName( m_pLineEdit->text(), m_pPatternBeingEdited );
+	QString patternName = pPatternList->findUnusedPatternName( m_pInlineEdit->text(), m_pPatternBeingEdited );
 
 	SE_modifyPatternPropertiesAction *action =
 		new SE_modifyPatternPropertiesAction( m_pPatternBeingEdited->getVersion(),
@@ -245,13 +265,16 @@ void SongEditorPatternList::inlineEditingEntered()
 											  m_pPatternBeingEdited->getCategory(),
 											  pPatternList->index( m_pPatternBeingEdited ) );
 	HydrogenApp::get_instance()->pushUndoCommand( action );
+
+	m_pPatternBeingEdited = nullptr;
+	m_pInlineEdit->hide();
 }
 
 
-void SongEditorPatternList::inlineEditingFinished()
+void SongEditorPatternList::inlineEditingRejected()
 {
 	m_pPatternBeingEdited = nullptr;
-	m_pLineEdit->hide();
+	m_pInlineEdit->hide();
 }
 
 
@@ -419,8 +442,10 @@ void SongEditorPatternList::createBackground()
 
 		int text_y = i * m_nGridHeight;
 
-		p.drawText( 25, text_y - 1, SongEditorPatternList::nWidth - 25, m_nGridHeight + 2,
-					Qt::AlignVCenter, PatternArray[i].sPatternName);
+		p.drawText( SongEditorPatternList::nMargin, text_y - 1,
+				   SongEditorPatternList::nWidth - SongEditorPatternList::nMargin,
+				   m_nGridHeight + 2, Qt::AlignVCenter,
+				   PatternArray[i].sPatternName );
 
 		Skin::Stacked mode = Skin::Stacked::None;
 		if ( PatternArray[i].bNext && PatternArray[i].bActive) {
@@ -1009,7 +1034,7 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 	if (!(event->buttons() & Qt::LeftButton)) {
 		return;
 	}
-	if ( (pEv->position().y() / m_nGridHeight) == (__drag_start_position.y() / m_nGridHeight) ) {
+	if ( (pEv->position().y() / m_nGridHeight) == (m_dragStartPosition.y() / m_nGridHeight) ) {
 		return;
 	}
 	auto pHydrogen = Hydrogen::get_instance();
@@ -1019,7 +1044,7 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 	}
 
 	auto pPatternList = pSong->getPatternList();
-	int row = (__drag_start_position.y() / m_nGridHeight);
+	int row = (m_dragStartPosition.y() / m_nGridHeight);
 	if ( row >= (int)pPatternList->size() ) {
 		return;
 	}

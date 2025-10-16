@@ -1463,6 +1463,16 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text displayed on a Keep button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Duplicate instrument</source>
+        <extracomment>Representing an instrument duplication in the undo history and in the popup menu of the sidebar of the pattern editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern</source>
+        <extracomment>Indicates a menu section which affects patterns.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -5841,10 +5851,6 @@ Está certo disto?</translation>
         <translation>Padrão Virtual</translation>
     </message>
     <message>
-        <source>Fill/Clear...</source>
-        <translation>Preencher/Limpar...</translation>
-    </message>
-    <message>
         <source>Could not save pattern to temporary directory.</source>
         <translation>Não foi possível salvar padrão para diretório temporário.</translation>
     </message>
@@ -5874,6 +5880,14 @@ Está certo disto?</translation>
     </message>
     <message>
         <source>Replace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill/Clear cells</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select cells</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -47,7 +47,7 @@ namespace H2Core
 
 class Button;
 
-class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
+class SidebarLabel : public QLineEdit, public H2Core::Object<SidebarLabel>
 {
 	H2_OBJECT(SidebarLabel)
 	Q_OBJECT
@@ -60,7 +60,7 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		};
 
 		SidebarLabel( QWidget* pParent, Type type, const QSize& size,
-					  const QString& sText, int nIndent );
+					  const QString& sText, int nLeftMargin );
 		~SidebarLabel();
 
 		/** Text will be cleared on showPlusSign() */
@@ -75,6 +75,8 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		void setDimed( bool bDimed );
 
 	signals:
+		void editAccepted();
+		void editRejected();
 		void labelClicked( QMouseEvent* pEvent );
 		void labelDoubleClicked( QMouseEvent* pEvent );
 
@@ -87,6 +89,7 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 #else
 		virtual void enterEvent( QEvent *ev ) override;
 #endif
+	void keyPressEvent( QKeyEvent* pEvent ) override;
 		virtual void leaveEvent( QEvent *ev ) override;
 		virtual void mousePressEvent( QMouseEvent* pEvent ) override;
 		virtual void mouseDoubleClickEvent( QMouseEvent* pEvent ) override;
@@ -97,7 +100,6 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		QWidget* m_pParent;
 		Type m_type;
 		QString m_sText;
-		int m_nIndent;
 		bool m_bShowPlusSign;
 		QColor m_backgroundColor;
 		QColor m_textColor;
@@ -152,6 +154,7 @@ public slots:
 		QMenu *m_pFunctionPopup;
 		QMenu *m_pFunctionPopupSub;
 		QAction* m_pRenameInstrumentAction;
+		QAction* m_pDuplicateInstrumentAction;
 		QAction* m_pDeleteInstrumentAction;
 		QAction* m_pTypeLabelVisibilityAction;
 		SidebarLabel* m_pInstrumentNameLbl;
