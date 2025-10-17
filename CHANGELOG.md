@@ -247,6 +247,7 @@ All notable changes to this project will be documented in this file.
   the virtual keyboard anymore.
 - Using bpm, beat counter, and tap tempo MIDI actions or OSC commands while
   timeline is activate does no longer result in countless popups.
+- Pattern loading and deleting via the Sound Library has been fixed.
 
 ## [1.2.6] - 2025-07-29
 

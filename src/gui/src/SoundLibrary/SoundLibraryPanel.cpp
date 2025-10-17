@@ -172,6 +172,7 @@ void SoundLibraryPanel::updateTree()
 	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
+	m_patternRegistry.clear();
 	__sound_library_tree->clear();
 
 	QFont boldFont( pFontTheme->m_sApplicationFontFamily,
@@ -337,6 +338,7 @@ void SoundLibraryPanel::updateTree()
 						pPatternItem->setToolTip( 0, QString( "%1 [%2]" )
 												  .arg( sPatternTooltip )
 												  .arg( pInfo->getDrumkitName() ) );
+						m_patternRegistry[ pPatternItem ] = pInfo;
 					}
 				}
 			}
@@ -781,31 +783,54 @@ void SoundLibraryPanel::on_songLoadAction()
 
 
 void SoundLibraryPanel::on_patternLoadAction() {
+	if ( m_patternRegistry.find( __sound_library_tree->currentItem() ) ==
+		 m_patternRegistry.end() ) {
+		ERRORLOG( QString( "Unable to find pattern corresponding to [%1]" )
+				  .arg( __sound_library_tree->currentItem()->text( 0 ) ) );
+		return;
+	}
 
-	QString sPatternName = __sound_library_tree->currentItem()->text( 0 );
-	QString sDrumkitName = __sound_library_tree->currentItem()->toolTip( 0 );
-	H2Core::CoreActionController::openPattern(
-		Filesystem::pattern_path( sDrumkitName, sPatternName ) );
+	auto pInfo = m_patternRegistry.at( __sound_library_tree->currentItem() );
+	if ( pInfo == nullptr ) {
+		ERRORLOG( QString( "Invalid pattern info for [%1]" )
+				  .arg( __sound_library_tree->currentItem()->text( 0 ) ) );
+		return;
+	}
+
+	H2Core::CoreActionController::openPattern( pInfo->getPath() );
+
 }
 
 
-void SoundLibraryPanel::on_patternDeleteAction()
-{
+void SoundLibraryPanel::on_patternDeleteAction() {
+	if ( m_patternRegistry.find( __sound_library_tree->currentItem() ) ==
+		 m_patternRegistry.end() ) {
+		ERRORLOG( QString( "Unable to find pattern corresponding to [%1]" )
+				  .arg( __sound_library_tree->currentItem()->text( 0 ) ) );
+		return;
+	}
+
+	auto pInfo = m_patternRegistry.at( __sound_library_tree->currentItem() );
+	if ( pInfo == nullptr ) {
+		ERRORLOG( QString( "Invalid pattern info for [%1]" )
+				  .arg( __sound_library_tree->currentItem()->text( 0 ) ) );
+		return;
+	}
+
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	QString patternPath = __sound_library_tree->currentItem()->text( 1 );
 
 	if ( QMessageBox::information(
 			 this, "Hydrogen",
-			 tr( "Warning, the selected pattern will be deleted from disk.\nAre you sure?"),
+			 tr( "Warning, the selected pattern will be deleted from disk.\nAre you sure?") +
+								  QString( "\n\n%1" ).arg( pInfo->getPath() ),
 			 QMessageBox::Ok | QMessageBox::Cancel,
 			 QMessageBox::Cancel ) == QMessageBox::Cancel ) {
 		return;
 	}
 
-	QFile rmfile( patternPath );
-	bool err = rmfile.remove();
-	if ( err == false ) {
-		ERRORLOG( "Error removing the pattern" );
+	if ( Filesystem::rm( pInfo->getPath() ) ) {
+		ERRORLOG( QString( "Error removing the pattern [%1]" )
+				.arg( pInfo->getPath() ) );
 	}
 
 	H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->updatePatterns();
