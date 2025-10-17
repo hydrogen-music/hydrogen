@@ -24,19 +24,24 @@
 #define SAMPLEEDITOR_H
 
 #include "ui_SampleEditor_UI.h"
-#include "../InstrumentEditor/InstrumentEditor.h"
 
+#include <memory>
 #include <QDialog>
+
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
-#include <core/Basics/Song.h>
-#include <core/Basics/Sample.h>
-#include <core/Basics/Instrument.h>
 
+namespace H2Core {
+	class Instrument;
+	class InstrumentComponent;
+	class InstrumentLayer;
+}
 
-class 	MainSampleWaveDisplay;
-class	TargetWaveDisplay;
-class	DetailWaveDisplay;
+class DetailWaveDisplay;
+class MainSampleWaveDisplay;
+class TargetWaveDisplay;
 
 ///
 /// This dialog is used to preview audiofiles
@@ -48,8 +53,10 @@ class SampleEditor :  public QDialog, public Ui_SampleEditor_UI,  public H2Core:
 	Q_OBJECT
 	public:
 		
-		SampleEditor( QWidget* pParent, int nSelectedComponent,
-					  int nSelectedLayer, const QString& nSampleFileName );
+		SampleEditor( QWidget* pParent,
+					 std::shared_ptr< H2Core::InstrumentLayer > pLayer,
+					 std::shared_ptr< H2Core::InstrumentComponent > pComponent,
+					 std::shared_ptr< H2Core::Instrument > pInstrument );
 		~SampleEditor();
 
 		void setSampleName( const QString& name );
@@ -83,8 +90,6 @@ class SampleEditor :  public QDialog, public Ui_SampleEditor_UI,  public H2Core:
 
 	private:
 
-	std::shared_ptr<H2Core::Sample> retrieveSample() const;
-
 		void openDisplays();
 		void getAllFrameInfos();
 		void getAllLocalFrameInfos();
@@ -102,12 +107,12 @@ class SampleEditor :  public QDialog, public Ui_SampleEditor_UI,  public H2Core:
 		MainSampleWaveDisplay *m_pMainSampleWaveDisplay;
 		TargetWaveDisplay *m_pTargetSampleView;
 		DetailWaveDisplay *m_pSampleAdjustView;
-	
-		std::shared_ptr<H2Core::Sample> m_pSampleFromFile;
-		int m_nSelectedLayer;
-		int m_nSelectedComponent;
-		QString m_sSampleName;
-	
+
+	std::shared_ptr< H2Core::InstrumentLayer > m_pLayer;
+	std::shared_ptr< H2Core::InstrumentComponent > m_pComponent;
+	std::shared_ptr< H2Core::Instrument > m_pInstrument;
+	std::shared_ptr< H2Core::Sample > m_pSample;
+
 		double m_divider;
 		float m_fZoomfactor;
 		unsigned m_pDetailFrame;

@@ -24,8 +24,8 @@
 #define HYDROGEN_APP_H
 
 #include <core/config.h>
-#include <core/Object.h>
 #include <core/Globals.h>
+#include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
 #include "EventListener.h"
@@ -48,6 +48,9 @@ constexpr uint16_t QUEUE_TIMER_PERIOD = 50;
 
 namespace H2Core
 {
+	class Instrument;
+	class InstrumentComponent;
+	class InstrumentLayer;
 	class Song;
 }
 
@@ -110,8 +113,10 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		void showFilesystemInfoForm();
 		void showPlaylistEditor();
 		void showDirector();
-		void showSampleEditor( const QString& name, int mSelectedComponemt,
-							   int mSelectedLayer );
+		void showSampleEditor(
+			std::shared_ptr< H2Core::InstrumentLayer > pLayer,
+			std::shared_ptr< H2Core::InstrumentComponent > pComponent,
+			std::shared_ptr< H2Core::Instrument > pInstrument );
 
 		bool hideKeyboardCursor();
 		void setHideKeyboardCursor( bool bHidden );

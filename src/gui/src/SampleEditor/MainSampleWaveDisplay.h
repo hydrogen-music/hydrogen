@@ -27,7 +27,13 @@
 #include <QtWidgets>
 
 #include <core/Object.h>
-#include "SampleEditor.h"
+
+#include <memory>
+
+namespace H2Core {
+	class Sample;
+}
+
 class SampleEditor;
 
 /** \ingroup docGUI*/
@@ -48,7 +54,7 @@ class MainSampleWaveDisplay :  public QWidget,  public H2Core::Object<MainSample
 		explicit MainSampleWaveDisplay(QWidget* pParent);
 		~MainSampleWaveDisplay();
 
-		void updateDisplay( const QString& sFileName );
+		void updateDisplay( std::shared_ptr< H2Core::Sample > pNewSample );
 		void updateDisplayPointer();
 
 		void paintLocatorEvent( int pos, bool last_event);

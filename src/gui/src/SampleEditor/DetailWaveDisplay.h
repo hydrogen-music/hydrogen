@@ -28,6 +28,8 @@
 
 #include <core/Object.h>
 
+#include <memory>
+
 namespace H2Core
 {
 	class Sample;
@@ -43,7 +45,7 @@ class DetailWaveDisplay :  public QWidget,  public H2Core::Object<DetailWaveDisp
 		explicit DetailWaveDisplay(QWidget* pParent);
 		~DetailWaveDisplay();
 
-		void updateDisplay( const QString& sFileName );
+		void updateDisplay( std::shared_ptr< H2Core::Sample > pNewSample );
 
 		virtual void paintEvent(QPaintEvent *ev) override;
 		void setDetailSamplePosition( unsigned posi, float zoomfactor,
@@ -51,7 +53,6 @@ class DetailWaveDisplay :  public QWidget,  public H2Core::Object<DetailWaveDisp
 
 	private:
 		QPixmap m_background;
-		QString m_sSampleName;
 		int *m_pPeakDatal;
 		int *m_pPeakDatar;
 		int m_pDetailSamplePosition;

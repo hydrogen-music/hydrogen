@@ -21,43 +21,44 @@
  */
 
 #include "SampleEditor.h"
-#include "../HydrogenApp.h"
+
+#include "DetailWaveDisplay.h"
+#include "MainSampleWaveDisplay.h"
+#include "TargetWaveDisplay.h"
 #include "../CommonStrings.h"
+#include "../HydrogenApp.h"
 #include "../InstrumentEditor/ComponentsEditor.h"
 #include "../InstrumentEditor/ComponentView.h"
 #include "../InstrumentEditor/InstrumentEditorPanel.h"
 #include "../InstrumentRack.h"
 
-#include "MainSampleWaveDisplay.h"
-#include "DetailWaveDisplay.h"
-#include "TargetWaveDisplay.h"
-
-#include <core/H2Exception.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Basics/Drumkit.h>
-#include <core/Basics/Sample.h>
-#include <core/Basics/Note.h>
-#include <core/Basics/InstrumentComponent.h>
-#include <core/Basics/InstrumentList.h>
-#include <core/Basics/InstrumentLayer.h>
-#include <core/Helpers/Filesystem.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/Sample.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
 
+#include <algorithm>
+#include <QMessageBox>
 #include <QModelIndex>
 #include <QTreeWidget>
-#include <QMessageBox>
-#include <algorithm>
-#include <memory>
 
 using namespace H2Core;
 
 
-SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent,
-							 int nSelectedLayer, const QString& sSampleFileName )
+SampleEditor::SampleEditor ( QWidget* pParent,
+							std::shared_ptr< H2Core::InstrumentLayer > pLayer,
+							std::shared_ptr< H2Core::InstrumentComponent > pComponent,
+							std::shared_ptr< H2Core::Instrument > pInstrument )
 		: QDialog ( pParent )
-		, Object ()
+		, m_pLayer( pLayer )
+		, m_pComponent( pComponent )
+		, m_pInstrument( pInstrument )
 {
 	setupUi ( this );
 
@@ -66,6 +67,11 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent,
 	// beyond the minimum and make the scrollbars appear.
 	setWindowFlags( windowFlags() | Qt::CustomizeWindowHint |
 					Qt::WindowMinMaxButtonsHint );
+	if ( pInstrument == nullptr || pComponent == nullptr ||
+		 pLayer == nullptr || pLayer->getSample() == nullptr ) {
+		reject();
+	}
+	m_pSample = pLayer->getSample();
 
 	m_pTimer = new QTimer(this);
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateMainsamplePositionRuler()));
@@ -73,9 +79,6 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent,
 	connect(m_pTargetDisplayTimer, SIGNAL(timeout()), this, SLOT(updateTargetsamplePositionRuler()));
 
 	setClean();
-	m_nSelectedLayer = nSelectedLayer;
-	m_nSelectedComponent = nSelectedComponent;
-	m_sSampleName = sSampleFileName;
 	m_fZoomfactor = 1;
 	m_pDetailFrame = 0;
 	m_sLineColor = "default";
@@ -88,7 +91,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent,
 	m_fRatio = 1.0f;
 	__rubberband.c_settings = 4;
 
-	const QString sNewFileName = sSampleFileName.section( '/', -1 );
+	const QString sNewFileName = m_pSample->getFileName().section( '/', -1 );
 
 	//init Displays
 	m_pMainSampleWaveDisplay = new MainSampleWaveDisplay( mainSampleview );
@@ -98,19 +101,13 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent,
 	setWindowTitle( QString( tr( "SampleEditor " ) + sNewFileName ) );
 	setModal( true );
 
-	//this new sample give us the not changed real samplelength
-	m_pSampleFromFile = Sample::load( sSampleFileName );
-	if ( m_pSampleFromFile == nullptr ) {
-		reject();
-	}
+	const auto nFrames = m_pSample->getFrames();
 
-	unsigned slframes = m_pSampleFromFile->getFrames();
-
-	LoopCountSpinBox->setRange(0, 20000 );
-	StartFrameSpinBox->setRange(0, slframes );
-	LoopFrameSpinBox->setRange(0, slframes );
-	EndFrameSpinBox->setRange(0, slframes );
-	EndFrameSpinBox->setValue( slframes );
+	LoopCountSpinBox->setRange( 0, 20000 );
+	StartFrameSpinBox->setRange( 0, nFrames );
+	LoopFrameSpinBox->setRange( 0, nFrames );
+	EndFrameSpinBox->setRange( 0, nFrames );
+	EndFrameSpinBox->setValue( nFrames );
 	rubberbandCsettingscomboBox->setCurrentIndex( 4 );
 	rubberComboBox->setCurrentIndex( 0 );
 
@@ -154,13 +151,13 @@ SampleEditor::~SampleEditor()
 	delete m_pTargetSampleView;
 	m_pTargetSampleView = nullptr;
 
-	INFOLOG ( "DESTROY" );
+	INFOLOG( "DESTROY" );
 }
 
 
 void SampleEditor::closeEvent(QCloseEvent *event)
 {
-	if ( !m_bSampleEditorClean ) {
+	if ( ! m_bSampleEditorClean ) {
 		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 		if ( QMessageBox::information(
 				 this, "Hydrogen", pCommonStrings->getUnsavedChanges(),
@@ -178,65 +175,13 @@ void SampleEditor::closeEvent(QCloseEvent *event)
 	}
 }
 
-std::shared_ptr<Sample> SampleEditor::retrieveSample() const {
-	
-	auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
-	if ( pInstrument == nullptr ) {
-		ERRORLOG( "No instrument selected" );
-		return nullptr;
-	}
-
-	auto pCompo = pInstrument->getComponent( m_nSelectedComponent );
-	if ( pCompo == nullptr ) {
-		ERRORLOG( QString( "Invalid component [%1]" ).arg( m_nSelectedComponent ) );
-		assert( pCompo );
-		return nullptr;
-	}
-
-	auto pLayer = pCompo->getLayer( m_nSelectedLayer );
-	if ( pLayer == nullptr ) {
-		ERRORLOG( QString( "Invalid layer [%1]" ).arg( m_nSelectedLayer ) );
-		assert( pLayer );
-		return nullptr;
-	}
-
-	return pLayer->getSample();
-}
-	
 void SampleEditor::getAllFrameInfos()
 {
-	auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
-	if ( pInstrument == nullptr ) {
-		ERRORLOG( "No instrument selected" );
-		return;
-	}
-
-	auto pCompo = pInstrument->getComponent( m_nSelectedComponent );
-	if ( pCompo == nullptr ) {
-		ERRORLOG( QString( "Invalid component [%1]" ).arg( m_nSelectedComponent ) );
-		assert( pCompo );
-		return;
-	}
-
-	auto pLayer = pCompo->getLayer( m_nSelectedLayer );
-	if ( pLayer == nullptr ) {
-		ERRORLOG( QString( "Invalid layer [%1]" ).arg( m_nSelectedLayer ) );
-		assert( pLayer );
-		return;
-	}
-
-	auto pSample = pLayer->getSample();
-	if ( pSample == nullptr ) {
-		ERRORLOG( "Unable to retrieve sample" );
-		assert( pSample );
-		return;
-	}
-
 	// this values are needed if we restore a sample from disk if a
 	// new song with sample changes will load
-	m_bSampleIsModified = pSample->getIsModified();
-	m_nSamplerate = pSample->getSampleRate();
-	__loops = pSample->getLoops();
+	m_bSampleIsModified = m_pSample->getIsModified();
+	m_nSamplerate = m_pSample->getSampleRate();
+	__loops = m_pSample->getLoops();
 
 	// Per default all loop frames will be set to zero by Hydrogen. But this is
 	// dangerous since just altering start or loop might move them beyond the
@@ -244,36 +189,36 @@ void SampleEditor::getAllFrameInfos()
 	if ( __loops.start_frame == 0 &&
 		 __loops.loop_frame == 0 &&
 		 __loops.end_frame == 0 ) {
-		__loops.end_frame = pSample->getFrames();
+		__loops.end_frame = m_pSample->getFrames();
 	}
-	__rubberband = pSample->getRubberband();
+	__rubberband = m_pSample->getRubberband();
 
-	if ( pSample->getVelocityEnvelope().size()==0 ) {
+	if ( m_pSample->getVelocityEnvelope().size()==0 ) {
 		m_pTargetSampleView->get_velocity()->clear();
 		m_pTargetSampleView->get_velocity()->push_back( EnvelopePoint( 0, 0 ) );
 		m_pTargetSampleView->get_velocity()->push_back( EnvelopePoint( m_pTargetSampleView->width(), 0 ) );
 	} else {
 		m_pTargetSampleView->get_velocity()->clear();
 
-		for( const auto& pt : pSample->getVelocityEnvelope() ){
+		for( const auto& pt : m_pSample->getVelocityEnvelope() ){
 			m_pTargetSampleView->get_velocity()->emplace_back( pt );
 		}
 	}
 
-	if ( pSample->getPanEnvelope().size()==0 ) {
+	if ( m_pSample->getPanEnvelope().size()==0 ) {
 		m_pTargetSampleView->get_pan()->clear();
 		m_pTargetSampleView->get_pan()->push_back( EnvelopePoint( 0, m_pTargetSampleView->height()/2 ) );
 		m_pTargetSampleView->get_pan()->push_back( EnvelopePoint( m_pTargetSampleView->width(), m_pTargetSampleView->height()/2 ) );
 	}
 	else {
 		m_pTargetSampleView->get_pan()->clear();
-		for ( const auto& pt : pSample->getPanEnvelope() ){
+		for ( const auto& pt : m_pSample->getPanEnvelope() ){
 			m_pTargetSampleView->get_pan()->emplace_back( pt );
 		}
 	}
 
 	if (m_bSampleIsModified) {
-		__loops.end_frame = pSample->getLoops().end_frame;
+		__loops.end_frame = m_pSample->getLoops().end_frame;
 		if ( __loops.mode == Sample::Loops::FORWARD ) {
 			ProcessingTypeComboBox->setCurrentIndex ( 0 );
 		}
@@ -331,7 +276,7 @@ void SampleEditor::getAllFrameInfos()
 		checkRatioSettings();
 
 	}
-	m_pTargetSampleView->updateDisplay( pLayer );
+	m_pTargetSampleView->updateDisplay( m_pLayer );
 
 	connect( StartFrameSpinBox, SIGNAL( valueChanged( int ) ), this,
 			 SLOT( valueChangedStartFrameSpinBox(int) ) );
@@ -364,11 +309,11 @@ void SampleEditor::getAllLocalFrameInfos()
 void SampleEditor::openDisplays()
 {
 	// wavedisplays
-	m_divider = m_pSampleFromFile->getFrames() / 574.0F;
-	m_pMainSampleWaveDisplay->updateDisplay( m_sSampleName );
+	m_divider = m_pSample->getFrames() / 574.0F;
+	m_pMainSampleWaveDisplay->updateDisplay( m_pSample );
 	m_pMainSampleWaveDisplay->move( 1, 1 );
 
-	m_pSampleAdjustView->updateDisplay( m_sSampleName );
+	m_pSampleAdjustView->updateDisplay( m_pSample );
 	m_pSampleAdjustView->move( 1, 1 );
 
 	m_pTargetSampleView->move( 1, 1 );
@@ -430,15 +375,9 @@ void SampleEditor::createNewLayer()
 
 		auto pHydrogen = H2Core::Hydrogen::get_instance();
 		auto pAudioEngine = pHydrogen->getAudioEngine();
-		auto pOldSample = retrieveSample();
-		if ( pOldSample == nullptr ) {
-			ERRORLOG( "Unable to retrieve sample" );
-			assert( pOldSample );
-			return;
-		}
-		
-		auto pEditSample = std::make_shared<Sample>( m_sSampleName,
-													 pOldSample->getLicense() );
+
+		auto pEditSample = std::make_shared<Sample>( m_pSample->getFilePath(),
+													 m_pSample->getLicense() );
 		pEditSample->setLoops( __loops );
 		pEditSample->setRubberband( __rubberband );
 		pEditSample->setVelocityEnvelope( *m_pTargetSampleView->get_velocity() );
@@ -451,47 +390,16 @@ void SampleEditor::createNewLayer()
 
 		pAudioEngine->lock( RIGHT_HERE );
 
-		std::shared_ptr<H2Core::Instrument> pInstrument = nullptr;
-		auto pSong = pHydrogen->getSong();
-		if ( pSong != nullptr ) {
-			auto pInstrList = pSong->getDrumkit()->getInstruments();
-			int nInstr = pHydrogen->getSelectedInstrumentNumber();
-			if ( nInstr >= static_cast<int>(pInstrList->size()) ) {
-				nInstr = -1;
-			}
-
-			if (nInstr == -1) {
-				pInstrument = nullptr;
-			}
-			else {
-				pInstrument = pInstrList->get( nInstr );
-			}
-		}
-		
-		std::shared_ptr<H2Core::InstrumentLayer> pLayer = nullptr;
-		if( pInstrument != nullptr ) {
-			pLayer = pInstrument->getComponent( m_nSelectedComponent )->getLayer( m_nSelectedLayer );
-
-			// insert new sample from newInstrument
-			pLayer->setSample( pEditSample );
-		}
+		m_pLayer->setSample( pEditSample );
 
 		pAudioEngine->unlock();
 
-		if ( pLayer != nullptr ) {
-			m_pTargetSampleView->updateDisplay( pLayer );
-		}
+		m_pTargetSampleView->updateDisplay( m_pLayer );
 	}
 }
 
-
-
-void SampleEditor::mouseReleaseEvent(QMouseEvent *ev)
-{
-
+void SampleEditor::mouseReleaseEvent(QMouseEvent *ev) {
 }
-
-
 
 bool SampleEditor::returnAllMainWaveDisplayValues()
 {
@@ -618,29 +526,18 @@ void SampleEditor::on_PlayPushButton_clicked()
 		return;
 	}
 
-	const int selectedLayer = HydrogenApp::get_instance()->getInstrumentRack()->
-		getInstrumentEditorPanel()->getComponentsEditor()->getCurrentView()->
-		getSelectedLayer();
-
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-	auto pInstr = pSong->getDrumkit()->getInstruments()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
-	if ( pInstr == nullptr ) {
-		return;
-	}
 	// Since we are in a separate dialog and working with a particular, we do
 	// not want rendering to be affected by whether some instruments of the
 	// current kit are soloed or muted.
-	auto pPreviewInstr = std::make_shared<Instrument>(pInstr);
+	auto pPreviewInstr = std::make_shared<Instrument>( m_pInstrument );
 	pPreviewInstr->setIsPreviewInstrument( true );
 
-	auto pCompo = pPreviewInstr->getComponent( m_nSelectedComponent );
+	auto pCompo = pPreviewInstr->getComponent(
+		m_pInstrument->index( m_pComponent ) );
 	if ( pCompo == nullptr ) {
 		return;
 	}
-	auto pLayer = pCompo->getLayer( selectedLayer );
+	auto pLayer = pCompo->getLayer( m_pComponent->index( m_pLayer ) );
 	if ( pLayer == nullptr ) {
 		return;
 	}
@@ -699,50 +596,26 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 		PlayOrigPushButton->setText( QString( "Stop") );
 	};
 
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		tearDown();
-		return;
-	}
-
-	const int nSelectedlayer = HydrogenApp::get_instance()->getInstrumentRack()->
-		getInstrumentEditorPanel()->getComponentsEditor()->getCurrentView()->
-		getSelectedLayer();
-	auto pInstr = pSong->getDrumkit()->getInstruments()->get(
-		pHydrogen->getSelectedInstrumentNumber() );
-	if ( pInstr == nullptr ) {
-		DEBUGLOG( "No instrument selected" );
-		tearDown();
-		return;
-	}
-
 	// Construct a custom instrument containing the current settings -
 	// instrument, component, and layer - but using the original sample.
-	auto pPreviewInstrument = std::make_shared<Instrument>(pInstr);
-	if ( pPreviewInstrument == nullptr ) {
-		ERRORLOG( QString( "Unable to load instrument [%1] from [%2]" )
-				  .arg( pInstr->getName() ).arg( pInstr->getDrumkitPath() ) );
+	auto pPreviewInstr = std::make_shared<Instrument>( m_pInstrument );
+	pPreviewInstr->setIsPreviewInstrument( true );
+
+	auto pCompo = pPreviewInstr->getComponent(
+		m_pInstrument->index( m_pComponent ) );
+	if ( pCompo == nullptr ) {
 		tearDown();
 		return;
 	}
-	auto pComponent = pPreviewInstrument->getComponent( m_nSelectedComponent );
-	if ( pComponent == nullptr ) {
-		ERRORLOG( QString( "Unable to retrieve component [%1]" )
-				  .arg( m_nSelectedComponent ) );
-		tearDown();
-		return;
-	}
-	auto pLayer = pComponent->getLayer( nSelectedlayer );
+	auto pLayer = pCompo->getLayer( m_pComponent->index( m_pLayer ) );
 	if ( pLayer == nullptr ) {
-		ERRORLOG( QString( "Unable to load layer [%1]" ).arg( nSelectedlayer ) );
 		tearDown();
 		return;
 	}
-	const QString sSamplePath = pLayer->getSample()->getFilePath();
-	auto pNewSample = Sample::load( sSamplePath );
+	auto pNewSample = Sample::load( m_pSample->getFilePath() );
 	if ( pNewSample == nullptr ) {
 		ERRORLOG( QString( "Unable to load sample from [%1]" )
-				  .arg( sSamplePath ) );
+				  .arg( m_pSample->getFilePath() ) );
 		tearDown();
 		return;
 	}
@@ -753,13 +626,13 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	const int nLength = ( pNewSample->getFrames() /
 						  pNewSample->getSampleRate() + 1 ) * 100;
 	auto pNote = std::make_shared<Note>(
-		pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT, nLength );
+		pPreviewInstr, 0, VELOCITY_MAX, PAN_DEFAULT, nLength );
 	auto pSelectedLayerInfo = std::make_shared<SelectedLayerInfo>();
 	pSelectedLayerInfo->pLayer = pLayer;
-	pNote->setSelectedLayerInfo( pSelectedLayerInfo, pComponent );
+	pNote->setSelectedLayerInfo( pSelectedLayerInfo, pCompo );
 
 	pHydrogen->getAudioEngine()->getSampler()->previewInstrument(
-		pPreviewInstrument, pNote );
+		pPreviewInstr, pNote );
 	m_nSlframes = pNewSample->getFrames();
 
 	tearDown();
@@ -829,7 +702,7 @@ void SampleEditor::createPositionsRulerPath()
 		newLength =oneSampleLength + repeatsLength;
 	}
 
-	unsigned  normalLength = m_pSampleFromFile->getFrames();
+	unsigned  normalLength = m_pSample->getFrames();
 
 	unsigned *	normalFrames = new unsigned[ normalLength ];
 	unsigned *	tempFrames = new unsigned[ newLength ];
