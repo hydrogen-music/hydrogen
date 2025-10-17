@@ -23,6 +23,7 @@
 #ifndef SOUND_LIBRARY_PANEL_H
 #define SOUND_LIBRARY_PANEL_H
 
+#include <map>
 
 #include <QtGui>
 #include <QtWidgets>
@@ -32,6 +33,10 @@
 
 #include "../Widgets/WidgetWithScalableFont.h"
 #include "../EventListener.h"
+
+namespace H2Core {
+	class SoundLibraryInfo;
+}
 
 class SoundLibraryTree;
 class ToggleButton;
@@ -113,9 +118,15 @@ private:
 	 * Used to ensure uniqueness.*/
 	QStringList m_drumkitLabels;
 
-	/** Whether the dialog was constructed via a click in the MainForm
-	 * or as part of the GUI.
-	 */
+	/** Starting with version 2.0 of Hydrogen patterns are not associated with a
+     * specific drumkit anymore and will no longer reside in folders with the
+     * user pattern dir which resemble the drumkit's name. To account for this,
+     * we map each entry of the pattern branch of the sound library tree to a
+     * proper info object containing the corresponding absolute path. */
+	std::map<QTreeWidgetItem*, std::shared_ptr<H2Core::SoundLibraryInfo>> m_patternRegistry;
+
+	/** Whether the dialog was constructed via a click in the MainForm or as
+	 * part of the GUI. */
 	bool m_bInItsOwnDialog;
 };
 
