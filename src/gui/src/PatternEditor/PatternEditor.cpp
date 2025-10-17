@@ -2842,10 +2842,7 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 	// outline color
 	pNotePen->setColor( Qt::black );
 
-	if ( pNote != nullptr && pNote->getNoteOff() ) {
-		pNotePen->setStyle( Qt::NoPen );
-	}
-	else if ( noteStyle & NoteStyle::Background ) {
+	if ( noteStyle & NoteStyle::Background ) {
 		pNotePen->setStyle( backgroundPenStyle );
 	}
 	else {
