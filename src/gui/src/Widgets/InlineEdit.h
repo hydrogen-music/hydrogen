@@ -36,7 +36,7 @@
  *  \ingroup docGUI docWidgets*/
 class InlineEdit : public QLineEdit, public H2Core::Object<InlineEdit>
 {
-    H2_OBJECT(LCDTextEdit)
+    H2_OBJECT(InlineEdit)
 	Q_OBJECT
 
 public:
