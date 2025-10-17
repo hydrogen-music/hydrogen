@@ -48,12 +48,13 @@
 #include <QTime>
 #include <QTextStream>
 
+using namespace H2Core;
+
 void XmlTest::setUp() {
 	// Test for possible side effects by comparing serializations
 	m_sPrefPre =
 		H2Core::Preferences::get_instance()->toQString( "", true );
 	m_sHydrogenPre = H2Core::Hydrogen::get_instance()->toQString( "", true );
-
 }
 
 void XmlTest::tearDown() {
@@ -79,7 +80,7 @@ void XmlTest::tearDown() {
 	CPPUNIT_ASSERT( m_sPrefPre ==
 					H2Core::Preferences::get_instance()->toQString( "", true ) );
 	// CPPUNIT_ASSERT( m_sHydrogenPre ==
-	// 				H2Core::Hydrogen::get_instance()->toQString( "", true ) );
+	//  				H2Core::Hydrogen::get_instance()->toQString( "", true ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -232,6 +233,13 @@ void XmlTest::testDrumkitLegacy()
 		const auto pDrumkit = H2Core::Drumkit::load(
 			legacyDir.filePath( ssDir ), false, nullptr, false );
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
+		CPPUNIT_ASSERT( pDrumkit->getInstruments() != nullptr );
+		CPPUNIT_ASSERT( pDrumkit->getInstruments() != nullptr );
+		for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {
+			CPPUNIT_ASSERT( ppInstrument != nullptr );
+			CPPUNIT_ASSERT( ppInstrument->hasSamples() );
+			CPPUNIT_ASSERT( ! ppInstrument->hasMissingSamples() );
+		}
 	}
 
 	// Check wether the names stored in the DrumkitComponents in version 0.9.7 -
@@ -839,6 +847,25 @@ void XmlTest::testSong()
 
 void XmlTest::testSongLegacy() {
 	___INFOLOG( "" );
+
+	// Install the legacy test kit into the current user data dir (a temporary
+	// one) to check whether file loading of legacy kits works as expected.
+	const QString& sKit = "kit-0.9.3";
+	const auto sKitDirTest = H2TEST_FILE(
+		QString( "drumkits/legacyKits/%1" ).arg( sKit ) );
+	const auto sKitDirUser = QString( "%1/%2" )
+		.arg( Filesystem::usr_drumkits_dir() ).arg( sKit );
+	___INFOLOG( QString( "sKitDirUser: %1" ).arg( sKitDirUser ) );
+	CPPUNIT_ASSERT( Filesystem::mkdir( sKitDirUser ) );
+	for ( const auto& ssEntry : QDir( sKitDirTest ).entryList(
+			  QDir::Files | QDir::Readable | QDir::NoDotAndDotDot ) ) {
+		CPPUNIT_ASSERT( Filesystem::file_copy(
+							sKitDirTest + "/" + ssEntry,
+							sKitDirUser + "/" + ssEntry,
+							false /* overwrite */,
+							false /* silent */) );
+	}
+
 	QStringList testSongs;
 	testSongs << H2TEST_FILE( "song/legacy/test_song_1.2.2.h2song" )
 			  << H2TEST_FILE( "song/legacy/test_song_1.2.1.h2song" )
@@ -850,13 +877,22 @@ void XmlTest::testSongLegacy() {
 			  << H2TEST_FILE( "song/legacy/test_song_1.0.2.h2song" )
 			  << H2TEST_FILE( "song/legacy/test_song_1.0.1.h2song" )
 			  << H2TEST_FILE( "song/legacy/test_song_1.0.0.h2song" )
-			  << H2TEST_FILE( "song/legacy/test_song_0.9.7.h2song" );
+			  << H2TEST_FILE( "song/legacy/test_song_0.9.7.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_0.9.6.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_0.9.3.h2song" );
 
 	for ( const auto& ssSong : testSongs ) {
 		___INFOLOG(ssSong);
 		auto pSong = H2Core::Song::load( ssSong, false );
-		CPPUNIT_ASSERT( pSong != nullptr );
+		CPPUNIT_ASSERT( pSong != nullptr && pSong->getDrumkit() );
+		CPPUNIT_ASSERT( pSong->getDrumkit()->getInstruments() != nullptr );
+		CPPUNIT_ASSERT( pSong->getDrumkit()->getInstruments()->size() > 0 );
+		for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
+			CPPUNIT_ASSERT( ppInstrument != nullptr );
+			CPPUNIT_ASSERT( ppInstrument->hasSamples() );
+		}
 		CPPUNIT_ASSERT( ! pSong->hasMissingSamples() );
+		CPPUNIT_ASSERT( pSong->getAllNotes().size() > 0 );
 	}
 
 	// Check that invalid paths and drumkit names could indeed result in missing
@@ -871,6 +907,53 @@ void XmlTest::testSongLegacy() {
 		CPPUNIT_ASSERT( pSong != nullptr );
 		CPPUNIT_ASSERT( pSong->hasMissingSamples() );
 	}
+
+	// Load an song which contains absolute sample paths but no element
+	// indicating the corresponding drumkit yet. The song will have two samples
+	// with identical file names from two different kit. We have to check that
+	// both of them are properly loaded.
+	auto pSongLegacy = H2Core::Song::load(
+		H2TEST_FILE( "song/legacy/test_song_0.9.6.h2song" ), false );
+	CPPUNIT_ASSERT( pSongLegacy != nullptr && pSongLegacy->getDrumkit() != nullptr );
+	CPPUNIT_ASSERT( pSongLegacy->getDrumkit()->getInstruments() != nullptr );
+	CPPUNIT_ASSERT( pSongLegacy->getDrumkit()->getInstruments()->size() > 0 );
+	for ( const auto& ppInstrument : *pSongLegacy->getDrumkit()->getInstruments() ) {
+		CPPUNIT_ASSERT( ppInstrument != nullptr );
+		CPPUNIT_ASSERT( ppInstrument->hasSamples() );
+	}
+	CPPUNIT_ASSERT( ! pSongLegacy->hasMissingSamples() );
+	const auto pInstrumentGMRockKit = pSongLegacy->getDrumkit()->getInstruments()->find( 13 );
+	CPPUNIT_ASSERT( pInstrumentGMRockKit != nullptr );
+	CPPUNIT_ASSERT( pInstrumentGMRockKit->getComponents()->size() > 0 );
+	CPPUNIT_ASSERT( pInstrumentGMRockKit->getComponents()->front() != nullptr );
+	CPPUNIT_ASSERT( pInstrumentGMRockKit->getComponents()->front()
+					->getLayer( 0 ) != nullptr );
+	CPPUNIT_ASSERT( pInstrumentGMRockKit->getComponents()->front()
+					->getLayer( 0 )->getSample() != nullptr );
+	const auto sFilePathGMRockKit = pInstrumentGMRockKit->getComponents()->front()
+		->getLayer( 0 )->getSample()->getFilePath();
+	const auto pInstrumentOld = pSongLegacy->getDrumkit()->getInstruments()->find( 12 );
+	CPPUNIT_ASSERT( pInstrumentOld != nullptr );
+	CPPUNIT_ASSERT( pInstrumentOld->getComponents()->size() > 0 );
+	CPPUNIT_ASSERT( pInstrumentOld->getComponents()->front() != nullptr );
+	CPPUNIT_ASSERT( pInstrumentOld->getComponents()->front()
+					->getLayer( 0 ) != nullptr );
+	CPPUNIT_ASSERT( pInstrumentOld->getComponents()->front()
+					->getLayer( 0 )->getSample() != nullptr );
+	const auto sFilePathOld = pInstrumentOld->getComponents()->front()
+		->getLayer( 0 )->getSample()->getFilePath();
+	___INFOLOG( QString( "loaded %1: %2 and %3: %4" )
+				.arg( pInstrumentGMRockKit->getName() )
+				.arg( sFilePathGMRockKit )
+				.arg( pInstrumentOld->getName() )
+				.arg( sFilePathOld ) );
+	CPPUNIT_ASSERT( sFilePathGMRockKit.contains( "GMRockKit/Crash-Hard.wav" ) );
+	CPPUNIT_ASSERT( sFilePathOld.contains( "kit-0.9.3/Crash-Hard.wav" ) );
+
+	// cleanup
+	CPPUNIT_ASSERT( Filesystem::rm( sKitDirUser, true /* recursive */,
+									false /* bSilent */ ) );
+
 	___INFOLOG( "passed" );
 }
 

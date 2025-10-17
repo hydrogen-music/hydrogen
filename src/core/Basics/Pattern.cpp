@@ -112,11 +112,6 @@ std::shared_ptr<Pattern> Pattern::load( const QString& sPatternPath,
 		return nullptr;
 	}
 
-	XMLNode formatVersionNode = patternNode.firstChildElement( "formatVersion" );
-	if ( formatVersionNode.isNull() ) {
-		return Legacy::loadPattern( sPatternPath );
-	}
-
 	const QString sDrumkitName = rootNode.read_string(
 		"drumkit_name", "", false, false, bSilent );
 
@@ -129,8 +124,12 @@ std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
 											bool bSilent )
 {
 	auto pPattern = std::make_shared<Pattern>();
-	pPattern->setName(
-	    node.read_string( "name", pPattern->getName(), false, false, bSilent ) );
+	QString sName = node.read_string( "name", "", false, false );
+	if ( sName.isEmpty() ) {
+		// Fall back to previous version.
+	    sName = node.read_string( "pattern_name", pPattern->getName(), false, false );
+	}
+	pPattern->setName( sName );
 	pPattern->setInfo(
 		node.read_string( "info", pPattern->getInfo(), false, true, bSilent ) );
 	pPattern->setCategory(
@@ -153,7 +152,7 @@ std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
 	pPattern->setLicense( license );
 
 	XMLNode note_list_node = node.firstChildElement( "noteList" );
-	if ( !note_list_node.isNull() ) {
+	if ( ! note_list_node.isNull() ) {
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
 		while ( !note_node.isNull() ) {
 			auto pNote = Note::loadFrom( note_node, bSilent );
@@ -164,6 +163,25 @@ std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
 				pPattern->insertNote( pNote );
 			}
 			note_node = note_node.nextSiblingElement( "note" );
+		}
+	}
+	else {
+		// Old format < 0.9.4
+		const XMLNode sequenceListNode = node.firstChildElement( "sequenceList" );
+		XMLNode sequenceNode = sequenceListNode.firstChildElement( "sequence" );
+		while ( ! sequenceNode.isNull()  ) {
+			const XMLNode noteListNode = sequenceNode.firstChildElement(
+				"noteList" );
+			XMLNode noteNode = noteListNode.firstChildElement( "note" );
+			while ( ! noteNode.isNull() ) {
+				const auto pNote = Note::loadFrom(
+					noteNode, bSilent );
+				if ( pNote != nullptr ) {
+					pPattern->insertNote( pNote );
+				}
+				noteNode = noteNode.nextSiblingElement( "note" );
+			}
+			sequenceNode = sequenceNode.nextSiblingElement( "sequence" );
 		}
 	}
 

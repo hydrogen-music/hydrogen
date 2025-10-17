@@ -92,12 +92,6 @@ class Legacy : public H2Core::Object<Legacy> {
 																		 const License& drumkitLicense = License(),
 																		 bool bSilent = false );
 		/**
-		 * load pattern from a file
-		 * \param pattern_path is a path to an xml file
-		 * \return a Pattern on success, 0 otherwise
-		 */
-		static std::shared_ptr<Pattern> loadPattern( const QString& pattern_path );
-		/**
 		 * load playlist from a file
 		 * \param pl_path is a path to an xml file
 		 * \return a Playlist on success, 0 otherwise
