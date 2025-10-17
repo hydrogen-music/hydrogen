@@ -141,6 +141,9 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 				auto pSample = pLayer->getSample();
 				if ( pSample != nullptr ) {
 					sLabel = pSample->getFileName();
+					if ( pSample->getIsModified() ) {
+						sLabel.append( "*" );
+					}
 				}
 				else {
 					sLabel = pLayer->getFallbackSampleFileName();
