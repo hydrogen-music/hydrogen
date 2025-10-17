@@ -304,6 +304,15 @@ const std::vector<std::shared_ptr<InstrumentLayer>> InstrumentComponent::getLaye
 	return layersUsed;
 }
 
+int InstrumentComponent::index( std::shared_ptr<InstrumentLayer> pLayer ) const {
+	for( int ii = 0; ii < m_layers.size(); ii++ ) {
+		if ( m_layers.at( ii ) == pLayer ) {
+			return ii;
+		}
+	}
+	return -1;
+}
+
 std::vector<std::shared_ptr<InstrumentLayer>>::iterator InstrumentComponent::begin() {
 	return m_layers.begin();
 }
