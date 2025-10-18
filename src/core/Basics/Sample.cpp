@@ -74,7 +74,8 @@ Sample::Sample( const QString& sFilePath, const License& license, int frames, in
 	m_license( license )
 {
 	if ( sFilePath.lastIndexOf( "/" ) <= 0 ) {
-		WARNINGLOG( QString( "Provided filepath [%1] does not seem like an absolute path. Sample will most probably be unable to load." ) );
+		WARNINGLOG( QString( "Provided filepath [%1] does not seem like an absolute path. Sample will most probably be unable to load." )
+				   .arg( sFilePath ));
 	}
 }
 

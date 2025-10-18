@@ -784,17 +784,12 @@ void ComponentView::showSampleEditor() {
 	}
 
 	auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
-	if ( pLayer == nullptr ) {
+	if ( pLayer == nullptr || pLayer->getSample() == nullptr ) {
 		return;
 	}
 
-	auto pSample = pLayer->getSample();
-	if ( pSample != nullptr ) {
-		auto pHydrogenApp = HydrogenApp::get_instance();
-		pHydrogenApp->showSampleEditor(
-			pSample->getFilePath(), pInstrument->index( m_pComponent ),
-			m_nSelectedLayer );
-	}
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	pHydrogenApp->showSampleEditor( pLayer, m_pComponent, pInstrument );
 }
 
 void ComponentView::removeLayerButtonClicked() {

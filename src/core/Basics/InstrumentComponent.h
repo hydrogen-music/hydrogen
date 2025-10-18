@@ -68,6 +68,7 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 
 		std::shared_ptr<InstrumentLayer>	operator[]( int ix ) const;
 		std::shared_ptr<InstrumentLayer>	getLayer( int idx ) const;
+		int index( std::shared_ptr<InstrumentLayer> pLayer ) const;
 	/**
 	 * Get all initialized layers.
 	 *

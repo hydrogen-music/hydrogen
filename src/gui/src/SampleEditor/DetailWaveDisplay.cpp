@@ -20,17 +20,16 @@
  *
  */
 
-#include <core/Basics/Sample.h>
-#include <core/Basics/Song.h>
-#include <core/Basics/Instrument.h>
-using namespace H2Core;
-
 #include "DetailWaveDisplay.h"
+
+#include <core/Basics/Sample.h>
+
 #include "../Skin.h"
+
+using namespace H2Core;
 
 DetailWaveDisplay::DetailWaveDisplay(QWidget* pParent )
  : QWidget( pParent )
- , m_sSampleName( "" )
  , m_pPeakDatal( nullptr )
  , m_pPeakDatar( nullptr )  
 {
@@ -121,36 +120,25 @@ void DetailWaveDisplay::paintEvent(QPaintEvent *ev)
 
 
 
-void DetailWaveDisplay::updateDisplay( const QString& sFileName )
+void DetailWaveDisplay::updateDisplay( std::shared_ptr<Sample> pNewSample )
 {
+	int mSampleLength = pNewSample->getFrames();
 
-	auto pNewSample = Sample::load( sFileName );
+	m_pPeakDatal = new int[ mSampleLength + m_pNormalImageDetailFrames /2 ];
+	m_pPeakDatar = new int[ mSampleLength + m_pNormalImageDetailFrames /2 ];
 
-	if ( pNewSample != nullptr ) {
+	for ( int i = 0 ; i < mSampleLength + m_pNormalImageDetailFrames /2 ; i++){
+		m_pPeakDatal[ i ] = 0;
+		m_pPeakDatar[ i ] = 0;
+	}
 
-		int mSampleLength = pNewSample->getFrames();
+	float fGain = height() / 4.0 * 1.0;
 
-		m_pPeakDatal = new int[ mSampleLength + m_pNormalImageDetailFrames /2 ];
-		m_pPeakDatar = new int[ mSampleLength + m_pNormalImageDetailFrames /2 ];
+	auto pSampleDatal = pNewSample->getData_L();
+	auto pSampleDatar = pNewSample->getData_R();
 
-		for ( int i = 0 ; i < mSampleLength + m_pNormalImageDetailFrames /2 ; i++){
-			m_pPeakDatal[ i ] = 0;
-			m_pPeakDatar[ i ] = 0;
-		}
-
-		float fGain = height() / 4.0 * 1.0;
-
-		auto pSampleDatal = pNewSample->getData_L();
-		auto pSampleDatar = pNewSample->getData_R();
-
-		for ( int i = 0; i < mSampleLength; i++ ){
-			m_pPeakDatal[ i ] = static_cast<int>( pSampleDatal[ i ] * fGain );
-			m_pPeakDatar[ i ] = static_cast<int>( pSampleDatar[ i ] * fGain );
-		}
-
-
+	for ( int i = 0; i < mSampleLength; i++ ){
+		m_pPeakDatal[ i ] = static_cast<int>( pSampleDatal[ i ] * fGain );
+		m_pPeakDatar[ i ] = static_cast<int>( pSampleDatar[ i ] * fGain );
 	}
 }
-
-
-

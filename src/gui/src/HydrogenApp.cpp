@@ -24,6 +24,9 @@
 
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Event.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/PatternList.h>
 #include <core/config.h>
@@ -891,8 +894,10 @@ void HydrogenApp::showDirector()
 }
 
 
-void HydrogenApp::showSampleEditor( const QString& name, int nSelectedComponent,
-									int nSelectedLayer )
+void HydrogenApp::showSampleEditor(
+	std::shared_ptr< H2Core::InstrumentLayer > pLayer,
+	std::shared_ptr< H2Core::InstrumentComponent > pComponent,
+	std::shared_ptr< H2Core::Instrument > pInstrument )
 {
 
 	if ( m_pSampleEditor != nullptr ){
@@ -904,8 +909,7 @@ void HydrogenApp::showSampleEditor( const QString& name, int nSelectedComponent,
 	}
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
-	m_pSampleEditor = new SampleEditor(
-		nullptr, nSelectedComponent, nSelectedLayer, name );
+	m_pSampleEditor = new SampleEditor( nullptr, pLayer, pComponent, pInstrument );
 	m_pSampleEditor->show();
 	QApplication::restoreOverrideCursor();
 }

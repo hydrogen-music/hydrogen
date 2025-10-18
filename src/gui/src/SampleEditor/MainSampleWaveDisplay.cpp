@@ -23,14 +23,13 @@
 #include "MainSampleWaveDisplay.h"
 
 #include <core/Basics/Sample.h>
-#include <core/Basics/Song.h>
-#include <core/Basics/Instrument.h>
-#include "../Compatibility/MouseEvent.h"
-#include "HydrogenApp.h"
-#include "SampleEditor.h"
-using namespace H2Core;
 
+#include "SampleEditor.h"
+#include "../Compatibility/MouseEvent.h"
+#include "../HydrogenApp.h"
 #include "../Skin.h"
+
+using namespace H2Core;
 
 MainSampleWaveDisplay::MainSampleWaveDisplay(QWidget* pParent)
  : QWidget( pParent )
@@ -170,53 +169,48 @@ void MainSampleWaveDisplay::updateDisplayPointer()
 
 
 
-void MainSampleWaveDisplay::updateDisplay( const QString& sFileName )
+void MainSampleWaveDisplay::updateDisplay( std::shared_ptr<Sample> pNewSample )
 {
 
-	auto pNewSample = Sample::load( sFileName );
-	
-	if ( pNewSample ) {
+	int nSampleLength = pNewSample->getFrames();
+	m_nSampleLength = nSampleLength;
+	float nScaleFactor = nSampleLength / (width() -50);
+	if ( nScaleFactor < 1 ){
+		nScaleFactor = 1;
+	}
 
-		int nSampleLength = pNewSample->getFrames();
-		m_nSampleLength = nSampleLength;
-		float nScaleFactor = nSampleLength / (width() -50);
-		if ( nScaleFactor < 1 ){
-			nScaleFactor = 1;
-		}
+	float fGain = height() / 4.0 * 1.0;
 
-		float fGain = height() / 4.0 * 1.0;
+	auto pSampleDatal = pNewSample->getData_L();
+	auto pSampleDatar = pNewSample->getData_R();
 
-		auto pSampleDatal = pNewSample->getData_L();
-		auto pSampleDatar = pNewSample->getData_R();
-
-		unsigned nSamplePos = 0;
-		int nVall = 0;
-		int nValr = 0;
-		int newVall = 0;
-		int newValr = 0;
-		for ( int i = 0; i < width(); ++i ){
-			for ( int j = 0; j < nScaleFactor; ++j ) {
-				if ( j < nSampleLength && nSamplePos < nSampleLength) {
-					if ( pSampleDatal[ nSamplePos ] && pSampleDatar[ nSamplePos ] ){
-						newVall = static_cast<int>( pSampleDatal[ nSamplePos ] * fGain );
-						newValr = static_cast<int>( pSampleDatar[ nSamplePos ] * fGain );
-						nVall = newVall;
-						nValr = newValr;
-					}else
-					{
-						nVall = 0;	
-						nValr = 0;
-					}
+	unsigned nSamplePos = 0;
+	int nVall = 0;
+	int nValr = 0;
+	int newVall = 0;
+	int newValr = 0;
+	for ( int i = 0; i < width(); ++i ){
+		for ( int j = 0; j < nScaleFactor; ++j ) {
+			if ( j < nSampleLength && nSamplePos < nSampleLength) {
+				if ( pSampleDatal[ nSamplePos ] && pSampleDatar[ nSamplePos ] ){
+					newVall = static_cast<int>( pSampleDatal[ nSamplePos ] * fGain );
+					newValr = static_cast<int>( pSampleDatar[ nSamplePos ] * fGain );
+					nVall = newVall;
+					nValr = newValr;
 				}
-				++nSamplePos;
+				else {
+					nVall = 0;
+					nValr = 0;
+				}
 			}
-			m_pPeakDatal[ i ] = nVall;
-			m_pPeakDatar[ i ] = nValr;
+			++nSamplePos;
 		}
+		m_pPeakDatal[ i ] = nVall;
+		m_pPeakDatar[ i ] = nValr;
 	}
 	update();
-
 }
+
 void MainSampleWaveDisplay::mouseUpdateDone() {
 	HydrogenApp::get_instance()->getSampleEditor()->returnAllMainWaveDisplayValues();
 	m_bStartSliderIsMoved = false;
