@@ -1304,49 +1304,50 @@ bool Sampler::renderNoteResample(
 		bRetValue = true;
 	}
 
-	// Low pass resonant filter
-	if ( pInstrument->isFilterActive() ) {
+	float fSamplePeak_L = 0.0, fSamplePeak_R = 0.0;
+	// Only process audio in case we do actually plan to use it.
+	if ( ! bIsMuted ) {
+		// Low pass resonant filter
+		if ( pInstrument->isFilterActive() ) {
+			for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos;
+				  ++nBufferPos ) {
+
+				fVal_L = buffer_L[ nBufferPos ];
+				fVal_R = buffer_R[ nBufferPos ];
+
+				pNote->computeLrValues( &fVal_L, &fVal_R );
+
+				buffer_L[ nBufferPos ] = fVal_L;
+				buffer_R[ nBufferPos ] = fVal_R;
+			}
+		}
+
+		// Mix rendered sample buffer to track and mixer output
 		for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos;
 			  ++nBufferPos ) {
 
 			fVal_L = buffer_L[ nBufferPos ];
 			fVal_R = buffer_R[ nBufferPos ];
 
-			pNote->computeLrValues( &fVal_L, &fVal_R );
-
-			buffer_L[ nBufferPos ] = fVal_L;
-			buffer_R[ nBufferPos ] = fVal_R;
-
-		}
-	}
-
-	// Mix rendered sample buffer to track and mixer output
-	float fSamplePeak_L = 0.0, fSamplePeak_R = 0.0;
-	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos;
-		  ++nBufferPos ) {
-
-		fVal_L = buffer_L[ nBufferPos ];
-		fVal_R = buffer_R[ nBufferPos ];
-
 #ifdef H2CORE_HAVE_JACK
-		if ( pTrackOutL ) {
-			pTrackOutL[nBufferPos] += fVal_L * fCostTrack_L;
-		}
-		if ( pTrackOutR ) {
-			pTrackOutR[nBufferPos] += fVal_R * fCostTrack_R;
-		}
+			if ( pTrackOutL != nullptr ) {
+				pTrackOutL[nBufferPos] += fVal_L * fCostTrack_L;
+			}
+			if ( pTrackOutR != nullptr ) {
+				pTrackOutR[nBufferPos] += fVal_R * fCostTrack_R;
+			}
 #endif
 
-		fVal_L *= fCost_L;
-		fVal_R *= fCost_R;
+			fSamplePeak_L = std::max( fSamplePeak_L, fVal_L );
+			fSamplePeak_R = std::max( fSamplePeak_R, fVal_R );
 
-		fSamplePeak_L = std::max( fSamplePeak_L, fVal_L );
-		fSamplePeak_R = std::max( fSamplePeak_R, fVal_R );
+			fVal_L *= fCost_L;
+			fVal_R *= fCost_R;
 
-		// to main mix
-		m_pMainOut_L[nBufferPos] += fVal_L;
-		m_pMainOut_R[nBufferPos] += fVal_R;
-
+			// to main mix
+			m_pMainOut_L[nBufferPos] += fVal_L;
+			m_pMainOut_R[nBufferPos] += fVal_R;
+		}
 	}
 
 	// update instr peak
