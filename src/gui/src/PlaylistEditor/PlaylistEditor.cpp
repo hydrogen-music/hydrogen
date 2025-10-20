@@ -502,6 +502,7 @@ void PlaylistEditor::openPlaylist() {
 
 void PlaylistEditor::newScript()
 {
+#ifndef WIN32
 	auto pPref = Preferences::get_instance();
 
 	const int nIndex = m_pPlaylistTable->currentRow();
@@ -602,6 +603,7 @@ void PlaylistEditor::newScript()
 	m_pUndoStack->endMacro();
 
 	return;
+#endif
 }
 
 bool PlaylistEditor::savePlaylistAs() {
@@ -677,6 +679,7 @@ bool PlaylistEditor::savePlaylist()
 }
 
 void PlaylistEditor::loadScript() {
+#ifndef WIN32
 	auto pPref = Preferences::get_instance();
 	QString sPath = pPref->getLastPlaylistScriptDirectory();
 
@@ -724,9 +727,11 @@ void PlaylistEditor::loadScript() {
 	m_pUndoStack->push( pAction2 );
 
 	m_pUndoStack->endMacro();
+#endif
 }
 
 void PlaylistEditor::removeScript() {
+#ifndef WIN32
 	const int nIndex = m_pPlaylistTable->currentRow();
 	if ( nIndex == -1 ) {
 		// No selection
@@ -750,10 +755,12 @@ void PlaylistEditor::removeScript() {
 	m_pUndoStack->push( pAction2 );
 
 	m_pUndoStack->endMacro();
+#endif
 }
 
 void PlaylistEditor::editScript()
 {
+#ifndef WIN32
 	auto pPref = Preferences::get_instance();
 	const int nIndex = m_pPlaylistTable->currentRow();
 	if ( nIndex == -1 ) {
@@ -794,6 +801,7 @@ void PlaylistEditor::editScript()
 	std::system( sCommand.toLatin1() );
 	
 	return;
+#endif
 }
 
 void PlaylistEditor::o_upBClicked() {
