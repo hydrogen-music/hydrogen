@@ -842,7 +842,7 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		returnValues[ ii ] = renderNoteResample(
 			pSample, pNote, pSelectedLayerInfo, pCompo, ii, nBufferSize,
 			nInitialBufferPos, fCost_L, fCost_R, fCostTrack_L, fCostTrack_R,
-			fLayerPitch );
+			fLayerPitch, bIsMuted );
 	}
 
 	for ( const auto& bReturnValue : returnValues ) {
@@ -1148,7 +1148,8 @@ bool Sampler::renderNoteResample(
 	float fCost_R,
 	float fCostTrack_L,
 	float fCostTrack_R,
-	float fLayerPitch
+	float fLayerPitch,
+	bool bIsMuted
 )
 {
 	auto pHydrogen = Hydrogen::get_instance();
@@ -1362,7 +1363,7 @@ bool Sampler::renderNoteResample(
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
 	// change the below return logic if you add code after that ifdef
-	if ( pInstrument->isMuted() || pSong->getIsMuted() ) {
+	if ( bIsMuted ) {
 		return bRetValue;
 	}
 	float masterVol = pSong->getVolume();

@@ -274,7 +274,8 @@ private:
 		float cost_R,
 		float cost_track_L,
 		float cost_track_R,
-		float fLayerPitch
+		float fLayerPitch,
+		bool bIsMuted
 	);
 
 	std::vector<std::shared_ptr<Note>> m_playingNotesQueue;
