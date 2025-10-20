@@ -270,10 +270,10 @@ private:
 		int nComponentIdx,
 		int nBufferSize,
 		int nInitialBufferPos,
-		float cost_L,
-		float cost_R,
-		float cost_track_L,
-		float cost_track_R,
+		float fGainTrack_L,
+		float fGainTrack_R,
+		float fGainJackTrack_L,
+		float fGainJackTrack_R,
 		float fLayerPitch,
 		bool bIsMuted
 	);
