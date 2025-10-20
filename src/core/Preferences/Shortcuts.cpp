@@ -240,14 +240,14 @@ void Shortcuts::createDefaultShortcuts() {
 	insertShortcut( Qt::Key_U, Action::VK_59_B3 );
 
 	// Playlist Editor
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_A, Action::PlaylistAddSong );
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::AltModifier SEPARATOR Qt::Key_A,
+	insertShortcut( Qt::AltModifier SEPARATOR Qt::ControlModifier SEPARATOR Qt::Key_A, Action::PlaylistAddSong );
+	insertShortcut( Qt::AltModifier SEPARATOR Qt::ControlModifier SEPARATOR Qt::ShiftModifier SEPARATOR Qt::Key_A,
 					Action::PlaylistAddCurrentSong );
-	insertShortcut( QKeySequence::StandardKey::Delete, Action::PlaylistRemoveSong );
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_N, Action::NewPlaylist );
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_O, Action::OpenPlaylist );
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_S, Action::SavePlaylist );
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::ShiftModifier SEPARATOR Qt::Key_S,
+	insertShortcut( Qt::AltModifier SEPARATOR Qt::ControlModifier SEPARATOR Qt::Key_D, Action::PlaylistRemoveSong );
+	insertShortcut( Qt::AltModifier SEPARATOR Qt::ControlModifier SEPARATOR Qt::Key_N, Action::NewPlaylist );
+	insertShortcut( Qt::AltModifier SEPARATOR Qt::ControlModifier SEPARATOR Qt::Key_O, Action::OpenPlaylist );
+	insertShortcut( Qt::AltModifier SEPARATOR Qt::ControlModifier SEPARATOR Qt::Key_S, Action::SavePlaylist );
+	insertShortcut( Qt::AltModifier SEPARATOR Qt::ControlModifier SEPARATOR Qt::ShiftModifier SEPARATOR Qt::Key_S,
 					Action::SaveAsPlaylist );
 
 }

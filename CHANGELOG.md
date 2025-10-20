@@ -113,6 +113,8 @@ All notable changes to this project will be documented in this file.
   - All actions can now be undone and redone.
   - Songs can be loaded by keyboard selection and pressing Enter key.
   - Playlist can be rearranged using drag and drop.
+  - Default shortcuts have been changed to be unique throughout Hydrogen and can
+    be now used in all other windows as well.
 - NSM:
   - Drumkits are no longer linked into the session folder
   - All drumkits in the session folder (proper drumkit folders containing
