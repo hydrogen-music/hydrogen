@@ -1111,9 +1111,10 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	float fInstrPeak_L = m_pPlaybackTrackInstrument->getPeak_L();
 	float fInstrPeak_R = m_pPlaybackTrackInstrument->getPeak_R();
 
+	const float fGain = pSong->getPlaybackTrackVolume() * pSong->getVolume();
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos; ++nBufferPos ) {
-		float fVal_L = buffer_L[ nBufferPos ] * pSong->getPlaybackTrackVolume(),
-			fVal_R = buffer_R[ nBufferPos ] * pSong->getPlaybackTrackVolume();
+		float fVal_L = buffer_L[ nBufferPos ] * fGain,
+			fVal_R = buffer_R[ nBufferPos ] * fGain;
 
 #ifdef H2CORE_HAVE_JACK
 		if ( pTrackOutL ) {

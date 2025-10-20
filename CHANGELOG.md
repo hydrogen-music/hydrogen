@@ -214,7 +214,8 @@ All notable changes to this project will be documented in this file.
   event (#1765).
 - Fix mixup of JACK per-track output ports on instrument reordering (see Changed
   section for new behaviour) (#71).
-- LADSPA aux channels do respect instrument/component/layer mute and solo states.
+- LADSPA aux do now respect instrument/component/layer mute and solo states.
+- Playback track does respect master volume.
 
 ### Removed
 
