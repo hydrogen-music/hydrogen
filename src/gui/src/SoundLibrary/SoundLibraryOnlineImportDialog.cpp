@@ -422,7 +422,8 @@ bool SoundLibraryOnlineImportDialog::isSoundLibraryItemAlreadyInstalled( const H
 	sName = sName.left( sName.lastIndexOf( "." ) );
 
 	if ( sInfo.getType() == "drumkit" ) {
-		if ( H2Core::Filesystem::drumkit_exists(sName) ) {
+		if ( H2Core::Filesystem::drumkit_exists( sName ) ||
+			H2Core::Filesystem::drumkit_exists( sInfo.getName() ) ) {
 			return true;
 		}
 	}
