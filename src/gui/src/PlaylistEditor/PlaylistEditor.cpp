@@ -502,6 +502,7 @@ void PlaylistEditor::openPlaylist() {
 
 void PlaylistEditor::newScript()
 {
+#ifndef WIN32
 	auto pPref = Preferences::get_instance();
 
 	const int nIndex = m_pPlaylistTable->currentRow();
@@ -602,6 +603,7 @@ void PlaylistEditor::newScript()
 	m_pUndoStack->endMacro();
 
 	return;
+#endif
 }
 
 bool PlaylistEditor::savePlaylistAs() {
@@ -677,6 +679,7 @@ bool PlaylistEditor::savePlaylist()
 }
 
 void PlaylistEditor::loadScript() {
+#ifndef WIN32
 	auto pPref = Preferences::get_instance();
 	QString sPath = pPref->getLastPlaylistScriptDirectory();
 
@@ -724,9 +727,11 @@ void PlaylistEditor::loadScript() {
 	m_pUndoStack->push( pAction2 );
 
 	m_pUndoStack->endMacro();
+#endif
 }
 
 void PlaylistEditor::removeScript() {
+#ifndef WIN32
 	const int nIndex = m_pPlaylistTable->currentRow();
 	if ( nIndex == -1 ) {
 		// No selection
@@ -750,10 +755,12 @@ void PlaylistEditor::removeScript() {
 	m_pUndoStack->push( pAction2 );
 
 	m_pUndoStack->endMacro();
+#endif
 }
 
 void PlaylistEditor::editScript()
 {
+#ifndef WIN32
 	auto pPref = Preferences::get_instance();
 	const int nIndex = m_pPlaylistTable->currentRow();
 	if ( nIndex == -1 ) {
@@ -794,6 +801,7 @@ void PlaylistEditor::editScript()
 	std::system( sCommand.toLatin1() );
 	
 	return;
+#endif
 }
 
 void PlaylistEditor::o_upBClicked() {
@@ -956,12 +964,14 @@ bool PlaylistEditor::handleKeyEvent( QKeyEvent* pKeyEvent ) {
 	if ( nKey == Qt::Key_Escape ) {
 		// Close window when hitting ESC.
 		HydrogenApp::get_instance()->showPlaylistEditor();
+		pKeyEvent->accept();
 		return true;
 	}
 	else if ( nKey == Qt::Key_Enter || nKey == Qt::Key_Return ) {
 		// Loading a song by seleting it via keyboard and pressing Enter.
 		if ( m_pPlaylistTable->hasFocus() ) {
 			m_pPlaylistTable->loadCurrentRow();
+			pKeyEvent->accept();
 			return true;
 		}
 	}
@@ -980,93 +990,8 @@ bool PlaylistEditor::handleKeyEvent( QKeyEvent* pKeyEvent ) {
         nKey += Qt::META;
 	}
 	const auto keySequence = QKeySequence( nKey );
-	if ( keySequence == QKeySequence( "" ) ) {
-		return false;
-	}
-	bool bHandled = false;
-	
-	const auto actions = pShortcuts->getActions( keySequence );
-	for ( const auto& Midiaction : actions ) {
-		
-		switch ( Midiaction ) {
-		case Shortcuts::Action::PlaylistAddSong:
-			addSong();
-			bHandled = true;
-			break;
-			
-		case Shortcuts::Action::PlaylistAddCurrentSong:
-			addCurrentSong();
-			bHandled = true;
-			break;
-			
-		case Shortcuts::Action::PlaylistRemoveSong:
-			removeSong();
-			bHandled = true;
-			break;
-			
-		case Shortcuts::Action::NewPlaylist:
-			newPlaylist();
-			bHandled = true;
-			break;
-			
-		case Shortcuts::Action::OpenPlaylist:
-			openPlaylist();
-			bHandled = true;
-			break;
-			
-		case Shortcuts::Action::SavePlaylist:
-			savePlaylist();
-			bHandled = true;
-			break;
-			
-		case Shortcuts::Action::SaveAsPlaylist:
-			savePlaylistAs();
-			bHandled = true;
-			break;
-
-		case Shortcuts::Action::Undo:
-			undo();
-			bHandled = true;
-			break;
-
-		case Shortcuts::Action::Redo:
-			redo();
-			bHandled = true;
-			break;
-
-		case Shortcuts::Action::ShowUndoHistory:
-			showUndoHistory();
-			bHandled = true;
-			break;
-
-#ifndef WIN32
-		case Shortcuts::Action::PlaylistAddScript:
-			loadScript();
-			bHandled = true;
-			break;
-			
-		case Shortcuts::Action::PlaylistEditScript:
-			editScript();
-			bHandled = true;
-			break;
-			
-		case Shortcuts::Action::PlaylistRemoveScript:
-			removeScript();
-			bHandled = true;
-			break;
-			
-		case Shortcuts::Action::PlaylistCreateScript:
-			newScript();
-			bHandled = true;
-			break;
-#endif
-		default:
-			bHandled = false;
-		}
-	}
-
-	if ( bHandled ) {
-		// Event consumed by the actions triggered above.
+	if ( keySequence == QKeySequence::StandardKey::Delete ) {
+		removeSong();
 		pKeyEvent->accept();
 		return true;
 	}

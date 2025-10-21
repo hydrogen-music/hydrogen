@@ -741,10 +741,10 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 			continue;
 		}
 
-		float fCost_L = 1.0f;
-		float fCost_R = 1.0f;
-		float fCostTrack_L = 1.0f;
-		float fCostTrack_R = 1.0f;
+		float fGainTrack_L = 1.0f;
+		float fGainTrack_R = 1.0f;
+		float fGainJackTrack_L = 1.0f;
+		float fGainJackTrack_R = 1.0f;
 		
 		/*
 		 *  Is instrument/component/sample muted?
@@ -785,12 +785,12 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		}
 
 		if ( bIsMuted ) {
-			fCost_L = 0.0;
-			fCost_R = 0.0;
+			fGainTrack_L = 0.0;
+			fGainTrack_R = 0.0;
 			if ( Preferences::get_instance()->m_JackTrackOutputMode ==
 				 Preferences::JackTrackOutputMode::postFader ) {
-				fCostTrack_L = 0.0;
-				fCostTrack_R = 0.0;
+				fGainJackTrack_L = 0.0;
+				fGainJackTrack_R = 0.0;
 			}
 
 		} else {
@@ -803,14 +803,13 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 			fMonoGain *= pInstr->getGain();		// instrument gain
 			fMonoGain *= pCompo->getGain();	    	// Component gain
 			fMonoGain *= pInstr->getVolume();		// instrument volume
-			fMonoGain *= pSong->getVolume();		// song volume
 
-			fCost_L = fMonoGain * fPan_L;			// pan
-			fCost_R = fMonoGain * fPan_R;			// pan
+			fGainTrack_L = fMonoGain * fPan_L;			// pan
+			fGainTrack_R = fMonoGain * fPan_R;			// pan
 			if ( Preferences::get_instance()->m_JackTrackOutputMode ==
 				 Preferences::JackTrackOutputMode::postFader ) {
-				fCostTrack_R = fCost_R * 2;
-				fCostTrack_L = fCost_L * 2;
+				fGainJackTrack_R = fGainTrack_R * 2;
+				fGainJackTrack_L = fGainTrack_L * 2;
 			}
 		}
 
@@ -818,15 +817,15 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		if ( Preferences::get_instance()->m_JackTrackOutputMode ==
 			 Preferences::JackTrackOutputMode::preFader ) {
 			if ( pInstr->getApplyVelocity() ) {
-				fCostTrack_L *= pNote->getVelocity();
+				fGainJackTrack_L *= pNote->getVelocity();
 			}
-			fCostTrack_L *= fLayerGain;
-			fCostTrack_L *= pCompo->getGain();
+			fGainJackTrack_L *= fLayerGain;
+			fGainJackTrack_L *= pCompo->getGain();
 			
-			fCostTrack_R = fCostTrack_L;
+			fGainJackTrack_R = fGainJackTrack_L;
 
-			fCostTrack_L *= fNotePan_L;
-			fCostTrack_R *= fNotePan_R;
+			fGainJackTrack_L *= fNotePan_L;
+			fGainJackTrack_R *= fNotePan_R;
 		}
 
 		// Once the Sampler does start rendering a note we also push
@@ -841,8 +840,8 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		// Actual rendering.
 		returnValues[ ii ] = renderNoteResample(
 			pSample, pNote, pSelectedLayerInfo, pCompo, ii, nBufferSize,
-			nInitialBufferPos, fCost_L, fCost_R, fCostTrack_L, fCostTrack_R,
-			fLayerPitch );
+			nInitialBufferPos, fGainTrack_L, fGainTrack_R, fGainJackTrack_L, fGainJackTrack_R,
+			fLayerPitch, bIsMuted );
 	}
 
 	for ( const auto& bReturnValue : returnValues ) {
@@ -1111,9 +1110,10 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	float fInstrPeak_L = m_pPlaybackTrackInstrument->getPeak_L();
 	float fInstrPeak_R = m_pPlaybackTrackInstrument->getPeak_R();
 
+	const float fGain = pSong->getPlaybackTrackVolume() * pSong->getVolume();
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos; ++nBufferPos ) {
-		float fVal_L = buffer_L[ nBufferPos ] * pSong->getPlaybackTrackVolume(),
-			fVal_R = buffer_R[ nBufferPos ] * pSong->getPlaybackTrackVolume();
+		float fVal_L = buffer_L[ nBufferPos ] * fGain,
+			fVal_R = buffer_R[ nBufferPos ] * fGain;
 
 #ifdef H2CORE_HAVE_JACK
 		if ( pTrackOutL ) {
@@ -1124,8 +1124,8 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 		}
 #endif
 
-		fInstrPeak_L = std::max( fInstrPeak_L, fVal_L );
-		fInstrPeak_R = std::max( fInstrPeak_R, fVal_R );
+		fInstrPeak_L = std::max( fInstrPeak_L, buffer_L[ nBufferPos ] );
+		fInstrPeak_R = std::max( fInstrPeak_R, buffer_R[ nBufferPos ] );
 		m_pMainOut_L[nBufferPos] += fVal_L;
 		m_pMainOut_R[nBufferPos] += fVal_R;
 	}
@@ -1144,11 +1144,12 @@ bool Sampler::renderNoteResample(
 	int nComponentIdx,
 	int nBufferSize,
 	int nInitialBufferPos,
-	float fCost_L,
-	float fCost_R,
-	float fCostTrack_L,
-	float fCostTrack_R,
-	float fLayerPitch
+	float fGainTrack_L,
+	float fGainTrack_R,
+	float fGainJackTrack_L,
+	float fGainJackTrack_R,
+	float fLayerPitch,
+	bool bIsMuted
 )
 {
 	auto pHydrogen = Hydrogen::get_instance();
@@ -1302,49 +1303,57 @@ bool Sampler::renderNoteResample(
 		bRetValue = true;
 	}
 
-	// Low pass resonant filter
-	if ( pInstrument->isFilterActive() ) {
+	float fSamplePeak_L = 0.0, fSamplePeak_R = 0.0;
+	// Only process audio in case we do actually plan to use it.
+	if ( ! bIsMuted ) {
+		// Low pass resonant filter
+		if ( pInstrument->isFilterActive() ) {
+			for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos;
+				  ++nBufferPos ) {
+
+				fVal_L = buffer_L[ nBufferPos ];
+				fVal_R = buffer_R[ nBufferPos ];
+
+				pNote->computeLrValues( &fVal_L, &fVal_R );
+
+				buffer_L[ nBufferPos ] = fVal_L;
+				buffer_R[ nBufferPos ] = fVal_R;
+			}
+		}
+
+		const auto fMainVolume = pSong->getVolume();
+		// Mix rendered sample buffer to track and mixer output
 		for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos;
 			  ++nBufferPos ) {
 
 			fVal_L = buffer_L[ nBufferPos ];
 			fVal_R = buffer_R[ nBufferPos ];
 
-			pNote->computeLrValues( &fVal_L, &fVal_R );
-
-			buffer_L[ nBufferPos ] = fVal_L;
-			buffer_R[ nBufferPos ] = fVal_R;
-
-		}
-	}
-
-	// Mix rendered sample buffer to track and mixer output
-	float fSamplePeak_L = 0.0, fSamplePeak_R = 0.0;
-	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos;
-		  ++nBufferPos ) {
-
-		fVal_L = buffer_L[ nBufferPos ];
-		fVal_R = buffer_R[ nBufferPos ];
-
 #ifdef H2CORE_HAVE_JACK
-		if ( pTrackOutL ) {
-			pTrackOutL[nBufferPos] += fVal_L * fCostTrack_L;
-		}
-		if ( pTrackOutR ) {
-			pTrackOutR[nBufferPos] += fVal_R * fCostTrack_R;
-		}
+			if ( pTrackOutL != nullptr ) {
+				pTrackOutL[nBufferPos] += fVal_L * fGainJackTrack_L;
+			}
+			if ( pTrackOutR != nullptr ) {
+				pTrackOutR[nBufferPos] += fVal_R * fGainJackTrack_R;
+			}
 #endif
 
-		fVal_L *= fCost_L;
-		fVal_R *= fCost_R;
+			// The meters and peaks of a instrument strip in the mixer do
+			// represent post-fader values and include the overall track gain.
+			fVal_L *= fGainTrack_L;
+			fVal_R *= fGainTrack_R;
 
-		fSamplePeak_L = std::max( fSamplePeak_L, fVal_L );
-		fSamplePeak_R = std::max( fSamplePeak_R, fVal_R );
+			fSamplePeak_L = std::max( fSamplePeak_L, fVal_L );
+			fSamplePeak_R = std::max( fSamplePeak_R, fVal_R );
 
-		// to main mix
-		m_pMainOut_L[nBufferPos] += fVal_L;
-		m_pMainOut_R[nBufferPos] += fVal_R;
+			// But the peaks are _not_ affected by the main volume.
+			fVal_L *= fMainVolume;
+			fVal_R *= fMainVolume;
 
+			// to main mix
+			m_pMainOut_L[nBufferPos] += fVal_L;
+			m_pMainOut_R[nBufferPos] += fVal_R;
+		}
 	}
 
 	// update instr peak
@@ -1362,7 +1371,7 @@ bool Sampler::renderNoteResample(
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
 	// change the below return logic if you add code after that ifdef
-	if ( pInstrument->isMuted() || pSong->getIsMuted() ) {
+	if ( bIsMuted ) {
 		return bRetValue;
 	}
 	float masterVol = pSong->getVolume();
