@@ -34,6 +34,7 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Helpers/Xml.h>
 #include <core/IO/AlsaAudioDriver.h>
+#include <core/Midi/MidiMessage.h>
 #include <core/Midi/MidiMap.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Version.h>
@@ -144,6 +145,10 @@ Preferences::Preferences()
 	, m_bMidiTransportOutputSend( false )
 	, m_midiInputMapping( MidiInputMapping::AsOutput )
 	, m_midiOutputMapping( MidiOutputMapping::Offset )
+	, m_bUseGlobalInputChannel( false )
+	, m_nGlobalInputChannel( 10 )
+	, m_bUseGlobalOutputChannel( false )
+	, m_nGlobalOutputChannel( 10 )
 	, m_bUseTheRubberbandBpmChangeEvent( false )
 	, m_bShowInstrumentPeaks( true )
 	, m_nPatternEditorGridResolution( 8 )
@@ -329,6 +334,10 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_bMidiTransportOutputSend( pOther->m_bMidiTransportOutputSend )
 	, m_midiInputMapping( pOther->m_midiInputMapping )
 	, m_midiOutputMapping( pOther->m_midiOutputMapping )
+	, m_bUseGlobalInputChannel( pOther->m_bUseGlobalInputChannel )
+	, m_nGlobalInputChannel( pOther->m_nGlobalInputChannel )
+	, m_bUseGlobalOutputChannel( pOther->m_bUseGlobalOutputChannel )
+	, m_nGlobalOutputChannel( pOther->m_nGlobalOutputChannel )
 	, m_bSearchForRubberbandOnLoad( pOther->m_bSearchForRubberbandOnLoad )
 	, m_bUseTheRubberbandBpmChangeEvent( pOther->m_bUseTheRubberbandBpmChangeEvent )
 	, m_bShowInstrumentPeaks( pOther->m_bShowInstrumentPeaks )
@@ -762,14 +771,30 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 						midiDriverNode.read_int(
 							"midi_input_mapping",
 							static_cast<int>( pPref->getMidiInputMapping() ),
-							false, false, bSilent ) ) );
+							true, false, bSilent ) ) );
 			}
 			pPref->setMidiOutputMapping(
 				static_cast<MidiOutputMapping>(
 					midiDriverNode.read_int(
 						"midi_output_mapping",
 						static_cast<int>( pPref->getMidiOutputMapping() ),
-						false, false, bSilent ) ) );
+						true, false, bSilent ) ) );
+			pPref->setUseGlobalInputChannel(
+				midiDriverNode.read_bool(
+					"use_global_input_channel",
+					pPref->getUseGlobalInputChannel(), true, false, bSilent ) );
+			pPref->setGlobalInputChannel(
+				midiDriverNode.read_int(
+					"global_input_channel",
+					pPref->getGlobalInputChannel(), true, false, bSilent ) );
+			pPref->setUseGlobalOutputChannel(
+				midiDriverNode.read_bool(
+					"use_global_output_channel",
+					pPref->getUseGlobalOutputChannel(), true, false, bSilent ) );
+			pPref->setGlobalOutputChannel(
+				midiDriverNode.read_int(
+					"global_output_channel",
+					pPref->getGlobalOutputChannel(), true, false, bSilent ) );
 		}
 		else {
 			WARNINGLOG( "<midi_driver> node not found" );
@@ -1294,6 +1319,14 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 									 static_cast<int>(getMidiInputMapping()) );
 			midiDriverNode.write_int( "midi_output_mapping",
 									 static_cast<int>(getMidiOutputMapping()) );
+			midiDriverNode.write_bool( "use_global_input_channel",
+									   getUseGlobalInputChannel() );
+			midiDriverNode.write_int( "global_input_channel",
+									 getGlobalInputChannel() );
+			midiDriverNode.write_bool( "use_global_output_channel",
+									   getUseGlobalOutputChannel() );
+			midiDriverNode.write_int( "global_output_channel",
+									 getGlobalOutputChannel() );
 
 		}
 		
@@ -1752,6 +1785,17 @@ void Preferences::setMostRecentFX( const QString& FX_name )
 	m_recentFX.push_front( FX_name );
 }
 
+void Preferences::setGlobalInputChannel( int nValue ) {
+	m_nGlobalInputChannel = std::clamp( nValue, MidiMessage::nMinimumChannel,
+									   MidiMessage::nMaximumChannel );
+}
+
+void Preferences::setGlobalOutputChannel( int nValue ) {
+	m_nGlobalOutputChannel = std::clamp( nValue, MidiMessage::nMinimumChannel,
+										MidiMessage::nMaximumChannel );
+}
+
+
 /// Read the xml nodes related to window properties
 WindowProperties Preferences::loadWindowPropertiesFrom( const XMLNode& parent,
 														const QString& sWindowName,
@@ -1867,6 +1911,14 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( MidiInputMappingToQString( m_midiInputMapping ) ) )
 			.append( QString( "%1%2m_midiOutputMapping: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( MidiOutputMappingToQString( m_midiOutputMapping ) ) )
+			.append( QString( "%1%2m_bUseGlobalInputChannel: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bUseGlobalInputChannel ) )
+			.append( QString( "%1%2m_nGlobalInputChannel: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nGlobalInputChannel ) )
+			.append( QString( "%1%2m_bUseGlobalOutputChannel: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bUseGlobalOutputChannel ) )
+			.append( QString( "%1%2m_nGlobalOutputChannel: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nGlobalOutputChannel ) )
 			.append( QString( "%1%2m_bOscServerEnabled: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bOscServerEnabled ) )
 			.append( QString( "%1%2m_bOscFeedbackEnabled: %3\n" ).arg( sPrefix )
@@ -2117,6 +2169,14 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( MidiInputMappingToQString( m_midiInputMapping ) ) )
 			.append( QString( ", m_midiOutputMapping: %1" )
 					 .arg( MidiOutputMappingToQString( m_midiOutputMapping ) ) )
+			.append( QString( ", m_bUseGlobalInputChannel: %1" )
+					 .arg( m_bUseGlobalInputChannel ) )
+			.append( QString( ", m_nGlobalInputChannel: %1" )
+					 .arg( m_nGlobalInputChannel ) )
+			.append( QString( ", m_bUseGlobalOutputChannel: %1" )
+					 .arg( m_bUseGlobalOutputChannel ) )
+			.append( QString( ", m_nGlobalOutputChannel: %1" )
+					 .arg( m_nGlobalOutputChannel ) )
 			.append( QString( ", m_bOscServerEnabled: %1" )
 					 .arg( m_bOscServerEnabled ) )
 			.append( QString( ", m_bOscFeedbackEnabled: %1" )

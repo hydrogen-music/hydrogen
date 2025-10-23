@@ -37,6 +37,7 @@ https://www.gnu.org/licenses
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/IO/MidiBaseDriver.h>
+#include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 
@@ -370,12 +371,15 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	m_pInputGlobalChannelSpinBox->setFixedSize(
 		MidiControlDialog::nColumnMappingWidth,
 		MidiControlDialog::nMappingBoxHeight );
-	m_pInputGlobalChannelSpinBox->setMinimum( 0 );
-	m_pInputGlobalChannelSpinBox->setMaximum( 11 );
+	m_pInputGlobalChannelSpinBox->setMinimum( MidiMessage::nMinimumChannel );
+	m_pInputGlobalChannelSpinBox->setMaximum( MidiMessage::nMaximumChannel );
+	m_pInputGlobalChannelSpinBox->setValue( pPref->getGlobalInputChannel() );
+	m_pInputGlobalChannelSpinBox->setEnabled( pPref->getUseGlobalInputChannel() );
 	pMappingGridLayout->addWidget( m_pInputGlobalChannelSpinBox, 3, 0,
 							  Qt::AlignCenter );
 
 	m_pInputGlobalChannelCheckBox = new QCheckBox( pMappingTab );
+	m_pInputGlobalChannelCheckBox->setChecked( pPref->getUseGlobalInputChannel() );
 	pMappingGridLayout->addWidget( m_pInputGlobalChannelCheckBox, 3, 1,
 							  Qt::AlignCenter );
 
@@ -388,6 +392,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	pMappingGridLayout->addWidget( pGlobalChannelLabel, 3, 3, Qt::AlignCenter );
 
 	m_pOutputGlobalChannelCheckBox = new QCheckBox( pMappingTab );
+	m_pOutputGlobalChannelCheckBox->setChecked( pPref->getUseGlobalOutputChannel() );
 	pMappingGridLayout->addWidget( m_pOutputGlobalChannelCheckBox, 3, 5,
 							  Qt::AlignCenter );
 
@@ -395,8 +400,10 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	m_pOutputGlobalChannelSpinBox->setFixedSize(
 		MidiControlDialog::nColumnMappingWidth,
 		MidiControlDialog::nMappingBoxHeight );
-	m_pOutputGlobalChannelSpinBox->setMinimum( 0 );
-	m_pOutputGlobalChannelSpinBox->setMaximum( 11 );
+	m_pOutputGlobalChannelSpinBox->setMinimum( MidiMessage::nMinimumChannel );
+	m_pOutputGlobalChannelSpinBox->setMaximum( MidiMessage::nMaximumChannel );
+	m_pOutputGlobalChannelSpinBox->setValue( pPref->getGlobalOutputChannel() );
+	m_pOutputGlobalChannelSpinBox->setEnabled( pPref->getUseGlobalOutputChannel() );
 	pMappingGridLayout->addWidget( m_pOutputGlobalChannelSpinBox, 3, 6,
 							  Qt::AlignCenter );
 

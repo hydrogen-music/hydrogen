@@ -375,6 +375,14 @@ public:
 	void				setMidiInputMapping( MidiInputMapping mapping );
 	MidiOutputMapping	getMidiOutputMapping() const;
 	void				setMidiOutputMapping( MidiOutputMapping mapping );
+	bool				getUseGlobalInputChannel() const;
+	void				setUseGlobalInputChannel( bool bUse );
+	int				getGlobalInputChannel() const;
+	void				setGlobalInputChannel( int nChannel );
+	bool				getUseGlobalOutputChannel() const;
+	void				setUseGlobalOutputChannel( bool bUse );
+	int				getGlobalOutputChannel() const;
+	void				setGlobalOutputChannel( int nChannel );
 
 	// OSC Server properties
 	/** \return #m_bOscServerEnabled*/
@@ -739,6 +747,10 @@ private:
 
 		MidiInputMapping m_midiInputMapping;
 		MidiOutputMapping m_midiOutputMapping;
+		bool m_bUseGlobalInputChannel;
+		int m_nGlobalInputChannel;
+		bool m_bUseGlobalOutputChannel;
+		int m_nGlobalOutputChannel;
 
 		/** In case the rubberband binary was not found in common places, this
 		 * variable indicated - if `true` - that Hydrogen should continue
@@ -1307,6 +1319,24 @@ inline Preferences::MidiOutputMapping Preferences::getMidiOutputMapping() const 
 }
 inline void Preferences::setMidiOutputMapping( Preferences::MidiOutputMapping mapping ) {
 	m_midiOutputMapping = mapping;
+}
+inline bool Preferences::getUseGlobalInputChannel() const {
+	return m_bUseGlobalInputChannel;
+}
+inline void Preferences::setUseGlobalInputChannel( bool bUse ){
+	m_bUseGlobalInputChannel = bUse;
+}
+inline int Preferences::getGlobalInputChannel() const {
+	return m_nGlobalInputChannel;
+}
+inline bool Preferences::getUseGlobalOutputChannel() const {
+	return m_bUseGlobalOutputChannel;
+}
+inline void Preferences::setUseGlobalOutputChannel( bool bUse ){
+	m_bUseGlobalOutputChannel = bUse;
+}
+inline int Preferences::getGlobalOutputChannel() const {
+	return m_nGlobalOutputChannel;
 }
 inline bool Preferences::getOscServerEnabled() const {
 	return m_bOscServerEnabled;
