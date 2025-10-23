@@ -2673,18 +2673,6 @@ MIDI = %2</translation>
         <translation>&amp;Tela cheia</translation>
     </message>
     <message>
-        <source>Input &amp;Mode</source>
-        <translation>Modo de entrada</translation>
-    </message>
-    <message>
-        <source>&amp;Instrument</source>
-        <translation>&amp;Instrumento</translation>
-    </message>
-    <message>
-        <source>&amp;Drumkit</source>
-        <translation>&amp;Drumkit</translation>
-    </message>
-    <message>
         <source>Show &amp;Audio Engine Info</source>
         <translation>Mostrar &amp;Informação de Engine de Áudio</translation>
     </message>
@@ -3159,11 +3147,6 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <source>&amp;Discard MIDI messages after action has been triggered</source>
         <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
         <translation>&amp;Descart mensagens MIDI depois que uma ação for disparada</translation>
-    </message>
-    <message>
-        <source>&amp;Use output note as input note</source>
-        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
-        <translation>&amp;Usar nota de saída como nota de entrada</translation>
     </message>
     <message>
         <source>&amp;Enable MIDI feedback</source>

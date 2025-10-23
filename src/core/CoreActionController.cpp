@@ -2424,7 +2424,8 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	std::vector< std::shared_ptr<Instrument> > instrumentsMatching;
 	QString sMode;
-	if ( pPref->m_bPlaySelectedInstrument ){
+	switch( pPref->getMidiInputMapping() ) {
+	case Preferences::MidiInputMapping::SelectedInstrument: {
 		auto pInstrument =
 			pInstrumentList->get( pHydrogen->getSelectedInstrumentNumber());
 		if ( pInstrument == nullptr ) {
@@ -2433,8 +2434,9 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 		}
 		instrumentsMatching.push_back( pInstrument );
 		sMode = "Play Selected Instrument";
+		break;
 	}
-	else if ( pPref->m_bMidiFixedMapping ){
+	case Preferences::MidiInputMapping::AsOutput: {
 		instrumentsMatching = pInstrumentList->findByMidiNote( nNote );
 		if ( instrumentsMatching.size() == 0 ) {
 			WARNINGLOG( QString( "Unable to map note [%1] to instrument" )
@@ -2442,8 +2444,9 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 			return false;
 		}
 		sMode = "Map to Output MIDI note";
+		break;
 	}
-	else {
+	case Preferences::MidiInputMapping::Order: {
 		const int nInstrument = nNote - MidiMessage::instrumentOffset;
 		if( nInstrument < 0 || nInstrument >= pInstrumentList->size()) {
 			WARNINGLOG( QString( "Instrument number [%1] - derived from note [%2] - out of bound note [%3,%4]" )
@@ -2461,6 +2464,7 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 		instrumentsMatching.push_back( pInstrument );
 		sMode = "Map to instrument list position";
 	}
+	};
 
 	// Some finishing touches and note playback.
 	bool bSuccess = true;

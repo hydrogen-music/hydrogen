@@ -231,9 +231,6 @@ public slots:
 		void action_undo();
 		void action_redo();
 
-		void action_inputMode_instrument();
-		void action_inputMode_drumkit();
-
 		void handleSigUsr1();
 		void closeAll();
 		/** Stores the current state of the GUI (position, width,
@@ -277,8 +274,6 @@ public slots:
 		QAction *	m_pViewTimelineAction;
 		QAction *	m_pViewPlaybackTrackAction;
 		QActionGroup *	m_pViewPlaybackTrackActionGroup;
-		QAction *	m_pInstrumentAction;
-		QAction *	m_pDrumkitAction;
 
 		QMenu *		m_pRecentFilesMenu;
 		QAction *	m_pRecentFileAction0;

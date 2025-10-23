@@ -2686,18 +2686,6 @@ MIDI = %2</translation>
         <translation>全屏(&amp;F)</translation>
     </message>
     <message>
-        <source>Input &amp;Mode</source>
-        <translation>输入模式(&amp;M)</translation>
-    </message>
-    <message>
-        <source>&amp;Instrument</source>
-        <translation>乐器(&amp;I)</translation>
-    </message>
-    <message>
-        <source>&amp;Drumkit</source>
-        <translation>鼓组(&amp;D)</translation>
-    </message>
-    <message>
         <source>Show &amp;Audio Engine Info</source>
         <translation>显示音频引擎信息(&amp;A)</translation>
     </message>
@@ -3156,11 +3144,6 @@ LilyPond 导出是一项实验性功能。
         <source>&amp;Discard MIDI messages after action has been triggered</source>
         <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
         <translation>触发动作后丢弃 MIDI 消息(&amp;D)</translation>
-    </message>
-    <message>
-        <source>&amp;Use output note as input note</source>
-        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
-        <translation>使用输出音符作为输入音符(&amp;U)</translation>
     </message>
     <message>
         <source>&amp;Enable MIDI feedback</source>

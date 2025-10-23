@@ -2654,18 +2654,6 @@ MIDI = %2</translation>
         <translation>&amp;Schermo intero</translation>
     </message>
     <message>
-        <source>Input &amp;Mode</source>
-        <translation>&amp;Modalità di ingresso</translation>
-    </message>
-    <message>
-        <source>&amp;Instrument</source>
-        <translation>&amp;Strumento</translation>
-    </message>
-    <message>
-        <source>&amp;Drumkit</source>
-        <translation>&amp;Drumkit</translation>
-    </message>
-    <message>
         <source>Show &amp;Audio Engine Info</source>
         <translation>Mostra &amp;motore sonoro</translation>
     </message>
@@ -3131,11 +3119,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>&amp;Discard MIDI messages after action has been triggered</source>
-        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Use output note as input note</source>
         <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
         <translation type="unfinished"></translation>
     </message>

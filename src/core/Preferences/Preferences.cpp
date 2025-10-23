@@ -87,7 +87,6 @@ void Preferences::replaceInstance( std::shared_ptr<Preferences> pOther ) {
 
 Preferences::Preferences()
 	: m_bPlaySamplesOnClicking( false )
-	, m_bPlaySelectedInstrument( false )
 	, m_bFollowPlayhead( true )
 	, m_bExpandSongItem( true )
 	, m_bExpandPatternItem( true )
@@ -106,7 +105,6 @@ Preferences::Preferences()
 	, m_sMidiOutputPortName(  Preferences::getNullMidiPort() )
 	, m_nMidiChannelFilter( -1 )
 	, m_bMidiNoteOffIgnore( true )
-	, m_bMidiFixedMapping( false )
 	, m_bMidiDiscardNoteAfterAction( true )
 	, m_bEnableMidiFeedback( false )
 	, m_bOscServerEnabled( false )
@@ -144,6 +142,8 @@ Preferences::Preferences()
 	, m_bMidiTransportInputHandling( false )
 	, m_bMidiClockOutputSend( false )
 	, m_bMidiTransportOutputSend( false )
+	, m_midiInputMapping( MidiInputMapping::AsOutput )
+	, m_midiOutputMapping( MidiOutputMapping::Offset )
 	, m_bUseTheRubberbandBpmChangeEvent( false )
 	, m_bShowInstrumentPeaks( true )
 	, m_nPatternEditorGridResolution( 8 )
@@ -269,7 +269,6 @@ Preferences::Preferences()
 
 Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	: m_bPlaySamplesOnClicking( pOther->m_bPlaySamplesOnClicking )
-	, m_bPlaySelectedInstrument( pOther->m_bPlaySelectedInstrument )
 	, m_bFollowPlayhead( pOther->m_bFollowPlayhead )
 	, m_bExpandSongItem( pOther->m_bExpandSongItem )
 	, m_bExpandPatternItem( pOther->m_bExpandPatternItem )
@@ -289,7 +288,6 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_sMidiOutputPortName( pOther->m_sMidiOutputPortName )
 	, m_nMidiChannelFilter( pOther->m_nMidiChannelFilter )
 	, m_bMidiNoteOffIgnore( pOther->m_bMidiNoteOffIgnore )
-	, m_bMidiFixedMapping( pOther->m_bMidiFixedMapping )
 	, m_bMidiDiscardNoteAfterAction( pOther->m_bMidiDiscardNoteAfterAction )
 	, m_bEnableMidiFeedback( pOther->m_bEnableMidiFeedback )
 	, m_bOscServerEnabled( pOther->m_bOscServerEnabled )
@@ -329,6 +327,8 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_bMidiTransportInputHandling( pOther->m_bMidiTransportInputHandling )
 	, m_bMidiClockOutputSend( pOther->m_bMidiClockOutputSend )
 	, m_bMidiTransportOutputSend( pOther->m_bMidiTransportOutputSend )
+	, m_midiInputMapping( pOther->m_midiInputMapping )
+	, m_midiOutputMapping( pOther->m_midiOutputMapping )
 	, m_bSearchForRubberbandOnLoad( pOther->m_bSearchForRubberbandOnLoad )
 	, m_bUseTheRubberbandBpmChangeEvent( pOther->m_bUseTheRubberbandBpmChangeEvent )
 	, m_bShowInstrumentPeaks( pOther->m_bShowInstrumentPeaks )
@@ -433,9 +433,10 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 
 	pPref->m_sPreferredLanguage = rootNode.read_string(
 		"preferredLanguage", pPref->m_sPreferredLanguage, false, "", bSilent );
-	pPref->m_bPlaySelectedInstrument = rootNode.read_bool(
-		"instrumentInputMode", pPref->m_bPlaySelectedInstrument, false, false,
-		bSilent );
+	// Kept for backward compatibility of MIDI input mapping to versions prior
+	// to 2.0.
+	const bool bPlaySelectedInstrument = rootNode.read_bool(
+		"instrumentInputMode", false, false, false, bSilent );
 	pPref->m_bShowDevelWarning = rootNode.read_bool(
 		"showDevelWarning", pPref->m_bShowDevelWarning, false, false, bSilent );
 	pPref->m_bShowNoteOverwriteWarning = rootNode.read_bool(
@@ -716,9 +717,10 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			pPref->m_bMidiDiscardNoteAfterAction = midiDriverNode.read_bool(
 				"discard_note_after_action",
 				pPref->m_bMidiDiscardNoteAfterAction, false, false, bSilent );
-			pPref->m_bMidiFixedMapping = midiDriverNode.read_bool(
-				"fixed_mapping",
-				pPref->m_bMidiFixedMapping, false, true, bSilent );
+			// Kept for backward compatibility of MIDI input mapping to versions
+			// prior to 2.0.
+			const bool bAsOutput = midiDriverNode.read_bool(
+				"fixed_mapping", false, true, true, bSilent );
 			pPref->m_bEnableMidiFeedback = midiDriverNode.read_bool(
 				"enable_midi_feedback",
 				pPref->m_bEnableMidiFeedback, false, true, bSilent );
@@ -738,6 +740,36 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 				midiDriverNode.read_bool(
 					"midi_transport_output_send",
 					pPref->getMidiTransportOutputSend(), true, true, bSilent ) );
+			const bool bInputMappingNotFound = midiDriverNode.firstChildElement(
+				"midi_input_mapping" ).isNull();
+			if ( bInputMappingNotFound ) {
+				// Backward compatibility. Derive the mapping state from other
+				// settings used in versions prior to 2.0.
+				if ( bAsOutput ) {
+					pPref->setMidiInputMapping( MidiInputMapping::AsOutput );
+				}
+				else if ( bPlaySelectedInstrument ) {
+					pPref->setMidiInputMapping(
+						MidiInputMapping::SelectedInstrument );
+				}
+				else {
+					pPref->setMidiInputMapping( MidiInputMapping::Order );
+				}
+			}
+			else {
+				pPref->setMidiInputMapping(
+					static_cast<MidiInputMapping>(
+						midiDriverNode.read_int(
+							"midi_input_mapping",
+							static_cast<int>( pPref->getMidiInputMapping() ),
+							false, false, bSilent ) ) );
+			}
+			pPref->setMidiOutputMapping(
+				static_cast<MidiOutputMapping>(
+					midiDriverNode.read_int(
+						"midi_output_mapping",
+						static_cast<int>( pPref->getMidiOutputMapping() ),
+						false, false, bSilent ) ) );
 		}
 		else {
 			WARNINGLOG( "<midi_driver> node not found" );
@@ -1103,9 +1135,6 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 	rootNode.write_bool( "useRelativeFilenamesForPlaylists", m_bUseRelativeFileNamesForPlaylists );
 	rootNode.write_bool( "hideKeyboardCursorWhenUnused", m_bHideKeyboardCursor );
 	
-	// instrument input mode
-	rootNode.write_bool( "instrumentInputMode", m_bPlaySelectedInstrument );
-	
 	//show development version warning
 	rootNode.write_bool( "showDevelWarning", m_bShowDevelWarning );
 
@@ -1253,7 +1282,6 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 			midiDriverNode.write_bool( "ignore_note_off", m_bMidiNoteOffIgnore );
 			midiDriverNode.write_bool( "enable_midi_feedback", m_bEnableMidiFeedback );
 			midiDriverNode.write_bool( "discard_note_after_action", m_bMidiDiscardNoteAfterAction );
-			midiDriverNode.write_bool( "fixed_mapping", m_bMidiFixedMapping );
 			midiDriverNode.write_bool( "midi_clock_input_handling",
 									   getMidiClockInputHandling() );
 			midiDriverNode.write_bool( "midi_transport_input_handling",
@@ -1262,6 +1290,11 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 									   getMidiClockOutputSend() );
 			midiDriverNode.write_bool( "midi_transport_output_send",
 									   getMidiTransportOutputSend() );
+			midiDriverNode.write_int( "midi_input_mapping",
+									 static_cast<int>(getMidiInputMapping()) );
+			midiDriverNode.write_int( "midi_output_mapping",
+									 static_cast<int>(getMidiOutputMapping()) );
+
 		}
 		
 		/// OSC ///
@@ -1774,8 +1807,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "%1[Preferences]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_bPlaySamplesOnClicking: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bPlaySamplesOnClicking ) )
-			.append( QString( "%1%2m_bPlaySelectedInstrument: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bPlaySelectedInstrument ) )
 			.append( QString( "%1%2m_bFollowPlayhead: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bFollowPlayhead ) )
 			.append( QString( "%1%2m_bExpandSongItem: %3\n" ).arg( sPrefix )
@@ -1820,8 +1851,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_nMidiChannelFilter ) )
 			.append( QString( "%1%2m_bMidiNoteOffIgnore: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bMidiNoteOffIgnore ) )
-			.append( QString( "%1%2m_bMidiFixedMapping: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bMidiFixedMapping ) )
 			.append( QString( "%1%2m_bMidiDiscardNoteAfterAction: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bMidiDiscardNoteAfterAction ) )
 			.append( QString( "%1%2m_bEnableMidiFeedback: %3\n" ).arg( sPrefix )
@@ -1834,6 +1863,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_bMidiClockOutputSend ) )
 			.append( QString( "%1%2m_bMidiTransportOutputSend: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bMidiTransportOutputSend ) )
+			.append( QString( "%1%2m_midiInputMapping: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( MidiInputMappingToQString( m_midiInputMapping ) ) )
+			.append( QString( "%1%2m_midiOutputMapping: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( MidiOutputMappingToQString( m_midiOutputMapping ) ) )
 			.append( QString( "%1%2m_bOscServerEnabled: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bOscServerEnabled ) )
 			.append( QString( "%1%2m_bOscFeedbackEnabled: %3\n" ).arg( sPrefix )
@@ -2024,8 +2057,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "[Preferences] " )
 			.append( QString( "m_bPlaySamplesOnClicking: %1" )
 					 .arg( m_bPlaySamplesOnClicking ) )
-			.append( QString( ", m_bPlaySelectedInstrument: %1" )
-					 .arg( m_bPlaySelectedInstrument ) )
 			.append( QString( ", m_bFollowPlayhead: %1" )
 					 .arg( m_bFollowPlayhead ) )
 			.append( QString( ", m_bExpandSongItem: %1" )
@@ -2070,8 +2101,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_nMidiChannelFilter ) )
 			.append( QString( ", m_bMidiNoteOffIgnore: %1" )
 					 .arg( m_bMidiNoteOffIgnore ) )
-			.append( QString( ", m_bMidiFixedMapping: %1" )
-					 .arg( m_bMidiFixedMapping ) )
 			.append( QString( ", m_bMidiDiscardNoteAfterAction: %1" )
 					 .arg( m_bMidiDiscardNoteAfterAction ) )
 			.append( QString( ", m_bEnableMidiFeedback: %1" )
@@ -2084,6 +2113,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bMidiClockOutputSend ) )
 			.append( QString( ", m_bMidiTransportOutputSend: %1" )
 					 .arg( m_bMidiTransportOutputSend ) )
+			.append( QString( ", m_midiInputMapping: %1" )
+					 .arg( MidiInputMappingToQString( m_midiInputMapping ) ) )
+			.append( QString( ", m_midiOutputMapping: %1" )
+					 .arg( MidiOutputMappingToQString( m_midiOutputMapping ) ) )
 			.append( QString( ", m_bOscServerEnabled: %1" )
 					 .arg( m_bOscServerEnabled ) )
 			.append( QString( ", m_bOscFeedbackEnabled: %1" )

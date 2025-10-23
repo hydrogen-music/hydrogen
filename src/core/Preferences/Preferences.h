@@ -203,29 +203,29 @@ public:
 		/** No mapping of incoming MIDI notes is done.
 		 *
 		 * Available since 2.0. */
-		None,
+		None = 0,
 		/** Options configured for outgoing MIDI note and channel apply for the
 		 * input as well.
 		 *
 		 * This is one of the classic pre-2.0 options were the input note and
 		 * channel could not be customized directly. Left for compatibility. */
-		AsOutput,
+		AsOutput = 1,
+		/** Note and channel mappings can be set to arbitrary values for all
+		 * instruments.
+		 *
+		 * Available since 2.0. */
+		Custom = 2,
 		/** All incoming MIDI events will be mapped to the currently selected
 		 * instrument and different note values will result in different pitchs.
 		 *
 		 * Pre-2.0 option. */
-		SelectedInstrument,
+		SelectedInstrument = 3,
 		/** Incoming notes will be mapped to instruments based on their order in
 		 * the current drumkit.
 		 *
 		 * This is one of the classic pre-2.0 options were the input note and
 		 * channel could not be customized directly. Left for compatibility. */
-		Order,
-		/** Note and channel mappings can be set to arbitrary values for all
-		 * instruments.
-		 *
-		 * Available since 2.0. */
-		Custom
+		Order = 4
 	};
 	static QString MidiInputMappingToQString( MidiInputMapping mapping );
 
@@ -235,18 +235,18 @@ public:
 		/** No outgoing MIDI notes will be send.
 		 *
 		 * Available since 2.0. */
-		None,
+		None = 0,
 		/** The value set does apply to a C2-pitched note of the corresponding
 		 * instrument. For notes with higher or lower pitch, the resulting
 		 * MIDI event will have an offset with the same difference.
 		 *
 		 * Pre-2.0 option. */
-		Offset,
+		Offset = 1,
 		/** All send MIDI event - regardless of the (pattern) notes' individual
 		 * pitch - will have the same note and channel values.
 		 *
 		 * Available since 2.0. */
-		Constant
+		Constant = 2
 	};
 	static QString MidiOutputMappingToQString( MidiOutputMapping mapping );
 
@@ -312,7 +312,6 @@ public:
 	}
 
 	bool				m_bPlaySamplesOnClicking; // audio file browser
-	bool				m_bPlaySelectedInstrument; // midi keys and keys play instrument or drumset
 	bool				m_bFollowPlayhead;
 
 	// SoundLibraryPanel expand song and pattern item
@@ -362,7 +361,6 @@ public:
 
 	int					m_nMidiChannelFilter;
 	bool				m_bMidiNoteOffIgnore;
-	bool				m_bMidiFixedMapping;
 	bool				m_bMidiDiscardNoteAfterAction;
 	bool				m_bEnableMidiFeedback;
 	bool				getMidiClockInputHandling() const;
@@ -373,6 +371,10 @@ public:
 	void				setMidiClockOutputSend( bool bHandle );
 	bool				getMidiTransportOutputSend() const;
 	void				setMidiTransportOutputSend( bool bHandle );
+	MidiInputMapping	getMidiInputMapping() const;
+	void				setMidiInputMapping( MidiInputMapping mapping );
+	MidiOutputMapping	getMidiOutputMapping() const;
+	void				setMidiOutputMapping( MidiOutputMapping mapping );
 
 	// OSC Server properties
 	/** \return #m_bOscServerEnabled*/
@@ -734,6 +736,9 @@ private:
 		/** Whether Hydrogen will send outgoing MIDI START, STOP, CONTINUE,
 		 * and SONG_POSITION_POINTER messages on transport changes. */
 		bool m_bMidiTransportOutputSend;
+
+		MidiInputMapping m_midiInputMapping;
+		MidiOutputMapping m_midiOutputMapping;
 
 		/** In case the rubberband binary was not found in common places, this
 		 * variable indicated - if `true` - that Hydrogen should continue
@@ -1290,6 +1295,18 @@ inline bool Preferences::getMidiTransportOutputSend() const {
 }
 inline void Preferences::setMidiTransportOutputSend( bool bHandle ) {
 	m_bMidiTransportOutputSend = bHandle;
+}
+inline Preferences::MidiInputMapping Preferences::getMidiInputMapping() const {
+	return m_midiInputMapping;
+}
+inline void Preferences::setMidiInputMapping( Preferences::MidiInputMapping mapping ) {
+	m_midiInputMapping = mapping;
+}
+inline Preferences::MidiOutputMapping Preferences::getMidiOutputMapping() const {
+	return m_midiOutputMapping;
+}
+inline void Preferences::setMidiOutputMapping( Preferences::MidiOutputMapping mapping ) {
+	m_midiOutputMapping = mapping;
 }
 inline bool Preferences::getOscServerEnabled() const {
 	return m_bOscServerEnabled;

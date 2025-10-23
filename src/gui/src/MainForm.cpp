@@ -531,28 +531,6 @@ void MainForm::createMenuBar()
 	// Options menu
 	m_pOptionsMenu = pMenubar->addMenu( tr( "&Options" ));
 
-	m_pInputModeMenu = m_pOptionsMenu->addMenu( tr( "Input &Mode" ) );
-	m_pInstrumentAction = m_pInputModeMenu->addAction(
-		tr( "&Instrument" ), this, SLOT( action_inputMode_instrument() ) );
-	m_pInstrumentAction->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::InputInstrument ) );
-	m_pInstrumentAction->setCheckable( true );
-
-	m_pDrumkitAction = m_pInputModeMenu->addAction(
-		tr( "&Drumkit" ), this, SLOT( action_inputMode_drumkit() ) );
-	m_pDrumkitAction->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::InputDrumkit ) );
-	m_pDrumkitAction->setCheckable( true );
-
-	if ( pPref->m_bPlaySelectedInstrument ) {
-		m_pInstrumentAction->setChecked( true );
-		m_pDrumkitAction->setChecked (false );
-	}
-	else {
-		m_pInstrumentAction->setChecked( false );
-		m_pDrumkitAction->setChecked (true );
-	}
-
 	auto pActionPreferences = m_pOptionsMenu->addAction(
 		tr("&Preferences"), this, SLOT( showPreferencesDialog() ) );
 	pActionPreferences->setShortcut(
@@ -915,27 +893,6 @@ bool MainForm::action_file_save( const QString& sNewFileName,
 	}
 
 	return true;
-}
-
-
-void MainForm::action_inputMode_instrument() {
-	auto pPref = Preferences::get_instance();
-
-	if ( ! pPref->m_bPlaySelectedInstrument ) {
-		pPref->m_bPlaySelectedInstrument = true;
-		m_pDrumkitAction->setChecked( false );
-	}
-	m_pInstrumentAction->setChecked( true );
-}
-
-void MainForm::action_inputMode_drumkit() {
-	auto pPref = Preferences::get_instance();
-
-	if ( pPref->m_bPlaySelectedInstrument ) {
-		pPref->m_bPlaySelectedInstrument = false;
-		m_pInstrumentAction->setChecked( false );
-	}
-	m_pDrumkitAction->setChecked( true );
 }
 
 void MainForm::action_help_about() {
@@ -2432,18 +2389,6 @@ void MainForm::updatePreferencesEvent( int nValue ) {
 		Preferences::get_instance()->save();
 	}
 	else if ( nValue == 1 ) {
-		
-		// Reflect the changes in the preferences in the objects
-		// stored in MainForm.
-		if ( Preferences::get_instance()->m_bPlaySelectedInstrument ) {
-			m_pInstrumentAction->setChecked( true );
-			m_pDrumkitAction->setChecked( false );
-		}
-		else {
-			m_pInstrumentAction->setChecked( false );
-			m_pDrumkitAction->setChecked( true );
-		}
-
 		updateRecentUsedSongList();
 
 	} else {
@@ -3299,13 +3244,6 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 			case Shortcuts::Action::ShowFullscreen:
 				action_window_toggleFullscreen();
-				break;
-
-			case Shortcuts::Action::InputInstrument:
-				action_inputMode_instrument();
-				break;
-			case Shortcuts::Action::InputDrumkit:
-				action_inputMode_drumkit();
 				break;
 			case Shortcuts::Action::ShowPreferencesDialog:
 				showPreferencesDialog();

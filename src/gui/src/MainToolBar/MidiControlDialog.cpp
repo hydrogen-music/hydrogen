@@ -183,19 +183,6 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 			m_pInputDiscardAfterActionCheckBox->isChecked();
 	} );
 
-	m_pInputNoteAsOutputCheckBox = new QCheckBox( pInputSettingsWidget );
-	m_pInputNoteAsOutputCheckBox->setChecked( pPref->m_bMidiFixedMapping );
-	/*: The character after the '&' symbol can be used as a shortcut via the Alt
-	 *  modifier. It should not coincide with any other shortcut in the Settings
-	 *  tab of the MidiControlDialog. If in question, you can just drop the
-	 *  '&'. */
-	m_pInputNoteAsOutputCheckBox->setText( tr( "&Use output note as input note" ) );
-	pInputSettingsLayout->addWidget( m_pInputNoteAsOutputCheckBox );
-	connect( m_pInputNoteAsOutputCheckBox, &QAbstractButton::toggled, [=]() {
-		Preferences::get_instance()->m_bMidiFixedMapping =
-			m_pInputNoteAsOutputCheckBox->isChecked();
-	} );
-
 	auto pInputMidiClockCheckBox = new QCheckBox( pInputSettingsWidget );
 	pInputMidiClockCheckBox->setChecked( pPref->getMidiClockInputHandling() );
 	pInputMidiClockCheckBox->setText( tr( "Handle MIDI Clock input" ) );
@@ -337,13 +324,15 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		QStringList() << Preferences::MidiInputMappingToQString(
 				Preferences::MidiInputMapping::None )
 			<< Preferences::MidiInputMappingToQString(
-				Preferences::MidiInputMapping::Custom )
-			<< Preferences::MidiInputMappingToQString(
 				Preferences::MidiInputMapping::AsOutput )
+			<< Preferences::MidiInputMappingToQString(
+				Preferences::MidiInputMapping::Custom )
 			<< Preferences::MidiInputMappingToQString(
 				Preferences::MidiInputMapping::SelectedInstrument )
 			<< Preferences::MidiInputMappingToQString(
 				Preferences::MidiInputMapping::Order ) );
+	m_pInputNoteMappingComboBox->setCurrentIndex(
+		static_cast<int>( pPref->getMidiInputMapping() ) );
 
 	pMappingGridLayout->addWidget( m_pInputNoteMappingComboBox, 1, 0, 1, 2,
 							  Qt::AlignCenter );
@@ -367,6 +356,8 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 				Preferences::MidiOutputMapping::Offset )
 			<< Preferences::MidiOutputMappingToQString(
 				Preferences::MidiOutputMapping::Constant ) );
+	m_pOutputNoteMappingComboBox->setCurrentIndex(
+		static_cast<int>( pPref->getMidiOutputMapping() ) );
 	pMappingGridLayout->addWidget( m_pOutputNoteMappingComboBox, 1, 5, 1, 2,
 							  Qt::AlignCenter );
 
@@ -627,7 +618,6 @@ void MidiControlDialog::updatePreferencesEvent( int nValue ) {
 		m_pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
 		m_pInputDiscardAfterActionCheckBox->setChecked(
 			pPref->m_bMidiDiscardNoteAfterAction );
-		m_pInputNoteAsOutputCheckBox->setChecked( pPref->m_bMidiFixedMapping );
 		m_pOutputEnableMidiFeedbackCheckBox->setChecked(
 			pPref->m_bEnableMidiFeedback );
 

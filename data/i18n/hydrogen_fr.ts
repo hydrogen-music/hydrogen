@@ -2726,18 +2726,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>P&amp;lein écran</translation>
     </message>
     <message>
-        <source>Input &amp;Mode</source>
-        <translation>Mode d&apos;e&amp;ntrée</translation>
-    </message>
-    <message>
-        <source>&amp;Instrument</source>
-        <translation>&amp;Instrument</translation>
-    </message>
-    <message>
-        <source>&amp;Drumkit</source>
-        <translation>&amp;Kit de batterie</translation>
-    </message>
-    <message>
         <source>Show &amp;Audio Engine Info</source>
         <translation>Afficher les informations du moteur &amp;audio</translation>
     </message>
@@ -3162,11 +3150,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <source>&amp;Discard MIDI messages after action has been triggered</source>
         <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
         <translation>Rejeter les messages MIDI après le &amp;déclenchement d&apos;une action</translation>
-    </message>
-    <message>
-        <source>&amp;Use output note as input note</source>
-        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
-        <translation>&amp;Utiliser la note de sortie comme une note d&apos;entrée</translation>
     </message>
     <message>
         <source>&amp;Enable MIDI feedback</source>
