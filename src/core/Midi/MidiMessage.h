@@ -43,6 +43,7 @@ class MidiMessage
 	public:
 
 	static constexpr int nMinimumChannel = 0;
+	static constexpr int nDefaultChannel = 9;
 	static constexpr int nMaximumChannel = 15;
 
 		/** All possible types of incoming MIDI messages.*/
