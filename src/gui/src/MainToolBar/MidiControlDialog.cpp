@@ -334,7 +334,17 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		MidiControlDialog::nColumnMappingWidth * 2,
 		MidiControlDialog::nMappingBoxHeight );
 	m_pInputNoteMappingComboBox->insertItems( 0,
-		QStringList() << "None" << "Order" );
+		QStringList() << Preferences::MidiInputMappingToQString(
+				Preferences::MidiInputMapping::None )
+			<< Preferences::MidiInputMappingToQString(
+				Preferences::MidiInputMapping::Custom )
+			<< Preferences::MidiInputMappingToQString(
+				Preferences::MidiInputMapping::AsOutput )
+			<< Preferences::MidiInputMappingToQString(
+				Preferences::MidiInputMapping::SelectedInstrument )
+			<< Preferences::MidiInputMappingToQString(
+				Preferences::MidiInputMapping::Order ) );
+
 	pMappingGridLayout->addWidget( m_pInputNoteMappingComboBox, 1, 0, 1, 2,
 							  Qt::AlignCenter );
 
@@ -351,7 +361,12 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 		MidiControlDialog::nColumnMappingWidth * 2,
 		MidiControlDialog::nMappingBoxHeight );
 	m_pOutputNoteMappingComboBox->insertItems( 0,
-		QStringList() << "None" << "Offset" );
+		QStringList() << Preferences::MidiOutputMappingToQString(
+				Preferences::MidiOutputMapping::None )
+			<< Preferences::MidiOutputMappingToQString(
+				Preferences::MidiOutputMapping::Offset )
+			<< Preferences::MidiOutputMappingToQString(
+				Preferences::MidiOutputMapping::Constant ) );
 	pMappingGridLayout->addWidget( m_pOutputNoteMappingComboBox, 1, 5, 1, 2,
 							  Qt::AlignCenter );
 

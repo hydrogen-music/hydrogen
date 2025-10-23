@@ -3754,6 +3754,44 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
 </context>
 <context>
+    <name>Preferences</name>
+    <message>
+        <source>None</source>
+        <extracomment>No mapping between MIDI events and instrument will be done.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As Output</source>
+        <extracomment>For mapping incoming MIDI events, the note and channel settings specified in the output section or instrument editor will be used.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected Instrument</source>
+        <extracomment>Only the selected instrument will used during MIDI mapping. Different note values will be mapped to different instrument pitches.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Order</source>
+        <extracomment>Incoming MIDI notes will be mapped to instruments based on their order in the current drumkit.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <extracomment>The use can set arbitrary note and channel values to map incoming MIDI notes to instruments of the current drumkit.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <extracomment>The MIDI output note set does apply to a C2-pitched (pattern) note * of the corresponding instrument. For notes with higher or lower * pitch, the resulting MIDI event will have an offset with the same * difference.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Constant</source>
+        <extracomment>All send MIDI event - regardless of the (pattern) notes&apos; individual * pitch - will have the same note and channel values.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PreferencesDialog</name>
     <message>
         <source>Preferences</source>

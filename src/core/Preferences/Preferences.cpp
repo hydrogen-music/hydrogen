@@ -40,6 +40,7 @@
 
 #include <QDir>
 #include <QProcess>
+#include <QtGlobal>
 
 namespace H2Core
 {
@@ -1509,6 +1510,55 @@ QString Preferences::midiDriverToQString( const Preferences::MidiDriver& driver 
 		return "LoopBack";
 	default:
 		return "Unhandled driver type";
+	}
+}
+
+/** Translated since these are displayed in the MidiControlDialog. */
+QString Preferences::MidiInputMappingToQString( MidiInputMapping mapping ) {
+	switch ( mapping ) {
+	case MidiInputMapping::None:
+		/*: No mapping between MIDI events and instrument will be done. */
+		return QT_TRANSLATE_NOOP( "Preferences", "None" );
+	case MidiInputMapping::AsOutput:
+		/*: For mapping incoming MIDI events, the note and channel settings
+            specified in the output section or instrument editor will be
+            used. */
+		return QT_TRANSLATE_NOOP( "Preferences", "As Output" );
+	case MidiInputMapping::SelectedInstrument:
+		/*: Only the selected instrument will used during MIDI mapping.
+            Different note values will be mapped to different instrument
+            pitches. */
+		return QT_TRANSLATE_NOOP( "Preferences", "Selected Instrument" );
+	case MidiInputMapping::Order:
+		/*: Incoming MIDI notes will be mapped to instruments based on their
+            order in the current drumkit. */
+		return QT_TRANSLATE_NOOP( "Preferences", "Order" );
+	case MidiInputMapping::Custom:
+		/*: The use can set arbitrary note and channel values to map incoming
+            MIDI notes to instruments of the current drumkit. */
+		return QT_TRANSLATE_NOOP( "Preferences", "Custom" );
+	default:
+		return "Unknown input mapping";
+	}
+}
+
+/** Translated since these are displayed in the MidiControlDialog. */
+QString Preferences::MidiOutputMappingToQString( MidiOutputMapping mapping ) {
+	switch ( mapping ) {
+	case MidiOutputMapping::None:
+		return QT_TRANSLATE_NOOP( "Preferences", "None" );
+	case MidiOutputMapping::Offset:
+		/*: The MIDI output note set does apply to a C2-pitched (pattern) note
+		 * of the corresponding instrument. For notes with higher or lower
+		 * pitch, the resulting MIDI event will have an offset with the same
+		 * difference. */
+		return QT_TRANSLATE_NOOP( "Preferences", "Offset" );
+	case MidiOutputMapping::Constant:
+		/*: All send MIDI event - regardless of the (pattern) notes' individual
+		 * pitch - will have the same note and channel values. */
+		return QT_TRANSLATE_NOOP( "Preferences", "Constant" );
+	default:
+		return "Unknown output mapping";
 	}
 }
 

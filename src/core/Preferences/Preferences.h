@@ -197,6 +197,59 @@ public:
 	static MidiDriver parseMidiDriver( const QString& sDriver );
 	static QString midiDriverToQString( const MidiDriver& driver );
 
+	/** Specifies which incoming MIDI notes will be associated with which
+     * instrument of the current drumkit. */
+	enum class MidiInputMapping {
+		/** No mapping of incoming MIDI notes is done.
+		 *
+		 * Available since 2.0. */
+		None,
+		/** Options configured for outgoing MIDI note and channel apply for the
+		 * input as well.
+		 *
+		 * This is one of the classic pre-2.0 options were the input note and
+		 * channel could not be customized directly. Left for compatibility. */
+		AsOutput,
+		/** All incoming MIDI events will be mapped to the currently selected
+		 * instrument and different note values will result in different pitchs.
+		 *
+		 * Pre-2.0 option. */
+		SelectedInstrument,
+		/** Incoming notes will be mapped to instruments based on their order in
+		 * the current drumkit.
+		 *
+		 * This is one of the classic pre-2.0 options were the input note and
+		 * channel could not be customized directly. Left for compatibility. */
+		Order,
+		/** Note and channel mappings can be set to arbitrary values for all
+		 * instruments.
+		 *
+		 * Available since 2.0. */
+		Custom
+	};
+	static QString MidiInputMappingToQString( MidiInputMapping mapping );
+
+	/** Specifies which instrument of the current drumkit will send which
+	 * outgoing MIDI note. */
+	enum class MidiOutputMapping {
+		/** No outgoing MIDI notes will be send.
+		 *
+		 * Available since 2.0. */
+		None,
+		/** The value set does apply to a C2-pitched note of the corresponding
+		 * instrument. For notes with higher or lower pitch, the resulting
+		 * MIDI event will have an offset with the same difference.
+		 *
+		 * Pre-2.0 option. */
+		Offset,
+		/** All send MIDI event - regardless of the (pattern) notes' individual
+		 * pitch - will have the same note and channel values.
+		 *
+		 * Available since 2.0. */
+		Constant
+	};
+	static QString MidiOutputMappingToQString( MidiOutputMapping mapping );
+
 	/** Specifies which audio settings will be applied to the sample
 		supplied in the JACK per track output ports.*/
 	enum class JackTrackOutputMode {
