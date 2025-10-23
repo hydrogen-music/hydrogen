@@ -31,6 +31,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Helpers/Xml.h>
 #include <core/IO/AlsaAudioDriver.h>
@@ -409,6 +410,15 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	for ( int ii = 0; ii < MAX_FX; ++ii ) {
 		m_ladspaProperties[ ii ] =
 			WindowProperties( pOther->m_ladspaProperties[ ii ] );
+	}
+
+	for ( const auto mmapping : pOther->m_customMidiInputMappings ) {
+		CustomMidiInputMapping mapping;
+		mapping.sInstrumentType = mmapping.sInstrumentType;
+		mapping.nInstrumentId = mmapping.nInstrumentId;
+		mapping.nNote = mmapping.nNote;
+		mapping.nChannel = mmapping.nChannel;
+		m_customMidiInputMappings.insert( mapping );
 	}
 }
 
@@ -795,6 +805,35 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 				midiDriverNode.read_int(
 					"global_output_channel",
 					pPref->getGlobalOutputChannel(), true, false, bSilent ) );
+
+			const auto customInputMappingsNode =
+				midiDriverNode.firstChildElement( "custom_midi_input_mappings" );
+			if ( ! customInputMappingsNode.isNull() ) {
+				std::set<Preferences::CustomMidiInputMapping> mappings;
+				XMLNode customInputMappingNode =
+					customInputMappingsNode.firstChildElement(
+						"custom_midi_input_mapping" );
+
+				Preferences::CustomMidiInputMapping mapping;
+				while ( ! customInputMappingNode.isNull() ) {
+					mapping.sInstrumentType = customInputMappingNode.read_string(
+						"instrument_type", "", false, false, bSilent );
+					mapping.nInstrumentId = customInputMappingNode.read_int(
+						"instrument_id", EMPTY_INSTR_ID, false, false, bSilent );
+					mapping.nNote = customInputMappingNode.read_int(
+						"note", MidiMessage::instrumentOffset, false, false,
+						bSilent );
+					mapping.nInstrumentId = customInputMappingNode.read_int(
+						"channel", MidiMessage::nDefaultChannel, false, false,
+						bSilent );
+					mappings.insert( mapping );
+
+					customInputMappingNode =
+						customInputMappingsNode.nextSiblingElement(
+							"custom_midi_input_mapping" );
+				}
+				pPref->setCustomMidiInputMappings( mappings );
+			}
 		}
 		else {
 			WARNINGLOG( "<midi_driver> node not found" );
@@ -1328,6 +1367,18 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 			midiDriverNode.write_int( "global_output_channel",
 									 getGlobalOutputChannel() );
 
+			auto customMidiInputMappings =
+				midiDriverNode.createNode( "custom_midi_input_mappings" );
+			for ( const auto mmapping : m_customMidiInputMappings ) {
+				XMLNode customMidiInputMapping =
+					midiDriverNode.createNode( "custom_midi_input_mapping" );
+				customMidiInputMapping.write_string( "instrument_type",
+													mmapping.sInstrumentType );
+				customMidiInputMapping.write_int( "instrument_id",
+													mmapping.nInstrumentId );
+				customMidiInputMapping.write_int( "note", mmapping.nNote );
+				customMidiInputMapping.write_int( "channel", mmapping.nChannel );
+			}
 		}
 		
 		/// OSC ///
@@ -1628,6 +1679,39 @@ QString Preferences::MidiOutputMappingToQString( MidiOutputMapping mapping ) {
 	}
 }
 
+bool Preferences::CustomMidiInputMapping::operator<(
+	const CustomMidiInputMapping& other ) const
+{
+	return sInstrumentType < other.sInstrumentType &&
+			nInstrumentId < other.nInstrumentId &&
+			nNote < other.nNote && nChannel < other.nChannel;
+}
+
+QString Preferences::CustomMidiInputMapping::toQString( const QString& sPrefix,
+													   bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[CustomMidiInputMapping]\n" ).arg( sPrefix )
+			.append( QString( "%1%2sInstrumentType: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( sInstrumentType ) )
+			.append( QString( "%1%2nInstrumentId: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( nInstrumentId ) )
+			.append( QString( "%1%2nNote: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( nNote ) )
+			.append( QString( "%1%2nChannel: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( nChannel ) );
+	}
+	else {
+		sOutput = QString( "[CustomMidiInputMapping]" )
+			.append( QString( " sInstrumentType: %1" ).arg( sInstrumentType ) )
+			.append( QString( ", nInstrumentId: %1" ).arg( nInstrumentId ) )
+			.append( QString( ", nNote: %1" ).arg( nNote ) )
+			.append( QString( ", nChannel: %1" ).arg( nChannel ) );
+	}
+	return sOutput;
+}
+
 bool Preferences::checkJackSupport() {
 	// Check whether the Logger is already available.
 	const bool bUseLogger = Logger::isAvailable();
@@ -1919,7 +2003,13 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_bUseGlobalOutputChannel ) )
 			.append( QString( "%1%2m_nGlobalOutputChannel: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nGlobalOutputChannel ) )
-			.append( QString( "%1%2m_bOscServerEnabled: %3\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_customMidiInputMappings:\n" ).arg( sPrefix )
+					 .arg( s ) );
+		for ( const auto mmapping : m_customMidiInputMappings ) {
+			sOutput.append( QString( "%1" )
+						   .arg( mmapping.toQString( sPrefix + s + s, false ) ) );
+		}
+		sOutput.append( QString( "%1%2m_bOscServerEnabled: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bOscServerEnabled ) )
 			.append( QString( "%1%2m_bOscFeedbackEnabled: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bOscFeedbackEnabled ) )
@@ -2177,7 +2267,12 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bUseGlobalOutputChannel ) )
 			.append( QString( ", m_nGlobalOutputChannel: %1" )
 					 .arg( m_nGlobalOutputChannel ) )
-			.append( QString( ", m_bOscServerEnabled: %1" )
+			.append( ", m_customMidiInputMappings: [" );
+		for ( const auto mmapping : m_customMidiInputMappings ) {
+			sOutput.append( QString( "%1, " )
+						   .arg( mmapping.toQString( "", true ) ) );
+		}
+		sOutput.append( QString( "], m_bOscServerEnabled: %1" )
 					 .arg( m_bOscServerEnabled ) )
 			.append( QString( ", m_bOscFeedbackEnabled: %1" )
 					 .arg( m_bOscFeedbackEnabled ) )

@@ -24,6 +24,7 @@
 #define PREFERENCES_H
 
 #include <memory>
+#include <set>
 #include <vector>
 
 #include "Shortcuts.h"
@@ -250,6 +251,18 @@ public:
 	};
 	static QString MidiOutputMappingToQString( MidiOutputMapping mapping );
 
+	/** Maps an instrument to a particular note and channel combination. */
+	struct CustomMidiInputMapping {
+		QString sInstrumentType;
+		int nInstrumentId;
+		int nNote;
+		int nChannel;
+
+		bool operator<( const CustomMidiInputMapping &other ) const;
+
+		QString toQString( const QString& sPrefix, bool bShort ) const;
+	};
+
 	/** Specifies which audio settings will be applied to the sample
 		supplied in the JACK per track output ports.*/
 	enum class JackTrackOutputMode {
@@ -383,6 +396,8 @@ public:
 	void				setUseGlobalOutputChannel( bool bUse );
 	int				getGlobalOutputChannel() const;
 	void				setGlobalOutputChannel( int nChannel );
+	std::set<CustomMidiInputMapping> getCustomMidiInputMappings() const;
+	void setCustomMidiInputMappings( std::set<CustomMidiInputMapping> mapping );
 
 	// OSC Server properties
 	/** \return #m_bOscServerEnabled*/
@@ -751,6 +766,7 @@ private:
 		int m_nGlobalInputChannel;
 		bool m_bUseGlobalOutputChannel;
 		int m_nGlobalOutputChannel;
+		std::set<CustomMidiInputMapping> m_customMidiInputMappings;
 
 		/** In case the rubberband binary was not found in common places, this
 		 * variable indicated - if `true` - that Hydrogen should continue
@@ -1337,6 +1353,12 @@ inline void Preferences::setUseGlobalOutputChannel( bool bUse ){
 }
 inline int Preferences::getGlobalOutputChannel() const {
 	return m_nGlobalOutputChannel;
+}
+inline std::set<Preferences::CustomMidiInputMapping> Preferences::getCustomMidiInputMappings() const {
+	return m_customMidiInputMappings;
+}
+inline void Preferences::setCustomMidiInputMappings( std::set<Preferences::CustomMidiInputMapping> mappings ){
+	m_customMidiInputMappings = mappings;
 }
 inline bool Preferences::getOscServerEnabled() const {
 	return m_bOscServerEnabled;
