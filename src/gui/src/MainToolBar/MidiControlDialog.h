@@ -53,6 +53,10 @@ public:
 		static constexpr int nColumnTypeWidth = 220;
 		static constexpr int nColumnValueWidth = 80;
 
+		static constexpr int nColumnMappingWidth = 120;
+		static constexpr int nMappingBoxHeight = 30;
+
+
 		explicit MidiControlDialog( QWidget* pParent );
 		~MidiControlDialog();
 
@@ -71,6 +75,8 @@ private:
 
 		void updateFont();
 		void updateIcons();
+
+		void updateMappingTable();
 		void updateInputTable();
 		void updateOutputTable();
 
@@ -81,6 +87,14 @@ private:
 		QCheckBox* m_pInputDiscardAfterActionCheckBox;
 		QCheckBox* m_pInputNoteAsOutputCheckBox;
 		QCheckBox* m_pOutputEnableMidiFeedbackCheckBox;
+
+		QComboBox* m_pInputNoteMappingComboBox;
+		QComboBox* m_pOutputNoteMappingComboBox;
+		QCheckBox* m_pInputGlobalChannelCheckBox;
+		QSpinBox* m_pInputGlobalChannelSpinBox;
+		QCheckBox* m_pOutputGlobalChannelCheckBox;
+		QSpinBox* m_pOutputGlobalChannelSpinBox;
+		QTableWidget* m_pMappingTableWidget;
 
 		QTableWidget* m_pMidiInputTable;
 		QToolButton* m_pInputBinButton;

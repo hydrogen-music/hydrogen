@@ -30,6 +30,10 @@ https://www.gnu.org/licenses
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Song.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/IO/MidiBaseDriver.h>
@@ -66,6 +70,36 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 
 	const QColor borderColor( 80, 80, 80 );
 	const int nHeaderTextSize = 20;
+	const int nSettingTextSize = 16;
+
+	auto createSeparator = [&]( QWidget* pParent, bool bHorizontal ) {
+		auto pSeparator = new QWidget( pParent );
+		if ( bHorizontal ) {
+			pSeparator->setFixedHeight( 1 );
+		}
+		else {
+			pSeparator->setFixedWidth( 1 );
+		}
+		pSeparator->setStyleSheet( QString( "\
+background-color: %1;" ).arg( borderColor.name() ) );
+
+		return pSeparator;
+	};
+
+	auto addHeaderLabel = [&]( QWidget* pParent, const QString& sText ) {
+		auto pLabel = new QLabel( sText, pParent );
+		pLabel->setAlignment( Qt::AlignCenter );
+		pLabel->setFixedHeight( 32 );
+		pLabel->setStyleSheet( QString( "\
+font-size: %1px;" ).arg( nHeaderTextSize ) );
+		pParent->layout()->addWidget( pLabel );
+
+		// Well, `border-bottom` does not seem to work on QLabel.
+		auto pSeparator = createSeparator( pParent, true );
+		pParent->layout()->addWidget( pSeparator );
+	};
+
+	////////////////////////////////////////////////////////////////////////////
 
 	auto pSettingsWidget = new QWidget( m_pTabWidget );
 	m_pTabWidget->addTab( pSettingsWidget, pCommonStrings->getSettings() );
@@ -89,19 +123,7 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 	pInputSettingsLayout->setAlignment( Qt::AlignTop );
 	pInputSettingsWidget->setLayout( pInputSettingsLayout );
 
-	auto pInputLabel = new QLabel( pCommonStrings->getMidiInputLabel() );
-	pInputLabel->setAlignment( Qt::AlignCenter );
-	pInputLabel->setFixedHeight( 32 );
-	pInputLabel->setStyleSheet( QString( "\
-font-size: %1px;" ).arg( nHeaderTextSize ) );
-	pInputSettingsLayout->addWidget( pInputLabel );
-
-	// Well, `border-bottom` does not seem to work on QLabel.
-	auto pInputSeparator = new QWidget( pInputSettingsWidget );
-	pInputSeparator->setFixedHeight( 1 );
-	pInputSeparator->setStyleSheet( QString( "\
-background-color: %1;" ).arg( borderColor.name() ) );
-	pInputSettingsLayout->addWidget( pInputSeparator );
+	addHeaderLabel( pInputSettingsWidget, pCommonStrings->getMidiInputLabel() );
 
 	auto pInputChannelFilterWidget = new QWidget( pInputSettingsWidget );
 	pInputSettingsLayout->addWidget( pInputChannelFilterWidget );
@@ -203,19 +225,7 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	pOutputSettingsLayout->setAlignment( Qt::AlignTop );
 	pOutputSettingsWidget->setLayout( pOutputSettingsLayout );
 
-	auto pOutputLabel = new QLabel( pCommonStrings->getMidiOutLabel() );
-	pOutputLabel->setAlignment( Qt::AlignCenter );
-	pOutputLabel->setFixedHeight( 32 );
-	pOutputLabel->setStyleSheet( QString( "\
-font-size: %1px;" ).arg( nHeaderTextSize ) );
-	pOutputSettingsLayout->addWidget( pOutputLabel );
-
-	// Well, `border-bottom` does not seem to work on QLabel.
-	auto pOutputSeparator = new QWidget( pOutputSettingsWidget );
-	pOutputSeparator->setFixedHeight( 1 );
-	pOutputSeparator->setStyleSheet( QString( "\
-background-color: %1;" ).arg( borderColor.name() ) );
-	pOutputSettingsLayout->addWidget( pOutputSeparator );
+	addHeaderLabel( pOutputSettingsWidget, pCommonStrings->getMidiOutLabel() );
 
 	m_pOutputEnableMidiFeedbackCheckBox = new QCheckBox( pOutputSettingsWidget );
 	m_pOutputEnableMidiFeedbackCheckBox->setChecked( pPref->m_bEnableMidiFeedback );
@@ -270,6 +280,165 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	connect( pPreferencesLinkButton, &QToolButton::clicked, [&]() {
 		HydrogenApp::get_instance()->showPreferencesDialog();
 	} );
+
+	////////////////////////////////////////////////////////////////////////////
+
+	auto pMappingTab = new QWidget( m_pTabWidget );
+	/*: Tab of the MIDI control dialog dedicated to mapping MIDI notes to
+	 *  instruments of the current drumkit. */
+	m_pTabWidget->addTab( pMappingTab, tr( "Instrument mapping" ) );
+
+	auto pMappingWrapperLayout = new QVBoxLayout();
+	pMappingWrapperLayout->setSpacing( 5 );
+	pMappingTab->setLayout( pMappingWrapperLayout );
+
+	auto pMappingSettingsWidget = new QWidget( pMappingTab );
+	auto pMappingGridLayout = new QGridLayout();
+	pMappingSettingsWidget->setLayout( pMappingGridLayout );
+	pMappingWrapperLayout->addWidget( pMappingSettingsWidget );
+	pMappingGridLayout->setVerticalSpacing( 5 );
+	pMappingGridLayout->setContentsMargins( 0, 0, 0, 0 );
+
+	auto pVSeparatorInput = createSeparator( pMappingSettingsWidget, false );
+	pMappingGridLayout->addWidget( pVSeparatorInput, 0, 2, 4, 1 );
+	auto pVSeparatorOutput = createSeparator( pMappingSettingsWidget, false );
+	pMappingGridLayout->addWidget( pVSeparatorOutput, 0, 4, 4, 1 );
+
+	auto pInputMappingHeader = new QWidget( pMappingSettingsWidget );
+	pInputMappingHeader->setFixedWidth(
+		MidiControlDialog::nColumnMappingWidth * 2 );
+	auto pInputMappingHeaderLayout = new QVBoxLayout( pInputMappingHeader );
+	pInputMappingHeaderLayout->setContentsMargins( 0, 0, 0, 0 );
+	pInputMappingHeader->setLayout( pInputMappingHeaderLayout );
+	addHeaderLabel( pInputMappingHeader, pCommonStrings->getMidiInputLabel() );
+
+	pMappingGridLayout->addWidget( pInputMappingHeader, 0, 0, 1, 2,
+							  Qt::AlignCenter );
+
+	auto pSeparatorHeader = createSeparator( pMappingSettingsWidget, true );
+	pMappingGridLayout->addWidget( pSeparatorHeader, 0, 3, Qt::AlignBottom );
+
+	auto pOutputMappingHeader = new QWidget( pMappingSettingsWidget );
+	pOutputMappingHeader->setFixedWidth(
+		MidiControlDialog::nColumnMappingWidth * 2 );
+	auto pOutputMappingHeaderLayout = new QVBoxLayout( pOutputMappingHeader );
+	pOutputMappingHeaderLayout->setContentsMargins( 0, 0, 0, 0 );
+	pOutputMappingHeader->setLayout( pOutputMappingHeaderLayout );
+	addHeaderLabel( pOutputMappingHeader, pCommonStrings->getMidiOutLabel() );
+	pMappingGridLayout->addWidget( pOutputMappingHeader, 0, 5, 1, 2,
+							  Qt::AlignCenter );
+
+
+	m_pInputNoteMappingComboBox = new QComboBox( pMappingTab );
+	m_pInputNoteMappingComboBox->setFixedSize(
+		MidiControlDialog::nColumnMappingWidth * 2,
+		MidiControlDialog::nMappingBoxHeight );
+	m_pInputNoteMappingComboBox->insertItems( 0,
+		QStringList() << "None" << "Order" );
+	pMappingGridLayout->addWidget( m_pInputNoteMappingComboBox, 1, 0, 1, 2,
+							  Qt::AlignCenter );
+
+	/*: Label of an option in the mapping tab of the MIDI control dialog
+	 *  specifying how incoming and outgoing MIDI notes and the instruments of
+	 *  the current drumkit should relate to eachother. */
+	auto pNoteMappingLabel = new QLabel( tr( "Note Mapping" ), pMappingTab );
+	pNoteMappingLabel->setStyleSheet( QString( "\
+font-size: %1px;" ).arg( nSettingTextSize ) );
+	pMappingGridLayout->addWidget( pNoteMappingLabel, 1, 3, Qt::AlignCenter );
+
+	m_pOutputNoteMappingComboBox = new QComboBox( pMappingTab );
+	m_pOutputNoteMappingComboBox->setFixedSize(
+		MidiControlDialog::nColumnMappingWidth * 2,
+		MidiControlDialog::nMappingBoxHeight );
+	m_pOutputNoteMappingComboBox->insertItems( 0,
+		QStringList() << "None" << "Offset" );
+	pMappingGridLayout->addWidget( m_pOutputNoteMappingComboBox, 1, 5, 1, 2,
+							  Qt::AlignCenter );
+
+	auto pSeparatorNoteMapping = createSeparator( pMappingSettingsWidget, true );
+	pMappingGridLayout->addWidget( pSeparatorNoteMapping, 2, 0, 1, 7,
+								  Qt::AlignBottom );
+
+
+	m_pInputGlobalChannelSpinBox = new QSpinBox( pMappingTab );
+	m_pInputGlobalChannelSpinBox->setFixedSize(
+		MidiControlDialog::nColumnMappingWidth,
+		MidiControlDialog::nMappingBoxHeight );
+	m_pInputGlobalChannelSpinBox->setMinimum( 0 );
+	m_pInputGlobalChannelSpinBox->setMaximum( 11 );
+	pMappingGridLayout->addWidget( m_pInputGlobalChannelSpinBox, 3, 0,
+							  Qt::AlignCenter );
+
+	m_pInputGlobalChannelCheckBox = new QCheckBox( pMappingTab );
+	pMappingGridLayout->addWidget( m_pInputGlobalChannelCheckBox, 3, 1,
+							  Qt::AlignCenter );
+
+	/*: Label of an option in the mapping tab of the MIDI control dialog
+	 *  specifying whether (and which) all instruments of the current drumkit
+	 *  should feature the same incoming and outgoing MIDI channel. */
+	auto pGlobalChannelLabel = new QLabel( tr( "Global Channel" ), pMappingTab );
+	pGlobalChannelLabel->setStyleSheet( QString( "\
+font-size: %1px;" ).arg( nSettingTextSize ) );
+	pMappingGridLayout->addWidget( pGlobalChannelLabel, 3, 3, Qt::AlignCenter );
+
+	m_pOutputGlobalChannelCheckBox = new QCheckBox( pMappingTab );
+	pMappingGridLayout->addWidget( m_pOutputGlobalChannelCheckBox, 3, 5,
+							  Qt::AlignCenter );
+
+	m_pOutputGlobalChannelSpinBox = new QSpinBox( pMappingTab );
+	m_pOutputGlobalChannelSpinBox->setFixedSize(
+		MidiControlDialog::nColumnMappingWidth,
+		MidiControlDialog::nMappingBoxHeight );
+	m_pOutputGlobalChannelSpinBox->setMinimum( 0 );
+	m_pOutputGlobalChannelSpinBox->setMaximum( 11 );
+	pMappingGridLayout->addWidget( m_pOutputGlobalChannelSpinBox, 3, 6,
+							  Qt::AlignCenter );
+
+	pMappingGridLayout->setColumnMinimumWidth( 0, MidiControlDialog::nColumnMappingWidth );
+	pMappingGridLayout->setColumnMinimumWidth( 1, MidiControlDialog::nColumnMappingWidth );
+	pMappingGridLayout->setColumnMinimumWidth( 3, MidiControlDialog::nColumnMappingWidth );
+	pMappingGridLayout->setColumnMinimumWidth( 5, MidiControlDialog::nColumnMappingWidth );
+	pMappingGridLayout->setColumnMinimumWidth( 6, MidiControlDialog::nColumnMappingWidth );
+	pMappingGridLayout->setColumnStretch( 0, 0 );
+	pMappingGridLayout->setColumnStretch( 1, 0 );
+	pMappingGridLayout->setColumnStretch( 2, 0 );
+	pMappingGridLayout->setColumnStretch( 3, 1 );
+	pMappingGridLayout->setColumnStretch( 4, 0 );
+	pMappingGridLayout->setColumnStretch( 5, 0 );
+	pMappingGridLayout->setColumnStretch( 6, 0 );
+	pMappingGridLayout->setRowStretch( 0, 0 );
+	pMappingGridLayout->setRowStretch( 1, 0 );
+	pMappingGridLayout->setRowStretch( 2, 0 );
+	pMappingGridLayout->setRowStretch( 3, 0 );
+
+	m_pMappingTableWidget = new QTableWidget( pMappingTab );
+	m_pMappingTableWidget->setSizePolicy( QSizePolicy::Expanding,
+										 QSizePolicy::Expanding );
+	m_pMappingTableWidget->setRowCount( 1 );
+	m_pMappingTableWidget->setColumnCount( 5 );
+	m_pMappingTableWidget->setColumnWidth( 0, MidiControlDialog::nColumnMappingWidth );;
+	m_pMappingTableWidget->setColumnWidth( 1, MidiControlDialog::nColumnMappingWidth );;
+	m_pMappingTableWidget->setColumnWidth( 3, MidiControlDialog::nColumnMappingWidth );;
+	m_pMappingTableWidget->setColumnWidth( 4, MidiControlDialog::nColumnMappingWidth );;
+	m_pMappingTableWidget->horizontalHeader()->setSectionResizeMode(
+		0, QHeaderView::Fixed );
+	m_pMappingTableWidget->horizontalHeader()->setSectionResizeMode(
+		1, QHeaderView::Fixed );
+	m_pMappingTableWidget->horizontalHeader()->setSectionResizeMode(
+		2, QHeaderView::Stretch );
+	m_pMappingTableWidget->horizontalHeader()->setSectionResizeMode(
+		3, QHeaderView::Fixed );
+	m_pMappingTableWidget->horizontalHeader()->setSectionResizeMode(
+		4, QHeaderView::Fixed );
+	m_pMappingTableWidget->verticalHeader()->hide();
+	m_pMappingTableWidget->setHorizontalHeaderLabels(
+		QStringList() << pCommonStrings->getMidiOutChannelLabel()
+				<< pCommonStrings->getMidiOutNoteLabel()
+				<< pCommonStrings->getInstrumentButton()
+				<< pCommonStrings->getMidiOutNoteLabel()
+				<< pCommonStrings->getMidiOutChannelLabel() );
+
+	pMappingWrapperLayout->addWidget( m_pMappingTableWidget );
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -403,6 +572,7 @@ background-color: %1;" ).arg( borderColor.name() ) );
 
 	updateFont();
 	updateIcons();
+	updateMappingTable();
 	updateInputTable();
 	updateOutputTable();
 
@@ -510,6 +680,72 @@ void MidiControlDialog::updateIcons() {
 	m_pInputBinButton->setIcon( QIcon( sIconPath + "bin.svg" ) );
 	m_pOutputBinButton->setIcon( QIcon( sIconPath + "bin.svg" ) );
 
+}
+
+void MidiControlDialog::updateMappingTable() {
+	m_pMappingTableWidget->clearContents();
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
+
+	m_pMappingTableWidget->setRowCount( pInstrumentList->size() );
+	int nnRow = 0;
+	for ( const auto ppInstrument : *pInstrumentList ) {
+		if ( ppInstrument == nullptr ) {
+			continue;
+		}
+
+		auto pInputChannelSpinBox = new QSpinBox( m_pMappingTableWidget );
+		pInputChannelSpinBox->setFixedSize( MidiControlDialog::nColumnMappingWidth,
+									  MidiControlDialog::nMappingBoxHeight );
+		pInputChannelSpinBox->setMinimum( 0 );
+		pInputChannelSpinBox->setMaximum( 15 );
+		pInputChannelSpinBox->setSizePolicy( QSizePolicy::Expanding,
+											QSizePolicy::Fixed );
+		auto pInputNoteSpinBox = new QSpinBox( m_pMappingTableWidget );
+		pInputNoteSpinBox->setFixedSize( MidiControlDialog::nColumnMappingWidth,
+								   MidiControlDialog::nMappingBoxHeight );
+		pInputNoteSpinBox->setMinimum( 0 );
+		pInputNoteSpinBox->setMaximum( 127 );
+		pInputNoteSpinBox->setSizePolicy( QSizePolicy::Expanding,
+										 QSizePolicy::Fixed );
+		auto pInstrumentLabel = new QLabel( ppInstrument->getName(),
+										   m_pMappingTableWidget );
+		pInstrumentLabel->setAlignment( Qt::AlignCenter );
+		pInstrumentLabel->setSizePolicy( QSizePolicy::Expanding,
+										QSizePolicy::Fixed );
+		auto pOutputNoteSpinBox = new QSpinBox( m_pMappingTableWidget );
+		pOutputNoteSpinBox->setFixedSize( MidiControlDialog::nColumnMappingWidth,
+									MidiControlDialog::nMappingBoxHeight );
+		pOutputNoteSpinBox->setMinimum( 0 );
+		pOutputNoteSpinBox->setMaximum( 127 );
+		pOutputNoteSpinBox->setValue( ppInstrument->getMidiOutNote() );
+		pOutputNoteSpinBox->setSizePolicy( QSizePolicy::Expanding,
+										  QSizePolicy::Fixed );
+		auto pOutputChannelSpinBox = new QSpinBox( m_pMappingTableWidget );
+		pOutputChannelSpinBox->setFixedSize(
+			MidiControlDialog::nColumnMappingWidth,
+			MidiControlDialog::nMappingBoxHeight );
+		pOutputChannelSpinBox->setMinimum( 0 );
+		pOutputChannelSpinBox->setMaximum( 15 );
+		pOutputChannelSpinBox->setValue( ppInstrument->getMidiOutChannel() );
+		pOutputChannelSpinBox->setSizePolicy( QSizePolicy::Expanding,
+											 QSizePolicy::Fixed );
+
+		m_pMappingTableWidget->setCellWidget( nnRow, 0, pInputChannelSpinBox );
+		m_pMappingTableWidget->setCellWidget( nnRow, 1, pInputNoteSpinBox );
+		m_pMappingTableWidget->setCellWidget( nnRow, 2, pInstrumentLabel );
+		m_pMappingTableWidget->setCellWidget( nnRow, 3, pOutputNoteSpinBox );
+		m_pMappingTableWidget->setCellWidget( nnRow, 4, pOutputChannelSpinBox );
+
+		++nnRow;
+	}
+
+	m_pMappingTableWidget->setRowCount( nnRow );
 }
 
 void MidiControlDialog::updateInputTable() {

@@ -3189,6 +3189,21 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
 &quot; indicates a new line and must be * conserved. All the capitalized words that follow are defined in the MIDI * standard. Only translate them if you are sure the translated versions * are of common usage.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Instrument mapping</source>
+        <extracomment>Tab of the MIDI control dialog dedicated to mapping MIDI notes to * instruments of the current drumkit.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note Mapping</source>
+        <extracomment>Label of an option in the mapping tab of the MIDI control dialog * specifying how incoming and outgoing MIDI notes and the instruments of * the current drumkit should relate to eachother.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global Channel</source>
+        <extracomment>Label of an option in the mapping tab of the MIDI control dialog * specifying whether (and which) all instruments of the current drumkit * should feature the same incoming and outgoing MIDI channel.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Mixer</name>
