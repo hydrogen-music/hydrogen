@@ -832,33 +832,70 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			pPref->m_nSongEditorGridWidth, false, false, bSilent );
 
 		// mainForm window properties
-		pPref->setMainFormProperties(
-			loadWindowPropertiesFrom( guiNode, "mainForm_properties",
-									  pPref->m_mainFormProperties, bSilent ) );
-		pPref->setMixerProperties(
-			loadWindowPropertiesFrom( guiNode, "mixer_properties",
-									  pPref->m_mixerProperties, bSilent ) );
-		pPref->setPatternEditorProperties(
-			loadWindowPropertiesFrom( guiNode, "patternEditor_properties",
-									  pPref->m_patternEditorProperties, bSilent ) );
-		pPref->setSongEditorProperties(
-			loadWindowPropertiesFrom( guiNode, "songEditor_properties",
-									  pPref->m_songEditorProperties, bSilent ) );
-		pPref->setInstrumentRackProperties(
-			loadWindowPropertiesFrom( guiNode, "instrumentRack_properties",
-									  pPref->m_instrumentRackProperties, bSilent ) );
-		pPref->setAudioEngineInfoProperties(
-			loadWindowPropertiesFrom( guiNode, "audioEngineInfo_properties",
-									  pPref->m_audioEngineInfoProperties, bSilent ) );
+		auto mainFromPropertiesNode =
+			guiNode.firstChildElement( "mainForm_properties" );
+		if ( ! mainFromPropertiesNode.isNull() ) {
+			pPref->setMainFormProperties(
+				WindowProperties::loadFrom( mainFromPropertiesNode,
+										   pPref->m_mainFormProperties, bSilent ) );
+		}
+		auto mixerPropertiesNode =
+			guiNode.firstChildElement( "mixer_properties" );
+		if ( ! mixerPropertiesNode.isNull() ) {
+			pPref->setMixerProperties(
+				WindowProperties::loadFrom( mixerPropertiesNode,
+										   pPref->m_mixerProperties, bSilent ) );
+		}
+		auto patternEditorPropertiesNode =
+			guiNode.firstChildElement( "patternEditor_properties" );
+		if ( ! patternEditorPropertiesNode.isNull() ) {
+			pPref->setPatternEditorProperties(
+				WindowProperties::loadFrom( patternEditorPropertiesNode,
+										   pPref->m_patternEditorProperties,
+										   bSilent ) );
+		}
+		auto songEditorPropertiesNode =
+			guiNode.firstChildElement( "songEditor_properties" );
+		if ( ! songEditorPropertiesNode.isNull() ) {
+			pPref->setSongEditorProperties(
+				WindowProperties::loadFrom( songEditorPropertiesNode,
+										   pPref->m_songEditorProperties,
+										   bSilent ) );
+		}
+		auto instrumentRackPropertiesNode =
+			guiNode.firstChildElement( "instrumentRack_properties" );
+		if ( ! instrumentRackPropertiesNode.isNull() ) {
+			pPref->setInstrumentRackProperties(
+				WindowProperties::loadFrom( instrumentRackPropertiesNode,
+										   pPref->m_instrumentRackProperties,
+										   bSilent ) );
+		}
+		auto audioEngineInfoPropertiesNode =
+			guiNode.firstChildElement( "audioEngineInfo_properties" );
+		if ( ! audioEngineInfoPropertiesNode.isNull() ) {
+			pPref->setAudioEngineInfoProperties(
+				WindowProperties::loadFrom( audioEngineInfoPropertiesNode,
+										   pPref->m_audioEngineInfoProperties,
+										   bSilent ) );
+		}
 		// In order to be backward compatible we still call the XML node
 		// "playlistDialog". For some time we had playlistEditor and
 		// playlistDialog coexisting.
-		pPref->setPlaylistEditorProperties(
-			loadWindowPropertiesFrom( guiNode, "playlistDialog_properties",
-									  pPref->m_playlistEditorProperties, bSilent ) );
-		pPref->setDirectorProperties(
-			loadWindowPropertiesFrom( guiNode, "director_properties",
-									  pPref->m_directorProperties, bSilent ) );
+		auto playlistEditorPropertiesNode =
+			guiNode.firstChildElement( "playlistDialog_properties" );
+		if ( ! playlistEditorPropertiesNode.isNull() ) {
+			pPref->setPlaylistEditorProperties(
+				WindowProperties::loadFrom( playlistEditorPropertiesNode,
+										   pPref->m_playlistEditorProperties,
+										   bSilent ) );
+		}
+		auto directorPropertiesNode =
+			guiNode.firstChildElement( "director_properties" );
+		if ( ! directorPropertiesNode.isNull() ) {
+			pPref->setDirectorProperties(
+				WindowProperties::loadFrom( directorPropertiesNode,
+										   pPref->m_directorProperties, bSilent ) );
+		}
 
 		// last used file dialog folders
 		pPref->m_sLastExportPatternAsDirectory = guiNode.read_string(
@@ -997,11 +1034,14 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			"expandPatternItem", pPref->m_bExpandPatternItem, false, false, bSilent );
 
 		for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
-			const QString sNodeName = QString( "ladspaFX_properties%1" ).arg( nFX );
-			pPref->setLadspaProperties(
-				nFX, loadWindowPropertiesFrom(
-					guiNode, sNodeName, pPref->m_ladspaProperties[ nFX ],
-					bSilent ) );
+			auto ladspaPropertiesNode = guiNode.firstChildElement(
+				QString( "ladspaFX_properties%1" ).arg( nFX ) );
+			if ( ! ladspaPropertiesNode.isNull() ) {
+				pPref->setLadspaProperties(
+					nFX, WindowProperties::loadFrom( ladspaPropertiesNode,
+													pPref->m_ladspaProperties[ nFX ],
+													bSilent ) );
+			}
 		}
 
 		const XMLNode colorThemeNode = guiNode.firstChildElement( "colorTheme" );
@@ -1323,17 +1363,31 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 		guiNode.write_bool( "showPlaybackTrack", m_bShowPlaybackTrack );
 
 		// MainForm window properties
-		saveWindowPropertiesTo( guiNode, "mainForm_properties", m_mainFormProperties );
-		saveWindowPropertiesTo( guiNode, "mixer_properties", m_mixerProperties );
-		saveWindowPropertiesTo( guiNode, "patternEditor_properties", m_patternEditorProperties );
-		saveWindowPropertiesTo( guiNode, "songEditor_properties", m_songEditorProperties );
-		saveWindowPropertiesTo( guiNode, "instrumentRack_properties", m_instrumentRackProperties );
-		saveWindowPropertiesTo( guiNode, "audioEngineInfo_properties", m_audioEngineInfoProperties );
-		saveWindowPropertiesTo( guiNode, "playlistDialog_properties", m_playlistEditorProperties );
-		saveWindowPropertiesTo( guiNode, "director_properties", m_directorProperties );
+		auto mainFormPropertiesNode = guiNode.createNode( "mainForm_properties" );
+		m_mainFormProperties.saveTo( mainFormPropertiesNode );
+		auto mixerPropertiesNode = guiNode.createNode( "mixer_properties" );
+		m_mixerProperties.saveTo( mixerPropertiesNode );
+		auto patternEditorPropertiesNode = guiNode.createNode(
+			"patternEditor_properties" );
+		m_patternEditorProperties.saveTo( patternEditorPropertiesNode );
+		auto songEditorPropertiesNode = guiNode.createNode(
+			"songEditor_properties" );
+		m_songEditorProperties.saveTo( songEditorPropertiesNode );
+		auto instrumentRackPropertiesNode = guiNode.createNode(
+			"instrumentRack_properties" );
+		m_instrumentRackProperties.saveTo( instrumentRackPropertiesNode );
+		auto audioEngineInfoPropertiesNode = guiNode.createNode(
+			"audioEngineInfo_properties" );
+		m_audioEngineInfoProperties.saveTo( audioEngineInfoPropertiesNode );
+		auto playlistEditorPropertiesNode = guiNode.createNode(
+			"playlistDialog_properties" );
+		m_playlistEditorProperties.saveTo( playlistEditorPropertiesNode );
+		auto directorPropertiesNode = guiNode.createNode( "director_properties" );
+		m_directorProperties.saveTo( directorPropertiesNode );
 		for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
-			QString sNode = QString("ladspaFX_properties%1").arg( nFX );
-			saveWindowPropertiesTo( guiNode, sNode, m_ladspaProperties[nFX] );
+			auto ladspaPropertiesNode = guiNode.createNode(
+				QString("ladspaFX_properties%1").arg( nFX ) );
+			m_ladspaProperties[ nFX ].saveTo( ladspaPropertiesNode );
 		}
 		
 		// last used file dialog folders
@@ -1690,54 +1744,6 @@ void Preferences::setMostRecentFX( const QString& FX_name )
 	}
 
 	m_recentFX.push_front( FX_name );
-}
-
-/// Read the xml nodes related to window properties
-WindowProperties Preferences::loadWindowPropertiesFrom( const XMLNode& parent,
-														const QString& sWindowName,
-														const WindowProperties& defaultProp,
-														const bool bSilent )
-{
-	WindowProperties prop { defaultProp };
-
-	const XMLNode windowPropNode  = parent.firstChildElement( sWindowName );
-	if ( ! windowPropNode.isNull() ) {
-		prop.visible = windowPropNode.read_bool(
-			"visible", true, false, false, bSilent );
-		prop.x = windowPropNode.read_int(
-			"x", prop.x, false, false, bSilent );
-		prop.y = windowPropNode.read_int(
-			"y", prop.y, false, false, bSilent );
-		prop.width = windowPropNode.read_int(
-			"width", prop.width, false, false, bSilent );
-		prop.height = windowPropNode.read_int(
-			"height", prop.height, false, false, bSilent );
-		prop.m_geometry = QByteArray::fromBase64(
-			windowPropNode.read_string(
-				"geometry",
-				prop.m_geometry.toBase64(), false, true, bSilent ).toUtf8() );
-	}
-	else {
-		WARNINGLOG( QString( "Error reading configuration file <%1> node not found" )
-					.arg( sWindowName ) );
-	}
-
-	return prop;
-}
-
-
-
-/// Write the xml nodes related to window properties
-void Preferences::saveWindowPropertiesTo( XMLNode& parent, const QString& windowName, const WindowProperties& prop )
-{
-	XMLNode windowPropNode = parent.createNode( windowName );
-	
-	windowPropNode.write_bool( "visible", prop.visible );
-	windowPropNode.write_int( "x", prop.x );
-	windowPropNode.write_int( "y", prop.y );
-	windowPropNode.write_int( "width", prop.width );
-	windowPropNode.write_int( "height", prop.height );
-	windowPropNode.write_string( "geometry", QString( prop.m_geometry.toBase64() ) );
 }
 
 QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
@@ -2277,67 +2283,4 @@ QString Preferences::ChangesToQString( Preferences::Changes changes ) {
 
 	return std::move( QString( "[%1]" ).arg( changesList.join( ", " ) ) );
 }
-
-WindowProperties::WindowProperties()
-	: x( 0 )
-	, y( 0 )
-	, width( 0 )
-	, height( 0 )
-	, visible( true ) {
-}
-
-WindowProperties::WindowProperties( int _x, int _y, int _width, int _height,
-									bool _visible, const QByteArray& geometry )
-	: x( _x )
-	, y( _y )
-	, width( _width )
-	, height( _height )
-	, visible( _visible )
-	, m_geometry( geometry ) {
-}
-
-WindowProperties::WindowProperties(const WindowProperties & other)
-		: x( other.x )
-		, y( other.y )
-		, width( other.width )
-		, height( other.height )
-		, visible( other.visible )
-		, m_geometry( other.m_geometry )
-{}
-
-WindowProperties::~WindowProperties() {
-}
-
-QString WindowProperties::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Base::sPrintIndention;
-	QString sOutput;
-	if ( ! bShort ) {
-		sOutput = QString( "%1[WindowProperties]\n" ).arg( sPrefix )
-			.append( QString( "%1%2x: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( x ) )
-			.append( QString( "%1%2y: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( y ) )
-			.append( QString( "%1%2width: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( width ) )
-			.append( QString( "%1%2height: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( height ) )
-			.append( QString( "%1%2visible: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( visible ) )
-			.append( QString( "%1%2m_geometry: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( QString( m_geometry.toHex( ':' ) ) ) );
-	}
-	else {
-		sOutput = QString( "[WindowProperties] " )
-			.append( QString( "x: %1" ).arg( x ) )
-			.append( QString( ", y: %1" ).arg( y ) )
-			.append( QString( ", width: %1" ).arg( width ) )
-			.append( QString( ", height: %1" ).arg( height ) )
-			.append( QString( ", visible: %1" ).arg( visible ) )
-			.append( QString( ", m_geometry: %1" )
-					 .arg( QString( m_geometry.toHex( ':' ) ) ) );
-	}
-
-	return sOutput;
-}
-
 };

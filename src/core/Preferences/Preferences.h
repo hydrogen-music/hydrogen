@@ -28,6 +28,7 @@
 
 #include "Shortcuts.h"
 #include "Theme.h"
+#include "WindowProperties.h"
 
 #include <core/Helpers/Filesystem.h>
 #include <core/Globals.h>
@@ -43,43 +44,9 @@ namespace H2Core
 class MidiInstrumentMap;
 class MidiMap;
 
-/**
-\ingroup H2CORE
-*/
-/** \ingroup docCore docConfiguration*/
-class WindowProperties : public H2Core::Object<WindowProperties>
-{
-	H2_OBJECT(WindowProperties)
-public:
-	int x;
-	int y;
-	int width;
-	int height;
-	bool visible;
-	QByteArray m_geometry;
 
-	WindowProperties();
-	WindowProperties( int _x, int _y, int _width, int _height, bool _visible,
-					  const QByteArray& geometry = QByteArray() );
-	WindowProperties( const WindowProperties &other );
-	~WindowProperties();
-
-	void set(int _x, int _y, int _width, int _height, bool _visible, const QByteArray& geometry = QByteArray() ) {
-		x = _x; y = _y;
-		width = _width; height = _height;
-		visible = _visible;
-		m_geometry = geometry;
-	}
-
-	QString toQString( const QString& sPrefix = "",
-					   bool bShort = true ) const override;
-};
-
-/**
-\ingroup H2CORE
-\brief	Manager for User Preferences File (singleton)
-*/
-/** \ingroup docCore docConfiguration*/
+/** \brief Manager for User Preferences File (singleton)
+ * \ingroup H2CORE docCore docConfiguration */
 class Preferences : public H2Core::Object<Preferences>
 {
 	H2_OBJECT(Preferences)
@@ -616,13 +583,6 @@ public:
 					   bool bShort = true ) const override;
 	
 private:
-
-		static WindowProperties loadWindowPropertiesFrom(
-			const XMLNode& parent, const QString& sWindowName,
-			const WindowProperties& defaultProp, const bool bSilent = false );
-		static void saveWindowPropertiesTo(
-			XMLNode& parent, const QString& sWindowName,
-			const WindowProperties& prop );
 
 		/** Used to indicate changes in the underlying XSD file. */
 		static constexpr int nCurrentFormatVersion = 2;
