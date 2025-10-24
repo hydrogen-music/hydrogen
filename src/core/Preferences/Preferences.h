@@ -24,7 +24,6 @@
 #define PREFERENCES_H
 
 #include <memory>
-#include <set>
 #include <vector>
 
 #include "Shortcuts.h"
@@ -41,6 +40,7 @@
 namespace H2Core
 {
 
+class MidiInstrumentMap;
 class MidiMap;
 
 /**
@@ -198,71 +198,6 @@ public:
 	static MidiDriver parseMidiDriver( const QString& sDriver );
 	static QString midiDriverToQString( const MidiDriver& driver );
 
-	/** Specifies which incoming MIDI notes will be associated with which
-     * instrument of the current drumkit. */
-	enum class MidiInputMapping {
-		/** No mapping of incoming MIDI notes is done.
-		 *
-		 * Available since 2.0. */
-		None = 0,
-		/** Options configured for outgoing MIDI note and channel apply for the
-		 * input as well.
-		 *
-		 * This is one of the classic pre-2.0 options were the input note and
-		 * channel could not be customized directly. Left for compatibility. */
-		AsOutput = 1,
-		/** Note and channel mappings can be set to arbitrary values for all
-		 * instruments.
-		 *
-		 * Available since 2.0. */
-		Custom = 2,
-		/** All incoming MIDI events will be mapped to the currently selected
-		 * instrument and different note values will result in different pitchs.
-		 *
-		 * Pre-2.0 option. */
-		SelectedInstrument = 3,
-		/** Incoming notes will be mapped to instruments based on their order in
-		 * the current drumkit.
-		 *
-		 * This is one of the classic pre-2.0 options were the input note and
-		 * channel could not be customized directly. Left for compatibility. */
-		Order = 4
-	};
-	static QString MidiInputMappingToQString( MidiInputMapping mapping );
-
-	/** Specifies which instrument of the current drumkit will send which
-	 * outgoing MIDI note. */
-	enum class MidiOutputMapping {
-		/** No outgoing MIDI notes will be send.
-		 *
-		 * Available since 2.0. */
-		None = 0,
-		/** The value set does apply to a C2-pitched note of the corresponding
-		 * instrument. For notes with higher or lower pitch, the resulting
-		 * MIDI event will have an offset with the same difference.
-		 *
-		 * Pre-2.0 option. */
-		Offset = 1,
-		/** All send MIDI event - regardless of the (pattern) notes' individual
-		 * pitch - will have the same note and channel values.
-		 *
-		 * Available since 2.0. */
-		Constant = 2
-	};
-	static QString MidiOutputMappingToQString( MidiOutputMapping mapping );
-
-	/** Maps an instrument to a particular note and channel combination. */
-	struct CustomMidiInputMapping {
-		QString sInstrumentType;
-		int nInstrumentId;
-		int nNote;
-		int nChannel;
-
-		bool operator<( const CustomMidiInputMapping &other ) const;
-
-		QString toQString( const QString& sPrefix, bool bShort ) const;
-	};
-
 	/** Specifies which audio settings will be applied to the sample
 		supplied in the JACK per track output ports.*/
 	enum class JackTrackOutputMode {
@@ -384,20 +319,6 @@ public:
 	void				setMidiClockOutputSend( bool bHandle );
 	bool				getMidiTransportOutputSend() const;
 	void				setMidiTransportOutputSend( bool bHandle );
-	MidiInputMapping	getMidiInputMapping() const;
-	void				setMidiInputMapping( MidiInputMapping mapping );
-	MidiOutputMapping	getMidiOutputMapping() const;
-	void				setMidiOutputMapping( MidiOutputMapping mapping );
-	bool				getUseGlobalInputChannel() const;
-	void				setUseGlobalInputChannel( bool bUse );
-	int				getGlobalInputChannel() const;
-	void				setGlobalInputChannel( int nChannel );
-	bool				getUseGlobalOutputChannel() const;
-	void				setUseGlobalOutputChannel( bool bUse );
-	int				getGlobalOutputChannel() const;
-	void				setGlobalOutputChannel( int nChannel );
-	std::set<CustomMidiInputMapping> getCustomMidiInputMappings() const;
-	void setCustomMidiInputMappings( std::set<CustomMidiInputMapping> mapping );
 
 	// OSC Server properties
 	/** \return #m_bOscServerEnabled*/
@@ -686,6 +607,8 @@ public:
 	void setShortcuts( const std::shared_ptr<Shortcuts> pShortcuts );
 	const std::shared_ptr<MidiMap> getMidiMap() const;
 	void setMidiMap( const std::shared_ptr<MidiMap> pMidiMap );
+	const std::shared_ptr<MidiInstrumentMap> getMidiInstrumentMap() const;
+	void setMidiInstrumentMap( std::shared_ptr<MidiInstrumentMap> pMap );
 
 	bool getLoadingSuccessful() const;
 
@@ -760,14 +683,6 @@ private:
 		 * and SONG_POSITION_POINTER messages on transport changes. */
 		bool m_bMidiTransportOutputSend;
 
-		MidiInputMapping m_midiInputMapping;
-		MidiOutputMapping m_midiOutputMapping;
-		bool m_bUseGlobalInputChannel;
-		int m_nGlobalInputChannel;
-		bool m_bUseGlobalOutputChannel;
-		int m_nGlobalOutputChannel;
-		std::set<CustomMidiInputMapping> m_customMidiInputMappings;
-
 		/** In case the rubberband binary was not found in common places, this
 		 * variable indicated - if `true` - that Hydrogen should continue
 		 * searching for it in places provided during #load() */
@@ -840,6 +755,7 @@ private:
 
 	std::shared_ptr<Shortcuts>  m_pShortcuts;
 	std::shared_ptr<MidiMap> m_pMidiMap;
+	std::shared_ptr<MidiInstrumentMap> m_pMidiInstrumentMap;
 
 	bool					m_bLoadingSuccessful;
 };
@@ -1324,42 +1240,6 @@ inline bool Preferences::getMidiTransportOutputSend() const {
 inline void Preferences::setMidiTransportOutputSend( bool bHandle ) {
 	m_bMidiTransportOutputSend = bHandle;
 }
-inline Preferences::MidiInputMapping Preferences::getMidiInputMapping() const {
-	return m_midiInputMapping;
-}
-inline void Preferences::setMidiInputMapping( Preferences::MidiInputMapping mapping ) {
-	m_midiInputMapping = mapping;
-}
-inline Preferences::MidiOutputMapping Preferences::getMidiOutputMapping() const {
-	return m_midiOutputMapping;
-}
-inline void Preferences::setMidiOutputMapping( Preferences::MidiOutputMapping mapping ) {
-	m_midiOutputMapping = mapping;
-}
-inline bool Preferences::getUseGlobalInputChannel() const {
-	return m_bUseGlobalInputChannel;
-}
-inline void Preferences::setUseGlobalInputChannel( bool bUse ){
-	m_bUseGlobalInputChannel = bUse;
-}
-inline int Preferences::getGlobalInputChannel() const {
-	return m_nGlobalInputChannel;
-}
-inline bool Preferences::getUseGlobalOutputChannel() const {
-	return m_bUseGlobalOutputChannel;
-}
-inline void Preferences::setUseGlobalOutputChannel( bool bUse ){
-	m_bUseGlobalOutputChannel = bUse;
-}
-inline int Preferences::getGlobalOutputChannel() const {
-	return m_nGlobalOutputChannel;
-}
-inline std::set<Preferences::CustomMidiInputMapping> Preferences::getCustomMidiInputMappings() const {
-	return m_customMidiInputMappings;
-}
-inline void Preferences::setCustomMidiInputMappings( std::set<Preferences::CustomMidiInputMapping> mappings ){
-	m_customMidiInputMappings = mappings;
-}
 inline bool Preferences::getOscServerEnabled() const {
 	return m_bOscServerEnabled;
 }
@@ -1432,6 +1312,12 @@ inline const std::shared_ptr<MidiMap> Preferences::getMidiMap() const {
 }
 inline void Preferences::setMidiMap( const std::shared_ptr<MidiMap> pMidiMap ) {
 	m_pMidiMap = pMidiMap;
+}
+inline const std::shared_ptr<MidiInstrumentMap> Preferences::getMidiInstrumentMap() const {
+	return m_pMidiInstrumentMap;
+}
+inline void Preferences::setMidiInstrumentMap( const std::shared_ptr<MidiInstrumentMap> pMidiInstrumentMap ) {
+	m_pMidiInstrumentMap = pMidiInstrumentMap;
 }
 inline bool Preferences::getLoadingSuccessful() const {
 	return m_bLoadingSuccessful;

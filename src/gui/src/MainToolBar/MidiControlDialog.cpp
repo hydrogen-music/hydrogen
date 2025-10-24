@@ -37,6 +37,7 @@ https://www.gnu.org/licenses
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/IO/MidiBaseDriver.h>
+#include <core/Midi/MidiInstrumentMap.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
@@ -271,6 +272,8 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 
 	////////////////////////////////////////////////////////////////////////////
 
+	const auto pMidiInstrumentMap = pPref->getMidiInstrumentMap();
+
 	auto pMappingTab = new QWidget( m_pTabWidget );
 	/*: Tab of the MIDI control dialog dedicated to mapping MIDI notes to
 	 *  instruments of the current drumkit. */
@@ -322,18 +325,18 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		MidiControlDialog::nColumnMappingWidth * 2,
 		MidiControlDialog::nMappingBoxHeight );
 	m_pInputNoteMappingComboBox->insertItems( 0,
-		QStringList() << Preferences::MidiInputMappingToQString(
-				Preferences::MidiInputMapping::None )
-			<< Preferences::MidiInputMappingToQString(
-				Preferences::MidiInputMapping::AsOutput )
-			<< Preferences::MidiInputMappingToQString(
-				Preferences::MidiInputMapping::Custom )
-			<< Preferences::MidiInputMappingToQString(
-				Preferences::MidiInputMapping::SelectedInstrument )
-			<< Preferences::MidiInputMappingToQString(
-				Preferences::MidiInputMapping::Order ) );
+		QStringList() << MidiInstrumentMap::InputToQString(
+				MidiInstrumentMap::Input::None )
+			<< MidiInstrumentMap::InputToQString(
+				MidiInstrumentMap::Input::AsOutput )
+			<< MidiInstrumentMap::InputToQString(
+				MidiInstrumentMap::Input::Custom )
+			<< MidiInstrumentMap::InputToQString(
+				MidiInstrumentMap::Input::SelectedInstrument )
+			<< MidiInstrumentMap::InputToQString(
+				MidiInstrumentMap::Input::Order ) );
 	m_pInputNoteMappingComboBox->setCurrentIndex(
-		static_cast<int>( pPref->getMidiInputMapping() ) );
+		static_cast<int>( pMidiInstrumentMap->getInput() ) );
 
 	pMappingGridLayout->addWidget( m_pInputNoteMappingComboBox, 1, 0, 1, 2,
 							  Qt::AlignCenter );
@@ -351,14 +354,14 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 		MidiControlDialog::nColumnMappingWidth * 2,
 		MidiControlDialog::nMappingBoxHeight );
 	m_pOutputNoteMappingComboBox->insertItems( 0,
-		QStringList() << Preferences::MidiOutputMappingToQString(
-				Preferences::MidiOutputMapping::None )
-			<< Preferences::MidiOutputMappingToQString(
-				Preferences::MidiOutputMapping::Offset )
-			<< Preferences::MidiOutputMappingToQString(
-				Preferences::MidiOutputMapping::Constant ) );
+		QStringList() << MidiInstrumentMap::OutputToQString(
+				MidiInstrumentMap::Output::None )
+			<< MidiInstrumentMap::OutputToQString(
+				MidiInstrumentMap::Output::Offset )
+			<< MidiInstrumentMap::OutputToQString(
+				MidiInstrumentMap::Output::Constant ) );
 	m_pOutputNoteMappingComboBox->setCurrentIndex(
-		static_cast<int>( pPref->getMidiOutputMapping() ) );
+		static_cast<int>( pMidiInstrumentMap->getOutput() ) );
 	pMappingGridLayout->addWidget( m_pOutputNoteMappingComboBox, 1, 5, 1, 2,
 							  Qt::AlignCenter );
 
@@ -373,13 +376,16 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 		MidiControlDialog::nMappingBoxHeight );
 	m_pInputGlobalChannelSpinBox->setMinimum( MidiMessage::nMinimumChannel );
 	m_pInputGlobalChannelSpinBox->setMaximum( MidiMessage::nMaximumChannel );
-	m_pInputGlobalChannelSpinBox->setValue( pPref->getGlobalInputChannel() );
-	m_pInputGlobalChannelSpinBox->setEnabled( pPref->getUseGlobalInputChannel() );
+	m_pInputGlobalChannelSpinBox->setValue(
+		pMidiInstrumentMap->getGlobalInputChannel() );
+	m_pInputGlobalChannelSpinBox->setEnabled(
+		pMidiInstrumentMap->getUseGlobalInputChannel() );
 	pMappingGridLayout->addWidget( m_pInputGlobalChannelSpinBox, 3, 0,
 							  Qt::AlignCenter );
 
 	m_pInputGlobalChannelCheckBox = new QCheckBox( pMappingTab );
-	m_pInputGlobalChannelCheckBox->setChecked( pPref->getUseGlobalInputChannel() );
+	m_pInputGlobalChannelCheckBox->setChecked(
+		pMidiInstrumentMap->getUseGlobalInputChannel() );
 	pMappingGridLayout->addWidget( m_pInputGlobalChannelCheckBox, 3, 1,
 							  Qt::AlignCenter );
 
@@ -392,7 +398,8 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	pMappingGridLayout->addWidget( pGlobalChannelLabel, 3, 3, Qt::AlignCenter );
 
 	m_pOutputGlobalChannelCheckBox = new QCheckBox( pMappingTab );
-	m_pOutputGlobalChannelCheckBox->setChecked( pPref->getUseGlobalOutputChannel() );
+	m_pOutputGlobalChannelCheckBox->setChecked(
+		pMidiInstrumentMap->getUseGlobalOutputChannel() );
 	pMappingGridLayout->addWidget( m_pOutputGlobalChannelCheckBox, 3, 5,
 							  Qt::AlignCenter );
 
@@ -402,8 +409,10 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 		MidiControlDialog::nMappingBoxHeight );
 	m_pOutputGlobalChannelSpinBox->setMinimum( MidiMessage::nMinimumChannel );
 	m_pOutputGlobalChannelSpinBox->setMaximum( MidiMessage::nMaximumChannel );
-	m_pOutputGlobalChannelSpinBox->setValue( pPref->getGlobalOutputChannel() );
-	m_pOutputGlobalChannelSpinBox->setEnabled( pPref->getUseGlobalOutputChannel() );
+	m_pOutputGlobalChannelSpinBox->setValue(
+		pMidiInstrumentMap->getGlobalOutputChannel() );
+	m_pOutputGlobalChannelSpinBox->setEnabled(
+		pMidiInstrumentMap->getUseGlobalOutputChannel() );
 	pMappingGridLayout->addWidget( m_pOutputGlobalChannelSpinBox, 3, 6,
 							  Qt::AlignCenter );
 
@@ -419,39 +428,35 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	pMappingGridLayout->setColumnStretch( 4, 0 );
 	pMappingGridLayout->setColumnStretch( 5, 0 );
 	pMappingGridLayout->setColumnStretch( 6, 0 );
-	pMappingGridLayout->setRowStretch( 0, 0 );
-	pMappingGridLayout->setRowStretch( 1, 0 );
-	pMappingGridLayout->setRowStretch( 2, 0 );
-	pMappingGridLayout->setRowStretch( 3, 0 );
 
-	m_pMappingTableWidget = new QTableWidget( pMappingTab );
-	m_pMappingTableWidget->setSizePolicy( QSizePolicy::Expanding,
-										 QSizePolicy::Expanding );
-	m_pMappingTableWidget->setRowCount( 1 );
-	m_pMappingTableWidget->setColumnCount( 5 );
-	m_pMappingTableWidget->setColumnWidth( 0, MidiControlDialog::nColumnMappingWidth );;
-	m_pMappingTableWidget->setColumnWidth( 1, MidiControlDialog::nColumnMappingWidth );;
-	m_pMappingTableWidget->setColumnWidth( 3, MidiControlDialog::nColumnMappingWidth );;
-	m_pMappingTableWidget->setColumnWidth( 4, MidiControlDialog::nColumnMappingWidth );;
-	m_pMappingTableWidget->horizontalHeader()->setSectionResizeMode(
+	m_pInstrumentTable = new QTableWidget( pMappingTab );
+	m_pInstrumentTable->setSizePolicy( QSizePolicy::Expanding,
+									  QSizePolicy::Expanding );
+	m_pInstrumentTable->setRowCount( 1 );
+	m_pInstrumentTable->setColumnCount( 5 );
+	m_pInstrumentTable->setColumnWidth( 0, MidiControlDialog::nColumnMappingWidth );;
+	m_pInstrumentTable->setColumnWidth( 1, MidiControlDialog::nColumnMappingWidth );;
+	m_pInstrumentTable->setColumnWidth( 3, MidiControlDialog::nColumnMappingWidth );;
+	m_pInstrumentTable->setColumnWidth( 4, MidiControlDialog::nColumnMappingWidth );;
+	m_pInstrumentTable->horizontalHeader()->setSectionResizeMode(
 		0, QHeaderView::Fixed );
-	m_pMappingTableWidget->horizontalHeader()->setSectionResizeMode(
+	m_pInstrumentTable->horizontalHeader()->setSectionResizeMode(
 		1, QHeaderView::Fixed );
-	m_pMappingTableWidget->horizontalHeader()->setSectionResizeMode(
+	m_pInstrumentTable->horizontalHeader()->setSectionResizeMode(
 		2, QHeaderView::Stretch );
-	m_pMappingTableWidget->horizontalHeader()->setSectionResizeMode(
+	m_pInstrumentTable->horizontalHeader()->setSectionResizeMode(
 		3, QHeaderView::Fixed );
-	m_pMappingTableWidget->horizontalHeader()->setSectionResizeMode(
+	m_pInstrumentTable->horizontalHeader()->setSectionResizeMode(
 		4, QHeaderView::Fixed );
-	m_pMappingTableWidget->verticalHeader()->hide();
-	m_pMappingTableWidget->setHorizontalHeaderLabels(
+	m_pInstrumentTable->verticalHeader()->hide();
+	m_pInstrumentTable->setHorizontalHeaderLabels(
 		QStringList() << pCommonStrings->getMidiOutChannelLabel()
 				<< pCommonStrings->getMidiOutNoteLabel()
 				<< pCommonStrings->getInstrumentButton()
 				<< pCommonStrings->getMidiOutNoteLabel()
 				<< pCommonStrings->getMidiOutChannelLabel() );
 
-	pMappingWrapperLayout->addWidget( m_pMappingTableWidget );
+	pMappingWrapperLayout->addWidget( m_pInstrumentTable );
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -585,7 +590,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 
 	updateFont();
 	updateIcons();
-	updateMappingTable();
+	updateInstrumentTable();
 	updateInputTable();
 	updateOutputTable();
 
@@ -694,8 +699,8 @@ void MidiControlDialog::updateIcons() {
 
 }
 
-void MidiControlDialog::updateMappingTable() {
-	m_pMappingTableWidget->clearContents();
+void MidiControlDialog::updateInstrumentTable() {
+	m_pInstrumentTable->clearContents();
 
 	auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
@@ -704,21 +709,21 @@ void MidiControlDialog::updateMappingTable() {
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 
-	m_pMappingTableWidget->setRowCount( pInstrumentList->size() );
+	m_pInstrumentTable->setRowCount( pInstrumentList->size() );
 	int nnRow = 0;
 	for ( const auto ppInstrument : *pInstrumentList ) {
 		if ( ppInstrument == nullptr ) {
 			continue;
 		}
 
-		auto pInputChannelSpinBox = new QSpinBox( m_pMappingTableWidget );
+		auto pInputChannelSpinBox = new QSpinBox( m_pInstrumentTable );
 		pInputChannelSpinBox->setFixedSize( MidiControlDialog::nColumnMappingWidth,
-									  MidiControlDialog::nMappingBoxHeight );
+										   MidiControlDialog::nMappingBoxHeight );
 		pInputChannelSpinBox->setMinimum( 0 );
 		pInputChannelSpinBox->setMaximum( 15 );
 		pInputChannelSpinBox->setSizePolicy( QSizePolicy::Expanding,
 											QSizePolicy::Fixed );
-		auto pInputNoteSpinBox = new QSpinBox( m_pMappingTableWidget );
+		auto pInputNoteSpinBox = new QSpinBox( m_pInstrumentTable );
 		pInputNoteSpinBox->setFixedSize( MidiControlDialog::nColumnMappingWidth,
 								   MidiControlDialog::nMappingBoxHeight );
 		pInputNoteSpinBox->setMinimum( 0 );
@@ -726,11 +731,11 @@ void MidiControlDialog::updateMappingTable() {
 		pInputNoteSpinBox->setSizePolicy( QSizePolicy::Expanding,
 										 QSizePolicy::Fixed );
 		auto pInstrumentLabel = new QLabel( ppInstrument->getName(),
-										   m_pMappingTableWidget );
+										   m_pInstrumentTable );
 		pInstrumentLabel->setAlignment( Qt::AlignCenter );
 		pInstrumentLabel->setSizePolicy( QSizePolicy::Expanding,
 										QSizePolicy::Fixed );
-		auto pOutputNoteSpinBox = new QSpinBox( m_pMappingTableWidget );
+		auto pOutputNoteSpinBox = new QSpinBox( m_pInstrumentTable );
 		pOutputNoteSpinBox->setFixedSize( MidiControlDialog::nColumnMappingWidth,
 									MidiControlDialog::nMappingBoxHeight );
 		pOutputNoteSpinBox->setMinimum( 0 );
@@ -738,7 +743,7 @@ void MidiControlDialog::updateMappingTable() {
 		pOutputNoteSpinBox->setValue( ppInstrument->getMidiOutNote() );
 		pOutputNoteSpinBox->setSizePolicy( QSizePolicy::Expanding,
 										  QSizePolicy::Fixed );
-		auto pOutputChannelSpinBox = new QSpinBox( m_pMappingTableWidget );
+		auto pOutputChannelSpinBox = new QSpinBox( m_pInstrumentTable );
 		pOutputChannelSpinBox->setFixedSize(
 			MidiControlDialog::nColumnMappingWidth,
 			MidiControlDialog::nMappingBoxHeight );
@@ -748,16 +753,16 @@ void MidiControlDialog::updateMappingTable() {
 		pOutputChannelSpinBox->setSizePolicy( QSizePolicy::Expanding,
 											 QSizePolicy::Fixed );
 
-		m_pMappingTableWidget->setCellWidget( nnRow, 0, pInputChannelSpinBox );
-		m_pMappingTableWidget->setCellWidget( nnRow, 1, pInputNoteSpinBox );
-		m_pMappingTableWidget->setCellWidget( nnRow, 2, pInstrumentLabel );
-		m_pMappingTableWidget->setCellWidget( nnRow, 3, pOutputNoteSpinBox );
-		m_pMappingTableWidget->setCellWidget( nnRow, 4, pOutputChannelSpinBox );
+		m_pInstrumentTable->setCellWidget( nnRow, 0, pInputChannelSpinBox );
+		m_pInstrumentTable->setCellWidget( nnRow, 1, pInputNoteSpinBox );
+		m_pInstrumentTable->setCellWidget( nnRow, 2, pInstrumentLabel );
+		m_pInstrumentTable->setCellWidget( nnRow, 3, pOutputNoteSpinBox );
+		m_pInstrumentTable->setCellWidget( nnRow, 4, pOutputChannelSpinBox );
 
 		++nnRow;
 	}
 
-	m_pMappingTableWidget->setRowCount( nnRow );
+	m_pInstrumentTable->setRowCount( nnRow );
 }
 
 void MidiControlDialog::updateInputTable() {

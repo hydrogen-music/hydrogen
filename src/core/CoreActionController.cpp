@@ -41,6 +41,7 @@
 #include <core/IO/JackAudioDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/Midi/MidiAction.h>
+#include <core/Midi/MidiInstrumentMap.h>
 #include <core/Midi/MidiMap.h>
 #include <core/OscServer.h>
 #include <core/Preferences/Preferences.h>
@@ -2424,8 +2425,8 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	std::vector< std::shared_ptr<Instrument> > instrumentsMatching;
 	QString sMode;
-	switch( pPref->getMidiInputMapping() ) {
-	case Preferences::MidiInputMapping::SelectedInstrument: {
+	switch( pPref->getMidiInstrumentMap()->getInput() ) {
+	case MidiInstrumentMap::Input::SelectedInstrument: {
 		auto pInstrument =
 			pInstrumentList->get( pHydrogen->getSelectedInstrumentNumber());
 		if ( pInstrument == nullptr ) {
@@ -2436,7 +2437,7 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 		sMode = "Play Selected Instrument";
 		break;
 	}
-	case Preferences::MidiInputMapping::AsOutput: {
+	case MidiInstrumentMap::Input::AsOutput: {
 		instrumentsMatching = pInstrumentList->findByMidiNote( nNote );
 		if ( instrumentsMatching.size() == 0 ) {
 			WARNINGLOG( QString( "Unable to map note [%1] to instrument" )
@@ -2446,7 +2447,7 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 		sMode = "Map to Output MIDI note";
 		break;
 	}
-	case Preferences::MidiInputMapping::Order: {
+	case MidiInstrumentMap::Input::Order: {
 		const int nInstrument = nNote - MidiMessage::instrumentOffset;
 		if( nInstrument < 0 || nInstrument >= pInstrumentList->size()) {
 			WARNINGLOG( QString( "Instrument number [%1] - derived from note [%2] - out of bound note [%3,%4]" )

@@ -76,7 +76,7 @@ private:
 		void updateFont();
 		void updateIcons();
 
-		void updateMappingTable();
+		void updateInstrumentTable();
 		void updateInputTable();
 		void updateOutputTable();
 
@@ -93,7 +93,7 @@ private:
 		QSpinBox* m_pInputGlobalChannelSpinBox;
 		QCheckBox* m_pOutputGlobalChannelCheckBox;
 		QSpinBox* m_pOutputGlobalChannelSpinBox;
-		QTableWidget* m_pMappingTableWidget;
+		QTableWidget* m_pInstrumentTable;
 
 		QTableWidget* m_pMidiInputTable;
 		QToolButton* m_pInputBinButton;

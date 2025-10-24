@@ -31,18 +31,17 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Helpers/Xml.h>
 #include <core/IO/AlsaAudioDriver.h>
-#include <core/Midi/MidiMessage.h>
+#include <core/Midi/MidiInstrumentMap.h>
 #include <core/Midi/MidiMap.h>
+#include <core/Midi/MidiMessage.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Version.h>
 
 #include <QDir>
 #include <QProcess>
-#include <QtGlobal>
 
 namespace H2Core
 {
@@ -144,12 +143,6 @@ Preferences::Preferences()
 	, m_bMidiTransportInputHandling( false )
 	, m_bMidiClockOutputSend( false )
 	, m_bMidiTransportOutputSend( false )
-	, m_midiInputMapping( MidiInputMapping::AsOutput )
-	, m_midiOutputMapping( MidiOutputMapping::Offset )
-	, m_bUseGlobalInputChannel( false )
-	, m_nGlobalInputChannel( MidiMessage::nDefaultChannel )
-	, m_bUseGlobalOutputChannel( false )
-	, m_nGlobalOutputChannel( MidiMessage::nDefaultChannel )
 	, m_bUseTheRubberbandBpmChangeEvent( false )
 	, m_bShowInstrumentPeaks( true )
 	, m_nPatternEditorGridResolution( 8 )
@@ -205,6 +198,7 @@ Preferences::Preferences()
 		std::make_shared<FontTheme>() ) )
 	, m_pShortcuts( std::make_shared<Shortcuts>() )
 	, m_pMidiMap( std::make_shared<MidiMap>() )
+	, m_pMidiInstrumentMap( std::make_shared<MidiInstrumentMap>() )
 	, m_bLoadingSuccessful( false )
 {
 
@@ -333,12 +327,6 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_bMidiTransportInputHandling( pOther->m_bMidiTransportInputHandling )
 	, m_bMidiClockOutputSend( pOther->m_bMidiClockOutputSend )
 	, m_bMidiTransportOutputSend( pOther->m_bMidiTransportOutputSend )
-	, m_midiInputMapping( pOther->m_midiInputMapping )
-	, m_midiOutputMapping( pOther->m_midiOutputMapping )
-	, m_bUseGlobalInputChannel( pOther->m_bUseGlobalInputChannel )
-	, m_nGlobalInputChannel( pOther->m_nGlobalInputChannel )
-	, m_bUseGlobalOutputChannel( pOther->m_bUseGlobalOutputChannel )
-	, m_nGlobalOutputChannel( pOther->m_nGlobalOutputChannel )
 	, m_bSearchForRubberbandOnLoad( pOther->m_bSearchForRubberbandOnLoad )
 	, m_bUseTheRubberbandBpmChangeEvent( pOther->m_bUseTheRubberbandBpmChangeEvent )
 	, m_bShowInstrumentPeaks( pOther->m_bShowInstrumentPeaks )
@@ -392,6 +380,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_pTheme( std::make_shared<Theme>(pOther->m_pTheme) )
 	, m_pShortcuts( pOther->m_pShortcuts )
 	, m_pMidiMap( pOther->m_pMidiMap )
+	, m_pMidiInstrumentMap( pOther->m_pMidiInstrumentMap )
 	, m_bLoadingSuccessful( pOther->m_bLoadingSuccessful )
 {
 	for ( const auto& ssServer : pOther->m_serverList ) {
@@ -410,15 +399,6 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	for ( int ii = 0; ii < MAX_FX; ++ii ) {
 		m_ladspaProperties[ ii ] =
 			WindowProperties( pOther->m_ladspaProperties[ ii ] );
-	}
-
-	for ( const auto mmapping : pOther->m_customMidiInputMappings ) {
-		CustomMidiInputMapping mapping;
-		mapping.sInstrumentType = mmapping.sInstrumentType;
-		mapping.nInstrumentId = mmapping.nInstrumentId;
-		mapping.nNote = mmapping.nNote;
-		mapping.nChannel = mmapping.nChannel;
-		m_customMidiInputMappings.insert( mapping );
 	}
 }
 
@@ -574,6 +554,7 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 	}
 
 	/////////////// AUDIO ENGINE //////////////
+	bool bAsOutput = false;
 	const XMLNode audioEngineNode = rootNode.firstChildElement( "audio_engine" );
 	if ( ! audioEngineNode.isNull() ) {
 		const QString sAudioDriver = audioEngineNode.read_string(
@@ -738,7 +719,7 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 				pPref->m_bMidiDiscardNoteAfterAction, false, false, bSilent );
 			// Kept for backward compatibility of MIDI input mapping to versions
 			// prior to 2.0.
-			const bool bAsOutput = midiDriverNode.read_bool(
+			bAsOutput = midiDriverNode.read_bool(
 				"fixed_mapping", false, true, true, bSilent );
 			pPref->m_bEnableMidiFeedback = midiDriverNode.read_bool(
 				"enable_midi_feedback",
@@ -759,81 +740,6 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 				midiDriverNode.read_bool(
 					"midi_transport_output_send",
 					pPref->getMidiTransportOutputSend(), true, true, bSilent ) );
-			const bool bInputMappingNotFound = midiDriverNode.firstChildElement(
-				"midi_input_mapping" ).isNull();
-			if ( bInputMappingNotFound ) {
-				// Backward compatibility. Derive the mapping state from other
-				// settings used in versions prior to 2.0.
-				if ( bAsOutput ) {
-					pPref->setMidiInputMapping( MidiInputMapping::AsOutput );
-				}
-				else if ( bPlaySelectedInstrument ) {
-					pPref->setMidiInputMapping(
-						MidiInputMapping::SelectedInstrument );
-				}
-				else {
-					pPref->setMidiInputMapping( MidiInputMapping::Order );
-				}
-			}
-			else {
-				pPref->setMidiInputMapping(
-					static_cast<MidiInputMapping>(
-						midiDriverNode.read_int(
-							"midi_input_mapping",
-							static_cast<int>( pPref->getMidiInputMapping() ),
-							true, false, bSilent ) ) );
-			}
-			pPref->setMidiOutputMapping(
-				static_cast<MidiOutputMapping>(
-					midiDriverNode.read_int(
-						"midi_output_mapping",
-						static_cast<int>( pPref->getMidiOutputMapping() ),
-						true, false, bSilent ) ) );
-			pPref->setUseGlobalInputChannel(
-				midiDriverNode.read_bool(
-					"use_global_input_channel",
-					pPref->getUseGlobalInputChannel(), true, false, bSilent ) );
-			pPref->setGlobalInputChannel(
-				midiDriverNode.read_int(
-					"global_input_channel",
-					pPref->getGlobalInputChannel(), true, false, bSilent ) );
-			pPref->setUseGlobalOutputChannel(
-				midiDriverNode.read_bool(
-					"use_global_output_channel",
-					pPref->getUseGlobalOutputChannel(), true, false, bSilent ) );
-			pPref->setGlobalOutputChannel(
-				midiDriverNode.read_int(
-					"global_output_channel",
-					pPref->getGlobalOutputChannel(), true, false, bSilent ) );
-
-			const auto customInputMappingsNode =
-				midiDriverNode.firstChildElement( "custom_midi_input_mappings" );
-			if ( ! customInputMappingsNode.isNull() ) {
-				std::set<Preferences::CustomMidiInputMapping> mappings;
-				XMLNode customInputMappingNode =
-					customInputMappingsNode.firstChildElement(
-						"custom_midi_input_mapping" );
-
-				Preferences::CustomMidiInputMapping mapping;
-				while ( ! customInputMappingNode.isNull() ) {
-					mapping.sInstrumentType = customInputMappingNode.read_string(
-						"instrument_type", "", false, false, bSilent );
-					mapping.nInstrumentId = customInputMappingNode.read_int(
-						"instrument_id", EMPTY_INSTR_ID, false, false, bSilent );
-					mapping.nNote = customInputMappingNode.read_int(
-						"note", MidiMessage::instrumentOffset, false, false,
-						bSilent );
-					mapping.nInstrumentId = customInputMappingNode.read_int(
-						"channel", MidiMessage::nDefaultChannel, false, false,
-						bSilent );
-					mappings.insert( mapping );
-
-					customInputMappingNode =
-						customInputMappingsNode.nextSiblingElement(
-							"custom_midi_input_mapping" );
-				}
-				pPref->setCustomMidiInputMappings( mappings );
-			}
 		}
 		else {
 			WARNINGLOG( "<midi_driver> node not found" );
@@ -1150,6 +1056,29 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		WARNINGLOG( "<midiMap> node not found" );
 	}
 
+	const XMLNode midiInstrumentMapNode =
+		rootNode.firstChildElement( "midiInstrumentMap" );
+	if ( ! midiInstrumentMapNode.isNull() ) {
+		pPref->m_pMidiInstrumentMap = MidiInstrumentMap::loadFrom(
+			midiInstrumentMapNode, bSilent );
+	}
+	else {
+		// Backward compatibility. Derive the mapping state from other settings
+		// used in versions prior to 2.0.
+		if ( bAsOutput ) {
+			pPref->m_pMidiInstrumentMap->setInput(
+				MidiInstrumentMap::Input::AsOutput );
+		}
+		else if ( bPlaySelectedInstrument ) {
+			pPref->m_pMidiInstrumentMap->setInput(
+				MidiInstrumentMap::Input::SelectedInstrument );
+		}
+		else {
+			pPref->m_pMidiInstrumentMap->setInput(
+			MidiInstrumentMap::Input::Order );
+		}
+	}
+
 	pPref->m_pTheme = std::make_shared<Theme>(
 		pColorTheme, pInterfaceTheme, pFontTheme );
 
@@ -1354,31 +1283,6 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 									   getMidiClockOutputSend() );
 			midiDriverNode.write_bool( "midi_transport_output_send",
 									   getMidiTransportOutputSend() );
-			midiDriverNode.write_int( "midi_input_mapping",
-									 static_cast<int>(getMidiInputMapping()) );
-			midiDriverNode.write_int( "midi_output_mapping",
-									 static_cast<int>(getMidiOutputMapping()) );
-			midiDriverNode.write_bool( "use_global_input_channel",
-									   getUseGlobalInputChannel() );
-			midiDriverNode.write_int( "global_input_channel",
-									 getGlobalInputChannel() );
-			midiDriverNode.write_bool( "use_global_output_channel",
-									   getUseGlobalOutputChannel() );
-			midiDriverNode.write_int( "global_output_channel",
-									 getGlobalOutputChannel() );
-
-			auto customMidiInputMappings =
-				midiDriverNode.createNode( "custom_midi_input_mappings" );
-			for ( const auto mmapping : m_customMidiInputMappings ) {
-				XMLNode customMidiInputMapping =
-					midiDriverNode.createNode( "custom_midi_input_mapping" );
-				customMidiInputMapping.write_string( "instrument_type",
-													mmapping.sInstrumentType );
-				customMidiInputMapping.write_int( "instrument_id",
-													mmapping.nInstrumentId );
-				customMidiInputMapping.write_int( "note", mmapping.nNote );
-				customMidiInputMapping.write_int( "channel", mmapping.nChannel );
-			}
 		}
 		
 		/// OSC ///
@@ -1519,6 +1423,7 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 	}
 
 	m_pMidiMap->saveTo( rootNode, bSilent );
+	m_pMidiInstrumentMap->saveTo( rootNode );
 
 	m_pShortcuts->saveTo( rootNode );
 
@@ -1628,88 +1533,6 @@ QString Preferences::midiDriverToQString( const Preferences::MidiDriver& driver 
 	default:
 		return "Unhandled driver type";
 	}
-}
-
-/** Translated since these are displayed in the MidiControlDialog. */
-QString Preferences::MidiInputMappingToQString( MidiInputMapping mapping ) {
-	switch ( mapping ) {
-	case MidiInputMapping::None:
-		/*: No mapping between MIDI events and instrument will be done. */
-		return QT_TRANSLATE_NOOP( "Preferences", "None" );
-	case MidiInputMapping::AsOutput:
-		/*: For mapping incoming MIDI events, the note and channel settings
-            specified in the output section or instrument editor will be
-            used. */
-		return QT_TRANSLATE_NOOP( "Preferences", "As Output" );
-	case MidiInputMapping::SelectedInstrument:
-		/*: Only the selected instrument will used during MIDI mapping.
-            Different note values will be mapped to different instrument
-            pitches. */
-		return QT_TRANSLATE_NOOP( "Preferences", "Selected Instrument" );
-	case MidiInputMapping::Order:
-		/*: Incoming MIDI notes will be mapped to instruments based on their
-            order in the current drumkit. */
-		return QT_TRANSLATE_NOOP( "Preferences", "Order" );
-	case MidiInputMapping::Custom:
-		/*: The use can set arbitrary note and channel values to map incoming
-            MIDI notes to instruments of the current drumkit. */
-		return QT_TRANSLATE_NOOP( "Preferences", "Custom" );
-	default:
-		return "Unknown input mapping";
-	}
-}
-
-/** Translated since these are displayed in the MidiControlDialog. */
-QString Preferences::MidiOutputMappingToQString( MidiOutputMapping mapping ) {
-	switch ( mapping ) {
-	case MidiOutputMapping::None:
-		return QT_TRANSLATE_NOOP( "Preferences", "None" );
-	case MidiOutputMapping::Offset:
-		/*: The MIDI output note set does apply to a C2-pitched (pattern) note
-		 * of the corresponding instrument. For notes with higher or lower
-		 * pitch, the resulting MIDI event will have an offset with the same
-		 * difference. */
-		return QT_TRANSLATE_NOOP( "Preferences", "Offset" );
-	case MidiOutputMapping::Constant:
-		/*: All send MIDI event - regardless of the (pattern) notes' individual
-		 * pitch - will have the same note and channel values. */
-		return QT_TRANSLATE_NOOP( "Preferences", "Constant" );
-	default:
-		return "Unknown output mapping";
-	}
-}
-
-bool Preferences::CustomMidiInputMapping::operator<(
-	const CustomMidiInputMapping& other ) const
-{
-	return sInstrumentType < other.sInstrumentType &&
-			nInstrumentId < other.nInstrumentId &&
-			nNote < other.nNote && nChannel < other.nChannel;
-}
-
-QString Preferences::CustomMidiInputMapping::toQString( const QString& sPrefix,
-													   bool bShort ) const {
-	QString s = Base::sPrintIndention;
-	QString sOutput;
-	if ( ! bShort ) {
-		sOutput = QString( "%1[CustomMidiInputMapping]\n" ).arg( sPrefix )
-			.append( QString( "%1%2sInstrumentType: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( sInstrumentType ) )
-			.append( QString( "%1%2nInstrumentId: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( nInstrumentId ) )
-			.append( QString( "%1%2nNote: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( nNote ) )
-			.append( QString( "%1%2nChannel: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( nChannel ) );
-	}
-	else {
-		sOutput = QString( "[CustomMidiInputMapping]" )
-			.append( QString( " sInstrumentType: %1" ).arg( sInstrumentType ) )
-			.append( QString( ", nInstrumentId: %1" ).arg( nInstrumentId ) )
-			.append( QString( ", nNote: %1" ).arg( nNote ) )
-			.append( QString( ", nChannel: %1" ).arg( nChannel ) );
-	}
-	return sOutput;
 }
 
 bool Preferences::checkJackSupport() {
@@ -1869,17 +1692,6 @@ void Preferences::setMostRecentFX( const QString& FX_name )
 	m_recentFX.push_front( FX_name );
 }
 
-void Preferences::setGlobalInputChannel( int nValue ) {
-	m_nGlobalInputChannel = std::clamp( nValue, MidiMessage::nMinimumChannel,
-									   MidiMessage::nMaximumChannel );
-}
-
-void Preferences::setGlobalOutputChannel( int nValue ) {
-	m_nGlobalOutputChannel = std::clamp( nValue, MidiMessage::nMinimumChannel,
-										MidiMessage::nMaximumChannel );
-}
-
-
 /// Read the xml nodes related to window properties
 WindowProperties Preferences::loadWindowPropertiesFrom( const XMLNode& parent,
 														const QString& sWindowName,
@@ -1991,25 +1803,7 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_bMidiClockOutputSend ) )
 			.append( QString( "%1%2m_bMidiTransportOutputSend: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bMidiTransportOutputSend ) )
-			.append( QString( "%1%2m_midiInputMapping: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( MidiInputMappingToQString( m_midiInputMapping ) ) )
-			.append( QString( "%1%2m_midiOutputMapping: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( MidiOutputMappingToQString( m_midiOutputMapping ) ) )
-			.append( QString( "%1%2m_bUseGlobalInputChannel: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bUseGlobalInputChannel ) )
-			.append( QString( "%1%2m_nGlobalInputChannel: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nGlobalInputChannel ) )
-			.append( QString( "%1%2m_bUseGlobalOutputChannel: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bUseGlobalOutputChannel ) )
-			.append( QString( "%1%2m_nGlobalOutputChannel: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nGlobalOutputChannel ) )
-			.append( QString( "%1%2m_customMidiInputMappings:\n" ).arg( sPrefix )
-					 .arg( s ) );
-		for ( const auto mmapping : m_customMidiInputMappings ) {
-			sOutput.append( QString( "%1" )
-						   .arg( mmapping.toQString( sPrefix + s + s, false ) ) );
-		}
-		sOutput.append( QString( "%1%2m_bOscServerEnabled: %3\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_bOscServerEnabled: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bOscServerEnabled ) )
 			.append( QString( "%1%2m_bOscFeedbackEnabled: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bOscFeedbackEnabled ) )
@@ -2191,6 +1985,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_pShortcuts->toQString( s, bShort ) ) )
 			.append( QString( "%1%2m_pMidiMap: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_pMidiMap->toQString( s, bShort ) ) )
+			.append( QString( "%1%2m_pMidiInstrumentMap: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_pMidiInstrumentMap->toQString( s, bShort ) ) )
 			.append( QString( "%1%2m_bLoadingSuccessful: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bLoadingSuccessful ) );
 
@@ -2255,24 +2051,7 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bMidiClockOutputSend ) )
 			.append( QString( ", m_bMidiTransportOutputSend: %1" )
 					 .arg( m_bMidiTransportOutputSend ) )
-			.append( QString( ", m_midiInputMapping: %1" )
-					 .arg( MidiInputMappingToQString( m_midiInputMapping ) ) )
-			.append( QString( ", m_midiOutputMapping: %1" )
-					 .arg( MidiOutputMappingToQString( m_midiOutputMapping ) ) )
-			.append( QString( ", m_bUseGlobalInputChannel: %1" )
-					 .arg( m_bUseGlobalInputChannel ) )
-			.append( QString( ", m_nGlobalInputChannel: %1" )
-					 .arg( m_nGlobalInputChannel ) )
-			.append( QString( ", m_bUseGlobalOutputChannel: %1" )
-					 .arg( m_bUseGlobalOutputChannel ) )
-			.append( QString( ", m_nGlobalOutputChannel: %1" )
-					 .arg( m_nGlobalOutputChannel ) )
-			.append( ", m_customMidiInputMappings: [" );
-		for ( const auto mmapping : m_customMidiInputMappings ) {
-			sOutput.append( QString( "%1, " )
-						   .arg( mmapping.toQString( "", true ) ) );
-		}
-		sOutput.append( QString( "], m_bOscServerEnabled: %1" )
+			.append( QString( "], m_bOscServerEnabled: %1" )
 					 .arg( m_bOscServerEnabled ) )
 			.append( QString( ", m_bOscFeedbackEnabled: %1" )
 					 .arg( m_bOscFeedbackEnabled ) )
@@ -2454,6 +2233,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_pShortcuts->toQString( "", bShort ) ) )
 			.append( QString( ", m_pMidiMap: %1" )
 					 .arg( m_pMidiMap->toQString( "", bShort ) ) )
+			.append( QString( ", m_pMidiInstrumentMap: %1" )
+					 .arg( m_pMidiInstrumentMap->toQString( "", bShort ) ) )
 			.append( QString( ", m_bLoadingSuccessful: %1" )
 					 .arg( m_bLoadingSuccessful ) );
 	}
