@@ -161,37 +161,35 @@ void MidiInstrumentMap::saveTo( XMLNode& node ) const {
 std::shared_ptr<MidiInstrumentMap> MidiInstrumentMap::loadFrom( const XMLNode& node, bool bSilent ) {
 	auto pMidiInstrumentMap = std::make_shared<MidiInstrumentMap>();
 
-	const XMLNode mapNode = node.firstChildElement( "midiInstrumentMap" );
-
 	pMidiInstrumentMap->setInput(
 		static_cast<Input>(
-			mapNode.read_int( "input",
+			node.read_int( "input",
 							 static_cast<int>( pMidiInstrumentMap->getInput() ),
 							 false, false, bSilent ) ) );
 	pMidiInstrumentMap->setOutput(
 		static_cast<Output>(
-			mapNode.read_int( "output",
+			node.read_int( "output",
 							 static_cast<int>( pMidiInstrumentMap->getOutput() ),
 							 false, false, bSilent ) ) );
 	pMidiInstrumentMap->setUseGlobalInputChannel(
-		mapNode.read_bool( "useGlobalInputChannel",
+		node.read_bool( "useGlobalInputChannel",
 						  pMidiInstrumentMap->getUseGlobalInputChannel(),
 						  false, false, bSilent ) );
 	pMidiInstrumentMap->setGlobalInputChannel(
-		mapNode.read_int( "globalInputChannel",
+		node.read_int( "globalInputChannel",
 						 pMidiInstrumentMap->getGlobalInputChannel(),
 						 false, false, bSilent ) );
 	pMidiInstrumentMap->setUseGlobalOutputChannel(
-		mapNode.read_bool( "useGlobalOutputChannel",
+		node.read_bool( "useGlobalOutputChannel",
 						  pMidiInstrumentMap->getUseGlobalOutputChannel(),
 						  false, false, bSilent ) );
 	pMidiInstrumentMap->setGlobalOutputChannel(
-		mapNode.read_int( "globalOutputChannel",
+		node.read_int( "globalOutputChannel",
 						 pMidiInstrumentMap->getGlobalOutputChannel(),
 						 false, false, bSilent ) );
 
 	const auto customInputMappingsNode =
-		mapNode.firstChildElement( "customMidiInputMappings" );
+		node.firstChildElement( "customMidiInputMappings" );
 	if ( ! customInputMappingsNode.isNull() ) {
 		XMLNode customInputMappingNode =
 			customInputMappingsNode.firstChildElement( "customMidiInputMapping" );

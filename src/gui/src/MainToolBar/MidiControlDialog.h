@@ -32,6 +32,7 @@
 #include "../EventListener.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
+class LCDSpinBox;
 class MidiActionTable;
 
 /** \ingroup docGUI*/
@@ -90,9 +91,9 @@ private:
 		QComboBox* m_pInputNoteMappingComboBox;
 		QComboBox* m_pOutputNoteMappingComboBox;
 		QCheckBox* m_pInputGlobalChannelCheckBox;
-		QSpinBox* m_pInputGlobalChannelSpinBox;
+		LCDSpinBox* m_pInputGlobalChannelSpinBox;
 		QCheckBox* m_pOutputGlobalChannelCheckBox;
-		QSpinBox* m_pOutputGlobalChannelSpinBox;
+		LCDSpinBox* m_pOutputGlobalChannelSpinBox;
 		QTableWidget* m_pInstrumentTable;
 
 		QTableWidget* m_pMidiInputTable;

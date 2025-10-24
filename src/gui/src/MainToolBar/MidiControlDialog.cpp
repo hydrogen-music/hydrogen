@@ -29,6 +29,7 @@ https://www.gnu.org/licenses
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
+#include "../Widgets/LCDSpinBox.h"
 
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
@@ -337,6 +338,16 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 				MidiInstrumentMap::Input::Order ) );
 	m_pInputNoteMappingComboBox->setCurrentIndex(
 		static_cast<int>( pMidiInstrumentMap->getInput() ) );
+	connect( m_pInputNoteMappingComboBox,
+			 QOverload<int>::of( &QComboBox::activated ), [=]( int ) {
+		auto pMidiInstrumentMap =
+			Preferences::get_instance()->getMidiInstrumentMap();
+		auto input = static_cast<MidiInstrumentMap::Input>(
+			m_pInputNoteMappingComboBox->currentIndex() );
+		if ( pMidiInstrumentMap->getInput() != input ) {
+			pMidiInstrumentMap->setInput( input );
+		}
+	} );
 
 	pMappingGridLayout->addWidget( m_pInputNoteMappingComboBox, 1, 0, 1, 2,
 							  Qt::AlignCenter );
@@ -362,6 +373,17 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 				MidiInstrumentMap::Output::Constant ) );
 	m_pOutputNoteMappingComboBox->setCurrentIndex(
 		static_cast<int>( pMidiInstrumentMap->getOutput() ) );
+	connect( m_pOutputNoteMappingComboBox,
+			 QOverload<int>::of( &QComboBox::activated ), [=]( int ) {
+		auto pMidiInstrumentMap =
+			Preferences::get_instance()->getMidiInstrumentMap();
+		auto output = static_cast<MidiInstrumentMap::Output>(
+			m_pOutputNoteMappingComboBox->currentIndex() );
+		if ( pMidiInstrumentMap->getOutput() != output ) {
+			pMidiInstrumentMap->setOutput( output );
+		}
+	} );
+
 	pMappingGridLayout->addWidget( m_pOutputNoteMappingComboBox, 1, 5, 1, 2,
 							  Qt::AlignCenter );
 
@@ -370,22 +392,36 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 								  Qt::AlignBottom );
 
 
-	m_pInputGlobalChannelSpinBox = new QSpinBox( pMappingTab );
-	m_pInputGlobalChannelSpinBox->setFixedSize(
-		MidiControlDialog::nColumnMappingWidth,
-		MidiControlDialog::nMappingBoxHeight );
-	m_pInputGlobalChannelSpinBox->setMinimum( MidiMessage::nMinimumChannel );
-	m_pInputGlobalChannelSpinBox->setMaximum( MidiMessage::nMaximumChannel );
+	// -1 does not turn this channel "off". Instead, the combo box above it can
+	// be set to None.
+	m_pInputGlobalChannelSpinBox = new LCDSpinBox(
+		pMappingTab, QSize( MidiControlDialog::nColumnMappingWidth,
+						   MidiControlDialog::nMappingBoxHeight ),
+		LCDSpinBox::Type::Int, MidiMessage::nMinimumChannel,
+		MidiMessage::nMaximumChannel );
 	m_pInputGlobalChannelSpinBox->setValue(
 		pMidiInstrumentMap->getGlobalInputChannel() );
 	m_pInputGlobalChannelSpinBox->setEnabled(
 		pMidiInstrumentMap->getUseGlobalInputChannel() );
+	connect( m_pInputGlobalChannelSpinBox,
+			QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+			[&](double fValue) {
+				Preferences::get_instance()->getMidiInstrumentMap()
+					->setGlobalInputChannel( static_cast<int>( fValue ) );
+	});
 	pMappingGridLayout->addWidget( m_pInputGlobalChannelSpinBox, 3, 0,
 							  Qt::AlignCenter );
 
 	m_pInputGlobalChannelCheckBox = new QCheckBox( pMappingTab );
 	m_pInputGlobalChannelCheckBox->setChecked(
 		pMidiInstrumentMap->getUseGlobalInputChannel() );
+	connect( m_pInputGlobalChannelCheckBox, &QAbstractButton::toggled, [=]() {
+		Preferences::get_instance()->getMidiInstrumentMap()
+			->setUseGlobalInputChannel(
+				m_pInputGlobalChannelCheckBox->isChecked() );
+		m_pInputGlobalChannelSpinBox->setEnabled(
+			m_pInputGlobalChannelCheckBox->isChecked() );
+	} );
 	pMappingGridLayout->addWidget( m_pInputGlobalChannelCheckBox, 3, 1,
 							  Qt::AlignCenter );
 
@@ -397,24 +433,39 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 font-size: %1px;" ).arg( nSettingTextSize ) );
 	pMappingGridLayout->addWidget( pGlobalChannelLabel, 3, 3, Qt::AlignCenter );
 
-	m_pOutputGlobalChannelCheckBox = new QCheckBox( pMappingTab );
-	m_pOutputGlobalChannelCheckBox->setChecked(
-		pMidiInstrumentMap->getUseGlobalOutputChannel() );
-	pMappingGridLayout->addWidget( m_pOutputGlobalChannelCheckBox, 3, 5,
-							  Qt::AlignCenter );
-
-	m_pOutputGlobalChannelSpinBox = new QSpinBox( pMappingTab );
-	m_pOutputGlobalChannelSpinBox->setFixedSize(
-		MidiControlDialog::nColumnMappingWidth,
-		MidiControlDialog::nMappingBoxHeight );
-	m_pOutputGlobalChannelSpinBox->setMinimum( MidiMessage::nMinimumChannel );
-	m_pOutputGlobalChannelSpinBox->setMaximum( MidiMessage::nMaximumChannel );
+	// -1 does not turn this channel "off". Instead, the combo box above it can
+	// be set to None.
+	m_pOutputGlobalChannelSpinBox = new LCDSpinBox(
+		pMappingTab, QSize( MidiControlDialog::nColumnMappingWidth,
+						   MidiControlDialog::nMappingBoxHeight ),
+		LCDSpinBox::Type::Int, MidiMessage::nMinimumChannel,
+		MidiMessage::nMaximumChannel );
 	m_pOutputGlobalChannelSpinBox->setValue(
 		pMidiInstrumentMap->getGlobalOutputChannel() );
 	m_pOutputGlobalChannelSpinBox->setEnabled(
 		pMidiInstrumentMap->getUseGlobalOutputChannel() );
+	connect( m_pOutputGlobalChannelSpinBox,
+			QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+			[&](double fValue) {
+				Preferences::get_instance()->getMidiInstrumentMap()
+					->setGlobalOutputChannel( static_cast<int>( fValue ) );
+	});
 	pMappingGridLayout->addWidget( m_pOutputGlobalChannelSpinBox, 3, 6,
 							  Qt::AlignCenter );
+
+	m_pOutputGlobalChannelCheckBox = new QCheckBox( pMappingTab );
+	m_pOutputGlobalChannelCheckBox->setChecked(
+		pMidiInstrumentMap->getUseGlobalOutputChannel() );
+	connect( m_pOutputGlobalChannelCheckBox, &QAbstractButton::toggled, [=]() {
+		Preferences::get_instance()->getMidiInstrumentMap()
+			->setUseGlobalOutputChannel(
+				m_pOutputGlobalChannelCheckBox->isChecked() );
+		m_pOutputGlobalChannelSpinBox->setEnabled(
+			m_pOutputGlobalChannelCheckBox->isChecked() );
+	} );
+	pMappingGridLayout->addWidget( m_pOutputGlobalChannelCheckBox, 3, 5,
+							  Qt::AlignCenter );
+
 
 	pMappingGridLayout->setColumnMinimumWidth( 0, MidiControlDialog::nColumnMappingWidth );
 	pMappingGridLayout->setColumnMinimumWidth( 1, MidiControlDialog::nColumnMappingWidth );
