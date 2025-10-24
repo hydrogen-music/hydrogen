@@ -36,7 +36,7 @@ namespace H2Core {
  * scenario.
  *
  * Instead of loading a MIDI mapping from a config file, we create it locally.
- * This 1. increases coverage for #MidiMap routines too and 2. is more easy to
+ * This 1. increases coverage for #MidiEventMap routines too and 2. is more easy to
  * maintain and comprehend. */
 class MidiActionTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( MidiActionTest );

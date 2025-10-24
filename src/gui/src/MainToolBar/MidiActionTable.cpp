@@ -32,7 +32,7 @@
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiActionManager.h>
 #include <core/Midi/MidiMessage.h>
-#include <core/Midi/MidiMap.h>
+#include <core/Midi/MidiEventMap.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 
@@ -253,7 +253,7 @@ void MidiActionTable::insertNewRow( std::shared_ptr<MidiAction> pAction,
 
 void MidiActionTable::setupMidiActionTable()
 {
-	const auto pMidiMap = H2Core::Preferences::get_instance()->getMidiMap();
+	const auto pMidiEventMap = H2Core::Preferences::get_instance()->getMidiEventMap();
 
 	clear();
 
@@ -289,13 +289,13 @@ void MidiActionTable::setupMidiActionTable()
 	horizontalHeader()->setSectionResizeMode( 5, QHeaderView::Fixed );
 	horizontalHeader()->setSectionResizeMode( 6, QHeaderView::Fixed );
 
-	for ( const auto& [ssMmcType, ppAction] : pMidiMap->getMMCActionMap() ) {
+	for ( const auto& [ssMmcType, ppAction] : pMidiEventMap->getMMCActionMap() ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
 			insertNewRow( ppAction, ssMmcType, 0 );
 		}
 	}
 
-	for ( const auto& [nnPitch, ppAction] : pMidiMap->getNoteActionMap() ) {
+	for ( const auto& [nnPitch, ppAction] : pMidiEventMap->getNoteActionMap() ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
 			insertNewRow( ppAction,
 						  H2Core::MidiMessage::EventToQString(
@@ -304,7 +304,7 @@ void MidiActionTable::setupMidiActionTable()
 		}
 	}
 
-	for ( const auto& [nnParam, ppAction] : pMidiMap->getCCActionMap() ) {
+	for ( const auto& [nnParam, ppAction] : pMidiEventMap->getCCActionMap() ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
 			insertNewRow( ppAction,
 						  H2Core::MidiMessage::EventToQString(
@@ -313,7 +313,7 @@ void MidiActionTable::setupMidiActionTable()
 		}
 	}
 
-	for ( const auto& ppAction : pMidiMap->getPCActions() ) {
+	for ( const auto& ppAction : pMidiEventMap->getPCActions() ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
 			insertNewRow( ppAction,
 						  H2Core::MidiMessage::EventToQString(
@@ -328,8 +328,8 @@ void MidiActionTable::setupMidiActionTable()
 
 void MidiActionTable::saveMidiActionTable()
 {
-	auto pMidiMap = H2Core::Preferences::get_instance()->getMidiMap();
-	pMidiMap->reset();
+	auto pMidiEventMap = H2Core::Preferences::get_instance()->getMidiEventMap();
+	pMidiEventMap->reset();
 	
 	for ( int row = 0; row < m_nRowCount; row++ ) {
 
@@ -361,15 +361,15 @@ void MidiActionTable::saveMidiActionTable()
 
 			switch ( event ) {
 			case H2Core::MidiMessage::Event::CC:
-				pMidiMap->registerCCEvent( eventSpinner->cleanText().toInt() , pAction );
+				pMidiEventMap->registerCCEvent( eventSpinner->cleanText().toInt() , pAction );
 				break;
 				
 			case H2Core::MidiMessage::Event::Note:
-				pMidiMap->registerNoteEvent( eventSpinner->cleanText().toInt() , pAction );
+				pMidiEventMap->registerNoteEvent( eventSpinner->cleanText().toInt() , pAction );
 				break;
 				
 			case H2Core::MidiMessage::Event::PC:
-				pMidiMap->registerPCEvent( pAction );
+				pMidiEventMap->registerPCEvent( pAction );
 				break;
 				
 			case H2Core::MidiMessage::Event::Null:
@@ -379,7 +379,7 @@ void MidiActionTable::saveMidiActionTable()
 			default:
 				// All remaining events should be different trades of
 				// MMC events. If not, registerMMCEvent will handle it.
-				pMidiMap->registerMMCEvent( sEventString , pAction );
+				pMidiEventMap->registerMMCEvent( sEventString , pAction );
 			}
 		}
 	}

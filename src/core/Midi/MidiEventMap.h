@@ -39,14 +39,14 @@ class MidiAction;
 namespace H2Core {
 
 /** \ingroup docCore docMIDI */
-class MidiMap : public H2Core::Object<MidiMap>
+class MidiEventMap : public H2Core::Object<MidiEventMap>
 {
-	H2_OBJECT(MidiMap)
+	H2_OBJECT(MidiEventMap)
 public:
-	MidiMap();
-	~MidiMap();
+	MidiEventMap();
+	~MidiEventMap();
 
-	static std::shared_ptr<MidiMap> loadFrom( const H2Core::XMLNode& node,
+	static std::shared_ptr<MidiEventMap> loadFrom( const H2Core::XMLNode& node,
 											  bool bSilent = false );
 	void saveTo( H2Core::XMLNode& node, bool bSilent = false ) const;
 	
@@ -104,16 +104,16 @@ private:
 	QMutex __mutex;
 };
 
-inline const std::multimap<QString, std::shared_ptr<MidiAction>>& MidiMap::getMMCActionMap() const {
+inline const std::multimap<QString, std::shared_ptr<MidiAction>>& MidiEventMap::getMMCActionMap() const {
 	return m_mmcActionMap;
 }
-inline const std::multimap<int, std::shared_ptr<MidiAction>>& MidiMap::getNoteActionMap() const {
+inline const std::multimap<int, std::shared_ptr<MidiAction>>& MidiEventMap::getNoteActionMap() const {
 	return m_noteActionMap;
 }
-inline const std::multimap<int, std::shared_ptr<MidiAction>>& MidiMap::getCCActionMap() const {
+inline const std::multimap<int, std::shared_ptr<MidiAction>>& MidiEventMap::getCCActionMap() const {
 	return m_ccActionMap;
 }
-inline const std::vector<std::shared_ptr<MidiAction>>& MidiMap::getPCActions() const {
+inline const std::vector<std::shared_ptr<MidiAction>>& MidiEventMap::getPCActions() const {
 	return m_pcActionVector;
 }
 

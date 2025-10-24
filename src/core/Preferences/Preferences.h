@@ -42,7 +42,7 @@ namespace H2Core
 {
 
 class MidiInstrumentMap;
-class MidiMap;
+class MidiEventMap;
 
 
 /** \brief Manager for User Preferences File (singleton)
@@ -572,8 +572,8 @@ public:
 
 	const std::shared_ptr<Shortcuts> getShortcuts() const;
 	void setShortcuts( const std::shared_ptr<Shortcuts> pShortcuts );
-	const std::shared_ptr<MidiMap> getMidiMap() const;
-	void setMidiMap( const std::shared_ptr<MidiMap> pMidiMap );
+	const std::shared_ptr<MidiEventMap> getMidiEventMap() const;
+	void setMidiEventMap( const std::shared_ptr<MidiEventMap> pMidiEventMap );
 	const std::shared_ptr<MidiInstrumentMap> getMidiInstrumentMap() const;
 	void setMidiInstrumentMap( std::shared_ptr<MidiInstrumentMap> pMap );
 
@@ -714,7 +714,7 @@ private:
 	std::shared_ptr<Theme>		m_pTheme;
 
 	std::shared_ptr<Shortcuts>  m_pShortcuts;
-	std::shared_ptr<MidiMap> m_pMidiMap;
+	std::shared_ptr<MidiEventMap> m_pMidiEventMap;
 	std::shared_ptr<MidiInstrumentMap> m_pMidiInstrumentMap;
 
 	bool					m_bLoadingSuccessful;
@@ -1267,11 +1267,11 @@ inline const std::shared_ptr<Shortcuts> Preferences::getShortcuts() const {
 inline void Preferences::setShortcuts( const std::shared_ptr<Shortcuts> pShortcuts ) {
 	m_pShortcuts = pShortcuts;
 }
-inline const std::shared_ptr<MidiMap> Preferences::getMidiMap() const {
-	return m_pMidiMap;
+inline const std::shared_ptr<MidiEventMap> Preferences::getMidiEventMap() const {
+	return m_pMidiEventMap;
 }
-inline void Preferences::setMidiMap( const std::shared_ptr<MidiMap> pMidiMap ) {
-	m_pMidiMap = pMidiMap;
+inline void Preferences::setMidiEventMap( const std::shared_ptr<MidiEventMap> pMidiEventMap ) {
+	m_pMidiEventMap = pMidiEventMap;
 }
 inline const std::shared_ptr<MidiInstrumentMap> Preferences::getMidiInstrumentMap() const {
 	return m_pMidiInstrumentMap;

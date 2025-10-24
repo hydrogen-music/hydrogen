@@ -466,7 +466,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	connect( m_pMidiActionTable, &MidiActionTable::changed, [=]() {
 		m_pMidiActionTable->saveMidiActionTable();
 		H2Core::EventQueue::get_instance()->pushEvent(
-			H2Core::Event::Type::MidiMapChanged, 0 );
+			H2Core::Event::Type::MidiEventMapChanged, 0 );
 	});
 
 	////////////////////////////////////////////////////////////////////////////

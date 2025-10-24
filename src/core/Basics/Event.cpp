@@ -61,8 +61,8 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "MidiDriverChanged";
 	case Event::Type::MidiInput:
 		return "MidiInput";
-	case Event::Type::MidiMapChanged:
-		return "MidiMapChanged";
+	case Event::Type::MidiEventMapChanged:
+		return "MidiEventMapChanged";
 	case Event::Type::MidiOutput:
 		return "MidiOutput";
 	case Event::Type::MixerSettingsChanged:

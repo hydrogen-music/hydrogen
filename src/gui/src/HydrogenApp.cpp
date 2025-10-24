@@ -1024,7 +1024,7 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->midiInputEvent();
 				break;
 
-			case Event::Type::MidiMapChanged:
+			case Event::Type::MidiEventMapChanged:
 				ppEventListener->midiMapChangedEvent();
 				break;
 

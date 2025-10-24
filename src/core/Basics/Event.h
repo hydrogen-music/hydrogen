@@ -105,7 +105,7 @@ public:
 			MidiDriverChanged,
 			/** Hydrogen did received a MIDI event. */
 			MidiInput,
-			MidiMapChanged,
+			MidiEventMapChanged,
 			/** Hydrogen did sent a MIDI event. */
 			MidiOutput,
 			/** Miscellaneous things shown in the Mixer apart from the

@@ -35,7 +35,7 @@
 #include <core/Helpers/Xml.h>
 #include <core/IO/AlsaAudioDriver.h>
 #include <core/Midi/MidiInstrumentMap.h>
-#include <core/Midi/MidiMap.h>
+#include <core/Midi/MidiEventMap.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Version.h>
@@ -197,7 +197,7 @@ Preferences::Preferences()
 		std::make_shared<InterfaceTheme>(),
 		std::make_shared<FontTheme>() ) )
 	, m_pShortcuts( std::make_shared<Shortcuts>() )
-	, m_pMidiMap( std::make_shared<MidiMap>() )
+	, m_pMidiEventMap( std::make_shared<MidiEventMap>() )
 	, m_pMidiInstrumentMap( std::make_shared<MidiInstrumentMap>() )
 	, m_bLoadingSuccessful( false )
 {
@@ -379,7 +379,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_bShowExportDrumkitAttributionWarning( pOther->m_bShowExportDrumkitAttributionWarning )
 	, m_pTheme( std::make_shared<Theme>(pOther->m_pTheme) )
 	, m_pShortcuts( pOther->m_pShortcuts )
-	, m_pMidiMap( pOther->m_pMidiMap )
+	, m_pMidiEventMap( pOther->m_pMidiEventMap )
 	, m_pMidiInstrumentMap( pOther->m_pMidiInstrumentMap )
 	, m_bLoadingSuccessful( pOther->m_bLoadingSuccessful )
 {
@@ -1091,7 +1091,7 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 
 	const XMLNode midiEventMapNode = rootNode.firstChildElement( "midiEventMap" );
 	if ( ! midiEventMapNode.isNull() ) {
-		pPref->m_pMidiMap = MidiMap::loadFrom( midiEventMapNode, bSilent );
+		pPref->m_pMidiEventMap = MidiEventMap::loadFrom( midiEventMapNode, bSilent );
 	} else {
 		WARNINGLOG( "<midiMap> node not found" );
 	}
@@ -1476,7 +1476,7 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 		filesNode.write_string( "defaulteditor", m_sDefaultEditor );
 	}
 
-	m_pMidiMap->saveTo( rootNode, bSilent );
+	m_pMidiEventMap->saveTo( rootNode, bSilent );
 	m_pMidiInstrumentMap->saveTo( rootNode );
 
 	m_pShortcuts->saveTo( rootNode );
@@ -1989,8 +1989,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_pTheme->toQString( s, bShort ) ) )
 			.append( QString( "%1%2m_pShortcuts: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_pShortcuts->toQString( s, bShort ) ) )
-			.append( QString( "%1%2m_pMidiMap: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_pMidiMap->toQString( s, bShort ) ) )
+			.append( QString( "%1%2m_pMidiEventMap: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_pMidiEventMap->toQString( s, bShort ) ) )
 			.append( QString( "%1%2m_pMidiInstrumentMap: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_pMidiInstrumentMap->toQString( s, bShort ) ) )
 			.append( QString( "%1%2m_bLoadingSuccessful: %3\n" ).arg( sPrefix )
@@ -2237,8 +2237,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_pTheme->toQString( "", bShort ) ) )
 			.append( QString( ", m_pShortcuts: %1" )
 					 .arg( m_pShortcuts->toQString( "", bShort ) ) )
-			.append( QString( ", m_pMidiMap: %1" )
-					 .arg( m_pMidiMap->toQString( "", bShort ) ) )
+			.append( QString( ", m_pMidiEventMap: %1" )
+					 .arg( m_pMidiEventMap->toQString( "", bShort ) ) )
 			.append( QString( ", m_pMidiInstrumentMap: %1" )
 					 .arg( m_pMidiInstrumentMap->toQString( "", bShort ) ) )
 			.append( QString( ", m_bLoadingSuccessful: %1" )

@@ -33,7 +33,7 @@
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiActionManager.h>
-#include <core/Midi/MidiMap.h>
+#include <core/Midi/MidiEventMap.h>
 #include <core/Preferences/Preferences.h>
 
 namespace H2Core
@@ -243,9 +243,9 @@ void MidiInput::handleControlChangeMessage(
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
-	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 
-	for ( const auto& ppAction : pMidiMap->getCCActions( msg.getData1() ) ) {
+	for ( const auto& ppAction : pMidiEventMap->getCCActions( msg.getData1() ) ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
 			auto pNewAction = MidiAction::from( ppAction, msg.getTimePoint() );
 			pNewAction->setValue( QString::number( msg.getData2() ) );
@@ -267,9 +267,9 @@ void MidiInput::handleProgramChangeMessage(
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
-	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 
-	for ( const auto& ppAction : pMidiMap->getPCActions() ) {
+	for ( const auto& ppAction : pMidiEventMap->getPCActions() ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
 			auto pNewAction = MidiAction::from( ppAction, msg.getTimePoint() );
 			pNewAction->setValue( QString::number( msg.getData1() ) );
@@ -294,7 +294,7 @@ void MidiInput::handleNoteOnMessage(
 	}
 
 	const auto pPref = Preferences::get_instance();
-	const auto pMidiMap = pPref->getMidiMap();
+	const auto pMidiEventMap = pPref->getMidiEventMap();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 
@@ -302,7 +302,7 @@ void MidiInput::handleNoteOnMessage(
 	pHydrogen->setLastMidiEventParameter( msg.getData1() );
 
 	bool bActionSuccess = false;
-	for ( const auto& ppAction : pMidiMap->getNoteActions( msg.getData1() ) ) {
+	for ( const auto& ppAction : pMidiEventMap->getNoteActions( msg.getData1() ) ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
 			auto pNewAction = MidiAction::from( ppAction, msg.getTimePoint() );
 			pNewAction->setValue( QString::number( msg.getData2() ) );
@@ -378,7 +378,7 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg,
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
-	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 
 	const auto sysexData = msg.getSysexData();
 
@@ -434,7 +434,7 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg,
 			pHydrogen->setLastMidiEvent( event );
 			pHydrogen->setLastMidiEventParameter( msg.getData1() );
 
-			auto actions = pMidiMap->getMMCActions( sMMCtype );
+			auto actions = pMidiEventMap->getMMCActions( sMMCtype );
 			pMidiActionManager->handleMidiActionsAsync( actions );
 			for ( const auto& ppAction : actions ) {
 				if ( ppAction != nullptr ) {

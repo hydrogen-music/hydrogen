@@ -42,7 +42,7 @@
 #include <core/IO/MidiBaseDriver.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiInstrumentMap.h>
-#include <core/Midi/MidiMap.h>
+#include <core/Midi/MidiEventMap.h>
 #include <core/OscServer.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
@@ -421,9 +421,9 @@ bool CoreActionController::sendMasterVolumeFeedback() {
 	}
 #endif
 	
-	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	
-	auto ccParamValues = pMidiMap->findCCValuesByType(
+	auto ccParamValues = pMidiEventMap->findCCValuesByType(
 		MidiAction::Type::MasterVolumeAbsolute );
 	
 	return handleOutgoingControlChanges( ccParamValues, (fMasterVolume / 1.5) * 127 );
@@ -449,9 +449,9 @@ bool CoreActionController::sendStripVolumeFeedback( int nStrip ) {
 		}
 #endif
 
-		const auto pMidiMap = Preferences::get_instance()->getMidiMap();
+		const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	
-		auto ccParamValues = pMidiMap->findCCValuesByTypeAndParam1(
+		auto ccParamValues = pMidiEventMap->findCCValuesByTypeAndParam1(
 			MidiAction::Type::StripVolumeAbsolute, QString("%1").arg( nStrip ) );
 	
 		return handleOutgoingControlChanges( ccParamValues, (fStripVolume / 1.5) * 127 );
@@ -476,9 +476,9 @@ bool CoreActionController::sendMetronomeIsActiveFeedback() {
 	}
 #endif
 	
-	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	
-	auto ccParamValues = pMidiMap->findCCValuesByType(
+	auto ccParamValues = pMidiEventMap->findCCValuesByType(
 		MidiAction::Type::ToggleMetronome );
 	
 	return handleOutgoingControlChanges(
@@ -505,9 +505,9 @@ bool CoreActionController::sendMasterIsMutedFeedback() {
 	}
 #endif
 
-	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 
-	auto ccParamValues = pMidiMap->findCCValuesByType(
+	auto ccParamValues = pMidiEventMap->findCCValuesByType(
 		MidiAction::Type::MuteToggle );
 
 	return handleOutgoingControlChanges(
@@ -532,9 +532,9 @@ bool CoreActionController::sendStripIsMutedFeedback( int nStrip ) {
 		}
 #endif
 
-		const auto pMidiMap = Preferences::get_instance()->getMidiMap();
+		const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	
-		auto ccParamValues = pMidiMap->findCCValuesByTypeAndParam1(
+		auto ccParamValues = pMidiEventMap->findCCValuesByTypeAndParam1(
 			MidiAction::Type::StripMuteToggle, QString("%1").arg( nStrip ) );
 	
 		return handleOutgoingControlChanges(
@@ -562,8 +562,8 @@ bool CoreActionController::sendStripIsSoloedFeedback( int nStrip ) {
 		}
 #endif
 
-		const auto pMidiMap = Preferences::get_instance()->getMidiMap();
-		auto ccParamValues = pMidiMap->findCCValuesByTypeAndParam1(
+		const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+		auto ccParamValues = pMidiEventMap->findCCValuesByTypeAndParam1(
 			MidiAction::Type::StripSoloToggle, QString("%1").arg( nStrip ) );
 	
 		return handleOutgoingControlChanges(
@@ -591,8 +591,8 @@ bool CoreActionController::sendStripPanFeedback( int nStrip ) {
 		}
 #endif
 	
-		const auto pMidiMap = Preferences::get_instance()->getMidiMap();
-		auto ccParamValues = pMidiMap->findCCValuesByTypeAndParam1(
+		const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+		auto ccParamValues = pMidiEventMap->findCCValuesByTypeAndParam1(
 			MidiAction::Type::PanAbsolute, QString("%1").arg( nStrip ) );
 
 		return handleOutgoingControlChanges(
