@@ -394,35 +394,35 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 
 	// -1 does not turn this channel "off". Instead, the combo box above it can
 	// be set to None.
-	m_pInputGlobalChannelSpinBox = new LCDSpinBox(
+	m_pGlobalInputChannelSpinBox = new LCDSpinBox(
 		pMappingTab, QSize( MidiControlDialog::nColumnMappingWidth,
 						   MidiControlDialog::nMappingBoxHeight ),
 		LCDSpinBox::Type::Int, MidiMessage::nMinimumChannel,
 		MidiMessage::nMaximumChannel );
-	m_pInputGlobalChannelSpinBox->setValue(
+	m_pGlobalInputChannelSpinBox->setValue(
 		pMidiInstrumentMap->getGlobalInputChannel() );
-	m_pInputGlobalChannelSpinBox->setEnabled(
+	m_pGlobalInputChannelSpinBox->setEnabled(
 		pMidiInstrumentMap->getUseGlobalInputChannel() );
-	connect( m_pInputGlobalChannelSpinBox,
+	connect( m_pGlobalInputChannelSpinBox,
 			QOverload<double>::of(&QDoubleSpinBox::valueChanged),
 			[&](double fValue) {
 				Preferences::get_instance()->getMidiInstrumentMap()
 					->setGlobalInputChannel( static_cast<int>( fValue ) );
 	});
-	pMappingGridLayout->addWidget( m_pInputGlobalChannelSpinBox, 3, 0,
+	pMappingGridLayout->addWidget( m_pGlobalInputChannelSpinBox, 3, 0,
 							  Qt::AlignCenter );
 
-	m_pInputGlobalChannelCheckBox = new QCheckBox( pMappingTab );
-	m_pInputGlobalChannelCheckBox->setChecked(
+	m_pGlobalInputChannelCheckBox = new QCheckBox( pMappingTab );
+	m_pGlobalInputChannelCheckBox->setChecked(
 		pMidiInstrumentMap->getUseGlobalInputChannel() );
-	connect( m_pInputGlobalChannelCheckBox, &QAbstractButton::toggled, [=]() {
+	connect( m_pGlobalInputChannelCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->getMidiInstrumentMap()
 			->setUseGlobalInputChannel(
-				m_pInputGlobalChannelCheckBox->isChecked() );
-		m_pInputGlobalChannelSpinBox->setEnabled(
-			m_pInputGlobalChannelCheckBox->isChecked() );
+				m_pGlobalInputChannelCheckBox->isChecked() );
+		m_pGlobalInputChannelSpinBox->setEnabled(
+			m_pGlobalInputChannelCheckBox->isChecked() );
 	} );
-	pMappingGridLayout->addWidget( m_pInputGlobalChannelCheckBox, 3, 1,
+	pMappingGridLayout->addWidget( m_pGlobalInputChannelCheckBox, 3, 1,
 							  Qt::AlignCenter );
 
 	/*: Label of an option in the mapping tab of the MIDI control dialog
@@ -435,35 +435,35 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 
 	// -1 does not turn this channel "off". Instead, the combo box above it can
 	// be set to None.
-	m_pOutputGlobalChannelSpinBox = new LCDSpinBox(
+	m_pGlobalOutputChannelSpinBox = new LCDSpinBox(
 		pMappingTab, QSize( MidiControlDialog::nColumnMappingWidth,
 						   MidiControlDialog::nMappingBoxHeight ),
 		LCDSpinBox::Type::Int, MidiMessage::nMinimumChannel,
 		MidiMessage::nMaximumChannel );
-	m_pOutputGlobalChannelSpinBox->setValue(
+	m_pGlobalOutputChannelSpinBox->setValue(
 		pMidiInstrumentMap->getGlobalOutputChannel() );
-	m_pOutputGlobalChannelSpinBox->setEnabled(
+	m_pGlobalOutputChannelSpinBox->setEnabled(
 		pMidiInstrumentMap->getUseGlobalOutputChannel() );
-	connect( m_pOutputGlobalChannelSpinBox,
+	connect( m_pGlobalOutputChannelSpinBox,
 			QOverload<double>::of(&QDoubleSpinBox::valueChanged),
 			[&](double fValue) {
 				Preferences::get_instance()->getMidiInstrumentMap()
 					->setGlobalOutputChannel( static_cast<int>( fValue ) );
 	});
-	pMappingGridLayout->addWidget( m_pOutputGlobalChannelSpinBox, 3, 6,
+	pMappingGridLayout->addWidget( m_pGlobalOutputChannelSpinBox, 3, 6,
 							  Qt::AlignCenter );
 
-	m_pOutputGlobalChannelCheckBox = new QCheckBox( pMappingTab );
-	m_pOutputGlobalChannelCheckBox->setChecked(
+	m_pGlobalOutputChannelCheckBox = new QCheckBox( pMappingTab );
+	m_pGlobalOutputChannelCheckBox->setChecked(
 		pMidiInstrumentMap->getUseGlobalOutputChannel() );
-	connect( m_pOutputGlobalChannelCheckBox, &QAbstractButton::toggled, [=]() {
+	connect( m_pGlobalOutputChannelCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->getMidiInstrumentMap()
 			->setUseGlobalOutputChannel(
-				m_pOutputGlobalChannelCheckBox->isChecked() );
-		m_pOutputGlobalChannelSpinBox->setEnabled(
-			m_pOutputGlobalChannelCheckBox->isChecked() );
+				m_pGlobalOutputChannelCheckBox->isChecked() );
+		m_pGlobalOutputChannelSpinBox->setEnabled(
+			m_pGlobalOutputChannelCheckBox->isChecked() );
 	} );
-	pMappingGridLayout->addWidget( m_pOutputGlobalChannelCheckBox, 3, 5,
+	pMappingGridLayout->addWidget( m_pGlobalOutputChannelCheckBox, 3, 5,
 							  Qt::AlignCenter );
 
 

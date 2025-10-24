@@ -90,10 +90,10 @@ private:
 
 		QComboBox* m_pInputNoteMappingComboBox;
 		QComboBox* m_pOutputNoteMappingComboBox;
-		QCheckBox* m_pInputGlobalChannelCheckBox;
-		LCDSpinBox* m_pInputGlobalChannelSpinBox;
-		QCheckBox* m_pOutputGlobalChannelCheckBox;
-		LCDSpinBox* m_pOutputGlobalChannelSpinBox;
+		QCheckBox* m_pGlobalInputChannelCheckBox;
+		LCDSpinBox* m_pGlobalInputChannelSpinBox;
+		QCheckBox* m_pGlobalOutputChannelCheckBox;
+		LCDSpinBox* m_pGlobalOutputChannelSpinBox;
 		QTableWidget* m_pInstrumentTable;
 
 		QTableWidget* m_pMidiInputTable;
