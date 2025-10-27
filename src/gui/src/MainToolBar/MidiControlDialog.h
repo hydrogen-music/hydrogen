@@ -62,10 +62,12 @@ public:
 		~MidiControlDialog();
 
 		// EventListerer
+		void drumkitLoadedEvent() override;
 		void midiDriverChangedEvent() override;
 		void midiInputEvent() override;
 		void midiOutputEvent() override;
 		void updatePreferencesEvent( int ) override;
+		void updateSongEvent( int ) override;
 
 public slots:
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
@@ -103,6 +105,14 @@ private:
 		QToolButton* m_pOutputBinButton;
 
 		MidiActionTable* m_pMidiActionTable;
+
+		/** We cache the instruments used in slot handlers of
+         * #m_pInstrumentTable in this map and access them with a combination
+         * of instrument type and id. This way we ensure no shared pointer to
+         * any of these core data types gets stuck in a callback context and
+         * e.g. causes sample data to not be freed. */
+		std::map< std::pair<QString, int>,
+				 std::shared_ptr<H2Core::Instrument> > m_instrumentMap;
 };
 
 

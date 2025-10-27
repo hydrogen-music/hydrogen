@@ -278,7 +278,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	auto pMappingTab = new QWidget( m_pTabWidget );
 	/*: Tab of the MIDI control dialog dedicated to mapping MIDI notes to
 	 *  instruments of the current drumkit. */
-	m_pTabWidget->addTab( pMappingTab, tr( "Instrument mapping" ) );
+	m_pTabWidget->addTab( pMappingTab, tr( "Instrument Mapping" ) );
 
 	auto pMappingWrapperLayout = new QVBoxLayout();
 	pMappingWrapperLayout->setSpacing( 5 );
@@ -654,6 +654,10 @@ MidiControlDialog::~MidiControlDialog() {
 }
 
 
+void MidiControlDialog::drumkitLoadedEvent() {
+	updateInstrumentTable();
+}
+
 void MidiControlDialog::midiDriverChangedEvent() {
 }
 
@@ -685,6 +689,13 @@ void MidiControlDialog::updatePreferencesEvent( int nValue ) {
 			pPref->m_bEnableMidiFeedback );
 
 		m_pMidiActionTable->setupMidiActionTable();
+	}
+}
+
+void MidiControlDialog::updateSongEvent( int nValue ) {
+	// A new song got loaded
+	if ( nValue == 0 ) {
+		updateInstrumentTable();
 	}
 }
 
@@ -751,6 +762,7 @@ void MidiControlDialog::updateIcons() {
 }
 
 void MidiControlDialog::updateInstrumentTable() {
+	m_instrumentMap.clear();
 	m_pInstrumentTable->clearContents();
 
 	auto pSong = Hydrogen::get_instance()->getSong();
@@ -760,6 +772,13 @@ void MidiControlDialog::updateInstrumentTable() {
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 
+	const auto pMidiInstrumentMap =
+		Preferences::get_instance()->getMidiInstrumentMap();
+	const auto customInputMappingsType =
+		pMidiInstrumentMap->getCustomInputMappingsType();
+	const auto customInputMappingsId =
+		pMidiInstrumentMap->getCustomInputMappingsId();
+
 	m_pInstrumentTable->setRowCount( pInstrumentList->size() );
 	int nnRow = 0;
 	for ( const auto ppInstrument : *pInstrumentList ) {
@@ -767,39 +786,97 @@ void MidiControlDialog::updateInstrumentTable() {
 			continue;
 		}
 
-		auto pInputChannelSpinBox = new QSpinBox( m_pInstrumentTable );
-		pInputChannelSpinBox->setFixedSize( MidiControlDialog::nColumnMappingWidth,
-										   MidiControlDialog::nMappingBoxHeight );
-		pInputChannelSpinBox->setMinimum( 0 );
-		pInputChannelSpinBox->setMaximum( 15 );
+		const auto instrumentHandle = std::make_pair( ppInstrument->getType(),
+													  ppInstrument->getId() );
+		m_instrumentMap[ instrumentHandle ] = ppInstrument;
+
+		auto pInputChannelSpinBox = new LCDSpinBox(
+			m_pInstrumentTable, QSize( MidiControlDialog::nColumnMappingWidth,
+									  MidiControlDialog::nMappingBoxHeight ),
+			LCDSpinBox::Type::Int, -1, MidiMessage::nMaximumChannel,
+			/* bModifyOnChange */ false, /* bMinusOneAsOff */ true );
 		pInputChannelSpinBox->setSizePolicy( QSizePolicy::Expanding,
 											QSizePolicy::Fixed );
-		auto pInputNoteSpinBox = new QSpinBox( m_pInstrumentTable );
-		pInputNoteSpinBox->setFixedSize( MidiControlDialog::nColumnMappingWidth,
-								   MidiControlDialog::nMappingBoxHeight );
-		pInputNoteSpinBox->setMinimum( 0 );
-		pInputNoteSpinBox->setMaximum( 127 );
+
+		auto pInputNoteSpinBox = new LCDSpinBox(
+			m_pInstrumentTable, QSize( MidiControlDialog::nColumnMappingWidth,
+									  MidiControlDialog::nMappingBoxHeight ),
+			LCDSpinBox::Type::Int, MidiMessage::nMinimumNote,
+			MidiMessage::nMaximumNote, /* bModifyOnChange */ false,
+			/* bMinusOneAsOff */ false );
 		pInputNoteSpinBox->setSizePolicy( QSizePolicy::Expanding,
 										 QSizePolicy::Fixed );
+
+		MidiInstrumentMap::NoteRef noteRef;
+		if ( ! ppInstrument->getType().isEmpty() ) {
+			if ( customInputMappingsType.find( ppInstrument->getType() ) !=
+				 customInputMappingsType.end() ) {
+				noteRef = customInputMappingsType.at( ppInstrument->getType() );
+			}
+		}
+		else {
+			if ( customInputMappingsId.find( ppInstrument->getId() ) !=
+				 customInputMappingsId.end() ) {
+				noteRef = customInputMappingsId.at( ppInstrument->getId() );
+			}
+		}
+		if ( ! noteRef.isNull() ) {
+			pInputChannelSpinBox->setValue( noteRef.nChannel );
+			pInputNoteSpinBox->setValue( noteRef.nNote );
+		}
+
+		connect( pInputChannelSpinBox,
+				QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+				[=](double fValue) {
+					auto pInstrument = m_instrumentMap.at( instrumentHandle );
+					if ( pInstrument != nullptr ) {
+						Preferences::get_instance()->getMidiInstrumentMap()
+							->insertCustomInputMapping( pInstrument,
+														pInputNoteSpinBox->value(),
+														static_cast<int>( fValue ) );
+					}
+					else {
+						ERRORLOG( QString( "No instr. for [%1 : %2]" )
+								  .arg( instrumentHandle.first )
+								  .arg( instrumentHandle.second ) );
+					}
+		});
+		connect( pInputNoteSpinBox,
+				QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+				[=](double fValue) {
+					auto pInstrument = m_instrumentMap.at( instrumentHandle );
+					if ( pInstrument != nullptr ) {
+					Preferences::get_instance()->getMidiInstrumentMap()
+					->insertCustomInputMapping( pInstrument,
+											   static_cast<int>( fValue ),
+											   pInputChannelSpinBox->value() );
+					}
+					else {
+						ERRORLOG( QString( "No instr. for [%1 : %2]" )
+								  .arg( instrumentHandle.first )
+								  .arg( instrumentHandle.second ) );
+					}
+		});
+
 		auto pInstrumentLabel = new QLabel( ppInstrument->getName(),
 										   m_pInstrumentTable );
 		pInstrumentLabel->setAlignment( Qt::AlignCenter );
 		pInstrumentLabel->setSizePolicy( QSizePolicy::Expanding,
 										QSizePolicy::Fixed );
-		auto pOutputNoteSpinBox = new QSpinBox( m_pInstrumentTable );
-		pOutputNoteSpinBox->setFixedSize( MidiControlDialog::nColumnMappingWidth,
-									MidiControlDialog::nMappingBoxHeight );
-		pOutputNoteSpinBox->setMinimum( 0 );
-		pOutputNoteSpinBox->setMaximum( 127 );
+		auto pOutputNoteSpinBox = new LCDSpinBox(
+			m_pInstrumentTable, QSize( MidiControlDialog::nColumnMappingWidth,
+									  MidiControlDialog::nMappingBoxHeight ),
+			LCDSpinBox::Type::Int, MidiMessage::nMinimumNote,
+			MidiMessage::nMaximumNote, /* bModifyOnChange */ true,
+			/* bMinusOneAsOff */ false );
 		pOutputNoteSpinBox->setValue( ppInstrument->getMidiOutNote() );
 		pOutputNoteSpinBox->setSizePolicy( QSizePolicy::Expanding,
 										  QSizePolicy::Fixed );
-		auto pOutputChannelSpinBox = new QSpinBox( m_pInstrumentTable );
-		pOutputChannelSpinBox->setFixedSize(
-			MidiControlDialog::nColumnMappingWidth,
-			MidiControlDialog::nMappingBoxHeight );
-		pOutputChannelSpinBox->setMinimum( 0 );
-		pOutputChannelSpinBox->setMaximum( 15 );
+		auto pOutputChannelSpinBox = new LCDSpinBox(
+			m_pInstrumentTable, QSize( MidiControlDialog::nColumnMappingWidth,
+									  MidiControlDialog::nMappingBoxHeight ),
+			LCDSpinBox::Type::Int, -1, MidiMessage::nMaximumChannel,
+			/* bModifyOnChange */ true, /* bMinusOneAsOff */ true );
 		pOutputChannelSpinBox->setValue( ppInstrument->getMidiOutChannel() );
 		pOutputChannelSpinBox->setSizePolicy( QSizePolicy::Expanding,
 											 QSizePolicy::Fixed );
