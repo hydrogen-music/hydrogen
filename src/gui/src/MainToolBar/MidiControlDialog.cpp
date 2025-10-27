@@ -872,6 +872,21 @@ void MidiControlDialog::updateInstrumentTable() {
 		pOutputNoteSpinBox->setValue( ppInstrument->getMidiOutNote() );
 		pOutputNoteSpinBox->setSizePolicy( QSizePolicy::Expanding,
 										  QSizePolicy::Fixed );
+		connect( pOutputNoteSpinBox,
+				QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+				[=](double fValue) {
+					auto pInstrument = m_instrumentMap.at( instrumentHandle );
+					if ( pInstrument != nullptr ) {
+						CoreActionController::setInstrumentMidiOutNote(
+							pInstrument->getId(), static_cast<int>(fValue) );
+					}
+					else {
+						ERRORLOG( QString( "No instr. for [%1 : %2]" )
+								  .arg( instrumentHandle.first )
+								  .arg( instrumentHandle.second ) );
+					}
+		});
+
 		auto pOutputChannelSpinBox = new LCDSpinBox(
 			m_pInstrumentTable, QSize( MidiControlDialog::nColumnMappingWidth,
 									  MidiControlDialog::nMappingBoxHeight ),
@@ -880,6 +895,20 @@ void MidiControlDialog::updateInstrumentTable() {
 		pOutputChannelSpinBox->setValue( ppInstrument->getMidiOutChannel() );
 		pOutputChannelSpinBox->setSizePolicy( QSizePolicy::Expanding,
 											 QSizePolicy::Fixed );
+		connect( pOutputChannelSpinBox,
+				QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+				[=](double fValue) {
+					auto pInstrument = m_instrumentMap.at( instrumentHandle );
+					if ( pInstrument != nullptr ) {
+						CoreActionController::setInstrumentMidiOutChannel(
+							pInstrument->getId(), static_cast<int>(fValue) );
+					}
+					else {
+						ERRORLOG( QString( "No instr. for [%1 : %2]" )
+								  .arg( instrumentHandle.first )
+								  .arg( instrumentHandle.second ) );
+					}
+		});
 
 		m_pInstrumentTable->setCellWidget( nnRow, 0, pInputChannelSpinBox );
 		m_pInstrumentTable->setCellWidget( nnRow, 1, pInputNoteSpinBox );
