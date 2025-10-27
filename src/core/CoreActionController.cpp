@@ -130,6 +130,62 @@ bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue ){
 	return true;
 }
 
+bool CoreActionController::setInstrumentMidiOutNote( int nInstrument, int nNote ){
+	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "no drumkit" );
+		return false;
+	}
+	auto pInstrumentList = pDrumkit->getInstruments();
+	auto pInstrument = pInstrumentList->get( nInstrument );
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" )
+				  .arg( nInstrument ) );
+		return false;
+	}
+
+	if ( pInstrument->getMidiOutNote() != nNote ) {
+		pInstrument->setMidiOutNote( nNote );
+		EventQueue::get_instance()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+	}
+
+	return true;
+}
+bool CoreActionController::setInstrumentMidiOutChannel( int nInstrument,
+													   int nChannel ){
+	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "no drumkit" );
+		return false;
+	}
+	auto pInstrumentList = pDrumkit->getInstruments();
+	auto pInstrument = pInstrumentList->get( nInstrument );
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" )
+				  .arg( nInstrument ) );
+		return false;
+	}
+
+	if ( pInstrument->getMidiOutChannel() != nChannel ) {
+		pInstrument->setMidiOutChannel( nChannel );
+		EventQueue::get_instance()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+	}
+
+	return true;
+}
+
 bool CoreActionController::setMetronomeIsActive( bool isActive )
 {
 	auto pPref = Preferences::get_instance();
