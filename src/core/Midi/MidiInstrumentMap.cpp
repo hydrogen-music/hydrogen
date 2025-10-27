@@ -143,14 +143,14 @@ void MidiInstrumentMap::saveTo( XMLNode& node ) const {
 
 	auto customInputNode = mapNode.createNode( "customMidiInputMappings" );
 	for ( const auto [ ssType, nnoteRef ] : m_customInputMappingsType ) {
-		XMLNode customInput = mapNode.createNode( "customMidiInputMapping" );
+		XMLNode customInput = customInputNode.createNode( "customMidiInputMapping" );
 		customInput.write_string( "instrumentType", ssType );
 		customInput.write_int( "instrumentId", EMPTY_INSTR_ID );
 		customInput.write_int( "note", nnoteRef.nNote );
 		customInput.write_int( "channel", nnoteRef.nChannel );
 	}
 	for ( const auto [ nnId, nnoteRef ] : m_customInputMappingsId ) {
-		XMLNode customInput = mapNode.createNode( "customMidiInputMapping" );
+		XMLNode customInput = customInputNode.createNode( "customMidiInputMapping" );
 		customInput.write_string( "instrumentType", "" );
 		customInput.write_int( "instrumentId", nnId );
 		customInput.write_int( "note", nnoteRef.nNote );
@@ -217,7 +217,7 @@ std::shared_ptr<MidiInstrumentMap> MidiInstrumentMap::loadFrom( const XMLNode& n
 			}
 
 			customInputMappingNode =
-				customInputMappingsNode.nextSiblingElement( "customMidiInputMapping" );
+				customInputMappingNode.nextSiblingElement( "customMidiInputMapping" );
 		}
 	}
 
