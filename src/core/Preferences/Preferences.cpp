@@ -435,7 +435,7 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 	// Kept for backward compatibility of MIDI input mapping to versions prior
 	// to 2.0.
 	const bool bPlaySelectedInstrument = rootNode.read_bool(
-		"instrumentInputMode", false, false, false, bSilent );
+		"instrumentInputMode", false, true, false, true );
 	pPref->m_bShowDevelWarning = rootNode.read_bool(
 		"showDevelWarning", pPref->m_bShowDevelWarning, false, false, bSilent );
 	pPref->m_bShowNoteOverwriteWarning = rootNode.read_bool(
@@ -720,7 +720,7 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			// Kept for backward compatibility of MIDI input mapping to versions
 			// prior to 2.0.
 			bAsOutput = midiDriverNode.read_bool(
-				"fixed_mapping", false, true, true, bSilent );
+				"fixed_mapping", false, true, true, true );
 			pPref->m_bEnableMidiFeedback = midiDriverNode.read_bool(
 				"enable_midi_feedback",
 				pPref->m_bEnableMidiFeedback, false, true, bSilent );
