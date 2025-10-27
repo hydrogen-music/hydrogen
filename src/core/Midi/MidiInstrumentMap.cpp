@@ -264,8 +264,8 @@ void MidiInstrumentMap::insertCustomInputMapping(
 	}
 
 	NoteRef noteRef;
-	noteRef.nNote = pInstrument->getMidiOutNote();
-	noteRef.nChannel = pInstrument->getMidiOutChannel();
+	noteRef.nNote = nNote;
+	noteRef.nChannel = nChannel;
 
 	if ( ! pInstrument->getType().isEmpty() ) {
 		m_customInputMappingsType[ pInstrument->getType() ] = noteRef;
