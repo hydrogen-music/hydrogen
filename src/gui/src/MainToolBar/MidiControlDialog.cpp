@@ -483,6 +483,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	m_pInstrumentTable = new QTableWidget( pMappingTab );
 	m_pInstrumentTable->setSizePolicy( QSizePolicy::Expanding,
 									  QSizePolicy::Expanding );
+	m_pInstrumentTable->setSelectionMode( QAbstractItemView::NoSelection );
 	m_pInstrumentTable->setRowCount( 1 );
 	m_pInstrumentTable->setColumnCount( 5 );
 	m_pInstrumentTable->setColumnWidth( 0, MidiControlDialog::nColumnMappingWidth );;
