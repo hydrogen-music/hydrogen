@@ -955,6 +955,11 @@ void HydrogenApp::onEventQueueTimer()
 				continue;
 			}
 
+			if ( ppEventListener->isEventIdBlacklisted( pEvent->getId() ) ) {
+				ppEventListener->dropBlacklistedEventId( pEvent->getId() );
+				continue;
+			}
+
 			switch ( pEvent->getType() ) {
 			case Event::Type::ActionModeChanged:
 				ppEventListener->actionModeChangeEvent( pEvent->getValue() );
