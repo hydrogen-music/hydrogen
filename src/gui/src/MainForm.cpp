@@ -531,6 +531,14 @@ void MainForm::createMenuBar()
 	// Options menu
 	m_pOptionsMenu = pMenubar->addMenu( tr( "&Options" ));
 
+	auto pActionMidiControlDialog =
+		m_pOptionsMenu->addAction( pCommonStrings->getMidiControl() );
+	connect( pActionMidiControlDialog, &QAction::triggered, []() {
+		HydrogenApp::get_instance()->getMainToolBar()
+			->setMidiControlDialogVisible( true );
+	} );
+	// pActionMidiControlDialog->setShortcut(
+	// 	pShortcuts->getKeySequence( Shortcuts::Action::ShowPreferencesDialog ) );
 	auto pActionPreferences = m_pOptionsMenu->addAction(
 		tr("&Preferences"), this, SLOT( showPreferencesDialog() ) );
 	pActionPreferences->setShortcut(

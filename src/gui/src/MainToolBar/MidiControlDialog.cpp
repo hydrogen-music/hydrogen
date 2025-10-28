@@ -61,7 +61,7 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 	setObjectName( "MidiControlDialog" );
 	// Not translated because it would make explanation within tickets more
 	// difficult.
-	setWindowTitle( "MidiControlDialog" );
+	setWindowTitle( pCommonStrings->getMidiControl() );
 
 	auto pMainLayout = new QVBoxLayout( this );
 	setLayout( pMainLayout );

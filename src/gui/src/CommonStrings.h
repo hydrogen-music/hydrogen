@@ -130,6 +130,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getBeatCounterTapAndPlayToolTip() const {
 		return m_sBeatCounterTapAndPlayToolTip; }
 
+	const QString& getMidiControl() const { return m_sMidiControl; }
 	const QString& getMidiSenseWindowTitle() const { return m_sMidiSenseWindowTitle; }
 	const QString& getMidiSenseInput() const { return m_sMidiSenseInput; }
 	const QString& getMidiSenseUnavailable() const { return m_sMidiSenseUnavailable; }
@@ -443,6 +444,7 @@ private:
 	QString m_sBeatCounterTapToolTip;
 	QString m_sBeatCounterTapAndPlayToolTip;
 	
+	QString m_sMidiControl;
 	QString m_sMidiSenseWindowTitle;
 	QString m_sMidiSenseInput;
 	QString m_sMidiSenseUnavailable;

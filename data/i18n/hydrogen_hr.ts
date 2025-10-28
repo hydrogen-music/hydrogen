@@ -1473,6 +1473,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Indicates a menu section which affects patterns.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>MIDI Control</source>
+        <extracomment>Both the title of the MIDI control dialog and the name of the corresponding action in the main menu.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
