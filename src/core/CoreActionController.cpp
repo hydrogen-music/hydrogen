@@ -130,7 +130,12 @@ bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue ){
 	return true;
 }
 
-bool CoreActionController::setInstrumentMidiOutNote( int nInstrument, int nNote ){
+bool CoreActionController::setInstrumentMidiOutNote( int nInstrument, int nNote,
+													long* pEventId ) {
+	if ( pEventId != nullptr ) {
+		*pEventId = Event::nInvalidId;
+	}
+
 	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
@@ -151,14 +156,22 @@ bool CoreActionController::setInstrumentMidiOutNote( int nInstrument, int nNote 
 
 	if ( pInstrument->getMidiOutNote() != nNote ) {
 		pInstrument->setMidiOutNote( nNote );
-		EventQueue::get_instance()->pushEvent(
+		const auto nId = EventQueue::get_instance()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
+		if ( pEventId != nullptr ) {
+			*pEventId = nId;
+		}
 	}
 
 	return true;
 }
 bool CoreActionController::setInstrumentMidiOutChannel( int nInstrument,
-													   int nChannel ){
+													   int nChannel,
+													   long* pEventId ){
+	if ( pEventId != nullptr ) {
+		*pEventId = Event::nInvalidId;
+	}
+
 	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
@@ -179,8 +192,11 @@ bool CoreActionController::setInstrumentMidiOutChannel( int nInstrument,
 
 	if ( pInstrument->getMidiOutChannel() != nChannel ) {
 		pInstrument->setMidiOutChannel( nChannel );
-		EventQueue::get_instance()->pushEvent(
+		const auto nId = EventQueue::get_instance()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
+		if ( pEventId != nullptr ) {
+			*pEventId = nId;
+		}
 	}
 
 	return true;

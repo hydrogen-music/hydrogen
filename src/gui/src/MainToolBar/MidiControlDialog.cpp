@@ -658,6 +658,10 @@ void MidiControlDialog::drumkitLoadedEvent() {
 	updateInstrumentTable();
 }
 
+void MidiControlDialog::instrumentParametersChangedEvent( int ) {
+	updateInstrumentTable();
+}
+
 void MidiControlDialog::midiDriverChangedEvent() {
 }
 
@@ -877,8 +881,14 @@ void MidiControlDialog::updateInstrumentTable() {
 				[=](double fValue) {
 					auto pInstrument = m_instrumentMap.at( instrumentHandle );
 					if ( pInstrument != nullptr ) {
+						long nEventId = Event::nInvalidId;
 						CoreActionController::setInstrumentMidiOutNote(
-							pInstrument->getId(), static_cast<int>(fValue) );
+							pInstrument->getId(), static_cast<int>(fValue),
+							&nEventId );
+						if ( nEventId != Event::nInvalidId ) {
+							// Ensure we do not act on the queued event ourself.
+							blacklistEventId( nEventId );
+						}
 					}
 					else {
 						ERRORLOG( QString( "No instr. for [%1 : %2]" )
@@ -900,8 +910,14 @@ void MidiControlDialog::updateInstrumentTable() {
 				[=](double fValue) {
 					auto pInstrument = m_instrumentMap.at( instrumentHandle );
 					if ( pInstrument != nullptr ) {
+						long nEventId = Event::nInvalidId;
 						CoreActionController::setInstrumentMidiOutChannel(
-							pInstrument->getId(), static_cast<int>(fValue) );
+							pInstrument->getId(), static_cast<int>(fValue),
+							&nEventId );
+						if ( nEventId != Event::nInvalidId ) {
+							// Ensure we do not act on the queued event ourself.
+							blacklistEventId( nEventId );
+						}
 					}
 					else {
 						ERRORLOG( QString( "No instr. for [%1 : %2]" )

@@ -63,6 +63,7 @@ public:
 
 		// EventListerer
 		void drumkitLoadedEvent() override;
+		void instrumentParametersChangedEvent( int ) override;
 		void midiDriverChangedEvent() override;
 		void midiInputEvent() override;
 		void midiOutputEvent() override;
