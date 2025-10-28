@@ -91,7 +91,8 @@ font-size: 21px;" );
 			if ( pInstrument == nullptr ) {
 				return;
 			}
-			pInstrument->setMidiOutChannel( static_cast<int>(fValue) );
+			CoreActionController::setInstrumentMidiOutChannel(
+				pInstrument->getId(), static_cast<int>(fValue), nullptr );
 		});
 	m_pMidiOutChannelLbl = new ClickableLabel(
 		m_pInstrumentProp, QSize( 61, 10 ),
@@ -103,10 +104,16 @@ font-size: 21px;" );
 		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, 0, 127, true );
 	m_pMidiOutNoteLCD->move( 210, 257 );
 	m_pMidiOutNoteLCD->setToolTip(QString(tr("Midi out note")));
-	connect( m_pMidiOutNoteLCD, &LCDSpinBox::valueAdjusted, [&]() {
-		m_pInstrumentEditorPanel->getInstrument()->setMidiOutNote(
-			static_cast<int>(m_pMidiOutNoteLCD->value()) );
-	});
+	connect(
+		m_pMidiOutNoteLCD, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+		[&](double fValue) {
+			auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
+			if ( pInstrument == nullptr ) {
+				return;
+			}
+			CoreActionController::setInstrumentMidiOutNote(
+				pInstrument->getId(), static_cast<int>(fValue), nullptr );
+		});
 	m_pMidiOutNoteLbl = new ClickableLabel(
 		m_pInstrumentProp, QSize( 61, 10 ), pCommonStrings->getMidiOutNoteLabel() );
 	m_pMidiOutNoteLbl->move( 208, 281 );
