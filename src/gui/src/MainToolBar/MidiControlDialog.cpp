@@ -397,8 +397,8 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	m_pGlobalInputChannelSpinBox = new LCDSpinBox(
 		pMappingTab, QSize( MidiControlDialog::nColumnMappingWidth,
 						   MidiControlDialog::nMappingBoxHeight ),
-		LCDSpinBox::Type::Int, MidiMessage::nMinimumChannel,
-		MidiMessage::nMaximumChannel );
+		LCDSpinBox::Type::Int, MidiMessage::nChannelMinimum,
+		MidiMessage::nChannelMaximum );
 	m_pGlobalInputChannelSpinBox->setValue(
 		pMidiInstrumentMap->getGlobalInputChannel() );
 	m_pGlobalInputChannelSpinBox->setEnabled(
@@ -438,8 +438,8 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	m_pGlobalOutputChannelSpinBox = new LCDSpinBox(
 		pMappingTab, QSize( MidiControlDialog::nColumnMappingWidth,
 						   MidiControlDialog::nMappingBoxHeight ),
-		LCDSpinBox::Type::Int, MidiMessage::nMinimumChannel,
-		MidiMessage::nMaximumChannel );
+		LCDSpinBox::Type::Int, MidiMessage::nChannelMinimum,
+		MidiMessage::nChannelMaximum );
 	m_pGlobalOutputChannelSpinBox->setValue(
 		pMidiInstrumentMap->getGlobalOutputChannel() );
 	m_pGlobalOutputChannelSpinBox->setEnabled(
@@ -798,7 +798,7 @@ void MidiControlDialog::updateInstrumentTable() {
 		auto pInputChannelSpinBox = new LCDSpinBox(
 			m_pInstrumentTable, QSize( MidiControlDialog::nColumnMappingWidth,
 									  MidiControlDialog::nMappingBoxHeight ),
-			LCDSpinBox::Type::Int, -1, MidiMessage::nMaximumChannel,
+			LCDSpinBox::Type::Int, -1, MidiMessage::nChannelMaximum,
 			/* bModifyOnChange */ false, /* bMinusOneAsOff */ true );
 		pInputChannelSpinBox->setSizePolicy( QSizePolicy::Expanding,
 											QSizePolicy::Fixed );
@@ -806,8 +806,8 @@ void MidiControlDialog::updateInstrumentTable() {
 		auto pInputNoteSpinBox = new LCDSpinBox(
 			m_pInstrumentTable, QSize( MidiControlDialog::nColumnMappingWidth,
 									  MidiControlDialog::nMappingBoxHeight ),
-			LCDSpinBox::Type::Int, MidiMessage::nMinimumNote,
-			MidiMessage::nMaximumNote, /* bModifyOnChange */ false,
+			LCDSpinBox::Type::Int, MidiMessage::nNoteMinimum,
+			MidiMessage::nNoteMaximum, /* bModifyOnChange */ false,
 			/* bMinusOneAsOff */ false );
 		pInputNoteSpinBox->setSizePolicy( QSizePolicy::Expanding,
 										 QSizePolicy::Fixed );
@@ -871,8 +871,8 @@ void MidiControlDialog::updateInstrumentTable() {
 		auto pOutputNoteSpinBox = new LCDSpinBox(
 			m_pInstrumentTable, QSize( MidiControlDialog::nColumnMappingWidth,
 									  MidiControlDialog::nMappingBoxHeight ),
-			LCDSpinBox::Type::Int, MidiMessage::nMinimumNote,
-			MidiMessage::nMaximumNote, /* bModifyOnChange */ true,
+			LCDSpinBox::Type::Int, MidiMessage::nNoteMinimum,
+			MidiMessage::nNoteMaximum, /* bModifyOnChange */ true,
 			/* bMinusOneAsOff */ false );
 		pOutputNoteSpinBox->setValue( ppInstrument->getMidiOutNote() );
 		pOutputNoteSpinBox->setSizePolicy( QSizePolicy::Expanding,
@@ -901,7 +901,7 @@ void MidiControlDialog::updateInstrumentTable() {
 		auto pOutputChannelSpinBox = new LCDSpinBox(
 			m_pInstrumentTable, QSize( MidiControlDialog::nColumnMappingWidth,
 									  MidiControlDialog::nMappingBoxHeight ),
-			LCDSpinBox::Type::Int, -1, MidiMessage::nMaximumChannel,
+			LCDSpinBox::Type::Int, -1, MidiMessage::nChannelMaximum,
 			/* bModifyOnChange */ true, /* bMinusOneAsOff */ true );
 		pOutputChannelSpinBox->setValue( ppInstrument->getMidiOutChannel() );
 		pOutputChannelSpinBox->setSizePolicy( QSizePolicy::Expanding,

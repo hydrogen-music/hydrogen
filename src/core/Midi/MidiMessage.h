@@ -42,12 +42,12 @@ class MidiMessage
 {
 	public:
 
-	static constexpr int nMinimumChannel = 0;
-	static constexpr int nDefaultChannel = 9;
-	static constexpr int nMaximumChannel = 15;
-	static constexpr int nMinimumNote = 0;
-	static constexpr int nDefaultNote = 36;
-	static constexpr int nMaximumNote = 127;
+	static constexpr int nChannelMinimum = 0;
+	static constexpr int nChannelDefault = 9;
+	static constexpr int nChannelMaximum = 15;
+	static constexpr int nNoteMinimum = 0;
+	static constexpr int nNoteDefault = 36;
+	static constexpr int nNoteMaximum = 127;
 
 		/** All possible types of incoming MIDI messages.*/
 		enum class Type {

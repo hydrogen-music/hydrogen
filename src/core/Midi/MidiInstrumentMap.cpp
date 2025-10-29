@@ -105,9 +105,9 @@ MidiInstrumentMap::MidiInstrumentMap()
 	: m_input( Input::AsOutput )
 	, m_output( Output::Offset )
 	, m_bUseGlobalInputChannel( false )
-	, m_nGlobalInputChannel( MidiMessage::nDefaultChannel )
+	, m_nGlobalInputChannel( MidiMessage::nChannelDefault )
 	, m_bUseGlobalOutputChannel( false )
-	, m_nGlobalOutputChannel( MidiMessage::nDefaultChannel ) {
+	, m_nGlobalOutputChannel( MidiMessage::nChannelDefault ) {
 }
 
 MidiInstrumentMap::MidiInstrumentMap( const std::shared_ptr<MidiInstrumentMap> pOther )
@@ -202,7 +202,7 @@ std::shared_ptr<MidiInstrumentMap> MidiInstrumentMap::loadFrom( const XMLNode& n
 			const int nNote = customInputMappingNode.read_int(
 				"note", MidiMessage::instrumentOffset, false, false, bSilent );
 			const int nChannel = customInputMappingNode.read_int(
-				"channel", MidiMessage::nDefaultChannel, false, false, bSilent );
+				"channel", MidiMessage::nChannelDefault, false, false, bSilent );
 			NoteRef noteRef;
 			noteRef.nNote = nNote;
 			noteRef.nChannel = nChannel;
@@ -247,13 +247,13 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getMapping(
 }
 
 void MidiInstrumentMap::setGlobalInputChannel( int nValue ) {
-	m_nGlobalInputChannel = std::clamp( nValue, MidiMessage::nMinimumChannel,
-									   MidiMessage::nMaximumChannel );
+	m_nGlobalInputChannel = std::clamp( nValue, MidiMessage::nChannelMinimum,
+									   MidiMessage::nChannelMaximum );
 }
 
 void MidiInstrumentMap::setGlobalOutputChannel( int nValue ) {
-	m_nGlobalOutputChannel = std::clamp( nValue, MidiMessage::nMinimumChannel,
-										 MidiMessage::nMaximumChannel );
+	m_nGlobalOutputChannel = std::clamp( nValue, MidiMessage::nChannelMinimum,
+										 MidiMessage::nChannelMaximum );
 }
 
 void MidiInstrumentMap::insertCustomInputMapping(
