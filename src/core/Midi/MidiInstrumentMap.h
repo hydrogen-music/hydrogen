@@ -111,9 +111,11 @@ public:
 	void saveTo( XMLNode& node ) const;
 	static std::shared_ptr<MidiInstrumentMap> loadFrom( const XMLNode& node, bool bSilent = false );
 
-	std::shared_ptr<Instrument> mapInstrument( int nNote, int nChannel,
-											  std::shared_ptr<Drumkit> pDrumkit ) const;
-	NoteRef getMapping( std::shared_ptr<Instrument> pInstrument ) const;
+	std::vector< std::shared_ptr<Instrument> > mapInput(
+		int nNote, int nChannel, std::shared_ptr<Drumkit> pDrumkit ) const;
+	NoteRef getInputMapping( std::shared_ptr<Instrument> pInstrument,
+							std::shared_ptr<Drumkit> pDrumkit ) const;
+	NoteRef getOutputMapping( std::shared_ptr<Instrument> pInstrument ) const;
 
 	Input getInput() const;
 	void setInput( Input mapping );

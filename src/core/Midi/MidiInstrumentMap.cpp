@@ -224,26 +224,216 @@ std::shared_ptr<MidiInstrumentMap> MidiInstrumentMap::loadFrom( const XMLNode& n
 	return pMidiInstrumentMap;
 }
 
-std::shared_ptr<Instrument> MidiInstrumentMap::mapInstrument(
+std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 	int nNote,
 	int nChannel,
 	std::shared_ptr<Drumkit> pDrumkit ) const
 {
-	DEBUGLOG( "to be implemented" );
+	std::vector< std::shared_ptr<Instrument> > instruments;
 
-	return nullptr;
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "Invalid input" );
+		return instruments;
+	}
+
+	switch( m_input ) {
+	case Input::AsOutput: {
+		for ( const auto ppInstrument : *pDrumkit->getInstruments() ) {
+			if ( ppInstrument == nullptr ) {
+				continue;
+			}
+
+			// The global output channel has more weight as the per instrument
+			// channel. But for inputs the global input channel always wins.
+			int nChannelMapped = m_bUseGlobalInputChannel ?
+				m_nGlobalInputChannel : ppInstrument->getMidiOutChannel();
+			if ( m_bUseGlobalOutputChannel && ! m_bUseGlobalInputChannel ) {
+				nChannelMapped = m_nGlobalOutputChannel;
+			}
+			if ( ppInstrument->getMidiOutNote() == nNote &&
+				 nChannelMapped == nChannel ) {
+				instruments.push_back( ppInstrument );
+			}
+		}
+		break;
+	}
+
+	case Input::Custom: {
+		for ( const auto [ ssType, nnoteRef ] : m_customInputMappingsType ) {
+			const int nChannelMapped = m_bUseGlobalInputChannel ?
+				m_nGlobalInputChannel : nnoteRef.nChannel;
+			if ( nnoteRef.nNote == nNote && nChannelMapped == nChannel ) {
+				for ( const auto ppInstrument : *pDrumkit->getInstruments() ) {
+					if ( ppInstrument != nullptr &&
+						 ppInstrument->getType() == ssType ) {
+						instruments.push_back( ppInstrument );
+					}
+				}
+			}
+		}
+		for ( const auto [ nnId, nnoteRef ] : m_customInputMappingsId ) {
+			const int nChannelMapped = m_bUseGlobalInputChannel ?
+				m_nGlobalInputChannel : nnoteRef.nChannel;
+			if ( nnoteRef.nNote == nNote && nChannelMapped == nChannel ) {
+				const auto pInstrument = pDrumkit->getInstruments()->find( nnId );
+				if ( pInstrument != nullptr ) {
+					instruments.push_back( pInstrument );
+				}
+			}
+		}
+
+		break;
+	}
+
+	case Input::SelectedInstrument: {
+		auto pInstrument = pDrumkit->getInstruments()->get(
+			Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+		if ( pInstrument != nullptr ) {
+			const int nChannelMapped = m_bUseGlobalInputChannel ?
+				m_nGlobalInputChannel : pInstrument->getMidiOutChannel();
+			if ( nChannelMapped == nChannel ||
+				 nChannelMapped != MidiMessage::nChannelOff ) {
+				instruments.push_back( pInstrument );
+			}
+		}
+
+		break;
+	}
+
+	case Input::Order: {
+		auto pInstrument = pDrumkit->getInstruments()->get(
+			Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+		if ( pInstrument != nullptr ) {
+			const int nChannelMapped = m_bUseGlobalInputChannel ?
+				m_nGlobalInputChannel : pInstrument->getMidiOutChannel();
+			if ( nChannelMapped == nChannel ||
+				 nChannelMapped != MidiMessage::nChannelOff ) {
+				instruments.push_back( pInstrument );
+			}
+		}
+
+		break;
+	}
+
+	case Input::None:
+	default:
+		// Nothing added
+		break;
+	};
+
+	return instruments;
 }
 
-MidiInstrumentMap::NoteRef MidiInstrumentMap::getMapping(
-	std::shared_ptr<Instrument> pInstrument ) const
+MidiInstrumentMap::NoteRef MidiInstrumentMap::getInputMapping(
+	std::shared_ptr<Instrument> pInstrument,
+	std::shared_ptr<Drumkit> pDrumkit ) const
 {
-	if ( pInstrument == nullptr ) {
+	if ( pInstrument == nullptr || pDrumkit == nullptr ) {
+		ERRORLOG( "Invalid input" );
 		return NoteRef();
 	}
 
-	DEBUGLOG( "to be implemented" );
+	const int nChannelUsed = m_bUseGlobalInputChannel ?
+		m_nGlobalInputChannel : pInstrument->getMidiOutChannel();
 
-	return NoteRef();
+	NoteRef noteRef;
+
+	switch( m_input ) {
+	case Input::AsOutput: {
+		// The global output channel has more weight as the per instrument
+		// channel. But for inputs the global input channel always wins.
+		if ( m_bUseGlobalOutputChannel && ! m_bUseGlobalInputChannel ) {
+			noteRef.nChannel = m_nGlobalOutputChannel;
+		}
+		else {
+			noteRef.nChannel = nChannelUsed;
+		}
+		noteRef.nNote = pInstrument->getMidiOutNote();
+		break;
+	}
+
+	case Input::Custom: {
+		const auto sType = pInstrument->getType();
+		if ( ! sType.isEmpty() &&
+			 m_customInputMappingsType.find( sType ) !=
+			 m_customInputMappingsType.end() ) {
+			noteRef = m_customInputMappingsType.at( sType );
+		}
+		else if ( sType.isEmpty() &&
+ 				  m_customInputMappingsId.find( pInstrument->getId() ) !=
+				  m_customInputMappingsId.end() ) {
+			noteRef = m_customInputMappingsId.at( pInstrument->getId() );
+		}
+		else {
+			// No custom mapping. Fall back to output values.
+			noteRef.nChannel = nChannelUsed;
+			noteRef.nNote = pInstrument->getMidiOutNote();
+		}
+		break;
+	}
+
+	case Input::SelectedInstrument: {
+		if ( Hydrogen::get_instance()->getSelectedInstrumentNumber() ==
+			 pDrumkit->getInstruments()->index( pInstrument ) ) {
+			noteRef.nChannel = nChannelUsed;
+		}
+		else {
+			noteRef.nChannel = MidiMessage::nChannelOff;
+		}
+		// The note information is not handled by the UI
+		noteRef.nNote = pInstrument->getMidiOutNote();
+		break;
+	}
+
+	case Input::Order: {
+		noteRef.nChannel = nChannelUsed;
+		const int nId = pDrumkit->getInstruments()->index( pInstrument );
+		if ( nId != -1 ) {
+			noteRef.nNote = nId + MidiMessage::instrumentOffset;
+		} else {
+			noteRef = NoteRef();
+		}
+		break;
+	}
+
+	case Input::None:
+	default:
+		// The default constructor of NoteRef yields a null value.
+		break;
+	};
+
+	return noteRef;
+}
+
+MidiInstrumentMap::NoteRef MidiInstrumentMap::getOutputMapping(
+	std::shared_ptr<Instrument> pInstrument ) const
+{
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( "Invalid input" );
+		return NoteRef();
+	}
+
+	NoteRef noteRef;
+
+	switch( m_output ) {
+	case Output::Offset:
+	case Output::Constant: {
+		noteRef.nChannel = pInstrument->getMidiOutChannel();
+		noteRef.nNote = pInstrument->getMidiOutNote();
+		break;
+	}
+
+	case Output::None:
+	default:
+		// The default constructor of NoteRef yields a null value.
+		break;
+	};
+
+	if ( m_bUseGlobalOutputChannel ) {
+		noteRef.nChannel = m_nGlobalOutputChannel;
+	}
+
+	return noteRef;
 }
 
 void MidiInstrumentMap::setGlobalInputChannel( int nValue ) {
