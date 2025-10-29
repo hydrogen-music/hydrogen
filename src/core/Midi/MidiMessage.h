@@ -45,6 +45,11 @@ class MidiMessage
 	static constexpr int nChannelMinimum = 0;
 	static constexpr int nChannelDefault = 9;
 	static constexpr int nChannelMaximum = 15;
+	/** Used to indicate "off" - that no channel and MIDI events will be
+         associated to an instrument - in the channel spin box. Must be set to a
+         value outside the channel min-max range. */
+	static constexpr int nChannelOff = -1;
+
 	static constexpr int nNoteMinimum = 0;
 	static constexpr int nNoteDefault = 36;
 	static constexpr int nNoteMaximum = 127;
