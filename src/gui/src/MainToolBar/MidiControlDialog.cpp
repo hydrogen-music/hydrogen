@@ -346,6 +346,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 			m_pInputNoteMappingComboBox->currentIndex() );
 		if ( pMidiInstrumentMap->getInput() != input ) {
 			pMidiInstrumentMap->setInput( input );
+			updateInstrumentTable();
 		}
 	} );
 
@@ -381,6 +382,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 			m_pOutputNoteMappingComboBox->currentIndex() );
 		if ( pMidiInstrumentMap->getOutput() != output ) {
 			pMidiInstrumentMap->setOutput( output );
+			updateInstrumentTable();
 		}
 	} );
 
@@ -408,6 +410,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 			[&](double fValue) {
 				Preferences::get_instance()->getMidiInstrumentMap()
 					->setGlobalInputChannel( static_cast<int>( fValue ) );
+				updateInstrumentTable();
 	});
 	pMappingGridLayout->addWidget( m_pGlobalInputChannelSpinBox, 3, 0,
 							  Qt::AlignCenter );
@@ -421,6 +424,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 				m_pGlobalInputChannelCheckBox->isChecked() );
 		m_pGlobalInputChannelSpinBox->setEnabled(
 			m_pGlobalInputChannelCheckBox->isChecked() );
+		updateInstrumentTable();
 	} );
 	pMappingGridLayout->addWidget( m_pGlobalInputChannelCheckBox, 3, 1,
 							  Qt::AlignCenter );
@@ -449,6 +453,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 			[&](double fValue) {
 				Preferences::get_instance()->getMidiInstrumentMap()
 					->setGlobalOutputChannel( static_cast<int>( fValue ) );
+				updateInstrumentTable();
 	});
 	pMappingGridLayout->addWidget( m_pGlobalOutputChannelSpinBox, 3, 6,
 							  Qt::AlignCenter );
@@ -462,6 +467,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 				m_pGlobalOutputChannelCheckBox->isChecked() );
 		m_pGlobalOutputChannelSpinBox->setEnabled(
 			m_pGlobalOutputChannelCheckBox->isChecked() );
+		updateInstrumentTable();
 	} );
 	pMappingGridLayout->addWidget( m_pGlobalOutputChannelCheckBox, 3, 5,
 							  Qt::AlignCenter );
@@ -779,10 +785,6 @@ void MidiControlDialog::updateInstrumentTable() {
 
 	const auto pMidiInstrumentMap =
 		Preferences::get_instance()->getMidiInstrumentMap();
-	const auto customInputMappingsType =
-		pMidiInstrumentMap->getCustomInputMappingsType();
-	const auto customInputMappingsId =
-		pMidiInstrumentMap->getCustomInputMappingsId();
 
 	m_pInstrumentTable->setRowCount( pInstrumentList->size() );
 	int nnRow = 0;
@@ -812,22 +814,22 @@ void MidiControlDialog::updateInstrumentTable() {
 		pInputNoteSpinBox->setSizePolicy( QSizePolicy::Expanding,
 										 QSizePolicy::Fixed );
 
-		MidiInstrumentMap::NoteRef noteRef;
-		if ( ! ppInstrument->getType().isEmpty() ) {
-			if ( customInputMappingsType.find( ppInstrument->getType() ) !=
-				 customInputMappingsType.end() ) {
-				noteRef = customInputMappingsType.at( ppInstrument->getType() );
-			}
+		const auto inputMapping =
+			pMidiInstrumentMap->getInputMapping( ppInstrument,
+												 pSong->getDrumkit() );
+		if ( ! inputMapping.isNull() ) {
+			pInputChannelSpinBox->setValue( inputMapping.nChannel );
+			pInputNoteSpinBox->setValue( inputMapping.nNote );
+		}
+
+		if ( pMidiInstrumentMap->getInput() != MidiInstrumentMap::Input::Custom ) {
+			pInputChannelSpinBox->setEnabled( false );
+			pInputNoteSpinBox->setEnabled( false );
 		}
 		else {
-			if ( customInputMappingsId.find( ppInstrument->getId() ) !=
-				 customInputMappingsId.end() ) {
-				noteRef = customInputMappingsId.at( ppInstrument->getId() );
-			}
-		}
-		if ( ! noteRef.isNull() ) {
-			pInputChannelSpinBox->setValue( noteRef.nChannel );
-			pInputNoteSpinBox->setValue( noteRef.nNote );
+			pInputChannelSpinBox->setEnabled(
+				! pMidiInstrumentMap->getUseGlobalInputChannel() );
+			pInputNoteSpinBox->setEnabled( true );
 		}
 
 		connect( pInputChannelSpinBox,
@@ -868,13 +870,21 @@ void MidiControlDialog::updateInstrumentTable() {
 		pInstrumentLabel->setAlignment( Qt::AlignCenter );
 		pInstrumentLabel->setSizePolicy( QSizePolicy::Expanding,
 										QSizePolicy::Fixed );
+
+		const auto outputMapping =
+			pMidiInstrumentMap->getOutputMapping( ppInstrument );
+
 		auto pOutputNoteSpinBox = new LCDSpinBox(
 			m_pInstrumentTable, QSize( MidiControlDialog::nColumnMappingWidth,
 									  MidiControlDialog::nMappingBoxHeight ),
 			LCDSpinBox::Type::Int, MidiMessage::nNoteMinimum,
 			MidiMessage::nNoteMaximum, /* bModifyOnChange */ true,
 			/* bMinusOneAsOff */ false );
-		pOutputNoteSpinBox->setValue( ppInstrument->getMidiOutNote() );
+		if ( ! outputMapping.isNull() ) {
+			pOutputNoteSpinBox->setValue( outputMapping.nNote );
+		}
+		pOutputNoteSpinBox->setEnabled(
+			pMidiInstrumentMap->getOutput() != MidiInstrumentMap::Output::None );
 		pOutputNoteSpinBox->setSizePolicy( QSizePolicy::Expanding,
 										  QSizePolicy::Fixed );
 		connect( pOutputNoteSpinBox,
@@ -903,9 +913,14 @@ void MidiControlDialog::updateInstrumentTable() {
 									  MidiControlDialog::nMappingBoxHeight ),
 			LCDSpinBox::Type::Int, -1, MidiMessage::nChannelMaximum,
 			/* bModifyOnChange */ true, /* bMinusOneAsOff */ true );
-		pOutputChannelSpinBox->setValue( ppInstrument->getMidiOutChannel() );
 		pOutputChannelSpinBox->setSizePolicy( QSizePolicy::Expanding,
 											 QSizePolicy::Fixed );
+		if ( ! outputMapping.isNull() ) {
+			pOutputChannelSpinBox->setValue( outputMapping.nChannel );
+		}
+		pOutputChannelSpinBox->setEnabled(
+			pMidiInstrumentMap->getOutput() != MidiInstrumentMap::Output::None &&
+			! pMidiInstrumentMap->getUseGlobalOutputChannel() );
 		connect( pOutputChannelSpinBox,
 				QOverload<double>::of(&QDoubleSpinBox::valueChanged),
 				[=](double fValue) {
