@@ -33,14 +33,12 @@ namespace H2Core {
 class MidiNoteTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( MidiNoteTest );
 	CPPUNIT_TEST( testDefaultValues );
-	CPPUNIT_TEST( testLoadLegacySong );
 	CPPUNIT_TEST( testLoadNewSong );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
 
 	void testDefaultValues();
-	void testLoadLegacySong();
 	void testLoadNewSong();
 
 private:

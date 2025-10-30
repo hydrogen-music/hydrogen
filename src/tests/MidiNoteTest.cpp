@@ -41,29 +41,6 @@ void MidiNoteTest::testDefaultValues() {
 	___INFOLOG( "passed" );
 }
 
-void MidiNoteTest::testLoadLegacySong() {
-	return; // skip this test
-
-	/* Read song created in previous version of Hydrogen. In that song, all
-	 * instruments have MIDI note set to 60. Exporting that song to MIDI results
-	 * in unusable track where all instruments play the same note. That confuses
-	 * users, so after loading song, assign instruments sequential numbers
-	 * starting from 36, preserving legacy behavior. */
-
-	auto pSong = H2Core::Song::load( H2TEST_FILE( "song/legacy/test_song_0.9.6.h2song" ) );
-	CPPUNIT_ASSERT( pSong != nullptr );
-
-	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-	CPPUNIT_ASSERT( pInstrumentList != nullptr );
-	CPPUNIT_ASSERT_EQUAL( 16, pInstrumentList->size() );
-
-	checkInstrumentMidiNote( "Kick",       36, pInstrumentList->get(0) );
-	checkInstrumentMidiNote( "Stick",      37, pInstrumentList->get(1) );
-	checkInstrumentMidiNote( "Snare Jazz", 38, pInstrumentList->get(2) );
-	checkInstrumentMidiNote( "Hand Clap",  39, pInstrumentList->get(3) );
-	checkInstrumentMidiNote( "Closed HH",  42, pInstrumentList->get(6) );
-}
-
 void MidiNoteTest::testLoadNewSong() {
 	___INFOLOG( "" );
 	/* Read song with drumkit that have assigned distinct MIDI notes. Check
