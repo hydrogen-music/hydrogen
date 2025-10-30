@@ -20,7 +20,9 @@
  *
  */
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "MidiNoteTest.h"
+
+#include "TestHelper.h"
 
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
@@ -30,117 +32,65 @@
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiMessage.h>
 
-#include <QFileInfo>
-
-#include "TestHelper.h"
-
-#include <iostream>
-#include <stdexcept>
-
 using namespace H2Core;
 
-#define ASSERT_INSTRUMENT_MIDI_NOTE(name, note, instr) checkInstrumentMidiNote(name, note, instr, CPPUNIT_SOURCELINE())
-
-class MidiNoteTest : public CppUnit::TestCase {
-	CPPUNIT_TEST_SUITE( MidiNoteTest );
-	CPPUNIT_TEST( testDefaultValues );
-	CPPUNIT_TEST( testLoadLegacySong );
-	CPPUNIT_TEST( testLoadNewSong );
-	CPPUNIT_TEST_SUITE_END();
-
-	public:
-
-	void testDefaultValues() {
-		___INFOLOG( "" );
-		CPPUNIT_ASSERT( ( OCTAVE_DEFAULT + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE ==
-						MidiMessage::instrumentOffset );
-		___INFOLOG( "passed" );
-	}
-
-	void testLoadLegacySong()
-	{
-		return; // skip this test
-
-		/* Read song created in previous version of Hydrogen.
-		 * In that song, all instruments have MIDI note set to 60.
-		 * Exporting that song to MIDI results in unusable track
-		 * where all instruments play the same note.
-		 * That confuses users, so after loading song, assign
-		 * instruments sequential numbers starting from 36,
-		 * preserving legacy behavior. */
-
-		auto pSong = H2Core::Song::load( H2TEST_FILE( "song/legacy/test_song_0.9.6.h2song" ) );
-		CPPUNIT_ASSERT( pSong != nullptr );
-
-		auto instruments = pSong->getDrumkit()->getInstruments();
-		CPPUNIT_ASSERT( instruments != nullptr );
-		CPPUNIT_ASSERT_EQUAL( 16, instruments->size() );
-
-		ASSERT_INSTRUMENT_MIDI_NOTE( "Kick",       36, instruments->get(0) );
-		ASSERT_INSTRUMENT_MIDI_NOTE( "Stick",      37, instruments->get(1) );
-		ASSERT_INSTRUMENT_MIDI_NOTE( "Snare Jazz", 38, instruments->get(2) );
-		ASSERT_INSTRUMENT_MIDI_NOTE( "Hand Clap",  39, instruments->get(3) );
-		ASSERT_INSTRUMENT_MIDI_NOTE( "Closed HH",  42, instruments->get(6) );
-	}
-
-	void testLoadNewSong()
-	{
+void MidiNoteTest::testDefaultValues() {
 	___INFOLOG( "" );
-		/* Read song with instruments that have assigned distinct
-		 * MIDI notes. Check that loading that song does not
-		 * change that mapping */
-
-		auto pSong = H2Core::Song::load( H2TEST_FILE( "song/legacy/test_song_0.9.7.h2song" ) );
-		CPPUNIT_ASSERT( pSong != nullptr );
-
-		auto instruments = pSong->getDrumkit()->getInstruments();
-		CPPUNIT_ASSERT( instruments != nullptr );
-		CPPUNIT_ASSERT_EQUAL( 4, instruments->size() );
-
-		ASSERT_INSTRUMENT_MIDI_NOTE( "Kick",       35, instruments->get(0) );
-		ASSERT_INSTRUMENT_MIDI_NOTE( "Snare Rock", 40, instruments->get(1) );
-		ASSERT_INSTRUMENT_MIDI_NOTE( "Crash",      49, instruments->get(2) );
-		ASSERT_INSTRUMENT_MIDI_NOTE( "Ride Rock",  59, instruments->get(3) );
+	CPPUNIT_ASSERT( ( OCTAVE_DEFAULT + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE ==
+					MidiMessage::instrumentOffset );
 	___INFOLOG( "passed" );
-	}
+}
 
-private:
-	void checkInstrumentMidiNote(std::string name, int note, std::shared_ptr<Instrument> instr, CppUnit::SourceLine sl) {
-		auto instrName = instr->getName().toStdString();
-		auto instrIdx = instr->getId();
-		auto instrNote = instr->getMidiOutNote();
+void MidiNoteTest::testLoadLegacySong() {
+	return; // skip this test
 
-		if (instrName != name) {
-			std::string msg = "Bad instrument at index " + std::to_string(instrIdx);
-			::CppUnit::Asserter::failNotEqual(name, instrName, sl, CppUnit::AdditionalMessage(), msg);
-		}
+	/* Read song created in previous version of Hydrogen. In that song, all
+	 * instruments have MIDI note set to 60. Exporting that song to MIDI results
+	 * in unusable track where all instruments play the same note. That confuses
+	 * users, so after loading song, assign instruments sequential numbers
+	 * starting from 36, preserving legacy behavior. */
 
-		if (instrNote != note) {
-			std::string msg = "Bad MIDI out note for instrument " + instrName;
-			::CppUnit::Asserter::failNotEqual(std::to_string(note), std::to_string(instrNote), sl, CppUnit::AdditionalMessage(), msg);
-		}
-	}
+	auto pSong = H2Core::Song::load( H2TEST_FILE( "song/legacy/test_song_0.9.6.h2song" ) );
+	CPPUNIT_ASSERT( pSong != nullptr );
 
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
+	CPPUNIT_ASSERT( pInstrumentList != nullptr );
+	CPPUNIT_ASSERT_EQUAL( 16, pInstrumentList->size() );
 
-	/* Find test file
-	 *
-	 * This function tries to find test files in several directories,
-	 * so they can be found whether tests have been run from project
-	 * root or build directory.
-	 *
-	 * Exception of class std::runtime_error is thrown when file
-	 * can't be found.
-	 */
-	static QString get_test_file(const QString &name) {
-		std::vector<QString> paths = { "./src", "../src" };
-		for (auto const &path : paths) {
-			const QString sFileName = path + "/tests/data/" + name;
-			QFileInfo fi(sFileName);
-			if ( fi.exists() ) {
-				return sFileName;
-			}
-		}
-		throw std::runtime_error(std::string("Can't find test file ") + name.toStdString());
-	}
-};
+	checkInstrumentMidiNote( "Kick",       36, pInstrumentList->get(0) );
+	checkInstrumentMidiNote( "Stick",      37, pInstrumentList->get(1) );
+	checkInstrumentMidiNote( "Snare Jazz", 38, pInstrumentList->get(2) );
+	checkInstrumentMidiNote( "Hand Clap",  39, pInstrumentList->get(3) );
+	checkInstrumentMidiNote( "Closed HH",  42, pInstrumentList->get(6) );
+}
 
+void MidiNoteTest::testLoadNewSong() {
+	___INFOLOG( "" );
+	/* Read song with drumkit that have assigned distinct MIDI notes. Check
+	 * that loading that song does not change that mapping */
+
+	auto pSong = H2Core::Song::load( H2TEST_FILE( "song/legacy/test_song_0.9.7.h2song" ) );
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
+	CPPUNIT_ASSERT( pInstrumentList != nullptr );
+	CPPUNIT_ASSERT_EQUAL( 4, pInstrumentList->size() );
+
+	checkInstrumentMidiNote( "Kick",       35, pInstrumentList->get(0) );
+	checkInstrumentMidiNote( "Snare Rock", 40, pInstrumentList->get(1) );
+	checkInstrumentMidiNote( "Crash",      49, pInstrumentList->get(2) );
+	checkInstrumentMidiNote( "Ride Rock",  59, pInstrumentList->get(3) );
+	___INFOLOG( "passed" );
+}
+
+void MidiNoteTest::checkInstrumentMidiNote( const QString& sName, int nNote,
+											std::shared_ptr<Instrument> pInstrument ) {
+	CPPUNIT_ASSERT( pInstrument != nullptr );
+
+	const auto sInstrumentName = pInstrument->getName();
+	const auto nInstrumentNote = pInstrument->getMidiOutNote();
+
+	// Bad index / setup.
+	CPPUNIT_ASSERT( pInstrument->getName() == sName );
+	CPPUNIT_ASSERT( pInstrument->getMidiOutNote() == nNote );
+}
