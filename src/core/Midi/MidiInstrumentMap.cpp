@@ -200,7 +200,7 @@ std::shared_ptr<MidiInstrumentMap> MidiInstrumentMap::loadFrom( const XMLNode& n
 			const int nInstrumentId = customInputMappingNode.read_int(
 				"instrumentId", EMPTY_INSTR_ID, false, false, bSilent );
 			const int nNote = customInputMappingNode.read_int(
-				"note", MidiMessage::instrumentOffset, false, false, bSilent );
+				"note", MidiMessage::nInstrumentOffset, false, false, bSilent );
 			const int nChannel = customInputMappingNode.read_int(
 				"channel", MidiMessage::nChannelDefault, false, false, bSilent );
 			NoteRef noteRef;
@@ -390,7 +390,7 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getInputMapping(
 		noteRef.nChannel = nChannelUsed;
 		const int nId = pDrumkit->getInstruments()->index( pInstrument );
 		if ( nId != -1 ) {
-			noteRef.nNote = nId + MidiMessage::instrumentOffset;
+			noteRef.nNote = nId + MidiMessage::nInstrumentOffset;
 		} else {
 			noteRef = NoteRef();
 		}

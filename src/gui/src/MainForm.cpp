@@ -2596,7 +2596,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			// Virtual keyboard
 
 			CoreActionController::handleNote(
-				static_cast<int>(action) - 400 + MidiMessage::instrumentOffset,
+				static_cast<int>(action) - 400 + MidiMessage::nInstrumentOffset,
 				VELOCITY_DEFAULT, false );
 		}
 		else if ( static_cast<int>(action) >

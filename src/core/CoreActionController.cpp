@@ -2520,7 +2520,7 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 		break;
 	}
 	case MidiInstrumentMap::Input::Order: {
-		const int nInstrument = nNote - MidiMessage::instrumentOffset;
+		const int nInstrument = nNote - MidiMessage::nInstrumentOffset;
 		if( nInstrument < 0 || nInstrument >= pInstrumentList->size()) {
 			WARNINGLOG( QString( "Instrument number [%1] - derived from note [%2] - out of bound note [%3,%4]" )
 						.arg( nInstrument ).arg( nNote )

@@ -314,7 +314,7 @@ bool InstrumentList::hasAllMidiNotesSame() const
 void InstrumentList::setDefaultMidiOutNotes()
 {
 	for( int i=0; i<m_pInstruments.size(); i++ ) {
-		m_pInstruments[i]->setMidiOutNote( i + MidiMessage::instrumentOffset );
+		m_pInstruments[i]->setMidiOutNote( i + MidiMessage::nInstrumentOffset );
 	}
 }
 

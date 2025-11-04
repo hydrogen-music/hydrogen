@@ -953,9 +953,9 @@ void OscServer::COUNT_IN_STOP_TOGGLE_Handler( lo_arg **argv, int i ) {
 void OscServer::NOTE_ON_Handler( lo_arg **argv, int i )
 {
 	const int nNote = static_cast<int>( std::round( argv[0]->f ) );
-	if ( nNote < H2Core::MidiMessage::instrumentOffset || nNote > 127 ) {
+	if ( nNote < H2Core::MidiMessage::nInstrumentOffset || nNote > 127 ) {
 		ERRORLOG( QString( "Provided note [%1] out of bound [%2,127]." )
-				  .arg( nNote ).arg( H2Core::MidiMessage::instrumentOffset ) );
+				  .arg( nNote ).arg( H2Core::MidiMessage::nInstrumentOffset ) );
 		return;
 	}
 
@@ -980,9 +980,9 @@ void OscServer::NOTE_ON_Handler( lo_arg **argv, int i )
 void OscServer::NOTE_OFF_Handler( lo_arg** argv, int i )
 {
 	const int nNote = static_cast<int>( std::round( argv[0]->f ) );
-	if ( nNote < H2Core::MidiMessage::instrumentOffset || nNote > 127 ) {
+	if ( nNote < H2Core::MidiMessage::nInstrumentOffset || nNote > 127 ) {
 		ERRORLOG( QString( "Provided note [%1] out of bound [%2,127]." )
-				  .arg( nNote ).arg( H2Core::MidiMessage::instrumentOffset ) );
+				  .arg( nNote ).arg( H2Core::MidiMessage::nInstrumentOffset ) );
 		return;
 	}
 
