@@ -376,12 +376,13 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getInputMapping(
 		if ( Hydrogen::get_instance()->getSelectedInstrumentNumber() ==
 			 pDrumkit->getInstruments()->index( pInstrument ) ) {
 			noteRef.nChannel = nChannelUsed;
+			// The note information is not handled by the UI
+			noteRef.nNote = pInstrument->getMidiOutNote();
 		}
 		else {
-			noteRef.nChannel = MidiMessage::nChannelOff;
+			// Invalid mapping
+			noteRef = NoteRef();
 		}
-		// The note information is not handled by the UI
-		noteRef.nNote = pInstrument->getMidiOutNote();
 		break;
 	}
 
