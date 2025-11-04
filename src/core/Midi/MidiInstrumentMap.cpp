@@ -236,22 +236,28 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 		return instruments;
 	}
 
+	// The global output channel has more weight as the per instrument
+	// channel. But for inputs the global input channel always wins.
+	auto getMappedChannel = [&]( std::shared_ptr<Instrument> pInstrument ) {
+		int nChannelMapped = m_bUseGlobalInputChannel ?
+			m_nGlobalInputChannel : pInstrument->getMidiOutChannel();
+		if ( m_bUseGlobalOutputChannel && ! m_bUseGlobalInputChannel ) {
+			nChannelMapped = m_nGlobalOutputChannel;
+		}
+		return nChannelMapped;
+	};
+
 	switch( m_input ) {
 	case Input::AsOutput: {
 		for ( const auto ppInstrument : *pDrumkit->getInstruments() ) {
 			if ( ppInstrument == nullptr ) {
 				continue;
 			}
+			const int nChannelMapped = getMappedChannel( ppInstrument );
 
-			// The global output channel has more weight as the per instrument
-			// channel. But for inputs the global input channel always wins.
-			int nChannelMapped = m_bUseGlobalInputChannel ?
-				m_nGlobalInputChannel : ppInstrument->getMidiOutChannel();
-			if ( m_bUseGlobalOutputChannel && ! m_bUseGlobalInputChannel ) {
-				nChannelMapped = m_nGlobalOutputChannel;
-			}
 			if ( ppInstrument->getMidiOutNote() == nNote &&
-				 nChannelMapped == nChannel ) {
+				 nChannelMapped == nChannel &&
+				 nChannelMapped != MidiMessage::nChannelOff ) {
 				instruments.push_back( ppInstrument );
 			}
 		}
@@ -262,7 +268,9 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 		for ( const auto [ ssType, nnoteRef ] : m_customInputMappingsType ) {
 			const int nChannelMapped = m_bUseGlobalInputChannel ?
 				m_nGlobalInputChannel : nnoteRef.nChannel;
-			if ( nnoteRef.nNote == nNote && nChannelMapped == nChannel ) {
+			if ( nnoteRef.nNote == nNote &&
+				 nChannelMapped == nChannel &&
+				 nChannelMapped != MidiMessage::nChannelOff ) {
 				for ( const auto ppInstrument : *pDrumkit->getInstruments() ) {
 					if ( ppInstrument != nullptr &&
 						 ppInstrument->getType() == ssType ) {
@@ -274,7 +282,9 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 		for ( const auto [ nnId, nnoteRef ] : m_customInputMappingsId ) {
 			const int nChannelMapped = m_bUseGlobalInputChannel ?
 				m_nGlobalInputChannel : nnoteRef.nChannel;
-			if ( nnoteRef.nNote == nNote && nChannelMapped == nChannel ) {
+			if ( nnoteRef.nNote == nNote &&
+				 nChannelMapped == nChannel &&
+				 nChannelMapped != MidiMessage::nChannelOff ) {
 				const auto pInstrument = pDrumkit->getInstruments()->find( nnId );
 				if ( pInstrument != nullptr ) {
 					instruments.push_back( pInstrument );
@@ -289,9 +299,8 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 		auto pInstrument = pDrumkit->getInstruments()->get(
 			Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 		if ( pInstrument != nullptr ) {
-			const int nChannelMapped = m_bUseGlobalInputChannel ?
-				m_nGlobalInputChannel : pInstrument->getMidiOutChannel();
-			if ( nChannelMapped == nChannel ||
+			const int nChannelMapped = getMappedChannel( pInstrument );
+			if ( nChannelMapped == nChannel &&
 				 nChannelMapped != MidiMessage::nChannelOff ) {
 				instruments.push_back( pInstrument );
 			}
@@ -301,14 +310,15 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 	}
 
 	case Input::Order: {
-		auto pInstrument = pDrumkit->getInstruments()->get(
-			Hydrogen::get_instance()->getSelectedInstrumentNumber() );
-		if ( pInstrument != nullptr ) {
-			const int nChannelMapped = m_bUseGlobalInputChannel ?
-				m_nGlobalInputChannel : pInstrument->getMidiOutChannel();
-			if ( nChannelMapped == nChannel ||
-				 nChannelMapped != MidiMessage::nChannelOff ) {
-				instruments.push_back( pInstrument );
+		const int nIndex = nNote - MidiMessage::nInstrumentOffset;
+		if ( nIndex >= 0 && nIndex < pDrumkit->getInstruments()->size() ) {
+			auto pInstrument = pDrumkit->getInstruments()->get( nIndex );
+			if ( pInstrument != nullptr ) {
+				const int nChannelMapped = getMappedChannel( pInstrument );
+				if ( nChannelMapped == nChannel &&
+					 nChannelMapped != MidiMessage::nChannelOff ) {
+					instruments.push_back( pInstrument );
+				}
 			}
 		}
 
