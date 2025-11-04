@@ -29,8 +29,11 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Song.h>
+#include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
+#include <core/Midi/MidiInstrumentMap.h>
 #include <core/Midi/MidiMessage.h>
+#include <core/Preferences/Preferences.h>
 
 using namespace H2Core;
 
@@ -57,6 +60,192 @@ void MidiNoteTest::testLoadNewSong() {
 	checkInstrumentMidiNote( "Snare Rock", 40, pInstrumentList->get(1) );
 	checkInstrumentMidiNote( "Crash",      49, pInstrumentList->get(2) );
 	checkInstrumentMidiNote( "Ride Rock",  59, pInstrumentList->get(3) );
+	___INFOLOG( "passed" );
+}
+
+void MidiNoteTest::testMidiInstrumentInputMapping() {
+	___INFOLOG( "" );
+
+	auto pHydrogen = Hydrogen::get_instance();
+	const auto pOldSong = pHydrogen->getSong();
+	const auto pOldPreferences = Preferences::get_instance();
+
+	auto pNewPreferences = CoreActionController::loadPreferences(
+		H2TEST_FILE( "preferences/midi-instrument-mapping.conf" ) );
+	CPPUNIT_ASSERT( pNewPreferences != nullptr );
+	CPPUNIT_ASSERT( CoreActionController::setPreferences( pNewPreferences ) );
+	const auto pNewSong = Song::getEmptySong();
+	CPPUNIT_ASSERT( pNewSong != nullptr );
+	CPPUNIT_ASSERT( CoreActionController::setSong( pNewSong ) );
+
+	const auto pNewDrumkit = Drumkit::load(
+		H2TEST_FILE( "drumkits/midi-instrument-mapping" ),
+		/* bUpgrade */true, /* pLegacy */nullptr, /*bSilent*/false );
+	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
+	CPPUNIT_ASSERT( CoreActionController::setDrumkit( pNewDrumkit ) );
+
+	auto pPref = Preferences::get_instance();
+	auto pMidiInstrumentMap = pPref->getMidiInstrumentMap();
+	auto pInstrumentList = pNewDrumkit->getInstruments();
+
+	////////////////////////////////////////////////////////////////////////////
+	// Input mapping
+
+	pMidiInstrumentMap->setInput( MidiInstrumentMap::Input::None );
+	for ( const auto& ppInstrument : *pInstrumentList ) {
+		CPPUNIT_ASSERT( ppInstrument != nullptr );
+		CPPUNIT_ASSERT( pMidiInstrumentMap->getInputMapping(
+			ppInstrument, pNewDrumkit ).isNull() );
+	}
+	for ( int nnNote = MidiMessage::nNoteMinimum;
+		 nnNote <= MidiMessage::nNoteMaximum; ++nnNote ) {
+		for ( int nnChannel = MidiMessage::nChannelOff;
+			 nnChannel <= MidiMessage::nChannelMaximum; ++nnChannel ) {
+			CPPUNIT_ASSERT( pMidiInstrumentMap->mapInput(
+				nnNote, nnChannel, pNewDrumkit ).size() == 0 );
+		}
+	}
+
+	pMidiInstrumentMap->setInput( MidiInstrumentMap::Input::AsOutput );
+	for ( const auto& ppInstrument : *pInstrumentList ) {
+		CPPUNIT_ASSERT( ppInstrument != nullptr );
+		const auto noteRef = pMidiInstrumentMap->getInputMapping(
+			ppInstrument, pNewDrumkit );
+		CPPUNIT_ASSERT( noteRef.nNote == ppInstrument->getMidiOutNote() );
+		CPPUNIT_ASSERT( noteRef.nChannel == ppInstrument->getMidiOutChannel() );
+	}
+	{
+		int nMappedInstruments = 0;
+		for ( int nnNote = MidiMessage::nNoteMinimum;
+			 nnNote <= MidiMessage::nNoteMaximum; ++nnNote ) {
+			for ( int nnChannel = MidiMessage::nChannelOff;
+			 	nnChannel <= MidiMessage::nChannelMaximum; ++nnChannel ) {
+				const auto mapped = pMidiInstrumentMap->mapInput(
+					nnNote, nnChannel, pNewDrumkit );
+				if ( mapped.size() > 0 ) {
+					CPPUNIT_ASSERT( mapped.size() == 1 );
+					CPPUNIT_ASSERT( mapped[ 0 ] != nullptr );
+					CPPUNIT_ASSERT( mapped[ 0 ]->getMidiOutNote() == nnNote );
+					CPPUNIT_ASSERT( mapped[ 0 ]->getMidiOutChannel() == nnChannel );
+					++nMappedInstruments;
+				}
+			}
+		}
+		CPPUNIT_ASSERT( nMappedInstruments == pInstrumentList->size() );
+	}
+
+	pMidiInstrumentMap->setInput( MidiInstrumentMap::Input::Custom );
+	const auto customMappings = pMidiInstrumentMap->getCustomInputMappingsType();
+	for ( const auto& ppInstrument : *pInstrumentList ) {
+		CPPUNIT_ASSERT( ppInstrument != nullptr );
+		const auto noteRef = pMidiInstrumentMap->getInputMapping(
+			ppInstrument, pNewDrumkit );
+		CPPUNIT_ASSERT( customMappings.find( ppInstrument->getType() ) !=
+						customMappings.end() );
+		const auto customNoteRef = customMappings.at( ppInstrument->getType() );
+		CPPUNIT_ASSERT( noteRef.nNote == customNoteRef.nNote );
+		CPPUNIT_ASSERT( noteRef.nChannel == customNoteRef.nChannel );
+	}
+	{
+		int nMappedInstruments = 0;
+		for ( int nnNote = MidiMessage::nNoteMinimum;
+			 nnNote <= MidiMessage::nNoteMaximum; ++nnNote ) {
+			for ( int nnChannel = MidiMessage::nChannelOff;
+			 	nnChannel <= MidiMessage::nChannelMaximum; ++nnChannel ) {
+				const auto mapped = pMidiInstrumentMap->mapInput(
+					nnNote, nnChannel, pNewDrumkit );
+				if ( mapped.size() > 0 ) {
+					CPPUNIT_ASSERT( mapped.size() == 1 );
+					CPPUNIT_ASSERT( mapped[ 0 ] != nullptr );
+					MidiInstrumentMap::NoteRef noteRef;
+					noteRef.nNote = nnNote;
+					noteRef.nChannel = nnChannel;
+
+					bool bInCustomMap = false;
+					for ( const auto [ _, nnoteRef ] : customMappings ) {
+						if ( nnoteRef.nNote == noteRef.nNote &&
+							 nnoteRef.nChannel == noteRef.nChannel ) {
+							bInCustomMap = true;
+						}
+					}
+					CPPUNIT_ASSERT( bInCustomMap );
+					++nMappedInstruments;
+				}
+			}
+		}
+		CPPUNIT_ASSERT( nMappedInstruments == pInstrumentList->size() );
+	}
+
+	pMidiInstrumentMap->setInput( MidiInstrumentMap::Input::SelectedInstrument );
+	pHydrogen->setSelectedInstrumentNumber( 1 );
+	const auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	CPPUNIT_ASSERT( pSelectedInstrument != nullptr );
+	for ( const auto& ppInstrument : *pInstrumentList ) {
+		CPPUNIT_ASSERT( ppInstrument != nullptr );
+		const auto noteRef = pMidiInstrumentMap->getInputMapping(
+			ppInstrument, pNewDrumkit );
+		if ( ppInstrument == pSelectedInstrument ) {
+			CPPUNIT_ASSERT( noteRef.nNote == ppInstrument->getMidiOutNote() );
+			CPPUNIT_ASSERT( noteRef.nChannel == ppInstrument->getMidiOutChannel() );
+		}
+		else {
+			CPPUNIT_ASSERT( noteRef.isNull() );
+		}
+	}
+	{
+		for ( int nnNote = MidiMessage::nNoteMinimum;
+			 nnNote <= MidiMessage::nNoteMaximum; ++nnNote ) {
+			for ( int nnChannel = MidiMessage::nChannelOff;
+			 	nnChannel <= MidiMessage::nChannelMaximum; ++nnChannel ) {
+				const auto mapped = pMidiInstrumentMap->mapInput(
+					nnNote, nnChannel, pNewDrumkit );
+				if ( mapped.size() > 0 ) {
+					CPPUNIT_ASSERT( mapped.size() == 1 );
+					CPPUNIT_ASSERT( mapped[ 0 ] != nullptr );
+					CPPUNIT_ASSERT( mapped[ 0 ] == pSelectedInstrument );
+					CPPUNIT_ASSERT( pSelectedInstrument->getMidiOutChannel() ==
+									nnChannel );
+				}
+			}
+		}
+	}
+
+	pMidiInstrumentMap->setInput( MidiInstrumentMap::Input::Order );
+	for ( const auto& ppInstrument : *pInstrumentList ) {
+		CPPUNIT_ASSERT( ppInstrument != nullptr );
+		const auto noteRef = pMidiInstrumentMap->getInputMapping(
+			ppInstrument, pNewDrumkit );
+		CPPUNIT_ASSERT( noteRef.nNote ==
+						pInstrumentList->index( ppInstrument ) +
+						MidiMessage::nInstrumentOffset );
+		CPPUNIT_ASSERT( noteRef.nChannel == ppInstrument->getMidiOutChannel() );
+	}
+	{
+		int nMappedInstruments = 0;
+		for ( int nnNote = MidiMessage::nNoteMinimum;
+			 nnNote <= MidiMessage::nNoteMaximum; ++nnNote ) {
+			for ( int nnChannel = MidiMessage::nChannelOff;
+			 	nnChannel <= MidiMessage::nChannelMaximum; ++nnChannel ) {
+				const auto mapped = pMidiInstrumentMap->mapInput(
+					nnNote, nnChannel, pNewDrumkit );
+				if ( mapped.size() > 0 ) {
+					CPPUNIT_ASSERT( mapped.size() == 1 );
+					CPPUNIT_ASSERT( mapped[ 0 ] != nullptr );
+					CPPUNIT_ASSERT(
+						mapped[ 0 ] ==
+						pInstrumentList->get( nnNote - MidiMessage::nInstrumentOffset ) );
+					++nMappedInstruments;
+				}
+			}
+		}
+		CPPUNIT_ASSERT( nMappedInstruments == pInstrumentList->size() );
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+
+	CoreActionController::setPreferences( pOldPreferences );
+	CoreActionController::setSong( pOldSong );
+
 	___INFOLOG( "passed" );
 }
 

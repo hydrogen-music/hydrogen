@@ -34,12 +34,14 @@ class MidiNoteTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( MidiNoteTest );
 	CPPUNIT_TEST( testDefaultValues );
 	CPPUNIT_TEST( testLoadNewSong );
+	CPPUNIT_TEST( testMidiInstrumentInputMapping );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
 
 	void testDefaultValues();
 	void testLoadNewSong();
+		void testMidiInstrumentInputMapping();
 
 private:
 	void checkInstrumentMidiNote( const QString& sName, int nNote,
