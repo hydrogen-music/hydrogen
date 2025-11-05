@@ -249,6 +249,80 @@ void MidiNoteTest::testMidiInstrumentInputMapping() {
 	___INFOLOG( "passed" );
 }
 
+void MidiNoteTest::testMidiInstrumentOutputMapping() {
+	___INFOLOG( "" );
+
+	auto pHydrogen = Hydrogen::get_instance();
+	const auto pOldSong = pHydrogen->getSong();
+	const auto pOldPreferences = Preferences::get_instance();
+
+	auto pNewPreferences = CoreActionController::loadPreferences(
+		H2TEST_FILE( "preferences/midi-instrument-mapping.conf" ) );
+	CPPUNIT_ASSERT( pNewPreferences != nullptr );
+	CPPUNIT_ASSERT( CoreActionController::setPreferences( pNewPreferences ) );
+	const auto pNewSong = Song::getEmptySong();
+	CPPUNIT_ASSERT( pNewSong != nullptr );
+	CPPUNIT_ASSERT( CoreActionController::setSong( pNewSong ) );
+
+	const auto pNewDrumkit = Drumkit::load(
+		H2TEST_FILE( "drumkits/midi-instrument-mapping" ),
+		/* bUpgrade */true, /* pLegacy */nullptr, /*bSilent*/false );
+	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
+	CPPUNIT_ASSERT( CoreActionController::setDrumkit( pNewDrumkit ) );
+
+	auto pPref = Preferences::get_instance();
+	auto pMidiInstrumentMap = pPref->getMidiInstrumentMap();
+	auto pInstrumentList = pNewDrumkit->getInstruments();
+
+	////////////////////////////////////////////////////////////////////////////
+	// Output mapping
+
+	pMidiInstrumentMap->setOutput( MidiInstrumentMap::Output::None );
+	for ( const auto& ppInstrument : *pInstrumentList ) {
+		CPPUNIT_ASSERT( ppInstrument != nullptr );
+		CPPUNIT_ASSERT( pMidiInstrumentMap->getOutputMapping(
+			nullptr, ppInstrument ).isNull() );
+	}
+
+	pMidiInstrumentMap->setOutput( MidiInstrumentMap::Output::Constant );
+	for ( const auto& ppInstrument : *pInstrumentList ) {
+		CPPUNIT_ASSERT( ppInstrument != nullptr );
+		const auto noteRef = pMidiInstrumentMap->getOutputMapping(
+			nullptr, ppInstrument );
+		CPPUNIT_ASSERT( noteRef.nNote == ppInstrument->getMidiOutNote() );
+		CPPUNIT_ASSERT( noteRef.nChannel == ppInstrument->getMidiOutChannel() );
+	}
+
+	pMidiInstrumentMap->setOutput( MidiInstrumentMap::Output::Offset );
+	std::vector< std::shared_ptr<Note> > notes;
+	notes.push_back( std::make_shared<Note>() );
+	auto pNoteLow = std::make_shared<Note>();
+	pNoteLow->setKeyOctave( Note::Key::D, Note::Octave::P8Y );
+	notes.push_back( pNoteLow );
+	auto pNoteHigh = std::make_shared<Note>();
+	pNoteHigh->setKeyOctave( Note::Key::F, Note::Octave::P8A );
+	notes.push_back( pNoteHigh );
+	for ( const auto& ppInstrument : *pInstrumentList ) {
+		CPPUNIT_ASSERT( ppInstrument != nullptr );
+		for ( auto& ppNote : notes ) {
+			ppNote->mapToInstrument( ppInstrument );
+			const auto noteRef = pMidiInstrumentMap->getOutputMapping(
+				ppNote );
+			CPPUNIT_ASSERT( noteRef.nNote ==
+							ppInstrument->getMidiOutNote() +
+							ppNote->getPitchFromKeyOctave() );
+			CPPUNIT_ASSERT( noteRef.nChannel == ppInstrument->getMidiOutChannel() );
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+
+	CoreActionController::setPreferences( pOldPreferences );
+	CoreActionController::setSong( pOldSong );
+
+	___INFOLOG( "passed" );
+}
+
 void MidiNoteTest::checkInstrumentMidiNote( const QString& sName, int nNote,
 											std::shared_ptr<Instrument> pInstrument ) {
 	CPPUNIT_ASSERT( pInstrument != nullptr );
