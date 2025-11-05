@@ -872,7 +872,7 @@ void MidiControlDialog::updateInstrumentTable() {
 										QSizePolicy::Fixed );
 
 		const auto outputMapping =
-			pMidiInstrumentMap->getOutputMapping( ppInstrument );
+			pMidiInstrumentMap->getOutputMapping( nullptr, ppInstrument );
 
 		auto pOutputNoteSpinBox = new LCDSpinBox(
 			m_pInstrumentTable, QSize( MidiControlDialog::nColumnMappingWidth,

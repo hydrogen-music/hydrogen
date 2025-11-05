@@ -33,6 +33,7 @@ namespace H2Core {
 
 class Drumkit;
 class Instrument;
+class Note;
 class XMLNode;
 
 class MidiInstrumentMap : public H2Core::Object<MidiInstrumentMap> {
@@ -115,7 +116,8 @@ public:
 		int nNote, int nChannel, std::shared_ptr<Drumkit> pDrumkit ) const;
 	NoteRef getInputMapping( std::shared_ptr<Instrument> pInstrument,
 							std::shared_ptr<Drumkit> pDrumkit ) const;
-	NoteRef getOutputMapping( std::shared_ptr<Instrument> pInstrument ) const;
+	NoteRef getOutputMapping( std::shared_ptr<Note> pNote,
+							 std::shared_ptr<Instrument> pInstrument = nullptr ) const;
 
 	Input getInput() const;
 	void setInput( Input mapping );

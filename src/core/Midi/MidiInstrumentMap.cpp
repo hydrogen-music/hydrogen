@@ -24,6 +24,7 @@
 
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
+#include <core/Basics/Note.h>
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiMessage.h>
@@ -417,8 +418,11 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getInputMapping(
 }
 
 MidiInstrumentMap::NoteRef MidiInstrumentMap::getOutputMapping(
-	std::shared_ptr<Instrument> pInstrument ) const
+	std::shared_ptr<Note> pNote, std::shared_ptr<Instrument> pInstrument ) const
 {
+	if ( pNote != nullptr && pInstrument == nullptr ) {
+		pInstrument = pNote->getInstrument();
+	}
 	if ( pInstrument == nullptr ) {
 		ERRORLOG( "Invalid input" );
 		return NoteRef();
@@ -427,7 +431,19 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getOutputMapping(
 	NoteRef noteRef;
 
 	switch( m_output ) {
-	case Output::Offset:
+	case Output::Offset: {
+		noteRef.nChannel = pInstrument->getMidiOutChannel();
+		if ( pNote != nullptr ) {
+			noteRef.nNote = std::clamp(
+				pInstrument->getMidiOutNote() +
+				static_cast<int>( pNote->getPitchFromKeyOctave() ),
+				MidiMessage::nNoteMinimum, MidiMessage::nNoteMaximum );
+		}
+		else {
+			noteRef.nNote = pInstrument->getMidiOutNote();
+		}
+		break;
+	}
 	case Output::Constant: {
 		noteRef.nChannel = pInstrument->getMidiOutChannel();
 		noteRef.nNote = pInstrument->getMidiOutNote();
