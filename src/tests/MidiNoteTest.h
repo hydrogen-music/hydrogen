@@ -36,6 +36,7 @@ class MidiNoteTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testLoadNewSong );
 	CPPUNIT_TEST( testMidiInstrumentInputMapping );
 	CPPUNIT_TEST( testMidiInstrumentOutputMapping );
+	CPPUNIT_TEST( testMidiInstrumentGlobalMapping );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -44,6 +45,7 @@ public:
 	void testLoadNewSong();
 		void testMidiInstrumentInputMapping();
 		void testMidiInstrumentOutputMapping();
+		void testMidiInstrumentGlobalMapping();
 
 private:
 	void checkInstrumentMidiNote( const QString& sName, int nNote,

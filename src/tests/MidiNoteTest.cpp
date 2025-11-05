@@ -323,6 +323,120 @@ void MidiNoteTest::testMidiInstrumentOutputMapping() {
 	___INFOLOG( "passed" );
 }
 
+void MidiNoteTest::testMidiInstrumentGlobalMapping() {
+	___INFOLOG( "" );
+
+	auto pHydrogen = Hydrogen::get_instance();
+	const auto pOldSong = pHydrogen->getSong();
+	const auto pOldPreferences = Preferences::get_instance();
+
+	auto pNewPreferences = CoreActionController::loadPreferences(
+		H2TEST_FILE( "preferences/midi-instrument-mapping.conf" ) );
+	CPPUNIT_ASSERT( pNewPreferences != nullptr );
+	CPPUNIT_ASSERT( CoreActionController::setPreferences( pNewPreferences ) );
+	const auto pNewSong = Song::getEmptySong();
+	CPPUNIT_ASSERT( pNewSong != nullptr );
+	CPPUNIT_ASSERT( CoreActionController::setSong( pNewSong ) );
+
+	const auto pNewDrumkit = Drumkit::load(
+		H2TEST_FILE( "drumkits/midi-instrument-mapping" ),
+		/* bUpgrade */true, /* pLegacy */nullptr, /*bSilent*/false );
+	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
+	CPPUNIT_ASSERT( CoreActionController::setDrumkit( pNewDrumkit ) );
+
+	auto pPref = Preferences::get_instance();
+	auto pMidiInstrumentMap = pPref->getMidiInstrumentMap();
+	auto pInstrumentList = pNewDrumkit->getInstruments();
+
+	////////////////////////////////////////////////////////////////////////////
+	// Output mapping
+
+	auto testOutput = [&](  bool bGlobal, int nChannel ) {
+		for ( const auto& ppInstrument : *pInstrumentList ) {
+			CPPUNIT_ASSERT( ppInstrument != nullptr );
+			const auto noteRef = pMidiInstrumentMap->getOutputMapping(
+				nullptr, ppInstrument );
+			CPPUNIT_ASSERT( noteRef.nNote == ppInstrument->getMidiOutNote() );
+			if ( bGlobal ) {
+				CPPUNIT_ASSERT( noteRef.nChannel == nChannel );
+			}
+			else {
+				CPPUNIT_ASSERT( noteRef.nChannel == ppInstrument->getMidiOutChannel() );
+			}
+		}
+	};
+
+	pMidiInstrumentMap->setUseGlobalOutputChannel( false );
+	pMidiInstrumentMap->setOutput( MidiInstrumentMap::Output::Constant );
+	testOutput( false, 0 );
+
+	const int nGlobalOutputChannel = 11;
+	pMidiInstrumentMap->setUseGlobalOutputChannel( true );
+	pMidiInstrumentMap->setGlobalOutputChannel( nGlobalOutputChannel );
+	testOutput( true, nGlobalOutputChannel );
+	pMidiInstrumentMap->setUseGlobalOutputChannel( false );
+
+	auto testInput = [&]( bool bGlobal, int nChannel ) {
+		for ( const auto& ppInstrument : *pInstrumentList ) {
+			CPPUNIT_ASSERT( ppInstrument != nullptr );
+			const auto noteRef = pMidiInstrumentMap->getInputMapping(
+				ppInstrument, pNewDrumkit );
+			CPPUNIT_ASSERT( noteRef.nNote == ppInstrument->getMidiOutNote() );
+			if ( bGlobal ) {
+				CPPUNIT_ASSERT( noteRef.nChannel == nChannel );
+			}
+			else {
+				CPPUNIT_ASSERT( noteRef.nChannel == ppInstrument->getMidiOutChannel() );
+			}
+		}
+		{
+			int nMappedInstruments = 0;
+			for ( int nnNote = MidiMessage::nNoteMinimum;
+				 nnNote <= MidiMessage::nNoteMaximum; ++nnNote ) {
+				for ( int nnChannel = MidiMessage::nChannelOff;
+				 	nnChannel <= MidiMessage::nChannelMaximum; ++nnChannel ) {
+					const auto mapped = pMidiInstrumentMap->mapInput(
+						nnNote, nnChannel, pNewDrumkit );
+					if ( mapped.size() > 0 ) {
+						CPPUNIT_ASSERT( mapped.size() == 1 );
+						CPPUNIT_ASSERT( mapped[ 0 ] != nullptr );
+						CPPUNIT_ASSERT( mapped[ 0 ]->getMidiOutNote() == nnNote );
+						if ( bGlobal ) {
+							CPPUNIT_ASSERT( nnChannel == nChannel );
+						}
+						else {
+							CPPUNIT_ASSERT( mapped[ 0 ]->getMidiOutChannel() == nnChannel );
+						}
+						++nMappedInstruments;
+					}
+				}
+			}
+			CPPUNIT_ASSERT( nMappedInstruments == pInstrumentList->size() );
+		}
+	};
+	pMidiInstrumentMap->setInput( MidiInstrumentMap::Input::AsOutput );
+	pMidiInstrumentMap->setUseGlobalInputChannel( false );
+	testInput( false, 0 );
+
+	pMidiInstrumentMap->setUseGlobalInputChannel( true );
+	const int nGlobalInputChannel = 8;
+	pMidiInstrumentMap->setGlobalInputChannel( nGlobalInputChannel );
+	testInput( true, nGlobalInputChannel );
+	pMidiInstrumentMap->setUseGlobalOutputChannel( true );
+	testInput( true, nGlobalInputChannel );
+	pMidiInstrumentMap->setUseGlobalInputChannel( false );
+	testInput( true, nGlobalOutputChannel );
+	pMidiInstrumentMap->setUseGlobalOutputChannel( false );
+	testInput( false, nGlobalOutputChannel );
+
+	////////////////////////////////////////////////////////////////////////////
+
+	CoreActionController::setPreferences( pOldPreferences );
+	CoreActionController::setSong( pOldSong );
+
+	___INFOLOG( "passed" );
+}
+
 void MidiNoteTest::checkInstrumentMidiNote( const QString& sName, int nNote,
 											std::shared_ptr<Instrument> pInstrument ) {
 	CPPUNIT_ASSERT( pInstrument != nullptr );
