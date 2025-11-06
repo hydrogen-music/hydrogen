@@ -46,6 +46,7 @@ class MidiMessage
 	static constexpr int nChannelDefault = 9;
 	static constexpr int nChannelMaximum = 15;
 	static constexpr int nChannelOff = -1;
+	static constexpr int nChannelAll = -2;
 
 	static constexpr int nNoteMinimum = 0;
 	static constexpr int nNoteDefault = 36;
