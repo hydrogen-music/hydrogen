@@ -1117,6 +1117,22 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			pPref->m_pMidiInstrumentMap->setInput(
 			MidiInstrumentMap::Input::Order );
 		}
+
+		// Prior to version 2.0 a single numerical value could be set in the
+		// preferences indicating which channel (or all of them) are used for
+		// MIDI input. Since 2.0 this value only affects MIDI actions but we use
+		// it in here to set up a global input channel for note mapping as well
+		// in order to provide as much backward compatibility as possible.
+		pPref->m_pMidiInstrumentMap->setUseGlobalInputChannel( true );
+		if ( pPref->m_nMidiChannelFilter >= MidiMessage::nChannelMinimum &&
+			 pPref->m_nMidiChannelFilter <= MidiMessage::nChannelMaximum ) {
+			pPref->m_pMidiInstrumentMap->setGlobalInputChannel(
+				pPref->m_nMidiChannelFilter );
+		}
+		else if ( pPref->m_nMidiChannelFilter < 0 ) {
+			pPref->m_pMidiInstrumentMap->setGlobalInputChannel(
+				MidiMessage::nChannelAll );
+		}
 	}
 
 	pPref->m_pTheme = std::make_shared<Theme>(

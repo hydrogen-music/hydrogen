@@ -105,7 +105,7 @@ QString MidiInstrumentMap::NoteRef::toQString( const QString& sPrefix,
 MidiInstrumentMap::MidiInstrumentMap()
 	: m_input( Input::AsOutput )
 	, m_output( Output::Offset )
-	, m_bUseGlobalInputChannel( false )
+	, m_bUseGlobalInputChannel( true )
 	, m_nGlobalInputChannel( MidiMessage::nChannelDefault )
 	, m_bUseGlobalOutputChannel( false )
 	, m_nGlobalOutputChannel( MidiMessage::nChannelDefault ) {
