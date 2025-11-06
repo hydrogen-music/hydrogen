@@ -32,6 +32,10 @@
 #include "../EventListener.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
+namespace H2Core {
+	class Instrument;
+}
+
 class LCDSpinBox;
 class MidiActionTable;
 
@@ -81,6 +85,10 @@ private:
 		void updateIcons();
 
 		void updateInstrumentTable();
+		/** @returns the row number corresponding to the objects just added. */
+		void addInstrumentTableRow();
+		void updateInstrumentTableRow(
+				int nRow, std::shared_ptr<H2Core::Instrument> pInstrument );
 		void updateInputTable();
 		void updateOutputTable();
 
