@@ -369,11 +369,19 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getInputMapping(
 			 m_customInputMappingsType.find( sType ) !=
 			 m_customInputMappingsType.end() ) {
 			noteRef = m_customInputMappingsType.at( sType );
+
+			if ( m_bUseGlobalInputChannel ) {
+				noteRef.nChannel = m_nGlobalInputChannel;
+			}
 		}
 		else if ( sType.isEmpty() &&
  				  m_customInputMappingsId.find( pInstrument->getId() ) !=
 				  m_customInputMappingsId.end() ) {
 			noteRef = m_customInputMappingsId.at( pInstrument->getId() );
+
+			if ( m_bUseGlobalInputChannel ) {
+				noteRef.nChannel = m_nGlobalInputChannel;
+			}
 		}
 		else {
 			// No custom mapping. Fall back to output values.
