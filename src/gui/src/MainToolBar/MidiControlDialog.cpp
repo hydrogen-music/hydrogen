@@ -887,6 +887,9 @@ void MidiControlDialog::updateInstrumentTableRow(
 			pInputChannelSpinBox->setValue( inputMapping.nChannel );
 			pInputNoteSpinBox->setValue( inputMapping.nNote );
 		}
+		else {
+			pInputChannelSpinBox->setValue( MidiMessage::nChannelOff );
+		}
 
 		if ( pMidiInstrumentMap->getInput() != MidiInstrumentMap::Input::Custom ) {
 			pInputNoteSpinBox->setEnabled( false );
@@ -990,6 +993,9 @@ void MidiControlDialog::updateInstrumentTableRow(
 	if ( pOutputChannelSpinBox != nullptr ) {
 		if ( ! outputMapping.isNull() ) {
 			pOutputChannelSpinBox->setValue( outputMapping.nChannel );
+		}
+		else {
+			pOutputChannelSpinBox->setValue( MidiMessage::nChannelOff );
 		}
 		pOutputChannelSpinBox->setEnabled(
 			pMidiInstrumentMap->getOutput() != MidiInstrumentMap::Output::None &&
