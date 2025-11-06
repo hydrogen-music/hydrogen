@@ -1020,6 +1020,22 @@ void MidiControlDialog::updateInstrumentTableRow(
 								   .arg( instrumentHandle.first )
 								   .arg( instrumentHandle.second ) );
 					 }
+
+					 // Tweaking the output channel could result in the input
+					 // channel to change as well since the former is used as
+					 // fallback in many scenarios.
+					 auto pSong = Hydrogen::get_instance()->getSong();
+					 if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+						 return;
+					 }
+					 const auto instrumentHandle =
+						 std::make_pair( pInstrument->getType(),
+										 pInstrument->getId() );
+					 const auto inputMapping =
+						 pMidiInstrumentMap->getInputMapping(
+							 pInstrument,
+							 pSong->getDrumkit() );
+					 pInputChannelSpinBox->setValue( inputMapping.nChannel );
 		});
 	}
 	else {
