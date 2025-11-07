@@ -857,6 +857,8 @@ void MidiControlDialog::updateInstrumentTableRow(
 	auto pInputNoteSpinBox =
 		static_cast<LCDSpinBox*>(m_pInstrumentTable->cellWidget( nRow, 1 ) );
 	if ( pInputChannelSpinBox != nullptr && pInputNoteSpinBox != nullptr ) {
+		pInputChannelSpinBox->disconnect();
+		pInputNoteSpinBox->disconnect();
 		if ( ! inputMapping.isNull() ) {
 			pInputChannelSpinBox->setValue( inputMapping.nChannel );
 			pInputNoteSpinBox->setValue( inputMapping.nNote );
@@ -875,7 +877,6 @@ void MidiControlDialog::updateInstrumentTableRow(
 				! pMidiInstrumentMap->getUseGlobalInputChannel() );
 		}
 
-		disconnect( pInputChannelSpinBox );
 		connect( pInputChannelSpinBox,
 				 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
 				 [=](double fValue) {
@@ -896,7 +897,6 @@ void MidiControlDialog::updateInstrumentTableRow(
 								   .arg( instrumentHandle.second ) );
 					 }
 		});
-		disconnect( pInputNoteSpinBox );
 		connect( pInputNoteSpinBox,
 				 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
 				 [=](double fValue) {
@@ -938,12 +938,12 @@ void MidiControlDialog::updateInstrumentTableRow(
 	auto pOutputNoteSpinBox =
 		static_cast<LCDSpinBox*>(m_pInstrumentTable->cellWidget( nRow, 3 ) );
 	if ( pOutputNoteSpinBox != nullptr ) {
+		pOutputNoteSpinBox->disconnect();
 		if ( ! outputMapping.isNull() ) {
 			pOutputNoteSpinBox->setValue( outputMapping.nNote );
 		}
 		pOutputNoteSpinBox->setEnabled(
 			pMidiInstrumentMap->getOutput() != MidiInstrumentMap::Output::None );
-		disconnect( pOutputNoteSpinBox );
 		connect( pOutputNoteSpinBox,
 				 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
 				 [=](double fValue) {
@@ -995,6 +995,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 	auto pOutputChannelSpinBox =
 		static_cast<LCDSpinBox*>(m_pInstrumentTable->cellWidget( nRow, 4 ) );
 	if ( pOutputChannelSpinBox != nullptr ) {
+		pOutputChannelSpinBox->disconnect();
 		if ( ! outputMapping.isNull() ) {
 			pOutputChannelSpinBox->setValue( outputMapping.nChannel );
 		}
@@ -1004,7 +1005,6 @@ void MidiControlDialog::updateInstrumentTableRow(
 		pOutputChannelSpinBox->setEnabled(
 			pMidiInstrumentMap->getOutput() != MidiInstrumentMap::Output::None &&
 			! pMidiInstrumentMap->getUseGlobalOutputChannel() );
-		disconnect( pOutputChannelSpinBox );
 		connect( pOutputChannelSpinBox,
 				 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
 				 [=](double fValue) {
