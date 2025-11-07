@@ -27,7 +27,6 @@
 #include <core/Basics/Note.h>
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
-#include <core/Midi/MidiMessage.h>
 
 #include <QtGlobal>
 

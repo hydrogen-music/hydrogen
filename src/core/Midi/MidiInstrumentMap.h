@@ -27,6 +27,7 @@
 #include <map>
 #include <memory>
 
+#include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
 
 namespace H2Core {
@@ -96,11 +97,13 @@ public:
 	/** Part fo the mapping uniquely identifying a NOTE_ON or NOTE_OFF MIDI
      * event. */
 	struct NoteRef {
-		NoteRef() : nNote( -1 ), nChannel( -1 ){};
+		NoteRef() : nNote( MidiMessage::nNoteInvalid ),
+					nChannel( MidiMessage::nChannelInvalid ){};
 		int nNote;
 		int nChannel;
 
-		bool isNull() const { return nNote == -1 && nChannel == -1; };
+		bool isNull() const { return nNote == MidiMessage::nNoteInvalid &&
+									 nChannel == MidiMessage::nChannelInvalid; };
 
 		QString toQString( const QString& sPrefix, bool bShort ) const;
 	};
