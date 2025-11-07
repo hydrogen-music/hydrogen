@@ -22,8 +22,11 @@
  */
 
 #include "LCDSpinBox.h"
+
+#include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
+
 #include <core/Globals.h>
 #include <core/Preferences/Preferences.h>
 
@@ -229,10 +232,11 @@ double LCDSpinBox::nextValueInPatternSizeDenominator( bool bUp, bool bAccelerate
 }
 
 QString LCDSpinBox::textFromValue( double fValue ) const {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	QString result;
 	if ( m_type == Type::Int && ( m_flag & Flag::MinusOneAsOff ) &&
 		 fValue == -1.0 ) {
-		result = "off";
+		result = pCommonStrings->getStatusOff();
 	}
 	else {
 		if ( m_type == Type::Int ) {
@@ -279,10 +283,10 @@ QValidator::State LCDSpinBox::validate( QString &text, int &pos ) const {
 }
 
 double LCDSpinBox::valueFromText( const QString& sText ) const {
-
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	double fResult;
 	
-	if ( sText == "off" ){
+	if ( sText == pCommonStrings->getStatusOff() ){
 		fResult = -1.0;
 	} else {
 		fResult = QDoubleSpinBox::valueFromText( sText );
