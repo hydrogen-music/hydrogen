@@ -242,6 +242,45 @@ void MidiNoteTest::testMidiInstrumentInputMapping() {
 	}
 
 	////////////////////////////////////////////////////////////////////////////
+	// Test mapping override using special channel values.
+
+	{
+		pMidiInstrumentMap->setInput( MidiInstrumentMap::Input::AsOutput );
+		const auto pInstrument = pNewDrumkit->getInstruments()->get( 0 );
+		CPPUNIT_ASSERT( pInstrument != nullptr );
+		CPPUNIT_ASSERT( pInstrument->getMidiOutChannel() >=
+						MidiMessage::nChannelMinimum );
+		const auto nNote = pInstrument->getMidiOutNote();
+		const auto nChannel = pInstrument->getMidiOutChannel();
+
+		// Sanity tests
+		{
+			const auto instrumentsMapped = pMidiInstrumentMap->mapInput(
+				nNote, nChannel, pNewDrumkit );
+			CPPUNIT_ASSERT( instrumentsMapped.size() == 1 );
+			CPPUNIT_ASSERT( instrumentsMapped[ 0 ] == pInstrument );
+		}
+		{
+			const auto instrumentsMapped = pMidiInstrumentMap->mapInput(
+				nNote, nChannel + 1, pNewDrumkit );
+			CPPUNIT_ASSERT( instrumentsMapped.size() == 0 );
+		}
+		// Disable overwrite
+		{
+			const auto instrumentsMapped = pMidiInstrumentMap->mapInput(
+				nNote, MidiMessage::nChannelOff, pNewDrumkit );
+			CPPUNIT_ASSERT( instrumentsMapped.size() == 0 );
+		}
+		// Enable overwrite
+		{
+			const auto instrumentsMapped = pMidiInstrumentMap->mapInput(
+				nNote, MidiMessage::nChannelAll, pNewDrumkit );
+			CPPUNIT_ASSERT( instrumentsMapped.size() == 1 );
+			CPPUNIT_ASSERT( instrumentsMapped[ 0 ] == pInstrument );
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////
 
 	CoreActionController::setPreferences( pOldPreferences );
 	CoreActionController::setSong( pOldSong );
