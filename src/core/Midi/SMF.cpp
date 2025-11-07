@@ -428,7 +428,6 @@ QString SMF::toQString( const QString& sPrefix, bool bShort ) const {
 
 // :::::::::::::::::::...
 
-constexpr unsigned int DRUM_CHANNEL = 9;
 constexpr unsigned int NOTE_LENGTH = 12;
 
 SMFWriter::SMFWriter( SMFHeader::Format format, bool bOmitCopyright )
@@ -630,10 +629,12 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 				const int nPitch = pCopiedNote->getMidiKey();
 						
 				int nChannel =  pInstr->getMidiOutChannel();
-				if ( nChannel == -1 ) {
-					// A channel of -1 is Hydrogen's old way of disabling
-					// MIDI output during playback.
-					nChannel = DRUM_CHANNEL;
+				if ( nChannel == MidiMessage::nChannelOff ||
+					 nChannel == MidiMessage::nChannelAll ) {
+					// These are internal values disabling MIDI in/output or
+					// allowing to use arbitrary input channels. We have to
+					// replace them by a sane fallback.
+					nChannel = MidiMessage::nChannelDefault;
 				}
 
 				int nLength = pCopiedNote->getLength();
