@@ -94,7 +94,7 @@ private:
 
 		QTabWidget* m_pTabWidget;
 
-		QComboBox* m_pInputChannelFilterComboBox;
+		LCDSpinBox* m_pInputActionChannelSpinBox;
 		QCheckBox* m_pInputIgnoreNoteOffCheckBox;
 		QCheckBox* m_pOutputEnableMidiFeedbackCheckBox;
 

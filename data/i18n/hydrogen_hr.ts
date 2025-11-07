@@ -3162,6 +3162,10 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
         <extracomment>Tab of the MIDI control dialog dedicated to mapping MIDI notes to * instruments of the current drumkit.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Channel for MIDI actions and clock</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MidiInstrumentMap</name>

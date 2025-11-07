@@ -104,7 +104,7 @@ Preferences::Preferences()
 	, m_sOSSDevice( "/dev/dsp" )
 	, m_sMidiPortName(  Preferences::getNullMidiPort() )
 	, m_sMidiOutputPortName(  Preferences::getNullMidiPort() )
-	, m_nMidiChannelFilter( -1 )
+	, m_nMidiActionChannel( -1 )
 	, m_bMidiNoteOffIgnore( true )
 	, m_bEnableMidiFeedback( false )
 	, m_bOscServerEnabled( false )
@@ -285,7 +285,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_midiDriver( pOther->m_midiDriver )
 	, m_sMidiPortName( pOther->m_sMidiPortName )
 	, m_sMidiOutputPortName( pOther->m_sMidiOutputPortName )
-	, m_nMidiChannelFilter( pOther->m_nMidiChannelFilter )
+	, m_nMidiActionChannel( pOther->m_nMidiActionChannel )
 	, m_bMidiNoteOffIgnore( pOther->m_bMidiNoteOffIgnore )
 	, m_bEnableMidiFeedback( pOther->m_bEnableMidiFeedback )
 	, m_bOscServerEnabled( pOther->m_bOscServerEnabled )
@@ -707,9 +707,31 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			pPref->m_sMidiOutputPortName = midiDriverNode.read_string(
 				"output_port_name",
 				pPref->m_sMidiOutputPortName, false, false, bSilent );
-			pPref->m_nMidiChannelFilter = midiDriverNode.read_int(
-				"channel_filter",
-				pPref->m_nMidiChannelFilter, false, false, bSilent );
+			// In versions prior to 2.0 there was an inconsistent scheme for
+			// storing MIDI channels. In this variable `-1` did indicate to use
+			// "All" channels while the same value set in the MIDI output
+			// channel within the instruments of a drumkit meant "Off" or none.
+			// Starting from 2.0 we unified those ranges allowing this variable,
+			// too, to represent both "All" and "Off". But, for backward
+			// compatibility, we still use the old values and not the ones
+			// defined in MidiMessage.h.
+			const int nMidiActionChannel = midiDriverNode.read_int(
+				"channel_filter", /*previous value used to indicate 'all'*/ -1,
+				false, false, bSilent );
+			if ( nMidiActionChannel == -1 ) {
+				// Old value to indicate to use all channels
+				pPref->m_nMidiActionChannel = MidiMessage::nChannelAll;
+			}
+			else if ( nMidiActionChannel == -2 ) {
+				// Helper value indicating to use no channel (since -1 was
+				// already taken).
+				pPref->m_nMidiActionChannel = MidiMessage::nChannelOff;
+			}
+			else {
+				pPref->m_nMidiActionChannel = std::clamp(
+					nMidiActionChannel, MidiMessage::nChannelMinimum,
+					MidiMessage::nChannelMaximum );
+			}
 			pPref->m_bMidiNoteOffIgnore = midiDriverNode.read_bool(
 				"ignore_note_off",
 				pPref->m_bMidiNoteOffIgnore, false, false, bSilent );
@@ -1131,12 +1153,12 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		// it in here to set up a global input channel for note mapping as well
 		// in order to provide as much backward compatibility as possible.
 		pPref->m_pMidiInstrumentMap->setUseGlobalInputChannel( true );
-		if ( pPref->m_nMidiChannelFilter >= MidiMessage::nChannelMinimum &&
-			 pPref->m_nMidiChannelFilter <= MidiMessage::nChannelMaximum ) {
+		if ( pPref->m_nMidiActionChannel >= MidiMessage::nChannelMinimum &&
+			 pPref->m_nMidiActionChannel <= MidiMessage::nChannelMaximum ) {
 			pPref->m_pMidiInstrumentMap->setGlobalInputChannel(
-				pPref->m_nMidiChannelFilter );
+				pPref->m_nMidiActionChannel );
 		}
-		else if ( pPref->m_nMidiChannelFilter < 0 ) {
+		else if ( pPref->m_nMidiActionChannel < 0 ) {
 			pPref->m_pMidiInstrumentMap->setGlobalInputChannel(
 				MidiMessage::nChannelAll );
 		}
@@ -1334,7 +1356,29 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 				"driverName", Preferences::midiDriverToQString( m_midiDriver ) );
 			midiDriverNode.write_string( "port_name", m_sMidiPortName );
 			midiDriverNode.write_string( "output_port_name", m_sMidiOutputPortName );
-			midiDriverNode.write_int( "channel_filter", m_nMidiChannelFilter );
+
+			// In versions prior to 2.0 there was an inconsistent scheme for
+			// storing MIDI channels. In this variable `-1` did indicate to use
+			// "All" channels while the same value set in the MIDI output
+			// channel within the instruments of a drumkit meant "Off" or none.
+			// Starting from 2.0 we unified those ranges allowing this variable,
+			// too, to represent both "All" and "Off". But, for backward
+			// compatibility, we still use the old values and not the ones
+			// defined in MidiMessage.h.
+			int nChannelFilter = m_nMidiActionChannel;
+			if ( m_nMidiActionChannel == MidiMessage::nChannelAll ) {
+				// Old value to indicate to use all channels
+				nChannelFilter = -1;
+			}
+			else if ( m_nMidiActionChannel == MidiMessage::nChannelOff ) {
+				// Helper value indicating to use no channel (since -1 was
+				// already taken). Please note that this value is only handled
+				// properly starting with Hydrogen 1.2.7 (where it selects the
+				// "All" option too, since the overall MIDI input channel can
+				// not be turned off prior to 2.0).
+				nChannelFilter = -2;
+			}
+			midiDriverNode.write_int( "channel_filter", nChannelFilter );
 			midiDriverNode.write_bool( "ignore_note_off", m_bMidiNoteOffIgnore );
 			midiDriverNode.write_bool( "enable_midi_feedback", m_bEnableMidiFeedback );
 			midiDriverNode.write_bool( "midi_clock_input_handling",
@@ -1815,8 +1859,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_sMidiPortName ) )
 			.append( QString( "%1%2m_sMidiOutputPortName: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_sMidiOutputPortName ) )
-			.append( QString( "%1%2m_nMidiChannelFilter: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nMidiChannelFilter ) )
+			.append( QString( "%1%2m_nMidiActionChannel: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nMidiActionChannel ) )
 			.append( QString( "%1%2m_bMidiNoteOffIgnore: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bMidiNoteOffIgnore ) )
 			.append( QString( "%1%2m_bEnableMidiFeedback: %3\n" ).arg( sPrefix )
@@ -2061,8 +2105,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_sMidiPortName ) )
 			.append( QString( ", m_sMidiOutputPortName: %1" )
 					 .arg( m_sMidiOutputPortName ) )
-			.append( QString( ", m_nMidiChannelFilter: %1" )
-					 .arg( m_nMidiChannelFilter ) )
+			.append( QString( ", m_nMidiActionChannel: %1" )
+					 .arg( m_nMidiActionChannel ) )
 			.append( QString( ", m_bMidiNoteOffIgnore: %1" )
 					 .arg( m_bMidiNoteOffIgnore ) )
 			.append( QString( ", m_bEnableMidiFeedback: %1" )

@@ -62,8 +62,8 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 	// midi channel filter for all messages
 	bool bIsChannelValid = true;
 	auto pPref = Preferences::get_instance();
-	if ( pPref->m_nMidiChannelFilter != -1 &&
-		 pPref->m_nMidiChannelFilter != msg.getChannel() ) {
+	if ( pPref->m_nMidiActionChannel != -1 &&
+		 pPref->m_nMidiActionChannel != msg.getChannel() ) {
 		bIsChannelValid = false;
 	}
 

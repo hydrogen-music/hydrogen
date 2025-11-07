@@ -128,36 +128,6 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 
 	addHeaderLabel( pInputSettingsWidget, pCommonStrings->getMidiInputLabel() );
 
-	auto pInputChannelFilterWidget = new QWidget( pInputSettingsWidget );
-	pInputSettingsLayout->addWidget( pInputChannelFilterWidget );
-	auto pInputChannelFilterLayout = new QHBoxLayout( pInputChannelFilterWidget );
-	pInputChannelFilterWidget->setLayout( pInputChannelFilterLayout );
-
-	auto pInputChannelFilterLabel = new QLabel(
-		pCommonStrings->getMidiOutChannelLabel() );
-	pInputChannelFilterLayout->addWidget( pInputChannelFilterLabel );
-	m_pInputChannelFilterComboBox = new QComboBox( pInputChannelFilterWidget );
-	pInputChannelFilterLayout->addWidget( m_pInputChannelFilterComboBox );
-	m_pInputChannelFilterComboBox->addItem( pCommonStrings->getAllLabel() );
-	for ( int ii = 0; ii <= 15; ++ii ) {
-		m_pInputChannelFilterComboBox->addItem( QString::number( ii ) );
-	}
-	if ( pPref->m_nMidiChannelFilter == -1 ) {
-		m_pInputChannelFilterComboBox->setCurrentIndex( 0 );
-	} else {
-		m_pInputChannelFilterComboBox->setCurrentIndex(
-			pPref->m_nMidiChannelFilter + 1 );
-	}
-	connect( m_pInputChannelFilterComboBox,
-			 QOverload<int>::of( &QComboBox::activated ), [=]( int ) {
-		auto pPref = Preferences::get_instance();
-		if ( pPref->m_nMidiChannelFilter !=
-			 m_pInputChannelFilterComboBox->currentIndex() - 1 ) {
-			pPref->m_nMidiChannelFilter =
-				m_pInputChannelFilterComboBox->currentIndex() - 1;
-		}
-	} );
-
 	m_pInputIgnoreNoteOffCheckBox = new QCheckBox( pInputSettingsWidget );
 	m_pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
 	/*: The character after the '&' symbol can be used as a shortcut via the Alt
@@ -192,6 +162,29 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	connect( pInputMidiTransportCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->setMidiTransportInputHandling(
 			pInputMidiTransportCheckBox->isChecked() );
+	} );
+
+	auto pInputActionChannelWidget = new QWidget( pInputSettingsWidget );
+	pInputSettingsLayout->addWidget( pInputActionChannelWidget );
+	auto pInputActionChannelLayout = new QHBoxLayout( pInputActionChannelWidget );
+	pInputActionChannelWidget->setLayout( pInputActionChannelLayout );
+
+	auto pInputChannelFilterLabel = new QLabel(
+		tr( "Channel for MIDI actions and clock" ) );
+	pInputActionChannelLayout->addWidget( pInputChannelFilterLabel );
+	m_pInputActionChannelSpinBox = new LCDSpinBox(
+		pInputActionChannelWidget,
+		QSize( MidiControlDialog::nColumnMappingWidth,
+			  MidiControlDialog::nMappingBoxHeight ), LCDSpinBox::Type::Int,
+		MidiMessage::nChannelAll, MidiMessage::nChannelMaximum,
+		LCDSpinBox::Flag::MinusOneAsOff | LCDSpinBox::Flag::MinusTwoAsAll );
+	pInputActionChannelLayout->addWidget( m_pInputActionChannelSpinBox );
+	m_pInputActionChannelSpinBox->setValue( pPref->m_nMidiActionChannel );
+	connect( m_pInputActionChannelSpinBox,
+			 QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
+			[=]( double fValue ) {
+				Preferences::get_instance()->m_nMidiActionChannel =
+					static_cast<int>( fValue );
 	} );
 
 	auto pOutputSettingsWidget = new QWidget( pConfigWidget );
@@ -671,14 +664,7 @@ void MidiControlDialog::updatePreferencesEvent( int nValue ) {
 		// new preferences loaded within the core
 		const auto pPref = H2Core::Preferences::get_instance();
 
-		if ( pPref->m_nMidiChannelFilter == -1 ) {
-			m_pInputChannelFilterComboBox->setCurrentIndex( 0 );
-		}
-		else {
-			m_pInputChannelFilterComboBox->setCurrentIndex(
-				pPref->m_nMidiChannelFilter + 1 );
-		}
-
+		m_pInputActionChannelSpinBox->setValue( pPref->m_nMidiActionChannel );
 		m_pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
 		m_pOutputEnableMidiFeedbackCheckBox->setChecked(
 			pPref->m_bEnableMidiFeedback );

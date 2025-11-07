@@ -274,7 +274,7 @@ public:
 	QString				m_sMidiPortName;
 	QString				m_sMidiOutputPortName;
 
-	int					m_nMidiChannelFilter;
+	int					m_nMidiActionChannel;
 	bool				m_bMidiNoteOffIgnore;
 	bool				m_bEnableMidiFeedback;
 	bool				getMidiClockInputHandling() const;
