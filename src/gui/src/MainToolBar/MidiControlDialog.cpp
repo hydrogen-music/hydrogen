@@ -982,7 +982,25 @@ void MidiControlDialog::updateInstrumentTableRow(
 								   .arg( instrumentHandle.first )
 								   .arg( instrumentHandle.second ) );
 					 }
-		});
+
+					 // Tweaking the output note could result in the input note
+					 // to change as well since the former is used as fallback
+					 // in many scenarios.
+					 auto pSong = Hydrogen::get_instance()->getSong();
+					 if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+						 return;
+					 }
+					 const auto instrumentHandle =
+						 std::make_pair( pInstrument->getType(),
+										 pInstrument->getId() );
+					 const auto inputMapping =
+						 pMidiInstrumentMap->getInputMapping(
+							 pInstrument,
+							 pSong->getDrumkit() );
+					 if ( ! inputMapping.isNull() ) {
+						 pInputNoteSpinBox->setValue( inputMapping.nNote );
+					 }
+			});
 	}
 	else {
 		ERRORLOG( QString( "Unable to obtain output note for row [%1]" )
@@ -1036,7 +1054,12 @@ void MidiControlDialog::updateInstrumentTableRow(
 						 pMidiInstrumentMap->getInputMapping(
 							 pInstrument,
 							 pSong->getDrumkit() );
-					 pInputChannelSpinBox->setValue( inputMapping.nChannel );
+					 if ( ! inputMapping.isNull() ) {
+						 pInputChannelSpinBox->setValue( inputMapping.nChannel );
+					 }
+					 else {
+						 pInputChannelSpinBox->setValue( MidiMessage::nChannelOff );
+					 }
 		});
 	}
 	else {
