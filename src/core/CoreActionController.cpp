@@ -2841,6 +2841,7 @@ bool CoreActionController::sendAllNoteOffMessages() {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 
+	const auto pMidiInstrumentMap = Preferences::get_instance()->getMidiInstrumentMap();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		ERRORLOG( "Unable to send MIDI messages" );
@@ -2857,10 +2858,15 @@ bool CoreActionController::sendAllNoteOffMessages() {
 	for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
 		// Using a negative MIDI channel MIDI output can be deactivated per
 		// instrument.
-		if ( ppInstrument != nullptr && ppInstrument->getMidiOutChannel() > 0 ) {
-			noteOff.nKey = ppInstrument->getMidiOutNote();
-			noteOff.nChannel = ppInstrument->getMidiOutChannel();
-			pMidiDriver->sendMessage( MidiMessage::from( noteOff ) );
+		if ( ppInstrument != nullptr ) {
+			const auto noteRef = pMidiInstrumentMap
+				->getOutputMapping( nullptr, ppInstrument );
+			noteOff.nChannel = noteRef.nChannel;
+			noteOff.nKey = noteRef.nNote;
+
+			if ( noteOff.nChannel != MidiMessage::nChannelOff ) {
+				pMidiDriver->sendMessage( MidiMessage::from( noteOff ) );
+			}
 		}
 	}
 
