@@ -879,6 +879,10 @@ void MidiControlDialog::updateInstrumentTableRow(
 		connect( pInputChannelSpinBox,
 				 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
 				 [=](double fValue) {
+					 if ( m_instrumentMap.find( instrumentHandle ) ==
+						  m_instrumentMap.end() ) {
+						 return;
+					 }
 					 auto pInstrument = m_instrumentMap.at( instrumentHandle );
 					 if ( pInstrument != nullptr ) {
 						 Preferences::get_instance()->getMidiInstrumentMap()
@@ -896,6 +900,10 @@ void MidiControlDialog::updateInstrumentTableRow(
 		connect( pInputNoteSpinBox,
 				 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
 				 [=](double fValue) {
+					 if ( m_instrumentMap.find( instrumentHandle ) ==
+						  m_instrumentMap.end() ) {
+						 return;
+					 }
 					 auto pInstrument = m_instrumentMap.at( instrumentHandle );
 					 if ( pInstrument != nullptr ) {
 						 Preferences::get_instance()->getMidiInstrumentMap()
@@ -939,6 +947,10 @@ void MidiControlDialog::updateInstrumentTableRow(
 		connect( pOutputNoteSpinBox,
 				 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
 				 [=](double fValue) {
+					 if ( m_instrumentMap.find( instrumentHandle ) ==
+						  m_instrumentMap.end() ) {
+						 return;
+					 }
 					 auto pInstrument = m_instrumentMap.at( instrumentHandle );
 					 if ( pInstrument != nullptr ) {
 						 long nEventId = Event::nInvalidId;
@@ -996,6 +1008,10 @@ void MidiControlDialog::updateInstrumentTableRow(
 		connect( pOutputChannelSpinBox,
 				 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
 				 [=](double fValue) {
+					 if ( m_instrumentMap.find( instrumentHandle ) ==
+						  m_instrumentMap.end() ) {
+						 return;
+					 }
 					 auto pInstrument = m_instrumentMap.at( instrumentHandle );
 					 if ( pInstrument != nullptr ) {
 						 long nEventId = Event::nInvalidId;
