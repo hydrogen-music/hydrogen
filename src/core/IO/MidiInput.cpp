@@ -301,12 +301,17 @@ void MidiInput::handleNoteOnMessage(
 	pHydrogen->setLastMidiEvent( MidiMessage::Event::Note );
 	pHydrogen->setLastMidiEventParameter( msg.getData1() );
 
-	for ( const auto& ppAction : pMidiEventMap->getNoteActions( msg.getData1() ) ) {
-		if ( ppAction != nullptr && ! ppAction->isNull() ) {
-			auto pNewAction = MidiAction::from( ppAction, msg.getTimePoint() );
-			pNewAction->setValue( QString::number( msg.getData2() ) );
-			if ( pMidiActionManager->handleMidiActionAsync( pNewAction ) ) {
-				pHandledInput->actionTypes.push_back( pNewAction->getType() );
+	// The NOTE_ON event can be associated with a MIDI action too.
+	if ( pPref->m_nMidiActionChannel == MidiMessage::nChannelAll ||
+		 ( pPref->m_nMidiActionChannel != MidiMessage::nChannelOff &&
+		   pPref->m_nMidiActionChannel == msg.getChannel() ) ) {
+		for ( const auto& ppAction : pMidiEventMap->getNoteActions( msg.getData1() ) ) {
+			if ( ppAction != nullptr && ! ppAction->isNull() ) {
+				auto pNewAction = MidiAction::from( ppAction, msg.getTimePoint() );
+				pNewAction->setValue( QString::number( msg.getData2() ) );
+				if ( pMidiActionManager->handleMidiActionAsync( pNewAction ) ) {
+					pHandledInput->actionTypes.push_back( pNewAction->getType() );
+				}
 			}
 		}
 	}
