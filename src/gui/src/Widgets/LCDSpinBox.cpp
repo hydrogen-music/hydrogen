@@ -238,6 +238,10 @@ QString LCDSpinBox::textFromValue( double fValue ) const {
 		 fValue == -1.0 ) {
 		result = pCommonStrings->getStatusOff();
 	}
+	else if ( m_type == Type::Int && ( m_flag & Flag::MinusTwoAsAll ) &&
+		 fValue == -2.0 ) {
+		result = pCommonStrings->getAllLabel();
+	}
 	else {
 		if ( m_type == Type::Int ) {
 			result = QString( "%1" ).arg( fValue, 0, 'f', 0 );
@@ -288,7 +292,11 @@ double LCDSpinBox::valueFromText( const QString& sText ) const {
 	
 	if ( sText == pCommonStrings->getStatusOff() ){
 		fResult = -1.0;
-	} else {
+	}
+ 	else if ( sText == pCommonStrings->getAllLabel() ){
+		fResult = -2.0;
+	}
+	else {
 		fResult = QDoubleSpinBox::valueFromText( sText );
 	}
 
