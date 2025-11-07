@@ -546,6 +546,15 @@ bool Preferences::loadPreferences( bool bGlobal )
 					m_sMidiOutputPortName = midiDriverNode.read_string(
 						"output_port_name", Preferences::getNullMidiPort(), false, false );
 					m_nMidiChannelFilter = midiDriverNode.read_int( "channel_filter", -1, false, false );
+					// Starting from version 2.0 of Hydrogen it will be possible
+					// to turn of MIDI action handling using the overall
+					// channel. This option will be indicate using `-2`.
+					// However, this is not possible in here and we just allow
+					// to handle the value gracefully by falling back to "All"
+					// channels instead.
+					if ( m_nMidiChannelFilter == -2 ) {
+						m_nMidiChannelFilter = -1;
+					}
 					m_bMidiNoteOffIgnore = midiDriverNode.read_bool( "ignore_note_off", true, false, false );
 					m_bMidiDiscardNoteAfterAction = midiDriverNode.read_bool( "discard_note_after_action", true, false, false );
 					m_bMidiFixedMapping = midiDriverNode.read_bool( "fixed_mapping", false, false, true );
