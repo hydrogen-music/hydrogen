@@ -399,8 +399,9 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	m_pGlobalInputChannelSpinBox = new LCDSpinBox(
 		pMappingTab, QSize( MidiControlDialog::nColumnMappingWidth,
 						   MidiControlDialog::nMappingBoxHeight ),
-		LCDSpinBox::Type::Int, MidiMessage::nChannelMinimum,
-		MidiMessage::nChannelMaximum, LCDSpinBox::Flag::None );
+		LCDSpinBox::Type::Int, MidiMessage::nChannelAll,
+		MidiMessage::nChannelMaximum,
+		LCDSpinBox::Flag::MinusOneAsOff | LCDSpinBox::Flag::MinusTwoAsAll );
 	m_pGlobalInputChannelSpinBox->setValue(
 		pMidiInstrumentMap->getGlobalInputChannel() );
 	m_pGlobalInputChannelSpinBox->setEnabled(
@@ -442,8 +443,8 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	m_pGlobalOutputChannelSpinBox = new LCDSpinBox(
 		pMappingTab, QSize( MidiControlDialog::nColumnMappingWidth,
 						   MidiControlDialog::nMappingBoxHeight ),
-		LCDSpinBox::Type::Int, MidiMessage::nChannelMinimum,
-		MidiMessage::nChannelMaximum, LCDSpinBox::Flag::None );
+		LCDSpinBox::Type::Int, MidiMessage::nChannelOff,
+		MidiMessage::nChannelMaximum, LCDSpinBox::Flag::MinusOneAsOff );
 	m_pGlobalOutputChannelSpinBox->setValue(
 		pMidiInstrumentMap->getGlobalOutputChannel() );
 	m_pGlobalOutputChannelSpinBox->setEnabled(
@@ -813,8 +814,9 @@ void MidiControlDialog::addInstrumentTableRow() {
 	auto pInputChannelSpinBox = new LCDSpinBox(
 		m_pInstrumentTable, QSize( MidiControlDialog::nColumnMappingWidth,
 								   MidiControlDialog::nMappingBoxHeight ),
-		LCDSpinBox::Type::Int, MidiMessage::nChannelOff,
-		MidiMessage::nChannelMaximum, LCDSpinBox::Flag::MinusOneAsOff );
+		LCDSpinBox::Type::Int, MidiMessage::nChannelAll,
+		MidiMessage::nChannelMaximum,
+		LCDSpinBox::Flag::MinusOneAsOff | LCDSpinBox::Flag::MinusTwoAsAll );
 	pInputChannelSpinBox->setSizePolicy( QSizePolicy::Expanding,
 										 QSizePolicy::Fixed );
 
