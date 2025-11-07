@@ -47,10 +47,12 @@ class MidiMessage
 	static constexpr int nChannelMaximum = 15;
 	static constexpr int nChannelOff = -1;
 	static constexpr int nChannelAll = -2;
+	static constexpr int nChannelInvalid = -3;
 
 	static constexpr int nNoteMinimum = 0;
 	static constexpr int nNoteDefault = 36;
 	static constexpr int nNoteMaximum = 127;
+	static constexpr int nNoteInvalid = -1;
 
 		/** When recording notes using MIDI NOTE_ON events this offset will be
 		 * applied to the provided pitch in order to map it to an instrument
