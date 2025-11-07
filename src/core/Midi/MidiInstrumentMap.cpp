@@ -471,12 +471,12 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getOutputMapping(
 }
 
 void MidiInstrumentMap::setGlobalInputChannel( int nValue ) {
-	m_nGlobalInputChannel = std::clamp( nValue, MidiMessage::nChannelMinimum,
+	m_nGlobalInputChannel = std::clamp( nValue, MidiMessage::nChannelAll,
 									   MidiMessage::nChannelMaximum );
 }
 
 void MidiInstrumentMap::setGlobalOutputChannel( int nValue ) {
-	m_nGlobalOutputChannel = std::clamp( nValue, MidiMessage::nChannelMinimum,
+	m_nGlobalOutputChannel = std::clamp( nValue, MidiMessage::nChannelOff,
 										 MidiMessage::nChannelMaximum );
 }
 
