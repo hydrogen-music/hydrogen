@@ -2482,67 +2482,28 @@ bool CoreActionController::toggleGridCell( const GridPoint& gridPoint ){
 	return true;
 }
 
-bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff,
-									   QStringList* pMappedInstruments ) {
+bool CoreActionController::handleNote( int nNote, int nChannel,
+									  float fVelocity, bool bNoteOff,
+									  QStringList* pMappedInstruments ) {
 	const auto pPref = Preferences::get_instance();
+	const auto pMidiInstrumentMap = pPref->getMidiInstrumentMap();
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "no song set" );
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return false;
 	}
+	const auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 
-	// Find the instrument(s) corresponding to the provided note.
-	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-	std::vector< std::shared_ptr<Instrument> > instrumentsMatching;
-	QString sMode;
-	switch( pPref->getMidiInstrumentMap()->getInput() ) {
-	case MidiInstrumentMap::Input::SelectedInstrument: {
-		auto pInstrument =
-			pInstrumentList->get( pHydrogen->getSelectedInstrumentNumber());
-		if ( pInstrument == nullptr ) {
-			WARNINGLOG( "No instrument selected!" );
-			return false;
-		}
-		instrumentsMatching.push_back( pInstrument );
-		sMode = "Play Selected Instrument";
-		break;
-	}
-	case MidiInstrumentMap::Input::AsOutput: {
-		instrumentsMatching = pInstrumentList->findByMidiNote( nNote );
-		if ( instrumentsMatching.size() == 0 ) {
-			WARNINGLOG( QString( "Unable to map note [%1] to instrument" )
-						.arg( nNote ) );
-			return false;
-		}
-		sMode = "Map to Output MIDI note";
-		break;
-	}
-	case MidiInstrumentMap::Input::Order: {
-		const int nInstrument = nNote - MidiMessage::nInstrumentOffset;
-		if( nInstrument < 0 || nInstrument >= pInstrumentList->size()) {
-			WARNINGLOG( QString( "Instrument number [%1] - derived from note [%2] - out of bound note [%3,%4]" )
-						.arg( nInstrument ).arg( nNote )
-						.arg( 0 ).arg( pInstrumentList->size() ) );
-			return false;
-		}
-
-		auto pInstrument = pInstrumentList->get( nInstrument );
-		if ( pInstrument == nullptr ) {
-			WARNINGLOG( QString( "Unable to retrieve instrument [%1]" )
-						.arg( nInstrument ) );
-			return false;
-		}
-		instrumentsMatching.push_back( pInstrument );
-		sMode = "Map to instrument list position";
-	}
-	};
+	const auto mappedInstruments = pMidiInstrumentMap
+		->mapInput( nNote, nChannel, pSong->getDrumkit() );
+	QString sMode( MidiInstrumentMap::InputToQString(
+		pMidiInstrumentMap->getInput() ) );
 
 	// Some finishing touches and note playback.
 	bool bSuccess = true;
 	QStringList instrumentStrings;
-	for ( const auto& ppInstrument : instrumentsMatching ) {
+	for ( const auto& ppInstrument : mappedInstruments ) {
 
 		// Only look to change instrument if the current note is actually of hihat
 		// and hihat openness is outside the instrument selected

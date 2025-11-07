@@ -317,7 +317,8 @@ void MidiInput::handleNoteOnMessage(
 	}
 
 	QStringList mappedInstruments;
-	CoreActionController::handleNote( nNote, fVelocity, false, &mappedInstruments );
+	CoreActionController::handleNote(
+		nNote, msg.getChannel(), fVelocity, false, &mappedInstruments );
 
 	pHandledInput->mappedInstruments = mappedInstruments;
 }
@@ -344,7 +345,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke,
 
 	QStringList mappedInstruments;
 	CoreActionController::handleNote(
-		msg.getData1(), 0.0, true, &mappedInstruments );
+		msg.getData1(), msg.getChannel(), 0.0, true, &mappedInstruments );
 
 	pHandledInput->mappedInstruments = mappedInstruments;
 }
