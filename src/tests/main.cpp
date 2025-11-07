@@ -108,12 +108,14 @@ int main( int argc, char **argv)
 	QCommandLineParser parser;
 	QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH","Level");
 	QCommandLineOption appveyorOption( QStringList() << "appveyor", "Report test progress to AppVeyor build" );
+	QCommandLineOption childOption( QStringList() << "child", "Child process (no backtrace)" );
 	QCommandLineOption benchmarkOption( QStringList() << "b" << "benchmark", "Run audio system benchmark" );
 	QCommandLineOption outputFileOption( QStringList() << "o" << "output-file", "If specified the output of the logger will not be directed to stdout but instead stored in a file (either plain file name or with relative of absolute path)",
 										 "Output File", "");
 	parser.addHelpOption();
 	parser.addOption( verboseOption );
 	parser.addOption( appveyorOption );
+	parser.addOption( childOption );
 	parser.addOption( benchmarkOption );
 	parser.addOption( outputFileOption );
 	parser.process(app);
@@ -154,11 +156,13 @@ int main( int argc, char **argv)
 	setupEnvironment( logLevelOpt, sLogFilePath, userDataDir.path() );
 
 #ifdef HAVE_EXECINFO_H
-	signal(SIGSEGV, fatal_signal);
-	signal(SIGILL, fatal_signal);
-	signal(SIGABRT, fatal_signal);
-	signal(SIGFPE, fatal_signal);
-	signal(SIGBUS, fatal_signal);
+	if ( ! parser.isSet( childOption ) ) {
+		signal( SIGSEGV, fatal_signal );
+		signal( SIGILL, fatal_signal );
+		signal( SIGABRT, fatal_signal );
+		signal( SIGFPE, fatal_signal );
+		signal( SIGBUS, fatal_signal );
+	}
 #endif
 
 	// Enable the audio benchmark
