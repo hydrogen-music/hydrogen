@@ -171,21 +171,6 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 			m_pInputIgnoreNoteOffCheckBox->isChecked();
 	} );
 
-	m_pInputDiscardAfterActionCheckBox = new QCheckBox( pInputSettingsWidget );
-	m_pInputDiscardAfterActionCheckBox->setChecked(
-		pPref->m_bMidiDiscardNoteAfterAction );
-	/*: The character after the '&' symbol can be used as a shortcut via the Alt
-	 *  modifier. It should not coincide with any other shortcut in the Settings
-	 *  tab of the MidiControlDialog. If in question, you can just drop the
-	 *  '&'. */
-	m_pInputDiscardAfterActionCheckBox->setText(
-		tr( "&Discard MIDI messages after action has been triggered" ) );
-	pInputSettingsLayout->addWidget( m_pInputDiscardAfterActionCheckBox );
-	connect( m_pInputDiscardAfterActionCheckBox, &QAbstractButton::toggled, [=]() {
-		Preferences::get_instance()->m_bMidiDiscardNoteAfterAction =
-			m_pInputDiscardAfterActionCheckBox->isChecked();
-	} );
-
 	auto pInputMidiClockCheckBox = new QCheckBox( pInputSettingsWidget );
 	pInputMidiClockCheckBox->setChecked( pPref->getMidiClockInputHandling() );
 	pInputMidiClockCheckBox->setText( tr( "Handle MIDI Clock input" ) );
@@ -695,8 +680,6 @@ void MidiControlDialog::updatePreferencesEvent( int nValue ) {
 		}
 
 		m_pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
-		m_pInputDiscardAfterActionCheckBox->setChecked(
-			pPref->m_bMidiDiscardNoteAfterAction );
 		m_pOutputEnableMidiFeedbackCheckBox->setChecked(
 			pPref->m_bEnableMidiFeedback );
 

@@ -3146,11 +3146,6 @@ LilyPond 导出是一项实验性功能。
         <translation>忽略音符：关(&amp;I)</translation>
     </message>
     <message>
-        <source>&amp;Discard MIDI messages after action has been triggered</source>
-        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
-        <translation>触发动作后丢弃 MIDI 消息(&amp;D)</translation>
-    </message>
-    <message>
         <source>&amp;Enable MIDI feedback</source>
         <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
         <translation>启用 MIDI 反馈(&amp;E)</translation>

@@ -276,7 +276,6 @@ public:
 
 	int					m_nMidiChannelFilter;
 	bool				m_bMidiNoteOffIgnore;
-	bool				m_bMidiDiscardNoteAfterAction;
 	bool				m_bEnableMidiFeedback;
 	bool				getMidiClockInputHandling() const;
 	void				setMidiClockInputHandling( bool bHandle );

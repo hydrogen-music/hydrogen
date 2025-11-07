@@ -3149,11 +3149,6 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <translation>&amp;Ignorar note-off</translation>
     </message>
     <message>
-        <source>&amp;Discard MIDI messages after action has been triggered</source>
-        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
-        <translation>&amp;Descart mensagens MIDI depois que uma ação for disparada</translation>
-    </message>
-    <message>
         <source>&amp;Enable MIDI feedback</source>
         <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
         <translation>&amp;Ativar feedback MIDI</translation>

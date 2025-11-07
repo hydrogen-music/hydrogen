@@ -3151,11 +3151,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <translation>&amp;Ignorar note-off</translation>
     </message>
     <message>
-        <source>&amp;Discard MIDI messages after action has been triggered</source>
-        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
-        <translation>&amp;Descartar mensajes MIDI tras dispararse una acción</translation>
-    </message>
-    <message>
         <source>&amp;Enable MIDI feedback</source>
         <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
         <translation>Habilitar f&amp;eedback MIDI</translation>

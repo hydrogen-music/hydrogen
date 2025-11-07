@@ -301,20 +301,14 @@ void MidiInput::handleNoteOnMessage(
 	pHydrogen->setLastMidiEvent( MidiMessage::Event::Note );
 	pHydrogen->setLastMidiEventParameter( msg.getData1() );
 
-	bool bActionSuccess = false;
 	for ( const auto& ppAction : pMidiEventMap->getNoteActions( msg.getData1() ) ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
 			auto pNewAction = MidiAction::from( ppAction, msg.getTimePoint() );
 			pNewAction->setValue( QString::number( msg.getData2() ) );
 			if ( pMidiActionManager->handleMidiActionAsync( pNewAction ) ) {
-				bActionSuccess = true;
 				pHandledInput->actionTypes.push_back( pNewAction->getType() );
 			}
 		}
-	}
-
-	if ( bActionSuccess && pPref->m_bMidiDiscardNoteAfterAction ) {
-		return;
 	}
 
 	QStringList mappedInstruments;

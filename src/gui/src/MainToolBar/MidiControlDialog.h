@@ -96,7 +96,6 @@ private:
 
 		QComboBox* m_pInputChannelFilterComboBox;
 		QCheckBox* m_pInputIgnoreNoteOffCheckBox;
-		QCheckBox* m_pInputDiscardAfterActionCheckBox;
 		QCheckBox* m_pOutputEnableMidiFeedbackCheckBox;
 
 		QComboBox* m_pInputNoteMappingComboBox;

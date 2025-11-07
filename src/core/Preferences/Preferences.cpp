@@ -106,7 +106,6 @@ Preferences::Preferences()
 	, m_sMidiOutputPortName(  Preferences::getNullMidiPort() )
 	, m_nMidiChannelFilter( -1 )
 	, m_bMidiNoteOffIgnore( true )
-	, m_bMidiDiscardNoteAfterAction( true )
 	, m_bEnableMidiFeedback( false )
 	, m_bOscServerEnabled( false )
 	, m_bOscFeedbackEnabled( true )
@@ -288,7 +287,6 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_sMidiOutputPortName( pOther->m_sMidiOutputPortName )
 	, m_nMidiChannelFilter( pOther->m_nMidiChannelFilter )
 	, m_bMidiNoteOffIgnore( pOther->m_bMidiNoteOffIgnore )
-	, m_bMidiDiscardNoteAfterAction( pOther->m_bMidiDiscardNoteAfterAction )
 	, m_bEnableMidiFeedback( pOther->m_bEnableMidiFeedback )
 	, m_bOscServerEnabled( pOther->m_bOscServerEnabled )
 	, m_bOscFeedbackEnabled( pOther->m_bOscFeedbackEnabled )
@@ -555,6 +553,7 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 
 	/////////////// AUDIO ENGINE //////////////
 	bool bAsOutput = false;
+	bool bMidiDiscardNoteAfterAction = false;
 	const XMLNode audioEngineNode = rootNode.firstChildElement( "audio_engine" );
 	if ( ! audioEngineNode.isNull() ) {
 		const QString sAudioDriver = audioEngineNode.read_string(
@@ -714,9 +713,12 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			pPref->m_bMidiNoteOffIgnore = midiDriverNode.read_bool(
 				"ignore_note_off",
 				pPref->m_bMidiNoteOffIgnore, false, false, bSilent );
-			pPref->m_bMidiDiscardNoteAfterAction = midiDriverNode.read_bool(
+			// Used in versions prior to 2.0 to indicate that only MIDI action
+			// should be triggered by incoming MIDI messages but no realtime
+			// notes.
+			bMidiDiscardNoteAfterAction = midiDriverNode.read_bool(
 				"discard_note_after_action",
-				pPref->m_bMidiDiscardNoteAfterAction, false, false, bSilent );
+				false, false, false, bSilent );
 			// Kept for backward compatibility of MIDI input mapping to versions
 			// prior to 2.0.
 			bAsOutput = midiDriverNode.read_bool(
@@ -1113,9 +1115,14 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			pPref->m_pMidiInstrumentMap->setInput(
 				MidiInstrumentMap::Input::SelectedInstrument );
 		}
+		else if ( bMidiDiscardNoteAfterAction ) {
+			// Incoming MIDI message were not mapped to realtime notes.
+			pPref->m_pMidiInstrumentMap->setInput(
+				MidiInstrumentMap::Input::None );
+		}
 		else {
 			pPref->m_pMidiInstrumentMap->setInput(
-			MidiInstrumentMap::Input::Order );
+				MidiInstrumentMap::Input::Order );
 		}
 
 		// Prior to version 2.0 a single numerical value could be set in the
@@ -1330,7 +1337,6 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 			midiDriverNode.write_int( "channel_filter", m_nMidiChannelFilter );
 			midiDriverNode.write_bool( "ignore_note_off", m_bMidiNoteOffIgnore );
 			midiDriverNode.write_bool( "enable_midi_feedback", m_bEnableMidiFeedback );
-			midiDriverNode.write_bool( "discard_note_after_action", m_bMidiDiscardNoteAfterAction );
 			midiDriverNode.write_bool( "midi_clock_input_handling",
 									   getMidiClockInputHandling() );
 			midiDriverNode.write_bool( "midi_transport_input_handling",
@@ -1813,8 +1819,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_nMidiChannelFilter ) )
 			.append( QString( "%1%2m_bMidiNoteOffIgnore: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bMidiNoteOffIgnore ) )
-			.append( QString( "%1%2m_bMidiDiscardNoteAfterAction: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bMidiDiscardNoteAfterAction ) )
 			.append( QString( "%1%2m_bEnableMidiFeedback: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bEnableMidiFeedback ) )
 			.append( QString( "%1%2m_bMidiClockInputHandling: %3\n" ).arg( sPrefix )
@@ -2061,8 +2065,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_nMidiChannelFilter ) )
 			.append( QString( ", m_bMidiNoteOffIgnore: %1" )
 					 .arg( m_bMidiNoteOffIgnore ) )
-			.append( QString( ", m_bMidiDiscardNoteAfterAction: %1" )
-					 .arg( m_bMidiDiscardNoteAfterAction ) )
 			.append( QString( ", m_bEnableMidiFeedback: %1" )
 					 .arg( m_bEnableMidiFeedback ) )
 			.append( QString( ", m_bMidiClockInputHandling: %1" )
