@@ -361,6 +361,10 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 		if ( pMidiInstrumentMap->getOutput() != output ) {
 			pMidiInstrumentMap->setOutput( output );
 			updateInstrumentTable();
+
+			// Announce the changes to the instrument editor.
+			HydrogenApp::get_instance()->changePreferences(
+				Preferences::Changes::MidiTab );
 		}
 	} );
 

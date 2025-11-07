@@ -167,6 +167,9 @@ void InstrumentEditorPanel::onPreferencesChanged( const H2Core::Preferences::Cha
 					 H2Core::Preferences::Changes::Colors ) ) {
 		m_pComponentsEditor->updateEditor();
 	}
+	if ( changes & ( H2Core::Preferences::Changes::MidiTab ) ) {
+		m_pInstrumentEditor->updateMidiNoteLabel();
+	}
 }
 
 void InstrumentEditorPanel::updateInstrument() {

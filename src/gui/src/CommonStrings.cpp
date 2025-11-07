@@ -126,6 +126,10 @@ CommonStrings::CommonStrings(){
 	  in the Instrument Editor. Designed to hold four characters but
 	  flexible.*/
 	m_sMidiOutNoteLabel = tr( "Note" );
+	/*: Text displayed below the LCD to set the output MIDI note in the
+	  Instrument Editor in case the corresponding output method is set. Designed
+	  to be flexible.*/
+	m_sMidiOutNoteOffsetLabel = tr( "Note Offset" );
 	/*: Text displayed in the left part of the row of the Instrument Editor
 	  concerned with MIDI output parameters (Designed to hold eleven characters
 	  but flexible) as well as in the header of the Settings tab of the

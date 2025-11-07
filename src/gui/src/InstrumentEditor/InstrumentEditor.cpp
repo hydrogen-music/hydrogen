@@ -29,6 +29,8 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
+#include <core/Midi/MidiInstrumentMap.h>
+#include <core/Preferences/Preferences.h>
 
 #include "InstrumentEditorPanel.h"
 #include "../CommonStrings.h"
@@ -115,8 +117,7 @@ font-size: 21px;" );
 			CoreActionController::setInstrumentMidiOutNote(
 				pInstrument->getId(), static_cast<int>(fValue), nullptr );
 		});
-	m_pMidiOutNoteLbl = new ClickableLabel(
-		m_pInstrumentProp, QSize( 61, 10 ), pCommonStrings->getMidiOutNoteLabel() );
+	m_pMidiOutNoteLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ) );
 	m_pMidiOutNoteLbl->move( 208, 281 );
 
 	/////////////
@@ -396,6 +397,7 @@ font-size: 21px;" );
 
 	updateColors();
 	updateEditor();
+	updateMidiNoteLabel();
 }
 
 InstrumentEditor::~InstrumentEditor() {
@@ -540,6 +542,17 @@ void InstrumentEditor::updateEditor() {
 	}
 	else {
 		m_pNameLbl->setText( "" );
+	}
+}
+
+void InstrumentEditor::updateMidiNoteLabel() {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	if ( Preferences::get_instance()->getMidiInstrumentMap()->getOutput() ==
+		 MidiInstrumentMap::Output::Offset ) {
+		m_pMidiOutNoteLbl->setText( pCommonStrings->getMidiOutNoteOffsetLabel() );
+	}
+	else {
+		m_pMidiOutNoteLbl->setText( pCommonStrings->getMidiOutNoteLabel() );
 	}
 }
 

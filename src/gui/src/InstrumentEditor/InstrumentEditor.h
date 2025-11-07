@@ -60,6 +60,7 @@ class InstrumentEditor :  public QWidget,
 
 		void updateColors();
 		void updateEditor();
+		void updateMidiNoteLabel();
 
 	private:
 		InstrumentEditorPanel* m_pInstrumentEditorPanel;

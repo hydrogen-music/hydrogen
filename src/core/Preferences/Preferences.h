@@ -129,7 +129,8 @@ public:
 		GeneralTab = 0x008,
 		/** Any option in the Audio tab appeared.*/
 		AudioTab = 0x010,
-		/** Any option in the MIDI tab appeared.*/
+		/** Any option in the MIDI tab or selected ones in the
+            #MidiControlDialog.*/
 		MidiTab = 0x020,
 		/** Any option in the OSC tab appeared.*/
 		OscTab = 0x040,
