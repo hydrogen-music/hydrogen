@@ -81,7 +81,7 @@ font-size: 21px;" );
 
 	m_pMidiOutChannelLCD = new LCDSpinBox(
 		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, -1, 15,
-		true, true );
+		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::MinusOneAsOff );
 	m_pMidiOutChannelLCD->move( 146, 257 );
 	m_pMidiOutChannelLCD->setToolTip(QString(tr("Midi out channel")));
 	connect(
@@ -101,7 +101,8 @@ font-size: 21px;" );
 
 	///
 	m_pMidiOutNoteLCD = new LCDSpinBox(
-		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, 0, 127, true );
+		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, 0, 127,
+		LCDSpinBox::Flag::ModifyOnChange );
 	m_pMidiOutNoteLCD->move( 210, 257 );
 	m_pMidiOutNoteLCD->setToolTip(QString(tr("Midi out note")));
 	connect(
@@ -308,9 +309,9 @@ font-size: 21px;" );
 	m_pGainLbl->move( 120, 125 );
 
 
-	m_pMuteGroupLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-									  LCDSpinBox::Type::Int, -1, 100,
-									  true, true );
+	m_pMuteGroupLCD = new LCDSpinBox(
+		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, -1, 100,
+		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::MinusOneAsOff );
 	m_pMuteGroupLCD->move( 210, 101 );
 	connect( m_pMuteGroupLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->setMuteGroup(
@@ -353,9 +354,9 @@ font-size: 21px;" );
 	//////////////////////////
 	// HiHat setup
 
-	m_pHihatGroupLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-									   LCDSpinBox::Type::Int, -1, 32,
-									   true, true );
+	m_pHihatGroupLCD = new LCDSpinBox(
+		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, -1, 32,
+		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::MinusOneAsOff );
 	m_pHihatGroupLCD->move( 33, 303 );
 	connect( m_pHihatGroupLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->setHihatGrp(
@@ -365,8 +366,9 @@ font-size: 21px;" );
 										   pCommonStrings->getHihatGroupLabel() );
 	m_pHihatGroupLbl->move( 28, 327 );
 
-	m_pHihatMinRangeLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-										  LCDSpinBox::Type::Int, 0, 127, true );
+	m_pHihatMinRangeLCD = new LCDSpinBox(
+		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, 0, 127,
+		LCDSpinBox::Flag::ModifyOnChange );
 	m_pHihatMinRangeLCD->move( 146, 303 );
 	connect( m_pHihatMinRangeLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->setLowerCc(
@@ -378,8 +380,9 @@ font-size: 21px;" );
 											  pCommonStrings->getHihatMinRangeLabel() );
 	m_pHihatMinRangeLbl->move( 144, 327 );
 
-	m_pHihatMaxRangeLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-										  LCDSpinBox::Type::Int, 0, 127, true );
+	m_pHihatMaxRangeLCD = new LCDSpinBox(
+		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, 0, 127,
+		LCDSpinBox::Flag::ModifyOnChange );
 	m_pHihatMaxRangeLCD->move( 210, 303 );
 	connect( m_pHihatMaxRangeLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->setHigherCc(
