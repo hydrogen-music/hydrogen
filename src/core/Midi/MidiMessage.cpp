@@ -172,7 +172,9 @@ MidiMessage MidiMessage::from( const ControlChange& controlChange ) {
 		msg.setType( Type::ControlChange );
 		msg.setData1( std::clamp( controlChange.nParameter, 0, 127 ) );
 		msg.setData2( std::clamp( controlChange.nValue, 0, 127 ) );
-		msg.setChannel( std::clamp( controlChange.nChannel, 0, 15 ) );
+		msg.setChannel( std::clamp( controlChange.nChannel,
+								   MidiMessage::nChannelMinimum,
+								   MidiMessage::nChannelMaximum ) );
 	}
 
 	return msg;
@@ -202,9 +204,12 @@ MidiMessage MidiMessage::from( const NoteOff& noteOff ) {
 		// By providing a negative value the resulting message will be
 		// suppressed.
 		msg.setType( Type::NoteOff );
-		msg.setData1( std::clamp( noteOff.nKey, 0, 127 ) );
+		msg.setData1( std::clamp( noteOff.nKey, MidiMessage::nNoteMinimum,
+								 MidiMessage::nNoteMaximum ) );
 		msg.setData2( std::clamp( noteOff.nVelocity, 0, 127 ) );
-		msg.setChannel( std::clamp( noteOff.nChannel, 0, 15 ) );
+		msg.setChannel( std::clamp( noteOff.nChannel,
+								   MidiMessage::nChannelMinimum,
+								   MidiMessage::nChannelMaximum ) );
 	}
 
 	return msg;
