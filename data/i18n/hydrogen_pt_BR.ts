@@ -1309,7 +1309,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Off</source>
-        <extracomment>Displayed within a status message when deactivating a widget as well as in * the preferences dialog as option to disable a setting.</extracomment>
+        <extracomment>Displayed within a status message when deactivating a widget as well as * in the preferences dialog as option to disable a setting and in spin * boxes when disabling a feature.</extracomment>
         <translation>Desligado</translation>
     </message>
     <message>

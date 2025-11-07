@@ -326,8 +326,9 @@ CommonStrings::CommonStrings(){
 	/*: Displayed within a status message when activating a widget as well as in
 	 *  the preferences dialog as option to enable a setting.*/
 	m_sStatusOn = tr( "On" );
-	/*: Displayed within a status message when deactivating a widget as well as in
-	 *  the preferences dialog as option to disable a setting.*/
+	/*: Displayed within a status message when deactivating a widget as well as
+	 *  in the preferences dialog as option to disable a setting and in spin
+	 *  boxes when disabling a feature.*/
 	m_sStatusOff = tr( "Off" );
 	/*: Displayed within a status message when enabling a widget.*/
 	m_sStatusEnabled = tr( "enabled" );
