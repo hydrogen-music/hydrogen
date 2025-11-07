@@ -1446,7 +1446,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>All</source>
-        <extracomment>Combo box item - e.g. used in the Settings tab of the MidiControl - * indicating that every option is permissible.</extracomment>
+        <extracomment>Combo or spin box item - e.g. used in the Settings tab of the * MidiControl - indicating that every option is permissible.</extracomment>
         <translation>Alles</translation>
     </message>
     <message>

@@ -251,8 +251,8 @@ CommonStrings::CommonStrings(){
 	/*: Text displayed on the buttons used to restart audio or MIDI driver in
 	 *  the Preferences dialog. */
 	m_sDriverRestartButton = tr( "Apply and restart driver" );
-	/*: Combo box item - e.g. used in the Settings tab of the MidiControl -
-	 *  indicating that every option is permissible. */
+	/*: Combo or spin box item - e.g. used in the Settings tab of the
+	 *  MidiControl - indicating that every option is permissible. */
 	m_sAllLabel = tr( "All" );
 
 	/*: Displayed in the tooltip of input widgets. Indicates the
