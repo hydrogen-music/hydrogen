@@ -49,6 +49,7 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 	const MidiMessage& msg )
 {
 	const auto timePoint = msg.getTimePoint();
+	auto pPref = Preferences::get_instance();
 
 	auto pHandledInput = std::make_shared<HandledInput>();
 	pHandledInput->timePoint = timePoint;
@@ -59,30 +60,29 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 
 	INFOLOG( QString( "Incoming message:  [%1]" ).arg( msg.toQString() ) );
 
-	// midi channel filter for all messages
-	bool bIsChannelValid = true;
-	auto pPref = Preferences::get_instance();
-	if ( pPref->m_nMidiActionChannel != -1 &&
-		 pPref->m_nMidiActionChannel != msg.getChannel() ) {
-		bIsChannelValid = false;
-	}
-
-	// exclude all midi channel filter independent messages
+	// Exclude all midi channel filtering for independent messages and for
+	// NOTE_ON and NOTE_OFF messages (the latter feature their own filtering).
 	auto type = msg.getType();
-	if ( MidiMessage::Type::Continue == type ||
-		 MidiMessage::Type::QuarterFrame == type ||
-		 MidiMessage::Type::SongPos == type ||
-		 MidiMessage::Type::Start == type ||
-		 MidiMessage::Type::Stop == type ||
-		 MidiMessage::Type::Sysex == type ||
-		 MidiMessage::Type::TimingClock == type ) {
-		bIsChannelValid = true;
-	}
+	if ( MidiMessage::Type::Continue != type &&
+		 MidiMessage::Type::NoteOn != type &&
+		 MidiMessage::Type::NoteOff != type &&
+		 MidiMessage::Type::QuarterFrame != type &&
+		 MidiMessage::Type::SongPos != type &&
+		 MidiMessage::Type::Start != type &&
+		 MidiMessage::Type::Stop != type &&
+		 MidiMessage::Type::Sysex != type &&
+		 MidiMessage::Type::TimingClock != type ) {
 
-	if ( ! bIsChannelValid ) {
-		INFOLOG( QString( "Dropping message due to invalid channel: [%1]" )
-				 .arg( msg.toQString() ) );
-		return pHandledInput;
+		if ( pPref->m_nMidiActionChannel == MidiMessage::nChannelOff ) {
+			INFOLOG( "Action handling disabled. Dropping message." );
+			return pHandledInput;
+		}
+		else if ( pPref->m_nMidiActionChannel != MidiMessage::nChannelAll &&
+				  pPref->m_nMidiActionChannel != msg.getChannel() ) {
+			INFOLOG( QString( "Dropping message due to invalid channel: [%1] instead of [%2]" )
+				 .arg( msg.getChannel() ).arg( pPref->m_nMidiActionChannel ) );
+			return pHandledInput;
+		}
 	}
 
 	auto pHydrogen = Hydrogen::get_instance();
