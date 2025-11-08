@@ -67,16 +67,10 @@ void MidiNoteTest::testMidiInstrumentInputMapping() {
 	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
-	const auto pOldSong = pHydrogen->getSong();
-	const auto pOldPreferences = Preferences::get_instance();
 
 	auto pNewPreferences = CoreActionController::loadPreferences(
 		H2TEST_FILE( "preferences/midi-instrument-mapping.conf" ) );
 	CPPUNIT_ASSERT( pNewPreferences != nullptr );
-	CPPUNIT_ASSERT( CoreActionController::setPreferences( pNewPreferences ) );
-	const auto pNewSong = Song::getEmptySong();
-	CPPUNIT_ASSERT( pNewSong != nullptr );
-	CPPUNIT_ASSERT( CoreActionController::setSong( pNewSong ) );
 
 	const auto pNewDrumkit = Drumkit::load(
 		H2TEST_FILE( "drumkits/midi-instrument-mapping" ),
@@ -84,12 +78,8 @@ void MidiNoteTest::testMidiInstrumentInputMapping() {
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
 	CPPUNIT_ASSERT( CoreActionController::setDrumkit( pNewDrumkit ) );
 
-	auto pPref = Preferences::get_instance();
-	auto pMidiInstrumentMap = pPref->getMidiInstrumentMap();
+	auto pMidiInstrumentMap = pNewPreferences->getMidiInstrumentMap();
 	auto pInstrumentList = pNewDrumkit->getInstruments();
-
-	////////////////////////////////////////////////////////////////////////////
-	// Input mapping
 
 	pMidiInstrumentMap->setInput( MidiInstrumentMap::Input::None );
 	for ( const auto& ppInstrument : *pInstrumentList ) {
@@ -280,11 +270,6 @@ void MidiNoteTest::testMidiInstrumentInputMapping() {
 		}
 	}
 
-	////////////////////////////////////////////////////////////////////////////
-
-	CoreActionController::setPreferences( pOldPreferences );
-	CoreActionController::setSong( pOldSong );
-
 	___INFOLOG( "passed" );
 }
 
@@ -292,16 +277,10 @@ void MidiNoteTest::testMidiInstrumentOutputMapping() {
 	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
-	const auto pOldSong = pHydrogen->getSong();
-	const auto pOldPreferences = Preferences::get_instance();
 
 	auto pNewPreferences = CoreActionController::loadPreferences(
 		H2TEST_FILE( "preferences/midi-instrument-mapping.conf" ) );
 	CPPUNIT_ASSERT( pNewPreferences != nullptr );
-	CPPUNIT_ASSERT( CoreActionController::setPreferences( pNewPreferences ) );
-	const auto pNewSong = Song::getEmptySong();
-	CPPUNIT_ASSERT( pNewSong != nullptr );
-	CPPUNIT_ASSERT( CoreActionController::setSong( pNewSong ) );
 
 	const auto pNewDrumkit = Drumkit::load(
 		H2TEST_FILE( "drumkits/midi-instrument-mapping" ),
@@ -309,12 +288,8 @@ void MidiNoteTest::testMidiInstrumentOutputMapping() {
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
 	CPPUNIT_ASSERT( CoreActionController::setDrumkit( pNewDrumkit ) );
 
-	auto pPref = Preferences::get_instance();
-	auto pMidiInstrumentMap = pPref->getMidiInstrumentMap();
+	auto pMidiInstrumentMap = pNewPreferences->getMidiInstrumentMap();
 	auto pInstrumentList = pNewDrumkit->getInstruments();
-
-	////////////////////////////////////////////////////////////////////////////
-	// Output mapping
 
 	pMidiInstrumentMap->setOutput( MidiInstrumentMap::Output::None );
 	for ( const auto& ppInstrument : *pInstrumentList ) {
@@ -354,11 +329,6 @@ void MidiNoteTest::testMidiInstrumentOutputMapping() {
 		}
 	}
 
-	////////////////////////////////////////////////////////////////////////////
-
-	CoreActionController::setPreferences( pOldPreferences );
-	CoreActionController::setSong( pOldSong );
-
 	___INFOLOG( "passed" );
 }
 
@@ -366,16 +336,10 @@ void MidiNoteTest::testMidiInstrumentGlobalMapping() {
 	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
-	const auto pOldSong = pHydrogen->getSong();
-	const auto pOldPreferences = Preferences::get_instance();
 
 	auto pNewPreferences = CoreActionController::loadPreferences(
 		H2TEST_FILE( "preferences/midi-instrument-mapping.conf" ) );
 	CPPUNIT_ASSERT( pNewPreferences != nullptr );
-	CPPUNIT_ASSERT( CoreActionController::setPreferences( pNewPreferences ) );
-	const auto pNewSong = Song::getEmptySong();
-	CPPUNIT_ASSERT( pNewSong != nullptr );
-	CPPUNIT_ASSERT( CoreActionController::setSong( pNewSong ) );
 
 	const auto pNewDrumkit = Drumkit::load(
 		H2TEST_FILE( "drumkits/midi-instrument-mapping" ),
@@ -383,12 +347,8 @@ void MidiNoteTest::testMidiInstrumentGlobalMapping() {
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
 	CPPUNIT_ASSERT( CoreActionController::setDrumkit( pNewDrumkit ) );
 
-	auto pPref = Preferences::get_instance();
-	auto pMidiInstrumentMap = pPref->getMidiInstrumentMap();
+	auto pMidiInstrumentMap = pNewPreferences->getMidiInstrumentMap();
 	auto pInstrumentList = pNewDrumkit->getInstruments();
-
-	////////////////////////////////////////////////////////////////////////////
-	// Output mapping
 
 	auto testOutput = [&](  bool bGlobal, int nChannel ) {
 		for ( const auto& ppInstrument : *pInstrumentList ) {
@@ -467,11 +427,6 @@ void MidiNoteTest::testMidiInstrumentGlobalMapping() {
 	testInput( true, nGlobalOutputChannel );
 	pMidiInstrumentMap->setUseGlobalOutputChannel( false );
 	testInput( false, nGlobalOutputChannel );
-
-	////////////////////////////////////////////////////////////////////////////
-
-	CoreActionController::setPreferences( pOldPreferences );
-	CoreActionController::setSong( pOldSong );
 
 	___INFOLOG( "passed" );
 }
