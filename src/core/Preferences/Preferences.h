@@ -278,6 +278,8 @@ public:
 	int					m_nMidiActionChannel;
 	bool				m_bMidiNoteOffIgnore;
 	bool				m_bEnableMidiFeedback;
+	int				getMidiFeedbackChannel() const;
+	void				setMidiFeedbackChannel( int nChannel );
 	bool				getMidiClockInputHandling() const;
 	void				setMidiClockInputHandling( bool bHandle );
 	bool				getMidiTransportInputHandling() const;
@@ -630,6 +632,10 @@ private:
 	 *  editor. */
 	int					m_nMaxLayers;
 
+		/** Zero-based MIDI channel which to use for both MIDI feedback and MIDI
+              clock signals. These messages can be turned off by setting the
+              member to #H2Core::MidiMessage::nChannelOff. */
+		int m_nMidiFeedbackChannel;
 		/** Whether Hydrogen will set its tempo according to incoming MIDI clock
 		 * ticks. */
 		bool m_bMidiClockInputHandling;
@@ -1176,6 +1182,9 @@ inline int Preferences::getMaxLayers() const {
 	return m_nMaxLayers;
 }
 
+inline int Preferences::getMidiFeedbackChannel() const {
+	return m_nMidiFeedbackChannel;
+}
 inline bool Preferences::getMidiClockInputHandling() const {
 	return m_bMidiClockInputHandling;
 }
