@@ -742,7 +742,7 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			// notes.
 			bMidiDiscardNoteAfterAction = midiDriverNode.read_bool(
 				"discard_note_after_action",
-				false, false, false, bSilent );
+				false, true, false, true );
 			// Kept for backward compatibility of MIDI input mapping to versions
 			// prior to 2.0.
 			bAsOutput = midiDriverNode.read_bool(
