@@ -28,6 +28,7 @@
 
 #include <core/Helpers/Time.h>
 #include <core/Object.h>
+#include <qevent.h>
 
 #include "../EventListener.h"
 #include "../Widgets/WidgetWithScalableFont.h"
@@ -79,6 +80,7 @@ public slots:
 
 private:
 		void hideEvent( QHideEvent* pEvent ) override;
+        void resizeEvent( QResizeEvent* pEvent ) override;
 		void showEvent( QShowEvent* pEvent ) override;
 
 		void updateFont();
@@ -94,12 +96,16 @@ private:
 
 		QTabWidget* m_pTabWidget;
 
-		LCDSpinBox* m_pInputActionChannelSpinBox;
+        QWidget* m_pInputCheckboxWidget;
 		QCheckBox* m_pInputIgnoreNoteOffCheckBox;
 		QCheckBox* m_pOutputEnableMidiFeedbackCheckBox;
+		LCDSpinBox* m_pInputActionChannelSpinBox;
+        QWidget* m_pOutputCheckboxWidget;
 
 		QComboBox* m_pInputNoteMappingComboBox;
 		QComboBox* m_pOutputNoteMappingComboBox;
+		LCDSpinBox* m_pOutputFeedbackChannelSpinBox;
+
 		QCheckBox* m_pGlobalInputChannelCheckBox;
 		LCDSpinBox* m_pGlobalInputChannelSpinBox;
 		QCheckBox* m_pGlobalOutputChannelCheckBox;
