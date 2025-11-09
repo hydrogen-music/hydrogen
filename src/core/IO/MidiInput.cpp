@@ -33,7 +33,7 @@
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiActionManager.h>
-#include <core/Midi/MidiMap.h>
+#include <core/Midi/MidiEventMap.h>
 #include <core/Preferences/Preferences.h>
 
 namespace H2Core
@@ -49,6 +49,7 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 	const MidiMessage& msg )
 {
 	const auto timePoint = msg.getTimePoint();
+	auto pPref = Preferences::get_instance();
 
 	auto pHandledInput = std::make_shared<HandledInput>();
 	pHandledInput->timePoint = timePoint;
@@ -59,30 +60,29 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 
 	INFOLOG( QString( "Incoming message:  [%1]" ).arg( msg.toQString() ) );
 
-	// midi channel filter for all messages
-	bool bIsChannelValid = true;
-	auto pPref = Preferences::get_instance();
-	if ( pPref->m_nMidiChannelFilter != -1 &&
-		 pPref->m_nMidiChannelFilter != msg.getChannel() ) {
-		bIsChannelValid = false;
-	}
-
-	// exclude all midi channel filter independent messages
+	// Exclude all midi channel filtering for independent messages and for
+	// NOTE_ON and NOTE_OFF messages (the latter feature their own filtering).
 	auto type = msg.getType();
-	if ( MidiMessage::Type::Continue == type ||
-		 MidiMessage::Type::QuarterFrame == type ||
-		 MidiMessage::Type::SongPos == type ||
-		 MidiMessage::Type::Start == type ||
-		 MidiMessage::Type::Stop == type ||
-		 MidiMessage::Type::Sysex == type ||
-		 MidiMessage::Type::TimingClock == type ) {
-		bIsChannelValid = true;
-	}
+	if ( MidiMessage::Type::Continue != type &&
+		 MidiMessage::Type::NoteOn != type &&
+		 MidiMessage::Type::NoteOff != type &&
+		 MidiMessage::Type::QuarterFrame != type &&
+		 MidiMessage::Type::SongPos != type &&
+		 MidiMessage::Type::Start != type &&
+		 MidiMessage::Type::Stop != type &&
+		 MidiMessage::Type::Sysex != type &&
+		 MidiMessage::Type::TimingClock != type ) {
 
-	if ( ! bIsChannelValid ) {
-		INFOLOG( QString( "Dropping message due to invalid channel: [%1]" )
-				 .arg( msg.toQString() ) );
-		return pHandledInput;
+		if ( pPref->m_nMidiActionChannel == MidiMessage::nChannelOff ) {
+			INFOLOG( "Action handling disabled. Dropping message." );
+			return pHandledInput;
+		}
+		else if ( pPref->m_nMidiActionChannel != MidiMessage::nChannelAll &&
+				  pPref->m_nMidiActionChannel != msg.getChannel() ) {
+			INFOLOG( QString( "Dropping message due to invalid channel: [%1] instead of [%2]" )
+				 .arg( msg.getChannel() ).arg( pPref->m_nMidiActionChannel ) );
+			return pHandledInput;
+		}
 	}
 
 	auto pHydrogen = Hydrogen::get_instance();
@@ -243,9 +243,9 @@ void MidiInput::handleControlChangeMessage(
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
-	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 
-	for ( const auto& ppAction : pMidiMap->getCCActions( msg.getData1() ) ) {
+	for ( const auto& ppAction : pMidiEventMap->getCCActions( msg.getData1() ) ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
 			auto pNewAction = MidiAction::from( ppAction, msg.getTimePoint() );
 			pNewAction->setValue( QString::number( msg.getData2() ) );
@@ -267,9 +267,9 @@ void MidiInput::handleProgramChangeMessage(
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
-	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 
-	for ( const auto& ppAction : pMidiMap->getPCActions() ) {
+	for ( const auto& ppAction : pMidiEventMap->getPCActions() ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
 			auto pNewAction = MidiAction::from( ppAction, msg.getTimePoint() );
 			pNewAction->setValue( QString::number( msg.getData1() ) );
@@ -294,31 +294,31 @@ void MidiInput::handleNoteOnMessage(
 	}
 
 	const auto pPref = Preferences::get_instance();
-	const auto pMidiMap = pPref->getMidiMap();
+	const auto pMidiEventMap = pPref->getMidiEventMap();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 
 	pHydrogen->setLastMidiEvent( MidiMessage::Event::Note );
 	pHydrogen->setLastMidiEventParameter( msg.getData1() );
 
-	bool bActionSuccess = false;
-	for ( const auto& ppAction : pMidiMap->getNoteActions( msg.getData1() ) ) {
-		if ( ppAction != nullptr && ! ppAction->isNull() ) {
-			auto pNewAction = MidiAction::from( ppAction, msg.getTimePoint() );
-			pNewAction->setValue( QString::number( msg.getData2() ) );
-			if ( pMidiActionManager->handleMidiActionAsync( pNewAction ) ) {
-				bActionSuccess = true;
-				pHandledInput->actionTypes.push_back( pNewAction->getType() );
+	// The NOTE_ON event can be associated with a MIDI action too.
+	if ( pPref->m_nMidiActionChannel == MidiMessage::nChannelAll ||
+		 ( pPref->m_nMidiActionChannel != MidiMessage::nChannelOff &&
+		   pPref->m_nMidiActionChannel == msg.getChannel() ) ) {
+		for ( const auto& ppAction : pMidiEventMap->getNoteActions( msg.getData1() ) ) {
+			if ( ppAction != nullptr && ! ppAction->isNull() ) {
+				auto pNewAction = MidiAction::from( ppAction, msg.getTimePoint() );
+				pNewAction->setValue( QString::number( msg.getData2() ) );
+				if ( pMidiActionManager->handleMidiActionAsync( pNewAction ) ) {
+					pHandledInput->actionTypes.push_back( pNewAction->getType() );
+				}
 			}
 		}
 	}
 
-	if ( bActionSuccess && pPref->m_bMidiDiscardNoteAfterAction ) {
-		return;
-	}
-
 	QStringList mappedInstruments;
-	CoreActionController::handleNote( nNote, fVelocity, false, &mappedInstruments );
+	CoreActionController::handleNote(
+		nNote, msg.getChannel(), fVelocity, false, &mappedInstruments );
 
 	pHandledInput->mappedInstruments = mappedInstruments;
 }
@@ -345,7 +345,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke,
 
 	QStringList mappedInstruments;
 	CoreActionController::handleNote(
-		msg.getData1(), 0.0, true, &mappedInstruments );
+		msg.getData1(), msg.getChannel(), 0.0, true, &mappedInstruments );
 
 	pHandledInput->mappedInstruments = mappedInstruments;
 }
@@ -378,7 +378,7 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg,
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
-	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 
 	const auto sysexData = msg.getSysexData();
 
@@ -434,7 +434,7 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg,
 			pHydrogen->setLastMidiEvent( event );
 			pHydrogen->setLastMidiEventParameter( msg.getData1() );
 
-			auto actions = pMidiMap->getMMCActions( sMMCtype );
+			auto actions = pMidiEventMap->getMMCActions( sMMCtype );
 			pMidiActionManager->handleMidiActionsAsync( actions );
 			for ( const auto& ppAction : actions ) {
 				if ( ppAction != nullptr ) {

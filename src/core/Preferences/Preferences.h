@@ -28,6 +28,7 @@
 
 #include "Shortcuts.h"
 #include "Theme.h"
+#include "WindowProperties.h"
 
 #include <core/Helpers/Filesystem.h>
 #include <core/Globals.h>
@@ -40,45 +41,12 @@
 namespace H2Core
 {
 
-class MidiMap;
+class MidiInstrumentMap;
+class MidiEventMap;
 
-/**
-\ingroup H2CORE
-*/
-/** \ingroup docCore docConfiguration*/
-class WindowProperties : public H2Core::Object<WindowProperties>
-{
-	H2_OBJECT(WindowProperties)
-public:
-	int x;
-	int y;
-	int width;
-	int height;
-	bool visible;
-	QByteArray m_geometry;
 
-	WindowProperties();
-	WindowProperties( int _x, int _y, int _width, int _height, bool _visible,
-					  const QByteArray& geometry = QByteArray() );
-	WindowProperties( const WindowProperties &other );
-	~WindowProperties();
-
-	void set(int _x, int _y, int _width, int _height, bool _visible, const QByteArray& geometry = QByteArray() ) {
-		x = _x; y = _y;
-		width = _width; height = _height;
-		visible = _visible;
-		m_geometry = geometry;
-	}
-
-	QString toQString( const QString& sPrefix = "",
-					   bool bShort = true ) const override;
-};
-
-/**
-\ingroup H2CORE
-\brief	Manager for User Preferences File (singleton)
-*/
-/** \ingroup docCore docConfiguration*/
+/** \brief Manager for User Preferences File (singleton)
+ * \ingroup H2CORE docCore docConfiguration */
 class Preferences : public H2Core::Object<Preferences>
 {
 	H2_OBJECT(Preferences)
@@ -161,7 +129,8 @@ public:
 		GeneralTab = 0x008,
 		/** Any option in the Audio tab appeared.*/
 		AudioTab = 0x010,
-		/** Any option in the MIDI tab appeared.*/
+		/** Any option in the MIDI tab or selected ones in the
+            #MidiControlDialog.*/
 		MidiTab = 0x020,
 		/** Any option in the OSC tab appeared.*/
 		OscTab = 0x040,
@@ -259,7 +228,6 @@ public:
 	}
 
 	bool				m_bPlaySamplesOnClicking; // audio file browser
-	bool				m_bPlaySelectedInstrument; // midi keys and keys play instrument or drumset
 	bool				m_bFollowPlayhead;
 
 	// SoundLibraryPanel expand song and pattern item
@@ -307,10 +275,8 @@ public:
 	QString				m_sMidiPortName;
 	QString				m_sMidiOutputPortName;
 
-	int					m_nMidiChannelFilter;
+	int					m_nMidiActionChannel;
 	bool				m_bMidiNoteOffIgnore;
-	bool				m_bMidiFixedMapping;
-	bool				m_bMidiDiscardNoteAfterAction;
 	bool				m_bEnableMidiFeedback;
 	bool				getMidiClockInputHandling() const;
 	void				setMidiClockInputHandling( bool bHandle );
@@ -606,8 +572,10 @@ public:
 
 	const std::shared_ptr<Shortcuts> getShortcuts() const;
 	void setShortcuts( const std::shared_ptr<Shortcuts> pShortcuts );
-	const std::shared_ptr<MidiMap> getMidiMap() const;
-	void setMidiMap( const std::shared_ptr<MidiMap> pMidiMap );
+	const std::shared_ptr<MidiEventMap> getMidiEventMap() const;
+	void setMidiEventMap( const std::shared_ptr<MidiEventMap> pMidiEventMap );
+	const std::shared_ptr<MidiInstrumentMap> getMidiInstrumentMap() const;
+	void setMidiInstrumentMap( std::shared_ptr<MidiInstrumentMap> pMap );
 
 	bool getLoadingSuccessful() const;
 
@@ -615,13 +583,6 @@ public:
 					   bool bShort = true ) const override;
 	
 private:
-
-		static WindowProperties loadWindowPropertiesFrom(
-			const XMLNode& parent, const QString& sWindowName,
-			const WindowProperties& defaultProp, const bool bSilent = false );
-		static void saveWindowPropertiesTo(
-			XMLNode& parent, const QString& sWindowName,
-			const WindowProperties& prop );
 
 		/** Used to indicate changes in the underlying XSD file. */
 		static constexpr int nCurrentFormatVersion = 2;
@@ -753,7 +714,8 @@ private:
 	std::shared_ptr<Theme>		m_pTheme;
 
 	std::shared_ptr<Shortcuts>  m_pShortcuts;
-	std::shared_ptr<MidiMap> m_pMidiMap;
+	std::shared_ptr<MidiEventMap> m_pMidiEventMap;
+	std::shared_ptr<MidiInstrumentMap> m_pMidiInstrumentMap;
 
 	bool					m_bLoadingSuccessful;
 };
@@ -1305,11 +1267,17 @@ inline const std::shared_ptr<Shortcuts> Preferences::getShortcuts() const {
 inline void Preferences::setShortcuts( const std::shared_ptr<Shortcuts> pShortcuts ) {
 	m_pShortcuts = pShortcuts;
 }
-inline const std::shared_ptr<MidiMap> Preferences::getMidiMap() const {
-	return m_pMidiMap;
+inline const std::shared_ptr<MidiEventMap> Preferences::getMidiEventMap() const {
+	return m_pMidiEventMap;
 }
-inline void Preferences::setMidiMap( const std::shared_ptr<MidiMap> pMidiMap ) {
-	m_pMidiMap = pMidiMap;
+inline void Preferences::setMidiEventMap( const std::shared_ptr<MidiEventMap> pMidiEventMap ) {
+	m_pMidiEventMap = pMidiEventMap;
+}
+inline const std::shared_ptr<MidiInstrumentMap> Preferences::getMidiInstrumentMap() const {
+	return m_pMidiInstrumentMap;
+}
+inline void Preferences::setMidiInstrumentMap( const std::shared_ptr<MidiInstrumentMap> pMidiInstrumentMap ) {
+	m_pMidiInstrumentMap = pMidiInstrumentMap;
 }
 inline bool Preferences::getLoadingSuccessful() const {
 	return m_bLoadingSuccessful;

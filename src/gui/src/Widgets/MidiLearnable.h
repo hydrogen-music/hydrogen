@@ -63,7 +63,7 @@ public:
 
 	/**
 	 * Update #m_registeredMidiEvents since the underlying
-	 * #H2Core::MidiMap changed.
+	 * #H2Core::MidiEventMap changed.
 	 */
 	void midiMapChangedEvent() override;
 

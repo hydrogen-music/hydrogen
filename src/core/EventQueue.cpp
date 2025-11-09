@@ -39,6 +39,11 @@ void EventQueue::create_instance()
 
 EventQueue::EventQueue() : m_bSilent( false ) {
 	__instance = this;
+
+    std::random_device randomSeed;
+	m_randomEngine = std::default_random_engine( randomSeed() );
+	m_randomDistribution =
+		std::uniform_int_distribution<long>( Event::nInvalidId + 1, LONG_MAX );
 }
 
 
@@ -46,14 +51,14 @@ EventQueue::~EventQueue() {
 }
 
 
-void EventQueue::pushEvent( const Event::Type type, const int nValue ) {
+long EventQueue::pushEvent( const Event::Type type, const int nValue ) {
 	std::lock_guard< std::mutex > lock( m_mutex );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	if ( pHydrogen == nullptr ||
 		 pHydrogen->getGUIState() == Hydrogen::GUIState::startup ||
 		 pHydrogen->getGUIState() == Hydrogen::GUIState::shutdown ) {
-		return;
+		return Event::nInvalidId;
 	}
 
 	/* The event queue is full. We could drop the old event, or the new event
@@ -71,7 +76,11 @@ void EventQueue::pushEvent( const Event::Type type, const int nValue ) {
 		}
 	}
 
-	m_eventQueue.push_back( std::make_unique<Event>( type, nValue ) );
+	auto pEvent = std::make_unique<Event>( type, nValue );
+	const auto nId = pEvent->getId();
+	m_eventQueue.push_back( std::move( pEvent ) );
+
+	return nId;
 }
 
 std::unique_ptr<Event> EventQueue::popEvent() {
@@ -98,6 +107,10 @@ void EventQueue::dropEvents( const Event::Type& type ) {
             ++it;
 		}
     }
+}
+
+long EventQueue::createEventId() {
+	return m_randomDistribution( m_randomEngine );
 }
 
 QString EventQueue::toQString( const QString& sPrefix, bool bShort ) {

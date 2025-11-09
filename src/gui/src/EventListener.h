@@ -22,8 +22,11 @@
 #ifndef EVENT_LISTENER
 #define EVENT_LISTENER
 
-#include <core/Globals.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Globals.h>
+
+#include <set>
+
 /** \ingroup docGUI docEvent*/
 class EventListener
 {
@@ -82,6 +85,26 @@ class EventListener
 		virtual void XRunEvent() {}
 
 		virtual ~EventListener() {}
+
+		void blacklistEventId( long nEventId ) {
+			if ( m_blacklistedEventIds.find( nEventId ) ==
+				 m_blacklistedEventIds.end() ) {
+				m_blacklistedEventIds.insert( nEventId );
+			}
+		}
+		bool isEventIdBlacklisted( long nEventId ) const {
+			return m_blacklistedEventIds.find( nEventId ) !=
+				   m_blacklistedEventIds.end();
+		}
+		void dropBlacklistedEventId( long nEventId ) {
+			const auto it = m_blacklistedEventIds.find( nEventId );
+			if ( it != m_blacklistedEventIds.end() ) {
+				m_blacklistedEventIds.erase( it );
+			}
+		}
+
+	private:
+		std::set<long> m_blacklistedEventIds;
 };
 
 

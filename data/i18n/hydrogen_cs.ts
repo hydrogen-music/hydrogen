@@ -1309,7 +1309,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Off</source>
-        <extracomment>Displayed within a status message when deactivating a widget as well as in * the preferences dialog as option to disable a setting.</extracomment>
+        <extracomment>Displayed within a status message when deactivating a widget as well as * in the preferences dialog as option to disable a setting and in spin * boxes when disabling a feature.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1446,7 +1446,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>All</source>
-        <extracomment>Combo box item - e.g. used in the Settings tab of the MidiControl - * indicating that every option is permissible.</extracomment>
+        <extracomment>Combo or spin box item - e.g. used in the Settings tab of the * MidiControl - indicating that every option is permissible.</extracomment>
         <translation>Všechno</translation>
     </message>
     <message>
@@ -1471,6 +1471,16 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Pattern</source>
         <extracomment>Indicates a menu section which affects patterns.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIDI Control</source>
+        <extracomment>Both the title of the MIDI control dialog and the name of the corresponding action in the main menu.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note Offset</source>
+        <extracomment>Text displayed below the LCD to set the output MIDI note in the Instrument Editor in case the corresponding output method is set. Designed to be flexible.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2651,18 +2661,6 @@ MIDI = %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Input &amp;Mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Instrument</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Show &amp;Audio Engine Info</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3127,16 +3125,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Discard MIDI messages after action has been triggered</source>
-        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Use output note as input note</source>
-        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Enable MIDI feedback</source>
         <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
         <translation type="unfinished"></translation>
@@ -3162,6 +3150,63 @@ It should work like a charm provided that you use the GMRockKit, and that you do
 START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
         <extracomment>The character combination &quot;
 &quot; indicates a new line and must be * conserved. All the capitalized words that follow are defined in the MIDI * standard. Only translate them if you are sure the translated versions * are of common usage.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note Mapping</source>
+        <extracomment>Label of an option in the mapping tab of the MIDI control dialog * specifying how incoming and outgoing MIDI notes and the instruments of * the current drumkit should relate to eachother.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global Channel</source>
+        <extracomment>Label of an option in the mapping tab of the MIDI control dialog * specifying whether (and which) all instruments of the current drumkit * should feature the same incoming and outgoing MIDI channel.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instrument Mapping</source>
+        <extracomment>Tab of the MIDI control dialog dedicated to mapping MIDI notes to * instruments of the current drumkit.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Channel for MIDI actions and clock</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MidiInstrumentMap</name>
+    <message>
+        <source>None</source>
+        <extracomment>No mapping between MIDI events and instrument will be done.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As Output</source>
+        <extracomment>For mapping incoming MIDI events, the note and channel settings specified in the output section or instrument editor will be used.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected Instrument</source>
+        <extracomment>Only the selected instrument will used during MIDI mapping. Different note values will be mapped to different instrument pitches.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Order</source>
+        <extracomment>Incoming MIDI notes will be mapped to instruments based on their order in the current drumkit.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <extracomment>The use can set arbitrary note and channel values to map incoming MIDI notes to instruments of the current drumkit.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <extracomment>The MIDI output note set does apply to a C2-pitched (pattern) note * of the corresponding instrument. For notes with higher or lower * pitch, the resulting MIDI event will have an offset with the same * difference.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Constant</source>
+        <extracomment>All send MIDI event - regardless of the (pattern) notes&apos; individual * pitch - will have the same note and channel values.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>

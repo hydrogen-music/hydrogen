@@ -70,6 +70,7 @@
 #include <core/IO/PortMidiDriver.h>
 #include <core/IO/PulseAudioDriver.h>
 #include <core/Midi/MidiActionManager.h>
+#include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
@@ -340,7 +341,8 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 	unsigned int nRealColumn = 0;
 	unsigned res = pPref->getPatternEditorGridResolution();
 	int nBase = pPref->isPatternEditorUsingTriplets() ? 3 : 4;
-	bool bPlaySelectedInstrument = pPref->m_bPlaySelectedInstrument;
+	bool bPlaySelectedInstrument = pPref->getMidiInstrumentMap()->getInput() ==
+		MidiInstrumentMap::Input::SelectedInstrument;
 	int scalar = ( 4 * 4 * H2Core::nTicksPerQuarter ) / ( res * nBase );
 	int currentPatternNumber;
 

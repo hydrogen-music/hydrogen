@@ -649,7 +649,7 @@ inline int Note::getMidiKey() const
 	int nMidiKey = ( m_octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + m_key;
 	if ( m_pInstrument != nullptr ) {
 		nMidiKey += m_pInstrument->getMidiOutNote() -
-			MidiMessage::instrumentOffset;
+			MidiMessage::nInstrumentOffset;
 	}
 	return nMidiKey;
 }

@@ -31,6 +31,7 @@
 #include <deque>
 #include <memory>
 #include <mutex>
+#include <random>
 #include <vector>
 
 namespace H2Core
@@ -88,8 +89,10 @@ public:
 	 *
 	 * \param type Type of the event, which will be queued.
 	 * \param nValue Value specifying the content of the new event.
+	 *
+	 * \returns the ID of the created #H2Core::Event.
 	 */
-	void pushEvent( const Event::Type type, const int nValue );
+	long pushEvent( const Event::Type type, const int nValue );
 	/**
 	 * Reads out the next event of the EventQueue.
 	 *
@@ -123,6 +126,10 @@ public:
 
 	bool getSilent() const;
 	void setSilent( bool bSilent );
+
+	/** The EventQueue holds the seeded random engine used to assign each new
+     * #H2Core::Event a (more or less) unique id on creation. */
+	long createEventId();
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -144,6 +151,9 @@ private:
 
 	/** Whether or not to push log messages.*/
 	bool m_bSilent;
+
+	std::default_random_engine m_randomEngine;
+	std::uniform_int_distribution<long> m_randomDistribution;
 };
 
 inline bool EventQueue::getSilent() const {

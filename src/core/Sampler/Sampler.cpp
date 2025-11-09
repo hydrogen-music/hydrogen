@@ -49,6 +49,7 @@
 #include <core/IO/AudioOutput.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/IO/MidiBaseDriver.h>
+#include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
 
 
@@ -110,6 +111,7 @@ Sampler::~Sampler()
 
 void Sampler::process( uint32_t nFrames )
 {
+	const auto pMidiInstrumentMap = Preferences::get_instance()->getMidiInstrumentMap();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -170,13 +172,15 @@ void Sampler::process( uint32_t nFrames )
 			while ( ! m_queuedNoteOffs.empty() ) {
 				pNote =  m_queuedNoteOffs[0];
 
-				if ( pNote->getInstrument() != nullptr ) {
-					if ( ! pNote->getInstrument()->isMuted() ){
-						MidiMessage::NoteOff noteOff;
-						noteOff.nChannel =
-							pNote->getInstrument()->getMidiOutChannel();
-						noteOff.nKey = pNote->getMidiKey();
-						noteOff.nVelocity = pNote->getMidiVelocity();
+				if ( pNote->getInstrument() != nullptr &&
+					 ! pNote->getInstrument()->isMuted() ) {
+					const auto noteRef = pMidiInstrumentMap
+						->getOutputMapping( pNote );
+					MidiMessage::NoteOff noteOff;
+					noteOff.nChannel = noteRef.nChannel;
+					noteOff.nKey = noteRef.nNote;
+					noteOff.nVelocity = pNote->getMidiVelocity();
+					if ( noteOff.nChannel != MidiMessage::nChannelOff ) {
 						pMidiDriver->sendMessage( MidiMessage::from( noteOff ) );
 					}
 				}

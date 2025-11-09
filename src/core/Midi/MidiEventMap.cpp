@@ -19,19 +19,19 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#include "MidiMap.h"
+#include "MidiEventMap.h"
 
 #include <QMutexLocker>
 
 namespace H2Core {
 
 /**
-* @class MidiMap
+* @class MidiEventMap
 *
-* @brief The MidiMap maps MidiActions to MidiEvents
+* @brief The MidiEventMap maps MidiActions to MidiEvents
 *
 *
-* The MidiMap stores the mapping between midi events
+* The MidiEventMap stores the mapping between midi events
 * and midi actions. Each event relates to at most 1
 * midi action. Several events can relate to the same action.
 * Midi events are note, mmc or cc messages.
@@ -40,7 +40,7 @@ namespace H2Core {
 * @author Sebastian Moors
 *
 */
-MidiMap::MidiMap()
+MidiEventMap::MidiEventMap()
 {
 	QMutexLocker mx(&__mutex);
 
@@ -49,14 +49,14 @@ MidiMap::MidiMap()
 	m_pcActionVector[ 0 ] = std::make_shared<MidiAction>( MidiAction::Type::Null );
 }
 
-MidiMap::~MidiMap()
+MidiEventMap::~MidiEventMap()
 {
 	QMutexLocker mx(&__mutex);
 }
 
-std::shared_ptr<MidiMap> MidiMap::loadFrom( const H2Core::XMLNode& node,
+std::shared_ptr<MidiEventMap> MidiEventMap::loadFrom( const H2Core::XMLNode& node,
 											bool bSilent ) {
-	auto pMidiMap = std::make_shared<MidiMap>();
+	auto pMidiEventMap = std::make_shared<MidiEventMap>();
 
 	auto eventNode = node.firstChildElement( "midiEvent" );
 	while ( ! eventNode.isNull() ) {
@@ -71,7 +71,7 @@ std::shared_ptr<MidiMap> MidiMap::loadFrom( const H2Core::XMLNode& node,
 			pAction->setParameter3(
 				eventNode.firstChildElement( "parameter3" ).text() );
 
-			pMidiMap->registerMMCEvent(
+			pMidiEventMap->registerMMCEvent(
 				eventNode.firstChildElement( "mmcEvent" ).text(),
 				pAction );
 		}
@@ -85,7 +85,7 @@ std::shared_ptr<MidiMap> MidiMap::loadFrom( const H2Core::XMLNode& node,
 			pAction->setParameter3(
 				eventNode.firstChildElement( "parameter3" ).text() );
 
-			pMidiMap->registerNoteEvent(
+			pMidiEventMap->registerNoteEvent(
 				eventNode.firstChildElement( "eventParameter").text().toInt(),
 				pAction );
 		}
@@ -98,7 +98,7 @@ std::shared_ptr<MidiMap> MidiMap::loadFrom( const H2Core::XMLNode& node,
 				eventNode.firstChildElement( "parameter2" ).text() );
 			pAction->setParameter3(
 				eventNode.firstChildElement( "parameter3" ).text() );
-			pMidiMap->registerCCEvent(
+			pMidiEventMap->registerCCEvent(
 				eventNode.firstChildElement( "eventParameter" ).text().toInt(),
 				pAction );
 		}
@@ -111,7 +111,7 @@ std::shared_ptr<MidiMap> MidiMap::loadFrom( const H2Core::XMLNode& node,
 				eventNode.firstChildElement( "parameter2" ).text() );
 			pAction->setParameter3(
 				eventNode.firstChildElement( "parameter3" ).text() );
-			pMidiMap->registerPCEvent( pAction );
+			pMidiEventMap->registerPCEvent( pAction );
 		}
 		else {
 			WARNINGLOG( QString( "Unknown MIDI map node [%1]" )
@@ -121,10 +121,10 @@ std::shared_ptr<MidiMap> MidiMap::loadFrom( const H2Core::XMLNode& node,
 		eventNode = eventNode.nextSiblingElement( "midiEvent" );
 	}
 
-	return pMidiMap;
+	return pMidiEventMap;
 }
 
-void MidiMap::saveTo( H2Core::XMLNode& node, bool bSilent ) const {
+void MidiEventMap::saveTo( H2Core::XMLNode& node, bool bSilent ) const {
 	auto midiEventMapNode = node.createNode( "midiEventMap" );
 
 	for( const auto& [ssType, ppAction] : m_mmcActionMap ){
@@ -192,7 +192,7 @@ void MidiMap::saveTo( H2Core::XMLNode& node, bool bSilent ) const {
  * Clears the complete midi map and releases the memory
  * of the contained actions
  */
-void MidiMap::reset()
+void MidiEventMap::reset()
 {
 	QMutexLocker mx(&__mutex);
 
@@ -205,7 +205,7 @@ void MidiMap::reset()
 	m_pcActionVector[ 0 ] = std::make_shared<MidiAction>( MidiAction::Type::Null );
 }
 
-void MidiMap::registerMMCEvent( const QString& sEventString, std::shared_ptr<MidiAction> pAction )
+void MidiEventMap::registerMMCEvent( const QString& sEventString, std::shared_ptr<MidiAction> pAction )
 {
 	QMutexLocker mx(&__mutex);
 
@@ -240,7 +240,7 @@ void MidiMap::registerMMCEvent( const QString& sEventString, std::shared_ptr<Mid
 	m_mmcActionMap.insert( { sEventString, pAction } );
 }
 
-void MidiMap::registerNoteEvent( int nNote, std::shared_ptr<MidiAction> pAction )
+void MidiEventMap::registerNoteEvent( int nNote, std::shared_ptr<MidiAction> pAction )
 {
 	QMutexLocker mx(&__mutex);
 
@@ -272,7 +272,7 @@ void MidiMap::registerNoteEvent( int nNote, std::shared_ptr<MidiAction> pAction 
 	m_noteActionMap.insert( { nNote, pAction } );
 }
 
-void MidiMap::registerCCEvent( int nParameter, std::shared_ptr<MidiAction> pAction ){
+void MidiEventMap::registerCCEvent( int nParameter, std::shared_ptr<MidiAction> pAction ){
 	QMutexLocker mx(&__mutex);
 
 	if ( pAction == nullptr || pAction->isNull() ) {
@@ -302,7 +302,7 @@ void MidiMap::registerCCEvent( int nParameter, std::shared_ptr<MidiAction> pActi
 	m_ccActionMap.insert( { nParameter, pAction } );
 }
 
-void MidiMap::registerPCEvent( std::shared_ptr<MidiAction> pAction ){
+void MidiEventMap::registerPCEvent( std::shared_ptr<MidiAction> pAction ){
 	QMutexLocker mx(&__mutex);
 
 	if ( pAction == nullptr || pAction->isNull() ) {
@@ -324,7 +324,7 @@ void MidiMap::registerPCEvent( std::shared_ptr<MidiAction> pAction ){
 	m_pcActionVector.push_back( pAction );
 }
 
-std::vector<std::shared_ptr<MidiAction>> MidiMap::getMMCActions( const QString& sEventString )
+std::vector<std::shared_ptr<MidiAction>> MidiEventMap::getMMCActions( const QString& sEventString )
 {
 	QMutexLocker mx(&__mutex);
 
@@ -341,7 +341,7 @@ std::vector<std::shared_ptr<MidiAction>> MidiMap::getMMCActions( const QString& 
 	return actions;
 }
 
-std::vector<std::shared_ptr<MidiAction>> MidiMap::getNoteActions( int nNote )
+std::vector<std::shared_ptr<MidiAction>> MidiEventMap::getNoteActions( int nNote )
 {
 	QMutexLocker mx(&__mutex);
 
@@ -358,7 +358,7 @@ std::vector<std::shared_ptr<MidiAction>> MidiMap::getNoteActions( int nNote )
 	return actions;
 }
 
-std::vector<std::shared_ptr<MidiAction>> MidiMap::getCCActions( int nParameter ) {
+std::vector<std::shared_ptr<MidiAction>> MidiEventMap::getCCActions( int nParameter ) {
 	QMutexLocker mx(&__mutex);
 
 	std::vector<std::shared_ptr<MidiAction>> actions;
@@ -374,7 +374,7 @@ std::vector<std::shared_ptr<MidiAction>> MidiMap::getCCActions( int nParameter )
 	return actions;
 }
 
-std::vector<int> MidiMap::findCCValuesByTypeAndParam1( MidiAction::Type type,
+std::vector<int> MidiEventMap::findCCValuesByTypeAndParam1( MidiAction::Type type,
 													   const QString& sParam1 ) {
 	QMutexLocker mx(&__mutex);
 	std::vector<int> values;
@@ -389,7 +389,7 @@ std::vector<int> MidiMap::findCCValuesByTypeAndParam1( MidiAction::Type type,
 	return values;
 }
 
-std::vector<int> MidiMap::findCCValuesByType( MidiAction::Type type ) {
+std::vector<int> MidiEventMap::findCCValuesByType( MidiAction::Type type ) {
 	QMutexLocker mx(&__mutex);
 	std::vector<int> values;
 
@@ -402,7 +402,7 @@ std::vector<int> MidiMap::findCCValuesByType( MidiAction::Type type ) {
 	return values;
 }
 
-std::vector<std::pair<H2Core::MidiMessage::Event,int>> MidiMap::getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction ) const {
+std::vector<std::pair<H2Core::MidiMessage::Event,int>> MidiEventMap::getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction ) const {
 	std::vector<std::pair<H2Core::MidiMessage::Event,int>> midiEvents;
 
 	if ( pAction != nullptr && ! pAction->isNull() ) {
@@ -447,11 +447,11 @@ std::vector<std::pair<H2Core::MidiMessage::Event,int>> MidiMap::getRegisteredMid
 	return midiEvents;
 }
 
-QString MidiMap::toQString( const QString& sPrefix, bool bShort ) const {
+QString MidiEventMap::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
-		sOutput = QString( "%1[MidiMap]\n" ).arg( sPrefix )
+		sOutput = QString( "%1[MidiEventMap]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_noteActionMap:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& [nParam, ppAction] : m_noteActionMap ) {
 			if ( ppAction != nullptr && ! ppAction->isNull() ) {
@@ -486,7 +486,7 @@ QString MidiMap::toQString( const QString& sPrefix, bool bShort ) const {
 	}
 	else {
 
-		sOutput = QString( "[MidiMap] m_noteActionMap: [" );
+		sOutput = QString( "[MidiEventMap] m_noteActionMap: [" );
 		for ( const auto& [nParam, ppAction] : m_noteActionMap ) {
 			if ( ppAction != nullptr && ! ppAction->isNull() ) {
 				sOutput.append( QString( "%1: %2, " ).arg( nParam )

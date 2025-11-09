@@ -93,7 +93,8 @@ All notable changes to this project will be documented in this file.
     accessible via a button in the main toolbar.
   - All MIDI settings, which do not require a driver restart, were moved into
     the MIDI control dialog.
-  - The MIDI channel presented in the Instrument Editor and the Settings is now zero-based (previously, it started at `1`).
+  - The MIDI channel presented in the Instrument Editor and the Settings is now
+    zero-based (previously, it started at `1`).
   - Hydrogen does now only act on MIDI `START`, `CONTINUE`, and `STOP` messages,
     if "handling MIDI transport" is checked in the settings. Using this option
     it does now support `SONG_POSITION_POINTER` and `SONG_SELECT` as well.
@@ -109,6 +110,16 @@ All notable changes to this project will be documented in this file.
     larger than 20 bpm) to increase precision and is supported on Windows as
     well.
   - Precision of handling `TAP_TEMPO` and `BEAT_COUNTER` have been improved.
+  - Mapping of input and output MIDI notes can now be done in a dedicated tab in
+    the MIDI control dialog.
+  - Input channels for MIDI notes and actions can now be assigned separately.
+  - Instead of "Option" > "Input Mode" and "Preferences" > "Use output note as
+    input" there is now a drop down for different input mappings in the MIDI
+    control dialog (featuring a new mode to assign individual notes/channels).
+  - Mapping of incoming and outgoing message can now be enabled/disabled or set
+    to a global channel for the whole drumkit at once.
+  - MIDI action handling can now be disabled by setting the corresponding
+    channel to "Off".
 - PlaylistEditor:
   - All actions can now be undone and redone.
   - Songs can be loaded by keyboard selection and pressing Enter key.
@@ -219,6 +230,8 @@ All notable changes to this project will be documented in this file.
 - LADSPA aux do now respect instrument/component/layer mute and solo states.
 - Playback track does respect main volume.
 - Instrument peaks are no longer affected by main volume.
+- MIDI NOTE_OFF events are now properly send for all notes regardless of their
+  pitch.
 
 ### Removed
 

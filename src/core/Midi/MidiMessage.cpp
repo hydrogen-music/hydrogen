@@ -22,6 +22,8 @@
 #include "MidiMessage.h"
 
 #include <core/Basics/Note.h>
+#include <core/Midi/MidiInstrumentMap.h>
+#include <core/Preferences/Preferences.h>
 
 namespace H2Core
 {
@@ -172,7 +174,9 @@ MidiMessage MidiMessage::from( const ControlChange& controlChange ) {
 		msg.setType( Type::ControlChange );
 		msg.setData1( std::clamp( controlChange.nParameter, 0, 127 ) );
 		msg.setData2( std::clamp( controlChange.nValue, 0, 127 ) );
-		msg.setChannel( std::clamp( controlChange.nChannel, 0, 15 ) );
+		msg.setChannel( std::clamp( controlChange.nChannel,
+								   MidiMessage::nChannelMinimum,
+								   MidiMessage::nChannelMaximum ) );
 	}
 
 	return msg;
@@ -184,13 +188,21 @@ MidiMessage MidiMessage::from( std::shared_ptr<Note> pNote ) {
 	// In case we do not have a valid note or MIDI output was turned off for the
 	// instrument associated to the provided note, we do not assign a valid type
 	// and the message will be dropped.
-	if ( pNote != nullptr && pNote->getInstrument() != nullptr &&
-		 pNote->getInstrument()->getMidiOutChannel() >= 0 ) {
+	if ( pNote != nullptr && pNote->getInstrument() != nullptr ) {
+		const auto noteRef = Preferences::get_instance()->getMidiInstrumentMap()
+			->getOutputMapping( pNote );
+		if ( noteRef.nChannel == MidiMessage::nChannelOff ) {
+			// Dropping message
+			return msg;
+		}
+
 		msg.setType( Type::NoteOn );
-		msg.setData1( std::clamp( pNote->getMidiKey(), 0, 127 ) );
+		msg.setData1( std::clamp( noteRef.nNote, MidiMessage::nNoteMinimum,
+								 MidiMessage::nNoteMaximum ) );
 		msg.setData2( std::clamp( pNote->getMidiVelocity(), 0, 127 ) );
-		msg.setChannel(
-			std::clamp( pNote->getInstrument()->getMidiOutChannel(), 0, 15 ) );
+		msg.setChannel( std::clamp( noteRef.nChannel,
+								   MidiMessage::nChannelMinimum,
+								   MidiMessage::nChannelMaximum ) );
 	}
 
 	return msg;
@@ -202,9 +214,12 @@ MidiMessage MidiMessage::from( const NoteOff& noteOff ) {
 		// By providing a negative value the resulting message will be
 		// suppressed.
 		msg.setType( Type::NoteOff );
-		msg.setData1( std::clamp( noteOff.nKey, 0, 127 ) );
+		msg.setData1( std::clamp( noteOff.nKey, MidiMessage::nNoteMinimum,
+								 MidiMessage::nNoteMaximum ) );
 		msg.setData2( std::clamp( noteOff.nVelocity, 0, 127 ) );
-		msg.setChannel( std::clamp( noteOff.nChannel, 0, 15 ) );
+		msg.setChannel( std::clamp( noteOff.nChannel,
+								   MidiMessage::nChannelMinimum,
+								   MidiMessage::nChannelMaximum ) );
 	}
 
 	return msg;

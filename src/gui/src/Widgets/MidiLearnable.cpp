@@ -26,7 +26,7 @@
 #include "../HydrogenApp.h"
 
 #include <core/Midi/MidiAction.h>
-#include <core/Midi/MidiMap.h>
+#include <core/Midi/MidiEventMap.h>
 #include <core/Preferences/Preferences.h>
 
 MidiLearnable::MidiLearnable() : m_pMidiAction( nullptr ) {
@@ -59,7 +59,7 @@ void MidiLearnable::setBaseToolTip( const QString& sNewTip ) {
 void MidiLearnable::midiMapChangedEvent() {
 	if ( m_pMidiAction != nullptr ) {
 		m_registeredMidiEvents = H2Core::Preferences::get_instance()->
-			getMidiMap()->getRegisteredMidiEvents( m_pMidiAction );
+			getMidiEventMap()->getRegisteredMidiEvents( m_pMidiAction );
 		updateToolTip();
 	}
 }

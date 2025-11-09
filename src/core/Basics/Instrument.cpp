@@ -58,7 +58,7 @@ Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR>
 	, m_fFilterResonance( 0.0 )
 	, m_fRandomPitchFactor( 0.0 )
 	, m_fPitchOffset( 0.0 )
-	, m_nMidiOutNote( MidiMessage::instrumentOffset + id )
+	, m_nMidiOutNote( MidiMessage::nInstrumentOffset + id )
 	, m_nMidiOutChannel( -1 )
 	, m_bStopNotes( false )
 	, m_bSoloed( false )

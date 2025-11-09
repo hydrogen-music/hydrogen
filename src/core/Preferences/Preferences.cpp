@@ -34,7 +34,9 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Helpers/Xml.h>
 #include <core/IO/AlsaAudioDriver.h>
-#include <core/Midi/MidiMap.h>
+#include <core/Midi/MidiInstrumentMap.h>
+#include <core/Midi/MidiEventMap.h>
+#include <core/Midi/MidiMessage.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Version.h>
 
@@ -86,7 +88,6 @@ void Preferences::replaceInstance( std::shared_ptr<Preferences> pOther ) {
 
 Preferences::Preferences()
 	: m_bPlaySamplesOnClicking( false )
-	, m_bPlaySelectedInstrument( false )
 	, m_bFollowPlayhead( true )
 	, m_bExpandSongItem( true )
 	, m_bExpandPatternItem( true )
@@ -103,10 +104,8 @@ Preferences::Preferences()
 	, m_sOSSDevice( "/dev/dsp" )
 	, m_sMidiPortName(  Preferences::getNullMidiPort() )
 	, m_sMidiOutputPortName(  Preferences::getNullMidiPort() )
-	, m_nMidiChannelFilter( -1 )
+	, m_nMidiActionChannel( MidiMessage::nChannelAll )
 	, m_bMidiNoteOffIgnore( true )
-	, m_bMidiFixedMapping( false )
-	, m_bMidiDiscardNoteAfterAction( true )
 	, m_bEnableMidiFeedback( false )
 	, m_bOscServerEnabled( false )
 	, m_bOscFeedbackEnabled( true )
@@ -197,7 +196,8 @@ Preferences::Preferences()
 		std::make_shared<InterfaceTheme>(),
 		std::make_shared<FontTheme>() ) )
 	, m_pShortcuts( std::make_shared<Shortcuts>() )
-	, m_pMidiMap( std::make_shared<MidiMap>() )
+	, m_pMidiEventMap( std::make_shared<MidiEventMap>() )
+	, m_pMidiInstrumentMap( std::make_shared<MidiInstrumentMap>() )
 	, m_bLoadingSuccessful( false )
 {
 
@@ -268,7 +268,6 @@ Preferences::Preferences()
 
 Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	: m_bPlaySamplesOnClicking( pOther->m_bPlaySamplesOnClicking )
-	, m_bPlaySelectedInstrument( pOther->m_bPlaySelectedInstrument )
 	, m_bFollowPlayhead( pOther->m_bFollowPlayhead )
 	, m_bExpandSongItem( pOther->m_bExpandSongItem )
 	, m_bExpandPatternItem( pOther->m_bExpandPatternItem )
@@ -286,10 +285,8 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_midiDriver( pOther->m_midiDriver )
 	, m_sMidiPortName( pOther->m_sMidiPortName )
 	, m_sMidiOutputPortName( pOther->m_sMidiOutputPortName )
-	, m_nMidiChannelFilter( pOther->m_nMidiChannelFilter )
+	, m_nMidiActionChannel( pOther->m_nMidiActionChannel )
 	, m_bMidiNoteOffIgnore( pOther->m_bMidiNoteOffIgnore )
-	, m_bMidiFixedMapping( pOther->m_bMidiFixedMapping )
-	, m_bMidiDiscardNoteAfterAction( pOther->m_bMidiDiscardNoteAfterAction )
 	, m_bEnableMidiFeedback( pOther->m_bEnableMidiFeedback )
 	, m_bOscServerEnabled( pOther->m_bOscServerEnabled )
 	, m_bOscFeedbackEnabled( pOther->m_bOscFeedbackEnabled )
@@ -380,7 +377,8 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_bShowExportDrumkitAttributionWarning( pOther->m_bShowExportDrumkitAttributionWarning )
 	, m_pTheme( std::make_shared<Theme>(pOther->m_pTheme) )
 	, m_pShortcuts( pOther->m_pShortcuts )
-	, m_pMidiMap( pOther->m_pMidiMap )
+	, m_pMidiEventMap( pOther->m_pMidiEventMap )
+	, m_pMidiInstrumentMap( pOther->m_pMidiInstrumentMap )
 	, m_bLoadingSuccessful( pOther->m_bLoadingSuccessful )
 {
 	for ( const auto& ssServer : pOther->m_serverList ) {
@@ -432,9 +430,10 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 
 	pPref->m_sPreferredLanguage = rootNode.read_string(
 		"preferredLanguage", pPref->m_sPreferredLanguage, false, "", bSilent );
-	pPref->m_bPlaySelectedInstrument = rootNode.read_bool(
-		"instrumentInputMode", pPref->m_bPlaySelectedInstrument, false, false,
-		bSilent );
+	// Kept for backward compatibility of MIDI input mapping to versions prior
+	// to 2.0.
+	const bool bPlaySelectedInstrument = rootNode.read_bool(
+		"instrumentInputMode", false, true, false, true );
 	pPref->m_bShowDevelWarning = rootNode.read_bool(
 		"showDevelWarning", pPref->m_bShowDevelWarning, false, false, bSilent );
 	pPref->m_bShowNoteOverwriteWarning = rootNode.read_bool(
@@ -553,6 +552,8 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 	}
 
 	/////////////// AUDIO ENGINE //////////////
+	bool bAsOutput = false;
+	bool bMidiDiscardNoteAfterAction = false;
 	const XMLNode audioEngineNode = rootNode.firstChildElement( "audio_engine" );
 	if ( ! audioEngineNode.isNull() ) {
 		const QString sAudioDriver = audioEngineNode.read_string(
@@ -706,18 +707,44 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			pPref->m_sMidiOutputPortName = midiDriverNode.read_string(
 				"output_port_name",
 				pPref->m_sMidiOutputPortName, false, false, bSilent );
-			pPref->m_nMidiChannelFilter = midiDriverNode.read_int(
-				"channel_filter",
-				pPref->m_nMidiChannelFilter, false, false, bSilent );
+			// In versions prior to 2.0 there was an inconsistent scheme for
+			// storing MIDI channels. In this variable `-1` did indicate to use
+			// "All" channels while the same value set in the MIDI output
+			// channel within the instruments of a drumkit meant "Off" or none.
+			// Starting from 2.0 we unified those ranges allowing this variable,
+			// too, to represent both "All" and "Off". But, for backward
+			// compatibility, we still use the old values and not the ones
+			// defined in MidiMessage.h.
+			const int nMidiActionChannel = midiDriverNode.read_int(
+				"channel_filter", /*previous value used to indicate 'all'*/ -1,
+				false, false, bSilent );
+			if ( nMidiActionChannel == -1 ) {
+				// Old value to indicate to use all channels
+				pPref->m_nMidiActionChannel = MidiMessage::nChannelAll;
+			}
+			else if ( nMidiActionChannel == -2 ) {
+				// Helper value indicating to use no channel (since -1 was
+				// already taken).
+				pPref->m_nMidiActionChannel = MidiMessage::nChannelOff;
+			}
+			else {
+				pPref->m_nMidiActionChannel = std::clamp(
+					nMidiActionChannel, MidiMessage::nChannelMinimum,
+					MidiMessage::nChannelMaximum );
+			}
 			pPref->m_bMidiNoteOffIgnore = midiDriverNode.read_bool(
 				"ignore_note_off",
 				pPref->m_bMidiNoteOffIgnore, false, false, bSilent );
-			pPref->m_bMidiDiscardNoteAfterAction = midiDriverNode.read_bool(
+			// Used in versions prior to 2.0 to indicate that only MIDI action
+			// should be triggered by incoming MIDI messages but no realtime
+			// notes.
+			bMidiDiscardNoteAfterAction = midiDriverNode.read_bool(
 				"discard_note_after_action",
-				pPref->m_bMidiDiscardNoteAfterAction, false, false, bSilent );
-			pPref->m_bMidiFixedMapping = midiDriverNode.read_bool(
-				"fixed_mapping",
-				pPref->m_bMidiFixedMapping, false, true, bSilent );
+				false, false, false, bSilent );
+			// Kept for backward compatibility of MIDI input mapping to versions
+			// prior to 2.0.
+			bAsOutput = midiDriverNode.read_bool(
+				"fixed_mapping", false, true, true, true );
 			pPref->m_bEnableMidiFeedback = midiDriverNode.read_bool(
 				"enable_midi_feedback",
 				pPref->m_bEnableMidiFeedback, false, true, bSilent );
@@ -829,33 +856,70 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			pPref->m_nSongEditorGridWidth, false, false, bSilent );
 
 		// mainForm window properties
-		pPref->setMainFormProperties(
-			loadWindowPropertiesFrom( guiNode, "mainForm_properties",
-									  pPref->m_mainFormProperties, bSilent ) );
-		pPref->setMixerProperties(
-			loadWindowPropertiesFrom( guiNode, "mixer_properties",
-									  pPref->m_mixerProperties, bSilent ) );
-		pPref->setPatternEditorProperties(
-			loadWindowPropertiesFrom( guiNode, "patternEditor_properties",
-									  pPref->m_patternEditorProperties, bSilent ) );
-		pPref->setSongEditorProperties(
-			loadWindowPropertiesFrom( guiNode, "songEditor_properties",
-									  pPref->m_songEditorProperties, bSilent ) );
-		pPref->setInstrumentRackProperties(
-			loadWindowPropertiesFrom( guiNode, "instrumentRack_properties",
-									  pPref->m_instrumentRackProperties, bSilent ) );
-		pPref->setAudioEngineInfoProperties(
-			loadWindowPropertiesFrom( guiNode, "audioEngineInfo_properties",
-									  pPref->m_audioEngineInfoProperties, bSilent ) );
+		auto mainFromPropertiesNode =
+			guiNode.firstChildElement( "mainForm_properties" );
+		if ( ! mainFromPropertiesNode.isNull() ) {
+			pPref->setMainFormProperties(
+				WindowProperties::loadFrom( mainFromPropertiesNode,
+										   pPref->m_mainFormProperties, bSilent ) );
+		}
+		auto mixerPropertiesNode =
+			guiNode.firstChildElement( "mixer_properties" );
+		if ( ! mixerPropertiesNode.isNull() ) {
+			pPref->setMixerProperties(
+				WindowProperties::loadFrom( mixerPropertiesNode,
+										   pPref->m_mixerProperties, bSilent ) );
+		}
+		auto patternEditorPropertiesNode =
+			guiNode.firstChildElement( "patternEditor_properties" );
+		if ( ! patternEditorPropertiesNode.isNull() ) {
+			pPref->setPatternEditorProperties(
+				WindowProperties::loadFrom( patternEditorPropertiesNode,
+										   pPref->m_patternEditorProperties,
+										   bSilent ) );
+		}
+		auto songEditorPropertiesNode =
+			guiNode.firstChildElement( "songEditor_properties" );
+		if ( ! songEditorPropertiesNode.isNull() ) {
+			pPref->setSongEditorProperties(
+				WindowProperties::loadFrom( songEditorPropertiesNode,
+										   pPref->m_songEditorProperties,
+										   bSilent ) );
+		}
+		auto instrumentRackPropertiesNode =
+			guiNode.firstChildElement( "instrumentRack_properties" );
+		if ( ! instrumentRackPropertiesNode.isNull() ) {
+			pPref->setInstrumentRackProperties(
+				WindowProperties::loadFrom( instrumentRackPropertiesNode,
+										   pPref->m_instrumentRackProperties,
+										   bSilent ) );
+		}
+		auto audioEngineInfoPropertiesNode =
+			guiNode.firstChildElement( "audioEngineInfo_properties" );
+		if ( ! audioEngineInfoPropertiesNode.isNull() ) {
+			pPref->setAudioEngineInfoProperties(
+				WindowProperties::loadFrom( audioEngineInfoPropertiesNode,
+										   pPref->m_audioEngineInfoProperties,
+										   bSilent ) );
+		}
 		// In order to be backward compatible we still call the XML node
 		// "playlistDialog". For some time we had playlistEditor and
 		// playlistDialog coexisting.
-		pPref->setPlaylistEditorProperties(
-			loadWindowPropertiesFrom( guiNode, "playlistDialog_properties",
-									  pPref->m_playlistEditorProperties, bSilent ) );
-		pPref->setDirectorProperties(
-			loadWindowPropertiesFrom( guiNode, "director_properties",
-									  pPref->m_directorProperties, bSilent ) );
+		auto playlistEditorPropertiesNode =
+			guiNode.firstChildElement( "playlistDialog_properties" );
+		if ( ! playlistEditorPropertiesNode.isNull() ) {
+			pPref->setPlaylistEditorProperties(
+				WindowProperties::loadFrom( playlistEditorPropertiesNode,
+										   pPref->m_playlistEditorProperties,
+										   bSilent ) );
+		}
+		auto directorPropertiesNode =
+			guiNode.firstChildElement( "director_properties" );
+		if ( ! directorPropertiesNode.isNull() ) {
+			pPref->setDirectorProperties(
+				WindowProperties::loadFrom( directorPropertiesNode,
+										   pPref->m_directorProperties, bSilent ) );
+		}
 
 		// last used file dialog folders
 		pPref->m_sLastExportPatternAsDirectory = guiNode.read_string(
@@ -994,11 +1058,14 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			"expandPatternItem", pPref->m_bExpandPatternItem, false, false, bSilent );
 
 		for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
-			const QString sNodeName = QString( "ladspaFX_properties%1" ).arg( nFX );
-			pPref->setLadspaProperties(
-				nFX, loadWindowPropertiesFrom(
-					guiNode, sNodeName, pPref->m_ladspaProperties[ nFX ],
-					bSilent ) );
+			auto ladspaPropertiesNode = guiNode.firstChildElement(
+				QString( "ladspaFX_properties%1" ).arg( nFX ) );
+			if ( ! ladspaPropertiesNode.isNull() ) {
+				pPref->setLadspaProperties(
+					nFX, WindowProperties::loadFrom( ladspaPropertiesNode,
+													pPref->m_ladspaProperties[ nFX ],
+													bSilent ) );
+			}
 		}
 
 		const XMLNode colorThemeNode = guiNode.firstChildElement( "colorTheme" );
@@ -1048,9 +1115,53 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 
 	const XMLNode midiEventMapNode = rootNode.firstChildElement( "midiEventMap" );
 	if ( ! midiEventMapNode.isNull() ) {
-		pPref->m_pMidiMap = MidiMap::loadFrom( midiEventMapNode, bSilent );
+		pPref->m_pMidiEventMap = MidiEventMap::loadFrom( midiEventMapNode, bSilent );
 	} else {
 		WARNINGLOG( "<midiMap> node not found" );
+	}
+
+	const XMLNode midiInstrumentMapNode =
+		rootNode.firstChildElement( "midiInstrumentMap" );
+	if ( ! midiInstrumentMapNode.isNull() ) {
+		pPref->m_pMidiInstrumentMap = MidiInstrumentMap::loadFrom(
+			midiInstrumentMapNode, bSilent );
+	}
+	else {
+		// Backward compatibility. Derive the mapping state from other settings
+		// used in versions prior to 2.0.
+		if ( bAsOutput ) {
+			pPref->m_pMidiInstrumentMap->setInput(
+				MidiInstrumentMap::Input::AsOutput );
+		}
+		else if ( bPlaySelectedInstrument ) {
+			pPref->m_pMidiInstrumentMap->setInput(
+				MidiInstrumentMap::Input::SelectedInstrument );
+		}
+		else if ( bMidiDiscardNoteAfterAction ) {
+			// Incoming MIDI message were not mapped to realtime notes.
+			pPref->m_pMidiInstrumentMap->setInput(
+				MidiInstrumentMap::Input::None );
+		}
+		else {
+			pPref->m_pMidiInstrumentMap->setInput(
+				MidiInstrumentMap::Input::Order );
+		}
+
+		// Prior to version 2.0 a single numerical value could be set in the
+		// preferences indicating which channel (or all of them) are used for
+		// MIDI input. Since 2.0 this value only affects MIDI actions but we use
+		// it in here to set up a global input channel for note mapping as well
+		// in order to provide as much backward compatibility as possible.
+		pPref->m_pMidiInstrumentMap->setUseGlobalInputChannel( true );
+		if ( pPref->m_nMidiActionChannel >= MidiMessage::nChannelMinimum &&
+			 pPref->m_nMidiActionChannel <= MidiMessage::nChannelMaximum ) {
+			pPref->m_pMidiInstrumentMap->setGlobalInputChannel(
+				pPref->m_nMidiActionChannel );
+		}
+		else if ( pPref->m_nMidiActionChannel < 0 ) {
+			pPref->m_pMidiInstrumentMap->setGlobalInputChannel(
+				MidiMessage::nChannelAll );
+		}
 	}
 
 	pPref->m_pTheme = std::make_shared<Theme>(
@@ -1101,9 +1212,6 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 
 	rootNode.write_bool( "useRelativeFilenamesForPlaylists", m_bUseRelativeFileNamesForPlaylists );
 	rootNode.write_bool( "hideKeyboardCursorWhenUnused", m_bHideKeyboardCursor );
-	
-	// instrument input mode
-	rootNode.write_bool( "instrumentInputMode", m_bPlaySelectedInstrument );
 	
 	//show development version warning
 	rootNode.write_bool( "showDevelWarning", m_bShowDevelWarning );
@@ -1248,11 +1356,31 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 				"driverName", Preferences::midiDriverToQString( m_midiDriver ) );
 			midiDriverNode.write_string( "port_name", m_sMidiPortName );
 			midiDriverNode.write_string( "output_port_name", m_sMidiOutputPortName );
-			midiDriverNode.write_int( "channel_filter", m_nMidiChannelFilter );
+
+			// In versions prior to 2.0 there was an inconsistent scheme for
+			// storing MIDI channels. In this variable `-1` did indicate to use
+			// "All" channels while the same value set in the MIDI output
+			// channel within the instruments of a drumkit meant "Off" or none.
+			// Starting from 2.0 we unified those ranges allowing this variable,
+			// too, to represent both "All" and "Off". But, for backward
+			// compatibility, we still use the old values and not the ones
+			// defined in MidiMessage.h.
+			int nChannelFilter = m_nMidiActionChannel;
+			if ( m_nMidiActionChannel == MidiMessage::nChannelAll ) {
+				// Old value to indicate to use all channels
+				nChannelFilter = -1;
+			}
+			else if ( m_nMidiActionChannel == MidiMessage::nChannelOff ) {
+				// Helper value indicating to use no channel (since -1 was
+				// already taken). Please note that this value is only handled
+				// properly starting with Hydrogen 1.2.7 (where it selects the
+				// "All" option too, since the overall MIDI input channel can
+				// not be turned off prior to 2.0).
+				nChannelFilter = -2;
+			}
+			midiDriverNode.write_int( "channel_filter", nChannelFilter );
 			midiDriverNode.write_bool( "ignore_note_off", m_bMidiNoteOffIgnore );
 			midiDriverNode.write_bool( "enable_midi_feedback", m_bEnableMidiFeedback );
-			midiDriverNode.write_bool( "discard_note_after_action", m_bMidiDiscardNoteAfterAction );
-			midiDriverNode.write_bool( "fixed_mapping", m_bMidiFixedMapping );
 			midiDriverNode.write_bool( "midi_clock_input_handling",
 									   getMidiClockInputHandling() );
 			midiDriverNode.write_bool( "midi_transport_input_handling",
@@ -1301,17 +1429,31 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 		guiNode.write_bool( "showPlaybackTrack", m_bShowPlaybackTrack );
 
 		// MainForm window properties
-		saveWindowPropertiesTo( guiNode, "mainForm_properties", m_mainFormProperties );
-		saveWindowPropertiesTo( guiNode, "mixer_properties", m_mixerProperties );
-		saveWindowPropertiesTo( guiNode, "patternEditor_properties", m_patternEditorProperties );
-		saveWindowPropertiesTo( guiNode, "songEditor_properties", m_songEditorProperties );
-		saveWindowPropertiesTo( guiNode, "instrumentRack_properties", m_instrumentRackProperties );
-		saveWindowPropertiesTo( guiNode, "audioEngineInfo_properties", m_audioEngineInfoProperties );
-		saveWindowPropertiesTo( guiNode, "playlistDialog_properties", m_playlistEditorProperties );
-		saveWindowPropertiesTo( guiNode, "director_properties", m_directorProperties );
+		auto mainFormPropertiesNode = guiNode.createNode( "mainForm_properties" );
+		m_mainFormProperties.saveTo( mainFormPropertiesNode );
+		auto mixerPropertiesNode = guiNode.createNode( "mixer_properties" );
+		m_mixerProperties.saveTo( mixerPropertiesNode );
+		auto patternEditorPropertiesNode = guiNode.createNode(
+			"patternEditor_properties" );
+		m_patternEditorProperties.saveTo( patternEditorPropertiesNode );
+		auto songEditorPropertiesNode = guiNode.createNode(
+			"songEditor_properties" );
+		m_songEditorProperties.saveTo( songEditorPropertiesNode );
+		auto instrumentRackPropertiesNode = guiNode.createNode(
+			"instrumentRack_properties" );
+		m_instrumentRackProperties.saveTo( instrumentRackPropertiesNode );
+		auto audioEngineInfoPropertiesNode = guiNode.createNode(
+			"audioEngineInfo_properties" );
+		m_audioEngineInfoProperties.saveTo( audioEngineInfoPropertiesNode );
+		auto playlistEditorPropertiesNode = guiNode.createNode(
+			"playlistDialog_properties" );
+		m_playlistEditorProperties.saveTo( playlistEditorPropertiesNode );
+		auto directorPropertiesNode = guiNode.createNode( "director_properties" );
+		m_directorProperties.saveTo( directorPropertiesNode );
 		for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
-			QString sNode = QString("ladspaFX_properties%1").arg( nFX );
-			saveWindowPropertiesTo( guiNode, sNode, m_ladspaProperties[nFX] );
+			auto ladspaPropertiesNode = guiNode.createNode(
+				QString("ladspaFX_properties%1").arg( nFX ) );
+			m_ladspaProperties[ nFX ].saveTo( ladspaPropertiesNode );
 		}
 		
 		// last used file dialog folders
@@ -1400,7 +1542,8 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 		filesNode.write_string( "defaulteditor", m_sDefaultEditor );
 	}
 
-	m_pMidiMap->saveTo( rootNode, bSilent );
+	m_pMidiEventMap->saveTo( rootNode, bSilent );
+	m_pMidiInstrumentMap->saveTo( rootNode );
 
 	m_pShortcuts->saveTo( rootNode );
 
@@ -1669,54 +1812,6 @@ void Preferences::setMostRecentFX( const QString& FX_name )
 	m_recentFX.push_front( FX_name );
 }
 
-/// Read the xml nodes related to window properties
-WindowProperties Preferences::loadWindowPropertiesFrom( const XMLNode& parent,
-														const QString& sWindowName,
-														const WindowProperties& defaultProp,
-														const bool bSilent )
-{
-	WindowProperties prop { defaultProp };
-
-	const XMLNode windowPropNode  = parent.firstChildElement( sWindowName );
-	if ( ! windowPropNode.isNull() ) {
-		prop.visible = windowPropNode.read_bool(
-			"visible", true, false, false, bSilent );
-		prop.x = windowPropNode.read_int(
-			"x", prop.x, false, false, bSilent );
-		prop.y = windowPropNode.read_int(
-			"y", prop.y, false, false, bSilent );
-		prop.width = windowPropNode.read_int(
-			"width", prop.width, false, false, bSilent );
-		prop.height = windowPropNode.read_int(
-			"height", prop.height, false, false, bSilent );
-		prop.m_geometry = QByteArray::fromBase64(
-			windowPropNode.read_string(
-				"geometry",
-				prop.m_geometry.toBase64(), false, true, bSilent ).toUtf8() );
-	}
-	else {
-		WARNINGLOG( QString( "Error reading configuration file <%1> node not found" )
-					.arg( sWindowName ) );
-	}
-
-	return prop;
-}
-
-
-
-/// Write the xml nodes related to window properties
-void Preferences::saveWindowPropertiesTo( XMLNode& parent, const QString& windowName, const WindowProperties& prop )
-{
-	XMLNode windowPropNode = parent.createNode( windowName );
-	
-	windowPropNode.write_bool( "visible", prop.visible );
-	windowPropNode.write_int( "x", prop.x );
-	windowPropNode.write_int( "y", prop.y );
-	windowPropNode.write_int( "width", prop.width );
-	windowPropNode.write_int( "height", prop.height );
-	windowPropNode.write_string( "geometry", QString( prop.m_geometry.toBase64() ) );
-}
-
 QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
@@ -1724,8 +1819,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "%1[Preferences]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_bPlaySamplesOnClicking: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bPlaySamplesOnClicking ) )
-			.append( QString( "%1%2m_bPlaySelectedInstrument: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bPlaySelectedInstrument ) )
 			.append( QString( "%1%2m_bFollowPlayhead: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bFollowPlayhead ) )
 			.append( QString( "%1%2m_bExpandSongItem: %3\n" ).arg( sPrefix )
@@ -1766,14 +1859,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_sMidiPortName ) )
 			.append( QString( "%1%2m_sMidiOutputPortName: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_sMidiOutputPortName ) )
-			.append( QString( "%1%2m_nMidiChannelFilter: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nMidiChannelFilter ) )
+			.append( QString( "%1%2m_nMidiActionChannel: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nMidiActionChannel ) )
 			.append( QString( "%1%2m_bMidiNoteOffIgnore: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bMidiNoteOffIgnore ) )
-			.append( QString( "%1%2m_bMidiFixedMapping: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bMidiFixedMapping ) )
-			.append( QString( "%1%2m_bMidiDiscardNoteAfterAction: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bMidiDiscardNoteAfterAction ) )
 			.append( QString( "%1%2m_bEnableMidiFeedback: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bEnableMidiFeedback ) )
 			.append( QString( "%1%2m_bMidiClockInputHandling: %3\n" ).arg( sPrefix )
@@ -1964,8 +2053,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_pTheme->toQString( s, bShort ) ) )
 			.append( QString( "%1%2m_pShortcuts: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_pShortcuts->toQString( s, bShort ) ) )
-			.append( QString( "%1%2m_pMidiMap: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_pMidiMap->toQString( s, bShort ) ) )
+			.append( QString( "%1%2m_pMidiEventMap: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_pMidiEventMap->toQString( s, bShort ) ) )
+			.append( QString( "%1%2m_pMidiInstrumentMap: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_pMidiInstrumentMap->toQString( s, bShort ) ) )
 			.append( QString( "%1%2m_bLoadingSuccessful: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bLoadingSuccessful ) );
 
@@ -1974,8 +2065,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "[Preferences] " )
 			.append( QString( "m_bPlaySamplesOnClicking: %1" )
 					 .arg( m_bPlaySamplesOnClicking ) )
-			.append( QString( ", m_bPlaySelectedInstrument: %1" )
-					 .arg( m_bPlaySelectedInstrument ) )
 			.append( QString( ", m_bFollowPlayhead: %1" )
 					 .arg( m_bFollowPlayhead ) )
 			.append( QString( ", m_bExpandSongItem: %1" )
@@ -2016,14 +2105,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_sMidiPortName ) )
 			.append( QString( ", m_sMidiOutputPortName: %1" )
 					 .arg( m_sMidiOutputPortName ) )
-			.append( QString( ", m_nMidiChannelFilter: %1" )
-					 .arg( m_nMidiChannelFilter ) )
+			.append( QString( ", m_nMidiActionChannel: %1" )
+					 .arg( m_nMidiActionChannel ) )
 			.append( QString( ", m_bMidiNoteOffIgnore: %1" )
 					 .arg( m_bMidiNoteOffIgnore ) )
-			.append( QString( ", m_bMidiFixedMapping: %1" )
-					 .arg( m_bMidiFixedMapping ) )
-			.append( QString( ", m_bMidiDiscardNoteAfterAction: %1" )
-					 .arg( m_bMidiDiscardNoteAfterAction ) )
 			.append( QString( ", m_bEnableMidiFeedback: %1" )
 					 .arg( m_bEnableMidiFeedback ) )
 			.append( QString( ", m_bMidiClockInputHandling: %1" )
@@ -2034,7 +2119,7 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bMidiClockOutputSend ) )
 			.append( QString( ", m_bMidiTransportOutputSend: %1" )
 					 .arg( m_bMidiTransportOutputSend ) )
-			.append( QString( ", m_bOscServerEnabled: %1" )
+			.append( QString( "], m_bOscServerEnabled: %1" )
 					 .arg( m_bOscServerEnabled ) )
 			.append( QString( ", m_bOscFeedbackEnabled: %1" )
 					 .arg( m_bOscFeedbackEnabled ) )
@@ -2214,8 +2299,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_pTheme->toQString( "", bShort ) ) )
 			.append( QString( ", m_pShortcuts: %1" )
 					 .arg( m_pShortcuts->toQString( "", bShort ) ) )
-			.append( QString( ", m_pMidiMap: %1" )
-					 .arg( m_pMidiMap->toQString( "", bShort ) ) )
+			.append( QString( ", m_pMidiEventMap: %1" )
+					 .arg( m_pMidiEventMap->toQString( "", bShort ) ) )
+			.append( QString( ", m_pMidiInstrumentMap: %1" )
+					 .arg( m_pMidiInstrumentMap->toQString( "", bShort ) ) )
 			.append( QString( ", m_bLoadingSuccessful: %1" )
 					 .arg( m_bLoadingSuccessful ) );
 	}
@@ -2258,67 +2345,4 @@ QString Preferences::ChangesToQString( Preferences::Changes changes ) {
 
 	return std::move( QString( "[%1]" ).arg( changesList.join( ", " ) ) );
 }
-
-WindowProperties::WindowProperties()
-	: x( 0 )
-	, y( 0 )
-	, width( 0 )
-	, height( 0 )
-	, visible( true ) {
-}
-
-WindowProperties::WindowProperties( int _x, int _y, int _width, int _height,
-									bool _visible, const QByteArray& geometry )
-	: x( _x )
-	, y( _y )
-	, width( _width )
-	, height( _height )
-	, visible( _visible )
-	, m_geometry( geometry ) {
-}
-
-WindowProperties::WindowProperties(const WindowProperties & other)
-		: x( other.x )
-		, y( other.y )
-		, width( other.width )
-		, height( other.height )
-		, visible( other.visible )
-		, m_geometry( other.m_geometry )
-{}
-
-WindowProperties::~WindowProperties() {
-}
-
-QString WindowProperties::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Base::sPrintIndention;
-	QString sOutput;
-	if ( ! bShort ) {
-		sOutput = QString( "%1[WindowProperties]\n" ).arg( sPrefix )
-			.append( QString( "%1%2x: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( x ) )
-			.append( QString( "%1%2y: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( y ) )
-			.append( QString( "%1%2width: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( width ) )
-			.append( QString( "%1%2height: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( height ) )
-			.append( QString( "%1%2visible: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( visible ) )
-			.append( QString( "%1%2m_geometry: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( QString( m_geometry.toHex( ':' ) ) ) );
-	}
-	else {
-		sOutput = QString( "[WindowProperties] " )
-			.append( QString( "x: %1" ).arg( x ) )
-			.append( QString( ", y: %1" ).arg( y ) )
-			.append( QString( ", width: %1" ).arg( width ) )
-			.append( QString( ", height: %1" ).arg( height ) )
-			.append( QString( ", visible: %1" ).arg( visible ) )
-			.append( QString( ", m_geometry: %1" )
-					 .arg( QString( m_geometry.toHex( ':' ) ) ) );
-	}
-
-	return sOutput;
-}
-
 };

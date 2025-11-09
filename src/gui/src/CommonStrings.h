@@ -72,6 +72,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getReleaseLabel() const { return m_sReleaseLabel; }
 	const QString& getMidiOutChannelLabel() const { return  m_sMidiOutChannelLabel; }
 	const QString& getMidiOutNoteLabel() const { return  m_sMidiOutNoteLabel; }
+	const QString& getMidiOutNoteOffsetLabel() const { return  m_sMidiOutNoteOffsetLabel; }
 	const QString& getMidiOutLabel() const { return  m_sMidiOutLabel; }
 	const QString& getMidiInputLabel() const { return  m_sMidiInputLabel; }
 	const QString& getPitchLabel() const { return  m_sPitchLabel; }
@@ -130,6 +131,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getBeatCounterTapAndPlayToolTip() const {
 		return m_sBeatCounterTapAndPlayToolTip; }
 
+	const QString& getMidiControl() const { return m_sMidiControl; }
 	const QString& getMidiSenseWindowTitle() const { return m_sMidiSenseWindowTitle; }
 	const QString& getMidiSenseInput() const { return m_sMidiSenseInput; }
 	const QString& getMidiSenseUnavailable() const { return m_sMidiSenseUnavailable; }
@@ -388,6 +390,7 @@ private:
 	QString m_sReleaseLabel;
 	QString m_sMidiOutChannelLabel;
 	QString m_sMidiOutNoteLabel;
+	QString m_sMidiOutNoteOffsetLabel;
 	QString m_sMidiOutLabel;
 	QString m_sMidiInputLabel;
 	QString m_sPitchLabel;
@@ -443,6 +446,7 @@ private:
 	QString m_sBeatCounterTapToolTip;
 	QString m_sBeatCounterTapAndPlayToolTip;
 	
+	QString m_sMidiControl;
 	QString m_sMidiSenseWindowTitle;
 	QString m_sMidiSenseInput;
 	QString m_sMidiSenseUnavailable;

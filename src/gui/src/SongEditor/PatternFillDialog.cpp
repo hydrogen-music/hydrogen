@@ -56,15 +56,14 @@ PatternFillDialog::PatternFillDialog( QWidget* pParent, FillRange* pFillRange)
 
 	m_pFromSpinBox = new LCDSpinBox(
 		this, spinBoxSize, LCDSpinBox::Type::Int, /*min*/ 0, /*max*/ 1,
-		/*modifyOnChange*/ false, /*minusOneAsOff*/ false );
+		LCDSpinBox::Flag::None );
 	m_pFromSpinBox->setFocus();
 	m_pFromSpinBox->setFocusPolicy( Qt::StrongFocus );
 	pRangeLayout->addWidget( m_pFromSpinBox );
 
 	m_pToSpinBox = new LCDSpinBox(
 		this, spinBoxSize, LCDSpinBox::Type::Int, /*min*/ 1,
-		/*max*/ pPref->getMaxBars(), /*modifyOnChange*/ false,
-		/*minusOneAsOff*/ false );
+		/*max*/ pPref->getMaxBars(), LCDSpinBox::Flag::None );
 	m_pToSpinBox->setFocusPolicy( Qt::StrongFocus );
 	pRangeLayout->addWidget( m_pToSpinBox );
 

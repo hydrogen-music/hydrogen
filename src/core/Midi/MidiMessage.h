@@ -41,6 +41,25 @@ class Note;
 class MidiMessage
 {
 	public:
+
+	static constexpr int nChannelMinimum = 0;
+	static constexpr int nChannelDefault = 9;
+	static constexpr int nChannelMaximum = 15;
+	static constexpr int nChannelOff = -1;
+	static constexpr int nChannelAll = -2;
+	static constexpr int nChannelInvalid = -3;
+
+	static constexpr int nNoteMinimum = 0;
+	static constexpr int nNoteDefault = 36;
+	static constexpr int nNoteMaximum = 127;
+	static constexpr int nNoteInvalid = -1;
+
+		/** When recording notes using MIDI NOTE_ON events this offset will be
+		 * applied to the provided pitch in order to map it to an instrument
+		 * number in the current drmmkit. It corresponds to the electric bass
+		 * drum in the General MIDI notation. */
+		static constexpr int nInstrumentOffset = 36;
+
 		/** All possible types of incoming MIDI messages.*/
 		enum class Type {
 			ActiveSensing,
@@ -87,12 +106,6 @@ class MidiMessage
 		/** Retrieve the string representation for all available
 		 * #Event. */
 		static QStringList getEventList();
-
-		/** When recording notes using MIDI NOTE_ON events this offset will be
-		 * applied to the provided pitch in order to map it to an instrument
-		 * number in the current drmmkit. It corresponds to the electric bass
-		 * drum in the General MIDI notation. */
-		static constexpr int instrumentOffset = 36;
 
 		/** Helper to construct ControlChange MIDI messages. */
 		struct ControlChange {

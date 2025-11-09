@@ -126,6 +126,10 @@ CommonStrings::CommonStrings(){
 	  in the Instrument Editor. Designed to hold four characters but
 	  flexible.*/
 	m_sMidiOutNoteLabel = tr( "Note" );
+	/*: Text displayed below the LCD to set the output MIDI note in the
+	  Instrument Editor in case the corresponding output method is set. Designed
+	  to be flexible.*/
+	m_sMidiOutNoteOffsetLabel = tr( "Note Offset" );
 	/*: Text displayed in the left part of the row of the Instrument Editor
 	  concerned with MIDI output parameters (Designed to hold eleven characters
 	  but flexible) as well as in the header of the Settings tab of the
@@ -251,8 +255,8 @@ CommonStrings::CommonStrings(){
 	/*: Text displayed on the buttons used to restart audio or MIDI driver in
 	 *  the Preferences dialog. */
 	m_sDriverRestartButton = tr( "Apply and restart driver" );
-	/*: Combo box item - e.g. used in the Settings tab of the MidiControl -
-	 *  indicating that every option is permissible. */
+	/*: Combo or spin box item - e.g. used in the Settings tab of the
+	 *  MidiControl - indicating that every option is permissible. */
 	m_sAllLabel = tr( "All" );
 
 	/*: Displayed in the tooltip of input widgets. Indicates the
@@ -301,6 +305,9 @@ CommonStrings::CommonStrings(){
 	 *  right after the tempo adjustment. */
 	m_sBeatCounterTapAndPlayToolTip = tr( "Adjust BPM using BeatCounter and start playback" );
 	
+	/*: Both the title of the MIDI control dialog and the name of the
+       corresponding action in the main menu. */
+	m_sMidiControl = tr( "MIDI Control" );
 	/*: Title of the window displayed when using the MIDI learning
 	  capabilities of Hydrogen.*/
 	m_sMidiSenseWindowTitle = tr( "Waiting..." );
@@ -323,8 +330,9 @@ CommonStrings::CommonStrings(){
 	/*: Displayed within a status message when activating a widget as well as in
 	 *  the preferences dialog as option to enable a setting.*/
 	m_sStatusOn = tr( "On" );
-	/*: Displayed within a status message when deactivating a widget as well as in
-	 *  the preferences dialog as option to disable a setting.*/
+	/*: Displayed within a status message when deactivating a widget as well as
+	 *  in the preferences dialog as option to disable a setting and in spin
+	 *  boxes when disabling a feature.*/
 	m_sStatusOff = tr( "Off" );
 	/*: Displayed within a status message when enabling a widget.*/
 	m_sStatusEnabled = tr( "enabled" );

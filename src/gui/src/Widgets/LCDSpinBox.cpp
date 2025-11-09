@@ -22,20 +22,23 @@
  */
 
 #include "LCDSpinBox.h"
+
+#include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
+
 #include <core/Globals.h>
 #include <core/Preferences/Preferences.h>
 
 // used in MainToolBar
-LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, double fMax, bool bModifyOnChange, bool bMinusOneAsOff )
+LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin,
+					   double fMax, int nFlag )
  : QDoubleSpinBox( pParent )
  , m_size( size )
  , m_bEntered( false )
  , m_kind( Kind::Default )
  , m_bIsActive( true )
- , m_bModifyOnChange( bModifyOnChange )
- , m_bMinusOneAsOff( bMinusOneAsOff )
+ , m_flag( static_cast<Flag>( nFlag ) )
 {
 	setFocusPolicy( Qt::ClickFocus );
 	setLocale( QLocale( QLocale::C, QLocale::AnyCountry ) );
@@ -118,7 +121,7 @@ void LCDSpinBox::wheelEvent( QWheelEvent *ev ) {
 				setValue( fNextValue - 1 );
 			}
 		}
-	} else if (	m_kind == Kind::PatternSizeNumerator ) {
+	} else if ( m_kind == Kind::PatternSizeNumerator ) {
 		QDoubleSpinBox::wheelEvent( ev );
 		if ( value() < 1 ) {
 			setValue( 1 );
@@ -128,7 +131,8 @@ void LCDSpinBox::wheelEvent( QWheelEvent *ev ) {
 
 	}
 
-	if ( fOldValue != value() && m_bModifyOnChange ) {
+	if ( fOldValue != value() &&
+		 ( m_flag & Flag::ModifyOnChange ) ) {
 		H2Core::Hydrogen::get_instance()->setIsModified( true );
 	}
 }
@@ -184,7 +188,7 @@ void LCDSpinBox::keyPressEvent( QKeyEvent *ev ) {
 		 QDoubleSpinBox::keyPressEvent( ev );
 	}
 	
-	if ( fOldValue != value() && m_bModifyOnChange ) {
+	if ( fOldValue != value() && ( m_flag & Flag::ModifyOnChange ) ) {
 		H2Core::Hydrogen::get_instance()->setIsModified( true );
 	}
 }
@@ -228,11 +232,17 @@ double LCDSpinBox::nextValueInPatternSizeDenominator( bool bUp, bool bAccelerate
 }
 
 QString LCDSpinBox::textFromValue( double fValue ) const {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	QString result;
-	if ( m_type == Type::Int && m_bMinusOneAsOff &&
+	if ( m_type == Type::Int && ( m_flag & Flag::MinusOneAsOff ) &&
 		 fValue == -1.0 ) {
-		result = "off";
-	} else {
+		result = pCommonStrings->getStatusOff();
+	}
+	else if ( m_type == Type::Int && ( m_flag & Flag::MinusTwoAsAll ) &&
+		 fValue == -2.0 ) {
+		result = pCommonStrings->getAllLabel();
+	}
+	else {
 		if ( m_type == Type::Int ) {
 			result = QString( "%1" ).arg( fValue, 0, 'f', 0 );
 		}
@@ -277,12 +287,16 @@ QValidator::State LCDSpinBox::validate( QString &text, int &pos ) const {
 }
 
 double LCDSpinBox::valueFromText( const QString& sText ) const {
-
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	double fResult;
 	
-	if ( sText == "off" ){
+	if ( sText == pCommonStrings->getStatusOff() ){
 		fResult = -1.0;
-	} else {
+	}
+ 	else if ( sText == pCommonStrings->getAllLabel() ){
+		fResult = -2.0;
+	}
+	else {
 		fResult = QDoubleSpinBox::valueFromText( sText );
 	}
 
@@ -321,7 +335,7 @@ void LCDSpinBox::mousePressEvent( QMouseEvent* ev ) {
 
 	QDoubleSpinBox::mousePressEvent( ev );
 	
-	if ( fOldValue != value() && m_bModifyOnChange ) {
+	if ( fOldValue != value() && ( m_flag & Flag::ModifyOnChange ) ) {
 		H2Core::Hydrogen::get_instance()->setIsModified( true );
 	}
 }
@@ -331,7 +345,7 @@ void LCDSpinBox::mouseMoveEvent( QMouseEvent* ev ) {
 
 	QDoubleSpinBox::mouseMoveEvent( ev );
 	
-	if ( fOldValue != value() && m_bModifyOnChange ) {
+	if ( fOldValue != value() && ( m_flag & Flag::ModifyOnChange ) ) {
 		H2Core::Hydrogen::get_instance()->setIsModified( true );
 	}
 }
@@ -341,7 +355,7 @@ void LCDSpinBox::mouseReleaseEvent( QMouseEvent* ev ) {
 
 	QDoubleSpinBox::mouseReleaseEvent( ev );
 	
-	if ( fOldValue != value() && m_bModifyOnChange ) {
+	if ( fOldValue != value() && ( m_flag & Flag::ModifyOnChange ) ) {
 		H2Core::Hydrogen::get_instance()->setIsModified( true );
 	}
 }

@@ -28,7 +28,7 @@
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiAction.h>
-#include <core/Midi/MidiMap.h>
+#include <core/Midi/MidiEventMap.h>
 #include <core/Preferences/Preferences.h>
 
 MidiSenseWidget::MidiSenseWidget( QWidget* pParent, bool bDirectWrite,
@@ -103,7 +103,7 @@ void MidiSenseWidget::updateMidi(){
 
 		if ( m_bDirectWrite ) {
 			// write the Midiaction / parameter combination to the midiMap
-			auto pMidiMap = H2Core::Preferences::get_instance()->getMidiMap();
+			auto pMidiEventMap = H2Core::Preferences::get_instance()->getMidiEventMap();
 
 			assert(m_pAction);
 
@@ -112,15 +112,15 @@ void MidiSenseWidget::updateMidi(){
 
 			switch( m_lastMidiEvent ) {
 			case H2Core::MidiMessage::Event::CC: 
-				pMidiMap->registerCCEvent( m_nLastMidiEventParameter, pAction );
+				pMidiEventMap->registerCCEvent( m_nLastMidiEventParameter, pAction );
 				break;
 
 			case H2Core::MidiMessage::Event::Note:
-				pMidiMap->registerNoteEvent( m_nLastMidiEventParameter, pAction );
+				pMidiEventMap->registerNoteEvent( m_nLastMidiEventParameter, pAction );
 				break;
 
 			case H2Core::MidiMessage::Event::PC:
-				pMidiMap->registerPCEvent( pAction );
+				pMidiEventMap->registerPCEvent( pAction );
 				break;
 
 			case H2Core::MidiMessage::Event::Null:
@@ -128,12 +128,12 @@ void MidiSenseWidget::updateMidi(){
 
 			default:
 				// MMC event
-				pMidiMap->registerMMCEvent(
+				pMidiEventMap->registerMMCEvent(
 					H2Core::MidiMessage::EventToQString( m_lastMidiEvent ),
 					pAction );
 			}
 
-			H2Core::EventQueue::get_instance()->pushEvent( H2Core::Event::Type::MidiMapChanged, 0 );
+			H2Core::EventQueue::get_instance()->pushEvent( H2Core::Event::Type::MidiEventMapChanged, 0 );
 		}
 
 		close();

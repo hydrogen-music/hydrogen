@@ -32,6 +32,11 @@
 #include "../EventListener.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
+namespace H2Core {
+	class Instrument;
+}
+
+class LCDSpinBox;
 class MidiActionTable;
 
 /** \ingroup docGUI*/
@@ -53,14 +58,21 @@ public:
 		static constexpr int nColumnTypeWidth = 220;
 		static constexpr int nColumnValueWidth = 80;
 
+		static constexpr int nColumnMappingWidth = 120;
+		static constexpr int nMappingBoxHeight = 30;
+
+
 		explicit MidiControlDialog( QWidget* pParent );
 		~MidiControlDialog();
 
 		// EventListerer
+		void drumkitLoadedEvent() override;
+		void instrumentParametersChangedEvent( int ) override;
 		void midiDriverChangedEvent() override;
 		void midiInputEvent() override;
 		void midiOutputEvent() override;
 		void updatePreferencesEvent( int ) override;
+		void updateSongEvent( int ) override;
 
 public slots:
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
@@ -71,16 +83,28 @@ private:
 
 		void updateFont();
 		void updateIcons();
+
+		void updateInstrumentTable();
+		/** @returns the row number corresponding to the objects just added. */
+		void addInstrumentTableRow();
+		void updateInstrumentTableRow(
+				int nRow, std::shared_ptr<H2Core::Instrument> pInstrument );
 		void updateInputTable();
 		void updateOutputTable();
 
 		QTabWidget* m_pTabWidget;
 
-		QComboBox* m_pInputChannelFilterComboBox;
+		LCDSpinBox* m_pInputActionChannelSpinBox;
 		QCheckBox* m_pInputIgnoreNoteOffCheckBox;
-		QCheckBox* m_pInputDiscardAfterActionCheckBox;
-		QCheckBox* m_pInputNoteAsOutputCheckBox;
 		QCheckBox* m_pOutputEnableMidiFeedbackCheckBox;
+
+		QComboBox* m_pInputNoteMappingComboBox;
+		QComboBox* m_pOutputNoteMappingComboBox;
+		QCheckBox* m_pGlobalInputChannelCheckBox;
+		LCDSpinBox* m_pGlobalInputChannelSpinBox;
+		QCheckBox* m_pGlobalOutputChannelCheckBox;
+		LCDSpinBox* m_pGlobalOutputChannelSpinBox;
+		QTableWidget* m_pInstrumentTable;
 
 		QTableWidget* m_pMidiInputTable;
 		QToolButton* m_pInputBinButton;
@@ -89,6 +113,14 @@ private:
 		QToolButton* m_pOutputBinButton;
 
 		MidiActionTable* m_pMidiActionTable;
+
+		/** We cache the instruments used in slot handlers of
+         * #m_pInstrumentTable in this map and access them with a combination
+         * of instrument type and id. This way we ensure no shared pointer to
+         * any of these core data types gets stuck in a callback context and
+         * e.g. causes sample data to not be freed. */
+		std::map< std::pair<QString, int>,
+				 std::shared_ptr<H2Core::Instrument> > m_instrumentMap;
 };
 
 

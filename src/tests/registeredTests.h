@@ -40,7 +40,7 @@
 #include "MidiActionTest.h"
 #include "MidiDriverTest.h"
 #include "MidiExportTest.h"
-#include "MidiNoteTest.cpp"
+#include "MidiNoteTest.h"
 #include "MimeTest.h"
 #include "NetworkTest.h"
 #include "NoteTest.h"

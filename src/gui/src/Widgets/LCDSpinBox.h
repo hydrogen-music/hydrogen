@@ -71,16 +71,25 @@ public:
 		PatternSizeDenominator
 	};
 
+	enum Flag {
+		None = 0x000,
+		ModifyOnChange = 0x001,
+		/** Used for MIDI channel spin boxes to indicate no MIDI in/output once the
+		 * value is equal to `-1` */
+		MinusOneAsOff = 0x002,
+		/** Used for MIDI channel spin boxes to indicate MIDI input from all
+		 * channels will be accepted once the value is equal to `-2` */
+		MinusTwoAsAll = 0x004,
+	};
+
 	LCDSpinBox( QWidget *pParent, QSize size = QSize(), Type type = Type::Int,
-				double fMin = 0.0, double fMax = 1.0,
-				bool bModifyOnChange = false, bool bMinusOneAsOff = false );
+				double fMin = 0.0, double fMax = 1.0, int = Flag::None );
 	~LCDSpinBox();
 
 	void setType( Type type );
 	void setKind( Kind kind );
 	void setSize( QSize size );
-	void setModifyOnChange( bool bModifyOnChange );
-	
+
 	virtual QValidator::State validate( QString &text, int &pos ) const override;
 	
 	bool getIsActive() const;
@@ -112,17 +121,10 @@ private:
 	QSize m_size;
 	Type m_type;
 	Kind m_kind;
-	
+		Flag m_flag;
+
 	bool m_bEntered;
 	bool m_bIsActive;
-
-	/** In some widgets the QString "off" will be displayed instead of
-		-1.*/
-	bool m_bMinusOneAsOff;
-
-	/** Whether Hydrogen::setIsModified() is invoked with `true` as
-		soon as the value of the widget does change.*/
-	bool m_bModifyOnChange;
 
 	virtual QString textFromValue( double fValue ) const override;
 	virtual double valueFromText( const QString& sText ) const override;	
@@ -144,9 +146,6 @@ private:
 
 inline void LCDSpinBox::setKind( Kind kind ) {
 	m_kind = kind;
-}
-inline void LCDSpinBox::setModifyOnChange( bool bModifyOnChange ) {
-	m_bModifyOnChange = bModifyOnChange;
 }
 inline bool LCDSpinBox::getIsActive() const {
 	return m_bIsActive;

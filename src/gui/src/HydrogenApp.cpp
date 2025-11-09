@@ -955,6 +955,11 @@ void HydrogenApp::onEventQueueTimer()
 				continue;
 			}
 
+			if ( ppEventListener->isEventIdBlacklisted( pEvent->getId() ) ) {
+				ppEventListener->dropBlacklistedEventId( pEvent->getId() );
+				continue;
+			}
+
 			switch ( pEvent->getType() ) {
 			case Event::Type::ActionModeChanged:
 				ppEventListener->actionModeChangeEvent( pEvent->getValue() );
@@ -1024,7 +1029,7 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->midiInputEvent();
 				break;
 
-			case Event::Type::MidiMapChanged:
+			case Event::Type::MidiEventMapChanged:
 				ppEventListener->midiMapChangedEvent();
 				break;
 

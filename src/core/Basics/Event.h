@@ -37,6 +37,8 @@ class Event : public H2Core::Object<Event>
 	H2_OBJECT(Event)
 public:
 
+		static constexpr long nInvalidId = 0;
+
 		/** Tells the associated routine in the core part of Hydrogen how and
 		 * whether to communicate with the (G)UI */
 		enum class Trigger {
@@ -105,7 +107,7 @@ public:
 			MidiDriverChanged,
 			/** Hydrogen did received a MIDI event. */
 			MidiInput,
-			MidiMapChanged,
+			MidiEventMapChanged,
 			/** Hydrogen did sent a MIDI event. */
 			MidiOutput,
 			/** Miscellaneous things shown in the Mixer apart from the
@@ -229,6 +231,7 @@ public:
 		Event::Type getType() const;
 
 		int getValue() const;
+		long getId() const;
 
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -249,6 +252,9 @@ private:
 			engine.*/
 		int m_nValue;
 
+		/** Unique identifier of the Event assigned on creation. */
+		long m_nId;
+
 };
 
 inline Event::Type Event::getType() const {
@@ -256,6 +262,9 @@ inline Event::Type Event::getType() const {
 }
 inline int Event::getValue() const {
 	return m_nValue;
+}
+inline long Event::getId() const {
+	return m_nId;
 }
 
 };

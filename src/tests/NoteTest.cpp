@@ -383,7 +383,7 @@ void NoteTest::testMappingValidDrumkits() {
 
 void NoteTest::testMidiDefaultOffset() {
 	___INFOLOG( "" );
-	CPPUNIT_ASSERT_EQUAL( MidiMessage::instrumentOffset, KEYS_PER_OCTAVE *
+	CPPUNIT_ASSERT_EQUAL( MidiMessage::nInstrumentOffset, KEYS_PER_OCTAVE *
 						  ( OCTAVE_DEFAULT + OCTAVE_OFFSET ) );
 	___INFOLOG( "passed" );
 }
@@ -480,6 +480,6 @@ void NoteTest::testSerializeProbability() {
 void NoteTest::testVirtualKeyboard() {
 	___INFOLOG( "" );
 	CPPUNIT_ASSERT_EQUAL( static_cast<int>(Shortcuts::Action::VK_36_C2), 400 );
-	CPPUNIT_ASSERT_EQUAL( MidiMessage::instrumentOffset, 36 ); // MIDI note C2
+	CPPUNIT_ASSERT_EQUAL( MidiMessage::nInstrumentOffset, 36 ); // MIDI note C2
 	___INFOLOG( "passed" );
 }

@@ -29,10 +29,17 @@ https://www.gnu.org/licenses
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
+#include "../Widgets/LCDSpinBox.h"
 
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Song.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/IO/MidiBaseDriver.h>
+#include <core/Midi/MidiInstrumentMap.h>
+#include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 
@@ -54,7 +61,7 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 	setObjectName( "MidiControlDialog" );
 	// Not translated because it would make explanation within tickets more
 	// difficult.
-	setWindowTitle( "MidiControlDialog" );
+	setWindowTitle( pCommonStrings->getMidiControl() );
 
 	auto pMainLayout = new QVBoxLayout( this );
 	setLayout( pMainLayout );
@@ -66,6 +73,36 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 
 	const QColor borderColor( 80, 80, 80 );
 	const int nHeaderTextSize = 20;
+	const int nSettingTextSize = 16;
+
+	auto createSeparator = [&]( QWidget* pParent, bool bHorizontal ) {
+		auto pSeparator = new QWidget( pParent );
+		if ( bHorizontal ) {
+			pSeparator->setFixedHeight( 1 );
+		}
+		else {
+			pSeparator->setFixedWidth( 1 );
+		}
+		pSeparator->setStyleSheet( QString( "\
+background-color: %1;" ).arg( borderColor.name() ) );
+
+		return pSeparator;
+	};
+
+	auto addHeaderLabel = [&]( QWidget* pParent, const QString& sText ) {
+		auto pLabel = new QLabel( sText, pParent );
+		pLabel->setAlignment( Qt::AlignCenter );
+		pLabel->setFixedHeight( 32 );
+		pLabel->setStyleSheet( QString( "\
+font-size: %1px;" ).arg( nHeaderTextSize ) );
+		pParent->layout()->addWidget( pLabel );
+
+		// Well, `border-bottom` does not seem to work on QLabel.
+		auto pSeparator = createSeparator( pParent, true );
+		pParent->layout()->addWidget( pSeparator );
+	};
+
+	////////////////////////////////////////////////////////////////////////////
 
 	auto pSettingsWidget = new QWidget( m_pTabWidget );
 	m_pTabWidget->addTab( pSettingsWidget, pCommonStrings->getSettings() );
@@ -89,49 +126,7 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 	pInputSettingsLayout->setAlignment( Qt::AlignTop );
 	pInputSettingsWidget->setLayout( pInputSettingsLayout );
 
-	auto pInputLabel = new QLabel( pCommonStrings->getMidiInputLabel() );
-	pInputLabel->setAlignment( Qt::AlignCenter );
-	pInputLabel->setFixedHeight( 32 );
-	pInputLabel->setStyleSheet( QString( "\
-font-size: %1px;" ).arg( nHeaderTextSize ) );
-	pInputSettingsLayout->addWidget( pInputLabel );
-
-	// Well, `border-bottom` does not seem to work on QLabel.
-	auto pInputSeparator = new QWidget( pInputSettingsWidget );
-	pInputSeparator->setFixedHeight( 1 );
-	pInputSeparator->setStyleSheet( QString( "\
-background-color: %1;" ).arg( borderColor.name() ) );
-	pInputSettingsLayout->addWidget( pInputSeparator );
-
-	auto pInputChannelFilterWidget = new QWidget( pInputSettingsWidget );
-	pInputSettingsLayout->addWidget( pInputChannelFilterWidget );
-	auto pInputChannelFilterLayout = new QHBoxLayout( pInputChannelFilterWidget );
-	pInputChannelFilterWidget->setLayout( pInputChannelFilterLayout );
-
-	auto pInputChannelFilterLabel = new QLabel(
-		pCommonStrings->getMidiOutChannelLabel() );
-	pInputChannelFilterLayout->addWidget( pInputChannelFilterLabel );
-	m_pInputChannelFilterComboBox = new QComboBox( pInputChannelFilterWidget );
-	pInputChannelFilterLayout->addWidget( m_pInputChannelFilterComboBox );
-	m_pInputChannelFilterComboBox->addItem( pCommonStrings->getAllLabel() );
-	for ( int ii = 0; ii <= 15; ++ii ) {
-		m_pInputChannelFilterComboBox->addItem( QString::number( ii ) );
-	}
-	if ( pPref->m_nMidiChannelFilter == -1 ) {
-		m_pInputChannelFilterComboBox->setCurrentIndex( 0 );
-	} else {
-		m_pInputChannelFilterComboBox->setCurrentIndex(
-			pPref->m_nMidiChannelFilter + 1 );
-	}
-	connect( m_pInputChannelFilterComboBox,
-			 QOverload<int>::of( &QComboBox::activated ), [=]( int ) {
-		auto pPref = Preferences::get_instance();
-		if ( pPref->m_nMidiChannelFilter !=
-			 m_pInputChannelFilterComboBox->currentIndex() - 1 ) {
-			pPref->m_nMidiChannelFilter =
-				m_pInputChannelFilterComboBox->currentIndex() - 1;
-		}
-	} );
+	addHeaderLabel( pInputSettingsWidget, pCommonStrings->getMidiInputLabel() );
 
 	m_pInputIgnoreNoteOffCheckBox = new QCheckBox( pInputSettingsWidget );
 	m_pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
@@ -144,34 +139,6 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	connect( m_pInputIgnoreNoteOffCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->m_bMidiNoteOffIgnore =
 			m_pInputIgnoreNoteOffCheckBox->isChecked();
-	} );
-
-	m_pInputDiscardAfterActionCheckBox = new QCheckBox( pInputSettingsWidget );
-	m_pInputDiscardAfterActionCheckBox->setChecked(
-		pPref->m_bMidiDiscardNoteAfterAction );
-	/*: The character after the '&' symbol can be used as a shortcut via the Alt
-	 *  modifier. It should not coincide with any other shortcut in the Settings
-	 *  tab of the MidiControlDialog. If in question, you can just drop the
-	 *  '&'. */
-	m_pInputDiscardAfterActionCheckBox->setText(
-		tr( "&Discard MIDI messages after action has been triggered" ) );
-	pInputSettingsLayout->addWidget( m_pInputDiscardAfterActionCheckBox );
-	connect( m_pInputDiscardAfterActionCheckBox, &QAbstractButton::toggled, [=]() {
-		Preferences::get_instance()->m_bMidiDiscardNoteAfterAction =
-			m_pInputDiscardAfterActionCheckBox->isChecked();
-	} );
-
-	m_pInputNoteAsOutputCheckBox = new QCheckBox( pInputSettingsWidget );
-	m_pInputNoteAsOutputCheckBox->setChecked( pPref->m_bMidiFixedMapping );
-	/*: The character after the '&' symbol can be used as a shortcut via the Alt
-	 *  modifier. It should not coincide with any other shortcut in the Settings
-	 *  tab of the MidiControlDialog. If in question, you can just drop the
-	 *  '&'. */
-	m_pInputNoteAsOutputCheckBox->setText( tr( "&Use output note as input note" ) );
-	pInputSettingsLayout->addWidget( m_pInputNoteAsOutputCheckBox );
-	connect( m_pInputNoteAsOutputCheckBox, &QAbstractButton::toggled, [=]() {
-		Preferences::get_instance()->m_bMidiFixedMapping =
-			m_pInputNoteAsOutputCheckBox->isChecked();
 	} );
 
 	auto pInputMidiClockCheckBox = new QCheckBox( pInputSettingsWidget );
@@ -197,25 +164,36 @@ background-color: %1;" ).arg( borderColor.name() ) );
 			pInputMidiTransportCheckBox->isChecked() );
 	} );
 
+	auto pInputActionChannelWidget = new QWidget( pInputSettingsWidget );
+	pInputSettingsLayout->addWidget( pInputActionChannelWidget );
+	auto pInputActionChannelLayout = new QHBoxLayout( pInputActionChannelWidget );
+	pInputActionChannelWidget->setLayout( pInputActionChannelLayout );
+
+	auto pInputChannelFilterLabel = new QLabel(
+		tr( "Channel for MIDI actions and clock" ) );
+	pInputActionChannelLayout->addWidget( pInputChannelFilterLabel );
+	m_pInputActionChannelSpinBox = new LCDSpinBox(
+		pInputActionChannelWidget,
+		QSize( MidiControlDialog::nColumnMappingWidth,
+			  MidiControlDialog::nMappingBoxHeight ), LCDSpinBox::Type::Int,
+		MidiMessage::nChannelAll, MidiMessage::nChannelMaximum,
+		LCDSpinBox::Flag::MinusOneAsOff | LCDSpinBox::Flag::MinusTwoAsAll );
+	pInputActionChannelLayout->addWidget( m_pInputActionChannelSpinBox );
+	m_pInputActionChannelSpinBox->setValue( pPref->m_nMidiActionChannel );
+	connect( m_pInputActionChannelSpinBox,
+			 QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
+			[=]( double fValue ) {
+				Preferences::get_instance()->m_nMidiActionChannel =
+					static_cast<int>( fValue );
+	} );
+
 	auto pOutputSettingsWidget = new QWidget( pConfigWidget );
 	pConfigLayout->addWidget( pOutputSettingsWidget );
 	auto pOutputSettingsLayout = new QVBoxLayout( pOutputSettingsWidget );
 	pOutputSettingsLayout->setAlignment( Qt::AlignTop );
 	pOutputSettingsWidget->setLayout( pOutputSettingsLayout );
 
-	auto pOutputLabel = new QLabel( pCommonStrings->getMidiOutLabel() );
-	pOutputLabel->setAlignment( Qt::AlignCenter );
-	pOutputLabel->setFixedHeight( 32 );
-	pOutputLabel->setStyleSheet( QString( "\
-font-size: %1px;" ).arg( nHeaderTextSize ) );
-	pOutputSettingsLayout->addWidget( pOutputLabel );
-
-	// Well, `border-bottom` does not seem to work on QLabel.
-	auto pOutputSeparator = new QWidget( pOutputSettingsWidget );
-	pOutputSeparator->setFixedHeight( 1 );
-	pOutputSeparator->setStyleSheet( QString( "\
-background-color: %1;" ).arg( borderColor.name() ) );
-	pOutputSettingsLayout->addWidget( pOutputSeparator );
+	addHeaderLabel( pOutputSettingsWidget, pCommonStrings->getMidiOutLabel() );
 
 	m_pOutputEnableMidiFeedbackCheckBox = new QCheckBox( pOutputSettingsWidget );
 	m_pOutputEnableMidiFeedbackCheckBox->setChecked( pPref->m_bEnableMidiFeedback );
@@ -273,13 +251,263 @@ background-color: %1;" ).arg( borderColor.name() ) );
 
 	////////////////////////////////////////////////////////////////////////////
 
+	const auto pMidiInstrumentMap = pPref->getMidiInstrumentMap();
+
+	auto pMappingTab = new QWidget( m_pTabWidget );
+	/*: Tab of the MIDI control dialog dedicated to mapping MIDI notes to
+	 *  instruments of the current drumkit. */
+	m_pTabWidget->addTab( pMappingTab, tr( "Instrument Mapping" ) );
+
+	auto pMappingWrapperLayout = new QVBoxLayout();
+	pMappingWrapperLayout->setSpacing( 5 );
+	pMappingTab->setLayout( pMappingWrapperLayout );
+
+	auto pMappingSettingsWidget = new QWidget( pMappingTab );
+	auto pMappingGridLayout = new QGridLayout();
+	pMappingSettingsWidget->setLayout( pMappingGridLayout );
+	pMappingWrapperLayout->addWidget( pMappingSettingsWidget );
+	pMappingGridLayout->setVerticalSpacing( 5 );
+	pMappingGridLayout->setContentsMargins( 0, 0, 0, 0 );
+
+	auto pVSeparatorInput = createSeparator( pMappingSettingsWidget, false );
+	pMappingGridLayout->addWidget( pVSeparatorInput, 0, 2, 4, 1 );
+	auto pVSeparatorOutput = createSeparator( pMappingSettingsWidget, false );
+	pMappingGridLayout->addWidget( pVSeparatorOutput, 0, 4, 4, 1 );
+
+	auto pInputMappingHeader = new QWidget( pMappingSettingsWidget );
+	pInputMappingHeader->setFixedWidth(
+		MidiControlDialog::nColumnMappingWidth * 2 );
+	auto pInputMappingHeaderLayout = new QVBoxLayout( pInputMappingHeader );
+	pInputMappingHeaderLayout->setContentsMargins( 0, 0, 0, 0 );
+	pInputMappingHeader->setLayout( pInputMappingHeaderLayout );
+	addHeaderLabel( pInputMappingHeader, pCommonStrings->getMidiInputLabel() );
+
+	pMappingGridLayout->addWidget( pInputMappingHeader, 0, 0, 1, 2,
+							  Qt::AlignCenter );
+
+	auto pSeparatorHeader = createSeparator( pMappingSettingsWidget, true );
+	pMappingGridLayout->addWidget( pSeparatorHeader, 0, 3, Qt::AlignBottom );
+
+	auto pOutputMappingHeader = new QWidget( pMappingSettingsWidget );
+	pOutputMappingHeader->setFixedWidth(
+		MidiControlDialog::nColumnMappingWidth * 2 );
+	auto pOutputMappingHeaderLayout = new QVBoxLayout( pOutputMappingHeader );
+	pOutputMappingHeaderLayout->setContentsMargins( 0, 0, 0, 0 );
+	pOutputMappingHeader->setLayout( pOutputMappingHeaderLayout );
+	addHeaderLabel( pOutputMappingHeader, pCommonStrings->getMidiOutLabel() );
+	pMappingGridLayout->addWidget( pOutputMappingHeader, 0, 5, 1, 2,
+							  Qt::AlignCenter );
+
+
+	m_pInputNoteMappingComboBox = new QComboBox( pMappingTab );
+	m_pInputNoteMappingComboBox->setFixedSize(
+		MidiControlDialog::nColumnMappingWidth * 2,
+		MidiControlDialog::nMappingBoxHeight );
+	m_pInputNoteMappingComboBox->insertItems( 0,
+		QStringList() << MidiInstrumentMap::InputToQString(
+				MidiInstrumentMap::Input::None )
+			<< MidiInstrumentMap::InputToQString(
+				MidiInstrumentMap::Input::AsOutput )
+			<< MidiInstrumentMap::InputToQString(
+				MidiInstrumentMap::Input::Custom )
+			<< MidiInstrumentMap::InputToQString(
+				MidiInstrumentMap::Input::SelectedInstrument )
+			<< MidiInstrumentMap::InputToQString(
+				MidiInstrumentMap::Input::Order ) );
+	m_pInputNoteMappingComboBox->setCurrentIndex(
+		static_cast<int>( pMidiInstrumentMap->getInput() ) );
+	connect( m_pInputNoteMappingComboBox,
+			 QOverload<int>::of( &QComboBox::activated ), [=]( int ) {
+		auto pMidiInstrumentMap =
+			Preferences::get_instance()->getMidiInstrumentMap();
+		auto input = static_cast<MidiInstrumentMap::Input>(
+			m_pInputNoteMappingComboBox->currentIndex() );
+		if ( pMidiInstrumentMap->getInput() != input ) {
+			pMidiInstrumentMap->setInput( input );
+			updateInstrumentTable();
+		}
+	} );
+
+	pMappingGridLayout->addWidget( m_pInputNoteMappingComboBox, 1, 0, 1, 2,
+							  Qt::AlignCenter );
+
+	/*: Label of an option in the mapping tab of the MIDI control dialog
+	 *  specifying how incoming and outgoing MIDI notes and the instruments of
+	 *  the current drumkit should relate to eachother. */
+	auto pNoteMappingLabel = new QLabel( tr( "Note Mapping" ), pMappingTab );
+	pNoteMappingLabel->setStyleSheet( QString( "\
+font-size: %1px;" ).arg( nSettingTextSize ) );
+	pMappingGridLayout->addWidget( pNoteMappingLabel, 1, 3, Qt::AlignCenter );
+
+	m_pOutputNoteMappingComboBox = new QComboBox( pMappingTab );
+	m_pOutputNoteMappingComboBox->setFixedSize(
+		MidiControlDialog::nColumnMappingWidth * 2,
+		MidiControlDialog::nMappingBoxHeight );
+	m_pOutputNoteMappingComboBox->insertItems( 0,
+		QStringList() << MidiInstrumentMap::OutputToQString(
+				MidiInstrumentMap::Output::None )
+			<< MidiInstrumentMap::OutputToQString(
+				MidiInstrumentMap::Output::Offset )
+			<< MidiInstrumentMap::OutputToQString(
+				MidiInstrumentMap::Output::Constant ) );
+	m_pOutputNoteMappingComboBox->setCurrentIndex(
+		static_cast<int>( pMidiInstrumentMap->getOutput() ) );
+	connect( m_pOutputNoteMappingComboBox,
+			 QOverload<int>::of( &QComboBox::activated ), [=]( int ) {
+		auto pMidiInstrumentMap =
+			Preferences::get_instance()->getMidiInstrumentMap();
+		auto output = static_cast<MidiInstrumentMap::Output>(
+			m_pOutputNoteMappingComboBox->currentIndex() );
+		if ( pMidiInstrumentMap->getOutput() != output ) {
+			pMidiInstrumentMap->setOutput( output );
+			updateInstrumentTable();
+
+			// Announce the changes to the instrument editor.
+			HydrogenApp::get_instance()->changePreferences(
+				Preferences::Changes::MidiTab );
+		}
+	} );
+
+	pMappingGridLayout->addWidget( m_pOutputNoteMappingComboBox, 1, 5, 1, 2,
+							  Qt::AlignCenter );
+
+	auto pSeparatorNoteMapping = createSeparator( pMappingSettingsWidget, true );
+	pMappingGridLayout->addWidget( pSeparatorNoteMapping, 2, 0, 1, 7,
+								  Qt::AlignBottom );
+
+
+	// -1 does not turn this channel "off". Instead, the combo box above it can
+	// be set to None.
+	m_pGlobalInputChannelSpinBox = new LCDSpinBox(
+		pMappingTab, QSize( MidiControlDialog::nColumnMappingWidth,
+						   MidiControlDialog::nMappingBoxHeight ),
+		LCDSpinBox::Type::Int, MidiMessage::nChannelAll,
+		MidiMessage::nChannelMaximum,
+		LCDSpinBox::Flag::MinusOneAsOff | LCDSpinBox::Flag::MinusTwoAsAll );
+	m_pGlobalInputChannelSpinBox->setValue(
+		pMidiInstrumentMap->getGlobalInputChannel() );
+	m_pGlobalInputChannelSpinBox->setEnabled(
+		pMidiInstrumentMap->getUseGlobalInputChannel() );
+	connect( m_pGlobalInputChannelSpinBox,
+			QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+			[&](double fValue) {
+				Preferences::get_instance()->getMidiInstrumentMap()
+					->setGlobalInputChannel( static_cast<int>( fValue ) );
+				updateInstrumentTable();
+	});
+	pMappingGridLayout->addWidget( m_pGlobalInputChannelSpinBox, 3, 0,
+							  Qt::AlignCenter );
+
+	m_pGlobalInputChannelCheckBox = new QCheckBox( pMappingTab );
+	m_pGlobalInputChannelCheckBox->setChecked(
+		pMidiInstrumentMap->getUseGlobalInputChannel() );
+	connect( m_pGlobalInputChannelCheckBox, &QAbstractButton::toggled, [=]() {
+		Preferences::get_instance()->getMidiInstrumentMap()
+			->setUseGlobalInputChannel(
+				m_pGlobalInputChannelCheckBox->isChecked() );
+		m_pGlobalInputChannelSpinBox->setEnabled(
+			m_pGlobalInputChannelCheckBox->isChecked() );
+		updateInstrumentTable();
+	} );
+	pMappingGridLayout->addWidget( m_pGlobalInputChannelCheckBox, 3, 1,
+							  Qt::AlignCenter );
+
+	/*: Label of an option in the mapping tab of the MIDI control dialog
+	 *  specifying whether (and which) all instruments of the current drumkit
+	 *  should feature the same incoming and outgoing MIDI channel. */
+	auto pGlobalChannelLabel = new QLabel( tr( "Global Channel" ), pMappingTab );
+	pGlobalChannelLabel->setStyleSheet( QString( "\
+font-size: %1px;" ).arg( nSettingTextSize ) );
+	pMappingGridLayout->addWidget( pGlobalChannelLabel, 3, 3, Qt::AlignCenter );
+
+	// -1 does not turn this channel "off". Instead, the combo box above it can
+	// be set to None.
+	m_pGlobalOutputChannelSpinBox = new LCDSpinBox(
+		pMappingTab, QSize( MidiControlDialog::nColumnMappingWidth,
+						   MidiControlDialog::nMappingBoxHeight ),
+		LCDSpinBox::Type::Int, MidiMessage::nChannelOff,
+		MidiMessage::nChannelMaximum, LCDSpinBox::Flag::MinusOneAsOff );
+	m_pGlobalOutputChannelSpinBox->setValue(
+		pMidiInstrumentMap->getGlobalOutputChannel() );
+	m_pGlobalOutputChannelSpinBox->setEnabled(
+		pMidiInstrumentMap->getUseGlobalOutputChannel() );
+	connect( m_pGlobalOutputChannelSpinBox,
+			QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+			[&](double fValue) {
+				Preferences::get_instance()->getMidiInstrumentMap()
+					->setGlobalOutputChannel( static_cast<int>( fValue ) );
+				updateInstrumentTable();
+	});
+	pMappingGridLayout->addWidget( m_pGlobalOutputChannelSpinBox, 3, 6,
+							  Qt::AlignCenter );
+
+	m_pGlobalOutputChannelCheckBox = new QCheckBox( pMappingTab );
+	m_pGlobalOutputChannelCheckBox->setChecked(
+		pMidiInstrumentMap->getUseGlobalOutputChannel() );
+	connect( m_pGlobalOutputChannelCheckBox, &QAbstractButton::toggled, [=]() {
+		Preferences::get_instance()->getMidiInstrumentMap()
+			->setUseGlobalOutputChannel(
+				m_pGlobalOutputChannelCheckBox->isChecked() );
+		m_pGlobalOutputChannelSpinBox->setEnabled(
+			m_pGlobalOutputChannelCheckBox->isChecked() );
+		updateInstrumentTable();
+	} );
+	pMappingGridLayout->addWidget( m_pGlobalOutputChannelCheckBox, 3, 5,
+							  Qt::AlignCenter );
+
+
+	pMappingGridLayout->setColumnMinimumWidth( 0, MidiControlDialog::nColumnMappingWidth );
+	pMappingGridLayout->setColumnMinimumWidth( 1, MidiControlDialog::nColumnMappingWidth );
+	pMappingGridLayout->setColumnMinimumWidth( 3, MidiControlDialog::nColumnMappingWidth );
+	pMappingGridLayout->setColumnMinimumWidth( 5, MidiControlDialog::nColumnMappingWidth );
+	pMappingGridLayout->setColumnMinimumWidth( 6, MidiControlDialog::nColumnMappingWidth );
+	pMappingGridLayout->setColumnStretch( 0, 0 );
+	pMappingGridLayout->setColumnStretch( 1, 0 );
+	pMappingGridLayout->setColumnStretch( 2, 0 );
+	pMappingGridLayout->setColumnStretch( 3, 1 );
+	pMappingGridLayout->setColumnStretch( 4, 0 );
+	pMappingGridLayout->setColumnStretch( 5, 0 );
+	pMappingGridLayout->setColumnStretch( 6, 0 );
+
+	m_pInstrumentTable = new QTableWidget( pMappingTab );
+	m_pInstrumentTable->setSizePolicy( QSizePolicy::Expanding,
+									  QSizePolicy::Expanding );
+	m_pInstrumentTable->setSelectionMode( QAbstractItemView::NoSelection );
+	m_pInstrumentTable->setRowCount( 0 );
+	m_pInstrumentTable->setColumnCount( 5 );
+	m_pInstrumentTable->setColumnWidth( 0, MidiControlDialog::nColumnMappingWidth );;
+	m_pInstrumentTable->setColumnWidth( 1, MidiControlDialog::nColumnMappingWidth );;
+	m_pInstrumentTable->setColumnWidth( 3, MidiControlDialog::nColumnMappingWidth );;
+	m_pInstrumentTable->setColumnWidth( 4, MidiControlDialog::nColumnMappingWidth );;
+	m_pInstrumentTable->horizontalHeader()->setSectionResizeMode(
+		0, QHeaderView::Fixed );
+	m_pInstrumentTable->horizontalHeader()->setSectionResizeMode(
+		1, QHeaderView::Fixed );
+	m_pInstrumentTable->horizontalHeader()->setSectionResizeMode(
+		2, QHeaderView::Stretch );
+	m_pInstrumentTable->horizontalHeader()->setSectionResizeMode(
+		3, QHeaderView::Fixed );
+	m_pInstrumentTable->horizontalHeader()->setSectionResizeMode(
+		4, QHeaderView::Fixed );
+	m_pInstrumentTable->verticalHeader()->hide();
+	m_pInstrumentTable->setHorizontalHeaderLabels(
+		QStringList() << pCommonStrings->getMidiOutChannelLabel()
+				<< pCommonStrings->getMidiOutNoteLabel()
+				<< pCommonStrings->getInstrumentButton()
+				<< pCommonStrings->getMidiOutNoteLabel()
+				<< pCommonStrings->getMidiOutChannelLabel() );
+
+	pMappingWrapperLayout->addWidget( m_pInstrumentTable );
+
+	////////////////////////////////////////////////////////////////////////////
+
 	m_pMidiActionTable = new MidiActionTable( this );
 	m_pTabWidget->addTab( m_pMidiActionTable, tr( "Midi Actions" ) );
 
 	connect( m_pMidiActionTable, &MidiActionTable::changed, [=]() {
 		m_pMidiActionTable->saveMidiActionTable();
 		H2Core::EventQueue::get_instance()->pushEvent(
-			H2Core::Event::Type::MidiMapChanged, 0 );
+			H2Core::Event::Type::MidiEventMapChanged, 0 );
 	});
 
 	////////////////////////////////////////////////////////////////////////////
@@ -403,6 +631,7 @@ background-color: %1;" ).arg( borderColor.name() ) );
 
 	updateFont();
 	updateIcons();
+	updateInstrumentTable();
 	updateInputTable();
 	updateOutputTable();
 
@@ -414,6 +643,14 @@ background-color: %1;" ).arg( borderColor.name() ) );
 MidiControlDialog::~MidiControlDialog() {
 }
 
+
+void MidiControlDialog::drumkitLoadedEvent() {
+	updateInstrumentTable();
+}
+
+void MidiControlDialog::instrumentParametersChangedEvent( int ) {
+	updateInstrumentTable();
+}
 
 void MidiControlDialog::midiDriverChangedEvent() {
 }
@@ -431,22 +668,19 @@ void MidiControlDialog::updatePreferencesEvent( int nValue ) {
 		// new preferences loaded within the core
 		const auto pPref = H2Core::Preferences::get_instance();
 
-		if ( pPref->m_nMidiChannelFilter == -1 ) {
-			m_pInputChannelFilterComboBox->setCurrentIndex( 0 );
-		}
-		else {
-			m_pInputChannelFilterComboBox->setCurrentIndex(
-				pPref->m_nMidiChannelFilter + 1 );
-		}
-
+		m_pInputActionChannelSpinBox->setValue( pPref->m_nMidiActionChannel );
 		m_pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
-		m_pInputDiscardAfterActionCheckBox->setChecked(
-			pPref->m_bMidiDiscardNoteAfterAction );
-		m_pInputNoteAsOutputCheckBox->setChecked( pPref->m_bMidiFixedMapping );
 		m_pOutputEnableMidiFeedbackCheckBox->setChecked(
 			pPref->m_bEnableMidiFeedback );
 
 		m_pMidiActionTable->setupMidiActionTable();
+	}
+}
+
+void MidiControlDialog::updateSongEvent( int nValue ) {
+	// A new song got loaded
+	if ( nValue == 0 ) {
+		updateInstrumentTable();
 	}
 }
 
@@ -510,6 +744,317 @@ void MidiControlDialog::updateIcons() {
 	m_pInputBinButton->setIcon( QIcon( sIconPath + "bin.svg" ) );
 	m_pOutputBinButton->setIcon( QIcon( sIconPath + "bin.svg" ) );
 
+}
+
+void MidiControlDialog::updateInstrumentTable() {
+	m_instrumentMap.clear();
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
+
+	const auto pMidiInstrumentMap =
+		Preferences::get_instance()->getMidiInstrumentMap();
+
+	const int nNewRowCount = pInstrumentList->size();
+	while ( m_pInstrumentTable->rowCount() < nNewRowCount ) {
+		// We first add enough "blank" rows to match the current drumkit and
+		// fill their content later on. This increases rendering speed by a
+		// margin when updating the contents for just the current drumkit.
+		addInstrumentTableRow();
+	}
+
+	int nnRow = 0;
+	for ( const auto ppInstrument : *pInstrumentList ) {
+		if ( ppInstrument == nullptr ) {
+			continue;
+		}
+
+		updateInstrumentTableRow( nnRow, ppInstrument );
+		++nnRow;
+	}
+
+	m_pInstrumentTable->setRowCount( nnRow );
+}
+
+void MidiControlDialog::addInstrumentTableRow() {
+	const int nNewRowCount = m_pInstrumentTable->rowCount() + 1;
+	m_pInstrumentTable->setRowCount( nNewRowCount );
+
+	auto pInputChannelSpinBox = new LCDSpinBox(
+		m_pInstrumentTable, QSize( MidiControlDialog::nColumnMappingWidth,
+								   MidiControlDialog::nMappingBoxHeight ),
+		LCDSpinBox::Type::Int, MidiMessage::nChannelAll,
+		MidiMessage::nChannelMaximum,
+		LCDSpinBox::Flag::MinusOneAsOff | LCDSpinBox::Flag::MinusTwoAsAll );
+	pInputChannelSpinBox->setSizePolicy( QSizePolicy::Expanding,
+										 QSizePolicy::Fixed );
+
+	auto pInputNoteSpinBox = new LCDSpinBox(
+		m_pInstrumentTable, QSize( MidiControlDialog::nColumnMappingWidth,
+								   MidiControlDialog::nMappingBoxHeight ),
+		LCDSpinBox::Type::Int, MidiMessage::nNoteMinimum,
+		MidiMessage::nNoteMaximum, LCDSpinBox::Flag::None );
+	pInputNoteSpinBox->setSizePolicy( QSizePolicy::Expanding,
+									  QSizePolicy::Fixed );
+
+
+	auto pInstrumentLabel = new QLabel( "", m_pInstrumentTable );
+	pInstrumentLabel->setAlignment( Qt::AlignCenter );
+	pInstrumentLabel->setSizePolicy( QSizePolicy::Expanding,
+									 QSizePolicy::Fixed );
+
+	auto pOutputNoteSpinBox = new LCDSpinBox(
+		m_pInstrumentTable, QSize( MidiControlDialog::nColumnMappingWidth,
+								   MidiControlDialog::nMappingBoxHeight ),
+		LCDSpinBox::Type::Int, MidiMessage::nNoteMinimum,
+		MidiMessage::nNoteMaximum, LCDSpinBox::Flag::ModifyOnChange );
+
+	auto pOutputChannelSpinBox = new LCDSpinBox(
+		m_pInstrumentTable, QSize( MidiControlDialog::nColumnMappingWidth,
+								   MidiControlDialog::nMappingBoxHeight ),
+		LCDSpinBox::Type::Int, MidiMessage::nChannelOff,
+		MidiMessage::nChannelMaximum,
+		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::MinusOneAsOff );
+	pOutputChannelSpinBox->setSizePolicy( QSizePolicy::Expanding,
+										  QSizePolicy::Fixed );
+
+	m_pInstrumentTable->setCellWidget( nNewRowCount - 1, 0, pInputChannelSpinBox );
+	m_pInstrumentTable->setCellWidget( nNewRowCount - 1, 1, pInputNoteSpinBox );
+	m_pInstrumentTable->setCellWidget( nNewRowCount - 1, 2, pInstrumentLabel );
+	m_pInstrumentTable->setCellWidget( nNewRowCount - 1, 3, pOutputNoteSpinBox );
+	m_pInstrumentTable->setCellWidget( nNewRowCount - 1, 4, pOutputChannelSpinBox );
+
+	return;
+}
+
+void MidiControlDialog::updateInstrumentTableRow(
+	int nRow, std::shared_ptr<Instrument> pInstrument ) {
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( QString( "Invalid instrument for row [%1]" ).arg( nRow ) );
+		return;
+	}
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+	const auto pMidiInstrumentMap =
+		Preferences::get_instance()->getMidiInstrumentMap();
+
+	const auto instrumentHandle = std::make_pair( pInstrument->getType(),
+												  pInstrument->getId() );
+	m_instrumentMap[ instrumentHandle ] = pInstrument;
+	const auto inputMapping =
+		pMidiInstrumentMap->getInputMapping( pInstrument,
+											 pSong->getDrumkit() );
+	auto pInputChannelSpinBox =
+		static_cast<LCDSpinBox*>(m_pInstrumentTable->cellWidget( nRow, 0 ));
+	auto pInputNoteSpinBox =
+		static_cast<LCDSpinBox*>(m_pInstrumentTable->cellWidget( nRow, 1 ) );
+	if ( pInputChannelSpinBox != nullptr && pInputNoteSpinBox != nullptr ) {
+		pInputChannelSpinBox->disconnect();
+		pInputNoteSpinBox->disconnect();
+		if ( ! inputMapping.isNull() ) {
+			pInputChannelSpinBox->setValue( inputMapping.nChannel );
+			pInputNoteSpinBox->setValue( inputMapping.nNote );
+		}
+		else {
+			pInputChannelSpinBox->setValue( MidiMessage::nChannelOff );
+		}
+
+		if ( pMidiInstrumentMap->getInput() != MidiInstrumentMap::Input::Custom ) {
+			pInputNoteSpinBox->setEnabled( false );
+			pInputChannelSpinBox->setEnabled( false );
+		}
+		else {
+			pInputNoteSpinBox->setEnabled( true );
+			pInputChannelSpinBox->setEnabled(
+				! pMidiInstrumentMap->getUseGlobalInputChannel() );
+		}
+
+		connect( pInputChannelSpinBox,
+				 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+				 [=](double fValue) {
+					 if ( m_instrumentMap.find( instrumentHandle ) ==
+						  m_instrumentMap.end() ) {
+						 return;
+					 }
+					 auto pInstrument = m_instrumentMap.at( instrumentHandle );
+					 if ( pInstrument != nullptr ) {
+						 Preferences::get_instance()->getMidiInstrumentMap()
+							 ->insertCustomInputMapping( pInstrument,
+														 pInputNoteSpinBox->value(),
+														 static_cast<int>( fValue ) );
+					 }
+					 else {
+						 ERRORLOG( QString( "No instr. for [%1 : %2]" )
+								   .arg( instrumentHandle.first )
+								   .arg( instrumentHandle.second ) );
+					 }
+		});
+		connect( pInputNoteSpinBox,
+				 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+				 [=](double fValue) {
+					 if ( m_instrumentMap.find( instrumentHandle ) ==
+						  m_instrumentMap.end() ) {
+						 return;
+					 }
+					 auto pInstrument = m_instrumentMap.at( instrumentHandle );
+					 if ( pInstrument != nullptr ) {
+						 Preferences::get_instance()->getMidiInstrumentMap()
+							 ->insertCustomInputMapping( pInstrument,
+														 static_cast<int>( fValue ),
+														 pInputChannelSpinBox->value() );
+					 }
+					 else {
+						 ERRORLOG( QString( "No instr. for [%1 : %2]" )
+								   .arg( instrumentHandle.first )
+								   .arg( instrumentHandle.second ) );
+					 }
+		});
+	}
+	else {
+		ERRORLOG( QString( "Unable to obtain input channel or note for row [%1]" )
+				  .arg( nRow ) );
+	}
+
+	auto pInstrumentLabel =
+		static_cast<QLabel*>(m_pInstrumentTable->cellWidget( nRow, 2 ) );
+	if ( pInstrumentLabel != nullptr ) {
+		pInstrumentLabel->setText( pInstrument->getName() );
+	}
+	else {
+		ERRORLOG( QString( "Unable to obtain instrument label for row [%1]" )
+				  .arg( nRow ) );
+	}
+
+	const auto outputMapping =
+			pMidiInstrumentMap->getOutputMapping( nullptr, pInstrument );
+	auto pOutputNoteSpinBox =
+		static_cast<LCDSpinBox*>(m_pInstrumentTable->cellWidget( nRow, 3 ) );
+	if ( pOutputNoteSpinBox != nullptr ) {
+		pOutputNoteSpinBox->disconnect();
+		if ( ! outputMapping.isNull() ) {
+			pOutputNoteSpinBox->setValue( outputMapping.nNote );
+		}
+		pOutputNoteSpinBox->setEnabled(
+			pMidiInstrumentMap->getOutput() != MidiInstrumentMap::Output::None );
+		connect( pOutputNoteSpinBox,
+				 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+				 [=](double fValue) {
+					 if ( m_instrumentMap.find( instrumentHandle ) ==
+						  m_instrumentMap.end() ) {
+						 return;
+					 }
+					 auto pInstrument = m_instrumentMap.at( instrumentHandle );
+					 if ( pInstrument != nullptr ) {
+						 long nEventId = Event::nInvalidId;
+						 CoreActionController::setInstrumentMidiOutNote(
+							 pInstrument->getId(), static_cast<int>(fValue),
+							 &nEventId );
+						 if ( nEventId != Event::nInvalidId ) {
+							 // Ensure we do not act on the queued event ourself.
+							 blacklistEventId( nEventId );
+						 }
+					 }
+					 else {
+						 ERRORLOG( QString( "No instr. for [%1 : %2]" )
+								   .arg( instrumentHandle.first )
+								   .arg( instrumentHandle.second ) );
+					 }
+
+					 // Tweaking the output note could result in the input note
+					 // to change as well since the former is used as fallback
+					 // in many scenarios.
+					 auto pSong = Hydrogen::get_instance()->getSong();
+					 if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+						 return;
+					 }
+					 const auto instrumentHandle =
+						 std::make_pair( pInstrument->getType(),
+										 pInstrument->getId() );
+					 const auto inputMapping =
+						 pMidiInstrumentMap->getInputMapping(
+							 pInstrument,
+							 pSong->getDrumkit() );
+					 if ( ! inputMapping.isNull() ) {
+						 pInputNoteSpinBox->setValue( inputMapping.nNote );
+					 }
+			});
+	}
+	else {
+		ERRORLOG( QString( "Unable to obtain output note for row [%1]" )
+				  .arg( nRow ) );
+	}
+
+	auto pOutputChannelSpinBox =
+		static_cast<LCDSpinBox*>(m_pInstrumentTable->cellWidget( nRow, 4 ) );
+	if ( pOutputChannelSpinBox != nullptr ) {
+		pOutputChannelSpinBox->disconnect();
+		if ( ! outputMapping.isNull() ) {
+			pOutputChannelSpinBox->setValue( outputMapping.nChannel );
+		}
+		else {
+			pOutputChannelSpinBox->setValue( MidiMessage::nChannelOff );
+		}
+		pOutputChannelSpinBox->setEnabled(
+			pMidiInstrumentMap->getOutput() != MidiInstrumentMap::Output::None &&
+			! pMidiInstrumentMap->getUseGlobalOutputChannel() );
+		connect( pOutputChannelSpinBox,
+				 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+				 [=](double fValue) {
+					 if ( m_instrumentMap.find( instrumentHandle ) ==
+						  m_instrumentMap.end() ) {
+						 return;
+					 }
+					 auto pInstrument = m_instrumentMap.at( instrumentHandle );
+					 if ( pInstrument != nullptr ) {
+						 long nEventId = Event::nInvalidId;
+						 CoreActionController::setInstrumentMidiOutChannel(
+							 pInstrument->getId(), static_cast<int>(fValue),
+							 &nEventId );
+						 if ( nEventId != Event::nInvalidId ) {
+							 // Ensure we do not act on the queued event ourself.
+							 blacklistEventId( nEventId );
+						 }
+					 }
+					 else {
+						 ERRORLOG( QString( "No instr. for [%1 : %2]" )
+								   .arg( instrumentHandle.first )
+								   .arg( instrumentHandle.second ) );
+					 }
+
+					 // Tweaking the output channel could result in the input
+					 // channel to change as well since the former is used as
+					 // fallback in many scenarios.
+					 auto pSong = Hydrogen::get_instance()->getSong();
+					 if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+						 return;
+					 }
+					 const auto instrumentHandle =
+						 std::make_pair( pInstrument->getType(),
+										 pInstrument->getId() );
+					 const auto inputMapping =
+						 pMidiInstrumentMap->getInputMapping(
+							 pInstrument,
+							 pSong->getDrumkit() );
+					 if ( ! inputMapping.isNull() ) {
+						 pInputChannelSpinBox->setValue( inputMapping.nChannel );
+					 }
+					 else {
+						 pInputChannelSpinBox->setValue( MidiMessage::nChannelOff );
+					 }
+		});
+	}
+	else {
+		ERRORLOG( QString( "Unable to obtain output channel for row [%1]" )
+				  .arg( nRow ) );
+	}
 }
 
 void MidiControlDialog::updateInputTable() {
