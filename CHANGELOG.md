@@ -60,6 +60,22 @@ All notable changes to this project will be documented in this file.
 - Button in main toolbar indicating both MIDI input and output signals and
   opening a dialog showing the latest MIDI events.
 - Instruments can now be duplicated via popup context menu (#1925).
+- Midi: 
+  - A MIDI control dialog listing all incoming and outgoing messages is now
+    accessible via a button in the main toolbar.
+  - Hydrogen does now only act on MIDI `START`, `CONTINUE`, and `STOP` messages,
+    if "handling MIDI transport" is checked in the settings. Using this option
+    it does now support `SONG_POSITION_POINTER` and `SONG_SELECT` as well.
+  - `SONG_SELECT` messages will choose a pattern in pattern mode and a song from
+    the current playlist in song mode.
+  - When activating "handling MIDI clock" Hydrogen will adopt the tempo provided
+    via MIDI Clock.
+  - Only with both "handling MIDI clock" and "handling MIDI transport" activated
+    Hydrogen will offer compliant MIDI sync support (#1598).
+  - Hydrogen does also send `MIDI Clock`, `START`, `CONTINUE`, and `STOP`
+    messages if the corresponding settings are checked.
+  - The channel for MIDI feedback (and clock messages) can now be configured as
+    well (setting it to "Off" makes Hydrogen drop those messages) (#779).
 
 ### Changed
 
@@ -89,23 +105,10 @@ All notable changes to this project will be documented in this file.
     counterparts - do now wrap transport around the beginning and end of a song
     if loop mode is enabled. In pattern mode they move transport to be beginning
     and next is updating pending stacked patterns.
-  - A MIDI control dialog listing all incoming and outgoing messages is now
-    accessible via a button in the main toolbar.
   - All MIDI settings, which do not require a driver restart, were moved into
     the MIDI control dialog.
   - The MIDI channel presented in the Instrument Editor and the Settings is now
     zero-based (previously, it started at `1`).
-  - Hydrogen does now only act on MIDI `START`, `CONTINUE`, and `STOP` messages,
-    if "handling MIDI transport" is checked in the settings. Using this option
-    it does now support `SONG_POSITION_POINTER` and `SONG_SELECT` as well.
-  - `SONG_SELECT` messages will choose a pattern in pattern mode and a song from
-    the current playlist in song mode.
-  - When activating "handling MIDI clock" Hydrogen will adopt the tempo provided
-    via MIDI Clock.
-  - Only with both "handling MIDI clock" and "handling MIDI transport" activated
-    Hydrogen will offer compliant MIDI sync support (#1598).
-  - Hydrogen does also send `MIDI Clock`, `START`, `CONTINUE`, and `STOP`
-    messages if the corresponding settings are checked.
   - `TAP_TEMPO` is now using a cumulative average (reset on tempo deviations
     larger than 20 bpm) to increase precision and is supported on Windows as
     well.

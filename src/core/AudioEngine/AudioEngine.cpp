@@ -304,7 +304,9 @@ void AudioEngine::startPlayback()
 
 	setState( State::Playing );
 
-	if ( Preferences::get_instance()->getMidiTransportOutputSend() &&
+	const auto pPref = Preferences::get_instance();
+	if ( pPref->getMidiTransportOutputSend() &&
+         pPref->getMidiFeedbackChannel() != MidiMessage::nChannelOff &&
 		 m_pMidiDriver != nullptr ) {
 		MidiMessage midiMessage;
 		if ( m_pTransportPosition->getTick() > 0 ) {
@@ -331,7 +333,9 @@ void AudioEngine::stopPlayback( Event::Trigger trigger )
 
 	setState( State::Ready, trigger );
 
-	if ( Preferences::get_instance()->getMidiTransportOutputSend() &&
+	const auto pPref = Preferences::get_instance();
+	if ( pPref->getMidiTransportOutputSend() &&
+         pPref->getMidiFeedbackChannel() != MidiMessage::nChannelOff &&
 		 m_pMidiDriver != nullptr ) {
 		MidiMessage midiMessage;
 		midiMessage.setType( MidiMessage::Type::Stop );

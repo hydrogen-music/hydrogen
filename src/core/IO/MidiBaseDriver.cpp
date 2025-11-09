@@ -187,6 +187,7 @@ void MidiBaseDriver::midiClockStream( void* pInstance ) {
 	}
 
 	auto pHydrogen = Hydrogen::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	while ( pMidiDriver->m_bSendClockTick ) {
 		auto start = Clock::now();
@@ -225,8 +226,11 @@ void MidiBaseDriver::midiClockStream( void* pInstance ) {
 		const auto preSend = Clock::now();
 
 		// Send event
-		pMidiDriver->sendMessage(
-			MidiMessage( MidiMessage::Type::TimingClock, 0, 0, 0 ) );
+        if ( pPref->getMidiFeedbackChannel() != MidiMessage::nChannelOff ) {
+			pMidiDriver->sendMessage(
+				MidiMessage( MidiMessage::Type::TimingClock, 0, 0,
+	                        pPref->getMidiFeedbackChannel() ) );
+        }
 		++pMidiDriver->m_nTickCount;
 
 		const auto end = Clock::now();
