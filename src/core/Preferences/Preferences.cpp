@@ -138,6 +138,7 @@ Preferences::Preferences()
 	, m_recentFX( QStringList() )
 	, m_nMaxBars( 400 )
 	, m_nMaxLayers( 16 )
+	, m_nMidiFeedbackChannel( 0 )
 	, m_bMidiClockInputHandling( false )
 	, m_bMidiTransportInputHandling( false )
 	, m_bMidiClockOutputSend( false )
@@ -321,6 +322,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_bQuantizeEvents( pOther->m_bQuantizeEvents )
 	, m_nMaxBars( pOther->m_nMaxBars )
 	, m_nMaxLayers( pOther->m_nMaxLayers )
+	, m_nMidiFeedbackChannel( pOther->m_nMidiFeedbackChannel )
 	, m_bMidiClockInputHandling( pOther->m_bMidiClockInputHandling )
 	, m_bMidiTransportInputHandling( pOther->m_bMidiTransportInputHandling )
 	, m_bMidiClockOutputSend( pOther->m_bMidiClockOutputSend )
@@ -740,7 +742,7 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			// notes.
 			bMidiDiscardNoteAfterAction = midiDriverNode.read_bool(
 				"discard_note_after_action",
-				false, false, false, bSilent );
+				false, true, false, true );
 			// Kept for backward compatibility of MIDI input mapping to versions
 			// prior to 2.0.
 			bAsOutput = midiDriverNode.read_bool(
@@ -748,6 +750,10 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			pPref->m_bEnableMidiFeedback = midiDriverNode.read_bool(
 				"enable_midi_feedback",
 				pPref->m_bEnableMidiFeedback, false, true, bSilent );
+			pPref->setMidiFeedbackChannel(
+				midiDriverNode.read_int(
+					"midi_feedback_channel",
+					pPref->getMidiFeedbackChannel(), true, false, bSilent ) );
 			pPref->setMidiClockInputHandling(
 				midiDriverNode.read_bool(
 					"midi_clock_input_handling",
@@ -1381,6 +1387,8 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 			midiDriverNode.write_int( "channel_filter", nChannelFilter );
 			midiDriverNode.write_bool( "ignore_note_off", m_bMidiNoteOffIgnore );
 			midiDriverNode.write_bool( "enable_midi_feedback", m_bEnableMidiFeedback );
+			midiDriverNode.write_int( "midi_feedback_channel",
+									   getMidiFeedbackChannel() );
 			midiDriverNode.write_bool( "midi_clock_input_handling",
 									   getMidiClockInputHandling() );
 			midiDriverNode.write_bool( "midi_transport_input_handling",
@@ -1801,6 +1809,11 @@ std::vector<Preferences::AudioDriver> Preferences::getSupportedAudioDrivers() {
 	return drivers;
 }
 
+void Preferences::setMidiFeedbackChannel( int nChannel ) {
+  m_nMidiFeedbackChannel = std::clamp( nChannel, MidiMessage::nChannelMinimum,
+                                      MidiMessage::nChannelMaximum );
+}
+
 void Preferences::setMostRecentFX( const QString& FX_name )
 {
 	int pos = m_recentFX.indexOf( FX_name );
@@ -1865,6 +1878,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_bMidiNoteOffIgnore ) )
 			.append( QString( "%1%2m_bEnableMidiFeedback: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bEnableMidiFeedback ) )
+			.append( QString( "%1%2m_nMidiFeedbackChannel: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nMidiFeedbackChannel ) )
 			.append( QString( "%1%2m_bMidiClockInputHandling: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bMidiClockInputHandling ) )
 			.append( QString( "%1%2m_bMidiTransportInputHandling: %3\n" ).arg( sPrefix )
@@ -2111,6 +2126,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bMidiNoteOffIgnore ) )
 			.append( QString( ", m_bEnableMidiFeedback: %1" )
 					 .arg( m_bEnableMidiFeedback ) )
+			.append( QString( ", m_nMidiFeedbackChannel: %1" )
+					 .arg( m_nMidiFeedbackChannel ) )
 			.append( QString( ", m_bMidiClockInputHandling: %1" )
 					 .arg( m_bMidiClockInputHandling ) )
 			.append( QString( ", m_bMidiTransportInputHandling: %1" )

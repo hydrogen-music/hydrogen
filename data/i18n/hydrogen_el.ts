@@ -3200,6 +3200,10 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
         <source>Channel for MIDI actions and clock</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Channel for MIDI feedback and clock</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MidiInstrumentMap</name>

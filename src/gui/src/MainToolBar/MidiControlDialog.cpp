@@ -42,6 +42,7 @@ https://www.gnu.org/licenses
 #include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
+#include <qevent.h>
 
 using namespace H2Core;
 
@@ -128,29 +129,36 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 
 	addHeaderLabel( pInputSettingsWidget, pCommonStrings->getMidiInputLabel() );
 
-	m_pInputIgnoreNoteOffCheckBox = new QCheckBox( pInputSettingsWidget );
+	m_pInputCheckboxWidget = new QWidget( pInputSettingsWidget );
+	m_pInputCheckboxWidget->setObjectName( "MidiInputCheckboxes" );
+	pInputSettingsLayout->addWidget( m_pInputCheckboxWidget );
+	auto pInputCheckboxLayout = new QVBoxLayout( m_pInputCheckboxWidget );
+	pInputCheckboxLayout->setAlignment( Qt::AlignTop );
+	m_pInputCheckboxWidget->setLayout( pInputCheckboxLayout );
+
+	m_pInputIgnoreNoteOffCheckBox = new QCheckBox( m_pInputCheckboxWidget );
 	m_pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
 	/*: The character after the '&' symbol can be used as a shortcut via the Alt
 	 *  modifier. It should not coincide with any other shortcut in the Settings
 	 *  tab of the MidiControlDialog. If in question, you can just drop the
 	 *  '&'. */
 	m_pInputIgnoreNoteOffCheckBox->setText( tr( "&Ignore note-off" ) );
-	pInputSettingsLayout->addWidget( m_pInputIgnoreNoteOffCheckBox );
+	pInputCheckboxLayout->addWidget( m_pInputIgnoreNoteOffCheckBox );
 	connect( m_pInputIgnoreNoteOffCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->m_bMidiNoteOffIgnore =
 			m_pInputIgnoreNoteOffCheckBox->isChecked();
 	} );
 
-	auto pInputMidiClockCheckBox = new QCheckBox( pInputSettingsWidget );
+	auto pInputMidiClockCheckBox = new QCheckBox( m_pInputCheckboxWidget );
 	pInputMidiClockCheckBox->setChecked( pPref->getMidiClockInputHandling() );
 	pInputMidiClockCheckBox->setText( tr( "Handle MIDI Clock input" ) );
-	pInputSettingsLayout->addWidget( pInputMidiClockCheckBox );
+	pInputCheckboxLayout->addWidget( pInputMidiClockCheckBox );
 	connect( pInputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
 		CoreActionController::setMidiClockInputHandling(
 			pInputMidiClockCheckBox->isChecked() );
 	} );
 
-	auto pInputMidiTransportCheckBox = new QCheckBox( pInputSettingsWidget );
+	auto pInputMidiTransportCheckBox = new QCheckBox( m_pInputCheckboxWidget );
 	pInputMidiTransportCheckBox->setChecked( pPref->getMidiTransportInputHandling() );
 	/*: The character combination "\n" indicates a new line and must be
 	 *  conserved. All the capitalized words that follow are defined in the MIDI
@@ -158,7 +166,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	 *  are of common usage. */
 	pInputMidiTransportCheckBox->setText(
 		tr( "Handle MIDI sync message\nSTART, STOP, CONTINUE, SONG_POSITION, SONG_SELECT" ) );
-	pInputSettingsLayout->addWidget( pInputMidiTransportCheckBox );
+	pInputCheckboxLayout->addWidget( pInputMidiTransportCheckBox );
 	connect( pInputMidiTransportCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->setMidiTransportInputHandling(
 			pInputMidiTransportCheckBox->isChecked() );
@@ -169,9 +177,9 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	auto pInputActionChannelLayout = new QHBoxLayout( pInputActionChannelWidget );
 	pInputActionChannelWidget->setLayout( pInputActionChannelLayout );
 
-	auto pInputChannelFilterLabel = new QLabel(
+	auto pInputActionChannelLabel = new QLabel(
 		tr( "Channel for MIDI actions and clock" ) );
-	pInputActionChannelLayout->addWidget( pInputChannelFilterLabel );
+	pInputActionChannelLayout->addWidget( pInputActionChannelLabel );
 	m_pInputActionChannelSpinBox = new LCDSpinBox(
 		pInputActionChannelWidget,
 		QSize( MidiControlDialog::nColumnMappingWidth,
@@ -195,37 +203,70 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 
 	addHeaderLabel( pOutputSettingsWidget, pCommonStrings->getMidiOutLabel() );
 
-	m_pOutputEnableMidiFeedbackCheckBox = new QCheckBox( pOutputSettingsWidget );
+	m_pOutputCheckboxWidget = new QWidget( pOutputSettingsWidget );
+        m_pOutputCheckboxWidget->setObjectName("MidiOutputCheckboxes");
+    m_pOutputCheckboxWidget->setFixedHeight(
+            m_pInputCheckboxWidget->height() );
+	pOutputSettingsLayout->addWidget( m_pOutputCheckboxWidget );
+	auto pOutputCheckboxLayout = new QVBoxLayout( m_pOutputCheckboxWidget );
+	pOutputCheckboxLayout->setAlignment( Qt::AlignTop );
+	m_pOutputCheckboxWidget->setLayout( pOutputCheckboxLayout );
+
+	m_pOutputEnableMidiFeedbackCheckBox = new QCheckBox( m_pOutputCheckboxWidget );
 	m_pOutputEnableMidiFeedbackCheckBox->setChecked( pPref->m_bEnableMidiFeedback );
 	/*: The character after the '&' symbol can be used as a shortcut via the Alt
 	 *  modifier. It should not coincide with any other shortcut in the Settings
 	 *  tab of the MidiControlDialog. If in question, you can just drop the
 	 *  '&'. */
 	m_pOutputEnableMidiFeedbackCheckBox->setText( tr( "&Enable MIDI feedback" ) );
-	pOutputSettingsLayout->addWidget( m_pOutputEnableMidiFeedbackCheckBox );
+	pOutputCheckboxLayout->addWidget( m_pOutputEnableMidiFeedbackCheckBox );
 	connect( m_pOutputEnableMidiFeedbackCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->m_bEnableMidiFeedback =
 			m_pOutputEnableMidiFeedbackCheckBox->isChecked();
 	} );
 
-	auto pOutputMidiClockCheckBox = new QCheckBox( pOutputSettingsWidget );
+	auto pOutputMidiClockCheckBox = new QCheckBox( m_pOutputCheckboxWidget );
 	pOutputMidiClockCheckBox->setChecked( pPref->getMidiClockOutputSend() );
 	pOutputMidiClockCheckBox->setText( tr( "Send MIDI Clock messages" ) );
-	pOutputSettingsLayout->addWidget( pOutputMidiClockCheckBox );
+	pOutputCheckboxLayout->addWidget( pOutputMidiClockCheckBox );
 	connect( pOutputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
 		CoreActionController::setMidiClockOutputSend(
 			pOutputMidiClockCheckBox->isChecked() );
 	} );
 
-	auto pOutputMidiTransportCheckBox = new QCheckBox( pOutputSettingsWidget );
+	auto pOutputMidiTransportCheckBox = new QCheckBox( m_pOutputCheckboxWidget );
 	pOutputMidiTransportCheckBox->setChecked( pPref->getMidiTransportOutputSend() );
 	pOutputMidiTransportCheckBox->setText(
 		tr( "Send MIDI START, STOP, CONTINUE, and SONG_POSITION" ) );
-	pOutputSettingsLayout->addWidget( pOutputMidiTransportCheckBox );
+	pOutputCheckboxLayout->addWidget( pOutputMidiTransportCheckBox );
 	connect( pOutputMidiTransportCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->setMidiTransportOutputSend(
 			pOutputMidiTransportCheckBox->isChecked() );
 	} );
+
+	auto pOutputFeedbackChannelWidget = new QWidget( pOutputSettingsWidget );
+	pOutputSettingsLayout->addWidget( pOutputFeedbackChannelWidget );
+	auto pOutputFeedbackChannelLayout = new QHBoxLayout( pOutputFeedbackChannelWidget );
+	pOutputFeedbackChannelWidget->setLayout( pOutputFeedbackChannelLayout );
+
+	auto pOutputFeedbackChannelLabel = new QLabel(
+		tr( "Channel for MIDI feedback and clock" ) );
+	pOutputFeedbackChannelLayout->addWidget( pOutputFeedbackChannelLabel );
+	m_pOutputFeedbackChannelSpinBox = new LCDSpinBox(
+		pOutputFeedbackChannelWidget,
+		QSize( MidiControlDialog::nColumnMappingWidth,
+			  MidiControlDialog::nMappingBoxHeight ), LCDSpinBox::Type::Int,
+		MidiMessage::nChannelOff, MidiMessage::nChannelMaximum,
+		LCDSpinBox::Flag::MinusOneAsOff );
+	pOutputFeedbackChannelLayout->addWidget( m_pOutputFeedbackChannelSpinBox );
+	m_pOutputFeedbackChannelSpinBox->setValue( pPref->m_nMidiActionChannel );
+	connect( m_pOutputFeedbackChannelSpinBox,
+			 QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
+			[=]( double fValue ) {
+				Preferences::get_instance()->setMidiFeedbackChannel(
+					static_cast<int>( fValue ) );
+	} );
+
 
 	const int nLinkHeight = 24;
 
@@ -702,8 +743,15 @@ void MidiControlDialog::hideEvent( QHideEvent* pEvent ) {
 	HydrogenApp::get_instance()->getMainToolBar()->updateActions();
 }
 
+void MidiControlDialog::resizeEvent( QResizeEvent* pEvent ) {
+    m_pOutputCheckboxWidget->setFixedHeight( m_pInputCheckboxWidget->height() );
+
+    QDialog::resizeEvent( pEvent );
+}
+
 void MidiControlDialog::showEvent( QShowEvent* pEvent ) {
-	UNUSED( pEvent );
+    // Ensure the two checkbox container in the first tab are of the same size.
+    resizeEvent( nullptr );
 
 	// Update corresponding button
 	HydrogenApp::get_instance()->getMainToolBar()->updateActions();

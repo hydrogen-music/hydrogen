@@ -41,8 +41,9 @@
 #include <core/IO/JackAudioDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/Midi/MidiAction.h>
-#include <core/Midi/MidiInstrumentMap.h>
 #include <core/Midi/MidiEventMap.h>
+#include <core/Midi/MidiInstrumentMap.h>
+#include <core/Midi/MidiMessage.h>
 #include <core/OscServer.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
@@ -680,6 +681,9 @@ bool CoreActionController::handleOutgoingControlChanges( const std::vector<int>&
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	const auto pPref = Preferences::get_instance();
+    if ( pPref->getMidiFeedbackChannel() == MidiMessage::nChannelOff ) {
+      return true;
+    }
 	auto pMidiDriver = pHydrogen->getMidiDriver();
 
 	if ( pHydrogen->getSong() == nullptr || pMidiDriver == nullptr ) {
@@ -692,7 +696,7 @@ bool CoreActionController::handleOutgoingControlChanges( const std::vector<int>&
 			controlChange.nParameter = param;
 			controlChange.nValue = nValue;
 			// For now the MIDI feedback channel is always 0.
-			controlChange.nChannel = 0;
+			controlChange.nChannel = pPref->getMidiFeedbackChannel();
 			pMidiDriver->sendMessage( MidiMessage::from( controlChange ) );
 		}
 	}
@@ -2125,6 +2129,7 @@ bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+    const auto pPref = Preferences::get_instance();
 
 	if ( pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
@@ -2137,7 +2142,8 @@ bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast ) {
 	
 	pAudioEngine->unlock();
 
-	if ( Preferences::get_instance()->getMidiTransportOutputSend() ) {
+    if ( pPref->getMidiTransportOutputSend() &&
+         pPref->getMidiFeedbackChannel() != MidiMessage::nChannelOff ) {
 		auto pMidiDriver = pHydrogen->getMidiDriver();
 
 		if ( pMidiDriver != nullptr ) {
@@ -2148,6 +2154,7 @@ bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast ) {
 			midiMessage.setData1(
 				pAudioEngine->getTransportPosition()->getTick() *
 				24 / 6 / H2Core::nTicksPerQuarter );
+            midiMessage.setChannel( pPref->getMidiFeedbackChannel() );
 			pMidiDriver->sendMessage( midiMessage );
 		}
 	}
