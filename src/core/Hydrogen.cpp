@@ -341,29 +341,35 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 	unsigned int nRealColumn = 0;
 	unsigned res = pPref->getPatternEditorGridResolution();
 	int nBase = pPref->isPatternEditorUsingTriplets() ? 3 : 4;
-	bool bPlaySelectedInstrument = pPref->getMidiInstrumentMap()->getInput() ==
+	const bool bPlaySelectedInstrument = pPref->getMidiInstrumentMap()->getInput() ==
 		MidiInstrumentMap::Input::SelectedInstrument;
 	int scalar = ( 4 * 4 * H2Core::nTicksPerQuarter ) / ( res * nBase );
 	int currentPatternNumber;
 
 	std::shared_ptr<Song> pSong = getSong();
 
-	if ( pSong == nullptr ) {
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 	
-	if ( ! bPlaySelectedInstrument ) {
-		if ( nInstrument >= ( int ) pSong->getDrumkit()->getInstruments()->size() ) {
-			// unused instrument
-			ERRORLOG( QString( "Provided instrument [%1] not found" )
-					  .arg( nInstrument ) );
-			pAudioEngine->unlock();
-			return false;
-		}
+	if ( nInstrument >= pSong->getDrumkit()->getInstruments()->size() ||
+	     nInstrument < 0 ) {
+          ERRORLOG( QString("Provided instrument number [%1] out of bound [0,%2]")
+                  .arg(nInstrument)
+                  .arg( pSong->getDrumkit()->getInstruments()->size() ) );
+	  pAudioEngine->unlock();
+	  return false;
 	}
+	auto pInstrument = pSong->getDrumkit()->getInstruments()->get( nInstrument );
+    if ( pInstrument == nullptr ) {
+      ERRORLOG( QString( "Unable to obtain instrument [%1]" ).arg( nInstrument ) );
+      pAudioEngine->unlock();
+      return false;
+    }
+	const int nInstrumentId = pInstrument->getId();
 
 	// Get current pattern and column
 	std::shared_ptr<Pattern> pCurrentPattern = nullptr;
@@ -436,34 +442,6 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 		}
 		nTickInPattern = qcolumn;
 	}
-
-	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-	std::shared_ptr<Instrument> pInstrument = nullptr;
-	if ( bPlaySelectedInstrument ) {
-		if ( m_nSelectedInstrumentNumber >= 0 &&
-			 m_nSelectedInstrumentNumber < pInstrumentList->size() ) {
-			pInstrument = pInstrumentList->get( m_nSelectedInstrumentNumber );
-		}
-		if ( pInstrument == nullptr ) {
-			ERRORLOG( QString( "Unable to retrieve selected instrument [%1]" )
-					  .arg( m_nSelectedInstrumentNumber ) );
-		}
-	}
-	else {
-		// We retrieve the instrument based on order of the instrument list. Not
-		// based on the ID of the instrument.
-		pInstrument = pInstrumentList->get( nInstrument );
-		if ( pInstrument == nullptr ) {
-			ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
-					  .arg( nInstrument ) );
-		}
-
-	}
-	if ( pInstrument == nullptr ) {
-		pAudioEngine->unlock();
-		return false;
-	}
-	const int nInstrumentId = pInstrument->getId();
 
 	// Record note
 	if ( pCurrentPattern != nullptr &&
