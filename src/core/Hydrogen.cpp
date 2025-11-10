@@ -519,8 +519,10 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 
 			if ( bPlaySelectedInstrument ) {
 				int divider = nNote / 12;
-				noteAction.no_octaveKeyVal = (Note::Octave)(divider -3);
-				noteAction.nk_noteKeyVal = (Note::Key)(nNote - (12 * divider));
+                noteAction.no_octaveKeyVal = static_cast<Note::Octave>(
+                    std::clamp( divider - 3, OCTAVE_MIN, OCTAVE_MAX ) );
+                noteAction.nk_noteKeyVal = static_cast<Note::Key>(
+                    std::clamp( nNote - (12 * divider), KEY_MIN, KEY_MAX) );
 			} else {
 				noteAction.no_octaveKeyVal = (Note::Octave)0;
 				noteAction.nk_noteKeyVal = (Note::Key)0;
