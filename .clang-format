@@ -1,23 +1,28 @@
-#This file is currently just used as a prototype and is not final!
-Language:				Cpp
-
-#General
-UseTab:								Always
-TabWidth:							4
-IndentWidth:						4
-SortIncludes:						true #just for the moment..
-ColumnLimit:						80
-
-#Everything else..
-AlignAfterOpenBracket:					Align
+---
+# Global style options affecting all languages
+BasedOnStyle:                           Chromium
+IndentWidth:                            4
+TabWidth:                               4
+---
+Language:                               Cpp
+UseTab:                                 Always
+SortIncludes:                           true
+ColumnLimit:                            80
+AlignAfterOpenBracket:                  BlockIndent
+AlignEscapedNewlines:                   Right
+AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortIfStatementsOnASingleLine:	false
 AllowShortFunctionsOnASingleLine:		InlineOnly
-BreakBeforeBraces:						Linux
+BreakBeforeBraces:						Custom
+BraceWrapping:
+    AfterCaseLabel:                     false
+    AfterClass:                         false
+    AfterFunction:                      true
+    BeforeElse:                         true
 BinPackArguments:						true
-BinPackParameters:						true
-NamespaceIndentation:					NI_Inner
+BinPackParameters:						false
+NamespaceIndentation:					Inner
 SpacesInParentheses:				    true
 SpaceAfterCStyleCast:					true
 KeepEmptyLinesAtTheStartOfBlocks:		false
-
 PointerAlignment:						Left
