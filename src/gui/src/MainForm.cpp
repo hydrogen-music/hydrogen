@@ -2253,10 +2253,11 @@ void MainForm::showDevelWarning()
 			develMessageBox.setText( msg );
 			develMessageBox.addButton( pCommonStrings->getButtonOk(),
 									   QMessageBox::YesRole );
-			develMessageBox.addButton( pCommonStrings->getMutableDialog(),
-									   QMessageBox::AcceptRole );
+			const auto pMuteButton = develMessageBox.addButton(
+				pCommonStrings->getMutableDialog(), QMessageBox::AcceptRole );
 
-			if( develMessageBox.exec() == 1 ){
+			develMessageBox.exec();
+			if ( develMessageBox.clickedButton() == pMuteButton ) {
 				//don't show warning again
 				pPreferences->setShowDevelWarning( false );
 			}
