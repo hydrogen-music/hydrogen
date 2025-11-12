@@ -641,11 +641,11 @@ void MainForm::action_donate()
 	QMessageBox donationDialog;
 	donationDialog.setText( tr( "Hydrogen is an open source project which is developed by multiple people in their spare time. By making a donation you can say 'thank you' to the involved persons." ) );
 	donationDialog.setStandardButtons( QMessageBox::Cancel );
-	donationDialog.addButton( tr( "&Donate!" ), QMessageBox::AcceptRole );
+	const auto pDonateButton =
+		donationDialog.addButton( tr( "&Donate!" ), QMessageBox::AcceptRole );
 		
-	int nRet = donationDialog.exec();
-
-	if ( nRet == QMessageBox::AcceptRole ) {
+	donationDialog.exec();
+	if ( donationDialog.clickedButton() == pDonateButton ) {
 		QDesktopServices::openUrl(QUrl::fromEncoded("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=sebastian%2emoors%40gmail%2ecom&lc=DE&item_name=Hydrogen%20donation&no_note=0&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest"));
 	}
 }
