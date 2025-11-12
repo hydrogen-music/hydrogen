@@ -302,18 +302,15 @@ void SoundLibraryPanel::updateTree()
 			}
 		}
 
-
 		//Pattern list
-		QStringList patternDirList = Filesystem::pattern_drumkits();
-		if ( patternDirList.size() > 0 ) {
-		
+        auto patternInfoVector = pSoundLibraryDatabase->getPatternInfoVector();
+		if ( patternInfoVector.size() > 0 ) {
 			__pattern_item = new QTreeWidgetItem( __sound_library_tree );
 			__pattern_item->setText( 0, tr( "Patterns" ) );
 			__pattern_item->setToolTip( 0, tr("Double click to expand the list") );
 			__pattern_item->setExpanded( pPref->m_bExpandPatternItem );
 			__pattern_item->setFont( 0, boldFont );
 		
-			auto patternInfoVector = pSoundLibraryDatabase->getPatternInfoVector();
 			QStringList patternCategories =
 				pSoundLibraryDatabase->getPatternCategories();
 
