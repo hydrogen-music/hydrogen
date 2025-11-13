@@ -530,6 +530,8 @@ CommonStrings::CommonStrings(){
 	m_sLicense = tr( "License" );
 
 	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionNew = tr( "New" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
 	m_sMenuActionAdd = tr( "Add" );
 	/*: Names an action in a drop down or pop up menu. (with no further text)*/
 	m_sMenuActionDelete = tr( "Delete" );

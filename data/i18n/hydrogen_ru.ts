@@ -1483,6 +1483,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text displayed below the LCD to set the output MIDI note in the Instrument Editor in case the corresponding output method is set. Designed to be flexible.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>New</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Новая</translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -5899,10 +5904,6 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File operations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Replace</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5986,10 +5987,6 @@ Are you sure?</source>
     <message>
         <source>Installed</source>
         <translation>Установлена</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation>Новая</translation>
     </message>
     <message>
         <source>Author: %1</source>

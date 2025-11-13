@@ -1042,6 +1042,9 @@ void MainForm::action_file_openPattern()
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pPref = Preferences::get_instance();
 	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+	  return;
+	}
 
 	QString sPath = pPref->getLastOpenPatternDirectory();
 	if ( !Filesystem::dir_readable( sPath, false ) ) {

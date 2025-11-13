@@ -42,11 +42,12 @@ using namespace H2Core;
 #include "MainForm.h"
 #include "SongEditorPanel.h"
 #include "VirtualPatternDialog.h"
+#include "../CommonStrings.h"
 #include "../Compatibility/DropEvent.h"
 #include "../Compatibility/MouseEvent.h"
 #include "../PatternEditor/PatternEditorPanel.h"
 #include "../HydrogenApp.h"
-#include "../CommonStrings.h"
+#include "../MainForm.h"
 #include "../PatternPropertiesDialog.h"
 #include "../Skin.h"
 #include "../Widgets/FileDialog.h"
@@ -102,30 +103,36 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	});
 
 	m_pPatternPopup->addSection( pCommonStrings->getPattern() );
-	auto pAddAction = m_pPatternPopup->addAction(
-		pCommonStrings->getMenuActionAdd() );
-	connect( pAddAction, &QAction::triggered, this, [=]() {
+	auto pNewAction = m_pPatternPopup->addAction(
+		pCommonStrings->getMenuActionNew() );
+	connect( pNewAction, &QAction::triggered, this, [=]() {
 		SongEditorPanel::addNewPattern(); } );
 	m_pPatternPopup->addAction( pCommonStrings->getMenuActionDuplicate(), this,
 								SLOT( patternPopup_duplicate() ) );
+	m_pPatternPopup->addAction(
+		pCommonStrings->getMenuActionAdd(),
+		                       HydrogenApp::get_instance()->getMainForm(),
+							   SLOT( action_file_openPattern() ) );
+    m_pPatternPopup->addSeparator();
+	m_pPatternPopup->addAction( tr( "Replace" ),  this,
+							   SLOT( patternPopup_load() ) );
+	m_pPatternPopup->addAction( pCommonStrings->getMenuActionDelete(), this,
+								SLOT( patternPopup_delete() ) );
+    m_pPatternPopup->addSeparator();
+	m_pPatternPopup->addAction( pCommonStrings->getMenuActionSaveToSoundLibrary(),
+							   this, SLOT( patternPopup_save() ) );
+	m_pPatternPopup->addAction( pCommonStrings->getMenuActionExport(), this,
+							   SLOT( patternPopup_export() ) );
+    m_pPatternPopup->addSeparator();
 	auto pRenameAction = m_pPatternPopup->addAction(
 		pCommonStrings->getMenuActionRename() );
 	connect( pRenameAction, &QAction::triggered, this, [=]() {
 		inlineEditPatternName( m_nRowClicked );
 	});
-	m_pPatternPopup->addAction( pCommonStrings->getMenuActionDelete(), this,
-								SLOT( patternPopup_delete() ) );
 	m_pPatternPopup->addAction( pCommonStrings->getMenuActionProperties(), this,
 								SLOT( patternPopup_properties() ) );
 	m_pPatternPopup->addAction( tr("Virtual Pattern"), this, SLOT( patternPopup_virtualPattern() ) );
 
-	m_pPatternPopup->addSection( tr( "File operations" ) );
-	m_pPatternPopup->addAction( tr( "Replace" ),  this,
-							   SLOT( patternPopup_load() ) );
-	m_pPatternPopup->addAction( pCommonStrings->getMenuActionSaveToSoundLibrary(),
-							   this, SLOT( patternPopup_save() ) );
-	m_pPatternPopup->addAction( pCommonStrings->getMenuActionExport(), this,
-							   SLOT( patternPopup_export() ) );
 
 	m_pPatternPopup->setObjectName( "PatternListPopup" );
 
@@ -953,7 +960,7 @@ void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 		}
 	}
 	else {
-		QStringList tokens = sText.split( "::" );
+		const QStringList tokens = sText.split( "::" );
 		QString sPatternName = tokens.at( 1 );
 
 		// create a unique sequencefilename

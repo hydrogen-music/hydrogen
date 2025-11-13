@@ -1484,6 +1484,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text displayed below the LCD to set the output MIDI note in the Instrument Editor in case the corresponding output method is set. Designed to be flexible.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>New</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Nouveau</translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -3213,7 +3218,7 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
     <message>
         <source>None</source>
         <extracomment>No mapping between MIDI events and instrument will be done.</extracomment>
-        <translation type="unfinished">Aucun</translation>
+        <translation>Aucun</translation>
     </message>
     <message>
         <source>As Output</source>
@@ -3233,7 +3238,7 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
     <message>
         <source>Custom</source>
         <extracomment>The use can set arbitrary note and channel values to map incoming MIDI notes to instruments of the current drumkit.</extracomment>
-        <translation type="unfinished">Personnalisé</translation>
+        <translation>Personnalisé</translation>
     </message>
     <message>
         <source>Offset</source>
@@ -5755,7 +5760,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
-        <translation type="unfinished">Un ou plusieurs échantillons pour cet instrument n&apos;ont pas pu être chargés. Cela peut être dû au fait que le fichier du morceau utilise un kit de batterie par défaut ancien. Ce problème pourrait être corrigé en ouvrant un nouveau kit de batterie.</translation>
+        <translation>Un ou plusieurs échantillons pour cet instrument n&apos;ont pas pu être chargés. Cela peut être dû au fait que le fichier du morceau utilise un kit de batterie par défaut ancien. Ce problème pourrait être corrigé en ouvrant un nouveau kit de batterie.</translation>
     </message>
 </context>
 <context>
@@ -5927,10 +5932,6 @@ Voulez-vous continuer?</translation>
         <translation>Remplir/retirer une série de motif</translation>
     </message>
     <message>
-        <source>File operations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Replace</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6014,10 +6015,6 @@ Voulez-vous continuer?</translation>
     <message>
         <source>Installed</source>
         <translation>Installé</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation>Nouveau</translation>
     </message>
     <message>
         <source>Author: %1</source>
