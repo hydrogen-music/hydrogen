@@ -238,11 +238,11 @@ private:
 class SE_insertPatternAction : public QUndoCommand
 {
 public:
-	SE_insertPatternAction( int patternPosition,
+	SE_insertPatternAction( int nPatternPosition,
 							std::shared_ptr<H2Core::Pattern> pPattern )
 	{
 		setText( QObject::tr( "Add pattern" ) );
-		m_nPatternPosition = patternPosition;
+		m_nPatternPosition = nPatternPosition;
 		m_pNewPattern =  pPattern;
 	}
 	~SE_insertPatternAction() {

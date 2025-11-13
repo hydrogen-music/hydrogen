@@ -635,12 +635,15 @@ void SongEditorPanel::addNewPattern()
 		int nRow;
 		if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
 			nRow = pPatternList->size();
-		} else {
+		}
+		else {
 			nRow = pHydrogen->getSelectedPatternNumber() + 1;
 		}
-		SE_insertPatternAction* pAction = new SE_insertPatternAction(
-			nRow, std::make_shared<Pattern>( pNewPattern ) );
-		HydrogenApp::get_instance()->pushUndoCommand( pAction );
+		HydrogenApp::get_instance()->pushUndoCommand(
+			new SE_insertPatternAction(
+				nRow, std::make_shared<Pattern>( pNewPattern )
+			)
+		);
 	}
 
 	delete pDialog;

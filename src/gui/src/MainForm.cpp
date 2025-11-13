@@ -1037,51 +1037,57 @@ void MainForm::action_file_open() {
 	openSongWithDialog( sWindowTitle, sPath, false );
 }
 
-
 void MainForm::action_file_openPattern()
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
 	auto pPref = Preferences::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	auto pSong = pHydrogen->getSong();
 
 	QString sPath = pPref->getLastOpenPatternDirectory();
-	if ( ! Filesystem::dir_readable( sPath, false ) ){
+	if ( !Filesystem::dir_readable( sPath, false ) ) {
 		sPath = Filesystem::patterns_dir();
 	}
 
-	FileDialog fd(this);
+	FileDialog fd( this );
 	fd.setAcceptMode( QFileDialog::AcceptOpen );
-	fd.setFileMode ( QFileDialog::ExistingFiles );
-	fd.setDirectory ( sPath );
+	fd.setFileMode( QFileDialog::ExistingFiles );
+	fd.setDirectory( sPath );
 	fd.setNameFilter( Filesystem::patterns_filter_name );
 
-	fd.setWindowTitle ( tr ( "Open Pattern" ) );
+	fd.setWindowTitle( tr( "Open Pattern" ) );
 
 	if ( fd.exec() == QDialog::Accepted ) {
 		pPref->setLastOpenPatternDirectory( fd.directory().absolutePath() );
 
 		for ( const auto& ssFileName : fd.selectedFiles() ) {
-
 			auto pNewPattern = Pattern::load( ssFileName );
 			if ( pNewPattern == nullptr ) {
-				QMessageBox::critical( this, "Hydrogen", HydrogenApp::get_instance()->getCommonStrings()->getPatternLoadError() );
-			} else {
+				QMessageBox::critical(
+					this, "Hydrogen",
+					HydrogenApp::get_instance()
+						->getCommonStrings()
+						->getPatternLoadError()
+				);
+			}
+			else {
 				int nRow;
 				if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
 					nRow = pSong->getPatternList()->size();
-				} else {
+				}
+				else {
 					nRow = pHydrogen->getSelectedPatternNumber() + 1;
 				}
-				
-				SE_insertPatternAction* pAction =
-					new SE_insertPatternAction( nRow, pNewPattern );
-				HydrogenApp::get_instance()->pushUndoCommand( pAction );
+
+				HydrogenApp::get_instance()->pushUndoCommand(
+					new SE_insertPatternAction( nRow, pNewPattern )
+				);
 			}
 		}
 	}
 }
 
-void MainForm::action_file_openDemo() {
+void MainForm::action_file_openDemo()
+{
 	QString sWindowTitle;
 	if ( ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
 		sWindowTitle = tr( "Open Demo Song" );
