@@ -583,10 +583,9 @@ void SongEditorPatternList::patternPopup_load()
 	}
 	pPref->setLastOpenPatternDirectory( fd.directory().absolutePath() );
 
-	SE_loadPatternAction *action =
-		new SE_loadPatternAction( sPatternPath, sPrevPatternPath, sSequencePath,
-								  m_nRowClicked, false );
-	HydrogenApp::get_instance()->pushUndoCommand( action );
+	HydrogenApp::get_instance()->pushUndoCommand( new SE_loadPatternAction(
+		sPatternPath, sPrevPatternPath, sSequencePath, m_nRowClicked, false
+	) );
 }
 
 void SongEditorPatternList::patternPopup_export()
@@ -875,107 +874,102 @@ void SongEditorPatternList::dragEnterEvent(QDragEnterEvent *event)
 }
 
 
-void SongEditorPatternList::dropEvent(QDropEvent *event)
+void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 {
-	auto pEv = static_cast<DropEvent*>( event );
+	auto pEv = static_cast<DropEvent*>( pEvent );
 
+	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
-	
-	QString sText = event->mimeData()->text();
-	const QMimeData* mimeData = event->mimeData();
-	
+
+	QString sText = pEvent->mimeData()->text();
+	const QMimeData* mimeData = pEvent->mimeData();
+
 	int nTargetPattern = 0;
-	if(m_nGridHeight > 0)
-	{
+	if ( m_nGridHeight > 0 ) {
 		nTargetPattern = pEv->position().y() / m_nGridHeight;
 	}
-	
-	if( sText.startsWith("Songs:") || sText.startsWith("move instrument:") || sText.startsWith("importInstrument:")){
-		event->acceptProposedAction();
+
+	if ( sText.startsWith( "Songs:" ) ||
+		 sText.startsWith( "move instrument:" ) ||
+		 sText.startsWith( "importInstrument:" ) ) {
+		pEvent->acceptProposedAction();
 		return;
 	}
-	
-	if ( sText.startsWith("move pattern:") ) {
+
+	if ( sText.startsWith( "move pattern:" ) ) {
 		QStringList tokens = sText.split( ":" );
 		bool bOK = true;
 
-		int nSourcePattern = tokens[1].toInt(&bOK);
-		if ( ! bOK ) {
+		int nSourcePattern = tokens[1].toInt( &bOK );
+		if ( !bOK ) {
 			return;
 		}
 
 		if ( nSourcePattern == nTargetPattern ) {
-			event->acceptProposedAction();
+			pEvent->acceptProposedAction();
 			return;
 		}
 
-		auto pAction = new SE_movePatternListItemAction(
-			nSourcePattern , nTargetPattern ) ;
-		HydrogenApp::get_instance()->pushUndoCommand( pAction );
+		pHydrogenApp->pushUndoCommand(
+			new SE_movePatternListItemAction( nSourcePattern, nTargetPattern ) );
 
-		event->acceptProposedAction();
-	} 
-	else if( sText.startsWith("file://") && mimeData->hasUrls() )
-	{
-		//Dragging a file from an external file manager
+		pEvent->acceptProposedAction();
+	}
+	else if ( sText.startsWith( "file://" ) && mimeData->hasUrls() ) {
+		// Dragging a file from an external file manager
 		auto pPatternList = pSong->getPatternList();
 		QList<QUrl> urlList = mimeData->urls();
 
 		int successfullyAddedPattern = 0;
-		
-		for (int i = 0; i < urlList.size(); i++)
-		{
-			QString patternFilePath = urlList.at(i).toLocalFile();
-			if( patternFilePath.endsWith(".h2pattern") )
-			{
+
+		for ( int i = 0; i < urlList.size(); i++ ) {
+			QString patternFilePath = urlList.at( i ).toLocalFile();
+			if ( patternFilePath.endsWith( ".h2pattern" ) ) {
 				auto pPattern = Pattern::load( patternFilePath );
-				if ( pPattern)
-				{
+				if ( pPattern != nullptr ) {
 					auto pNewPattern = pPattern;
-			
-					if(!pPatternList->checkName( pNewPattern->getName() ) ){
-						pNewPattern->setName( pPatternList->findUnusedPatternName( pNewPattern->getName() ) );
+
+					if ( ! pPatternList->checkName( pNewPattern->getName() ) ) {
+						pNewPattern->setName(
+							pPatternList->findUnusedPatternName(
+								pNewPattern->getName()
+							)
+						);
 					}
-					
-					auto pAction = new SE_insertPatternAction(
-						nTargetPattern + successfullyAddedPattern, pNewPattern );
-					HydrogenApp::get_instance()->pushUndoCommand( pAction );
+
+					pHydrogenApp->pushUndoCommand( new SE_insertPatternAction(
+						nTargetPattern + successfullyAddedPattern, pNewPattern ) );
 
 					successfullyAddedPattern++;
 				}
-				else
-				{
-					ERRORLOG( QString("Error loading pattern %1")
-							  .arg(patternFilePath) );
+				else {
+					ERRORLOG( QString( "Error loading pattern %1" )
+								  .arg( patternFilePath ) );
 				}
 			}
 		}
-	} 
-	else 
-	{
+	}
+	else {
 		QStringList tokens = sText.split( "::" );
 		QString sPatternName = tokens.at( 1 );
 
-		//create a unique sequencefilename
+		// create a unique sequencefilename
 		auto pPattern = pSong->getPatternList()->get( nTargetPattern );
 
 		QString oldPatternName = pPattern->getName();
 
 		QString sequenceFileName = Filesystem::tmp_file_path( "SEQ.xml" );
-		const bool bDrag = QString( tokens.at(0) ).contains( "drag pattern" );
+		const bool bDrag = QString( tokens.at( 0 ) ).contains( "drag pattern" );
 
-		SE_loadPatternAction *pAction = new SE_loadPatternAction(
+		pHydrogenApp->pushUndoCommand( new SE_loadPatternAction(
 			sPatternName, oldPatternName, sequenceFileName, nTargetPattern,
-			bDrag );
-
-		HydrogenApp::get_instance()->pushUndoCommand( pAction );
+			bDrag
+		) );
 	}
 }
-
-
 
 void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPattern )
 {
