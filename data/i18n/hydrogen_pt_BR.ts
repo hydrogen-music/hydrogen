@@ -1488,6 +1488,16 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation>Novo</translation>
     </message>
+    <message>
+        <source>Open Pattern</source>
+        <extracomment>Shown in the undo history after inserting a pattern and in the * corresponding file dialog.</extracomment>
+        <translation>Abrir Padrão</translation>
+    </message>
+    <message>
+        <source>Open Pattern to Replace </source>
+        <extracomment>Shown in the undo history after replacing a pattern and in the * corresponding file dialog.</extracomment>
+        <translation>Abrir Padrão para Substituir</translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -2549,10 +2559,6 @@ MIDI = %2</translation>
     <message>
         <source>Pattern saved.</source>
         <translation>Padrão salvo.</translation>
-    </message>
-    <message>
-        <source>Open Pattern</source>
-        <translation>Abrir Padrão</translation>
     </message>
     <message>
         <source></source>
@@ -4686,10 +4692,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
         <translation>Modificar propriedades de padrão</translation>
     </message>
     <message>
-        <source>Add pattern</source>
-        <translation>Adicionar padrão</translation>
-    </message>
-    <message>
         <source>Load/drag pattern</source>
         <translation>Carregar/arrastar padrão</translation>
     </message>
@@ -5919,10 +5921,6 @@ Está certo disto?</translation>
     <message>
         <source>Pattern saved.</source>
         <translation>Padrão salvo.</translation>
-    </message>
-    <message>
-        <source>Open Pattern to Replace </source>
-        <translation>Abrir Padrão para Substituir</translation>
     </message>
     <message>
         <source>Fill/remove range of pattern</source>

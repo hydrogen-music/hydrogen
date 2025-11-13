@@ -641,7 +641,8 @@ void SongEditorPanel::addNewPattern()
 		}
 		HydrogenApp::get_instance()->pushUndoCommand(
 			new SE_insertPatternAction(
-				nRow, std::make_shared<Pattern>( pNewPattern )
+				SE_insertPatternAction::Type::Insert, nRow,
+				std::make_shared<Pattern>( pNewPattern ), nullptr
 			)
 		);
 	}

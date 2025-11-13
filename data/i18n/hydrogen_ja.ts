@@ -1489,6 +1489,16 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation>新規</translation>
     </message>
+    <message>
+        <source>Open Pattern</source>
+        <extracomment>Shown in the undo history after inserting a pattern and in the * corresponding file dialog.</extracomment>
+        <translation>パターンを開く</translation>
+    </message>
+    <message>
+        <source>Open Pattern to Replace </source>
+        <extracomment>Shown in the undo history after replacing a pattern and in the * corresponding file dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -2549,10 +2559,6 @@ MIDI = %2</source>
     <message>
         <source>Pattern saved.</source>
         <translation>パターンを保存しました。</translation>
-    </message>
-    <message>
-        <source>Open Pattern</source>
-        <translation>パターンを開く</translation>
     </message>
     <message>
         <source></source>
@@ -4681,10 +4687,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add pattern</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Load/drag pattern</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5900,10 +5902,6 @@ Are you sure?</source>
     </message>
     <message>
         <source>Could not save pattern to temporary directory.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Pattern to Replace </source>
         <translation type="unfinished"></translation>
     </message>
     <message>

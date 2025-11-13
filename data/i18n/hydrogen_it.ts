@@ -1488,6 +1488,16 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation>Nuovo</translation>
     </message>
+    <message>
+        <source>Open Pattern</source>
+        <extracomment>Shown in the undo history after inserting a pattern and in the * corresponding file dialog.</extracomment>
+        <translation>Apri pattern</translation>
+    </message>
+    <message>
+        <source>Open Pattern to Replace </source>
+        <extracomment>Shown in the undo history after replacing a pattern and in the * corresponding file dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -2526,10 +2536,6 @@ MIDI = %2</translation>
     <message>
         <source>Pattern saved.</source>
         <translation>Pattern salvato.</translation>
-    </message>
-    <message>
-        <source>Open Pattern</source>
-        <translation>Apri pattern</translation>
     </message>
     <message>
         <source></source>
@@ -4658,10 +4664,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add pattern</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Load/drag pattern</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5867,10 +5869,6 @@ Confermi?</translation>
     </message>
     <message>
         <source>Could not save pattern to temporary directory.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Pattern to Replace </source>
         <translation type="unfinished"></translation>
     </message>
     <message>

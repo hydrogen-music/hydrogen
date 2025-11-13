@@ -115,7 +115,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 							   SLOT( action_file_openPattern() ) );
     m_pPatternPopup->addSeparator();
 	m_pPatternPopup->addAction( tr( "Replace" ),  this,
-							   SLOT( patternPopup_load() ) );
+							   SLOT( patternPopup_replace() ) );
 	m_pPatternPopup->addAction( pCommonStrings->getMenuActionDelete(), this,
 								SLOT( patternPopup_delete() ) );
     m_pPatternPopup->addSeparator();
@@ -543,7 +543,7 @@ void SongEditorPatternList::patternPopup_virtualPattern()
 
 
 
-void SongEditorPatternList::patternPopup_load()
+void SongEditorPatternList::patternPopup_replace()
 {
 	auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
@@ -562,13 +562,16 @@ void SongEditorPatternList::patternPopup_load()
 		sPath = Filesystem::patterns_dir();
 	}
 
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
 	FileDialog fd(this);
 	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setFileMode( QFileDialog::ExistingFile );
 	fd.setNameFilter( Filesystem::patterns_filter_name );
 	fd.setDirectory( sPath );
-	fd.setWindowTitle( QString( tr( "Open Pattern to Replace " )
-								.append( pPattern->getName() ) ) );
+	fd.setWindowTitle( QString( pCommonStrings->getActionReplacePattern() )
+						   .append( pPattern->getName() )
+	);
 
 	if (fd.exec() != QDialog::Accepted) {
 		return;
@@ -948,7 +951,10 @@ void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 					}
 
 					pHydrogenApp->pushUndoCommand( new SE_insertPatternAction(
-						nTargetPattern + successfullyAddedPattern, pNewPattern ) );
+						SE_insertPatternAction::Type::Insert,
+						nTargetPattern + successfullyAddedPattern, pNewPattern,
+						nullptr
+					) );
 
 					successfullyAddedPattern++;
 				}

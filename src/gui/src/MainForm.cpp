@@ -1051,13 +1051,15 @@ void MainForm::action_file_openPattern()
 		sPath = Filesystem::patterns_dir();
 	}
 
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
 	FileDialog fd( this );
 	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setFileMode( QFileDialog::ExistingFiles );
 	fd.setDirectory( sPath );
 	fd.setNameFilter( Filesystem::patterns_filter_name );
 
-	fd.setWindowTitle( tr( "Open Pattern" ) );
+	fd.setWindowTitle( pCommonStrings->getActionInsertPattern() );
 
 	if ( fd.exec() == QDialog::Accepted ) {
 		pPref->setLastOpenPatternDirectory( fd.directory().absolutePath() );
@@ -1082,7 +1084,10 @@ void MainForm::action_file_openPattern()
 				}
 
 				HydrogenApp::get_instance()->pushUndoCommand(
-					new SE_insertPatternAction( nRow, pNewPattern )
+					new SE_insertPatternAction(
+						SE_insertPatternAction::Type::Insert, nRow, pNewPattern,
+						nullptr
+					)
 				);
 			}
 		}

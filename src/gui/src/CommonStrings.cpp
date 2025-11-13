@@ -708,6 +708,12 @@ CommonStrings::CommonStrings(){
 	 *  appended. */
 	m_sActionEditTypes = tr( "Edit type for notes in row" );
 
+	/*: Shown in the undo history after inserting a pattern and in the
+	 * corresponding file dialog. */
+	m_sActionInsertPattern = tr( "Open Pattern" );
+	/*: Shown in the undo history after replacing a pattern and in the
+	 * corresponding file dialog. */
+	m_sActionReplacePattern = tr( "Open Pattern to Replace " );
 	/*: Shown in the undo history after duplicating a pattern. */
 	m_sActionDuplicatePattern = tr( "Duplicate pattern" );
 	/*: Shown in the undo history copying pattern cells in the song editor to

@@ -235,30 +235,68 @@ private:
 };
 
 /** \ingroup docGUI*/
-class SE_insertPatternAction : public QUndoCommand
-{
-public:
-	SE_insertPatternAction( int nPatternPosition,
-							std::shared_ptr<H2Core::Pattern> pPattern )
+class SE_insertPatternAction : public QUndoCommand {
+   public:
+	enum class Type {
+		/** Inserts the pattern at the provided position by moving other
+		   patterns to bigger numbers. */
+		Insert,
+		/** Replaces the pattern at the provided position. */
+		Replace,
+	};
+	SE_insertPatternAction(
+		Type type,
+		int nPatternPosition,
+		std::shared_ptr<H2Core::Pattern> pNewPattern,
+		std::shared_ptr<H2Core::Pattern> pOldPattern
+	)
+		: m_nPatternPosition( nPatternPosition ),
+		  m_pNewPattern( pNewPattern ),
+		  m_type( type )
 	{
-		setText( QObject::tr( "Add pattern" ) );
-		m_nPatternPosition = nPatternPosition;
-		m_pNewPattern =  pPattern;
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		QString sText;
+		if ( type == Type::Insert ) {
+			sText = pCommonStrings->getActionInsertPattern();
+		}
+		else {
+			sText = pCommonStrings->getActionReplacePattern();
+		}
+		if ( pOldPattern != nullptr ) {
+			sText.append( QString( "[%1] ->" ).arg( pOldPattern->getName() ) );
+		}
+		if ( pNewPattern != nullptr ) {
+			sText.append( QString( "[%1]" ).arg( pNewPattern->getName() ) );
+		}
+		setText( sText );
 	}
-	~SE_insertPatternAction() {
+	~SE_insertPatternAction() {}
+	virtual void undo()
+	{
+		if ( m_type == Type::Insert ) {
+			H2Core::CoreActionController::removePattern( m_nPatternPosition );
+		}
+		else {
+			H2Core::CoreActionController::setPattern(
+				std::make_shared<H2Core::Pattern>( m_pOldPattern ),
+				m_nPatternPosition
+			);
+		}
 	}
-	virtual void undo() {
-		H2Core::CoreActionController::removePattern( m_nPatternPosition );
-	}
-	virtual void redo() {
+	virtual void redo()
+	{
 		H2Core::CoreActionController::setPattern(
 			std::make_shared<H2Core::Pattern>( m_pNewPattern ),
-																				 m_nPatternPosition );
+			m_nPatternPosition
+		);
 	}
-private:
-	std::shared_ptr<H2Core::Pattern> m_pNewPattern;
 
+   private:
+	std::shared_ptr<H2Core::Pattern> m_pNewPattern;
+	std::shared_ptr<H2Core::Pattern> m_pOldPattern;
 	int m_nPatternPosition;
+	Type m_type;
 };
 
 /** \ingroup docGUI*/

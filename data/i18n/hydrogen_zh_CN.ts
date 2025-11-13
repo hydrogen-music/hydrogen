@@ -1489,6 +1489,16 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation>新建</translation>
     </message>
+    <message>
+        <source>Open Pattern</source>
+        <extracomment>Shown in the undo history after inserting a pattern and in the * corresponding file dialog.</extracomment>
+        <translation>打开样式</translation>
+    </message>
+    <message>
+        <source>Open Pattern to Replace </source>
+        <extracomment>Shown in the undo history after replacing a pattern and in the * corresponding file dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -2539,10 +2549,6 @@ MIDI = %2</translation>
     <message>
         <source>Open song</source>
         <translation>打开乐曲</translation>
-    </message>
-    <message>
-        <source>Open Pattern</source>
-        <translation>打开样式</translation>
     </message>
     <message>
         <source>Song drumkit samples</source>
@@ -4683,10 +4689,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>修改样式属性</translation>
     </message>
     <message>
-        <source>Add pattern</source>
-        <translation>添加样式</translation>
-    </message>
-    <message>
         <source>Load/drag pattern</source>
         <translation>加载/拖动样式</translation>
     </message>
@@ -5916,10 +5918,6 @@ Are you sure?</source>
     <message>
         <source>Could not save pattern to temporary directory.</source>
         <translation>无法将样式保存到临时目录。</translation>
-    </message>
-    <message>
-        <source>Open Pattern to Replace </source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Fill/remove range of pattern</source>
