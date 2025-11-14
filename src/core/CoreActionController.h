@@ -415,16 +415,6 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * Loads an instance of #H2Core::Pattern from the corresponding XML
 		 * file. */
 		static std::shared_ptr<Pattern> loadPattern( const QString& sPath );
-		    /** Opens a pattern from disk and adds it to the pattern list.
-		 *
-		 * @param sPath Absolute path to an existing .h2pattern file.
-		 * @param nPatternNumber Row the pattern will be added to. If
-		 * set to -1, the pattern will be appended at the end of the
-		 * pattern list.
-		 *
-		 * @return bool true on success
-		 */
-    	static bool openPattern( const QString& sPath, int nPatternNumber = -1 );
         /** Opens a pattern to the current pattern list.
 		 *
 		 * @param pPattern pattern to be added.
