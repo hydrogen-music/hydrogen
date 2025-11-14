@@ -710,8 +710,6 @@ class OscServer : public H2Core::Object<OscServer>
 		 */
 		static void NEW_PATTERN_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::openPattern().
-		 *
 		 * The handler expects the user to provide an absolute path to
 		 * a .h2pattern file.
 		 *
