@@ -211,29 +211,6 @@ private:
 	int __patternNr;
 };
 
-
-/** \ingroup docGUI*/
-class SE_duplicatePatternAction : public QUndoCommand
-{
-public:
-	SE_duplicatePatternAction( const QString& patternFileName, int patternPosition ){
-		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-		setText( pCommonStrings->getActionDuplicatePattern() );
-		m_sPatternFileName = patternFileName;
-		m_nPatternPosition = patternPosition;
-	}
-	virtual void undo() {
-		H2Core::CoreActionController::removePattern( m_nPatternPosition );
-	}
-
-	virtual void redo() {
-		H2Core::CoreActionController::openPattern( m_sPatternFileName, m_nPatternPosition );
-	}
-private:
-	QString m_sPatternFileName;
-	int m_nPatternPosition;
-};
-
 /** \ingroup docGUI*/
 class SE_insertPatternAction : public QUndoCommand {
    public:
@@ -241,6 +218,8 @@ class SE_insertPatternAction : public QUndoCommand {
 		/** Inserts the pattern at the provided position by moving other
 		   patterns to bigger numbers. */
 		Insert,
+		/** Same as Type::Insert but with another message. */
+		Duplicate,
 		/** Replaces the pattern at the provided position. */
 		Replace,
 	};
@@ -252,17 +231,30 @@ class SE_insertPatternAction : public QUndoCommand {
 	)
 		: m_nPatternPosition( nPatternPosition ),
 		  m_pNewPattern( pNewPattern ),
+		  m_pOldPattern( pOldPattern ),
 		  m_type( type )
 	{
 		const auto pCommonStrings =
 			HydrogenApp::get_instance()->getCommonStrings();
 		QString sText;
-		if ( type == Type::Insert ) {
-			sText = pCommonStrings->getActionInsertPattern();
+		switch ( type ) {
+			case Type::Insert: {
+				sText = pCommonStrings->getActionInsertPattern();
+				break;
+			}
+			case Type::Duplicate: {
+				sText = pCommonStrings->getActionDuplicatePattern();
+				break;
+			}
+			case Type::Replace: {
+				sText = pCommonStrings->getActionReplacePattern();
+				break;
+			}
+			default:
+				___DEBUGLOG( QString( "Unknown type [%1]" )
+								 .arg( static_cast<int>( type ) ) );
 		}
-		else {
-			sText = pCommonStrings->getActionReplacePattern();
-		}
+
 		if ( pOldPattern != nullptr ) {
 			sText.append( QString( "[%1] ->" ).arg( pOldPattern->getName() ) );
 		}
@@ -274,13 +266,15 @@ class SE_insertPatternAction : public QUndoCommand {
 	~SE_insertPatternAction() {}
 	virtual void undo()
 	{
-		if ( m_type == Type::Insert ) {
+		if ( m_type == Type::Replace ) {
+			H2Core::CoreActionController::setPattern(
+				std::make_shared<H2Core::Pattern>( m_pOldPattern ),
+				m_nPatternPosition, m_type == Type::Replace
+			);
+		}
+	    else {
 			H2Core::CoreActionController::removePattern( m_nPatternPosition );
 		}
-		H2Core::CoreActionController::setPattern(
-			std::make_shared<H2Core::Pattern>( m_pOldPattern ),
-			m_nPatternPosition, m_type == Type::Replace
-		);
 	}
 	virtual void redo()
 	{

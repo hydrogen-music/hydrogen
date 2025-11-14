@@ -786,17 +786,12 @@ void SongEditorPatternList::patternPopup_duplicate()
 	}
 	delete dialog;
 
-	const QString sPath = Filesystem::tmp_file_path(
-		"patternDuplicate.h2pattern" );
-	if ( ! pNewPattern->save( sPath ) ) {
-		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
-		return;
-	}
-
 	pHydrogenApp->beginUndoMacro(
 		pCommonStrings->getActionDuplicatePattern() );
-	pHydrogenApp->pushUndoCommand(
-		new SE_duplicatePatternAction( sPath, m_nRowClicked + 1 ) );
+	pHydrogenApp->pushUndoCommand( new SE_insertPatternAction(
+		SE_insertPatternAction::Type::Duplicate, m_nRowClicked + 1, pNewPattern,
+		nullptr
+	) );
 
 	// Duplicate all activations of the corresponding row as well. Because we
 	// will select the newly created patterns, we should clear the former
