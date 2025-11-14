@@ -4687,10 +4687,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <translation>Mover ítem de la lista de patrones ( %1, %2 )</translation>
     </message>
     <message>
-        <source>Delete complete pattern-sequence</source>
-        <translation>Borrar secuencia entera de patrones</translation>
-    </message>
-    <message>
         <source>Modify pattern properties</source>
         <translation>Modificar propiedades del patrón</translation>
     </message>
@@ -5847,6 +5843,10 @@ Are you sure?</source>
     <message>
         <source>Playback volume set to</source>
         <translation>Volumen reproducción establecido en</translation>
+    </message>
+    <message>
+        <source>Delete complete pattern-sequence</source>
+        <translation>Borrar secuencia entera de patrones</translation>
     </message>
 </context>
 <context>

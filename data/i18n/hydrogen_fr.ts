@@ -4688,10 +4688,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>Déplacer un élémentde la liste de motif ( %1, %2 )</translation>
     </message>
     <message>
-        <source>Delete complete pattern-sequence</source>
-        <translation>Effacer tout le motif-séquence</translation>
-    </message>
-    <message>
         <source>Modify pattern properties</source>
         <translation>Modifier les propriétés du motif</translation>
     </message>
@@ -5848,6 +5844,10 @@ Voulez-vous continuer?</translation>
     <message>
         <source>Playback volume set to</source>
         <translation>Volume de lecture réglé sur</translation>
+    </message>
+    <message>
+        <source>Delete complete pattern-sequence</source>
+        <translation>Effacer tout le motif-séquence</translation>
     </message>
 </context>
 <context>

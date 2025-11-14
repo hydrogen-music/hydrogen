@@ -1036,33 +1036,6 @@ bool Song::hasMissingSamples() const
 	return false;
 }
 
-void Song::loadTempPatternList( const QString& sFileName )
-{
-	XMLDoc doc;
-	if( !doc.read( sFileName ) ) {
-		return;
-	}
-	XMLNode root = doc.firstChildElement( "sequence" );
-	if ( root.isNull() ) {
-		ERRORLOG( "sequence node not found" );
-		return;
-	}
-
-	loadVirtualPatternsFrom( root, false );
-	loadPatternGroupVectorFrom( root, false );
-}
-
-bool Song::saveTempPatternList( const QString& sFileName ) const
-{
-	XMLDoc doc;
-	XMLNode root = doc.set_root( "sequence" );
-
-	saveVirtualPatternsTo( root, false );
-	savePatternGroupVectorTo( root, false );
-
-	return doc.write( sFileName );
-}
-
 void Song::setPanLawKNorm( float fKNorm ) {
 	if ( fKNorm >= 0. ) {
 		m_fPanLawKNorm = fKNorm;

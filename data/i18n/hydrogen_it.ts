@@ -4657,10 +4657,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Delete complete pattern-sequence</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Modify pattern properties</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5793,6 +5789,10 @@ Confermi?</translation>
     </message>
     <message>
         <source>Playback volume set to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete complete pattern-sequence</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

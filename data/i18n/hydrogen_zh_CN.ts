@@ -4682,10 +4682,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>移动样式列表项目 ( %1, %2 )</translation>
     </message>
     <message>
-        <source>Delete complete pattern-sequence</source>
-        <translation>清除完成的样式序列</translation>
-    </message>
-    <message>
         <source>Modify pattern properties</source>
         <translation>修改样式属性</translation>
     </message>
@@ -5842,6 +5838,10 @@ Are you sure?</source>
     <message>
         <source>Playback volume set to</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete complete pattern-sequence</source>
+        <translation>清除完成的样式序列</translation>
     </message>
 </context>
 <context>

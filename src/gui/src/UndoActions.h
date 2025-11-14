@@ -89,32 +89,6 @@ private:
 	int __nTargetPattern;
 };
 
-
-/** \ingroup docGUI*/
-class SE_deletePatternSequenceAction : public QUndoCommand
-{
-public:
-	explicit SE_deletePatternSequenceAction( const QString& pFileName ){
-		setText( QObject::tr( "Delete complete pattern-sequence" ) );
-		__pFileName = pFileName ;
-	}
-	virtual void undo()
-	{
-		//qDebug() << "Delete complete pattern-sequence  undo";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->restoreGroupVector( __pFileName );
-	}
-
-	virtual void redo()
-	{
-		//qDebug() << "Delete complete pattern-sequence redo " ;
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditor()->clearThePatternSequenceVector( __pFileName );
-	}
-private:
-	QString __pFileName;
-};
-
 /** \ingroup docGUI*/
 class SE_deletePatternAction : public QUndoCommand {
    public:

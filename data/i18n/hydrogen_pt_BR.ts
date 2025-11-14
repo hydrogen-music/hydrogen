@@ -4685,10 +4685,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
         <translation>Move item da lista de padrões ( %1, %2 )</translation>
     </message>
     <message>
-        <source>Delete complete pattern-sequence</source>
-        <translation>Deletar a sequência de padrão completa</translation>
-    </message>
-    <message>
         <source>Modify pattern properties</source>
         <translation>Modificar propriedades de padrão</translation>
     </message>
@@ -5845,6 +5841,10 @@ Está certo disto?</translation>
     <message>
         <source>Playback volume set to</source>
         <translation>Volume do Playback definido para</translation>
+    </message>
+    <message>
+        <source>Delete complete pattern-sequence</source>
+        <translation>Deletar a sequência de padrão completa</translation>
     </message>
 </context>
 <context>

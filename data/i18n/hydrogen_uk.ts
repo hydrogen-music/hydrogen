@@ -4683,10 +4683,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Delete complete pattern-sequence</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Modify pattern properties</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5842,6 +5838,10 @@ Are you sure?</source>
     </message>
     <message>
         <source>Playback volume set to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete complete pattern-sequence</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

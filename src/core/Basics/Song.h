@@ -244,9 +244,6 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 		AutomationPath*	getVelocityAutomationPath() const;
 
-		void			loadTempPatternList( const QString& sFileName );
-		bool			saveTempPatternList( const QString& sFileName ) const;
-							
 		int			getLatestRoundRobin( float fStartVelocity ) const;
 		void			setLatestRoundRobin( float fStartVelocity, int nLatestRoundRobin );
 		/** \return #m_sPlaybackTrackFileName */

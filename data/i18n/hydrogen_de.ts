@@ -4675,10 +4675,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Verschiebe Eintrag in Pattern-Liste (%1, %2 )</translation>
     </message>
     <message>
-        <source>Delete complete pattern-sequence</source>
-        <translation>Lösche komplette Pattern-Sequenz</translation>
-    </message>
-    <message>
         <source>Modify pattern properties</source>
         <translation>Ändere Pattern Eigenschaften</translation>
     </message>
@@ -5835,6 +5831,10 @@ Fortsetzen?</translation>
     <message>
         <source>Playback volume set to</source>
         <translation>Playback Track Lautstärke gesetzt zu</translation>
+    </message>
+    <message>
+        <source>Delete complete pattern-sequence</source>
+        <translation>Lösche komplette Pattern-Sequenz</translation>
     </message>
 </context>
 <context>

@@ -650,19 +650,53 @@ void SongEditorPanel::addNewPattern()
 	delete pDialog;
 }
 
-void SongEditorPanel::clearSequence() {
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	if ( QMessageBox::information(
-			 this, "Hydrogen",
-			 tr( "Warning, this will erase your pattern sequence.\nAre you sure?"),
-			 QMessageBox::Ok | QMessageBox::Cancel,
-			 QMessageBox::Cancel ) == QMessageBox::Cancel ) {
+void SongEditorPanel::clearSequence()
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
 		return;
 	}
+	const auto pSongPatternList = pSong->getPatternList();
 
-	const QString sFileName = Filesystem::tmp_file_path( "SEQ.xml" );
-	auto pAction = new SE_deletePatternSequenceAction( sFileName );
-	HydrogenApp::get_instance()->pushUndoCommand( pAction );
+	if ( QMessageBox::information(
+			 this, "Hydrogen",
+			 tr( "Warning, this will erase your pattern sequence.\nAre you "
+				 "sure?" ),
+			 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel
+		 ) == QMessageBox::Cancel ) {
+		return;
+	}
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	pHydrogenApp->beginUndoMacro( tr( "Delete complete pattern-sequence" ) );
+
+	const auto pPatternGroupVector = pSong->getPatternGroupVector();
+	for ( int nnColumn = 0; nnColumn < pPatternGroupVector->size();
+		  ++nnColumn ) {
+		const auto ppPatternList = pPatternGroupVector->at( nnColumn );
+		if ( ppPatternList == nullptr ) {
+			continue;
+		}
+		std::vector<int> indices;
+		for ( const auto& ppPattern : *ppPatternList ) {
+			if ( ppPattern == nullptr ) {
+				continue;
+			}
+			const int nIndex = pSongPatternList->index( ppPattern );
+			if ( nIndex != -1 ) {
+				indices.push_back( nIndex );
+			}
+		}
+
+		for ( int ii = indices.size() - 1; ii >= 0; --ii ) {
+			pHydrogenApp->pushUndoCommand( new SE_addOrRemovePatternCellAction(
+				GridPoint( nnColumn, indices[ii] ), Editor::Action::Delete,
+				Editor::ActionModifier::None
+			) );
+		}
+	}
+
+	pHydrogenApp->endUndoMacro();
 }
 
 bool SongEditorPanel::hasSongEditorFocus() const{
@@ -678,32 +712,6 @@ bool SongEditorPanel::hasSongEditorFocus() const{
 		m_pPatternList->hasFocus() ||
 		m_pPositionRuler->hasFocus() ||
 		m_pPlaybackTrackWaveDisplay->hasFocus();
-}
-
-void SongEditorPanel::restoreGroupVector( const QString& sFileName )
-{
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	//clear the old sequese
-	auto pPatternGroupsVect = pSong->getPatternGroupVector();
-	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
-		auto pPatternList = (*pPatternGroupsVect)[i];
-		pPatternList->clear();
-	}
-	pPatternGroupsVect->clear();
-
-	pAudioEngine->lock( RIGHT_HERE );
-	pSong->loadTempPatternList( sFileName );
-	pHydrogen->updateSongSize();
-	pHydrogen->updateSelectedPattern( false );
-	pAudioEngine->unlock();
-
-	m_pPositionRuler->updateSongSize();
-	updateEditors( Editor::Update::Content );
 }
 
 void SongEditorPanel::gridCellToggledEvent() {
