@@ -2235,11 +2235,10 @@ bool CoreActionController::setPattern(
 		return false;
 	}
 
-	pAudioEngine->lock( RIGHT_HERE );
-
 	pNewPattern->mapToDrumkit( pSong->getDrumkit(), nullptr );
-
 	auto pPatternList = pSong->getPatternList();
+
+	pAudioEngine->lock( RIGHT_HERE );
 
     std::shared_ptr<Pattern> pOldPattern = nullptr;
 	if ( bReplace ) {
@@ -2285,11 +2284,11 @@ bool CoreActionController::setPattern(
 	}
 
 	if ( pHydrogen->isPatternEditorLocked() ) {
-		pHydrogen->updateSelectedPattern( true );
+		pHydrogen->updateSelectedPattern( false );
 	}
 	else {
 		pHydrogen->setSelectedPatternNumber(
-			nPatternPosition, true, Event::Trigger::Default
+			nPatternPosition, false, Event::Trigger::Default
 		);
 	}
 	pAudioEngine->updatePlayingPatterns( Event::Trigger::Default );
