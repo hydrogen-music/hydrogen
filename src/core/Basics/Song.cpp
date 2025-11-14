@@ -74,7 +74,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_fMetronomeVolume( 0.5 )
 	, m_sNotes( "..." )
 	, m_pPatternList( std::make_shared<PatternList>() )
-	, m_pPatternGroupSequence( std::make_shared< std::vector<
+	, m_pPatternGroupVector( std::make_shared< std::vector<
 							   std::shared_ptr<PatternList> > >() )
 	, m_sFileName( "" )
 	, m_loopMode( LoopMode::Disabled )
@@ -149,11 +149,11 @@ void Song::setActionMode( const Song::ActionMode& actionMode ) {
 
 long Song::lengthInTicks() const {
 	long nSongLength = 0;
-	int nColumns = m_pPatternGroupSequence->size();
+	int nColumns = m_pPatternGroupVector->size();
 	// Sum the lengths of all pattern columns and use the macro four quarters in
 	// case some of them are of size zero.
 	for ( int i = 0; i < nColumns; i++ ) {
-		auto pColumn = ( *m_pPatternGroupSequence )[ i ];
+		auto pColumn = ( *m_pPatternGroupVector )[ i ];
 		if ( pColumn->size() != 0 ) {
 			nSongLength += pColumn->longestPatternLength();
 		} else {
@@ -173,10 +173,10 @@ bool Song::isPatternActive( const GridPoint& gridPoint ) const {
 		return false;
 	}
 	if ( gridPoint.getColumn() < 0 ||
-		 gridPoint.getColumn() >= m_pPatternGroupSequence->size() ) {
+		 gridPoint.getColumn() >= m_pPatternGroupVector->size() ) {
 		return false;
 	}
-	auto pColumn = ( *m_pPatternGroupSequence )[ gridPoint.getColumn() ];
+	auto pColumn = ( *m_pPatternGroupVector )[ gridPoint.getColumn() ];
 	if ( pColumn->index( pPattern ) == -1 ) {
 		return false;
 	}
@@ -820,9 +820,9 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples,
 		}
 	}
 
-	if ( m_pPatternGroupSequence != nullptr ) {
+	if ( m_pPatternGroupVector != nullptr ) {
 		XMLNode patternSequenceNode = rootNode.createNode( "patternSequence" );
-		for ( const auto& pPatternList : *m_pPatternGroupSequence ) {
+		for ( const auto& pPatternList : *m_pPatternGroupVector ) {
 			if ( pPatternList != nullptr ) {
 				XMLNode groupNode = patternSequenceNode.createNode( "group" );
 				for ( const auto& pPattern : *pPatternList ) {
@@ -1067,7 +1067,7 @@ std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 	};
 
 	long nColumnStartTick = 0;
-	for ( const auto& ppColumn : *m_pPatternGroupSequence ) {
+	for ( const auto& ppColumn : *m_pPatternGroupVector ) {
 		if ( ppColumn == nullptr || ppColumn->size() == 0 ) {
 			// An empty column with no patterns selected (but not the
 			// end of the song).
@@ -1210,8 +1210,8 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_sNotes: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_sNotes ) )
 			.append( QString( "%1" ).arg( m_pPatternList->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2m_pPatternGroupSequence:\n" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& pp : *m_pPatternGroupSequence ) {
+			.append( QString( "%1%2m_pPatternGroupVector:\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& pp : *m_pPatternGroupVector ) {
 			if ( pp != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s + s, bShort ) ) );
 			}
@@ -1284,8 +1284,8 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_fMetronomeVolume: %1" ).arg( m_fMetronomeVolume ) )
 			.append( QString( ", m_sNotes: %1" ).arg( m_sNotes ) )
 			.append( QString( "%1" ).arg( m_pPatternList->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( ", m_pPatternGroupSequence:" ) );
-		for ( const auto& pp : *m_pPatternGroupSequence ) {
+			.append( QString( ", m_pPatternGroupVector:" ) );
+		for ( const auto& pp : *m_pPatternGroupVector ) {
 			if ( pp != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s + s, bShort ) ) );
 			}
