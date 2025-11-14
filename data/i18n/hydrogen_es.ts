@@ -1499,6 +1499,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Shown in the undo history after replacing a pattern and in the * corresponding file dialog.</extracomment>
         <translation>Abrir Patrón para Reemplazar </translation>
     </message>
+    <message>
+        <source>Delete pattern from list</source>
+        <extracomment>Shown in the undo history after removing a pattern.</extracomment>
+        <translation>Borrar patrón de la lista</translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -4686,10 +4691,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <translation>Borrar secuencia entera de patrones</translation>
     </message>
     <message>
-        <source>Delete pattern from list</source>
-        <translation>Borrar patrón de la lista</translation>
-    </message>
-    <message>
         <source>Modify pattern properties</source>
         <translation>Modificar propiedades del patrón</translation>
     </message>
@@ -5909,16 +5910,8 @@ Are you sure?</source>
         <translation>No se pudo exportar el patrón.</translation>
     </message>
     <message>
-        <source>Could not export sequence.</source>
-        <translation>No se pudo exportar la secuencia.</translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation>Patrón guardado.</translation>
-    </message>
-    <message>
-        <source>Could not save pattern to temporary directory.</source>
-        <translation>No se pudo guardar el patrón en un directorio temporal.</translation>
     </message>
     <message>
         <source>Fill/remove range of pattern</source>

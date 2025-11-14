@@ -1499,6 +1499,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Shown in the undo history after replacing a pattern and in the * corresponding file dialog.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Delete pattern from list</source>
+        <extracomment>Shown in the undo history after removing a pattern.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -4654,10 +4659,6 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Delete pattern from list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Modify pattern properties</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5854,16 +5855,8 @@ N&apos;estàs segur?</translation>
         <translation>No ha estat possible exportar el patró.</translation>
     </message>
     <message>
-        <source>Could not export sequence.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation>Patrón desat.</translation>
-    </message>
-    <message>
-        <source>Could not save pattern to temporary directory.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Fill/remove range of pattern</source>

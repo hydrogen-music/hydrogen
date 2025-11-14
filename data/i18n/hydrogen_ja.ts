@@ -1499,6 +1499,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Shown in the undo history after replacing a pattern and in the * corresponding file dialog.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Delete pattern from list</source>
+        <extracomment>Shown in the undo history after removing a pattern.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -4679,10 +4684,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Delete pattern from list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Modify pattern properties</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5889,16 +5890,8 @@ Are you sure?</source>
         <translation>パターンをエクスポートできませんでした。</translation>
     </message>
     <message>
-        <source>Could not export sequence.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation>パターンを保存しました。</translation>
-    </message>
-    <message>
-        <source>Could not save pattern to temporary directory.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Fill/remove range of pattern</source>

@@ -1498,6 +1498,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Shown in the undo history after replacing a pattern and in the * corresponding file dialog.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Delete pattern from list</source>
+        <extracomment>Shown in the undo history after removing a pattern.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -4656,10 +4661,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Delete pattern from list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Modify pattern properties</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5856,16 +5857,8 @@ Confermi?</translation>
         <translation>Non riesco a esportare il modello.</translation>
     </message>
     <message>
-        <source>Could not export sequence.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation>Pattern salvato.</translation>
-    </message>
-    <message>
-        <source>Could not save pattern to temporary directory.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Fill/remove range of pattern</source>

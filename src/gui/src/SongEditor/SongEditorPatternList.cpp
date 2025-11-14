@@ -725,25 +725,33 @@ void SongEditorPatternList::patternPopup_delete()
 		return;
 	}
 
-	const QString sPatternPath = Filesystem::tmp_file_path(
-		"patternDelete.h2pattern" );
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+	pHydrogenApp->beginUndoMacro(
+		QString( "%1 [%2]" )
+			.arg( pCommonStrings->getActionRemovePattern() )
+			.arg( pPattern->getName() )
+	);
 
-	if ( ! pPattern->save( sPatternPath ) ) {
-		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
-		return;
+	const auto pPatternGroupVector = pSong->getPatternGroupVector();
+	for ( int nnColumn = 0; nnColumn < pPatternGroupVector->size(); ++nnColumn ) {
+		const auto ppPatternList = pPatternGroupVector->at( nnColumn );
+		if ( ppPatternList == nullptr ) {
+			continue;
+		}
+		if ( ppPatternList->index( pPattern ) != -1 ) {
+			pHydrogenApp->pushUndoCommand( new SE_addOrRemovePatternCellAction(
+				GridPoint( nnColumn, m_nRowClicked ), Editor::Action::Delete,
+				Editor::ActionModifier::None
+			) );
+		}
 	}
 
-	const QString sSequencePath = Filesystem::tmp_file_path(
-		"patternDelete-SEQ.xml" );
-	if ( ! pSong->saveTempPatternList( sSequencePath ) ) {
-		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
-		return;
-	}
+	pHydrogenApp->pushUndoCommand(
+		new SE_deletePatternAction( m_nRowClicked, pPattern )
+	);
 
-	SE_deletePatternFromListAction *action =
-		new SE_deletePatternFromListAction( sPatternPath, sSequencePath,
-											m_nRowClicked );
-	HydrogenApp::get_instance()->pushUndoCommand( action );
+	pHydrogenApp->endUndoMacro();
 }
 
 void SongEditorPatternList::patternPopup_duplicate()
@@ -799,7 +807,6 @@ void SongEditorPatternList::patternPopup_duplicate()
 	pHydrogenApp->getSongEditorPanel()->getSongEditor()
 		->m_selection.clearSelection();
 
-	const int nIndex = pPatternList->index( pPattern );
 	const auto pPatternGroupVector = pSong->getPatternGroupVector();
 	for ( int nnColumn = 0; nnColumn < pPatternGroupVector->size(); ++nnColumn ) {
 		const auto ppColumn = pPatternGroupVector->at( nnColumn );

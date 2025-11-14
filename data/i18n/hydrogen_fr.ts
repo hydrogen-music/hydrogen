@@ -1499,6 +1499,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Shown in the undo history after replacing a pattern and in the * corresponding file dialog.</extracomment>
         <translation>Ouvrir un motif pour remplacer </translation>
     </message>
+    <message>
+        <source>Delete pattern from list</source>
+        <extracomment>Shown in the undo history after removing a pattern.</extracomment>
+        <translation>Effacer le motif de la liste</translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -4687,10 +4692,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>Effacer tout le motif-séquence</translation>
     </message>
     <message>
-        <source>Delete pattern from list</source>
-        <translation>Effacer le motif de la liste</translation>
-    </message>
-    <message>
         <source>Modify pattern properties</source>
         <translation>Modifier les propriétés du motif</translation>
     </message>
@@ -5910,16 +5911,8 @@ Voulez-vous continuer?</translation>
         <translation>Ne peut pas exporter le motif.</translation>
     </message>
     <message>
-        <source>Could not export sequence.</source>
-        <translation>Ne peut pas exporter la séquence.</translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation>Motif sauvegardé.</translation>
-    </message>
-    <message>
-        <source>Could not save pattern to temporary directory.</source>
-        <translation>Impossible de sauvegarder le motif dans le répertoire temporaire.</translation>
     </message>
     <message>
         <source>Fill/remove range of pattern</source>

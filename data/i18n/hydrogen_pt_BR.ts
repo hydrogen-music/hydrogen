@@ -1498,6 +1498,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Shown in the undo history after replacing a pattern and in the * corresponding file dialog.</extracomment>
         <translation>Abrir Padrão para Substituir</translation>
     </message>
+    <message>
+        <source>Delete pattern from list</source>
+        <extracomment>Shown in the undo history after removing a pattern.</extracomment>
+        <translation>Deletar padrão da lista</translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -4684,10 +4689,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
         <translation>Deletar a sequência de padrão completa</translation>
     </message>
     <message>
-        <source>Delete pattern from list</source>
-        <translation>Deletar padrão da lista</translation>
-    </message>
-    <message>
         <source>Modify pattern properties</source>
         <translation>Modificar propriedades de padrão</translation>
     </message>
@@ -5901,14 +5902,6 @@ Está certo disto?</translation>
     <message>
         <source>Virtual Pattern</source>
         <translation>Padrão Virtual</translation>
-    </message>
-    <message>
-        <source>Could not save pattern to temporary directory.</source>
-        <translation>Não foi possível salvar padrão para diretório temporário.</translation>
-    </message>
-    <message>
-        <source>Could not export sequence.</source>
-        <translation>Não foi possível exportar sequência.</translation>
     </message>
     <message>
         <source>Could not export pattern.</source>

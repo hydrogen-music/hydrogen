@@ -1499,6 +1499,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Shown in the undo history after replacing a pattern and in the * corresponding file dialog.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Delete pattern from list</source>
+        <extracomment>Shown in the undo history after removing a pattern.</extracomment>
+        <translation>从列表中删除样式</translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -4681,10 +4686,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>清除完成的样式序列</translation>
     </message>
     <message>
-        <source>Delete pattern from list</source>
-        <translation>从列表中删除样式</translation>
-    </message>
-    <message>
         <source>Modify pattern properties</source>
         <translation>修改样式属性</translation>
     </message>
@@ -5904,16 +5905,8 @@ Are you sure?</source>
         <translation>无法导出样式。</translation>
     </message>
     <message>
-        <source>Could not export sequence.</source>
-        <translation>无法导出音序。</translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation>样式已保存。</translation>
-    </message>
-    <message>
-        <source>Could not save pattern to temporary directory.</source>
-        <translation>无法将样式保存到临时目录。</translation>
     </message>
     <message>
         <source>Fill/remove range of pattern</source>
