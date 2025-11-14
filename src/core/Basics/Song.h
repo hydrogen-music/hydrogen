@@ -308,11 +308,6 @@ private:
 	void saveTo( XMLNode& pNode, bool bKeepMissingSamples,
 				bool bSilent = false ) const;
 
-	void loadVirtualPatternsFrom( const XMLNode& pNode, bool bSilent = false );
-	void loadPatternGroupVectorFrom( const XMLNode& pNode, bool bSilent = false );
-	void saveVirtualPatternsTo( XMLNode& pNode, bool bSilent = false ) const;
-	void savePatternGroupVectorTo( XMLNode& pNode, bool bSilent = false ) const;
-
 	/** Whether the Timeline button was pressed in the GUI or it was
 		activated via an OSC command. */
 	bool m_bIsTimelineActivated;
