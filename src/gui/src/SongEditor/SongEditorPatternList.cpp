@@ -960,7 +960,7 @@ void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 			}
 		}
 	}
-	else {
+	else if ( sText.startsWith( "drag pattern" ) ) {
 		const QStringList tokens = sText.split( "::" );
 		auto pNewPattern = CoreActionController::loadPattern( tokens.at( 1 ) );
 		if ( pNewPattern == nullptr ) {
@@ -979,6 +979,9 @@ void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 			SE_insertPatternAction::Type::Insert, nTargetPattern, pNewPattern,
 			pOldPattern
 		) );
+	}
+	else {
+		DEBUGLOG( QString( "Unknown drag type [%1]" ).arg( sText ) );
 	}
 }
 
