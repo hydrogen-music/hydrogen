@@ -2171,7 +2171,29 @@ bool CoreActionController::newPattern( const QString& sPatternName ) {
 	
 	return setPattern( pPattern, pPatternList->size() );
 }
-bool CoreActionController::openPattern( const QString& sPath, int nPatternPosition ) {
+
+std::shared_ptr<Pattern> CoreActionController::loadPattern( const QString& sPath
+)
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen == nullptr ) {
+		return nullptr;
+	}
+
+	auto pNewPattern = Pattern::load( sPath );
+	if ( pNewPattern == nullptr ) {
+		ERRORLOG( QString( "Unable to load pattern [%1]" ).arg( sPath ) );
+		return nullptr;
+	}
+
+	return pNewPattern;
+}
+
+bool CoreActionController::openPattern(
+	const QString& sPath,
+	int nPatternPosition
+)
+{
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pSong = pHydrogen->getSong();

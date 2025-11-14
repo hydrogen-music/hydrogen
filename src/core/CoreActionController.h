@@ -23,8 +23,9 @@
 #ifndef CORE_ACTION_CONTROLLER_H
 #define CORE_ACTION_CONTROLLER_H
 
-#include <vector>
 #include <memory>
+#include <QString>
+#include <vector>
 
 #include <core/Basics/DrumkitMap.h>
 #include <core/Object.h>
@@ -410,7 +411,11 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
     	static bool newPattern( const QString& sPatternName );
-	    /** Opens a pattern from disk and adds it to the pattern list.
+		/**
+		 * Loads an instance of #H2Core::Pattern from the corresponding XML
+		 * file. */
+		static std::shared_ptr<Pattern> loadPattern( const QString& sPath );
+		    /** Opens a pattern from disk and adds it to the pattern list.
 		 *
 		 * @param sPath Absolute path to an existing .h2pattern file.
 		 * @param nPatternNumber Row the pattern will be added to. If
