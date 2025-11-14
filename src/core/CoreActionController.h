@@ -429,11 +429,17 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 *
 		 * @param pPattern pattern to be added.
 		 * @param nPatternNumber Row the pattern will be added to.
+		 * @param bReplace Whether the pattern at @a nPatternNumber should be
+             replaced or moved to the next higher number (including all
+             following patterns).
 		 *
 		 * @return bool true on success
 		 */
-		static bool setPattern( std::shared_ptr<Pattern> pPattern,
-								int nPatternNumber );
+		static bool setPattern(
+			std::shared_ptr<Pattern> pPattern,
+			int nPatternNumber,
+			bool bReplace
+		);
 		/** Selects a pattern from the current pattern list while taking into
 		 * account whether the pattern editor is currently locked.
 		 *

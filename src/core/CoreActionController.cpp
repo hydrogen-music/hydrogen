@@ -2163,13 +2163,14 @@ bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast ) {
 	return true;
 }
 
-bool CoreActionController::newPattern( const QString& sPatternName ) {
+bool CoreActionController::newPattern( const QString& sPatternName )
+{
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pPatternList = pHydrogen->getSong()->getPatternList();
 	auto pPattern = std::make_shared<Pattern>( sPatternName );
-	
-	return setPattern( pPattern, pPatternList->size() );
+
+	return setPattern( pPattern, pPatternList->size(), false );
 }
 
 std::shared_ptr<Pattern> CoreActionController::loadPattern( const QString& sPath
@@ -2202,12 +2203,13 @@ bool CoreActionController::openPattern(
 		ERRORLOG( "no song set" );
 		return false;
 	}
-	
+
 	auto pPatternList = pSong->getPatternList();
 	auto pNewPattern = Pattern::load( sPath );
 
 	if ( pNewPattern == nullptr ) {
-		ERRORLOG( QString( "Unable to loading the pattern [%1]" ).arg( sPath ) );
+		ERRORLOG( QString( "Unable to loading the pattern [%1]" ).arg( sPath )
+		);
 		return false;
 	}
 
@@ -2215,47 +2217,100 @@ bool CoreActionController::openPattern(
 		nPatternPosition = pPatternList->size();
 	}
 
-	return setPattern( pNewPattern, nPatternPosition );
+	return setPattern( pNewPattern, nPatternPosition, false );
 }
 
-bool CoreActionController::setPattern( std::shared_ptr<Pattern> pPattern,
-									   int nPatternPosition ) {
+bool CoreActionController::setPattern(
+	std::shared_ptr<Pattern> pNewPattern,
+	int nPatternPosition, bool bReplace
+)
+{
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pSong = pHydrogen->getSong();
-
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
 
-	pPattern->mapToDrumkit( pSong->getDrumkit(), nullptr );
+	pAudioEngine->lock( RIGHT_HERE );
+
+	pNewPattern->mapToDrumkit( pSong->getDrumkit(), nullptr );
 
 	auto pPatternList = pSong->getPatternList();
 
-	// Check whether the name of the new pattern is unique.
-	if ( !pPatternList->checkName( pPattern->getName() ) ){
-		pPattern->setName( pPatternList->findUnusedPatternName( pPattern->getName() ) );
+    std::shared_ptr<Pattern> pOldPattern = nullptr;
+	if ( bReplace ) {
+		// In case we replace the pattern, we do now use PatternList::replace
+		// directly but remove the previous one first before determining the
+		// approriate name for the new pattern.
+		pOldPattern = pPatternList->del( nPatternPosition );
 	}
 
-	pPatternList->insert( nPatternPosition, pPattern );
+	// Check whether the name of the new pattern is unique.
+	if ( !pPatternList->checkName( pNewPattern->getName() ) ) {
+		pNewPattern->setName(
+			pPatternList->findUnusedPatternName( pNewPattern->getName() )
+		);
+	}
+
+	pPatternList->insert( nPatternPosition, pNewPattern );
+
+	if ( bReplace && pOldPattern != nullptr ) {
+		// There was already a pattern present. We have to replace all its
+		// occurrences in the pattern group vector too.
+		pAudioEngine->removePlayingPattern( pOldPattern );
+
+		auto pPatternGroupVector = pSong->getPatternGroupVector();
+		for ( auto& ppPatternList : *pPatternGroupVector ) {
+			if ( ppPatternList == nullptr ) {
+				continue;
+			}
+			const int nIndex = ppPatternList->index( pOldPattern );
+			if ( nIndex != -1 ) {
+				ppPatternList->replace( nIndex, pNewPattern );
+			}
+		}
+
+		// Update virtual pattern presentation.
+		for ( const auto& ppattern : *pPatternList ) {
+			Pattern::virtual_patterns_cst_it_t it =
+				ppattern->getVirtualPatterns()->find( pOldPattern );
+			if ( it != ppattern->getVirtualPatterns()->end() ) {
+				ppattern->virtualPatternsDel( *it );
+			}
+		}
+	}
+
 	if ( pHydrogen->isPatternEditorLocked() ) {
 		pHydrogen->updateSelectedPattern( true );
-	} else  {
+	}
+	else {
 		pHydrogen->setSelectedPatternNumber(
-			nPatternPosition, true, Event::Trigger::Default );
+			nPatternPosition, true, Event::Trigger::Default
+		);
 	}
+	pAudioEngine->updatePlayingPatterns( Event::Trigger::Default );
+
+	pHydrogen->updateSongSize();
+
+	pAudioEngine->unlock();
+
+	if ( bReplace ) {
+		pHydrogen->updateVirtualPatterns( Event::Trigger::Suppress );
+	}
+
 	pHydrogen->setIsModified( true );
-	
-	// Update the SongEditor.
-	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
-		EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, 0 );
-	}
+
+	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, 0 );
+
 	return true;
 }
 
-bool CoreActionController::selectPattern( int nPatternNumber ) {
+bool CoreActionController::selectPattern( int nPatternNumber )
+{
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 
@@ -2268,27 +2323,29 @@ bool CoreActionController::selectPattern( int nPatternNumber ) {
 	const auto pPatternList = pSong->getPatternList();
 	if ( nPatternNumber < 0 || nPatternNumber >= pPatternList->size() ) {
 		ERRORLOG( QString( "Pattern number [%1] out of bound [0,%2]" )
-				  .arg( nPatternNumber ).arg( pPatternList->size() ) );
+					  .arg( nPatternNumber )
+					  .arg( pPatternList->size() ) );
 		return false;
 	}
 
-	if ( ! ( pHydrogen->isPatternEditorLocked() &&
-			 pHydrogen->getAudioEngine()->getState() ==
-			 AudioEngine::State::Playing ) ) {
+	if ( !( pHydrogen->isPatternEditorLocked() &&
+			pHydrogen->getAudioEngine()->getState() ==
+				AudioEngine::State::Playing ) ) {
 		// Event handling will be done in Hydrogen::setSelectedPatternNumber.
 		pHydrogen->setSelectedPatternNumber(
-			nPatternNumber, true, Event::Trigger::Default );
+			nPatternNumber, true, Event::Trigger::Default
+		);
 	}
 
 	return true;
 }
 
-bool CoreActionController::removePattern( int nPatternNumber ) {
+bool CoreActionController::removePattern( int nPatternNumber )
+{
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pSong = pHydrogen->getSong();
-
 
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
@@ -2296,12 +2353,12 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 	}
 
 	INFOLOG( QString( "Deleting pattern [%1]" ).arg( nPatternNumber ) );
-	
+
 	auto pPatternList = pSong->getPatternList();
 	auto pPatternGroupVector = pSong->getPatternGroupVector();
 	auto pPlayingPatterns = pAudioEngine->getPlayingPatterns();
 	auto pNextPatterns = pAudioEngine->getNextPatterns();
-	
+
 	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
 	auto pPattern = pPatternList->get( nPatternNumber );
 
@@ -2343,12 +2400,14 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 			break;
 		}
 	}
-	
+
 	if ( pHydrogen->isPatternEditorLocked() ) {
 		pHydrogen->updateSelectedPattern( false );
-	} else if ( nPatternNumber == nSelectedPatternNumber ) {
+	}
+	else if ( nPatternNumber == nSelectedPatternNumber ) {
 		pHydrogen->setSelectedPatternNumber(
-			std::max( 0, nPatternNumber - 1 ), false, Event::Trigger::Default );
+			std::max( 0, nPatternNumber - 1 ), false, Event::Trigger::Default
+		);
 	}
 
 	// Remove the pattern from the list of of patterns that are played
@@ -2360,7 +2419,7 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 			pAudioEngine->toggleNextPattern( nPatternNumber );
 		}
 	}
-	
+
 	// Ensure the pattern is not among the list of currently played
 	// patterns cached in the audio engine if transport is in pattern
 	// mode.
@@ -2375,7 +2434,6 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 
 	// Update virtual pattern presentation.
 	for ( const auto& ppattern : *pPatternList ) {
-
 		Pattern::virtual_patterns_cst_it_t it =
 			ppattern->getVirtualPatterns()->find( pPattern );
 		if ( it != ppattern->getVirtualPatterns()->end() ) {
@@ -2385,7 +2443,7 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 
 	pHydrogen->updateVirtualPatterns();
 	pHydrogen->setIsModified( true );
-	
+
 	return true;
 }
 

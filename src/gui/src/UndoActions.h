@@ -277,18 +277,17 @@ class SE_insertPatternAction : public QUndoCommand {
 		if ( m_type == Type::Insert ) {
 			H2Core::CoreActionController::removePattern( m_nPatternPosition );
 		}
-		else {
-			H2Core::CoreActionController::setPattern(
-				std::make_shared<H2Core::Pattern>( m_pOldPattern ),
-				m_nPatternPosition
-			);
-		}
+		H2Core::CoreActionController::setPattern(
+			std::make_shared<H2Core::Pattern>( m_pOldPattern ),
+			m_nPatternPosition, m_type == Type::Replace
+		);
 	}
 	virtual void redo()
 	{
 		H2Core::CoreActionController::setPattern(
 			std::make_shared<H2Core::Pattern>( m_pNewPattern ),
-			m_nPatternPosition
+			m_nPatternPosition,
+			m_type == Type::Replace
 		);
 	}
 
