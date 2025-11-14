@@ -4662,10 +4662,6 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Load/drag pattern</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Edit timeline tag</source>
         <translation type="unfinished"></translation>
     </message>

@@ -4694,10 +4694,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <translation>Modificar propiedades del patrón</translation>
     </message>
     <message>
-        <source>Load/drag pattern</source>
-        <translation>Cargar/arrastrar patrón</translation>
-    </message>
-    <message>
         <source>Edit timeline tag</source>
         <translation>Editar etiqueta línea de tiempo</translation>
     </message>

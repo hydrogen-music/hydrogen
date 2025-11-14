@@ -298,46 +298,6 @@ class SE_insertPatternAction : public QUndoCommand {
 	Type m_type;
 };
 
-/** \ingroup docGUI*/
-class SE_loadPatternAction : public QUndoCommand
-{
-public:
-	SE_loadPatternAction( const QString& sPatternName,
-						  const QString& sOldPatternName,
-						  const QString& sSequenceFileName, int nPatternPosition,
-						  bool bDragFromList){
-		setText( QObject::tr( "Load/drag pattern" ) );
-		m_sPatternName =  sPatternName;
-		m_sOldPatternName = sOldPatternName;
-		m_sSequenceFileName = sSequenceFileName;
-		m_nPatternPosition = nPatternPosition;
-		m_bDragFromList = bDragFromList;
-	}
-	virtual void undo() {
-		if( m_bDragFromList ){
-			H2Core::CoreActionController::removePattern( m_nPatternPosition );
-		} else {
-			H2Core::CoreActionController::removePattern( m_nPatternPosition );
-			H2Core::CoreActionController::openPattern( m_sOldPatternName, m_nPatternPosition );
-		}
-		HydrogenApp::get_instance()->getSongEditorPanel()
-			->restoreGroupVector( m_sSequenceFileName );
-	}
-
-	virtual void redo() {
-		if( ! m_bDragFromList ){
-			H2Core::CoreActionController::removePattern( m_nPatternPosition );
-		}
-		H2Core::CoreActionController::openPattern( m_sPatternName, m_nPatternPosition );
-	}
-private:
-	QString m_sPatternName;
-	QString m_sOldPatternName;
-	QString m_sSequenceFileName;
-	int m_nPatternPosition;
-	bool m_bDragFromList;
-};
-
 class SE_addOrRemovePatternCellAction : public QUndoCommand {
 	public:
 		SE_addOrRemovePatternCellAction( const H2Core::GridPoint& gridPoint,

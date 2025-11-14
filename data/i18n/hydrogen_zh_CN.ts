@@ -4689,10 +4689,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>修改样式属性</translation>
     </message>
     <message>
-        <source>Load/drag pattern</source>
-        <translation>加载/拖动样式</translation>
-    </message>
-    <message>
         <source>Edit timeline tag</source>
         <translation>编辑时间轴标签</translation>
     </message>

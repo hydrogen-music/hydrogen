@@ -4682,10 +4682,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Ändere Pattern Eigenschaften</translation>
     </message>
     <message>
-        <source>Load/drag pattern</source>
-        <translation>Lade/Ziehe Pattern</translation>
-    </message>
-    <message>
         <source>Edit timeline tag</source>
         <translation>Editiere Timeline Tag</translation>
     </message>

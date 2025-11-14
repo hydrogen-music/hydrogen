@@ -4692,10 +4692,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
         <translation>Modificar propriedades de padrão</translation>
     </message>
     <message>
-        <source>Load/drag pattern</source>
-        <translation>Carregar/arrastar padrão</translation>
-    </message>
-    <message>
         <source>Edit timeline tag</source>
         <translation>Editar tag de linha do tempo</translation>
     </message>

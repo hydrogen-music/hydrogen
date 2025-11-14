@@ -576,25 +576,20 @@ void SongEditorPatternList::patternPopup_replace()
 	if (fd.exec() != QDialog::Accepted) {
 		return;
 	}
-	const QString sPatternPath = fd.selectedFiles().first();
-
-	const QString sPrevPatternPath = Filesystem::tmp_file_path(
-		"patternLoad.h2pattern" );
-	if ( ! pPattern->save( sPrevPatternPath ) ) {
-		QMessageBox::warning( this, "Hydrogen",
-							  tr("Could not save pattern to temporary directory.") );
-		return;
-	}
-	const QString sSequencePath = Filesystem::tmp_file_path(
-		"patternLoad-SEQ.xml" );
-	if ( ! pSong->saveTempPatternList( sSequencePath ) ) {
-		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
-		return;
-	}
 	pPref->setLastOpenPatternDirectory( fd.directory().absolutePath() );
+	const QString sNewPatternPath = fd.selectedFiles().first();
+	const auto pNewPattern =
+		CoreActionController::loadPattern( sNewPatternPath );
+	if ( pNewPattern == nullptr ) {
+		QMessageBox::critical(
+			this, "Hydrogen", pCommonStrings->getPatternLoadError()
+		);
+		return;
+	}
 
-	HydrogenApp::get_instance()->pushUndoCommand( new SE_loadPatternAction(
-		sPatternPath, sPrevPatternPath, sSequencePath, m_nRowClicked, false
+	HydrogenApp::get_instance()->pushUndoCommand( new SE_insertPatternAction(
+		SE_insertPatternAction::Type::Replace, m_nRowClicked, pNewPattern,
+		pPattern
 	) );
 }
 
@@ -967,19 +962,22 @@ void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 	}
 	else {
 		const QStringList tokens = sText.split( "::" );
-		QString sPatternName = tokens.at( 1 );
+		auto pNewPattern = CoreActionController::loadPattern( tokens.at( 1 ) );
+		if ( pNewPattern == nullptr ) {
+			ERRORLOG( QString( "Unabble to obtain new pattern based on [%1]" )
+						  .arg( sText ) );
+		    return;
+		}
 
-		// create a unique sequencefilename
-		auto pPattern = pSong->getPatternList()->get( nTargetPattern );
+		auto pOldPattern = pSong->getPatternList()->get( nTargetPattern );
+		if ( pOldPattern == nullptr ) {
+			ERRORLOG( "Unabble to obtain original pattern" );
+		    return;
+		}
 
-		QString oldPatternName = pPattern->getName();
-
-		QString sequenceFileName = Filesystem::tmp_file_path( "SEQ.xml" );
-		const bool bDrag = QString( tokens.at( 0 ) ).contains( "drag pattern" );
-
-		pHydrogenApp->pushUndoCommand( new SE_loadPatternAction(
-			sPatternName, oldPatternName, sequenceFileName, nTargetPattern,
-			bDrag
+		pHydrogenApp->pushUndoCommand( new SE_insertPatternAction(
+			SE_insertPatternAction::Type::Insert, nTargetPattern, pNewPattern,
+			pOldPattern
 		) );
 	}
 }

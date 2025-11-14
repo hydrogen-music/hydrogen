@@ -4657,10 +4657,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Load/drag pattern</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Edit timeline tag</source>
         <translation type="unfinished"></translation>
     </message>

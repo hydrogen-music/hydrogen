@@ -4695,10 +4695,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>Modifier les propriétés du motif</translation>
     </message>
     <message>
-        <source>Load/drag pattern</source>
-        <translation>Charger/traîner un motif</translation>
-    </message>
-    <message>
         <source>Edit timeline tag</source>
         <translation>Modifier l&apos;étiquette de la ligne temporelle</translation>
     </message>
