@@ -87,7 +87,7 @@ class SongEditorPatternList :  public QWidget
 		void patternPopup_edit();
 		void patternPopup_save();
 		void patternPopup_export();
-		void patternPopup_load();
+		void patternPopup_replace();
 		void patternPopup_properties();
 		void patternPopup_delete();
 		void patternPopup_duplicate();

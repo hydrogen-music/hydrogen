@@ -1509,7 +1509,7 @@ std::shared_ptr<Instrument> Hydrogen::getSelectedInstrument() const {
 	return pInstrument;
 }
 
-void Hydrogen::updateVirtualPatterns() {
+void Hydrogen::updateVirtualPatterns( Event::Trigger trigger ) {
 
 	if ( m_pSong == nullptr ) {
 		ERRORLOG( "no song" );
@@ -1526,8 +1526,12 @@ void Hydrogen::updateVirtualPatterns() {
 	m_pAudioEngine->lock( RIGHT_HERE );
 	m_pAudioEngine->updateVirtualPatterns();
 	m_pAudioEngine->unlock();
-	
-	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, 0 );
+
+	if ( trigger != Event::Trigger::Suppress ) {
+		EventQueue::get_instance()->pushEvent(
+			Event::Type::PatternModified, 0
+		);
+	}
 }
 
 QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {

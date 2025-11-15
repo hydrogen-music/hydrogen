@@ -42,11 +42,12 @@ using namespace H2Core;
 #include "MainForm.h"
 #include "SongEditorPanel.h"
 #include "VirtualPatternDialog.h"
+#include "../CommonStrings.h"
 #include "../Compatibility/DropEvent.h"
 #include "../Compatibility/MouseEvent.h"
 #include "../PatternEditor/PatternEditorPanel.h"
 #include "../HydrogenApp.h"
-#include "../CommonStrings.h"
+#include "../MainForm.h"
 #include "../PatternPropertiesDialog.h"
 #include "../Skin.h"
 #include "../Widgets/FileDialog.h"
@@ -102,30 +103,36 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	});
 
 	m_pPatternPopup->addSection( pCommonStrings->getPattern() );
-	auto pAddAction = m_pPatternPopup->addAction(
-		pCommonStrings->getMenuActionAdd() );
-	connect( pAddAction, &QAction::triggered, this, [=]() {
+	auto pNewAction = m_pPatternPopup->addAction(
+		pCommonStrings->getMenuActionNew() );
+	connect( pNewAction, &QAction::triggered, this, [=]() {
 		SongEditorPanel::addNewPattern(); } );
 	m_pPatternPopup->addAction( pCommonStrings->getMenuActionDuplicate(), this,
 								SLOT( patternPopup_duplicate() ) );
+	m_pPatternPopup->addAction(
+		pCommonStrings->getMenuActionAdd(),
+		                       HydrogenApp::get_instance()->getMainForm(),
+							   SLOT( action_file_openPattern() ) );
+    m_pPatternPopup->addSeparator();
+	m_pPatternPopup->addAction( tr( "Replace" ),  this,
+							   SLOT( patternPopup_replace() ) );
+	m_pPatternPopup->addAction( pCommonStrings->getMenuActionDelete(), this,
+								SLOT( patternPopup_delete() ) );
+    m_pPatternPopup->addSeparator();
+	m_pPatternPopup->addAction( pCommonStrings->getMenuActionSaveToSoundLibrary(),
+							   this, SLOT( patternPopup_save() ) );
+	m_pPatternPopup->addAction( pCommonStrings->getMenuActionExport(), this,
+							   SLOT( patternPopup_export() ) );
+    m_pPatternPopup->addSeparator();
 	auto pRenameAction = m_pPatternPopup->addAction(
 		pCommonStrings->getMenuActionRename() );
 	connect( pRenameAction, &QAction::triggered, this, [=]() {
 		inlineEditPatternName( m_nRowClicked );
 	});
-	m_pPatternPopup->addAction( pCommonStrings->getMenuActionDelete(), this,
-								SLOT( patternPopup_delete() ) );
 	m_pPatternPopup->addAction( pCommonStrings->getMenuActionProperties(), this,
 								SLOT( patternPopup_properties() ) );
 	m_pPatternPopup->addAction( tr("Virtual Pattern"), this, SLOT( patternPopup_virtualPattern() ) );
 
-	m_pPatternPopup->addSection( tr( "File operations" ) );
-	m_pPatternPopup->addAction( tr( "Replace" ),  this,
-							   SLOT( patternPopup_load() ) );
-	m_pPatternPopup->addAction( pCommonStrings->getMenuActionSaveToSoundLibrary(),
-							   this, SLOT( patternPopup_save() ) );
-	m_pPatternPopup->addAction( pCommonStrings->getMenuActionExport(), this,
-							   SLOT( patternPopup_export() ) );
 
 	m_pPatternPopup->setObjectName( "PatternListPopup" );
 
@@ -536,7 +543,7 @@ void SongEditorPatternList::patternPopup_virtualPattern()
 
 
 
-void SongEditorPatternList::patternPopup_load()
+void SongEditorPatternList::patternPopup_replace()
 {
 	auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
@@ -555,38 +562,35 @@ void SongEditorPatternList::patternPopup_load()
 		sPath = Filesystem::patterns_dir();
 	}
 
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
 	FileDialog fd(this);
 	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setFileMode( QFileDialog::ExistingFile );
 	fd.setNameFilter( Filesystem::patterns_filter_name );
 	fd.setDirectory( sPath );
-	fd.setWindowTitle( QString( tr( "Open Pattern to Replace " )
-								.append( pPattern->getName() ) ) );
+	fd.setWindowTitle( QString( pCommonStrings->getActionReplacePattern() )
+						   .append( pPattern->getName() )
+	);
 
 	if (fd.exec() != QDialog::Accepted) {
 		return;
 	}
-	const QString sPatternPath = fd.selectedFiles().first();
-
-	const QString sPrevPatternPath = Filesystem::tmp_file_path(
-		"patternLoad.h2pattern" );
-	if ( ! pPattern->save( sPrevPatternPath ) ) {
-		QMessageBox::warning( this, "Hydrogen",
-							  tr("Could not save pattern to temporary directory.") );
-		return;
-	}
-	const QString sSequencePath = Filesystem::tmp_file_path(
-		"patternLoad-SEQ.xml" );
-	if ( ! pSong->saveTempPatternList( sSequencePath ) ) {
-		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
-		return;
-	}
 	pPref->setLastOpenPatternDirectory( fd.directory().absolutePath() );
+	const QString sNewPatternPath = fd.selectedFiles().first();
+	const auto pNewPattern =
+		CoreActionController::loadPattern( sNewPatternPath );
+	if ( pNewPattern == nullptr ) {
+		QMessageBox::critical(
+			this, "Hydrogen", pCommonStrings->getPatternLoadError()
+		);
+		return;
+	}
 
-	SE_loadPatternAction *action =
-		new SE_loadPatternAction( sPatternPath, sPrevPatternPath, sSequencePath,
-								  m_nRowClicked, false );
-	HydrogenApp::get_instance()->pushUndoCommand( action );
+	HydrogenApp::get_instance()->pushUndoCommand( new SE_insertPatternAction(
+		SE_insertPatternAction::Type::Replace, m_nRowClicked, pNewPattern,
+		pPattern
+	) );
 }
 
 void SongEditorPatternList::patternPopup_export()
@@ -721,25 +725,33 @@ void SongEditorPatternList::patternPopup_delete()
 		return;
 	}
 
-	const QString sPatternPath = Filesystem::tmp_file_path(
-		"patternDelete.h2pattern" );
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+	pHydrogenApp->beginUndoMacro(
+		QString( "%1 [%2]" )
+			.arg( pCommonStrings->getActionRemovePattern() )
+			.arg( pPattern->getName() )
+	);
 
-	if ( ! pPattern->save( sPatternPath ) ) {
-		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
-		return;
+	const auto pPatternGroupVector = pSong->getPatternGroupVector();
+	for ( int nnColumn = 0; nnColumn < pPatternGroupVector->size(); ++nnColumn ) {
+		const auto ppPatternList = pPatternGroupVector->at( nnColumn );
+		if ( ppPatternList == nullptr ) {
+			continue;
+		}
+		if ( ppPatternList->index( pPattern ) != -1 ) {
+			pHydrogenApp->pushUndoCommand( new SE_addOrRemovePatternCellAction(
+				GridPoint( nnColumn, m_nRowClicked ), Editor::Action::Delete,
+				Editor::ActionModifier::None
+			) );
+		}
 	}
 
-	const QString sSequencePath = Filesystem::tmp_file_path(
-		"patternDelete-SEQ.xml" );
-	if ( ! pSong->saveTempPatternList( sSequencePath ) ) {
-		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
-		return;
-	}
+	pHydrogenApp->pushUndoCommand(
+		new SE_deletePatternAction( m_nRowClicked, pPattern )
+	);
 
-	SE_deletePatternFromListAction *action =
-		new SE_deletePatternFromListAction( sPatternPath, sSequencePath,
-											m_nRowClicked );
-	HydrogenApp::get_instance()->pushUndoCommand( action );
+	pHydrogenApp->endUndoMacro();
 }
 
 void SongEditorPatternList::patternPopup_duplicate()
@@ -782,17 +794,12 @@ void SongEditorPatternList::patternPopup_duplicate()
 	}
 	delete dialog;
 
-	const QString sPath = Filesystem::tmp_file_path(
-		"patternDuplicate.h2pattern" );
-	if ( ! pNewPattern->save( sPath ) ) {
-		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
-		return;
-	}
-
 	pHydrogenApp->beginUndoMacro(
 		pCommonStrings->getActionDuplicatePattern() );
-	pHydrogenApp->pushUndoCommand(
-		new SE_duplicatePatternAction( sPath, m_nRowClicked + 1 ) );
+	pHydrogenApp->pushUndoCommand( new SE_insertPatternAction(
+		SE_insertPatternAction::Type::Duplicate, m_nRowClicked + 1, pNewPattern,
+		nullptr
+	) );
 
 	// Duplicate all activations of the corresponding row as well. Because we
 	// will select the newly created patterns, we should clear the former
@@ -800,7 +807,6 @@ void SongEditorPatternList::patternPopup_duplicate()
 	pHydrogenApp->getSongEditorPanel()->getSongEditor()
 		->m_selection.clearSelection();
 
-	const int nIndex = pPatternList->index( pPattern );
 	const auto pPatternGroupVector = pSong->getPatternGroupVector();
 	for ( int nnColumn = 0; nnColumn < pPatternGroupVector->size(); ++nnColumn ) {
 		const auto ppColumn = pPatternGroupVector->at( nnColumn );
@@ -875,107 +881,111 @@ void SongEditorPatternList::dragEnterEvent(QDragEnterEvent *event)
 }
 
 
-void SongEditorPatternList::dropEvent(QDropEvent *event)
+void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 {
-	auto pEv = static_cast<DropEvent*>( event );
+	auto pEv = static_cast<DropEvent*>( pEvent );
 
+	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
-	
-	QString sText = event->mimeData()->text();
-	const QMimeData* mimeData = event->mimeData();
-	
+
+	QString sText = pEvent->mimeData()->text();
+	const QMimeData* mimeData = pEvent->mimeData();
+
 	int nTargetPattern = 0;
-	if(m_nGridHeight > 0)
-	{
+	if ( m_nGridHeight > 0 ) {
 		nTargetPattern = pEv->position().y() / m_nGridHeight;
 	}
-	
-	if( sText.startsWith("Songs:") || sText.startsWith("move instrument:") || sText.startsWith("importInstrument:")){
-		event->acceptProposedAction();
+
+	if ( sText.startsWith( "Songs:" ) ||
+		 sText.startsWith( "move instrument:" ) ||
+		 sText.startsWith( "importInstrument:" ) ) {
+		pEvent->acceptProposedAction();
 		return;
 	}
-	
-	if ( sText.startsWith("move pattern:") ) {
+
+	if ( sText.startsWith( "move pattern:" ) ) {
 		QStringList tokens = sText.split( ":" );
 		bool bOK = true;
 
-		int nSourcePattern = tokens[1].toInt(&bOK);
-		if ( ! bOK ) {
+		int nSourcePattern = tokens[1].toInt( &bOK );
+		if ( !bOK ) {
 			return;
 		}
 
 		if ( nSourcePattern == nTargetPattern ) {
-			event->acceptProposedAction();
+			pEvent->acceptProposedAction();
 			return;
 		}
 
-		auto pAction = new SE_movePatternListItemAction(
-			nSourcePattern , nTargetPattern ) ;
-		HydrogenApp::get_instance()->pushUndoCommand( pAction );
+		pHydrogenApp->pushUndoCommand(
+			new SE_movePatternListItemAction( nSourcePattern, nTargetPattern ) );
 
-		event->acceptProposedAction();
-	} 
-	else if( sText.startsWith("file://") && mimeData->hasUrls() )
-	{
-		//Dragging a file from an external file manager
+		pEvent->acceptProposedAction();
+	}
+	else if ( sText.startsWith( "file://" ) && mimeData->hasUrls() ) {
+		// Dragging a file from an external file manager
 		auto pPatternList = pSong->getPatternList();
 		QList<QUrl> urlList = mimeData->urls();
 
 		int successfullyAddedPattern = 0;
-		
-		for (int i = 0; i < urlList.size(); i++)
-		{
-			QString patternFilePath = urlList.at(i).toLocalFile();
-			if( patternFilePath.endsWith(".h2pattern") )
-			{
+
+		for ( int i = 0; i < urlList.size(); i++ ) {
+			QString patternFilePath = urlList.at( i ).toLocalFile();
+			if ( patternFilePath.endsWith( ".h2pattern" ) ) {
 				auto pPattern = Pattern::load( patternFilePath );
-				if ( pPattern)
-				{
+				if ( pPattern != nullptr ) {
 					auto pNewPattern = pPattern;
-			
-					if(!pPatternList->checkName( pNewPattern->getName() ) ){
-						pNewPattern->setName( pPatternList->findUnusedPatternName( pNewPattern->getName() ) );
+
+					if ( ! pPatternList->checkName( pNewPattern->getName() ) ) {
+						pNewPattern->setName(
+							pPatternList->findUnusedPatternName(
+								pNewPattern->getName()
+							)
+						);
 					}
-					
-					auto pAction = new SE_insertPatternAction(
-						nTargetPattern + successfullyAddedPattern, pNewPattern );
-					HydrogenApp::get_instance()->pushUndoCommand( pAction );
+
+					pHydrogenApp->pushUndoCommand( new SE_insertPatternAction(
+						SE_insertPatternAction::Type::Insert,
+						nTargetPattern + successfullyAddedPattern, pNewPattern,
+						nullptr
+					) );
 
 					successfullyAddedPattern++;
 				}
-				else
-				{
-					ERRORLOG( QString("Error loading pattern %1")
-							  .arg(patternFilePath) );
+				else {
+					ERRORLOG( QString( "Error loading pattern %1" )
+								  .arg( patternFilePath ) );
 				}
 			}
 		}
-	} 
-	else 
-	{
-		QStringList tokens = sText.split( "::" );
-		QString sPatternName = tokens.at( 1 );
+	}
+	else if ( sText.startsWith( "drag pattern" ) ) {
+		const QStringList tokens = sText.split( "::" );
+		auto pNewPattern = CoreActionController::loadPattern( tokens.at( 1 ) );
+		if ( pNewPattern == nullptr ) {
+			ERRORLOG( QString( "Unabble to obtain new pattern based on [%1]" )
+						  .arg( sText ) );
+		    return;
+		}
 
-		//create a unique sequencefilename
-		auto pPattern = pSong->getPatternList()->get( nTargetPattern );
+		auto pOldPattern = pSong->getPatternList()->get( nTargetPattern );
+		if ( pOldPattern == nullptr ) {
+			ERRORLOG( "Unabble to obtain original pattern" );
+		    return;
+		}
 
-		QString oldPatternName = pPattern->getName();
-
-		QString sequenceFileName = Filesystem::tmp_file_path( "SEQ.xml" );
-		const bool bDrag = QString( tokens.at(0) ).contains( "drag pattern" );
-
-		SE_loadPatternAction *pAction = new SE_loadPatternAction(
-			sPatternName, oldPatternName, sequenceFileName, nTargetPattern,
-			bDrag );
-
-		HydrogenApp::get_instance()->pushUndoCommand( pAction );
+		pHydrogenApp->pushUndoCommand( new SE_insertPatternAction(
+			SE_insertPatternAction::Type::Insert, nTargetPattern, pNewPattern,
+			pOldPattern
+		) );
+	}
+	else {
+		DEBUGLOG( QString( "Unknown drag type [%1]" ).arg( sText ) );
 	}
 }
-
-
 
 void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPattern )
 {

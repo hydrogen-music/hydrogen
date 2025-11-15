@@ -37,6 +37,7 @@
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/GridPoint.h>
 #include "core/Basics/InstrumentList.h"
+#include "core/Basics/PatternList.h"
 #include "core/Basics/Playlist.h"
 #include "core/OscServer.h"
 #include "core/CoreActionController.h"
@@ -892,12 +893,30 @@ void OscServer::NEW_PATTERN_Handler(lo_arg **argv, int argc) {
 	H2Core::CoreActionController::newPattern( QString::fromUtf8( &argv[0]->s ) );
 }
 
-void OscServer::OPEN_PATTERN_Handler(lo_arg **argv, int argc) {
+void OscServer::OPEN_PATTERN_Handler( lo_arg** argv, int argc )
+{
 	INFOLOG( "processing message" );
-	H2Core::CoreActionController::openPattern( QString::fromUtf8( &argv[0]->s ) );
+
+	const auto pSong = H2Core::Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+
+	const auto pPattern = H2Core::CoreActionController::loadPattern(
+		QString::fromUtf8( &argv[0]->s )
+	);
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Unable to load pattern [%1]" )
+					  .arg( QString::fromUtf8( &argv[0]->s ) ) );
+		return;
+	}
+	H2Core::CoreActionController::setPattern(
+		pPattern, pSong->getPatternList()->size(), false
+	);
 }
 
-void OscServer::REMOVE_PATTERN_Handler(lo_arg **argv, int argc) {
+void OscServer::REMOVE_PATTERN_Handler( lo_arg** argv, int argc )
+{
 	INFOLOG( "processing message" );
 	H2Core::CoreActionController::removePattern(
 		static_cast<int>(std::round( argv[0]->f )) );

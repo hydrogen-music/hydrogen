@@ -530,6 +530,8 @@ CommonStrings::CommonStrings(){
 	m_sLicense = tr( "License" );
 
 	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionNew = tr( "New" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
 	m_sMenuActionAdd = tr( "Add" );
 	/*: Names an action in a drop down or pop up menu. (with no further text)*/
 	m_sMenuActionDelete = tr( "Delete" );
@@ -706,8 +708,16 @@ CommonStrings::CommonStrings(){
 	 *  appended. */
 	m_sActionEditTypes = tr( "Edit type for notes in row" );
 
+	/*: Shown in the undo history after inserting a pattern and in the
+	 * corresponding file dialog. */
+	m_sActionInsertPattern = tr( "Open Pattern" );
+	/*: Shown in the undo history after replacing a pattern and in the
+	 * corresponding file dialog. */
+	m_sActionReplacePattern = tr( "Open Pattern to Replace " );
 	/*: Shown in the undo history after duplicating a pattern. */
 	m_sActionDuplicatePattern = tr( "Duplicate pattern" );
+	/*: Shown in the undo history after removing a pattern. */
+	m_sActionRemovePattern = tr( "Delete pattern from list" );
 	/*: Shown in the undo history copying pattern cells in the song editor to
 	 *  another location. */
 	m_sActionCopyPatternCells = tr( "Copy selected cells" );

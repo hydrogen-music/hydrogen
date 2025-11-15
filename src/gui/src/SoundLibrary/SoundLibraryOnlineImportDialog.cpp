@@ -51,6 +51,8 @@ SoundLibraryOnlineImportDialog::SoundLibraryOnlineImportDialog( QWidget* pParent
 {
 	setupUi( this );
 
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
 	// Show and enable maximize button. This is key when enlarging the
 	// application using a scaling factor and allows the OS to force its size
 	// beyond the minimum and make the scrollbars appear.
@@ -60,7 +62,7 @@ SoundLibraryOnlineImportDialog::SoundLibraryOnlineImportDialog( QWidget* pParent
 	setWindowTitle( tr( "Sound Library import" ) );
 
 	m_sLabelInstalled = tr( "Installed" );
-	m_sLabelNew = tr( "New" );
+	m_sLabelNew = pCommonStrings->getMenuActionNew();
 
 	QStringList headers;
 	headers << tr( "Sound library" ) << tr( "Status" );

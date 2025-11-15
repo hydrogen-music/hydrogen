@@ -82,7 +82,6 @@ class SongEditor : public Editor::Base<std::shared_ptr<GridCell>>
 		void setGridWidth( int width );
 		int getGridHeight() { return m_nGridHeight; }
 
-		void clearThePatternSequenceVector( const QString& sFileName );
 		void selectAllCellsInRow( int nRow );
 
 		int yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView );

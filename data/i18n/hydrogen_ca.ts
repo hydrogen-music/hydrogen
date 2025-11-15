@@ -1484,6 +1484,26 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text displayed below the LCD to set the output MIDI note in the Instrument Editor in case the corresponding output method is set. Designed to be flexible.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>New</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Nou</translation>
+    </message>
+    <message>
+        <source>Open Pattern</source>
+        <extracomment>Shown in the undo history after inserting a pattern and in the * corresponding file dialog.</extracomment>
+        <translation>Obrir Patró</translation>
+    </message>
+    <message>
+        <source>Open Pattern to Replace </source>
+        <extracomment>Shown in the undo history after replacing a pattern and in the * corresponding file dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete pattern from list</source>
+        <extracomment>Shown in the undo history after removing a pattern.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -2519,10 +2539,6 @@ MIDI = %2</source>
     <message>
         <source>Pattern saved.</source>
         <translation>Patrón desat.</translation>
-    </message>
-    <message>
-        <source>Open Pattern</source>
-        <translation>Obrir Patró</translation>
     </message>
     <message>
         <source></source>
@@ -4639,23 +4655,7 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Delete complete pattern-sequence</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete pattern from list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Modify pattern properties</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add pattern</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Load/drag pattern</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4712,6 +4712,10 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
     </message>
     <message>
         <source>Add note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add new pattern</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5789,6 +5793,10 @@ N&apos;estàs segur?</translation>
         <source>Playback volume set to</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Delete complete pattern-sequence</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SongEditorPanelBpmWidget_UI</name>
@@ -5851,27 +5859,11 @@ N&apos;estàs segur?</translation>
         <translation>No ha estat possible exportar el patró.</translation>
     </message>
     <message>
-        <source>Could not export sequence.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation>Patrón desat.</translation>
     </message>
     <message>
-        <source>Could not save pattern to temporary directory.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Pattern to Replace </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Fill/remove range of pattern</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File operations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5958,10 +5950,6 @@ N&apos;estàs segur?</translation>
     <message>
         <source>Installed</source>
         <translation>Instalació completa</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation>Nou</translation>
     </message>
     <message>
         <source>Author: %1</source>

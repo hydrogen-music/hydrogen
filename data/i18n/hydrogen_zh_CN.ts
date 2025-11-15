@@ -1484,6 +1484,26 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text displayed below the LCD to set the output MIDI note in the Instrument Editor in case the corresponding output method is set. Designed to be flexible.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>New</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>新建</translation>
+    </message>
+    <message>
+        <source>Open Pattern</source>
+        <extracomment>Shown in the undo history after inserting a pattern and in the * corresponding file dialog.</extracomment>
+        <translation>打开样式</translation>
+    </message>
+    <message>
+        <source>Open Pattern to Replace </source>
+        <extracomment>Shown in the undo history after replacing a pattern and in the * corresponding file dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete pattern from list</source>
+        <extracomment>Shown in the undo history after removing a pattern.</extracomment>
+        <translation>从列表中删除样式</translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -2536,10 +2556,6 @@ MIDI = %2</translation>
         <translation>打开乐曲</translation>
     </message>
     <message>
-        <source>Open Pattern</source>
-        <translation>打开样式</translation>
-    </message>
-    <message>
         <source>Song drumkit samples</source>
         <translation>鼓组乐曲采样</translation>
     </message>
@@ -3207,7 +3223,7 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
     <message>
         <source>None</source>
         <extracomment>No mapping between MIDI events and instrument will be done.</extracomment>
-        <translation type="unfinished">无</translation>
+        <translation>无</translation>
     </message>
     <message>
         <source>As Output</source>
@@ -4666,24 +4682,8 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>移动样式列表项目 ( %1, %2 )</translation>
     </message>
     <message>
-        <source>Delete complete pattern-sequence</source>
-        <translation>清除完成的样式序列</translation>
-    </message>
-    <message>
-        <source>Delete pattern from list</source>
-        <translation>从列表中删除样式</translation>
-    </message>
-    <message>
         <source>Modify pattern properties</source>
         <translation>修改样式属性</translation>
-    </message>
-    <message>
-        <source>Add pattern</source>
-        <translation>添加样式</translation>
-    </message>
-    <message>
-        <source>Load/drag pattern</source>
-        <translation>加载/拖动样式</translation>
     </message>
     <message>
         <source>Edit timeline tag</source>
@@ -4740,6 +4740,10 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Add note</source>
         <translation>添加音符</translation>
+    </message>
+    <message>
+        <source>Add new pattern</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5839,6 +5843,10 @@ Are you sure?</source>
         <source>Playback volume set to</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Delete complete pattern-sequence</source>
+        <translation>清除完成的样式序列</translation>
+    </message>
 </context>
 <context>
     <name>SongEditorPanelBpmWidget_UI</name>
@@ -5901,28 +5909,12 @@ Are you sure?</source>
         <translation>无法导出样式。</translation>
     </message>
     <message>
-        <source>Could not export sequence.</source>
-        <translation>无法导出音序。</translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation>样式已保存。</translation>
     </message>
     <message>
-        <source>Could not save pattern to temporary directory.</source>
-        <translation>无法将样式保存到临时目录。</translation>
-    </message>
-    <message>
-        <source>Open Pattern to Replace </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Fill/remove range of pattern</source>
         <translation>填充/删除样式范围</translation>
-    </message>
-    <message>
-        <source>File operations</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Replace</source>
@@ -6008,10 +6000,6 @@ Are you sure?</source>
     <message>
         <source>Installed</source>
         <translation>已安装</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation>新建</translation>
     </message>
     <message>
         <source>Author: %1</source>

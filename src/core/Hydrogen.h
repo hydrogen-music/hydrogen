@@ -453,7 +453,10 @@ public:
 	 * pattern representation in the #AudioEngine and the GUI are
 	 * synced.
 	 */
-	void updateVirtualPatterns();
+		void updateVirtualPatterns(
+			Event::Trigger trigger = Event::Trigger::Default
+		);
+
 
 		bool getSendBbtChangeEvents() const;
 		void setSendBbtChangeEvents( bool bSend );

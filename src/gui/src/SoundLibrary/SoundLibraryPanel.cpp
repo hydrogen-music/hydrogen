@@ -31,8 +31,9 @@
 
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
-#include "../MainForm.h"
 #include "../InstrumentRack.h"
+#include "../MainForm.h"
+#include "../UndoActions.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
@@ -777,27 +778,42 @@ void SoundLibraryPanel::on_songLoadAction()
 	HydrogenApp::openFile( Filesystem::Type::Song, sFileName );
 }
 
+void SoundLibraryPanel::on_patternLoadAction()
+{
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 
-
-void SoundLibraryPanel::on_patternLoadAction() {
 	if ( m_patternRegistry.find( __sound_library_tree->currentItem() ) ==
 		 m_patternRegistry.end() ) {
 		ERRORLOG( QString( "Unable to find pattern corresponding to [%1]" )
-				  .arg( __sound_library_tree->currentItem()->text( 0 ) ) );
+					  .arg( __sound_library_tree->currentItem()->text( 0 ) ) );
 		return;
 	}
 
 	auto pInfo = m_patternRegistry.at( __sound_library_tree->currentItem() );
 	if ( pInfo == nullptr ) {
 		ERRORLOG( QString( "Invalid pattern info for [%1]" )
-				  .arg( __sound_library_tree->currentItem()->text( 0 ) ) );
+					  .arg( __sound_library_tree->currentItem()->text( 0 ) ) );
 		return;
 	}
 
-	H2Core::CoreActionController::openPattern( pInfo->getPath() );
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	const auto pPattern =
+		H2Core::CoreActionController::loadPattern( pInfo->getPath() );
+	if ( pPattern == nullptr ) {
+		QMessageBox::critical(
+			this, "Hydrogen", pCommonStrings->getPatternLoadError()
+		);
+		return;
+	}
 
+	HydrogenApp::get_instance()->pushUndoCommand( new SE_insertPatternAction(
+		SE_insertPatternAction::Type::Insert, pSong->getPatternList()->size(),
+		pPattern, nullptr
+	) );
 }
-
 
 void SoundLibraryPanel::on_patternDeleteAction() {
 	if ( m_patternRegistry.find( __sound_library_tree->currentItem() ) ==

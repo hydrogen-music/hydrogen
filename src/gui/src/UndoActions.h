@@ -89,58 +89,37 @@ private:
 	int __nTargetPattern;
 };
 
-
 /** \ingroup docGUI*/
-class SE_deletePatternSequenceAction : public QUndoCommand
-{
-public:
-	explicit SE_deletePatternSequenceAction( const QString& pFileName ){
-		setText( QObject::tr( "Delete complete pattern-sequence" ) );
-		__pFileName = pFileName ;
+class SE_deletePatternAction : public QUndoCommand {
+   public:
+	SE_deletePatternAction(
+		int nPatternPosition,
+		std::shared_ptr<H2Core::Pattern> pPattern
+	)
+		: m_nPatternPosition( nPatternPosition ), m_pPattern( pPattern )
+	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		QString sText( pCommonStrings->getActionRemovePattern() );
+		if ( pPattern != nullptr ) {
+			sText.append( QString( " [%1]" ).arg( pPattern->getName() ) );
+		}
+		setText( sText );
 	}
 	virtual void undo()
 	{
-		//qDebug() << "Delete complete pattern-sequence  undo";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->restoreGroupVector( __pFileName );
+		H2Core::CoreActionController::setPattern(
+			std::make_shared<H2Core::Pattern>( m_pPattern ), m_nPatternPosition,
+			false
+		);
 	}
-
 	virtual void redo()
 	{
-		//qDebug() << "Delete complete pattern-sequence redo " ;
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditor()->clearThePatternSequenceVector( __pFileName );
-	}
-private:
-	QString __pFileName;
-};
-
-/** \ingroup docGUI*/
-class SE_deletePatternFromListAction : public QUndoCommand
-{
-public:
-	SE_deletePatternFromListAction( const QString& sPatternFileName,
-									const QString& sSequenceFileName,
-									int nPatternPosition ){
-		setText( QObject::tr( "Delete pattern from list" ) );
-		m_sPatternFileName =  sPatternFileName;
-		m_sSequenceFileName = sSequenceFileName;
-		m_nPatternPosition = nPatternPosition;
-	}
-	virtual void undo() {
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		H2Core::CoreActionController::openPattern( m_sPatternFileName,
-																		  m_nPatternPosition );
-		h2app->getSongEditorPanel()->restoreGroupVector( m_sSequenceFileName );
-	}
-
-	virtual void redo() {
 		H2Core::CoreActionController::removePattern( m_nPatternPosition );
 	}
-private:
-	QString m_sPatternFileName;
-	QString m_sSequenceFileName;
+   private:
 	int m_nPatternPosition;
+	std::shared_ptr<H2Core::Pattern> m_pPattern;
 };
 
 /** \ingroup docGUI*/
@@ -211,94 +190,92 @@ private:
 	int __patternNr;
 };
 
-
 /** \ingroup docGUI*/
-class SE_duplicatePatternAction : public QUndoCommand
-{
-public:
-	SE_duplicatePatternAction( const QString& patternFileName, int patternPosition ){
-		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-		setText( pCommonStrings->getActionDuplicatePattern() );
-		m_sPatternFileName = patternFileName;
-		m_nPatternPosition = patternPosition;
-	}
-	virtual void undo() {
-		H2Core::CoreActionController::removePattern( m_nPatternPosition );
-	}
-
-	virtual void redo() {
-		H2Core::CoreActionController::openPattern( m_sPatternFileName, m_nPatternPosition );
-	}
-private:
-	QString m_sPatternFileName;
-	int m_nPatternPosition;
-};
-
-/** \ingroup docGUI*/
-class SE_insertPatternAction : public QUndoCommand
-{
-public:
-	SE_insertPatternAction( int patternPosition,
-							std::shared_ptr<H2Core::Pattern> pPattern )
+class SE_insertPatternAction : public QUndoCommand {
+   public:
+	enum class Type {
+		/** Inserts the pattern at the provided position by moving other
+		   patterns to bigger numbers. */
+		Insert,
+		/** Same as Type::Insert but with another message. */
+		New,
+		/** Same as Type::Insert but with another message. */
+		Duplicate,
+		/** Replaces the pattern at the provided position. */
+		Replace,
+	};
+	SE_insertPatternAction(
+		Type type,
+		int nPatternPosition,
+		std::shared_ptr<H2Core::Pattern> pNewPattern,
+		std::shared_ptr<H2Core::Pattern> pOldPattern
+	)
+		: m_nPatternPosition( nPatternPosition ),
+		  m_pNewPattern( pNewPattern ),
+		  m_pOldPattern( pOldPattern ),
+		  m_type( type )
 	{
-		setText( QObject::tr( "Add pattern" ) );
-		m_nPatternPosition = patternPosition;
-		m_pNewPattern =  pPattern;
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		QString sText;
+		switch ( type ) {
+			case Type::Insert: {
+				sText = pCommonStrings->getActionInsertPattern();
+				break;
+			}
+			case Type::New: {
+				/** Shown in the undo history. */
+				sText = QObject::tr( "Add new pattern" );
+				break;
+			}
+			case Type::Duplicate: {
+				sText = pCommonStrings->getActionDuplicatePattern();
+				break;
+			}
+			case Type::Replace: {
+				sText = pCommonStrings->getActionReplacePattern();
+				break;
+			}
+			default:
+				___DEBUGLOG( QString( "Unknown type [%1]" )
+								 .arg( static_cast<int>( type ) ) );
+		}
+
+		if ( pOldPattern != nullptr ) {
+			sText.append( QString( "[%1] ->" ).arg( pOldPattern->getName() ) );
+		}
+		if ( pNewPattern != nullptr ) {
+			sText.append( QString( " [%1]" ).arg( pNewPattern->getName() ) );
+		}
+		setText( sText );
 	}
-	~SE_insertPatternAction() {
+	~SE_insertPatternAction() {}
+	virtual void undo()
+	{
+		if ( m_type == Type::Replace ) {
+			H2Core::CoreActionController::setPattern(
+				std::make_shared<H2Core::Pattern>( m_pOldPattern ),
+				m_nPatternPosition, m_type == Type::Replace
+			);
+		}
+	    else {
+			H2Core::CoreActionController::removePattern( m_nPatternPosition );
+		}
 	}
-	virtual void undo() {
-		H2Core::CoreActionController::removePattern( m_nPatternPosition );
-	}
-	virtual void redo() {
+	virtual void redo()
+	{
 		H2Core::CoreActionController::setPattern(
 			std::make_shared<H2Core::Pattern>( m_pNewPattern ),
-																				 m_nPatternPosition );
+			m_nPatternPosition,
+			m_type == Type::Replace
+		);
 	}
-private:
+
+   private:
 	std::shared_ptr<H2Core::Pattern> m_pNewPattern;
-
+	std::shared_ptr<H2Core::Pattern> m_pOldPattern;
 	int m_nPatternPosition;
-};
-
-/** \ingroup docGUI*/
-class SE_loadPatternAction : public QUndoCommand
-{
-public:
-	SE_loadPatternAction( const QString& sPatternName,
-						  const QString& sOldPatternName,
-						  const QString& sSequenceFileName, int nPatternPosition,
-						  bool bDragFromList){
-		setText( QObject::tr( "Load/drag pattern" ) );
-		m_sPatternName =  sPatternName;
-		m_sOldPatternName = sOldPatternName;
-		m_sSequenceFileName = sSequenceFileName;
-		m_nPatternPosition = nPatternPosition;
-		m_bDragFromList = bDragFromList;
-	}
-	virtual void undo() {
-		if( m_bDragFromList ){
-			H2Core::CoreActionController::removePattern( m_nPatternPosition );
-		} else {
-			H2Core::CoreActionController::removePattern( m_nPatternPosition );
-			H2Core::CoreActionController::openPattern( m_sOldPatternName, m_nPatternPosition );
-		}
-		HydrogenApp::get_instance()->getSongEditorPanel()
-			->restoreGroupVector( m_sSequenceFileName );
-	}
-
-	virtual void redo() {
-		if( ! m_bDragFromList ){
-			H2Core::CoreActionController::removePattern( m_nPatternPosition );
-		}
-		H2Core::CoreActionController::openPattern( m_sPatternName, m_nPatternPosition );
-	}
-private:
-	QString m_sPatternName;
-	QString m_sOldPatternName;
-	QString m_sSequenceFileName;
-	int m_nPatternPosition;
-	bool m_bDragFromList;
+	Type m_type;
 };
 
 class SE_addOrRemovePatternCellAction : public QUndoCommand {
