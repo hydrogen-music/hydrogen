@@ -198,6 +198,8 @@ class SE_insertPatternAction : public QUndoCommand {
 		   patterns to bigger numbers. */
 		Insert,
 		/** Same as Type::Insert but with another message. */
+		New,
+		/** Same as Type::Insert but with another message. */
 		Duplicate,
 		/** Replaces the pattern at the provided position. */
 		Replace,
@@ -221,6 +223,11 @@ class SE_insertPatternAction : public QUndoCommand {
 				sText = pCommonStrings->getActionInsertPattern();
 				break;
 			}
+			case Type::New: {
+				/** Shown in the undo history. */
+				sText = QObject::tr( "Add new pattern" );
+				break;
+			}
 			case Type::Duplicate: {
 				sText = pCommonStrings->getActionDuplicatePattern();
 				break;
@@ -238,7 +245,7 @@ class SE_insertPatternAction : public QUndoCommand {
 			sText.append( QString( "[%1] ->" ).arg( pOldPattern->getName() ) );
 		}
 		if ( pNewPattern != nullptr ) {
-			sText.append( QString( "[%1]" ).arg( pNewPattern->getName() ) );
+			sText.append( QString( " [%1]" ).arg( pNewPattern->getName() ) );
 		}
 		setText( sText );
 	}

@@ -4747,6 +4747,10 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <source>Add note</source>
         <translation>Ajouter une note</translation>
     </message>
+    <message>
+        <source>Add new pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Reporter</name>

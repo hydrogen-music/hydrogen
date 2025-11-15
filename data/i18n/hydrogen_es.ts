@@ -4746,6 +4746,10 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <source>Add note</source>
         <translation>Añadir nota</translation>
     </message>
+    <message>
+        <source>Add new pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Reporter</name>

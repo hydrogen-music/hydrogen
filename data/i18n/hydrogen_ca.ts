@@ -4714,6 +4714,10 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
         <source>Add note</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add new pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Reporter</name>

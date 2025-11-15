@@ -4702,6 +4702,10 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>Add note</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add new pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Reporter</name>

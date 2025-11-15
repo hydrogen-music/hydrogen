@@ -4716,6 +4716,10 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <source>Add note</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add new pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Reporter</name>
