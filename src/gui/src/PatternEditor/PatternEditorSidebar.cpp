@@ -254,9 +254,19 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 			const QString sReferenceText = QString( "0" ).repeated(
 				QString::number( nIdMax ).length() );
 
-			const int nTextWidth = textMargins().left() + textMargins().right() +
-				QFontMetrics( font() ).size( Qt::TextSingleLine,
-											 sReferenceText ).width();
+          // I'm not sure why but for some reason the font does either has a way
+          // bigger width than reported by QFontMetrics or there is some kind of
+          // additional margin. Anyway, we need some extra width of vertical
+          // separator will end up within the instrument id.
+		  const int nOffset = 7;
+
+		  const int nTextWidth = nOffset + textMargins().left() +
+								 textMargins().right() +
+								 QFontMetrics( font() )
+									 .size( Qt::TextSingleLine, sReferenceText )
+									 .width();
+
+
 			nMidX = std::round(( width() - nTextWidth ) / 2 ) + nTextWidth;
 
 			// Border between fallback id and plus sign.
