@@ -289,7 +289,7 @@ private:
 	/**
 	 * Specifies the column transport is located in and can be used as
 	 * the index of the current PatternList/column in the
-	 * #Song::m_pPatternGroupSequence.
+	 * #Song::m_pPatternGroupVector.
 	 *
 	 * A value of -1 corresponds to "pattern list could not be found"
 	 * and is used to indicate that transport reached the end of the

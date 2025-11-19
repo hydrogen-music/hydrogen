@@ -229,6 +229,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getSample() const { return m_sSample; }
 	const QString& getLicense() const { return m_sLicense; }
 
+	const QString& getMenuActionNew() const { return m_sMenuActionNew; }
 	const QString& getMenuActionAdd() const { return m_sMenuActionAdd; }
 	const QString& getMenuActionDelete() const { return m_sMenuActionDelete; }
 	const QString& getMenuActionRename() const { return m_sMenuActionRename; }
@@ -315,8 +316,14 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		const QString& getActionEditTypes() const {
 			return m_sActionEditTypes; }
 
+		const QString& getActionInsertPattern() const {
+			return m_sActionInsertPattern; }
+		const QString& getActionReplacePattern() const {
+			return m_sActionReplacePattern; }
 		const QString& getActionDuplicatePattern() const {
 			return m_sActionDuplicatePattern; }
+		const QString& getActionRemovePattern() const {
+			return m_sActionRemovePattern; }
 		const QString& getActionCopyPatternCells() const {
 			return m_sActionCopyPatternCells; }
 		const QString& getActionDeletePatternCells() const {
@@ -537,6 +544,7 @@ private:
 	QString m_sSample;
 	QString m_sLicense;
 
+	QString m_sMenuActionNew;
 	QString m_sMenuActionAdd;
 	QString m_sMenuActionDelete;
 	QString m_sMenuActionRename;
@@ -596,7 +604,10 @@ private:
 		QString m_sActionCopyNotes;
 		QString m_sActionEditTypes;
 
+		QString m_sActionInsertPattern;
+		QString m_sActionReplacePattern;
 		QString m_sActionDuplicatePattern;
+		QString m_sActionRemovePattern;
 		QString m_sActionCopyPatternCells;
 		QString m_sActionDeletePatternCells;
 		QString m_sActionMovePatternCells;

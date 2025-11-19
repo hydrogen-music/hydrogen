@@ -1429,34 +1429,6 @@ QRect SongEditor::getKeyboardCursorRect() {
 				  QSize( m_nGridWidth, m_nGridHeight -1 ) );
 }
 
-void SongEditor::clearThePatternSequenceVector( const QString& sFileName )
-{
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-
-	pAudioEngine->lock( RIGHT_HERE );
-
-	//before deleting the sequence, write a temp sequence file to disk
-	pSong->saveTempPatternList( sFileName );
-
-	auto pPatternGroupsVect = pSong->getPatternGroupVector();
-	for (int i = 0; i < pPatternGroupsVect->size(); i++) {
-		auto pPatternList = (*pPatternGroupsVect)[i];
-		pPatternList->clear();
-	}
-	pPatternGroupsVect->clear();
-	pHydrogen->updateSongSize();
-	
-	pAudioEngine->unlock();
-
-	pHydrogen->setIsModified( true );
-	updateEditor( Editor::Update::Content );
-}
-
 void SongEditor::selectAllCellsInRow( int nRow ) {
 	m_selection.clearSelection();
 

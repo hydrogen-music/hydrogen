@@ -23,8 +23,9 @@
 #ifndef CORE_ACTION_CONTROLLER_H
 #define CORE_ACTION_CONTROLLER_H
 
-#include <vector>
 #include <memory>
+#include <QString>
+#include <vector>
 
 #include <core/Basics/DrumkitMap.h>
 #include <core/Object.h>
@@ -410,25 +411,25 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
     	static bool newPattern( const QString& sPatternName );
-	    /** Opens a pattern from disk and adds it to the pattern list.
-		 *
-		 * @param sPath Absolute path to an existing .h2pattern file.
-		 * @param nPatternNumber Row the pattern will be added to. If
-		 * set to -1, the pattern will be appended at the end of the
-		 * pattern list.
-		 *
-		 * @return bool true on success
-		 */
-    	static bool openPattern( const QString& sPath, int nPatternNumber = -1 );
+		/**
+		 * Loads an instance of #H2Core::Pattern from the corresponding XML
+		 * file. */
+		static std::shared_ptr<Pattern> loadPattern( const QString& sPath );
         /** Opens a pattern to the current pattern list.
 		 *
 		 * @param pPattern pattern to be added.
 		 * @param nPatternNumber Row the pattern will be added to.
+		 * @param bReplace Whether the pattern at @a nPatternNumber should be
+             replaced or moved to the next higher number (including all
+             following patterns).
 		 *
 		 * @return bool true on success
 		 */
-		static bool setPattern( std::shared_ptr<Pattern> pPattern,
-								int nPatternNumber );
+		static bool setPattern(
+			std::shared_ptr<Pattern> pPattern,
+			int nPatternNumber,
+			bool bReplace
+		);
 		/** Selects a pattern from the current pattern list while taking into
 		 * account whether the pattern editor is currently locked.
 		 *

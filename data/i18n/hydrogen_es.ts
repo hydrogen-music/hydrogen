@@ -1484,6 +1484,26 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text displayed below the LCD to set the output MIDI note in the Instrument Editor in case the corresponding output method is set. Designed to be flexible.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>New</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Nuevo</translation>
+    </message>
+    <message>
+        <source>Open Pattern</source>
+        <extracomment>Shown in the undo history after inserting a pattern and in the * corresponding file dialog.</extracomment>
+        <translation>Abrir Patrón</translation>
+    </message>
+    <message>
+        <source>Open Pattern to Replace </source>
+        <extracomment>Shown in the undo history after replacing a pattern and in the * corresponding file dialog.</extracomment>
+        <translation>Abrir Patrón para Reemplazar </translation>
+    </message>
+    <message>
+        <source>Delete pattern from list</source>
+        <extracomment>Shown in the undo history after removing a pattern.</extracomment>
+        <translation>Borrar patrón de la lista</translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -2548,10 +2568,6 @@ MIDI = %2</translation>
         <translation>Patrón guardado.</translation>
     </message>
     <message>
-        <source>Open Pattern</source>
-        <translation>Abrir Patrón</translation>
-    </message>
-    <message>
         <source></source>
         <comment>Info|About</comment>
         <translation>Info|Acerca de</translation>
@@ -3212,7 +3228,7 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
     <message>
         <source>None</source>
         <extracomment>No mapping between MIDI events and instrument will be done.</extracomment>
-        <translation type="unfinished">Ninguno</translation>
+        <translation>Ninguno</translation>
     </message>
     <message>
         <source>As Output</source>
@@ -3232,7 +3248,7 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
     <message>
         <source>Custom</source>
         <extracomment>The use can set arbitrary note and channel values to map incoming MIDI notes to instruments of the current drumkit.</extracomment>
-        <translation type="unfinished">Personalizado</translation>
+        <translation>Personalizado</translation>
     </message>
     <message>
         <source>Offset</source>
@@ -4671,24 +4687,8 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <translation>Mover ítem de la lista de patrones ( %1, %2 )</translation>
     </message>
     <message>
-        <source>Delete complete pattern-sequence</source>
-        <translation>Borrar secuencia entera de patrones</translation>
-    </message>
-    <message>
-        <source>Delete pattern from list</source>
-        <translation>Borrar patrón de la lista</translation>
-    </message>
-    <message>
         <source>Modify pattern properties</source>
         <translation>Modificar propiedades del patrón</translation>
-    </message>
-    <message>
-        <source>Add pattern</source>
-        <translation>Añadir patrón</translation>
-    </message>
-    <message>
-        <source>Load/drag pattern</source>
-        <translation>Cargar/arrastrar patrón</translation>
     </message>
     <message>
         <source>Edit timeline tag</source>
@@ -4745,6 +4745,10 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     <message>
         <source>Add note</source>
         <translation>Añadir nota</translation>
+    </message>
+    <message>
+        <source>Add new pattern</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5844,6 +5848,10 @@ Are you sure?</source>
         <source>Playback volume set to</source>
         <translation>Volumen reproducción establecido en</translation>
     </message>
+    <message>
+        <source>Delete complete pattern-sequence</source>
+        <translation>Borrar secuencia entera de patrones</translation>
+    </message>
 </context>
 <context>
     <name>SongEditorPanelBpmWidget_UI</name>
@@ -5906,28 +5914,12 @@ Are you sure?</source>
         <translation>No se pudo exportar el patrón.</translation>
     </message>
     <message>
-        <source>Could not export sequence.</source>
-        <translation>No se pudo exportar la secuencia.</translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation>Patrón guardado.</translation>
     </message>
     <message>
-        <source>Could not save pattern to temporary directory.</source>
-        <translation>No se pudo guardar el patrón en un directorio temporal.</translation>
-    </message>
-    <message>
-        <source>Open Pattern to Replace </source>
-        <translation>Abrir Patrón para Reemplazar </translation>
-    </message>
-    <message>
         <source>Fill/remove range of pattern</source>
         <translation>Rellenar/quitar rango de patrón</translation>
-    </message>
-    <message>
-        <source>File operations</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Replace</source>
@@ -6013,10 +6005,6 @@ Are you sure?</source>
     <message>
         <source>Installed</source>
         <translation>Instalación completada</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation>Nuevo</translation>
     </message>
     <message>
         <source>Author: %1</source>

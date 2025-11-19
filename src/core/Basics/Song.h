@@ -192,15 +192,15 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 		/** Return a pointer to a vector storing all Pattern
 		 * present in the Song.
-		 * \return #m_pPatternGroupSequence */
+		 * \return #m_pPatternGroupVector */
 		std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > getPatternGroupVector();
 		/** Return a pointer to a vector storing all Pattern
 		 * present in the Song.
-		 * \return #m_pPatternGroupSequence */
+		 * \return #m_pPatternGroupVector */
 		const std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > getPatternGroupVector() const;
 
 		/** Sets the vector storing all Pattern present in the
-		 * Song #m_pPatternGroupSequence.
+		 * Song #m_pPatternGroupVector.
 		 * \param pGroupVect Pointer to a vector containing all
 		 *   Pattern of the Song.*/
 		void setPatternGroupVector( std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > pGroupVect );
@@ -244,9 +244,6 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 		AutomationPath*	getVelocityAutomationPath() const;
 
-		void			loadTempPatternList( const QString& sFileName );
-		bool			saveTempPatternList( const QString& sFileName ) const;
-							
 		int			getLatestRoundRobin( float fStartVelocity ) const;
 		void			setLatestRoundRobin( float fStartVelocity, int nLatestRoundRobin );
 		/** \return #m_sPlaybackTrackFileName */
@@ -311,11 +308,6 @@ private:
 	void saveTo( XMLNode& pNode, bool bKeepMissingSamples,
 				bool bSilent = false ) const;
 
-	void loadVirtualPatternsFrom( const XMLNode& pNode, bool bSilent = false );
-	void loadPatternGroupVectorFrom( const XMLNode& pNode, bool bSilent = false );
-	void saveVirtualPatternsTo( XMLNode& pNode, bool bSilent = false ) const;
-	void savePatternGroupVectorTo( XMLNode& pNode, bool bSilent = false ) const;
-
 	/** Whether the Timeline button was pressed in the GUI or it was
 		activated via an OSC command. */
 	bool m_bIsTimelineActivated;
@@ -344,7 +336,7 @@ private:
 		///< Pattern list
 		std::shared_ptr<PatternList>	m_pPatternList;
 		///< Sequence of pattern groups
-		std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > m_pPatternGroupSequence;
+		std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > m_pPatternGroupVector;
 
 		/** Current drumkit
 		 *
@@ -546,17 +538,17 @@ inline void Song::setPatternList( std::shared_ptr<PatternList> pList )
 }
 
 inline std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > Song::getPatternGroupVector() {
-	return m_pPatternGroupSequence;
+	return m_pPatternGroupVector;
 }
 
 inline const std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > Song::getPatternGroupVector() const
 {
-	return m_pPatternGroupSequence;
+	return m_pPatternGroupVector;
 }
 
 inline void Song::setPatternGroupVector( std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > pGroupVector )
 {
-	m_pPatternGroupSequence = pGroupVector;
+	m_pPatternGroupVector = pGroupVector;
 }
 
 inline void Song::setNotes( const QString& sNotes )
