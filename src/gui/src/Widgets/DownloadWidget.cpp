@@ -24,36 +24,49 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QtNetwork>
 
-
-Download::Download( QWidget* pParent, const QString& download_url, const QString& local_file )
-		: QDialog( pParent )
-		, __download_percent( 0 )
-		, __eta( 0 )
-		, __bytes_current( 0 )
-		, __bytes_total( 0 )
-		, __remote_url( download_url )
-		, __local_file( local_file )
-		, __reply(nullptr)
-		, __error( "" )
+Download::Download(
+	QWidget* pParent,
+	const QString& download_url,
+	const QString& local_file
+)
+	: QDialog( pParent ),
+	  __download_percent( 0 ),
+	  __eta( 0 ),
+	  __bytes_current( 0 ),
+	  __bytes_total( 0 ),
+	  __remote_url( download_url ),
+	  __local_file( local_file ),
+	  __reply( nullptr ),
+	  __error( "" )
 {
 	if ( !__local_file.isEmpty() ) {
-		INFOLOG( QString( "Downloading '%1' in '%2'" ).arg( __remote_url.toString() ).arg( __local_file ) );
-	} else {
+		INFOLOG( QString( "Downloading '%1' in '%2'" )
+					 .arg( __remote_url.toString() )
+					 .arg( __local_file ) );
+	}
+	else {
 		INFOLOG( QString( "Downloading '%1'" ).arg( __remote_url.toString() ) );
 	}
 
-	__http_client = new QNetworkAccessManager(this);
+	__http_client = new QNetworkAccessManager( this );
+	__http_client->setRedirectPolicy(
+		QNetworkRequest::ManualRedirectPolicy
+	);
 
-	QString sEnvHttpProxy		= QString( getenv( "http_proxy" ) );
-	int     nEnvHttpPort		= 0;
-	QString sEnvHttpUser		= QString( getenv( "http_user" ) );
-	QString sEnvHttpPassword	= QString( getenv( "http_password" ) );
+	QString sEnvHttpProxy = QString( getenv( "http_proxy" ) );
+	int nEnvHttpPort = 0;
+	QString sEnvHttpUser = QString( getenv( "http_user" ) );
+	QString sEnvHttpPassword = QString( getenv( "http_password" ) );
 
-	nEnvHttpPort	= sEnvHttpProxy.right( sEnvHttpProxy.length() - sEnvHttpProxy.indexOf(':') - 1 ).toInt();
-	sEnvHttpProxy	= sEnvHttpProxy.left( sEnvHttpProxy.indexOf(':') );
+	nEnvHttpPort =
+		sEnvHttpProxy
+			.right( sEnvHttpProxy.length() - sEnvHttpProxy.indexOf( ':' ) - 1 )
+			.toInt();
+	sEnvHttpProxy = sEnvHttpProxy.left( sEnvHttpProxy.indexOf( ':' ) );
 
 	__time.start();
 
@@ -64,20 +77,21 @@ Download::Download( QWidget* pParent, const QString& download_url, const QString
 		proxy.setPort( nEnvHttpPort );
 		proxy.setUser( sEnvHttpUser );
 		proxy.setPassword( sEnvHttpPassword );
-		__http_client->setProxy(proxy);
+		__http_client->setProxy( proxy );
 	}
 
 	QNetworkRequest getReq;
 	getReq.setUrl( __remote_url );
-	getReq.setRawHeader( "User-Agent" , "Hydrogen" );
+	getReq.setRawHeader( "User-Agent", "Hydrogen" );
 
 	__reply = __http_client->get( getReq );
 
-	connect(__reply, SIGNAL(finished()),this, SLOT(finished()));
-	connect(__reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(downloadProgress(qint64,qint64)));
+	connect( __reply, SIGNAL( finished() ), this, SLOT( finished() ) );
+	connect(
+		__reply, SIGNAL( downloadProgress( qint64, qint64 ) ), this,
+		SLOT( downloadProgress( qint64, qint64 ) )
+	);
 }
-
-
 
 Download::~Download()
 {
