@@ -91,14 +91,14 @@ SampleEditor::SampleEditor ( QWidget* pParent,
 	m_fRatio = 1.0f;
 	__rubberband.c_settings = 4;
 
-	const QString sNewFileName = m_pSample->getFileName().section( '/', -1 );
-
 	//init Displays
 	m_pMainSampleWaveDisplay = new MainSampleWaveDisplay( mainSampleview );
 	m_pSampleAdjustView = new DetailWaveDisplay( mainSampleAdjustView );
 	m_pTargetSampleView = new TargetWaveDisplay( targetSampleView );
 
-	setWindowTitle( QString( tr( "SampleEditor " ) + sNewFileName ) );
+	setWindowTitle( QString( tr( "SampleEditor " ) + m_pSample->getFilePath() )
+	);
+
 	setModal( true );
 
 	const auto nFrames = m_pSample->getFrames();
