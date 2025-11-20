@@ -707,21 +707,22 @@ void SoundLibraryOnlineImportDialog::on_DownloadBtn_clicked()
 	}
 
 	auto pDB = H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase();
-	if ( bUpdateDrumkits ) {
-		pDB->updateDrumkits();
-	}
-
 	if ( bUpdatePatterns ) {
 		pDB->updatePatterns();
 	}
 
-	QApplication::restoreOverrideCursor();
+	if ( bUpdateDrumkits ) {
+		pDB->updateDrumkits();
+		QApplication::restoreOverrideCursor();
 
-	QMessageBox::information(
-		this, "Hydrogen",
-		QString( tr( "Drumkits\n\n- %1\n\nimported into %2" ) )
-		.arg( installedDrumkits.join( "\n- " ) )
-		.arg( H2Core::Filesystem::usr_data_path() ) );
+		QMessageBox::information(
+			this, "Hydrogen",
+			QString( tr( "Drumkits\n\n- %1\n\nimported into %2" ) )
+				.arg( installedDrumkits.join( "\n- " ) )
+				.arg( H2Core::Filesystem::usr_data_path() )
+		);
+	}
+	QApplication::restoreOverrideCursor();
 
 	return;
 }
