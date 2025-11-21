@@ -34,12 +34,11 @@
 #include "Skin.h"
 #include "Widgets/WidgetWithScalableFont.h"
 
-class Button;
 class InstrumentEditorPanel;
 class SoundLibraryPanel;
 
 /** \ingroup docGUI*/
-class InstrumentRack : public QWidget,
+class InstrumentRack : public QTabWidget,
 					   protected WidgetWithScalableFont<5, 6, 7>,
 					   private H2Core::Object<InstrumentRack>
 {
@@ -61,20 +60,18 @@ public:
 
 public slots:
 	/** Used by the #Shotlist*/
-	void showSoundLibrary( bool bShow );
+	void showInstrument();
+	void showComponents();
+	void showSoundLibrary();
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
-	private:
-		/// button for showing the Sound Library
-		Button *m_pShowSoundLibraryBtn;
+   private:
+	void updateStyleSheet();
+	void updateIcons();
 
-		/// button for showing the Instrument Editor
-		Button *m_pShowInstrumentEditorBtn;
+	InstrumentEditorPanel* m_pInstrumentEditorPanel;
 
-		InstrumentEditorPanel* m_pInstrumentEditorPanel;
-
-		SoundLibraryPanel* m_pSoundLibraryPanel;
-		QStackedLayout* m_pStackedPanelsLayout;
+	SoundLibraryPanel* m_pSoundLibraryPanel;
 };
 
 inline InstrumentEditorPanel* InstrumentRack::getInstrumentEditorPanel() const {

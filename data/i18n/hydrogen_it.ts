@@ -2217,12 +2217,19 @@ Sovrascrivere il file esistente?</translation>
 <context>
     <name>InstrumentRack</name>
     <message>
-        <source>Show Instrument editor</source>
-        <translation>Mostra editor strumento</translation>
+        <source>Param.</source>
+        <extracomment>Descriptive text in the tab to view the general instrument parameters at * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure * to check the corresponding tab bar!</extracomment>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show sound library</source>
-        <translation>Mostra libreria sonora</translation>
+        <source>Comp.</source>
+        <extracomment>Descriptive text in the tab to view the instrument components at * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure * to check the corresponding tab bar!</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Library</source>
+        <extracomment>Descriptive text in the tab to view the sound library at the * bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure to * check the corresponding tab bar!</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

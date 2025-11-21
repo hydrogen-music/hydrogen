@@ -22,113 +22,116 @@
 
 #include "InstrumentRack.h"
 
-#include "CommonStrings.h"
 #include "HydrogenApp.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "Skin.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
-#include "Widgets/Button.h"
+
+#include <core/Preferences/Preferences.h>
+#include <core/Preferences/Theme.h>
 
 #include <QGridLayout>
 
-InstrumentRack::InstrumentRack( QWidget *pParent )
- : QWidget( pParent )
- , Object()
-{
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
-	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+using namespace H2Core;
 
+InstrumentRack::InstrumentRack( QWidget* pParent )
+	: QTabWidget( pParent ), Object()
+{
 	setFixedWidth( InstrumentRack::nWidth );
+	setFocusPolicy( Qt::NoFocus );
 	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
 
-	auto pVBoxMainLayout = new QVBoxLayout();
-	pVBoxMainLayout->setSpacing( 0 );
-	pVBoxMainLayout->setContentsMargins( 0, 0, 0, 0 );
+	m_pInstrumentEditorPanel = new InstrumentEditorPanel( this );
 
-	QFont fontButtons( pFontTheme->m_sApplicationFontFamily,
-					   getPointSize( pFontTheme->m_fontSize ) );
+	m_pSoundLibraryPanel = new SoundLibraryPanel( this, false );
 
-	// TAB buttons
+	connect(
+		HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this,
+		&InstrumentRack::onPreferencesChanged
+	);
 
-	QWidget* pTabButtonsWidget = new QWidget( this );
-	pTabButtonsWidget->setFixedSize( InstrumentRack::nWidth, 24 );
-	QHBoxLayout *pTabHBox = new QHBoxLayout();
-	pTabHBox->setSpacing( 0 );
-	pTabHBox->setContentsMargins( 0, 0, 0, 0 );
-	pTabButtonsWidget->setLayout( pTabHBox );
-
-	const int nInstrumentBtnWidth = InstrumentRack::nWidth / 2;
-	m_pShowInstrumentEditorBtn = new Button(
-		pTabButtonsWidget, QSize( nInstrumentBtnWidth, 24 ), Button::Type::Toggle,
-		"", pCommonStrings->getInstrumentButton(), QSize(),
-		tr( "Show Instrument editor" ) );
-	connect( m_pShowInstrumentEditorBtn, &QPushButton::clicked,
-			 [=]() { showSoundLibrary( false ); });
-	pTabHBox->addWidget( m_pShowInstrumentEditorBtn );
-
-	m_pShowSoundLibraryBtn = new Button(
-		pTabButtonsWidget,
-		QSize( InstrumentRack::nWidth - nInstrumentBtnWidth, 24 ),
-		Button::Type::Toggle, "", pCommonStrings->getSoundLibraryButton(),
-		QSize(), tr( "Show sound library" ) );
-	connect( m_pShowSoundLibraryBtn, &QPushButton::clicked,
-			 [=]() { showSoundLibrary( true ); });
-	pTabHBox->addWidget( m_pShowSoundLibraryBtn );
-
-	pVBoxMainLayout->addWidget( pTabButtonsWidget );
-
-	// Panels
-
-	auto pPanelsWidget = new QWidget( this );
-	pPanelsWidget->setMinimumWidth( InstrumentRack::nWidth );
-	pPanelsWidget->setSizePolicy(
-		QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding ) );
-	m_pStackedPanelsLayout = new QStackedLayout();
-	m_pStackedPanelsLayout->setContentsMargins( 0, 0, 0, 0 );
-	pPanelsWidget->setLayout( m_pStackedPanelsLayout );
-	pVBoxMainLayout->addWidget( pPanelsWidget );
-
-	m_pInstrumentEditorPanel = new InstrumentEditorPanel( pPanelsWidget );
-	m_pStackedPanelsLayout->addWidget( m_pInstrumentEditorPanel );
-
-	m_pSoundLibraryPanel = new SoundLibraryPanel( pPanelsWidget, false );
-	m_pStackedPanelsLayout->addWidget( m_pSoundLibraryPanel );
-
-	setLayout( pVBoxMainLayout );
-
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 this, &InstrumentRack::onPreferencesChanged );
-
-	showSoundLibrary( false );
+	updateIcons();
+	updateStyleSheet();
 }
-
-
 
 InstrumentRack::~InstrumentRack()
 {
-	INFOLOG( "DESTROY" );
 }
 
-void InstrumentRack::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
-
-	if ( changes & H2Core::Preferences::Changes::Font ) {
-		QFont fontButtons( pFontTheme->m_sApplicationFontFamily,
-						   getPointSize( pFontTheme->m_fontSize ) );
-		m_pShowInstrumentEditorBtn->setFont( fontButtons );
-		m_pShowSoundLibraryBtn->setFont( fontButtons );
+void InstrumentRack::onPreferencesChanged(
+	const H2Core::Preferences::Changes& changes
+)
+{
+	if ( changes & H2Core::Preferences::Changes::Colors ) {
+		updateStyleSheet();
+	}
+	if ( changes & H2Core::Preferences::Changes::AppearanceTab ) {
+		updateIcons();
 	}
 }
 
-void InstrumentRack::showSoundLibrary( bool bShow ) {
-	if ( bShow ) {
-		m_pShowSoundLibraryBtn->setChecked( true );
-		m_pShowInstrumentEditorBtn->setChecked( false );
-		m_pStackedPanelsLayout->setCurrentIndex( 1 );
+void InstrumentRack::showInstrument()
+{
+	setTabEnabled( 0, true );
+}
+
+void InstrumentRack::showComponents()
+{
+	setTabEnabled( 1, true );
+}
+
+void InstrumentRack::showSoundLibrary()
+{
+	setTabEnabled( 2, true );
+}
+
+void InstrumentRack::updateStyleSheet()
+{
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const QColor colorTabBar = pColorTheme->m_baseColor;
+	const QColor colorTabBarText = pColorTheme->m_widgetTextColor;
+
+	setStyleSheet( QString( "\
+QTabBar { \
+     background-color: %1;\
+     color: %2; \
+}" )
+					   .arg( colorTabBar.name() )
+					   .arg( colorTabBarText.name() ) );
+}
+
+void InstrumentRack::updateIcons()
+{
+	for ( int ii = count(); ii >= 0; --ii ) {
+		removeTab( ii );
+	}
+
+	QString sIconPath( Skin::getSvgImagePath() );
+	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+		 InterfaceTheme::IconColor::White ) {
+		sIconPath.append( "/icons/white/" );
 	}
 	else {
-		m_pShowSoundLibraryBtn->setChecked( false );
-		m_pShowInstrumentEditorBtn->setChecked( true );
-		m_pStackedPanelsLayout->setCurrentIndex( 0 );
+		sIconPath.append( "/icons/black/" );
 	}
+
+	/*: Descriptive text in the tab to view the general instrument parameters at
+	 * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure
+	 * to check the corresponding tab bar! */
+	addTab(
+		m_pInstrumentEditorPanel, QIcon( sIconPath + "drum.svg" ),
+		tr( "Param." )
+	);
+	/*: Descriptive text in the tab to view the instrument components at
+	 * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure
+	 * to check the corresponding tab bar! */
+	addTab(
+		m_pInstrumentEditorPanel, QIcon( sIconPath + "drum.svg" ), tr( "Comp." )
+	);
+	/*: Descriptive text in the tab to view the sound library at the
+	 * bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure to
+	 * check the corresponding tab bar! */
+	addTab(
+		m_pSoundLibraryPanel, QIcon( sIconPath + "folder.svg" ), tr( "Library" )
+	);
 }
