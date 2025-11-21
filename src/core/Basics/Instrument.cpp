@@ -23,6 +23,7 @@
 #include <core/Basics/Instrument.h>
 
 #include <cassert>
+#include <memory>
 
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Drumkit.h>
@@ -652,6 +653,28 @@ bool Instrument::hasSamples() const {
 	}
 
 	return false;
+}
+
+void Instrument::setSample(
+	std::shared_ptr<InstrumentComponent> pComponent,
+	std::shared_ptr<InstrumentLayer> pLayer,
+	std::shared_ptr<Sample> pSample
+)
+{
+	if ( pComponent == nullptr || pLayer == nullptr || pSample == nullptr ) {
+		ERRORLOG( "Invalid input" );
+		return;
+	}
+
+	for ( const auto& ppComponent : *m_pComponents ) {
+		if ( pComponent == ppComponent ) {
+			for ( auto& ppLayer : *pComponent ) {
+				ppLayer->setSample( pSample );
+			}
+		}
+	}
+
+	checkForMissingSamples();
 }
 
 int Instrument::getLongestSampleFrames() const {

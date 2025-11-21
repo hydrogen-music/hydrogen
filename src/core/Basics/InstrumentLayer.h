@@ -23,9 +23,11 @@
 #ifndef H2C_INSTRUMENT_LAYER_H
 #define H2C_INSTRUMENT_LAYER_H
 
-#include <memory>
+#include <core/Basics/Instrument.h>
 #include <core/Object.h>
 #include <core/License.h>
+
+#include <memory>
 
 namespace H2Core
 {
@@ -92,8 +94,6 @@ namespace H2Core
 		void				setIsSoloed( bool bIsSoloed );
 		bool				getIsSoloed() const;
 
-		/** set the sample of the layer */
-		void setSample( std::shared_ptr<Sample> sample );
 		/** get the sample of the layer */
 		std::shared_ptr<Sample> getSample() const;
 
@@ -154,7 +154,16 @@ namespace H2Core
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
-	private:
+		friend void Instrument::setSample(
+			std::shared_ptr<InstrumentComponent> pComponent,
+			std::shared_ptr<InstrumentLayer> pLayer,
+			std::shared_ptr<Sample> pSample
+		);
+
+	   private:
+		/** set the sample of the layer */
+		void setSample( std::shared_ptr<Sample> sample );
+
 		float m_fGain;               ///< ratio between the input sample and the output signal, 1.0 by default
 		float m_fPitch;              ///< the frequency of the sample, 0.0 by default which means output pitch is the same as input pitch
 		float m_fStartVelocity;     ///< the start velocity of the sample, 0.0 by default

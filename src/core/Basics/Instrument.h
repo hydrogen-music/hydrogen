@@ -41,12 +41,11 @@ namespace H2Core
 {
 
 class ADSR;
-class Drumkit;
 class InstrumentLayer;
 class InstrumentComponent;
 class Note;
+class Sample;
 class XMLNode;
-
 
 /**
 Instrument class
@@ -290,9 +289,14 @@ class Instrument : public H2Core::Object<Instrument>
 
 		bool hasMissingSamples() const { return m_bHasMissingSamples; }
 
-	/** Whether the instrument contains at least one non-missing
-	 * sample */
-	bool hasSamples() const;
+		/** Whether the instrument contains at least one non-missing
+		 * sample */
+		bool hasSamples() const;
+		void setSample(
+			std::shared_ptr<InstrumentComponent> pComponent,
+			std::shared_ptr<InstrumentLayer> pLayer,
+			std::shared_ptr<Sample> pSample
+		);
 
 		int getLongestSampleFrames() const;
 

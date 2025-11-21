@@ -1493,10 +1493,14 @@ void Sampler::previewSample( std::shared_ptr<Sample> pSample, int nLength )
 		return;
 	}
 
-	m_pPreviewInstrument->getComponent( 0 )->getLayer( 0 )->setSample( pSample );
+	const auto pComponent = m_pPreviewInstrument->getComponent( 0 );
+	const auto pLayer = pComponent->getLayer( 0 );
+
+	m_pPreviewInstrument->setSample( pComponent, pLayer, pSample );
 
 	auto pPreviewNote = std::make_shared<Note>(
-			m_pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT, nLength );
+		m_pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT, nLength
+	);
 
 	noteOn( pPreviewNote );
 
