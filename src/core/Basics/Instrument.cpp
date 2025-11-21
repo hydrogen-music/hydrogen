@@ -669,7 +669,9 @@ void Instrument::setSample(
 	for ( const auto& ppComponent : *m_pComponents ) {
 		if ( pComponent == ppComponent ) {
 			for ( auto& ppLayer : *pComponent ) {
-				ppLayer->setSample( pSample );
+				if ( ppLayer == pLayer ) {
+					ppLayer->setSample( pSample );
+				}
 			}
 		}
 	}
