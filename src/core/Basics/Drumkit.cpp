@@ -1244,7 +1244,7 @@ void Drumkit::recalculateRubberband( float fBpm )
 		if ( ppInstrument == nullptr ) {
 			continue;
 		}
-		for ( const auto& ppComponent : *ppInstrument->getComponents() ) {
+		for ( const auto& ppComponent : *ppInstrument ) {
 			if ( ppComponent == nullptr ) {
 				continue;
 			}

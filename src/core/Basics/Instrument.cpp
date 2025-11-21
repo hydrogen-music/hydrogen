@@ -720,6 +720,16 @@ void Instrument::checkForMissingSamples() {
 	}
 }
 
+std::vector<std::shared_ptr<InstrumentComponent>>::iterator Instrument::begin()
+{
+	return m_pComponents->begin();
+}
+
+std::vector<std::shared_ptr<InstrumentComponent>>::iterator Instrument::end()
+{
+	return m_pComponents->end();
+}
+
 QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;

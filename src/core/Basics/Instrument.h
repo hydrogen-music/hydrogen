@@ -303,6 +303,10 @@ class Instrument : public H2Core::Object<Instrument>
 		DrumkitMap::Type getType() const;
 		void setType( DrumkitMap::Type type );
 
+		/** Iteration */
+		std::vector<std::shared_ptr<InstrumentComponent>>::iterator begin();
+		std::vector<std::shared_ptr<InstrumentComponent>>::iterator end();
+
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
