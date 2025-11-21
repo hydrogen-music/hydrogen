@@ -32,6 +32,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Sample.h>
+#include <core/EventQueue.h>
 #include <core/Helpers/Legacy.h>
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
@@ -460,7 +461,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom( const XMLNode& node,
 			std::make_shared<InstrumentComponent>() );
 	}
 
-	pInstrument->checkForMissingSamples();
+	pInstrument->checkForMissingSamples( Event::Trigger::Suppress );
 
 	return pInstrument;
 }
@@ -556,7 +557,7 @@ void Instrument::saveTo( XMLNode& node, bool bSongKit, bool bKeepMissingSamples,
 
 	// Instrument layers with missing samples will be discarded during saving.
 	if ( m_bHasMissingSamples ) {
-		checkForMissingSamples();
+		checkForMissingSamples( Event::Trigger::Suppress );
 	}
 }
 
@@ -676,7 +677,7 @@ void Instrument::setSample(
 		}
 	}
 
-	checkForMissingSamples();
+	checkForMissingSamples( Event::Trigger::Default );
 }
 
 int Instrument::getLongestSampleFrames() const {
@@ -698,7 +699,9 @@ int Instrument::getLongestSampleFrames() const {
 	return nLongestFrames;
 }
 
-void Instrument::checkForMissingSamples() {
+  void Instrument::checkForMissingSamples( Event::Trigger trigger ) {
+	const bool bPreviousValue = m_bHasMissingSamples;
+
 	m_bHasMissingSamples = false;
 
 	for ( const auto& pComponent : *getComponents() ) {
@@ -719,6 +722,13 @@ void Instrument::checkForMissingSamples() {
 				m_bHasMissingSamples = true;
 			}
 		}
+	}
+
+	if ( m_bHasMissingSamples != bPreviousValue &&
+		 trigger != Event::Trigger::Suppress ) {
+		EventQueue::get_instance()->pushEvent(
+			Event::Type::InstrumentMuteSoloChanged, 0
+		);
 	}
 }
 

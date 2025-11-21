@@ -26,11 +26,12 @@
 #include <cassert>
 #include <memory>
 
-#include <core/Object.h>
 #include <core/Basics/Adsr.h>
 #include <core/Basics/DrumkitMap.h>
+#include <core/Basics/Event.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/License.h>
+#include <core/Object.h>
 
 #define EMPTY_INSTR_ID          -1
 /** Created Instrument will be used as metronome. */
@@ -318,12 +319,11 @@ class Instrument : public H2Core::Object<Instrument>
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	private:
+		void checkForMissingSamples( Event::Trigger trigger );
 
-	void checkForMissingSamples();
-
-	        /** Identifier of an instrument, which should be
-		    unique. It is set by setId() and accessed via
-	        getId().*/
+		/** Identifier of an instrument, which should be
+		unique. It is set by setId() and accessed via
+		getId().*/
 		int					m_nId;
 	        /** Name of the Instrument. It is set by setName()
 		    and accessed via getName().*/
