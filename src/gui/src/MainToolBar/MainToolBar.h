@@ -139,6 +139,7 @@ private:
 		BpmTap* m_pBpmTap;
 
 		QAction* m_pRubberBandAction;
+		QAction* m_pRubberBandSeparator;
 
 		QAction* m_pJackTransportAction;
 		QAction* m_pJackTimebaseAction;

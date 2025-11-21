@@ -329,13 +329,15 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 	connect( m_pRubberBandAction, &QAction::triggered, [&]() {
 			 rubberbandButtonToggle();
 	});
+	addAction( m_pRubberBandAction );
+
+	m_pRubberBandSeparator = addSeparator();
+
 	// test the path. if test fails, no button
 	if ( QFile( pPref->m_sRubberBandCLIexecutable ).exists() == false) {
 		m_pRubberBandAction->setVisible( false );
+		m_pRubberBandSeparator->setVisible( false );
 	}
-	addAction( m_pRubberBandAction );
-
-	addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pShowPlaylistEditorAction = createAction( tr( "Show Playlist Editor" ) );
