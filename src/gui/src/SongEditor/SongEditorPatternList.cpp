@@ -615,17 +615,19 @@ void SongEditorPatternList::patternPopup_save()
 		return;
 	}
 
-	// TODO: fix me. This should access the path the pattern was stored at
-	// previously.
 	const QString sPath = QString( "%1/%2%3" )
-		.arg( Filesystem::patterns_dir() ).arg( pPattern->getName() )
-		.arg( Filesystem::patterns_ext );
+							  .arg( Filesystem::patterns_dir() )
+							  .arg( pPattern->getName() )
+							  .arg( Filesystem::patterns_ext );
 
-	if ( ! pPattern->save( sPath ) ) {
-		QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
+	if ( !pPattern->save( sPath ) ) {
+		QMessageBox::warning(
+			this, "Hydrogen", tr( "Could not export pattern." )
+		);
 	}
 	else {
 		pHydrogenApp->showStatusBarMessage( tr( "Pattern saved." ) );
+		Preferences::get_instance()->m_bExpandPatternItem = true;
 		pHydrogen->getSoundLibraryDatabase()->updatePatterns();
 	}
 }

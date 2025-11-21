@@ -29,6 +29,8 @@
 
 #include <QString>
 
+#include <core/Basics/Instrument.h>
+#include <core/Helpers/Legacy.h>
 #include <core/Object.h>
 #include <core/License.h>
 
@@ -69,18 +71,17 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		std::shared_ptr<InstrumentLayer>	operator[]( int ix ) const;
 		std::shared_ptr<InstrumentLayer>	getLayer( int idx ) const;
 		int index( std::shared_ptr<InstrumentLayer> pLayer ) const;
-	/**
-	 * Get all initialized layers.
-	 *
-	 * In it's current design #__layers is always of #MAX_LAYERS
-	 * length and all layer not used are set to nullptr. This
-	 * convenience function is used to query only those
-	 * #InstrumentLayer which were properly initialized.
-	 */
-	const std::vector<std::shared_ptr<InstrumentLayer>> getLayers() const;
-		void				setLayer( std::shared_ptr<InstrumentLayer> layer, int idx );
+		/**
+		 * Get all initialized layers.
+		 *
+		 * In it's current design #__layers is always of #MAX_LAYERS
+		 * length and all layer not used are set to nullptr. This
+		 * convenience function is used to query only those
+		 * #InstrumentLayer which were properly initialized.
+		 */
+		const std::vector<std::shared_ptr<InstrumentLayer>> getLayers() const;
 
-		void				setGain( float gain );
+		void setGain( float gain );
 		float				getGain() const;
 		
 		void				setIsMuted( bool bIsMuted );
@@ -116,7 +117,24 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
-	private:
+		friend std::shared_ptr<InstrumentComponent>
+		Legacy::loadInstrumentComponent(
+			const XMLNode& node,
+			const QString& sDrumkitPath,
+			const QString& sSongPath,
+			const License& drumkitLicense,
+			bool bSilent
+		);
+		friend void Instrument::setLayer(
+			std::shared_ptr<InstrumentComponent> pComponent,
+			std::shared_ptr<InstrumentLayer> pLayer,
+			int nIndex,
+			Event::Trigger trigger
+		);
+
+	   private:
+		void setLayer( std::shared_ptr<InstrumentLayer> pLayer, int nIndex );
+
 		QString 			m_sName;
 		float				m_fGain;
 

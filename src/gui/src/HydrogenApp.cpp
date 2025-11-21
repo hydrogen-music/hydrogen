@@ -993,6 +993,11 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->gridCellToggledEvent();
 				break;
 
+			case Event::Type::InstrumentLayerChanged:
+				ppEventListener->instrumentLayerChangedEvent( pEvent->getValue()
+				);
+				break;
+
 			case Event::Type::InstrumentMuteSoloChanged:
 				ppEventListener->instrumentMuteSoloChangedEvent( pEvent->getValue() );
 				break;

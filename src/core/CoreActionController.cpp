@@ -2273,7 +2273,9 @@ bool CoreActionController::setPattern(
 
 	pHydrogen->setIsModified( true );
 
-	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, 0 );
+	EventQueue::get_instance()->pushEvent(
+		Event::Type::SelectedPatternChanged, 0
+	);
 
 	return true;
 }

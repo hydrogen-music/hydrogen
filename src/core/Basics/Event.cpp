@@ -44,6 +44,8 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "Error";
 	case Event::Type::GridCellToggled:
 		return "GridCellToggled";
+	case Event::Type::InstrumentLayerChanged:
+		return "InstrumentLayerChanged";
 	case Event::Type::InstrumentMuteSoloChanged:
 		return "InstrumentMuteSoloChanged";
 	case Event::Type::InstrumentParametersChanged:

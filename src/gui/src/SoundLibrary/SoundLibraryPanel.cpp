@@ -868,14 +868,10 @@ void SoundLibraryPanel::test_expandedItems()
 
 	auto pPref = Preferences::get_instance();
 
-	if ( __song_item == nullptr) {
-		pPref->m_bExpandSongItem = false;
-	} else {
+	if ( __song_item != nullptr ) {
 		pPref->m_bExpandSongItem = __song_item->isExpanded();
 	}
-	if ( __pattern_item == nullptr) {
-		pPref->m_bExpandPatternItem = false;
-	} else {
+	if ( __pattern_item != nullptr ) {
 		pPref->m_bExpandPatternItem = __pattern_item->isExpanded();
 	}
 }

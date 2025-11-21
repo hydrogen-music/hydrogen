@@ -70,39 +70,40 @@ namespace H2Core
 					   QString( "%1" ).arg( x ), "\033[34;1m" ); }
 
 AudioEngine::AudioEngine()
-		: m_pSampler( nullptr )
-		, m_pAudioDriver( nullptr )
-		, m_pMidiDriver( nullptr )
-		, m_state( State::Initialized )
-		, m_pMetronomeInstrument( nullptr )
-		, m_fSongSizeInTicks( 4 * H2Core::nTicksPerQuarter )
-		, m_nRealtimeFrame( 0 )
-		, m_nRealtimeFrameScaled( 0 )
-		, m_fMasterPeak_L( 0.0f )
-		, m_fMasterPeak_R( 0.0f )
-		, m_nextState( State::Ready )
-		, m_fProcessTime( 0.0f )
-		, m_fLadspaTime( 0.0f )
-		, m_fMaxProcessTime( 0.0f )
-		, m_fNextBpm( 120 )
-		, m_pLocker({nullptr, 0, nullptr, false})
-		, m_fLastTickEnd( 0 )
-		, m_bLookaheadApplied( false )
-		, m_nLoopsDone( 0 )
-		, m_nLastLoopFrame( 0 )
-		, m_nCountInMetronomeTicks( 0 )
-		, m_nCountInStartTick( 0 )
-		, m_nCountInEndTick( 0 )
-		, m_fCountInTickInterval( 0 )
-		, m_fCountInTickSizeStart( 0 )
-		, m_nCountInFrameOffset( 0 )
-		, m_nCountInEndFrame( 0 )
+	: m_pSampler( nullptr ),
+	  m_pAudioDriver( nullptr ),
+	  m_pMidiDriver( nullptr ),
+	  m_state( State::Initialized ),
+	  m_pMetronomeInstrument( nullptr ),
+	  m_fSongSizeInTicks( 4 * H2Core::nTicksPerQuarter ),
+	  m_nRealtimeFrame( 0 ),
+	  m_nRealtimeFrameScaled( 0 ),
+	  m_fMasterPeak_L( 0.0f ),
+	  m_fMasterPeak_R( 0.0f ),
+	  m_nextState( State::Ready ),
+	  m_fProcessTime( 0.0f ),
+	  m_fLadspaTime( 0.0f ),
+	  m_fMaxProcessTime( 0.0f ),
+	  m_fNextBpm( 120 ),
+	  m_pLocker( { nullptr, 0, nullptr, false } ),
+	  m_fLastTickEnd( 0 ),
+	  m_bLookaheadApplied( false ),
+	  m_nLoopsDone( 0 ),
+	  m_nLastLoopFrame( 0 ),
+	  m_nCountInMetronomeTicks( 0 ),
+	  m_nCountInStartTick( 0 ),
+	  m_nCountInEndTick( 0 ),
+	  m_fCountInTickInterval( 0 ),
+	  m_fCountInTickSizeStart( 0 ),
+	  m_nCountInFrameOffset( 0 ),
+	  m_nCountInEndFrame( 0 )
 {
-	m_pTransportPosition = std::make_shared<TransportPosition>(
-		TransportPosition::Type::Transport );
-	m_pQueuingPosition = std::make_shared<TransportPosition>(
-		TransportPosition::Type::Queuing );
-	
+	m_pTransportPosition =
+		std::make_shared<TransportPosition>( TransportPosition::Type::Transport
+		);
+	m_pQueuingPosition =
+		std::make_shared<TransportPosition>( TransportPosition::Type::Queuing );
+
 	m_pSampler = new Sampler;
 
 	srand( time( nullptr ) );
@@ -110,18 +111,24 @@ AudioEngine::AudioEngine()
 	// Create metronome instrument
 	// Get the path to the file of the metronome sound.
 	QString sMetronomeFileName = Filesystem::click_file_path();
-	m_pMetronomeInstrument = std::make_shared<Instrument>( METRONOME_INSTR_ID, "metronome" );
-	
-	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( sMetronomeFileName ) );
+	m_pMetronomeInstrument =
+		std::make_shared<Instrument>( METRONOME_INSTR_ID, "metronome" );
+
+	auto pLayer =
+		std::make_shared<InstrumentLayer>( Sample::load( sMetronomeFileName ) );
 	auto pComponent = m_pMetronomeInstrument->getComponent( 0 );
 	if ( pComponent != nullptr ) {
-		pComponent->setLayer( pLayer, 0 );
-	} else {
+		m_pMetronomeInstrument->setLayer(
+			pComponent, pLayer, 0, Event::Trigger::Suppress
+		);
+	}
+	else {
 		___ERRORLOG( "Invalid default component" );
 	}
 	m_pMetronomeInstrument->setVolume(
-		Preferences::get_instance()->m_fMetronomeVolume );
-	
+		Preferences::get_instance()->m_fMetronomeVolume
+	);
+
 	m_AudioProcessCallback = &audioEngine_process;
 
 #ifdef H2CORE_HAVE_LADSPA

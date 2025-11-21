@@ -1340,6 +1340,12 @@ void PatternEditorPanel::relocationEvent() {
 	}
 }
 
+void PatternEditorPanel::instrumentLayerChangedEvent( int )
+{
+  // The missing sample icons may have to be updated.
+  m_pSidebar->updateEditor();
+}
+
 void PatternEditorPanel::instrumentMuteSoloChangedEvent( int ) {
 	updateDB();
 	updateEditors( Editor::Update::Content );

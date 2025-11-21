@@ -23,6 +23,7 @@
 #include <core/Basics/Instrument.h>
 
 #include <cassert>
+#include <memory>
 
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Drumkit.h>
@@ -31,6 +32,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Sample.h>
+#include <core/EventQueue.h>
 #include <core/Helpers/Legacy.h>
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
@@ -459,7 +461,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom( const XMLNode& node,
 			std::make_shared<InstrumentComponent>() );
 	}
 
-	pInstrument->checkForMissingSamples();
+	pInstrument->checkForMissingSamples( Event::Trigger::Suppress );
 
 	return pInstrument;
 }
@@ -555,7 +557,7 @@ void Instrument::saveTo( XMLNode& node, bool bSongKit, bool bKeepMissingSamples,
 
 	// Instrument layers with missing samples will be discarded during saving.
 	if ( m_bHasMissingSamples ) {
-		checkForMissingSamples();
+		checkForMissingSamples( Event::Trigger::Suppress );
 	}
 }
 
@@ -644,7 +646,31 @@ const QString& Instrument::getDrumkitPath() const
 	return m_sDrumkitPath;
 }
 
-bool Instrument::hasSamples() const {
+void Instrument::setLayer(
+	std::shared_ptr<InstrumentComponent> pComponent,
+	std::shared_ptr<InstrumentLayer> pLayer,
+	int nIndex,
+	Event::Trigger trigger
+)
+{
+	if ( pComponent == nullptr ) {
+		// The provided layer is allowed to be nullptr. This will be used to
+		// remove it from the component.
+		ERRORLOG( "Invalid input" );
+		return;
+	}
+
+	for ( auto& ppComponent : *m_pComponents ) {
+		if ( pComponent == ppComponent ) {
+			ppComponent->setLayer( pLayer, nIndex );
+		}
+	}
+
+	checkForMissingSamples( trigger );
+}
+
+bool Instrument::hasSamples() const
+{
 	for ( const auto& pComponent : *m_pComponents ) {
 		if ( pComponent != nullptr && pComponent->hasSamples() ) {
 			return true;
@@ -654,7 +680,33 @@ bool Instrument::hasSamples() const {
 	return false;
 }
 
-int Instrument::getLongestSampleFrames() const {
+void Instrument::setSample(
+	std::shared_ptr<InstrumentComponent> pComponent,
+	std::shared_ptr<InstrumentLayer> pLayer,
+	std::shared_ptr<Sample> pSample,
+	Event::Trigger trigger
+)
+{
+	if ( pComponent == nullptr || pLayer == nullptr || pSample == nullptr ) {
+		ERRORLOG( "Invalid input" );
+		return;
+	}
+
+	for ( const auto& ppComponent : *m_pComponents ) {
+		if ( pComponent == ppComponent ) {
+			for ( auto& ppLayer : *pComponent ) {
+				if ( ppLayer == pLayer ) {
+					ppLayer->setSample( pSample );
+				}
+			}
+		}
+	}
+
+	checkForMissingSamples( trigger );
+}
+
+int Instrument::getLongestSampleFrames() const
+{
 	int nLongestFrames = 0;
 
 	for ( const auto& pComponent : *m_pComponents ) {
@@ -673,12 +725,17 @@ int Instrument::getLongestSampleFrames() const {
 	return nLongestFrames;
 }
 
-void Instrument::checkForMissingSamples() {
+void Instrument::checkForMissingSamples( Event::Trigger trigger )
+{
+	const bool bPreviousValue = m_bHasMissingSamples;
+
 	m_bHasMissingSamples = false;
 
 	for ( const auto& pComponent : *getComponents() ) {
 		if ( pComponent == nullptr ) {
-			ERRORLOG( "Invalid component. Something went wrong loading the instrument" );
+			ERRORLOG(
+				"Invalid component. Something went wrong loading the instrument"
+			);
 			m_bHasMissingSamples = true;
 			return;
 		}
@@ -695,6 +752,23 @@ void Instrument::checkForMissingSamples() {
 			}
 		}
 	}
+
+	if ( m_bHasMissingSamples != bPreviousValue &&
+		 trigger != Event::Trigger::Suppress ) {
+		EventQueue::get_instance()->pushEvent(
+			Event::Type::InstrumentLayerChanged, m_nId
+		);
+	}
+}
+
+std::vector<std::shared_ptr<InstrumentComponent>>::iterator Instrument::begin()
+{
+	return m_pComponents->begin();
+}
+
+std::vector<std::shared_ptr<InstrumentComponent>>::iterator Instrument::end()
+{
+	return m_pComponents->end();
 }
 
 QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {

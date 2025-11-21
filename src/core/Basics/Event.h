@@ -70,6 +70,11 @@ public:
 			EffectChanged,
 			Error,
 			GridCellToggled,
+			/** An instrument layer was added, replaced, delete, or edited using
+			 * the #SampleEditor.
+			 *
+			 * The integer supplied is the corresponding instrument id. */
+			InstrumentLayerChanged,
 			/** Mute or solo state of the instrument specified in the event
 			 * parameter changed.
 			 *
@@ -132,10 +137,12 @@ public:
 			 * #H2Core::Playlist changed.
 			 *
 			 * If the value of the event is
-			 * - 0 - update the GUI to represent the Playlist loaded by the core.
+			 * - 0 - update the GUI to represent the Playlist loaded by the
+			 * core.
 			 * - 1 - triggered whenever the Playlist was saved via the core part
 			 *    (updated the title and status bar).
-			 * - 2 - Playlist is not writable (inform the user via a QMessageBox)
+			 * - 2 - Playlist is not writable (inform the user via a
+			 * QMessageBox)
 			 */
 			PlaylistChanged,
 			PlaylistLoadSong,

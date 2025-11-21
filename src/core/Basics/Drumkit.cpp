@@ -1230,53 +1230,45 @@ const QString& Drumkit::getPath() const {
 	return m_sPath;
 }
 
-void Drumkit::recalculateRubberband( float fBpm ) {
-
+void Drumkit::recalculateRubberband( float fBpm )
+{
 	if ( !Preferences::get_instance()->getRubberBandBatchMode() ) {
 		return;
 	}
 
-	if ( m_pInstruments != nullptr ) {
-		for ( unsigned nnInstr = 0; nnInstr < m_pInstruments->size(); ++nnInstr ) {
-			auto pInstr = m_pInstruments->get( nnInstr );
-			if ( pInstr == nullptr ) {
+	if ( m_pInstruments == nullptr ) {
+		ERRORLOG( "No InstrumentList present" );
+	}
+
+	for ( auto& ppInstrument : *m_pInstruments ) {
+		if ( ppInstrument == nullptr ) {
+			continue;
+		}
+		for ( const auto& ppComponent : *ppInstrument ) {
+			if ( ppComponent == nullptr ) {
 				continue;
 			}
-			if ( pInstr != nullptr ){
-				for ( int nnComponent = 0; nnComponent < pInstr->getComponents()->size();
-					  ++nnComponent ) {
-					auto pInstrumentComponent = pInstr->getComponent( nnComponent );
-					if ( pInstrumentComponent == nullptr ) {
-						continue;
-					}
 
-					for ( int nnLayer = 0; nnLayer < InstrumentComponent::getMaxLayers(); nnLayer++ ) {
-						auto pLayer = pInstrumentComponent->getLayer( nnLayer );
-						if ( pLayer != nullptr ) {
-							auto pSample = pLayer->getSample();
-							if ( pSample != nullptr ) {
-								if( pSample->getRubberband().use ) {
-									auto pNewSample = std::make_shared<Sample>( pSample );
-
-									if ( ! pNewSample->load( fBpm ) ){
-										continue;
-									}
-
-									// insert new sample from newInstrument
-									pLayer->setSample( pNewSample );
-								}
-							}
-						}
-					}
+			for ( const auto& ppLayer : *ppComponent ) {
+				if ( ppLayer == nullptr || ppLayer->getSample() == nullptr ||
+					 !ppLayer->getSample()->getRubberband().use ) {
+					continue;
 				}
+				auto pNewSample = std::make_shared<Sample>( ppLayer->getSample() );
+				if ( !pNewSample->load( fBpm ) ) {
+				  continue;
+				}
+
+				ppInstrument->setSample(
+					ppComponent, ppLayer, pNewSample, Event::Trigger::Suppress
+				);
 			}
 		}
-	} else {
-		ERRORLOG( "No InstrumentList present" );
 	}
 }
 
-Drumkit::Context Drumkit::DetermineContext( const QString& sPath ) {
+Drumkit::Context Drumkit::DetermineContext( const QString& sPath )
+{
 	if ( ! sPath.isEmpty() ) {
 		const QString sAbsolutePath = Filesystem::absolute_path( sPath );
 		if ( sAbsolutePath.contains( Filesystem::sys_drumkits_dir() ) ) {

@@ -26,11 +26,12 @@
 #include <cassert>
 #include <memory>
 
-#include <core/Object.h>
 #include <core/Basics/Adsr.h>
 #include <core/Basics/DrumkitMap.h>
+#include <core/Basics/Event.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/License.h>
+#include <core/Object.h>
 
 #define EMPTY_INSTR_ID          -1
 /** Created Instrument will be used as metronome. */
@@ -41,12 +42,11 @@ namespace H2Core
 {
 
 class ADSR;
-class Drumkit;
 class InstrumentLayer;
 class InstrumentComponent;
 class Note;
+class Sample;
 class XMLNode;
-
 
 /**
 Instrument class
@@ -290,14 +290,30 @@ class Instrument : public H2Core::Object<Instrument>
 
 		bool hasMissingSamples() const { return m_bHasMissingSamples; }
 
-	/** Whether the instrument contains at least one non-missing
-	 * sample */
-	bool hasSamples() const;
+		void setLayer(
+			std::shared_ptr<InstrumentComponent> pComponent,
+			std::shared_ptr<InstrumentLayer> pLayer,
+			int nIndex,
+			Event::Trigger trigger
+		);
+		/** Whether the instrument contains at least one non-missing
+		 * sample */
+		bool hasSamples() const;
+		void setSample(
+			std::shared_ptr<InstrumentComponent> pComponent,
+			std::shared_ptr<InstrumentLayer> pLayer,
+			std::shared_ptr<Sample> pSample,
+			Event::Trigger trigger
+		);
 
 		int getLongestSampleFrames() const;
 
 		DrumkitMap::Type getType() const;
 		void setType( DrumkitMap::Type type );
+
+		/** Iteration */
+		std::vector<std::shared_ptr<InstrumentComponent>>::iterator begin();
+		std::vector<std::shared_ptr<InstrumentComponent>>::iterator end();
 
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -310,12 +326,11 @@ class Instrument : public H2Core::Object<Instrument>
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	private:
+		void checkForMissingSamples( Event::Trigger trigger );
 
-	void checkForMissingSamples();
-
-	        /** Identifier of an instrument, which should be
-		    unique. It is set by setId() and accessed via
-	        getId().*/
+		/** Identifier of an instrument, which should be
+		unique. It is set by setId() and accessed via
+		getId().*/
 		int					m_nId;
 	        /** Name of the Instrument. It is set by setName()
 		    and accessed via getName().*/

@@ -6010,6 +6010,11 @@ Are you sure?</source>
 imported into %2</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Download failed for</source>
+        <extracomment>Shown in a dialog in case a download of an online resource did fail. * A list of names does follow in a new line.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SoundLibraryOnlineImportDialog_UI</name>

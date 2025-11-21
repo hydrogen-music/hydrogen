@@ -120,7 +120,16 @@ void InstrumentEditorPanel::drumkitLoadedEvent() {
 	updateEditors();
 }
 
-void InstrumentEditorPanel::instrumentParametersChangedEvent( int nInstrumentNumber )
+void InstrumentEditorPanel::instrumentLayerChangedEvent( int nId )
+{
+	if ( m_pInstrument != nullptr && m_pInstrument->getId() == nId ) {
+		m_pComponentsEditor->updateComponents();
+	}
+}
+
+void InstrumentEditorPanel::instrumentParametersChangedEvent(
+	int nInstrumentNumber
+)
 {
 	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
 

@@ -39,6 +39,9 @@ class EventListener
 		virtual void effectChangedEvent(){}
 		virtual void errorEvent( int nErrorCode ) { UNUSED( nErrorCode ); }
     	virtual void gridCellToggledEvent(){}
+		virtual void instrumentLayerChangedEvent( int nInstrumentId ) {
+			UNUSED( nInstrumentId );
+		}
 		virtual void instrumentMuteSoloChangedEvent( int nInstrumentIndex ) {
 			UNUSED( nInstrumentIndex );
 		}
