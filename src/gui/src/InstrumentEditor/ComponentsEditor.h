@@ -53,6 +53,7 @@ class ComponentsEditor :  public QWidget,
 
 		void updateColors();
 		void updateComponents();
+		void updateIcons();
 		void updateEditor();
 		void updateStyleSheet();
 

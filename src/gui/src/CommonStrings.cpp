@@ -75,19 +75,20 @@ CommonStrings::CommonStrings(){
 	/*: Text displayed on the button to show the Layer view of the Instrument Rack. Its size
 	  is designed to hold ten characters but is quite flexible.*/
 	m_sComponentsButton = tr( "Components" );
-	/*: Text displayed on the button to load a layer into an
-	  instrument. Its size is designed to hold ten characters but is quite
-	  flexible.*/
+	/*: Text displayed as tooltip on the button for adding a new layer to an
+	 * instrument by selecting a sample in a file dialog.*/
+	m_sNewLayerButton = tr( "Add New Layer" );
+	/*: Text displayed as tooltip on the button for replacing the sample of an
+	  existing layer of an instrument by selecting a new one in a file dialog.*/
 	m_sLoadLayerButton = tr( "Load Layer" );
-
-	/*: Text displayed on the button to delete a layer into an
-	  instrument. Its size is designed to hold twelve characters but is quite
-	  flexible.*/
+	/*: Text displayed as tooltip on the button for duplicating an existing
+	 * layer of an instrument.*/
+	m_sDuplicateLayerButton = tr( "Duplicate Layer" );
+	/*: Text displayed as tooltip on the button for deleting an existing layer
+	 * of an instrument.*/
 	m_sDeleteLayerButton = tr( "Delete Layer" );
-
-	/*: Text displayed on the button to edit a layer into an
-	  instrument. Its size is designed to hold ten characters but is quite
-	  flexible.*/
+	/*: Text displayed as tooltip on the button for editing an existing layer
+	 * of an instrument using the Sample Editor widget.*/
 	m_sEditLayerButton = tr( "Edit Layer" );
 
 	/*: Text displayed as tooltip on the button which enables lasso-selection

@@ -131,19 +131,22 @@ void ComponentsEditor::updateComponents() {
 
 	int nnCount = 0;
 	for ( const auto& ppComponent : *pInstrument->getComponents() ) {
+		if ( ppComponent == nullptr ) {
+			continue;
+		}
 		if ( nnCount < m_componentViews.size() ) {
 			// Ensure the correct component is assigned to the view.
-			m_componentViews[ nnCount ]->setComponent( ppComponent );
+			m_componentViews[nnCount]->setComponent( ppComponent );
 		}
 		else {
 			// Create a new view
 			auto pNewView = new ComponentView( this, ppComponent );
 			connect( pNewView, &ComponentView::expandedOrCollapsed, [=]() {
 				updateSize();
-			});
+			} );
 			m_pComponentsLayout->addWidget( pNewView );
 			m_componentViews.push_back( pNewView );
-			if ( ! bRequiresNewStretch ) {
+			if ( !bRequiresNewStretch ) {
 				bRequiresNewStretch = handleStretch();
 			}
 		}
@@ -161,6 +164,12 @@ void ComponentsEditor::updateComponents() {
 	}
 
 	updateSize();
+}
+
+void ComponentsEditor::updateIcons() {
+	for ( auto& ppComponentView : m_componentViews ) {
+		ppComponentView->updateIcons();
+	}
 }
 
 void ComponentsEditor::updateEditor() {

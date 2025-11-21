@@ -411,17 +411,17 @@ Label of the tab in pattern/song/drumkit properties dialog containing * artifact
     </message>
     <message>
         <source>Load Layer</source>
-        <extracomment>Text displayed on the button to load a layer into an instrument. Its size is designed to hold ten characters but is quite flexible.</extracomment>
+        <extracomment>Text displayed as tooltip on the button for replacing the sample of an existing layer of an instrument by selecting a new one in a file dialog.</extracomment>
         <translation>Carregar camada</translation>
     </message>
     <message>
         <source>Delete Layer</source>
-        <extracomment>Text displayed on the button to delete a layer into an instrument. Its size is designed to hold twelve characters but is quite flexible.</extracomment>
+        <extracomment>Text displayed as tooltip on the button for deleting an existing layer * of an instrument.</extracomment>
         <translation>Deletar camada</translation>
     </message>
     <message>
         <source>Edit Layer</source>
-        <extracomment>Text displayed on the button to edit a layer into an instrument. Its size is designed to hold ten characters but is quite flexible.</extracomment>
+        <extracomment>Text displayed as tooltip on the button for editing an existing layer * of an instrument using the Sample Editor widget.</extracomment>
         <translation>Editar camada</translation>
     </message>
     <message>
@@ -1502,6 +1502,16 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>Delete pattern from list</source>
         <extracomment>Shown in the undo history after removing a pattern.</extracomment>
         <translation>Deletar padrão da lista</translation>
+    </message>
+    <message>
+        <source>Add New Layer</source>
+        <extracomment>Text displayed as tooltip on the button for adding a new layer to an * instrument by selecting a sample in a file dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate Layer</source>
+        <extracomment>Text displayed as tooltip on the button for duplicating an existing * layer of an instrument.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

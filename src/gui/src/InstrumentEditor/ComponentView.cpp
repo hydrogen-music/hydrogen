@@ -151,10 +151,10 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pComponentWidget = new QWidget( this );
 	m_pComponentWidget->setObjectName( "ComponentWidget" );
 	auto pVBoxComponentLayout = new QVBoxLayout( this );
-	pVBoxComponentLayout->setSpacing( ComponentView::nVerticalSpacing );
+	pVBoxComponentLayout->setSpacing( 0 );
 	pVBoxComponentLayout->setContentsMargins(
-		ComponentView::nMargin, ComponentView::nMargin,
-		ComponentView::nMargin, ComponentView::nMargin );
+		ComponentView::nMargin, 0,
+		ComponentView::nMargin, 0 );
 	m_pComponentWidget->setLayout( pVBoxComponentLayout );
 
 	// Layer preview
@@ -171,50 +171,115 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pLayerScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pLayerScrollArea->setWidget( m_pLayerPreview  );
 
-	// Buttons to manipulate the current layer.
+    // Toolbar with buttons
 
-	auto pLayerButtonWidget = new QWidget( m_pComponentWidget );
-	pLayerButtonWidget->setObjectName( "LayerButtonWidget" );
-	pLayerButtonWidget->setFixedHeight( ComponentView::nLayerButtonsHeight );
+	m_pToolBar = new QToolBar( m_pComponentWidget );
+	m_pToolBar->setFixedSize(
+		ComponentView::nWidth - ComponentView::nMargin * 2,
+		ComponentView::nToolBarHeight
+	);
+	m_pToolBar->setFocusPolicy( Qt::NoFocus );
 
-	auto pHBoxLayerButtonLayout = new QHBoxLayout();
-	pHBoxLayerButtonLayout->setSpacing( 0 );
-	pHBoxLayerButtonLayout->setContentsMargins( 0, 0, 0, 0 );
-	pLayerButtonWidget->setLayout( pHBoxLayerButtonLayout );
+	auto createAction = [&]( const QString& sText, bool bCheckable ) {
+		auto pAction = new QAction( m_pToolBar );
+		pAction->setCheckable( bCheckable );
+		pAction->setIconText( sText );
+		pAction->setToolTip( sText );
 
-	const int nButtonWidth = static_cast<int>(
-		std::floor( static_cast<float>(ComponentView::nWidth -
-									   ComponentView::nMargin) / 3. ));
+		return pAction;
+	};
 
-	m_pLoadLayerBtn = new Button(
-		pLayerButtonWidget,
-		QSize( nButtonWidth, ComponentView::nLayerButtonsHeight ),
-		Button::Type::Push, "", pCommonStrings->getLoadLayerButton() );
-	m_pLoadLayerBtn->setObjectName( "LoadLayerButton" );
-	connect( m_pLoadLayerBtn, SIGNAL( clicked() ),
-			 this, SLOT( loadLayerBtnClicked() ) );
-	pHBoxLayerButtonLayout->addWidget( m_pLoadLayerBtn );
+	m_pNewLayerAction =
+		createAction( pCommonStrings->getNewLayerButton(), false );
+	connect( m_pNewLayerAction, &QAction::triggered, [=]() {
+		loadLayerBtnClicked();
+	} );
+	m_pToolBar->addAction( m_pNewLayerAction );
 
-	// This button might be slightly bigger (in order to ensure we fill the
-	// available space and since its English string is the longest).
-	m_pRemoveLayerBtn = new Button(
-		pLayerButtonWidget, QSize(
-			ComponentView::nWidth - 2 * ComponentView::nMargin -
-			2 * nButtonWidth, ComponentView::nLayerButtonsHeight ),
-		Button::Type::Push, "", pCommonStrings->getDeleteLayerButton() );
-	m_pRemoveLayerBtn->setObjectName( "RemoveLayerButton" );
-	connect( m_pRemoveLayerBtn, SIGNAL( clicked() ),
-			 this, SLOT( removeLayerButtonClicked() ) );
-	pHBoxLayerButtonLayout->addWidget( m_pRemoveLayerBtn );
+	m_pToolBar->addSeparator();
 
-	m_pSampleEditorBtn = new Button(
-		pLayerButtonWidget,
-		QSize( nButtonWidth, ComponentView::nLayerButtonsHeight ),
-		Button::Type::Push, "", pCommonStrings->getEditLayerButton() );
-	m_pSampleEditorBtn->setObjectName( "SampleEditorButton" );
-	connect( m_pSampleEditorBtn, SIGNAL( clicked() ),
-			 this, SLOT( showSampleEditor() ) );
-	pHBoxLayerButtonLayout->addWidget( m_pSampleEditorBtn );
+	m_pReplaceLayerAction =
+		createAction( pCommonStrings->getLoadLayerButton(), false );
+	connect( m_pReplaceLayerAction, &QAction::triggered, [=]() {
+		loadLayerBtnClicked();
+	} );
+	m_pToolBar->addAction( m_pReplaceLayerAction );
+
+	m_pDuplicateLayerAction =
+		createAction( pCommonStrings->getDuplicateLayerButton(), false );
+	connect( m_pDuplicateLayerAction, &QAction::triggered, [=]() {
+		loadLayerBtnClicked();
+	} );
+	m_pToolBar->addAction( m_pDuplicateLayerAction );
+
+	m_pDeleteLayerAction =
+		createAction( pCommonStrings->getDeleteLayerButton(), false );
+	connect( m_pDeleteLayerAction, &QAction::triggered, [=]() {
+		removeLayerButtonClicked();
+	} );
+	m_pToolBar->addAction( m_pDeleteLayerAction );
+
+	m_pToolBar->addSeparator();
+
+	m_pEditLayerAction =
+		createAction( pCommonStrings->getEditLayerButton(), false );
+	connect( m_pEditLayerAction, &QAction::triggered, [=]() {
+		showSampleEditor();
+	} );
+	m_pToolBar->addAction( m_pEditLayerAction );
+
+	m_pToolBar->addSeparator();
+
+	m_pLayerMuteBtn = new Button(
+		m_pToolBar,
+		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
+		Button::Type::Toggle, "", pCommonStrings->getSmallMuteButton(), QSize(),
+		tr( "Mute layer" ), true
+	);
+	m_pLayerMuteBtn->setObjectName( "LayerMuteButton" );
+	connect( m_pLayerMuteBtn, &Button::clicked, [&]() {
+		if ( m_pComponent != nullptr ) {
+			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
+			if ( pLayer != nullptr ) {
+				pLayer->setIsMuted( m_pLayerMuteBtn->isChecked() );
+				updateView();  // WaveDisplay update
+			}
+		}
+	} );
+	m_pToolBar->addWidget( m_pLayerMuteBtn );
+
+	m_pLayerSoloBtn = new Button(
+		m_pToolBar,
+		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
+		Button::Type::Toggle, "", pCommonStrings->getSmallSoloButton(), QSize(),
+		tr( "Solo layer" ), true
+	);
+	m_pLayerSoloBtn->setObjectName( "LayerSoloButton" );
+	connect( m_pLayerSoloBtn, &Button::clicked, [&]() {
+		if ( m_pComponent != nullptr ) {
+			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
+			if ( pLayer != nullptr ) {
+				pLayer->setIsSoloed( m_pLayerSoloBtn->isChecked() );
+				updateView();  // WaveDisplay update
+			}
+		}
+	} );
+	m_pToolBar->addWidget( m_pLayerSoloBtn );
+
+	m_pLayerGainRotary = new Rotary(
+		m_pToolBar, Rotary::Type::Normal, tr( "Layer gain" ), false,
+		0.0, 5.0 );
+	m_pLayerGainRotary->setDefaultValue( 1.0 );
+	connect( m_pLayerGainRotary, &Rotary::valueChanged, [&]() {
+		if ( m_pComponent != nullptr ) {
+			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
+			if ( pLayer != nullptr ) {
+				pLayer->setGain( m_pLayerGainRotary->getValue() );
+				updateView(); // WaveDisplay update
+			}
+		}
+	});
+	m_pToolBar->addWidget( m_pLayerGainRotary );
 
 	// Sample selection
 
@@ -326,62 +391,6 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pLayerPitchFineLbl->setObjectName( "LayerPitchFineLabel" );
 	pGridLayerPropLayout->addWidget( m_pLayerPitchFineLbl, 1, 2 );
 
-	m_pLayerMuteBtn = new Button(
-		pLayerPropWidget,
-		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
-		Button::Type::Toggle, "",
-		pCommonStrings->getSmallMuteButton(), QSize(), tr( "Mute layer" ), true );
-	m_pLayerMuteBtn->setChecked( pComponent->getIsMuted() );
-	m_pLayerMuteBtn->setObjectName( "LayerMuteButton" );
-	connect( m_pLayerMuteBtn, &Button::clicked, [&](){
-		if ( m_pComponent != nullptr ) {
-			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
-			if ( pLayer != nullptr ) {
-				pLayer->setIsMuted( m_pLayerMuteBtn->isChecked() );
-				updateView(); // WaveDisplay update
-			}
-		}
-	});
-	pGridLayerPropLayout->addWidget( m_pLayerMuteBtn, 0, 4 );
-
-	m_pLayerSoloBtn = new Button(
-		pLayerPropWidget,
-		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
-		Button::Type::Toggle, "", pCommonStrings->getSmallSoloButton(),
-		QSize(), tr( "Solo layer" ), true );
-	m_pLayerSoloBtn->setChecked( pComponent->getIsSoloed() );
-	m_pLayerSoloBtn->setObjectName( "LayerSoloButton" );
-	connect( m_pLayerSoloBtn, &Button::clicked, [&](){
-		if ( m_pComponent != nullptr ) {
-			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
-			if ( pLayer != nullptr ) {
-				pLayer->setIsSoloed( m_pLayerSoloBtn->isChecked() );
-				updateView(); // WaveDisplay update
-			}
-		}
-	});
-	pGridLayerPropLayout->addWidget( m_pLayerSoloBtn, 0, 5 );
-
-	m_pLayerGainRotary = new Rotary(
-		pLayerPropWidget, Rotary::Type::Normal, tr( "Layer gain" ), false,
-		0.0, 5.0 );
-	m_pLayerGainRotary->setDefaultValue( 1.0 );
-	connect( m_pLayerGainRotary, &Rotary::valueChanged, [&]() {
-		if ( m_pComponent != nullptr ) {
-			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
-			if ( pLayer != nullptr ) {
-				pLayer->setGain( m_pLayerGainRotary->getValue() );
-				updateView(); // WaveDisplay update
-			}
-		}
-	});
-	pGridLayerPropLayout->addWidget( m_pLayerGainRotary, 0, 6 );
-	m_pLayerGainLbl = new ClickableLabel(
-		pLayerPropWidget, QSize( 44, ComponentView::nLabelHeight ),
-		pCommonStrings->getLayerGainLabel() );
-	m_pLayerGainLbl->setObjectName( "LayerGainLabel" );
-	pGridLayerPropLayout->addWidget( m_pLayerGainLbl, 1, 6 );
-
 	// Ensure the mute, solo, gain buttons are close to each other like the in
 	// component header. In addition, we want a visual separation of pitch an
 	// gain.
@@ -395,9 +404,12 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	// Putting everything together.
 
+    pVBoxComponentLayout->addSpacing( ComponentView::nVerticalSpacing );
 	pVBoxComponentLayout->addWidget( m_pLayerScrollArea );
-	pVBoxComponentLayout->addWidget( pLayerButtonWidget );
+    pVBoxComponentLayout->addWidget( m_pToolBar );
+    pVBoxComponentLayout->addSpacing( ComponentView::nVerticalSpacing );
 	pVBoxComponentLayout->addWidget( pSampleSelectionWidget );
+    pVBoxComponentLayout->addSpacing( ComponentView::nVerticalSpacing );
 
 	pVBoxLayerLayout->addWidget( m_pWaveDisplay );
 	pVBoxLayerLayout->addWidget( pLayerPropWidget );
@@ -414,6 +426,7 @@ ComponentView::ComponentView( QWidget* pParent,
 		pCommonStrings->getMenuActionDelete(), this, SLOT( deleteComponent() ));
 
 	updateColors();
+    updateIcons();
 	updateStyleSheet();
 }
 
@@ -438,6 +451,25 @@ void ComponentView::updateColors() {
 		pColorTheme->m_soloTextColor );
 }
 
+void ComponentView::updateIcons() {
+	QColor color;
+	QString sIconPath( Skin::getSvgImagePath() );
+	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+		 InterfaceTheme::IconColor::White ) {
+		sIconPath.append( "/icons/white/" );
+		color = Qt::white;
+	} else {
+		sIconPath.append( "/icons/black/" );
+		color = Qt::black;
+	}
+
+	m_pNewLayerAction->setIcon( QIcon( sIconPath + "plus.svg" ) );
+	m_pReplaceLayerAction->setIcon( QIcon( sIconPath + "folder.svg" ) );
+	m_pDuplicateLayerAction->setIcon( QIcon( sIconPath + "duplicate.svg" ) );
+	m_pDeleteLayerAction->setIcon( QIcon( sIconPath + "bin.svg" ) );
+	m_pEditLayerAction->setIcon( QIcon( sIconPath + "sample-editor.svg" ) );
+}
+
 void ComponentView::updateStyleSheet() {
 	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 
@@ -456,7 +488,8 @@ void ComponentView::updateStyleSheet() {
 
 	QString sStyleSheet;
 	if ( m_bIsExpanded ) {
-		sStyleSheet.append( QString( "\
+		sStyleSheet.append( QString(
+			"\
 QWidget#HeaderWidget { \
     background-color: %1; \
     border-top: 1px solid %2; \
@@ -475,6 +508,11 @@ QWidget#ComponentWidget { \
 QWidget#LayerWidget { \
     border-top: 1px solid %5; \
     border-bottom: 2px solid %6; \
+} \
+QToolBar {\
+    spacing: 1px; \
+    border-top: 1px solid #000; \
+    border-bottom: 1px solid %6; \
 }" )
 							.arg( headerColor.name() )
 							.arg( borderHeaderLightColor.name() )
@@ -719,8 +757,10 @@ void ComponentView::updateActivation() {
 		m_pLayerPitchCoarseRotary->setIsActive( true );
 		m_pLayerPitchFineRotary->setIsActive( true );
 
-		m_pRemoveLayerBtn->setIsActive( true );
-		m_pSampleEditorBtn->setIsActive( pLayer->getSample() != nullptr );
+		m_pReplaceLayerAction->setEnabled( true );
+		m_pDuplicateLayerAction->setEnabled( true );
+		m_pDeleteLayerAction->setEnabled( true );
+		m_pEditLayerAction->setEnabled( pLayer->getSample() != nullptr );
 
 		m_pWaveDisplay->updateDisplay( nullptr );
 	}
@@ -736,8 +776,10 @@ void ComponentView::updateActivation() {
 		m_pLayerPitchFineRotary->setIsActive( false );
 		m_pLayerPitchLCD->setText( "" );
 
-		m_pRemoveLayerBtn->setIsActive( false );
-		m_pSampleEditorBtn->setIsActive( false );
+		m_pReplaceLayerAction->setEnabled( false );
+		m_pDuplicateLayerAction->setEnabled( false );
+		m_pDeleteLayerAction->setEnabled( false );
+		m_pEditLayerAction->setEnabled( false );
 
 		m_pWaveDisplay->updateDisplay( nullptr );
 	}

@@ -61,6 +61,7 @@ class ComponentView : public QWidget,
 
 		static constexpr int nVerticalSpacing = 5;
 		static constexpr int nHeaderHeight = 28;
+		static constexpr int nToolBarHeight = 28;
 		static constexpr int nButtonWidth = 21;
 		static constexpr int nButtonHeight = 24;
 		static constexpr int nExpansionButtonWidth = 14;
@@ -69,14 +70,13 @@ class ComponentView : public QWidget,
 			LayerPreview::nMargin +
 			LayerPreview::nLayerHeight * 17; // max layers
 		static constexpr int nWaveDisplayHeight = 58;
-		static constexpr int nLayerButtonsHeight = 18;
 		static constexpr int nLabelHeight = 10;
 		static constexpr int nMargin = 7;
 		static constexpr int nExpandedHeight =
 			ComponentView::nVerticalSpacing * 7 +
 			ComponentView::nHeaderHeight +
+			ComponentView::nToolBarHeight +
 			ComponentView::nLayerPreviewHeight +
-			ComponentView::nLayerButtonsHeight +
 			ComponentView::nWaveDisplayHeight +
 			Rotary::nHeight +
 			ComponentView::nLabelHeight +
@@ -87,6 +87,7 @@ class ComponentView : public QWidget,
 		~ComponentView();
 
 		void updateColors();
+		void updateIcons();
 		void updateStyleSheet();
 		void updateView();
 
@@ -139,16 +140,22 @@ class ComponentView : public QWidget,
 		LayerPreview *m_pLayerPreview;
 		QScrollArea *m_pLayerScrollArea;
 
+		QToolBar* m_pToolBar;
+		QAction* m_pNewLayerAction;
+		QAction* m_pReplaceLayerAction;
+		QAction* m_pDuplicateLayerAction;
+		QAction* m_pDeleteLayerAction;
+		QAction* m_pEditLayerAction;
+		Button* m_pLayerSoloBtn;
+		Button* m_pLayerMuteBtn;
+		Rotary *m_pLayerGainRotary;
+
 		LCDDisplay *m_pLayerPitchLCD;
 		ClickableLabel* m_pLayerPitchLbl;
 		Rotary *m_pLayerPitchCoarseRotary;
 		ClickableLabel* m_pLayerPitchCoarseLbl;
 		Rotary *m_pLayerPitchFineRotary;
 		ClickableLabel* m_pLayerPitchFineLbl;
-		Button* m_pLayerSoloBtn;
-		Button* m_pLayerMuteBtn;
-		Rotary *m_pLayerGainRotary;
-		ClickableLabel* m_pLayerGainLbl;
 
 		//LCDCombo *__pattern_size_combo;
 		LCDCombo *m_pSampleSelectionCombo;
@@ -156,10 +163,6 @@ class ComponentView : public QWidget,
 		void setupSampleSelectionCombo();
 
 		WaveDisplay *m_pWaveDisplay;
-
-		Button *m_pLoadLayerBtn;
-		Button *m_pRemoveLayerBtn;
-		Button *m_pSampleEditorBtn;
 
 		void setAutoVelocity();
 

@@ -60,7 +60,9 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getInstrumentButton() const { return m_sInstrumentButton; }
 	const QString& getSoundLibraryButton() const { return m_sSoundLibraryButton; }
 	const QString& getComponentsButton() const { return m_sComponentsButton; }
+	const QString& getNewLayerButton() const { return m_sNewLayerButton; }
 	const QString& getLoadLayerButton() const { return m_sLoadLayerButton; }
+	const QString& getDuplicateLayerButton() const { return m_sDuplicateLayerButton; }
 	const QString& getDeleteLayerButton() const { return m_sDeleteLayerButton; }
 	const QString& getEditLayerButton() const { return m_sEditLayerButton; }
 	const QString& getSelectModeButton() const { return m_sSelectModeButton; }
@@ -385,7 +387,9 @@ private:
 	QString m_sInstrumentButton;
 	QString m_sSoundLibraryButton;
 	QString m_sComponentsButton;
+	QString m_sNewLayerButton;
 	QString m_sLoadLayerButton;
+	QString m_sDuplicateLayerButton;
 	QString m_sEditLayerButton;
 	QString m_sDeleteLayerButton;
 	QString m_sSelectModeButton;
