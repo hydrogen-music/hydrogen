@@ -646,7 +646,31 @@ const QString& Instrument::getDrumkitPath() const
 	return m_sDrumkitPath;
 }
 
-bool Instrument::hasSamples() const {
+void Instrument::setLayer(
+	std::shared_ptr<InstrumentComponent> pComponent,
+	std::shared_ptr<InstrumentLayer> pLayer,
+	int nIndex,
+	Event::Trigger trigger
+)
+{
+	if ( pComponent == nullptr ) {
+		// The provided layer is allowed to be nullptr. This will be used to
+		// remove it from the component.
+		ERRORLOG( "Invalid input" );
+		return;
+	}
+
+	for ( auto& ppComponent : *m_pComponents ) {
+		if ( pComponent == ppComponent ) {
+			ppComponent->setLayer( pLayer, nIndex );
+		}
+	}
+
+	checkForMissingSamples( trigger );
+}
+
+bool Instrument::hasSamples() const
+{
 	for ( const auto& pComponent : *m_pComponents ) {
 		if ( pComponent != nullptr && pComponent->hasSamples() ) {
 			return true;

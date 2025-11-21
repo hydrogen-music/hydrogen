@@ -1259,7 +1259,9 @@ void Drumkit::recalculateRubberband( float fBpm )
 				  continue;
 				}
 
-				ppInstrument->setSample( ppComponent, ppLayer, pNewSample );
+				ppInstrument->setSample(
+					ppComponent, ppLayer, pNewSample, Event::Trigger::Suppress
+				);
 			}
 		}
 	}

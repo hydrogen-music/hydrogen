@@ -63,7 +63,7 @@ static std::shared_ptr<Instrument> createInstrument(int id, const QString& sFile
 	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( sFilePath ) );
 	auto pComponent = pInstrument->getComponent( 0 );
 	if ( pComponent != nullptr ) {
-		pComponent->setLayer( pLayer, 0 );
+		pInstrument->setLayer( pComponent, pLayer, 0, Event::Trigger::Suppress );
 	} else {
 		___ERRORLOG( "Invalid default component" );
 	}
@@ -1525,26 +1525,31 @@ bool Sampler::isInstrumentPlaying( std::shared_ptr<Instrument> pInstrument ) con
 
 void Sampler::reinitializePlaybackTrack()
 {
-	Hydrogen*	pHydrogen = Hydrogen::get_instance();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	std::shared_ptr<Sample>	pSample;
+	std::shared_ptr<Sample> pSample;
 
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return;
 	}
 
-	if( pHydrogen->getPlaybackTrackState() != Song::PlaybackTrack::Unavailable ){
+	if ( pHydrogen->getPlaybackTrackState() !=
+		 Song::PlaybackTrack::Unavailable ) {
 		pSample = Sample::load( pSong->getPlaybackTrackFileName() );
 	}
-	
+
 	auto pPlaybackTrackLayer = std::make_shared<InstrumentLayer>( pSample );
 
-	m_pPlaybackTrackInstrument->getComponents()->front()->setLayer( pPlaybackTrackLayer, 0 );
+	m_pPlaybackTrackInstrument->setLayer(
+		m_pPlaybackTrackInstrument->getComponents()->front(),
+		pPlaybackTrackLayer, 0, Event::Trigger::Suppress
+	);
 	m_nPlayBackSamplePosition = 0;
 }
 
-QString Sampler::toQString( const QString& sPrefix, bool bShort ) const {
+QString Sampler::toQString( const QString& sPrefix, bool bShort ) const
+{
 	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
@@ -1602,7 +1607,5 @@ QString Sampler::toQString( const QString& sPrefix, bool bShort ) const {
 
 	return sOutput;
 }
-
-
 };
 

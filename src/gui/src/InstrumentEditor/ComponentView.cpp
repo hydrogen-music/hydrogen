@@ -820,7 +820,9 @@ void ComponentView::removeLayerButtonClicked() {
 	auto pHydrogen = Hydrogen::get_instance();
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
-	pNewComponent->setLayer( nullptr, m_nSelectedLayer );
+	pNewInstrument->setLayer(
+		pNewComponent, nullptr, m_nSelectedLayer, Event::Trigger::Default
+	);
 
 	pHydrogen->getAudioEngine()->unlock();
 
@@ -955,7 +957,9 @@ void ComponentView::loadLayerBtnClicked()
 			else {
 				pLayer =
 					std::make_shared<H2Core::InstrumentLayer>( pNewSample );
-				pNewComponent->setLayer( pLayer, nnLayer );
+				pNewInstrument->setLayer(
+					pNewComponent, pLayer, nnLayer, Event::Trigger::Default
+				);
 			}
 			nLastInsertedLayer = nnLayer;
 

@@ -290,6 +290,12 @@ class Instrument : public H2Core::Object<Instrument>
 
 		bool hasMissingSamples() const { return m_bHasMissingSamples; }
 
+		void setLayer(
+			std::shared_ptr<InstrumentComponent> pComponent,
+			std::shared_ptr<InstrumentLayer> pLayer,
+			int nIndex,
+			Event::Trigger trigger
+		);
 		/** Whether the instrument contains at least one non-missing
 		 * sample */
 		bool hasSamples() const;
