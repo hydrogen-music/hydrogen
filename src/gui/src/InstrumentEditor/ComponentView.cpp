@@ -386,6 +386,7 @@ ComponentView::ComponentView( QWidget* pParent,
 			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
 				pLayer->setPitch( fNewPitch );
+				updatePitchDisplay();
 			}
 		}
 	} );
@@ -415,6 +416,7 @@ ComponentView::ComponentView( QWidget* pParent,
 			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
 				pLayer->setPitch( fNewPitch );
+				updatePitchDisplay();
 			}
 		}
 	} );
@@ -648,17 +650,12 @@ void ComponentView::updateView() {
 				m_pLayerPitchFineRotary->setValue( fFineLayerPitch * 100, false,
 												   Event::Trigger::Suppress );
 
-				const QString sNewPitch = QString( "%1" )
-					.arg( pLayer->getPitch(), -2, 'f', 2, '0' );
-				if ( m_pLayerPitchLCD->text() != sNewPitch ) {
-					m_pLayerPitchLCD->setText( sNewPitch );
-				}
-
 				m_pWaveDisplay->updateDisplay( pLayer );
 			}
 		}
 	}
 
+	updatePitchDisplay();
 	m_pLayerPreview->update();
 }
 
@@ -821,7 +818,25 @@ void ComponentView::updateActivation() {
 	}
 }
 
-void ComponentView::updateVisibility() {
+void ComponentView::updatePitchDisplay()
+{
+	if ( m_pComponent != nullptr && m_nSelectedLayer >= 0 &&
+		 m_pComponent->getLayer( m_nSelectedLayer ) != nullptr ) {
+		const QString sNewPitch = QString( "%1" ).arg(
+			m_pComponent->getLayer( m_nSelectedLayer )->getPitch(), -2, 'f', 2,
+			'0'
+		);
+		if ( m_pLayerPitchLCD->text() != sNewPitch ) {
+			m_pLayerPitchLCD->setText( sNewPitch );
+		}
+	}
+	else {
+		m_pLayerPitchLCD->setText( "" );
+	}
+}
+
+void ComponentView::updateVisibility()
+{
 	m_pComponentWidget->setVisible( m_bIsExpanded );
 	m_pLayerWidget->setVisible( m_bIsExpanded );
 	updateStyleSheet();

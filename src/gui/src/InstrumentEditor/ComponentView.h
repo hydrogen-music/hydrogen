@@ -126,6 +126,7 @@ class ComponentView : public QWidget,
 		bool m_bIsExpanded;
 
 		void updateActivation();
+		void updatePitchDisplay();
 		void updateVisibility();
 
 		Button* m_pShowLayersBtn;
