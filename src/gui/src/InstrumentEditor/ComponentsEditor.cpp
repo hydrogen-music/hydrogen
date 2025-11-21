@@ -27,7 +27,6 @@
 #include <core/Hydrogen.h>
 
 #include "ComponentView.h"
-#include "InstrumentEditorPanel.h"
 #include "../CommonStrings.h"
 #include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
@@ -36,9 +35,8 @@
 
 using namespace H2Core;
 
-ComponentsEditor::ComponentsEditor( InstrumentEditorPanel* pPanel )
-	: QWidget( pPanel )
-	, m_pInstrumentEditorPanel( pPanel )
+ComponentsEditor::ComponentsEditor( QWidget* pParent )
+	: QWidget( pParent )
 {
 	setMinimumSize( InstrumentRack::nWidth,
 					ComponentView::nExpandedHeight );
@@ -82,13 +80,17 @@ ComponentsEditor::ComponentsEditor( InstrumentEditorPanel* pPanel )
 								 SLOT( addComponent() ) );
 	auto pDeleteAction = m_pPopup->addAction(
 		pCommonStrings->getMenuActionDelete() );
-	if ( pPanel->getInstrument()->getComponents()->size() < 2 ) {
+	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	if ( pInstrument != nullptr && pInstrument->getComponents()->size() < 2 ) {
 		// If there is just a single component present, it must not be removed.
 		pDeleteAction->setEnabled( false );
 	}
 
 	updateComponents();
 	updateStyleSheet();
+
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 this, &ComponentsEditor::onPreferencesChanged );
 }
 
 ComponentsEditor::~ComponentsEditor() {
@@ -119,7 +121,7 @@ void ComponentsEditor::updateComponents() {
 		return false;
 	};
 
-	auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
+	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 	if ( pInstrument == nullptr || pInstrument->getComponents()->size() == 0 ) {
 		// No components at all
 		for ( auto& ppComponentView : m_componentViews ) {
@@ -130,7 +132,7 @@ void ComponentsEditor::updateComponents() {
 	}
 
 	int nnCount = 0;
-	for ( const auto& ppComponent : *pInstrument->getComponents() ) {
+	for ( const auto& ppComponent : *pInstrument ) {
 		if ( ppComponent == nullptr ) {
 			continue;
 		}
@@ -178,6 +180,52 @@ void ComponentsEditor::updateEditor() {
 	}
 }
 
+void ComponentsEditor::drumkitLoadedEvent() {
+	updateComponents();
+	updateEditor();
+}
+
+void ComponentsEditor::instrumentLayerChangedEvent( int nId )
+{
+	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	if ( pInstrument != nullptr && pInstrument->getId() == nId ) {
+		updateComponents();
+	}
+}
+
+void ComponentsEditor::instrumentParametersChangedEvent(
+	int nInstrumentNumber
+)
+{
+	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
+	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+
+	// Check if either this particular line or all lines should be updated.
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr &&
+		 pInstrument != nullptr && nInstrumentNumber != -1 &&
+		 pInstrument !=
+		 pSong->getDrumkit()->getInstruments()->get( nInstrumentNumber ) ) {
+		// In case nInstrumentNumber does not belong to the currently
+		// selected instrument we don't have to do anything.
+	}
+	else {
+		updateEditor();
+	}
+}
+
+void ComponentsEditor::selectedInstrumentChangedEvent() {
+	updateComponents();
+	updateEditor();
+}
+
+void ComponentsEditor::updateSongEvent( int nValue ) {
+	// A new song got loaded
+	if ( nValue == 0 ) {
+		updateComponents();
+		updateEditor();
+	}
+}
+
 void ComponentsEditor::updateStyleSheet() {
 	setStyleSheet( QString( "QWidget#ComponentsEditor {background-color: %1;}" )
 				   .arg( H2Core::Preferences::get_instance()->
@@ -199,7 +247,7 @@ ComponentView* ComponentsEditor::getCurrentView() const {
 }
 
 void ComponentsEditor::renameComponent( int nComponentId, const QString& sNewName ) {
-	const auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
+	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
 		return;
 	}
@@ -219,7 +267,7 @@ void ComponentsEditor::renameComponent( int nComponentId, const QString& sNewNam
 }
 
 void ComponentsEditor::addComponent() {
-	const auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
+	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
 		return;
 	}
@@ -250,6 +298,25 @@ void ComponentsEditor::addComponent() {
 		.arg( sNewName ) );
 
 	updateEditor();
+}
+
+void ComponentsEditor::onPreferencesChanged(
+	const H2Core::Preferences::Changes& changes
+)
+{
+	auto pPref = H2Core::Preferences::get_instance();
+
+	if ( changes & H2Core::Preferences::Changes::Colors ) {
+		updateColors();
+		updateStyleSheet();
+	}
+	if ( changes & H2Core::Preferences::Changes::AppearanceTab ) {
+		updateIcons();
+	}
+	if ( changes & ( H2Core::Preferences::Changes::Font |
+					 H2Core::Preferences::Changes::Colors ) ) {
+		updateEditor();
+	}
 }
 
 void ComponentsEditor::mousePressEvent( QMouseEvent* pEvent ) {

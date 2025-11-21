@@ -38,7 +38,6 @@
 #include <core/Sampler/Sampler.h>
 
 #include "ComponentView.h"
-#include "InstrumentEditorPanel.h"
 #include "WaveDisplay.h"
 #include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
@@ -283,9 +282,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 
 	auto pEv = static_cast<MouseEvent*>( ev );
 
-	auto pInstrumentEditorPanel =
-		HydrogenApp::get_instance()->getInstrumentRack()->getInstrumentEditorPanel();
-	const auto pInstrument = pInstrumentEditorPanel->getInstrument();
+	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 
 	const float fVelocity = (float)pEv->position().x() / (float)width();
 

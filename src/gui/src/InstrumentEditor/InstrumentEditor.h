@@ -30,13 +30,13 @@
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
+#include "../EventListener.h"
 #include "../Widgets/PixmapWidget.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
 class Button;
 class ClickableLabel;
 class InlineEdit;
-class InstrumentEditorPanel;
 class LCDDisplay;
 class LCDSpinBox;
 class Rotary;
@@ -45,26 +45,38 @@ class Rotary;
  * components and layers.
  *
  * \ingroup docGUI*/
-class InstrumentEditor :  public QWidget,
-						  protected WidgetWithScalableFont<10, 12, 14>,
-						  public H2Core::Object<InstrumentEditor>
-{
+class InstrumentEditor : public QWidget,
+						 protected WidgetWithScalableFont<10, 12, 14>,
+						 public H2Core::Object<InstrumentEditor>,
+						 public EventListener {
 	H2_OBJECT(InstrumentEditor)
 	Q_OBJECT
 
 	public:
+		/** Range of the fine pitch rotary for both the overall instrument pitch
+		 * as well as for the layer pitch. */
+		static constexpr float nPitchFineControl = 0.5;
 		static constexpr int nMargin = 5;
 
-		explicit InstrumentEditor( InstrumentEditorPanel* pPanel );
+		explicit InstrumentEditor( QWidget* pParent );
 		~InstrumentEditor();
+
+		// implements EventListener interface
+		void drumkitLoadedEvent() override;
+		void instrumentParametersChangedEvent( int ) override;
+		void selectedInstrumentChangedEvent() override;
+		void updateSongEvent( int ) override;
+		// ~ implements EventListener interface
 
 		void updateColors();
 		void updateEditor();
 		void updateMidiNoteLabel();
 
-	private:
-		InstrumentEditorPanel* m_pInstrumentEditorPanel;
+	   public slots:
+		void onPreferencesChanged( const H2Core::Preferences::Changes& changes
+		);
 
+	   private:
 		void updateActivation();
 
 		PixmapWidget *m_pInstrumentProp;

@@ -30,55 +30,61 @@
 
 #include <core/Object.h>
 
+#include "../EventListener.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 #include "../WidgetScrollArea.h"
 
 class ComponentView;
-class InstrumentEditorPanel;
 
 /** Editor to add, delete, and manipulate all components contained in an
  * #H2Core::Instrument.
  *
  * \ingroup docGUI*/
-class ComponentsEditor :  public QWidget,
-						  protected WidgetWithScalableFont<10, 12, 14>,
-						  public H2Core::Object<ComponentsEditor>
-{
-	H2_OBJECT(ComponentsEditor)
+class ComponentsEditor : public QWidget,
+						 protected WidgetWithScalableFont<10, 12, 14>,
+						 public H2Core::Object<ComponentsEditor>,
+						 public EventListener {
+	H2_OBJECT( ComponentsEditor )
 	Q_OBJECT
 
-	public:
-		explicit ComponentsEditor( InstrumentEditorPanel* pPanel );
-		~ComponentsEditor();
+   public:
+	explicit ComponentsEditor( QWidget* pParent );
+	~ComponentsEditor();
 
-		void updateColors();
-		void updateComponents();
-		void updateIcons();
-		void updateEditor();
-		void updateStyleSheet();
+	void updateColors();
+	void updateComponents();
+	void updateIcons();
+	void updateEditor();
+	void updateStyleSheet();
 
-		ComponentView* getCurrentView() const;
+	// implements EventListener interface
+	void drumkitLoadedEvent() override;
+	void instrumentLayerChangedEvent( int nId ) override;
+	void instrumentParametersChangedEvent( int ) override;
+	void selectedInstrumentChangedEvent() override;
+	void updateSongEvent( int ) override;
+	// ~ implements EventListener interface
 
-		void renameComponent( int nComponentIdx, const QString& sNewName );
+	ComponentView* getCurrentView() const;
 
-	public slots:
-		void addComponent();
+	void renameComponent( int nComponentIdx, const QString& sNewName );
 
-	private:
-		virtual void mousePressEvent( QMouseEvent *event ) override;
+   public slots:
+	void addComponent();
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
-		void updateSize();
+   private:
+	virtual void mousePressEvent( QMouseEvent* event ) override;
 
-		QWidget* m_pComponentsWidget;
-		QVBoxLayout* m_pComponentsLayout;
-		QMenu* m_pPopup;
+	void updateSize();
 
-		WidgetScrollArea* m_pScrollArea;
+	QWidget* m_pComponentsWidget;
+	QVBoxLayout* m_pComponentsLayout;
+	QMenu* m_pPopup;
 
-		std::vector<ComponentView*> m_componentViews;
+	WidgetScrollArea* m_pScrollArea;
 
-		InstrumentEditorPanel* m_pInstrumentEditorPanel;
-
+	std::vector<ComponentView*> m_componentViews;
 };
 
 #endif

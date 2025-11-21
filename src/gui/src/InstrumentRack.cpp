@@ -23,7 +23,9 @@
 #include "InstrumentRack.h"
 
 #include "HydrogenApp.h"
-#include "InstrumentEditor/InstrumentEditorPanel.h"
+
+#include "InstrumentEditor/ComponentsEditor.h"
+#include "InstrumentEditor/InstrumentEditor.h"
 #include "Skin.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
 
@@ -41,8 +43,8 @@ InstrumentRack::InstrumentRack( QWidget* pParent )
 	setFocusPolicy( Qt::NoFocus );
 	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
 
-	m_pInstrumentEditorPanel = new InstrumentEditorPanel( this );
-
+	m_pInstrumentEditor = new InstrumentEditor( this );
+	m_pComponentsEditor = new ComponentsEditor( this );
 	m_pSoundLibraryPanel = new SoundLibraryPanel( this, false );
 
 	connect(
@@ -119,14 +121,13 @@ void InstrumentRack::updateIcons()
 	 * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure
 	 * to check the corresponding tab bar! */
 	addTab(
-		m_pInstrumentEditorPanel, QIcon( sIconPath + "drum.svg" ),
-		tr( "Param." )
+		m_pInstrumentEditor, QIcon( sIconPath + "drum.svg" ), tr( "Param." )
 	);
 	/*: Descriptive text in the tab to view the instrument components at
 	 * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure
 	 * to check the corresponding tab bar! */
 	addTab(
-		m_pInstrumentEditorPanel, QIcon( sIconPath + "drum.svg" ), tr( "Comp." )
+		m_pComponentsEditor, QIcon( sIconPath + "drum.svg" ), tr( "Comp." )
 	);
 	/*: Descriptive text in the tab to view the sound library at the
 	 * bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure to

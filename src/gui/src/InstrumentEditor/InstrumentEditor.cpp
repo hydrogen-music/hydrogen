@@ -32,7 +32,6 @@
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
 
-#include "InstrumentEditorPanel.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
@@ -45,9 +44,8 @@
 
 using namespace H2Core;
 
-InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
-	: QWidget( pPanel )
-	, m_pInstrumentEditorPanel( pPanel )
+InstrumentEditor::InstrumentEditor( QWidget* pParent )
+	: QWidget( pParent )
 {
 	setFixedWidth( InstrumentRack::nWidth );
 
@@ -89,7 +87,7 @@ font-size: 21px;" );
 	connect(
 		m_pMidiOutChannelLCD, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
 		[&](double fValue) {
-			auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
+			auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 			if ( pInstrument == nullptr ) {
 				return;
 			}
@@ -110,7 +108,7 @@ font-size: 21px;" );
 	connect(
 		m_pMidiOutNoteLCD, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
 		[&](double fValue) {
-			auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
+			auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 			if ( pInstrument == nullptr ) {
 				return;
 			}
@@ -137,7 +135,7 @@ font-size: 21px;" );
 		m_pNameLbl->show();
 		m_pInlineEdit->hide();
 		auto pSong = Hydrogen::get_instance()->getSong();
-		auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
+		auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 		if ( pInstrument != nullptr && pSong != nullptr &&
 			 pSong->getDrumkit() != nullptr ) {
 			MainForm::action_drumkit_renameInstrument(
@@ -159,14 +157,14 @@ font-size: 21px;" );
 	
 	m_pPitchCoarseRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Center, tr( "Pitch offset (Coarse)" ),
-		true, Instrument::fPitchMin + InstrumentEditorPanel::nPitchFineControl,
-		Instrument::fPitchMax - InstrumentEditorPanel::nPitchFineControl );
+		true, Instrument::fPitchMin + InstrumentEditor::nPitchFineControl,
+		Instrument::fPitchMax - InstrumentEditor::nPitchFineControl );
 	m_pPitchCoarseRotary->move( 94, 210 );
 	connect( m_pPitchCoarseRotary, &Rotary::valueChanged, [&]() {
 		//round fVal, since Coarse is the integer number of half steps
 		const float fNewPitch = round( m_pPitchCoarseRotary->getValue() ) +
 			m_pPitchFineRotary->getValue();
-		m_pInstrumentEditorPanel->getInstrument()->setPitchOffset( fNewPitch );
+		Hydrogen::get_instance()->getSelectedInstrument()->setPitchOffset( fNewPitch );
 		updateEditor(); // LCD update
 	});
 	m_pPitchCoarseLbl = new ClickableLabel(
@@ -175,15 +173,15 @@ font-size: 21px;" );
 
 	m_pPitchFineRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Center, tr( "Pitch offset (Fine)" ),
-		false, -InstrumentEditorPanel::nPitchFineControl,
-		InstrumentEditorPanel::nPitchFineControl );
+		false, -InstrumentEditor::nPitchFineControl,
+		InstrumentEditor::nPitchFineControl );
 	//it will have resolution of 100 steps between Min and Max => quantum delta = 0.01
 	m_pPitchFineRotary->move( 151, 210 );
 	connect( m_pPitchFineRotary, &Rotary::valueChanged, [&]() {
 		//round fVal, since Coarse is the integer number of half steps
 		const float fNewPitch = round( m_pPitchCoarseRotary->getValue() ) +
 			m_pPitchFineRotary->getValue();
-		m_pInstrumentEditorPanel->getInstrument()->setPitchOffset( fNewPitch );
+		Hydrogen::get_instance()->getSelectedInstrument()->setPitchOffset( fNewPitch );
 		updateEditor(); // LCD update
 	});
 	m_pPitchFineLbl = new ClickableLabel(
@@ -195,7 +193,7 @@ font-size: 21px;" );
 		false );
 	m_pRandomPitchRotary->move( 208, 210 );
 	connect( m_pRandomPitchRotary, &Rotary::valueChanged, [&]() {
-		m_pInstrumentEditorPanel->getInstrument()->setRandomPitchFactor(
+		Hydrogen::get_instance()->getSelectedInstrument()->setRandomPitchFactor(
 			m_pRandomPitchRotary->getValue() );
 	});
 	m_pPitchRandomLbl = new ClickableLabel(
@@ -207,7 +205,7 @@ font-size: 21px;" );
 		m_pInstrumentProp, QSize( 36, 15 ), Button::Type::Toggle, "",
 		pCommonStrings->getBypassButton(), QSize( 0, 0 ), "", true );
 	connect( m_pFilterBypassBtn, &Button::clicked, [&]() {
-		m_pInstrumentEditorPanel->getInstrument()->setFilterActive(
+		Hydrogen::get_instance()->getSelectedInstrument()->setFilterActive(
 			! m_pFilterBypassBtn->isChecked() );
 	});
 	m_pFilterBypassBtn->move( 75, 169 );
@@ -217,7 +215,7 @@ font-size: 21px;" );
 	m_pCutoffRotary->setDefaultValue( m_pCutoffRotary->getMax() );
 	m_pCutoffRotary->move( 124, 164 );
 	connect( m_pCutoffRotary, &Rotary::valueChanged, [&]() {
-		m_pInstrumentEditorPanel->getInstrument()->setFilterCutoff(
+		Hydrogen::get_instance()->getSelectedInstrument()->setFilterCutoff(
 			m_pCutoffRotary->getValue() );
 	});
 	m_pCutoffLbl = new ClickableLabel(
@@ -227,7 +225,7 @@ font-size: 21px;" );
 	m_pResonanceRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Normal, tr( "Filter resonance" ), false );
 	connect( m_pResonanceRotary, &Rotary::valueChanged, [&]() {
-		m_pInstrumentEditorPanel->getInstrument()->setFilterResonance(
+		Hydrogen::get_instance()->getSelectedInstrument()->setFilterResonance(
 			std::min( 0.95f, m_pResonanceRotary->getValue() ) );
 	});
 	m_pResonanceLbl = new ClickableLabel( m_pInstrumentProp, QSize( 56, 10 ),
@@ -243,7 +241,7 @@ font-size: 21px;" );
 		tr( "Length of Attack phase" ), false );
 	m_pAttackRotary->move( 45, 52 );
 	connect( m_pAttackRotary, &Rotary::valueChanged, [&]() {
-		m_pInstrumentEditorPanel->getInstrument()->getAdsr()->setAttack(
+		Hydrogen::get_instance()->getSelectedInstrument()->getAdsr()->setAttack(
 			100000 * m_pAttackRotary->getValue() * m_pAttackRotary->getValue() );
 	});
 	m_pAttackLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ),
@@ -255,7 +253,7 @@ font-size: 21px;" );
 		tr( "Length of Decay phase" ), false );
 	m_pDecayRotary->move( 101, 52 );
 	connect( m_pDecayRotary, &Rotary::valueChanged, [&]() {
-		m_pInstrumentEditorPanel->getInstrument()->getAdsr()->setDecay(
+		Hydrogen::get_instance()->getSelectedInstrument()->getAdsr()->setDecay(
 			100000 * m_pDecayRotary->getValue() * m_pDecayRotary->getValue() );
 	});
 	m_pDecayLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ),
@@ -268,7 +266,7 @@ font-size: 21px;" );
 	m_pSustainRotary->setDefaultValue( m_pSustainRotary->getMax() );
 	m_pSustainRotary->move( 157, 52 );
 	connect( m_pSustainRotary, &Rotary::valueChanged, [&]() {
-		m_pInstrumentEditorPanel->getInstrument()->getAdsr()->setSustain(
+		Hydrogen::get_instance()->getSelectedInstrument()->getAdsr()->setSustain(
 			m_pSustainRotary->getValue() );
 	});
 	m_pSustainLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ),
@@ -281,7 +279,7 @@ font-size: 21px;" );
 	m_pReleaseRotary->setDefaultValue( 0.09 );
 	m_pReleaseRotary->move( 213, 52 );
 	connect( m_pReleaseRotary, &Rotary::valueChanged, [&]() {
-		m_pInstrumentEditorPanel->getInstrument()->getAdsr()->setRelease(
+		Hydrogen::get_instance()->getSelectedInstrument()->getAdsr()->setRelease(
 			256.0 +
 			100000 * m_pReleaseRotary->getValue() * m_pReleaseRotary->getValue() );
 	});
@@ -301,7 +299,7 @@ font-size: 21px;" );
 	m_pInstrumentGain->setDefaultValue( 1.0 );
 	m_pInstrumentGain->move( 122, 100 );
 	connect( m_pInstrumentGain, &Rotary::valueChanged, [&]() {
-		m_pInstrumentEditorPanel->getInstrument()->setGain(
+		Hydrogen::get_instance()->getSelectedInstrument()->setGain(
 			m_pInstrumentGain->getValue() );
 		updateEditor(); // LCD update
 	});
@@ -315,7 +313,7 @@ font-size: 21px;" );
 		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::MinusOneAsOff );
 	m_pMuteGroupLCD->move( 210, 101 );
 	connect( m_pMuteGroupLCD, &LCDSpinBox::valueAdjusted, [&]() {
-		m_pInstrumentEditorPanel->getInstrument()->setMuteGroup(
+		Hydrogen::get_instance()->getSelectedInstrument()->setMuteGroup(
 			static_cast<int>(m_pMuteGroupLCD->value()) );
 	});
 	m_pMuteGroupLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ),
@@ -329,7 +327,7 @@ font-size: 21px;" );
 	m_pIsStopNoteCheckBox->setToolTip( tr( "Stop the current playing instrument-note before trigger the next note sample" ) );
 	m_pIsStopNoteCheckBox->setFocusPolicy ( Qt::NoFocus );
 	connect( m_pIsStopNoteCheckBox, &QCheckBox::clicked, [&]() {
-		m_pInstrumentEditorPanel->getInstrument()->setStopNotes(
+		Hydrogen::get_instance()->getSelectedInstrument()->setStopNotes(
 			static_cast<int>(m_pIsStopNoteCheckBox->isChecked()) );
 		Hydrogen::get_instance()->setIsModified( true );
 	});
@@ -344,7 +342,7 @@ font-size: 21px;" );
 	m_pApplyVelocity->setToolTip( tr( "Don't change the layers' gain based on velocity" ) );
 	m_pApplyVelocity->setFocusPolicy( Qt::NoFocus );
 	connect( m_pApplyVelocity, &QCheckBox::clicked, [&]() {
-		m_pInstrumentEditorPanel->getInstrument()->setApplyVelocity(
+		Hydrogen::get_instance()->getSelectedInstrument()->setApplyVelocity(
 			static_cast<int>(m_pApplyVelocity->isChecked()) );
 		Hydrogen::get_instance()->setIsModified( true );
 	});
@@ -360,7 +358,7 @@ font-size: 21px;" );
 		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::MinusOneAsOff );
 	m_pHihatGroupLCD->move( 33, 303 );
 	connect( m_pHihatGroupLCD, &LCDSpinBox::valueAdjusted, [&]() {
-		m_pInstrumentEditorPanel->getInstrument()->setHihatGrp(
+		Hydrogen::get_instance()->getSelectedInstrument()->setHihatGrp(
 			static_cast<int>(m_pHihatGroupLCD->value()) );
 	});
 	m_pHihatGroupLbl = new ClickableLabel( m_pInstrumentProp, QSize( 69, 10 ),
@@ -372,7 +370,7 @@ font-size: 21px;" );
 		LCDSpinBox::Flag::ModifyOnChange );
 	m_pHihatMinRangeLCD->move( 146, 303 );
 	connect( m_pHihatMinRangeLCD, &LCDSpinBox::valueAdjusted, [&]() {
-		m_pInstrumentEditorPanel->getInstrument()->setLowerCc(
+		Hydrogen::get_instance()->getSelectedInstrument()->setLowerCc(
 			static_cast<int>(m_pHihatMinRangeLCD->value()) );
 		m_pHihatMaxRangeLCD->setMinimum(
 			static_cast<int>(m_pHihatMinRangeLCD->value()) );
@@ -386,7 +384,7 @@ font-size: 21px;" );
 		LCDSpinBox::Flag::ModifyOnChange );
 	m_pHihatMaxRangeLCD->move( 210, 303 );
 	connect( m_pHihatMaxRangeLCD, &LCDSpinBox::valueAdjusted, [&]() {
-		m_pInstrumentEditorPanel->getInstrument()->setHigherCc(
+		Hydrogen::get_instance()->getSelectedInstrument()->setHigherCc(
 			static_cast<int>(m_pHihatMaxRangeLCD->value()) );
 		m_pHihatMinRangeLCD->setMaximum(
 			static_cast<int>(m_pHihatMaxRangeLCD->value()) );
@@ -403,6 +401,41 @@ font-size: 21px;" );
 InstrumentEditor::~InstrumentEditor() {
 }
 
+void InstrumentEditor::drumkitLoadedEvent() {
+	updateEditor();
+}
+
+void InstrumentEditor::instrumentParametersChangedEvent(
+	int nInstrumentNumber
+)
+{
+	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
+	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+
+	// Check if either this particular line or all lines should be updated.
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr &&
+		 pInstrument != nullptr && nInstrumentNumber != -1 &&
+		 pInstrument !=
+		 pSong->getDrumkit()->getInstruments()->get( nInstrumentNumber ) ) {
+		// In case nInstrumentNumber does not belong to the currently
+		// selected instrument we don't have to do anything.
+	}
+	else {
+		updateEditor();
+	}
+}
+
+void InstrumentEditor::selectedInstrumentChangedEvent() {
+	updateEditor();
+}
+
+void InstrumentEditor::updateSongEvent( int nValue ) {
+	// A new song got loaded
+	if ( nValue == 0 ) {
+		updateEditor();
+	}
+}
+
 void InstrumentEditor::updateColors() {
 	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 
@@ -414,7 +447,7 @@ void InstrumentEditor::updateColors() {
 
 void InstrumentEditor::updateEditor() {
 	auto pHydrogen = Hydrogen::get_instance();
-	const auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
+	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
@@ -556,8 +589,26 @@ void InstrumentEditor::updateMidiNoteLabel() {
 	}
 }
 
-void InstrumentEditor::updateActivation() {
-	if ( m_pInstrumentEditorPanel->getInstrument() != nullptr ) {
+void InstrumentEditor::onPreferencesChanged(
+	const H2Core::Preferences::Changes& changes
+)
+{
+	auto pPref = H2Core::Preferences::get_instance();
+
+	if ( changes & H2Core::Preferences::Changes::Colors ) {
+		updateColors();
+		setStyleSheet( QString( "QLabel { background: %1 }" )
+						   .arg( pPref->getColorTheme()->m_windowColor.name() )
+		);
+	}
+	if ( changes & ( H2Core::Preferences::Changes::MidiTab ) ) {
+		updateMidiNoteLabel();
+	}
+}
+
+void InstrumentEditor::updateActivation()
+{
+	if ( Hydrogen::get_instance()->getSelectedInstrument() != nullptr ) {
 		m_pAttackRotary->setIsActive( true );
 		m_pDecayRotary->setIsActive( true );
 		m_pSustainRotary->setIsActive( true );

@@ -27,10 +27,6 @@
 #include "TargetWaveDisplay.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
-#include "../InstrumentEditor/ComponentsEditor.h"
-#include "../InstrumentEditor/ComponentView.h"
-#include "../InstrumentEditor/InstrumentEditorPanel.h"
-#include "../InstrumentRack.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
@@ -351,8 +347,6 @@ void SampleEditor::on_PrevChangesPushButton_clicked()
 	setClean();
 	Hydrogen::get_instance()->setIsModified( true );
 	QApplication::restoreOverrideCursor();
-	HydrogenApp::get_instance()->getInstrumentRack()->getInstrumentEditorPanel()->
-		updateEditors();
 }
 
 

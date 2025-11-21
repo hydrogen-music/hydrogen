@@ -2205,17 +2205,6 @@ Overwrite the existing file?</source>
     </message>
 </context>
 <context>
-    <name>InstrumentEditorPanel</name>
-    <message>
-        <source>Show instrument properties</source>
-        <translation>Mostrar propiedades de instrumento</translation>
-    </message>
-    <message>
-        <source>Show components</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>InstrumentRack</name>
     <message>
         <source>Param.</source>

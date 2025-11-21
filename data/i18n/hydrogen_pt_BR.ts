@@ -2204,17 +2204,6 @@ Sobrescrever o arquivo existente?</translation>
     </message>
 </context>
 <context>
-    <name>InstrumentEditorPanel</name>
-    <message>
-        <source>Show instrument properties</source>
-        <translation>Exibir propriedades do instrumento</translation>
-    </message>
-    <message>
-        <source>Show components</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>InstrumentRack</name>
     <message>
         <source>Param.</source>

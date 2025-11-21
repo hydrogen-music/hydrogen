@@ -55,7 +55,6 @@
 #include "ExportSongDialog.h"
 #include "HydrogenApp.h"
 #include "InstrumentEditor/ComponentsEditor.h"
-#include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "InstrumentRack.h"
 #include "LadspaFXProperties.h"
 #include "Mixer/Mixer.h"
@@ -189,8 +188,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFileName,
 	h2app->getPatternEditorPanel()->installEventFilter (this);
 	h2app->getSongEditorPanel()->installEventFilter (this);
 	h2app->getMainToolBar()->installEventFilter(this);
-	h2app->getInstrumentRack()->getInstrumentEditorPanel()
-		->installEventFilter(this);
+	h2app->getInstrumentRack()->installEventFilter(this);
 	h2app->getAudioEngineInfoForm()->installEventFilter(this);
 	h2app->getDirector()->installEventFilter(this);
 	installEventFilter( this );
@@ -3240,8 +3238,9 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				action_drumkit_new();
 				break;
 			case Shortcuts::Action::AddComponent:
-				pHydrogenApp->getInstrumentRack()->getInstrumentEditorPanel()->
-					getComponentsEditor()->addComponent();
+				pHydrogenApp->getInstrumentRack()
+					->getComponentsEditor()
+					->addComponent();
 				break;
 
 			case Shortcuts::Action::ShowPlaylist:

@@ -30,7 +30,7 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
 
-#include "InstrumentEditorPanel.h"
+#include "InstrumentEditor.h"
 #include "LayerPreview.h"
 #include "WaveDisplay.h"
 #include "../AudioFileBrowser/AudioFileBrowser.h"
@@ -376,8 +376,8 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pLayerPitchCoarseRotary = new Rotary(
 		pLayerPropCoarseWidget, Rotary::Type::Center,
 		tr( "Layer pitch (Coarse)" ), true,
-		Instrument::fPitchMin + InstrumentEditorPanel::nPitchFineControl,
-		Instrument::fPitchMax - InstrumentEditorPanel::nPitchFineControl
+		Instrument::fPitchMin + InstrumentEditor::nPitchFineControl,
+		Instrument::fPitchMax - InstrumentEditor::nPitchFineControl
 	);
 	connect( m_pLayerPitchCoarseRotary, &Rotary::valueChanged, [&]() {
 		const float fNewPitch = round( m_pLayerPitchCoarseRotary->getValue() ) +
@@ -682,8 +682,7 @@ void ComponentView::collapse() {
 
 void ComponentView::deleteComponent() {
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	const auto pInstrument = pHydrogenApp->getInstrumentRack()->
-		getInstrumentEditorPanel()->getInstrument();
+	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 
 	if ( pInstrument->getComponents()->size() <= 1 ) {
 		ERRORLOG( "There is just a single component remaining. This one can not be deleted." );
@@ -725,8 +724,7 @@ void ComponentView::renameComponentAction() {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
-	auto pInstrument = HydrogenApp::get_instance()->getInstrumentRack()->
-		getInstrumentEditorPanel()->getInstrument();
+	auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
 		return;
 	}
@@ -808,9 +806,8 @@ void ComponentView::updateActivation() {
 	}
 
 	// If there is only a single component left, we do not allow to remove it.
-	const auto pInstrument = HydrogenApp::get_instance()->getInstrumentRack()->
-		getInstrumentEditorPanel()->getInstrument();
-	if ( pInstrument->getComponents()->size() <= 1 ) {
+	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	if ( pInstrument != nullptr && pInstrument->getComponents()->size() <= 1 ) {
 		m_pDeleteAction->setDisabled( true );
 	}
 	else {
@@ -860,8 +857,7 @@ void ComponentView::showSampleEditor() {
 	if ( m_pComponent == nullptr ) {
 		return;
 	}
-	auto pInstrument = HydrogenApp::get_instance()->getInstrumentRack()->
-		getInstrumentEditorPanel()->getInstrument();
+	auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
 		return;
 	}
@@ -882,8 +878,7 @@ void ComponentView::removeLayerButtonClicked() {
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
-	const auto pInstrument = pHydrogenApp->getInstrumentRack()->
-		getInstrumentEditorPanel()->getInstrument();
+	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
 	auto pNewComponent = pNewInstrument->getComponent(
 		pInstrument->index( m_pComponent ) );
@@ -997,9 +992,7 @@ void ComponentView::loadLayerBtnClicked()
 		return;
 	}
 
-	const auto pInstrument = pHydrogenApp->getInstrumentRack()
-								 ->getInstrumentEditorPanel()
-								 ->getInstrument();
+	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 	bool bRenameInstrument = false;
 	if ( filename[0] == "true" ) {
 		bRenameInstrument = true;

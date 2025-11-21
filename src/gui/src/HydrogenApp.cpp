@@ -42,6 +42,8 @@
 #include "Director.h"
 #include "Footer/Footer.h"
 #include "FilesystemInfoForm.h"
+#include "InstrumentEditor/ComponentsEditor.h"
+#include "InstrumentEditor/InstrumentEditor.h"
 #include "InstrumentRack.h"
 #include "LadspaFXProperties.h"
 #include "MainForm.h"
@@ -282,7 +284,8 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	// INSTRUMENT RACK
 	m_pInstrumentRack = new InstrumentRack( nullptr );
-	m_pInstrumentRack->getInstrumentEditorPanel()->updateEditors();
+	m_pInstrumentRack->getInstrumentEditor()->updateEditor();
+	m_pInstrumentRack->getComponentsEditor()->updateEditor();
 	WindowProperties instrumentRackProp = pPref->getInstrumentRackProperties();
 	m_pInstrumentRack->setVisible( instrumentRackProp.visible );
 

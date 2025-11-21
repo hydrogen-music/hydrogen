@@ -34,7 +34,8 @@
 #include "Skin.h"
 #include "Widgets/WidgetWithScalableFont.h"
 
-class InstrumentEditorPanel;
+class ComponentsEditor;
+class InstrumentEditor;
 class SoundLibraryPanel;
 
 /** \ingroup docGUI*/
@@ -55,7 +56,8 @@ public:
 		explicit InstrumentRack( QWidget *pParent );
 		~InstrumentRack();
 
-		InstrumentEditorPanel* getInstrumentEditorPanel() const;
+		ComponentsEditor* getComponentsEditor() const;
+		InstrumentEditor* getInstrumentEditor() const;
 		SoundLibraryPanel* getSoundLibraryPanel() const;
 
 public slots:
@@ -69,14 +71,17 @@ public slots:
 	void updateStyleSheet();
 	void updateIcons();
 
-	InstrumentEditorPanel* m_pInstrumentEditorPanel;
+	ComponentsEditor* m_pComponentsEditor;
+	InstrumentEditor* m_pInstrumentEditor;
 
 	SoundLibraryPanel* m_pSoundLibraryPanel;
 };
 
-inline InstrumentEditorPanel* InstrumentRack::getInstrumentEditorPanel() const {
-	return m_pInstrumentEditorPanel;
-
+inline ComponentsEditor* InstrumentRack::getComponentsEditor() const {
+	return m_pComponentsEditor;
+}
+inline InstrumentEditor* InstrumentRack::getInstrumentEditor() const {
+	return m_pInstrumentEditor;
 }
 inline SoundLibraryPanel* InstrumentRack::getSoundLibraryPanel() const {
 	return m_pSoundLibraryPanel;

@@ -45,7 +45,6 @@
 #include "CommonStrings.h"
 #include "HydrogenApp.h"
 #include "InstrumentEditor/ComponentsEditor.h"
-#include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "InstrumentRack.h"
 #include "MainForm.h"
 #include "PatternEditor/NotePropertiesRuler.h"
@@ -965,32 +964,42 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 };
 
 class SE_renameComponentAction : public QUndoCommand {
-	public:
-		SE_renameComponentAction( const QString& sNewName,
-								  const QString& sOldName,
-								  int nComponentId ) :
-			m_sNewName( sNewName ),
-			m_sOldName( sOldName ),
-			m_nComponentId( nComponentId ) {
-			const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-				setText( QString( "%1: [%2] -> [%3]" )
+   public:
+	SE_renameComponentAction(
+		const QString& sNewName,
+		const QString& sOldName,
+		int nComponentId
+	)
+		: m_sNewName( sNewName ),
+		  m_sOldName( sOldName ),
+		  m_nComponentId( nComponentId )
+	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		setText( QString( "%1: [%2] -> [%3]" )
 					 .arg( pCommonStrings->getActionRenameComponent() )
-					 .arg( sOldName ).arg( sNewName ) );
-		}
-		virtual void undo() {
-			HydrogenApp::get_instance()->getInstrumentRack()->
-				getInstrumentEditorPanel()->getComponentsEditor()->
-				renameComponent( m_nComponentId, m_sOldName );
-		}
-		virtual void redo() {
-			HydrogenApp::get_instance()->getInstrumentRack()->
-				getInstrumentEditorPanel()->getComponentsEditor()->
-				renameComponent( m_nComponentId, m_sNewName );
-		}
-	private:
-		QString m_sNewName;
-		QString m_sOldName;
-		int m_nComponentId;
+					 .arg( sOldName )
+					 .arg( sNewName ) );
+	}
+	virtual void undo()
+	{
+		HydrogenApp::get_instance()
+			->getInstrumentRack()
+			->getComponentsEditor()
+			->renameComponent( m_nComponentId, m_sOldName );
+	}
+	virtual void redo()
+	{
+		HydrogenApp::get_instance()
+			->getInstrumentRack()
+			->getComponentsEditor()
+			->renameComponent( m_nComponentId, m_sNewName );
+	}
+
+   private:
+	QString m_sNewName;
+	QString m_sOldName;
+	int m_nComponentId;
 };
 
 /** \ingroup docGUI*/
