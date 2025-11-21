@@ -157,7 +157,8 @@ namespace H2Core
 		friend void Instrument::setSample(
 			std::shared_ptr<InstrumentComponent> pComponent,
 			std::shared_ptr<InstrumentLayer> pLayer,
-			std::shared_ptr<Sample> pSample
+			std::shared_ptr<Sample> pSample,
+			Event::Trigger trigger
 		);
 
 	   private:

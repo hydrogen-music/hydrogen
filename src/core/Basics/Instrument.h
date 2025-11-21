@@ -296,7 +296,8 @@ class Instrument : public H2Core::Object<Instrument>
 		void setSample(
 			std::shared_ptr<InstrumentComponent> pComponent,
 			std::shared_ptr<InstrumentLayer> pLayer,
-			std::shared_ptr<Sample> pSample
+			std::shared_ptr<Sample> pSample,
+			Event::Trigger trigger
 		);
 
 		int getLongestSampleFrames() const;

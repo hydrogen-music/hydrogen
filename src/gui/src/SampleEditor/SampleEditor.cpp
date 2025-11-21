@@ -390,7 +390,9 @@ void SampleEditor::createNewLayer()
 
 		pAudioEngine->lock( RIGHT_HERE );
 
-		m_pInstrument->setSample( m_pComponent, m_pLayer, pEditSample );
+		m_pInstrument->setSample(
+			m_pComponent, m_pLayer, pEditSample, Event::Trigger::Default
+		);
 
 		pAudioEngine->unlock();
 
@@ -620,7 +622,9 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 		return;
 	}
 
-	pPreviewInstr->setSample( pCompo, pLayer, pNewSample );
+	pPreviewInstr->setSample(
+		pCompo, pLayer, pNewSample, Event::Trigger::Default
+	);
 
 	// Construct a note rendering just our new sample.
 	const int nLength = ( pNewSample->getFrames() /

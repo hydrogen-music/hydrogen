@@ -948,7 +948,9 @@ void ComponentView::loadLayerBtnClicked()
 			// layer at nSelectedLayer and the next layer at nSelectedLayer + 1.
 			auto pLayer = pNewComponent->getLayer( nnLayer );
 			if ( pLayer != nullptr ) {
-                pNewInstrument->setSample( pNewComponent, pLayer, pNewSample );
+				pNewInstrument->setSample(
+					pNewComponent, pLayer, pNewSample, Event::Trigger::Default
+				);
 			}
 			else {
 				pLayer =

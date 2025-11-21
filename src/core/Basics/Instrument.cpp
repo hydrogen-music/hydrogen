@@ -659,7 +659,8 @@ bool Instrument::hasSamples() const {
 void Instrument::setSample(
 	std::shared_ptr<InstrumentComponent> pComponent,
 	std::shared_ptr<InstrumentLayer> pLayer,
-	std::shared_ptr<Sample> pSample
+	std::shared_ptr<Sample> pSample,
+	Event::Trigger trigger
 )
 {
 	if ( pComponent == nullptr || pLayer == nullptr || pSample == nullptr ) {
@@ -677,10 +678,11 @@ void Instrument::setSample(
 		}
 	}
 
-	checkForMissingSamples( Event::Trigger::Default );
+	checkForMissingSamples( trigger );
 }
 
-int Instrument::getLongestSampleFrames() const {
+int Instrument::getLongestSampleFrames() const
+{
 	int nLongestFrames = 0;
 
 	for ( const auto& pComponent : *m_pComponents ) {
