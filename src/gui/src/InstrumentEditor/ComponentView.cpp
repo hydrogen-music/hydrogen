@@ -334,77 +334,103 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	auto pLayerPropWidget = new QWidget( m_pLayerWidget );
 	pLayerPropWidget->setFixedHeight(
-		Rotary::nHeight + ComponentView::nLabelHeight );
+		Rotary::nHeight + ComponentView::nLabelHeight
+	);
 	pLayerPropWidget->setObjectName( "LayerPropWidget" );
-	auto pGridLayerPropLayout = new QGridLayout();
-	pGridLayerPropLayout->setSpacing( 0 );
-	pGridLayerPropLayout->setContentsMargins( 0, 0, 0, 0 );
-	pLayerPropWidget->setLayout( pGridLayerPropLayout );
+	auto pLayerPropLayout = new QHBoxLayout();
+	pLayerPropLayout->setAlignment( Qt::AlignLeft );
+	pLayerPropLayout->setSpacing( 3 );
+	pLayerPropLayout->setContentsMargins( 0, 0, 0, 0 );
+	pLayerPropWidget->setLayout( pLayerPropLayout );
+
+	const int nVerticalPropSpacing = 1;
+	auto pLayerPropDisplayWidget = new QWidget( pLayerPropWidget );
+	pLayerPropDisplayWidget->setFixedWidth( 56 );
+	pLayerPropLayout->addWidget( pLayerPropDisplayWidget );
+	auto pLayerPropDisplayLayout = new QVBoxLayout();
+	pLayerPropDisplayLayout->setAlignment( Qt::AlignCenter );
+	pLayerPropDisplayLayout->setSpacing( nVerticalPropSpacing );
+	pLayerPropDisplayLayout->setContentsMargins( 0, 0, 0, 0 );
+	pLayerPropDisplayWidget->setLayout( pLayerPropDisplayLayout );
+
+	pLayerPropDisplayLayout->addStretch();
 
 	m_pLayerPitchLCD = new LCDDisplay(
-		pLayerPropWidget, QSize( 56, 20 ), false, false );
-	pGridLayerPropLayout->addWidget( m_pLayerPitchLCD, 0, 0 );
+		pLayerPropDisplayWidget, QSize( 56, 20 ), false, false
+	);
+	pLayerPropDisplayLayout->addWidget( m_pLayerPitchLCD );
 	m_pLayerPitchLbl = new ClickableLabel(
-		pLayerPropWidget, QSize( 45, ComponentView::nLabelHeight ),
-		pCommonStrings->getPitchLabel() );
+		pLayerPropDisplayWidget, QSize( 56, ComponentView::nLabelHeight ),
+		pCommonStrings->getPitchLabel()
+	);
 	m_pLayerPitchLbl->setObjectName( "LayerPitchLabel" );
-	pGridLayerPropLayout->addWidget( m_pLayerPitchLbl, 1, 0 );
+	pLayerPropDisplayLayout->addWidget( m_pLayerPitchLbl );
+
+	auto pLayerPropCoarseWidget = new QWidget( pLayerPropWidget );
+	pLayerPropLayout->addWidget( pLayerPropCoarseWidget );
+	auto pLayerPropCoarseLayout = new QVBoxLayout();
+	pLayerPropCoarseLayout->setSpacing( nVerticalPropSpacing );
+	pLayerPropCoarseLayout->setContentsMargins( 0, 0, 0, 0 );
+	pLayerPropCoarseWidget->setLayout( pLayerPropCoarseLayout );
 
 	m_pLayerPitchCoarseRotary = new Rotary(
-		pLayerPropWidget, Rotary::Type::Center, tr( "Layer pitch (Coarse)" ), true,
+		pLayerPropCoarseWidget, Rotary::Type::Center,
+		tr( "Layer pitch (Coarse)" ), true,
 		Instrument::fPitchMin + InstrumentEditorPanel::nPitchFineControl,
-		Instrument::fPitchMax - InstrumentEditorPanel::nPitchFineControl );
+		Instrument::fPitchMax - InstrumentEditorPanel::nPitchFineControl
+	);
 	connect( m_pLayerPitchCoarseRotary, &Rotary::valueChanged, [&]() {
 		const float fNewPitch = round( m_pLayerPitchCoarseRotary->getValue() ) +
-			m_pLayerPitchFineRotary->getValue() / 100.0;
+								m_pLayerPitchFineRotary->getValue() / 100.0;
 		if ( m_pComponent != nullptr ) {
 			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
 				pLayer->setPitch( fNewPitch );
 			}
 		}
-	});
-	pGridLayerPropLayout->addWidget( m_pLayerPitchCoarseRotary, 0, 1 );
+	} );
+	pLayerPropCoarseLayout->addWidget( m_pLayerPitchCoarseRotary );
 	m_pLayerPitchCoarseLbl = new ClickableLabel(
-		pLayerPropWidget, QSize( 44, ComponentView::nLabelHeight ),
-		pCommonStrings->getPitchCoarseLabel() );
+		pLayerPropCoarseWidget, QSize( 44, ComponentView::nLabelHeight ),
+		pCommonStrings->getPitchCoarseLabel()
+	);
 	m_pLayerPitchCoarseLbl->setObjectName( "LayerPitchCoarseLabel" );
-	pGridLayerPropLayout->addWidget( m_pLayerPitchCoarseLbl, 1, 1 );
+	pLayerPropCoarseLayout->addWidget( m_pLayerPitchCoarseLbl );
+
+	auto pLayerPropFineWidget = new QWidget( pLayerPropWidget );
+	pLayerPropLayout->addWidget( pLayerPropFineWidget );
+	auto pLayerPropFineLayout = new QVBoxLayout();
+	pLayerPropFineLayout->setSpacing( nVerticalPropSpacing );
+	pLayerPropFineLayout->setContentsMargins( 0, 0, 0, 0 );
+	pLayerPropFineWidget->setLayout( pLayerPropFineLayout );
 
 	m_pLayerPitchFineRotary = new Rotary(
-		pLayerPropWidget, Rotary::Type::Center, tr( "Layer pitch (Fine)" ), true,
-		-50.0, 50.0 );
+		pLayerPropFineWidget, Rotary::Type::Center, tr( "Layer pitch (Fine)" ),
+		true, -50.0, 50.0
+	);
 	connect( m_pLayerPitchFineRotary, &Rotary::valueChanged, [&]() {
 		const float fNewPitch = round( m_pLayerPitchCoarseRotary->getValue() ) +
-			m_pLayerPitchFineRotary->getValue() / 100.0;
+								m_pLayerPitchFineRotary->getValue() / 100.0;
 		if ( m_pComponent != nullptr ) {
 			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
 				pLayer->setPitch( fNewPitch );
 			}
 		}
-	});
-	pGridLayerPropLayout->addWidget( m_pLayerPitchFineRotary, 0, 2 );
+	} );
+	pLayerPropFineLayout->addWidget( m_pLayerPitchFineRotary );
 	m_pLayerPitchFineLbl = new ClickableLabel(
-		pLayerPropWidget, QSize( 44, ComponentView::nLabelHeight ),
-		pCommonStrings->getPitchFineLabel() );
+		pLayerPropFineWidget, QSize( 44, ComponentView::nLabelHeight ),
+		pCommonStrings->getPitchFineLabel()
+	);
 	m_pLayerPitchFineLbl->setObjectName( "LayerPitchFineLabel" );
-	pGridLayerPropLayout->addWidget( m_pLayerPitchFineLbl, 1, 2 );
+	pLayerPropFineLayout->addWidget( m_pLayerPitchFineLbl );
 
-	// Ensure the mute, solo, gain buttons are close to each other like the in
-	// component header. In addition, we want a visual separation of pitch an
-	// gain.
-	pGridLayerPropLayout->setColumnStretch( 0, 1 );
-	pGridLayerPropLayout->setColumnStretch( 1, 1 );
-	pGridLayerPropLayout->setColumnStretch( 2, 1 );
-	pGridLayerPropLayout->setColumnStretch( 3, 2 );
-	pGridLayerPropLayout->setColumnStretch( 4, 0 );
-	pGridLayerPropLayout->setColumnStretch( 5, 0 );
-	pGridLayerPropLayout->setColumnStretch( 6, 0 );
+	pLayerPropLayout->addStretch();
 
 	// Putting everything together.
 
-    pVBoxComponentLayout->addSpacing( ComponentView::nVerticalSpacing );
+	pVBoxComponentLayout->addSpacing( ComponentView::nVerticalSpacing );
 	pVBoxComponentLayout->addWidget( m_pLayerScrollArea );
     pVBoxComponentLayout->addWidget( m_pToolBar );
     pVBoxComponentLayout->addSpacing( ComponentView::nVerticalSpacing );
