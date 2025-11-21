@@ -725,14 +725,17 @@ int Instrument::getLongestSampleFrames() const
 	return nLongestFrames;
 }
 
-  void Instrument::checkForMissingSamples( Event::Trigger trigger ) {
+void Instrument::checkForMissingSamples( Event::Trigger trigger )
+{
 	const bool bPreviousValue = m_bHasMissingSamples;
 
 	m_bHasMissingSamples = false;
 
 	for ( const auto& pComponent : *getComponents() ) {
 		if ( pComponent == nullptr ) {
-			ERRORLOG( "Invalid component. Something went wrong loading the instrument" );
+			ERRORLOG(
+				"Invalid component. Something went wrong loading the instrument"
+			);
 			m_bHasMissingSamples = true;
 			return;
 		}
@@ -753,7 +756,7 @@ int Instrument::getLongestSampleFrames() const
 	if ( m_bHasMissingSamples != bPreviousValue &&
 		 trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->pushEvent(
-			Event::Type::InstrumentMuteSoloChanged, 0
+			Event::Type::InstrumentLayerChanged, m_nId
 		);
 	}
 }

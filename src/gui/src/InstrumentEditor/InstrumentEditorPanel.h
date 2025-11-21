@@ -65,6 +65,7 @@ class InstrumentEditorPanel : public PixmapWidget,
 
 		// implements EventListener interface
 		virtual void drumkitLoadedEvent() override;
+		void instrumentLayerChangedEvent( int nId ) override;
 		virtual void instrumentParametersChangedEvent( int ) override;
 		virtual void selectedInstrumentChangedEvent() override;
 		virtual void updateSongEvent( int ) override;
@@ -72,7 +73,7 @@ class InstrumentEditorPanel : public PixmapWidget,
 
 		std::shared_ptr<H2Core::Instrument> getInstrument() const;
 
-	public slots:
+	   public slots:
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:

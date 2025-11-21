@@ -177,6 +177,7 @@ class PatternEditorPanel : public QWidget,
 
 		// Implements EventListener interface
 		virtual void drumkitLoadedEvent() override;
+		virtual void instrumentLayerChangedEvent( int ) override;
 		virtual void instrumentMuteSoloChangedEvent( int ) override;
 		virtual void patternEditorLockedEvent() override;
 		virtual void patternModifiedEvent() override;
