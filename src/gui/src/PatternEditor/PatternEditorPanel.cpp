@@ -46,6 +46,7 @@
 #include "../MainToolBar/MainToolBar.h"
 #include "../PatternPropertiesDialog.h"
 #include "../SongEditor/SongEditorPanel.h"
+#include "../Skin.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/LCDCombo.h"

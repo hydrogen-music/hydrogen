@@ -917,6 +917,33 @@ void HydrogenApp::showSampleEditor(
 	QApplication::restoreOverrideCursor();
 }
 
+ComponentsEditor* HydrogenApp::getComponentsEditor() const
+{
+	if ( m_pRack == nullptr ) {
+	  return nullptr;
+	}
+
+	return m_pRack->getComponentsEditor();
+}
+
+InstrumentEditor* HydrogenApp::getInstrumentEditor() const
+{
+	if ( m_pRack == nullptr ) {
+	  return nullptr;
+	}
+
+	return m_pRack->getInstrumentEditor();
+}
+
+SoundLibraryPanel* HydrogenApp::getSoundLibraryPanel() const
+{
+	if ( m_pRack == nullptr ) {
+	  return nullptr;
+	}
+
+	return m_pRack->getSoundLibraryPanel();
+}
+
 void HydrogenApp::songModifiedEvent()
 {
 	updateWindowTitle();

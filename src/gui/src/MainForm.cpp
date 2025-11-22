@@ -3237,11 +3237,13 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::ClearAllInstruments:
 				action_drumkit_new();
 				break;
-			case Shortcuts::Action::AddComponent:
-				pHydrogenApp->getRack()
-					->getComponentsEditor()
-					->addComponent();
+			case Shortcuts::Action::AddComponent: {
+				auto pComponentsEditor = pHydrogenApp->getComponentsEditor();
+				if ( pComponentsEditor != nullptr ) {
+					pComponentsEditor->addComponent();
+				}
 				break;
+			}
 
 			case Shortcuts::Action::ShowPlaylist:
 				action_window_showPlaylistEditor();

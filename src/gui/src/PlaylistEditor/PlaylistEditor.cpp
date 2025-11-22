@@ -28,6 +28,7 @@
 #include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
+#include "../Skin.h"
 #include "../UndoActions.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/MidiLearnableToolButton.h"
