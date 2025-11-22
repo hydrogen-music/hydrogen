@@ -76,17 +76,18 @@ LayerPreview::LayerPreview( ComponentView* pComponentView )
 LayerPreview::~LayerPreview() {
 }
 
-void LayerPreview::paintEvent(QPaintEvent *ev)
+void LayerPreview::paintEvent( QPaintEvent* ev )
 {
 	QPainter p( this );
 
 	auto createGradient = [=]( const QColor& color ) {
 		QLinearGradient gradient(
-			QPointF( 0, 0 ), QPointF( 0, LayerPreview::nLayerHeight / 2 ) );
+			QPointF( 0, 0 ), QPointF( 0, LayerPreview::nLayerHeight / 2 )
+		);
+		gradient.setColorAt( 0, color.darker( WaveDisplay::nGradientScaling ) );
 		gradient.setColorAt(
-			0, color.darker( WaveDisplay::nGradientScaling ) );
-		gradient.setColorAt(
-			1, color.lighter( WaveDisplay::nGradientScaling ) );
+			1, color.lighter( WaveDisplay::nGradientScaling )
+		);
 		gradient.setSpread( QGradient::ReflectSpread );
 
 		return gradient;
@@ -100,21 +101,21 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	const auto gradientMute = createGradient( pColorTheme->m_muteColor );
 	const auto gradientSolo = createGradient( pColorTheme->m_soloColor );
 
-	QFont fontText( pFontTheme->m_sLevel2FontFamily,
-					getPointSize( pFontTheme->m_fontSize ) );
-	QFont fontButton( pFontTheme->m_sLevel2FontFamily,
-					  getPointSizeButton() );
-	
+	QFont fontText(
+		pFontTheme->m_sLevel2FontFamily, getPointSize( pFontTheme->m_fontSize )
+	);
+	QFont fontButton( pFontTheme->m_sLevel2FontFamily, getPointSizeButton() );
+
 	p.fillRect( ev->rect(), pColorTheme->m_windowColor );
 
-	auto pComponent = m_pComponentView->getComponent();
+	const auto pComponent = m_pComponentView->getComponent();
 	const int nSelectedLayer = m_pComponentView->getSelectedLayer();
 
 	int nLayers = 0;
 	if ( pComponent != nullptr ) {
 		nLayers = pComponent->getLayers().size();
 	}
-	
+
 	// How much the color of the labels for the individual layers
 	// are allowed to diverge from the general window color.
 	int nColorScalingWidth = 90;
@@ -124,98 +125,106 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	QLinearGradient segmentGradient;
 	if ( pComponent != nullptr ) {
 		highlightColor = pColorTheme->m_highlightColor;
-	} else {
+	}
+	else {
 		highlightColor = pColorTheme->m_lightColor;
 	}
 
 	int nLayer = 0;
-	for ( int i = InstrumentComponent::getMaxLayers() - 1; i >= 0; i-- ) {
-		const int y = LayerPreview::nMargin + LayerPreview::nLayerHeight * i;
+	for ( int ii = InstrumentComponent::getMaxLayers() - 1; ii >= 0; ii-- ) {
+		const int y = LayerPreview::nMargin + LayerPreview::nLayerHeight * ii;
 		QString sLabel = "< - >";
-		
-		if ( pComponent != nullptr ) {
-			auto pLayer = pComponent->getLayer( i );
-				
-			if ( pLayer != nullptr && nLayers > 0 ) {
-				auto pSample = pLayer->getSample();
-				if ( pSample != nullptr ) {
-					sLabel = pSample->getFileName();
-					if ( pSample->getIsModified() ) {
-						sLabel.append( "*" );
-					}
-				}
-				else {
-					sLabel = pLayer->getFallbackSampleFileName();
-				}
 
-				const int x1 = (int)( pLayer->getStartVelocity() * width() );
-				const int x2 = (int)( pLayer->getEndVelocity() * width() );
+		if ( pComponent != nullptr && pComponent->getLayer( ii ) != nullptr ) {
+			auto pLayer = pComponent->getLayer( ii );
 
-				// Labels for layers to the left will have a
-				// lighter color as those to the right.
-				nColorScaling = static_cast<int>(
-					std::round( static_cast<float>(nLayer) /
-								static_cast<float>(nLayers) * 2 *
-								static_cast<float>(nColorScalingWidth) ) ) -
-					nColorScalingWidth + 100;
-				layerLabelColor =
-					pColorTheme->m_windowColor.lighter( nColorScaling );
-
-				// Header
-				p.fillRect( x1, 0, x2 - x1, 19, layerLabelColor );
-				p.setPen( pColorTheme->m_windowTextColor );
-				p.setFont( fontButton );
-				p.drawText( x1, 0, x2 - x1, 20, Qt::AlignCenter, QString("%1").arg( i + 1 ) );
-
-				// Border
-				if ( nSelectedLayer == i ) {
-					p.setPen( highlightColor );
+			auto pSample = pLayer->getSample();
+			if ( pSample != nullptr ) {
+				sLabel = pSample->getFileName();
+				if ( pSample->getIsModified() ) {
+					sLabel.append( "*" );
 				}
-				else {
-					p.setPen( pColorTheme->m_windowTextColor.darker( 145 ) );
-				}
-				p.drawRect( x1, 1, x2 - x1 - 1, 18 );	// bordino in alto
-					
-				// layer view
-				p.fillRect( 0, y, width(), LayerPreview::nLayerHeight,
-							pColorTheme->m_windowColor );
-				if ( pSample != nullptr ) {
-					if ( pLayer->getIsMuted() ) {
-						segmentGradient = gradientMute;
-					}
-					else if ( pLayer->getIsSoloed() ) {
-						segmentGradient = gradientSolo;
-					}
-					else {
-						segmentGradient = gradientDefault;
-					}
-					p.fillRect( x1, y, x2 - x1, LayerPreview::nLayerHeight,
-								segmentGradient );
-				}
-				else {
-					p.fillRect( x1, y, x2 - x1, LayerPreview::nLayerHeight,
-								pColorTheme->m_buttonRedColor );
-				}
-
-				nLayer++;
 			}
 			else {
-				// layer view
-				p.fillRect( 0, y, width(), LayerPreview::nLayerHeight,
-							pColorTheme->m_windowColor );
+				sLabel = pLayer->getFallbackSampleFileName();
 			}
+
+			const int x1 = (int) ( pLayer->getStartVelocity() * width() );
+			const int x2 = (int) ( pLayer->getEndVelocity() * width() );
+
+			// Labels for layers to the left will have a
+			// lighter color as those to the right.
+			nColorScaling = static_cast<int>( std::round(
+								static_cast<float>( nLayer ) /
+								static_cast<float>( nLayers ) * 2 *
+								static_cast<float>( nColorScalingWidth )
+							) ) -
+							nColorScalingWidth + 100;
+			layerLabelColor =
+				pColorTheme->m_windowColor.lighter( nColorScaling );
+
+			// Header
+			p.fillRect( x1, 0, x2 - x1, 19, layerLabelColor );
+			p.setPen( pColorTheme->m_windowTextColor );
+			p.setFont( fontButton );
+			p.drawText(
+				x1, 0, x2 - x1, 20, Qt::AlignCenter,
+				QString( "%1" ).arg( ii + 1 )
+			);
+
+			// Border
+			if ( nSelectedLayer == ii ) {
+				p.setPen( highlightColor );
+			}
+			else {
+				p.setPen( pColorTheme->m_windowTextColor.darker( 145 ) );
+			}
+			p.drawRect( x1, 1, x2 - x1 - 1, 18 );  // bordino in alto
+
+			// layer view
+			p.fillRect(
+				0, y, width(), LayerPreview::nLayerHeight,
+				pColorTheme->m_windowColor
+			);
+			if ( pSample != nullptr ) {
+				if ( pLayer->getIsMuted() ) {
+					segmentGradient = gradientMute;
+				}
+				else if ( pLayer->getIsSoloed() ) {
+					segmentGradient = gradientSolo;
+				}
+				else {
+					segmentGradient = gradientDefault;
+				}
+				p.fillRect(
+					x1, y, x2 - x1, LayerPreview::nLayerHeight, segmentGradient
+				);
+			}
+			else {
+				p.fillRect(
+					x1, y, x2 - x1, LayerPreview::nLayerHeight,
+					pColorTheme->m_buttonRedColor
+				);
+			}
+
+			nLayer++;
 		}
 		else {
 			// layer view
-			p.fillRect( 0, y, width(), LayerPreview::nLayerHeight,
-						pColorTheme->m_windowColor );
+			p.fillRect(
+				0, y, width(), LayerPreview::nLayerHeight,
+				pColorTheme->m_windowColor
+			);
 		}
 
 		QColor layerTextColor = pColorTheme->m_windowTextColor;
 		layerTextColor.setAlpha( 155 );
 		p.setPen( layerTextColor );
 		p.setFont( fontText );
-		p.drawText( 10, y, width() - 10, 20, Qt::AlignLeft, QString( "%1: %2" ).arg( i + 1 ).arg( sLabel ) );
+		p.drawText(
+			10, y, width() - 10, 20, Qt::AlignLeft,
+			QString( "%1: %2" ).arg( ii + 1 ).arg( sLabel )
+		);
 		p.setPen( layerTextColor.darker( 145 ) );
 		p.drawRect( 0, y, width() - 1, LayerPreview::nLayerHeight );
 	}
@@ -229,12 +238,12 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 
 	// selected layer
 	p.setPen( highlightColor );
-	const int y = LayerPreview::nMargin +
-		LayerPreview::nLayerHeight * nSelectedLayer;
+	const int y =
+		LayerPreview::nMargin + LayerPreview::nLayerHeight * nSelectedLayer;
 	p.drawRect( 0, y, width() - 1, LayerPreview::nLayerHeight );
 }
 
-void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
+void LayerPreview::mouseReleaseEvent( QMouseEvent* ev )
 {
 	m_bMouseGrab = false;
 
