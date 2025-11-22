@@ -21,8 +21,8 @@
  */
 
 
-#ifndef INSTRUMENT_RACK_H
-#define INSTRUMENT_RACK_H
+#ifndef RACK_H
+#define RACK_H
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -39,28 +39,26 @@ class InstrumentEditor;
 class SoundLibraryPanel;
 
 /** \ingroup docGUI*/
-class InstrumentRack : public QTabWidget,
-					   protected WidgetWithScalableFont<5, 6, 7>,
-					   private H2Core::Object<InstrumentRack>
-{
-    H2_OBJECT(InstrumentRack)
+class Rack : public QTabWidget,
+			 protected WidgetWithScalableFont<5, 6, 7>,
+			 private H2Core::Object<Rack> {
+	H2_OBJECT( Rack )
 	Q_OBJECT
 
-public:
-		/** 450 - InstrumentEditor layer view +
-		 * 24 - tab button */
-		static constexpr int m_nMinimumHeight = 450;
-		static constexpr int nWidth = ComponentView::nWidth +
-			Skin::nScrollBarWidth;
+   public:
+	/** 450 - InstrumentEditor layer view +
+	 * 24 - tab button */
+	static constexpr int m_nMinimumHeight = 450;
+	static constexpr int nWidth = ComponentView::nWidth + Skin::nScrollBarWidth;
 
-		explicit InstrumentRack( QWidget *pParent );
-		~InstrumentRack();
+	explicit Rack( QWidget* pParent );
+	~Rack();
 
-		ComponentsEditor* getComponentsEditor() const;
-		InstrumentEditor* getInstrumentEditor() const;
-		SoundLibraryPanel* getSoundLibraryPanel() const;
+	ComponentsEditor* getComponentsEditor() const;
+	InstrumentEditor* getInstrumentEditor() const;
+	SoundLibraryPanel* getSoundLibraryPanel() const;
 
-public slots:
+   public slots:
 	/** Used by the #Shotlist*/
 	void showInstrument();
 	void showComponents();
@@ -77,13 +75,13 @@ public slots:
 	SoundLibraryPanel* m_pSoundLibraryPanel;
 };
 
-inline ComponentsEditor* InstrumentRack::getComponentsEditor() const {
+inline ComponentsEditor* Rack::getComponentsEditor() const {
 	return m_pComponentsEditor;
 }
-inline InstrumentEditor* InstrumentRack::getInstrumentEditor() const {
+inline InstrumentEditor* Rack::getInstrumentEditor() const {
 	return m_pInstrumentEditor;
 }
-inline SoundLibraryPanel* InstrumentRack::getSoundLibraryPanel() const {
+inline SoundLibraryPanel* Rack::getSoundLibraryPanel() const {
 	return m_pSoundLibraryPanel;
 }
 

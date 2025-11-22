@@ -37,7 +37,7 @@
 #include "../CommonStrings.h"
 #include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
-#include "../InstrumentRack.h"
+#include "../Rack/Rack.h"
 #include "../Skin.h"
 #include "../UndoActions.h"
 #include "../Widgets/Button.h"
@@ -55,7 +55,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	, m_nSelectedLayer( 0 )
 	, m_bIsExpanded( true )
 {
-	setFixedWidth( InstrumentRack::nWidth );
+	setFixedWidth( Rack::nWidth );
 	setMinimumHeight( ComponentView::nHeaderHeight );
 	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
 

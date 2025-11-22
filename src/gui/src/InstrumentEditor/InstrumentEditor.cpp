@@ -34,7 +34,7 @@
 
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
-#include "../InstrumentRack.h"
+#include "../Rack/Rack.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/InlineEdit.h"
@@ -47,7 +47,7 @@ using namespace H2Core;
 InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	: QWidget( pParent )
 {
-	setFixedWidth( InstrumentRack::nWidth );
+	setFixedWidth( Rack::nWidth );
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
@@ -66,7 +66,7 @@ font-weight: bold;\
 font-size: 21px;" );
 
 	m_pNameLbl = new ClickableLabel(
-		m_pInstrumentProp, QSize( InstrumentRack::nWidth -
+		m_pInstrumentProp, QSize( Rack::nWidth -
 								  InstrumentEditor::nMargin * 2, 27 ), "",
 		ClickableLabel::Color::Bright, true );
 	m_pNameLbl->move( 5, 4 );

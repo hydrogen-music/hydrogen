@@ -30,7 +30,7 @@
 #include "../CommonStrings.h"
 #include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
-#include "../InstrumentRack.h"
+#include "../Rack/Rack.h"
 #include "../UndoActions.h"
 
 using namespace H2Core;
@@ -38,7 +38,7 @@ using namespace H2Core;
 ComponentsEditor::ComponentsEditor( QWidget* pParent )
 	: QWidget( pParent )
 {
-	setMinimumSize( InstrumentRack::nWidth,
+	setMinimumSize( Rack::nWidth,
 					ComponentView::nExpandedHeight );
 	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum );
 	setObjectName( "ComponentsEditor" );
@@ -49,7 +49,7 @@ ComponentsEditor::ComponentsEditor( QWidget* pParent )
 	m_pComponentsWidget->setSizePolicy(
 		QSizePolicy::Fixed, QSizePolicy::Expanding );
 	m_pComponentsWidget->setMinimumSize(
-		InstrumentRack::nWidth, ComponentView::nExpandedHeight );
+		Rack::nWidth, ComponentView::nExpandedHeight );
 	m_pComponentsLayout = new QVBoxLayout();
 	m_pComponentsLayout->setSpacing( 0 );
 	m_pComponentsLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -58,7 +58,7 @@ ComponentsEditor::ComponentsEditor( QWidget* pParent )
 	m_pScrollArea = new WidgetScrollArea( this );
 	m_pScrollArea->setFocusPolicy( Qt::ClickFocus );
 	m_pScrollArea->setFrameShape( QFrame::NoFrame );
-	m_pScrollArea->setFixedWidth( InstrumentRack::nWidth );
+	m_pScrollArea->setFixedWidth( Rack::nWidth );
 	m_pScrollArea->setMinimumHeight( ComponentView::nExpandedHeight );
 	m_pScrollArea->setVerticalScrollBarPolicy(
 		Qt::ScrollBarAlwaysOn );

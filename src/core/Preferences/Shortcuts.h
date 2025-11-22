@@ -197,7 +197,7 @@ public:
 		ShowPlaylist			 	= 526,
 		ShowDirector			 	= 527,
 		ShowMixer				 	= 528,
-		ShowInstrumentRack		 	= 529,
+		ShowRack		 	= 529,
 		ShowAutomation			 	= 530,
 		ShowTimeline			 	= 531,
 		ShowPlaybackTrack		 	= 532,

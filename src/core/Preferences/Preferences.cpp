@@ -161,7 +161,7 @@ Preferences::Preferences()
 	, m_mixerProperties( WindowProperties( 10, 350, 829, 276, true ) )
 	, m_patternEditorProperties( WindowProperties( 280, 100, 706, 439, true ) )
 	, m_songEditorProperties( WindowProperties( 10, 10, 600, 250, true ) )
-	, m_instrumentRackProperties( WindowProperties( 500, 20, 526, 437, true ) )
+	, m_rackProperties( WindowProperties( 500, 20, 526, 437, true ) )
 	, m_audioEngineInfoProperties( WindowProperties( 720, 120, 0, 0, false ) )
 	, m_playlistEditorProperties( WindowProperties( 200, 300, 921, 703, false ) )
 	, m_directorProperties( WindowProperties( 200, 300, 423, 377, false ) )
@@ -346,7 +346,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_mixerProperties( pOther->m_mixerProperties )
 	, m_patternEditorProperties( pOther->m_patternEditorProperties )
 	, m_songEditorProperties( pOther->m_songEditorProperties )
-	, m_instrumentRackProperties( pOther->m_instrumentRackProperties )
+	, m_rackProperties( pOther->m_rackProperties )
 	, m_audioEngineInfoProperties( pOther->m_audioEngineInfoProperties )
 	, m_playlistEditorProperties( pOther->m_playlistEditorProperties )
 	, m_directorProperties( pOther->m_directorProperties )
@@ -892,13 +892,12 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 										   pPref->m_songEditorProperties,
 										   bSilent ) );
 		}
-		auto instrumentRackPropertiesNode =
+		auto rackPropertiesNode =
 			guiNode.firstChildElement( "instrumentRack_properties" );
-		if ( ! instrumentRackPropertiesNode.isNull() ) {
-			pPref->setInstrumentRackProperties(
-				WindowProperties::loadFrom( instrumentRackPropertiesNode,
-										   pPref->m_instrumentRackProperties,
-										   bSilent ) );
+		if ( !rackPropertiesNode.isNull() ) {
+			pPref->setRackProperties( WindowProperties::loadFrom(
+				rackPropertiesNode, pPref->m_rackProperties, bSilent
+			) );
 		}
 		auto audioEngineInfoPropertiesNode =
 			guiNode.firstChildElement( "audioEngineInfo_properties" );
@@ -1447,9 +1446,9 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 		auto songEditorPropertiesNode = guiNode.createNode(
 			"songEditor_properties" );
 		m_songEditorProperties.saveTo( songEditorPropertiesNode );
-		auto instrumentRackPropertiesNode = guiNode.createNode(
+		auto rackPropertiesNode = guiNode.createNode(
 			"instrumentRack_properties" );
-		m_instrumentRackProperties.saveTo( instrumentRackPropertiesNode );
+		m_rackProperties.saveTo( rackPropertiesNode );
 		auto audioEngineInfoPropertiesNode = guiNode.createNode(
 			"audioEngineInfo_properties" );
 		m_audioEngineInfoProperties.saveTo( audioEngineInfoPropertiesNode );
@@ -1996,8 +1995,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_patternEditorProperties.toQString( s, bShort ) ) )
 			.append( QString( "%1%2m_songEditorProperties: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_songEditorProperties.toQString( s, bShort ) ) )
-			.append( QString( "%1%2m_instrumentRackProperties: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_instrumentRackProperties.toQString( s, bShort ) ) )
+			.append( QString( "%1%2m_rackProperties: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_rackProperties.toQString( s, bShort ) ) )
 			.append( QString( "%1%2m_audioEngineInfoProperties: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_audioEngineInfoProperties.toQString( s, bShort ) ) );
 		for ( int ii = 0; ii < MAX_FX; ++ii ) {
@@ -2244,8 +2243,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_patternEditorProperties.toQString( "", bShort ) ) )
 			.append( QString( ", m_songEditorProperties: %1" )
 					 .arg( m_songEditorProperties.toQString( "", bShort ) ) )
-			.append( QString( ", m_instrumentRackProperties: %1" )
-					 .arg( m_instrumentRackProperties.toQString( "", bShort ) ) )
+			.append( QString( ", m_rackProperties: %1" )
+					 .arg( m_rackProperties.toQString( "", bShort ) ) )
 			.append( QString( ", m_audioEngineInfoProperties: %1" )
 					 .arg( m_audioEngineInfoProperties.toQString( "", bShort ) ) );
 		for ( int ii = 0; ii < MAX_FX; ++ii ) {

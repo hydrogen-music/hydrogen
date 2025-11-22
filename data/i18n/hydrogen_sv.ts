@@ -2202,24 +2202,6 @@ Overwrite the existing file?</source>
     </message>
 </context>
 <context>
-    <name>InstrumentRack</name>
-    <message>
-        <source>Param.</source>
-        <extracomment>Descriptive text in the tab to view the general instrument parameters at * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure * to check the corresponding tab bar!</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Comp.</source>
-        <extracomment>Descriptive text in the tab to view the instrument components at * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure * to check the corresponding tab bar!</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Library</source>
-        <extracomment>Descriptive text in the tab to view the sound library at the * bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure to * check the corresponding tab bar!</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>LadspaFXLine</name>
     <message>
         <source>FX bypass</source>
@@ -2501,10 +2483,6 @@ MIDI = %2</source>
     </message>
     <message>
         <source>&amp;Mixer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Instrument Rack</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2855,6 +2833,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <source>Some samples used by this song failed to load. Do you wish to keep or discard them? </source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Rack</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainToolBar</name>
@@ -2912,10 +2894,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Show mixer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Instrument Rack</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3020,6 +2998,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Counting in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Rack</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4710,6 +4692,24 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Add new pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Rack</name>
+    <message>
+        <source>Param.</source>
+        <extracomment>Descriptive text in the tab to view the general instrument parameters at * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure * to check the corresponding tab bar!</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Comp.</source>
+        <extracomment>Descriptive text in the tab to view the instrument components at * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure * to check the corresponding tab bar!</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Library</source>
+        <extracomment>Descriptive text in the tab to view the sound library at the * bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure to * check the corresponding tab bar!</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>

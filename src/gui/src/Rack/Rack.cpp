@@ -20,7 +20,7 @@
  *
  */
 
-#include "InstrumentRack.h"
+#include "Rack.h"
 
 #include "HydrogenApp.h"
 
@@ -36,10 +36,10 @@
 
 using namespace H2Core;
 
-InstrumentRack::InstrumentRack( QWidget* pParent )
+Rack::Rack( QWidget* pParent )
 	: QTabWidget( pParent ), Object()
 {
-	setFixedWidth( InstrumentRack::nWidth );
+	setFixedWidth( Rack::nWidth );
 	setFocusPolicy( Qt::NoFocus );
 	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
 
@@ -49,18 +49,18 @@ InstrumentRack::InstrumentRack( QWidget* pParent )
 
 	connect(
 		HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this,
-		&InstrumentRack::onPreferencesChanged
+		&Rack::onPreferencesChanged
 	);
 
 	updateIcons();
 	updateStyleSheet();
 }
 
-InstrumentRack::~InstrumentRack()
+Rack::~Rack()
 {
 }
 
-void InstrumentRack::onPreferencesChanged(
+void Rack::onPreferencesChanged(
 	const H2Core::Preferences::Changes& changes
 )
 {
@@ -72,22 +72,22 @@ void InstrumentRack::onPreferencesChanged(
 	}
 }
 
-void InstrumentRack::showInstrument()
+void Rack::showInstrument()
 {
 	setTabEnabled( 0, true );
 }
 
-void InstrumentRack::showComponents()
+void Rack::showComponents()
 {
 	setTabEnabled( 1, true );
 }
 
-void InstrumentRack::showSoundLibrary()
+void Rack::showSoundLibrary()
 {
 	setTabEnabled( 2, true );
 }
 
-void InstrumentRack::updateStyleSheet()
+void Rack::updateStyleSheet()
 {
 	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 	const QColor colorTabBar = pColorTheme->m_baseColor;
@@ -102,7 +102,7 @@ QTabBar { \
 					   .arg( colorTabBarText.name() ) );
 }
 
-void InstrumentRack::updateIcons()
+void Rack::updateIcons()
 {
 	for ( int ii = count(); ii >= 0; --ii ) {
 		removeTab( ii );

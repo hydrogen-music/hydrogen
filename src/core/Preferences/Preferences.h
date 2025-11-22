@@ -494,8 +494,8 @@ public:
 	const WindowProperties& getSongEditorProperties() const;
 	void				setSongEditorProperties( const WindowProperties& prop );
 
-	const WindowProperties& getInstrumentRackProperties() const;
-	void				setInstrumentRackProperties( const WindowProperties& prop );
+	const WindowProperties& getRackProperties() const;
+	void				setRackProperties( const WindowProperties& prop );
 
 	const WindowProperties& getAudioEngineInfoProperties() const;
 	void				setAudioEngineInfoProperties( const WindowProperties& prop );
@@ -681,7 +681,7 @@ private:
 	WindowProperties		m_mixerProperties;
 	WindowProperties		m_patternEditorProperties;
 	WindowProperties		m_songEditorProperties;
-	WindowProperties		m_instrumentRackProperties;
+	WindowProperties		m_rackProperties;
 	WindowProperties		m_audioEngineInfoProperties;
 	WindowProperties		m_ladspaProperties[MAX_FX];
 	WindowProperties		m_playlistEditorProperties;
@@ -1131,11 +1131,11 @@ inline void Preferences::setSongEditorProperties( const WindowProperties& prop )
 }
 
 
-inline const WindowProperties& Preferences::getInstrumentRackProperties() const {
-	return m_instrumentRackProperties;
+inline const WindowProperties& Preferences::getRackProperties() const {
+	return m_rackProperties;
 }
-inline void Preferences::setInstrumentRackProperties( const WindowProperties& prop ) {
-	m_instrumentRackProperties = prop;
+inline void Preferences::setRackProperties( const WindowProperties& prop ) {
+	m_rackProperties = prop;
 }
  
 inline const WindowProperties& Preferences::getAudioEngineInfoProperties() const {

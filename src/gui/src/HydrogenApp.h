@@ -60,7 +60,7 @@ class Director;
 class FilesystemInfoForm;
 class Footer;
 class InfoBar;
-class InstrumentRack;
+class Rack;
 class LadspaFXProperties;
 class MainToolBar;
 class Mixer;
@@ -108,7 +108,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		void showPreferencesDialog();
 		void updateMixerCheckbox();
 		void showMixer(bool bShow);
-		void showInstrumentRack(bool bShow);
+		void showRack(bool bShow);
 		void showAudioEngineInfoForm();
 		void showFilesystemInfoForm();
 		void showPlaylistEditor();
@@ -125,7 +125,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		std::shared_ptr<CommonStrings>			getCommonStrings();
 		Director*			getDirector();
 		Footer*			getFooter();
-		InstrumentRack*			getInstrumentRack();
+		Rack*			getRack();
 		MainForm*			getMainForm();
 		Mixer*				getMixer();
 		PatternEditorPanel*		getPatternEditorPanel();
@@ -235,7 +235,7 @@ signals:
 		Director *					m_pDirector;
 		FilesystemInfoForm *		m_pFilesystemInfoForm;
 		Footer *					m_pFooter;
-		InstrumentRack*				m_pInstrumentRack;
+		Rack*				m_pRack;
 		Mixer *						m_pMixer;
 		PatternEditorPanel*			m_pPatternEditorPanel;
 		MainToolBar*				m_pMainToolBar;
@@ -379,9 +379,9 @@ inline MainToolBar* HydrogenApp::getMainToolBar()
 	return m_pMainToolBar;
 }
 
-inline InstrumentRack* HydrogenApp::getInstrumentRack()
+inline Rack* HydrogenApp::getRack()
 {
-	return m_pInstrumentRack;
+	return m_pRack;
 }
 
 inline std::shared_ptr<CommonStrings> HydrogenApp::getCommonStrings()

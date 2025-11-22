@@ -2207,24 +2207,6 @@ Overwrite the existing file?</source>
     </message>
 </context>
 <context>
-    <name>InstrumentRack</name>
-    <message>
-        <source>Param.</source>
-        <extracomment>Descriptive text in the tab to view the general instrument parameters at * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure * to check the corresponding tab bar!</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Comp.</source>
-        <extracomment>Descriptive text in the tab to view the instrument components at * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure * to check the corresponding tab bar!</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Library</source>
-        <extracomment>Descriptive text in the tab to view the sound library at the * bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure to * check the corresponding tab bar!</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>LadspaFXLine</name>
     <message>
         <source>FX bypass</source>
@@ -2530,10 +2512,6 @@ MIDI = %2</translation>
     <message>
         <source>&amp;Mixer</source>
         <translation>&amp;Table de mixage...</translation>
-    </message>
-    <message>
-        <source>&amp;Instrument Rack</source>
-        <translation>&amp;Instruments</translation>
     </message>
     <message>
         <source>De&amp;bug</source>
@@ -2893,6 +2871,10 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <source>Some samples used by this song failed to load. Do you wish to keep or discard them? </source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Rack</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainToolBar</name>
@@ -2943,10 +2925,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>Loop song</source>
         <translation>Morceau en boucle</translation>
-    </message>
-    <message>
-        <source>Show Instrument Rack</source>
-        <translation>Afficher les instruments</translation>
     </message>
     <message>
         <source>Pause.</source>
@@ -3058,6 +3036,10 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Counting in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Rack</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4755,6 +4737,24 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Add new pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Rack</name>
+    <message>
+        <source>Param.</source>
+        <extracomment>Descriptive text in the tab to view the general instrument parameters at * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure * to check the corresponding tab bar!</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Comp.</source>
+        <extracomment>Descriptive text in the tab to view the instrument components at * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure * to check the corresponding tab bar!</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Library</source>
+        <extracomment>Descriptive text in the tab to view the sound library at the * bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure to * check the corresponding tab bar!</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>

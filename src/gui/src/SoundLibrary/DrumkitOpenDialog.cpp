@@ -25,7 +25,7 @@
 #include "SoundLibrary/SoundLibraryPanel.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
-#include "../InstrumentRack.h"
+#include "../Rack/Rack.h"
 
 using namespace H2Core;
 

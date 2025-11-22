@@ -55,7 +55,7 @@
 #include "ExportSongDialog.h"
 #include "HydrogenApp.h"
 #include "InstrumentEditor/ComponentsEditor.h"
-#include "InstrumentRack.h"
+#include "Rack/Rack.h"
 #include "LadspaFXProperties.h"
 #include "Mixer/Mixer.h"
 #include "PatternEditor/PatternEditorPanel.h"
@@ -188,7 +188,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFileName,
 	h2app->getPatternEditorPanel()->installEventFilter (this);
 	h2app->getSongEditorPanel()->installEventFilter (this);
 	h2app->getMainToolBar()->installEventFilter(this);
-	h2app->getInstrumentRack()->installEventFilter(this);
+	h2app->getRack()->installEventFilter(this);
 	h2app->getAudioEngineInfoForm()->installEventFilter(this);
 	h2app->getDirector()->installEventFilter(this);
 	installEventFilter( this );
@@ -244,8 +244,8 @@ void MainForm::updateMenuBar() {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
 	m_pViewMixerAction->setChecked( pHydrogenApp->getMixer()->isVisible() );
-	m_pViewInstrumentRackAction->setChecked(
-		pHydrogenApp->getInstrumentRack()->isVisible() );
+	m_pViewRackAction->setChecked(
+		pHydrogenApp->getRack()->isVisible() );
 }
 
 void MainForm::updateAutomationPathVisibility() {
@@ -474,13 +474,13 @@ void MainForm::createMenuBar()
 	m_pViewMixerAction->setCheckable( true );
 	m_pViewMixerAction->setChecked( pPref->getMixerProperties().visible );
 
-	m_pViewInstrumentRackAction = m_pViewMenu->addAction(
-		tr("&Instrument Rack"), this, SLOT( action_window_showInstrumentRack() ) );
-	m_pViewInstrumentRackAction->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ShowInstrumentRack ) );
-	m_pViewInstrumentRackAction->setCheckable( true );
-	m_pViewInstrumentRackAction->setChecked(
-		pPref->getInstrumentRackProperties().visible );
+	m_pViewRackAction = m_pViewMenu->addAction(
+		tr("&Rack"), this, SLOT( action_window_showRack() ) );
+	m_pViewRackAction->setShortcut(
+		pShortcuts->getKeySequence( Shortcuts::Action::ShowRack ) );
+	m_pViewRackAction->setCheckable( true );
+	m_pViewRackAction->setChecked(
+		pPref->getRackProperties().visible );
 
 	m_pViewAutomationPathAction = m_pViewMenu->addAction(
 		tr("&Automation Path"), this, SLOT( action_window_showAutomationArea() ) );
@@ -1850,9 +1850,9 @@ void MainForm::action_file_export()
 
 
 
-void MainForm::action_window_showInstrumentRack() {
-	h2app->showInstrumentRack(
-		! HydrogenApp::get_instance()->getInstrumentRack()->isVisible() );
+void MainForm::action_window_showRack() {
+	h2app->showRack(
+		! HydrogenApp::get_instance()->getRack()->isVisible() );
 }
 
 void MainForm::saveWindowProperties() {
@@ -1867,7 +1867,7 @@ void MainForm::saveWindowProperties() {
 	pPreferences->setPatternEditorProperties( h2app->getWindowProperties( h2app->getPatternEditorPanel() ) );
 	// save song editor properties
 	pPreferences->setSongEditorProperties( h2app->getWindowProperties( h2app->getSongEditorPanel() ) );
-	pPreferences->setInstrumentRackProperties( h2app->getWindowProperties( h2app->getInstrumentRack() ) );
+	pPreferences->setRackProperties( h2app->getWindowProperties( h2app->getRack() ) );
 	// save audio engine info properties
 	pPreferences->setAudioEngineInfoProperties( h2app->getWindowProperties( h2app->getAudioEngineInfoForm() ) );
 
@@ -3238,7 +3238,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				action_drumkit_new();
 				break;
 			case Shortcuts::Action::AddComponent:
-				pHydrogenApp->getInstrumentRack()
+				pHydrogenApp->getRack()
 					->getComponentsEditor()
 					->addComponent();
 				break;
@@ -3252,8 +3252,8 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::ShowMixer:
 				action_window_showMixer();
 				break;
-			case Shortcuts::Action::ShowInstrumentRack:
-				action_window_showInstrumentRack();
+			case Shortcuts::Action::ShowRack:
+				action_window_showRack();
 				break;
 			case Shortcuts::Action::ShowAutomation:
 				action_window_showAutomationArea();

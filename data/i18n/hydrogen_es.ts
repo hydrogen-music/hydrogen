@@ -2205,24 +2205,6 @@ Overwrite the existing file?</source>
     </message>
 </context>
 <context>
-    <name>InstrumentRack</name>
-    <message>
-        <source>Param.</source>
-        <extracomment>Descriptive text in the tab to view the general instrument parameters at * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure * to check the corresponding tab bar!</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Comp.</source>
-        <extracomment>Descriptive text in the tab to view the instrument components at * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure * to check the corresponding tab bar!</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Library</source>
-        <extracomment>Descriptive text in the tab to view the sound library at the * bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure to * check the corresponding tab bar!</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>LadspaFXLine</name>
     <message>
         <source>FX bypass</source>
@@ -2540,10 +2522,6 @@ MIDI = %2</translation>
     <message>
         <source>&amp;Mixer</source>
         <translation>&amp;Mezclador</translation>
-    </message>
-    <message>
-        <source>&amp;Instrument Rack</source>
-        <translation>Rack de &amp;instrumentos</translation>
     </message>
     <message>
         <source>&amp;Info</source>
@@ -2892,6 +2870,10 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <source>Some samples used by this song failed to load. Do you wish to keep or discard them? </source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Rack</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainToolBar</name>
@@ -2954,10 +2936,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     <message>
         <source>Show mixer</source>
         <translation>Ver mezclador</translation>
-    </message>
-    <message>
-        <source>Show Instrument Rack</source>
-        <translation>Ver rack de instrumentos</translation>
     </message>
     <message>
         <source>Record</source>
@@ -3057,6 +3035,10 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     </message>
     <message>
         <source>Counting in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Rack</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4754,6 +4736,24 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     </message>
     <message>
         <source>Add new pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Rack</name>
+    <message>
+        <source>Param.</source>
+        <extracomment>Descriptive text in the tab to view the general instrument parameters at * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure * to check the corresponding tab bar!</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Comp.</source>
+        <extracomment>Descriptive text in the tab to view the instrument components at * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure * to check the corresponding tab bar!</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Library</source>
+        <extracomment>Descriptive text in the tab to view the sound library at the * bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure to * check the corresponding tab bar!</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>

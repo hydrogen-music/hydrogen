@@ -179,7 +179,7 @@ void Shortcuts::createDefaultShortcuts() {
 #endif
 	insertShortcut( Qt::AltModifier SEPARATOR Qt::Key_D, Action::ShowDirector );
 	insertShortcut( Qt::AltModifier SEPARATOR Qt::Key_M, Action::ShowMixer );
-	insertShortcut( Qt::AltModifier SEPARATOR Qt::Key_I, Action::ShowInstrumentRack );
+	insertShortcut( Qt::AltModifier SEPARATOR Qt::Key_I, Action::ShowRack );
 	insertShortcut( Qt::AltModifier SEPARATOR Qt::Key_A, Action::ShowAutomation );
 	insertShortcut( Qt::AltModifier SEPARATOR Qt::Key_F, Action::ShowFullscreen );
 	insertShortcut( Qt::ControlModifier SEPARATOR Qt::AltModifier SEPARATOR Qt::Key_I,
@@ -587,7 +587,7 @@ void Shortcuts::createActionInfoMap() {
 	insertActionInfo( Shortcuts::Action::ShowMixer, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Show mixer" ) );
-	insertActionInfo( Shortcuts::Action::ShowInstrumentRack, Category::MainMenu,
+	insertActionInfo( Shortcuts::Action::ShowRack, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Show instrument rack" ) );
 	insertActionInfo( Shortcuts::Action::ShowAutomation, Category::MainMenu,

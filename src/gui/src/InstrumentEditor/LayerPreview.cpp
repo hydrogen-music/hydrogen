@@ -41,7 +41,7 @@
 #include "WaveDisplay.h"
 #include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
-#include "../InstrumentRack.h"
+#include "../Rack/Rack.h"
 #include "../Skin.h"
 
 using namespace H2Core;

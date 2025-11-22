@@ -31,7 +31,7 @@ https://www.gnu.org/licenses
 #include "../CommonStrings.h"
 #include "../Director.h"
 #include "../HydrogenApp.h"
-#include "../InstrumentRack.h"
+#include "../Rack/Rack.h"
 #include "../Mixer/Mixer.h"
 #include "../PlaylistEditor/PlaylistEditor.h"
 #include "../Skin.h"
@@ -357,11 +357,11 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 		HydrogenApp::get_instance()->showMixer( m_pShowMixerAction->isChecked() ); });
 	addAction( m_pShowMixerAction );
 
-	m_pShowInstrumentRackAction = createAction( tr( "Show Instrument Rack" ) );
-	connect( m_pShowInstrumentRackAction, &QAction::triggered, [&]() {
-		HydrogenApp::get_instance()->showInstrumentRack(
-			m_pShowInstrumentRackAction->isChecked() ); });
-	addAction( m_pShowInstrumentRackAction );
+	m_pShowRackAction = createAction( tr( "Show Rack" ) );
+	connect( m_pShowRackAction, &QAction::triggered, [&]() {
+		HydrogenApp::get_instance()->showRack(
+			m_pShowRackAction->isChecked() ); });
+	addAction( m_pShowRackAction );
 
 	m_pShowAutomationAction = createAction( tr( "Show Automation" ) );
 	connect( m_pShowAutomationAction, &QAction::triggered, [&]() {
@@ -450,9 +450,9 @@ void MainToolBar::updateActions() {
 	if ( pHydrogenApp->getMixer() != nullptr ) {
 		m_pShowMixerAction->setChecked( pHydrogenApp->getMixer()->isVisible() );
 	}
-	if ( pHydrogenApp->getInstrumentRack() != nullptr ) {
-		m_pShowInstrumentRackAction->setChecked(
-			pHydrogenApp->getInstrumentRack()->isVisible() );
+	if ( pHydrogenApp->getRack() != nullptr ) {
+		m_pShowRackAction->setChecked(
+			pHydrogenApp->getRack()->isVisible() );
 	}
 	if ( pHydrogenApp->getSongEditorPanel() != nullptr ) {
 		m_pShowAutomationAction->setChecked(
@@ -1041,7 +1041,7 @@ void MainToolBar::updateIcons() {
 	m_pShowPlaylistEditorAction->setIcon( QIcon( sIconPath + "playlist.svg" ) );
 	m_pShowDirectorAction->setIcon( QIcon( sIconPath + "director.svg" ) );
 	m_pShowMixerAction->setIcon( QIcon( sIconPath + "mixer.svg" ) );
-	m_pShowInstrumentRackAction->setIcon(
+	m_pShowRackAction->setIcon(
 		QIcon( sIconPath + "component-editor.svg" ) );
 	m_pShowAutomationAction->setIcon( QIcon( sIconPath + "automation.svg" ) );
 	m_pShowPlaybackTrackAction->setIcon(

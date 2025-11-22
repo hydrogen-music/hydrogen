@@ -31,7 +31,7 @@
 
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
-#include "../InstrumentRack.h"
+#include "../Rack/Rack.h"
 #include "../MainForm.h"
 #include "../UndoActions.h"
 
@@ -72,7 +72,7 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  , __pattern_item_list( nullptr )
  , m_bInItsOwnDialog( bInItsOwnDialog )
 {
-	setMinimumWidth( InstrumentRack::nWidth );
+	setMinimumWidth( Rack::nWidth );
 	setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding ) );
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
