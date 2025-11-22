@@ -25,7 +25,7 @@
 #include "SongEditor.h"
 #include "SongEditorPanel.h"
 #include "../HydrogenApp.h"
-#include "../InstrumentEditor/WaveDisplay.h"
+#include "../Rack/ComponentsEditor/WaveDisplay.h"
 #include "../Skin.h"
 
 #include <core/AudioEngine/TransportPosition.h>

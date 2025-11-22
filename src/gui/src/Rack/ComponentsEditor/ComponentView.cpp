@@ -30,21 +30,21 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
 
-#include "../Rack/InstrumentEditor.h"
 #include "LayerPreview.h"
 #include "WaveDisplay.h"
-#include "../AudioFileBrowser/AudioFileBrowser.h"
-#include "../CommonStrings.h"
-#include "../Compatibility/MouseEvent.h"
-#include "../HydrogenApp.h"
-#include "../Rack/Rack.h"
-#include "../Skin.h"
-#include "../UndoActions.h"
-#include "../Widgets/Button.h"
-#include "../Widgets/ClickableLabel.h"
-#include "../Widgets/LCDCombo.h"
-#include "../Widgets/LCDDisplay.h"
-#include "../Widgets/Rotary.h"
+#include "../InstrumentEditor.h"
+#include "../Rack.h"
+#include "../../AudioFileBrowser/AudioFileBrowser.h"
+#include "../../CommonStrings.h"
+#include "../../Compatibility/MouseEvent.h"
+#include "../../HydrogenApp.h"
+#include "../../Skin.h"
+#include "../../UndoActions.h"
+#include "../../Widgets/Button.h"
+#include "../../Widgets/ClickableLabel.h"
+#include "../../Widgets/LCDCombo.h"
+#include "../../Widgets/LCDDisplay.h"
+#include "../../Widgets/Rotary.h"
 
 using namespace H2Core;
 

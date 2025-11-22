@@ -28,7 +28,7 @@
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
-#include "../Widgets/WidgetWithScalableFont.h"
+#include "../../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
 {

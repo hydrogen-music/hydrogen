@@ -30,9 +30,9 @@
 
 #include <core/Object.h>
 
-#include "../EventListener.h"
-#include "../Widgets/WidgetWithScalableFont.h"
-#include "../WidgetScrollArea.h"
+#include "../../EventListener.h"
+#include "../../Widgets/WidgetWithScalableFont.h"
+#include "../../WidgetScrollArea.h"
 
 class ComponentView;
 

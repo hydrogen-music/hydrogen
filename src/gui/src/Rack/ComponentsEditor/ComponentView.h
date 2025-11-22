@@ -32,8 +32,8 @@
 #include <core/Preferences/Preferences.h>
 
 #include "LayerPreview.h"
-#include "../Widgets/Rotary.h"
-#include "../Widgets/WidgetWithScalableFont.h"
+#include "../../Widgets/Rotary.h"
+#include "../../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core {
 	class InstrumentComponent;

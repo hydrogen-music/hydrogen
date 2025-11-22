@@ -44,7 +44,7 @@
 
 #include "CommonStrings.h"
 #include "HydrogenApp.h"
-#include "InstrumentEditor/ComponentsEditor.h"
+#include "Rack/ComponentsEditor/ComponentsEditor.h"
 #include "MainForm.h"
 #include "PatternEditor/NotePropertiesRuler.h"
 #include "PatternEditor/DrumPatternEditor.h"

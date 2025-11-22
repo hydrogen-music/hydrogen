@@ -27,11 +27,11 @@
 #include <core/Hydrogen.h>
 
 #include "ComponentView.h"
-#include "../CommonStrings.h"
-#include "../Compatibility/MouseEvent.h"
-#include "../HydrogenApp.h"
-#include "../Rack/Rack.h"
-#include "../UndoActions.h"
+#include "../Rack.h"
+#include "../../CommonStrings.h"
+#include "../../Compatibility/MouseEvent.h"
+#include "../../HydrogenApp.h"
+#include "../../UndoActions.h"
 
 using namespace H2Core;
 

@@ -39,10 +39,10 @@
 
 #include "ComponentView.h"
 #include "WaveDisplay.h"
-#include "../Compatibility/MouseEvent.h"
-#include "../HydrogenApp.h"
-#include "../Rack/Rack.h"
-#include "../Skin.h"
+#include "../Rack.h"
+#include "../../Compatibility/MouseEvent.h"
+#include "../../HydrogenApp.h"
+#include "../../Skin.h"
 
 using namespace H2Core;
 

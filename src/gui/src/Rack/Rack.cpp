@@ -22,12 +22,12 @@
 
 #include "Rack.h"
 
-#include "HydrogenApp.h"
 
-#include "InstrumentEditor/ComponentsEditor.h"
-#include "Rack/InstrumentEditor.h"
-#include "Skin.h"
+#include "ComponentsEditor/ComponentsEditor.h"
+#include "InstrumentEditor.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
+#include "../HydrogenApp.h"
+#include "../Skin.h"
 
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>

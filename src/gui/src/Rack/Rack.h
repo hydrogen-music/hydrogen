@@ -30,9 +30,9 @@
 #include <QtGui>
 #include <QtWidgets>
 
-#include "InstrumentEditor/ComponentView.h"
-#include "Skin.h"
-#include "Widgets/WidgetWithScalableFont.h"
+#include "ComponentsEditor/ComponentView.h"
+#include "../Widgets/WidgetWithScalableFont.h"
+#include "../Skin.h"
 
 class ComponentsEditor;
 class InstrumentEditor;

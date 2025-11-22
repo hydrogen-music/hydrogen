@@ -54,7 +54,7 @@
 #include "ExportMidiDialog.h"
 #include "ExportSongDialog.h"
 #include "HydrogenApp.h"
-#include "InstrumentEditor/ComponentsEditor.h"
+#include "Rack/ComponentsEditor/ComponentsEditor.h"
 #include "Rack/Rack.h"
 #include "LadspaFXProperties.h"
 #include "Mixer/Mixer.h"

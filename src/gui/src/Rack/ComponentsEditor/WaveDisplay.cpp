@@ -29,8 +29,8 @@
 using namespace H2Core;
 
 #include "WaveDisplay.h"
-#include "../Skin.h"
-#include "../HydrogenApp.h"
+#include "../../HydrogenApp.h"
+#include "../../Skin.h"
 
 WaveDisplay::WaveDisplay(QWidget* pParent)
  : QWidget( pParent )
