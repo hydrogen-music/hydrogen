@@ -133,7 +133,8 @@ void Rack::updateIcons()
 	 * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure
 	 * to check the corresponding tab bar! */
 	addTab(
-		m_pComponentsEditor, QIcon( sIconPath + "drum.svg" ), tr( "Comp." )
+		m_pComponentsEditor, QIcon( sIconPath + "component-editor.svg" ),
+		tr( "Comp." )
 	);
 	/*: Descriptive text in the tab to view the sound library at the
 	 * bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure to
