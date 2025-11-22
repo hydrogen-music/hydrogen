@@ -23,10 +23,10 @@
 #include "SoundLibraryOnlineImportDialog.h"
 #include "SoundLibraryRepositoryDialog.h"
 
-#include "../CommonStrings.h"
-#include "../HydrogenApp.h"
-#include "../MainForm.h"
-#include "../Widgets/DownloadWidget.h"
+#include "../../CommonStrings.h"
+#include "../../HydrogenApp.h"
+#include "../../MainForm.h"
+#include "../../Widgets/DownloadWidget.h"
 
 #include <core/Basics/Drumkit.h>
 #include <core/H2Exception.h>

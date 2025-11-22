@@ -24,7 +24,7 @@
 #define DRUMKIT_PROPERTIES_DIALOG_H
 
 #include "ui_DrumkitPropertiesDialog_UI.h"
-#include "../Widgets/WidgetWithLicenseProperty.h"
+#include "../../Widgets/WidgetWithLicenseProperty.h"
 
 #include <core/Basics/Drumkit.h>
 #include <core/Object.h>

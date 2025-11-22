@@ -26,13 +26,13 @@
 
 #include "DrumkitPropertiesDialog.h"
 
-#include "../CommonStrings.h"
-#include "../HydrogenApp.h"
-#include "../MainForm.h"
-#include "../PatternEditor/PatternEditor.h"
-#include "../UndoActions.h"
-#include "../Widgets/Button.h"
-#include "../Widgets/LCDDisplay.h"
+#include "../../CommonStrings.h"
+#include "../../HydrogenApp.h"
+#include "../../MainForm.h"
+#include "../../PatternEditor/PatternEditor.h"
+#include "../../UndoActions.h"
+#include "../../Widgets/Button.h"
+#include "../../Widgets/LCDDisplay.h"
 
 #include <core/Basics/DrumkitMap.h>
 #include <core/Basics/InstrumentList.h>

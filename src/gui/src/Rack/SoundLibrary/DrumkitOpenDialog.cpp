@@ -22,10 +22,9 @@
 
 #include "DrumkitOpenDialog.h"
 
-#include "SoundLibrary/SoundLibraryPanel.h"
-#include "../CommonStrings.h"
-#include "../HydrogenApp.h"
-#include "../Rack/Rack.h"
+#include "SoundLibraryPanel.h"
+#include "../../CommonStrings.h"
+#include "../../HydrogenApp.h"
 
 using namespace H2Core;
 

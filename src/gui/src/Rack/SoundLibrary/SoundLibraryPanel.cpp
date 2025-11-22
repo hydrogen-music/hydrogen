@@ -25,15 +25,13 @@
 #include <QtGui>
 #include <QtWidgets>
 
-#include "SoundLibraryTree.h"
-
 #include "DrumkitPropertiesDialog.h"
-
-#include "../CommonStrings.h"
-#include "../HydrogenApp.h"
-#include "../Rack/Rack.h"
-#include "../MainForm.h"
-#include "../UndoActions.h"
+#include "SoundLibraryTree.h"
+#include "../Rack.h"
+#include "../../CommonStrings.h"
+#include "../../HydrogenApp.h"
+#include "../../MainForm.h"
+#include "../../UndoActions.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>

@@ -31,8 +31,8 @@
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
-#include "../Widgets/WidgetWithScalableFont.h"
-#include "../EventListener.h"
+#include "../../EventListener.h"
+#include "../../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core {
 	class SoundLibraryInfo;

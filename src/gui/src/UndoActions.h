@@ -54,7 +54,7 @@
 #include "SongEditor/SongEditorPanel.h"
 #include "SongEditor/SongEditorPatternList.h"
 #include "SongEditor/SongEditorPositionRuler.h"
-#include "SoundLibrary/SoundLibraryPanel.h"
+#include "Rack/SoundLibrary/SoundLibraryPanel.h"
 #include "Widgets/AutomationPathView.h"
 #include "Widgets/EditorDefs.h"
 

@@ -26,7 +26,7 @@
 
 #include "ui_SoundLibraryOnlineImportDialog_UI.h"
 #include <QNetworkReply>
-#include "../EventListener.h"
+#include "../../EventListener.h"
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>

@@ -505,7 +505,7 @@
   <customwidget>
    <class>TypesTable</class>
    <extends>QTableWidget</extends>
-   <header location="global">../src/SoundLibrary/TypesTable.h</header>
+   <header location="global">../src/Rack/SoundLibrary/TypesTable.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

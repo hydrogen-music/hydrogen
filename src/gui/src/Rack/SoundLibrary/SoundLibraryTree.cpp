@@ -22,7 +22,7 @@
 
 #include "SoundLibraryTree.h"
 
-#include "../Compatibility/MouseEvent.h"
+#include "../../Compatibility/MouseEvent.h"
 
 #include <QMimeData>
 
