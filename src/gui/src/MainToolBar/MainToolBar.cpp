@@ -1042,7 +1042,7 @@ void MainToolBar::updateIcons() {
 	m_pShowDirectorAction->setIcon( QIcon( sIconPath + "director.svg" ) );
 	m_pShowMixerAction->setIcon( QIcon( sIconPath + "mixer.svg" ) );
 	m_pShowRackAction->setIcon(
-		QIcon( sIconPath + "component-editor.svg" ) );
+		QIcon( sIconPath + "rack.svg" ) );
 	m_pShowAutomationAction->setIcon( QIcon( sIconPath + "automation.svg" ) );
 	m_pShowPlaybackTrackAction->setIcon(
 		QIcon( sIconPath + "playback-track.svg" ) );
