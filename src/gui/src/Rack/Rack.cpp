@@ -92,14 +92,20 @@ void Rack::updateStyleSheet()
 	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 	const QColor colorTabBar = pColorTheme->m_baseColor;
 	const QColor colorTabBarText = pColorTheme->m_widgetTextColor;
+	const QColor colorWidget = pColorTheme->m_windowColor;
 
-	setStyleSheet( QString( "\
+	setStyleSheet( QString(
+		"\
 QTabBar { \
      background-color: %1;\
      color: %2; \
+}\
+QTabWidget { \
+     background-color: %3;\
 }" )
 					   .arg( colorTabBar.name() )
-					   .arg( colorTabBarText.name() ) );
+					   .arg( colorTabBarText.name() )
+					   .arg( colorWidget.name() ) );
 }
 
 void Rack::updateIcons()
