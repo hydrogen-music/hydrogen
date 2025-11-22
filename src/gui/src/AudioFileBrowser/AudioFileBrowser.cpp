@@ -22,7 +22,7 @@
 
 #include "AudioFileBrowser.h"
 #include "../HydrogenApp.h"
-#include "InstrumentEditor/InstrumentEditor.h"
+#include "Rack/InstrumentEditor.h"
 #include "SampleWaveDisplay.h"
 #include "../Widgets/Button.h"
 #include "../Skin.h"

@@ -30,7 +30,7 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
 
-#include "InstrumentEditor.h"
+#include "../Rack/InstrumentEditor.h"
 #include "LayerPreview.h"
 #include "WaveDisplay.h"
 #include "../AudioFileBrowser/AudioFileBrowser.h"

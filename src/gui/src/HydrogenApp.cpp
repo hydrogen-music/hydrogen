@@ -43,7 +43,7 @@
 #include "Footer/Footer.h"
 #include "FilesystemInfoForm.h"
 #include "InstrumentEditor/ComponentsEditor.h"
-#include "InstrumentEditor/InstrumentEditor.h"
+#include "Rack/InstrumentEditor.h"
 #include "Rack/Rack.h"
 #include "LadspaFXProperties.h"
 #include "MainForm.h"

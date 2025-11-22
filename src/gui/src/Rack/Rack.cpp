@@ -25,7 +25,7 @@
 #include "HydrogenApp.h"
 
 #include "InstrumentEditor/ComponentsEditor.h"
-#include "InstrumentEditor/InstrumentEditor.h"
+#include "Rack/InstrumentEditor.h"
 #include "Skin.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
 

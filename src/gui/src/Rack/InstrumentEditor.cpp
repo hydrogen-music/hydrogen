@@ -32,9 +32,9 @@
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
 
+#include "Rack.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
-#include "../Rack/Rack.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/InlineEdit.h"
