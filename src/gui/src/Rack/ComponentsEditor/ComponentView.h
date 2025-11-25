@@ -131,6 +131,11 @@ class ComponentView : public QWidget,
 
 		Button* m_pShowLayersBtn;
 		ClickableLabel* m_pComponentNameLbl;
+
+		QToolBar* m_pToolBarComponent;
+		QAction* m_pNewComponentAction;
+		QAction* m_pDuplicateComponentAction;
+		QAction* m_pDeleteComponentAction;
 		Button* m_pComponentSoloBtn;
 		Button* m_pComponentMuteBtn;
 		Rotary* m_pComponentGainRotary;
@@ -141,7 +146,7 @@ class ComponentView : public QWidget,
 		LayerPreview *m_pLayerPreview;
 		QScrollArea *m_pLayerScrollArea;
 
-		QToolBar* m_pToolBar;
+		QToolBar* m_pToolBarLayer;
 		QAction* m_pNewLayerAction;
 		QAction* m_pReplaceLayerAction;
 		QAction* m_pDuplicateLayerAction;

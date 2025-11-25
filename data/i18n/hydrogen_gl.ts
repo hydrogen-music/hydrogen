@@ -394,35 +394,13 @@
     </message>
     <message>
         <source>General</source>
-        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.
-----------
-Label of the tab in pattern/song/drumkit properties dialog containing * artifact parameters, like name or author.</extracomment>
+        <extracomment>Label of the tab in pattern/song/drumkit properties dialog containing * artifact parameters, like name or author.</extracomment>
         <translation>Xeral</translation>
     </message>
     <message>
         <source>Instrument</source>
         <extracomment>Text displayed on the button to show the Instrument Editor in the * Instrument Rack. Its size is designed to hold ten characters but is * quite flexible. * * It is also used in table headers corresponding to the instrument&apos;s name * or id.</extracomment>
         <translation>Instrumento</translation>
-    </message>
-    <message>
-        <source>Sound Library</source>
-        <extracomment>Text displayed on the button to show the Sound Library in the Instrument Rack. Its size is designed to hold ten characters but is quite flexible.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Load Layer</source>
-        <extracomment>Text displayed as tooltip on the button for replacing the sample of an existing layer of an instrument by selecting a new one in a file dialog.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete Layer</source>
-        <extracomment>Text displayed as tooltip on the button for deleting an existing layer * of an instrument.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Edit Layer</source>
-        <extracomment>Text displayed as tooltip on the button for editing an existing layer * of an instrument using the Sample Editor widget.</extracomment>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Attack</source>
@@ -1062,12 +1040,12 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Adding component</source>
-        <extracomment>Representing adding a new component to the currently selected instrument * in the undo history</extracomment>
+        <extracomment>Representing adding a new component to the currently selected instrument * in the undo history and in the tooltip of the coresponding button.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Delete component</source>
-        <extracomment>Representing deletion of a component from the currently selected * instrument in the undo history</extracomment>
+        <extracomment>Represents duplicating a component based on the currently selected one * in the undo history and in the tooltip of the coresponding button.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1318,11 +1296,6 @@ Please set your system&apos;s locale to UTF-8!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Components</source>
-        <extracomment>Text displayed on the button to show the Layer view of the Instrument Rack. Its size is designed to hold ten characters but is quite flexible.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Solo</source>
         <extracomment>Text displayed at various places referring to the solo buttons.</extracomment>
         <translation>Solo</translation>
@@ -1338,17 +1311,17 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Add layer</source>
-        <extracomment>Representing adding an instrument layer in the undo history. Both the * name of the layer and the corresponding instrument will be appended.</extracomment>
+        <extracomment>Representing adding a new instrument layer in the undo history and in * the tooltip of the coresponding button. Both the name of the layer and * the corresponding instrument will be appended in the former.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Delete layer</source>
-        <extracomment>Representing deleting an instrument layer in the undo history. Both the * name of the layer and the corresponding instrument will be appended.</extracomment>
+        <extracomment>Representing deleting an instrument layer in the undo history and in the * tooltip of the coresponding button. Both the * name of the layer and the corresponding instrument will be appended in * the former.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Edit layer</source>
-        <extracomment>Representing editing an instrument layer in the undo history. Both the * name of the layer and the corresponding instrument will be appended.</extracomment>
+        <extracomment>Representing editing an instrument layer in the undo history and in the * tooltip of the coresponding button. Both the * name of the layer and the corresponding instrument will be appended in * the former.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1504,13 +1477,18 @@ Please set your system&apos;s locale to UTF-8!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add New Layer</source>
-        <extracomment>Text displayed as tooltip on the button for adding a new layer to an * instrument by selecting a sample in a file dialog.</extracomment>
+        <source>Duplicate component</source>
+        <extracomment>Representing deletion of a component from the currently selected * instrument in the undo history and in the tooltip of the coresponding * button.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Duplicate Layer</source>
-        <extracomment>Text displayed as tooltip on the button for duplicating an existing * layer of an instrument.</extracomment>
+        <source>Replace layer</source>
+        <extracomment>Representing replacing an existing instrument layer with a new sample * file in the undo history and in the tooltip of the coresponding button. * Both the name of the layer and the corresponding instrument will be * appended in the former.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplciate layer</source>
+        <extracomment>Representing deleting an instrument layer in the undo history and in the * tooltip of the coresponding button. Both the * name of the layer and the corresponding instrument will be appended in * the former.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -105,8 +105,67 @@ ComponentView::ComponentView( QWidget* pParent,
 			 this, SLOT( renameComponentAction() ) );
 	pHBoxHeaderLayout->addWidget( m_pComponentNameLbl );
 
+	// Expanded elements
+
+	m_pComponentWidget = new QWidget( this );
+	m_pComponentWidget->setObjectName( "ComponentWidget" );
+	auto pVBoxComponentLayout = new QVBoxLayout( this );
+	pVBoxComponentLayout->setSpacing( 0 );
+	pVBoxComponentLayout->setContentsMargins(
+		ComponentView::nMargin, 0,
+		ComponentView::nMargin, 0 );
+	m_pComponentWidget->setLayout( pVBoxComponentLayout );
+
+    // Toolbar for components
+
+	m_pToolBarComponent = new QToolBar( this );
+	pVBoxComponentLayout->addWidget( m_pToolBarComponent );
+	m_pToolBarComponent->setFixedSize(
+		ComponentView::nWidth - ComponentView::nMargin * 2,
+		ComponentView::nToolBarHeight
+	);
+	m_pToolBarComponent->setFocusPolicy( Qt::NoFocus );
+
+	auto createAction = [&]( const QString& sText, bool bCheckable ) {
+		auto pAction = new QAction( m_pToolBarComponent );
+		pAction->setCheckable( bCheckable );
+		pAction->setIconText( sText );
+		pAction->setToolTip( sText );
+
+		return pAction;
+	};
+
+	m_pNewComponentAction =
+		createAction( pCommonStrings->getActionAddComponent(), false );
+	connect( m_pNewComponentAction, &QAction::triggered, [=]() {
+		//addComponent();
+	} );
+	m_pToolBarComponent->addAction( m_pNewComponentAction );
+
+	m_pToolBarComponent->addSeparator();
+
+	m_pDuplicateComponentAction =
+		createAction( pCommonStrings->getActionDuplicateComponent(), false );
+	connect( m_pDuplicateComponentAction, &QAction::triggered, [=]() {
+		//addComponent();
+	} );
+	m_pToolBarComponent->addAction( m_pDuplicateComponentAction );
+
+	m_pToolBarComponent->addSeparator();
+
+	m_pDeleteComponentAction =
+		createAction( pCommonStrings->getActionDeleteComponent(), false );
+	connect( m_pDeleteComponentAction, &QAction::triggered, [=]() {
+		//
+	} );
+	m_pToolBarComponent->addAction( m_pDeleteComponentAction );
+
+	auto pStretch = new QWidget();
+  pStretch->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Preferred );
+  m_pToolBarComponent->addWidget( pStretch );
+
 	m_pComponentMuteBtn = new Button(
-		pHeaderWidget,
+		m_pToolBarComponent,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
 		Button::Type::Toggle, "",
 		pCommonStrings->getSmallMuteButton(), QSize(), tr( "Mute component" ),
@@ -118,10 +177,10 @@ ComponentView::ComponentView( QWidget* pParent,
 			m_pComponent->setIsMuted( m_pComponentMuteBtn->isChecked() );
 		}
 	});
-	pHBoxHeaderLayout->addWidget( m_pComponentMuteBtn );
+	m_pToolBarComponent->addWidget( m_pComponentMuteBtn );
 
 	m_pComponentSoloBtn = new Button(
-		pHeaderWidget,
+		m_pToolBarComponent,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
 		Button::Type::Toggle, "",
 		pCommonStrings->getSmallSoloButton(), QSize(), tr( "Solo component" ),
@@ -133,10 +192,10 @@ ComponentView::ComponentView( QWidget* pParent,
 			m_pComponent->setIsSoloed( m_pComponentSoloBtn->isChecked() );
 		}
 	});
-	pHBoxHeaderLayout->addWidget( m_pComponentSoloBtn );
+	m_pToolBarComponent->addWidget( m_pComponentSoloBtn );
 
 	m_pComponentGainRotary = new Rotary(
-		pHeaderWidget, Rotary::Type::Normal, tr( "Component volume" ), false,
+		m_pToolBarComponent, Rotary::Type::Normal, tr( "Component volume" ), false,
 		0.0, 5.0 );
 	m_pComponentGainRotary->setDefaultValue( 1.0 );
 	connect( m_pComponentGainRotary, &Rotary::valueChanged, [&]() {
@@ -144,18 +203,7 @@ ComponentView::ComponentView( QWidget* pParent,
 			m_pComponent->setGain( m_pComponentGainRotary->getValue() );
 		}
 	});
-	pHBoxHeaderLayout->addWidget( m_pComponentGainRotary );
-
-	// Expanded elements
-
-	m_pComponentWidget = new QWidget( this );
-	m_pComponentWidget->setObjectName( "ComponentWidget" );
-	auto pVBoxComponentLayout = new QVBoxLayout( this );
-	pVBoxComponentLayout->setSpacing( 0 );
-	pVBoxComponentLayout->setContentsMargins(
-		ComponentView::nMargin, 0,
-		ComponentView::nMargin, 0 );
-	m_pComponentWidget->setLayout( pVBoxComponentLayout );
+	m_pToolBarComponent->addWidget( m_pComponentGainRotary );
 
 	// Layer preview
 
@@ -173,65 +221,57 @@ ComponentView::ComponentView( QWidget* pParent,
 
     // Toolbar with buttons
 
-	m_pToolBar = new QToolBar( m_pComponentWidget );
-	m_pToolBar->setFixedSize(
+	m_pToolBarLayer = new QToolBar( m_pComponentWidget );
+	m_pToolBarLayer->setFixedSize(
 		ComponentView::nWidth - ComponentView::nMargin * 2,
 		ComponentView::nToolBarHeight
 	);
-	m_pToolBar->setFocusPolicy( Qt::NoFocus );
-
-	auto createAction = [&]( const QString& sText, bool bCheckable ) {
-		auto pAction = new QAction( m_pToolBar );
-		pAction->setCheckable( bCheckable );
-		pAction->setIconText( sText );
-		pAction->setToolTip( sText );
-
-		return pAction;
-	};
+	m_pToolBarLayer->setFocusPolicy( Qt::NoFocus );
 
 	m_pNewLayerAction =
-		createAction( pCommonStrings->getNewLayerButton(), false );
+		createAction( pCommonStrings->getActionAddInstrumentLayer(), false );
 	connect( m_pNewLayerAction, &QAction::triggered, [=]() {
 		loadLayerBtnClicked();
 	} );
-	m_pToolBar->addAction( m_pNewLayerAction );
+	m_pToolBarLayer->addAction( m_pNewLayerAction );
 
-	m_pToolBar->addSeparator();
+	m_pToolBarLayer->addSeparator();
 
 	m_pReplaceLayerAction =
-		createAction( pCommonStrings->getLoadLayerButton(), false );
+		createAction( pCommonStrings->getActionAddInstrumentLayer(), false );
 	connect( m_pReplaceLayerAction, &QAction::triggered, [=]() {
 		loadLayerBtnClicked();
 	} );
-	m_pToolBar->addAction( m_pReplaceLayerAction );
+	m_pToolBarLayer->addAction( m_pReplaceLayerAction );
 
-	m_pDuplicateLayerAction =
-		createAction( pCommonStrings->getDuplicateLayerButton(), false );
+	m_pDuplicateLayerAction = createAction(
+		pCommonStrings->getActionDuplicateInstrumentLayer(), false
+	);
 	connect( m_pDuplicateLayerAction, &QAction::triggered, [=]() {
 		loadLayerBtnClicked();
 	} );
-	m_pToolBar->addAction( m_pDuplicateLayerAction );
+	m_pToolBarLayer->addAction( m_pDuplicateLayerAction );
 
 	m_pDeleteLayerAction =
-		createAction( pCommonStrings->getDeleteLayerButton(), false );
+		createAction( pCommonStrings->getActionDeleteInstrumentLayer(), false );
 	connect( m_pDeleteLayerAction, &QAction::triggered, [=]() {
 		removeLayerButtonClicked();
 	} );
-	m_pToolBar->addAction( m_pDeleteLayerAction );
+	m_pToolBarLayer->addAction( m_pDeleteLayerAction );
 
-	m_pToolBar->addSeparator();
+	m_pToolBarLayer->addSeparator();
 
 	m_pEditLayerAction =
-		createAction( pCommonStrings->getEditLayerButton(), false );
+		createAction( pCommonStrings->getActionEditInstrumentLayer(), false );
 	connect( m_pEditLayerAction, &QAction::triggered, [=]() {
 		showSampleEditor();
 	} );
-	m_pToolBar->addAction( m_pEditLayerAction );
+	m_pToolBarLayer->addAction( m_pEditLayerAction );
 
-	m_pToolBar->addSeparator();
+	m_pToolBarLayer->addSeparator();
 
 	m_pLayerMuteBtn = new Button(
-		m_pToolBar,
+		m_pToolBarLayer,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
 		Button::Type::Toggle, "", pCommonStrings->getSmallMuteButton(), QSize(),
 		tr( "Mute layer" ), true
@@ -246,10 +286,10 @@ ComponentView::ComponentView( QWidget* pParent,
 			}
 		}
 	} );
-	m_pToolBar->addWidget( m_pLayerMuteBtn );
+	m_pToolBarLayer->addWidget( m_pLayerMuteBtn );
 
 	m_pLayerSoloBtn = new Button(
-		m_pToolBar,
+		m_pToolBarLayer,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
 		Button::Type::Toggle, "", pCommonStrings->getSmallSoloButton(), QSize(),
 		tr( "Solo layer" ), true
@@ -264,10 +304,10 @@ ComponentView::ComponentView( QWidget* pParent,
 			}
 		}
 	} );
-	m_pToolBar->addWidget( m_pLayerSoloBtn );
+	m_pToolBarLayer->addWidget( m_pLayerSoloBtn );
 
 	m_pLayerGainRotary = new Rotary(
-		m_pToolBar, Rotary::Type::Normal, tr( "Layer gain" ), false,
+		m_pToolBarLayer, Rotary::Type::Normal, tr( "Layer gain" ), false,
 		0.0, 5.0 );
 	m_pLayerGainRotary->setDefaultValue( 1.0 );
 	connect( m_pLayerGainRotary, &Rotary::valueChanged, [&]() {
@@ -279,7 +319,7 @@ ComponentView::ComponentView( QWidget* pParent,
 			}
 		}
 	});
-	m_pToolBar->addWidget( m_pLayerGainRotary );
+	m_pToolBarLayer->addWidget( m_pLayerGainRotary );
 
 	// Sample selection
 
@@ -434,7 +474,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	pVBoxComponentLayout->addSpacing( ComponentView::nVerticalSpacing );
 	pVBoxComponentLayout->addWidget( m_pLayerScrollArea );
-    pVBoxComponentLayout->addWidget( m_pToolBar );
+    pVBoxComponentLayout->addWidget( m_pToolBarLayer );
     pVBoxComponentLayout->addSpacing( ComponentView::nVerticalSpacing );
 	pVBoxComponentLayout->addWidget( pSampleSelectionWidget );
     pVBoxComponentLayout->addSpacing( ComponentView::nVerticalSpacing );
@@ -490,6 +530,11 @@ void ComponentView::updateIcons() {
 		sIconPath.append( "/icons/black/" );
 		color = Qt::black;
 	}
+
+	m_pNewComponentAction->setIcon( QIcon( sIconPath + "plus.svg" ) );
+	m_pDuplicateComponentAction->setIcon( QIcon( sIconPath + "duplicate.svg" )
+	);
+	m_pDeleteComponentAction->setIcon( QIcon( sIconPath + "bin.svg" ) );
 
 	m_pNewLayerAction->setIcon( QIcon( sIconPath + "plus.svg" ) );
 	m_pReplaceLayerAction->setIcon( QIcon( sIconPath + "folder.svg" ) );
