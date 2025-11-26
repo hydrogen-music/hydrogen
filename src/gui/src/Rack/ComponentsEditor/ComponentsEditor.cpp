@@ -39,8 +39,8 @@ ComponentsEditor::ComponentsEditor( QWidget* pParent )
 	: QWidget( pParent )
 {
 	setMinimumSize( Rack::nWidth,
-					ComponentView::nExpandedHeight );
-	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum );
+					ComponentView::nHeaderHeight );
+	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
 	setObjectName( "ComponentsEditor" );
 
     auto pHydrogenApp = HydrogenApp::get_instance();
@@ -48,9 +48,9 @@ ComponentsEditor::ComponentsEditor( QWidget* pParent )
 
 	m_pComponentsWidget = new QWidget( this );
 	m_pComponentsWidget->setSizePolicy(
-		QSizePolicy::Fixed, QSizePolicy::Expanding );
+		QSizePolicy::Fixed, QSizePolicy::Preferred );
 	m_pComponentsWidget->setMinimumSize(
-		Rack::nWidth, ComponentView::nExpandedHeight );
+		Rack::nWidth, ComponentView::nHeaderHeight );
 	m_pComponentsLayout = new QVBoxLayout();
 	m_pComponentsLayout->setSpacing( 0 );
 	m_pComponentsLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -60,12 +60,10 @@ ComponentsEditor::ComponentsEditor( QWidget* pParent )
 	m_pScrollArea->setFocusPolicy( Qt::ClickFocus );
 	m_pScrollArea->setFrameShape( QFrame::NoFrame );
 	m_pScrollArea->setFixedWidth( Rack::nWidth );
-	m_pScrollArea->setMinimumHeight( ComponentView::nExpandedHeight );
 	m_pScrollArea->setVerticalScrollBarPolicy(
 		Qt::ScrollBarAlwaysOn );
 	m_pScrollArea->setHorizontalScrollBarPolicy(
 		Qt::ScrollBarAlwaysOff);
-	m_pScrollArea->setFocusPolicy( Qt::ClickFocus );
 	m_pScrollArea->setWidget( m_pComponentsWidget );
 	m_pComponentsWidget->show();
 
@@ -248,6 +246,12 @@ ComponentView* ComponentsEditor::getCurrentView() const {
 	return nullptr;
 }
 
+void ComponentsEditor::setVisible( bool bVisible )
+{
+    QWidget::setVisible( bVisible );
+	updateSize();
+}
+
 void ComponentsEditor::renameComponent( int nComponentId, const QString& sNewName ) {
 	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
@@ -337,10 +341,8 @@ void ComponentsEditor::updateSize() {
 		else {
 			nNewHeight += ComponentView::nHeaderHeight;
 		}
-
 	}
 
-	 m_pComponentsWidget->setMinimumHeight(
-	 	std::max( ComponentView::nExpandedHeight, nNewHeight ) );
-	 m_pComponentsWidget->resize( width(), nNewHeight );
+    m_pComponentsWidget->resize( width(), nNewHeight );
+	resize( width(), nNewHeight );
 }

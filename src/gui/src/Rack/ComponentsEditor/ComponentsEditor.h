@@ -67,6 +67,8 @@ class ComponentsEditor : public QWidget,
 
 	ComponentView* getCurrentView() const;
 
+	void setVisible( bool bVisible ) override;
+
 	void renameComponent( int nComponentIdx, const QString& sNewName );
 
    public slots:
