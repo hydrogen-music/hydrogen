@@ -102,6 +102,9 @@ QTabBar { \
 }\
 QTabWidget { \
      background-color: %3;\
+}\
+QTabWidget::pane { \
+     margin-left: 0px; \
 }" )
 					   .arg( colorTabBar.name() )
 					   .arg( colorTabBarText.name() )
