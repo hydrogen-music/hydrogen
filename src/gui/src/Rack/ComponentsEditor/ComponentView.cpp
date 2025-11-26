@@ -59,7 +59,8 @@ ComponentView::ComponentView( QWidget* pParent,
 	setMinimumHeight( ComponentView::nHeaderHeight );
 	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
 
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+    auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
 	setObjectName( "ComponentProperties" );
 

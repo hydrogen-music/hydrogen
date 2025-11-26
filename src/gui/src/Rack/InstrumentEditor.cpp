@@ -49,8 +49,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 {
 	setFixedWidth( Rack::nWidth );
 
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	
+    auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
 	// Instrument properties top
 	m_pInstrumentProp = new PixmapWidget( this );
 	m_pInstrumentProp->move( 0, 0 );
@@ -396,6 +397,10 @@ font-size: 21px;" );
 	updateColors();
 	updateEditor();
 	updateMidiNoteLabel();
+
+    pHydrogenApp->addEventListener( this );
+	connect( pHydrogenApp, &HydrogenApp::preferencesChanged,
+			 this, &InstrumentEditor::onPreferencesChanged );
 }
 
 InstrumentEditor::~InstrumentEditor() {

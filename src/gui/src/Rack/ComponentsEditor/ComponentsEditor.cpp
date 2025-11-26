@@ -43,7 +43,8 @@ ComponentsEditor::ComponentsEditor( QWidget* pParent )
 	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum );
 	setObjectName( "ComponentsEditor" );
 
- 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+    auto pHydrogenApp = HydrogenApp::get_instance();
+ 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
 	m_pComponentsWidget = new QWidget( this );
 	m_pComponentsWidget->setSizePolicy(
@@ -89,7 +90,8 @@ ComponentsEditor::ComponentsEditor( QWidget* pParent )
 	updateComponents();
 	updateStyleSheet();
 
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+    pHydrogenApp->addEventListener( this );
+	connect( pHydrogenApp, &HydrogenApp::preferencesChanged,
 			 this, &ComponentsEditor::onPreferencesChanged );
 }
 
