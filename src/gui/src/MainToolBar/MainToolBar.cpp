@@ -1060,45 +1060,14 @@ void MainToolBar::updateStyleSheet() {
 	const QColor colorBackground =
 		pColorTheme->m_songEditor_backgroundColor.darker( 110 );
 
-	QColor colorBackgroundChecked, colorBackgroundHovered;
-	if ( Skin::moreBlackThanWhite( colorBackground ) ) {
-		colorBackgroundChecked = colorBackground.lighter(
-			Skin::nToolBarCheckedScaling );
-		colorBackgroundHovered = colorBackground.lighter(
-			Skin::nToolBarHoveredScaling );
-	}
-	else {
-		colorBackgroundChecked = colorBackground.darker(
-			Skin::nToolBarCheckedScaling );
-		colorBackgroundHovered = colorBackground.darker(
-			Skin::nToolBarHoveredScaling );
-	}
-
-	setStyleSheet( QString( "\
+		setStyleSheet( QString( "\
 QToolBar {\
      background-color: %1; \
      border: %2px solid #000;\
      spacing: %3px;\
-}\
-QToolButton {\
-    background-color: %1; \
-}\
-QToolButton:checked {\
-    background-color: %4;\
-}\
-QToolButton:hover {\
-    background-color: %5;\
-}\
-QToolButton:hover, QToolButton:pressed {\
-    background-color: %4;\
-}\
-QToolButton:hover, QToolButton:checked {\
-    background-color: %4;\
 }")
 				   .arg( colorBackground.name() ).arg( MainToolBar::nBorder )
-				   .arg( MainToolBar::nSpacing )
-				   .arg( colorBackgroundChecked.name() )
-				   .arg( colorBackgroundHovered.name() ) );
+				   .arg( MainToolBar::nSpacing ) );
 
 	m_pBpmTap->setBackgroundColor( colorBackground );
 	m_pBpmTap->updateStyleSheet();
