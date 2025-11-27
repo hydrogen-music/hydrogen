@@ -60,8 +60,7 @@ ComponentsEditor::ComponentsEditor( QWidget* pParent )
 	m_pScrollArea->setFocusPolicy( Qt::ClickFocus );
 	m_pScrollArea->setFrameShape( QFrame::NoFrame );
 	m_pScrollArea->setFixedWidth( Rack::nWidth );
-	m_pScrollArea->setVerticalScrollBarPolicy(
-		Qt::ScrollBarAlwaysOn );
+	m_pScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
 	m_pScrollArea->setHorizontalScrollBarPolicy(
 		Qt::ScrollBarAlwaysOff);
 	m_pScrollArea->setWidget( m_pComponentsWidget );
@@ -344,5 +343,16 @@ void ComponentsEditor::updateSize() {
 	}
 
     m_pComponentsWidget->resize( width(), nNewHeight );
-	resize( width(), nNewHeight );
+
+	int nMaxHeight;
+	if ( Hydrogen::get_instance()->getGUIState() ==
+		 Hydrogen::GUIState::ready ) {
+        const auto pRack = HydrogenApp::get_instance()->getRack();
+        nMaxHeight = pRack->height() - pRack->tabBar()->height();
+	}
+	else {
+        nMaxHeight = Preferences::get_instance()->getRackProperties().height - 30;
+	}
+
+	resize( width(), std::min( nNewHeight, nMaxHeight ) );
 }
