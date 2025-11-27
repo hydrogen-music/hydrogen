@@ -55,19 +55,16 @@ ComponentView::ComponentView( QWidget* pParent,
 	, m_nSelectedLayer( 0 )
 	, m_bIsExpanded( true )
 {
-	setFixedWidth( Rack::nWidth );
 	setMinimumHeight( ComponentView::nHeaderHeight );
-	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
+	setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Preferred );
 
     auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
 	setObjectName( "ComponentProperties" );
 
-	auto pVBoxMainLayout = new QVBoxLayout();
-	pVBoxMainLayout->setContentsMargins( 0, 0, Skin::nScrollBarWidth, 0 );
-;
-	pVBoxMainLayout->setSpacing( 0 );
+	m_pVBoxMainLayout = new QVBoxLayout();
+	m_pVBoxMainLayout->setSpacing( 0 );
 
 	auto pHeaderWidget = new QWidget( this );
 	pHeaderWidget->setFixedHeight( ComponentView::nHeaderHeight );
@@ -121,10 +118,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	m_pToolBarComponent = new QToolBar( this );
 	pVBoxComponentLayout->addWidget( m_pToolBarComponent );
-	m_pToolBarComponent->setFixedSize(
-		ComponentView::nWidth - ComponentView::nMargin * 2,
-		ComponentView::nToolBarHeight
-	);
+	m_pToolBarComponent->setFixedHeight( ComponentView::nToolBarHeight );
 	m_pToolBarComponent->setFocusPolicy( Qt::NoFocus );
 
 	auto createAction = [&]( const QString& sText, bool bCheckable ) {
@@ -162,8 +156,8 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pToolBarComponent->addAction( m_pDeleteComponentAction );
 
 	auto pStretch = new QWidget();
-  pStretch->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Preferred );
-  m_pToolBarComponent->addWidget( pStretch );
+	pStretch->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Preferred );
+	m_pToolBarComponent->addWidget( pStretch );
 
 	m_pComponentMuteBtn = new Button(
 		m_pToolBarComponent,
@@ -218,15 +212,13 @@ ComponentView::ComponentView( QWidget* pParent,
 		m_pLayerScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
 	}
 	m_pLayerScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pLayerScrollArea->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 	m_pLayerScrollArea->setWidget( m_pLayerPreview  );
 
     // Toolbar with buttons
 
 	m_pToolBarLayer = new QToolBar( m_pComponentWidget );
-	m_pToolBarLayer->setFixedSize(
-		ComponentView::nWidth - ComponentView::nMargin * 2,
-		ComponentView::nToolBarHeight
-	);
+	m_pToolBarLayer->setFixedHeight( ComponentView::nToolBarHeight );
 	m_pToolBarLayer->setFocusPolicy( Qt::NoFocus );
 
 	m_pNewLayerAction =
@@ -270,6 +262,12 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pToolBarLayer->addAction( m_pEditLayerAction );
 
 	m_pToolBarLayer->addSeparator();
+
+	auto pStretchLayer = new QWidget();
+	pStretchLayer->setSizePolicy(
+		QSizePolicy::Expanding, QSizePolicy::Preferred
+	);
+	m_pToolBarLayer->addWidget( pStretchLayer );
 
 	m_pLayerMuteBtn = new Button(
 		m_pToolBarLayer,
@@ -483,10 +481,10 @@ ComponentView::ComponentView( QWidget* pParent,
 	pVBoxLayerLayout->addWidget( m_pWaveDisplay );
 	pVBoxLayerLayout->addWidget( pLayerPropWidget );
 
-	pVBoxMainLayout->addWidget( pHeaderWidget );
-	pVBoxMainLayout->addWidget( m_pComponentWidget );
-	pVBoxMainLayout->addWidget( m_pLayerWidget );
-	setLayout( pVBoxMainLayout );
+	m_pVBoxMainLayout->addWidget( pHeaderWidget );
+	m_pVBoxMainLayout->addWidget( m_pComponentWidget );
+	m_pVBoxMainLayout->addWidget( m_pLayerWidget );
+	setLayout( m_pVBoxMainLayout );
 
 	m_pPopup = new QMenu( this );
 	m_pPopup->addAction( pCommonStrings->getMenuActionAdd(), pParent,
@@ -703,6 +701,21 @@ void ComponentView::updateView() {
 
 	updatePitchDisplay();
 	m_pLayerPreview->update();
+}
+
+void ComponentView::accountForScrollbar( bool bScrollBarVisible )
+{
+	m_pVBoxMainLayout->setContentsMargins(
+		0, 0, bScrollBarVisible ? Skin::nScrollBarWidth : 0, 0
+	);
+
+	// We have to adjust the size of layer preview manually since the whole
+	// content of the widget is rendered and there is no Qt child widget that
+	// could claim the available space.
+	m_pLayerPreview->setFixedWidth(
+		Rack::nWidth - ComponentView::nMargin * 2 -
+		( bScrollBarVisible ? Skin::nScrollBarWidth : 0 )
+	);
 }
 
 void ComponentView::expand() {

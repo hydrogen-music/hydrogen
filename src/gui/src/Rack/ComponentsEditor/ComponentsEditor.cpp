@@ -355,4 +355,14 @@ void ComponentsEditor::updateSize() {
 	}
 
 	resize( width(), std::min( nNewHeight, nMaxHeight ) );
+
+    // Handle scroll bar visibility and width componensation programmatically
+    // (in order to make the two show consistent behavior).
+    const auto bShowScrollBar = nNewHeight > nMaxHeight;
+	m_pScrollArea->setVerticalScrollBarPolicy(
+		bShowScrollBar ? Qt::ScrollBarAlwaysOn : Qt::ScrollBarAlwaysOff
+	);
+	for ( auto& ppView : m_componentViews ) {
+        ppView->accountForScrollbar( bShowScrollBar );
+	}
 }

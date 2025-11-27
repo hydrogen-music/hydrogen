@@ -56,15 +56,9 @@ LayerPreview::LayerPreview( ComponentView* pComponentView )
 
 	setMouseTracking( true );
 
-	int nWidth = ComponentView::nWidth - ComponentView::nMargin * 2;
-	if( InstrumentComponent::getMaxLayers() > 16) {
-		// Account for the scroll bar.
-		nWidth -= 15;
-	}
-	
 	const int nHeight = LayerPreview::nMargin + LayerPreview::nLayerHeight
 		* InstrumentComponent::getMaxLayers();
-	resize( nWidth, nHeight );
+	setFixedHeight( nHeight );
 
 	m_speakerPixmap.load( Skin::getSvgImagePath() + "/icons/white/speaker.svg" );
 

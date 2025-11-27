@@ -91,6 +91,8 @@ class ComponentView : public QWidget,
 		void updateStyleSheet();
 		void updateView();
 
+		void accountForScrollbar( bool bScrollBarVisible );
+
 		bool getIsExpanded() const;
 		void expand();
 		void collapse();
@@ -128,6 +130,8 @@ class ComponentView : public QWidget,
 		void updateActivation();
 		void updatePitchDisplay();
 		void updateVisibility();
+
+		QVBoxLayout* m_pVBoxMainLayout;
 
 		Button* m_pShowLayersBtn;
 		ClickableLabel* m_pComponentNameLbl;
