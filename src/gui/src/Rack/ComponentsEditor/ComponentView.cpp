@@ -92,15 +92,14 @@ ComponentView::ComponentView( QWidget* pParent,
 	pHBoxHeaderLayout->addWidget( m_pShowLayersBtn );
 
 	m_pComponentNameLbl = new ClickableLabel(
-		pHeaderWidget, QSize( ComponentView::nWidth -
-							  ComponentView::nButtonWidth * 2 -
-							  ComponentView::nExpansionButtonWidth -
-							  Rotary::nWidth - ComponentView::nMargin * 2,
-							  ComponentView::nHeaderHeight - 2 ),
-		"", ClickableLabel::Color::Bright, true );
-	m_pComponentNameLbl->setObjectName( "ComponentName" );
-	connect( m_pComponentNameLbl, SIGNAL( labelDoubleClicked(QMouseEvent*) ),
-			 this, SLOT( renameComponentAction() ) );
+		pHeaderWidget, QSize( 0, 0 ), "", ClickableLabel::Color::Bright, true
+	);
+	m_pComponentNameLbl->setFixedHeight( ComponentView::nHeaderHeight - 2 ),
+		m_pComponentNameLbl->setObjectName( "ComponentName" );
+	connect(
+		m_pComponentNameLbl, SIGNAL( labelDoubleClicked( QMouseEvent* ) ), this,
+		SLOT( renameComponentAction() )
+	);
 	pHBoxHeaderLayout->addWidget( m_pComponentNameLbl );
 
 	// Expanded elements
