@@ -70,25 +70,27 @@ ComponentView::ComponentView( QWidget* pParent,
 	pHeaderWidget->setFixedHeight( ComponentView::nHeaderHeight );
 	pHeaderWidget->setObjectName( "HeaderWidget" );
 	auto pHBoxHeaderLayout = new QHBoxLayout();
-	pHBoxHeaderLayout->setSpacing( 0 );
+	pHBoxHeaderLayout->setSpacing( 10 );
 	pHBoxHeaderLayout->setContentsMargins(
 		ComponentView::nMargin, 0, ComponentView::nMargin, 0 );
 	pHeaderWidget->setLayout( pHBoxHeaderLayout );
 
-	m_pShowLayersBtn = new Button(
-		pHeaderWidget, QSize( ComponentView::nExpansionButtonWidth,
-							  ComponentView::nExpansionButtonWidth ),
-		Button::Type::Push, "minus.svg", "",
-		QSize( ComponentView::nExpansionButtonWidth - 4,
-			   ComponentView::nExpansionButtonWidth - 4 ) );
-	connect( m_pShowLayersBtn, &Button::clicked, [&](){
+	m_pShowLayersBtn = new QPushButton( pHeaderWidget );
+	m_pShowLayersBtn->setObjectName( "ShowLayersBtn" );
+	m_pShowLayersBtn->setFlat( true );
+	m_pShowLayersBtn->setFixedSize(
+		ComponentView::nExpansionButtonWidth,
+		ComponentView::nExpansionButtonWidth
+	);
+	connect( m_pShowLayersBtn, &Button::clicked, [&]() {
 		if ( m_bIsExpanded ) {
 			collapse();
-		} else {
+		}
+		else {
 			expand();
 		}
 		emit expandedOrCollapsed();
-	});
+	} );
 	pHBoxHeaderLayout->addWidget( m_pShowLayersBtn );
 
 	m_pComponentNameLbl = new ClickableLabel(
@@ -539,12 +541,28 @@ void ComponentView::updateIcons() {
 	m_pDuplicateLayerAction->setIcon( QIcon( sIconPath + "duplicate.svg" ) );
 	m_pDeleteLayerAction->setIcon( QIcon( sIconPath + "bin.svg" ) );
 	m_pEditLayerAction->setIcon( QIcon( sIconPath + "sample-editor.svg" ) );
+
+	m_pShowLayersBtn->setIcon(
+		QIcon( sIconPath + ( m_bIsExpanded ? "minus.svg" : "plus.svg" ) )
+	);
 }
 
 void ComponentView::updateStyleSheet() {
 	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 
+	QColor iconColor;
+	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+		 InterfaceTheme::IconColor::White ) {
+		iconColor = Qt::white;
+	} else {
+		iconColor = Qt::black;
+	}
+
 	const QColor headerColor = pColorTheme->m_windowColor;
+	const QColor headerColorHover =
+		headerColor.lighter( Skin::nToolBarHoveredScaling );
+	const QColor headerColorPressed =
+		headerColor.lighter( Skin::nToolBarCheckedScaling );
 	const QColor headerTextColor = pColorTheme->m_windowTextColor;
 	const QColor borderHeaderLightColor = headerColor.lighter(
 		Skin::nListBackgroundLightBorderScaling );
@@ -611,6 +629,17 @@ QWidget#HeaderWidget { \
 ClickableLabel#ComponentName {	\
     background-color: %1; \
 } \
+QPushButton#ShowLayersBtn {\
+    background-color: %1; \
+} \
+QPushButton#ShowLayersBtn:hover {\
+    background-color: %3; \
+    border: 1px solid %5; \
+} \
+QPushButton#ShowLayersBtn:pressed {\
+    background-color: %4; \
+    border: 1px solid %5; \
+} \
 QWidget#LayerButtonWidget, \
 QWidget#LayerPropWidget, \
 QWidget#SampleSelectionWidget { \
@@ -623,9 +652,12 @@ ClickableLabel#LayerGainLabel, \
 ClickableLabel#SampleSelectionLabel { \
     background-color: %2; \
 } \
-")
-						.arg( headerColor.name() )
-						.arg( layerColor.name() ) );
+" )
+							.arg( headerColor.name() )
+							.arg( layerColor.name() )
+							.arg( headerColorHover.name() )
+							.arg( headerColorPressed.name() )
+							.arg( iconColor.name() ) );
 
 	setStyleSheet( sStyleSheet );
 }
@@ -722,8 +754,8 @@ void ComponentView::expand() {
 		return;
 	}
 
-	m_pShowLayersBtn->setIconFileName( "minus.svg" );
 	m_bIsExpanded = true;
+	updateIcons();
 	updateVisibility();
 }
 
@@ -732,9 +764,8 @@ void ComponentView::collapse() {
 		return;
 	}
 
-	m_pShowLayersBtn->setIconFileName( "plus.svg" );
-
 	m_bIsExpanded = false;
+    updateIcons();
 	updateVisibility();
 }
 

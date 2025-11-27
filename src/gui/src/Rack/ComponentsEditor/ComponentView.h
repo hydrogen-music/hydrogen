@@ -133,7 +133,7 @@ class ComponentView : public QWidget,
 
 		QVBoxLayout* m_pVBoxMainLayout;
 
-		Button* m_pShowLayersBtn;
+		QPushButton* m_pShowLayersBtn;
 		ClickableLabel* m_pComponentNameLbl;
 
 		QToolBar* m_pToolBarComponent;
