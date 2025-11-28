@@ -257,14 +257,8 @@ void ComponentEditor::addComponent() {
 		return;
 	}
 
-	bool bIsOkPressed;
-	const QString sNewName = QInputDialog::getText(
-		this, "Hydrogen", tr( "Component name" ), QLineEdit::Normal,
-		"New Component", &bIsOkPressed );
-	if ( ! bIsOkPressed ) {
-		// Dialog closed using cancel
-		return;
-	}
+	/*: Default name for a newly created instrument component. */
+	const QString sNewName = tr( "New Component" );
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
@@ -273,15 +267,19 @@ void ComponentEditor::addComponent() {
 
 	const auto pNewComponent = std::make_shared<InstrumentComponent>( sNewName );
 	pNewInstrument->addComponent( pNewComponent );
+	const int nNewComponentIdx = pNewInstrument->index( pNewComponent );
 
 	pHydrogenApp->pushUndoCommand(
 		new SE_replaceInstrumentAction(
 			pNewInstrument, pInstrument,
 			SE_replaceInstrumentAction::Type::AddComponent, sNewName ) );
 	pHydrogenApp->showStatusBarMessage(
-		QString( "%1 [%2]" ).arg( pCommonStrings->getActionAddComponent() )
-		.arg( sNewName ) );
+		QString( "%1 [%2]" )
+			.arg( pCommonStrings->getActionAddComponent() )
+			.arg( sNewName )
+	);
 
+	// Instant feedback
 	updateEditor();
 }
 

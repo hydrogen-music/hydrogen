@@ -1496,8 +1496,9 @@ Please set your system&apos;s locale to UTF-8!</source>
 <context>
     <name>ComponentEditor</name>
     <message>
-        <source>Component name</source>
-        <translation>组件名称</translation>
+        <source>New Component</source>
+        <extracomment>Default name for a newly created instrument component.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

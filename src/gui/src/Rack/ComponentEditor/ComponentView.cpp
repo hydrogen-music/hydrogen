@@ -186,7 +186,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pNewComponentAction =
 		createAction( pCommonStrings->getActionAddComponent(), false );
 	connect( m_pNewComponentAction, &QAction::triggered, [=]() {
-		//addComponent();
+		HydrogenApp::get_instance()->getComponentEditor()->addComponent();
 	} );
 	m_pToolBarComponent->addAction( m_pNewComponentAction );
 
@@ -195,7 +195,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pDuplicateComponentAction =
 		createAction( pCommonStrings->getActionDuplicateComponent(), false );
 	connect( m_pDuplicateComponentAction, &QAction::triggered, [=]() {
-		//addComponent();
+		//
 	} );
 	m_pToolBarComponent->addAction( m_pDuplicateComponentAction );
 
