@@ -286,7 +286,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pToolBar->addWidget( m_pLCDSpinBoxNumerator );
 			
 	m_pPatternSizeSeparatorLabel = new ClickableLabel(
-		m_pToolBar, QSize( 9, nWidgetHeight ), "/", ClickableLabel::Color::Dark );
+		m_pToolBar, QSize( 9, nWidgetHeight ), "/", ClickableLabel::DefaultColor::Dark );
 	m_pPatternSizeSeparatorLabel->setText( "/" );
 	m_pPatternSizeSeparatorLabel->setFont( boldFont );
 	m_pPatternSizeSeparatorLabel->setToolTip( tr( "You can use the '/' inside the pattern size spin boxes to switch back and forth." ) );
@@ -344,7 +344,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	////////////////////////////////////////////////////////////////////////////
 	// Drumkit label
 	m_pDrumkitLabel = new ClickableLabel( nullptr, QSize( 0, 0 ), "",
-										  ClickableLabel::Color::Bright, false );
+										  ClickableLabel::DefaultColor::Bright, false );
 	m_pDrumkitLabel->setFocusPolicy( Qt::ClickFocus );
 	m_pDrumkitLabel->setFont( boldFont );
 	m_pDrumkitLabel->setIndent( PatternEditorSidebar::m_nMargin );

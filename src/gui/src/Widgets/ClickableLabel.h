@@ -46,7 +46,7 @@ class ClickableLabel : public QLabel, public H2Core::Object<ClickableLabel>
 public:
 	/** The individual colors of the text won't be exposed but are up
 		to the palette/application-wide settings.*/
-	enum class Color {
+	enum class DefaultColor {
 		Bright,
 		Dark
 	};
@@ -54,7 +54,7 @@ public:
 	explicit ClickableLabel( QWidget *pParent,
 							 const QSize& size = QSize( 0, 0 ),
 							 const QString& sText = "",
-							 const Color& color = Color::Bright,
+							 const DefaultColor& color = DefaultColor::Bright,
 							 bool bIsEditable = false );
 
 public slots:
@@ -82,7 +82,7 @@ private:
 	virtual void leaveEvent( QEvent * e ) override;
 	virtual void paintEvent( QPaintEvent * e ) override;
 	QSize m_size;
-	Color m_color;
+	DefaultColor m_defaultColor;
 
 	/** If set to true a highlight will be painted when hovered. This
 		should be set if a callback is connected and the user is able to

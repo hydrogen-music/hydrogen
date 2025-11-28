@@ -69,7 +69,7 @@ font-size: 21px;" );
 	m_pNameLbl = new ClickableLabel(
 		m_pInstrumentProp, QSize( Rack::nWidth -
 								  InstrumentEditor::nMargin * 2, 27 ), "",
-		ClickableLabel::Color::Bright, true );
+		ClickableLabel::DefaultColor::Bright, true );
 	m_pNameLbl->move( 5, 4 );
 	m_pNameLbl->setScaledContents( true );
 

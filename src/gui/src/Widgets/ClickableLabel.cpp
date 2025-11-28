@@ -29,11 +29,11 @@
 #include <core/Globals.h>
 
 ClickableLabel::ClickableLabel( QWidget *pParent, const QSize& size,
-								const QString& sText, const Color& color,
+								const QString& sText, const DefaultColor& color,
 								bool bIsEditable )
 	: QLabel( pParent )
 	, m_size( size )
-	, m_color( color )
+	, m_defaultColor( color )
 	, m_bIsEditable( bIsEditable )
 	, m_bEntered( false )
 {
@@ -59,7 +59,7 @@ void ClickableLabel::updateStyleSheet() {
 	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
 
 	QColor text;
-	if ( m_color == Color::Bright ) {
+	if ( m_defaultColor == DefaultColor::Bright ) {
 		text = pColorTheme->m_windowTextColor;
 	} else {
 		text = pColorTheme->m_widgetTextColor;

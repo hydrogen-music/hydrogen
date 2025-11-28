@@ -94,7 +94,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	pHBoxHeaderLayout->addWidget( m_pShowLayersBtn );
 
 	m_pComponentNameLbl = new ClickableLabel(
-		pHeaderWidget, QSize( 0, 0 ), "", ClickableLabel::Color::Bright, true
+		pHeaderWidget, QSize( 0, 0 ), "", ClickableLabel::DefaultColor::Bright, true
 	);
 	m_pComponentNameLbl->setFixedHeight( ComponentView::nHeaderHeight - 2 ),
 		m_pComponentNameLbl->setObjectName( "ComponentName" );
