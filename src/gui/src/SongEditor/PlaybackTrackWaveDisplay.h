@@ -28,7 +28,7 @@
 #include <memory>
 
 #include <core/Object.h>
-#include "../Rack/ComponentsEditor/WaveDisplay.h"
+#include "../Rack/ComponentEditor/WaveDisplay.h"
 
 namespace H2Core
 {

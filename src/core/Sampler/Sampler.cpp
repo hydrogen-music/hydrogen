@@ -669,7 +669,7 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 	//---------------------------------------------------------
 
 	// In case there were already some layers selected for specific components -
-	// e.g. when clicking a layer in the ComponentsEditor or when using the
+	// e.g. when clicking a layer in the ComponentEditor or when using the
 	// SampleEditor - we use those. If not, we will select them right here
 	// according to the sample selected algorithms.
 	if ( ! pNote->layersAlreadySelected() ) {

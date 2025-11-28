@@ -23,7 +23,7 @@
 #include "Rack.h"
 
 
-#include "ComponentsEditor/ComponentsEditor.h"
+#include "ComponentEditor/ComponentEditor.h"
 #include "InstrumentEditor.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
 #include "../HydrogenApp.h"
@@ -44,7 +44,7 @@ Rack::Rack( QWidget* pParent )
 	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
 
 	m_pInstrumentEditor = new InstrumentEditor( this );
-	m_pComponentsEditor = new ComponentsEditor( this );
+	m_pComponentEditor = new ComponentEditor( this );
 	m_pSoundLibraryPanel = new SoundLibraryPanel( this, false );
 
 	connect(
@@ -127,7 +127,7 @@ void Rack::updateIcons()
 	 * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure
 	 * to check the corresponding tab bar! */
 	addTab(
-		m_pComponentsEditor, QIcon( sIconPath + "component-editor.svg" ),
+		m_pComponentEditor, QIcon( sIconPath + "component-editor.svg" ),
 		tr( "Comp." )
 	);
 	/*: Descriptive text in the tab to view the sound library at the

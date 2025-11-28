@@ -54,7 +54,7 @@
 #include "ExportMidiDialog.h"
 #include "ExportSongDialog.h"
 #include "HydrogenApp.h"
-#include "Rack/ComponentsEditor/ComponentsEditor.h"
+#include "Rack/ComponentEditor/ComponentEditor.h"
 #include "Rack/Rack.h"
 #include "LadspaFXProperties.h"
 #include "Mixer/Mixer.h"
@@ -3238,9 +3238,9 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				action_drumkit_new();
 				break;
 			case Shortcuts::Action::AddComponent: {
-				auto pComponentsEditor = pHydrogenApp->getComponentsEditor();
-				if ( pComponentsEditor != nullptr ) {
-					pComponentsEditor->addComponent();
+				auto pComponentEditor = pHydrogenApp->getComponentEditor();
+				if ( pComponentEditor != nullptr ) {
+					pComponentEditor->addComponent();
 				}
 				break;
 			}

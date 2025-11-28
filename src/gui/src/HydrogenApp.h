@@ -56,7 +56,7 @@ namespace H2Core
 
 class AudioEngineInfoForm;
 class CommonStrings;
-class ComponentsEditor;
+class ComponentEditor;
 class Director;
 class FilesystemInfoForm;
 class Footer;
@@ -126,7 +126,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 
 		AudioEngineInfoForm* getAudioEngineInfoForm() const;
 		std::shared_ptr<CommonStrings> getCommonStrings() const;
-		ComponentsEditor* getComponentsEditor() const;
+		ComponentEditor* getComponentEditor() const;
 		Director* getDirector() const;
 		Footer* getFooter() const;
 		InstrumentEditor* getInstrumentEditor() const;

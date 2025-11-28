@@ -42,7 +42,7 @@
 #include "Director.h"
 #include "Footer/Footer.h"
 #include "FilesystemInfoForm.h"
-#include "Rack/ComponentsEditor/ComponentsEditor.h"
+#include "Rack/ComponentEditor/ComponentEditor.h"
 #include "Rack/InstrumentEditor.h"
 #include "Rack/Rack.h"
 #include "LadspaFXProperties.h"
@@ -285,7 +285,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	// INSTRUMENT RACK
 	m_pRack = new Rack( nullptr );
 	m_pRack->getInstrumentEditor()->updateEditor();
-	m_pRack->getComponentsEditor()->updateEditor();
+	m_pRack->getComponentEditor()->updateEditor();
 	WindowProperties rackProp = pPref->getRackProperties();
 	m_pRack->setVisible( rackProp.visible );
 
@@ -917,13 +917,13 @@ void HydrogenApp::showSampleEditor(
 	QApplication::restoreOverrideCursor();
 }
 
-ComponentsEditor* HydrogenApp::getComponentsEditor() const
+ComponentEditor* HydrogenApp::getComponentEditor() const
 {
 	if ( m_pRack == nullptr ) {
 	  return nullptr;
 	}
 
-	return m_pRack->getComponentsEditor();
+	return m_pRack->getComponentEditor();
 }
 
 InstrumentEditor* HydrogenApp::getInstrumentEditor() const

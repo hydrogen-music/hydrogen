@@ -1494,6 +1494,13 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
 </context>
 <context>
+    <name>ComponentEditor</name>
+    <message>
+        <source>Component name</source>
+        <translation>Nom du composant</translation>
+    </message>
+</context>
+<context>
     <name>ComponentView</name>
     <message>
         <source>Layer gain</source>
@@ -1549,13 +1556,6 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Solo layer</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ComponentsEditor</name>
-    <message>
-        <source>Component name</source>
-        <translation>Nom du composant</translation>
     </message>
 </context>
 <context>

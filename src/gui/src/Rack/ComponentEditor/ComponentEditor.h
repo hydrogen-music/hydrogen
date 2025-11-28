@@ -40,16 +40,16 @@ class ComponentView;
  * #H2Core::Instrument.
  *
  * \ingroup docGUI*/
-class ComponentsEditor : public QWidget,
+class ComponentEditor : public QWidget,
 						 protected WidgetWithScalableFont<10, 12, 14>,
-						 public H2Core::Object<ComponentsEditor>,
+						 public H2Core::Object<ComponentEditor>,
 						 public EventListener {
-	H2_OBJECT( ComponentsEditor )
+	H2_OBJECT( ComponentEditor )
 	Q_OBJECT
 
    public:
-	explicit ComponentsEditor( QWidget* pParent );
-	~ComponentsEditor();
+	explicit ComponentEditor( QWidget* pParent );
+	~ComponentEditor();
 
 	void updateColors();
 	void updateComponents();

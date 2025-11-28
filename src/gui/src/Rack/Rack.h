@@ -30,11 +30,11 @@
 #include <QtGui>
 #include <QtWidgets>
 
-#include "ComponentsEditor/ComponentView.h"
+#include "ComponentEditor/ComponentView.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 #include "../Skin.h"
 
-class ComponentsEditor;
+class ComponentEditor;
 class InstrumentEditor;
 class SoundLibraryPanel;
 
@@ -54,7 +54,7 @@ class Rack : public QTabWidget,
 	explicit Rack( QWidget* pParent );
 	~Rack();
 
-	ComponentsEditor* getComponentsEditor() const;
+	ComponentEditor* getComponentEditor() const;
 	InstrumentEditor* getInstrumentEditor() const;
 	SoundLibraryPanel* getSoundLibraryPanel() const;
 
@@ -69,14 +69,14 @@ class Rack : public QTabWidget,
 	void updateStyleSheet();
 	void updateIcons();
 
-	ComponentsEditor* m_pComponentsEditor;
+	ComponentEditor* m_pComponentEditor;
 	InstrumentEditor* m_pInstrumentEditor;
 
 	SoundLibraryPanel* m_pSoundLibraryPanel;
 };
 
-inline ComponentsEditor* Rack::getComponentsEditor() const {
-	return m_pComponentsEditor;
+inline ComponentEditor* Rack::getComponentEditor() const {
+	return m_pComponentEditor;
 }
 inline InstrumentEditor* Rack::getInstrumentEditor() const {
 	return m_pInstrumentEditor;

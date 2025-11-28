@@ -20,7 +20,7 @@
  *
  */
 
-#include "ComponentsEditor.h"
+#include "ComponentEditor.h"
 
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -35,13 +35,13 @@
 
 using namespace H2Core;
 
-ComponentsEditor::ComponentsEditor( QWidget* pParent )
+ComponentEditor::ComponentEditor( QWidget* pParent )
 	: QWidget( pParent )
 {
 	setMinimumSize( Rack::nWidth,
 					ComponentView::nHeaderHeight );
 	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
-	setObjectName( "ComponentsEditor" );
+	setObjectName( "ComponentEditor" );
 
     auto pHydrogenApp = HydrogenApp::get_instance();
  	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
@@ -89,19 +89,19 @@ ComponentsEditor::ComponentsEditor( QWidget* pParent )
 
     pHydrogenApp->addEventListener( this );
 	connect( pHydrogenApp, &HydrogenApp::preferencesChanged,
-			 this, &ComponentsEditor::onPreferencesChanged );
+			 this, &ComponentEditor::onPreferencesChanged );
 }
 
-ComponentsEditor::~ComponentsEditor() {
+ComponentEditor::~ComponentEditor() {
 }
 
-void ComponentsEditor::updateColors() {
+void ComponentEditor::updateColors() {
 	for ( auto& ppComponentView : m_componentViews ) {
 		ppComponentView->updateColors();
 	}
 }
 
-void ComponentsEditor::updateComponents() {
+void ComponentEditor::updateComponents() {
 
 	// We add a stretchable spacer item of zero height at the bottom. When
 	// appending another widget we have to take remove it first and add another
@@ -167,24 +167,24 @@ void ComponentsEditor::updateComponents() {
 	updateSize();
 }
 
-void ComponentsEditor::updateIcons() {
+void ComponentEditor::updateIcons() {
 	for ( auto& ppComponentView : m_componentViews ) {
 		ppComponentView->updateIcons();
 	}
 }
 
-void ComponentsEditor::updateEditor() {
+void ComponentEditor::updateEditor() {
 	for ( const auto& ppComponentView : m_componentViews ) {
 		ppComponentView->updateView();
 	}
 }
 
-void ComponentsEditor::drumkitLoadedEvent() {
+void ComponentEditor::drumkitLoadedEvent() {
 	updateComponents();
 	updateEditor();
 }
 
-void ComponentsEditor::instrumentLayerChangedEvent( int nId )
+void ComponentEditor::instrumentLayerChangedEvent( int nId )
 {
 	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 	if ( pInstrument != nullptr && pInstrument->getId() == nId ) {
@@ -192,7 +192,7 @@ void ComponentsEditor::instrumentLayerChangedEvent( int nId )
 	}
 }
 
-void ComponentsEditor::instrumentParametersChangedEvent(
+void ComponentEditor::instrumentParametersChangedEvent(
 	int nInstrumentNumber
 )
 {
@@ -212,12 +212,12 @@ void ComponentsEditor::instrumentParametersChangedEvent(
 	}
 }
 
-void ComponentsEditor::selectedInstrumentChangedEvent() {
+void ComponentEditor::selectedInstrumentChangedEvent() {
 	updateComponents();
 	updateEditor();
 }
 
-void ComponentsEditor::updateSongEvent( int nValue ) {
+void ComponentEditor::updateSongEvent( int nValue ) {
 	// A new song got loaded
 	if ( nValue == 0 ) {
 		updateComponents();
@@ -225,8 +225,8 @@ void ComponentsEditor::updateSongEvent( int nValue ) {
 	}
 }
 
-void ComponentsEditor::updateStyleSheet() {
-	setStyleSheet( QString( "QWidget#ComponentsEditor {background-color: %1;}" )
+void ComponentEditor::updateStyleSheet() {
+	setStyleSheet( QString( "QWidget#ComponentEditor {background-color: %1;}" )
 				   .arg( H2Core::Preferences::get_instance()->
 						 getColorTheme()->m_windowColor.name() ) );
 
@@ -235,7 +235,7 @@ void ComponentsEditor::updateStyleSheet() {
 	}
 }
 
-ComponentView* ComponentsEditor::getCurrentView() const {
+ComponentView* ComponentEditor::getCurrentView() const {
 	for ( const auto& ppComponentView : m_componentViews ) {
 		if ( ppComponentView != nullptr || ppComponentView->getIsExpanded() ) {
 			return ppComponentView;
@@ -245,13 +245,13 @@ ComponentView* ComponentsEditor::getCurrentView() const {
 	return nullptr;
 }
 
-void ComponentsEditor::setVisible( bool bVisible )
+void ComponentEditor::setVisible( bool bVisible )
 {
     QWidget::setVisible( bVisible );
 	updateSize();
 }
 
-void ComponentsEditor::renameComponent( int nComponentId, const QString& sNewName ) {
+void ComponentEditor::renameComponent( int nComponentId, const QString& sNewName ) {
 	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
 		return;
@@ -271,7 +271,7 @@ void ComponentsEditor::renameComponent( int nComponentId, const QString& sNewNam
 	updateEditor();
 }
 
-void ComponentsEditor::addComponent() {
+void ComponentEditor::addComponent() {
 	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
 		return;
@@ -305,7 +305,7 @@ void ComponentsEditor::addComponent() {
 	updateEditor();
 }
 
-void ComponentsEditor::onPreferencesChanged(
+void ComponentEditor::onPreferencesChanged(
 	const H2Core::Preferences::Changes& changes
 )
 {
@@ -324,14 +324,14 @@ void ComponentsEditor::onPreferencesChanged(
 	}
 }
 
-void ComponentsEditor::mousePressEvent( QMouseEvent* pEvent ) {
+void ComponentEditor::mousePressEvent( QMouseEvent* pEvent ) {
 	auto pEv = static_cast<MouseEvent*>( pEvent );
 	if ( pEvent->button() == Qt::RightButton ) {
 		m_pPopup->popup( pEv->globalPosition().toPoint() );
 	}
 }
 
-void ComponentsEditor::updateSize() {
+void ComponentEditor::updateSize() {
 	int nNewHeight = 0;
 	for ( const auto& ppView : m_componentViews ) {
 		if ( ppView->getIsExpanded() ) {

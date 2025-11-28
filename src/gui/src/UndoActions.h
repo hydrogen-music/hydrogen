@@ -44,7 +44,7 @@
 
 #include "CommonStrings.h"
 #include "HydrogenApp.h"
-#include "Rack/ComponentsEditor/ComponentsEditor.h"
+#include "Rack/ComponentEditor/ComponentEditor.h"
 #include "MainForm.h"
 #include "PatternEditor/NotePropertiesRuler.h"
 #include "PatternEditor/DrumPatternEditor.h"
@@ -983,13 +983,13 @@ class SE_renameComponentAction : public QUndoCommand {
 	virtual void undo()
 	{
 		HydrogenApp::get_instance()
-			->getComponentsEditor()
+			->getComponentEditor()
 			->renameComponent( m_nComponentId, m_sOldName );
 	}
 	virtual void redo()
 	{
 		HydrogenApp::get_instance()
-			->getComponentsEditor()
+			->getComponentEditor()
 			->renameComponent( m_nComponentId, m_sNewName );
 	}
 
