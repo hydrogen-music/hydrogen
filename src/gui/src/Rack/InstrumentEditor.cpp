@@ -121,7 +121,7 @@ font-size: 21px;" );
 
 	/////////////
 
-	connect( m_pNameLbl, &ClickableLabel::labelClicked, this, [=](){
+	connect( m_pNameLbl, &ClickableLabel::labelDoubleClicked, this, [=](){
 		m_pInlineEdit->startEditing( m_pNameLbl->geometry(),
 									m_pNameLbl->text() );
 		m_pNameLbl->hide();
