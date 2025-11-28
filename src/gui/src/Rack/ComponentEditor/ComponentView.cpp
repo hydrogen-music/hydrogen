@@ -231,7 +231,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pDeleteComponentAction =
 		createAction( pCommonStrings->getActionDeleteComponent(), false );
 	connect( m_pDeleteComponentAction, &QAction::triggered, [=]() {
-		//
+		deleteComponent();
 	} );
 	m_pToolBarComponent->addAction( m_pDeleteComponentAction );
 
@@ -921,15 +921,29 @@ void ComponentView::deleteComponent() {
 		.arg( sName ) );
 }
 
-void ComponentView::setComponent(std::shared_ptr<H2Core::InstrumentComponent> pComponent) {
+void ComponentView::setComponent(
+	std::shared_ptr<H2Core::InstrumentComponent> pComponent
+)
+{
 	if ( m_pComponent != pComponent ) {
 		m_pComponent = pComponent;
 		m_nSelectedLayer = std::clamp(
-			m_nSelectedLayer, 0, H2Core::InstrumentComponent::getMaxLayers() );
+			m_nSelectedLayer, 0, H2Core::InstrumentComponent::getMaxLayers()
+		);
 	}
+
+	// if there is just a single component left, we must not allow deleting it.
+	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	if ( pInstrument == nullptr ) {
+		return;
+	}
+	m_pDeleteComponentAction->setEnabled(
+		pInstrument->getComponents()->size() > 1
+	);
 }
 
-void ComponentView::mousePressEvent( QMouseEvent* pEvent ) {
+void ComponentView::mousePressEvent( QMouseEvent* pEvent )
+{
 	auto pEv = static_cast<MouseEvent*>( pEvent );
 	if ( pEvent->button() == Qt::RightButton ) {
 		m_pPopup->popup( pEv->globalPosition().toPoint() );
