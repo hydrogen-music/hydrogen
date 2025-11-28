@@ -982,15 +982,15 @@ class SE_renameComponentAction : public QUndoCommand {
 	}
 	virtual void undo()
 	{
-		HydrogenApp::get_instance()
-			->getComponentEditor()
-			->renameComponent( m_nComponentId, m_sOldName );
+		H2Core::CoreActionController::renameComponent(
+			m_nComponentId, m_sOldName
+		);
 	}
 	virtual void redo()
 	{
-		HydrogenApp::get_instance()
-			->getComponentEditor()
-			->renameComponent( m_nComponentId, m_sNewName );
+		H2Core::CoreActionController::renameComponent(
+			m_nComponentId, m_sNewName
+		);
 	}
 
    private:

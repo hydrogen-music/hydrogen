@@ -69,8 +69,6 @@ class ComponentEditor : public QWidget,
 
 	void setVisible( bool bVisible ) override;
 
-	void renameComponent( int nComponentIdx, const QString& sNewName );
-
    public slots:
 	void addComponent();
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );

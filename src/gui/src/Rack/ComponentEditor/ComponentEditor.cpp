@@ -251,26 +251,6 @@ void ComponentEditor::setVisible( bool bVisible )
 	updateSize();
 }
 
-void ComponentEditor::renameComponent( int nComponentId, const QString& sNewName ) {
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
-	if ( pInstrument == nullptr ) {
-		return;
-	}
-
-	auto pComponent = pInstrument->getComponent( nComponentId );
-	if ( pComponent == nullptr ) {
-		ERRORLOG( QString( "Unable to retrieve component [%1]" )
-				  .arg( nComponentId ) );
-		return;
-	}
-
-	pComponent->setName( sNewName );
-
-	Hydrogen::get_instance()->setIsModified( true );
-
-	updateEditor();
-}
-
 void ComponentEditor::addComponent() {
 	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {

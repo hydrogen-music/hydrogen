@@ -376,6 +376,9 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * stays the same during the move action). */
 		static bool moveInstrument( int nSourceIndex, int nTargetIndex );
 
+		static bool
+		renameComponent( int nComponentId, const QString& sNewName );
+
 		/** Changing the type of an instrument - specified using its ID - of the
 		 * current drumkit.
 		 *

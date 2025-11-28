@@ -2070,6 +2070,38 @@ bool CoreActionController::moveInstrument( int nSourceIndex, int nTargetIndex ) 
 	return true;
 }
 
+bool CoreActionController::renameComponent(
+	int nComponentId,
+	const QString& sNewName
+)
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	const auto pInstrument = pHydrogen->getSelectedInstrument();
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+
+	auto pComponent = pInstrument->getComponent( nComponentId );
+	if ( pComponent == nullptr ) {
+		ERRORLOG(
+			QString( "Unable to retrieve component [%1]" ).arg( nComponentId )
+		);
+		return true;
+	}
+
+	pComponent->setName( sNewName );
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->pushEvent(
+		Event::Type::SelectedInstrumentChanged, 0
+	);
+
+	return true;
+}
+
 bool CoreActionController::setInstrumentType( int nInstrumentId,
 											  const DrumkitMap::Type& sType ) {
 	auto pHydrogen = Hydrogen::get_instance();
