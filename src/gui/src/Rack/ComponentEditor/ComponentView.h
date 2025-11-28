@@ -106,7 +106,6 @@ class ComponentView : public QWidget,
 		void setSelectedLayer( int nLayer );
 
 	public slots:
-		void renameComponentAction();
 		void showSampleEditor();
 
 	signals:

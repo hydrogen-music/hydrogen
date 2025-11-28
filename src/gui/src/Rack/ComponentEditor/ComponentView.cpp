@@ -902,36 +902,6 @@ void ComponentView::setComponent(std::shared_ptr<H2Core::InstrumentComponent> pC
 	}
 }
 
-void ComponentView::renameComponentAction() {
-	if ( m_pComponent == nullptr ) {
-		return;
-	}
-
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
-
-	auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
-	if ( pInstrument == nullptr ) {
-		return;
-	}
-
-	const QString sOldName = m_pComponent->getName();
-	bool bIsOkPressed;
-	const QString sNewName = QInputDialog::getText(
-		this, "Hydrogen", tr( "New component name" ), QLineEdit::Normal,
-		sOldName, &bIsOkPressed );
-
-	if ( bIsOkPressed && sOldName != sNewName ) {
-		 pHydrogenApp->pushUndoCommand(
-			 new SE_renameComponentAction(
-				 sNewName, sOldName, pInstrument->index( m_pComponent ) ) );
-		 pHydrogenApp->showStatusBarMessage(
-			 QString( "%1: [%2] -> [%3]" )
-					 .arg( pCommonStrings->getActionRenameComponent() )
-					 .arg( sOldName ).arg( sNewName ) );
-	}
-}
-
 void ComponentView::mousePressEvent( QMouseEvent* pEvent ) {
 	auto pEv = static_cast<MouseEvent*>( pEvent );
 	if ( pEvent->button() == Qt::RightButton ) {

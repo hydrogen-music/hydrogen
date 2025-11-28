@@ -1537,10 +1537,6 @@ Please set your system&apos;s locale to UTF-8!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>New component name</source>
-        <translation>Назва нового компонента</translation>
-    </message>
-    <message>
         <source>Mute component</source>
         <translation type="unfinished"></translation>
     </message>
