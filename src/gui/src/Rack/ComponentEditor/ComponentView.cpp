@@ -42,6 +42,7 @@
 #include "../../UndoActions.h"
 #include "../../Widgets/Button.h"
 #include "../../Widgets/ClickableLabel.h"
+#include "../../Widgets/InlineEdit.h"
 #include "../../Widgets/LCDCombo.h"
 #include "../../Widgets/LCDDisplay.h"
 #include "../../Widgets/Rotary.h"
@@ -92,16 +93,66 @@ ComponentView::ComponentView( QWidget* pParent,
 	} );
 	pHBoxHeaderLayout->addWidget( m_pShowLayersBtn );
 
+	m_pInlineEdit = new InlineEdit( pHeaderWidget );
+	m_pInlineEdit->hide();
+	m_pInlineEdit->setAlignment( Qt::AlignCenter );
+	m_pInlineEdit->setTextMargins( 0, 0, 0, 0 );
+	m_pInlineEdit->setContentsMargins( 0, 0, 0, 0 );
+
 	m_pComponentNameLbl = new ClickableLabel(
 		pHeaderWidget, QSize( 0, 0 ), "", ClickableLabel::DefaultColor::Bright, true
 	);
 	m_pComponentNameLbl->setFixedHeight( ComponentView::nHeaderHeight - 2 ),
 		m_pComponentNameLbl->setObjectName( "ComponentName" );
-	connect(
-		m_pComponentNameLbl, SIGNAL( labelDoubleClicked( QMouseEvent* ) ), this,
-		SLOT( renameComponentAction() )
-	);
 	pHBoxHeaderLayout->addWidget( m_pComponentNameLbl );
+
+	connect(
+		m_pComponentNameLbl, &ClickableLabel::labelDoubleClicked, this,
+		[=]() {
+			m_pInlineEdit->startEditing(
+				m_pComponentNameLbl->geometry(), m_pComponentNameLbl->text()
+			);
+			m_pComponentNameLbl->hide();
+		}
+	);
+
+	connect( m_pInlineEdit, &InlineEdit::editAccepted, [=]() {
+		if ( !m_pInlineEdit->isVisible() ) {
+			// Already rejected
+			return;
+		}
+
+		m_pComponentNameLbl->show();
+		m_pInlineEdit->hide();
+
+		auto pHydrogenApp = HydrogenApp::get_instance();
+		const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+		auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+		if ( pInstrument == nullptr || m_pComponent == nullptr ) {
+			return;
+		}
+
+		const QString sOldName = m_pComponent->getName();
+		const QString sNewName = m_pInlineEdit->text();
+
+		if ( sOldName != sNewName ) {
+			pHydrogenApp->pushUndoCommand( new SE_renameComponentAction(
+				sNewName, sOldName, pInstrument->index( m_pComponent )
+			) );
+			pHydrogenApp->showStatusBarMessage(
+				QString( "%1: [%2] -> [%3]" )
+					.arg( pCommonStrings->getActionRenameComponent() )
+					.arg( sOldName )
+					.arg( sNewName )
+			);
+		}
+	} );
+
+	connect( m_pInlineEdit, &InlineEdit::editRejected, [=]() {
+		m_pComponentNameLbl->show();
+		m_pInlineEdit->hide();
+	} );
 
 	// Expanded elements
 

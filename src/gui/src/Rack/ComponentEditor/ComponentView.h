@@ -41,6 +41,7 @@ namespace H2Core {
 
 class Button;
 class ClickableLabel;
+class InlineEdit;
 class LCDCombo;
 class LCDDisplay;
 class WaveDisplay;
@@ -134,6 +135,7 @@ class ComponentView : public QWidget,
 		QVBoxLayout* m_pVBoxMainLayout;
 
 		QPushButton* m_pShowLayersBtn;
+		InlineEdit* m_pInlineEdit;
 		ClickableLabel* m_pComponentNameLbl;
 
 		QWidget* m_pSeparatorComponent;
