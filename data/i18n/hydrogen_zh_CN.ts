@@ -4180,6 +4180,26 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>Solo Text</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Component Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component Background</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Layer Background</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Layer Text</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>

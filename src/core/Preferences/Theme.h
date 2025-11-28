@@ -91,6 +91,11 @@ public:
 	QColor m_patternEditor_instrumentSelectedRowColor;
 	QColor m_patternEditor_instrumentSelectedRowTextColor;
 
+	QColor m_componentEditor_componentColor;
+	QColor m_componentEditor_componentTextColor;
+	QColor m_componentEditor_layerColor;
+	QColor m_componentEditor_layerTextColor;
+
 	QColor m_selectionHighlightColor;
 	QColor m_selectionInactiveColor;
 
@@ -99,13 +104,19 @@ public:
 	QColor m_windowColor;
 	/** A general foreground color.*/
 	QColor m_windowTextColor;
-	/** Used as the background color for text entry widgets; usually white or another light color.*/
+	/** Used as the background color for text entry widgets; usually white or
+	 * another light color.*/
 	QColor m_baseColor;
-	/** Used as the alternate background color in views with alternating row colors.*/
+	/** Used as the alternate background color in views with alternating row
+	 * colors.*/
 	QColor m_alternateBaseColor;
-	/** The foreground color used with Base. This is usually the same as the Foreground, in which case it must provide good contrast with Background and Base.*/
+	/** The foreground color used with Base. This is usually the same as the
+	 * Foreground, in which case it must provide good contrast with Background
+	 * and Base.*/
 	QColor m_textColor;
-	/** The general button background color. This background can be different from Background as some styles require a different background color for buttons.*/
+	/** The general button background color. This background can be different
+	 * from Background as some styles require a different background color for
+	 * buttons.*/
 	QColor m_buttonColor;
 	/** A foreground color used with the Button color.*/
 	QColor m_buttonTextColor;
