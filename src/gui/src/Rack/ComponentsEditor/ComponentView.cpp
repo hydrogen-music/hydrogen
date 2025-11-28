@@ -105,19 +105,21 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	// Expanded elements
 
-	m_pComponentWidget = new QWidget( this );
-	m_pComponentWidget->setObjectName( "ComponentWidget" );
-	auto pVBoxComponentLayout = new QVBoxLayout( this );
-	pVBoxComponentLayout->setSpacing( 0 );
-	pVBoxComponentLayout->setContentsMargins(
-		ComponentView::nMargin, 0,
-		ComponentView::nMargin, 0 );
-	m_pComponentWidget->setLayout( pVBoxComponentLayout );
+	m_pSeparatorComponent = new QWidget( pHeaderWidget );
+	m_pSeparatorComponent->setObjectName( "SeparatorComponent" );
+	m_pSeparatorComponent->setFixedSize( Rack::nWidth, 1 );
+	m_pSeparatorLayout = new QVBoxLayout();
+	m_pSeparatorLayout->setAlignment( Qt::AlignCenter );
+	m_pSeparatorLayout->setContentsMargins( 0, 0, 0, 0 );
+	m_pSeparatorComponent->setLayout( m_pSeparatorLayout );
 
-    // Toolbar for components
+	auto pSeparatorWidget = new QWidget( m_pSeparatorComponent );
+	pSeparatorWidget->setObjectName( "SeparatorToolBarComponent" );
+	pSeparatorWidget->setFixedSize( Rack::nWidth / 6, 1 );
+	m_pSeparatorLayout->addWidget( pSeparatorWidget );
 
 	m_pToolBarComponent = new QToolBar( this );
-	pVBoxComponentLayout->addWidget( m_pToolBarComponent );
+	m_pToolBarComponent->setObjectName( "CVToolBarComponent" );
 	m_pToolBarComponent->setFixedHeight( ComponentView::nToolBarHeight );
 	m_pToolBarComponent->setFocusPolicy( Qt::NoFocus );
 
@@ -200,6 +202,17 @@ ComponentView::ComponentView( QWidget* pParent,
 	});
 	m_pToolBarComponent->addWidget( m_pComponentGainRotary );
 
+	// Layer specific stuff
+
+	m_pComponentWidget = new QWidget( this );
+	m_pComponentWidget->setObjectName( "ComponentWidget" );
+	auto pVBoxComponentLayout = new QVBoxLayout( this );
+	pVBoxComponentLayout->setSpacing( 0 );
+	pVBoxComponentLayout->setContentsMargins(
+		ComponentView::nMargin, 0,
+		ComponentView::nMargin, 0 );
+	m_pComponentWidget->setLayout( pVBoxComponentLayout );
+
 	// Layer preview
 
 	m_pLayerPreview = new LayerPreview( this );
@@ -218,6 +231,7 @@ ComponentView::ComponentView( QWidget* pParent,
     // Toolbar with buttons
 
 	m_pToolBarLayer = new QToolBar( m_pComponentWidget );
+	m_pToolBarLayer->setObjectName( "CVToolBarLayer" );
 	m_pToolBarLayer->setFixedHeight( ComponentView::nToolBarHeight );
 	m_pToolBarLayer->setFocusPolicy( Qt::NoFocus );
 
@@ -482,6 +496,8 @@ ComponentView::ComponentView( QWidget* pParent,
 	pVBoxLayerLayout->addWidget( pLayerPropWidget );
 
 	m_pVBoxMainLayout->addWidget( pHeaderWidget );
+	m_pVBoxMainLayout->addWidget( m_pSeparatorComponent );
+    m_pVBoxMainLayout->addWidget( m_pToolBarComponent );
 	m_pVBoxMainLayout->addWidget( m_pComponentWidget );
 	m_pVBoxMainLayout->addWidget( m_pLayerWidget );
 	setLayout( m_pVBoxMainLayout );
@@ -519,15 +535,12 @@ void ComponentView::updateColors() {
 }
 
 void ComponentView::updateIcons() {
-	QColor color;
 	QString sIconPath( Skin::getSvgImagePath() );
 	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
-		color = Qt::white;
 	} else {
 		sIconPath.append( "/icons/black/" );
-		color = Qt::black;
 	}
 
 	m_pNewComponentAction->setIcon( QIcon( sIconPath + "plus.svg" ) );
@@ -557,17 +570,21 @@ void ComponentView::updateStyleSheet() {
 		iconColor = Qt::black;
 	}
 
-	const QColor headerColor = pColorTheme->m_windowColor;
+	const QColor headerColor = pColorTheme->m_componentEditor_componentColor;
 	const QColor headerColorHover =
 		headerColor.darker( Skin::nToolBarHoveredScaling );
 	const QColor headerColorPressed =
 		headerColor.darker( Skin::nToolBarCheckedScaling );
+	const QColor headerSeparator = headerColor.lighter( 115 );
+	const QColor headerTextColor =
+		pColorTheme->m_componentEditor_componentTextColor;
 	const QColor borderHeaderLightColor = headerColor.lighter(
 		Skin::nListBackgroundLightBorderScaling );
 	const QColor borderHeaderDarkColor = headerColor.darker(
 		Skin::nListBackgroundDarkBorderScaling );
 
-	const QColor layerColor = pColorTheme->m_baseColor;
+	const QColor layerColor = pColorTheme->m_componentEditor_layerColor;
+	const QColor layerTextColor = pColorTheme->m_componentEditor_layerTextColor;
 	const QColor borderLayerLightColor = layerColor.lighter(
 		Skin::nListBackgroundLightBorderScaling );
 	const QColor borderLayerDarkColor = layerColor.darker(
@@ -582,12 +599,13 @@ QWidget#HeaderWidget { \
     border-top: 1px solid %2; \
     border-left: 1px solid %2; \
     border-right: 1px solid %3; \
+    border-bottom: none; \
 } \
 QWidget#ComponentWidget, \
 QWidget#LayerWidget { \
     background-color: %4; \
-    border-left: 2px solid %5; \
-    border-right: 2px solid %6; \
+    border-left: 1px solid %5; \
+    border-right: 1px solid %6; \
 } \
 QWidget#ComponentWidget { \
     border-bottom: 1px solid %6; \
@@ -596,17 +614,39 @@ QWidget#LayerWidget { \
     border-top: 1px solid %5; \
     border-bottom: 2px solid %6; \
 } \
+QWidget#SeparatorComponent { \
+    background-color: %1; \
+    border-left: 1px solid %2; \
+    border-right: 1px solid %3; \
+} \
+QWidget#SeparatorToolBarComponent { \
+    border-top: 1px solid %7; \
+} \
 QToolBar {\
     spacing: 1px; \
+} \
+QToolBar#CVToolBarComponent {\
+    background-color: %1; \
+    color: %8; \
+    border-left: 1px solid %2; \
+    border-right: 1px solid %3; \
+    border-bottom: 1px solid %3; \
+} \
+QToolBar#CVToolBarLayer {\
+    background-color: %4; \
+    color: %9; \
     border-top: 1px solid #000; \
     border-bottom: 1px solid %6; \
 }" )
-							.arg( headerColor.name() )
-							.arg( borderHeaderLightColor.name() )
-							.arg( borderHeaderDarkColor.name() )
-							.arg( layerColor.name() )
-							.arg( borderLayerLightColor.name() )
-							.arg( borderLayerDarkColor.name() ) );
+								.arg( headerColor.name() )
+								.arg( borderHeaderLightColor.name() )
+								.arg( borderHeaderDarkColor.name() )
+								.arg( layerColor.name() )
+								.arg( borderLayerLightColor.name() )
+								.arg( borderLayerDarkColor.name() )
+								.arg( headerSeparator.name() )
+								.arg( headerTextColor.name() )
+								.arg( layerTextColor.name() ) );
 }
 	else {
 		// LayerWidget won't be visible.
@@ -658,6 +698,13 @@ ClickableLabel#SampleSelectionLabel { \
 							.arg( iconColor.name() ) );
 
 	setStyleSheet( sStyleSheet );
+
+	m_pComponentNameLbl->setColor( headerTextColor );
+	m_pSampleSelectionLbl->setColor( layerTextColor );
+	m_pLayerPitchLbl->setColor( layerTextColor );
+	m_pLayerPitchCoarseLbl->setColor( layerTextColor );
+	m_pLayerPitchFineLbl->setColor( layerTextColor );
+
 }
 
 void ComponentView::updateView() {
@@ -737,14 +784,15 @@ void ComponentView::accountForScrollbar( bool bScrollBarVisible )
 	m_pVBoxMainLayout->setContentsMargins(
 		0, 0, bScrollBarVisible ? Skin::nScrollBarWidth : 0, 0
 	);
-
-	// We have to adjust the size of layer preview manually since the whole
-	// content of the widget is rendered and there is no Qt child widget that
-	// could claim the available space.
-	m_pLayerPreview->setFixedWidth(
-		Rack::nWidth - ComponentView::nMargin * 2 -
-		( bScrollBarVisible ? Skin::nScrollBarWidth : 0 )
+	m_pSeparatorLayout->setContentsMargins(
+		0, 0, bScrollBarVisible ? Skin::nScrollBarWidth : 0, 0
 	);
+
+	// We have to adjust those widgets manually which render their whole content
+	// and do not have a Qt child widget that could claim the available space.
+	const int nNewWidth = Rack::nWidth - ComponentView::nMargin * 2 -
+						  ( bScrollBarVisible ? Skin::nScrollBarWidth : 0 );
+	m_pLayerPreview->setFixedWidth( nNewWidth );
 }
 
 void ComponentView::expand() {
@@ -923,6 +971,7 @@ void ComponentView::updateVisibility()
 {
 	m_pComponentWidget->setVisible( m_bIsExpanded );
 	m_pLayerWidget->setVisible( m_bIsExpanded );
+	m_pToolBarComponent->setVisible( m_bIsExpanded );
 	updateStyleSheet();
 }
 

@@ -136,6 +136,9 @@ class ComponentView : public QWidget,
 		QPushButton* m_pShowLayersBtn;
 		ClickableLabel* m_pComponentNameLbl;
 
+		QWidget* m_pSeparatorComponent;
+		QVBoxLayout* m_pSeparatorLayout;
+
 		QToolBar* m_pToolBarComponent;
 		QAction* m_pNewComponentAction;
 		QAction* m_pDuplicateComponentAction;
