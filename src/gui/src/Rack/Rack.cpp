@@ -90,24 +90,15 @@ void Rack::showSoundLibrary()
 void Rack::updateStyleSheet()
 {
 	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
-	const QColor colorTabBar = pColorTheme->m_baseColor;
-	const QColor colorTabBarText = pColorTheme->m_widgetTextColor;
 	const QColor colorWidget = pColorTheme->m_windowColor;
 
-	setStyleSheet( QString(
-		"\
-QTabBar { \
-     background-color: %1;\
-     color: %2; \
-}\
+	setStyleSheet( QString( "\
 QTabWidget { \
-     background-color: %3;\
+     background-color: %1;\
 }\
 QTabWidget::pane { \
      margin-left: 0px; \
 }" )
-					   .arg( colorTabBar.name() )
-					   .arg( colorTabBarText.name() )
 					   .arg( colorWidget.name() ) );
 }
 
