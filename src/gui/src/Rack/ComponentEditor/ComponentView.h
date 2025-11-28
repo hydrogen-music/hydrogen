@@ -120,8 +120,6 @@ class ComponentView : public QWidget,
 
 
 	private:
-		virtual void mousePressEvent( QMouseEvent *event ) override;
-
 		std::shared_ptr<H2Core::InstrumentComponent> m_pComponent;
 		int m_nSelectedLayer;
 
@@ -179,9 +177,6 @@ class ComponentView : public QWidget,
 		WaveDisplay *m_pWaveDisplay;
 
 		void setAutoVelocity();
-
-		QMenu* m_pPopup;
-		QAction* m_pDeleteAction;
 };
 
 inline bool ComponentView::getIsExpanded() const {

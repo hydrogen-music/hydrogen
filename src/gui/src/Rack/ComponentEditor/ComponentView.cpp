@@ -580,12 +580,6 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pVBoxMainLayout->addWidget( m_pLayerWidget );
 	setLayout( m_pVBoxMainLayout );
 
-	m_pPopup = new QMenu( this );
-	m_pPopup->addAction( pCommonStrings->getMenuActionAdd(), pParent,
-						 SLOT( addComponent() ) );
-	m_pDeleteAction = m_pPopup->addAction(
-		pCommonStrings->getMenuActionDelete(), this, SLOT( deleteComponent() ));
-
 	updateColors();
     updateIcons();
 	updateStyleSheet();
@@ -942,14 +936,6 @@ void ComponentView::setComponent(
 	);
 }
 
-void ComponentView::mousePressEvent( QMouseEvent* pEvent )
-{
-	auto pEv = static_cast<MouseEvent*>( pEvent );
-	if ( pEvent->button() == Qt::RightButton ) {
-		m_pPopup->popup( pEv->globalPosition().toPoint() );
-	}
-}
-
 void ComponentView::updateActivation() {
 	if ( m_pComponent != nullptr ) {
 		m_pComponentMuteBtn->setIsActive( true );
@@ -1000,15 +986,6 @@ void ComponentView::updateActivation() {
 		m_pEditLayerAction->setEnabled( false );
 
 		m_pWaveDisplay->updateDisplay( nullptr );
-	}
-
-	// If there is only a single component left, we do not allow to remove it.
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
-	if ( pInstrument != nullptr && pInstrument->getComponents()->size() <= 1 ) {
-		m_pDeleteAction->setDisabled( true );
-	}
-	else {
-		m_pDeleteAction->setDisabled( false );
 	}
 }
 

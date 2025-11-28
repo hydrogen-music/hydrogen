@@ -72,18 +72,6 @@ ComponentEditor::ComponentEditor( QWidget* pParent )
 	pMainLayout->addWidget( m_pScrollArea );
 	setLayout( pMainLayout );
 
-	// Component popup menu
-	m_pPopup = new QMenu( this );
-	m_pPopup->addAction( pCommonStrings->getMenuActionAdd(), this,
-								 SLOT( addComponent() ) );
-	auto pDeleteAction = m_pPopup->addAction(
-		pCommonStrings->getMenuActionDelete() );
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
-	if ( pInstrument != nullptr && pInstrument->getComponents()->size() < 2 ) {
-		// If there is just a single component present, it must not be removed.
-		pDeleteAction->setEnabled( false );
-	}
-
 	updateComponents();
 	updateStyleSheet();
 
@@ -298,13 +286,6 @@ void ComponentEditor::onPreferencesChanged(
 	if ( changes & ( H2Core::Preferences::Changes::Font |
 					 H2Core::Preferences::Changes::Colors ) ) {
 		updateEditor();
-	}
-}
-
-void ComponentEditor::mousePressEvent( QMouseEvent* pEvent ) {
-	auto pEv = static_cast<MouseEvent*>( pEvent );
-	if ( pEvent->button() == Qt::RightButton ) {
-		m_pPopup->popup( pEv->globalPosition().toPoint() );
 	}
 }
 

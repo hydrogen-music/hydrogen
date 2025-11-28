@@ -74,13 +74,10 @@ class ComponentEditor : public QWidget,
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
    private:
-	virtual void mousePressEvent( QMouseEvent* event ) override;
-
 	void updateSize();
 
 	QWidget* m_pComponentsWidget;
 	QVBoxLayout* m_pComponentsLayout;
-	QMenu* m_pPopup;
 
 	WidgetScrollArea* m_pScrollArea;
 
