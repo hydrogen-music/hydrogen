@@ -56,7 +56,7 @@ LayerPreview::LayerPreview( ComponentView* pComponentView )
 
 	setMouseTracking( true );
 
-	const int nHeight = LayerPreview::nMargin + LayerPreview::nLayerHeight
+	const int nHeight = LayerPreview::nHeader + LayerPreview::nLayerHeight
 		* InstrumentComponent::getMaxLayers();
 	setFixedHeight( nHeight );
 
@@ -124,9 +124,16 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 		highlightColor = pColorTheme->m_lightColor;
 	}
 
+	// This object will cache the extents of each layer to properly render the
+	// header later on. We sort the layers by highest end point in the order to
+	// paint layers of higher velocity on top of those with lower one. We do
+	// this, because our default velocity 0.8 and the regular user is more
+	// likely to experience the higher ones.
+	std::set<LayerInfo> layerInfos;
+
 	int nLayer = 0;
 	for ( int ii = InstrumentComponent::getMaxLayers() - 1; ii >= 0; ii-- ) {
-		const int y = LayerPreview::nMargin + LayerPreview::nLayerHeight * ii;
+		const int y = LayerPreview::nHeader + LayerPreview::nLayerHeight * ii;
 		QString sLabel = "< - >";
 
 		if ( pComponent != nullptr && pComponent->getLayer( ii ) != nullptr ) {
@@ -146,34 +153,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 			const int x1 = (int) ( pLayer->getStartVelocity() * width() );
 			const int x2 = (int) ( pLayer->getEndVelocity() * width() );
 
-			// Labels for layers to the left will have a
-			// lighter color as those to the right.
-			nColorScaling = static_cast<int>( std::round(
-								static_cast<float>( nLayer ) /
-								static_cast<float>( nLayers ) * 2 *
-								static_cast<float>( nColorScalingWidth )
-							) ) -
-							nColorScalingWidth + 100;
-			layerLabelColor =
-				pColorTheme->m_windowColor.lighter( nColorScaling );
-
-			// Header
-			p.fillRect( x1, 0, x2 - x1, 19, layerLabelColor );
-			p.setPen( pColorTheme->m_windowTextColor );
-			p.setFont( fontButton );
-			p.drawText(
-				x1, 0, x2 - x1, 20, Qt::AlignCenter,
-				QString( "%1" ).arg( ii + 1 )
-			);
-
-			// Border
-			if ( nSelectedLayer == ii ) {
-				p.setPen( highlightColor );
-			}
-			else {
-				p.setPen( pColorTheme->m_windowTextColor.darker( 145 ) );
-			}
-			p.drawRect( x1, 1, x2 - x1 - 1, 18 );  // bordino in alto
+			layerInfos.insert( { x1, x2, ii, ii == nSelectedLayer } );
 
 			// layer view
 			p.fillRect(
@@ -220,11 +200,152 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 			QString( "%1: %2" ).arg( ii + 1 ).arg( sLabel )
 		);
 		p.setPen( layerTextColor.darker( 145 ) );
-		p.drawRect( 0, y, width() - 1, LayerPreview::nLayerHeight );
+		p.drawRect(
+			LayerPreview::nBorder, y, width() - LayerPreview::nBorder,
+			LayerPreview::nLayerHeight
+		);
+	}
+
+	// We render the header after our first swipe over all layers in order to
+	// get the overlaps right.
+
+	int nCurrentEnd = width() - 2 * LayerPreview::nBorder;
+	int ii = 0;
+	for ( auto iinfo = layerInfos.rbegin(); iinfo != layerInfos.rend();
+		  ++iinfo ) {
+		if ( iinfo->nStart > nCurrentEnd ) {
+			// The borders of this layer were already drawn. Probably it was
+			// covered by another one.
+			++ii;
+			continue;
+		}
+
+		const int nVisibleEnd = std::min( iinfo->nEnd, nCurrentEnd );
+		const int nVisibleStart =
+			std::max( iinfo->nStart, LayerPreview::nBorder );
+
+		// Labels for layers to the left will have a
+		// lighter color as those to the right.
+		nColorScaling =
+			static_cast<int>( std::round(
+				static_cast<float>( ii ) / static_cast<float>( nLayers ) * 2 *
+				static_cast<float>( nColorScalingWidth )
+			) ) -
+			nColorScalingWidth + 100;
+		layerLabelColor = pColorTheme->m_windowColor.lighter( nColorScaling );
+
+		p.fillRect(
+			iinfo->nStart, 0, nVisibleEnd - nVisibleStart,
+			LayerPreview::nHeader - LayerPreview::nBorder, layerLabelColor
+		);
+
+		// Check whether there are other layers overlapping into the current
+		// region.
+		for ( const auto& iinfoOther : layerInfos ) {
+			if ( iinfoOther.nEnd <= nVisibleStart ||
+				 iinfoOther.nEnd >= nVisibleEnd ) {
+				// No overlap.
+				continue;
+			}
+			QPen pen;
+			pen.setStyle( Qt::DashLine );
+			pen.setColor( pColorTheme->m_windowTextColor.darker( 145 ) );
+			p.setPen( pen );
+			p.drawLine(
+				iinfoOther.nEnd, LayerPreview::nBorder, iinfoOther.nEnd,
+				LayerPreview::nHeader - LayerPreview::nBorder
+			);
+			if ( iinfoOther.nStart > nVisibleStart ) {
+				p.drawLine(
+					iinfoOther.nStart, LayerPreview::nBorder, iinfoOther.nStart,
+					LayerPreview::nHeader - LayerPreview::nBorder
+				);
+			}
+		}
+
+		// Borders
+		if ( iinfo->bSelected ) {
+			p.setPen( highlightColor );
+		}
+		else {
+			p.setPen( pColorTheme->m_windowTextColor.darker( 145 ) );
+		}
+		p.drawLine(
+			nVisibleStart, LayerPreview::nBorder, nVisibleStart,
+			LayerPreview::nHeader - LayerPreview::nBorder
+		);
+		p.drawLine(
+			nVisibleStart, LayerPreview::nBorder, nVisibleEnd,
+			LayerPreview::nBorder
+		);
+		p.drawLine(
+			nVisibleStart, LayerPreview::nHeader - LayerPreview::nBorder,
+			nVisibleEnd, LayerPreview::nHeader
+		);
+		if ( iinfo->nEnd < nCurrentEnd ||
+			 ( iinfo->nEnd >= width() - LayerPreview::nBorder ) ||
+			 ( iinfo->nEnd == nCurrentEnd && iinfo->bSelected ) ) {
+			p.drawLine(
+				nVisibleEnd, LayerPreview::nBorder, nVisibleEnd,
+				LayerPreview::nHeader - LayerPreview::nBorder
+			);
+		}
+
+		nCurrentEnd = nVisibleStart;
+		++ii;
+	}
+
+	// Ensure the selected layer is properly highlighted.
+	for ( const auto& iinfo : layerInfos ) {
+		if ( !iinfo.bSelected ) {
+			continue;
+		}
+
+		const int nVisibleEnd =
+			std::min( iinfo.nEnd, width() - 2 * LayerPreview::nBorder );
+		const int nVisibleStart =
+			std::max( iinfo.nStart, LayerPreview::nBorder );
+
+		p.setPen( highlightColor );
+		p.drawLine(
+			nVisibleStart, LayerPreview::nBorder, nVisibleStart,
+			LayerPreview::nHeader - LayerPreview::nBorder
+		);
+		p.drawLine(
+			nVisibleStart, LayerPreview::nBorder, nVisibleEnd,
+			LayerPreview::nBorder
+		);
+		p.drawLine(
+			nVisibleStart, LayerPreview::nHeader - LayerPreview::nBorder,
+			nVisibleEnd, LayerPreview::nHeader
+		);
+		p.drawLine(
+			nVisibleEnd, LayerPreview::nBorder, nVisibleEnd,
+			LayerPreview::nHeader - LayerPreview::nBorder
+		);
+		break;
+	}
+
+	// The number indicating the layer in the header should always win and be
+	// visible. That's why render them in another swipe.
+	p.setFont( fontButton );
+	for ( const auto& iinfo : layerInfos ) {
+		if ( iinfo.bSelected ) {
+			p.setPen( highlightColor );
+		}
+		else {
+			p.setPen( pColorTheme->m_windowTextColor );
+		}
+		p.drawText(
+			iinfo.nStart, 0, iinfo.nEnd - iinfo.nStart, LayerPreview::nHeader,
+			Qt::AlignCenter, QString( "%1" ).arg( iinfo.nId + 1 )
+		);
 	}
 
 	// border
-	p.setPen( Qt::black );
+	QPen penBorder( Qt::black );
+	penBorder.setWidth( LayerPreview::nBorder );
+	p.setPen( penBorder );
 	p.drawLine( 0, 0, width(), 0 );
 	p.drawLine( 0, 0, 0, height() );
 	p.drawLine( 0, height(), width(), height() );
@@ -233,8 +354,10 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 	// selected layer
 	p.setPen( highlightColor );
 	const int y =
-		LayerPreview::nMargin + LayerPreview::nLayerHeight * nSelectedLayer;
-	p.drawRect( 0, y, width() - 1, LayerPreview::nLayerHeight );
+		LayerPreview::nHeader + LayerPreview::nLayerHeight * nSelectedLayer;
+	p.drawRect(
+		0, y, width() - LayerPreview::nBorder, LayerPreview::nLayerHeight
+	);
 }
 
 void LayerPreview::mouseReleaseEvent( QMouseEvent* ev )

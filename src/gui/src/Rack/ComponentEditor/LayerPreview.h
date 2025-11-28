@@ -45,54 +45,71 @@ class LayerPreview : public QWidget, protected WidgetWithScalableFont<5, 6, 7>,
     H2_OBJECT(LayerPreview)
 	Q_OBJECT
 
-	public:
-		static constexpr int nMargin = 20;
-		static constexpr int nLayerHeight = 10;
+   public:
+	static constexpr int nBorder = 1;
+	static constexpr int nHeader = 20;
+	static constexpr int nLayerHeight = 10;
 
-		explicit LayerPreview( ComponentView* pComponentView );
-		~LayerPreview();
+	explicit LayerPreview( ComponentView* pComponentView );
+	~LayerPreview();
 
-	private:
-		void paintEvent(QPaintEvent *ev) override;
-		virtual void mousePressEvent(QMouseEvent *ev) override;
-		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
-		virtual void mouseMoveEvent ( QMouseEvent *ev ) override;
+   private:
+	struct LayerInfo {
+		int nStart;
+		int nEnd;
+		int nId;
+		bool bSelected;
 
-		ComponentView*  m_pComponentView;
+		bool operator<( const LayerInfo& other ) const
+		{
+			return nEnd < other.nEnd;
+		}
+	};
 
-		QPixmap					m_speakerPixmap;
-		bool					m_bMouseGrab;
-		bool					m_bGrabLeft;
+	void paintEvent( QPaintEvent* ev ) override;
+	virtual void mousePressEvent( QMouseEvent* ev ) override;
+	virtual void mouseReleaseEvent( QMouseEvent* ev ) override;
+	virtual void mouseMoveEvent( QMouseEvent* ev ) override;
 
-		/**
-		 * convert a raw velocity value (0.0 to 1.0)
-		 * into a MIDI velocity value   (0 to 127)
-		 *
-		 * @param raw   Raw velocity value
-		 * @return      MIDI velocity value
-		 */
-		int getMidiVelocityFromRaw( const float raw );
+	ComponentView* m_pComponentView;
 
-		/**
-		 * display a layer's start velocity in a tooltip
-		 *
-		 * @param pLayer    The layer
-		 * @param pEvent    The event carrying mouse position
-		 */
-		void showLayerStartVelocity( const std::shared_ptr<H2Core::InstrumentLayer> pLayer,
-									 QMouseEvent* pEvent );
+	QPixmap m_speakerPixmap;
+	bool m_bMouseGrab;
+	bool m_bGrabLeft;
 
-		/**
-		 * display a layer's end velocity in a tooltip
-		 *
-		 * @param pLayer    The layer
-		 * @param pEvent    The event carrying mouse position
-		 */
-		void showLayerEndVelocity( const std::shared_ptr<H2Core::InstrumentLayer> pLayer,
-								   QMouseEvent* pEvent );
+	/**
+	 * convert a raw velocity value (0.0 to 1.0)
+	 * into a MIDI velocity value   (0 to 127)
+	 *
+	 * @param raw   Raw velocity value
+	 * @return      MIDI velocity value
+	 */
+	int getMidiVelocityFromRaw( const float raw );
 
-		/** Used to detect changed in the font*/
-		int getPointSizeButton() const;
+	/**
+	 * display a layer's start velocity in a tooltip
+	 *
+	 * @param pLayer    The layer
+	 * @param pEvent    The event carrying mouse position
+	 */
+	void showLayerStartVelocity(
+		const std::shared_ptr<H2Core::InstrumentLayer> pLayer,
+		QMouseEvent* pEvent
+	);
+
+	/**
+	 * display a layer's end velocity in a tooltip
+	 *
+	 * @param pLayer    The layer
+	 * @param pEvent    The event carrying mouse position
+	 */
+	void showLayerEndVelocity(
+		const std::shared_ptr<H2Core::InstrumentLayer> pLayer,
+		QMouseEvent* pEvent
+	);
+
+	/** Used to detect changed in the font*/
+	int getPointSizeButton() const;
 };
 
 #endif

@@ -68,7 +68,7 @@ class ComponentView : public QWidget,
 		static constexpr int nExpansionButtonWidth = 14;
 		static constexpr int nSampleSelectionHeight = 18;
 		static constexpr int nLayerPreviewHeight =
-			LayerPreview::nMargin +
+			LayerPreview::nHeader +
 			LayerPreview::nLayerHeight * 17; // max layers
 		static constexpr int nWaveDisplayHeight = 58;
 		static constexpr int nLabelHeight = 10;
