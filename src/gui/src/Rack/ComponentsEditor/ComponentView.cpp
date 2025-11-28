@@ -70,17 +70,16 @@ ComponentView::ComponentView( QWidget* pParent,
 	pHeaderWidget->setFixedHeight( ComponentView::nHeaderHeight );
 	pHeaderWidget->setObjectName( "HeaderWidget" );
 	auto pHBoxHeaderLayout = new QHBoxLayout();
-	pHBoxHeaderLayout->setSpacing( 10 );
+	pHBoxHeaderLayout->setSpacing( 1 );
 	pHBoxHeaderLayout->setContentsMargins(
-		ComponentView::nMargin, 0, ComponentView::nMargin, 0 );
+		1, 1, ComponentView::nMargin, 0 );
 	pHeaderWidget->setLayout( pHBoxHeaderLayout );
 
 	m_pShowLayersBtn = new QPushButton( pHeaderWidget );
 	m_pShowLayersBtn->setObjectName( "ShowLayersBtn" );
 	m_pShowLayersBtn->setFlat( true );
 	m_pShowLayersBtn->setFixedSize(
-		ComponentView::nExpansionButtonWidth,
-		ComponentView::nExpansionButtonWidth
+		ComponentView::nHeaderHeight - 2, ComponentView::nHeaderHeight - 2
 	);
 	connect( m_pShowLayersBtn, &Button::clicked, [&]() {
 		if ( m_bIsExpanded ) {
@@ -560,10 +559,9 @@ void ComponentView::updateStyleSheet() {
 
 	const QColor headerColor = pColorTheme->m_windowColor;
 	const QColor headerColorHover =
-		headerColor.lighter( Skin::nToolBarHoveredScaling );
+		headerColor.darker( Skin::nToolBarHoveredScaling );
 	const QColor headerColorPressed =
-		headerColor.lighter( Skin::nToolBarCheckedScaling );
-	const QColor headerTextColor = pColorTheme->m_windowTextColor;
+		headerColor.darker( Skin::nToolBarCheckedScaling );
 	const QColor borderHeaderLightColor = headerColor.lighter(
 		Skin::nListBackgroundLightBorderScaling );
 	const QColor borderHeaderDarkColor = headerColor.darker(
