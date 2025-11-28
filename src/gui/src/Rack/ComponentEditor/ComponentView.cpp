@@ -250,6 +250,8 @@ ComponentView::ComponentView( QWidget* pParent,
 	connect( m_pComponentMuteBtn, &Button::clicked, [&](){
 		if ( m_pComponent != nullptr ) {
 			m_pComponent->setIsMuted( m_pComponentMuteBtn->isChecked() );
+			// Repaint since we indicate mute for all layers.
+			m_pLayerPreview->update();
 		}
 	});
 	m_pToolBarComponent->addWidget( m_pComponentMuteBtn );

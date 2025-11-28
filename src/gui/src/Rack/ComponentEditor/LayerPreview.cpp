@@ -181,7 +181,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 				pColorTheme->m_windowColor
 			);
 			if ( pSample != nullptr ) {
-				if ( pLayer->getIsMuted() ) {
+				if ( pLayer->getIsMuted() || pComponent->getIsMuted() ) {
 					segmentGradient = gradientMute;
 				}
 				else if ( pLayer->getIsSoloed() ) {
