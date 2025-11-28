@@ -267,7 +267,6 @@ void ComponentEditor::addComponent() {
 
 	const auto pNewComponent = std::make_shared<InstrumentComponent>( sNewName );
 	pNewInstrument->addComponent( pNewComponent );
-	const int nNewComponentIdx = pNewInstrument->index( pNewComponent );
 
 	pHydrogenApp->pushUndoCommand(
 		new SE_replaceInstrumentAction(

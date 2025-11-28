@@ -195,7 +195,34 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pDuplicateComponentAction =
 		createAction( pCommonStrings->getActionDuplicateComponent(), false );
 	connect( m_pDuplicateComponentAction, &QAction::triggered, [=]() {
-		//
+		const auto pInstrument =
+			Hydrogen::get_instance()->getSelectedInstrument();
+		if ( pInstrument == nullptr || m_pComponent == nullptr ) {
+			return;
+		}
+
+		auto pHydrogenApp = HydrogenApp::get_instance();
+		const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+		auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
+
+		const auto pNewComponent =
+			std::make_shared<InstrumentComponent>( m_pComponent );
+		pNewComponent->setName(
+			Filesystem::appendNumberOrIncrement( m_pComponent->getName() )
+		);
+		pNewInstrument->addComponent( pNewComponent );
+
+		pHydrogenApp->pushUndoCommand( new SE_replaceInstrumentAction(
+			pNewInstrument, pInstrument,
+			SE_replaceInstrumentAction::Type::DuplicateComponent,
+			m_pComponent->getName()
+		) );
+		pHydrogenApp->showStatusBarMessage(
+			QString( "%1 [%2]" )
+				.arg( pCommonStrings->getActionDuplicateComponent() )
+				.arg( m_pComponent->getName() )
+		);
 	} );
 	m_pToolBarComponent->addAction( m_pDuplicateComponentAction );
 

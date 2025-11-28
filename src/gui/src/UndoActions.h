@@ -878,18 +878,20 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 		enum class Type {
 			/** Replace the instrument with a copy containing an additional
 			 * component */
-			AddComponent = 0,
+			AddComponent,
+			/** Replace the instrument with a copy containing a duplicate of an already existing component. */
+			DuplicateComponent,
 			/** Replace the instrument with a copy from which one component was
 			 * removed. */
-			DeleteComponent = 1,
+			DeleteComponent,
 			/** There must be at least one instrument in a drumkit. Instead of
 			 * the deleting the last one, it will be replaced by an empty
 			 * one. */
-			DeleteLastInstrument = 2,
+			DeleteLastInstrument,
 			/** This could definitely be done more efficiently. But compared to
 			 * altering other instrument parameters, its name will most probably
 			 * only change very rarely. */
-			RenameInstrument = 3,
+			RenameInstrument,
 			/** At least one layer of one component was added. */
 			AddLayer,
 			/** At least one layer of one component was deleted. */
@@ -912,6 +914,11 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 			case Type::AddComponent:
 				setText( QString( "%1 [%2]" )
 						 .arg( pCommonStrings->getActionAddComponent() )
+						 .arg( sName ) );
+				break;
+			case Type::DuplicateComponent:
+				setText( QString( "%1 [%2]" )
+						 .arg( pCommonStrings->getActionDuplicateComponent() )
 						 .arg( sName ) );
 				break;
 			case Type::DeleteComponent:
