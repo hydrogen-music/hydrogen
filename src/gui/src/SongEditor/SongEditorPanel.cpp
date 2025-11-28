@@ -1145,7 +1145,7 @@ void SongEditorPanel::updateIcons() {
 	}
 
 	m_pClearAction->setIcon( QIcon( sIconPath + "bin.svg" ) );
-	m_pNewPatternAction->setIcon( QIcon( sIconPath + "plus.svg" ) );
+	m_pNewPatternAction->setIcon( QIcon( sIconPath + "new.svg" ) );
 	m_pSinglePatternModeButton->setIcon( QIcon( sIconPath + "single_layer.svg" ) );
 	m_pStackedPatternModeButton->setIcon(
 		QIcon( sIconPath + "multiple_layers.svg" ) );

@@ -543,20 +543,20 @@ void ComponentView::updateIcons() {
 		sIconPath.append( "/icons/black/" );
 	}
 
-	m_pNewComponentAction->setIcon( QIcon( sIconPath + "plus.svg" ) );
+	m_pShowLayersBtn->setIcon(
+		QIcon( sIconPath + ( m_bIsExpanded ? "minus.svg" : "plus.svg" ) )
+	);
+
+	m_pNewComponentAction->setIcon( QIcon( sIconPath + "new.svg" ) );
 	m_pDuplicateComponentAction->setIcon( QIcon( sIconPath + "duplicate.svg" )
 	);
 	m_pDeleteComponentAction->setIcon( QIcon( sIconPath + "bin.svg" ) );
 
-	m_pNewLayerAction->setIcon( QIcon( sIconPath + "plus.svg" ) );
+	m_pNewLayerAction->setIcon( QIcon( sIconPath + "new.svg" ) );
 	m_pReplaceLayerAction->setIcon( QIcon( sIconPath + "folder.svg" ) );
 	m_pDuplicateLayerAction->setIcon( QIcon( sIconPath + "duplicate.svg" ) );
 	m_pDeleteLayerAction->setIcon( QIcon( sIconPath + "bin.svg" ) );
 	m_pEditLayerAction->setIcon( QIcon( sIconPath + "sample-editor.svg" ) );
-
-	m_pShowLayersBtn->setIcon(
-		QIcon( sIconPath + ( m_bIsExpanded ? "minus.svg" : "plus.svg" ) )
-	);
 }
 
 void ComponentView::updateStyleSheet() {
