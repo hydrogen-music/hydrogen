@@ -57,6 +57,8 @@ public:
 							 const DefaultColor& color = DefaultColor::Bright,
 							 bool bIsEditable = false );
 
+	void setColor( const QColor& sNewColor );
+
 public slots:
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 	void setText( const QString& sNewText );
@@ -83,6 +85,7 @@ private:
 	virtual void paintEvent( QPaintEvent * e ) override;
 	QSize m_size;
 	DefaultColor m_defaultColor;
+	QColor m_color;
 
 	/** If set to true a highlight will be painted when hovered. This
 		should be set if a callback is connected and the user is able to
@@ -90,7 +93,6 @@ private:
 	bool m_bIsEditable;
 	bool m_bEntered;
 };
-
 
 #endif
 
