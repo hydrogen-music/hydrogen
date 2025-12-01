@@ -55,14 +55,15 @@ class LayerPreview : public QWidget, protected WidgetWithScalableFont<5, 6, 7>,
 
    private:
 	struct LayerInfo {
-		int nStart;
-		int nEnd;
+		int nStartX;
+		int nEndX;
+		int nStartY;
 		int nId;
 		bool bSelected;
 
 		bool operator<( const LayerInfo& other ) const
 		{
-			return nEnd < other.nEnd;
+			return nEndX < other.nEndX;
 		}
 	};
 
