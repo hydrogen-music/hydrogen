@@ -53,6 +53,8 @@ class LayerPreview : public QWidget, protected WidgetWithScalableFont<5, 6, 7>,
 	explicit LayerPreview( ComponentView* pComponentView );
 	~LayerPreview();
 
+	void updatePreview();
+
    private:
 	struct LayerInfo {
 		int nStartX;

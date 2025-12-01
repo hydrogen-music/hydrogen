@@ -150,7 +150,6 @@ class ComponentView : public QWidget,
 		QWidget* m_pLayerWidget;
 
 		LayerPreview *m_pLayerPreview;
-		QScrollArea *m_pLayerScrollArea;
 
 		QToolBar* m_pToolBarLayer;
 		QAction* m_pNewLayerAction;

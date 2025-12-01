@@ -294,22 +294,9 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pComponentWidget->setLayout( pVBoxComponentLayout );
 
 	// Layer preview
-
 	m_pLayerPreview = new LayerPreview( this );
 
-	m_pLayerScrollArea = new QScrollArea( m_pComponentWidget );
-	m_pLayerScrollArea->setFocusPolicy( Qt::ClickFocus );
-	m_pLayerScrollArea->setFrameShape( QFrame::NoFrame );
-	m_pLayerScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	if ( InstrumentComponent::getMaxLayers() > 16 ) {
-		m_pLayerScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
-	}
-	m_pLayerScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pLayerScrollArea->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
-	m_pLayerScrollArea->setWidget( m_pLayerPreview  );
-
     // Toolbar with buttons
-
 	m_pToolBarLayer = new QToolBar( m_pComponentWidget );
 	m_pToolBarLayer->setObjectName( "CVToolBarLayer" );
 	m_pToolBarLayer->setFixedHeight( ComponentView::nToolBarHeight );
@@ -566,7 +553,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	// Putting everything together.
 
 	pVBoxComponentLayout->addSpacing( ComponentView::nVerticalSpacing );
-	pVBoxComponentLayout->addWidget( m_pLayerScrollArea );
+	pVBoxComponentLayout->addWidget( m_pLayerPreview );
     pVBoxComponentLayout->addWidget( m_pToolBarLayer );
     pVBoxComponentLayout->addSpacing( ComponentView::nVerticalSpacing );
 	pVBoxComponentLayout->addWidget( pSampleSelectionWidget );
@@ -928,6 +915,8 @@ void ComponentView::setComponent(
 		);
 	}
 
+	m_pLayerPreview->updatePreview();
+
 	// if there is just a single component left, we must not allow deleting it.
 	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
@@ -1083,24 +1072,9 @@ void ComponentView::removeLayerButtonClicked() {
 
 	pHydrogen->setIsModified( true );
 
-	// Select next loaded layer - if available - in order to allow for a quick
-	// removal of all layers. In case the last layer was removed, the previous
-	// one will be selected.
-	int nNextLayerIndex = 0;
-	int nCount = 0;
-	for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
-		auto pLayer = m_pComponent->getLayer( n );
-		if ( pLayer != nullptr ){
-			nCount++;
-
-			if ( nNextLayerIndex <= m_nSelectedLayer &&
-				 n != m_nSelectedLayer ) {
-				nNextLayerIndex = n;
-			}
-		}
+	if ( m_nSelectedLayer >= m_pComponent->getLayers().size() ) {
+		setSelectedLayer( m_pComponent->getLayers().size() - 1 );
 	}
-
-	setSelectedLayer( nCount );
 	updateView();
 
 	pHydrogenApp->pushUndoCommand(

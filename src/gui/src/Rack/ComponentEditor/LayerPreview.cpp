@@ -65,9 +65,28 @@ LayerPreview::LayerPreview( ComponentView* pComponentView )
 	// We get a style similar to the one used for the 2 buttons on top of the
 	// instrument editor panel
 	setStyleSheet("font-size: 9px; font-weight: bold;");
+
+	updatePreview();
 }
 
 LayerPreview::~LayerPreview() {
+}
+
+void LayerPreview::updatePreview()
+{
+	const auto pComponent = m_pComponentView->getComponent();
+
+	const int nLayers =
+		pComponent != nullptr ? pComponent->getLayers().size() : 0;
+
+	// We show at least one empty layer
+	setFixedHeight(
+		LayerPreview::nHeader + LayerPreview::nBorder +
+		std::max( nLayers, 1 ) *
+			( LayerPreview::nLayerHeight )
+	);
+
+	update();
 }
 
 void LayerPreview::paintEvent( QPaintEvent* ev )
