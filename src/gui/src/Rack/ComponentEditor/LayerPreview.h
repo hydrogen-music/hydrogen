@@ -39,7 +39,7 @@ namespace H2Core
 class ComponentView;
 
 /** \ingroup docGUI*/
-class LayerPreview : public QWidget, protected WidgetWithScalableFont<5, 6, 7>,
+class LayerPreview : public QWidget, protected WidgetWithScalableFont<6, 8, 10>,
 					 public H2Core::Object<LayerPreview>
 {
     H2_OBJECT(LayerPreview)
@@ -48,7 +48,7 @@ class LayerPreview : public QWidget, protected WidgetWithScalableFont<5, 6, 7>,
    public:
 	static constexpr int nBorder = 1;
 	static constexpr int nHeader = 20;
-	static constexpr int nLayerHeight = 10;
+	static constexpr int nLayerHeight = 16;
 
 	explicit LayerPreview( ComponentView* pComponentView );
 	~LayerPreview();
