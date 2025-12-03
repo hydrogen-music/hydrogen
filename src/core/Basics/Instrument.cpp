@@ -468,11 +468,13 @@ std::shared_ptr<Instrument> Instrument::loadFrom( const XMLNode& node,
 
 void Instrument::loadSamples( float fBpm )
 {
-	for ( auto& pComponent : *getComponents() ) {
-		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			auto pLayer = pComponent->getLayer( i );
-			if ( pLayer != nullptr ) {
-				pLayer->loadSample( fBpm );
+	for ( auto& ppComponent : *m_pComponents ) {
+		if ( ppComponent == nullptr ) {
+			continue;
+		}
+		for ( auto& ppLayer : *ppComponent ) {
+			if ( ppLayer != nullptr ) {
+				ppLayer->loadSample( fBpm );
 			}
 		}
 	}
@@ -480,11 +482,13 @@ void Instrument::loadSamples( float fBpm )
 
 void Instrument::unloadSamples()
 {
-	for ( auto& pComponent : *getComponents() ) {
-		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			auto pLayer = pComponent->getLayer( i );
-			if( pLayer ){
-				pLayer->unloadSample();
+	for ( auto& ppComponent : *m_pComponents ) {
+		if ( ppComponent == nullptr ) {
+			continue;
+		}
+		for ( auto& ppLayer : *ppComponent ) {
+			if ( ppLayer != nullptr ) {
+				ppLayer->unloadSample();
 			}
 		}
 	}
@@ -646,6 +650,28 @@ const QString& Instrument::getDrumkitPath() const
 	return m_sDrumkitPath;
 }
 
+void Instrument::addLayer(
+	std::shared_ptr<InstrumentComponent> pComponent,
+	std::shared_ptr<InstrumentLayer> pLayer,
+	Event::Trigger trigger
+)
+{
+	if ( pComponent == nullptr ) {
+		// The provided layer is allowed to be nullptr. This will be used to
+		// remove it from the component.
+		ERRORLOG( "Invalid input" );
+		return;
+	}
+
+	for ( auto& ppComponent : *m_pComponents ) {
+		if ( pComponent == ppComponent ) {
+			ppComponent->addLayer( pLayer );
+		}
+	}
+
+	checkForMissingSamples( trigger );
+}
+
 void Instrument::setLayer(
 	std::shared_ptr<InstrumentComponent> pComponent,
 	std::shared_ptr<InstrumentLayer> pLayer,
@@ -742,8 +768,6 @@ void Instrument::checkForMissingSamples( Event::Trigger trigger )
 
 		for ( const auto& pLayer : *pComponent ) {
 			if ( pLayer == nullptr ) {
-				// The component is filled with nullptr up to
-				// InstrumentComponent::m_nMaxLayers.
 				continue;
 			}
 

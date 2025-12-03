@@ -987,7 +987,6 @@ bool CoreActionController::setPreferences( std::shared_ptr<Preferences> pPrefere
 	pAudioEngine->getMetronomeInstrument()->setVolume(
 		pPreferences->m_fMetronomeVolume );
 
-	InstrumentComponent::setMaxLayers( pPreferences->getMaxLayers() );
 	pHydrogen->restartAudioDriver();
 	pHydrogen->restartMidiDriver();
 	pHydrogen->recreateOscServer();

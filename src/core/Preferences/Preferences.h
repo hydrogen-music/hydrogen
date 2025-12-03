@@ -431,10 +431,6 @@ public:
 	int				getMaxBars() const;
 	/** @param bars Sets #m_nMaxBars.*/
 	void			setMaxBars( const int bars );
-	/** @return #m_nMaxLayers.*/
-	int				getMaxLayers() const;
-	/** @param layers Sets #m_nMaxLayers.*/
-	void			setMaxLayers( const int layers );
 
 	int				getRubberBandBatchMode() const;
 	void			setRubberBandBatchMode( int val );
@@ -628,9 +624,6 @@ private:
 	/** Maximum number of bars shown in the Song Editor at
 	 * once. */
 	int					m_nMaxBars;
-	/** Maximum number of layers to be used in the Instrument
-	 *  editor. */
-	int					m_nMaxLayers;
 
 		/** Zero-based MIDI channel which to use for both MIDI feedback and MIDI
               clock signals. These messages can be turned off by setting the
@@ -1172,14 +1165,6 @@ inline void Preferences::setMaxBars( const int bars ){
 
 inline int Preferences::getMaxBars() const {
 	return m_nMaxBars;
-}
-
-inline void Preferences::setMaxLayers( const int layers ){
-	m_nMaxLayers = layers;
-}
-
-inline int Preferences::getMaxLayers() const {
-	return m_nMaxLayers;
 }
 
 inline int Preferences::getMidiFeedbackChannel() const {

@@ -911,7 +911,8 @@ void ComponentView::setComponent(
 	if ( m_pComponent != pComponent ) {
 		m_pComponent = pComponent;
 		m_nSelectedLayer = std::clamp(
-			m_nSelectedLayer, 0, H2Core::InstrumentComponent::getMaxLayers()
+			m_nSelectedLayer, 0,
+			static_cast<int>( pComponent->getLayers().size() )
 		);
 	}
 
@@ -1163,8 +1164,8 @@ void ComponentView::loadLayerBtnClicked()
 	if ( filename.size() > 2 ) {
 		for ( int ii = 2; ii < filename.size(); ++ii ) {
 			int nnLayer = m_nSelectedLayer + ii - 2;
-			if ( ( ii - 2 >= InstrumentComponent::getMaxLayers() ) ||
-				 ( nnLayer + 1 > InstrumentComponent::getMaxLayers() ) ) {
+			if ( ( ii - 2 >= pNewComponent->getLayers().size() ) ||
+				 ( nnLayer + 1 > pNewComponent->getLayers().size() ) ) {
 				break;
 			}
 

@@ -56,9 +56,17 @@ LayerPreview::LayerPreview( ComponentView* pComponentView )
 
 	setMouseTracking( true );
 
-	const int nHeight = LayerPreview::nHeader + LayerPreview::nLayerHeight
-		* InstrumentComponent::getMaxLayers();
-	setFixedHeight( nHeight );
+	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	if ( pInstrument != nullptr ) {
+		const auto pComponent =
+			pInstrument->getComponent( pComponentView->getSelectedLayer() );
+		if ( pComponent != nullptr ) {
+			const int nHeight =
+				LayerPreview::nHeader +
+				LayerPreview::nLayerHeight * pComponent->getLayers().size();
+			setFixedHeight( nHeight );
+		}
+	}
 
 	m_speakerPixmap.load( Skin::getSvgImagePath() + "/icons/white/speaker.svg" );
 
@@ -456,6 +464,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 	auto pEv = static_cast<MouseEvent*>( ev );
 
 	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+    const auto nMaxLayers = pComponent->getLayers().size();
 
 	const float fVelocity = (float)pEv->position().x() / (float)width();
 
@@ -474,7 +483,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		}
 
 		int nNewLayer = -1;
-		for ( int ii = 0; ii < InstrumentComponent::getMaxLayers(); ii++ ) {
+		for ( int ii = 0; ii < nMaxLayers; ii++ ) {
 			auto pLayer = pComponent->getLayer( ii );
 			if ( pLayer != nullptr ) {
 				if ( fVelocity > pLayer->getStartVelocity() &&
@@ -495,7 +504,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 	else {
 		const int nClickedLayer =
 			( pEv->position().y() - 20 ) / LayerPreview::nLayerHeight;
-		if ( nClickedLayer < InstrumentComponent::getMaxLayers() &&
+		if ( nClickedLayer < nMaxLayers &&
 			 nClickedLayer >= 0 ) {
 			m_pComponentView->setSelectedLayer( nClickedLayer );
 			m_pComponentView->updateView();
@@ -592,7 +601,7 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 	else {
 		int nHoveredLayer = ( pEv->position().y() - 20 ) /
 			LayerPreview::nLayerHeight;
-		if ( nHoveredLayer < InstrumentComponent::getMaxLayers() &&
+		if ( nHoveredLayer < pComponent->getLayers().size() &&
 			 nHoveredLayer >= 0 ) {
 
 			auto pHoveredLayer = pComponent->getLayer( nHoveredLayer );

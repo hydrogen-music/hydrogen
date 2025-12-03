@@ -4408,14 +4408,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>seconde étape, ajuste le décalage entre le dernier contrôleur/clavier déclencheur et le début du séquenceur différé </translation>
     </message>
     <message>
-        <source>Maximum number of instrument layers</source>
-        <translation>Nombre maximal de couches d&apos;instruments</translation>
-    </message>
-    <message>
-        <source>Maximum number of layers (requires restart of Hydrogen)</source>
-        <translation>Nombre maximum de couches (nécessite le redémarrage d&apos;Hydrogen)</translation>
-    </message>
-    <message>
         <source>Output</source>
         <translation>Sortie</translation>
     </message>

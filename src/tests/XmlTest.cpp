@@ -1213,35 +1213,37 @@ void XmlTest::testSamplePathsWritten() {
 	___INFOLOG( "passed" );
 }
 
-bool XmlTest::checkSampleData( std::shared_ptr<H2Core::Drumkit> pKit, bool bLoaded )
+bool XmlTest::checkSampleData(
+	std::shared_ptr<H2Core::Drumkit> pKit,
+	bool bLoaded
+)
 {
 	int count = 0;
-	H2Core::InstrumentComponent::setMaxLayers( 16 );
-	auto instruments = pKit->getInstruments();
-	for( int i=0; i<instruments->size(); i++ ) {
+	for ( const auto& ppInstrument : *pKit->getInstruments() ) {
+		CPPUNIT_ASSERT( ppInstrument != nullptr );
 		count++;
-		auto pInstr = ( *instruments )[i];
-		for ( const auto& pComponent : *pInstr->getComponents() ) {
-			for ( int nLayer = 0; nLayer < H2Core::InstrumentComponent::getMaxLayers(); nLayer++ ) {
-				auto pLayer = pComponent->getLayer( nLayer );
-				if( pLayer ) {
-					auto pSample = pLayer->getSample();
-					if ( pSample == nullptr ) {
+		for ( const auto& ppComponent : *ppInstrument->getComponents() ) {
+			CPPUNIT_ASSERT( ppComponent != nullptr );
+			for ( const auto ppLayer : *ppComponent ) {
+				CPPUNIT_ASSERT( ppLayer != nullptr );
+				auto pSample = ppLayer->getSample();
+				if ( pSample == nullptr ) {
+					return false;
+				}
+				if ( bLoaded ) {
+					if ( pSample->getData_L() == nullptr ||
+						 pSample->getData_R() == nullptr ) {
 						return false;
 					}
-					if( bLoaded ) {
-						if( pSample->getData_L()==nullptr || pSample->getData_R()==nullptr ) {
-							return false;
-						}
-					} else {
-						if( pSample->getData_L() != nullptr || pSample->getData_R() != nullptr ) {
-							return false;
-						}
+				}
+				else {
+					if ( pSample->getData_L() != nullptr ||
+						 pSample->getData_R() != nullptr ) {
+						return false;
 					}
 				}
-
 			}
 		}
 	}
-	return ( count==4 );
+	return ( count == 4 );
 }

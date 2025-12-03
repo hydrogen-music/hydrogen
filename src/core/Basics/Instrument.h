@@ -290,6 +290,11 @@ class Instrument : public H2Core::Object<Instrument>
 
 		bool hasMissingSamples() const { return m_bHasMissingSamples; }
 
+		void addLayer(
+			std::shared_ptr<InstrumentComponent> pComponent,
+			std::shared_ptr<InstrumentLayer> pLayer,
+			Event::Trigger trigger
+		);
 		void setLayer(
 			std::shared_ptr<InstrumentComponent> pComponent,
 			std::shared_ptr<InstrumentLayer> pLayer,

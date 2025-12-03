@@ -76,9 +76,6 @@ void Preferences::create_instance()
 			}
 
 		}
-
-		// Propagate loaded settings
-		InstrumentComponent::setMaxLayers( __instance->getMaxLayers() );
 	}
 }
 
@@ -137,7 +134,6 @@ Preferences::Preferences()
 	, m_recentFiles( QStringList() )
 	, m_recentFX( QStringList() )
 	, m_nMaxBars( 400 )
-	, m_nMaxLayers( 16 )
 	, m_nMidiFeedbackChannel( 0 )
 	, m_bMidiClockInputHandling( false )
 	, m_bMidiTransportInputHandling( false )
@@ -321,7 +317,6 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_nPunchOutPos( pOther->m_nPunchOutPos )
 	, m_bQuantizeEvents( pOther->m_bQuantizeEvents )
 	, m_nMaxBars( pOther->m_nMaxBars )
-	, m_nMaxLayers( pOther->m_nMaxLayers )
 	, m_nMidiFeedbackChannel( pOther->m_nMidiFeedbackChannel )
 	, m_bMidiClockInputHandling( pOther->m_bMidiClockInputHandling )
 	, m_bMidiTransportInputHandling( pOther->m_bMidiTransportInputHandling )
@@ -443,13 +438,6 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		pPref->m_bShowNoteOverwriteWarning, false, false, bSilent );
 	pPref->m_nMaxBars = rootNode.read_int(
 		"maxBars", pPref->m_nMaxBars, false, false, bSilent );
-	pPref->m_nMaxLayers = rootNode.read_int(
-		"maxLayers", pPref->m_nMaxLayers, false, false, bSilent );
-	if ( pPref->m_nMaxLayers < 16 ) {
-		WARNINGLOG( QString( "[maxLayers: %1] is smaller than the minimum number of layers [16]" )
-					.arg( pPref->m_nMaxLayers ) );
-		pPref->m_nMaxLayers = 16;
-	}
 	pInterfaceTheme->m_layout = static_cast<InterfaceTheme::Layout>(
 		rootNode.read_int( "defaultUILayout",
 						   static_cast<int>(pInterfaceTheme->m_layout),
@@ -1205,7 +1193,6 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 	rootNode.write_string( "preferredLanguage", m_sPreferredLanguage );
 
 	rootNode.write_int( "maxBars", m_nMaxBars );
-	rootNode.write_int( "maxLayers", m_nMaxLayers );
 
 	rootNode.write_int( "defaultUILayout", static_cast<int>(
 							pInterfaceTheme->m_layout) );
@@ -1955,8 +1942,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_recentFX.join( ',' ) ) )
 			.append( QString( "%1%2m_nMaxBars: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nMaxBars ) )
-			.append( QString( "%1%2m_nMaxLayers: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nMaxLayers ) )
 			.append( QString( "%1%2m_bSearchForRubberbandOnLoad: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bSearchForRubberbandOnLoad ) )
 			.append( QString( "%1%2m_bUseTheRubberbandBpmChangeEvent: %3\n" ).arg( sPrefix )
@@ -2203,8 +2188,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_recentFX.join( ',' ) ) )
 			.append( QString( ", m_nMaxBars: %1" )
 					 .arg( m_nMaxBars ) )
-			.append( QString( ", m_nMaxLayers: %1" )
-					 .arg( m_nMaxLayers ) )
 			.append( QString( ", m_bSearchForRubberbandOnLoad: %1" )
 					 .arg( m_bSearchForRubberbandOnLoad ) )
 			.append( QString( ", m_bUseTheRubberbandBpmChangeEvent: %1" )

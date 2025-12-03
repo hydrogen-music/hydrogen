@@ -4382,14 +4382,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Maximum number of instrument layers</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Maximum number of layers (requires restart of Hydrogen)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Audio System</source>
         <translation type="unfinished"></translation>
     </message>

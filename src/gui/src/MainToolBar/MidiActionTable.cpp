@@ -244,7 +244,7 @@ void MidiActionTable::insertNewRow( std::shared_ptr<MidiAction> pAction,
 		this, QSize( m_nSpinBoxWidth, m_nRowHeight ) );
 	actionParameterSpinner3->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	setCellWidget( oldRowCount , 6, actionParameterSpinner3 );
-	actionParameterSpinner3->setMaximum( H2Core::InstrumentComponent::getMaxLayers() );
+	actionParameterSpinner3->setMaximum( 999 );
 	actionParameterSpinner3->setValue( pAction->getParameter3().toInt(&ok,10) );
 	actionParameterSpinner3->hide();
 	connect( actionParameterSpinner3, SIGNAL( valueChanged( double ) ),

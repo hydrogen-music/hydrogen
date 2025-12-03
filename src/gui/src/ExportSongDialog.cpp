@@ -959,32 +959,31 @@ bool ExportSongDialog::checkUseOfRubberband()
 
 	const auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 
-	for ( unsigned nInstr = 0; nInstr < pInstrumentList->size(); ++nInstr ) {
-		auto pInstr = pInstrumentList->get( nInstr );
-		if ( pInstr != nullptr ){
-			for ( const auto& pCompo : *pInstr->getComponents() ) {
-				for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-					if ( pCompo != nullptr ) {
-						auto pLayer = pCompo->getLayer( nLayer );
-						if ( pLayer != nullptr ) {
-							auto pSample = pLayer->getSample();
-							if ( pSample != nullptr ) {
-								if ( pSample->getRubberband().use ) {
-									return true;
-								}
-							}
-							else {
-								WARNINGLOG( QString( "Invalid sample [%1]" )
-											.arg( nLayer ) );
-							}
-						}
-					}
+	for ( const auto& ppInstrument : *pInstrumentList ) {
+		if ( ppInstrument == nullptr ) {
+			continue;
+		}
+		for ( const auto& ppComponent : *ppInstrument ) {
+			if ( ppComponent == nullptr ) {
+				continue;
+			}
+			for ( auto& ppLayer : *ppComponent ) {
+				if ( ppLayer == nullptr || ppLayer->getSample() == nullptr ) {
+					WARNINGLOG(
+						QString( "Invalid sample [%1]" )
+							.arg(
+								ppLayer != nullptr
+									? ppLayer->getFallbackSampleFileName()
+									: "nullptr"
+							)
+					);
+					continue;
+				}
+
+				if ( ppLayer->getSample()->getRubberband().use ) {
+					return true;
 				}
 			}
-		}
-		else {
-			WARNINGLOG( QString( "Invalid instrument for id [%1]" )
-						.arg( nInstr ) );
 		}
 	}
 	return false;

@@ -4417,14 +4417,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
         <translation>segundo passo, ajuste o offset entre o último controlador/teclado e a inicialização adiada do sequenciador</translation>
     </message>
     <message>
-        <source>Maximum number of instrument layers</source>
-        <translation>Número máximo de camadas de instrumentos</translation>
-    </message>
-    <message>
-        <source>Maximum number of layers (requires restart of Hydrogen)</source>
-        <translation>Número máximo de camadas (requer a reinicialização de Hydrogen)</translation>
-    </message>
-    <message>
         <source>Audio System</source>
         <translation>Sistema de Áudio</translation>
     </message>

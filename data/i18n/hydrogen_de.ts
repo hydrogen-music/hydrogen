@@ -4395,14 +4395,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Zweiter Schritt: Feinjustiere den Offset zwischen den letzten Anschlag des Keyboards und abgeleiteten Starten des Sequenzers</translation>
     </message>
     <message>
-        <source>Maximum number of instrument layers</source>
-        <translation>Größt möglichste Anzahl von Instrumentenebenen</translation>
-    </message>
-    <message>
-        <source>Maximum number of layers (requires restart of Hydrogen)</source>
-        <translation>Größt möglichste Anzahl von Ebenen (erfordert Neustart)</translation>
-    </message>
-    <message>
         <source>Output</source>
         <translation>Ausgabe</translation>
     </message>

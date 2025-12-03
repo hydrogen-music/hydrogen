@@ -190,8 +190,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	sBmaxBars->setSize( generalTabWidgetSize );
 	sBmaxBars->setValue( pPref->getMaxBars() );
-	sBmaxLayers->setSize( generalTabWidgetSize );
-	sBmaxLayers->setValue( pPref->getMaxLayers() );
 	autosaveSpinBox->setSize( generalTabWidgetSize );
 	autosaveSpinBox->setValue( pPref->m_nAutosavesPerHour );
 
@@ -1038,11 +1036,6 @@ void PreferencesDialog::on_okBtn_clicked()
 		bGeneralOptionAltered = true;
 	}
 	
-	if ( pPref->getMaxLayers() != sBmaxLayers->value() ) {
-		pPref->setMaxLayers( sBmaxLayers->value() );
-		bGeneralOptionAltered = true;
-	}
-
 	if ( pPref->m_nAutosavesPerHour != autosaveSpinBox->value() ) {
 		pPref->m_nAutosavesPerHour = autosaveSpinBox->value();
 		m_changes = static_cast<H2Core::Preferences::Changes>(
@@ -1643,7 +1636,6 @@ void PreferencesDialog::onRejected() {
 		pCurrentPref->m_nBeatCounterStartOffset =
 			pOldPref->m_nBeatCounterStartOffset;
 		pCurrentPref->setMaxBars( pOldPref->getMaxBars() );
-		pCurrentPref->setMaxLayers( pOldPref->getMaxLayers() );
 		pCurrentPref->m_nAutosavesPerHour = pOldPref->m_nAutosavesPerHour;
 		pCurrentPref->setPreferredLanguage( pOldPref->getPreferredLanguage() );
 		pHydrogen->updateBeatCounterSettings();

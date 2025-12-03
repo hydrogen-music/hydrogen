@@ -118,8 +118,8 @@ AudioEngine::AudioEngine()
 		std::make_shared<InstrumentLayer>( Sample::load( sMetronomeFileName ) );
 	auto pComponent = m_pMetronomeInstrument->getComponent( 0 );
 	if ( pComponent != nullptr ) {
-		m_pMetronomeInstrument->setLayer(
-			pComponent, pLayer, 0, Event::Trigger::Suppress
+		m_pMetronomeInstrument->addLayer(
+			pComponent, pLayer, Event::Trigger::Suppress
 		);
 	}
 	else {

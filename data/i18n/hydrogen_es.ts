@@ -4407,14 +4407,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <translation>segundo paso, ajusta el offset entre el último disparo del controlador/teclado y el arranque diferido del secuenciador </translation>
     </message>
     <message>
-        <source>Maximum number of instrument layers</source>
-        <translation>Número máximo de capas de instrumento</translation>
-    </message>
-    <message>
-        <source>Maximum number of layers (requires restart of Hydrogen)</source>
-        <translation>Número máximo de capas (require reinicio de Hydrogen)</translation>
-    </message>
-    <message>
         <source>Output</source>
         <translation>Salida</translation>
     </message>

@@ -4221,14 +4221,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>节拍计数器偏移开始以毫秒为单位    </translation>
     </message>
     <message>
-        <source>Maximum number of instrument layers</source>
-        <translation>最大乐器层数</translation>
-    </message>
-    <message>
-        <source>Maximum number of layers (requires restart of Hydrogen)</source>
-        <translation>最大层数（需要重新启动 Hydrogen）</translation>
-    </message>
-    <message>
         <source>Maximum number of bars</source>
         <translation>最大小节数</translation>
     </message>
