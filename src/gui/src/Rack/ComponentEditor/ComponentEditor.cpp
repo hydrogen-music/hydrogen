@@ -293,7 +293,7 @@ void ComponentEditor::updateSize() {
 	int nNewHeight = 0;
 	for ( const auto& ppView : m_componentViews ) {
 		if ( ppView->getIsExpanded() ) {
-			nNewHeight += ComponentView::nExpandedHeight;
+			nNewHeight += ppView->getExpandedHeight();
 		}
 		else {
 			nNewHeight += ComponentView::nHeaderHeight;

@@ -71,9 +71,11 @@ ComponentView::ComponentView( QWidget* pParent,
 	pHeaderWidget->setFixedHeight( ComponentView::nHeaderHeight );
 	pHeaderWidget->setObjectName( "HeaderWidget" );
 	auto pHBoxHeaderLayout = new QHBoxLayout();
-	pHBoxHeaderLayout->setSpacing( 1 );
+	pHBoxHeaderLayout->setSpacing( ComponentView::nHeaderSpacing );
 	pHBoxHeaderLayout->setContentsMargins(
-		1, 1, ComponentView::nMargin, 0 );
+		ComponentView::nHeaderSpacing, ComponentView::nHeaderSpacing,
+		ComponentView::nMargin, 0
+	);
 	pHeaderWidget->setLayout( pHBoxHeaderLayout );
 
 	m_pShowLayersBtn = new QPushButton( pHeaderWidget );
@@ -158,7 +160,9 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	m_pSeparatorComponent = new QWidget( pHeaderWidget );
 	m_pSeparatorComponent->setObjectName( "SeparatorComponent" );
-	m_pSeparatorComponent->setFixedSize( Rack::nWidth, 1 );
+	m_pSeparatorComponent->setFixedSize(
+		Rack::nWidth, ComponentView::nSeparatorHeight
+	);
 	m_pSeparatorLayout = new QVBoxLayout();
 	m_pSeparatorLayout->setAlignment( Qt::AlignCenter );
 	m_pSeparatorLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -166,7 +170,9 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	auto pSeparatorWidget = new QWidget( m_pSeparatorComponent );
 	pSeparatorWidget->setObjectName( "SeparatorToolBarComponent" );
-	pSeparatorWidget->setFixedSize( Rack::nWidth / 6, 1 );
+	pSeparatorWidget->setFixedSize(
+		Rack::nWidth / 6, ComponentView::nSeparatorHeight
+	);
 	m_pSeparatorLayout->addWidget( pSeparatorWidget );
 
 	m_pToolBarComponent = new QToolBar( this );
@@ -854,6 +860,18 @@ void ComponentView::accountForScrollbar( bool bScrollBarVisible )
 	const int nNewWidth = Rack::nWidth - ComponentView::nMargin * 2 -
 						  ( bScrollBarVisible ? Skin::nScrollBarWidth : 0 );
 	m_pLayerPreview->setFixedWidth( nNewWidth );
+}
+
+int ComponentView::getExpandedHeight() const
+{
+	const int nLayers =
+		m_pComponent != nullptr ? m_pComponent->getLayers().size() : 1;
+	return ComponentView::nVerticalSpacing * 4 + ComponentView::nHeaderHeight +
+		   ComponentView::nToolBarHeight * 2 + LayerPreview::nHeader +
+		   LayerPreview::nBorder + LayerPreview::nLayerHeight * nLayers +
+		   ComponentView::nWaveDisplayHeight + Rotary::nHeight +
+           ComponentView::nSampleSelectionHeight +
+		   ComponentView::nLabelHeight + ComponentView::nMargin * 4;
 }
 
 void ComponentView::expand() {

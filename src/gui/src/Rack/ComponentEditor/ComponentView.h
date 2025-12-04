@@ -62,6 +62,8 @@ class ComponentView : public QWidget,
 
 		static constexpr int nVerticalSpacing = 5;
 		static constexpr int nHeaderHeight = 28;
+		static constexpr int nHeaderSpacing = 1;
+		static constexpr int nSeparatorHeight = 1;
 		static constexpr int nToolBarHeight = 28;
 		static constexpr int nButtonWidth = 21;
 		static constexpr int nButtonHeight = 24;
@@ -94,6 +96,7 @@ class ComponentView : public QWidget,
 
 		void accountForScrollbar( bool bScrollBarVisible );
 
+		int getExpandedHeight() const;
 		bool getIsExpanded() const;
 		void expand();
 		void collapse();
