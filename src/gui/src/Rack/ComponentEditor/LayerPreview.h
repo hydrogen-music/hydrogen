@@ -67,6 +67,20 @@ class LayerPreview : public QWidget, protected WidgetWithScalableFont<6, 8, 10>,
 		{
 			return nEndX < other.nEndX;
 		}
+
+		QString toQString() const
+		{
+			return QString(
+					   "[LayerInfo] nStartX: %1, nEndX: %2, nStartY: %3, nId: "
+					   "%4, "
+					   "bSelected: %5"
+			)
+				.arg( nStartX )
+				.arg( nEndX )
+				.arg( nStartY )
+				.arg( nId )
+				.arg( bSelected );
+		}
 	};
 
 	void paintEvent( QPaintEvent* ev ) override;
