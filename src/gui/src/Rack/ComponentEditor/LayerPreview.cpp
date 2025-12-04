@@ -392,7 +392,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 		p.drawText(
 			iinfo.nStartX, 0, iinfo.nEndX - iinfo.nStartX,
 			LayerPreview::nHeader, Qt::AlignCenter,
-			QString( "%1" ).arg( iinfo.nId + 1 )
+			QString( "%1" ).arg( iinfo.nId )
 		);
 	}
 
