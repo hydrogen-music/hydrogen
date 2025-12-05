@@ -115,6 +115,7 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		friend void Instrument::addLayer(
 			std::shared_ptr<InstrumentComponent> pComponent,
 			std::shared_ptr<InstrumentLayer> pLayer,
+			int nIndex,
 			Event::Trigger trigger
 		);
 		friend void Instrument::setLayer(
@@ -125,7 +126,9 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		);
 
 	   private:
-		void addLayer( std::shared_ptr<InstrumentLayer> pLayer );
+		/** An @a nIndex of -1 will cause the method to append the new layer at
+		   the end.*/
+		void addLayer( std::shared_ptr<InstrumentLayer> pLayer, int nIndex );
 		void setLayer( std::shared_ptr<InstrumentLayer> pLayer, int nIndex );
 
 		QString 			m_sName;

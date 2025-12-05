@@ -290,9 +290,12 @@ class Instrument : public H2Core::Object<Instrument>
 
 		bool hasMissingSamples() const { return m_bHasMissingSamples; }
 
+		/** An @a nIndex of -1 will cause the method to append the new layer at
+		   the end.*/
 		void addLayer(
 			std::shared_ptr<InstrumentComponent> pComponent,
 			std::shared_ptr<InstrumentLayer> pLayer,
+			int nIndex,
 			Event::Trigger trigger
 		);
 		void setLayer(

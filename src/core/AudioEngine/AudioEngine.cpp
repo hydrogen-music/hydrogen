@@ -119,7 +119,7 @@ AudioEngine::AudioEngine()
 	auto pComponent = m_pMetronomeInstrument->getComponent( 0 );
 	if ( pComponent != nullptr ) {
 		m_pMetronomeInstrument->addLayer(
-			pComponent, pLayer, Event::Trigger::Suppress
+			pComponent, pLayer, -1, Event::Trigger::Suppress
 		);
 	}
 	else {

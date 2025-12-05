@@ -66,10 +66,27 @@ InstrumentComponent::~InstrumentComponent()
 {
 }
 
-void InstrumentComponent::addLayer( std::shared_ptr<InstrumentLayer> pLayer )
+void InstrumentComponent::addLayer(
+	std::shared_ptr<InstrumentLayer> pLayer,
+	int nIndex
+)
 {
-	if ( pLayer != nullptr ) {
+	if ( pLayer == nullptr ) {
+		return;
+	}
+
+	if ( nIndex == -1 || nIndex == m_layers.size() ) {
+      // Append
 		m_layers.push_back( pLayer );
+	}
+	else if ( nIndex >= 0 && nIndex < m_layers.size() ) {
+	  // Insert
+      m_layers.insert( std::next( m_layers.begin(), nIndex ), pLayer );
+	}
+	else {
+		ERRORLOG( QString( "Index [%1] out of bound [0, %2]" )
+					  .arg( nIndex )
+					  .arg( m_layers.size() ) );
 	}
 }
 
@@ -121,7 +138,7 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 		auto pLayer = InstrumentLayer::loadFrom(
 			layer_node, sDrumkitPath, sSongPath, drumkitLicense, bSilent );
 		if ( pLayer != nullptr ) {
-			pInstrumentComponent->addLayer( pLayer );
+			pInstrumentComponent->addLayer( pLayer, -1 );
 		}
 		layer_node = layer_node.nextSiblingElement( "layer" );
 	}

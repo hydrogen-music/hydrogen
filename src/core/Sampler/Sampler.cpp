@@ -63,7 +63,7 @@ static std::shared_ptr<Instrument> createInstrument(int id, const QString& sFile
 	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( sFilePath ) );
 	auto pComponent = pInstrument->getComponent( 0 );
 	if ( pComponent != nullptr ) {
-		pInstrument->addLayer( pComponent, pLayer, Event::Trigger::Suppress );
+		pInstrument->addLayer( pComponent, pLayer, -1, Event::Trigger::Suppress );
 	} else {
 		___ERRORLOG( "Invalid default component" );
 	}

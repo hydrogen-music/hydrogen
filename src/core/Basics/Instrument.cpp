@@ -653,6 +653,7 @@ const QString& Instrument::getDrumkitPath() const
 void Instrument::addLayer(
 	std::shared_ptr<InstrumentComponent> pComponent,
 	std::shared_ptr<InstrumentLayer> pLayer,
+	int nIndex,
 	Event::Trigger trigger
 )
 {
@@ -665,7 +666,7 @@ void Instrument::addLayer(
 
 	for ( auto& ppComponent : *m_pComponents ) {
 		if ( pComponent == ppComponent ) {
-			ppComponent->addLayer( pLayer );
+			ppComponent->addLayer( pLayer, nIndex );
 		}
 	}
 
