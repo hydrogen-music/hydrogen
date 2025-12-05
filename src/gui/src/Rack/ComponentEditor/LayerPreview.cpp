@@ -440,38 +440,6 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 void LayerPreview::mouseReleaseEvent( QMouseEvent* ev )
 {
 	m_bMouseGrab = false;
-
-	if ( m_pComponentView->getComponent() == nullptr ) {
-		return;
-	}
-
-	auto pEv = static_cast<MouseEvent*>( ev );
-
-	/*
-	 * We want the tooltip to still show if mouse pointer
-	 * is over an active layer's boundary
-	 */
-	auto pCompo = m_pComponentView->getComponent();
-	if ( pCompo != nullptr ) {
-		auto pLayer = pCompo->getLayer(
-			m_pComponentView->getSelectedLayer() );
-
-		if ( pLayer ) {
-			int x1 = (int)( pLayer->getStartVelocity() * width() );
-			int x2 = (int)( pLayer->getEndVelocity() * width() );
-			
-			if ( ( pEv->position().x() < x1  + 5 ) &&
-				 ( pEv->position().x() > x1 - 5 ) ){
-				setCursor( QCursor( Qt::SizeHorCursor ) );
-				showLayerStartVelocity(pLayer, ev);
-			}
-			else if ( ( pEv->position().x() < x2 + 5 ) &&
-					  ( pEv->position().x() > x2 - 5 ) ) {
-				setCursor( QCursor( Qt::SizeHorCursor ) );
-				showLayerEndVelocity(pLayer, ev);
-			}
-		}
-	}
 }
 
 void LayerPreview::mousePressEvent( QMouseEvent* ev )
@@ -496,8 +464,10 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
 	const auto nMaxLayers = pComponent->getLayers().size();
 
 	const int nX = pEv->position().x();
-	const float fVelocity =
-		static_cast<float>( nX ) / static_cast<float>( width() );
+	const float fVelocity = std::clamp(
+		static_cast<float>( nX ) / static_cast<float>( width() ), VELOCITY_MIN,
+		VELOCITY_MAX
+	);
 
 	if ( pEv->position().y() < LayerPreview::nHeader ) {
 		if ( pComponent->hasSamples() ) {
@@ -529,50 +499,47 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
 			}
 		}
 	}
-	else {
-		const int nClickedLayer =
-			( pEv->position().y() - 20 ) / LayerPreview::nLayerHeight;
-		if ( nClickedLayer < nMaxLayers && nClickedLayer >= 0 ) {
+	else if ( nMaxLayers > 0 ) {
+		const int nClickedLayer = static_cast<int>( std::floor(
+			static_cast<float>( pEv->position().y() - LayerPreview::nHeader ) /
+			static_cast<float>( LayerPreview::nLayerHeight )
+		) );
+		auto pLayer = pComponent->getLayer( nClickedLayer );
+		if ( pLayer != nullptr ) {
 			m_pComponentView->setSelectedLayer( nClickedLayer );
 			m_pComponentView->updateView();
 
-			auto pLayer = pComponent->getLayer( nClickedLayer );
-			if ( pLayer != nullptr ) {
-				// We register the current component to be rendered using a
-				// specific layer. This will cause all other components _not_ to
-				// be rendered.
-				auto pSelectedLayerInfo = std::make_shared<SelectedLayerInfo>();
-				pSelectedLayerInfo->pLayer = pLayer;
+			// We register the current component to be rendered using a
+			// specific layer. This will cause all other components _not_ to
+			// be rendered.
+			auto pSelectedLayerInfo = std::make_shared<SelectedLayerInfo>();
+			pSelectedLayerInfo->pLayer = pLayer;
 
-				const auto pNote =
-					std::make_shared<Note>( pInstrument, nPosition, fVelocity );
-				pNote->setSelectedLayerInfo( pSelectedLayerInfo, pComponent );
+			const auto pNote =
+				std::make_shared<Note>( pInstrument, nPosition, fVelocity );
+			pNote->setSelectedLayerInfo( pSelectedLayerInfo, pComponent );
 
-				Hydrogen::get_instance()
-					->getAudioEngine()
-					->getSampler()
-					->noteOn( pNote );
+			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(
+				pNote
+			);
 
-				int x1 = (int) ( pLayer->getStartVelocity() * width() );
-				int x2 = (int) ( pLayer->getEndVelocity() * width() );
+			const int nStartX = static_cast<int>( std::round(
+				pLayer->getStartVelocity() * static_cast<float>( width() )
+			) );
+			const int nEndX = static_cast<int>( std::round(
+				pLayer->getEndVelocity() * static_cast<float>( width() )
+			) );
 
-				if ( ( pEv->position().x() < x1 + 5 ) &&
-					 ( pEv->position().x() > x1 - 5 ) ) {
-					setCursor( QCursor( Qt::SizeHorCursor ) );
-					m_bGrabLeft = true;
-					m_bMouseGrab = true;
-					showLayerStartVelocity( pLayer, ev );
-				}
-				else if ( ( pEv->position().x() < x2 + 5 ) &&
-						  ( pEv->position().x() > x2 - 5 ) ) {
-					setCursor( QCursor( Qt::SizeHorCursor ) );
-					m_bGrabLeft = false;
-					m_bMouseGrab = true;
-					showLayerEndVelocity( pLayer, ev );
-				}
-				else {
-					setCursor( QCursor( Qt::ArrowCursor ) );
-				}
+
+			if ( ( nX < nStartX + LayerPreview::nBorderGrabMargin ) &&
+				 ( nX > nStartX - LayerPreview::nBorderGrabMargin ) ) {
+				m_bGrabLeft = true;
+				m_bMouseGrab = true;
+			}
+			else if ( ( nX < nEndX + LayerPreview::nBorderGrabMargin ) &&
+					  ( nX > nEndX - LayerPreview::nBorderGrabMargin ) ) {
+				m_bGrabLeft = false;
+				m_bMouseGrab = true;
 			}
 		}
 	}
@@ -584,72 +551,76 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 	if ( pComponent == nullptr ) {
 		return;
 	}
-	const int nSelectedLayer = m_pComponentView->getSelectedLayer();
 
 	auto pEv = static_cast<MouseEvent*>( ev );
-	const int x = pEv->position().x();
-	const int y = pEv->position().y();
-
-	if ( y < 20 ) {
+	const int nX = pEv->position().x();
+	const int nY = pEv->position().y();
+	if ( nY < LayerPreview::nHeader ) {
 		setCursor( QCursor( m_speakerPixmap ) );
 		return;
 	}
 
-	float fVel = (float)x / (float)width();
-	if (fVel < 0 ) {
-		fVel = 0;
-	}
-	else  if (fVel > 1) {
-		fVel = 1;
-	}
 	if ( m_bMouseGrab ) {
+		// We are dragging a border of the currently selected layer.
+		const int nSelectedLayer = m_pComponentView->getSelectedLayer();
 		auto pLayer = pComponent->getLayer( nSelectedLayer );
-		if ( pLayer != nullptr ) {
-			bool bChanged = false;
-			if ( m_bGrabLeft ) {
-				if ( fVel < pLayer->getEndVelocity()) {
-					pLayer->setStartVelocity( fVel );
-					bChanged = true;
-					showLayerStartVelocity( pLayer, ev );
-				}
-			}
-			else {
-				if ( fVel > pLayer->getStartVelocity()) {
-					pLayer->setEndVelocity( fVel );
-					bChanged = true;
-					showLayerEndVelocity( pLayer, ev );
-				}
-			}
+		if ( pLayer == nullptr ) {
+			setCursor( QCursor( Qt::ArrowCursor ) );
+			QToolTip::hideText();
+			return;
+		}
 
-			if ( bChanged ) {
-				update();
-				Hydrogen::get_instance()->setIsModified( true );
+		const float fVelocity = std::clamp(
+			static_cast<float>( nX ) / static_cast<float>( width() ),
+			VELOCITY_MIN, VELOCITY_MAX
+		);
+
+		bool bChanged = false;
+		if ( m_bGrabLeft ) {
+			if ( fVelocity < pLayer->getEndVelocity() ) {
+				pLayer->setStartVelocity( fVelocity );
+				bChanged = true;
+				showLayerStartVelocity( pLayer, ev );
 			}
+		}
+		else {
+			if ( fVelocity > pLayer->getStartVelocity() ) {
+				pLayer->setEndVelocity( fVelocity );
+				bChanged = true;
+				showLayerEndVelocity( pLayer, ev );
+			}
+		}
+
+		if ( bChanged ) {
+			update();
+			Hydrogen::get_instance()->setIsModified( true );
 		}
 	}
 	else {
-		int nHoveredLayer = ( pEv->position().y() - 20 ) /
-			LayerPreview::nLayerHeight;
-		if ( nHoveredLayer < pComponent->getLayers().size() &&
-			 nHoveredLayer >= 0 ) {
+		// We are hovering over an arbitrary layer.
+		const int nHoveredLayer = static_cast<int>( std::floor(
+			static_cast<float>( pEv->position().y() - LayerPreview::nHeader ) /
+			static_cast<float>( LayerPreview::nLayerHeight )
+		) );
+		auto pHoveredLayer = pComponent->getLayer( nHoveredLayer );
+		if ( pHoveredLayer != nullptr ) {
+			const int nStartX = static_cast<int>( std::round(
+				pHoveredLayer->getStartVelocity() *
+				static_cast<float>( width() )
+			) );
+			const int nEndX = static_cast<int>( std::round(
+				pHoveredLayer->getEndVelocity() * static_cast<float>( width() )
+			) );
 
-			auto pHoveredLayer = pComponent->getLayer( nHoveredLayer );
-			if ( pHoveredLayer != nullptr ) {
-				int x1 = (int)( pHoveredLayer->getStartVelocity() * width() );
-				int x2 = (int)( pHoveredLayer->getEndVelocity() * width() );
-
-				if ( ( x < x1  + 5 ) && ( x > x1 - 5 ) ){
-					setCursor( QCursor( Qt::SizeHorCursor ) );
-					showLayerStartVelocity(pHoveredLayer, ev);
-				}
-				else if ( ( x < x2 + 5 ) && ( x > x2 - 5 ) ){
-					setCursor( QCursor( Qt::SizeHorCursor ) );
-					showLayerEndVelocity(pHoveredLayer, ev);
-				}
-				else {
-					setCursor( QCursor( Qt::ArrowCursor ) );
-					QToolTip::hideText();
-				}
+			if ( ( nX < nStartX + LayerPreview::nBorderGrabMargin ) &&
+				 ( nX > nStartX - LayerPreview::nBorderGrabMargin ) ) {
+				setCursor( QCursor( Qt::SizeHorCursor ) );
+				showLayerStartVelocity( pHoveredLayer, ev );
+			}
+			else if ( ( nX < nEndX + LayerPreview::nBorderGrabMargin ) &&
+					  ( nX > nEndX - LayerPreview::nBorderGrabMargin ) ) {
+				setCursor( QCursor( Qt::SizeHorCursor ) );
+				showLayerEndVelocity( pHoveredLayer, ev );
 			}
 			else {
 				setCursor( QCursor( Qt::ArrowCursor ) );
