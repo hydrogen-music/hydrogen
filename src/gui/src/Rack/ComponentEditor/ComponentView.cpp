@@ -318,7 +318,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pToolBarLayer->addSeparator();
 
 	m_pReplaceLayerAction =
-		createAction( pCommonStrings->getActionAddInstrumentLayer(), false );
+		createAction( pCommonStrings->getActionReplaceInstrumentLayer(), false );
 	connect( m_pReplaceLayerAction, &QAction::triggered, [=]() {
 		replaceLayer( m_nSelectedLayer );
 	} );
