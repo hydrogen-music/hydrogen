@@ -25,6 +25,7 @@
 #include <QtGui>
 #include <QtWidgets>
 #include <memory>
+#include <set>
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -105,6 +106,8 @@ class LayerPreview : public QWidget, protected WidgetWithScalableFont<6, 8, 10>,
 	virtual void mouseMoveEvent( QMouseEvent* ev ) override;
 
 	ComponentView* m_pComponentView;
+
+	std::set<LayerInfo> m_layerInfos;
 
 	QPixmap m_speakerPixmap;
 	bool m_bMouseGrab;

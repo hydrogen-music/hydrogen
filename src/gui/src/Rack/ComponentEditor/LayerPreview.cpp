@@ -215,7 +215,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 	// those with lower one. We do this, because our default velocity
 	// 0.8 and the regular user is more likely to experience the higher
 	// ones.
-	std::set<LayerInfo> layerInfos;
+	m_layerInfos.clear();
 	int nCount = 1;
 	if ( pComponent != nullptr && pComponent->hasSamples() ) {
 		int nCurrentY = LayerPreview::nHeader;
@@ -230,7 +230,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 			LayerInfo info{
 				x1, x2, nCurrentY, nCount, nCount == ( nSelectedLayer + 1 )
 			};
-			layerInfos.insert( info );
+			m_layerInfos.insert( info );
 
 			QString sLabel = "< - >";
 
@@ -269,7 +269,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 	// get the overlaps right.
 	int nCurrentEnd = width() - 2 * LayerPreview::nBorder;
 	int ii = nLayers;
-	for ( auto iinfo = layerInfos.rbegin(); iinfo != layerInfos.rend();
+	for ( auto iinfo = m_layerInfos.rbegin(); iinfo != m_layerInfos.rend();
 		  ++iinfo ) {
 		if ( iinfo->nStartX > nCurrentEnd ) {
 			// The borders of this layer were already drawn. Probably it was
@@ -291,7 +291,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 
 		// Check whether there are other layers overlapping into the current
 		// region.
-		for ( const auto& iinfoOther : layerInfos ) {
+		for ( const auto& iinfoOther : m_layerInfos ) {
 			if ( iinfoOther.nEndX <= nVisibleStart ||
 				 iinfoOther.nEndX >= nVisibleEnd ) {
 				// No overlap.
@@ -346,7 +346,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 	}
 
 	// If there are no layers, draw an empty header
-	if ( layerInfos.size() == 0 ) {
+	if ( m_layerInfos.size() == 0 ) {
 		p.fillRect(
 			LayerPreview::nBorder, LayerPreview::nBorder, width() - 2 * LayerPreview::nBorder,
 			LayerPreview::nHeader - LayerPreview::nBorder, headerBaseColor
@@ -362,7 +362,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 	// visible. That's why render them in another swipe.
 	p.setFont( QFont( pFontTheme->m_sLevel2FontFamily, getPointSizeButton() ) );
 	p.setPen( pColorTheme->m_windowTextColor );
-	for ( const auto& iinfo : layerInfos ) {
+	for ( const auto& iinfo : m_layerInfos ) {
 		if ( iinfo.bSelected ) {
 			continue;
         }
@@ -375,7 +375,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 
 	// Ensure the selected layer is properly highlighted in the header.
     ii = nLayers;
-	for ( auto iinfo = layerInfos.rbegin(); iinfo != layerInfos.rend();
+	for ( auto iinfo = m_layerInfos.rbegin(); iinfo != m_layerInfos.rend();
 		  ++iinfo ) {
 		if ( !iinfo->bSelected ) {
             --ii;
@@ -474,7 +474,7 @@ void LayerPreview::mouseReleaseEvent( QMouseEvent* ev )
 	}
 }
 
-void LayerPreview::mousePressEvent(QMouseEvent *ev)
+void LayerPreview::mousePressEvent( QMouseEvent* ev )
 {
 	const int nPosition = 0;
 	const int nSelectedLayer = m_pComponentView->getSelectedLayer();
@@ -486,14 +486,23 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 	auto pEv = static_cast<MouseEvent*>( ev );
 
 	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
-    const auto nMaxLayers = pComponent->getLayers().size();
+	if ( pInstrument == nullptr ) {
+		// What is displayed in the component editor _is_ the selected
+		// instrument. In case it is nullptr, we are working on inconsistent
+		// data.
+		ERRORLOG( "Invalid selected instrument" );
+		return;
+	}
+	const auto nMaxLayers = pComponent->getLayers().size();
 
-	const float fVelocity = (float)pEv->position().x() / (float)width();
+	const int nX = pEv->position().x();
+	const float fVelocity =
+		static_cast<float>( nX ) / static_cast<float>( width() );
 
-	if ( pEv->position().y() < 20 ) {
-		if ( pComponent->hasSamples() && pInstrument != nullptr ) {
-			auto pNote = std::make_shared<Note>(
-				pInstrument, nPosition, fVelocity );
+	if ( pEv->position().y() < LayerPreview::nHeader ) {
+		if ( pComponent->hasSamples() ) {
+			auto pNote =
+				std::make_shared<Note>( pInstrument, nPosition, fVelocity );
 
 			// We register the current component to be rendered. This will cause
 			// all other components _not_ to be rendered. Because we do not
@@ -501,67 +510,65 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 			// based on the current sample selection algorithm.
 			pNote->setSelectedLayerInfo( nullptr, pComponent );
 
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
+			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(
+				pNote
+			);
 		}
 
-		int nNewLayer = -1;
-		for ( int ii = 0; ii < nMaxLayers; ii++ ) {
-			auto pLayer = pComponent->getLayer( ii );
-			if ( pLayer != nullptr ) {
-				if ( fVelocity > pLayer->getStartVelocity() &&
-					 fVelocity < pLayer->getEndVelocity() ) {
-					if ( ii != nSelectedLayer ) {
-						nNewLayer = ii;
-					}
-					break;
+		// Update the layer selection based on the click position. Since there
+		// can very well be overlaps, we have to ensure to pick the top most one
+		// (which starts at the highest velocity).
+		for ( auto iinfo = m_layerInfos.rbegin(); iinfo != m_layerInfos.rend();
+			  ++iinfo ) {
+			if ( nX > iinfo->nStartX && nX < iinfo->nEndX ) {
+				if ( iinfo->nId != nSelectedLayer + 1 ) {
+					m_pComponentView->setSelectedLayer( iinfo->nId - 1 );
+					m_pComponentView->updateView();
 				}
+				break;
 			}
-		}
-
-		if ( nNewLayer != -1 ) {
-			m_pComponentView->setSelectedLayer( nNewLayer );
-			m_pComponentView->updateView();
 		}
 	}
 	else {
 		const int nClickedLayer =
 			( pEv->position().y() - 20 ) / LayerPreview::nLayerHeight;
-		if ( nClickedLayer < nMaxLayers &&
-			 nClickedLayer >= 0 ) {
+		if ( nClickedLayer < nMaxLayers && nClickedLayer >= 0 ) {
 			m_pComponentView->setSelectedLayer( nClickedLayer );
 			m_pComponentView->updateView();
 
 			auto pLayer = pComponent->getLayer( nClickedLayer );
-			if ( pLayer != nullptr && pInstrument != nullptr ) {
+			if ( pLayer != nullptr ) {
 				// We register the current component to be rendered using a
 				// specific layer. This will cause all other components _not_ to
 				// be rendered.
 				auto pSelectedLayerInfo = std::make_shared<SelectedLayerInfo>();
 				pSelectedLayerInfo->pLayer = pLayer;
 
-				const auto pNote = std::make_shared<Note>(
-					pInstrument, nPosition, fVelocity );
+				const auto pNote =
+					std::make_shared<Note>( pInstrument, nPosition, fVelocity );
 				pNote->setSelectedLayerInfo( pSelectedLayerInfo, pComponent );
 
-				Hydrogen::get_instance()->getAudioEngine()->getSampler()->
-					noteOn( pNote );
+				Hydrogen::get_instance()
+					->getAudioEngine()
+					->getSampler()
+					->noteOn( pNote );
 
-				int x1 = (int)( pLayer->getStartVelocity() * width() );
-				int x2 = (int)( pLayer->getEndVelocity() * width() );
+				int x1 = (int) ( pLayer->getStartVelocity() * width() );
+				int x2 = (int) ( pLayer->getEndVelocity() * width() );
 
-				if ( ( pEv->position().x() < x1  + 5 ) &&
-					 ( pEv->position().x() > x1 - 5 ) ){
+				if ( ( pEv->position().x() < x1 + 5 ) &&
+					 ( pEv->position().x() > x1 - 5 ) ) {
 					setCursor( QCursor( Qt::SizeHorCursor ) );
 					m_bGrabLeft = true;
 					m_bMouseGrab = true;
-					showLayerStartVelocity(pLayer, ev);
+					showLayerStartVelocity( pLayer, ev );
 				}
 				else if ( ( pEv->position().x() < x2 + 5 ) &&
-						  ( pEv->position().x() > x2 - 5 ) ){
+						  ( pEv->position().x() > x2 - 5 ) ) {
 					setCursor( QCursor( Qt::SizeHorCursor ) );
 					m_bGrabLeft = false;
 					m_bMouseGrab = true;
-					showLayerEndVelocity(pLayer, ev);
+					showLayerEndVelocity( pLayer, ev );
 				}
 				else {
 					setCursor( QCursor( Qt::ArrowCursor ) );
