@@ -345,18 +345,53 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 		--ii;
 	}
 
-	// Ensure the selected layer is properly highlighted in the header.
+	// If there are no layers, draw an empty header
+	if ( layerInfos.size() == 0 ) {
+		p.fillRect(
+			LayerPreview::nBorder, LayerPreview::nBorder, width() - 2 * LayerPreview::nBorder,
+			LayerPreview::nHeader - LayerPreview::nBorder, headerBaseColor
+		);
+		p.setPen( pColorTheme->m_windowTextColor.darker( 145 ) );
+		p.drawRect(
+			LayerPreview::nBorder, LayerPreview::nBorder, width() - 3 * LayerPreview::nBorder,
+			LayerPreview::nHeader - 2 * LayerPreview::nBorder
+		);
+	}
+
+	// The number indicating the layer in the header should always win and be
+	// visible. That's why render them in another swipe.
+	p.setFont( QFont( pFontTheme->m_sLevel2FontFamily, getPointSizeButton() ) );
+	p.setPen( pColorTheme->m_windowTextColor );
 	for ( const auto& iinfo : layerInfos ) {
-		if ( !iinfo.bSelected ) {
+		if ( iinfo.bSelected ) {
+			continue;
+        }
+		p.drawText(
+			iinfo.nStartX, 0, iinfo.nEndX - iinfo.nStartX,
+			LayerPreview::nHeader, Qt::AlignCenter,
+			QString( "%1" ).arg( iinfo.nId )
+		);
+	}
+
+	// Ensure the selected layer is properly highlighted in the header.
+    ii = nLayers;
+	for ( auto iinfo = layerInfos.rbegin(); iinfo != layerInfos.rend();
+		  ++iinfo ) {
+		if ( !iinfo->bSelected ) {
+            --ii;
 			continue;
 		}
 
 		const int nVisibleEnd =
-			std::min( iinfo.nEndX, width() - 2 * LayerPreview::nBorder );
+			std::min( iinfo->nEndX, width() - 2 * LayerPreview::nBorder );
 		const int nVisibleStart =
-			std::max( iinfo.nStartX, LayerPreview::nBorder );
+			std::max( iinfo->nStartX, LayerPreview::nBorder );
 
 		p.setPen( highlightColor );
+        p.fillRect(
+			nVisibleStart, LayerPreview::nBorder, nVisibleEnd - nVisibleStart,
+			LayerPreview::nHeader - LayerPreview::nBorder, pickHeaderColor( ii )
+		);
 		p.drawLine(
 			nVisibleStart, LayerPreview::nBorder, nVisibleStart,
 			LayerPreview::nHeader - LayerPreview::nBorder
@@ -373,37 +408,14 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 			nVisibleEnd, LayerPreview::nBorder, nVisibleEnd,
 			LayerPreview::nHeader - LayerPreview::nBorder
 		);
-		break;
-	}
 
-	// If there are no layers, draw an empty header
-	if ( layerInfos.size() == 0 ) {
-		p.fillRect(
-			LayerPreview::nBorder, LayerPreview::nBorder, width() - 2 * LayerPreview::nBorder,
-			LayerPreview::nHeader - LayerPreview::nBorder, layerLabelColor
-		);
-		p.setPen( pColorTheme->m_windowTextColor.darker( 145 ) );
-		p.drawRect(
-			LayerPreview::nBorder, LayerPreview::nBorder, width() - 3 * LayerPreview::nBorder,
-			LayerPreview::nHeader - 2 * LayerPreview::nBorder
-		);
-	}
-
-	// The number indicating the layer in the header should always win and be
-	// visible. That's why render them in another swipe.
-	p.setFont( QFont( pFontTheme->m_sLevel2FontFamily, getPointSizeButton() ) );
-	for ( const auto& iinfo : layerInfos ) {
-		if ( iinfo.bSelected ) {
-			p.setPen( highlightColor );
-		}
-		else {
-			p.setPen( pColorTheme->m_windowTextColor );
-		}
 		p.drawText(
-			iinfo.nStartX, 0, iinfo.nEndX - iinfo.nStartX,
+			iinfo->nStartX, 0, iinfo->nEndX - iinfo->nStartX,
 			LayerPreview::nHeader, Qt::AlignCenter,
-			QString( "%1" ).arg( iinfo.nId )
+			QString( "%1" ).arg( iinfo->nId )
 		);
+
+		break;
 	}
 
 	// border
