@@ -600,7 +600,7 @@ CommonStrings::CommonStrings(){
 	m_sActionSaveCurrentDrumkit = tr( "Save current drumkit" );
 	/*: Representing adding a new component to the currently selected instrument
 	 * in the undo history and in the tooltip of the coresponding button. */
-	m_sActionAddComponent = tr( "Adding component" );
+	m_sActionAddComponent = tr( "Add component" );
 	/*: Represents duplicating a component based on the currently selected one
 	 * in the undo history and in the tooltip of the coresponding button. */
 	m_sActionDeleteComponent = tr( "Delete component" );
@@ -629,7 +629,7 @@ CommonStrings::CommonStrings(){
 	 * tooltip of the coresponding button. Both the
 	 *  name of the layer and the corresponding instrument will be appended in
 	 * the former. */
-	m_sActionDuplicateInstrumentLayer = tr( "Duplciate layer" );
+	m_sActionDuplicateInstrumentLayer = tr( "Duplicate layer" );
 	/*: Representing editing an instrument layer in the undo history and in the
 	 * tooltip of the coresponding button. Both the
 	 *  name of the layer and the corresponding instrument will be appended in

@@ -1039,11 +1039,6 @@ Please set your system&apos;s locale to UTF-8!</source>
         <translation></translation>
     </message>
     <message>
-        <source>Adding component</source>
-        <extracomment>Representing adding a new component to the currently selected instrument * in the undo history and in the tooltip of the coresponding button.</extracomment>
-        <translation></translation>
-    </message>
-    <message>
         <source>Delete component</source>
         <extracomment>Represents duplicating a component based on the currently selected one * in the undo history and in the tooltip of the coresponding button.</extracomment>
         <translation></translation>
@@ -1487,7 +1482,12 @@ Please set your system&apos;s locale to UTF-8!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Duplciate layer</source>
+        <source>Add component</source>
+        <extracomment>Representing adding a new component to the currently selected instrument * in the undo history and in the tooltip of the coresponding button.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate layer</source>
         <extracomment>Representing deleting an instrument layer in the undo history and in the * tooltip of the coresponding button. Both the * name of the layer and the corresponding instrument will be appended in * the former.</extracomment>
         <translation type="unfinished"></translation>
     </message>
