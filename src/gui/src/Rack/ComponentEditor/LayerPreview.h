@@ -63,9 +63,25 @@ class LayerPreview : public QWidget, protected WidgetWithScalableFont<6, 8, 10>,
 		int nId;
 		bool bSelected;
 
+		/** Based on this operator we will insert the overall information of
+		   each layer into a std::set in order to create the headers later on.
+		   We do so from highest to lowest velocity (#nEndX takes precedeence)
+		   and do so for each unique layer (#nStartX is taken into account but
+		   #nId is not if there are multiple layers bearing the same width and
+		   position, they will only be represented by a single header item. An
+		   exception are selected layers, so we can ensure the highlight in the
+		   header is done). */
 		bool operator<( const LayerInfo& other ) const
 		{
-			return nEndX < other.nEndX;
+			if ( nEndX != other.nEndX ) {
+				return nEndX < other.nEndX;
+			}
+			else if ( nStartX != other.nStartX ) {
+				return nStartX < other.nStartX;
+			}
+			else {
+				return bSelected;
+			}
 		}
 
 		QString toQString() const
