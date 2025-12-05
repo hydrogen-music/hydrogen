@@ -178,8 +178,6 @@ class ComponentView : public QWidget,
 		void setupSampleSelectionCombo();
 
 		WaveDisplay *m_pWaveDisplay;
-
-		void setAutoVelocity();
 };
 
 inline bool ComponentView::getIsExpanded() const {

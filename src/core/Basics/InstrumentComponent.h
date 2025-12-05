@@ -90,6 +90,10 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 
 		bool isAnyLayerSoloed() const;
 
+		/** Reset the start and end velocity of each layer to be of the same
+		 * length and non-overlapping*/
+		void setAutoVelocity();
+
 		/** Iteration */
 		std::vector<std::shared_ptr<InstrumentLayer>>::iterator begin();
 		std::vector<std::shared_ptr<InstrumentLayer>>::iterator end();

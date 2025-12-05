@@ -233,6 +233,25 @@ bool InstrumentComponent::isAnyLayerSoloed() const {
 	return false;
 }
 
+void InstrumentComponent::setAutoVelocity()
+{
+	if ( m_layers.size() == 0 ) {
+		return;
+	}
+
+	const float fVelocityRange = 1.0 / static_cast<float>( m_layers.size() );
+
+	int nLayer = 0;
+	for ( auto& ppLayer : m_layers ) {
+		if ( ppLayer != nullptr ) {
+			ppLayer->setStartVelocity( nLayer * fVelocityRange );
+			ppLayer->setEndVelocity( nLayer * fVelocityRange + fVelocityRange );
+
+			++nLayer;
+		}
+	}
+}
+
 QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;

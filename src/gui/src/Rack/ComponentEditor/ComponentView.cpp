@@ -1034,7 +1034,7 @@ void ComponentView::replaceLayer( int nLayer )
 
 	// set automatic velocity
 	if ( filename[1] == "true" ) {
-		setAutoVelocity();
+		pNewComponent->setAutoVelocity();
 	}
 
 	pHydrogen->setIsModified( true );
@@ -1312,7 +1312,7 @@ void ComponentView::addNewLayer()
 
 			// set automatic velocity
 			if ( selectedFiles[1] == "true" ) {
-				setAutoVelocity();
+				pNewComponent->setAutoVelocity();
 			}
 		}
 	}
@@ -1335,31 +1335,6 @@ void ComponentView::addNewLayer()
 		pNewInstrument, pInstrument, SE_replaceInstrumentAction::Type::AddLayer,
 		newLayersPaths.join( " " )
 	) );
-}
-
-void ComponentView::setAutoVelocity()
-{
-	if ( m_pComponent == nullptr ) {
-		return;
-	}
-
-	const int nLayers = m_pComponent->getLayers().size();
-	if ( nLayers == 0 ) {
-		ERRORLOG( "There are no layers in the selected component" );
-		return;
-	}
-
-	const float fVelocityRange = 1.0 / nLayers;
-
-	int nLayer = 0;
-	for ( auto& ppLayer : m_pComponent->getLayers() ) {
-		if ( ppLayer != nullptr ) {
-			ppLayer->setStartVelocity( nLayer * fVelocityRange );
-			ppLayer->setEndVelocity( nLayer * fVelocityRange + fVelocityRange );
-			
-			++nLayer;
-		}
-	}
 }
 
 void ComponentView::sampleSelectionChanged( int selected ) {
