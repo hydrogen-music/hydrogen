@@ -896,6 +896,8 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 			AddLayer,
 			/** The sample of one layer was replaced with a different one. */
 			ReplaceLayer,
+			/** An identical copy of the currently selected layer will be appended. */
+			DuplicateLayer,
 			/** At least one layer of one component was deleted. */
 			DeleteLayer,
 			/** At least one layer of one component was editing via the
@@ -948,6 +950,10 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 						 .arg( pCommonStrings->getActionReplaceInstrumentLayer() )
 						 .arg( pNew != nullptr ? pNew->getName() : "nullptr" )
 						 .arg( sName ) );
+			case Type::DuplicateLayer:
+				setText( QString( "%1 [%2]" )
+						 .arg( pCommonStrings->getActionDuplicateInstrumentLayer() )
+						 .arg( pNew != nullptr ? pNew->getName() : "nullptr" ) );
 			case Type::DeleteLayer:
 				setText( QString( "%1 [%2]: [%3]" )
 						 .arg( pCommonStrings->getActionDeleteInstrumentLayer() )

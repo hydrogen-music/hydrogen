@@ -328,7 +328,37 @@ ComponentView::ComponentView( QWidget* pParent,
 		pCommonStrings->getActionDuplicateInstrumentLayer(), false
 	);
 	connect( m_pDuplicateLayerAction, &QAction::triggered, [=]() {
-		loadLayerBtnClicked();
+		auto pHydrogenApp = HydrogenApp::get_instance();
+		auto pHydrogen = Hydrogen::get_instance();
+		const auto pInstrument = pHydrogen->getSelectedInstrument();
+		if ( m_pComponent == nullptr || pInstrument == nullptr ) {
+			return;
+		}
+		auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
+		if ( pLayer == nullptr ) {
+			ERRORLOG( QString( "Unable to obtain selected layer [%1]" )
+						  .arg( m_nSelectedLayer ) );
+			return;
+		}
+		auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
+		auto pNewComponent =
+			pNewInstrument->getComponent( pInstrument->index( m_pComponent ) );
+		if ( pNewComponent == nullptr ) {
+			ERRORLOG( "Hiccup while looking up component" );
+			return;
+		}
+
+		++m_nSelectedLayer;
+
+		auto pNewLayer = std::make_shared<InstrumentLayer>( pLayer );
+		pNewInstrument->addLayer(
+			pNewComponent, pNewLayer, m_nSelectedLayer, Event::Trigger::Suppress
+		);
+
+		pHydrogenApp->pushUndoCommand( new SE_replaceInstrumentAction(
+			pNewInstrument, pInstrument,
+			SE_replaceInstrumentAction::Type::DuplicateLayer, ""
+		) );
 	} );
 	m_pToolBarLayer->addAction( m_pDuplicateLayerAction );
 
@@ -1010,7 +1040,6 @@ void ComponentView::replaceLayer( int nLayer )
 	pHydrogen->setIsModified( true );
 
 	setSelectedLayer( nLayer );
-	updateView();
 
 	// The user choose to rename the instrument according to the (last) filename
 	// of the selected sample.
