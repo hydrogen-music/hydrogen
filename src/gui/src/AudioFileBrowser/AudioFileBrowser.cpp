@@ -141,15 +141,14 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect,
 	connect( pathLineEdit, SIGNAL( returnPressed() ), SLOT( updateModelIndex() ) );	
 }
 
-
-
 AudioFileBrowser::~AudioFileBrowser()
 {
 	auto pNewSample = Sample::load( m_sEmptySampleFileName );
-	H2Core::Hydrogen::get_instance()->getAudioEngine()->getSampler()->previewSample( pNewSample, 100 );
-	INFOLOG ( "DESTROY" );
+	H2Core::Hydrogen::get_instance()
+		->getAudioEngine()
+		->getSampler()
+		->previewSample( pNewSample, 100 );
 }
-
 
 bool AudioFileBrowser::isFileSupported( const QString& sFileName )
 {
