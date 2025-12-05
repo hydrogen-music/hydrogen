@@ -105,6 +105,7 @@ class ComponentView : public QWidget,
 		LayerPreview* getLayerPreview() const;
 		int getSelectedLayer() const;
 
+		void replaceLayer( int nLayer );
 		void setComponent( std::shared_ptr<H2Core::InstrumentComponent> );
 		void setSelectedLayer( int nLayer );
 

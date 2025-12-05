@@ -922,6 +922,11 @@ void ComponentView::deleteComponent() {
 		.arg( sName ) );
 }
 
+void ComponentView::replaceLayer( int nLayer )
+{
+	DEBUGLOG( nLayer );
+}
+
 void ComponentView::setComponent(
 	std::shared_ptr<H2Core::InstrumentComponent> pComponent
 )

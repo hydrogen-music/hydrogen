@@ -102,6 +102,7 @@ class LayerPreview : public QWidget, protected WidgetWithScalableFont<6, 8, 10>,
 	};
 
 	void paintEvent( QPaintEvent* ev ) override;
+	virtual void mouseDoubleClickEvent( QMouseEvent* ev ) override;
 	virtual void mousePressEvent( QMouseEvent* ev ) override;
 	virtual void mouseReleaseEvent( QMouseEvent* ev ) override;
 	virtual void mouseMoveEvent( QMouseEvent* ev ) override;

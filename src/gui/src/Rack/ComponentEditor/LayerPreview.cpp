@@ -437,6 +437,28 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 	);
 }
 
+void LayerPreview::mouseDoubleClickEvent( QMouseEvent* ev )
+{
+	const auto pComponent = m_pComponentView->getComponent();
+	if ( pComponent == nullptr ) {
+		return;
+	}
+
+	auto pEv = static_cast<MouseEvent*>( ev );
+	const auto nMaxLayers = pComponent->getLayers().size();
+
+	const int nY = pEv->position().y();
+	if ( nY <= LayerPreview::nHeader || pComponent->getLayers().size() == 0 ) {
+		return;
+	}
+
+	const int nClickedLayer = static_cast<int>( std::floor(
+		static_cast<float>( nY - LayerPreview::nHeader ) /
+		static_cast<float>( LayerPreview::nLayerHeight )
+	) );
+	m_pComponentView->replaceLayer( nClickedLayer );
+}
+
 void LayerPreview::mouseReleaseEvent( QMouseEvent* ev )
 {
 	m_bMouseGrab = false;
