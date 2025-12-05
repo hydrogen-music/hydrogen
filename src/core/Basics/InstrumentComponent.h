@@ -124,12 +124,18 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 			int nIndex,
 			Event::Trigger trigger
 		);
+		friend void Instrument::removeLayer(
+			std::shared_ptr<InstrumentComponent> pComponent,
+			int nIndex,
+			Event::Trigger trigger
+		);
 
 	   private:
 		/** An @a nIndex of -1 will cause the method to append the new layer at
 		   the end.*/
 		void addLayer( std::shared_ptr<InstrumentLayer> pLayer, int nIndex );
 		void setLayer( std::shared_ptr<InstrumentLayer> pLayer, int nIndex );
+		void removeLayer( int nIndex );
 
 		QString 			m_sName;
 		float				m_fGain;

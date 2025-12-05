@@ -304,6 +304,11 @@ class Instrument : public H2Core::Object<Instrument>
 			int nIndex,
 			Event::Trigger trigger
 		);
+		void removeLayer(
+			std::shared_ptr<InstrumentComponent> pComponent,
+			int nIndex,
+			Event::Trigger trigger
+		);
 		/** Whether the instrument contains at least one non-missing
 		 * sample */
 		bool hasSamples() const;

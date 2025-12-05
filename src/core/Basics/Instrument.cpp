@@ -680,9 +680,7 @@ void Instrument::setLayer(
 	Event::Trigger trigger
 )
 {
-	if ( pComponent == nullptr ) {
-		// The provided layer is allowed to be nullptr. This will be used to
-		// remove it from the component.
+	if ( pComponent == nullptr || pLayer == nullptr ) {
 		ERRORLOG( "Invalid input" );
 		return;
 	}
@@ -690,6 +688,26 @@ void Instrument::setLayer(
 	for ( auto& ppComponent : *m_pComponents ) {
 		if ( pComponent == ppComponent ) {
 			ppComponent->setLayer( pLayer, nIndex );
+		}
+	}
+
+	checkForMissingSamples( trigger );
+}
+
+void Instrument::removeLayer(
+	std::shared_ptr<InstrumentComponent> pComponent,
+	int nIndex,
+	Event::Trigger trigger
+)
+{
+	if ( pComponent == nullptr ) {
+		ERRORLOG( "Invalid input" );
+		return;
+	}
+
+	for ( auto& ppComponent : *m_pComponents ) {
+		if ( pComponent == ppComponent ) {
+			ppComponent->removeLayer( nIndex );
 		}
 	}
 

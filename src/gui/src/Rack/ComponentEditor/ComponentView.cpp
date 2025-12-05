@@ -1067,11 +1067,13 @@ void ComponentView::setComponent(
 {
 	if ( m_pComponent != pComponent ) {
 		m_pComponent = pComponent;
-		m_nSelectedLayer = std::clamp(
-			m_nSelectedLayer, 0,
-			static_cast<int>( pComponent->getLayers().size() )
-		);
 	}
+	m_nSelectedLayer = std::clamp(
+		m_nSelectedLayer, 0,
+		static_cast<int>(
+			m_pComponent != nullptr ? m_pComponent->getLayers().size() - 1 : 0
+		)
+	);
 
 	m_pLayerPreview->updatePreview();
 
@@ -1219,26 +1221,14 @@ void ComponentView::removeLayerButtonClicked() {
 	const QString sLayerName = pLayer->getSample() != nullptr ?
 		pLayer->getSample()->getFileName() : "nullptr";
 
-	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-
-	pNewInstrument->setLayer(
-		pNewComponent, nullptr, m_nSelectedLayer, Event::Trigger::Default
+	pNewInstrument->removeLayer(
+		pNewComponent, m_nSelectedLayer, Event::Trigger::Default
 	);
 
-	pHydrogen->getAudioEngine()->unlock();
-
-	pHydrogen->setIsModified( true );
-
-	if ( m_nSelectedLayer >= m_pComponent->getLayers().size() ) {
-		setSelectedLayer( m_pComponent->getLayers().size() - 1 );
-	}
-	updateView();
-
-	pHydrogenApp->pushUndoCommand(
-		new SE_replaceInstrumentAction(
-			pNewInstrument, pInstrument,
-			SE_replaceInstrumentAction::Type::DeleteLayer, sLayerName ) );
+	pHydrogenApp->pushUndoCommand( new SE_replaceInstrumentAction(
+		pNewInstrument, pInstrument,
+		SE_replaceInstrumentAction::Type::DeleteLayer, sLayerName
+	) );
 }
 
 void ComponentView::loadLayerBtnClicked()

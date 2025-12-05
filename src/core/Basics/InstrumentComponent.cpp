@@ -101,6 +101,17 @@ void InstrumentComponent::setLayer( std::shared_ptr<InstrumentLayer> pLayer, int
 	m_layers[ nIndex ] = pLayer;
 }
 
+void InstrumentComponent::removeLayer( int nIndex )
+{
+	if ( nIndex < 0 || nIndex >= m_layers.size() ) {
+		ERRORLOG( QString( "Index [%1] out of bound [0,%2]" )
+					  .arg( nIndex )
+					  .arg( m_layers.size() ) );
+	  return;
+	}
+	m_layers.erase( std::next( m_layers.begin(), nIndex ) );
+}
+
 std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 	const XMLNode& node,
 	const QString& sDrumkitPath,
