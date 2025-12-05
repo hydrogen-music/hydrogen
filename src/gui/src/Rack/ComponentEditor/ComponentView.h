@@ -117,7 +117,7 @@ class ComponentView : public QWidget,
 
 	private slots:
 		void deleteComponent();
-		void loadLayerBtnClicked();
+		void addNewLayer();
 		void removeLayerButtonClicked();
 		void sampleSelectionChanged( int );
 		void waveDisplayDoubleClicked( QWidget *pRef );
