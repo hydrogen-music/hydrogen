@@ -894,6 +894,8 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 			RenameInstrument,
 			/** At least one layer of one component was added. */
 			AddLayer,
+			/** The sample of one layer was replaced with a different one. */
+			ReplaceLayer,
 			/** At least one layer of one component was deleted. */
 			DeleteLayer,
 			/** At least one layer of one component was editing via the
@@ -939,6 +941,11 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 			case Type::AddLayer:
 				setText( QString( "%1 [%2]: [%3]" )
 						 .arg( pCommonStrings->getActionAddInstrumentLayer() )
+						 .arg( pNew != nullptr ? pNew->getName() : "nullptr" )
+						 .arg( sName ) );
+			case Type::ReplaceLayer:
+				setText( QString( "%1 [%2]: [%3]" )
+						 .arg( pCommonStrings->getActionReplaceInstrumentLayer() )
 						 .arg( pNew != nullptr ? pNew->getName() : "nullptr" )
 						 .arg( sName ) );
 			case Type::DeleteLayer:

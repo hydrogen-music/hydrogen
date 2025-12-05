@@ -320,7 +320,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pReplaceLayerAction =
 		createAction( pCommonStrings->getActionAddInstrumentLayer(), false );
 	connect( m_pReplaceLayerAction, &QAction::triggered, [=]() {
-		loadLayerBtnClicked();
+		replaceLayer( m_nSelectedLayer );
 	} );
 	m_pToolBarLayer->addAction( m_pReplaceLayerAction );
 
@@ -924,7 +924,112 @@ void ComponentView::deleteComponent() {
 
 void ComponentView::replaceLayer( int nLayer )
 {
-	DEBUGLOG( nLayer );
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
+	const auto pInstrument = pHydrogen->getSelectedInstrument();
+	if ( m_pComponent == nullptr || pInstrument == nullptr ) {
+		return;
+	}
+	auto pLayer = m_pComponent->getLayer( nLayer );
+	if ( pLayer == nullptr ) {
+		ERRORLOG( QString( "Unable to obtain layer [%1]" ).arg( nLayer ) );
+		return;
+	}
+
+	QString sSamplePath;
+	auto pSample = pLayer->getSample();
+	if ( pSample != nullptr && !pSample->getFilePath().isEmpty() ) {
+		sSamplePath = pSample->getFilePath();
+	}
+	else {
+		sSamplePath = pLayer->getFallbackSampleFileName();
+	}
+
+	QFileInfo fileInfo( pSample->getFilePath() );
+	const auto sDir = fileInfo.absoluteDir().absolutePath();
+	const auto sFileName = fileInfo.absoluteFilePath();
+
+	auto pFileBrowser =
+		new AudioFileBrowser( nullptr, false, true, sDir, sFileName );
+	// The first two elements of this list will indicate whether the user has
+	// checked the additional options.
+	QStringList filename;
+	filename << "false" << "false" << "";
+
+	if ( pFileBrowser->exec() == QDialog::Accepted ) {
+		filename = pFileBrowser->getSelectedFiles();
+
+		if ( sDir != pFileBrowser->getSelectedDirectory() ) {
+			Preferences::get_instance()->setLastOpenLayerDirectory(
+				pFileBrowser->getSelectedDirectory()
+			);
+		}
+	}
+
+	delete pFileBrowser;
+
+	if ( filename.size() < 3 || filename[2].isEmpty() ) {
+		return;
+	}
+
+	const bool bRenameInstrument = filename[0] == "true";
+	QString sNewInstrumentName;
+
+	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
+	auto pNewComponent =
+		pNewInstrument->getComponent( pInstrument->index( m_pComponent ) );
+	if ( pNewComponent == nullptr ) {
+		ERRORLOG( "Hiccup while looking up component" );
+		return;
+	}
+
+	const QString sNewFilePath = filename[2];
+	auto pNewSample = Sample::load( sNewFilePath );
+	auto pNewLayer = pNewComponent->getLayer( nLayer );
+	if ( pNewLayer == nullptr ) {
+		ERRORLOG( QString( "Unable to obtain new layer [%1]" ).arg( nLayer ) );
+		return;
+	}
+
+	pNewInstrument->setSample(
+		pNewComponent, pNewLayer, pNewSample, Event::Trigger::Default
+	);
+
+	if ( bRenameInstrument ) {
+		sNewInstrumentName = sNewFilePath.section( '/', -1 );
+		sNewInstrumentName.replace(
+			"." + sNewInstrumentName.section( '.', -1 ), ""
+		);
+	}
+
+	// set automatic velocity
+	if ( filename[1] == "true" ) {
+		setAutoVelocity();
+	}
+
+	pHydrogen->setIsModified( true );
+
+	setSelectedLayer( nLayer );
+	updateView();
+
+	// The user choose to rename the instrument according to the (last) filename
+	// of the selected sample.
+	if ( bRenameInstrument && !sNewInstrumentName.isEmpty() ) {
+		pNewInstrument->setName( sNewInstrumentName );
+
+		pHydrogenApp->showStatusBarMessage(
+			QString( "%1 [%2] -> [%3]" )
+				.arg( pHydrogenApp->getCommonStrings()
+						  ->getActionRenameInstrument() )
+				.arg( pInstrument->getName() )
+				.arg( sNewInstrumentName )
+		);
+	}
+
+	pHydrogenApp->pushUndoCommand( new SE_replaceInstrumentAction(
+		pNewInstrument, pInstrument,
+		SE_replaceInstrumentAction::Type::ReplaceLayer, sNewFilePath
+	) );
 }
 
 void ComponentView::setComponent(
