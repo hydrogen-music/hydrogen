@@ -265,6 +265,28 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 		drawLayer( "< - >", info, nullptr, nullptr );
 	}
 
+	if ( m_layerInfos.size() == 0 ) {
+	  // If there are no layers, draw an empty header
+		p.fillRect(
+			LayerPreview::nBorder, LayerPreview::nBorder, width() - 2 * LayerPreview::nBorder,
+			LayerPreview::nHeader - LayerPreview::nBorder, headerBaseColor
+		);
+		p.setPen( pColorTheme->m_windowTextColor.darker( 145 ) );
+		p.drawRect(
+			LayerPreview::nBorder, LayerPreview::nBorder, width() - 3 * LayerPreview::nBorder,
+			LayerPreview::nHeader - 2 * LayerPreview::nBorder
+		);
+	}
+	else {
+	  // We initialize the header with a strong and eye catching color in order
+	  // to help the user detect holes between layers.
+		p.fillRect(
+			LayerPreview::nBorder, LayerPreview::nBorder, width() - 2 * LayerPreview::nBorder,
+			LayerPreview::nHeader - LayerPreview::nBorder, missingLayerColor
+		);
+
+	}
+
 	// We render the header after our first swipe over all layers in order to
 	// get the overlaps right.
 	int nCurrentEnd = width() - 2 * LayerPreview::nBorder;
@@ -343,19 +365,6 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 
 		nCurrentEnd = nVisibleStart;
 		--ii;
-	}
-
-	// If there are no layers, draw an empty header
-	if ( m_layerInfos.size() == 0 ) {
-		p.fillRect(
-			LayerPreview::nBorder, LayerPreview::nBorder, width() - 2 * LayerPreview::nBorder,
-			LayerPreview::nHeader - LayerPreview::nBorder, headerBaseColor
-		);
-		p.setPen( pColorTheme->m_windowTextColor.darker( 145 ) );
-		p.drawRect(
-			LayerPreview::nBorder, LayerPreview::nBorder, width() - 3 * LayerPreview::nBorder,
-			LayerPreview::nHeader - 2 * LayerPreview::nBorder
-		);
 	}
 
 	// The number indicating the layer in the header should always win and be
