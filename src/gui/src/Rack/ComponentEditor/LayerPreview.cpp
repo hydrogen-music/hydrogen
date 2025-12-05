@@ -228,7 +228,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 			const int x2 = (int) ( ppLayer->getEndVelocity() * width() );
 
 			LayerInfo info{
-				x1, x2, nCurrentY, nCount, nCount == nSelectedLayer
+				x1, x2, nCurrentY, nCount, nCount == ( nSelectedLayer + 1 )
 			};
 			layerInfos.insert( info );
 
