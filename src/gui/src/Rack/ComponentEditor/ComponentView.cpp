@@ -61,6 +61,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
     auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pCommonStrings = pHydrogenApp->getCommonStrings();
+	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 
 	setObjectName( "ComponentProperties" );
 
@@ -236,6 +237,10 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	m_pDeleteComponentAction =
 		createAction( pCommonStrings->getActionDeleteComponent(), false );
+	m_pDeleteComponentAction->setEnabled(
+		pInstrument != nullptr ? pInstrument->getComponents()->size() > 1
+							   : false
+	);
 	connect( m_pDeleteComponentAction, &QAction::triggered, [=]() {
 		deleteComponent();
 	} );
