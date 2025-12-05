@@ -136,12 +136,12 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 		nLayers = pComponent->getLayers().size();
 	}
 
-	// How much the color of the labels for the individual layers
-	// are allowed to diverge from the general window color.
-	int nColorScalingWidth = 90;
-	int nColorScaling = 100;
-
-	QColor layerLabelColor, highlightColor;
+    // Base color used for the header segment corresponding to an individual
+    // layer. It will be used for the middle section. The further left, the
+    // lighter the other segments will be (derived from this color) and the
+    // further right, the darker.
+    const QColor headerBaseColor = pColorTheme->m_windowColor;
+	QColor highlightColor;
 	QLinearGradient segmentGradient;
 	if ( pComponent != nullptr ) {
 		highlightColor = pColorTheme->m_highlightColor;
@@ -150,6 +150,24 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 		highlightColor = pColorTheme->m_lightColor;
 	}
 	const QColor missingLayerColor = pColorTheme->m_buttonRedColor;
+
+	auto pickHeaderColor = [&]( int nLayer ) {
+		if ( nLayers <= 1 ) {
+			return headerBaseColor;
+		}
+		// How much the color of the labels for the individual layers are
+		// allowed to diverge from the base color.
+		const int nColorScalingWidth = 90;
+        // 100 is the base value for Qt indicating that nothing should change.
+		const int nColorScaling = 100 - nColorScalingWidth / 2 +
+								  static_cast<int>( std::round(
+									  static_cast<float>( nLayers - nLayer ) /
+									  static_cast<float>( nLayers - 1 ) *
+									  static_cast<float>( nColorScalingWidth )
+								  ) );
+
+		return headerBaseColor.lighter( nColorScaling );
+	};
 
 	auto drawLayer = [&]( const QString& sLabel, const LayerInfo& info,
 						  QLinearGradient* pGradient, const QColor* pColor ) {
@@ -250,13 +268,13 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 	// We render the header after our first swipe over all layers in order to
 	// get the overlaps right.
 	int nCurrentEnd = width() - 2 * LayerPreview::nBorder;
-	int ii = 0;
+	int ii = nLayers;
 	for ( auto iinfo = layerInfos.rbegin(); iinfo != layerInfos.rend();
 		  ++iinfo ) {
 		if ( iinfo->nStartX > nCurrentEnd ) {
 			// The borders of this layer were already drawn. Probably it was
 			// covered by another one.
-			++ii;
+			--ii;
 			continue;
 		}
 
@@ -264,15 +282,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 		const int nVisibleStart =
 			std::max( iinfo->nStartX, LayerPreview::nBorder );
 
-		// Labels for layers to the left will have a
-		// lighter color as those to the right.
-		nColorScaling =
-			static_cast<int>( std::round(
-				static_cast<float>( ii ) / static_cast<float>( nLayers ) * 2 *
-				static_cast<float>( nColorScalingWidth )
-			) ) -
-			nColorScalingWidth + 100;
-		layerLabelColor = pColorTheme->m_windowColor.lighter( nColorScaling );
+		const auto layerLabelColor = pickHeaderColor( ii );
 
 		p.fillRect(
 			iinfo->nStartX, 0, nVisibleEnd - nVisibleStart,
@@ -332,7 +342,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 		}
 
 		nCurrentEnd = nVisibleStart;
-		++ii;
+		--ii;
 	}
 
 	// Ensure the selected layer is properly highlighted in the header.
