@@ -107,6 +107,11 @@ class ComponentView : public QWidget,
 
 		void replaceLayer( int nLayer );
 		void setComponent( std::shared_ptr<H2Core::InstrumentComponent> );
+		void setLayers(
+			QStringList filePaths,
+			bool bRenameInstrument,
+			bool bAutoVelocity
+		);
 		void setSelectedLayer( int nLayer );
 
 	public slots:

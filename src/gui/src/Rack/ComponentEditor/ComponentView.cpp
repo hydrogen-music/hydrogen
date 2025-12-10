@@ -1092,6 +1092,80 @@ void ComponentView::setComponent(
 	);
 }
 
+void ComponentView::setLayers(
+	QStringList filePaths,
+	bool bRenameInstrument,
+	bool bAutoVelocity
+)
+{
+	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	QString sNewInstrumentName;
+
+	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
+	auto pNewComponent =
+		pNewInstrument->getComponent( pInstrument->index( m_pComponent ) );
+	if ( pNewComponent == nullptr ) {
+		ERRORLOG( "Hiccup while looking up component" );
+		return;
+	}
+
+	if ( filePaths.size() == 0 ) {
+		ERRORLOG( "No paths supplied" );
+		return;
+	}
+
+	QStringList newLayersPaths;
+	for ( const auto& ssPath : filePaths ) {
+		auto pNewSample = Sample::load( ssPath );
+		if ( pNewSample == nullptr ) {
+			ERRORLOG( QString( "Failed to load [%1]" ).arg( ssPath ) );
+			continue;
+		}
+		newLayersPaths << ssPath;
+
+		++m_nSelectedLayer;
+
+		const auto pNewLayer =
+			std::make_shared<H2Core::InstrumentLayer>( pNewSample );
+
+		pNewInstrument->addLayer(
+			pNewComponent, pNewLayer, m_nSelectedLayer, Event::Trigger::Default
+		);
+
+		if ( bRenameInstrument ) {
+			sNewInstrumentName = ssPath.section( '/', -1 );
+			sNewInstrumentName.replace(
+				"." + sNewInstrumentName.section( '.', -1 ), ""
+			);
+		}
+
+		// set automatic velocity
+		if ( bAutoVelocity ) {
+			pNewComponent->setAutoVelocity();
+		}
+	}
+
+    auto pHydrogenApp = HydrogenApp::get_instance();
+	// The user choose to rename the instrument according to the (last) filename
+	// of the selected sample.
+	if ( bRenameInstrument && !sNewInstrumentName.isEmpty() ) {
+		pNewInstrument->setName( sNewInstrumentName );
+
+		pHydrogenApp->showStatusBarMessage(
+			QString( "%1 [%2] -> [%3]" )
+				.arg( pHydrogenApp->getCommonStrings()
+						  ->getActionRenameInstrument() )
+				.arg( pInstrument->getName() )
+				.arg( sNewInstrumentName )
+		);
+	}
+
+	pHydrogenApp->pushUndoCommand( new SE_replaceInstrumentAction(
+		pNewInstrument, pInstrument, SE_replaceInstrumentAction::Type::AddLayer,
+		newLayersPaths.join( " " )
+	) );
+}
+
 void ComponentView::updateActivation() {
 	if ( m_pComponent != nullptr ) {
 		m_pComponentMuteBtn->setIsActive( true );
@@ -1274,72 +1348,14 @@ void ComponentView::addNewLayer()
 		return;
 	}
 
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
-	const bool bRenameInstrument = selectedFiles[0] == "true";
-	QString sNewInstrumentName;
+	QStringList filePaths( selectedFiles );
 
-	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
-	auto pNewComponent =
-		pNewInstrument->getComponent( pInstrument->index( m_pComponent ) );
-	if ( pNewComponent == nullptr ) {
-		ERRORLOG( "Hiccup while looking up component" );
-		return;
-	}
+	filePaths.removeFirst();
+	filePaths.removeFirst();
 
-	QStringList newLayersPaths;
-	if ( selectedFiles.size() > 2 ) {
-		for ( int ii = 2; ii < selectedFiles.size(); ++ii ) {
-			auto pNewSample = Sample::load( selectedFiles[ii] );
-			if ( pNewSample == nullptr ) {
-				ERRORLOG(
-					QString( "Failed to load [%1]" ).arg( selectedFiles[ii] )
-				);
-				continue;
-			}
-			newLayersPaths << selectedFiles[ii];
-
-			++m_nSelectedLayer;
-
-			const auto pNewLayer =
-				std::make_shared<H2Core::InstrumentLayer>( pNewSample );
-
-			pNewInstrument->addLayer(
-				pNewComponent, pNewLayer, m_nSelectedLayer,
-				Event::Trigger::Default
-			);
-
-			if ( bRenameInstrument ) {
-				sNewInstrumentName = selectedFiles[ii].section( '/', -1 );
-				sNewInstrumentName.replace(
-					"." + sNewInstrumentName.section( '.', -1 ), ""
-				);
-			}
-
-			// set automatic velocity
-			if ( selectedFiles[1] == "true" ) {
-				pNewComponent->setAutoVelocity();
-			}
-		}
-	}
-
-	// The user choose to rename the instrument according to the (last) filename
-	// of the selected sample.
-	if ( bRenameInstrument && !sNewInstrumentName.isEmpty() ) {
-		pNewInstrument->setName( sNewInstrumentName );
-
-		pHydrogenApp->showStatusBarMessage(
-			QString( "%1 [%2] -> [%3]" )
-				.arg( pHydrogenApp->getCommonStrings()
-						  ->getActionRenameInstrument() )
-				.arg( pInstrument->getName() )
-				.arg( sNewInstrumentName )
-		);
-	}
-
-	pHydrogenApp->pushUndoCommand( new SE_replaceInstrumentAction(
-		pNewInstrument, pInstrument, SE_replaceInstrumentAction::Type::AddLayer,
-		newLayersPaths.join( " " )
-	) );
+	setLayers(
+		filePaths, selectedFiles[0] == "true", selectedFiles[1] == "true"
+	);
 }
 
 void ComponentView::sampleSelectionChanged( int selected ) {
