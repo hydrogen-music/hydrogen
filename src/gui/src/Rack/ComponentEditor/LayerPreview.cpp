@@ -40,6 +40,7 @@
 #include "ComponentView.h"
 #include "WaveDisplay.h"
 #include "../Rack.h"
+#include "../../Compatibility/DropEvent.h"
 #include "../../Compatibility/MouseEvent.h"
 #include "../../HydrogenApp.h"
 #include "../../Skin.h"
@@ -52,7 +53,8 @@ LayerPreview::LayerPreview( ComponentView* pComponentView )
  , m_bMouseGrab( false )
  , m_bGrabLeft( false )
 {
-	setAttribute(Qt::WA_OpaquePaintEvent);
+	setAcceptDrops( true );
+	setAttribute( Qt::WA_OpaquePaintEvent );
 
 	setMouseTracking( true );
 
@@ -95,6 +97,58 @@ void LayerPreview::updatePreview()
 	);
 
 	update();
+}
+
+void LayerPreview::dragEnterEvent( QDragEnterEvent* event )
+{
+	if ( event->mimeData()->hasFormat( "text/uri-list" ) ) {
+	 	event->acceptProposedAction();
+    }
+}
+
+void LayerPreview::dragMoveEvent( QDragMoveEvent* event )
+{
+	event->accept();
+}
+
+void LayerPreview::dropEvent( QDropEvent* event )
+{
+    auto pEv = static_cast<DropEvent*>( event );
+
+	const QMimeData* mimeData = pEv->mimeData();
+	QString sText = pEv->mimeData()->text();
+
+	if ( mimeData->hasUrls() ) {
+		QList<QUrl> urlList = mimeData->urls();
+
+        QStringList filePaths;
+		for ( const auto& uurl : urlList ) {
+			const auto sPath = uurl.toLocalFile();
+			if ( !sPath.isEmpty() ) {
+                filePaths << sPath;
+			}
+		}
+
+		if ( filePaths.size() > 0 ) {
+            // Ensure we insert the layers at the right spot by moving the
+            // selected layer to the drop point.
+			int nLayer;
+			if ( pEv->position().y() < LayerPreview::nHeader ) {
+				nLayer = 0;
+			}
+			else {
+				nLayer = static_cast<int>( std::floor(
+					static_cast<float>(
+						pEv->position().y() - LayerPreview::nHeader
+					) /
+					static_cast<float>( LayerPreview::nLayerHeight )
+				) );
+			}
+            m_pComponentView->setSelectedLayer( nLayer );
+
+			m_pComponentView->setLayers( filePaths, false, false );
+		}
+	}
 }
 
 void LayerPreview::paintEvent( QPaintEvent* ev )
