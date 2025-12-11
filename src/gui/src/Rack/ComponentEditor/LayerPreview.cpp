@@ -519,7 +519,7 @@ void LayerPreview::mouseDoubleClickEvent( QMouseEvent* ev )
 		static_cast<float>( nY - LayerPreview::nHeader ) /
 		static_cast<float>( LayerPreview::nLayerHeight )
 	) );
-	m_pComponentView->replaceLayer( nClickedLayer );
+	m_pComponentView->replaceLayer( nClickedLayer, "" );
 }
 
 void LayerPreview::mouseReleaseEvent( QMouseEvent* ev )

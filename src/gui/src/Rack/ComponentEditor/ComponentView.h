@@ -105,7 +105,9 @@ class ComponentView : public QWidget,
 		LayerPreview* getLayerPreview() const;
 		int getSelectedLayer() const;
 
-		void replaceLayer( int nLayer );
+        /** In case @a sInputSamplePath is empty, an #AudioFileBrowser instance
+         * will be opened to let the user choose a new file. */
+		void replaceLayer( int nLayer, const QString& sInputSamplePath );
 		void setComponent( std::shared_ptr<H2Core::InstrumentComponent> );
 		void setLayers(
 			QStringList filePaths,

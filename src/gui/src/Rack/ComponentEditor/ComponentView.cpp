@@ -325,7 +325,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pReplaceLayerAction =
 		createAction( pCommonStrings->getActionReplaceInstrumentLayer(), false );
 	connect( m_pReplaceLayerAction, &QAction::triggered, [=]() {
-		replaceLayer( m_nSelectedLayer );
+		replaceLayer( m_nSelectedLayer, "" );
 	} );
 	m_pToolBarLayer->addAction( m_pReplaceLayerAction );
 
@@ -957,7 +957,7 @@ void ComponentView::deleteComponent() {
 		.arg( sName ) );
 }
 
-void ComponentView::replaceLayer( int nLayer )
+void ComponentView::replaceLayer( int nLayer, const QString& sInputSamplePath )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
@@ -971,44 +971,57 @@ void ComponentView::replaceLayer( int nLayer )
 		return;
 	}
 
-	QString sSamplePath;
-	auto pSample = pLayer->getSample();
-	if ( pSample != nullptr && !pSample->getFilePath().isEmpty() ) {
-		sSamplePath = pSample->getFilePath();
-	}
-	else {
-		sSamplePath = pLayer->getFallbackSampleFileName();
-	}
-
-	QFileInfo fileInfo( pSample->getFilePath() );
-	const auto sDir = fileInfo.absoluteDir().absolutePath();
-	const auto sFileName = fileInfo.absoluteFilePath();
-
-	auto pFileBrowser =
-		new AudioFileBrowser( nullptr, false, true, sDir, sFileName );
-	// The first two elements of this list will indicate whether the user has
-	// checked the additional options.
-	QStringList filename;
-	filename << "false" << "false" << "";
-
-	if ( pFileBrowser->exec() == QDialog::Accepted ) {
-		filename = pFileBrowser->getSelectedFiles();
-
-		if ( sDir != pFileBrowser->getSelectedDirectory() ) {
-			Preferences::get_instance()->setLastOpenLayerDirectory(
-				pFileBrowser->getSelectedDirectory()
-			);
-		}
-	}
-
-	delete pFileBrowser;
-
-	if ( filename.size() < 3 || filename[2].isEmpty() ) {
+	if ( !sInputSamplePath.isEmpty() &&
+		 !Filesystem::file_exists( sInputSamplePath ) ) {
+		ERRORLOG( QString( "Invalid input file [%1]" ).arg( sInputSamplePath )
+		);
 		return;
 	}
 
-	const bool bRenameInstrument = filename[0] == "true";
-	QString sNewInstrumentName;
+	bool bAutoVelocity = false;
+	bool bRenameInstrument = false;
+    QString sNewSamplePath( sInputSamplePath );
+    if ( sNewSamplePath.isEmpty() ) {
+		QString sSamplePath;
+		auto pSample = pLayer->getSample();
+		if ( pSample != nullptr && !pSample->getFilePath().isEmpty() ) {
+			sSamplePath = pSample->getFilePath();
+		}
+		else {
+			sSamplePath = pLayer->getFallbackSampleFileName();
+		}
+
+		QFileInfo fileInfo( pSample->getFilePath() );
+		const auto sDir = fileInfo.absoluteDir().absolutePath();
+		const auto sFileName = fileInfo.absoluteFilePath();
+
+		auto pFileBrowser =
+			new AudioFileBrowser( nullptr, false, true, sDir, sFileName );
+		// The first two elements of this list will indicate whether the user
+		// has checked the additional options.
+		QStringList filename;
+		filename << "false" << "false" << "";
+
+		if ( pFileBrowser->exec() == QDialog::Accepted ) {
+			filename = pFileBrowser->getSelectedFiles();
+
+			if ( sDir != pFileBrowser->getSelectedDirectory() ) {
+				Preferences::get_instance()->setLastOpenLayerDirectory(
+					pFileBrowser->getSelectedDirectory()
+				);
+			}
+		}
+
+		delete pFileBrowser;
+
+		if ( filename.size() < 3 || filename[2].isEmpty() ) {
+			return;
+		}
+
+		bRenameInstrument = filename[0] == "true";
+		bAutoVelocity = filename[1] == "true";
+		sNewSamplePath = filename[2];
+	}
 
 	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
 	auto pNewComponent =
@@ -1018,8 +1031,7 @@ void ComponentView::replaceLayer( int nLayer )
 		return;
 	}
 
-	const QString sNewFilePath = filename[2];
-	auto pNewSample = Sample::load( sNewFilePath );
+	auto pNewSample = Sample::load( sNewSamplePath );
 	auto pNewLayer = pNewComponent->getLayer( nLayer );
 	if ( pNewLayer == nullptr ) {
 		ERRORLOG( QString( "Unable to obtain new layer [%1]" ).arg( nLayer ) );
@@ -1030,15 +1042,16 @@ void ComponentView::replaceLayer( int nLayer )
 		pNewComponent, pNewLayer, pNewSample, Event::Trigger::Default
 	);
 
+    QString sNewInstrumentName;
 	if ( bRenameInstrument ) {
-		sNewInstrumentName = sNewFilePath.section( '/', -1 );
+		sNewInstrumentName = sNewSamplePath.section( '/', -1 );
 		sNewInstrumentName.replace(
 			"." + sNewInstrumentName.section( '.', -1 ), ""
 		);
 	}
 
 	// set automatic velocity
-	if ( filename[1] == "true" ) {
+	if ( bAutoVelocity ) {
 		pNewComponent->setAutoVelocity();
 	}
 
@@ -1062,7 +1075,7 @@ void ComponentView::replaceLayer( int nLayer )
 
 	pHydrogenApp->pushUndoCommand( new SE_replaceInstrumentAction(
 		pNewInstrument, pInstrument,
-		SE_replaceInstrumentAction::Type::ReplaceLayer, sNewFilePath
+		SE_replaceInstrumentAction::Type::ReplaceLayer, sNewSamplePath
 	) );
 }
 
