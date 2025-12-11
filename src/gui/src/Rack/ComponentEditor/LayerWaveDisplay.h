@@ -29,21 +29,25 @@
 #include <core/Object.h>
 #include "../../Widgets/WaveDisplay.h"
 
-namespace H2Core
-{
-	class InstrumentLayer;
-}
+class ComponentView;
 
 /** \ingroup docGUI*/
 class LayerWaveDisplay : public WaveDisplay,
 						 public H2Core::Object<LayerWaveDisplay>
 {
-    H2_OBJECT(LayerWaveDisplay)
+	H2_OBJECT( LayerWaveDisplay )
 	Q_OBJECT
 
-	public:
-		explicit LayerWaveDisplay(QWidget* pParent);
-		~LayerWaveDisplay();
+   public:
+	explicit LayerWaveDisplay( ComponentView* pComponentView );
+	~LayerWaveDisplay();
+
+	void dragMoveEvent( QDragMoveEvent* event ) override;
+	void dragEnterEvent( QDragEnterEvent* event ) override;
+	void dropEvent( QDropEvent* event ) override;
+
+   private:
+	ComponentView* m_pComponentView;
 };
 
 #endif

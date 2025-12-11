@@ -22,12 +22,57 @@
 
 #include "LayerWaveDisplay.h"
 
+#include "ComponentView.h"
+#include "../../Compatibility/DropEvent.h"
+
 using namespace H2Core;
 
-LayerWaveDisplay::LayerWaveDisplay( QWidget* pParent ) : WaveDisplay( pParent )
+LayerWaveDisplay::LayerWaveDisplay( ComponentView* pComponentView )
+	: WaveDisplay( pComponentView ),
+	  m_pComponentView( pComponentView )
 {
+	setAcceptDrops( true );
 }
 
 LayerWaveDisplay::~LayerWaveDisplay()
 {
+}
+
+void LayerWaveDisplay::dragEnterEvent( QDragEnterEvent* event )
+{
+	if ( event->mimeData()->hasFormat( "text/uri-list" ) ) {
+	 	event->acceptProposedAction();
+    }
+}
+
+void LayerWaveDisplay::dragMoveEvent( QDragMoveEvent* event )
+{
+	event->accept();
+}
+
+void LayerWaveDisplay::dropEvent( QDropEvent* event )
+{
+    auto pEv = static_cast<DropEvent*>( event );
+
+	const QMimeData* mimeData = pEv->mimeData();
+	QString sText = pEv->mimeData()->text();
+
+	if ( mimeData->hasUrls() ) {
+		QList<QUrl> urlList = mimeData->urls();
+
+        QStringList filePaths;
+		for ( const auto& uurl : urlList ) {
+			const auto sPath = uurl.toLocalFile();
+			if ( !sPath.isEmpty() ) {
+                filePaths << sPath;
+			}
+		}
+
+		if ( filePaths.size() > 0 ) {
+            // We only apply the first valid path provided.
+			m_pComponentView->replaceLayer(
+				m_pComponentView->getSelectedLayer(), filePaths.front()
+			);
+		}
+	}
 }

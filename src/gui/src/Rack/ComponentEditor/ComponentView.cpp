@@ -483,7 +483,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	// Waveform display
 
-	m_pLayerWaveDisplay = new LayerWaveDisplay( m_pLayerWidget );
+	m_pLayerWaveDisplay = new LayerWaveDisplay( this );
 	m_pLayerWaveDisplay->setMinimumSize(
 		ComponentView::nWidth - ComponentView::nMargin * 2,
 		ComponentView::nWaveDisplayHeight );
