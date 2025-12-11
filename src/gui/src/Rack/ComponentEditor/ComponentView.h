@@ -44,7 +44,7 @@ class ClickableLabel;
 class InlineEdit;
 class LCDCombo;
 class LCDDisplay;
-class WaveDisplay;
+class LayerWaveDisplay;
 
 /** Editor for all layers and settings contained in one
  * #H2Core::InstrumentComponent.
@@ -184,7 +184,7 @@ class ComponentView : public QWidget,
 		ClickableLabel* m_pSampleSelectionLbl;
 		void setupSampleSelectionCombo();
 
-		WaveDisplay *m_pWaveDisplay;
+		LayerWaveDisplay *m_pLayerWaveDisplay;
 };
 
 inline bool ComponentView::getIsExpanded() const {

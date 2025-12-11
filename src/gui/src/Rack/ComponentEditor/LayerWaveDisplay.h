@@ -20,15 +20,14 @@
  *
  */
 
-#ifndef PLAYBACKTRACKWAVE_DISPLAY
-#define PLAYBACKTRACKWAVE_DISPLAY
+#ifndef LAYER_WAVE_DISPLAY
+#define LAYER_WAVE_DISPLAY
 
 #include <QtGui>
 #include <QtWidgets>
-#include <memory>
 
 #include <core/Object.h>
-#include "../Widgets/WaveDisplay.h"
+#include "../../Widgets/WaveDisplay.h"
 
 namespace H2Core
 {
@@ -36,28 +35,15 @@ namespace H2Core
 }
 
 /** \ingroup docGUI*/
-class PlaybackTrackWaveDisplay : public WaveDisplay
+class LayerWaveDisplay : public WaveDisplay,
+						 public H2Core::Object<LayerWaveDisplay>
 {
-    H2_OBJECT(PlaybackTrackWaveDisplay)
+    H2_OBJECT(LayerWaveDisplay)
 	Q_OBJECT
 
 	public:
-		explicit PlaybackTrackWaveDisplay(QWidget* pParent);
-		~PlaybackTrackWaveDisplay();
-
-		void	updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer ) override;
-	void updatePosition( float fTick );
-		
-	public slots:
-		virtual void dragMoveEvent(QDragMoveEvent *event) override;
-		virtual void dropEvent(QDropEvent *event) override;
-		virtual void dragEnterEvent(QDragEnterEvent * event) override;
-	virtual void paintEvent(QPaintEvent * event) override;
-
-private: 
-	QPixmap *m_pBackgroundPixmap;
-	/** Cached position of the playhead.*/
-	float m_fTick;
+		explicit LayerWaveDisplay(QWidget* pParent);
+		~LayerWaveDisplay();
 };
 
 #endif

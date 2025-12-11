@@ -31,7 +31,7 @@
 #include <core/Hydrogen.h>
 
 #include "LayerPreview.h"
-#include "WaveDisplay.h"
+#include "LayerWaveDisplay.h"
 #include "../InstrumentEditor.h"
 #include "../Rack.h"
 #include "../../AudioFileBrowser/AudioFileBrowser.h"
@@ -483,12 +483,12 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	// Waveform display
 
-	m_pWaveDisplay = new WaveDisplay( m_pLayerWidget );
-	m_pWaveDisplay->setMinimumSize(
+	m_pLayerWaveDisplay = new LayerWaveDisplay( m_pLayerWidget );
+	m_pLayerWaveDisplay->setMinimumSize(
 		ComponentView::nWidth - ComponentView::nMargin * 2,
 		ComponentView::nWaveDisplayHeight );
-	m_pWaveDisplay->updateDisplay( nullptr );
-	connect( m_pWaveDisplay, SIGNAL( doubleClicked(QWidget*) ),
+	m_pLayerWaveDisplay->updateDisplay( nullptr );
+	connect( m_pLayerWaveDisplay, SIGNAL( doubleClicked(QWidget*) ),
 			 this, SLOT( waveDisplayDoubleClicked(QWidget*) ) );
 
 	// Layer properties
@@ -600,7 +600,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	pVBoxComponentLayout->addWidget( pSampleSelectionWidget );
     pVBoxComponentLayout->addSpacing( ComponentView::nVerticalSpacing );
 
-	pVBoxLayerLayout->addWidget( m_pWaveDisplay );
+	pVBoxLayerLayout->addWidget( m_pLayerWaveDisplay );
 	pVBoxLayerLayout->addWidget( pLayerPropWidget );
 
 	m_pVBoxMainLayout->addWidget( pHeaderWidget );
@@ -872,7 +872,7 @@ void ComponentView::updateView() {
 				m_pLayerPitchFineRotary->setValue( fFineLayerPitch * 100, false,
 												   Event::Trigger::Suppress );
 
-				m_pWaveDisplay->updateDisplay( pLayer );
+				m_pLayerWaveDisplay->updateDisplay( pLayer );
 			}
 		}
 	}
@@ -1209,7 +1209,7 @@ void ComponentView::updateActivation() {
 		m_pDeleteLayerAction->setEnabled( true );
 		m_pEditLayerAction->setEnabled( pLayer->getSample() != nullptr );
 
-		m_pWaveDisplay->updateDisplay( nullptr );
+		m_pLayerWaveDisplay->updateDisplay( nullptr );
 	}
 	else {
 		m_pLayerMuteBtn->setChecked( false );
@@ -1228,7 +1228,7 @@ void ComponentView::updateActivation() {
 		m_pDeleteLayerAction->setEnabled( false );
 		m_pEditLayerAction->setEnabled( false );
 
-		m_pWaveDisplay->updateDisplay( nullptr );
+		m_pLayerWaveDisplay->updateDisplay( nullptr );
 	}
 }
 

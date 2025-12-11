@@ -38,12 +38,12 @@
 #include <core/Sampler/Sampler.h>
 
 #include "ComponentView.h"
-#include "WaveDisplay.h"
 #include "../Rack.h"
 #include "../../Compatibility/DropEvent.h"
 #include "../../Compatibility/MouseEvent.h"
 #include "../../HydrogenApp.h"
 #include "../../Skin.h"
+#include "../../Widgets/WaveDisplay.h"
 
 using namespace H2Core;
 
