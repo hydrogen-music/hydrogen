@@ -906,7 +906,7 @@ int ComponentView::getExpandedHeight() const
 		   LayerPreview::nBorder + LayerPreview::nLayerHeight * nLayers +
 		   ComponentView::nWaveDisplayHeight + Rotary::nHeight +
            ComponentView::nSampleSelectionHeight +
-		   ComponentView::nLabelHeight + ComponentView::nMargin * 4;
+		   ComponentView::nLabelHeight + ComponentView::nMargin * 2;
 }
 
 void ComponentView::expand() {
