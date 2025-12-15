@@ -217,15 +217,16 @@ void DrumkitTest::testLayerHandling()
 		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName1
 	);
 
+	auto pLayer2Copy = std::make_shared<InstrumentLayer>( pLayer2 );
 	pInstrument->setLayer(
-		pComponent, pLayer2, 0, Event::Trigger::Suppress
+		pComponent, pLayer2Copy, 0, Event::Trigger::Suppress
 	);
 	CPPUNIT_ASSERT( pComponent->getLayers().size() == 1 );
 	CPPUNIT_ASSERT(
 		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName2
 	);
 
-    // Using the wrong layer
+	// Using the wrong layer
 	pInstrument->setSample(
 		pComponent, pLayer1, pSample1, Event::Trigger::Suppress
 	);
@@ -235,11 +236,140 @@ void DrumkitTest::testLayerHandling()
 	);
 
 	pInstrument->setSample(
-		pComponent, pLayer2, pSample1, Event::Trigger::Suppress
+		pComponent, pLayer2Copy, pSample1, Event::Trigger::Suppress
 	);
 	CPPUNIT_ASSERT( pComponent->getLayers().size() == 1 );
 	CPPUNIT_ASSERT(
 		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName1
+	);
+
+	pInstrument->removeLayer( pComponent, 0, Event::Trigger::Suppress );
+	CPPUNIT_ASSERT( pComponent->getLayers().size() == 0 );
+
+	////////////////////////////////////////////////////////////////////////////
+	// move layers
+	const auto sFileName3 = "snare.wav";
+	auto pSample3 = std::make_shared<Sample>(
+		H2TEST_FILE( QString( "/drumkits/baseKit/%1" ).arg( sFileName3 ) )
+	);
+	auto pLayer3 = std::make_shared<InstrumentLayer>( pSample3 );
+
+	pInstrument->addLayer( pComponent, pLayer1, -1, Event::Trigger::Suppress );
+	pInstrument->addLayer( pComponent, pLayer1, -1, Event::Trigger::Suppress );
+	pInstrument->addLayer( pComponent, pLayer2, -1, Event::Trigger::Suppress );
+	pInstrument->addLayer( pComponent, pLayer1, -1, Event::Trigger::Suppress );
+	pInstrument->addLayer( pComponent, pLayer1, -1, Event::Trigger::Suppress );
+	pInstrument->addLayer( pComponent, pLayer1, -1, Event::Trigger::Suppress );
+	pInstrument->addLayer( pComponent, pLayer3, -1, Event::Trigger::Suppress );
+	pInstrument->addLayer( pComponent, pLayer1, -1, Event::Trigger::Suppress );
+	CPPUNIT_ASSERT( pComponent->getLayers().size() == 8 );
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 1 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 2 )->getSample()->getFileName() == sFileName2
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 3 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 4 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 5 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 6 )->getSample()->getFileName() == sFileName3
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 7 )->getSample()->getFileName() == sFileName1
+	);
+
+	pInstrument->moveLayer( pComponent, 2, 6, Event::Trigger::Suppress );
+	CPPUNIT_ASSERT( pComponent->getLayers().size() == 8 );
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 1 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 2 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 3 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 4 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 5 )->getSample()->getFileName() == sFileName3
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 6 )->getSample()->getFileName() == sFileName2
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 7 )->getSample()->getFileName() == sFileName1
+	);
+
+	pInstrument->moveLayer( pComponent, 5, 0, Event::Trigger::Suppress );
+	CPPUNIT_ASSERT( pComponent->getLayers().size() == 8 );
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName3
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 1 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 2 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 3 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 4 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 5 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 6 )->getSample()->getFileName() == sFileName2
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 7 )->getSample()->getFileName() == sFileName1
+	);
+
+	pInstrument->moveLayer(
+		pComponent, 0, pComponent->getLayers().size() - 1,
+		Event::Trigger::Suppress
+	);
+	CPPUNIT_ASSERT( pComponent->getLayers().size() == 8 );
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 1 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 2 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 3 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 4 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 5 )->getSample()->getFileName() == sFileName2
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 6 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 7 )->getSample()->getFileName() == sFileName3
 	);
 
 	___INFOLOG( "passed" );
