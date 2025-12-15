@@ -73,6 +73,7 @@ class LayerPreview : public QWidget, protected WidgetWithScalableFont<6, 8, 10>,
 		   its start velocity */
 		VelocityStart,
 	};
+	static QString DragToQString( const Drag& drag );
 
 	struct LayerInfo {
 		int nStartX;

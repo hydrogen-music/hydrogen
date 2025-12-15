@@ -888,3 +888,22 @@ int LayerPreview::getPointSizeButton() const
 
 	return nPointSize;
 }
+
+QString LayerPreview::DragToQString( const Drag& drag )
+{
+	switch ( drag ) {
+		case Drag::None:
+			return "None";
+		case Drag::Initialized:
+			return "Initialized";
+		case Drag::Position:
+			return "Position";
+		case Drag::VelocityEnd:
+			return "VelocityEnd";
+		case Drag::VelocityStart:
+			return "VelocityStart";
+		default:
+			return QString( "Unknown Drag [%1]" )
+				.arg( static_cast<int>( drag ) );
+	}
+}
