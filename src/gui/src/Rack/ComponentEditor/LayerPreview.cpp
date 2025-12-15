@@ -139,6 +139,7 @@ void LayerPreview::dropEvent( QDropEvent* event )
 
 	const int nDropLayer = LayerPreview::yToLayer( pEv->position().y() );
 
+    m_drag = Drag::None;
 	if ( mimeData->hasUrls() ) {
 		QList<QUrl> urlList = mimeData->urls();
 
@@ -195,9 +196,6 @@ void LayerPreview::dropEvent( QDropEvent* event )
 				.arg( pComponent->getName() )
 		);
 	}
-
-    m_drag = Drag::None;
-
 }
 
 void LayerPreview::paintEvent( QPaintEvent* ev )
@@ -595,6 +593,7 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
 	}
 
 	auto pEv = static_cast<MouseEvent*>( ev );
+    m_drag = Drag::None;
     m_dragStartPoint = pEv->position();
     m_dragStartTimeStamp = pEv->timestamp();
 
@@ -773,6 +772,7 @@ void LayerPreview::mouseMoveEvent( QMouseEvent* ev )
 			}
 			else {
 				// Vertical drag.
+                m_drag = Drag::Position;
 				auto pDrag = new QDrag( this );
 				auto pMimeData = new QMimeData;
 				pMimeData->setText( "ComponentViewLayer" );
@@ -784,7 +784,8 @@ void LayerPreview::mouseMoveEvent( QMouseEvent* ev )
 					pDrag->exec( Qt::MoveAction );
 				}
 
-				QWidget::mouseMoveEvent( ev );
+                // Once exec() returns, the drag is done.
+                m_drag = Drag::None;
 			}
 			break;
 		}
