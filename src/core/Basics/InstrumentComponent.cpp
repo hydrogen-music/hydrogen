@@ -90,6 +90,37 @@ void InstrumentComponent::addLayer(
 	}
 }
 
+void InstrumentComponent::moveLayer( int nOldIndex, int nNewIndex )
+{
+	if ( nOldIndex == nNewIndex ) {
+        // Nothing to do.
+        return;
+	}
+	if ( nOldIndex < 0 || nOldIndex >= m_layers.size() ) {
+		ERRORLOG( QString( "Old index [%1] out of bound [0,%2]" )
+					  .arg( nOldIndex )
+					  .arg( m_layers.size() ) );
+	  return;
+	}
+	if ( nNewIndex < 0 || nNewIndex >= m_layers.size() ) {
+		ERRORLOG( QString( "New index [%1] out of bound [0,%2]" )
+					  .arg( nNewIndex )
+					  .arg( m_layers.size() ) );
+	  return;
+	}
+
+	auto pLayer = m_layers[nOldIndex];
+	if ( pLayer == nullptr ) {
+		ERRORLOG( QString( "invalid layer at [%1]" ).arg( nOldIndex ) );
+        return;
+	}
+
+    const int nInsertAt = nNewIndex < nOldIndex ? nNewIndex : nNewIndex + 1;
+	m_layers.insert( m_layers.begin() + nInsertAt, pLayer );
+    const int nEraseAt = nNewIndex < nOldIndex ? nOldIndex + 1 : nOldIndex;
+    m_layers.erase( m_layers.begin() + nEraseAt );
+}
+
 void InstrumentComponent::setLayer( std::shared_ptr<InstrumentLayer> pLayer, int nIndex )
 {
 	if ( nIndex < 0 || nIndex >= m_layers.size() ) {

@@ -298,6 +298,14 @@ class Instrument : public H2Core::Object<Instrument>
 			int nIndex,
 			Event::Trigger trigger
 		);
+		/** Move the layer found in @a nOldIndex to a new position of @a
+		 * nNewIndex. */
+		void moveLayer(
+			std::shared_ptr<InstrumentComponent> pComponent,
+			int nOldIndex,
+			int nNewIndex,
+			Event::Trigger trigger
+		);
 		void setLayer(
 			std::shared_ptr<InstrumentComponent> pComponent,
 			std::shared_ptr<InstrumentLayer> pLayer,

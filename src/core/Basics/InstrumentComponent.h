@@ -122,6 +122,12 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 			int nIndex,
 			Event::Trigger trigger
 		);
+		friend void Instrument::moveLayer(
+			std::shared_ptr<InstrumentComponent> pComponent,
+			int nOldIndex,
+			int nNewIndex,
+			Event::Trigger trigger
+		);
 		friend void Instrument::setLayer(
 			std::shared_ptr<InstrumentComponent> pComponent,
 			std::shared_ptr<InstrumentLayer> pLayer,
@@ -138,6 +144,9 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		/** An @a nIndex of -1 will cause the method to append the new layer at
 		   the end.*/
 		void addLayer( std::shared_ptr<InstrumentLayer> pLayer, int nIndex );
+		/** Move the layer found in @a nOldIndex to a new position of @a
+		 * nNewIndex. */
+		void moveLayer( int nOldIndex, int nNewIndex );
 		void setLayer( std::shared_ptr<InstrumentLayer> pLayer, int nIndex );
 		void removeLayer( int nIndex );
 

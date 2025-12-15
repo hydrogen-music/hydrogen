@@ -673,6 +673,25 @@ void Instrument::addLayer(
 	checkForMissingSamples( trigger );
 }
 
+void Instrument::moveLayer(
+	std::shared_ptr<InstrumentComponent> pComponent,
+	int nOldIndex,
+	int nNewIndex,
+	Event::Trigger trigger
+)
+{
+	if ( pComponent == nullptr ) {
+		ERRORLOG( "Invalid input" );
+		return;
+	}
+
+	for ( auto& ppComponent : *m_pComponents ) {
+		if ( pComponent == ppComponent ) {
+			ppComponent->moveLayer( nOldIndex, nNewIndex );
+		}
+	}
+}
+
 void Instrument::setLayer(
 	std::shared_ptr<InstrumentComponent> pComponent,
 	std::shared_ptr<InstrumentLayer> pLayer,
