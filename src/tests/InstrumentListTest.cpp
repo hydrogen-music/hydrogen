@@ -20,7 +20,7 @@
  *
  */
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "InstrumentListTest.h"
 
 #include <core/Hydrogen.h>
 #include <core/Basics/Instrument.h>
@@ -28,108 +28,92 @@
 
 using namespace H2Core;
 
-class InstrumentListTest : public CppUnit::TestCase {
-	CPPUNIT_TEST_SUITE( InstrumentListTest );
-	CPPUNIT_TEST( test_one_instrument );
-	CPPUNIT_TEST( test1 );
-	CPPUNIT_TEST( test2 );
-	CPPUNIT_TEST( test3 );
-	CPPUNIT_TEST( test4 );
-	CPPUNIT_TEST_SUITE_END();
-	
-	public:
-	void test_one_instrument()
-	{
+void InstrumentListTest::testDefaultMidiOutNotes()
+{
 	___INFOLOG( "" );
+	InstrumentList list;
+
+	list.add( std::make_shared<Instrument>() );
+	list.add( std::make_shared<Instrument>() );
+	list.add( std::make_shared<Instrument>() );
+
+	list.setDefaultMidiOutNotes();
+
+	CPPUNIT_ASSERT_EQUAL( 36, list.get( 0 )->getMidiOutNote() );
+	CPPUNIT_ASSERT_EQUAL( 37, list.get( 1 )->getMidiOutNote() );
+	CPPUNIT_ASSERT_EQUAL( 38, list.get( 2 )->getMidiOutNote() );
+	___INFOLOG( "passed" );
+}
+
+void InstrumentListTest::testHasAllMidiNotesSame()
+{
+	___INFOLOG( "" );
+	// One instrument
+	{
 		InstrumentList list;
 		auto pKick = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Kick" );
-		pKick->setMidiOutNote(42);
-		list.add(pKick);
+		pKick->setMidiOutNote( 42 );
+		list.add( pKick );
 
 		CPPUNIT_ASSERT( !list.hasAllMidiNotesSame() );
-	___INFOLOG( "passed" );
 	}
 
-
-	void test1()
+	// All the same
 	{
-	___INFOLOG( "" );
 		InstrumentList list;
 
 		auto pKick = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Kick" );
-		pKick->setMidiOutNote(10);
-		list.add(pKick);
+		pKick->setMidiOutNote( 10 );
+		list.add( pKick );
 
 		auto pSnare = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Snare" );
-		pSnare->setMidiOutNote(10);
-		list.add(pSnare);
+		pSnare->setMidiOutNote( 10 );
+		list.add( pSnare );
 
 		auto pHihat = std::make_shared<Instrument>( EMPTY_INSTR_ID, "HiHat" );
-		pHihat->setMidiOutNote(10);
-		list.add(pHihat);
+		pHihat->setMidiOutNote( 10 );
+		list.add( pHihat );
 
 		CPPUNIT_ASSERT_EQUAL( 3, list.size() );
 		CPPUNIT_ASSERT( list.hasAllMidiNotesSame() );
-	___INFOLOG( "passed" );
 	}
 
-
-	void test2()
+	// All different
 	{
-	___INFOLOG( "" );
 		InstrumentList list;
 
 		auto pKick = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Kick" );
-		pKick->setMidiOutNote(36);
-		list.add(pKick);
+		pKick->setMidiOutNote( 36 );
+		list.add( pKick );
 
 		auto pClap = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Clap" );
-		pClap->setMidiOutNote(37);
-		list.add(pClap);
+		pClap->setMidiOutNote( 37 );
+		list.add( pClap );
 
 		auto pRide = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Ride" );
-		pRide->setMidiOutNote(38);
-		list.add(pRide);
+		pRide->setMidiOutNote( 38 );
+		list.add( pRide );
 
-		auto pDummy = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Dummy Instrument" );
-		pDummy->setMidiOutNote(36); // duplicate
-		list.add(pDummy);
+		auto pDummy =
+			std::make_shared<Instrument>( EMPTY_INSTR_ID, "Dummy Instrument" );
+		pDummy->setMidiOutNote( 36 );  // duplicate
+		list.add( pDummy );
 
 		CPPUNIT_ASSERT_EQUAL( 4, list.size() );
 		CPPUNIT_ASSERT( !list.hasAllMidiNotesSame() );
-	___INFOLOG( "passed" );
 	}
+	___INFOLOG( "passed" );
+}
 
-
-	void test3()
-	{
+void InstrumentListTest::testIsValidIndex()
+{
 	___INFOLOG( "" );
-		InstrumentList list;
+	InstrumentList list;
 
-		list.add( std::make_shared<Instrument>() );
-		list.add( std::make_shared<Instrument>() );
-		list.add( std::make_shared<Instrument>() );
+	list.add( std::make_shared<Instrument>() );
 
-		list.setDefaultMidiOutNotes();
-
-		CPPUNIT_ASSERT_EQUAL( 36, list.get(0)->getMidiOutNote() );
-		CPPUNIT_ASSERT_EQUAL( 37, list.get(1)->getMidiOutNote() );
-		CPPUNIT_ASSERT_EQUAL( 38, list.get(2)->getMidiOutNote() );
+	CPPUNIT_ASSERT( list.isValidIndex( 0 ) );
+	CPPUNIT_ASSERT( !list.isValidIndex( 1 ) );
+	CPPUNIT_ASSERT( !list.isValidIndex( -42 ) );
 	___INFOLOG( "passed" );
-	}
-	
-	//test is_valid_index
-	void test4()
-	{
-	___INFOLOG( "" );
-		InstrumentList list;
-
-		list.add( std::make_shared<Instrument>() );
-		
-		CPPUNIT_ASSERT( list.isValidIndex(0) );
-		CPPUNIT_ASSERT( !list.isValidIndex(1) );
-		CPPUNIT_ASSERT( !list.isValidIndex(-42) );
-	___INFOLOG( "passed" );
-	}
-};
-
+}

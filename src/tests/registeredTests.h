@@ -34,7 +34,7 @@
 #include "DrumkitExportTest.h"
 #include "EventQueueTest.h"
 #include "FilesystemTest.h"
-#include "InstrumentListTest.cpp"
+#include "InstrumentListTest.h"
 #include "LicenseTest.h"
 #include "MemoryLeakageTest.h"
 #include "MidiActionTest.h"
