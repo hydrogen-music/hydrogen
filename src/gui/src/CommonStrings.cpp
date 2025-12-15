@@ -635,7 +635,8 @@ CommonStrings::CommonStrings(){
 	 *  name of the layer and the corresponding instrument will be appended in
 	 * the former. */
 	m_sActionEditInstrumentLayer = tr( "Edit layer" );
-
+	/*: Representing moving an instrument layer in the undo history. */
+	m_sActionMoveInstrumentLayer = tr( "Move layer" );
 	/*: Representing deleting all notes of a specific row in the pattern editor
 	 * in the undo history (the number of the row will be append) as well as in
 	 * the right-click context menu within the sidebar of the pattern editor. */

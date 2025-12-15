@@ -299,6 +299,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		{
 			return m_sActionEditInstrumentLayer;
 		}
+		const QString& getActionMoveInstrumentLayer() const
+		{
+			return m_sActionMoveInstrumentLayer;
+		}
 
 		const QString& getActionClearAllNotesInRow() const {
 			return m_sActionClearAllNotesInRow; }
@@ -602,6 +606,7 @@ private:
 		QString m_sActionDeleteInstrumentLayer;
 		QString m_sActionDuplicateInstrumentLayer;
 		QString m_sActionEditInstrumentLayer;
+		QString m_sActionMoveInstrumentLayer;
 
 		QString m_sActionClearAllNotesInRow;
 		QString m_sActionClearAllNotes;

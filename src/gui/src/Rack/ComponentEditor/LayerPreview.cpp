@@ -43,15 +43,16 @@
 #include "../../Compatibility/MouseEvent.h"
 #include "../../HydrogenApp.h"
 #include "../../Skin.h"
+#include "../../UndoActions.h"
 #include "../../Widgets/WaveDisplay.h"
 
 using namespace H2Core;
 
 LayerPreview::LayerPreview( ComponentView* pComponentView )
- : QWidget( pComponentView )
- , m_pComponentView( pComponentView )
- , m_bMouseGrab( false )
- , m_bGrabLeft( false )
+	: QWidget( pComponentView ),
+	  m_pComponentView( pComponentView ),
+	  m_drag( Drag::None ),
+	  m_dragStartPoint( QPointF() )
 {
 	setAcceptDrops( true );
 	setAttribute( Qt::WA_OpaquePaintEvent );
@@ -99,11 +100,29 @@ void LayerPreview::updatePreview()
 	update();
 }
 
+int LayerPreview::yToLayer( int nY )
+{
+	int nLayer;
+	if ( nY < LayerPreview::nHeader ) {
+		nLayer = 0;
+	}
+	else {
+		nLayer = static_cast<int>( std::floor(
+			static_cast<float>( nY - LayerPreview::nHeader ) /
+			static_cast<float>( LayerPreview::nLayerHeight )
+		) );
+	}
+
+	return nLayer;
+}
+
 void LayerPreview::dragEnterEvent( QDragEnterEvent* event )
 {
-	if ( event->mimeData()->hasFormat( "text/uri-list" ) ) {
+	if ( event->mimeData()->hasFormat( "text/uri-list" ) ||
+		 event->mimeData()->hasFormat( "text/plain" ) ) {
 	 	event->acceptProposedAction();
-    }
+	}
+
 }
 
 void LayerPreview::dragMoveEvent( QDragMoveEvent* event )
@@ -118,37 +137,67 @@ void LayerPreview::dropEvent( QDropEvent* event )
 	const QMimeData* mimeData = pEv->mimeData();
 	QString sText = pEv->mimeData()->text();
 
+	const int nDropLayer = LayerPreview::yToLayer( pEv->position().y() );
+
 	if ( mimeData->hasUrls() ) {
 		QList<QUrl> urlList = mimeData->urls();
 
-        QStringList filePaths;
+		QStringList filePaths;
 		for ( const auto& uurl : urlList ) {
 			const auto sPath = uurl.toLocalFile();
 			if ( !sPath.isEmpty() ) {
-                filePaths << sPath;
+				filePaths << sPath;
 			}
 		}
 
 		if ( filePaths.size() > 0 ) {
-            // Ensure we insert the layers at the right spot by moving the
-            // selected layer to the drop point.
-			int nLayer;
-			if ( pEv->position().y() < LayerPreview::nHeader ) {
-				nLayer = 0;
-			}
-			else {
-				nLayer = static_cast<int>( std::floor(
-					static_cast<float>(
-						pEv->position().y() - LayerPreview::nHeader
-					) /
-					static_cast<float>( LayerPreview::nLayerHeight )
-				) );
-			}
-            m_pComponentView->setSelectedLayer( nLayer );
+			// Ensure we insert the layers at the right spot by moving the
+			// selected layer to the drop point.
+			m_pComponentView->setSelectedLayer( nDropLayer );
 
 			m_pComponentView->setLayers( filePaths, false, false );
 		}
 	}
+	else if ( sText.startsWith( "ComponentViewLayer" ) ) {
+		pEv->acceptProposedAction();
+
+		const int nStartLayer = LayerPreview::yToLayer( m_dragStartPoint.y() );
+
+		const auto pInstrument =
+			Hydrogen::get_instance()->getSelectedInstrument();
+		const auto pComponent = m_pComponentView->getComponent();
+		if ( pInstrument == nullptr || pComponent == nullptr ) {
+			return;
+		}
+		auto pHydrogenApp = HydrogenApp::get_instance();
+		const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+		auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
+		auto pNewComponent =
+			pNewInstrument->getComponent( pInstrument->index( pComponent ) );
+		if ( pNewComponent == nullptr ) {
+			ERRORLOG( "Hiccup while looking up component" );
+			return;
+		}
+
+		pNewInstrument->moveLayer(
+			pNewComponent, nStartLayer, nDropLayer, Event::Trigger::Suppress
+		);
+
+		pHydrogenApp->pushUndoCommand( new SE_replaceInstrumentAction(
+			pNewInstrument, pInstrument,
+			SE_replaceInstrumentAction::Type::MoveLayer, pComponent->getName()
+		) );
+		m_pComponentView->setSelectedLayer( nDropLayer );
+		pHydrogenApp->showStatusBarMessage(
+			QString( "%1 [%2]" )
+				.arg( pCommonStrings->getActionMoveInstrumentLayer() )
+				.arg( pComponent->getName() )
+		);
+	}
+
+    m_drag = Drag::None;
+
 }
 
 void LayerPreview::paintEvent( QPaintEvent* ev )
@@ -524,7 +573,7 @@ void LayerPreview::mouseDoubleClickEvent( QMouseEvent* ev )
 
 void LayerPreview::mouseReleaseEvent( QMouseEvent* ev )
 {
-	m_bMouseGrab = false;
+    m_drag = Drag::None;
 }
 
 void LayerPreview::mousePressEvent( QMouseEvent* ev )
@@ -536,8 +585,6 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
 		return;
 	}
 
-	auto pEv = static_cast<MouseEvent*>( ev );
-
 	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
 		// What is displayed in the component editor _is_ the selected
@@ -546,6 +593,11 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
 		ERRORLOG( "Invalid selected instrument" );
 		return;
 	}
+
+	auto pEv = static_cast<MouseEvent*>( ev );
+    m_dragStartPoint = pEv->position();
+    m_dragStartTimeStamp = pEv->timestamp();
+
 	const auto nMaxLayers = pComponent->getLayers().size();
 
 	const int nX = pEv->position().x();
@@ -591,6 +643,8 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
 		) );
 		auto pLayer = pComponent->getLayer( nClickedLayer );
 		if ( pLayer != nullptr ) {
+            m_drag = Drag::Initialized;
+
 			m_pComponentView->setSelectedLayer( nClickedLayer );
 			m_pComponentView->updateView();
 
@@ -607,30 +661,11 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
 			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(
 				pNote
 			);
-
-			const int nStartX = static_cast<int>( std::round(
-				pLayer->getStartVelocity() * static_cast<float>( width() )
-			) );
-			const int nEndX = static_cast<int>( std::round(
-				pLayer->getEndVelocity() * static_cast<float>( width() )
-			) );
-
-
-			if ( ( nX < nStartX + LayerPreview::nBorderGrabMargin ) &&
-				 ( nX > nStartX - LayerPreview::nBorderGrabMargin ) ) {
-				m_bGrabLeft = true;
-				m_bMouseGrab = true;
-			}
-			else if ( ( nX < nEndX + LayerPreview::nBorderGrabMargin ) &&
-					  ( nX > nEndX - LayerPreview::nBorderGrabMargin ) ) {
-				m_bGrabLeft = false;
-				m_bMouseGrab = true;
-			}
 		}
 	}
 }
 
-void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
+void LayerPreview::mouseMoveEvent( QMouseEvent* ev )
 {
 	auto pComponent = m_pComponentView->getComponent();
 	if ( pComponent == nullptr ) {
@@ -640,82 +675,162 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 	auto pEv = static_cast<MouseEvent*>( ev );
 	const int nX = pEv->position().x();
 	const int nY = pEv->position().y();
-	if ( nY < LayerPreview::nHeader ) {
-		setCursor( QCursor( m_speakerPixmap ) );
-		return;
-	}
+    const int nSelectedLayer = m_pComponentView->getSelectedLayer();
 
-	if ( m_bMouseGrab ) {
-		// We are dragging a border of the currently selected layer.
-		const int nSelectedLayer = m_pComponentView->getSelectedLayer();
-		auto pLayer = pComponent->getLayer( nSelectedLayer );
-		if ( pLayer == nullptr ) {
-			setCursor( QCursor( Qt::ArrowCursor ) );
-			QToolTip::hideText();
-			return;
-		}
-
-		const float fVelocity = std::clamp(
-			static_cast<float>( nX ) / static_cast<float>( width() ),
-			VELOCITY_MIN, VELOCITY_MAX
-		);
-
-		bool bChanged = false;
-		if ( m_bGrabLeft ) {
-			if ( fVelocity < pLayer->getEndVelocity() ) {
-				pLayer->setStartVelocity( fVelocity );
-				bChanged = true;
-				showLayerStartVelocity( pLayer, ev );
+	switch ( m_drag ) {
+		case Drag::None: {
+			if ( nY < LayerPreview::nHeader ) {
+				setCursor( QCursor( m_speakerPixmap ) );
+				return;
 			}
-		}
-		else {
-			if ( fVelocity > pLayer->getStartVelocity() ) {
-				pLayer->setEndVelocity( fVelocity );
-				bChanged = true;
-				showLayerEndVelocity( pLayer, ev );
-			}
-		}
 
-		if ( bChanged ) {
-			update();
-			Hydrogen::get_instance()->setIsModified( true );
-		}
-	}
-	else {
-		// We are hovering over an arbitrary layer.
-		const int nHoveredLayer = static_cast<int>( std::floor(
-			static_cast<float>( pEv->position().y() - LayerPreview::nHeader ) /
-			static_cast<float>( LayerPreview::nLayerHeight )
-		) );
-		auto pHoveredLayer = pComponent->getLayer( nHoveredLayer );
-		if ( pHoveredLayer != nullptr ) {
-			const int nStartX = static_cast<int>( std::round(
-				pHoveredLayer->getStartVelocity() *
-				static_cast<float>( width() )
+			// We are hovering over an arbitrary layer.
+			const int nHoveredLayer = static_cast<int>( std::floor(
+				static_cast<float>(
+					pEv->position().y() - LayerPreview::nHeader
+				) /
+				static_cast<float>( LayerPreview::nLayerHeight )
 			) );
-			const int nEndX = static_cast<int>( std::round(
-				pHoveredLayer->getEndVelocity() * static_cast<float>( width() )
-			) );
+			auto pHoveredLayer = pComponent->getLayer( nHoveredLayer );
+			if ( pHoveredLayer != nullptr ) {
+				const int nStartX = static_cast<int>( std::round(
+					pHoveredLayer->getStartVelocity() *
+					static_cast<float>( width() )
+				) );
+				const int nEndX = static_cast<int>( std::round(
+					pHoveredLayer->getEndVelocity() *
+					static_cast<float>( width() )
+				) );
 
-			if ( ( nX < nStartX + LayerPreview::nBorderGrabMargin ) &&
-				 ( nX > nStartX - LayerPreview::nBorderGrabMargin ) ) {
-				setCursor( QCursor( Qt::SizeHorCursor ) );
-				showLayerStartVelocity( pHoveredLayer, ev );
-			}
-			else if ( ( nX < nEndX + LayerPreview::nBorderGrabMargin ) &&
-					  ( nX > nEndX - LayerPreview::nBorderGrabMargin ) ) {
-				setCursor( QCursor( Qt::SizeHorCursor ) );
-				showLayerEndVelocity( pHoveredLayer, ev );
+				if ( ( nX < nStartX + LayerPreview::nBorderGrabMargin ) &&
+					 ( nX > nStartX - LayerPreview::nBorderGrabMargin ) ) {
+					setCursor( QCursor( Qt::SizeHorCursor ) );
+					showLayerStartVelocity( pHoveredLayer, ev );
+				}
+				else if ( ( nX < nEndX + LayerPreview::nBorderGrabMargin ) &&
+						  ( nX > nEndX - LayerPreview::nBorderGrabMargin ) ) {
+					setCursor( QCursor( Qt::SizeHorCursor ) );
+					showLayerEndVelocity( pHoveredLayer, ev );
+				}
+				else {
+					setCursor( QCursor( Qt::ArrowCursor ) );
+					QToolTip::hideText();
+				}
 			}
 			else {
 				setCursor( QCursor( Qt::ArrowCursor ) );
 				QToolTip::hideText();
 			}
+			break;
 		}
-		else {
-			setCursor( QCursor( Qt::ArrowCursor ) );
-			QToolTip::hideText();
+		case Drag::Initialized: {
+			// We have not decided yet whether we do a horizontal or vertical
+			// drag.
+			if ( ( pEv->position() - m_dragStartPoint ).manhattanLength() <=
+					 QApplication::startDragDistance() &&
+				 ( pEv->timestamp() - m_dragStartTimeStamp ) <=
+					 QApplication::startDragTime() ) {
+                // Not there yet.
+                break;
+			}
+
+            // On a perfectly diangular movement we will go with horizontal drag
+            // since this is the more probable action.
+			if ( std::abs( pEv->position().x() - m_dragStartPoint.x() ) >=
+				 std::abs( pEv->position().y() - m_dragStartPoint.y() ) ) {
+				// Horizontal drag
+
+				auto pLayer = pComponent->getLayer( nSelectedLayer );
+				if ( pLayer == nullptr ) {
+					setCursor( QCursor( Qt::ArrowCursor ) );
+					QToolTip::hideText();
+					return;
+				}
+
+				const int nStartX = static_cast<int>( std::round(
+					pLayer->getStartVelocity() * static_cast<float>( width() )
+				) );
+				const int nEndX = static_cast<int>( std::round(
+					pLayer->getEndVelocity() * static_cast<float>( width() )
+				) );
+				const int nXDragStart = m_dragStartPoint.x();
+				if ( ( nXDragStart < nStartX + LayerPreview::nBorderGrabMargin
+					 ) &&
+					 ( nXDragStart > nStartX - LayerPreview::nBorderGrabMargin
+					 ) ) {
+					m_drag = Drag::VelocityStart;
+				}
+				else if ( ( nXDragStart <
+							nEndX + LayerPreview::nBorderGrabMargin ) &&
+						  ( nXDragStart >
+							nEndX - LayerPreview::nBorderGrabMargin ) ) {
+					m_drag = Drag::VelocityEnd;
+				}
+				else {
+					// The user missed the border. Invalid drag action.
+					m_drag = Drag::None;
+				}
+			}
+			else {
+				// Vertical drag.
+				auto pDrag = new QDrag( this );
+				auto pMimeData = new QMimeData;
+				pMimeData->setText( "ComponentViewLayer" );
+				pDrag->setMimeData( pMimeData );
+				if ( pEv->modifiers() & Qt::ShiftModifier ) {
+					pDrag->exec( Qt::CopyAction );
+				}
+				else {
+					pDrag->exec( Qt::MoveAction );
+				}
+
+				QWidget::mouseMoveEvent( ev );
+			}
+			break;
 		}
+		case Drag::VelocityStart:
+		case Drag::VelocityEnd: {
+			// We are dragging a border of the currently selected layer.
+			auto pLayer = pComponent->getLayer( nSelectedLayer );
+			if ( pLayer == nullptr ) {
+				setCursor( QCursor( Qt::ArrowCursor ) );
+				QToolTip::hideText();
+				return;
+			}
+
+			const float fVelocity = std::clamp(
+				static_cast<float>( nX ) / static_cast<float>( width() ),
+				VELOCITY_MIN, VELOCITY_MAX
+			);
+
+			bool bChanged = false;
+			if ( m_drag == Drag::VelocityStart ) {
+				if ( fVelocity < pLayer->getEndVelocity() ) {
+					pLayer->setStartVelocity( fVelocity );
+					bChanged = true;
+					showLayerStartVelocity( pLayer, ev );
+				}
+			}
+			else {
+				if ( fVelocity > pLayer->getStartVelocity() ) {
+					pLayer->setEndVelocity( fVelocity );
+					bChanged = true;
+					showLayerEndVelocity( pLayer, ev );
+				}
+			}
+
+			if ( bChanged ) {
+				update();
+				Hydrogen::get_instance()->setIsModified( true );
+			}
+			break;
+		}
+		case Drag::Position:
+			// Vertical drag
+			break;
+		default:
+			ERRORLOG( QString( "Unknown drag type [%1]" )
+						  .arg( static_cast<int>( m_drag ) ) );
 	}
 }
 

@@ -58,6 +58,22 @@ class LayerPreview : public QWidget, protected WidgetWithScalableFont<6, 8, 10>,
 	void updatePreview();
 
    private:
+	enum class Drag {
+		/** No drag action */
+		None,
+        /** A drag was initiated but either not sufficient time nor distance was
+         * covered to decide which kind of drag to perform. */
+        Initialized,
+		/** Vertical drag to change the order of layers within a component. */
+		Position,
+		/** Horizontal dragging the left or right border of a layer to change
+		   its end velocity */
+		VelocityEnd,
+		/** Horizontal dragging the left or right border of a layer to change
+		   its start velocity */
+		VelocityStart,
+	};
+
 	struct LayerInfo {
 		int nStartX;
 		int nEndX;
@@ -101,6 +117,8 @@ class LayerPreview : public QWidget, protected WidgetWithScalableFont<6, 8, 10>,
 		}
 	};
 
+	static int yToLayer( int nY );
+
 	void dragMoveEvent( QDragMoveEvent* event ) override;
 	void dragEnterEvent( QDragEnterEvent* event ) override;
 	void dropEvent( QDropEvent* event ) override;
@@ -115,8 +133,9 @@ class LayerPreview : public QWidget, protected WidgetWithScalableFont<6, 8, 10>,
 	std::set<LayerInfo> m_layerInfos;
 
 	QPixmap m_speakerPixmap;
-	bool m_bMouseGrab;
-	bool m_bGrabLeft;
+	Drag m_drag;
+    QPointF m_dragStartPoint;
+	quint64 m_dragStartTimeStamp;
 
 	/**
 	 * convert a raw velocity value (0.0 to 1.0)

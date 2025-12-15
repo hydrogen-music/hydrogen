@@ -1492,6 +1492,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Representing deleting an instrument layer in the undo history and in the * tooltip of the coresponding button. Both the * name of the layer and the corresponding instrument will be appended in * the former.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Move layer</source>
+        <extracomment>Representing moving an instrument layer in the undo history.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
