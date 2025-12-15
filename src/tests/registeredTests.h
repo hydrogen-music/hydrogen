@@ -34,7 +34,7 @@
 #include "DrumkitExportTest.h"
 #include "EventQueueTest.h"
 #include "FilesystemTest.h"
-#include "InstrumentListTest.h"
+#include "DrumkitTest.h"
 #include "LicenseTest.h"
 #include "MemoryLeakageTest.h"
 #include "MidiActionTest.h"
@@ -68,7 +68,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( CoreActionControllerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitExportTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( EventQueueTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );
-CPPUNIT_TEST_SUITE_REGISTRATION( InstrumentListTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LicenseTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MemoryLeakageTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MimeTest );

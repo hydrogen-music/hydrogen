@@ -25,8 +25,8 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class InstrumentListTest : public CppUnit::TestCase {
-	CPPUNIT_TEST_SUITE( InstrumentListTest );
+class DrumkitTest : public CppUnit::TestCase {
+	CPPUNIT_TEST_SUITE( DrumkitTest );
 	CPPUNIT_TEST( testDefaultMidiOutNotes );
 	CPPUNIT_TEST( testHasAllMidiNotesSame );
 	CPPUNIT_TEST( testIsValidIndex );

@@ -20,7 +20,7 @@
  *
  */
 
-#include "InstrumentListTest.h"
+#include "DrumkitTest.h"
 
 #include <core/Hydrogen.h>
 #include <core/Basics/Instrument.h>
@@ -28,7 +28,7 @@
 
 using namespace H2Core;
 
-void InstrumentListTest::testDefaultMidiOutNotes()
+void DrumkitTest::testDefaultMidiOutNotes()
 {
 	___INFOLOG( "" );
 	InstrumentList list;
@@ -45,7 +45,7 @@ void InstrumentListTest::testDefaultMidiOutNotes()
 	___INFOLOG( "passed" );
 }
 
-void InstrumentListTest::testHasAllMidiNotesSame()
+void DrumkitTest::testHasAllMidiNotesSame()
 {
 	___INFOLOG( "" );
 	// One instrument
@@ -105,7 +105,7 @@ void InstrumentListTest::testHasAllMidiNotesSame()
 	___INFOLOG( "passed" );
 }
 
-void InstrumentListTest::testIsValidIndex()
+void DrumkitTest::testIsValidIndex()
 {
 	___INFOLOG( "" );
 	InstrumentList list;
