@@ -418,7 +418,8 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 		const auto layerLabelColor = pickHeaderColor( ii );
 
 		p.fillRect(
-			iinfo->nStartX, 0, nVisibleEnd - nVisibleStart,
+			std::max( iinfo->nStartX, LayerPreview::nBorder ), 0,
+			nVisibleEnd - nVisibleStart,
 			LayerPreview::nHeader - LayerPreview::nBorder, layerLabelColor
 		);
 
