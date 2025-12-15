@@ -52,7 +52,8 @@ LayerPreview::LayerPreview( ComponentView* pComponentView )
 	: QWidget( pComponentView ),
 	  m_pComponentView( pComponentView ),
 	  m_drag( Drag::None ),
-	  m_dragStartPoint( QPointF() )
+	  m_dragStartPoint( QPointF() ),
+      m_nLastDragLayer( 0 )
 {
 	setAcceptDrops( true );
 	setAttribute( Qt::WA_OpaquePaintEvent );
@@ -128,6 +129,13 @@ void LayerPreview::dragEnterEvent( QDragEnterEvent* event )
 void LayerPreview::dragMoveEvent( QDragMoveEvent* event )
 {
 	event->accept();
+
+	auto pEv = static_cast<DropEvent*>( static_cast<QDropEvent*>( event ) );
+	const int nCurrentLayer = LayerPreview::yToLayer( pEv->position().y() );
+	if ( nCurrentLayer != m_nLastDragLayer ) {
+		m_nLastDragLayer = nCurrentLayer;
+		update();
+	}
 }
 
 void LayerPreview::dropEvent( QDropEvent* event )
@@ -140,6 +148,8 @@ void LayerPreview::dropEvent( QDropEvent* event )
 	const int nDropLayer = LayerPreview::yToLayer( pEv->position().y() );
 
     m_drag = Drag::None;
+    m_nLastDragLayer = -1;
+
 	if ( mimeData->hasUrls() ) {
 		QList<QUrl> urlList = mimeData->urls();
 
@@ -545,6 +555,16 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 		LayerPreview::nHeader + LayerPreview::nLayerHeight * nSelectedLayer,
 		width() - 3 * LayerPreview::nBorder, LayerPreview::nLayerHeight
 	);
+
+    // highlight dragged layer
+	if ( m_drag == Drag::Position && m_nLastDragLayer != -1 ) {
+        p.setPen( highlightColor );
+		const int nY =
+			LayerPreview::nHeader + LayerPreview::nLayerHeight * m_nLastDragLayer;
+		p.drawLine(
+			LayerPreview::nBorder, nY, width() - LayerPreview::nBorder, nY
+		);
+	}
 }
 
 void LayerPreview::mouseDoubleClickEvent( QMouseEvent* ev )
@@ -596,6 +616,7 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
     m_drag = Drag::None;
     m_dragStartPoint = pEv->position();
     m_dragStartTimeStamp = pEv->timestamp();
+    m_nLastDragLayer = LayerPreview::yToLayer( pEv->position().y() );
 
 	const auto nMaxLayers = pComponent->getLayers().size();
 

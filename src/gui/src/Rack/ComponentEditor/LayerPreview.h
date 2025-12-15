@@ -137,6 +137,8 @@ class LayerPreview : public QWidget, protected WidgetWithScalableFont<6, 8, 10>,
 	Drag m_drag;
     QPointF m_dragStartPoint;
 	quint64 m_dragStartTimeStamp;
+	/** A value of -1 will cause the rendering to be omitted. */
+	int m_nLastDragLayer;
 
 	/**
 	 * convert a raw velocity value (0.0 to 1.0)
