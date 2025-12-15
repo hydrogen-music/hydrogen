@@ -22,9 +22,14 @@
 
 #include "DrumkitTest.h"
 
-#include <core/Hydrogen.h>
+#include "TestHelper.h"
+
+#include <core/Basics/Event.h>
 #include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/Sample.h>
 
 using namespace H2Core;
 
@@ -115,5 +120,127 @@ void DrumkitTest::testIsValidIndex()
 	CPPUNIT_ASSERT( list.isValidIndex( 0 ) );
 	CPPUNIT_ASSERT( !list.isValidIndex( 1 ) );
 	CPPUNIT_ASSERT( !list.isValidIndex( -42 ) );
+	___INFOLOG( "passed" );
+}
+
+void DrumkitTest::testLayerHandling()
+{
+	___INFOLOG( "" );
+
+	auto pInstrument = std::make_shared<Instrument>();
+
+	// Check default instrument layout.
+	CPPUNIT_ASSERT( pInstrument->getComponents()->size() == 1 );
+	auto pComponent = pInstrument->getComponent( 0 );
+	CPPUNIT_ASSERT( pComponent != nullptr );
+
+	CPPUNIT_ASSERT( pComponent->getLayers().size() == 0 );
+
+	const auto sFileName1 = "hh.wav";
+	auto pSample1 = std::make_shared<Sample>(
+		H2TEST_FILE( QString( "/drumkits/baseKit/%1" ).arg( sFileName1 ) )
+	);
+	auto pLayer1 = std::make_shared<InstrumentLayer>( pSample1 );
+	const auto sFileName2 = "kick.wav";
+	auto pSample2 = std::make_shared<Sample>(
+		H2TEST_FILE( QString( "/drumkits/baseKit/%1" ).arg( sFileName2 ) )
+	);
+	auto pLayer2 = std::make_shared<InstrumentLayer>( pSample2 );
+
+	////////////////////////////////////////////////////////////////////////////
+	// Check layer adding and removal
+
+	// Illegal indices should not add layer
+	pInstrument->addLayer( pComponent, pLayer1, -2, Event::Trigger::Suppress );
+	CPPUNIT_ASSERT( pComponent->getLayers().size() == 0 );
+	pInstrument->addLayer(
+		pComponent, pLayer1, pComponent->getLayers().size() + 1,
+		Event::Trigger::Suppress
+	);
+	CPPUNIT_ASSERT( pComponent->getLayers().size() == 0 );
+
+	pInstrument->addLayer( pComponent, pLayer1, 0, Event::Trigger::Suppress );
+	CPPUNIT_ASSERT( pComponent->getLayers().size() == 1 );
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName1
+	);
+
+	pInstrument->addLayer( pComponent, pLayer2, 0, Event::Trigger::Suppress );
+	CPPUNIT_ASSERT( pComponent->getLayers().size() == 2 );
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName2
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 1 )->getSample()->getFileName() == sFileName1
+	);
+
+	pInstrument->addLayer( pComponent, pLayer2, -1, Event::Trigger::Suppress );
+	CPPUNIT_ASSERT( pComponent->getLayers().size() == 3 );
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName2
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 1 )->getSample()->getFileName() == sFileName1
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 2 )->getSample()->getFileName() == sFileName2
+	);
+
+	// Only valid indices should remove layers
+	pInstrument->removeLayer( pComponent, -1, Event::Trigger::Suppress );
+	CPPUNIT_ASSERT( pComponent->getLayers().size() == 3 );
+	pInstrument->removeLayer(
+		pComponent, pComponent->getLayers().size(), Event::Trigger::Suppress
+	);
+	CPPUNIT_ASSERT( pComponent->getLayers().size() == 3 );
+
+	pInstrument->removeLayer( pComponent, 1, Event::Trigger::Suppress );
+	CPPUNIT_ASSERT( pComponent->getLayers().size() == 2 );
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName2
+	);
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 1 )->getSample()->getFileName() == sFileName2
+	);
+	pInstrument->removeLayer( pComponent, 0, Event::Trigger::Suppress );
+	pInstrument->removeLayer( pComponent, 0, Event::Trigger::Suppress );
+	CPPUNIT_ASSERT( pComponent->getLayers().size() == 0 );
+
+	// Removing without layers should not be harmful.
+	pInstrument->removeLayer( pComponent, 0, Event::Trigger::Suppress );
+
+	////////////////////////////////////////////////////////////////////////////
+	// set layer and sample
+	pInstrument->addLayer( pComponent, pLayer1, 0, Event::Trigger::Suppress );
+	CPPUNIT_ASSERT( pComponent->getLayers().size() == 1 );
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName1
+	);
+
+	pInstrument->setLayer(
+		pComponent, pLayer2, 0, Event::Trigger::Suppress
+	);
+	CPPUNIT_ASSERT( pComponent->getLayers().size() == 1 );
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName2
+	);
+
+    // Using the wrong layer
+	pInstrument->setSample(
+		pComponent, pLayer1, pSample1, Event::Trigger::Suppress
+	);
+	CPPUNIT_ASSERT( pComponent->getLayers().size() == 1 );
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName2
+	);
+
+	pInstrument->setSample(
+		pComponent, pLayer2, pSample1, Event::Trigger::Suppress
+	);
+	CPPUNIT_ASSERT( pComponent->getLayers().size() == 1 );
+	CPPUNIT_ASSERT(
+		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName1
+	);
+
 	___INFOLOG( "passed" );
 }

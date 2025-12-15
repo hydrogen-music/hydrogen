@@ -30,12 +30,14 @@ class DrumkitTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testDefaultMidiOutNotes );
 	CPPUNIT_TEST( testHasAllMidiNotesSame );
 	CPPUNIT_TEST( testIsValidIndex );
+	CPPUNIT_TEST( testLayerHandling );
 	CPPUNIT_TEST_SUITE_END();
 
    public:
 	void testDefaultMidiOutNotes();
 	void testHasAllMidiNotesSame();
 	void testIsValidIndex();
+	void testLayerHandling();
 };
 
 #endif
