@@ -95,10 +95,18 @@ class SongEditorPatternList :  public QWidget
 		void patternPopup_virtualPattern();
 		void inlineEditingAccepted();
 		void inlineEditingRejected();
-		virtual void dragEnterEvent(QDragEnterEvent *event) override;
-		virtual void dropEvent(QDropEvent *event) override;
 
 	private:
+		void inlineEditPatternName( int row );
+
+		void dragEnterEvent( QDragEnterEvent* event ) override;
+		void dropEvent( QDropEvent* event ) override;
+		void leaveEvent( QEvent* ev ) override;
+		void mouseDoubleClickEvent( QMouseEvent* ev ) override;
+		void mouseMoveEvent( QMouseEvent* event ) override;
+		void mousePressEvent( QMouseEvent* ev ) override;
+		void paintEvent( QPaintEvent* ev ) override;
+
 		void createBackground();
 
 		int 				m_nGridHeight;
@@ -118,22 +126,14 @@ class SongEditorPatternList :  public QWidget
 		std::shared_ptr<H2Core::Pattern>	m_pPatternBeingEdited;
 
 		DragScroller *		m_pDragScroller;
-		
-		void inlineEditPatternName( int row );
 
-		virtual void mousePressEvent( QMouseEvent *ev ) override;
-		virtual void mouseDoubleClickEvent( QMouseEvent *ev ) override;
-		virtual void paintEvent( QPaintEvent *ev ) override;
-		virtual void mouseMoveEvent(QMouseEvent *event) override;
-	virtual void leaveEvent( QEvent *ev ) override;
+		QPoint m_dragStartPosition;
 
-	QPoint m_dragStartPosition;
-
-	/**
-	 * Specifies the row the mouse cursor is currently hovered
-	 * over. -1 for no cursor.
-	 */
-	int m_nRowHovered;
+		/**
+		 * Specifies the row the mouse cursor is currently hovered
+		 * over. -1 for no cursor.
+		 */
+		int m_nRowHovered;
 };
 
 #endif
