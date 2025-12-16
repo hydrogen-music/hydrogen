@@ -127,7 +127,8 @@ class SongEditorPatternList :  public QWidget
 
 		DragScroller *		m_pDragScroller;
 
-		QPoint m_dragStartPosition;
+		QPointF m_dragStartPoint;
+        quint64 m_dragStartTimeStamp;
 
 		/**
 		 * Specifies the row the mouse cursor is currently hovered

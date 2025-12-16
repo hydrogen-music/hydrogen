@@ -60,12 +60,14 @@ struct PatternDisplayInfo {
 };
 
 
-SongEditorPatternList::SongEditorPatternList( QWidget *parent )
- : QWidget( parent )
- , m_pBackgroundPixmap( nullptr )
- , m_bBackgroundInvalid( true )
- , m_nRowHovered( -1 )
- , m_nRowClicked( 0 )
+SongEditorPatternList::SongEditorPatternList( QWidget* parent )
+	: QWidget( parent ),
+	  m_pBackgroundPixmap( nullptr ),
+	  m_bBackgroundInvalid( true ),
+	  m_nRowHovered( -1 ),
+	  m_nRowClicked( 0 ),
+	  m_dragStartPoint( QPointF() ),
+	  m_dragStartTimeStamp( 0 )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
@@ -801,10 +803,14 @@ void SongEditorPatternList::mouseMoveEvent( QMouseEvent* event )
 	if ( !( event->buttons() & Qt::LeftButton ) ) {
 		return;
 	}
-	if ( ( pEv->position().y() / m_nGridHeight ) ==
-		 ( m_dragStartPosition.y() / m_nGridHeight ) ) {
-		return;
+	if ( ( pEv->position() - m_dragStartPoint ).manhattanLength() <=
+			 QApplication::startDragDistance() &&
+		 ( pEv->timestamp() - m_dragStartTimeStamp ) <=
+			 QApplication::startDragTime() ) {
+        // Not ready yet.
+        return;
 	}
+
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -812,7 +818,7 @@ void SongEditorPatternList::mouseMoveEvent( QMouseEvent* event )
 	}
 
 	auto pPatternList = pSong->getPatternList();
-	int row = ( m_dragStartPosition.y() / m_nGridHeight );
+	int row = ( m_dragStartPoint.y() / m_nGridHeight );
 	if ( row >= (int) pPatternList->size() ) {
 		return;
 	}
@@ -842,7 +848,8 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent* ev )
 {
 	auto pEv = static_cast<MouseEvent*>( ev );
 
-	m_dragStartPosition = pEv->position().toPoint();
+	m_dragStartPoint = pEv->position();
+    m_dragStartTimeStamp = pEv->timestamp();
 
 	// -1 to compensate for the 1 pixel offset to align shadows and
 	// -grid lines.
