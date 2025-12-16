@@ -660,6 +660,13 @@ void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPat
 	pHydrogen->setIsModified( true );
 }
 
+int SongEditorPatternList::yToRow( int nY ) const
+{
+	return static_cast<int>( std::floor(
+		static_cast<float>( nY ) / static_cast<float>( m_nGridHeight )
+	) );
+}
+
 void SongEditorPatternList::dragEnterEvent( QDragEnterEvent* event )
 {
 	if ( event->mimeData()->hasFormat( "text/plain" ) ) {
@@ -680,10 +687,9 @@ void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 	QString sText = pEvent->mimeData()->text();
 	const QMimeData* mimeData = pEvent->mimeData();
 
-	int nTargetPattern = 0;
-	if ( m_nGridHeight > 0 ) {
-		nTargetPattern = pEv->position().y() / m_nGridHeight;
-	}
+	const int nTargetPattern =
+		m_nGridHeight > 0 ? yToRow( pEv->position().y() ) : 0;
+
 
 	if ( sText.startsWith( "Songs:" ) ||
 		 sText.startsWith( "move instrument:" ) ||
@@ -785,7 +791,7 @@ void SongEditorPatternList::mouseDoubleClickEvent( QMouseEvent* ev )
 {
 	auto pEv = static_cast<MouseEvent*>( ev );
 
-	const int nRow = pEv->position().y() / m_nGridHeight;
+	const int nRow = yToRow( pEv->position().y() );
 	inlineEditPatternName( nRow );
 }
 
@@ -795,8 +801,9 @@ void SongEditorPatternList::mouseMoveEvent( QMouseEvent* event )
 	auto pEv = static_cast<MouseEvent*>( event );
 	//
 	// Update the highlighting of the hovered row.
-	if ( pEv->position().y() / m_nGridHeight != m_nRowHovered ) {
-		m_nRowHovered = pEv->position().y() / m_nGridHeight;
+	const int nRowHovered = yToRow( pEv->position().y() );
+	if ( nRowHovered != m_nRowHovered ) {
+		m_nRowHovered = nRowHovered;
 		updateEditor();
 	}
 
@@ -818,16 +825,16 @@ void SongEditorPatternList::mouseMoveEvent( QMouseEvent* event )
 	}
 
 	auto pPatternList = pSong->getPatternList();
-	int row = ( m_dragStartPoint.y() / m_nGridHeight );
-	if ( row >= (int) pPatternList->size() ) {
+	const int nDragStartRow = yToRow( m_dragStartPoint.y() );
+	if ( nDragStartRow >= (int) pPatternList->size() ) {
 		return;
 	}
-	auto pPattern = pPatternList->get( row );
+	auto pPattern = pPatternList->get( nDragStartRow );
 	QString sName = "<unknown>";
 	if ( pPattern ) {
 		sName = pPattern->getName();
 	}
-	QString sText = QString( "move pattern:%1:%2" ).arg( row ).arg( sName );
+	QString sText = QString( "move pattern:%1:%2" ).arg( nDragStartRow ).arg( sName );
 
 	QDrag* pDrag = new QDrag( this );
 	QMimeData* pMimeData = new QMimeData;
@@ -853,7 +860,7 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent* ev )
 
 	// -1 to compensate for the 1 pixel offset to align shadows and
 	// -grid lines.
-	int nRow = ( ( pEv->position().y() - 1 ) / m_nGridHeight );
+	const int nRow = yToRow( pEv->position().y() - 1 );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();

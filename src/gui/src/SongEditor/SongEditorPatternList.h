@@ -99,6 +99,8 @@ class SongEditorPatternList :  public QWidget
 	private:
 		void inlineEditPatternName( int row );
 
+        int yToRow( int nY ) const;
+
 		void dragEnterEvent( QDragEnterEvent* event ) override;
 		void dropEvent( QDropEvent* event ) override;
 		void leaveEvent( QEvent* ev ) override;
