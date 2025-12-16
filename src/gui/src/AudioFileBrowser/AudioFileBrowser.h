@@ -24,7 +24,7 @@
 #define AUDIOFILEBROWSER_H
 
 #include "ui_AudioFileBrowser_UI.h"
-#include "InstrumentEditor/InstrumentEditor.h"
+#include "Rack/InstrumentEditor.h"
 
 #include <QDialog>
 #include <core/Object.h>

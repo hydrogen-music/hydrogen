@@ -29,11 +29,14 @@
 #include <core/Globals.h>
 
 ClickableLabel::ClickableLabel( QWidget *pParent, const QSize& size,
-								const QString& sText, const Color& color,
+								const QString& sText, const DefaultColor& color,
 								bool bIsEditable )
 	: QLabel( pParent )
 	, m_size( size )
-	, m_color( color )
+	, m_defaultColor( color )
+    // We default to an invalid color in order to check whether a custom value
+    // was assigned or not.
+    , m_color( QColor( -1, -1, -1 ) )
 	, m_bIsEditable( bIsEditable )
 	, m_bEntered( false )
 {
@@ -54,18 +57,27 @@ ClickableLabel::ClickableLabel( QWidget *pParent, const QSize& size,
 
 }
 
+void ClickableLabel::setColor( const QColor& newColor )
+{
+	m_color = newColor;
+	updateStyleSheet();
+}
+
 void ClickableLabel::updateStyleSheet() {
 
 	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
 
-	QColor text;
-	if ( m_color == Color::Bright ) {
-		text = pColorTheme->m_windowTextColor;
+	QColor textColor;
+	if ( m_color.isValid() ) {
+	  textColor = m_color;
+	}
+	else if ( m_defaultColor == DefaultColor::Bright ) {
+		textColor = pColorTheme->m_windowTextColor;
 	} else {
-		text = pColorTheme->m_widgetTextColor;
+		textColor = pColorTheme->m_widgetTextColor;
 	}
 
-	setStyleSheet( QString( "QLabel { color: %1; }" ).arg( text.name() ) );
+	setStyleSheet( QString( "QLabel { color: %1; }" ).arg( textColor.name() ) );
 }
 
 void ClickableLabel::mousePressEvent( QMouseEvent* pEvent )

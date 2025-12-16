@@ -63,7 +63,7 @@ static std::shared_ptr<Instrument> createInstrument(int id, const QString& sFile
 	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( sFilePath ) );
 	auto pComponent = pInstrument->getComponent( 0 );
 	if ( pComponent != nullptr ) {
-		pInstrument->setLayer( pComponent, pLayer, 0, Event::Trigger::Suppress );
+		pInstrument->addLayer( pComponent, pLayer, -1, Event::Trigger::Suppress );
 	} else {
 		___ERRORLOG( "Invalid default component" );
 	}
@@ -81,8 +81,6 @@ Sampler::Sampler()
 	
 	m_pMainOut_L = new float[ MAX_BUFFER_SIZE ];
 	m_pMainOut_R = new float[ MAX_BUFFER_SIZE ];
-
-	m_nMaxLayers = InstrumentComponent::getMaxLayers();
 
 	QString sEmptySampleFileName = Filesystem::empty_sample_path();
 
@@ -669,7 +667,7 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 	//---------------------------------------------------------
 
 	// In case there were already some layers selected for specific components -
-	// e.g. when clicking a layer in the ComponentsEditor or when using the
+	// e.g. when clicking a layer in the ComponentEditor or when using the
 	// SampleEditor - we use those. If not, we will select them right here
 	// according to the sample selected algorithms.
 	if ( ! pNote->layersAlreadySelected() ) {
@@ -1570,8 +1568,6 @@ QString Sampler::toQString( const QString& sPrefix, bool bShort ) const
 				QString( "%1%2m_pPreviewInstrument: %3\n" ).arg( sPrefix ).arg( s )
 				.arg( m_pPreviewInstrument == nullptr ? "nullptr" :
 					  m_pPreviewInstrument->toQString( sPrefix + s, bShort) ) )
-			.append( QString( "%1%2m_nMaxLayers: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nMaxLayers ) )
 			.append( QString( "%1%2m_nPlayBackSamplePosition: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nPlayBackSamplePosition ) )
 			.append( QString( "%1%2m_interpolateMode: %3\n" ).arg( sPrefix ).arg( s )
@@ -1597,8 +1593,6 @@ QString Sampler::toQString( const QString& sPrefix, bool bShort ) const
 				QString( ", m_pPreviewInstrument: %1" )
 				.arg( m_pPreviewInstrument == nullptr ? "nullptr" :
 					  m_pPreviewInstrument->toQString( "", bShort) ) )
-			.append( QString( ", m_nMaxLayers: %1" )
-					 .arg( m_nMaxLayers ) )
 			.append( QString( ", m_nPlayBackSamplePosition: %1" )
 					 .arg( m_nPlayBackSamplePosition ) )
 			.append( QString( ", m_interpolateMode: %1" )

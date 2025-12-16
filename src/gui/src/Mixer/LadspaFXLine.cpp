@@ -111,7 +111,7 @@ LadspaFXLine::LadspaFXLine( QWidget* pParent, std::shared_ptr<LadspaFX> pFX,
 
 	m_pReturnLbl = new ClickableLabel(
 		this, QSize( 46, 9 ), pCommonStrings->getReturnLabel(),
-		ClickableLabel::Color::Dark );
+		ClickableLabel::DefaultColor::Dark );
 	m_pReturnLbl->move( 123, 30 );
 
 	updateColors();

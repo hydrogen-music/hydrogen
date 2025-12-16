@@ -93,6 +93,8 @@ All notable changes to this project will be documented in this file.
   - Drumkit components (`<componentList>`) were dropped.
   - `sampleSelectionAlgo` was moved from `instrument` node into
     `instrumentComponent` nodes.
+  - There is no upper limit for the layers within an instrument component
+    anymore.
 - (Instrument) Components are now independent of each other and can be added
   separately for each instrument.
 - Notes in `.h2pattern` files as well as instruments in
@@ -182,6 +184,15 @@ All notable changes to this project will be documented in this file.
     versions of the previous view for all components.
   - Both components and layers can now be muted and soloed.
   - Adding, deleting, and replacing of layers can be undone.
+  - Layers can be rearranged using drag and drop.
+  - (Multiple) samples can be added as layers by dragging them into Hydrogen and
+    the Layer Preview widget.
+  - The sample of the currently selected layer can be replaced by dragging
+    another one into Hydrogen on the wave display.
+  - Layer overlap is now properly handled in the header.
+  - The default background color of the header was changed to red to help the
+    user to find "holes" between layers.
+  - Layers and components can now be duplicated.
 - JACK per-track output ports are now mapped on drumkit switch or manipulation
   on instrument with same type. Ports of instruments without type aren't mapped
   at all (same as for notes) (#1071).

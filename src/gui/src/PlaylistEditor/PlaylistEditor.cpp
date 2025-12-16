@@ -28,6 +28,7 @@
 #include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
+#include "../Skin.h"
 #include "../UndoActions.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/MidiLearnableToolButton.h"
@@ -1039,44 +1040,13 @@ void PlaylistEditor::updateStyleSheet() {
 
 	const QColor colorBackground = pColorTheme->m_baseColor;
 
-	QColor colorBackgroundChecked, colorBackgroundHovered;
-	if ( Skin::moreBlackThanWhite( colorBackground ) ) {
-		colorBackgroundChecked = colorBackground.lighter(
-			Skin::nToolBarCheckedScaling );
-		colorBackgroundHovered = colorBackground.lighter(
-			Skin::nToolBarHoveredScaling );
-	}
-	else {
-		colorBackgroundChecked = colorBackground.darker(
-			Skin::nToolBarCheckedScaling );
-		colorBackgroundHovered = colorBackground.darker(
-			Skin::nToolBarHoveredScaling );
-	}
-
 	setStyleSheet( QString( "\
 QToolBar {\
      background-color: %1; \
      border: 1px solid #000;\
      spacing: 4px;\
-}\
-QToolButton {\
-    background-color: %1; \
-}\
-QToolButton:checked {\
-    background-color: %2;\
-}\
-QToolButton:hover {\
-    background-color: %3;\
-}\
-QToolButton:hover, QToolButton:checked {\
-    background-color: %2;\
-}\
-QToolButton:hover, QToolButton:pressed {\
-    background-color: %2;\
 }")
-				   .arg( colorBackground.name() )
-				   .arg( colorBackgroundChecked.name() )
-				   .arg( colorBackgroundHovered.name() ) );
+				   .arg( colorBackground.name() ) );
 }
 
 void PlaylistEditor::updateWindowTitle() {

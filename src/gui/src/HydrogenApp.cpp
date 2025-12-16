@@ -42,7 +42,9 @@
 #include "Director.h"
 #include "Footer/Footer.h"
 #include "FilesystemInfoForm.h"
-#include "InstrumentRack.h"
+#include "Rack/ComponentEditor/ComponentEditor.h"
+#include "Rack/InstrumentEditor.h"
+#include "Rack/Rack.h"
 #include "LadspaFXProperties.h"
 #include "MainForm.h"
 #include "Mixer/Mixer.h"
@@ -272,7 +274,7 @@ void HydrogenApp::setupSinglePanedInterface()
 		m_pTab->addTab( m_pSongEditorPanel, tr("Song Editor") );
 	}
 
-	// this HBox will contain the InstrumentRack and the Pattern editor
+	// this HBox will contain the Rack and the Pattern editor
 	QWidget *pSouthPanel = new QWidget( m_pSplitter );
 	pSouthPanel->setObjectName( "SouthPanel" );
 	QHBoxLayout *pEditorHBox = new QHBoxLayout();
@@ -281,10 +283,11 @@ void HydrogenApp::setupSinglePanedInterface()
 	pSouthPanel->setLayout( pEditorHBox );
 
 	// INSTRUMENT RACK
-	m_pInstrumentRack = new InstrumentRack( nullptr );
-	m_pInstrumentRack->getInstrumentEditorPanel()->updateEditors();
-	WindowProperties instrumentRackProp = pPref->getInstrumentRackProperties();
-	m_pInstrumentRack->setVisible( instrumentRackProp.visible );
+	m_pRack = new Rack( nullptr );
+	m_pRack->getInstrumentEditor()->updateEditor();
+	m_pRack->getComponentEditor()->updateEditor();
+	WindowProperties rackProp = pPref->getRackProperties();
+	m_pRack->setVisible( rackProp.visible );
 
 	if( layout == InterfaceTheme::Layout::Tabbed ){
 		m_pTab->setMovable( false );
@@ -301,7 +304,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	setWindowProperties( pSouthPanel, patternEditorProp, SetHeight );
 
 	pEditorHBox->addWidget( m_pPatternEditorPanel );
-	pEditorHBox->addWidget( m_pInstrumentRack );
+	pEditorHBox->addWidget( m_pRack );
 
 	m_pMainToolBar = new MainToolBar( nullptr );
 
@@ -331,7 +334,7 @@ void HydrogenApp::setupSinglePanedInterface()
 							  180 + // menu bar, margins etc.
 							  MainToolBar::nHeight +
 							  SongEditorPanel::nMinimumHeight +
-							  InstrumentRack::m_nMinimumHeight +
+							  Rack::m_nMinimumHeight +
 							  SongEditorPositionRuler::m_nMinimumHeight +
 							  Footer::nHeight +
 							  AutomationPathView::m_nMinimumHeight );
@@ -753,7 +756,7 @@ void HydrogenApp::showMixer(bool show)
 	m_pMainForm->updateMenuBar();
 }
 
-void HydrogenApp::showInstrumentRack(bool show)
+void HydrogenApp::showRack(bool show)
 {
 	/*
 		 *   Switch to pattern editor/instrument tab in tabbed mode,
@@ -763,10 +766,10 @@ void HydrogenApp::showInstrumentRack(bool show)
 
 	if ( layout == InterfaceTheme::Layout::Tabbed ) {
 		m_pTab->setCurrentIndex( 1 );
-		m_pInstrumentRack->setVisible( show );
+		m_pRack->setVisible( show );
 	}
 	else {
-		m_pInstrumentRack->setVisible( show );
+		m_pRack->setVisible( show );
 	}
 
 	// Update visibility button.
@@ -912,6 +915,33 @@ void HydrogenApp::showSampleEditor(
 	m_pSampleEditor = new SampleEditor( nullptr, pLayer, pComponent, pInstrument );
 	m_pSampleEditor->show();
 	QApplication::restoreOverrideCursor();
+}
+
+ComponentEditor* HydrogenApp::getComponentEditor() const
+{
+	if ( m_pRack == nullptr ) {
+	  return nullptr;
+	}
+
+	return m_pRack->getComponentEditor();
+}
+
+InstrumentEditor* HydrogenApp::getInstrumentEditor() const
+{
+	if ( m_pRack == nullptr ) {
+	  return nullptr;
+	}
+
+	return m_pRack->getInstrumentEditor();
+}
+
+SoundLibraryPanel* HydrogenApp::getSoundLibraryPanel() const
+{
+	if ( m_pRack == nullptr ) {
+	  return nullptr;
+	}
+
+	return m_pRack->getSoundLibraryPanel();
 }
 
 void HydrogenApp::songModifiedEvent()
@@ -1354,8 +1384,8 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 		m_pSplitter->setSizes(
 			QList<int>() << songEditorProp.height << patternEditorProp.height );
 
-		WindowProperties instrumentRackProp = pPref->getInstrumentRackProperties();
-		m_pInstrumentRack->setHidden( !instrumentRackProp.visible );
+		WindowProperties rackProp = pPref->getRackProperties();
+		m_pRack->setHidden( !rackProp.visible );
 
 		WindowProperties mixerProp = pPref->getMixerProperties();
 		if ( layout != InterfaceTheme::Layout::SinglePane ) {

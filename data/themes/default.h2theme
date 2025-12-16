@@ -41,6 +41,12 @@
    <instrumentSelectedRowColor>149,157,178</instrumentSelectedRowColor>
    <instrumentSelectedRowTextColor>0,0,0</instrumentSelectedRowTextColor>
   </patternEditor>
+  <componentEditor>
+   <componentColor>127,133,150</componentColor>
+   <componentTextColor>0,0,0</componentTextColor>
+   <layerColor>155,161,180</layerColor>
+   <layerTextColor>18,18,18</layerTextColor>
+  </componentEditor>
   <selection>
    <highlightColor>255,255,255</highlightColor>
    <inactiveColor>199,199,199</inactiveColor>

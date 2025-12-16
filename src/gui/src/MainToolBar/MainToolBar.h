@@ -139,6 +139,7 @@ private:
 		BpmTap* m_pBpmTap;
 
 		QAction* m_pRubberBandAction;
+		QAction* m_pRubberBandSeparator;
 
 		QAction* m_pJackTransportAction;
 		QAction* m_pJackTimebaseAction;
@@ -151,7 +152,7 @@ private:
 		QAction* m_pShowPlaylistEditorAction;
 		QAction* m_pShowDirectorAction;
 		QAction* m_pShowMixerAction;
-		QAction* m_pShowInstrumentRackAction;
+		QAction* m_pShowRackAction;
 		QAction* m_pShowPreferencesAction;
 		QAction* m_pShowAutomationAction;
 		QAction* m_pShowPlaybackTrackAction;

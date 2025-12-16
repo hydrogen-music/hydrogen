@@ -31,7 +31,7 @@ https://www.gnu.org/licenses
 #include "../CommonStrings.h"
 #include "../Director.h"
 #include "../HydrogenApp.h"
-#include "../InstrumentRack.h"
+#include "../Rack/Rack.h"
 #include "../Mixer/Mixer.h"
 #include "../PlaylistEditor/PlaylistEditor.h"
 #include "../Skin.h"
@@ -329,13 +329,15 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 	connect( m_pRubberBandAction, &QAction::triggered, [&]() {
 			 rubberbandButtonToggle();
 	});
+	addAction( m_pRubberBandAction );
+
+	m_pRubberBandSeparator = addSeparator();
+
 	// test the path. if test fails, no button
 	if ( QFile( pPref->m_sRubberBandCLIexecutable ).exists() == false) {
 		m_pRubberBandAction->setVisible( false );
+		m_pRubberBandSeparator->setVisible( false );
 	}
-	addAction( m_pRubberBandAction );
-
-	addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pShowPlaylistEditorAction = createAction( tr( "Show Playlist Editor" ) );
@@ -355,11 +357,11 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 		HydrogenApp::get_instance()->showMixer( m_pShowMixerAction->isChecked() ); });
 	addAction( m_pShowMixerAction );
 
-	m_pShowInstrumentRackAction = createAction( tr( "Show Instrument Rack" ) );
-	connect( m_pShowInstrumentRackAction, &QAction::triggered, [&]() {
-		HydrogenApp::get_instance()->showInstrumentRack(
-			m_pShowInstrumentRackAction->isChecked() ); });
-	addAction( m_pShowInstrumentRackAction );
+	m_pShowRackAction = createAction( tr( "Show Rack" ) );
+	connect( m_pShowRackAction, &QAction::triggered, [&]() {
+		HydrogenApp::get_instance()->showRack(
+			m_pShowRackAction->isChecked() ); });
+	addAction( m_pShowRackAction );
 
 	m_pShowAutomationAction = createAction( tr( "Show Automation" ) );
 	connect( m_pShowAutomationAction, &QAction::triggered, [&]() {
@@ -448,9 +450,9 @@ void MainToolBar::updateActions() {
 	if ( pHydrogenApp->getMixer() != nullptr ) {
 		m_pShowMixerAction->setChecked( pHydrogenApp->getMixer()->isVisible() );
 	}
-	if ( pHydrogenApp->getInstrumentRack() != nullptr ) {
-		m_pShowInstrumentRackAction->setChecked(
-			pHydrogenApp->getInstrumentRack()->isVisible() );
+	if ( pHydrogenApp->getRack() != nullptr ) {
+		m_pShowRackAction->setChecked(
+			pHydrogenApp->getRack()->isVisible() );
 	}
 	if ( pHydrogenApp->getSongEditorPanel() != nullptr ) {
 		m_pShowAutomationAction->setChecked(
@@ -1039,8 +1041,8 @@ void MainToolBar::updateIcons() {
 	m_pShowPlaylistEditorAction->setIcon( QIcon( sIconPath + "playlist.svg" ) );
 	m_pShowDirectorAction->setIcon( QIcon( sIconPath + "director.svg" ) );
 	m_pShowMixerAction->setIcon( QIcon( sIconPath + "mixer.svg" ) );
-	m_pShowInstrumentRackAction->setIcon(
-		QIcon( sIconPath + "component-editor.svg" ) );
+	m_pShowRackAction->setIcon(
+		QIcon( sIconPath + "rack.svg" ) );
 	m_pShowAutomationAction->setIcon( QIcon( sIconPath + "automation.svg" ) );
 	m_pShowPlaybackTrackAction->setIcon(
 		QIcon( sIconPath + "playback-track.svg" ) );
@@ -1058,45 +1060,14 @@ void MainToolBar::updateStyleSheet() {
 	const QColor colorBackground =
 		pColorTheme->m_songEditor_backgroundColor.darker( 110 );
 
-	QColor colorBackgroundChecked, colorBackgroundHovered;
-	if ( Skin::moreBlackThanWhite( colorBackground ) ) {
-		colorBackgroundChecked = colorBackground.lighter(
-			Skin::nToolBarCheckedScaling );
-		colorBackgroundHovered = colorBackground.lighter(
-			Skin::nToolBarHoveredScaling );
-	}
-	else {
-		colorBackgroundChecked = colorBackground.darker(
-			Skin::nToolBarCheckedScaling );
-		colorBackgroundHovered = colorBackground.darker(
-			Skin::nToolBarHoveredScaling );
-	}
-
-	setStyleSheet( QString( "\
+		setStyleSheet( QString( "\
 QToolBar {\
      background-color: %1; \
      border: %2px solid #000;\
      spacing: %3px;\
-}\
-QToolButton {\
-    background-color: %1; \
-}\
-QToolButton:checked {\
-    background-color: %4;\
-}\
-QToolButton:hover {\
-    background-color: %5;\
-}\
-QToolButton:hover, QToolButton:pressed {\
-    background-color: %4;\
-}\
-QToolButton:hover, QToolButton:checked {\
-    background-color: %4;\
 }")
 				   .arg( colorBackground.name() ).arg( MainToolBar::nBorder )
-				   .arg( MainToolBar::nSpacing )
-				   .arg( colorBackgroundChecked.name() )
-				   .arg( colorBackgroundHovered.name() ) );
+				   .arg( MainToolBar::nSpacing ) );
 
 	m_pBpmTap->setBackgroundColor( colorBackground );
 	m_pBpmTap->updateStyleSheet();

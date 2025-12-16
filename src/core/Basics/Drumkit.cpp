@@ -459,37 +459,43 @@ void Drumkit::saveTo( XMLNode& node,
 
 bool Drumkit::saveSamples( const QString& sDrumkitFolder, bool bSilent ) const
 {
-	if ( ! bSilent ) {
+	if ( !bSilent ) {
 		INFOLOG( QString( "Saving drumkit [%1] samples into [%2]" )
-				 .arg( m_sName ).arg( sDrumkitFolder ) );
+					 .arg( m_sName )
+					 .arg( sDrumkitFolder ) );
 	}
 
-	auto pInstrList = getInstruments();
-	for ( int i = 0; i < pInstrList->size(); i++ ) {
-		auto pInstrument = ( *pInstrList )[i];
-		for ( const auto& pComponent : *pInstrument->getComponents() ) {
-			if ( pComponent != nullptr ) {
-				for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
-					auto pLayer = pComponent->getLayer( n );
-					if ( pLayer != nullptr && pLayer->getSample() != nullptr ) {
-						QString src = pLayer->getSample()->getFilePath();
-						QString dst = sDrumkitFolder + "/" + pLayer->getSample()->getFileName();
+	for ( const auto& ppInstrument : *m_pInstruments ) {
+		if ( ppInstrument == nullptr ) {
+			continue;
+		}
+		for ( const auto& ppComponent : *ppInstrument ) {
+			if ( ppComponent == nullptr ) {
+				continue;
+			}
+			for ( const auto& ppLayer : *ppComponent ) {
+				if ( ppLayer == nullptr || ppLayer->getSample() == nullptr ) {
+					continue;
+				}
+				const QString src = ppLayer->getSample()->getFilePath();
+				const QString dst =
+					sDrumkitFolder + "/" + ppLayer->getSample()->getFileName();
 
-						if ( src != dst ) {
-							QString original_dst = dst;
+				if ( src != dst ) {
+					QString original_dst = dst;
 
-							// If the destination path does not have an extension and there is a dot in the path, hell will break loose. QFileInfo maybe?
-							int insertPosition = original_dst.length();
-							if ( original_dst.lastIndexOf(".") > 0 ) {
-								insertPosition = original_dst.lastIndexOf(".");
-							}
+					// If the destination path does not have an extension and
+					// there is a dot in the path, hell will break loose.
+					// QFileInfo maybe?
+					int insertPosition = original_dst.length();
+					if ( original_dst.lastIndexOf( "." ) > 0 ) {
+						insertPosition = original_dst.lastIndexOf( "." );
+					}
 
-							pLayer->getSample()->setFileName( dst );
+					ppLayer->getSample()->setFileName( dst );
 
-							if( ! Filesystem::file_copy( src, dst, bSilent ) ) {
-								return false;
-							}
-						}
+					if ( !Filesystem::file_copy( src, dst, bSilent ) ) {
+						return false;
 					}
 				}
 			}
@@ -983,37 +989,39 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
 	bool bSampleFound;
 	for ( const auto& ssFile : sourceFilesList ) {
 		bSampleFound = false;
-		for ( const auto& pInstr : *( getInstruments() ) ) {
-			if ( pInstr != nullptr ) {
-				for ( const auto& pComponent : *( pInstr->getComponents() ) ) {
-					if ( pComponent != nullptr ) {
-						for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
-							const auto pLayer = pComponent->getLayer( n );
-							if ( pLayer != nullptr && pLayer->getSample() != nullptr ) {
-								if ( pLayer->getSample()->getFileName().compare( ssFile ) == 0 ) {
-									filesUsed << sourceDir.filePath( ssFile );
-									bSampleFound = true;
-									break;
-								}
-							}
-						}
+		for ( const auto& ppInstrument : *m_pInstruments ) {
+			if ( ppInstrument == nullptr ) {
+				continue;
+			}
+			for ( const auto& ppComponent : *ppInstrument ) {
+				if ( ppComponent == nullptr ) {
+					continue;
+				}
+				for ( const auto& ppLayer : *ppComponent ) {
+					if ( ppLayer != nullptr &&
+						 ppLayer->getSample() != nullptr &&
+						 ppLayer->getSample()->getFileName().compare( ssFile
+						 ) == 0 ) {
+						filesUsed << sourceDir.filePath( ssFile );
+						bSampleFound = true;
+						break;
 					}
 				}
 			}
 		}
 
 		// Should we drop the file?
-		if ( ! bSampleFound ) {
+		if ( !bSampleFound ) {
 			QFileInfo ffileInfo( sourceDir.filePath( ssFile ) );
-			if ( ! suffixBlacklist.contains( ffileInfo.suffix(),
-											 Qt::CaseInsensitive ) ) {
-
+			if ( !suffixBlacklist.contains(
+					 ffileInfo.suffix(), Qt::CaseInsensitive
+				 ) ) {
 				// We do not want to export any old backups created during
 				// the upgrade process of the drumkits. As these were
 				// introduced using suffixes, like .bak.1, .bak.2, etc,
 				// adding `bak` to the blacklist will not work.
-				if ( ! ( ssFile.contains( Filesystem::drumkit_xml() ) &&
-						 ssFile.contains( ".bak" ) ) ) {
+				if ( !( ssFile.contains( Filesystem::drumkit_xml() ) &&
+						ssFile.contains( ".bak" ) ) ) {
 					filesUsed << sourceDir.filePath( ssFile );
 				}
 			}
@@ -1223,8 +1231,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
 	return false;
 #endif
 #endif // LIBARCHIVE
-
-}
+	}
 
 const QString& Drumkit::getPath() const {
 	return m_sPath;

@@ -431,10 +431,6 @@ public:
 	int				getMaxBars() const;
 	/** @param bars Sets #m_nMaxBars.*/
 	void			setMaxBars( const int bars );
-	/** @return #m_nMaxLayers.*/
-	int				getMaxLayers() const;
-	/** @param layers Sets #m_nMaxLayers.*/
-	void			setMaxLayers( const int layers );
 
 	int				getRubberBandBatchMode() const;
 	void			setRubberBandBatchMode( int val );
@@ -494,8 +490,8 @@ public:
 	const WindowProperties& getSongEditorProperties() const;
 	void				setSongEditorProperties( const WindowProperties& prop );
 
-	const WindowProperties& getInstrumentRackProperties() const;
-	void				setInstrumentRackProperties( const WindowProperties& prop );
+	const WindowProperties& getRackProperties() const;
+	void				setRackProperties( const WindowProperties& prop );
 
 	const WindowProperties& getAudioEngineInfoProperties() const;
 	void				setAudioEngineInfoProperties( const WindowProperties& prop );
@@ -628,9 +624,6 @@ private:
 	/** Maximum number of bars shown in the Song Editor at
 	 * once. */
 	int					m_nMaxBars;
-	/** Maximum number of layers to be used in the Instrument
-	 *  editor. */
-	int					m_nMaxLayers;
 
 		/** Zero-based MIDI channel which to use for both MIDI feedback and MIDI
               clock signals. These messages can be turned off by setting the
@@ -681,7 +674,7 @@ private:
 	WindowProperties		m_mixerProperties;
 	WindowProperties		m_patternEditorProperties;
 	WindowProperties		m_songEditorProperties;
-	WindowProperties		m_instrumentRackProperties;
+	WindowProperties		m_rackProperties;
 	WindowProperties		m_audioEngineInfoProperties;
 	WindowProperties		m_ladspaProperties[MAX_FX];
 	WindowProperties		m_playlistEditorProperties;
@@ -1131,11 +1124,11 @@ inline void Preferences::setSongEditorProperties( const WindowProperties& prop )
 }
 
 
-inline const WindowProperties& Preferences::getInstrumentRackProperties() const {
-	return m_instrumentRackProperties;
+inline const WindowProperties& Preferences::getRackProperties() const {
+	return m_rackProperties;
 }
-inline void Preferences::setInstrumentRackProperties( const WindowProperties& prop ) {
-	m_instrumentRackProperties = prop;
+inline void Preferences::setRackProperties( const WindowProperties& prop ) {
+	m_rackProperties = prop;
 }
  
 inline const WindowProperties& Preferences::getAudioEngineInfoProperties() const {
@@ -1172,14 +1165,6 @@ inline void Preferences::setMaxBars( const int bars ){
 
 inline int Preferences::getMaxBars() const {
 	return m_nMaxBars;
-}
-
-inline void Preferences::setMaxLayers( const int layers ){
-	m_nMaxLayers = layers;
-}
-
-inline int Preferences::getMaxLayers() const {
-	return m_nMaxLayers;
 }
 
 inline int Preferences::getMidiFeedbackChannel() const {

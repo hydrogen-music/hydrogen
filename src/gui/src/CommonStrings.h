@@ -56,13 +56,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getTimelineBigButton() const { return m_sTimelineBigButton; }
 	const QString& getFXButton() const { return m_sFXButton; }
 	const QString& getPeakButton() const { return m_sPeakButton; }
-	const QString& getGeneralButton() const { return m_sGeneralButton; }
 	const QString& getInstrumentButton() const { return m_sInstrumentButton; }
-	const QString& getSoundLibraryButton() const { return m_sSoundLibraryButton; }
-	const QString& getComponentsButton() const { return m_sComponentsButton; }
-	const QString& getLoadLayerButton() const { return m_sLoadLayerButton; }
-	const QString& getDeleteLayerButton() const { return m_sDeleteLayerButton; }
-	const QString& getEditLayerButton() const { return m_sEditLayerButton; }
 	const QString& getSelectModeButton() const { return m_sSelectModeButton; }
 	const QString& getDrawModeButton() const { return m_sDrawModeButton; }
 	const QString& getEditModeButton() const { return m_sEditModeButton; }
@@ -269,15 +263,46 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		const QString& getActionSaveSong() const { return m_sActionSaveSong; }
 		const QString& getActionSaveCurrentDrumkit() const {
 			return m_sActionSaveCurrentDrumkit; }
-		const QString& getActionAddComponent() const { return m_sActionAddComponent; }
-		const QString& getActionDeleteComponent() const { return m_sActionDeleteComponent; }
-		const QString& getActionRenameComponent() const { return m_sActionRenameComponent; }
-		const QString& getActionAddInstrumentLayer() const {
-			return m_sActionAddInstrumentLayer; }
-		const QString& getActionDeleteInstrumentLayer() const {
-			return m_sActionDeleteInstrumentLayer; }
-		const QString& getActionEditInstrumentLayer() const {
-			return m_sActionEditInstrumentLayer; }
+		const QString& getActionAddComponent() const
+		{
+			return m_sActionAddComponent;
+		}
+		const QString& getActionDeleteComponent() const
+		{
+			return m_sActionDeleteComponent;
+		}
+		const QString& getActionDuplicateComponent() const
+		{
+			return m_sActionDuplicateComponent;
+		}
+		const QString& getActionRenameComponent() const
+		{
+			return m_sActionRenameComponent;
+		}
+		const QString& getActionAddInstrumentLayer() const
+		{
+			return m_sActionAddInstrumentLayer;
+		}
+		const QString& getActionReplaceInstrumentLayer() const
+		{
+			return m_sActionReplaceInstrumentLayer;
+		}
+		const QString& getActionDeleteInstrumentLayer() const
+		{
+			return m_sActionDeleteInstrumentLayer;
+		}
+		const QString& getActionDuplicateInstrumentLayer() const
+		{
+			return m_sActionDuplicateInstrumentLayer;
+		}
+		const QString& getActionEditInstrumentLayer() const
+		{
+			return m_sActionEditInstrumentLayer;
+		}
+		const QString& getActionMoveInstrumentLayer() const
+		{
+			return m_sActionMoveInstrumentLayer;
+		}
 
 		const QString& getActionClearAllNotesInRow() const {
 			return m_sActionClearAllNotesInRow; }
@@ -381,13 +406,7 @@ private:
 	QString m_sTimelineBigButton;
 	QString m_sFXButton;
 	QString m_sPeakButton;
-	QString m_sGeneralButton;
 	QString m_sInstrumentButton;
-	QString m_sSoundLibraryButton;
-	QString m_sComponentsButton;
-	QString m_sLoadLayerButton;
-	QString m_sEditLayerButton;
-	QString m_sDeleteLayerButton;
 	QString m_sSelectModeButton;
 	QString m_sDrawModeButton;
 	QString m_sEditModeButton;
@@ -580,10 +599,14 @@ private:
 		QString m_sActionSaveCurrentDrumkit;
 		QString m_sActionAddComponent;
 		QString m_sActionDeleteComponent;
+		QString m_sActionDuplicateComponent;
 		QString m_sActionRenameComponent;
 		QString m_sActionAddInstrumentLayer;
+		QString m_sActionReplaceInstrumentLayer;
 		QString m_sActionDeleteInstrumentLayer;
+		QString m_sActionDuplicateInstrumentLayer;
 		QString m_sActionEditInstrumentLayer;
+		QString m_sActionMoveInstrumentLayer;
 
 		QString m_sActionClearAllNotesInRow;
 		QString m_sActionClearAllNotes;

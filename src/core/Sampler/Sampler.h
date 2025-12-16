@@ -292,13 +292,6 @@ private:
 	 * assigned to that layer and the preview instrument will be triggered. */
 	std::shared_ptr<Instrument> m_pDefaultPreviewInstrument;
 
-	/** Maximum number of layers to be used in the Instrument
-	    editor. It will be inferred from
-	    InstrumentComponent::m_nMaxLayers, which itself is
-	    inferred from Preferences::m_nMaxLayers. Default value
-	    assigned in Preferences::Preferences(): 16.*/
-	int m_nMaxLayers;
-
 	int m_nPlayBackSamplePosition;
 
 	Interpolation::InterpolateMode m_interpolateMode;

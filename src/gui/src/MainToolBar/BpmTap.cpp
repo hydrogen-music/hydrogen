@@ -440,45 +440,19 @@ void BpmTap::updateStyleSheet() {
 	const QColor colorText = pColorTheme->m_windowTextColor;
 	const QColor colorLabel = pColorTheme->m_windowColor;
 
-	QColor colorBackgroundPressed, colorBackgroundHovered;
-	if ( Skin::moreBlackThanWhite( m_backgroundColor ) ) {
-		colorBackgroundPressed = m_backgroundColor.lighter(
-			Skin::nToolBarCheckedScaling );
-		colorBackgroundHovered = m_backgroundColor.lighter(
-			Skin::nToolBarHoveredScaling );
-	}
-	else {
-		colorBackgroundPressed = m_backgroundColor.darker(
-			Skin::nToolBarCheckedScaling );
-		colorBackgroundHovered = m_backgroundColor.darker(
-			Skin::nToolBarHoveredScaling );
-	}
-
-
 	setStyleSheet( QString( "\
 QToolButton {\
     background-color: %1; \
 }\
-QToolButton:pressed {\
-    background-color: %2; \
-}\
-QToolButton:hover {\
-    background-color: %3; \
-}\
-QToolButton:hover, QToolButton:pressed {\
-    background-color: %2; \
-}\
 QWidget#Background {\
      background-color: %1; \
-     color: %4; \
-     border: %5px solid #000;\
+     color: %2; \
+     border: %3px solid #000;\
 }\
 QToolButton#BpmTapTapButton {\
      icon-size: 25px;\
 }")
 				   .arg( m_backgroundColor.name() )
-				   .arg( colorBackgroundPressed.name() )
-				   .arg( colorBackgroundHovered.name() )
 				   .arg( colorText.name() )
 				   .arg( MainToolBar::nBorder ) );
 

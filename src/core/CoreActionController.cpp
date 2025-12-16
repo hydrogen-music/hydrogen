@@ -987,7 +987,6 @@ bool CoreActionController::setPreferences( std::shared_ptr<Preferences> pPrefere
 	pAudioEngine->getMetronomeInstrument()->setVolume(
 		pPreferences->m_fMetronomeVolume );
 
-	InstrumentComponent::setMaxLayers( pPreferences->getMaxLayers() );
 	pHydrogen->restartAudioDriver();
 	pHydrogen->restartMidiDriver();
 	pHydrogen->recreateOscServer();
@@ -2066,6 +2065,38 @@ bool CoreActionController::moveInstrument( int nSourceIndex, int nTargetIndex ) 
 	pHydrogen->setIsModified( true );
 
 	EventQueue::get_instance()->pushEvent( Event::Type::DrumkitLoaded, 0 );
+
+	return true;
+}
+
+bool CoreActionController::renameComponent(
+	int nComponentId,
+	const QString& sNewName
+)
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	const auto pInstrument = pHydrogen->getSelectedInstrument();
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+
+	auto pComponent = pInstrument->getComponent( nComponentId );
+	if ( pComponent == nullptr ) {
+		ERRORLOG(
+			QString( "Unable to retrieve component [%1]" ).arg( nComponentId )
+		);
+		return true;
+	}
+
+	pComponent->setName( sNewName );
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->pushEvent(
+		Event::Type::SelectedInstrumentChanged, 0
+	);
 
 	return true;
 }

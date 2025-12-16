@@ -1145,7 +1145,7 @@ void SongEditorPanel::updateIcons() {
 	}
 
 	m_pClearAction->setIcon( QIcon( sIconPath + "bin.svg" ) );
-	m_pNewPatternAction->setIcon( QIcon( sIconPath + "plus.svg" ) );
+	m_pNewPatternAction->setIcon( QIcon( sIconPath + "new.svg" ) );
 	m_pSinglePatternModeButton->setIcon( QIcon( sIconPath + "single_layer.svg" ) );
 	m_pStackedPatternModeButton->setIcon(
 		QIcon( sIconPath + "multiple_layers.svg" ) );
@@ -1240,46 +1240,15 @@ void SongEditorPanel::updateStyleSheet() {
 				   .arg( backgroundInactiveColor.name() )
 				   .arg( colorToolBar.name() ) );
 
-	QColor colorToolBarChecked, colorToolBarHovered;
-	if ( Skin::moreBlackThanWhite( colorToolBar ) ) {
-		colorToolBarChecked = colorToolBar.lighter(
-			Skin::nToolBarCheckedScaling );
-		colorToolBarHovered = colorToolBar.lighter(
-			Skin::nToolBarHoveredScaling );
-	}
-	else {
-		colorToolBarChecked = colorToolBar.darker(
-			Skin::nToolBarCheckedScaling );
-		colorToolBarHovered = colorToolBar.darker(
-			Skin::nToolBarHoveredScaling );
-	}
-
 	m_pToolBar->setStyleSheet( QString( "\
 QToolBar {\
      background-color: %1; \
      color: %2; \
      border: 1px solid #000;\
      spacing: 2px;\
-}\
-QToolButton {\
-    background-color: %1; \
-}\
-QToolButton:checked {\
-    background-color: %3;\
-}\
-QToolButton:hover {\
-    background-color: %4;\
-}\
-QToolButton:hover, QToolButton:checked {\
-    background-color: %3;\
-}\
-QToolButton:hover, QToolButton:pressed {\
-    background-color: %3;\
 }")
 							   .arg( colorToolBar.name() )
-							   .arg( colorToolBarText.name() )
-							   .arg( colorToolBarChecked.name() )
-							   .arg( colorToolBarHovered.name() ) );
+							   .arg( colorToolBarText.name() ) );
 
 	m_pMutePlaybackBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
 	m_pMutePlaybackBtn->setCheckedBackgroundTextColor(

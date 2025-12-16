@@ -394,35 +394,13 @@
     </message>
     <message>
         <source>General</source>
-        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.
-----------
-Label of the tab in pattern/song/drumkit properties dialog containing * artifact parameters, like name or author.</extracomment>
+        <extracomment>Label of the tab in pattern/song/drumkit properties dialog containing * artifact parameters, like name or author.</extracomment>
         <translation>Generale</translation>
     </message>
     <message>
         <source>Instrument</source>
         <extracomment>Text displayed on the button to show the Instrument Editor in the * Instrument Rack. Its size is designed to hold ten characters but is * quite flexible. * * It is also used in table headers corresponding to the instrument&apos;s name * or id.</extracomment>
         <translation>Instrument</translation>
-    </message>
-    <message>
-        <source>Sound Library</source>
-        <extracomment>Text displayed on the button to show the Sound Library in the Instrument Rack. Its size is designed to hold ten characters but is quite flexible.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Load Layer</source>
-        <extracomment>Text displayed on the button to load a layer into an instrument. Its size is designed to hold ten characters but is quite flexible.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete Layer</source>
-        <extracomment>Text displayed on the button to delete a layer into an instrument. Its size is designed to hold twelve characters but is quite flexible.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Edit Layer</source>
-        <extracomment>Text displayed on the button to edit a layer into an instrument. Its size is designed to hold ten characters but is quite flexible.</extracomment>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Attack</source>
@@ -1061,13 +1039,8 @@ Please set your system&apos;s locale to UTF-8!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Adding component</source>
-        <extracomment>Representing adding a new component to the currently selected instrument * in the undo history</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Delete component</source>
-        <extracomment>Representing deletion of a component from the currently selected * instrument in the undo history</extracomment>
+        <extracomment>Represents duplicating a component based on the currently selected one * in the undo history and in the tooltip of the coresponding button.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1318,11 +1291,6 @@ Please set your system&apos;s locale to UTF-8!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Components</source>
-        <extracomment>Text displayed on the button to show the Layer view of the Instrument Rack. Its size is designed to hold ten characters but is quite flexible.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Solo</source>
         <extracomment>Text displayed at various places referring to the solo buttons.</extracomment>
         <translation>Solo</translation>
@@ -1338,17 +1306,17 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Add layer</source>
-        <extracomment>Representing adding an instrument layer in the undo history. Both the * name of the layer and the corresponding instrument will be appended.</extracomment>
+        <extracomment>Representing adding a new instrument layer in the undo history and in * the tooltip of the coresponding button. Both the name of the layer and * the corresponding instrument will be appended in the former.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Delete layer</source>
-        <extracomment>Representing deleting an instrument layer in the undo history. Both the * name of the layer and the corresponding instrument will be appended.</extracomment>
+        <extracomment>Representing deleting an instrument layer in the undo history and in the * tooltip of the coresponding button. Both the * name of the layer and the corresponding instrument will be appended in * the former.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Edit layer</source>
-        <extracomment>Representing editing an instrument layer in the undo history. Both the * name of the layer and the corresponding instrument will be appended.</extracomment>
+        <extracomment>Representing editing an instrument layer in the undo history and in the * tooltip of the coresponding button. Both the * name of the layer and the corresponding instrument will be appended in * the former.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1503,6 +1471,39 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Shown in the undo history after removing a pattern.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Duplicate component</source>
+        <extracomment>Representing deletion of a component from the currently selected * instrument in the undo history and in the tooltip of the coresponding * button.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace layer</source>
+        <extracomment>Representing replacing an existing instrument layer with a new sample * file in the undo history and in the tooltip of the coresponding button. * Both the name of the layer and the corresponding instrument will be * appended in the former.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add component</source>
+        <extracomment>Representing adding a new component to the currently selected instrument * in the undo history and in the tooltip of the coresponding button.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate layer</source>
+        <extracomment>Representing deleting an instrument layer in the undo history and in the * tooltip of the coresponding button. Both the * name of the layer and the corresponding instrument will be appended in * the former.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move layer</source>
+        <extracomment>Representing moving an instrument layer in the undo history.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ComponentEditor</name>
+    <message>
+        <source>New Component</source>
+        <extracomment>Default name for a newly created instrument component.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -1542,10 +1543,6 @@ Please set your system&apos;s locale to UTF-8!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>New component name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Mute component</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1559,13 +1556,6 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Solo layer</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ComponentsEditor</name>
-    <message>
-        <source>Component name</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2192,28 +2182,6 @@ Overwrite the existing file?</source>
     </message>
 </context>
 <context>
-    <name>InstrumentEditorPanel</name>
-    <message>
-        <source>Show instrument properties</source>
-        <translation>Prikaži karakteristike instrumenta</translation>
-    </message>
-    <message>
-        <source>Show components</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>InstrumentRack</name>
-    <message>
-        <source>Show Instrument editor</source>
-        <translation>Prikaži uređivač instrumenta</translation>
-    </message>
-    <message>
-        <source>Show sound library</source>
-        <translation>Prikaži &apos;zvučnu knjižnicu&apos;</translation>
-    </message>
-</context>
-<context>
     <name>LadspaFXLine</name>
     <message>
         <source>FX bypass</source>
@@ -2506,10 +2474,6 @@ MIDI = %2</source>
     <message>
         <source>&amp;Mixer</source>
         <translation>&amp;Mixer</translation>
-    </message>
-    <message>
-        <source>&amp;Instrument Rack</source>
-        <translation>&amp;Instrument Rack</translation>
     </message>
     <message>
         <source>&amp;Info</source>
@@ -2855,6 +2819,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <source>Some samples used by this song failed to load. Do you wish to keep or discard them? </source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Rack</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainToolBar</name>
@@ -2917,10 +2885,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Stop</source>
         <translation>Stani</translation>
-    </message>
-    <message>
-        <source>Show Instrument Rack</source>
-        <translation>Prikaži Rack</translation>
     </message>
     <message>
         <source>Record</source>
@@ -3020,6 +2984,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Counting in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Rack</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4185,6 +4153,26 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Solo Text</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Component Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component Background</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Layer Background</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Layer Text</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
@@ -4399,14 +4387,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Maximum number of instrument layers</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Maximum number of layers (requires restart of Hydrogen)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4714,6 +4694,24 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Add new pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Rack</name>
+    <message>
+        <source>Param.</source>
+        <extracomment>Descriptive text in the tab to view the general instrument parameters at * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure * to check the corresponding tab bar!</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Comp.</source>
+        <extracomment>Descriptive text in the tab to view the instrument components at * the bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure * to check the corresponding tab bar!</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Library</source>
+        <extracomment>Descriptive text in the tab to view the sound library at the * bottom-right part of Hydrogen. Designed to hold 5 characters. Be sure to * check the corresponding tab bar!</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>

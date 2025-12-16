@@ -190,8 +190,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	sBmaxBars->setSize( generalTabWidgetSize );
 	sBmaxBars->setValue( pPref->getMaxBars() );
-	sBmaxLayers->setSize( generalTabWidgetSize );
-	sBmaxLayers->setValue( pPref->getMaxLayers() );
 	autosaveSpinBox->setSize( generalTabWidgetSize );
 	autosaveSpinBox->setValue( pPref->m_nAutosavesPerHour );
 
@@ -645,6 +643,12 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	new IndexedTreeItem( 0x414, pTopLevelItem, tr( "Selected Instrument Line" ) );
 	new IndexedTreeItem( 0x415, pTopLevelItem, tr( "Selected Instrument Line Text" ) );
 
+	pTopLevelItem = new IndexedTreeItem( 0x000, colorTree, tr( "Component Editor" ) );
+	new IndexedTreeItem( 0x500, pTopLevelItem, tr( "Component Background" ) );
+	new IndexedTreeItem( 0x501, pTopLevelItem, tr( "Component Text" ) );
+	new IndexedTreeItem( 0x502, pTopLevelItem, tr( "Layer Background" ) );
+	new IndexedTreeItem( 0x503, pTopLevelItem, tr( "Layer Text" ) );
+
 	colorButton->setEnabled( false );
 
 	const int nColorLCDWidth = 60;
@@ -1032,11 +1036,6 @@ void PreferencesDialog::on_okBtn_clicked()
 		bGeneralOptionAltered = true;
 	}
 	
-	if ( pPref->getMaxLayers() != sBmaxLayers->value() ) {
-		pPref->setMaxLayers( sBmaxLayers->value() );
-		bGeneralOptionAltered = true;
-	}
-
 	if ( pPref->m_nAutosavesPerHour != autosaveSpinBox->value() ) {
 		pPref->m_nAutosavesPerHour = autosaveSpinBox->value();
 		m_changes = static_cast<H2Core::Preferences::Changes>(
@@ -1637,7 +1636,6 @@ void PreferencesDialog::onRejected() {
 		pCurrentPref->m_nBeatCounterStartOffset =
 			pOldPref->m_nBeatCounterStartOffset;
 		pCurrentPref->setMaxBars( pOldPref->getMaxBars() );
-		pCurrentPref->setMaxLayers( pOldPref->getMaxLayers() );
 		pCurrentPref->m_nAutosavesPerHour = pOldPref->m_nAutosavesPerHour;
 		pCurrentPref->setPreferredLanguage( pOldPref->getPreferredLanguage() );
 		pHydrogen->updateBeatCounterSettings();
@@ -2047,7 +2045,24 @@ std::unique_ptr<QColor> PreferencesDialog::getColorById( int nId, std::shared_pt
 	case 0x413: return std::make_unique<QColor>(pColorTheme->m_patternEditor_instrumentAlternateRowColor);
 	case 0x414: return std::make_unique<QColor>(pColorTheme->m_patternEditor_instrumentSelectedRowColor);
 	case 0x415: return std::make_unique<QColor>(pColorTheme->m_patternEditor_instrumentSelectedRowTextColor);
-	default: return nullptr;
+	case 0x500:
+		return std::make_unique<QColor>(
+			pColorTheme->m_componentEditor_componentColor
+		);
+	case 0x501:
+		return std::make_unique<QColor>(
+			pColorTheme->m_componentEditor_componentTextColor
+		);
+	case 0x502:
+		return std::make_unique<QColor>(
+			pColorTheme->m_componentEditor_layerColor
+		);
+	case 0x503:
+		return std::make_unique<QColor>(
+			pColorTheme->m_componentEditor_layerTextColor
+		);
+	default:
+		return nullptr;
 	}
 
 	return nullptr;
@@ -2189,6 +2204,18 @@ void PreferencesDialog::setColorById( int nId, const QColor& color,
 	case 0x414:  pColorTheme->m_patternEditor_instrumentSelectedRowColor = color;
 		break;
 	case 0x415:  pColorTheme->m_patternEditor_instrumentSelectedRowTextColor = color;
+		break;
+	case 0x500:
+		pColorTheme->m_componentEditor_componentColor = color;
+		break;
+	case 0x501:
+		pColorTheme->m_componentEditor_componentTextColor = color;
+		break;
+	case 0x502:
+		pColorTheme->m_componentEditor_layerColor = color;
+		break;
+	case 0x503:
+		pColorTheme->m_componentEditor_layerTextColor = color;
 		break;
 	default: WARNINGLOG( "Unknown ID" );
 	}

@@ -56,11 +56,13 @@ namespace H2Core
 
 class AudioEngineInfoForm;
 class CommonStrings;
+class ComponentEditor;
 class Director;
 class FilesystemInfoForm;
 class Footer;
 class InfoBar;
-class InstrumentRack;
+class InstrumentEditor;
+class Rack;
 class LadspaFXProperties;
 class MainToolBar;
 class Mixer;
@@ -68,6 +70,7 @@ class PatternEditorPanel;
 class PlaylistEditor;
 class SampleEditor;
 class SongEditorPanel;
+class SoundLibraryPanel;
 
 /** \ingroup docGUI*/
 class HydrogenApp :  public QObject, public EventListener,  public H2Core::Object<HydrogenApp>
@@ -108,7 +111,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		void showPreferencesDialog();
 		void updateMixerCheckbox();
 		void showMixer(bool bShow);
-		void showInstrumentRack(bool bShow);
+		void showRack(bool bShow);
 		void showAudioEngineInfoForm();
 		void showFilesystemInfoForm();
 		void showPlaylistEditor();
@@ -121,18 +124,21 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		bool hideKeyboardCursor();
 		void setHideKeyboardCursor( bool bHidden );
 
-		AudioEngineInfoForm*		getAudioEngineInfoForm();
-		std::shared_ptr<CommonStrings>			getCommonStrings();
-		Director*			getDirector();
-		Footer*			getFooter();
-		InstrumentRack*			getInstrumentRack();
-		MainForm*			getMainForm();
-		Mixer*				getMixer();
-		PatternEditorPanel*		getPatternEditorPanel();
-		MainToolBar*			getMainToolBar();
-		PlaylistEditor*			getPlaylistEditor();
-		SampleEditor*			getSampleEditor();
-		SongEditorPanel*		getSongEditorPanel();
+		AudioEngineInfoForm* getAudioEngineInfoForm() const;
+		std::shared_ptr<CommonStrings> getCommonStrings() const;
+		ComponentEditor* getComponentEditor() const;
+		Director* getDirector() const;
+		Footer* getFooter() const;
+		InstrumentEditor* getInstrumentEditor() const;
+		MainForm* getMainForm() const;
+		MainToolBar* getMainToolBar() const;
+		Mixer* getMixer() const;
+		PatternEditorPanel* getPatternEditorPanel() const;
+		PlaylistEditor* getPlaylistEditor() const;
+		Rack* getRack() const;
+		SampleEditor* getSampleEditor() const;
+		SongEditorPanel* getSongEditorPanel() const;
+		SoundLibraryPanel* getSoundLibraryPanel() const;
 
 		InfoBar *			addInfoBar();
 
@@ -235,7 +241,7 @@ signals:
 		Director *					m_pDirector;
 		FilesystemInfoForm *		m_pFilesystemInfoForm;
 		Footer *					m_pFooter;
-		InstrumentRack*				m_pInstrumentRack;
+		Rack*				m_pRack;
 		Mixer *						m_pMixer;
 		PatternEditorPanel*			m_pPatternEditorPanel;
 		MainToolBar*				m_pMainToolBar;
@@ -330,63 +336,53 @@ inline HydrogenApp* HydrogenApp::get_instance() {
 	return m_pInstance;
 }
 
-inline Mixer* HydrogenApp::getMixer()
-{
-	return m_pMixer;	
-}
-
-inline MainForm* HydrogenApp::getMainForm()
-{	
-	return m_pMainForm;	
-}
-
-inline SongEditorPanel* HydrogenApp::getSongEditorPanel()
-{
-	return m_pSongEditorPanel;
-}
-
-inline AudioEngineInfoForm* HydrogenApp::getAudioEngineInfoForm()
+inline AudioEngineInfoForm* HydrogenApp::getAudioEngineInfoForm() const
 {
 	return m_pAudioEngineInfoForm;
 }
-
-inline PlaylistEditor* HydrogenApp::getPlaylistEditor()
+inline std::shared_ptr<CommonStrings> HydrogenApp::getCommonStrings() const
 {
-	return m_pPlaylistEditor;
+	return m_pCommonStrings;
 }
-
-inline Director* HydrogenApp::getDirector()
+inline Director* HydrogenApp::getDirector() const
 {
 	return m_pDirector;
 }
-
-inline Footer* HydrogenApp::getFooter() {
+inline Footer* HydrogenApp::getFooter() const
+{
 	return m_pFooter;
 }
-
-inline SampleEditor* HydrogenApp::getSampleEditor()
+inline MainForm* HydrogenApp::getMainForm() const
 {
-	return m_pSampleEditor;	
+	return m_pMainForm;
 }
-
-inline PatternEditorPanel* HydrogenApp::getPatternEditorPanel()
-{
-	return m_pPatternEditorPanel;
-}
-
-inline MainToolBar* HydrogenApp::getMainToolBar()
+inline MainToolBar* HydrogenApp::getMainToolBar() const
 {
 	return m_pMainToolBar;
 }
-
-inline InstrumentRack* HydrogenApp::getInstrumentRack()
+inline Mixer* HydrogenApp::getMixer() const
 {
-	return m_pInstrumentRack;
+	return m_pMixer;
 }
-
-inline std::shared_ptr<CommonStrings> HydrogenApp::getCommonStrings()
+inline PatternEditorPanel* HydrogenApp::getPatternEditorPanel() const
 {
-	return m_pCommonStrings;
+	return m_pPatternEditorPanel;
+}
+inline PlaylistEditor* HydrogenApp::getPlaylistEditor() const
+{
+	return m_pPlaylistEditor;
+}
+inline Rack* HydrogenApp::getRack() const
+{
+	return m_pRack;
+}
+inline SampleEditor* HydrogenApp::getSampleEditor() const
+{
+	return m_pSampleEditor;
+}
+inline SongEditorPanel* HydrogenApp::getSongEditorPanel() const
+{
+	return m_pSongEditorPanel;
 }
 
 inline bool HydrogenApp::hideKeyboardCursor()

@@ -71,14 +71,6 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		std::shared_ptr<InstrumentLayer>	operator[]( int ix ) const;
 		std::shared_ptr<InstrumentLayer>	getLayer( int idx ) const;
 		int index( std::shared_ptr<InstrumentLayer> pLayer ) const;
-		/**
-		 * Get all initialized layers.
-		 *
-		 * In it's current design #__layers is always of #MAX_LAYERS
-		 * length and all layer not used are set to nullptr. This
-		 * convenience function is used to query only those
-		 * #InstrumentLayer which were properly initialized.
-		 */
 		const std::vector<std::shared_ptr<InstrumentLayer>> getLayers() const;
 
 		void setGain( float gain );
@@ -98,14 +90,13 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 
 		bool isAnyLayerSoloed() const;
 
-		/**  @return #m_nMaxLayers.*/
-		static int			getMaxLayers();
-		/** @param layers Sets #m_nMaxLayers.*/
-		static void			setMaxLayers( int layers );
-	
+		/** Reset the start and end velocity of each layer to be of the same
+		 * length and non-overlapping*/
+		void setAutoVelocity();
+
 		/** Iteration */
-	std::vector<std::shared_ptr<InstrumentLayer>>::iterator begin();
-	std::vector<std::shared_ptr<InstrumentLayer>>::iterator end();
+		std::vector<std::shared_ptr<InstrumentLayer>>::iterator begin();
+		std::vector<std::shared_ptr<InstrumentLayer>>::iterator end();
 
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -125,15 +116,39 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 			const License& drumkitLicense,
 			bool bSilent
 		);
+		friend void Instrument::addLayer(
+			std::shared_ptr<InstrumentComponent> pComponent,
+			std::shared_ptr<InstrumentLayer> pLayer,
+			int nIndex,
+			Event::Trigger trigger
+		);
+		friend void Instrument::moveLayer(
+			std::shared_ptr<InstrumentComponent> pComponent,
+			int nOldIndex,
+			int nNewIndex,
+			Event::Trigger trigger
+		);
 		friend void Instrument::setLayer(
 			std::shared_ptr<InstrumentComponent> pComponent,
 			std::shared_ptr<InstrumentLayer> pLayer,
 			int nIndex,
 			Event::Trigger trigger
 		);
+		friend void Instrument::removeLayer(
+			std::shared_ptr<InstrumentComponent> pComponent,
+			int nIndex,
+			Event::Trigger trigger
+		);
 
 	   private:
+		/** An @a nIndex of -1 will cause the method to append the new layer at
+		   the end.*/
+		void addLayer( std::shared_ptr<InstrumentLayer> pLayer, int nIndex );
+		/** Move the layer found in @a nOldIndex to a new position of @a
+		 * nNewIndex. */
+		void moveLayer( int nOldIndex, int nNewIndex );
 		void setLayer( std::shared_ptr<InstrumentLayer> pLayer, int nIndex );
+		void removeLayer( int nIndex );
 
 		QString 			m_sName;
 		float				m_fGain;
@@ -143,14 +158,6 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		/** how Hydrogen will chose the sample to use */
 		Selection		m_selection;
 
-		/** Maximum number of layers to be used in the
-		 *  Instrument editor.
-		 *
-		 * It is set by setMaxLayers(), queried by
-		 * getMaxLayers(), and inferred from
-		 * Preferences::m_nMaxLayers. Default value assigned in
-		 * Preferences::Preferences(): 16. */
-		static int			m_nMaxLayers;
 		std::vector<std::shared_ptr<InstrumentLayer>>	m_layers;
 };
 

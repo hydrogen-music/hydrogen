@@ -44,9 +44,7 @@
 
 #include "CommonStrings.h"
 #include "HydrogenApp.h"
-#include "InstrumentEditor/ComponentsEditor.h"
-#include "InstrumentEditor/InstrumentEditorPanel.h"
-#include "InstrumentRack.h"
+#include "Rack/ComponentEditor/ComponentEditor.h"
 #include "MainForm.h"
 #include "PatternEditor/NotePropertiesRuler.h"
 #include "PatternEditor/DrumPatternEditor.h"
@@ -56,7 +54,7 @@
 #include "SongEditor/SongEditorPanel.h"
 #include "SongEditor/SongEditorPatternList.h"
 #include "SongEditor/SongEditorPositionRuler.h"
-#include "SoundLibrary/SoundLibraryPanel.h"
+#include "Rack/SoundLibrary/SoundLibraryPanel.h"
 #include "Widgets/AutomationPathView.h"
 #include "Widgets/EditorDefs.h"
 
@@ -877,80 +875,131 @@ public:
  * of #H2Core::AudioEngine and #H2Core::Sampler is still valid. */
 class SE_replaceInstrumentAction : public QUndoCommand {
 	public:
-		enum class Type {
-			/** Replace the instrument with a copy containing an additional
-			 * component */
-			AddComponent = 0,
-			/** Replace the instrument with a copy from which one component was
-			 * removed. */
-			DeleteComponent = 1,
-			/** There must be at least one instrument in a drumkit. Instead of
-			 * the deleting the last one, it will be replaced by an empty
-			 * one. */
-			DeleteLastInstrument = 2,
-			/** This could definitely be done more efficiently. But compared to
-			 * altering other instrument parameters, its name will most probably
-			 * only change very rarely. */
-			RenameInstrument = 3,
-			/** At least one layer of one component was added. */
-			AddLayer,
-			/** At least one layer of one component was deleted. */
-			DeleteLayer,
-			/** At least one layer of one component was editing via the
-			 * SampleEditor. */
-			EditLayer
-		};
+	 enum class Type {
+		 /** Replace the instrument with a copy containing an additional
+		  * component */
+		 AddComponent,
+		 /** Replace the instrument with a copy containing a duplicate of an
+			already existing component. */
+		 DuplicateComponent,
+		 /** Replace the instrument with a copy from which one component was
+		  * removed. */
+		 DeleteComponent,
+		 /** There must be at least one instrument in a drumkit. Instead of
+		  * the deleting the last one, it will be replaced by an empty
+		  * one. */
+		 DeleteLastInstrument,
+		 /** This could definitely be done more efficiently. But compared to
+		  * altering other instrument parameters, its name will most probably
+		  * only change very rarely. */
+		 RenameInstrument,
+		 /** At least one layer of one component was added. */
+		 AddLayer,
+		 /** The sample of one layer was replaced with a different one. */
+		 ReplaceLayer,
+		 /** An identical copy of the currently selected layer will be appended.
+		  */
+		 DuplicateLayer,
+		 /** At least one layer of one component was deleted. */
+		 DeleteLayer,
+		 /** At least one layer of one component was editing via the
+		  * SampleEditor. */
+		 EditLayer,
+		 /** The position of a layer was changed using drag'n'drop. */
+		 MoveLayer
+	 };
 
-		SE_replaceInstrumentAction( std::shared_ptr<H2Core::Instrument> pNew,
-									std::shared_ptr<H2Core::Instrument> pOld,
-									SE_replaceInstrumentAction::Type type,
-									const QString& sName,
-									const QString& sOldName = "" ) :
-			m_pNew( pNew ),
-			m_pOld( pOld )
-		{
-			const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-				switch ( type ) {
-			case Type::AddComponent:
-				setText( QString( "%1 [%2]" )
-						 .arg( pCommonStrings->getActionAddComponent() )
-						 .arg( sName ) );
-				break;
-			case Type::DeleteComponent:
-				setText( QString( "%1 [%2]" )
-						 .arg( pCommonStrings->getActionDeleteComponent() )
-						 .arg( sName ) );
-				break;
-			case Type::DeleteLastInstrument:
-				setText( QString( "%1 [%2]" )
-						 .arg( pCommonStrings->getActionDeleteInstrument() )
-						 .arg( sName ) );
-				break;
-			case Type::RenameInstrument:
-				setText( QString( "%1 [%2] -> [%3]" )
-						 .arg( pCommonStrings->getActionRenameInstrument() )
-						 .arg( sOldName ).arg( sName ) );
-				break;
-			case Type::AddLayer:
-				setText( QString( "%1 [%2]: [%3]" )
+	 SE_replaceInstrumentAction(
+		 std::shared_ptr<H2Core::Instrument> pNew,
+		 std::shared_ptr<H2Core::Instrument> pOld,
+		 SE_replaceInstrumentAction::Type type,
+		 const QString& sName,
+		 const QString& sOldName = ""
+	 )
+		 : m_pNew( pNew ), m_pOld( pOld )
+	 {
+		 const auto pCommonStrings =
+			 HydrogenApp::get_instance()->getCommonStrings();
+		 switch ( type ) {
+			 case Type::AddComponent:
+				 setText( QString( "%1 [%2]" )
+							  .arg( pCommonStrings->getActionAddComponent() )
+							  .arg( sName ) );
+				 break;
+			 case Type::DuplicateComponent:
+				 setText( QString( "%1 [%2]" )
+							  .arg( pCommonStrings->getActionDuplicateComponent(
+							  ) )
+							  .arg( sName ) );
+				 break;
+			 case Type::DeleteComponent:
+				 setText( QString( "%1 [%2]" )
+							  .arg( pCommonStrings->getActionDeleteComponent() )
+							  .arg( sName ) );
+				 break;
+			 case Type::DeleteLastInstrument:
+				 setText( QString( "%1 [%2]" )
+							  .arg( pCommonStrings->getActionDeleteInstrument()
+							  )
+							  .arg( sName ) );
+				 break;
+			 case Type::RenameInstrument:
+				 setText( QString( "%1 [%2] -> [%3]" )
+							  .arg( pCommonStrings->getActionRenameInstrument()
+							  )
+							  .arg( sOldName )
+							  .arg( sName ) );
+				 break;
+			 case Type::AddLayer:
+				 setText(
+					 QString( "%1 [%2]: [%3]" )
 						 .arg( pCommonStrings->getActionAddInstrumentLayer() )
 						 .arg( pNew != nullptr ? pNew->getName() : "nullptr" )
-						 .arg( sName ) );
-			case Type::DeleteLayer:
-				setText( QString( "%1 [%2]: [%3]" )
-						 .arg( pCommonStrings->getActionDeleteInstrumentLayer() )
+						 .arg( sName )
+				 );
+			 case Type::ReplaceLayer:
+				 setText(
+					 QString( "%1 [%2]: [%3]" )
+						 .arg( pCommonStrings->getActionReplaceInstrumentLayer()
+						 )
 						 .arg( pNew != nullptr ? pNew->getName() : "nullptr" )
-						 .arg( sName ) );
-			case Type::EditLayer:
-				setText( QString( "%1 [%2]: [%3]" )
+						 .arg( sName )
+				 );
+			 case Type::DuplicateLayer:
+				 setText(
+					 QString( "%1 [%2]" )
+						 .arg(
+							 pCommonStrings->getActionDuplicateInstrumentLayer()
+						 )
+						 .arg( pNew != nullptr ? pNew->getName() : "nullptr" )
+				 );
+			 case Type::DeleteLayer:
+				 setText(
+					 QString( "%1 [%2]: [%3]" )
+						 .arg( pCommonStrings->getActionDeleteInstrumentLayer()
+						 )
+						 .arg( pNew != nullptr ? pNew->getName() : "nullptr" )
+						 .arg( sName )
+				 );
+			 case Type::EditLayer:
+				 setText(
+					 QString( "%1 [%2]: [%3]" )
 						 .arg( pCommonStrings->getActionEditInstrumentLayer() )
 						 .arg( pNew != nullptr ? pNew->getName() : "nullptr" )
-						 .arg( sName ) );
-				break;
-			default:
-				___ERRORLOG( QString( "Unknown type [%1]" )
-							 .arg( static_cast<int>(type) ) );
-			}
+						 .arg( sName )
+				 );
+				 break;
+			 case Type::MoveLayer:
+				 setText(
+					 QString( "%1 [%2]" )
+						 .arg( pCommonStrings->getActionMoveInstrumentLayer() )
+						 .arg( sName )
+				 );
+				 break;
+			 default:
+				 ___ERRORLOG( QString( "Unknown type [%1]" )
+								  .arg( static_cast<int>( type ) ) );
+		 }
 		}
 		virtual void undo() {
 			H2Core::CoreActionController::replaceInstrument( m_pOld, m_pNew );
@@ -965,32 +1014,40 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 };
 
 class SE_renameComponentAction : public QUndoCommand {
-	public:
-		SE_renameComponentAction( const QString& sNewName,
-								  const QString& sOldName,
-								  int nComponentId ) :
-			m_sNewName( sNewName ),
-			m_sOldName( sOldName ),
-			m_nComponentId( nComponentId ) {
-			const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-				setText( QString( "%1: [%2] -> [%3]" )
+   public:
+	SE_renameComponentAction(
+		const QString& sNewName,
+		const QString& sOldName,
+		int nComponentId
+	)
+		: m_sNewName( sNewName ),
+		  m_sOldName( sOldName ),
+		  m_nComponentId( nComponentId )
+	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		setText( QString( "%1: [%2] -> [%3]" )
 					 .arg( pCommonStrings->getActionRenameComponent() )
-					 .arg( sOldName ).arg( sNewName ) );
-		}
-		virtual void undo() {
-			HydrogenApp::get_instance()->getInstrumentRack()->
-				getInstrumentEditorPanel()->getComponentsEditor()->
-				renameComponent( m_nComponentId, m_sOldName );
-		}
-		virtual void redo() {
-			HydrogenApp::get_instance()->getInstrumentRack()->
-				getInstrumentEditorPanel()->getComponentsEditor()->
-				renameComponent( m_nComponentId, m_sNewName );
-		}
-	private:
-		QString m_sNewName;
-		QString m_sOldName;
-		int m_nComponentId;
+					 .arg( sOldName )
+					 .arg( sNewName ) );
+	}
+	virtual void undo()
+	{
+		H2Core::CoreActionController::renameComponent(
+			m_nComponentId, m_sOldName
+		);
+	}
+	virtual void redo()
+	{
+		H2Core::CoreActionController::renameComponent(
+			m_nComponentId, m_sNewName
+		);
+	}
+
+   private:
+	QString m_sNewName;
+	QString m_sOldName;
+	int m_nComponentId;
 };
 
 /** \ingroup docGUI*/

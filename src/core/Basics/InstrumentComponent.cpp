@@ -32,8 +32,6 @@
 namespace H2Core
 {
 
-int InstrumentComponent::m_nMaxLayers = 16;
-
 InstrumentComponent::InstrumentComponent( const QString& sName, float fGain )
 	: m_sName( sName )
 	, m_fGain( fGain )
@@ -48,11 +46,6 @@ InstrumentComponent::InstrumentComponent( const QString& sName, float fGain )
 	if ( sName.isEmpty() ) {
 		m_sName = sComponentName;
 	}
-
-	m_layers.resize( m_nMaxLayers );
-	for ( int i = 0; i < m_nMaxLayers; i++ ) {
-		m_layers[i] = nullptr;
-	}
 }
 
 InstrumentComponent::InstrumentComponent( std::shared_ptr<InstrumentComponent> other )
@@ -62,43 +55,92 @@ InstrumentComponent::InstrumentComponent( std::shared_ptr<InstrumentComponent> o
 	, m_bIsSoloed( other->m_bIsSoloed )
 	, m_selection( other->m_selection )
 {
-	m_layers.resize( m_nMaxLayers );
-	for ( int i = 0; i < m_nMaxLayers; i++ ) {
-		std::shared_ptr<InstrumentLayer> other_layer = other->getLayer( i );
-		if ( other_layer ) {
-			m_layers[i] = std::make_shared<InstrumentLayer>( other_layer );
-		} else {
-			m_layers[i] = nullptr;
+	for ( const auto& ppLayer : other->m_layers ) {
+		if ( ppLayer != nullptr ) {
+			m_layers.push_back( std::make_shared<InstrumentLayer>( ppLayer ) );
 		}
 	}
 }
 
 InstrumentComponent::~InstrumentComponent()
 {
-	for ( int i = 0; i < m_nMaxLayers; i++ ) {
-		m_layers[i] = nullptr;
-	}
 }
 
-void InstrumentComponent::setLayer( std::shared_ptr<InstrumentLayer> layer, int idx )
+void InstrumentComponent::addLayer(
+	std::shared_ptr<InstrumentLayer> pLayer,
+	int nIndex
+)
 {
-	assert( idx >= 0 && idx < m_nMaxLayers );
-	m_layers[ idx ] = layer;
-}
-
-void InstrumentComponent::setMaxLayers( int nLayers )
-{
-	if ( nLayers <= 1 ) {
-		ERRORLOG( QString( "Attempting to set a max layer [%1] smaller than 1. Aborting" )
-				  .arg( nLayers ) );
+	if ( pLayer == nullptr ) {
 		return;
 	}
-	m_nMaxLayers = nLayers;
+
+	if ( nIndex == -1 || nIndex == m_layers.size() ) {
+      // Append
+		m_layers.push_back( pLayer );
+	}
+	else if ( nIndex >= 0 && nIndex < m_layers.size() ) {
+	  // Insert
+      m_layers.insert( std::next( m_layers.begin(), nIndex ), pLayer );
+	}
+	else {
+		ERRORLOG( QString( "Index [%1] out of bound [0, %2]" )
+					  .arg( nIndex )
+					  .arg( m_layers.size() ) );
+	}
 }
 
-int InstrumentComponent::getMaxLayers()
+void InstrumentComponent::moveLayer( int nOldIndex, int nNewIndex )
 {
-	return m_nMaxLayers;
+	if ( nOldIndex == nNewIndex ) {
+        // Nothing to do.
+        return;
+	}
+	if ( nOldIndex < 0 || nOldIndex >= m_layers.size() ) {
+		ERRORLOG( QString( "Old index [%1] out of bound [0,%2]" )
+					  .arg( nOldIndex )
+					  .arg( m_layers.size() ) );
+	  return;
+	}
+	if ( nNewIndex < 0 || nNewIndex >= m_layers.size() ) {
+		ERRORLOG( QString( "New index [%1] out of bound [0,%2]" )
+					  .arg( nNewIndex )
+					  .arg( m_layers.size() ) );
+	  return;
+	}
+
+	auto pLayer = m_layers[nOldIndex];
+	if ( pLayer == nullptr ) {
+		ERRORLOG( QString( "invalid layer at [%1]" ).arg( nOldIndex ) );
+        return;
+	}
+
+    const int nInsertAt = nNewIndex < nOldIndex ? nNewIndex : nNewIndex + 1;
+	m_layers.insert( m_layers.begin() + nInsertAt, pLayer );
+    const int nEraseAt = nNewIndex < nOldIndex ? nOldIndex + 1 : nOldIndex;
+    m_layers.erase( m_layers.begin() + nEraseAt );
+}
+
+void InstrumentComponent::setLayer( std::shared_ptr<InstrumentLayer> pLayer, int nIndex )
+{
+	if ( nIndex < 0 || nIndex >= m_layers.size() ) {
+		ERRORLOG( QString( "Index [%1] out of bound [0,%2]" )
+					  .arg( nIndex )
+					  .arg( m_layers.size() ) );
+	  return;
+	}
+	m_layers[ nIndex ] = pLayer;
+}
+
+void InstrumentComponent::removeLayer( int nIndex )
+{
+	if ( nIndex < 0 || nIndex >= m_layers.size() ) {
+		ERRORLOG( QString( "Index [%1] out of bound [0,%2]" )
+					  .arg( nIndex )
+					  .arg( m_layers.size() ) );
+	  return;
+	}
+	m_layers.erase( std::next( m_layers.begin(), nIndex ) );
 }
 
 std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
@@ -134,19 +176,11 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 	}
 
 	XMLNode layer_node = node.firstChildElement( "layer" );
-	int nLayer = 0;
 	while ( ! layer_node.isNull() ) {
-		if ( nLayer >= m_nMaxLayers ) {
-			ERRORLOG( QString( "Layer #%1 >= m_nMaxLayers (%2). This as well as all further layers will be omitted." )
-					  .arg( nLayer ).arg( m_nMaxLayers ) );
-			break;
-		}
-
 		auto pLayer = InstrumentLayer::loadFrom(
 			layer_node, sDrumkitPath, sSongPath, drumkitLicense, bSilent );
 		if ( pLayer != nullptr ) {
-			pInstrumentComponent->setLayer( pLayer, nLayer );
-			nLayer++;
+			pInstrumentComponent->addLayer( pLayer, -1 );
 		}
 		layer_node = layer_node.nextSiblingElement( "layer" );
 	}
@@ -230,6 +264,25 @@ bool InstrumentComponent::isAnyLayerSoloed() const {
 	return false;
 }
 
+void InstrumentComponent::setAutoVelocity()
+{
+	if ( m_layers.size() == 0 ) {
+		return;
+	}
+
+	const float fVelocityRange = 1.0 / static_cast<float>( m_layers.size() );
+
+	int nLayer = 0;
+	for ( auto& ppLayer : m_layers ) {
+		if ( ppLayer != nullptr ) {
+			ppLayer->setStartVelocity( nLayer * fVelocityRange );
+			ppLayer->setEndVelocity( nLayer * fVelocityRange + fVelocityRange );
+
+			++nLayer;
+		}
+	}
+}
+
 QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
@@ -245,8 +298,6 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 					 .arg( m_bIsSoloed ) )
 			.append( QString( "%1%2m_selection: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( SelectionToQString( m_selection ) ) )
-			.append( QString( "%1%2m_nMaxLayers: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nMaxLayers ) )
 			.append( QString( "%1%2m_layers:\n" ).arg( sPrefix ).arg( s ) );
 	
 		for ( const auto& ll : m_layers ) {
@@ -262,7 +313,6 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 			.append( QString( ", m_bIsSoloed: %1" ).arg( m_bIsSoloed ) )
 			.append( QString( ", m_selection: %1" )
 					 .arg( SelectionToQString( m_selection ) ) )
-			.append( QString( ", m_nMaxLayers: %1" ).arg( m_nMaxLayers ) )
 			.append( QString( ", m_layers: [" ) );
 	
 		for ( const auto& ll : m_layers ) {

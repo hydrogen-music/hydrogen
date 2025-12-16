@@ -468,11 +468,13 @@ std::shared_ptr<Instrument> Instrument::loadFrom( const XMLNode& node,
 
 void Instrument::loadSamples( float fBpm )
 {
-	for ( auto& pComponent : *getComponents() ) {
-		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			auto pLayer = pComponent->getLayer( i );
-			if ( pLayer != nullptr ) {
-				pLayer->loadSample( fBpm );
+	for ( auto& ppComponent : *m_pComponents ) {
+		if ( ppComponent == nullptr ) {
+			continue;
+		}
+		for ( auto& ppLayer : *ppComponent ) {
+			if ( ppLayer != nullptr ) {
+				ppLayer->loadSample( fBpm );
 			}
 		}
 	}
@@ -480,11 +482,13 @@ void Instrument::loadSamples( float fBpm )
 
 void Instrument::unloadSamples()
 {
-	for ( auto& pComponent : *getComponents() ) {
-		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			auto pLayer = pComponent->getLayer( i );
-			if( pLayer ){
-				pLayer->unloadSample();
+	for ( auto& ppComponent : *m_pComponents ) {
+		if ( ppComponent == nullptr ) {
+			continue;
+		}
+		for ( auto& ppLayer : *ppComponent ) {
+			if ( ppLayer != nullptr ) {
+				ppLayer->unloadSample();
 			}
 		}
 	}
@@ -646,7 +650,7 @@ const QString& Instrument::getDrumkitPath() const
 	return m_sDrumkitPath;
 }
 
-void Instrument::setLayer(
+void Instrument::addLayer(
 	std::shared_ptr<InstrumentComponent> pComponent,
 	std::shared_ptr<InstrumentLayer> pLayer,
 	int nIndex,
@@ -662,7 +666,67 @@ void Instrument::setLayer(
 
 	for ( auto& ppComponent : *m_pComponents ) {
 		if ( pComponent == ppComponent ) {
+			ppComponent->addLayer( pLayer, nIndex );
+		}
+	}
+
+	checkForMissingSamples( trigger );
+}
+
+void Instrument::moveLayer(
+	std::shared_ptr<InstrumentComponent> pComponent,
+	int nOldIndex,
+	int nNewIndex,
+	Event::Trigger trigger
+)
+{
+	if ( pComponent == nullptr ) {
+		ERRORLOG( "Invalid input" );
+		return;
+	}
+
+	for ( auto& ppComponent : *m_pComponents ) {
+		if ( pComponent == ppComponent ) {
+			ppComponent->moveLayer( nOldIndex, nNewIndex );
+		}
+	}
+}
+
+void Instrument::setLayer(
+	std::shared_ptr<InstrumentComponent> pComponent,
+	std::shared_ptr<InstrumentLayer> pLayer,
+	int nIndex,
+	Event::Trigger trigger
+)
+{
+	if ( pComponent == nullptr || pLayer == nullptr ) {
+		ERRORLOG( "Invalid input" );
+		return;
+	}
+
+	for ( auto& ppComponent : *m_pComponents ) {
+		if ( pComponent == ppComponent ) {
 			ppComponent->setLayer( pLayer, nIndex );
+		}
+	}
+
+	checkForMissingSamples( trigger );
+}
+
+void Instrument::removeLayer(
+	std::shared_ptr<InstrumentComponent> pComponent,
+	int nIndex,
+	Event::Trigger trigger
+)
+{
+	if ( pComponent == nullptr ) {
+		ERRORLOG( "Invalid input" );
+		return;
+	}
+
+	for ( auto& ppComponent : *m_pComponents ) {
+		if ( pComponent == ppComponent ) {
+			ppComponent->removeLayer( nIndex );
 		}
 	}
 
@@ -742,8 +806,6 @@ void Instrument::checkForMissingSamples( Event::Trigger trigger )
 
 		for ( const auto& pLayer : *pComponent ) {
 			if ( pLayer == nullptr ) {
-				// The component is filled with nullptr up to
-				// InstrumentComponent::m_nMaxLayers.
 				continue;
 			}
 

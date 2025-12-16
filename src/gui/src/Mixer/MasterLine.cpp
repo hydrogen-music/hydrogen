@@ -131,23 +131,23 @@ MasterLine::MasterLine( QWidget* pParent )
 
 	m_pMasterLbl = new ClickableLabel(
 		this, QSize( 55, 15 ), pCommonStrings->getMasterLabel(),
-		ClickableLabel::Color::Dark );
+		ClickableLabel::DefaultColor::Dark );
 	m_pMasterLbl->move( 14, 8 );
 	m_pHumanizeLbl = new ClickableLabel(
 		this, QSize( 51, 9 ), pCommonStrings->getHumanizeLabel(),
-		ClickableLabel::Color::Dark );
+		ClickableLabel::DefaultColor::Dark );
 	m_pHumanizeLbl->move( 62, 79 );
 	m_pSwingLbl = new ClickableLabel(
 		this, QSize( 51, 9 ), pCommonStrings->getNotePropertyVelocity(),
-		ClickableLabel::Color::Dark );
+		ClickableLabel::DefaultColor::Dark );
 	m_pSwingLbl->move( 62, 116 );
 	m_pTimingLbl = new ClickableLabel(
 		this, QSize( 51, 9 ), pCommonStrings->getTimingLabel(),
-		ClickableLabel::Color::Dark );
+		ClickableLabel::DefaultColor::Dark );
 	m_pTimingLbl->move( 62, 153 );
 	m_pVelocityLbl = new ClickableLabel(
 		this, QSize( 51, 9 ), pCommonStrings->getSwingLabel(),
-		ClickableLabel::Color::Dark );
+		ClickableLabel::DefaultColor::Dark );
 	m_pVelocityLbl->move( 62, 190 );
 
 	updateColors();
