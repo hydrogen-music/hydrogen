@@ -54,18 +54,24 @@
 
 using namespace H2Core;
 
-SidebarLabel::SidebarLabel( QWidget* pParent, Type type, const QSize& size,
-							const QString& sText, int nLeftMargin )
-	: QLineEdit( pParent )
-	, m_pParent( pParent )
-	, m_type( type )
-	, m_bShowPlusSign( false )
-	, m_bEntered( false )
-	, m_sText( sText )
-	, m_bShowCursor( false )
-	, m_bDimed( false )
+SidebarLabel::SidebarLabel(
+	QWidget* pParent,
+	Type type,
+	const QSize& size,
+	const QString& sText,
+	int nLeftMargin
+)
+	: QLineEdit( pParent ),
+	  m_pParent( pParent ),
+	  m_type( type ),
+	  m_bShowPlusSign( false ),
+	  m_bEntered( false ),
+	  m_sText( sText ),
+	  m_bShowCursor( false ),
+	  m_bDimed( false )
 {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme =
+		H2Core::Preferences::get_instance()->getColorTheme();
 
 	setReadOnly( true );
 	setFixedWidth( size.width() );
@@ -73,16 +79,17 @@ SidebarLabel::SidebarLabel( QWidget* pParent, Type type, const QSize& size,
 	setFocusPolicy( Qt::NoFocus );
 	setText( sText );
 	setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
-	setTextMargins( nLeftMargin , 0, 0, 0 );
+	setTextMargins( nLeftMargin, 0, 0, 0 );
 
 	// Prevent the default context menu (popup) from showing up since we ship
 	// our own one.
 	setContextMenuPolicy( Qt::NoContextMenu );
 
 	updateFont();
-	setColor( pColorTheme->m_patternEditor_backgroundColor,
-			  pColorTheme->m_patternEditor_textColor,
-			  pColorTheme->m_cursorColor );
+	setColor(
+		pColorTheme->m_patternEditor_backgroundColor,
+		pColorTheme->m_patternEditor_textColor, pColorTheme->m_cursorColor
+	);
 	updateStyle();
 
 	connect( this, &QLineEdit::editingFinished, this, [=]() {
@@ -90,7 +97,7 @@ SidebarLabel::SidebarLabel( QWidget* pParent, Type type, const QSize& size,
 		setText( text() );
 		// When rejecting the input, the readOnly property has already been
 		// reset and we must not emit a second event.
-		if ( ! isReadOnly() ) {
+		if ( !isReadOnly() ) {
 			setReadOnly( true );
 			clearFocus();
 			emit editAccepted();
@@ -98,10 +105,12 @@ SidebarLabel::SidebarLabel( QWidget* pParent, Type type, const QSize& size,
 	} );
 }
 
-SidebarLabel::~SidebarLabel() {
+SidebarLabel::~SidebarLabel()
+{
 }
 
-void SidebarLabel::setText( const QString& sNewText ) {
+void SidebarLabel::setText( const QString& sNewText )
+{
 	if ( m_sText == sNewText ) {
 		return;
 	}
@@ -112,8 +121,9 @@ void SidebarLabel::setText( const QString& sNewText ) {
 	update();
 }
 
-void SidebarLabel::setShowPlusSign( bool bShowPlusSign ) {
-	if ( bShowPlusSign == m_bShowPlusSign ){
+void SidebarLabel::setShowPlusSign( bool bShowPlusSign )
+{
+	if ( bShowPlusSign == m_bShowPlusSign ) {
 		return;
 	}
 
@@ -123,11 +133,13 @@ void SidebarLabel::setShowPlusSign( bool bShowPlusSign ) {
 	update();
 }
 
-void SidebarLabel::setColor( const QColor& backgroundColor,
-							 const QColor& textColor,
-							 const QColor& cursorColor ) {
-	if ( m_backgroundColor == backgroundColor &&
-		 m_textBaseColor == textColor &&
+void SidebarLabel::setColor(
+	const QColor& backgroundColor,
+	const QColor& textColor,
+	const QColor& cursorColor
+)
+{
+	if ( m_backgroundColor == backgroundColor && m_textBaseColor == textColor &&
 		 m_cursorColor == cursorColor ) {
 		return;
 	}
@@ -145,23 +157,104 @@ void SidebarLabel::setColor( const QColor& backgroundColor,
 	updateStyle();
 }
 
+void SidebarLabel::updateFont()
+{
+	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+
+	const QString sFontFamily = pFontTheme->m_sLevel2FontFamily;
+	const auto fontSize = pFontTheme->m_fontSize;
+
+	int nShrinkage = 7;
+	switch ( fontSize ) {
+		case H2Core::FontTheme::FontSize::Small:
+			nShrinkage = 10;
+			break;
+		case H2Core::FontTheme::FontSize::Medium:
+			nShrinkage = 7;
+			break;
+		case H2Core::FontTheme::FontSize::Large:
+			nShrinkage = 2;
+			break;
+		default:
+			ERRORLOG( QString( "Unknown font size [%1]" )
+						  .arg( static_cast<int>( fontSize ) ) );
+			return;
+	}
+
+	const int nPixelSize = height() - nShrinkage;
+
+	QFont font( sFontFamily );
+
+	font.setPixelSize( nPixelSize );
+	font.setBold( true );
+
+	// This method must not be called more than once in this routine. Otherwise,
+	// a repaint of the widget is triggered, which calls `updateFont()` again
+	// and we are trapped in an infinite loop.
+	setFont( font );
+
+	const QString sEllipsis = QString::fromUtf8( "\u2026" );
+	QString sText = m_sText;
+	// Check whether the width of the text fits the available frame
+	// width of the label
+	while ( QFontMetrics( font ).size( Qt::TextSingleLine, sText ).width() >
+				width() - textMargins().left() - 4 &&
+			sText.size() > 3 ) {
+		if ( sText.at( sText.size() - 2 ) != sEllipsis ) {
+			// First trim action
+			sText.replace( sText.size() - 2, 1, sEllipsis );
+		}
+		else {
+			sText = sText.remove( sText.size() - 3, 1 );
+		}
+	}
+
+	if ( sText != text() ) {
+		QLineEdit::setText( sText );
+	}
+}
+
+void SidebarLabel::setShowCursor( bool bShowCursor )
+{
+	if ( bShowCursor != m_bShowCursor ) {
+		m_bShowCursor = bShowCursor;
+	}
+	update();
+}
+
+void SidebarLabel::setDimed( bool bDimed )
+{
+	if ( bDimed == m_bDimed ) {
+		return;
+	}
+
+	m_bDimed = bDimed;
+
+	updateStyle();
+	update();
+}
+
 #ifdef H2CORE_HAVE_QT6
-void SidebarLabel::enterEvent( QEnterEvent *ev ) {
+void SidebarLabel::enterEvent( QEnterEvent* ev )
+{
 #else
-void SidebarLabel::enterEvent( QEvent *ev ) {
+void SidebarLabel::enterEvent( QEvent* ev )
+{
 #endif
 	UNUSED( ev );
 	m_bEntered = true;
 	update();
 }
 
-void SidebarLabel::leaveEvent( QEvent* ev ) {
+void SidebarLabel::leaveEvent( QEvent* ev )
+{
 	UNUSED( ev );
 	m_bEntered = false;
 	update();
 }
 
-void SidebarLabel::keyPressEvent( QKeyEvent* pEvent ) {
+void SidebarLabel::keyPressEvent( QKeyEvent* pEvent )
+{
 	if ( pEvent->key() == Qt::Key_Escape ) {
 		setReadOnly( true );
 		clearFocus();
@@ -172,8 +265,8 @@ void SidebarLabel::keyPressEvent( QKeyEvent* pEvent ) {
 	QLineEdit::keyPressEvent( pEvent );
 }
 
-void SidebarLabel::mousePressEvent( QMouseEvent* pEvent ) {
-
+void SidebarLabel::mousePressEvent( QMouseEvent* pEvent )
+{
 	auto pSidebarRow = dynamic_cast<SidebarRow*>( m_pParent );
 	if ( pSidebarRow != nullptr ) {
 		pSidebarRow->mousePressEvent( pEvent );
@@ -182,7 +275,8 @@ void SidebarLabel::mousePressEvent( QMouseEvent* pEvent ) {
 	emit labelClicked( pEvent );
 }
 
-void SidebarLabel::mouseDoubleClickEvent( QMouseEvent* pEvent ) {
+void SidebarLabel::mouseDoubleClickEvent( QMouseEvent* pEvent )
+{
 	if ( m_type == Type::Instrument ) {
 		setReadOnly( false );
 		selectAll();
@@ -204,33 +298,34 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 		backgroundColor = backgroundColor.darker( SidebarLabel::nDimScaling );
 	}
 
-	Skin::drawListBackground( &p, QRect( 0, 0, width(), height() ),
-							  backgroundColor, m_bEntered );
+	Skin::drawListBackground(
+		&p, QRect( 0, 0, width(), height() ), backgroundColor, m_bEntered
+	);
 
 	if ( m_bShowPlusSign ) {
 		const auto pPref = Preferences::get_instance();
 
 		int nLineWidth, nHeight;
 		switch ( pPref->getFontTheme()->m_fontSize ) {
-		case H2Core::FontTheme::FontSize::Small:
-			nHeight = height() - 11;
-            nLineWidth = 2;
-            break;
-		case H2Core::FontTheme::FontSize::Medium:
-            nHeight = height() - 10;
-            nLineWidth = 3;
-            break;
-        case H2Core::FontTheme::FontSize::Large:
-            nHeight = height() - 7;
-            nLineWidth = 4;
-            break;
-        default:
-            ERRORLOG( "Unknown font size" );
-            return;
+			case H2Core::FontTheme::FontSize::Small:
+				nHeight = height() - 11;
+				nLineWidth = 2;
+				break;
+			case H2Core::FontTheme::FontSize::Medium:
+				nHeight = height() - 10;
+				nLineWidth = 3;
+				break;
+			case H2Core::FontTheme::FontSize::Large:
+				nHeight = height() - 7;
+				nLineWidth = 4;
+				break;
+			default:
+				ERRORLOG( "Unknown font size" );
+				return;
 		}
 
-		QColor color = m_bEntered ? pPref->getColorTheme()->m_highlightColor :
-			m_textBaseColor;
+		QColor color = m_bEntered ? pPref->getColorTheme()->m_highlightColor
+								  : m_textBaseColor;
 
 		if ( m_bDimed ) {
 			color = color.darker( SidebarLabel::nDimScaling );
@@ -238,7 +333,7 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 
 		int nMidX = std::round( width() / 2 );
 
-		if ( ! text().isEmpty() && m_type == Type::Type ) {
+		if ( !text().isEmpty() && m_type == Type::Type ) {
 			// If no instrument type was provided, we display the instrument id
 			// as fallback to nevertheless allow interacting with the
 			// corresponding notes.
@@ -251,27 +346,27 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 					nIdMax = rrow.nInstrumentID;
 				}
 			}
-			const QString sReferenceText = QString( "0" ).repeated(
-				QString::number( nIdMax ).length() );
+			const QString sReferenceText =
+				QString( "0" ).repeated( QString::number( nIdMax ).length() );
 
-          // I'm not sure why but for some reason the font does either has a way
-          // bigger width than reported by QFontMetrics or there is some kind of
-          // additional margin. Anyway, we need some extra width of vertical
-          // separator will end up within the instrument id.
-		  const int nOffset = 7;
+			// I'm not sure why but for some reason the font does either has a
+			// way bigger width than reported by QFontMetrics or there is some
+			// kind of additional margin. Anyway, we need some extra width of
+			// vertical separator will end up within the instrument id.
+			const int nOffset = 7;
 
-		  const int nTextWidth = nOffset + textMargins().left() +
-								 textMargins().right() +
-								 QFontMetrics( font() )
-									 .size( Qt::TextSingleLine, sReferenceText )
-									 .width();
+			const int nTextWidth =
+				nOffset + textMargins().left() + textMargins().right() +
+				QFontMetrics( font() )
+					.size( Qt::TextSingleLine, sReferenceText )
+					.width();
 
-
-			nMidX = std::round(( width() - nTextWidth ) / 2 ) + nTextWidth;
+			nMidX = std::round( ( width() - nTextWidth ) / 2 ) + nTextWidth;
 
 			// Border between fallback id and plus sign.
-			QColor borderColor = backgroundColor.darker(
-				Skin::nListBackgroundDarkBorderScaling );
+			QColor borderColor =
+				backgroundColor.darker( Skin::nListBackgroundDarkBorderScaling
+				);
 			borderColor.setAlpha( 200 );
 
 			p.setPen( borderColor );
@@ -280,24 +375,32 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 		}
 
 		// horizontal
-		p.fillRect( QRect( nMidX - nHeight / 2,
-						   height() / 2 - nLineWidth / 2, nHeight, nLineWidth ),
-					color );
+		p.fillRect(
+			QRect(
+				nMidX - nHeight / 2, height() / 2 - nLineWidth / 2, nHeight,
+				nLineWidth
+			),
+			color
+		);
 
 		// vertical
-		p.fillRect( QRect( nMidX - nLineWidth / 2,
-						   height() / 2 - nHeight / 2, nLineWidth, nHeight ),
-					color );
+		p.fillRect(
+			QRect(
+				nMidX - nLineWidth / 2, height() / 2 - nHeight / 2, nLineWidth,
+				nHeight
+			),
+			color
+		);
 	}
 
-	if ( pPatternEditorPanel->hasPatternEditorFocus() &&
-		 m_bShowCursor && ! pHydrogenApp->hideKeyboardCursor() ) {
+	if ( pPatternEditorPanel->hasPatternEditorFocus() && m_bShowCursor &&
+		 !pHydrogenApp->hideKeyboardCursor() ) {
 		QPen pen;
 
 		// Only within the drum pattern editor we are able to change the sidebar
 		// column using keyboard events.
 		QColor cursorColor( m_cursorColor );
-		if ( ! pPatternEditorPanel->getDrumPatternEditor()->hasFocus() ) {
+		if ( !pPatternEditorPanel->getDrumPatternEditor()->hasFocus() ) {
 			cursorColor.setAlpha( Skin::nInactiveCursorAlpha );
 		}
 
@@ -312,80 +415,8 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 	QLineEdit::paintEvent( ev );
 }
 
-void SidebarLabel::updateFont() {
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
-
-	const QString sFontFamily = pFontTheme->m_sLevel2FontFamily;
-	const auto fontSize = pFontTheme->m_fontSize;
-
-	int nShrinkage = 7;
-	switch ( fontSize ) {
-	case H2Core::FontTheme::FontSize::Small:
-		nShrinkage = 10;
-		break;
-	case H2Core::FontTheme::FontSize::Medium:
-		nShrinkage = 7;
-		break;
-	case H2Core::FontTheme::FontSize::Large:
-		nShrinkage = 2;
-		break;
-	default:
-		ERRORLOG( QString( "Unknown font size [%1]" )
-				  .arg( static_cast<int>(fontSize) ) );
-		return;
-	}
-
-	const int nPixelSize = height() - nShrinkage;
-
-	QFont font( sFontFamily );
-
-	font.setPixelSize( nPixelSize );
-	font.setBold( true );
-
-	// This method must not be called more than once in this routine. Otherwise,
-	// a repaint of the widget is triggered, which calls `updateFont()` again
-	// and we are trapped in an infinite loop.
-	setFont( font );
-
-	const QString sEllipsis = QString::fromUtf8("\u2026");
-	QString sText = m_sText;
-	// Check whether the width of the text fits the available frame
-	// width of the label
-	while ( QFontMetrics( font ).size( Qt::TextSingleLine, sText ).width() >
-			width() - textMargins().left() - 4 && sText.size() > 3 ) {
-		if ( sText.at( sText.size() - 2 ) != sEllipsis ) {
-			// First trim action
-			sText.replace( sText.size() - 2, 1, sEllipsis );
-		}
-		else {
-			sText = sText.remove( sText.size() - 3, 1 );
-		}
-	}
-
-	if ( sText != text() ) {
-		QLineEdit::setText( sText );
-	}
-}
-
-void SidebarLabel::setShowCursor( bool bShowCursor ) {
-	if ( bShowCursor != m_bShowCursor ) {
-		m_bShowCursor = bShowCursor;
-	}
-	update();
-}
-
-void SidebarLabel::setDimed( bool bDimed ) {
-	if ( bDimed == m_bDimed ) {
-		return;
-	}
-
-	m_bDimed = bDimed;
-
-	updateStyle();
-	update();
-}
-
-void SidebarLabel::updateStyle() {
+void SidebarLabel::updateStyle()
+{
 	m_textColor = m_textBaseColor;
 	if ( m_bDimed && m_type == Type::Type ) {
 		m_textColor = m_textColor.darker( SidebarLabel::nDimScaling );
@@ -399,8 +430,11 @@ QLineEdit {\
    color: %1;\
    background: transparent;\
    font-weight: bold;\
- }" ).arg( m_textColor.name( QColor::HexArgb ) ) );
+ }" )
+					   .arg( m_textColor.name( QColor::HexArgb ) ) );
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	: QWidget( pParent ),

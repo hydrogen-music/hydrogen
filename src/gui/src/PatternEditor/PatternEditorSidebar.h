@@ -46,73 +46,76 @@ namespace H2Core
 
 class Button;
 
-class SidebarLabel : public QLineEdit, public H2Core::Object<SidebarLabel>
-{
-	H2_OBJECT(SidebarLabel)
+class SidebarLabel : public QLineEdit, public H2Core::Object<SidebarLabel> {
+	H2_OBJECT( SidebarLabel )
 	Q_OBJECT
 
-	public:
+   public:
+	static constexpr int nDimScaling = 125;
 
-		enum class Type {
-			Instrument,
-			Type
-		};
+	enum class Type { Instrument, Type };
 
-		SidebarLabel( QWidget* pParent, Type type, const QSize& size,
-					  const QString& sText, int nLeftMargin );
-		~SidebarLabel();
+	SidebarLabel(
+		QWidget* pParent,
+		Type type,
+		const QSize& size,
+		const QString& sText,
+		int nLeftMargin
+	);
+	~SidebarLabel();
 
-		/** Text will be cleared on showPlusSign() */
-		void setText( const QString& sNewText );
-		/** Indicator to show add something new. Icon is cleared on setText() */
-		void setShowPlusSign( bool bShowPlusSign );
-		bool isShowingPlusSign() const;
-		void setColor( const QColor& backgroundColor, const QColor& textColor,
-					   const QColor& cursorColor );
-		void updateFont();
-		void setShowCursor( bool bShowCursor );
-		void setDimed( bool bDimed );
+	/** Text will be cleared on showPlusSign() */
+	void setText( const QString& sNewText );
+	/** Indicator to show add something new. Icon is cleared on setText() */
+	void setShowPlusSign( bool bShowPlusSign );
+	bool isShowingPlusSign() const;
+	void setColor(
+		const QColor& backgroundColor,
+		const QColor& textColor,
+		const QColor& cursorColor
+	);
+	void updateFont();
+	void setShowCursor( bool bShowCursor );
+	void setDimed( bool bDimed );
 
-	signals:
-		void editAccepted();
-		void editRejected();
-		void labelClicked( QMouseEvent* pEvent );
-		void labelDoubleClicked( QMouseEvent* pEvent );
+   signals:
+	void editAccepted();
+	void editRejected();
+	void labelClicked( QMouseEvent* pEvent );
+	void labelDoubleClicked( QMouseEvent* pEvent );
 
-	private:
-
-		static constexpr int nDimScaling = 125;
-
+   private:
 #ifdef H2CORE_HAVE_QT6
-		virtual void enterEvent( QEnterEvent *ev ) override;
+	virtual void enterEvent( QEnterEvent* ev ) override;
 #else
-		virtual void enterEvent( QEvent *ev ) override;
+	virtual void enterEvent( QEvent* ev ) override;
 #endif
 	void keyPressEvent( QKeyEvent* pEvent ) override;
-		virtual void leaveEvent( QEvent *ev ) override;
-		virtual void mousePressEvent( QMouseEvent* pEvent ) override;
-		virtual void mouseDoubleClickEvent( QMouseEvent* pEvent ) override;
-		virtual void paintEvent( QPaintEvent* ev) override;
+	void leaveEvent( QEvent* ev ) override;
+	void mousePressEvent( QMouseEvent* pEvent ) override;
+	void mouseDoubleClickEvent( QMouseEvent* pEvent ) override;
+	void paintEvent( QPaintEvent* ev ) override;
 
-		void updateStyle();
+	void updateStyle();
 
-		QWidget* m_pParent;
-		Type m_type;
-		QString m_sText;
-		bool m_bShowPlusSign;
-		QColor m_backgroundColor;
-		QColor m_textColor;
-		QColor m_textBaseColor;
-		QColor m_cursorColor;
-		/** Whether the mouse pointer entered the boundary of the widget.*/
-		bool m_bEntered;
-		bool m_bShowCursor;
-		/** When using the #PianoRollEditor all rows not selected will be dimed
-		 * to emphasize that one notes of one particular row are displayed. */
-		bool m_bDimed;
+	QWidget* m_pParent;
+	Type m_type;
+	QString m_sText;
+	bool m_bShowPlusSign;
+	QColor m_backgroundColor;
+	QColor m_textColor;
+	QColor m_textBaseColor;
+	QColor m_cursorColor;
+	/** Whether the mouse pointer entered the boundary of the widget.*/
+	bool m_bEntered;
+	bool m_bShowCursor;
+	/** When using the #PianoRollEditor all rows not selected will be dimed
+	 * to emphasize that one notes of one particular row are displayed. */
+	bool m_bDimed;
 };
 
-inline bool SidebarLabel::isShowingPlusSign() const {
+inline bool SidebarLabel::isShowingPlusSign() const
+{
 	return m_bShowPlusSign;
 }
 
