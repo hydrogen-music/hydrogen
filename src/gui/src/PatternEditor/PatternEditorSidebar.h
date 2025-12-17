@@ -183,52 +183,50 @@ public slots:
 		bool m_bEntered;
 };
 
-
 /** \ingroup docGUI*/
 class PatternEditorSidebar : public QWidget,
 							 public EventListener,
 							 public H2Core::Object<PatternEditorSidebar> {
-	H2_OBJECT(PatternEditorSidebar)
+	H2_OBJECT( PatternEditorSidebar )
 	Q_OBJECT
 
-	public:
-		PatternEditorSidebar( QWidget *parent );
-		~PatternEditorSidebar();
+   public:
+	static constexpr int m_nWidth = 301;
+	static constexpr int m_nMargin = 10;
 
-		virtual void mousePressEvent(QMouseEvent *event) override;
-		virtual void mouseMoveEvent(QMouseEvent *event) override;
-		virtual void dragEnterEvent(QDragEnterEvent *event) override;
-		virtual void dropEvent(QDropEvent *event) override;
+	PatternEditorSidebar( QWidget* parent );
+	~PatternEditorSidebar();
 
-		virtual void instrumentMuteSoloChangedEvent( int ) override;
+	void updateColors();
+	void updateEditor();
+	void updateFont();
+	void updateStyleSheet();
+	void updateTypeLabelVisibility( bool bVisible );
 
-		void updateColors();
-		void updateEditor();
-		void updateFont();
-		void updateStyleSheet();
-		void updateTypeLabelVisibility( bool bVisible );
+	void dimRows( bool bDim );
 
-		void dimRows( bool bDim );
+	// EventListener
+	void instrumentMuteSoloChangedEvent( int ) override;
 
-		static constexpr int m_nWidth = 301;
-		static constexpr int m_nMargin = 10;
-	public slots:
-		void updateRows();
+	// Qt events
+	void dragEnterEvent( QDragEnterEvent* event ) override;
+	void dropEvent( QDropEvent* event ) override;
+	void mouseMoveEvent( QMouseEvent* event ) override;
+	void mousePressEvent( QMouseEvent* event ) override;
 
+   public slots:
+	/** Update every SidebarRow, create or destroy lines if necessary. */
+	void updateRows();
 
-	protected:
-		PatternEditorPanel* m_pPatternEditorPanel;
-		uint m_nEditorHeight;
-		std::vector<SidebarRow*> m_rows;
-		DragScroller *m_pDragScroller;
+   private:
+	PatternEditorPanel* m_pPatternEditorPanel;
+	uint m_nEditorHeight;
+	std::vector<SidebarRow*> m_rows;
+	DragScroller* m_pDragScroller;
 
-		/** Vertical position the drag event started at. In case there is no
-		 * valid drag, the value will be set to -1. */
-		int m_nDragStartY;
-
-private:
-	void drawFocus( QPainter& painter );
+	/** Vertical position the drag event started at. In case there is no
+	 * valid drag, the value will be set to -1. */
+	int m_nDragStartY;
 };
-
 
 #endif

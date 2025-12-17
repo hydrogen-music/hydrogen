@@ -1042,15 +1042,14 @@ void SidebarRow::update() {
 
 //////
 
-PatternEditorSidebar::PatternEditorSidebar( QWidget *parent )
-	: QWidget( parent )
-	, m_nDragStartY( -1 )
- {
-
+PatternEditorSidebar::PatternEditorSidebar( QWidget* parent )
+	: QWidget( parent ), m_nDragStartY( -1 )
+{
 	HydrogenApp::get_instance()->addEventListener( this );
 	const auto pPref = H2Core::Preferences::get_instance();
 
-	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
+	m_pPatternEditorPanel =
+		HydrogenApp::get_instance()->getPatternEditorPanel();
 
 	auto pVBoxLayout = new QVBoxLayout( this );
 	pVBoxLayout->setSpacing( 0 );
@@ -1059,40 +1058,43 @@ PatternEditorSidebar::PatternEditorSidebar( QWidget *parent )
 	setLayout( pVBoxLayout );
 
 	m_nEditorHeight = pPref->getPatternEditorGridHeight() *
-		m_pPatternEditorPanel->getRowNumberDB();
+					  m_pPatternEditorPanel->getRowNumberDB();
 
 	if ( pPref->getPatternEditorAlwaysShowTypeLabels() ) {
 		resize( PatternEditorSidebar::m_nWidth, m_nEditorHeight );
 	}
 	else {
-		resize( PatternEditorSidebar::m_nWidth -
-				SidebarRow::m_nTypeLblWidth, m_nEditorHeight );
+		resize(
+			PatternEditorSidebar::m_nWidth - SidebarRow::m_nTypeLblWidth,
+			m_nEditorHeight
+		);
 	}
 
-	setAcceptDrops(true);
+	setAcceptDrops( true );
 
 	updateRows();
 
-	QScrollArea *pScrollArea = dynamic_cast< QScrollArea *>( parentWidget()->parentWidget() );
+	QScrollArea* pScrollArea =
+		dynamic_cast<QScrollArea*>( parentWidget()->parentWidget() );
 	assert( pScrollArea );
 	m_pDragScroller = new DragScroller( pScrollArea );
 }
 
-
-
 PatternEditorSidebar::~PatternEditorSidebar()
 {
-	//INFOLOG( "DESTROY" );
+	// INFOLOG( "DESTROY" );
 	delete m_pDragScroller;
 }
 
-void PatternEditorSidebar::updateColors() {
+void PatternEditorSidebar::updateColors()
+{
 	for ( auto& rrow : m_rows ) {
 		rrow->updateColors();
 	}
 }
 
-void PatternEditorSidebar::updateEditor() {
+void PatternEditorSidebar::updateEditor()
+{
 	updateRows();
 
 	for ( auto& rrow : m_rows ) {
@@ -1102,85 +1104,66 @@ void PatternEditorSidebar::updateEditor() {
 	update();
 }
 
-void PatternEditorSidebar::updateFont() {
+void PatternEditorSidebar::updateFont()
+{
 	for ( auto& rrow : m_rows ) {
 		rrow->updateFont();
 	}
 }
 
-void PatternEditorSidebar::updateStyleSheet() {
+void PatternEditorSidebar::updateStyleSheet()
+{
 	for ( auto& rrow : m_rows ) {
 		rrow->updateStyleSheet();
 	}
 }
 
-void PatternEditorSidebar::updateTypeLabelVisibility( bool bVisible ) {
+void PatternEditorSidebar::updateTypeLabelVisibility( bool bVisible )
+{
 	for ( auto& rrow : m_rows ) {
 		rrow->updateTypeLabelVisibility( bVisible );
 	}
 }
 
-void PatternEditorSidebar::dimRows( bool bDim ) {
+void PatternEditorSidebar::dimRows( bool bDim )
+{
 	for ( auto& rrow : m_rows ) {
 		rrow->setDimed( bDim );
 	}
 }
 
-///
-/// Update every SidebarRow, create or destroy lines if necessary.
-///
-void PatternEditorSidebar::updateRows()
+void PatternEditorSidebar::instrumentMuteSoloChangedEvent( int nInstrumentIndex
+)
 {
-	const auto pPref = H2Core::Preferences::get_instance();
-	if ( m_nEditorHeight != pPref->getPatternEditorGridHeight() *
-		 m_pPatternEditorPanel->getRowNumberDB() ) {
-		m_nEditorHeight = pPref->getPatternEditorGridHeight() *
-			m_pPatternEditorPanel->getRowNumberDB();
-		resize( width(), m_nEditorHeight );
+	if ( nInstrumentIndex == -1 ) {
+		updateRows();
 	}
+	else {
+		// Update a specific line
+		const auto row = m_pPatternEditorPanel->getRowDB( nInstrumentIndex );
+		if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
+			ERRORLOG( QString( "Invalid row [%1]" ).arg( nInstrumentIndex ) );
+			return;
+		}
 
-	bool bPianoRollShown = false;
-	if ( dynamic_cast<PianoRollEditor*>(
-			 m_pPatternEditorPanel->getVisibleEditor()) != nullptr ) {
-		bPianoRollShown = true;
-	}
-
-	int nnIndex = 0;
-	for ( const auto& rrow : m_pPatternEditorPanel->getDB() ) {
-		if ( nnIndex < m_rows.size() ) {
-			// row already exists do a lazy update instead of recreating it.
-			m_rows[ nnIndex ]->set( rrow );
-			m_rows[ nnIndex ]->setDimed( bPianoRollShown );
+		if ( nInstrumentIndex >= m_rows.size() ) {
+			// This should not happen
+			updateRows();
 		}
 		else {
-			// row in DB does not has its counterpart in the sidebar yet. Create
-			// it.
-			auto pRow = new SidebarRow( this, rrow );
-			layout()->addWidget( pRow );
-			pRow->setDimed( bPianoRollShown );
-			m_rows.push_back( pRow );
+			m_rows[nInstrumentIndex]->set( row );
 		}
-		++nnIndex;
-	}
-
-	const int nRows = m_pPatternEditorPanel->getRowNumberDB();
-	while ( nRows < m_rows.size() && m_rows.size() > 0 ) {
-		// There are rows not required anymore
-		auto pRow = *( m_rows.end() - 1 );
-		layout()->removeWidget( pRow );
-		m_rows.pop_back();
-		delete pRow;
 	}
 }
 
-void PatternEditorSidebar::dragEnterEvent(QDragEnterEvent *event)
+void PatternEditorSidebar::dragEnterEvent( QDragEnterEvent* event )
 {
 	event->acceptProposedAction();
 }
 
-void PatternEditorSidebar::dropEvent(QDropEvent *event)
+void PatternEditorSidebar::dropEvent( QDropEvent* event )
 {
-	if ( ! event->mimeData()->hasFormat("text/plain") ) {
+	if ( !event->mimeData()->hasFormat( "text/plain" ) ) {
 		event->ignore();
 		return;
 	}
@@ -1200,10 +1183,9 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 
 	QString sText = event->mimeData()->text();
 
-	if ( sText.startsWith("Songs:") ||
-		 sText.startsWith("Patterns:") ||
-		 sText.startsWith("move pattern:") ||
-		 sText.startsWith("drag pattern:") ) {
+	if ( sText.startsWith( "Songs:" ) || sText.startsWith( "Patterns:" ) ||
+		 sText.startsWith( "move pattern:" ) ||
+		 sText.startsWith( "drag pattern:" ) ) {
 		return;
 	}
 
@@ -1228,7 +1210,6 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 	}
 
 	if ( sText.startsWith( "move instrument:" ) ) {
-
 		sText.remove( 0, QString( "move instrument:" ).length() );
 
 		bool bOk = false;
@@ -1240,11 +1221,14 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 		}
 
 		pHydrogenApp->pushUndoCommand(
-			new SE_moveInstrumentAction( nSourceRow, nTargetRow ) );
+			new SE_moveInstrumentAction( nSourceRow, nTargetRow )
+		);
 		pHydrogenApp->showStatusBarMessage(
 			QString( "%1 [%2] -> [%3]" )
-			.arg( pCommonStrings->getActionMoveInstrument() )
-			.arg( nSourceRow ).arg( nTargetRow ) );
+				.arg( pCommonStrings->getActionMoveInstrument() )
+				.arg( nSourceRow )
+				.arg( nTargetRow )
+		);
 
 		event->acceptProposedAction();
 	}
@@ -1261,19 +1245,26 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 		const auto pNewDrumkit =
 			pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
 		if ( pNewDrumkit == nullptr ) {
-			ERRORLOG( QString( "Unable to retrieve kit [%1] for instrument [%2]" )
-					  .arg( sDrumkitPath ).arg( sInstrumentName ) );
-			QMessageBox::critical( this, "Hydrogen",
-								   pCommonStrings->getInstrumentLoadError() );
+			ERRORLOG( QString( "Unable to retrieve kit [%1] for instrument [%2]"
+			)
+						  .arg( sDrumkitPath )
+						  .arg( sInstrumentName ) );
+			QMessageBox::critical(
+				this, "Hydrogen", pCommonStrings->getInstrumentLoadError()
+			);
 			return;
 		}
 		const auto pTargetInstrument =
 			pNewDrumkit->getInstruments()->find( sInstrumentName );
 		if ( pTargetInstrument == nullptr ) {
-			ERRORLOG( QString( "Unable to retrieve instrument [%1] from kit [%2]" )
-					  .arg( sInstrumentName ).arg( sDrumkitPath ) );
-			QMessageBox::critical( this, "Hydrogen",
-								   pCommonStrings->getInstrumentLoadError() );
+			ERRORLOG(
+				QString( "Unable to retrieve instrument [%1] from kit [%2]" )
+					.arg( sInstrumentName )
+					.arg( sDrumkitPath )
+			);
+			QMessageBox::critical(
+				this, "Hydrogen", pCommonStrings->getInstrumentLoadError()
+			);
 			return;
 		}
 
@@ -1286,13 +1277,15 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 		}
 		// We provide a copy of the instrument in order to not leak any changes
 		// into the original kit.
-		pHydrogenApp->pushUndoCommand(
-			new SE_addInstrumentAction(
-				std::make_shared<Instrument>(pTargetInstrument), nTargetRowSE,
-				SE_addInstrumentAction::Type::DropInstrument ) );
+		pHydrogenApp->pushUndoCommand( new SE_addInstrumentAction(
+			std::make_shared<Instrument>( pTargetInstrument ), nTargetRowSE,
+			SE_addInstrumentAction::Type::DropInstrument
+		) );
 		pHydrogenApp->showStatusBarMessage(
-			QString( "%1 [%2]" ) .arg( pCommonStrings->getActionDropInstrument() )
-			.arg( pTargetInstrument->getName() ) );
+			QString( "%1 [%2]" )
+				.arg( pCommonStrings->getActionDropInstrument() )
+				.arg( pTargetInstrument->getName() )
+		);
 
 		event->acceptProposedAction();
 	}
@@ -1304,30 +1297,10 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 	m_pPatternEditorPanel->setSelectedRowDB( nTargetRow );
 }
 
-
-void PatternEditorSidebar::mousePressEvent( QMouseEvent *event ) {
-	if ( event->button() != Qt::LeftButton ) {
-		return;
-	}
-
-	auto pEv = static_cast<MouseEvent*>( event );
-
-	if ( m_pPatternEditorPanel->getRowDB(
-			 m_pPatternEditorPanel->getSelectedRowDB() ).nInstrumentID !=
-		 EMPTY_INSTR_ID ) {
-		// Drag started at a line corresponding to an instrument of the current
-		// drumkit.
-		m_nDragStartY = pEv->position().y();
-	}
-	else {
-		m_nDragStartY = -1;
-	}
-}
-
-void PatternEditorSidebar::mouseMoveEvent(QMouseEvent *event)
+void PatternEditorSidebar::mouseMoveEvent( QMouseEvent* event )
 {
 	// Button needs to stay pressed.
-	if ( ! ( event->buttons() & Qt::LeftButton ) ) {
+	if ( !( event->buttons() & Qt::LeftButton ) ) {
 		return;
 	}
 
@@ -1353,17 +1326,18 @@ void PatternEditorSidebar::mouseMoveEvent(QMouseEvent *event)
 	// Instrument corresponding to the selected line in the pattern editor.
 	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
 	auto pInstrument = pSong->getDrumkit()->getInstruments()->find(
-		m_pPatternEditorPanel->getRowDB( nSelectedRow ).nInstrumentID );
+		m_pPatternEditorPanel->getRowDB( nSelectedRow ).nInstrumentID
+	);
 	if ( pInstrument == nullptr ) {
 		ERRORLOG( QString( "No instrument selected found for row [%1]" )
-				  .arg( nSelectedRow ) );
+					  .arg( nSelectedRow ) );
 		return;
 	}
 
 	const QString sText = QString( "move instrument:%1" ).arg( nSelectedRow );
 
-	QDrag *pDrag = new QDrag(this);
-	QMimeData *pMimeData = new QMimeData;
+	QDrag* pDrag = new QDrag( this );
+	QMimeData* pMimeData = new QMimeData;
 
 	pMimeData->setText( sText );
 	pDrag->setMimeData( pMimeData );
@@ -1372,29 +1346,70 @@ void PatternEditorSidebar::mouseMoveEvent(QMouseEvent *event)
 	pDrag->exec( Qt::CopyAction | Qt::MoveAction );
 	m_pDragScroller->endDrag();
 
-	QWidget::mouseMoveEvent(event);
+	QWidget::mouseMoveEvent( event );
 }
 
+void PatternEditorSidebar::mousePressEvent( QMouseEvent* event )
+{
+	if ( event->button() != Qt::LeftButton ) {
+		return;
+	}
 
-void PatternEditorSidebar::instrumentMuteSoloChangedEvent( int nInstrumentIndex ) {
+	auto pEv = static_cast<MouseEvent*>( event );
 
-	if ( nInstrumentIndex == -1 ) {
-		updateRows();
+	if ( m_pPatternEditorPanel
+			 ->getRowDB( m_pPatternEditorPanel->getSelectedRowDB() )
+			 .nInstrumentID != EMPTY_INSTR_ID ) {
+		// Drag started at a line corresponding to an instrument of the current
+		// drumkit.
+		m_nDragStartY = pEv->position().y();
 	}
 	else {
-		// Update a specific line
-		const auto row = m_pPatternEditorPanel->getRowDB( nInstrumentIndex );
-		if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
-			ERRORLOG( QString( "Invalid row [%1]" ).arg( nInstrumentIndex ) );
-			return;
-		}
+		m_nDragStartY = -1;
+	}
+}
 
-		if ( nInstrumentIndex >= m_rows.size() ) {
-			// This should not happen
-			updateRows();
+void PatternEditorSidebar::updateRows()
+{
+	const auto pPref = H2Core::Preferences::get_instance();
+	if ( m_nEditorHeight != pPref->getPatternEditorGridHeight() *
+								m_pPatternEditorPanel->getRowNumberDB() ) {
+		m_nEditorHeight = pPref->getPatternEditorGridHeight() *
+						  m_pPatternEditorPanel->getRowNumberDB();
+		resize( width(), m_nEditorHeight );
+	}
+
+	bool bPianoRollShown = false;
+	if ( dynamic_cast<PianoRollEditor*>(
+			 m_pPatternEditorPanel->getVisibleEditor()
+		 ) != nullptr ) {
+		bPianoRollShown = true;
+	}
+
+	int nnIndex = 0;
+	for ( const auto& rrow : m_pPatternEditorPanel->getDB() ) {
+		if ( nnIndex < m_rows.size() ) {
+			// row already exists do a lazy update instead of recreating it.
+			m_rows[nnIndex]->set( rrow );
+			m_rows[nnIndex]->setDimed( bPianoRollShown );
 		}
 		else {
-			m_rows[ nInstrumentIndex ]->set( row );
+			// row in DB does not has its counterpart in the sidebar yet. Create
+			// it.
+			auto pRow = new SidebarRow( this, rrow );
+			layout()->addWidget( pRow );
+			pRow->setDimed( bPianoRollShown );
+			m_rows.push_back( pRow );
 		}
+		++nnIndex;
+	}
+
+	const int nRows = m_pPatternEditorPanel->getRowNumberDB();
+	while ( nRows < m_rows.size() && m_rows.size() > 0 ) {
+		// There are rows not required anymore
+		auto pRow = *( m_rows.end() - 1 );
+		layout()->removeWidget( pRow );
+		m_rows.pop_back();
+		delete pRow;
 	}
 }
