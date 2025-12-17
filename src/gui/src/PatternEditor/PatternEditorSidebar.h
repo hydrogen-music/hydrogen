@@ -118,69 +118,68 @@ inline bool SidebarLabel::isShowingPlusSign() const {
 }
 
 /** \ingroup docGUI*/
-class SidebarRow : public PixmapWidget
-				 , protected WidgetWithScalableFont<8, 10, 12>
-{
-    H2_OBJECT(SidebarRow)
+class SidebarRow : public PixmapWidget,
+				   protected WidgetWithScalableFont<8, 10, 12> {
+	H2_OBJECT( SidebarRow )
 	Q_OBJECT
 
-	public:
-		explicit SidebarRow( QWidget* pParent, const DrumPatternRow& row );
+   public:
+	static constexpr int m_nButtonWidth = 18;
+	static constexpr int m_nTypeLblWidth = 100;
 
+	explicit SidebarRow( QWidget* pParent, const DrumPatternRow& row );
 
-		void set( const DrumPatternRow& row );
-		void setSelected( bool isSelected );
-		void setDimed( bool bDimed );
+	void set( const DrumPatternRow& row );
+	void setSelected( bool isSelected );
+	void setDimed( bool bDimed );
 
-		void updateColors();
-		void updateFont();
-		void updateStyleSheet();
-		void updateTypeLabelVisibility( bool bVisible );
+	void updateColors();
+	void updateFont();
+	void updateStyleSheet();
+	void updateTypeLabelVisibility( bool bVisible );
 
-		static constexpr int m_nButtonWidth = 18;
-		static constexpr int m_nTypeLblWidth = 100;
-		virtual void mousePressEvent(QMouseEvent *ev) override;
+	void mousePressEvent( QMouseEvent* ev ) override;
 
-public slots:
-		void update();
+   public slots:
+	void update();
 
-	private slots:
-		void muteClicked();
-		void soloClicked();
-		void sampleWarningClicked();
+   private slots:
+	void muteClicked();
+	void soloClicked();
+	void sampleWarningClicked();
 
-	private:
-		PatternEditorPanel* m_pPatternEditorPanel;
-		QMenu *m_pFunctionPopup;
-		QMenu *m_pFunctionPopupSub;
-		QAction* m_pRenameInstrumentAction;
-		QAction* m_pDuplicateInstrumentAction;
-		QAction* m_pDeleteInstrumentAction;
-		QAction* m_pTypeLabelVisibilityAction;
-		SidebarLabel* m_pInstrumentNameLbl;
-		SidebarLabel* m_pTypeLbl;
-		bool m_bIsSelected;
-		DrumPatternRow m_row;
-		Button *m_pMuteBtn;
-		Button *m_pSoloBtn;
-		Button *m_pSampleWarning;
-		/** When using the #PianoRollEditor all rows not selected will be dimed
-		 * to emphasize that one notes of one particular row are displayed. */
-		bool m_bDimed;
-
+   private:
 #ifdef H2CORE_HAVE_QT6
-		virtual void enterEvent( QEnterEvent *ev ) override;
+	void enterEvent( QEnterEvent* ev ) override;
 #else
-		virtual void enterEvent( QEvent *ev ) override;
+	void enterEvent( QEvent* ev ) override;
 #endif
-	virtual void leaveEvent( QEvent *ev ) override;
+	void leaveEvent( QEvent* ev ) override;
 
-		void setMuted(bool isMuted);
-		void setSoloed( bool soloed );
-		void setSamplesMissing( bool bSamplesMissing );
+	void setMuted( bool isMuted );
+	void setSoloed( bool soloed );
+	void setSamplesMissing( bool bSamplesMissing );
 
-		/** Whether the cursor entered the boundary of the widget.*/
-		bool m_bEntered;
+	PatternEditorPanel* m_pPatternEditorPanel;
+	QMenu* m_pFunctionPopup;
+	QMenu* m_pFunctionPopupSub;
+	QAction* m_pRenameInstrumentAction;
+	QAction* m_pDuplicateInstrumentAction;
+	QAction* m_pDeleteInstrumentAction;
+	QAction* m_pTypeLabelVisibilityAction;
+	SidebarLabel* m_pInstrumentNameLbl;
+	SidebarLabel* m_pTypeLbl;
+	bool m_bIsSelected;
+	DrumPatternRow m_row;
+	Button* m_pMuteBtn;
+	Button* m_pSoloBtn;
+	Button* m_pSampleWarning;
+	/** When using the #PianoRollEditor all rows not selected will be dimed
+	 * to emphasize that one notes of one particular row are displayed. */
+	bool m_bDimed;
+
+	/** Whether the cursor entered the boundary of the widget.*/
+	bool m_bEntered;
 };
 
 /** \ingroup docGUI*/

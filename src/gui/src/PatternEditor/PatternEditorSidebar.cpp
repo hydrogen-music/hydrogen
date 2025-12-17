@@ -403,13 +403,14 @@ QLineEdit {\
 }
 
 SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
-	: PixmapWidget(pParent)
-	, m_row( row )
-	, m_bIsSelected( false )
-	, m_bEntered( false )
-	, m_bDimed( false )
+	: PixmapWidget( pParent ),
+	  m_row( row ),
+	  m_bIsSelected( false ),
+	  m_bEntered( false ),
+	  m_bDimed( false )
 {
-	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
+	m_pPatternEditorPanel =
+		HydrogenApp::get_instance()->getPatternEditorPanel();
 
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
@@ -421,42 +422,55 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	pHBox->setSpacing( 0 );
 	pHBox->setContentsMargins( 0, 0, 0, 0 );
 
-	QFont nameFont( pPref->getFontTheme()->m_sLevel2FontFamily,
-					getPointSize( pPref->getFontTheme()->m_fontSize ) );
+	QFont nameFont(
+		pPref->getFontTheme()->m_sLevel2FontFamily,
+		getPointSize( pPref->getFontTheme()->m_fontSize )
+	);
 
 	m_pInstrumentNameLbl = new SidebarLabel(
 		this, SidebarLabel::Type::Instrument,
-		QSize( PatternEditorSidebar::m_nWidth - 2 * SidebarRow::m_nButtonWidth -
-			   SidebarRow::m_nTypeLblWidth, nHeight ),
-		"", PatternEditorSidebar::m_nMargin );
+		QSize(
+			PatternEditorSidebar::m_nWidth - 2 * SidebarRow::m_nButtonWidth -
+				SidebarRow::m_nTypeLblWidth,
+			nHeight
+		),
+		"", PatternEditorSidebar::m_nMargin
+	);
 	m_pInstrumentNameLbl->setFont( nameFont );
-	m_pInstrumentNameLbl->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+	m_pInstrumentNameLbl->setSizePolicy(
+		QSizePolicy::Fixed, QSizePolicy::Fixed
+	);
 	pHBox->addWidget( m_pInstrumentNameLbl );
 
 	// Play back a sample of specific velocity based on the horizontal position
 	// of the click event. We will do so just for the instrument label.
 	connect(
-		m_pInstrumentNameLbl, &SidebarLabel::labelClicked, [=]( QMouseEvent* pEvent ){
+		m_pInstrumentNameLbl, &SidebarLabel::labelClicked,
+		[=]( QMouseEvent* pEvent ) {
 			auto pEv = static_cast<MouseEvent*>( pEvent );
 			if ( pEvent->button() == Qt::LeftButton &&
-				 ! m_pInstrumentNameLbl->isShowingPlusSign() ) {
+				 !m_pInstrumentNameLbl->isShowingPlusSign() ) {
 				// Play a sound
 				auto pSong = Hydrogen::get_instance()->getSong();
 				if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 					return;
 				}
-				auto pInstr = pSong->getDrumkit()->getInstruments()->
-					find( m_row.nInstrumentID );
-				if ( m_pMuteBtn != nullptr &&
-					 pInstr != nullptr && pInstr->hasSamples() &&
-					 pPref->getHearNewNotes() ) {
-
-					const int nWidth = m_pMuteBtn->x() - 5; // clickable field width
+				auto pInstr = pSong->getDrumkit()->getInstruments()->find(
+					m_row.nInstrumentID
+				);
+				if ( m_pMuteBtn != nullptr && pInstr != nullptr &&
+					 pInstr->hasSamples() && pPref->getHearNewNotes() ) {
+					const int nWidth =
+						m_pMuteBtn->x() - 5;  // clickable field width
 					const float fVelocity = std::min(
-						(float)pEv->position().x()/(float)nWidth, VELOCITY_MAX );
-					auto pNote = std::make_shared<Note>( pInstr, 0, fVelocity);
-					Hydrogen::get_instance()->getAudioEngine()->getSampler()->
-						noteOn( pNote );
+						(float) pEv->position().x() / (float) nWidth,
+						VELOCITY_MAX
+					);
+					auto pNote = std::make_shared<Note>( pInstr, 0, fVelocity );
+					Hydrogen::get_instance()
+						->getAudioEngine()
+						->getSampler()
+						->noteOn( pNote );
 				}
 			}
 			else if ( pEvent->button() == Qt::LeftButton &&
@@ -465,8 +479,10 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 				// Add a new instrument to the current row
 				bool bIsOkPressed;
 				const QString sNewName = QInputDialog::getText(
-					nullptr, "Hydrogen", pCommonStrings->getActionAddInstrument(),
-					QLineEdit::Normal, "", &bIsOkPressed );
+					nullptr, "Hydrogen",
+					pCommonStrings->getActionAddInstrument(), QLineEdit::Normal,
+					"", &bIsOkPressed
+				);
 				if ( bIsOkPressed ) {
 					auto pNewInstrument = std::make_shared<Instrument>();
 					pNewInstrument->setType( m_row.sType );
@@ -475,12 +491,14 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 					MainForm::action_drumkit_addInstrument( pNewInstrument );
 				}
 			}
-	} );
+		}
+	);
 	connect( m_pInstrumentNameLbl, &SidebarLabel::editAccepted, [=]() {
 		if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
-		 MainForm::action_drumkit_renameInstrument(
-			 m_pPatternEditorPanel->getRowIndexDB( m_row ),
-			 m_pInstrumentNameLbl->text() );
+			MainForm::action_drumkit_renameInstrument(
+				m_pPatternEditorPanel->getRowIndexDB( m_row ),
+				m_pInstrumentNameLbl->text()
+			);
 		}
 	} );
 	connect( m_pInstrumentNameLbl, &SidebarLabel::editRejected, this, [&]() {
@@ -490,8 +508,9 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 			if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 				return;
 			}
-			auto pInstrument = pSong->getDrumkit()->getInstruments()
-				->get( m_pPatternEditorPanel->getRowIndexDB( m_row ) );
+			auto pInstrument = pSong->getDrumkit()->getInstruments()->get(
+				m_pPatternEditorPanel->getRowIndexDB( m_row )
+			);
 			if ( pInstrument == nullptr ) {
 				return;
 			}
@@ -502,29 +521,34 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 
 	m_pSampleWarning = new Button(
 		this, QSize( 15, 13 ), Button::Type::Icon, "warning.svg", "", QSize(),
-		tr( "Some samples for this instrument failed to load." ), true );
+		tr( "Some samples for this instrument failed to load." ), true
+	);
 	m_pSampleWarning->hide();
 	pHBox->addWidget( m_pSampleWarning );
-	connect(m_pSampleWarning, SIGNAL( clicked() ),
-			this, SLOT( sampleWarningClicked() ));
+	connect(
+		m_pSampleWarning, SIGNAL( clicked() ), this,
+		SLOT( sampleWarningClicked() )
+	);
 
 	m_pMuteBtn = new Button(
-		this, QSize( SidebarRow::m_nButtonWidth, height() ), Button::Type::Toggle,
-		"", pCommonStrings->getSmallMuteButton(), QSize(), tr("Mute instrument"),
-		true );
+		this, QSize( SidebarRow::m_nButtonWidth, height() ),
+		Button::Type::Toggle, "", pCommonStrings->getSmallMuteButton(), QSize(),
+		tr( "Mute instrument" ), true
+	);
 	m_pMuteBtn->setChecked( false );
 	m_pMuteBtn->setObjectName( "SidebarRowMuteButton" );
 	pHBox->addWidget( m_pMuteBtn );
-	connect(m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteClicked() ));
+	connect( m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteClicked() ) );
 
 	m_pSoloBtn = new Button(
-		this, QSize( SidebarRow::m_nButtonWidth, height() ), Button::Type::Toggle,
-		"", pCommonStrings->getSmallSoloButton(), QSize(),
-		pCommonStrings->getBigSoloButton(), true );
+		this, QSize( SidebarRow::m_nButtonWidth, height() ),
+		Button::Type::Toggle, "", pCommonStrings->getSmallSoloButton(), QSize(),
+		pCommonStrings->getBigSoloButton(), true
+	);
 	m_pSoloBtn->setChecked( false );
 	m_pSoloBtn->setObjectName( "SidebarRowSoloButton" );
 	pHBox->addWidget( m_pSoloBtn );
-	connect(m_pSoloBtn, SIGNAL( clicked() ), this, SLOT(soloClicked()));
+	connect( m_pSoloBtn, SIGNAL( clicked() ), this, SLOT( soloClicked() ) );
 
 	if ( row.nInstrumentID == EMPTY_INSTR_ID ) {
 		m_pMuteBtn->hide();
@@ -536,163 +560,220 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 
 	m_pTypeLbl = new SidebarLabel(
 		this, SidebarLabel::Type::Type,
-		QSize( SidebarRow::m_nTypeLblWidth, nHeight ), m_row.sType, 3 );
+		QSize( SidebarRow::m_nTypeLblWidth, nHeight ), m_row.sType, 3
+	);
 	pHBox->addWidget( m_pTypeLbl );
-	connect( m_pTypeLbl, &SidebarLabel::labelClicked, [=]( QMouseEvent* pEvent ){
-		if ( pEvent->button() == Qt::LeftButton &&
-			 m_pTypeLbl->isShowingPlusSign() ) {
-			if ( m_row.bMappedToDrumkit ) {
-				MainForm::editDrumkitProperties(
-					false, false, m_row.nInstrumentID );
-			}
-			else {
-				m_pPatternEditorPanel->setTypeInRow(
-					m_pPatternEditorPanel->getRowIndexDB( m_row ) );
+	connect(
+		m_pTypeLbl, &SidebarLabel::labelClicked,
+		[=]( QMouseEvent* pEvent ) {
+			if ( pEvent->button() == Qt::LeftButton &&
+				 m_pTypeLbl->isShowingPlusSign() ) {
+				if ( m_row.bMappedToDrumkit ) {
+					MainForm::editDrumkitProperties(
+						false, false, m_row.nInstrumentID
+					);
+				}
+				else {
+					m_pPatternEditorPanel->setTypeInRow(
+						m_pPatternEditorPanel->getRowIndexDB( m_row )
+					);
+				}
 			}
 		}
-	} );
-	connect( m_pTypeLbl, &SidebarLabel::labelDoubleClicked,
-			 [=]( QMouseEvent* pEvent ){
-				 if ( pEvent->button() == Qt::LeftButton ) {
-					if ( m_row.bMappedToDrumkit ) {
-						MainForm::editDrumkitProperties(
-							false, false, m_row.nInstrumentID );
-					}
-					else {
-						m_pPatternEditorPanel->setTypeInRow(
-							m_pPatternEditorPanel->getRowIndexDB( m_row ) );
-					}
-				 }
-			 } );
+	);
+	connect(
+		m_pTypeLbl, &SidebarLabel::labelDoubleClicked,
+		[=]( QMouseEvent* pEvent ) {
+			if ( pEvent->button() == Qt::LeftButton ) {
+				if ( m_row.bMappedToDrumkit ) {
+					MainForm::editDrumkitProperties(
+						false, false, m_row.nInstrumentID
+					);
+				}
+				else {
+					m_pPatternEditorPanel->setTypeInRow(
+						m_pPatternEditorPanel->getRowIndexDB( m_row )
+					);
+				}
+			}
+		}
+	);
 	m_pTypeLbl->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 
-	if ( ! pPref->getPatternEditorAlwaysShowTypeLabels() ) {
+	if ( !pPref->getPatternEditorAlwaysShowTypeLabels() ) {
 		m_pTypeLbl->hide();
 	}
 
 	// Popup menu
 	m_pFunctionPopup = new QMenu( this );
 	auto clearAction = m_pFunctionPopup->addAction(
-		pCommonStrings->getActionClearAllNotesInRow() );
-	connect( clearAction, &QAction::triggered, this, [=](){
+		pCommonStrings->getActionClearAllNotesInRow()
+	);
+	connect( clearAction, &QAction::triggered, this, [=]() {
 		m_pPatternEditorPanel->clearNotesInRow(
 			m_pPatternEditorPanel->getRowIndexDB( m_row ),
-			m_pPatternEditorPanel->getPatternNumber() ); } );
+			m_pPatternEditorPanel->getPatternNumber()
+		);
+	} );
 
-	m_pFunctionPopupSub = new QMenu(
-		pCommonStrings->getActionFillNotes(), m_pFunctionPopup );
-	auto fillAllAction = m_pFunctionPopupSub->addAction(
-		pCommonStrings->getActionFillAllNotes() );
-	connect( fillAllAction, &QAction::triggered, this, [=](){
+	m_pFunctionPopupSub =
+		new QMenu( pCommonStrings->getActionFillNotes(), m_pFunctionPopup );
+	auto fillAllAction =
+		m_pFunctionPopupSub->addAction( pCommonStrings->getActionFillAllNotes()
+		);
+	connect( fillAllAction, &QAction::triggered, this, [=]() {
 		m_pPatternEditorPanel->fillNotesInRow(
 			m_pPatternEditorPanel->getRowIndexDB( m_row ),
-			PatternEditorPanel::FillNotes::All ); } );
+			PatternEditorPanel::FillNotes::All
+		);
+	} );
 	auto fillEverySecondAction = m_pFunctionPopupSub->addAction(
-		pCommonStrings->getActionFillEverySecondNote() );
-	connect( fillEverySecondAction, &QAction::triggered, this, [=](){
+		pCommonStrings->getActionFillEverySecondNote()
+	);
+	connect( fillEverySecondAction, &QAction::triggered, this, [=]() {
 		m_pPatternEditorPanel->fillNotesInRow(
 			m_pPatternEditorPanel->getRowIndexDB( m_row ),
-			PatternEditorPanel::FillNotes::EverySecond ); } );
+			PatternEditorPanel::FillNotes::EverySecond
+		);
+	} );
 	auto fillEveryThirdAction = m_pFunctionPopupSub->addAction(
-		pCommonStrings->getActionFillEveryThirdNote() );
-	connect( fillEveryThirdAction, &QAction::triggered, this, [=](){
+		pCommonStrings->getActionFillEveryThirdNote()
+	);
+	connect( fillEveryThirdAction, &QAction::triggered, this, [=]() {
 		m_pPatternEditorPanel->fillNotesInRow(
 			m_pPatternEditorPanel->getRowIndexDB( m_row ),
-			PatternEditorPanel::FillNotes::EveryThird ); } );
+			PatternEditorPanel::FillNotes::EveryThird
+		);
+	} );
 	auto fillEveryFourthAction = m_pFunctionPopupSub->addAction(
-		pCommonStrings->getActionFillEveryFourthNote() );
-	connect( fillEveryFourthAction, &QAction::triggered, this, [=](){
+		pCommonStrings->getActionFillEveryFourthNote()
+	);
+	connect( fillEveryFourthAction, &QAction::triggered, this, [=]() {
 		m_pPatternEditorPanel->fillNotesInRow(
 			m_pPatternEditorPanel->getRowIndexDB( m_row ),
-			PatternEditorPanel::FillNotes::EveryFourth ); } );
+			PatternEditorPanel::FillNotes::EveryFourth
+		);
+	} );
 	auto fillEverySixthAction = m_pFunctionPopupSub->addAction(
-		pCommonStrings->getActionFillEverySixthNote() );
-	connect( fillEverySixthAction, &QAction::triggered, this, [=](){
+		pCommonStrings->getActionFillEverySixthNote()
+	);
+	connect( fillEverySixthAction, &QAction::triggered, this, [=]() {
 		m_pPatternEditorPanel->fillNotesInRow(
 			m_pPatternEditorPanel->getRowIndexDB( m_row ),
-			PatternEditorPanel::FillNotes::EverySixth ); } );
+			PatternEditorPanel::FillNotes::EverySixth
+		);
+	} );
 	auto fillEveryEighthAction = m_pFunctionPopupSub->addAction(
-		pCommonStrings->getActionFillEveryEighthNote() );
-	connect( fillEveryEighthAction, &QAction::triggered, this, [=](){
+		pCommonStrings->getActionFillEveryEighthNote()
+	);
+	connect( fillEveryEighthAction, &QAction::triggered, this, [=]() {
 		m_pPatternEditorPanel->fillNotesInRow(
 			m_pPatternEditorPanel->getRowIndexDB( m_row ),
-			PatternEditorPanel::FillNotes::EveryEighth ); } );
+			PatternEditorPanel::FillNotes::EveryEighth
+		);
+	} );
 	auto fillEveryTwelfthAction = m_pFunctionPopupSub->addAction(
-		pCommonStrings->getActionFillEveryTwelfthNote() );
-	connect( fillEveryTwelfthAction, &QAction::triggered, this, [=](){
+		pCommonStrings->getActionFillEveryTwelfthNote()
+	);
+	connect( fillEveryTwelfthAction, &QAction::triggered, this, [=]() {
 		m_pPatternEditorPanel->fillNotesInRow(
 			m_pPatternEditorPanel->getRowIndexDB( m_row ),
-			PatternEditorPanel::FillNotes::EveryTwelfth ); } );
+			PatternEditorPanel::FillNotes::EveryTwelfth
+		);
+	} );
 	auto fillEverySixteenthAction = m_pFunctionPopupSub->addAction(
-		pCommonStrings->getActionFillEverySixteenthNote() );
-	connect( fillEverySixteenthAction, &QAction::triggered, this, [=](){
+		pCommonStrings->getActionFillEverySixteenthNote()
+	);
+	connect( fillEverySixteenthAction, &QAction::triggered, this, [=]() {
 		m_pPatternEditorPanel->fillNotesInRow(
 			m_pPatternEditorPanel->getRowIndexDB( m_row ),
-			PatternEditorPanel::FillNotes::EverySixteenth ); } );
+			PatternEditorPanel::FillNotes::EverySixteenth
+		);
+	} );
 	m_pFunctionPopup->addMenu( m_pFunctionPopupSub );
 
-	auto selectNotesAction = m_pFunctionPopup->addAction(
-		pCommonStrings->getActionSelectNotes() );
-	connect( selectNotesAction, &QAction::triggered, this, [=](){
+	auto selectNotesAction =
+		m_pFunctionPopup->addAction( pCommonStrings->getActionSelectNotes() );
+	connect( selectNotesAction, &QAction::triggered, this, [=]() {
 		m_pPatternEditorPanel->getVisibleEditor()->selectAllNotesInRow(
-			m_pPatternEditorPanel->getRowIndexDB( m_row ) ); } );
+			m_pPatternEditorPanel->getRowIndexDB( m_row )
+		);
+	} );
 
 	m_pFunctionPopup->addSection( pCommonStrings->getActionEditAllPatterns() );
-	auto cutNotesAction = m_pFunctionPopup->addAction(
-		pCommonStrings->getActionCutAllNotes() );
-	connect( cutNotesAction, &QAction::triggered, this, [=](){
+	auto cutNotesAction =
+		m_pFunctionPopup->addAction( pCommonStrings->getActionCutAllNotes() );
+	connect( cutNotesAction, &QAction::triggered, this, [=]() {
 		m_pPatternEditorPanel->cutNotesFromRowOfAllPatterns(
-			m_pPatternEditorPanel->getRowIndexDB( m_row ) ); } );
-	auto copyNotesAction = m_pFunctionPopup->addAction(
-		pCommonStrings->getActionCopyNotes() );
-	connect( copyNotesAction, &QAction::triggered, this, [=](){
+			m_pPatternEditorPanel->getRowIndexDB( m_row )
+		);
+	} );
+	auto copyNotesAction =
+		m_pFunctionPopup->addAction( pCommonStrings->getActionCopyNotes() );
+	connect( copyNotesAction, &QAction::triggered, this, [=]() {
 		m_pPatternEditorPanel->copyNotesFromRowOfAllPatterns(
-			m_pPatternEditorPanel->getRowIndexDB( m_row ) ); } );
-	auto pasteNotesAction = m_pFunctionPopup->addAction(
-		pCommonStrings->getActionPasteAllNotes() );
-	connect( pasteNotesAction, &QAction::triggered, this, [=](){
+			m_pPatternEditorPanel->getRowIndexDB( m_row )
+		);
+	} );
+	auto pasteNotesAction =
+		m_pFunctionPopup->addAction( pCommonStrings->getActionPasteAllNotes() );
+	connect( pasteNotesAction, &QAction::triggered, this, [=]() {
 		m_pPatternEditorPanel->pasteNotesToRowOfAllPatterns(
-			m_pPatternEditorPanel->getRowIndexDB( m_row ) ); } );
-	auto clearAllAction = m_pFunctionPopup->addAction(
-		pCommonStrings->getActionClearAllNotes() );
-	connect( clearAllAction, &QAction::triggered, this, [=](){
+			m_pPatternEditorPanel->getRowIndexDB( m_row )
+		);
+	} );
+	auto clearAllAction =
+		m_pFunctionPopup->addAction( pCommonStrings->getActionClearAllNotes() );
+	connect( clearAllAction, &QAction::triggered, this, [=]() {
 		m_pPatternEditorPanel->clearNotesInRow(
-			m_pPatternEditorPanel->getRowIndexDB( m_row ), -1 ); } );
+			m_pPatternEditorPanel->getRowIndexDB( m_row ), -1
+		);
+	} );
 
 	m_pFunctionPopup->addSection( tr( "Instrument" ) );
-	m_pFunctionPopup->addAction( pCommonStrings->getActionAddInstrument(),
-								 HydrogenApp::get_instance()->getMainForm(),
-								 SLOT( action_drumkit_addInstrument() ) );
-	m_pDuplicateInstrumentAction =
-		m_pFunctionPopup->addAction( pCommonStrings->getActionDuplicateInstrument() );
-	connect( m_pDuplicateInstrumentAction, &QAction::triggered, this, [=](){
+	m_pFunctionPopup->addAction(
+		pCommonStrings->getActionAddInstrument(),
+		HydrogenApp::get_instance()->getMainForm(),
+		SLOT( action_drumkit_addInstrument() )
+	);
+	m_pDuplicateInstrumentAction = m_pFunctionPopup->addAction(
+		pCommonStrings->getActionDuplicateInstrument()
+	);
+	connect( m_pDuplicateInstrumentAction, &QAction::triggered, this, [=]() {
 		MainForm::action_drumkit_duplicateInstrument(
-			m_pPatternEditorPanel->getRowIndexDB( m_row ) );} );
-	m_pRenameInstrumentAction = m_pFunctionPopup->addAction(
-		pCommonStrings->getActionRenameInstrument() );
-	connect( m_pRenameInstrumentAction, &QAction::triggered, this, [=](){
+			m_pPatternEditorPanel->getRowIndexDB( m_row )
+		);
+	} );
+	m_pRenameInstrumentAction =
+		m_pFunctionPopup->addAction( pCommonStrings->getActionRenameInstrument()
+		);
+	connect( m_pRenameInstrumentAction, &QAction::triggered, this, [=]() {
 		m_pInstrumentNameLbl->setReadOnly( false );
 		m_pInstrumentNameLbl->selectAll();
 		m_pInstrumentNameLbl->setFocus();
 	} );
 	m_pDeleteInstrumentAction =
-		m_pFunctionPopup->addAction( pCommonStrings->getActionDeleteInstrument() );
-	connect( m_pDeleteInstrumentAction, &QAction::triggered, this, [=](){
+		m_pFunctionPopup->addAction( pCommonStrings->getActionDeleteInstrument()
+		);
+	connect( m_pDeleteInstrumentAction, &QAction::triggered, this, [=]() {
 		MainForm::action_drumkit_deleteInstrument(
-			m_pPatternEditorPanel->getRowIndexDB( m_row ) );} );
+			m_pPatternEditorPanel->getRowIndexDB( m_row )
+		);
+	} );
 	if ( m_row.nInstrumentID == EMPTY_INSTR_ID ) {
 		m_pRenameInstrumentAction->setEnabled( false );
 		m_pDeleteInstrumentAction->setEnabled( false );
 	}
 
 	m_pFunctionPopup->addSection( pCommonStrings->getSettings() );
-	m_pTypeLabelVisibilityAction = m_pFunctionPopup->addAction(
-		"Always show type labels" );
+	m_pTypeLabelVisibilityAction =
+		m_pFunctionPopup->addAction( "Always show type labels" );
 	m_pTypeLabelVisibilityAction->setCheckable( true );
 	m_pTypeLabelVisibilityAction->setChecked( true );
-	connect( m_pTypeLabelVisibilityAction, &QAction::triggered, this, [=](){
+	connect( m_pTypeLabelVisibilityAction, &QAction::triggered, this, [=]() {
 		Preferences::get_instance()->setPatternEditorAlwaysShowTypeLabels(
-			m_pTypeLabelVisibilityAction->isChecked() );
+			m_pTypeLabelVisibilityAction->isChecked()
+		);
 		m_pPatternEditorPanel->updateTypeLabelVisibility();
 	} );
 
@@ -717,7 +798,8 @@ void SidebarRow::set( const DrumPatternRow& row )
 		auto pSong = pHydrogen->getSong();
 		if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
 			pInstrument =
-				pSong->getDrumkit()->getInstruments()->find( row.nInstrumentID );
+				pSong->getDrumkit()->getInstruments()->find( row.nInstrumentID
+				);
 			if ( pInstrument != nullptr ) {
 				const QString sInstrumentName = pInstrument->getName();
 				m_pInstrumentNameLbl->setText( sInstrumentName );
@@ -734,11 +816,13 @@ void SidebarRow::set( const DrumPatternRow& row )
 				m_pDuplicateInstrumentAction->setEnabled( true );
 				m_pDeleteInstrumentAction->setEnabled( true );
 
-				if ( ! pInstrument->getDrumkitPath().isEmpty() ) {
+				if ( !pInstrument->getDrumkitPath().isEmpty() ) {
 					// Instrument belongs to a kit in the SoundLibrary (and was
 					// not created anew).
-					QString sKit = pHydrogen->getSoundLibraryDatabase()->
-						getUniqueLabel( pInstrument->getDrumkitPath() );
+					QString sKit =
+						pHydrogen->getSoundLibraryDatabase()->getUniqueLabel(
+							pInstrument->getDrumkitPath()
+						);
 					if ( sKit.isEmpty() ) {
 						// This should not happen. But drumkit.xml files can be
 						// created by hand and we should account for it.
@@ -746,9 +830,10 @@ void SidebarRow::set( const DrumPatternRow& row )
 					}
 
 					/*: Shown in a tooltop and indicating the drumkit (to the right of this string) an instrument (to the left of this string) is loaded from. */
-					sToolTip = QString( "%1 (" ).arg( sInstrumentName )
-						.append( tr( "imported from" ) )
-						.append( QString( " [%1])" ).arg( sKit ) );
+					sToolTip = QString( "%1 (" )
+								   .arg( sInstrumentName )
+								   .append( tr( "imported from" ) )
+								   .append( QString( " [%1])" ).arg( sKit ) );
 				}
 			}
 		}
@@ -766,10 +851,12 @@ void SidebarRow::set( const DrumPatternRow& row )
 		m_pDeleteInstrumentAction->setEnabled( false );
 	}
 
-	setSelected( m_pPatternEditorPanel->getSelectedRowDB() ==
-				 m_pPatternEditorPanel->getRowIndexDB( row ) );
+	setSelected(
+		m_pPatternEditorPanel->getSelectedRowDB() ==
+		m_pPatternEditorPanel->getRowIndexDB( row )
+	);
 
-	if ( ! row.sType.isEmpty() && m_pTypeLbl->text() != row.sType ) {
+	if ( !row.sType.isEmpty() && m_pTypeLbl->text() != row.sType ) {
 		m_pTypeLbl->setText( row.sType );
 		m_pTypeLbl->setToolTip( row.sType );
 		m_pTypeLbl->setShowPlusSign( false );
@@ -779,7 +866,7 @@ void SidebarRow::set( const DrumPatternRow& row )
 		m_pTypeLbl->setText( QString::number( row.nInstrumentID ) );
 	}
 
-	if ( m_pInstrumentNameLbl->toolTip() != sToolTip ){
+	if ( m_pInstrumentNameLbl->toolTip() != sToolTip ) {
 		m_pInstrumentNameLbl->setToolTip( sToolTip );
 	}
 
@@ -806,27 +893,46 @@ void SidebarRow::setSelected( bool bSelected )
 
 	updateStyleSheet();
 
-	m_pTypeLbl->setDimed( m_bDimed && ! bSelected );
+	m_pTypeLbl->setDimed( m_bDimed && !bSelected );
 }
 
-void SidebarRow::setDimed( bool bDimed ) {
+void SidebarRow::setDimed( bool bDimed )
+{
 	if ( bDimed == m_bDimed ) {
 		return;
 	}
 
 	m_bDimed = bDimed;
 
-	m_pTypeLbl->setDimed( bDimed && ! m_bIsSelected );
+	m_pTypeLbl->setDimed( bDimed && !m_bIsSelected );
 }
 
-void SidebarRow::updateStyleSheet() {
+void SidebarRow::updateColors()
+{
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+
+	m_pMuteBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
+	m_pMuteBtn->setCheckedBackgroundTextColor( pColorTheme->m_muteTextColor );
+	m_pSoloBtn->setCheckedBackgroundColor( pColorTheme->m_soloColor );
+	m_pSoloBtn->setCheckedBackgroundTextColor( pColorTheme->m_soloTextColor );
+}
+
+void SidebarRow::updateFont()
+{
+	m_pInstrumentNameLbl->updateFont();
+	m_pTypeLbl->updateFont();
+}
+
+void SidebarRow::updateStyleSheet()
+{
 	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 
 	QColor textColor, textPatternColor, backgroundPatternColor, backgroundColor;
 	if ( m_bIsSelected ) {
 		backgroundPatternColor =
 			pColorTheme->m_patternEditor_selectedRowColor.darker(
-				Skin::nListBackgroundColorScaling );
+				Skin::nListBackgroundColorScaling
+			);
 		backgroundColor =
 			pColorTheme->m_patternEditor_instrumentSelectedRowColor;
 		textPatternColor = pColorTheme->m_patternEditor_selectedRowTextColor;
@@ -835,7 +941,8 @@ void SidebarRow::updateStyleSheet() {
 	else if ( m_row.bAlternate ) {
 		backgroundPatternColor =
 			pColorTheme->m_patternEditor_alternateRowColor.darker(
-				Skin::nListBackgroundColorScaling );
+				Skin::nListBackgroundColorScaling
+			);
 		backgroundColor =
 			pColorTheme->m_patternEditor_instrumentAlternateRowColor;
 		textPatternColor = pColorTheme->m_patternEditor_textColor;
@@ -844,9 +951,9 @@ void SidebarRow::updateStyleSheet() {
 	else {
 		backgroundPatternColor =
 			pColorTheme->m_patternEditor_backgroundColor.darker(
-				Skin::nListBackgroundColorScaling );
-		backgroundColor =
-			pColorTheme->m_patternEditor_instrumentRowColor;
+				Skin::nListBackgroundColorScaling
+			);
+		backgroundColor = pColorTheme->m_patternEditor_instrumentRowColor;
 		textPatternColor = pColorTheme->m_patternEditor_textColor;
 		textColor = pColorTheme->m_patternEditor_instrumentRowTextColor;
 	}
@@ -854,25 +961,31 @@ void SidebarRow::updateStyleSheet() {
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
 	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
-		backgroundInactiveColor = pColorTheme->m_windowColor.lighter(
-			Skin::nEditorActiveScaling );
+		backgroundInactiveColor =
+			pColorTheme->m_windowColor.lighter( Skin::nEditorActiveScaling );
 	}
 	else {
 		backgroundInactiveColor = pColorTheme->m_windowColor;
 	}
 
+	setStyleSheet( "border-top: #0F0" );
+
 	setColor( backgroundInactiveColor );
 
 	m_pInstrumentNameLbl->setColor(
-		backgroundColor, textColor, pColorTheme->m_cursorColor );
+		backgroundColor, textColor, pColorTheme->m_cursorColor
+	);
 	m_pTypeLbl->setColor(
-		backgroundPatternColor, textPatternColor, pColorTheme->m_cursorColor );
+		backgroundPatternColor, textPatternColor, pColorTheme->m_cursorColor
+	);
 }
 
-void SidebarRow::updateTypeLabelVisibility( bool bVisible ) {
+void SidebarRow::updateTypeLabelVisibility( bool bVisible )
+{
 	if ( bVisible ) {
 		m_pTypeLbl->show();
-	} else {
+	}
+	else {
 		m_pTypeLbl->hide();
 	}
 
@@ -889,49 +1002,41 @@ void SidebarRow::updateTypeLabelVisibility( bool bVisible ) {
 	}
 }
 
-#ifdef H2CORE_HAVE_QT6
-void SidebarRow::enterEvent( QEnterEvent *ev ) {
-#else
-void SidebarRow::enterEvent( QEvent *ev ) {
-#endif
-	UNUSED( ev );
-	m_bEntered = true;
-	update();
-}
-
-void SidebarRow::leaveEvent( QEvent* ev ) {
-	UNUSED( ev );
-	m_bEntered = false;
-	update();
-}
-
-void SidebarRow::setMuted(bool isMuted)
+void SidebarRow::mousePressEvent( QMouseEvent* ev )
 {
-	if ( ! m_pMuteBtn->isDown() &&
-		 m_pMuteBtn->isChecked() != isMuted ) {
-		m_pMuteBtn->setChecked(isMuted);
-	}
-}
+	auto pEv = static_cast<MouseEvent*>( ev );
 
+	const auto pPref = Preferences::get_instance();
 
-void SidebarRow::setSoloed( bool soloed )
-{
-	if ( ! m_pSoloBtn->isDown() &&
-		 m_pSoloBtn->isChecked() != soloed ) {
-		m_pSoloBtn->setChecked( soloed );
-	}
-}
+	m_pPatternEditorPanel->setSelectedRowDB(
+		m_pPatternEditorPanel->getRowIndexDB( m_row )
+	);
 
-
-void SidebarRow::setSamplesMissing( bool bSamplesMissing )
-{
-	if ( m_pSampleWarning != nullptr ) {
-		if ( bSamplesMissing ) {
-			m_pSampleWarning->show();
-		} else {
-			m_pSampleWarning->hide();
+	if ( ev->button() == Qt::RightButton ) {
+		if ( m_pTypeLabelVisibilityAction->isChecked() !=
+			 pPref->getPatternEditorAlwaysShowTypeLabels() ) {
+			m_pTypeLabelVisibilityAction->setChecked(
+				pPref->getPatternEditorAlwaysShowTypeLabels()
+			);
 		}
+
+		m_pFunctionPopup->popup( pEv->globalPosition().toPoint() );
 	}
+
+	// Hide cursor in case this behavior was selected in the
+	// Preferences.
+	m_pPatternEditorPanel->getVisibleEditor()->handleKeyboardCursor( false );
+
+	// propago l'evento al parent: serve per il drag&drop
+	PixmapWidget::mousePressEvent( ev );
+}
+
+void SidebarRow::update()
+{
+	PixmapWidget::update();
+
+	m_pInstrumentNameLbl->update();
+	m_pTypeLbl->update();
 }
 
 void SidebarRow::muteClicked()
@@ -941,7 +1046,6 @@ void SidebarRow::muteClicked()
 		return;
 	}
 
-
 	const int nRow = m_pPatternEditorPanel->getRowIndexDB( m_row );
 	m_pPatternEditorPanel->setSelectedRowDB( nRow );
 
@@ -950,12 +1054,13 @@ void SidebarRow::muteClicked()
 			pSong->getDrumkit()->getInstruments()->find( m_row.nInstrumentID );
 		if ( pInstr == nullptr ) {
 			ERRORLOG( QString( "Unable to retrieve instrument of ID [%1]" )
-					  .arg( m_row.nInstrumentID ) );
+						  .arg( m_row.nInstrumentID ) );
 			return;
 		}
 
 		H2Core::CoreActionController::setStripIsMuted(
-			nRow, ! pInstr->isMuted(), false );
+			nRow, !pInstr->isMuted(), false
+		);
 	}
 }
 
@@ -974,71 +1079,72 @@ void SidebarRow::soloClicked()
 			pSong->getDrumkit()->getInstruments()->find( m_row.nInstrumentID );
 		if ( pInstr == nullptr ) {
 			ERRORLOG( QString( "Unable to retrieve instrument of ID [%1]" )
-					  .arg( m_row.nInstrumentID ) );
+						  .arg( m_row.nInstrumentID ) );
 			return;
 		}
 
 		H2Core::CoreActionController::setStripIsSoloed(
-			nRow, ! pInstr->isSoloed(), false );
+			nRow, !pInstr->isSoloed(), false
+		);
 	}
 }
 
 void SidebarRow::sampleWarningClicked()
 {
-	QMessageBox::information( this, "Hydrogen",
-							  tr( "One or more samples for this instrument failed to load. This may be because the"
-								  " songfile uses an older default drumkit. This might be fixed by opening a new "
-								  "drumkit." ) );
+	QMessageBox::information(
+		this, "Hydrogen",
+		tr( "One or more samples for this instrument failed to load. This may "
+			"be because the"
+			" songfile uses an older default drumkit. This might be fixed by "
+			"opening a new "
+			"drumkit." )
+	);
 }
 
-void SidebarRow::mousePressEvent(QMouseEvent *ev)
+#ifdef H2CORE_HAVE_QT6
+void SidebarRow::enterEvent( QEnterEvent* ev )
 {
-	auto pEv = static_cast<MouseEvent*>( ev );
+#else
+void SidebarRow::enterEvent( QEvent* ev )
+{
+#endif
+	UNUSED( ev );
+	m_bEntered = true;
+	update();
+}
 
-	const auto pPref = Preferences::get_instance();
+void SidebarRow::leaveEvent( QEvent* ev )
+{
+	UNUSED( ev );
+	m_bEntered = false;
+	update();
+}
 
-	m_pPatternEditorPanel->setSelectedRowDB(
-		m_pPatternEditorPanel->getRowIndexDB( m_row ) );
-
-	if ( ev->button() == Qt::RightButton ) {
-		if ( m_pTypeLabelVisibilityAction->isChecked() !=
-			 pPref->getPatternEditorAlwaysShowTypeLabels() ) {
-			m_pTypeLabelVisibilityAction->setChecked(
-				pPref->getPatternEditorAlwaysShowTypeLabels() );
-		}
-
-		m_pFunctionPopup->popup( pEv->globalPosition().toPoint() );
+void SidebarRow::setMuted( bool isMuted )
+{
+	if ( !m_pMuteBtn->isDown() && m_pMuteBtn->isChecked() != isMuted ) {
+		m_pMuteBtn->setChecked( isMuted );
 	}
-
-	// Hide cursor in case this behavior was selected in the
-	// Preferences.
-	m_pPatternEditorPanel->getVisibleEditor()->handleKeyboardCursor( false );
-
-	// propago l'evento al parent: serve per il drag&drop
-	PixmapWidget::mousePressEvent(ev);
 }
 
-void SidebarRow::updateColors() {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
-
-	m_pMuteBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
-	m_pMuteBtn->setCheckedBackgroundTextColor( pColorTheme->m_muteTextColor );
-	m_pSoloBtn->setCheckedBackgroundColor( pColorTheme->m_soloColor );
-	m_pSoloBtn->setCheckedBackgroundTextColor( pColorTheme->m_soloTextColor );
+void SidebarRow::setSoloed( bool soloed )
+{
+	if ( !m_pSoloBtn->isDown() && m_pSoloBtn->isChecked() != soloed ) {
+		m_pSoloBtn->setChecked( soloed );
+	}
 }
 
-void SidebarRow::updateFont() {
-	m_pInstrumentNameLbl->updateFont();
-	m_pTypeLbl->updateFont();
+void SidebarRow::setSamplesMissing( bool bSamplesMissing )
+{
+	if ( m_pSampleWarning != nullptr ) {
+		if ( bSamplesMissing ) {
+			m_pSampleWarning->show();
+		}
+		else {
+			m_pSampleWarning->hide();
+		}
+	}
 }
-
-void SidebarRow::update() {
-	PixmapWidget::update();
-
-	m_pInstrumentNameLbl->update();
-	m_pTypeLbl->update();
-}
-
 
 //////
 
