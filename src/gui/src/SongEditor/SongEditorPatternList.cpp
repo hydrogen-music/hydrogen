@@ -67,7 +67,8 @@ SongEditorPatternList::SongEditorPatternList( QWidget* parent )
 	  m_nRowHovered( -1 ),
 	  m_nRowClicked( 0 ),
 	  m_dragStartPoint( QPointF() ),
-	  m_dragStartTimeStamp( 0 )
+	  m_dragStartTimeStamp( 0 ),
+	  m_nLastDragRow( -1 )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
@@ -674,6 +675,16 @@ void SongEditorPatternList::dragEnterEvent( QDragEnterEvent* event )
 	}
 }
 
+void SongEditorPatternList::dragMoveEvent( QDragMoveEvent* ev )
+{
+	auto pEv = static_cast<DropEvent*>( static_cast<QDropEvent*>( ev ) );
+    const int nCurrentDragRow = yToRow( pEv->position().y() );
+	if ( nCurrentDragRow != m_nLastDragRow ) {
+		m_nLastDragRow = nCurrentDragRow;
+        update();
+	}
+}
+
 void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 {
 	auto pEv = static_cast<DropEvent*>( pEvent );
@@ -683,6 +694,8 @@ void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 	if ( pSong == nullptr ) {
 		return;
 	}
+
+    m_nLastDragRow = -1;
 
 	QString sText = pEvent->mimeData()->text();
 	const QMimeData* mimeData = pEvent->mimeData();
@@ -945,6 +958,13 @@ void SongEditorPatternList::paintEvent( QPaintEvent* ev )
 			0, cursorPoint.y() + 1, width() - 1,
 			pSongEditor->getGridHeight() - 1, 4, 4
 		);
+	}
+
+    // Drag highlight
+	if ( m_nLastDragRow != -1 ) {
+        const int nDragY = m_nGridHeight * m_nLastDragRow + 1;
+        painter.setPen( pPref->getColorTheme()->m_highlightColor );
+        painter.drawLine( 0, nDragY, width(), nDragY );
 	}
 }
 

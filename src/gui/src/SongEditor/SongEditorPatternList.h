@@ -102,6 +102,7 @@ class SongEditorPatternList :  public QWidget
         int yToRow( int nY ) const;
 
 		void dragEnterEvent( QDragEnterEvent* event ) override;
+        void dragMoveEvent( QDragMoveEvent* ev ) override;
 		void dropEvent( QDropEvent* event ) override;
 		void leaveEvent( QEvent* ev ) override;
 		void mouseDoubleClickEvent( QMouseEvent* ev ) override;
@@ -131,6 +132,8 @@ class SongEditorPatternList :  public QWidget
 
 		QPointF m_dragStartPoint;
         quint64 m_dragStartTimeStamp;
+		/** A value of -1 will cause the rendering to be omitted. */
+		int m_nLastDragRow;
 
 		/**
 		 * Specifies the row the mouse cursor is currently hovered
