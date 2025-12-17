@@ -133,8 +133,9 @@ class SidebarRow : public QWidget,
 	explicit SidebarRow( QWidget* pParent, const DrumPatternRow& row );
 
 	void set( const DrumPatternRow& row );
-	void setSelected( bool isSelected );
 	void setDimed( bool bDimed );
+	void setDragHovered( bool bDragHovered );
+	void setSelected( bool isSelected );
 
 	void updateColors();
 	void updateFont();
@@ -172,17 +173,23 @@ class SidebarRow : public QWidget,
 	QAction* m_pTypeLabelVisibilityAction;
 	SidebarLabel* m_pInstrumentNameLbl;
 	SidebarLabel* m_pTypeLbl;
-	bool m_bIsSelected;
 	DrumPatternRow m_row;
 	Button* m_pMuteBtn;
 	Button* m_pSoloBtn;
 	Button* m_pSampleWarning;
+
 	/** When using the #PianoRollEditor all rows not selected will be dimed
 	 * to emphasize that one notes of one particular row are displayed. */
 	bool m_bDimed;
 
+	/** A drag move is taking place in the parent widget and it is moving
+	 * right above this widget. */
+	bool m_bDragHovered;
+
 	/** Whether the cursor entered the boundary of the widget.*/
 	bool m_bEntered;
+
+	bool m_bIsSelected;
 };
 
 /** \ingroup docGUI*/
@@ -212,6 +219,7 @@ class PatternEditorSidebar : public QWidget,
 
 	// Qt events
 	void dragEnterEvent( QDragEnterEvent* event ) override;
+	void dragMoveEvent( QDragMoveEvent* ev ) override;
 	void dropEvent( QDropEvent* event ) override;
 	void mouseMoveEvent( QMouseEvent* event ) override;
 	void mousePressEvent( QMouseEvent* event ) override;
@@ -221,6 +229,8 @@ class PatternEditorSidebar : public QWidget,
 	void updateRows();
 
    private:
+	int yToRow( int nY ) const;
+
 	PatternEditorPanel* m_pPatternEditorPanel;
 	uint m_nEditorHeight;
 	std::vector<SidebarRow*> m_rows;
@@ -229,6 +239,8 @@ class PatternEditorSidebar : public QWidget,
 	/** Vertical position the drag event started at. In case there is no
 	 * valid drag, the value will be set to -1. */
 	int m_nDragStartY;
+	/** A value of -1 will cause the rendering to be omitted. */
+	int m_nLastDragRow;
 };
 
 #endif

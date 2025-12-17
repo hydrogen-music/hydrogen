@@ -1324,25 +1324,7 @@ void PatternEditorSidebar::dropEvent( QDropEvent* event )
 		return;
 	}
 
-	// Starting point for instument list is 50 lower than on the drum pattern
-	// editor
-	int nPosY;
-	if ( pEv->position().x() >= PatternEditorSidebar::m_nWidth ) {
-		nPosY = pEv->position().y() - 50;
-	}
-	else {
-		nPosY = pEv->position().y();
-	}
-
-	int nTargetRow = nPosY / pPref->getPatternEditorGridHeight();
-
-	// There might be rows in the pattern editor not corresponding to the
-	// current kit. Since we only support rearranging rows corresponding to
-	// valid instruments we will move the dragged one to the end of the
-	// instrument list in case it was dragged beyond it.
-	if ( nTargetRow >= pInstrumentList->size() ) {
-		nTargetRow = pInstrumentList->size() - 1;
-	}
+	const int nTargetRow = yToRow( pEv->position().y() );
 
 	if ( sText.startsWith( "move instrument:" ) ) {
 		sText.remove( 0, QString( "move instrument:" ).length() );
@@ -1364,6 +1346,8 @@ void PatternEditorSidebar::dropEvent( QDropEvent* event )
 				.arg( nSourceRow )
 				.arg( nTargetRow )
 		);
+
+		m_pPatternEditorPanel->setSelectedRowDB( nTargetRow );
 
 		event->acceptProposedAction();
 	}
@@ -1404,12 +1388,8 @@ void PatternEditorSidebar::dropEvent( QDropEvent* event )
 		}
 
 		// Appending in this action is done by setting the target row to -1.
-		int nTargetRowSE = nTargetRow;
-		if ( nTargetRow == pInstrumentList->size() - 1 ) {
-			nTargetRowSE = -1;
-			// Select the row after the current "end" of the drumkit.
-			++nTargetRow;
-		}
+		const int nTargetRowSE = nTargetRow == ( pInstrumentList->size() - 1 ) ? -1 : nTargetRow;
+
 		// We provide a copy of the instrument in order to not leak any changes
 		// into the original kit.
 		pHydrogenApp->pushUndoCommand( new SE_addInstrumentAction(
@@ -1422,14 +1402,14 @@ void PatternEditorSidebar::dropEvent( QDropEvent* event )
 				.arg( pTargetInstrument->getName() )
 		);
 
+		m_pPatternEditorPanel->setSelectedRowDB( nTargetRow );
+
 		event->acceptProposedAction();
 	}
 	else {
 		// Unknown drop action
 		return;
 	}
-
-	m_pPatternEditorPanel->setSelectedRowDB( nTargetRow );
 }
 
 void PatternEditorSidebar::mouseMoveEvent( QMouseEvent* event )
@@ -1547,4 +1527,31 @@ void PatternEditorSidebar::updateRows()
 		m_rows.pop_back();
 		delete pRow;
 	}
+}
+
+int PatternEditorSidebar::yToRow( int nY ) const
+{
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return -1;
+	}
+
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
+	const auto pPref = H2Core::Preferences::get_instance();
+
+	// There might be rows in the pattern editor not corresponding to the
+	// current kit. Since we only support rearranging rows corresponding to
+	// valid instruments we will move the dragged one to the end of the
+	// instrument list in case it was dragged beyond it.
+	const int nTargetRow = std::clamp(
+		static_cast<int>( std::floor(
+			static_cast<float>( nY ) /
+			static_cast<float>( pPref->getPatternEditorGridHeight() )
+		) ),
+		0, pInstrumentList->size() - 1
+	);
+
+    return nTargetRow;
 }
