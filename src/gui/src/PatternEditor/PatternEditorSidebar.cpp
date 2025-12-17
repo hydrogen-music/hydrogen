@@ -1331,6 +1331,18 @@ void PatternEditorSidebar::instrumentMuteSoloChangedEvent( int nInstrumentIndex
 
 void PatternEditorSidebar::dragEnterEvent( QDragEnterEvent* event )
 {
+	if ( !event->mimeData()->hasFormat( "text/plain" ) ) {
+		event->ignore();
+		return;
+	}
+
+	const QString sText = event->mimeData()->text();
+	if ( !sText.startsWith( "move instrument:" ) &&
+		 !sText.startsWith( "importInstrument:" ) ) {
+		event->ignore();
+		return;
+	}
+
 	event->acceptProposedAction();
 }
 
