@@ -425,12 +425,14 @@ void SidebarLabel::updateStyle()
 		m_textColor.setAlpha( 200 );
 	}
 
-	setStyleSheet( QString( "\
+	setStyleSheet( QString(
+		"\
 QLineEdit {\
    color: %1;\
    background: transparent;\
    font-weight: bold;\
- }" )
+ } \
+" )
 					   .arg( m_textColor.name( QColor::HexArgb ) ) );
 }
 
@@ -439,9 +441,10 @@ QLineEdit {\
 SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	: QWidget( pParent ),
 	  m_row( row ),
-	  m_bIsSelected( false ),
+	  m_bDimed( false ),
+      m_bDragHovered( false ),
 	  m_bEntered( false ),
-	  m_bDimed( false )
+	  m_bIsSelected( false )
 {
 	m_pPatternEditorPanel =
 		HydrogenApp::get_instance()->getPatternEditorPanel();
@@ -908,6 +911,28 @@ void SidebarRow::set( const DrumPatternRow& row )
 	update();
 }
 
+void SidebarRow::setDimed( bool bDimed )
+{
+	if ( bDimed == m_bDimed ) {
+		return;
+	}
+
+	m_bDimed = bDimed;
+
+	m_pTypeLbl->setDimed( bDimed && !m_bIsSelected );
+}
+
+void SidebarRow::setDragHovered( bool bDragHovered )
+{
+	if ( bDragHovered == m_bDragHovered ) {
+		return;
+	}
+
+	m_bDragHovered = bDragHovered;
+
+    updateStyleSheet();
+}
+
 void SidebarRow::setSelected( bool bSelected )
 {
 	if ( bSelected == m_bIsSelected ) {
@@ -928,17 +953,6 @@ void SidebarRow::setSelected( bool bSelected )
 	updateStyleSheet();
 
 	m_pTypeLbl->setDimed( m_bDimed && !bSelected );
-}
-
-void SidebarRow::setDimed( bool bDimed )
-{
-	if ( bDimed == m_bDimed ) {
-		return;
-	}
-
-	m_bDimed = bDimed;
-
-	m_pTypeLbl->setDimed( bDimed && !m_bIsSelected );
 }
 
 void SidebarRow::updateColors()
@@ -1008,6 +1022,28 @@ void SidebarRow::updateStyleSheet()
 	m_pTypeLbl->setColor(
 		backgroundPatternColor, textPatternColor, pColorTheme->m_cursorColor
 	);
+
+	if ( m_bDragHovered ) {
+		m_pMuteBtn->updateStyleSheet();
+		m_pMuteBtn->setStyleSheet( m_pSoloBtn->styleSheet().append(
+			QString( "QPushButton:enabled { border-top: 1px solid %1; }" )
+				.arg( pColorTheme->m_highlightColor.name() )
+		) );
+		m_pSoloBtn->updateStyleSheet();
+		m_pSoloBtn->setStyleSheet( m_pSoloBtn->styleSheet().append(
+			QString( "QPushButton:enabled { border-top: 1px solid %1; }" )
+				.arg( pColorTheme->m_highlightColor.name() )
+		) );
+
+		setStyleSheet( QString( "border-top: 1px solid %1;" )
+						   .arg( pColorTheme->m_highlightColor.name() ) );
+	}
+	else {
+		m_pMuteBtn->updateStyleSheet();
+		m_pSoloBtn->updateStyleSheet();
+
+		setStyleSheet( "" );
+	}
 }
 
 void SidebarRow::updateTypeLabelVisibility( bool bVisible )
@@ -1178,7 +1214,9 @@ void SidebarRow::setSamplesMissing( bool bSamplesMissing )
 //////
 
 PatternEditorSidebar::PatternEditorSidebar( QWidget* parent )
-	: QWidget( parent ), m_nDragStartY( -1 )
+	: QWidget( parent ),
+	  m_nDragStartY( -1 ),
+	  m_nLastDragRow( -1 )
 {
 	HydrogenApp::get_instance()->addEventListener( this );
 	const auto pPref = H2Core::Preferences::get_instance();
@@ -1296,12 +1334,32 @@ void PatternEditorSidebar::dragEnterEvent( QDragEnterEvent* event )
 	event->acceptProposedAction();
 }
 
+void PatternEditorSidebar::dragMoveEvent( QDragMoveEvent* event )
+{
+	auto pEv = static_cast<DropEvent*>( static_cast<QDropEvent*>( event ) );
+	const int nCurrentRow = yToRow( pEv->position().y() );
+	if ( nCurrentRow != m_nLastDragRow ) {
+		if ( m_nLastDragRow >= 0 && m_nLastDragRow < m_rows.size() ) {
+			m_rows[m_nLastDragRow]->setDragHovered( false );
+		}
+		if ( nCurrentRow >= 0 && nCurrentRow < m_rows.size() ) {
+			m_rows[nCurrentRow]->setDragHovered( true );
+		}
+		m_nLastDragRow = nCurrentRow;
+	}
+}
+
 void PatternEditorSidebar::dropEvent( QDropEvent* event )
 {
 	if ( !event->mimeData()->hasFormat( "text/plain" ) ) {
 		event->ignore();
 		return;
 	}
+
+	if ( m_nLastDragRow >= 0 && m_nLastDragRow < m_rows.size() ) {
+		m_rows[m_nLastDragRow]->setDragHovered( false );
+	}
+	m_nLastDragRow = -1;
 
 	auto pEv = static_cast<DropEvent*>( event );
 
