@@ -129,6 +129,8 @@ public:
 
 		void setIconFileName( const QString& sIcon );
 
+	void updateStyleSheet();
+
 public slots:
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
@@ -143,7 +145,6 @@ protected:
 	virtual void paintEvent( QPaintEvent* ev) override;
 
 private:
-	void updateStyleSheet();
 	void updateFont();
 	void updateToolTip() override;
 	void updateIcon();
