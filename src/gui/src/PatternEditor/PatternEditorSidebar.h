@@ -37,7 +37,6 @@
 #include "PatternEditorPanel.h"
 #include "../EventListener.h"
 #include "../Selection.h"
-#include "../Widgets/PixmapWidget.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
@@ -118,7 +117,8 @@ inline bool SidebarLabel::isShowingPlusSign() const {
 }
 
 /** \ingroup docGUI*/
-class SidebarRow : public PixmapWidget,
+class SidebarRow : public QWidget,
+				   public H2Core::Object<SidebarRow>,
 				   protected WidgetWithScalableFont<8, 10, 12> {
 	H2_OBJECT( SidebarRow )
 	Q_OBJECT

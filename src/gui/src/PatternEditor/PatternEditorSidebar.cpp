@@ -403,7 +403,7 @@ QLineEdit {\
 }
 
 SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
-	: PixmapWidget( pParent ),
+	: QWidget( pParent ),
 	  m_row( row ),
 	  m_bIsSelected( false ),
 	  m_bEntered( false ),
@@ -968,10 +968,6 @@ void SidebarRow::updateStyleSheet()
 		backgroundInactiveColor = pColorTheme->m_windowColor;
 	}
 
-	setStyleSheet( "border-top: #0F0" );
-
-	setColor( backgroundInactiveColor );
-
 	m_pInstrumentNameLbl->setColor(
 		backgroundColor, textColor, pColorTheme->m_cursorColor
 	);
@@ -1027,13 +1023,12 @@ void SidebarRow::mousePressEvent( QMouseEvent* ev )
 	// Preferences.
 	m_pPatternEditorPanel->getVisibleEditor()->handleKeyboardCursor( false );
 
-	// propago l'evento al parent: serve per il drag&drop
-	PixmapWidget::mousePressEvent( ev );
+	QWidget::mousePressEvent( ev );
 }
 
 void SidebarRow::update()
 {
-	PixmapWidget::update();
+	QWidget::update();
 
 	m_pInstrumentNameLbl->update();
 	m_pTypeLbl->update();
