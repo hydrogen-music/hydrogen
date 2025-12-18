@@ -436,6 +436,19 @@ QLineEdit {\
 					   .arg( m_textColor.name( QColor::HexArgb ) ) );
 }
 
+QString SidebarLabel::TypeToQString( const Type& type )
+{
+	switch ( type ) {
+		case Type::Type:
+			return "Type";
+		case Type::Instrument:
+			return "Instrument";
+		default:
+			return QString( "Unknown Type [%1]" )
+				.arg( static_cast<int>( type ) );
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
