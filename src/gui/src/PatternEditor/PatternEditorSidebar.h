@@ -92,8 +92,9 @@ class SidebarLabel : public QLineEdit, public H2Core::Object<SidebarLabel> {
 #endif
 	void keyPressEvent( QKeyEvent* pEvent ) override;
 	void leaveEvent( QEvent* ev ) override;
-	void mousePressEvent( QMouseEvent* pEvent ) override;
 	void mouseDoubleClickEvent( QMouseEvent* pEvent ) override;
+	void mousePressEvent( QMouseEvent* pEvent ) override;
+    void mouseMoveEvent( QMouseEvent* ev ) override;
 	void paintEvent( QPaintEvent* ev ) override;
 
 	void updateStyle();

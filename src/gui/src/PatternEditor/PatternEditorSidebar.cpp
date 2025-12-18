@@ -265,16 +265,6 @@ void SidebarLabel::keyPressEvent( QKeyEvent* pEvent )
 	QLineEdit::keyPressEvent( pEvent );
 }
 
-void SidebarLabel::mousePressEvent( QMouseEvent* pEvent )
-{
-	auto pSidebarRow = dynamic_cast<SidebarRow*>( m_pParent );
-	if ( pSidebarRow != nullptr ) {
-		pSidebarRow->mousePressEvent( pEvent );
-	}
-
-	emit labelClicked( pEvent );
-}
-
 void SidebarLabel::mouseDoubleClickEvent( QMouseEvent* pEvent )
 {
 	if ( m_type == Type::Instrument ) {
@@ -285,6 +275,21 @@ void SidebarLabel::mouseDoubleClickEvent( QMouseEvent* pEvent )
 	else {
 		emit labelDoubleClicked( pEvent );
 	}
+}
+
+void SidebarLabel::mouseMoveEvent( QMouseEvent* pEvent )
+{
+    pEvent->ignore();
+}
+
+void SidebarLabel::mousePressEvent( QMouseEvent* pEvent )
+{
+	auto pSidebarRow = dynamic_cast<SidebarRow*>( m_pParent );
+	if ( pSidebarRow != nullptr ) {
+		pSidebarRow->mousePressEvent( pEvent );
+	}
+
+	emit labelClicked( pEvent );
 }
 
 void SidebarLabel::paintEvent( QPaintEvent* ev )
