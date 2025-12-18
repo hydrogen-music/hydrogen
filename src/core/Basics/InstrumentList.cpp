@@ -106,7 +106,7 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 		ERRORLOG( "Newly created instrument list does not contain any instruments. Aborting." );
 		return nullptr;
 	}
-	
+
 	return pInstrumentList;
 }
 
@@ -184,11 +184,11 @@ std::shared_ptr<Instrument> InstrumentList::operator[]( int idx ) const
 bool InstrumentList::isValidIndex( int idx ) const
 {
 	bool is_valid_index = true;
-	
+
 	if ( idx < 0 || idx >= m_pInstruments.size() ) {
 		is_valid_index = false;
 	}
-	
+
 	return is_valid_index;
 }
 
@@ -257,15 +257,26 @@ std::shared_ptr<Instrument> InstrumentList::del( std::shared_ptr<Instrument> ins
 	return nullptr;
 }
 
-void InstrumentList::move( int idx_a, int idx_b )
+void InstrumentList::move( int nIndexSource, int nIndexTarget )
 {
-	assert( idx_a >= 0 && idx_a < m_pInstruments.size() );
-	assert( idx_b >= 0 && idx_b < m_pInstruments.size() );
-	if( idx_a == idx_b ) return;
-	//DEBUGLOG(QString("===>> MOVE  %1 %2").arg(idx_a).arg(idx_b) );
-	auto tmp = m_pInstruments[idx_a];
-	m_pInstruments.erase( m_pInstruments.begin() + idx_a );
-	m_pInstruments.insert( m_pInstruments.begin() + idx_b, tmp );
+	assert( nIndexSource >= 0 && nIndexSource < m_pInstruments.size() );
+	assert( nIndexTarget >= 0 && nIndexTarget < m_pInstruments.size() );
+	if ( nIndexSource < 0 || nIndexSource >= m_pInstruments.size() ||
+         nIndexSource < 0 || nIndexSource >= m_pInstruments.size() ) {
+		ERRORLOG( QString( "Invalid move indices [%1] -> [%2]. Bounds: [0,%3]" )
+					  .arg( nIndexSource )
+					  .arg( nIndexTarget )
+					  .arg( m_pInstruments.size() ) );
+        return;
+	}
+	if ( nIndexSource == nIndexTarget ) {
+        // Nothing to do.
+		return;
+	}
+
+	const auto pInstrument = m_pInstruments[nIndexSource];
+	m_pInstruments.erase( m_pInstruments.begin() + nIndexSource );
+	m_pInstruments.insert( m_pInstruments.begin() + nIndexTarget, pInstrument );
 }
 
 std::vector<std::shared_ptr<InstrumentList::Content>> InstrumentList::summarizeContent() const {
@@ -337,7 +348,7 @@ QString InstrumentList::toQString( const QString& sPrefix, bool bShort ) const {
 			}
 		}
 	}
-	
+
 	return sOutput;
 }
 
@@ -351,7 +362,7 @@ std::vector<std::shared_ptr<Instrument>>::iterator InstrumentList::end() {
 }
 
 QString InstrumentList::Content::toQString( const QString& sPrefix, bool bShort ) const {
-	
+
 	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
