@@ -76,9 +76,17 @@ std::shared_ptr<Playlist> Playlist::load( const QString& sPath )
 
 	// Check whether the file was created using a newer version of Hydrogen.
 	auto formatVersionNode = rootNode.firstChildElement( "formatVersion" );
-	if ( ! formatVersionNode.isNull() ) {
-		WARNINGLOG( QString( "Playlist file [%1] was created with a more recent version of Hydrogen than the current one!" )
-					.arg( fileInfo.absoluteFilePath() ) );
+	if ( !formatVersionNode.isNull() ) {
+		const int nFormatVersion = rootNode.read_int(
+			"formatVersion", Playlist::nCurrentFormatVersion, true, false, false
+		);
+		if ( nFormatVersion != Playlist::nCurrentFormatVersion ) {
+			WARNINGLOG(
+				QString( "Playlist file [%1] was created with a different "
+						 "version of Hydrogen than the current one!" )
+					.arg( fileInfo.absoluteFilePath() )
+			);
+		}
 	}
 
 	auto pPlaylist = std::make_shared<Playlist>();
