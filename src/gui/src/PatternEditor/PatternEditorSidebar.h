@@ -37,7 +37,6 @@
 #include "PatternEditorPanel.h"
 #include "../EventListener.h"
 #include "../Selection.h"
-#include "../Widgets/PixmapWidget.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
@@ -47,188 +46,201 @@ namespace H2Core
 
 class Button;
 
-class SidebarLabel : public QLineEdit, public H2Core::Object<SidebarLabel>
-{
-	H2_OBJECT(SidebarLabel)
+class SidebarLabel : public QLineEdit, public H2Core::Object<SidebarLabel> {
+	H2_OBJECT( SidebarLabel )
 	Q_OBJECT
 
-	public:
+   public:
+	static constexpr int nDimScaling = 125;
 
-		enum class Type {
-			Instrument,
-			Type
-		};
+	enum class Type { Instrument, Type };
 
-		SidebarLabel( QWidget* pParent, Type type, const QSize& size,
-					  const QString& sText, int nLeftMargin );
-		~SidebarLabel();
+	SidebarLabel(
+		QWidget* pParent,
+		Type type,
+		const QSize& size,
+		const QString& sText,
+		int nLeftMargin
+	);
+	~SidebarLabel();
 
-		/** Text will be cleared on showPlusSign() */
-		void setText( const QString& sNewText );
-		/** Indicator to show add something new. Icon is cleared on setText() */
-		void setShowPlusSign( bool bShowPlusSign );
-		bool isShowingPlusSign() const;
-		void setColor( const QColor& backgroundColor, const QColor& textColor,
-					   const QColor& cursorColor );
-		void updateFont();
-		void setShowCursor( bool bShowCursor );
-		void setDimed( bool bDimed );
+	/** Text will be cleared on showPlusSign() */
+	void setText( const QString& sNewText );
+	/** Indicator to show add something new. Icon is cleared on setText() */
+	void setShowPlusSign( bool bShowPlusSign );
+	bool isShowingPlusSign() const;
+	void setColor(
+		const QColor& backgroundColor,
+		const QColor& textColor,
+		const QColor& cursorColor
+	);
+	void updateFont();
+	void setShowCursor( bool bShowCursor );
+	void setDimed( bool bDimed );
 
-	signals:
-		void editAccepted();
-		void editRejected();
-		void labelClicked( QMouseEvent* pEvent );
-		void labelDoubleClicked( QMouseEvent* pEvent );
+   signals:
+	void editAccepted();
+	void editRejected();
+	void labelClicked( QMouseEvent* pEvent );
+	void labelDoubleClicked( QMouseEvent* pEvent );
 
-	private:
-
-		static constexpr int nDimScaling = 125;
-
+   private:
 #ifdef H2CORE_HAVE_QT6
-		virtual void enterEvent( QEnterEvent *ev ) override;
+	virtual void enterEvent( QEnterEvent* ev ) override;
 #else
-		virtual void enterEvent( QEvent *ev ) override;
+	virtual void enterEvent( QEvent* ev ) override;
 #endif
 	void keyPressEvent( QKeyEvent* pEvent ) override;
-		virtual void leaveEvent( QEvent *ev ) override;
-		virtual void mousePressEvent( QMouseEvent* pEvent ) override;
-		virtual void mouseDoubleClickEvent( QMouseEvent* pEvent ) override;
-		virtual void paintEvent( QPaintEvent* ev) override;
+	void leaveEvent( QEvent* ev ) override;
+	void mousePressEvent( QMouseEvent* pEvent ) override;
+	void mouseDoubleClickEvent( QMouseEvent* pEvent ) override;
+	void paintEvent( QPaintEvent* ev ) override;
 
-		void updateStyle();
+	void updateStyle();
 
-		QWidget* m_pParent;
-		Type m_type;
-		QString m_sText;
-		bool m_bShowPlusSign;
-		QColor m_backgroundColor;
-		QColor m_textColor;
-		QColor m_textBaseColor;
-		QColor m_cursorColor;
-		/** Whether the mouse pointer entered the boundary of the widget.*/
-		bool m_bEntered;
-		bool m_bShowCursor;
-		/** When using the #PianoRollEditor all rows not selected will be dimed
-		 * to emphasize that one notes of one particular row are displayed. */
-		bool m_bDimed;
+	QWidget* m_pParent;
+	Type m_type;
+	QString m_sText;
+	bool m_bShowPlusSign;
+	QColor m_backgroundColor;
+	QColor m_textColor;
+	QColor m_textBaseColor;
+	QColor m_cursorColor;
+	/** Whether the mouse pointer entered the boundary of the widget.*/
+	bool m_bEntered;
+	bool m_bShowCursor;
+	/** When using the #PianoRollEditor all rows not selected will be dimed
+	 * to emphasize that one notes of one particular row are displayed. */
+	bool m_bDimed;
 };
 
-inline bool SidebarLabel::isShowingPlusSign() const {
+inline bool SidebarLabel::isShowingPlusSign() const
+{
 	return m_bShowPlusSign;
 }
 
 /** \ingroup docGUI*/
-class SidebarRow : public PixmapWidget
-				 , protected WidgetWithScalableFont<8, 10, 12>
-{
-    H2_OBJECT(SidebarRow)
+class SidebarRow : public QWidget,
+				   public H2Core::Object<SidebarRow>,
+				   protected WidgetWithScalableFont<8, 10, 12> {
+	H2_OBJECT( SidebarRow )
 	Q_OBJECT
 
-	public:
-		explicit SidebarRow( QWidget* pParent, const DrumPatternRow& row );
+   public:
+	static constexpr int m_nButtonWidth = 18;
+	static constexpr int m_nTypeLblWidth = 100;
 
+	explicit SidebarRow( QWidget* pParent, const DrumPatternRow& row );
 
-		void set( const DrumPatternRow& row );
-		void setSelected( bool isSelected );
-		void setDimed( bool bDimed );
+	void set( const DrumPatternRow& row );
+	void setDimed( bool bDimed );
+	void setDragHovered( bool bDragHovered );
+	void setSelected( bool isSelected );
 
-		void updateColors();
-		void updateFont();
-		void updateStyleSheet();
-		void updateTypeLabelVisibility( bool bVisible );
+	void updateColors();
+	void updateFont();
+	void updateStyleSheet();
+	void updateTypeLabelVisibility( bool bVisible );
 
-		static constexpr int m_nButtonWidth = 18;
-		static constexpr int m_nTypeLblWidth = 100;
-		virtual void mousePressEvent(QMouseEvent *ev) override;
+	void mousePressEvent( QMouseEvent* ev ) override;
 
-public slots:
-		void update();
+   public slots:
+	void update();
 
-	private slots:
-		void muteClicked();
-		void soloClicked();
-		void sampleWarningClicked();
+   private slots:
+	void muteClicked();
+	void soloClicked();
+	void sampleWarningClicked();
 
-	private:
-		PatternEditorPanel* m_pPatternEditorPanel;
-		QMenu *m_pFunctionPopup;
-		QMenu *m_pFunctionPopupSub;
-		QAction* m_pRenameInstrumentAction;
-		QAction* m_pDuplicateInstrumentAction;
-		QAction* m_pDeleteInstrumentAction;
-		QAction* m_pTypeLabelVisibilityAction;
-		SidebarLabel* m_pInstrumentNameLbl;
-		SidebarLabel* m_pTypeLbl;
-		bool m_bIsSelected;
-		DrumPatternRow m_row;
-		Button *m_pMuteBtn;
-		Button *m_pSoloBtn;
-		Button *m_pSampleWarning;
-		/** When using the #PianoRollEditor all rows not selected will be dimed
-		 * to emphasize that one notes of one particular row are displayed. */
-		bool m_bDimed;
-
+   private:
 #ifdef H2CORE_HAVE_QT6
-		virtual void enterEvent( QEnterEvent *ev ) override;
+	void enterEvent( QEnterEvent* ev ) override;
 #else
-		virtual void enterEvent( QEvent *ev ) override;
+	void enterEvent( QEvent* ev ) override;
 #endif
-	virtual void leaveEvent( QEvent *ev ) override;
+	void leaveEvent( QEvent* ev ) override;
 
-		void setMuted(bool isMuted);
-		void setSoloed( bool soloed );
-		void setSamplesMissing( bool bSamplesMissing );
+	void setMuted( bool isMuted );
+	void setSoloed( bool soloed );
+	void setSamplesMissing( bool bSamplesMissing );
 
-		/** Whether the cursor entered the boundary of the widget.*/
-		bool m_bEntered;
+	PatternEditorPanel* m_pPatternEditorPanel;
+	QMenu* m_pFunctionPopup;
+	QMenu* m_pFunctionPopupSub;
+	QAction* m_pRenameInstrumentAction;
+	QAction* m_pDuplicateInstrumentAction;
+	QAction* m_pDeleteInstrumentAction;
+	QAction* m_pTypeLabelVisibilityAction;
+	SidebarLabel* m_pInstrumentNameLbl;
+	SidebarLabel* m_pTypeLbl;
+	DrumPatternRow m_row;
+	Button* m_pMuteBtn;
+	Button* m_pSoloBtn;
+	Button* m_pSampleWarning;
+
+	/** When using the #PianoRollEditor all rows not selected will be dimed
+	 * to emphasize that one notes of one particular row are displayed. */
+	bool m_bDimed;
+
+	/** A drag move is taking place in the parent widget and it is moving
+	 * right above this widget. */
+	bool m_bDragHovered;
+
+	/** Whether the cursor entered the boundary of the widget.*/
+	bool m_bEntered;
+
+	bool m_bIsSelected;
 };
-
 
 /** \ingroup docGUI*/
 class PatternEditorSidebar : public QWidget,
 							 public EventListener,
 							 public H2Core::Object<PatternEditorSidebar> {
-	H2_OBJECT(PatternEditorSidebar)
+	H2_OBJECT( PatternEditorSidebar )
 	Q_OBJECT
 
-	public:
-		PatternEditorSidebar( QWidget *parent );
-		~PatternEditorSidebar();
+   public:
+	static constexpr int m_nWidth = 301;
+	static constexpr int m_nMargin = 10;
 
-		virtual void mousePressEvent(QMouseEvent *event) override;
-		virtual void mouseMoveEvent(QMouseEvent *event) override;
-		virtual void dragEnterEvent(QDragEnterEvent *event) override;
-		virtual void dropEvent(QDropEvent *event) override;
+	PatternEditorSidebar( QWidget* parent );
+	~PatternEditorSidebar();
 
-		virtual void instrumentMuteSoloChangedEvent( int ) override;
+	void updateColors();
+	void updateEditor();
+	void updateFont();
+	void updateStyleSheet();
+	void updateTypeLabelVisibility( bool bVisible );
 
-		void updateColors();
-		void updateEditor();
-		void updateFont();
-		void updateStyleSheet();
-		void updateTypeLabelVisibility( bool bVisible );
+	void dimRows( bool bDim );
 
-		void dimRows( bool bDim );
+	// EventListener
+	void instrumentMuteSoloChangedEvent( int ) override;
 
-		static constexpr int m_nWidth = 301;
-		static constexpr int m_nMargin = 10;
-	public slots:
-		void updateRows();
+	// Qt events
+	void dragEnterEvent( QDragEnterEvent* event ) override;
+	void dragMoveEvent( QDragMoveEvent* ev ) override;
+	void dropEvent( QDropEvent* event ) override;
+	void mouseMoveEvent( QMouseEvent* event ) override;
+	void mousePressEvent( QMouseEvent* event ) override;
 
+   public slots:
+	/** Update every SidebarRow, create or destroy lines if necessary. */
+	void updateRows();
 
-	protected:
-		PatternEditorPanel* m_pPatternEditorPanel;
-		uint m_nEditorHeight;
-		std::vector<SidebarRow*> m_rows;
-		DragScroller *m_pDragScroller;
+   private:
+	int yToRow( int nY ) const;
 
-		/** Vertical position the drag event started at. In case there is no
-		 * valid drag, the value will be set to -1. */
-		int m_nDragStartY;
+	PatternEditorPanel* m_pPatternEditorPanel;
+	uint m_nEditorHeight;
+	std::vector<SidebarRow*> m_rows;
+	DragScroller* m_pDragScroller;
 
-private:
-	void drawFocus( QPainter& painter );
+	/** Vertical position the drag event started at. In case there is no
+	 * valid drag, the value will be set to -1. */
+	int m_nDragStartY;
+	/** A value of -1 will cause the rendering to be omitted. */
+	int m_nLastDragRow;
 };
-
 
 #endif
