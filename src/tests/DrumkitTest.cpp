@@ -374,3 +374,72 @@ void DrumkitTest::testLayerHandling()
 
 	___INFOLOG( "passed" );
 }
+
+void DrumkitTest::testInstrumentMove()
+{
+	___INFOLOG( "" );
+
+	auto pInstrumentList = std::make_shared<InstrumentList>();
+	auto pInstrument1 = std::make_shared<Instrument>();
+	const QString sInstrument1( "instrument1" );
+	pInstrument1->setName( sInstrument1 );
+	auto pInstrument2 = std::make_shared<Instrument>();
+	const QString sInstrument2( "instrument2" );
+	pInstrument2->setName( sInstrument2 );
+	auto pInstrument3 = std::make_shared<Instrument>();
+	const QString sInstrument3( "instrument3" );
+	pInstrument3->setName( sInstrument3 );
+
+	pInstrumentList->add( pInstrument1 );
+	pInstrumentList->add( std::make_shared<Instrument>(pInstrument1) );
+	pInstrumentList->add( pInstrument2 );
+	pInstrumentList->add( std::make_shared<Instrument>(pInstrument1) );
+	pInstrumentList->add( std::make_shared<Instrument>(pInstrument1) );
+	pInstrumentList->add( std::make_shared<Instrument>(pInstrument1) );
+	pInstrumentList->add( pInstrument3 );
+	pInstrumentList->add( std::make_shared<Instrument>(pInstrument1) );
+	CPPUNIT_ASSERT( pInstrumentList->size() == 8 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 0 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 1 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 2 )->getName() == sInstrument2 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 3 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 4 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 5 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 6 )->getName() == sInstrument3 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 7 )->getName() == sInstrument1 );
+
+	pInstrumentList->move( 2, 6 );
+	CPPUNIT_ASSERT( pInstrumentList->size() == 8 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 0 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 1 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 2 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 3 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 4 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 5 )->getName() == sInstrument3 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 6 )->getName() == sInstrument2 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 7 )->getName() == sInstrument1 );
+
+	pInstrumentList->move( 5, 0 );
+	CPPUNIT_ASSERT( pInstrumentList->size() == 8 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 0 )->getName() == sInstrument3 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 1 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 2 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 3 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 4 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 5 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 6 )->getName() == sInstrument2 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 7 )->getName() == sInstrument1 );
+
+	pInstrumentList->move( 0, pInstrumentList->size() - 1 );
+	CPPUNIT_ASSERT( pInstrumentList->size() == 8 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 0 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 1 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 2 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 3 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 4 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 5 )->getName() == sInstrument2 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 6 )->getName() == sInstrument1 );
+	CPPUNIT_ASSERT( pInstrumentList->get( 7 )->getName() == sInstrument3 );
+
+	___INFOLOG( "passed" );
+}

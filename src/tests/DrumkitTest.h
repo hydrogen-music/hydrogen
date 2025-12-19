@@ -31,6 +31,7 @@ class DrumkitTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testHasAllMidiNotesSame );
 	CPPUNIT_TEST( testIsValidIndex );
 	CPPUNIT_TEST( testLayerHandling );
+	CPPUNIT_TEST( testInstrumentMove );
 	CPPUNIT_TEST_SUITE_END();
 
    public:
@@ -38,6 +39,7 @@ class DrumkitTest : public CppUnit::TestCase {
 	void testHasAllMidiNotesSame();
 	void testIsValidIndex();
 	void testLayerHandling();
+	void testInstrumentMove();
 };
 
 #endif
