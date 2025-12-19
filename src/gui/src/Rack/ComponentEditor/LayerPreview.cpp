@@ -336,9 +336,9 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 			const int x1 = (int) ( ppLayer->getStartVelocity() * width() );
 			const int x2 = (int) ( ppLayer->getEndVelocity() * width() );
 
-			LayerInfo info{
-				x1, x2, nCurrentY, nCount, nCount == ( nSelectedLayer + 1 )
-			};
+			const bool bSelected =
+				nSelectedLayer != -1 ? nCount == ( nSelectedLayer + 1 ) : false;
+			LayerInfo info{ x1, x2, nCurrentY, nCount, bSelected };
 			m_layerInfos.insert( info );
 
 			QString sLabel = "< - >";
@@ -547,19 +547,20 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 	p.drawLine( width() - 1, 0, width(), height() );
 
 	// selected layer
-	p.setPen( highlightColor );
+	if ( nSelectedLayer != -1 ) {
+		p.setPen( highlightColor );
+		p.drawRect(
+			LayerPreview::nBorder,
+			LayerPreview::nHeader + LayerPreview::nLayerHeight * nSelectedLayer,
+			width() - 3 * LayerPreview::nBorder, LayerPreview::nLayerHeight
+		);
+	}
 
-	p.drawRect(
-		LayerPreview::nBorder,
-		LayerPreview::nHeader + LayerPreview::nLayerHeight * nSelectedLayer,
-		width() - 3 * LayerPreview::nBorder, LayerPreview::nLayerHeight
-	);
-
-    // highlight dragged layer
+	// highlight dragged layer
 	if ( m_drag == Drag::Position && m_nLastDragLayer != -1 ) {
-        p.setPen( highlightColor );
-		const int nY =
-			LayerPreview::nHeader + LayerPreview::nLayerHeight * m_nLastDragLayer;
+		p.setPen( highlightColor );
+		const int nY = LayerPreview::nHeader +
+					   LayerPreview::nLayerHeight * m_nLastDragLayer;
 		p.drawLine(
 			LayerPreview::nBorder, nY, width() - LayerPreview::nBorder, nY
 		);
