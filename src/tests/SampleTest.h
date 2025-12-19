@@ -20,26 +20,17 @@
  *
  */
 
-#include "SampleTest.h"
+#ifndef H2TEST_SAMPLE_TEST_H
+#define H2TEST_SAMPLE_TEST_H
 
-#include "TestHelper.h"
+#include <cppunit/extensions/HelperMacros.h>
 
-#include <core/Basics/Sample.h>
+class SampleTest : public CppUnit::TestCase {
+	CPPUNIT_TEST_SUITE( SampleTest );
+	CPPUNIT_TEST( testLoadInvalidSample );
+	CPPUNIT_TEST_SUITE_END();
 
-void SampleTest::testLoadInvalidSample()
-{
-	___INFOLOG( "" );
-	std::shared_ptr<H2Core::Sample> pSample;
+	void testLoadInvalidSample();
+};
 
-	// TC1: Sample does not exist
-	QString SamplePath( "PathDoesNotExist" );
-	pSample = H2Core::Sample::load( SamplePath );
-
-	CPPUNIT_ASSERT( pSample == nullptr );
-
-	// TC2: Sample does exist, but is not a valid sample
-	pSample =
-		H2Core::Sample::load( H2TEST_FILE( "drumkits/baseKit/drumkit.xml" ) );
-	CPPUNIT_ASSERT( pSample == nullptr );
-	___INFOLOG( "passed" );
-}
+#endif
