@@ -60,19 +60,17 @@ LayerPreview::LayerPreview( ComponentView* pComponentView )
 
 	setMouseTracking( true );
 
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
-	if ( pInstrument != nullptr ) {
-		const auto pComponent =
-			pInstrument->getComponent( pComponentView->getSelectedLayer() );
-		if ( pComponent != nullptr ) {
-			const int nHeight =
-				LayerPreview::nHeader +
-				LayerPreview::nLayerHeight * pComponent->getLayers().size();
-			setFixedHeight( nHeight );
-		}
+	const auto pComponent = pComponentView->getComponent();
+	if ( pComponent != nullptr ) {
+		const int nHeight =
+			LayerPreview::nHeader +
+			LayerPreview::nLayerHeight * pComponent->getLayers().size();
+		setFixedHeight( nHeight );
 	}
 
-	m_speakerPixmap.load( Skin::getSvgImagePath() + "/icons/white/speaker.svg" );
+	m_speakerPixmap.load(
+		Skin::getSvgImagePath() + "/icons/white/speaker.svg"
+	);
 
 	// We get a style similar to the one used for the 2 buttons on top of the
 	// instrument editor panel
