@@ -24,22 +24,144 @@
 
 #include "TestHelper.h"
 
+#include <core/Basics/Event.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Hydrogen.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <cppunit/TestAssert.h>
+
+using namespace H2Core;
 
 void SampleTest::testLoadInvalidSample()
 {
 	___INFOLOG( "" );
-	std::shared_ptr<H2Core::Sample> pSample;
+	std::shared_ptr<Sample> pSample;
 
 	// TC1: Sample does not exist
 	QString SamplePath( "PathDoesNotExist" );
-	pSample = H2Core::Sample::load( SamplePath );
+	pSample = Sample::load( SamplePath );
 
 	CPPUNIT_ASSERT( pSample == nullptr );
 
 	// TC2: Sample does exist, but is not a valid sample
-	pSample =
-		H2Core::Sample::load( H2TEST_FILE( "drumkits/baseKit/drumkit.xml" ) );
+	pSample = Sample::load( H2TEST_FILE( "drumkits/baseKit/drumkit.xml" ) );
 	CPPUNIT_ASSERT( pSample == nullptr );
+	___INFOLOG( "passed" );
+}
+
+void SampleTest::testStoringSamplesInCurrentDrumkit()
+{
+	___INFOLOG( "" );
+
+	auto pSong = Song::getEmptySong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	auto pDrumkit = pSong->getDrumkit();
+	CPPUNIT_ASSERT( pDrumkit != nullptr );
+	CPPUNIT_ASSERT( pDrumkit->getInstruments()->size() > 0 );
+	CPPUNIT_ASSERT( pDrumkit->getName() == "GMRockKit" );
+
+	// Import an instrument from another drumkit (installed)
+	const QString sAnotherDrumkitPath(
+		Filesystem::sys_drumkits_dir() + "/TR808EmulationKit"
+	);
+	auto pAnotherDrumkit =
+		Hydrogen::get_instance()->getSoundLibraryDatabase()->getDrumkit(
+			sAnotherDrumkitPath, false
+		);
+	CPPUNIT_ASSERT( pAnotherDrumkit != nullptr );
+	CPPUNIT_ASSERT( pAnotherDrumkit->getInstruments()->size() > 0 );
+
+	auto pAnotherInstrument = pAnotherDrumkit->getInstruments()->get( 0 );
+	CPPUNIT_ASSERT( pAnotherInstrument != nullptr );
+	CPPUNIT_ASSERT( pAnotherInstrument->getComponent( 0 ) != nullptr );
+	CPPUNIT_ASSERT(
+		pAnotherInstrument->getComponent( 0 )->getLayer( 0 ) != nullptr
+	);
+
+	pDrumkit->addInstrument( pAnotherInstrument, -1 );
+	CPPUNIT_ASSERT( !pDrumkit->hasMissingSamples() );
+
+	// Import an arbitrary sample.
+	{
+		auto pInstrument = std::make_shared<Instrument>();
+		pInstrument->setName( "free sample" );
+		auto pComponent = pInstrument->getComponent( 0 );
+		auto pSample = std::make_shared<Sample>(
+			H2TEST_FILE( "/functional/mutegroups.ref.flac" )
+		);
+		pInstrument->addLayer(
+			pComponent, std::make_shared<InstrumentLayer>( pSample ), -1,
+			Event::Trigger::Suppress
+		);
+		pDrumkit->addInstrument( pInstrument );
+		CPPUNIT_ASSERT( !pDrumkit->hasMissingSamples() );
+	}
+
+	// Import a sample from another registered drumkit (which is not associated
+	// with the drumkit via #Instrument::m_sDrumkitPath).
+	{
+		auto pInstrument = std::make_shared<Instrument>();
+		pInstrument->setName( "registered sample" );
+		auto pComponent = pInstrument->getComponent( 0 );
+		pInstrument->addLayer(
+			pComponent, pAnotherInstrument->getComponent( 0 )->getLayer( 0 ), -1,
+			Event::Trigger::Suppress
+		);
+		pDrumkit->addInstrument( pInstrument );
+		CPPUNIT_ASSERT( !pDrumkit->hasMissingSamples() );
+	}
+
+	// Import a sample from another unregistered drumkit (within a drumkit
+	// folder but not within a folder known to the SoundLibraryDatabase).
+	{
+		auto pInstrument = std::make_shared<Instrument>();
+		pInstrument->setName( "unregistered sample" );
+		auto pComponent = pInstrument->getComponent( 0 );
+		auto pSample =
+			std::make_shared<Sample>( H2TEST_FILE( "/drumkits/baseKit/crash.wav" ) );
+		pInstrument->addLayer(
+			pComponent, std::make_shared<InstrumentLayer>( pSample ), -1,
+			Event::Trigger::Suppress
+		);
+		pDrumkit->addInstrument( pInstrument );
+		CPPUNIT_ASSERT( !pDrumkit->hasMissingSamples() );
+	}
+
+	const int nSampleNumber = pDrumkit->summarizeContent().size();
+
+	// Save the drumkit to disk and reload it. If everything worked, all samples
+	// can be reloaded.
+	QTemporaryDir tmpDir( "storing-sample-test-kit" );
+	pDrumkit->save( tmpDir.path(), false );
+
+	auto pDrumkitReloaded =
+		Drumkit::load( tmpDir.path(), false, nullptr, false );
+	CPPUNIT_ASSERT( pDrumkitReloaded != nullptr );
+	CPPUNIT_ASSERT( !pDrumkitReloaded->hasMissingSamples() );
+	CPPUNIT_ASSERT(
+		pDrumkitReloaded->summarizeContent().size() == nSampleNumber
+	);
+
+	// Now let's do the same for the overall song and load it back as the
+	// current drumkit.
+	const QString sTmpSongPath =
+		Filesystem::tmp_file_path( "storing-samples-test-song" );
+	CPPUNIT_ASSERT( pSong->save( sTmpSongPath, false, false ) );
+
+	auto pSongReloaded = Song::load( sTmpSongPath, false );
+	CPPUNIT_ASSERT( pSongReloaded != nullptr );
+	CPPUNIT_ASSERT( pSongReloaded->getDrumkit() != nullptr );
+	CPPUNIT_ASSERT( !pSongReloaded->getDrumkit()->hasMissingSamples() );
+	CPPUNIT_ASSERT(
+		pSongReloaded->getDrumkit()->summarizeContent().size() == nSampleNumber
+	);
+
 	___INFOLOG( "passed" );
 }

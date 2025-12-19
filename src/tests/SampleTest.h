@@ -28,9 +28,18 @@
 class SampleTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( SampleTest );
 	CPPUNIT_TEST( testLoadInvalidSample );
+	CPPUNIT_TEST( testStoringSamplesInCurrentDrumkit );
 	CPPUNIT_TEST_SUITE_END();
 
 	void testLoadInvalidSample();
+	/** For portability paths to samples within one of Hydrogen's installed
+	 * drumkits will be stripped and only the filename is stored along with the
+	 * name of the drumkit. But for samples imported into the current / the
+	 * song's drumkit we have to be very careful. Only when saving the drumkit
+	 * to the sound library, all contained samples will be copied into the
+	 * corresponding drumkit folder. Priorly they can very well be scattered all
+	 * over the place. */
+	void testStoringSamplesInCurrentDrumkit();
 };
 
 #endif
