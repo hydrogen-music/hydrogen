@@ -683,6 +683,12 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
 			);
 		}
 	}
+	else {
+		// There is just an empty layer. But we allow to select it.
+		// Otherwise UX would feel a little awkward.
+		m_pComponentView->setSelectedLayer( 0 );
+		m_pComponentView->updateView();
+	}
 }
 
 void LayerPreview::mouseMoveEvent( QMouseEvent* ev )
