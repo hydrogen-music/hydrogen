@@ -282,16 +282,22 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 	return pLayer;
 }
 
-void InstrumentLayer::saveTo( XMLNode& node, bool bSongKit ) const
+void InstrumentLayer::saveTo(
+	XMLNode& node,
+	bool bSongKit,
+	const QString& sDrumkitPath
+) const
 {
 	auto pSample = getSample();
-	
+
 	XMLNode layer_node = node.createNode( "layer" );
 
 	QString sFileName;
 	if ( pSample != nullptr ) {
 		if ( bSongKit ) {
-			sFileName = Filesystem::prepare_sample_path( pSample->getFilePath() );
+			sFileName = Filesystem::prepare_sample_path(
+				pSample->getFilePath(), sDrumkitPath
+			);
 		}
 		else {
 			sFileName = pSample->getFileName();
@@ -306,7 +312,7 @@ void InstrumentLayer::saveTo( XMLNode& node, bool bSongKit ) const
 	if ( pSample == nullptr ) {
 		pSample = std::make_shared<Sample>( sFileName );
 	}
-	
+
 	layer_node.write_string( "filename", sFileName );
 	layer_node.write_float( "min", m_fStartVelocity );
 	layer_node.write_float( "max", m_fEndVelocity );
@@ -325,7 +331,7 @@ void InstrumentLayer::saveTo( XMLNode& node, bool bSongKit ) const
 	layer_node.write_int( "endframe", loops.end_frame );
 
 	Sample::Rubberband rubberband = pSample->getRubberband();
-	layer_node.write_int( "userubber", static_cast<int>(rubberband.use) );
+	layer_node.write_int( "userubber", static_cast<int>( rubberband.use ) );
 	layer_node.write_float( "rubberdivider", rubberband.divider );
 	layer_node.write_int( "rubberCsettings", rubberband.c_settings );
 	layer_node.write_float( "rubberPitch", rubberband.pitch );

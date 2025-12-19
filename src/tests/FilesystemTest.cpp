@@ -112,37 +112,43 @@ void FilesystemTest::testFilePathValidation() {
 
 void FilesystemTest::testSamplePathHandling() {
 	___INFOLOG( "" );
-	const auto sPathInSystemKit = QString( "%1/sampleKit/sample.wav" )
-		.arg( Filesystem::sys_drumkits_dir() );
-	const auto sPathInUserKit = QString( "%1/sampleKit/sample.wav" )
-		.arg( Filesystem::usr_drumkits_dir() );
+	const QString& sSystemKitPath(
+		QString( "%1/sampleKit" ).arg( Filesystem::sys_drumkits_dir() )
+	);
+	const QString& sUserKitPath(
+		QString( "%1/sampleKit" ).arg( Filesystem::usr_drumkits_dir() )
+	);
+	const auto sPathInSystemKit = QString( "%1/sample.wav" )
+		.arg( sSystemKitPath );
+	const auto sPathInUserKit = QString( "%1/sample.wav" )
+		.arg( sUserKitPath );
 	const auto sAbsolutePath( "/path/to/sample.wav" );
 	const auto sRelativePath( "../../sample.wav" );
 	const QString sFileName( "sample.wav" );
 
 	const auto sPathInSystemKitPrepared = Filesystem::prepare_sample_path(
-		sPathInSystemKit );
+		sPathInSystemKit, sSystemKitPath );
 	___INFOLOG( QString( "sPathInSystemKitPrepared: [%1]" )
 				.arg( sPathInSystemKitPrepared ) );
 	CPPUNIT_ASSERT( sPathInSystemKit != sPathInSystemKitPrepared );
 	CPPUNIT_ASSERT( sFileName == sPathInSystemKitPrepared );
 
 	const auto sPathInUserKitPrepared = Filesystem::prepare_sample_path(
-		sPathInUserKit );
+		sPathInUserKit, sUserKitPath );
 	___INFOLOG( QString( "sPathInUserKitPrepared: [%1]" )
 				.arg( sPathInUserKitPrepared ) );
 	CPPUNIT_ASSERT( sPathInUserKit != sPathInUserKitPrepared );
 	CPPUNIT_ASSERT( sFileName == sPathInUserKitPrepared );
 
 	const auto sAbsolutePathPrepared = Filesystem::prepare_sample_path(
-		sAbsolutePath );
+		sAbsolutePath, "" );
 	___INFOLOG( QString( "sAbsolutePathPrepared: [%1]" )
 				.arg( sAbsolutePathPrepared ) );
 	CPPUNIT_ASSERT( sAbsolutePath == sAbsolutePathPrepared );
 	CPPUNIT_ASSERT( sFileName != sAbsolutePathPrepared );
 
 	const auto sRelativePathPrepared = Filesystem::prepare_sample_path(
-		sRelativePath );
+		sRelativePath, "" );
 	___INFOLOG( QString( "sRelativePathPrepared: [%1]" )
 				.arg( sRelativePathPrepared ) );
 	CPPUNIT_ASSERT( sRelativePath == sRelativePathPrepared );
