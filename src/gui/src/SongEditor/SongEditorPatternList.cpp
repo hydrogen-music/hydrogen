@@ -788,9 +788,6 @@ void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 			pOldPattern
 		) );
 	}
-	else {
-		DEBUGLOG( QString( "Unknown drag type [%1]" ).arg( sText ) );
-	}
 }
 
 void SongEditorPatternList::leaveEvent( QEvent* ev )
@@ -810,7 +807,6 @@ void SongEditorPatternList::mouseDoubleClickEvent( QMouseEvent* ev )
 
 void SongEditorPatternList::mouseMoveEvent( QMouseEvent* event )
 {
-	DEBUGLOG( "move" );
 	auto pEv = static_cast<MouseEvent*>( event );
 	//
 	// Update the highlighting of the hovered row.
