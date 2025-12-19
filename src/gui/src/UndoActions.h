@@ -1051,38 +1051,6 @@ class SE_renameComponentAction : public QUndoCommand {
 };
 
 /** \ingroup docGUI*/
-class SE_setInstrumentTypeAction : public QUndoCommand
-{
-public:
-	SE_setInstrumentTypeAction( int nInstrumentId,
-								const H2Core::DrumkitMap::Type& sNewType,
-								const H2Core::DrumkitMap::Type& sOldType,
-								const QString& sInstrumentName )
-		: m_nInstrumentId( nInstrumentId )
-		, m_sNewType( sNewType )
-		, m_sOldType( sOldType ) {
-		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-		setText( QString( "%1 [%2]: [%3] -> [%4]" )
-				 .arg( pCommonStrings->getActionSetInstrumentType() )
-				 .arg( sInstrumentName ).arg( sOldType ).arg( sNewType ) );
-	}
-	~SE_setInstrumentTypeAction(){}
-
-	virtual void undo() {
-		H2Core::CoreActionController::setInstrumentType(
-			m_nInstrumentId, m_sOldType );
-	}
-	virtual void redo() {
-		H2Core::CoreActionController::setInstrumentType(
-			m_nInstrumentId, m_sNewType );
-	}
-	private:
-		int m_nInstrumentId;
-		H2Core::DrumkitMap::Type m_sNewType;
-		H2Core::DrumkitMap::Type m_sOldType;
-};
-
-/** \ingroup docGUI*/
 class SE_automationPathAddPointAction : public QUndoCommand
 {
 public:
