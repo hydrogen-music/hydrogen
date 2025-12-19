@@ -899,8 +899,11 @@ void ComponentView::accountForScrollbar( bool bScrollBarVisible )
 
 int ComponentView::getExpandedHeight() const
 {
-	const int nLayers =
-		m_pComponent != nullptr ? m_pComponent->getLayers().size() : 1;
+    // We show at least one empty layer.
+	int nLayers = 1;
+	if ( m_pComponent != nullptr && m_pComponent->getLayers().size() > 1 ) {
+        nLayers = m_pComponent->getLayers().size();
+	};
 	return ComponentView::nVerticalSpacing * 4 + ComponentView::nHeaderHeight +
 		   ComponentView::nToolBarHeight * 2 + LayerPreview::nHeader +
 		   LayerPreview::nBorder + LayerPreview::nLayerHeight * nLayers +
