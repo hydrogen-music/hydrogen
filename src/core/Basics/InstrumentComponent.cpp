@@ -188,8 +188,13 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 	return pInstrumentComponent;
 }
 
-void InstrumentComponent::saveTo( XMLNode& node, bool bSongKit,
-								 bool bKeepMissingSamples, bool bSilent )
+void InstrumentComponent::saveTo(
+	XMLNode& node,
+	bool bSongKit,
+	bool bKeepMissingSamples,
+    const QString& sDrumkitPath,
+	bool bSilent
+)
 {
 	XMLNode component_node;
 	component_node = node.createNode( "instrumentComponent" );
@@ -199,28 +204,29 @@ void InstrumentComponent::saveTo( XMLNode& node, bool bSongKit,
 	component_node.write_bool( "isSoloed", m_bIsSoloed );
 
 	switch ( m_selection ) {
-	case Selection::Velocity:
-		component_node.write_string( "sampleSelectionAlgo", "VELOCITY" );
-		break;
-	case Selection::Random:
-		component_node.write_string( "sampleSelectionAlgo", "RANDOM" );
-		break;
-	case Selection::RoundRobin:
-		component_node.write_string( "sampleSelectionAlgo", "ROUND_ROBIN" );
-		break;
+		case Selection::Velocity:
+			component_node.write_string( "sampleSelectionAlgo", "VELOCITY" );
+			break;
+		case Selection::Random:
+			component_node.write_string( "sampleSelectionAlgo", "RANDOM" );
+			break;
+		case Selection::RoundRobin:
+			component_node.write_string( "sampleSelectionAlgo", "ROUND_ROBIN" );
+			break;
 	}
 
 	std::set<int> indicesToRemove;
 	for ( int nn = 0; nn < m_layers.size(); nn++ ) {
-		auto pLayer = m_layers[ nn ];
+		auto pLayer = m_layers[nn];
 		if ( pLayer != nullptr ) {
 			if ( pLayer->getSample() != nullptr || bKeepMissingSamples ) {
-				pLayer->saveTo( component_node, bSongKit );
+				pLayer->saveTo( component_node, bSongKit, sDrumkitPath );
 			}
 			else {
-				if ( ! bSilent ) {
-					INFOLOG( QString( "Discarding layer of missing sample [%1]" )
-							.arg( pLayer->getFallbackSampleFileName() ) );
+				if ( !bSilent ) {
+					INFOLOG( QString( "Discarding layer of missing sample [%1]"
+					)
+								 .arg( pLayer->getFallbackSampleFileName() ) );
 				}
 				else {
 					indicesToRemove.insert( nn );
@@ -230,11 +236,11 @@ void InstrumentComponent::saveTo( XMLNode& node, bool bSongKit,
 		}
 	}
 
-	if ( ! bKeepMissingSamples && indicesToRemove.size() > 0 ) {
-		std::vector< std::shared_ptr<InstrumentLayer> > newLayers;
+	if ( !bKeepMissingSamples && indicesToRemove.size() > 0 ) {
+		std::vector<std::shared_ptr<InstrumentLayer>> newLayers;
 		for ( int nn = 0; nn < m_layers.size(); ++nn ) {
 			if ( indicesToRemove.find( nn ) == indicesToRemove.end() ) {
-				newLayers.push_back( m_layers[ nn ] );
+				newLayers.push_back( m_layers[nn] );
 			}
 		}
 

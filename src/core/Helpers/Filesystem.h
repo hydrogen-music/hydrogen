@@ -257,10 +257,15 @@ namespace H2Core
 		static QString tmp_file_path( const QString& base );
 
 		/* DRUMKIT */
-		/** Returns the basename if the given path is under an existing user or
-		 * system drumkit path, otherwise the given @a sSamplePath */
-		static QString prepare_sample_path( const QString& sSamplePath );
-		/** returns list of usable system drumkits ( see Filesystem::drumkit_list ) */
+		/** Returns the basename if the given path is under an instrument of an
+		 * existing user or system drumkit path, otherwise the given @a
+		 * sSamplePath */
+		static QString prepare_sample_path(
+			const QString& sSamplePath,
+			const QString& sDrumkitPath
+		);
+		/** returns list of usable system drumkits ( see
+		 * Filesystem::drumkit_list ) */
 		static QStringList sys_drumkit_list( );
 		/** returns list of usable user drumkits ( see Filesystem::drumkit_list ) */
 		static QStringList usr_drumkit_list( );

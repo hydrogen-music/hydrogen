@@ -122,8 +122,19 @@ namespace H2Core
 		 *   sample points to a location within a drumkit folder will determine
 		 *   whether just the basename or - if not - the absolute path will be
 		 *   stored.
+		 * @param sDrumkitPath When adding samples via the ComponentEditor to an
+		 *   instrument (layer) they are stored absolute paths. For portability
+		 *   we want to strip all paths corresponding to an installed drumkit
+		 *   and just store the file name. But we have to be careful to only do
+		 *   so for samples associated with the drumkit of the parent
+		 *   instrument.
 		 */
-		void saveTo( XMLNode& node, bool bSongKit = false ) const;
+		void saveTo(
+			XMLNode& node,
+			bool bSongKit = false,
+			const QString& sDrumkitPath = ""
+		) const;
+
 		/**
 		 * load an instrument layer from an XMLNode
 		 *

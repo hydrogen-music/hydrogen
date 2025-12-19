@@ -44,7 +44,7 @@ class ColorTheme : public H2Core::Object<ColorTheme>
 	H2_OBJECT(ColorTheme)
 public:
 	ColorTheme();
-	ColorTheme( std::shared_ptr<ColorTheme> pOther ) = delete;
+	ColorTheme( std::shared_ptr<ColorTheme> pOther );
 	ColorTheme operator=( std::shared_ptr<ColorTheme> pOther ) = delete;
 
 	void saveTo( XMLNode& parent ) const;
@@ -162,7 +162,7 @@ class InterfaceTheme : public H2Core::Object<InterfaceTheme>
 	H2_OBJECT(InterfaceTheme)
 public:
 	InterfaceTheme();
-	InterfaceTheme( std::shared_ptr<InterfaceTheme> pOther ) = delete;
+	InterfaceTheme( std::shared_ptr<InterfaceTheme> pOther );
 	InterfaceTheme operator=( std::shared_ptr<InterfaceTheme> pOther ) = delete;
 
 	static float FALLOFF_SLOW;
@@ -222,7 +222,7 @@ class FontTheme : public H2Core::Object<FontTheme>
 	H2_OBJECT(FontTheme)
 public:
 	FontTheme();
-	FontTheme( std::shared_ptr<FontTheme> pOther ) = delete;
+	FontTheme( std::shared_ptr<FontTheme> pOther );
 	FontTheme operator=( std::shared_ptr<FontTheme> pOther ) = delete;
 
 	/** Enables custom scaling of the font size in the GUI.*/

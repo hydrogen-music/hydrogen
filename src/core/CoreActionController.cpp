@@ -2101,29 +2101,6 @@ bool CoreActionController::renameComponent(
 	return true;
 }
 
-bool CoreActionController::setInstrumentType( int nInstrumentId,
-											  const DrumkitMap::Type& sType ) {
-	auto pHydrogen = Hydrogen::get_instance();
-	ASSERT_HYDROGEN
-
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return false;
-	}
-
-	auto pInstrument = pSong->getDrumkit()->getInstruments()->
-		find( nInstrumentId );
-	if ( pInstrument == nullptr ) {
-		ERRORLOG( QString( "Uable to find instrument [%1] for type [%2]" )
-				  .arg( nInstrumentId ).arg( sType ) );
-		return false;
-	}
-
-	pInstrument->setType( sType );
-
-	return true;
-}
-
 bool CoreActionController::locateToColumn( int nColumn ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN

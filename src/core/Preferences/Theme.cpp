@@ -103,6 +103,120 @@ ColorTheme::ColorTheme()
 {
 }
 
+ColorTheme::ColorTheme( std::shared_ptr<ColorTheme> pOther )
+	: m_songEditor_backgroundColor( pOther->m_songEditor_backgroundColor ),
+	  m_songEditor_alternateRowColor( pOther->m_songEditor_alternateRowColor ),
+	  m_songEditor_virtualRowColor( pOther->m_songEditor_virtualRowColor ),
+	  m_songEditor_selectedRowColor( pOther->m_songEditor_selectedRowColor ),
+	  m_songEditor_selectedRowTextColor(
+		  pOther->m_songEditor_selectedRowTextColor
+	  ),
+	  m_songEditor_lineColor( pOther->m_songEditor_lineColor ),
+	  m_songEditor_textColor( pOther->m_songEditor_textColor ),
+	  m_songEditor_automationBackgroundColor(
+		  pOther->m_songEditor_automationBackgroundColor
+	  ),
+	  m_songEditor_automationLineColor( pOther->m_songEditor_automationLineColor
+	  ),
+	  m_songEditor_automationNodeColor( pOther->m_songEditor_automationNodeColor
+	  ),
+	  m_songEditor_stackedModeOnColor( pOther->m_songEditor_stackedModeOnColor
+	  ),
+	  m_songEditor_stackedModeOnNextColor(
+		  pOther->m_songEditor_stackedModeOnNextColor
+	  ),
+	  m_songEditor_stackedModeOffNextColor(
+		  pOther->m_songEditor_stackedModeOffNextColor
+	  ),
+	  m_patternEditor_backgroundColor( pOther->m_patternEditor_backgroundColor
+	  ),
+	  m_patternEditor_alternateRowColor(
+		  pOther->m_patternEditor_alternateRowColor
+	  ),
+	  m_patternEditor_selectedRowColor( pOther->m_patternEditor_selectedRowColor
+	  ),
+	  m_patternEditor_selectedRowTextColor(
+		  pOther->m_patternEditor_selectedRowTextColor
+	  ),
+	  m_patternEditor_octaveRowColor( pOther->m_patternEditor_octaveRowColor ),
+	  m_patternEditor_textColor( pOther->m_patternEditor_textColor ),
+	  m_patternEditor_noteVelocityFullColor(
+		  pOther->m_patternEditor_noteVelocityFullColor
+	  ),
+	  m_patternEditor_noteVelocityDefaultColor(
+		  pOther->m_patternEditor_noteVelocityDefaultColor
+	  ),
+	  m_patternEditor_noteVelocityHalfColor(
+		  pOther->m_patternEditor_noteVelocityHalfColor
+	  ),
+	  m_patternEditor_noteVelocityZeroColor(
+		  pOther->m_patternEditor_noteVelocityZeroColor
+	  ),
+	  m_patternEditor_noteOffColor( pOther->m_patternEditor_noteOffColor ),
+	  m_patternEditor_lineColor( pOther->m_patternEditor_lineColor ),
+	  m_patternEditor_line1Color( pOther->m_patternEditor_line1Color ),
+	  m_patternEditor_line2Color( pOther->m_patternEditor_line2Color ),
+	  m_patternEditor_line3Color( pOther->m_patternEditor_line3Color ),
+	  m_patternEditor_line4Color( pOther->m_patternEditor_line4Color ),
+	  m_patternEditor_line5Color( pOther->m_patternEditor_line5Color ),
+	  m_patternEditor_instrumentRowColor(
+		  pOther->m_patternEditor_instrumentRowColor
+	  ),
+	  m_patternEditor_instrumentRowTextColor(
+		  pOther->m_patternEditor_instrumentRowTextColor
+	  ),
+	  m_patternEditor_instrumentAlternateRowColor(
+		  pOther->m_patternEditor_instrumentAlternateRowColor
+	  ),
+	  m_patternEditor_instrumentSelectedRowColor(
+		  pOther->m_patternEditor_instrumentSelectedRowColor
+	  ),
+	  m_patternEditor_instrumentSelectedRowTextColor(
+		  pOther->m_patternEditor_instrumentSelectedRowTextColor
+	  ),
+	  m_componentEditor_componentColor( pOther->m_componentEditor_componentColor
+	  ),
+	  m_componentEditor_componentTextColor(
+		  pOther->m_componentEditor_componentTextColor
+	  ),
+	  m_componentEditor_layerColor( pOther->m_componentEditor_layerColor ),
+	  m_componentEditor_layerTextColor( pOther->m_componentEditor_layerTextColor
+	  ),
+	  m_selectionHighlightColor( pOther->m_selectionHighlightColor ),
+	  m_selectionInactiveColor( pOther->m_selectionInactiveColor ),
+	  m_windowColor( pOther->m_windowColor ),
+	  m_windowTextColor( pOther->m_windowTextColor ),
+	  m_baseColor( pOther->m_baseColor ),
+	  m_alternateBaseColor( pOther->m_alternateBaseColor ),
+	  m_textColor( pOther->m_textColor ),
+	  m_buttonColor( pOther->m_buttonColor ),
+	  m_buttonTextColor( pOther->m_buttonTextColor ),
+	  m_lightColor( pOther->m_lightColor ),
+	  m_midLightColor( pOther->m_midLightColor ),
+	  m_midColor( pOther->m_midColor ),
+	  m_darkColor( pOther->m_darkColor ),
+	  m_shadowTextColor( pOther->m_shadowTextColor ),
+	  m_highlightColor( pOther->m_highlightColor ),
+	  m_highlightedTextColor( pOther->m_highlightedTextColor ),
+	  m_toolTipBaseColor( pOther->m_toolTipBaseColor ),
+	  m_toolTipTextColor( pOther->m_toolTipTextColor ),
+	  m_widgetColor( pOther->m_widgetColor ),
+	  m_widgetTextColor( pOther->m_widgetTextColor ),
+	  m_buttonRedColor( pOther->m_buttonRedColor ),
+	  m_buttonRedTextColor( pOther->m_buttonRedTextColor ),
+	  m_spinBoxColor( pOther->m_spinBoxColor ),
+	  m_spinBoxTextColor( pOther->m_spinBoxTextColor ),
+	  m_accentColor( pOther->m_accentColor ),
+	  m_accentTextColor( pOther->m_accentTextColor ),
+	  m_playheadColor( pOther->m_playheadColor ),
+	  m_cursorColor( pOther->m_cursorColor ),
+	  m_muteColor( pOther->m_muteColor ),
+	  m_muteTextColor( pOther->m_muteTextColor ),
+	  m_soloColor( pOther->m_soloColor ),
+	  m_soloTextColor( pOther->m_soloTextColor )
+{
+}
+
 void ColorTheme::saveTo( XMLNode& parent ) const {
 
 	XMLNode colorThemeNode = parent.createNode( "colorTheme" );
@@ -1143,6 +1257,26 @@ InterfaceTheme::InterfaceTheme()
 	}
 }
 
+InterfaceTheme::InterfaceTheme( std::shared_ptr<InterfaceTheme> pOther )
+	: m_sQTStyle( pOther->m_sQTStyle ),
+	  m_fMixerFalloffSpeed( pOther->m_fMixerFalloffSpeed ),
+	  m_layout( pOther->m_layout ),
+	  m_uiScalingPolicy( pOther->m_uiScalingPolicy ),
+	  m_iconColor( pOther->m_iconColor ),
+	  m_coloringMethod( pOther->m_coloringMethod ),
+	  m_nVisiblePatternColors( pOther->m_nVisiblePatternColors ),
+	  m_bIndicateNotePlayback( pOther->m_bIndicateNotePlayback ),
+	  m_bIndicateEffectiveNoteLength( pOther->m_bIndicateEffectiveNoteLength )
+{
+	m_patternColors.resize( pOther->m_patternColors.size() );
+
+	int ii = 0;
+	for ( const auto& ccolor : pOther->m_patternColors ) {
+		m_patternColors[ii] = ccolor;
+		++ii;
+	}
+}
+
 QString InterfaceTheme::LayoutToQString( const Layout& layout ) {
 	switch( layout ) {
 	case Layout::SinglePane:
@@ -1259,6 +1393,14 @@ FontTheme::FontTheme()
 	, m_fontSize( FontTheme::FontSize::Medium ) {
 }
 
+FontTheme::FontTheme( std::shared_ptr<FontTheme> pOther )
+	: m_sApplicationFontFamily( pOther->m_sApplicationFontFamily ),
+	  m_sLevel2FontFamily( pOther->m_sLevel2FontFamily ),
+	  m_sLevel3FontFamily( pOther->m_sLevel3FontFamily ),
+	  m_fontSize( pOther->m_fontSize )
+{
+}
+
 QString FontTheme::FontSizeToQString( const FontSize& fontSize ) {
 	switch( fontSize ) {
 	case FontSize::Medium:
@@ -1313,9 +1455,9 @@ Theme::Theme( std::shared_ptr<ColorTheme> pColorTheme,
 }
 
 Theme::Theme( const std::shared_ptr<const Theme> pOther )
-	: m_pColor{ pOther->m_pColor }
-	, m_pInterface{ pOther->m_pInterface}
-	, m_pFont{ pOther->m_pFont } {
+	: m_pColor( std::make_shared<ColorTheme>( pOther->m_pColor ) )
+	, m_pInterface( std::make_shared<InterfaceTheme>( pOther->m_pInterface ) )
+	, m_pFont( std::make_shared<FontTheme>( pOther->m_pFont ) ) {
 }
 
 Theme Theme::operator=( const std::shared_ptr<const Theme> pOther ) {

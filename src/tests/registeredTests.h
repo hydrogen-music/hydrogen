@@ -46,7 +46,7 @@
 #include "NoteTest.h"
 #include "OscServerTest.h"
 #include "PatternTest.h"
-#include "SampleTest.cpp"
+#include "SampleTest.h"
 #include "SoundLibraryTest.h"
 #include "TimeTest.h"
 #include "Translations.cpp"

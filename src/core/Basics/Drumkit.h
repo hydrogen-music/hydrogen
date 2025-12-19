@@ -247,6 +247,13 @@ class Drumkit : public H2Core::Object<Drumkit>
 	bool exportTo( const QString& sTargetDir, bool* pUtf8Encoded = nullptr,
 				   bool bSilent = false );
 
+		/** Add an instrument to the kit.
+         *
+         * Be sure to use #CoreActionController::addInstrument() when adding an
+         * instrument to the drumkit of the current song. */
+		void addInstrument( std::shared_ptr<Instrument> pInstrument,
+							int nIndex = -1 );
+
 		/** set m_pInstruments, delete existing one */
 		void setInstruments( std::shared_ptr<InstrumentList> instruments );
 
@@ -342,8 +349,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
-		friend bool CoreActionController::addInstrument(
-			std::shared_ptr<Instrument>, int );
 		friend bool CoreActionController::removeInstrument(
 			std::shared_ptr<Instrument> );
 		friend bool CoreActionController::replaceInstrument(
@@ -364,10 +369,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 
 		std::shared_ptr<InstrumentList> m_pInstruments;  ///< the list of instruments
 
-
-		/** Add an instrument to the kit*/
-		void addInstrument( std::shared_ptr<Instrument> pInstrument,
-							int nIndex = -1 );
 
 		/** Removes an instrument from the drumkit. */
 		void removeInstrument( std::shared_ptr<Instrument> pInstrument );

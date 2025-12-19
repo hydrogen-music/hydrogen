@@ -1300,11 +1300,6 @@ Please set your system&apos;s locale to UTF-8!</source>
         <translation>Szám mentése</translation>
     </message>
     <message>
-        <source>Editing type of instrument</source>
-        <extracomment>Representing a altering of an instrument type in the undo history and * context menu.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Add layer</source>
         <extracomment>Representing adding a new instrument layer in the undo history and in * the tooltip of the coresponding button. Both the name of the layer and * the corresponding instrument will be appended in the former.</extracomment>
         <translation type="unfinished"></translation>
