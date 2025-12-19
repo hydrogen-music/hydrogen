@@ -1114,6 +1114,10 @@ void ComponentView::setLayers(
 	bool bAutoVelocity
 )
 {
+	if ( m_pComponent == nullptr ) {
+        return;
+	}
+
 	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 	QString sNewInstrumentName;
 
@@ -1139,7 +1143,15 @@ void ComponentView::setLayers(
 		}
 		newLayersPaths << ssPath;
 
-		++m_nSelectedLayer;
+		if ( m_nSelectedLayer == -1 ||
+             m_nSelectedLayer >= m_pComponent->getLayers().size() ) {
+            // No layer selected or just an empty one is shown. Appending the
+            // new one.
+            m_nSelectedLayer = m_pComponent->getLayers().size() - 1;
+		}
+        else {
+			++m_nSelectedLayer;
+        }
 
 		const auto pNewLayer =
 			std::make_shared<H2Core::InstrumentLayer>( pNewSample );
