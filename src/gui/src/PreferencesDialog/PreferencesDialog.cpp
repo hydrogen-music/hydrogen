@@ -2326,7 +2326,6 @@ void PreferencesDialog::updateColors() {
 	vval->setEnabled( static_cast<bool>(m_pCurrentColor) );
 	colorButton->setEnabled( static_cast<bool>(m_pCurrentColor) );
 	if ( m_pCurrentColor ==  nullptr ) {
-		WARNINGLOG( "No current color yet" );
 		return;
 	}
 
