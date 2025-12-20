@@ -1,0 +1,139 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2025 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
+
+#include "ColoredButton.h"
+
+#include "../CommonStrings.h"
+#include "../HydrogenApp.h"
+#include "../Skin.h"
+
+ColoredButton::ColoredButton(
+	QWidget* pParent,
+	const QSize& size,
+	const QString& sBaseToolTip,
+	bool bModifyOnChange
+)
+	: Button(
+		  pParent,
+		  size,
+		  ColoredButton::Type::Toggle,
+		  "",
+		  "M",
+		  QSize( 0, 0 ),
+		  sBaseToolTip,
+		  bModifyOnChange,
+		  -1
+	  )
+{
+	setFlat( true );
+}
+
+ColoredButton::~ColoredButton()
+{
+}
+
+void ColoredButton::updateStyleSheet()
+{
+	const QColor borderColor = Qt::black;
+
+	const QColor checkedColor( m_baseColor );
+	const QColor checkedTextColor( m_baseTextColor );
+
+	// We use the checked color - exposed in the preferences dialog - as a basis
+	// and derive the default color by making it less pronounced.
+	const int nSaturationTrim = 80;
+	const int nValueTrim = 55;
+
+	int nHue, nSaturation, nValue;
+	checkedColor.getHsv( &nHue, &nSaturation, &nValue );
+
+	if ( nSaturation > 255 / 2 ) {
+		nSaturation = std::clamp( nSaturation - nSaturationTrim, 0, 255 );
+		nValue = std::clamp( nValue + nValueTrim, 0, 255 );
+	}
+	else {
+		nSaturation = std::clamp( nSaturation + nSaturationTrim, 0, 255 );
+		nValue = std::clamp( nValue - nValueTrim, 0, 255 );
+	}
+	const auto defaultColor = QColor::fromHsv( nHue, nSaturation, nValue );
+
+	QColor defaultTextColor, hoveredColor, hoveredBorder;
+	if ( Skin::moreBlackThanWhite( defaultColor ) ) {
+		defaultTextColor = Qt::white;
+		hoveredColor = defaultColor.lighter( Skin::nToolBarHoveredScaling );
+		hoveredBorder = borderColor.darker( Skin::nToolBarHoveredScaling );
+	}
+	else {
+		defaultTextColor = Qt::black;
+		hoveredColor = defaultColor.darker( Skin::nToolBarHoveredScaling );
+		hoveredBorder = borderColor.lighter( Skin::nToolBarHoveredScaling );
+	}
+	const auto hoveredTextColor = defaultTextColor;
+
+	const auto disabledColor = Skin::makeWidgetColorInactive( defaultColor );
+	const auto disabledTextColor =
+		Skin::makeTextColorInactive( defaultTextColor );
+	const auto disabledCheckedColor =
+		Skin::makeWidgetColorInactive( checkedColor );
+	const auto disabledCheckedTextColor =
+		Skin::makeTextColorInactive( checkedTextColor );
+
+	setStyleSheet( QString( "\
+QPushButton:enabled { \
+    color: %1; \
+    background: %2; \
+    border: 1px solid %3; \
+    padding: 0px; \
+} \
+QPushButton:enabled:hover { \
+    color: %4; \
+    background: %5; \
+    border: 1px solid %6; \
+} \
+QPushButton:enabled:checked, QPushButton::enabled:checked:hover { \
+    color: %7; \
+    background: %8; \
+} \
+QPushButton:disabled { \
+    color: %9; \
+    background: %10; \
+    border: 1px solid %3; \
+    padding: 0px; \
+} \
+QPushButton:disabled:checked { \
+    color: %11; \
+    background: %12; \
+} \
+" )
+					   .arg( defaultTextColor.name() )
+					   .arg( defaultColor.name() )
+					   .arg( borderColor.name() )
+					   .arg( hoveredTextColor.name() )
+					   .arg( hoveredColor.name() )
+					   .arg( hoveredBorder.name() )
+					   .arg( checkedTextColor.name() )
+					   .arg( checkedColor.name() )
+					   .arg( disabledTextColor.name() )
+					   .arg( disabledColor.name() )
+					   .arg( disabledCheckedTextColor.name() )
+					   .arg( disabledCheckedColor.name() ) );
+}
