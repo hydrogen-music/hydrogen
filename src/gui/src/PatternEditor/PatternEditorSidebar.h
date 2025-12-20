@@ -45,6 +45,8 @@ namespace H2Core
 }
 
 class Button;
+class MuteButton;
+class SoloButton;
 
 class SidebarLabel : public QLineEdit, public H2Core::Object<SidebarLabel> {
 	H2_OBJECT( SidebarLabel )
@@ -175,8 +177,8 @@ class SidebarRow : public QWidget,
 	SidebarLabel* m_pInstrumentNameLbl;
 	SidebarLabel* m_pTypeLbl;
 	DrumPatternRow m_row;
-	Button* m_pMuteBtn;
-	Button* m_pSoloBtn;
+	MuteButton* m_pMuteBtn;
+	SoloButton* m_pSoloBtn;
 	Button* m_pSampleWarning;
 
 	/** When using the #PianoRollEditor all rows not selected will be dimed

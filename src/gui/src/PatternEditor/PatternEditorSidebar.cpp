@@ -43,6 +43,8 @@
 #include "../Skin.h"
 #include "../UndoActions.h"
 #include "../Widgets/Button.h"
+#include "../Widgets/MuteButton.h"
+#include "../Widgets/SoloButton.h"
 
 #include <QtGui>
 #include <QtWidgets>
@@ -572,9 +574,8 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		SLOT( sampleWarningClicked() )
 	);
 
-	m_pMuteBtn = new Button(
+	m_pMuteBtn = new MuteButton(
 		this, QSize( SidebarRow::m_nButtonWidth, height() ),
-		Button::Type::Toggle, "", pCommonStrings->getSmallMuteButton(), QSize(),
 		tr( "Mute instrument" ), true
 	);
 	m_pMuteBtn->setChecked( false );
@@ -582,9 +583,8 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	pHBox->addWidget( m_pMuteBtn );
 	connect( m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteClicked() ) );
 
-	m_pSoloBtn = new Button(
+	m_pSoloBtn = new SoloButton(
 		this, QSize( SidebarRow::m_nButtonWidth, height() ),
-		Button::Type::Toggle, "", pCommonStrings->getSmallSoloButton(), QSize(),
 		pCommonStrings->getBigSoloButton(), true
 	);
 	m_pSoloBtn->setChecked( false );
