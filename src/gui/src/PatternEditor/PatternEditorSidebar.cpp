@@ -492,7 +492,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		QSize(
 			PatternEditorSidebar::m_nWidth - 2 * SidebarRow::m_nButtonWidth -
 				SidebarRow::m_nTypeLblWidth - 2,
-			nHeight - 2
+			nHeight
 		),
 		"", PatternEditorSidebar::m_nMargin
 	);
@@ -627,7 +627,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 
 	m_pTypeLbl = new SidebarLabel(
 		this, SidebarLabel::Type::Type,
-		QSize( SidebarRow::m_nTypeLblWidth, nHeight - 2 ), m_row.sType, 3
+		QSize( SidebarRow::m_nTypeLblWidth, nHeight ), m_row.sType, 3
 	);
 	m_pInnerLayout->addWidget( m_pTypeLbl );
 	connect(
