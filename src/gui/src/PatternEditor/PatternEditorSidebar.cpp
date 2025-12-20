@@ -304,10 +304,12 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 	if ( m_bDimed ) {
 		backgroundColor = backgroundColor.darker( SidebarLabel::nDimScaling );
 	}
+	else if ( m_bEntered ) {
+		backgroundColor =
+			backgroundColor.lighter( Skin::nToolBarHoveredScaling );
+	}
 
-	Skin::drawListBackground(
-		&p, QRect( 0, 0, width(), height() ), backgroundColor, m_bEntered
-	);
+	p.fillRect( QRect( 0, 0, width(), height() ), backgroundColor );
 
 	if ( m_bShowPlusSign ) {
 		const auto pPref = Preferences::get_instance();
@@ -449,9 +451,10 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	: QWidget( pParent ),
 	  m_row( row ),
 	  m_bDimed( false ),
-      m_bDragHovered( false ),
+	  m_bDragHovered( false ),
 	  m_bEntered( false ),
-	  m_bIsSelected( false )
+	  m_bIsSelected( false ),
+	  m_border( Border::Both )
 {
 	m_pPatternEditorPanel =
 		HydrogenApp::get_instance()->getPatternEditorPanel();
@@ -459,12 +462,24 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	const int nHeight = pPref->getPatternEditorGridHeight();
+	const int nHeight =
+		Preferences::get_instance()->getPatternEditorGridHeight();
 	resize( PatternEditorSidebar::m_nWidth, nHeight );
 
-	auto pHBox = new QHBoxLayout();
-	pHBox->setSpacing( 0 );
-	pHBox->setContentsMargins( 0, 0, 0, 0 );
+	auto pGlobalLayout = new QVBoxLayout( this );
+	pGlobalLayout->setSpacing( 0 );
+    pGlobalLayout->setAlignment( Qt::AlignCenter );
+	pGlobalLayout->setContentsMargins( 0, 0, 0, 0 );
+	setLayout( pGlobalLayout );
+
+	auto pOverallContainer = new QWidget( this );
+	pOverallContainer->setObjectName( "SidebarRow" );
+	pGlobalLayout->addWidget( pOverallContainer );
+	m_pInnerLayout = new QHBoxLayout( pOverallContainer );
+	pOverallContainer->setLayout( m_pInnerLayout );
+	m_pInnerLayout->setSpacing( 0 );
+    m_pInnerLayout->setAlignment( Qt::AlignVCenter );
+	m_pInnerLayout->setContentsMargins( 1, 0, 1, 0 );
 
 	QFont nameFont(
 		pPref->getFontTheme()->m_sLevel2FontFamily,
@@ -475,8 +490,8 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		this, SidebarLabel::Type::Instrument,
 		QSize(
 			PatternEditorSidebar::m_nWidth - 2 * SidebarRow::m_nButtonWidth -
-				SidebarRow::m_nTypeLblWidth,
-			nHeight
+				SidebarRow::m_nTypeLblWidth - 2,
+			nHeight - 2
 		),
 		"", PatternEditorSidebar::m_nMargin
 	);
@@ -484,7 +499,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	m_pInstrumentNameLbl->setSizePolicy(
 		QSizePolicy::Fixed, QSizePolicy::Fixed
 	);
-	pHBox->addWidget( m_pInstrumentNameLbl );
+	m_pInnerLayout->addWidget( m_pInstrumentNameLbl );
 
 	// Play back a sample of specific velocity based on the horizontal position
 	// of the click event. We will do so just for the instrument label.
@@ -568,28 +583,37 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		tr( "Some samples for this instrument failed to load." ), true
 	);
 	m_pSampleWarning->hide();
-	pHBox->addWidget( m_pSampleWarning );
+	m_pInnerLayout->addWidget( m_pSampleWarning );
 	connect(
 		m_pSampleWarning, SIGNAL( clicked() ), this,
 		SLOT( sampleWarningClicked() )
 	);
 
+	auto pButtonContainer = new QWidget( this );
+	pButtonContainer->setObjectName( "SidebarRowButtonContainer" );
+	auto pButtonContainerLayout = new QHBoxLayout( pButtonContainer );
+	pButtonContainerLayout->setSpacing( 1 );
+	pButtonContainerLayout->setContentsMargins( 1, 0, 1, 0 );
+	m_pInnerLayout->addWidget( pButtonContainer );
+
 	m_pMuteBtn = new MuteButton(
-		this, QSize( SidebarRow::m_nButtonWidth, height() ),
+		pButtonContainer, QSize( SidebarRow::m_nButtonWidth, height() ),
 		tr( "Mute instrument" ), true
 	);
 	m_pMuteBtn->setChecked( false );
+	m_pMuteBtn->setBorderless( true );
 	m_pMuteBtn->setObjectName( "SidebarRowMuteButton" );
-	pHBox->addWidget( m_pMuteBtn );
+	pButtonContainerLayout->addWidget( m_pMuteBtn );
 	connect( m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteClicked() ) );
 
 	m_pSoloBtn = new SoloButton(
-		this, QSize( SidebarRow::m_nButtonWidth, height() ),
+		pButtonContainer, QSize( SidebarRow::m_nButtonWidth, height() ),
 		pCommonStrings->getBigSoloButton(), true
 	);
 	m_pSoloBtn->setChecked( false );
+	m_pSoloBtn->setBorderless( true );
 	m_pSoloBtn->setObjectName( "SidebarRowSoloButton" );
-	pHBox->addWidget( m_pSoloBtn );
+	pButtonContainerLayout->addWidget( m_pSoloBtn );
 	connect( m_pSoloBtn, SIGNAL( clicked() ), this, SLOT( soloClicked() ) );
 
 	if ( row.nInstrumentID == EMPTY_INSTR_ID ) {
@@ -598,13 +622,13 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		m_pSampleWarning->hide();
 	}
 
-	pHBox->addStretch();
+	m_pInnerLayout->addStretch();
 
 	m_pTypeLbl = new SidebarLabel(
 		this, SidebarLabel::Type::Type,
-		QSize( SidebarRow::m_nTypeLblWidth, nHeight ), m_row.sType, 3
+		QSize( SidebarRow::m_nTypeLblWidth, nHeight - 2 ), m_row.sType, 3
 	);
-	pHBox->addWidget( m_pTypeLbl );
+	m_pInnerLayout->addWidget( m_pTypeLbl );
 	connect(
 		m_pTypeLbl, &SidebarLabel::labelClicked,
 		[=]( QMouseEvent* pEvent ) {
@@ -823,8 +847,6 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 
 	updateColors();
 
-	setLayout( pHBox );
-
 	set( row );
 }
 
@@ -912,8 +934,20 @@ void SidebarRow::set( const DrumPatternRow& row )
 		m_pInstrumentNameLbl->setToolTip( sToolTip );
 	}
 
+    updateHeight();
 	updateStyleSheet();
 	update();
+}
+
+void SidebarRow::setBorder( Border border )
+{
+	if ( border == m_border ) {
+		return;
+	}
+
+	m_border = border;
+    updateHeight();
+    updateStyleSheet();
 }
 
 void SidebarRow::setDimed( bool bDimed )
@@ -955,6 +989,7 @@ void SidebarRow::setSelected( bool bSelected )
 		m_pTypeLbl->setShowCursor( false );
 	}
 
+    updateHeight();
 	updateStyleSheet();
 
 	m_pTypeLbl->setDimed( m_bDimed && !bSelected );
@@ -976,39 +1011,65 @@ void SidebarRow::updateFont()
 	m_pTypeLbl->updateFont();
 }
 
+void SidebarRow::updateHeight()
+{
+	const int nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();
+
+	int nBorderTop = 0;
+	int nBorderBottom = 0;
+	if ( m_border == Border::Both || m_border == Border::Top ||
+		 m_bIsSelected ) {
+		nBorderTop = 1;
+	}
+	if ( m_border == Border::Both || m_border == Border::Bottom ||
+		 m_bIsSelected ) {
+		nBorderBottom = 1;
+	}
+	const int nHeight = nGridHeight - nBorderTop - nBorderBottom;
+
+	resize( PatternEditorSidebar::m_nWidth, nGridHeight );
+
+	m_pInstrumentNameLbl->setFixedHeight( nHeight );
+	m_pTypeLbl->setFixedHeight( nHeight );
+	m_pMuteBtn->setFixedHeight( nHeight );
+	m_pSoloBtn->setFixedHeight( nHeight );
+
+	m_pInnerLayout->setContentsMargins( 1, nBorderTop, 1, nBorderBottom );
+}
+
 void SidebarRow::updateStyleSheet()
 {
 	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 
-	QColor textColor, textPatternColor, backgroundPatternColor, backgroundColor;
+	QColor textInstrumentColor, textTypeColor, backgroundTypeColor, backgroundInstrumentColor;
 	if ( m_bIsSelected ) {
-		backgroundPatternColor =
+		backgroundTypeColor =
 			pColorTheme->m_patternEditor_selectedRowColor.darker(
 				Skin::nListBackgroundColorScaling
 			);
-		backgroundColor =
+		backgroundInstrumentColor =
 			pColorTheme->m_patternEditor_instrumentSelectedRowColor;
-		textPatternColor = pColorTheme->m_patternEditor_selectedRowTextColor;
-		textColor = pColorTheme->m_patternEditor_instrumentSelectedRowTextColor;
+		textTypeColor = pColorTheme->m_patternEditor_selectedRowTextColor;
+		textInstrumentColor = pColorTheme->m_patternEditor_instrumentSelectedRowTextColor;
 	}
 	else if ( m_row.bAlternate ) {
-		backgroundPatternColor =
+		backgroundTypeColor =
 			pColorTheme->m_patternEditor_alternateRowColor.darker(
 				Skin::nListBackgroundColorScaling
 			);
-		backgroundColor =
+		backgroundInstrumentColor =
 			pColorTheme->m_patternEditor_instrumentAlternateRowColor;
-		textPatternColor = pColorTheme->m_patternEditor_textColor;
-		textColor = pColorTheme->m_patternEditor_instrumentRowTextColor;
+		textTypeColor = pColorTheme->m_patternEditor_textColor;
+		textInstrumentColor = pColorTheme->m_patternEditor_instrumentRowTextColor;
 	}
 	else {
-		backgroundPatternColor =
+		backgroundTypeColor =
 			pColorTheme->m_patternEditor_backgroundColor.darker(
 				Skin::nListBackgroundColorScaling
 			);
-		backgroundColor = pColorTheme->m_patternEditor_instrumentRowColor;
-		textPatternColor = pColorTheme->m_patternEditor_textColor;
-		textColor = pColorTheme->m_patternEditor_instrumentRowTextColor;
+		backgroundInstrumentColor = pColorTheme->m_patternEditor_instrumentRowColor;
+		textTypeColor = pColorTheme->m_patternEditor_textColor;
+		textInstrumentColor = pColorTheme->m_patternEditor_instrumentRowTextColor;
 	}
 
 	// Indicate chosen editor mode.
@@ -1022,33 +1083,61 @@ void SidebarRow::updateStyleSheet()
 	}
 
 	m_pInstrumentNameLbl->setColor(
-		backgroundColor, textColor, pColorTheme->m_cursorColor
+		backgroundInstrumentColor, textInstrumentColor, pColorTheme->m_cursorColor
 	);
 	m_pTypeLbl->setColor(
-		backgroundPatternColor, textPatternColor, pColorTheme->m_cursorColor
+		backgroundTypeColor, textTypeColor, pColorTheme->m_cursorColor
 	);
 
-	if ( m_bDragHovered ) {
-		m_pMuteBtn->updateStyleSheet();
-		m_pMuteBtn->setStyleSheet( m_pSoloBtn->styleSheet().append(
-			QString( "QPushButton:enabled { border-top: 1px solid %1; }" )
-				.arg( pColorTheme->m_highlightColor.name() )
-		) );
-		m_pSoloBtn->updateStyleSheet();
-		m_pSoloBtn->setStyleSheet( m_pSoloBtn->styleSheet().append(
-			QString( "QPushButton:enabled { border-top: 1px solid %1; }" )
-				.arg( pColorTheme->m_highlightColor.name() )
-		) );
+    const QColor backgroundColor = pColorTheme->m_windowColor;
 
-		setStyleSheet( QString( "border-top: 1px solid %1;" )
-						   .arg( pColorTheme->m_highlightColor.name() ) );
+	QColor borderColor, borderTopColor;
+	if ( m_bIsSelected ) {
+		borderColor = pColorTheme->m_highlightColor;
+		borderTopColor = borderColor;
 	}
 	else {
-		m_pMuteBtn->updateStyleSheet();
-		m_pSoloBtn->updateStyleSheet();
-
-		setStyleSheet( "" );
+		borderColor = backgroundColor;
+		borderTopColor =
+			m_bDragHovered ? pColorTheme->m_highlightColor : backgroundColor;
 	}
+
+	QString sBorderTop, sBorderBottom;
+	if ( m_border == Border::Top || m_border == Border::Both ||
+		 m_bIsSelected ) {
+		sBorderTop = QString( "1px solid %1" ).arg( borderTopColor.name() );
+	}
+	else {
+		sBorderTop = "none";
+	}
+	if ( m_border == Border::Bottom || m_border == Border::Both ||
+		 m_bIsSelected ) {
+		sBorderBottom = QString( "1px solid %1" ).arg( borderColor.name() );
+	}
+	else {
+		sBorderBottom = "none";
+	}
+
+	setStyleSheet( QString(
+		" \
+QWidget#SidebarRow { \
+    background: %1; \
+    border-top: %2; \
+    border-left: 1px solid %3; \
+    border-right: 1px solid %3; \
+    border-bottom: %4; \
+} \
+QWidget#SidebarRowButtonContainer {\
+    background: %1; \
+    border-left: 1px solid %1; \
+    border-right: 1px solid %1; \
+    padding: 5px; \
+} \
+" )
+					   .arg( backgroundColor.name() )
+					   .arg( sBorderTop )
+					   .arg( borderColor.name() )
+					   .arg( sBorderBottom ) );
 }
 
 void SidebarRow::updateTypeLabelVisibility( bool bVisible )
@@ -1576,6 +1665,7 @@ void PatternEditorSidebar::updateRows()
 		bPianoRollShown = true;
 	}
 
+    const int nRows = m_pPatternEditorPanel->getRowNumberDB();
 	int nnIndex = 0;
 	for ( const auto& rrow : m_pPatternEditorPanel->getDB() ) {
 		if ( nnIndex < m_rows.size() ) {
@@ -1591,10 +1681,17 @@ void PatternEditorSidebar::updateRows()
 			pRow->setDimed( bPianoRollShown );
 			m_rows.push_back( pRow );
 		}
+
+		if ( nnIndex == nRows - 1 ) {
+			m_rows[nnIndex]->setBorder( SidebarRow::Border::Both );
+		}
+		else {
+			m_rows[nnIndex]->setBorder( SidebarRow::Border::Top );
+		}
+
 		++nnIndex;
 	}
 
-	const int nRows = m_pPatternEditorPanel->getRowNumberDB();
 	while ( nRows < m_rows.size() && m_rows.size() > 0 ) {
 		// There are rows not required anymore
 		auto pRow = *( m_rows.end() - 1 );
