@@ -450,11 +450,12 @@ QLineEdit {\
 SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	: QWidget( pParent ),
 	  m_row( row ),
+	  m_border( Border::Both ),
+	  m_bBelowSelection( false ),
 	  m_bDimed( false ),
 	  m_bDragHovered( false ),
 	  m_bEntered( false ),
-	  m_bIsSelected( false ),
-	  m_border( Border::Both )
+	  m_bIsSelected( false )
 {
 	m_pPatternEditorPanel =
 		HydrogenApp::get_instance()->getPatternEditorPanel();
@@ -915,6 +916,10 @@ void SidebarRow::set( const DrumPatternRow& row )
 		m_pDeleteInstrumentAction->setEnabled( false );
 	}
 
+	setBelowSelection(
+		m_pPatternEditorPanel->getSelectedRowDB() ==
+		m_pPatternEditorPanel->getRowIndexDB( row ) - 1
+	);
 	setSelected(
 		m_pPatternEditorPanel->getSelectedRowDB() ==
 		m_pPatternEditorPanel->getRowIndexDB( row )
@@ -937,6 +942,16 @@ void SidebarRow::set( const DrumPatternRow& row )
     updateHeight();
 	updateStyleSheet();
 	update();
+}
+
+void SidebarRow::setBelowSelection( bool bBelowSelection )
+{
+	if ( bBelowSelection == m_bBelowSelection ) {
+		return;
+	}
+
+	m_bBelowSelection = bBelowSelection;
+    updateStyleSheet();
 }
 
 void SidebarRow::setBorder( Border border )
@@ -989,7 +1004,6 @@ void SidebarRow::setSelected( bool bSelected )
 		m_pTypeLbl->setShowCursor( false );
 	}
 
-    updateHeight();
 	updateStyleSheet();
 
 	m_pTypeLbl->setDimed( m_bDimed && !bSelected );
@@ -1017,12 +1031,10 @@ void SidebarRow::updateHeight()
 
 	int nBorderTop = 0;
 	int nBorderBottom = 0;
-	if ( m_border == Border::Both || m_border == Border::Top ||
-		 m_bIsSelected ) {
+	if ( m_border == Border::Both || m_border == Border::Top ) {
 		nBorderTop = 1;
 	}
-	if ( m_border == Border::Both || m_border == Border::Bottom ||
-		 m_bIsSelected ) {
+	if ( m_border == Border::Both || m_border == Border::Bottom ) {
 		nBorderBottom = 1;
 	}
 	const int nHeight = nGridHeight - nBorderTop - nBorderBottom;
@@ -1096,6 +1108,10 @@ void SidebarRow::updateStyleSheet()
 		borderColor = pColorTheme->m_highlightColor;
 		borderTopColor = borderColor;
 	}
+	else if ( m_bBelowSelection ) {
+		borderColor = backgroundColor;
+		borderTopColor = pColorTheme->m_highlightColor;
+	}
 	else {
 		borderColor = backgroundColor;
 		borderTopColor =
@@ -1103,15 +1119,13 @@ void SidebarRow::updateStyleSheet()
 	}
 
 	QString sBorderTop, sBorderBottom;
-	if ( m_border == Border::Top || m_border == Border::Both ||
-		 m_bIsSelected ) {
+	if ( m_border == Border::Top || m_border == Border::Both ) {
 		sBorderTop = QString( "1px solid %1" ).arg( borderTopColor.name() );
 	}
 	else {
 		sBorderTop = "none";
 	}
-	if ( m_border == Border::Bottom || m_border == Border::Both ||
-		 m_bIsSelected ) {
+	if ( m_border == Border::Bottom || m_border == Border::Both ) {
 		sBorderBottom = QString( "1px solid %1" ).arg( borderColor.name() );
 	}
 	else {

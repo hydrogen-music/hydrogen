@@ -148,6 +148,7 @@ class SidebarRow : public QWidget,
 	explicit SidebarRow( QWidget* pParent, const DrumPatternRow& row );
 
 	void set( const DrumPatternRow& row );
+	void setBelowSelection( bool bBelowSelection );
 	void setBorder( Border border );
 	void setDimed( bool bDimed );
 	void setDragHovered( bool bDragHovered );
@@ -199,6 +200,12 @@ class SidebarRow : public QWidget,
 	Button* m_pSampleWarning;
 
 	Border m_border;
+
+	/** The element above this one is currently selected. We will render the
+	 * upper border - if a border is set - in highlight color in order to
+	 * provide an highlighted enclosing which works well with the lines of the
+	 * pattern editor. */
+	bool m_bBelowSelection;
 
 	/** When using the #PianoRollEditor all rows not selected will be dimed
 	 * to emphasize that one notes of one particular row are displayed. */
