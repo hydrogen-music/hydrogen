@@ -60,8 +60,8 @@ void ColoredButton::updateStyleSheet()
 
 	// We use the checked color - exposed in the preferences dialog - as a basis
 	// and derive the default color by making it less pronounced.
-	const int nSaturationTrim = 80;
-	const int nValueTrim = 55;
+	const int nSaturationTrim = 100;
+	const int nValueTrim = 60;
 
 	int nHue, nSaturation, nValue;
 	checkedColor.getHsv( &nHue, &nSaturation, &nValue );
