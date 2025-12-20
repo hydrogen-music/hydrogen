@@ -44,6 +44,8 @@ class ColoredButton : public Button, public H2Core::Object<ColoredButton> {
 	ColoredButton( const ColoredButton& ) = delete;
 	ColoredButton& operator=( const ColoredButton& rhs ) = delete;
 
+	void setBorderless( bool bBorderless );
+
 	void updateStyleSheet() override;
 
    protected:
@@ -51,6 +53,10 @@ class ColoredButton : public Button, public H2Core::Object<ColoredButton> {
 	QColor m_baseColor;
 	void setBaseTextColor( const QColor& color );
 	QColor m_baseTextColor;
+
+	/** Whether the widget will draw its own border or the parent will
+	 * handle this job. */
+	bool m_bBorderless;
 };
 
 inline void ColoredButton::setBaseColor( const QColor& color )

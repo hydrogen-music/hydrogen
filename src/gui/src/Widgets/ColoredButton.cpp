@@ -42,13 +42,22 @@ ColoredButton::ColoredButton(
 		  sBaseToolTip,
 		  bModifyOnChange,
 		  -1
-	  )
+	  ),
+      m_bBorderless( false )
 {
 	setFlat( true );
 }
 
 ColoredButton::~ColoredButton()
 {
+}
+
+void ColoredButton::setBorderless( bool bBorderless )
+{
+	if ( m_bBorderless != bBorderless ) {
+		m_bBorderless = bBorderless;
+        updateStyleSheet();
+	}
 }
 
 void ColoredButton::updateStyleSheet()
@@ -89,6 +98,16 @@ void ColoredButton::updateStyleSheet()
 	}
 	const auto hoveredTextColor = defaultTextColor;
 
+	QString sBorder, sBorderHovered;
+	if ( m_bBorderless ) {
+		sBorder = "none";
+		sBorderHovered = "none";
+	}
+	else {
+		sBorder = "1px solid #000";
+		sBorderHovered = QString( "1px solid %1" ).arg( hoveredBorder.name() );
+	}
+
 	const auto disabledColor = Skin::makeWidgetColorInactive( defaultColor );
 	const auto disabledTextColor =
 		Skin::makeTextColorInactive( defaultTextColor );
@@ -101,13 +120,13 @@ void ColoredButton::updateStyleSheet()
 QPushButton:enabled { \
     color: %1; \
     background: %2; \
-    border: 1px solid %3; \
+    border: %3; \
     padding: 0px; \
 } \
 QPushButton:enabled:hover { \
     color: %4; \
     background: %5; \
-    border: 1px solid %6; \
+    border: %6; \
 } \
 QPushButton:enabled:checked, QPushButton::enabled:checked:hover { \
     color: %7; \
@@ -116,7 +135,7 @@ QPushButton:enabled:checked, QPushButton::enabled:checked:hover { \
 QPushButton:disabled { \
     color: %9; \
     background: %10; \
-    border: 1px solid %3; \
+    border: %3; \
     padding: 0px; \
 } \
 QPushButton:disabled:checked { \
@@ -126,10 +145,10 @@ QPushButton:disabled:checked { \
 " )
 					   .arg( defaultTextColor.name() )
 					   .arg( defaultColor.name() )
-					   .arg( borderColor.name() )
+					   .arg( sBorder )
 					   .arg( hoveredTextColor.name() )
 					   .arg( hoveredColor.name() )
-					   .arg( hoveredBorder.name() )
+					   .arg( sBorderHovered )
 					   .arg( checkedTextColor.name() )
 					   .arg( checkedColor.name() )
 					   .arg( disabledTextColor.name() )
