@@ -156,7 +156,7 @@ class SidebarRow : public QWidget,
 
 	void updateColors();
 	void updateFont();
-	void updateHeight();
+	void updateBorders();
 	void updateStyleSheet();
 	void updateTypeLabelVisibility( bool bVisible );
 

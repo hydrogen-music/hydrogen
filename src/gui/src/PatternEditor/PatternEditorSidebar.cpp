@@ -480,7 +480,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	pOverallContainer->setLayout( m_pInnerLayout );
 	m_pInnerLayout->setSpacing( 0 );
     m_pInnerLayout->setAlignment( Qt::AlignVCenter );
-	m_pInnerLayout->setContentsMargins( 1, 0, 1, 0 );
+	m_pInnerLayout->setContentsMargins( 1, 0, 0, 0 );
 
 	QFont nameFont(
 		pPref->getFontTheme()->m_sLevel2FontFamily,
@@ -939,7 +939,7 @@ void SidebarRow::set( const DrumPatternRow& row )
 		m_pInstrumentNameLbl->setToolTip( sToolTip );
 	}
 
-    updateHeight();
+    updateBorders();
 	updateStyleSheet();
 	update();
 }
@@ -961,7 +961,7 @@ void SidebarRow::setBorder( Border border )
 	}
 
 	m_border = border;
-    updateHeight();
+    updateBorders();
     updateStyleSheet();
 }
 
@@ -1025,17 +1025,21 @@ void SidebarRow::updateFont()
 	m_pTypeLbl->updateFont();
 }
 
-void SidebarRow::updateHeight()
+void SidebarRow::updateBorders()
 {
 	const int nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();
 
 	int nBorderTop = 0;
 	int nBorderBottom = 0;
+    int nBorderRight = 0;
 	if ( m_border == Border::Both || m_border == Border::Top ) {
 		nBorderTop = 1;
 	}
 	if ( m_border == Border::Both || m_border == Border::Bottom ) {
 		nBorderBottom = 1;
+	}
+	if ( m_pTypeLbl->isVisible() ) {
+        nBorderRight = 1;
 	}
 	const int nHeight = nGridHeight - nBorderTop - nBorderBottom;
 
@@ -1046,7 +1050,9 @@ void SidebarRow::updateHeight()
 	m_pMuteBtn->setFixedHeight( nHeight );
 	m_pSoloBtn->setFixedHeight( nHeight );
 
-	m_pInnerLayout->setContentsMargins( 1, nBorderTop, 1, nBorderBottom );
+	m_pInnerLayout->setContentsMargins(
+		1, nBorderTop, nBorderRight, nBorderBottom
+	);
 }
 
 void SidebarRow::updateStyleSheet()
@@ -1145,7 +1151,6 @@ QWidget#SidebarRowButtonContainer {\
     background: %1; \
     border-left: 1px solid %1; \
     border-right: 1px solid %1; \
-    padding: 5px; \
 } \
 " )
 					   .arg( backgroundColor.name() )
@@ -1174,6 +1179,8 @@ void SidebarRow::updateTypeLabelVisibility( bool bVisible )
 			m_pTypeLbl->setShowCursor( false );
 		}
 	}
+
+    updateBorders();
 }
 
 void SidebarRow::mousePressEvent( QMouseEvent* ev )
