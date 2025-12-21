@@ -830,7 +830,6 @@ void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 			pOldPattern
 		) );
 	}
-	}
 }
 
 void SongEditorPatternList::leaveEvent( QEvent* ev )
@@ -1037,7 +1036,7 @@ void SongEditorPatternList::createBackground()
 	int nPatterns = pPatternList->size();
 	int nSelectedPattern = pHydrogen->getSelectedPatternNumber();
 
-	int newHeight = m_nGridHeight * nPatterns + 1;
+	int newHeight = m_nGridHeight * nPatterns;
 
 	if ( SongEditorPatternList::nWidth != m_pBackgroundPixmap->width() ||
 		 newHeight != m_pBackgroundPixmap->height() ||
@@ -1054,51 +1053,48 @@ void SongEditorPatternList::createBackground()
 		this->resize( SongEditorPatternList::nWidth, newHeight );
 	}
 
-	QColor backgroundColor =
+	const QColor backgroundColorDefault =
 		pColorTheme->m_songEditor_backgroundColor.darker( 120 );
-	QColor backgroundColorSelected =
+	const QColor backgroundColorSelected =
 		pColorTheme->m_songEditor_selectedRowColor.darker( 114 );
-	QColor backgroundColorAlternate =
+	const QColor backgroundColorAlternate =
 		pColorTheme->m_songEditor_alternateRowColor.darker( 132 );
-	QColor backgroundColorVirtual = pColorTheme->m_songEditor_virtualRowColor;
+	const QColor backgroundColorVirtual = pColorTheme->m_songEditor_virtualRowColor;
+
+    const QColor borderColor = pColorTheme->m_windowColor;
 
 	QPainter p( m_pBackgroundPixmap );
 
-	// Offset the pattern list by one pixel to align the dark shadows
-	// at the bottom of each row with the grid lines in the song editor.
-	p.fillRect( QRect( 0, 0, width(), 1 ), pColorTheme->m_windowColor );
-
 	p.setFont( boldTextFont );
+    p.setPen( borderColor );
 	for ( int ii = 0; ii < nPatterns; ii++ ) {
-		int y = m_nGridHeight * ii + 1;
+		int y = m_nGridHeight * ii;
 
+        QColor backgroundColor;
 		if ( ii == nSelectedPattern ) {
-			Skin::drawListBackground(
-				&p, QRect( 0, y, width(), m_nGridHeight ),
-				backgroundColorSelected, false
-			);
+            backgroundColor = backgroundColorSelected;
 		}
 		else {
 			const auto pPattern = pPatternList->get( ii );
 			if ( pPattern != nullptr && pPattern->isVirtual() ) {
-				Skin::drawListBackground(
-					&p, QRect( 0, y, width(), m_nGridHeight ),
-					backgroundColorVirtual, ii == m_nRowHovered
-				);
+                backgroundColor = backgroundColorVirtual;
 			}
 			else if ( ( ii % 2 ) == 0 ) {
-				Skin::drawListBackground(
-					&p, QRect( 0, y, width(), m_nGridHeight ), backgroundColor,
-					ii == m_nRowHovered
-				);
+                backgroundColor = backgroundColorDefault;
 			}
 			else {
-				Skin::drawListBackground(
-					&p, QRect( 0, y, width(), m_nGridHeight ),
-					backgroundColorAlternate, ii == m_nRowHovered
-				);
+                backgroundColor = backgroundColorAlternate;
 			}
 		}
+		if ( ii == m_nRowHovered ) {
+			backgroundColor = backgroundColor.lighter( 110 );
+        }
+        p.fillRect( QRect( 0, y, width(), m_nGridHeight ), backgroundColor );
+
+        // Upper borders
+        p.drawLine( 0, y, width(), y );
+		p.drawLine( 0, y, 0, y + m_nGridHeight );
+		p.drawLine( width() - 1, y, width() - 1, y + m_nGridHeight );
 	}
 
 	std::unique_ptr<PatternDisplayInfo[]> PatternArray{
