@@ -39,7 +39,9 @@ class Fader;
 class InstrumentNameWidget;
 class LCDDisplay;
 class LED;
+class MuteButton;
 class Rotary;
+class SoloButton;
 class WidgetWithInput;
 
 namespace H2Core {
@@ -93,8 +95,8 @@ private:
 	Fader *					m_pFader;
 	Rotary*					m_pPanRotary;
 	InstrumentNameWidget *	m_pNameWidget;
-	Button *			m_pMuteBtn;
-	Button *			m_pSoloBtn;
+	MuteButton *			m_pMuteBtn;
+	SoloButton *			m_pSoloBtn;
 	Button *				m_pPlaySampleBtn;
 	LED*				m_pTriggerSampleLED;
 	LED*				m_pSelectionLED;
