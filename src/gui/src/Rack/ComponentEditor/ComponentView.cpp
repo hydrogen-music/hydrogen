@@ -40,11 +40,12 @@
 #include "../../HydrogenApp.h"
 #include "../../Skin.h"
 #include "../../UndoActions.h"
-#include "../../Widgets/Button.h"
 #include "../../Widgets/ClickableLabel.h"
 #include "../../Widgets/InlineEdit.h"
 #include "../../Widgets/LCDCombo.h"
 #include "../../Widgets/LCDDisplay.h"
+#include "../../Widgets/MuteButton.h"
+#include "../../Widgets/SoloButton.h"
 #include "../../Widgets/Rotary.h"
 
 using namespace H2Core;
@@ -250,37 +251,45 @@ ComponentView::ComponentView( QWidget* pParent,
 	pStretch->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Preferred );
 	m_pToolBarComponent->addWidget( pStretch );
 
-	m_pComponentMuteBtn = new Button(
-		m_pToolBarComponent,
+	auto pComponentButtonContainer = new QWidget( this );
+	pComponentButtonContainer->setObjectName( "ComponentButtonContainer" );
+    pComponentButtonContainer->setFixedHeight( ComponentView::nButtonHeight + 2 );
+	auto pComponentButtonContainerLayout = new QHBoxLayout( pComponentButtonContainer );
+	pComponentButtonContainerLayout->setSpacing( 1 );
+	pComponentButtonContainerLayout->setContentsMargins( 1, 0, 1, 0 );
+	m_pToolBarComponent->addWidget( pComponentButtonContainer );
+
+	m_pComponentMuteBtn = new MuteButton(
+		pComponentButtonContainer,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
-		Button::Type::Toggle, "",
-		pCommonStrings->getSmallMuteButton(), QSize(), tr( "Mute component" ),
-		true );
+		tr( "Mute component" ), true
+	);
 	m_pComponentMuteBtn->setChecked( pComponent->getIsMuted() );
+    m_pComponentMuteBtn->setBorderless( true );
 	m_pComponentMuteBtn->setObjectName( "ComponentMuteButton" );
-	connect( m_pComponentMuteBtn, &Button::clicked, [&](){
+	connect( m_pComponentMuteBtn, &QPushButton::clicked, [&](){
 		if ( m_pComponent != nullptr ) {
 			m_pComponent->setIsMuted( m_pComponentMuteBtn->isChecked() );
 			// Repaint since we indicate mute for all layers.
 			m_pLayerPreview->update();
 		}
 	});
-	m_pToolBarComponent->addWidget( m_pComponentMuteBtn );
+	pComponentButtonContainerLayout->addWidget( m_pComponentMuteBtn );
 
-	m_pComponentSoloBtn = new Button(
-		m_pToolBarComponent,
+	m_pComponentSoloBtn = new SoloButton(
+		pComponentButtonContainer,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
-		Button::Type::Toggle, "",
-		pCommonStrings->getSmallSoloButton(), QSize(), tr( "Solo component" ),
-		true );
+		tr( "Solo component" ), true
+	);
 	m_pComponentSoloBtn->setChecked( pComponent->getIsSoloed() );
+    m_pComponentSoloBtn->setBorderless( true );
 	m_pComponentSoloBtn->setObjectName( "ComponentSoloButton" );
-	connect( m_pComponentSoloBtn, &Button::clicked, [&](){
+	connect( m_pComponentSoloBtn, &QPushButton::clicked, [&](){
 		if ( m_pComponent != nullptr ) {
 			m_pComponent->setIsSoloed( m_pComponentSoloBtn->isChecked() );
 		}
 	});
-	m_pToolBarComponent->addWidget( m_pComponentSoloBtn );
+	pComponentButtonContainerLayout->addWidget( m_pComponentSoloBtn );
 
 	m_pComponentGainRotary = new Rotary(
 		m_pToolBarComponent, Rotary::Type::Normal, tr( "Component volume" ), false,
@@ -391,14 +400,22 @@ ComponentView::ComponentView( QWidget* pParent,
 	);
 	m_pToolBarLayer->addWidget( pStretchLayer );
 
-	m_pLayerMuteBtn = new Button(
-		m_pToolBarLayer,
+	auto pLayerButtonContainer = new QWidget( this );
+	pLayerButtonContainer->setObjectName( "LayerButtonContainer" );
+    pLayerButtonContainer->setFixedHeight( ComponentView::nButtonHeight + 2 );
+	auto pLayerButtonContainerLayout = new QHBoxLayout( pLayerButtonContainer );
+	pLayerButtonContainerLayout->setSpacing( 1 );
+	pLayerButtonContainerLayout->setContentsMargins( 1, 0, 1, 0 );
+	m_pToolBarLayer->addWidget( pLayerButtonContainer );
+
+	m_pLayerMuteBtn = new MuteButton(
+		pLayerButtonContainer,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
-		Button::Type::Toggle, "", pCommonStrings->getSmallMuteButton(), QSize(),
 		tr( "Mute layer" ), true
 	);
 	m_pLayerMuteBtn->setObjectName( "LayerMuteButton" );
-	connect( m_pLayerMuteBtn, &Button::clicked, [&]() {
+    m_pLayerMuteBtn->setBorderless( true );
+	connect( m_pLayerMuteBtn, &QPushButton::clicked, [&]() {
 		if ( m_pComponent != nullptr ) {
 			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
@@ -407,16 +424,16 @@ ComponentView::ComponentView( QWidget* pParent,
 			}
 		}
 	} );
-	m_pToolBarLayer->addWidget( m_pLayerMuteBtn );
+	pLayerButtonContainerLayout->addWidget( m_pLayerMuteBtn );
 
-	m_pLayerSoloBtn = new Button(
+	m_pLayerSoloBtn = new SoloButton(
 		m_pToolBarLayer,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
-		Button::Type::Toggle, "", pCommonStrings->getSmallSoloButton(), QSize(),
 		tr( "Solo layer" ), true
 	);
 	m_pLayerSoloBtn->setObjectName( "LayerSoloButton" );
-	connect( m_pLayerSoloBtn, &Button::clicked, [&]() {
+    m_pLayerSoloBtn->setBorderless( true );
+	connect( m_pLayerSoloBtn, &QPushButton::clicked, [&]() {
 		if ( m_pComponent != nullptr ) {
 			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
@@ -425,7 +442,7 @@ ComponentView::ComponentView( QWidget* pParent,
 			}
 		}
 	} );
-	m_pToolBarLayer->addWidget( m_pLayerSoloBtn );
+	pLayerButtonContainerLayout->addWidget( m_pLayerSoloBtn );
 
 	m_pLayerGainRotary = new Rotary(
 		m_pToolBarLayer, Rotary::Type::Normal, tr( "Layer gain" ), false,
@@ -791,6 +808,10 @@ ClickableLabel#LayerPitchFineLabel, \
 ClickableLabel#LayerGainLabel, \
 ClickableLabel#SampleSelectionLabel { \
     background-color: %2; \
+} \
+QWidget#LayerButtonContainer, QWidget#ComponentButtonContainer {\
+    background: #000; \
+    border-radius: 3px; \
 } \
 " )
 							.arg( headerColor.name() )
