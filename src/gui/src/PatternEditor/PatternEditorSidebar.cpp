@@ -491,7 +491,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		this, SidebarLabel::Type::Instrument,
 		QSize(
 			PatternEditorSidebar::m_nWidth - 2 * SidebarRow::m_nButtonWidth -
-				SidebarRow::m_nTypeLblWidth - 2,
+				SidebarRow::m_nTypeLblWidth - /* padding */5,
 			nHeight
 		),
 		"", PatternEditorSidebar::m_nMargin
