@@ -28,6 +28,7 @@
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/Fader.h"
 #include "../Widgets/LCDDisplay.h"
+#include "../Widgets/MuteButton.h"
 #include "../Widgets/Rotary.h"
 #include "../Widgets/WidgetWithInput.h"
 
@@ -118,14 +119,13 @@ MasterLine::MasterLine( QWidget* pParent )
 	});
 
 	// Mute btn
-	m_pMuteBtn = new Button(
-		this, QSize( 42, 17 ), Button::Type::Toggle, "",
-		pCommonStrings->getBigMuteButton() );
+	m_pMuteBtn = new MuteButton(
+		this, QSize( 42, 17 ) );
 	m_pMuteBtn->setObjectName( "MixerMasterMuteButton" );
 	m_pMuteBtn->move( 20, 31 );
 	m_pMuteBtn->setMidiAction(
 		std::make_shared<MidiAction>( MidiAction::Type::MuteToggle ) );
-	connect( m_pMuteBtn, &Button::clicked, [&]() {
+	connect( m_pMuteBtn, &QPushButton::clicked, [&]() {
 		CoreActionController::setMasterIsMuted( m_pMuteBtn->isChecked() );
 	});
 
