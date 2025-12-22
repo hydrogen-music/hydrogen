@@ -22,6 +22,9 @@
 
 #include "ColoredButton.h"
 
+#include <core/Preferences/Preferences.h>
+#include <core/Preferences/Theme.h>
+
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
@@ -69,8 +72,8 @@ void ColoredButton::updateStyleSheet()
 
 	// We use the checked color - exposed in the preferences dialog - as a basis
 	// and derive the default color by making it less pronounced.
-	const int nSaturationTrim = 100;
-	const int nValueTrim = 60;
+	const int nSaturationTrim = 170;
+	const int nValueTrim = 170;
 
 	int nHue, nSaturation, nValue;
 	checkedColor.getHsv( &nHue, &nSaturation, &nValue );
@@ -116,16 +119,19 @@ void ColoredButton::updateStyleSheet()
 	const auto disabledCheckedTextColor =
 		Skin::makeTextColorInactive( checkedTextColor );
 
-	setStyleSheet( QString( "\
+	setStyleSheet( QString(
+		"\
 QPushButton:enabled { \
     color: %1; \
-    background: %2; \
+    background: qradialgradient(cx:0.5, cy:0.5, radius: 1.2, fx:0.5, fy:0.5,\
+                                stop:0 %2, stop:1 %8); \
     border: %3; \
     padding: 0px; \
 } \
 QPushButton:enabled:hover { \
     color: %4; \
-    background: %5; \
+    background: qradialgradient(cx:0.5, cy:0.5, radius: 1.2, fx:0.5, fy:0.5,\
+                                stop:0 %5, stop:1 %8); \
     border: %6; \
 } \
 QPushButton:enabled:checked, QPushButton::enabled:checked:hover { \
@@ -134,7 +140,8 @@ QPushButton:enabled:checked, QPushButton::enabled:checked:hover { \
 } \
 QPushButton:disabled { \
     color: %9; \
-    background: %10; \
+    background: qradialgradient(cx:0.5, cy:0.5, radius: 1.2, fx:0.5, fy:0.5,\
+                                stop:0 %10, stop:1 %8); \
     border: %3; \
     padding: 0px; \
 } \
