@@ -983,7 +983,7 @@ void SongEditorPatternList::paintEvent( QPaintEvent* ev )
 	);
 	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, srcRect );
 
-	// Draw focus
+	// Draw cursor
 	if ( pSongEditorPanel->hasSongEditorFocus() &&
 		 !pHydrogenApp->hideKeyboardCursor() ) {
 		const auto cursorPoint =
@@ -994,8 +994,8 @@ void SongEditorPatternList::paintEvent( QPaintEvent* ev )
 		painter.setPen( cursorPen );
 		painter.setBrush( Qt::NoBrush );
 		painter.drawRoundedRect(
-			0, cursorPoint.y() + 1, width() - 1,
-			pSongEditor->getGridHeight() - 1, 4, 4
+			1, cursorPoint.y() + 2, width() - 3,
+			pSongEditor->getGridHeight() - 3, 4, 4
 		);
 	}
 
