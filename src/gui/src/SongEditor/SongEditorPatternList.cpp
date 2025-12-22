@@ -1062,39 +1062,54 @@ void SongEditorPatternList::createBackground()
 	const QColor backgroundColorVirtual = pColorTheme->m_songEditor_virtualRowColor;
 
     const QColor borderColor = pColorTheme->m_windowColor;
+    const QColor borderColorSelected = pColorTheme->m_highlightColor;
 
 	QPainter p( m_pBackgroundPixmap );
 
 	p.setFont( boldTextFont );
-    p.setPen( borderColor );
+	p.setPen( borderColor );
+
+	// since we only draw the upper border, the element after the selected color
+	// will have its top border colored in selection color as well.
+	bool bSelectedBorder = false;
 	for ( int ii = 0; ii < nPatterns; ii++ ) {
 		int y = m_nGridHeight * ii;
 
-        QColor backgroundColor;
+		QColor backgroundColor;
 		if ( ii == nSelectedPattern ) {
-            backgroundColor = backgroundColorSelected;
+			backgroundColor = backgroundColorSelected;
+			bSelectedBorder = true;
 		}
 		else {
 			const auto pPattern = pPatternList->get( ii );
 			if ( pPattern != nullptr && pPattern->isVirtual() ) {
-                backgroundColor = backgroundColorVirtual;
+				backgroundColor = backgroundColorVirtual;
 			}
 			else if ( ( ii % 2 ) == 0 ) {
-                backgroundColor = backgroundColorDefault;
+				backgroundColor = backgroundColorDefault;
 			}
 			else {
-                backgroundColor = backgroundColorAlternate;
+				backgroundColor = backgroundColorAlternate;
 			}
 		}
 		if ( ii == m_nRowHovered ) {
 			backgroundColor = backgroundColor.lighter( 110 );
-        }
-        p.fillRect( QRect( 0, y, width(), m_nGridHeight ), backgroundColor );
+		}
+		p.fillRect( QRect( 0, y, width(), m_nGridHeight ), backgroundColor );
 
-        // Upper borders
+		// Borders
+
+        // Also true in the element below the selected one
+        p.setPen( bSelectedBorder ? borderColorSelected : borderColor );
         p.drawLine( 0, y, width(), y );
-		p.drawLine( 0, y, 0, y + m_nGridHeight );
+
+		p.setPen( ii == nSelectedPattern ? borderColorSelected : borderColor );
+        p.drawLine( 0, y, 0, y + m_nGridHeight );
 		p.drawLine( width() - 1, y, width() - 1, y + m_nGridHeight );
+
+		if ( ii != nSelectedPattern && bSelectedBorder ) {
+            bSelectedBorder = false;
+		}
 	}
 
 	std::unique_ptr<PatternDisplayInfo[]> PatternArray{
