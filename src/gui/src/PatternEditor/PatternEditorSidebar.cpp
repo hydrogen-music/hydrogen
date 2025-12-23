@@ -1138,8 +1138,15 @@ void SidebarRow::updateStyleSheet()
 		sBorderBottom = "none";
 	}
 
-	setStyleSheet( QString(
-		" \
+	QColor borderButtonsRightColor;
+	if ( m_pTypeLbl->isVisible() ) {
+        borderButtonsRightColor = backgroundColor;
+	}
+	else {
+        borderButtonsRightColor = borderColor;
+	}
+
+	setStyleSheet( QString( " \
 QWidget#SidebarRow { \
     background: %1; \
     border-top: %2; \
@@ -1150,13 +1157,15 @@ QWidget#SidebarRow { \
 QWidget#SidebarRowButtonContainer {\
     background: %1; \
     border-left: 1px solid %1; \
-    border-right: 1px solid %1; \
+    border-right: 1px solid %5; \
 } \
 " )
 					   .arg( backgroundColor.name() )
 					   .arg( sBorderTop )
 					   .arg( borderColor.name() )
-					   .arg( sBorderBottom ) );
+					   .arg( sBorderBottom )
+					   .arg( borderButtonsRightColor.name() ) );
+
 }
 
 void SidebarRow::updateTypeLabelVisibility( bool bVisible )
