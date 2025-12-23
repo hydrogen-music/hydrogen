@@ -70,34 +70,33 @@ void ColoredButton::updateStyleSheet()
 	const QColor checkedColor( m_baseColor );
 	const QColor checkedTextColor( m_baseTextColor );
 
-	// We use the checked color - exposed in the preferences dialog - as a basis
-	// and derive the default color by making it less pronounced.
-	const int nSaturationTrim = 170;
-	const int nValueTrim = 170;
-
-	int nHue, nSaturation, nValue;
-	checkedColor.getHsv( &nHue, &nSaturation, &nValue );
-
-	if ( nSaturation > 255 / 2 ) {
-		nSaturation = std::clamp( nSaturation - nSaturationTrim, 0, 255 );
-		nValue = std::clamp( nValue + nValueTrim, 0, 255 );
+	// We try to toggle the text color as much as possible in order to make the
+	// state change more evident.
+	QColor defaultTextColor, defaultColor;
+	if ( Skin::moreBlackThanWhite( m_baseTextColor ) ) {
+		defaultTextColor = Qt::white;
+		defaultColor = Qt::black;
 	}
 	else {
-		nSaturation = std::clamp( nSaturation + nSaturationTrim, 0, 255 );
-		nValue = std::clamp( nValue - nValueTrim, 0, 255 );
+		defaultTextColor = Qt::black;
+		defaultColor = Qt::white;
 	}
-	const auto defaultColor = QColor::fromHsv( nHue, nSaturation, nValue );
 
-	QColor defaultTextColor, hoveredColor, hoveredBorder;
+	const int nOuterGradientScaling = 100;
+    const QString sGradient = "0.7";
+
+	QColor hoveredColor, hoveredBorder, gradientOuterColor;
 	if ( Skin::moreBlackThanWhite( defaultColor ) ) {
 		defaultTextColor = Qt::white;
 		hoveredColor = defaultColor.lighter( Skin::nToolBarHoveredScaling );
 		hoveredBorder = borderColor.darker( Skin::nToolBarHoveredScaling );
+        gradientOuterColor = m_baseColor.lighter( nOuterGradientScaling );
 	}
 	else {
 		defaultTextColor = Qt::black;
 		hoveredColor = defaultColor.darker( Skin::nToolBarHoveredScaling );
 		hoveredBorder = borderColor.lighter( Skin::nToolBarHoveredScaling );
+        gradientOuterColor = m_baseColor.darker( nOuterGradientScaling );
 	}
 	const auto hoveredTextColor = defaultTextColor;
 
@@ -119,39 +118,40 @@ void ColoredButton::updateStyleSheet()
 	const auto disabledCheckedTextColor =
 		Skin::makeTextColorInactive( checkedTextColor );
 
-	setStyleSheet( QString(
-		"\
+	setStyleSheet( QString( "\
 QPushButton:enabled { \
     color: %1; \
-    background: qradialgradient(cx:0.5, cy:0.5, radius: 1.2, fx:0.5, fy:0.5,\
-                                stop:0 %2, stop:1 %8); \
-    border: %3; \
+    background: qradialgradient(cx:0.5, cy:0.5, radius: %2, fx:0.5, fy:0.5,\
+                                stop:0 %3, stop:1 %4); \
+    border: %5; \
     padding: 0px; \
 } \
 QPushButton:enabled:hover { \
-    color: %4; \
-    background: qradialgradient(cx:0.5, cy:0.5, radius: 1.2, fx:0.5, fy:0.5,\
-                                stop:0 %5, stop:1 %8); \
-    border: %6; \
+    color: %6; \
+    background: qradialgradient(cx:0.5, cy:0.5, radius: %2, fx:0.5, fy:0.5,\
+                                stop:0 %7, stop:1 %4); \
+    border: %8; \
 } \
 QPushButton:enabled:checked, QPushButton::enabled:checked:hover { \
-    color: %7; \
-    background: %8; \
+    color: %9; \
+    background: %10; \
 } \
 QPushButton:disabled { \
-    color: %9; \
-    background: qradialgradient(cx:0.5, cy:0.5, radius: 1.2, fx:0.5, fy:0.5,\
-                                stop:0 %10, stop:1 %8); \
-    border: %3; \
+    color: %11; \
+    background: qradialgradient(cx:0.5, cy:0.5, radius: %2, fx:0.5, fy:0.5,\
+                                stop:0 %12, stop:1 %10); \
+    border: %5; \
     padding: 0px; \
 } \
 QPushButton:disabled:checked { \
-    color: %11; \
-    background: %12; \
+    color: %13; \
+    background: %14; \
 } \
 " )
 					   .arg( defaultTextColor.name() )
+					   .arg( sGradient )
 					   .arg( defaultColor.name() )
+					   .arg( gradientOuterColor.name() )
 					   .arg( sBorder )
 					   .arg( hoveredTextColor.name() )
 					   .arg( hoveredColor.name() )
