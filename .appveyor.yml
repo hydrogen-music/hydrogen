@@ -49,9 +49,9 @@ environment:
       job_group: 'Linux'
       appveyor_build_worker_image: Ubuntu2204
 
-    - job_name: 'Ubuntu 16.04 (AppImage)'
+    - job_name: 'Ubuntu 18.04 (AppImage)'
       job_group: 'Linux (AppImage)'
-      appveyor_build_worker_image: Ubuntu1604
+      appveyor_build_worker_image: Ubuntu
 
     - job_name: 'OS X'
       job_group: 'Mac OS X'
@@ -250,7 +250,7 @@ for:
          exit 0
       fi
 
-      cache_tag=usr_cache_appimage_main # this can be modified to rebuild deps
+      cache_tag=usr_cache_appimage_beaver # this can be modified to rebuild deps
 
       ## Since we use a different Linux image we, unfortunately, have
       ## to use a separate cache.
@@ -266,9 +266,6 @@ for:
         (
           cd /
           sudo tar xf $cache || exit 1
-
-          # Ensure bricked doxygen version get's removed.
-          sudo rm -f /usr/local/bin/doxygen
         )
         echo "done"
       else
@@ -278,22 +275,8 @@ for:
 
         sudo python3 ./treestate.py scan /usr usr.json || exit 1
         sudo apt-get update
-        sudo apt-get install -y clang libarchive-dev libasound2-dev libjack-jackd2-dev libflac-dev libgl1-mesa-dev libgles2-mesa-dev libglu1-mesa-dev libogg-dev libvorbis-dev mesa-common-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 autogen || exit 1
-        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils libmp3lame-dev libflac-dev libopus-dev libvorbis-dev libmpg123-dev || exit 1
-
-        # The doxygen version provided in the repo is bricked and
-        # would crash the `liblo` build.
-        sudo rm /usr/local/bin/doxygen || exit 1
-
-        # Ubuntu 16.04 is shipped with OpenSSL 1.0.2 which is not
-        # compatible with v 1.1.1X expected by Qt
-        git clone https://github.com/openssl/openssl || exit 1
-        cd openssl || exit 1
-        git checkout OpenSSL_1_1_1t || exit 1
-        ./config || exit 1
-        make -j $(nproc) || exit 1
-        sudo make install || exit 1
-        cd ..
+        sudo apt-get install -y clang libarchive-dev libasound2-dev libjack-jackd2-dev libflac-dev libogg-dev libvorbis-dev autogen || exit 1
+        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils libmp3lame-dev libopus-dev libmpg123-dev || exit 1
 
         # Compile and ship a more recent libsndfile version to support MP3
         # export in AppImages.
@@ -306,15 +289,17 @@ for:
         sudo make install || exit 1
         cd ..
 
-        # liblo version shipped in Ubuntu 16.04 is to low for Hydrogen
-        # to compile.
-        git clone https://github.com/radarsat1/liblo || exit 1
-        cd liblo || exit 1
-        git checkout 0.31 || exit 1
-        ./autogen.sh || exit 1
+        # Install a recent PortMidi version
+        git clone https://github.com/PortMidi/PortMidi || exit 1
+        cd PortMidi || exit 1
+        git checkout v2.0.1 || exit 1
+        mkdir build || exit 1
+        cd build || exit 1
+        cmake .. || exit 1
         make || exit 1
         sudo make install || exit 1
-        cd ..
+        cd ../.. || exit 1
+        rm -rf PortMidi || exit 1
 
         ccache -M 256M || exit 1
         ccache -s || exit 1
@@ -333,6 +318,8 @@ for:
       git submodule init || exit 1
       git submodule update || exit 1
 
+      ls $HOME/Qt/
+
       export PATH=$HOME/Qt/5.15.2/gcc_64/bin:$PATH
       export Qt5Widgets_DIR=$HOME/Qt/5.15.2/gcc_64/lib/cmake/Qt5Widgets
       export CMAKE_CXX_FLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
@@ -344,6 +331,8 @@ for:
       cmake -DWANT_LASH=1 \
             -DWANT_LRDF=1 \
             -DWANT_RUBBERBAND=1 \
+            -DWANT_PORTMIDI=1 \
+            -DWANT_PORTAUDIO=1 \
             -DWANT_APPIMAGE=1 \
             -DWANT_DYNAMIC_JACK_CHECK=1 \
             -DDISPLAY_VERSION_PIPELINE=${DISPLAY_VERSION} \
@@ -371,6 +360,9 @@ for:
       chmod +x linuxdeploy-plugin-qt-x86_64.AppImage || exit 1
 
       echo -e "\n *** Building AppImage ***\n"
+
+      find /usr -name "*libssl*"
+      find /usr -name "*libcrypto*"
 
       ## Add custom OpenSSL libraries. They are used as fallback by Qt
       ## and are only dl_opened in case no matching version was found
