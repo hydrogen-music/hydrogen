@@ -49,9 +49,9 @@ environment:
       job_group: 'Linux'
       appveyor_build_worker_image: Ubuntu2204
 
-    - job_name: 'Ubuntu 16.04 (AppImage)'
-      job_group: 'Linux (AppImage)'
-      appveyor_build_worker_image: Ubuntu1604
+    # - job_name: 'Ubuntu 16.04 (AppImage)'
+    #   job_group: 'Linux (AppImage)'
+    #   appveyor_build_worker_image: Ubuntu1604
 
     - job_name: 'OS X'
       job_group: 'Mac OS X'

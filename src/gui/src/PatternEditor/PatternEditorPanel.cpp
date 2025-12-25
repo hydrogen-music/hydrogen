@@ -2123,8 +2123,9 @@ void PatternEditorPanel::updateTypeLabelVisibility() {
 
 	// Update the width of the sidebar.
 	int nWidth;
-	if ( ! bVisible ) {
-		nWidth = PatternEditorSidebar::m_nWidth - SidebarRow::m_nTypeLblWidth;
+	if ( !bVisible ) {
+		nWidth = PatternEditorSidebar::m_nWidth - SidebarRow::m_nTypeLblWidth -
+				 /* avoid showing border of buttom container and row */ 1;
 	}
 	else {
 		nWidth = PatternEditorSidebar::m_nWidth;

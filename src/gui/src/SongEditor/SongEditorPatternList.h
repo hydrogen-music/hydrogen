@@ -27,19 +27,18 @@
 
 #include <unistd.h>
 
+#include <QList>
 #include <QtGui>
 #include <QtWidgets>
-#include <QList>
 
 #include <core/Object.h>
-#include "PatternFillDialog.h"
-#include "Selection.h"
 #include "../Widgets/WidgetWithScalableFont.h"
+#include "Selection.h"
 
 namespace H2Core {
-	class License;
-	class Pattern;
-}
+class License;
+class Pattern;
+}  // namespace H2Core
 
 class InlineEdit;
 
@@ -47,99 +46,103 @@ class InlineEdit;
 /// Song editor pattern list
 ///
 /** \ingroup docGUI*/
-class SongEditorPatternList :  public QWidget
-							, protected WidgetWithScalableFont<8, 10, 12>
-							, public H2Core::Object<SongEditorPatternList>
-{
-    H2_OBJECT(SongEditorPatternList)
+class SongEditorPatternList : public QWidget,
+							  protected WidgetWithScalableFont<8, 10, 12>,
+							  public H2Core::Object<SongEditorPatternList> {
+	H2_OBJECT( SongEditorPatternList )
 	Q_OBJECT
 
-	public:
-		static constexpr int nWidth = 200;
-		static constexpr int nMargin = 25;
-	
-		explicit SongEditorPatternList( QWidget *parent );
-		~SongEditorPatternList();
-	
-		SongEditorPatternList(const SongEditorPatternList&) = delete;
-		SongEditorPatternList& operator=( const SongEditorPatternList& rhs ) = delete;
+   public:
+	static constexpr int nWidth = 200;
+	static constexpr int nMargin = 25;
 
-		void movePatternLine( int, int );
-		void acceptPatternPropertiesDialogSettings( const int nNewVersion,
-													const QString& newPatternName,
-													const QString& sNewAuthor,
-													const QString& newPatternInfo,
-													const H2Core::License& newLicense,
-													const QString& newPatternCategory,
-													int patternNr );
-		void revertPatternPropertiesDialogSettings( const int nOldVersion,
-													const QString& oldPatternName,
-													const QString& sOldAuthor,
-													const QString& oldPatternInfo,
-													const H2Core::License& oldLicense,
-													const QString& oldPatternCategory,
-													int patternNr);
-		int getGridHeight() { return m_nGridHeight; }
+	explicit SongEditorPatternList( QWidget* parent );
+	~SongEditorPatternList();
 
-		void updateEditor();
+	SongEditorPatternList( const SongEditorPatternList& ) = delete;
+	SongEditorPatternList& operator=( const SongEditorPatternList& rhs
+	) = delete;
 
-	public slots:
-		void patternPopup_edit();
-		void patternPopup_save();
-		void patternPopup_export();
-		void patternPopup_replace();
-		void patternPopup_properties();
-		void patternPopup_delete();
-		void patternPopup_duplicate();
-		void patternPopup_fill();
-		void patternPopup_virtualPattern();
-		void inlineEditingAccepted();
-		void inlineEditingRejected();
+	void movePatternLine( int, int );
+	void acceptPatternPropertiesDialogSettings(
+		const int nNewVersion,
+		const QString& newPatternName,
+		const QString& sNewAuthor,
+		const QString& newPatternInfo,
+		const H2Core::License& newLicense,
+		const QString& newPatternCategory,
+		int patternNr
+	);
+	void revertPatternPropertiesDialogSettings(
+		const int nOldVersion,
+		const QString& oldPatternName,
+		const QString& sOldAuthor,
+		const QString& oldPatternInfo,
+		const H2Core::License& oldLicense,
+		const QString& oldPatternCategory,
+		int patternNr
+	);
+	int getGridHeight() { return m_nGridHeight; }
 
-	private:
-		void inlineEditPatternName( int row );
+	void updateEditor();
 
-        int yToRow( int nY ) const;
+   public slots:
+	void patternPopup_edit();
+	void patternPopup_save();
+	void patternPopup_export();
+	void patternPopup_replace();
+	void patternPopup_properties();
+	void patternPopup_delete();
+	void patternPopup_duplicate();
+	void patternPopup_fill();
+	void patternPopup_virtualPattern();
+	void inlineEditingAccepted();
+	void inlineEditingRejected();
 
-		void dragEnterEvent( QDragEnterEvent* event ) override;
-        void dragMoveEvent( QDragMoveEvent* ev ) override;
-		void dropEvent( QDropEvent* event ) override;
-		void leaveEvent( QEvent* ev ) override;
-		void mouseDoubleClickEvent( QMouseEvent* ev ) override;
-		void mouseMoveEvent( QMouseEvent* event ) override;
-		void mousePressEvent( QMouseEvent* ev ) override;
-		void paintEvent( QPaintEvent* ev ) override;
+   private:
+	void inlineEditPatternName( int row );
 
-		void createBackground();
+	int yToRow( int nY ) const;
 
-		int 				m_nGridHeight;
-		int 				m_nWidth;
-		static constexpr int 	m_nInitialHeight = 10;
-		int m_nRowClicked;
+	void dragEnterEvent( QDragEnterEvent* event ) override;
+	void dragMoveEvent( QDragMoveEvent* ev ) override;
+	void dropEvent( QDropEvent* event ) override;
+	void leaveEvent( QEvent* ev ) override;
+	void mouseDoubleClickEvent( QMouseEvent* ev ) override;
+	void mouseMoveEvent( QMouseEvent* event ) override;
+	void mousePressEvent( QMouseEvent* ev ) override;
+	void paintEvent( QPaintEvent* ev ) override;
 
-		QPixmap *			m_pBackgroundPixmap;
-		bool m_bBackgroundInvalid;
-							
-		QPixmap				m_playingPattern_on_Pixmap;
-		QPixmap				m_playingPattern_off_Pixmap;
-		QPixmap				m_playingPattern_empty_Pixmap;
-							
-		QMenu *				m_pPatternPopup;
-		InlineEdit*			m_pInlineEdit;
-		std::shared_ptr<H2Core::Pattern>	m_pPatternBeingEdited;
+	void createBackground();
 
-		DragScroller *		m_pDragScroller;
+	int m_nGridHeight;
+	int m_nWidth;
+	static constexpr int m_nInitialHeight = 10;
+	int m_nRowClicked;
 
-		QPointF m_dragStartPoint;
-        quint64 m_dragStartTimeStamp;
-		/** A value of -1 will cause the rendering to be omitted. */
-		int m_nLastDragRow;
+	QPixmap* m_pBackgroundPixmap;
+	bool m_bBackgroundInvalid;
 
-		/**
-		 * Specifies the row the mouse cursor is currently hovered
-		 * over. -1 for no cursor.
-		 */
-		int m_nRowHovered;
+	QPixmap m_playingPattern_on_Pixmap;
+	QPixmap m_playingPattern_off_Pixmap;
+	QPixmap m_playingPattern_empty_Pixmap;
+
+	QMenu* m_pPatternPopup;
+	InlineEdit* m_pInlineEdit;
+	std::shared_ptr<H2Core::Pattern> m_pPatternBeingEdited;
+
+	DragScroller* m_pDragScroller;
+
+	QPointF m_dragStartPoint;
+	quint64 m_dragStartTimeStamp;
+	/** A value of -1 will cause the rendering to be omitted. */
+	int m_nLastDragRow;
+
+	/**
+	 * Specifies the row the mouse cursor is currently hovered
+	 * over. -1 for no cursor.
+	 */
+	int m_nRowHovered;
 };
 
 #endif

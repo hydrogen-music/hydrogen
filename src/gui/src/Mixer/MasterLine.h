@@ -31,6 +31,7 @@ class Button;
 class ClickableLabel;
 class Fader;
 class LCDDisplay;
+class MuteButton;
 class Rotary;
 class WidgetWithInput;
 
@@ -73,7 +74,7 @@ private:
 	Rotary *		m_pHumanizeTimeRotary;
 	Rotary *		m_pHumanizeVelocityRotary;
 
-	Button *		m_pMuteBtn;
+	MuteButton*		m_pMuteBtn;
 };
 
 #endif

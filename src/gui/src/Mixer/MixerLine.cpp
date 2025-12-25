@@ -41,7 +41,9 @@
 #include "../Widgets/InstrumentNameWidget.h"
 #include "../Widgets/LCDDisplay.h"
 #include "../Widgets/LED.h"
+#include "../Widgets/MuteButton.h"
 #include "../Widgets/Rotary.h"
+#include "../Widgets/SoloButton.h"
 #include "../Widgets/WidgetWithInput.h"
 
 using namespace H2Core;
@@ -99,13 +101,12 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	m_pSelectionLED->setObjectName( "SelectionLED" );
 
 	// Mute button
-	m_pMuteBtn = new Button(
-		this, QSize( 22, 15 ), Button::Type::Toggle, "",
-		pCommonStrings->getSmallMuteButton(), QSize(),
-		pCommonStrings->getBigMuteButton() );
+	m_pMuteBtn = new MuteButton(
+		this, QSize( 22, 15 ), pCommonStrings->getBigMuteButton()
+	);
 	m_pMuteBtn->move( 5, 16 );
 	m_pMuteBtn->setObjectName( "MixerMuteButton" );
-	connect( m_pMuteBtn, &Button::clicked, [&]() {
+	connect( m_pMuteBtn, &QPushButton::clicked, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
 			CoreActionController::setStripIsMuted(
@@ -114,13 +115,12 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	});
 
 	// Solo button
-	m_pSoloBtn = new Button(
-		this, QSize( 22, 15 ), Button::Type::Toggle, "",
-		pCommonStrings->getSmallSoloButton(), QSize(),
-		pCommonStrings->getBigSoloButton() );
+	m_pSoloBtn = new SoloButton(
+		this, QSize( 22, 15 ), pCommonStrings->getBigSoloButton()
+	);
 	m_pSoloBtn->move( 28, 16 );
 	m_pSoloBtn->setObjectName( "MixerSoloButton" );
-	connect( m_pSoloBtn, &Button::clicked, [&]() {
+	connect( m_pSoloBtn, &QPushButton::clicked, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
 			CoreActionController::setStripIsSoloed(

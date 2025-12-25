@@ -3078,7 +3078,10 @@ void PatternEditor::drawFocus( QPainter& p ) {
 	}
 
 	const int nStartY = pScrollArea->verticalScrollBar()->value();
-	const int nStartX = pScrollArea->horizontalScrollBar()->value();
+	int nStartX = pScrollArea->horizontalScrollBar()->value();
+	if ( m_instance == Editor::Instance::PianoRoll ) {
+        nStartX += PianoRollEditor::nMarginSidebar;
+	}
 	int nEndY = nStartY + pScrollArea->viewport()->size().height();
 	if ( m_instance == Editor::Instance::DrumPattern ) {
 		nEndY = std::min( static_cast<int>(m_nGridHeight) *

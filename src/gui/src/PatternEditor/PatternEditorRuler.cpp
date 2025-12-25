@@ -346,6 +346,7 @@ void PatternEditorRuler::createBackground()
 	}
 
 	painter.setPen( QPen( lineColor, 2, Qt::SolidLine ) );
+	painter.drawLine( 0, 0, m_nRulerWidth, 0 );
 	painter.drawLine( 0, m_nRulerHeight, m_nRulerWidth, m_nRulerHeight);
 	painter.drawLine( m_nRulerWidth, 0, m_nRulerWidth, m_nRulerHeight );
 

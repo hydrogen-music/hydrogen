@@ -129,12 +129,18 @@ void PitchLabel::mousePressEvent( QMouseEvent* pEvent ) {
 
 void PitchLabel::paintEvent( QPaintEvent* ev )
 {
+    const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+
 	auto p = QPainter( this );
 
-	Skin::drawListBackground( &p, QRect( 0, 0, width(), height() ),
-							  m_backgroundColor, m_bEntered );
+	QColor color( m_backgroundColor );
+	if ( m_bEntered ) {
+		color = color.lighter( Skin::nToolBarHoveredScaling );
+	}
 
-	if ( m_bSelected && ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+	p.fillRect( QRect( 0, 0, width(), height() ), color );
+
+	if ( m_bSelected && !HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		QPen pen;
 
 		pen.setColor( m_cursorColor );
@@ -144,6 +150,10 @@ void PitchLabel::paintEvent( QPaintEvent* ev )
 		p.setRenderHint( QPainter::Antialiasing );
 		p.drawRoundedRect( QRect( 1, 1, width() - 2, height() - 2 ), 2, 2 );
 	}
+
+    // border
+    p.setPen( pColorTheme->m_windowColor );
+    p.drawLine( 0, 0,  width(), 0 );
 
 	QLabel::paintEvent( ev );
 }

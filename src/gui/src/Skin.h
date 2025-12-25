@@ -73,18 +73,6 @@ public:
 			OnNext
 		};
 
-		/**
-		 * Draws the background of a row in both the pattern list of the
-		 * SongEditor and the instrument list in the PatternEditor using @a p.
-		 *
-		 * \param p Painter used in the calling QPaintEvent routine.
-		 * \param rect Boundary that encloses element (one row).
-		 * \param background Color used.
-		 * \param bHovered Whether the element is currently hovered by mouse.
-		 */
-		static void drawListBackground( QPainter* p, const QRect& rect,
-										QColor background,
-										bool bHovered );
 		static void drawPlayhead( QPainter* p, int x, int y,
 								  bool bHovered = false );
 		static void drawStackedIndicator( QPainter* p, int x, int y,

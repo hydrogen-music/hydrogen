@@ -27,28 +27,6 @@
 
 #include <QApplication>
 
-void Skin::drawListBackground( QPainter* p, const QRect& rect,
-							   QColor background, bool bHovered ) {
-
-	if ( bHovered ) {
-		background = background.lighter( 110 );
-	}
-
-	QColor borderLight = background.lighter(
-		Skin::nListBackgroundLightBorderScaling );
-	QColor borderDark = background.darker(
-		Skin::nListBackgroundDarkBorderScaling );
-
-	p->fillRect( QRect( rect.x() + 1, rect.y() + 1,
-						rect.width() - 2, rect.height() - 2 ), background );
-	p->fillRect( QRect( rect.x(), rect.y(), rect.width(), 1 ), borderLight );
-	p->fillRect( QRect( rect.x(), rect.y(), 1, rect.height() ), borderLight );
-	p->fillRect( QRect( rect.x(), rect.y() + rect.height() - 1, rect.width(), 1 ),
-				 borderDark );
-	p->fillRect( QRect( rect.x() + rect.width() - 1, rect.y(), 1, rect.height() ),
-				 borderDark );
-}
-
 void Skin::drawPlayhead( QPainter* p, int x, int y, bool bHovered ) {
 
 	const QPointF points[3] = {

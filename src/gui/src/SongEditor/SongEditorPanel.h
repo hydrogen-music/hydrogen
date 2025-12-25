@@ -39,6 +39,7 @@ class Button;
 class Fader;
 class LCDCombo;
 class MidiLearnableToolButton;
+class MuteButton;
 class PlaybackTrackWaveDisplay;
 class SongEditor;
 class SongEditorPatternList;
@@ -180,7 +181,7 @@ class SongEditorPanel : public QWidget,
 		Button *					m_pTimelineBtn;
 		Button *					m_pViewTimelineBtn;
 		Button *					m_pViewPlaybackBtn;
-		Button *					m_pMutePlaybackBtn;
+		MuteButton*					m_pMutePlaybackBtn;
 		Button *					m_pEditPlaybackBtn;
 
 

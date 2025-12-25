@@ -421,6 +421,7 @@ void Mixer::noteOnEvent( int nInstrumentIndex ) {
 				 pInstrumentList->index( ppLine->getInstrument() ) ==
 				 nInstrumentIndex ) {
 				ppLine->updateLine();
+                ppLine->triggerSampleLED();
 				break;
 			}
 		}

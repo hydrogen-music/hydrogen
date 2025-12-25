@@ -37,6 +37,7 @@
 #include "../Widgets/Fader.h"
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/MidiLearnableToolButton.h"
+#include "../Widgets/MuteButton.h"
 #include "../Widgets/PixmapWidget.h"
 #include "../WidgetScrollArea.h"
 
@@ -198,10 +199,9 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	connect( m_pPlaybackTrackFader, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( faderChanged( WidgetWithInput* ) ) );
 
 	// mute playback track toggle button
-	m_pMutePlaybackBtn = new Button(
-		pBackPanel, QSize( 34, 17 ), Button::Type::Toggle, "",
-		pCommonStrings->getBigMuteButton(), QSize(), tr( "Mute playback track" ),
-		true );
+	m_pMutePlaybackBtn = new MuteButton(
+		pBackPanel, QSize( 34, 17 ), tr( "Mute playback track" ), true
+	);
 	m_pMutePlaybackBtn->setObjectName( "SongEditorPlaybackTrackMuteButton" );
 	m_pMutePlaybackBtn->move( 158, 4 );
 	m_pMutePlaybackBtn->hide();

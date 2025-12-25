@@ -129,10 +129,10 @@ public:
 
 		void setIconFileName( const QString& sIcon );
 
-	void updateStyleSheet();
+	virtual void updateStyleSheet();
 
 public slots:
-	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
+	virtual void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 private slots:
 	void onClick();
