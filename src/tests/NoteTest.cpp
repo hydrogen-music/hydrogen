@@ -22,6 +22,8 @@
 
 #include "NoteTest.h"
 
+#include <stdio.h>
+
 #include "TestHelper.h"
 
 #include <core/Basics/Drumkit.h>
@@ -242,8 +244,8 @@ void NoteTest::testMappingLegacyDrumkit() {
 void NoteTest::testMappingValidDrumkits() {
 	___INFOLOG( "" );
 
-    ___DEBUGLOG( H2Core::Preferences::get_instance()->toQString( "pref: ", false ) );
-    ___DEBUGLOG( H2Core::Hydrogen::get_instance()->getSong()->toQString( "song: ", false ) );
+    std::cout << H2Core::Preferences::get_instance()->toQString( "pref: ", false ).toStdString() << std::endl;
+    std::cout << H2Core::Hydrogen::get_instance()->getSong()->toQString( "song: ", false ).toStdString() << std::endl;
 
 	const auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
 	auto pDrumkit = pDB->getDrumkit( "GMRockKit" );
