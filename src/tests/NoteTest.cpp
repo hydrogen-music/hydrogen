@@ -34,6 +34,7 @@
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiMessage.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Preferences/Shortcuts.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
@@ -240,6 +241,9 @@ void NoteTest::testMappingLegacyDrumkit() {
 
 void NoteTest::testMappingValidDrumkits() {
 	___INFOLOG( "" );
+
+    ___DEBUGLOG( H2Core::Preferences::get_instance()->toQString( "pref: ", false ) );
+    ___DEBUGLOG( H2Core::Hydrogen::get_instance()->getSong()->toQString( "song: ", false ) );
 
 	const auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
 	auto pDrumkit = pDB->getDrumkit( "GMRockKit" );
