@@ -62,19 +62,21 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 	auto pSong = Song::getEmptySong();
 	CPPUNIT_ASSERT( pSong != nullptr );
 
-	auto pDrumkit = pSong->getDrumkit();
+	auto pDrumkit = std::make_shared<Drumkit>(pSong->getDrumkit());
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( pDrumkit->getInstruments()->size() > 0 );
 	CPPUNIT_ASSERT( pDrumkit->getName() == "GMRockKit" );
+    // Reassign copy to ensure it is properly saved to disk later on.
+    pSong->setDrumkit( pDrumkit );
 
 	// Import an instrument from another drumkit (installed)
 	const QString sAnotherDrumkitPath(
 		Filesystem::sys_drumkits_dir() + "/TR808EmulationKit"
 	);
 	auto pAnotherDrumkit =
-		Hydrogen::get_instance()->getSoundLibraryDatabase()->getDrumkit(
+		std::make_shared<Drumkit>(Hydrogen::get_instance()->getSoundLibraryDatabase()->getDrumkit(
 			sAnotherDrumkitPath, false
-		);
+		));
 	CPPUNIT_ASSERT( pAnotherDrumkit != nullptr );
 	CPPUNIT_ASSERT( pAnotherDrumkit->getInstruments()->size() > 0 );
 
