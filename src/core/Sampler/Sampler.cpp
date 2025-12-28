@@ -171,23 +171,24 @@ void Sampler::process( uint32_t nFrames )
 				pNote =  m_queuedNoteOffs[0];
 
 				if ( pNote->getInstrument() != nullptr &&
-					 ! pNote->getInstrument()->isMuted() ) {
-					const auto noteRef = pMidiInstrumentMap
-						->getOutputMapping( pNote );
+					 !pNote->getInstrument()->isMuted() ) {
+					const auto noteRef =
+						pMidiInstrumentMap->getOutputMapping( pNote );
 					MidiMessage::NoteOff noteOff;
 					noteOff.nChannel = noteRef.nChannel;
 					noteOff.nKey = noteRef.nNote;
 					noteOff.nVelocity = pNote->getMidiVelocity();
 					if ( noteOff.nChannel != MidiMessage::nChannelOff ) {
-						pMidiDriver->sendMessage( MidiMessage::from( noteOff ) );
+						pMidiDriver->sendMessage( MidiMessage::from( noteOff )
+						);
 					}
 				}
-				else {
-					ERRORLOG( QString( "Queued note off in sampler does not have instrument! [%1]" )
-							  .arg( pNote->toQString() ) );
+				else if ( pNote->getInstrument() == nullptr ) {
+					ERRORLOG( QString( "Queued note off in sampler does not "
+									   "have instrument! [%1]" )
+								  .arg( pNote->toQString() ) );
 				}
 
-		
 				m_queuedNoteOffs.erase( m_queuedNoteOffs.begin() );
 
 				pNote = nullptr;

@@ -118,24 +118,31 @@ void KeyOctaveLabel::updateFont() {
 	setFont( font );
 }
 
-void KeyOctaveLabel::paintEvent( QPaintEvent* pEvent ) {
+void KeyOctaveLabel::paintEvent( QPaintEvent* pEvent )
+{
 	auto p = QPainter( this );
 
 	if ( m_type == Type::Key ) {
-		Skin::drawListBackground( &p, QRect( 0, 0, width(), height() ),
-								  m_backgroundColor, false );
+		const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+
+		p.fillRect( QRect( 0, 0, width(), height() ), m_backgroundColor );
+
+        // borders
+		p.setPen( pColorTheme->m_windowColor );
+		p.drawLine( 0, height() - 1, width(), height() - 1 );
+		p.drawLine( 0, 0, 0, height() - 1 );
+		p.drawLine( width() - 1, 0, width() - 1, height() - 1 );
 	}
 
 	QLabel::paintEvent( pEvent );
 }
 
-
-NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
-										  PatternEditor::Property property,
-										  Layout layout )
-	: PatternEditor( parent )
-	, m_nDrawPreviousColumn( -1 )
-	, m_layout( layout )
+NotePropertiesRuler::NotePropertiesRuler(
+	QWidget* parent,
+	PatternEditor::Property property,
+	Layout layout
+)
+	: PatternEditor( parent ), m_nDrawPreviousColumn( -1 ), m_layout( layout )
 {
 	m_type = Editor::Type::Horizontal;
 	m_instance = Editor::Instance::NotePropertiesRuler;

@@ -39,12 +39,13 @@ namespace H2Core {
 	class InstrumentComponent;
 }
 
-class Button;
 class ClickableLabel;
 class InlineEdit;
 class LCDCombo;
 class LCDDisplay;
 class LayerWaveDisplay;
+class MuteButton;
+class SoloButton;
 
 /** Editor for all layers and settings contained in one
  * #H2Core::InstrumentComponent.
@@ -66,7 +67,7 @@ class ComponentView : public QWidget,
 		static constexpr int nSeparatorHeight = 1;
 		static constexpr int nToolBarHeight = 28;
 		static constexpr int nButtonWidth = 21;
-		static constexpr int nButtonHeight = 24;
+		static constexpr int nButtonHeight = 22;
 		static constexpr int nExpansionButtonWidth = 14;
 		static constexpr int nSampleSelectionHeight = 18;
 		static constexpr int nLayerPreviewHeight =
@@ -153,8 +154,8 @@ class ComponentView : public QWidget,
 		QAction* m_pNewComponentAction;
 		QAction* m_pDuplicateComponentAction;
 		QAction* m_pDeleteComponentAction;
-		Button* m_pComponentSoloBtn;
-		Button* m_pComponentMuteBtn;
+		SoloButton* m_pComponentSoloBtn;
+		MuteButton* m_pComponentMuteBtn;
 		Rotary* m_pComponentGainRotary;
 
 		QWidget* m_pComponentWidget;
@@ -168,8 +169,8 @@ class ComponentView : public QWidget,
 		QAction* m_pDuplicateLayerAction;
 		QAction* m_pDeleteLayerAction;
 		QAction* m_pEditLayerAction;
-		Button* m_pLayerSoloBtn;
-		Button* m_pLayerMuteBtn;
+		SoloButton* m_pLayerSoloBtn;
+		MuteButton* m_pLayerMuteBtn;
 		Rotary *m_pLayerGainRotary;
 
 		LCDDisplay *m_pLayerPitchLCD;
