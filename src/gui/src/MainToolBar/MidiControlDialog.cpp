@@ -697,6 +697,11 @@ void MidiControlDialog::instrumentParametersChangedEvent( int ) {
 void MidiControlDialog::midiDriverChangedEvent() {
 }
 
+void MidiControlDialog::midiMapChangedEvent()
+{
+    m_pMidiActionTable->setupMidiActionTable();
+}
+
 void MidiControlDialog::midiInputEvent() {
 	updateInputTable();
 }
