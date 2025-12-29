@@ -291,35 +291,14 @@ void MidiActionTable::setupMidiActionTable()
 	horizontalHeader()->setSectionResizeMode( 5, QHeaderView::Fixed );
 	horizontalHeader()->setSectionResizeMode( 6, QHeaderView::Fixed );
 
-	for ( const auto& [ssMmcType, ppAction] : pMidiEventMap->getMMCActionMap() ) {
-		if ( ppAction != nullptr && ! ppAction->isNull() ) {
-			insertNewRow( ppAction, ssMmcType, 0 );
-		}
-	}
-
-	for ( const auto& [nnPitch, ppAction] : pMidiEventMap->getNoteActionMap() ) {
-		if ( ppAction != nullptr && ! ppAction->isNull() ) {
-			insertNewRow( ppAction,
-						  H2Core::MidiEvent::TypeToQString(
-							  H2Core::MidiEvent::Type::Note ),
-						  nnPitch );
-		}
-	}
-
-	for ( const auto& [nnParam, ppAction] : pMidiEventMap->getCCActionMap() ) {
-		if ( ppAction != nullptr && ! ppAction->isNull() ) {
-			insertNewRow( ppAction,
-						  H2Core::MidiEvent::TypeToQString(
-							  H2Core::MidiEvent::Type::CC ),
-						  nnParam );
-		}
-	}
-
-	for ( const auto& ppAction : pMidiEventMap->getPCActions() ) {
-		if ( ppAction != nullptr && ! ppAction->isNull() ) {
-			insertNewRow( ppAction,
-						  H2Core::MidiEvent::TypeToQString(
-							  H2Core::MidiEvent::Type::PC ), 0 );
+	for ( const auto& ppEvent : pMidiEventMap->getMidiEvents() ) {
+		if ( ppEvent != nullptr && ppEvent->getMidiAction() != nullptr &&
+			 !ppEvent->getMidiAction()->isNull() ) {
+			insertNewRow(
+				ppEvent->getMidiAction(),
+				H2Core::MidiEvent::TypeToQString( ppEvent->getType() ),
+				ppEvent->getParameter()
+			);
 		}
 	}
 
