@@ -51,19 +51,22 @@
 
 using namespace H2Core;
 
-void MidiActionTest::setUp() {
+void MidiActionTest::setUp()
+{
 	auto pPref = Preferences::get_instance();
 	pPref->m_nMidiActionChannel = MidiMessage::nChannelAll;
 
 	CoreActionController::activateTimeline( false );
 }
 
-void MidiActionTest::tearDown() {
+void MidiActionTest::tearDown()
+{
 	Preferences::get_instance()->getMidiEventMap()->reset();
 }
 
-void MidiActionTest::testBeatCounterAction() {
-	___INFOLOG("");
+void MidiActionTest::testBeatCounterAction()
+{
+	___INFOLOG( "" );
 
 	auto pTestHelper = TestHelper::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
@@ -74,8 +77,10 @@ void MidiActionTest::testBeatCounterAction() {
 	pMidiEventMap->reset();
 
 	const int nBeatCounterPara = 0;
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nBeatCounterPara, std::make_shared<MidiAction>(
-								   MidiAction::Type::BeatCounter ) );
+	pMidiEventMap->registerEvent(
+		MidiEvent::Type::CC, nBeatCounterPara,
+		std::make_shared<MidiAction>( MidiAction::Type::BeatCounter )
+	);
 	pPref->m_bpmTap = Preferences::BpmTap::BeatCounter;
 	pPref->m_beatCounter = Preferences::BeatCounter::Tap;
 	pPref->m_nBeatCounterDriftCompensation = 0;
@@ -92,13 +97,14 @@ void MidiActionTest::testBeatCounterAction() {
 
 	const float fTargetBpm = 338.4;
 	const float fIntervalMs = 60000.0 / fTargetBpm;
-	const auto interval = std::chrono::duration<float, std::milli>{ fIntervalMs };
+	const auto interval =
+		std::chrono::duration<float, std::milli>{ fIntervalMs };
 	CPPUNIT_ASSERT( fTargetBpm < MAX_BPM );
 
 	___DEBUGLOG( QString( "interval: %1" ).arg( fIntervalMs ) );
 
-	const auto beatCounterMessage = MidiMessage(
-		MidiMessage::Type::ControlChange, nBeatCounterPara, 0, 0 );
+	const auto beatCounterMessage =
+		MidiMessage( MidiMessage::Type::ControlChange, nBeatCounterPara, 0, 0 );
 
 	auto intervalCompensation = std::chrono::duration<float, std::milli>( 0 );
 	for ( int nnMessage = 0; nnMessage < 8; ++nnMessage ) {
@@ -125,18 +131,22 @@ void MidiActionTest::testBeatCounterAction() {
 	pAudioEngine->unlock();
 
 	const float fTolerance = 1;
-	___INFOLOG( QString( "[%1] -> [%2] target [%3 +/- %4]" ).arg( fOldBpm )
-				.arg( fNewBpm ).arg( fTargetBpm ).arg( fTolerance ) );
+	___INFOLOG( QString( "[%1] -> [%2] target [%3 +/- %4]" )
+					.arg( fOldBpm )
+					.arg( fNewBpm )
+					.arg( fTargetBpm )
+					.arg( fTolerance ) );
 	CPPUNIT_ASSERT( fNewBpm != fOldBpm );
-	if ( ! pTestHelper->isAppveyor() ) {
+	if ( !pTestHelper->isAppveyor() ) {
 		CPPUNIT_ASSERT( std::abs( fTargetBpm - fNewBpm ) < fTolerance );
 	}
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testBpmCcRelativeAction() {
-	___INFOLOG("");
+void MidiActionTest::testBpmCcRelativeAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
@@ -144,12 +154,14 @@ void MidiActionTest::testBpmCcRelativeAction() {
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
+	auto pDriver =
+		dynamic_cast<FakeAudioDriver*>( pAudioEngine->getAudioDriver() );
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	const int nParameter = 1;
 	const int nDiff = 3;
-	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::BpmCcRelative );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::BpmCcRelative );
 	pAction->setParameter1( QString::number( nDiff ) );
 
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
@@ -163,8 +175,9 @@ void MidiActionTest::testBpmCcRelativeAction() {
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 
 	TestHelper::waitForAudioDriver();
 
@@ -175,11 +188,12 @@ void MidiActionTest::testBpmCcRelativeAction() {
 	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldBpm ).arg( fNewBpm ) );
 	CPPUNIT_ASSERT( fNewBpm == fOldBpm - nDiff );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testBpmDecreaseAction() {
-	___INFOLOG("");
+void MidiActionTest::testBpmDecreaseAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
@@ -187,7 +201,8 @@ void MidiActionTest::testBpmDecreaseAction() {
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
+	auto pDriver =
+		dynamic_cast<FakeAudioDriver*>( pAudioEngine->getAudioDriver() );
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	const int nParameter = 1;
@@ -208,8 +223,9 @@ void MidiActionTest::testBpmDecreaseAction() {
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 
 	TestHelper::waitForAudioDriver();
 
@@ -220,11 +236,12 @@ void MidiActionTest::testBpmDecreaseAction() {
 	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldBpm ).arg( fNewBpm ) );
 	CPPUNIT_ASSERT( fNewBpm == fOldBpm - nDiff );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testBpmFineCcRelativeAction() {
-	___INFOLOG("");
+void MidiActionTest::testBpmFineCcRelativeAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
@@ -232,13 +249,14 @@ void MidiActionTest::testBpmFineCcRelativeAction() {
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
+	auto pDriver =
+		dynamic_cast<FakeAudioDriver*>( pAudioEngine->getAudioDriver() );
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	const int nParameter = 1;
 	const int nDiff = 2;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::BpmFineCcRelative );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::BpmFineCcRelative );
 	pAction->setParameter1( QString::number( nDiff ) );
 
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
@@ -252,8 +270,9 @@ void MidiActionTest::testBpmFineCcRelativeAction() {
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 
 	TestHelper::waitForAudioDriver();
 
@@ -263,14 +282,16 @@ void MidiActionTest::testBpmFineCcRelativeAction() {
 
 	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldBpm ).arg( fNewBpm ) );
 	CPPUNIT_ASSERT(
-		std::abs( fNewBpm - (
-					  fOldBpm - 0.01 * static_cast<float>(nDiff) ) ) < 0.01 );
+		std::abs( fNewBpm - ( fOldBpm - 0.01 * static_cast<float>( nDiff ) ) ) <
+		0.01
+	);
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testBpmIncreaseAction() {
-	___INFOLOG("");
+void MidiActionTest::testBpmIncreaseAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
@@ -278,7 +299,8 @@ void MidiActionTest::testBpmIncreaseAction() {
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
+	auto pDriver =
+		dynamic_cast<FakeAudioDriver*>( pAudioEngine->getAudioDriver() );
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	const int nParameter = 1;
@@ -299,8 +321,9 @@ void MidiActionTest::testBpmIncreaseAction() {
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 
 	TestHelper::waitForAudioDriver();
 
@@ -311,23 +334,27 @@ void MidiActionTest::testBpmIncreaseAction() {
 	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldBpm ).arg( fNewBpm ) );
 	CPPUNIT_ASSERT( fNewBpm == fOldBpm + nDiff );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testClearPatternAction() {
-	___INFOLOG("");
+void MidiActionTest::testClearPatternAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const int nParameter = 1;
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC,
-		nParameter, std::make_shared<MidiAction>( MidiAction::Type::ClearPattern ) );
+	pMidiEventMap->registerEvent(
+		MidiEvent::Type::CC, nParameter,
+		std::make_shared<MidiAction>( MidiAction::Type::ClearPattern )
+	);
 
 	const int nPatternNumber = pHydrogen->getSelectedPatternNumber();
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 
 	// We first add note and then ensure it is gone after triggering the action.
 	auto pSong = pHydrogen->getSong();
@@ -338,23 +365,28 @@ void MidiActionTest::testClearPatternAction() {
 	pPattern->insertNote( std::make_shared<Note>( nullptr, 0 ) );
 	CPPUNIT_ASSERT( pPattern->getNotes()->size() == 1 );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	CPPUNIT_ASSERT( pPattern->getNotes()->size() == 0 );
 
 	// Check robustness against having no pattern selected (should not happen).
-	pHydrogen->setSelectedPatternNumber( -1, true /* bNeedsLock */,
-										 Event::Trigger::Suppress );
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
-	pHydrogen->setSelectedPatternNumber( nPatternNumber, true /* bNeedsLock */,
-										 Event::Trigger::Suppress );
+	pHydrogen->setSelectedPatternNumber(
+		-1, true /* bNeedsLock */, Event::Trigger::Suppress
+	);
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
+	pHydrogen->setSelectedPatternNumber(
+		nPatternNumber, true /* bNeedsLock */, Event::Trigger::Suppress
+	);
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testClearSelectedInstrumentAction() {
-	___INFOLOG("");
+void MidiActionTest::testClearSelectedInstrumentAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -362,27 +394,31 @@ void MidiActionTest::testClearSelectedInstrumentAction() {
 
 	const int nParameter = 1;
 	const int nParameterClearPattern = 2;
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC,
-		nParameter, std::make_shared<MidiAction>(
-			MidiAction::Type::ClearSelectedInstrument ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC,
-		nParameterClearPattern, std::make_shared<MidiAction>(
-			MidiAction::Type::ClearPattern ) );
+	pMidiEventMap->registerEvent(
+		MidiEvent::Type::CC, nParameter,
+		std::make_shared<MidiAction>( MidiAction::Type::ClearSelectedInstrument
+		)
+	);
+	pMidiEventMap->registerEvent(
+		MidiEvent::Type::CC, nParameterClearPattern,
+		std::make_shared<MidiAction>( MidiAction::Type::ClearPattern )
+	);
 
 	// We reset the whole pattern to have a clean canvas.
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameterClearPattern, 0, 0 ) );
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameterClearPattern, 0, 0
+	) );
 
 	// We first add note and then ensure it is gone after triggering the action.
 	const int nPatternNumber = pHydrogen->getSelectedPatternNumber();
 	const int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
-	auto pInstrument = pSong->getDrumkit()->getInstruments()
-		->get( nSelectedInstrument );
+	auto pInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nSelectedInstrument );
 	CPPUNIT_ASSERT( pInstrument != nullptr );
-	auto pAnotherInstrument = pSong->getDrumkit()->getInstruments()
-		->get( nSelectedInstrument + 1 );
+	auto pAnotherInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nSelectedInstrument + 1 );
 	CPPUNIT_ASSERT( pAnotherInstrument != nullptr );
 	CPPUNIT_ASSERT( pAnotherInstrument != pInstrument );
 
@@ -394,22 +430,26 @@ void MidiActionTest::testClearSelectedInstrumentAction() {
 	pPattern->insertNote( std::make_shared<Note>( pAnotherInstrument, 0 ) );
 	CPPUNIT_ASSERT( pPattern->getNotes()->size() == 2 );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	CPPUNIT_ASSERT( pPattern->getNotes()->size() == 1 );
 
 	// Check robustness against having no pattern selected (should not happen).
 	pHydrogen->setSelectedInstrumentNumber( -1, Event::Trigger::Suppress );
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	pHydrogen->setSelectedInstrumentNumber(
-		nSelectedInstrument, Event::Trigger::Suppress );
+		nSelectedInstrument, Event::Trigger::Suppress
+	);
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testEffectLevelAbsoluteAction() {
-	___INFOLOG("");
+void MidiActionTest::testEffectLevelAbsoluteAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -419,8 +459,8 @@ void MidiActionTest::testEffectLevelAbsoluteAction() {
 	const int nFxValue = 25;
 	const int nFxId = 1;
 	const int nInstrumentNumber = 3;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::EffectLevelAbsolute );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::EffectLevelAbsolute );
 	pAction->setValue( QString::number( nFxValue ) );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
 	pAction->setParameter2( QString::number( nFxId ) );
@@ -428,29 +468,35 @@ void MidiActionTest::testEffectLevelAbsoluteAction() {
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
-	auto pInstrument = pSong->getDrumkit()->getInstruments()
-		->get( nInstrumentNumber );
+	auto pInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nInstrumentNumber );
 	CPPUNIT_ASSERT( pInstrument != nullptr );
 
 	const float fOldValue = 0.92;
 	pInstrument->setFxLevel( fOldValue, nFxId );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, nFxValue, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, nFxValue, 0 )
+	);
 	CPPUNIT_ASSERT( pInstrument->getFxLevel( nFxId ) != fOldValue );
 
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
-				.arg( pInstrument->getFxLevel( nFxId ) )
-				.arg( static_cast<float>(nFxValue / 127.0) ) );
-	CPPUNIT_ASSERT( std::abs( pInstrument->getFxLevel( nFxId ) -
-							  ( static_cast<float>(nFxValue) / 127.0 ) ) < 0.01 );
+					.arg( pInstrument->getFxLevel( nFxId ) )
+					.arg( static_cast<float>( nFxValue / 127.0 ) ) );
+	CPPUNIT_ASSERT(
+		std::abs(
+			pInstrument->getFxLevel( nFxId ) -
+			( static_cast<float>( nFxValue ) / 127.0 )
+		) < 0.01
+	);
 	pInstrument->setFxLevel( fOldValue, nFxId );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testEffectLevelRelativeAction() {
-	___INFOLOG("");
+void MidiActionTest::testEffectLevelRelativeAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -460,8 +506,8 @@ void MidiActionTest::testEffectLevelRelativeAction() {
 	const int nFxValue = 1;
 	const int nFxId = 1;
 	const int nInstrumentNumber = 3;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::EffectLevelRelative );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::EffectLevelRelative );
 	pAction->setValue( QString::number( nFxValue ) );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
 	pAction->setParameter2( QString::number( nFxId ) );
@@ -469,29 +515,33 @@ void MidiActionTest::testEffectLevelRelativeAction() {
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
-	auto pInstrument = pSong->getDrumkit()->getInstruments()
-		->get( nInstrumentNumber );
+	auto pInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nInstrumentNumber );
 	CPPUNIT_ASSERT( pInstrument != nullptr );
 
 	const float fOldValue = 0.92;
 	pInstrument->setFxLevel( fOldValue, nFxId );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, nFxValue, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, nFxValue, 0 )
+	);
 	CPPUNIT_ASSERT( pInstrument->getFxLevel( nFxId ) != fOldValue );
 
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
-				.arg( pInstrument->getFxLevel( nFxId ) )
-				.arg( fOldValue + 0.05 ) );
-	CPPUNIT_ASSERT( std::abs( pInstrument->getFxLevel( nFxId ) -
-							  ( fOldValue + 0.05 ) ) <= 0.01 );
+					.arg( pInstrument->getFxLevel( nFxId ) )
+					.arg( fOldValue + 0.05 ) );
+	CPPUNIT_ASSERT(
+		std::abs( pInstrument->getFxLevel( nFxId ) - ( fOldValue + 0.05 ) ) <=
+		0.01
+	);
 	pInstrument->setFxLevel( fOldValue, nFxId );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testFilterCutoffLevelAbsoluteAction() {
-	___INFOLOG("");
+void MidiActionTest::testFilterCutoffLevelAbsoluteAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -501,37 +551,43 @@ void MidiActionTest::testFilterCutoffLevelAbsoluteAction() {
 	const int nCutoffValue = 101;
 	const int nInstrumentNumber = 3;
 	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::FilterCutoffLevelAbsolute );
+		MidiAction::Type::FilterCutoffLevelAbsolute
+	);
 	pAction->setValue( QString::number( nCutoffValue ) );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
-	auto pInstrument = pSong->getDrumkit()->getInstruments()
-		->get( nInstrumentNumber );
+	auto pInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nInstrumentNumber );
 	CPPUNIT_ASSERT( pInstrument != nullptr );
 
 	const float fOldValue = 0.92;
 	pInstrument->setFilterCutoff( fOldValue );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, nCutoffValue, 0 ) );
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameter, nCutoffValue, 0
+	) );
 	CPPUNIT_ASSERT( pInstrument->getFilterCutoff() != fOldValue );
 
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
-				.arg( pInstrument->getFilterCutoff() )
-				.arg( static_cast<float>(nCutoffValue) / 127.0 ) );
-	CPPUNIT_ASSERT( std::abs( pInstrument->getFilterCutoff() -
-							  ( static_cast<float>(nCutoffValue) / 127.0 ) ) <=
-					0.01 );
+					.arg( pInstrument->getFilterCutoff() )
+					.arg( static_cast<float>( nCutoffValue ) / 127.0 ) );
+	CPPUNIT_ASSERT(
+		std::abs(
+			pInstrument->getFilterCutoff() -
+			( static_cast<float>( nCutoffValue ) / 127.0 )
+		) <= 0.01
+	);
 	pInstrument->setFilterCutoff( fOldValue );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testGainLevelAbsoluteAction() {
-	___INFOLOG("");
+void MidiActionTest::testGainLevelAbsoluteAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -542,8 +598,8 @@ void MidiActionTest::testGainLevelAbsoluteAction() {
 	const int nInstrumentNumber = 3;
 	const int nComponentId = 0;
 	const int nLayerId = 0;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::GainLevelAbsolute );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::GainLevelAbsolute );
 	pAction->setValue( QString::number( nGainValue ) );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
 	pAction->setParameter2( QString::number( nComponentId ) );
@@ -552,8 +608,8 @@ void MidiActionTest::testGainLevelAbsoluteAction() {
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
-	auto pInstrument = pSong->getDrumkit()->getInstruments()
-		->get( nInstrumentNumber );
+	auto pInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nInstrumentNumber );
 	CPPUNIT_ASSERT( pInstrument != nullptr );
 	auto pComponent = pInstrument->getComponent( nComponentId );
 	CPPUNIT_ASSERT( pComponent != nullptr );
@@ -563,23 +619,28 @@ void MidiActionTest::testGainLevelAbsoluteAction() {
 	const float fOldValue = 0.92;
 	pLayer->setGain( fOldValue );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, nGainValue, 0 ) );
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameter, nGainValue, 0
+	) );
 	CPPUNIT_ASSERT( pLayer->getGain() != fOldValue );
 
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
-				.arg( pLayer->getGain() )
-				.arg( 5.0 * static_cast<float>(nGainValue) / 127.0 ) );
-	CPPUNIT_ASSERT( std::abs( pLayer->getGain() -
-							  5.0 * ( static_cast<float>(nGainValue) / 127.0 ) ) <=
-					0.01 );
+					.arg( pLayer->getGain() )
+					.arg( 5.0 * static_cast<float>( nGainValue ) / 127.0 ) );
+	CPPUNIT_ASSERT(
+		std::abs(
+			pLayer->getGain() -
+			5.0 * ( static_cast<float>( nGainValue ) / 127.0 )
+		) <= 0.01
+	);
 	pLayer->setGain( fOldValue );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testInstrumentPitchAction() {
-	___INFOLOG("");
+void MidiActionTest::testInstrumentPitchAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -588,44 +649,48 @@ void MidiActionTest::testInstrumentPitchAction() {
 	const int nParameter = 1;
 	const int nPitchValue = 101;
 	const int nInstrumentNumber = 3;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::InstrumentPitch );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::InstrumentPitch );
 	pAction->setValue( QString::number( nPitchValue ) );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
-	auto pInstrument = pSong->getDrumkit()->getInstruments()
-		->get( nInstrumentNumber );
+	auto pInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nInstrumentNumber );
 	CPPUNIT_ASSERT( pInstrument != nullptr );
 
 	const float fOldValue = 0.92;
 	pInstrument->setPitchOffset( fOldValue );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, nPitchValue, 0 ) );
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameter, nPitchValue, 0
+	) );
 	CPPUNIT_ASSERT( pInstrument->getPitchOffset() != fOldValue );
 	const float fRef = ( Instrument::fPitchMax - Instrument::fPitchMin ) *
-		( static_cast<float>(nPitchValue) / 127.0 ) + Instrument::fPitchMin;
+						   ( static_cast<float>( nPitchValue ) / 127.0 ) +
+					   Instrument::fPitchMin;
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
-				.arg( pInstrument->getPitchOffset() ).arg( fRef ) );
+					.arg( pInstrument->getPitchOffset() )
+					.arg( fRef ) );
 	CPPUNIT_ASSERT( std::abs( pInstrument->getPitchOffset() - fRef ) <= 0.01 );
 	pInstrument->setPitchOffset( fOldValue );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testLoadNextDrumkitAction() {
-	___INFOLOG("");
+void MidiActionTest::testLoadNextDrumkitAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const int nParameter = 1;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::LoadNextDrumkit );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::LoadNextDrumkit );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
@@ -633,27 +698,29 @@ void MidiActionTest::testLoadNextDrumkitAction() {
 	auto pOldDrumkit = pSong->getDrumkit();
 	CPPUNIT_ASSERT( pOldDrumkit != nullptr );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	auto pNewDrumkit = pSong->getDrumkit();
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
 	CPPUNIT_ASSERT( pNewDrumkit != pOldDrumkit );
 
 	CPPUNIT_ASSERT( CoreActionController::setDrumkit( pOldDrumkit ) );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testLoadPrevDrumkitAction() {
-	___INFOLOG("");
+void MidiActionTest::testLoadPrevDrumkitAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const int nParameter = 1;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::LoadPrevDrumkit );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::LoadPrevDrumkit );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
@@ -661,19 +728,21 @@ void MidiActionTest::testLoadPrevDrumkitAction() {
 	auto pOldDrumkit = pSong->getDrumkit();
 	CPPUNIT_ASSERT( pOldDrumkit != nullptr );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	auto pNewDrumkit = pSong->getDrumkit();
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
 	CPPUNIT_ASSERT( pNewDrumkit != pOldDrumkit );
 
 	CPPUNIT_ASSERT( CoreActionController::setDrumkit( pOldDrumkit ) );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testMasterVolumeAbsoluteAction() {
-	___INFOLOG("");
+void MidiActionTest::testMasterVolumeAbsoluteAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -681,8 +750,8 @@ void MidiActionTest::testMasterVolumeAbsoluteAction() {
 
 	const int nParameter = 1;
 	const int nVolumeValue = 102;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::MasterVolumeAbsolute );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::MasterVolumeAbsolute );
 	pAction->setValue( QString::number( nVolumeValue ) );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
@@ -692,21 +761,24 @@ void MidiActionTest::testMasterVolumeAbsoluteAction() {
 	const float fOldValue = 0.92;
 	pSong->setVolume( fOldValue );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, nVolumeValue, 0 ) );
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameter, nVolumeValue, 0
+	) );
 	CPPUNIT_ASSERT( pSong->getVolume() != fOldValue );
 
-	const float fRef = 1.5 * static_cast<float>(nVolumeValue) / 127.0;
+	const float fRef = 1.5 * static_cast<float>( nVolumeValue ) / 127.0;
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
-				.arg( pSong->getVolume() ).arg( fRef ) );
+					.arg( pSong->getVolume() )
+					.arg( fRef ) );
 	CPPUNIT_ASSERT( std::abs( pSong->getVolume() - fRef ) <= 0.01 );
 	pSong->setVolume( fOldValue );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testMasterVolumeRelativeAction() {
-	___INFOLOG("");
+void MidiActionTest::testMasterVolumeRelativeAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -714,8 +786,8 @@ void MidiActionTest::testMasterVolumeRelativeAction() {
 
 	const int nParameter = 1;
 	const int nVolumeValue = 1;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::MasterVolumeRelative );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::MasterVolumeRelative );
 	pAction->setValue( QString::number( nVolumeValue ) );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
@@ -725,21 +797,24 @@ void MidiActionTest::testMasterVolumeRelativeAction() {
 	const float fOldValue = 0.92;
 	pSong->setVolume( fOldValue );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, nVolumeValue, 0 ) );
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameter, nVolumeValue, 0
+	) );
 	CPPUNIT_ASSERT( pSong->getVolume() != fOldValue );
 
 	const float fRef = fOldValue + 0.05;
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
-				.arg( pSong->getVolume() ).arg( fRef ) );
+					.arg( pSong->getVolume() )
+					.arg( fRef ) );
 	CPPUNIT_ASSERT( std::abs( pSong->getVolume() - fRef ) <= 0.01 );
 	pSong->setVolume( fOldValue );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testMuteAction() {
-	___INFOLOG("");
+void MidiActionTest::testMuteAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -755,16 +830,18 @@ void MidiActionTest::testMuteAction() {
 	const bool bOldValue = false;
 	pSong->setIsMuted( bOldValue );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	CPPUNIT_ASSERT( pSong->getIsMuted() != bOldValue );
 	pSong->setIsMuted( bOldValue );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testMuteToggleAction() {
-	___INFOLOG("");
+void MidiActionTest::testMuteToggleAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -780,18 +857,21 @@ void MidiActionTest::testMuteToggleAction() {
 	const bool bOldValue = false;
 	pSong->setIsMuted( bOldValue );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	CPPUNIT_ASSERT( pSong->getIsMuted() != bOldValue );
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	CPPUNIT_ASSERT( pSong->getIsMuted() == bOldValue );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testNextBarAction() {
-	___INFOLOG("");
+void MidiActionTest::testNextBarAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
@@ -810,37 +890,43 @@ void MidiActionTest::testNextBarAction() {
 	const int nColumn = 5;
 	CPPUNIT_ASSERT( CoreActionController::activateSongMode( true ) );
 	CPPUNIT_ASSERT( CoreActionController::toggleGridCell(
-						GridPoint( nColumn, nPatternNumber ) ) );
+		GridPoint( nColumn, nPatternNumber )
+	) );
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
 	auto pPatternGroupVector = pSong->getPatternGroupVector();
-	___INFOLOG( QString( "number of columns: [%1]" )
-				.arg( pPatternGroupVector->size() ) );
+	___INFOLOG(
+		QString( "number of columns: [%1]" ).arg( pPatternGroupVector->size() )
+	);
 	CPPUNIT_ASSERT( pPatternGroupVector->size() == nColumn + 1 );
 
 	const int nOldValue = 2;
 	CPPUNIT_ASSERT( CoreActionController::locateToColumn( nOldValue ) );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 
 	pAudioEngine->lock( RIGHT_HERE );
 	const int nNewValue = pAudioEngine->getTransportPosition()->getColumn();
 	pAudioEngine->unlock();
 
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
-				.arg( nNewValue ).arg( nOldValue ) );
+					.arg( nNewValue )
+					.arg( nOldValue ) );
 	CPPUNIT_ASSERT( nNewValue == nOldValue + 1 );
 
 	CPPUNIT_ASSERT( CoreActionController::toggleGridCell(
-						GridPoint( nColumn, nPatternNumber ) ) );
+		GridPoint( nColumn, nPatternNumber )
+	) );
 	CPPUNIT_ASSERT( CoreActionController::setSong( pPreviousSong ) );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testPanAbsoluteAction() {
-	___INFOLOG("");
+void MidiActionTest::testPanAbsoluteAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -849,36 +935,40 @@ void MidiActionTest::testPanAbsoluteAction() {
 	const int nParameter = 1;
 	const int nPanValue = 101;
 	const int nInstrumentNumber = 2;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::PanAbsolute );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::PanAbsolute );
 	pAction->setValue( QString::number( nPanValue ) );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
-	auto pInstrument = pSong->getDrumkit()->getInstruments()
-		->get( nInstrumentNumber );
+	auto pInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nInstrumentNumber );
 	CPPUNIT_ASSERT( pInstrument != nullptr );
 
 	const float fOldValue = 0.92;
 	pInstrument->setPanWithRangeFrom0To1( fOldValue );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, nPanValue, 0 ) );
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameter, nPanValue, 0
+	) );
 	CPPUNIT_ASSERT( pInstrument->getPanWithRangeFrom0To1() != fOldValue );
-	const float fRef = static_cast<float>(nPanValue) / 127.0;
+	const float fRef = static_cast<float>( nPanValue ) / 127.0;
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
-				.arg( pInstrument->getPanWithRangeFrom0To1() ).arg( fRef ) );
-	CPPUNIT_ASSERT( std::abs( pInstrument->getPanWithRangeFrom0To1() - fRef ) <=
-					0.01 );
+					.arg( pInstrument->getPanWithRangeFrom0To1() )
+					.arg( fRef ) );
+	CPPUNIT_ASSERT(
+		std::abs( pInstrument->getPanWithRangeFrom0To1() - fRef ) <= 0.01
+	);
 	pInstrument->setPanWithRangeFrom0To1( fOldValue );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testPanAbsoluteSymAction() {
-	___INFOLOG("");
+void MidiActionTest::testPanAbsoluteSymAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -887,36 +977,38 @@ void MidiActionTest::testPanAbsoluteSymAction() {
 	const int nParameter = 1;
 	const int nPanValue = 101;
 	const int nInstrumentNumber = 2;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::PanAbsoluteSym );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::PanAbsoluteSym );
 	pAction->setValue( QString::number( nPanValue ) );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
-	auto pInstrument = pSong->getDrumkit()->getInstruments()
-		->get( nInstrumentNumber );
+	auto pInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nInstrumentNumber );
 	CPPUNIT_ASSERT( pInstrument != nullptr );
 
 	const float fOldValue = 0.92;
 	pInstrument->setPan( fOldValue );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, nPanValue, 0 ) );
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameter, nPanValue, 0
+	) );
 	CPPUNIT_ASSERT( pInstrument->getPan() != fOldValue );
-	const float fRef = static_cast<float>(nPanValue) / 127.0;
+	const float fRef = static_cast<float>( nPanValue ) / 127.0;
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
-				.arg( pInstrument->getPan() ).arg( fRef ) );
-	CPPUNIT_ASSERT( std::abs( pInstrument->getPan() - fRef ) <=
-					0.01 );
+					.arg( pInstrument->getPan() )
+					.arg( fRef ) );
+	CPPUNIT_ASSERT( std::abs( pInstrument->getPan() - fRef ) <= 0.01 );
 	pInstrument->setPan( fOldValue );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testPanRelativeAction() {
-	___INFOLOG("");
+void MidiActionTest::testPanRelativeAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -925,36 +1017,38 @@ void MidiActionTest::testPanRelativeAction() {
 	const int nParameter = 1;
 	const int nPanValue = 1;
 	const int nInstrumentNumber = 2;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::PanRelative );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::PanRelative );
 	pAction->setValue( QString::number( nPanValue ) );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
-	auto pInstrument = pSong->getDrumkit()->getInstruments()
-		->get( nInstrumentNumber );
+	auto pInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nInstrumentNumber );
 	CPPUNIT_ASSERT( pInstrument != nullptr );
 
 	const float fOldValue = 0.82;
 	pInstrument->setPan( fOldValue );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, nPanValue, 0 ) );
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameter, nPanValue, 0
+	) );
 	CPPUNIT_ASSERT( pInstrument->getPan() != fOldValue );
 	const float fRef = fOldValue + 0.1;
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
-				.arg( pInstrument->getPan() ).arg( fRef ) );
-	CPPUNIT_ASSERT( std::abs( pInstrument->getPan() - fRef ) <=
-					0.01 );
+					.arg( pInstrument->getPan() )
+					.arg( fRef ) );
+	CPPUNIT_ASSERT( std::abs( pInstrument->getPan() - fRef ) <= 0.01 );
 	pInstrument->setPan( fOldValue );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testPauseAction() {
-	___INFOLOG("");
+void MidiActionTest::testPauseAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
@@ -962,7 +1056,8 @@ void MidiActionTest::testPauseAction() {
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
+	auto pDriver =
+		dynamic_cast<FakeAudioDriver*>( pAudioEngine->getAudioDriver() );
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	CoreActionController::activateSongMode( false );
@@ -976,19 +1071,21 @@ void MidiActionTest::testPauseAction() {
 
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 	CPPUNIT_ASSERT( pTransportPosition->getFrame() != 0 );
 
 	CoreActionController::activateSongMode( true );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testPitchLevelAbsoluteAction() {
-	___INFOLOG("");
+void MidiActionTest::testPitchLevelAbsoluteAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -999,8 +1096,8 @@ void MidiActionTest::testPitchLevelAbsoluteAction() {
 	const int nInstrumentNumber = 3;
 	const int nComponentId = 0;
 	const int nLayerId = 0;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::PitchLevelAbsolute );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::PitchLevelAbsolute );
 	pAction->setValue( QString::number( nPitchValue ) );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
 	pAction->setParameter2( QString::number( nComponentId ) );
@@ -1009,8 +1106,8 @@ void MidiActionTest::testPitchLevelAbsoluteAction() {
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
-	auto pInstrument = pSong->getDrumkit()->getInstruments()
-		->get( nInstrumentNumber );
+	auto pInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nInstrumentNumber );
 	CPPUNIT_ASSERT( pInstrument != nullptr );
 	auto pComponent = pInstrument->getComponent( nComponentId );
 	CPPUNIT_ASSERT( pComponent != nullptr );
@@ -1020,30 +1117,35 @@ void MidiActionTest::testPitchLevelAbsoluteAction() {
 	const float fOldValue = 0.92;
 	pLayer->setPitch( fOldValue );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, nPitchValue, 0 ) );
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameter, nPitchValue, 0
+	) );
 	CPPUNIT_ASSERT( pLayer->getPitch() != fOldValue );
 
 	const float fRef = ( Instrument::fPitchMax - Instrument::fPitchMin ) *
-		( static_cast<float>(nPitchValue) / 127.0 ) + Instrument::fPitchMin;
+						   ( static_cast<float>( nPitchValue ) / 127.0 ) +
+					   Instrument::fPitchMin;
 
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
-				.arg( pLayer->getPitch() ).arg( fRef ) );
+					.arg( pLayer->getPitch() )
+					.arg( fRef ) );
 	CPPUNIT_ASSERT( std::abs( pLayer->getPitch() - fRef ) <= 0.01 );
 	pLayer->setPitch( fOldValue );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testPlayAction() {
-	___INFOLOG("");
+void MidiActionTest::testPlayAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
+	auto pDriver =
+		dynamic_cast<FakeAudioDriver*>( pAudioEngine->getAudioDriver() );
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	CoreActionController::activateSongMode( false );
@@ -1057,32 +1159,37 @@ void MidiActionTest::testPlayAction() {
 
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 
 	pAudioEngine->stop();
 	CoreActionController::activateSongMode( true );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testPlaylistNextSongAction() {
-	___INFOLOG("");
+void MidiActionTest::testPlaylistNextSongAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pPreviousSong = pHydrogen->getSong();
 	auto pPreviousPlaylist = pHydrogen->getPlaylist();
 
 	auto pPlaylist = CoreActionController::loadPlaylist(
-		H2TEST_FILE( "/playlist/test.h2playlist" ) );
+		H2TEST_FILE( "/playlist/test.h2playlist" )
+	);
 	CPPUNIT_ASSERT( pPlaylist != nullptr );
 	CPPUNIT_ASSERT( CoreActionController::setPlaylist( pPlaylist ) );
 	const int nOldSongNumber = 0;
 	CPPUNIT_ASSERT( CoreActionController::loadSong(
-						pPlaylist->getSongFileNameByNumber( nOldSongNumber ) ) );
-	CPPUNIT_ASSERT( CoreActionController::activatePlaylistSong( nOldSongNumber ) );
+		pPlaylist->getSongFileNameByNumber( nOldSongNumber )
+	) );
+	CPPUNIT_ASSERT( CoreActionController::activatePlaylistSong( nOldSongNumber )
+	);
 
 	auto pOldSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pOldSong != nullptr );
@@ -1092,12 +1199,13 @@ void MidiActionTest::testPlaylistNextSongAction() {
 	pMidiEventMap->reset();
 
 	const int nParameter = 1;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::PlaylistNextSong );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::PlaylistNextSong );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 
 	auto pNewSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pNewSong != nullptr );
@@ -1108,24 +1216,28 @@ void MidiActionTest::testPlaylistNextSongAction() {
 	CPPUNIT_ASSERT( CoreActionController::setPlaylist( pPreviousPlaylist ) );
 	CPPUNIT_ASSERT( CoreActionController::setSong( pPreviousSong ) );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testPlaylistPrevSongAction() {
-	___INFOLOG("");
+void MidiActionTest::testPlaylistPrevSongAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pPreviousSong = pHydrogen->getSong();
 	auto pPreviousPlaylist = pHydrogen->getPlaylist();
 
 	auto pPlaylist = CoreActionController::loadPlaylist(
-		H2TEST_FILE( "/playlist/test.h2playlist" ) );
+		H2TEST_FILE( "/playlist/test.h2playlist" )
+	);
 	CPPUNIT_ASSERT( pPlaylist != nullptr );
 	CPPUNIT_ASSERT( CoreActionController::setPlaylist( pPlaylist ) );
 	const int nOldSongNumber = 1;
 	CPPUNIT_ASSERT( CoreActionController::loadSong(
-						pPlaylist->getSongFileNameByNumber( nOldSongNumber ) ) );
-	CPPUNIT_ASSERT( CoreActionController::activatePlaylistSong( nOldSongNumber ) );
+		pPlaylist->getSongFileNameByNumber( nOldSongNumber )
+	) );
+	CPPUNIT_ASSERT( CoreActionController::activatePlaylistSong( nOldSongNumber )
+	);
 
 	auto pOldSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pOldSong != nullptr );
@@ -1135,12 +1247,13 @@ void MidiActionTest::testPlaylistPrevSongAction() {
 	pMidiEventMap->reset();
 
 	const int nParameter = 1;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::PlaylistPrevSong );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::PlaylistPrevSong );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 
 	auto pNewSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pNewSong != nullptr );
@@ -1151,25 +1264,29 @@ void MidiActionTest::testPlaylistPrevSongAction() {
 	CPPUNIT_ASSERT( CoreActionController::setPlaylist( pPreviousPlaylist ) );
 	CPPUNIT_ASSERT( CoreActionController::setSong( pPreviousSong ) );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testPlaylistSongAction() {
-	___INFOLOG("");
+void MidiActionTest::testPlaylistSongAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pPreviousSong = pHydrogen->getSong();
 	auto pPreviousPlaylist = pHydrogen->getPlaylist();
 
 	auto pPlaylist = CoreActionController::loadPlaylist(
-		H2TEST_FILE( "/playlist/test.h2playlist" ) );
+		H2TEST_FILE( "/playlist/test.h2playlist" )
+	);
 	CPPUNIT_ASSERT( pPlaylist != nullptr );
 	CPPUNIT_ASSERT( CoreActionController::setPlaylist( pPlaylist ) );
 	const int nOldSongNumber = 0;
 	const int nNewSongNumber = 1;
 	CPPUNIT_ASSERT( CoreActionController::loadSong(
-						pPlaylist->getSongFileNameByNumber( nOldSongNumber ) ) );
-	CPPUNIT_ASSERT( CoreActionController::activatePlaylistSong( nOldSongNumber ) );
+		pPlaylist->getSongFileNameByNumber( nOldSongNumber )
+	) );
+	CPPUNIT_ASSERT( CoreActionController::activatePlaylistSong( nOldSongNumber )
+	);
 
 	auto pOldSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pOldSong != nullptr );
@@ -1179,49 +1296,58 @@ void MidiActionTest::testPlaylistSongAction() {
 	pMidiEventMap->reset();
 
 	const int nParameterOldSong = 1;
-	auto pActionOldSong = std::make_shared<MidiAction>(
-		MidiAction::Type::PlaylistSong );
+	auto pActionOldSong =
+		std::make_shared<MidiAction>( MidiAction::Type::PlaylistSong );
 	pActionOldSong->setParameter1( QString::number( nOldSongNumber ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameterOldSong, pActionOldSong );
+	pMidiEventMap->registerEvent(
+		MidiEvent::Type::CC, nParameterOldSong, pActionOldSong
+	);
 
 	const int nParameterNewSong = 2;
-	auto pActionNewSong = std::make_shared<MidiAction>(
-		MidiAction::Type::PlaylistSong );
+	auto pActionNewSong =
+		std::make_shared<MidiAction>( MidiAction::Type::PlaylistSong );
 	pActionNewSong->setParameter1( QString::number( nNewSongNumber ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameterNewSong, pActionNewSong );
+	pMidiEventMap->registerEvent(
+		MidiEvent::Type::CC, nParameterNewSong, pActionNewSong
+	);
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameterNewSong, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameterNewSong, 0, 0 )
+	);
 
 	auto pNewSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pNewSong != nullptr );
 	CPPUNIT_ASSERT( pNewSong != pOldSong );
 	const auto sNewSongName = pNewSong->getName();
-	___INFOLOG( QString( "[%1] -> [%2]" ).arg( sOldSongName )
-				.arg( sNewSongName ) );
+	___INFOLOG(
+		QString( "[%1] -> [%2]" ).arg( sOldSongName ).arg( sNewSongName )
+	);
 	CPPUNIT_ASSERT( sNewSongName != sOldSongName );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameterOldSong, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameterOldSong, 0, 0 )
+	);
 
 	auto pNewSongRevert = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pNewSongRevert != nullptr );
 	CPPUNIT_ASSERT( pNewSongRevert != pNewSong );
 	CPPUNIT_ASSERT( pNewSongRevert != pOldSong );
 	const auto sNewSongNameRevert = pNewSongRevert->getName();
-	___INFOLOG( QString( "[%1] -> [%2]" ).arg( sNewSongName )
-				.arg( sNewSongNameRevert ) );
+	___INFOLOG(
+		QString( "[%1] -> [%2]" ).arg( sNewSongName ).arg( sNewSongNameRevert )
+	);
 	CPPUNIT_ASSERT( sNewSongNameRevert != sNewSongName );
 	CPPUNIT_ASSERT( sNewSongNameRevert != sOldSongName );
 
 	CPPUNIT_ASSERT( CoreActionController::setPlaylist( pPreviousPlaylist ) );
 	CPPUNIT_ASSERT( CoreActionController::setSong( pPreviousSong ) );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testPlayPauseToggleAction() {
-	___INFOLOG("");
+void MidiActionTest::testPlayPauseToggleAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
@@ -1229,14 +1355,15 @@ void MidiActionTest::testPlayPauseToggleAction() {
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
+	auto pDriver =
+		dynamic_cast<FakeAudioDriver*>( pAudioEngine->getAudioDriver() );
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	CoreActionController::activateSongMode( false );
 
 	const int nParameter = 1;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::PlayPauseToggle );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::PlayPauseToggle );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	pAudioEngine->stop();
@@ -1244,24 +1371,27 @@ void MidiActionTest::testPlayPauseToggleAction() {
 
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 	CPPUNIT_ASSERT( pTransportPosition->getFrame() != 0 );
 
 	CoreActionController::activateSongMode( true );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testPlayStopToggleAction() {
-	___INFOLOG("");
+void MidiActionTest::testPlayStopToggleAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
@@ -1269,14 +1399,15 @@ void MidiActionTest::testPlayStopToggleAction() {
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
+	auto pDriver =
+		dynamic_cast<FakeAudioDriver*>( pAudioEngine->getAudioDriver() );
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	CoreActionController::activateSongMode( false );
 
 	const int nParameter = 1;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::PlayStopToggle );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::PlayStopToggle );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	pAudioEngine->stop();
@@ -1284,24 +1415,27 @@ void MidiActionTest::testPlayStopToggleAction() {
 
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 	CPPUNIT_ASSERT( pTransportPosition->getFrame() == 0 );
 
 	CoreActionController::activateSongMode( true );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testPreviousBarAction() {
-	___INFOLOG("");
+void MidiActionTest::testPreviousBarAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
@@ -1309,7 +1443,8 @@ void MidiActionTest::testPreviousBarAction() {
 	pMidiEventMap->reset();
 
 	const int nParameter = 1;
-	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::PreviousBar );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::PreviousBar );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	const auto pPreviousSong = pHydrogen->getSong();
@@ -1320,37 +1455,43 @@ void MidiActionTest::testPreviousBarAction() {
 	const int nColumn = 4;
 	CPPUNIT_ASSERT( CoreActionController::activateSongMode( true ) );
 	CPPUNIT_ASSERT( CoreActionController::toggleGridCell(
-						GridPoint( nColumn, nPatternNumber ) ) );
+		GridPoint( nColumn, nPatternNumber )
+	) );
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
 	auto pPatternGroupVector = pSong->getPatternGroupVector();
-	___INFOLOG( QString( "number of columns: [%1]" )
-				.arg( pPatternGroupVector->size() ) );
+	___INFOLOG(
+		QString( "number of columns: [%1]" ).arg( pPatternGroupVector->size() )
+	);
 	CPPUNIT_ASSERT( pPatternGroupVector->size() == ( nColumn + 1 ) );
 
 	const int nOldValue = 2;
 	CPPUNIT_ASSERT( CoreActionController::locateToColumn( nOldValue ) );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 
 	pAudioEngine->lock( RIGHT_HERE );
 	const int nNewValue = pAudioEngine->getTransportPosition()->getColumn();
 	pAudioEngine->unlock();
 
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
-				.arg( nNewValue ).arg( nOldValue ) );
+					.arg( nNewValue )
+					.arg( nOldValue ) );
 	CPPUNIT_ASSERT( nNewValue == nOldValue - 1 );
 
 	CPPUNIT_ASSERT( CoreActionController::toggleGridCell(
-						GridPoint( nColumn, nPatternNumber ) ) );
+		GridPoint( nColumn, nPatternNumber )
+	) );
 	CPPUNIT_ASSERT( CoreActionController::setSong( pPreviousSong ) );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testRecordExitAction() {
-	___INFOLOG("");
+void MidiActionTest::testRecordExitAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -1362,54 +1503,63 @@ void MidiActionTest::testRecordExitAction() {
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::RecordExit );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
-	CPPUNIT_ASSERT( ! pHydrogen->getRecordEnabled() );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
+	CPPUNIT_ASSERT( !pHydrogen->getRecordEnabled() );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testRecordReadyAction() {
-	___INFOLOG("");
+void MidiActionTest::testRecordReadyAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
+	auto pDriver =
+		dynamic_cast<FakeAudioDriver*>( pAudioEngine->getAudioDriver() );
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	pHydrogen->setRecordEnabled( false );
 
 	const int nParameter = 1;
-	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::RecordReady );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::RecordReady );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	CPPUNIT_ASSERT( pHydrogen->getRecordEnabled() );
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
-	CPPUNIT_ASSERT( ! pHydrogen->getRecordEnabled() );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
+	CPPUNIT_ASSERT( !pHydrogen->getRecordEnabled() );
 
 	pHydrogen->sequencerPlay();
 	TestHelper::waitForAudioDriver();
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
-	CPPUNIT_ASSERT( ! pHydrogen->getRecordEnabled() );
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
-	CPPUNIT_ASSERT( ! pHydrogen->getRecordEnabled() );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
+	CPPUNIT_ASSERT( !pHydrogen->getRecordEnabled() );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
+	CPPUNIT_ASSERT( !pHydrogen->getRecordEnabled() );
 
 	pHydrogen->sequencerStop();
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testRecordStrobeAction() {
-	___INFOLOG("");
+void MidiActionTest::testRecordStrobeAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -1418,20 +1568,23 @@ void MidiActionTest::testRecordStrobeAction() {
 	pHydrogen->setRecordEnabled( false );
 
 	const int nParameter = 1;
-	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::RecordStrobe );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::RecordStrobe );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	CPPUNIT_ASSERT( pHydrogen->getRecordEnabled() );
 
 	pHydrogen->setRecordEnabled( false );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testRecordStrobeToggleAction() {
-	___INFOLOG("");
+void MidiActionTest::testRecordStrobeToggleAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -1440,23 +1593,26 @@ void MidiActionTest::testRecordStrobeToggleAction() {
 	pHydrogen->setRecordEnabled( false );
 
 	const int nParameter = 1;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::RecordStrobeToggle );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::RecordStrobeToggle );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	CPPUNIT_ASSERT( pHydrogen->getRecordEnabled() );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
-	CPPUNIT_ASSERT( ! pHydrogen->getRecordEnabled() );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
+	CPPUNIT_ASSERT( !pHydrogen->getRecordEnabled() );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testRedoAction() {
-	___INFOLOG("");
+void MidiActionTest::testRedoAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pEventQueue = EventQueue::get_instance();
@@ -1466,12 +1622,12 @@ void MidiActionTest::testRedoAction() {
 	pHydrogen->setRecordEnabled( false );
 
 	const int nParameter = 1;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::RedoAction );
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::RedoAction );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	const int nMaxTries = 100;
 	int nnTry = 0;
 	while ( nnTry <= nMaxTries ) {
@@ -1488,11 +1644,12 @@ void MidiActionTest::testRedoAction() {
 	}
 	CPPUNIT_ASSERT( nnTry <= nMaxTries );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testSelectAndPlayPatternAction() {
-	___INFOLOG("");
+void MidiActionTest::testSelectAndPlayPatternAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
@@ -1500,7 +1657,8 @@ void MidiActionTest::testSelectAndPlayPatternAction() {
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
+	auto pDriver =
+		dynamic_cast<FakeAudioDriver*>( pAudioEngine->getAudioDriver() );
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	CoreActionController::activateSongMode( false );
@@ -1511,8 +1669,8 @@ void MidiActionTest::testSelectAndPlayPatternAction() {
 
 	const int nParameter = 1;
 	const int nPatternNumber = 3;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::SelectAndPlayPattern );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::SelectAndPlayPattern );
 	pAction->setParameter1( QString::number( nPatternNumber ) );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
@@ -1521,8 +1679,9 @@ void MidiActionTest::testSelectAndPlayPatternAction() {
 
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 	CPPUNIT_ASSERT( pTransportPosition->getFrame() != 0 );
@@ -1532,11 +1691,12 @@ void MidiActionTest::testSelectAndPlayPatternAction() {
 
 	CoreActionController::activateSongMode( true );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testSelectInstrumentAction() {
-	___INFOLOG("");
+void MidiActionTest::testSelectInstrumentAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -1550,22 +1710,25 @@ void MidiActionTest::testSelectInstrumentAction() {
 
 	const int nParameter = 1;
 	const int nInstrumentNumber = 3;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::SelectInstrument );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::SelectInstrument );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, nInstrumentNumber, 0 ) );
-	CPPUNIT_ASSERT( pHydrogen->getSelectedInstrumentNumber() ==
-					nInstrumentNumber );
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameter, nInstrumentNumber, 0
+	) );
+	CPPUNIT_ASSERT(
+		pHydrogen->getSelectedInstrumentNumber() == nInstrumentNumber
+	);
 
 	CoreActionController::activateSongMode( true );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testSelectNextPatternAction() {
-	___INFOLOG("");
+void MidiActionTest::testSelectNextPatternAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -1579,22 +1742,24 @@ void MidiActionTest::testSelectNextPatternAction() {
 
 	const int nParameter = 1;
 	const int nPatternNumber = 3;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::SelectNextPattern );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::SelectNextPattern );
 	pAction->setParameter1( QString::number( nPatternNumber ) );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	CPPUNIT_ASSERT( pHydrogen->getSelectedPatternNumber() == nPatternNumber );
 
 	CoreActionController::activateSongMode( true );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testSelectNextPatternCcAbsoluteAction() {
-	___INFOLOG("");
+void MidiActionTest::testSelectNextPatternCcAbsoluteAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -1609,20 +1774,23 @@ void MidiActionTest::testSelectNextPatternCcAbsoluteAction() {
 	const int nParameter = 1;
 	const int nPatternNumber = 2;
 	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::SelectNextPatternCcAbsolute );
+		MidiAction::Type::SelectNextPatternCcAbsolute
+	);
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, nPatternNumber, 0 ) );
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameter, nPatternNumber, 0
+	) );
 	CPPUNIT_ASSERT( pHydrogen->getSelectedPatternNumber() == nPatternNumber );
 
 	CoreActionController::activateSongMode( true );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testSelectNextPatternRelativeAction() {
-	___INFOLOG("");
+void MidiActionTest::testSelectNextPatternRelativeAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -1637,22 +1805,27 @@ void MidiActionTest::testSelectNextPatternRelativeAction() {
 	const int nParameter = 1;
 	const int nPatternNumber = 2;
 	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::SelectNextPatternRelative );
+		MidiAction::Type::SelectNextPatternRelative
+	);
 	pAction->setParameter1( QString::number( nPatternNumber ) );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
-	CPPUNIT_ASSERT( pHydrogen->getSelectedPatternNumber() ==
-					nOldSelectedPatternNumber + nPatternNumber );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
+	CPPUNIT_ASSERT(
+		pHydrogen->getSelectedPatternNumber() ==
+		nOldSelectedPatternNumber + nPatternNumber
+	);
 
 	CoreActionController::activateSongMode( true );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testSelectOnlyNextPatternAction() {
-	___INFOLOG("");
+void MidiActionTest::testSelectOnlyNextPatternAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -1666,22 +1839,24 @@ void MidiActionTest::testSelectOnlyNextPatternAction() {
 
 	const int nParameter = 1;
 	const int nPatternNumber = 3;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::SelectOnlyNextPattern );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::SelectOnlyNextPattern );
 	pAction->setParameter1( QString::number( nPatternNumber ) );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	CPPUNIT_ASSERT( pHydrogen->getSelectedPatternNumber() == nPatternNumber );
 
 	CoreActionController::activateSongMode( true );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testSelectOnlyNextPatternCcAbsoluteAction() {
-	___INFOLOG("");
+void MidiActionTest::testSelectOnlyNextPatternCcAbsoluteAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -1696,20 +1871,23 @@ void MidiActionTest::testSelectOnlyNextPatternCcAbsoluteAction() {
 	const int nParameter = 1;
 	const int nPatternNumber = 2;
 	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::SelectOnlyNextPatternCcAbsolute );
+		MidiAction::Type::SelectOnlyNextPatternCcAbsolute
+	);
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, nPatternNumber, 0 ) );
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameter, nPatternNumber, 0
+	) );
 	CPPUNIT_ASSERT( pHydrogen->getSelectedPatternNumber() == nPatternNumber );
 
 	CoreActionController::activateSongMode( true );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testStopAction() {
-	___INFOLOG("");
+void MidiActionTest::testStopAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
@@ -1717,7 +1895,8 @@ void MidiActionTest::testStopAction() {
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
+	auto pDriver =
+		dynamic_cast<FakeAudioDriver*>( pAudioEngine->getAudioDriver() );
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	CoreActionController::activateSongMode( false );
@@ -1731,19 +1910,21 @@ void MidiActionTest::testStopAction() {
 
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 	CPPUNIT_ASSERT( pTransportPosition->getFrame() == 0 );
 
 	CoreActionController::activateSongMode( true );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testStripMuteToggleAction() {
-	___INFOLOG("");
+void MidiActionTest::testStripMuteToggleAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -1751,33 +1932,36 @@ void MidiActionTest::testStripMuteToggleAction() {
 
 	const int nParameter = 1;
 	const int nInstrumentNumber = 3;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::StripMuteToggle );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::StripMuteToggle );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
-	auto pInstrument = pSong->getDrumkit()->getInstruments()
-		->get( nInstrumentNumber );
+	auto pInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nInstrumentNumber );
 	CPPUNIT_ASSERT( pInstrument != nullptr );
 
 	const bool bOldValue = false;
 	pInstrument->setMuted( bOldValue );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	CPPUNIT_ASSERT( pInstrument->isMuted() != bOldValue );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	CPPUNIT_ASSERT( pInstrument->isMuted() == bOldValue );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testStripSoloToggleAction() {
-	___INFOLOG("");
+void MidiActionTest::testStripSoloToggleAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -1785,33 +1969,36 @@ void MidiActionTest::testStripSoloToggleAction() {
 
 	const int nParameter = 1;
 	const int nInstrumentNumber = 3;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::StripSoloToggle );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::StripSoloToggle );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
-	auto pInstrument = pSong->getDrumkit()->getInstruments()
-		->get( nInstrumentNumber );
+	auto pInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nInstrumentNumber );
 	CPPUNIT_ASSERT( pInstrument != nullptr );
 
 	const bool bOldValue = false;
 	pInstrument->setSoloed( bOldValue );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	CPPUNIT_ASSERT( pInstrument->isSoloed() != bOldValue );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	CPPUNIT_ASSERT( pInstrument->isSoloed() == bOldValue );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testStripVolumeAbsoluteAction() {
-	___INFOLOG("");
+void MidiActionTest::testStripVolumeAbsoluteAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -1820,35 +2007,38 @@ void MidiActionTest::testStripVolumeAbsoluteAction() {
 	const int nParameter = 1;
 	const int nVolumeValue = 101;
 	const int nInstrumentNumber = 3;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::StripVolumeAbsolute );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::StripVolumeAbsolute );
 	pAction->setValue( QString::number( nVolumeValue ) );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
-	auto pInstrument = pSong->getDrumkit()->getInstruments()
-		->get( nInstrumentNumber );
+	auto pInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nInstrumentNumber );
 	CPPUNIT_ASSERT( pInstrument != nullptr );
 
 	const float fOldValue = 0.92;
 	pInstrument->setVolume( fOldValue );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, nVolumeValue, 0 ) );
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameter, nVolumeValue, 0
+	) );
 	CPPUNIT_ASSERT( pInstrument->getVolume() != fOldValue );
-	const float fRef = 1.5 * static_cast<float>(nVolumeValue) / 127.0;
+	const float fRef = 1.5 * static_cast<float>( nVolumeValue ) / 127.0;
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
-				.arg( pInstrument->getVolume() ).arg( fRef ) );
+					.arg( pInstrument->getVolume() )
+					.arg( fRef ) );
 	CPPUNIT_ASSERT( std::abs( pInstrument->getVolume() - fRef ) <= 0.01 );
 	pInstrument->setVolume( fOldValue );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testStripVolumeRelativeAction() {
-	___INFOLOG("");
+void MidiActionTest::testStripVolumeRelativeAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -1857,35 +2047,38 @@ void MidiActionTest::testStripVolumeRelativeAction() {
 	const int nParameter = 1;
 	const int nVolumeValue = 1;
 	const int nInstrumentNumber = 3;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::StripVolumeRelative );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::StripVolumeRelative );
 	pAction->setValue( QString::number( nVolumeValue ) );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
-	auto pInstrument = pSong->getDrumkit()->getInstruments()
-		->get( nInstrumentNumber );
+	auto pInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nInstrumentNumber );
 	CPPUNIT_ASSERT( pInstrument != nullptr );
 
 	const float fOldValue = 0.92;
 	pInstrument->setVolume( fOldValue );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, nVolumeValue, 0 ) );
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameter, nVolumeValue, 0
+	) );
 	CPPUNIT_ASSERT( pInstrument->getVolume() != fOldValue );
 	const float fRef = fOldValue + 0.1;
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
-				.arg( pInstrument->getVolume() ).arg( fRef ) );
+					.arg( pInstrument->getVolume() )
+					.arg( fRef ) );
 	CPPUNIT_ASSERT( std::abs( pInstrument->getVolume() - fRef ) <= 0.01 );
 	pInstrument->setVolume( fOldValue );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testTapTempoAction() {
-	___INFOLOG("");
+void MidiActionTest::testTapTempoAction()
+{
+	___INFOLOG( "" );
 
 	auto pTestHelper = TestHelper::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
@@ -1896,8 +2089,10 @@ void MidiActionTest::testTapTempoAction() {
 	pMidiEventMap->reset();
 
 	const int nParameter = 0;
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, std::make_shared<MidiAction>(
-								   MidiAction::Type::TapTempo ) );
+	pMidiEventMap->registerEvent(
+		MidiEvent::Type::CC, nParameter,
+		std::make_shared<MidiAction>( MidiAction::Type::TapTempo )
+	);
 	pPref->m_bpmTap = Preferences::BpmTap::TapTempo;
 	pPref->m_beatCounter = Preferences::BeatCounter::Tap;
 
@@ -1910,18 +2105,21 @@ void MidiActionTest::testTapTempoAction() {
 
 	const float fTargetBpm = 378.4;
 	const float fIntervalMs = 60000.0 / fTargetBpm;
-	const auto interval = std::chrono::duration<float, std::milli>{ fIntervalMs };
+	const auto interval =
+		std::chrono::duration<float, std::milli>{ fIntervalMs };
 	CPPUNIT_ASSERT( fTargetBpm < MAX_BPM );
 
 	___DEBUGLOG( QString( "interval: %1" ).arg( fIntervalMs ) );
 
-	const auto tapTempoMessage = MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, 0, 0 );
+	const auto tapTempoMessage =
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 );
 
 	auto intervalCompensation = std::chrono::duration<float, std::milli>( 0 );
 	for ( int nnMessage = 0; nnMessage < 8; ++nnMessage ) {
 		const auto preSleep = Clock::now();
-		pHydrogen->getTimeHelper()->highResolutionSleep( interval - intervalCompensation );
+		pHydrogen->getTimeHelper()->highResolutionSleep(
+			interval - intervalCompensation
+		);
 		const auto postSleep = Clock::now();
 
 		const auto preSend = Clock::now();
@@ -1943,44 +2141,51 @@ void MidiActionTest::testTapTempoAction() {
 	pAudioEngine->unlock();
 
 	const float fTolerance = 1;
-	___INFOLOG( QString( "[%1] -> [%2] target [%3 +/- %4]" ).arg( fOldBpm )
-				.arg( fNewBpm ).arg( fTargetBpm ).arg( fTolerance ) );
+	___INFOLOG( QString( "[%1] -> [%2] target [%3 +/- %4]" )
+					.arg( fOldBpm )
+					.arg( fNewBpm )
+					.arg( fTargetBpm )
+					.arg( fTolerance ) );
 	CPPUNIT_ASSERT( fNewBpm != fOldBpm );
-	if ( ! pTestHelper->isAppveyor() ) {
+	if ( !pTestHelper->isAppveyor() ) {
 		CPPUNIT_ASSERT( std::abs( fTargetBpm - fNewBpm ) < fTolerance );
 	}
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testToggleMetronomeAction() {
-	___INFOLOG("");
+void MidiActionTest::testToggleMetronomeAction()
+{
+	___INFOLOG( "" );
 
 	auto pPref = Preferences::get_instance();
 	auto pMidiEventMap = pPref->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const int nParameter = 1;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::ToggleMetronome );
+	auto pAction =
+		std::make_shared<MidiAction>( MidiAction::Type::ToggleMetronome );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	const bool bOldValue = false;
 	pPref->m_bUseMetronome = bOldValue;
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	CPPUNIT_ASSERT( pPref->m_bUseMetronome != bOldValue );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	CPPUNIT_ASSERT( pPref->m_bUseMetronome == bOldValue );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testUndoAction() {
-	___INFOLOG("");
+void MidiActionTest::testUndoAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pEventQueue = EventQueue::get_instance();
@@ -1990,12 +2195,12 @@ void MidiActionTest::testUndoAction() {
 	pHydrogen->setRecordEnabled( false );
 
 	const int nParameter = 1;
-	auto pAction = std::make_shared<MidiAction>(
-		MidiAction::Type::UndoAction );
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::UndoAction );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	const int nMaxTries = 100;
 	int nnTry = 0;
 	while ( nnTry <= nMaxTries ) {
@@ -2012,11 +2217,12 @@ void MidiActionTest::testUndoAction() {
 	}
 	CPPUNIT_ASSERT( nnTry <= nMaxTries );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::testUnmuteAction() {
-	___INFOLOG("");
+void MidiActionTest::testUnmuteAction()
+{
+	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
@@ -2032,22 +2238,25 @@ void MidiActionTest::testUnmuteAction() {
 	const bool bOldValue = true;
 	pSong->setIsMuted( bOldValue );
 
-	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
-							  nParameter, 0, 0 ) );
+	sendMessage(
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+	);
 	CPPUNIT_ASSERT( pSong->getIsMuted() != bOldValue );
 	pSong->setIsMuted( false );
 
-	___INFOLOG("done");
+	___INFOLOG( "done" );
 }
 
-void MidiActionTest::sendMessage( const MidiMessage& msg ) {
+void MidiActionTest::sendMessage( const MidiMessage& msg )
+{
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );
 
-	auto pDriver = dynamic_cast<LoopBackMidiDriver*>(
-		pAudioEngine->getMidiDriver().get() );
+	auto pDriver =
+		dynamic_cast<LoopBackMidiDriver*>( pAudioEngine->getMidiDriver().get()
+		);
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	pDriver->clearBacklogMessages();
