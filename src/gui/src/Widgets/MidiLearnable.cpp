@@ -46,7 +46,6 @@ void MidiLearnable::setMidiAction( std::shared_ptr<MidiAction> pMidiAction ){
 
 		midiMapChangedEvent();
 	}
-	updateToolTip();
 }
 
 void MidiLearnable::setBaseToolTip( const QString& sNewTip ) {
