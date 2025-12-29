@@ -198,5 +198,10 @@ int main( int argc, char **argv)
 	qDebug().noquote() << QString( "Tests required %1.%2s to complete\n\n" )
 		.arg( durationSeconds.count() ).arg( durationMilliSeconds.count() );
 
+	delete Hydrogen::get_instance();
+	delete EventQueue::get_instance();
+    Preferences::get_instance()->replaceInstance( nullptr );
+    delete Logger::get_instance();
+
 	return wasSuccessful ? 0 : 1;
 }
