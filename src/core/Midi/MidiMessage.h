@@ -84,29 +84,6 @@ class MidiMessage
 		};
 		static QString TypeToQString( Type type );
 
-		/** Subset of incoming MIDI events that will be handled by
-			Hydrogen. */
-		enum class Event {
-			Null,
-			Note,
-			CC,
-			PC,
-			MmcStop,
-			MmcPlay,
-			MmcPause,
-			MmcDeferredPlay,
-			MmcFastForward,
-			MmcRewind,
-			MmcRecordStrobe,
-			MmcRecordExit,
-			MmcRecordReady
-		};
-		static QString EventToQString( const Event& event );
-		static Event QStringToEvent( const QString& sEvent );
-		/** Retrieve the string representation for all available
-		 * #Event. */
-		static QStringList getEventList();
-
 		/** Helper to construct ControlChange MIDI messages. */
 		struct ControlChange {
 			int nParameter;

@@ -258,7 +258,7 @@ void MidiInput::handleControlChangeMessage(
 		pHydrogen->setHihatOpenness( msg.getData2() );
 	}
 
-	pHydrogen->setLastMidiEvent( MidiMessage::Event::CC );
+	pHydrogen->setLastMidiEvent( MidiEvent::Type::CC );
 	pHydrogen->setLastMidiEventParameter( msg.getData1() );
 }
 
@@ -278,7 +278,7 @@ void MidiInput::handleProgramChangeMessage(
 		}
 	}
 
-	pHydrogen->setLastMidiEvent( MidiMessage::Event::PC );
+	pHydrogen->setLastMidiEvent( MidiEvent::Type::PC );
 	pHydrogen->setLastMidiEventParameter( 0 );
 }
 
@@ -298,7 +298,7 @@ void MidiInput::handleNoteOnMessage(
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 
-	pHydrogen->setLastMidiEvent( MidiMessage::Event::Note );
+	pHydrogen->setLastMidiEvent( MidiEvent::Type::Note );
 	pHydrogen->setLastMidiEventParameter( msg.getData1() );
 
 	// The NOTE_ON event can be associated with a MIDI action too.
@@ -386,48 +386,48 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg,
 		 sysexData[ 1 ] == 127 && sysexData[ 3 ] == 6 ) {
 		// MIDI Machine Control (MMC) message
 
-		MidiMessage::Event event = MidiMessage::Event::Null;
+		MidiEvent::Type event = MidiEvent::Type::Null;
 		QString sMMCtype;
 		switch ( sysexData[4] ) {
 		case 1:	// STOP
-			event = MidiMessage::Event::MmcStop;
+			event = MidiEvent::Type::MmcStop;
 			break;
 
 		case 2:	// PLAY
-			event = MidiMessage::Event::MmcPlay;
+			event = MidiEvent::Type::MmcPlay;
 			break;
 
 		case 3:	//DEFERRED PLAY
-			event = MidiMessage::Event::MmcDeferredPlay;
+			event = MidiEvent::Type::MmcDeferredPlay;
 			break;
 
 		case 4:	// FAST FWD
-			event = MidiMessage::Event::MmcFastForward;
+			event = MidiEvent::Type::MmcFastForward;
 			break;
 
 		case 5:	// REWIND
-			event = MidiMessage::Event::MmcRewind;
+			event = MidiEvent::Type::MmcRewind;
 			break;
 
 		case 6:	// RECORD STROBE (PUNCH IN)
-			event = MidiMessage::Event::MmcRecordStrobe;
+			event = MidiEvent::Type::MmcRecordStrobe;
 			break;
 
 		case 7:	// RECORD EXIT (PUNCH OUT)
-			event = MidiMessage::Event::MmcRecordExit;
+			event = MidiEvent::Type::MmcRecordExit;
 			break;
 
 		case 8:	// RECORD READY
-			event = MidiMessage::Event::MmcRecordReady;
+			event = MidiEvent::Type::MmcRecordReady;
 			break;
 
 		case 9:	//PAUSE
-			event = MidiMessage::Event::MmcPause;
+			event = MidiEvent::Type::MmcPause;
 			break;
 		}
 
-		if ( event != MidiMessage::Event::Null ) {
-			const QString sMMCtype = MidiMessage::EventToQString( event );
+		if ( event != MidiEvent::Type::Null ) {
+			const QString sMMCtype = MidiEvent::TypeToQString( event );
 			INFOLOG( QString( "MIDI Machine Control command: [%1]" )
 					 .arg( sMMCtype ) );
 			

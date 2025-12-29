@@ -28,6 +28,7 @@
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiAction.h>
+#include <core/Midi/MidiEvent.h>
 #include <core/Midi/MidiEventMap.h>
 #include <core/Preferences/Preferences.h>
 
@@ -37,7 +38,7 @@ MidiSenseWidget::MidiSenseWidget(
 	std::shared_ptr<MidiAction> pAction
 )
 	: QDialog( pParent ),
-	  m_lastMidiEvent( H2Core::MidiMessage::Event::Null ),
+	  m_lastMidiEvent( H2Core::MidiEvent::Type::Null ),
 	  m_nLastMidiEventParameter( 0 )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
@@ -84,7 +85,7 @@ MidiSenseWidget::MidiSenseWidget(
 	pMainLayout->addWidget( m_pTextLabel );
 
 	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
-	pHydrogen->setLastMidiEvent( H2Core::MidiMessage::Event::Null );
+	pHydrogen->setLastMidiEvent( H2Core::MidiEvent::Type::Null );
 	pHydrogen->setLastMidiEventParameter( 0 );
 
 	m_pUpdateTimer = new QTimer( this );
@@ -113,7 +114,7 @@ MidiSenseWidget::~MidiSenseWidget()
 void MidiSenseWidget::updateMidi()
 {
 	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( pHydrogen->getLastMidiEvent() != H2Core::MidiMessage::Event::Null ) {
+	if ( pHydrogen->getLastMidiEvent() != H2Core::MidiEvent::Type::Null ) {
 		m_lastMidiEvent = pHydrogen->getLastMidiEvent();
 		m_nLastMidiEventParameter = pHydrogen->getLastMidiEventParameter();
 
@@ -128,29 +129,29 @@ void MidiSenseWidget::updateMidi()
 			pAction->setValue( "0" );
 
 			switch ( m_lastMidiEvent ) {
-				case H2Core::MidiMessage::Event::CC:
+				case H2Core::MidiEvent::Type::CC:
 					pMidiEventMap->registerCCEvent(
 						m_nLastMidiEventParameter, pAction
 					);
 					break;
 
-				case H2Core::MidiMessage::Event::Note:
+				case H2Core::MidiEvent::Type::Note:
 					pMidiEventMap->registerNoteEvent(
 						m_nLastMidiEventParameter, pAction
 					);
 					break;
 
-				case H2Core::MidiMessage::Event::PC:
+				case H2Core::MidiEvent::Type::PC:
 					pMidiEventMap->registerPCEvent( pAction );
 					break;
 
-				case H2Core::MidiMessage::Event::Null:
+				case H2Core::MidiEvent::Type::Null:
 					return;
 
 				default:
 					// MMC event
 					pMidiEventMap->registerMMCEvent(
-						H2Core::MidiMessage::EventToQString( m_lastMidiEvent ),
+						H2Core::MidiEvent::TypeToQString( m_lastMidiEvent ),
 						pAction
 					);
 			}
@@ -178,10 +179,10 @@ void MidiSenseWidget::updateLabels()
 			  H2Core::Preferences::get_instance()
 				  ->getMidiEventMap()
 				  ->getRegisteredMidiEvents( m_pAction ) ) {
-			if ( eevent == H2Core::MidiMessage::Event::Note ||
-				 eevent == H2Core::MidiMessage::Event::CC ) {
+			if ( eevent == H2Core::MidiEvent::Type::Note ||
+				 eevent == H2Core::MidiEvent::Type::CC ) {
 				bindings << QString( "\t- %1 : %2" )
-								.arg( H2Core::MidiMessage::EventToQString(
+								.arg( H2Core::MidiEvent::TypeToQString(
 									eevent
 								) )
 								.arg( nnParam );
@@ -189,7 +190,7 @@ void MidiSenseWidget::updateLabels()
 			else {
 				// PC and MMC_x do not have a parameter.
 				bindings << QString( "\t- %1" )
-								.arg( H2Core::MidiMessage::EventToQString(
+								.arg( H2Core::MidiEvent::TypeToQString(
 									eevent
 								) );
 			}

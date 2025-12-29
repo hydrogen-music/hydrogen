@@ -28,7 +28,7 @@
 
 #include <memory>
 
-#include <core/Midi/MidiMessage.h>
+#include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
 
 class MidiAction;
@@ -46,7 +46,7 @@ class MidiSenseWidget : public QDialog, public H2Core::Object<MidiSenseWidget> {
 	);
 	~MidiSenseWidget();
 
-	const H2Core::MidiMessage::Event& getLastMidiEvent() const;
+	const H2Core::MidiEvent::Type& getLastMidiEvent() const;
 	int getLastMidiEventParameter() const;
 
    private slots:
@@ -56,7 +56,7 @@ class MidiSenseWidget : public QDialog, public H2Core::Object<MidiSenseWidget> {
 	void updateLabels();
 	void updateStyleSheet();
 
-	H2Core::MidiMessage::Event m_lastMidiEvent;
+	H2Core::MidiEvent::Type m_lastMidiEvent;
 	int m_nLastMidiEventParameter;
 	QTimer* m_pUpdateTimer;
 
@@ -70,7 +70,7 @@ class MidiSenseWidget : public QDialog, public H2Core::Object<MidiSenseWidget> {
 	bool m_bDirectWrite;
 };
 
-inline const H2Core::MidiMessage::Event& MidiSenseWidget::getLastMidiEvent(
+inline const H2Core::MidiEvent::Type& MidiSenseWidget::getLastMidiEvent(
 ) const
 {
 	return m_lastMidiEvent;

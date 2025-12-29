@@ -29,7 +29,7 @@
 
 #include <core/Helpers/Xml.h>
 #include <core/Midi/MidiAction.h>
-#include <core/Midi/MidiMessage.h>
+#include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
 
 #include <QtCore/QMutex>
@@ -83,7 +83,7 @@ public:
 	 *   @a pAction grouped in MIDI event type name and MIDI event
 	 *   parameter pairs.
 	 */
-	std::vector<std::pair<H2Core::MidiMessage::Event,int>> getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction ) const;
+	std::vector<std::pair<H2Core::MidiEvent::Type,int>> getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction ) const;
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of

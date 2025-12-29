@@ -31,8 +31,9 @@
 #include <core/Globals.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiActionManager.h>
-#include <core/Midi/MidiMessage.h>
+#include <core/Midi/MidiEvent.h>
 #include <core/Midi/MidiEventMap.h>
+#include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 
@@ -81,7 +82,7 @@ void MidiActionTable::midiSensePressed( int nRow ){
 	m_nCurrentMidiAutosenseRow = nRow;
 	MidiSenseWidget midiSenseWidget( this );
 	midiSenseWidget.exec();
-	if ( midiSenseWidget.getLastMidiEvent() == H2Core::MidiMessage::Event::Null ) {
+	if ( midiSenseWidget.getLastMidiEvent() == H2Core::MidiEvent::Type::Null ) {
 		// Rejected
 		return;
 	}
@@ -98,7 +99,7 @@ void MidiActionTable::midiSensePressed( int nRow ){
 	}
 
 	pEventCombo->setCurrentIndex( pEventCombo->findText(
-									 H2Core::MidiMessage::EventToQString(
+									 H2Core::MidiEvent::TypeToQString(
 										 midiSenseWidget.getLastMidiEvent() ) ) );
 	pEventSpinner->setValue( midiSenseWidget.getLastMidiEventParameter() );
 
@@ -186,7 +187,8 @@ void MidiActionTable::insertNewRow( std::shared_ptr<MidiAction> pAction,
 	eventBox->setMinimumSize( QSize( m_nMinComboWidth, m_nRowHeight ) );
 	eventBox->setMaximumSize( QSize( m_nMaxComboWidth, m_nRowHeight ) );
 	eventBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
-	eventBox->insertItems( oldRowCount , H2Core::MidiMessage::getEventList() );
+	eventBox->insertItems( oldRowCount , H2Core::MidiEvent::getAllTypes() );
+
 	eventBox->setCurrentIndex( eventBox->findText(eventString) );
 	connect( eventBox , SIGNAL( currentIndexChanged( int ) ) , this , SLOT( updateTable() ) );
 	connect( eventBox , SIGNAL( currentIndexChanged( int ) ),
@@ -298,8 +300,8 @@ void MidiActionTable::setupMidiActionTable()
 	for ( const auto& [nnPitch, ppAction] : pMidiEventMap->getNoteActionMap() ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
 			insertNewRow( ppAction,
-						  H2Core::MidiMessage::EventToQString(
-							  H2Core::MidiMessage::Event::Note ),
+						  H2Core::MidiEvent::TypeToQString(
+							  H2Core::MidiEvent::Type::Note ),
 						  nnPitch );
 		}
 	}
@@ -307,8 +309,8 @@ void MidiActionTable::setupMidiActionTable()
 	for ( const auto& [nnParam, ppAction] : pMidiEventMap->getCCActionMap() ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
 			insertNewRow( ppAction,
-						  H2Core::MidiMessage::EventToQString(
-							  H2Core::MidiMessage::Event::CC ),
+						  H2Core::MidiEvent::TypeToQString(
+							  H2Core::MidiEvent::Type::CC ),
 						  nnParam );
 		}
 	}
@@ -316,8 +318,8 @@ void MidiActionTable::setupMidiActionTable()
 	for ( const auto& ppAction : pMidiEventMap->getPCActions() ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
 			insertNewRow( ppAction,
-						  H2Core::MidiMessage::EventToQString(
-							  H2Core::MidiMessage::Event::PC ), 0 );
+						  H2Core::MidiEvent::TypeToQString(
+							  H2Core::MidiEvent::Type::PC ), 0 );
 		}
 	}
 
@@ -342,7 +344,7 @@ void MidiActionTable::saveMidiActionTable()
 
 		if( !eventCombo->currentText().isEmpty() && !actionCombo->currentText().isEmpty() ){
 			const QString sEventString = eventCombo->currentText();
-			const auto event = H2Core::MidiMessage::QStringToEvent( sEventString );
+			const auto event = H2Core::MidiEvent::QStringToType( sEventString );
 
 			const QString actionString = actionCombo->currentText();
 		
@@ -360,19 +362,19 @@ void MidiActionTable::saveMidiActionTable()
 			}
 
 			switch ( event ) {
-			case H2Core::MidiMessage::Event::CC:
+			case H2Core::MidiEvent::Type::CC:
 				pMidiEventMap->registerCCEvent( eventSpinner->cleanText().toInt() , pAction );
 				break;
 				
-			case H2Core::MidiMessage::Event::Note:
+			case H2Core::MidiEvent::Type::Note:
 				pMidiEventMap->registerNoteEvent( eventSpinner->cleanText().toInt() , pAction );
 				break;
 				
-			case H2Core::MidiMessage::Event::PC:
+			case H2Core::MidiEvent::Type::PC:
 				pMidiEventMap->registerPCEvent( pAction );
 				break;
 				
-			case H2Core::MidiMessage::Event::Null:
+			case H2Core::MidiEvent::Type::Null:
 				// Event not recognized
 				continue;
 				
@@ -405,23 +407,23 @@ void MidiActionTable::updateRow( int nRow ) {
 	// particular event.
 	LCDSpinBox* pEventParameterSpinner = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 2 ) );
 	const QString sEventString = pEventCombo->currentText();
-	const auto event = H2Core::MidiMessage::QStringToEvent( sEventString );
+	const auto event = H2Core::MidiEvent::QStringToType( sEventString );
 
 	switch ( event ) {
-	case H2Core::MidiMessage::Event::CC:
+	case H2Core::MidiEvent::Type::CC:
 		pEventParameterSpinner->show();
 		pEventParameterSpinner->setMinimum( 0 );
 		pEventParameterSpinner->setMaximum( 127 );
 		break;
 		
-	case H2Core::MidiMessage::Event::Note:
+	case H2Core::MidiEvent::Type::Note:
 		pEventParameterSpinner->show();
 		pEventParameterSpinner->setMinimum( MIDI_OUT_NOTE_MIN );
 		pEventParameterSpinner->setMaximum( MIDI_OUT_NOTE_MAX );
 		break;
 		
-	case H2Core::MidiMessage::Event::PC:
-	case H2Core::MidiMessage::Event::Null:
+	case H2Core::MidiEvent::Type::PC:
+	case H2Core::MidiEvent::Type::Null:
 	default:
 		// Includes all MMC events
 		pEventParameterSpinner->hide();

@@ -145,8 +145,8 @@ void MidiEventMap::saveTo( H2Core::XMLNode& node, bool bSilent ) const {
 			auto midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
 			midiEventNode.write_string(
-				"noteEvent", H2Core::MidiMessage::EventToQString(
-					H2Core::MidiMessage::Event::Note ) );
+				"noteEvent", H2Core::MidiEvent::TypeToQString(
+					H2Core::MidiEvent::Type::Note ) );
 			midiEventNode.write_int( "eventParameter" , nnPitch );
 			midiEventNode.write_string(
 				"action" , MidiAction::typeToQString( ppAction->getType() ) );
@@ -161,8 +161,8 @@ void MidiEventMap::saveTo( H2Core::XMLNode& node, bool bSilent ) const {
 			auto midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
 			midiEventNode.write_string(
-				"ccEvent", H2Core::MidiMessage::EventToQString(
-					H2Core::MidiMessage::Event::CC ) );
+				"ccEvent", H2Core::MidiEvent::TypeToQString(
+					H2Core::MidiEvent::Type::CC ) );
 			midiEventNode.write_int( "eventParameter" , nnParam );
 			midiEventNode.write_string(
 				"action" , MidiAction::typeToQString( ppAction->getType() ) );
@@ -177,8 +177,8 @@ void MidiEventMap::saveTo( H2Core::XMLNode& node, bool bSilent ) const {
 			auto midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
 			midiEventNode.write_string(
-				"pcEvent", H2Core::MidiMessage::EventToQString(
-					H2Core::MidiMessage::Event::PC ) );
+				"pcEvent", H2Core::MidiEvent::TypeToQString(
+					H2Core::MidiEvent::Type::PC ) );
 			midiEventNode.write_string(
 				"action" , MidiAction::typeToQString( ppAction->getType() ) );
 			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
@@ -214,11 +214,11 @@ void MidiEventMap::registerMMCEvent( const QString& sEventString, std::shared_pt
 		return;
 	}
 
-	const auto event = H2Core::MidiMessage::QStringToEvent( sEventString );
-	if ( event == H2Core::MidiMessage::Event::Null ||
-		 event == H2Core::MidiMessage::Event::Note ||
-		 event == H2Core::MidiMessage::Event::CC ||
-		 event == H2Core::MidiMessage::Event::PC ) {
+	const auto event = H2Core::MidiEvent::QStringToType( sEventString );
+	if ( event == H2Core::MidiEvent::Type::Null ||
+		 event == H2Core::MidiEvent::Type::Note ||
+		 event == H2Core::MidiEvent::Type::CC ||
+		 event == H2Core::MidiEvent::Type::PC ) {
 		ERRORLOG( QString( "Provided event string [%1] is no supported MMC event" )
 				  .arg( sEventString ) );
 		return;
@@ -402,32 +402,32 @@ std::vector<int> MidiEventMap::findCCValuesByType( MidiAction::Type type ) {
 	return values;
 }
 
-std::vector<std::pair<H2Core::MidiMessage::Event,int>> MidiEventMap::getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction ) const {
-	std::vector<std::pair<H2Core::MidiMessage::Event,int>> midiEvents;
+std::vector<std::pair<H2Core::MidiEvent::Type,int>> MidiEventMap::getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction ) const {
+	std::vector<std::pair<H2Core::MidiEvent::Type,int>> midiEvents;
 
 	if ( pAction != nullptr && ! pAction->isNull() ) {
 		for ( const auto& [nnParam, ppAction] : m_noteActionMap ) {
 			if ( ppAction != nullptr &&
 				 ppAction->isEquivalentTo( pAction ) ) {
 				midiEvents.push_back( std::make_pair(
-										  H2Core::MidiMessage::Event::Note, nnParam ) );
+										  H2Core::MidiEvent::Type::Note, nnParam ) );
 			}
 		}
 		for ( const auto& [nnParam, ppAction] : m_ccActionMap ) {
 			if ( ppAction != nullptr &&
 				 ppAction->isEquivalentTo( pAction ) ) {
 				midiEvents.push_back( std::make_pair(
-										  H2Core::MidiMessage::Event::CC, nnParam ) );
+										  H2Core::MidiEvent::Type::CC, nnParam ) );
 			}
 		}
 		for ( const auto& [ssType, ppAction] : m_mmcActionMap ) {
 			if ( ppAction != nullptr &&
 				 ppAction->isEquivalentTo( pAction ) ) {
-				const auto event = H2Core::MidiMessage::QStringToEvent( ssType );
-				if ( event == H2Core::MidiMessage::Event::Null ||
-					 event == H2Core::MidiMessage::Event::Note ||
-					 event == H2Core::MidiMessage::Event::CC ||
-					 event == H2Core::MidiMessage::Event::PC ) {
+				const auto event = H2Core::MidiEvent::QStringToType( ssType );
+				if ( event == H2Core::MidiEvent::Type::Null ||
+					 event == H2Core::MidiEvent::Type::Note ||
+					 event == H2Core::MidiEvent::Type::CC ||
+					 event == H2Core::MidiEvent::Type::PC ) {
 					ERRORLOG( QString( "Unexpected event type [%1] found in mmcActionMap" )
 							  .arg( ssType ) );
 					continue;
@@ -439,7 +439,7 @@ std::vector<std::pair<H2Core::MidiMessage::Event,int>> MidiEventMap::getRegister
 			if ( ppAction != nullptr &&
 				 ppAction->isEquivalentTo( pAction ) ) {
 				midiEvents.push_back( std::make_pair(
-										  H2Core::MidiMessage::Event::PC, 0 ) );
+										  H2Core::MidiEvent::Type::PC, 0 ) );
 			}
 		}
 	}
