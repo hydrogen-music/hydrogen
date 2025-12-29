@@ -51,14 +51,8 @@ public:
 	
 	void reset();  ///< Reinitializes the object.
 
-	/** Sets up the relation between a mmc event and an Midiaction */
-	void registerMMCEvent( const MidiEvent::Type&, std::shared_ptr<MidiAction> );
-	/** Sets up the relation between a note event and an Midiaction */
-	void registerNoteEvent( int , std::shared_ptr<MidiAction> );
-	/** Sets up the relation between a cc event and an Midiaction */
-	void registerCCEvent( int , std::shared_ptr<MidiAction> );
-	/** Sets up the relation between a program change and an Midiaction */
-	void registerPCEvent( std::shared_ptr<MidiAction> );
+	void
+	registerEvent( const MidiEvent::Type&, int nParameter, std::shared_ptr<MidiAction> );
 
 	const std::vector<std::shared_ptr<MidiEvent>>& getMidiEvents() const;
 

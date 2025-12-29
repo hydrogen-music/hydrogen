@@ -137,7 +137,7 @@ QStringList MidiEvent::getAllTypes() {
 
 MidiEvent::MidiEvent()
 	: m_type( MidiEvent::Type::Null ),
-	  m_nParameter( -1 ),
+	  m_nParameter( MidiEvent::nNullParameter ),
 	  m_pMidiAction( nullptr )
 {
 }

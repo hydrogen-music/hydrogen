@@ -86,7 +86,7 @@ MidiSenseWidget::MidiSenseWidget(
 
 	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
 	pHydrogen->setLastMidiEvent( H2Core::MidiEvent::Type::Null );
-	pHydrogen->setLastMidiEventParameter( 0 );
+	pHydrogen->setLastMidiEventParameter( H2Core::MidiEvent::nNullParameter );
 
 	m_pUpdateTimer = new QTimer( this );
 
@@ -128,30 +128,7 @@ void MidiSenseWidget::updateMidi()
 			auto pAction = std::make_shared<MidiAction>( m_pAction );
 			pAction->setValue( "0" );
 
-			switch ( m_lastMidiEvent ) {
-				case H2Core::MidiEvent::Type::CC:
-					pMidiEventMap->registerCCEvent(
-						m_nLastMidiEventParameter, pAction
-					);
-					break;
-
-				case H2Core::MidiEvent::Type::Note:
-					pMidiEventMap->registerNoteEvent(
-						m_nLastMidiEventParameter, pAction
-					);
-					break;
-
-				case H2Core::MidiEvent::Type::PC:
-					pMidiEventMap->registerPCEvent( pAction );
-					break;
-
-				case H2Core::MidiEvent::Type::Null:
-					return;
-
-				default:
-					// MMC event
-					pMidiEventMap->registerMMCEvent( m_lastMidiEvent, pAction );
-			}
+            pMidiEventMap->registerEvent( m_lastMidiEvent, m_nLastMidiEventParameter, pAction );
 
 			H2Core::EventQueue::get_instance()->pushEvent(
 				H2Core::Event::Type::MidiEventMapChanged, 0

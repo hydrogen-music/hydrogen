@@ -69,11 +69,11 @@ std::shared_ptr<MidiEventMap> MidiEventMap::loadFrom( const H2Core::XMLNode& nod
 			pAction->setParameter3(
 				eventNode.firstChildElement( "parameter3" ).text() );
 
-			pMidiEventMap->registerMMCEvent(
+			pMidiEventMap->registerEvent(
 				MidiEvent::QStringToType(
 					eventNode.firstChildElement( "mmcEvent" ).text()
 				),
-				pAction
+				MidiEvent::nNullParameter, pAction
 			);
 		}
 		else if ( sNodeName == "noteEvent" ) {
@@ -86,9 +86,11 @@ std::shared_ptr<MidiEventMap> MidiEventMap::loadFrom( const H2Core::XMLNode& nod
 			pAction->setParameter3(
 				eventNode.firstChildElement( "parameter3" ).text() );
 
-			pMidiEventMap->registerNoteEvent(
-				eventNode.firstChildElement( "eventParameter").text().toInt(),
-				pAction );
+			pMidiEventMap->registerEvent(
+				MidiEvent::Type::Note,
+				eventNode.firstChildElement( "eventParameter" ).text().toInt(),
+				pAction
+			);
 		}
 		else if ( sNodeName == "ccEvent" ){
 			std::shared_ptr<MidiAction> pAction = std::make_shared<MidiAction>(
@@ -99,9 +101,11 @@ std::shared_ptr<MidiEventMap> MidiEventMap::loadFrom( const H2Core::XMLNode& nod
 				eventNode.firstChildElement( "parameter2" ).text() );
 			pAction->setParameter3(
 				eventNode.firstChildElement( "parameter3" ).text() );
-			pMidiEventMap->registerCCEvent(
+			pMidiEventMap->registerEvent(
+				MidiEvent::Type::CC,
 				eventNode.firstChildElement( "eventParameter" ).text().toInt(),
-				pAction );
+				pAction
+			);
 		}
 		else if ( sNodeName == "pcEvent" ){
 			std::shared_ptr<MidiAction> pAction = std::make_shared<MidiAction>(
@@ -112,7 +116,9 @@ std::shared_ptr<MidiEventMap> MidiEventMap::loadFrom( const H2Core::XMLNode& nod
 				eventNode.firstChildElement( "parameter2" ).text() );
 			pAction->setParameter3(
 				eventNode.firstChildElement( "parameter3" ).text() );
-			pMidiEventMap->registerPCEvent( pAction );
+			pMidiEventMap->registerEvent(
+				MidiEvent::Type::PC, MidiEvent::nNullParameter, pAction
+			);
 		}
 		else {
 			WARNINGLOG( QString( "Unknown MIDI map node [%1]" )
@@ -214,36 +220,51 @@ void MidiEventMap::reset()
 	m_events.clear();
 }
 
-void MidiEventMap::registerMMCEvent( const MidiEvent::Type& type, std::shared_ptr<MidiAction> pAction )
+void MidiEventMap::registerEvent(
+	const MidiEvent::Type& type,
+	int nParameter,
+	std::shared_ptr<MidiAction> pAction
+)
 {
-	QMutexLocker mx(&__mutex);
+	QMutexLocker mx( &__mutex );
 
-	if ( pAction == nullptr || pAction->isNull() ) {
-		ERRORLOG( "Invalid Midiaction" );
+	if ( pAction == nullptr || pAction->isNull() ||
+         type == H2Core::MidiEvent::Type::Null ) {
+		ERRORLOG( "Invalid input" );
 		return;
 	}
 
-	if ( type == H2Core::MidiEvent::Type::Null ||
-		 type == H2Core::MidiEvent::Type::Note ||
-		 type == H2Core::MidiEvent::Type::CC ||
-		 type == H2Core::MidiEvent::Type::PC ) {
-		ERRORLOG(
-			QString( "Provided event type [%1] is not a supported MMC event" )
-				.arg( MidiEvent::TypeToQString( type ) )
-		);
+	if ( type == MidiEvent::Type::Note && ( nParameter < MIDI_OUT_NOTE_MIN ||
+											nParameter > MIDI_OUT_NOTE_MAX ) ) {
+		ERRORLOG( QString( "Unable to register Note MIDI [%1]: Provided note "
+						   "[%2] out of bound [%3,%4]" )
+					  .arg( pAction->toQString() )
+					  .arg( nParameter )
+					  .arg( MIDI_OUT_NOTE_MIN )
+					  .arg( MIDI_OUT_NOTE_MAX ) );
+		return;
+	}
+	else if ( type == MidiEvent::Type::CC &&
+			  ( nParameter < 0 || nParameter > 127 ) ) {
+		ERRORLOG( QString( "Unable to register CC MIDI [%1]: Provided "
+						   "parameter [%2] out of bound [0,127]" )
+					  .arg( pAction->toQString() )
+					  .arg( nParameter ) );
 		return;
 	}
 
 	auto pEvent = std::make_shared<MidiEvent>();
 	pEvent->setType( type );
+	pEvent->setParameter( nParameter );
 	pEvent->setMidiAction( pAction );
 
 	for ( const auto& ppEvent : m_events ) {
 		if ( ppEvent != nullptr && ppEvent->getMidiAction() != nullptr &&
 			 ppEvent->getType() == type &&
+			 ppEvent->getParameter() == nParameter &&
 			 ppEvent->getMidiAction()->isEquivalentTo( pAction ) ) {
 			WARNINGLOG(
-				QString( "MMC event [%1] for MidiAction [%2: Param1: [%3], "
+				QString( "Event [%1] for MidiAction [%2: Param1: [%3], "
 						 "Param2: [%4], Param3: [%5]] was already registered" )
 					.arg( MidiEvent::TypeToQString( type ) )
 					.arg( MidiAction::typeToQString( pAction->getType() ) )
@@ -251,110 +272,6 @@ void MidiEventMap::registerMMCEvent( const MidiEvent::Type& type, std::shared_pt
 					.arg( pAction->getParameter2() )
 					.arg( pAction->getParameter3() )
 			);
-			return;
-		}
-	}
-
-	m_events.push_back( pEvent );
-}
-
-void MidiEventMap::registerNoteEvent( int nNote, std::shared_ptr<MidiAction> pAction )
-{
-	QMutexLocker mx(&__mutex);
-
-	if ( pAction == nullptr || pAction->isNull() ) {
-		ERRORLOG( "Invalid Midiaction" );
-		return;
-	}
-	
-	if ( nNote < MIDI_OUT_NOTE_MIN || nNote > MIDI_OUT_NOTE_MAX ) {
-		ERRORLOG( QString( "Unable to register Note MIDI [%1]: Provided note [%2] out of bound [%3,%4]" )
-				  .arg( pAction->toQString() ).arg( nNote )
-				  .arg( MIDI_OUT_NOTE_MIN ).arg( MIDI_OUT_NOTE_MAX ) );
-		return;
-	}
-
-	auto pEvent = std::make_shared<MidiEvent>();
-	pEvent->setType( MidiEvent::Type::Note );
-	pEvent->setParameter( nNote );
-	pEvent->setMidiAction( pAction );
-
-	for ( const auto& ppEvent : m_events ) {
-		if ( ppEvent != nullptr && ppEvent->getMidiAction() != nullptr &&
-			 ppEvent->getType() == MidiEvent::Type::Note &&
-			 ppEvent->getParameter() == pEvent->getParameter() &&
-			 ppEvent->getMidiAction()->isEquivalentTo( pAction ) ) {
-			WARNINGLOG( QString( "NOTE event [%1] for MidiAction [%2: Param1: [%3], Param2: [%4], Param3: [%5]] was already registered" )
-						.arg( nNote )
-						.arg( MidiAction::typeToQString( pAction->getType() ) )
-						.arg( pAction->getParameter1() )
-						.arg( pAction->getParameter2() )
-						.arg( pAction->getParameter3() ) );
-			return;
-		}
-	}
-
-	m_events.push_back( pEvent );
-}
-
-void MidiEventMap::registerCCEvent( int nParameter, std::shared_ptr<MidiAction> pAction ){
-	QMutexLocker mx(&__mutex);
-
-	if ( pAction == nullptr || pAction->isNull() ) {
-		ERRORLOG( "Invalid Midiaction" );
-		return;
-	}
-
-	if ( nParameter < 0 || nParameter > 127 ) {
-		ERRORLOG( QString( "Unable to register CC MIDI [%1]: Provided parameter [%2] out of bound [0,127]" )
-				  .arg( pAction->toQString() ).arg( nParameter ) );
-		return;
-	}
-
-	auto pEvent = std::make_shared<MidiEvent>();
-	pEvent->setType( MidiEvent::Type::CC );
-	pEvent->setParameter( nParameter );
-	pEvent->setMidiAction( pAction );
-
-	for ( const auto& ppEvent : m_events ) {
-		if ( ppEvent != nullptr && ppEvent->getMidiAction() != nullptr &&
-			 ppEvent->getType() == MidiEvent::Type::CC &&
-			 ppEvent->getParameter() == pEvent->getParameter() &&
-			 ppEvent->getMidiAction()->isEquivalentTo( pAction ) ) {
-			WARNINGLOG( QString( "CC event [%1] for MidiAction [%2: Param1: [%3], Param2: [%4], Param3: [%5]] was already registered" )
-						.arg( nParameter )
-						.arg( MidiAction::typeToQString( pAction->getType() ) )
-						.arg( pAction->getParameter1() )
-						.arg( pAction->getParameter2() )
-						.arg( pAction->getParameter3() ) );
-			return;
-		}
-	}
-
-	m_events.push_back( pEvent );
-}
-
-void MidiEventMap::registerPCEvent( std::shared_ptr<MidiAction> pAction ){
-	QMutexLocker mx(&__mutex);
-
-	if ( pAction == nullptr || pAction->isNull() ) {
-		ERRORLOG( "Invalid Midiaction" );
-		return;
-	}
-
-	auto pEvent = std::make_shared<MidiEvent>();
-	pEvent->setType( MidiEvent::Type::PC );
-	pEvent->setMidiAction( pAction );
-
-	for ( const auto& ppEvent : m_events ) {
-		if ( ppEvent != nullptr && ppEvent->getMidiAction() != nullptr &&
-			 ppEvent->getType() == MidiEvent::Type::PC &&
-			 ppEvent->getMidiAction()->isEquivalentTo( pAction ) ) {
-			WARNINGLOG( QString( "PC event for MidiAction [%2: Param1: [%3], Param2: [%4], Param3: [%5]] was already registered" )
-						.arg( MidiAction::typeToQString( pAction->getType() ) )
-						.arg( pAction->getParameter1() )
-						.arg( pAction->getParameter2() )
-						.arg( pAction->getParameter3() ) );
 			return;
 		}
 	}

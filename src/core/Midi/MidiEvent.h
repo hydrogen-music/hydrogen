@@ -39,6 +39,8 @@ namespace H2Core {
 class MidiEvent : public H2Core::Object<MidiEvent> {
 	H2_OBJECT( MidiEvent )
    public:
+    static constexpr int nNullParameter = -1;
+
 	/** Subset of incoming MIDI events that will be handled by
 		Hydrogen. */
 	enum class Type {

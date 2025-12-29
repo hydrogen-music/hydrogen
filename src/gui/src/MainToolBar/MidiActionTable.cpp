@@ -340,28 +340,9 @@ void MidiActionTable::saveMidiActionTable()
 				pAction->setParameter3( actionSpinner3->cleanText() );
 			}
 
-			switch ( type ) {
-			case H2Core::MidiEvent::Type::CC:
-				pMidiEventMap->registerCCEvent( eventSpinner->cleanText().toInt() , pAction );
-				break;
-				
-			case H2Core::MidiEvent::Type::Note:
-				pMidiEventMap->registerNoteEvent( eventSpinner->cleanText().toInt() , pAction );
-				break;
-				
-			case H2Core::MidiEvent::Type::PC:
-				pMidiEventMap->registerPCEvent( pAction );
-				break;
-				
-			case H2Core::MidiEvent::Type::Null:
-				// type not recognized
-				continue;
-				
-			default:
-				// All remaining events should be different trades of
-				// MMC events. If not, registerMMCEvent will handle it.
-				pMidiEventMap->registerMMCEvent( type, pAction );
-			}
+			pMidiEventMap->registerEvent(
+				type, eventSpinner->cleanText().toInt(), pAction
+			);
 		}
 	}
 }
