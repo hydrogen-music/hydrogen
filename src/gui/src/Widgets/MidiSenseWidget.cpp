@@ -150,10 +150,7 @@ void MidiSenseWidget::updateMidi()
 
 				default:
 					// MMC event
-					pMidiEventMap->registerMMCEvent(
-						H2Core::MidiEvent::TypeToQString( m_lastMidiEvent ),
-						pAction
-					);
+					pMidiEventMap->registerMMCEvent( m_lastMidiEvent, pAction );
 			}
 
 			H2Core::EventQueue::get_instance()->pushEvent(

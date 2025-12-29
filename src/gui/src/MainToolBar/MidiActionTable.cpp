@@ -323,7 +323,7 @@ void MidiActionTable::saveMidiActionTable()
 
 		if( !eventCombo->currentText().isEmpty() && !actionCombo->currentText().isEmpty() ){
 			const QString sEventString = eventCombo->currentText();
-			const auto event = H2Core::MidiEvent::QStringToType( sEventString );
+			const auto type = H2Core::MidiEvent::QStringToType( sEventString );
 
 			const QString actionString = actionCombo->currentText();
 		
@@ -340,7 +340,7 @@ void MidiActionTable::saveMidiActionTable()
 				pAction->setParameter3( actionSpinner3->cleanText() );
 			}
 
-			switch ( event ) {
+			switch ( type ) {
 			case H2Core::MidiEvent::Type::CC:
 				pMidiEventMap->registerCCEvent( eventSpinner->cleanText().toInt() , pAction );
 				break;
@@ -354,13 +354,13 @@ void MidiActionTable::saveMidiActionTable()
 				break;
 				
 			case H2Core::MidiEvent::Type::Null:
-				// Event not recognized
+				// type not recognized
 				continue;
 				
 			default:
 				// All remaining events should be different trades of
 				// MMC events. If not, registerMMCEvent will handle it.
-				pMidiEventMap->registerMMCEvent( sEventString , pAction );
+				pMidiEventMap->registerMMCEvent( type, pAction );
 			}
 		}
 	}

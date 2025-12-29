@@ -70,8 +70,11 @@ std::shared_ptr<MidiEventMap> MidiEventMap::loadFrom( const H2Core::XMLNode& nod
 				eventNode.firstChildElement( "parameter3" ).text() );
 
 			pMidiEventMap->registerMMCEvent(
-				eventNode.firstChildElement( "mmcEvent" ).text(),
-				pAction );
+				MidiEvent::QStringToType(
+					eventNode.firstChildElement( "mmcEvent" ).text()
+				),
+				pAction
+			);
 		}
 		else if ( sNodeName == "noteEvent" ) {
 			std::shared_ptr<MidiAction> pAction = std::make_shared<MidiAction>(
@@ -211,7 +214,7 @@ void MidiEventMap::reset()
 	m_events.clear();
 }
 
-void MidiEventMap::registerMMCEvent( const QString& sEventString, std::shared_ptr<MidiAction> pAction )
+void MidiEventMap::registerMMCEvent( const MidiEvent::Type& type, std::shared_ptr<MidiAction> pAction )
 {
 	QMutexLocker mx(&__mutex);
 
@@ -220,13 +223,14 @@ void MidiEventMap::registerMMCEvent( const QString& sEventString, std::shared_pt
 		return;
 	}
 
-	const auto type = H2Core::MidiEvent::QStringToType( sEventString );
 	if ( type == H2Core::MidiEvent::Type::Null ||
 		 type == H2Core::MidiEvent::Type::Note ||
 		 type == H2Core::MidiEvent::Type::CC ||
 		 type == H2Core::MidiEvent::Type::PC ) {
-		ERRORLOG( QString( "Provided event string [%1] is no supported MMC event" )
-				  .arg( sEventString ) );
+		ERRORLOG(
+			QString( "Provided event type [%1] is not a supported MMC event" )
+				.arg( MidiEvent::TypeToQString( type ) )
+		);
 		return;
 	}
 
@@ -238,12 +242,15 @@ void MidiEventMap::registerMMCEvent( const QString& sEventString, std::shared_pt
 		if ( ppEvent != nullptr && ppEvent->getMidiAction() != nullptr &&
 			 ppEvent->getType() == type &&
 			 ppEvent->getMidiAction()->isEquivalentTo( pAction ) ) {
-			WARNINGLOG( QString( "MMC event [%1] for MidiAction [%2: Param1: [%3], Param2: [%4], Param3: [%5]] was already registered" )
-						.arg( sEventString )
-						.arg( MidiAction::typeToQString( pAction->getType() ) )
-						.arg( pAction->getParameter1() )
-						.arg( pAction->getParameter2() )
-						.arg( pAction->getParameter3() ) );
+			WARNINGLOG(
+				QString( "MMC event [%1] for MidiAction [%2: Param1: [%3], "
+						 "Param2: [%4], Param3: [%5]] was already registered" )
+					.arg( MidiEvent::TypeToQString( type ) )
+					.arg( MidiAction::typeToQString( pAction->getType() ) )
+					.arg( pAction->getParameter1() )
+					.arg( pAction->getParameter2() )
+					.arg( pAction->getParameter3() )
+			);
 			return;
 		}
 	}

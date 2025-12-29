@@ -52,7 +52,7 @@ public:
 	void reset();  ///< Reinitializes the object.
 
 	/** Sets up the relation between a mmc event and an Midiaction */
-	void registerMMCEvent( const QString&, std::shared_ptr<MidiAction> );
+	void registerMMCEvent( const MidiEvent::Type&, std::shared_ptr<MidiAction> );
 	/** Sets up the relation between a note event and an Midiaction */
 	void registerNoteEvent( int , std::shared_ptr<MidiAction> );
 	/** Sets up the relation between a cc event and an Midiaction */
