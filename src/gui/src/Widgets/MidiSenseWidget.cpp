@@ -31,11 +31,14 @@
 #include <core/Midi/MidiEventMap.h>
 #include <core/Preferences/Preferences.h>
 
-MidiSenseWidget::MidiSenseWidget( QWidget* pParent, bool bDirectWrite,
-								  std::shared_ptr<MidiAction> pAction)
-	: QDialog( pParent )
-	, m_lastMidiEvent( H2Core::MidiMessage::Event::Null )
-	, m_nLastMidiEventParameter( 0 )
+MidiSenseWidget::MidiSenseWidget(
+	QWidget* pParent,
+	bool bDirectWrite,
+	std::shared_ptr<MidiAction> pAction
+)
+	: QDialog( pParent ),
+	  m_lastMidiEvent( H2Core::MidiMessage::Event::Null ),
+	  m_nLastMidiEventParameter( 0 )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	m_bDirectWrite = bDirectWrite;
@@ -45,98 +48,109 @@ MidiSenseWidget::MidiSenseWidget( QWidget* pParent, bool bDirectWrite,
 	setFixedSize( 280, 100 );
 
 	bool midiOperable = false;
-	
-	m_pURLLabel = new QLabel( this );
-	m_pURLLabel->setAlignment( Qt::AlignCenter );
 
-	if(m_pAction != nullptr){
-		m_pURLLabel->setText( pCommonStrings->getMidiSenseInput() );
+	m_pTextLabel = new QLabel( this );
+	m_pTextLabel->setAlignment( Qt::AlignCenter );
+
+	if ( m_pAction != nullptr ) {
+		m_pTextLabel->setText( pCommonStrings->getMidiSenseInput() );
 		midiOperable = true;
-	} else {
-
+	}
+	else {
 		/*
-		 *   Check if this widget got called from the midiTable in the preferences
-		 *   window(directWrite=false) or by clicking on a midiLearn-capable gui item(directWrite=true)
+		 *   Check if this widget got called from the midiTable in the
+		 * preferences window(directWrite=false) or by clicking on a
+		 * midiLearn-capable gui item(directWrite=true)
 		 */
 
-		if(m_bDirectWrite){
-			m_pURLLabel->setText( pCommonStrings->getMidiSenseUnavailable() );
+		if ( m_bDirectWrite ) {
+			m_pTextLabel->setText( pCommonStrings->getMidiSenseUnavailable() );
 			midiOperable = false;
-		} else {
-			m_pURLLabel->setText( pCommonStrings->getMidiSenseInput() );
+		}
+		else {
+			m_pTextLabel->setText( pCommonStrings->getMidiSenseInput() );
 			midiOperable = true;
 		}
 	}
-	
+
 	QVBoxLayout* pVBox = new QVBoxLayout( this );
-	pVBox->addWidget( m_pURLLabel );
+	pVBox->addWidget( m_pTextLabel );
 	setLayout( pVBox );
-	
-	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
+
+	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
 	pHydrogen->setLastMidiEvent( H2Core::MidiMessage::Event::Null );
 	pHydrogen->setLastMidiEventParameter( 0 );
-	
+
 	m_pUpdateTimer = new QTimer( this );
 
-	if(midiOperable)
-	{
+	if ( midiOperable ) {
 		/*
 		 * If the widget is not midi operable, we can omit
 		 * starting the timer which listens to midi input..
 		 */
 
-		connect( m_pUpdateTimer, SIGNAL( timeout() ), this, SLOT( updateMidi() ) );
+		connect(
+			m_pUpdateTimer, SIGNAL( timeout() ), this, SLOT( updateMidi() )
+		);
 		m_pUpdateTimer->start( 100 );
 	}
 };
 
-MidiSenseWidget::~MidiSenseWidget(){
+MidiSenseWidget::~MidiSenseWidget()
+{
 	m_pUpdateTimer->stop();
 }
 
-void MidiSenseWidget::updateMidi(){
-	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( pHydrogen->getLastMidiEvent() != H2Core::MidiMessage::Event::Null ){
-
+void MidiSenseWidget::updateMidi()
+{
+	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
+	if ( pHydrogen->getLastMidiEvent() != H2Core::MidiMessage::Event::Null ) {
 		m_lastMidiEvent = pHydrogen->getLastMidiEvent();
 		m_nLastMidiEventParameter = pHydrogen->getLastMidiEventParameter();
 
 		if ( m_bDirectWrite ) {
 			// write the Midiaction / parameter combination to the midiMap
-			auto pMidiEventMap = H2Core::Preferences::get_instance()->getMidiEventMap();
+			auto pMidiEventMap =
+				H2Core::Preferences::get_instance()->getMidiEventMap();
 
-			assert(m_pAction);
+			assert( m_pAction );
 
 			auto pAction = std::make_shared<MidiAction>( m_pAction );
 			pAction->setValue( "0" );
 
-			switch( m_lastMidiEvent ) {
-			case H2Core::MidiMessage::Event::CC: 
-				pMidiEventMap->registerCCEvent( m_nLastMidiEventParameter, pAction );
-				break;
+			switch ( m_lastMidiEvent ) {
+				case H2Core::MidiMessage::Event::CC:
+					pMidiEventMap->registerCCEvent(
+						m_nLastMidiEventParameter, pAction
+					);
+					break;
 
-			case H2Core::MidiMessage::Event::Note:
-				pMidiEventMap->registerNoteEvent( m_nLastMidiEventParameter, pAction );
-				break;
+				case H2Core::MidiMessage::Event::Note:
+					pMidiEventMap->registerNoteEvent(
+						m_nLastMidiEventParameter, pAction
+					);
+					break;
 
-			case H2Core::MidiMessage::Event::PC:
-				pMidiEventMap->registerPCEvent( pAction );
-				break;
+				case H2Core::MidiMessage::Event::PC:
+					pMidiEventMap->registerPCEvent( pAction );
+					break;
 
-			case H2Core::MidiMessage::Event::Null:
-				return;
+				case H2Core::MidiMessage::Event::Null:
+					return;
 
-			default:
-				// MMC event
-				pMidiEventMap->registerMMCEvent(
-					H2Core::MidiMessage::EventToQString( m_lastMidiEvent ),
-					pAction );
+				default:
+					// MMC event
+					pMidiEventMap->registerMMCEvent(
+						H2Core::MidiMessage::EventToQString( m_lastMidiEvent ),
+						pAction
+					);
 			}
 
-			H2Core::EventQueue::get_instance()->pushEvent( H2Core::Event::Type::MidiEventMapChanged, 0 );
+			H2Core::EventQueue::get_instance()->pushEvent(
+				H2Core::Event::Type::MidiEventMapChanged, 0
+			);
 		}
 
 		close();
 	}
 }
-
