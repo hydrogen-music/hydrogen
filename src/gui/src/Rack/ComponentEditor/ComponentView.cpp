@@ -920,8 +920,11 @@ void ComponentView::accountForScrollbar( bool bScrollBarVisible )
 
 int ComponentView::getExpandedHeight() const
 {
-	const int nLayers =
-		m_pComponent != nullptr ? m_pComponent->getLayers().size() : 1;
+    // We show at least one empty layer.
+	int nLayers = 1;
+	if ( m_pComponent != nullptr && m_pComponent->getLayers().size() > 1 ) {
+        nLayers = m_pComponent->getLayers().size();
+	};
 	return ComponentView::nVerticalSpacing * 4 + ComponentView::nHeaderHeight +
 		   ComponentView::nToolBarHeight * 2 + LayerPreview::nHeader +
 		   LayerPreview::nBorder + LayerPreview::nLayerHeight * nLayers +
@@ -1132,6 +1135,10 @@ void ComponentView::setLayers(
 	bool bAutoVelocity
 )
 {
+	if ( m_pComponent == nullptr ) {
+        return;
+	}
+
 	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 	QString sNewInstrumentName;
 
@@ -1157,7 +1164,15 @@ void ComponentView::setLayers(
 		}
 		newLayersPaths << ssPath;
 
-		++m_nSelectedLayer;
+		if ( m_nSelectedLayer == -1 ||
+             m_nSelectedLayer >= m_pComponent->getLayers().size() ) {
+            // No layer selected or just an empty one is shown. Appending the
+            // new one.
+            m_nSelectedLayer = m_pComponent->getLayers().size() - 1;
+		}
+        else {
+			++m_nSelectedLayer;
+        }
 
 		const auto pNewLayer =
 			std::make_shared<H2Core::InstrumentLayer>( pNewSample );

@@ -2326,7 +2326,6 @@ void PreferencesDialog::updateColors() {
 	vval->setEnabled( static_cast<bool>(m_pCurrentColor) );
 	colorButton->setEnabled( static_cast<bool>(m_pCurrentColor) );
 	if ( m_pCurrentColor ==  nullptr ) {
-		WARNINGLOG( "No current color yet" );
 		return;
 	}
 
@@ -2533,7 +2532,7 @@ void PreferencesDialog::exportTheme() {
 }
 
 void PreferencesDialog::resetTheme() {
-	m_pCurrentTheme = m_pPreviousTheme;
+	m_pCurrentTheme = std::make_shared<Theme>(m_pPreviousTheme);
 	H2Core::Preferences::get_instance()->setTheme( m_pCurrentTheme );
 	updateAppearanceTab( m_pCurrentTheme );
 	

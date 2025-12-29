@@ -56,6 +56,7 @@ class SidebarLabel : public QLineEdit, public H2Core::Object<SidebarLabel> {
 	static constexpr int nDimScaling = 125;
 
 	enum class Type { Instrument, Type };
+	static QString TypeToQString( const Type& type );
 
 	SidebarLabel(
 		QWidget* pParent,

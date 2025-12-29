@@ -494,8 +494,12 @@ void Instrument::unloadSamples()
 	}
 }
 
-void Instrument::saveTo( XMLNode& node, bool bSongKit, bool bKeepMissingSamples,
-						bool bSilent )
+void Instrument::saveTo(
+	XMLNode& node,
+	bool bSongKit,
+	bool bKeepMissingSamples,
+	bool bSilent
+)
 {
 	XMLNode InstrumentNode = node.createNode( "instrument" );
 	InstrumentNode.write_int( "id", m_nId );
@@ -507,7 +511,7 @@ void Instrument::saveTo( XMLNode& node, bool bSongKit, bool bKeepMissingSamples,
 		InstrumentNode.write_string( "drumkitPath", m_sDrumkitPath );
 		InstrumentNode.write_string( "drumkit", m_sDrumkitName );
 	}
-	
+
 	InstrumentNode.write_float( "volume", m_fVolume );
 	InstrumentNode.write_bool( "isMuted", m_bMuted );
 	InstrumentNode.write_bool( "isSoloed", m_bSoloed );
@@ -525,7 +529,7 @@ void Instrument::saveTo( XMLNode& node, bool bSongKit, bool bKeepMissingSamples,
 		InstrumentNode.write_float( "pan_L", 1.0 );
 		InstrumentNode.write_float( "pan_R", getPan() + 1.0 );
 	}
-		
+
 	InstrumentNode.write_float( "pitchOffset", m_fPitchOffset );
 	InstrumentNode.write_float( "randomPitchFactor", m_fRandomPitchFactor );
 	InstrumentNode.write_float( "gain", m_fGain );
@@ -545,16 +549,20 @@ void Instrument::saveTo( XMLNode& node, bool bSongKit, bool bKeepMissingSamples,
 	InstrumentNode.write_int( "lower_cc", m_nLowerCc );
 	InstrumentNode.write_int( "higher_cc", m_nHigherCc );
 
-	for ( int i=0; i<MAX_FX; i++ ) {
-		InstrumentNode.write_float( QString( "FX%1Level" )
-									.arg( i+1 ), m_fxLevel[i] );
+	for ( int i = 0; i < MAX_FX; i++ ) {
+		InstrumentNode.write_float(
+			QString( "FX%1Level" ).arg( i + 1 ), m_fxLevel[i]
+		);
 	}
 
 	for ( const auto& pComponent : *m_pComponents ) {
 		if ( pComponent != nullptr ) {
-			pComponent->saveTo( InstrumentNode, bSongKit, bKeepMissingSamples,
-							   bSilent );
-		} else {
+			pComponent->saveTo(
+				InstrumentNode, bSongKit, bKeepMissingSamples, m_sDrumkitPath,
+				bSilent
+			);
+		}
+		else {
 			ERRORLOG( "Invalid component!" );
 		}
 	}

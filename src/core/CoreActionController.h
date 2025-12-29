@@ -379,15 +379,6 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		static bool
 		renameComponent( int nComponentId, const QString& sNewName );
 
-		/** Changing the type of an instrument - specified using its ID - of the
-		 * current drumkit.
-		 *
-		 * This one should be used over setDrumkit() since it is able to
-		 * properly handling setting the initial type or removing a type string
-		 * while honoring JACK per-track output ports. */
-		static bool setInstrumentType( int nInstrumentId,
-									   const DrumkitMap::Type& sType );
-
 		/** Relocates transport to the beginning of a particular
 		 * column/Pattern group.
 		 * 

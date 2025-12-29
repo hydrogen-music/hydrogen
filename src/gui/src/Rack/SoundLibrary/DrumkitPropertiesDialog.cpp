@@ -581,43 +581,60 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pCommonStrings = pHydrogenApp->getCommonStrings();
-    
+
 	// Sanity checks.
 	//
 	// Check whether the license strings from the line edits comply to
 	// the license types selected in the combo boxes.
 	License licenseCheck( licenseStringTxt->text() );
-	if ( static_cast<int>(licenseCheck.getType()) != licenseComboBox->currentIndex() ) {
+	if ( static_cast<int>( licenseCheck.getType() ) !=
+		 licenseComboBox->currentIndex() ) {
 		if ( QMessageBox::warning(
-				 this, "Hydrogen", pCommonStrings->getLicenseMismatchingUserInput(),
-				 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel )
-			 == QMessageBox::Cancel ) {
-			WARNINGLOG( QString( "Abort, since drumkit License String [%1] does not comply to selected License Type [%2]" )
-						.arg( licenseStringTxt->text() )
-						.arg( License::LicenseTypeToQString(
-						    static_cast<License::LicenseType>(licenseComboBox->currentIndex()) ) ) );
+				 this, "Hydrogen",
+				 pCommonStrings->getLicenseMismatchingUserInput(),
+				 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel
+			 ) == QMessageBox::Cancel ) {
+			WARNINGLOG( QString( "Abort, since drumkit License String [%1] "
+								 "does not comply to selected License Type [%2]"
+			)
+							.arg( licenseStringTxt->text() )
+							.arg( License::LicenseTypeToQString(
+								static_cast<License::LicenseType>(
+									licenseComboBox->currentIndex()
+								)
+							) ) );
 			return;
 		}
 	}
 	License imageLicenseCheck( imageLicenseStringTxt->text() );
-	if ( static_cast<int>(imageLicenseCheck.getType()) !=
+	if ( static_cast<int>( imageLicenseCheck.getType() ) !=
 		 imageLicenseComboBox->currentIndex() ) {
-		if ( QMessageBox::warning( this, "Hydrogen",
-								   tr( "Specified image License String does not comply with the license selected in the combo box." ),
-								   QMessageBox::Ok | QMessageBox::Cancel,
-								   QMessageBox::Cancel )
-			 == QMessageBox::Cancel ) {
-			WARNINGLOG( QString( "Abort, since drumkit image License String [%1] does not comply to selected License Type [%2]" )
-						.arg( imageLicenseStringTxt->text() )
-						.arg( License::LicenseTypeToQString(
-						    static_cast<License::LicenseType>(imageLicenseComboBox->currentIndex()) ) ) );
+		if ( QMessageBox::warning(
+				 this, "Hydrogen",
+				 tr( "Specified image License String does not comply with the "
+					 "license selected in the combo box." ),
+				 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel
+			 ) == QMessageBox::Cancel ) {
+			WARNINGLOG(
+				QString( "Abort, since drumkit image License String [%1] does "
+						 "not comply to selected License Type [%2]" )
+					.arg( imageLicenseStringTxt->text() )
+					.arg( License::LicenseTypeToQString(
+						static_cast<License::LicenseType>(
+							imageLicenseComboBox->currentIndex()
+						)
+					) )
+			);
 			return;
 		}
 	}
-	
-	//check the name and set the drumkitinfo to current drumkit
-	if ( nameTxt->text().isEmpty() ){
-		QMessageBox::warning( this, "Hydrogen", tr( "The name of the drumkit must not be left empty" ) );
+
+	// check the name and set the drumkitinfo to current drumkit
+	if ( nameTxt->text().isEmpty() ) {
+		QMessageBox::warning(
+			this, "Hydrogen",
+			tr( "The name of the drumkit must not be left empty" )
+		);
 		return;
 	}
 
@@ -625,23 +642,23 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	std::set<QString> types;
 	for ( int ii = 0; ii < typesTable->rowCount(); ++ii ) {
 		auto ppItemType =
-			dynamic_cast<LCDCombo*>(typesTable->cellWidget( ii, 2 ));
+			dynamic_cast<LCDCombo*>( typesTable->cellWidget( ii, 2 ) );
 		if ( ppItemType != nullptr ) {
-			const auto [ _, bSuccess ] =
+			const auto [_, bSuccess] =
 				types.insert( ppItemType->currentText() );
-			if ( ! bSuccess ) {
+			if ( !bSuccess ) {
 				highlightDuplicates();
-				QMessageBox::warning( this, "Hydrogen",
-									  pCommonStrings->getErrorUniqueTypes() );
+				QMessageBox::warning(
+					this, "Hydrogen", pCommonStrings->getErrorUniqueTypes()
+				);
 				return;
 			}
 		}
 	}
 
-
 	QString sNewLicenseString( licenseStringTxt->text() );
 	if ( licenseComboBox->currentIndex() ==
-		 static_cast<int>(License::Unspecified) ) {
+		 static_cast<int>( License::Unspecified ) ) {
 		sNewLicenseString = "";
 	}
 	License newLicense( sNewLicenseString );
@@ -649,7 +666,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 
 	QString sNewImageLicenseString( imageLicenseStringTxt->text() );
 	if ( imageLicenseComboBox->currentIndex() ==
-		 static_cast<int>(License::Unspecified) ) {
+		 static_cast<int>( License::Unspecified ) ) {
 		sNewImageLicenseString = "";
 	}
 	License newImageLicense( sNewImageLicenseString );
@@ -658,22 +675,23 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	const QString sOldPath = m_pDrumkit->getPath();
 	if ( m_pDrumkit->getName() != nameTxt->text() ) {
 		m_pDrumkit->setName( nameTxt->text() );
-		m_pDrumkit->setPath( H2Core::Filesystem::usr_drumkits_dir() +
-							  nameTxt->text() );
+		m_pDrumkit->setPath(
+			H2Core::Filesystem::usr_drumkits_dir() + nameTxt->text()
+		);
 	}
 	if ( m_pDrumkit->getVersion() != versionSpinBox->value() ) {
 		m_pDrumkit->setVersion( versionSpinBox->value() );
 	}
 	m_pDrumkit->setAuthor( authorTxt->text() );
 	m_pDrumkit->setInfo( infoTxt->toHtml() );
-		
+
 	// Only update the license in case it changed (in order to not
 	// overwrite an attribution).
 	if ( m_pDrumkit->getLicense() != newLicense ) {
 		m_pDrumkit->setLicense( newLicense );
 	}
 
-	if ( ! HydrogenApp::checkDrumkitLicense( m_pDrumkit ) ) {
+	if ( !HydrogenApp::checkDrumkitLicense( m_pDrumkit ) ) {
 		ERRORLOG( "User cancelled dialog due to licensing issues." );
 		return;
 	}
@@ -685,17 +703,19 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	// copying.
 	QString sNewImagePath;
 	if ( imageText->text() != m_pDrumkit->getImage() ) {
-
 		// Only ask for deleting the previous file if it exists.
-		if ( ! m_pDrumkit->getImage().isEmpty() &&
-			 Filesystem::file_exists( m_pDrumkit->getAbsoluteImagePath(),
-									  true ) ) {
+		if ( !m_pDrumkit->getImage().isEmpty() &&
+			 Filesystem::file_exists(
+				 m_pDrumkit->getAbsoluteImagePath(), true
+			 ) ) {
 			int nRes = QMessageBox::information(
 				this, "Hydrogen",
 				tr( "Delete previous drumkit image" )
-				.append( QString( " [%1]" )
-						 .arg( m_pDrumkit->getAbsoluteImagePath() ) ),
-				QMessageBox::Yes | QMessageBox::No );
+					.append( QString( " [%1]" ).arg(
+						m_pDrumkit->getAbsoluteImagePath()
+					) ),
+				QMessageBox::Yes | QMessageBox::No
+			);
 			if ( nRes == QMessageBox::Yes ) {
 				sOldImagePath = m_pDrumkit->getAbsoluteImagePath();
 			}
@@ -708,36 +728,41 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	if ( m_pDrumkit->getImageLicense() != newImageLicense ) {
 		m_pDrumkit->setImageLicense( newImageLicense );
 	}
-	
+
 	for ( int ii = 0; ii < typesTable->rowCount(); ++ii ) {
 		auto ppItemId =
-			dynamic_cast<LCDDisplay*>(typesTable->cellWidget( ii, 0 ));
+			dynamic_cast<LCDDisplay*>( typesTable->cellWidget( ii, 0 ) );
 		auto ppItemName =
-			dynamic_cast<LCDDisplay*>(typesTable->cellWidget( ii, 1 ));
+			dynamic_cast<LCDDisplay*>( typesTable->cellWidget( ii, 1 ) );
 		auto ppItemType =
-			dynamic_cast<LCDCombo*>(typesTable->cellWidget( ii, 2 ));
+			dynamic_cast<LCDCombo*>( typesTable->cellWidget( ii, 2 ) );
 
 		if ( ppItemId != nullptr && ppItemType != nullptr ) {
-			const auto ppInstrument = m_pDrumkit->getInstruments()->
-				find( ppItemId->text().toInt() );
+			const auto ppInstrument =
+				m_pDrumkit->getInstruments()->find( ppItemId->text().toInt() );
 
 			if ( ppInstrument != nullptr ) {
 				ppInstrument->setType( ppItemType->currentText() );
 			}
 			else {
 				if ( ppItemName != nullptr ) {
-					ERRORLOG( QString( "Unable to find instrument [%1] (name: [%2], type: [%3])" )
-							  .arg( ppItemId->text() )
-							  .arg( ppItemName->text() )
-							  .arg( ppItemType->currentText() ) );
-				} else {
-					ERRORLOG( QString( "Unable to find instrument [%1] (type: [%2])" )
-							  .arg( ppItemId->text() )
-							  .arg( ppItemType->currentText() ) );
+					ERRORLOG( QString( "Unable to find instrument [%1] (name: "
+									   "[%2], type: [%3])" )
+								  .arg( ppItemId->text() )
+								  .arg( ppItemName->text() )
+								  .arg( ppItemType->currentText() ) );
+				}
+				else {
+					ERRORLOG(
+						QString( "Unable to find instrument [%1] (type: [%2])" )
+							.arg( ppItemId->text() )
+							.arg( ppItemType->currentText() )
+					);
 				}
 			}
-		} else {
-			WARNINGLOG( QString( "Invalid row [%1]" ).arg( ii  ) );
+		}
+		else {
+			WARNINGLOG( QString( "Invalid row [%1]" ).arg( ii ) );
 		}
 	}
 
@@ -745,20 +770,23 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	if ( m_pDrumkit->getContext() == Drumkit::Context::Song ) {
 		// Copy the selected image into our cache folder as the kit is a
 		// floating one associated to a song.
-		if ( ! sNewImagePath.isEmpty() ) {
+		if ( !sNewImagePath.isEmpty() ) {
 			QFileInfo fileInfo( sNewImagePath );
 
 			const QString sTargetPath = Filesystem::addUniquePrefix(
 				QDir( Filesystem::cache_dir() )
-				.absoluteFilePath( fileInfo.fileName() ) );
+					.absoluteFilePath( fileInfo.fileName() )
+			);
 
 			// Logging is done in file_copy.
-			if ( Filesystem::file_copy( sNewImagePath, sTargetPath, true, false ) ) {
+			if ( Filesystem::file_copy(
+					 sNewImagePath, sTargetPath, true, false
+				 ) ) {
 				m_pDrumkit->setImage( sTargetPath );
 			}
 		}
 
-		if ( ! sOldImagePath.isEmpty() ) {
+		if ( !sOldImagePath.isEmpty() ) {
 			Filesystem::rm( sOldImagePath, false, false );
 			bOldImageDeleted = true;
 		}
@@ -781,20 +809,17 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 			std::shared_ptr<Instrument> pInstrument;
 			DrumkitMap::Type sOldType;
 		};
-		std::vector<instrumentToBeMapped> newInstrumentTypes;
 		// This should always be true. Let's keep it safe.
 		if ( pOldKit != nullptr && pOldKit->getInstruments()->size() ==
-			 m_pDrumkit->getInstruments()->size() ) {
-			for ( int nnIdx = 0; nnIdx < pOldKit->getInstruments()->size(); ++nnIdx ) {
+									   m_pDrumkit->getInstruments()->size() ) {
+			for ( int nnIdx = 0; nnIdx < pOldKit->getInstruments()->size();
+				  ++nnIdx ) {
 				auto pOldInstrument = pOldKit->getInstruments()->get( nnIdx );
-				auto pNewInstrument = m_pDrumkit->getInstruments()->get( nnIdx );
+				auto pNewInstrument =
+					m_pDrumkit->getInstruments()->get( nnIdx );
 				if ( pOldInstrument->getType().isEmpty() &&
-					 ! pNewInstrument->getType().isEmpty() &&
+					 !pNewInstrument->getType().isEmpty() &&
 					 pOldInstrument->getId() == pNewInstrument->getId() ) {
-					// First type assignment.
-					newInstrumentTypes.push_back( {
-							pNewInstrument, pOldInstrument->getType() } );
-
 					// Apply this type to all affected notes.
 					for ( const auto& ppPattern : *pSong->getPatternList() ) {
 						if ( ppPattern == nullptr ) {
@@ -802,15 +827,16 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 						}
 
 						for ( const auto& ppNote :
-								  ppPattern->getAllNotesOfType( "" ) ) {
+							  ppPattern->getAllNotesOfType( "" ) ) {
 							if ( ppNote != nullptr &&
 								 ppNote->getType().isEmpty() &&
 								 ppNote->getInstrumentId() ==
-								 pOldInstrument->getId() ) {
-								notesToBeMapped.push_back( {
-									ppNote,
-									pNewInstrument->getType(),
-									pSong->getPatternList()->index( ppPattern ) } );
+									 pOldInstrument->getId() ) {
+								notesToBeMapped.push_back(
+									{ ppNote, pNewInstrument->getType(),
+									  pSong->getPatternList()->index( ppPattern
+									  ) }
+								);
 							}
 						}
 					}
@@ -820,41 +846,22 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 
 		if ( notesToBeMapped.size() > 0 ) {
 			pHydrogenApp->beginUndoMacro(
-				pCommonStrings->getActionEditDrumkitProperties() );
+				pCommonStrings->getActionEditDrumkitProperties()
+			);
 		}
 
-		for ( const auto& [ ppNote, ssType, nnPatternNumber ] : notesToBeMapped ) {
-			pHydrogenApp->pushUndoCommand(
-				new SE_editNotePropertiesAction(
-					PatternEditor::Property::Type,
-					nnPatternNumber,
-					ppNote->getPosition(),
-					ppNote->getInstrumentId(),
-					ppNote->getInstrumentId(),
-					ssType,
-					"",
-					ppNote->getVelocity(),
-					ppNote->getVelocity(),
-					ppNote->getPan(),
-					ppNote->getPan(),
-					ppNote->getLeadLag(),
-					ppNote->getLeadLag(),
-					ppNote->getProbability(),
-					ppNote->getProbability(),
-					ppNote->getLength(),
-					ppNote->getLength(),
-					ppNote->getKey(),
-					ppNote->getKey(),
-					ppNote->getOctave(),
-					ppNote->getOctave() ) );
-		}
-
-		for ( const auto& [ ppInstrument, ssOldType ] :
-				  newInstrumentTypes ) {
-			pHydrogenApp->pushUndoCommand(
-				new SE_setInstrumentTypeAction(
-					ppInstrument->getId(), ppInstrument->getType(), ssOldType,
-					ppInstrument->getName() ) );
+		for ( const auto& [ppNote, ssType, nnPatternNumber] :
+			  notesToBeMapped ) {
+			pHydrogenApp->pushUndoCommand( new SE_editNotePropertiesAction(
+				PatternEditor::Property::Type, nnPatternNumber,
+				ppNote->getPosition(), ppNote->getInstrumentId(),
+				ppNote->getInstrumentId(), ssType, "", ppNote->getVelocity(),
+				ppNote->getVelocity(), ppNote->getPan(), ppNote->getPan(),
+				ppNote->getLeadLag(), ppNote->getLeadLag(),
+				ppNote->getProbability(), ppNote->getProbability(),
+				ppNote->getLength(), ppNote->getLength(), ppNote->getKey(),
+				ppNote->getKey(), ppNote->getOctave(), ppNote->getOctave()
+			) );
 		}
 
 		// When editing the properties of the current kit, the new version will
@@ -863,10 +870,10 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		// TODO this affects mostly metadata and can be done more efficiently.
 		// But due to the license propagation into the instruments, we switch
 		// the entire kit for now.
-		pHydrogenApp->pushUndoCommand(
-			new SE_switchDrumkitAction(
-				m_pDrumkit, pSong->getDrumkit(),
-				SE_switchDrumkitAction::Type::EditProperties ) );
+		pHydrogenApp->pushUndoCommand( new SE_switchDrumkitAction(
+			m_pDrumkit, pSong->getDrumkit(),
+			SE_switchDrumkitAction::Type::EditProperties
+		) );
 
 		if ( notesToBeMapped.size() > 0 ) {
 			pHydrogenApp->endUndoMacro( "" );
@@ -881,7 +888,8 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 			// now.
 			accept();
 			pHydrogenApp->showStatusBarMessage(
-				pCommonStrings->getActionEditCurrentDrumkitProperties() );
+				pCommonStrings->getActionEditCurrentDrumkitProperties()
+			);
 			return;
 		}
 
@@ -890,19 +898,21 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 
 	// Store the drumkit in the NSM session folder
 #ifdef H2CORE_HAVE_OSC
-	if ( m_bSaveToNsmSession && m_pDrumkit->getContext() == Drumkit::Context::Song ) {
+	if ( m_bSaveToNsmSession &&
+		 m_pDrumkit->getContext() == Drumkit::Context::Song ) {
 		m_pDrumkit->setPath(
 			QDir( NsmClient::get_instance()->getSessionFolderPath() )
-			.absoluteFilePath( m_pDrumkit->getName() ) );
+				.absoluteFilePath( m_pDrumkit->getName() )
+		);
 #else
 	if ( false ) {
 #endif
-	} // Read-only and song kits we can only duplicate into the user folder.
+	}  // Read-only and song kits we can only duplicate into the user folder.
 	else if ( m_pDrumkit->getContext() == Drumkit::Context::SessionReadOnly ||
 			  m_pDrumkit->getContext() == Drumkit::Context::System ||
 			  m_pDrumkit->getContext() == Drumkit::Context::Song ) {
-		m_pDrumkit->setPath(
-			Filesystem::drumkit_usr_path( m_pDrumkit->getName() ) );
+		m_pDrumkit->setPath( Filesystem::drumkit_usr_path( m_pDrumkit->getName()
+		) );
 	}
 
 	// Check whether there is already a kit present we would overwrite.
@@ -910,24 +920,26 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		int nRes = QMessageBox::information(
 			this, "Hydrogen",
 			QString( "%1\n%2\n\n%3" )
-			/*: asked when saving a drumkit to a certain location */
-			.arg( tr( "Overwrite existing drumkit stored in" ) )
-			.arg( m_pDrumkit->getPath() )
-			.arg( pCommonStrings->getActionIrreversible() ),
-			QMessageBox::Yes | QMessageBox::No );
+				/*: asked when saving a drumkit to a certain location */
+				.arg( tr( "Overwrite existing drumkit stored in" ) )
+				.arg( m_pDrumkit->getPath() )
+				.arg( pCommonStrings->getActionIrreversible() ),
+			QMessageBox::Yes | QMessageBox::No
+		);
 		if ( nRes != QMessageBox::Yes ) {
 			INFOLOG( "Aborted by user to not overwrite drumkit" );
 			return;
 		}
 	}
 
-	QApplication::setOverrideCursor(Qt::WaitCursor);
+	QApplication::setOverrideCursor( Qt::WaitCursor );
 
 	// Write new properties/drumkit to disk.
-	if ( ! m_pDrumkit->save() ) {
-
+	if ( !m_pDrumkit->save() ) {
 		QApplication::restoreOverrideCursor();
-		QMessageBox::information( this, "Hydrogen", tr ( "Saving of this drumkit failed."));
+		QMessageBox::information(
+			this, "Hydrogen", tr( "Saving of this drumkit failed." )
+		);
 		ERRORLOG( "Saving of this drumkit failed." );
 		return;
 	}
@@ -936,39 +948,43 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		if ( m_pDrumkit->getContext() == Drumkit::Context::Song ) {
 			pHydrogenApp->showStatusBarMessage(
 				QString( "%1 -> [%2]" )
-				.arg( pCommonStrings->getActionSaveCurrentDrumkit() )
-				.arg( m_pDrumkit->getPath() ) );
+					.arg( pCommonStrings->getActionSaveCurrentDrumkit() )
+					.arg( m_pDrumkit->getPath() )
+			);
 		}
 		else {
 			pHydrogenApp->showStatusBarMessage(
 				QString( "%1 [%2] -> [%3]" )
-				.arg( pCommonStrings->getActionSaveDrumkit() )
-				.arg( m_pDrumkit->getName() ).arg( m_pDrumkit->getPath() ) );
+					.arg( pCommonStrings->getActionSaveDrumkit() )
+					.arg( m_pDrumkit->getName() )
+					.arg( m_pDrumkit->getPath() )
+			);
 		}
 	}
 	else {
 		pHydrogenApp->showStatusBarMessage(
 			QString( "%1 [%2]" )
-			.arg( pCommonStrings->getActionEditDrumkitProperties() )
-			.arg( m_pDrumkit->getName() ) );
+				.arg( pCommonStrings->getActionEditDrumkitProperties() )
+				.arg( m_pDrumkit->getName() )
+		);
 	}
 
 	// Copy the selected image into the drumkit folder (in case a file outside
 	// of it was selected.)
-	if ( ! sNewImagePath.isEmpty() ) {
-
+	if ( !sNewImagePath.isEmpty() ) {
 		QFileInfo fileInfo( sNewImagePath );
 
 		if ( fileInfo.dir().absolutePath() != m_pDrumkit->getPath() ) {
 			const QString sTargetPath =
-				QDir( m_pDrumkit->getPath() ).absoluteFilePath(fileInfo.fileName() );
+				QDir( m_pDrumkit->getPath() )
+					.absoluteFilePath( fileInfo.fileName() );
 
 			// Logging is done in file_copy.
 			Filesystem::file_copy( sNewImagePath, sTargetPath, true, false );
 		}
 	}
 
-	if ( ! sOldImagePath.isEmpty() && ! bOldImageDeleted ) {
+	if ( !sOldImagePath.isEmpty() && !bOldImageDeleted ) {
 		Filesystem::rm( sOldImagePath, false, false );
 	}
 
@@ -977,7 +993,6 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	QApplication::restoreOverrideCursor();
 
 	accept();
-
 }
 
 void DrumkitPropertiesDialog::highlightDuplicates() {

@@ -60,19 +60,17 @@ LayerPreview::LayerPreview( ComponentView* pComponentView )
 
 	setMouseTracking( true );
 
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
-	if ( pInstrument != nullptr ) {
-		const auto pComponent =
-			pInstrument->getComponent( pComponentView->getSelectedLayer() );
-		if ( pComponent != nullptr ) {
-			const int nHeight =
-				LayerPreview::nHeader +
-				LayerPreview::nLayerHeight * pComponent->getLayers().size();
-			setFixedHeight( nHeight );
-		}
+	const auto pComponent = pComponentView->getComponent();
+	if ( pComponent != nullptr ) {
+		const int nHeight =
+			LayerPreview::nHeader +
+			LayerPreview::nLayerHeight * pComponent->getLayers().size();
+		setFixedHeight( nHeight );
 	}
 
-	m_speakerPixmap.load( Skin::getSvgImagePath() + "/icons/white/speaker.svg" );
+	m_speakerPixmap.load(
+		Skin::getSvgImagePath() + "/icons/white/speaker.svg"
+	);
 
 	// We get a style similar to the one used for the 2 buttons on top of the
 	// instrument editor panel
@@ -338,9 +336,9 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 			const int x1 = (int) ( ppLayer->getStartVelocity() * width() );
 			const int x2 = (int) ( ppLayer->getEndVelocity() * width() );
 
-			LayerInfo info{
-				x1, x2, nCurrentY, nCount, nCount == ( nSelectedLayer + 1 )
-			};
+			const bool bSelected =
+				nSelectedLayer != -1 ? nCount == ( nSelectedLayer + 1 ) : false;
+			LayerInfo info{ x1, x2, nCurrentY, nCount, bSelected };
 			m_layerInfos.insert( info );
 
 			QString sLabel = "< - >";
@@ -549,19 +547,20 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 	p.drawLine( width() - 1, 0, width(), height() );
 
 	// selected layer
-	p.setPen( highlightColor );
+	if ( nSelectedLayer != -1 ) {
+		p.setPen( highlightColor );
+		p.drawRect(
+			LayerPreview::nBorder,
+			LayerPreview::nHeader + LayerPreview::nLayerHeight * nSelectedLayer,
+			width() - 3 * LayerPreview::nBorder, LayerPreview::nLayerHeight
+		);
+	}
 
-	p.drawRect(
-		LayerPreview::nBorder,
-		LayerPreview::nHeader + LayerPreview::nLayerHeight * nSelectedLayer,
-		width() - 3 * LayerPreview::nBorder, LayerPreview::nLayerHeight
-	);
-
-    // highlight dragged layer
+	// highlight dragged layer
 	if ( m_drag == Drag::Position && m_nLastDragLayer != -1 ) {
-        p.setPen( highlightColor );
-		const int nY =
-			LayerPreview::nHeader + LayerPreview::nLayerHeight * m_nLastDragLayer;
+		p.setPen( highlightColor );
+		const int nY = LayerPreview::nHeader +
+					   LayerPreview::nLayerHeight * m_nLastDragLayer;
 		p.drawLine(
 			LayerPreview::nBorder, nY, width() - LayerPreview::nBorder, nY
 		);
@@ -683,6 +682,12 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
 				pNote
 			);
 		}
+	}
+	else {
+		// There is just an empty layer. But we allow to select it.
+		// Otherwise UX would feel a little awkward.
+		m_pComponentView->setSelectedLayer( 0 );
+		m_pComponentView->updateView();
 	}
 }
 

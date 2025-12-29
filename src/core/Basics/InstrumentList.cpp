@@ -371,7 +371,7 @@ QString InstrumentList::Content::toQString( const QString& sPrefix, bool bShort 
 			.append( QString( "%1%2m_sComponentName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sComponentName ) )
 			.append( QString( "%1%2m_sSampleName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sSampleName ) )
 			.append( QString( "%1%2m_sFullSamplePath: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sFullSamplePath ) )
-			.append( QString( "%1%2m_license: %3\n" ).arg( m_license.toQString( sPrefix + s, bShort ) ) );
+			.append( QString( "%1%2m_license: %3\n" ).arg( sPrefix ).arg( s ).arg( m_license.toQString( sPrefix + s, bShort ) ) );
 	} else {
 		sOutput = QString( "m_sInstrumentName: %1\n" ).arg( m_sInstrumentName )
 			.append( QString( ", m_sComponentName: %1\n" ).arg( m_sComponentName ) )
