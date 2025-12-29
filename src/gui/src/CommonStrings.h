@@ -126,10 +126,20 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		return m_sBeatCounterTapAndPlayToolTip; }
 
 	const QString& getMidiControl() const { return m_sMidiControl; }
-	const QString& getMidiSenseWindowTitle() const { return m_sMidiSenseWindowTitle; }
+	const QString& getMidiSenseWindowTitle() const
+	{
+		return m_sMidiSenseWindowTitle;
+	}
+	const QString& getMidiSenseCurrentBindings() const
+	{
+		return m_sMidiSenseCurrentBindings;
+	}
 	const QString& getMidiSenseInput() const { return m_sMidiSenseInput; }
-	const QString& getMidiSenseUnavailable() const { return m_sMidiSenseUnavailable; }
-	
+	const QString& getMidiSenseUnavailable() const
+	{
+		return m_sMidiSenseUnavailable;
+	}
+
 	const QString& getPatternLoadError() const { return m_sPatternLoadError; }
 	const QString& getInstrumentLoadError() const { return m_sInstrumentLoadError; }
 	
@@ -472,6 +482,7 @@ private:
 	
 	QString m_sMidiControl;
 	QString m_sMidiSenseWindowTitle;
+	QString m_sMidiSenseCurrentBindings;
 	QString m_sMidiSenseInput;
 	QString m_sMidiSenseUnavailable;
 

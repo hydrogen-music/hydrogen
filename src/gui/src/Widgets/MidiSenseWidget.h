@@ -53,10 +53,19 @@ class MidiSenseWidget : public QDialog, public H2Core::Object<MidiSenseWidget> {
 	void updateMidi();
 
    private:
+	void updateLabels();
+	void updateStyleSheet();
+
 	H2Core::MidiMessage::Event m_lastMidiEvent;
 	int m_nLastMidiEventParameter;
 	QTimer* m_pUpdateTimer;
+
+	QLabel* m_pActionLabel;
+	QLabel* m_pCurrentBindingsLabel;
+	QLabel* m_pCurrentBindingsList;
+	QWidget* m_pSeparator;
 	QLabel* m_pTextLabel;
+
 	std::shared_ptr<MidiAction> m_pAction;
 	bool m_bDirectWrite;
 };

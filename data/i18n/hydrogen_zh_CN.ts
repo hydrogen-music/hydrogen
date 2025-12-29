@@ -631,11 +631,6 @@ Displayed in the tooltip of input widgets. General heading of the part associati
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Waiting...</source>
-        <extracomment>Title of the window displayed when using the MIDI learning capabilities of Hydrogen.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Waiting for MIDI input...</source>
         <extracomment>Text displayed when using the MIDI learning capabilities of Hydrogen. Only displayed if the widget has an associated action.</extracomment>
         <translation type="unfinished"></translation>
@@ -1490,6 +1485,16 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Move layer</source>
         <extracomment>Representing moving an instrument layer in the undo history.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bind incoming MIDI event to action</source>
+        <extracomment>Title of the window displayed when using the MIDI learning capabilities of Hydrogen.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Action is currently bound to</source>
+        <extracomment>Paragraph text within in the MidiSenseWidget - left click + shift on * some buttons - which allows the user to associate incoming MIDI events to * a particular action. After this paragraph a list of registered MIDI * events will be shown.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>

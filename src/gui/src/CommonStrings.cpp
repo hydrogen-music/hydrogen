@@ -287,7 +287,12 @@ CommonStrings::CommonStrings(){
 	m_sMidiControl = tr( "MIDI Control" );
 	/*: Title of the window displayed when using the MIDI learning
 	  capabilities of Hydrogen.*/
-	m_sMidiSenseWindowTitle = tr( "Waiting..." );
+	m_sMidiSenseWindowTitle = tr( "Bind incoming MIDI event to action" );
+	/*: Paragraph text within in the MidiSenseWidget - left click + shift on
+	 * some buttons - which allows the user to associate incoming MIDI events to
+	 * a particular action. After this paragraph a list of registered MIDI
+	 * events will be shown.*/
+	m_sMidiSenseCurrentBindings = tr( "Action is currently bound to" );
 	/*: Text displayed when using the MIDI learning capabilities of
 	  Hydrogen. Only displayed if the widget has an associated
 	  action.*/

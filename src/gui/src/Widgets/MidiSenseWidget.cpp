@@ -45,37 +45,43 @@ MidiSenseWidget::MidiSenseWidget(
 	m_pAction = pAction;
 
 	setWindowTitle( pCommonStrings->getMidiSenseWindowTitle() );
-	setFixedSize( 280, 100 );
+	setMinimumWidth( 280 );
 
-	bool midiOperable = false;
+	auto pMainLayout = new QVBoxLayout( this );
+    pMainLayout->setSpacing( 10 );
+	setLayout( pMainLayout );
+
+	m_pActionLabel = new QLabel( this );
+	m_pActionLabel->setObjectName( "MidiSenseWidgetActionLabel" );
+	m_pActionLabel->setAlignment( Qt::AlignCenter );
+	pMainLayout->addWidget( m_pActionLabel );
+
+	m_pCurrentBindingsLabel = new QLabel( this );
+	m_pCurrentBindingsLabel->setObjectName(
+		"MidiSenseWidgetCurrentBindingsLabel"
+	);
+	m_pCurrentBindingsLabel->setAlignment( Qt::AlignCenter );
+	m_pCurrentBindingsLabel->setText(
+		pCommonStrings->getMidiSenseCurrentBindings()
+	);
+	pMainLayout->addWidget( m_pCurrentBindingsLabel );
+
+	m_pCurrentBindingsList = new QLabel( this );
+	m_pCurrentBindingsList->setObjectName(
+		"MidiSenseWidgetCurrentBindingsList"
+	);
+	m_pCurrentBindingsList->setIndent( 10 );
+	m_pCurrentBindingsList->setAlignment( Qt::AlignLeft );
+	pMainLayout->addWidget( m_pCurrentBindingsList );
+
+	m_pSeparator = new QWidget( this );
+	m_pSeparator->setObjectName( "MidiSenseWidgetSeparator" );
+	m_pSeparator->setFixedHeight( 1 );
+    pMainLayout->addWidget( m_pSeparator );
 
 	m_pTextLabel = new QLabel( this );
 	m_pTextLabel->setAlignment( Qt::AlignCenter );
-
-	if ( m_pAction != nullptr ) {
-		m_pTextLabel->setText( pCommonStrings->getMidiSenseInput() );
-		midiOperable = true;
-	}
-	else {
-		/*
-		 *   Check if this widget got called from the midiTable in the
-		 * preferences window(directWrite=false) or by clicking on a
-		 * midiLearn-capable gui item(directWrite=true)
-		 */
-
-		if ( m_bDirectWrite ) {
-			m_pTextLabel->setText( pCommonStrings->getMidiSenseUnavailable() );
-			midiOperable = false;
-		}
-		else {
-			m_pTextLabel->setText( pCommonStrings->getMidiSenseInput() );
-			midiOperable = true;
-		}
-	}
-
-	QVBoxLayout* pVBox = new QVBoxLayout( this );
-	pVBox->addWidget( m_pTextLabel );
-	setLayout( pVBox );
+	pMainLayout->addWidget( m_pTextLabel );
 
 	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
 	pHydrogen->setLastMidiEvent( H2Core::MidiMessage::Event::Null );
@@ -83,7 +89,10 @@ MidiSenseWidget::MidiSenseWidget(
 
 	m_pUpdateTimer = new QTimer( this );
 
-	if ( midiOperable ) {
+	updateLabels();
+    updateStyleSheet();
+
+	if ( m_pAction != nullptr || !m_bDirectWrite ) {
 		/*
 		 * If the widget is not midi operable, we can omit
 		 * starting the timer which listens to midi input..
@@ -153,4 +162,95 @@ void MidiSenseWidget::updateMidi()
 
 		close();
 	}
+}
+
+void MidiSenseWidget::updateLabels()
+{
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	if ( m_pAction != nullptr ) {
+		m_pActionLabel->setVisible( true );
+		m_pActionLabel->setText( MidiAction::typeToQString( m_pAction->getType()
+		) );
+
+		// Bindings
+		QStringList bindings;
+		for ( const auto& [eevent, nnParam] :
+			  H2Core::Preferences::get_instance()
+				  ->getMidiEventMap()
+				  ->getRegisteredMidiEvents( m_pAction ) ) {
+			if ( eevent == H2Core::MidiMessage::Event::Note ||
+				 eevent == H2Core::MidiMessage::Event::CC ) {
+				bindings << QString( "\t- %1 : %2" )
+								.arg( H2Core::MidiMessage::EventToQString(
+									eevent
+								) )
+								.arg( nnParam );
+			}
+			else {
+				// PC and MMC_x do not have a parameter.
+				bindings << QString( "\t- %1" )
+								.arg( H2Core::MidiMessage::EventToQString(
+									eevent
+								) );
+			}
+		}
+
+		if ( bindings.size() > 0 ) {
+			m_pCurrentBindingsLabel->setVisible( true );
+			m_pCurrentBindingsList->setVisible( true );
+			m_pCurrentBindingsList->setText( bindings.join( "\n" ) );
+            m_pSeparator->setVisible( true );
+		}
+		else {
+			m_pCurrentBindingsLabel->setVisible( false );
+			m_pCurrentBindingsList->setVisible( false );
+            m_pSeparator->setVisible( false );
+		}
+		m_pTextLabel->setText( pCommonStrings->getMidiSenseInput() );
+	}
+	else {
+		/* Check if this widget got called from the MidiActionTable within the
+		 * MIDI dialog - directWrite=false - or by clicking on a
+		 * midiLearn-capable gui item - directWrite=true.
+		 */
+		if ( m_bDirectWrite ) {
+			m_pTextLabel->setText( pCommonStrings->getMidiSenseUnavailable() );
+		}
+		else {
+			m_pTextLabel->setText( pCommonStrings->getMidiSenseInput() );
+		}
+		m_pActionLabel->setVisible( false );
+		m_pCurrentBindingsLabel->setVisible( false );
+		m_pCurrentBindingsList->setVisible( false );
+        m_pSeparator->setVisible( false );
+	}
+}
+
+// Beware: this method is _not_ called whenever the colors in the preferences do
+// change. This is because this widget is considered to be transient one not
+// opened long enough by the user to justify more sophisticated event handling.
+void MidiSenseWidget::updateStyleSheet()
+{
+	const auto pColorTheme =
+		H2Core::Preferences::get_instance()->getColorTheme();
+
+    const auto backgroundColor = pColorTheme->m_windowColor;
+    const auto textColor = pColorTheme->m_windowTextColor;
+
+	setStyleSheet( QString( "\
+QWidget {\
+    background-color: %1;\
+    color: %2;\
+}\
+QWidget#MidiSenseWidgetSeparator {    \
+    border: 1px solid %2;\
+}\
+QLabel#MidiSenseWidgetActionLabel {\
+    border: 1px solid %2;\
+    font-size: 18px;\
+    padding: 2px;\
+}\
+" )
+					   .arg( backgroundColor.name() )
+					   .arg( textColor.name() ) );
 }
