@@ -24,6 +24,7 @@
 
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
@@ -31,6 +32,7 @@
 #include <core/Midi/MidiEvent.h>
 #include <core/Midi/MidiEventMap.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Preferences/Theme.h>
 
 MidiSenseWidget::MidiSenseWidget(
 	QWidget* pParent,
@@ -49,7 +51,7 @@ MidiSenseWidget::MidiSenseWidget(
 	setMinimumWidth( 280 );
 
 	auto pMainLayout = new QVBoxLayout( this );
-    pMainLayout->setSpacing( 10 );
+	pMainLayout->setSpacing( 10 );
 	setLayout( pMainLayout );
 
 	m_pActionLabel = new QLabel( this );
@@ -68,8 +70,7 @@ MidiSenseWidget::MidiSenseWidget(
 	pMainLayout->addWidget( m_pCurrentBindingsLabel );
 
 	m_pCurrentBindingsList = new QLabel( this );
-	m_pCurrentBindingsList->setObjectName(
-		"MidiSenseWidgetCurrentBindingsList"
+	m_pCurrentBindingsList->setObjectName( "MidiSenseWidgetCurrentBindingsList"
 	);
 	m_pCurrentBindingsList->setIndent( 10 );
 	m_pCurrentBindingsList->setAlignment( Qt::AlignLeft );
@@ -78,11 +79,38 @@ MidiSenseWidget::MidiSenseWidget(
 	m_pSeparator = new QWidget( this );
 	m_pSeparator->setObjectName( "MidiSenseWidgetSeparator" );
 	m_pSeparator->setFixedHeight( 1 );
-    pMainLayout->addWidget( m_pSeparator );
+	pMainLayout->addWidget( m_pSeparator );
 
-	m_pTextLabel = new QLabel( this );
+	auto pContainerWidget = new QWidget( this );
+	auto pContainerLayout = new QHBoxLayout();
+	pContainerWidget->setLayout( pContainerLayout );
+	pMainLayout->addWidget( pContainerWidget );
+
+	m_pClearButton = new QToolButton( pContainerWidget );
+	m_pClearButton->setFixedSize( 42, 36 );
+	m_pClearButton->setIconSize( QSize( 26, 26 ) );
+	m_pClearButton->setCheckable( false );
+	connect( m_pClearButton, &QToolButton::clicked, [&]() {
+		H2Core::Preferences::get_instance()
+			->getMidiEventMap()
+			->removeRegisteredMidiEvents( pAction );
+		updateLabels();
+	} );
+	QString sIconPath( Skin::getSvgImagePath() );
+	if ( H2Core::Preferences::get_instance()
+			 ->getInterfaceTheme()
+			 ->m_iconColor == H2Core::InterfaceTheme::IconColor::White ) {
+		sIconPath.append( "/icons/white/" );
+	}
+	else {
+		sIconPath.append( "/icons/black/" );
+	}
+	m_pClearButton->setIcon( QIcon( sIconPath + "bin.svg" ) );
+	pContainerLayout->addWidget( m_pClearButton );
+
+	m_pTextLabel = new QLabel( pContainerWidget );
 	m_pTextLabel->setAlignment( Qt::AlignCenter );
-	pMainLayout->addWidget( m_pTextLabel );
+	pContainerLayout->addWidget( m_pTextLabel );
 
 	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
 	pHydrogen->setLastMidiEvent( H2Core::MidiEvent::Type::Null );
@@ -91,7 +119,7 @@ MidiSenseWidget::MidiSenseWidget(
 	m_pUpdateTimer = new QTimer( this );
 
 	updateLabels();
-    updateStyleSheet();
+	updateStyleSheet();
 
 	if ( m_pAction != nullptr || !m_bDirectWrite ) {
 		/*
@@ -128,7 +156,9 @@ void MidiSenseWidget::updateMidi()
 			auto pAction = std::make_shared<MidiAction>( m_pAction );
 			pAction->setValue( "0" );
 
-            pMidiEventMap->registerEvent( m_lastMidiEvent, m_nLastMidiEventParameter, pAction );
+			pMidiEventMap->registerEvent(
+				m_lastMidiEvent, m_nLastMidiEventParameter, pAction
+			);
 
 			H2Core::EventQueue::get_instance()->pushEvent(
 				H2Core::Event::Type::MidiEventMapChanged, 0
@@ -156,17 +186,15 @@ void MidiSenseWidget::updateLabels()
 			if ( eevent == H2Core::MidiEvent::Type::Note ||
 				 eevent == H2Core::MidiEvent::Type::CC ) {
 				bindings << QString( "\t- %1 : %2" )
-								.arg( H2Core::MidiEvent::TypeToQString(
-									eevent
-								) )
+								.arg( H2Core::MidiEvent::TypeToQString( eevent )
+								)
 								.arg( nnParam );
 			}
 			else {
 				// PC and MMC_x do not have a parameter.
 				bindings << QString( "\t- %1" )
-								.arg( H2Core::MidiEvent::TypeToQString(
-									eevent
-								) );
+								.arg( H2Core::MidiEvent::TypeToQString( eevent )
+								);
 			}
 		}
 
@@ -174,12 +202,12 @@ void MidiSenseWidget::updateLabels()
 			m_pCurrentBindingsLabel->setVisible( true );
 			m_pCurrentBindingsList->setVisible( true );
 			m_pCurrentBindingsList->setText( bindings.join( "\n" ) );
-            m_pSeparator->setVisible( true );
+			m_pSeparator->setVisible( true );
 		}
 		else {
 			m_pCurrentBindingsLabel->setVisible( false );
 			m_pCurrentBindingsList->setVisible( false );
-            m_pSeparator->setVisible( false );
+			m_pSeparator->setVisible( false );
 		}
 		m_pTextLabel->setText( pCommonStrings->getMidiSenseInput() );
 	}
@@ -197,7 +225,7 @@ void MidiSenseWidget::updateLabels()
 		m_pActionLabel->setVisible( false );
 		m_pCurrentBindingsLabel->setVisible( false );
 		m_pCurrentBindingsList->setVisible( false );
-        m_pSeparator->setVisible( false );
+		m_pSeparator->setVisible( false );
 	}
 }
 
@@ -209,8 +237,8 @@ void MidiSenseWidget::updateStyleSheet()
 	const auto pColorTheme =
 		H2Core::Preferences::get_instance()->getColorTheme();
 
-    const auto backgroundColor = pColorTheme->m_windowColor;
-    const auto textColor = pColorTheme->m_windowTextColor;
+	const auto backgroundColor = pColorTheme->m_windowColor;
+	const auto textColor = pColorTheme->m_windowTextColor;
 
 	setStyleSheet( QString( "\
 QWidget {\

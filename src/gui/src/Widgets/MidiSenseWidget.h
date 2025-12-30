@@ -65,6 +65,7 @@ class MidiSenseWidget : public QDialog, public H2Core::Object<MidiSenseWidget> {
 	QLabel* m_pCurrentBindingsList;
 	QWidget* m_pSeparator;
 	QLabel* m_pTextLabel;
+	QToolButton* m_pClearButton;
 
 	std::shared_ptr<MidiAction> m_pAction;
 	bool m_bDirectWrite;
