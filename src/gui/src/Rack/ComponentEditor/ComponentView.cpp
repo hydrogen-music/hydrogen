@@ -828,6 +828,10 @@ QWidget#LayerButtonContainer, QWidget#ComponentButtonContainer {\
 	m_pLayerPitchCoarseLbl->setColor( layerTextColor );
 	m_pLayerPitchFineLbl->setColor( layerTextColor );
 
+    m_pComponentMuteBtn->setDefaultBackgroundColor( headerColor );
+    m_pComponentSoloBtn->setDefaultBackgroundColor( headerColor );
+    m_pLayerMuteBtn->setDefaultBackgroundColor( layerColor );
+    m_pLayerSoloBtn->setDefaultBackgroundColor( layerColor );
 }
 
 void ComponentView::updateView() {
