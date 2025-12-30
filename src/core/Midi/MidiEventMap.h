@@ -74,7 +74,10 @@ public:
 	 *   @a pAction grouped in MIDI event type name and MIDI event
 	 *   parameter pairs.
 	 */
-	std::vector<std::pair<H2Core::MidiEvent::Type,int>> getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction ) const;
+	std::vector<std::pair<H2Core::MidiEvent::Type, int>>
+	getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction ) const;
+
+	void removeRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction );
 
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
