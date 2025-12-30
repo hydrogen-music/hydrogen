@@ -375,6 +375,8 @@ for:
       ## Opus and FLAC.
       cp /usr/local/lib/libsndfile.so.1 AppDir/usr/lib || exit 1
 
+      find /usr -name "*libportmidi*"
+      cp /usr/local/lib/libportmidi.so.2 AppDir/usr/lib || exit 1
       LD_LIBRARY_PATH=AppDir/usr/lib/x86_64-linux-gnu/:AppDir/usr/lib:$HOME/Qt/5.15.2/gcc_64/lib ./linuxdeploy-x86_64.AppImage \
         --appdir AppDir \
         --executable AppDir/usr/bin/hydrogen \
