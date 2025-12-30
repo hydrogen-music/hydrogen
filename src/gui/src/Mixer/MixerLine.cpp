@@ -100,11 +100,18 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	m_pSelectionLED->move( 39, 2 );
 	m_pSelectionLED->setObjectName( "SelectionLED" );
 
+	// Pick a background color which works nicely with our mute color.
+	const auto buttonBackgroundColor = H2Core::Preferences::get_instance()
+										   ->getColorTheme()
+										   ->m_widgetColor.darker( 130 );
+
 	// Mute button
 	m_pMuteBtn = new MuteButton(
 		this, QSize( 22, 15 ), pCommonStrings->getBigMuteButton()
 	);
 	m_pMuteBtn->move( 5, 16 );
+	// Color used as background within the pixmap.
+	m_pMuteBtn->setDefaultBackgroundColor( buttonBackgroundColor );
 	m_pMuteBtn->setObjectName( "MixerMuteButton" );
 	connect( m_pMuteBtn, &QPushButton::clicked, [&]() {
 		const int nLine = retrieveLineNumber();
@@ -119,6 +126,8 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 		this, QSize( 22, 15 ), pCommonStrings->getBigSoloButton()
 	);
 	m_pSoloBtn->move( 28, 16 );
+	// Color used as background within the pixmap.
+	m_pSoloBtn->setDefaultBackgroundColor( buttonBackgroundColor );
 	m_pSoloBtn->setObjectName( "MixerSoloButton" );
 	connect( m_pSoloBtn, &QPushButton::clicked, [&]() {
 		const int nLine = retrieveLineNumber();
