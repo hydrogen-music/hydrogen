@@ -45,20 +45,30 @@ class ColoredButton : public Button, public H2Core::Object<ColoredButton> {
 	ColoredButton& operator=( const ColoredButton& rhs ) = delete;
 
 	void setBorderless( bool bBorderless );
+	void setDefaultBackgroundColor( const QColor& color );
 
 	void updateStyleSheet() override;
 
    protected:
 	void setBaseColor( const QColor& color );
-	QColor m_baseColor;
 	void setBaseTextColor( const QColor& color );
+
+	QColor m_baseColor;
 	QColor m_baseTextColor;
+	QColor m_defaultBackgroundColor;
 
 	/** Whether the widget will draw its own border or the parent will
 	 * handle this job. */
 	bool m_bBorderless;
 };
 
+inline void ColoredButton::setDefaultBackgroundColor( const QColor& color )
+{
+	if ( color != m_defaultBackgroundColor ) {
+		m_defaultBackgroundColor = color;
+        updateStyleSheet();
+	}
+}
 inline void ColoredButton::setBaseColor( const QColor& color )
 {
 	if ( color != m_baseColor ) {
