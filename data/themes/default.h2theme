@@ -80,9 +80,9 @@
    <spinBoxTextColor>240,240,240</spinBoxTextColor>
    <playheadColor>0,0,0</playheadColor>
    <cursorColor>38,39,44</cursorColor>
-   <muteColor>191,51,51</muteColor>
+   <muteColor>170,29,29</muteColor>
    <muteTextColor>255,255,255</muteTextColor>
-   <soloColor>168,136,38</soloColor>
+   <soloColor>219,177,50</soloColor>
    <soloTextColor>255,255,255</soloTextColor>
   </widget>
  </colorTheme>

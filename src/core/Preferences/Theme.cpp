@@ -96,9 +96,9 @@ ColorTheme::ColorTheme()
 	, m_accentTextColor( QColor( 255, 255, 255 ) )
 	, m_playheadColor( QColor( 0, 0, 0 ) )
 	, m_cursorColor( QColor( 38, 39, 44 ) )
-	, m_muteColor( QColor( 191, 51, 51 ) )
+	, m_muteColor( QColor( 170, 29, 29 ) )
 	, m_muteTextColor( QColor( 255, 255, 255 ) )
-	, m_soloColor( QColor( 168, 136, 38 ) )
+	, m_soloColor( QColor( 219, 177, 50 ) )
 	, m_soloTextColor( QColor( 255, 255, 255 ) )
 {
 }
