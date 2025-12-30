@@ -1120,6 +1120,12 @@ void SidebarRow::updateStyleSheet()
 		backgroundTypeColor, textTypeColor, pColorTheme->m_cursorColor
 	);
 
+	QColor buttonColor =
+		pColorTheme->m_widgetColor.darker( Skin::nListBackgroundColorScaling );
+
+    m_pMuteBtn->setDefaultBackgroundColor( buttonColor );
+    m_pSoloBtn->setDefaultBackgroundColor( buttonColor );
+
     const QColor backgroundColor = pColorTheme->m_windowColor;
 
 	QColor borderColor, borderTopColor;
