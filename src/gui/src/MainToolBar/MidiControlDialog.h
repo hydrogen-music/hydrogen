@@ -95,6 +95,8 @@ private:
 		void updateInputTable();
 		void updateOutputTable();
 
+        static bool lastRowVisible( QTableWidget* );
+
 		QTabWidget* m_pTabWidget;
 
         QWidget* m_pInputCheckboxWidget;

@@ -1116,6 +1116,9 @@ void MidiControlDialog::updateInputTable() {
 		return;
 	}
 
+	const bool bLastRowPreviouslyVisible =
+		MidiControlDialog::lastRowVisible( m_pMidiInputTable );
+
 	auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
 
 	std::vector< std::shared_ptr<MidiInput::HandledInput> > handledInputs;
@@ -1248,12 +1251,19 @@ void MidiControlDialog::updateInputTable() {
 			}
 		}
 	}
+
+	if ( bLastRowPreviouslyVisible ) {
+		m_pMidiInputTable->scrollToBottom();
+	}
 }
 
 void MidiControlDialog::updateOutputTable() {
 	if ( ! m_pMidiOutputTable->isVisible() ) {
 		return;
 	}
+
+	const bool bLastRowPreviouslyVisible =
+		MidiControlDialog::lastRowVisible( m_pMidiOutputTable );
 
 	auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
 
@@ -1361,4 +1371,22 @@ void MidiControlDialog::updateOutputTable() {
 			}
 		}
 	}
+
+	if ( bLastRowPreviouslyVisible ) {
+		m_pMidiOutputTable->scrollToBottom();
+	}
+}
+
+bool MidiControlDialog::lastRowVisible( QTableWidget* pTableWidget )
+{
+	if ( pTableWidget == nullptr ) {
+		return false;
+	}
+	const auto pScrollbar = pTableWidget->verticalScrollBar();
+	if ( pScrollbar == nullptr || !pScrollbar->isVisible() ) {
+		return true;
+	}
+
+	// Whether the scroll bar is scrolled to the bottom.
+	return pScrollbar->value() == pScrollbar->maximum();
 }
