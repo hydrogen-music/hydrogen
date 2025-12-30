@@ -71,6 +71,7 @@ public:
 		void instrumentParametersChangedEvent( int ) override;
 		void midiDriverChangedEvent() override;
 		void midiInputEvent() override;
+        void midiMapChangedEvent() override;
 		void midiOutputEvent() override;
 		void updatePreferencesEvent( int ) override;
 		void updateSongEvent( int ) override;

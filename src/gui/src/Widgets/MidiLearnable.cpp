@@ -46,7 +46,6 @@ void MidiLearnable::setMidiAction( std::shared_ptr<MidiAction> pMidiAction ){
 
 		midiMapChangedEvent();
 	}
-	updateToolTip();
 }
 
 void MidiLearnable::setBaseToolTip( const QString& sNewTip ) {
@@ -77,18 +76,18 @@ QString MidiLearnable::composeToolTip() const {
 					 .arg( MidiAction::typeToQString( m_pMidiAction->getType() ) ) );
 		if ( m_registeredMidiEvents.size() > 0 ) {
 			for ( const auto& [event, nnParam] : m_registeredMidiEvents ) {
-				if ( event == H2Core::MidiMessage::Event::Note ||
-					 event == H2Core::MidiMessage::Event::CC ) {
+				if ( event == H2Core::MidiEvent::Type::Note ||
+					 event == H2Core::MidiEvent::Type::CC ) {
 					sTip.append( QString( "\n%1 [%2 : %3]" )
 								 .arg( pCommonStrings->getMidiToolTipBound() )
-								 .arg( H2Core::MidiMessage::EventToQString( event ) )
+								 .arg( H2Core::MidiEvent::TypeToQString( event ) )
 								 .arg( nnParam ) );
 				}
 				else {
 					// PC and MMC_x do not have a parameter.
 					sTip.append( QString( "\n%1 [%2]" )
 								 .arg( pCommonStrings->getMidiToolTipBound() )
-								 .arg( H2Core::MidiMessage::EventToQString( event ) ) );
+								 .arg( H2Core::MidiEvent::TypeToQString( event ) ) );
 				}
 			}
 		}

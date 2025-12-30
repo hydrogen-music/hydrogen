@@ -24,12 +24,9 @@
 
 #include <memory>
 #include <vector>
-#include <map>
-#include <cassert>
 
-#include <core/Helpers/Xml.h>
 #include <core/Midi/MidiAction.h>
-#include <core/Midi/MidiMessage.h>
+#include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
 
 #include <QtCore/QMutex>
@@ -37,6 +34,8 @@
 class MidiAction;
 
 namespace H2Core {
+
+class XMLNode;
 
 /** \ingroup docCore docMIDI */
 class MidiEventMap : public H2Core::Object<MidiEventMap>
@@ -52,19 +51,11 @@ public:
 	
 	void reset();  ///< Reinitializes the object.
 
-	/** Sets up the relation between a mmc event and an Midiaction */
-	void registerMMCEvent( const QString&, std::shared_ptr<MidiAction> );
-	/** Sets up the relation between a note event and an Midiaction */
-	void registerNoteEvent( int , std::shared_ptr<MidiAction> );
-	/** Sets up the relation between a cc event and an Midiaction */
-	void registerCCEvent( int , std::shared_ptr<MidiAction> );
-	/** Sets up the relation between a program change and an Midiaction */
-	void registerPCEvent( std::shared_ptr<MidiAction> );
+	void
+	registerEvent( const MidiEvent::Type&, int nParameter, std::shared_ptr<MidiAction> );
 
-	const std::multimap<QString, std::shared_ptr<MidiAction>>& getMMCActionMap() const;
-	const std::multimap<int, std::shared_ptr<MidiAction>>& getNoteActionMap() const;
-	const std::multimap<int, std::shared_ptr<MidiAction>>& getCCActionMap() const;
-	
+	const std::vector<std::shared_ptr<MidiEvent>>& getMidiEvents() const;
+
 	/** Returns all MMC actions which are linked to the given event. */
 	std::vector<std::shared_ptr<MidiAction>> getMMCActions( const QString& sEventString );
 	/** Returns all note actions which are linked to the given event. */
@@ -72,7 +63,7 @@ public:
 	/** Returns the cc Midiaction which was linked to the given event. */
 	std::vector<std::shared_ptr<MidiAction>> getCCActions( int nParameter );
 	/** Returns the pc Midiaction which was linked to the given event. */
-	const std::vector<std::shared_ptr<MidiAction>>& getPCActions() const;
+	std::vector<std::shared_ptr<MidiAction>> getPCActions();
 		
 	std::vector<int> findCCValuesByTypeAndParam1( MidiAction::Type type,
 												 const QString& sParam1 );
@@ -83,8 +74,8 @@ public:
 	 *   @a pAction grouped in MIDI event type name and MIDI event
 	 *   parameter pairs.
 	 */
-	std::vector<std::pair<H2Core::MidiMessage::Event,int>> getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction ) const;
-	
+	std::vector<std::pair<H2Core::MidiEvent::Type,int>> getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction ) const;
+
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
 	 * every new line
@@ -93,30 +84,20 @@ public:
 	 * displayed without line breaks.
 	 *
 	 * \return String presentation of current object.*/
-	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
-private:
+	QString toQString( const QString& sPrefix = "", bool bShort = true )
+		const override;
 
-	std::multimap<int, std::shared_ptr<MidiAction>> m_noteActionMap;
-	std::multimap<int, std::shared_ptr<MidiAction>> m_ccActionMap;
-	std::multimap<QString, std::shared_ptr<MidiAction>> m_mmcActionMap;
-	std::vector<std::shared_ptr<MidiAction>> m_pcActionVector;
+   private:
+	std::vector<std::shared_ptr<MidiEvent>> m_events;
 
 	QMutex __mutex;
 };
 
-inline const std::multimap<QString, std::shared_ptr<MidiAction>>& MidiEventMap::getMMCActionMap() const {
-	return m_mmcActionMap;
+inline const std::vector<std::shared_ptr<MidiEvent>>&
+MidiEventMap::getMidiEvents() const
+{
+	return m_events;
 }
-inline const std::multimap<int, std::shared_ptr<MidiAction>>& MidiEventMap::getNoteActionMap() const {
-	return m_noteActionMap;
-}
-inline const std::multimap<int, std::shared_ptr<MidiAction>>& MidiEventMap::getCCActionMap() const {
-	return m_ccActionMap;
-}
-inline const std::vector<std::shared_ptr<MidiAction>>& MidiEventMap::getPCActions() const {
-	return m_pcActionVector;
-}
-
-};
+};	// namespace H2Core
 
 #endif

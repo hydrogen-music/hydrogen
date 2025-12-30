@@ -103,8 +103,8 @@ Hydrogen::Hydrogen() : m_fBeatCounterBeatLength( 1 )
 					 , m_nSelectedPatternNumber( 0 )
 					 , m_bExportSessionIsActive( false )
 					 , m_GUIState( GUIState::startup )
-					 , m_lastMidiEvent( MidiMessage::Event::Null )
-					 , m_nLastMidiEventParameter( 0 )
+					 , m_lastMidiEvent( MidiEvent::Type::Null )
+					 , m_nLastMidiEventParameter( MidiEvent::nNullParameter )
 					 , m_oldEngineMode( Song::Mode::Song )
 					 , m_bOldLoopEnabled( false )
 					 , m_nLastRecordedMIDINoteTick( 0 )
@@ -1616,7 +1616,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_nHihatOpenness: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nHihatOpenness ) )
 			.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s )
-						.arg( MidiMessage::EventToQString( m_lastMidiEvent ) ) )
+						.arg( MidiEvent::TypeToQString( m_lastMidiEvent ) ) )
 			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nLastMidiEventParameter ) );
 	}
@@ -1690,7 +1690,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 						   m_pPlaylist->toQString( "", bShort ) ) )
 			.append( QString( ", m_nHihatOpenness: %1" ).arg( m_nHihatOpenness ) )
 			.append( QString( ", lastMidiEvent: %1" )
-					 .arg( MidiMessage::EventToQString( m_lastMidiEvent ) ) )
+					 .arg( MidiEvent::TypeToQString( m_lastMidiEvent ) ) )
 			.append( QString( ", lastMidiEventParameter: %1" )
 					 .arg( m_nLastMidiEventParameter ) );
 	}

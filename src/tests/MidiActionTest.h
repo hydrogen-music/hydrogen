@@ -27,7 +27,7 @@
 #include <core/Preferences/Preferences.h>
 
 namespace H2Core {
-	class MidiMessage;
+class MidiMessage;
 }
 
 /** Runs all available MIDI actions to check for potential crashes or dead
@@ -36,8 +36,8 @@ namespace H2Core {
  * scenario.
  *
  * Instead of loading a MIDI mapping from a config file, we create it locally.
- * This 1. increases coverage for #MidiEventMap routines too and 2. is more easy to
- * maintain and comprehend. */
+ * This 1. increases coverage for #MidiEventMap routines too and 2. is more easy
+ * to maintain and comprehend. */
 class MidiActionTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( MidiActionTest );
 	CPPUNIT_TEST( testBeatCounterAction );
@@ -94,69 +94,69 @@ class MidiActionTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testUnmuteAction );
 	CPPUNIT_TEST_SUITE_END();
 
-	public:
-		virtual void setUp();
-		virtual void tearDown();
+   public:
+	virtual void setUp();
+	virtual void tearDown();
 
-		void testBeatCounterAction();
-		void testBpmCcRelativeAction();
-		void testBpmDecreaseAction();
-		void testBpmFineCcRelativeAction();
-		void testBpmIncreaseAction();
-		void testClearPatternAction();
-		void testClearSelectedInstrumentAction();
-		void testEffectLevelAbsoluteAction();
-		void testEffectLevelRelativeAction();
-		void testFilterCutoffLevelAbsoluteAction();
-		void testGainLevelAbsoluteAction();
-		void testInstrumentPitchAction();
-		void testLoadNextDrumkitAction();
-		void testLoadPrevDrumkitAction();
-		void testMasterVolumeAbsoluteAction();
-		void testMasterVolumeRelativeAction();
-		void testMuteAction();
-		void testMuteToggleAction();
-		void testNextBarAction();
-		void testPanAbsoluteAction();
-		void testPanAbsoluteSymAction();
-		void testPanRelativeAction();
-		void testPauseAction();
-		void testPitchLevelAbsoluteAction();
-		void testPlayAction();
-		void testPlaylistNextSongAction();
-		void testPlaylistPrevSongAction();
-		void testPlaylistSongAction();
-		void testPlayPauseToggleAction();
-		void testPlayStopToggleAction();
-		void testPreviousBarAction();
-		void testRecordExitAction();
-		void testRecordReadyAction();
-		void testRecordStrobeAction();
-		void testRecordStrobeToggleAction();
-		void testRedoAction();
-		void testSelectAndPlayPatternAction();
-		void testSelectInstrumentAction();
-		void testSelectNextPatternAction();
-		void testSelectNextPatternCcAbsoluteAction();
-		void testSelectNextPatternRelativeAction();
-		void testSelectOnlyNextPatternAction();
-		void testSelectOnlyNextPatternCcAbsoluteAction();
-		void testStopAction();
-		void testStripMuteToggleAction();
-		void testStripSoloToggleAction();
-		void testStripVolumeAbsoluteAction();
-		void testStripVolumeRelativeAction();
-		void testTapTempoAction();
-		// For MidiAction::Type::TimingClockTick there is a specialized unit
-		// test in MidiDriver test.
-		void testToggleMetronomeAction();
-		void testUndoAction();
-		void testUnmuteAction();
+	void testBeatCounterAction();
+	void testBpmCcRelativeAction();
+	void testBpmDecreaseAction();
+	void testBpmFineCcRelativeAction();
+	void testBpmIncreaseAction();
+	void testClearPatternAction();
+	void testClearSelectedInstrumentAction();
+	void testEffectLevelAbsoluteAction();
+	void testEffectLevelRelativeAction();
+	void testFilterCutoffLevelAbsoluteAction();
+	void testGainLevelAbsoluteAction();
+	void testInstrumentPitchAction();
+	void testLoadNextDrumkitAction();
+	void testLoadPrevDrumkitAction();
+	void testMasterVolumeAbsoluteAction();
+	void testMasterVolumeRelativeAction();
+	void testMuteAction();
+	void testMuteToggleAction();
+	void testNextBarAction();
+	void testPanAbsoluteAction();
+	void testPanAbsoluteSymAction();
+	void testPanRelativeAction();
+	void testPauseAction();
+	void testPitchLevelAbsoluteAction();
+	void testPlayAction();
+	void testPlaylistNextSongAction();
+	void testPlaylistPrevSongAction();
+	void testPlaylistSongAction();
+	void testPlayPauseToggleAction();
+	void testPlayStopToggleAction();
+	void testPreviousBarAction();
+	void testRecordExitAction();
+	void testRecordReadyAction();
+	void testRecordStrobeAction();
+	void testRecordStrobeToggleAction();
+	void testRedoAction();
+	void testSelectAndPlayPatternAction();
+	void testSelectInstrumentAction();
+	void testSelectNextPatternAction();
+	void testSelectNextPatternCcAbsoluteAction();
+	void testSelectNextPatternRelativeAction();
+	void testSelectOnlyNextPatternAction();
+	void testSelectOnlyNextPatternCcAbsoluteAction();
+	void testStopAction();
+	void testStripMuteToggleAction();
+	void testStripSoloToggleAction();
+	void testStripVolumeAbsoluteAction();
+	void testStripVolumeRelativeAction();
+	void testTapTempoAction();
+	// For MidiAction::Type::TimingClockTick there is a specialized unit
+	// test in MidiDriver test.
+	void testToggleMetronomeAction();
+	void testUndoAction();
+	void testUnmuteAction();
 
-	private:
-		void sendMessage( const H2Core::MidiMessage& msg );
+   private:
+	void sendMessage( const H2Core::MidiMessage& msg );
 
-		H2Core::Preferences::MidiDriver m_previousDriver;
+	H2Core::Preferences::MidiDriver m_previousDriver;
 };
 
 #endif

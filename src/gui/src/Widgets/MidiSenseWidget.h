@@ -28,41 +28,55 @@
 
 #include <memory>
 
-#include <core/Midi/MidiMessage.h>
+#include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
 
 class MidiAction;
 
 /** \ingroup docGUI docWidgets docMIDI*/
-class MidiSenseWidget :  public QDialog , public H2Core::Object<MidiSenseWidget>
-	{
-	H2_OBJECT(MidiSenseWidget)
+class MidiSenseWidget : public QDialog, public H2Core::Object<MidiSenseWidget> {
+	H2_OBJECT( MidiSenseWidget )
 	Q_OBJECT
 
-	public:
-		explicit MidiSenseWidget( QWidget*, bool bDirectWrite = false,
-								  std::shared_ptr<MidiAction> pAction = nullptr );
-		~MidiSenseWidget();
+   public:
+	explicit MidiSenseWidget(
+		QWidget*,
+		bool bDirectWrite = false,
+		std::shared_ptr<MidiAction> pAction = nullptr
+	);
+	~MidiSenseWidget();
 
-		const H2Core::MidiMessage::Event& getLastMidiEvent() const;
-		int getLastMidiEventParameter() const;
+	const H2Core::MidiEvent::Type& getLastMidiEvent() const;
+	int getLastMidiEventParameter() const;
 
-	private slots:
-		void		updateMidi();
+   private slots:
+	void updateMidi();
 
-	private:
-		H2Core::MidiMessage::Event 		m_lastMidiEvent;
-		int								m_nLastMidiEventParameter;
-		QTimer*							m_pUpdateTimer;
-		QLabel*							m_pURLLabel;
-		std::shared_ptr<MidiAction>		m_pAction;
-		bool							m_bDirectWrite;
+   private:
+	void updateLabels();
+	void updateStyleSheet();
+
+	H2Core::MidiEvent::Type m_lastMidiEvent;
+	int m_nLastMidiEventParameter;
+	QTimer* m_pUpdateTimer;
+
+	QLabel* m_pActionLabel;
+	QLabel* m_pCurrentBindingsLabel;
+	QLabel* m_pCurrentBindingsList;
+	QWidget* m_pSeparator;
+	QLabel* m_pTextLabel;
+
+	std::shared_ptr<MidiAction> m_pAction;
+	bool m_bDirectWrite;
 };
 
-inline const H2Core::MidiMessage::Event& MidiSenseWidget::getLastMidiEvent() const {
+inline const H2Core::MidiEvent::Type& MidiSenseWidget::getLastMidiEvent(
+) const
+{
 	return m_lastMidiEvent;
 }
-inline int MidiSenseWidget::getLastMidiEventParameter() const {
+inline int MidiSenseWidget::getLastMidiEventParameter() const
+{
 	return m_nLastMidiEventParameter;
 }
 #endif

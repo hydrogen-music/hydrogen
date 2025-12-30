@@ -27,7 +27,7 @@
 #include <core/config.h>
 #include <core/Helpers/Time.h>
 #include <core/IO/JackAudioDriver.h>
-#include <core/Midi/MidiMessage.h>
+#include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
 #include <core/Timeline.h>
 
@@ -178,8 +178,8 @@ public:
 	void			sequencerStop();
 
 	///Last received midi message
-	const MidiMessage::Event& getLastMidiEvent() const;
-	void				setLastMidiEvent( const MidiMessage::Event& event );
+	const MidiEvent::Type& getLastMidiEvent() const;
+	void				setLastMidiEvent( const MidiEvent::Type& type );
 	int					getLastMidiEventParameter() const;
 	void				setLastMidiEventParameter( int nParam );
 
@@ -595,7 +595,7 @@ private:
 	/**
 	 * Cache last incoming MIDI event to be used in #MidiSenseWidget.
 	 */
-	MidiMessage::Event m_lastMidiEvent;
+	MidiEvent::Type m_lastMidiEvent;
 	int					m_nLastMidiEventParameter;
 
 		/** The update of the Director is event-based. But if the widget is not
@@ -659,10 +659,10 @@ inline void Hydrogen::setSessionIsExported( bool bSessionIsExported ) {
 inline bool Hydrogen::getSessionIsExported() const {
 	return m_bSessionIsExported;
 }
-inline const MidiMessage::Event& Hydrogen::getLastMidiEvent() const {
+inline const MidiEvent::Type& Hydrogen::getLastMidiEvent() const {
 	return m_lastMidiEvent;
 }
-inline void Hydrogen::setLastMidiEvent( const MidiMessage::Event& event ) {
+inline void Hydrogen::setLastMidiEvent( const MidiEvent::Type& event ) {
 	m_lastMidiEvent = event;
 }
 inline int Hydrogen::getLastMidiEventParameter() const {

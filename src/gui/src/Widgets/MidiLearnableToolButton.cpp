@@ -51,4 +51,7 @@ void MidiLearnableToolButton::mousePressEvent(QMouseEvent*ev) {
 
 void MidiLearnableToolButton::updateToolTip() {
 	setToolTip( composeToolTip() );
+    if ( defaultAction() != nullptr ) {
+		defaultAction()->setToolTip( toolTip() );
+    }
 }
