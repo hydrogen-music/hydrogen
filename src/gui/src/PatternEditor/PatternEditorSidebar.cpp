@@ -1328,6 +1328,12 @@ void SidebarRow::leaveEvent( QEvent* ev )
 	update();
 }
 
+void SidebarRow::showEvent( QShowEvent* pEvent )
+{
+	QWidget::showEvent( pEvent );
+    updateBorders();
+}
+
 void SidebarRow::setMuted( bool isMuted )
 {
 	if ( !m_pMuteBtn->isDown() && m_pMuteBtn->isChecked() != isMuted ) {
