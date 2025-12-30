@@ -178,6 +178,7 @@ class SidebarRow : public QWidget,
 	void enterEvent( QEvent* ev ) override;
 #endif
 	void leaveEvent( QEvent* ev ) override;
+	void showEvent( QShowEvent* pEvent ) override;
 
 	void setMuted( bool isMuted );
 	void setSoloed( bool soloed );

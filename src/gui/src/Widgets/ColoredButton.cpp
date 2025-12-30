@@ -48,6 +48,11 @@ ColoredButton::ColoredButton(
 	  ),
       m_bBorderless( false )
 {
+
+	const auto pColorTheme =
+		H2Core::Preferences::get_instance()->getColorTheme();
+    m_defaultBackgroundColor = pColorTheme->m_widgetColor;
+
 	setFlat( true );
 }
 
@@ -65,38 +70,22 @@ void ColoredButton::setBorderless( bool bBorderless )
 
 void ColoredButton::updateStyleSheet()
 {
+    const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
 	const QColor borderColor = Qt::black;
 
 	const QColor checkedColor( m_baseColor );
 	const QColor checkedTextColor( m_baseTextColor );
+	const auto defaultColor = m_defaultBackgroundColor;
+    const auto defaultTextColor = m_baseColor;
 
-	// We try to toggle the text color as much as possible in order to make the
-	// state change more evident.
-	QColor defaultTextColor, defaultColor;
-	if ( Skin::moreBlackThanWhite( m_baseTextColor ) ) {
-		defaultTextColor = Qt::white;
-		defaultColor = Qt::black;
-	}
-	else {
-		defaultTextColor = Qt::black;
-		defaultColor = Qt::white;
-	}
-
-	const int nOuterGradientScaling = 100;
-    const QString sGradient = "0.7";
-
-	QColor hoveredColor, hoveredBorder, gradientOuterColor;
+	QColor hoveredColor, hoveredBorder;
 	if ( Skin::moreBlackThanWhite( defaultColor ) ) {
-		defaultTextColor = Qt::white;
 		hoveredColor = defaultColor.lighter( Skin::nToolBarHoveredScaling );
 		hoveredBorder = borderColor.darker( Skin::nToolBarHoveredScaling );
-        gradientOuterColor = m_baseColor.lighter( nOuterGradientScaling );
 	}
 	else {
-		defaultTextColor = Qt::black;
 		hoveredColor = defaultColor.darker( Skin::nToolBarHoveredScaling );
 		hoveredBorder = borderColor.lighter( Skin::nToolBarHoveredScaling );
-        gradientOuterColor = m_baseColor.darker( nOuterGradientScaling );
 	}
 	const auto hoveredTextColor = defaultTextColor;
 
@@ -121,37 +110,33 @@ void ColoredButton::updateStyleSheet()
 	setStyleSheet( QString( "\
 QPushButton:enabled { \
     color: %1; \
-    background: qradialgradient(cx:0.5, cy:0.5, radius: %2, fx:0.5, fy:0.5,\
-                                stop:0 %3, stop:1 %4); \
-    border: %5; \
+    font-weight: bold;\
+    background: %2; \
+    border: %3; \
     padding: 0px; \
 } \
 QPushButton:enabled:hover { \
-    color: %6; \
-    background: qradialgradient(cx:0.5, cy:0.5, radius: %2, fx:0.5, fy:0.5,\
-                                stop:0 %7, stop:1 %4); \
-    border: %8; \
+    color: %4; \
+    background: %5; \
+    border: %6; \
 } \
 QPushButton:enabled:checked, QPushButton::enabled:checked:hover { \
-    color: %9; \
-    background: %10; \
+    color: %7; \
+    background: %8; \
 } \
 QPushButton:disabled { \
-    color: %11; \
-    background: qradialgradient(cx:0.5, cy:0.5, radius: %2, fx:0.5, fy:0.5,\
-                                stop:0 %12, stop:1 %10); \
+    color: %9; \
+    background: %10; \
     border: %5; \
     padding: 0px; \
 } \
 QPushButton:disabled:checked { \
-    color: %13; \
-    background: %14; \
+    color: %11; \
+    background: %12; \
 } \
 " )
 					   .arg( defaultTextColor.name() )
-					   .arg( sGradient )
 					   .arg( defaultColor.name() )
-					   .arg( gradientOuterColor.name() )
 					   .arg( sBorder )
 					   .arg( hoveredTextColor.name() )
 					   .arg( hoveredColor.name() )

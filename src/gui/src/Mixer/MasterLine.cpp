@@ -123,8 +123,11 @@ MasterLine::MasterLine( QWidget* pParent )
 		this, QSize( 42, 17 ) );
 	m_pMuteBtn->setObjectName( "MixerMasterMuteButton" );
 	m_pMuteBtn->move( 20, 31 );
+	// Color used as background within the pixmap.
+	m_pMuteBtn->setDefaultBackgroundColor( QColor( 128, 134, 152 ) );
 	m_pMuteBtn->setMidiAction(
-		std::make_shared<MidiAction>( MidiAction::Type::MuteToggle ) );
+		std::make_shared<MidiAction>( MidiAction::Type::MuteToggle )
+	);
 	connect( m_pMuteBtn, &QPushButton::clicked, [&]() {
 		CoreActionController::setMasterIsMuted( m_pMuteBtn->isChecked() );
 	});
