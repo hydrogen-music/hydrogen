@@ -367,8 +367,8 @@ for:
       ## Add custom OpenSSL libraries. They are used as fallback by Qt
       ## and are only dl_opened in case no matching version was found
       ## on system level.
-      cp /usr/local/lib/libssl.so.1.1 AppDir/usr/lib || exit 1
-      cp /usr/local/lib/libcrypto.so.1.1 AppDir/usr/lib || exit 1
+      cp /usr/lib/x86_64-linux-gnu/libssl.so.3 AppDir/usr/lib || exit 1
+      cp /usr/lib/x86_64-linux-gnu/libcrypto.so.3 AppDir/usr/lib || exit 1
 
       ## Copy the version compiled above to shadow the system library. Else
       ## `linuxdeploy` will ship the system one which is too old to support MP3,
