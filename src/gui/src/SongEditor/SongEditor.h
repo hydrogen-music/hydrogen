@@ -187,7 +187,7 @@ class SongEditor : public Editor::Base<std::shared_ptr<GridCell>>
 
 		bool updateHoveredCells(
 			std::vector< std::shared_ptr<GridCell> > hoveredCells,
-			Editor::Hover hover );
+			Editor::InputSource inputSource );
 		std::vector< std::shared_ptr<GridCell> > m_hoveredCells;
 		/** There should be at most one grid cell hovered in the SongEditor. But
 		 * by making this member a std::vector we can both deal with no element

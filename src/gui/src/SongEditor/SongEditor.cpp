@@ -709,14 +709,14 @@ bool SongEditor::updateKeyboardHoveredElements() {
 	if ( HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		// Cursor is invisible and can not hover anything
 		return updateHoveredCells( std::vector< std::shared_ptr<GridCell> >(),
-								   Editor::Hover::Keyboard );
+								   Editor::InputSource::Keyboard );
 	}
 	else {
 		std::vector< std::shared_ptr<GridCell> > hoveredCells;
 		if ( m_gridCells.find( m_cursor ) != m_gridCells.end() ) {
 			hoveredCells.push_back( m_gridCells.at( m_cursor ) );
 		}
-		return updateHoveredCells( hoveredCells, Editor::Hover::Keyboard );
+		return updateHoveredCells( hoveredCells, Editor::InputSource::Keyboard );
 	}
 }
 
@@ -727,7 +727,7 @@ bool SongEditor::updateMouseHoveredElements( QMouseEvent* pEvent ) {
 	if ( widgetPos.x() < 0 || widgetPos.x() >= width() ||
 		 widgetPos.y() < 0 || widgetPos.y() >= height() ) {
 		return updateHoveredCells( std::vector< std::shared_ptr<GridCell> >(),
-								   Editor::Hover::Mouse );
+								   Editor::InputSource::Mouse );
 	}
 
 	if ( pEvent == nullptr ) {
@@ -740,7 +740,7 @@ bool SongEditor::updateMouseHoveredElements( QMouseEvent* pEvent ) {
 
 	const auto hoveredCells = getElementsAtPoint(
 		static_cast<MouseEvent*>(pEvent)->position().toPoint(), 0, false );
-	return updateHoveredCells( hoveredCells, Editor::Hover::Mouse );
+	return updateHoveredCells( hoveredCells, Editor::InputSource::Mouse );
 }
 
 Editor::Input SongEditor::getInput() const {
@@ -1208,11 +1208,11 @@ void SongEditor::updateGridCells() {
 
 bool SongEditor::updateHoveredCells(
 	std::vector< std::shared_ptr<GridCell> > hoveredCells,
-	Editor::Hover hover )
+	Editor::InputSource inputSource )
 {
 	bool bIdentical = true;
 	std::vector< std::shared_ptr<GridCell> >* pCachedCells;
-	if ( hover == Editor::Hover::Keyboard ) {
+	if ( inputSource == Editor::InputSource::Keyboard ) {
 		pCachedCells = &m_keyboardHoveredCells;
 	} else {
 		pCachedCells = &m_mouseHoveredCells;
