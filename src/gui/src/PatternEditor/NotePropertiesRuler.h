@@ -162,6 +162,8 @@ class NotePropertiesRuler : public PatternEditor,
 		void addUndoAction( const QString& sUndoContext );
 		void prepareUndoAction( QMouseEvent* pEvent );
 
+        static void yToKeyOctave( int nY, int* pKey, int* pOctave );
+
 		std::vector<KeyOctaveLabel*> m_labels;
 
 		//! Map of notes currently in the pattern -> old notes with their

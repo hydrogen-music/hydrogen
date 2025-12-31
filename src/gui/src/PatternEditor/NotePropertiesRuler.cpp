@@ -265,34 +265,17 @@ bool NotePropertiesRuler::applyProperty( std::shared_ptr<Note> pNote,
 			break;
 
 		case PatternEditor::Property::KeyOctave:
-			if ( ! pNote->getNoteOff() ) {
-				const int nY = static_cast<int>(fYValue);
-				int nKey = KEY_INVALID;
-				int nOctave = OCTAVE_INVALID;
-				if ( nY > 0 &&
-					 nY <= NotePropertiesRuler::nOctaveHeight ) {
-					nOctave = std::round(
-						( NotePropertiesRuler::nOctaveHeight / 2 +
-						  NotePropertiesRuler::nKeyLineHeight / 2 - nY -
-						  NotePropertiesRuler::nKeyLineHeight / 2 ) /
-						NotePropertiesRuler::nKeyLineHeight );
-					nOctave = std::clamp( nOctave, OCTAVE_MIN, OCTAVE_MAX );
-				}
-				else if ( nY >= NotePropertiesRuler::nOctaveHeight &&
-						  nY < NotePropertiesRuler::nKeyOctaveHeight ) {
-					nKey = ( NotePropertiesRuler::nKeyOctaveHeight - nY -
-							 NotePropertiesRuler::nKeyLineHeight / 2 ) /
-						NotePropertiesRuler::nKeyLineHeight;
-					nKey = std::clamp( nKey, KEY_MIN, KEY_MAX );
-				}
-
+			if ( !pNote->getNoteOff() ) {
+				int nKey, nOctave;
+				yToKeyOctave( static_cast<int>( fYValue ), &nKey, &nOctave );
 				if ( ( nKey != KEY_INVALID &&
-					   nKey != static_cast<int>(pNote->getKey()) ) ||
+					   nKey != static_cast<int>( pNote->getKey() ) ) ||
 					 ( nOctave != KEY_INVALID &&
-					   nOctave != static_cast<int>(pNote->getOctave()) ) ) {
+					   nOctave != static_cast<int>( pNote->getOctave() ) ) ) {
 					pNote->setKeyOctave(
-						static_cast<Note::Key>(nKey),
-						static_cast<Note::Octave>(nOctave));
+						static_cast<Note::Key>( nKey ),
+						static_cast<Note::Octave>( nOctave )
+					);
 					return true;
 				}
 			}
@@ -686,6 +669,35 @@ void NotePropertiesRuler::prepareUndoAction( QMouseEvent* pEvent )
 
 	if ( notesUnderPoint.size() > 0 ) {
 		m_nDrawPreviousColumn = notesUnderPoint[ 0 ]->getPosition();
+	}
+}
+
+void NotePropertiesRuler::yToKeyOctave( int nY, int* pKey, int* pOctave )
+{
+	int nKey = KEY_INVALID;
+	int nOctave = OCTAVE_INVALID;
+	if ( nY > 0 && nY <= NotePropertiesRuler::nOctaveHeight ) {
+		nOctave = std::round(
+			( NotePropertiesRuler::nOctaveHeight / 2 +
+			  NotePropertiesRuler::nKeyLineHeight / 2 - nY -
+			  NotePropertiesRuler::nKeyLineHeight / 2 ) /
+			NotePropertiesRuler::nKeyLineHeight
+		);
+		nOctave = std::clamp( nOctave, OCTAVE_MIN, OCTAVE_MAX );
+	}
+	else if ( nY >= NotePropertiesRuler::nOctaveHeight &&
+			  nY < NotePropertiesRuler::nKeyOctaveHeight ) {
+		nKey = ( NotePropertiesRuler::nKeyOctaveHeight - nY -
+				 NotePropertiesRuler::nKeyLineHeight / 2 ) /
+			   NotePropertiesRuler::nKeyLineHeight;
+		nKey = std::clamp( nKey, KEY_MIN, KEY_MAX );
+	}
+
+	if ( pKey != nullptr ) {
+        *pKey = nKey;
+	}
+	if ( pOctave != nullptr ) {
+        *pOctave = nOctave;
 	}
 }
 
