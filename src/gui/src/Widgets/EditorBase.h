@@ -118,10 +118,16 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		 * hovered ones using @a bIncludeHovered. Else we end up rendering
 		 * elements already deleted.*/
 		virtual std::vector<Elem> getElementsAtPoint(
-			const QPoint& point, int nCursorMargin, bool bIncludeHovered,
-			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override {
+			const QPoint& point,
+			Editor::InputSource inputSource,
+			int nCursorMargin,
+			bool bIncludeHovered,
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr
+		) override
+		{
 			___ERRORLOG( "To be implemented by parent" );
-			return std::vector<Elem>(); }
+			return std::vector<Elem>();
+		}
 		/** Retrieve the position a particular element is located at. */
 		virtual QPoint elementToPoint( Elem elem ) const {
 			___ERRORLOG( "To be implemented by parent" );
@@ -382,13 +388,15 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			// point/cursor will be selected instead.
 			auto selectElementsAtPoint = [&]() {
 				const auto elementsUnderPoint = getElementsAtPoint(
-					gridPointToPoint( getCursorPosition() ), 0, true );
+					gridPointToPoint( getCursorPosition() ),
+					Editor::InputSource::Keyboard, 0, true
+				);
 				if ( elementsUnderPoint.size() == 0 ) {
 					return false;
 				}
 
 				bool bElementsSelected = false;
-				if ( ! m_selection.isEmpty() ) {
+				if ( !m_selection.isEmpty() ) {
 					for ( const auto& ppElement : elementsUnderPoint ) {
 						if ( m_selection.isSelected( ppElement ) ) {
 							bElementsSelected = true;
@@ -397,7 +405,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 					}
 				}
 
-				if ( ! bElementsSelected ) {
+				if ( !bElementsSelected ) {
 					m_selection.clearSelection();
 					for ( const auto& ppElement : elementsUnderPoint ) {
 						m_selection.addToSelection( ppElement );
@@ -615,12 +623,13 @@ class Base : public SelectionWidget<Elem>, public QWidget
 					 getInput() != Editor::Input::Draw ) ||
 				   ev->buttons() == Qt::RightButton ) &&
 				 ! ( ev->modifiers() & Qt::ControlModifier ) ) {
-
 				// When interacting with element(s) not already in a selection,
 				// we will discard the current selection and add those elements
 				// under point to a transient one.
 				const auto elementsUnderPoint = getElementsAtPoint(
-					pEv->position().toPoint(), getCursorMargin( ev ), true );
+					pEv->position().toPoint(), Editor::InputSource::Mouse,
+					getCursorMargin( ev ), true
+				);
 
 				bool bSelectionHovered = false;
 				for ( const auto& ppElement : elementsUnderPoint ) {
@@ -746,8 +755,15 @@ class Base : public SelectionWidget<Elem>, public QWidget
 
 			// main button action
 			if ( ev->button() == Qt::LeftButton ) {
-
-				setCursorTo( ev );
+				// When adding new note, we move the cursor the point of
+				// creation since we select the corresponding row as well.
+				const auto elementsUnderPoint = getElementsAtPoint(
+					pEv->position().toPoint(), Editor::InputSource::Mouse,
+					getCursorMargin( ev ), true
+				);
+				if ( elementsUnderPoint.size() == 0 ) {
+					setCursorTo( ev );
+				}
 
 				// Check whether an existing element or an empty grid cell was
 				// clicked.

@@ -86,12 +86,19 @@ public:
 		 * @a nCursorMargin can be provided. The closest elements within this
 		 * margin will be selected. */
 		virtual std::vector<SelectionIndex> getElementsAtPoint(
-			const QPoint& point, int nCursorMargin, bool bIncludeHovered,
-			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) = 0;
+			const QPoint& point,
+			Editor::InputSource inputSource,
+			int nCursorMargin,
+			bool bIncludeHovered,
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr
+		) = 0;
 
-	//! Inform the client that we're deselecting elements.
-	virtual bool checkDeselectElements( const std::vector<SelectionIndex>& elements ) {
-		return true;
+		//! Inform the client that we're deselecting elements.
+		virtual bool checkDeselectElements(
+			const std::vector<SelectionIndex>& elements
+		)
+		{
+			return true;
 	}
 
 
@@ -572,21 +579,26 @@ public:
 		if ( ev->modifiers() & Qt::ControlModifier ) {
 			// Ctrl+click to add or remove element from selection.
 			std::vector<Elem> elems = m_pWidget->getElementsAtPoint(
-				pClickEv->position().toPoint(), m_pWidget->getCursorMargin( ev ),
-				true );
-			for ( Elem e : elems) {
-				if ( m_pSelectionGroup->m_selectedElements.find( e )
-					 == m_pSelectionGroup->m_selectedElements.end() ) {
+				pClickEv->position().toPoint(), Editor::InputSource::Mouse,
+				m_pWidget->getCursorMargin( ev ), true
+			);
+			for ( Elem e : elems ) {
+				if ( m_pSelectionGroup->m_selectedElements.find( e ) ==
+					 m_pSelectionGroup->m_selectedElements.end() ) {
 					addToSelection( e );
-				} else {
+				}
+				else {
 					removeFromSelection( e );
 				}
 			}
-			updateWidgetGroup( elems.size() > 0 ? Editor::Update::Content :
-							   Editor::Update::Transient );
-		} else {
+			updateWidgetGroup(
+				elems.size() > 0 ? Editor::Update::Content
+								 : Editor::Update::Transient
+			);
+		}
+		else {
 			if ( ev->button() != Qt::RightButton &&
-				 ! m_pSelectionGroup->m_selectedElements.empty() ) {
+				 !m_pSelectionGroup->m_selectedElements.empty() ) {
 				// Click without control or right button, and
 				// non-empty selection, will just clear selection
 				clearSelection();
@@ -597,10 +609,11 @@ public:
 				// Right-clicking with an empty selection will first attempt to
 				// select anything at the click position before passing the
 				// click through to the client.
-				QRect r = QRect( pEv->position().toPoint(),
-								 pEv->position().toPoint() );
+				QRect r = QRect(
+					pEv->position().toPoint(), pEv->position().toPoint()
+				);
 				std::vector<Elem> elems = m_pWidget->elementsIntersecting( r );
-				for ( Elem e : elems) {
+				for ( Elem e : elems ) {
 					addToSelection( e );
 				}
 				m_pWidget->mouseClickEvent( ev );
@@ -626,8 +639,9 @@ public:
 		if ( ev->button() == Qt::LeftButton &&
 			 m_pWidget->getInput() == Editor::Input::Select ) {
 			std::vector<Elem> elems = m_pWidget->getElementsAtPoint(
-				pClickEv->position().toPoint(), m_pWidget->getCursorMargin( ev ),
-				true );
+				pClickEv->position().toPoint(), Editor::InputSource::Mouse,
+				m_pWidget->getCursorMargin( ev ), true
+			);
 
 			/* Did the user start dragging a selected element, or an unselected element?
 			 */

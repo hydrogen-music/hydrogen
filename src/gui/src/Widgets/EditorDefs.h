@@ -220,18 +220,17 @@ namespace Editor {
 	}
 
 	/** Specifies which user input resulted in hovering an element. */
-	enum class Hover {
-		Keyboard = 0,
-		Mouse = 1
-	};
-	static QString hoverToQString( const Hover& hover ) {
-		switch ( hover ) {
-		case Hover::Keyboard:
-			return "Keyboard";
-		case Hover::Mouse:
-			return "Mouse";
-		default:
-			return QString( "Unknown hover [%1]" ).arg( static_cast<int>(hover) );
+	enum class InputSource { Keyboard = 0, Mouse = 1 };
+	static QString inputSourceToQString( const InputSource& inputSource )
+	{
+		switch ( inputSource ) {
+			case InputSource::Keyboard:
+				return "Keyboard";
+			case InputSource::Mouse:
+				return "Mouse";
+			default:
+				return QString( "Unknown  inputSource  [%1]" )
+					.arg( static_cast<int>( inputSource ) );
 		}
 	}
 

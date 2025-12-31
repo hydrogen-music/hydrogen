@@ -171,7 +171,6 @@ public:
 		virtual void keyPressEvent( QKeyEvent* ev ) override;
 		virtual void keyReleaseEvent(QKeyEvent *ev) override;
 		virtual void mousePressEvent( QMouseEvent *ev ) override;
-		virtual void mouseClickEvent( QMouseEvent *ev ) override;
 		virtual void paintEvent( QPaintEvent* ev ) override;
 	
 		//! @name SelectionWidget interfaces
@@ -195,10 +194,14 @@ public:
 		void handleElements( QInputEvent* ev, Editor::Action action ) override;
 		void deleteElements( std::vector< std::shared_ptr<H2Core::Note>> ) override;
 		virtual std::vector<SelectionIndex> getElementsAtPoint(
-			const QPoint& point, int nCursorMargin, bool bIncludeHovered,
-			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
-		virtual QPoint elementToPoint(
-			std::shared_ptr<H2Core::Note> pNote ) const override;
+			const QPoint& point,
+			Editor::InputSource inputSource,
+			int nCursorMargin,
+			bool bIncludeHovered,
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr
+		) override;
+		virtual QPoint elementToPoint( std::shared_ptr<H2Core::Note> pNote
+		) const override;
 		virtual QPoint gridPointToPoint(
 			const H2Core::GridPoint& gridPoint) const override;
 		virtual H2Core::GridPoint pointToGridPoint(

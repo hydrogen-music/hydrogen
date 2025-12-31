@@ -30,8 +30,6 @@
 #include "PatternEditorPanel.h"
 #include "PianoRollEditor.h"
 
-#include <cassert>
-
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Hydrogen.h>
@@ -45,11 +43,16 @@ int NotePropertiesRuler::nKeyOctaveHeight =
 	NotePropertiesRuler::nKeyLineHeight * KEYS_PER_OCTAVE + 2 -
 	std::floor( NotePropertiesRuler::nKeyLineHeight / 2 );
 
-KeyOctaveLabel::KeyOctaveLabel( QWidget* pParent, const QString& sText, int nY,
-								bool bAlternateBackground, Type type )
-	: QLabel( pParent )
-	, m_bAlternateBackground( bAlternateBackground )
-	, m_type( type )
+KeyOctaveLabel::KeyOctaveLabel(
+	QWidget* pParent,
+	const QString& sText,
+	int nY,
+	bool bAlternateBackground,
+	Type type
+)
+	: QLabel( pParent ),
+	  m_bAlternateBackground( bAlternateBackground ),
+	  m_type( type )
 {
 	setText( sText );
 
@@ -58,23 +61,29 @@ KeyOctaveLabel::KeyOctaveLabel( QWidget* pParent, const QString& sText, int nY,
 	if ( type == Type::Key ) {
 		setAlignment( Qt::AlignLeft );
 		setIndent( 4 );
-		setFixedSize( PatternEditor::nMarginSidebar,
-					  NotePropertiesRuler::nKeyLineHeight );
+		setFixedSize(
+			PatternEditor::nMarginSidebar, NotePropertiesRuler::nKeyLineHeight
+		);
 	}
 	else {
 		setAlignment( Qt::AlignRight );
 		setIndent( 3 );
-		setFixedSize( PatternEditor::nMarginSidebar / 2,
-					  NotePropertiesRuler::nKeyLineHeight );
+		setFixedSize(
+			PatternEditor::nMarginSidebar / 2,
+			NotePropertiesRuler::nKeyLineHeight
+		);
 	}
 
 	updateColors();
 	updateFont();
 }
 
-KeyOctaveLabel::~KeyOctaveLabel() {}
+KeyOctaveLabel::~KeyOctaveLabel()
+{
+}
 
-void KeyOctaveLabel::updateColors() {
+void KeyOctaveLabel::updateColors()
+{
 	auto pPref = Preferences::get_instance();
 
 	if ( m_type == Type::Key ) {
@@ -91,24 +100,27 @@ void KeyOctaveLabel::updateColors() {
 			backgroundColor.darker( Skin::nListBackgroundColorScaling );
 	}
 
-	setStyleSheet( QString( "QLabel{ color: %1; }" )
-				   .arg( pPref->getColorTheme()->m_patternEditor_textColor.name() ) );
+	setStyleSheet(
+		QString( "QLabel{ color: %1; }" )
+			.arg( pPref->getColorTheme()->m_patternEditor_textColor.name() )
+	);
 }
 
-void KeyOctaveLabel::updateFont() {
+void KeyOctaveLabel::updateFont()
+{
 	auto pPref = Preferences::get_instance();
 
 	int nMargin;
-    switch( pPref->getFontTheme()->m_fontSize ) {
-    case H2Core::FontTheme::FontSize::Small:
-		nMargin = 2;
-		break;
-    case H2Core::FontTheme::FontSize::Medium:
-		nMargin = 2;
-		break;
-    case H2Core::FontTheme::FontSize::Large:
-		nMargin = 0;
-		break;
+	switch ( pPref->getFontTheme()->m_fontSize ) {
+		case H2Core::FontTheme::FontSize::Small:
+			nMargin = 2;
+			break;
+		case H2Core::FontTheme::FontSize::Medium:
+			nMargin = 2;
+			break;
+		case H2Core::FontTheme::FontSize::Large:
+			nMargin = 0;
+			break;
 	}
 
 	QFont font( pPref->getFontTheme()->m_sLevel2FontFamily );
@@ -127,7 +139,7 @@ void KeyOctaveLabel::paintEvent( QPaintEvent* pEvent )
 
 		p.fillRect( QRect( 0, 0, width(), height() ), m_backgroundColor );
 
-        // borders
+		// borders
 		p.setPen( pColorTheme->m_windowColor );
 		p.drawLine( 0, height() - 1, width(), height() - 1 );
 		p.drawLine( 0, 0, 0, height() - 1 );
@@ -146,13 +158,14 @@ NotePropertiesRuler::NotePropertiesRuler(
 {
 	m_type = Editor::Type::Horizontal;
 	m_instance = Editor::Instance::NotePropertiesRuler;
+	m_nGridHeight = NotePropertiesRuler::nKeyLineHeight;
 
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	m_property = property;
 
-	m_fGridWidth = (Preferences::get_instance())->getPatternEditorGridWidth();
-	m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * 4 * 4 *
-		H2Core::nTicksPerQuarter;
+	m_fGridWidth = ( Preferences::get_instance() )->getPatternEditorGridWidth();
+	m_nEditorWidth = PatternEditor::nMargin +
+					 m_fGridWidth * 4 * 4 * H2Core::nTicksPerQuarter;
 
 	if ( m_property == PatternEditor::Property::KeyOctave ) {
 		m_nEditorHeight = NotePropertiesRuler::nKeyOctaveHeight;
@@ -184,70 +197,73 @@ NotePropertiesRuler::NotePropertiesRuler(
 
 	// Create a small sidebar containing labels
 	if ( layout == Layout::KeyOctave ) {
-
 		for ( int nnOctave = 0; nnOctave < OCTAVE_NUMBER; ++nnOctave ) {
-			m_labels.push_back(
-				new KeyOctaveLabel(
-					this, QString::number( 5 - nnOctave ),
-					nnOctave * NotePropertiesRuler::nKeyLineHeight + 1 +
+			m_labels.push_back( new KeyOctaveLabel(
+				this, QString::number( 5 - nnOctave ),
+				nnOctave * NotePropertiesRuler::nKeyLineHeight + 1 +
 					std::floor( NotePropertiesRuler::nKeyLineHeight / 2 ),
-					false, KeyOctaveLabel::Type::Octave ) );
+				false, KeyOctaveLabel::Type::Octave
+			) );
 		}
 
 		// Annotate with note class names
 		static QStringList noteNames = QStringList()
-			<< pCommonStrings->getNotePitchB()
-			<< pCommonStrings->getNotePitchASharp()
-			<< pCommonStrings->getNotePitchA()
-			<< pCommonStrings->getNotePitchGSharp()
-			<< pCommonStrings->getNotePitchG()
-			<< pCommonStrings->getNotePitchFSharp()
-			<< pCommonStrings->getNotePitchF()
-			<< pCommonStrings->getNotePitchE()
-			<< pCommonStrings->getNotePitchDSharp()
-			<< pCommonStrings->getNotePitchD()
-			<< pCommonStrings->getNotePitchCSharp()
-			<< pCommonStrings->getNotePitchC();
+									   << pCommonStrings->getNotePitchB()
+									   << pCommonStrings->getNotePitchASharp()
+									   << pCommonStrings->getNotePitchA()
+									   << pCommonStrings->getNotePitchGSharp()
+									   << pCommonStrings->getNotePitchG()
+									   << pCommonStrings->getNotePitchFSharp()
+									   << pCommonStrings->getNotePitchF()
+									   << pCommonStrings->getNotePitchE()
+									   << pCommonStrings->getNotePitchDSharp()
+									   << pCommonStrings->getNotePitchD()
+									   << pCommonStrings->getNotePitchCSharp()
+									   << pCommonStrings->getNotePitchC();
 
 		for ( int nnKey = 0; nnKey < KEYS_PER_OCTAVE; ++nnKey ) {
-
 			const int nY = NotePropertiesRuler::nOctaveHeight -
-				NotePropertiesRuler::nKeyLineHeight / 2 + 1 +
-				nnKey * NotePropertiesRuler::nKeyLineHeight;
+						   NotePropertiesRuler::nKeyLineHeight / 2 + 1 +
+						   nnKey * NotePropertiesRuler::nKeyLineHeight;
 
 			bool bAlternate = false;
-			if ( nnKey == 1 ||  nnKey == 3 || nnKey == 5 || nnKey == 8 ||
+			if ( nnKey == 1 || nnKey == 3 || nnKey == 5 || nnKey == 8 ||
 				 nnKey == 10 ) {
 				bAlternate = true;
 			}
 
-			m_labels.push_back(
-				new KeyOctaveLabel( this, noteNames.at( nnKey ), nY, bAlternate,
-									KeyOctaveLabel::Type::Key ) );
+			m_labels.push_back( new KeyOctaveLabel(
+				this, noteNames.at( nnKey ), nY, bAlternate,
+				KeyOctaveLabel::Type::Key
+			) );
 		}
 	}
 }
 
-NotePropertiesRuler::~NotePropertiesRuler() {
+NotePropertiesRuler::~NotePropertiesRuler()
+{
 }
 
-bool NotePropertiesRuler::applyProperty( std::shared_ptr<Note> pNote,
-										 PatternEditor::Property property,
-										 float fYValue ) {
+bool NotePropertiesRuler::applyProperty(
+	std::shared_ptr<Note> pNote,
+	PatternEditor::Property property,
+	float fYValue
+)
+{
 	if ( pNote == nullptr ) {
 		return false;
 	}
 
-	switch( property ) {
+	switch ( property ) {
 		case PatternEditor::Property::Velocity:
-			if ( ! pNote->getNoteOff() && pNote->getVelocity() != fYValue ) {
+			if ( !pNote->getNoteOff() && pNote->getVelocity() != fYValue ) {
 				pNote->setVelocity( fYValue );
 				return true;
 			}
 			break;
 
 		case PatternEditor::Property::Pan:
-			if ( ! pNote->getNoteOff() &&
+			if ( !pNote->getNoteOff() &&
 				 pNote->getPanWithRangeFrom0To1() != fYValue ) {
 				pNote->setPanWithRangeFrom0To1( fYValue );
 				return true;
@@ -262,34 +278,19 @@ bool NotePropertiesRuler::applyProperty( std::shared_ptr<Note> pNote,
 			break;
 
 		case PatternEditor::Property::KeyOctave:
-			if ( ! pNote->getNoteOff() ) {
-				const int nY = static_cast<int>(fYValue);
-				int nKey = KEY_INVALID;
-				int nOctave = OCTAVE_INVALID;
-				if ( nY > 0 &&
-					 nY <= NotePropertiesRuler::nOctaveHeight ) {
-					nOctave = std::round(
-						( NotePropertiesRuler::nOctaveHeight / 2 +
-						  NotePropertiesRuler::nKeyLineHeight / 2 - nY -
-						  NotePropertiesRuler::nKeyLineHeight / 2 ) /
-						NotePropertiesRuler::nKeyLineHeight );
-					nOctave = std::clamp( nOctave, OCTAVE_MIN, OCTAVE_MAX );
-				}
-				else if ( nY >= NotePropertiesRuler::nOctaveHeight &&
-						  nY < NotePropertiesRuler::nKeyOctaveHeight ) {
-					nKey = ( NotePropertiesRuler::nKeyOctaveHeight - nY -
-							 NotePropertiesRuler::nKeyLineHeight / 2 ) /
-						NotePropertiesRuler::nKeyLineHeight;
-					nKey = std::clamp( nKey, KEY_MIN, KEY_MAX );
-				}
-
+			if ( !pNote->getNoteOff() ) {
+				int nKey, nOctave;
+				NotePropertiesRuler::yToKeyOctave(
+					static_cast<int>( fYValue ), &nKey, &nOctave
+				);
 				if ( ( nKey != KEY_INVALID &&
-					   nKey != static_cast<int>(pNote->getKey()) ) ||
+					   nKey != static_cast<int>( pNote->getKey() ) ) ||
 					 ( nOctave != KEY_INVALID &&
-					   nOctave != static_cast<int>(pNote->getOctave()) ) ) {
+					   nOctave != static_cast<int>( pNote->getOctave() ) ) ) {
 					pNote->setKeyOctave(
-						static_cast<Note::Key>(nKey),
-						static_cast<Note::Octave>(nOctave));
+						static_cast<Note::Key>( nKey ),
+						static_cast<Note::Octave>( nOctave )
+					);
 					return true;
 				}
 			}
@@ -306,7 +307,8 @@ bool NotePropertiesRuler::applyProperty( std::shared_ptr<Note> pNote,
 	return false;
 }
 
-float NotePropertiesRuler::eventToYValue( QMouseEvent* pEvent ) const {
+float NotePropertiesRuler::eventToYValue( QMouseEvent* pEvent ) const
+{
 	auto pEv = static_cast<MouseEvent*>( pEvent );
 
 	if ( m_property == PatternEditor::Property::KeyOctave ) {
@@ -314,87 +316,141 @@ float NotePropertiesRuler::eventToYValue( QMouseEvent* pEvent ) const {
 	}
 
 	// normalized
-	const double fHeight = static_cast<double>(height());
-	float fValue = static_cast<float>(
-		std::clamp( ( fHeight - static_cast<double>(pEv->position().y()) )/ fHeight,
-					0.0, 1.1 ));
+	const double fHeight = static_cast<double>( height() );
+	float fValue = static_cast<float>( std::clamp(
+		( fHeight - static_cast<double>( pEv->position().y() ) ) / fHeight, 0.0,
+		1.1
+	) );
 
 	// centered layouts support resetting the value to the baseline.
 	if ( m_layout == Layout::Centered &&
 		 ( pEvent->button() == Qt::MiddleButton ||
 		   ( pEvent->modifiers() == Qt::ControlModifier &&
-			 pEvent->button() == Qt::LeftButton ) )  ) {
+			 pEvent->button() == Qt::LeftButton ) ) ) {
 		fValue = 0.5;
 	}
 
 	return fValue;
 }
 
-void NotePropertiesRuler::moveCursorDown( QKeyEvent* ev, Editor::Step step ) {
+void NotePropertiesRuler::yToKeyOctave( int nY, int* pKey, int* pOctave )
+{
+	int nKey = KEY_INVALID;
+	int nOctave = OCTAVE_INVALID;
+	if ( nY >= 0 && nY < NotePropertiesRuler::nOctaveHeight -
+							 NotePropertiesRuler::nKeyOctaveSpaceHeight ) {
+        const int nOuterRowHeight = NotePropertiesRuler::nKeyLineHeight * 1.5;
+		int nRow;
+		if ( nY <= nOuterRowHeight ) {
+			nRow = 0;
+		}
+		else if ( nY > NotePropertiesRuler::nOctaveHeight -
+						   NotePropertiesRuler::nKeyOctaveSpaceHeight -
+						   nOuterRowHeight ) {
+			nRow = 6;
+		}
+		else {
+			nRow = std::floor(
+					   ( nY - nOuterRowHeight ) /
+					   NotePropertiesRuler::nKeyLineHeight
+				   ) +
+				   1;
+		}
+        // Since there are three "negative" octaves.
+		nOctave = -1* ( nRow - 3 );
+		nOctave = std::clamp( nOctave, OCTAVE_MIN, OCTAVE_MAX );
+	}
+	else if ( nY >= NotePropertiesRuler::nOctaveHeight &&
+			  nY < NotePropertiesRuler::nKeyOctaveHeight ) {
+		nKey = ( NotePropertiesRuler::nKeyOctaveHeight - nY -
+				 NotePropertiesRuler::nKeyLineHeight / 2 ) /
+			   NotePropertiesRuler::nKeyLineHeight;
+		nKey = std::clamp( nKey, KEY_MIN, KEY_MAX );
+	}
+
+	if ( pKey != nullptr ) {
+		*pKey = nKey;
+	}
+	if ( pOctave != nullptr ) {
+		*pOctave = nOctave;
+	}
+}
+
+void NotePropertiesRuler::moveCursorDown( QKeyEvent* ev, Editor::Step step )
+{
 	float fStep;
-	switch( step ) {
-	case Editor::Step::None:
-		fStep = 0;
-		break;
-	case Editor::Step::Character:
-		fStep = m_property == PatternEditor::Property::KeyOctave ? 1 : 0.1;
-		break;
-	case Editor::Step::Tiny:
-		fStep = m_property == PatternEditor::Property::KeyOctave ? 1 : 0.01;
-		break;
-	case Editor::Step::Word:
-		fStep = m_property == PatternEditor::Property::KeyOctave ?
-			Editor::nWordSize : 0.25;
-		break;
-	case Editor::Step::Page:
-		fStep = m_property == PatternEditor::Property::KeyOctave ?
-			Editor::nPageSize : 0.5;
-		break;
-	case Editor::Step::Document:
-		fStep = m_property == PatternEditor::Property::KeyOctave ?
-			( PITCH_MAX - PITCH_MIN ) : 1;
-		break;
+	switch ( step ) {
+		case Editor::Step::None:
+			fStep = 0;
+			break;
+		case Editor::Step::Character:
+			fStep = m_property == PatternEditor::Property::KeyOctave ? 1 : 0.1;
+			break;
+		case Editor::Step::Tiny:
+			fStep = m_property == PatternEditor::Property::KeyOctave ? 1 : 0.01;
+			break;
+		case Editor::Step::Word:
+			fStep = m_property == PatternEditor::Property::KeyOctave
+						? Editor::nWordSize
+						: 0.25;
+			break;
+		case Editor::Step::Page:
+			fStep = m_property == PatternEditor::Property::KeyOctave
+						? Editor::nPageSize
+						: 0.5;
+			break;
+		case Editor::Step::Document:
+			fStep = m_property == PatternEditor::Property::KeyOctave
+						? ( PITCH_MAX - PITCH_MIN )
+						: 1;
+			break;
 	}
 
 	applyCursorDelta( -1 * fStep );
 }
 
-void NotePropertiesRuler::moveCursorUp( QKeyEvent* ev, Editor::Step step ) {
+void NotePropertiesRuler::moveCursorUp( QKeyEvent* ev, Editor::Step step )
+{
 	float fStep;
-	switch( step ) {
-	case Editor::Step::None:
-		fStep = 0;
-		break;
-	case Editor::Step::Character:
-		fStep = m_property == PatternEditor::Property::KeyOctave ? 1 : 0.1;
-		break;
-	case Editor::Step::Tiny:
-		fStep = m_property == PatternEditor::Property::KeyOctave ? 1 : 0.01;
-		break;
-	case Editor::Step::Word:
-		fStep = m_property == PatternEditor::Property::KeyOctave ?
-			Editor::nWordSize : 0.25;
-		break;
-	case Editor::Step::Page:
-		fStep = m_property == PatternEditor::Property::KeyOctave ?
-			Editor::nPageSize : 0.5;
-		break;
-	case Editor::Step::Document:
-		fStep = m_property == PatternEditor::Property::KeyOctave ?
-			( PITCH_MAX - PITCH_MIN ) : 1;
-		break;
+	switch ( step ) {
+		case Editor::Step::None:
+			fStep = 0;
+			break;
+		case Editor::Step::Character:
+			fStep = m_property == PatternEditor::Property::KeyOctave ? 1 : 0.1;
+			break;
+		case Editor::Step::Tiny:
+			fStep = m_property == PatternEditor::Property::KeyOctave ? 1 : 0.01;
+			break;
+		case Editor::Step::Word:
+			fStep = m_property == PatternEditor::Property::KeyOctave
+						? Editor::nWordSize
+						: 0.25;
+			break;
+		case Editor::Step::Page:
+			fStep = m_property == PatternEditor::Property::KeyOctave
+						? Editor::nPageSize
+						: 0.5;
+			break;
+		case Editor::Step::Document:
+			fStep = m_property == PatternEditor::Property::KeyOctave
+						? ( PITCH_MAX - PITCH_MIN )
+						: 1;
+			break;
 	}
 
 	applyCursorDelta( fStep );
 }
 
-void NotePropertiesRuler::updateColors() {
+void NotePropertiesRuler::updateColors()
+{
 	for ( auto& ppLabel : m_labels ) {
 		ppLabel->updateColors();
 	}
 }
 
-void NotePropertiesRuler::updateFont() {
+void NotePropertiesRuler::updateFont()
+{
 	for ( auto& ppLabel : m_labels ) {
 		ppLabel->updateFont();
 	}
@@ -404,7 +460,7 @@ void NotePropertiesRuler::updateFont() {
 //! cursor (or selected notes, if any). Unlike drag gestures, each individual
 //! wheel movement will result in an undo/redo action since the events are
 //! discrete.
-void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
+void NotePropertiesRuler::wheelEvent( QWheelEvent* ev )
 {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
@@ -420,13 +476,15 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	// current selection, we alter the values of all selected notes. It not, we
 	// discard the selection.
 	const auto notesUnderPoint = getElementsAtPoint(
-		pEv->position().toPoint(), getCursorMargin( nullptr ), true );
+		pEv->position().toPoint(), Editor::InputSource::Mouse,
+		getCursorMargin( nullptr ), true
+	);
 	if ( notesUnderPoint.size() == 0 ) {
 		return;
 	}
 
 	// Focus cursor on hovered note(s).
-	m_pPatternEditorPanel->setCursorColumn( notesUnderPoint[ 0 ]->getPosition() );
+	m_pPatternEditorPanel->setCursorColumn( notesUnderPoint[0]->getPosition() );
 
 	bool bSelectionHovered = false;
 	for ( const auto& ppNote : notesUnderPoint ) {
@@ -436,8 +494,8 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		}
 	}
 
-	std::vector< std::shared_ptr<Note> > notes;
-	std::vector< std::shared_ptr<Note> > notesStatusMessage;
+	std::vector<std::shared_ptr<Note> > notes;
+	std::vector<std::shared_ptr<Note> > notesStatusMessage;
 	if ( bSelectionHovered ) {
 		for ( const auto& ppNote : m_selection ) {
 			if ( ppNote != nullptr ) {
@@ -466,13 +524,13 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		fDelta = ev->modifiers() == Qt::ControlModifier ? 3 : 1;
 	}
 	else if ( ev->modifiers() == Qt::AltModifier ) {
-		fDelta = 0.01; // fine control
+		fDelta = 0.01;	// fine control
 	}
 	else if ( ev->modifiers() == Qt::ControlModifier ) {
-		fDelta = 0.15; // coarse control
+		fDelta = 0.15;	// coarse control
 	}
 	else {
-		fDelta = 0.05; // regular
+		fDelta = 0.05;	// regular
 	}
 
 	// Pressing Alt results in horizontal scrolling.
@@ -487,7 +545,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			continue;
 		}
 
-		m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
+		m_oldNotes[ppNote] = std::make_shared<Note>( ppNote );
 	}
 
 	// Check whether the wheel event was triggered while mouse was in octave or
@@ -502,22 +560,23 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	handleKeyboardCursor( false );
 
 	if ( bUpdate || bValueChanged ) {
-
 		if ( bValueChanged ) {
 			triggerStatusMessage( notesStatusMessage, m_property );
 			addUndoAction( sUndoContext );
 		}
 
 		if ( m_property == Property::Velocity ) {
-			m_pPatternEditorPanel->getVisibleEditor()
-				->updateEditor( Editor::Update::Content );
+			m_pPatternEditorPanel->getVisibleEditor()->updateEditor(
+				Editor::Update::Content
+			);
 		}
 
 		updateEditor( Editor::Update::Content );
 	}
 }
 
-void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
+void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent* ev )
+{
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
@@ -526,7 +585,8 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 	auto pEv = static_cast<MouseEvent*>( ev );
 
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
-		m_pPatternEditorPanel->getSelectedRowDB() );
+		m_pPatternEditorPanel->getSelectedRowDB()
+	);
 	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
 		 selectedRow.sType.isEmpty() ) {
 		DEBUGLOG( "Empty row clicked" );
@@ -540,23 +600,22 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 	if ( m_property == PatternEditor::Property::KeyOctave ) {
 		// Check whether the drag started within the key or octave section.
 		bKey = ( pEv->position().y() - movingOffset.y() ) >=
-			NotePropertiesRuler::nOctaveHeight;
+			   NotePropertiesRuler::nOctaveHeight;
 
-		fDelta = static_cast<float>(-movingOffset.y()) /
-			static_cast<float>(NotePropertiesRuler::nKeyLineHeight);
+		fDelta = static_cast<float>( -movingOffset.y() ) /
+				 static_cast<float>( NotePropertiesRuler::nKeyLineHeight );
 	}
 	else {
-		fDelta = (float)-movingOffset.y() / height();
+		fDelta = (float) -movingOffset.y() / height();
 	}
 
-	std::vector< std::shared_ptr<Note> > notes;
+	std::vector<std::shared_ptr<Note> > notes;
 	for ( const auto& ppNote : m_selection ) {
 		if ( ppNote != nullptr && ( selectedRow.contains( ppNote ) ||
 									m_selection.isSelected( ppNote ) ) ) {
-
 			// Record original note if not already recorded
 			if ( m_oldNotes.find( ppNote ) == m_oldNotes.end() ) {
-				m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
+				m_oldNotes[ppNote] = std::make_shared<Note>( ppNote );
 			}
 			notes.push_back( ppNote );
 		}
@@ -565,7 +624,7 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 	const bool bValueChanged = adjustNotePropertyDelta( notes, fDelta, bKey );
 
 	// We only show status messages for notes at point.
-	std::vector< std::shared_ptr<Note> > notesStatusMessage;
+	std::vector<std::shared_ptr<Note> > notesStatusMessage;
 	for ( const auto& ppNote : m_elementsHoveredOnDragStart ) {
 		if ( ppNote != nullptr && m_selection.isSelected( ppNote ) ) {
 			notesStatusMessage.push_back( ppNote );
@@ -575,7 +634,8 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 	// Move cursor to dragged note(s).
 	if ( m_elementsHoveredOnDragStart.size() > 0 ) {
 		m_pPatternEditorPanel->setCursorColumn(
-			m_elementsHoveredOnDragStart[ 0 ]->getPosition() );
+			m_elementsHoveredOnDragStart[0]->getPosition()
+		);
 	}
 
 	if ( bValueChanged ) {
@@ -584,42 +644,48 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 
 		if ( m_property == Property::Velocity ) {
 			// Update note color.
-			m_pPatternEditorPanel->getVisibleEditor()
-				->updateEditor( Editor::Update::Content );
+			m_pPatternEditorPanel->getVisibleEditor()->updateEditor(
+				Editor::Update::Content
+			);
 		}
 	}
 }
 
-void NotePropertiesRuler::selectionMoveEndEvent( QInputEvent *ev ) {
-	//! The "move" has already been reflected in the notes. Now just complete Undo event.
+void NotePropertiesRuler::selectionMoveEndEvent( QInputEvent* ev )
+{
+	//! The "move" has already been reflected in the notes. Now just complete
+	//! Undo event.
 	addUndoAction( "" );
 
 	updateEditor( Editor::Update::Content );
 }
 
 //! Move of selection is cancelled. Revert notes to preserved state.
-void NotePropertiesRuler::selectionMoveCancelEvent() {
+void NotePropertiesRuler::selectionMoveCancelEvent()
+{
 	for ( auto it : m_oldNotes ) {
 		std::shared_ptr<Note> pNote = it.first, pOldNote = it.second;
 		switch ( m_property ) {
-		case PatternEditor::Property::Velocity:
-			pNote->setVelocity( pOldNote->getVelocity() );
-			break;
-		case PatternEditor::Property::Pan:
-			pNote->setPan( pOldNote->getPan() );
-			break;
-		case PatternEditor::Property::LeadLag:
-			pNote->setLeadLag( pOldNote->getLeadLag() );
-			break;
-		case PatternEditor::Property::KeyOctave:
-			pNote->setKeyOctave( pOldNote->getKey(), pOldNote->getOctave() );
-			break;
-		case PatternEditor::Property::Probability:
-			pNote->setProbability( pOldNote->getProbability() );
-			break;
-		case PatternEditor::Property::None:
-		default:
-			break;
+			case PatternEditor::Property::Velocity:
+				pNote->setVelocity( pOldNote->getVelocity() );
+				break;
+			case PatternEditor::Property::Pan:
+				pNote->setPan( pOldNote->getPan() );
+				break;
+			case PatternEditor::Property::LeadLag:
+				pNote->setLeadLag( pOldNote->getLeadLag() );
+				break;
+			case PatternEditor::Property::KeyOctave:
+				pNote->setKeyOctave(
+					pOldNote->getKey(), pOldNote->getOctave()
+				);
+				break;
+			case PatternEditor::Property::Probability:
+				pNote->setProbability( pOldNote->getProbability() );
+				break;
+			case PatternEditor::Property::None:
+			default:
+				break;
 		}
 	}
 
@@ -630,7 +696,159 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 	m_oldNotes.clear();
 }
 
-QPoint NotePropertiesRuler::gridPointToPoint( const GridPoint& gridPoint ) const {
+std::vector<std::shared_ptr<Note> > NotePropertiesRuler::getElementsAtPoint(
+	const QPoint& point,
+	Editor::InputSource inputSource,
+	int nCursorMargin,
+	bool bIncludeHovered,
+	std::shared_ptr<H2Core::Pattern> pPattern
+)
+{
+	std::vector<std::shared_ptr<Note> > notesUnderPoint;
+	if ( pPattern == nullptr ) {
+		pPattern = m_pPatternEditorPanel->getPattern();
+		if ( pPattern == nullptr ) {
+			return std::move( notesUnderPoint );
+		}
+	}
+
+	const auto gridPoint = pointToGridPoint( point, false );
+	const auto gridPointLower =
+		pointToGridPoint( point - QPoint( nCursorMargin, 0 ), false );
+	const auto gridPointUpper =
+		pointToGridPoint( point + QPoint( nCursorMargin, 0 ), false );
+
+	// Assemble all notes to be edited.
+	const DrumPatternRow row = m_pPatternEditorPanel->getRowDB(
+		m_pPatternEditorPanel->getSelectedRowDB()
+	);
+
+	// Prior to version 2.0 notes were selected by clicking its grid cell,
+	// while this caused only notes on the current grid to be accessible it also
+	// made them quite easy select. Just using the position of the mouse cursor
+	// would feel like a regression, as it would be way harded to hit the notes.
+	// Instead, we introduce a certain rectangle (manhattan distance) around the
+	// cursor which can select notes but only return those nearest to the
+	// center.
+	int nLastDistance = gridPointUpper.getColumn() - gridPoint.getColumn() + 1;
+
+	// We have to ensure to only provide notes from a single position. In case
+	// the cursor is placed exactly in the middle of two notes, the left one
+	// wins.
+	int nLastPosition = -1;
+
+	const auto notes = pPattern->getNotes();
+	for ( auto it = notes->lower_bound( gridPointLower.getColumn() );
+		  it != notes->end() && it->first <= gridPointUpper.getColumn();
+		  ++it ) {
+		const auto ppNote = it->second;
+		if ( ppNote != nullptr && row.contains( ppNote ) &&
+			 ppNote->getPosition() < pPattern->getLength() ) {
+			const int nDistance =
+				std::abs( ppNote->getPosition() - gridPoint.getColumn() );
+
+			if ( nDistance < nLastDistance ) {
+				// This note is nearer than (potential) previous ones.
+				notesUnderPoint.clear();
+				nLastDistance = nDistance;
+				nLastPosition = ppNote->getPosition();
+			}
+
+			if ( nDistance > nLastDistance ||
+				 ppNote->getPosition() != nLastPosition ) {
+				continue;
+			}
+
+			// For most properties individual notes can cover the whole widget
+			// height and are stacked behind each other. We thus, select all of
+			// them - like in the DrumPatternEditor. But within the Key Octave
+			// view notes are rendered as circles within separate lines - much
+			// like the PianoRollEditor. In there we support interacting with
+			// individual ones.
+			if ( m_property == Property::KeyOctave && !ppNote->getNoteOff() &&
+				 inputSource == Editor::InputSource::Mouse ) {
+				// Determine the key-octave values based on the cursor position.
+				int nKey, nOctave;
+				NotePropertiesRuler::yToKeyOctave( point.y(), &nKey, &nOctave );
+				if ( ( nKey != KEY_INVALID &&
+					   nKey != static_cast<int>( ppNote->getKey() ) ) ||
+					 ( nOctave != KEY_INVALID &&
+					   nOctave != static_cast<int>( ppNote->getOctave() ) ) ) {
+					continue;
+				}
+			}
+
+			notesUnderPoint.push_back( ppNote );
+		}
+	}
+
+	// Within the ruler all selected and hovered notes along with notes of the
+	// selected row are rendered. These notes can be interacted with (property
+	// change, deselect etc.).
+
+	// Ensure we do not add the same note twice.
+	std::set<std::shared_ptr<Note> > furtherNotes;
+
+	// Check and add selected notes.
+	bool bFound = false;
+	for ( const auto& ppSelectedNote : m_selection ) {
+		bFound = false;
+		for ( const auto& ppPatternNote : notesUnderPoint ) {
+			if ( ppPatternNote == ppSelectedNote ) {
+				bFound = true;
+				break;
+			}
+		}
+		if ( !bFound && ppSelectedNote != nullptr ) {
+			furtherNotes.insert( ppSelectedNote );
+		}
+	}
+
+	// Check and add hovered notes.
+	if ( bIncludeHovered ) {
+		for ( const auto& [ppPattern, nnotes] :
+			  m_pPatternEditorPanel->getHoveredNotes() ) {
+			if ( ppPattern != pPattern ) {
+				continue;
+			}
+
+			for ( const auto& ppHoveredNote : nnotes ) {
+				bFound = false;
+				for ( const auto& ppPatternNote : notesUnderPoint ) {
+					if ( ppPatternNote == ppHoveredNote ) {
+						bFound = true;
+						break;
+					}
+				}
+				if ( !bFound && ppHoveredNote != nullptr ) {
+					furtherNotes.insert( ppHoveredNote );
+				}
+			}
+		}
+	}
+
+	for ( const auto& ppNote : furtherNotes ) {
+		const int nDistance =
+			std::abs( ppNote->getPosition() - gridPoint.getColumn() );
+
+		if ( nDistance < nLastDistance ) {
+			// This note is nearer than (potential) previous ones.
+			notesUnderPoint.clear();
+			nLastDistance = nDistance;
+			nLastPosition = ppNote->getPosition();
+		}
+
+		if ( nDistance <= nLastDistance &&
+			 ppNote->getPosition() == nLastPosition ) {
+			notesUnderPoint.push_back( ppNote );
+		}
+	}
+
+	return std::move( notesUnderPoint );
+}
+
+QPoint NotePropertiesRuler::gridPointToPoint( const GridPoint& gridPoint ) const
+{
 	auto point = PatternEditor::gridPointToPoint( gridPoint );
 
 	// In a horizontal editor we do not keep track of the y coordinate. We make
@@ -639,9 +857,13 @@ QPoint NotePropertiesRuler::gridPointToPoint( const GridPoint& gridPoint ) const
 	return point;
 }
 
-GridPoint NotePropertiesRuler::pointToGridPoint( const QPoint& point,
-												 bool bHonorQuantization ) const {
-	auto gridPoint = PatternEditor::pointToGridPoint( point, bHonorQuantization );
+GridPoint NotePropertiesRuler::pointToGridPoint(
+	const QPoint& point,
+	bool bHonorQuantization
+) const
+{
+	auto gridPoint =
+		PatternEditor::pointToGridPoint( point, bHonorQuantization );
 
 	// In a horizontal editor we do not keep track of the y coordinate. We make
 	// this design decision transparent by always returning an invalid row.
@@ -649,14 +871,13 @@ GridPoint NotePropertiesRuler::pointToGridPoint( const QPoint& point,
 	return gridPoint;
 }
 
-void NotePropertiesRuler::mouseDrawStart( QMouseEvent *ev )
+void NotePropertiesRuler::mouseDrawStart( QMouseEvent* ev )
 {
 	setCursor( Qt::CrossCursor );
 	prepareUndoAction( ev );
 
 	updateEditor( Editor::Update::Content );
 }
-
 
 //! Preserve current note properties at position x (or in selection, if any) for
 //! use in later UndoAction.
@@ -674,15 +895,17 @@ void NotePropertiesRuler::prepareUndoAction( QMouseEvent* pEvent )
 	updateModifiers( pEvent );
 
 	const auto notesUnderPoint = getElementsAtPoint(
-		pEv->position().toPoint(), getCursorMargin( pEvent ), true );
+		pEv->position().toPoint(), Editor::InputSource::Mouse,
+		getCursorMargin( pEvent ), true
+	);
 	for ( const auto& ppNote : notesUnderPoint ) {
 		if ( ppNote != nullptr ) {
-			m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
+			m_oldNotes[ppNote] = std::make_shared<Note>( ppNote );
 		}
 	}
 
 	if ( notesUnderPoint.size() > 0 ) {
-		m_nDrawPreviousColumn = notesUnderPoint[ 0 ]->getPosition();
+		m_nDrawPreviousColumn = notesUnderPoint[0]->getPosition();
 	}
 }
 
@@ -691,7 +914,7 @@ void NotePropertiesRuler::prepareUndoAction( QMouseEvent* pEvent )
 //! complete an undo action until the notes final value has been set. This
 //! occurs either when the mouse is released, or when the pointer moves off of
 //! the note's column.
-void NotePropertiesRuler::mouseDrawUpdate( QMouseEvent *ev )
+void NotePropertiesRuler::mouseDrawUpdate( QMouseEvent* ev )
 {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
@@ -709,21 +932,24 @@ void NotePropertiesRuler::mouseDrawUpdate( QMouseEvent *ev )
 	// the last one into account.
 	const auto gridPoint = pointToGridPoint( pEv->position().toPoint(), false );
 	const auto row = m_pPatternEditorPanel->getRowDB(
-			m_pPatternEditorPanel->getSelectedRowDB() );
+		m_pPatternEditorPanel->getSelectedRowDB()
+	);
 
 	if ( m_nDrawPreviousColumn == -1 ) {
 		m_nDrawPreviousColumn = gridPoint.getColumn();
 	}
 
-	const int nDrawStart = std::min( m_nDrawPreviousColumn, gridPoint.getColumn() );
-	const int nDrawEnd = std::max( m_nDrawPreviousColumn, gridPoint.getColumn() );
-	std::vector< std::shared_ptr<Note> > notesSinceLastAction;
+	const int nDrawStart =
+		std::min( m_nDrawPreviousColumn, gridPoint.getColumn() );
+	const int nDrawEnd =
+		std::max( m_nDrawPreviousColumn, gridPoint.getColumn() );
+	std::vector<std::shared_ptr<Note> > notesSinceLastAction;
 	const auto notes = pPattern->getNotes();
 	for ( auto it = notes->lower_bound( nDrawStart );
 		  it != notes->end() && it->first <= nDrawEnd; ++it ) {
 		const auto ppNote = it->second;
-		if ( ppNote != nullptr && ( row.contains( ppNote ) ||
-									m_selection.isSelected( ppNote ) ) ) {
+		if ( ppNote != nullptr &&
+			 ( row.contains( ppNote ) || m_selection.isSelected( ppNote ) ) ) {
 			notesSinceLastAction.push_back( ppNote );
 		}
 	}
@@ -736,7 +962,7 @@ void NotePropertiesRuler::mouseDrawUpdate( QMouseEvent *ev )
 		// Complete current undo action, and start a new one.
 		addUndoAction( "NotePropertiesRuler::mouseDraw" );
 		for ( const auto& ppNote : notesSinceLastAction ) {
-			m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
+			m_oldNotes[ppNote] = std::make_shared<Note>( ppNote );
 		}
 		m_nDrawPreviousColumn = gridPoint.getColumn();
 	}
@@ -746,7 +972,7 @@ void NotePropertiesRuler::mouseDrawUpdate( QMouseEvent *ev )
 
 	for ( const auto& ppNote : notesSinceLastAction ) {
 		// If a subset of notes is selected, we only act on them.
-		if ( ! m_selection.isEmpty() && ! m_selection.isSelected( ppNote ) ) {
+		if ( !m_selection.isEmpty() && !m_selection.isSelected( ppNote ) ) {
 			continue;
 		}
 
@@ -769,7 +995,8 @@ void NotePropertiesRuler::mouseDrawUpdate( QMouseEvent *ev )
 	}
 }
 
-void NotePropertiesRuler::mouseDrawEnd() {
+void NotePropertiesRuler::mouseDrawEnd()
+{
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
@@ -783,8 +1010,8 @@ void NotePropertiesRuler::mouseDrawEnd() {
 	// Drawing can result in duplicated notes - e.g. creating many notes in a
 	// column of the PianoRollEditor and drawing in the KeyOctave section of the
 	// NotePropertiesRuler. We have to check all notes.
-	std::vector< std::shared_ptr<Note> > notes;
-	for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
+	std::vector<std::shared_ptr<Note> > notes;
+	for ( const auto& [_, ppNote] : *pPattern->getNotes() ) {
 		if ( ppNote != nullptr ) {
 			notes.push_back( ppNote );
 		}
@@ -797,7 +1024,10 @@ void NotePropertiesRuler::mouseDrawEnd() {
 //! Adjust note properties by applying a delta to the current values, and
 //! clipping to the appropriate range.
 bool NotePropertiesRuler::adjustNotePropertyDelta(
-	std::vector< std::shared_ptr<Note> > notes, float fDelta, bool bKey )
+	std::vector<std::shared_ptr<Note> > notes,
+	float fDelta,
+	bool bKey
+)
 {
 	bool bValueChanged = false;
 
@@ -806,87 +1036,101 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 			continue;
 		}
 
-		auto pOldNote = m_oldNotes[ ppNote ];
+		auto pOldNote = m_oldNotes[ppNote];
 		if ( pOldNote == nullptr ) {
 			ERRORLOG( QString( "Could not find note corresponding to [%1]" )
-					  .arg( ppNote->toQString() ) );
+						  .arg( ppNote->toQString() ) );
 			continue;
 		}
 
-		switch( m_property ) {
-		case PatternEditor::Property::Velocity: {
-			if ( ! ppNote->getNoteOff() ) {
-				const float fVelocity = qBound(
-					VELOCITY_MIN, (pOldNote->getVelocity() + fDelta), VELOCITY_MAX );
-				if ( fVelocity != ppNote->getVelocity() ) {
-					ppNote->setVelocity( fVelocity );
+		switch ( m_property ) {
+			case PatternEditor::Property::Velocity: {
+				if ( !ppNote->getNoteOff() ) {
+					const float fVelocity = qBound(
+						VELOCITY_MIN, ( pOldNote->getVelocity() + fDelta ),
+						VELOCITY_MAX
+					);
+					if ( fVelocity != ppNote->getVelocity() ) {
+						ppNote->setVelocity( fVelocity );
+						bValueChanged = true;
+					}
+				}
+				break;
+			}
+			case PatternEditor::Property::Pan: {
+				if ( !ppNote->getNoteOff() ) {
+					// value in [0,1] or slight out of boundaries
+					const float fVal =
+						pOldNote->getPanWithRangeFrom0To1() + fDelta;
+					if ( fVal != ppNote->getPanWithRangeFrom0To1() ) {
+						// Does check boundaries internally.
+						ppNote->setPanWithRangeFrom0To1( fVal );
+						bValueChanged = true;
+					}
+				}
+				break;
+			}
+			case PatternEditor::Property::LeadLag: {
+				// while most values in the ruler are defined between 0 and 1,
+				// lead and lag is defined between -1 and 1. To still provide
+				// the same feeling as for the other properties, we scale the
+				// delta by a factor of 2.
+				const float fLeadLag = qBound(
+					LEAD_LAG_MIN, pOldNote->getLeadLag() - fDelta * 2,
+					LEAD_LAG_MAX
+				);
+				if ( fLeadLag != ppNote->getLeadLag() ) {
+					ppNote->setLeadLag( fLeadLag );
 					bValueChanged = true;
 				}
+				break;
 			}
-			break;
-		}
-		case PatternEditor::Property::Pan: {
-			if ( ! ppNote->getNoteOff() ) {
-				// value in [0,1] or slight out of boundaries
-				const float fVal = pOldNote->getPanWithRangeFrom0To1() + fDelta;
-				if ( fVal != ppNote->getPanWithRangeFrom0To1() ) {
-					// Does check boundaries internally.
-					ppNote->setPanWithRangeFrom0To1( fVal );
-					bValueChanged = true;
+			case PatternEditor::Property::Probability: {
+				if ( !ppNote->getNoteOff() ) {
+					const float fProbability = qBound(
+						PROBABILITY_MIN, pOldNote->getProbability() + fDelta,
+						PROBABILITY_MAX
+					);
+					if ( fProbability != ppNote->getProbability() ) {
+						ppNote->setProbability( fProbability );
+						bValueChanged = true;
+					}
 				}
+				break;
 			}
-			break;
-		}
-		case PatternEditor::Property::LeadLag: {
-			// while most values in the ruler are defined between 0 and 1, lead
-			// and lag is defined between -1 and 1. To still provide the same
-			// feeling as for the other properties, we scale the delta by a
-			// factor of 2.
-			const float fLeadLag = qBound(
-				LEAD_LAG_MIN, pOldNote->getLeadLag() - fDelta * 2, LEAD_LAG_MAX );
-			if ( fLeadLag != ppNote->getLeadLag() ) {
-				ppNote->setLeadLag( fLeadLag );
-				bValueChanged = true;
-			}
-			break;
-		}
-		case PatternEditor::Property::Probability: {
-			if ( ! ppNote->getNoteOff() ) {
-				const float fProbability = qBound(
-					PROBABILITY_MIN, pOldNote->getProbability() + fDelta,
-					PROBABILITY_MAX );
-				if ( fProbability != ppNote->getProbability() ) {
-					ppNote->setProbability( fProbability );
-					bValueChanged = true;
+			case PatternEditor::Property::KeyOctave: {
+				const int nPitch = qBound(
+					KEYS_PER_OCTAVE * OCTAVE_MIN,
+					static_cast<int>(
+						pOldNote->getPitchFromKeyOctave() +
+						std::round( fDelta ) * ( bKey ? 1 : KEYS_PER_OCTAVE )
+					),
+					KEYS_PER_OCTAVE * OCTAVE_MAX + KEY_MAX
+				);
+				Note::Octave octave;
+				if ( nPitch >= 0 ) {
+					octave =
+						static_cast<Note::Octave>( nPitch / KEYS_PER_OCTAVE );
 				}
-			}
-			break;
-		}
-		case PatternEditor::Property::KeyOctave: {
-			const int nPitch = qBound(
-				KEYS_PER_OCTAVE * OCTAVE_MIN,
-				static_cast<int>(pOldNote->getPitchFromKeyOctave() +
-								 std::round( fDelta) *
-								 ( bKey ? 1 : KEYS_PER_OCTAVE )),
-				KEYS_PER_OCTAVE * OCTAVE_MAX + KEY_MAX );
-			Note::Octave octave;
-			if ( nPitch >= 0 ) {
-				octave = static_cast<Note::Octave>( nPitch / KEYS_PER_OCTAVE );
-			} else {
-				octave = static_cast<Note::Octave>( (nPitch-11) / KEYS_PER_OCTAVE );
-			}
-			Note::Key key = static_cast<Note::Key>(
-				nPitch - KEYS_PER_OCTAVE * static_cast<int>(octave) );
+				else {
+					octave = static_cast<Note::Octave>(
+						( nPitch - 11 ) / KEYS_PER_OCTAVE
+					);
+				}
+				Note::Key key = static_cast<Note::Key>(
+					nPitch - KEYS_PER_OCTAVE * static_cast<int>( octave )
+				);
 
-			if ( key != ppNote->getKey() || octave != ppNote->getOctave() ) {
-				ppNote->setKeyOctave( key, octave );
-				bValueChanged = true;
+				if ( key != ppNote->getKey() ||
+					 octave != ppNote->getOctave() ) {
+					ppNote->setKeyOctave( key, octave );
+					bValueChanged = true;
+				}
+				break;
 			}
-			break;
-		}
-		case PatternEditor::Property::None:
-		default:
-			ERRORLOG("No property set. No note property adjusted.");
+			case PatternEditor::Property::None:
+			default:
+				ERRORLOG( "No property set. No note property adjusted." );
 		}
 	}
 
@@ -897,7 +1141,8 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 	return bValueChanged;
 }
 
-void NotePropertiesRuler::applyCursorDelta( float fDelta ) {
+void NotePropertiesRuler::applyCursorDelta( float fDelta )
+{
 	if ( fDelta == 0.0 ) {
 		return;
 	}
@@ -906,7 +1151,9 @@ void NotePropertiesRuler::applyCursorDelta( float fDelta ) {
 	// current selection, we alter the values of all selected notes. It not, we
 	// discard the selection.
 	const auto notesUnderPoint = getElementsAtPoint(
-		gridPointToPoint( getCursorPosition() ), 0, true );
+		gridPointToPoint( getCursorPosition() ), Editor::InputSource::Keyboard,
+		0, true
+	);
 	if ( notesUnderPoint.size() == 0 ) {
 		return;
 	}
@@ -919,8 +1166,8 @@ void NotePropertiesRuler::applyCursorDelta( float fDelta ) {
 		}
 	}
 
-	std::vector< std::shared_ptr<Note> > notes;
-	std::vector< std::shared_ptr<Note> > notesStatusMessage;
+	std::vector<std::shared_ptr<Note> > notes;
+	std::vector<std::shared_ptr<Note> > notesStatusMessage;
 	if ( bSelectionHovered ) {
 		for ( const auto& ppNote : m_selection ) {
 			if ( ppNote != nullptr ) {
@@ -948,7 +1195,7 @@ void NotePropertiesRuler::applyCursorDelta( float fDelta ) {
 			continue;
 		}
 
-		m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
+		m_oldNotes[ppNote] = std::make_shared<Note>( ppNote );
 	}
 
 	// Apply delta to the property
@@ -961,7 +1208,8 @@ void NotePropertiesRuler::applyCursorDelta( float fDelta ) {
 
 		if ( m_property == PatternEditor::Property::Velocity ) {
 			updateVisibleComponents( Editor::Update::Content );
-		} else {
+		}
+		else {
 			updateEditor( Editor::Update::Content );
 		}
 
@@ -985,8 +1233,10 @@ void NotePropertiesRuler::addUndoAction( const QString& sUndoContext )
 		if ( nSize != 1 ) {
 			pHydrogenApp->beginUndoMacro(
 				QString( tr( "Edit [%1] property of [%2] notes" ) )
-				.arg( PatternEditor::propertyToQString( m_property ) )
-				.arg( nSize ), sUndoContext );
+					.arg( PatternEditor::propertyToQString( m_property ) )
+					.arg( nSize ),
+				sUndoContext
+			);
 		}
 		for ( auto it : m_oldNotes ) {
 			std::shared_ptr<Note> pNewNote = it.first, pOldNote = it.second;
@@ -1003,34 +1253,26 @@ void NotePropertiesRuler::addUndoAction( const QString& sUndoContext )
 				// For all other note property edits this is not critical as the
 				// note will be found and one the edit will be skip since the
 				// note already holds the proper value.
-				pNewNote->setKeyOctave( pOldNote->getKey(),
-										  pOldNote->getOctave() );
+				pNewNote->setKeyOctave(
+					pOldNote->getKey(), pOldNote->getOctave()
+				);
 			}
 
 			pHydrogenApp->pushUndoCommand(
 				new SE_editNotePropertiesAction(
-					m_property,
-					m_pPatternEditorPanel->getPatternNumber(),
-					pNewNote->getPosition(),
-					pOldNote->getInstrumentId(),
-					pOldNote->getInstrumentId(),
-					pOldNote->getType(),
-					pOldNote->getType(),
-					pNewNote->getVelocity(),
-					pOldNote->getVelocity(),
-					pNewNote->getPan(),
-					pOldNote->getPan(),
-					pNewNote->getLeadLag(),
-					pOldNote->getLeadLag(),
-					pNewNote->getProbability(),
-					pOldNote->getProbability(),
-					pNewNote->getLength(),
-					pOldNote->getLength(),
-					nNewKey,
-					pOldNote->getKey(),
-					nNewOctave,
-					pOldNote->getOctave() ),
-				sUndoContext );
+					m_property, m_pPatternEditorPanel->getPatternNumber(),
+					pNewNote->getPosition(), pOldNote->getInstrumentId(),
+					pOldNote->getInstrumentId(), pOldNote->getType(),
+					pOldNote->getType(), pNewNote->getVelocity(),
+					pOldNote->getVelocity(), pNewNote->getPan(),
+					pOldNote->getPan(), pNewNote->getLeadLag(),
+					pOldNote->getLeadLag(), pNewNote->getProbability(),
+					pOldNote->getProbability(), pNewNote->getLength(),
+					pOldNote->getLength(), nNewKey, pOldNote->getKey(),
+					nNewOctave, pOldNote->getOctave()
+				),
+				sUndoContext
+			);
 		}
 		if ( nSize != 1 ) {
 			pHydrogenApp->endUndoMacro( sUndoContext );
@@ -1039,9 +1281,9 @@ void NotePropertiesRuler::addUndoAction( const QString& sUndoContext )
 	m_oldNotes.clear();
 }
 
-void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
+void NotePropertiesRuler::paintEvent( QPaintEvent* ev )
 {
-	if (!isVisible()) {
+	if ( !isVisible() ) {
 		return;
 	}
 
@@ -1050,15 +1292,18 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 	QPainter painter( this );
 
 	const auto row = m_pPatternEditorPanel->getRowDB(
-		m_pPatternEditorPanel->getSelectedRowDB() );
+		m_pPatternEditorPanel->getSelectedRowDB()
+	);
 
 	// Draw hovered notes
 	const auto pPattern = m_pPatternEditorPanel->getPattern();
-	for ( const auto& [ ppPattern, nnotes ] :
-			  m_pPatternEditorPanel->getHoveredNotes() ) {
+	for ( const auto& [ppPattern, nnotes] :
+		  m_pPatternEditorPanel->getHoveredNotes() ) {
 		const auto baseStyle = static_cast<NoteStyle>(
-			( ppPattern == pPattern ? NoteStyle::Foreground :
-			  NoteStyle::Background ) | NoteStyle::Hovered );
+			( ppPattern == pPattern ? NoteStyle::Foreground
+									: NoteStyle::Background ) |
+			NoteStyle::Hovered
+		);
 		sortAndDrawNotes( painter, nnotes, baseStyle, false );
 	}
 
@@ -1068,7 +1313,7 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 	if ( pEditor->isSelectionMoving() ) {
 		for ( const auto& ppNote : m_selection ) {
 			if ( m_offsetMap.find( ppNote ) != m_offsetMap.end() ) {
-				nOffsetX = m_offsetMap[ ppNote ];
+				nOffsetX = m_offsetMap[ppNote];
 			}
 			else {
 				nOffsetX = 0;
@@ -1079,13 +1324,18 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 	}
 }
 
-void NotePropertiesRuler::scrolled( int nValue ) {
+void NotePropertiesRuler::scrolled( int nValue )
+{
 	UNUSED( nValue );
 	update();
 }
 
-void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
-												 int nIncrement ) {
+void NotePropertiesRuler::drawDefaultBackground(
+	QPainter& painter,
+	int nHeight,
+	int nIncrement
+)
+{
 	const auto pPref = H2Core::Preferences::get_instance();
 	const auto pColorTheme = pPref->getColorTheme();
 
@@ -1094,22 +1344,23 @@ void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 
 	// Everything beyond the current pattern (used when another, larger pattern
 	// is played as well).
-	const QColor lineInactiveColor(
-		pColorTheme->m_windowTextColor.darker( 170 ) );
+	const QColor lineInactiveColor( pColorTheme->m_windowTextColor.darker( 170 )
+	);
 
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
 	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
-		backgroundInactiveColor = pColorTheme->m_windowColor.lighter(
-			Skin::nEditorActiveScaling );
+		backgroundInactiveColor =
+			pColorTheme->m_windowColor.lighter( Skin::nEditorActiveScaling );
 	}
 	else {
 		backgroundInactiveColor = pColorTheme->m_windowColor;
 	}
 
-	if ( ! hasFocus() ) {
+	if ( !hasFocus() ) {
 		lineColor = lineColor.darker( PatternEditor::nOutOfFocusDim );
-		backgroundColor = backgroundColor.darker( PatternEditor::nOutOfFocusDim );
+		backgroundColor =
+			backgroundColor.darker( PatternEditor::nOutOfFocusDim );
 	}
 
 	if ( nHeight == 0 ) {
@@ -1120,23 +1371,25 @@ void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 	}
 
 	painter.fillRect( 0, 0, m_nActiveWidth, height(), backgroundColor );
-	painter.fillRect( m_nActiveWidth, 0, m_nEditorWidth - m_nActiveWidth,
-					  height(), backgroundInactiveColor );
+	painter.fillRect(
+		m_nActiveWidth, 0, m_nEditorWidth - m_nActiveWidth, height(),
+		backgroundInactiveColor
+	);
 
 	if ( m_pPatternEditorPanel->getPattern() == nullptr ) {
 		return;
 	}
 
 	drawGridLines( painter, Qt::DotLine );
-	
+
 	painter.setPen( QPen( lineColor, 1, Qt::DotLine ) );
-	for (unsigned y = 0; y < nHeight; y += nIncrement ) {
+	for ( unsigned y = 0; y < nHeight; y += nIncrement ) {
 		painter.drawLine( 0, y, m_nActiveWidth, y );
 	}
 
 	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
 		painter.setPen( QPen( lineInactiveColor, 1, Qt::DotLine ) );
-		for (unsigned y = 0; y < nHeight; y += nIncrement ) {
+		for ( unsigned y = 0; y < nHeight; y += nIncrement ) {
 			painter.drawLine( m_nActiveWidth, y, m_nEditorWidth, y );
 		}
 	}
@@ -1144,42 +1397,46 @@ void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 	drawBorders( painter );
 }
 
-void NotePropertiesRuler::drawNote( QPainter& p,
-									std::shared_ptr<H2Core::Note> pNote,
-									NoteStyle noteStyle, int nOffsetX )
+void NotePropertiesRuler::drawNote(
+	QPainter& p,
+	std::shared_ptr<H2Core::Note> pNote,
+	NoteStyle noteStyle,
+	int nOffsetX
+)
 {
 	if ( pNote == nullptr ) {
 		return;
 	}
 
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
-		m_pPatternEditorPanel->getSelectedRowDB() );
+		m_pPatternEditorPanel->getSelectedRowDB()
+	);
 
 	// NoteOff notes can have a custom probability and lead lag. But having a
 	// velocity and pan would not make any sense for them.
 	if ( pNote->getNoteOff() &&
-		 ! ( m_property == PatternEditor::Property::Probability ||
-			 m_property == PatternEditor::Property::LeadLag ) ) {
+		 !( m_property == PatternEditor::Property::Probability ||
+			m_property == PatternEditor::Property::LeadLag ) ) {
 		return;
 	}
 
 	const int nLineWidth = 3;
 
-	const int nX = nOffsetX + PatternEditor::nMargin +
-		pNote->getPosition() * m_fGridWidth;
+	const int nX =
+		nOffsetX + PatternEditor::nMargin + pNote->getPosition() * m_fGridWidth;
 
 	// NoPlayback is handled in here in order to not bloat calling routines
 	// (since it has to be calculated for every note drawn).
-	if ( ! checkNotePlayback( pNote ) ) {
-		noteStyle =
-			static_cast<NoteStyle>(noteStyle | NoteStyle::NoPlayback);
+	if ( !checkNotePlayback( pNote ) ) {
+		noteStyle = static_cast<NoteStyle>( noteStyle | NoteStyle::NoPlayback );
 	}
 
 	QPen notePen, noteTailPen, highlightPen, movingPen;
 	QBrush noteBrush, noteTailBrush, highlightBrush, movingBrush;
-	applyColor( pNote, &notePen, &noteBrush, &noteTailPen, &noteTailBrush,
-				&highlightPen, &highlightBrush, &movingPen, &movingBrush,
-				noteStyle );
+	applyColor(
+		pNote, &notePen, &noteBrush, &noteTailPen, &noteTailBrush,
+		&highlightPen, &highlightBrush, &movingPen, &movingBrush, noteStyle
+	);
 
 	p.setPen( notePen );
 	p.setBrush( noteBrush );
@@ -1193,7 +1450,7 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 	if ( noteStyle & NoteStyle::Moved ) {
 		movingOffsetGridPoint = pEditor->movingGridOffset();
 		movingOffsetPoint = pEditor->gridPointToPoint( movingOffsetGridPoint ) -
-			QPoint( PatternEditor::nMargin, 0 );
+							QPoint( PatternEditor::nMargin, 0 );
 	}
 
 	if ( m_layout == Layout::Centered || m_layout == Layout::Normalized ) {
@@ -1213,14 +1470,12 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 			fValue = -1 * std::round( pNote->getLeadLag() * 100 ) / 100;
 		}
 
-
 		if ( m_layout == Layout::Centered && fValue == 0 ) {
 			// value is centered - draw circle
-			const int nY = static_cast<int>(std::round( height() * 0.5 ) );
+			const int nY = static_cast<int>( std::round( height() * 0.5 ) );
 
-			if ( ! ( noteStyle & NoteStyle::Moved ) ) {
-				if ( noteStyle & ( NoteStyle::Selected |
-								   NoteStyle::Hovered |
+			if ( !( noteStyle & NoteStyle::Moved ) ) {
+				if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered |
 								   NoteStyle::NoPlayback ) ) {
 					p.setPen( highlightPen );
 					p.setBrush( highlightBrush );
@@ -1229,7 +1484,7 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 
 				p.setPen( notePen );
 				p.setBrush( noteBrush );
-				p.drawEllipse( nX - 4, nY - 4, 8, 8);
+				p.drawEllipse( nX - 4, nY - 4, 8, 8 );
 				p.setBrush( Qt::NoBrush );
 			}
 			else {
@@ -1252,27 +1507,30 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 				nHeight = fValue;
 			}
 
-			if ( ! ( noteStyle & NoteStyle::Moved ) ) {
-				if ( noteStyle & ( NoteStyle::Selected |
-								   NoteStyle::Hovered |
+			if ( !( noteStyle & NoteStyle::Moved ) ) {
+				if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered |
 								   NoteStyle::NoPlayback ) ) {
 					p.setPen( highlightPen );
 					p.setBrush( highlightBrush );
-					p.drawRoundedRect( nX - 1 - 4, nY - 4, nLineWidth + 8,
-									   nHeight + 8, 5, 5 );
+					p.drawRoundedRect(
+						nX - 1 - 4, nY - 4, nLineWidth + 8, nHeight + 8, 5, 5
+					);
 				}
 
 				p.setPen( notePen );
 				p.setBrush( noteBrush );
-				p.drawRoundedRect( nX - 1 - 1, nY - 1,
-								   nLineWidth + 2, nHeight + 2, 2, 2 );
+				p.drawRoundedRect(
+					nX - 1 - 1, nY - 1, nLineWidth + 2, nHeight + 2, 2, 2
+				);
 				p.setBrush( Qt::NoBrush );
 			}
 			else {
 				p.setPen( movingPen );
 				p.setBrush( movingBrush );
-				p.drawRoundedRect( movingOffsetPoint.x() + nX - 1 - 2, nY - 2,
-								   nLineWidth + 4, nHeight + 4, 5, 5 );
+				p.drawRoundedRect(
+					movingOffsetPoint.x() + nX - 1 - 2, nY - 2, nLineWidth + 4,
+					nHeight + 4, 5, 5
+				);
 			}
 		}
 	}
@@ -1284,8 +1542,8 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 		};
 		auto keyToY = [&]( int nKey ) {
 			return NotePropertiesRuler::nOctaveHeight +
-				( ( KEYS_PER_OCTAVE - nKey - 1 ) *
-				  NotePropertiesRuler::nKeyLineHeight );
+				   ( ( KEYS_PER_OCTAVE - nKey - 1 ) *
+					 NotePropertiesRuler::nKeyLineHeight );
 		};
 
 		const int nRadiusOctave = 3;
@@ -1294,27 +1552,30 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 		const int nKeyY = keyToY( pNote->getKey() );
 
 		// Paint selection outlines
-		if ( noteStyle & ( NoteStyle::Selected |
-						   NoteStyle::Hovered |
+		if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered |
 						   NoteStyle::NoPlayback ) ) {
 			p.setPen( highlightPen );
 			p.setBrush( highlightBrush );
 			// Octave
-			p.drawEllipse( QPoint( nX, nOctaveY ), nRadiusOctave + 3,
-						   nRadiusOctave + 3 );
+			p.drawEllipse(
+				QPoint( nX, nOctaveY ), nRadiusOctave + 3, nRadiusOctave + 3
+			);
 			// Key
-			p.drawEllipse( QPoint( nX, nKeyY ), nRadiusKey + 3,
-						   nRadiusKey + 3 );
+			p.drawEllipse(
+				QPoint( nX, nKeyY ), nRadiusKey + 3, nRadiusKey + 3
+			);
 		}
 
-		if ( ! ( noteStyle & NoteStyle::Moved ) ) {
+		if ( !( noteStyle & NoteStyle::Moved ) ) {
 			// paint the octave
 			p.setPen( notePen );
 			p.setBrush( noteBrush );
-			p.drawEllipse( QPoint( nX, nOctaveY ), nRadiusOctave, nRadiusOctave );
+			p.drawEllipse(
+				QPoint( nX, nOctaveY ), nRadiusOctave, nRadiusOctave
+			);
 
 			// paint note
-			p.drawEllipse( QPoint( nX, nKeyY ), nRadiusKey, nRadiusKey);
+			p.drawEllipse( QPoint( nX, nKeyY ), nRadiusKey, nRadiusKey );
 			p.setBrush( Qt::NoBrush );
 		}
 		else {
@@ -1327,7 +1588,8 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 				const int nGridHeight = pEditor->getGridHeight();
 				const int nNewPitch = Note::lineToPitch(
 					Note::pitchToLine( pNote->getPitchFromKeyOctave() ) +
-					movingOffsetGridPoint.getRow() );
+					movingOffsetGridPoint.getRow()
+				);
 				if ( nNewPitch < KEYS_PER_OCTAVE * OCTAVE_MIN ||
 					 nNewPitch >= KEYS_PER_OCTAVE * ( OCTAVE_MAX + 1 ) ) {
 					bDrawMoveSilhouettes = false;
@@ -1340,21 +1602,28 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 			if ( bDrawMoveSilhouettes ) {
 				p.setPen( movingPen );
 				p.setBrush( movingBrush );
-				p.drawEllipse( QPoint( movingOffsetPoint.x() + nX, nMovedOctaveY ),
-							   nRadiusOctave + 1, nRadiusOctave + 1 );
+				p.drawEllipse(
+					QPoint( movingOffsetPoint.x() + nX, nMovedOctaveY ),
+					nRadiusOctave + 1, nRadiusOctave + 1
+				);
 
 				// Key
-				p.drawEllipse( QPoint( movingOffsetPoint.x() + nX, nMovedKeyY ),
-							   nRadiusKey + 1, nRadiusKey + 1 );
+				p.drawEllipse(
+					QPoint( movingOffsetPoint.x() + nX, nMovedKeyY ),
+					nRadiusKey + 1, nRadiusKey + 1
+				);
 			}
 		}
 	}
 }
 
-void NotePropertiesRuler::sortAndDrawNotes( QPainter& p,
-											std::vector< std::shared_ptr<Note> > notes,
-											NoteStyle baseStyle,
-											bool bUpdateOffsets ) {
+void NotePropertiesRuler::sortAndDrawNotes(
+	QPainter& p,
+	std::vector<std::shared_ptr<Note> > notes,
+	NoteStyle baseStyle,
+	bool bUpdateOffsets
+)
+{
 	std::sort( notes.begin(), notes.end(), Note::compare );
 
 	if ( bUpdateOffsets ) {
@@ -1362,7 +1631,7 @@ void NotePropertiesRuler::sortAndDrawNotes( QPainter& p,
 		if ( m_layout != Layout::KeyOctave ) {
 			int nOffsetX = 0;
 			for ( const auto& ppNote : notes ) {
-				m_offsetMap[ ppNote ] = nOffsetX;
+				m_offsetMap[ppNote] = nOffsetX;
 				++nOffsetX;
 			}
 		}
@@ -1375,9 +1644,10 @@ void NotePropertiesRuler::sortAndDrawNotes( QPainter& p,
 				if ( ppNote == nullptr ) {
 					continue;
 				}
-				m_offsetMap[ ppNote ] = std::max(
+				m_offsetMap[ppNote] = std::max(
 					keys.count( ppNote->getKey() ),
-					octaves.count( ppNote->getOctave() ) );
+					octaves.count( ppNote->getOctave() )
+				);
 
 				keys.insert( ppNote->getKey() );
 				octaves.insert( ppNote->getOctave() );
@@ -1386,7 +1656,7 @@ void NotePropertiesRuler::sortAndDrawNotes( QPainter& p,
 	}
 
 	// Prioritze selected notes over not selected ones.
-	std::vector< std::shared_ptr<Note> > selectedNotes, notSelectedNotes;
+	std::vector<std::shared_ptr<Note> > selectedNotes, notSelectedNotes;
 	for ( const auto& ppNote : notes ) {
 		if ( m_selection.isSelected( ppNote ) ) {
 			selectedNotes.push_back( ppNote );
@@ -1397,12 +1667,12 @@ void NotePropertiesRuler::sortAndDrawNotes( QPainter& p,
 	}
 
 	for ( const auto& ppNote : notSelectedNotes ) {
-		drawNote( p, ppNote, baseStyle, m_offsetMap[ ppNote] );
+		drawNote( p, ppNote, baseStyle, m_offsetMap[ppNote] );
 	}
 	auto selectedStyle =
-		static_cast<NoteStyle>(NoteStyle::Selected | baseStyle);
+		static_cast<NoteStyle>( NoteStyle::Selected | baseStyle );
 	for ( const auto& ppNote : selectedNotes ) {
-		drawNote( p, ppNote, selectedStyle, m_offsetMap[ ppNote] );
+		drawNote( p, ppNote, selectedStyle, m_offsetMap[ppNote] );
 	}
 }
 
@@ -1416,25 +1686,24 @@ void NotePropertiesRuler::createBackground()
 	QColor textColor( pColorTheme->m_patternEditor_textColor );
 	const QColor alternateRowColor =
 		pColorTheme->m_patternEditor_alternateRowColor;
-	const QColor octaveColor =
-		pColorTheme->m_patternEditor_octaveRowColor;
+	const QColor octaveColor = pColorTheme->m_patternEditor_octaveRowColor;
 
 	// Everything beyond the current pattern (used when another, larger pattern
 	// is played as well).
-	const QColor lineInactiveColor(
-		pColorTheme->m_windowTextColor.darker( 170 ) );
+	const QColor lineInactiveColor( pColorTheme->m_windowTextColor.darker( 170 )
+	);
 
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
 	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
-		backgroundInactiveColor = pColorTheme->m_windowColor.lighter(
-			Skin::nEditorActiveScaling );
+		backgroundInactiveColor =
+			pColorTheme->m_windowColor.lighter( Skin::nEditorActiveScaling );
 	}
 	else {
 		backgroundInactiveColor = pColorTheme->m_windowColor;
 	}
 
-	if ( ! hasFocus() ) {
+	if ( !hasFocus() ) {
 		lineColor = lineColor.darker( PatternEditor::nOutOfFocusDim );
 	}
 
@@ -1445,9 +1714,12 @@ void NotePropertiesRuler::createBackground()
 	QPainter p( m_pBackgroundPixmap );
 
 	if ( m_layout == Layout::KeyOctave ) {
-		drawDefaultBackground( p, NotePropertiesRuler::nOctaveHeight -
-							   NotePropertiesRuler::nKeyOctaveSpaceHeight,
-							   NotePropertiesRuler::nKeyLineHeight );
+		drawDefaultBackground(
+			p,
+			NotePropertiesRuler::nOctaveHeight -
+				NotePropertiesRuler::nKeyOctaveSpaceHeight,
+			NotePropertiesRuler::nKeyLineHeight
+		);
 	}
 	else {
 		drawDefaultBackground( p );
@@ -1460,8 +1732,9 @@ void NotePropertiesRuler::createBackground()
 		p.drawLine( 0, height() / 2.0, m_nActiveWidth, height() / 2.0 );
 		if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
 			p.setPen( lineInactiveColor );
-			p.drawLine( m_nActiveWidth, height() / 2.0,
-						m_nEditorWidth, height() / 2.0 );
+			p.drawLine(
+				m_nActiveWidth, height() / 2.0, m_nEditorWidth, height() / 2.0
+			);
 		}
 	}
 	else if ( m_layout == Layout::KeyOctave ) {
@@ -1469,20 +1742,21 @@ void NotePropertiesRuler::createBackground()
 		for ( int yy = NotePropertiesRuler::nOctaveHeight;
 			  yy < NotePropertiesRuler::nKeyOctaveHeight;
 			  yy += NotePropertiesRuler::nKeyLineHeight ) {
-
 			const int nRow = ( yy - NotePropertiesRuler::nOctaveHeight ) /
-				NotePropertiesRuler::nKeyLineHeight;
-			if ( nRow == 1 ||  nRow == 3 || nRow == 5 || nRow == 8 ||
+							 NotePropertiesRuler::nKeyLineHeight;
+			if ( nRow == 1 || nRow == 3 || nRow == 5 || nRow == 8 ||
 				 nRow == 10 ) {
 				// Draw rows of semi tones in a different color.
-				p.setPen( QPen( alternateRowColor,
-								NotePropertiesRuler::nKeyLineHeight - 1,
-								Qt::SolidLine, Qt::FlatCap ) );
+				p.setPen( QPen(
+					alternateRowColor, NotePropertiesRuler::nKeyLineHeight - 1,
+					Qt::SolidLine, Qt::FlatCap
+				) );
 			}
 			else {
-				p.setPen( QPen( octaveColor,
-								NotePropertiesRuler::nKeyLineHeight - 1,
-								Qt::SolidLine, Qt::FlatCap ) );
+				p.setPen( QPen(
+					octaveColor, NotePropertiesRuler::nKeyLineHeight - 1,
+					Qt::SolidLine, Qt::FlatCap
+				) );
 			}
 
 			p.drawLine( PatternEditor::nMarginSidebar, yy, m_nActiveWidth, yy );
@@ -1490,52 +1764,61 @@ void NotePropertiesRuler::createBackground()
 
 		// Vertical border between sidebar and editor
 		p.setPen( QPen( lineColor, 1, Qt::SolidLine ) );
-		p.drawLine( PatternEditor::nMarginSidebar, 0,
-					PatternEditor::nMarginSidebar, height() );
+		p.drawLine(
+			PatternEditor::nMarginSidebar, 0, PatternEditor::nMarginSidebar,
+			height()
+		);
 
 		if ( pPattern != nullptr ) {
 			drawGridLines( p, Qt::DotLine );
 
 			// Border between key and octave part
 			p.setPen( QPen( lineColor, 1, Qt::SolidLine ) );
-			p.drawLine( 0,
-						NotePropertiesRuler::nOctaveHeight -
-						NotePropertiesRuler::nKeyLineHeight / 2,
-						m_nActiveWidth,
-						NotePropertiesRuler::nOctaveHeight -
-						NotePropertiesRuler::nKeyLineHeight / 2 );
+			p.drawLine(
+				0,
+				NotePropertiesRuler::nOctaveHeight -
+					NotePropertiesRuler::nKeyLineHeight / 2,
+				m_nActiveWidth,
+				NotePropertiesRuler::nOctaveHeight -
+					NotePropertiesRuler::nKeyLineHeight / 2
+			);
 			if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
 				p.setPen( QPen( lineInactiveColor, 1, Qt::SolidLine ) );
-				p.drawLine( m_nActiveWidth,
-							NotePropertiesRuler::nOctaveHeight -
-							NotePropertiesRuler::nKeyLineHeight / 2,
-							m_nEditorWidth,
-							NotePropertiesRuler::nOctaveHeight -
-						NotePropertiesRuler::nKeyLineHeight / 2 );
+				p.drawLine(
+					m_nActiveWidth,
+					NotePropertiesRuler::nOctaveHeight -
+						NotePropertiesRuler::nKeyLineHeight / 2,
+					m_nEditorWidth,
+					NotePropertiesRuler::nOctaveHeight -
+						NotePropertiesRuler::nKeyLineHeight / 2
+				);
 			}
 
 			// Horizontal grid lines in the key region
-			p.setPen( QPen( lineColor, 1, Qt::DotLine));
+			p.setPen( QPen( lineColor, 1, Qt::DotLine ) );
 			for ( int yy = NotePropertiesRuler::nOctaveHeight +
-					  NotePropertiesRuler::nKeyLineHeight;
+						   NotePropertiesRuler::nKeyLineHeight;
 				  yy <= NotePropertiesRuler::nKeyOctaveHeight;
 				  yy += NotePropertiesRuler::nKeyLineHeight ) {
-				p.drawLine( PatternEditor::nMarginSidebar,
-							yy - NotePropertiesRuler::nKeyLineHeight / 2,
-							m_nActiveWidth,
-							yy - NotePropertiesRuler::nKeyLineHeight / 2 );
+				p.drawLine(
+					PatternEditor::nMarginSidebar,
+					yy - NotePropertiesRuler::nKeyLineHeight / 2,
+					m_nActiveWidth, yy - NotePropertiesRuler::nKeyLineHeight / 2
+				);
 			}
 
 			if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
 				p.setPen( QPen( lineInactiveColor, 1, Qt::DotLine ) );
 				for ( int yy = NotePropertiesRuler::nOctaveHeight +
-						  NotePropertiesRuler::nKeyLineHeight;
+							   NotePropertiesRuler::nKeyLineHeight;
 					  yy <= NotePropertiesRuler::nKeyOctaveHeight;
 					  yy = yy + NotePropertiesRuler::nKeyLineHeight ) {
-					p.drawLine( m_nActiveWidth,
-								yy - NotePropertiesRuler::nKeyLineHeight / 2,
-								m_nEditorWidth,
-								yy - NotePropertiesRuler::nKeyLineHeight / 2 );
+					p.drawLine(
+						m_nActiveWidth,
+						yy - NotePropertiesRuler::nKeyLineHeight / 2,
+						m_nEditorWidth,
+						yy - NotePropertiesRuler::nKeyLineHeight / 2
+					);
 				}
 			}
 		}
@@ -1553,24 +1836,27 @@ void NotePropertiesRuler::createBackground()
 		p.setPen( lineInactiveColor );
 		p.drawLine( m_nActiveWidth, 0, m_nEditorWidth, 0 );
 		p.setPen( QPen( lineInactiveColor, 2 ) );
-		p.drawLine( m_nActiveWidth, m_nEditorHeight,
-					m_nEditorWidth, m_nEditorHeight );
+		p.drawLine(
+			m_nActiveWidth, m_nEditorHeight, m_nEditorWidth, m_nEditorHeight
+		);
 	}
 }
 
-void NotePropertiesRuler::drawPattern() {
-
+void NotePropertiesRuler::drawPattern()
+{
 	m_offsetMap.clear();
 
 	const qreal pixelRatio = devicePixelRatio();
 
 	QPainter p( m_pContentPixmap );
 	// copy the background image
-	p.drawPixmap( rect(), *m_pBackgroundPixmap,
-						QRectF( pixelRatio * rect().x(),
-								pixelRatio * rect().y(),
-								pixelRatio * rect().width(),
-								pixelRatio * rect().height() ) );
+	p.drawPixmap(
+		rect(), *m_pBackgroundPixmap,
+		QRectF(
+			pixelRatio * rect().x(), pixelRatio * rect().y(),
+			pixelRatio * rect().width(), pixelRatio * rect().height()
+		)
+	);
 
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
@@ -1580,16 +1866,17 @@ void NotePropertiesRuler::drawPattern() {
 	validateSelection();
 
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
-		m_pPatternEditorPanel->getSelectedRowDB() );
+		m_pPatternEditorPanel->getSelectedRowDB()
+	);
 
-	std::vector< std::shared_ptr<Note> > notes;
+	std::vector<std::shared_ptr<Note> > notes;
 
 	for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
-		const auto baseStyle = ppPattern == pPattern ?
-			NoteStyle::Foreground : NoteStyle::Background;
+		const auto baseStyle = ppPattern == pPattern ? NoteStyle::Foreground
+													 : NoteStyle::Background;
 
 		int nLastPos = -1;
-		for ( const auto& [ nnPos, ppNote ] : *ppPattern->getNotes() ) {
+		for ( const auto& [nnPos, ppNote] : *ppPattern->getNotes() ) {
 			if ( ppNote == nullptr ) {
 				continue;
 			}
@@ -1607,10 +1894,10 @@ void NotePropertiesRuler::drawPattern() {
 			// NoteOff notes can have a custom probability and lead lag. But
 			// having a velocity and pan would not make any sense for them.
 			if ( ( ppNote->getNoteOff() &&
-				   ! ( m_property == PatternEditor::Property::Probability ||
-					   m_property == PatternEditor::Property::LeadLag ) ) ||
-				 ! selectedRow.contains( ppNote ) &&
-				 ! m_selection.isSelected( ppNote ) ) {
+				   !( m_property == PatternEditor::Property::Probability ||
+					  m_property == PatternEditor::Property::LeadLag ) ) ||
+				 !selectedRow.contains( ppNote ) &&
+					 !m_selection.isSelected( ppNote ) ) {
 				continue;
 			}
 
@@ -1625,7 +1912,9 @@ void NotePropertiesRuler::drawPattern() {
 	}
 }
 
-std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIntersecting( const QRect& r ) {
+std::vector<NotePropertiesRuler::SelectionIndex>
+NotePropertiesRuler::elementsIntersecting( const QRect& r )
+{
 	std::vector<SelectionIndex> result;
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
@@ -1633,7 +1922,8 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 	}
 
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
-		m_pPatternEditorPanel->getSelectedRowDB() );
+		m_pPatternEditorPanel->getSelectedRowDB()
+	);
 	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
 		 selectedRow.sType.isEmpty() ) {
 		return std::move( result );
@@ -1651,9 +1941,10 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 	}
 	rNormalized += QMargins( 4, 4, 4, 4 );
 
-	FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, pPattern) {
-		if ( ! selectedRow.contains( it->second ) &&
-			 ! m_selection.isSelected( it->second ) ) {
+	FOREACH_NOTE_CST_IT_BEGIN_LENGTH( notes, it, pPattern )
+	{
+		if ( !selectedRow.contains( it->second ) &&
+			 !m_selection.isSelected( it->second ) ) {
 			continue;
 		}
 
@@ -1664,7 +1955,7 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 		}
 	}
 
-	return std::move(result);
+	return std::move( result );
 }
 
 void NotePropertiesRuler::selectAll()
@@ -1683,8 +1974,10 @@ void NotePropertiesRuler::selectAll()
 	updateVisibleComponents( Editor::Update::Content );
 }
 
-std::set< std::shared_ptr<H2Core::Note> > NotePropertiesRuler::getAllNotes() const {
-	std::set< std::shared_ptr<Note> > notes;
+std::set<std::shared_ptr<H2Core::Note> > NotePropertiesRuler::getAllNotes(
+) const
+{
+	std::set<std::shared_ptr<Note> > notes;
 
 	const auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
@@ -1692,8 +1985,9 @@ std::set< std::shared_ptr<H2Core::Note> > NotePropertiesRuler::getAllNotes() con
 	}
 
 	const auto row = m_pPatternEditorPanel->getRowDB(
-		m_pPatternEditorPanel->getSelectedRowDB() );
-	for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
+		m_pPatternEditorPanel->getSelectedRowDB()
+	);
+	for ( const auto& [_, ppNote] : *pPattern->getNotes() ) {
 		if ( ppNote != nullptr &&
 			 ( m_selection.isSelected( ppNote ) || row.contains( ppNote ) ) ) {
 			notes.insert( ppNote );
@@ -1701,8 +1995,8 @@ std::set< std::shared_ptr<H2Core::Note> > NotePropertiesRuler::getAllNotes() con
 	}
 
 	// Add hovered notes as well. We rely on std::set to ensure uniqueness.
-	for ( const auto& [ ppPattern, nnotes ] :
-			  m_pPatternEditorPanel->getHoveredNotes() ) {
+	for ( const auto& [ppPattern, nnotes] :
+		  m_pPatternEditorPanel->getHoveredNotes() ) {
 		if ( ppPattern != pPattern ) {
 			continue;
 		}
