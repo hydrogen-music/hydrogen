@@ -1382,18 +1382,26 @@ void PatternEditor::validateSelection() {
 	}
 }
 
-void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
+void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action )
+{
+	if ( action == Editor::Action::None ) {
+		return;
+	}
+
 	// Retrieve the coordinates
 	GridPoint gridPoint;
-	if ( dynamic_cast<QMouseEvent*>(ev) != nullptr ) {
+	if ( dynamic_cast<QMouseEvent*>( ev ) != nullptr ) {
 		// Element added via mouse.
 		auto pEv = static_cast<MouseEvent*>( ev );
 
-		// If there are already notes at the provided point, delete them.
 		auto notesAtPoint = getElementsAtPoint(
-			pEv->position().toPoint(), getCursorMargin( ev ), true );
+			pEv->position().toPoint(), getCursorMargin( ev ), true
+		);
 		if ( notesAtPoint.size() > 0 ) {
-			deleteElements( notesAtPoint );
+			if ( action == Editor::Action::Delete ||
+				 action == Editor::Action::Toggle ) {
+				deleteElements( notesAtPoint );
+			}
 			return;
 		}
 
@@ -1403,7 +1411,7 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
 			gridPoint.setRow( m_pPatternEditorPanel->getSelectedRowDB() );
 		}
 	}
-	else if ( dynamic_cast<QKeyEvent*>(ev) != nullptr ) {
+	else if ( dynamic_cast<QKeyEvent*>( ev ) != nullptr ) {
 		gridPoint.setColumn( m_pPatternEditorPanel->getCursorColumn() );
 		gridPoint.setRow( m_pPatternEditorPanel->getSelectedRowDB() );
 	}
@@ -1426,15 +1434,17 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
 	float fYValue = std::nan( "" );
 	auto property = m_property;
 	if ( m_instance == Editor::Instance::NotePropertiesRuler &&
-		 dynamic_cast<QMouseEvent*>(ev) != nullptr ) {
-		fYValue = static_cast<NotePropertiesRuler*>(this)->eventToYValue(
-			dynamic_cast<QMouseEvent*>(ev) );
+		 dynamic_cast<QMouseEvent*>( ev ) != nullptr ) {
+		fYValue = static_cast<NotePropertiesRuler*>( this )->eventToYValue(
+			dynamic_cast<QMouseEvent*>( ev )
+		);
 	}
 
-	// Perform the action.
+	// When reaching this point, we only want to add new notes.
 	m_pPatternEditorPanel->addOrRemoveNotes(
-		gridPoint, nKey, nOctave, bNoteOff, fYValue, property, action,
-		Editor::ActionModifier::Playback );
+		gridPoint, nKey, nOctave, bNoteOff, fYValue, property,
+		Editor::Action::Add, Editor::ActionModifier::Playback
+	);
 }
 
 void PatternEditor::deleteElements(
