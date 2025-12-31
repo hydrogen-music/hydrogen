@@ -280,7 +280,9 @@ bool NotePropertiesRuler::applyProperty(
 		case PatternEditor::Property::KeyOctave:
 			if ( !pNote->getNoteOff() ) {
 				int nKey, nOctave;
-				yToKeyOctave( static_cast<int>( fYValue ), &nKey, &nOctave );
+				NotePropertiesRuler::yToKeyOctave(
+					static_cast<int>( fYValue ), &nKey, &nOctave
+				);
 				if ( ( nKey != KEY_INVALID &&
 					   nKey != static_cast<int>( pNote->getKey() ) ) ||
 					 ( nOctave != KEY_INVALID &&
@@ -329,6 +331,49 @@ float NotePropertiesRuler::eventToYValue( QMouseEvent* pEvent ) const
 	}
 
 	return fValue;
+}
+
+void NotePropertiesRuler::yToKeyOctave( int nY, int* pKey, int* pOctave )
+{
+	int nKey = KEY_INVALID;
+	int nOctave = OCTAVE_INVALID;
+	if ( nY >= 0 && nY < NotePropertiesRuler::nOctaveHeight -
+							 NotePropertiesRuler::nKeyOctaveSpaceHeight ) {
+        const int nOuterRowHeight = NotePropertiesRuler::nKeyLineHeight * 1.5;
+		int nRow;
+		if ( nY <= nOuterRowHeight ) {
+			nRow = 0;
+		}
+		else if ( nY > NotePropertiesRuler::nOctaveHeight -
+						   NotePropertiesRuler::nKeyOctaveSpaceHeight -
+						   nOuterRowHeight ) {
+			nRow = 6;
+		}
+		else {
+			nRow = std::floor(
+					   ( nY - nOuterRowHeight ) /
+					   NotePropertiesRuler::nKeyLineHeight
+				   ) +
+				   1;
+		}
+        // Since there are three "negative" octaves.
+		nOctave = -1* ( nRow - 3 );
+		nOctave = std::clamp( nOctave, OCTAVE_MIN, OCTAVE_MAX );
+	}
+	else if ( nY >= NotePropertiesRuler::nOctaveHeight &&
+			  nY < NotePropertiesRuler::nKeyOctaveHeight ) {
+		nKey = ( NotePropertiesRuler::nKeyOctaveHeight - nY -
+				 NotePropertiesRuler::nKeyLineHeight / 2 ) /
+			   NotePropertiesRuler::nKeyLineHeight;
+		nKey = std::clamp( nKey, KEY_MIN, KEY_MAX );
+	}
+
+	if ( pKey != nullptr ) {
+		*pKey = nKey;
+	}
+	if ( pOctave != nullptr ) {
+		*pOctave = nOctave;
+	}
 }
 
 void NotePropertiesRuler::moveCursorDown( QKeyEvent* ev, Editor::Step step )
@@ -721,7 +766,7 @@ std::vector<std::shared_ptr<Note> > NotePropertiesRuler::getElementsAtPoint(
 			if ( m_property == Property::KeyOctave && !ppNote->getNoteOff() ) {
 				// Determine the key-octave values based on the cursor position.
 				int nKey, nOctave;
-				yToKeyOctave( point.y(), &nKey, &nOctave );
+				NotePropertiesRuler::yToKeyOctave( point.y(), &nKey, &nOctave );
 				if ( ( nKey != KEY_INVALID &&
 					   nKey != static_cast<int>( ppNote->getKey() ) ) ||
 					 ( nOctave != KEY_INVALID &&
@@ -857,49 +902,6 @@ void NotePropertiesRuler::prepareUndoAction( QMouseEvent* pEvent )
 
 	if ( notesUnderPoint.size() > 0 ) {
 		m_nDrawPreviousColumn = notesUnderPoint[0]->getPosition();
-	}
-}
-
-void NotePropertiesRuler::yToKeyOctave( int nY, int* pKey, int* pOctave )
-{
-	int nKey = KEY_INVALID;
-	int nOctave = OCTAVE_INVALID;
-	if ( nY >= 0 && nY < NotePropertiesRuler::nOctaveHeight -
-							 NotePropertiesRuler::nKeyOctaveSpaceHeight ) {
-        const int nOuterRowHeight = NotePropertiesRuler::nKeyLineHeight * 1.5;
-		int nRow;
-		if ( nY <= nOuterRowHeight ) {
-			nRow = 0;
-		}
-		else if ( nY > NotePropertiesRuler::nOctaveHeight -
-						   NotePropertiesRuler::nKeyOctaveSpaceHeight -
-						   nOuterRowHeight ) {
-			nRow = 6;
-		}
-		else {
-			nRow = std::floor(
-					   ( nY - nOuterRowHeight ) /
-					   NotePropertiesRuler::nKeyLineHeight
-				   ) +
-				   1;
-		}
-        // Since there are three "negative" octaves.
-		nOctave = -1* ( nRow - 3 );
-		nOctave = std::clamp( nOctave, OCTAVE_MIN, OCTAVE_MAX );
-	}
-	else if ( nY >= NotePropertiesRuler::nOctaveHeight &&
-			  nY < NotePropertiesRuler::nKeyOctaveHeight ) {
-		nKey = ( NotePropertiesRuler::nKeyOctaveHeight - nY -
-				 NotePropertiesRuler::nKeyLineHeight / 2 ) /
-			   NotePropertiesRuler::nKeyLineHeight;
-		nKey = std::clamp( nKey, KEY_MIN, KEY_MAX );
-	}
-
-	if ( pKey != nullptr ) {
-		*pKey = nKey;
-	}
-	if ( pOctave != nullptr ) {
-		*pOctave = nOctave;
 	}
 }
 

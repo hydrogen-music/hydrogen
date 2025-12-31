@@ -108,6 +108,8 @@ class NotePropertiesRuler : public PatternEditor,
 	 * is intended to be used with applyProperty(). */
 	float eventToYValue( QMouseEvent* pEvent ) const;
 
+	static void yToKeyOctave( int nY, int* pKey, int* pOctave );
+
 	void updateColors();
 	void updateFont();
 
@@ -180,8 +182,6 @@ class NotePropertiesRuler : public PatternEditor,
 	void wheelEvent( QWheelEvent* ev ) override;
 	void addUndoAction( const QString& sUndoContext );
 	void prepareUndoAction( QMouseEvent* pEvent );
-
-	static void yToKeyOctave( int nY, int* pKey, int* pOctave );
 
 	std::vector<KeyOctaveLabel*> m_labels;
 

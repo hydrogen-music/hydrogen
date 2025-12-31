@@ -22,6 +22,7 @@
 
 #include "PatternEditor.h"
 
+#include "NotePropertiesRuler.h"
 #include "PatternEditorPanel.h"
 #include "PatternEditorRuler.h"
 #include "PatternEditorSidebar.h"
@@ -1438,6 +1439,16 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action )
 		fYValue = static_cast<NotePropertiesRuler*>( this )->eventToYValue(
 			dynamic_cast<QMouseEvent*>( ev )
 		);
+
+        // Ensure to add distinct notes when clicking the KeyOctave view in the
+        // ruler.
+		NotePropertiesRuler::yToKeyOctave( fYValue, &nKey, &nOctave );
+		if ( nKey == KEY_INVALID ) {
+            nKey = KEY_MIN;
+		}
+		if ( nOctave == OCTAVE_INVALID ) {
+            nOctave = OCTAVE_DEFAULT;
+		}
 	}
 
 	// When reaching this point, we only want to add new notes.
