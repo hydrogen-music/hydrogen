@@ -1498,7 +1498,7 @@ std::vector< std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 			m_pPatternEditorPanel->getSelectedRowDB() );
 	}
 
-	// Prior to version 2.0 notes where selected by clicking its grid cell,
+	// Prior to version 2.0 notes were selected by clicking its grid cell,
 	// while this caused only notes on the current grid to be accessible it also
 	// made them quite easy select. Just using the position of the mouse cursor
 	// would feel like a regression, as it would be way harded to hit the notes.
