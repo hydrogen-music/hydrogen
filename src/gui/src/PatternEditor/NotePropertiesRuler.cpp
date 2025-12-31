@@ -765,7 +765,8 @@ std::vector<std::shared_ptr<Note> > NotePropertiesRuler::getElementsAtPoint(
 			// view notes are rendered as circles within separate lines - much
 			// like the PianoRollEditor. In there we support interacting with
 			// individual ones.
-			if ( m_property == Property::KeyOctave && !ppNote->getNoteOff() ) {
+			if ( m_property == Property::KeyOctave && !ppNote->getNoteOff() &&
+				 inputSource == Editor::InputSource::Mouse ) {
 				// Determine the key-octave values based on the cursor position.
 				int nKey, nOctave;
 				NotePropertiesRuler::yToKeyOctave( point.y(), &nKey, &nOctave );
