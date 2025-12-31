@@ -1545,69 +1545,6 @@ std::vector< std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 		}
 	}
 
-	// Within the ruler all selected and hovered notes along with notes of the
-	// selected row are rendered. These notes can be interacted with (property
-	// change, deselect etc.).
-	if ( m_instance == Editor::Instance::NotePropertiesRuler ) {
-		// Ensure we do not add the same note twice.
-		std::set< std::shared_ptr<Note> > furtherNotes;
-
-		// Check and add selected notes.
-		bool bFound = false;
-		for ( const auto& ppSelectedNote : m_selection ) {
-			bFound = false;
-			for ( const auto& ppPatternNote : notesUnderPoint ) {
-				if ( ppPatternNote == ppSelectedNote ) {
-					bFound = true;
-					break;
-				}
-			}
-			if ( ! bFound && ppSelectedNote != nullptr ) {
-				furtherNotes.insert( ppSelectedNote );
-			}
-		}
-
-		// Check and add hovered notes.
-		if ( bIncludeHovered ) {
-			for ( const auto& [ ppPattern, nnotes ] :
-					  m_pPatternEditorPanel->getHoveredNotes() ) {
-				if ( ppPattern != pPattern ) {
-					continue;
-				}
-
-				for ( const auto& ppHoveredNote : nnotes ) {
-					bFound = false;
-					for ( const auto& ppPatternNote : notesUnderPoint ) {
-						if ( ppPatternNote == ppHoveredNote ) {
-							bFound = true;
-							break;
-						}
-					}
-					if ( ! bFound && ppHoveredNote != nullptr ) {
-						furtherNotes.insert( ppHoveredNote );
-					}
-				}
-			}
-		}
-
-		for ( const auto& ppNote : furtherNotes ) {
-			const int nDistance =
-				std::abs( ppNote->getPosition() - gridPoint.getColumn() );
-
-			if ( nDistance < nLastDistance ) {
-				// This note is nearer than (potential) previous ones.
-				notesUnderPoint.clear();
-				nLastDistance = nDistance;
-				nLastPosition = ppNote->getPosition();
-			}
-
-			if ( nDistance <= nLastDistance &&
-				 ppNote->getPosition() == nLastPosition ) {
-				notesUnderPoint.push_back( ppNote );
-			}
-		}
-	}
-
 	return std::move( notesUnderPoint );
 }
 

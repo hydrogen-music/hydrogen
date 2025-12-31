@@ -116,6 +116,9 @@ class NotePropertiesRuler : public PatternEditor,
 		void selectionMoveUpdateEvent( QMouseEvent *ev ) override;
 		void selectionMoveEndEvent( QInputEvent *ev ) override;
 		void selectionMoveCancelEvent() override;
+		std::vector<SelectionIndex> getElementsAtPoint(
+			const QPoint& point, int nCursorMargin, bool bIncludeHovered,
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
 		QPoint gridPointToPoint( const H2Core::GridPoint& gridPoint ) const override;
 		H2Core::GridPoint pointToGridPoint( const QPoint& point,
 											bool bHonorQuantization ) const override;

@@ -616,6 +616,152 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 	m_oldNotes.clear();
 }
 
+std::vector< std::shared_ptr<Note> > NotePropertiesRuler::getElementsAtPoint(
+	const QPoint& point, int nCursorMargin, bool bIncludeHovered,
+	std::shared_ptr<H2Core::Pattern> pPattern )
+{
+	std::vector< std::shared_ptr<Note> > notesUnderPoint;
+	if ( pPattern == nullptr ) {
+		pPattern = m_pPatternEditorPanel->getPattern();
+		if ( pPattern == nullptr ) {
+			return std::move( notesUnderPoint );
+		}
+	}
+
+	const auto gridPoint = pointToGridPoint( point, false );
+	const auto gridPointLower = pointToGridPoint(
+		point - QPoint( nCursorMargin, 0 ), false );
+	const auto gridPointUpper = pointToGridPoint(
+		point + QPoint( nCursorMargin, 0 ), false );
+
+	// Assemble all notes to be edited.
+	const DrumPatternRow row = m_pPatternEditorPanel->getRowDB(
+		m_pPatternEditorPanel->getSelectedRowDB()
+	);
+
+	// Prior to version 2.0 notes were selected by clicking its grid cell,
+	// while this caused only notes on the current grid to be accessible it also
+	// made them quite easy select. Just using the position of the mouse cursor
+	// would feel like a regression, as it would be way harded to hit the notes.
+	// Instead, we introduce a certain rectangle (manhattan distance) around the
+	// cursor which can select notes but only return those nearest to the
+	// center.
+	int nLastDistance = gridPointUpper.getColumn() - gridPoint.getColumn() + 1;
+
+	// We have to ensure to only provide notes from a single position. In case
+	// the cursor is placed exactly in the middle of two notes, the left one
+	// wins.
+	int nLastPosition = -1;
+
+	const auto notes = pPattern->getNotes();
+	for ( auto it = notes->lower_bound( gridPointLower.getColumn() );
+		  it != notes->end() && it->first <= gridPointUpper.getColumn(); ++it ) {
+		const auto ppNote = it->second;
+		if ( ppNote != nullptr && row.contains( ppNote ) &&
+			 ppNote->getPosition() < pPattern->getLength() ) {
+
+			const int nDistance =
+				std::abs( ppNote->getPosition() - gridPoint.getColumn() );
+
+			if ( nDistance < nLastDistance ) {
+				// This note is nearer than (potential) previous ones.
+				notesUnderPoint.clear();
+				nLastDistance = nDistance;
+				nLastPosition = ppNote->getPosition();
+			}
+
+			if ( nDistance > nLastDistance ||
+				 ppNote->getPosition() != nLastPosition ) {
+				continue;
+            }
+
+			// For most properties individual notes can cover the whole widget
+			// height and are stacked behind each other. We thus, select all of
+			// them - like in the DrumPatternEditor. But within the Key Octave
+			// view notes are rendered as circles within separate lines - much
+			// like the PianoRollEditor. In there we support interacting with
+			// individual ones.
+			if ( m_property == Property::KeyOctave && !ppNote->getNoteOff() ) {
+				// Determine the key-octave values based on the cursor position.
+				int nKey, nOctave;
+				yToKeyOctave( point.y(), &nKey, &nOctave );
+				if ( ( nKey != KEY_INVALID &&
+					   nKey != static_cast<int>( ppNote->getKey() ) ) ||
+					 ( nOctave != KEY_INVALID &&
+					   nOctave != static_cast<int>( ppNote->getOctave() ) ) ) {
+					continue;
+				}
+			}
+
+			notesUnderPoint.push_back( ppNote );
+		}
+	}
+
+	// Within the ruler all selected and hovered notes along with notes of the
+	// selected row are rendered. These notes can be interacted with (property
+	// change, deselect etc.).
+
+	// Ensure we do not add the same note twice.
+	std::set<std::shared_ptr<Note> > furtherNotes;
+
+	// Check and add selected notes.
+	bool bFound = false;
+	for ( const auto& ppSelectedNote : m_selection ) {
+		bFound = false;
+		for ( const auto& ppPatternNote : notesUnderPoint ) {
+			if ( ppPatternNote == ppSelectedNote ) {
+				bFound = true;
+				break;
+			}
+		}
+		if ( !bFound && ppSelectedNote != nullptr ) {
+			furtherNotes.insert( ppSelectedNote );
+		}
+	}
+
+	// Check and add hovered notes.
+	if ( bIncludeHovered ) {
+		for ( const auto& [ppPattern, nnotes] :
+			  m_pPatternEditorPanel->getHoveredNotes() ) {
+			if ( ppPattern != pPattern ) {
+				continue;
+			}
+
+			for ( const auto& ppHoveredNote : nnotes ) {
+				bFound = false;
+				for ( const auto& ppPatternNote : notesUnderPoint ) {
+					if ( ppPatternNote == ppHoveredNote ) {
+						bFound = true;
+						break;
+					}
+				}
+				if ( !bFound && ppHoveredNote != nullptr ) {
+					furtherNotes.insert( ppHoveredNote );
+				}
+			}
+		}
+	}
+
+	for ( const auto& ppNote : furtherNotes ) {
+		const int nDistance =
+			std::abs( ppNote->getPosition() - gridPoint.getColumn() );
+
+		if ( nDistance < nLastDistance ) {
+			// This note is nearer than (potential) previous ones.
+			notesUnderPoint.clear();
+			nLastDistance = nDistance;
+			nLastPosition = ppNote->getPosition();
+		}
+
+		if ( nDistance <= nLastDistance &&
+			 ppNote->getPosition() == nLastPosition ) {
+			notesUnderPoint.push_back( ppNote );
+		}
+	}
+
+	return std::move( notesUnderPoint );
+}
+
 QPoint NotePropertiesRuler::gridPointToPoint( const GridPoint& gridPoint ) const {
 	auto point = PatternEditor::gridPointToPoint( gridPoint );
 
