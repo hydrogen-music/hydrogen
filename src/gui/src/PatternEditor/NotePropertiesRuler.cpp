@@ -864,13 +864,27 @@ void NotePropertiesRuler::yToKeyOctave( int nY, int* pKey, int* pOctave )
 {
 	int nKey = KEY_INVALID;
 	int nOctave = OCTAVE_INVALID;
-	if ( nY > 0 && nY <= NotePropertiesRuler::nOctaveHeight ) {
-		nOctave = std::round(
-			( NotePropertiesRuler::nOctaveHeight / 2 +
-			  NotePropertiesRuler::nKeyLineHeight / 2 - nY -
-			  NotePropertiesRuler::nKeyLineHeight / 2 ) /
-			NotePropertiesRuler::nKeyLineHeight
-		);
+	if ( nY >= 0 && nY < NotePropertiesRuler::nOctaveHeight -
+							 NotePropertiesRuler::nKeyOctaveSpaceHeight ) {
+        const int nOuterRowHeight = NotePropertiesRuler::nKeyLineHeight * 1.5;
+		int nRow;
+		if ( nY <= nOuterRowHeight ) {
+			nRow = 0;
+		}
+		else if ( nY > NotePropertiesRuler::nOctaveHeight -
+						   NotePropertiesRuler::nKeyOctaveSpaceHeight -
+						   nOuterRowHeight ) {
+			nRow = 6;
+		}
+		else {
+			nRow = std::floor(
+					   ( nY - nOuterRowHeight ) /
+					   NotePropertiesRuler::nKeyLineHeight
+				   ) +
+				   1;
+		}
+        // Since there are three "negative" octaves.
+		nOctave = -1* ( nRow - 3 );
 		nOctave = std::clamp( nOctave, OCTAVE_MIN, OCTAVE_MAX );
 	}
 	else if ( nY >= NotePropertiesRuler::nOctaveHeight &&
