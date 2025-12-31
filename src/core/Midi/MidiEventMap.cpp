@@ -22,8 +22,10 @@
 #include "MidiEventMap.h"
 
 #include <QMutexLocker>
-#include "Midi/MidiEvent.h"
 
+#include <core/Basics/Event.h>
+#include <core/EventQueue.h>
+#include <core/Midi/MidiEvent.h>
 #include <core/Helpers/Xml.h>
 
 namespace H2Core {
@@ -391,7 +393,29 @@ std::vector<std::pair<H2Core::MidiEvent::Type,int>> MidiEventMap::getRegisteredM
 	return midiEvents;
 }
 
-QString MidiEventMap::toQString( const QString& sPrefix, bool bShort ) const {
+void MidiEventMap::removeRegisteredMidiEvents(
+	std::shared_ptr<MidiAction> pAction
+)
+{
+	QMutexLocker mx( &__mutex );
+
+	for ( auto it = m_events.begin(); it != m_events.end(); ) {
+		if ( *it != nullptr && ( *it )->getMidiAction() != nullptr &&
+			 ( *it )->getMidiAction()->isEquivalentTo( pAction ) ) {
+			m_events.erase( it );
+		}
+		else {
+			++it;
+		}
+	}
+
+	EventQueue::get_instance()->pushEvent(
+		Event::Type::MidiEventMapChanged, 0
+	);
+}
+
+QString MidiEventMap::toQString( const QString& sPrefix, bool bShort ) const
+{
 	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( !bShort ) {
