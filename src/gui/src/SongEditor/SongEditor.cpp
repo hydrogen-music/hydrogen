@@ -521,7 +521,7 @@ void SongEditor::handleElements( QInputEvent* pEvent, Editor::Action action ) {
 
 	HydrogenApp::get_instance()->pushUndoCommand(
 		new SE_addOrRemovePatternCellAction(
-			gridPoint, action, Editor::ActionModifier::None ) );
+			gridPoint, action, Editor::ActionModifier::MoveCursorTo ) );
 }
 
 void SongEditor::deleteElements( std::vector< std::shared_ptr<GridCell> > cells ) {

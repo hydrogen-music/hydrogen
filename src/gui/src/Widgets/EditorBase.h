@@ -755,8 +755,15 @@ class Base : public SelectionWidget<Elem>, public QWidget
 
 			// main button action
 			if ( ev->button() == Qt::LeftButton ) {
-
-				setCursorTo( ev );
+				// When adding new note, we move the cursor the point of
+				// creation since we select the corresponding row as well.
+				const auto elementsUnderPoint = getElementsAtPoint(
+					pEv->position().toPoint(), Editor::InputSource::Mouse,
+					getCursorMargin( ev ), true
+				);
+				if ( elementsUnderPoint.size() == 0 ) {
+					setCursorTo( ev );
+				}
 
 				// Check whether an existing element or an empty grid cell was
 				// clicked.

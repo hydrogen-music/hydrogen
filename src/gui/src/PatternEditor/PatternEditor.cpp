@@ -967,31 +967,6 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 	handleKeyboardCursor( false );
 }
 
-void PatternEditor::mouseClickEvent( QMouseEvent *ev ) {
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		return;
-	}
-
-	auto pEv = static_cast<MouseEvent*>( ev );
-
-	const auto gridPoint = pointToGridPoint( pEv->position().toPoint(), true );
-
-	// Select the corresponding row
-	if ( m_instance == Editor::Instance::DrumPattern ) {
-		const auto row = m_pPatternEditorPanel->getRowDB( gridPoint.getRow() );
-		if ( row.nInstrumentID != EMPTY_INSTR_ID || ! row.sType.isEmpty() ) {
-			m_pPatternEditorPanel->setSelectedRowDB( gridPoint.getRow() );
-		}
-	}
-	else if ( m_instance == Editor::Instance::PianoRoll ) {
-		// Update the row of the piano roll itself.
-		setCursorPitch( Note::lineToPitch( gridPoint.getRow() ) );
-	}
-
-	Editor::Base<Elem>::mouseClickEvent( ev );
-}
-
 void PatternEditor::paintEvent( QPaintEvent* ev ) {
 	if (!isVisible()) {
 		return;
@@ -1412,18 +1387,22 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action )
 
 		// Nothing found at point. Add a new note.
 		gridPoint = pointToGridPoint( pEv->position().toPoint(), true );
-		if ( m_instance != Editor::Instance::DrumPattern ) {
-			gridPoint.setRow( m_pPatternEditorPanel->getSelectedRowDB() );
+		if ( m_instance == Editor::Instance::PianoRoll ) {
+            // Ensure we add the new note at the right spot.
+			setCursorPitch( Note::lineToPitch( gridPoint.getRow() ) );
 		}
 	}
 	else if ( dynamic_cast<QKeyEvent*>( ev ) != nullptr ) {
 		gridPoint.setColumn( m_pPatternEditorPanel->getCursorColumn() );
-		gridPoint.setRow( m_pPatternEditorPanel->getSelectedRowDB() );
 	}
 	else {
 		ERRORLOG( "Unknown event" );
 		return;
 	}
+
+    if ( m_instance != Editor::Instance::DrumPattern ) {
+        gridPoint.setRow( m_pPatternEditorPanel->getSelectedRowDB() );
+    }
 
 	int nKey = KEY_INVALID;
 	int nOctave = OCTAVE_INVALID;
@@ -1455,10 +1434,13 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action )
 		}
 	}
 
-	// When reaching this point, we only want to add new notes.
 	m_pPatternEditorPanel->addOrRemoveNotes(
 		gridPoint, nKey, nOctave, bNoteOff, fYValue, property,
-		Editor::Action::Add, Editor::ActionModifier::Playback
+		Editor::Action::Add,
+		static_cast<Editor::ActionModifier>(
+			static_cast<int>( Editor::ActionModifier::Playback ) |
+			static_cast<int>( Editor::ActionModifier::MoveCursorTo )
+		)
 	);
 }
 

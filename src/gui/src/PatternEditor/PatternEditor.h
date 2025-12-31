@@ -171,7 +171,6 @@ public:
 		virtual void keyPressEvent( QKeyEvent* ev ) override;
 		virtual void keyReleaseEvent(QKeyEvent *ev) override;
 		virtual void mousePressEvent( QMouseEvent *ev ) override;
-		virtual void mouseClickEvent( QMouseEvent *ev ) override;
 		virtual void paintEvent( QPaintEvent* ev ) override;
 	
 		//! @name SelectionWidget interfaces
