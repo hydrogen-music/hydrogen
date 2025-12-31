@@ -544,13 +544,12 @@ void SongEditor::deleteElements( std::vector< std::shared_ptr<GridCell> > cells 
 	pHydrogenApp->endUndoMacro();
 }
 
-std::vector< std::shared_ptr<GridCell> > SongEditor::getElementsAtPoint(
-	const QPoint& point, int /*nCursorMargin*/, bool /*bIncludeHovered*/,
-	std::shared_ptr<Pattern> )
+std::vector<std::shared_ptr<GridCell>> SongEditor::
+	getElementsAtPoint( const QPoint& point, Editor::InputSource, int /*nCursorMargin*/, bool /*bIncludeHovered*/, std::shared_ptr<Pattern> )
 {
 	// Cursor margin and pattern aren't used within the song editor.
-	std::vector< std::shared_ptr<GridCell> > vec;
-	const auto gridPoint = pointToGridPoint( point, false ) ;
+	std::vector<std::shared_ptr<GridCell>> vec;
+	const auto gridPoint = pointToGridPoint( point, false );
 	if ( m_gridCells.find( gridPoint ) != m_gridCells.end() ) {
 		vec.push_back( m_gridCells.at( gridPoint ) );
 	}
@@ -739,7 +738,9 @@ bool SongEditor::updateMouseHoveredElements( QMouseEvent* pEvent ) {
 	}
 
 	const auto hoveredCells = getElementsAtPoint(
-		static_cast<MouseEvent*>(pEvent)->position().toPoint(), 0, false );
+		static_cast<MouseEvent*>( pEvent )->position().toPoint(),
+		Editor::InputSource::Mouse, 0, false
+	);
 	return updateHoveredCells( hoveredCells, Editor::InputSource::Mouse );
 }
 

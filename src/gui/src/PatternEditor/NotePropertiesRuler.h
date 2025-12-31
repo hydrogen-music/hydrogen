@@ -122,6 +122,7 @@ class NotePropertiesRuler : public PatternEditor,
 	void selectionMoveCancelEvent() override;
 	std::vector<SelectionIndex> getElementsAtPoint(
 		const QPoint& point,
+		Editor::InputSource inputSource,
 		int nCursorMargin,
 		bool bIncludeHovered,
 		std::shared_ptr<H2Core::Pattern> pPattern = nullptr

@@ -476,7 +476,8 @@ void NotePropertiesRuler::wheelEvent( QWheelEvent* ev )
 	// current selection, we alter the values of all selected notes. It not, we
 	// discard the selection.
 	const auto notesUnderPoint = getElementsAtPoint(
-		pEv->position().toPoint(), getCursorMargin( nullptr ), true
+		pEv->position().toPoint(), Editor::InputSource::Mouse,
+		getCursorMargin( nullptr ), true
 	);
 	if ( notesUnderPoint.size() == 0 ) {
 		return;
@@ -697,6 +698,7 @@ void NotePropertiesRuler::selectionMoveCancelEvent()
 
 std::vector<std::shared_ptr<Note> > NotePropertiesRuler::getElementsAtPoint(
 	const QPoint& point,
+	Editor::InputSource inputSource,
 	int nCursorMargin,
 	bool bIncludeHovered,
 	std::shared_ptr<H2Core::Pattern> pPattern
@@ -892,7 +894,8 @@ void NotePropertiesRuler::prepareUndoAction( QMouseEvent* pEvent )
 	updateModifiers( pEvent );
 
 	const auto notesUnderPoint = getElementsAtPoint(
-		pEv->position().toPoint(), getCursorMargin( pEvent ), true
+		pEv->position().toPoint(), Editor::InputSource::Mouse,
+		getCursorMargin( pEvent ), true
 	);
 	for ( const auto& ppNote : notesUnderPoint ) {
 		if ( ppNote != nullptr ) {
@@ -1146,8 +1149,10 @@ void NotePropertiesRuler::applyCursorDelta( float fDelta )
 	// We interact only with notes under cursor. If any of them are part of the
 	// current selection, we alter the values of all selected notes. It not, we
 	// discard the selection.
-	const auto notesUnderPoint =
-		getElementsAtPoint( gridPointToPoint( getCursorPosition() ), 0, true );
+	const auto notesUnderPoint = getElementsAtPoint(
+		gridPointToPoint( getCursorPosition() ), Editor::InputSource::Keyboard,
+		0, true
+	);
 	if ( notesUnderPoint.size() == 0 ) {
 		return;
 	}
