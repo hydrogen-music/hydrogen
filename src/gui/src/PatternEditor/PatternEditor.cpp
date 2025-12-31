@@ -1388,21 +1388,22 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action )
 		// Nothing found at point. Add a new note.
 		gridPoint = pointToGridPoint( pEv->position().toPoint(), true );
 		if ( m_instance == Editor::Instance::PianoRoll ) {
-            // Ensure we add the new note at the right spot.
+			// Ensure we add the new note at the right spot.
 			setCursorPitch( Note::lineToPitch( gridPoint.getRow() ) );
 		}
 	}
 	else if ( dynamic_cast<QKeyEvent*>( ev ) != nullptr ) {
 		gridPoint.setColumn( m_pPatternEditorPanel->getCursorColumn() );
+		gridPoint.setRow( m_pPatternEditorPanel->getSelectedRowDB() );
 	}
 	else {
 		ERRORLOG( "Unknown event" );
 		return;
 	}
 
-    if ( m_instance != Editor::Instance::DrumPattern ) {
-        gridPoint.setRow( m_pPatternEditorPanel->getSelectedRowDB() );
-    }
+	if ( m_instance != Editor::Instance::DrumPattern ) {
+		gridPoint.setRow( m_pPatternEditorPanel->getSelectedRowDB() );
+	}
 
 	int nKey = KEY_INVALID;
 	int nOctave = OCTAVE_INVALID;
@@ -1435,8 +1436,7 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action )
 	}
 
 	m_pPatternEditorPanel->addOrRemoveNotes(
-		gridPoint, nKey, nOctave, bNoteOff, fYValue, property,
-		Editor::Action::Add,
+		gridPoint, nKey, nOctave, bNoteOff, fYValue, property, action,
 		static_cast<Editor::ActionModifier>(
 			static_cast<int>( Editor::ActionModifier::Playback ) |
 			static_cast<int>( Editor::ActionModifier::MoveCursorTo )
