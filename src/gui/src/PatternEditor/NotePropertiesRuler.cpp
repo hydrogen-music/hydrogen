@@ -142,10 +142,13 @@ NotePropertiesRuler::NotePropertiesRuler(
 	PatternEditor::Property property,
 	Layout layout
 )
-	: PatternEditor( parent ), m_nDrawPreviousColumn( -1 ), m_layout( layout )
+	: PatternEditor( parent ),
+	  m_nDrawPreviousColumn( -1 ),
+	  m_layout( layout )
 {
 	m_type = Editor::Type::Horizontal;
 	m_instance = Editor::Instance::NotePropertiesRuler;
+	m_nGridHeight = NotePropertiesRuler::nKeyLineHeight;
 
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	m_property = property;
