@@ -27,13 +27,13 @@
 #include <map>
 #include <memory>
 
+#include <core/Basics/Instrument.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
 
 namespace H2Core {
 
 class Drumkit;
-class Instrument;
 class Note;
 class XMLNode;
 
@@ -135,8 +135,9 @@ public:
 	int getGlobalOutputChannel() const;
 	void setGlobalOutputChannel( int nChannel );
 
-	const std::map<QString, NoteRef>& getCustomInputMappingsType() const;
-	const std::map<int, NoteRef>& getCustomInputMappingsId() const;
+	const std::map<Instrument::Type, NoteRef>& getCustomInputMappingsType(
+	) const;
+	const std::map<Instrument::Id, NoteRef>& getCustomInputMappingsId() const;
 
 	/** Note that the current design of MidiInstrumentMap does not feature a way to
      * delete a custom input mapping since there is no UX counterpart either.
@@ -160,10 +161,10 @@ private:
 
 	/** Instrument type-based note mapping. This one takes precedeence over the
      * id-based one. */
-	std::map<QString, NoteRef> m_customInputMappingsType;
+	std::map<Instrument::Type, NoteRef> m_customInputMappingsType;
 	/** Mapping for typeless instruments - new ones or those of custom legacy
      * kits. */
-	std::map<int, NoteRef> m_customInputMappingsId;
+	std::map<Instrument::Id, NoteRef> m_customInputMappingsId;
 
 };
 
@@ -197,12 +198,16 @@ inline void MidiInstrumentMap::setUseGlobalOutputChannel( bool bUse ){
 inline int MidiInstrumentMap::getGlobalOutputChannel() const {
 	return m_nGlobalOutputChannel;
 }
-inline const std::map<QString, MidiInstrumentMap::NoteRef>& MidiInstrumentMap::getCustomInputMappingsType() const {
+inline const std::map<Instrument::Type, MidiInstrumentMap::NoteRef>&
+MidiInstrumentMap::getCustomInputMappingsType() const
+{
 	return m_customInputMappingsType;
 }
-inline const std::map<int, MidiInstrumentMap::NoteRef>& MidiInstrumentMap::getCustomInputMappingsId() const {
+inline const std::map<Instrument::Id, MidiInstrumentMap::NoteRef>&
+MidiInstrumentMap::getCustomInputMappingsId() const
+{
 	return m_customInputMappingsId;
 }
-};
+};	// namespace H2Core
 
 #endif

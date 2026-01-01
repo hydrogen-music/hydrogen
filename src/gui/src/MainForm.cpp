@@ -1352,22 +1352,25 @@ void MainForm::action_drumkit_addInstrument(
 	// invalid ID and triggering the fallback in Drumkit::addInstrument which
 	// could end up using an ID of a note again).
 	if ( pInstrument->getType().isEmpty() &&
-		 pInstrument->getId() == EMPTY_INSTR_ID ) {
+		 pInstrument->getId() == Instrument::EmptyId ) {
 		std::set<int> presentIds;
-		for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
+		for ( const auto& ppInstrument :
+			  *pSong->getDrumkit()->getInstruments() ) {
 			if ( ppInstrument != nullptr ) {
-				presentIds.insert( ppInstrument->getId() );
+				presentIds.insert( static_cast<int>( ppInstrument->getId() ) );
 			}
 		}
 
 		for ( const auto& ppPattern : *pSong->getPatternList() ) {
-			for ( const auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
+			for ( const auto& [_, ppNote] : *ppPattern->getNotes() ) {
 				// We only have to take those note not bearing a type into
 				// account. A type will always take precedence in mapping and
 				// even though the note could have the same ID as the empty,
 				// untyped instrument, it will never be associated with it.
 				if ( ppNote != nullptr && ppNote->getType().isEmpty() ) {
-					presentIds.insert( ppNote->getInstrumentId() );
+					presentIds.insert(
+						static_cast<int>( ppNote->getInstrumentId() )
+					);
 				}
 			}
 		}
@@ -1375,7 +1378,7 @@ void MainForm::action_drumkit_addInstrument(
 		// Pick an unique ID for the new instrument.
 		for ( int ii = 0; ii < presentIds.size() + 1; ++ii ) {
 			if ( presentIds.find( ii ) == presentIds.end() ) {
-				pInstrument->setId( ii );
+				pInstrument->setId( static_cast<Instrument::Id>( ii ) );
 				break;
 			}
 		}
@@ -2431,7 +2434,7 @@ void MainForm::action_drumkit_properties() {
 }
 
 void MainForm::editDrumkitProperties( bool bWriteToDisk, bool bSaveToNsmSession,
-									  int nInstrumentID )
+									  Instrument::Id id )
 {
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
@@ -2450,7 +2453,7 @@ void MainForm::editDrumkitProperties( bool bWriteToDisk, bool bSaveToNsmSession,
 	auto pNewDrumkit = std::make_shared<Drumkit>(pDrumkit);
 
 	DrumkitPropertiesDialog dialog( nullptr, pNewDrumkit, ! bWriteToDisk,
-									bSaveToNsmSession, nInstrumentID );
+									bSaveToNsmSession, id );
 	dialog.exec();
 }
 

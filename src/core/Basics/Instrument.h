@@ -27,16 +27,10 @@
 #include <memory>
 
 #include <core/Basics/Adsr.h>
-#include <core/Basics/DrumkitMap.h>
 #include <core/Basics/Event.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/License.h>
 #include <core/Object.h>
-
-#define EMPTY_INSTR_ID -1
-/** Created Instrument will be used as metronome. */
-#define METRONOME_INSTR_ID -2
-#define PLAYBACK_INSTR_ID -3
 
 namespace H2Core {
 
@@ -59,6 +53,16 @@ class Instrument : public H2Core::Object<Instrument> {
 	/** Minimum support pitch value */
 	static constexpr float fPitchMin = -24.5;
 
+	/** Strong type definition to ensure we do not mix up instrument ID and
+	 * instrument index (within the instrument list) when looking up and
+	 * handling instruments. */
+	enum class Id : int {};
+	static constexpr Id EmptyId = Id( -1 );
+	static constexpr Id MetronomeId = Id( -2 );
+	static constexpr Id PlaybackTrackId = Id( -3 );
+
+	typedef QString Type;
+
 	/**
 	 * constructor
 	 * \param id the id of this instrument
@@ -66,7 +70,7 @@ class Instrument : public H2Core::Object<Instrument> {
 	 * \param adsr attack decay sustain release instance
 	 */
 	Instrument(
-		const int id = EMPTY_INSTR_ID,
+		const Id id = Instrument::EmptyId,
 		const QString& name = "",
 		std::shared_ptr<ADSR> adsr = nullptr
 	);
@@ -154,9 +158,9 @@ class Instrument : public H2Core::Object<Instrument> {
 	const QString& getName() const;
 
 	///< set the id of the instrument
-	void setId( const int id );
+	void setId( const Id id );
 	///< get the id of the instrument
-	int getId() const;
+	Id getId() const;
 
 	/** get the ADSR of the instrument */
 	std::shared_ptr<ADSR> getAdsr() const;
@@ -336,8 +340,8 @@ class Instrument : public H2Core::Object<Instrument> {
 
 	int getLongestSampleFrames() const;
 
-	DrumkitMap::Type getType() const;
-	void setType( DrumkitMap::Type type );
+	Instrument::Type getType() const;
+	void setType( Instrument::Type type );
 
 	/** Iteration */
 	std::vector<std::shared_ptr<InstrumentComponent>>::iterator begin();
@@ -357,20 +361,19 @@ class Instrument : public H2Core::Object<Instrument> {
    private:
 	void checkForMissingSamples( Event::Trigger trigger );
 
-	/** Identifier of an instrument, which should be
-	unique. It is set by setId() and accessed via
-	getId().*/
-	int m_nId;
-	/** Name of the Instrument. It is set by setName()
-	and accessed via getName().*/
+	/** Identifier of an instrument, which should be unique. It is set by
+	 * setId() and accessed via getId().*/
+	Id m_id;
+	/** Name of the Instrument. It is set by setName() and accessed via
+	 * getName().*/
 	QString m_sName;
-	DrumkitMap::Type m_type;
+	Instrument::Type m_type;
 	/** Path of the #Drumkit this #Instrument belongs to.
 	 *
-	 * An instrument belonging to a #Drumkit uses relative paths for
-	 * its #Sample. Therefore we have to take care of mapping them to
-	 * absolute paths ourselves in case instruments of several
-	 * drumkits are mixed in one #Song.
+	 * An instrument belonging to a #Drumkit uses relative paths for * its
+	 * #Sample. Therefore we have to take care of mapping them to * absolute
+	 * paths ourselves in case instruments of several * drumkits are mixed in
+	 * one #Song.
 	 */
 	QString m_sDrumkitPath;
 	/** Name of the #Drumkit found at @a m_sDrumkitPath.
@@ -435,13 +438,13 @@ inline const QString& Instrument::getName() const
 {
 	return m_sName;
 }
-inline void Instrument::setId( const int id )
+inline void Instrument::setId( const Instrument::Id id )
 {
-	m_nId = id;
+	m_id = id;
 }
-inline int Instrument::getId() const
+inline Instrument::Id Instrument::getId() const
 {
-	return m_nId;
+	return m_id;
 }
 
 inline std::shared_ptr<ADSR> Instrument::getAdsr() const
@@ -728,12 +731,12 @@ inline void Instrument::setCurrentlyExported( bool isCurrentlyExported )
 	m_bCurrentInstrForExport = isCurrentlyExported;
 }
 
-inline DrumkitMap::Type Instrument::getType() const
+inline Instrument::Type Instrument::getType() const
 {
 	return m_type;
 }
 
-inline void Instrument::setType( DrumkitMap::Type type )
+inline void Instrument::setType( Instrument::Type type )
 {
 	m_type = type;
 }

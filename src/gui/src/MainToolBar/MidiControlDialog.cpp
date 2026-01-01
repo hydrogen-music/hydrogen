@@ -32,7 +32,6 @@ https://www.gnu.org/licenses
 #include "../Widgets/LCDSpinBox.h"
 
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Song.h>
 #include <core/EventQueue.h>
@@ -931,54 +930,67 @@ void MidiControlDialog::updateInstrumentTableRow(
 				! pMidiInstrumentMap->getUseGlobalInputChannel() );
 		}
 
-		connect( pInputChannelSpinBox,
-				 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-				 [=](double fValue) {
-					 if ( m_instrumentMap.find( instrumentHandle ) ==
-						  m_instrumentMap.end() ) {
-						 return;
-					 }
-					 auto pInstrument = m_instrumentMap.at( instrumentHandle );
-					 if ( pInstrument != nullptr ) {
-						 Preferences::get_instance()->getMidiInstrumentMap()
-							 ->insertCustomInputMapping( pInstrument,
-														 pInputNoteSpinBox->value(),
-														 static_cast<int>( fValue ) );
-					 }
-					 else {
-						 ERRORLOG( QString( "No instr. for [%1 : %2]" )
-								   .arg( instrumentHandle.first )
-								   .arg( instrumentHandle.second ) );
-					 }
-		});
-		connect( pInputNoteSpinBox,
-				 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-				 [=](double fValue) {
-					 if ( m_instrumentMap.find( instrumentHandle ) ==
-						  m_instrumentMap.end() ) {
-						 return;
-					 }
-					 auto pInstrument = m_instrumentMap.at( instrumentHandle );
-					 if ( pInstrument != nullptr ) {
-						 Preferences::get_instance()->getMidiInstrumentMap()
-							 ->insertCustomInputMapping( pInstrument,
-														 static_cast<int>( fValue ),
-														 pInputChannelSpinBox->value() );
-					 }
-					 else {
-						 ERRORLOG( QString( "No instr. for [%1 : %2]" )
-								   .arg( instrumentHandle.first )
-								   .arg( instrumentHandle.second ) );
-					 }
-		});
+		connect(
+			pInputChannelSpinBox,
+			QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
+			[=]( double fValue ) {
+				if ( m_instrumentMap.find( instrumentHandle ) ==
+					 m_instrumentMap.end() ) {
+					return;
+				}
+				auto pInstrument = m_instrumentMap.at( instrumentHandle );
+				if ( pInstrument != nullptr ) {
+					Preferences::get_instance()
+						->getMidiInstrumentMap()
+						->insertCustomInputMapping(
+							pInstrument, pInputNoteSpinBox->value(),
+							static_cast<int>( fValue )
+						);
+				}
+				else {
+					ERRORLOG(
+						QString( "No instr. for [%1 : %2]" )
+							.arg( instrumentHandle.first )
+							.arg( static_cast<int>( instrumentHandle.second ) )
+					);
+				}
+			}
+		);
+		connect(
+			pInputNoteSpinBox,
+			QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
+			[=]( double fValue ) {
+				if ( m_instrumentMap.find( instrumentHandle ) ==
+					 m_instrumentMap.end() ) {
+					return;
+				}
+				auto pInstrument = m_instrumentMap.at( instrumentHandle );
+				if ( pInstrument != nullptr ) {
+					Preferences::get_instance()
+						->getMidiInstrumentMap()
+						->insertCustomInputMapping(
+							pInstrument, static_cast<int>( fValue ),
+							pInputChannelSpinBox->value()
+						);
+				}
+				else {
+					ERRORLOG(
+						QString( "No instr. for [%1 : %2]" )
+							.arg( instrumentHandle.first )
+							.arg( static_cast<int>( instrumentHandle.second ) )
+					);
+				}
+			}
+		);
 	}
 	else {
-		ERRORLOG( QString( "Unable to obtain input channel or note for row [%1]" )
-				  .arg( nRow ) );
+		ERRORLOG( QString( "Unable to obtain input channel or note for row [%1]"
+		)
+					  .arg( nRow ) );
 	}
 
 	auto pInstrumentLabel =
-		static_cast<QLabel*>(m_pInstrumentTable->cellWidget( nRow, 2 ) );
+		static_cast<QLabel*>( m_pInstrumentTable->cellWidget( nRow, 2 ) );
 	if ( pInstrumentLabel != nullptr ) {
 		pInstrumentLabel->setText( pInstrument->getName() );
 	}
@@ -1005,30 +1017,36 @@ void MidiControlDialog::updateInstrumentTableRow(
 						  m_instrumentMap.end() ) {
 						 return;
 					 }
+					 auto pSong = Hydrogen::get_instance()->getSong();
+					 if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+						 return;
+					 }
 					 auto pInstrument = m_instrumentMap.at( instrumentHandle );
 					 if ( pInstrument != nullptr ) {
 						 long nEventId = Event::nInvalidId;
 						 CoreActionController::setInstrumentMidiOutNote(
-							 pInstrument->getId(), static_cast<int>(fValue),
-							 &nEventId );
+							 pSong->getDrumkit()->getInstruments()->index(
+								 pInstrument
+							 ),
+							 static_cast<int>( fValue ), &nEventId
+						 );
 						 if ( nEventId != Event::nInvalidId ) {
-							 // Ensure we do not act on the queued event ourself.
+							 // Ensure we do not act on the queued event
+							 // ourself.
 							 blacklistEventId( nEventId );
 						 }
 					 }
 					 else {
 						 ERRORLOG( QString( "No instr. for [%1 : %2]" )
-								   .arg( instrumentHandle.first )
-								   .arg( instrumentHandle.second ) );
+									   .arg( instrumentHandle.first )
+									   .arg( static_cast<int>(
+										   instrumentHandle.second
+									   ) ) );
 					 }
 
 					 // Tweaking the output note could result in the input note
 					 // to change as well since the former is used as fallback
 					 // in many scenarios.
-					 auto pSong = Hydrogen::get_instance()->getSong();
-					 if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-						 return;
-					 }
 					 const auto instrumentHandle =
 						 std::make_pair( pInstrument->getType(),
 										 pInstrument->getId() );
@@ -1059,51 +1077,57 @@ void MidiControlDialog::updateInstrumentTableRow(
 		pOutputChannelSpinBox->setEnabled(
 			pMidiInstrumentMap->getOutput() != MidiInstrumentMap::Output::None &&
 			! pMidiInstrumentMap->getUseGlobalOutputChannel() );
-		connect( pOutputChannelSpinBox,
-				 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-				 [=](double fValue) {
-					 if ( m_instrumentMap.find( instrumentHandle ) ==
-						  m_instrumentMap.end() ) {
-						 return;
-					 }
-					 auto pInstrument = m_instrumentMap.at( instrumentHandle );
-					 if ( pInstrument != nullptr ) {
-						 long nEventId = Event::nInvalidId;
-						 CoreActionController::setInstrumentMidiOutChannel(
-							 pInstrument->getId(), static_cast<int>(fValue),
-							 &nEventId );
-						 if ( nEventId != Event::nInvalidId ) {
-							 // Ensure we do not act on the queued event ourself.
-							 blacklistEventId( nEventId );
-						 }
-					 }
-					 else {
-						 ERRORLOG( QString( "No instr. for [%1 : %2]" )
-								   .arg( instrumentHandle.first )
-								   .arg( instrumentHandle.second ) );
-					 }
+		connect(
+			pOutputChannelSpinBox,
+			QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
+			[=]( double fValue ) {
+				if ( m_instrumentMap.find( instrumentHandle ) ==
+					 m_instrumentMap.end() ) {
+					return;
+				}
+				auto pSong = Hydrogen::get_instance()->getSong();
+				if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+					return;
+				}
+				auto pInstrument = m_instrumentMap.at( instrumentHandle );
+				if ( pInstrument != nullptr ) {
+					long nEventId = Event::nInvalidId;
+					CoreActionController::setInstrumentMidiOutChannel(
+						pSong->getDrumkit()->getInstruments()->index(
+							pInstrument
+						),
+						static_cast<int>( fValue ), &nEventId
+					);
+					if ( nEventId != Event::nInvalidId ) {
+						// Ensure we do not act on the queued event ourself.
+						blacklistEventId( nEventId );
+					}
+				}
+				else {
+					ERRORLOG(
+						QString( "No instr. for [%1 : %2]" )
+							.arg( instrumentHandle.first )
+							.arg( static_cast<int>( instrumentHandle.second ) )
+					);
+				}
 
-					 // Tweaking the output channel could result in the input
-					 // channel to change as well since the former is used as
-					 // fallback in many scenarios.
-					 auto pSong = Hydrogen::get_instance()->getSong();
-					 if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-						 return;
-					 }
-					 const auto instrumentHandle =
-						 std::make_pair( pInstrument->getType(),
-										 pInstrument->getId() );
-					 const auto inputMapping =
-						 pMidiInstrumentMap->getInputMapping(
-							 pInstrument,
-							 pSong->getDrumkit() );
-					 if ( ! inputMapping.isNull() ) {
-						 pInputChannelSpinBox->setValue( inputMapping.nChannel );
-					 }
-					 else {
-						 pInputChannelSpinBox->setValue( MidiMessage::nChannelOff );
-					 }
-		});
+				// Tweaking the output channel could result in the input
+				// channel to change as well since the former is used as
+				// fallback in many scenarios.
+				const auto instrumentHandle = std::make_pair(
+					pInstrument->getType(), pInstrument->getId()
+				);
+				const auto inputMapping = pMidiInstrumentMap->getInputMapping(
+					pInstrument, pSong->getDrumkit()
+				);
+				if ( !inputMapping.isNull() ) {
+					pInputChannelSpinBox->setValue( inputMapping.nChannel );
+				}
+				else {
+					pInputChannelSpinBox->setValue( MidiMessage::nChannelOff );
+				}
+			}
+		);
 	}
 	else {
 		ERRORLOG( QString( "Unable to obtain output channel for row [%1]" )

@@ -29,6 +29,7 @@
 #include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
+#include "core/Basics/Instrument.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Note.h>
@@ -748,12 +749,12 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB() );
-	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+	if ( selectedRow.id == Instrument::EmptyId &&
 		 selectedRow.sType.isEmpty() ) {
 		DEBUGLOG( "Empty row" );
 		return std::move( result );
 	}
-	
+
 	int w = 8;
 	int h = m_nGridHeight - 2;
 

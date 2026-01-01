@@ -79,17 +79,22 @@ std::shared_ptr<PatternList> PatternList::loadFrom( const XMLNode& node,
 	return pPatternList;
 }
 
-void PatternList::saveTo( XMLNode& node, int nInstrumentId,
-						   const QString& sType, int nPitch ) const {
+void PatternList::saveTo(
+	XMLNode& node,
+	Instrument::Id id,
+	const QString& sType,
+	int nPitch
+) const
+{
 	XMLNode patternListNode = node.createNode( "patternList" );
-	
+
 	for ( const auto& pPattern : m_pPatterns ) {
 		if ( pPattern != nullptr ) {
-			pPattern->saveTo( patternListNode, nInstrumentId, sType, nPitch );
+			pPattern->saveTo( patternListNode, id, sType, nPitch );
 		}
 	}
 }
-	
+
 void PatternList::add( std::shared_ptr<Pattern> pPattern, bool bAddVirtuals )
 {
 	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
@@ -359,8 +364,8 @@ QString PatternList::toQString( const QString& sPrefix, bool bShort ) const {
 	return sOutput;
 }
 
-std::set<DrumkitMap::Type> PatternList::getAllTypes() const {
-	std::set<DrumkitMap::Type> types;
+std::set<Instrument::Type> PatternList::getAllTypes() const {
+	std::set<Instrument::Type> types;
 
 	for ( const auto& ppPattern : m_pPatterns ) {
 		if ( ppPattern != nullptr ) {
@@ -372,7 +377,7 @@ std::set<DrumkitMap::Type> PatternList::getAllTypes() const {
 }
 
 std::vector<std::shared_ptr<Note>> PatternList::getAllNotesOfType(
-	const DrumkitMap::Type& sType ) const
+	const Instrument::Type& sType ) const
 {
 	std::vector<std::shared_ptr<Note>> notes;
 

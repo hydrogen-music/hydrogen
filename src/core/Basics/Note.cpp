@@ -77,7 +77,7 @@ QString SelectedLayerInfo::toQString( const QString& sPrefix, bool bShort ) cons
 
 Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition,
 			float fVelocity, float fPan, int nLength, float fPitch )
-	: m_nInstrumentId( EMPTY_INSTR_ID ),
+	: m_instrumentId( Instrument::EmptyId ),
 	  m_sType( "" ),
 	  m_nPosition( nPosition ),
 	  m_fVelocity( fVelocity ),
@@ -101,7 +101,7 @@ Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition,
 {
 	if ( pInstrument != nullptr ) {
 		m_pAdsr = pInstrument->copyAdsr();
-		m_nInstrumentId = pInstrument->getId();
+		m_instrumentId = pInstrument->getId();
 		m_sType = pInstrument->getType();
 	}
 
@@ -109,7 +109,7 @@ Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition,
 }
 
 Note::Note( std::shared_ptr<Note> pOther )
-	: m_nInstrumentId( pOther->getInstrumentId() ),
+	: m_instrumentId( pOther->getInstrumentId() ),
 	  m_sType( pOther->getType() ),
 	  m_nPosition( pOther->getPosition() ),
 	  m_fVelocity( pOther->getVelocity() ),
@@ -134,7 +134,7 @@ Note::Note( std::shared_ptr<Note> pOther )
 {
 	if ( m_pInstrument != nullptr ) {
 		m_pAdsr = m_pInstrument->copyAdsr();
-		m_nInstrumentId = m_pInstrument->getId();
+		m_instrumentId = m_pInstrument->getId();
 
 		for ( const auto& [ ppOtherComponent, ppOtherSelectedLayerInfo ] :
 				  pOther->m_selectedLayerInfoMap ) {
@@ -461,7 +461,7 @@ void Note::mapToInstrument( std::shared_ptr<Instrument> pInstrument ) {
 	if ( pInstrument != nullptr ) {
 		m_pInstrument = pInstrument;
 		m_pAdsr = pInstrument->copyAdsr();
-		m_nInstrumentId = pInstrument->getId();
+		m_instrumentId = pInstrument->getId();
 	}
 	else {
 		m_pInstrument = nullptr;
@@ -538,7 +538,7 @@ void Note::saveTo( XMLNode& node ) const
 	node.write_string( "key", QString( "%1%2" )
 					   .arg( m_keyStr[m_key] ).arg( m_octave ) );
 	node.write_int( "length", m_nLength );
-	node.write_int( "instrument", m_nInstrumentId );
+	node.write_int( "instrument", static_cast<int>( m_instrumentId ) );
 	node.write_string( "type", m_sType );
 	node.write_bool( "note_off", m_bNoteOff );
 	node.write_float( "probability", m_fProbability );
@@ -577,10 +577,13 @@ std::shared_ptr<Note> Note::loadFrom( const XMLNode& node, bool bSilent )
 	pNote->setKeyOctave( node.read_string( "key", "C0", false, false, bSilent ) );
 	pNote->setNoteOff( node.read_bool( "note_off", pNote->getNoteOff(), false,
 									  false, bSilent ) );
-	pNote->setInstrumentId( node.read_int( "instrument", pNote->getInstrumentId(),
-										  false, false, bSilent ) );
-	pNote->setType( node.read_string( "type", pNote->getType(), true, true,
-									 bSilent ) );
+	pNote->setInstrumentId( static_cast<Instrument::Id>( node.read_int(
+		"instrument", static_cast<int>( pNote->getInstrumentId() ), false,
+		false, bSilent
+	) ) );
+	pNote->setType(
+		node.read_string( "type", pNote->getType(), true, true, bSilent )
+	);
 	pNote->setProbability( node.read_float( "probability", pNote->getProbability(),
 										   false, false, bSilent ));
 
@@ -606,7 +609,7 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Note]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_nInstrumentId: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nInstrumentId ) )
+					 .arg( static_cast<int>(m_instrumentId) ) )
 			.append( QString( "%1%2m_sType: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_sType ) )
 			.append( QString( "%1%2m_nPosition: %3\n" ).arg( sPrefix ).arg( s )
@@ -674,7 +677,7 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 	else {
 
 		sOutput = QString( "[Note]" )
-			.append( QString( ", m_nInstrumentId: %1" ).arg( m_nInstrumentId ) )
+			.append( QString( ", m_instrumentId: %1" ).arg( static_cast<int>(m_instrumentId) ) )
 			.append( QString( ", m_sType: %1" ).arg( m_sType ) )
 			.append( QString( ", m_nPosition: %1" ).arg( m_nPosition ) )
 			.append( QString( ", m_fVelocity: %1" ).arg( m_fVelocity ) )

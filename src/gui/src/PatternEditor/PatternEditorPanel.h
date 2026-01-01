@@ -28,6 +28,7 @@
 #include <utility>
 #include <vector>
 
+#include <core/Basics/Instrument.h>
 #include <core/Basics/Note.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -66,15 +67,19 @@ class PianoRollEditor;
 struct DrumPatternRow {
 
 	explicit DrumPatternRow() noexcept;
-	explicit DrumPatternRow( int nId, const QString& sType,
-							 bool bAlternate, bool bMappedToDrumkit,
-							 bool bPlaysBackAudio ) noexcept;
+	explicit DrumPatternRow(
+		H2Core::Instrument::Id id,
+		const H2Core::Instrument::Type& sType,
+		bool bAlternate,
+		bool bMappedToDrumkit,
+		bool bPlaysBackAudio
+	) noexcept;
 
 	bool contains( std::shared_ptr<H2Core::Note> pNote ) const;
 
-	/** Associated #H2Core::Instrument::__id in the current #H2Core::Drumkit.
+	/** Associated #H2Core::Instrument::m_id in the current #H2Core::Drumkit.
 	 *
-	 * If set to #EMPTY_INSTR_ID, the row does not correspond to any. This
+	 * If set to #Instrument::EmptyId, the row does not correspond to any. This
 	 * happens in case #H2Core::Note were created with a different
 	 * #H2Core::Drumkit using an instrument type not present in the current one.
 	 * The note can not be played back with the current kit but can be
@@ -87,9 +92,9 @@ struct DrumPatternRow {
 	 * current instrument is important to the core itself when rendering
 	 * incoming MIDI notes.)
 	 *
-	 * Null element: #EMPTY_INSTR_ID */
-	int nInstrumentID;
-	/** Associated #H2Core::DrumkitMap::Type.
+	 * Null element: #Instrument::EmptyId */
+	H2Core::Instrument::Id id;
+	/** Associated #H2Core::Instrument::Type.
 	 *
 	 * If set to an empty string, the row does not correspond to any. This
 	 * happens in case #H2Core::Note were created for an #H2Core::Instrument not
@@ -101,7 +106,7 @@ struct DrumPatternRow {
 	 * #PatternEditorPanel::m_db.
 	 *
 	 * Null element: "" (empty string) */
-	QString sType;
+	H2Core::Instrument::Type sType;
 
 	/** Odd number rows will be painted in an alternate color to make the
 	 * visually distinct. */

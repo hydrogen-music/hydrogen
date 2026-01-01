@@ -56,7 +56,7 @@ void DrumkitTest::testHasAllMidiNotesSame()
 	// One instrument
 	{
 		InstrumentList list;
-		auto pKick = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Kick" );
+		auto pKick = std::make_shared<Instrument>( Instrument::EmptyId, "Kick" );
 		pKick->setMidiOutNote( 42 );
 		list.add( pKick );
 
@@ -67,15 +67,15 @@ void DrumkitTest::testHasAllMidiNotesSame()
 	{
 		InstrumentList list;
 
-		auto pKick = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Kick" );
+		auto pKick = std::make_shared<Instrument>( Instrument::EmptyId, "Kick" );
 		pKick->setMidiOutNote( 10 );
 		list.add( pKick );
 
-		auto pSnare = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Snare" );
+		auto pSnare = std::make_shared<Instrument>( Instrument::EmptyId, "Snare" );
 		pSnare->setMidiOutNote( 10 );
 		list.add( pSnare );
 
-		auto pHihat = std::make_shared<Instrument>( EMPTY_INSTR_ID, "HiHat" );
+		auto pHihat = std::make_shared<Instrument>( Instrument::EmptyId, "HiHat" );
 		pHihat->setMidiOutNote( 10 );
 		list.add( pHihat );
 
@@ -87,20 +87,20 @@ void DrumkitTest::testHasAllMidiNotesSame()
 	{
 		InstrumentList list;
 
-		auto pKick = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Kick" );
+		auto pKick = std::make_shared<Instrument>( Instrument::EmptyId, "Kick" );
 		pKick->setMidiOutNote( 36 );
 		list.add( pKick );
 
-		auto pClap = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Clap" );
+		auto pClap = std::make_shared<Instrument>( Instrument::EmptyId, "Clap" );
 		pClap->setMidiOutNote( 37 );
 		list.add( pClap );
 
-		auto pRide = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Ride" );
+		auto pRide = std::make_shared<Instrument>( Instrument::EmptyId, "Ride" );
 		pRide->setMidiOutNote( 38 );
 		list.add( pRide );
 
 		auto pDummy =
-			std::make_shared<Instrument>( EMPTY_INSTR_ID, "Dummy Instrument" );
+			std::make_shared<Instrument>( Instrument::EmptyId, "Dummy Instrument" );
 		pDummy->setMidiOutNote( 36 );  // duplicate
 		list.add( pDummy );
 

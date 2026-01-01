@@ -152,7 +152,8 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	JackAudioDriver::pJackDriverInstance = this;
 	this->m_processCallback = m_processCallback;
 
-	m_pDummyPreviewInstrument = std::make_shared<Instrument>( EMPTY_INSTR_ID );
+	m_pDummyPreviewInstrument =
+		std::make_shared<Instrument>( Instrument::EmptyId );
 	m_pDummyPreviewInstrument->setName( "DummyPreviewInstrument" );
 	m_pDummyPreviewInstrument->setIsPreviewInstrument( true );
 
@@ -334,8 +335,8 @@ float* JackAudioDriver::getTrackBuffer( std::shared_ptr<Instrument> pInstrument,
 	}
 
 	InstrumentPorts ports;
-	if ( pInstrument->getId() == METRONOME_INSTR_ID ||
-		 pInstrument->getId() == PLAYBACK_INSTR_ID ) {
+	if ( pInstrument->getId() == Instrument::MetronomeId ||
+		 pInstrument->getId() == Instrument::PlaybackTrackId ) {
 		if ( m_portMapStatic.find( pInstrument ) == m_portMapStatic.end() ) {
 			ERRORLOG( QString( "No ports for instrument [%1]" )
 					  .arg( pInstrument->getName() ) );
@@ -609,7 +610,7 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 			}
 		}
 
-		DrumkitMap::Type sMappedName;
+		Instrument::Type sMappedName;
 		for ( const auto& [ ppInstrument, pports ] : newPorts ) {
 			m_portMap[ ppInstrument ] = pports;
 

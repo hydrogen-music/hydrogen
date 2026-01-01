@@ -25,7 +25,6 @@
 
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/GridPoint.h>
-#include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
@@ -58,20 +57,26 @@
 using namespace H2Core;
 
 DrumPatternRow::DrumPatternRow() noexcept
-	: nInstrumentID( EMPTY_INSTR_ID)
-	, sType( "" )
-	, bAlternate( false )
-	, bMappedToDrumkit( false )
-	, bPlaysBackAudio( false ){
+	: id( Instrument::EmptyId ),
+	  sType( "" ),
+	  bAlternate( false ),
+	  bMappedToDrumkit( false ),
+	  bPlaysBackAudio( false )
+{
 }
-DrumPatternRow::DrumPatternRow( int nId, const QString& sTypeString,
-								bool bAlt, bool bMapped,
-								bool bPlaysAudio ) noexcept
-	: nInstrumentID( nId)
-	, sType( sTypeString )
-	, bAlternate( bAlt )
-	, bMappedToDrumkit( bMapped )
-	, bPlaysBackAudio( bPlaysAudio ) {
+DrumPatternRow::DrumPatternRow(
+	Instrument::Id idIn,
+	const Instrument::Type& sTypeString,
+	bool bAlt,
+	bool bMapped,
+	bool bPlaysAudio
+) noexcept
+	: id( idIn ),
+	  sType( sTypeString ),
+	  bAlternate( bAlt ),
+	  bMappedToDrumkit( bMapped ),
+	  bPlaysBackAudio( bPlaysAudio )
+{
 }
 
 bool DrumPatternRow::contains( std::shared_ptr<Note> pNote ) const {
@@ -81,14 +86,14 @@ bool DrumPatternRow::contains( std::shared_ptr<Note> pNote ) const {
 
 	// If mapped to a drumkit, the note will have a valid instrument assigned.
 	if ( bMappedToDrumkit && pNote->getInstrument() != nullptr &&
-		 pNote->getInstrumentId() == nInstrumentID ) {
+		 pNote->getInstrumentId() == id ) {
 		// For legacy kits we have no type to compare to. But there will
 		// always be an unique instrument id.
 		return true;
 	}
 	else if ( pNote->getInstrument() == nullptr &&
 			  pNote->getType().isEmpty() && sType.isEmpty() &&
-			  pNote->getInstrumentId() == nInstrumentID ) {
+			  pNote->getInstrumentId() == id ) {
 		return true;
 	}
 	else if ( pNote->getInstrument() == nullptr &&
@@ -104,34 +109,52 @@ bool DrumPatternRow::contains( std::shared_ptr<Note> pNote ) const {
 	return false;
 }
 
-QString DrumPatternRow::toQString( const QString& sPrefix, bool bShort ) const {
+QString DrumPatternRow::toQString( const QString& sPrefix, bool bShort ) const
+{
 	QString s = Base::sPrintIndention;
 	QString sOutput;
-	if ( ! bShort ) {
-		sOutput = QString( "%1[DrumPatternRow]\n" ).arg( sPrefix )
-			.append( QString( "%1%2nInstrumentID: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( nInstrumentID ) )
-			.append( QString( "%1%2sType: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( sType ) )
-			.append( QString( "%1%2bAlternate: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( bAlternate ) )
-			.append( QString( "%1%2bMappedToDrumkit: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( bMappedToDrumkit ) )
-			.append( QString( "%1%2bPlaysBackAudio: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( bPlaysBackAudio ) );
+	if ( !bShort ) {
+		sOutput = QString( "%1[DrumPatternRow]\n" )
+					  .arg( sPrefix )
+					  .append( QString( "%1%2nInstrumentID: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( static_cast<int>( id ) ) )
+					  .append( QString( "%1%2sType: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( sType ) )
+					  .append( QString( "%1%2bAlternate: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( bAlternate ) )
+					  .append( QString( "%1%2bMappedToDrumkit: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( bMappedToDrumkit ) )
+					  .append( QString( "%1%2bPlaysBackAudio: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( bPlaysBackAudio ) );
 	}
 	else {
-		sOutput = QString( "[DrumPatternRow] " )
-			.append( QString( "nInstrumentID: %1" ).arg( nInstrumentID ) )
-			.append( QString( ", sType: %1" ).arg( sType ) )
-			.append( QString( ", bAlternate: %1" ).arg( bAlternate ) )
-			.append( QString( ", bMappedToDrumkit: %1" ).arg( bMappedToDrumkit ) )
-			.append( QString( ", bPlaysBackAudio: %1" ).arg( bPlaysBackAudio ) );
+		sOutput =
+			QString( "[DrumPatternRow] " )
+				.append(
+					QString( "nInstrumentID: %1" ).arg( static_cast<int>( id ) )
+				)
+				.append( QString( ", sType: %1" ).arg( sType ) )
+				.append( QString( ", bAlternate: %1" ).arg( bAlternate ) )
+				.append(
+					QString( ", bMappedToDrumkit: %1" ).arg( bMappedToDrumkit )
+				)
+				.append(
+					QString( ", bPlaysBackAudio: %1" ).arg( bPlaysBackAudio )
+				);
 	}
 
 	return sOutput;
 }
-
 
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	: QWidget( pParent )
@@ -1892,7 +1915,7 @@ void PatternEditorPanel::setSelectedRowDB( int nNewRow ) {
 
 int PatternEditorPanel::getRowIndexDB( const DrumPatternRow& row ) {
 	for ( int ii = 0; ii <= m_db.size(); ++ii ) {
-		if ( m_db[ ii ].nInstrumentID == row.nInstrumentID &&
+		if ( m_db[ ii ].id == row.id &&
 			 m_db[ ii ].sType == row.sType &&
 			 m_db[ ii ].bAlternate == row.bAlternate &&
 			 m_db[ ii ].bMappedToDrumkit == row.bMappedToDrumkit &&
@@ -1944,7 +1967,7 @@ void PatternEditorPanel::updateDB() {
 
 	int nnRow = 0;
 
-	std::set<int> kitIds;
+	std::set<Instrument::Id> kitIds;
 	bool bInstrumentWithoutType = false;
 	// First we add all instruments of the current drumkit in the order author
 	// of the kit intended.
@@ -1972,8 +1995,8 @@ void PatternEditorPanel::updateDB() {
 	const auto kitTypes = pSong->getDrumkit()->getAllTypes();
 	QStringList additionalTypes;
 	// Use a map for automated sorting of the types by instrument id (key).
-	std::multimap<int, DrumkitMap::Type> additionalTypesMap;
-	std::vector<int> additionalIds;
+	std::multimap<Instrument::Id, Instrument::Type> additionalTypesMap;
+	std::vector<Instrument::Id> additionalIds;
 
 	for ( const auto& ppPattern : getPatternsToShow() ) {
 		for ( const auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
@@ -1992,7 +2015,7 @@ void PatternEditorPanel::updateDB() {
 			}
 			else if ( ppNote != nullptr && ppNote->getType().isEmpty() &&
 					  ppNote->getInstrument() == nullptr &&
-					  ppNote->getInstrumentId() != EMPTY_INSTR_ID ) {
+					  ppNote->getInstrumentId() != Instrument::EmptyId ) {
 				// We just have an instrument id. The note was created with a
 				// legacy kit or a newly created custom one not featuring (all)
 				// instrument types and the id of the instrument the note was
@@ -2011,14 +2034,16 @@ void PatternEditorPanel::updateDB() {
 	// they might end up in different rows. Mapped to a current drumkit they
 	// might end up in the same row. We will opt for the latter.
 	for ( const auto& [ _, ssType ] : additionalTypesMap ) {
-		m_db.push_back( DrumPatternRow( EMPTY_INSTR_ID, ssType, nnRow % 2 != 0,
-										false, false ) );
+		m_db.push_back( DrumPatternRow(
+			Instrument::EmptyId, ssType, nnRow % 2 != 0, false, false
+		) );
 		++nnRow;
 	}
 
 	std::sort( additionalIds.begin(), additionalIds.end() );
-	for ( const auto& nnId : additionalIds ) {
-		m_db.push_back( DrumPatternRow( nnId, "", nnRow % 2 != 0, false, false ) );
+	for ( const auto& iid : additionalIds ) {
+		m_db.push_back( DrumPatternRow( iid, "", nnRow % 2 != 0, false, false )
+		);
 		++nnRow;
 	}
 
@@ -2264,7 +2289,7 @@ void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, int nKey,
 	}
 
 	auto row = getRowDB( gridPoint.getRow() );
-	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
+	if ( row.id == Instrument::EmptyId && row.sType.isEmpty() ) {
 		DEBUGLOG( QString( "Empty row [%1]" ).arg( gridPoint.getRow() ) );
 		return;
 	}
@@ -2274,13 +2299,13 @@ void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, int nKey,
 	int nNewOctave = nOctave;
 	if ( nKey == KEY_INVALID || nOctave == OCTAVE_INVALID ) {
 		oldNotes = m_pPattern->findNotes(
-			gridPoint.getColumn(), row.nInstrumentID, row.sType );
+			gridPoint.getColumn(), row.id, row.sType );
 		nNewKey = KEY_MIN;
 		nNewOctave = OCTAVE_DEFAULT;
 	}
 	else {
 		auto pOldNote = m_pPattern->findNote(
-			gridPoint.getColumn(), row.nInstrumentID, row.sType,
+			gridPoint.getColumn(), row.id, row.sType,
 			static_cast<Note::Key>(nKey), static_cast<Note::Octave>(nOctave) );
 		if ( pOldNote != nullptr ) {
 			oldNotes.push_back( pOldNote );
@@ -2302,7 +2327,7 @@ void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, int nKey,
 			 ( static_cast<char>(modifier) &
 			   static_cast<char>(Editor::ActionModifier::Playback) ) ) {
 			auto pInstrument = pSong->getDrumkit()->getInstruments()
-				->find( row.nInstrumentID );
+				->find( row.id );
 			if ( pInstrument != nullptr && pInstrument->hasSamples() ) {
 				auto pNote2 = std::make_shared<Note>( pInstrument );
 				pNote2->setKeyOctave( static_cast<Note::Key>(nKey),
@@ -2353,7 +2378,7 @@ void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, int nKey,
 		pHydrogenApp->pushUndoCommand(
 			new SE_addOrRemoveNoteAction(
 				gridPoint.getColumn(),
-				row.nInstrumentID,
+				row.id,
 				row.sType,
 				m_nPatternNumber,
 				LENGTH_ENTIRE_SAMPLE,
@@ -2631,7 +2656,7 @@ void PatternEditorPanel::setTypeInRow( int nRow ) {
 				PatternEditor::Property::Type,
 				getPatternNumber(),
 				ppNote->getPosition(),
-				EMPTY_INSTR_ID,
+				Instrument::EmptyId,
 				ppNote->getInstrumentId(),
 				sNewType,
 				ppNote->getType(),
@@ -2673,7 +2698,7 @@ void PatternEditorPanel::copyNotesFromRowOfAllPatterns( int nRow, int nPitch ) {
 	H2Core::XMLDoc doc;
 	auto rootNode = doc.set_root( "serializedPatternList" );
 	pSong->getPatternList()->saveTo(
-		rootNode, row.nInstrumentID, row.sType, nPitch );
+		rootNode, row.id, row.sType, nPitch );
 
 	const QString sSerialized = doc.toString();
 	if ( sSerialized.isEmpty() ) {
@@ -2702,7 +2727,7 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 	}
 
 	const auto row = getRowDB( nRow );
-	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
+	if ( row.id == Instrument::EmptyId && row.sType.isEmpty() ) {
 		return;
 	}
 
@@ -2742,7 +2767,7 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 					pHydrogenApp->pushUndoCommand(
 						new SE_addOrRemoveNoteAction(
 							ppNote->getPosition(),
-							row.nInstrumentID,
+							row.id,
 							row.sType,
 							pPatternList->index( ppPattern ),
 							ppNote->getLength(),

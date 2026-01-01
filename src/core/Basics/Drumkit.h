@@ -28,6 +28,7 @@
 #include <memory>
 
 #include <core/Basics/DrumkitMap.h>
+#include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/CoreActionController.h>
 #include <core/License.h>
@@ -36,7 +37,6 @@
 namespace H2Core
 {
 
-class Instrument;
 class XMLDoc;
 class XMLNode;
 
@@ -313,7 +313,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		void recalculateRubberband( float fBpm );
 
 		/** Returns all types of the contained instruments. */
-		std::set<DrumkitMap::Type> getAllTypes() const;
+		std::set<Instrument::Type> getAllTypes() const;
 
 		/** In case no instrument types are defined in the loaded drumkit, we
 		 * check whether there is a .h2map file shipped with the installation
@@ -326,7 +326,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		std::shared_ptr<DrumkitMap> toDrumkitMap() const;
 
 		/** This method tell whether an instrument of another kit (specified via
-		 * @a sType and @a nInstrumentId) will be mapped to an instrument of
+		 * @a sType and @a id) will be mapped to an instrument of
 		 * this kit.
 		 *
 		 * This is vital when switching drumkits or importing patterns. If
@@ -334,10 +334,12 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * to check whether the provided instrument is indeed a different one or
 		 * basically the same with just its type being edited. If so, the new
 		 * type will be stored in @a pNewType. */
-		std::shared_ptr<Instrument> mapInstrument( const QString& sType,
-												   int nInstrumentId,
-												   std::shared_ptr<Drumkit> pOldDrumkit = nullptr,
-												   DrumkitMap::Type* pNewType = nullptr );
+		std::shared_ptr<Instrument> mapInstrument(
+			const QString& sType,
+			Instrument::Id id,
+			std::shared_ptr<Drumkit> pOldDrumkit = nullptr,
+			Instrument::Type* pNewType = nullptr
+		);
 
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of

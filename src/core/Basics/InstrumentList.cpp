@@ -22,7 +22,6 @@
 
 #include "InstrumentList.h"
 
-#include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/Note.h>
@@ -212,11 +211,12 @@ int InstrumentList::index( std::shared_ptr<Instrument> instr ) const
 	return -1;
 }
 
-std::shared_ptr<Instrument>  InstrumentList::find( const int id ) const
+std::shared_ptr<Instrument> InstrumentList::find( const Instrument::Id id
+) const
 {
-	for( int i=0; i<m_pInstruments.size(); i++ ) {
-		if ( m_pInstruments[i]->getId()==id ) {
-			return m_pInstruments[i];
+	for ( auto& ppInstrument : m_pInstruments ) {
+		if ( ppInstrument != nullptr && ppInstrument->getId() == id ) {
+			return ppInstrument;
 		}
 	}
 	return nullptr;
@@ -329,29 +329,34 @@ void InstrumentList::setDefaultMidiOutNotes()
 	}
 }
 
-QString InstrumentList::toQString( const QString& sPrefix, bool bShort ) const {
+QString InstrumentList::toQString( const QString& sPrefix, bool bShort ) const
+{
 	QString s = Base::sPrintIndention;
 	QString sOutput;
-	if ( ! bShort ) {
+	if ( !bShort ) {
 		sOutput = QString( "%1[InstrumentList]\n" ).arg( sPrefix );
 		for ( const auto& ii : m_pInstruments ) {
 			if ( ii != nullptr ) {
-				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s, bShort ) ) );
+				sOutput.append(
+					QString( "%1" ).arg( ii->toQString( sPrefix + s, bShort ) )
+				);
 			}
 		}
-	} else {
+	}
+	else {
 		sOutput = QString( "[InstrumentList] " );
 		for ( const auto& ii : m_pInstruments ) {
 			if ( ii != nullptr ) {
-				sOutput.append( QString( "(%1: %2 [%3]) " ).arg( ii->getId() )
-								.arg( ii->getName() ).arg( ii->getType() ) );
+				sOutput.append( QString( "(%1: %2 [%3]) " )
+									.arg( static_cast<int>( ii->getId() ) )
+									.arg( ii->getName() )
+									.arg( ii->getType() ) );
 			}
 		}
 	}
 
 	return sOutput;
 }
-
 
 std::vector<std::shared_ptr<Instrument>>::iterator InstrumentList::begin() {
 	return m_pInstruments.begin();

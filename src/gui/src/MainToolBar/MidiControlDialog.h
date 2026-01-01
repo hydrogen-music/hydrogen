@@ -26,16 +26,13 @@
 #include <QtGui>
 #include <QtWidgets>
 
+#include <core/Basics/Instrument.h>
 #include <core/Helpers/Time.h>
 #include <core/Object.h>
 #include <qevent.h>
 
 #include "../EventListener.h"
 #include "../Widgets/WidgetWithScalableFont.h"
-
-namespace H2Core {
-	class Instrument;
-}
 
 class LCDSpinBox;
 class MidiActionTable;
@@ -128,9 +125,10 @@ private:
          * of instrument type and id. This way we ensure no shared pointer to
          * any of these core data types gets stuck in a callback context and
          * e.g. causes sample data to not be freed. */
-		std::map< std::pair<QString, int>,
-				 std::shared_ptr<H2Core::Instrument> > m_instrumentMap;
+		std::map<
+			std::pair<H2Core::Instrument::Type, H2Core::Instrument::Id>,
+			std::shared_ptr<H2Core::Instrument> >
+			m_instrumentMap;
 };
-
 
 #endif

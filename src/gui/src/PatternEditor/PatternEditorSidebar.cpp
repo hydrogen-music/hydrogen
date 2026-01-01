@@ -349,14 +349,15 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 
 			// We use a fixed space with the width of roughly the amount digits
 			// of the largest instrument id rendered in the current font.
-			int nIdMax = EMPTY_INSTR_ID;
+			auto idMax = Instrument::EmptyId;
 			for ( const auto rrow : pPatternEditorPanel->getDB() ) {
-				if ( rrow.nInstrumentID > nIdMax ) {
-					nIdMax = rrow.nInstrumentID;
+				if ( rrow.id > idMax ) {
+					idMax = rrow.id;
 				}
 			}
-			const QString sReferenceText =
-				QString( "0" ).repeated( QString::number( nIdMax ).length() );
+			const QString sReferenceText = QString( "0" ).repeated(
+				QString::number( static_cast<int>( idMax ) ).length()
+			);
 
 			// I'm not sure why but for some reason the font does either has a
 			// way bigger width than reported by QFontMetrics or there is some
@@ -529,7 +530,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 					return;
 				}
 				auto pInstr = pSong->getDrumkit()->getInstruments()->find(
-					m_row.nInstrumentID
+					m_row.id
 				);
 				if ( m_pMuteBtn != nullptr && pInstr != nullptr &&
 					 pInstr->hasSamples() && pPref->getHearNewNotes() ) {
@@ -567,7 +568,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		}
 	);
 	connect( m_pInstrumentNameLbl, &SidebarLabel::editAccepted, [=]() {
-		if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
+		if ( m_row.id != Instrument::EmptyId ) {
 			MainForm::action_drumkit_renameInstrument(
 				m_pPatternEditorPanel->getRowIndexDB( m_row ),
 				m_pInstrumentNameLbl->text()
@@ -576,7 +577,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	} );
 	connect( m_pInstrumentNameLbl, &SidebarLabel::editRejected, this, [&]() {
 		// Reset the typed instrument name with the one in the current drumkit.
-		if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
+		if ( m_row.id != Instrument::EmptyId ) {
 			auto pSong = Hydrogen::get_instance()->getSong();
 			if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 				return;
@@ -630,7 +631,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	pButtonContainerLayout->addWidget( m_pSoloBtn );
 	connect( m_pSoloBtn, SIGNAL( clicked() ), this, SLOT( soloClicked() ) );
 
-	if ( row.nInstrumentID == EMPTY_INSTR_ID ) {
+	if ( row.id == Instrument::EmptyId ) {
 		m_pMuteBtn->hide();
 		m_pSoloBtn->hide();
 		m_pSampleWarning->hide();
@@ -650,7 +651,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 				 m_pTypeLbl->isShowingPlusSign() ) {
 				if ( m_row.bMappedToDrumkit ) {
 					MainForm::editDrumkitProperties(
-						false, false, m_row.nInstrumentID
+						false, false, m_row.id
 					);
 				}
 				else {
@@ -667,7 +668,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 			if ( pEvent->button() == Qt::LeftButton ) {
 				if ( m_row.bMappedToDrumkit ) {
 					MainForm::editDrumkitProperties(
-						false, false, m_row.nInstrumentID
+						false, false, m_row.id
 					);
 				}
 				else {
@@ -840,7 +841,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 			m_pPatternEditorPanel->getRowIndexDB( m_row )
 		);
 	} );
-	if ( m_row.nInstrumentID == EMPTY_INSTR_ID ) {
+	if ( m_row.id == Instrument::EmptyId ) {
 		m_pRenameInstrumentAction->setEnabled( false );
 		m_pDeleteInstrumentAction->setEnabled( false );
 	}
@@ -872,11 +873,11 @@ void SidebarRow::set( const DrumPatternRow& row )
 	m_row = row;
 
 	std::shared_ptr<Instrument> pInstrument = nullptr;
-	if ( row.nInstrumentID != EMPTY_INSTR_ID && row.bMappedToDrumkit ) {
+	if ( row.id != Instrument::EmptyId && row.bMappedToDrumkit ) {
 		auto pSong = pHydrogen->getSong();
 		if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
 			pInstrument =
-				pSong->getDrumkit()->getInstruments()->find( row.nInstrumentID
+				pSong->getDrumkit()->getInstruments()->find( row.id
 				);
 			if ( pInstrument != nullptr ) {
 				const QString sInstrumentName = pInstrument->getName();
@@ -943,9 +944,9 @@ void SidebarRow::set( const DrumPatternRow& row )
 		m_pTypeLbl->setToolTip( row.sType );
 		m_pTypeLbl->setShowPlusSign( false );
 	}
-	else if ( row.sType.isEmpty() && row.nInstrumentID != EMPTY_INSTR_ID ) {
+	else if ( row.sType.isEmpty() && row.id != Instrument::EmptyId ) {
 		m_pTypeLbl->setShowPlusSign( true );
-		m_pTypeLbl->setText( QString::number( row.nInstrumentID ) );
+		m_pTypeLbl->setText( QString::number( static_cast<int>( row.id ) ) );
 	}
 
 	if ( m_pInstrumentNameLbl->toolTip() != sToolTip ) {
@@ -1257,12 +1258,12 @@ void SidebarRow::muteClicked()
 	const int nRow = m_pPatternEditorPanel->getRowIndexDB( m_row );
 	m_pPatternEditorPanel->setSelectedRowDB( nRow );
 
-	if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
+	if ( m_row.id != Instrument::EmptyId ) {
 		auto pInstr =
-			pSong->getDrumkit()->getInstruments()->find( m_row.nInstrumentID );
+			pSong->getDrumkit()->getInstruments()->find( m_row.id );
 		if ( pInstr == nullptr ) {
 			ERRORLOG( QString( "Unable to retrieve instrument of ID [%1]" )
-						  .arg( m_row.nInstrumentID ) );
+						  .arg( static_cast<int>( m_row.id ) ) );
 			return;
 		}
 
@@ -1282,12 +1283,12 @@ void SidebarRow::soloClicked()
 	const int nRow = m_pPatternEditorPanel->getRowIndexDB( m_row );
 	m_pPatternEditorPanel->setSelectedRowDB( nRow );
 
-	if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
+	if ( m_row.id != Instrument::EmptyId ) {
 		auto pInstr =
-			pSong->getDrumkit()->getInstruments()->find( m_row.nInstrumentID );
+			pSong->getDrumkit()->getInstruments()->find( m_row.id );
 		if ( pInstr == nullptr ) {
 			ERRORLOG( QString( "Unable to retrieve instrument of ID [%1]" )
-						  .arg( m_row.nInstrumentID ) );
+						  .arg( static_cast<int>( m_row.id ) ) );
 			return;
 		}
 
@@ -1463,7 +1464,7 @@ void PatternEditorSidebar::instrumentMuteSoloChangedEvent( int nInstrumentIndex
 	else {
 		// Update a specific line
 		const auto row = m_pPatternEditorPanel->getRowDB( nInstrumentIndex );
-		if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
+		if ( row.id == Instrument::EmptyId && row.sType.isEmpty() ) {
 			ERRORLOG( QString( "Invalid row [%1]" ).arg( nInstrumentIndex ) );
 			return;
 		}
@@ -1660,7 +1661,7 @@ void PatternEditorSidebar::mouseMoveEvent( QMouseEvent* event )
 	// Instrument corresponding to the selected line in the pattern editor.
 	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
 	auto pInstrument = pSong->getDrumkit()->getInstruments()->find(
-		m_pPatternEditorPanel->getRowDB( nSelectedRow ).nInstrumentID
+		m_pPatternEditorPanel->getRowDB( nSelectedRow ).id
 	);
 	if ( pInstrument == nullptr ) {
 		ERRORLOG( QString( "No instrument selected found for row [%1]" )
@@ -1693,7 +1694,7 @@ void PatternEditorSidebar::mousePressEvent( QMouseEvent* event )
 
 	if ( m_pPatternEditorPanel
 			 ->getRowDB( m_pPatternEditorPanel->getSelectedRowDB() )
-			 .nInstrumentID != EMPTY_INSTR_ID ) {
+			 .id != Instrument::EmptyId ) {
 		// Drag started at a line corresponding to an instrument of the current
 		// drumkit.
 		m_nDragStartY = pEv->position().y();

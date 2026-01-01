@@ -44,15 +44,17 @@
 namespace H2Core
 {
 
-DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
-												  std::shared_ptr<Drumkit> pDrumkit,
-												  bool bEditingNotSaving,
-												  bool bSaveToNsmSession,
-												  int nInstrumentID )
- : QDialog( pParent )
- , m_pDrumkit( pDrumkit )
- , m_bEditingNotSaving( bEditingNotSaving )
- , m_bSaveToNsmSession( bSaveToNsmSession )
+DrumkitPropertiesDialog::DrumkitPropertiesDialog(
+	QWidget* pParent,
+	std::shared_ptr<Drumkit> pDrumkit,
+	bool bEditingNotSaving,
+	bool bSaveToNsmSession,
+	Instrument::Id id
+)
+	: QDialog( pParent ),
+	  m_pDrumkit( pDrumkit ),
+	  m_bEditingNotSaving( bEditingNotSaving ),
+	  m_bSaveToNsmSession( bSaveToNsmSession )
 {
 	setObjectName( "DrumkitPropertiesDialog" );
 
@@ -268,18 +270,17 @@ QTextEdit { \
 	updateLicensesTable();
 	updateTypesTable( bDrumkitWritable );
 
-	if ( nInstrumentID != EMPTY_INSTR_ID &&
-		 m_idToTypeMap.find( nInstrumentID ) != m_idToTypeMap.end() ) {
+	if ( id != Instrument::EmptyId &&
+		 m_idToTypeMap.find( id ) != m_idToTypeMap.end() ) {
 		// Widget opened by double clicking a type of an instrument. Select the
 		// corresponding type.
-		auto pTypeWidget = m_idToTypeMap[ nInstrumentID ];
+		auto pTypeWidget = m_idToTypeMap[ id ];
 		if ( pTypeWidget != nullptr ) {
 			tabWidget->setCurrentIndex( 1 );
 			pTypeWidget->setFocus( Qt::PopupFocusReason );
 		}
 	}
 }
-
 
 DrumkitPropertiesDialog::~DrumkitPropertiesDialog()
 {
@@ -402,13 +403,13 @@ void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 		pTypesMenu->addAction( ssType );
 	}
 
-	auto insertRow = [=]( int nInstrumentId,
+	auto insertRow = [=]( Instrument::Id id,
 						  const QString& sTextName,
 						  const QString& sTextType,
 						  int nCell ) {
 
 		LCDDisplay* pInstrumentId = new LCDDisplay( nullptr );
-		pInstrumentId->setText( QString::number( nInstrumentId ) );
+		pInstrumentId->setText( QString::number( static_cast<int>(id) ) );
 		pInstrumentId->setIsActive( false );
 		pInstrumentId->setSizePolicy( QSizePolicy::Fixed,
 										QSizePolicy::Expanding );
@@ -456,7 +457,7 @@ void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 		typesTable->setCellWidget( nCell, 1, pInstrumentName );
 		typesTable->setCellWidget( nCell, 2, pInstrumentType );
 
-		m_idToTypeMap[ nInstrumentId ] = pInstrumentType;
+		m_idToTypeMap[ id ] = pInstrumentType;
 	};
 
 	int nnCell = 0;
@@ -738,8 +739,9 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 			dynamic_cast<LCDCombo*>( typesTable->cellWidget( ii, 2 ) );
 
 		if ( ppItemId != nullptr && ppItemType != nullptr ) {
-			const auto ppInstrument =
-				m_pDrumkit->getInstruments()->find( ppItemId->text().toInt() );
+			const auto ppInstrument = m_pDrumkit->getInstruments()->find(
+				static_cast<Instrument::Id>( ppItemId->text().toInt() )
+			);
 
 			if ( ppInstrument != nullptr ) {
 				ppInstrument->setType( ppItemType->currentText() );
@@ -801,13 +803,13 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 
 		struct noteToBeMapped {
 			std::shared_ptr<Note> pNote;
-			DrumkitMap::Type type;
+			Instrument::Type type;
 			int nPatternNumber;
 		};
 		std::vector<noteToBeMapped> notesToBeMapped;
 		struct instrumentToBeMapped {
 			std::shared_ptr<Instrument> pInstrument;
-			DrumkitMap::Type sOldType;
+			Instrument::Type sOldType;
 		};
 		// This should always be true. Let's keep it safe.
 		if ( pOldKit != nullptr && pOldKit->getInstruments()->size() ==

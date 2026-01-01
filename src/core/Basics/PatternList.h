@@ -28,6 +28,7 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/DrumkitMap.h>
+#include <core/Basics/Instrument.h>
 #include <core/Object.h>
 
 namespace H2Core
@@ -70,34 +71,37 @@ class XMLNode;
 												  std::shared_ptr<Drumkit> pDrumkit = nullptr,
 												  bool bSilent = false );
 
-		/** Stores a serialized version of the instance to the XML note @a
-		 * pNote.
-		 *
-		 * @param pNode the XMLNode to feed
-		 * @param nInstrumentId If set to a value other than #EMPTY_INSTR_ID, it
-		 *   is used to filter serialized notes by requiring a matching id.
-		 * @param sType If set to a non-empty value, it is used to filter
-		 *   serialized notess by requiring a matching type.
-		 * @param nPitch If a valid one is provided, one those notes matching
-		 *   this particular pitch will be stored. */
-		void saveTo( XMLNode& pNode, int nInstrumentId = EMPTY_INSTR_ID,
-					  const QString& sType = "",
-					  int nPitch = PITCH_INVALID ) const;
+	/** Stores a serialized version of the instance to the XML note @a
+	 * pNote.
+	 *
+	 * @param pNode the XMLNode to feed
+	 * @param id If set to a value other than #Instrument::EmptyId, it
+	 *   is used to filter serialized notes by requiring a matching id.
+	 * @param sType If set to a non-empty value, it is used to filter
+	 *   serialized notess by requiring a matching type.
+	 * @param nPitch If a valid one is provided, one those notes matching
+	 *   this particular pitch will be stored. */
+	void saveTo(
+		XMLNode& pNode,
+		Instrument::Id id = Instrument::EmptyId,
+		const QString& sType = "",
+		int nPitch = PITCH_INVALID
+	) const;
 
-		/** returns the numbers of patterns */
-		int size() const;
+	/** returns the numbers of patterns */
+	int size() const;
 
-		/**
-		 * get a pattern from  the list
-		 * \param idx the index to get the pattern from
-		 */
-		std::shared_ptr<Pattern> operator[]( int idx ) const;
-		/**
-		 * add a pattern to the list
-		 * \param pattern a pointer to the pattern to add
-		 * \param bAddVirtuals Whether virtual patterns contained in
-		 * @a pattern should be added too.
-		 */
+	/**
+	 * get a pattern from  the list
+	 * \param idx the index to get the pattern from
+	 */
+	std::shared_ptr<Pattern> operator[]( int idx ) const;
+	/**
+	 * add a pattern to the list
+	 * \param pattern a pointer to the pattern to add
+	 * \param bAddVirtuals Whether virtual patterns contained in
+	 * @a pattern should be added too.
+	 */
 	void add( std::shared_ptr<Pattern> pPattern, bool bAddVirtuals = false );
 		/**
 		 * insert a pattern into the list
@@ -178,9 +182,9 @@ class XMLNode;
 
 		void mapToDrumkit( std::shared_ptr<Drumkit> pDrumkit,
 						   std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
-		std::set<DrumkitMap::Type> getAllTypes() const;
+		std::set<Instrument::Type> getAllTypes() const;
 		std::vector<std::shared_ptr<Note>> getAllNotesOfType(
-			const DrumkitMap::Type& sType ) const;
+			const Instrument::Type& sType ) const;
 
 		friend bool operator==( const PatternList& lhs, const PatternList& rhs );
 		friend bool operator!=( const PatternList& lhs, const PatternList& rhs );

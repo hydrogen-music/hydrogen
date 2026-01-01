@@ -28,6 +28,7 @@
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/AutomationPath.h>
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
@@ -112,7 +113,7 @@ AudioEngine::AudioEngine()
 	// Get the path to the file of the metronome sound.
 	QString sMetronomeFileName = Filesystem::click_file_path();
 	m_pMetronomeInstrument =
-		std::make_shared<Instrument>( METRONOME_INSTR_ID, "metronome" );
+		std::make_shared<Instrument>( Instrument::MetronomeId, "metronome" );
 
 	auto pLayer =
 		std::make_shared<InstrumentLayer>( Sample::load( sMetronomeFileName ) );

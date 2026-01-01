@@ -23,20 +23,21 @@
 #ifndef H2C_PATTERN_H
 #define H2C_PATTERN_H
 
-#include <set>
 #include <memory>
-#include <core/License.h>
-#include <core/Object.h>
+#include <set>
+
 #include <core/Basics/DrumkitMap.h>
+#include <core/Basics/Instrument.h>
 #include <core/Basics/Note.h>
 #include <core/Helpers/Xml.h>
+#include <core/License.h>
+#include <core/Object.h>
 
 namespace H2Core
 {
 
 class Drumkit;
 class XMLNode;
-class Instrument;
 class InstrumentList;
 class PatternList;
 
@@ -118,16 +119,20 @@ class Pattern : public H2Core::Object<Pattern>
 		 * pNote.
 		 *
 		 * @param node the XMLNode to feed
-		 * @param nInstrumentId If set to a value other than #EMPTY_INSTR_ID, it
+		 * @param id If set to a value other than #Instrument::EmptyId, it
 		 *   is used to filter serialized notes by requiring a matching id.
 		 * @param sType If set to a non-empty value, it is used to filter
 		 *   serialized notess by requiring a matching type.
 		 * @param nPitch If a valid one is provided, one those notes matching
 		 *   this particular pitch will be stored.
 		 * @param bSilent whever to log info and debug messages. */
-		void saveTo( XMLNode& node, int nInstrumentId = EMPTY_INSTR_ID,
-					 const QString& sType = "", int nPitch = PITCH_INVALID,
-					 bool bSilent = false ) const;
+		void saveTo(
+			XMLNode& node,
+			Instrument::Id id = Instrument::EmptyId,
+			const Instrument::Type& sType = "",
+			int nPitch = PITCH_INVALID,
+			bool bSilent = false
+		) const;
 
 		void setVersion( int nVersion );
 		int getVersion() const;
@@ -179,33 +184,35 @@ class Pattern : public H2Core::Object<Pattern>
 		 * to the given arguments.
 		 *
 		 * \param nPosition the key of #m_notes to search in
-		 * \param nInstrumentId the instrument ID the note should be associated
-		 *   with
-		 * \param sInstrumentType the instrument type the note should be
-		 *   associated with
+		 * \param id the instrument ID the note should be associated with
+		 * \param sType the instrument type the note should be associated with
 		 * \return notes found or an empty vector.
 		 */
-		std::vector< std::shared_ptr<Note> > findNotes(
-			int nPosition, int nInstrumentId,
-			const QString& sInstrumentType ) const;
+		std::vector<std::shared_ptr<Note>> findNotes(
+			int nPosition,
+			Instrument::Id id,
+			const Instrument::Type& sType
+		) const;
 		/**
 		 * Search for a note at a given index within #m_notes which correspond
 		 * to the given arguments. With key and octave provided, the note must
 		 * be unique within the pattern. Hence, just a single note is returned.
 		 *
 		 * \param nPosition the key of #m_notes to search in
-		 * \param nInstrumentId the instrument ID the note should be associated
-		 *   with
-		 * \param sInstrumentType the instrument type the note should be
-		 *   associated with
+		 * \param id the instrument ID the note should be associated   with
+		 * \param sType the instrument type the note should be associated with
 		 * \param key the key that should be set to the note
 		 * \param octave the octave that should be set to the note
 		 *
 		 * \return the note if found, 0 otherwise
 		 */
-		std::shared_ptr<Note> findNote( int nPosition, int nInstrumentId,
-										const QString& sInstrumentType,
-										Note::Key key, Note::Octave octave ) const;
+		std::shared_ptr<Note> findNote(
+			int nPosition,
+			Instrument::Id id,
+			const Instrument::Type& sType,
+			Note::Key key,
+			Note::Octave octave
+		) const;
 		/**
 		 * removes a given note from m_notes, it's not deleted
 		 * \param pNote the note to be removed
@@ -275,9 +282,9 @@ class Pattern : public H2Core::Object<Pattern>
 						   std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
 
 		/** Aggregates all types of the contained notes. */
-		std::set<DrumkitMap::Type> getAllTypes() const;
+		std::set<Instrument::Type> getAllTypes() const;
 		std::vector<std::shared_ptr<Note>> getAllNotesOfType(
-			const DrumkitMap::Type& sType ) const;
+			const Instrument::Type& sType ) const;
 
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of

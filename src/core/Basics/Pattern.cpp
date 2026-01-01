@@ -158,7 +158,7 @@ std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
 			auto pNote = Note::loadFrom( note_node, bSilent );
 			assert( pNote );
 			if ( pNote != nullptr &&
-				 ( pNote->getInstrumentId() != EMPTY_INSTR_ID ||
+				 ( pNote->getInstrumentId() != Instrument::EmptyId ||
 				   ! pNote->getType().isEmpty() ) ) {
 				pPattern->insertNote( pNote );
 			}
@@ -197,7 +197,7 @@ bool Pattern::save( const QString& sPatternPath, bool bSilent ) const
 		return false;
 	}
 
-	if ( ! bSilent ) {
+	if ( !bSilent ) {
 		INFOLOG( QString( "Saving pattern into [%1]" ).arg( sPatternPath ) );
 	}
 
@@ -207,14 +207,19 @@ bool Pattern::save( const QString& sPatternPath, bool bSilent ) const
 	// For backward compatibility we will also add the name of the current
 	// drumkit.
 	root.write_string( "drumkit_name", pSong->getDrumkit()->getExportName() );
-	saveTo( root, EMPTY_INSTR_ID, "", PITCH_INVALID, bSilent );
+	saveTo( root, Instrument::EmptyId, "", PITCH_INVALID, bSilent );
 	return doc.write( sPatternPath );
 }
 
-void Pattern::saveTo( XMLNode& node, int nInstrumentId, const QString& sType,
-					  int nPitch, bool bSilent ) const
+void Pattern::saveTo(
+	XMLNode& node,
+	Instrument::Id id,
+	const Instrument::Type& sType,
+	int nPitch,
+	bool bSilent
+) const
 {
-	XMLNode pattern_node =  node.createNode( "pattern" );
+	XMLNode pattern_node = node.createNode( "pattern" );
 	pattern_node.write_int( "formatVersion", nCurrentFormatVersion );
 	pattern_node.write_int( "userVersion", m_nVersion );
 	pattern_node.write_string( "name", m_sName );
@@ -224,18 +229,18 @@ void Pattern::saveTo( XMLNode& node, int nInstrumentId, const QString& sType,
 	pattern_node.write_string( "category", m_sCategory );
 	pattern_node.write_int( "size", m_nLength );
 	pattern_node.write_int( "denominator", m_nDenominator );
-	
+
 	XMLNode note_list_node =  pattern_node.createNode( "noteList" );
 	for ( auto it = m_notes.cbegin(); it != m_notes.cend(); ++it ) {
 		auto pNote = it->second;
 		if ( pNote != nullptr &&
 			 // Optionally filter note
-			 ( ( nInstrumentId == EMPTY_INSTR_ID ||
-				 nInstrumentId == pNote->getInstrumentId() ) &&
+			 ( ( id == Instrument::EmptyId ||
+				 id == pNote->getInstrumentId() ) &&
 			   ( sType.isEmpty() || sType == pNote->getType() ) ) &&
 			 // Check whether the note corresponds to an instrument of the
 			 // current kit at all.
-			 ( pNote->getInstrumentId() != EMPTY_INSTR_ID ||
+			 ( pNote->getInstrumentId() != Instrument::EmptyId ||
 			   ! pNote->getType().isEmpty() ) ) {
 
 			if ( nPitch != PITCH_INVALID ) {
@@ -256,18 +261,21 @@ float Pattern::numerator() const {
 		( 4 * static_cast<float>(H2Core::nTicksPerQuarter) );
 }
 
-std::shared_ptr<Note> Pattern::findNote( int nPosition, int nInstrumentId,
-										 const QString& sInstrumentType,
-										 Note::Key key, Note::Octave octave ) const
+std::shared_ptr<Note> Pattern::findNote(
+	int nPosition,
+	Instrument::Id id,
+	const Instrument::Type& sType,
+	Note::Key key,
+	Note::Octave octave
+) const
 {
 	for ( notes_cst_it_t it = m_notes.lower_bound( nPosition );
 		  it != m_notes.upper_bound( nPosition ); it++ ) {
 		auto ppNote = it->second;
 		assert( ppNote );
-		if ( ppNote != nullptr &&
-			 ppNote->getInstrumentId() == nInstrumentId &&
-			 ppNote->getType() == sInstrumentType &&
-			 ppNote->getKey() == key && ppNote->getOctave() == octave ) {
+		if ( ppNote != nullptr && ppNote->getInstrumentId() == id &&
+			 ppNote->getType() == sType && ppNote->getKey() == key &&
+			 ppNote->getOctave() == octave ) {
 			return ppNote;
 		}
 	}
@@ -275,10 +283,13 @@ std::shared_ptr<Note> Pattern::findNote( int nPosition, int nInstrumentId,
 	return nullptr;
 }
 
-std::vector< std::shared_ptr<Note>> Pattern::findNotes(
-	int nPosition, int nInstrumentId, const QString& sInstrumentType ) const
+std::vector<std::shared_ptr<Note>> Pattern::findNotes(
+	int nPosition,
+	Instrument::Id id,
+	const Instrument::Type& sType
+) const
 {
-	std::vector< std::shared_ptr<Note> > notes;
+	std::vector<std::shared_ptr<Note>> notes;
 	notes_cst_it_t it;
 	for ( it = m_notes.lower_bound( nPosition );
 		  it != m_notes.upper_bound( nPosition ); it++ ) {
@@ -288,8 +299,7 @@ std::vector< std::shared_ptr<Note>> Pattern::findNotes(
 			ERRORLOG( "Invalid note" );
 			continue;
 		}
-		if ( ppNote->getInstrumentId() == nInstrumentId &&
-			 ppNote->getType() == sInstrumentType ) {
+		if ( ppNote->getInstrumentId() == id && ppNote->getType() == sType ) {
 			notes.push_back( ppNote );
 		}
 	}
@@ -535,16 +545,20 @@ void Pattern::mapToDrumkit( std::shared_ptr<Drumkit> pDrumkit,
 	m_sDrumkitName = pDrumkit->getName();
 
 	std::shared_ptr<Instrument> ppInstrument;
-	DrumkitMap::Type sNewType;
+	Instrument::Type sNewType;
 	for ( auto& [ _, ppNote ] : m_notes ) {
 		if ( ppNote != nullptr ) {
 			ppInstrument = pDrumkit->mapInstrument(
 				ppNote->getType(), ppNote->getInstrumentId(), pOldDrumkit,
 				&sNewType );
 			if ( ppInstrument == nullptr ) {
-				INFOLOG( QString( "No instrument was found for type [%1] and ID [%2]." )
-						 .arg( ppNote->getType() )
-						 .arg( ppNote->getInstrumentId() ) );
+				INFOLOG(
+					QString(
+						"No instrument was found for type [%1] and ID [%2]."
+					)
+						.arg( ppNote->getType() )
+						.arg( static_cast<int>( ppNote->getInstrumentId() ) )
+				);
 			}
 
 			if ( ! sNewType.isEmpty() ) {
@@ -557,8 +571,8 @@ void Pattern::mapToDrumkit( std::shared_ptr<Drumkit> pDrumkit,
 	}
 }
 
-std::set<DrumkitMap::Type> Pattern::getAllTypes() const {
-	std::set<DrumkitMap::Type> types;
+std::set<Instrument::Type> Pattern::getAllTypes() const {
+	std::set<Instrument::Type> types;
 
 	for ( const auto& [ _, ppNote ] : m_notes ) {
 		if ( ppNote != nullptr && ! ppNote->getType().isEmpty() ) {
@@ -576,7 +590,7 @@ std::set<DrumkitMap::Type> Pattern::getAllTypes() const {
 }
 
 std::vector<std::shared_ptr<Note>> Pattern::getAllNotesOfType(
-	const DrumkitMap::Type& sType ) const
+	const Instrument::Type& sType ) const
 {
 	std::vector<std::shared_ptr<Note>> notes;
 

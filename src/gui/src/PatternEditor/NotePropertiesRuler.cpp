@@ -587,7 +587,7 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent* ev )
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB()
 	);
-	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+	if ( selectedRow.id == Instrument::EmptyId &&
 		 selectedRow.sType.isEmpty() ) {
 		DEBUGLOG( "Empty row clicked" );
 		return;
@@ -1924,7 +1924,7 @@ NotePropertiesRuler::elementsIntersecting( const QRect& r )
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB()
 	);
-	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+	if ( selectedRow.id == Instrument::EmptyId &&
 		 selectedRow.sType.isEmpty() ) {
 		return std::move( result );
 	}

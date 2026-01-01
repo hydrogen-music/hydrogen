@@ -29,6 +29,7 @@
 #include <utility>
 #include <vector>
 
+#include <core/Basics/Instrument.h>
 #include <core/Object.h>
 
 namespace H2Core {
@@ -64,7 +65,7 @@ private:
 	 * the list of notes at this moment. A note is represented by its instrument
 	 * and its velocity.
 	 */
-	typedef std::vector<std::vector<std::pair<int, float> > > notes_t;
+	typedef std::vector<std::vector<std::pair<Instrument::Id, float> > > notes_t;
 
 	/*
 	 * Retrieve the information in a PatternList
@@ -97,7 +98,7 @@ private:
 	 */
 	void writeVoice( QTextStream &stream,
 	                 unsigned nMeasure,
-	                 const std::vector<int> &whiteList ) const;
+	                 const std::vector<Instrument::Id> &whiteList ) const;
 
 	std::vector<notes_t>	m_Measures;		///< Representation of the song
 	QString					m_sName;		///< Name of the song

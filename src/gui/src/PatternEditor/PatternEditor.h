@@ -29,6 +29,7 @@
 #include "../Widgets/WidgetWithScalableFont.h"
 
 #include <core/Basics/GridPoint.h>
+#include <core/Basics/Instrument.h>
 #include <core/Basics/Note.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -37,11 +38,6 @@
 
 #include <QtGui>
 #include <QtWidgets>
-
-namespace H2Core
-{
-	class Instrument;
-}
 
 class PatternEditorPanel;
 
@@ -93,21 +89,23 @@ public:
 		PatternEditor( QWidget *pParent );
 		~PatternEditor();
 
-		static void addOrRemoveNoteAction( int nPosition,
-										   int nInstrumentId,
-										   const QString& sType,
-										   int nPatternNumber,
-										   int nOldLength,
-										   float fOldVelocity,
-										   float fOldPan,
-										   float fOldLeadLag,
-										   int nOldKey,
-										   int nOldOctave,
-										   float fOldProbability,
-										   Editor::Action action,
-										   bool bIsNoteOff,
-										   bool bIsMappedToDrumkit,
-										   Editor::ActionModifier modifier );
+		static void addOrRemoveNoteAction(
+			int nPosition,
+			H2Core::Instrument::Id id,
+			const H2Core::Instrument::Type& sType,
+			int nPatternNumber,
+			int nOldLength,
+			float fOldVelocity,
+			float fOldPan,
+			float fOldLeadLag,
+			int nOldKey,
+			int nOldOctave,
+			float fOldProbability,
+			Editor::Action action,
+			bool bIsNoteOff,
+			bool bIsMappedToDrumkit,
+			Editor::ActionModifier modifier
+		);
 
 		//! Deselect some notes, and "overwrite" some others.
 		void deselectAndOverwriteNotes(
@@ -123,22 +121,24 @@ public:
 		 * used to find the actual #H2Core::Note to alter. In the latter
 		 * adjusting note/octave can be done too. This is covered using @a
 		 * nNewKey and @a nNewOctave. */
-		static void editNotePropertiesAction( const Property& property,
-											  int nPatternNumber,
-											  int nPosition,
-											  int nOldInstrumentId,
-											  int nNewInstrumentId,
-											  const QString& sOldType,
-											  const QString& sNewType,
-											  float fVelocity,
-											  float fPan,
-											  float fLeadLag,
-											  float fProbability,
-											  int nLength,
-											  int nNewKey,
-											  int nOldKey,
-											  int nNewOctave,
-											  int nOldOctave );
+		static void editNotePropertiesAction(
+			const Property& property,
+			int nPatternNumber,
+			int nPosition,
+			H2Core::Instrument::Id oldId,
+			H2Core::Instrument::Id newId,
+			const H2Core::Instrument::Type& sOldType,
+			const H2Core::Instrument::Type& sNewType,
+			float fVelocity,
+			float fPan,
+			float fLeadLag,
+			float fProbability,
+			int nLength,
+			int nNewKey,
+			int nOldKey,
+			int nNewOctave,
+			int nOldOctave
+		);
 
 		float getGridWidth() const;
 		void setGridWidth( float fGridWith );

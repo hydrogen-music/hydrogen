@@ -24,6 +24,7 @@
 #define EVENT_QUEUE_H
 
 #include <core/Basics/Event.h>
+#include <core/Basics/Instrument.h>
 #include <core/Basics/Note.h>
 #include <core/Object.h>
 
@@ -114,7 +115,7 @@ public:
 
 	struct AddMidiNoteVector {
 		int m_column;       // position
-		int m_instrumentId; // specifies the instrument triggered
+		Instrument::Id m_id; // specifies the instrument triggered
 		int m_pattern;      // pattern number
 		int m_length;
 		float f_velocity;

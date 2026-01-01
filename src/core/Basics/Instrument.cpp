@@ -42,11 +42,11 @@
 namespace H2Core {
 
 Instrument::Instrument(
-	const int id,
+	const Instrument::Id id,
 	const QString& name,
 	std::shared_ptr<ADSR> adsr
 )
-	: m_nId( id ),
+	: m_id( id ),
 	  m_sName( name ),
 	  m_type( "" ),
 	  m_sDrumkitPath( "" ),
@@ -62,7 +62,7 @@ Instrument::Instrument(
 	  m_fFilterResonance( 0.0 ),
 	  m_fRandomPitchFactor( 0.0 ),
 	  m_fPitchOffset( 0.0 ),
-	  m_nMidiOutNote( MidiMessage::nInstrumentOffset + id ),
+	  m_nMidiOutNote( MidiMessage::nInstrumentOffset + static_cast<int>(id) ),
 	  m_nMidiOutChannel( -1 ),
 	  m_bStopNotes( false ),
 	  m_bSoloed( false ),
@@ -111,7 +111,7 @@ Instrument::Instrument(
 }
 
 Instrument::Instrument( std::shared_ptr<Instrument> other )
-	: m_nId( other->getId() ),
+	: m_id( other->getId() ),
 	  m_sName( other->getName() ),
 	  m_type( other->m_type ),
 	  m_sDrumkitPath( other->getDrumkitPath() ),
@@ -180,11 +180,11 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 	bool bSilent
 )
 {
-	// We use -2 instead of EMPTY_INSTR_ID (-1) to allow for loading
+	// We use -22 instead of Instrument::EmptyId (-1) to allow for loading
 	// empty instruments as well (e.g. during unit tests or as part of
 	// dummy kits)
-	int nId = node.read_int( "id", -2, false, false, bSilent );
-	if ( nId == -2 ) {
+	int nId = node.read_int( "id", -22, false, false, bSilent );
+	if ( nId == -22 ) {
 		if ( pLegacyFormatEncountered != nullptr ) {
 			*pLegacyFormatEncountered = true;
 		}
@@ -192,7 +192,8 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 	}
 
 	auto pInstrument = std::make_shared<Instrument>(
-		nId, node.read_string( "name", "", false, false, bSilent ),
+		static_cast<Instrument::Id>( nId ),
+		node.read_string( "name", "", false, false, bSilent ),
 		std::make_shared<ADSR>(
 			node.read_int( "Attack", 0, true, false, bSilent ),
 			node.read_int( "Decay", 0, true, false, bSilent ),
@@ -555,7 +556,7 @@ void Instrument::saveTo(
 )
 {
 	XMLNode InstrumentNode = node.createNode( "instrument" );
-	InstrumentNode.write_int( "id", m_nId );
+	InstrumentNode.write_int( "id", static_cast<int>( m_id ) );
 	InstrumentNode.write_string( "name", m_sName );
 
 	InstrumentNode.write_string( "type", m_type );
@@ -890,7 +891,7 @@ void Instrument::checkForMissingSamples( Event::Trigger trigger )
 	if ( m_bHasMissingSamples != bPreviousValue &&
 		 trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->pushEvent(
-			Event::Type::InstrumentLayerChanged, m_nId
+			Event::Type::InstrumentLayerChanged, static_cast<int>( m_id )
 		);
 	}
 }
@@ -913,10 +914,10 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const
 		sOutput =
 			QString( "%1[Instrument]\n" )
 				.arg( sPrefix )
-				.append( QString( "%1%2m_nId: %3\n" )
+				.append( QString( "%1%2m_id: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( m_nId ) )
+							 .arg( static_cast<int>(m_id) ) )
 				.append( QString( "%1%2m_sName: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -1056,7 +1057,8 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const
 	else {
 		sOutput =
 			QString( "[Instrument]" )
-				.append( QString( " m_nId: %1" ).arg( m_nId ) )
+				.append( QString( " m_id: %1" ).arg( static_cast<int>( m_id ) )
+				)
 				.append( QString( ", m_sName: %1" ).arg( m_sName ) )
 				.append( QString( ", m_type: %1" ).arg( m_type ) )
 				.append( QString( ", m_sDrumkitPath: %1" ).arg( m_sDrumkitPath )

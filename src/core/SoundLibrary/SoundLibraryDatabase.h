@@ -105,11 +105,11 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 
 		QStringList getDrumkitFolders() const;
 
-	/** Retrieves all #H2Core::DrumkitMap::Type found in the registered
+	/** Retrieves all #H2Core::Instrument::Type found in the registered
 	 * drumkits.
 	 *
 	 * @return The list of unique types sorted alphabetically.*/
-	 std::set<DrumkitMap::Type> getAllTypes() const;
+	 std::set<Instrument::Type> getAllTypes() const;
 	
 	void updatePatterns( bool bTriggerEvent = true );
 	void printPatterns() const;
