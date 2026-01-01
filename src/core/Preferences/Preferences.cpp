@@ -146,6 +146,7 @@ Preferences::Preferences()
 	  m_bMidiTransportInputHandling( false ),
 	  m_bMidiClockOutputSend( false ),
 	  m_bMidiTransportOutputSend( false ),
+	  m_midiSendNoteOff( MidiSendNoteOff::Always ),
 	  m_bUseTheRubberbandBpmChangeEvent( false ),
 	  m_bShowInstrumentPeaks( true ),
 	  m_nPatternEditorGridResolution( 8 ),
@@ -337,6 +338,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	  m_bMidiTransportInputHandling( pOther->m_bMidiTransportInputHandling ),
 	  m_bMidiClockOutputSend( pOther->m_bMidiClockOutputSend ),
 	  m_bMidiTransportOutputSend( pOther->m_bMidiTransportOutputSend ),
+	  m_midiSendNoteOff( pOther->m_midiSendNoteOff ),
 	  m_bSearchForRubberbandOnLoad( pOther->m_bSearchForRubberbandOnLoad ),
 	  m_bUseTheRubberbandBpmChangeEvent(
 		  pOther->m_bUseTheRubberbandBpmChangeEvent
@@ -830,8 +832,9 @@ Preferences::load( const QString& sPath, const bool bSilent )
 				"fixed_mapping", false, true, true, true
 			);
 			pPref->m_bEnableMidiFeedback = midiDriverNode.read_bool(
-				"enable_midi_feedback",
-				pPref->m_bEnableMidiFeedback, false, true, bSilent );
+				"enable_midi_feedback", pPref->m_bEnableMidiFeedback, false,
+				true, bSilent
+			);
 			pPref->setMidiFeedbackChannel(
 				Midi::channelFromInt( midiDriverNode.read_int(
 					"midi_feedback_channel",
@@ -843,18 +846,25 @@ Preferences::load( const QString& sPath, const bool bSilent )
 				"midi_clock_input_handling", pPref->getMidiClockInputHandling(),
 				true, true, bSilent
 			) );
-			pPref->setMidiTransportInputHandling(
-				midiDriverNode.read_bool(
-					"midi_transport_input_handling",
-					pPref->getMidiTransportInputHandling(), true, true, bSilent ) );
-			pPref->setMidiClockOutputSend(
-				midiDriverNode.read_bool(
-					"midi_clock_output_send",
-					pPref->getMidiClockOutputSend(), true, true, bSilent ) );
-			pPref->setMidiTransportOutputSend(
-				midiDriverNode.read_bool(
-					"midi_transport_output_send",
-					pPref->getMidiTransportOutputSend(), true, true, bSilent ) );
+			pPref->setMidiTransportInputHandling( midiDriverNode.read_bool(
+				"midi_transport_input_handling",
+				pPref->getMidiTransportInputHandling(), true, true, bSilent
+			) );
+			pPref->setMidiClockOutputSend( midiDriverNode.read_bool(
+				"midi_clock_output_send", pPref->getMidiClockOutputSend(), true,
+				true, bSilent
+			) );
+			pPref->setMidiTransportOutputSend( midiDriverNode.read_bool(
+				"midi_transport_output_send",
+				pPref->getMidiTransportOutputSend(), true, true, bSilent
+			) );
+			pPref->setMidiSendNoteOff(
+				static_cast<MidiSendNoteOff>( midiDriverNode.read_int(
+					"midi_send_note_off",
+					static_cast<int>( pPref->getMidiSendNoteOff() ), true, true,
+					bSilent
+				) )
+			);
 		}
 		else {
 			WARNINGLOG( "<midi_driver> node not found" );
@@ -1425,8 +1435,9 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 		QString FXname;
 		foreach ( FXname, m_recentFX ) {
 			recentFXNode.write_string( "FX", FXname );
-			if ( ++nFX > 10 )
+			if ( ++nFX > 10 ) {
 				break;
+            }
 		}
 	}
 
@@ -1605,6 +1616,9 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 			);
 			midiDriverNode.write_bool(
 				"midi_transport_output_send", getMidiTransportOutputSend()
+			);
+			midiDriverNode.write_int(
+				"midi_send_note_off", static_cast<int>( getMidiSendNoteOff() )
 			);
 		}
 
@@ -2237,6 +2251,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_bMidiTransportOutputSend ) )
+				.append( QString( "%1%2m_midiSendNoteOff: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( static_cast<int>( m_midiSendNoteOff ) ) )
 				.append( QString( "%1%2m_bOscServerEnabled: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -2682,6 +2700,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( m_bMidiClockOutputSend ) )
 				.append( QString( ", m_bMidiTransportOutputSend: %1" )
 							 .arg( m_bMidiTransportOutputSend ) )
+				.append( QString( ", m_midiSendNoteOff: %1" )
+							 .arg( static_cast<int>( m_midiSendNoteOff ) ) )
 				.append( QString( "], m_bOscServerEnabled: %1" )
 							 .arg( m_bOscServerEnabled ) )
 				.append( QString( ", m_bOscFeedbackEnabled: %1" )

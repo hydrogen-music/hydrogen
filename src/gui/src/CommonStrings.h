@@ -650,6 +650,9 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getSettings() const { return m_sSettings; }
 	const QString& getPattern() const { return m_sPattern; }
 
+	const QString& getOptionAlways() const { return m_sOptionAlways; }
+	const QString& getOptionNever() const { return m_sOptionNever; }
+
    private:
 	QString m_sSmallSoloButton;
 	QString m_sSmallMuteButton;
@@ -927,5 +930,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 
 	QString m_sSettings;
 	QString m_sPattern;
+
+	QString m_sOptionAlways;
+	QString m_sOptionNever;
 };
 #endif

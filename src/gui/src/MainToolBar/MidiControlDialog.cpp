@@ -183,7 +183,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	m_pInputActionChannelSpinBox = new LCDSpinBox(
 		pInputActionChannelWidget,
 		QSize(
-			MidiControlDialog::nColumnMappingWidth,
+			MidiControlDialog::nSettingsWidgetWidth,
 			MidiControlDialog::nMappingBoxHeight
 		),
 		LCDSpinBox::Type::Int, static_cast<int>( Midi::ChannelAll ),
@@ -252,18 +252,19 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 			m_pOutputMidiTransportCheckBox->isChecked() );
 	} );
 
-	auto pOutputFeedbackChannelWidget = new QWidget( pOutputSettingsWidget );
-	pOutputSettingsLayout->addWidget( pOutputFeedbackChannelWidget );
-	auto pOutputFeedbackChannelLayout = new QHBoxLayout( pOutputFeedbackChannelWidget );
-	pOutputFeedbackChannelWidget->setLayout( pOutputFeedbackChannelLayout );
+	auto pOutputLabelledWidget = new QWidget( pOutputSettingsWidget );
+	pOutputSettingsLayout->addWidget( pOutputLabelledWidget );
+	auto pOutputLabelledLayout =
+		new QGridLayout( pOutputLabelledWidget );
+	pOutputLabelledWidget->setLayout( pOutputLabelledLayout );
 
 	auto pOutputFeedbackChannelLabel =
 		new QLabel( tr( "Channel for MIDI feedback and clock" ) );
-	pOutputFeedbackChannelLayout->addWidget( pOutputFeedbackChannelLabel );
+	pOutputLabelledLayout->addWidget( pOutputFeedbackChannelLabel, 0, 0 );
 	m_pOutputFeedbackChannelSpinBox = new LCDSpinBox(
-		pOutputFeedbackChannelWidget,
+		pOutputLabelledWidget,
 		QSize(
-			MidiControlDialog::nColumnMappingWidth,
+			MidiControlDialog::nSettingsWidgetWidth,
 			MidiControlDialog::nMappingBoxHeight
 		),
 		LCDSpinBox::Type::Int, static_cast<int>( Midi::ChannelOff ),
@@ -283,6 +284,39 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 			);
 		}
 	);
+
+	auto pOutputSendNoteOffLabel = new QLabel( tr( "Send NOTE_OFF messages" ) );
+	pOutputLabelledLayout->addWidget( pOutputSendNoteOffLabel, 1, 0 );
+	m_pOutputSendNoteOffComboBox = new QComboBox( pOutputLabelledWidget );
+	m_pOutputSendNoteOffComboBox->setFixedSize( QSize(
+		MidiControlDialog::nSettingsWidgetWidth,
+		MidiControlDialog::nMappingBoxHeight
+	) );
+	pOutputLabelledLayout->addWidget( m_pOutputSendNoteOffComboBox, 1, 1 );
+	m_pOutputSendNoteOffComboBox->insertItems(
+		0, QStringList() << pCommonStrings->getOptionAlways()
+						 << tr( "On custom note lengths" )
+						 << pCommonStrings->getOptionNever()
+	);
+	m_pOutputSendNoteOffComboBox->setCurrentIndex(
+		static_cast<int>( pPref->getMidiSendNoteOff() )
+	);
+	connect(
+		m_pOutputSendNoteOffComboBox,
+		QOverload<int>::of( &QComboBox::activated ),
+		[=]( int ) {
+			auto pPref = Preferences::get_instance();
+			const auto newValue = static_cast<Preferences::MidiSendNoteOff>(
+				m_pOutputSendNoteOffComboBox->currentIndex()
+			);
+
+			if ( newValue != pPref->getMidiSendNoteOff() ) {
+				pPref->setMidiSendNoteOff( newValue );
+			}
+		}
+	);
+
+	////////////////////////////////////////////////////////////////////////////
 
 	const int nLinkHeight = 24;
 
@@ -754,7 +788,7 @@ void MidiControlDialog::updatePreferencesEvent( int nValue )
 {
 	if ( nValue != 1 ) {
 		return;
-	}
+    }
 
 	// new preferences loaded within the core
 	const auto pPref = H2Core::Preferences::get_instance();
@@ -777,6 +811,8 @@ void MidiControlDialog::updatePreferencesEvent( int nValue )
 	);
 	m_pOutputFeedbackChannelSpinBox->setValue(
 		static_cast<int>( pPref->getMidiFeedbackChannel() )
+	m_pOutputSendNoteOffComboBox->setCurrentIndex(
+		static_cast<int>( pPref->getMidiSendNoteOff() )
 	);
 
 	m_pMidiActionTable->setupMidiActionTable();

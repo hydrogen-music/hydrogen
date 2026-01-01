@@ -42,98 +42,100 @@ class MidiControlDialog : public QDialog,
 						  public EventListener,
 						  protected WidgetWithScalableFont<5, 6, 7>,
 						  public H2Core::Object<MidiControlDialog> {
-		H2_OBJECT(MidiControlDialog)
-		Q_OBJECT
+	H2_OBJECT( MidiControlDialog )
+	Q_OBJECT
 
-public:
-		static constexpr int nMinimumHeight = 740;
-		static constexpr int nBinButtonHeight = 30;
-		static constexpr int nBinButtonMargin = 7;
+   public:
+	static constexpr int nMinimumHeight = 740;
+	static constexpr int nBinButtonHeight = 30;
+	static constexpr int nBinButtonMargin = 7;
 
-		static constexpr int nColumnActionWidth = 220;
-		static constexpr int nColumnInstrumentWidth = 220;
-		static constexpr int nColumnTimestampWidth = 120;
-		static constexpr int nColumnTypeWidth = 220;
-		static constexpr int nColumnValueWidth = 80;
+	static constexpr int nColumnActionWidth = 220;
+	static constexpr int nColumnInstrumentWidth = 220;
+	static constexpr int nColumnTimestampWidth = 120;
+	static constexpr int nColumnTypeWidth = 220;
+	static constexpr int nColumnValueWidth = 80;
 
-		static constexpr int nColumnMappingWidth = 120;
-		static constexpr int nMappingBoxHeight = 30;
+	static constexpr int nSettingsWidgetWidth = 150;
+	static constexpr int nColumnMappingWidth = 120;
+	static constexpr int nMappingBoxHeight = 30;
 
+	explicit MidiControlDialog( QWidget* pParent );
+	~MidiControlDialog();
 
-		explicit MidiControlDialog( QWidget* pParent );
-		~MidiControlDialog();
+	// EventListerer
+	void drumkitLoadedEvent() override;
+	void instrumentParametersChangedEvent( int ) override;
+	void midiDriverChangedEvent() override;
+	void midiInputEvent() override;
+	void midiMapChangedEvent() override;
+	void midiOutputEvent() override;
+	void updatePreferencesEvent( int ) override;
+	void updateSongEvent( int ) override;
 
-		// EventListerer
-		void drumkitLoadedEvent() override;
-		void instrumentParametersChangedEvent( int ) override;
-		void midiDriverChangedEvent() override;
-		void midiInputEvent() override;
-        void midiMapChangedEvent() override;
-		void midiOutputEvent() override;
-		void updatePreferencesEvent( int ) override;
-		void updateSongEvent( int ) override;
+   public slots:
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
-public slots:
-		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
+   private:
+	void hideEvent( QHideEvent* pEvent ) override;
+	void resizeEvent( QResizeEvent* pEvent ) override;
+	void showEvent( QShowEvent* pEvent ) override;
 
-private:
-		void hideEvent( QHideEvent* pEvent ) override;
-        void resizeEvent( QResizeEvent* pEvent ) override;
-		void showEvent( QShowEvent* pEvent ) override;
+	void updateFont();
+	void updateIcons();
 
-		void updateFont();
-		void updateIcons();
+	void updateInstrumentTable();
+	/** @returns the row number corresponding to the objects just added. */
+	void addInstrumentTableRow();
+	void updateInstrumentTableRow(
+		int nRow,
+		std::shared_ptr<H2Core::Instrument> pInstrument
+	);
+	void updateInputTable();
+	void updateOutputTable();
 
-		void updateInstrumentTable();
-		/** @returns the row number corresponding to the objects just added. */
-		void addInstrumentTableRow();
-		void updateInstrumentTableRow(
-				int nRow, std::shared_ptr<H2Core::Instrument> pInstrument );
-		void updateInputTable();
-		void updateOutputTable();
+	static bool lastRowVisible( QTableWidget* );
 
-        static bool lastRowVisible( QTableWidget* );
+	QTabWidget* m_pTabWidget;
 
-		QTabWidget* m_pTabWidget;
+	QWidget* m_pInputCheckboxWidget;
+	QCheckBox* m_pInputIgnoreNoteOffCheckBox;
+	QCheckBox* m_pInputMidiClockCheckBox;
+	QCheckBox* m_pInputMidiTransportCheckBox;
+	QCheckBox* m_pOutputEnableMidiFeedbackCheckBox;
+	LCDSpinBox* m_pInputActionChannelSpinBox;
 
-        QWidget* m_pInputCheckboxWidget;
-		QCheckBox* m_pInputIgnoreNoteOffCheckBox;
-		QCheckBox* m_pInputMidiClockCheckBox;
-		QCheckBox* m_pInputMidiTransportCheckBox;
-		QCheckBox* m_pOutputEnableMidiFeedbackCheckBox;
-		LCDSpinBox* m_pInputActionChannelSpinBox;
+	QWidget* m_pOutputCheckboxWidget;
+	QCheckBox* m_pOutputMidiClockCheckBox;
+	QCheckBox* m_pOutputMidiTransportCheckBox;
 
-        QWidget* m_pOutputCheckboxWidget;
-		QCheckBox* m_pOutputMidiClockCheckBox;
-		QCheckBox* m_pOutputMidiTransportCheckBox;
+	QComboBox* m_pInputNoteMappingComboBox;
+	QComboBox* m_pOutputNoteMappingComboBox;
+	LCDSpinBox* m_pOutputFeedbackChannelSpinBox;
 
-		QComboBox* m_pInputNoteMappingComboBox;
-		QComboBox* m_pOutputNoteMappingComboBox;
-		LCDSpinBox* m_pOutputFeedbackChannelSpinBox;
+	QCheckBox* m_pGlobalInputChannelCheckBox;
+	LCDSpinBox* m_pGlobalInputChannelSpinBox;
+	QCheckBox* m_pGlobalOutputChannelCheckBox;
+	LCDSpinBox* m_pGlobalOutputChannelSpinBox;
+	QTableWidget* m_pInstrumentTable;
 
-		QCheckBox* m_pGlobalInputChannelCheckBox;
-		LCDSpinBox* m_pGlobalInputChannelSpinBox;
-		QCheckBox* m_pGlobalOutputChannelCheckBox;
-		LCDSpinBox* m_pGlobalOutputChannelSpinBox;
-		QTableWidget* m_pInstrumentTable;
+	QTableWidget* m_pMidiInputTable;
+	QToolButton* m_pInputBinButton;
 
-		QTableWidget* m_pMidiInputTable;
-		QToolButton* m_pInputBinButton;
+	QTableWidget* m_pMidiOutputTable;
+	QToolButton* m_pOutputBinButton;
 
-		QTableWidget* m_pMidiOutputTable;
-		QToolButton* m_pOutputBinButton;
+	MidiActionTable* m_pMidiActionTable;
 
-		MidiActionTable* m_pMidiActionTable;
-
-		/** We cache the instruments used in slot handlers of
-         * #m_pInstrumentTable in this map and access them with a combination
-         * of instrument type and id. This way we ensure no shared pointer to
-         * any of these core data types gets stuck in a callback context and
-         * e.g. causes sample data to not be freed. */
-		std::map<
-			std::pair<H2Core::Instrument::Type, H2Core::Instrument::Id>,
-			std::shared_ptr<H2Core::Instrument> >
-			m_instrumentMap;
+	/** We cache the instruments used in slot handlers of
+	 * #m_pInstrumentTable in this map and access them with a combination
+	 * of instrument type and id. This way we ensure no shared pointer to
+	 * any of these core data types gets stuck in a callback context and
+	 * e.g. causes sample data to not be freed. */
+	std::map<
+		std::pair<H2Core::Instrument::Type, H2Core::Instrument::Id>,
+		std::shared_ptr<H2Core::Instrument> >
+		m_instrumentMap;
 };
 
 #endif

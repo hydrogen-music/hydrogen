@@ -168,6 +168,19 @@ class Preferences : public H2Core::Object<Preferences> {
 		preFader = 1
 	};
 
+	/** Whether Hydrogen should pair a sent NOTE_ON message with the
+	 * corresponding NOTE_OFF.
+	 *
+	 * Note that this does not affect stop notes (created using Shift + click).
+	 * They will always result in a NOTE_OFF event. */
+	enum class MidiSendNoteOff {
+		Always = 0,
+		/** Only send NOTE_OFF messages for notes featuring a user-defined
+		 * length. */
+		OnCustomLengths = 1,
+		Never = 2
+	};
+
 	static void create_instance();
 	static std::shared_ptr<Preferences> get_instance()
 	{
@@ -280,6 +293,8 @@ class Preferences : public H2Core::Object<Preferences> {
 	void setMidiClockOutputSend( bool bHandle );
 	bool getMidiTransportOutputSend() const;
 	void setMidiTransportOutputSend( bool bHandle );
+	MidiSendNoteOff getMidiSendNoteOff() const;
+	void setMidiSendNoteOff( MidiSendNoteOff noteOff );
 
 	// OSC Server properties
 	/** \return #m_bOscServerEnabled*/
@@ -632,6 +647,7 @@ class Preferences : public H2Core::Object<Preferences> {
 	/** Whether Hydrogen will send outgoing MIDI START, STOP, CONTINUE,
 	 * and SONG_POSITION_POINTER messages on transport changes. */
 	bool m_bMidiTransportOutputSend;
+	MidiSendNoteOff m_midiSendNoteOff;
 
 	/** In case the rubberband binary was not found in common places, this
 	 * variable indicated - if `true` - that Hydrogen should continue
@@ -1297,6 +1313,16 @@ inline bool Preferences::getMidiTransportOutputSend() const
 inline void Preferences::setMidiTransportOutputSend( bool bHandle )
 {
 	m_bMidiTransportOutputSend = bHandle;
+}
+inline Preferences::MidiSendNoteOff Preferences::getMidiSendNoteOff() const
+{
+	return m_midiSendNoteOff;
+}
+inline void Preferences::setMidiSendNoteOff(
+	Preferences::MidiSendNoteOff noteOff
+)
+{
+	m_midiSendNoteOff = noteOff;
 }
 inline bool Preferences::getOscServerEnabled() const
 {
