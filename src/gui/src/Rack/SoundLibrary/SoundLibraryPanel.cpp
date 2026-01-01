@@ -242,17 +242,20 @@ void SoundLibraryPanel::updateTree()
 
 		m_drumkitLabels << sItemLabel;
 		m_drumkitRegister[ sItemLabel ] = ssPath;
-			
+
 		pDrumkitItem->setText( 0, sItemLabel );
 		pDrumkitItem->setToolTip( 0, ssPath );
-		if ( ! m_bInItsOwnDialog ) {
+		if ( !m_bInItsOwnDialog ) {
 			auto pInstrList = ppDrumkit->getInstruments();
 			for ( const auto& pInstrument : *ppDrumkit->getInstruments() ) {
 				if ( pInstrument != nullptr ) {
-					QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
-					pInstrumentItem->setText( 0, QString( "[%1] %2" )
-											  .arg( pInstrument->getId() )
-											  .arg( pInstrument->getName() ) );
+					QTreeWidgetItem* pInstrumentItem =
+						new QTreeWidgetItem( pDrumkitItem );
+					pInstrumentItem->setText(
+						0, QString( "[%1] %2" )
+							   .arg( static_cast<int>( pInstrument->getId() ) )
+							   .arg( pInstrument->getName() )
+					);
 					pInstrumentItem->setToolTip( 0, pInstrument->getName() );
 				}
 			}

@@ -23,6 +23,7 @@
 #ifndef SMF_H
 #define SMF_H
 
+#include <core/Basics/Instrument.h>
 #include <core/Object.h>
 
 #include <memory>
@@ -35,7 +36,6 @@
 namespace H2Core
 {
 
-class Instrument;
 class Pattern;
 class Song;
 
@@ -252,7 +252,7 @@ protected:
 private:
 	/** Contains events for each instrument in separate list using the
 	 * corresponding instrument ID as index. */
-	std::map<int, std::shared_ptr<EventList> > m_eventLists;
+	std::map<Instrument::Id, std::shared_ptr<EventList> > m_eventLists;
 };
 
 

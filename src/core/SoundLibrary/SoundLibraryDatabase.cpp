@@ -359,8 +359,8 @@ QStringList SoundLibraryDatabase::getDrumkitFolders() const {
 	return drumkitFolders;
 }
 
-std::set<DrumkitMap::Type> SoundLibraryDatabase::getAllTypes() const {
-	std::set<DrumkitMap::Type> allTypes;
+std::set<Instrument::Type> SoundLibraryDatabase::getAllTypes() const {
+	std::set<Instrument::Type> allTypes;
 	for ( const auto& [ _, ppDrumkit ] : m_drumkitDatabase ) {
 		if ( ppDrumkit != nullptr ) {
 			allTypes.merge( ppDrumkit->getAllTypes() );

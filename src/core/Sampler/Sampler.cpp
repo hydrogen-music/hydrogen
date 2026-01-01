@@ -56,15 +56,20 @@
 namespace H2Core
 {
 
-static std::shared_ptr<Instrument> createInstrument(int id, const QString& sFilePath, float volume )
+static std::shared_ptr<Instrument>
+createInstrument( Instrument::Id id, const QString& sFilePath, float volume )
 {
 	auto pInstrument = std::make_shared<Instrument>( id, sFilePath );
 	pInstrument->setVolume( volume );
-	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( sFilePath ) );
+	auto pLayer =
+		std::make_shared<InstrumentLayer>( Sample::load( sFilePath ) );
 	auto pComponent = pInstrument->getComponent( 0 );
 	if ( pComponent != nullptr ) {
-		pInstrument->addLayer( pComponent, pLayer, -1, Event::Trigger::Suppress );
-	} else {
+		pInstrument->addLayer(
+			pComponent, pLayer, -1, Event::Trigger::Suppress
+		);
+	}
+	else {
 		___ERRORLOG( "Invalid default component" );
 	}
 
@@ -72,29 +77,28 @@ static std::shared_ptr<Instrument> createInstrument(int id, const QString& sFile
 }
 
 Sampler::Sampler()
-		: m_pMainOut_L( nullptr )
-		, m_pMainOut_R( nullptr )
-		, m_pPreviewInstrument( nullptr )
-		, m_interpolateMode( Interpolation::InterpolateMode::Linear )
+	: m_pMainOut_L( nullptr ),
+	  m_pMainOut_R( nullptr ),
+	  m_pPreviewInstrument( nullptr ),
+	  m_interpolateMode( Interpolation::InterpolateMode::Linear )
 {
-	
-	
-	m_pMainOut_L = new float[ MAX_BUFFER_SIZE ];
-	m_pMainOut_R = new float[ MAX_BUFFER_SIZE ];
+	m_pMainOut_L = new float[MAX_BUFFER_SIZE];
+	m_pMainOut_R = new float[MAX_BUFFER_SIZE];
 
 	QString sEmptySampleFileName = Filesystem::empty_sample_path();
 
 	// instrument used in file preview
-	m_pDefaultPreviewInstrument = createInstrument(
-		EMPTY_INSTR_ID, sEmptySampleFileName, 0.8 );
+	m_pDefaultPreviewInstrument =
+		createInstrument( Instrument::EmptyId, sEmptySampleFileName, 0.8 );
 	m_pDefaultPreviewInstrument->setIsPreviewInstrument( true );
 	m_pPreviewInstrument = m_pDefaultPreviewInstrument;
 
 	// dummy instrument used for playback track
-	m_pPlaybackTrackInstrument = createInstrument( PLAYBACK_INSTR_ID, sEmptySampleFileName, 0.8 );
+	m_pPlaybackTrackInstrument = createInstrument(
+		Instrument::PlaybackTrackId, sEmptySampleFileName, 0.8
+	);
 	m_nPlayBackSamplePosition = 0;
 }
-
 
 Sampler::~Sampler()
 {
@@ -772,7 +776,7 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 
 		bool bIsMuted = false;
 		if ( pInstr->isPreviewInstrument() ||
-			 pInstr->getId() == METRONOME_INSTR_ID ) {
+			 pInstr->getId() == Instrument::MetronomeId ) {
 			// Metronome and preview is done for things not related to the what
 			// is happening in the song and pattern editors or drumkit. But,
 			// then again, it should still be possible to prevent all audio

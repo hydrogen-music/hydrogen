@@ -162,15 +162,15 @@ class Note : public H2Core::Object<Note>
 		/** #m_pInstrument accessor */
 		std::shared_ptr<Instrument> getInstrument() const;
 		/**
-		 * #m_nInstrumentId setter
+		 * #m_instrumentId setter
 		 * \param value the new value
 		 */
-		void setInstrumentId( int value );
-		/** #m_nInstrumentId accessor */
-		int getInstrumentId() const;
+		void setInstrumentId( Instrument::Id id );
+		/** #m_instrumentId accessor */
+		Instrument::Id getInstrumentId() const;
 
-		void setType( DrumkitMap::Type sType );
-		DrumkitMap::Type getType() const;
+		void setType( Instrument::Type sType );
+		Instrument::Type getType() const;
 
 		/**
 		 * #m_nPosition setter
@@ -309,12 +309,12 @@ class Note : public H2Core::Object<Note>
 		/** @returns true if instrument id and type as well as key and octave
 		 * matches with internal
 		 *
-		 * \param nInstrumentId the instrument ID to match with #m_nInstrumentId
-		 * \param sInstrumentType the instrument type to match with #m_sType
+		 * \param id the instrument ID to match with #m_instrumentId
+		 * \param sType the instrument type to match with #m_sType
 		 * \param key the key to match with #m_key
 		 * \param octave the octave to match with #m_octave
 		 */
-		bool match( int nInstrumentId, const QString& sType, Key key,
+		bool match( Instrument::Id id, const Instrument::Type& sType, Key key,
 					Octave octave ) const;
 
 		/** Return true if two notes match in instrument, key and octave. */
@@ -448,14 +448,14 @@ class Note : public H2Core::Object<Note>
 		 * Note that this number being set does not mean that the note is
 		 * actually associated with an instrument of the (current) drumkit. The
 		 * pointer #m_pInstrument will tell instead. */
-        int				m_nInstrumentId;
+        Instrument::Id m_instrumentId;
 		/** Drumkit-independent identifier used to relate a note/pattern to a
 		 * different kit.
 		 *
 		 * Note that this one being set does not mean that the note is actually
 		 * associated with an instrument of the (current) drumkit. The pointer
 		 * #m_pInstrument will tell instead. */
-		DrumkitMap::Type m_sType;
+		Instrument::Type m_sType;
 		int				m_nPosition;             ///< note position in
 												///ticks inside the pattern
 		float			m_fVelocity;           ///< velocity (intensity) of the note [0;1]
@@ -535,20 +535,20 @@ inline std::shared_ptr<Instrument> Note::getInstrument() const
 	return m_pInstrument;
 }
 
-inline void Note::setInstrumentId( int value )
+inline void Note::setInstrumentId( Instrument::Id id )
 {
-	m_nInstrumentId = value;
+	m_instrumentId = id;
 }
 
-inline int Note::getInstrumentId() const
+inline Instrument::Id Note::getInstrumentId() const
 {
-	return m_nInstrumentId;
+	return m_instrumentId;
 }
 
-inline void Note::setType( DrumkitMap::Type sType ) {
+inline void Note::setType( Instrument::Type sType ) {
 	m_sType = sType;
 }
-inline DrumkitMap::Type Note::getType() const {
+inline Instrument::Type Note::getType() const {
 	return m_sType;
 }
 
@@ -677,11 +677,15 @@ inline void Note::setMidiInfo( Key key, Octave octave, int msg )
 	m_nMidiMsg = msg;
 }
 
-inline bool Note::match( int nInstrumentId, const QString& sType, Key key,
-						 Octave octave ) const
+inline bool Note::match(
+	Instrument::Id id,
+	const Instrument::Type& sType,
+	Key key,
+	Octave octave
+) const
 {
-	return m_nInstrumentId == nInstrumentId && m_sType == sType &&
-		m_key == key && m_octave==octave;
+	return m_instrumentId == id && m_sType == sType && m_key == key &&
+		   m_octave == octave;
 }
 
 inline bool Note::matchPosition( const std::shared_ptr<Note> pNote ) const
@@ -689,7 +693,7 @@ inline bool Note::matchPosition( const std::shared_ptr<Note> pNote ) const
 	if ( pNote == nullptr ) {
 		return false;
 	}
-	return m_nInstrumentId == pNote->m_nInstrumentId &&
+	return m_instrumentId == pNote->m_instrumentId &&
 		m_sType == pNote->m_sType &&
 		m_nPosition == pNote->m_nPosition &&
 		m_key == pNote->m_key &&
@@ -701,7 +705,7 @@ inline bool Note::match( const std::shared_ptr<Note> pNote ) const
 	if ( pNote == nullptr ) {
 		return false;
 	}
-	return m_nInstrumentId == pNote->m_nInstrumentId &&
+	return m_instrumentId == pNote->m_instrumentId &&
 		m_sType == pNote->m_sType &&
 		m_nPosition == pNote->m_nPosition &&
 		m_fVelocity == pNote->m_fVelocity &&

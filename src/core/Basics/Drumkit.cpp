@@ -39,7 +39,6 @@
 
 #include <core/Basics/Sample.h>
 #include <core/Basics/DrumkitMap.h>
-#include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
@@ -97,7 +96,8 @@ std::shared_ptr<Drumkit> Drumkit::getEmptyDrumkit() {
 
 	auto pDrumkit = std::make_shared<Drumkit>();
 	auto pInstrList = std::make_shared<InstrumentList>();
-	auto pNewInstr = std::make_shared<Instrument>( 0 );
+	auto pNewInstr =
+		std::make_shared<Instrument>( static_cast<Instrument::Id>( 0 ) );
 	pInstrList->add( pNewInstr );
 	pDrumkit->setInstruments( pInstrList );
 	pDrumkit->setName( sDrumkitName );
@@ -233,7 +233,7 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 	//
 	// Check for duplicates in instrument types. If we found one, we replace
 	// every but the first occurrence by an empty string.
-	std::set<DrumkitMap::Type> types;
+	std::set<Instrument::Type> types;
 	QStringList duplicates;
 	for ( const auto& ppInstrument : *pDrumkit->m_pInstruments ) {
 		if ( ppInstrument != nullptr && ! ppInstrument->getType().isEmpty() ) {
@@ -575,7 +575,7 @@ void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument,
 
 	// Check whether the instrument's id is valid and not present yet.
 	bool bIdValid = true;
-	if ( pInstrument->getId() >= 0 ) {
+	if ( pInstrument->getId() != Instrument::EmptyId ) {
 		for ( const auto& ppInstrument : *m_pInstruments ) {
 			if ( ppInstrument != nullptr &&
 				 ppInstrument->getId() == pInstrument->getId() ) {
@@ -588,26 +588,26 @@ void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument,
 		bIdValid = false;
 	}
 
-	if ( ! bIdValid ) {
+	if ( !bIdValid ) {
 		// create a new valid ID for this instrument
 		int nNewId = m_pInstruments->size();
 		for ( int ii = 0; ii < m_pInstruments->size(); ++ii ) {
 			bool bIsPresent = false;
 			for ( const auto& ppInstrument : *m_pInstruments ) {
 				if ( ppInstrument != nullptr &&
-					 ppInstrument->getId() == ii ) {
+					 static_cast<int>( ppInstrument->getId() ) == ii ) {
 					bIsPresent = true;
 					break;
 				}
 			}
 
-			if ( ! bIsPresent ) {
+			if ( !bIsPresent ) {
 				nNewId = ii;
 				break;
 			}
 		}
 
-		pInstrument->setId( nNewId );
+		pInstrument->setId( static_cast<Instrument::Id>( nNewId ) );
 	}
 
 	// Instrument types must be unique in a kit.
@@ -1313,17 +1313,21 @@ QString Drumkit::ContextToString( const Context& context ) {
 	}
 }
 
-std::set<DrumkitMap::Type> Drumkit::getAllTypes() const {
-	std::set<DrumkitMap::Type> types;
+std::set<Instrument::Type> Drumkit::getAllTypes() const
+{
+	std::set<Instrument::Type> types;
 
 	for ( const auto ppInstrument : *m_pInstruments ) {
-		if ( ppInstrument != nullptr && ! ppInstrument->getType().isEmpty() ) {
-			const auto [ _, bSuccess ] = types.insert( ppInstrument->getType() );
-			if ( ! bSuccess ) {
-				WARNINGLOG( QString( "Instrument types must be unique! Type [%1] of instrument (id: %2, name: %3) will be omitted." )
-							.arg( ppInstrument->getType() )
-							.arg( ppInstrument->getId() )
-							.arg( ppInstrument->getName() ) );
+		if ( ppInstrument != nullptr && !ppInstrument->getType().isEmpty() ) {
+			const auto [_, bSuccess] = types.insert( ppInstrument->getType() );
+			if ( !bSuccess ) {
+				WARNINGLOG(
+					QString( "Instrument types must be unique! Type [%1] of "
+							 "instrument (id: %2, name: %3) will be omitted." )
+						.arg( ppInstrument->getType() )
+						.arg( static_cast<int>( ppInstrument->getId() ) )
+						.arg( ppInstrument->getName() )
+				);
 			}
 		}
 	}
@@ -1331,17 +1335,20 @@ std::set<DrumkitMap::Type> Drumkit::getAllTypes() const {
 	return types;
 }
 
-std::shared_ptr<DrumkitMap> Drumkit::toDrumkitMap() const {
+std::shared_ptr<DrumkitMap> Drumkit::toDrumkitMap() const
+{
 	auto pMap = std::make_shared<DrumkitMap>();
 
 	for ( const auto& ppInstrument : *m_pInstruments ) {
-		if ( ppInstrument != nullptr && ! ppInstrument->getType().isEmpty() ) {
-			if ( ! pMap->addMapping( ppInstrument->getId(),
-									 ppInstrument->getType() ) ) {
-				ERRORLOG( QString( "Unable to add type [%1] for instrument (id: %2, name: %3)" )
-						  .arg( ppInstrument->getType() )
-						  .arg( ppInstrument->getId() )
-						  .arg( ppInstrument->getName() ) );
+		if ( ppInstrument != nullptr && !ppInstrument->getType().isEmpty() ) {
+			if ( !pMap->addMapping(
+					 ppInstrument->getId(), ppInstrument->getType()
+				 ) ) {
+				ERRORLOG( QString( "Unable to add type [%1] for instrument "
+								   "(id: %2, name: %3)" )
+							  .arg( ppInstrument->getType() )
+							  .arg( static_cast<int>( ppInstrument->getId() ) )
+							  .arg( ppInstrument->getName() ) );
 			}
 		}
 	}
@@ -1350,9 +1357,9 @@ std::shared_ptr<DrumkitMap> Drumkit::toDrumkitMap() const {
 }
 
 std::shared_ptr<Instrument> Drumkit::mapInstrument( const QString& sType,
-													int nInstrumentId,
+													Instrument::Id instrumentId,
 													std::shared_ptr<Drumkit> pOldDrumkit,
-													DrumkitMap::Type* pNewType )
+													Instrument::Type* pNewType )
 {
 	const auto pDrumkitMap = toDrumkitMap();
 
@@ -1369,9 +1376,9 @@ std::shared_ptr<Instrument> Drumkit::mapInstrument( const QString& sType,
 		// pattern editor.)
 		if ( pDrumkitMap->getAllTypes().size() > 0 ) {
 			bool bFound;
-			const int nId = pDrumkitMap->getId( sType, &bFound );
+			const auto id = pDrumkitMap->getId( sType, &bFound );
 			if ( bFound ) {
-				pInstrument = m_pInstruments->find( nId );
+				pInstrument = m_pInstruments->find( id );
 			}
 
 			if ( pOldDrumkit != nullptr ) {
@@ -1383,11 +1390,11 @@ std::shared_ptr<Instrument> Drumkit::mapInstrument( const QString& sType,
 				// Initial type adding and type removal has to be done
 				// explicitly.
 				const auto pOldDrumkitMap = pOldDrumkit->toDrumkitMap();
-				const int nOldId = pOldDrumkitMap->getId( sType, &bFound );
+				const auto oldId = pOldDrumkitMap->getId( sType, &bFound );
 				if ( getPath() == pOldDrumkit->getPath() &&
 					 getName() == pOldDrumkit->getName() &&
-					 bFound && nId != nOldId ) {
-					pInstrument = m_pInstruments->find( nOldId );
+					 bFound && id != oldId ) {
+					pInstrument = m_pInstruments->find( oldId );
 					if ( pInstrument != nullptr && pNewType != nullptr &&
 						 ! pInstrument->getType().isEmpty() ) {
 						*pNewType = pInstrument->getType();
@@ -1412,7 +1419,7 @@ std::shared_ptr<Instrument> Drumkit::mapInstrument( const QString& sType,
 		if ( pOldDrumkit != nullptr ) {
 			auto pOldInstruments = pOldDrumkit->getInstruments();
 			const auto pOldInstrument =
-				pOldDrumkit->getInstruments()->find( nInstrumentId );
+				pOldDrumkit->getInstruments()->find( instrumentId );
 			if ( pOldInstrument != nullptr ) {
 				const int nOldIndex = pOldInstruments->index( pOldInstrument );
 
@@ -1423,7 +1430,7 @@ std::shared_ptr<Instrument> Drumkit::mapInstrument( const QString& sType,
 		}
 
 		if ( pInstrument == nullptr ) {
-			pInstrument = m_pInstruments->find( nInstrumentId );
+			pInstrument = m_pInstruments->find( instrumentId );
 		}
 
 		// For a clean and easy to grasp concept of the automated mapping,

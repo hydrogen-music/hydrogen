@@ -593,17 +593,17 @@ void ExportSongDialog::on_okBtn_clicked()
 
 }
 
-bool ExportSongDialog::instrumentHasNotes( int nInstrumentId )
+bool ExportSongDialog::instrumentHasNotes( int nInstrumentIndex )
 {
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr && pSong->getDrumkit() == nullptr ) {
 		return false;
 	}
 	const auto pInstrument =
-		pSong->getDrumkit()->getInstruments()->get( nInstrumentId );
+		pSong->getDrumkit()->getInstruments()->get( nInstrumentIndex );
 	if ( pInstrument == nullptr ) {
 		ERRORLOG( QString( "Could not retrieve instrument of id [%1]" )
-				  .arg( nInstrumentId ) );
+				  .arg( nInstrumentIndex ) );
 		return false;
 	}
 
@@ -612,7 +612,8 @@ bool ExportSongDialog::instrumentHasNotes( int nInstrumentId )
 	// do not have to check whether a pattern is actually played back over the
 	// course of a song.
 	for ( const auto& ppNote : pSong->getAllNotes() ) {
-		if ( ppNote != nullptr && ppNote->getInstrumentId() == nInstrumentId ) {
+		if ( ppNote != nullptr &&
+			 ppNote->getInstrumentId() == pInstrument->getId() ) {
 			return true;
 		}
 	}
@@ -636,13 +637,16 @@ QString ExportSongDialog::findUniqueExportFileNameForInstrument( std::shared_ptr
 			instrumentOccurence++;
 		}
 	}
-	
-	if(instrumentOccurence >= 2){
-		uniqueInstrumentName = pInstrument->getName() + QString("_") + QString::number( pInstrument->getId() );
-	} else {
+
+	if ( instrumentOccurence >= 2 ) {
+		uniqueInstrumentName =
+			pInstrument->getName() + QString( "_" ) +
+			QString::number( static_cast<int>( pInstrument->getId() ) );
+	}
+	else {
 		uniqueInstrumentName = pInstrument->getName();
 	}
-	
+
 	return uniqueInstrumentName;
 }
 

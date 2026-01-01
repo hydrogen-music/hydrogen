@@ -824,13 +824,13 @@ void SMF1WriterMulti::addEvent( std::shared_ptr<SMFEvent> pEvent,
 
 	if ( pEvent->m_type == SMFEvent::Type::NoteOn ||
 		 pEvent->m_type == SMFEvent::Type::NoteOff ) {
-		const int nIndex = pInstr->getId();
-		if ( m_eventLists.find( nIndex ) == m_eventLists.end() ) {
+		const auto id = pInstr->getId();
+		if ( m_eventLists.find( id ) == m_eventLists.end() ) {
 			ERRORLOG( QString( "EventList of index [%1] not found" ) );
 			return;
 		}
 
-		auto pEventList = m_eventLists[ nIndex ];
+		auto pEventList = m_eventLists[ id ];
 		if ( pEventList != nullptr ) {
 			pEventList->push_back( pEvent );
 		}
@@ -874,35 +874,45 @@ void SMF1WriterMulti::packEvents( std::shared_ptr<Song> pSong,
 	m_eventLists.clear();
 }
 
-QString SMF1WriterMulti::toQString( const QString& sPrefix, bool bShort ) const {
+QString SMF1WriterMulti::toQString( const QString& sPrefix, bool bShort ) const
+{
 	QString s = Base::sPrintIndention;
 	QString sOutput;
-	if ( ! bShort ) {
-		sOutput = QString( "%1[SMF1WriterMulti] m_eventLists: \n" ).arg( sPrefix );
-		for ( const auto& [ nnId, ppEventList ] : m_eventLists ) {
-			sOutput.append( QString( "%1%2[%3]:\n" ).arg( sPrefix )
-							.arg( s ).arg( nnId ) );
+	if ( !bShort ) {
+		sOutput =
+			QString( "%1[SMF1WriterMulti] m_eventLists: \n" ).arg( sPrefix );
+		for ( const auto& [iid, ppEventList] : m_eventLists ) {
+			sOutput.append( QString( "%1%2[%3]:\n" )
+								.arg( sPrefix )
+								.arg( s )
+								.arg( static_cast<int>( iid ) ) );
 			for ( const auto& ppEvent : *ppEventList ) {
-				sOutput.append( QString( "%1%2\n" ).arg( sPrefix + s + s )
-								.arg( ppEvent->toQString( "", true ) ) );
+				sOutput.append( QString( "%1%2\n" )
+									.arg( sPrefix + s + s )
+									.arg( ppEvent->toQString( "", true ) ) );
 			}
 		}
-		sOutput.append( QString( "%1%2m_bOmitCopyright: %3\n" ).arg( sPrefix )
-						.arg( s ).arg( m_bOmitCopyright ) );
-}
+		sOutput.append( QString( "%1%2m_bOmitCopyright: %3\n" )
+							.arg( sPrefix )
+							.arg( s )
+							.arg( m_bOmitCopyright ) );
+	}
 	else {
 		sOutput = QString( "[SMF1WriterMulti] m_eventLists: [" );
-		for ( const auto& [ nnId, ppEventList ] : m_eventLists ) {
-			sOutput.append( QString( "[[%1]: " ).arg( nnId ) );
+		for ( const auto& [iid, ppEventList] : m_eventLists ) {
+			sOutput.append( QString( "[[%1]: " ).arg( static_cast<int>( iid ) )
+			);
 			for ( const auto& ppEvent : *ppEventList ) {
-				sOutput.append( QString( "[%1] " )
-								.arg( ppEvent->toQString( s + s, true ) ) );
+				sOutput.append(
+					QString( "[%1] " ).arg( ppEvent->toQString( s + s, true ) )
+				);
 			}
 			sOutput.append( "] " );
 		}
-		sOutput.append( QString( "], m_bOmitCopyright: %1" )
-						.arg( m_bOmitCopyright ) );
-}
+		sOutput.append(
+			QString( "], m_bOmitCopyright: %1" ).arg( m_bOmitCopyright )
+		);
+	}
 
 	return sOutput;
 }

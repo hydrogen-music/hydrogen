@@ -369,7 +369,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
       pAudioEngine->unlock();
       return false;
     }
-	const int nInstrumentId = pInstrument->getId();
+	const auto instrumentId = pInstrument->getId();
 
 	// Get current pattern and column
 	std::shared_ptr<Pattern> pCurrentPattern = nullptr;
@@ -489,7 +489,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 		else { // note on
 			EventQueue::AddMidiNoteVector noteAction;
 			noteAction.m_column = nTickInPattern;
-			noteAction.m_instrumentId = nInstrumentId;
+			noteAction.m_id = instrumentId;
 			noteAction.m_pattern = currentPatternNumber;
 			noteAction.f_velocity = fVelocity;
 			noteAction.f_pan = fPan;

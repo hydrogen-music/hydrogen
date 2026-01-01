@@ -37,7 +37,6 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
@@ -124,8 +123,8 @@ PatternEditor::~PatternEditor() {
 }
 
 void PatternEditor::addOrRemoveNoteAction( int nPosition,
-										   int nInstrumentId,
-										   const QString& sType,
+										   Instrument::Id id,
+										   const Instrument::Type& sType,
 										   int nPatternNumber,
 										   int nOldLength,
 										   float fOldVelocity,
@@ -161,7 +160,7 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 		return;
 	}
 
-	if ( nInstrumentId == EMPTY_INSTR_ID && sType.isEmpty() ) {
+	if ( id == Instrument::EmptyId && sType.isEmpty() ) {
 		DEBUGLOG( QString( "Empty row" ) );
 		return;
 	}
@@ -182,7 +181,7 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 			  it != pNotes->end() && it->first <= nPosition; ++it ) {
 			auto ppNote = it->second;
 			if ( ppNote != nullptr &&
-				 ppNote->getInstrumentId() == nInstrumentId &&
+				 ppNote->getInstrumentId() == id &&
 				 ppNote->getType() == sType &&
 				 ppNote->getKey() == static_cast<Note::Key>(nOldKey) &&
 				 ppNote->getOctave() == static_cast<Note::Octave>(nOldOctave) ) {
@@ -246,15 +245,15 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 		}
 
 		std::shared_ptr<Instrument> pInstrument = nullptr;
-		if ( nInstrumentId != EMPTY_INSTR_ID && bIsMappedToDrumkit ) {
+		if ( id != Instrument::EmptyId && bIsMappedToDrumkit ) {
 			// Can still be nullptr for notes in unmapped rows.
 			pInstrument =
-				pSong->getDrumkit()->getInstruments()->find( nInstrumentId );
+				pSong->getDrumkit()->getInstruments()->find( id );
 		}
 
 		auto pNote = std::make_shared<Note>( pInstrument, nPosition, fVelocity,
 											 fPan, nLength );
-		pNote->setInstrumentId( nInstrumentId );
+		pNote->setInstrumentId( id );
 		pNote->setType( sType );
 		pNote->setNoteOff( bIsNoteOff );
 		pNote->setLeadLag( fOldLeadLag );
@@ -361,10 +360,10 @@ void PatternEditor::undoDeselectAndOverwriteNotes(
 void PatternEditor::editNotePropertiesAction( const Property& property,
 											  int nPatternNumber,
 											  int nPosition,
-											  int nOldInstrumentId,
-											  int nNewInstrumentId,
-											  const QString& sOldType,
-											  const QString& sNewType,
+											  Instrument::Id oldId,
+											  Instrument::Id newId,
+											  const Instrument::Type& sOldType,
+											  const Instrument::Type& sNewType,
 											  float fVelocity,
 											  float fPan,
 											  float fLeadLag,
@@ -397,7 +396,7 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 
 	// Find the note to edit
 	auto pNote = pPattern->findNote(
-		nPosition, nOldInstrumentId, sOldType, static_cast<Note::Key>(nOldKey),
+		nPosition, oldId, sOldType, static_cast<Note::Key>(nOldKey),
 		static_cast<Note::Octave>(nOldOctave) );
 	if ( pNote == nullptr && property == Property::Type ) {
 		// Maybe the type of an unmapped note was set to one already present in
@@ -406,12 +405,13 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 		// action.
 		//
 		bool bOk;
-		const int nKitId =
+		const auto kitId =
 			pSong->getDrumkit()->toDrumkitMap()->getId( sOldType, &bOk );
 		if ( bOk ) {
 			pNote = pPattern->findNote(
-				nPosition, nKitId, sOldType, static_cast<Note::Key>(nOldKey),
-				static_cast<Note::Octave>(nOldOctave) );
+				nPosition, kitId, sOldType, static_cast<Note::Key>( nOldKey ),
+				static_cast<Note::Octave>( nOldOctave )
+			);
 		}
 	}
 	else if ( pNote == nullptr && property == Property::InstrumentId ) {
@@ -467,12 +467,12 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 			break;
 		case Property::Type:
 			if ( pNote->getType() != sNewType ||
-				 pNote->getInstrumentId() != nNewInstrumentId ) {
-				pNote->setInstrumentId( nNewInstrumentId );
+				 pNote->getInstrumentId() != newId ) {
+				pNote->setInstrumentId( newId );
 				pNote->setType( sNewType );
 
 				auto pInstrument = pSong->getDrumkit()->mapInstrument(
-					sNewType, nNewInstrumentId );
+					sNewType, newId );
 
 				pNote->mapToInstrument( pInstrument );
 
@@ -488,8 +488,8 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 			}
 			break;
 		case Property::InstrumentId:
-			if ( pNote->getInstrumentId() != nNewInstrumentId ) {
-				pNote->setInstrumentId( nNewInstrumentId );
+			if ( pNote->getInstrumentId() != newId ) {
+				pNote->setInstrumentId( newId );
 				bValueChanged = true;
 			}
 			break;
@@ -1282,7 +1282,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 			addActions.push_back(
 				new SE_addOrRemoveNoteAction(
 					nNewPosition,
-					newRow.nInstrumentID,
+					newRow.id,
 					newRow.sType,
 					m_pPatternEditorPanel->getPatternNumber(),
 					nLength,
@@ -1653,7 +1653,7 @@ void PatternEditor::paste() {
 	QClipboard *clipboard = QApplication::clipboard();
 	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB( nSelectedRow );
-	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+	if ( selectedRow.id == Instrument::EmptyId &&
 		 selectedRow.sType.isEmpty() ) {
 		DEBUGLOG( "Empty row" );
 		return;
@@ -1752,8 +1752,8 @@ void PatternEditor::paste() {
 				continue;
 			}
 
-			int nInstrumentId;
-			QString sType;
+			Instrument::Id id;
+			Instrument::Type sType;
 			DrumPatternRow targetRow;
 			if ( m_instance == Editor::Instance::DrumPattern ) {
 				const auto nNoteRow =
@@ -1766,21 +1766,21 @@ void PatternEditor::paste() {
 						continue;
 					}
 					targetRow = m_pPatternEditorPanel->getRowDB( nRow );
-					nInstrumentId = targetRow.nInstrumentID;
+					id = targetRow.id;
 					sType = targetRow.sType;
 				}
 				else {
 					// Note can not be represented in the current DB. This means
 					// it might be a type-only one copied from a a different
 					// pattern. We will append it to the DB.
-					nInstrumentId = pNote->getInstrumentId();
+					id = pNote->getInstrumentId();
 					sType = pNote->getType();
 					bAppendedToDB = true;
 				}
 			}
 			else {
 				targetRow = m_pPatternEditorPanel->getRowDB( nSelectedRow );
-				nInstrumentId = targetRow.nInstrumentID;
+				id = targetRow.id;
 				sType = targetRow.sType;
 			}
 
@@ -1803,7 +1803,7 @@ void PatternEditor::paste() {
 			pHydrogenApp->pushUndoCommand(
 				new SE_addOrRemoveNoteAction(
 					nPos,
-					nInstrumentId,
+					id,
 					sType,
 					m_pPatternEditorPanel->getPatternNumber(),
 					pNote->getLength(),
@@ -2570,8 +2570,8 @@ void PatternEditor::alignToGrid() {
 
 		// Cache note properties since a potential first note deletion will also
 		// call the note's destructor.
-		const int nInstrumentId = ppNote->getInstrumentId();
-		const QString sType = ppNote->getType();
+		const auto id = ppNote->getInstrumentId();
+		const auto sType = ppNote->getType();
 		const int nLength = ppNote->getLength();
 		const float fVelocity = ppNote->getVelocity();
 		const float fPan = ppNote->getPan();
@@ -2585,7 +2585,7 @@ void PatternEditor::alignToGrid() {
 		// Move note -> delete at source position
 		deleteCommands.push_back( new SE_addOrRemoveNoteAction(
 									  nPosition,
-									  nInstrumentId,
+									  id,
 									  sType,
 									  m_pPatternEditorPanel->getPatternNumber(),
 									  nLength,
@@ -2629,7 +2629,7 @@ void PatternEditor::alignToGrid() {
 		// Add at target position
 		addCommands.push_back( new SE_addOrRemoveNoteAction(
 								   nNewPosition,
-								   nInstrumentId,
+								   id,
 								   sType,
 								   m_pPatternEditorPanel->getPatternNumber(),
 								   nLength,
@@ -3504,7 +3504,7 @@ void PatternEditor::drawPattern() {
 			nRow = m_pPatternEditorPanel->findRowDB( ppNote );
 			auto row = m_pPatternEditorPanel->getRowDB( nRow );
 			if ( nRow == -1 ||
-				 ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) ) {
+				 ( row.id == Instrument::EmptyId && row.sType.isEmpty() ) ) {
 				ERRORLOG( QString( "Note [%1] not associated with DB" )
 						  .arg( ppNote->toQString() ) );
 				m_pPatternEditorPanel->printDB();

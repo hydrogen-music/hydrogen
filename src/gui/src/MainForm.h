@@ -33,6 +33,7 @@
 #include "EventListener.h"
 #include "Widgets/WidgetWithScalableFont.h"
 
+#include <core/Basics/Instrument.h>
 #include <core/config.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -97,14 +98,16 @@ class MainForm :  public QMainWindow,
 		static bool switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit );
 
 		bool eventFilter( QObject *o, QEvent *e ) override;
-		/** @param nInstrumentID If set to a value different than
-		 *   #EMPTY_INSTR_ID, the corresponding line in the type tab will be
-		 *   selected on startup. */
-		static void editDrumkitProperties( bool bWriteToDisk,
-										   bool bSaveToNsmSession,
-										   int nInstrumentID = EMPTY_INSTR_ID );
+		/** @param id If set to a value different than
+		 *   #Instrument::EmptyId, the corresponding line in the type tab will
+		 * be selected on startup. */
+		static void editDrumkitProperties(
+			bool bWriteToDisk,
+			bool bSaveToNsmSession,
+			H2Core::Instrument::Id id = H2Core::Instrument::EmptyId
+		);
 
-public slots:
+	   public slots:
 		void showPreferencesDialog();
 		void showUserManual();
 

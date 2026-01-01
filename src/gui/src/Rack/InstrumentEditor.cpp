@@ -86,15 +86,23 @@ font-size: 21px;" );
 	m_pMidiOutChannelLCD->move( 146, 257 );
 	m_pMidiOutChannelLCD->setToolTip(QString(tr("Midi out channel")));
 	connect(
-		m_pMidiOutChannelLCD, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-		[&](double fValue) {
+		m_pMidiOutChannelLCD,
+		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
+		[&]( double fValue ) {
 			auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 			if ( pInstrument == nullptr ) {
 				return;
 			}
+			auto pSong = Hydrogen::get_instance()->getSong();
+			if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+				return;
+			}
 			CoreActionController::setInstrumentMidiOutChannel(
-				pInstrument->getId(), static_cast<int>(fValue), nullptr );
-		});
+				pSong->getDrumkit()->getInstruments()->index( pInstrument ),
+				static_cast<int>( fValue ), nullptr
+			);
+		}
+	);
 	m_pMidiOutChannelLbl = new ClickableLabel(
 		m_pInstrumentProp, QSize( 61, 10 ),
 		pCommonStrings->getMidiOutChannelLabel() );
@@ -107,16 +115,25 @@ font-size: 21px;" );
 	m_pMidiOutNoteLCD->move( 210, 257 );
 	m_pMidiOutNoteLCD->setToolTip(QString(tr("Midi out note")));
 	connect(
-		m_pMidiOutNoteLCD, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-		[&](double fValue) {
+		m_pMidiOutNoteLCD,
+		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
+		[&]( double fValue ) {
 			auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 			if ( pInstrument == nullptr ) {
 				return;
 			}
+			auto pSong = Hydrogen::get_instance()->getSong();
+			if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+				return;
+			}
 			CoreActionController::setInstrumentMidiOutNote(
-				pInstrument->getId(), static_cast<int>(fValue), nullptr );
-		});
-	m_pMidiOutNoteLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ) );
+				pSong->getDrumkit()->getInstruments()->index( pInstrument ),
+				static_cast<int>( fValue ), nullptr
+			);
+		}
+	);
+	m_pMidiOutNoteLbl =
+		new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ) );
 	m_pMidiOutNoteLbl->move( 208, 281 );
 
 	/////////////

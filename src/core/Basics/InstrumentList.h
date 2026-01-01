@@ -23,8 +23,10 @@
 #ifndef H2C_INSTRUMENT_LIST_H
 #define H2C_INSTRUMENT_LIST_H
 
-#include <vector>
 #include <memory>
+#include <vector>
+
+#include <core/Basics/Instrument.h>
 #include <core/License.h>
 #include <core/Object.h>
 
@@ -32,7 +34,6 @@ namespace H2Core
 {
 
 class XMLNode;
-class Instrument;
 
 /**
  * InstrumentList is a collection of instruments used within a song, a drumkit, ...
@@ -108,7 +109,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 */
 		bool isValidIndex( int idx ) const;
 		/**
-		 * get an instrument from  the list
+		 * get an instrument from the list
 		 * \param idx the index to get the instrument from
 		 */
 		std::shared_ptr<Instrument> get( int idx ) const;
@@ -129,7 +130,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * \param i the id of the instrument to find
 		 * \return 0 if not found
 		 */
-		std::shared_ptr<Instrument> find( const int i ) const;
+		std::shared_ptr<Instrument> find( const Instrument::Id id ) const;
 		/**
 		 * find an instrument within the instruments
 		 * \param name the name of the instrument to find

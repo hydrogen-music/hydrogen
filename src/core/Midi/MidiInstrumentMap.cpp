@@ -23,7 +23,6 @@
 #include "MidiInstrumentMap.h"
 
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/Instrument.h>
 #include <core/Basics/Note.h>
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
@@ -145,14 +144,16 @@ void MidiInstrumentMap::saveTo( XMLNode& node ) const {
 	for ( const auto [ ssType, nnoteRef ] : m_customInputMappingsType ) {
 		XMLNode customInput = customInputNode.createNode( "customMidiInputMapping" );
 		customInput.write_string( "instrumentType", ssType );
-		customInput.write_int( "instrumentId", EMPTY_INSTR_ID );
+		customInput.write_int(
+			"instrumentId", static_cast<int>( Instrument::EmptyId )
+		);
 		customInput.write_int( "note", nnoteRef.nNote );
 		customInput.write_int( "channel", nnoteRef.nChannel );
 	}
-	for ( const auto [ nnId, nnoteRef ] : m_customInputMappingsId ) {
+	for ( const auto [ iid, nnoteRef ] : m_customInputMappingsId ) {
 		XMLNode customInput = customInputNode.createNode( "customMidiInputMapping" );
 		customInput.write_string( "instrumentType", "" );
-		customInput.write_int( "instrumentId", nnId );
+		customInput.write_int( "instrumentId", static_cast<int>( iid ) );
 		customInput.write_int( "note", nnoteRef.nNote );
 		customInput.write_int( "channel", nnoteRef.nChannel );
 	}
@@ -195,12 +196,16 @@ std::shared_ptr<MidiInstrumentMap> MidiInstrumentMap::loadFrom( const XMLNode& n
 			customInputMappingsNode.firstChildElement( "customMidiInputMapping" );
 
 		while ( ! customInputMappingNode.isNull() ) {
-			const QString sInstrumentType = customInputMappingNode.read_string(
+			const Instrument::Type sInstrumentType = customInputMappingNode.read_string(
 				"instrumentType", "", false, false, bSilent );
-			const int nInstrumentId = customInputMappingNode.read_int(
-				"instrumentId", EMPTY_INSTR_ID, false, false, bSilent );
+			const auto id =
+				static_cast<Instrument::Id>( customInputMappingNode.read_int(
+					"instrumentId", static_cast<int>( Instrument::EmptyId ),
+					false, false, bSilent
+				) );
 			const int nNote = customInputMappingNode.read_int(
-				"note", MidiMessage::nInstrumentOffset, false, false, bSilent );
+				"note", MidiMessage::nInstrumentOffset, false, false, bSilent
+			);
 			const int nChannel = customInputMappingNode.read_int(
 				"channel", MidiMessage::nChannelDefault, false, false, bSilent );
 			NoteRef noteRef;
@@ -212,7 +217,7 @@ std::shared_ptr<MidiInstrumentMap> MidiInstrumentMap::loadFrom( const XMLNode& n
 					noteRef;
 			}
 			else {
-				pMidiInstrumentMap->m_customInputMappingsId[ nInstrumentId ] =
+				pMidiInstrumentMap->m_customInputMappingsId[ id ] =
 					noteRef;
 			}
 
@@ -285,14 +290,14 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 				}
 			}
 		}
-		for ( const auto [ nnId, nnoteRef ] : m_customInputMappingsId ) {
+		for ( const auto [ iid, nnoteRef ] : m_customInputMappingsId ) {
 			const int nChannelMapped = m_bUseGlobalInputChannel ?
 				m_nGlobalInputChannel : nnoteRef.nChannel;
 			if ( nnoteRef.nNote == nNote &&
 				 ( nChannelMapped == nChannel ||
 				   nChannelMapped == MidiMessage::nChannelAll ||
 				   nChannel == MidiMessage::nChannelAll ) ) {
-				const auto pInstrument = pDrumkit->getInstruments()->find( nnId );
+				const auto pInstrument = pDrumkit->getInstruments()->find( iid );
 				if ( pInstrument != nullptr ) {
 					instruments.push_back( pInstrument );
 				}
@@ -415,9 +420,9 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getInputMapping(
 
 	case Input::Order: {
 		noteRef.nChannel = nChannelUsed;
-		const int nId = pDrumkit->getInstruments()->index( pInstrument );
-		if ( nId != -1 ) {
-			noteRef.nNote = nId + MidiMessage::nInstrumentOffset;
+		const int nIndex = pDrumkit->getInstruments()->index( pInstrument );
+		if ( nIndex != -1 ) {
+			noteRef.nNote = nIndex + MidiMessage::nInstrumentOffset;
 		} else {
 			noteRef = NoteRef();
 		}
@@ -534,11 +539,14 @@ QString MidiInstrumentMap::toQString( const QString& sPrefix, bool bShort ) cons
 		}
 		sOutput.append( QString( "%1%2m_customInputMappingsId:\n" ).arg( sPrefix )
 					 .arg( s ) );
-		for ( const auto [ nnId, nnoteRef ] : m_customInputMappingsId ) {
-			sOutput.append( QString( "%1%2%2%3: %4" ).arg( sPrefix ).arg( s )
-						   .arg( nnId ).arg( nnoteRef.toQString( "", false ) ) );
+		for ( const auto [iid, nnoteRef] : m_customInputMappingsId ) {
+			sOutput.append( QString( "%1%2%2%3: %4" )
+								.arg( sPrefix )
+								.arg( s )
+								.arg( static_cast<int>( iid ) )
+								.arg( nnoteRef.toQString( "", false ) ) );
 		}
-}
+	}
 	else {
 		sOutput = QString( "[MidiInstrumentMap]" )
 			.append( QString( " m_input: %1" )
@@ -559,8 +567,8 @@ QString MidiInstrumentMap::toQString( const QString& sPrefix, bool bShort ) cons
 						   .arg( nnoteRef.toQString( "", false ) ) );
 		}
 		sOutput.append( "], m_customInputMappingsId: [" );
-		for ( const auto [ nnId, nnoteRef ] : m_customInputMappingsId ) {
-			sOutput.append( QString( "%1: %2, " ).arg( nnId )
+		for ( const auto [ iid, nnoteRef ] : m_customInputMappingsId ) {
+			sOutput.append( QString( "%1: %2, " ).arg( static_cast<int>(iid) )
 						   .arg( nnoteRef.toQString( "", false ) ) );
 		}
 		sOutput.append( "]" );

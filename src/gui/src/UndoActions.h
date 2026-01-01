@@ -34,6 +34,7 @@
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/AutomationPath.h>
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/Instrument.h>
 #include <core/Basics/GridPoint.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
@@ -429,8 +430,8 @@ class SE_addOrRemoveNoteAction : public QUndoCommand
 {
 public:
 	SE_addOrRemoveNoteAction( int nColumn,
-							  int nInstrumentId,
-							  const QString& sType,
+							  H2Core::Instrument::Id id,
+							  const H2Core::Instrument::Type& sType,
 							  int nPatternNumber,
 							  int nOldLength,
 							  float fOldVelocity,
@@ -445,18 +446,24 @@ public:
 							  Editor::ActionModifier modifier =
 							  Editor::ActionModifier::None
  ){
-
-		if ( action == Editor::Action::Delete ){
+		if ( action == Editor::Action::Delete ) {
 			setText( QString( "%1 [column: %2, id: %3, type: %4, pattern: %5]" )
-					 .arg( QObject::tr( "Delete note" ) ).arg( nColumn ).
-					 arg( nInstrumentId ).arg( sType ).arg( nPatternNumber ) );
-		} else {
+						 .arg( QObject::tr( "Delete note" ) )
+						 .arg( nColumn )
+						 .arg( static_cast<int>( id ) )
+						 .arg( sType )
+						 .arg( nPatternNumber ) );
+		}
+		else {
 			setText( QString( "%1 [column: %2, id: %3, type: %4, pattern: %5]" )
-					 .arg( QObject::tr( "Add note" ) ).arg( nColumn ).
-					 arg( nInstrumentId ).arg( sType ).arg( nPatternNumber ) );
+						 .arg( QObject::tr( "Add note" ) )
+						 .arg( nColumn )
+						 .arg( static_cast<int>( id ) )
+						 .arg( sType )
+						 .arg( nPatternNumber ) );
 		}
 		m_nColumn = nColumn;
-		m_nInstrumentId = nInstrumentId;
+		m_id = id;
 		m_sType = sType;
 		m_nPatternNumber = nPatternNumber;
 		m_nOldLength = nOldLength;
@@ -473,7 +480,7 @@ public:
 	}
 	virtual void undo() {
 		PatternEditor::addOrRemoveNoteAction( m_nColumn,
-											  m_nInstrumentId,
+											  m_id,
 											  m_sType,
 											  m_nPatternNumber,
 											  m_nOldLength,
@@ -490,7 +497,7 @@ public:
 	}
 	virtual void redo() {
 		PatternEditor::addOrRemoveNoteAction( m_nColumn,
-											  m_nInstrumentId,
+											  m_id,
 											  m_sType,
 											  m_nPatternNumber,
 											  m_nOldLength,
@@ -509,8 +516,8 @@ public:
 	}
 private:
 	int m_nColumn;
-	int m_nInstrumentId;
-	QString m_sType;
+	H2Core::Instrument::Id m_id;
+	H2Core::Instrument::Type m_sType;
 	int m_nPatternNumber;
 	int m_nOldLength;
 	float m_fOldVelocity;
@@ -608,10 +615,10 @@ public:
 	SE_editNotePropertiesAction( const PatternEditor::Property& property,
 								 int nPatternNumber,
 								 int nColumn,
-								 int nInstrumentId,
-								 int nOldInstrumentId,
-								 const QString& sType,
-								 const QString& sOldType,
+								 H2Core::Instrument::Id id,
+								 H2Core::Instrument::Id nOldId,
+								 const H2Core::Instrument::Type& sType,
+								 const H2Core::Instrument::Type& sOldType,
 								 float fVelocity,
 								 float fOldVelocity,
 								 float fPan,
@@ -629,8 +636,8 @@ public:
 		m_property( property ),
 		m_nPatternNumber( nPatternNumber ),
 		m_nColumn( nColumn ),
-		m_nInstrumentId( nInstrumentId ),
-		m_nOldInstrumentId( nOldInstrumentId ),
+		m_id( id ),
+		m_oldId( nOldId ),
 		m_sType( sType ),
 		m_sOldType( sOldType ),
 		m_fVelocity( fVelocity ),
@@ -655,8 +662,8 @@ public:
 		PatternEditor::editNotePropertiesAction( m_property,
 												 m_nPatternNumber,
 												 m_nColumn,
-												 m_nInstrumentId,
-												 m_nOldInstrumentId,
+												 m_id,
+												 m_oldId,
 												 m_sType,
 												 m_sOldType,
 												 m_fOldVelocity,
@@ -673,8 +680,8 @@ public:
 		PatternEditor::editNotePropertiesAction( m_property,
 												 m_nPatternNumber,
 												 m_nColumn,
-												 m_nOldInstrumentId,
-												 m_nInstrumentId,
+												 m_oldId,
+												 m_id,
 												 m_sOldType,
 												 m_sType,
 												 m_fVelocity,
@@ -694,10 +701,10 @@ private:
 		int m_nColumn;
 		/** Row selected in #DrumPatternEditor the moment the action was
 		 * created. */
-		int m_nInstrumentId;
-		int m_nOldInstrumentId;
-		QString m_sType;
-		QString m_sOldType;
+		H2Core::Instrument::Id m_id;
+		H2Core::Instrument::Id m_oldId;
+		H2Core::Instrument::Type m_sType;
+		H2Core::Instrument::Type m_sOldType;
 		float m_fVelocity;
 		float m_fOldVelocity;
 		float m_fPan;

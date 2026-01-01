@@ -23,10 +23,11 @@
 #define H2C_DRUMKIT_MAPPING_H
 
 #include <map>
-#include <vector>
 #include <memory>
 #include <set>
 #include <QString>
+
+#include <core/Basics/Instrument.h>
 #include <core/Object.h>
 
 namespace H2Core
@@ -51,8 +52,6 @@ class DrumkitMap : public H2Core::Object<DrumkitMap>
 	DrumkitMap();
 	DrumkitMap( std::shared_ptr<DrumkitMap> pOther );
 	~DrumkitMap();
-
-	typedef QString Type;
 
 	/**
 	 * Load #H2Core::DrumkitMap from an absolute path.
@@ -102,17 +101,17 @@ class DrumkitMap : public H2Core::Object<DrumkitMap>
 	 */
 	void saveTo( XMLNode& node, bool bSilent = false ) const;
 
-		/**
-		 * \param sType for which to get the corresponding id
-		 * \param pOk set to `true` in case @a sType was found.
-		 */
-		int getId( const Type& sType, bool* pOk ) const;
-	/** Get type for @a nId */
-	Type getType( int nId ) const;
+	/**
+	 * \param sType for which to get the corresponding id
+	 * \param pOk set to `true` in case @a sType was found.
+	 */
+	Instrument::Id getId( const Instrument::Type& sType, bool* pOk ) const;
+	/** Get type for @a id */
+	Instrument::Type getType( Instrument::Id id ) const;
 	/** Returns all unique types found #m_mapping */
-	std::set<Type> getAllTypes() const;
+	std::set<Instrument::Type> getAllTypes() const;
 
-	bool addMapping( int nId, const Type& sType );
+	bool addMapping( Instrument::Id id, const Instrument::Type& sType );
 
 	/** Whether there are mappings present in the map */
 	bool isEmpty() const;
@@ -124,8 +123,8 @@ class DrumkitMap : public H2Core::Object<DrumkitMap>
 	int size() const;
 
 	/** Custom iterators */
-	std::map<int, Type>::iterator begin();
-	std::map<int, Type>::iterator end();
+	std::map<Instrument::Id, Instrument::Type>::iterator begin();
+	std::map<Instrument::Id, Instrument::Type>::iterator end();
 
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -140,13 +139,13 @@ class DrumkitMap : public H2Core::Object<DrumkitMap>
 
   private:
 	/**
-	 * Map instrument IDs to instrument type strings (1:1).
+	 * Map instrument IDs to instrument Instrument::type strings (1:1).
 	 *
 	 * Instrument IDs are defined in each individual drumkit while the type
 	 * strings are arbitrary strings using which instruments of different
 	 * kits can be mapped onto each other.
 	 */
-	std::map<int, Type> m_mapping;
+	std::map<Instrument::Id, Instrument::Type> m_mapping;
 
 		/** Used to indicate changes in the underlying XSD file. */
 		static constexpr int nCurrentFormatVersion = 2;
@@ -161,10 +160,10 @@ inline bool DrumkitMap::isEmpty() const {
 inline int DrumkitMap::size() const {
 	return m_mapping.size();
 }
-inline std::map<int, DrumkitMap::Type>::iterator DrumkitMap::begin() {
+inline std::map<Instrument::Id, Instrument::Type>::iterator DrumkitMap::begin() {
 	return m_mapping.begin();
 }
-inline std::map<int, DrumkitMap::Type>::iterator DrumkitMap::end() {
+inline std::map<Instrument::Id, Instrument::Type>::iterator DrumkitMap::end() {
 	return m_mapping.end();
 }
 }; // namespace H2Core

@@ -175,7 +175,8 @@ void ComponentEditor::drumkitLoadedEvent() {
 void ComponentEditor::instrumentLayerChangedEvent( int nId )
 {
 	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
-	if ( pInstrument != nullptr && pInstrument->getId() == nId ) {
+	if ( pInstrument != nullptr &&
+		 pInstrument->getId() == static_cast<Instrument::Id>( nId ) ) {
 		updateComponents();
 	}
 }

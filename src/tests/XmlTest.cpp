@@ -922,7 +922,7 @@ void XmlTest::testSongLegacy() {
 		CPPUNIT_ASSERT( ppInstrument->hasSamples() );
 	}
 	CPPUNIT_ASSERT( ! pSongLegacy->hasMissingSamples() );
-	const auto pInstrumentGMRockKit = pSongLegacy->getDrumkit()->getInstruments()->find( 13 );
+	const auto pInstrumentGMRockKit = pSongLegacy->getDrumkit()->getInstruments()->get( 13 );
 	CPPUNIT_ASSERT( pInstrumentGMRockKit != nullptr );
 	CPPUNIT_ASSERT( pInstrumentGMRockKit->getComponents()->size() > 0 );
 	CPPUNIT_ASSERT( pInstrumentGMRockKit->getComponents()->front() != nullptr );
@@ -932,7 +932,7 @@ void XmlTest::testSongLegacy() {
 					->getLayer( 0 )->getSample() != nullptr );
 	const auto sFilePathGMRockKit = pInstrumentGMRockKit->getComponents()->front()
 		->getLayer( 0 )->getSample()->getFilePath();
-	const auto pInstrumentOld = pSongLegacy->getDrumkit()->getInstruments()->find( 12 );
+	const auto pInstrumentOld = pSongLegacy->getDrumkit()->getInstruments()->get( 12 );
 	CPPUNIT_ASSERT( pInstrumentOld != nullptr );
 	CPPUNIT_ASSERT( pInstrumentOld->getComponents()->size() > 0 );
 	CPPUNIT_ASSERT( pInstrumentOld->getComponents()->front() != nullptr );

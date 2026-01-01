@@ -1210,8 +1210,7 @@ void HydrogenApp::onEventQueueTimer()
 		int nRow = 0;
 		DrumPatternRow row;
 		for ( const auto& rrow : m_pPatternEditorPanel->getDB() ) {
-			if ( rrow.nInstrumentID ==
-				 pQueue->m_addMidiNoteVector[0].m_instrumentId ) {
+			if ( rrow.id == pQueue->m_addMidiNoteVector[0].m_id ) {
 				row = rrow;
 				bFound = true;
 				break;
@@ -1219,17 +1218,20 @@ void HydrogenApp::onEventQueueTimer()
 			++nRow;
 		}
 
-		if ( ! bFound ) {
-			ERRORLOG( QString( "Could not find row in Pattern Editor corresponding to instrument ID [%1]" )
-					  .arg( pQueue->m_addMidiNoteVector[0].m_instrumentId ) );
+		if ( !bFound ) {
+			ERRORLOG( QString( "Could not find row in Pattern Editor "
+							   "corresponding to instrument ID [%1]" )
+						  .arg( static_cast<int>(
+							  pQueue->m_addMidiNoteVector[0].m_id
+						  ) ) );
 			return;
 		}
-		
+
 		// find if a (pitch matching) note is already present
 		const auto pOldNote = pSong->getPatternList()->
 			get( pQueue->m_addMidiNoteVector[0].m_pattern )->
 			findNote( pQueue->m_addMidiNoteVector[0].m_column,
-					  row.nInstrumentID, row.sType,
+					  row.id, row.sType,
 					  pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
 					  pQueue->m_addMidiNoteVector[0].no_octaveKeyVal );
 		
@@ -1256,7 +1258,7 @@ void HydrogenApp::onEventQueueTimer()
 		// add the new note
 		pushUndoCommand( new SE_addOrRemoveNoteAction(
 							 pQueue->m_addMidiNoteVector[0].m_column,
-							 row.nInstrumentID,
+							 row.id,
 							 row.sType,
 							 pQueue->m_addMidiNoteVector[0].m_pattern,
 							 pQueue->m_addMidiNoteVector[0].m_length,

@@ -147,7 +147,7 @@ void H2Core::LilyPond::addPattern( const Pattern &pattern, notes_t &notes ) {
 	notes.reserve( pattern.getLength() );
 	for ( unsigned nNote = 0; nNote < pattern.getLength(); nNote++ ) {
 		if ( nNote >= notes.size() ) {
-			notes.push_back( std::vector<std::pair<int, float> >() );
+			notes.push_back( std::vector<std::pair<Instrument::Id, float> >() );
 		}
 
 		const Pattern::notes_t *pPatternNotes = pattern.getNotes();
@@ -156,9 +156,9 @@ void H2Core::LilyPond::addPattern( const Pattern &pattern, notes_t &notes ) {
 		}
 		FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPatternNotes, it, nNote, &pattern ) {
 			if ( auto pNote = it->second ) {
-				int nId = pNote->getInstrumentId();
+				auto id = pNote->getInstrumentId();
 				float fVelocity = pNote->getVelocity();
-				notes[ nNote ].push_back( std::make_pair( nId, fVelocity ) );
+				notes[ nNote ].push_back( std::make_pair( id, fVelocity ) );
 			}
 		}
 	}
@@ -188,29 +188,29 @@ void H2Core::LilyPond::writeMeasures( QTextStream &stream ) const {
 void H2Core::LilyPond::writeUpper( QTextStream &stream,
                                    unsigned nMeasure ) const {
 	// On the upper voice, we want only cymbals and mid and high toms
-	std::vector<int> whiteList;
-	whiteList.push_back( 6 );  // Closed HH
-	whiteList.push_back( 7 );  // Tom Mid
-	whiteList.push_back( 9 );  // Tom Hi
-	whiteList.push_back( 10 ); // Open HH
-	whiteList.push_back( 11 ); // Cowbell
-	whiteList.push_back( 12 ); // Ride Jazz
-	whiteList.push_back( 13 ); // Crash
-	whiteList.push_back( 14 ); // Ride Rock
-	whiteList.push_back( 15 ); // Crash Jazz
+	std::vector<Instrument::Id> whiteList;
+	whiteList.push_back( static_cast<Instrument::Id>( 6 ) );  // Closed HH
+	whiteList.push_back( static_cast<Instrument::Id>( 7 ) );  // Tom Mid
+	whiteList.push_back( static_cast<Instrument::Id>( 9 ) );  // Tom Hi
+	whiteList.push_back( static_cast<Instrument::Id>( 10 ) ); // Open HH
+	whiteList.push_back( static_cast<Instrument::Id>( 11 ) ); // Cowbell
+	whiteList.push_back( static_cast<Instrument::Id>( 12 ) ); // Ride Jazz
+	whiteList.push_back( static_cast<Instrument::Id>( 13 ) ); // Crash
+	whiteList.push_back( static_cast<Instrument::Id>( 14 ) ); // Ride Rock
+	whiteList.push_back( static_cast<Instrument::Id>( 15 ) ); // Crash Jazz
 	writeVoice( stream, nMeasure, whiteList );
 }
 
 void H2Core::LilyPond::writeLower( QTextStream &stream,
                                    unsigned nMeasure ) const {
-	std::vector<int> whiteList;
-	whiteList.push_back( 0 ); // Kick
-	whiteList.push_back( 1 ); // Stick
-	whiteList.push_back( 2 ); // Snare Jazz
-	whiteList.push_back( 3 ); // Hand Clap
-	whiteList.push_back( 4 ); // Snare Jazz
-	whiteList.push_back( 5 ); // Tom Low
-	whiteList.push_back( 8 ); // Pedal HH
+	std::vector<Instrument::Id> whiteList;
+	whiteList.push_back( static_cast<Instrument::Id>( 0 ) ); // Kick
+	whiteList.push_back( static_cast<Instrument::Id>( 1 ) ); // Stick
+	whiteList.push_back( static_cast<Instrument::Id>( 2 ) ); // Snare Jazz
+	whiteList.push_back( static_cast<Instrument::Id>( 3 ) ); // Hand Clap
+	whiteList.push_back( static_cast<Instrument::Id>( 4 ) ); // Snare Jazz
+	whiteList.push_back( static_cast<Instrument::Id>( 5 ) ); // Tom Low
+	whiteList.push_back( static_cast<Instrument::Id>( 8 ) ); // Pedal HH
 	writeVoice( stream, nMeasure, whiteList );
 }
 
@@ -221,16 +221,24 @@ static const char *const sNames[] = { "bd",   "wbl",   "sn",    "mar",
 	                                  "cymr", "cymc",  "cymra", "cymca" };
 
 ///< Write group of note (may also be a rest or a single note)
-static void writeNote( QTextStream &stream, const std::vector<int> &notes ) {
-	switch ( notes.size() ) {
-	case 0: stream << "r"; break;
-	case 1: stream << sNames[ notes[ 0 ] ]; break;
-	default:
-		stream << "<";
-		for ( unsigned i = 0; i < notes.size(); i++ ) {
-			stream << sNames[ notes[ i ] ] << " ";
-		}
-		stream << ">";
+static void writeNote(
+	QTextStream& stream,
+	const std::vector<H2Core::Instrument::Id>& instruments
+)
+{
+	switch ( instruments.size() ) {
+		case 0:
+			stream << "r";
+			break;
+		case 1:
+			stream << sNames[static_cast<int>( instruments[0] )];
+			break;
+		default:
+			stream << "<";
+			for ( unsigned i = 0; i < instruments.size(); i++ ) {
+				stream << sNames[static_cast<int>( instruments[i] )] << " ";
+			}
+			stream << ">";
 	}
 }
 
@@ -263,9 +271,12 @@ static void writeDuration( QTextStream &stream, unsigned duration ) {
 	}
 }
 
-void H2Core::LilyPond::writeVoice( QTextStream &stream,
-                                   unsigned nMeasure,
-                                   const std::vector<int> &whiteList ) const {
+void H2Core::LilyPond::writeVoice(
+	QTextStream& stream,
+	unsigned nMeasure,
+	const std::vector<Instrument::Id>& whiteList
+) const
+{
 	stream << "                ";
 	const notes_t &measure = m_Measures[ nMeasure ];
 	for ( unsigned nStart = 0; nStart < measure.size();
@@ -274,18 +285,18 @@ void H2Core::LilyPond::writeVoice( QTextStream &stream,
 		for ( unsigned nTime = nStart; nTime < nStart + H2Core::nTicksPerQuarter;
 			  nTime++ ) {
 			// Get notes played at this current time
-			std::vector<int> notes;
-			const std::vector<std::pair<int, float> > &input = measure[ nTime ];
+			std::vector<Instrument::Id> instruments;
+			const auto& input = measure[ nTime ];
 			for ( unsigned nNote = 0; nNote < input.size(); nNote++ ) {
 				if ( std::find( whiteList.begin(),
 				                whiteList.end(),
 				                input[ nNote ].first ) != whiteList.end() ) {
-					notes.push_back( input[ nNote ].first );
+					instruments.push_back( input[ nNote ].first );
 				}
 			}
 
 			// Write them if there are any
-			if ( !notes.empty() || nTime == nStart ) {
+			if ( !instruments.empty() || nTime == nStart ) {
 				// First write duration of last note
 				if ( nTime != nStart ) {
 					writeDuration( stream, nTime - lastNote );
@@ -294,7 +305,7 @@ void H2Core::LilyPond::writeVoice( QTextStream &stream,
 
 				// Then write next note
 				stream << " ";
-				writeNote( stream, notes );
+				writeNote( stream, instruments );
 			}
 		}
 		writeDuration( stream, nStart + H2Core::nTicksPerQuarter - lastNote );

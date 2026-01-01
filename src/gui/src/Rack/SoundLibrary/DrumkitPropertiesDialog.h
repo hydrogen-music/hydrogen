@@ -27,6 +27,7 @@
 #include "../../Widgets/WidgetWithLicenseProperty.h"
 
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/Instrument.h>
 #include <core/Object.h>
 
 ///
@@ -44,13 +45,13 @@ class DrumkitPropertiesDialog :  public QDialog,
 	Q_OBJECT
 	public:
 		/** @param nInstrumentID If set to a value different than
-		 *   #EMPTY_INSTR_ID, the corresponding line in the type tab will be
+		 *   #Instrument::EmptyId, the corresponding line in the type tab will be
 		 *   selected on startup. */
 		DrumkitPropertiesDialog( QWidget* pParent,
 								 std::shared_ptr<Drumkit> pDrumkit,
 								 bool bEditingNotSaving,
 								 bool bSaveToNsmSession,
-								 int nInstrumentID = EMPTY_INSTR_ID );
+								 Instrument::Id id = Instrument::EmptyId );
 		~DrumkitPropertiesDialog();
 		void showEvent( QShowEvent *e ) override;
 
@@ -83,7 +84,7 @@ class DrumkitPropertiesDialog :  public QDialog,
 
 		/** used to selected a specific instrument type row on opening based on
 		 * the provided instrument ID. */
-		std::map<int, LCDCombo*> m_idToTypeMap;
+		std::map<Instrument::Id, LCDCombo*> m_idToTypeMap;
 };
 
 }

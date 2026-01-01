@@ -453,7 +453,9 @@ void NoteTest::testSerializeProbability() {
 
 	auto pDrumkit = std::make_shared<Drumkit>();
 	auto pInstruments = std::make_shared<InstrumentList>();
-	auto pSnare = std::make_shared<Instrument>( 1, "Snare", nullptr );
+	auto pSnare = std::make_shared<Instrument>(
+		static_cast<Instrument::Id>( 1 ), "Snare", nullptr
+	);
 	pInstruments->add( pSnare );
 	pDrumkit->setInstruments( pInstruments );
 
