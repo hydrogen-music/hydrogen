@@ -499,11 +499,14 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 				int divider = nNote / 12;
                 noteAction.no_octaveKeyVal = static_cast<Note::Octave>(
                     std::clamp( divider - 3, OCTAVE_MIN, OCTAVE_MAX ) );
-                noteAction.nk_noteKeyVal = static_cast<Note::Key>(
-                    std::clamp( nNote - (12 * divider), KEY_MIN, KEY_MAX) );
-			} else {
+				noteAction.nk_noteKeyVal = static_cast<Note::Key>( std::clamp(
+					nNote - ( 12 * divider ), static_cast<int>( Note::KeyMin ),
+					static_cast<int>( Note::KeyMax )
+				) );
+			}
+			else {
 				noteAction.no_octaveKeyVal = (Note::Octave)0;
-				noteAction.nk_noteKeyVal = (Note::Key)0;
+				noteAction.nk_noteKeyVal = Note::KeyDefault;
 			}
 
 			EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);

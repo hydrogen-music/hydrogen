@@ -41,7 +41,6 @@
 namespace H2Core
 {
 
-const char* Note::m_keyStr[] = { "C", "Cs", "D", "Ef", "E", "F", "Fs", "G", "Af", "A", "Bf", "B" };
 
 SelectedLayerInfo::SelectedLayerInfo() : pLayer( nullptr )
 									   , fSamplePosition( 0.0 )
@@ -83,7 +82,7 @@ Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition,
 	  m_fVelocity( fVelocity ),
 	  m_nLength( nLength ),
 	  m_fPitch( fPitch ),
-	  m_key( static_cast<Note::Key>(KEY_MIN) ),
+	  m_key( Note::KeyDefault ),
 	  m_octave( static_cast<Note::Octave>(OCTAVE_DEFAULT) ),
 	  m_pAdsr( nullptr ),
 	  m_fLeadLag( LEAD_LAG_DEFAULT ),
@@ -191,25 +190,6 @@ void Note::setHumanizeDelay( int nValue )
 	if ( nValue != m_nHumanizeDelay ) {
 		m_nHumanizeDelay = nValue;
 	}
-}
-
-void Note::setKeyOctave( const QString& str )
-{
-	int l = str.length();
-	QString s_key = str.left( l-1 );
-	QString s_oct = str.mid( l-1, l );
-	if ( s_key.endsWith( "-" ) ) {
-		s_key.replace( "-", "" );
-		s_oct.insert( 0, "-" );
-	}
-	m_octave = ( Octave )s_oct.toInt();
-	for( int i=KEY_MIN; i<=KEY_MAX; i++ ) {
-		if( m_keyStr[i]==s_key ) {
-			m_key = ( Key )i;
-			return;
-		}
-	}
-	___ERRORLOG( "Unhandled key: " + s_key );
 }
 
 bool Note::isPartiallyRendered() const {
@@ -474,7 +454,8 @@ void Note::mapToInstrument( std::shared_ptr<Instrument> pInstrument ) {
 
 float Note::getTotalPitch() const
 {
-	float fNotePitch = m_octave * KEYS_PER_OCTAVE + m_key + m_fPitch;
+	float fNotePitch =
+		m_octave * KEYS_PER_OCTAVE + static_cast<int>( m_key ) + m_fPitch;
 
 	if ( m_pInstrument != nullptr ) {
 		fNotePitch += m_pInstrument->getPitchOffset();
@@ -535,8 +516,10 @@ void Note::saveTo( XMLNode& node ) const
 	node.write_float( "velocity", m_fVelocity );
 	node.write_float( "pan", m_fPan );
 	node.write_float( "pitch", m_fPitch );
-	node.write_string( "key", QString( "%1%2" )
-					   .arg( m_keyStr[m_key] ).arg( m_octave ) );
+	node.write_string(
+		"key",
+		QString( "%1%2" ).arg( Note::KeyToQString( m_key ) ).arg( m_octave )
+	);
 	node.write_int( "length", m_nLength );
 	node.write_int( "instrument", static_cast<int>( m_instrumentId ) );
 	node.write_string( "type", m_sType );
@@ -574,7 +557,30 @@ std::shared_ptr<Note> Note::loadFrom( const XMLNode& node, bool bSilent )
 									  bSilent );
 	pNote->setLeadLag( node.read_float( "leadlag", pNote->getLeadLag(), false,
 									   false, bSilent ) );
-	pNote->setKeyOctave( node.read_string( "key", "C0", false, false, bSilent ) );
+	const QString sKeyOctave =
+		node.read_string( "key", "C0", false, false, bSilent );
+	const int nKeyOctaveLength = sKeyOctave.length();
+	QString sKey = sKeyOctave.left( nKeyOctaveLength - 1 );
+	QString sOctave = sKeyOctave.mid( nKeyOctaveLength - 1, nKeyOctaveLength );
+	if ( sKey.endsWith( "-" ) ) {
+		sKey.replace( "-", "" );
+		sOctave.insert( 0, "-" );
+	}
+
+	const int nOctave = sOctave.toInt();
+    Note::Octave octave = static_cast<Note::Octave>(OCTAVE_DEFAULT);
+	if ( nOctave >= OCTAVE_MIN && nOctave <= OCTAVE_MAX ) {
+       octave = static_cast<Note::Octave>(nOctave);
+	}
+	else {
+        ERRORLOG( QString( "Octave value [%1] out of bound" ).arg( nOctave ) );
+	}
+	auto key = Note::QStringToKey( sKey );
+	if ( key == Key::Invalid ) {
+        ERRORLOG( QString( "Invalid key [%1]" ).arg( sKey ) );
+        key = Note::KeyDefault;
+	}
+	pNote->setKeyOctave( key, octave );
 	pNote->setNoteOff( node.read_bool( "note_off", pNote->getNoteOff(), false,
 									  false, bSilent ) );
 	pNote->setInstrumentId( static_cast<Instrument::Id>( node.read_int(
@@ -650,12 +656,7 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bNoteOff ) )
 			.append( QString( "%1%2m_fProbability: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_fProbability ) )
-			.append( QString( "%1%2m_keyStr: [" ).arg( sPrefix ).arg( s ) );
-			for ( int ii = KEY_MIN; ii <= KEY_MAX; ++ii ) {
-					 sOutput.append( QString( "%1, " ).arg(
-										 QString::fromUtf8( m_keyStr[ ii ], -1 ) ) );
-			}
-			sOutput.append( QString( "]\n%1%2m_nNoteStart: %3\n" ).arg( sPrefix ).arg( s )
+			.append( QString( "%1%2m_nNoteStart: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nNoteStart ) )
 			.append( QString( "%1%2m_fUsedTickSize: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_fUsedTickSize ) )
@@ -697,7 +698,8 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 
 		sOutput.append( QString( ", m_fLeadLag: %1" ).arg( m_fLeadLag ) )
-			.append( QString( ", m_nHumanizeDelay: %1" ).arg( m_nHumanizeDelay ) )
+			.append( QString( ", m_nHumanizeDelay: %1" ).arg( m_nHumanizeDelay )
+			)
 			.append( QString( ", m_fBpfbL: %1" ).arg( m_fBpfbL ) )
 			.append( QString( ", m_fBpfbR: %1" ).arg( m_fBpfbR ) )
 			.append( QString( ", m_fLlpfbL: %1" ).arg( m_fLpfbL ) )
@@ -705,12 +707,7 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_nMidiMsg: %1" ).arg( m_nMidiMsg ) )
 			.append( QString( ", m_bNoteOff: %1" ).arg( m_bNoteOff ) )
 			.append( QString( ", m_fProbability: %1" ).arg( m_fProbability ) )
-			.append( ", m_keyStr: [" );
-		for ( int ii = KEY_MIN; ii <= KEY_MAX; ++ii ) {
-			sOutput.append( QString( "%1, " ).arg(
-								QString::fromUtf8( m_keyStr[ ii ], -1 ) ) );
-		}
-		sOutput.append( QString( "], m_nNoteStart: %1" ).arg( m_nNoteStart ) )
+			.append( QString( ", m_nNoteStart: %1" ).arg( m_nNoteStart ) )
 			.append( QString( ", m_fUsedTickSize: %1" ).arg( m_fUsedTickSize ) )
 			.append( QString( ", m_selectedLayerInfoMap: [" ) );
 		QStringList selectedLayerInfos;
@@ -757,12 +754,58 @@ QString Note::KeyToQString( const Key& key ) {
 		return "Bf";
 	case Key::B:
 		return "B";
+	case Key::Invalid:
+        return "Invalid";
 	default:
-		return QString( "Unknown Key value [%1]" ).arg( key );
+		return QString( "Unknown Key value [%1]" )
+			.arg( static_cast<int>( key ) );
 	}
 }
 
-QString Note::OctaveToQString( const Octave& octave ) {
+Note::Key Note::QStringToKey( const QString& sKey ) {
+	if ( sKey == "C" ) {
+		return Key::C;
+	}
+	else if ( sKey == "Cs" ) {
+		return Key::Cs;
+	}
+	else if ( sKey == "D" ) {
+		return Key::D;
+	}
+	else if ( sKey == "Ef" ) {
+		return Key::Ef;
+	}
+	else if ( sKey == "E" ) {
+		return Key::E;
+	}
+	else if ( sKey == "F" ) {
+		return Key::F;
+	}
+	else if ( sKey == "Fs" ) {
+		return Key::Fs;
+	}
+	else if ( sKey == "G" ) {
+		return Key::G;
+	}
+	else if ( sKey == "Af" ) {
+		return Key::Af;
+	}
+	else if ( sKey == "A" ) {
+		return Key::A;
+	}
+	else if ( sKey == "Bf" ) {
+		return Key::Bf;
+	}
+	else if ( sKey == "B" ) {
+		return Key::B;
+	}
+	else {
+		return Key::Invalid;
+	}
+}
+
+QString Note::OctaveToQString( const Octave& octave )
+{
 	switch( octave ) {
 	case Octave::P8Z:
 		return "P8Z";
@@ -782,7 +825,6 @@ QString Note::OctaveToQString( const Octave& octave ) {
 		return QString( "Unknown octave value [%1]" ).arg( octave );
 	}
 }
-
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

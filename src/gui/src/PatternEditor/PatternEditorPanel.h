@@ -249,19 +249,20 @@ class PatternEditorPanel : public QWidget,
 		////////////////////////////////////////////////////////////////////////
 		////////// Top-level actions for the overall pattern editor. ///////////
 
-		/** If @a nKey or @a nOctave are set to invalid values, all notes on the
+		/** If @a key or @a nOctave are set to invalid values, all notes on the
 		 * position specified using @a nPosition and @a nRow will be
 		 * deleted or a move with default key and octave will be added. */
-		void addOrRemoveNotes( H2Core::GridPoint gridPoint, int nKey = KEY_INVALID,
-							   int nOctave = OCTAVE_INVALID,
-							   bool bIsNoteOff = false,
-							   float fPropertyValue = std::nan( "" ),
-							   PatternEditor::Property property =
-							      PatternEditor::Property::None,
-							   Editor::Action action = Editor::Action::None,
-							   Editor::ActionModifier modifier =
-							   Editor::ActionModifier::None,
-							   const QString& sUndoContext = "" );
+		void addOrRemoveNotes(
+			H2Core::GridPoint gridPoint,
+			H2Core::Note::Key key = H2Core::Note::Key::Invalid,
+			int nOctave = OCTAVE_INVALID,
+			bool bIsNoteOff = false,
+			float fPropertyValue = std::nan( "" ),
+			PatternEditor::Property property = PatternEditor::Property::None,
+			Editor::Action action = Editor::Action::None,
+			Editor::ActionModifier modifier = Editor::ActionModifier::None,
+			const QString& sUndoContext = ""
+		);
 
 		/**
 		 * Determines whether to pattern editor should show further

@@ -391,9 +391,12 @@ void NoteTest::testMidiDefaultOffset() {
 void NoteTest::testPitchConversions() {
 	___INFOLOG( "" );
 
-	CPPUNIT_ASSERT( H2Core::Note::C == KEY_MIN );
-	CPPUNIT_ASSERT( H2Core::Note::B == KEY_MAX );
-	CPPUNIT_ASSERT( KEYS_PER_OCTAVE == KEY_MAX - KEY_MIN + 1 );
+	CPPUNIT_ASSERT( H2Core::Note::Key::C == Note::KeyMin );
+	CPPUNIT_ASSERT( H2Core::Note::Key::B == Note::KeyMax );
+	CPPUNIT_ASSERT(
+		KEYS_PER_OCTAVE ==
+		static_cast<int>( Note::KeyMax ) - static_cast<int>( Note::KeyMin ) + 1
+	);
 	CPPUNIT_ASSERT( H2Core::Note::P8Z == OCTAVE_MIN );
 	CPPUNIT_ASSERT( H2Core::Note::P8C == OCTAVE_MAX );
 	CPPUNIT_ASSERT( OCTAVE_NUMBER == OCTAVE_MAX - OCTAVE_MIN + 1 );
@@ -404,17 +407,19 @@ void NoteTest::testPitchConversions() {
 		H2Core::Note::P8B, H2Core::Note::P8C, OCTAVE_MIN, OCTAVE_MAX,
 		OCTAVE_DEFAULT };
 
-	std::vector<int> keys = { H2Core::Note::C, H2Core::Note::Cs,
-		H2Core::Note::D, H2Core::Note::Ef, H2Core::Note::E,
-		H2Core::Note::Fs, H2Core::Note::G, H2Core::Note::Af,
-		H2Core::Note::A, H2Core::Note::Bf, H2Core::Note::B,
-		KEY_MIN, KEY_MAX };
+	std::vector<H2Core::Note::Key> keys = {
+		H2Core::Note::Key::C,  H2Core::Note::Key::Cs, H2Core::Note::Key::D,
+		H2Core::Note::Key::Ef, H2Core::Note::Key::E,  H2Core::Note::Key::Fs,
+		H2Core::Note::Key::G,  H2Core::Note::Key::Af, H2Core::Note::Key::A,
+		H2Core::Note::Key::Bf, H2Core::Note::Key::B,  Note::KeyMin,
+		Note::KeyMax
+	};
 
 	auto pInstrument = std::make_shared<H2Core::Instrument>();
 	for ( const auto ooctave : octaves ) {
 		for ( const auto kkey : keys ) {
 			auto pNote = std::make_shared<H2Core::Note>( pInstrument );
-			pNote->setKeyOctave( static_cast<H2Core::Note::Key>(kkey),
+			pNote->setKeyOctave( kkey,
 								 static_cast<H2Core::Note::Octave>(ooctave) );
 
 			const float fPitch = pNote->getPitchFromKeyOctave();

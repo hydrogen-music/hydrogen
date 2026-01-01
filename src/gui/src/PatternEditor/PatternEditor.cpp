@@ -63,7 +63,7 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	, m_nTick( -1 )
 	, m_drawPreviousPosition( QPointF( 0, 0 ) )
 	, m_drawPreviousGridPoint( GridPoint( -1, -1 ) )
-	, m_nDrawPreviousKey( -1 )
+	, m_drawPreviousKey( Note::Key::Invalid )
 	, m_nDrawPreviousOctave( -1 )
 	, m_nCursorPitch( 0 )
 {
@@ -130,7 +130,7 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 										   float fOldVelocity,
 										   float fOldPan,
 										   float fOldLeadLag,
-										   int nOldKey,
+										   Note::Key oldKey,
 										   int nOldOctave,
 										   float fOldProbability,
 										   Editor::Action action,
@@ -183,7 +183,7 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 			if ( ppNote != nullptr &&
 				 ppNote->getInstrumentId() == id &&
 				 ppNote->getType() == sType &&
-				 ppNote->getKey() == static_cast<Note::Key>(nOldKey) &&
+				 ppNote->getKey() == oldKey &&
 				 ppNote->getOctave() == static_cast<Note::Octave>(nOldOctave) ) {
 				notesFound.push_back( ppNote );
 			}
@@ -258,7 +258,7 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 		pNote->setNoteOff( bIsNoteOff );
 		pNote->setLeadLag( fOldLeadLag );
 		pNote->setProbability( fOldProbability );
-		pNote->setKeyOctave( static_cast<Note::Key>(nOldKey),
+		pNote->setKeyOctave( oldKey,
 							   static_cast<Note::Octave>(nOldOctave) );
 		pPattern->insertNote( pNote );
 
@@ -369,8 +369,8 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 											  float fLeadLag,
 											  float fProbability,
 											  int nLength,
-											  int nNewKey,
-											  int nOldKey,
+											  Note::Key newKey,
+											  Note::Key oldKey,
 											  int nNewOctave,
 											  int nOldOctave )
 {
@@ -396,7 +396,7 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 
 	// Find the note to edit
 	auto pNote = pPattern->findNote(
-		nPosition, oldId, sOldType, static_cast<Note::Key>(nOldKey),
+		nPosition, oldId, sOldType, oldKey,
 		static_cast<Note::Octave>(nOldOctave) );
 	if ( pNote == nullptr && property == Property::Type ) {
 		// Maybe the type of an unmapped note was set to one already present in
@@ -409,7 +409,7 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 			pSong->getDrumkit()->toDrumkitMap()->getId( sOldType, &bOk );
 		if ( bOk ) {
 			pNote = pPattern->findNote(
-				nPosition, kitId, sOldType, static_cast<Note::Key>( nOldKey ),
+				nPosition, kitId, sOldType, oldKey,
 				static_cast<Note::Octave>( nOldOctave )
 			);
 		}
@@ -446,9 +446,9 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 			}
 			break;
 		case Property::KeyOctave:
-			if ( pNote->getKey() != nNewKey ||
+			if ( pNote->getKey() != newKey ||
 				 pNote->getOctave() != nNewOctave ) {
-				pNote->setKeyOctave( static_cast<Note::Key>(nNewKey),
+				pNote->setKeyOctave( newKey,
 									 static_cast<Note::Octave>(nNewOctave) );
 				bValueChanged = true;
 			}
@@ -550,9 +550,9 @@ GridPoint PatternEditor::movingGridOffset() const {
 
 void PatternEditor::setCursorPitch( int nCursorPitch ) {
 	const int nMinPitch = Note::octaveKeyToPitch(
-		(Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN );
+		(Note::Octave)OCTAVE_MIN, Note::KeyMin );
 	const int nMaxPitch = Note::octaveKeyToPitch(
-		(Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX );
+		(Note::Octave)OCTAVE_MAX, Note::KeyMax );
 
 	if ( nCursorPitch < nMinPitch ) {
 		nCursorPitch = nMinPitch;
@@ -1204,12 +1204,12 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 		const auto row = m_pPatternEditorPanel->getRowDB( nRow );
 		const auto newRow = m_pPatternEditorPanel->getRowDB( nNewRow );
 
-		int nNewKey = pNote->getKey();
+		auto newKey = pNote->getKey();
 		int nNewOctave = pNote->getOctave();
 		int nNewPitch = pNote->getPitchFromKeyOctave();
 		if ( m_instance == Editor::Instance::PianoRoll && offset.getRow() != 0 ) {
 			nNewPitch -= offset.getRow();
-			nNewKey = Note::pitchToKey( nNewPitch );
+			newKey = Note::pitchToKey( nNewPitch );
 			nNewOctave = Note::pitchToOctave( nNewPitch );
 		}
 
@@ -1232,7 +1232,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 		const float fVelocity = pNote->getVelocity();
 		const float fPan = pNote->getPan();
 		const float fLeadLag = pNote->getLeadLag();
-		const int nKey = pNote->getKey();
+		const auto key = pNote->getKey();
 		const int nOctave = pNote->getOctave();
 		const float fProbability = pNote->getProbability();
 		const bool bNoteOff = pNote->getNoteOff();
@@ -1255,7 +1255,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 					fVelocity,
 					fPan,
 					fLeadLag,
-					nKey,
+					key,
 					nOctave,
 					fProbability,
 					Editor::Action::Delete,
@@ -1289,7 +1289,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 					fVelocity,
 					fPan,
 					fLeadLag,
-					nNewKey,
+					newKey,
 					nNewOctave,
 					fProbability,
 					Editor::Action::Add,
@@ -1405,13 +1405,13 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action )
 		gridPoint.setRow( m_pPatternEditorPanel->getSelectedRowDB() );
 	}
 
-	int nKey = KEY_INVALID;
+	auto key = Note::Key::Invalid;
 	int nOctave = OCTAVE_INVALID;
 	if ( m_instance == Editor::Instance::PianoRoll ) {
 		// Use the row of the DrumPatternEditor/DB for further note
 		// interactions.
 		nOctave = Note::pitchToOctave( m_nCursorPitch );
-		nKey = Note::pitchToKey( m_nCursorPitch );
+		key = Note::pitchToKey( m_nCursorPitch );
 	}
 
 	const bool bNoteOff = ev->modifiers() & Qt::ShiftModifier;
@@ -1426,9 +1426,9 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action )
 
         // Ensure to add distinct notes when clicking the KeyOctave view in the
         // ruler.
-		NotePropertiesRuler::yToKeyOctave( fYValue, &nKey, &nOctave );
-		if ( nKey == KEY_INVALID ) {
-            nKey = KEY_MIN;
+		NotePropertiesRuler::yToKeyOctave( fYValue, &key, &nOctave );
+		if ( key == Note::Key::Invalid ) {
+            key = Note::KeyMin;
 		}
 		if ( nOctave == OCTAVE_INVALID ) {
             nOctave = OCTAVE_DEFAULT;
@@ -1436,7 +1436,7 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action )
 	}
 
 	m_pPatternEditorPanel->addOrRemoveNotes(
-		gridPoint, nKey, nOctave, bNoteOff, fYValue, property, action,
+		gridPoint, key, nOctave, bNoteOff, fYValue, property, action,
 		static_cast<Editor::ActionModifier>(
 			static_cast<int>( Editor::ActionModifier::Playback ) |
 			static_cast<int>( Editor::ActionModifier::MoveCursorTo )
@@ -1784,7 +1784,8 @@ void PatternEditor::paste() {
 				sType = targetRow.sType;
 			}
 
-			int nKey, nOctave;
+			int nOctave;
+            Note::Key key;
 			if ( m_instance == Editor::Instance::PianoRoll ) {
 				const int nPitch = pNote->getPitchFromKeyOctave() + nDeltaPitch;
 				if ( nPitch < KEYS_PER_OCTAVE * OCTAVE_MIN ||
@@ -1792,11 +1793,11 @@ void PatternEditor::paste() {
 					continue;
 				}
 
-				nKey = Note::pitchToKey( nPitch );
+				key = Note::pitchToKey( nPitch );
 				nOctave = Note::pitchToOctave( nPitch );
 			}
 			else {
-				nKey = pNote->getKey();
+				key = pNote->getKey();
 				nOctave = pNote->getOctave();
 			}
 
@@ -1810,7 +1811,7 @@ void PatternEditor::paste() {
 					pNote->getVelocity(),
 					pNote->getPan(),
 					pNote->getLeadLag(),
-					nKey,
+					key,
 					nOctave,
 					pNote->getProbability(),
 					Editor::Action::Add,
@@ -2000,8 +2001,8 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 		std::clamp( static_cast<int>(pEv->position().y()), 0, height() ) );
 	const int nCursorMargin = getCursorMargin( ev );
 
-	auto pointToRowColumn = [&]( QPoint point, GridPoint* pGridPoint, int* nKey,
-								 int* nOctave ) {
+	auto pointToRowColumn = [&]( QPoint point, GridPoint* pGridPoint,
+								 Note::Key* key, int* nOctave ) {
 		const auto notes = getElementsAtPoint(
 			point, Editor::InputSource::Mouse, nCursorMargin, true, pPattern
 		);
@@ -2009,12 +2010,12 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 			pGridPoint->setColumn( notes[ 0 ]->getPosition() );
 			if ( m_instance == Editor::Instance::DrumPattern ) {
 				pGridPoint->setRow( m_pPatternEditorPanel->findRowDB( notes[ 0 ] ) );
-				*nKey = KEY_MIN;
+				*key = Note::KeyMin;
 				*nOctave = OCTAVE_DEFAULT;
 			}
 			else {
 				pGridPoint->setRow( m_pPatternEditorPanel->getSelectedRowDB() );
-				*nKey = notes[ 0 ]->getKey();
+				*key = notes[ 0 ]->getKey();
 				*nOctave = notes[ 0 ]->getOctave();
 			}
 		}
@@ -2022,13 +2023,13 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 			// Determine the point on the grid to toggle the note
 			*pGridPoint = pointToGridPoint( point, true );
 			if ( m_instance == Editor::Instance::DrumPattern ) {
-				*nKey = KEY_MIN;
+				*key = Note::KeyMin;
 				*nOctave = OCTAVE_DEFAULT;
 			}
 			else {
 				const auto nPitch = Note::lineToPitch( pGridPoint->getRow() );
 				pGridPoint->setRow( m_pPatternEditorPanel->getSelectedRowDB() );
-				*nKey = Note::pitchToKey( nPitch );
+				*key = Note::pitchToKey( nPitch );
 				*nOctave = Note::pitchToOctave( nPitch );
 			}
 		}
@@ -2036,11 +2037,12 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 
 	// Check whether we are still at the same grid point as in the last update.
 	// We do not want to toggle the same note twice.
-	int nEndKey, nEndOctave;
+	int nEndOctave;
+    Note::Key endKey;
 	GridPoint endGridPoint;
-	pointToRowColumn( end.toPoint(), &endGridPoint, &nEndKey, &nEndOctave );
+	pointToRowColumn( end.toPoint(), &endGridPoint, &endKey, &nEndOctave );
 	if ( endGridPoint == m_drawPreviousGridPoint &&
-		 nEndKey == m_nDrawPreviousKey && nEndOctave == m_nDrawPreviousOctave ) {
+		 endKey == m_drawPreviousKey && nEndOctave == m_nDrawPreviousOctave ) {
 		m_drawPreviousPosition = end;
 		return;
 	}
@@ -2072,9 +2074,10 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 							 start.y() <= end.y() ? fM : ( -1 * fM ) );
 
 	GridPoint gridPoint;
-	int nKey, nOctave;
+	int nOctave;
+    Note::Key key;
 	GridPoint lastGridPoint( m_drawPreviousGridPoint );
-	int nLastKey = m_nDrawPreviousKey;
+	auto lastKey = m_drawPreviousKey;
 	int nLastOctave = m_nDrawPreviousOctave;
 	// Since we can only toggle notes on the grid, we use the projection of the
 	// movement on the x axis to drive the loop. This ensures that we are always
@@ -2082,25 +2085,25 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 	for ( auto ppoint = start; ( ppoint - start ).manhattanLength() <=
 			  ( end - start ).manhattanLength(); ppoint += increment ) {
 		// We prioritize existing notes
-		pointToRowColumn( ppoint.toPoint(), &gridPoint, &nKey, &nOctave );
+		pointToRowColumn( ppoint.toPoint(), &gridPoint, &key, &nOctave );
 
-		if ( gridPoint != lastGridPoint || nKey != nLastKey ||
+		if ( gridPoint != lastGridPoint || key != lastKey ||
 			 nOctave != nLastOctave ) {
 			m_pPatternEditorPanel->addOrRemoveNotes(
-				gridPoint, nKey, nOctave,
+				gridPoint, key, nOctave,
 				/* bNoteOff */ ev->modifiers() & Qt::ShiftModifier,
 				std::nan( "" ), Property::None,
 				Editor::Action::Toggle,
 				Editor::ActionModifier::Playback, sUndoContext );
 			lastGridPoint = gridPoint;
-			nLastKey = nKey;
+			lastKey = key;
 			nLastOctave = nOctave;
 		}
 	}
 
 	m_drawPreviousPosition = end;
 	m_drawPreviousGridPoint = lastGridPoint;
-	m_nDrawPreviousKey = nLastKey;
+	m_drawPreviousKey = lastKey;
 	m_nDrawPreviousOctave = nLastOctave;
 }
 
@@ -2576,7 +2579,7 @@ void PatternEditor::alignToGrid() {
 		const float fVelocity = ppNote->getVelocity();
 		const float fPan = ppNote->getPan();
 		const float fLeadLag = ppNote->getLeadLag();
-		const int nKey = ppNote->getKey();
+		const auto key = ppNote->getKey();
 		const int nOctave = ppNote->getOctave();
 		const float fProbability = ppNote->getProbability();
 		const bool bNoteOff = ppNote->getNoteOff();
@@ -2592,7 +2595,7 @@ void PatternEditor::alignToGrid() {
 									  fVelocity,
 									  fPan,
 									  fLeadLag,
-									  nKey,
+									  key,
 									  nOctave,
 									  fProbability,
 									  Editor::Action::Delete,
@@ -2636,7 +2639,7 @@ void PatternEditor::alignToGrid() {
 								   fVelocity,
 								   fPan,
 								   fLeadLag,
-								   nKey,
+								   key,
 								   nOctave,
 								   fProbability,
 								   Editor::Action::Add,

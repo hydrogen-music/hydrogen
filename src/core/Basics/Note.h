@@ -31,9 +31,6 @@
 #include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
 
-#define KEY_MIN                 0
-#define KEY_MAX                 11
-#define KEY_INVALID             666
 #define OCTAVE_MIN              -3 /* C-1 */
 #define OCTAVE_MAX              3 /* C5 */
 #define OCTAVE_OFFSET           3
@@ -54,8 +51,8 @@
 #define LENGTH_ENTIRE_SAMPLE    -1
 #define PITCH_DEFAULT           0.0f /* C2 */
 #define PITCH_INVALID           666
-#define PITCH_MAX               KEYS_PER_OCTAVE * OCTAVE_MAX + KEY_MAX
-#define PITCH_MIN               KEYS_PER_OCTAVE * OCTAVE_MIN + KEY_MIN
+#define PITCH_MAX               KEYS_PER_OCTAVE * OCTAVE_MAX + 11/*KEY_MAX*/
+#define PITCH_MIN               KEYS_PER_OCTAVE * OCTAVE_MIN + 0/*KEY_MIN*/
 #define PROBABILITY_MIN         0.0f
 #define PROBABILITY_DEFAULT     1.0f
 #define PROBABILITY_MAX         1.0f
@@ -118,81 +115,114 @@ class Note : public H2Core::Object<Note>
 		H2_OBJECT(Note)
 	public:
 		/** possible keys */
-		enum Key { C=KEY_MIN, Cs, D, Ef, E, F, Fs, G, Af, A, Bf, B };
-	static QString KeyToQString( const Key& key );
-	
-		/** possible octaves */
-		enum Octave { P8Z=-3, P8Y=-2, P8X=-1, P8=OCTAVE_DEFAULT, P8A=1, P8B=2, P8C=3 };
-		static QString OctaveToQString( const Octave& octave );
+	 enum class Key {
+		 C = 0,
+		 Cs = 1,
+		 D = 2,
+		 Ef = 3,
+		 E = 4,
+		 F = 5,
+		 Fs = 6,
+		 G = 7,
+		 Af = 8,
+		 A = 9,
+		 Bf = 10,
+		 B = 11,
+         Invalid = 666
+	 };
+	 static QString KeyToQString( const Key& key );
+	 static Key QStringToKey( const QString& sKey );
 
-		/**
-		 * constructor
-		 *
-		 * \param pInstrument the instrument played by this note
-		 * \param nPosition the position of the note within the pattern
-		 * \param fVelocity it's velocity
-		 * \param fFan pan
-		 * \param nLength Length of the note in frames. If set to -1,
-		 * the length of the #H2Core::Sample used during playback will
-		 * be used instead.
-		 * \param fPitch it's pitch
-		 */
-	Note( std::shared_ptr<Instrument> pInstrument = nullptr, int nPosition = 0,
-		  float fVelocity = VELOCITY_DEFAULT, float fPan = PAN_DEFAULT,
-		  int nLength = LENGTH_ENTIRE_SAMPLE, float fPitch = PITCH_DEFAULT );
+	 static constexpr Key KeyDefault = Key::C;
+	 static constexpr Key KeyMin = Key::C;
+	 static constexpr Key KeyMax = Key::B;
 
-		Note( std::shared_ptr<Note> pOther );
-		~Note();
+		 /** possible octaves */
+		 enum Octave {
+			 P8Z = -3,
+			 P8Y = -2,
+			 P8X = -1,
+			 P8 = OCTAVE_DEFAULT,
+			 P8A = 1,
+			 P8B = 2,
+			 P8C = 3
+		 };
+	 static QString OctaveToQString( const Octave& octave );
 
-		/*
-		 * save the note within the given XMLNode
-		 * \param node the XMLNode to feed
-		 */
-		void saveTo( XMLNode& node ) const;
-		/**
-		 * load a note from an XMLNode
-		 * \param node the XMLDode to read from
-		 * \param bSilent Whether infos, warnings, and errors should
-		 * be logged.
-		 * \return a new Note instance
-		 */
-	static std::shared_ptr<Note> loadFrom( const XMLNode& node,
-											bool bSilent = false );
+	 /**
+	  * constructor
+	  *
+	  * \param pInstrument the instrument played by this note
+	  * \param nPosition the position of the note within the pattern
+	  * \param fVelocity it's velocity
+	  * \param fFan pan
+	  * \param nLength Length of the note in frames. If set to -1,
+	  * the length of the #H2Core::Sample used during playback will
+	  * be used instead.
+	  * \param fPitch it's pitch
+	  */
+	 Note(
+		 std::shared_ptr<Instrument> pInstrument = nullptr,
+		 int nPosition = 0,
+		 float fVelocity = VELOCITY_DEFAULT,
+		 float fPan = PAN_DEFAULT,
+		 int nLength = LENGTH_ENTIRE_SAMPLE,
+		 float fPitch = PITCH_DEFAULT
+	 );
 
-		/** #m_pInstrument accessor */
-		std::shared_ptr<Instrument> getInstrument() const;
-		/**
-		 * #m_instrumentId setter
-		 * \param value the new value
-		 */
-		void setInstrumentId( Instrument::Id id );
-		/** #m_instrumentId accessor */
-		Instrument::Id getInstrumentId() const;
+	 Note( std::shared_ptr<Note> pOther );
+	 ~Note();
 
-		void setType( Instrument::Type sType );
-		Instrument::Type getType() const;
+	 /*
+	  * save the note within the given XMLNode
+	  * \param node the XMLNode to feed
+	  */
+	 void saveTo( XMLNode& node ) const;
+	 /**
+	  * load a note from an XMLNode
+	  * \param node the XMLDode to read from
+	  * \param bSilent Whether infos, warnings, and errors should
+	  * be logged.
+	  * \return a new Note instance
+	  */
+	 static std::shared_ptr<Note>
+	 loadFrom( const XMLNode& node, bool bSilent = false );
 
-		/**
-		 * #m_nPosition setter
-		 * \param value the new value
-		 */
-		void setPosition( int value );
-		/** #m_nPosition accessor */
-		int getPosition() const;
-		/**
-		 * #m_fVelocity setter
-		 * \param value the new value
-		 */
-		void setVelocity( float value );
-		/** #m_fVelocity accessor */
-		float getVelocity() const;
-		
-		/** set pan of the note. assumes the input range in [-1;1]*/
-		void setPan( float val );
-		/** set pan of the note, assuming the input range in [0;1] */
-		void setPanWithRangeFrom0To1( float fVal ) {
-			// scale and translate into [-1;1]
-			this->setPan( PAN_MIN + ( PAN_MAX - PAN_MIN ) * fVal );
+	 /** #m_pInstrument accessor */
+	 std::shared_ptr<Instrument> getInstrument() const;
+	 /**
+	  * #m_instrumentId setter
+	  * \param value the new value
+	  */
+	 void setInstrumentId( Instrument::Id id );
+	 /** #m_instrumentId accessor */
+	 Instrument::Id getInstrumentId() const;
+
+	 void setType( Instrument::Type sType );
+	 Instrument::Type getType() const;
+
+	 /**
+	  * #m_nPosition setter
+	  * \param value the new value
+	  */
+	 void setPosition( int value );
+	 /** #m_nPosition accessor */
+	 int getPosition() const;
+	 /**
+	  * #m_fVelocity setter
+	  * \param value the new value
+	  */
+	 void setVelocity( float value );
+	 /** #m_fVelocity accessor */
+	 float getVelocity() const;
+
+	 /** set pan of the note. assumes the input range in [-1;1]*/
+	 void setPan( float val );
+	 /** set pan of the note, assuming the input range in [0;1] */
+	 void setPanWithRangeFrom0To1( float fVal )
+	 {
+		 // scale and translate into [-1;1]
+		 this->setPan( PAN_MIN + ( PAN_MAX - PAN_MIN ) * fVal );
 		};
 		/** get pan of the note. Output pan range: [-1;1] */
 		float getPan() const;
@@ -284,11 +314,6 @@ class Note : public H2Core::Object<Note>
 		float getPitchFromKeyOctave() const;
 		float getTotalPitch() const;
 
-		/**
-		 * parse str and set #m_key and #m_octave
-		 * \param str the string to be parsed
-		 */
-		void setKeyOctave( const QString& str );
 		/**
 		 * set #m_key and #m_octave only if within acceptable range
 		 * \param key the key to set
@@ -429,7 +454,7 @@ class Note : public H2Core::Object<Note>
 			return (Key)(nPitch - KEYS_PER_OCTAVE * pitchToOctave( nPitch ));
 		}
 		static inline int octaveKeyToPitch( Octave octave, Key key ) {
-			return KEYS_PER_OCTAVE * (int)octave + (int)key;
+			return KEYS_PER_OCTAVE * (int)octave + static_cast<int>(key);
 		}
 
 		/** Pitch / line conversions used in GUI. */
@@ -646,10 +671,11 @@ inline Note::Octave Note::getOctave() const
 
 inline int Note::getMidiKey() const
 {
-	int nMidiKey = ( m_octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + m_key;
+	int nMidiKey = ( m_octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE +
+				   static_cast<int>( m_key );
 	if ( m_pInstrument != nullptr ) {
-		nMidiKey += m_pInstrument->getMidiOutNote() -
-			MidiMessage::nInstrumentOffset;
+		nMidiKey +=
+			m_pInstrument->getMidiOutNote() - MidiMessage::nInstrumentOffset;
 	}
 	return nMidiKey;
 }
@@ -661,19 +687,29 @@ inline int Note::getMidiVelocity() const
 
 inline float Note::getPitchFromKeyOctave() const
 {
-	return m_octave * KEYS_PER_OCTAVE + m_key;
+	return m_octave * KEYS_PER_OCTAVE + static_cast<int>(m_key);
 }
 
 inline void Note::setKeyOctave( Key key, Octave octave )
 {
-	if( key>=KEY_MIN && key<=KEY_MAX ) m_key = key;
-	if( octave>=OCTAVE_MIN && octave<=OCTAVE_MAX ) m_octave = octave;
+	if ( static_cast<int>( key ) >= static_cast<int>( Note::KeyMin ) &&
+		 static_cast<int>( key ) <= static_cast<int>( Note::KeyMax ) ) {
+		m_key = key;
+    }
+	if ( octave >= OCTAVE_MIN && octave <= OCTAVE_MAX ) {
+		m_octave = octave;
+    }
 }
 
 inline void Note::setMidiInfo( Key key, Octave octave, int msg )
 {
-	if( key>=KEY_MIN && key<=KEY_MAX ) m_key = key;
-	if( octave>=OCTAVE_MIN && octave<=OCTAVE_MAX ) m_octave = octave;
+	if ( static_cast<int>( key ) >= static_cast<int>( Note::KeyMin ) &&
+		 static_cast<int>( key ) <= static_cast<int>( Note::KeyMax ) ) {
+		m_key = key;
+    }
+	if ( octave >= OCTAVE_MIN && octave <= OCTAVE_MAX ) {
+		m_octave = octave;
+    }
 	m_nMidiMsg = msg;
 }
 

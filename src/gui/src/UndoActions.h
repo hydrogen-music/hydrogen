@@ -437,7 +437,7 @@ public:
 							  float fOldVelocity,
 							  float fOldPan,
 							  float fOldLeadLag,
-							  int nOldKey,
+							  H2Core::Note::Key oldKey,
 							  int nOldOctave,
 							  float fOldProbability,
 							  Editor::Action action,
@@ -470,7 +470,7 @@ public:
 		m_fOldVelocity = fOldVelocity;
 		m_fOldPan = fOldPan;
 		m_fOldLeadLag = fOldLeadLag;
-		m_nOldKey = nOldKey;
+		m_oldKey = oldKey;
 		m_nOldOctave = nOldOctave;
 		m_fOldProbability = fOldProbability;
 		m_action = action;
@@ -487,7 +487,7 @@ public:
 											  m_fOldVelocity,
 											  m_fOldPan,
 											  m_fOldLeadLag,
-											  m_nOldKey,
+											  m_oldKey,
 											  m_nOldOctave,
 											  m_fOldProbability,
 											  Editor::undoAction( m_action ),
@@ -504,7 +504,7 @@ public:
 											  m_fOldVelocity,
 											  m_fOldPan,
 											  m_fOldLeadLag,
-											  m_nOldKey,
+											  m_oldKey,
 											  m_nOldOctave,
 											  m_fOldProbability,
 											  m_action,
@@ -523,7 +523,7 @@ private:
 	float m_fOldVelocity;
 	float m_fOldPan;
 	float m_fOldLeadLag;
-	int m_nOldKey;
+	H2Core::Note::Key m_oldKey;
 	int m_nOldOctave;
 	float m_fOldProbability;
 	Editor::Action m_action;
@@ -629,8 +629,8 @@ public:
 								 float fOldProbability,
 								 int nLength,
 								 int nOldLength,
-								 int nKey,
-								 int nOldKey,
+								 H2Core::Note::Key key,
+								 H2Core::Note::Key oldKey,
 								 int nOctave,
 								 int nOldOctave ) :
 		m_property( property ),
@@ -650,8 +650,8 @@ public:
 		m_fOldProbability( fOldProbability ),
 		m_nLength( nLength ),
 		m_nOldLength( nOldLength ),
-		m_nKey( nKey ),
-		m_nOldKey( nOldKey ),
+		m_key( key ),
+		m_oldKey( oldKey ),
 		m_nOctaveKey( nOctave ),
 		m_nOldOctaveKey( nOldOctave ) {
 
@@ -671,8 +671,8 @@ public:
 												 m_fOldLeadLag,
 												 m_fOldProbability,
 												 m_nOldLength,
-												 m_nOldKey,
-												 m_nKey,
+												 m_oldKey,
+												 m_key,
 												 m_nOldOctaveKey,
 												 m_nOctaveKey );
 	}
@@ -689,8 +689,8 @@ public:
 												 m_fLeadLag,
 												 m_fProbability,
 												 m_nLength,
-												 m_nKey,
-												 m_nOldKey,
+												 m_key,
+												 m_oldKey,
 												 m_nOctaveKey,
 												 m_nOldOctaveKey );
 	}
@@ -715,8 +715,8 @@ private:
 		float m_fOldProbability;
 		int m_nLength;
 		int m_nOldLength;
-		int m_nKey;
-		int m_nOldKey;
+		H2Core::Note::Key m_key;
+		H2Core::Note::Key m_oldKey;
 		int m_nOctaveKey;
 		int m_nOldOctaveKey;
 };

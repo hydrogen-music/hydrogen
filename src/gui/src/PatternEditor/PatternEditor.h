@@ -98,7 +98,7 @@ public:
 			float fOldVelocity,
 			float fOldPan,
 			float fOldLeadLag,
-			int nOldKey,
+			H2Core::Note::Key oldKey,
 			int nOldOctave,
 			float fOldProbability,
 			Editor::Action action,
@@ -117,10 +117,10 @@ public:
 			const std::vector< std::shared_ptr<H2Core::Note> >& overwritten );
 
 		/** For notes in #PianoRollEditor and the note key version of
-		 * #NotePropertiesEditor @a nOldKey and @a nOldOctave will be
+		 * #NotePropertiesEditor @a oldKey and @a nOldOctave will be
 		 * used to find the actual #H2Core::Note to alter. In the latter
 		 * adjusting note/octave can be done too. This is covered using @a
-		 * nNewKey and @a nNewOctave. */
+		 * newKey and @a nNewOctave. */
 		static void editNotePropertiesAction(
 			const Property& property,
 			int nPatternNumber,
@@ -134,8 +134,8 @@ public:
 			float fLeadLag,
 			float fProbability,
 			int nLength,
-			int nNewKey,
-			int nOldKey,
+			H2Core::Note::Key newKey,
+			H2Core::Note::Key oldKey,
 			int nNewOctave,
 			int nOldOctave
 		);
@@ -351,7 +351,7 @@ protected:
 		int m_nTick;
 		QPointF m_drawPreviousPosition;
 		H2Core::GridPoint m_drawPreviousGridPoint;
-		int m_nDrawPreviousKey;
+		H2Core::Note::Key m_drawPreviousKey;
 		int m_nDrawPreviousOctave;
 
 		// Row the keyboard cursor is residing in.

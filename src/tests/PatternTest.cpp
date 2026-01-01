@@ -25,6 +25,7 @@
 #include "TestHelper.h"
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Hydrogen.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
@@ -68,7 +69,7 @@ void PatternTest::testPurgeInstrument()
 	CPPUNIT_ASSERT( pPattern->findNote(
 						1, pInstrument->getId(),
 						pInstrument->getType(),
-						static_cast<Note::Key>(KEY_MIN),
+						Note::KeyMin,
 						static_cast<Note::Octave>(OCTAVE_DEFAULT) ) != nullptr );
 	auto notes = pPattern->findNotes( 1, pInstrument->getId(),
 									  pInstrument->getType() );
@@ -79,7 +80,7 @@ void PatternTest::testPurgeInstrument()
 	CPPUNIT_ASSERT( pPattern->findNote(
 						1, pInstrument->getId(),
 						pInstrument->getType(),
-						static_cast<Note::Key>(KEY_MIN),
+						Note::KeyMin,
 						static_cast<Note::Octave>(OCTAVE_DEFAULT) ) == nullptr );
 	notes = pPattern->findNotes( 1, pInstrument->getId(),
 								 pInstrument->getType() );

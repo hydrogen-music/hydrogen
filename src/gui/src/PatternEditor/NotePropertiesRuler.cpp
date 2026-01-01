@@ -29,6 +29,7 @@
 #include "UndoActions.h"
 #include "PatternEditorPanel.h"
 #include "PianoRollEditor.h"
+#include "core/Basics/Note.h"
 
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
@@ -279,17 +280,16 @@ bool NotePropertiesRuler::applyProperty(
 
 		case PatternEditor::Property::KeyOctave:
 			if ( !pNote->getNoteOff() ) {
-				int nKey, nOctave;
+				int nOctave;
+				Note::Key key;
 				NotePropertiesRuler::yToKeyOctave(
-					static_cast<int>( fYValue ), &nKey, &nOctave
+					static_cast<int>( fYValue ), &key, &nOctave
 				);
-				if ( ( nKey != KEY_INVALID &&
-					   nKey != static_cast<int>( pNote->getKey() ) ) ||
-					 ( nOctave != KEY_INVALID &&
+				if ( ( key != Note::Key::Invalid && key != pNote->getKey() ) ||
+					 ( nOctave != OCTAVE_INVALID &&
 					   nOctave != static_cast<int>( pNote->getOctave() ) ) ) {
 					pNote->setKeyOctave(
-						static_cast<Note::Key>( nKey ),
-						static_cast<Note::Octave>( nOctave )
+						key, static_cast<Note::Octave>( nOctave )
 					);
 					return true;
 				}
@@ -333,9 +333,9 @@ float NotePropertiesRuler::eventToYValue( QMouseEvent* pEvent ) const
 	return fValue;
 }
 
-void NotePropertiesRuler::yToKeyOctave( int nY, int* pKey, int* pOctave )
+void NotePropertiesRuler::yToKeyOctave( int nY, Note::Key* pKey, int* pOctave )
 {
-	int nKey = KEY_INVALID;
+	Note::Key key = Note::Key::Invalid;
 	int nOctave = OCTAVE_INVALID;
 	if ( nY >= 0 && nY < NotePropertiesRuler::nOctaveHeight -
 							 NotePropertiesRuler::nKeyOctaveSpaceHeight ) {
@@ -362,14 +362,17 @@ void NotePropertiesRuler::yToKeyOctave( int nY, int* pKey, int* pOctave )
 	}
 	else if ( nY >= NotePropertiesRuler::nOctaveHeight &&
 			  nY < NotePropertiesRuler::nKeyOctaveHeight ) {
-		nKey = ( NotePropertiesRuler::nKeyOctaveHeight - nY -
+		int nKey = ( NotePropertiesRuler::nKeyOctaveHeight - nY -
 				 NotePropertiesRuler::nKeyLineHeight / 2 ) /
 			   NotePropertiesRuler::nKeyLineHeight;
-		nKey = std::clamp( nKey, KEY_MIN, KEY_MAX );
+		key = static_cast<Note::Key>( std::clamp(
+			nKey, static_cast<int>( Note::KeyMin ),
+			static_cast<int>( Note::KeyMax )
+		) );
 	}
 
 	if ( pKey != nullptr ) {
-		*pKey = nKey;
+		*pKey = key;
 	}
 	if ( pOctave != nullptr ) {
 		*pOctave = nOctave;
@@ -768,11 +771,11 @@ std::vector<std::shared_ptr<Note> > NotePropertiesRuler::getElementsAtPoint(
 			if ( m_property == Property::KeyOctave && !ppNote->getNoteOff() &&
 				 inputSource == Editor::InputSource::Mouse ) {
 				// Determine the key-octave values based on the cursor position.
-				int nKey, nOctave;
-				NotePropertiesRuler::yToKeyOctave( point.y(), &nKey, &nOctave );
-				if ( ( nKey != KEY_INVALID &&
-					   nKey != static_cast<int>( ppNote->getKey() ) ) ||
-					 ( nOctave != KEY_INVALID &&
+				int nOctave;
+				Note::Key key;
+				NotePropertiesRuler::yToKeyOctave( point.y(), &key, &nOctave );
+				if ( ( key != Note::Key::Invalid && key != ppNote->getKey() ) ||
+					 ( nOctave != OCTAVE_INVALID &&
 					   nOctave != static_cast<int>( ppNote->getOctave() ) ) ) {
 					continue;
 				}
@@ -1105,7 +1108,8 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 						pOldNote->getPitchFromKeyOctave() +
 						std::round( fDelta ) * ( bKey ? 1 : KEYS_PER_OCTAVE )
 					),
-					KEYS_PER_OCTAVE * OCTAVE_MAX + KEY_MAX
+					KEYS_PER_OCTAVE * OCTAVE_MAX +
+						static_cast<int>( Note::KeyMax )
 				);
 				Note::Octave octave;
 				if ( nPitch >= 0 ) {
@@ -1241,7 +1245,7 @@ void NotePropertiesRuler::addUndoAction( const QString& sUndoContext )
 		for ( auto it : m_oldNotes ) {
 			std::shared_ptr<Note> pNewNote = it.first, pOldNote = it.second;
 
-			const int nNewKey = pNewNote->getKey();
+			const auto newKey = pNewNote->getKey();
 			const int nNewOctave = pNewNote->getOctave();
 			if ( pNewNote->getKey() != pOldNote->getKey() ||
 				 pNewNote->getOctave() != pOldNote->getOctave() ) {
@@ -1268,7 +1272,7 @@ void NotePropertiesRuler::addUndoAction( const QString& sUndoContext )
 					pOldNote->getPan(), pNewNote->getLeadLag(),
 					pOldNote->getLeadLag(), pNewNote->getProbability(),
 					pOldNote->getProbability(), pNewNote->getLength(),
-					pOldNote->getLength(), nNewKey, pOldNote->getKey(),
+					pOldNote->getLength(), newKey, pOldNote->getKey(),
 					nNewOctave, pOldNote->getOctave()
 				),
 				sUndoContext
@@ -1540,9 +1544,9 @@ void NotePropertiesRuler::drawNote(
 		auto octaveToY = [&]( int nOctave ) {
 			return ( 4 - nOctave ) * NotePropertiesRuler::nKeyLineHeight;
 		};
-		auto keyToY = [&]( int nKey ) {
+		auto keyToY = [&]( Note::Key key ) {
 			return NotePropertiesRuler::nOctaveHeight +
-				   ( ( KEYS_PER_OCTAVE - nKey - 1 ) *
+				   ( ( KEYS_PER_OCTAVE - static_cast<int>( key ) - 1 ) *
 					 NotePropertiesRuler::nKeyLineHeight );
 		};
 
