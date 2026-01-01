@@ -39,8 +39,11 @@ using namespace H2Core;
 
 void MidiNoteTest::testDefaultValues() {
 	___INFOLOG( "" );
-	CPPUNIT_ASSERT( ( OCTAVE_DEFAULT + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE ==
-					MidiMessage::nInstrumentOffset );
+	CPPUNIT_ASSERT(
+		( static_cast<int>( Note::OctaveDefault ) + OCTAVE_OFFSET ) *
+			KEYS_PER_OCTAVE ==
+		MidiMessage::nInstrumentOffset
+	);
 	___INFOLOG( "passed" );
 }
 

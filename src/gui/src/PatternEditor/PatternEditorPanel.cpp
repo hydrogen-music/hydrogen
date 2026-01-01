@@ -2265,7 +2265,7 @@ void PatternEditorPanel::printDB() const {
 }
 
 void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, Note::Key key,
-										   int nOctave, bool bIsNoteOff,
+										   Note::Octave octave, bool bIsNoteOff,
 										   float fYValue,
 										   PatternEditor::Property property,
 										   Editor::Action action,
@@ -2296,17 +2296,17 @@ void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, Note::Key key,
 
 	std::vector< std::shared_ptr<Note> > oldNotes;
 	auto newKey = key;
-	int nNewOctave = nOctave;
-	if ( key == Note::Key::Invalid || nOctave == OCTAVE_INVALID ) {
+	auto newOctave = octave;
+	if ( key == Note::Key::Invalid || octave == Note::Octave::Invalid ) {
 		oldNotes = m_pPattern->findNotes(
 			gridPoint.getColumn(), row.id, row.sType );
 		newKey = Note::KeyDefault;
-		nNewOctave = OCTAVE_DEFAULT;
+		newOctave = Note::OctaveDefault;
 	}
 	else {
 		auto pOldNote = m_pPattern->findNote(
-			gridPoint.getColumn(), row.id, row.sType,
-			key, static_cast<Note::Octave>(nOctave) );
+			gridPoint.getColumn(), row.id, row.sType, key, octave
+		);
 		if ( pOldNote != nullptr ) {
 			oldNotes.push_back( pOldNote );
 		}
@@ -2330,9 +2330,7 @@ void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, Note::Key key,
 				->find( row.id );
 			if ( pInstrument != nullptr && pInstrument->hasSamples() ) {
 				auto pNote2 = std::make_shared<Note>( pInstrument );
-				pNote2->setKeyOctave(
-					key, static_cast<Note::Octave>( nOctave )
-				);
+				pNote2->setKeyOctave( key, octave );
 				pNote2->setNoteOff( bIsNoteOff );
 
 				if ( ! std::isnan( fYValue ) ) {
@@ -2369,7 +2367,7 @@ void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, Note::Key key,
 			}
 			else if ( property == PatternEditor::Property::KeyOctave ) {
 				newKey = pDummyNote->getKey();
-				nNewOctave = pDummyNote->getOctave();
+				newOctave = pDummyNote->getOctave();
 			}
 			else if ( property == PatternEditor::Property::Probability ) {
 				fProbability = pDummyNote->getProbability();
@@ -2387,7 +2385,7 @@ void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, Note::Key key,
 				fPan,
 				fLeadLag,
 				newKey,
-				nNewOctave,
+				newOctave,
 				fProbability,
 				Editor::Action::Add,
 				bIsNoteOff,
@@ -2580,15 +2578,15 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every, int nPitch )
 		const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
 		auto key = Note::KeyDefault;
-		int nOctave = OCTAVE_DEFAULT;
+		auto octave = Note::OctaveDefault;
 		if ( nPitch != PITCH_INVALID ) {
 			key = Note::pitchToKey( nPitch );
-			nOctave = Note::pitchToOctave( nPitch );
+			octave = Note::pitchToOctave( nPitch );
 		}
 
 		pHydrogenApp->beginUndoMacro( FillNotesToQString( every ) );
 		for ( int nnPosition : notePositions ) {
-			addOrRemoveNotes( GridPoint( nnPosition, nRow ), key, nOctave,
+			addOrRemoveNotes( GridPoint( nnPosition, nRow ), key, octave,
 							  false /* bIsNoteOff */, std::nan( "" ),
 							  PatternEditor::Property::None, Editor::Action::Add,
 							  Editor::ActionModifier::None );

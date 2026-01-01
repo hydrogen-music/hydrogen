@@ -383,8 +383,11 @@ void NoteTest::testMappingValidDrumkits() {
 
 void NoteTest::testMidiDefaultOffset() {
 	___INFOLOG( "" );
-	CPPUNIT_ASSERT_EQUAL( MidiMessage::nInstrumentOffset, KEYS_PER_OCTAVE *
-						  ( OCTAVE_DEFAULT + OCTAVE_OFFSET ) );
+	CPPUNIT_ASSERT_EQUAL(
+		MidiMessage::nInstrumentOffset,
+		KEYS_PER_OCTAVE *
+			( static_cast<int>( H2Core::Note::OctaveDefault ) + OCTAVE_OFFSET )
+	);
 	___INFOLOG( "passed" );
 }
 
@@ -397,15 +400,21 @@ void NoteTest::testPitchConversions() {
 		KEYS_PER_OCTAVE ==
 		static_cast<int>( Note::KeyMax ) - static_cast<int>( Note::KeyMin ) + 1
 	);
-	CPPUNIT_ASSERT( H2Core::Note::P8Z == OCTAVE_MIN );
-	CPPUNIT_ASSERT( H2Core::Note::P8C == OCTAVE_MAX );
-	CPPUNIT_ASSERT( OCTAVE_NUMBER == OCTAVE_MAX - OCTAVE_MIN + 1 );
-	CPPUNIT_ASSERT( H2Core::Note::P8 == OCTAVE_DEFAULT );
+	CPPUNIT_ASSERT( H2Core::Note::Octave::P8Z == H2Core::Note::OctaveMin );
+	CPPUNIT_ASSERT( H2Core::Note::Octave::P8C == H2Core::Note::OctaveMax );
+	CPPUNIT_ASSERT(
+		OCTAVE_NUMBER == static_cast<int>( H2Core::Note::OctaveMax ) -
+							 static_cast<int>( H2Core::Note::OctaveMin ) + 1
+	);
+	CPPUNIT_ASSERT( H2Core::Note::Octave::P8 == H2Core::Note::OctaveDefault );
 
-	std::vector<int> octaves = { H2Core::Note::P8Z, H2Core::Note::P8Y,
-		H2Core::Note::P8X, H2Core::Note::P8, H2Core::Note::P8A,
-		H2Core::Note::P8B, H2Core::Note::P8C, OCTAVE_MIN, OCTAVE_MAX,
-		OCTAVE_DEFAULT };
+	std::vector<H2Core::Note::Octave> octaves = {
+		H2Core::Note::Octave::P8Z, H2Core::Note::Octave::P8Y,
+		H2Core::Note::Octave::P8X, H2Core::Note::Octave::P8,
+		H2Core::Note::Octave::P8A, H2Core::Note::Octave::P8B,
+		H2Core::Note::Octave::P8C, H2Core::Note::OctaveMin,
+		H2Core::Note::OctaveMax,   H2Core::Note::OctaveDefault
+	};
 
 	std::vector<H2Core::Note::Key> keys = {
 		H2Core::Note::Key::C,  H2Core::Note::Key::Cs, H2Core::Note::Key::D,
@@ -419,8 +428,7 @@ void NoteTest::testPitchConversions() {
 	for ( const auto ooctave : octaves ) {
 		for ( const auto kkey : keys ) {
 			auto pNote = std::make_shared<H2Core::Note>( pInstrument );
-			pNote->setKeyOctave( kkey,
-								 static_cast<H2Core::Note::Octave>(ooctave) );
+			pNote->setKeyOctave( kkey, ooctave );
 
 			const float fPitch = pNote->getPitchFromKeyOctave();
 			const int nLine = Note::pitchToLine( fPitch );

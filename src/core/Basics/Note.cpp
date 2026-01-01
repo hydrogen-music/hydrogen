@@ -83,7 +83,7 @@ Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition,
 	  m_nLength( nLength ),
 	  m_fPitch( fPitch ),
 	  m_key( Note::KeyDefault ),
-	  m_octave( static_cast<Note::Octave>(OCTAVE_DEFAULT) ),
+	  m_octave( Note::OctaveDefault ),
 	  m_pAdsr( nullptr ),
 	  m_fLeadLag( LEAD_LAG_DEFAULT ),
 	  m_nHumanizeDelay( 0 ),
@@ -454,8 +454,8 @@ void Note::mapToInstrument( std::shared_ptr<Instrument> pInstrument ) {
 
 float Note::getTotalPitch() const
 {
-	float fNotePitch =
-		m_octave * KEYS_PER_OCTAVE + static_cast<int>( m_key ) + m_fPitch;
+	float fNotePitch = static_cast<int>( m_octave ) * KEYS_PER_OCTAVE +
+					   static_cast<int>( m_key ) + m_fPitch;
 
 	if ( m_pInstrument != nullptr ) {
 		fNotePitch += m_pInstrument->getPitchOffset();
@@ -517,8 +517,9 @@ void Note::saveTo( XMLNode& node ) const
 	node.write_float( "pan", m_fPan );
 	node.write_float( "pitch", m_fPitch );
 	node.write_string(
-		"key",
-		QString( "%1%2" ).arg( Note::KeyToQString( m_key ) ).arg( m_octave )
+		"key", QString( "%1%2" )
+				   .arg( Note::KeyToQString( m_key ) )
+				   .arg( static_cast<int>( m_octave ) )
 	);
 	node.write_int( "length", m_nLength );
 	node.write_int( "instrument", static_cast<int>( m_instrumentId ) );
@@ -568,12 +569,13 @@ std::shared_ptr<Note> Note::loadFrom( const XMLNode& node, bool bSilent )
 	}
 
 	const int nOctave = sOctave.toInt();
-    Note::Octave octave = static_cast<Note::Octave>(OCTAVE_DEFAULT);
-	if ( nOctave >= OCTAVE_MIN && nOctave <= OCTAVE_MAX ) {
-       octave = static_cast<Note::Octave>(nOctave);
+    auto octave = Note::OctaveDefault;
+	if ( nOctave >= static_cast<int>( Note::OctaveMin ) &&
+		 nOctave <= static_cast<int>( Note::OctaveMax ) ) {
+		octave = static_cast<Note::Octave>( nOctave );
 	}
 	else {
-        ERRORLOG( QString( "Octave value [%1] out of bound" ).arg( nOctave ) );
+		ERRORLOG( QString( "Octave value [%1] out of bound" ).arg( nOctave ) );
 	}
 	auto key = Note::QStringToKey( sKey );
 	if ( key == Key::Invalid ) {
@@ -821,8 +823,10 @@ QString Note::OctaveToQString( const Octave& octave )
 		return "P8B";
 	case Octave::P8C:
 		return "P8C";
+	case Octave::Invalid:
 	default:
-		return QString( "Unknown octave value [%1]" ).arg( octave );
+		return QString( "Unknown octave value [%1]" )
+			.arg( static_cast<int>( octave ) );
 	}
 }
 };

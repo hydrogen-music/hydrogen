@@ -438,7 +438,7 @@ public:
 							  float fOldPan,
 							  float fOldLeadLag,
 							  H2Core::Note::Key oldKey,
-							  int nOldOctave,
+							  H2Core::Note::Octave oldOctave,
 							  float fOldProbability,
 							  Editor::Action action,
 							  bool bIsNoteOff,
@@ -471,7 +471,7 @@ public:
 		m_fOldPan = fOldPan;
 		m_fOldLeadLag = fOldLeadLag;
 		m_oldKey = oldKey;
-		m_nOldOctave = nOldOctave;
+		m_oldOctave = oldOctave;
 		m_fOldProbability = fOldProbability;
 		m_action = action;
 		m_bIsNoteOff = bIsNoteOff;
@@ -488,7 +488,7 @@ public:
 											  m_fOldPan,
 											  m_fOldLeadLag,
 											  m_oldKey,
-											  m_nOldOctave,
+											  m_oldOctave,
 											  m_fOldProbability,
 											  Editor::undoAction( m_action ),
 											  m_bIsNoteOff,
@@ -505,7 +505,7 @@ public:
 											  m_fOldPan,
 											  m_fOldLeadLag,
 											  m_oldKey,
-											  m_nOldOctave,
+											  m_oldOctave,
 											  m_fOldProbability,
 											  m_action,
 											  m_bIsNoteOff,
@@ -524,7 +524,7 @@ private:
 	float m_fOldPan;
 	float m_fOldLeadLag;
 	H2Core::Note::Key m_oldKey;
-	int m_nOldOctave;
+	H2Core::Note::Octave m_oldOctave;
 	float m_fOldProbability;
 	Editor::Action m_action;
 	bool m_bIsNoteOff;
@@ -631,8 +631,8 @@ public:
 								 int nOldLength,
 								 H2Core::Note::Key key,
 								 H2Core::Note::Key oldKey,
-								 int nOctave,
-								 int nOldOctave ) :
+								 H2Core::Note::Octave octave,
+								 H2Core::Note::Octave oldOctave ) :
 		m_property( property ),
 		m_nPatternNumber( nPatternNumber ),
 		m_nColumn( nColumn ),
@@ -652,8 +652,8 @@ public:
 		m_nOldLength( nOldLength ),
 		m_key( key ),
 		m_oldKey( oldKey ),
-		m_nOctaveKey( nOctave ),
-		m_nOldOctaveKey( nOldOctave ) {
+		m_octaveKey( octave ),
+		m_oldOctaveKey( oldOctave ) {
 
 		setText( QObject::tr( "Edit note property %1" )
 				 .arg( PatternEditor::propertyToQString( property ) ) );
@@ -673,8 +673,8 @@ public:
 												 m_nOldLength,
 												 m_oldKey,
 												 m_key,
-												 m_nOldOctaveKey,
-												 m_nOctaveKey );
+												 m_oldOctaveKey,
+												 m_octaveKey );
 	}
 	virtual void redo() {
 		PatternEditor::editNotePropertiesAction( m_property,
@@ -691,8 +691,8 @@ public:
 												 m_nLength,
 												 m_key,
 												 m_oldKey,
-												 m_nOctaveKey,
-												 m_nOldOctaveKey );
+												 m_octaveKey,
+												 m_oldOctaveKey );
 	}
 
 private:
@@ -717,8 +717,8 @@ private:
 		int m_nOldLength;
 		H2Core::Note::Key m_key;
 		H2Core::Note::Key m_oldKey;
-		int m_nOctaveKey;
-		int m_nOldOctaveKey;
+		H2Core::Note::Octave m_octaveKey;
+		H2Core::Note::Octave m_oldOctaveKey;
 };
 
 /** \ingroup docGUI*/

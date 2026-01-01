@@ -497,15 +497,18 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 
 			if ( bPlaySelectedInstrument ) {
 				int divider = nNote / 12;
-                noteAction.no_octaveKeyVal = static_cast<Note::Octave>(
-                    std::clamp( divider - 3, OCTAVE_MIN, OCTAVE_MAX ) );
+				noteAction.no_octaveKeyVal =
+					static_cast<Note::Octave>( std::clamp(
+						divider - 3, static_cast<int>( Note::OctaveMin ),
+						static_cast<int>( Note::OctaveMax )
+					) );
 				noteAction.nk_noteKeyVal = static_cast<Note::Key>( std::clamp(
 					nNote - ( 12 * divider ), static_cast<int>( Note::KeyMin ),
 					static_cast<int>( Note::KeyMax )
 				) );
 			}
 			else {
-				noteAction.no_octaveKeyVal = (Note::Octave)0;
+				noteAction.no_octaveKeyVal = Note::OctaveDefault;
 				noteAction.nk_noteKeyVal = Note::KeyDefault;
 			}
 
@@ -538,11 +541,12 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 			auto pNote2 = std::make_shared<Note>(
 				pInstrument, nRealColumn, fVelocity, fPan );
 
-			int divider = nNote / 12;
-			Note::Octave octave = (Note::Octave)(divider -3);
-			Note::Key notehigh = (Note::Key)(nNote - (12 * divider));
+			const int nDivider = nNote / 12;
+			const auto octave = static_cast<Note::Octave>( nDivider - 3 );
+			const auto key =
+				static_cast<Note::Key>( nNote - ( 12 * nDivider ) );
 
-			pNote2->setMidiInfo( notehigh, octave, nNote );
+			pNote2->setMidiInfo( key, octave, nNote );
 			midiNoteOn( pNote2 );
 		}
 	}

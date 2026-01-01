@@ -99,7 +99,7 @@ public:
 			float fOldPan,
 			float fOldLeadLag,
 			H2Core::Note::Key oldKey,
-			int nOldOctave,
+			H2Core::Note::Octave oldOctave,
 			float fOldProbability,
 			Editor::Action action,
 			bool bIsNoteOff,
@@ -136,8 +136,8 @@ public:
 			int nLength,
 			H2Core::Note::Key newKey,
 			H2Core::Note::Key oldKey,
-			int nNewOctave,
-			int nOldOctave
+			H2Core::Note::Octave newOctave,
+			H2Core::Note::Octave oldOctave
 		);
 
 		float getGridWidth() const;
@@ -352,7 +352,7 @@ protected:
 		QPointF m_drawPreviousPosition;
 		H2Core::GridPoint m_drawPreviousGridPoint;
 		H2Core::Note::Key m_drawPreviousKey;
-		int m_nDrawPreviousOctave;
+		H2Core::Note::Octave m_drawPreviousOctave;
 
 		// Row the keyboard cursor is residing in.
 		//

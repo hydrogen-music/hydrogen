@@ -31,12 +31,8 @@
 #include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
 
-#define OCTAVE_MIN              -3 /* C-1 */
-#define OCTAVE_MAX              3 /* C5 */
 #define OCTAVE_OFFSET           3
-#define OCTAVE_DEFAULT          0
 #define OCTAVE_NUMBER           7
-#define OCTAVE_INVALID          666
 #define KEYS_PER_OCTAVE         12
 
 #define VELOCITY_MIN            0.0f
@@ -51,8 +47,8 @@
 #define LENGTH_ENTIRE_SAMPLE    -1
 #define PITCH_DEFAULT           0.0f /* C2 */
 #define PITCH_INVALID           666
-#define PITCH_MAX               KEYS_PER_OCTAVE * OCTAVE_MAX + 11/*KEY_MAX*/
-#define PITCH_MIN               KEYS_PER_OCTAVE * OCTAVE_MIN + 0/*KEY_MIN*/
+#define PITCH_MAX               KEYS_PER_OCTAVE * 3/*OCTAVE_MAX*/ + 11/*KEY_MAX*/
+#define PITCH_MIN               KEYS_PER_OCTAVE * -3/*OCTAVE_MIN*/ + 0/*KEY_MIN*/
 #define PROBABILITY_MIN         0.0f
 #define PROBABILITY_DEFAULT     1.0f
 #define PROBABILITY_MAX         1.0f
@@ -137,17 +133,22 @@ class Note : public H2Core::Object<Note>
 	 static constexpr Key KeyMin = Key::C;
 	 static constexpr Key KeyMax = Key::B;
 
-		 /** possible octaves */
-		 enum Octave {
-			 P8Z = -3,
-			 P8Y = -2,
-			 P8X = -1,
-			 P8 = OCTAVE_DEFAULT,
-			 P8A = 1,
-			 P8B = 2,
-			 P8C = 3
-		 };
+	 /** possible octaves */
+	 enum class Octave {
+		 P8Z = -3,
+		 P8Y = -2,
+		 P8X = -1,
+		 P8 = 0,
+		 P8A = 1,
+		 P8B = 2,
+		 P8C = 3,
+		 Invalid = 666
+	 };
 	 static QString OctaveToQString( const Octave& octave );
+
+	 static constexpr Octave OctaveDefault = Octave::P8;
+	 static constexpr Octave OctaveMin = Octave::P8Z;
+	 static constexpr Octave OctaveMax = Octave::P8C;
 
 	 /**
 	  * constructor
@@ -445,24 +446,35 @@ class Note : public H2Core::Object<Note>
 
 		static inline Octave pitchToOctave( int nPitch ) {
 			if ( nPitch >= 0 ) {
-				return (Octave)( nPitch / KEYS_PER_OCTAVE );
+				return static_cast<Octave>( nPitch / KEYS_PER_OCTAVE );
 			} else {
-				return (Octave)((nPitch-11) / KEYS_PER_OCTAVE );
+				return static_cast<Octave>((nPitch-11) / KEYS_PER_OCTAVE );
 			}
 		}
-		static inline Key pitchToKey( int nPitch ) {
-			return (Key)(nPitch - KEYS_PER_OCTAVE * pitchToOctave( nPitch ));
+		static inline Key pitchToKey( int nPitch )
+		{
+			return static_cast<Key>(
+				nPitch -
+				KEYS_PER_OCTAVE * static_cast<int>( pitchToOctave( nPitch ) )
+			);
 		}
-		static inline int octaveKeyToPitch( Octave octave, Key key ) {
+		static inline int octaveKeyToPitch( Octave octave, Key key )
+		{
 			return KEYS_PER_OCTAVE * (int)octave + static_cast<int>(key);
 		}
 
 		/** Pitch / line conversions used in GUI. */
-		static int lineToPitch( int nLine ) {
-			return KEYS_PER_OCTAVE * ( OCTAVE_MIN + OCTAVE_NUMBER ) - 1 - nLine;
+		static int lineToPitch( int nLine )
+		{
+			return KEYS_PER_OCTAVE *
+					   ( static_cast<int>( Note::OctaveMin ) + OCTAVE_NUMBER ) -
+				   1 - nLine;
 		}
-		static int pitchToLine( int nPitch ) {
-			return KEYS_PER_OCTAVE * ( OCTAVE_MIN + OCTAVE_NUMBER ) - 1 - nPitch;
+		static int pitchToLine( int nPitch )
+		{
+			return KEYS_PER_OCTAVE *
+					   ( static_cast<int>( Note::OctaveMin ) + OCTAVE_NUMBER ) -
+				   1 - nPitch;
 		}
 
 	private:
@@ -671,8 +683,9 @@ inline Note::Octave Note::getOctave() const
 
 inline int Note::getMidiKey() const
 {
-	int nMidiKey = ( m_octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE +
-				   static_cast<int>( m_key );
+	int nMidiKey =
+		( static_cast<int>( m_octave ) + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE +
+		static_cast<int>( m_key );
 	if ( m_pInstrument != nullptr ) {
 		nMidiKey +=
 			m_pInstrument->getMidiOutNote() - MidiMessage::nInstrumentOffset;
@@ -687,7 +700,8 @@ inline int Note::getMidiVelocity() const
 
 inline float Note::getPitchFromKeyOctave() const
 {
-	return m_octave * KEYS_PER_OCTAVE + static_cast<int>(m_key);
+	return static_cast<int>( m_octave ) * KEYS_PER_OCTAVE +
+		   static_cast<int>( m_key );
 }
 
 inline void Note::setKeyOctave( Key key, Octave octave )
@@ -696,9 +710,10 @@ inline void Note::setKeyOctave( Key key, Octave octave )
 		 static_cast<int>( key ) <= static_cast<int>( Note::KeyMax ) ) {
 		m_key = key;
     }
-	if ( octave >= OCTAVE_MIN && octave <= OCTAVE_MAX ) {
+	if ( static_cast<int>( octave ) >= static_cast<int>( Note::OctaveMin ) &&
+		 static_cast<int>( octave ) <= static_cast<int>( Note::OctaveMax ) ) {
 		m_octave = octave;
-    }
+	}
 }
 
 inline void Note::setMidiInfo( Key key, Octave octave, int msg )
@@ -707,9 +722,10 @@ inline void Note::setMidiInfo( Key key, Octave octave, int msg )
 		 static_cast<int>( key ) <= static_cast<int>( Note::KeyMax ) ) {
 		m_key = key;
     }
-	if ( octave >= OCTAVE_MIN && octave <= OCTAVE_MAX ) {
+	if ( static_cast<int>( octave ) >= static_cast<int>( Note::OctaveMin ) &&
+		 static_cast<int>( octave ) <= static_cast<int>( Note::OctaveMax ) ) {
 		m_octave = octave;
-    }
+	}
 	m_nMidiMsg = msg;
 }
 
