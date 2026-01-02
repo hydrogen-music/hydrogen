@@ -23,6 +23,7 @@
 #include <core/Basics/Instrument.h>
 
 #include <memory>
+#include "Midi/Midi.h"
 
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Drumkit.h>
@@ -62,8 +63,10 @@ Instrument::Instrument(
 	  m_fFilterResonance( 0.0 ),
 	  m_fRandomPitchFactor( 0.0 ),
 	  m_fPitchOffset( 0.0 ),
-	  m_nMidiOutNote( MidiMessage::nInstrumentOffset + static_cast<int>(id) ),
-	  m_nMidiOutChannel( -1 ),
+	  m_midiOutNote( Midi::noteFromIntClamp(
+		  static_cast<int>( Midi::NoteOffset ) + static_cast<int>( id )
+	  ) ),
+	  m_midiOutChannel( Midi::ChannelOff ),
 	  m_bStopNotes( false ),
 	  m_bSoloed( false ),
 	  m_bMuted( false ),
@@ -95,14 +98,6 @@ Instrument::Instrument(
 		m_pAdsr = std::make_shared<ADSR>();
 	}
 
-	if ( m_nMidiOutNote < MIDI_OUT_NOTE_MIN ) {
-		m_nMidiOutNote = MIDI_OUT_NOTE_MIN;
-	}
-
-	if ( m_nMidiOutNote > MIDI_OUT_NOTE_MAX ) {
-		m_nMidiOutNote = MIDI_OUT_NOTE_MAX;
-	}
-
 	for ( int i = 0; i < MAX_FX; i++ ) {
 		m_fxLevel[i] = 0.0;
 	}
@@ -127,8 +122,8 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	  m_fFilterResonance( other->getFilterResonance() ),
 	  m_fRandomPitchFactor( other->getRandomPitchFactor() ),
 	  m_fPitchOffset( other->getPitchOffset() ),
-	  m_nMidiOutNote( other->getMidiOutNote() ),
-	  m_nMidiOutChannel( other->getMidiOutChannel() ),
+	  m_midiOutNote( other->getMidiOutNote() ),
+	  m_midiOutChannel( other->getMidiOutChannel() ),
 	  m_bStopNotes( other->isStopNotes() ),
 	  m_bSoloed( other->isSoloed() ),
 	  m_bMuted( other->isMuted() ),
@@ -383,12 +378,14 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 	pInstrument->setMuteGroup(
 		node.read_int( "muteGroup", -1, true, false, bSilent )
 	);
-	pInstrument->setMidiOutChannel(
-		node.read_int( "midiOutChannel", -1, true, false, bSilent )
-	);
-	pInstrument->setMidiOutNote( node.read_int(
-		"midiOutNote", pInstrument->m_nMidiOutNote, true, false, bSilent
-	) );
+	pInstrument->setMidiOutChannel( Midi::channelFromInt( node.read_int(
+		"midiOutChannel", static_cast<int>( Midi::ChannelOff ), true, false,
+		bSilent
+	) ) );
+	pInstrument->setMidiOutNote( Midi::noteFromInt( node.read_int(
+		"midiOutNote", static_cast<int>( pInstrument->m_midiOutNote ), true,
+		false, bSilent
+	) ) );
 	pInstrument->setStopNotes(
 		node.read_bool( "isStopNote", true, false, true, bSilent )
 	);
@@ -596,8 +593,12 @@ void Instrument::saveTo(
 	InstrumentNode.write_float( "Sustain", m_pAdsr->getSustain() );
 	InstrumentNode.write_int( "Release", m_pAdsr->getRelease() );
 	InstrumentNode.write_int( "muteGroup", m_nMuteGroup );
-	InstrumentNode.write_int( "midiOutChannel", m_nMidiOutChannel );
-	InstrumentNode.write_int( "midiOutNote", m_nMidiOutNote );
+	InstrumentNode.write_int(
+		"midiOutChannel", static_cast<int>( m_midiOutChannel )
+	);
+	InstrumentNode.write_int(
+		"midiOutNote", static_cast<int>( m_midiOutNote )
+	);
 	InstrumentNode.write_bool( "isStopNote", m_bStopNotes );
 	InstrumentNode.write_int( "isHihat", m_nHihatGrp );
 	InstrumentNode.write_int( "lower_cc", m_nLowerCc );
@@ -980,11 +981,11 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const
 				.append( QString( "%1%2m_nMidiOutNote: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( m_nMidiOutNote ) )
+							 .arg( static_cast<int>(m_midiOutNote) ) )
 				.append( QString( "%1%2m_nMidiOutChannel: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( m_nMidiOutChannel ) )
+							 .arg( static_cast<int>(m_midiOutChannel) ) )
 				.append( QString( "%1%2m_bStopNotes: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -1086,10 +1087,10 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( m_fRandomPitchFactor ) )
 				.append( QString( ", m_fPitchOffset: %1" ).arg( m_fPitchOffset )
 				)
-				.append( QString( ", m_nMidiOutNote: %1" ).arg( m_nMidiOutNote )
+				.append( QString( ", m_midiOutNote: %1" ).arg( static_cast<int>(m_midiOutNote) )
 				)
-				.append( QString( ", m_nMidiOutChannel: %1" )
-							 .arg( m_nMidiOutChannel ) )
+				.append( QString( ", m_midiOutChannel: %1" )
+							 .arg( static_cast<int>(m_midiOutChannel) ) )
 				.append( QString( ", m_bStopNotes: %1" ).arg( m_bStopNotes ) )
 				.append( QString( ", m_bSoloed: %1" ).arg( m_bSoloed ) )
 				.append( QString( ", m_bMuted: %1" ).arg( m_bMuted ) )

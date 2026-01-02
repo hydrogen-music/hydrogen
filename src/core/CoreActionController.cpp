@@ -131,8 +131,12 @@ bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue ){
 	return true;
 }
 
-bool CoreActionController::setInstrumentMidiOutNote( int nInstrument, int nNote,
-													long* pEventId ) {
+bool CoreActionController::setInstrumentMidiOutNote(
+	int nInstrument,
+	Midi::Note note,
+	long* pEventId
+)
+{
 	if ( pEventId != nullptr ) {
 		*pEventId = Event::nInvalidId;
 	}
@@ -155,8 +159,8 @@ bool CoreActionController::setInstrumentMidiOutNote( int nInstrument, int nNote,
 		return false;
 	}
 
-	if ( pInstrument->getMidiOutNote() != nNote ) {
-		pInstrument->setMidiOutNote( nNote );
+	if ( pInstrument->getMidiOutNote() != note ) {
+		pInstrument->setMidiOutNote( note );
 		const auto nId = EventQueue::get_instance()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
 		if ( pEventId != nullptr ) {
@@ -166,9 +170,13 @@ bool CoreActionController::setInstrumentMidiOutNote( int nInstrument, int nNote,
 
 	return true;
 }
-bool CoreActionController::setInstrumentMidiOutChannel( int nInstrument,
-													   int nChannel,
-													   long* pEventId ){
+
+bool CoreActionController::setInstrumentMidiOutChannel(
+	int nInstrument,
+	Midi::Channel channel,
+	long* pEventId
+)
+{
 	if ( pEventId != nullptr ) {
 		*pEventId = Event::nInvalidId;
 	}
@@ -191,8 +199,8 @@ bool CoreActionController::setInstrumentMidiOutChannel( int nInstrument,
 		return false;
 	}
 
-	if ( pInstrument->getMidiOutChannel() != nChannel ) {
-		pInstrument->setMidiOutChannel( nChannel );
+	if ( pInstrument->getMidiOutChannel() != channel ) {
+		pInstrument->setMidiOutChannel( channel );
 		const auto nId = EventQueue::get_instance()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
 		if ( pEventId != nullptr ) {
@@ -681,8 +689,11 @@ bool CoreActionController::handleOutgoingControlChanges( const std::vector<int>&
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	const auto pPref = Preferences::get_instance();
-    if ( pPref->getMidiFeedbackChannel() == MidiMessage::nChannelOff ) {
+    if ( pPref->getMidiFeedbackChannel() == Midi::ChannelOff ) {
       return true;
+    }
+    else if ( pPref->getMidiFeedbackChannel() == Midi::ChannelInvalid ) {
+      return false;
     }
 	auto pMidiDriver = pHydrogen->getMidiDriver();
 
@@ -696,7 +707,7 @@ bool CoreActionController::handleOutgoingControlChanges( const std::vector<int>&
 			controlChange.nParameter = param;
 			controlChange.nValue = nValue;
 			// For now the MIDI feedback channel is always 0.
-			controlChange.nChannel = pPref->getMidiFeedbackChannel();
+			controlChange.channel = pPref->getMidiFeedbackChannel();
 			pMidiDriver->sendMessage( MidiMessage::from( controlChange ) );
 		}
 	}
@@ -2151,7 +2162,7 @@ bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast ) {
 	pAudioEngine->unlock();
 
     if ( pPref->getMidiTransportOutputSend() &&
-         pPref->getMidiFeedbackChannel() != MidiMessage::nChannelOff ) {
+         pPref->getMidiFeedbackChannel() != Midi::ChannelOff ) {
 		auto pMidiDriver = pHydrogen->getMidiDriver();
 
 		if ( pMidiDriver != nullptr ) {
@@ -2548,9 +2559,14 @@ bool CoreActionController::toggleGridCell( const GridPoint& gridPoint ){
 	return true;
 }
 
-bool CoreActionController::handleNote( int nNote, int nChannel,
-									  float fVelocity, bool bNoteOff,
-									  QStringList* pMappedInstruments ) {
+bool CoreActionController::handleNote(
+	Midi::Note note,
+	Midi::Channel channel,
+	float fVelocity,
+	bool bNoteOff,
+	QStringList* pMappedInstruments
+)
+{
 	const auto pPref = Preferences::get_instance();
 	const auto pMidiInstrumentMap = pPref->getMidiInstrumentMap();
 	auto pHydrogen = Hydrogen::get_instance();
@@ -2562,7 +2578,7 @@ bool CoreActionController::handleNote( int nNote, int nChannel,
 	const auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 
 	const auto mappedInstruments = pMidiInstrumentMap
-		->mapInput( nNote, nChannel, pSong->getDrumkit() );
+		->mapInput( note, channel, pSong->getDrumkit() );
 	QString sMode( MidiInstrumentMap::InputToQString(
 		pMidiInstrumentMap->getInput() ) );
 
@@ -2595,7 +2611,7 @@ bool CoreActionController::handleNote( int nNote, int nChannel,
 		}
 
 		if ( pHydrogen->addRealtimeNote(
-				 nCurrentInstrument, fVelocity, bNoteOff, nNote ) ) {
+				 nCurrentInstrument, fVelocity, bNoteOff, note ) ) {
 			instrumentStrings << QString( "%1 (%2)" )
 				.arg( ppInstrument->getName() ).arg( nCurrentInstrument );
 		}
@@ -2605,7 +2621,9 @@ bool CoreActionController::handleNote( int nNote, int nChannel,
 	}
 
 	INFOLOG( QString( "[%1] mapped note [%2] to instrument(s) [%3]" )
-			 .arg( sMode ).arg( nNote ).arg( instrumentStrings.join( ", " ) ) );
+				 .arg( sMode )
+				 .arg( static_cast<int>( note ) )
+				 .arg( instrumentStrings.join( ", " ) ) );
 
 	if ( pMappedInstruments != nullptr ) {
 		*pMappedInstruments = instrumentStrings;
@@ -2888,10 +2906,10 @@ bool CoreActionController::sendAllNoteOffMessages() {
 		if ( ppInstrument != nullptr ) {
 			const auto noteRef = pMidiInstrumentMap
 				->getOutputMapping( nullptr, ppInstrument );
-			noteOff.nChannel = noteRef.nChannel;
-			noteOff.nKey = noteRef.nNote;
+			noteOff.channel = noteRef.channel;
+			noteOff.note = noteRef.note;
 
-			if ( noteOff.nChannel != MidiMessage::nChannelOff ) {
+			if ( noteOff.channel != Midi::ChannelOff ) {
 				pMidiDriver->sendMessage( MidiMessage::from( noteOff ) );
 			}
 		}

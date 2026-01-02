@@ -226,7 +226,8 @@ void MidiBaseDriver::midiClockStream( void* pInstance ) {
 		const auto preSend = Clock::now();
 
 		// Send event
-        if ( pPref->getMidiFeedbackChannel() != MidiMessage::nChannelOff ) {
+        if ( pPref->getMidiFeedbackChannel() != Midi::ChannelOff &&
+            pPref->getMidiFeedbackChannel() != Midi::ChannelInvalid ) {
 			pMidiDriver->sendMessage(
 				MidiMessage( MidiMessage::Type::TimingClock, 0, 0,
 	                        pPref->getMidiFeedbackChannel() ) );

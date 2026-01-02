@@ -233,7 +233,7 @@ void CoreMidiDriver::sendNoteOnMessage( const MidiMessage& msg )
 
 	packetList.packet->timeStamp = 0;
 	packetList.packet->length = 3;
-	packetList.packet->data[0] = 0x90 | msg.getChannel();
+	packetList.packet->data[0] = 0x90 | static_cast<int>( msg.getChannel() );
 	packetList.packet->data[1] = msg.getData1();
 	packetList.packet->data[2] = msg.getData2();
 
@@ -252,7 +252,7 @@ void CoreMidiDriver::sendNoteOffMessage( const MidiMessage& msg )
 
 	packetList.packet->timeStamp = 0;
 	packetList.packet->length = 3;
-	packetList.packet->data[0] = 0x80 | msg.getChannel();
+	packetList.packet->data[0] = 0x80 | static_cast<int>( msg.getChannel() );
 	packetList.packet->data[1] = msg.getData1();
 	packetList.packet->data[2] = msg.getData2();
 
@@ -270,7 +270,7 @@ void CoreMidiDriver::sendControlChangeMessage( const MidiMessage& msg ) {
 
 	packetList.packet->timeStamp = 0;
 	packetList.packet->length = 3;
-	packetList.packet->data[0] = 0xB0 | msg.getChannel();
+	packetList.packet->data[0] = 0xB0 | static_cast<int>( msg.getChannel() );
 	packetList.packet->data[1] = msg.getData1();
 	packetList.packet->data[2] = msg.getData2();
 

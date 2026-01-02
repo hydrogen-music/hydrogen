@@ -30,6 +30,7 @@
 #include <core/Basics/Event.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/License.h>
+#include <core/Midi/Midi.h>
 #include <core/Object.h>
 
 namespace H2Core {
@@ -173,14 +174,14 @@ class Instrument : public H2Core::Object<Instrument> {
 	int getMuteGroup() const;
 
 	/** set the midi out channel of the instrument */
-	void setMidiOutChannel( int channel );
+	void setMidiOutChannel( Midi::Channel channel );
 	/** get the midi out channel of the instrument */
-	int getMidiOutChannel() const;
+	Midi::Channel getMidiOutChannel() const;
 
 	/** set the midi out note of the instrument */
-	void setMidiOutNote( int note );
+	void setMidiOutNote( Midi::Note note );
 	/** get the midi out note of the instrument */
-	int getMidiOutNote() const;
+	Midi::Note getMidiOutNote() const;
 
 	/** set muted status of the instrument */
 	void setMuted( bool muted );
@@ -402,8 +403,8 @@ class Instrument : public H2Core::Object<Instrument> {
 									 */
 	float m_fRandomPitchFactor;
 	float m_fPitchOffset;	///< instrument main pitch offset
-	int m_nMidiOutNote;		///< midi out note
-	int m_nMidiOutChannel;	///< midi out channel
+	Midi::Note m_midiOutNote;
+	Midi::Channel m_midiOutChannel;
 	bool m_bStopNotes;		///< will the note automatically generate a note off
 							///< after being on
 	bool m_bSoloed;			///< is the instrument in solo mode?
@@ -467,38 +468,24 @@ inline int Instrument::getMuteGroup() const
 	return m_nMuteGroup;
 }
 
-inline int Instrument::getMidiOutChannel() const
+inline Midi::Channel Instrument::getMidiOutChannel() const
 {
-	return m_nMidiOutChannel;
+	return m_midiOutChannel;
 }
 
-inline void Instrument::setMidiOutChannel( int nChannel )
+inline void Instrument::setMidiOutChannel( Midi::Channel channel )
 {
-	if ( ( nChannel >= MIDI_OUT_CHANNEL_MIN ) &&
-		 ( nChannel <= MIDI_OUT_CHANNEL_MAX ) ) {
-		m_nMidiOutChannel = nChannel;
-	}
-	else {
-		ERRORLOG( QString( "midi out channel [%1] out of bounds [%2,%3]" )
-					  .arg( nChannel )
-					  .arg( MIDI_OUT_CHANNEL_MIN )
-					  .arg( MIDI_OUT_CHANNEL_MAX ) );
-	}
+	m_midiOutChannel = channel;
 }
 
-inline int Instrument::getMidiOutNote() const
+inline Midi::Note Instrument::getMidiOutNote() const
 {
-	return m_nMidiOutNote;
+	return m_midiOutNote;
 }
 
-inline void Instrument::setMidiOutNote( int note )
+inline void Instrument::setMidiOutNote( Midi::Note note )
 {
-	if ( ( note >= MIDI_OUT_NOTE_MIN ) && ( note <= MIDI_OUT_NOTE_MAX ) ) {
-		m_nMidiOutNote = note;
-	}
-	else {
-		ERRORLOG( QString( "midi out note %1 out of bounds" ).arg( note ) );
-	}
+	m_midiOutNote = note;
 }
 
 inline void Instrument::setMuted( bool muted )

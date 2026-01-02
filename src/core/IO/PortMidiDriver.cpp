@@ -175,7 +175,7 @@ void PortMidiDriver::sendControlChangeMessage( const MidiMessage& msg )
 
 	//Control change
 	event.message = Pm_Message(
-		0xB0 | msg.getChannel(), msg.getData1(), msg.getData2() );
+		0xB0 | static_cast<int>( msg.getChannel() ), msg.getData1(), msg.getData2() );
 	Pm_Write(m_pMidiOut, &event, 1);
 }
 
@@ -457,7 +457,7 @@ void PortMidiDriver::sendNoteOnMessage( const MidiMessage& msg ) {
 	PmEvent event;
 	event.timestamp = 0;
 	event.message = Pm_Message(
-		0x90 | msg.getChannel(), msg.getData1(), msg.getData2() );
+		0x90 | static_cast<int>( msg.getChannel() ), msg.getData1(), msg.getData2() );
 	PmError err = Pm_Write(m_pMidiOut, &event, 1);
 	if ( err != pmNoError ) {
 		ERRORLOG( QString( "Error in Pm_Write for Note on: [%1]" )
@@ -476,7 +476,7 @@ void PortMidiDriver::sendNoteOffMessage( const MidiMessage& msg )
 
 	//Note off
 	event.message =
-		Pm_Message( 0x80 | msg.getChannel(), msg.getData1(), msg.getData2() );
+		Pm_Message( 0x80 | static_cast<int>( msg.getChannel() ), msg.getData1(), msg.getData2() );
 	PmError err = Pm_Write(m_pMidiOut, &event, 1);
 	if ( err != pmNoError ) {
 		ERRORLOG( QString( "Error in Pm_Write: [%1]" )

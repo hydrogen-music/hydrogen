@@ -22,6 +22,7 @@
 #include "MidiEventMap.h"
 
 #include <QMutexLocker>
+#include "Midi/Midi.h"
 
 #include <core/Basics/Event.h>
 #include <core/EventQueue.h>
@@ -236,14 +237,15 @@ void MidiEventMap::registerEvent(
 		return;
 	}
 
-	if ( type == MidiEvent::Type::Note && ( nParameter < MIDI_OUT_NOTE_MIN ||
-											nParameter > MIDI_OUT_NOTE_MAX ) ) {
+	if ( type == MidiEvent::Type::Note &&
+		 ( nParameter < static_cast<int>( Midi::NoteMinimum ) ||
+		   nParameter > static_cast<int>( Midi::NoteMaximum ) ) ) {
 		ERRORLOG( QString( "Unable to register Note MIDI [%1]: Provided note "
 						   "[%2] out of bound [%3,%4]" )
 					  .arg( pAction->toQString() )
 					  .arg( nParameter )
-					  .arg( MIDI_OUT_NOTE_MIN )
-					  .arg( MIDI_OUT_NOTE_MAX ) );
+					  .arg( static_cast<int>( Midi::NoteMinimum ) )
+					  .arg( static_cast<int>( Midi::NoteMaximum ) ) );
 		return;
 	}
 	else if ( type == MidiEvent::Type::CC &&

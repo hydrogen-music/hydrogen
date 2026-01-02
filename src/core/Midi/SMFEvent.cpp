@@ -412,27 +412,25 @@ QString SMFTimeSignatureMetaEvent::toQString( const QString& sPrefix, bool bShor
 
 // ::::::::::::::
 
-SMFNoteOnEvent::SMFNoteOnEvent( float fTicks, int nChannel, int nPitch,
-								int nVelocity )
-		: SMFEvent( fTicks, SMFEvent::Type::NoteOn )
-		, m_nChannel( nChannel )
-		, m_nPitch( nPitch )
-		, m_nVelocity( nVelocity )
+SMFNoteOnEvent::SMFNoteOnEvent(
+	float fTicks,
+	Midi::Channel channel,
+	Midi::Note note,
+	int nVelocity
+)
+	: SMFEvent( fTicks, SMFEvent::Type::NoteOn ),
+	  m_channel( channel ),
+	  m_note( note ),
+	  m_nVelocity( nVelocity )
 {
-	if ( nChannel >= 16 || nChannel < 0 ) {
-		ERRORLOG( QString( "Invalid channel [%1]" ).arg( nChannel ) );
-		m_nChannel = std::clamp( nChannel, 0, 15 );
-	}
 }
-
-
 
 QByteArray SMFNoteOnEvent::getBuffer() const
 {
 	SMFBuffer buf;
 	buf.writeVarLen( m_nDeltaTime );
-	buf.writeByte( static_cast<int>(m_type) + m_nChannel );
-	buf.writeByte( m_nPitch );
+	buf.writeByte( static_cast<int>( m_type ) + static_cast<int>( m_channel ) );
+	buf.writeByte( static_cast<int>( m_note ) );
 	buf.writeByte( m_nVelocity );
 
 	return buf.getBuffer();
@@ -449,10 +447,10 @@ QString SMFNoteOnEvent::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_fTicks ) )
 			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nDeltaTime ) )
-			.append( QString( "%1%2m_nChannel: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nChannel ) )
-			.append( QString( "%1%2m_nPitch: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nPitch ) )
+			.append( QString( "%1%2m_channel: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( static_cast<int>(m_channel) ) )
+			.append( QString( "%1%2m_note: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( static_cast<int>( m_note ) ) )
 			.append( QString( "%1%2m_nVelocity: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nVelocity ) );
 	}
@@ -463,8 +461,8 @@ QString SMFNoteOnEvent::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_fTicks: %1" ).arg( m_fTicks ) )
 			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
 			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
-			.append( QString( ", m_nChannel: %1" ).arg( m_nChannel ) )
-			.append( QString( ", m_nPitch: %1" ).arg( m_nPitch ) )
+			.append( QString( ", m_channel: %1" ).arg( static_cast<int>(m_channel) ) )
+			.append( QString( ", m_note: %1" ).arg( static_cast<int>( m_note ) ) )
 			.append( QString( ", m_nVelocity: %1" ).arg( m_nVelocity ) );
 	}
 
@@ -473,28 +471,25 @@ QString SMFNoteOnEvent::toQString( const QString& sPrefix, bool bShort ) const {
 
 // :::::::::::
 
-
-SMFNoteOffEvent::SMFNoteOffEvent( float fTicks, int nChannel, int nPitch,
-								  int nVelocity )
-		: SMFEvent( fTicks, SMFEvent::Type::NoteOff )
-		, m_nChannel( nChannel )
-		, m_nPitch( nPitch )
-		, m_nVelocity( nVelocity )
+SMFNoteOffEvent::SMFNoteOffEvent(
+	float fTicks,
+	Midi::Channel channel,
+	Midi::Note note,
+	int nVelocity
+)
+	: SMFEvent( fTicks, SMFEvent::Type::NoteOff ),
+	  m_channel( channel ),
+	  m_note( note ),
+	  m_nVelocity( nVelocity )
 {
-	if ( nChannel >= 16 || nChannel < 0 ) {
-		ERRORLOG( QString( "Invalid channel [%1]" ).arg( nChannel ) );
-		m_nChannel = std::clamp( nChannel, 0, 15 );
-	}
 }
-
-
 
 QByteArray SMFNoteOffEvent::getBuffer() const
 {
 	SMFBuffer buf;
 	buf.writeVarLen( m_nDeltaTime );
-	buf.writeByte( static_cast<int>(m_type) + m_nChannel );
-	buf.writeByte( m_nPitch );
+	buf.writeByte( static_cast<int>(m_type) + static_cast<int>(m_channel) );
+	buf.writeByte( static_cast<int>( m_note ) );
 	buf.writeByte( m_nVelocity );
 
 	return buf.getBuffer();
@@ -511,10 +506,10 @@ QString SMFNoteOffEvent::toQString( const QString& sPrefix, bool bShort ) const 
 					 .arg( s ).arg( m_fTicks ) )
 			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nDeltaTime ) )
-			.append( QString( "%1%2m_nChannel: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nChannel ) )
-			.append( QString( "%1%2m_nPitch: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nPitch ) )
+			.append( QString( "%1%2m_channel: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( static_cast<int>(m_channel) ) )
+			.append( QString( "%1%2m_note: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( static_cast<int>( m_note ) ) )
 			.append( QString( "%1%2m_nVelocity: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nVelocity ) );
 	}
@@ -525,8 +520,8 @@ QString SMFNoteOffEvent::toQString( const QString& sPrefix, bool bShort ) const 
 			.append( QString( ", m_fTicks: %1" ).arg( m_fTicks ) )
 			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
 			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
-			.append( QString( ", m_nChannel: %1" ).arg( m_nChannel ) )
-			.append( QString( ", m_nPitch: %1" ).arg( m_nPitch ) )
+			.append( QString( ", m_channel: %1" ).arg( static_cast<int>(m_channel) ) )
+			.append( QString( ", m_note: %1" ).arg( static_cast<int>( m_note ) ) )
 			.append( QString( ", m_nVelocity: %1" ).arg( m_nVelocity ) );
 	}
 

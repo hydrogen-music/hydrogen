@@ -99,7 +99,7 @@ font-size: 21px;" );
 			}
 			CoreActionController::setInstrumentMidiOutChannel(
 				pSong->getDrumkit()->getInstruments()->index( pInstrument ),
-				static_cast<int>( fValue ), nullptr
+				Midi::channelFromIntClamp( static_cast<int>( fValue ) ), nullptr
 			);
 		}
 	);
@@ -128,7 +128,7 @@ font-size: 21px;" );
 			}
 			CoreActionController::setInstrumentMidiOutNote(
 				pSong->getDrumkit()->getInstruments()->index( pInstrument ),
-				static_cast<int>( fValue ), nullptr
+				Midi::noteFromIntClamp( static_cast<int>( fValue ) ), nullptr
 			);
 		}
 	);
@@ -570,20 +570,24 @@ void InstrumentEditor::updateEditor() {
 			pInstrument->getMuteGroup(), Event::Trigger::Suppress );
 
 		// midi out channel
-		if ( pInstrument->getMidiOutChannel() == -1 ) {
+		if ( pInstrument->getMidiOutChannel() == Midi::ChannelOff ||
+             pInstrument->getMidiOutChannel() == Midi::ChannelInvalid ) {
 			// turn off
 			m_pMidiOutChannelLCD->setValue( -1, Event::Trigger::Suppress );
 		}
 		else {
 			// The MIDI channels start at 1 instead of zero.
 			m_pMidiOutChannelLCD->setValue(
-				pInstrument->getMidiOutChannel(),
-				Event::Trigger::Suppress );
+				static_cast<int>( pInstrument->getMidiOutChannel() ),
+				Event::Trigger::Suppress
+			);
 		}
 
 		//midi out note
-		m_pMidiOutNoteLCD->setValue( pInstrument->getMidiOutNote(),
-									 Event::Trigger::Suppress );
+		m_pMidiOutNoteLCD->setValue(
+			static_cast<int>( pInstrument->getMidiOutNote() ),
+			Event::Trigger::Suppress
+		);
 
 		// hihat
 		m_pHihatGroupLCD->setValue( pInstrument->getHihatGrp(),

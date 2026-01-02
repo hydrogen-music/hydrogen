@@ -22,6 +22,7 @@
 #include "MidiActionTest.h"
 
 #include "TestHelper.h"
+#include "core/Midi/Midi.h"
 
 #include <chrono>
 #include <thread>
@@ -54,7 +55,7 @@ using namespace H2Core;
 void MidiActionTest::setUp()
 {
 	auto pPref = Preferences::get_instance();
-	pPref->m_nMidiActionChannel = MidiMessage::nChannelAll;
+	pPref->m_midiActionChannel = Midi::ChannelAll;
 
 	CoreActionController::activateTimeline( false );
 }
@@ -103,8 +104,10 @@ void MidiActionTest::testBeatCounterAction()
 
 	___DEBUGLOG( QString( "interval: %1" ).arg( fIntervalMs ) );
 
-	const auto beatCounterMessage =
-		MidiMessage( MidiMessage::Type::ControlChange, nBeatCounterPara, 0, 0 );
+	const auto beatCounterMessage = MidiMessage(
+		MidiMessage::Type::ControlChange, nBeatCounterPara, 0,
+		Midi::ChannelDefault
+	);
 
 	auto intervalCompensation = std::chrono::duration<float, std::milli>( 0 );
 	for ( int nnMessage = 0; nnMessage < 8; ++nnMessage ) {
@@ -175,9 +178,9 @@ void MidiActionTest::testBpmCcRelativeAction()
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
 
-	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
-	);
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault
+	) );
 
 	TestHelper::waitForAudioDriver();
 
@@ -223,9 +226,9 @@ void MidiActionTest::testBpmDecreaseAction()
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
 
-	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
-	);
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault
+	) );
 
 	TestHelper::waitForAudioDriver();
 
@@ -270,9 +273,9 @@ void MidiActionTest::testBpmFineCcRelativeAction()
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
 
-	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
-	);
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault
+	) );
 
 	TestHelper::waitForAudioDriver();
 
@@ -322,7 +325,7 @@ void MidiActionTest::testBpmIncreaseAction()
 	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 
 	TestHelper::waitForAudioDriver();
@@ -353,7 +356,7 @@ void MidiActionTest::testClearPatternAction()
 
 	const int nPatternNumber = pHydrogen->getSelectedPatternNumber();
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 
 	// We first add note and then ensure it is gone after triggering the action.
@@ -366,7 +369,7 @@ void MidiActionTest::testClearPatternAction()
 	CPPUNIT_ASSERT( pPattern->getNotes()->size() == 1 );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pPattern->getNotes()->size() == 0 );
 
@@ -375,7 +378,7 @@ void MidiActionTest::testClearPatternAction()
 		-1, true /* bNeedsLock */, Event::Trigger::Suppress
 	);
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	pHydrogen->setSelectedPatternNumber(
 		nPatternNumber, true /* bNeedsLock */, Event::Trigger::Suppress
@@ -406,7 +409,8 @@ void MidiActionTest::testClearSelectedInstrumentAction()
 
 	// We reset the whole pattern to have a clean canvas.
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameterClearPattern, 0, 0
+		MidiMessage::Type::ControlChange, nParameterClearPattern, 0,
+		Midi::ChannelDefault
 	) );
 
 	// We first add note and then ensure it is gone after triggering the action.
@@ -431,14 +435,14 @@ void MidiActionTest::testClearSelectedInstrumentAction()
 	CPPUNIT_ASSERT( pPattern->getNotes()->size() == 2 );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pPattern->getNotes()->size() == 1 );
 
 	// Check robustness against having no pattern selected (should not happen).
 	pHydrogen->setSelectedInstrumentNumber( -1, Event::Trigger::Suppress );
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	pHydrogen->setSelectedInstrumentNumber(
 		nSelectedInstrument, Event::Trigger::Suppress
@@ -475,9 +479,10 @@ void MidiActionTest::testEffectLevelAbsoluteAction()
 	const float fOldValue = 0.92;
 	pInstrument->setFxLevel( fOldValue, nFxId );
 
-	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, nFxValue, 0 )
-	);
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameter, nFxValue,
+		Midi::ChannelDefault
+	) );
 	CPPUNIT_ASSERT( pInstrument->getFxLevel( nFxId ) != fOldValue );
 
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
@@ -522,9 +527,10 @@ void MidiActionTest::testEffectLevelRelativeAction()
 	const float fOldValue = 0.92;
 	pInstrument->setFxLevel( fOldValue, nFxId );
 
-	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, nFxValue, 0 )
-	);
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameter, nFxValue,
+		Midi::ChannelDefault
+	) );
 	CPPUNIT_ASSERT( pInstrument->getFxLevel( nFxId ) != fOldValue );
 
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
@@ -567,7 +573,8 @@ void MidiActionTest::testFilterCutoffLevelAbsoluteAction()
 	pInstrument->setFilterCutoff( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nCutoffValue, 0
+		MidiMessage::Type::ControlChange, nParameter, nCutoffValue,
+		Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pInstrument->getFilterCutoff() != fOldValue );
 
@@ -620,7 +627,8 @@ void MidiActionTest::testGainLevelAbsoluteAction()
 	pLayer->setGain( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nGainValue, 0
+		MidiMessage::Type::ControlChange, nParameter, nGainValue,
+		Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pLayer->getGain() != fOldValue );
 
@@ -665,7 +673,8 @@ void MidiActionTest::testInstrumentPitchAction()
 	pInstrument->setPitchOffset( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nPitchValue, 0
+		MidiMessage::Type::ControlChange, nParameter, nPitchValue,
+		Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pInstrument->getPitchOffset() != fOldValue );
 	const float fRef = ( Instrument::fPitchMax - Instrument::fPitchMin ) *
@@ -699,7 +708,7 @@ void MidiActionTest::testLoadNextDrumkitAction()
 	CPPUNIT_ASSERT( pOldDrumkit != nullptr );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	auto pNewDrumkit = pSong->getDrumkit();
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
@@ -729,7 +738,7 @@ void MidiActionTest::testLoadPrevDrumkitAction()
 	CPPUNIT_ASSERT( pOldDrumkit != nullptr );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	auto pNewDrumkit = pSong->getDrumkit();
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
@@ -762,7 +771,8 @@ void MidiActionTest::testMasterVolumeAbsoluteAction()
 	pSong->setVolume( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nVolumeValue, 0
+		MidiMessage::Type::ControlChange, nParameter, nVolumeValue,
+		Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pSong->getVolume() != fOldValue );
 
@@ -798,7 +808,8 @@ void MidiActionTest::testMasterVolumeRelativeAction()
 	pSong->setVolume( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nVolumeValue, 0
+		MidiMessage::Type::ControlChange, nParameter, nVolumeValue,
+		Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pSong->getVolume() != fOldValue );
 
@@ -831,7 +842,7 @@ void MidiActionTest::testMuteAction()
 	pSong->setIsMuted( bOldValue );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pSong->getIsMuted() != bOldValue );
 	pSong->setIsMuted( bOldValue );
@@ -858,11 +869,11 @@ void MidiActionTest::testMuteToggleAction()
 	pSong->setIsMuted( bOldValue );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pSong->getIsMuted() != bOldValue );
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pSong->getIsMuted() == bOldValue );
 
@@ -904,7 +915,7 @@ void MidiActionTest::testNextBarAction()
 	CPPUNIT_ASSERT( CoreActionController::locateToColumn( nOldValue ) );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 
 	pAudioEngine->lock( RIGHT_HERE );
@@ -951,7 +962,8 @@ void MidiActionTest::testPanAbsoluteAction()
 	pInstrument->setPanWithRangeFrom0To1( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nPanValue, 0
+		MidiMessage::Type::ControlChange, nParameter, nPanValue,
+		Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pInstrument->getPanWithRangeFrom0To1() != fOldValue );
 	const float fRef = static_cast<float>( nPanValue ) / 127.0;
@@ -993,7 +1005,8 @@ void MidiActionTest::testPanAbsoluteSymAction()
 	pInstrument->setPan( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nPanValue, 0
+		MidiMessage::Type::ControlChange, nParameter, nPanValue,
+		Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pInstrument->getPan() != fOldValue );
 	const float fRef = static_cast<float>( nPanValue ) / 127.0;
@@ -1033,7 +1046,8 @@ void MidiActionTest::testPanRelativeAction()
 	pInstrument->setPan( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nPanValue, 0
+		MidiMessage::Type::ControlChange, nParameter, nPanValue,
+		Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pInstrument->getPan() != fOldValue );
 	const float fRef = fOldValue + 0.1;
@@ -1072,7 +1086,7 @@ void MidiActionTest::testPauseAction()
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
@@ -1118,7 +1132,8 @@ void MidiActionTest::testPitchLevelAbsoluteAction()
 	pLayer->setPitch( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nPitchValue, 0
+		MidiMessage::Type::ControlChange, nParameter, nPitchValue,
+		Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pLayer->getPitch() != fOldValue );
 
@@ -1160,7 +1175,7 @@ void MidiActionTest::testPlayAction()
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
@@ -1204,7 +1219,7 @@ void MidiActionTest::testPlaylistNextSongAction()
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 
 	auto pNewSong = pHydrogen->getSong();
@@ -1252,7 +1267,7 @@ void MidiActionTest::testPlaylistPrevSongAction()
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 
 	auto pNewSong = pHydrogen->getSong();
@@ -1311,9 +1326,10 @@ void MidiActionTest::testPlaylistSongAction()
 		MidiEvent::Type::CC, nParameterNewSong, pActionNewSong
 	);
 
-	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameterNewSong, 0, 0 )
-	);
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameterNewSong, 0,
+		Midi::ChannelDefault
+	) );
 
 	auto pNewSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pNewSong != nullptr );
@@ -1324,9 +1340,10 @@ void MidiActionTest::testPlaylistSongAction()
 	);
 	CPPUNIT_ASSERT( sNewSongName != sOldSongName );
 
-	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameterOldSong, 0, 0 )
-	);
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, nParameterOldSong, 0,
+		Midi::ChannelDefault
+	) );
 
 	auto pNewSongRevert = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pNewSongRevert != nullptr );
@@ -1372,13 +1389,13 @@ void MidiActionTest::testPlayPauseToggleAction()
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
@@ -1416,13 +1433,13 @@ void MidiActionTest::testPlayStopToggleAction()
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
@@ -1469,7 +1486,7 @@ void MidiActionTest::testPreviousBarAction()
 	CPPUNIT_ASSERT( CoreActionController::locateToColumn( nOldValue ) );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 
 	pAudioEngine->lock( RIGHT_HERE );
@@ -1504,7 +1521,7 @@ void MidiActionTest::testRecordExitAction()
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( !pHydrogen->getRecordEnabled() );
 
@@ -1532,11 +1549,11 @@ void MidiActionTest::testRecordReadyAction()
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pHydrogen->getRecordEnabled() );
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( !pHydrogen->getRecordEnabled() );
 
@@ -1544,11 +1561,11 @@ void MidiActionTest::testRecordReadyAction()
 	TestHelper::waitForAudioDriver();
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( !pHydrogen->getRecordEnabled() );
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( !pHydrogen->getRecordEnabled() );
 
@@ -1573,7 +1590,7 @@ void MidiActionTest::testRecordStrobeAction()
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pHydrogen->getRecordEnabled() );
 
@@ -1598,12 +1615,12 @@ void MidiActionTest::testRecordStrobeToggleAction()
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pHydrogen->getRecordEnabled() );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( !pHydrogen->getRecordEnabled() );
 
@@ -1626,7 +1643,7 @@ void MidiActionTest::testRedoAction()
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	const int nMaxTries = 100;
 	int nnTry = 0;
@@ -1680,7 +1697,7 @@ void MidiActionTest::testSelectAndPlayPatternAction()
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
@@ -1715,7 +1732,8 @@ void MidiActionTest::testSelectInstrumentAction()
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nInstrumentNumber, 0
+		MidiMessage::Type::ControlChange, nParameter, nInstrumentNumber,
+		Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT(
 		pHydrogen->getSelectedInstrumentNumber() == nInstrumentNumber
@@ -1748,7 +1766,7 @@ void MidiActionTest::testSelectNextPatternAction()
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pHydrogen->getSelectedPatternNumber() == nPatternNumber );
 
@@ -1779,7 +1797,8 @@ void MidiActionTest::testSelectNextPatternCcAbsoluteAction()
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nPatternNumber, 0
+		MidiMessage::Type::ControlChange, nParameter, nPatternNumber,
+		Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pHydrogen->getSelectedPatternNumber() == nPatternNumber );
 
@@ -1811,7 +1830,7 @@ void MidiActionTest::testSelectNextPatternRelativeAction()
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT(
 		pHydrogen->getSelectedPatternNumber() ==
@@ -1845,7 +1864,7 @@ void MidiActionTest::testSelectOnlyNextPatternAction()
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pHydrogen->getSelectedPatternNumber() == nPatternNumber );
 
@@ -1876,7 +1895,8 @@ void MidiActionTest::testSelectOnlyNextPatternCcAbsoluteAction()
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nPatternNumber, 0
+		MidiMessage::Type::ControlChange, nParameter, nPatternNumber,
+		Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pHydrogen->getSelectedPatternNumber() == nPatternNumber );
 
@@ -1911,7 +1931,7 @@ void MidiActionTest::testStopAction()
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
@@ -1947,12 +1967,12 @@ void MidiActionTest::testStripMuteToggleAction()
 	pInstrument->setMuted( bOldValue );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pInstrument->isMuted() != bOldValue );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pInstrument->isMuted() == bOldValue );
 
@@ -1984,12 +2004,12 @@ void MidiActionTest::testStripSoloToggleAction()
 	pInstrument->setSoloed( bOldValue );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pInstrument->isSoloed() != bOldValue );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pInstrument->isSoloed() == bOldValue );
 
@@ -2023,7 +2043,8 @@ void MidiActionTest::testStripVolumeAbsoluteAction()
 	pInstrument->setVolume( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nVolumeValue, 0
+		MidiMessage::Type::ControlChange, nParameter, nVolumeValue,
+		Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pInstrument->getVolume() != fOldValue );
 	const float fRef = 1.5 * static_cast<float>( nVolumeValue ) / 127.0;
@@ -2063,7 +2084,8 @@ void MidiActionTest::testStripVolumeRelativeAction()
 	pInstrument->setVolume( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nVolumeValue, 0
+		MidiMessage::Type::ControlChange, nParameter, nVolumeValue,
+		Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pInstrument->getVolume() != fOldValue );
 	const float fRef = fOldValue + 0.1;
@@ -2112,7 +2134,7 @@ void MidiActionTest::testTapTempoAction()
 	___DEBUGLOG( QString( "interval: %1" ).arg( fIntervalMs ) );
 
 	const auto tapTempoMessage =
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 );
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault );
 
 	auto intervalCompensation = std::chrono::duration<float, std::milli>( 0 );
 	for ( int nnMessage = 0; nnMessage < 8; ++nnMessage ) {
@@ -2171,12 +2193,12 @@ void MidiActionTest::testToggleMetronomeAction()
 	pPref->m_bUseMetronome = bOldValue;
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pPref->m_bUseMetronome != bOldValue );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pPref->m_bUseMetronome == bOldValue );
 
@@ -2199,7 +2221,7 @@ void MidiActionTest::testUndoAction()
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	const int nMaxTries = 100;
 	int nnTry = 0;
@@ -2239,7 +2261,7 @@ void MidiActionTest::testUnmuteAction()
 	pSong->setIsMuted( bOldValue );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, 0 )
+		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pSong->getIsMuted() != bOldValue );
 	pSong->setIsMuted( false );

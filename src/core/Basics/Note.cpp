@@ -23,6 +23,7 @@
 #include <core/Basics/Note.h>
 
 #include <cassert>
+#include "Midi/Midi.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
@@ -91,7 +92,6 @@ Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition,
 	  m_fBpfbR( 0.0 ),
 	  m_fLpfbL( 0.0 ),
 	  m_fLpfbR( 0.0 ),
-	  m_nMidiMsg( -1 ),
 	  m_bNoteOff( false ),
 	  m_fProbability( PROBABILITY_DEFAULT ),
 	  m_nNoteStart( 0 ),
@@ -124,7 +124,6 @@ Note::Note( std::shared_ptr<Note> pOther )
 	  m_fBpfbR( pOther->m_fBpfbR ),
 	  m_fLpfbL( pOther->m_fLpfbL ),
 	  m_fLpfbR( pOther->m_fLpfbR ),
-	  m_nMidiMsg( pOther->getMidiMsg() ),
 	  m_bNoteOff( pOther->getNoteOff() ),
 	  m_fProbability( pOther->getProbability() ),
 	  m_nNoteStart( pOther->getNoteStart() ),
@@ -652,8 +651,6 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_fLpfbL ) )
 			.append( QString( "%1%2m_fLpfbR: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_fLpfbR ) )
-			.append( QString( "%1%2m_nMidiMsg: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nMidiMsg ) )
 			.append( QString( "%1%2m_bNoteOff: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_bNoteOff ) )
 			.append( QString( "%1%2m_fProbability: %3\n" ).arg( sPrefix ).arg( s )
@@ -706,7 +703,6 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_fBpfbR: %1" ).arg( m_fBpfbR ) )
 			.append( QString( ", m_fLlpfbL: %1" ).arg( m_fLpfbL ) )
 			.append( QString( ", m_fLpfbR: %1" ).arg( m_fLpfbR ) )
-			.append( QString( ", m_nMidiMsg: %1" ).arg( m_nMidiMsg ) )
 			.append( QString( ", m_bNoteOff: %1" ).arg( m_bNoteOff ) )
 			.append( QString( ", m_fProbability: %1" ).arg( m_fProbability ) )
 			.append( QString( ", m_nNoteStart: %1" ).arg( m_nNoteStart ) )
@@ -806,6 +802,35 @@ Note::Key Note::QStringToKey( const QString& sKey ) {
 	}
 }
 
+Note::Key Note::keyFromInt( int nKey )
+{
+	if ( nKey >= static_cast<int>( KeyMin ) &&
+		 nKey <= static_cast<int>( KeyMax ) ) {
+		return static_cast<Key>( nKey );
+	}
+	else {
+		return Key::Invalid;
+	}
+}
+
+Note::Key Note::keyFromIntClamp( int nKey )
+{
+	return static_cast<Key>( std::clamp(
+		nKey, static_cast<int>( KeyMin ), static_cast<int>( KeyMax )
+	) );
+}
+
+Note::Key Note::keyFrom( Midi::Note note )
+{
+	if ( note == Midi::NoteInvalid ) {
+		return Key::Invalid;
+	}
+	const int nDivider = static_cast<int>( note ) / KEYS_PER_OCTAVE;
+	return Note::keyFromIntClamp(
+		static_cast<int>( note ) - ( KEYS_PER_OCTAVE * nDivider )
+	);
+}
+
 QString Note::OctaveToQString( const Octave& octave )
 {
 	switch( octave ) {
@@ -829,6 +854,34 @@ QString Note::OctaveToQString( const Octave& octave )
 			.arg( static_cast<int>( octave ) );
 	}
 }
-};
+
+Note::Octave Note::octaveFromInt( int nOctave )
+{
+	if ( nOctave >= static_cast<int>( OctaveMin ) &&
+		 nOctave <= static_cast<int>( OctaveMax ) ) {
+		return static_cast<Octave>( nOctave );
+	}
+	else {
+		return Octave::Invalid;
+	}
+}
+
+Note::Octave Note::octaveFromIntClamp( int nOctave )
+{
+	return static_cast<Octave>( std::clamp(
+		nOctave, static_cast<int>( OctaveMin ), static_cast<int>( OctaveMax )
+	) );
+}
+
+Note::Octave Note::octaveFrom( Midi::Note note )
+{
+	if ( note == Midi::NoteInvalid ) {
+		return Octave::Invalid;
+	}
+	const int nDivider = static_cast<int>( note ) / KEYS_PER_OCTAVE;
+	return Note::octaveFromIntClamp( nDivider - OCTAVE_OFFSET );
+}
+
+};	// namespace H2Core
 
 /* vim: set softtabstop=4 noexpandtab: */

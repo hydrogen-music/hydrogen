@@ -34,11 +34,6 @@ namespace H2Core {
 	constexpr int nTicksPerQuarter = 48;
 }
 
-#define MIDI_OUT_NOTE_MIN       0
-#define MIDI_OUT_NOTE_MAX       127
-#define MIDI_OUT_CHANNEL_MIN    -1
-#define MIDI_OUT_CHANNEL_MAX    15
-
 #define MIN_BPM                  10
 #define MAX_BPM                 400
 

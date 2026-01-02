@@ -24,6 +24,7 @@
 #ifndef SAMPLER_H
 #define SAMPLER_H
 
+#include <core/Basics/Note.h>
 #include <core/Globals.h>
 #include <core/Object.h>
 #include <core/Sampler/Interpolation.h>
@@ -38,7 +39,6 @@ namespace H2Core
 class Instrument;
 class InstrumentComponent;
 class InstrumentLayer;
-class Note;
 class Sample;
 struct SelectedLayerInfo;
 class Song;
@@ -181,15 +181,19 @@ public:
 	/// Start playing a note
 	void noteOn( std::shared_ptr<Note> pNote );
 
-	void midiKeyboardNoteOff( int key );
+	void midiKeyboardNoteOff(
+		std::shared_ptr<Instrument> pInstrument,
+		Note::Key key,
+		Note::Octave octave
+	);
 
 	void stopPlayingNotes( std::shared_ptr<Instrument> pInstr = nullptr );
-		/** Stop playing notes gracefully by making them enter their release
-		 * phase (ADSR).
-		 *
-		 * @param pInstr particular instrument for which notes will be release
-		 *   (`nullptr` to release them all) */
-		void releasePlayingNotes( std::shared_ptr<Instrument> pInstr = nullptr );
+	/** Stop playing notes gracefully by making them enter their release
+	 * phase (ADSR).
+	 *
+	 * @param pInstr particular instrument for which notes will be release
+	 *   (`nullptr` to release them all) */
+	void releasePlayingNotes( std::shared_ptr<Instrument> pInstr = nullptr );
 
 	int getPlayingNotesNumber() const {
 		return m_playingNotesQueue.size();

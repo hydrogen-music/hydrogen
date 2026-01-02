@@ -70,16 +70,21 @@ std::shared_ptr<MidiOutput::HandledOutput> MidiOutput::sendMessage(
 	pHandledOutput->type = msg.getType();
 	pHandledOutput->nData1 = msg.getData1();
 	pHandledOutput->nData2 = msg.getData2();
-	pHandledOutput->nChannel = msg.getChannel();
+	pHandledOutput->channel = msg.getChannel();
 
 	return pHandledOutput;
 }
 
-
-QString MidiOutput::HandledOutput::toQString() const {
-	return QString( "timePoint: %1, msg type: %2, nData1: %3, nData2: %4, nChannel: %5" )
+QString MidiOutput::HandledOutput::toQString() const
+{
+	return QString(
+			   "timePoint: %1, msg type: %2, nData1: %3, nData2: %4, channel: "
+			   "%5"
+	)
 		.arg( H2Core::timePointToQString( timePoint ) )
-		.arg( MidiMessage::TypeToQString( type ) ).arg( nData1 ).arg( nData2 )
-		.arg( nChannel );
+		.arg( MidiMessage::TypeToQString( type ) )
+		.arg( nData1 )
+		.arg( nData2 )
+		.arg( static_cast<int>( channel ) );
 }
-};
+};	// namespace H2Core

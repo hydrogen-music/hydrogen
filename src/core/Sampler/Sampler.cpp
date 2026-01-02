@@ -36,7 +36,6 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
-#include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Sample.h>
@@ -170,19 +169,21 @@ void Sampler::process( uint32_t nFrames )
 	if ( m_queuedNoteOffs.size() > 0 ) {
 		auto pMidiDriver = pHydrogen->getMidiDriver();
 		if ( pMidiDriver != nullptr ) {
-			//Queue midi note off messages for notes that have a length specified for them
-			while ( ! m_queuedNoteOffs.empty() ) {
-				pNote =  m_queuedNoteOffs[0];
+			// Queue midi note off messages for notes that have a length
+			// specified for them
+			while ( !m_queuedNoteOffs.empty() ) {
+				pNote = m_queuedNoteOffs[0];
 
 				if ( pNote->getInstrument() != nullptr &&
 					 !pNote->getInstrument()->isMuted() ) {
 					const auto noteRef =
 						pMidiInstrumentMap->getOutputMapping( pNote );
 					MidiMessage::NoteOff noteOff;
-					noteOff.nChannel = noteRef.nChannel;
-					noteOff.nKey = noteRef.nNote;
+					noteOff.channel = noteRef.channel;
+					noteOff.note = noteRef.note;
 					noteOff.nVelocity = pNote->getMidiVelocity();
-					if ( noteOff.nChannel != MidiMessage::nChannelOff ) {
+					if ( noteOff.channel != Midi::ChannelOff &&
+						 noteOff.channel != Midi::ChannelInvalid ) {
 						pMidiDriver->sendMessage( MidiMessage::from( noteOff )
 						);
 					}
@@ -281,12 +282,21 @@ void Sampler::noteOn( std::shared_ptr<Note> pNote )
 	}
 }
 
-void Sampler::midiKeyboardNoteOff( int key )
+void Sampler::midiKeyboardNoteOff(
+	std::shared_ptr<Instrument> pInstrument,
+	Note::Key key,
+	Note::Octave octave
+)
 {
-	for ( const auto& pNote: m_playingNotesQueue ) {
-		if ( pNote->getMidiMsg() == key &&
-			 pNote->getAdsr() != nullptr ) {
-			pNote->getAdsr()->release();
+	if ( pInstrument == nullptr ) {
+		return;
+	}
+	for ( const auto& ppNote : m_playingNotesQueue ) {
+		if ( ppNote != nullptr &&
+			 ppNote->getInstrumentId() == pInstrument->getId() &&
+			 ppNote->getKey() == key && ppNote->getOctave() == octave &&
+			 ppNote->getAdsr() != nullptr ) {
+			ppNote->getAdsr()->release();
 		}
 	}
 }

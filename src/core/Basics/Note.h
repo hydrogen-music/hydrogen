@@ -28,7 +28,7 @@
 
 #include <core/Basics/DrumkitMap.h>
 #include <core/Basics/Instrument.h>
-#include <core/Midi/MidiMessage.h>
+#include <core/Midi/Midi.h>
 #include <core/Object.h>
 
 #define OCTAVE_OFFSET           3
@@ -128,6 +128,9 @@ class Note : public H2Core::Object<Note>
 	 };
 	 static QString KeyToQString( const Key& key );
 	 static Key QStringToKey( const QString& sKey );
+	 static Key keyFromInt( int nValue );
+	 static Key keyFromIntClamp( int nValue );
+	 static Key keyFrom( Midi::Note note );
 
 	 static constexpr Key KeyDefault = Key::C;
 	 static constexpr Key KeyMin = Key::C;
@@ -145,6 +148,9 @@ class Note : public H2Core::Object<Note>
 		 Invalid = 666
 	 };
 	 static QString OctaveToQString( const Octave& octave );
+	 static Octave octaveFromInt( int nValue );
+	 static Octave octaveFromIntClamp( int nValue );
+	 static Octave octaveFrom( Midi::Note note );
 
 	 static constexpr Octave OctaveDefault = Octave::P8;
 	 static constexpr Octave OctaveMin = Octave::P8Z;
@@ -255,8 +261,6 @@ class Note : public H2Core::Object<Note>
 		void setNoteOff( bool value );
 		/** #m_bNoteOff accessor */
 		bool getNoteOff() const;
-		/** #m_nMidiMsg accessor */
-		int getMidiMsg() const;
 
 		bool layersAlreadySelected() const;
 
@@ -303,7 +307,7 @@ class Note : public H2Core::Object<Note>
 		/** #m_octave accessor */
 		Octave getOctave() const;
 		/** return scaled key for midi output, !!! DO NOT CHECK IF INSTRUMENT IS SET !!! */
-		int getMidiKey() const;
+		Midi::Note getMidiNote() const;
 		/** midi velocity accessor 
 		 * m_fVelocity * 127
 		 * \endcode */
@@ -321,13 +325,6 @@ class Note : public H2Core::Object<Note>
 		 * \param octave the octave to be set
 		 */
 		void setKeyOctave( Key key, Octave octave );
-		/**
-		 * set #m_key, #m_octave and #m_nMidiMsg only if within acceptable range
-		 * \param key the key to set
-		 * \param octave the octave to be set
-		 * \param msg
-		 */
-		void setMidiInfo( Key key, Octave octave, int msg );
 
 		/** get the ADSR of the note */
 		std::shared_ptr<ADSR> getAdsr() const;
@@ -524,7 +521,6 @@ class Note : public H2Core::Object<Note>
 		float			m_fBpfbR;             ///< right band pass filter buffer
 		float			m_fLpfbL;             ///< left low pass filter buffer
 		float			m_fLpfbR;             ///< right low pass filter buffer
-		int				m_nMidiMsg;             ///< TODO
 		bool			m_bNoteOff;            ///< note type on|off
 		float			m_fProbability;        ///< note probability
 		static const char* m_keyStr[]; ///< used to build QString
@@ -639,11 +635,6 @@ inline bool Note::getNoteOff() const
 	return m_bNoteOff;
 }
 
-inline int Note::getMidiMsg() const
-{
-	return m_nMidiMsg;
-}
-
 inline std::map< std::shared_ptr<InstrumentComponent>,
 				 std::shared_ptr<SelectedLayerInfo> > Note::getAllSelectedLayerInfos() const {
 	return m_selectedLayerInfoMap;
@@ -681,16 +672,16 @@ inline Note::Octave Note::getOctave() const
 	return m_octave;
 }
 
-inline int Note::getMidiKey() const
+inline Midi::Note Note::getMidiNote() const
 {
 	int nMidiKey =
 		( static_cast<int>( m_octave ) + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE +
 		static_cast<int>( m_key );
 	if ( m_pInstrument != nullptr ) {
-		nMidiKey +=
-			m_pInstrument->getMidiOutNote() - MidiMessage::nInstrumentOffset;
+		nMidiKey += static_cast<int>( m_pInstrument->getMidiOutNote() ) -
+					static_cast<int>( Midi::NoteOffset );
 	}
-	return nMidiKey;
+	return Midi::noteFromIntClamp( nMidiKey );
 }
 
 inline int Note::getMidiVelocity() const
@@ -706,27 +697,8 @@ inline float Note::getPitchFromKeyOctave() const
 
 inline void Note::setKeyOctave( Key key, Octave octave )
 {
-	if ( static_cast<int>( key ) >= static_cast<int>( Note::KeyMin ) &&
-		 static_cast<int>( key ) <= static_cast<int>( Note::KeyMax ) ) {
-		m_key = key;
-    }
-	if ( static_cast<int>( octave ) >= static_cast<int>( Note::OctaveMin ) &&
-		 static_cast<int>( octave ) <= static_cast<int>( Note::OctaveMax ) ) {
-		m_octave = octave;
-	}
-}
-
-inline void Note::setMidiInfo( Key key, Octave octave, int msg )
-{
-	if ( static_cast<int>( key ) >= static_cast<int>( Note::KeyMin ) &&
-		 static_cast<int>( key ) <= static_cast<int>( Note::KeyMax ) ) {
-		m_key = key;
-    }
-	if ( static_cast<int>( octave ) >= static_cast<int>( Note::OctaveMin ) &&
-		 static_cast<int>( octave ) <= static_cast<int>( Note::OctaveMax ) ) {
-		m_octave = octave;
-	}
-	m_nMidiMsg = msg;
+    m_key = key;
+    m_octave = octave;
 }
 
 inline bool Note::match(

@@ -29,6 +29,7 @@
 #include <core/Basics/Instrument.h>
 #include <core/License.h>
 #include <core/Object.h>
+#include <core/Midi/Midi.h>
 
 namespace H2Core
 {
@@ -142,7 +143,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * \param nNote the Midi note of the instruments to find
 		 * \return 0 if not found
 		 */
-		std::vector< std::shared_ptr<Instrument> > findByMidiNote( const int nNote ) const;
+		std::vector< std::shared_ptr<Instrument> > findByMidiNote( Midi::Note note ) const;
 		/**
 		 * move an instrument from a position to another
 		 * \param idx_a the start index
@@ -222,10 +223,6 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 */
 		bool hasAllMidiNotesSame() const;
 
-		/**
-		 * Set each instrument consecuteve MIDI
-		 * out notes, starting from #MIDI_DEFAULT_OFFSET
-		 */
 		void setDefaultMidiOutNotes();
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of

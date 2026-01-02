@@ -96,7 +96,9 @@ void MidiDriverTest::testLoopBackMidiDriver() {
 	messages.reserve( H2Core::LoopBackMidiDriver::nMaxQueueSize * 2 );
 	for ( int ii = 0; ii < H2Core::LoopBackMidiDriver::nMaxQueueSize * 2; ++ii ) {
 		messages.push_back( H2Core::MidiMessage(
-								H2Core::MidiMessage::Type::NoteOff, ii, ii, 0 ) );
+			H2Core::MidiMessage::Type::NoteOff, ii, ii,
+			H2Core::Midi::ChannelDefault
+		) );
 	}
 
 	for ( const auto& mmessage : messages ) {

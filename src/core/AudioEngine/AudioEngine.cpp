@@ -24,6 +24,7 @@
 
 #include <limits>
 #include <sstream>
+#include "Midi/Midi.h"
 
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/AutomationPath.h>
@@ -313,9 +314,9 @@ void AudioEngine::startPlayback()
 	setState( State::Playing );
 
 	const auto pPref = Preferences::get_instance();
-	if ( pPref->getMidiTransportOutputSend() &&
-         pPref->getMidiFeedbackChannel() != MidiMessage::nChannelOff &&
-		 m_pMidiDriver != nullptr ) {
+	if ( pPref->getMidiTransportOutputSend() && m_pMidiDriver != nullptr &&
+		 pPref->getMidiFeedbackChannel() != Midi::ChannelOff &&
+         pPref->getMidiFeedbackChannel() != Midi::ChannelInvalid ) {
 		MidiMessage midiMessage;
 		if ( m_pTransportPosition->getTick() > 0 ) {
 			midiMessage.setType( MidiMessage::Type::Continue );
@@ -325,7 +326,7 @@ void AudioEngine::startPlayback()
 		}
 		m_pMidiDriver->sendMessage( midiMessage );
 	}
-	
+
 	handleSelectedPattern();
 }
 
@@ -342,9 +343,9 @@ void AudioEngine::stopPlayback( Event::Trigger trigger )
 	setState( State::Ready, trigger );
 
 	const auto pPref = Preferences::get_instance();
-	if ( pPref->getMidiTransportOutputSend() &&
-         pPref->getMidiFeedbackChannel() != MidiMessage::nChannelOff &&
-		 m_pMidiDriver != nullptr ) {
+	if ( pPref->getMidiTransportOutputSend() && m_pMidiDriver != nullptr &&
+		 pPref->getMidiFeedbackChannel() != Midi::ChannelOff &&
+		 pPref->getMidiFeedbackChannel() != Midi::ChannelInvalid ) {
 		MidiMessage midiMessage;
 		midiMessage.setType( MidiMessage::Type::Stop );
 		m_pMidiDriver->sendMessage( midiMessage );

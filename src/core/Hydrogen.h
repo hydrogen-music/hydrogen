@@ -27,6 +27,7 @@
 #include <core/config.h>
 #include <core/Helpers/Time.h>
 #include <core/IO/JackAudioDriver.h>
+#include <core/Midi/Midi.h>
 #include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
 #include <core/Timeline.h>
@@ -258,19 +259,21 @@ public:
 
 	void updateSongSize();
 
-		bool			addRealtimeNote ( int instrument,
-							  float velocity,
-							  bool noteoff=false,
-							  int msg1=0 );
+	bool addRealtimeNote(
+		int instrument,
+		float velocity,
+		bool noteoff = false,
+		Midi::Note note = Midi::NoteDefault
+	);
 
-		int getHihatOpenness() const;
-		void setHihatOpenness( int nValue );
+	int getHihatOpenness() const;
+	void setHihatOpenness( int nValue );
 
-		void			restartAudioDriver();
-		void			restartMidiDriver();
+	void restartAudioDriver();
+	void restartMidiDriver();
 
-		AudioOutput*	getAudioOutput() const;
-		std::shared_ptr<MidiBaseDriver>	getMidiDriver() const;
+	AudioOutput* getAudioOutput() const;
+	std::shared_ptr<MidiBaseDriver> getMidiDriver() const;
 
 	/** Wrapper around Song::setIsModified() that checks whether a
 		song is set.*/

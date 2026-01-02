@@ -56,7 +56,7 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 	pHandledInput->type = msg.getType();
 	pHandledInput->nData1 = msg.getData1();
 	pHandledInput->nData2 = msg.getData2();
-	pHandledInput->nChannel = msg.getChannel();
+	pHandledInput->channel = msg.getChannel();
 
 	INFOLOG( QString( "Incoming message:  [%1]" ).arg( msg.toQString() ) );
 
@@ -72,15 +72,17 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 		 MidiMessage::Type::Stop != type &&
 		 MidiMessage::Type::Sysex != type &&
 		 MidiMessage::Type::TimingClock != type ) {
-
-		if ( pPref->m_nMidiActionChannel == MidiMessage::nChannelOff ) {
+		if ( pPref->m_midiActionChannel == Midi::ChannelOff ) {
 			INFOLOG( "Action handling disabled. Dropping message." );
 			return pHandledInput;
 		}
-		else if ( pPref->m_nMidiActionChannel != MidiMessage::nChannelAll &&
-				  pPref->m_nMidiActionChannel != msg.getChannel() ) {
-			INFOLOG( QString( "Dropping message due to invalid channel: [%1] instead of [%2]" )
-				 .arg( msg.getChannel() ).arg( pPref->m_nMidiActionChannel ) );
+		else if ( pPref->m_midiActionChannel != Midi::ChannelAll &&
+				  pPref->m_midiActionChannel != msg.getChannel() ) {
+			INFOLOG( QString( "Dropping message due to invalid channel: [%1] "
+							  "instead of [%2]" )
+						 .arg( static_cast<int>( msg.getChannel() ) )
+						 .arg( static_cast<int>( pPref->m_midiActionChannel ) )
+			);
 			return pHandledInput;
 		}
 	}
@@ -285,7 +287,7 @@ void MidiInput::handleProgramChangeMessage(
 void MidiInput::handleNoteOnMessage(
 	const MidiMessage& msg, std::shared_ptr<HandledInput> pHandledInput )
 {
-	const int nNote = msg.getData1();
+	const Midi::Note note = Midi::noteFromIntClamp( msg.getData1() );
 	const float fVelocity = msg.getData2() / 127.0;
 
 	if ( fVelocity == 0 ) {
@@ -302,9 +304,9 @@ void MidiInput::handleNoteOnMessage(
 	pHydrogen->setLastMidiEventParameter( msg.getData1() );
 
 	// The NOTE_ON event can be associated with a MIDI action too.
-	if ( pPref->m_nMidiActionChannel == MidiMessage::nChannelAll ||
-		 ( pPref->m_nMidiActionChannel != MidiMessage::nChannelOff &&
-		   pPref->m_nMidiActionChannel == msg.getChannel() ) ) {
+	if ( pPref->m_midiActionChannel == Midi::ChannelAll ||
+		 ( pPref->m_midiActionChannel != Midi::ChannelOff &&
+		   pPref->m_midiActionChannel == msg.getChannel() ) ) {
 		for ( const auto& ppAction : pMidiEventMap->getNoteActions( msg.getData1() ) ) {
 			if ( ppAction != nullptr && ! ppAction->isNull() ) {
 				auto pNewAction = MidiAction::from( ppAction, msg.getTimePoint() );
@@ -318,7 +320,7 @@ void MidiInput::handleNoteOnMessage(
 
 	QStringList mappedInstruments;
 	CoreActionController::handleNote(
-		nNote, msg.getChannel(), fVelocity, false, &mappedInstruments );
+		note, msg.getChannel(), fVelocity, false, &mappedInstruments );
 
 	pHandledInput->mappedInstruments = mappedInstruments;
 }
@@ -345,7 +347,9 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke,
 
 	QStringList mappedInstruments;
 	CoreActionController::handleNote(
-		msg.getData1(), msg.getChannel(), 0.0, true, &mappedInstruments );
+		Midi::noteFromIntClamp( msg.getData1() ), msg.getChannel(), 0.0, true,
+		&mappedInstruments
+	);
 
 	pHandledInput->mappedInstruments = mappedInstruments;
 }
@@ -464,16 +468,23 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg,
 	}
 }
 
-QString MidiInput::HandledInput::toQString() const {
+QString MidiInput::HandledInput::toQString() const
+{
 	QStringList types;
 	for ( const auto& ttype : actionTypes ) {
 		types << MidiAction::typeToQString( ttype );
 	}
-	return QString( "timePoint: %1, msg type: %2, nData1: %3, nData2: %4, nChannel: %5, actionTypes: [%6], mappedInstrument: [%7]" )
+	return QString(
+			   "timePoint: %1, msg type: %2, nData1: %3, nData2: %4, channel: "
+			   "%5, actionTypes: [%6], mappedInstrument: [%7]"
+	)
 		.arg( H2Core::timePointToQString( timePoint ) )
-		.arg( MidiMessage::TypeToQString( type ) ).arg( nData1 ).arg( nData2 )
-		.arg( nChannel ).arg( types.join( "," ) )
+		.arg( MidiMessage::TypeToQString( type ) )
+		.arg( nData1 )
+		.arg( nData2 )
+		.arg( static_cast<int>( channel ) )
+		.arg( types.join( "," ) )
 		.arg( mappedInstruments.join( ", " ) );
 }
 
-};
+};	// namespace H2Core

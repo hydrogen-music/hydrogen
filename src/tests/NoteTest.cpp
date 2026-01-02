@@ -381,17 +381,19 @@ void NoteTest::testMappingValidDrumkits() {
 	___INFOLOG( "passed" );
 }
 
-void NoteTest::testMidiDefaultOffset() {
+void NoteTest::testMidiDefaultOffset()
+{
 	___INFOLOG( "" );
 	CPPUNIT_ASSERT_EQUAL(
-		MidiMessage::nInstrumentOffset,
+		static_cast<int>( Midi::NoteOffset ),
 		KEYS_PER_OCTAVE *
 			( static_cast<int>( H2Core::Note::OctaveDefault ) + OCTAVE_OFFSET )
 	);
 	___INFOLOG( "passed" );
 }
 
-void NoteTest::testPitchConversions() {
+void NoteTest::testPitchConversions()
+{
 	___INFOLOG( "" );
 
 	CPPUNIT_ASSERT( H2Core::Note::Key::C == Note::KeyMin );
@@ -492,9 +494,14 @@ void NoteTest::testSerializeProbability() {
 	___INFOLOG( "passed" );
 }
 
-void NoteTest::testVirtualKeyboard() {
+void NoteTest::testVirtualKeyboard()
+{
 	___INFOLOG( "" );
-	CPPUNIT_ASSERT_EQUAL( static_cast<int>(Shortcuts::Action::VK_36_C2), 400 );
-	CPPUNIT_ASSERT_EQUAL( MidiMessage::nInstrumentOffset, 36 ); // MIDI note C2
+	CPPUNIT_ASSERT_EQUAL(
+		static_cast<int>( Shortcuts::Action::VK_36_C2 ), 400
+	);
+	CPPUNIT_ASSERT_EQUAL(
+		static_cast<int>( Midi::NoteOffset ), 36
+	);	// MIDI note C2
 	___INFOLOG( "passed" );
 }

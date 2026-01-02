@@ -30,6 +30,7 @@
 #include <cmath>
 #include <algorithm>
 #include <thread>
+#include "Midi/Midi.h"
 
 #include <core/Hydrogen.h>
 
@@ -329,12 +330,13 @@ void Hydrogen::midiNoteOn( std::shared_ptr<Note> pNote )
 	m_pAudioEngine->noteOn( pNote );
 }
 
-bool Hydrogen::addRealtimeNote(	int		nInstrument,
-								float	fVelocity,
-								bool	bNoteOff,
-								int		nNote )
+bool Hydrogen::addRealtimeNote(
+	int nInstrument,
+	float fVelocity,
+	bool bNoteOff,
+	Midi::Note note
+)
 {
-	
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	auto pSampler = pAudioEngine->getSampler();
 	const auto pPref = Preferences::get_instance();
@@ -456,16 +458,20 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 		bool bIsModified = false;
 
 		if ( bNoteOff ) {
-			
+            // Handle the NOTE_OFF event corresponding to the previous NOTE_ON.
+            // This is used to record notes of custom lengths.
 			int nPatternSize = pCurrentPattern->getLength();
 			int nNoteLength =
 				static_cast<int>(pAudioEngine->getTransportPosition()->getPatternTickPosition()) -
 				m_nLastRecordedMIDINoteTick;
 
 			if ( bPlaySelectedInstrument ) {
-				nNoteLength =
-					static_cast<int>(static_cast<double>(nNoteLength) *
-									 Note::pitchToFrequency( nNote ));
+				nNoteLength = static_cast<int>(
+					static_cast<double>( nNoteLength ) *
+					Note::pitchToFrequency( Note::octaveKeyToPitch(
+						Note::octaveFrom( note ), Note::keyFrom( note )
+					) )
+				);
 			}
 
 			for ( unsigned nnNote = 0; nnNote < nPatternSize; nnNote++ ) {
@@ -488,28 +494,20 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 		}
 		else { // note on
 			EventQueue::AddMidiNoteVector noteAction;
-			noteAction.m_column = nTickInPattern;
-			noteAction.m_id = instrumentId;
-			noteAction.m_pattern = currentPatternNumber;
-			noteAction.f_velocity = fVelocity;
-			noteAction.f_pan = fPan;
-			noteAction.m_length = -1;
+			noteAction.nColumn = nTickInPattern;
+			noteAction.id = instrumentId;
+			noteAction.nPattern = currentPatternNumber;
+			noteAction.fVelocity = fVelocity;
+			noteAction.fPan = fPan;
+			noteAction.nLength = -1;
 
-			if ( bPlaySelectedInstrument ) {
-				int divider = nNote / 12;
-				noteAction.no_octaveKeyVal =
-					static_cast<Note::Octave>( std::clamp(
-						divider - 3, static_cast<int>( Note::OctaveMin ),
-						static_cast<int>( Note::OctaveMax )
-					) );
-				noteAction.nk_noteKeyVal = static_cast<Note::Key>( std::clamp(
-					nNote - ( 12 * divider ), static_cast<int>( Note::KeyMin ),
-					static_cast<int>( Note::KeyMax )
-				) );
+			if ( bPlaySelectedInstrument && note != Midi::NoteInvalid ) {
+				noteAction.octave = Note::octaveFrom( note );
+				noteAction.key = Note::keyFrom( note );
 			}
 			else {
-				noteAction.no_octaveKeyVal = Note::OctaveDefault;
-				noteAction.nk_noteKeyVal = Note::KeyDefault;
+				noteAction.octave = Note::OctaveDefault;
+				noteAction.key = Note::KeyDefault;
 			}
 
 			EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
@@ -531,22 +529,22 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 		return true;
 	}
 	
-	if ( bPlaySelectedInstrument ) {
+	if ( bPlaySelectedInstrument && note != Midi::NoteInvalid ) {
 		if ( bNoteOff ) {
 			if ( pSampler->isInstrumentPlaying( pInstrument ) ) {
-				pSampler->midiKeyboardNoteOff( nNote );
+				pSampler->midiKeyboardNoteOff(
+					pInstrument, Note::keyFrom( note ), Note::octaveFrom( note )
+				);
 			}
 		}
 		else { // note on
 			auto pNote2 = std::make_shared<Note>(
-				pInstrument, nRealColumn, fVelocity, fPan );
+				pInstrument, nRealColumn, fVelocity, fPan
+			);
 
-			const int nDivider = nNote / 12;
-			const auto octave = static_cast<Note::Octave>( nDivider - 3 );
-			const auto key =
-				static_cast<Note::Key>( nNote - ( 12 * nDivider ) );
-
-			pNote2->setMidiInfo( key, octave, nNote );
+			pNote2->setKeyOctave(
+				Note::keyFrom( note ), Note::octaveFrom( note )
+			);
 			midiNoteOn( pNote2 );
 		}
 	}
@@ -568,7 +566,6 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 	m_pAudioEngine->unlock(); // unlock the audio engine
 	return true;
 }
-
 
 void Hydrogen::toggleNextPattern( int nPatternNumber ) {
 	if ( m_pSong != nullptr && getMode() == Song::Mode::Pattern ) {

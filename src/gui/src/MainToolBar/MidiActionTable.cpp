@@ -29,11 +29,11 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Hydrogen.h>
 #include <core/Globals.h>
+#include <core/Midi/Midi.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiActionManager.h>
 #include <core/Midi/MidiEvent.h>
 #include <core/Midi/MidiEventMap.h>
-#include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 
@@ -378,10 +378,14 @@ void MidiActionTable::updateRow( int nRow ) {
 		
 	case H2Core::MidiEvent::Type::Note:
 		pEventParameterSpinner->show();
-		pEventParameterSpinner->setMinimum( MIDI_OUT_NOTE_MIN );
-		pEventParameterSpinner->setMaximum( MIDI_OUT_NOTE_MAX );
+		pEventParameterSpinner->setMinimum(
+			static_cast<int>( H2Core::Midi::NoteMinimum )
+		);
+		pEventParameterSpinner->setMaximum(
+			static_cast<int>( H2Core::Midi::NoteMaximum )
+		);
 		break;
-		
+
 	case H2Core::MidiEvent::Type::PC:
 	case H2Core::MidiEvent::Type::Null:
 	default:

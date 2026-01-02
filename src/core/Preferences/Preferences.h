@@ -32,6 +32,7 @@
 
 #include <core/Helpers/Filesystem.h>
 #include <core/Globals.h>
+#include <core/Midi/Midi.h>
 #include <core/Object.h>
 
 #include <QStringList>
@@ -275,11 +276,11 @@ public:
 	QString				m_sMidiPortName;
 	QString				m_sMidiOutputPortName;
 
-	int					m_nMidiActionChannel;
+	Midi::Channel		m_midiActionChannel;
 	bool				m_bMidiNoteOffIgnore;
 	bool				m_bEnableMidiFeedback;
-	int				getMidiFeedbackChannel() const;
-	void				setMidiFeedbackChannel( int nChannel );
+	Midi::Channel		getMidiFeedbackChannel() const;
+	void				setMidiFeedbackChannel( Midi::Channel nChannel );
 	bool				getMidiClockInputHandling() const;
 	void				setMidiClockInputHandling( bool bHandle );
 	bool				getMidiTransportInputHandling() const;
@@ -625,26 +626,25 @@ private:
 	 * once. */
 	int					m_nMaxBars;
 
-		/** Zero-based MIDI channel which to use for both MIDI feedback and MIDI
-              clock signals. These messages can be turned off by setting the
-              member to #H2Core::MidiMessage::nChannelOff. */
-		int m_nMidiFeedbackChannel;
-		/** Whether Hydrogen will set its tempo according to incoming MIDI clock
-		 * ticks. */
-		bool m_bMidiClockInputHandling;
-		/** Whether Hydrogen will handle incoming MIDI START, STOP, CONTINUE,
-		 * and SONG_POSITION_POINTER events. */
-		bool m_bMidiTransportInputHandling;
-		/** Whether Hydrogen will send outgoing MIDI clock messages based on the
-		 * current tempo. */
-		bool m_bMidiClockOutputSend;
-		/** Whether Hydrogen will send outgoing MIDI START, STOP, CONTINUE,
-		 * and SONG_POSITION_POINTER messages on transport changes. */
-		bool m_bMidiTransportOutputSend;
+	/** MIDI channel which to use for both MIDI feedback and MIDI
+		  clock signals. */
+	Midi::Channel m_midiFeedbackChannel;
+	/** Whether Hydrogen will set its tempo according to incoming MIDI clock
+	 * ticks. */
+	bool m_bMidiClockInputHandling;
+	/** Whether Hydrogen will handle incoming MIDI START, STOP, CONTINUE,
+	 * and SONG_POSITION_POINTER events. */
+	bool m_bMidiTransportInputHandling;
+	/** Whether Hydrogen will send outgoing MIDI clock messages based on the
+	 * current tempo. */
+	bool m_bMidiClockOutputSend;
+	/** Whether Hydrogen will send outgoing MIDI START, STOP, CONTINUE,
+	 * and SONG_POSITION_POINTER messages on transport changes. */
+	bool m_bMidiTransportOutputSend;
 
-		/** In case the rubberband binary was not found in common places, this
-		 * variable indicated - if `true` - that Hydrogen should continue
-		 * searching for it in places provided during #load() */
+	/** In case the rubberband binary was not found in common places, this
+	 * variable indicated - if `true` - that Hydrogen should continue
+	 * searching for it in places provided during #load() */
 	bool				m_bSearchForRubberbandOnLoad;
 	 ///rubberband bpm change queue
 	bool				m_bUseTheRubberbandBpmChangeEvent;
@@ -1167,10 +1167,15 @@ inline int Preferences::getMaxBars() const {
 	return m_nMaxBars;
 }
 
-inline int Preferences::getMidiFeedbackChannel() const {
-	return m_nMidiFeedbackChannel;
+inline Midi::Channel Preferences::getMidiFeedbackChannel() const {
+	return m_midiFeedbackChannel;
 }
-inline bool Preferences::getMidiClockInputHandling() const {
+inline void Preferences::setMidiFeedbackChannel( Midi::Channel channel )
+{
+	m_midiFeedbackChannel = channel;
+}
+inline bool Preferences::getMidiClockInputHandling() const
+{
 	return m_bMidiClockInputHandling;
 }
 inline void Preferences::setMidiClockInputHandling( bool bHandle ) {

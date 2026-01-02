@@ -28,9 +28,9 @@
 #include <core/Basics/Sample.h>
 #include <core/Helpers/Xml.h>
 #include <core/License.h>
-#include <core/Midi/MidiMessage.h>
 
 #include <set>
+#include "Midi/Midi.h"
 
 namespace H2Core
 {
@@ -233,12 +233,12 @@ std::shared_ptr<Instrument>  InstrumentList::find( const QString& name ) const
 }
 
 std::vector< std::shared_ptr<Instrument> > InstrumentList::findByMidiNote(
-	const int nNote ) const
+	Midi::Note note ) const
 {
 	std::vector< std::shared_ptr<Instrument> > instrumentsFound;
 
 	for ( const auto& ppInstrument : m_pInstruments ) {
-		if ( ppInstrument != nullptr && ppInstrument->getMidiOutNote() == nNote ) {
+		if ( ppInstrument != nullptr && ppInstrument->getMidiOutNote() == note ) {
 			instrumentsFound.push_back( ppInstrument );
 		}
 	}
@@ -314,7 +314,7 @@ bool InstrumentList::hasAllMidiNotesSame() const
 		return false;
 	}
 
-	std::set<int> notes;
+	std::set<Midi::Note> notes;
 	for( int i=0; i<m_pInstruments.size(); i++ ) {
 		auto instr = m_pInstruments[i];
 		notes.insert( instr->getMidiOutNote() );
@@ -324,8 +324,10 @@ bool InstrumentList::hasAllMidiNotesSame() const
 
 void InstrumentList::setDefaultMidiOutNotes()
 {
-	for( int i=0; i<m_pInstruments.size(); i++ ) {
-		m_pInstruments[i]->setMidiOutNote( i + MidiMessage::nInstrumentOffset );
+	for ( int ii = 0; ii < m_pInstruments.size(); ii++ ) {
+		m_pInstruments[ii]->setMidiOutNote(
+			Midi::noteFromIntClamp( ii + static_cast<int>( Midi::NoteOffset ) )
+		);
 	}
 }
 

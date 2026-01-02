@@ -222,132 +222,147 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle ) {
 			MidiMessage msg;
 
 			switch ( ev->type ) {
-			case SND_SEQ_EVENT_NOTEON:
-				msg.setType( MidiMessage::Type::NoteOn );
-				msg.setData1( ev->data.note.note );
-				msg.setData2( ev->data.note.velocity );
-				msg.setChannel( ev->data.control.channel );
-				break;
+				case SND_SEQ_EVENT_NOTEON:
+					msg.setType( MidiMessage::Type::NoteOn );
+					msg.setData1( ev->data.note.note );
+					msg.setData2( ev->data.note.velocity );
+					msg.setChannel(
+						Midi::channelFromIntClamp( ev->data.control.channel )
+					);
+					break;
 
-			case SND_SEQ_EVENT_NOTEOFF:
-				msg.setType( MidiMessage::Type::NoteOff );
-				msg.setData1( ev->data.note.note );
-				msg.setData2( ev->data.note.velocity );
-				msg.setChannel( ev->data.control.channel );
-				break;
+				case SND_SEQ_EVENT_NOTEOFF:
+					msg.setType( MidiMessage::Type::NoteOff );
+					msg.setData1( ev->data.note.note );
+					msg.setData2( ev->data.note.velocity );
+					msg.setChannel(
+						Midi::channelFromIntClamp( ev->data.control.channel )
+					);
+					break;
 
-			case SND_SEQ_EVENT_CONTROLLER:
-				msg.setType( MidiMessage::Type::ControlChange );
-				msg.setData1( ev->data.control.param );
-				msg.setData2( ev->data.control.value );
-				msg.setChannel( ev->data.control.channel );
-				break;
+				case SND_SEQ_EVENT_CONTROLLER:
+					msg.setType( MidiMessage::Type::ControlChange );
+					msg.setData1( ev->data.control.param );
+					msg.setData2( ev->data.control.value );
+					msg.setChannel(
+						Midi::channelFromIntClamp( ev->data.control.channel )
+					);
+					break;
 
-			case SND_SEQ_EVENT_PGMCHANGE:
-				msg.setType( MidiMessage::Type::ProgramChange );
-				msg.setData1( ev->data.control.value );
-				msg.setChannel( ev->data.control.channel );
-				break;
+				case SND_SEQ_EVENT_PGMCHANGE:
+					msg.setType( MidiMessage::Type::ProgramChange );
+					msg.setData1( ev->data.control.value );
+					msg.setChannel(
+						Midi::channelFromIntClamp( ev->data.control.channel )
+					);
+					break;
 
-			case SND_SEQ_EVENT_KEYPRESS:
-				msg.setType( MidiMessage::Type::PolyphonicKeyPressure );
-				msg.setData1( ev->data.note.note );
-				msg.setData2( ev->data.note.velocity );
-				msg.setChannel( ev->data.control.channel );
-				break;
+				case SND_SEQ_EVENT_KEYPRESS:
+					msg.setType( MidiMessage::Type::PolyphonicKeyPressure );
+					msg.setData1( ev->data.note.note );
+					msg.setData2( ev->data.note.velocity );
+					msg.setChannel(
+						Midi::channelFromIntClamp( ev->data.control.channel )
+					);
+					break;
 
-			case SND_SEQ_EVENT_CHANPRESS:
-				msg.setType( MidiMessage::Type::ChannelPressure );
-				msg.setData1( ev->data.control.param );
-				msg.setData2( ev->data.control.value );
-				msg.setChannel( ev->data.control.channel );
-				break;
+				case SND_SEQ_EVENT_CHANPRESS:
+					msg.setType( MidiMessage::Type::ChannelPressure );
+					msg.setData1( ev->data.control.param );
+					msg.setData2( ev->data.control.value );
+					msg.setChannel(
+						Midi::channelFromIntClamp( ev->data.control.channel )
+					);
+					break;
 
-			case SND_SEQ_EVENT_PITCHBEND:
-				msg.setType( MidiMessage::Type::PitchWheel );
-				msg.setData1( ev->data.control.param );
-				msg.setData2( ev->data.control.value );
-				msg.setChannel( ev->data.control.channel );
-				break;
+				case SND_SEQ_EVENT_PITCHBEND:
+					msg.setType( MidiMessage::Type::PitchWheel );
+					msg.setData1( ev->data.control.param );
+					msg.setData2( ev->data.control.value );
+					msg.setChannel(
+						Midi::channelFromIntClamp( ev->data.control.channel )
+					);
+					break;
 
-			case SND_SEQ_EVENT_SYSEX: {
-				msg.setType( MidiMessage::Type::Sysex );
-				snd_midi_event_t *seq_midi_parser;
-				if ( snd_midi_event_new( 32, &seq_midi_parser ) ) {
-					ERRORLOG( "Error creating midi event parser" );
-				}
-				unsigned char midi_event_buffer[ 256 ];
-				int _bytes_read = snd_midi_event_decode( seq_midi_parser, midi_event_buffer, 32, ev );
+				case SND_SEQ_EVENT_SYSEX: {
+					msg.setType( MidiMessage::Type::Sysex );
+					snd_midi_event_t* seq_midi_parser;
+					if ( snd_midi_event_new( 32, &seq_midi_parser ) ) {
+						ERRORLOG( "Error creating midi event parser" );
+					}
+					unsigned char midi_event_buffer[256];
+					int _bytes_read = snd_midi_event_decode(
+						seq_midi_parser, midi_event_buffer, 32, ev
+					);
 
-				for ( int i = 0; i < _bytes_read; ++i ) {
-					msg.appendToSysexData( midi_event_buffer[ i ] );
-				}
-			}
-			break;
+					for ( int i = 0; i < _bytes_read; ++i ) {
+						msg.appendToSysexData( midi_event_buffer[i] );
+					}
+				} break;
 
-			case SND_SEQ_EVENT_QFRAME:
-				msg.setType( MidiMessage::Type::QuarterFrame );
-				msg.setData1( ev->data.control.value );
-				msg.setData2( ev->data.control.param );
-				break;
+				case SND_SEQ_EVENT_QFRAME:
+					msg.setType( MidiMessage::Type::QuarterFrame );
+					msg.setData1( ev->data.control.value );
+					msg.setData2( ev->data.control.param );
+					break;
 
-			case SND_SEQ_EVENT_SONGPOS:
-				msg.setType( MidiMessage::Type::SongPos );
-				msg.setData1( ev->data.control.value );
-				msg.setData2( ev->data.control.param );
-				break;
+				case SND_SEQ_EVENT_SONGPOS:
+					msg.setType( MidiMessage::Type::SongPos );
+					msg.setData1( ev->data.control.value );
+					msg.setData2( ev->data.control.param );
+					break;
 
-			case SND_SEQ_EVENT_SONGSEL:
-				msg.setType( MidiMessage::Type::SongSelect );
-				msg.setData1( ev->data.control.value );
-				msg.setData2( ev->data.control.param );
-				break;
+				case SND_SEQ_EVENT_SONGSEL:
+					msg.setType( MidiMessage::Type::SongSelect );
+					msg.setData1( ev->data.control.value );
+					msg.setData2( ev->data.control.param );
+					break;
 
-			case SND_SEQ_EVENT_TUNE_REQUEST:
-				msg.setType( MidiMessage::Type::TuneRequest );
-				msg.setData1( ev->data.control.value );
-				msg.setData2( ev->data.control.param );
-				break;
+				case SND_SEQ_EVENT_TUNE_REQUEST:
+					msg.setType( MidiMessage::Type::TuneRequest );
+					msg.setData1( ev->data.control.value );
+					msg.setData2( ev->data.control.param );
+					break;
 
-			case SND_SEQ_EVENT_CLOCK:
-				msg.setType( MidiMessage::Type::TimingClock );
-				break;
+				case SND_SEQ_EVENT_CLOCK:
+					msg.setType( MidiMessage::Type::TimingClock );
+					break;
 
-			case SND_SEQ_EVENT_START:
-				msg.setType( MidiMessage::Type::Start );
-				break;
+				case SND_SEQ_EVENT_START:
+					msg.setType( MidiMessage::Type::Start );
+					break;
 
-			case SND_SEQ_EVENT_CONTINUE:
-				msg.setType( MidiMessage::Type::Continue );
-				break;
+				case SND_SEQ_EVENT_CONTINUE:
+					msg.setType( MidiMessage::Type::Continue );
+					break;
 
-			case SND_SEQ_EVENT_STOP:
-				msg.setType( MidiMessage::Type::Stop );
-				break;
+				case SND_SEQ_EVENT_STOP:
+					msg.setType( MidiMessage::Type::Stop );
+					break;
 
-			case SND_SEQ_EVENT_SENSING:
-				msg.setType( MidiMessage::Type::ActiveSensing );
-				break;
+				case SND_SEQ_EVENT_SENSING:
+					msg.setType( MidiMessage::Type::ActiveSensing );
+					break;
 
-			case SND_SEQ_EVENT_RESET:
-				msg.setType( MidiMessage::Type::Reset );
-				break;
+				case SND_SEQ_EVENT_RESET:
+					msg.setType( MidiMessage::Type::Reset );
+					break;
 
-			case SND_SEQ_EVENT_CLIENT_EXIT:
-				INFOLOG( "SND_SEQ_EVENT_CLIENT_EXIT" );
-				break;
+				case SND_SEQ_EVENT_CLIENT_EXIT:
+					INFOLOG( "SND_SEQ_EVENT_CLIENT_EXIT" );
+					break;
 
-			case SND_SEQ_EVENT_PORT_SUBSCRIBED:
-				INFOLOG( "SND_SEQ_EVENT_PORT_SUBSCRIBED" );
-				break;
+				case SND_SEQ_EVENT_PORT_SUBSCRIBED:
+					INFOLOG( "SND_SEQ_EVENT_PORT_SUBSCRIBED" );
+					break;
 
-			case SND_SEQ_EVENT_PORT_UNSUBSCRIBED:
-				INFOLOG( "SND_SEQ_EVENT_PORT_UNSUBSCRIBED" );
-				break;
+				case SND_SEQ_EVENT_PORT_UNSUBSCRIBED:
+					INFOLOG( "SND_SEQ_EVENT_PORT_UNSUBSCRIBED" );
+					break;
 
-			default:
-				WARNINGLOG( QString( "Unknown MIDI Event. type = %1" )
-							.arg( ( int )ev->type ) );
+				default:
+					WARNINGLOG( QString( "Unknown MIDI Event. type = %1" )
+									.arg( (int) ev->type ) );
 			}
 			if ( msg.getType() != MidiMessage::Type::Unknown ) {
 				handleMessage( msg );
@@ -427,16 +442,17 @@ void AlsaMidiDriver::sendNoteOnMessage( const MidiMessage& msg )
 
 	snd_seq_event_t ev;
 
-	snd_seq_ev_clear(&ev);
-	snd_seq_ev_set_source(&ev, outPortId);
-	snd_seq_ev_set_subs(&ev);
-	snd_seq_ev_set_direct(&ev);
+	snd_seq_ev_clear( &ev );
+	snd_seq_ev_set_source( &ev, outPortId );
+	snd_seq_ev_set_subs( &ev );
+	snd_seq_ev_set_direct( &ev );
 	snd_seq_ev_set_noteon(
-		&ev, msg.getChannel(), msg.getData1(), msg.getData2() );
-	snd_seq_event_output(seq_handle, &ev);
-	snd_seq_drain_output(seq_handle);
+		&ev, static_cast<int>( msg.getChannel() ), msg.getData1(),
+		msg.getData2()
+	);
+	snd_seq_event_output( seq_handle, &ev );
+	snd_seq_drain_output( seq_handle );
 }
-
 
 void AlsaMidiDriver::sendControlChangeMessage( const MidiMessage& msg ) {
 	snd_seq_event_t ev;
@@ -450,8 +466,8 @@ void AlsaMidiDriver::sendControlChangeMessage( const MidiMessage& msg ) {
 	
 	ev.data.control.param = msg.getData1();
 	ev.data.control.value = msg.getData2();
-	ev.data.control.channel = msg.getChannel();
-	
+	ev.data.control.channel = static_cast<int>( msg.getChannel() );
+
 	snd_seq_event_output_direct(seq_handle, &ev);
 }
 
@@ -463,18 +479,21 @@ void AlsaMidiDriver::sendNoteOffMessage( const MidiMessage& msg ) {
 
 	snd_seq_event_t ev;
 
-	//Note off
-	snd_seq_ev_clear(&ev);
-	snd_seq_ev_set_source(&ev, outPortId);
-	snd_seq_ev_set_subs(&ev);
-	snd_seq_ev_set_direct(&ev);
+	// Note off
+	snd_seq_ev_clear( &ev );
+	snd_seq_ev_set_source( &ev, outPortId );
+	snd_seq_ev_set_subs( &ev );
+	snd_seq_ev_set_direct( &ev );
 	snd_seq_ev_set_noteoff(
-		&ev, msg.getChannel(), msg.getData1(), msg.getData2() );
-	snd_seq_event_output(seq_handle, &ev);
-	snd_seq_drain_output(seq_handle);
+		&ev, static_cast<int>( msg.getChannel() ), msg.getData1(),
+		msg.getData2()
+	);
+	snd_seq_event_output( seq_handle, &ev );
+	snd_seq_drain_output( seq_handle );
 }
 
-void AlsaMidiDriver::sendSystemRealTimeMessage( const MidiMessage& msg ) {
+void AlsaMidiDriver::sendSystemRealTimeMessage( const MidiMessage& msg )
+{
 	if ( seq_handle == nullptr ) {
 		ERRORLOG( "seq_handle = NULL " );
 		return;
