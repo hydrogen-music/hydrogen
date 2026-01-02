@@ -25,6 +25,7 @@
 
 #include <memory>
 
+#include <core/Midi/Midi.h>
 #include <core/Object.h>
 
 #include <QtGui>
@@ -55,22 +56,25 @@ private slots:
 	void sendChanged();
 	
 private:
-	void insertNewRow( std::shared_ptr<MidiAction> pAction,
-					   const QString& eventString, int eventParameter );
-	void updateRow( int nRow );
-	virtual void paintEvent( QPaintEvent* ev ) override;
-	
-		int m_nRowCount;
-		int m_nCurrentMidiAutosenseRow;
-		QTimer* m_pUpdateTimer;
-	int m_nRowHeight;
-	int m_nColumn0Width;
-	int m_nMinComboWidth;
-	int m_nMaxComboWidth;
-	int m_nDefaultComboWidth;
-	int m_nSpinBoxWidth;
+ void insertNewRow(
+	 std::shared_ptr<MidiAction> pAction,
+	 const QString& eventString,
+	 H2Core::Midi::Parameter eventParameter
+ );
+ void updateRow( int nRow );
+ virtual void paintEvent( QPaintEvent* ev ) override;
 
-		QStringList m_availableActions;
+ int m_nRowCount;
+ int m_nCurrentMidiAutosenseRow;
+ QTimer* m_pUpdateTimer;
+ int m_nRowHeight;
+ int m_nColumn0Width;
+ int m_nMinComboWidth;
+ int m_nMaxComboWidth;
+ int m_nDefaultComboWidth;
+ int m_nSpinBoxWidth;
+
+ QStringList m_availableActions;
 };
 
 #endif

@@ -181,7 +181,7 @@ void Sampler::process( uint32_t nFrames )
 					MidiMessage::NoteOff noteOff;
 					noteOff.channel = noteRef.channel;
 					noteOff.note = noteRef.note;
-					noteOff.nVelocity = pNote->getMidiVelocity();
+					noteOff.velocity = pNote->getMidiVelocity();
 					if ( noteOff.channel != Midi::ChannelOff &&
 						 noteOff.channel != Midi::ChannelInvalid ) {
 						pMidiDriver->sendMessage( MidiMessage::from( noteOff )

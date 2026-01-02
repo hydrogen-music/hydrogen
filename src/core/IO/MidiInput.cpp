@@ -35,6 +35,7 @@
 #include <core/Midi/MidiActionManager.h>
 #include <core/Midi/MidiEventMap.h>
 #include <core/Preferences/Preferences.h>
+#include "Midi/Midi.h"
 
 namespace H2Core
 {
@@ -54,8 +55,8 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 	auto pHandledInput = std::make_shared<HandledInput>();
 	pHandledInput->timePoint = timePoint;
 	pHandledInput->type = msg.getType();
-	pHandledInput->nData1 = msg.getData1();
-	pHandledInput->nData2 = msg.getData2();
+	pHandledInput->data1 = msg.getData1();
+	pHandledInput->data2 = msg.getData2();
 	pHandledInput->channel = msg.getChannel();
 
 	INFOLOG( QString( "Incoming message:  [%1]" ).arg( msg.toQString() ) );
@@ -174,32 +175,45 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 			// A song position provided via MIDI has the lowest resolution of a
 			// 1/16 note / 6 MIDI clocks. 24 MIDI clocks make a quarter.
 			CoreActionController::locateToTick(
-				msg.getData1() * 6 * H2Core::nTicksPerQuarter / 24, true );
+				static_cast<int>( msg.getData1() ) * 6 *
+					H2Core::nTicksPerQuarter / 24,
+				true
+			);
 		}
 		break;
 
 	case MidiMessage::Type::SongSelect:
 		if ( pPref->getMidiTransportInputHandling() ) {
 			// According to the MIDI 1.0 spec Version 4.2.1 this message
- 			// indicates which "song or sequence is to be played". Since
- 			// Hydrogen has both concepts of songs and sequences, we let the
- 			// user choose via the song mode.
- 			if ( pHydrogen->getMode() == Song::Mode::Song ) {
+			// indicates which "song or sequence is to be played". Since
+			// Hydrogen has both concepts of songs and sequences, we let the
+			// user choose via the song mode.
+			if ( pHydrogen->getMode() == Song::Mode::Song ) {
 				if ( pHydrogen->getPlaylist() == nullptr ||
 					 pHydrogen->getPlaylist()->size() == 0 ) {
-					WARNINGLOG( "In Song Mode the SONG_SELECT MIDI message is used to select songs from the current playlist. But you do not have a playlist yet." );
+					WARNINGLOG(
+						"In Song Mode the SONG_SELECT MIDI message is used to "
+						"select songs from the current playlist. But you do "
+						"not have a playlist yet."
+					);
 				}
 				else {
 					auto pAction = std::make_shared<MidiAction>(
-						MidiAction::Type::PlaylistSong, timePoint );
-					pAction->setParameter1( QString::number( msg.getData1() ) );
+						MidiAction::Type::PlaylistSong, timePoint
+					);
+					pAction->setParameter1(
+						QString::number( static_cast<int>( msg.getData1() ) )
+					);
 					pMidiActionManager->handleMidiActionAsync( pAction );
 				}
 			}
 			else {
 				auto pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::SelectNextPattern, timePoint );
-				pAction->setParameter1( QString::number( msg.getData1() ) );
+					MidiAction::Type::SelectNextPattern, timePoint
+				);
+				pAction->setParameter1(
+					QString::number( static_cast<int>( msg.getData1() ) )
+				);
 				pMidiActionManager->handleMidiActionAsync( pAction );
 			}
 		}
@@ -247,16 +261,19 @@ void MidiInput::handleControlChangeMessage(
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 
-	for ( const auto& ppAction : pMidiEventMap->getCCActions( msg.getData1() ) ) {
-		if ( ppAction != nullptr && ! ppAction->isNull() ) {
+	for ( const auto& ppAction :
+		  pMidiEventMap->getCCActions( msg.getData1() ) ) {
+		if ( ppAction != nullptr && !ppAction->isNull() ) {
 			auto pNewAction = MidiAction::from( ppAction, msg.getTimePoint() );
-			pNewAction->setValue( QString::number( msg.getData2() ) );
+			pNewAction->setValue(
+				QString::number( static_cast<int>( msg.getData2() ) )
+			);
 			pMidiActionManager->handleMidiActionAsync( pNewAction );
 			pHandledInput->actionTypes.push_back( pNewAction->getType() );
 		}
 	}
 
-	if ( msg.getData1() == 04 ) {
+	if ( msg.getData1() == Midi::parameterFromInt( 4 ) ) {
 		pHydrogen->setHihatOpenness( msg.getData2() );
 	}
 
@@ -265,30 +282,35 @@ void MidiInput::handleControlChangeMessage(
 }
 
 void MidiInput::handleProgramChangeMessage(
-	const MidiMessage& msg, std::shared_ptr<HandledInput> pHandledInput )
+	const MidiMessage& msg,
+	std::shared_ptr<HandledInput> pHandledInput
+)
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 
 	for ( const auto& ppAction : pMidiEventMap->getPCActions() ) {
-		if ( ppAction != nullptr && ! ppAction->isNull() ) {
+		if ( ppAction != nullptr && !ppAction->isNull() ) {
 			auto pNewAction = MidiAction::from( ppAction, msg.getTimePoint() );
-			pNewAction->setValue( QString::number( msg.getData1() ) );
+			pNewAction->setValue(
+				QString::number( static_cast<int>( msg.getData1() ) )
+			);
 			pMidiActionManager->handleMidiActionAsync( pNewAction );
 			pHandledInput->actionTypes.push_back( pNewAction->getType() );
 		}
 	}
 
 	pHydrogen->setLastMidiEvent( MidiEvent::Type::PC );
-	pHydrogen->setLastMidiEventParameter( 0 );
+	pHydrogen->setLastMidiEventParameter( Midi::ParameterMinimum );
 }
 
 void MidiInput::handleNoteOnMessage(
 	const MidiMessage& msg, std::shared_ptr<HandledInput> pHandledInput )
 {
-	const Midi::Note note = Midi::noteFromIntClamp( msg.getData1() );
-	const float fVelocity = msg.getData2() / 127.0;
+	const Midi::Note note = static_cast<Midi::Note>( msg.getData1() );
+	const float fVelocity = static_cast<float>( msg.getData2() ) /
+							static_cast<float>( Midi::ParameterMaximum );
 
 	if ( fVelocity == 0 ) {
 		handleNoteOffMessage( msg, false, pHandledInput );
@@ -307,12 +329,15 @@ void MidiInput::handleNoteOnMessage(
 	if ( pPref->m_midiActionChannel == Midi::ChannelAll ||
 		 ( pPref->m_midiActionChannel != Midi::ChannelOff &&
 		   pPref->m_midiActionChannel == msg.getChannel() ) ) {
-		for ( const auto& ppAction : pMidiEventMap->getNoteActions( msg.getData1() ) ) {
+		for ( const auto& ppAction : pMidiEventMap->getNoteActions( note ) ) {
 			if ( ppAction != nullptr && ! ppAction->isNull() ) {
 				auto pNewAction = MidiAction::from( ppAction, msg.getTimePoint() );
-				pNewAction->setValue( QString::number( msg.getData2() ) );
+				pNewAction->setValue(
+					QString::number( static_cast<int>( msg.getData2() ) )
+				);
 				if ( pMidiActionManager->handleMidiActionAsync( pNewAction ) ) {
-					pHandledInput->actionTypes.push_back( pNewAction->getType() );
+					pHandledInput->actionTypes.push_back( pNewAction->getType()
+					);
 				}
 			}
 		}
@@ -333,7 +358,7 @@ void MidiInput::handleNoteOnMessage(
 void MidiInput::handlePolyphonicKeyPressureMessage(
 	const MidiMessage& msg, std::shared_ptr<HandledInput> pHandledInput )
 {
-	if( msg.getData2() == 127 ) {
+	if( msg.getData2() == Midi::parameterFromInt( 127 ) ) {
 		handleNoteOffMessage( msg, true, pHandledInput );
 	}
 }
@@ -347,7 +372,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke,
 
 	QStringList mappedInstruments;
 	CoreActionController::handleNote(
-		Midi::noteFromIntClamp( msg.getData1() ), msg.getChannel(), 0.0, true,
+		static_cast<Midi::Note>( msg.getData1() ), msg.getChannel(), 0.0, true,
 		&mappedInstruments
 	);
 
@@ -475,13 +500,13 @@ QString MidiInput::HandledInput::toQString() const
 		types << MidiAction::typeToQString( ttype );
 	}
 	return QString(
-			   "timePoint: %1, msg type: %2, nData1: %3, nData2: %4, channel: "
+			   "timePoint: %1, msg type: %2, data1: %3, data2: %4, channel: "
 			   "%5, actionTypes: [%6], mappedInstrument: [%7]"
 	)
 		.arg( H2Core::timePointToQString( timePoint ) )
 		.arg( MidiMessage::TypeToQString( type ) )
-		.arg( nData1 )
-		.arg( nData2 )
+		.arg( static_cast<int>( data1 ) )
+		.arg( static_cast<int>( data2 ) )
 		.arg( static_cast<int>( channel ) )
 		.arg( types.join( "," ) )
 		.arg( mappedInstruments.join( ", " ) );

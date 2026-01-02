@@ -69,20 +69,25 @@ class MidiMessage
 
 		/** Helper to construct ControlChange MIDI messages. */
 		struct ControlChange {
-			int nParameter;
-			int nValue;
+			Midi::Parameter parameter;
+			Midi::Parameter value;
 			Midi::Channel channel;
 		};
 
 		/** Helper to construct NoteOff MIDI messages. */
 		struct NoteOff {
 			Midi::Note note;
-			int nVelocity;
+			Midi::Parameter velocity;
 			Midi::Channel channel;
 		};
 
 		MidiMessage();
-		MidiMessage( Type type, int nData1, int Data2, Midi::Channel channel );
+		MidiMessage(
+			Type type,
+			Midi::Parameter data1,
+			Midi::Parameter data2,
+			Midi::Channel channel
+		);
 
 		/** Reset message */
 		void clear();
@@ -106,11 +111,11 @@ class MidiMessage
 		Type getType() const;
 		void setType( Type type );
 
-		int getData1() const;
-		void setData1( int nData1 );
+		Midi::Parameter getData1() const;
+		void setData1( Midi::Parameter data1 );
 
-		int getData2() const;
-		void setData2( int nData2 );
+		Midi::Parameter getData2() const;
+		void setData2( Midi::Parameter data2 );
 
 		Midi::Channel getChannel() const;
 		void setChannel( Midi::Channel channel );
@@ -135,8 +140,8 @@ class MidiMessage
 	private:
 		TimePoint m_timePoint;
 		Type m_type;
-		int m_nData1;
-		int m_nData2;
+		Midi::Parameter m_data1;
+		Midi::Parameter m_data2;
 		Midi::Channel m_channel;
 		std::vector<unsigned char> m_sysexData;
 
@@ -151,17 +156,17 @@ inline MidiMessage::Type MidiMessage::getType() const {
 inline void MidiMessage::setType( MidiMessage::Type type ) {
 	m_type = type;
 }
-inline int MidiMessage::getData1() const {
-	return m_nData1;
+inline Midi::Parameter MidiMessage::getData1() const {
+	return m_data1;
 }
-inline void MidiMessage::setData1( int nData1 ) {
-	m_nData1 = nData1;
+inline void MidiMessage::setData1( Midi::Parameter data1 ) {
+	m_data1 = data1;
 }
-inline int MidiMessage::getData2() const {
-	return m_nData2;
+inline Midi::Parameter MidiMessage::getData2() const {
+	return m_data2;
 }
-inline void MidiMessage::setData2( int nData2 ) {
-	m_nData2 = nData2;
+inline void MidiMessage::setData2( Midi::Parameter data2 ) {
+	m_data2 = data2;
 }
 inline Midi::Channel MidiMessage::getChannel() const {
 	return m_channel;

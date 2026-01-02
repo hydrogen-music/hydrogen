@@ -25,11 +25,11 @@
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/MidiSenseWidget.h"
+#include "core/Midi/Midi.h"
 
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Hydrogen.h>
 #include <core/Globals.h>
-#include <core/Midi/Midi.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiActionManager.h>
 #include <core/Midi/MidiEvent.h>
@@ -99,9 +99,11 @@ void MidiActionTable::midiSensePressed( int nRow ){
 	}
 
 	pEventCombo->setCurrentIndex( pEventCombo->findText(
-									 H2Core::MidiEvent::TypeToQString(
-										 midiSenseWidget.getLastMidiEvent() ) ) );
-	pEventSpinner->setValue( midiSenseWidget.getLastMidiEventParameter() );
+		H2Core::MidiEvent::TypeToQString( midiSenseWidget.getLastMidiEvent() )
+	) );
+	pEventSpinner->setValue(
+		static_cast<int>( midiSenseWidget.getLastMidiEventParameter() )
+	);
 
 	m_pUpdateTimer->start( 100 );
 
@@ -129,7 +131,7 @@ void MidiActionTable::updateTable() {
 
 		if( ! pActionCombo->currentText().isEmpty() && ! pEventCombo->currentText().isEmpty() ) {
 			auto pAction = std::make_shared<MidiAction>( MidiAction::Type::Null );
-			insertNewRow( pAction, "", 0 );
+			insertNewRow( pAction, "", H2Core::Midi::ParameterMinimum );
 		}
 
 		// Ensure that all other empty rows are removed and that the
@@ -147,7 +149,7 @@ void MidiActionTable::sendChanged() {
 
 void MidiActionTable::insertNewRow( std::shared_ptr<MidiAction> pAction,
 									const QString& eventString,
-									int eventParameter ) {
+									H2Core::Midi::Parameter eventParameter ) {
 	auto pMidiActionManager =
 		H2Core::Hydrogen::get_instance()->getMidiActionManager();
 
@@ -200,10 +202,14 @@ void MidiActionTable::insertNewRow( std::shared_ptr<MidiAction> pAction,
 		this, QSize( m_nSpinBoxWidth, m_nRowHeight ) );
 	eventParameterSpinner->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	setCellWidget( oldRowCount , 2, eventParameterSpinner );
-	eventParameterSpinner->setMaximum( 999 );
-	eventParameterSpinner->setValue( eventParameter );
-	connect( eventParameterSpinner, SIGNAL( valueChanged( double ) ),
-			 this, SLOT( sendChanged() ) );
+	eventParameterSpinner->setMaximum(
+		static_cast<int>( H2Core::Midi::ParameterMaximum )
+	);
+	eventParameterSpinner->setValue( static_cast<int>( eventParameter ) );
+	connect(
+		eventParameterSpinner, SIGNAL( valueChanged( double ) ), this,
+		SLOT( sendChanged() )
+	);
 
 	LCDCombo *actionBox = new LCDCombo(this);
 	actionBox->setMinimumSize( QSize( m_nMinComboWidth, m_nRowHeight ) );
@@ -303,7 +309,7 @@ void MidiActionTable::setupMidiActionTable()
 	}
 
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::Null );
-	insertNewRow( pAction, "", 0 );
+	insertNewRow( pAction, "", H2Core::Midi::ParameterMinimum );
 }
 
 
@@ -341,7 +347,11 @@ void MidiActionTable::saveMidiActionTable()
 			}
 
 			pMidiEventMap->registerEvent(
-				type, eventSpinner->cleanText().toInt(), pAction
+				type,
+				H2Core::Midi::parameterFromIntClamp(
+					eventSpinner->cleanText().toInt()
+				),
+				pAction
 			);
 		}
 	}
@@ -371,18 +381,13 @@ void MidiActionTable::updateRow( int nRow ) {
 
 	switch ( event ) {
 	case H2Core::MidiEvent::Type::CC:
-		pEventParameterSpinner->show();
-		pEventParameterSpinner->setMinimum( 0 );
-		pEventParameterSpinner->setMaximum( 127 );
-		break;
-		
 	case H2Core::MidiEvent::Type::Note:
 		pEventParameterSpinner->show();
 		pEventParameterSpinner->setMinimum(
-			static_cast<int>( H2Core::Midi::NoteMinimum )
+			static_cast<int>( H2Core::Midi::ParameterMinimum )
 		);
 		pEventParameterSpinner->setMaximum(
-			static_cast<int>( H2Core::Midi::NoteMaximum )
+			static_cast<int>( H2Core::Midi::ParameterMaximum )
 		);
 		break;
 

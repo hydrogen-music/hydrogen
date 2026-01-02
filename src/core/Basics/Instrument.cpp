@@ -74,8 +74,8 @@ Instrument::Instrument(
 	  m_nQueued( 0 ),
 	  m_enqueuedBy( QStringList() ),
 	  m_nHihatGrp( -1 ),
-	  m_nLowerCc( 0 ),
-	  m_nHigherCc( 127 ),
+	  m_lowerCc( Midi::ParameterMinimum ),
+	  m_higherCc( Midi::ParameterMaximum ),
 	  m_bIsPreviewInstrument( false ),
 	  m_bApplyVelocity( true ),
 	  m_bCurrentInstrForExport( false ),
@@ -131,8 +131,8 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	  m_nQueued( 0 ),
 	  m_enqueuedBy( QStringList() ),
 	  m_nHihatGrp( other->getHihatGrp() ),
-	  m_nLowerCc( other->getLowerCc() ),
-	  m_nHigherCc( other->getHigherCc() ),
+	  m_lowerCc( other->getLowerCc() ),
+	  m_higherCc( other->getHigherCc() ),
 	  m_bIsPreviewInstrument( false ),
 	  m_bApplyVelocity( other->getApplyVelocity() ),
 	  m_bCurrentInstrForExport( false ),
@@ -392,11 +392,14 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 	pInstrument->setHihatGrp(
 		node.read_int( "isHihat", -1, true, true, bSilent )
 	);
-	pInstrument->setLowerCc( node.read_int( "lower_cc", 0, true, true, bSilent )
-	);
-	pInstrument->setHigherCc(
-		node.read_int( "higher_cc", 127, true, true, bSilent )
-	);
+	pInstrument->setLowerCc( Midi::parameterFromIntClamp( node.read_int(
+		"lower_cc", static_cast<int>( pInstrument->m_lowerCc ), true, true,
+		bSilent
+	) ) );
+	pInstrument->setHigherCc( Midi::parameterFromIntClamp( node.read_int(
+		"higher_cc", static_cast<int>( pInstrument->m_higherCc ), true, true,
+		bSilent
+	) ) );
 
 	for ( int i = 0; i < MAX_FX; i++ ) {
 		pInstrument->setFxLevel(
@@ -601,8 +604,8 @@ void Instrument::saveTo(
 	);
 	InstrumentNode.write_bool( "isStopNote", m_bStopNotes );
 	InstrumentNode.write_int( "isHihat", m_nHihatGrp );
-	InstrumentNode.write_int( "lower_cc", m_nLowerCc );
-	InstrumentNode.write_int( "higher_cc", m_nHigherCc );
+	InstrumentNode.write_int( "lower_cc", static_cast<int>( m_lowerCc ) );
+	InstrumentNode.write_int( "higher_cc", static_cast<int>( m_higherCc ) );
 
 	for ( int i = 0; i < MAX_FX; i++ ) {
 		InstrumentNode.write_float(
@@ -1021,14 +1024,14 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( sPrefix )
 						 .arg( s )
 						 .arg( m_nHihatGrp ) )
-			.append( QString( "%1%2m_nLowerCc: %3\n" )
+			.append( QString( "%1%2m_lowerCc: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
-						 .arg( m_nLowerCc ) )
-			.append( QString( "%1%2m_nHigherCc: %3\n" )
+						 .arg( static_cast<int>( m_lowerCc ) ) )
+			.append( QString( "%1%2m_higherCc: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
-						 .arg( m_nHigherCc ) )
+						 .arg( static_cast<int>( m_higherCc ) ) )
 			.append( QString( "%1%2m_bIsPreviewInstrument: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
@@ -1104,8 +1107,10 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const
 		}
 		sOutput.append( QString( "]" ) )
 			.append( QString( ", m_nHihatGrp: %1" ).arg( m_nHihatGrp ) )
-			.append( QString( ", m_nLowerCc: %1" ).arg( m_nLowerCc ) )
-			.append( QString( ", m_nHigherCc: %1" ).arg( m_nHigherCc ) )
+			.append( QString( ", m_lowerCc: %1" )
+						 .arg( static_cast<int>( m_lowerCc ) ) )
+			.append( QString( ", m_higherCc: %1" )
+						 .arg( static_cast<int>( m_higherCc ) ) )
 			.append( QString( ", m_bIsPreviewInstrument: %1" )
 						 .arg( m_bIsPreviewInstrument ) )
 			.append( QString( ", m_bApplyVelocity: %1" ).arg( m_bApplyVelocity )

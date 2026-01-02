@@ -41,6 +41,7 @@
 #include "../Widgets/LCDDisplay.h"
 #include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/Rotary.h"
+#include "core/Midi/Midi.h"
 
 using namespace H2Core;
 
@@ -81,15 +82,19 @@ font-size: 21px;" );
 	pMidiOutLbl->move( 28, 281 );
 
 	m_pMidiOutChannelLCD = new LCDSpinBox(
-		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, -1, 15,
-		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::MinusOneAsOff );
+		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int,
+		static_cast<int>( Midi::ChannelOff ),
+		static_cast<int>( Midi::ChannelMaximum ),
+		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::MinusOneAsOff
+	);
 	m_pMidiOutChannelLCD->move( 146, 257 );
-	m_pMidiOutChannelLCD->setToolTip(QString(tr("Midi out channel")));
+	m_pMidiOutChannelLCD->setToolTip( QString( tr( "Midi out channel" ) ) );
 	connect(
 		m_pMidiOutChannelLCD,
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
 		[&]( double fValue ) {
-			auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+			auto pInstrument =
+				Hydrogen::get_instance()->getSelectedInstrument();
 			if ( pInstrument == nullptr ) {
 				return;
 			}
@@ -105,20 +110,24 @@ font-size: 21px;" );
 	);
 	m_pMidiOutChannelLbl = new ClickableLabel(
 		m_pInstrumentProp, QSize( 61, 10 ),
-		pCommonStrings->getMidiOutChannelLabel() );
+		pCommonStrings->getMidiOutChannelLabel()
+	);
 	m_pMidiOutChannelLbl->move( 144, 281 );
 
 	///
 	m_pMidiOutNoteLCD = new LCDSpinBox(
-		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, 0, 127,
-		LCDSpinBox::Flag::ModifyOnChange );
+		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int,
+		static_cast<int>( Midi::NoteMinimum ),
+		static_cast<int>( Midi::NoteMaximum ), LCDSpinBox::Flag::ModifyOnChange
+	);
 	m_pMidiOutNoteLCD->move( 210, 257 );
-	m_pMidiOutNoteLCD->setToolTip(QString(tr("Midi out note")));
+	m_pMidiOutNoteLCD->setToolTip( QString( tr( "Midi out note" ) ) );
 	connect(
 		m_pMidiOutNoteLCD,
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
 		[&]( double fValue ) {
-			auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+			auto pInstrument =
+				Hydrogen::get_instance()->getSelectedInstrument();
 			if ( pInstrument == nullptr ) {
 				return;
 			}
@@ -384,31 +393,49 @@ font-size: 21px;" );
 	m_pHihatGroupLbl->move( 28, 327 );
 
 	m_pHihatMinRangeLCD = new LCDSpinBox(
-		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, 0, 127,
-		LCDSpinBox::Flag::ModifyOnChange );
+		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int,
+		static_cast<int>( Midi::ParameterMinimum ),
+		static_cast<int>( Midi::ParameterMaximum ),
+		LCDSpinBox::Flag::ModifyOnChange
+	);
 	m_pHihatMinRangeLCD->move( 146, 303 );
 	connect( m_pHihatMinRangeLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		Hydrogen::get_instance()->getSelectedInstrument()->setLowerCc(
-			static_cast<int>(m_pHihatMinRangeLCD->value()) );
+			Midi::parameterFromIntClamp(
+				static_cast<int>( m_pHihatMinRangeLCD->value() )
+			)
+		);
 		m_pHihatMaxRangeLCD->setMinimum(
-			static_cast<int>(m_pHihatMinRangeLCD->value()) );
-	});
-	m_pHihatMinRangeLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ),
-											  pCommonStrings->getHihatMinRangeLabel() );
+			static_cast<int>( m_pHihatMinRangeLCD->value() )
+		);
+	} );
+	m_pHihatMinRangeLbl = new ClickableLabel(
+		m_pInstrumentProp, QSize( 61, 10 ),
+		pCommonStrings->getHihatMinRangeLabel()
+	);
 	m_pHihatMinRangeLbl->move( 144, 327 );
 
 	m_pHihatMaxRangeLCD = new LCDSpinBox(
-		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, 0, 127,
-		LCDSpinBox::Flag::ModifyOnChange );
+		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int,
+		static_cast<int>( Midi::ParameterMinimum ),
+		static_cast<int>( Midi::ParameterMaximum ),
+		LCDSpinBox::Flag::ModifyOnChange
+	);
 	m_pHihatMaxRangeLCD->move( 210, 303 );
 	connect( m_pHihatMaxRangeLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		Hydrogen::get_instance()->getSelectedInstrument()->setHigherCc(
-			static_cast<int>(m_pHihatMaxRangeLCD->value()) );
+			Midi::parameterFromIntClamp(
+				static_cast<int>( m_pHihatMaxRangeLCD->value() )
+			)
+		);
 		m_pHihatMinRangeLCD->setMaximum(
-			static_cast<int>(m_pHihatMaxRangeLCD->value()) );
-	});
-	m_pHihatMaxRangeLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ),
-											  pCommonStrings->getHihatMaxRangeLabel() );
+			static_cast<int>( m_pHihatMaxRangeLCD->value() )
+		);
+	} );
+	m_pHihatMaxRangeLbl = new ClickableLabel(
+		m_pInstrumentProp, QSize( 61, 10 ),
+		pCommonStrings->getHihatMaxRangeLabel()
+	);
 	m_pHihatMaxRangeLbl->move( 208, 327 );
 
 	updateColors();
@@ -590,14 +617,23 @@ void InstrumentEditor::updateEditor() {
 		);
 
 		// hihat
-		m_pHihatGroupLCD->setValue( pInstrument->getHihatGrp(),
-									Event::Trigger::Suppress );
-		m_pHihatMinRangeLCD->setValue( pInstrument->getLowerCc(),
-									   Event::Trigger::Suppress );
-		m_pHihatMaxRangeLCD->setValue( pInstrument->getHigherCc(),
-									   Event::Trigger::Suppress );
-		m_pHihatMinRangeLCD->setMaximum( pInstrument->getHigherCc() );
-		m_pHihatMaxRangeLCD->setMinimum( pInstrument->getLowerCc() );
+		m_pHihatGroupLCD->setValue(
+			pInstrument->getHihatGrp(), Event::Trigger::Suppress
+		);
+		m_pHihatMinRangeLCD->setValue(
+			static_cast<int>( pInstrument->getLowerCc() ),
+			Event::Trigger::Suppress
+		);
+		m_pHihatMaxRangeLCD->setValue(
+			static_cast<int>( pInstrument->getHigherCc() ),
+			Event::Trigger::Suppress
+		);
+		m_pHihatMinRangeLCD->setMaximum(
+			static_cast<int>( pInstrument->getHigherCc() )
+		);
+		m_pHihatMaxRangeLCD->setMinimum(
+			static_cast<int>( pInstrument->getLowerCc() )
+		);
 	}
 	else {
 		m_pNameLbl->setText( "" );

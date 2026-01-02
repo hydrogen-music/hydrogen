@@ -49,8 +49,8 @@ public:
 		struct HandledInput {
 			TimePoint timePoint;
 			MidiMessage::Type type;
-			int nData1;
-			int nData2;
+			Midi::Parameter data1;
+			Midi::Parameter data2;
 			Midi::Channel channel;
 
 			std::vector<MidiAction::Type> actionTypes;

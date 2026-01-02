@@ -22,6 +22,8 @@
 
 #include "InputCaptureDialog.h"
 
+#include <core/Midi/Midi.h>
+
 InputCaptureDialog::InputCaptureDialog( QWidget* pParent, const QString& sTitle,
 										const QString& sLabel, const Type& type,
 										float fMin, float fMax )
@@ -54,8 +56,8 @@ InputCaptureDialog::InputCaptureDialog( QWidget* pParent, const QString& sTitle,
 	pVBoxLayout->addWidget( m_pLineEdit );
 
 	if ( m_type == Type::IntMidi ) {
-		m_fMin = 0;
-		m_fMax = 127;
+		m_fMin = static_cast<int>( H2Core::Midi::ParameterMinimum );
+		m_fMax = static_cast<int>( H2Core::Midi::ParameterMaximum );
 	}
 	
 	m_pLabelBounds = new QLabel( QString( "[%1,%2]" ).arg( m_fMin ).arg( m_fMax ), this );

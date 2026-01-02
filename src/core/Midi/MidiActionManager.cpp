@@ -38,6 +38,7 @@
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include "Midi/Midi.h"
 
 namespace H2Core {
 
@@ -698,7 +699,8 @@ bool MidiActionManager::effectLevelAbsolute( std::shared_ptr<MidiAction> pAction
 
 	float fValue = 0;
 	if ( fx_param != 0 ) {
-		fValue = static_cast<float>(fx_param) / 127.0;
+		fValue = static_cast<float>( fx_param ) /
+				 static_cast<float>( Midi::ParameterMaximum );
 	}
 
 	return CoreActionController::setStripEffectLevel( nLine, fx_id, fValue, true );
@@ -757,7 +759,7 @@ bool MidiActionManager::masterVolumeAbsolute( std::shared_ptr<MidiAction> pActio
 	int nVolume = pAction->getValue().toInt(&ok,10);
 
 	if ( nVolume != 0 ) {
-		pSong->setVolume( 1.5* ( (float) (nVolume / 127.0 ) ));
+		pSong->setVolume( 1.5* ( (float) (nVolume / static_cast<float>( Midi::ParameterMaximum ) ) ));
 	} else {
 		pSong->setVolume( 0 );
 	}
@@ -818,7 +820,7 @@ bool MidiActionManager::stripVolumeAbsolute( std::shared_ptr<MidiAction> pAction
 	}
 	
 	if ( nVolume != 0 ) {
-		pInstr->setVolume( 1.5* ( (float) (nVolume / 127.0 ) ));
+		pInstr->setVolume( 1.5* ( (float) (nVolume / static_cast<float>( Midi::ParameterMaximum ) ) ));
 	} else {
 		pInstr->setVolume( 0 );
 	}
@@ -895,9 +897,11 @@ bool MidiActionManager::panAbsolute( std::shared_ptr<MidiAction> pAction ) {
 		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
 		return false;
 	}
-	
-	pInstr->setPanWithRangeFrom0To1( (float) pan_param / 127.f );
-	
+
+	pInstr->setPanWithRangeFrom0To1(
+		(float) pan_param / static_cast<float>( Midi::ParameterMaximum )
+	);
+
 	pHydrogen->setSelectedInstrumentNumber(nLine);
 
 	EventQueue::get_instance()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
@@ -929,10 +933,14 @@ bool MidiActionManager::panAbsoluteSym( std::shared_ptr<MidiAction> pAction ) {
 		return false;
 	}
 
-	pInstr->setPan( (float) pan_param / 127.f );
-	
-	pHydrogen->setSelectedInstrumentNumber(nLine);
-	EventQueue::get_instance()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
+	pInstr->setPan(
+		(float) pan_param / static_cast<float>( Midi::ParameterMaximum )
+	);
+
+	pHydrogen->setSelectedInstrumentNumber( nLine );
+	EventQueue::get_instance()->pushEvent(
+		Event::Type::InstrumentParametersChanged, nLine
+	);
 
 	return true;
 }
@@ -1016,7 +1024,7 @@ bool MidiActionManager::gainLevelAbsolute( std::shared_ptr<MidiAction> pAction )
 	}
 	
 	if ( gain_param != 0 ) {
-		pLayer->setGain( 5.0* ( (float) (gain_param / 127.0 ) ) );
+		pLayer->setGain( 5.0* ( (float) (gain_param / static_cast<float>( Midi::ParameterMaximum ) ) ) );
 	} else {
 		pLayer->setGain( 0 );
 	}
@@ -1067,7 +1075,7 @@ bool MidiActionManager::pitchLevelAbsolute( std::shared_ptr<MidiAction> pAction 
 	if ( pitch_param != 0 ) {
 		pLayer->setPitch(
 			( Instrument::fPitchMax - Instrument::fPitchMin ) *
-			( (float) (pitch_param / 127.0 ) ) + Instrument::fPitchMin );
+			( (float) (pitch_param / static_cast<float>( Midi::ParameterMaximum ) ) ) + Instrument::fPitchMin );
 	} else {
 		pLayer->setPitch( Instrument::fPitchMin );
 	}
@@ -1086,7 +1094,7 @@ bool MidiActionManager::instrumentPitch( std::shared_ptr<MidiAction> pAction ) {
 	const int nPitchMidi = pAction->getValue().toInt(&ok,10);
 	if ( nPitchMidi != 0 ) {
 		fPitch = ( Instrument::fPitchMax - Instrument::fPitchMin ) *
-			( (float) (nPitchMidi / 127.0 ) ) + Instrument::fPitchMin;
+			( (float) (nPitchMidi / static_cast<float>( Midi::ParameterMaximum ) ) ) + Instrument::fPitchMin;
 	} else {
 		fPitch = Instrument::fPitchMin;
 	}
@@ -1119,7 +1127,7 @@ bool MidiActionManager::filterCutoffLevelAbsolute( std::shared_ptr<MidiAction> p
 	
 	pInstr->setFilterActive( true );
 	if( filter_cutoff_param != 0 ) {
-		pInstr->setFilterCutoff( ( (float) (filter_cutoff_param / 127.0 ) ) );
+		pInstr->setFilterCutoff( ( (float) (filter_cutoff_param / static_cast<float>( Midi::ParameterMaximum ) ) ) );
 	} else {
 		pInstr->setFilterCutoff( 0 );
 	}

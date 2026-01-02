@@ -269,11 +269,11 @@ class Instrument : public H2Core::Object<Instrument> {
 	void setHihatGrp( int hihat_grp );
 	int getHihatGrp() const;
 
-	void setLowerCc( int message );
-	int getLowerCc() const;
+	void setLowerCc( Midi::Parameter parameter );
+	Midi::Parameter getLowerCc() const;
 
-	void setHigherCc( int message );
-	int getHigherCc() const;
+	void setHigherCc( Midi::Parameter parameter );
+	Midi::Parameter getHigherCc() const;
 
 	///< set the path of the related drumkit
 	void setDrumkitPath( const QString& sPath );
@@ -418,8 +418,8 @@ class Instrument : public H2Core::Object<Instrument> {
 	QStringList m_enqueuedBy;
 	float m_fxLevel[MAX_FX];	  ///< Ladspa FX level array
 	int m_nHihatGrp;			  ///< the instrument is part of a hihat
-	int m_nLowerCc;				  ///< lower cc level
-	int m_nHigherCc;			  ///< higher cc level
+	Midi::Parameter m_lowerCc;
+	Midi::Parameter m_higherCc;
 	bool m_bIsPreviewInstrument;  ///< is the instrument an hydrogen preview
 								  ///< instrument?
 	bool m_bApplyVelocity;		  ///< change the sample gain based on velocity
@@ -652,24 +652,24 @@ inline int Instrument::getHihatGrp() const
 	return m_nHihatGrp;
 }
 
-inline void Instrument::setLowerCc( int message )
+inline void Instrument::setLowerCc( Midi::Parameter parameter )
 {
-	m_nLowerCc = message;
+	m_lowerCc = parameter;
 }
 
-inline int Instrument::getLowerCc() const
+inline Midi::Parameter Instrument::getLowerCc() const
 {
-	return m_nLowerCc;
+	return m_lowerCc;
 }
 
-inline void Instrument::setHigherCc( int message )
+inline void Instrument::setHigherCc( Midi::Parameter parameter )
 {
-	m_nHigherCc = message;
+	m_higherCc = parameter;
 }
 
-inline int Instrument::getHigherCc() const
+inline Midi::Parameter Instrument::getHigherCc() const
 {
-	return m_nHigherCc;
+	return m_higherCc;
 }
 
 inline void Instrument::setDrumkitPath( const QString& sPath )

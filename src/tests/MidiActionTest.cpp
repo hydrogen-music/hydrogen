@@ -77,9 +77,9 @@ void MidiActionTest::testBeatCounterAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nBeatCounterPara = 0;
+	const auto beatCounterPara = Midi::parameterFromInt( 0 );
 	pMidiEventMap->registerEvent(
-		MidiEvent::Type::CC, nBeatCounterPara,
+		MidiEvent::Type::CC, beatCounterPara,
 		std::make_shared<MidiAction>( MidiAction::Type::BeatCounter )
 	);
 	pPref->m_bpmTap = Preferences::BpmTap::BeatCounter;
@@ -105,8 +105,8 @@ void MidiActionTest::testBeatCounterAction()
 	___DEBUGLOG( QString( "interval: %1" ).arg( fIntervalMs ) );
 
 	const auto beatCounterMessage = MidiMessage(
-		MidiMessage::Type::ControlChange, nBeatCounterPara, 0,
-		Midi::ChannelDefault
+		MidiMessage::Type::ControlChange, beatCounterPara,
+		Midi::ParameterMinimum, Midi::ChannelDefault
 	);
 
 	auto intervalCompensation = std::chrono::duration<float, std::milli>( 0 );
@@ -161,13 +161,13 @@ void MidiActionTest::testBpmCcRelativeAction()
 		dynamic_cast<FakeAudioDriver*>( pAudioEngine->getAudioDriver() );
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nDiff = 3;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::BpmCcRelative );
 	pAction->setParameter1( QString::number( nDiff ) );
 
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	pAudioEngine->lock( RIGHT_HERE );
 	const auto fOldBpm = 120;
@@ -179,7 +179,7 @@ void MidiActionTest::testBpmCcRelativeAction()
 	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault
+		MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault
 	) );
 
 	TestHelper::waitForAudioDriver();
@@ -208,14 +208,14 @@ void MidiActionTest::testBpmDecreaseAction()
 		dynamic_cast<FakeAudioDriver*>( pAudioEngine->getAudioDriver() );
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nValue = 1;
 	const int nDiff = 5;
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::BpmDecr );
 	pAction->setValue( QString::number( nValue ) );
 	pAction->setParameter1( QString::number( nDiff ) );
 
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	pAudioEngine->lock( RIGHT_HERE );
 	const auto fOldBpm = 130;
@@ -227,7 +227,7 @@ void MidiActionTest::testBpmDecreaseAction()
 	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault
+		MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault
 	) );
 
 	TestHelper::waitForAudioDriver();
@@ -256,13 +256,13 @@ void MidiActionTest::testBpmFineCcRelativeAction()
 		dynamic_cast<FakeAudioDriver*>( pAudioEngine->getAudioDriver() );
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nDiff = 2;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::BpmFineCcRelative );
 	pAction->setParameter1( QString::number( nDiff ) );
 
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	pAudioEngine->lock( RIGHT_HERE );
 	const auto fOldBpm = 140;
@@ -274,7 +274,7 @@ void MidiActionTest::testBpmFineCcRelativeAction()
 	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault
+		MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault
 	) );
 
 	TestHelper::waitForAudioDriver();
@@ -306,14 +306,14 @@ void MidiActionTest::testBpmIncreaseAction()
 		dynamic_cast<FakeAudioDriver*>( pAudioEngine->getAudioDriver() );
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nValue = 1;
 	const int nDiff = 7;
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::BpmIncr );
 	pAction->setValue( QString::number( nValue ) );
 	pAction->setParameter1( QString::number( nDiff ) );
 
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	pAudioEngine->lock( RIGHT_HERE );
 	const auto fOldBpm = 150;
@@ -325,7 +325,7 @@ void MidiActionTest::testBpmIncreaseAction()
 	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 
 	TestHelper::waitForAudioDriver();
@@ -348,15 +348,15 @@ void MidiActionTest::testClearPatternAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	pMidiEventMap->registerEvent(
-		MidiEvent::Type::CC, nParameter,
+		MidiEvent::Type::CC, parameter,
 		std::make_shared<MidiAction>( MidiAction::Type::ClearPattern )
 	);
 
 	const int nPatternNumber = pHydrogen->getSelectedPatternNumber();
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 
 	// We first add note and then ensure it is gone after triggering the action.
@@ -369,7 +369,7 @@ void MidiActionTest::testClearPatternAction()
 	CPPUNIT_ASSERT( pPattern->getNotes()->size() == 1 );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pPattern->getNotes()->size() == 0 );
 
@@ -378,7 +378,7 @@ void MidiActionTest::testClearPatternAction()
 		-1, true /* bNeedsLock */, Event::Trigger::Suppress
 	);
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	pHydrogen->setSelectedPatternNumber(
 		nPatternNumber, true /* bNeedsLock */, Event::Trigger::Suppress
@@ -395,21 +395,21 @@ void MidiActionTest::testClearSelectedInstrumentAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
-	const int nParameterClearPattern = 2;
+	const auto parameter = Midi::parameterFromInt( 1 );
+	const auto parameterClearPattern = Midi::parameterFromInt( 2 );
 	pMidiEventMap->registerEvent(
-		MidiEvent::Type::CC, nParameter,
+		MidiEvent::Type::CC, parameter,
 		std::make_shared<MidiAction>( MidiAction::Type::ClearSelectedInstrument
 		)
 	);
 	pMidiEventMap->registerEvent(
-		MidiEvent::Type::CC, nParameterClearPattern,
+		MidiEvent::Type::CC, parameterClearPattern,
 		std::make_shared<MidiAction>( MidiAction::Type::ClearPattern )
 	);
 
 	// We reset the whole pattern to have a clean canvas.
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameterClearPattern, 0,
+		MidiMessage::Type::ControlChange, parameterClearPattern,  Midi::ParameterMinimum,
 		Midi::ChannelDefault
 	) );
 
@@ -435,14 +435,14 @@ void MidiActionTest::testClearSelectedInstrumentAction()
 	CPPUNIT_ASSERT( pPattern->getNotes()->size() == 2 );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pPattern->getNotes()->size() == 1 );
 
 	// Check robustness against having no pattern selected (should not happen).
 	pHydrogen->setSelectedInstrumentNumber( -1, Event::Trigger::Suppress );
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	pHydrogen->setSelectedInstrumentNumber(
 		nSelectedInstrument, Event::Trigger::Suppress
@@ -459,7 +459,7 @@ void MidiActionTest::testEffectLevelAbsoluteAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nFxValue = 25;
 	const int nFxId = 1;
 	const int nInstrumentNumber = 3;
@@ -468,7 +468,7 @@ void MidiActionTest::testEffectLevelAbsoluteAction()
 	pAction->setValue( QString::number( nFxValue ) );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
 	pAction->setParameter2( QString::number( nFxId ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -480,8 +480,8 @@ void MidiActionTest::testEffectLevelAbsoluteAction()
 	pInstrument->setFxLevel( fOldValue, nFxId );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nFxValue,
-		Midi::ChannelDefault
+		MidiMessage::Type::ControlChange, parameter,
+		Midi::parameterFromInt( nFxValue ), Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pInstrument->getFxLevel( nFxId ) != fOldValue );
 
@@ -507,7 +507,7 @@ void MidiActionTest::testEffectLevelRelativeAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nFxValue = 1;
 	const int nFxId = 1;
 	const int nInstrumentNumber = 3;
@@ -516,7 +516,7 @@ void MidiActionTest::testEffectLevelRelativeAction()
 	pAction->setValue( QString::number( nFxValue ) );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
 	pAction->setParameter2( QString::number( nFxId ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -528,8 +528,8 @@ void MidiActionTest::testEffectLevelRelativeAction()
 	pInstrument->setFxLevel( fOldValue, nFxId );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nFxValue,
-		Midi::ChannelDefault
+		MidiMessage::Type::ControlChange, parameter,
+		Midi::parameterFromInt( nFxValue ), Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pInstrument->getFxLevel( nFxId ) != fOldValue );
 
@@ -553,7 +553,7 @@ void MidiActionTest::testFilterCutoffLevelAbsoluteAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nCutoffValue = 101;
 	const int nInstrumentNumber = 3;
 	auto pAction = std::make_shared<MidiAction>(
@@ -561,7 +561,7 @@ void MidiActionTest::testFilterCutoffLevelAbsoluteAction()
 	);
 	pAction->setValue( QString::number( nCutoffValue ) );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -573,8 +573,8 @@ void MidiActionTest::testFilterCutoffLevelAbsoluteAction()
 	pInstrument->setFilterCutoff( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nCutoffValue,
-		Midi::ChannelDefault
+		MidiMessage::Type::ControlChange, parameter,
+		Midi::parameterFromInt( nCutoffValue ), Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pInstrument->getFilterCutoff() != fOldValue );
 
@@ -600,7 +600,7 @@ void MidiActionTest::testGainLevelAbsoluteAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nGainValue = 101;
 	const int nInstrumentNumber = 3;
 	const int nComponentId = 0;
@@ -611,7 +611,7 @@ void MidiActionTest::testGainLevelAbsoluteAction()
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
 	pAction->setParameter2( QString::number( nComponentId ) );
 	pAction->setParameter3( QString::number( nLayerId ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -627,8 +627,8 @@ void MidiActionTest::testGainLevelAbsoluteAction()
 	pLayer->setGain( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nGainValue,
-		Midi::ChannelDefault
+		MidiMessage::Type::ControlChange, parameter,
+		Midi::parameterFromInt( nGainValue ), Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pLayer->getGain() != fOldValue );
 
@@ -654,14 +654,14 @@ void MidiActionTest::testInstrumentPitchAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nPitchValue = 101;
 	const int nInstrumentNumber = 3;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::InstrumentPitch );
 	pAction->setValue( QString::number( nPitchValue ) );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -673,8 +673,8 @@ void MidiActionTest::testInstrumentPitchAction()
 	pInstrument->setPitchOffset( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nPitchValue,
-		Midi::ChannelDefault
+		MidiMessage::Type::ControlChange, parameter,
+		Midi::parameterFromInt( nPitchValue ), Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pInstrument->getPitchOffset() != fOldValue );
 	const float fRef = ( Instrument::fPitchMax - Instrument::fPitchMin ) *
@@ -697,10 +697,10 @@ void MidiActionTest::testLoadNextDrumkitAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::LoadNextDrumkit );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -708,7 +708,7 @@ void MidiActionTest::testLoadNextDrumkitAction()
 	CPPUNIT_ASSERT( pOldDrumkit != nullptr );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	auto pNewDrumkit = pSong->getDrumkit();
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
@@ -727,10 +727,10 @@ void MidiActionTest::testLoadPrevDrumkitAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::LoadPrevDrumkit );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -738,7 +738,7 @@ void MidiActionTest::testLoadPrevDrumkitAction()
 	CPPUNIT_ASSERT( pOldDrumkit != nullptr );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	auto pNewDrumkit = pSong->getDrumkit();
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
@@ -757,12 +757,12 @@ void MidiActionTest::testMasterVolumeAbsoluteAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
-	const int nVolumeValue = 102;
+	const auto parameter = Midi::parameterFromInt( 1 );
+	const auto volumeValue = Midi::parameterFromInt( 102 );
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::MasterVolumeAbsolute );
-	pAction->setValue( QString::number( nVolumeValue ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pAction->setValue( QString::number( static_cast<int>( volumeValue ) ) );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -771,12 +771,12 @@ void MidiActionTest::testMasterVolumeAbsoluteAction()
 	pSong->setVolume( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nVolumeValue,
+		MidiMessage::Type::ControlChange, parameter, volumeValue,
 		Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pSong->getVolume() != fOldValue );
 
-	const float fRef = 1.5 * static_cast<float>( nVolumeValue ) / 127.0;
+	const float fRef = 1.5 * static_cast<float>( volumeValue ) / 127.0;
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
 					.arg( pSong->getVolume() )
 					.arg( fRef ) );
@@ -794,12 +794,12 @@ void MidiActionTest::testMasterVolumeRelativeAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
-	const int nVolumeValue = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
+	const auto volumeValue = Midi::parameterFromInt( 1 );
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::MasterVolumeRelative );
-	pAction->setValue( QString::number( nVolumeValue ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pAction->setValue( QString::number( static_cast<int>( volumeValue ) ) );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -808,7 +808,7 @@ void MidiActionTest::testMasterVolumeRelativeAction()
 	pSong->setVolume( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nVolumeValue,
+		MidiMessage::Type::ControlChange, parameter, volumeValue,
 		Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pSong->getVolume() != fOldValue );
@@ -831,9 +831,9 @@ void MidiActionTest::testMuteAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::Mute );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -842,7 +842,7 @@ void MidiActionTest::testMuteAction()
 	pSong->setIsMuted( bOldValue );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pSong->getIsMuted() != bOldValue );
 	pSong->setIsMuted( bOldValue );
@@ -858,9 +858,9 @@ void MidiActionTest::testMuteToggleAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::MuteToggle );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -869,11 +869,11 @@ void MidiActionTest::testMuteToggleAction()
 	pSong->setIsMuted( bOldValue );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pSong->getIsMuted() != bOldValue );
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pSong->getIsMuted() == bOldValue );
 
@@ -889,9 +889,9 @@ void MidiActionTest::testNextBarAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::NextBar );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	const auto pPreviousSong = pHydrogen->getSong();
 	const auto pNewSong = Song::getEmptySong();
@@ -915,7 +915,7 @@ void MidiActionTest::testNextBarAction()
 	CPPUNIT_ASSERT( CoreActionController::locateToColumn( nOldValue ) );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 
 	pAudioEngine->lock( RIGHT_HERE );
@@ -943,14 +943,14 @@ void MidiActionTest::testPanAbsoluteAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nPanValue = 101;
 	const int nInstrumentNumber = 2;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::PanAbsolute );
 	pAction->setValue( QString::number( nPanValue ) );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -962,8 +962,8 @@ void MidiActionTest::testPanAbsoluteAction()
 	pInstrument->setPanWithRangeFrom0To1( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nPanValue,
-		Midi::ChannelDefault
+		MidiMessage::Type::ControlChange, parameter,
+		Midi::parameterFromInt( nPanValue ), Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pInstrument->getPanWithRangeFrom0To1() != fOldValue );
 	const float fRef = static_cast<float>( nPanValue ) / 127.0;
@@ -986,14 +986,14 @@ void MidiActionTest::testPanAbsoluteSymAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nPanValue = 101;
 	const int nInstrumentNumber = 2;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::PanAbsoluteSym );
 	pAction->setValue( QString::number( nPanValue ) );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -1005,8 +1005,8 @@ void MidiActionTest::testPanAbsoluteSymAction()
 	pInstrument->setPan( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nPanValue,
-		Midi::ChannelDefault
+		MidiMessage::Type::ControlChange, parameter,
+		Midi::parameterFromInt( nPanValue ), Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pInstrument->getPan() != fOldValue );
 	const float fRef = static_cast<float>( nPanValue ) / 127.0;
@@ -1027,14 +1027,14 @@ void MidiActionTest::testPanRelativeAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nPanValue = 1;
 	const int nInstrumentNumber = 2;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::PanRelative );
 	pAction->setValue( QString::number( nPanValue ) );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -1046,8 +1046,8 @@ void MidiActionTest::testPanRelativeAction()
 	pInstrument->setPan( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nPanValue,
-		Midi::ChannelDefault
+		MidiMessage::Type::ControlChange, parameter,
+		Midi::parameterFromInt( nPanValue ), Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pInstrument->getPan() != fOldValue );
 	const float fRef = fOldValue + 0.1;
@@ -1076,9 +1076,9 @@ void MidiActionTest::testPauseAction()
 
 	CoreActionController::activateSongMode( false );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::Pause );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	pAudioEngine->play();
 	TestHelper::waitForAudioDriver();
@@ -1086,7 +1086,7 @@ void MidiActionTest::testPauseAction()
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
@@ -1105,7 +1105,7 @@ void MidiActionTest::testPitchLevelAbsoluteAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nPitchValue = 101;
 	const int nInstrumentNumber = 3;
 	const int nComponentId = 0;
@@ -1116,7 +1116,7 @@ void MidiActionTest::testPitchLevelAbsoluteAction()
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
 	pAction->setParameter2( QString::number( nComponentId ) );
 	pAction->setParameter3( QString::number( nLayerId ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -1132,8 +1132,8 @@ void MidiActionTest::testPitchLevelAbsoluteAction()
 	pLayer->setPitch( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nPitchValue,
-		Midi::ChannelDefault
+		MidiMessage::Type::ControlChange, parameter,
+		Midi::parameterFromInt( nPitchValue ), Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pLayer->getPitch() != fOldValue );
 
@@ -1165,9 +1165,9 @@ void MidiActionTest::testPlayAction()
 
 	CoreActionController::activateSongMode( false );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::Play );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	pAudioEngine->stop();
 	TestHelper::waitForAudioDriver();
@@ -1175,7 +1175,7 @@ void MidiActionTest::testPlayAction()
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
@@ -1213,13 +1213,13 @@ void MidiActionTest::testPlaylistNextSongAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::PlaylistNextSong );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 
 	auto pNewSong = pHydrogen->getSong();
@@ -1261,13 +1261,13 @@ void MidiActionTest::testPlaylistPrevSongAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::PlaylistPrevSong );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 
 	auto pNewSong = pHydrogen->getSong();
@@ -1310,25 +1310,25 @@ void MidiActionTest::testPlaylistSongAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameterOldSong = 1;
+	const auto parameterOldSong = Midi::parameterFromInt( 1 );
 	auto pActionOldSong =
 		std::make_shared<MidiAction>( MidiAction::Type::PlaylistSong );
 	pActionOldSong->setParameter1( QString::number( nOldSongNumber ) );
 	pMidiEventMap->registerEvent(
-		MidiEvent::Type::CC, nParameterOldSong, pActionOldSong
+		MidiEvent::Type::CC, parameterOldSong, pActionOldSong
 	);
 
-	const int nParameterNewSong = 2;
+	const auto parameterNewSong = Midi::parameterFromInt( 2 );
 	auto pActionNewSong =
 		std::make_shared<MidiAction>( MidiAction::Type::PlaylistSong );
 	pActionNewSong->setParameter1( QString::number( nNewSongNumber ) );
 	pMidiEventMap->registerEvent(
-		MidiEvent::Type::CC, nParameterNewSong, pActionNewSong
+		MidiEvent::Type::CC, parameterNewSong, pActionNewSong
 	);
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameterNewSong, 0,
-		Midi::ChannelDefault
+		MidiMessage::Type::ControlChange, parameterNewSong,
+		Midi::ParameterMinimum, Midi::ChannelDefault
 	) );
 
 	auto pNewSong = pHydrogen->getSong();
@@ -1341,8 +1341,8 @@ void MidiActionTest::testPlaylistSongAction()
 	CPPUNIT_ASSERT( sNewSongName != sOldSongName );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameterOldSong, 0,
-		Midi::ChannelDefault
+		MidiMessage::Type::ControlChange, parameterOldSong,
+		Midi::ParameterMinimum, Midi::ChannelDefault
 	) );
 
 	auto pNewSongRevert = pHydrogen->getSong();
@@ -1378,10 +1378,10 @@ void MidiActionTest::testPlayPauseToggleAction()
 
 	CoreActionController::activateSongMode( false );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::PlayPauseToggle );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	pAudioEngine->stop();
 	TestHelper::waitForAudioDriver();
@@ -1389,13 +1389,13 @@ void MidiActionTest::testPlayPauseToggleAction()
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
@@ -1422,10 +1422,10 @@ void MidiActionTest::testPlayStopToggleAction()
 
 	CoreActionController::activateSongMode( false );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::PlayStopToggle );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	pAudioEngine->stop();
 	TestHelper::waitForAudioDriver();
@@ -1433,13 +1433,13 @@ void MidiActionTest::testPlayStopToggleAction()
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
@@ -1459,10 +1459,10 @@ void MidiActionTest::testPreviousBarAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::PreviousBar );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	const auto pPreviousSong = pHydrogen->getSong();
 	const auto pNewSong = Song::getEmptySong();
@@ -1486,7 +1486,7 @@ void MidiActionTest::testPreviousBarAction()
 	CPPUNIT_ASSERT( CoreActionController::locateToColumn( nOldValue ) );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 
 	pAudioEngine->lock( RIGHT_HERE );
@@ -1516,12 +1516,12 @@ void MidiActionTest::testRecordExitAction()
 
 	pHydrogen->setRecordEnabled( true );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::RecordExit );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( !pHydrogen->getRecordEnabled() );
 
@@ -1543,17 +1543,17 @@ void MidiActionTest::testRecordReadyAction()
 
 	pHydrogen->setRecordEnabled( false );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::RecordReady );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pHydrogen->getRecordEnabled() );
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( !pHydrogen->getRecordEnabled() );
 
@@ -1561,11 +1561,11 @@ void MidiActionTest::testRecordReadyAction()
 	TestHelper::waitForAudioDriver();
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( !pHydrogen->getRecordEnabled() );
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( !pHydrogen->getRecordEnabled() );
 
@@ -1584,13 +1584,13 @@ void MidiActionTest::testRecordStrobeAction()
 
 	pHydrogen->setRecordEnabled( false );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::RecordStrobe );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pHydrogen->getRecordEnabled() );
 
@@ -1609,18 +1609,18 @@ void MidiActionTest::testRecordStrobeToggleAction()
 
 	pHydrogen->setRecordEnabled( false );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::RecordStrobeToggle );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pHydrogen->getRecordEnabled() );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( !pHydrogen->getRecordEnabled() );
 
@@ -1638,12 +1638,12 @@ void MidiActionTest::testRedoAction()
 
 	pHydrogen->setRecordEnabled( false );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::RedoAction );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	const int nMaxTries = 100;
 	int nnTry = 0;
@@ -1684,12 +1684,12 @@ void MidiActionTest::testSelectAndPlayPatternAction()
 	const int nOldSelectedPatternNumber = 2;
 	pHydrogen->setSelectedPatternNumber( nOldSelectedPatternNumber );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nPatternNumber = 3;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::SelectAndPlayPattern );
 	pAction->setParameter1( QString::number( nPatternNumber ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	pHydrogen->sequencerStop();
 	TestHelper::waitForAudioDriver();
@@ -1697,7 +1697,7 @@ void MidiActionTest::testSelectAndPlayPatternAction()
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
@@ -1725,15 +1725,15 @@ void MidiActionTest::testSelectInstrumentAction()
 	const int nOldSelectedInstrumentNumber = 2;
 	pHydrogen->setSelectedInstrumentNumber( nOldSelectedInstrumentNumber );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nInstrumentNumber = 3;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::SelectInstrument );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nInstrumentNumber,
-		Midi::ChannelDefault
+		MidiMessage::Type::ControlChange, parameter,
+		Midi::parameterFromInt( nInstrumentNumber ), Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT(
 		pHydrogen->getSelectedInstrumentNumber() == nInstrumentNumber
@@ -1758,15 +1758,15 @@ void MidiActionTest::testSelectNextPatternAction()
 	const int nOldSelectedPatternNumber = 2;
 	pHydrogen->setSelectedPatternNumber( nOldSelectedPatternNumber );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nPatternNumber = 3;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::SelectNextPattern );
 	pAction->setParameter1( QString::number( nPatternNumber ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pHydrogen->getSelectedPatternNumber() == nPatternNumber );
 
@@ -1789,16 +1789,16 @@ void MidiActionTest::testSelectNextPatternCcAbsoluteAction()
 	const int nOldSelectedPatternNumber = 2;
 	pHydrogen->setSelectedPatternNumber( nOldSelectedPatternNumber );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nPatternNumber = 2;
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::SelectNextPatternCcAbsolute
 	);
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nPatternNumber,
-		Midi::ChannelDefault
+		MidiMessage::Type::ControlChange, parameter,
+		Midi::parameterFromInt( nPatternNumber ), Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pHydrogen->getSelectedPatternNumber() == nPatternNumber );
 
@@ -1821,16 +1821,16 @@ void MidiActionTest::testSelectNextPatternRelativeAction()
 	const int nOldSelectedPatternNumber = 2;
 	pHydrogen->setSelectedPatternNumber( nOldSelectedPatternNumber );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nPatternNumber = 2;
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::SelectNextPatternRelative
 	);
 	pAction->setParameter1( QString::number( nPatternNumber ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT(
 		pHydrogen->getSelectedPatternNumber() ==
@@ -1856,15 +1856,15 @@ void MidiActionTest::testSelectOnlyNextPatternAction()
 	const int nOldSelectedPatternNumber = 2;
 	pHydrogen->setSelectedPatternNumber( nOldSelectedPatternNumber );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nPatternNumber = 3;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::SelectOnlyNextPattern );
 	pAction->setParameter1( QString::number( nPatternNumber ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pHydrogen->getSelectedPatternNumber() == nPatternNumber );
 
@@ -1887,16 +1887,16 @@ void MidiActionTest::testSelectOnlyNextPatternCcAbsoluteAction()
 	const int nOldSelectedPatternNumber = 2;
 	pHydrogen->setSelectedPatternNumber( nOldSelectedPatternNumber );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nPatternNumber = 2;
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::SelectOnlyNextPatternCcAbsolute
 	);
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nPatternNumber,
-		Midi::ChannelDefault
+		MidiMessage::Type::ControlChange, parameter,
+		Midi::parameterFromInt( nPatternNumber ), Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pHydrogen->getSelectedPatternNumber() == nPatternNumber );
 
@@ -1921,9 +1921,9 @@ void MidiActionTest::testStopAction()
 
 	CoreActionController::activateSongMode( false );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::Stop );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	pAudioEngine->play();
 	TestHelper::waitForAudioDriver();
@@ -1931,7 +1931,7 @@ void MidiActionTest::testStopAction()
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
@@ -1950,12 +1950,12 @@ void MidiActionTest::testStripMuteToggleAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nInstrumentNumber = 3;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::StripMuteToggle );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -1967,12 +1967,12 @@ void MidiActionTest::testStripMuteToggleAction()
 	pInstrument->setMuted( bOldValue );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pInstrument->isMuted() != bOldValue );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pInstrument->isMuted() == bOldValue );
 
@@ -1987,12 +1987,12 @@ void MidiActionTest::testStripSoloToggleAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nInstrumentNumber = 3;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::StripSoloToggle );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -2004,12 +2004,12 @@ void MidiActionTest::testStripSoloToggleAction()
 	pInstrument->setSoloed( bOldValue );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pInstrument->isSoloed() != bOldValue );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pInstrument->isSoloed() == bOldValue );
 
@@ -2024,14 +2024,14 @@ void MidiActionTest::testStripVolumeAbsoluteAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
-	const int nVolumeValue = 101;
+	const auto parameter = Midi::parameterFromInt( 1 );
+	const auto volumeValue = Midi::parameterFromInt( 101 );
 	const int nInstrumentNumber = 3;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::StripVolumeAbsolute );
-	pAction->setValue( QString::number( nVolumeValue ) );
+	pAction->setValue( QString::number( static_cast<int>( volumeValue ) ) );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -2043,11 +2043,11 @@ void MidiActionTest::testStripVolumeAbsoluteAction()
 	pInstrument->setVolume( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nVolumeValue,
+		MidiMessage::Type::ControlChange, parameter, volumeValue,
 		Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pInstrument->getVolume() != fOldValue );
-	const float fRef = 1.5 * static_cast<float>( nVolumeValue ) / 127.0;
+	const float fRef = 1.5 * static_cast<float>( volumeValue ) / 127.0;
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
 					.arg( pInstrument->getVolume() )
 					.arg( fRef ) );
@@ -2065,14 +2065,14 @@ void MidiActionTest::testStripVolumeRelativeAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
-	const int nVolumeValue = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
+	const auto volumeValue = Midi::parameterFromInt( 1 );
 	const int nInstrumentNumber = 3;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::StripVolumeRelative );
-	pAction->setValue( QString::number( nVolumeValue ) );
+	pAction->setValue( QString::number( static_cast<int>( volumeValue ) ) );
 	pAction->setParameter1( QString::number( nInstrumentNumber ) );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -2084,7 +2084,7 @@ void MidiActionTest::testStripVolumeRelativeAction()
 	pInstrument->setVolume( fOldValue );
 
 	sendMessage( MidiMessage(
-		MidiMessage::Type::ControlChange, nParameter, nVolumeValue,
+		MidiMessage::Type::ControlChange, parameter, volumeValue,
 		Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pInstrument->getVolume() != fOldValue );
@@ -2110,9 +2110,9 @@ void MidiActionTest::testTapTempoAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 0;
+	const auto parameter = Midi::ParameterMinimum;
 	pMidiEventMap->registerEvent(
-		MidiEvent::Type::CC, nParameter,
+		MidiEvent::Type::CC, parameter,
 		std::make_shared<MidiAction>( MidiAction::Type::TapTempo )
 	);
 	pPref->m_bpmTap = Preferences::BpmTap::TapTempo;
@@ -2134,7 +2134,7 @@ void MidiActionTest::testTapTempoAction()
 	___DEBUGLOG( QString( "interval: %1" ).arg( fIntervalMs ) );
 
 	const auto tapTempoMessage =
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault );
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault );
 
 	auto intervalCompensation = std::chrono::duration<float, std::milli>( 0 );
 	for ( int nnMessage = 0; nnMessage < 8; ++nnMessage ) {
@@ -2184,21 +2184,21 @@ void MidiActionTest::testToggleMetronomeAction()
 	auto pMidiEventMap = pPref->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::ToggleMetronome );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	const bool bOldValue = false;
 	pPref->m_bUseMetronome = bOldValue;
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pPref->m_bUseMetronome != bOldValue );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pPref->m_bUseMetronome == bOldValue );
 
@@ -2216,12 +2216,12 @@ void MidiActionTest::testUndoAction()
 
 	pHydrogen->setRecordEnabled( false );
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::UndoAction );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	const int nMaxTries = 100;
 	int nnTry = 0;
@@ -2250,9 +2250,9 @@ void MidiActionTest::testUnmuteAction()
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	const int nParameter = 1;
+	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::Unmute );
-	pMidiEventMap->registerEvent( MidiEvent::Type::CC, nParameter, pAction );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -2261,7 +2261,7 @@ void MidiActionTest::testUnmuteAction()
 	pSong->setIsMuted( bOldValue );
 
 	sendMessage(
-		MidiMessage( MidiMessage::Type::ControlChange, nParameter, 0, Midi::ChannelDefault )
+		MidiMessage( MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum, Midi::ChannelDefault )
 	);
 	CPPUNIT_ASSERT( pSong->getIsMuted() != bOldValue );
 	pSong->setIsMuted( false );

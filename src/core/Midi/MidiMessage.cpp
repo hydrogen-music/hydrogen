@@ -31,21 +31,21 @@ namespace H2Core
 
 MidiMessage::MidiMessage() : m_timePoint( Clock::now() )
 						   , m_type( Type::Unknown )
-						   , m_nData1( -1 )
-						   , m_nData2( -1 )
+						   , m_data1( Midi::ParameterInvalid )
+						   , m_data2( Midi::ParameterInvalid )
 						   , m_channel( Midi::ChannelInvalid ) {
 }
 
 MidiMessage::MidiMessage(
 	Type type,
-	int nData1,
-	int nData2,
+	Midi::Parameter data1,
+	Midi::Parameter data2,
 	Midi::Channel channel
 )
 	: m_timePoint( Clock::now() ),
 	  m_type( type ),
-	  m_nData1( nData1 ),
-	  m_nData2( nData2 ),
+	  m_data1( data1 ),
+	  m_data2( data2 ),
 	  m_channel( channel )
 {
 }
@@ -53,8 +53,8 @@ MidiMessage::MidiMessage(
 void MidiMessage::clear() {
 	m_timePoint = Clock::now();
 	m_type = Type::Unknown;
-	m_nData1 = -1;
-	m_nData2 = -1;
+	m_data1 = Midi::ParameterInvalid;
+	m_data2 = Midi::ParameterInvalid;
 	m_channel = Midi::ChannelInvalid;
 	m_sysexData.clear();
 }
@@ -159,8 +159,8 @@ MidiMessage::Type MidiMessage::deriveType( int nStatusByte ) {
 MidiMessage MidiMessage::from( const MidiMessage& otherMsg ) {
 	MidiMessage msg;
 	msg.m_type = otherMsg.m_type;
-	msg.m_nData1 = otherMsg.m_nData1;
-	msg.m_nData2 = otherMsg.m_nData2;
+	msg.m_data1 = otherMsg.m_data1;
+	msg.m_data2 = otherMsg.m_data2;
 	msg.m_channel = otherMsg.m_channel;
 
 	if ( otherMsg.m_sysexData.size() > 0 ) {
@@ -180,8 +180,8 @@ MidiMessage MidiMessage::from( const ControlChange& controlChange ) {
 		// By providing a negative value the resulting message will be
 		// suppressed.
 		msg.setType( Type::ControlChange );
-		msg.setData1( std::clamp( controlChange.nParameter, 0, 127 ) );
-		msg.setData2( std::clamp( controlChange.nValue, 0, 127 ) );
+		msg.setData1( controlChange.parameter );
+		msg.setData2( controlChange.value );
 		msg.setChannel( controlChange.channel );
 	}
 
@@ -205,8 +205,8 @@ MidiMessage MidiMessage::from( std::shared_ptr<Note> pNote ) {
 		}
 
 		msg.setType( Type::NoteOn );
-		msg.setData1( static_cast<int>( noteRef.note ) );
-		msg.setData2( std::clamp( pNote->getMidiVelocity(), 0, 127 ) );
+		msg.setData1( static_cast<Midi::Parameter>( noteRef.note ) );
+		msg.setData2( pNote->getMidiVelocity() );
 		msg.setChannel( noteRef.channel );
 	}
 
@@ -220,8 +220,8 @@ MidiMessage MidiMessage::from( const NoteOff& noteOff ) {
 		// By providing a negative value the resulting message will be
 		// suppressed.
 		msg.setType( Type::NoteOff );
-		msg.setData1( static_cast<int>( noteOff.note ) );
-		msg.setData2( std::clamp( noteOff.nVelocity, 0, 127 ) );
+		msg.setData1( static_cast<Midi::Parameter>( noteOff.note ) );
+		msg.setData2( noteOff.velocity );
 		msg.setChannel( noteOff.channel );
 	}
 
@@ -230,8 +230,8 @@ MidiMessage MidiMessage::from( const NoteOff& noteOff ) {
 
 bool MidiMessage::operator==( const MidiMessage& other ) const {
 	if ( m_type != other.m_type ||
-		 m_nData1 != other.m_nData1 ||
-		 m_nData2 != other.m_nData2 ||
+		 m_data1 != other.m_data1 ||
+		 m_data2 != other.m_data2 ||
 		 m_channel != other.m_channel ||
 		 m_sysexData.size() != other.m_sysexData.size() ) {
 		return false;
@@ -260,11 +260,11 @@ QString MidiMessage::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( H2Core::timePointToQString( m_timePoint ) ) )
 			.append( QString( "%1%2m_type: %3\n" )
 					 .arg( TypeToQString( m_type ) ) )
-			.append( QString( "%1%2m_nData1: %3\n" )
-					 .arg( m_nData1 ) )
-			.append( QString( "%1%2m_nData2: %3\n" )
-					 .arg( m_nData2 ) )
-			.append( QString( "%1%2m_nChannel: %3\n" )
+			.append( QString( "%1%2m_data1: %3\n" )
+					 .arg( static_cast<int>( m_data1 ) ) )
+			.append( QString( "%1%2m_data2: %3\n" )
+					 .arg( static_cast<int>( m_data2 ) ) )
+			.append( QString( "%1%2m_channel: %3\n" )
 					 .arg( static_cast<int>(m_channel) ) )
 			.append( QString( "%1%2m_sysexData: [" ) );
 		bool bIsFirst = true;
@@ -284,8 +284,8 @@ QString MidiMessage::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "m_timePoint: %1" )
 					 .arg( H2Core::timePointToQString( m_timePoint ) ) )
 			.append( QString( ", m_type: %1" ).arg( TypeToQString( m_type ) ) )
-			.append( QString( ", m_nData1: %1" ).arg( m_nData1 ) )
-			.append( QString( ", m_nData2: %1" ).arg( m_nData2 ) )
+			.append( QString( ", m_data1: %1" ).arg( static_cast<int>( m_data1 ) ) )
+			.append( QString( ", m_data2: %1" ).arg( static_cast<int>( m_data2 ) ) )
 			.append( QString( ", m_channel: %1" ).arg( static_cast<int>(m_channel) ) )
 			.append( QString( ", m_sysexData: [" ) );
 		bool bIsFirst = true;

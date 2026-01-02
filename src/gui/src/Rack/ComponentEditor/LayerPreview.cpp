@@ -45,6 +45,7 @@
 #include "../../Skin.h"
 #include "../../UndoActions.h"
 #include "../../Widgets/WaveDisplay.h"
+#include "core/Midi/Midi.h"
 
 using namespace H2Core;
 
@@ -864,7 +865,9 @@ void LayerPreview::mouseMoveEvent( QMouseEvent* ev )
 
 int LayerPreview::getMidiVelocityFromRaw( const float raw )
 {
-	return static_cast<int> (raw * 127);
+	return static_cast<int>( Midi::parameterFromIntClamp(
+		static_cast<int>( raw * static_cast<float>( Midi::ParameterMaximum ) )
+	) );
 }
 
 void LayerPreview::showLayerStartVelocity( const std::shared_ptr<InstrumentLayer> pLayer,

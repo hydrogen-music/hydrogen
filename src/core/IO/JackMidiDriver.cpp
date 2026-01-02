@@ -110,8 +110,8 @@ void JackMidiDriver::JackMidiWrite( jack_nframes_t nframes ) {
 		}
 		else {
 			// All other MIDI messages
-			msg.setData1( buffer[1] );
-			msg.setData2( buffer[2] );
+			msg.setData1( Midi::parameterFromIntClamp( buffer[1] ) );
+			msg.setData2( Midi::parameterFromIntClamp( buffer[2] ) );
 		}
 		handleMessage( msg );
 	}
@@ -121,8 +121,8 @@ void JackMidiDriver::sendControlChangeMessage( const MidiMessage& msg ) {
 	uint8_t buffer[4];	
 	
 	buffer[0] = 0xB0 | static_cast<int>( msg.getChannel() );
-	buffer[1] = msg.getData1();
-	buffer[2] = msg.getData2();
+	buffer[1] = static_cast<int>( msg.getData1() );
+	buffer[2] = static_cast<int>( msg.getData2() );
 	buffer[3] = 0;
 
 	JackMidiOutEvent(buffer, 3);
@@ -343,8 +343,8 @@ void JackMidiDriver::sendNoteOnMessage( const MidiMessage& msg ) {
 	uint8_t buffer[4];
 
 	buffer[0] = 0x90 | static_cast<int>( msg.getChannel() );	/* note on */
-	buffer[1] = msg.getData1();
-	buffer[2] = msg.getData2();
+	buffer[1] = static_cast<int>( msg.getData1() );
+	buffer[2] = static_cast<int>( msg.getData2() );
 	buffer[3] = 0;
 
 	JackMidiOutEvent(buffer, 3);
@@ -354,7 +354,7 @@ void JackMidiDriver::sendNoteOffMessage( const MidiMessage& msg ) {
 	uint8_t buffer[4];
 
 	buffer[0] = 0x80 | static_cast<int>( msg.getChannel() );	/* note off */
-	buffer[1] = msg.getData1();
+	buffer[1] = static_cast<int>( msg.getData1() );
 	buffer[2] = 0;
 	buffer[3] = 0;
 

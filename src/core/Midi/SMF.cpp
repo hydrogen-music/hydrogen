@@ -37,6 +37,7 @@
 
 #include <QFile>
 #include <QTextStream>
+#include "Midi/Midi.h"
 
 namespace H2Core
 {
@@ -622,8 +623,11 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 					static_cast<float>(nColumnLength);
 				const float fVelocityAdjustment =
 					pAutomationPath->get_value( fColumnPos );
-				const int nVelocity = static_cast<int>(
-					127.0 * pCopiedNote->getVelocity() * fVelocityAdjustment );
+				const auto velocity =
+					Midi::parameterFromIntClamp( static_cast<int>(
+						static_cast<float>( Midi::ParameterMaximum ) *
+						pCopiedNote->getVelocity() * fVelocityAdjustment
+					) );
 
 				const auto pInstr = pCopiedNote->getInstrument();
 				const auto note = pCopiedNote->getMidiNote();
@@ -645,12 +649,12 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 
 				// get events for specific instrument
 				addEvent( std::make_shared<SMFNoteOnEvent>(
-							  fNoteTick, channel, note, nVelocity ),
+							  fNoteTick, channel, note, velocity ),
 						  pInstr );
 
 				addEvent( std::make_shared<SMFNoteOffEvent>(
 							  fNoteTick + nLength, channel, note,
-							  nVelocity ), pInstr );
+							  velocity ), pInstr );
 			}
 		}
 

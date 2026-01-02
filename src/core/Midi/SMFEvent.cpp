@@ -416,12 +416,12 @@ SMFNoteOnEvent::SMFNoteOnEvent(
 	float fTicks,
 	Midi::Channel channel,
 	Midi::Note note,
-	int nVelocity
+	Midi::Parameter velocity
 )
 	: SMFEvent( fTicks, SMFEvent::Type::NoteOn ),
 	  m_channel( channel ),
 	  m_note( note ),
-	  m_nVelocity( nVelocity )
+	  m_velocity( velocity )
 {
 }
 
@@ -431,7 +431,7 @@ QByteArray SMFNoteOnEvent::getBuffer() const
 	buf.writeVarLen( m_nDeltaTime );
 	buf.writeByte( static_cast<int>( m_type ) + static_cast<int>( m_channel ) );
 	buf.writeByte( static_cast<int>( m_note ) );
-	buf.writeByte( m_nVelocity );
+	buf.writeByte( static_cast<int>( m_velocity ) );
 
 	return buf.getBuffer();
 }
@@ -451,19 +451,24 @@ QString SMFNoteOnEvent::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( static_cast<int>(m_channel) ) )
 			.append( QString( "%1%2m_note: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( static_cast<int>( m_note ) ) )
-			.append( QString( "%1%2m_nVelocity: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nVelocity ) );
+			.append( QString( "%1%2m_velocity: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( static_cast<int>( m_velocity ) ) );
 	}
 	else {
-		sOutput = QString( "[SMFNoteOnEvent] " )
-			.append( QString( "m_type: %1" )
-					 .arg( SMFEvent::TypeToQString( m_type ) ) )
-			.append( QString( ", m_fTicks: %1" ).arg( m_fTicks ) )
-			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
-			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
-			.append( QString( ", m_channel: %1" ).arg( static_cast<int>(m_channel) ) )
-			.append( QString( ", m_note: %1" ).arg( static_cast<int>( m_note ) ) )
-			.append( QString( ", m_nVelocity: %1" ).arg( m_nVelocity ) );
+		sOutput =
+			QString( "[SMFNoteOnEvent] " )
+				.append( QString( "m_type: %1" )
+							 .arg( SMFEvent::TypeToQString( m_type ) ) )
+				.append( QString( ", m_fTicks: %1" ).arg( m_fTicks ) )
+				.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+				.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+				.append( QString( ", m_channel: %1" )
+							 .arg( static_cast<int>( m_channel ) ) )
+				.append(
+					QString( ", m_note: %1" ).arg( static_cast<int>( m_note ) )
+				)
+				.append( QString( ", m_velocity: %1" )
+							 .arg( static_cast<int>( m_velocity ) ) );
 	}
 
 	return sOutput;
@@ -475,12 +480,12 @@ SMFNoteOffEvent::SMFNoteOffEvent(
 	float fTicks,
 	Midi::Channel channel,
 	Midi::Note note,
-	int nVelocity
+	Midi::Parameter velocity
 )
 	: SMFEvent( fTicks, SMFEvent::Type::NoteOff ),
 	  m_channel( channel ),
 	  m_note( note ),
-	  m_nVelocity( nVelocity )
+	  m_velocity( velocity )
 {
 }
 
@@ -490,7 +495,7 @@ QByteArray SMFNoteOffEvent::getBuffer() const
 	buf.writeVarLen( m_nDeltaTime );
 	buf.writeByte( static_cast<int>(m_type) + static_cast<int>(m_channel) );
 	buf.writeByte( static_cast<int>( m_note ) );
-	buf.writeByte( m_nVelocity );
+	buf.writeByte( static_cast<int>( m_velocity ) );
 
 	return buf.getBuffer();
 }
@@ -510,19 +515,24 @@ QString SMFNoteOffEvent::toQString( const QString& sPrefix, bool bShort ) const 
 					 .arg( s ).arg( static_cast<int>(m_channel) ) )
 			.append( QString( "%1%2m_note: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( static_cast<int>( m_note ) ) )
-			.append( QString( "%1%2m_nVelocity: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nVelocity ) );
+			.append( QString( "%1%2m_velocity: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( static_cast<int>( m_velocity ) ) );
 	}
 	else {
-		sOutput = QString( "[SMFNoteOffEvent] " )
-			.append( QString( "m_type: %1" )
-					 .arg( SMFEvent::TypeToQString( m_type ) ) )
-			.append( QString( ", m_fTicks: %1" ).arg( m_fTicks ) )
-			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
-			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
-			.append( QString( ", m_channel: %1" ).arg( static_cast<int>(m_channel) ) )
-			.append( QString( ", m_note: %1" ).arg( static_cast<int>( m_note ) ) )
-			.append( QString( ", m_nVelocity: %1" ).arg( m_nVelocity ) );
+		sOutput =
+			QString( "[SMFNoteOffEvent] " )
+				.append( QString( "m_type: %1" )
+							 .arg( SMFEvent::TypeToQString( m_type ) ) )
+				.append( QString( ", m_fTicks: %1" ).arg( m_fTicks ) )
+				.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+				.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+				.append( QString( ", m_channel: %1" )
+							 .arg( static_cast<int>( m_channel ) ) )
+				.append(
+					QString( ", m_note: %1" ).arg( static_cast<int>( m_note ) )
+				)
+				.append( QString( ", m_velocity: %1" )
+							 .arg( static_cast<int>( m_velocity ) ) );
 	}
 
 	return sOutput;

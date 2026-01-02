@@ -468,8 +468,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		/** Handle an incoming note event, e.g. a MIDI or OSC NOTE_ON or
 		 * NOTE_OFF as well as virtual keyboard stroke.
 		 *
-		 * @param note determines which note will be triggered and is defined
-		 *   between [36,127] inspired by the General MIDI standard.
+		 * @param note determines which note will be triggered.
 		 * @param channel specifies the channel on which a matching instrument
 		 *   is searched for. `H2Core::MidiMessage::nChannelOff` result in the
 		 *   note being dropped and `H2Core::MidiMessage::nChannelAll` for the
@@ -593,10 +592,13 @@ private:
 	static bool sendStripIsSoloedFeedback( int nStrip );
 	static bool sendStripPanFeedback( int nStrip );
 	static bool sendStripPanSymFeedback( int nStrip );
-	
-	static bool handleOutgoingControlChanges( const std::vector<int>& params, int nValue);
+
+	static bool handleOutgoingControlChanges(
+		const std::vector<Midi::Parameter>& params,
+		Midi::Parameter nValue
+	);
 	static std::shared_ptr<Instrument> getStrip( int nStrip );
-	
+
 	// -----------------------------------------------------------
 	// Actions required for session management.
 		

@@ -1282,10 +1282,14 @@ void MidiControlDialog::updateInputTable() {
 			newLabel( MidiMessage::TypeToQString( pHandledInput->type ) )
 		);
 		m_pMidiInputTable->setCellWidget(
-			nRow, 2, newLabel( QString::number( pHandledInput->nData1 ) )
+			nRow, 2,
+			newLabel( QString::number( static_cast<int>( pHandledInput->data1 )
+			) )
 		);
 		m_pMidiInputTable->setCellWidget(
-			nRow, 3, newLabel( QString::number( pHandledInput->nData2 ) )
+			nRow, 3,
+			newLabel( QString::number( static_cast<int>( pHandledInput->data2 )
+			) )
 		);
 		m_pMidiInputTable->setCellWidget(
 			nRow, 4,
@@ -1325,12 +1329,16 @@ void MidiControlDialog::updateInputTable() {
 		auto ppLabelData1 =
 			dynamic_cast<QLabel*>( m_pMidiInputTable->cellWidget( nRow, 2 ) );
 		if ( ppLabelData1 != nullptr ) {
-			ppLabelData1->setText( QString::number( pHandledInput->nData1 ) );
+			ppLabelData1->setText(
+				QString::number( static_cast<int>( pHandledInput->data1 ) )
+			);
 		}
 		auto ppLabelData2 =
 			dynamic_cast<QLabel*>( m_pMidiInputTable->cellWidget( nRow, 3 ) );
 		if ( ppLabelData2 != nullptr ) {
-			ppLabelData2->setText( QString::number( pHandledInput->nData2 ) );
+			ppLabelData2->setText(
+				QString::number( static_cast<int>( pHandledInput->data2 ) )
+			);
 		}
 		auto ppLabelChannel =
 			dynamic_cast<QLabel*>( m_pMidiInputTable->cellWidget( nRow, 4 ) );
@@ -1443,10 +1451,14 @@ void MidiControlDialog::updateOutputTable() {
 			newLabel( MidiMessage::TypeToQString( pHandledOutput->type ) )
 		);
 		m_pMidiOutputTable->setCellWidget(
-			nRow, 2, newLabel( QString::number( pHandledOutput->nData1 ) )
+			nRow, 2,
+			newLabel( QString::number( static_cast<int>( pHandledOutput->data1 )
+			) )
 		);
 		m_pMidiOutputTable->setCellWidget(
-			nRow, 3, newLabel( QString::number( pHandledOutput->nData2 ) )
+			nRow, 3,
+			newLabel( QString::number( static_cast<int>( pHandledOutput->data2 )
+			) )
 		);
 		m_pMidiOutputTable->setCellWidget(
 			nRow, 4,
@@ -1478,12 +1490,16 @@ void MidiControlDialog::updateOutputTable() {
 		auto ppLabelData1 =
 			dynamic_cast<QLabel*>( m_pMidiOutputTable->cellWidget( nRow, 2 ) );
 		if ( ppLabelData1 != nullptr ) {
-			ppLabelData1->setText( QString::number( pHandledOutput->nData1 ) );
+			ppLabelData1->setText(
+				QString::number( static_cast<int>( pHandledOutput->data1 ) )
+			);
 		}
 		auto ppLabelData2 =
 			dynamic_cast<QLabel*>( m_pMidiOutputTable->cellWidget( nRow, 3 ) );
 		if ( ppLabelData2 != nullptr ) {
-			ppLabelData2->setText( QString::number( pHandledOutput->nData2 ) );
+			ppLabelData2->setText(
+				QString::number( static_cast<int>( pHandledOutput->data2 ) )
+			);
 		}
 		auto ppLabelChannel =
 			dynamic_cast<QLabel*>( m_pMidiOutputTable->cellWidget( nRow, 4 ) );

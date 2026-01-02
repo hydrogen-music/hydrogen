@@ -59,6 +59,29 @@ namespace Midi {
 		) );
 	}
 
+	enum class Parameter : int {};
+	static constexpr Parameter ParameterMinimum = Parameter( 0 );
+	static constexpr Parameter ParameterMaximum = Parameter( 127 );
+	static constexpr Parameter ParameterInvalid = Parameter( -1 );
+	static Parameter parameterFromInt( int nParameter )
+	{
+		if ( nParameter >= static_cast<int>( ParameterMinimum ) &&
+			 nParameter <= static_cast<int>( ParameterMaximum ) ) {
+			return static_cast<Parameter>( nParameter );
+		}
+		else {
+			return ParameterInvalid;
+		}
+	}
+	static Parameter parameterFromIntClamp( int nParameter )
+	{
+		return static_cast<Parameter>( std::clamp(
+			nParameter, static_cast<int>( ParameterMinimum ),
+			static_cast<int>( ParameterMaximum )
+		) );
+	}
+
+    /** Specialized version of #Parameter. */
 	enum class Note : int {};
 	static constexpr Note NoteMinimum = Note( 0 );
 	static constexpr Note NoteDefault = Note( 36 );

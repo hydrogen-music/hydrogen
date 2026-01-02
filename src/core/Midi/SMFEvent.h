@@ -194,7 +194,7 @@ public:
 	 float fTicks,
 	 Midi::Channel Channel,
 	 Midi::Note note,
-	 int nVelocity
+	 Midi::Parameter velocity
  );
 
  virtual QByteArray getBuffer() const override;
@@ -205,7 +205,7 @@ public:
 protected:
 	Midi::Channel m_channel;
 	Midi::Note m_note;
-	int m_nVelocity;
+	Midi::Parameter m_velocity;
 };
 
 
@@ -219,7 +219,7 @@ public:
 	 float fTicks,
 	 Midi::Channel channel,
 	 Midi::Note note,
-	 int nVelocity
+	 Midi::Parameter velocity
  );
 
  virtual QByteArray getBuffer() const override;
@@ -230,7 +230,7 @@ public:
 protected:
 	Midi::Channel m_channel;
 	Midi::Note m_note;
-	int m_nVelocity;
+	Midi::Parameter m_velocity;
 
 };
 

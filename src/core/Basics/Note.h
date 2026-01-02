@@ -308,10 +308,7 @@ class Note : public H2Core::Object<Note>
 		Octave getOctave() const;
 		/** return scaled key for midi output, !!! DO NOT CHECK IF INSTRUMENT IS SET !!! */
 		Midi::Note getMidiNote() const;
-		/** midi velocity accessor 
-		 * m_fVelocity * 127
-		 * \endcode */
-		int getMidiVelocity() const;
+		Midi::Parameter getMidiVelocity() const;
 		/** note key pitch accessor
 		 * \code{.cpp}
 		 * m_octave * KEYS_PER_OCTAVE + m_key
@@ -684,9 +681,11 @@ inline Midi::Note Note::getMidiNote() const
 	return Midi::noteFromIntClamp( nMidiKey );
 }
 
-inline int Note::getMidiVelocity() const
+inline Midi::Parameter Note::getMidiVelocity() const
 {
-	return m_fVelocity * 127;
+	return Midi::parameterFromIntClamp( static_cast<int>(
+		std::round( m_fVelocity * static_cast<float>( Midi::ParameterMaximum ) )
+	) );
 }
 
 inline float Note::getPitchFromKeyOctave() const

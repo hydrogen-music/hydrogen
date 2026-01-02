@@ -25,6 +25,7 @@
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
+#include "core/Midi/Midi.h"
 
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
@@ -41,7 +42,7 @@ MidiSenseWidget::MidiSenseWidget(
 )
 	: QDialog( pParent ),
 	  m_lastMidiEvent( H2Core::MidiEvent::Type::Null ),
-	  m_nLastMidiEventParameter( 0 )
+	  m_lastMidiEventParameter( H2Core::Midi::ParameterMinimum )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	m_bDirectWrite = bDirectWrite;
@@ -114,7 +115,7 @@ MidiSenseWidget::MidiSenseWidget(
 
 	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
 	pHydrogen->setLastMidiEvent( H2Core::MidiEvent::Type::Null );
-	pHydrogen->setLastMidiEventParameter( H2Core::MidiEvent::nNullParameter );
+	pHydrogen->setLastMidiEventParameter( H2Core::Midi::ParameterInvalid );
 
 	m_pUpdateTimer = new QTimer( this );
 
@@ -144,7 +145,7 @@ void MidiSenseWidget::updateMidi()
 	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
 	if ( pHydrogen->getLastMidiEvent() != H2Core::MidiEvent::Type::Null ) {
 		m_lastMidiEvent = pHydrogen->getLastMidiEvent();
-		m_nLastMidiEventParameter = pHydrogen->getLastMidiEventParameter();
+		m_lastMidiEventParameter = pHydrogen->getLastMidiEventParameter();
 
 		if ( m_bDirectWrite ) {
 			// write the Midiaction / parameter combination to the midiMap
@@ -157,7 +158,7 @@ void MidiSenseWidget::updateMidi()
 			pAction->setValue( "0" );
 
 			pMidiEventMap->registerEvent(
-				m_lastMidiEvent, m_nLastMidiEventParameter, pAction
+				m_lastMidiEvent, m_lastMidiEventParameter, pAction
 			);
 
 			H2Core::EventQueue::get_instance()->pushEvent(
@@ -179,7 +180,7 @@ void MidiSenseWidget::updateLabels()
 
 		// Bindings
 		QStringList bindings;
-		for ( const auto& [eevent, nnParam] :
+		for ( const auto& [eevent, pparam] :
 			  H2Core::Preferences::get_instance()
 				  ->getMidiEventMap()
 				  ->getRegisteredMidiEvents( m_pAction ) ) {
@@ -188,7 +189,7 @@ void MidiSenseWidget::updateLabels()
 				bindings << QString( "\t- %1 : %2" )
 								.arg( H2Core::MidiEvent::TypeToQString( eevent )
 								)
-								.arg( nnParam );
+								.arg( static_cast<int>( pparam ) );
 			}
 			else {
 				// PC and MMC_x do not have a parameter.
