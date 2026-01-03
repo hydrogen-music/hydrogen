@@ -156,6 +156,107 @@ class Note : public H2Core::Object<Note>
 	 static constexpr Octave OctaveMin = Octave::P8Z;
 	 static constexpr Octave OctaveMax = Octave::P8C;
 
+	 /** The pitch of a note represents the resulting (fundamental) frequency
+	  * with high pitches corrseponding to low frequencies and vice versa.
+	  *
+	  * Although drum samples are in general of indefinite pitch - the
+	  * resulting sound is not made up by a fundamental frequency and
+	  * harmonics for the most part but contains a large number of other
+	  * frequencies (overtones) - we do still use it in here to determine the
+	  * _relative_ pitch. Via resampling we can alter pitch of the underlying
+	  * samples and can make them sound higher or lower pitched.
+	  *
+	  * The pitch is centered around C4 (termed C2 within Hydrogen. Why we
+	  * start with -2 to count octaves is lost in history). Since pitch is
+	  * defined on a logarithmic scale, every semitone (on the western
+	  * chromatic scale used within the MIDI standard) does exactly equate to
+	  * a pitch difference of `1`. Thus, a difference of #Note::Key within
+	  * the same #Note::Octave is equivilant to the corresponding difference
+	  * in #Note::Pitch.
+	  *
+	  * In Hydrogen, the pitch of a note has various contribution (depending
+	  * on the context):
+	  *
+	  * - #Note::Key and #Note::Octave: set in #PianoRollEditor
+	  * - #Instrument::m_fPitchOffset: instrument-wide pitch offset
+	  * - #InstrumentLayer::m_fPitchOffset: pitch offset for the particular
+	  *     sample
+	  * - #Note::m_fRandomPitch: created as part of the humanization based on
+	  *     #Instrument::m_fRandomPitchFactor.
+	  *
+	  * The range of possible values is smaller than e.g. the allowed range
+	  * within the MIDI standard (TBH I do not see why. This design decision
+	  * is lost as well).
+	  *
+	  * The value itself if based on `float` since it allows use for a more
+	  * precise pitch control than semitones (`int`s). This is especially
+	  * important during humanization. `double`, on the other hand, is
+	  * already "too" precise since the human ear won't be able to tell those
+	  * fine differences apart and other software/technologies is not
+	  * designed to deal with it either. */
+	 class Pitch {
+		public:
+		 // Since we are declaring Pitch in here, we can not use it for
+		 // constexpr.
+		 static Pitch Invalid;
+		 static Pitch Minimum;
+		 static Pitch Default;
+		 static Pitch Maximum;
+
+		 // It would be more consistent with Note::Key, Note::Octave, Midi::Note
+		 // ... to have a Note::pitchFromFloat() static method. But then we
+		 // could not make the Pitch() constructor private (and our code more
+		 // secure) because we would have a chicken - egg situation with class
+		 // and friend method definition.
+		 static Pitch fromFloat( float fPitch )
+		 {
+			 if ( fPitch >= static_cast<float>( Pitch::Minimum ) &&
+				  fPitch <= static_cast<float>( Pitch::Maximum ) ) {
+				 return static_cast<Pitch>( fPitch );
+			 }
+			 else {
+				 return Pitch::Invalid;
+			 }
+		 }
+		 static Pitch fromFloatClamp( float fPitch )
+		 {
+			 return static_cast<Pitch>( std::clamp(
+				 fPitch, static_cast<float>( Pitch::Minimum ),
+				 static_cast<float>( Pitch::Maximum )
+			 ) );
+		 }
+
+		 operator double() const { return static_cast<double>( m_fValue ); };
+		 operator float() const { return m_fValue; };
+		 operator int() const { return static_cast<int>( m_fValue ); };
+
+		 Pitch operator=( const Pitch& other ) { return Pitch( m_fValue ); };
+		 bool operator==( const Pitch& other ) const
+		 {
+			 return m_fValue == other.m_fValue;
+		 };
+		 bool operator!=( const Pitch& other ) const
+		 {
+			 return m_fValue != other.m_fValue;
+		 };
+		 bool operator<( const Pitch& other ) const
+		 {
+			 return m_fValue < other.m_fValue;
+		 };
+		 bool operator>( const Pitch& other ) const
+		 {
+			 return m_fValue > other.m_fValue;
+		 };
+		 // No +/- operators to enfore bound checks.
+		 // Pitch operator+( const Pitch& other ) const
+		 // Pitch operator-( const Pitch& other ) const
+
+		private:
+		 constexpr explicit Pitch( float fValue ) : m_fValue( fValue ) {};
+
+		 float m_fValue;
+	 };
+
 	 /**
 	  * constructor
 	  *

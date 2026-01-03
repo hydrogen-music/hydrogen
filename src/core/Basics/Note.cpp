@@ -42,6 +42,19 @@
 namespace H2Core
 {
 
+Note::Pitch Note::Pitch::Default = Note::Pitch( 0 );
+Note::Pitch Note::Pitch::Invalid = Note::Pitch( 666 );
+Note::Pitch Note::Pitch::Maximum = Note::Pitch(
+	static_cast<float>( KEYS_PER_OCTAVE ) *
+		static_cast<float>( Note::OctaveMax ) +
+	static_cast<float>( Note::KeyMax )
+);
+Note::Pitch Note::Pitch::Minimum = Note::Pitch(
+	static_cast<float>( KEYS_PER_OCTAVE ) *
+		static_cast<float>( Note::OctaveMin ) +
+	static_cast<float>( Note::KeyMin )
+);
+
 
 SelectedLayerInfo::SelectedLayerInfo() : pLayer( nullptr )
 									   , fSamplePosition( 0.0 )

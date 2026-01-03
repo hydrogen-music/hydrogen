@@ -494,6 +494,23 @@ void NoteTest::testSerializeProbability() {
 	___INFOLOG( "passed" );
 }
 
+void NoteTest::testStrongTypedPitch()
+{
+	___INFOLOG( "" );
+
+	const Note::Pitch p1 = Note::Pitch::fromFloat( 10.0 );
+	const Note::Pitch p2 = Note::Pitch::fromFloat( 12.0 );
+	CPPUNIT_ASSERT( p1 != p2 );
+	CPPUNIT_ASSERT( p1 == Note::Pitch::fromFloat( 10.0 ) );
+	CPPUNIT_ASSERT( Note::Pitch::fromFloat( 12.3 ) > Note::Pitch::fromFloat( 10.0 ) );
+	CPPUNIT_ASSERT( Note::Pitch::fromFloat( 12.3 ) < Note::Pitch::fromFloat( 12.33 ) );
+	CPPUNIT_ASSERT(
+		static_cast<int>( 10.0 ) == static_cast<int>( Note::Pitch::fromFloat( 10.0 ) )
+	);
+
+	___INFOLOG( "passed" );
+}
+
 void NoteTest::testVirtualKeyboard()
 {
 	___INFOLOG( "" );
