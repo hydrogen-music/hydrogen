@@ -1426,12 +1426,14 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action )
 
         // Ensure to add distinct notes when clicking the KeyOctave view in the
         // ruler.
-		NotePropertiesRuler::yToKeyOctave( fYValue, &nKey, &nOctave );
-		if ( nKey == KEY_INVALID ) {
-            nKey = KEY_MIN;
-		}
-		if ( nOctave == OCTAVE_INVALID ) {
-            nOctave = OCTAVE_DEFAULT;
+		if ( m_property == Property::KeyOctave ) {
+			NotePropertiesRuler::yToKeyOctave( fYValue, &nKey, &nOctave );
+			if ( nKey == KEY_INVALID ) {
+				nKey = KEY_MIN;
+			}
+			if ( nOctave == OCTAVE_INVALID ) {
+				nOctave = OCTAVE_DEFAULT;
+			}
 		}
 	}
 
