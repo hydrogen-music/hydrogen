@@ -131,8 +131,8 @@ class Note : public H2Core::Object<Note> {
 	static Key keyFrom( Midi::Note note );
 
 	static constexpr Key KeyDefault = Key::C;
-	static constexpr Key KeyMin = Key::C;
-	static constexpr Key KeyMax = Key::B;
+	static constexpr Key KeyMinimum = Key::C;
+	static constexpr Key KeyMaximum = Key::B;
 
 	/** possible octaves */
 	enum class Octave {
@@ -151,8 +151,8 @@ class Note : public H2Core::Object<Note> {
 	static Octave octaveFrom( Midi::Note note );
 
 	static constexpr Octave OctaveDefault = Octave::P8;
-	static constexpr Octave OctaveMin = Octave::P8Z;
-	static constexpr Octave OctaveMax = Octave::P8C;
+	static constexpr Octave OctaveMinimum = Octave::P8Z;
+	static constexpr Octave OctaveMaximum = Octave::P8C;
 
 	/** The pitch of a note represents the resulting (fundamental) frequency
 	 * with high pitches corrseponding to low frequencies and vice versa.
@@ -581,13 +581,13 @@ class Note : public H2Core::Object<Note> {
 	static int lineToPitch( int nLine )
 	{
 		return KEYS_PER_OCTAVE *
-				   ( static_cast<int>( Note::OctaveMin ) + OCTAVE_NUMBER ) -
+				   ( static_cast<int>( Note::OctaveMinimum ) + OCTAVE_NUMBER ) -
 			   1 - nLine;
 	}
 	static int pitchToLine( int nPitch )
 	{
 		return KEYS_PER_OCTAVE *
-				   ( static_cast<int>( Note::OctaveMin ) + OCTAVE_NUMBER ) -
+				   ( static_cast<int>( Note::OctaveMinimum ) + OCTAVE_NUMBER ) -
 			   1 - nPitch;
 	}
 
@@ -612,7 +612,7 @@ class Note : public H2Core::Object<Note> {
 	float m_fVelocity;	///< velocity (intensity) of the note [0;1]
 	float m_fPan;		///< pan of the note, [-1;1] from
 						/// left to right, as requested by
-				   /// Sampler PanLaws
+						/// Sampler PanLaws
 	/** Length of the note in ticks.
 	 *
 	 * If set to -1, the Note will be rendered till the end of all

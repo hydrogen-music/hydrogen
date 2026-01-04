@@ -45,13 +45,13 @@ Note::Pitch Note::Pitch::Default = Note::Pitch( 0 );
 Note::Pitch Note::Pitch::Invalid = Note::Pitch( 666 );
 Note::Pitch Note::Pitch::Maximum = Note::Pitch(
 	static_cast<float>( KEYS_PER_OCTAVE ) *
-		static_cast<float>( Note::OctaveMax ) +
-	static_cast<float>( Note::KeyMax )
+		static_cast<float>( Note::OctaveMaximum ) +
+	static_cast<float>( Note::KeyMaximum )
 );
 Note::Pitch Note::Pitch::Minimum = Note::Pitch(
 	static_cast<float>( KEYS_PER_OCTAVE ) *
-		static_cast<float>( Note::OctaveMin ) +
-	static_cast<float>( Note::KeyMin )
+		static_cast<float>( Note::OctaveMinimum ) +
+	static_cast<float>( Note::KeyMinimum )
 );
 
 SelectedLayerInfo::SelectedLayerInfo()
@@ -663,8 +663,8 @@ std::shared_ptr<Note> Note::loadFrom( const XMLNode& node, bool bSilent )
 
 	const int nOctave = sOctave.toInt();
 	auto octave = Note::OctaveDefault;
-	if ( nOctave >= static_cast<int>( Note::OctaveMin ) &&
-		 nOctave <= static_cast<int>( Note::OctaveMax ) ) {
+	if ( nOctave >= static_cast<int>( Note::OctaveMinimum ) &&
+		 nOctave <= static_cast<int>( Note::OctaveMaximum ) ) {
 		octave = static_cast<Note::Octave>( nOctave );
 	}
 	else {
@@ -978,8 +978,8 @@ Note::Key Note::QStringToKey( const QString& sKey )
 
 Note::Key Note::keyFromInt( int nKey )
 {
-	if ( nKey >= static_cast<int>( KeyMin ) &&
-		 nKey <= static_cast<int>( KeyMax ) ) {
+	if ( nKey >= static_cast<int>( KeyMinimum ) &&
+		 nKey <= static_cast<int>( KeyMaximum ) ) {
 		return static_cast<Key>( nKey );
 	}
 	else {
@@ -990,7 +990,7 @@ Note::Key Note::keyFromInt( int nKey )
 Note::Key Note::keyFromIntClamp( int nKey )
 {
 	return static_cast<Key>( std::clamp(
-		nKey, static_cast<int>( KeyMin ), static_cast<int>( KeyMax )
+		nKey, static_cast<int>( KeyMinimum ), static_cast<int>( KeyMaximum )
 	) );
 }
 
@@ -1031,8 +1031,8 @@ QString Note::OctaveToQString( const Octave& octave )
 
 Note::Octave Note::octaveFromInt( int nOctave )
 {
-	if ( nOctave >= static_cast<int>( OctaveMin ) &&
-		 nOctave <= static_cast<int>( OctaveMax ) ) {
+	if ( nOctave >= static_cast<int>( OctaveMinimum ) &&
+		 nOctave <= static_cast<int>( OctaveMaximum ) ) {
 		return static_cast<Octave>( nOctave );
 	}
 	else {
@@ -1043,7 +1043,8 @@ Note::Octave Note::octaveFromInt( int nOctave )
 Note::Octave Note::octaveFromIntClamp( int nOctave )
 {
 	return static_cast<Octave>( std::clamp(
-		nOctave, static_cast<int>( OctaveMin ), static_cast<int>( OctaveMax )
+		nOctave, static_cast<int>( OctaveMinimum ),
+		static_cast<int>( OctaveMaximum )
 	) );
 }
 

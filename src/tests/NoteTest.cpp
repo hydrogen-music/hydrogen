@@ -396,17 +396,17 @@ void NoteTest::testPitchConversions()
 {
 	___INFOLOG( "" );
 
-	CPPUNIT_ASSERT( H2Core::Note::Key::C == Note::KeyMin );
-	CPPUNIT_ASSERT( H2Core::Note::Key::B == Note::KeyMax );
+	CPPUNIT_ASSERT( H2Core::Note::Key::C == Note::KeyMinimum );
+	CPPUNIT_ASSERT( H2Core::Note::Key::B == Note::KeyMaximum );
 	CPPUNIT_ASSERT(
 		KEYS_PER_OCTAVE ==
-		static_cast<int>( Note::KeyMax ) - static_cast<int>( Note::KeyMin ) + 1
+		static_cast<int>( Note::KeyMaximum ) - static_cast<int>( Note::KeyMinimum ) + 1
 	);
-	CPPUNIT_ASSERT( H2Core::Note::Octave::P8Z == H2Core::Note::OctaveMin );
-	CPPUNIT_ASSERT( H2Core::Note::Octave::P8C == H2Core::Note::OctaveMax );
+	CPPUNIT_ASSERT( H2Core::Note::Octave::P8Z == H2Core::Note::OctaveMinimum );
+	CPPUNIT_ASSERT( H2Core::Note::Octave::P8C == H2Core::Note::OctaveMaximum );
 	CPPUNIT_ASSERT(
-		OCTAVE_NUMBER == static_cast<int>( H2Core::Note::OctaveMax ) -
-							 static_cast<int>( H2Core::Note::OctaveMin ) + 1
+		OCTAVE_NUMBER == static_cast<int>( H2Core::Note::OctaveMaximum ) -
+							 static_cast<int>( H2Core::Note::OctaveMinimum ) + 1
 	);
 	CPPUNIT_ASSERT( H2Core::Note::Octave::P8 == H2Core::Note::OctaveDefault );
 
@@ -414,16 +414,16 @@ void NoteTest::testPitchConversions()
 		H2Core::Note::Octave::P8Z, H2Core::Note::Octave::P8Y,
 		H2Core::Note::Octave::P8X, H2Core::Note::Octave::P8,
 		H2Core::Note::Octave::P8A, H2Core::Note::Octave::P8B,
-		H2Core::Note::Octave::P8C, H2Core::Note::OctaveMin,
-		H2Core::Note::OctaveMax,   H2Core::Note::OctaveDefault
+		H2Core::Note::Octave::P8C, H2Core::Note::OctaveMinimum,
+		H2Core::Note::OctaveMaximum,   H2Core::Note::OctaveDefault
 	};
 
 	std::vector<H2Core::Note::Key> keys = {
 		H2Core::Note::Key::C,  H2Core::Note::Key::Cs, H2Core::Note::Key::D,
 		H2Core::Note::Key::Ef, H2Core::Note::Key::E,  H2Core::Note::Key::Fs,
 		H2Core::Note::Key::G,  H2Core::Note::Key::Af, H2Core::Note::Key::A,
-		H2Core::Note::Key::Bf, H2Core::Note::Key::B,  Note::KeyMin,
-		Note::KeyMax
+		H2Core::Note::Key::Bf, H2Core::Note::Key::B,  Note::KeyMinimum,
+		Note::KeyMaximum
 	};
 
 	auto pInstrument = std::make_shared<H2Core::Instrument>();

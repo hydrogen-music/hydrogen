@@ -544,9 +544,9 @@ GridPoint PatternEditor::movingGridOffset() const {
 
 void PatternEditor::setCursorPitch( int nCursorPitch ) {
 	const int nMinPitch =
-		Note::octaveKeyToPitch( Note::OctaveMin, Note::KeyMin );
+		Note::octaveKeyToPitch( Note::OctaveMinimum, Note::KeyMinimum );
 	const int nMaxPitch =
-		Note::octaveKeyToPitch( Note::OctaveMax, Note::KeyMax );
+		Note::octaveKeyToPitch( Note::OctaveMaximum, Note::KeyMaximum );
 
 	if ( nCursorPitch < nMinPitch ) {
 		nCursorPitch = nMinPitch;
@@ -1217,9 +1217,9 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 		else if ( m_instance == Editor::Instance::PianoRoll ) {
 			bNoteInRange = bNoteInRange &&
 						   static_cast<int>( newOctave ) >=
-							   static_cast<int>( Note::OctaveMin ) &&
+							   static_cast<int>( Note::OctaveMinimum ) &&
 						   static_cast<int>( newOctave ) <=
-							   static_cast<int>( Note::OctaveMax );
+							   static_cast<int>( Note::OctaveMaximum );
 		}
 
 		// Cache note properties since a potential first note deletion will also
@@ -1424,7 +1424,7 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action )
         // ruler.
 		NotePropertiesRuler::yToKeyOctave( fYValue, &key, &octave );
 		if ( key == Note::Key::Invalid ) {
-            key = Note::KeyMin;
+            key = Note::KeyMinimum;
 		}
 		if ( octave == Note::Octave::Invalid ) {
             octave = Note::OctaveDefault;
@@ -1785,10 +1785,10 @@ void PatternEditor::paste() {
 			if ( m_instance == Editor::Instance::PianoRoll ) {
 				const int nPitch = pNote->getPitchFromKeyOctave() + nDeltaPitch;
 				if ( nPitch < KEYS_PER_OCTAVE *
-								  static_cast<int>( Note::OctaveMin ) ||
+								  static_cast<int>( Note::OctaveMinimum ) ||
 					 nPitch >=
 						 KEYS_PER_OCTAVE *
-							 ( static_cast<int>( Note::OctaveMax ) + 1 ) ) {
+							 ( static_cast<int>( Note::OctaveMaximum ) + 1 ) ) {
 					continue;
 				}
 
@@ -2009,7 +2009,7 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 			pGridPoint->setColumn( notes[ 0 ]->getPosition() );
 			if ( m_instance == Editor::Instance::DrumPattern ) {
 				pGridPoint->setRow( m_pPatternEditorPanel->findRowDB( notes[ 0 ] ) );
-				*key = Note::KeyMin;
+				*key = Note::KeyMinimum;
 				*octave = Note::OctaveDefault;
 			}
 			else {
@@ -2022,7 +2022,7 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 			// Determine the point on the grid to toggle the note
 			*pGridPoint = pointToGridPoint( point, true );
 			if ( m_instance == Editor::Instance::DrumPattern ) {
-				*key = Note::KeyMin;
+				*key = Note::KeyMinimum;
 				*octave = Note::OctaveDefault;
 			}
 			else {

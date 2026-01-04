@@ -361,8 +361,8 @@ void NotePropertiesRuler::yToKeyOctave(
         // Since there are three "negative" octaves.
 		int nOctave = -1* ( nRow - 3 );
 		octave = static_cast<Note::Octave>( std::clamp(
-			nOctave, static_cast<int>( Note::OctaveMin ),
-			static_cast<int>( Note::OctaveMax )
+			nOctave, static_cast<int>( Note::OctaveMinimum ),
+			static_cast<int>( Note::OctaveMaximum )
 		) );
 	}
 	else if ( nY >= NotePropertiesRuler::nOctaveHeight &&
@@ -371,8 +371,8 @@ void NotePropertiesRuler::yToKeyOctave(
 				 NotePropertiesRuler::nKeyLineHeight / 2 ) /
 			   NotePropertiesRuler::nKeyLineHeight;
 		key = static_cast<Note::Key>( std::clamp(
-			nKey, static_cast<int>( Note::KeyMin ),
-			static_cast<int>( Note::KeyMax )
+			nKey, static_cast<int>( Note::KeyMinimum ),
+			static_cast<int>( Note::KeyMaximum )
 		) );
 	}
 
@@ -1108,13 +1108,13 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 			}
 			case PatternEditor::Property::KeyOctave: {
 				const int nPitch = qBound(
-					KEYS_PER_OCTAVE * static_cast<int>( Note::OctaveMin ),
+					KEYS_PER_OCTAVE * static_cast<int>( Note::OctaveMinimum ),
 					static_cast<int>(
 						pOldNote->getPitchFromKeyOctave() +
 						std::round( fDelta ) * ( bKey ? 1 : KEYS_PER_OCTAVE )
 					),
-					KEYS_PER_OCTAVE * static_cast<int>( Note::OctaveMax ) +
-						static_cast<int>( Note::KeyMax )
+					KEYS_PER_OCTAVE * static_cast<int>( Note::OctaveMaximum ) +
+						static_cast<int>( Note::KeyMaximum )
 				);
 				Note::Octave octave;
 				if ( nPitch >= 0 ) {
@@ -1601,10 +1601,10 @@ void NotePropertiesRuler::drawNote(
 					movingOffsetGridPoint.getRow()
 				);
 				if ( nNewPitch < KEYS_PER_OCTAVE *
-									 static_cast<int>( Note::OctaveMin ) ||
+									 static_cast<int>( Note::OctaveMinimum ) ||
 					 nNewPitch >=
 						 KEYS_PER_OCTAVE *
-							 ( static_cast<int>( Note::OctaveMax ) + 1 ) ) {
+							 ( static_cast<int>( Note::OctaveMaximum ) + 1 ) ) {
 					bDrawMoveSilhouettes = false;
 				}
 

@@ -68,7 +68,7 @@ void PatternTest::testPurgeInstrument()
 	pPattern->insertNote( pNote );
 	CPPUNIT_ASSERT(
 		pPattern->findNote(
-			1, pInstrument->getId(), pInstrument->getType(), Note::KeyMin,
+			1, pInstrument->getId(), pInstrument->getType(), Note::KeyMinimum,
 			Note::OctaveDefault
 		) != nullptr
 	);
@@ -80,7 +80,7 @@ void PatternTest::testPurgeInstrument()
 	pPattern->purgeInstrument( pInstrument );
 	CPPUNIT_ASSERT(
 		pPattern->findNote(
-			1, pInstrument->getId(), pInstrument->getType(), Note::KeyMin,
+			1, pInstrument->getId(), pInstrument->getType(), Note::KeyMinimum,
 			Note::OctaveDefault
 		) == nullptr
 	);
