@@ -1129,23 +1129,23 @@ void MidiActionTest::testPitchLevelAbsoluteAction()
 	CPPUNIT_ASSERT( pLayer != nullptr );
 
 	const float fOldValue = 0.92;
-	pLayer->setPitch( fOldValue );
+	pLayer->setPitchOffset( fOldValue );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter,
 		Midi::parameterFromInt( nPitchValue ), Midi::ChannelDefault
 	) );
-	CPPUNIT_ASSERT( pLayer->getPitch() != fOldValue );
+	CPPUNIT_ASSERT( pLayer->getPitchOffset() != fOldValue );
 
 	const float fRef = ( Instrument::fPitchMax - Instrument::fPitchMin ) *
 						   ( static_cast<float>( nPitchValue ) / 127.0 ) +
 					   Instrument::fPitchMin;
 
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
-					.arg( pLayer->getPitch() )
+					.arg( pLayer->getPitchOffset() )
 					.arg( fRef ) );
-	CPPUNIT_ASSERT( std::abs( pLayer->getPitch() - fRef ) <= 0.01 );
-	pLayer->setPitch( fOldValue );
+	CPPUNIT_ASSERT( std::abs( pLayer->getPitchOffset() - fRef ) <= 0.01 );
+	pLayer->setPitchOffset( fOldValue );
 
 	___INFOLOG( "done" );
 }

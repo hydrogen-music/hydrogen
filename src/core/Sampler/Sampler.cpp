@@ -741,7 +741,7 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		}
 
 		const float fLayerGain = pLayer->getGain();
-		const float fLayerPitch = pLayer->getPitch();
+		const float fLayerPitch = pLayer->getPitchOffset();
 
 		if ( pSelectedLayerInfo->fSamplePosition >= pSample->getFrames() ) {
 			// Due to rounding errors in renderNoteResample() the
