@@ -450,7 +450,7 @@ void NoteTest::testPitchConversions()
 void NoteTest::testProbability() {
 	___INFOLOG( "" );
 
-	auto pNote = std::make_shared<Note>( nullptr, 0, 1.0f, 0.f, 1, 1.0f );
+	auto pNote = std::make_shared<Note>( nullptr, 0, 1.0f, 0.f, 1 );
 	pNote->setProbability(0.75f);
 	CPPUNIT_ASSERT_EQUAL(0.75f, pNote->getProbability());
 
@@ -474,7 +474,7 @@ void NoteTest::testSerializeProbability() {
 	pInstruments->add( pSnare );
 	pDrumkit->setInstruments( pInstruments );
 
-	auto pNoteIn = std::make_shared<Note>( pSnare, 0, 1.0f, 0.5f, 1, 1.0f );
+	auto pNoteIn = std::make_shared<Note>( pSnare, 0, 1.0f, 0.5f, 1 );
 	pNoteIn->setProbability( 0.67f );
 	pNoteIn->saveTo( node );
 
@@ -488,7 +488,6 @@ void NoteTest::testSerializeProbability() {
 	CPPUNIT_ASSERT_EQUAL( pNoteIn->getVelocity(), pNoteOut->getVelocity() );
 	CPPUNIT_ASSERT_EQUAL( pNoteIn->getPan(), pNoteOut->getPan() );
 	CPPUNIT_ASSERT_EQUAL( pNoteIn->getLength(), pNoteOut->getLength() );
-	CPPUNIT_ASSERT_EQUAL( pNoteIn->getPitch(), pNoteOut->getPitch() );
 	CPPUNIT_ASSERT_EQUAL( pNoteIn->getProbability(), pNoteOut->getProbability() );
 
 	___INFOLOG( "passed" );

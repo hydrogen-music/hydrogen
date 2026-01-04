@@ -1446,7 +1446,7 @@ void AudioEngineTests::testHumanization() {
 				deviationsVelocity[ ii ] =
 					pNoteReference->getVelocity() - pNoteHumanized->getVelocity();
 				deviationsPitch[ ii ] =
-					pNoteReference->getPitch() - pNoteHumanized->getPitch();
+					pNoteReference->getTotalPitch() - pNoteHumanized->getTotalPitch();
 				deviationsTiming[ ii ] =
 					pNoteReference->getNoteStart() - pNoteHumanized->getNoteStart();
 			} else {

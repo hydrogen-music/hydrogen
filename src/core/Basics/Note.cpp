@@ -104,15 +104,13 @@ Note::Note(
 	int nPosition,
 	float fVelocity,
 	float fPan,
-	int nLength,
-	float fPitch
+	int nLength
 )
 	: m_instrumentId( Instrument::EmptyId ),
 	  m_sType( "" ),
 	  m_nPosition( nPosition ),
 	  m_fVelocity( fVelocity ),
 	  m_nLength( nLength ),
-	  m_fPitch( fPitch ),
 	  m_key( Note::KeyDefault ),
 	  m_octave( Note::OctaveDefault ),
 	  m_pAdsr( nullptr ),
@@ -126,6 +124,7 @@ Note::Note(
 	  m_fProbability( PROBABILITY_DEFAULT ),
 	  m_nNoteStart( 0 ),
 	  m_fUsedTickSize( std::nan( "" ) ),
+	  m_fPitchHumanization( 0 ),
 	  m_pInstrument( pInstrument )
 {
 	if ( pInstrument != nullptr ) {
@@ -144,7 +143,6 @@ Note::Note( std::shared_ptr<Note> pOther )
 	  m_fVelocity( pOther->getVelocity() ),
 	  m_fPan( pOther->getPan() ),
 	  m_nLength( pOther->getLength() ),
-	  m_fPitch( pOther->getPitch() ),
 	  m_key( pOther->getKey() ),
 	  m_octave( pOther->getOctave() ),
 	  m_pAdsr( nullptr ),
@@ -158,6 +156,7 @@ Note::Note( std::shared_ptr<Note> pOther )
 	  m_fProbability( pOther->getProbability() ),
 	  m_nNoteStart( pOther->getNoteStart() ),
 	  m_fUsedTickSize( pOther->getUsedTickSize() ),
+	  m_fPitchHumanization( pOther->m_fPitchHumanization ),
 	  m_pInstrument( pOther->getInstrument() )
 {
 	if ( m_pInstrument != nullptr ) {
@@ -524,13 +523,13 @@ void Note::mapToInstrument( std::shared_ptr<Instrument> pInstrument )
 
 float Note::getTotalPitch() const
 {
-	float fNotePitch = static_cast<int>( m_octave ) * KEYS_PER_OCTAVE +
-					   static_cast<int>( m_key ) + m_fPitch;
+	float fPitch = static_cast<int>( m_octave ) * KEYS_PER_OCTAVE +
+				   static_cast<int>( m_key ) + m_fPitchHumanization;
 
 	if ( m_pInstrument != nullptr ) {
-		fNotePitch += m_pInstrument->getPitchOffset();
+		fPitch += m_pInstrument->getPitchOffset();
 	}
-	return fNotePitch;
+	return fPitch;
 }
 
 void Note::humanize()
@@ -562,8 +561,9 @@ void Note::humanize()
 	if ( m_pInstrument != nullptr ) {
 		const float fRandomPitchFactor = m_pInstrument->getRandomPitchFactor();
 		if ( fRandomPitchFactor != 0 ) {
-			m_fPitch += Random::getGaussian( AudioEngine::fHumanizePitchSD ) *
-						fRandomPitchFactor;
+			m_fPitchHumanization =
+				Random::getGaussian( AudioEngine::fHumanizePitchSD ) *
+				fRandomPitchFactor;
 		}
 	}
 }
@@ -596,7 +596,6 @@ void Note::saveTo( XMLNode& node ) const
 	node.write_float( "leadlag", m_fLeadLag );
 	node.write_float( "velocity", m_fVelocity );
 	node.write_float( "pan", m_fPan );
-	node.write_float( "pitch", m_fPitch );
 	node.write_string(
 		"key", QString( "%1%2" )
 				   .arg( Note::KeyToQString( m_key ) )
@@ -646,8 +645,12 @@ std::shared_ptr<Note> Note::loadFrom( const XMLNode& node, bool bSilent )
 	pNote->setLength(
 		node.read_int( "length", pNote->getLength(), true, false, bSilent )
 	);
-	pNote->m_fPitch =
-		node.read_float( "pitch", pNote->getPitch(), false, false, bSilent );
+    // Former versions of Hydrogen did (probably) use this element to encode a
+    // pitch value specific to this very note. Since a while this done using
+    // "key" and "octave" instead. But in order to remain backward compatible,
+    // we add this pitch value as well.
+	const auto fPitch =
+		node.read_float( "pitch", pNote->m_fPitchHumanization, true, false, bSilent );
 	pNote->setLeadLag(
 		node.read_float( "leadlag", pNote->getLeadLag(), false, false, bSilent )
 	);
@@ -674,6 +677,14 @@ std::shared_ptr<Note> Note::loadFrom( const XMLNode& node, bool bSilent )
 	if ( key == Key::Invalid ) {
 		ERRORLOG( QString( "Invalid key [%1]" ).arg( sKey ) );
 		key = Note::KeyDefault;
+	}
+	if ( fPitch != 0 ) {
+        // Assign the sum of the pitch offset and the key/octave combination.
+		const auto totalPitch = Pitch::fromFloatClamp(
+			fPitch + static_cast<float>( Pitch::fromKeyOctave( key, octave ) )
+		);
+		key = totalPitch.toKey();
+        octave = totalPitch.toOctave();
 	}
 	pNote->setKeyOctave( key, octave );
 	pNote->setNoteOff(
@@ -741,10 +752,6 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const
 								   .arg( sPrefix )
 								   .arg( s )
 								   .arg( m_nLength ) )
-					  .append( QString( "%1%2m_fPitch: %3\n" )
-								   .arg( sPrefix )
-								   .arg( s )
-								   .arg( m_fPitch ) )
 					  .append( QString( "%1%2m_key: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
@@ -804,6 +811,10 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( sPrefix )
 						 .arg( s )
 						 .arg( m_fUsedTickSize ) )
+			.append( QString( "%1%2m_fPitchHumanization: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_fPitchHumanization ) )
 			.append( QString( "%1%2m_selectedLayerInfoMap:\n" )
 						 .arg( sPrefix )
 						 .arg( s ) );
@@ -845,7 +856,6 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const
 				.append( QString( ", m_fVelocity: %1" ).arg( m_fVelocity ) )
 				.append( QString( ", m_fPan: %1" ).arg( m_fPan ) )
 				.append( QString( ", m_nLength: %1" ).arg( m_nLength ) )
-				.append( QString( ", m_fPitch: %1" ).arg( m_fPitch ) )
 				.append( QString( ", m_key: %1" ).arg( KeyToQString( m_key ) ) )
 				.append( QString( ", m_octave: %1" )
 							 .arg( OctaveToQString( m_octave ) ) );
@@ -869,6 +879,8 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const
 			.append( QString( ", m_fProbability: %1" ).arg( m_fProbability ) )
 			.append( QString( ", m_nNoteStart: %1" ).arg( m_nNoteStart ) )
 			.append( QString( ", m_fUsedTickSize: %1" ).arg( m_fUsedTickSize ) )
+			.append( QString( ", m_fPitchHumanization: %1" )
+						 .arg( m_fPitchHumanization ) )
 			.append( QString( ", m_selectedLayerInfoMap: [" ) );
 		QStringList selectedLayerInfos;
 		for ( const auto& [ppComponent, ppSelectedLayerInfo] :

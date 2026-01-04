@@ -2646,7 +2646,6 @@ p, li { white-space: pre-wrap; }
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
      <pan>0</pan>
-     <pitch>0</pitch>
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
@@ -2659,7 +2658,6 @@ p, li { white-space: pre-wrap; }
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
      <pan>0</pan>
-     <pitch>0</pitch>
      <key>C0</key>
      <length>-1</length>
      <instrument>20</instrument>
@@ -2672,7 +2670,6 @@ p, li { white-space: pre-wrap; }
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
      <pan>0</pan>
-     <pitch>0</pitch>
      <key>C0</key>
      <length>-1</length>
      <instrument>18</instrument>
@@ -2685,7 +2682,6 @@ p, li { white-space: pre-wrap; }
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
      <pan>0</pan>
-     <pitch>0</pitch>
      <key>C0</key>
      <length>-1</length>
      <instrument>19</instrument>
@@ -2698,7 +2694,6 @@ p, li { white-space: pre-wrap; }
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
      <pan>0</pan>
-     <pitch>0</pitch>
      <key>C0</key>
      <length>-1</length>
      <instrument>2</instrument>
@@ -2711,7 +2706,6 @@ p, li { white-space: pre-wrap; }
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
      <pan>0</pan>
-     <pitch>0</pitch>
      <key>C0</key>
      <length>-1</length>
      <instrument>5</instrument>
@@ -2724,7 +2718,6 @@ p, li { white-space: pre-wrap; }
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
      <pan>0</pan>
-     <pitch>0</pitch>
      <key>C0</key>
      <length>-1</length>
      <instrument>7</instrument>

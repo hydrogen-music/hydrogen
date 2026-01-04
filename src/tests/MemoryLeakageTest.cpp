@@ -140,7 +140,7 @@ void MemoryLeakageTest::testConstructors()
 			static_cast<H2Core::Instrument::Id>( 0 ), "ladida", pADSR
 		);
 		auto pNote =
-			std::make_shared<H2Core::Note>( pInstrument, 0, 0.f, 0.f, 1, 1.f );
+			std::make_shared<H2Core::Note>( pInstrument, 0, 0.f, 0.f, 1 );
 		auto pNote2 = std::make_shared<H2Core::Note>( pNote );
 		pNote = nullptr;
 		pNote2 = nullptr;

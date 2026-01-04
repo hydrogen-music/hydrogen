@@ -223,6 +223,32 @@ class Note : public H2Core::Object<Note> {
 				static_cast<float>( Pitch::Maximum )
 			) );
 		}
+		static Pitch fromKeyOctave( Key key, Octave octave )
+		{
+			return fromFloatClamp(
+				static_cast<float>( KEYS_PER_OCTAVE ) *
+					static_cast<float>( octave ) +
+				static_cast<float>( key )
+			);
+		}
+
+		Octave toOctave() const
+		{
+			if ( m_fValue >= 0 ) {
+				return Note::octaveFromIntClamp( m_fValue / KEYS_PER_OCTAVE );
+			}
+			else {
+				return Note::octaveFromIntClamp(
+					( m_fValue - 11 ) / KEYS_PER_OCTAVE
+				);
+			}
+		};
+		Key toKey() const
+		{
+			return Note::keyFromIntClamp(
+				m_fValue - KEYS_PER_OCTAVE * static_cast<int>( toOctave() )
+			);
+		}
 
 		operator double() const { return static_cast<double>( m_fValue ); };
 		operator float() const { return m_fValue; };
@@ -265,15 +291,13 @@ class Note : public H2Core::Object<Note> {
 	 * \param nLength Length of the note in frames. If set to -1,
 	 * the length of the #H2Core::Sample used during playback will
 	 * be used instead.
-	 * \param fPitch it's pitch
 	 */
 	Note(
 		std::shared_ptr<Instrument> pInstrument = nullptr,
 		int nPosition = 0,
 		float fVelocity = VELOCITY_DEFAULT,
 		float fPan = PAN_DEFAULT,
-		int nLength = LENGTH_ENTIRE_SAMPLE,
-		float fPitch = PITCH_DEFAULT
+		int nLength = LENGTH_ENTIRE_SAMPLE
 	);
 
 	Note( std::shared_ptr<Note> pOther );
@@ -350,8 +374,6 @@ class Note : public H2Core::Object<Note> {
 	void setLength( int value );
 	/** #m_nLength accessor */
 	int getLength() const;
-	/** #m_fPitch accessor */
-	float getPitch() const;
 	/**
 	 * #m_bNoteOff setter
 	 * \param value the new value
@@ -517,7 +539,7 @@ class Note : public H2Core::Object<Note> {
 	void computeNoteStart();
 
 	/**
-	 * Add random contributions to #m_fPitch, #m_nHumanizeDelay, and
+	 * Add random contributions to #m_fPitchHumanization, #m_nHumanizeDelay, and
 	 * #m_fVelocity.
 	 */
 	void humanize();
@@ -619,7 +641,6 @@ class Note : public H2Core::Object<Note> {
 	 * contained Samples is reached.
 	 */
 	int m_nLength;
-	float m_fPitch;					///< the frequency of the note
 	Key m_key;						///< the key, [0;11]==[C;B]
 	Octave m_octave;				///< the octave [-3;3]
 	std::shared_ptr<ADSR> m_pAdsr;	///< attack decay sustain release
@@ -663,6 +684,12 @@ class Note : public H2Core::Object<Note> {
 	 * during processing and not written to disk.
 	 */
 	float m_fUsedTickSize;
+
+	/** Transient property caching the pitch humanization. Uses the same scale
+	 * as #Note::Pitch.
+	 *
+	 * Not written to disk. */
+	float m_fPitchHumanization;
 
 	std::map<
 		std::shared_ptr<InstrumentComponent>,
@@ -739,11 +766,6 @@ inline void Note::setLength( int value )
 inline int Note::getLength() const
 {
 	return m_nLength;
-}
-
-inline float Note::getPitch() const
-{
-	return m_fPitch;
 }
 
 inline void Note::setNoteOff( bool value )

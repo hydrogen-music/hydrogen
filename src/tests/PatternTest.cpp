@@ -62,7 +62,7 @@ void PatternTest::testPurgeInstrument()
 {
 	___INFOLOG( "" );
 	auto pInstrument = std::make_shared<Instrument>();
-	auto pNote = std::make_shared<Note>( pInstrument, 1, 1.0, 0.f, 1, 1.0 );
+	auto pNote = std::make_shared<Note>( pInstrument, 1, 1.0, 0.f, 1 );
 
 	auto pPattern = std::make_shared<Pattern>();
 	pPattern->insertNote( pNote );

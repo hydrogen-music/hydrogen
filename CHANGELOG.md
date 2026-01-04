@@ -256,6 +256,7 @@ All notable changes to this project will be documented in this file.
 - `LASH` support has been dropped (#1649).
 - `cmake` option `MAX_NOTES`, `MAX_COMPONENTS`, and `MAX_INSTRUMENTS` have been
   dropped. Instead, an arbitrary number of components and instruments is allowed.
+- Property `<pitch>` of `<note>` in `.h2pattern` file was dropped.
 
 ## [1.2.7] - XXXX-XX-XX
 
