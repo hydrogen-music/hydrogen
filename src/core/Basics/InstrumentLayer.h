@@ -177,8 +177,11 @@ namespace H2Core
 		void setSample( std::shared_ptr<Sample> sample );
 
 		float m_fGain;               ///< ratio between the input sample and the output signal, 1.0 by default
-		float m_fPitchOffset;              ///< the frequency of the sample, 0.0 by default which means output pitch is the same as input pitch
-		float m_fStartVelocity;     ///< the start velocity of the sample, 0.0 by default
+		/** Additional pitch offset applied to all notes using the sample of
+		 * this layer. It is of the same scale as #Note::Pitch. */
+		float m_fPitchOffset;
+		float m_fStartVelocity;	 ///< the start velocity of the sample, 0.0 by
+								 ///< default
 		float m_fEndVelocity;       ///< the end velocity of the sample, 1.0 by default
 		bool				m_bIsMuted;
 		bool				m_bIsSoloed;

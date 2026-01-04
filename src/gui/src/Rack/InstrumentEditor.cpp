@@ -184,8 +184,8 @@ font-size: 21px;" );
 	
 	m_pPitchCoarseRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Center, tr( "Pitch offset (Coarse)" ),
-		true, Instrument::fPitchMin + InstrumentEditor::nPitchFineControl,
-		Instrument::fPitchMax - InstrumentEditor::nPitchFineControl );
+		true, Instrument::fPitchOffsetMinimum + InstrumentEditor::nPitchFineControl,
+		Instrument::fPitchOffsetMaximum - InstrumentEditor::nPitchFineControl );
 	m_pPitchCoarseRotary->move( 94, 210 );
 	connect( m_pPitchCoarseRotary, &Rotary::valueChanged, [&]() {
 		//round fVal, since Coarse is the integer number of half steps

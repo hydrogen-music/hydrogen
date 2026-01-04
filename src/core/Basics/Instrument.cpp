@@ -668,13 +668,13 @@ void Instrument::dequeue( std::shared_ptr<Note> pNote )
 
 void Instrument::setPitchOffset( float fValue )
 {
-	if ( fValue < fPitchMin || fValue > fPitchMax ) {
+	if ( fValue < fPitchOffsetMinimum || fValue > fPitchOffsetMaximum ) {
 		WARNINGLOG( QString( "Provided pitch out of bound [%1;%2]. Rounding to "
 							 "nearest allowed value." )
-						.arg( fPitchMin )
-						.arg( fPitchMax ) );
+						.arg( fPitchOffsetMinimum )
+						.arg( fPitchOffsetMaximum ) );
 	}
-	m_fPitchOffset = std::clamp( fValue, fPitchMin, fPitchMax );
+	m_fPitchOffset = std::clamp( fValue, fPitchOffsetMinimum, fPitchOffsetMaximum );
 }
 
 void Instrument::setPanWithRangeFrom0To1( float fVal )

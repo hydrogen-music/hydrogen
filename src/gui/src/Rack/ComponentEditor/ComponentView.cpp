@@ -554,8 +554,8 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pLayerPitchCoarseRotary = new Rotary(
 		pLayerPropCoarseWidget, Rotary::Type::Center,
 		tr( "Layer pitch (Coarse)" ), true,
-		Instrument::fPitchMin + InstrumentEditor::nPitchFineControl,
-		Instrument::fPitchMax - InstrumentEditor::nPitchFineControl
+		Instrument::fPitchOffsetMinimum + InstrumentEditor::nPitchFineControl,
+		Instrument::fPitchOffsetMaximum - InstrumentEditor::nPitchFineControl
 	);
 	connect( m_pLayerPitchCoarseRotary, &Rotary::valueChanged, [&]() {
 		const float fNewPitch = round( m_pLayerPitchCoarseRotary->getValue() ) +
@@ -878,7 +878,7 @@ void ComponentView::updateView() {
 				if ( ( m_pLayerPitchFineRotary->getValue() == 50 &&
 					   pLayer->getPitchOffset() -
 					   trunc( pLayer->getPitchOffset() ) == 0.5  ) ||
-					 pLayer->getPitchOffset() == Instrument::fPitchMax ) {
+					 pLayer->getPitchOffset() == Instrument::fPitchOffsetMaximum ) {
 					fCoarseLayerPitch = trunc( pLayer->getPitchOffset() );
 				}
 				else if ( m_pLayerPitchFineRotary->getValue() == -50 &&

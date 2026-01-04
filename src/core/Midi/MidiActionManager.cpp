@@ -1074,10 +1074,10 @@ bool MidiActionManager::pitchLevelAbsolute( std::shared_ptr<MidiAction> pAction 
 	
 	if ( pitch_param != 0 ) {
 		pLayer->setPitchOffset(
-			( Instrument::fPitchMax - Instrument::fPitchMin ) *
-			( (float) (pitch_param / static_cast<float>( Midi::ParameterMaximum ) ) ) + Instrument::fPitchMin );
+			( Instrument::fPitchOffsetMaximum - Instrument::fPitchOffsetMinimum ) *
+			( (float) (pitch_param / static_cast<float>( Midi::ParameterMaximum ) ) ) + Instrument::fPitchOffsetMinimum );
 	} else {
-		pLayer->setPitchOffset( Instrument::fPitchMin );
+		pLayer->setPitchOffset( Instrument::fPitchOffsetMinimum );
 	}
 	
 	pHydrogen->setSelectedInstrumentNumber( nLine );
@@ -1093,10 +1093,10 @@ bool MidiActionManager::instrumentPitch( std::shared_ptr<MidiAction> pAction ) {
 	const int nInstrument = pAction->getParameter1().toInt(&ok,10);
 	const int nPitchMidi = pAction->getValue().toInt(&ok,10);
 	if ( nPitchMidi != 0 ) {
-		fPitch = ( Instrument::fPitchMax - Instrument::fPitchMin ) *
-			( (float) (nPitchMidi / static_cast<float>( Midi::ParameterMaximum ) ) ) + Instrument::fPitchMin;
+		fPitch = ( Instrument::fPitchOffsetMaximum - Instrument::fPitchOffsetMinimum ) *
+			( (float) (nPitchMidi / static_cast<float>( Midi::ParameterMaximum ) ) ) + Instrument::fPitchOffsetMinimum;
 	} else {
-		fPitch = Instrument::fPitchMin;
+		fPitch = Instrument::fPitchOffsetMinimum;
 	}
 
 	return CoreActionController::setInstrumentPitch( nInstrument, fPitch );

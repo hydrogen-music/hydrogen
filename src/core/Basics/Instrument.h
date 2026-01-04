@@ -50,9 +50,9 @@ class Instrument : public H2Core::Object<Instrument> {
 	H2_OBJECT( Instrument )
    public:
 	/** Maximum support pitch value */
-	static constexpr float fPitchMax = 24.5;
+	static constexpr float fPitchOffsetMaximum = 24.5;
 	/** Minimum support pitch value */
-	static constexpr float fPitchMin = -24.5;
+	static constexpr float fPitchOffsetMinimum = -24.5;
 
 	/** Strong type definition to ensure we do not mix up instrument ID and
 	 * instrument index (within the instrument list) when looking up and
@@ -395,14 +395,17 @@ class Instrument : public H2Core::Object<Instrument> {
 	bool m_bFilterActive;			///< is filter active?
 	float m_fFilterCutoff;			///< filter cutoff (0..1)
 	float m_fFilterResonance;		///< filter resonant frequency (0..1)
-									/**
-									 * Factor to scale the random contribution when humanizing pitch
-									 * between 0 and #AudioEngine::fHumanizePitchSD.
-									 *
-									 * Supported range [0,1].
-									 */
+
+	/**
+	 * Factor to scale the random contribution when humanizing pitch
+	 * between 0 and #AudioEngine::fHumanizePitchSD.
+	 *
+	 * Supported range [0,1].
+	 */
 	float m_fRandomPitchFactor;
-	float m_fPitchOffset;	///< instrument main pitch offset
+	/** Additional pitch offset applied to all notes using the sample of
+	 * this layer. It is of the same scale as #Note::Pitch. */
+	float m_fPitchOffset;
 	Midi::Note m_midiOutNote;
 	Midi::Channel m_midiOutChannel;
 	bool m_bStopNotes;		///< will the note automatically generate a note off

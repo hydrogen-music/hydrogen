@@ -677,9 +677,9 @@ void MidiActionTest::testInstrumentPitchAction()
 		Midi::parameterFromInt( nPitchValue ), Midi::ChannelDefault
 	) );
 	CPPUNIT_ASSERT( pInstrument->getPitchOffset() != fOldValue );
-	const float fRef = ( Instrument::fPitchMax - Instrument::fPitchMin ) *
+	const float fRef = ( Instrument::fPitchOffsetMaximum - Instrument::fPitchOffsetMinimum ) *
 						   ( static_cast<float>( nPitchValue ) / 127.0 ) +
-					   Instrument::fPitchMin;
+					   Instrument::fPitchOffsetMinimum;
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
 					.arg( pInstrument->getPitchOffset() )
 					.arg( fRef ) );
@@ -1137,9 +1137,9 @@ void MidiActionTest::testPitchLevelAbsoluteAction()
 	) );
 	CPPUNIT_ASSERT( pLayer->getPitchOffset() != fOldValue );
 
-	const float fRef = ( Instrument::fPitchMax - Instrument::fPitchMin ) *
+	const float fRef = ( Instrument::fPitchOffsetMaximum - Instrument::fPitchOffsetMinimum ) *
 						   ( static_cast<float>( nPitchValue ) / 127.0 ) +
-					   Instrument::fPitchMin;
+					   Instrument::fPitchOffsetMinimum;
 
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
 					.arg( pLayer->getPitchOffset() )

@@ -93,11 +93,11 @@ void InstrumentLayer::setSample( std::shared_ptr<Sample> pSample )
 
 void InstrumentLayer::setPitchOffset( float fValue )
 {
-	if ( fValue < Instrument::fPitchMin || fValue > Instrument::fPitchMax ) {
+	if ( fValue < Instrument::fPitchOffsetMinimum || fValue > Instrument::fPitchOffsetMaximum ) {
 		WARNINGLOG( QString( "Provided pitch out of bound [%1;%2]. Rounding to nearest allowed value." )
-					.arg( Instrument::fPitchMin ).arg( Instrument::fPitchMax ) );
+					.arg( Instrument::fPitchOffsetMinimum ).arg( Instrument::fPitchOffsetMaximum ) );
 	}
-	m_fPitchOffset = std::clamp( fValue, Instrument::fPitchMin, Instrument::fPitchMax );
+	m_fPitchOffset = std::clamp( fValue, Instrument::fPitchOffsetMinimum, Instrument::fPitchOffsetMaximum );
 }
 
 void InstrumentLayer::loadSample( float fBpm )
