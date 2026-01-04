@@ -428,7 +428,7 @@ for:
       export MACOSX_DEPLOYMENT_TARGET=10.12
       sudo ln -s /usr/local /opt/local;
 
-      cache_tag=usr_local_1 # this can be modified to rebuild deps
+      cache_tag=brew_libsndfile_2 # this can be modified to rebuild deps
 
       cdir=$HOME/cache_dir
       cache_tar=$cdir/$cache_tag.tar
@@ -452,6 +452,7 @@ for:
         python3 ./treestate.py scan /usr/local usrlocal.json
 
         brew update
+        brew upgrade
         # Build our own versions of these for macOS 10.12 target systems.
         brew install --build-from-source ./macos/HomebrewFormulae/berkeley-db.rb
         brew install --build-from-source ./macos/HomebrewFormulae/libogg.rb
