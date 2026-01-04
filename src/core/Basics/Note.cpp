@@ -39,8 +39,7 @@
 #include <core/Hydrogen.h>
 #include <core/Sampler/Sampler.h>
 
-namespace H2Core
-{
+namespace H2Core {
 
 Note::Pitch Note::Pitch::Default = Note::Pitch( 0 );
 Note::Pitch Note::Pitch::Invalid = Note::Pitch( 666 );
@@ -55,41 +54,59 @@ Note::Pitch Note::Pitch::Minimum = Note::Pitch(
 	static_cast<float>( Note::KeyMin )
 );
 
-
-SelectedLayerInfo::SelectedLayerInfo() : pLayer( nullptr )
-									   , fSamplePosition( 0.0 )
-									   , nNoteLength( LENGTH_ENTIRE_SAMPLE ) {
+SelectedLayerInfo::SelectedLayerInfo()
+	: pLayer( nullptr ),
+	  fSamplePosition( 0.0 ),
+	  nNoteLength( LENGTH_ENTIRE_SAMPLE )
+{
 }
-SelectedLayerInfo::~SelectedLayerInfo() {}
+SelectedLayerInfo::~SelectedLayerInfo()
+{
+}
 
-QString SelectedLayerInfo::toQString( const QString& sPrefix, bool bShort ) const {
+QString SelectedLayerInfo::toQString( const QString& sPrefix, bool bShort )
+	const
+{
 	QString s = Base::sPrintIndention;
 	QString sOutput;
-	if ( ! bShort ) {
-		sOutput = QString( "%1[SelectedLayerInfo]\n" ).arg( sPrefix )
-			.append( QString( "%1%2pLayer: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( pLayer->toQString( "", bShort ) ) )
-			.append( QString( "%1%2fSamplePosition: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( fSamplePosition ) )
-			.append( QString( "%1%2nNoteLength: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( nNoteLength ) );
+	if ( !bShort ) {
+		sOutput = QString( "%1[SelectedLayerInfo]\n" )
+					  .arg( sPrefix )
+					  .append( QString( "%1%2pLayer: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( pLayer->toQString( "", bShort ) ) )
+					  .append( QString( "%1%2fSamplePosition: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( fSamplePosition ) )
+					  .append( QString( "%1%2nNoteLength: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( nNoteLength ) );
 	}
 	else {
-		sOutput = QString( "[SelectedLayerInfo] " )
-			.append( QString( "pLayer: %1" )
-					 .arg( pLayer->toQString( "", bShort ) ) )
-			.append( QString( ", fSamplePosition: %1" )
-					 .arg( fSamplePosition ) )
-			.append( QString( ", nNoteLength: %1" )
-					 .arg( nNoteLength ) );
+		sOutput =
+			QString( "[SelectedLayerInfo] " )
+				.append( QString( "pLayer: %1" )
+							 .arg( pLayer->toQString( "", bShort ) ) )
+				.append(
+					QString( ", fSamplePosition: %1" ).arg( fSamplePosition )
+				)
+				.append( QString( ", nNoteLength: %1" ).arg( nNoteLength ) );
 	}
 
 	return sOutput;
 }
 
-
-Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition,
-			float fVelocity, float fPan, int nLength, float fPitch )
+Note::Note(
+	std::shared_ptr<Instrument> pInstrument,
+	int nPosition,
+	float fVelocity,
+	float fPan,
+	int nLength,
+	float fPitch
+)
 	: m_instrumentId( Instrument::EmptyId ),
 	  m_sType( "" ),
 	  m_nPosition( nPosition ),
@@ -108,7 +125,7 @@ Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition,
 	  m_bNoteOff( false ),
 	  m_fProbability( PROBABILITY_DEFAULT ),
 	  m_nNoteStart( 0 ),
-	  m_fUsedTickSize( std::nan("") ),
+	  m_fUsedTickSize( std::nan( "" ) ),
 	  m_pInstrument( pInstrument )
 {
 	if ( pInstrument != nullptr ) {
@@ -117,7 +134,7 @@ Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition,
 		m_sType = pInstrument->getType();
 	}
 
-	setPan( fPan ); // this checks the boundaries
+	setPan( fPan );	 // this checks the boundaries
 }
 
 Note::Note( std::shared_ptr<Note> pOther )
@@ -147,14 +164,15 @@ Note::Note( std::shared_ptr<Note> pOther )
 		m_pAdsr = m_pInstrument->copyAdsr();
 		m_instrumentId = m_pInstrument->getId();
 
-		for ( const auto& [ ppOtherComponent, ppOtherSelectedLayerInfo ] :
-				  pOther->m_selectedLayerInfoMap ) {
+		for ( const auto& [ppOtherComponent, ppOtherSelectedLayerInfo] :
+			  pOther->m_selectedLayerInfoMap ) {
 			if ( ppOtherComponent != nullptr &&
 				 ppOtherSelectedLayerInfo != nullptr ) {
 				// We took a deep copy of the instrument and have to ensure we
 				// point to the right component.
 				auto pComponent = m_pInstrument->getComponent(
-					pOther->m_pInstrument->index( ppOtherComponent ) );
+					pOther->m_pInstrument->index( ppOtherComponent )
+				);
 				if ( pComponent == nullptr ) {
 					continue;
 				}
@@ -163,15 +181,17 @@ Note::Note( std::shared_ptr<Note> pOther )
 				pSelectedLayerInfo->pLayer = ppOtherSelectedLayerInfo->pLayer;
 				pSelectedLayerInfo->fSamplePosition =
 					ppOtherSelectedLayerInfo->fSamplePosition;
-				pSelectedLayerInfo->nNoteLength = ppOtherSelectedLayerInfo->nNoteLength;
-		
+				pSelectedLayerInfo->nNoteLength =
+					ppOtherSelectedLayerInfo->nNoteLength;
+
 				setSelectedLayerInfo( pSelectedLayerInfo, pComponent );
 			}
 		}
 	}
 }
 
-Note::~Note() {
+Note::~Note()
+{
 }
 
 static inline float check_boundary( float fValue, float fMin, float fMax )
@@ -189,7 +209,8 @@ void Note::setLeadLag( float lead_lag )
 	m_fLeadLag = check_boundary( lead_lag, LEAD_LAG_MIN, LEAD_LAG_MAX );
 }
 
-void Note::setPan( float val ) {
+void Note::setPan( float val )
+{
 	m_fPan = check_boundary( val, PAN_MIN, PAN_MAX );
 }
 
@@ -204,8 +225,9 @@ void Note::setHumanizeDelay( int nValue )
 	}
 }
 
-bool Note::isPartiallyRendered() const {
-	for ( const auto& [ _, ppSelectedLayerInfo ] : m_selectedLayerInfoMap ) {
+bool Note::isPartiallyRendered() const
+{
+	for ( const auto& [_, ppSelectedLayerInfo] : m_selectedLayerInfoMap ) {
 		if ( ppSelectedLayerInfo != nullptr &&
 			 ppSelectedLayerInfo->fSamplePosition > 0 ) {
 			return true;
@@ -215,7 +237,8 @@ bool Note::isPartiallyRendered() const {
 	return false;
 }
 
-void Note::computeNoteStart() {
+void Note::computeNoteStart()
+{
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
@@ -223,18 +246,20 @@ void Note::computeNoteStart() {
 	m_nNoteStart =
 		TransportPosition::computeFrameFromTick( m_nPosition, &fTickMismatch );
 
-	m_nNoteStart += std::clamp( m_nHumanizeDelay,
-								-1 * AudioEngine::nMaxTimeHumanize,
-								AudioEngine::nMaxTimeHumanize );
+	m_nNoteStart += std::clamp(
+		m_nHumanizeDelay, -1 * AudioEngine::nMaxTimeHumanize,
+		AudioEngine::nMaxTimeHumanize
+	);
 
 	// No note can start before the beginning of the song.
 	if ( m_nNoteStart < 0 ) {
 		m_nNoteStart = 0;
 	}
-	
+
 	if ( pHydrogen->isTimelineEnabled() ) {
 		m_fUsedTickSize = -1;
-	} else {
+	}
+	else {
 		// This is used for triggering recalculation in case the tempo
 		// changes where manually applied by the user. They are not
 		// dependent on a particular position of the transport (as
@@ -243,8 +268,9 @@ void Note::computeNoteStart() {
 	}
 }
 
-bool Note::layersAlreadySelected() const {
-	for ( const auto& [ _, ppSelectedLayerInfo ] : m_selectedLayerInfoMap ) {
+bool Note::layersAlreadySelected() const
+{
+	for ( const auto& [_, ppSelectedLayerInfo] : m_selectedLayerInfoMap ) {
 		if ( ppSelectedLayerInfo != nullptr &&
 			 ppSelectedLayerInfo->pLayer != nullptr ) {
 			return true;
@@ -254,10 +280,12 @@ bool Note::layersAlreadySelected() const {
 	return false;
 }
 
-void Note::selectLayers( const std::map< std::shared_ptr<InstrumentComponent>,
-						   std::shared_ptr<InstrumentLayer> >& lastUsedLayers ) {
+void Note::selectLayers( const std::map<
+						 std::shared_ptr<InstrumentComponent>,
+						 std::shared_ptr<InstrumentLayer> >& lastUsedLayers )
+{
 	std::shared_ptr<Sample> pSample;
-	
+
 	if ( m_pInstrument == nullptr ) {
 		ERRORLOG( "Sample does not hold an instrument" );
 		return;
@@ -265,21 +293,20 @@ void Note::selectLayers( const std::map< std::shared_ptr<InstrumentComponent>,
 
 	auto selectLayer = [=]( std::shared_ptr<InstrumentComponent> pComponent ) {
 		// Aggregate all layers covering the velocity of this note.
-		std::vector< std::shared_ptr<InstrumentLayer> > possibleLayersVector;
+		std::vector<std::shared_ptr<InstrumentLayer> > possibleLayersVector;
 		int nLayersEncountered = 0;
 		const bool bLayersSoloed = pComponent->isAnyLayerSoloed();
 		auto pSong = Hydrogen::get_instance()->getSong();
 
 		for ( const auto& ppLayer : pComponent->getLayers() ) {
 			if ( ppLayer == nullptr || ppLayer->getIsMuted() ||
-				 ( bLayersSoloed && ! ppLayer->getIsSoloed() ) ) {
+				 ( bLayersSoloed && !ppLayer->getIsSoloed() ) ) {
 				continue;
 			}
 			++nLayersEncountered;
 
 			if ( m_fVelocity >= ppLayer->getStartVelocity() &&
 				 m_fVelocity <= ppLayer->getEndVelocity() ) {
-
 				possibleLayersVector.push_back( ppLayer );
 				if ( pComponent->getSelection() ==
 					 InstrumentComponent::Selection::Velocity ) {
@@ -304,37 +331,49 @@ void Note::selectLayers( const std::map< std::shared_ptr<InstrumentComponent>,
 		// Occasionally the velocity of a note can fall into it
 		// causing the sampler to just skip it. Instead, we will
 		// search for the nearest sample and play this one instead.
-		if ( possibleLayersVector.size() == 0 ){
-			WARNINGLOG( QString( "Velocity [%1] did fall into a hole between the instrument layers for component [%2] of instrument [%3]." )
-						.arg( m_fVelocity ).arg( pComponent->getName() )
-						.arg( m_pInstrument->getName() ) );
-			
+		if ( possibleLayersVector.size() == 0 ) {
+			WARNINGLOG(
+				QString(
+					"Velocity [%1] did fall into a hole between the instrument "
+					"layers for component [%2] of instrument [%3]."
+				)
+					.arg( m_fVelocity )
+					.arg( pComponent->getName() )
+					.arg( m_pInstrument->getName() )
+			);
+
 			float fShortestDistance = 1.0f;
 			std::shared_ptr<InstrumentLayer> pNearestLayer = nullptr;
 			for ( const auto& ppLayer : pComponent->getLayers() ) {
 				if ( ppLayer == nullptr || ppLayer->getIsMuted() ||
-					( bLayersSoloed && ! ppLayer->getIsSoloed() ) ) {
+					 ( bLayersSoloed && !ppLayer->getIsSoloed() ) ) {
 					continue;
 				}
-							
-				if ( std::min( abs( ppLayer->getStartVelocity() - m_fVelocity ),
-							   abs( ppLayer->getStartVelocity() - m_fVelocity ) ) <
-					 fShortestDistance ){
-					fShortestDistance =
-						std::min( abs( ppLayer->getStartVelocity() - m_fVelocity ),
-								  abs( ppLayer->getStartVelocity() - m_fVelocity ) );
+
+				if ( std::min(
+						 abs( ppLayer->getStartVelocity() - m_fVelocity ),
+						 abs( ppLayer->getStartVelocity() - m_fVelocity )
+					 ) < fShortestDistance ) {
+					fShortestDistance = std::min(
+						abs( ppLayer->getStartVelocity() - m_fVelocity ),
+						abs( ppLayer->getStartVelocity() - m_fVelocity )
+					);
 					pNearestLayer = ppLayer;
 				}
 			}
 
 			// Check whether the search was successful and assign the results.
-			if ( pNearestLayer != nullptr ){
+			if ( pNearestLayer != nullptr ) {
 				possibleLayersVector.push_back( pNearestLayer );
 			}
 			else {
-				ERRORLOG( QString( "No sample found for component [%1] of instrument [%2]" )
-						  .arg( pComponent->getName() )
-						  .arg( m_pInstrument->getName() ) );
+				ERRORLOG(
+					QString(
+						"No sample found for component [%1] of instrument [%2]"
+					)
+						.arg( pComponent->getName() )
+						.arg( m_pInstrument->getName() )
+				);
 				std::shared_ptr<InstrumentLayer> pNoLayer = nullptr;
 				return pNoLayer;
 			}
@@ -342,62 +381,74 @@ void Note::selectLayers( const std::map< std::shared_ptr<InstrumentComponent>,
 
 		// Select a layer.
 		if ( possibleLayersVector.size() == 0 ) {
-			ERRORLOG( "No samples found during random layer selection. This is a bug and shouldn't happen!" );
+			ERRORLOG(
+				"No samples found during random layer selection. This is a bug "
+				"and shouldn't happen!"
+			);
 			std::shared_ptr<InstrumentLayer> pNoLayer = nullptr;
 			return pNoLayer;
 		}
 
 		std::shared_ptr<InstrumentLayer> pSelectedLayer = nullptr;
 		switch ( pComponent->getSelection() ) {
-		case InstrumentComponent::Selection::Velocity:
-			pSelectedLayer = possibleLayersVector[ 0 ];
-			break;
-				
-		case InstrumentComponent::Selection::Random:
-			pSelectedLayer = possibleLayersVector[
-				rand() % possibleLayersVector.size() ];
-			break;
+			case InstrumentComponent::Selection::Velocity:
+				pSelectedLayer = possibleLayersVector[0];
+				break;
 
-		case InstrumentComponent::Selection::RoundRobin:
-			// We check whether there was already a layer for this component. If
-			// so, we use the next one.
-			if ( lastUsedLayers.find( pComponent ) != lastUsedLayers.end() ) {
-				auto pLastLayer = lastUsedLayers.at( pComponent );
-				if ( pLastLayer != nullptr ) {
-					// Is the last layer among the possible ones?
-					int nNextLayerIndex = -1;
-					for ( int ii = 0; ii < possibleLayersVector.size(); ++ii ) {
-						if ( pLastLayer == possibleLayersVector[ ii ] ) {
-							// Found. We select the next layer.
-							nNextLayerIndex = ii + 1;
-							break;
+			case InstrumentComponent::Selection::Random:
+				pSelectedLayer =
+					possibleLayersVector[rand() % possibleLayersVector.size()];
+				break;
+
+			case InstrumentComponent::Selection::RoundRobin:
+				// We check whether there was already a layer for this
+				// component. If so, we use the next one.
+				if ( lastUsedLayers.find( pComponent ) !=
+					 lastUsedLayers.end() ) {
+					auto pLastLayer = lastUsedLayers.at( pComponent );
+					if ( pLastLayer != nullptr ) {
+						// Is the last layer among the possible ones?
+						int nNextLayerIndex = -1;
+						for ( int ii = 0; ii < possibleLayersVector.size();
+							  ++ii ) {
+							if ( pLastLayer == possibleLayersVector[ii] ) {
+								// Found. We select the next layer.
+								nNextLayerIndex = ii + 1;
+								break;
+							}
+						}
+
+						if ( nNextLayerIndex >= 0 &&
+							 nNextLayerIndex < possibleLayersVector.size() ) {
+							pSelectedLayer =
+								possibleLayersVector[nNextLayerIndex];
+						}
+						else if ( nNextLayerIndex ==
+								  possibleLayersVector.size() ) {
+							// We use periodic boundary conditions and start
+							// over with the first layer.
+							pSelectedLayer = possibleLayersVector[0];
 						}
 					}
-
-					if ( nNextLayerIndex >= 0 &&
-						 nNextLayerIndex < possibleLayersVector.size() ) {
-						pSelectedLayer = possibleLayersVector[ nNextLayerIndex ];
-					}
-					else if ( nNextLayerIndex == possibleLayersVector.size() ) {
-						// We use periodic boundary conditions and start over
-						// with the first layer.
-						pSelectedLayer = possibleLayersVector[ 0 ];
-					}
 				}
-			}
 
-			if ( pSelectedLayer == nullptr ) {
-				// Cache miss. We start again at the top.
-				pSelectedLayer = possibleLayersVector[ 0 ];
-			}
-			break;
+				if ( pSelectedLayer == nullptr ) {
+					// Cache miss. We start again at the top.
+					pSelectedLayer = possibleLayersVector[0];
+				}
+				break;
 
-		default:
-			ERRORLOG( QString( "Unknown selection algorithm [%1] for instrument [%2]" )
-					  .arg( InstrumentComponent::SelectionToQString(
-								pComponent->getSelection() ) )
-					  .arg( m_pInstrument->getName() ) );
-			break;
+			default:
+				ERRORLOG(
+					QString(
+						"Unknown selection algorithm [%1] for instrument [%2]"
+					)
+						.arg( InstrumentComponent::SelectionToQString(
+							pComponent->getSelection()
+						) )
+						.arg( m_pInstrument->getName() )
+				);
+				break;
 		}
 
 		return pSelectedLayer;
@@ -406,17 +457,18 @@ void Note::selectLayers( const std::map< std::shared_ptr<InstrumentComponent>,
 	if ( m_selectedLayerInfoMap.size() > 0 ) {
 		// Some components have been manually set. We only use selection for
 		// those with invalid selection info or layer.
-		for ( const auto& [ ppComponent, ppSelectedLayerInfo ] :
-				  m_selectedLayerInfoMap ) {
+		for ( const auto& [ppComponent, ppSelectedLayerInfo] :
+			  m_selectedLayerInfoMap ) {
 			if ( ppComponent == nullptr ) {
 				continue;
 			}
 
 			if ( ppSelectedLayerInfo == nullptr ||
 				 ppSelectedLayerInfo->pLayer == nullptr ) {
-				auto pNewSelectedLayerInfo = std::make_shared<SelectedLayerInfo>();
+				auto pNewSelectedLayerInfo =
+					std::make_shared<SelectedLayerInfo>();
 				pNewSelectedLayerInfo->pLayer = selectLayer( ppComponent );
-				m_selectedLayerInfoMap[ ppComponent ] = pNewSelectedLayerInfo;
+				m_selectedLayerInfoMap[ppComponent] = pNewSelectedLayerInfo;
 			}
 		}
 	}
@@ -425,31 +477,37 @@ void Note::selectLayers( const std::map< std::shared_ptr<InstrumentComponent>,
 		for ( const auto& ppComponent : *m_pInstrument->getComponents() ) {
 			auto pNewSelectedLayerInfo = std::make_shared<SelectedLayerInfo>();
 			pNewSelectedLayerInfo->pLayer = selectLayer( ppComponent );
-			m_selectedLayerInfoMap[ ppComponent ] = pNewSelectedLayerInfo;
+			m_selectedLayerInfoMap[ppComponent] = pNewSelectedLayerInfo;
 		}
 	}
 }
 
 std::shared_ptr<SelectedLayerInfo> Note::getSelecterLayerInfo(
-	std::shared_ptr<InstrumentComponent> pComponent ) const
+	std::shared_ptr<InstrumentComponent> pComponent
+) const
 {
-	if ( m_selectedLayerInfoMap.find( pComponent ) != m_selectedLayerInfoMap.end() ) {
+	if ( m_selectedLayerInfoMap.find( pComponent ) !=
+		 m_selectedLayerInfoMap.end() ) {
 		return m_selectedLayerInfoMap.at( pComponent );
 	}
 
 	return nullptr;
 }
-void Note::setSelectedLayerInfo( std::shared_ptr<SelectedLayerInfo> pInfo,
-								 std::shared_ptr<InstrumentComponent> pComponent ) {
+void Note::setSelectedLayerInfo(
+	std::shared_ptr<SelectedLayerInfo> pInfo,
+	std::shared_ptr<InstrumentComponent> pComponent
+)
+{
 	if ( pComponent == nullptr ) {
 		ERRORLOG( "Invalid component" );
 		return;
 	}
 
-	m_selectedLayerInfoMap[ pComponent ] = pInfo;
+	m_selectedLayerInfoMap[pComponent] = pInfo;
 }
 
-void Note::mapToInstrument( std::shared_ptr<Instrument> pInstrument ) {
+void Note::mapToInstrument( std::shared_ptr<Instrument> pInstrument )
+{
 	if ( pInstrument != nullptr ) {
 		m_pInstrument = pInstrument;
 		m_pAdsr = pInstrument->copyAdsr();
@@ -475,7 +533,8 @@ float Note::getTotalPitch() const
 	return fNotePitch;
 }
 
-void Note::humanize() {
+void Note::humanize()
+{
 	// Due to the nature of the Gaussian distribution, the factors
 	// will also scale the standard deviations of the generated random
 	// variables.
@@ -483,15 +542,20 @@ void Note::humanize() {
 	if ( pSong != nullptr ) {
 		const float fRandomVelocityFactor = pSong->getHumanizeVelocityValue();
 		if ( fRandomVelocityFactor != 0 ) {
-			setVelocity( m_fVelocity + fRandomVelocityFactor *
-						  Random::getGaussian( AudioEngine::fHumanizeVelocitySD ) );
+			setVelocity(
+				m_fVelocity +
+				fRandomVelocityFactor *
+					Random::getGaussian( AudioEngine::fHumanizeVelocitySD )
+			);
 		}
 
 		const float fRandomTimeFactor = pSong->getHumanizeTimeValue();
 		if ( fRandomTimeFactor != 0 ) {
-			setHumanizeDelay( m_nHumanizeDelay + fRandomTimeFactor *
-								AudioEngine::nMaxTimeHumanize *
-								Random::getGaussian( AudioEngine::fHumanizeTimingSD ) );
+			setHumanizeDelay(
+				m_nHumanizeDelay +
+				fRandomTimeFactor * AudioEngine::nMaxTimeHumanize *
+					Random::getGaussian( AudioEngine::fHumanizeTimingSD )
+			);
 		}
 	}
 
@@ -499,12 +563,13 @@ void Note::humanize() {
 		const float fRandomPitchFactor = m_pInstrument->getRandomPitchFactor();
 		if ( fRandomPitchFactor != 0 ) {
 			m_fPitch += Random::getGaussian( AudioEngine::fHumanizePitchSD ) *
-				fRandomPitchFactor;
-			}
+						fRandomPitchFactor;
+		}
 	}
 }
 
-void Note::swing() {
+void Note::swing()
+{
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong != nullptr && pSong->getSwingFactor() > 0 ) {
 		// If the Timeline is activated, the tick size may change at
@@ -515,9 +580,13 @@ void Note::swing() {
 		setHumanizeDelay(
 			m_nHumanizeDelay +
 			( TransportPosition::computeFrameFromTick(
-				m_nPosition + H2Core::nTicksPerQuarter / 8., &fTickMismatch ) -
+				  m_nPosition + H2Core::nTicksPerQuarter / 8., &fTickMismatch
+			  ) -
 			  TransportPosition::computeFrameFromTick(
-				  m_nPosition, &fTickMismatch ) ) * pSong->getSwingFactor() );
+				  m_nPosition, &fTickMismatch
+			  ) ) *
+				pSong->getSwingFactor()
+		);
 	}
 }
 
@@ -545,31 +614,43 @@ std::shared_ptr<Note> Note::loadFrom( const XMLNode& node, bool bSilent )
 	auto pNote = std::make_shared<Note>();
 
 	bool bFound, bFound2;
-	float fPan = node.read_float( "pan", pNote->getPan(), &bFound, true, false,
-								 true );
+	float fPan =
+		node.read_float( "pan", pNote->getPan(), &bFound, true, false, true );
 	if ( !bFound ) {
 		// check if pan is expressed in the old fashion (version <=
 		// 1.1 ) with the pair (pan_L, pan_R)
-		float fPanL = node.read_float( "pan_L", 1.f, &bFound, false, false, bSilent );
-		float fPanR = node.read_float( "pan_R", 1.f, &bFound2, false, false, bSilent );
+		float fPanL =
+			node.read_float( "pan_L", 1.f, &bFound, false, false, bSilent );
+		float fPanR =
+			node.read_float( "pan_R", 1.f, &bFound2, false, false, bSilent );
 		if ( bFound && bFound2 ) {
-			fPan = Sampler::getRatioPan( fPanL, fPanR );  // convert to single pan parameter
-		} else {
-			WARNINGLOG( QString( "Neither `pan` nor `pan_L` and `pan_R` were found. Falling back to `pan = 0`" ) );
+			fPan = Sampler::getRatioPan(
+				fPanL, fPanR
+			);	// convert to single pan parameter
+		}
+		else {
+			WARNINGLOG(
+				QString( "Neither `pan` nor `pan_L` and `pan_R` were found. "
+						 "Falling back to `pan = 0`" )
+			);
 		}
 	}
 	pNote->setPan( fPan );
 
-	pNote->setPosition( node.read_int( "position", pNote->getPosition(), false,
-									  false, bSilent ) );
-	pNote->setVelocity( node.read_float( "velocity", pNote->getVelocity(), false,
-										false, bSilent ) );
-	pNote->setLength( node.read_int( "length", pNote->getLength(), true, false,
-									bSilent ) );
-	pNote->m_fPitch = node.read_float( "pitch", pNote->getPitch(), false, false,
-									  bSilent );
-	pNote->setLeadLag( node.read_float( "leadlag", pNote->getLeadLag(), false,
-									   false, bSilent ) );
+	pNote->setPosition(
+		node.read_int( "position", pNote->getPosition(), false, false, bSilent )
+	);
+	pNote->setVelocity( node.read_float(
+		"velocity", pNote->getVelocity(), false, false, bSilent
+	) );
+	pNote->setLength(
+		node.read_int( "length", pNote->getLength(), true, false, bSilent )
+	);
+	pNote->m_fPitch =
+		node.read_float( "pitch", pNote->getPitch(), false, false, bSilent );
+	pNote->setLeadLag(
+		node.read_float( "leadlag", pNote->getLeadLag(), false, false, bSilent )
+	);
 	const QString sKeyOctave =
 		node.read_string( "key", "C0", false, false, bSilent );
 	const int nKeyOctaveLength = sKeyOctave.length();
@@ -581,7 +662,7 @@ std::shared_ptr<Note> Note::loadFrom( const XMLNode& node, bool bSilent )
 	}
 
 	const int nOctave = sOctave.toInt();
-    auto octave = Note::OctaveDefault;
+	auto octave = Note::OctaveDefault;
 	if ( nOctave >= static_cast<int>( Note::OctaveMin ) &&
 		 nOctave <= static_cast<int>( Note::OctaveMax ) ) {
 		octave = static_cast<Note::Octave>( nOctave );
@@ -591,12 +672,13 @@ std::shared_ptr<Note> Note::loadFrom( const XMLNode& node, bool bSilent )
 	}
 	auto key = Note::QStringToKey( sKey );
 	if ( key == Key::Invalid ) {
-        ERRORLOG( QString( "Invalid key [%1]" ).arg( sKey ) );
-        key = Note::KeyDefault;
+		ERRORLOG( QString( "Invalid key [%1]" ).arg( sKey ) );
+		key = Note::KeyDefault;
 	}
 	pNote->setKeyOctave( key, octave );
-	pNote->setNoteOff( node.read_bool( "note_off", pNote->getNoteOff(), false,
-									  false, bSilent ) );
+	pNote->setNoteOff(
+		node.read_bool( "note_off", pNote->getNoteOff(), false, false, bSilent )
+	);
 	pNote->setInstrumentId( static_cast<Instrument::Id>( node.read_int(
 		"instrument", static_cast<int>( pNote->getInstrumentId() ), false,
 		false, bSilent
@@ -604,108 +686,175 @@ std::shared_ptr<Note> Note::loadFrom( const XMLNode& node, bool bSilent )
 	pNote->setType(
 		node.read_string( "type", pNote->getType(), true, true, bSilent )
 	);
-	pNote->setProbability( node.read_float( "probability", pNote->getProbability(),
-										   false, false, bSilent ));
+	pNote->setProbability( node.read_float(
+		"probability", pNote->getProbability(), false, false, bSilent
+	) );
 
 	return pNote;
 }
 
-QString Note::prettyName() const {
+QString Note::prettyName() const
+{
 	QString sInstrument;
 	if ( m_pInstrument != nullptr ) {
 		sInstrument = QString( "instr: [%1]" ).arg( m_pInstrument->getName() );
-	} else {
+	}
+	else {
 		sInstrument = QString( "type: [%1]" ).arg( m_sType );
 	}
 
 	return QString( "%1, pos: %2, key: %3, octave: %4" )
-		.arg( sInstrument ).arg( m_nPosition )
-		.arg( KeyToQString( m_key ) ).arg( OctaveToQString( m_octave ) );
+		.arg( sInstrument )
+		.arg( m_nPosition )
+		.arg( KeyToQString( m_key ) )
+		.arg( OctaveToQString( m_octave ) );
 }
 
-QString Note::toQString( const QString& sPrefix, bool bShort ) const {
+QString Note::toQString( const QString& sPrefix, bool bShort ) const
+{
 	QString s = Base::sPrintIndention;
 	QString sOutput;
-	if ( ! bShort ) {
-		sOutput = QString( "%1[Note]\n" ).arg( sPrefix )
-			.append( QString( "%1%2m_nInstrumentId: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( static_cast<int>(m_instrumentId) ) )
-			.append( QString( "%1%2m_sType: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_sType ) )
-			.append( QString( "%1%2m_nPosition: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nPosition ) )
-			.append( QString( "%1%2m_fVelocity: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_fVelocity ) )
-			.append( QString( "%1%2m_fPan: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_fPan ) )
-			.append( QString( "%1%2m_nLength: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nLength ) )
-			.append( QString( "%1%2m_fPitch: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_fPitch ) )
-			.append( QString( "%1%2m_key: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( KeyToQString( m_key ) ) )
-			.append( QString( "%1%2m_octave: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( OctaveToQString( m_octave ) ) );
+	if ( !bShort ) {
+		sOutput = QString( "%1[Note]\n" )
+					  .arg( sPrefix )
+					  .append( QString( "%1%2m_nInstrumentId: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( static_cast<int>( m_instrumentId ) ) )
+					  .append( QString( "%1%2m_sType: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( m_sType ) )
+					  .append( QString( "%1%2m_nPosition: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( m_nPosition ) )
+					  .append( QString( "%1%2m_fVelocity: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( m_fVelocity ) )
+					  .append( QString( "%1%2m_fPan: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( m_fPan ) )
+					  .append( QString( "%1%2m_nLength: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( m_nLength ) )
+					  .append( QString( "%1%2m_fPitch: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( m_fPitch ) )
+					  .append( QString( "%1%2m_key: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( KeyToQString( m_key ) ) )
+					  .append( QString( "%1%2m_octave: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( OctaveToQString( m_octave ) ) );
 		if ( m_pAdsr != nullptr ) {
-			sOutput.append( QString( "%1" )
-							.arg( m_pAdsr->toQString( sPrefix + s, bShort ) ) );
-		} else {
-			sOutput.append( QString( "%1%2m_pAdsr: nullptr\n" ).arg( sPrefix ).arg( s ) );
+			sOutput.append(
+				QString( "%1" ).arg( m_pAdsr->toQString( sPrefix + s, bShort ) )
+			);
 		}
-		sOutput.append( QString( "%1%2m_fLeadLag: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_fLeadLag ) )
-			.append( QString( "%1%2m_nHumanizeDelay: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nHumanizeDelay ) )
-			.append( QString( "%1%2m_fBpfbL: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_fBpfbL ) )
-			.append( QString( "%1%2m_fBpfbR: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_fBpfbR ) )
-			.append( QString( "%1%2m_fLpfbL: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_fLpfbL ) )
-			.append( QString( "%1%2m_fLpfbR: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_fLpfbR ) )
-			.append( QString( "%1%2m_bNoteOff: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_bNoteOff ) )
-			.append( QString( "%1%2m_fProbability: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_fProbability ) )
-			.append( QString( "%1%2m_nNoteStart: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nNoteStart ) )
-			.append( QString( "%1%2m_fUsedTickSize: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_fUsedTickSize ) )
-			.append( QString( "%1%2m_selectedLayerInfoMap:\n" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& [ ppComponent, ppSelectedLayerInfo ] :
-				  m_selectedLayerInfoMap ) {
-			sOutput.append( QString( "%1%2%2[%3]: %4" )
-				.arg( sPrefix ).arg( s )
-				.arg( ppComponent != nullptr ? ppComponent->getName() : "nullptr" )
-				.arg( ppSelectedLayerInfo != nullptr ?
-					  ppSelectedLayerInfo->toQString( "", true ) : "nullptr" ) );
+		else {
+			sOutput.append(
+				QString( "%1%2m_pAdsr: nullptr\n" ).arg( sPrefix ).arg( s )
+			);
+		}
+		sOutput
+			.append( QString( "%1%2m_fLeadLag: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_fLeadLag ) )
+			.append( QString( "%1%2m_nHumanizeDelay: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_nHumanizeDelay ) )
+			.append( QString( "%1%2m_fBpfbL: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_fBpfbL ) )
+			.append( QString( "%1%2m_fBpfbR: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_fBpfbR ) )
+			.append( QString( "%1%2m_fLpfbL: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_fLpfbL ) )
+			.append( QString( "%1%2m_fLpfbR: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_fLpfbR ) )
+			.append( QString( "%1%2m_bNoteOff: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_bNoteOff ) )
+			.append( QString( "%1%2m_fProbability: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_fProbability ) )
+			.append( QString( "%1%2m_nNoteStart: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_nNoteStart ) )
+			.append( QString( "%1%2m_fUsedTickSize: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_fUsedTickSize ) )
+			.append( QString( "%1%2m_selectedLayerInfoMap:\n" )
+						 .arg( sPrefix )
+						 .arg( s ) );
+		for ( const auto& [ppComponent, ppSelectedLayerInfo] :
+			  m_selectedLayerInfoMap ) {
+			sOutput.append(
+				QString( "%1%2%2[%3]: %4" )
+					.arg( sPrefix )
+					.arg( s )
+					.arg(
+						ppComponent != nullptr ? ppComponent->getName()
+											   : "nullptr"
+					)
+					.arg(
+						ppSelectedLayerInfo != nullptr
+							? ppSelectedLayerInfo->toQString( "", true )
+							: "nullptr"
+					)
+			);
 		}
 		if ( m_pInstrument != nullptr ) {
-			sOutput.append( QString( "%1" ).arg( m_pInstrument->toQString( sPrefix + s, bShort ) ) );
-		} else {
-			sOutput.append( QString( "%1%2m_pInstrument: nullptr\n" ).arg( sPrefix ).arg( s ) );
+			sOutput.append( QString( "%1" ).arg(
+				m_pInstrument->toQString( sPrefix + s, bShort )
+			) );
+		}
+		else {
+			sOutput.append( QString( "%1%2m_pInstrument: nullptr\n" )
+								.arg( sPrefix )
+								.arg( s ) );
 		}
 	}
 	else {
-
-		sOutput = QString( "[Note]" )
-			.append( QString( ", m_instrumentId: %1" ).arg( static_cast<int>(m_instrumentId) ) )
-			.append( QString( ", m_sType: %1" ).arg( m_sType ) )
-			.append( QString( ", m_nPosition: %1" ).arg( m_nPosition ) )
-			.append( QString( ", m_fVelocity: %1" ).arg( m_fVelocity ) )
-			.append( QString( ", m_fPan: %1" ).arg( m_fPan ) )
-			.append( QString( ", m_nLength: %1" ).arg( m_nLength ) )
-			.append( QString( ", m_fPitch: %1" ).arg( m_fPitch ) )
-			.append( QString( ", m_key: %1" )
-					 .arg( KeyToQString( m_key ) ) )
-			.append( QString( ", m_octave: %1" )
-					 .arg( OctaveToQString( m_octave ) ) );
+		sOutput =
+			QString( "[Note]" )
+				.append( QString( ", m_instrumentId: %1" )
+							 .arg( static_cast<int>( m_instrumentId ) ) )
+				.append( QString( ", m_sType: %1" ).arg( m_sType ) )
+				.append( QString( ", m_nPosition: %1" ).arg( m_nPosition ) )
+				.append( QString( ", m_fVelocity: %1" ).arg( m_fVelocity ) )
+				.append( QString( ", m_fPan: %1" ).arg( m_fPan ) )
+				.append( QString( ", m_nLength: %1" ).arg( m_nLength ) )
+				.append( QString( ", m_fPitch: %1" ).arg( m_fPitch ) )
+				.append( QString( ", m_key: %1" ).arg( KeyToQString( m_key ) ) )
+				.append( QString( ", m_octave: %1" )
+							 .arg( OctaveToQString( m_octave ) ) );
 		if ( m_pAdsr != nullptr ) {
-			sOutput.append( QString( ", [%1" )
-							.arg( m_pAdsr->toQString( sPrefix + s, bShort )
-								  .replace( "\n", "]" ) ) );
-		} else {
+			sOutput.append( QString( ", [%1" ).arg(
+				m_pAdsr->toQString( sPrefix + s, bShort ).replace( "\n", "]" )
+			) );
+		}
+		else {
 			sOutput.append( ", m_pAdsr: nullptr" );
 		}
 
@@ -722,58 +871,70 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_fUsedTickSize: %1" ).arg( m_fUsedTickSize ) )
 			.append( QString( ", m_selectedLayerInfoMap: [" ) );
 		QStringList selectedLayerInfos;
-		for ( const auto& [ ppComponent, ppSelectedLayerInfo ] :
-				  m_selectedLayerInfoMap ) {
-			selectedLayerInfos << QString( "[%1]: %2" )
-				.arg( ppComponent != nullptr ? ppComponent->getName() : "nullptr" )
-				.arg( ppSelectedLayerInfo != nullptr ?
-					  ppSelectedLayerInfo->toQString( "", true ) : "nullptr" );
+		for ( const auto& [ppComponent, ppSelectedLayerInfo] :
+			  m_selectedLayerInfoMap ) {
+			selectedLayerInfos
+				<< QString( "[%1]: %2" )
+					   .arg(
+						   ppComponent != nullptr ? ppComponent->getName()
+												  : "nullptr"
+					   )
+					   .arg(
+						   ppSelectedLayerInfo != nullptr
+							   ? ppSelectedLayerInfo->toQString( "", true )
+							   : "nullptr"
+					   );
 		}
 		sOutput.append( selectedLayerInfos.join( ", " ) ).append( "]" );
 		if ( m_pInstrument != nullptr ) {
-			sOutput.append( QString( ", m_pInstrument: %1" ).arg( m_pInstrument->getName() ) );
-		} else {
+			sOutput.append(
+				QString( ", m_pInstrument: %1" ).arg( m_pInstrument->getName() )
+			);
+		}
+		else {
 			sOutput.append( QString( ", m_pInstrument: nullptr" ) );
 		}
 	}
 	return sOutput;
 }
 
-QString Note::KeyToQString( const Key& key ) {
-	switch( key ) {
-	case Key::C:
-		return "C";
-	case Key::Cs:
-		return "Cs";
-	case Key::D:
-		return "D";
-	case Key::Ef:
-		return "Ef";
-	case Key::E:
-		return "E";
-	case Key::F:
-		return "F";
-	case Key::Fs:
-		return "Fs";
-	case Key::G:
-		return "G";
-	case Key::Af:
-		return "Af";
-	case Key::A:
-		return "A";
-	case Key::Bf:
-		return "Bf";
-	case Key::B:
-		return "B";
-	case Key::Invalid:
-        return "Invalid";
-	default:
-		return QString( "Unknown Key value [%1]" )
-			.arg( static_cast<int>( key ) );
+QString Note::KeyToQString( const Key& key )
+{
+	switch ( key ) {
+		case Key::C:
+			return "C";
+		case Key::Cs:
+			return "Cs";
+		case Key::D:
+			return "D";
+		case Key::Ef:
+			return "Ef";
+		case Key::E:
+			return "E";
+		case Key::F:
+			return "F";
+		case Key::Fs:
+			return "Fs";
+		case Key::G:
+			return "G";
+		case Key::Af:
+			return "Af";
+		case Key::A:
+			return "A";
+		case Key::Bf:
+			return "Bf";
+		case Key::B:
+			return "B";
+		case Key::Invalid:
+			return "Invalid";
+		default:
+			return QString( "Unknown Key value [%1]" )
+				.arg( static_cast<int>( key ) );
 	}
 }
 
-Note::Key Note::QStringToKey( const QString& sKey ) {
+Note::Key Note::QStringToKey( const QString& sKey )
+{
 	if ( sKey == "C" ) {
 		return Key::C;
 	}
@@ -846,25 +1007,25 @@ Note::Key Note::keyFrom( Midi::Note note )
 
 QString Note::OctaveToQString( const Octave& octave )
 {
-	switch( octave ) {
-	case Octave::P8Z:
-		return "P8Z";
-	case Octave::P8Y:
-		return "P8Y";
-	case Octave::P8X:
-		return "P8X";
-	case Octave::P8:
-		return "P8";
-	case Octave::P8A:
-		return "P8A";
-	case Octave::P8B:
-		return "P8B";
-	case Octave::P8C:
-		return "P8C";
-	case Octave::Invalid:
-	default:
-		return QString( "Unknown octave value [%1]" )
-			.arg( static_cast<int>( octave ) );
+	switch ( octave ) {
+		case Octave::P8Z:
+			return "P8Z";
+		case Octave::P8Y:
+			return "P8Y";
+		case Octave::P8X:
+			return "P8X";
+		case Octave::P8:
+			return "P8";
+		case Octave::P8A:
+			return "P8A";
+		case Octave::P8B:
+			return "P8B";
+		case Octave::P8C:
+			return "P8C";
+		case Octave::Invalid:
+		default:
+			return QString( "Unknown octave value [%1]" )
+				.arg( static_cast<int>( octave ) );
 	}
 }
 

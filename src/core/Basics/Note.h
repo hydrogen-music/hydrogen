@@ -31,30 +31,29 @@
 #include <core/Midi/Midi.h>
 #include <core/Object.h>
 
-#define OCTAVE_OFFSET           3
-#define OCTAVE_NUMBER           7
-#define KEYS_PER_OCTAVE         12
+#define OCTAVE_OFFSET 3
+#define OCTAVE_NUMBER 7
+#define KEYS_PER_OCTAVE 12
 
-#define VELOCITY_MIN            0.0f
-#define VELOCITY_DEFAULT        0.8f
-#define VELOCITY_MAX            1.0f
-#define PAN_MIN                 -1.0f
-#define PAN_DEFAULT             0.0f
-#define PAN_MAX                 1.0f
-#define LEAD_LAG_MIN            -1.0f
-#define LEAD_LAG_DEFAULT        0.0f
-#define LEAD_LAG_MAX            1.0f
-#define LENGTH_ENTIRE_SAMPLE    -1
-#define PITCH_DEFAULT           0.0f /* C2 */
-#define PITCH_INVALID           666
-#define PITCH_MAX               KEYS_PER_OCTAVE * 3/*OCTAVE_MAX*/ + 11/*KEY_MAX*/
-#define PITCH_MIN               KEYS_PER_OCTAVE * -3/*OCTAVE_MIN*/ + 0/*KEY_MIN*/
-#define PROBABILITY_MIN         0.0f
-#define PROBABILITY_DEFAULT     1.0f
-#define PROBABILITY_MAX         1.0f
+#define VELOCITY_MIN 0.0f
+#define VELOCITY_DEFAULT 0.8f
+#define VELOCITY_MAX 1.0f
+#define PAN_MIN -1.0f
+#define PAN_DEFAULT 0.0f
+#define PAN_MAX 1.0f
+#define LEAD_LAG_MIN -1.0f
+#define LEAD_LAG_DEFAULT 0.0f
+#define LEAD_LAG_MAX 1.0f
+#define LENGTH_ENTIRE_SAMPLE -1
+#define PITCH_DEFAULT 0.0f /* C2 */
+#define PITCH_INVALID 666
+#define PITCH_MAX KEYS_PER_OCTAVE * 3 /*OCTAVE_MAX*/ + 11 /*KEY_MAX*/
+#define PITCH_MIN KEYS_PER_OCTAVE * -3 /*OCTAVE_MIN*/ + 0 /*KEY_MIN*/
+#define PROBABILITY_MIN 0.0f
+#define PROBABILITY_DEFAULT 1.0f
+#define PROBABILITY_MAX 1.0f
 
-namespace H2Core
-{
+namespace H2Core {
 
 class XMLNode;
 class ADSR;
@@ -106,386 +105,401 @@ struct SelectedLayerInfo {
  * #H2Core::Sampler for rendering.
  */
 /** \ingroup docCore docDataStructure */
-class Note : public H2Core::Object<Note>
-{
-		H2_OBJECT(Note)
-	public:
-		/** possible keys */
-	 enum class Key {
-		 C = 0,
-		 Cs = 1,
-		 D = 2,
-		 Ef = 3,
-		 E = 4,
-		 F = 5,
-		 Fs = 6,
-		 G = 7,
-		 Af = 8,
-		 A = 9,
-		 Bf = 10,
-		 B = 11,
-         Invalid = 666
-	 };
-	 static QString KeyToQString( const Key& key );
-	 static Key QStringToKey( const QString& sKey );
-	 static Key keyFromInt( int nValue );
-	 static Key keyFromIntClamp( int nValue );
-	 static Key keyFrom( Midi::Note note );
+class Note : public H2Core::Object<Note> {
+	H2_OBJECT( Note )
+   public:
+	/** possible keys */
+	enum class Key {
+		C = 0,
+		Cs = 1,
+		D = 2,
+		Ef = 3,
+		E = 4,
+		F = 5,
+		Fs = 6,
+		G = 7,
+		Af = 8,
+		A = 9,
+		Bf = 10,
+		B = 11,
+		Invalid = 666
+	};
+	static QString KeyToQString( const Key& key );
+	static Key QStringToKey( const QString& sKey );
+	static Key keyFromInt( int nValue );
+	static Key keyFromIntClamp( int nValue );
+	static Key keyFrom( Midi::Note note );
 
-	 static constexpr Key KeyDefault = Key::C;
-	 static constexpr Key KeyMin = Key::C;
-	 static constexpr Key KeyMax = Key::B;
+	static constexpr Key KeyDefault = Key::C;
+	static constexpr Key KeyMin = Key::C;
+	static constexpr Key KeyMax = Key::B;
 
-	 /** possible octaves */
-	 enum class Octave {
-		 P8Z = -3,
-		 P8Y = -2,
-		 P8X = -1,
-		 P8 = 0,
-		 P8A = 1,
-		 P8B = 2,
-		 P8C = 3,
-		 Invalid = 666
-	 };
-	 static QString OctaveToQString( const Octave& octave );
-	 static Octave octaveFromInt( int nValue );
-	 static Octave octaveFromIntClamp( int nValue );
-	 static Octave octaveFrom( Midi::Note note );
+	/** possible octaves */
+	enum class Octave {
+		P8Z = -3,
+		P8Y = -2,
+		P8X = -1,
+		P8 = 0,
+		P8A = 1,
+		P8B = 2,
+		P8C = 3,
+		Invalid = 666
+	};
+	static QString OctaveToQString( const Octave& octave );
+	static Octave octaveFromInt( int nValue );
+	static Octave octaveFromIntClamp( int nValue );
+	static Octave octaveFrom( Midi::Note note );
 
-	 static constexpr Octave OctaveDefault = Octave::P8;
-	 static constexpr Octave OctaveMin = Octave::P8Z;
-	 static constexpr Octave OctaveMax = Octave::P8C;
+	static constexpr Octave OctaveDefault = Octave::P8;
+	static constexpr Octave OctaveMin = Octave::P8Z;
+	static constexpr Octave OctaveMax = Octave::P8C;
 
-	 /** The pitch of a note represents the resulting (fundamental) frequency
-	  * with high pitches corrseponding to low frequencies and vice versa.
-	  *
-	  * Although drum samples are in general of indefinite pitch - the
-	  * resulting sound is not made up by a fundamental frequency and
-	  * harmonics for the most part but contains a large number of other
-	  * frequencies (overtones) - we do still use it in here to determine the
-	  * _relative_ pitch. Via resampling we can alter pitch of the underlying
-	  * samples and can make them sound higher or lower pitched.
-	  *
-	  * The pitch is centered around C4 (termed C2 within Hydrogen. Why we
-	  * start with -2 to count octaves is lost in history). Since pitch is
-	  * defined on a logarithmic scale, every semitone (on the western
-	  * chromatic scale used within the MIDI standard) does exactly equate to
-	  * a pitch difference of `1`. Thus, a difference of #Note::Key within
-	  * the same #Note::Octave is equivilant to the corresponding difference
-	  * in #Note::Pitch.
-	  *
-	  * In Hydrogen, the pitch of a note has various contribution (depending
-	  * on the context):
-	  *
-	  * - #Note::Key and #Note::Octave: set in #PianoRollEditor
-	  * - #Instrument::m_fPitchOffset: instrument-wide pitch offset
-	  * - #InstrumentLayer::m_fPitchOffset: pitch offset for the particular
-	  *     sample
-	  * - #Note::m_fRandomPitch: created as part of the humanization based on
-	  *     #Instrument::m_fRandomPitchFactor.
-	  *
-	  * The range of possible values is smaller than e.g. the allowed range
-	  * within the MIDI standard (TBH I do not see why. This design decision
-	  * is lost as well).
-	  *
-	  * The value itself if based on `float` since it allows use for a more
-	  * precise pitch control than semitones (`int`s). This is especially
-	  * important during humanization. `double`, on the other hand, is
-	  * already "too" precise since the human ear won't be able to tell those
-	  * fine differences apart and other software/technologies is not
-	  * designed to deal with it either. */
-	 class Pitch {
-		public:
-		 // Since we are declaring Pitch in here, we can not use it for
-		 // constexpr.
-		 static Pitch Invalid;
-		 static Pitch Minimum;
-		 static Pitch Default;
-		 static Pitch Maximum;
+	/** The pitch of a note represents the resulting (fundamental) frequency
+	 * with high pitches corrseponding to low frequencies and vice versa.
+	 *
+	 * Although drum samples are in general of indefinite pitch - the
+	 * resulting sound is not made up by a fundamental frequency and
+	 * harmonics for the most part but contains a large number of other
+	 * frequencies (overtones) - we do still use it in here to determine the
+	 * _relative_ pitch. Via resampling we can alter pitch of the underlying
+	 * samples and can make them sound higher or lower pitched.
+	 *
+	 * The pitch is centered around C4 (termed C2 within Hydrogen. Why we
+	 * start with -2 to count octaves is lost in history). Since pitch is
+	 * defined on a logarithmic scale, every semitone (on the western
+	 * chromatic scale used within the MIDI standard) does exactly equate to
+	 * a pitch difference of `1`. Thus, a difference of #Note::Key within
+	 * the same #Note::Octave is equivilant to the corresponding difference
+	 * in #Note::Pitch.
+	 *
+	 * In Hydrogen, the pitch of a note has various contribution (depending
+	 * on the context):
+	 *
+	 * - #Note::Key and #Note::Octave: set in #PianoRollEditor
+	 * - #Instrument::m_fPitchOffset: instrument-wide pitch offset
+	 * - #InstrumentLayer::m_fPitchOffset: pitch offset for the particular
+	 *     sample
+	 * - #Note::m_fRandomPitch: created as part of the humanization based on
+	 *     #Instrument::m_fRandomPitchFactor.
+	 *
+	 * The range of possible values is smaller than e.g. the allowed range
+	 * within the MIDI standard (TBH I do not see why. This design decision
+	 * is lost as well).
+	 *
+	 * The value itself if based on `float` since it allows use for a more
+	 * precise pitch control than semitones (`int`s). This is especially
+	 * important during humanization. `double`, on the other hand, is
+	 * already "too" precise since the human ear won't be able to tell those
+	 * fine differences apart and other software/technologies is not
+	 * designed to deal with it either. */
+	class Pitch {
+	   public:
+		// Since we are declaring Pitch in here, we can not use it for
+		// constexpr.
+		static Pitch Invalid;
+		static Pitch Minimum;
+		static Pitch Default;
+		static Pitch Maximum;
 
-		 // It would be more consistent with Note::Key, Note::Octave, Midi::Note
-		 // ... to have a Note::pitchFromFloat() static method. But then we
-		 // could not make the Pitch() constructor private (and our code more
-		 // secure) because we would have a chicken - egg situation with class
-		 // and friend method definition.
-		 static Pitch fromFloat( float fPitch )
-		 {
-			 if ( fPitch >= static_cast<float>( Pitch::Minimum ) &&
-				  fPitch <= static_cast<float>( Pitch::Maximum ) ) {
-				 return static_cast<Pitch>( fPitch );
-			 }
-			 else {
-				 return Pitch::Invalid;
-			 }
-		 }
-		 static Pitch fromFloatClamp( float fPitch )
-		 {
-			 return static_cast<Pitch>( std::clamp(
-				 fPitch, static_cast<float>( Pitch::Minimum ),
-				 static_cast<float>( Pitch::Maximum )
-			 ) );
-		 }
-
-		 operator double() const { return static_cast<double>( m_fValue ); };
-		 operator float() const { return m_fValue; };
-		 operator int() const { return static_cast<int>( m_fValue ); };
-
-		 Pitch operator=( const Pitch& other ) { return Pitch( m_fValue ); };
-		 bool operator==( const Pitch& other ) const
-		 {
-			 return m_fValue == other.m_fValue;
-		 };
-		 bool operator!=( const Pitch& other ) const
-		 {
-			 return m_fValue != other.m_fValue;
-		 };
-		 bool operator<( const Pitch& other ) const
-		 {
-			 return m_fValue < other.m_fValue;
-		 };
-		 bool operator>( const Pitch& other ) const
-		 {
-			 return m_fValue > other.m_fValue;
-		 };
-		 // No +/- operators to enfore bound checks.
-		 // Pitch operator+( const Pitch& other ) const
-		 // Pitch operator-( const Pitch& other ) const
-
-		private:
-		 constexpr explicit Pitch( float fValue ) : m_fValue( fValue ) {};
-
-		 float m_fValue;
-	 };
-
-	 /**
-	  * constructor
-	  *
-	  * \param pInstrument the instrument played by this note
-	  * \param nPosition the position of the note within the pattern
-	  * \param fVelocity it's velocity
-	  * \param fFan pan
-	  * \param nLength Length of the note in frames. If set to -1,
-	  * the length of the #H2Core::Sample used during playback will
-	  * be used instead.
-	  * \param fPitch it's pitch
-	  */
-	 Note(
-		 std::shared_ptr<Instrument> pInstrument = nullptr,
-		 int nPosition = 0,
-		 float fVelocity = VELOCITY_DEFAULT,
-		 float fPan = PAN_DEFAULT,
-		 int nLength = LENGTH_ENTIRE_SAMPLE,
-		 float fPitch = PITCH_DEFAULT
-	 );
-
-	 Note( std::shared_ptr<Note> pOther );
-	 ~Note();
-
-	 /*
-	  * save the note within the given XMLNode
-	  * \param node the XMLNode to feed
-	  */
-	 void saveTo( XMLNode& node ) const;
-	 /**
-	  * load a note from an XMLNode
-	  * \param node the XMLDode to read from
-	  * \param bSilent Whether infos, warnings, and errors should
-	  * be logged.
-	  * \return a new Note instance
-	  */
-	 static std::shared_ptr<Note>
-	 loadFrom( const XMLNode& node, bool bSilent = false );
-
-	 /** #m_pInstrument accessor */
-	 std::shared_ptr<Instrument> getInstrument() const;
-	 /**
-	  * #m_instrumentId setter
-	  * \param value the new value
-	  */
-	 void setInstrumentId( Instrument::Id id );
-	 /** #m_instrumentId accessor */
-	 Instrument::Id getInstrumentId() const;
-
-	 void setType( Instrument::Type sType );
-	 Instrument::Type getType() const;
-
-	 /**
-	  * #m_nPosition setter
-	  * \param value the new value
-	  */
-	 void setPosition( int value );
-	 /** #m_nPosition accessor */
-	 int getPosition() const;
-	 /**
-	  * #m_fVelocity setter
-	  * \param value the new value
-	  */
-	 void setVelocity( float value );
-	 /** #m_fVelocity accessor */
-	 float getVelocity() const;
-
-	 /** set pan of the note. assumes the input range in [-1;1]*/
-	 void setPan( float val );
-	 /** set pan of the note, assuming the input range in [0;1] */
-	 void setPanWithRangeFrom0To1( float fVal )
-	 {
-		 // scale and translate into [-1;1]
-		 this->setPan( PAN_MIN + ( PAN_MAX - PAN_MIN ) * fVal );
-		};
-		/** get pan of the note. Output pan range: [-1;1] */
-		float getPan() const;
-		/** get pan of the note, scaling and translating the range from [-1;1] to [0;1] */
-		float getPanWithRangeFrom0To1() const {
-			return 0.5f * ( 1.f + m_fPan );
+		// It would be more consistent with Note::Key, Note::Octave, Midi::Note
+		// ... to have a Note::pitchFromFloat() static method. But then we
+		// could not make the Pitch() constructor private (and our code more
+		// secure) because we would have a chicken - egg situation with class
+		// and friend method definition.
+		static Pitch fromFloat( float fPitch )
+		{
+			if ( fPitch >= static_cast<float>( Pitch::Minimum ) &&
+				 fPitch <= static_cast<float>( Pitch::Maximum ) ) {
+				return static_cast<Pitch>( fPitch );
+			}
+			else {
+				return Pitch::Invalid;
+			}
+		}
+		static Pitch fromFloatClamp( float fPitch )
+		{
+			return static_cast<Pitch>( std::clamp(
+				fPitch, static_cast<float>( Pitch::Minimum ),
+				static_cast<float>( Pitch::Maximum )
+			) );
 		}
 
-		/**
-		 * #m_fLeadLag setter
-		 * \param value the new value
-		 */
-		void setLeadLag( float value );
-		/** #m_fLeadLag accessor */
-		float getLeadLag() const;
-		/**
-		 * #m_nLength setter
-		 * \param value the new value
-		 */
-		void setLength( int value );
-		/** #m_nLength accessor */
-		int getLength() const;
-		/** #m_fPitch accessor */
-		float getPitch() const;
-		/**
-		 * #m_bNoteOff setter
-		 * \param value the new value
-		 */
-		void setNoteOff( bool value );
-		/** #m_bNoteOff accessor */
-		bool getNoteOff() const;
+		operator double() const { return static_cast<double>( m_fValue ); };
+		operator float() const { return m_fValue; };
+		operator int() const { return static_cast<int>( m_fValue ); };
 
-		bool layersAlreadySelected() const;
+		Pitch operator=( const Pitch& other ) { return Pitch( m_fValue ); };
+		bool operator==( const Pitch& other ) const
+		{
+			return m_fValue == other.m_fValue;
+		};
+		bool operator!=( const Pitch& other ) const
+		{
+			return m_fValue != other.m_fValue;
+		};
+		bool operator<( const Pitch& other ) const
+		{
+			return m_fValue < other.m_fValue;
+		};
+		bool operator>( const Pitch& other ) const
+		{
+			return m_fValue > other.m_fValue;
+		};
+		// No +/- operators to enfore bound checks.
+		// Pitch operator+( const Pitch& other ) const
+		// Pitch operator-( const Pitch& other ) const
 
-		/** Picks one #H2Core::InstrumentLayer for each
-		 * #H2Core::InstrumentComponent in #m_pInstrument according to
-		 * #H2Core::InstrumentComponent::m_selection.
-		 *
-		 * In order to allow for a consistent round robin selection, the layers
-		 * used last for all encountered components is provided. */
-		void selectLayers( const std::map< std::shared_ptr<InstrumentComponent>,
-						     std::shared_ptr<InstrumentLayer> >& lastUsedLayers );
+	   private:
+		constexpr explicit Pitch( float fValue ) : m_fValue( fValue ) {};
 
-		std::map< std::shared_ptr<InstrumentComponent>,
-				  std::shared_ptr<SelectedLayerInfo> > getAllSelectedLayerInfos() const;
-		/** Returns the #H2Core::InstrumentLayer and some additional rendering
-		 * meta data for a given component. If no selection took place yet,
-		 * `nullptr` will be returned. */
-		std::shared_ptr<SelectedLayerInfo> getSelecterLayerInfo(
-			std::shared_ptr<InstrumentComponent> pComponent ) const;
-		/** Can be used for custom layer selection.
-		 *
-		 * Note that when using this function for one
-		 * #H2Core::InstrumentComponent, you have to use it for all others too
-		 * or no layer/sample will be picked for them. */
-		void setSelectedLayerInfo( std::shared_ptr<SelectedLayerInfo> pInfo,
-								   std::shared_ptr<InstrumentComponent> pComponent );
+		float m_fValue;
+	};
 
-		void mapToInstrument( std::shared_ptr<Instrument> pInstrument );
+	/**
+	 * constructor
+	 *
+	 * \param pInstrument the instrument played by this note
+	 * \param nPosition the position of the note within the pattern
+	 * \param fVelocity it's velocity
+	 * \param fFan pan
+	 * \param nLength Length of the note in frames. If set to -1,
+	 * the length of the #H2Core::Sample used during playback will
+	 * be used instead.
+	 * \param fPitch it's pitch
+	 */
+	Note(
+		std::shared_ptr<Instrument> pInstrument = nullptr,
+		int nPosition = 0,
+		float fVelocity = VELOCITY_DEFAULT,
+		float fPan = PAN_DEFAULT,
+		int nLength = LENGTH_ENTIRE_SAMPLE,
+		float fPitch = PITCH_DEFAULT
+	);
 
-		void setProbability( float value );
-		float getProbability() const;
+	Note( std::shared_ptr<Note> pOther );
+	~Note();
 
-		/**
-		 * #m_nHumanizeDelay setter
-		 * \param value the new value
-		 */
-		void setHumanizeDelay( int value );
-		/** #m_nHumanizeDelay accessor */
-		int getHumanizeDelay() const;
-		/** Filter output is sustaining note */
-		bool filterSustain() const;
-		/** #m_key accessor */
-		Key getKey() const;
-		/** #m_octave accessor */
-		Octave getOctave() const;
-		/** return scaled key for midi output, !!! DO NOT CHECK IF INSTRUMENT IS SET !!! */
-		Midi::Note getMidiNote() const;
-		Midi::Parameter getMidiVelocity() const;
-		/** note key pitch accessor
-		 * \code{.cpp}
-		 * m_octave * KEYS_PER_OCTAVE + m_key
-		 * \endcode */
-		float getPitchFromKeyOctave() const;
-		float getTotalPitch() const;
+	/*
+	 * save the note within the given XMLNode
+	 * \param node the XMLNode to feed
+	 */
+	void saveTo( XMLNode& node ) const;
+	/**
+	 * load a note from an XMLNode
+	 * \param node the XMLDode to read from
+	 * \param bSilent Whether infos, warnings, and errors should
+	 * be logged.
+	 * \return a new Note instance
+	 */
+	static std::shared_ptr<Note>
+	loadFrom( const XMLNode& node, bool bSilent = false );
 
-		/**
-		 * set #m_key and #m_octave only if within acceptable range
-		 * \param key the key to set
-		 * \param octave the octave to be set
-		 */
-		void setKeyOctave( Key key, Octave octave );
+	/** #m_pInstrument accessor */
+	std::shared_ptr<Instrument> getInstrument() const;
+	/**
+	 * #m_instrumentId setter
+	 * \param value the new value
+	 */
+	void setInstrumentId( Instrument::Id id );
+	/** #m_instrumentId accessor */
+	Instrument::Id getInstrumentId() const;
 
-		/** get the ADSR of the note */
-		std::shared_ptr<ADSR> getAdsr() const;
+	void setType( Instrument::Type sType );
+	Instrument::Type getType() const;
 
-		/** @returns true if instrument id and type as well as key and octave
-		 * matches with internal
-		 *
-		 * \param id the instrument ID to match with #m_instrumentId
-		 * \param sType the instrument type to match with #m_sType
-		 * \param key the key to match with #m_key
-		 * \param octave the octave to match with #m_octave
-		 */
-		bool match( Instrument::Id id, const Instrument::Type& sType, Key key,
-					Octave octave ) const;
+	/**
+	 * #m_nPosition setter
+	 * \param value the new value
+	 */
+	void setPosition( int value );
+	/** #m_nPosition accessor */
+	int getPosition() const;
+	/**
+	 * #m_fVelocity setter
+	 * \param value the new value
+	 */
+	void setVelocity( float value );
+	/** #m_fVelocity accessor */
+	float getVelocity() const;
 
-		/** Return true if two notes match in instrument, key and octave. */
-		bool match( const std::shared_ptr<Note> pNote ) const;
+	/** set pan of the note. assumes the input range in [-1;1]*/
+	void setPan( float val );
+	/** set pan of the note, assuming the input range in [0;1] */
+	void setPanWithRangeFrom0To1( float fVal )
+	{
+		// scale and translate into [-1;1]
+		this->setPan( PAN_MIN + ( PAN_MAX - PAN_MIN ) * fVal );
+	};
+	/** get pan of the note. Output pan range: [-1;1] */
+	float getPan() const;
+	/** get pan of the note, scaling and translating the range from [-1;1] to
+	 * [0;1] */
+	float getPanWithRangeFrom0To1() const { return 0.5f * ( 1.f + m_fPan ); }
 
-		/** Does not compare the whole note but just its position in rendered in
-		 * the (PianoRoll) editor. */
-		bool matchPosition( const std::shared_ptr<Note> pNote ) const;
+	/**
+	 * #m_fLeadLag setter
+	 * \param value the new value
+	 */
+	void setLeadLag( float value );
+	/** #m_fLeadLag accessor */
+	float getLeadLag() const;
+	/**
+	 * #m_nLength setter
+	 * \param value the new value
+	 */
+	void setLength( int value );
+	/** #m_nLength accessor */
+	int getLength() const;
+	/** #m_fPitch accessor */
+	float getPitch() const;
+	/**
+	 * #m_bNoteOff setter
+	 * \param value the new value
+	 */
+	void setNoteOff( bool value );
+	/** #m_bNoteOff accessor */
+	bool getNoteOff() const;
 
-		/** Compares two notes based on position (primary) and pitch
-		 * (secundary).
-		 *
-		 * In contrast to compareStart() position in here only takes the actual
-		 * #m_nPosition into account. Neither humanization nor lead/lag.
-		 *
-		 * @returns `true` in case @a pNote1 wins (larger position, larger
-		 *   pitch) compared to @a pNote2. */
-		static bool compare( const std::shared_ptr<Note> pNote1,
-							 const std::shared_ptr<Note> pNote2 );
+	bool layersAlreadySelected() const;
 
-		/** Like compare() but in reverse order.
-		 *
-		 * Just negating the output of compare() doesn't not work in the macOS
-		 * pipeline for some reason. */
-		static bool compareAscending( const std::shared_ptr<Note> pNote1,
-									  const std::shared_ptr<Note> pNote2 );
+	/** Picks one #H2Core::InstrumentLayer for each
+	 * #H2Core::InstrumentComponent in #m_pInstrument according to
+	 * #H2Core::InstrumentComponent::m_selection.
+	 *
+	 * In order to allow for a consistent round robin selection, the layers
+	 * used last for all encountered components is provided. */
+	void selectLayers( const std::map<
+					   std::shared_ptr<InstrumentComponent>,
+					   std::shared_ptr<InstrumentLayer> >& lastUsedLayers );
 
-		/** Performs a comparison based on starting position of the note.
-		 *
-		 * Note that this start has to be calculated first and involves random
-		 * components (humanization). It is thus something to be performed on
-		 * notes already enqueued in #AudioEngine or #Sampler and not suitable
-		 * for plain notes residing in #Pattern.
-		 *
-		 * @returns `true` in case @a pNote1 has a bigger starting position as
-		 *   @a pNote2. */
-		static bool compareStart( const std::shared_ptr<Note> pNote1,
-								  const std::shared_ptr<Note> pNote2 );
+	std::map<
+		std::shared_ptr<InstrumentComponent>,
+		std::shared_ptr<SelectedLayerInfo> >
+	getAllSelectedLayerInfos() const;
+	/** Returns the #H2Core::InstrumentLayer and some additional rendering
+	 * meta data for a given component. If no selection took place yet,
+	 * `nullptr` will be returned. */
+	std::shared_ptr<SelectedLayerInfo> getSelecterLayerInfo(
+		std::shared_ptr<InstrumentComponent> pComponent
+	) const;
+	/** Can be used for custom layer selection.
+	 *
+	 * Note that when using this function for one
+	 * #H2Core::InstrumentComponent, you have to use it for all others too
+	 * or no layer/sample will be picked for them. */
+	void setSelectedLayerInfo(
+		std::shared_ptr<SelectedLayerInfo> pInfo,
+		std::shared_ptr<InstrumentComponent> pComponent
+	);
 
-		/**
-		 * compute left and right output based on filters
-		 * \param val_l the left channel value
-		 * \param val_r the right channel value
-		 */
-		void computeLrValues( float* val_l, float* val_r );
+	void mapToInstrument( std::shared_ptr<Instrument> pInstrument );
+
+	void setProbability( float value );
+	float getProbability() const;
+
+	/**
+	 * #m_nHumanizeDelay setter
+	 * \param value the new value
+	 */
+	void setHumanizeDelay( int value );
+	/** #m_nHumanizeDelay accessor */
+	int getHumanizeDelay() const;
+	/** Filter output is sustaining note */
+	bool filterSustain() const;
+	/** #m_key accessor */
+	Key getKey() const;
+	/** #m_octave accessor */
+	Octave getOctave() const;
+	/** return scaled key for midi output, !!! DO NOT CHECK IF INSTRUMENT IS SET
+	 * !!! */
+	Midi::Note getMidiNote() const;
+	Midi::Parameter getMidiVelocity() const;
+	/** note key pitch accessor
+	 * \code{.cpp}
+	 * m_octave * KEYS_PER_OCTAVE + m_key
+	 * \endcode */
+	float getPitchFromKeyOctave() const;
+	float getTotalPitch() const;
+
+	/**
+	 * set #m_key and #m_octave only if within acceptable range
+	 * \param key the key to set
+	 * \param octave the octave to be set
+	 */
+	void setKeyOctave( Key key, Octave octave );
+
+	/** get the ADSR of the note */
+	std::shared_ptr<ADSR> getAdsr() const;
+
+	/** @returns true if instrument id and type as well as key and octave
+	 * matches with internal
+	 *
+	 * \param id the instrument ID to match with #m_instrumentId
+	 * \param sType the instrument type to match with #m_sType
+	 * \param key the key to match with #m_key
+	 * \param octave the octave to match with #m_octave
+	 */
+	bool match(
+		Instrument::Id id,
+		const Instrument::Type& sType,
+		Key key,
+		Octave octave
+	) const;
+
+	/** Return true if two notes match in instrument, key and octave. */
+	bool match( const std::shared_ptr<Note> pNote ) const;
+
+	/** Does not compare the whole note but just its position in rendered in
+	 * the (PianoRoll) editor. */
+	bool matchPosition( const std::shared_ptr<Note> pNote ) const;
+
+	/** Compares two notes based on position (primary) and pitch
+	 * (secundary).
+	 *
+	 * In contrast to compareStart() position in here only takes the actual
+	 * #m_nPosition into account. Neither humanization nor lead/lag.
+	 *
+	 * @returns `true` in case @a pNote1 wins (larger position, larger
+	 *   pitch) compared to @a pNote2. */
+	static bool compare(
+		const std::shared_ptr<Note> pNote1,
+		const std::shared_ptr<Note> pNote2
+	);
+
+	/** Like compare() but in reverse order.
+	 *
+	 * Just negating the output of compare() doesn't not work in the macOS
+	 * pipeline for some reason. */
+	static bool compareAscending(
+		const std::shared_ptr<Note> pNote1,
+		const std::shared_ptr<Note> pNote2
+	);
+
+	/** Performs a comparison based on starting position of the note.
+	 *
+	 * Note that this start has to be calculated first and involves random
+	 * components (humanization). It is thus something to be performed on
+	 * notes already enqueued in #AudioEngine or #Sampler and not suitable
+	 * for plain notes residing in #Pattern.
+	 *
+	 * @returns `true` in case @a pNote1 has a bigger starting position as
+	 *   @a pNote2. */
+	static bool compareStart(
+		const std::shared_ptr<Note> pNote1,
+		const std::shared_ptr<Note> pNote2
+	);
+
+	/**
+	 * compute left and right output based on filters
+	 * \param val_l the left channel value
+	 * \param val_r the right channel value
+	 */
+	void computeLrValues( float* val_l, float* val_r );
 
 	long long getNoteStart() const;
 	float getUsedTickSize() const;
 
-	/** 
+	/**
 	 * @return true if the #Sampler already started rendering this
 	 * note.
 	 */
@@ -516,119 +530,124 @@ class Note : public H2Core::Object<Note>
 	 */
 	void swing();
 
-		/** Returns a short but expressive string using which the particular
-		 * note instance can be identified.
-		 *
-		 * Note that the ability to uniquely identify the note is only ensured
-		 * if no identical notes exist in any pattern (de-duplication). */
-		QString prettyName() const;
-	
-		/** Formatted string version for debugging purposes.
-		 * \param sPrefix String prefix which will be added in front of
-		 * every new line
-		 * \param bShort Instead of the whole content of all classes
-		 * stored as members just a single unique identifier will be
-		 * displayed without line breaks.
-		 *
-		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+	/** Returns a short but expressive string using which the particular
+	 * note instance can be identified.
+	 *
+	 * Note that the ability to uniquely identify the note is only ensured
+	 * if no identical notes exist in any pattern (de-duplication). */
+	QString prettyName() const;
 
-		/** Convert a logarithmic pitch-space value in semitones to a frequency-domain value */
-		static inline double pitchToFrequency( double fPitch ) {
-			// Equivalent to, but quicker to compute than, pow( 2.0, ( fPitch/12 ) )
-			return pow( 1.0594630943593, fPitch );
-		}
+	/** Formatted string version for debugging purposes.
+	 * \param sPrefix String prefix which will be added in front of
+	 * every new line
+	 * \param bShort Instead of the whole content of all classes
+	 * stored as members just a single unique identifier will be
+	 * displayed without line breaks.
+	 *
+	 * \return String presentation of current object.*/
+	QString toQString( const QString& sPrefix = "", bool bShort = true )
+		const override;
 
-		static inline Octave pitchToOctave( int nPitch ) {
-			if ( nPitch >= 0 ) {
-				return static_cast<Octave>( nPitch / KEYS_PER_OCTAVE );
-			} else {
-				return static_cast<Octave>((nPitch-11) / KEYS_PER_OCTAVE );
-			}
-		}
-		static inline Key pitchToKey( int nPitch )
-		{
-			return static_cast<Key>(
-				nPitch -
-				KEYS_PER_OCTAVE * static_cast<int>( pitchToOctave( nPitch ) )
-			);
-		}
-		static inline int octaveKeyToPitch( Octave octave, Key key )
-		{
-			return KEYS_PER_OCTAVE * (int)octave + static_cast<int>(key);
-		}
+	/** Convert a logarithmic pitch-space value in semitones to a
+	 * frequency-domain value */
+	static inline double pitchToFrequency( double fPitch )
+	{
+		// Equivalent to, but quicker to compute than, pow( 2.0, ( fPitch/12 ) )
+		return pow( 1.0594630943593, fPitch );
+	}
 
-		/** Pitch / line conversions used in GUI. */
-		static int lineToPitch( int nLine )
-		{
-			return KEYS_PER_OCTAVE *
-					   ( static_cast<int>( Note::OctaveMin ) + OCTAVE_NUMBER ) -
-				   1 - nLine;
+	static inline Octave pitchToOctave( int nPitch )
+	{
+		if ( nPitch >= 0 ) {
+			return static_cast<Octave>( nPitch / KEYS_PER_OCTAVE );
 		}
-		static int pitchToLine( int nPitch )
-		{
-			return KEYS_PER_OCTAVE *
-					   ( static_cast<int>( Note::OctaveMin ) + OCTAVE_NUMBER ) -
-				   1 - nPitch;
+		else {
+			return static_cast<Octave>( ( nPitch - 11 ) / KEYS_PER_OCTAVE );
 		}
+	}
+	static inline Key pitchToKey( int nPitch )
+	{
+		return static_cast<Key>(
+			nPitch -
+			KEYS_PER_OCTAVE * static_cast<int>( pitchToOctave( nPitch ) )
+		);
+	}
+	static inline int octaveKeyToPitch( Octave octave, Key key )
+	{
+		return KEYS_PER_OCTAVE * (int) octave + static_cast<int>( key );
+	}
 
-	private:
-        /** The ID of the instrument the note will be mapped to in case a
-		 * drumkit with no or incomplete types is used (e.g. a new or legacy
-		 * kit).
-		 *
-		 * Note that this number being set does not mean that the note is
-		 * actually associated with an instrument of the (current) drumkit. The
-		 * pointer #m_pInstrument will tell instead. */
-        Instrument::Id m_instrumentId;
-		/** Drumkit-independent identifier used to relate a note/pattern to a
-		 * different kit.
-		 *
-		 * Note that this one being set does not mean that the note is actually
-		 * associated with an instrument of the (current) drumkit. The pointer
-		 * #m_pInstrument will tell instead. */
-		Instrument::Type m_sType;
-		int				m_nPosition;             ///< note position in
-												///ticks inside the pattern
-		float			m_fVelocity;           ///< velocity (intensity) of the note [0;1]
-		float			m_fPan;		///< pan of the note, [-1;1] from
-									///left to right, as requested by
-									///Sampler PanLaws
+	/** Pitch / line conversions used in GUI. */
+	static int lineToPitch( int nLine )
+	{
+		return KEYS_PER_OCTAVE *
+				   ( static_cast<int>( Note::OctaveMin ) + OCTAVE_NUMBER ) -
+			   1 - nLine;
+	}
+	static int pitchToLine( int nPitch )
+	{
+		return KEYS_PER_OCTAVE *
+				   ( static_cast<int>( Note::OctaveMin ) + OCTAVE_NUMBER ) -
+			   1 - nPitch;
+	}
+
+   private:
+	/** The ID of the instrument the note will be mapped to in case a
+	 * drumkit with no or incomplete types is used (e.g. a new or legacy
+	 * kit).
+	 *
+	 * Note that this number being set does not mean that the note is
+	 * actually associated with an instrument of the (current) drumkit. The
+	 * pointer #m_pInstrument will tell instead. */
+	Instrument::Id m_instrumentId;
+	/** Drumkit-independent identifier used to relate a note/pattern to a
+	 * different kit.
+	 *
+	 * Note that this one being set does not mean that the note is actually
+	 * associated with an instrument of the (current) drumkit. The pointer
+	 * #m_pInstrument will tell instead. */
+	Instrument::Type m_sType;
+	int m_nPosition;	///< note position in
+						/// ticks inside the pattern
+	float m_fVelocity;	///< velocity (intensity) of the note [0;1]
+	float m_fPan;		///< pan of the note, [-1;1] from
+						/// left to right, as requested by
+				   /// Sampler PanLaws
 	/** Length of the note in ticks.
 	 *
 	 * If set to -1, the Note will be rendered till the end of all
 	 * contained Samples is reached.
 	 */
-		int				m_nLength;
-		float			m_fPitch;              ///< the frequency of the note
-		Key				m_key;                  ///< the key, [0;11]==[C;B]
-		Octave			 m_octave;            ///< the octave [-3;3]
-		std::shared_ptr<ADSR>			m_pAdsr;               ///< attack decay sustain release
-		float			m_fLeadLag;           ///< lead or lag offset of the note
-		/** Offset of the note start in frames.
-		 * 
-		 * It includes contributions of the onset humanization, the
-		 * lead lag factor, and the swing. For some of these a random
-		 * value will be drawn but once stored in this variable, the
-		 * delay is fixed and will not change anymore.
-		 *
-		 * It is incorporated in the #m_nNoteStart.
-		 */
-		int				m_nHumanizeDelay;
-		float			m_fBpfbL;             ///< left band pass filter buffer
-		float			m_fBpfbR;             ///< right band pass filter buffer
-		float			m_fLpfbL;             ///< left low pass filter buffer
-		float			m_fLpfbR;             ///< right low pass filter buffer
-		bool			m_bNoteOff;            ///< note type on|off
-		float			m_fProbability;        ///< note probability
-		static const char* m_keyStr[]; ///< used to build QString
-										///from #m_key an #m_octave
+	int m_nLength;
+	float m_fPitch;					///< the frequency of the note
+	Key m_key;						///< the key, [0;11]==[C;B]
+	Octave m_octave;				///< the octave [-3;3]
+	std::shared_ptr<ADSR> m_pAdsr;	///< attack decay sustain release
+	float m_fLeadLag;				///< lead or lag offset of the note
+	/** Offset of the note start in frames.
+	 *
+	 * It includes contributions of the onset humanization, the
+	 * lead lag factor, and the swing. For some of these a random
+	 * value will be drawn but once stored in this variable, the
+	 * delay is fixed and will not change anymore.
+	 *
+	 * It is incorporated in the #m_nNoteStart.
+	 */
+	int m_nHumanizeDelay;
+	float m_fBpfbL;					///< left band pass filter buffer
+	float m_fBpfbR;					///< right band pass filter buffer
+	float m_fLpfbL;					///< left low pass filter buffer
+	float m_fLpfbR;					///< right low pass filter buffer
+	bool m_bNoteOff;				///< note type on|off
+	float m_fProbability;			///< note probability
+	static const char* m_keyStr[];	///< used to build QString
+									/// from #m_key an #m_octave
 	/**
 	 * Onset of the note in frames.
 	 *
 	 * This member is only used by the #AudioEngine and #Sampler
 	 * during processing and not written to disk.
-	*/
+	 */
 	long long m_nNoteStart;
 	/**
 	 * TransportPosition::m_fTickSize used to calculate #m_nNoteStart.
@@ -645,13 +664,15 @@ class Note : public H2Core::Object<Note>
 	 */
 	float m_fUsedTickSize;
 
-		std::map< std::shared_ptr<InstrumentComponent>,
-				  std::shared_ptr<SelectedLayerInfo> > m_selectedLayerInfoMap;
+	std::map<
+		std::shared_ptr<InstrumentComponent>,
+		std::shared_ptr<SelectedLayerInfo> >
+		m_selectedLayerInfoMap;
 
-		/** The instrument (of the current drumkit) the note is associated with.
-		 * It will be used to render the note and, if not `nullptr`, to indicate
-		 * that the note is mapped to a drumkit. */
-		std::shared_ptr<Instrument>		m_pInstrument;
+	/** The instrument (of the current drumkit) the note is associated with.
+	 * It will be used to render the note and, if not `nullptr`, to indicate
+	 * that the note is mapped to a drumkit. */
+	std::shared_ptr<Instrument> m_pInstrument;
 };
 
 // DEFINITIONS
@@ -676,10 +697,12 @@ inline Instrument::Id Note::getInstrumentId() const
 	return m_instrumentId;
 }
 
-inline void Note::setType( Instrument::Type sType ) {
+inline void Note::setType( Instrument::Type sType )
+{
 	m_sType = sType;
 }
-inline Instrument::Type Note::getType() const {
+inline Instrument::Type Note::getType() const
+{
 	return m_sType;
 }
 
@@ -733,8 +756,11 @@ inline bool Note::getNoteOff() const
 	return m_bNoteOff;
 }
 
-inline std::map< std::shared_ptr<InstrumentComponent>,
-				 std::shared_ptr<SelectedLayerInfo> > Note::getAllSelectedLayerInfos() const {
+inline std::map<
+	std::shared_ptr<InstrumentComponent>,
+	std::shared_ptr<SelectedLayerInfo> >
+Note::getAllSelectedLayerInfos() const
+{
 	return m_selectedLayerInfoMap;
 }
 
@@ -756,8 +782,10 @@ inline int Note::getHumanizeDelay() const
 inline bool Note::filterSustain() const
 {
 	const double fLimit = 0.001;
-	return ( fabs( m_fLpfbL ) > fLimit || fabs( m_fLpfbR ) > fLimit ||
-			 fabs( m_fBpfbL ) > fLimit || fabs( m_fBpfbR ) > fLimit );
+	return (
+		fabs( m_fLpfbL ) > fLimit || fabs( m_fLpfbR ) > fLimit ||
+		fabs( m_fBpfbL ) > fLimit || fabs( m_fBpfbR ) > fLimit
+	);
 }
 
 inline Note::Key Note::getKey() const
@@ -797,8 +825,8 @@ inline float Note::getPitchFromKeyOctave() const
 
 inline void Note::setKeyOctave( Key key, Octave octave )
 {
-    m_key = key;
-    m_octave = octave;
+	m_key = key;
+	m_octave = octave;
 }
 
 inline bool Note::match(
@@ -818,10 +846,8 @@ inline bool Note::matchPosition( const std::shared_ptr<Note> pNote ) const
 		return false;
 	}
 	return m_instrumentId == pNote->m_instrumentId &&
-		m_sType == pNote->m_sType &&
-		m_nPosition == pNote->m_nPosition &&
-		m_key == pNote->m_key &&
-		m_octave == pNote->m_octave;
+		   m_sType == pNote->m_sType && m_nPosition == pNote->m_nPosition &&
+		   m_key == pNote->m_key && m_octave == pNote->m_octave;
 }
 
 inline bool Note::match( const std::shared_ptr<Note> pNote ) const
@@ -830,19 +856,18 @@ inline bool Note::match( const std::shared_ptr<Note> pNote ) const
 		return false;
 	}
 	return m_instrumentId == pNote->m_instrumentId &&
-		m_sType == pNote->m_sType &&
-		m_nPosition == pNote->m_nPosition &&
-		m_fVelocity == pNote->m_fVelocity &&
-		m_fPan == pNote->m_fPan &&
-		m_nLength == pNote->m_nLength &&
-		m_fLeadLag == pNote->m_fLeadLag &&
-		m_fProbability == pNote->m_fProbability &&
-		m_key == pNote->m_key &&
-		m_octave == pNote->m_octave;
+		   m_sType == pNote->m_sType && m_nPosition == pNote->m_nPosition &&
+		   m_fVelocity == pNote->m_fVelocity && m_fPan == pNote->m_fPan &&
+		   m_nLength == pNote->m_nLength && m_fLeadLag == pNote->m_fLeadLag &&
+		   m_fProbability == pNote->m_fProbability && m_key == pNote->m_key &&
+		   m_octave == pNote->m_octave;
 }
 
-inline bool Note::compareStart( const std::shared_ptr<Note> pNote1,
-								const std::shared_ptr<Note> pNote2 ) {
+inline bool Note::compareStart(
+	const std::shared_ptr<Note> pNote1,
+	const std::shared_ptr<Note> pNote2
+)
+{
 	if ( pNote1 == nullptr || pNote2 == nullptr ) {
 		return false;
 	}
@@ -855,8 +880,11 @@ inline bool Note::compareStart( const std::shared_ptr<Note> pNote1,
 	return pNote1->getNoteStart() > pNote2->getNoteStart();
 }
 
-inline bool Note::compare( const std::shared_ptr<Note> pNote1,
-						   const std::shared_ptr<Note> pNote2 ) {
+inline bool Note::compare(
+	const std::shared_ptr<Note> pNote1,
+	const std::shared_ptr<Note> pNote2
+)
+{
 	if ( pNote1 == nullptr || pNote2 == nullptr ) {
 		return false;
 	}
@@ -869,8 +897,11 @@ inline bool Note::compare( const std::shared_ptr<Note> pNote1,
 	}
 }
 
-inline bool Note::compareAscending( const std::shared_ptr<Note> pNote1,
-									const std::shared_ptr<Note> pNote2 ) {
+inline bool Note::compareAscending(
+	const std::shared_ptr<Note> pNote1,
+	const std::shared_ptr<Note> pNote2
+)
+{
 	if ( pNote1 == nullptr || pNote2 == nullptr ) {
 		return false;
 	}
@@ -893,23 +924,25 @@ inline void Note::computeLrValues( float* val_l, float* val_r )
 	else {
 		const float fCutOff = m_pInstrument->getFilterCutoff();
 		const float fResonance = m_pInstrument->getFilterResonance();
-		m_fBpfbL  =  fResonance * m_fBpfbL  + fCutOff * ( *val_l - m_fLpfbL );
-		m_fLpfbL +=  fCutOff   * m_fBpfbL;
-		m_fBpfbR  =  fResonance * m_fBpfbR  + fCutOff * ( *val_r - m_fLpfbR );
-		m_fLpfbR +=  fCutOff   * m_fBpfbR;
+		m_fBpfbL = fResonance * m_fBpfbL + fCutOff * ( *val_l - m_fLpfbL );
+		m_fLpfbL += fCutOff * m_fBpfbL;
+		m_fBpfbR = fResonance * m_fBpfbR + fCutOff * ( *val_r - m_fLpfbR );
+		m_fLpfbR += fCutOff * m_fBpfbR;
 		*val_l = m_fLpfbL;
 		*val_r = m_fLpfbR;
 	}
 }
 
-inline long long Note::getNoteStart() const {
+inline long long Note::getNoteStart() const
+{
 	return m_nNoteStart;
 }
-inline float Note::getUsedTickSize() const {
+inline float Note::getUsedTickSize() const
+{
 	return m_fUsedTickSize;
 }
-};
+};	// namespace H2Core
 
-#endif // H2C_NOTE_H
+#endif	// H2C_NOTE_H
 
 /* vim: set softtabstop=4 noexpandtab: */
