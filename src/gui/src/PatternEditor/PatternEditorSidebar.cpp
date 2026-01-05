@@ -534,10 +534,10 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 				);
 				if ( m_pMuteBtn != nullptr && pInstr != nullptr &&
 					 pInstr->hasSamples() && pPref->getHearNewNotes() ) {
-					const int nWidth =
-						m_pMuteBtn->x() - 5;  // clickable field width
-					const float fVelocity = std::min(
+					const int nWidth = m_pInstrumentNameLbl->width();
+					const float fVelocity = std::clamp(
 						(float) pEv->position().x() / (float) nWidth,
+                        VELOCITY_MIN,
 						VELOCITY_MAX
 					);
 					auto pNote = std::make_shared<Note>( pInstr, 0, fVelocity );
