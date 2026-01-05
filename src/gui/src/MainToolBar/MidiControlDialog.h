@@ -98,9 +98,14 @@ private:
 
         QWidget* m_pInputCheckboxWidget;
 		QCheckBox* m_pInputIgnoreNoteOffCheckBox;
+		QCheckBox* m_pInputMidiClockCheckBox;
+		QCheckBox* m_pInputMidiTransportCheckBox;
 		QCheckBox* m_pOutputEnableMidiFeedbackCheckBox;
 		LCDSpinBox* m_pInputActionChannelSpinBox;
+
         QWidget* m_pOutputCheckboxWidget;
+		QCheckBox* m_pOutputMidiClockCheckBox;
+		QCheckBox* m_pOutputMidiTransportCheckBox;
 
 		QComboBox* m_pInputNoteMappingComboBox;
 		QComboBox* m_pOutputNoteMappingComboBox;

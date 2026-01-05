@@ -149,27 +149,27 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 			m_pInputIgnoreNoteOffCheckBox->isChecked();
 	} );
 
-	auto pInputMidiClockCheckBox = new QCheckBox( m_pInputCheckboxWidget );
-	pInputMidiClockCheckBox->setChecked( pPref->getMidiClockInputHandling() );
-	pInputMidiClockCheckBox->setText( tr( "Handle MIDI Clock input" ) );
-	pInputCheckboxLayout->addWidget( pInputMidiClockCheckBox );
-	connect( pInputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
+	auto m_pInputMidiClockCheckBox = new QCheckBox( m_pInputCheckboxWidget );
+	m_pInputMidiClockCheckBox->setChecked( pPref->getMidiClockInputHandling() );
+	m_pInputMidiClockCheckBox->setText( tr( "Handle MIDI Clock input" ) );
+	pInputCheckboxLayout->addWidget( m_pInputMidiClockCheckBox );
+	connect( m_pInputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
 		CoreActionController::setMidiClockInputHandling(
-			pInputMidiClockCheckBox->isChecked() );
+			m_pInputMidiClockCheckBox->isChecked() );
 	} );
 
-	auto pInputMidiTransportCheckBox = new QCheckBox( m_pInputCheckboxWidget );
-	pInputMidiTransportCheckBox->setChecked( pPref->getMidiTransportInputHandling() );
+	auto m_pInputMidiTransportCheckBox = new QCheckBox( m_pInputCheckboxWidget );
+	m_pInputMidiTransportCheckBox->setChecked( pPref->getMidiTransportInputHandling() );
 	/*: The character combination "\n" indicates a new line and must be
 	 *  conserved. All the capitalized words that follow are defined in the MIDI
 	 *  standard. Only translate them if you are sure the translated versions
 	 *  are of common usage. */
-	pInputMidiTransportCheckBox->setText(
+	m_pInputMidiTransportCheckBox->setText(
 		tr( "Handle MIDI sync message\nSTART, STOP, CONTINUE, SONG_POSITION, SONG_SELECT" ) );
-	pInputCheckboxLayout->addWidget( pInputMidiTransportCheckBox );
-	connect( pInputMidiTransportCheckBox, &QAbstractButton::toggled, [=]() {
+	pInputCheckboxLayout->addWidget( m_pInputMidiTransportCheckBox );
+	connect( m_pInputMidiTransportCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->setMidiTransportInputHandling(
-			pInputMidiTransportCheckBox->isChecked() );
+			m_pInputMidiTransportCheckBox->isChecked() );
 	} );
 
 	auto pInputActionChannelWidget = new QWidget( pInputSettingsWidget );
@@ -233,23 +233,23 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 			m_pOutputEnableMidiFeedbackCheckBox->isChecked();
 	} );
 
-	auto pOutputMidiClockCheckBox = new QCheckBox( m_pOutputCheckboxWidget );
-	pOutputMidiClockCheckBox->setChecked( pPref->getMidiClockOutputSend() );
-	pOutputMidiClockCheckBox->setText( tr( "Send MIDI Clock messages" ) );
-	pOutputCheckboxLayout->addWidget( pOutputMidiClockCheckBox );
-	connect( pOutputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
+	auto m_pOutputMidiClockCheckBox = new QCheckBox( m_pOutputCheckboxWidget );
+	m_pOutputMidiClockCheckBox->setChecked( pPref->getMidiClockOutputSend() );
+	m_pOutputMidiClockCheckBox->setText( tr( "Send MIDI Clock messages" ) );
+	pOutputCheckboxLayout->addWidget( m_pOutputMidiClockCheckBox );
+	connect( m_pOutputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
 		CoreActionController::setMidiClockOutputSend(
-			pOutputMidiClockCheckBox->isChecked() );
+			m_pOutputMidiClockCheckBox->isChecked() );
 	} );
 
-	auto pOutputMidiTransportCheckBox = new QCheckBox( m_pOutputCheckboxWidget );
-	pOutputMidiTransportCheckBox->setChecked( pPref->getMidiTransportOutputSend() );
-	pOutputMidiTransportCheckBox->setText(
+	auto m_pOutputMidiTransportCheckBox = new QCheckBox( m_pOutputCheckboxWidget );
+	m_pOutputMidiTransportCheckBox->setChecked( pPref->getMidiTransportOutputSend() );
+	m_pOutputMidiTransportCheckBox->setText(
 		tr( "Send MIDI START, STOP, CONTINUE, and SONG_POSITION" ) );
-	pOutputCheckboxLayout->addWidget( pOutputMidiTransportCheckBox );
-	connect( pOutputMidiTransportCheckBox, &QAbstractButton::toggled, [=]() {
+	pOutputCheckboxLayout->addWidget( m_pOutputMidiTransportCheckBox );
+	connect( m_pOutputMidiTransportCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->setMidiTransportOutputSend(
-			pOutputMidiTransportCheckBox->isChecked() );
+			m_pOutputMidiTransportCheckBox->isChecked() );
 	} );
 
 	auto pOutputFeedbackChannelWidget = new QWidget( pOutputSettingsWidget );
@@ -750,21 +750,36 @@ void MidiControlDialog::midiOutputEvent() {
 	updateOutputTable();
 }
 
-void MidiControlDialog::updatePreferencesEvent( int nValue ) {
-	if ( nValue == 1 ) {
-		// new preferences loaded within the core
-		const auto pPref = H2Core::Preferences::get_instance();
-
-		m_pInputActionChannelSpinBox->setValue(
-			static_cast<int>( pPref->m_midiActionChannel )
-		);
-		m_pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore
-		);
-		m_pOutputEnableMidiFeedbackCheckBox->setChecked(
-			pPref->m_bEnableMidiFeedback );
-
-		m_pMidiActionTable->setupMidiActionTable();
+void MidiControlDialog::updatePreferencesEvent( int nValue )
+{
+	if ( nValue != 1 ) {
+		return;
 	}
+
+	// new preferences loaded within the core
+	const auto pPref = H2Core::Preferences::get_instance();
+
+	m_pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
+	m_pInputMidiClockCheckBox->setChecked( pPref->getMidiClockInputHandling() );
+	m_pInputMidiTransportCheckBox->setChecked(
+		pPref->getMidiTransportInputHandling()
+	);
+	m_pInputActionChannelSpinBox->setValue(
+		static_cast<int>( pPref->m_midiActionChannel )
+	);
+
+	m_pOutputEnableMidiFeedbackCheckBox->setChecked(
+		pPref->m_bEnableMidiFeedback
+	);
+	m_pOutputMidiClockCheckBox->setChecked( pPref->getMidiClockOutputSend() );
+	m_pOutputMidiTransportCheckBox->setChecked(
+		pPref->getMidiTransportOutputSend()
+	);
+	m_pOutputFeedbackChannelSpinBox->setValue(
+		static_cast<int>( pPref->getMidiFeedbackChannel() )
+	);
+
+	m_pMidiActionTable->setupMidiActionTable();
 }
 
 void MidiControlDialog::updateSongEvent( int nValue ) {
