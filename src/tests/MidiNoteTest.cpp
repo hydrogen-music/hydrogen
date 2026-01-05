@@ -383,11 +383,9 @@ void MidiNoteTest::testMidiInstrumentOutputMapping() {
 				noteRef.note ==
 				Midi::noteFromInt(
 					static_cast<int>( ppInstrument->getMidiOutNote() ) +
-					static_cast<int>( std::round(
-						static_cast<float>( Note::Pitch::fromKeyOctave(
-							ppNote->getKey(), ppNote->getOctave()
-						) )
-					) )
+					static_cast<int>(
+						std::round( static_cast<float>( ppNote->toPitch() ) )
+					)
 				)
 			);
 			CPPUNIT_ASSERT(

@@ -495,9 +495,7 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getOutputMapping(
 			noteRef.note = Midi::noteFromIntClamp(
 				static_cast<int>( pInstrument->getMidiOutNote() ) +
 				static_cast<int>(
-					std::round( static_cast<float>( Note::Pitch::fromKeyOctave(
-						pNote->getKey(), pNote->getOctave()
-					) ) )
+					std::round( static_cast<float>( pNote->toPitch() ) )
 				)
 			);
 		}

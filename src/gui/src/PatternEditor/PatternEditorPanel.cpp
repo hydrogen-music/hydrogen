@@ -2489,9 +2489,7 @@ void PatternEditorPanel::clearNotesInRow(
 			for ( const auto& [_, ppNote] : *ppPattern->getNotes() ) {
 				if ( ppNote != nullptr && row.contains( ppNote ) &&
 					 ( pitch == Note::Pitch::Invalid ||
-					   Note::Pitch::fromKeyOctave(
-						   ppNote->getKey(), ppNote->getOctave()
-					   ) == pitch ) ) {
+					   ppNote->toPitch() == pitch ) ) {
 					notes.push_back( ppNote );
 				}
 			}
@@ -2565,13 +2563,12 @@ void PatternEditorPanel::fillNotesInRow(
 	const auto notes = m_pPattern->getNotes();
 	for ( int ii = 0; ii < m_pPattern->getLength(); ii += nResolution ) {
 		bool bNoteAlreadyPresent = false;
-		FOREACH_NOTE_CST_IT_BOUND_LENGTH( notes, it, ii, m_pPattern ) {
+		FOREACH_NOTE_CST_IT_BOUND_LENGTH( notes, it, ii, m_pPattern )
+		{
 			auto ppNote = it->second;
 			if ( ppNote != nullptr && row.contains( ppNote ) &&
-				 ( pitch == Note::Pitch::Invalid ||
-				   Note::Pitch::fromKeyOctave(
-					   ppNote->getKey(), ppNote->getOctave()
-				   ) == pitch ) ) {
+				 ( pitch == Note::Pitch::Invalid || ppNote->toPitch() == pitch
+				 ) ) {
 				bNoteAlreadyPresent = true;
 				break;
 			}

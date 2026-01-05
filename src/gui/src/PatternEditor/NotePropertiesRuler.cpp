@@ -1110,9 +1110,7 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 			}
 			case PatternEditor::Property::KeyOctave: {
 				const auto pitch = Note::Pitch::fromFloatClamp(
-					static_cast<float>( Note::Pitch::fromKeyOctave(
-						pOldNote->getKey(), pOldNote->getOctave()
-					) ) +
+					static_cast<float>( pOldNote->toPitch() ) +
 					fDelta * ( bKey ? 1 : KEYS_PER_OCTAVE )
 				);
 				const auto key = pitch.toKey();
@@ -1584,11 +1582,7 @@ void NotePropertiesRuler::drawNote(
 			if ( dynamic_cast<PianoRollEditor*>( pEditor ) != nullptr ) {
 				const int nGridHeight = pEditor->getGridHeight();
 				const auto newPitch = Note::Pitch::fromLine(
-					Note::Pitch::fromKeyOctave(
-						pNote->getKey(), pNote->getOctave()
-					)
-						.toLine() +
-					movingOffsetGridPoint.getRow()
+					pNote->toPitch().toLine() + movingOffsetGridPoint.getRow()
 				);
 				if ( newPitch == Note::Pitch::Invalid ) {
 					bDrawMoveSilhouettes = false;

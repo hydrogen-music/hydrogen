@@ -1190,7 +1190,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 
 		auto newKey = pNote->getKey();
 		auto newOctave = pNote->getOctave();
-		auto newPitch = Note::Pitch::fromKeyOctave( newKey, newOctave );
+		auto newPitch = pNote->toPitch();
 		if ( m_instance == Editor::Instance::PianoRoll &&
 			 offset.getRow() != 0 ) {
 			newPitch = Note::Pitch::fromFloatClamp(
@@ -1602,8 +1602,7 @@ void PatternEditor::copy() {
     float fMaxPitch;
 
 	for ( const auto& ppNote : m_selection ) {
-		const auto pitch =
-			Note::Pitch::fromKeyOctave( ppNote->getKey(), ppNote->getOctave() );
+		const auto pitch = ppNote->toPitch();
 		const int nColumn = ppNote->getPosition();
 		const int nRow = m_pPatternEditorPanel->findRowDB( ppNote );
 		if ( bWroteNote ) {
@@ -1785,16 +1784,14 @@ void PatternEditor::paste() {
 			}
 
 			Note::Octave octave;
-            Note::Key key;
+			Note::Key key;
 			if ( m_instance == Editor::Instance::PianoRoll ) {
 				const auto pitch = Note::Pitch::fromFloat(
-					static_cast<float>( Note::Pitch::fromKeyOctave(
-						pNote->getKey(), pNote->getOctave()
-					) ) +
+					static_cast<float>( pNote->toPitch() ) +
 					static_cast<float>( deltaPitch )
 				);
 				if ( pitch == Note::Pitch::Invalid ) {
-                    continue;
+					continue;
 				}
 				key = pitch.toKey();
 				octave = pitch.toOctave();
@@ -2234,10 +2231,7 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 		if ( m_dragType == DragType::Length ) {
 			double fStep = 1.0;
 			if ( nLen > -1 ){
-				fStep = Note::Pitch::fromKeyOctave(
-							ppNote->getKey(), ppNote->getOctave()
-				)
-							.toFrequency();
+				fStep = ppNote->toPitch().toFrequency();
 			}
 			ppNote->setLength( nLen * fStep );
 
@@ -3280,11 +3274,7 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 		}
 
 		point.setY(
-			m_nGridHeight * Note::Pitch::fromKeyOctave(
-								pNote->getKey(), pNote->getOctave()
-							)
-								.toLine() +
-			( m_nGridHeight / 2 )
+			m_nGridHeight * pNote->toPitch().toLine() + ( m_nGridHeight / 2 )
 		);
 	}
 	point.setY( point.y() - 3 );
@@ -3338,10 +3328,7 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 				// When we deal with a genuine length of a note instead of an
 				// indication when playback for this note will be stopped, we
 				// have to take its pitch into account.
-				const auto fStep = Note::Pitch::fromKeyOctave(
-									   pNote->getKey(), pNote->getOctave()
-				)
-									   .toFrequency();
+				const auto fStep = pNote->toPitch().toFrequency();
 				width = m_fGridWidth * nNoteLength / fStep;
 			}
 			else {
@@ -3526,10 +3513,7 @@ void PatternEditor::drawPattern() {
 			}
 
 			if ( m_instance == Editor::Instance::PianoRoll ) {
-				nRow = Note::Pitch::fromKeyOctave(
-						   ppNote->getKey(), ppNote->getOctave()
-				)
-						   .toLine();
+				nRow = ppNote->toPitch().toLine();
 			}
 
 			// Check for duplicates
@@ -3682,10 +3666,7 @@ int PatternEditor::calculateEffectiveNoteLength(
 		const int nEffectiveFrames =
 			static_cast<int>( TransportPosition::computeFrame(
 				static_cast<double>( nEffectiveLength ) *
-					Note::Pitch::fromKeyOctave(
-						pNote->getKey(), pNote->getOctave()
-					)
-						.toFrequency(),
+					pNote->toPitch().toFrequency(),
 				fCurrentTickSize
 			) );
 

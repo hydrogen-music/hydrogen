@@ -1365,13 +1365,8 @@ void AudioEngineTests::testHumanization() {
 					QString( "[testHumanization] [customization] Pan of note [%1] was not altered" )
 					.arg( ii ) );
 			}
-			else if ( Note::Pitch::fromKeyOctave(
-						  pNoteReference->getKey(), pNoteReference->getOctave()
-					  ) ==
-					  Note::Pitch::fromKeyOctave(
-						  pNoteCustomized->getKey(),
-						  pNoteCustomized->getOctave()
-					  ) ) {
+			else if ( pNoteReference->toPitch() ==
+					  pNoteCustomized->toPitch() ) {
 				AudioEngineTests::throwException(
 					QString( "[testHumanization] [customization] Total Pitch "
 							 "of note [%1] was not altered" )
@@ -1840,9 +1835,7 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 
 						const auto pOldLayer = ppOldSelectedLayerInfo->pLayer;
 						const auto pOldSample = pOldLayer->getSample();
-						const auto oldPitch = Note::Pitch::fromKeyOctave(
-							ppOldNote->getKey(), ppOldNote->getOctave()
-						);
+						const auto oldPitch = ppOldNote->toPitch();
 
 						// The frames passed during the audio
 						// processing depends on the sample rate of

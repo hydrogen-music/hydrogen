@@ -327,6 +327,8 @@ class Note : public H2Core::Object<Note> {
 	Note( std::shared_ptr<Note> pOther );
 	~Note();
 
+	Note::Pitch toPitch() const;
+
 	/*
 	 * save the note within the given XMLNode
 	 * \param node the XMLNode to feed
@@ -882,15 +884,11 @@ inline bool Note::compare(
 	}
 	else {
 		return Note::Pitch::fromFloatClamp(
-				   static_cast<float>( Note::Pitch::fromKeyOctave(
-					   pNote1->getKey(), pNote1->getOctave()
-				   ) ) +
+				   static_cast<float>( pNote1->toPitch() ) +
 				   pNote1->getPitchHumanization()
 			   ) >
 			   Note::Pitch::fromFloatClamp(
-				   static_cast<float>( Note::Pitch::fromKeyOctave(
-					   pNote2->getKey(), pNote2->getOctave()
-				   ) ) +
+				   static_cast<float>( pNote2->toPitch() ) +
 				   pNote2->getPitchHumanization()
 			   );
 	}
@@ -910,15 +908,11 @@ inline bool Note::compareAscending(
 	}
 	else {
 		return Note::Pitch::fromFloatClamp(
-				   static_cast<float>( Note::Pitch::fromKeyOctave(
-					   pNote1->getKey(), pNote1->getOctave()
-				   ) ) +
+				   static_cast<float>( pNote1->toPitch() ) +
 				   pNote1->getPitchHumanization()
 			   ) <
 			   Note::Pitch::fromFloatClamp(
-				   static_cast<float>( Note::Pitch::fromKeyOctave(
-					   pNote2->getKey(), pNote2->getOctave()
-				   ) ) +
+				   static_cast<float>( pNote2->toPitch() ) +
 				   pNote2->getPitchHumanization()
 			   );
 	}

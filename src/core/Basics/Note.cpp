@@ -193,6 +193,11 @@ Note::~Note()
 {
 }
 
+Note::Pitch Note::toPitch() const
+{
+	return Note::Pitch::fromKeyOctave( m_key, m_octave );
+}
+
 static inline float check_boundary( float fValue, float fMin, float fMax )
 {
 	return std::clamp( fValue, fMin, fMax );

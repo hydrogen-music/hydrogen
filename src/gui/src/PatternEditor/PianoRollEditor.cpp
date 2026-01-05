@@ -496,10 +496,7 @@ GridPoint PianoRollEditor::elementToGridPoint( std::shared_ptr<H2Core::Note> pNo
 	}
 
 	gridPoint.setColumn( pNote->getPosition() );
-	gridPoint.setRow(
-		Note::Pitch::fromKeyOctave( pNote->getKey(), pNote->getOctave() )
-			.toLine()
-	);
+	gridPoint.setRow( pNote->toPitch().toLine() );
 
 	return gridPoint;
 }
