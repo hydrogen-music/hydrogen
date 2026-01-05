@@ -1195,7 +1195,11 @@ bool Sampler::renderNoteResample(
 	}
 
 	const auto pitch = Note::Pitch::fromFloatClamp(
-		static_cast<float>( pNote->getTotalPitch() ) + fLayerPitch
+		static_cast<float>(
+			Note::Pitch::fromKeyOctave( pNote->getKey(), pNote->getOctave() )
+		) +
+		pNote->getPitchHumanization() +
+		pNote->getInstrument()->getPitchOffset() + fLayerPitch
 	);
 	const bool bResample =
 		pitch != Note::Pitch::Default ||

@@ -521,17 +521,6 @@ void Note::mapToInstrument( std::shared_ptr<Instrument> pInstrument )
 	m_selectedLayerInfoMap.clear();
 }
 
-Note::Pitch Note::getTotalPitch() const
-{
-	float fPitch = static_cast<int>( m_octave ) * KEYS_PER_OCTAVE +
-				   static_cast<int>( m_key ) + m_fPitchHumanization;
-
-	if ( m_pInstrument != nullptr ) {
-		fPitch += m_pInstrument->getPitchOffset();
-	}
-	return Note::Pitch::fromFloatClamp( fPitch );
-}
-
 void Note::humanize()
 {
 	// Due to the nature of the Gaussian distribution, the factors

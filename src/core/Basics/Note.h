@@ -460,8 +460,6 @@ class Note : public H2Core::Object<Note> {
 	 * !!! */
 	Midi::Note getMidiNote() const;
 	Midi::Parameter getMidiVelocity() const;
-	Note::Pitch getTotalPitch() const;
-
 
 	/** get the ADSR of the note */
 	std::shared_ptr<ADSR> getAdsr() const;
@@ -533,6 +531,8 @@ class Note : public H2Core::Object<Note> {
 
 	long long getNoteStart() const;
 	float getUsedTickSize() const;
+
+	float getPitchHumanization() const;
 
 	/**
 	 * @return true if the #Sampler already started rendering this
@@ -881,7 +881,18 @@ inline bool Note::compare(
 		return pNote1->getPosition() > pNote2->getPosition();
 	}
 	else {
-		return pNote1->getTotalPitch() > pNote2->getTotalPitch();
+		return Note::Pitch::fromFloatClamp(
+				   static_cast<float>( Note::Pitch::fromKeyOctave(
+					   pNote1->getKey(), pNote1->getOctave()
+				   ) ) +
+				   pNote1->getPitchHumanization()
+			   ) >
+			   Note::Pitch::fromFloatClamp(
+				   static_cast<float>( Note::Pitch::fromKeyOctave(
+					   pNote2->getKey(), pNote2->getOctave()
+				   ) ) +
+				   pNote2->getPitchHumanization()
+			   );
 	}
 }
 
@@ -898,7 +909,18 @@ inline bool Note::compareAscending(
 		return pNote1->getPosition() < pNote2->getPosition();
 	}
 	else {
-		return pNote1->getTotalPitch() < pNote2->getTotalPitch();
+		return Note::Pitch::fromFloatClamp(
+				   static_cast<float>( Note::Pitch::fromKeyOctave(
+					   pNote1->getKey(), pNote1->getOctave()
+				   ) ) +
+				   pNote1->getPitchHumanization()
+			   ) <
+			   Note::Pitch::fromFloatClamp(
+				   static_cast<float>( Note::Pitch::fromKeyOctave(
+					   pNote2->getKey(), pNote2->getOctave()
+				   ) ) +
+				   pNote2->getPitchHumanization()
+			   );
 	}
 }
 
@@ -928,6 +950,10 @@ inline long long Note::getNoteStart() const
 inline float Note::getUsedTickSize() const
 {
 	return m_fUsedTickSize;
+}
+inline float Note::getPitchHumanization() const
+{
+	return m_fPitchHumanization;
 }
 };	// namespace H2Core
 

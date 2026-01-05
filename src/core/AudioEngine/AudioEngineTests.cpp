@@ -1364,18 +1364,26 @@ void AudioEngineTests::testHumanization() {
 				AudioEngineTests::throwException(
 					QString( "[testHumanization] [customization] Pan of note [%1] was not altered" )
 					.arg( ii ) );
-			} else if ( pNoteReference->getTotalPitch() ==
-				 pNoteCustomized->getTotalPitch() ) {
-				AudioEngineTests::throwException(
-					QString( "[testHumanization] [customization] Total Pitch of note [%1] was not altered" )
-					.arg( ii ) );
 			}
-		} else {
+			else if ( Note::Pitch::fromKeyOctave(
+						  pNoteReference->getKey(), pNoteReference->getOctave()
+					  ) ==
+					  Note::Pitch::fromKeyOctave(
+						  pNoteCustomized->getKey(),
+						  pNoteCustomized->getOctave()
+					  ) ) {
+				AudioEngineTests::throwException(
+					QString( "[testHumanization] [customization] Total Pitch "
+							 "of note [%1] was not altered" )
+						.arg( ii )
+				);
+			}
+		}
+		else {
 			AudioEngineTests::throwException(
 				QString( "[testHumanization] [customization] Unable to access note [%1]" )
 				.arg( ii ) );
 		}
-
 	}
 
 	//////////////////////////////////////////////////////////////////
@@ -1446,8 +1454,8 @@ void AudioEngineTests::testHumanization() {
 				deviationsVelocity[ ii ] =
 					pNoteReference->getVelocity() - pNoteHumanized->getVelocity();
 				deviationsPitch[ii] = Note::Pitch::fromFloatClamp(
-					static_cast<float>( pNoteReference->getTotalPitch() ) -
-					static_cast<float>( pNoteHumanized->getTotalPitch() )
+					pNoteReference->getPitchHumanization() -
+					pNoteHumanized->getPitchHumanization()
 				);
 				deviationsTiming[ii] = pNoteReference->getNoteStart() -
 									   pNoteHumanized->getNoteStart();
@@ -1832,6 +1840,9 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 
 						const auto pOldLayer = ppOldSelectedLayerInfo->pLayer;
 						const auto pOldSample = pOldLayer->getSample();
+						const auto oldPitch = Note::Pitch::fromKeyOctave(
+							ppOldNote->getKey(), ppOldNote->getOctave()
+						);
 
 						// The frames passed during the audio
 						// processing depends on the sample rate of
@@ -1840,12 +1851,11 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 						// question whether Sampler::renderNote() or
 						// Sampler::renderNoteResample() was used.
 						if ( pOldSample->getSampleRate() != nSampleRate ||
-							 ppOldNote->getTotalPitch() !=
-								 Note::Pitch::Default ) {
+							 oldPitch != Note::Pitch::Default ) {
 							// In here we assume the layer pitch is zero.
 							fPassedFrames =
 								static_cast<double>( nPassedFrames ) *
-								ppOldNote->getTotalPitch().toFrequency() *
+								oldPitch.toFrequency() *
 								static_cast<float>( pOldSample->getSampleRate()
 								) /
 								static_cast<float>( nSampleRate );

@@ -2489,7 +2489,9 @@ void PatternEditorPanel::clearNotesInRow(
 			for ( const auto& [_, ppNote] : *ppPattern->getNotes() ) {
 				if ( ppNote != nullptr && row.contains( ppNote ) &&
 					 ( pitch == Note::Pitch::Invalid ||
-					   ppNote->getTotalPitch() == pitch ) ) {
+					   Note::Pitch::fromKeyOctave(
+						   ppNote->getKey(), ppNote->getOctave()
+					   ) == pitch ) ) {
 					notes.push_back( ppNote );
 				}
 			}
@@ -2567,13 +2569,15 @@ void PatternEditorPanel::fillNotesInRow(
 			auto ppNote = it->second;
 			if ( ppNote != nullptr && row.contains( ppNote ) &&
 				 ( pitch == Note::Pitch::Invalid ||
-				   ppNote->getTotalPitch() == pitch ) ) {
+				   Note::Pitch::fromKeyOctave(
+					   ppNote->getKey(), ppNote->getOctave()
+				   ) == pitch ) ) {
 				bNoteAlreadyPresent = true;
 				break;
 			}
 		}
 
-		if ( ! bNoteAlreadyPresent ) {
+		if ( !bNoteAlreadyPresent ) {
 			notePositions.push_back( ii );
 		}
 	}
