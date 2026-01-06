@@ -170,6 +170,7 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );	// lock the audio engine
 
+    std::shared_ptr<Note> pNewNote;
 	if ( action == Editor::Action::Delete ) {
 		// Find and delete an existing (matching) note.
 
@@ -249,30 +250,34 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 				pSong->getDrumkit()->getInstruments()->find( id );
 		}
 
-		auto pNote = std::make_shared<Note>( pInstrument, nPosition, fVelocity,
+		auto pNewNote = std::make_shared<Note>( pInstrument, nPosition, fVelocity,
 											 fPan, nLength );
-		pNote->setInstrumentId( id );
-		pNote->setType( sType );
-		pNote->setNoteOff( bIsNoteOff );
-		pNote->setLeadLag( fOldLeadLag );
-		pNote->setProbability( fOldProbability );
-		pNote->setKey( oldKey );
-		pNote->setOctave( oldOctave );
-		pPattern->insertNote( pNote );
+		pNewNote->setInstrumentId( id );
+		pNewNote->setType( sType );
+		pNewNote->setNoteOff( bIsNoteOff );
+		pNewNote->setLeadLag( fOldLeadLag );
+		pNewNote->setProbability( fOldProbability );
+		pNewNote->setKey( oldKey );
+		pNewNote->setOctave( oldOctave );
+		pPattern->insertNote( pNewNote );
+    }
+	pHydrogen->getAudioEngine()->unlock();
 
-		if ( static_cast<char>(modifier) &
-			 static_cast<char>(Editor::ActionModifier::AddToSelection) ) {
-			pVisibleEditor->m_selection.addToSelection( pNote );
+	if ( action != Editor::Action::Delete && pNewNote != nullptr ) {
+		if ( static_cast<char>( modifier ) &
+			 static_cast<char>( Editor::ActionModifier::AddToSelection ) ) {
+			pVisibleEditor->m_selection.addToSelection( pNewNote );
 		}
 
-		if ( static_cast<char>(modifier) &
-			 static_cast<char>(Editor::ActionModifier::MoveCursorTo) ) {
-			pPatternEditorPanel->setCursorColumn( pNote->getPosition() );
+		if ( static_cast<char>( modifier ) &
+			 static_cast<char>( Editor::ActionModifier::MoveCursorTo ) ) {
+			pPatternEditorPanel->setCursorColumn( pNewNote->getPosition() );
 			pPatternEditorPanel->setSelectedRowDB(
-				pPatternEditorPanel->findRowDB( pNote ) );
+				pPatternEditorPanel->findRowDB( pNewNote )
+			);
 		}
 	}
-	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
+
 	pHydrogen->setIsModified( true );
 
 	pVisibleEditor->updateMouseHoveredElements( nullptr );
