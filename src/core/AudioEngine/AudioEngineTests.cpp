@@ -1445,10 +1445,12 @@ void AudioEngineTests::testHumanization() {
 			if ( pNoteReference != nullptr && pNoteHumanized != nullptr ) {
 				deviationsVelocity[ ii ] =
 					pNoteReference->getVelocity() - pNoteHumanized->getVelocity();
-				deviationsPitch[ ii ] =
-					pNoteReference->getTotalPitch() - pNoteHumanized->getTotalPitch();
-				deviationsTiming[ ii ] =
-					pNoteReference->getNoteStart() - pNoteHumanized->getNoteStart();
+				deviationsPitch[ii] = Note::Pitch::fromFloatClamp(
+					static_cast<float>( pNoteReference->getTotalPitch() ) -
+					static_cast<float>( pNoteHumanized->getTotalPitch() )
+				);
+				deviationsTiming[ii] = pNoteReference->getNoteStart() -
+									   pNoteHumanized->getNoteStart();
 			} else {
 				AudioEngineTests::throwException(
 					QString( "[testHumanization] [swing] Unable to access note [%1]" )
@@ -1830,7 +1832,7 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 
 						const auto pOldLayer = ppOldSelectedLayerInfo->pLayer;
 						const auto pOldSample = pOldLayer->getSample();
-						
+
 						// The frames passed during the audio
 						// processing depends on the sample rate of
 						// the driver and sample and has to be
@@ -1838,12 +1840,15 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 						// question whether Sampler::renderNote() or
 						// Sampler::renderNoteResample() was used.
 						if ( pOldSample->getSampleRate() != nSampleRate ||
-							 ppOldNote->getTotalPitch() != 0.0 ) {
+							 ppOldNote->getTotalPitch() !=
+								 Note::Pitch::Default ) {
 							// In here we assume the layer pitch is zero.
-							fPassedFrames = static_cast<double>(nPassedFrames) *
-								Note::pitchToFrequency( ppOldNote->getTotalPitch() ) *
-								static_cast<float>(pOldSample->getSampleRate()) /
-								static_cast<float>(nSampleRate);
+							fPassedFrames =
+								static_cast<double>( nPassedFrames ) *
+								ppOldNote->getTotalPitch().toFrequency() *
+								static_cast<float>( pOldSample->getSampleRate()
+								) /
+								static_cast<float>( nSampleRate );
 						}
 
 						auto pNewSelectedLayerInfo =

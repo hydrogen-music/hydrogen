@@ -283,7 +283,7 @@ PitchSidebar::PitchSidebar( QWidget *parent, int nHeight, int nGridHeight )
 		pPatternEditorPanel->clearNotesInRow(
 			pPatternEditorPanel->getSelectedRowDB(),
 			pPatternEditorPanel->getPatternNumber(),
-			Note::lineToPitch( m_nRowClicked ) ); } );
+			Note::Pitch::fromLine( m_nRowClicked ) ); } );
 
 	m_pFunctionPopupSub = new QMenu(
 		pCommonStrings->getActionFillNotes(), m_pFunctionPopup );
@@ -293,56 +293,56 @@ PitchSidebar::PitchSidebar( QWidget *parent, int nHeight, int nGridHeight )
 		pPatternEditorPanel->fillNotesInRow(
 			pPatternEditorPanel->getSelectedRowDB(),
 			PatternEditorPanel::FillNotes::All,
-			Note::lineToPitch( m_nRowClicked ) ); } );
+			Note::Pitch::fromLine( m_nRowClicked ) ); } );
 	auto fillEverySecondAction = m_pFunctionPopupSub->addAction(
 		pCommonStrings->getActionFillEverySecondNote() );
 	connect( fillEverySecondAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->fillNotesInRow(
 			pPatternEditorPanel->getSelectedRowDB(),
 			PatternEditorPanel::FillNotes::EverySecond,
-			Note::lineToPitch( m_nRowClicked ) ); } );
+			Note::Pitch::fromLine( m_nRowClicked ) ); } );
 	auto fillEveryThirdAction = m_pFunctionPopupSub->addAction(
 		pCommonStrings->getActionFillEveryThirdNote() );
 	connect( fillEveryThirdAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->fillNotesInRow(
 			pPatternEditorPanel->getSelectedRowDB(),
 			PatternEditorPanel::FillNotes::EveryThird,
-			Note::lineToPitch( m_nRowClicked ) ); } );
+			Note::Pitch::fromLine( m_nRowClicked ) ); } );
 	auto fillEveryFourthAction = m_pFunctionPopupSub->addAction(
 		pCommonStrings->getActionFillEveryFourthNote() );
 	connect( fillEveryFourthAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->fillNotesInRow(
 			pPatternEditorPanel->getSelectedRowDB(),
 			PatternEditorPanel::FillNotes::EveryFourth,
-			Note::lineToPitch( m_nRowClicked ) ); } );
+			Note::Pitch::fromLine( m_nRowClicked ) ); } );
 	auto fillEverySixthAction = m_pFunctionPopupSub->addAction(
 		pCommonStrings->getActionFillEverySixthNote() );
 	connect( fillEverySixthAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->fillNotesInRow(
 			pPatternEditorPanel->getSelectedRowDB(),
 			PatternEditorPanel::FillNotes::EverySixth,
-			Note::lineToPitch( m_nRowClicked ) ); } );
+			Note::Pitch::fromLine( m_nRowClicked ) ); } );
 	auto fillEveryEighthAction = m_pFunctionPopupSub->addAction(
 		pCommonStrings->getActionFillEveryEighthNote() );
 	connect( fillEveryEighthAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->fillNotesInRow(
 			pPatternEditorPanel->getSelectedRowDB(),
 			PatternEditorPanel::FillNotes::EveryEighth,
-			Note::lineToPitch( m_nRowClicked ) ); } );
+			Note::Pitch::fromLine( m_nRowClicked ) ); } );
 	auto fillEveryTwelfthAction = m_pFunctionPopupSub->addAction(
 		pCommonStrings->getActionFillEveryTwelfthNote() );
 	connect( fillEveryTwelfthAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->fillNotesInRow(
 			pPatternEditorPanel->getSelectedRowDB(),
 			PatternEditorPanel::FillNotes::EveryTwelfth,
-			Note::lineToPitch( m_nRowClicked ) ); } );
+			Note::Pitch::fromLine( m_nRowClicked ) ); } );
 	auto fillEverySixteenthAction = m_pFunctionPopupSub->addAction(
 		pCommonStrings->getActionFillEverySixteenthNote() );
 	connect( fillEverySixteenthAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->fillNotesInRow(
 			pPatternEditorPanel->getSelectedRowDB(),
 			PatternEditorPanel::FillNotes::EverySixteenth,
-			Note::lineToPitch( m_nRowClicked ) ); } );
+			Note::Pitch::fromLine( m_nRowClicked ) ); } );
 	m_pFunctionPopup->addMenu( m_pFunctionPopupSub );
 
 	auto selectNotesAction = m_pFunctionPopup->addAction(
@@ -350,7 +350,7 @@ PitchSidebar::PitchSidebar( QWidget *parent, int nHeight, int nGridHeight )
 	connect( selectNotesAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->getVisibleEditor()->selectAllNotesInRow(
 			pPatternEditorPanel->getSelectedRowDB(),
-			Note::lineToPitch( m_nRowClicked ) ); } );
+			Note::Pitch::fromLine( m_nRowClicked ) ); } );
 
 	m_pFunctionPopup->addSection( pCommonStrings->getActionEditAllPatterns() );
 	auto cutNotesAction = m_pFunctionPopup->addAction(
@@ -358,25 +358,25 @@ PitchSidebar::PitchSidebar( QWidget *parent, int nHeight, int nGridHeight )
 	connect( cutNotesAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->cutNotesFromRowOfAllPatterns(
 			pPatternEditorPanel->getSelectedRowDB(),
-			Note::lineToPitch( m_nRowClicked ) ); } );
+			Note::Pitch::fromLine( m_nRowClicked ) ); } );
 	auto copyNotesAction = m_pFunctionPopup->addAction(
 		pCommonStrings->getActionCopyNotes() );
 	connect( copyNotesAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->copyNotesFromRowOfAllPatterns(
 			pPatternEditorPanel->getSelectedRowDB(),
-			Note::lineToPitch( m_nRowClicked ) ); } );
+			Note::Pitch::fromLine( m_nRowClicked ) ); } );
 	auto pasteNotesAction = m_pFunctionPopup->addAction(
 		pCommonStrings->getActionPasteAllNotes() );
 	connect( pasteNotesAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->pasteNotesToRowOfAllPatterns(
 			pPatternEditorPanel->getSelectedRowDB(),
-			Note::lineToPitch( m_nRowClicked ) ); } );
+			Note::Pitch::fromLine( m_nRowClicked ) ); } );
 	auto clearAllAction = m_pFunctionPopup->addAction(
 		pCommonStrings->getActionClearAllNotes() );
 	connect( clearAllAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->clearNotesInRow(
 			pPatternEditorPanel->getSelectedRowDB(), -1,
-			Note::lineToPitch( m_nRowClicked ) ); } );
+			Note::Pitch::fromLine( m_nRowClicked ) ); } );
 
 	m_pFunctionPopup->setObjectName( "PianoRollFunctionPopup" );
 }
@@ -448,7 +448,7 @@ void PitchSidebar::rowPressed( QMouseEvent* pEvent, PitchLabel* pLabel ) {
 	auto pPatternEditorPanel =
 		HydrogenApp::get_instance()->getPatternEditorPanel();
 	pPatternEditorPanel->getVisibleEditor()->setCursorPitch(
-		Note::lineToPitch( nRowClicked ) );
+		Note::Pitch::fromLine( nRowClicked ) );
 
 	if ( pEvent->button() == Qt::RightButton ) {
 		m_pFunctionPopup->popup( pEv->globalPosition().toPoint() );
@@ -496,7 +496,10 @@ GridPoint PianoRollEditor::elementToGridPoint( std::shared_ptr<H2Core::Note> pNo
 	}
 
 	gridPoint.setColumn( pNote->getPosition() );
-	gridPoint.setRow( Note::pitchToLine( pNote->getPitchFromKeyOctave() ) );
+	gridPoint.setRow(
+		Note::Pitch::fromKeyOctave( pNote->getKey(), pNote->getOctave() )
+			.toLine()
+	);
 
 	return gridPoint;
 }
@@ -507,59 +510,64 @@ QPoint PianoRollEditor::gridPointToPoint( const GridPoint& gridPoint ) const {
 	return point;
 }
 
-GridPoint PianoRollEditor::getCursorPosition() const {
-	return GridPoint( m_pPatternEditorPanel->getCursorColumn(),
-					  Note::pitchToLine( m_nCursorPitch ) );
+GridPoint PianoRollEditor::getCursorPosition() const
+{
+	return GridPoint(
+		m_pPatternEditorPanel->getCursorColumn(), m_cursorPitch.toLine()
+	);
 }
 
-void PianoRollEditor::moveCursorDown( QKeyEvent* ev, Editor::Step step ) {
-	int nStep;
+void PianoRollEditor::moveCursorDown( QKeyEvent* ev, Editor::Step step )
+{
+	float fStep;
 	switch( step ) {
 	case Editor::Step::None:
-		nStep = 0;
+		fStep = 0;
 		break;
 	case Editor::Step::Character:
 	case Editor::Step::Tiny:
-		nStep = 1;
+		fStep = 1;
 		break;
 	case Editor::Step::Word:
-		nStep = Editor::nWordSize;
+		fStep = Editor::nWordSize;
 		break;
 	case Editor::Step::Page:
-		nStep = Editor::nPageSize;
+		fStep = Editor::nPageSize;
 		break;
 	case Editor::Step::Document:
-		setCursorPitch( PITCH_MIN );
+		setCursorPitch( Note::Pitch::Minimum );
 		return;
 	}
 
-	setCursorPitch( std::max( m_nCursorPitch - nStep,
-							  PITCH_MIN ) );
+	setCursorPitch( Note::Pitch::fromFloatClamp(
+		static_cast<float>( m_cursorPitch ) - fStep
+	) );
 }
 
 void PianoRollEditor::moveCursorUp( QKeyEvent* ev, Editor::Step step ) {
-	int nStep;
+	float fStep;
 	switch( step ) {
 	case Editor::Step::None:
-		nStep = 0;
+		fStep = 0;
 		break;
 	case Editor::Step::Character:
 	case Editor::Step::Tiny:
-		nStep = 1;
+		fStep = 1;
 		break;
 	case Editor::Step::Word:
-		nStep = Editor::nWordSize;
+		fStep = Editor::nWordSize;
 		break;
 	case Editor::Step::Page:
-		nStep = Editor::nPageSize;
+		fStep = Editor::nPageSize;
 		break;
 	case Editor::Step::Document:
-		setCursorPitch( PITCH_MAX );
+		setCursorPitch( Note::Pitch::Maximum );
 		return;
 	}
 
-	setCursorPitch( std::min( m_nCursorPitch + nStep,
-							  PITCH_MAX ) );
+	setCursorPitch( Note::Pitch::fromFloatClamp(
+		static_cast<float>( m_cursorPitch ) + fStep
+	) );
 }
 
 void PianoRollEditor::paintEvent(QPaintEvent *ev)
@@ -648,7 +656,7 @@ void PianoRollEditor::createBackground()
 	auto fillGridLines = [&]( int nLineHeight, bool bRenderInactive,
 							  bool bUpdateSidebar ) {
 
-		const int nSelectedRow = Note::pitchToLine( m_nCursorPitch );
+		const int nSelectedRow = m_cursorPitch.toLine();
 		if ( bUpdateSidebar ) {
 			m_pPitchSidebar->selectedRow( nSelectedRow );
 		}

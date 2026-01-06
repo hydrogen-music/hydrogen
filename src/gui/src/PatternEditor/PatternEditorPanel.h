@@ -285,8 +285,12 @@ class PatternEditorPanel : public QWidget,
 		  *   will be removed.
 		  * @param bCut Whether the triggered status message should indicate note
 		  *   clearing of cutting. */
-		void clearNotesInRow( int nRow, int nPattern = -1,
-							  int nPitch = PITCH_INVALID, bool bCut = false );
+		void clearNotesInRow(
+			int nRow,
+			int nPattern = -1,
+			H2Core::Note::Pitch = H2Core::Note::Pitch::Invalid,
+			bool bCut = false
+		);
 
 		enum class FillNotes {
 			All = 1,
@@ -301,14 +305,17 @@ class PatternEditorPanel : public QWidget,
 		static QString FillNotesToQString( const FillNotes& fillNotes );
 
 		/** Add every @a every note to row @a nRow.
-		  *
-		  * Note that filling notes is only supported for rows of the
-		  * #DrumPatternEditor, not the #PianoRollEditor.
-		  *
-		  * @param nPitch If a valid value is supplied, only notes matching it
-		  *   will be removed. */
-		void fillNotesInRow( int nRow, FillNotes every,
-							 int nPitch = PITCH_INVALID );
+		 *
+		 * Note that filling notes is only supported for rows of the
+		 * #DrumPatternEditor, not the #PianoRollEditor.
+		 *
+		 * @param nPitch If a valid value is supplied, only notes matching it
+		 *   will be removed. */
+		void fillNotesInRow(
+			int nRow,
+			FillNotes every,
+			H2Core::Note::Pitch = H2Core::Note::Pitch::Invalid
+		);
 
 		/** In case a row is not mapped to a drumkit, this function will adjust
 		 * all instrument types of the contained notes. */
@@ -316,14 +323,23 @@ class PatternEditorPanel : public QWidget,
 
 		/** Serialized all notes in @a nRow for all patterns in the current song
 		 * and stores the resulting string to the clipboard. */
-		void copyNotesFromRowOfAllPatterns( int nRow, int nPitch = PITCH_INVALID );
+		void copyNotesFromRowOfAllPatterns(
+			int nRow,
+			H2Core::Note::Pitch = H2Core::Note::Pitch::Invalid
+		);
 		/** Same as copyNotesFromRowOfAllPatterns() but also removes all notes
 		 * in row @a nRow. */
-		void cutNotesFromRowOfAllPatterns( int nRow, int nPitch = PITCH_INVALID );
+		void cutNotesFromRowOfAllPatterns(
+			int nRow,
+			H2Core::Note::Pitch = H2Core::Note::Pitch::Invalid
+		);
 		/** Reads the serialized note list created by
 		 * copyNotesFromRowOfAllPatterns() from clipboard and adds them to row
 		 * @a nRow. */
-		void pasteNotesToRowOfAllPatterns( int nRow, int nPitch = PITCH_INVALID );
+		void pasteNotesToRowOfAllPatterns(
+			int nRow,
+			H2Core::Note::Pitch = H2Core::Note::Pitch::Invalid
+		);
 
 		int getResolution() const;
 		bool isQuantized() const;

@@ -1194,13 +1194,16 @@ bool Sampler::renderNoteResample(
 		return true;
 	}
 
-	const float fNotePitch = pNote->getTotalPitch() + fLayerPitch;
-	const bool bResample = fNotePitch != 0 ||
+	const auto pitch = Note::Pitch::fromFloatClamp(
+		static_cast<float>( pNote->getTotalPitch() ) + fLayerPitch
+	);
+	const bool bResample =
+		pitch != Note::Pitch::Default ||
 		pSample->getSampleRate() != pAudioDriver->getSampleRate();
 
 	float fStep;
 	if ( bResample ){
-		fStep = Note::pitchToFrequency( fNotePitch );
+		fStep = pitch.toFrequency();
 
 		// Adjust for audio driver sample rate
 		fStep *= static_cast<float>(pSample->getSampleRate()) /

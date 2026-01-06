@@ -45,10 +45,6 @@
 #define LEAD_LAG_DEFAULT 0.0f
 #define LEAD_LAG_MAX 1.0f
 #define LENGTH_ENTIRE_SAMPLE -1
-#define PITCH_DEFAULT 0.0f /* C2 */
-#define PITCH_INVALID 666
-#define PITCH_MAX KEYS_PER_OCTAVE * 3 /*OCTAVE_MAX*/ + 11 /*KEY_MAX*/
-#define PITCH_MIN KEYS_PER_OCTAVE * -3 /*OCTAVE_MIN*/ + 0 /*KEY_MIN*/
 #define PROBABILITY_MIN 0.0f
 #define PROBABILITY_DEFAULT 1.0f
 #define PROBABILITY_MAX 1.0f
@@ -231,7 +227,28 @@ class Note : public H2Core::Object<Note> {
 				static_cast<float>( key )
 			);
 		}
+		/** Line within the #PianoRollEditor. */
+		static Pitch fromLine( int nLine )
+		{
+			return fromFloatClamp(
+				KEYS_PER_OCTAVE * ( static_cast<int>( Note::OctaveMinimum ) +
+									OCTAVE_NUMBER ) -
+				1 - nLine
+			);
+		}
+		static Pitch fromMidiNote( Midi::Note note )
+		{
+			const auto key = keyFrom( note );
+			const auto octave = octaveFrom( note );
+			return fromKeyOctave( key, octave );
+		}
 
+		double toFrequency() const
+		{
+			// Equivalent to, but quicker to compute than, pow( 2.0, ( fPitch/12
+			// ) )
+			return pow( 1.0594630943593, static_cast<double>( m_fValue ) );
+		}
 		Octave toOctave() const
 		{
 			if ( m_fValue >= 0 ) {
@@ -249,6 +266,13 @@ class Note : public H2Core::Object<Note> {
 				m_fValue - KEYS_PER_OCTAVE * static_cast<int>( toOctave() )
 			);
 		}
+		/** Line within the #PianoRollEditor. */
+		int toLine() const
+		{
+			return KEYS_PER_OCTAVE * ( static_cast<int>( Note::OctaveMinimum ) +
+									   OCTAVE_NUMBER ) -
+				   1 - static_cast<int>( std::round( m_fValue ) );
+		};
 
 		operator double() const { return static_cast<double>( m_fValue ); };
 		operator float() const { return m_fValue; };
@@ -428,27 +452,16 @@ class Note : public H2Core::Object<Note> {
 	int getHumanizeDelay() const;
 	/** Filter output is sustaining note */
 	bool filterSustain() const;
-	/** #m_key accessor */
 	Key getKey() const;
-	/** #m_octave accessor */
+	void setKey( Key key );
 	Octave getOctave() const;
+	void setOctave( Octave octave );
 	/** return scaled key for midi output, !!! DO NOT CHECK IF INSTRUMENT IS SET
 	 * !!! */
 	Midi::Note getMidiNote() const;
 	Midi::Parameter getMidiVelocity() const;
-	/** note key pitch accessor
-	 * \code{.cpp}
-	 * m_octave * KEYS_PER_OCTAVE + m_key
-	 * \endcode */
-	float getPitchFromKeyOctave() const;
-	float getTotalPitch() const;
+	Note::Pitch getTotalPitch() const;
 
-	/**
-	 * set #m_key and #m_octave only if within acceptable range
-	 * \param key the key to set
-	 * \param octave the octave to be set
-	 */
-	void setKeyOctave( Key key, Octave octave );
 
 	/** get the ADSR of the note */
 	std::shared_ptr<ADSR> getAdsr() const;
@@ -569,49 +582,6 @@ class Note : public H2Core::Object<Note> {
 	 * \return String presentation of current object.*/
 	QString toQString( const QString& sPrefix = "", bool bShort = true )
 		const override;
-
-	/** Convert a logarithmic pitch-space value in semitones to a
-	 * frequency-domain value */
-	static inline double pitchToFrequency( double fPitch )
-	{
-		// Equivalent to, but quicker to compute than, pow( 2.0, ( fPitch/12 ) )
-		return pow( 1.0594630943593, fPitch );
-	}
-
-	static inline Octave pitchToOctave( int nPitch )
-	{
-		if ( nPitch >= 0 ) {
-			return static_cast<Octave>( nPitch / KEYS_PER_OCTAVE );
-		}
-		else {
-			return static_cast<Octave>( ( nPitch - 11 ) / KEYS_PER_OCTAVE );
-		}
-	}
-	static inline Key pitchToKey( int nPitch )
-	{
-		return static_cast<Key>(
-			nPitch -
-			KEYS_PER_OCTAVE * static_cast<int>( pitchToOctave( nPitch ) )
-		);
-	}
-	static inline int octaveKeyToPitch( Octave octave, Key key )
-	{
-		return KEYS_PER_OCTAVE * (int) octave + static_cast<int>( key );
-	}
-
-	/** Pitch / line conversions used in GUI. */
-	static int lineToPitch( int nLine )
-	{
-		return KEYS_PER_OCTAVE *
-				   ( static_cast<int>( Note::OctaveMinimum ) + OCTAVE_NUMBER ) -
-			   1 - nLine;
-	}
-	static int pitchToLine( int nPitch )
-	{
-		return KEYS_PER_OCTAVE *
-				   ( static_cast<int>( Note::OctaveMinimum ) + OCTAVE_NUMBER ) -
-			   1 - nPitch;
-	}
 
    private:
 	/** The ID of the instrument the note will be mapped to in case a
@@ -814,10 +784,18 @@ inline Note::Key Note::getKey() const
 {
 	return m_key;
 }
+inline void Note::setKey( Note::Key key )
+{
+	m_key = key;
+}
 
 inline Note::Octave Note::getOctave() const
 {
 	return m_octave;
+}
+inline void Note::setOctave( Note::Octave octave )
+{
+	m_octave = octave;
 }
 
 inline Midi::Note Note::getMidiNote() const
@@ -837,18 +815,6 @@ inline Midi::Parameter Note::getMidiVelocity() const
 	return Midi::parameterFromIntClamp( static_cast<int>(
 		std::round( m_fVelocity * static_cast<float>( Midi::ParameterMaximum ) )
 	) );
-}
-
-inline float Note::getPitchFromKeyOctave() const
-{
-	return static_cast<int>( m_octave ) * KEYS_PER_OCTAVE +
-		   static_cast<int>( m_key );
-}
-
-inline void Note::setKeyOctave( Key key, Octave octave )
-{
-	m_key = key;
-	m_octave = octave;
 }
 
 inline bool Note::match(

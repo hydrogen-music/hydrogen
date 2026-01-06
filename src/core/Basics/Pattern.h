@@ -123,14 +123,14 @@ class Pattern : public H2Core::Object<Pattern>
 		 *   is used to filter serialized notes by requiring a matching id.
 		 * @param sType If set to a non-empty value, it is used to filter
 		 *   serialized notess by requiring a matching type.
-		 * @param nPitch If a valid one is provided, one those notes matching
+		 * @param nPitch If a valid one is provided, only those notes matching
 		 *   this particular pitch will be stored.
 		 * @param bSilent whever to log info and debug messages. */
 		void saveTo(
 			XMLNode& node,
 			Instrument::Id id = Instrument::EmptyId,
 			const Instrument::Type& sType = "",
-			int nPitch = PITCH_INVALID,
+			Note::Pitch pitch = Note::Pitch::Invalid,
 			bool bSilent = false
 		) const;
 

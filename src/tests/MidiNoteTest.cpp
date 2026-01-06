@@ -367,10 +367,12 @@ void MidiNoteTest::testMidiInstrumentOutputMapping() {
 	std::vector<std::shared_ptr<Note> > notes;
 	notes.push_back( std::make_shared<Note>() );
 	auto pNoteLow = std::make_shared<Note>();
-	pNoteLow->setKeyOctave( Note::Key::D, Note::Octave::P8Y );
+	pNoteLow->setKey( Note::Key::D );
+	pNoteLow->setOctave( Note::Octave::P8Y );
 	notes.push_back( pNoteLow );
 	auto pNoteHigh = std::make_shared<Note>();
-	pNoteHigh->setKeyOctave( Note::Key::F, Note::Octave::P8A );
+	pNoteHigh->setKey( Note::Key::F );
+	pNoteHigh->setOctave( Note::Octave::P8A );
 	notes.push_back( pNoteHigh );
 	for ( const auto& ppInstrument : *pInstrumentList ) {
 		CPPUNIT_ASSERT( ppInstrument != nullptr );
@@ -381,7 +383,11 @@ void MidiNoteTest::testMidiInstrumentOutputMapping() {
 				noteRef.note ==
 				Midi::noteFromInt(
 					static_cast<int>( ppInstrument->getMidiOutNote() ) +
-					ppNote->getPitchFromKeyOctave()
+					static_cast<int>( std::round(
+						static_cast<float>( Note::Pitch::fromKeyOctave(
+							ppNote->getKey(), ppNote->getOctave()
+						) )
+					) )
 				)
 			);
 			CPPUNIT_ASSERT(

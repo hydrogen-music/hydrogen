@@ -65,7 +65,7 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	, m_drawPreviousGridPoint( GridPoint( -1, -1 ) )
 	, m_drawPreviousKey( Note::Key::Invalid )
 	, m_drawPreviousOctave( Note::Octave::Invalid )
-	, m_nCursorPitch( 0 )
+	, m_cursorPitch( Note::Pitch::Default )
 {
 	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
@@ -256,7 +256,8 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 		pNote->setNoteOff( bIsNoteOff );
 		pNote->setLeadLag( fOldLeadLag );
 		pNote->setProbability( fOldProbability );
-		pNote->setKeyOctave( oldKey, oldOctave );
+		pNote->setKey( oldKey );
+		pNote->setOctave( oldOctave );
 		pPattern->insertNote( pNote );
 
 		if ( static_cast<char>(modifier) &
@@ -443,7 +444,8 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 		case Property::KeyOctave:
 			if ( pNote->getKey() != newKey ||
 				 pNote->getOctave() != newOctave ) {
-				pNote->setKeyOctave( newKey, newOctave );
+				pNote->setKey( newKey );
+				pNote->setOctave( newOctave );
 				bValueChanged = true;
 			}
 			break;
@@ -542,24 +544,12 @@ GridPoint PatternEditor::movingGridOffset() const {
 	return GridPoint( nOffsetX, nOffsetY);
 }
 
-void PatternEditor::setCursorPitch( int nCursorPitch ) {
-	const int nMinPitch =
-		Note::octaveKeyToPitch( Note::OctaveMinimum, Note::KeyMinimum );
-	const int nMaxPitch =
-		Note::octaveKeyToPitch( Note::OctaveMaximum, Note::KeyMaximum );
-
-	if ( nCursorPitch < nMinPitch ) {
-		nCursorPitch = nMinPitch;
-	}
-	else if ( nCursorPitch >= nMaxPitch ) {
-		nCursorPitch = nMaxPitch;
+void PatternEditor::setCursorPitch( Note::Pitch cursorPitch ) {
+	if ( cursorPitch == m_cursorPitch ) {
+        return;
 	}
 
-	if ( nCursorPitch == m_nCursorPitch ) {
-		return;
-	}
-
-	m_nCursorPitch = nCursorPitch;
+	m_cursorPitch = cursorPitch;
 
 	// Highlight selected row.
 	if ( m_instance == Editor::Instance::PianoRoll ) {
@@ -1200,11 +1190,14 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 
 		auto newKey = pNote->getKey();
 		auto newOctave = pNote->getOctave();
-		int nNewPitch = pNote->getPitchFromKeyOctave();
-		if ( m_instance == Editor::Instance::PianoRoll && offset.getRow() != 0 ) {
-			nNewPitch -= offset.getRow();
-			newKey = Note::pitchToKey( nNewPitch );
-			newOctave = Note::pitchToOctave( nNewPitch );
+		auto newPitch = Note::Pitch::fromKeyOctave( newKey, newOctave );
+		if ( m_instance == Editor::Instance::PianoRoll &&
+			 offset.getRow() != 0 ) {
+			newPitch = Note::Pitch::fromFloatClamp(
+				static_cast<float>( newPitch ) - offset.getRow()
+			);
+			newKey = newPitch.toKey();
+			newOctave = newPitch.toOctave();
 		}
 
 		// For NotePropertiesRuler there is no vertical displacement.
@@ -1311,7 +1304,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 			m_pPatternEditorPanel->setSelectedRowDB( gridPoint.getRow() );
 		}
 		else if ( m_instance == Editor::Instance::PianoRoll ) {
-			setCursorPitch( Note::lineToPitch( gridPoint.getRow() ) );
+			setCursorPitch( Note::Pitch::fromLine( gridPoint.getRow() ) );
 		}
 
 		auto hoveredNotes = getElementsAtPoint(
@@ -1385,7 +1378,7 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action )
 		gridPoint = pointToGridPoint( pEv->position().toPoint(), true );
 		if ( m_instance == Editor::Instance::PianoRoll ) {
 			// Ensure we add the new note at the right spot.
-			setCursorPitch( Note::lineToPitch( gridPoint.getRow() ) );
+			setCursorPitch( Note::Pitch::fromLine( gridPoint.getRow() ) );
 		}
 	}
 	else if ( dynamic_cast<QKeyEvent*>( ev ) != nullptr ) {
@@ -1406,8 +1399,8 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action )
 	if ( m_instance == Editor::Instance::PianoRoll ) {
 		// Use the row of the DrumPatternEditor/DB for further note
 		// interactions.
-		octave = Note::pitchToOctave( m_nCursorPitch );
-		key = Note::pitchToKey( m_nCursorPitch );
+		octave = m_cursorPitch.toOctave();
+		key = m_cursorPitch.toKey();
 	}
 
 	const bool bNoteOff = ev->modifiers() & Qt::ShiftModifier;
@@ -1538,14 +1531,16 @@ std::vector<std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 
 			if ( nDistance <= nLastDistance &&
 				 ppNote->getPosition() == nLastPosition ) {
-				// In case of the PianoRoll BaseEditor::editor we do have to additionally
-				// differentiate between different pitches.
+				// In case of the PianoRoll BaseEditor::editor we do have to
+				// additionally differentiate between different pitches.
 				if ( m_instance != Editor::Instance::PianoRoll ||
 					 ( m_instance == Editor::Instance::PianoRoll &&
 					   ppNote->getKey() ==
-					   Note::pitchToKey( Note::lineToPitch( gridPoint.getRow() ) ) &&
+						   Note::Pitch::fromLine( gridPoint.getRow() )
+							   .toKey() &&
 					   ppNote->getOctave() ==
-					   Note::pitchToOctave( Note::lineToPitch( gridPoint.getRow() ) ) ) ) {
+						   Note::Pitch::fromLine( gridPoint.getRow() )
+							   .toOctave() ) ) {
 					notesUnderPoint.push_back( ppNote );
 				}
 			}
@@ -1603,20 +1598,23 @@ void PatternEditor::copy() {
 	XMLNode positionNode = selection.createNode( "sourcePosition" );
 	bool bWroteNote = false;
 	// "Top left" of selection, in the three dimensional time*instrument*pitch space.
-	int nMinColumn, nMinRow, nMaxPitch;
+	int nMinColumn, nMinRow;
+    float fMaxPitch;
 
 	for ( const auto& ppNote : m_selection ) {
-		const int nPitch = ppNote->getPitchFromKeyOctave();
+		const auto pitch =
+			Note::Pitch::fromKeyOctave( ppNote->getKey(), ppNote->getOctave() );
 		const int nColumn = ppNote->getPosition();
 		const int nRow = m_pPatternEditorPanel->findRowDB( ppNote );
 		if ( bWroteNote ) {
 			nMinColumn = std::min( nColumn, nMinColumn );
 			nMinRow = std::min( nRow, nMinRow );
-			nMaxPitch = std::max( nPitch, nMaxPitch );
-		} else {
+			fMaxPitch = std::max( static_cast<float>( pitch ), fMaxPitch );
+		}
+		else {
 			nMinColumn = nColumn;
 			nMinRow = nRow;
-			nMaxPitch = nPitch;
+			fMaxPitch = static_cast<float>( pitch );
 			bWroteNote = true;
 		}
 		XMLNode note_node = noteList.createNode( "note" );
@@ -1626,8 +1624,9 @@ void PatternEditor::copy() {
 	if ( bWroteNote ) {
 		positionNode.write_int( "minColumn", nMinColumn );
 		positionNode.write_int( "minRow", nMinRow );
-		positionNode.write_int( "maxPitch", nMaxPitch );
-	} else {
+		positionNode.write_float( "maxPitch", fMaxPitch );
+	}
+	else {
 		positionNode.write_int( "minColumn",
 								m_pPatternEditorPanel->getCursorColumn() );
 		positionNode.write_int( "minRow",
@@ -1656,7 +1655,8 @@ void PatternEditor::paste() {
 	}
 
 	XMLNode noteList;
-	int nDeltaPos = 0, nDeltaRow = 0, nDeltaPitch = 0;
+	int nDeltaPos = 0, nDeltaRow = 0;
+    Note::Pitch deltaPitch = Note::Pitch::Default;
 
 	XMLDoc doc;
 	if ( ! doc.setContent( clipboard->text() ) ) {
@@ -1688,8 +1688,12 @@ void PatternEditor::paste() {
 
 			// In NotePropertiesRuler there is no vertical offset.
 			if ( m_instance == Editor::Instance::PianoRoll ) {
-				nDeltaPitch = m_nCursorPitch -
-					positionNode.read_int( "maxPitch", m_nCursorPitch );
+				deltaPitch = Note::Pitch::fromFloatClamp(
+					static_cast<float>( m_cursorPitch ) -
+					positionNode.read_float(
+						"maxPitch", static_cast<float>( m_cursorPitch )
+					)
+				);
 			}
 			else if ( m_instance == Editor::Instance::DrumPattern ) {
 				nDeltaRow = nSelectedRow -
@@ -1783,17 +1787,17 @@ void PatternEditor::paste() {
 			Note::Octave octave;
             Note::Key key;
 			if ( m_instance == Editor::Instance::PianoRoll ) {
-				const int nPitch = pNote->getPitchFromKeyOctave() + nDeltaPitch;
-				if ( nPitch < KEYS_PER_OCTAVE *
-								  static_cast<int>( Note::OctaveMinimum ) ||
-					 nPitch >=
-						 KEYS_PER_OCTAVE *
-							 ( static_cast<int>( Note::OctaveMaximum ) + 1 ) ) {
-					continue;
+				const auto pitch = Note::Pitch::fromFloat(
+					static_cast<float>( Note::Pitch::fromKeyOctave(
+						pNote->getKey(), pNote->getOctave()
+					) ) +
+					static_cast<float>( deltaPitch )
+				);
+				if ( pitch == Note::Pitch::Invalid ) {
+                    continue;
 				}
-
-				key = Note::pitchToKey( nPitch );
-				octave = Note::pitchToOctave( nPitch );
+				key = pitch.toKey();
+				octave = pitch.toOctave();
 			}
 			else {
 				key = pNote->getKey();
@@ -2026,10 +2030,10 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 				*octave = Note::OctaveDefault;
 			}
 			else {
-				const auto nPitch = Note::lineToPitch( pGridPoint->getRow() );
+				const auto pitch = Note::Pitch::fromLine( pGridPoint->getRow() );
 				pGridPoint->setRow( m_pPatternEditorPanel->getSelectedRowDB() );
-				*key = Note::pitchToKey( nPitch );
-				*octave = Note::pitchToOctave( nPitch );
+				*key = pitch.toKey();
+				*octave = pitch.toOctave();
 			}
 		}
 	};
@@ -2228,9 +2232,12 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 
 	for ( auto& [ ppNote, _ ] : m_draggedNotes ) {
 		if ( m_dragType == DragType::Length ) {
-			float fStep = 1.0;
+			double fStep = 1.0;
 			if ( nLen > -1 ){
-				fStep = Note::pitchToFrequency( ppNote->getPitchFromKeyOctave() );
+				fStep = Note::Pitch::fromKeyOctave(
+							ppNote->getKey(), ppNote->getOctave()
+				)
+							.toFrequency();
 			}
 			ppNote->setLength( nLen * fStep );
 
@@ -2726,7 +2733,7 @@ void PatternEditor::randomizeVelocity() {
 	popupTeardown();
 }
 
-void PatternEditor::selectAllNotesInRow( int nRow, int nPitch ) {
+void PatternEditor::selectAllNotesInRow( int nRow, Note::Pitch pitch ) {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
@@ -2736,9 +2743,9 @@ void PatternEditor::selectAllNotesInRow( int nRow, int nPitch ) {
 
 	m_selection.clearSelection();
 
-	if ( nPitch != PITCH_INVALID ) {
-		const auto key = Note::pitchToKey( nPitch );
-		const auto octave = Note::pitchToOctave( nPitch );
+	if ( pitch != Note::Pitch::Invalid ) {
+		const auto key = pitch.toKey();
+		const auto octave = pitch.toOctave();
 		for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
 			if ( ppNote != nullptr && row.contains( ppNote ) &&
 				 ppNote->getKey() == key && ppNote->getOctave() == octave ) {
@@ -3272,9 +3279,13 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 			return;
 		}
 
-		point.setY( m_nGridHeight *
-				 Note::pitchToLine( pNote->getPitchFromKeyOctave() ) +
-				 (m_nGridHeight / 2) );
+		point.setY(
+			m_nGridHeight * Note::Pitch::fromKeyOctave(
+								pNote->getKey(), pNote->getOctave()
+							)
+								.toLine() +
+			( m_nGridHeight / 2 )
+		);
 	}
 	point.setY( point.y() - 3 );
 
@@ -3327,9 +3338,10 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 				// When we deal with a genuine length of a note instead of an
 				// indication when playback for this note will be stopped, we
 				// have to take its pitch into account.
-				float fNotePitch = pNote->getPitchFromKeyOctave();
-				float fStep = Note::pitchToFrequency( ( double )fNotePitch );
-
+				const auto fStep = Note::Pitch::fromKeyOctave(
+									   pNote->getKey(), pNote->getOctave()
+				)
+									   .toFrequency();
 				width = m_fGridWidth * nNoteLength / fStep;
 			}
 			else {
@@ -3514,7 +3526,10 @@ void PatternEditor::drawPattern() {
 			}
 
 			if ( m_instance == Editor::Instance::PianoRoll ) {
-				nRow = Note::pitchToLine( ppNote->getPitchFromKeyOctave() );
+				nRow = Note::Pitch::fromKeyOctave(
+						   ppNote->getKey(), ppNote->getOctave()
+				)
+						   .toLine();
 			}
 
 			// Check for duplicates
@@ -3664,11 +3679,15 @@ int PatternEditor::calculateEffectiveNoteLength(
 		// effectively scales the length of the note too.
 		const float fCurrentTickSize = Hydrogen::get_instance()->getAudioEngine()
 			->getTransportPosition()->getTickSize();
-		const int nEffectiveFrames = static_cast<int>(
-			TransportPosition::computeFrame(
-				nEffectiveLength * Note::pitchToFrequency(
-					static_cast<double>(pNote->getPitchFromKeyOctave() ) ),
-				fCurrentTickSize ) );
+		const int nEffectiveFrames =
+			static_cast<int>( TransportPosition::computeFrame(
+				static_cast<double>( nEffectiveLength ) *
+					Note::Pitch::fromKeyOctave(
+						pNote->getKey(), pNote->getOctave()
+					)
+						.toFrequency(),
+				fCurrentTickSize
+			) );
 
 		if ( nEffectiveFrames < nMaxFrames ) {
 			return nEffectiveLength;

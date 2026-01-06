@@ -488,9 +488,17 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getOutputMapping(
 	case Output::Offset: {
 		noteRef.channel = pInstrument->getMidiOutChannel();
 		if ( pNote != nullptr ) {
+            // Within this mode the resulting MIDI note can be adjusted by
+            // changing the note's pitch within the PianoRollEditor. Pitch
+            // contributions from #Instrument, #InstrumentLayer, and
+            // humanization are not taken into account.
 			noteRef.note = Midi::noteFromIntClamp(
 				static_cast<int>( pInstrument->getMidiOutNote() ) +
-				static_cast<int>( pNote->getPitchFromKeyOctave() )
+				static_cast<int>(
+					std::round( static_cast<float>( Note::Pitch::fromKeyOctave(
+						pNote->getKey(), pNote->getOctave()
+					) ) )
+				)
 			);
 		}
 		else {

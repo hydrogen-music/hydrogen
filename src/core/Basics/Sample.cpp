@@ -653,7 +653,7 @@ bool Sample::execRubberbandCli( float fBpm )
 
 	QStringList arguments;
 	QString rCs = QString( " %1" ).arg( m_rubberband.c_settings );
-	float fFrequency = Note::pitchToFrequency( ( double )m_rubberband.pitch );
+	float fFrequency = compute_pitch_scale( m_rubberband );
 	QString rFs = QString( " %1" ).arg( fFrequency );
 	QString rubberResultPath = QDir::tempPath() + "/tmp_rb_result_file.wav";
 
@@ -1044,7 +1044,7 @@ QString Sample::sndfileFormatToQString( int nFormat ) {
 #ifdef H2CORE_HAVE_RUBBERBAND
 static double compute_pitch_scale( const Sample::Rubberband& rb )
 {
-	return Note::pitchToFrequency( rb.pitch );
+	return pow( 1.0594630943593, static_cast<double>( rb.pitch ) );
 }
 
 static RubberBand::RubberBandStretcher::Options compute_rubberband_options( const Sample::Rubberband& rb )

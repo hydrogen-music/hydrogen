@@ -521,7 +521,7 @@ void Note::mapToInstrument( std::shared_ptr<Instrument> pInstrument )
 	m_selectedLayerInfoMap.clear();
 }
 
-float Note::getTotalPitch() const
+Note::Pitch Note::getTotalPitch() const
 {
 	float fPitch = static_cast<int>( m_octave ) * KEYS_PER_OCTAVE +
 				   static_cast<int>( m_key ) + m_fPitchHumanization;
@@ -529,7 +529,7 @@ float Note::getTotalPitch() const
 	if ( m_pInstrument != nullptr ) {
 		fPitch += m_pInstrument->getPitchOffset();
 	}
-	return fPitch;
+	return Note::Pitch::fromFloatClamp( fPitch );
 }
 
 void Note::humanize()
@@ -686,7 +686,8 @@ std::shared_ptr<Note> Note::loadFrom( const XMLNode& node, bool bSilent )
 		key = totalPitch.toKey();
         octave = totalPitch.toOctave();
 	}
-	pNote->setKeyOctave( key, octave );
+	pNote->setKey( key );
+	pNote->setOctave( octave );
 	pNote->setNoteOff(
 		node.read_bool( "note_off", pNote->getNoteOff(), false, false, bSilent )
 	);

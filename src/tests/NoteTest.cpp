@@ -429,19 +429,24 @@ void NoteTest::testPitchConversions()
 	auto pInstrument = std::make_shared<H2Core::Instrument>();
 	for ( const auto ooctave : octaves ) {
 		for ( const auto kkey : keys ) {
-			auto pNote = std::make_shared<H2Core::Note>( pInstrument );
-			pNote->setKeyOctave( kkey, ooctave );
+			const auto pitch = Note::Pitch::fromKeyOctave( kkey, ooctave );
+			const int nLine = pitch.toLine();
+			const auto pitchFromLine = Note::Pitch::fromLine( nLine );
+			CPPUNIT_ASSERT( pitch == pitchFromLine );
 
-			const float fPitch = pNote->getPitchFromKeyOctave();
-			const int nLine = Note::pitchToLine( fPitch );
-			const int nPitch = Note::lineToPitch( nLine );
-			CPPUNIT_ASSERT( static_cast<int>(fPitch) == nPitch );
-
-			const auto key = Note::pitchToKey( nPitch );
-			const auto octave = Note::pitchToOctave( nPitch );
+			const auto key = pitch.toKey();
+			const auto octave = pitch.toOctave();
 			CPPUNIT_ASSERT( key == kkey );
 			CPPUNIT_ASSERT( octave == ooctave );
 		}
+	}
+
+	for ( float ff = static_cast<float>( Note::Pitch::Minimum );
+		  ff < static_cast<float>( Note::Pitch::Maximum ); ++ff ) {
+		const auto pitch = Note::Pitch::fromFloat( ff );
+		const auto nLine = pitch.toLine();
+		const auto pitch2 = Note::Pitch::fromLine( nLine );
+		CPPUNIT_ASSERT( pitch == pitch2 );
 	}
 
 	___INFOLOG( "passed" );

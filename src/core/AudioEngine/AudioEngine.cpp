@@ -2864,12 +2864,9 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 				LENGTH_ENTIRE_SAMPLE );
 
 			if ( m_nCountInMetronomeTicks == 0 ) {
-				pMetronomeNote->setKeyOctave(
-					Note::keyFromIntClamp(
-						static_cast<int>( Note::KeyDefault ) + 3
-					),
-					Note::OctaveDefault
-				);
+				pMetronomeNote->setKey( Note::keyFromIntClamp(
+					static_cast<int>( Note::KeyDefault ) + 3
+				) );
 			}
 			++m_nCountInMetronomeTicks;
 
@@ -2978,12 +2975,9 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 					LENGTH_ENTIRE_SAMPLE
 				);
 				if ( nMetronomeTickPosition == 0 ) {
-					pMetronomeNote->setKeyOctave(
-						Note::keyFromIntClamp(
-							static_cast<int>( Note::KeyDefault ) + 3
-						),
-						Note::OctaveDefault
-					);
+					pMetronomeNote->setKey( Note::keyFromIntClamp(
+						static_cast<int>( Note::KeyDefault ) + 3
+					) );
 				}
 				m_pMetronomeInstrument->enqueue( pMetronomeNote );
 				pMetronomeNote->computeNoteStart();

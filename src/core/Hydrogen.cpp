@@ -468,9 +468,7 @@ bool Hydrogen::addRealtimeNote(
 			if ( bPlaySelectedInstrument ) {
 				nNoteLength = static_cast<int>(
 					static_cast<double>( nNoteLength ) *
-					Note::pitchToFrequency( Note::octaveKeyToPitch(
-						Note::octaveFrom( note ), Note::keyFrom( note )
-					) )
+					Note::Pitch::fromMidiNote( note ).toFrequency()
 				);
 			}
 
@@ -542,9 +540,8 @@ bool Hydrogen::addRealtimeNote(
 				pInstrument, nRealColumn, fVelocity, fPan
 			);
 
-			pNote2->setKeyOctave(
-				Note::keyFrom( note ), Note::octaveFrom( note )
-			);
+			pNote2->setKey( Note::keyFrom( note ) );
+			pNote2->setOctave( Note::octaveFrom( note ) );
 			midiNoteOn( pNote2 );
 		}
 	}

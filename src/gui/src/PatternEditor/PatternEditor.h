@@ -152,7 +152,7 @@ public:
 			m_selection.merge( &pPatternEditor->m_selection );
 		}
 
-		void setCursorPitch( int nCursorPitch );
+		void setCursorPitch( H2Core::Note::Pitch cursorPitch );
 
 		void triggerStatusMessage(
 			const std::vector< std::shared_ptr<H2Core::Note> > notes,
@@ -238,10 +238,13 @@ public:
 public slots:
 		virtual void alignToGrid();
 		virtual void randomizeVelocity();
-		void selectAllNotesInRow( int nRow, int nPitch = PITCH_INVALID );
+		void selectAllNotesInRow(
+			int nRow,
+			H2Core::Note::Pitch pitch = H2Core::Note::Pitch::Invalid
+		);
 		void scrolled( int nValue );
 
-protected:
+	   protected:
 		enum NoteStyle {
 			/** Regular note of the current pattern. */
 			Foreground = 0x000,
@@ -359,7 +362,7 @@ protected:
 		// Only in #PianoRollEditor this variable is relevant and updated. In
 		// #DrumPatternEditor #PatternEditorPanel::m_nSelectedRowDB is used
 		// instead and #NotePropertiesPanel does only contain a single row.
-		int m_nCursorPitch;
+		H2Core::Note::Pitch m_cursorPitch;
 };
 
 inline float PatternEditor::getGridWidth() const {
