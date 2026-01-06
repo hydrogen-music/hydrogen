@@ -460,35 +460,58 @@ bool Hydrogen::addRealtimeNote(
 		if ( bNoteOff ) {
             // Handle the NOTE_OFF event corresponding to the previous NOTE_ON.
             // This is used to record notes of custom lengths.
-			int nPatternSize = pCurrentPattern->getLength();
-			int nNoteLength =
-				static_cast<int>(pAudioEngine->getTransportPosition()->getPatternTickPosition()) -
-				m_nLastRecordedMIDINoteTick;
+			const int nPatternSize = pCurrentPattern->getLength();
+			const int nCurrentTick = static_cast<int>(
+				pAudioEngine->getTransportPosition()->getPatternTickPosition()
+			);
 
-			if ( bPlaySelectedInstrument ) {
-				nNoteLength = static_cast<int>(
-					static_cast<double>( nNoteLength ) *
-					Note::Pitch::fromMidiNote( note ).toFrequencyRatio()
-				);
+			int nNoteLength;
+			if ( nCurrentTick < m_nLastRecordedMIDINoteTick ) {
+				// BUG: We passed the boundary between to patterns or
+				// transported got looped. As we do not support the notion of
+				// custom note lengths reaching from one pattern into the next
+				// one, we trim it at the end of the pattern instead.
+				nNoteLength = nPatternSize - m_nLastRecordedMIDINoteTick;
+
+				// We also omit pitch-related rescaling as we do not know the
+                // true length of the note (transport could have been wrapped
+                // multiple times).
+			}
+			else {
+				nNoteLength =
+					static_cast<int>( pAudioEngine->getTransportPosition()
+										  ->getPatternTickPosition() ) -
+					m_nLastRecordedMIDINoteTick;
+
+				if ( bPlaySelectedInstrument ) {
+					nNoteLength = static_cast<int>(
+						static_cast<double>( nNoteLength ) *
+						Note::Pitch::fromMidiNote( note ).toFrequencyRatio()
+					);
+				}
 			}
 
 			for ( unsigned nnNote = 0; nnNote < nPatternSize; nnNote++ ) {
 				const Pattern::notes_t* notes = pCurrentPattern->getNotes();
-				FOREACH_NOTE_CST_IT_BOUND_LENGTH( notes, it, nnNote, pCurrentPattern ) {
+				FOREACH_NOTE_CST_IT_BOUND_LENGTH(
+					notes, it, nnNote, pCurrentPattern
+				)
+				{
 					auto pNote = it->second;
 					if ( pNote != nullptr &&
 						 pNote->getPosition() == m_nLastRecordedMIDINoteTick &&
 						 pInstrument == pNote->getInstrument() ) {
-						
-						if ( m_nLastRecordedMIDINoteTick + nNoteLength > nPatternSize ) {
-							nNoteLength = nPatternSize - m_nLastRecordedMIDINoteTick;
+						int nNewNoteLength = nNoteLength;
+						if ( m_nLastRecordedMIDINoteTick + nNoteLength >
+							 nPatternSize ) {
+							nNewNoteLength =
+								nPatternSize - m_nLastRecordedMIDINoteTick;
 						}
-						pNote->setLength( nNoteLength );
+						pNote->setLength( nNewNoteLength );
 						bIsModified = true;
 					}
 				}
 			}
-
 		}
 		else { // note on
 			EventQueue::AddMidiNoteVector noteAction;
