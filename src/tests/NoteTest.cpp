@@ -33,6 +33,7 @@
 #include <core/CoreActionController.h>
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
+#include <core/Midi/Midi.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Shortcuts.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
@@ -503,8 +504,10 @@ void NoteTest::testStrongTypedPitch()
 	___INFOLOG( "" );
 
 	const Note::Pitch p1 = Note::Pitch::fromFloat( 10.0 );
-	const Note::Pitch p2 = Note::Pitch::fromFloat( 12.0 );
+	Note::Pitch p2 = Note::Pitch::fromFloat( 12.0 );
 	CPPUNIT_ASSERT( p1 != p2 );
+    p2 = p1;
+	CPPUNIT_ASSERT( p1 == p2 );
 	CPPUNIT_ASSERT( p1 == Note::Pitch::fromFloat( 10.0 ) );
 	CPPUNIT_ASSERT( Note::Pitch::fromFloat( 12.3 ) > Note::Pitch::fromFloat( 10.0 ) );
 	CPPUNIT_ASSERT( Note::Pitch::fromFloat( 12.3 ) < Note::Pitch::fromFloat( 12.33 ) );
