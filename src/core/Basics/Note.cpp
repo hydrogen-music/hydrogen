@@ -1007,7 +1007,7 @@ Note::Key Note::keyFrom( Midi::Note note )
 		return Key::Invalid;
 	}
 	const int nDivider = static_cast<int>( note ) / KEYS_PER_OCTAVE;
-	return Note::keyFromIntClamp(
+	return Note::keyFromInt(
 		static_cast<int>( note ) - ( KEYS_PER_OCTAVE * nDivider )
 	);
 }
@@ -1061,7 +1061,7 @@ Note::Octave Note::octaveFrom( Midi::Note note )
 		return Octave::Invalid;
 	}
 	const int nDivider = static_cast<int>( note ) / KEYS_PER_OCTAVE;
-	return Note::octaveFromIntClamp( nDivider - OCTAVE_OFFSET );
+	return Note::octaveFromInt( nDivider - OCTAVE_OFFSET );
 }
 
 };	// namespace H2Core

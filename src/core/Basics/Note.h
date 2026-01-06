@@ -240,6 +240,10 @@ class Note : public H2Core::Object<Note> {
 		{
 			const auto key = keyFrom( note );
 			const auto octave = octaveFrom( note );
+			if ( key == Note::Key::Invalid ||
+				 octave == Note::Octave::Invalid ) {
+                return Pitch::Invalid;
+			}
 			return fromKeyOctave( key, octave );
 		}
 
