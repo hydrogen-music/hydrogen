@@ -468,7 +468,7 @@ bool Hydrogen::addRealtimeNote(
 			if ( bPlaySelectedInstrument ) {
 				nNoteLength = static_cast<int>(
 					static_cast<double>( nNoteLength ) *
-					Note::Pitch::fromMidiNote( note ).toFrequency()
+					Note::Pitch::fromMidiNote( note ).toFrequencyRatio()
 				);
 			}
 

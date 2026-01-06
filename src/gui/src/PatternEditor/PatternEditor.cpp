@@ -2229,11 +2229,16 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 
 	for ( auto& [ ppNote, _ ] : m_draggedNotes ) {
 		if ( m_dragType == DragType::Length ) {
-			double fStep = 1.0;
+            // When dealing with pitch shifted notes - their key/octave have
+            // been changed - of custom length, we have to scale the length by
+            // the ratio of the target to the source frequency. For all other
+            // notes this is irrelevant since we let the sample ring till the
+            // end. Regardless of its length.
+			double fFrequencyRatio = 1.0;
 			if ( nLen > -1 ){
-				fStep = ppNote->toPitch().toFrequency();
+				fFrequencyRatio = ppNote->toPitch().toFrequencyRatio();
 			}
-			ppNote->setLength( nLen * fStep );
+			ppNote->setLength( nLen * fFrequencyRatio );
 
 			triggerStatusMessage( m_elementsHoveredOnDragStart, Property::Length );
 		}
@@ -3328,8 +3333,8 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 				// When we deal with a genuine length of a note instead of an
 				// indication when playback for this note will be stopped, we
 				// have to take its pitch into account.
-				const auto fStep = pNote->toPitch().toFrequency();
-				width = m_fGridWidth * nNoteLength / fStep;
+				width =
+					m_fGridWidth * nNoteLength / pNote->toPitch().toFrequencyRatio();
 			}
 			else {
 				width = m_fGridWidth * nNoteLength;
@@ -3666,7 +3671,7 @@ int PatternEditor::calculateEffectiveNoteLength(
 		const int nEffectiveFrames =
 			static_cast<int>( TransportPosition::computeFrame(
 				static_cast<double>( nEffectiveLength ) *
-					pNote->toPitch().toFrequency(),
+					pNote->toPitch().toFrequencyRatio(),
 				fCurrentTickSize
 			) );
 

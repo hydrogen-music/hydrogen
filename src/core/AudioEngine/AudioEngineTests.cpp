@@ -1848,7 +1848,7 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 							// In here we assume the layer pitch is zero.
 							fPassedFrames =
 								static_cast<double>( nPassedFrames ) *
-								oldPitch.toFrequency() *
+								oldPitch.toFrequencyRatio() *
 								static_cast<float>( pOldSample->getSampleRate()
 								) /
 								static_cast<float>( nSampleRate );

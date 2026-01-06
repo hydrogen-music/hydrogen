@@ -247,7 +247,10 @@ class Note : public H2Core::Object<Note> {
 			return fromKeyOctave( key, octave );
 		}
 
-		double toFrequency() const
+		/** Assumes #m_fValue to be a pitch difference in equal-tempered
+		 * semitones to #Pitch::Default and calculates the corresponding ratio
+		 * of target to source frequency. */
+		double toFrequencyRatio() const
 		{
 			// Equivalent to, but quicker to compute than, pow( 2.0, ( fPitch/12
 			// ) )
