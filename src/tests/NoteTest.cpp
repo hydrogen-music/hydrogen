@@ -442,12 +442,29 @@ void NoteTest::testPitchConversions()
 		}
 	}
 
-	for ( float ff = static_cast<float>( Note::Pitch::Minimum );
-		  ff < static_cast<float>( Note::Pitch::Maximum ); ++ff ) {
-		const auto pitch = Note::Pitch::fromFloat( ff );
+	// Used to check whether the pitch is monotonously decreasing (while the
+	// corresponding Midi::Note is decreasing as well).
+	auto previousPitch = Note::Pitch::Invalid;
+	for ( int nn = static_cast<int>( Midi::NoteMaximum );
+		  nn >= static_cast<int>( Midi::NoteMinimum ); --nn ) {
+		const auto note = Midi::noteFromIntClamp( nn );
+		const auto pitch = Note::Pitch::fromMidiNote( note );
+		if ( pitch == Note::Pitch::Invalid ) {
+			continue;
+		}
 		const auto nLine = pitch.toLine();
 		const auto pitch2 = Note::Pitch::fromLine( nLine );
 		CPPUNIT_ASSERT( pitch == pitch2 );
+		const auto key = pitch.toKey();
+		const auto octave = pitch.toOctave();
+		if ( previousPitch != Note::Pitch::Invalid ) {
+			CPPUNIT_ASSERT( pitch < previousPitch );
+			CPPUNIT_ASSERT(
+				static_cast<float>( pitch ) <
+				static_cast<float>( previousPitch )
+			);
+		}
+		previousPitch = pitch;
 	}
 
 	___INFOLOG( "passed" );
