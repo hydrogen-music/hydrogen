@@ -215,15 +215,15 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 			pSample->setLoops( loops );
 	
 			Sample::Rubberband rubberband;
-			rubberband.use = node.read_int( "userubber", 0, false, false, bSilent );
-			rubberband.divider = node.read_float( "rubberdivider", 0.0, false, false, bSilent );
-			rubberband.c_settings = node.read_int( "rubberCsettings", 1, false, false, bSilent );
-			rubberband.pitch = node.read_float( "rubberPitch", 0.0, false, false, bSilent );
+			rubberband.bUse = node.read_int( "userubber", 0, false, false, bSilent );
+			rubberband.fLengthInBeats = node.read_float( "rubberdivider", 0.0, false, false, bSilent );
+			rubberband.nCrispness = node.read_int( "rubberCsettings", 1, false, false, bSilent );
+			rubberband.fSemitonesToShift = node.read_float( "rubberPitch", 0.0, false, false, bSilent );
 
 			// Check whether the rubberband executable is present.
 			if ( ! Filesystem::file_exists( Preferences::get_instance()->
 											m_sRubberBandCLIexecutable ) ) {
-				rubberband.use = false;
+				rubberband.bUse = false;
 			}
 			pSample->setRubberband( rubberband );
 	
@@ -331,10 +331,10 @@ void InstrumentLayer::saveTo(
 	layer_node.write_int( "endframe", loops.end_frame );
 
 	Sample::Rubberband rubberband = pSample->getRubberband();
-	layer_node.write_int( "userubber", static_cast<int>( rubberband.use ) );
-	layer_node.write_float( "rubberdivider", rubberband.divider );
-	layer_node.write_int( "rubberCsettings", rubberband.c_settings );
-	layer_node.write_float( "rubberPitch", rubberband.pitch );
+	layer_node.write_int( "userubber", static_cast<int>( rubberband.bUse ) );
+	layer_node.write_float( "rubberdivider", rubberband.fLengthInBeats );
+	layer_node.write_int( "rubberCsettings", rubberband.nCrispness );
+	layer_node.write_float( "rubberPitch", rubberband.fSemitonesToShift );
 
 	for ( const auto& velocity : pSample->getVelocityEnvelope() ) {
 		XMLNode volumeNode = layer_node.createNode( "volume" );

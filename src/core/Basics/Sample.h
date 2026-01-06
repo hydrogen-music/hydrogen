@@ -109,25 +109,35 @@ class Sample : public H2Core::Object<Sample> {
 	/** set of rubberband configuration flags */
 	class Rubberband {
 	   public:
-		bool use;		 ///< is rubberband enabled
-		float divider;	 ///< TODO should be ratio : desired time ratio
-		float pitch;	 ///< desired pitch
-		int c_settings;	 ///< TODO should be crispness, see rubberband -h
-		/** constructor */
+		/** Whether or not to user Rubberband stretch for the corresponding
+		 * sample. */
+		bool bUse;
+		/** In Hydrogen all samples will be stretched or squashed to align with
+		 * the current tempo. A value of `1` will correspond in a sample, which
+		 * is 1 beat long. `1/16` to a sample worth a semiquaver and so on. */
+		float fLengthInBeats;
+		/** Number of equal-tempered semitones by which the resulting sample
+		 * should be pitch shifted. */
+		float fSemitonesToShift;
+		/** Fine-tunes sound quality, e.g. via transient control. (See
+		 * `rubberband -h` or Rubberband API) */
+		int nCrispness;
 		Rubberband()
-			: use( false ), divider( 1.0 ), pitch( 1.0 ), c_settings( 4 ) {};
-		/** copy constructor */
+			: bUse( false ),
+			  fLengthInBeats( 1.0 ),
+			  fSemitonesToShift( 1.0 ),
+			  nCrispness( 4 ) {};
 		Rubberband( const Rubberband* other )
-			: use( other->use ),
-			  divider( other->divider ),
-			  c_settings( other->c_settings ),
-			  pitch( other->pitch ) {};
-		/** equal to operator */
+			: bUse( other->bUse ),
+			  fLengthInBeats( other->fLengthInBeats ),
+			  nCrispness( other->nCrispness ),
+			  fSemitonesToShift( other->fSemitonesToShift ) {};
 		bool operator==( const Rubberband& b ) const
 		{
 			return (
-				use == b.use && divider == b.divider &&
-				c_settings == b.c_settings && pitch == b.pitch
+				bUse == b.bUse && fLengthInBeats == b.fLengthInBeats &&
+				nCrispness == b.nCrispness &&
+				fSemitonesToShift == b.fSemitonesToShift
 			);
 		}
 		QString toQString( const QString& sPrefix = "", bool bShort = true )

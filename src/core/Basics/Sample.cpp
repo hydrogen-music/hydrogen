@@ -511,13 +511,13 @@ void Sample::applyRubberband( float fBpm )
 {
 	// TODO see Rubberband declaration in sample.h
 #ifdef H2CORE_HAVE_RUBBERBAND
-	if ( !m_rubberband.use ) {
+	if ( !m_rubberband.bUse ) {
 		// Default behavior
 		return;
 	}
 
 	// compute rubberband options
-	double output_duration = 60.0 / fBpm * m_rubberband.divider;
+	double output_duration = 60.0 / fBpm * m_rubberband.fLengthInBeats;
 	double time_ratio = output_duration / getSampleDuration();
 	RubberBand::RubberBandStretcher::Options options =
 		compute_rubberband_options( m_rubberband );
@@ -715,7 +715,7 @@ void Sample::applyRubberband( float fBpm )
 
 bool Sample::execRubberbandCli( float fBpm )
 {
-	if ( !m_rubberband.use ) {
+	if ( !m_rubberband.bUse ) {
 		// Default behavior
 		return true;
 	}
@@ -745,10 +745,10 @@ bool Sample::execRubberbandCli( float fBpm )
 	};
 
 	const float fDurationInSeconds =
-		60.0 / fBpm * static_cast<float>( m_rubberband.divider ) /*beats*/;
+		60.0 / fBpm * static_cast<float>( m_rubberband.fLengthInBeats ) /*beats*/;
 
-	const auto sCrispness = QString( "%1" ).arg( m_rubberband.c_settings );
-	const auto sFrequency =
+	const auto sCrispness = QString( "%1" ).arg( m_rubberband.nCrispness );
+	const auto sFrequencyRatio =
 		QString( "%1" ).arg( compute_pitch_scale( m_rubberband ) );
 
 	auto arguments =
@@ -758,7 +758,7 @@ bool Sample::execRubberbandCli( float fBpm )
 		   )			// stretch or squash to make output file X seconds long
 		<< "--threads"	// assume multi-CPU even if only one CPU is identified
 		<< "-P"			// aim for minimal time distortion
-		<< "-f" << sFrequency << "-c" << sCrispness
+		<< "-f" << sFrequencyRatio << "-c" << sCrispness
 		<< sTmpFilePathInput	   // infile
 		<< sTmpFilePathProcessed;  // outfile
 
@@ -943,27 +943,27 @@ QString Sample::Rubberband::toQString( const QString& sPrefix, bool bShort )
 					  .append( QString( "%1%2use: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
-								   .arg( use ) )
+								   .arg( bUse ) )
 					  .append( QString( "%1%2divider: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
-								   .arg( divider ) )
+								   .arg( fLengthInBeats ) )
 					  .append( QString( "%1%2pitch: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
-								   .arg( pitch ) )
+								   .arg( fSemitonesToShift ) )
 					  .append( QString( "%1%2c_settings: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
-								   .arg( c_settings ) );
+								   .arg( nCrispness ) );
 	}
 	else {
 		sOutput =
 			QString( "[Rubberband]" )
-				.append( QString( " use: %1" ).arg( use ) )
-				.append( QString( ", divider: %1" ).arg( divider ) )
-				.append( QString( ", pitch: %1" ).arg( pitch ) )
-				.append( QString( ", c_settings: %1" ).arg( c_settings ) );
+				.append( QString( " use: %1" ).arg( bUse ) )
+				.append( QString( ", divider: %1" ).arg( fLengthInBeats ) )
+				.append( QString( ", pitch: %1" ).arg( fSemitonesToShift ) )
+				.append( QString( ", c_settings: %1" ).arg( nCrispness ) );
 	}
 	return sOutput;
 }
@@ -1280,9 +1280,12 @@ QString Sample::sndfileFormatToQString( int nFormat )
 }
 
 #ifdef H2CORE_HAVE_RUBBERBAND
+/** Calculates the ratio of the target to the source frequency.
+ *
+ * The term "pitch_scale" was taken from the Rubberband API. */
 static double compute_pitch_scale( const Sample::Rubberband& rb )
 {
-	return pow( 1.0594630943593, static_cast<double>( rb.pitch ) );
+	return pow( 1.0594630943593, static_cast<double>( rb.fSemitonesToShift ) );
 }
 
 static RubberBand::RubberBandStretcher::Options compute_rubberband_options(
@@ -1306,7 +1309,7 @@ static RubberBand::RubberBandStretcher::Options compute_rubberband_options(
 	RubberBand::RubberBandStretcher::Options options =
 		RubberBand::RubberBandStretcher::DefaultOptions;
 	// apply our settings
-	int crispness = rb.c_settings;
+	int crispness = rb.nCrispness;
 	// compute result options
 	switch ( crispness ) {
 		case -1:
