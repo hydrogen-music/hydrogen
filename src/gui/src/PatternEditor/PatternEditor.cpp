@@ -1413,14 +1413,16 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action )
 			dynamic_cast<QMouseEvent*>( ev )
 		);
 
-        // Ensure to add distinct notes when clicking the KeyOctave view in the
-        // ruler.
-		NotePropertiesRuler::yToKeyOctave( fYValue, &key, &octave );
-		if ( key == Note::Key::Invalid ) {
-            key = Note::KeyMinimum;
-		}
-		if ( octave == Note::Octave::Invalid ) {
-            octave = Note::OctaveDefault;
+		// Ensure to add distinct notes when clicking the KeyOctave view in the
+		// ruler.
+		if ( m_property == Property::KeyOctave ) {
+			NotePropertiesRuler::yToKeyOctave( fYValue, &key, &octave );
+			if ( key == Note::Key::Invalid ) {
+				key = Note::KeyMinimum;
+			}
+			if ( octave == Note::Octave::Invalid ) {
+				octave = Note::OctaveDefault;
+			}
 		}
 	}
 
