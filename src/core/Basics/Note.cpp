@@ -644,7 +644,7 @@ std::shared_ptr<Note> Note::loadFrom( const XMLNode& node, bool bSilent )
     // "key" and "octave" instead. But in order to remain backward compatible,
     // we add this pitch value as well.
 	const auto fPitch =
-		node.read_float( "pitch", pNote->m_fPitchHumanization, true, false, bSilent );
+		node.read_float( "pitch", pNote->m_fPitchHumanization, true, false, true );
 	pNote->setLeadLag(
 		node.read_float( "leadlag", pNote->getLeadLag(), false, false, bSilent )
 	);
