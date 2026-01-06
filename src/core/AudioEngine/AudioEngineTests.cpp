@@ -1364,18 +1364,21 @@ void AudioEngineTests::testHumanization() {
 				AudioEngineTests::throwException(
 					QString( "[testHumanization] [customization] Pan of note [%1] was not altered" )
 					.arg( ii ) );
-			} else if ( pNoteReference->getTotalPitch() ==
-				 pNoteCustomized->getTotalPitch() ) {
-				AudioEngineTests::throwException(
-					QString( "[testHumanization] [customization] Total Pitch of note [%1] was not altered" )
-					.arg( ii ) );
 			}
-		} else {
+			else if ( pNoteReference->toPitch() ==
+					  pNoteCustomized->toPitch() ) {
+				AudioEngineTests::throwException(
+					QString( "[testHumanization] [customization] Total Pitch "
+							 "of note [%1] was not altered" )
+						.arg( ii )
+				);
+			}
+		}
+		else {
 			AudioEngineTests::throwException(
 				QString( "[testHumanization] [customization] Unable to access note [%1]" )
 				.arg( ii ) );
 		}
-
 	}
 
 	//////////////////////////////////////////////////////////////////
@@ -1445,10 +1448,12 @@ void AudioEngineTests::testHumanization() {
 			if ( pNoteReference != nullptr && pNoteHumanized != nullptr ) {
 				deviationsVelocity[ ii ] =
 					pNoteReference->getVelocity() - pNoteHumanized->getVelocity();
-				deviationsPitch[ ii ] =
-					pNoteReference->getPitch() - pNoteHumanized->getPitch();
-				deviationsTiming[ ii ] =
-					pNoteReference->getNoteStart() - pNoteHumanized->getNoteStart();
+				deviationsPitch[ii] = Note::Pitch::fromFloatClamp(
+					pNoteReference->getPitchHumanization() -
+					pNoteHumanized->getPitchHumanization()
+				);
+				deviationsTiming[ii] = pNoteReference->getNoteStart() -
+									   pNoteHumanized->getNoteStart();
 			} else {
 				AudioEngineTests::throwException(
 					QString( "[testHumanization] [swing] Unable to access note [%1]" )
@@ -1830,7 +1835,8 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 
 						const auto pOldLayer = ppOldSelectedLayerInfo->pLayer;
 						const auto pOldSample = pOldLayer->getSample();
-						
+						const auto oldPitch = ppOldNote->toPitch();
+
 						// The frames passed during the audio
 						// processing depends on the sample rate of
 						// the driver and sample and has to be
@@ -1838,12 +1844,14 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 						// question whether Sampler::renderNote() or
 						// Sampler::renderNoteResample() was used.
 						if ( pOldSample->getSampleRate() != nSampleRate ||
-							 ppOldNote->getTotalPitch() != 0.0 ) {
+							 oldPitch != Note::Pitch::Default ) {
 							// In here we assume the layer pitch is zero.
-							fPassedFrames = static_cast<double>(nPassedFrames) *
-								Note::pitchToFrequency( ppOldNote->getTotalPitch() ) *
-								static_cast<float>(pOldSample->getSampleRate()) /
-								static_cast<float>(nSampleRate);
+							fPassedFrames =
+								static_cast<double>( nPassedFrames ) *
+								oldPitch.toFrequencyRatio() *
+								static_cast<float>( pOldSample->getSampleRate()
+								) /
+								static_cast<float>( nSampleRate );
 						}
 
 						auto pNewSelectedLayerInfo =

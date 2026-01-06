@@ -37,6 +37,7 @@
 
 #include <QFile>
 #include <QTextStream>
+#include "Midi/Midi.h"
 
 namespace H2Core
 {
@@ -622,19 +623,23 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 					static_cast<float>(nColumnLength);
 				const float fVelocityAdjustment =
 					pAutomationPath->get_value( fColumnPos );
-				const int nVelocity = static_cast<int>(
-					127.0 * pCopiedNote->getVelocity() * fVelocityAdjustment );
+				const auto velocity =
+					Midi::parameterFromIntClamp( static_cast<int>(
+						static_cast<float>( Midi::ParameterMaximum ) *
+						pCopiedNote->getVelocity() * fVelocityAdjustment
+					) );
 
 				const auto pInstr = pCopiedNote->getInstrument();
-				const int nPitch = pCopiedNote->getMidiKey();
+				const auto note = pCopiedNote->getMidiNote();
 						
-				int nChannel =  pInstr->getMidiOutChannel();
-				if ( nChannel == MidiMessage::nChannelOff ||
-					 nChannel == MidiMessage::nChannelAll ) {
+				auto channel =  pInstr->getMidiOutChannel();
+				if ( channel == Midi::ChannelOff ||
+					 channel == Midi::ChannelAll ||
+					 channel == Midi::ChannelInvalid ) {
 					// These are internal values disabling MIDI in/output or
 					// allowing to use arbitrary input channels. We have to
 					// replace them by a sane fallback.
-					nChannel = MidiMessage::nChannelDefault;
+					channel = Midi::ChannelDefault;
 				}
 
 				int nLength = pCopiedNote->getLength();
@@ -644,12 +649,12 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 
 				// get events for specific instrument
 				addEvent( std::make_shared<SMFNoteOnEvent>(
-							  fNoteTick, nChannel, nPitch, nVelocity ),
+							  fNoteTick, channel, note, velocity ),
 						  pInstr );
 
 				addEvent( std::make_shared<SMFNoteOffEvent>(
-							  fNoteTick + nLength, nChannel, nPitch,
-							  nVelocity ), pInstr );
+							  fNoteTick + nLength, channel, note,
+							  velocity ), pInstr );
 			}
 		}
 

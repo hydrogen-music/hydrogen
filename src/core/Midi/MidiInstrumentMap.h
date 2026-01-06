@@ -28,7 +28,7 @@
 #include <memory>
 
 #include <core/Basics/Instrument.h>
-#include <core/Midi/MidiMessage.h>
+#include <core/Midi/Midi.h>
 #include <core/Object.h>
 
 namespace H2Core {
@@ -97,13 +97,13 @@ public:
 	/** Part fo the mapping uniquely identifying a NOTE_ON or NOTE_OFF MIDI
      * event. */
 	struct NoteRef {
-		NoteRef() : nNote( MidiMessage::nNoteInvalid ),
-					nChannel( MidiMessage::nChannelInvalid ){};
-		int nNote;
-		int nChannel;
+		NoteRef() : note( Midi::NoteInvalid ),
+					channel( Midi::ChannelInvalid ){};
+		Midi::Note note;
+		Midi::Channel channel;
 
-		bool isNull() const { return nNote == MidiMessage::nNoteInvalid &&
-									 nChannel == MidiMessage::nChannelInvalid; };
+		bool isNull() const { return note == Midi::NoteInvalid &&
+									 channel == Midi::ChannelInvalid; };
 
 		QString toQString( const QString& sPrefix, bool bShort ) const;
 	};
@@ -116,7 +116,7 @@ public:
 	static std::shared_ptr<MidiInstrumentMap> loadFrom( const XMLNode& node, bool bSilent = false );
 
 	std::vector< std::shared_ptr<Instrument> > mapInput(
-		int nNote, int nChannel, std::shared_ptr<Drumkit> pDrumkit ) const;
+		Midi::Note note, Midi::Channel channel, std::shared_ptr<Drumkit> pDrumkit ) const;
 	NoteRef getInputMapping( std::shared_ptr<Instrument> pInstrument,
 							std::shared_ptr<Drumkit> pDrumkit ) const;
 	NoteRef getOutputMapping( std::shared_ptr<Note> pNote,
@@ -128,12 +128,12 @@ public:
 	void setOutput( Output mapping );
 	bool getUseGlobalInputChannel() const;
 	void setUseGlobalInputChannel( bool bUse );
-	int getGlobalInputChannel() const;
-	void setGlobalInputChannel( int nChannel );
+	Midi::Channel getGlobalInputChannel() const;
+	void setGlobalInputChannel( Midi::Channel channel );
 	bool getUseGlobalOutputChannel() const;
 	void setUseGlobalOutputChannel( bool bUse );
-	int getGlobalOutputChannel() const;
-	void setGlobalOutputChannel( int nChannel );
+	Midi::Channel getGlobalOutputChannel() const;
+	void setGlobalOutputChannel( Midi::Channel channel );
 
 	const std::map<Instrument::Type, NoteRef>& getCustomInputMappingsType(
 	) const;
@@ -146,7 +146,7 @@ public:
      * individual instrument types and ids is rather small and we should not be
      * at risk for this object to grow too large. */
 	void insertCustomInputMapping( std::shared_ptr<Instrument> pInstrument,
-								  int nNote, int nChannel );
+								  Midi::Note note, Midi::Channel channel );
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
@@ -155,9 +155,9 @@ private:
 		Input m_input;
 		Output m_output;
 		bool m_bUseGlobalInputChannel;
-		int m_nGlobalInputChannel;
+		Midi::Channel m_globalInputChannel;
 		bool m_bUseGlobalOutputChannel;
-		int m_nGlobalOutputChannel;
+		Midi::Channel m_globalOutputChannel;
 
 	/** Instrument type-based note mapping. This one takes precedeence over the
      * id-based one. */
@@ -186,8 +186,8 @@ inline bool MidiInstrumentMap::getUseGlobalInputChannel() const {
 inline void MidiInstrumentMap::setUseGlobalInputChannel( bool bUse ){
 	m_bUseGlobalInputChannel = bUse;
 }
-inline int MidiInstrumentMap::getGlobalInputChannel() const {
-	return m_nGlobalInputChannel;
+inline Midi::Channel MidiInstrumentMap::getGlobalInputChannel() const {
+	return m_globalInputChannel;
 }
 inline bool MidiInstrumentMap::getUseGlobalOutputChannel() const {
 	return m_bUseGlobalOutputChannel;
@@ -195,8 +195,8 @@ inline bool MidiInstrumentMap::getUseGlobalOutputChannel() const {
 inline void MidiInstrumentMap::setUseGlobalOutputChannel( bool bUse ){
 	m_bUseGlobalOutputChannel = bUse;
 }
-inline int MidiInstrumentMap::getGlobalOutputChannel() const {
-	return m_nGlobalOutputChannel;
+inline Midi::Channel MidiInstrumentMap::getGlobalOutputChannel() const {
+	return m_globalOutputChannel;
 }
 inline const std::map<Instrument::Type, MidiInstrumentMap::NoteRef>&
 MidiInstrumentMap::getCustomInputMappingsType() const

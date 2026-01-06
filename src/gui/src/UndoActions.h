@@ -437,8 +437,8 @@ public:
 							  float fOldVelocity,
 							  float fOldPan,
 							  float fOldLeadLag,
-							  int nOldKey,
-							  int nOldOctave,
+							  H2Core::Note::Key oldKey,
+							  H2Core::Note::Octave oldOctave,
 							  float fOldProbability,
 							  Editor::Action action,
 							  bool bIsNoteOff,
@@ -470,8 +470,8 @@ public:
 		m_fOldVelocity = fOldVelocity;
 		m_fOldPan = fOldPan;
 		m_fOldLeadLag = fOldLeadLag;
-		m_nOldKey = nOldKey;
-		m_nOldOctave = nOldOctave;
+		m_oldKey = oldKey;
+		m_oldOctave = oldOctave;
 		m_fOldProbability = fOldProbability;
 		m_action = action;
 		m_bIsNoteOff = bIsNoteOff;
@@ -487,8 +487,8 @@ public:
 											  m_fOldVelocity,
 											  m_fOldPan,
 											  m_fOldLeadLag,
-											  m_nOldKey,
-											  m_nOldOctave,
+											  m_oldKey,
+											  m_oldOctave,
 											  m_fOldProbability,
 											  Editor::undoAction( m_action ),
 											  m_bIsNoteOff,
@@ -504,8 +504,8 @@ public:
 											  m_fOldVelocity,
 											  m_fOldPan,
 											  m_fOldLeadLag,
-											  m_nOldKey,
-											  m_nOldOctave,
+											  m_oldKey,
+											  m_oldOctave,
 											  m_fOldProbability,
 											  m_action,
 											  m_bIsNoteOff,
@@ -523,8 +523,8 @@ private:
 	float m_fOldVelocity;
 	float m_fOldPan;
 	float m_fOldLeadLag;
-	int m_nOldKey;
-	int m_nOldOctave;
+	H2Core::Note::Key m_oldKey;
+	H2Core::Note::Octave m_oldOctave;
 	float m_fOldProbability;
 	Editor::Action m_action;
 	bool m_bIsNoteOff;
@@ -629,10 +629,10 @@ public:
 								 float fOldProbability,
 								 int nLength,
 								 int nOldLength,
-								 int nKey,
-								 int nOldKey,
-								 int nOctave,
-								 int nOldOctave ) :
+								 H2Core::Note::Key key,
+								 H2Core::Note::Key oldKey,
+								 H2Core::Note::Octave octave,
+								 H2Core::Note::Octave oldOctave ) :
 		m_property( property ),
 		m_nPatternNumber( nPatternNumber ),
 		m_nColumn( nColumn ),
@@ -650,10 +650,10 @@ public:
 		m_fOldProbability( fOldProbability ),
 		m_nLength( nLength ),
 		m_nOldLength( nOldLength ),
-		m_nKey( nKey ),
-		m_nOldKey( nOldKey ),
-		m_nOctaveKey( nOctave ),
-		m_nOldOctaveKey( nOldOctave ) {
+		m_key( key ),
+		m_oldKey( oldKey ),
+		m_octaveKey( octave ),
+		m_oldOctaveKey( oldOctave ) {
 
 		setText( QObject::tr( "Edit note property %1" )
 				 .arg( PatternEditor::propertyToQString( property ) ) );
@@ -671,10 +671,10 @@ public:
 												 m_fOldLeadLag,
 												 m_fOldProbability,
 												 m_nOldLength,
-												 m_nOldKey,
-												 m_nKey,
-												 m_nOldOctaveKey,
-												 m_nOctaveKey );
+												 m_oldKey,
+												 m_key,
+												 m_oldOctaveKey,
+												 m_octaveKey );
 	}
 	virtual void redo() {
 		PatternEditor::editNotePropertiesAction( m_property,
@@ -689,10 +689,10 @@ public:
 												 m_fLeadLag,
 												 m_fProbability,
 												 m_nLength,
-												 m_nKey,
-												 m_nOldKey,
-												 m_nOctaveKey,
-												 m_nOldOctaveKey );
+												 m_key,
+												 m_oldKey,
+												 m_octaveKey,
+												 m_oldOctaveKey );
 	}
 
 private:
@@ -715,10 +715,10 @@ private:
 		float m_fOldProbability;
 		int m_nLength;
 		int m_nOldLength;
-		int m_nKey;
-		int m_nOldKey;
-		int m_nOctaveKey;
-		int m_nOldOctaveKey;
+		H2Core::Note::Key m_key;
+		H2Core::Note::Key m_oldKey;
+		H2Core::Note::Octave m_octaveKey;
+		H2Core::Note::Octave m_oldOctaveKey;
 };
 
 /** \ingroup docGUI*/

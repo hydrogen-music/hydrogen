@@ -29,6 +29,7 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/DrumkitMap.h>
 #include <core/Basics/Instrument.h>
+#include <core/Basics/Note.h>
 #include <core/Object.h>
 
 namespace H2Core
@@ -36,7 +37,6 @@ namespace H2Core
 
 class Drumkit;
 class InstrumentList;
-class Note;
 class Pattern;
 class XMLNode;
 
@@ -85,7 +85,7 @@ class XMLNode;
 		XMLNode& pNode,
 		Instrument::Id id = Instrument::EmptyId,
 		const QString& sType = "",
-		int nPitch = PITCH_INVALID
+		Note::Pitch pitch = Note::Pitch::Invalid
 	) const;
 
 	/** returns the numbers of patterns */

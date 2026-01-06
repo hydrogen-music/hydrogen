@@ -28,6 +28,7 @@
 #include <vector>
 
 #include <core/Basics/DrumkitMap.h>
+#include <core/Midi/Midi.h>
 #include <core/Object.h>
 
 namespace H2Core
@@ -71,10 +72,16 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 */
 		static bool setStripPanSym( int nStrip, float fValue, bool bSelectStrip );
 		static bool setInstrumentPitch( int nInstrument, float fValue );
-		static bool setInstrumentMidiOutNote( int nInstrument, int nNote,
-											 long* pEventId );
-		static bool setInstrumentMidiOutChannel( int nInstrument, int nNote,
-												long* pEventId );
+		static bool setInstrumentMidiOutNote(
+			int nInstrument,
+			Midi::Note note,
+			long* pEventId
+		);
+		static bool setInstrumentMidiOutChannel(
+			int nInstrument,
+			Midi::Channel channel,
+			long* pEventId
+		);
 		static bool setMetronomeIsActive( bool isActive );
 		static bool setMasterIsMuted( bool isMuted );
 		static bool setHumanizeTime( float fValue );
@@ -461,9 +468,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		/** Handle an incoming note event, e.g. a MIDI or OSC NOTE_ON or
 		 * NOTE_OFF as well as virtual keyboard stroke.
 		 *
-		 * @param nNote determines which note will be triggered and is defined
-		 *   between [36,127] inspired by the General MIDI standard.
-		 * @param nChannel specifies the channel on which a matching instrument
+		 * @param note determines which note will be triggered.
+		 * @param channel specifies the channel on which a matching instrument
 		 *   is searched for. `H2Core::MidiMessage::nChannelOff` result in the
 		 *   note being dropped and `H2Core::MidiMessage::nChannelAll` for the
 		 *   mapping to only match the @a nNote information.
@@ -473,45 +479,51 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 *   instruments the note was mapped to.
 		 *
 		 * @return bool true on success */
-		static bool handleNote( int nNote, int nChannel, float fVelocity,
-							   bool bNoteOff = false,
-							   QStringList* pMappedInstruments = nullptr );
+		static bool handleNote(
+			Midi::Note note,
+			Midi::Channel channel,
+			float fVelocity,
+			bool bNoteOff = false,
+			QStringList* pMappedInstruments = nullptr
+		);
 
-	/**
-	 * Loads the drumkit specified in @a sDrumkitPath.
-	 *
-	 * Methods from within Hydrogen should _never_ call this function
-	 * directly but, instead, use
-	 * #SoundLibrarydatabase::getDrumkit(). It is only exposed
-	 * publicly to be used within the unit tests.
-	 *
-	 * \param sDrumkitPath Can be either an absolute path to a folder
-	 *   containing a drumkit file (drumkit.xml), an absolute path to a
-	 *   drumkit file itself, or an absolute file to a compressed
-	 *   drumkit (.h2drumkit).
-	 * \param bIsCompressed Stores whether the drumkit was provided as
-	 *   a compressed .h2drumkit file
-	 * \param sDrumkitDir Stores the folder containing the drumkit
-	 *   file. If a compressed drumkit was provided, this will point to
-	 *   a temporary folder.
-	 * \param sTemporaryFolder Root path of a temporary folder
-	 *   containing the extracted drumkit in case @a sDrumkitPath
-	 *   pointed to a compressed .h2drumkit file.
-	 * \param pLegacyFormatEncountered will be set to `true` is any of the
-	 *   XML elements requires legacy format support and left untouched
-	 *   otherwise.
-	 */
-	static std::shared_ptr<Drumkit> retrieveDrumkit( const QString& sDrumkitPath,
-													 bool* bIsCompressed,
-													 QString* sDrumkitDir,
-													 QString* sTemporaryFolder,
-													 bool* pLegacyFormatEncountered );
+		/**
+		 * Loads the drumkit specified in @a sDrumkitPath.
+		 *
+		 * Methods from within Hydrogen should _never_ call this function
+		 * directly but, instead, use
+		 * #SoundLibrarydatabase::getDrumkit(). It is only exposed
+		 * publicly to be used within the unit tests.
+		 *
+		 * \param sDrumkitPath Can be either an absolute path to a folder
+		 *   containing a drumkit file (drumkit.xml), an absolute path to a
+		 *   drumkit file itself, or an absolute file to a compressed
+		 *   drumkit (.h2drumkit).
+		 * \param bIsCompressed Stores whether the drumkit was provided as
+		 *   a compressed .h2drumkit file
+		 * \param sDrumkitDir Stores the folder containing the drumkit
+		 *   file. If a compressed drumkit was provided, this will point to
+		 *   a temporary folder.
+		 * \param sTemporaryFolder Root path of a temporary folder
+		 *   containing the extracted drumkit in case @a sDrumkitPath
+		 *   pointed to a compressed .h2drumkit file.
+		 * \param pLegacyFormatEncountered will be set to `true` is any of the
+		 *   XML elements requires legacy format support and left untouched
+		 *   otherwise.
+		 */
+		static std::shared_ptr<Drumkit> retrieveDrumkit(
+			const QString& sDrumkitPath,
+			bool* bIsCompressed,
+			QString* sDrumkitDir,
+			QString* sTemporaryFolder,
+			bool* pLegacyFormatEncountered
+		);
 
-	/**
-	 * Set's song-level tempo of the #AudioEngine and stores the value
-	 * in the current #Song.
-	 */
-	static bool setBpm( float fBpm );
+		/**
+		 * Set's song-level tempo of the #AudioEngine and stores the value
+		 * in the current #Song.
+		 */
+		static bool setBpm( float fBpm );
 
 		/** Makes the metronome count for the length of the largest pattern in
 		 * the current row (song mode)/largest active pattern (pattern mode)
@@ -580,10 +592,13 @@ private:
 	static bool sendStripIsSoloedFeedback( int nStrip );
 	static bool sendStripPanFeedback( int nStrip );
 	static bool sendStripPanSymFeedback( int nStrip );
-	
-	static bool handleOutgoingControlChanges( const std::vector<int>& params, int nValue);
+
+	static bool handleOutgoingControlChanges(
+		const std::vector<Midi::Parameter>& params,
+		Midi::Parameter nValue
+	);
 	static std::shared_ptr<Instrument> getStrip( int nStrip );
-	
+
 	// -----------------------------------------------------------
 	// Actions required for session management.
 		

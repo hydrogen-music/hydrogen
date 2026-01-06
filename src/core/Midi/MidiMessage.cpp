@@ -24,62 +24,69 @@
 #include <core/Basics/Note.h>
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
+#include "Midi/Midi.h"
 
 namespace H2Core
 {
 
 MidiMessage::MidiMessage() : m_timePoint( Clock::now() )
 						   , m_type( Type::Unknown )
-						   , m_nData1( -1 )
-						   , m_nData2( -1 )
-						   , m_nChannel( -1 ) {
+						   , m_data1( Midi::ParameterInvalid )
+						   , m_data2( Midi::ParameterInvalid )
+						   , m_channel( Midi::ChannelInvalid ) {
 }
 
-MidiMessage::MidiMessage( Type type, int nData1, int nData2, int nChannel )
-	: m_timePoint( Clock::now() )
-	, m_type( type )
-	, m_nData1( nData1 )
-	, m_nData2( nData2 )
-	, m_nChannel( nChannel ) {
+MidiMessage::MidiMessage(
+	Type type,
+	Midi::Parameter data1,
+	Midi::Parameter data2,
+	Midi::Channel channel
+)
+	: m_timePoint( Clock::now() ),
+	  m_type( type ),
+	  m_data1( data1 ),
+	  m_data2( data2 ),
+	  m_channel( channel )
+{
 }
 
 void MidiMessage::clear() {
 	m_timePoint = Clock::now();
 	m_type = Type::Unknown;
-	m_nData1 = -1;
-	m_nData2 = -1;
-	m_nChannel = -1;
+	m_data1 = Midi::ParameterInvalid;
+	m_data2 = Midi::ParameterInvalid;
+	m_channel = Midi::ChannelInvalid;
 	m_sysexData.clear();
 }
 
-int MidiMessage::deriveChannel( int nStatusByte ) {
+Midi::Channel MidiMessage::deriveChannel( int nStatusByte ) {
 	if ( nStatusByte >= 128 && nStatusByte < 144 ) {
-		return nStatusByte - 128;
+		return Midi::channelFromIntClamp( nStatusByte - 128 );
 	}
 	else if ( nStatusByte >= 144 && nStatusByte < 160 ) {
-		return nStatusByte - 144;
+		return Midi::channelFromIntClamp( nStatusByte - 144 );
 	}
 	else if ( nStatusByte >= 160 && nStatusByte < 176 ) {
-		return nStatusByte - 160;
+		return Midi::channelFromIntClamp( nStatusByte - 160 );
 	}
 	else if ( nStatusByte >= 176 && nStatusByte < 192 ) {
-		return nStatusByte - 176;
+		return Midi::channelFromIntClamp( nStatusByte - 176 );
 	}
 	else if ( nStatusByte >= 192 && nStatusByte < 208 ) {
-		return nStatusByte - 192;
+		return Midi::channelFromIntClamp( nStatusByte - 192 );
 	}
 	else if ( nStatusByte >= 208 && nStatusByte < 224 ) {
-		return nStatusByte - 208;
+		return Midi::channelFromIntClamp( nStatusByte - 208 );
 	}
 	else if ( nStatusByte >= 224 && nStatusByte < 240 ) {
-		return nStatusByte - 224;
+		return Midi::channelFromIntClamp( nStatusByte - 224 );
 	}
 	// System Common Messages
 	else if ( nStatusByte == 240 ) {
-		return nStatusByte - 224;
+		return Midi::channelFromIntClamp( nStatusByte - 224 );
 	}
 	else {
-		return -1;
+		return Midi::ChannelInvalid;
 	}
 }
 
@@ -152,9 +159,9 @@ MidiMessage::Type MidiMessage::deriveType( int nStatusByte ) {
 MidiMessage MidiMessage::from( const MidiMessage& otherMsg ) {
 	MidiMessage msg;
 	msg.m_type = otherMsg.m_type;
-	msg.m_nData1 = otherMsg.m_nData1;
-	msg.m_nData2 = otherMsg.m_nData2;
-	msg.m_nChannel = otherMsg.m_nChannel;
+	msg.m_data1 = otherMsg.m_data1;
+	msg.m_data2 = otherMsg.m_data2;
+	msg.m_channel = otherMsg.m_channel;
 
 	if ( otherMsg.m_sysexData.size() > 0 ) {
 		msg.m_sysexData.resize( otherMsg.m_sysexData.size() );
@@ -168,15 +175,14 @@ MidiMessage MidiMessage::from( const MidiMessage& otherMsg ) {
 
 MidiMessage MidiMessage::from( const ControlChange& controlChange ) {
 	MidiMessage msg;
-	if ( controlChange.nChannel > 0 ) {
+	if ( controlChange.channel != Midi::ChannelOff &&
+		 controlChange.channel != Midi::ChannelInvalid ) {
 		// By providing a negative value the resulting message will be
 		// suppressed.
 		msg.setType( Type::ControlChange );
-		msg.setData1( std::clamp( controlChange.nParameter, 0, 127 ) );
-		msg.setData2( std::clamp( controlChange.nValue, 0, 127 ) );
-		msg.setChannel( std::clamp( controlChange.nChannel,
-								   MidiMessage::nChannelMinimum,
-								   MidiMessage::nChannelMaximum ) );
+		msg.setData1( controlChange.parameter );
+		msg.setData2( controlChange.value );
+		msg.setChannel( controlChange.channel );
 	}
 
 	return msg;
@@ -189,20 +195,19 @@ MidiMessage MidiMessage::from( std::shared_ptr<Note> pNote ) {
 	// instrument associated to the provided note, we do not assign a valid type
 	// and the message will be dropped.
 	if ( pNote != nullptr && pNote->getInstrument() != nullptr ) {
-		const auto noteRef = Preferences::get_instance()->getMidiInstrumentMap()
-			->getOutputMapping( pNote );
-		if ( noteRef.nChannel == MidiMessage::nChannelOff ) {
+		const auto noteRef = Preferences::get_instance()
+								 ->getMidiInstrumentMap()
+								 ->getOutputMapping( pNote );
+		if ( noteRef.channel == Midi::ChannelOff ||
+			 noteRef.channel == Midi::ChannelInvalid ) {
 			// Dropping message
 			return msg;
 		}
 
 		msg.setType( Type::NoteOn );
-		msg.setData1( std::clamp( noteRef.nNote, MidiMessage::nNoteMinimum,
-								 MidiMessage::nNoteMaximum ) );
-		msg.setData2( std::clamp( pNote->getMidiVelocity(), 0, 127 ) );
-		msg.setChannel( std::clamp( noteRef.nChannel,
-								   MidiMessage::nChannelMinimum,
-								   MidiMessage::nChannelMaximum ) );
+		msg.setData1( static_cast<Midi::Parameter>( noteRef.note ) );
+		msg.setData2( pNote->getMidiVelocity() );
+		msg.setChannel( noteRef.channel );
 	}
 
 	return msg;
@@ -210,16 +215,14 @@ MidiMessage MidiMessage::from( std::shared_ptr<Note> pNote ) {
 
 MidiMessage MidiMessage::from( const NoteOff& noteOff ) {
 	MidiMessage msg;
-	if ( noteOff.nChannel > 0 ) {
+	if ( noteOff.channel != Midi::ChannelOff &&
+		 noteOff.channel != Midi::ChannelInvalid ) {
 		// By providing a negative value the resulting message will be
 		// suppressed.
 		msg.setType( Type::NoteOff );
-		msg.setData1( std::clamp( noteOff.nKey, MidiMessage::nNoteMinimum,
-								 MidiMessage::nNoteMaximum ) );
-		msg.setData2( std::clamp( noteOff.nVelocity, 0, 127 ) );
-		msg.setChannel( std::clamp( noteOff.nChannel,
-								   MidiMessage::nChannelMinimum,
-								   MidiMessage::nChannelMaximum ) );
+		msg.setData1( static_cast<Midi::Parameter>( noteOff.note ) );
+		msg.setData2( noteOff.velocity );
+		msg.setChannel( noteOff.channel );
 	}
 
 	return msg;
@@ -227,9 +230,9 @@ MidiMessage MidiMessage::from( const NoteOff& noteOff ) {
 
 bool MidiMessage::operator==( const MidiMessage& other ) const {
 	if ( m_type != other.m_type ||
-		 m_nData1 != other.m_nData1 ||
-		 m_nData2 != other.m_nData2 ||
-		 m_nChannel != other.m_nChannel ||
+		 m_data1 != other.m_data1 ||
+		 m_data2 != other.m_data2 ||
+		 m_channel != other.m_channel ||
 		 m_sysexData.size() != other.m_sysexData.size() ) {
 		return false;
 	}
@@ -257,12 +260,12 @@ QString MidiMessage::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( H2Core::timePointToQString( m_timePoint ) ) )
 			.append( QString( "%1%2m_type: %3\n" )
 					 .arg( TypeToQString( m_type ) ) )
-			.append( QString( "%1%2m_nData1: %3\n" )
-					 .arg( m_nData1 ) )
-			.append( QString( "%1%2m_nData2: %3\n" )
-					 .arg( m_nData2 ) )
-			.append( QString( "%1%2m_nChannel: %3\n" )
-					 .arg( m_nChannel ) )
+			.append( QString( "%1%2m_data1: %3\n" )
+					 .arg( static_cast<int>( m_data1 ) ) )
+			.append( QString( "%1%2m_data2: %3\n" )
+					 .arg( static_cast<int>( m_data2 ) ) )
+			.append( QString( "%1%2m_channel: %3\n" )
+					 .arg( static_cast<int>(m_channel) ) )
 			.append( QString( "%1%2m_sysexData: [" ) );
 		bool bIsFirst = true;
 		for ( const auto& dd : m_sysexData ) {
@@ -281,9 +284,9 @@ QString MidiMessage::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "m_timePoint: %1" )
 					 .arg( H2Core::timePointToQString( m_timePoint ) ) )
 			.append( QString( ", m_type: %1" ).arg( TypeToQString( m_type ) ) )
-			.append( QString( ", m_nData1: %1" ).arg( m_nData1 ) )
-			.append( QString( ", m_nData2: %1" ).arg( m_nData2 ) )
-			.append( QString( ", m_nChannel: %1" ).arg( m_nChannel ) )
+			.append( QString( ", m_data1: %1" ).arg( static_cast<int>( m_data1 ) ) )
+			.append( QString( ", m_data2: %1" ).arg( static_cast<int>( m_data2 ) ) )
+			.append( QString( ", m_channel: %1" ).arg( static_cast<int>(m_channel) ) )
 			.append( QString( ", m_sysexData: [" ) );
 		bool bIsFirst = true;
 		for ( const auto& dd : m_sysexData ) {

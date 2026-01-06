@@ -25,6 +25,7 @@
 
 #include <core/config.h>
 #include <core/Helpers/Time.h>
+#include <core/Midi/Midi.h>
 #include <core/Object.h>
 
 #include <string>
@@ -41,24 +42,6 @@ class Note;
 class MidiMessage
 {
 	public:
-
-	static constexpr int nChannelMinimum = 0;
-	static constexpr int nChannelDefault = 9;
-	static constexpr int nChannelMaximum = 15;
-	static constexpr int nChannelOff = -1;
-	static constexpr int nChannelAll = -2;
-	static constexpr int nChannelInvalid = -3;
-
-	static constexpr int nNoteMinimum = 0;
-	static constexpr int nNoteDefault = 36;
-	static constexpr int nNoteMaximum = 127;
-	static constexpr int nNoteInvalid = -1;
-
-		/** When recording notes using MIDI NOTE_ON events this offset will be
-		 * applied to the provided pitch in order to map it to an instrument
-		 * number in the current drmmkit. It corresponds to the electric bass
-		 * drum in the General MIDI notation. */
-		static constexpr int nInstrumentOffset = 36;
 
 		/** All possible types of incoming MIDI messages.*/
 		enum class Type {
@@ -86,20 +69,25 @@ class MidiMessage
 
 		/** Helper to construct ControlChange MIDI messages. */
 		struct ControlChange {
-			int nParameter;
-			int nValue;
-			int nChannel;
+			Midi::Parameter parameter;
+			Midi::Parameter value;
+			Midi::Channel channel;
 		};
 
 		/** Helper to construct NoteOff MIDI messages. */
 		struct NoteOff {
-			int nKey;
-			int nVelocity;
-			int nChannel;
+			Midi::Note note;
+			Midi::Parameter velocity;
+			Midi::Channel channel;
 		};
 
 		MidiMessage();
-		MidiMessage( Type type, int nData1, int Data2, int nChannel );
+		MidiMessage(
+			Type type,
+			Midi::Parameter data1,
+			Midi::Parameter data2,
+			Midi::Channel channel
+		);
 
 		/** Reset message */
 		void clear();
@@ -107,7 +95,7 @@ class MidiMessage
 		/** Derives the channel associated to the incoming MIDI message (if
 		 * applicable #m_nChannel). The particular values are defined by the
 		 * MIDI standard and do not dependent on the individual drivers. */
-		static int deriveChannel( int nStatusByte );
+		static Midi::Channel deriveChannel( int nStatusByte );
 		/** Derives the type of the incoming MIDI message. The particular values
 		 * are defined by the MIDI standard and do not dependent on the
 		 * individual drivers. */
@@ -123,14 +111,14 @@ class MidiMessage
 		Type getType() const;
 		void setType( Type type );
 
-		int getData1() const;
-		void setData1( int nData1 );
+		Midi::Parameter getData1() const;
+		void setData1( Midi::Parameter data1 );
 
-		int getData2() const;
-		void setData2( int nData2 );
+		Midi::Parameter getData2() const;
+		void setData2( Midi::Parameter data2 );
 
-		int getChannel() const;
-		void setChannel( int Channel );
+		Midi::Channel getChannel() const;
+		void setChannel( Midi::Channel channel );
 
 		std::vector<unsigned char> getSysexData() const;
 		void setSysexData( std::vector<unsigned char> data );
@@ -152,9 +140,9 @@ class MidiMessage
 	private:
 		TimePoint m_timePoint;
 		Type m_type;
-		int m_nData1;
-		int m_nData2;
-		int m_nChannel;
+		Midi::Parameter m_data1;
+		Midi::Parameter m_data2;
+		Midi::Channel m_channel;
 		std::vector<unsigned char> m_sysexData;
 
 };
@@ -168,23 +156,23 @@ inline MidiMessage::Type MidiMessage::getType() const {
 inline void MidiMessage::setType( MidiMessage::Type type ) {
 	m_type = type;
 }
-inline int MidiMessage::getData1() const {
-	return m_nData1;
+inline Midi::Parameter MidiMessage::getData1() const {
+	return m_data1;
 }
-inline void MidiMessage::setData1( int nData1 ) {
-	m_nData1 = nData1;
+inline void MidiMessage::setData1( Midi::Parameter data1 ) {
+	m_data1 = data1;
 }
-inline int MidiMessage::getData2() const {
-	return m_nData2;
+inline Midi::Parameter MidiMessage::getData2() const {
+	return m_data2;
 }
-inline void MidiMessage::setData2( int nData2 ) {
-	m_nData2 = nData2;
+inline void MidiMessage::setData2( Midi::Parameter data2 ) {
+	m_data2 = data2;
 }
-inline int MidiMessage::getChannel() const {
-	return m_nChannel;
+inline Midi::Channel MidiMessage::getChannel() const {
+	return m_channel;
 }
-inline void MidiMessage::setChannel( int nChannel ) {
-	m_nChannel = nChannel;
+inline void MidiMessage::setChannel( Midi::Channel channel ) {
+	m_channel = channel;
 }
 inline std::vector<unsigned char> MidiMessage::getSysexData() const {
 	return m_sysexData;

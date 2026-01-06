@@ -757,8 +757,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * Provides a similar behavior as a NOTE_ON MIDI message.
 		 *
 		 * \param argv The first "f" holds the note. It is designed after the
-		 *   MIDI NOTE_ON handling and expects an integer between 36 and 127
-		 *   (inspired by the General MIDI standard).
+		 *   MIDI NOTE_ON handling.
 		 *   The second "f" field contains the velocity of the new note within
 		 *   the range of [0, 1.0]
 		 * \param argc Number of arguments passed by the OSC message.
@@ -769,8 +768,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * Provides a similar behavior as a NOTE_OFF MIDI message.
 		 *
 		 * \param argv The "f" field holds the note. It is designed after the
-		 *   MIDI NOTE_ON handling and expects an integer between 36 and 127
-		 *   (inspired by the General MIDI standard).
+		 *   MIDI NOTE_ON handling.
 		 * \param argc Number of arguments passed by the OSC message.
 		 */
 		static void NOTE_OFF_Handler(lo_arg **argv, int argc);

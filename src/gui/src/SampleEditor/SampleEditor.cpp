@@ -85,7 +85,7 @@ SampleEditor::SampleEditor ( QWidget* pParent,
 	m_pPositionsRulerPath = nullptr;
 	m_bPlayButton = false;
 	m_fRatio = 1.0f;
-	__rubberband.c_settings = 4;
+	__rubberband.nCrispness = 4;
 
 	//init Displays
 	m_pMainSampleWaveDisplay = new MainSampleWaveDisplay( mainSampleview );
@@ -110,8 +110,8 @@ SampleEditor::SampleEditor ( QWidget* pParent,
 	// Make things consistent with the LCDDisplay and LCDSpinBox classes.
 	pitchdoubleSpinBox->setLocale( QLocale( QLocale::C, QLocale::AnyCountry ) );
 
-	__rubberband.use = false;
-	__rubberband.divider = 1.0;
+	__rubberband.bUse = false;
+	__rubberband.fLengthInBeats = 1.0;
 	openDisplays();
 	getAllFrameInfos();
 
@@ -125,7 +125,7 @@ SampleEditor::SampleEditor ( QWidget* pParent,
 	setClean();
 #endif
 
-	__rubberband.pitch = 0.0;
+	__rubberband.fSemitonesToShift = 0.0;
 
 	m_bAdjusting = false;
 	m_bSampleEditorClean = true;
@@ -237,35 +237,34 @@ void SampleEditor::getAllFrameInfos()
 		m_pMainSampleWaveDisplay->m_nEndFramePosition =  __loops.end_frame / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
 
-		if( !__rubberband.use ) { 
+		if( !__rubberband.bUse ) {
 			rubberComboBox->setCurrentIndex( 0 );
 		}
 		
-		rubberbandCsettingscomboBox->setCurrentIndex( __rubberband.c_settings );
-		if( !__rubberband.use ) {
+		rubberbandCsettingscomboBox->setCurrentIndex( __rubberband.nCrispness );
+		if( !__rubberband.bUse ) {
 			rubberbandCsettingscomboBox->setCurrentIndex( 4 );
 		}
-		
-		pitchdoubleSpinBox->setValue( __rubberband.pitch );
-		if( !__rubberband.use ) { 
+		pitchdoubleSpinBox->setValue( __rubberband.fSemitonesToShift );
+		if( !__rubberband.bUse ) {
 			pitchdoubleSpinBox->setValue( 0.0 );
 		}
 
-		if( __rubberband.divider == 1.0/64.0) {
+		if( __rubberband.fLengthInBeats == 1.0/64.0) {
 			rubberComboBox->setCurrentIndex( 1 );
 		}
-		else if( __rubberband.divider == 1.0/32.0) {
+		else if( __rubberband.fLengthInBeats == 1.0/32.0) {
 			rubberComboBox->setCurrentIndex( 2 );
-		} else if( __rubberband.divider == 1.0/16.0) {
+		} else if( __rubberband.fLengthInBeats == 1.0/16.0) {
 			rubberComboBox->setCurrentIndex( 3 );
-		} else if( __rubberband.divider == 1.0/8.0) {
+		} else if( __rubberband.fLengthInBeats == 1.0/8.0) {
 			rubberComboBox->setCurrentIndex( 4 );
-		} else if( __rubberband.divider == 1.0/4.0) {
+		} else if( __rubberband.fLengthInBeats == 1.0/4.0) {
 			rubberComboBox->setCurrentIndex( 5 );
-		} else if( __rubberband.divider == 1.0/2.0) {
+		} else if( __rubberband.fLengthInBeats == 1.0/2.0) {
 			rubberComboBox->setCurrentIndex( 6 );
-		} else if( __rubberband.use && ( __rubberband.divider >= 1.0 ) ) { 
-			rubberComboBox->setCurrentIndex(  (int)(__rubberband.divider + 6) );
+		} else if( __rubberband.bUse && ( __rubberband.fLengthInBeats >= 1.0 ) ) {
+			rubberComboBox->setCurrentIndex(  (int)(__rubberband.fLengthInBeats + 6) );
 		}
 		
 		setSamplelengthFrames();
@@ -555,7 +554,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 	m_pMainSampleWaveDisplay->paintLocatorEvent( StartFrameSpinBox->value() / m_divider + 24 , true);
 	m_pSampleAdjustView->setDetailSamplePosition( __loops.start_frame, m_fZoomfactor , nullptr);
 
-	if( __rubberband.use == false ){
+	if( __rubberband.bUse == false ){
 		m_pTimer->start(40);	// update ruler at 25 fps
 	}
 
@@ -563,7 +562,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 	m_nRealtimeFrameEnd = pAudioEngine->getRealtimeFrame() + m_nSlframes;
 
 	//calculate the new rubberband sample length
-	if( __rubberband.use ){
+	if( __rubberband.bUse ){
 		m_nRealtimeFrameEndForTarget = pAudioEngine->getRealtimeFrame() + (m_nSlframes * m_fRatio + 0.1);
 	}else
 	{
@@ -663,7 +662,7 @@ void SampleEditor::updateTargetsamplePositionRuler()
 {
 	unsigned long realpos = Hydrogen::get_instance()->getAudioEngine()->getRealtimeFrame();
 	unsigned targetSampleLength;
-	if ( __rubberband.use ){
+	if ( __rubberband.bUse ){
 		targetSampleLength =  m_nSlframes * m_fRatio + 0.1;
 	} else {
 		targetSampleLength =  m_nSlframes;
@@ -826,72 +825,71 @@ void SampleEditor::valueChangedLoopCountSpinBox( int )
 
 }
 
-
-
 void SampleEditor::valueChangedrubberbandCsettingscomboBox( int )
 {
-	int new_settings = rubberbandCsettingscomboBox->currentIndex();
-	if (new_settings == __rubberband.c_settings) {
-		if (! m_bAdjusting ) on_PlayPushButton_clicked();
+	const int nNewCrispness = rubberbandCsettingscomboBox->currentIndex();
+	if ( nNewCrispness == __rubberband.nCrispness ) {
+		if ( !m_bAdjusting ) {
+			on_PlayPushButton_clicked();
+		}
 		return;
 	}
-	__rubberband.c_settings = new_settings;
+	__rubberband.nCrispness = nNewCrispness;
 	setUnclean();
 }
-
-
 
 void SampleEditor::valueChangedpitchdoubleSpinBox( double )
 {
-	double new_value = pitchdoubleSpinBox->value();
-	if (std::abs(new_value - __rubberband.pitch) < 0.0001) {
-		if (! m_bAdjusting ) on_PlayPushButton_clicked();
+	const double fNewValue = pitchdoubleSpinBox->value();
+	if ( std::abs( fNewValue - __rubberband.fSemitonesToShift ) < 0.0001 ) {
+		if ( !m_bAdjusting ) {
+			on_PlayPushButton_clicked();
+		}
 		return;
 	}
-	__rubberband.pitch = new_value;
+	__rubberband.fSemitonesToShift = fNewValue;
 	setUnclean();
 }
-
 
 void SampleEditor::valueChangedrubberComboBox( int )
 {
 
 	if( rubberComboBox->currentText() != "off" ){
-		__rubberband.use = true;
+		__rubberband.bUse = true;
 	}else
 	{
-		__rubberband.use = false;
-		__rubberband.divider = 1.0;
+		__rubberband.bUse = false;
+		__rubberband.fLengthInBeats = 1.0;
 	}
 
 
 	switch ( rubberComboBox->currentIndex() ){
 	case 0 ://
-		__rubberband.divider = 4.0;
+		__rubberband.fLengthInBeats = 4.0;
 		break;
 	case 1 ://
-		__rubberband.divider = 1.0/64.0;
+		__rubberband.fLengthInBeats = 1.0/64.0;
 		break;
 	case 2 ://
-		__rubberband.divider = 1.0/32.0;
+		__rubberband.fLengthInBeats = 1.0/32.0;
 		break;
 	case 3 ://
-		__rubberband.divider = 1.0/16.0;
+		__rubberband.fLengthInBeats = 1.0/16.0;
 		break;
 	case 4 ://
-		__rubberband.divider = 1.0/8.0;
+		__rubberband.fLengthInBeats = 1.0/8.0;
 		break;
 	case 5 ://
-		__rubberband.divider = 1.0/4.0;
+		__rubberband.fLengthInBeats = 1.0/4.0;
 		break;
 	case 6 ://
-		__rubberband.divider = 1.0/2.0;
+		__rubberband.fLengthInBeats = 1.0/2.0;
 		break;
 	case 7 ://
-		__rubberband.divider = 1.0;
+		__rubberband.fLengthInBeats = 1.0;
 		break;
 	default:
-		__rubberband.divider = (float)rubberComboBox->currentIndex() - 6.0;
+		__rubberband.fLengthInBeats = (float)rubberComboBox->currentIndex() - 6.0;
 	}
 //	QMessageBox::information ( this, "Hydrogen", tr ( "divider %1" ).arg( __rubberband.divider ));
 //	float __rubberband.divider;
@@ -905,7 +903,7 @@ void SampleEditor::checkRatioSettings()
 {
 	//calculate ratio
 	double durationtime = 60.0 / Hydrogen::get_instance()->getAudioEngine()->getTransportPosition()->getBpm()
-		* __rubberband.divider;
+		* __rubberband.fLengthInBeats;
 	double induration = (double) m_nSlframes / (double) m_nSamplerate;
 	if (induration != 0.0) m_fRatio = durationtime / induration;
 
@@ -934,7 +932,7 @@ void SampleEditor::checkRatioSettings()
 	ratiolabel->setText( text );
 
 	//no rubberband = default
-	if( !__rubberband.use ){
+	if( !__rubberband.bUse ){
 		rubberComboBox->setStyleSheet("QComboBox { background-color: 58, 62, 72; }");
 		ratiolabel->setText( "" );
 	}

@@ -24,6 +24,7 @@
 
 #include <QString>
 
+#include <core/Midi/Midi.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Object.h>
 
@@ -39,8 +40,6 @@ namespace H2Core {
 class MidiEvent : public H2Core::Object<MidiEvent> {
 	H2_OBJECT( MidiEvent )
    public:
-    static constexpr int nNullParameter = -1;
-
 	/** Subset of incoming MIDI events that will be handled by
 		Hydrogen. */
 	enum class Type {
@@ -70,8 +69,8 @@ class MidiEvent : public H2Core::Object<MidiEvent> {
 	const Type& getType() const;
 	void setType( const Type& type );
 
-	int getParameter() const;
-	void setParameter( int nValue );
+	Midi::Parameter getParameter() const;
+	void setParameter( Midi::Parameter parameter );
 
 	std::shared_ptr<MidiAction> getMidiAction() const;
 	void setMidiAction( std::shared_ptr<MidiAction> pAction );
@@ -89,7 +88,7 @@ class MidiEvent : public H2Core::Object<MidiEvent> {
 
    private:
 	Type m_type;
-	int m_nParameter;
+	Midi::Parameter m_parameter;
 	std::shared_ptr<MidiAction> m_pMidiAction;
 };
 
@@ -103,14 +102,14 @@ inline void MidiEvent::setType( const MidiEvent::Type& type )
 	m_type = type;
 }
 
-inline int MidiEvent::getParameter() const
+inline Midi::Parameter MidiEvent::getParameter() const
 {
-	return m_nParameter;
+	return m_parameter;
 }
 
-inline void MidiEvent::setParameter( int nValue )
+inline void MidiEvent::setParameter( Midi::Parameter parameter )
 {
-	m_nParameter = nValue;
+	m_parameter = parameter;
 }
 
 inline std::shared_ptr<MidiAction> MidiEvent::getMidiAction() const

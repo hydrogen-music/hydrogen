@@ -24,6 +24,7 @@
 #define H2_MIDI_INPUT_H
 
 #include <core/Helpers/Time.h>
+#include <core/Midi/Midi.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
@@ -48,9 +49,9 @@ public:
 		struct HandledInput {
 			TimePoint timePoint;
 			MidiMessage::Type type;
-			int nData1;
-			int nData2;
-			int nChannel;
+			Midi::Parameter data1;
+			Midi::Parameter data2;
+			Midi::Channel channel;
 
 			std::vector<MidiAction::Type> actionTypes;
 			QStringList mappedInstruments;

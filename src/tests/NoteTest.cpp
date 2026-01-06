@@ -33,6 +33,7 @@
 #include <core/CoreActionController.h>
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
+#include <core/Midi/Midi.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Shortcuts.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
@@ -381,52 +382,89 @@ void NoteTest::testMappingValidDrumkits() {
 	___INFOLOG( "passed" );
 }
 
-void NoteTest::testMidiDefaultOffset() {
+void NoteTest::testMidiDefaultOffset()
+{
 	___INFOLOG( "" );
-	CPPUNIT_ASSERT_EQUAL( MidiMessage::nInstrumentOffset, KEYS_PER_OCTAVE *
-						  ( OCTAVE_DEFAULT + OCTAVE_OFFSET ) );
+	CPPUNIT_ASSERT_EQUAL(
+		static_cast<int>( Midi::NoteOffset ),
+		KEYS_PER_OCTAVE *
+			( static_cast<int>( H2Core::Note::OctaveDefault ) + OCTAVE_OFFSET )
+	);
 	___INFOLOG( "passed" );
 }
 
-void NoteTest::testPitchConversions() {
+void NoteTest::testPitchConversions()
+{
 	___INFOLOG( "" );
 
-	CPPUNIT_ASSERT( H2Core::Note::C == KEY_MIN );
-	CPPUNIT_ASSERT( H2Core::Note::B == KEY_MAX );
-	CPPUNIT_ASSERT( KEYS_PER_OCTAVE == KEY_MAX - KEY_MIN + 1 );
-	CPPUNIT_ASSERT( H2Core::Note::P8Z == OCTAVE_MIN );
-	CPPUNIT_ASSERT( H2Core::Note::P8C == OCTAVE_MAX );
-	CPPUNIT_ASSERT( OCTAVE_NUMBER == OCTAVE_MAX - OCTAVE_MIN + 1 );
-	CPPUNIT_ASSERT( H2Core::Note::P8 == OCTAVE_DEFAULT );
+	CPPUNIT_ASSERT( H2Core::Note::Key::C == Note::KeyMinimum );
+	CPPUNIT_ASSERT( H2Core::Note::Key::B == Note::KeyMaximum );
+	CPPUNIT_ASSERT(
+		KEYS_PER_OCTAVE ==
+		static_cast<int>( Note::KeyMaximum ) - static_cast<int>( Note::KeyMinimum ) + 1
+	);
+	CPPUNIT_ASSERT( H2Core::Note::Octave::P8Z == H2Core::Note::OctaveMinimum );
+	CPPUNIT_ASSERT( H2Core::Note::Octave::P8C == H2Core::Note::OctaveMaximum );
+	CPPUNIT_ASSERT(
+		OCTAVE_NUMBER == static_cast<int>( H2Core::Note::OctaveMaximum ) -
+							 static_cast<int>( H2Core::Note::OctaveMinimum ) + 1
+	);
+	CPPUNIT_ASSERT( H2Core::Note::Octave::P8 == H2Core::Note::OctaveDefault );
 
-	std::vector<int> octaves = { H2Core::Note::P8Z, H2Core::Note::P8Y,
-		H2Core::Note::P8X, H2Core::Note::P8, H2Core::Note::P8A,
-		H2Core::Note::P8B, H2Core::Note::P8C, OCTAVE_MIN, OCTAVE_MAX,
-		OCTAVE_DEFAULT };
+	std::vector<H2Core::Note::Octave> octaves = {
+		H2Core::Note::Octave::P8Z, H2Core::Note::Octave::P8Y,
+		H2Core::Note::Octave::P8X, H2Core::Note::Octave::P8,
+		H2Core::Note::Octave::P8A, H2Core::Note::Octave::P8B,
+		H2Core::Note::Octave::P8C, H2Core::Note::OctaveMinimum,
+		H2Core::Note::OctaveMaximum,   H2Core::Note::OctaveDefault
+	};
 
-	std::vector<int> keys = { H2Core::Note::C, H2Core::Note::Cs,
-		H2Core::Note::D, H2Core::Note::Ef, H2Core::Note::E,
-		H2Core::Note::Fs, H2Core::Note::G, H2Core::Note::Af,
-		H2Core::Note::A, H2Core::Note::Bf, H2Core::Note::B,
-		KEY_MIN, KEY_MAX };
+	std::vector<H2Core::Note::Key> keys = {
+		H2Core::Note::Key::C,  H2Core::Note::Key::Cs, H2Core::Note::Key::D,
+		H2Core::Note::Key::Ef, H2Core::Note::Key::E,  H2Core::Note::Key::Fs,
+		H2Core::Note::Key::G,  H2Core::Note::Key::Af, H2Core::Note::Key::A,
+		H2Core::Note::Key::Bf, H2Core::Note::Key::B,  Note::KeyMinimum,
+		Note::KeyMaximum
+	};
 
 	auto pInstrument = std::make_shared<H2Core::Instrument>();
 	for ( const auto ooctave : octaves ) {
 		for ( const auto kkey : keys ) {
-			auto pNote = std::make_shared<H2Core::Note>( pInstrument );
-			pNote->setKeyOctave( static_cast<H2Core::Note::Key>(kkey),
-								 static_cast<H2Core::Note::Octave>(ooctave) );
+			const auto pitch = Note::Pitch::fromKeyOctave( kkey, ooctave );
+			const int nLine = pitch.toLine();
+			const auto pitchFromLine = Note::Pitch::fromLine( nLine );
+			CPPUNIT_ASSERT( pitch == pitchFromLine );
 
-			const float fPitch = pNote->getPitchFromKeyOctave();
-			const int nLine = Note::pitchToLine( fPitch );
-			const int nPitch = Note::lineToPitch( nLine );
-			CPPUNIT_ASSERT( static_cast<int>(fPitch) == nPitch );
-
-			const auto key = Note::pitchToKey( nPitch );
-			const auto octave = Note::pitchToOctave( nPitch );
+			const auto key = pitch.toKey();
+			const auto octave = pitch.toOctave();
 			CPPUNIT_ASSERT( key == kkey );
 			CPPUNIT_ASSERT( octave == ooctave );
 		}
+	}
+
+	// Used to check whether the pitch is monotonously decreasing (while the
+	// corresponding Midi::Note is decreasing as well).
+	auto previousPitch = Note::Pitch::Invalid;
+	for ( int nn = static_cast<int>( Midi::NoteMaximum );
+		  nn >= static_cast<int>( Midi::NoteMinimum ); --nn ) {
+		const auto note = Midi::noteFromIntClamp( nn );
+		const auto pitch = Note::Pitch::fromMidiNote( note );
+		if ( pitch == Note::Pitch::Invalid ) {
+			continue;
+		}
+		const auto nLine = pitch.toLine();
+		const auto pitch2 = Note::Pitch::fromLine( nLine );
+		CPPUNIT_ASSERT( pitch == pitch2 );
+		const auto key = pitch.toKey();
+		const auto octave = pitch.toOctave();
+		if ( previousPitch != Note::Pitch::Invalid ) {
+			CPPUNIT_ASSERT( pitch < previousPitch );
+			CPPUNIT_ASSERT(
+				static_cast<float>( pitch ) <
+				static_cast<float>( previousPitch )
+			);
+		}
+		previousPitch = pitch;
 	}
 
 	___INFOLOG( "passed" );
@@ -435,7 +473,7 @@ void NoteTest::testPitchConversions() {
 void NoteTest::testProbability() {
 	___INFOLOG( "" );
 
-	auto pNote = std::make_shared<Note>( nullptr, 0, 1.0f, 0.f, 1, 1.0f );
+	auto pNote = std::make_shared<Note>( nullptr, 0, 1.0f, 0.f, 1 );
 	pNote->setProbability(0.75f);
 	CPPUNIT_ASSERT_EQUAL(0.75f, pNote->getProbability());
 
@@ -459,7 +497,7 @@ void NoteTest::testSerializeProbability() {
 	pInstruments->add( pSnare );
 	pDrumkit->setInstruments( pInstruments );
 
-	auto pNoteIn = std::make_shared<Note>( pSnare, 0, 1.0f, 0.5f, 1, 1.0f );
+	auto pNoteIn = std::make_shared<Note>( pSnare, 0, 1.0f, 0.5f, 1 );
 	pNoteIn->setProbability( 0.67f );
 	pNoteIn->saveTo( node );
 
@@ -473,15 +511,38 @@ void NoteTest::testSerializeProbability() {
 	CPPUNIT_ASSERT_EQUAL( pNoteIn->getVelocity(), pNoteOut->getVelocity() );
 	CPPUNIT_ASSERT_EQUAL( pNoteIn->getPan(), pNoteOut->getPan() );
 	CPPUNIT_ASSERT_EQUAL( pNoteIn->getLength(), pNoteOut->getLength() );
-	CPPUNIT_ASSERT_EQUAL( pNoteIn->getPitch(), pNoteOut->getPitch() );
 	CPPUNIT_ASSERT_EQUAL( pNoteIn->getProbability(), pNoteOut->getProbability() );
 
 	___INFOLOG( "passed" );
 }
 
-void NoteTest::testVirtualKeyboard() {
+void NoteTest::testStrongTypedPitch()
+{
 	___INFOLOG( "" );
-	CPPUNIT_ASSERT_EQUAL( static_cast<int>(Shortcuts::Action::VK_36_C2), 400 );
-	CPPUNIT_ASSERT_EQUAL( MidiMessage::nInstrumentOffset, 36 ); // MIDI note C2
+
+	const Note::Pitch p1 = Note::Pitch::fromFloat( 10.0 );
+	Note::Pitch p2 = Note::Pitch::fromFloat( 12.0 );
+	CPPUNIT_ASSERT( p1 != p2 );
+    p2 = p1;
+	CPPUNIT_ASSERT( p1 == p2 );
+	CPPUNIT_ASSERT( p1 == Note::Pitch::fromFloat( 10.0 ) );
+	CPPUNIT_ASSERT( Note::Pitch::fromFloat( 12.3 ) > Note::Pitch::fromFloat( 10.0 ) );
+	CPPUNIT_ASSERT( Note::Pitch::fromFloat( 12.3 ) < Note::Pitch::fromFloat( 12.33 ) );
+	CPPUNIT_ASSERT(
+		static_cast<int>( 10.0 ) == static_cast<int>( Note::Pitch::fromFloat( 10.0 ) )
+	);
+
+	___INFOLOG( "passed" );
+}
+
+void NoteTest::testVirtualKeyboard()
+{
+	___INFOLOG( "" );
+	CPPUNIT_ASSERT_EQUAL(
+		static_cast<int>( Shortcuts::Action::VK_36_C2 ), 400
+	);
+	CPPUNIT_ASSERT_EQUAL(
+		static_cast<int>( Midi::NoteOffset ), 36
+	);	// MIDI note C2
 	___INFOLOG( "passed" );
 }

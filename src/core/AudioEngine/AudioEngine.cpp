@@ -24,6 +24,7 @@
 
 #include <limits>
 #include <sstream>
+#include "Midi/Midi.h"
 
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/AutomationPath.h>
@@ -313,9 +314,9 @@ void AudioEngine::startPlayback()
 	setState( State::Playing );
 
 	const auto pPref = Preferences::get_instance();
-	if ( pPref->getMidiTransportOutputSend() &&
-         pPref->getMidiFeedbackChannel() != MidiMessage::nChannelOff &&
-		 m_pMidiDriver != nullptr ) {
+	if ( pPref->getMidiTransportOutputSend() && m_pMidiDriver != nullptr &&
+		 pPref->getMidiFeedbackChannel() != Midi::ChannelOff &&
+         pPref->getMidiFeedbackChannel() != Midi::ChannelInvalid ) {
 		MidiMessage midiMessage;
 		if ( m_pTransportPosition->getTick() > 0 ) {
 			midiMessage.setType( MidiMessage::Type::Continue );
@@ -325,7 +326,7 @@ void AudioEngine::startPlayback()
 		}
 		m_pMidiDriver->sendMessage( midiMessage );
 	}
-	
+
 	handleSelectedPattern();
 }
 
@@ -342,9 +343,9 @@ void AudioEngine::stopPlayback( Event::Trigger trigger )
 	setState( State::Ready, trigger );
 
 	const auto pPref = Preferences::get_instance();
-	if ( pPref->getMidiTransportOutputSend() &&
-         pPref->getMidiFeedbackChannel() != MidiMessage::nChannelOff &&
-		 m_pMidiDriver != nullptr ) {
+	if ( pPref->getMidiTransportOutputSend() && m_pMidiDriver != nullptr &&
+		 pPref->getMidiFeedbackChannel() != Midi::ChannelOff &&
+		 pPref->getMidiFeedbackChannel() != Midi::ChannelInvalid ) {
 		MidiMessage midiMessage;
 		midiMessage.setType( MidiMessage::Type::Stop );
 		m_pMidiDriver->sendMessage( midiMessage );
@@ -1501,7 +1502,9 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 
 			if ( pNoteInstrument == m_pMetronomeInstrument ) {
 				EventQueue::get_instance()->pushEvent(
-					Event::Type::Metronome, pNote->getPitch() == 0 ? 1 : 0 );
+					Event::Type::Metronome,
+					pNote->getKey() == Note::KeyDefault ? 1 : 0
+				);
 			}
 
 			m_pSampler->noteOn( pNote );
@@ -2843,14 +2846,11 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 
 			// We do not check whether the metronome is enabled or not as the
 			// user explicitly requested to count in.
-			float fPitch = PITCH_DEFAULT;
 			float fVelocity = VELOCITY_DEFAULT;
 
 			if ( m_nCountInMetronomeTicks == 0 ) {
-				fPitch = 3;
 				fVelocity = VELOCITY_MAX;
 			}
-			++m_nCountInMetronomeTicks;
 
 			// Since note processing will be done based on m_nRealtimeFrame we
 			// have to use this value when setting the note position. Otherwise,
@@ -2861,8 +2861,15 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 					m_nRealtimeFrame ),
 				fVelocity,
 				PAN_DEFAULT, // pan
-				LENGTH_ENTIRE_SAMPLE,
-				fPitch );
+				LENGTH_ENTIRE_SAMPLE );
+
+			if ( m_nCountInMetronomeTicks == 0 ) {
+				pMetronomeNote->setKey( Note::keyFromIntClamp(
+					static_cast<int>( Note::KeyDefault ) + 3
+				) );
+			}
+			++m_nCountInMetronomeTicks;
+
 			m_pMetronomeInstrument->enqueue( pMetronomeNote );
 			pMetronomeNote->computeNoteStart();
 			m_songNoteQueue.push( pMetronomeNote );
@@ -2948,30 +2955,30 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 		}
 
 		if ( nMetronomeTickPosition % H2Core::nTicksPerQuarter == 0 ) {
-			float fPitch;
 			float fVelocity;
 			
 			// Depending on whether the metronome beat will be issued
 			// at the beginning or in the remainder of the pattern,
 			// two different sounds and events will be used.
 			if ( nMetronomeTickPosition == 0 ) {
-				fPitch = 3;
 				fVelocity = VELOCITY_MAX;
 			} else {
-				fPitch = PITCH_DEFAULT;
 				fVelocity = VELOCITY_DEFAULT;
 			}
-			
+
 			// Only trigger the sounds if the user enabled the
-			// metronome. 
+			// metronome.
 			if ( Preferences::get_instance()->m_bUseMetronome ) {
 				auto pMetronomeNote = std::make_shared<Note>(
-					m_pMetronomeInstrument,
-					nnTick,
-					fVelocity,
-					PAN_DEFAULT, // pan
-					LENGTH_ENTIRE_SAMPLE,
-					fPitch );
+					m_pMetronomeInstrument, nnTick, fVelocity,
+					PAN_DEFAULT,  // pan
+					LENGTH_ENTIRE_SAMPLE
+				);
+				if ( nMetronomeTickPosition == 0 ) {
+					pMetronomeNote->setKey( Note::keyFromIntClamp(
+						static_cast<int>( Note::KeyDefault ) + 3
+					) );
+				}
 				m_pMetronomeInstrument->enqueue( pMetronomeNote );
 				pMetronomeNote->computeNoteStart();
 				m_songNoteQueue.push( pMetronomeNote );

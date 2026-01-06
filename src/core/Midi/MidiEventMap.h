@@ -25,13 +25,12 @@
 #include <memory>
 #include <vector>
 
+#include <core/Midi/Midi.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
 
 #include <QtCore/QMutex>
-
-class MidiAction;
 
 namespace H2Core {
 
@@ -52,29 +51,34 @@ public:
 	void reset();  ///< Reinitializes the object.
 
 	void
-	registerEvent( const MidiEvent::Type&, int nParameter, std::shared_ptr<MidiAction> );
+	registerEvent( const MidiEvent::Type&, Midi::Parameter parameter, std::shared_ptr<MidiAction> );
 
 	const std::vector<std::shared_ptr<MidiEvent>>& getMidiEvents() const;
 
 	/** Returns all MMC actions which are linked to the given event. */
 	std::vector<std::shared_ptr<MidiAction>> getMMCActions( const QString& sEventString );
 	/** Returns all note actions which are linked to the given event. */
-	std::vector<std::shared_ptr<MidiAction>> getNoteActions( int nNote );
+	std::vector<std::shared_ptr<MidiAction>> getNoteActions( Midi::Note note );
 	/** Returns the cc Midiaction which was linked to the given event. */
-	std::vector<std::shared_ptr<MidiAction>> getCCActions( int nParameter );
+	std::vector<std::shared_ptr<MidiAction>> getCCActions(
+		Midi::Parameter parameter
+	);
 	/** Returns the pc Midiaction which was linked to the given event. */
 	std::vector<std::shared_ptr<MidiAction>> getPCActions();
-		
-	std::vector<int> findCCValuesByTypeAndParam1( MidiAction::Type type,
-												 const QString& sParam1 );
-	std::vector<int> findCCValuesByType( MidiAction::Type type );
+
+	std::vector<Midi::Parameter> findCCParametersByTypeAndParam1(
+		MidiAction::Type type,
+		const QString& sParam1
+	);
+	std::vector<Midi::Parameter> findCCParametersByType( MidiAction::Type type
+	);
 
 	/**
 	 * @returns a list of all MIDI events registered to a particular
 	 *   @a pAction grouped in MIDI event type name and MIDI event
 	 *   parameter pairs.
 	 */
-	std::vector<std::pair<H2Core::MidiEvent::Type, int>>
+	std::vector<std::pair<MidiEvent::Type, Midi::Parameter>>
 	getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction ) const;
 
 	void removeRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction );

@@ -30,6 +30,7 @@
 #include <core/Preferences/Preferences.h>
 
 #include <QMutexLocker>
+#include "Midi/Midi.h"
 
 namespace H2Core {
 
@@ -226,11 +227,13 @@ void MidiBaseDriver::midiClockStream( void* pInstance ) {
 		const auto preSend = Clock::now();
 
 		// Send event
-        if ( pPref->getMidiFeedbackChannel() != MidiMessage::nChannelOff ) {
-			pMidiDriver->sendMessage(
-				MidiMessage( MidiMessage::Type::TimingClock, 0, 0,
-	                        pPref->getMidiFeedbackChannel() ) );
-        }
+        if ( pPref->getMidiFeedbackChannel() != Midi::ChannelOff &&
+            pPref->getMidiFeedbackChannel() != Midi::ChannelInvalid ) {
+			pMidiDriver->sendMessage( MidiMessage(
+				MidiMessage::Type::TimingClock, Midi::ParameterMinimum,
+				Midi::ParameterMinimum, pPref->getMidiFeedbackChannel()
+			) );
+		}
 		++pMidiDriver->m_nTickCount;
 
 		const auto end = Clock::now();

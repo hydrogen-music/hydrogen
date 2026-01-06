@@ -30,6 +30,7 @@
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Sample.h>
+#include <core/Midi/Midi.h>
 
 using namespace H2Core;
 
@@ -44,9 +45,15 @@ void DrumkitTest::testDefaultMidiOutNotes()
 
 	list.setDefaultMidiOutNotes();
 
-	CPPUNIT_ASSERT_EQUAL( 36, list.get( 0 )->getMidiOutNote() );
-	CPPUNIT_ASSERT_EQUAL( 37, list.get( 1 )->getMidiOutNote() );
-	CPPUNIT_ASSERT_EQUAL( 38, list.get( 2 )->getMidiOutNote() );
+	CPPUNIT_ASSERT_EQUAL( Midi::NoteOffset, list.get( 0 )->getMidiOutNote() );
+	CPPUNIT_ASSERT_EQUAL(
+		Midi::noteFromInt( static_cast<int>( Midi::NoteOffset ) + 1 ),
+		list.get( 1 )->getMidiOutNote()
+	);
+	CPPUNIT_ASSERT_EQUAL(
+		Midi::noteFromInt( static_cast<int>( Midi::NoteOffset ) + 2 ),
+		list.get( 2 )->getMidiOutNote()
+	);
 	___INFOLOG( "passed" );
 }
 
@@ -57,7 +64,7 @@ void DrumkitTest::testHasAllMidiNotesSame()
 	{
 		InstrumentList list;
 		auto pKick = std::make_shared<Instrument>( Instrument::EmptyId, "Kick" );
-		pKick->setMidiOutNote( 42 );
+		pKick->setMidiOutNote( Midi::noteFromInt( 42 ) );
 		list.add( pKick );
 
 		CPPUNIT_ASSERT( !list.hasAllMidiNotesSame() );
@@ -68,15 +75,15 @@ void DrumkitTest::testHasAllMidiNotesSame()
 		InstrumentList list;
 
 		auto pKick = std::make_shared<Instrument>( Instrument::EmptyId, "Kick" );
-		pKick->setMidiOutNote( 10 );
+		pKick->setMidiOutNote( Midi::noteFromInt( 10 ) );
 		list.add( pKick );
 
 		auto pSnare = std::make_shared<Instrument>( Instrument::EmptyId, "Snare" );
-		pSnare->setMidiOutNote( 10 );
+		pSnare->setMidiOutNote( Midi::noteFromInt( 10 ) );
 		list.add( pSnare );
 
 		auto pHihat = std::make_shared<Instrument>( Instrument::EmptyId, "HiHat" );
-		pHihat->setMidiOutNote( 10 );
+		pHihat->setMidiOutNote( Midi::noteFromInt( 10 ) );
 		list.add( pHihat );
 
 		CPPUNIT_ASSERT_EQUAL( 3, list.size() );
@@ -88,20 +95,20 @@ void DrumkitTest::testHasAllMidiNotesSame()
 		InstrumentList list;
 
 		auto pKick = std::make_shared<Instrument>( Instrument::EmptyId, "Kick" );
-		pKick->setMidiOutNote( 36 );
+		pKick->setMidiOutNote( Midi::noteFromInt( 36 ) );
 		list.add( pKick );
 
 		auto pClap = std::make_shared<Instrument>( Instrument::EmptyId, "Clap" );
-		pClap->setMidiOutNote( 37 );
+		pClap->setMidiOutNote( Midi::noteFromInt( 37 ) );
 		list.add( pClap );
 
 		auto pRide = std::make_shared<Instrument>( Instrument::EmptyId, "Ride" );
-		pRide->setMidiOutNote( 38 );
+		pRide->setMidiOutNote( Midi::noteFromInt( 38 ) );
 		list.add( pRide );
 
 		auto pDummy =
 			std::make_shared<Instrument>( Instrument::EmptyId, "Dummy Instrument" );
-		pDummy->setMidiOutNote( 36 );  // duplicate
+		pDummy->setMidiOutNote( Midi::noteFromInt( 36 ) );  // duplicate
 		list.add( pDummy );
 
 		CPPUNIT_ASSERT_EQUAL( 4, list.size() );

@@ -23,6 +23,7 @@
 #include <core/Basics/Instrument.h>
 
 #include <memory>
+#include "Midi/Midi.h"
 
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Drumkit.h>
@@ -62,8 +63,10 @@ Instrument::Instrument(
 	  m_fFilterResonance( 0.0 ),
 	  m_fRandomPitchFactor( 0.0 ),
 	  m_fPitchOffset( 0.0 ),
-	  m_nMidiOutNote( MidiMessage::nInstrumentOffset + static_cast<int>(id) ),
-	  m_nMidiOutChannel( -1 ),
+	  m_midiOutNote( Midi::noteFromIntClamp(
+		  static_cast<int>( Midi::NoteOffset ) + static_cast<int>( id )
+	  ) ),
+	  m_midiOutChannel( Midi::ChannelOff ),
 	  m_bStopNotes( false ),
 	  m_bSoloed( false ),
 	  m_bMuted( false ),
@@ -71,8 +74,8 @@ Instrument::Instrument(
 	  m_nQueued( 0 ),
 	  m_enqueuedBy( QStringList() ),
 	  m_nHihatGrp( -1 ),
-	  m_nLowerCc( 0 ),
-	  m_nHigherCc( 127 ),
+	  m_lowerCc( Midi::ParameterMinimum ),
+	  m_higherCc( Midi::ParameterMaximum ),
 	  m_bIsPreviewInstrument( false ),
 	  m_bApplyVelocity( true ),
 	  m_bCurrentInstrForExport( false ),
@@ -93,14 +96,6 @@ Instrument::Instrument(
 
 	if ( m_pAdsr == nullptr ) {
 		m_pAdsr = std::make_shared<ADSR>();
-	}
-
-	if ( m_nMidiOutNote < MIDI_OUT_NOTE_MIN ) {
-		m_nMidiOutNote = MIDI_OUT_NOTE_MIN;
-	}
-
-	if ( m_nMidiOutNote > MIDI_OUT_NOTE_MAX ) {
-		m_nMidiOutNote = MIDI_OUT_NOTE_MAX;
 	}
 
 	for ( int i = 0; i < MAX_FX; i++ ) {
@@ -127,8 +122,8 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	  m_fFilterResonance( other->getFilterResonance() ),
 	  m_fRandomPitchFactor( other->getRandomPitchFactor() ),
 	  m_fPitchOffset( other->getPitchOffset() ),
-	  m_nMidiOutNote( other->getMidiOutNote() ),
-	  m_nMidiOutChannel( other->getMidiOutChannel() ),
+	  m_midiOutNote( other->getMidiOutNote() ),
+	  m_midiOutChannel( other->getMidiOutChannel() ),
 	  m_bStopNotes( other->isStopNotes() ),
 	  m_bSoloed( other->isSoloed() ),
 	  m_bMuted( other->isMuted() ),
@@ -136,8 +131,8 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	  m_nQueued( 0 ),
 	  m_enqueuedBy( QStringList() ),
 	  m_nHihatGrp( other->getHihatGrp() ),
-	  m_nLowerCc( other->getLowerCc() ),
-	  m_nHigherCc( other->getHigherCc() ),
+	  m_lowerCc( other->getLowerCc() ),
+	  m_higherCc( other->getHigherCc() ),
 	  m_bIsPreviewInstrument( false ),
 	  m_bApplyVelocity( other->getApplyVelocity() ),
 	  m_bCurrentInstrForExport( false ),
@@ -383,23 +378,28 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 	pInstrument->setMuteGroup(
 		node.read_int( "muteGroup", -1, true, false, bSilent )
 	);
-	pInstrument->setMidiOutChannel(
-		node.read_int( "midiOutChannel", -1, true, false, bSilent )
-	);
-	pInstrument->setMidiOutNote( node.read_int(
-		"midiOutNote", pInstrument->m_nMidiOutNote, true, false, bSilent
-	) );
+	pInstrument->setMidiOutChannel( Midi::channelFromInt( node.read_int(
+		"midiOutChannel", static_cast<int>( Midi::ChannelOff ), true, false,
+		bSilent
+	) ) );
+	pInstrument->setMidiOutNote( Midi::noteFromInt( node.read_int(
+		"midiOutNote", static_cast<int>( pInstrument->m_midiOutNote ), true,
+		false, bSilent
+	) ) );
 	pInstrument->setStopNotes(
 		node.read_bool( "isStopNote", true, false, true, bSilent )
 	);
 	pInstrument->setHihatGrp(
 		node.read_int( "isHihat", -1, true, true, bSilent )
 	);
-	pInstrument->setLowerCc( node.read_int( "lower_cc", 0, true, true, bSilent )
-	);
-	pInstrument->setHigherCc(
-		node.read_int( "higher_cc", 127, true, true, bSilent )
-	);
+	pInstrument->setLowerCc( Midi::parameterFromIntClamp( node.read_int(
+		"lower_cc", static_cast<int>( pInstrument->m_lowerCc ), true, true,
+		bSilent
+	) ) );
+	pInstrument->setHigherCc( Midi::parameterFromIntClamp( node.read_int(
+		"higher_cc", static_cast<int>( pInstrument->m_higherCc ), true, true,
+		bSilent
+	) ) );
 
 	for ( int i = 0; i < MAX_FX; i++ ) {
 		pInstrument->setFxLevel(
@@ -596,12 +596,16 @@ void Instrument::saveTo(
 	InstrumentNode.write_float( "Sustain", m_pAdsr->getSustain() );
 	InstrumentNode.write_int( "Release", m_pAdsr->getRelease() );
 	InstrumentNode.write_int( "muteGroup", m_nMuteGroup );
-	InstrumentNode.write_int( "midiOutChannel", m_nMidiOutChannel );
-	InstrumentNode.write_int( "midiOutNote", m_nMidiOutNote );
+	InstrumentNode.write_int(
+		"midiOutChannel", static_cast<int>( m_midiOutChannel )
+	);
+	InstrumentNode.write_int(
+		"midiOutNote", static_cast<int>( m_midiOutNote )
+	);
 	InstrumentNode.write_bool( "isStopNote", m_bStopNotes );
 	InstrumentNode.write_int( "isHihat", m_nHihatGrp );
-	InstrumentNode.write_int( "lower_cc", m_nLowerCc );
-	InstrumentNode.write_int( "higher_cc", m_nHigherCc );
+	InstrumentNode.write_int( "lower_cc", static_cast<int>( m_lowerCc ) );
+	InstrumentNode.write_int( "higher_cc", static_cast<int>( m_higherCc ) );
 
 	for ( int i = 0; i < MAX_FX; i++ ) {
 		InstrumentNode.write_float(
@@ -664,13 +668,13 @@ void Instrument::dequeue( std::shared_ptr<Note> pNote )
 
 void Instrument::setPitchOffset( float fValue )
 {
-	if ( fValue < fPitchMin || fValue > fPitchMax ) {
+	if ( fValue < fPitchOffsetMinimum || fValue > fPitchOffsetMaximum ) {
 		WARNINGLOG( QString( "Provided pitch out of bound [%1;%2]. Rounding to "
 							 "nearest allowed value." )
-						.arg( fPitchMin )
-						.arg( fPitchMax ) );
+						.arg( fPitchOffsetMinimum )
+						.arg( fPitchOffsetMaximum ) );
 	}
-	m_fPitchOffset = std::clamp( fValue, fPitchMin, fPitchMax );
+	m_fPitchOffset = std::clamp( fValue, fPitchOffsetMinimum, fPitchOffsetMaximum );
 }
 
 void Instrument::setPanWithRangeFrom0To1( float fVal )
@@ -980,11 +984,11 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const
 				.append( QString( "%1%2m_nMidiOutNote: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( m_nMidiOutNote ) )
+							 .arg( static_cast<int>(m_midiOutNote) ) )
 				.append( QString( "%1%2m_nMidiOutChannel: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( m_nMidiOutChannel ) )
+							 .arg( static_cast<int>(m_midiOutChannel) ) )
 				.append( QString( "%1%2m_bStopNotes: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -1020,14 +1024,14 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( sPrefix )
 						 .arg( s )
 						 .arg( m_nHihatGrp ) )
-			.append( QString( "%1%2m_nLowerCc: %3\n" )
+			.append( QString( "%1%2m_lowerCc: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
-						 .arg( m_nLowerCc ) )
-			.append( QString( "%1%2m_nHigherCc: %3\n" )
+						 .arg( static_cast<int>( m_lowerCc ) ) )
+			.append( QString( "%1%2m_higherCc: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
-						 .arg( m_nHigherCc ) )
+						 .arg( static_cast<int>( m_higherCc ) ) )
 			.append( QString( "%1%2m_bIsPreviewInstrument: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
@@ -1086,10 +1090,10 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( m_fRandomPitchFactor ) )
 				.append( QString( ", m_fPitchOffset: %1" ).arg( m_fPitchOffset )
 				)
-				.append( QString( ", m_nMidiOutNote: %1" ).arg( m_nMidiOutNote )
+				.append( QString( ", m_midiOutNote: %1" ).arg( static_cast<int>(m_midiOutNote) )
 				)
-				.append( QString( ", m_nMidiOutChannel: %1" )
-							 .arg( m_nMidiOutChannel ) )
+				.append( QString( ", m_midiOutChannel: %1" )
+							 .arg( static_cast<int>(m_midiOutChannel) ) )
 				.append( QString( ", m_bStopNotes: %1" ).arg( m_bStopNotes ) )
 				.append( QString( ", m_bSoloed: %1" ).arg( m_bSoloed ) )
 				.append( QString( ", m_bMuted: %1" ).arg( m_bMuted ) )
@@ -1103,8 +1107,10 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const
 		}
 		sOutput.append( QString( "]" ) )
 			.append( QString( ", m_nHihatGrp: %1" ).arg( m_nHihatGrp ) )
-			.append( QString( ", m_nLowerCc: %1" ).arg( m_nLowerCc ) )
-			.append( QString( ", m_nHigherCc: %1" ).arg( m_nHigherCc ) )
+			.append( QString( ", m_lowerCc: %1" )
+						 .arg( static_cast<int>( m_lowerCc ) ) )
+			.append( QString( ", m_higherCc: %1" )
+						 .arg( static_cast<int>( m_higherCc ) ) )
 			.append( QString( ", m_bIsPreviewInstrument: %1" )
 						 .arg( m_bIsPreviewInstrument ) )
 			.append( QString( ", m_bApplyVelocity: %1" ).arg( m_bApplyVelocity )

@@ -2264,8 +2264,8 @@ void PatternEditorPanel::printDB() const {
 	DEBUGLOG( sMsg );
 }
 
-void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, int nKey,
-										   int nOctave, bool bIsNoteOff,
+void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, Note::Key key,
+										   Note::Octave octave, bool bIsNoteOff,
 										   float fYValue,
 										   PatternEditor::Property property,
 										   Editor::Action action,
@@ -2295,18 +2295,18 @@ void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, int nKey,
 	}
 
 	std::vector< std::shared_ptr<Note> > oldNotes;
-	int nNewKey = nKey;
-	int nNewOctave = nOctave;
-	if ( nKey == KEY_INVALID || nOctave == OCTAVE_INVALID ) {
+	auto newKey = key;
+	auto newOctave = octave;
+	if ( key == Note::Key::Invalid || octave == Note::Octave::Invalid ) {
 		oldNotes = m_pPattern->findNotes(
 			gridPoint.getColumn(), row.id, row.sType );
-		nNewKey = KEY_MIN;
-		nNewOctave = OCTAVE_DEFAULT;
+		newKey = Note::KeyDefault;
+		newOctave = Note::OctaveDefault;
 	}
 	else {
 		auto pOldNote = m_pPattern->findNote(
-			gridPoint.getColumn(), row.id, row.sType,
-			static_cast<Note::Key>(nKey), static_cast<Note::Octave>(nOctave) );
+			gridPoint.getColumn(), row.id, row.sType, key, octave
+		);
 		if ( pOldNote != nullptr ) {
 			oldNotes.push_back( pOldNote );
 		}
@@ -2324,23 +2324,30 @@ void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, int nKey,
 		// Play back added notes.
 		if ( Preferences::get_instance()->getHearNewNotes() &&
 			 row.bMappedToDrumkit &&
-			 ( static_cast<char>(modifier) &
-			   static_cast<char>(Editor::ActionModifier::Playback) ) ) {
-			auto pInstrument = pSong->getDrumkit()->getInstruments()
-				->find( row.id );
+			 ( static_cast<char>( modifier ) &
+			   static_cast<char>( Editor::ActionModifier::Playback ) ) ) {
+			auto pInstrument =
+				pSong->getDrumkit()->getInstruments()->find( row.id );
 			if ( pInstrument != nullptr && pInstrument->hasSamples() ) {
-				auto pNote2 = std::make_shared<Note>( pInstrument );
-				pNote2->setKeyOctave( static_cast<Note::Key>(nKey),
-									  static_cast<Note::Octave>(nOctave) );
-				pNote2->setNoteOff( bIsNoteOff );
+				auto pNotePreview = std::make_shared<Note>( pInstrument );
+				if ( key != Note::Key::Invalid ) {
+					pNotePreview->setKey( key );
+				}
+				if ( octave != Note::Octave::Invalid ) {
+					pNotePreview->setOctave( octave );
+				}
+				pNotePreview->setNoteOff( bIsNoteOff );
 
-				if ( ! std::isnan( fYValue ) ) {
+				if ( !std::isnan( fYValue ) ) {
 					NotePropertiesRuler::applyProperty(
-						pNote2, property, fYValue );
+						pNotePreview, property, fYValue
+					);
 				}
 
-				Hydrogen::get_instance()->getAudioEngine()->getSampler()->
-					noteOn( pNote2 );
+				Hydrogen::get_instance()
+					->getAudioEngine()
+					->getSampler()
+					->noteOn( pNotePreview );
 			}
 		}
 
@@ -2367,8 +2374,8 @@ void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, int nKey,
 				fLeadLag = pDummyNote->getLeadLag();
 			}
 			else if ( property == PatternEditor::Property::KeyOctave ) {
-				nNewKey = pDummyNote->getKey();
-				nNewOctave = pDummyNote->getOctave();
+				newKey = pDummyNote->getKey();
+				newOctave = pDummyNote->getOctave();
 			}
 			else if ( property == PatternEditor::Property::Probability ) {
 				fProbability = pDummyNote->getProbability();
@@ -2385,8 +2392,8 @@ void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, int nKey,
 				fVelocity,
 				fPan,
 				fLeadLag,
-				nNewKey,
-				nNewOctave,
+				newKey,
+				newOctave,
 				fProbability,
 				Editor::Action::Add,
 				bIsNoteOff,
@@ -2435,8 +2442,13 @@ bool PatternEditorPanel::isUsingAdditionalPatterns(
 	return false;
 }
 
-void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch,
-										  bool bCut ) {
+void PatternEditorPanel::clearNotesInRow(
+	int nRow,
+	int nPattern,
+	Note::Pitch pitch,
+	bool bCut
+)
+{
 	if ( m_pPattern == nullptr ) {
 		return;
 	}
@@ -2480,33 +2492,27 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch,
 
 	for ( const auto& ppPattern : *pPatternList ) {
 		if ( ppPattern != nullptr ) {
-			std::vector< std::shared_ptr<Note> > notes;
-			for ( const auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
+			std::vector<std::shared_ptr<Note> > notes;
+			for ( const auto& [_, ppNote] : *ppPattern->getNotes() ) {
 				if ( ppNote != nullptr && row.contains( ppNote ) &&
-					 ( nPitch == PITCH_INVALID ||
-					   ppNote->getTotalPitch() == nPitch ) ) {
+					 ( pitch == Note::Pitch::Invalid ||
+					   ppNote->toPitch() == pitch ) ) {
 					notes.push_back( ppNote );
 				}
 			}
 
 			for ( const auto& ppNote : notes ) {
-				pHydrogenApp->pushUndoCommand(
-					new SE_addOrRemoveNoteAction(
-						ppNote->getPosition(),
-						ppNote->getInstrumentId(),
-						ppNote->getType(),
-						pSong->getPatternList()->index( ppPattern ),
-						ppNote->getLength(),
-						ppNote->getVelocity(),
-						ppNote->getPan(),
-						ppNote->getLeadLag(),
-						ppNote->getKey(),
-						ppNote->getOctave(),
-						ppNote->getProbability(),
-						Editor::Action::Delete,
-						ppNote->getNoteOff(),
-						ppNote->getInstrument() != nullptr,
-						Editor::ActionModifier::None ) );
+				pHydrogenApp->pushUndoCommand( new SE_addOrRemoveNoteAction(
+					ppNote->getPosition(), ppNote->getInstrumentId(),
+					ppNote->getType(),
+					pSong->getPatternList()->index( ppPattern ),
+					ppNote->getLength(), ppNote->getVelocity(),
+					ppNote->getPan(), ppNote->getLeadLag(), ppNote->getKey(),
+					ppNote->getOctave(), ppNote->getProbability(),
+					Editor::Action::Delete, ppNote->getNoteOff(),
+					ppNote->getInstrument() != nullptr,
+					Editor::ActionModifier::None
+				) );
 			}
 		}
 	}
@@ -2538,7 +2544,12 @@ QString PatternEditorPanel::FillNotesToQString( const FillNotes& fillNotes ) {
 	}
 }
 
-void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every, int nPitch ) {
+void PatternEditorPanel::fillNotesInRow(
+	int nRow,
+	FillNotes every,
+	Note::Pitch pitch
+)
+{
 	if ( m_pPattern == nullptr ) {
 		return;
 	}
@@ -2559,17 +2570,18 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every, int nPitch )
 	const auto notes = m_pPattern->getNotes();
 	for ( int ii = 0; ii < m_pPattern->getLength(); ii += nResolution ) {
 		bool bNoteAlreadyPresent = false;
-		FOREACH_NOTE_CST_IT_BOUND_LENGTH( notes, it, ii, m_pPattern ) {
+		FOREACH_NOTE_CST_IT_BOUND_LENGTH( notes, it, ii, m_pPattern )
+		{
 			auto ppNote = it->second;
 			if ( ppNote != nullptr && row.contains( ppNote ) &&
-				 ( nPitch == PITCH_INVALID ||
-				   ppNote->getTotalPitch() == nPitch ) ) {
+				 ( pitch == Note::Pitch::Invalid || ppNote->toPitch() == pitch
+				 ) ) {
 				bNoteAlreadyPresent = true;
 				break;
 			}
 		}
 
-		if ( ! bNoteAlreadyPresent ) {
+		if ( !bNoteAlreadyPresent ) {
 			notePositions.push_back( ii );
 		}
 	}
@@ -2578,16 +2590,16 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every, int nPitch )
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
-		int nKey = KEY_MIN;
-		int nOctave = OCTAVE_DEFAULT;
-		if ( nPitch != PITCH_INVALID ) {
-			nKey = Note::pitchToKey( nPitch );
-			nOctave = Note::pitchToOctave( nPitch );
+		auto key = Note::KeyDefault;
+		auto octave = Note::OctaveDefault;
+		if ( pitch != Note::Pitch::Invalid ) {
+			key = pitch.toKey();
+			octave = pitch.toOctave();
 		}
 
 		pHydrogenApp->beginUndoMacro( FillNotesToQString( every ) );
 		for ( int nnPosition : notePositions ) {
-			addOrRemoveNotes( GridPoint( nnPosition, nRow ), nKey, nOctave,
+			addOrRemoveNotes( GridPoint( nnPosition, nRow ), key, octave,
 							  false /* bIsNoteOff */, std::nan( "" ),
 							  PatternEditor::Property::None, Editor::Action::Add,
 							  Editor::ActionModifier::None );
@@ -2685,7 +2697,11 @@ void PatternEditorPanel::setTypeInRow( int nRow ) {
 		notes, PatternEditor::Property::Type );
 }
 
-void PatternEditorPanel::copyNotesFromRowOfAllPatterns( int nRow, int nPitch ) {
+void PatternEditorPanel::copyNotesFromRowOfAllPatterns(
+	int nRow,
+	Note::Pitch pitch
+)
+{
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		ERRORLOG( "Song not ready" );
@@ -2697,30 +2713,37 @@ void PatternEditorPanel::copyNotesFromRowOfAllPatterns( int nRow, int nPitch ) {
 	// Serialize & put to clipboard
 	H2Core::XMLDoc doc;
 	auto rootNode = doc.set_root( "serializedPatternList" );
-	pSong->getPatternList()->saveTo(
-		rootNode, row.id, row.sType, nPitch );
+	pSong->getPatternList()->saveTo( rootNode, row.id, row.sType, pitch );
 
 	const QString sSerialized = doc.toString();
 	if ( sSerialized.isEmpty() ) {
 		ERRORLOG( QString( "Unable to serialize pattern editor line [%1]" )
-				  .arg( nRow ) );
+					  .arg( nRow ) );
 		return;
 	}
 
-	QClipboard *clipboard = QApplication::clipboard();
+	QClipboard* clipboard = QApplication::clipboard();
 	clipboard->setText( sSerialized );
 }
 
-void PatternEditorPanel::cutNotesFromRowOfAllPatterns( int nRow, int nPitch ) {
+void PatternEditorPanel::cutNotesFromRowOfAllPatterns(
+	int nRow,
+	Note::Pitch pitch
+)
+{
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
-	copyNotesFromRowOfAllPatterns( nRow, nPitch );
+	copyNotesFromRowOfAllPatterns( nRow, pitch );
 
-	clearNotesInRow( nRow, -1, nPitch, true );
+	clearNotesInRow( nRow, -1, pitch, true );
 }
 
-void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
+void PatternEditorPanel::pasteNotesToRowOfAllPatterns(
+	int nRow,
+	Note::Pitch pitch
+)
+{
 	auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
@@ -2732,7 +2755,7 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 	}
 
 	// Get from clipboard & deserialize
-	QClipboard *clipboard = QApplication::clipboard();
+	QClipboard* clipboard = QApplication::clipboard();
 	const QString sSerialized = clipboard->text();
 	if ( sSerialized.isEmpty() ) {
 		INFOLOG( "Serialized pattern list is empty" );
@@ -2743,15 +2766,15 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 	const auto rootNode = doc.firstChildElement( "serializedPatternList" );
 	if ( rootNode.isNull() ) {
 		ERRORLOG( QString( "Unable to parse serialized pattern list [%1]" )
-				  .arg( sSerialized ) );
+					  .arg( sSerialized ) );
 		return;
 	}
 
-	const auto pPatternList = PatternList::loadFrom(
-		rootNode, "", pSong->getDrumkit() );
+	const auto pPatternList =
+		PatternList::loadFrom( rootNode, "", pSong->getDrumkit() );
 	if ( pPatternList == nullptr ) {
 		ERRORLOG( QString( "Unable to deserialized pattern list [%1]" )
-				  .arg( sSerialized ) );
+					  .arg( sSerialized ) );
 		return;
 	}
 
@@ -2762,27 +2785,21 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 	pHydrogenApp->beginUndoMacro( pCommonStrings->getActionPasteAllNotes() );
 	for ( auto& ppPattern : *pPatternList ) {
 		if ( ppPattern != nullptr ) {
-			for ( auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
+			for ( auto& [_, ppNote] : *ppPattern->getNotes() ) {
 				if ( ppNote != nullptr ) {
-					pHydrogenApp->pushUndoCommand(
-						new SE_addOrRemoveNoteAction(
-							ppNote->getPosition(),
-							row.id,
-							row.sType,
-							pPatternList->index( ppPattern ),
-							ppNote->getLength(),
-							ppNote->getVelocity(),
-							ppNote->getPan(),
-							ppNote->getLeadLag(),
-							nPitch == PITCH_INVALID ? ppNote->getKey() :
-							  Note::pitchToKey( nPitch ),
-							nPitch == PITCH_INVALID ? ppNote->getOctave() :
-							  Note::pitchToOctave( nPitch ),
-							ppNote->getProbability(),
-							Editor::Action::Add,
-							ppNote->getNoteOff(),
-							row.bMappedToDrumkit,
-							Editor::ActionModifier::None ) );
+					pHydrogenApp->pushUndoCommand( new SE_addOrRemoveNoteAction(
+						ppNote->getPosition(), row.id, row.sType,
+						pPatternList->index( ppPattern ), ppNote->getLength(),
+						ppNote->getVelocity(), ppNote->getPan(),
+						ppNote->getLeadLag(),
+						pitch == Note::Pitch::Invalid ? ppNote->getKey()
+													  : pitch.toKey(),
+						pitch == Note::Pitch::Invalid ? ppNote->getOctave()
+													  : pitch.toOctave(),
+						ppNote->getProbability(), Editor::Action::Add,
+						ppNote->getNoteOff(), row.bMappedToDrumkit,
+						Editor::ActionModifier::None
+					) );
 				}
 			}
 		}

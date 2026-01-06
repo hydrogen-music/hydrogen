@@ -28,6 +28,7 @@
 #include <vector>
 #include <QString>
 
+#include <core/Midi/Midi.h>
 #include <core/Midi/MidiEvent.h>
 
 #include "../EventListener.h"
@@ -85,8 +86,9 @@ protected:
 	 *
 	 * It consists of pairs of MIDI events and the associated MIDI
 	 * parameter.
-	 */ 
-	std::vector<std::pair<H2Core::MidiEvent::Type,int>> m_registeredMidiEvents;
+	 */
+	std::vector<std::pair<H2Core::MidiEvent::Type, H2Core::Midi::Parameter>>
+		m_registeredMidiEvents;
 };
 
 inline const QString& MidiLearnable::getBaseToolTip() const {

@@ -23,15 +23,14 @@
 #ifndef H2C_SAMPLE_H
 #define H2C_SAMPLE_H
 
+#include <sndfile.h>
 #include <memory>
 #include <vector>
-#include <sndfile.h>
 
 #include <core/License.h>
 #include <core/Object.h>
 
-namespace H2Core
-{
+namespace H2Core {
 
 /**
  * A container for a sample, being able to apply modifications on it
@@ -39,211 +38,236 @@ namespace H2Core
 
 /** an envelope point within a frame */
 /** \ingroup docCore docAudioDriver */
-class EnvelopePoint : public H2Core::Object<EnvelopePoint>
-{
-		H2_OBJECT(EnvelopePoint)
-	public:
-		int frame;  ///< frame index
-		int value;  ///< value
-		/** to be able to sort velocity points vectors */
-		struct Comparator {
-			bool operator()( const EnvelopePoint& a, const EnvelopePoint& b ) const
-			{
-				return a.frame < b.frame;
-			}
-		};
-		/** default constructor */
-		EnvelopePoint();
-		/**
-		 * constructor
-		 * \param f the frame index
-		 * \param v the value associated with the frame
-		 */
-		EnvelopePoint( int f, int v );
-		/** copy constructor */
-		EnvelopePoint( const EnvelopePoint& other );
+class EnvelopePoint : public H2Core::Object<EnvelopePoint> {
+	H2_OBJECT( EnvelopePoint )
+   public:
+	int frame;	///< frame index
+	int value;	///< value
+	/** to be able to sort velocity points vectors */
+	struct Comparator {
+		bool operator()( const EnvelopePoint& a, const EnvelopePoint& b ) const
+		{
+			return a.frame < b.frame;
+		}
+	};
+	/** default constructor */
+	EnvelopePoint();
+	/**
+	 * constructor
+	 * \param f the frame index
+	 * \param v the value associated with the frame
+	 */
+	EnvelopePoint( int f, int v );
+	/** copy constructor */
+	EnvelopePoint( const EnvelopePoint& other );
 };
 
-class Sample : public H2Core::Object<Sample>
-{
-		H2_OBJECT(Sample)
-	public:
-
-		/** define the type used to store pan envelope points */
-		using PanEnvelope = std::vector<EnvelopePoint>;
-		/** define the type used to store velocity envelope points */
-		using VelocityEnvelope = std::vector<EnvelopePoint>;
-		/** set of loop configuration flags */
-	class Loops
+class Sample : public H2Core::Object<Sample> {
+	H2_OBJECT( Sample )
+   public:
+	/** define the type used to store pan envelope points */
+	using PanEnvelope = std::vector<EnvelopePoint>;
+	/** define the type used to store velocity envelope points */
+	using VelocityEnvelope = std::vector<EnvelopePoint>;
+	/** set of loop configuration flags */
+	class Loops {
+	   public:
+		/** possible sample editing loop mode */
+		enum LoopMode { FORWARD = 0, REVERSE, PINGPONG };
+		int start_frame;  ///< the frame index where to start the new sample
+						  ///< from
+		int loop_frame;	  ///< the frame index where to start the loop from
+		int end_frame;	  ///< the frame index where to end the new sample to
+		int count;		  ///< the counts of loops to apply
+		LoopMode mode;	  ///< one of the possible loop modes
+		/** constructor */
+		Loops()
+			: start_frame( 0 ),
+			  loop_frame( 0 ),
+			  end_frame( 0 ),
+			  count( 0 ),
+			  mode( FORWARD ) {};
+		/** copy constructor */
+		Loops( const Loops* other )
+			: start_frame( other->start_frame ),
+			  loop_frame( other->loop_frame ),
+			  end_frame( other->end_frame ),
+			  count( other->count ),
+			  mode( other->mode ) {};
+		/** equal to operator */
+		bool operator==( const Loops& b ) const
 		{
-			public:
-				/** possible sample editing loop mode */
-				enum LoopMode {
-					FORWARD=0,
-					REVERSE,
-					PINGPONG
-				};
-				int start_frame;        ///< the frame index where to start the new sample from
-				int loop_frame;         ///< the frame index where to start the loop from
-				int end_frame;          ///< the frame index where to end the new sample to
-				int count;              ///< the counts of loops to apply
-				LoopMode mode;          ///< one of the possible loop modes
-				/** constructor */
-				Loops() : start_frame( 0 ), loop_frame( 0 ), end_frame( 0 ), count( 0 ), mode( FORWARD ) { };
-				/** copy constructor */
-				Loops( const Loops* other ) :
-					start_frame( other->start_frame ),
-					loop_frame( other->loop_frame ),
-					end_frame( other->end_frame ),
-					count( other->count ),
-					mode( other->mode ) { };
-				/** equal to operator */
-				bool operator ==( const Loops& b ) const
-				{
-					return ( start_frame==b.start_frame && loop_frame==b.loop_frame && end_frame==b.end_frame && count==b.count && mode==b.mode );
-				}
-				QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
-		};
+			return (
+				start_frame == b.start_frame && loop_frame == b.loop_frame &&
+				end_frame == b.end_frame && count == b.count && mode == b.mode
+			);
+		}
+		QString toQString( const QString& sPrefix = "", bool bShort = true )
+			const;
+	};
 
-		/** set of rubberband configuration flags */
-	class Rubberband
+	/** set of rubberband configuration flags */
+	class Rubberband {
+	   public:
+		/** Whether or not to user Rubberband stretch for the corresponding
+		 * sample. */
+		bool bUse;
+		/** In Hydrogen all samples will be stretched or squashed to align with
+		 * the current tempo. A value of `1` will correspond in a sample, which
+		 * is 1 beat long. `1/16` to a sample worth a semiquaver and so on. */
+		float fLengthInBeats;
+		/** Number of equal-tempered semitones by which the resulting sample
+		 * should be pitch shifted. */
+		float fSemitonesToShift;
+		/** Fine-tunes sound quality, e.g. via transient control. (See
+		 * `rubberband -h` or Rubberband API) */
+		int nCrispness;
+		Rubberband()
+			: bUse( false ),
+			  fLengthInBeats( 1.0 ),
+			  fSemitonesToShift( 1.0 ),
+			  nCrispness( 4 ) {};
+		Rubberband( const Rubberband* other )
+			: bUse( other->bUse ),
+			  fLengthInBeats( other->fLengthInBeats ),
+			  nCrispness( other->nCrispness ),
+			  fSemitonesToShift( other->fSemitonesToShift ) {};
+		bool operator==( const Rubberband& b ) const
 		{
-			public:
-				bool use;               ///< is rubberband enabled
-				float divider;          ///< TODO should be ratio : desired time ratio
-				float pitch;            ///< desired pitch
-				int c_settings;        ///< TODO should be crispness, see rubberband -h
-				/** constructor */
-				Rubberband() : use( false ), divider ( 1.0 ), pitch( 1.0 ), c_settings( 4 ) { };
-				/** copy constructor */
-				Rubberband( const Rubberband* other ) :
-					use( other->use ),
-					divider ( other->divider ),
-					c_settings( other->c_settings ),
-					pitch( other->pitch ) { };
-				/** equal to operator */
-				bool operator ==( const Rubberband& b ) const
-				{
-					return ( use==b.use && divider==b.divider && c_settings==b.c_settings && pitch==b.pitch );
-				}
-				QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
-		};
+			return (
+				bUse == b.bUse && fLengthInBeats == b.fLengthInBeats &&
+				nCrispness == b.nCrispness &&
+				fSemitonesToShift == b.fSemitonesToShift
+			);
+		}
+		QString toQString( const QString& sPrefix = "", bool bShort = true )
+			const;
+	};
 
 	static QString sndfileFormatToQString( int nFormat );
 
-		/**
-		 * Sample constructor
-		 * \param sFilePath the path to the sample
-		 * \param license associated with the sample
-		 * \param frames the number of frames per channel in the sample
-		 * \param sample_rate the sample rate of the sample
-		 * \param data_l the left channel array of data
-		 * \param data_r the right channel array of data
-		 */
-		Sample( const QString& sFilePath, const License& license = License(), int frames=0, int sample_rate=0, float* data_l=nullptr, float* data_r=nullptr );
-		/** copy constructor */
-		Sample( std::shared_ptr<Sample> other );
-		/** destructor */
-		~Sample();
+	/**
+	 * Sample constructor
+	 * \param sFilePath the path to the sample
+	 * \param license associated with the sample
+	 * \param frames the number of frames per channel in the sample
+	 * \param sample_rate the sample rate of the sample
+	 * \param data_l the left channel array of data
+	 * \param data_r the right channel array of data
+	 */
+	Sample(
+		const QString& sFilePath,
+		const License& license = License(),
+		int frames = 0,
+		int sample_rate = 0,
+		float* data_l = nullptr,
+		float* data_r = nullptr
+	);
+	/** copy constructor */
+	Sample( std::shared_ptr<Sample> other );
+	/** destructor */
+	~Sample();
 
+	/**
+	 * write sample to a file
+	 * \param path the path to write the sample to
+	 * \param format the format of the output
+	 */
+	bool write(
+		const QString& path,
+		int format = ( SF_FORMAT_WAV | SF_FORMAT_PCM_16 )
+	) const;
 
-		/**
-		 * write sample to a file
-		 * \param path the path to write the sample to
-		 * \param format the format of the output
-		 */
-		bool write( const QString& path,
-					int format= ( SF_FORMAT_WAV|SF_FORMAT_PCM_16 ) ) const;
-	
-		/**
-		 * Load a sample from a file.
-		 *
-		 * This function checks whether the @a sFilePath is
-		 * readable, initializes a new Sample, and calls the
-		 * load() member on it.
-		 *
-		 * \param sFilePath the file to load audio data from
-		 * \param license associated with the sample
-		 *
-		 * \return Pointer to the newly initialized Sample. If
-		 * the provided @a sFilePath is not readable, a nullptr
-		 * is returned instead.
-		 *
-		 * \fn load(const QString& sFilePath)
-		 */
-	static std::shared_ptr<Sample> load( const QString& sFilePath, const License& license = License() );
+	/**
+	 * Load a sample from a file.
+	 *
+	 * This function checks whether the @a sFilePath is
+	 * readable, initializes a new Sample, and calls the
+	 * load() member on it.
+	 *
+	 * \param sFilePath the file to load audio data from
+	 * \param license associated with the sample
+	 *
+	 * \return Pointer to the newly initialized Sample. If
+	 * the provided @a sFilePath is not readable, a nullptr
+	 * is returned instead.
+	 *
+	 * \fn load(const QString& sFilePath)
+	 */
+	static std::shared_ptr<Sample>
+	load( const QString& sFilePath, const License& license = License() );
 
-		/**
-		 * Load the sample stored in #m_sFilePath into
-		 * #m_data_L and #m_data_R.
-		 *
-		 * It uses libsndfile for reading both the content and
-		 * the metadata of the sample file. The latter is
-		 * stored in #m_nFrames and #m_nSampleRate.
-		 *
-		 * Hydrogen does only support up to #SAMPLE_CHANNELS
-		 * (two per default) channels in the audio file. If
-		 * there are more, Hydrogen will _NOT_ downmix its
-		 * content but simply extract the first two channels
-		 * and display a warning message. For mono file the
-		 * same content will be assigned to both the left
-		 * (#m_data_L) and right channel (#m_data_R).
-		 *
-		 * If the total number of frames in the file is larger
-		 * than the maximum value of an `int', the content is
-		 * truncated and a warning log message will be
-		 * displayed.
-		 *
-		 * After successfully loading, the function applies all loop,
-		 * rubberband, and envelope modifications in case they were
-		 * set by the user.
-		 *
-		 * \fn load()
-		 */
-		bool load( float fBpm = 120 );
-		/**
-		 * Flush the current content of the left and right
-		 * channel and the current metadata.
-		 */
-		void unload();
+	/**
+	 * Load the sample stored in #m_sFilePath into
+	 * #m_data_L and #m_data_R.
+	 *
+	 * It uses libsndfile for reading both the content and
+	 * the metadata of the sample file. The latter is
+	 * stored in #m_nFrames and #m_nSampleRate.
+	 *
+	 * Hydrogen does only support up to #SAMPLE_CHANNELS
+	 * (two per default) channels in the audio file. If
+	 * there are more, Hydrogen will _NOT_ downmix its
+	 * content but simply extract the first two channels
+	 * and display a warning message. For mono file the
+	 * same content will be assigned to both the left
+	 * (#m_data_L) and right channel (#m_data_R).
+	 *
+	 * If the total number of frames in the file is larger
+	 * than the maximum value of an `int', the content is
+	 * truncated and a warning log message will be
+	 * displayed.
+	 *
+	 * After successfully loading, the function applies all loop,
+	 * rubberband, and envelope modifications in case they were
+	 * set by the user.
+	 *
+	 * \fn load()
+	 */
+	bool load( float fBpm = 120 );
+	/**
+	 * Flush the current content of the left and right
+	 * channel and the current metadata.
+	 */
+	void unload();
 
-		/** \return true if the associated sample file was loaded */
-		bool isLoaded() const;
-		const QString& getFilePath() const;
-		/** \return FileName part of #m_sFilePath */
-		void setFilePath( const QString& sPath );
-		QString getFileName() const;
-		/** \param fileName FileName part of #m_sFilePath*/
-		void setFileName( const QString& fileName );
+	/** \return true if the associated sample file was loaded */
+	bool isLoaded() const;
+	const QString& getFilePath() const;
+	/** \return FileName part of #m_sFilePath */
+	void setFilePath( const QString& sPath );
+	QString getFileName() const;
+	/** \param fileName FileName part of #m_sFilePath*/
+	void setFileName( const QString& fileName );
 
-		/** \return #m_nFrames accessor */
-		int getFrames() const;
-		/** \return #m_nSampleRate */
-		int getSampleRate() const;
+	/** \return #m_nFrames accessor */
+	int getFrames() const;
+	/** \return #m_nSampleRate */
+	int getSampleRate() const;
 
-		/** \return data size, which is calculated by
-		 * #m_nFrames time sizeof( float ) * 2
-		 */
-		int getSize() const;
-		/** \return #m_data_L*/
-		float* getData_L() const;
-		/** \return #m_data_R*/
-		float* getData_R() const;
-		/**
-		 * #m_bIsModified setter
-		 * \param value the new value for #m_bIsModified
-		 */
-		void setIsModified( bool value );
-		/** \return #m_bIsModified */
-		bool getIsModified() const;
-		/** \return #m_panEnvelope */
-		const PanEnvelope& getPanEnvelope() const;
-		/** \return #m_velocityEnvelope */
-		const VelocityEnvelope& getVelocityEnvelope() const;
-		/** \return #m_loops parameters */
-		const Loops& getLoops() const;
-		/** \return #m_rubberband parameters */
-		const Rubberband& getRubberband() const;
+	/** \return data size, which is calculated by
+	 * #m_nFrames time sizeof( float ) * 2
+	 */
+	int getSize() const;
+	/** \return #m_data_L*/
+	float* getData_L() const;
+	/** \return #m_data_R*/
+	float* getData_R() const;
+	/**
+	 * #m_bIsModified setter
+	 * \param value the new value for #m_bIsModified
+	 */
+	void setIsModified( bool value );
+	/** \return #m_bIsModified */
+	bool getIsModified() const;
+	/** \return #m_panEnvelope */
+	const PanEnvelope& getPanEnvelope() const;
+	/** \return #m_velocityEnvelope */
+	const VelocityEnvelope& getVelocityEnvelope() const;
+	/** \return #m_loops parameters */
+	const Loops& getLoops() const;
+	/** \return #m_rubberband parameters */
+	const Rubberband& getRubberband() const;
 	void setPanEnvelope( const PanEnvelope& envelope );
 	void setVelocityEnvelope( const VelocityEnvelope& envelope );
 	void setLoops( const Loops& loops );
@@ -251,65 +275,67 @@ class Sample : public H2Core::Object<Sample>
 
 	const License& getLicense() const;
 	void setLicense( const License& license );
-	
-		/**
-		 * parse the given string and rturn the corresponding loop_mode
-		 * \param string the loop mode text to be parsed
-		 */
-		static Loops::LoopMode parseLoopMode( const QString& string );
-		/** \return mode member of #m_loops as a string */
-		QString getLoopModeString() const;
-		/** Formatted string version for debugging purposes.
-		 * \param sPrefix String prefix which will be added in front of
-		 * every new line
-		 * \param bShort Instead of the whole content of all classes
-		 * stored as members just a single unique identifier will be
-		 * displayed without line breaks.
-		 *
-		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
-	private:
-		/** \return sample duration in seconds */
-		double getSampleDuration() const;
 
-		/**
-		 * apply #m_loops transformation to the sample
-		 */
-		bool applyLoops();
-		/**
-		 * apply #m_velocityEnvelope transformation to the sample
-		 */
-		void applyVelocity();
-		/**
-		 * apply #m_panEnvelope transformation to the sample
-		 * \param p the pan vector
-		 */
-		void applyPan();
-		/**
-		 * apply #m_rubberband transformation to the sample
-		 * \param fBpm tempo the Rubberband transformation will target
-		 */
-		void applyRubberband( float fBpm );
-		/**
-		 * call rubberband cli to modify the sample using #m_rubberband
-		 * \param fBpm tempo the Rubberband transformation will target
-		 */
-		bool execRubberbandCli( float fBpm );
+	/**
+	 * parse the given string and rturn the corresponding loop_mode
+	 * \param string the loop mode text to be parsed
+	 */
+	static Loops::LoopMode parseLoopMode( const QString& string );
+	/** \return mode member of #m_loops as a string */
+	QString getLoopModeString() const;
+	/** Formatted string version for debugging purposes.
+	 * \param sPrefix String prefix which will be added in front of
+	 * every new line
+	 * \param bShort Instead of the whole content of all classes
+	 * stored as members just a single unique identifier will be
+	 * displayed without line breaks.
+	 *
+	 * \return String presentation of current object.*/
+	QString toQString( const QString& sPrefix = "", bool bShort = true )
+		const override;
 
-		/** Convenience variable not written to disk. */
-		bool				m_bIsLoaded;
-		QString				m_sFilePath;          ///< filePath of the sample
-		int					m_nFrames;            ///< number of frames in this sample
-		int					m_nSampleRate;       ///< samplerate for this sample
-		float*				m_data_L;            ///< left channel data
-		float*				m_data_R;            ///< right channel data
-		bool				m_bIsModified;       ///< true if sample is modified
-		PanEnvelope			m_panEnvelope;      ///< pan envelope vector
-		VelocityEnvelope	m_velocityEnvelope; ///< velocity envelope vector
-		Loops				m_loops;             ///< set of loop parameters
-		Rubberband			m_rubberband;        ///< set of rubberband parameters
-		/** loop modes string */
-		static const std::vector<QString> m_loopModes;
+   private:
+	/** \return sample duration in seconds */
+	double getSampleDuration() const;
+
+	/**
+	 * apply #m_loops transformation to the sample
+	 */
+	bool applyLoops();
+	/**
+	 * apply #m_velocityEnvelope transformation to the sample
+	 */
+	void applyVelocity();
+	/**
+	 * apply #m_panEnvelope transformation to the sample
+	 * \param p the pan vector
+	 */
+	void applyPan();
+	/**
+	 * apply #m_rubberband transformation to the sample
+	 * \param fBpm tempo the Rubberband transformation will target
+	 */
+	void applyRubberband( float fBpm );
+	/**
+	 * call rubberband cli to modify the sample using #m_rubberband
+	 * \param fBpm tempo the Rubberband transformation will target
+	 */
+	bool execRubberbandCli( float fBpm );
+
+	/** Convenience variable not written to disk. */
+	bool m_bIsLoaded;
+	QString m_sFilePath;				  ///< filePath of the sample
+	int m_nFrames;						  ///< number of frames in this sample
+	int m_nSampleRate;					  ///< samplerate for this sample
+	float* m_data_L;					  ///< left channel data
+	float* m_data_R;					  ///< right channel data
+	bool m_bIsModified;					  ///< true if sample is modified
+	PanEnvelope m_panEnvelope;			  ///< pan envelope vector
+	VelocityEnvelope m_velocityEnvelope;  ///< velocity envelope vector
+	Loops m_loops;						  ///< set of loop parameters
+	Rubberband m_rubberband;			  ///< set of rubberband parameters
+	/** loop modes string */
+	static const std::vector<QString> m_loopModes;
 
 	/** Transient property indicating the license associated with the
 	 * sample.
@@ -328,15 +354,18 @@ class Sample : public H2Core::Object<Sample>
 
 // DEFINITIONS
 
-inline bool Sample::isLoaded() const {
+inline bool Sample::isLoaded() const
+{
 	return m_bIsLoaded;
 }
 
-inline const QString& Sample::getFilePath() const {
+inline const QString& Sample::getFilePath() const
+{
 	return m_sFilePath;
 }
 
-inline void Sample::setFilePath( const QString& sPath ) {
+inline void Sample::setFilePath( const QString& sPath )
+{
 	m_sFilePath = sPath;
 }
 
@@ -357,7 +386,8 @@ inline int Sample::getSampleRate() const
 
 inline double Sample::getSampleDuration() const
 {
-	return static_cast<double>(m_nFrames) / static_cast<double>(m_nSampleRate);
+	return static_cast<double>( m_nFrames ) /
+		   static_cast<double>( m_nSampleRate );
 }
 
 inline int Sample::getSize() const
@@ -387,7 +417,7 @@ inline bool Sample::getIsModified() const
 
 inline QString Sample::getLoopModeString() const
 {
-	return std::move( m_loopModes.at(m_loops.mode) );
+	return std::move( m_loopModes.at( m_loops.mode ) );
 }
 
 inline const Sample::PanEnvelope& Sample::getPanEnvelope() const
@@ -409,28 +439,34 @@ inline const Sample::Rubberband& Sample::getRubberband() const
 {
 	return m_rubberband;
 }
-inline void Sample::setPanEnvelope( const PanEnvelope& envelope ) {
+inline void Sample::setPanEnvelope( const PanEnvelope& envelope )
+{
 	m_panEnvelope = envelope;
 }
-inline void Sample::setVelocityEnvelope( const VelocityEnvelope& envelope ) {
+inline void Sample::setVelocityEnvelope( const VelocityEnvelope& envelope )
+{
 	m_velocityEnvelope = envelope;
 }
-inline void Sample::setLoops( const Loops& loops ) {
+inline void Sample::setLoops( const Loops& loops )
+{
 	m_loops = loops;
 }
-inline void Sample::setRubberband( const Rubberband& rubberband ) {
+inline void Sample::setRubberband( const Rubberband& rubberband )
+{
 	m_rubberband = rubberband;
 }
 
-inline const License& Sample::getLicense() const {
+inline const License& Sample::getLicense() const
+{
 	return m_license;
 }
-inline void Sample::setLicense( const License& license ) {
+inline void Sample::setLicense( const License& license )
+{
 	m_license = license;
 }
 
-};
+};	// namespace H2Core
 
-#endif // H2C_SAMPLE_H
+#endif	// H2C_SAMPLE_H
 
 /* vim: set softtabstop=4 noexpandtab: */

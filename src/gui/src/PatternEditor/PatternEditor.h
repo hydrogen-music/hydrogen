@@ -98,8 +98,8 @@ public:
 			float fOldVelocity,
 			float fOldPan,
 			float fOldLeadLag,
-			int nOldKey,
-			int nOldOctave,
+			H2Core::Note::Key oldKey,
+			H2Core::Note::Octave oldOctave,
 			float fOldProbability,
 			Editor::Action action,
 			bool bIsNoteOff,
@@ -117,10 +117,10 @@ public:
 			const std::vector< std::shared_ptr<H2Core::Note> >& overwritten );
 
 		/** For notes in #PianoRollEditor and the note key version of
-		 * #NotePropertiesEditor @a nOldKey and @a nOldOctave will be
+		 * #NotePropertiesEditor @a oldKey and @a nOldOctave will be
 		 * used to find the actual #H2Core::Note to alter. In the latter
 		 * adjusting note/octave can be done too. This is covered using @a
-		 * nNewKey and @a nNewOctave. */
+		 * newKey and @a nNewOctave. */
 		static void editNotePropertiesAction(
 			const Property& property,
 			int nPatternNumber,
@@ -134,10 +134,10 @@ public:
 			float fLeadLag,
 			float fProbability,
 			int nLength,
-			int nNewKey,
-			int nOldKey,
-			int nNewOctave,
-			int nOldOctave
+			H2Core::Note::Key newKey,
+			H2Core::Note::Key oldKey,
+			H2Core::Note::Octave newOctave,
+			H2Core::Note::Octave oldOctave
 		);
 
 		float getGridWidth() const;
@@ -152,7 +152,7 @@ public:
 			m_selection.merge( &pPatternEditor->m_selection );
 		}
 
-		void setCursorPitch( int nCursorPitch );
+		void setCursorPitch( H2Core::Note::Pitch cursorPitch );
 
 		void triggerStatusMessage(
 			const std::vector< std::shared_ptr<H2Core::Note> > notes,
@@ -238,10 +238,13 @@ public:
 public slots:
 		virtual void alignToGrid();
 		virtual void randomizeVelocity();
-		void selectAllNotesInRow( int nRow, int nPitch = PITCH_INVALID );
+		void selectAllNotesInRow(
+			int nRow,
+			H2Core::Note::Pitch pitch = H2Core::Note::Pitch::Invalid
+		);
 		void scrolled( int nValue );
 
-protected:
+	   protected:
 		enum NoteStyle {
 			/** Regular note of the current pattern. */
 			Foreground = 0x000,
@@ -351,15 +354,15 @@ protected:
 		int m_nTick;
 		QPointF m_drawPreviousPosition;
 		H2Core::GridPoint m_drawPreviousGridPoint;
-		int m_nDrawPreviousKey;
-		int m_nDrawPreviousOctave;
+		H2Core::Note::Key m_drawPreviousKey;
+		H2Core::Note::Octave m_drawPreviousOctave;
 
 		// Row the keyboard cursor is residing in.
 		//
 		// Only in #PianoRollEditor this variable is relevant and updated. In
 		// #DrumPatternEditor #PatternEditorPanel::m_nSelectedRowDB is used
 		// instead and #NotePropertiesPanel does only contain a single row.
-		int m_nCursorPitch;
+		H2Core::Note::Pitch m_cursorPitch;
 };
 
 inline float PatternEditor::getGridWidth() const {

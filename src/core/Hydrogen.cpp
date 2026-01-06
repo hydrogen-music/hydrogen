@@ -30,6 +30,7 @@
 #include <cmath>
 #include <algorithm>
 #include <thread>
+#include "Midi/Midi.h"
 
 #include <core/Hydrogen.h>
 
@@ -104,13 +105,13 @@ Hydrogen::Hydrogen() : m_fBeatCounterBeatLength( 1 )
 					 , m_bExportSessionIsActive( false )
 					 , m_GUIState( GUIState::startup )
 					 , m_lastMidiEvent( MidiEvent::Type::Null )
-					 , m_nLastMidiEventParameter( MidiEvent::nNullParameter )
+					 , m_lastMidiEventParameter( Midi::ParameterInvalid )
 					 , m_oldEngineMode( Song::Mode::Song )
 					 , m_bOldLoopEnabled( false )
 					 , m_nLastRecordedMIDINoteTick( 0 )
 					 , m_bRecordEnabled( false )
 					 , m_bSessionIsExported( false )
-					 , m_nHihatOpenness( 127 )
+					 , m_hihatOpenness( Midi::ParameterMaximum )
 {
 	if ( __instance ) {
 		ERRORLOG( "Hydrogen audio engine is already running" );
@@ -329,12 +330,13 @@ void Hydrogen::midiNoteOn( std::shared_ptr<Note> pNote )
 	m_pAudioEngine->noteOn( pNote );
 }
 
-bool Hydrogen::addRealtimeNote(	int		nInstrument,
-								float	fVelocity,
-								bool	bNoteOff,
-								int		nNote )
+bool Hydrogen::addRealtimeNote(
+	int nInstrument,
+	float fVelocity,
+	bool bNoteOff,
+	Midi::Note note
+)
 {
-	
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	auto pSampler = pAudioEngine->getSampler();
 	const auto pPref = Preferences::get_instance();
@@ -456,54 +458,77 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 		bool bIsModified = false;
 
 		if ( bNoteOff ) {
-			
-			int nPatternSize = pCurrentPattern->getLength();
-			int nNoteLength =
-				static_cast<int>(pAudioEngine->getTransportPosition()->getPatternTickPosition()) -
-				m_nLastRecordedMIDINoteTick;
+            // Handle the NOTE_OFF event corresponding to the previous NOTE_ON.
+            // This is used to record notes of custom lengths.
+			const int nPatternSize = pCurrentPattern->getLength();
+			const int nCurrentTick = static_cast<int>(
+				pAudioEngine->getTransportPosition()->getPatternTickPosition()
+			);
 
-			if ( bPlaySelectedInstrument ) {
+			int nNoteLength;
+			if ( nCurrentTick < m_nLastRecordedMIDINoteTick ) {
+				// BUG: We passed the boundary between to patterns or
+				// transported got looped. As we do not support the notion of
+				// custom note lengths reaching from one pattern into the next
+				// one, we trim it at the end of the pattern instead.
+				nNoteLength = nPatternSize - m_nLastRecordedMIDINoteTick;
+
+				// We also omit pitch-related rescaling as we do not know the
+                // true length of the note (transport could have been wrapped
+                // multiple times).
+			}
+			else {
 				nNoteLength =
-					static_cast<int>(static_cast<double>(nNoteLength) *
-									 Note::pitchToFrequency( nNote ));
+					static_cast<int>( pAudioEngine->getTransportPosition()
+										  ->getPatternTickPosition() ) -
+					m_nLastRecordedMIDINoteTick;
+
+				if ( bPlaySelectedInstrument ) {
+					nNoteLength = static_cast<int>(
+						static_cast<double>( nNoteLength ) *
+						Note::Pitch::fromMidiNote( note ).toFrequencyRatio()
+					);
+				}
 			}
 
 			for ( unsigned nnNote = 0; nnNote < nPatternSize; nnNote++ ) {
 				const Pattern::notes_t* notes = pCurrentPattern->getNotes();
-				FOREACH_NOTE_CST_IT_BOUND_LENGTH( notes, it, nnNote, pCurrentPattern ) {
+				FOREACH_NOTE_CST_IT_BOUND_LENGTH(
+					notes, it, nnNote, pCurrentPattern
+				)
+				{
 					auto pNote = it->second;
 					if ( pNote != nullptr &&
 						 pNote->getPosition() == m_nLastRecordedMIDINoteTick &&
 						 pInstrument == pNote->getInstrument() ) {
-						
-						if ( m_nLastRecordedMIDINoteTick + nNoteLength > nPatternSize ) {
-							nNoteLength = nPatternSize - m_nLastRecordedMIDINoteTick;
+						int nNewNoteLength = nNoteLength;
+						if ( m_nLastRecordedMIDINoteTick + nNoteLength >
+							 nPatternSize ) {
+							nNewNoteLength =
+								nPatternSize - m_nLastRecordedMIDINoteTick;
 						}
-						pNote->setLength( nNoteLength );
+						pNote->setLength( nNewNoteLength );
 						bIsModified = true;
 					}
 				}
 			}
-
 		}
 		else { // note on
 			EventQueue::AddMidiNoteVector noteAction;
-			noteAction.m_column = nTickInPattern;
-			noteAction.m_id = instrumentId;
-			noteAction.m_pattern = currentPatternNumber;
-			noteAction.f_velocity = fVelocity;
-			noteAction.f_pan = fPan;
-			noteAction.m_length = -1;
+			noteAction.nColumn = nTickInPattern;
+			noteAction.id = instrumentId;
+			noteAction.nPattern = currentPatternNumber;
+			noteAction.fVelocity = fVelocity;
+			noteAction.fPan = fPan;
+			noteAction.nLength = -1;
 
-			if ( bPlaySelectedInstrument ) {
-				int divider = nNote / 12;
-                noteAction.no_octaveKeyVal = static_cast<Note::Octave>(
-                    std::clamp( divider - 3, OCTAVE_MIN, OCTAVE_MAX ) );
-                noteAction.nk_noteKeyVal = static_cast<Note::Key>(
-                    std::clamp( nNote - (12 * divider), KEY_MIN, KEY_MAX) );
-			} else {
-				noteAction.no_octaveKeyVal = (Note::Octave)0;
-				noteAction.nk_noteKeyVal = (Note::Key)0;
+			if ( bPlaySelectedInstrument && note != Midi::NoteInvalid ) {
+				noteAction.octave = Note::octaveFrom( note );
+				noteAction.key = Note::keyFrom( note );
+			}
+			else {
+				noteAction.octave = Note::OctaveDefault;
+				noteAction.key = Note::KeyDefault;
 			}
 
 			EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
@@ -525,21 +550,21 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 		return true;
 	}
 	
-	if ( bPlaySelectedInstrument ) {
+	if ( bPlaySelectedInstrument && note != Midi::NoteInvalid ) {
 		if ( bNoteOff ) {
 			if ( pSampler->isInstrumentPlaying( pInstrument ) ) {
-				pSampler->midiKeyboardNoteOff( nNote );
+				pSampler->midiKeyboardNoteOff(
+					pInstrument, Note::keyFrom( note ), Note::octaveFrom( note )
+				);
 			}
 		}
 		else { // note on
 			auto pNote2 = std::make_shared<Note>(
-				pInstrument, nRealColumn, fVelocity, fPan );
+				pInstrument, nRealColumn, fVelocity, fPan
+			);
 
-			int divider = nNote / 12;
-			Note::Octave octave = (Note::Octave)(divider -3);
-			Note::Key notehigh = (Note::Key)(nNote - (12 * divider));
-
-			pNote2->setMidiInfo( notehigh, octave, nNote );
+			pNote2->setKey( Note::keyFrom( note ) );
+			pNote2->setOctave( Note::octaveFrom( note ) );
 			midiNoteOn( pNote2 );
 		}
 	}
@@ -561,7 +586,6 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 	m_pAudioEngine->unlock(); // unlock the audio engine
 	return true;
 }
-
 
 void Hydrogen::toggleNextPattern( int nPatternNumber ) {
 	if ( m_pSong != nullptr && getMode() == Song::Mode::Pattern ) {
@@ -1605,20 +1629,37 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
-		sOutput.append(
-			QString( "%1%2m_pSoundLibraryDatabase: %3\n" )
-			.arg( sPrefix ).arg( s )
-			.arg( m_pSoundLibraryDatabase == nullptr ? "nullptr" :
-				  m_pSoundLibraryDatabase->toQString( sPrefix + s, bShort) ) )
-			.append( QString( "%1%2m_pPlaylist: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_pPlaylist == nullptr ? "nullptr" :
-						   m_pPlaylist->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2m_nHihatOpenness: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nHihatOpenness ) )
-			.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s )
-						.arg( MidiEvent::TypeToQString( m_lastMidiEvent ) ) )
-			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nLastMidiEventParameter ) );
+		sOutput
+			.append( QString( "%1%2m_pSoundLibraryDatabase: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg(
+							 m_pSoundLibraryDatabase == nullptr
+								 ? "nullptr"
+								 : m_pSoundLibraryDatabase->toQString(
+									   sPrefix + s, bShort
+								   )
+						 ) )
+			.append( QString( "%1%2m_pPlaylist: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg(
+							 m_pPlaylist == nullptr
+								 ? "nullptr"
+								 : m_pPlaylist->toQString( sPrefix + s, bShort )
+						 ) )
+			.append( QString( "%1%2m_hihatOpenness: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( static_cast<int>( m_hihatOpenness ) ) )
+			.append( QString( "%1%2m_lastMidiEvent: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( MidiEvent::TypeToQString( m_lastMidiEvent ) ) )
+			.append( QString( "%1%2m_lastMidiEventParameter: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( static_cast<int>( m_lastMidiEventParameter ) ) );
 	}
 	else {
 		
@@ -1683,16 +1724,23 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			sOutput.append( QString( " nullptr" ) );
 		}
 		sOutput.append( ", m_pSoundLibraryDatabase: %1" )
-			.append( m_pSoundLibraryDatabase == nullptr ? "nullptr" :
-					 m_pSoundLibraryDatabase->toQString( "", bShort) )
+			.append(
+				m_pSoundLibraryDatabase == nullptr
+					? "nullptr"
+					: m_pSoundLibraryDatabase->toQString( "", bShort )
+			)
 			.append( QString( ", m_pPlaylist: %1" )
-					 .arg( m_pPlaylist == nullptr ? "nullptr" :
-						   m_pPlaylist->toQString( "", bShort ) ) )
-			.append( QString( ", m_nHihatOpenness: %1" ).arg( m_nHihatOpenness ) )
+						 .arg(
+							 m_pPlaylist == nullptr
+								 ? "nullptr"
+								 : m_pPlaylist->toQString( "", bShort )
+						 ) )
+			.append( QString( ", m_hihatOpenness: %1" )
+						 .arg( static_cast<int>( m_hihatOpenness ) ) )
 			.append( QString( ", lastMidiEvent: %1" )
-					 .arg( MidiEvent::TypeToQString( m_lastMidiEvent ) ) )
+						 .arg( MidiEvent::TypeToQString( m_lastMidiEvent ) ) )
 			.append( QString( ", lastMidiEventParameter: %1" )
-					 .arg( m_nLastMidiEventParameter ) );
+						 .arg( static_cast<int>( m_lastMidiEventParameter ) ) );
 	}
 		
 	return sOutput;

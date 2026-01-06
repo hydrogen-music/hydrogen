@@ -75,13 +75,13 @@ QString MidiLearnable::composeToolTip() const {
 					 .arg( pCommonStrings->getMidiToolTipHeading() )
 					 .arg( MidiAction::typeToQString( m_pMidiAction->getType() ) ) );
 		if ( m_registeredMidiEvents.size() > 0 ) {
-			for ( const auto& [event, nnParam] : m_registeredMidiEvents ) {
+			for ( const auto& [event, pparam] : m_registeredMidiEvents ) {
 				if ( event == H2Core::MidiEvent::Type::Note ||
 					 event == H2Core::MidiEvent::Type::CC ) {
 					sTip.append( QString( "\n%1 [%2 : %3]" )
 								 .arg( pCommonStrings->getMidiToolTipBound() )
 								 .arg( H2Core::MidiEvent::TypeToQString( event ) )
-								 .arg( nnParam ) );
+								 .arg( static_cast<int>( pparam ) ) );
 				}
 				else {
 					// PC and MMC_x do not have a parameter.

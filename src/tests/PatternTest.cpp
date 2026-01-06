@@ -25,6 +25,7 @@
 #include "TestHelper.h"
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Hydrogen.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
@@ -61,28 +62,30 @@ void PatternTest::testPurgeInstrument()
 {
 	___INFOLOG( "" );
 	auto pInstrument = std::make_shared<Instrument>();
-	auto pNote = std::make_shared<Note>( pInstrument, 1, 1.0, 0.f, 1, 1.0 );
+	auto pNote = std::make_shared<Note>( pInstrument, 1, 1.0, 0.f, 1 );
 
 	auto pPattern = std::make_shared<Pattern>();
 	pPattern->insertNote( pNote );
-	CPPUNIT_ASSERT( pPattern->findNote(
-						1, pInstrument->getId(),
-						pInstrument->getType(),
-						static_cast<Note::Key>(KEY_MIN),
-						static_cast<Note::Octave>(OCTAVE_DEFAULT) ) != nullptr );
-	auto notes = pPattern->findNotes( 1, pInstrument->getId(),
-									  pInstrument->getType() );
+	CPPUNIT_ASSERT(
+		pPattern->findNote(
+			1, pInstrument->getId(), pInstrument->getType(), Note::KeyMinimum,
+			Note::OctaveDefault
+		) != nullptr
+	);
+	auto notes =
+		pPattern->findNotes( 1, pInstrument->getId(), pInstrument->getType() );
 	CPPUNIT_ASSERT( notes.size() == 1 );
 	notes.clear();
 
 	pPattern->purgeInstrument( pInstrument );
-	CPPUNIT_ASSERT( pPattern->findNote(
-						1, pInstrument->getId(),
-						pInstrument->getType(),
-						static_cast<Note::Key>(KEY_MIN),
-						static_cast<Note::Octave>(OCTAVE_DEFAULT) ) == nullptr );
-	notes = pPattern->findNotes( 1, pInstrument->getId(),
-								 pInstrument->getType() );
+	CPPUNIT_ASSERT(
+		pPattern->findNote(
+			1, pInstrument->getId(), pInstrument->getType(), Note::KeyMinimum,
+			Note::OctaveDefault
+		) == nullptr
+	);
+	notes =
+		pPattern->findNotes( 1, pInstrument->getId(), pInstrument->getType() );
 	CPPUNIT_ASSERT( notes.size() == 0 );
 
 	___INFOLOG( "passed" );

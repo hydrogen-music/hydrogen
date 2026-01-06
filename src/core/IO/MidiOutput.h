@@ -24,6 +24,7 @@
 #define H2_MIDI_OUTPUT_H
 
 #include <core/Helpers/Time.h>
+#include <core/Midi/Midi.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
 
@@ -46,9 +47,9 @@ class MidiOutput : public virtual Object<MidiOutput>
 		struct HandledOutput {
 			TimePoint timePoint;
 			MidiMessage::Type type;
-			int nData1;
-			int nData2;
-			int nChannel;
+			Midi::Parameter data1;
+			Midi::Parameter data2;
+			Midi::Channel channel;
 
 			QString toQString() const;
 		};

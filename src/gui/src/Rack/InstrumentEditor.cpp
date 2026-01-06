@@ -41,6 +41,7 @@
 #include "../Widgets/LCDDisplay.h"
 #include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/Rotary.h"
+#include "core/Midi/Midi.h"
 
 using namespace H2Core;
 
@@ -81,15 +82,19 @@ font-size: 21px;" );
 	pMidiOutLbl->move( 28, 281 );
 
 	m_pMidiOutChannelLCD = new LCDSpinBox(
-		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, -1, 15,
-		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::MinusOneAsOff );
+		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int,
+		static_cast<int>( Midi::ChannelOff ),
+		static_cast<int>( Midi::ChannelMaximum ),
+		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::MinusOneAsOff
+	);
 	m_pMidiOutChannelLCD->move( 146, 257 );
-	m_pMidiOutChannelLCD->setToolTip(QString(tr("Midi out channel")));
+	m_pMidiOutChannelLCD->setToolTip( QString( tr( "Midi out channel" ) ) );
 	connect(
 		m_pMidiOutChannelLCD,
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
 		[&]( double fValue ) {
-			auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+			auto pInstrument =
+				Hydrogen::get_instance()->getSelectedInstrument();
 			if ( pInstrument == nullptr ) {
 				return;
 			}
@@ -99,26 +104,30 @@ font-size: 21px;" );
 			}
 			CoreActionController::setInstrumentMidiOutChannel(
 				pSong->getDrumkit()->getInstruments()->index( pInstrument ),
-				static_cast<int>( fValue ), nullptr
+				Midi::channelFromIntClamp( static_cast<int>( fValue ) ), nullptr
 			);
 		}
 	);
 	m_pMidiOutChannelLbl = new ClickableLabel(
 		m_pInstrumentProp, QSize( 61, 10 ),
-		pCommonStrings->getMidiOutChannelLabel() );
+		pCommonStrings->getMidiOutChannelLabel()
+	);
 	m_pMidiOutChannelLbl->move( 144, 281 );
 
 	///
 	m_pMidiOutNoteLCD = new LCDSpinBox(
-		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, 0, 127,
-		LCDSpinBox::Flag::ModifyOnChange );
+		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int,
+		static_cast<int>( Midi::NoteMinimum ),
+		static_cast<int>( Midi::NoteMaximum ), LCDSpinBox::Flag::ModifyOnChange
+	);
 	m_pMidiOutNoteLCD->move( 210, 257 );
-	m_pMidiOutNoteLCD->setToolTip(QString(tr("Midi out note")));
+	m_pMidiOutNoteLCD->setToolTip( QString( tr( "Midi out note" ) ) );
 	connect(
 		m_pMidiOutNoteLCD,
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
 		[&]( double fValue ) {
-			auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+			auto pInstrument =
+				Hydrogen::get_instance()->getSelectedInstrument();
 			if ( pInstrument == nullptr ) {
 				return;
 			}
@@ -128,7 +137,7 @@ font-size: 21px;" );
 			}
 			CoreActionController::setInstrumentMidiOutNote(
 				pSong->getDrumkit()->getInstruments()->index( pInstrument ),
-				static_cast<int>( fValue ), nullptr
+				Midi::noteFromIntClamp( static_cast<int>( fValue ) ), nullptr
 			);
 		}
 	);
@@ -175,8 +184,8 @@ font-size: 21px;" );
 	
 	m_pPitchCoarseRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Center, tr( "Pitch offset (Coarse)" ),
-		true, Instrument::fPitchMin + InstrumentEditor::nPitchFineControl,
-		Instrument::fPitchMax - InstrumentEditor::nPitchFineControl );
+		true, Instrument::fPitchOffsetMinimum + InstrumentEditor::nPitchFineControl,
+		Instrument::fPitchOffsetMaximum - InstrumentEditor::nPitchFineControl );
 	m_pPitchCoarseRotary->move( 94, 210 );
 	connect( m_pPitchCoarseRotary, &Rotary::valueChanged, [&]() {
 		//round fVal, since Coarse is the integer number of half steps
@@ -384,31 +393,49 @@ font-size: 21px;" );
 	m_pHihatGroupLbl->move( 28, 327 );
 
 	m_pHihatMinRangeLCD = new LCDSpinBox(
-		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, 0, 127,
-		LCDSpinBox::Flag::ModifyOnChange );
+		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int,
+		static_cast<int>( Midi::ParameterMinimum ),
+		static_cast<int>( Midi::ParameterMaximum ),
+		LCDSpinBox::Flag::ModifyOnChange
+	);
 	m_pHihatMinRangeLCD->move( 146, 303 );
 	connect( m_pHihatMinRangeLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		Hydrogen::get_instance()->getSelectedInstrument()->setLowerCc(
-			static_cast<int>(m_pHihatMinRangeLCD->value()) );
+			Midi::parameterFromIntClamp(
+				static_cast<int>( m_pHihatMinRangeLCD->value() )
+			)
+		);
 		m_pHihatMaxRangeLCD->setMinimum(
-			static_cast<int>(m_pHihatMinRangeLCD->value()) );
-	});
-	m_pHihatMinRangeLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ),
-											  pCommonStrings->getHihatMinRangeLabel() );
+			static_cast<int>( m_pHihatMinRangeLCD->value() )
+		);
+	} );
+	m_pHihatMinRangeLbl = new ClickableLabel(
+		m_pInstrumentProp, QSize( 61, 10 ),
+		pCommonStrings->getHihatMinRangeLabel()
+	);
 	m_pHihatMinRangeLbl->move( 144, 327 );
 
 	m_pHihatMaxRangeLCD = new LCDSpinBox(
-		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, 0, 127,
-		LCDSpinBox::Flag::ModifyOnChange );
+		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int,
+		static_cast<int>( Midi::ParameterMinimum ),
+		static_cast<int>( Midi::ParameterMaximum ),
+		LCDSpinBox::Flag::ModifyOnChange
+	);
 	m_pHihatMaxRangeLCD->move( 210, 303 );
 	connect( m_pHihatMaxRangeLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		Hydrogen::get_instance()->getSelectedInstrument()->setHigherCc(
-			static_cast<int>(m_pHihatMaxRangeLCD->value()) );
+			Midi::parameterFromIntClamp(
+				static_cast<int>( m_pHihatMaxRangeLCD->value() )
+			)
+		);
 		m_pHihatMinRangeLCD->setMaximum(
-			static_cast<int>(m_pHihatMaxRangeLCD->value()) );
-	});
-	m_pHihatMaxRangeLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ),
-											  pCommonStrings->getHihatMaxRangeLabel() );
+			static_cast<int>( m_pHihatMaxRangeLCD->value() )
+		);
+	} );
+	m_pHihatMaxRangeLbl = new ClickableLabel(
+		m_pInstrumentProp, QSize( 61, 10 ),
+		pCommonStrings->getHihatMaxRangeLabel()
+	);
 	m_pHihatMaxRangeLbl->move( 208, 327 );
 
 	updateColors();
@@ -570,30 +597,43 @@ void InstrumentEditor::updateEditor() {
 			pInstrument->getMuteGroup(), Event::Trigger::Suppress );
 
 		// midi out channel
-		if ( pInstrument->getMidiOutChannel() == -1 ) {
+		if ( pInstrument->getMidiOutChannel() == Midi::ChannelOff ||
+             pInstrument->getMidiOutChannel() == Midi::ChannelInvalid ) {
 			// turn off
 			m_pMidiOutChannelLCD->setValue( -1, Event::Trigger::Suppress );
 		}
 		else {
 			// The MIDI channels start at 1 instead of zero.
 			m_pMidiOutChannelLCD->setValue(
-				pInstrument->getMidiOutChannel(),
-				Event::Trigger::Suppress );
+				static_cast<int>( pInstrument->getMidiOutChannel() ),
+				Event::Trigger::Suppress
+			);
 		}
 
 		//midi out note
-		m_pMidiOutNoteLCD->setValue( pInstrument->getMidiOutNote(),
-									 Event::Trigger::Suppress );
+		m_pMidiOutNoteLCD->setValue(
+			static_cast<int>( pInstrument->getMidiOutNote() ),
+			Event::Trigger::Suppress
+		);
 
 		// hihat
-		m_pHihatGroupLCD->setValue( pInstrument->getHihatGrp(),
-									Event::Trigger::Suppress );
-		m_pHihatMinRangeLCD->setValue( pInstrument->getLowerCc(),
-									   Event::Trigger::Suppress );
-		m_pHihatMaxRangeLCD->setValue( pInstrument->getHigherCc(),
-									   Event::Trigger::Suppress );
-		m_pHihatMinRangeLCD->setMaximum( pInstrument->getHigherCc() );
-		m_pHihatMaxRangeLCD->setMinimum( pInstrument->getLowerCc() );
+		m_pHihatGroupLCD->setValue(
+			pInstrument->getHihatGrp(), Event::Trigger::Suppress
+		);
+		m_pHihatMinRangeLCD->setValue(
+			static_cast<int>( pInstrument->getLowerCc() ),
+			Event::Trigger::Suppress
+		);
+		m_pHihatMaxRangeLCD->setValue(
+			static_cast<int>( pInstrument->getHigherCc() ),
+			Event::Trigger::Suppress
+		);
+		m_pHihatMinRangeLCD->setMaximum(
+			static_cast<int>( pInstrument->getHigherCc() )
+		);
+		m_pHihatMaxRangeLCD->setMinimum(
+			static_cast<int>( pInstrument->getLowerCc() )
+		);
 	}
 	else {
 		m_pNameLbl->setText( "" );

@@ -62,8 +62,8 @@ static void midiProc ( const MIDIPacketList * pktlist,
 			}
 		}
 		else {
-			msg.setData1( packet->data[1] );
-			msg.setData2( packet->data[2] );
+			msg.setData1( Midi::parameterFromIntClamp( packet->data[1] ) );
+			msg.setData2( Midi::parameterFromIntClamp( packet->data[2] ) );
 		}
 
 		instance->handleMessage( msg );
@@ -233,9 +233,9 @@ void CoreMidiDriver::sendNoteOnMessage( const MidiMessage& msg )
 
 	packetList.packet->timeStamp = 0;
 	packetList.packet->length = 3;
-	packetList.packet->data[0] = 0x90 | msg.getChannel();
-	packetList.packet->data[1] = msg.getData1();
-	packetList.packet->data[2] = msg.getData2();
+	packetList.packet->data[0] = 0x90 | static_cast<int>( msg.getChannel() );
+	packetList.packet->data[1] = static_cast<int>( msg.getData1() );
+	packetList.packet->data[2] = static_cast<int>( msg.getData2() );
 
 	sendMidiPacket( &packetList );
 }
@@ -252,9 +252,9 @@ void CoreMidiDriver::sendNoteOffMessage( const MidiMessage& msg )
 
 	packetList.packet->timeStamp = 0;
 	packetList.packet->length = 3;
-	packetList.packet->data[0] = 0x80 | msg.getChannel();
-	packetList.packet->data[1] = msg.getData1();
-	packetList.packet->data[2] = msg.getData2();
+	packetList.packet->data[0] = 0x80 | static_cast<int>( msg.getChannel() );
+	packetList.packet->data[1] = static_cast<int>( msg.getData1() );
+	packetList.packet->data[2] = static_cast<int>( msg.getData2() );
 
 	sendMidiPacket( &packetList );
 }
@@ -270,9 +270,9 @@ void CoreMidiDriver::sendControlChangeMessage( const MidiMessage& msg ) {
 
 	packetList.packet->timeStamp = 0;
 	packetList.packet->length = 3;
-	packetList.packet->data[0] = 0xB0 | msg.getChannel();
-	packetList.packet->data[1] = msg.getData1();
-	packetList.packet->data[2] = msg.getData2();
+	packetList.packet->data[0] = 0xB0 | static_cast<int>( msg.getChannel() );
+	packetList.packet->data[1] = static_cast<int>( msg.getData1() );
+	packetList.packet->data[2] = static_cast<int>( msg.getData2() );
 
 	sendMidiPacket( &packetList );
 }

@@ -108,7 +108,11 @@ class NotePropertiesRuler : public PatternEditor,
 	 * is intended to be used with applyProperty(). */
 	float eventToYValue( QMouseEvent* pEvent ) const;
 
-	static void yToKeyOctave( int nY, int* pKey, int* pOctave );
+	static void yToKeyOctave(
+		int nY,
+		H2Core::Note::Key* pKey,
+		H2Core::Note::Octave* pOctave
+	);
 
 	void updateColors();
 	void updateFont();

@@ -30,6 +30,7 @@
 #include <core/Basics/Event.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/License.h>
+#include <core/Midi/Midi.h>
 #include <core/Object.h>
 
 namespace H2Core {
@@ -49,9 +50,9 @@ class Instrument : public H2Core::Object<Instrument> {
 	H2_OBJECT( Instrument )
    public:
 	/** Maximum support pitch value */
-	static constexpr float fPitchMax = 24.5;
+	static constexpr float fPitchOffsetMaximum = 24.5;
 	/** Minimum support pitch value */
-	static constexpr float fPitchMin = -24.5;
+	static constexpr float fPitchOffsetMinimum = -24.5;
 
 	/** Strong type definition to ensure we do not mix up instrument ID and
 	 * instrument index (within the instrument list) when looking up and
@@ -173,14 +174,14 @@ class Instrument : public H2Core::Object<Instrument> {
 	int getMuteGroup() const;
 
 	/** set the midi out channel of the instrument */
-	void setMidiOutChannel( int channel );
+	void setMidiOutChannel( Midi::Channel channel );
 	/** get the midi out channel of the instrument */
-	int getMidiOutChannel() const;
+	Midi::Channel getMidiOutChannel() const;
 
 	/** set the midi out note of the instrument */
-	void setMidiOutNote( int note );
+	void setMidiOutNote( Midi::Note note );
 	/** get the midi out note of the instrument */
-	int getMidiOutNote() const;
+	Midi::Note getMidiOutNote() const;
 
 	/** set muted status of the instrument */
 	void setMuted( bool muted );
@@ -268,11 +269,11 @@ class Instrument : public H2Core::Object<Instrument> {
 	void setHihatGrp( int hihat_grp );
 	int getHihatGrp() const;
 
-	void setLowerCc( int message );
-	int getLowerCc() const;
+	void setLowerCc( Midi::Parameter parameter );
+	Midi::Parameter getLowerCc() const;
 
-	void setHigherCc( int message );
-	int getHigherCc() const;
+	void setHigherCc( Midi::Parameter parameter );
+	Midi::Parameter getHigherCc() const;
 
 	///< set the path of the related drumkit
 	void setDrumkitPath( const QString& sPath );
@@ -394,16 +395,19 @@ class Instrument : public H2Core::Object<Instrument> {
 	bool m_bFilterActive;			///< is filter active?
 	float m_fFilterCutoff;			///< filter cutoff (0..1)
 	float m_fFilterResonance;		///< filter resonant frequency (0..1)
-									/**
-									 * Factor to scale the random contribution when humanizing pitch
-									 * between 0 and #AudioEngine::fHumanizePitchSD.
-									 *
-									 * Supported range [0,1].
-									 */
+
+	/**
+	 * Factor to scale the random contribution when humanizing pitch
+	 * between 0 and #AudioEngine::fHumanizePitchSD.
+	 *
+	 * Supported range [0,1].
+	 */
 	float m_fRandomPitchFactor;
-	float m_fPitchOffset;	///< instrument main pitch offset
-	int m_nMidiOutNote;		///< midi out note
-	int m_nMidiOutChannel;	///< midi out channel
+	/** Additional pitch offset applied to all notes using the sample of
+	 * this layer. It is of the same scale as #Note::Pitch. */
+	float m_fPitchOffset;
+	Midi::Note m_midiOutNote;
+	Midi::Channel m_midiOutChannel;
 	bool m_bStopNotes;		///< will the note automatically generate a note off
 							///< after being on
 	bool m_bSoloed;			///< is the instrument in solo mode?
@@ -417,8 +421,8 @@ class Instrument : public H2Core::Object<Instrument> {
 	QStringList m_enqueuedBy;
 	float m_fxLevel[MAX_FX];	  ///< Ladspa FX level array
 	int m_nHihatGrp;			  ///< the instrument is part of a hihat
-	int m_nLowerCc;				  ///< lower cc level
-	int m_nHigherCc;			  ///< higher cc level
+	Midi::Parameter m_lowerCc;
+	Midi::Parameter m_higherCc;
 	bool m_bIsPreviewInstrument;  ///< is the instrument an hydrogen preview
 								  ///< instrument?
 	bool m_bApplyVelocity;		  ///< change the sample gain based on velocity
@@ -467,38 +471,24 @@ inline int Instrument::getMuteGroup() const
 	return m_nMuteGroup;
 }
 
-inline int Instrument::getMidiOutChannel() const
+inline Midi::Channel Instrument::getMidiOutChannel() const
 {
-	return m_nMidiOutChannel;
+	return m_midiOutChannel;
 }
 
-inline void Instrument::setMidiOutChannel( int nChannel )
+inline void Instrument::setMidiOutChannel( Midi::Channel channel )
 {
-	if ( ( nChannel >= MIDI_OUT_CHANNEL_MIN ) &&
-		 ( nChannel <= MIDI_OUT_CHANNEL_MAX ) ) {
-		m_nMidiOutChannel = nChannel;
-	}
-	else {
-		ERRORLOG( QString( "midi out channel [%1] out of bounds [%2,%3]" )
-					  .arg( nChannel )
-					  .arg( MIDI_OUT_CHANNEL_MIN )
-					  .arg( MIDI_OUT_CHANNEL_MAX ) );
-	}
+	m_midiOutChannel = channel;
 }
 
-inline int Instrument::getMidiOutNote() const
+inline Midi::Note Instrument::getMidiOutNote() const
 {
-	return m_nMidiOutNote;
+	return m_midiOutNote;
 }
 
-inline void Instrument::setMidiOutNote( int note )
+inline void Instrument::setMidiOutNote( Midi::Note note )
 {
-	if ( ( note >= MIDI_OUT_NOTE_MIN ) && ( note <= MIDI_OUT_NOTE_MAX ) ) {
-		m_nMidiOutNote = note;
-	}
-	else {
-		ERRORLOG( QString( "midi out note %1 out of bounds" ).arg( note ) );
-	}
+	m_midiOutNote = note;
 }
 
 inline void Instrument::setMuted( bool muted )
@@ -665,24 +655,24 @@ inline int Instrument::getHihatGrp() const
 	return m_nHihatGrp;
 }
 
-inline void Instrument::setLowerCc( int message )
+inline void Instrument::setLowerCc( Midi::Parameter parameter )
 {
-	m_nLowerCc = message;
+	m_lowerCc = parameter;
 }
 
-inline int Instrument::getLowerCc() const
+inline Midi::Parameter Instrument::getLowerCc() const
 {
-	return m_nLowerCc;
+	return m_lowerCc;
 }
 
-inline void Instrument::setHigherCc( int message )
+inline void Instrument::setHigherCc( Midi::Parameter parameter )
 {
-	m_nHigherCc = message;
+	m_higherCc = parameter;
 }
 
-inline int Instrument::getHigherCc() const
+inline Midi::Parameter Instrument::getHigherCc() const
 {
-	return m_nHigherCc;
+	return m_higherCc;
 }
 
 inline void Instrument::setDrumkitPath( const QString& sPath )

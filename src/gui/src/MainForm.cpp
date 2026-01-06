@@ -2612,8 +2612,13 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			// Virtual keyboard
 
 			CoreActionController::handleNote(
-				static_cast<int>(action) - 400 + MidiMessage::nInstrumentOffset,
-				MidiMessage::nChannelAll, VELOCITY_DEFAULT, false );
+				Midi::noteFromIntClamp(
+					static_cast<int>( action ) -
+					static_cast<int>( Shortcuts::Action::VK_36_C2 ) +
+					static_cast<int>( Midi::NoteOffset )
+				),
+				Midi::ChannelAll, VELOCITY_DEFAULT, false
+			);
 		}
 		else if ( static_cast<int>(action) >
 				  static_cast<int>(Shortcuts::Action::FirstWith1Args) &&

@@ -984,7 +984,7 @@ bool ExportSongDialog::checkUseOfRubberband()
 					continue;
 				}
 
-				if ( ppLayer->getSample()->getRubberband().use ) {
+				if ( ppLayer->getSample()->getRubberband().bUse ) {
 					return true;
 				}
 			}

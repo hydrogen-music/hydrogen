@@ -22,9 +22,10 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <memory>
 #include <QString>
 
-#include <memory>
+#include <core/Midi/Midi.h>
 
 namespace H2Core {
 	class Instrument;
@@ -48,6 +49,9 @@ public:
 		void testMidiInstrumentGlobalMapping();
 
 private:
-	void checkInstrumentMidiNote( const QString& sName, int nNote,
-								 std::shared_ptr<H2Core::Instrument> pInstrument );
+ void checkInstrumentMidiNote(
+	 const QString& sName,
+	 H2Core::Midi::Note note,
+	 std::shared_ptr<H2Core::Instrument> pInstrument
+ );
 };

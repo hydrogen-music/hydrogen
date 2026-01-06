@@ -25,6 +25,8 @@
 
 #include <QByteArray>
 #include <QString>
+
+#include <core/Midi/Midi.h>
 #include <core/Object.h>
 
 namespace H2Core
@@ -188,16 +190,22 @@ class SMFNoteOnEvent : public SMFEvent, public H2Core::Object<SMFNoteOnEvent>
 {
 	H2_OBJECT(SMFNoteOnEvent)
 public:
-	SMFNoteOnEvent( float fTicks, int nChannel, int nPitch, int nVelocity );
+ SMFNoteOnEvent(
+	 float fTicks,
+	 Midi::Channel Channel,
+	 Midi::Note note,
+	 Midi::Parameter velocity
+ );
 
-	virtual QByteArray getBuffer() const override;
+ virtual QByteArray getBuffer() const override;
 
-	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+ QString toQString( const QString& sPrefix = "", bool bShort = true )
+	 const override;
 
 protected:
-	int m_nChannel;
-	int m_nPitch;
-	int m_nVelocity;
+	Midi::Channel m_channel;
+	Midi::Note m_note;
+	Midi::Parameter m_velocity;
 };
 
 
@@ -207,16 +215,22 @@ class SMFNoteOffEvent : public SMFEvent, public H2Core::Object<SMFNoteOffEvent>
 {
 	H2_OBJECT(SMFNoteOffEvent)
 public:
-	SMFNoteOffEvent( float fTicks, int nChannel, int nPitch, int nVelocity );
+ SMFNoteOffEvent(
+	 float fTicks,
+	 Midi::Channel channel,
+	 Midi::Note note,
+	 Midi::Parameter velocity
+ );
 
-	virtual QByteArray getBuffer() const override;
+ virtual QByteArray getBuffer() const override;
 
-	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+ QString toQString( const QString& sPrefix = "", bool bShort = true )
+	 const override;
 
 protected:
-	int m_nChannel;
-	int m_nPitch;
-	int m_nVelocity;
+	Midi::Channel m_channel;
+	Midi::Note m_note;
+	Midi::Parameter m_velocity;
 
 };
 

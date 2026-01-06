@@ -26,8 +26,10 @@
 #include <core/Basics/Note.h>
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
+#include <core/Midi/MidiMessage.h>
 
 #include <QtGlobal>
+#include "Midi/Midi.h"
 
 namespace H2Core {
 
@@ -80,42 +82,52 @@ QString MidiInstrumentMap::OutputToQString( Output mapping ) {
 	}
 }
 
-QString MidiInstrumentMap::NoteRef::toQString( const QString& sPrefix,
-  											  bool bShort ) const {
+QString MidiInstrumentMap::NoteRef::toQString(
+	const QString& sPrefix,
+	bool bShort
+) const
+{
 	QString s = Base::sPrintIndention;
 	QString sOutput;
-	if ( ! bShort ) {
-		sOutput = QString( "%1[NoteRef]\n" ).arg( sPrefix )
-			.append( QString( "%1%2nNote: %3\n" ).arg( sPrefix ).arg( s )
-				.arg( nNote ) )
-			.append( QString( "%1%2nChannel: %3\n" ).arg( sPrefix ).arg( s )
-				.arg( nChannel ) );
+	if ( !bShort ) {
+		sOutput = QString( "%1[NoteRef]\n" )
+					  .arg( sPrefix )
+					  .append( QString( "%1%2note: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( static_cast<int>( note ) ) )
+					  .append( QString( "%1%2channel: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( static_cast<int>( channel ) ) );
 	}
 	else {
-		sOutput = QString( "[NoteRef]" )
-			.append( QString( " nNote: %1" ).arg( nNote ) )
-			.append( QString( ", nChannel: %1" ).arg( nChannel ) );
+		sOutput =
+			QString( "[NoteRef]" )
+				.append( QString( " note: %1" ).arg( static_cast<int>( note ) )
+				)
+				.append( QString( ", channel: %1" )
+							 .arg( static_cast<int>( channel ) ) );
 	}
-  return sOutput;
+	return sOutput;
 }
-
 
 MidiInstrumentMap::MidiInstrumentMap()
 	: m_input( Input::AsOutput )
 	, m_output( Output::Offset )
 	, m_bUseGlobalInputChannel( true )
-	, m_nGlobalInputChannel( MidiMessage::nChannelDefault )
+	, m_globalInputChannel( Midi::ChannelDefault )
 	, m_bUseGlobalOutputChannel( false )
-	, m_nGlobalOutputChannel( MidiMessage::nChannelDefault ) {
+	, m_globalOutputChannel( Midi::ChannelDefault ) {
 }
 
 MidiInstrumentMap::MidiInstrumentMap( const std::shared_ptr<MidiInstrumentMap> pOther )
 	: m_input( pOther->m_input )
 	, m_output( pOther->m_output )
 	, m_bUseGlobalInputChannel( pOther->m_bUseGlobalInputChannel )
-	, m_nGlobalInputChannel( pOther->m_nGlobalInputChannel )
+	, m_globalInputChannel( pOther->m_globalInputChannel )
 	, m_bUseGlobalOutputChannel( pOther->m_bUseGlobalOutputChannel )
-	, m_nGlobalOutputChannel( pOther->m_nGlobalOutputChannel ) {
+	, m_globalOutputChannel( pOther->m_globalOutputChannel ) {
 	
 	for ( const auto& it : pOther->m_customInputMappingsType ) {
 		m_customInputMappingsType[ it.first ] = it.second;
@@ -134,60 +146,72 @@ void MidiInstrumentMap::saveTo( XMLNode& node ) const {
 	mapNode.write_bool( "useGlobalInputChannel",
 					   getUseGlobalInputChannel() );
 	mapNode.write_int( "globalInputChannel",
-					  getGlobalInputChannel() );
+					  static_cast<int>(getGlobalInputChannel()) );
 	mapNode.write_bool( "useGlobalOutputChannel",
 					   getUseGlobalOutputChannel() );
 	mapNode.write_int( "globalOutputChannel",
-					  getGlobalOutputChannel() );
+					  static_cast<int>(getGlobalOutputChannel()) );
 
 	auto customInputNode = mapNode.createNode( "customMidiInputMappings" );
-	for ( const auto [ ssType, nnoteRef ] : m_customInputMappingsType ) {
-		XMLNode customInput = customInputNode.createNode( "customMidiInputMapping" );
+	for ( const auto [ssType, nnoteRef] : m_customInputMappingsType ) {
+		XMLNode customInput =
+			customInputNode.createNode( "customMidiInputMapping" );
 		customInput.write_string( "instrumentType", ssType );
 		customInput.write_int(
 			"instrumentId", static_cast<int>( Instrument::EmptyId )
 		);
-		customInput.write_int( "note", nnoteRef.nNote );
-		customInput.write_int( "channel", nnoteRef.nChannel );
+		customInput.write_int( "note", static_cast<int>( nnoteRef.note ) );
+		customInput.write_int(
+			"channel", static_cast<int>( nnoteRef.channel )
+		);
 	}
-	for ( const auto [ iid, nnoteRef ] : m_customInputMappingsId ) {
-		XMLNode customInput = customInputNode.createNode( "customMidiInputMapping" );
+	for ( const auto [iid, nnoteRef] : m_customInputMappingsId ) {
+		XMLNode customInput =
+			customInputNode.createNode( "customMidiInputMapping" );
 		customInput.write_string( "instrumentType", "" );
 		customInput.write_int( "instrumentId", static_cast<int>( iid ) );
-		customInput.write_int( "note", nnoteRef.nNote );
-		customInput.write_int( "channel", nnoteRef.nChannel );
+		customInput.write_int( "note", static_cast<int>( nnoteRef.note ) );
+		customInput.write_int(
+			"channel", static_cast<int>( nnoteRef.channel )
+		);
 	}
 }
 
-std::shared_ptr<MidiInstrumentMap> MidiInstrumentMap::loadFrom( const XMLNode& node, bool bSilent ) {
+std::shared_ptr<MidiInstrumentMap>
+MidiInstrumentMap::loadFrom( const XMLNode& node, bool bSilent )
+{
 	auto pMidiInstrumentMap = std::make_shared<MidiInstrumentMap>();
 
-	pMidiInstrumentMap->setInput(
-		static_cast<Input>(
-			node.read_int( "input",
-							 static_cast<int>( pMidiInstrumentMap->getInput() ),
-							 false, false, bSilent ) ) );
-	pMidiInstrumentMap->setOutput(
-		static_cast<Output>(
-			node.read_int( "output",
-							 static_cast<int>( pMidiInstrumentMap->getOutput() ),
-							 false, false, bSilent ) ) );
-	pMidiInstrumentMap->setUseGlobalInputChannel(
-		node.read_bool( "useGlobalInputChannel",
-						  pMidiInstrumentMap->getUseGlobalInputChannel(),
-						  false, false, bSilent ) );
+	pMidiInstrumentMap->setInput( static_cast<Input>( node.read_int(
+		"input", static_cast<int>( pMidiInstrumentMap->getInput() ), false,
+		false, bSilent
+	) ) );
+	pMidiInstrumentMap->setOutput( static_cast<Output>( node.read_int(
+		"output", static_cast<int>( pMidiInstrumentMap->getOutput() ), false,
+		false, bSilent
+	) ) );
+	pMidiInstrumentMap->setUseGlobalInputChannel( node.read_bool(
+		"useGlobalInputChannel", pMidiInstrumentMap->getUseGlobalInputChannel(),
+		false, false, bSilent
+	) );
 	pMidiInstrumentMap->setGlobalInputChannel(
-		node.read_int( "globalInputChannel",
-						 pMidiInstrumentMap->getGlobalInputChannel(),
-						 false, false, bSilent ) );
-	pMidiInstrumentMap->setUseGlobalOutputChannel(
-		node.read_bool( "useGlobalOutputChannel",
-						  pMidiInstrumentMap->getUseGlobalOutputChannel(),
-						  false, false, bSilent ) );
+		Midi::channelFromInt( node.read_int(
+			"globalInputChannel",
+			static_cast<int>( pMidiInstrumentMap->getGlobalInputChannel() ),
+			false, false, bSilent
+		) )
+	);
+	pMidiInstrumentMap->setUseGlobalOutputChannel( node.read_bool(
+		"useGlobalOutputChannel",
+		pMidiInstrumentMap->getUseGlobalOutputChannel(), false, false, bSilent
+	) );
 	pMidiInstrumentMap->setGlobalOutputChannel(
-		node.read_int( "globalOutputChannel",
-						 pMidiInstrumentMap->getGlobalOutputChannel(),
-						 false, false, bSilent ) );
+		Midi::channelFromInt( node.read_int(
+			"globalOutputChannel",
+			static_cast<int>( pMidiInstrumentMap->getGlobalOutputChannel() ),
+			false, false, bSilent
+		) )
+	);
 
 	const auto customInputMappingsNode =
 		node.firstChildElement( "customMidiInputMappings" );
@@ -203,14 +227,19 @@ std::shared_ptr<MidiInstrumentMap> MidiInstrumentMap::loadFrom( const XMLNode& n
 					"instrumentId", static_cast<int>( Instrument::EmptyId ),
 					false, false, bSilent
 				) );
-			const int nNote = customInputMappingNode.read_int(
-				"note", MidiMessage::nInstrumentOffset, false, false, bSilent
-			);
-			const int nChannel = customInputMappingNode.read_int(
-				"channel", MidiMessage::nChannelDefault, false, false, bSilent );
+			const auto note =
+				Midi::noteFromInt( customInputMappingNode.read_int(
+					"note", static_cast<int>( Midi::NoteDefault ), false, false,
+					bSilent
+				) );
+			const auto channel =
+				Midi::channelFromInt( customInputMappingNode.read_int(
+					"channel", static_cast<int>( Midi::ChannelDefault ), false,
+					false, bSilent
+				) );
 			NoteRef noteRef;
-			noteRef.nNote = nNote;
-			noteRef.nChannel = nChannel;
+			noteRef.note = note;
+			noteRef.channel = channel;
 
 			if ( ! sInstrumentType.isEmpty() ) {
 				pMidiInstrumentMap->m_customInputMappingsType[ sInstrumentType ] =
@@ -230,8 +259,8 @@ std::shared_ptr<MidiInstrumentMap> MidiInstrumentMap::loadFrom( const XMLNode& n
 }
 
 std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
-	int nNote,
-	int nChannel,
+	Midi::Note note,
+	Midi::Channel channel,
 	std::shared_ptr<Drumkit> pDrumkit ) const
 {
 	std::vector< std::shared_ptr<Instrument> > instruments;
@@ -241,19 +270,19 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 		return instruments;
 	}
 
-	if ( nChannel == MidiMessage::nChannelOff ) {
+	if ( channel == Midi::ChannelOff ) {
 		return instruments;
 	}
 
 	// The global output channel has more weight as the per instrument
 	// channel. But for inputs the global input channel always wins.
 	auto getMappedChannel = [&]( std::shared_ptr<Instrument> pInstrument ) {
-		int nChannelMapped = m_bUseGlobalInputChannel ?
-			m_nGlobalInputChannel : pInstrument->getMidiOutChannel();
+		auto channelMapped = m_bUseGlobalInputChannel ?
+			m_globalInputChannel : pInstrument->getMidiOutChannel();
 		if ( m_bUseGlobalOutputChannel && ! m_bUseGlobalInputChannel ) {
-			nChannelMapped = m_nGlobalOutputChannel;
+			channelMapped = m_globalOutputChannel;
 		}
-		return nChannelMapped;
+		return channelMapped;
 	};
 
 	switch( m_input ) {
@@ -262,12 +291,12 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 			if ( ppInstrument == nullptr ) {
 				continue;
 			}
-			const int nChannelMapped = getMappedChannel( ppInstrument );
+			const auto channelMapped = getMappedChannel( ppInstrument );
 
-			if ( ppInstrument->getMidiOutNote() == nNote &&
-				 ( nChannelMapped == nChannel ||
-				   nChannelMapped == MidiMessage::nChannelAll ||
-				   nChannel == MidiMessage::nChannelAll ) ) {
+			if ( ppInstrument->getMidiOutNote() == note &&
+				 ( channelMapped == channel ||
+				   channelMapped == Midi::ChannelAll ||
+				   channel == Midi::ChannelAll ) ) {
 				instruments.push_back( ppInstrument );
 			}
 		}
@@ -276,12 +305,12 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 
 	case Input::Custom: {
 		for ( const auto [ ssType, nnoteRef ] : m_customInputMappingsType ) {
-			const int nChannelMapped = m_bUseGlobalInputChannel ?
-				m_nGlobalInputChannel : nnoteRef.nChannel;
-			if ( nnoteRef.nNote == nNote &&
-				 ( nChannelMapped == nChannel ||
-				   nChannelMapped == MidiMessage::nChannelAll ||
-				   nChannel == MidiMessage::nChannelAll ) ) {
+			const auto channelMapped = m_bUseGlobalInputChannel ?
+				m_globalInputChannel : nnoteRef.channel;
+			if ( nnoteRef.note == note &&
+				 ( channelMapped == channel ||
+				   channelMapped == Midi::ChannelAll ||
+				   channel == Midi::ChannelAll ) ) {
 				for ( const auto ppInstrument : *pDrumkit->getInstruments() ) {
 					if ( ppInstrument != nullptr &&
 						 ppInstrument->getType() == ssType ) {
@@ -291,12 +320,12 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 			}
 		}
 		for ( const auto [ iid, nnoteRef ] : m_customInputMappingsId ) {
-			const int nChannelMapped = m_bUseGlobalInputChannel ?
-				m_nGlobalInputChannel : nnoteRef.nChannel;
-			if ( nnoteRef.nNote == nNote &&
-				 ( nChannelMapped == nChannel ||
-				   nChannelMapped == MidiMessage::nChannelAll ||
-				   nChannel == MidiMessage::nChannelAll ) ) {
+			const auto channelMapped = m_bUseGlobalInputChannel ?
+				m_globalInputChannel : nnoteRef.channel;
+			if ( nnoteRef.note == note &&
+				 ( channelMapped == channel ||
+				   channelMapped == Midi::ChannelAll ||
+				   channel == Midi::ChannelAll ) ) {
 				const auto pInstrument = pDrumkit->getInstruments()->find( iid );
 				if ( pInstrument != nullptr ) {
 					instruments.push_back( pInstrument );
@@ -311,10 +340,10 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 		auto pInstrument = pDrumkit->getInstruments()->get(
 			Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 		if ( pInstrument != nullptr ) {
-			const int nChannelMapped = getMappedChannel( pInstrument );
-			if ( nChannelMapped == nChannel ||
-				 nChannelMapped == MidiMessage::nChannelAll ||
-				 nChannel == MidiMessage::nChannelAll ) {
+			const auto channelMapped = getMappedChannel( pInstrument );
+			if ( channelMapped == channel ||
+				 channelMapped == Midi::ChannelAll ||
+				 channel == Midi::ChannelAll ) {
 				instruments.push_back( pInstrument );
 			}
 		}
@@ -323,14 +352,15 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 	}
 
 	case Input::Order: {
-		const int nIndex = nNote - MidiMessage::nInstrumentOffset;
+		const int nIndex =
+			static_cast<int>( note ) - static_cast<int>( Midi::NoteOffset );
 		if ( nIndex >= 0 && nIndex < pDrumkit->getInstruments()->size() ) {
 			auto pInstrument = pDrumkit->getInstruments()->get( nIndex );
 			if ( pInstrument != nullptr ) {
-				const int nChannelMapped = getMappedChannel( pInstrument );
-				if ( nChannelMapped == nChannel ||
-					 nChannelMapped == MidiMessage::nChannelAll ||
-					 nChannel == MidiMessage::nChannelAll ) {
+				const auto channelMapped = getMappedChannel( pInstrument );
+				if ( channelMapped == channel ||
+					 channelMapped == Midi::ChannelAll ||
+					 channel == Midi::ChannelAll ) {
 					instruments.push_back( pInstrument );
 				}
 			}
@@ -357,8 +387,8 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getInputMapping(
 		return NoteRef();
 	}
 
-	const int nChannelUsed = m_bUseGlobalInputChannel ?
-		m_nGlobalInputChannel : pInstrument->getMidiOutChannel();
+	const auto channelUsed = m_bUseGlobalInputChannel ?
+		m_globalInputChannel : pInstrument->getMidiOutChannel();
 
 	NoteRef noteRef;
 
@@ -367,12 +397,12 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getInputMapping(
 		// The global output channel has more weight as the per instrument
 		// channel. But for inputs the global input channel always wins.
 		if ( m_bUseGlobalOutputChannel && ! m_bUseGlobalInputChannel ) {
-			noteRef.nChannel = m_nGlobalOutputChannel;
+			noteRef.channel = m_globalOutputChannel;
 		}
 		else {
-			noteRef.nChannel = nChannelUsed;
+			noteRef.channel = channelUsed;
 		}
-		noteRef.nNote = pInstrument->getMidiOutNote();
+		noteRef.note = pInstrument->getMidiOutNote();
 		break;
 	}
 
@@ -384,7 +414,7 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getInputMapping(
 			noteRef = m_customInputMappingsType.at( sType );
 
 			if ( m_bUseGlobalInputChannel ) {
-				noteRef.nChannel = m_nGlobalInputChannel;
+				noteRef.channel = m_globalInputChannel;
 			}
 		}
 		else if ( sType.isEmpty() &&
@@ -393,13 +423,13 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getInputMapping(
 			noteRef = m_customInputMappingsId.at( pInstrument->getId() );
 
 			if ( m_bUseGlobalInputChannel ) {
-				noteRef.nChannel = m_nGlobalInputChannel;
+				noteRef.channel = m_globalInputChannel;
 			}
 		}
 		else {
 			// No custom mapping. Fall back to output values.
-			noteRef.nChannel = nChannelUsed;
-			noteRef.nNote = pInstrument->getMidiOutNote();
+			noteRef.channel = channelUsed;
+			noteRef.note = pInstrument->getMidiOutNote();
 		}
 		break;
 	}
@@ -407,9 +437,9 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getInputMapping(
 	case Input::SelectedInstrument: {
 		if ( Hydrogen::get_instance()->getSelectedInstrumentNumber() ==
 			 pDrumkit->getInstruments()->index( pInstrument ) ) {
-			noteRef.nChannel = nChannelUsed;
+			noteRef.channel = channelUsed;
 			// The note information is not handled by the UI
-			noteRef.nNote = pInstrument->getMidiOutNote();
+			noteRef.note = pInstrument->getMidiOutNote();
 		}
 		else {
 			// Invalid mapping
@@ -419,11 +449,14 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getInputMapping(
 	}
 
 	case Input::Order: {
-		noteRef.nChannel = nChannelUsed;
+		noteRef.channel = channelUsed;
 		const int nIndex = pDrumkit->getInstruments()->index( pInstrument );
 		if ( nIndex != -1 ) {
-			noteRef.nNote = nIndex + MidiMessage::nInstrumentOffset;
-		} else {
+			noteRef.note = Midi::noteFromIntClamp(
+				nIndex + static_cast<int>( Midi::NoteOffset )
+			);
+		}
+		else {
 			noteRef = NoteRef();
 		}
 		break;
@@ -453,21 +486,27 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getOutputMapping(
 
 	switch( m_output ) {
 	case Output::Offset: {
-		noteRef.nChannel = pInstrument->getMidiOutChannel();
+		noteRef.channel = pInstrument->getMidiOutChannel();
 		if ( pNote != nullptr ) {
-			noteRef.nNote = std::clamp(
-				pInstrument->getMidiOutNote() +
-				static_cast<int>( pNote->getPitchFromKeyOctave() ),
-				MidiMessage::nNoteMinimum, MidiMessage::nNoteMaximum );
+            // Within this mode the resulting MIDI note can be adjusted by
+            // changing the note's pitch within the PianoRollEditor. Pitch
+            // contributions from #Instrument, #InstrumentLayer, and
+            // humanization are not taken into account.
+			noteRef.note = Midi::noteFromIntClamp(
+				static_cast<int>( pInstrument->getMidiOutNote() ) +
+				static_cast<int>(
+					std::round( static_cast<float>( pNote->toPitch() ) )
+				)
+			);
 		}
 		else {
-			noteRef.nNote = pInstrument->getMidiOutNote();
+			noteRef.note = pInstrument->getMidiOutNote();
 		}
 		break;
 	}
 	case Output::Constant: {
-		noteRef.nChannel = pInstrument->getMidiOutChannel();
-		noteRef.nNote = pInstrument->getMidiOutNote();
+		noteRef.channel = pInstrument->getMidiOutChannel();
+		noteRef.note = pInstrument->getMidiOutNote();
 		break;
 	}
 
@@ -478,32 +517,35 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getOutputMapping(
 	};
 
 	if ( m_bUseGlobalOutputChannel ) {
-		noteRef.nChannel = m_nGlobalOutputChannel;
+		noteRef.channel = m_globalOutputChannel;
 	}
 
 	return noteRef;
 }
 
-void MidiInstrumentMap::setGlobalInputChannel( int nValue ) {
-	m_nGlobalInputChannel = std::clamp( nValue, MidiMessage::nChannelAll,
-									   MidiMessage::nChannelMaximum );
+void MidiInstrumentMap::setGlobalInputChannel( Midi::Channel channel )
+{
+	m_globalInputChannel = channel;
 }
 
-void MidiInstrumentMap::setGlobalOutputChannel( int nValue ) {
-	m_nGlobalOutputChannel = std::clamp( nValue, MidiMessage::nChannelOff,
-										 MidiMessage::nChannelMaximum );
+void MidiInstrumentMap::setGlobalOutputChannel( Midi::Channel channel )
+{
+	m_globalOutputChannel = channel;
 }
 
 void MidiInstrumentMap::insertCustomInputMapping(
-	std::shared_ptr<Instrument> pInstrument, int nNote, int nChannel )
+	std::shared_ptr<Instrument> pInstrument,
+	Midi::Note note,
+	Midi::Channel channel
+)
 {
 	if ( pInstrument == nullptr ) {
 		return;
 	}
 
 	NoteRef noteRef;
-	noteRef.nNote = nNote;
-	noteRef.nChannel = nChannel;
+	noteRef.note = note;
+	noteRef.channel = channel;
 
 	if ( ! pInstrument->getType().isEmpty() ) {
 		m_customInputMappingsType[ pInstrument->getType() ] = noteRef;
@@ -526,11 +568,11 @@ QString MidiInstrumentMap::toQString( const QString& sPrefix, bool bShort ) cons
 			.append( QString( "%1%2m_bUseGlobalInputChannel: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bUseGlobalInputChannel ) )
 			.append( QString( "%1%2m_nGlobalInputChannel: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nGlobalInputChannel ) )
+					 .arg( s ).arg( static_cast<int>(m_globalInputChannel) ) )
 			.append( QString( "%1%2m_bUseGlobalOutputChannel: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bUseGlobalOutputChannel ) )
 			.append( QString( "%1%2m_nGlobalOutputChannel: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nGlobalOutputChannel ) )
+					 .arg( s ).arg( static_cast<int>(m_globalOutputChannel) ) )
 			.append( QString( "%1%2m_customInputMappingsType:\n" ).arg( sPrefix )
 					 .arg( s ) );
 		for ( const auto [ ssType, nnoteRef ] : m_customInputMappingsType ) {
@@ -555,12 +597,12 @@ QString MidiInstrumentMap::toQString( const QString& sPrefix, bool bShort ) cons
 					 .arg( OutputToQString( m_output ) ) )
 			.append( QString( ", m_bUseGlobalInputChannel: %1" )
 					 .arg( m_bUseGlobalInputChannel ) )
-			.append( QString( ", m_nGlobalInputChannel: %1" )
-					 .arg( m_nGlobalInputChannel ) )
+			.append( QString( ", m_globalInputChannel: %1" )
+					 .arg( static_cast<int>(m_globalInputChannel) ) )
 			.append( QString( ", m_bUseGlobalOutputChannel: %1" )
 					 .arg( m_bUseGlobalOutputChannel ) )
-			.append( QString( ", m_nGlobalOutputChannel: %1" )
-					 .arg( m_nGlobalOutputChannel ) )
+			.append( QString( ", m_globalOutputChannel: %1" )
+					 .arg( static_cast<int>(m_globalOutputChannel) ) )
 			.append( ", m_customInputMappingsType: [" );
 		for ( const auto [ ssType, nnoteRef ] : m_customInputMappingsType ) {
 			sOutput.append( QString( "%1: %2, " ).arg( ssType )

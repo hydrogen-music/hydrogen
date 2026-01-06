@@ -27,6 +27,7 @@
 #include <core/config.h>
 #include <core/Helpers/Time.h>
 #include <core/IO/JackAudioDriver.h>
+#include <core/Midi/Midi.h>
 #include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
 #include <core/Timeline.h>
@@ -177,11 +178,11 @@ public:
 	/// Stop the internal sequencer
 	void			sequencerStop();
 
-	///Last received midi message
+	/// Last received midi message
 	const MidiEvent::Type& getLastMidiEvent() const;
-	void				setLastMidiEvent( const MidiEvent::Type& type );
-	int					getLastMidiEventParameter() const;
-	void				setLastMidiEventParameter( int nParam );
+	void setLastMidiEvent( const MidiEvent::Type& type );
+	Midi::Parameter getLastMidiEventParameter() const;
+	void setLastMidiEventParameter( Midi::Parameter parameter );
 
 	/** Wrapper around AudioEngine::toggleNextPattern().*/
 	void			toggleNextPattern( int nPatternNumber );
@@ -258,19 +259,21 @@ public:
 
 	void updateSongSize();
 
-		bool			addRealtimeNote ( int instrument,
-							  float velocity,
-							  bool noteoff=false,
-							  int msg1=0 );
+	bool addRealtimeNote(
+		int instrument,
+		float velocity,
+		bool noteoff = false,
+		Midi::Note note = Midi::NoteDefault
+	);
 
-		int getHihatOpenness() const;
-		void setHihatOpenness( int nValue );
+	Midi::Parameter getHihatOpenness() const;
+	void setHihatOpenness( Midi::Parameter openness );
 
-		void			restartAudioDriver();
-		void			restartMidiDriver();
+	void restartAudioDriver();
+	void restartMidiDriver();
 
-		AudioOutput*	getAudioOutput() const;
-		std::shared_ptr<MidiBaseDriver>	getMidiDriver() const;
+	AudioOutput* getAudioOutput() const;
+	std::shared_ptr<MidiBaseDriver> getMidiDriver() const;
 
 	/** Wrapper around Song::setIsModified() that checks whether a
 		song is set.*/
@@ -589,19 +592,19 @@ private:
 
 	std::shared_ptr<Playlist> m_pPlaylist;
 
-		/** Controls the instrument selection within a hihat group. */
-		int m_nHihatOpenness;
+	/** Controls the instrument selection within a hihat group. */
+	Midi::Parameter m_hihatOpenness;
 
 	/**
 	 * Cache last incoming MIDI event to be used in #MidiSenseWidget.
 	 */
 	MidiEvent::Type m_lastMidiEvent;
-	int					m_nLastMidiEventParameter;
+	Midi::Parameter m_lastMidiEventParameter;
 
-		/** The update of the Director is event-based. But if the widget is not
-		 * visible (probably most of the time) we do omit the corresponding
-		 * event for better performance. */
-		bool m_bSendBbtChangeEvents;
+	/** The update of the Director is event-based. But if the widget is not
+	 * visible (probably most of the time) we do omit the corresponding
+	 * event for better performance. */
+	bool m_bSendBbtChangeEvents;
 
 };
 
@@ -665,11 +668,11 @@ inline const MidiEvent::Type& Hydrogen::getLastMidiEvent() const {
 inline void Hydrogen::setLastMidiEvent( const MidiEvent::Type& event ) {
 	m_lastMidiEvent = event;
 }
-inline int Hydrogen::getLastMidiEventParameter() const {
-	return m_nLastMidiEventParameter;
+inline Midi::Parameter Hydrogen::getLastMidiEventParameter() const {
+	return m_lastMidiEventParameter;
 }
-inline void	Hydrogen::setLastMidiEventParameter( int nParam ) {
-	m_nLastMidiEventParameter = nParam;
+inline void	Hydrogen::setLastMidiEventParameter( Midi::Parameter parameter ) {
+	m_lastMidiEventParameter = parameter;
 }
 inline std::shared_ptr<Playlist> Hydrogen::getPlaylist() const {
 	return m_pPlaylist;
@@ -680,11 +683,11 @@ inline void Hydrogen::setPlaylist( std::shared_ptr<Playlist> pPlaylist ){
 inline std::shared_ptr<TimeHelper> Hydrogen::getTimeHelper() const {
 	return m_pTimeHelper;
 }
-inline int Hydrogen::getHihatOpenness() const {
-	return m_nHihatOpenness;
+inline Midi::Parameter Hydrogen::getHihatOpenness() const {
+	return m_hihatOpenness;
 }
-inline void Hydrogen::setHihatOpenness( int nValue ) {
-	m_nHihatOpenness = std::clamp( nValue, 0, 127 );
+inline void Hydrogen::setHihatOpenness( Midi::Parameter openness ) {
+	m_hihatOpenness = openness;
 }
 inline int Hydrogen::getBeatCounterTotalBeats() const {
 	return m_nBeatCounterTotalBeats;

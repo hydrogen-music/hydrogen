@@ -34,6 +34,7 @@ class NoteTest : public CppUnit::TestCase {
 		CPPUNIT_TEST( testPitchConversions );
 		CPPUNIT_TEST( testProbability );
 		CPPUNIT_TEST( testSerializeProbability );
+		CPPUNIT_TEST( testStrongTypedPitch );
 		CPPUNIT_TEST( testVirtualKeyboard );
 		CPPUNIT_TEST_SUITE_END();
 
@@ -48,6 +49,7 @@ class NoteTest : public CppUnit::TestCase {
 		void testPitchConversions();
 		void testProbability();
 		void testSerializeProbability();
+        void testStrongTypedPitch();
 		/** Check whether notes entered via the virtual keyboard can be handled
 		 * properly */
 		void testVirtualKeyboard();

@@ -137,13 +137,13 @@ QStringList MidiEvent::getAllTypes() {
 
 MidiEvent::MidiEvent()
 	: m_type( MidiEvent::Type::Null ),
-	  m_nParameter( MidiEvent::nNullParameter ),
+	  m_parameter( Midi::ParameterInvalid ),
 	  m_pMidiAction( nullptr )
 {
 }
 
 MidiEvent::MidiEvent( const std::shared_ptr<MidiEvent> pOther )
-	: m_type( pOther->m_type ), m_nParameter( pOther->m_nParameter )
+	: m_type( pOther->m_type ), m_parameter( pOther->m_parameter )
 {
 	if ( pOther->m_pMidiAction != nullptr ) {
 		m_pMidiAction = std::make_shared<MidiAction>( pOther->m_pMidiAction );
@@ -165,7 +165,7 @@ QString MidiEvent::toQString( const QString& sPrefix, bool bShort ) const
 					  .append( QString( "%1%2m_nParameter: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
-								   .arg( m_nParameter ) )
+								   .arg( static_cast<int>( m_parameter ) ) )
 					  .append( QString( "%1%2m_pMidiAction: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
@@ -182,7 +182,8 @@ QString MidiEvent::toQString( const QString& sPrefix, bool bShort ) const
 			QString( "[MidiEvent]" )
 				.append( QString( " m_type: %1" )
 							 .arg( MidiEvent::TypeToQString( m_type ) ) )
-				.append( QString( ", m_nParameter: %1" ).arg( m_nParameter ) )
+				.append( QString( ", m_parameter: %1" )
+							 .arg( static_cast<int>( m_parameter ) ) )
 				.append( QString( ", m_pMidiAction: %1" )
 							 .arg(
 								 m_pMidiAction != nullptr

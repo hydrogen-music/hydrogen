@@ -23,6 +23,7 @@
 #include "CoreActionController.h"
 
 #include <QDir>
+#include "Midi/Midi.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
@@ -131,8 +132,12 @@ bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue ){
 	return true;
 }
 
-bool CoreActionController::setInstrumentMidiOutNote( int nInstrument, int nNote,
-													long* pEventId ) {
+bool CoreActionController::setInstrumentMidiOutNote(
+	int nInstrument,
+	Midi::Note note,
+	long* pEventId
+)
+{
 	if ( pEventId != nullptr ) {
 		*pEventId = Event::nInvalidId;
 	}
@@ -155,8 +160,8 @@ bool CoreActionController::setInstrumentMidiOutNote( int nInstrument, int nNote,
 		return false;
 	}
 
-	if ( pInstrument->getMidiOutNote() != nNote ) {
-		pInstrument->setMidiOutNote( nNote );
+	if ( pInstrument->getMidiOutNote() != note ) {
+		pInstrument->setMidiOutNote( note );
 		const auto nId = EventQueue::get_instance()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
 		if ( pEventId != nullptr ) {
@@ -166,9 +171,13 @@ bool CoreActionController::setInstrumentMidiOutNote( int nInstrument, int nNote,
 
 	return true;
 }
-bool CoreActionController::setInstrumentMidiOutChannel( int nInstrument,
-													   int nChannel,
-													   long* pEventId ){
+
+bool CoreActionController::setInstrumentMidiOutChannel(
+	int nInstrument,
+	Midi::Channel channel,
+	long* pEventId
+)
+{
 	if ( pEventId != nullptr ) {
 		*pEventId = Event::nInvalidId;
 	}
@@ -191,8 +200,8 @@ bool CoreActionController::setInstrumentMidiOutChannel( int nInstrument,
 		return false;
 	}
 
-	if ( pInstrument->getMidiOutChannel() != nChannel ) {
-		pInstrument->setMidiOutChannel( nChannel );
+	if ( pInstrument->getMidiOutChannel() != channel ) {
+		pInstrument->setMidiOutChannel( channel );
 		const auto nId = EventQueue::get_instance()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
 		if ( pEventId != nullptr ) {
@@ -496,10 +505,15 @@ bool CoreActionController::sendMasterVolumeFeedback() {
 	
 	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	
-	auto ccParamValues = pMidiEventMap->findCCValuesByType(
+	auto ccParamValues = pMidiEventMap->findCCParametersByType(
 		MidiAction::Type::MasterVolumeAbsolute );
-	
-	return handleOutgoingControlChanges( ccParamValues, (fMasterVolume / 1.5) * 127 );
+
+	return handleOutgoingControlChanges(
+		ccParamValues,
+		Midi::parameterFromIntClamp(
+			( fMasterVolume / 1.5 ) * static_cast<int>( Midi::ParameterMaximum )
+		)
+	);
 }
 
 bool CoreActionController::sendStripVolumeFeedback( int nStrip ) {
@@ -524,12 +538,17 @@ bool CoreActionController::sendStripVolumeFeedback( int nStrip ) {
 
 		const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	
-		auto ccParamValues = pMidiEventMap->findCCValuesByTypeAndParam1(
+		auto ccParamValues = pMidiEventMap->findCCParametersByTypeAndParam1(
 			MidiAction::Type::StripVolumeAbsolute, QString("%1").arg( nStrip ) );
-	
-		return handleOutgoingControlChanges( ccParamValues, (fStripVolume / 1.5) * 127 );
+
+		return handleOutgoingControlChanges(
+			ccParamValues, Midi::parameterFromIntClamp(
+							   ( fStripVolume / 1.5 ) *
+							   static_cast<int>( Midi::ParameterMaximum )
+						   )
+		);
 	}
-	
+
 	return false;
 }
 
@@ -551,11 +570,15 @@ bool CoreActionController::sendMetronomeIsActiveFeedback() {
 	
 	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	
-	auto ccParamValues = pMidiEventMap->findCCValuesByType(
+	auto ccParamValues = pMidiEventMap->findCCParametersByType(
 		MidiAction::Type::ToggleMetronome );
-	
+
 	return handleOutgoingControlChanges(
-		ccParamValues, static_cast<int>(pPref->m_bUseMetronome) * 127 );
+		ccParamValues, Midi::parameterFromIntClamp(
+						   static_cast<int>( pPref->m_bUseMetronome ) *
+						   static_cast<int>( Midi::ParameterMaximum )
+					   )
+	);
 }
 
 bool CoreActionController::sendMasterIsMutedFeedback() {
@@ -580,11 +603,15 @@ bool CoreActionController::sendMasterIsMutedFeedback() {
 
 	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 
-	auto ccParamValues = pMidiEventMap->findCCValuesByType(
+	auto ccParamValues = pMidiEventMap->findCCParametersByType(
 		MidiAction::Type::MuteToggle );
 
 	return handleOutgoingControlChanges(
-		ccParamValues, static_cast<int>(pSong->getIsMuted()) * 127 );
+		ccParamValues, Midi::parameterFromIntClamp(
+						   static_cast<int>( pSong->getIsMuted() ) *
+						   static_cast<int>( Midi::ParameterMaximum )
+					   )
+	);
 }
 
 bool CoreActionController::sendStripIsMutedFeedback( int nStrip ) {
@@ -607,13 +634,17 @@ bool CoreActionController::sendStripIsMutedFeedback( int nStrip ) {
 
 		const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	
-		auto ccParamValues = pMidiEventMap->findCCValuesByTypeAndParam1(
+		auto ccParamValues = pMidiEventMap->findCCParametersByTypeAndParam1(
 			MidiAction::Type::StripMuteToggle, QString("%1").arg( nStrip ) );
-	
+
 		return handleOutgoingControlChanges(
-			ccParamValues, static_cast<int>(pInstr->isMuted()) * 127 );
+			ccParamValues, Midi::parameterFromIntClamp(
+							   static_cast<int>( pInstr->isMuted() ) *
+							   static_cast<int>( Midi::ParameterMaximum )
+						   )
+		);
 	}
-	
+
 	return false;
 }
 
@@ -636,11 +667,15 @@ bool CoreActionController::sendStripIsSoloedFeedback( int nStrip ) {
 #endif
 
 		const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
-		auto ccParamValues = pMidiEventMap->findCCValuesByTypeAndParam1(
+		auto ccParamValues = pMidiEventMap->findCCParametersByTypeAndParam1(
 			MidiAction::Type::StripSoloToggle, QString("%1").arg( nStrip ) );
-	
+
 		return handleOutgoingControlChanges(
-			ccParamValues, static_cast<int>(pInstr->isSoloed()) * 127 );
+			ccParamValues, Midi::parameterFromIntClamp(
+							   static_cast<int>( pInstr->isSoloed() ) *
+							   static_cast<int>( Midi::ParameterMaximum )
+						   )
+		);
 	}
 
 	return false;
@@ -665,25 +700,34 @@ bool CoreActionController::sendStripPanFeedback( int nStrip ) {
 #endif
 	
 		const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
-		auto ccParamValues = pMidiEventMap->findCCValuesByTypeAndParam1(
+		auto ccParamValues = pMidiEventMap->findCCParametersByTypeAndParam1(
 			MidiAction::Type::PanAbsolute, QString("%1").arg( nStrip ) );
 
 		return handleOutgoingControlChanges(
-			ccParamValues, pInstr->getPanWithRangeFrom0To1() * 127 );
+			ccParamValues, Midi::parameterFromIntClamp(
+							   pInstr->getPanWithRangeFrom0To1() *
+							   static_cast<int>( Midi::ParameterMaximum )
+						   )
+		);
 	}
 
 	return false;
 }
 
-bool CoreActionController::handleOutgoingControlChanges( const std::vector<int>& params,
-														 int nValue)
+bool CoreActionController::handleOutgoingControlChanges(
+	const std::vector<Midi::Parameter>& params,
+	Midi::Parameter value
+)
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	const auto pPref = Preferences::get_instance();
-    if ( pPref->getMidiFeedbackChannel() == MidiMessage::nChannelOff ) {
-      return true;
-    }
+	if ( pPref->getMidiFeedbackChannel() == Midi::ChannelOff ) {
+		return true;
+	}
+	else if ( pPref->getMidiFeedbackChannel() == Midi::ChannelInvalid ) {
+		return false;
+	}
 	auto pMidiDriver = pHydrogen->getMidiDriver();
 
 	if ( pHydrogen->getSong() == nullptr || pMidiDriver == nullptr ) {
@@ -691,12 +735,13 @@ bool CoreActionController::handleOutgoingControlChanges( const std::vector<int>&
 	}
 
 	MidiMessage::ControlChange controlChange;
-	for ( const auto& param : params ) {
-		if ( pPref->m_bEnableMidiFeedback && param >= 0 ){
-			controlChange.nParameter = param;
-			controlChange.nValue = nValue;
+	for ( const auto& pparam : params ) {
+		if ( pPref->m_bEnableMidiFeedback &&
+			 pparam != Midi::ParameterInvalid ) {
+			controlChange.parameter = pparam;
+			controlChange.value = value;
 			// For now the MIDI feedback channel is always 0.
-			controlChange.nChannel = pPref->getMidiFeedbackChannel();
+			controlChange.channel = pPref->getMidiFeedbackChannel();
 			pMidiDriver->sendMessage( MidiMessage::from( controlChange ) );
 		}
 	}
@@ -2151,7 +2196,7 @@ bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast ) {
 	pAudioEngine->unlock();
 
     if ( pPref->getMidiTransportOutputSend() &&
-         pPref->getMidiFeedbackChannel() != MidiMessage::nChannelOff ) {
+         pPref->getMidiFeedbackChannel() != Midi::ChannelOff ) {
 		auto pMidiDriver = pHydrogen->getMidiDriver();
 
 		if ( pMidiDriver != nullptr ) {
@@ -2159,10 +2204,11 @@ bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast ) {
 			// 1/16 note / 6 MIDI clocks. 24 MIDI clocks make a quarter.
 			MidiMessage midiMessage;
 			midiMessage.setType( MidiMessage::Type::SongPos );
-			midiMessage.setData1(
-				pAudioEngine->getTransportPosition()->getTick() *
-				24 / 6 / H2Core::nTicksPerQuarter );
-            midiMessage.setChannel( pPref->getMidiFeedbackChannel() );
+			midiMessage.setData1( Midi::parameterFromIntClamp(
+				pAudioEngine->getTransportPosition()->getTick() * 24 / 6 /
+				H2Core::nTicksPerQuarter
+			) );
+			midiMessage.setChannel( pPref->getMidiFeedbackChannel() );
 			pMidiDriver->sendMessage( midiMessage );
 		}
 	}
@@ -2548,9 +2594,14 @@ bool CoreActionController::toggleGridCell( const GridPoint& gridPoint ){
 	return true;
 }
 
-bool CoreActionController::handleNote( int nNote, int nChannel,
-									  float fVelocity, bool bNoteOff,
-									  QStringList* pMappedInstruments ) {
+bool CoreActionController::handleNote(
+	Midi::Note note,
+	Midi::Channel channel,
+	float fVelocity,
+	bool bNoteOff,
+	QStringList* pMappedInstruments
+)
+{
 	const auto pPref = Preferences::get_instance();
 	const auto pMidiInstrumentMap = pPref->getMidiInstrumentMap();
 	auto pHydrogen = Hydrogen::get_instance();
@@ -2562,7 +2613,7 @@ bool CoreActionController::handleNote( int nNote, int nChannel,
 	const auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 
 	const auto mappedInstruments = pMidiInstrumentMap
-		->mapInput( nNote, nChannel, pSong->getDrumkit() );
+		->mapInput( note, channel, pSong->getDrumkit() );
 	QString sMode( MidiInstrumentMap::InputToQString(
 		pMidiInstrumentMap->getInput() ) );
 
@@ -2573,19 +2624,19 @@ bool CoreActionController::handleNote( int nNote, int nChannel,
 
 		// Only look to change instrument if the current note is actually of hihat
 		// and hihat openness is outside the instrument selected
-		const int nHihatOpenness = pHydrogen->getHihatOpenness();
+		const auto hihatOpenness = pHydrogen->getHihatOpenness();
 		int nCurrentInstrument = pInstrumentList->index( ppInstrument );
 		if ( ppInstrument != nullptr && ppInstrument->getHihatGrp() >= 0 &&
-			 ( nHihatOpenness < ppInstrument->getLowerCc() ||
-			   nHihatOpenness > ppInstrument->getHigherCc() ) ) {
+			 ( hihatOpenness < ppInstrument->getLowerCc() ||
+			   hihatOpenness > ppInstrument->getHigherCc() ) ) {
 
 			for ( int ii = 0; ii <= pInstrumentList->size(); ii++ ) {
 				auto ppOtherInstrument = pInstrumentList->get( ii );
 				if ( ppOtherInstrument != nullptr &&
 					 ppInstrument->getHihatGrp() ==
 					   ppOtherInstrument->getHihatGrp() &&
-					 nHihatOpenness >= ppOtherInstrument->getLowerCc() &&
-					 nHihatOpenness <= ppOtherInstrument->getHigherCc() ) {
+					 hihatOpenness >= ppOtherInstrument->getLowerCc() &&
+					 hihatOpenness <= ppOtherInstrument->getHigherCc() ) {
 
 					nCurrentInstrument = ii;
 					sMode = "Hihat Pressure Group";
@@ -2595,7 +2646,7 @@ bool CoreActionController::handleNote( int nNote, int nChannel,
 		}
 
 		if ( pHydrogen->addRealtimeNote(
-				 nCurrentInstrument, fVelocity, bNoteOff, nNote ) ) {
+				 nCurrentInstrument, fVelocity, bNoteOff, note ) ) {
 			instrumentStrings << QString( "%1 (%2)" )
 				.arg( ppInstrument->getName() ).arg( nCurrentInstrument );
 		}
@@ -2605,7 +2656,9 @@ bool CoreActionController::handleNote( int nNote, int nChannel,
 	}
 
 	INFOLOG( QString( "[%1] mapped note [%2] to instrument(s) [%3]" )
-			 .arg( sMode ).arg( nNote ).arg( instrumentStrings.join( ", " ) ) );
+				 .arg( sMode )
+				 .arg( static_cast<int>( note ) )
+				 .arg( instrumentStrings.join( ", " ) ) );
 
 	if ( pMappedInstruments != nullptr ) {
 		*pMappedInstruments = instrumentStrings;
@@ -2881,17 +2934,17 @@ bool CoreActionController::sendAllNoteOffMessages() {
 	}
 
 	MidiMessage::NoteOff noteOff;
-	noteOff.nVelocity = 0;
+	noteOff.velocity = Midi::ParameterMinimum;
 	for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
 		// Using a negative MIDI channel MIDI output can be deactivated per
 		// instrument.
 		if ( ppInstrument != nullptr ) {
 			const auto noteRef = pMidiInstrumentMap
 				->getOutputMapping( nullptr, ppInstrument );
-			noteOff.nChannel = noteRef.nChannel;
-			noteOff.nKey = noteRef.nNote;
+			noteOff.channel = noteRef.channel;
+			noteOff.note = noteRef.note;
 
-			if ( noteOff.nChannel != MidiMessage::nChannelOff ) {
+			if ( noteOff.channel != Midi::ChannelOff ) {
 				pMidiDriver->sendMessage( MidiMessage::from( noteOff ) );
 			}
 		}

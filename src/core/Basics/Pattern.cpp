@@ -207,7 +207,7 @@ bool Pattern::save( const QString& sPatternPath, bool bSilent ) const
 	// For backward compatibility we will also add the name of the current
 	// drumkit.
 	root.write_string( "drumkit_name", pSong->getDrumkit()->getExportName() );
-	saveTo( root, Instrument::EmptyId, "", PITCH_INVALID, bSilent );
+	saveTo( root, Instrument::EmptyId, "", Note::Pitch::Invalid, bSilent );
 	return doc.write( sPatternPath );
 }
 
@@ -215,7 +215,7 @@ void Pattern::saveTo(
 	XMLNode& node,
 	Instrument::Id id,
 	const Instrument::Type& sType,
-	int nPitch,
+	Note::Pitch pitch,
 	bool bSilent
 ) const
 {
@@ -243,9 +243,9 @@ void Pattern::saveTo(
 			 ( pNote->getInstrumentId() != Instrument::EmptyId ||
 			   ! pNote->getType().isEmpty() ) ) {
 
-			if ( nPitch != PITCH_INVALID ) {
-				const auto key = Note::pitchToKey( nPitch );
-				const auto octave = Note::pitchToOctave( nPitch );
+			if ( pitch != Note::Pitch::Invalid ) {
+				const auto key = pitch.toKey();
+				const auto octave = pitch.toOctave();
 				if ( pNote->getKey() != key || pNote->getOctave() != octave ) {
 					continue;
 				}

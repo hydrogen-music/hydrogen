@@ -83,14 +83,14 @@ void PatternList::saveTo(
 	XMLNode& node,
 	Instrument::Id id,
 	const QString& sType,
-	int nPitch
+	Note::Pitch pitch
 ) const
 {
 	XMLNode patternListNode = node.createNode( "patternList" );
 
 	for ( const auto& pPattern : m_pPatterns ) {
 		if ( pPattern != nullptr ) {
-			pPattern->saveTo( patternListNode, id, sType, nPitch );
+			pPattern->saveTo( patternListNode, id, sType, pitch );
 		}
 	}
 }

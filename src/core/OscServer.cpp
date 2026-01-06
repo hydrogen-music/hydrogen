@@ -22,6 +22,7 @@
 
 #include <QRegularExpression>
 
+#include "Midi/Midi.h"
 #include "core/Helpers/Filesystem.h"
 #include "core/Preferences/Preferences.h"
 
@@ -972,9 +973,12 @@ void OscServer::COUNT_IN_STOP_TOGGLE_Handler( lo_arg **argv, int i ) {
 void OscServer::NOTE_ON_Handler( lo_arg **argv, int i )
 {
 	const int nNote = static_cast<int>( std::round( argv[0]->f ) );
-	if ( nNote < H2Core::MidiMessage::nInstrumentOffset || nNote > 127 ) {
-		ERRORLOG( QString( "Provided note [%1] out of bound [%2,127]." )
-				  .arg( nNote ).arg( H2Core::MidiMessage::nInstrumentOffset ) );
+	if ( nNote < static_cast<int>( H2Core::Midi::NoteMinimum ) ||
+		 nNote > static_cast<int>( H2Core::Midi::NoteMaximum ) ) {
+		ERRORLOG( QString( "Provided note [%1] out of bound [%2,%3]." )
+					  .arg( nNote )
+					  .arg( static_cast<int>( H2Core::Midi::NoteMinimum ) )
+					  .arg( static_cast<int>( H2Core::Midi::NoteMaximum ) ) );
 		return;
 	}
 
@@ -994,22 +998,28 @@ void OscServer::NOTE_ON_Handler( lo_arg **argv, int i )
 			 .arg( nNote ).arg( fVelocity ) );
 
 	H2Core::CoreActionController::handleNote(
-		nNote, H2Core::MidiMessage::nChannelAll, fVelocity, false );
+		H2Core::Midi::noteFromInt( nNote ), H2Core::Midi::ChannelAll, fVelocity,
+		false
+	);
 }
 
 void OscServer::NOTE_OFF_Handler( lo_arg** argv, int i )
 {
 	const int nNote = static_cast<int>( std::round( argv[0]->f ) );
-	if ( nNote < H2Core::MidiMessage::nInstrumentOffset || nNote > 127 ) {
-		ERRORLOG( QString( "Provided note [%1] out of bound [%2,127]." )
-				  .arg( nNote ).arg( H2Core::MidiMessage::nInstrumentOffset ) );
+	if ( nNote < static_cast<int>( H2Core::Midi::NoteMinimum ) ||
+		 nNote > static_cast<int>( H2Core::Midi::NoteMaximum ) ) {
+		ERRORLOG( QString( "Provided note [%1] out of bound [%2,%3]." )
+					  .arg( nNote )
+					  .arg( static_cast<int>( H2Core::Midi::NoteMinimum ) )
+					  .arg( static_cast<int>( H2Core::Midi::NoteMaximum ) ) );
 		return;
 	}
 
 	INFOLOG( QString( "processing message with note: [%1]" ).arg( nNote ) );
 
 	H2Core::CoreActionController::handleNote(
-		nNote, H2Core::MidiMessage::nChannelAll, 0.0, true );
+		H2Core::Midi::noteFromInt( nNote ), H2Core::Midi::ChannelAll, 0.0, true
+	);
 }
 
 void OscServer::SONG_EDITOR_TOGGLE_GRID_CELL_Handler(lo_arg **argv, int argc) {

@@ -21,6 +21,7 @@
  */
 
 #include "Preferences.h"
+#include "Midi/Midi.h"
 
 #ifndef WIN32
 #include <pwd.h>
@@ -36,7 +37,6 @@
 #include <core/IO/AlsaAudioDriver.h>
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Midi/MidiEventMap.h>
-#include <core/Midi/MidiMessage.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Version.h>
 
@@ -101,7 +101,7 @@ Preferences::Preferences()
 	, m_sOSSDevice( "/dev/dsp" )
 	, m_sMidiPortName(  Preferences::getNullMidiPort() )
 	, m_sMidiOutputPortName(  Preferences::getNullMidiPort() )
-	, m_nMidiActionChannel( MidiMessage::nChannelAll )
+	, m_midiActionChannel( Midi::ChannelAll )
 	, m_bMidiNoteOffIgnore( true )
 	, m_bEnableMidiFeedback( false )
 	, m_bOscServerEnabled( false )
@@ -134,7 +134,7 @@ Preferences::Preferences()
 	, m_recentFiles( QStringList() )
 	, m_recentFX( QStringList() )
 	, m_nMaxBars( 400 )
-	, m_nMidiFeedbackChannel( 0 )
+	, m_midiFeedbackChannel( Midi::ChannelMinimum )
 	, m_bMidiClockInputHandling( false )
 	, m_bMidiTransportInputHandling( false )
 	, m_bMidiClockOutputSend( false )
@@ -282,7 +282,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_midiDriver( pOther->m_midiDriver )
 	, m_sMidiPortName( pOther->m_sMidiPortName )
 	, m_sMidiOutputPortName( pOther->m_sMidiOutputPortName )
-	, m_nMidiActionChannel( pOther->m_nMidiActionChannel )
+	, m_midiActionChannel( pOther->m_midiActionChannel )
 	, m_bMidiNoteOffIgnore( pOther->m_bMidiNoteOffIgnore )
 	, m_bEnableMidiFeedback( pOther->m_bEnableMidiFeedback )
 	, m_bOscServerEnabled( pOther->m_bOscServerEnabled )
@@ -317,7 +317,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_nPunchOutPos( pOther->m_nPunchOutPos )
 	, m_bQuantizeEvents( pOther->m_bQuantizeEvents )
 	, m_nMaxBars( pOther->m_nMaxBars )
-	, m_nMidiFeedbackChannel( pOther->m_nMidiFeedbackChannel )
+	, m_midiFeedbackChannel( pOther->m_midiFeedbackChannel )
 	, m_bMidiClockInputHandling( pOther->m_bMidiClockInputHandling )
 	, m_bMidiTransportInputHandling( pOther->m_bMidiTransportInputHandling )
 	, m_bMidiClockOutputSend( pOther->m_bMidiClockOutputSend )
@@ -704,23 +704,22 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			// Starting from 2.0 we unified those ranges allowing this variable,
 			// too, to represent both "All" and "Off". But, for backward
 			// compatibility, we still use the old values and not the ones
-			// defined in MidiMessage.h.
+			// defined in Midi.h.
 			const int nMidiActionChannel = midiDriverNode.read_int(
 				"channel_filter", /*previous value used to indicate 'all'*/ -1,
 				false, false, bSilent );
 			if ( nMidiActionChannel == -1 ) {
 				// Old value to indicate to use all channels
-				pPref->m_nMidiActionChannel = MidiMessage::nChannelAll;
+				pPref->m_midiActionChannel = Midi::ChannelAll;
 			}
 			else if ( nMidiActionChannel == -2 ) {
 				// Helper value indicating to use no channel (since -1 was
 				// already taken).
-				pPref->m_nMidiActionChannel = MidiMessage::nChannelOff;
+				pPref->m_midiActionChannel = Midi::ChannelOff;
 			}
 			else {
-				pPref->m_nMidiActionChannel = std::clamp(
-					nMidiActionChannel, MidiMessage::nChannelMinimum,
-					MidiMessage::nChannelMaximum );
+				pPref->m_midiActionChannel =
+					Midi::channelFromIntClamp( nMidiActionChannel );
 			}
 			pPref->m_bMidiNoteOffIgnore = midiDriverNode.read_bool(
 				"ignore_note_off",
@@ -739,13 +738,16 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 				"enable_midi_feedback",
 				pPref->m_bEnableMidiFeedback, false, true, bSilent );
 			pPref->setMidiFeedbackChannel(
-				midiDriverNode.read_int(
+				Midi::channelFromInt( midiDriverNode.read_int(
 					"midi_feedback_channel",
-					pPref->getMidiFeedbackChannel(), true, false, bSilent ) );
-			pPref->setMidiClockInputHandling(
-				midiDriverNode.read_bool(
-					"midi_clock_input_handling",
-					pPref->getMidiClockInputHandling(), true, true, bSilent ) );
+					static_cast<int>( pPref->getMidiFeedbackChannel() ), true,
+					false, bSilent
+				) )
+			);
+			pPref->setMidiClockInputHandling( midiDriverNode.read_bool(
+				"midi_clock_input_handling", pPref->getMidiClockInputHandling(),
+				true, true, bSilent
+			) );
 			pPref->setMidiTransportInputHandling(
 				midiDriverNode.read_bool(
 					"midi_transport_input_handling",
@@ -1146,15 +1148,9 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		// it in here to set up a global input channel for note mapping as well
 		// in order to provide as much backward compatibility as possible.
 		pPref->m_pMidiInstrumentMap->setUseGlobalInputChannel( true );
-		if ( pPref->m_nMidiActionChannel >= MidiMessage::nChannelMinimum &&
-			 pPref->m_nMidiActionChannel <= MidiMessage::nChannelMaximum ) {
-			pPref->m_pMidiInstrumentMap->setGlobalInputChannel(
-				pPref->m_nMidiActionChannel );
-		}
-		else if ( pPref->m_nMidiActionChannel < 0 ) {
-			pPref->m_pMidiInstrumentMap->setGlobalInputChannel(
-				MidiMessage::nChannelAll );
-		}
+		pPref->m_pMidiInstrumentMap->setGlobalInputChannel(
+			pPref->m_midiActionChannel
+		);
 	}
 
 	pPref->m_pTheme = std::make_shared<Theme>(
@@ -1357,12 +1353,12 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 			// too, to represent both "All" and "Off". But, for backward
 			// compatibility, we still use the old values and not the ones
 			// defined in MidiMessage.h.
-			int nChannelFilter = m_nMidiActionChannel;
-			if ( m_nMidiActionChannel == MidiMessage::nChannelAll ) {
+			int nChannelFilter = static_cast<int>( m_midiActionChannel );
+			if ( m_midiActionChannel == Midi::ChannelAll ) {
 				// Old value to indicate to use all channels
 				nChannelFilter = -1;
 			}
-			else if ( m_nMidiActionChannel == MidiMessage::nChannelOff ) {
+			else if ( m_midiActionChannel == Midi::ChannelOff ) {
 				// Helper value indicating to use no channel (since -1 was
 				// already taken). Please note that this value is only handled
 				// properly starting with Hydrogen 1.2.7 (where it selects the
@@ -1373,10 +1369,13 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 			midiDriverNode.write_int( "channel_filter", nChannelFilter );
 			midiDriverNode.write_bool( "ignore_note_off", m_bMidiNoteOffIgnore );
 			midiDriverNode.write_bool( "enable_midi_feedback", m_bEnableMidiFeedback );
-			midiDriverNode.write_int( "midi_feedback_channel",
-									   getMidiFeedbackChannel() );
-			midiDriverNode.write_bool( "midi_clock_input_handling",
-									   getMidiClockInputHandling() );
+			midiDriverNode.write_int(
+				"midi_feedback_channel",
+				static_cast<int>( getMidiFeedbackChannel() )
+			);
+			midiDriverNode.write_bool(
+				"midi_clock_input_handling", getMidiClockInputHandling()
+			);
 			midiDriverNode.write_bool( "midi_transport_input_handling",
 									   getMidiTransportInputHandling() );
 			midiDriverNode.write_bool( "midi_clock_output_send",
@@ -1795,11 +1794,6 @@ std::vector<Preferences::AudioDriver> Preferences::getSupportedAudioDrivers() {
 	return drivers;
 }
 
-void Preferences::setMidiFeedbackChannel( int nChannel ) {
-  m_nMidiFeedbackChannel = std::clamp( nChannel, MidiMessage::nChannelMinimum,
-                                      MidiMessage::nChannelMaximum );
-}
-
 void Preferences::setMostRecentFX( const QString& FX_name )
 {
 	int pos = m_recentFX.indexOf( FX_name );
@@ -1858,14 +1852,14 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_sMidiPortName ) )
 			.append( QString( "%1%2m_sMidiOutputPortName: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_sMidiOutputPortName ) )
-			.append( QString( "%1%2m_nMidiActionChannel: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nMidiActionChannel ) )
+			.append( QString( "%1%2m_midiActionChannel: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( static_cast<int>(m_midiActionChannel) ) )
 			.append( QString( "%1%2m_bMidiNoteOffIgnore: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bMidiNoteOffIgnore ) )
 			.append( QString( "%1%2m_bEnableMidiFeedback: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bEnableMidiFeedback ) )
-			.append( QString( "%1%2m_nMidiFeedbackChannel: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nMidiFeedbackChannel ) )
+			.append( QString( "%1%2m_midiFeedbackChannel: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( static_cast<int>(m_midiFeedbackChannel) ) )
 			.append( QString( "%1%2m_bMidiClockInputHandling: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bMidiClockInputHandling ) )
 			.append( QString( "%1%2m_bMidiTransportInputHandling: %3\n" ).arg( sPrefix )
@@ -2104,14 +2098,14 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_sMidiPortName ) )
 			.append( QString( ", m_sMidiOutputPortName: %1" )
 					 .arg( m_sMidiOutputPortName ) )
-			.append( QString( ", m_nMidiActionChannel: %1" )
-					 .arg( m_nMidiActionChannel ) )
+			.append( QString( ", m_midiActionChannel: %1" )
+					 .arg( static_cast<int>(m_midiActionChannel) ) )
 			.append( QString( ", m_bMidiNoteOffIgnore: %1" )
 					 .arg( m_bMidiNoteOffIgnore ) )
 			.append( QString( ", m_bEnableMidiFeedback: %1" )
 					 .arg( m_bEnableMidiFeedback ) )
-			.append( QString( ", m_nMidiFeedbackChannel: %1" )
-					 .arg( m_nMidiFeedbackChannel ) )
+			.append( QString( ", m_midiFeedbackChannel: %1" )
+					 .arg( static_cast<int>(m_midiFeedbackChannel) ) )
 			.append( QString( ", m_bMidiClockInputHandling: %1" )
 					 .arg( m_bMidiClockInputHandling ) )
 			.append( QString( ", m_bMidiTransportInputHandling: %1" )

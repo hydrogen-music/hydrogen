@@ -36,7 +36,6 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
-#include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Sample.h>
@@ -170,19 +169,21 @@ void Sampler::process( uint32_t nFrames )
 	if ( m_queuedNoteOffs.size() > 0 ) {
 		auto pMidiDriver = pHydrogen->getMidiDriver();
 		if ( pMidiDriver != nullptr ) {
-			//Queue midi note off messages for notes that have a length specified for them
-			while ( ! m_queuedNoteOffs.empty() ) {
-				pNote =  m_queuedNoteOffs[0];
+			// Queue midi note off messages for notes that have a length
+			// specified for them
+			while ( !m_queuedNoteOffs.empty() ) {
+				pNote = m_queuedNoteOffs[0];
 
 				if ( pNote->getInstrument() != nullptr &&
 					 !pNote->getInstrument()->isMuted() ) {
 					const auto noteRef =
 						pMidiInstrumentMap->getOutputMapping( pNote );
 					MidiMessage::NoteOff noteOff;
-					noteOff.nChannel = noteRef.nChannel;
-					noteOff.nKey = noteRef.nNote;
-					noteOff.nVelocity = pNote->getMidiVelocity();
-					if ( noteOff.nChannel != MidiMessage::nChannelOff ) {
+					noteOff.channel = noteRef.channel;
+					noteOff.note = noteRef.note;
+					noteOff.velocity = pNote->getMidiVelocity();
+					if ( noteOff.channel != Midi::ChannelOff &&
+						 noteOff.channel != Midi::ChannelInvalid ) {
 						pMidiDriver->sendMessage( MidiMessage::from( noteOff )
 						);
 					}
@@ -281,12 +282,21 @@ void Sampler::noteOn( std::shared_ptr<Note> pNote )
 	}
 }
 
-void Sampler::midiKeyboardNoteOff( int key )
+void Sampler::midiKeyboardNoteOff(
+	std::shared_ptr<Instrument> pInstrument,
+	Note::Key key,
+	Note::Octave octave
+)
 {
-	for ( const auto& pNote: m_playingNotesQueue ) {
-		if ( pNote->getMidiMsg() == key &&
-			 pNote->getAdsr() != nullptr ) {
-			pNote->getAdsr()->release();
+	if ( pInstrument == nullptr ) {
+		return;
+	}
+	for ( const auto& ppNote : m_playingNotesQueue ) {
+		if ( ppNote != nullptr &&
+			 ppNote->getInstrumentId() == pInstrument->getId() &&
+			 ppNote->getKey() == key && ppNote->getOctave() == octave &&
+			 ppNote->getAdsr() != nullptr ) {
+			ppNote->getAdsr()->release();
 		}
 	}
 }
@@ -731,7 +741,7 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		}
 
 		const float fLayerGain = pLayer->getGain();
-		const float fLayerPitch = pLayer->getPitch();
+		const float fLayerPitch = pLayer->getPitchOffset();
 
 		if ( pSelectedLayerInfo->fSamplePosition >= pSample->getFrames() ) {
 			// Due to rounding errors in renderNoteResample() the
@@ -863,7 +873,7 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 /// sample data.
 void copySample( float *__restrict__ pBuffer_L, float *__restrict__ pBuffer_R,
 				 float *__restrict__ pSample_data_L, float *__restrict__ pSample_data_R,
-				 int nFrames, double fSamplePos, float fStep, int nSampleFrames )
+				 int nFrames, double fSamplePos, int nSampleFrames )
 {
 	int nSamplePos = static_cast<int>(fSamplePos);
 	int nFramesFromSample = std::min( nFrames, nSampleFrames - nSamplePos );
@@ -1106,7 +1116,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 
 	if ( pSample->getSampleRate() == pAudioDriver->getSampleRate() ) {
 		copySample( &buffer_L[ nInitialBufferPos ], &buffer_R[ nInitialBufferPos ], pSample_data_L, pSample_data_R,
-					nBufferSize, fSamplePos, fStep, nSampleFrames );
+					nBufferSize, fSamplePos, nSampleFrames );
 	} else {
 		resample( m_interpolateMode,
 				  &buffer_L[ nInitialBufferPos ], &buffer_R[ nInitialBufferPos ], pSample_data_L, pSample_data_R,
@@ -1184,20 +1194,22 @@ bool Sampler::renderNoteResample(
 		return true;
 	}
 
-	const float fNotePitch = pNote->getTotalPitch() + fLayerPitch;
-	const bool bResample = fNotePitch != 0 ||
+	const auto pitch = Note::Pitch::fromFloatClamp(
+		static_cast<float>( pNote->toPitch() ) + pNote->getPitchHumanization() +
+		pNote->getInstrument()->getPitchOffset() + fLayerPitch
+	);
+	const bool bResample =
+		pitch != Note::Pitch::Default ||
 		pSample->getSampleRate() != pAudioDriver->getSampleRate();
 
-	float fStep;
+    // Ratio of target to source frequency.
+	float fFrequencyRatio = 1.0;
 	if ( bResample ){
-		fStep = Note::pitchToFrequency( fNotePitch );
+		fFrequencyRatio = pitch.toFrequencyRatio();
 
 		// Adjust for audio driver sample rate
-		fStep *= static_cast<float>(pSample->getSampleRate()) /
+		fFrequencyRatio *= static_cast<float>(pSample->getSampleRate()) /
 			static_cast<float>(pAudioDriver->getSampleRate());
-	}
-	else {
-		fStep = 1;
 	}
 
 	auto pSample_data_L = pSample->getData_L();
@@ -1206,7 +1218,7 @@ bool Sampler::renderNoteResample(
 	// The number of frames of the sample left to process.
 	const int nRemainingFrames = static_cast<int>(
 		(static_cast<float>(nSampleFrames) - pSelectedLayerInfo->fSamplePosition) /
-		fStep );
+		fFrequencyRatio );
 
 	bool bRetValue = true; // the note is ended
 	int nAvail_bytes;
@@ -1252,17 +1264,17 @@ bool Sampler::renderNoteResample(
 
 		nNoteEnd = std::min(nFinalBufferPos + 1, static_cast<int>(
 			(static_cast<float>(pSelectedLayerInfo->nNoteLength) -
-				pSelectedLayerInfo->fSamplePosition) / fStep ));
+				pSelectedLayerInfo->fSamplePosition) / fFrequencyRatio ));
 
 		if ( nNoteEnd < 0 ) {
 			if ( ! pInstrument->isFilterActive() ) {
 				// In case resonance filtering is active the sampler stops
 				// rendering of the sample at the custom note length but lets
 				// the filter itself ring on.
-				ERRORLOG( QString( "Note end located within the previous processing cycle. nNoteEnd: %1, nNoteLength: %2, fSamplePosition: %3, nFinalBufferPos: %4, fStep: %5")
+				ERRORLOG( QString( "Note end located within the previous processing cycle. nNoteEnd: %1, nNoteLength: %2, fSamplePosition: %3, nFinalBufferPos: %4, fFrequencyRatio: %5")
 						  .arg( nNoteEnd ).arg( pSelectedLayerInfo->nNoteLength )
 						  .arg( pSelectedLayerInfo->fSamplePosition )
-						  .arg( nFinalBufferPos ).arg( fStep ) );
+						  .arg( nFinalBufferPos ).arg( fFrequencyRatio ) );
 			}
 			nNoteEnd = 0;
 		}
@@ -1299,14 +1311,14 @@ bool Sampler::renderNoteResample(
 	if ( bResample ) {
 		resample( m_interpolateMode,
 				  &buffer_L[ nInitialBufferPos ], &buffer_R[ nInitialBufferPos ], pSample_data_L, pSample_data_R,
-				  nFinalBufferPos - nInitialBufferPos, fSamplePos, fStep, nSampleFrames );
+				  nFinalBufferPos - nInitialBufferPos, fSamplePos, fFrequencyRatio, nSampleFrames );
 	} else {
 		copySample( &buffer_L[ nInitialBufferPos ], &buffer_R[ nInitialBufferPos ], pSample_data_L, pSample_data_R,
-					nFinalBufferPos - nInitialBufferPos, fSamplePos, fStep, nSampleFrames );
+					nFinalBufferPos - nInitialBufferPos, fSamplePos, nSampleFrames );
 	}
 
 	if ( pADSR->applyADSR( buffer_L, buffer_R, nFinalBufferPos, nNoteEnd,
-						   fStep ) ) {
+						   fFrequencyRatio ) ) {
 		bRetValue = true;
 	}
 
@@ -1372,7 +1384,7 @@ bool Sampler::renderNoteResample(
 		bRetValue = false;
 	}
 	
-	pSelectedLayerInfo->fSamplePosition += nAvail_bytes * fStep;
+	pSelectedLayerInfo->fSamplePosition += nAvail_bytes * fFrequencyRatio;
 
 
 #ifdef H2CORE_HAVE_LADSPA

@@ -114,14 +114,14 @@ public:
 	void dropEvents( const Event::Type& type );
 
 	struct AddMidiNoteVector {
-		int m_column;       // position
-		Instrument::Id m_id; // specifies the instrument triggered
-		int m_pattern;      // pattern number
-		int m_length;
-		float f_velocity;
-		float f_pan;
-		Note::Key nk_noteKeyVal;
-		Note::Octave no_octaveKeyVal;
+		int nColumn;       // position
+		Instrument::Id id; // specifies the instrument triggered
+		int nPattern;      // pattern number
+		int nLength;
+		float fVelocity;
+		float fPan;
+		Note::Key key;
+		Note::Octave octave;
 	};
 	std::vector<AddMidiNoteVector> m_addMidiNoteVector;
 

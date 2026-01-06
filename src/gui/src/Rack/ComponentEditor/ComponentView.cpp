@@ -554,8 +554,8 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pLayerPitchCoarseRotary = new Rotary(
 		pLayerPropCoarseWidget, Rotary::Type::Center,
 		tr( "Layer pitch (Coarse)" ), true,
-		Instrument::fPitchMin + InstrumentEditor::nPitchFineControl,
-		Instrument::fPitchMax - InstrumentEditor::nPitchFineControl
+		Instrument::fPitchOffsetMinimum + InstrumentEditor::nPitchFineControl,
+		Instrument::fPitchOffsetMaximum - InstrumentEditor::nPitchFineControl
 	);
 	connect( m_pLayerPitchCoarseRotary, &Rotary::valueChanged, [&]() {
 		const float fNewPitch = round( m_pLayerPitchCoarseRotary->getValue() ) +
@@ -563,7 +563,7 @@ ComponentView::ComponentView( QWidget* pParent,
 		if ( m_pComponent != nullptr ) {
 			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
-				pLayer->setPitch( fNewPitch );
+				pLayer->setPitchOffset( fNewPitch );
 				updatePitchDisplay();
 			}
 		}
@@ -593,7 +593,7 @@ ComponentView::ComponentView( QWidget* pParent,
 		if ( m_pComponent != nullptr ) {
 			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
-				pLayer->setPitch( fNewPitch );
+				pLayer->setPitchOffset( fNewPitch );
 				updatePitchDisplay();
 			}
 		}
@@ -876,22 +876,22 @@ void ComponentView::updateView() {
 				// sudden jumps in the fine pitch rotary.
 				float fCoarseLayerPitch;
 				if ( ( m_pLayerPitchFineRotary->getValue() == 50 &&
-					   pLayer->getPitch() -
-					   trunc( pLayer->getPitch() ) == 0.5  ) ||
-					 pLayer->getPitch() == Instrument::fPitchMax ) {
-					fCoarseLayerPitch = trunc( pLayer->getPitch() );
+					   pLayer->getPitchOffset() -
+					   trunc( pLayer->getPitchOffset() ) == 0.5  ) ||
+					 pLayer->getPitchOffset() == Instrument::fPitchOffsetMaximum ) {
+					fCoarseLayerPitch = trunc( pLayer->getPitchOffset() );
 				}
 				else if ( m_pLayerPitchFineRotary->getValue() == -50 &&
-						  trunc( pLayer->getPitch() ) -
-						  pLayer->getPitch() == 0.5 ) {
-					fCoarseLayerPitch = ceil( pLayer->getPitch() );
+						  trunc( pLayer->getPitchOffset() ) -
+						  pLayer->getPitchOffset() == 0.5 ) {
+					fCoarseLayerPitch = ceil( pLayer->getPitchOffset() );
 				}
 				else {
-					fCoarseLayerPitch = round( pLayer->getPitch() );
+					fCoarseLayerPitch = round( pLayer->getPitchOffset() );
 				}
 
 				const float fFineLayerPitch =
-					pLayer->getPitch() - fCoarseLayerPitch;
+					pLayer->getPitchOffset() - fCoarseLayerPitch;
 				m_pLayerPitchCoarseRotary->setValue( fCoarseLayerPitch, false,
 													 Event::Trigger::Suppress );
 				m_pLayerPitchFineRotary->setValue( fFineLayerPitch * 100, false,
@@ -1277,7 +1277,7 @@ void ComponentView::updatePitchDisplay()
 	if ( m_pComponent != nullptr && m_nSelectedLayer >= 0 &&
 		 m_pComponent->getLayer( m_nSelectedLayer ) != nullptr ) {
 		const QString sNewPitch = QString( "%1" ).arg(
-			m_pComponent->getLayer( m_nSelectedLayer )->getPitch(), -2, 'f', 2,
+			m_pComponent->getLayer( m_nSelectedLayer )->getPitchOffset(), -2, 'f', 2,
 			'0'
 		);
 		if ( m_pLayerPitchLCD->text() != sNewPitch ) {

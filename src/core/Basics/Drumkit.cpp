@@ -1258,7 +1258,7 @@ void Drumkit::recalculateRubberband( float fBpm )
 
 			for ( const auto& ppLayer : *ppComponent ) {
 				if ( ppLayer == nullptr || ppLayer->getSample() == nullptr ||
-					 !ppLayer->getSample()->getRubberband().use ) {
+					 !ppLayer->getSample()->getRubberband().bUse ) {
 					continue;
 				}
 				auto pNewSample = std::make_shared<Sample>( ppLayer->getSample() );

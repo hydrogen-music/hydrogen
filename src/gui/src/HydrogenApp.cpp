@@ -1210,7 +1210,7 @@ void HydrogenApp::onEventQueueTimer()
 		int nRow = 0;
 		DrumPatternRow row;
 		for ( const auto& rrow : m_pPatternEditorPanel->getDB() ) {
-			if ( rrow.id == pQueue->m_addMidiNoteVector[0].m_id ) {
+			if ( rrow.id == pQueue->m_addMidiNoteVector[0].id ) {
 				row = rrow;
 				bFound = true;
 				break;
@@ -1222,18 +1222,18 @@ void HydrogenApp::onEventQueueTimer()
 			ERRORLOG( QString( "Could not find row in Pattern Editor "
 							   "corresponding to instrument ID [%1]" )
 						  .arg( static_cast<int>(
-							  pQueue->m_addMidiNoteVector[0].m_id
+							  pQueue->m_addMidiNoteVector[0].id
 						  ) ) );
 			return;
 		}
 
 		// find if a (pitch matching) note is already present
 		const auto pOldNote = pSong->getPatternList()->
-			get( pQueue->m_addMidiNoteVector[0].m_pattern )->
-			findNote( pQueue->m_addMidiNoteVector[0].m_column,
+			get( pQueue->m_addMidiNoteVector[0].nPattern )->
+			findNote( pQueue->m_addMidiNoteVector[0].nColumn,
 					  row.id, row.sType,
-					  pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
-					  pQueue->m_addMidiNoteVector[0].no_octaveKeyVal );
+					  pQueue->m_addMidiNoteVector[0].key,
+					  pQueue->m_addMidiNoteVector[0].octave );
 		
 		beginUndoMacro( tr( "Input Midi Note" ) );
 		if ( pOldNote != nullptr ) { // note found => remove it
@@ -1241,7 +1241,7 @@ void HydrogenApp::onEventQueueTimer()
 								 pOldNote->getPosition(),
 								 pOldNote->getInstrumentId(),
 								 pOldNote->getType(),
-								 pQueue->m_addMidiNoteVector[0].m_pattern,
+								 pQueue->m_addMidiNoteVector[0].nPattern,
 								 pOldNote->getLength(),
 								 pOldNote->getVelocity(),
 								 pOldNote->getPan(),
@@ -1257,16 +1257,16 @@ void HydrogenApp::onEventQueueTimer()
 		
 		// add the new note
 		pushUndoCommand( new SE_addOrRemoveNoteAction(
-							 pQueue->m_addMidiNoteVector[0].m_column,
+							 pQueue->m_addMidiNoteVector[0].nColumn,
 							 row.id,
 							 row.sType,
-							 pQueue->m_addMidiNoteVector[0].m_pattern,
-							 pQueue->m_addMidiNoteVector[0].m_length,
-							 pQueue->m_addMidiNoteVector[0].f_velocity,
-							 pQueue->m_addMidiNoteVector[0].f_pan,
+							 pQueue->m_addMidiNoteVector[0].nPattern,
+							 pQueue->m_addMidiNoteVector[0].nLength,
+							 pQueue->m_addMidiNoteVector[0].fVelocity,
+							 pQueue->m_addMidiNoteVector[0].fPan,
 							 LEAD_LAG_DEFAULT,
-							 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
-							 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
+							 pQueue->m_addMidiNoteVector[0].key,
+							 pQueue->m_addMidiNoteVector[0].octave,
 							 PROBABILITY_DEFAULT,
 							 Editor::Action::Add,
 							 /*isNoteOff*/ false,

@@ -38,7 +38,7 @@ namespace H2Core
 InstrumentLayer::InstrumentLayer( std::shared_ptr<Sample> pSample ) :
 	m_fStartVelocity( 0.0 ),
 	m_fEndVelocity( 1.0 ),
-	m_fPitch( 0.0 ),
+	m_fPitchOffset( 0.0 ),
 	m_fGain( 1.0 ),
 	m_bIsMuted( false ),
 	m_bIsSoloed( false ),
@@ -52,7 +52,7 @@ InstrumentLayer::InstrumentLayer( std::shared_ptr<Sample> pSample ) :
 InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> pOther ) : Object( *pOther ),
 	m_fStartVelocity( pOther->getStartVelocity() ),
 	m_fEndVelocity( pOther->getEndVelocity() ),
-	m_fPitch( pOther->getPitch() ),
+	m_fPitchOffset( pOther->getPitchOffset() ),
 	m_fGain( pOther->getGain() ),
 	m_bIsMuted( pOther->m_bIsMuted ),
 	m_bIsSoloed( pOther->m_bIsSoloed ),
@@ -67,7 +67,7 @@ InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> pOther ) : Ob
 InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> pOther, std::shared_ptr<Sample> pSample ) : Object( *pOther ),
 	m_fStartVelocity( pOther->getStartVelocity() ),
 	m_fEndVelocity( pOther->getEndVelocity() ),
-	m_fPitch( pOther->getPitch() ),
+	m_fPitchOffset( pOther->getPitchOffset() ),
 	m_fGain( pOther->getGain() ),
 	m_bIsMuted( pOther->m_bIsMuted ),
 	m_bIsSoloed( pOther->m_bIsSoloed ),
@@ -91,13 +91,13 @@ void InstrumentLayer::setSample( std::shared_ptr<Sample> pSample )
 	}
 }
 
-void InstrumentLayer::setPitch( float fValue )
+void InstrumentLayer::setPitchOffset( float fValue )
 {
-	if ( fValue < Instrument::fPitchMin || fValue > Instrument::fPitchMax ) {
+	if ( fValue < Instrument::fPitchOffsetMinimum || fValue > Instrument::fPitchOffsetMaximum ) {
 		WARNINGLOG( QString( "Provided pitch out of bound [%1;%2]. Rounding to nearest allowed value." )
-					.arg( Instrument::fPitchMin ).arg( Instrument::fPitchMax ) );
+					.arg( Instrument::fPitchOffsetMinimum ).arg( Instrument::fPitchOffsetMaximum ) );
 	}
-	m_fPitch = std::clamp( fValue, Instrument::fPitchMin, Instrument::fPitchMax );
+	m_fPitchOffset = std::clamp( fValue, Instrument::fPitchOffsetMinimum, Instrument::fPitchOffsetMaximum );
 }
 
 void InstrumentLayer::loadSample( float fBpm )
@@ -215,15 +215,15 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 			pSample->setLoops( loops );
 	
 			Sample::Rubberband rubberband;
-			rubberband.use = node.read_int( "userubber", 0, false, false, bSilent );
-			rubberband.divider = node.read_float( "rubberdivider", 0.0, false, false, bSilent );
-			rubberband.c_settings = node.read_int( "rubberCsettings", 1, false, false, bSilent );
-			rubberband.pitch = node.read_float( "rubberPitch", 0.0, false, false, bSilent );
+			rubberband.bUse = node.read_int( "userubber", 0, false, false, bSilent );
+			rubberband.fLengthInBeats = node.read_float( "rubberdivider", 0.0, false, false, bSilent );
+			rubberband.nCrispness = node.read_int( "rubberCsettings", 1, false, false, bSilent );
+			rubberband.fSemitonesToShift = node.read_float( "rubberPitch", 0.0, false, false, bSilent );
 
 			// Check whether the rubberband executable is present.
 			if ( ! Filesystem::file_exists( Preferences::get_instance()->
 											m_sRubberBandCLIexecutable ) ) {
-				rubberband.use = false;
+				rubberband.bUse = false;
 			}
 			pSample->setRubberband( rubberband );
 	
@@ -271,7 +271,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 						bSilent ) );
 	pLayer->setGain( node.read_float( "gain", pLayer->getGain(), true, false,
 									 bSilent ) );
-	pLayer->setPitch( node.read_float( "pitch", pLayer->getPitch(), true, false,
+	pLayer->setPitchOffset( node.read_float( "pitch", pLayer->getPitchOffset(), true, false,
 									  bSilent ) );
 	pLayer->m_bIsMuted = node.read_bool(
 		"isMuted", pLayer->m_bIsMuted, true, false, true );
@@ -317,7 +317,7 @@ void InstrumentLayer::saveTo(
 	layer_node.write_float( "min", m_fStartVelocity );
 	layer_node.write_float( "max", m_fEndVelocity );
 	layer_node.write_float( "gain", m_fGain );
-	layer_node.write_float( "pitch", m_fPitch );
+	layer_node.write_float( "pitch", m_fPitchOffset );
 	layer_node.write_bool( "isMuted", m_bIsMuted );
 	layer_node.write_bool( "isSoloed", m_bIsSoloed );
 
@@ -331,10 +331,10 @@ void InstrumentLayer::saveTo(
 	layer_node.write_int( "endframe", loops.end_frame );
 
 	Sample::Rubberband rubberband = pSample->getRubberband();
-	layer_node.write_int( "userubber", static_cast<int>( rubberband.use ) );
-	layer_node.write_float( "rubberdivider", rubberband.divider );
-	layer_node.write_int( "rubberCsettings", rubberband.c_settings );
-	layer_node.write_float( "rubberPitch", rubberband.pitch );
+	layer_node.write_int( "userubber", static_cast<int>( rubberband.bUse ) );
+	layer_node.write_float( "rubberdivider", rubberband.fLengthInBeats );
+	layer_node.write_int( "rubberCsettings", rubberband.nCrispness );
+	layer_node.write_float( "rubberPitch", rubberband.fSemitonesToShift );
 
 	for ( const auto& velocity : pSample->getVelocityEnvelope() ) {
 		XMLNode volumeNode = layer_node.createNode( "volume" );
@@ -355,7 +355,7 @@ QString InstrumentLayer::toQString( const QString& sPrefix, bool bShort ) const 
 	if ( ! bShort ) {
 		sOutput = QString( "%1[InstrumentLayer]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_fGain: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fGain ) )
-			.append( QString( "%1%2m_fPitch: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPitch ) )
+			.append( QString( "%1%2m_fPitchOffset: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPitchOffset ) )
 			.append( QString( "%1%2m_fStartVelocity: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fStartVelocity ) )
 			.append( QString( "%1%2m_fEndVelocity: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fEndVelocity ) )
 			.append( QString( "%1%2m_bIsMuted: %3\n" ).arg( sPrefix ).arg( s )
@@ -374,7 +374,7 @@ QString InstrumentLayer::toQString( const QString& sPrefix, bool bShort ) const 
 	else {
 		sOutput = QString( "[InstrumentLayer]" )
 			.append( QString( " m_fGain: %1" ).arg( m_fGain ) )
-			.append( QString( ", m_fPitch: %1" ).arg( m_fPitch ) )
+			.append( QString( ", m_fPitchOffset: %1" ).arg( m_fPitchOffset ) )
 			.append( QString( ", m_fStartVelocity: %1" ).arg( m_fStartVelocity ) )
 			.append( QString( ", m_fEndVelocity: %1" ).arg( m_fEndVelocity ) )
 			.append( QString( ", m_bIsMuted: %1" ).arg( m_bIsMuted ) )
