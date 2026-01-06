@@ -41,8 +41,15 @@ const std::vector<QString> Sample::m_loopModes = {
 	"forward", "reverse", "pingpong"
 };
 
+/** Calculates the ratio of the target to the source frequency.
+ *
+ * The term "pitch_scale" was taken from the Rubberband API. */
+static double compute_pitch_scale( const Sample::Rubberband& rb )
+{
+	return pow( 1.0594630943593, static_cast<double>( rb.fSemitonesToShift ) );
+}
+
 #if defined( H2CORE_HAVE_RUBBERBAND ) || _DOXYGEN_
-static double compute_pitch_scale( const Sample::Rubberband& r );
 static RubberBand::RubberBandStretcher::Options compute_rubberband_options(
 	const Sample::Rubberband& r
 );
@@ -1280,14 +1287,6 @@ QString Sample::sndfileFormatToQString( int nFormat )
 }
 
 #ifdef H2CORE_HAVE_RUBBERBAND
-/** Calculates the ratio of the target to the source frequency.
- *
- * The term "pitch_scale" was taken from the Rubberband API. */
-static double compute_pitch_scale( const Sample::Rubberband& rb )
-{
-	return pow( 1.0594630943593, static_cast<double>( rb.fSemitonesToShift ) );
-}
-
 static RubberBand::RubberBandStretcher::Options compute_rubberband_options(
 	const Sample::Rubberband& rb
 )
