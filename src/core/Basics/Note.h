@@ -282,7 +282,12 @@ class Note : public H2Core::Object<Note> {
 		operator float() const { return m_fValue; };
 		operator int() const { return static_cast<int>( m_fValue ); };
 
-		Pitch operator=( const Pitch& other ) { return Pitch( m_fValue ); };
+		Pitch& operator=( const Pitch& other )
+		{
+			m_fValue = other.m_fValue;
+			return *this;
+		};
+
 		bool operator==( const Pitch& other ) const
 		{
 			return m_fValue == other.m_fValue;
