@@ -2324,23 +2324,30 @@ void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, Note::Key key,
 		// Play back added notes.
 		if ( Preferences::get_instance()->getHearNewNotes() &&
 			 row.bMappedToDrumkit &&
-			 ( static_cast<char>(modifier) &
-			   static_cast<char>(Editor::ActionModifier::Playback) ) ) {
-			auto pInstrument = pSong->getDrumkit()->getInstruments()
-				->find( row.id );
+			 ( static_cast<char>( modifier ) &
+			   static_cast<char>( Editor::ActionModifier::Playback ) ) ) {
+			auto pInstrument =
+				pSong->getDrumkit()->getInstruments()->find( row.id );
 			if ( pInstrument != nullptr && pInstrument->hasSamples() ) {
-				auto pNote2 = std::make_shared<Note>( pInstrument );
-				pNote2->setKey( key );
-				pNote2->setOctave( octave );
-				pNote2->setNoteOff( bIsNoteOff );
+				auto pNotePreview = std::make_shared<Note>( pInstrument );
+				if ( key != Note::Key::Invalid ) {
+					pNotePreview->setKey( key );
+				}
+				if ( octave != Note::Octave::Invalid ) {
+					pNotePreview->setOctave( octave );
+				}
+				pNotePreview->setNoteOff( bIsNoteOff );
 
-				if ( ! std::isnan( fYValue ) ) {
+				if ( !std::isnan( fYValue ) ) {
 					NotePropertiesRuler::applyProperty(
-						pNote2, property, fYValue );
+						pNotePreview, property, fYValue
+					);
 				}
 
-				Hydrogen::get_instance()->getAudioEngine()->getSampler()->
-					noteOn( pNote2 );
+				Hydrogen::get_instance()
+					->getAudioEngine()
+					->getSampler()
+					->noteOn( pNotePreview );
 			}
 		}
 
