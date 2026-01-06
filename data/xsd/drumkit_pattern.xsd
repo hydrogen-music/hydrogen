@@ -50,7 +50,8 @@
 			  </xsd:sequence>
 			  <xsd:element name = "pan"		type="h2:psfloat_sym"/>
 			</xsd:choice>
-			<xsd:element name="pitch"		type="xsd:float"/>
+			<xsd:element name="pitch"		type="xsd:float"
+						 minOccurs="0"	maxOccurs="1"/>
 			<xsd:element name="key"			type="xsd:string"/>
 			<xsd:element name="length"		type="xsd:integer"/>
 			<xsd:element name="instrument"	type="xsd:integer"/>

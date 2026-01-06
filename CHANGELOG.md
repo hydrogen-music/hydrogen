@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file.
 - Linux man pages for the `h2cli` and `h2player` applications have been added.
 - Forward compatibility of `hydrogen.conf` for MIDI input channel values
   introduced in version 2.0.
+- Forward compatibility of `.h2pattern` files to version 2.0, in which the
+  `<pitch>` node will be dropped.
 
 ### Changed
 

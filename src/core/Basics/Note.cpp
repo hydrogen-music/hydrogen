@@ -519,7 +519,9 @@ Note* Note::load_from( XMLNode* node, std::shared_ptr<InstrumentList> instrument
 		node->read_float( "velocity", 0.8f, false, false, bSilent ),
 		fPan,
 		node->read_int( "length", -1, true, false, bSilent ),
-		node->read_float( "pitch", 0.0f, false, false, bSilent )
+        // Starting from version 2.0 of Hydrogen, the "pitch" node will be
+        // dropped.
+		node->read_float( "pitch", 0.0f, true, false, true )
 	);
 	note->set_lead_lag( node->read_float( "leadlag", 0, false, false, bSilent ) );
 	note->set_key_octave( node->read_string( "key", "C0", false, false, bSilent ) );
