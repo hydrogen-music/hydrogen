@@ -747,8 +747,6 @@ bool Sample::execRubberbandCli( float fBpm )
 	const float fDurationInSeconds =
 		60.0 / fBpm * static_cast<float>( m_rubberband.divider ) /*beats*/;
 
-	QProcess* pRubberbandProc = new QProcess( nullptr );
-
 	const auto sCrispness = QString( "%1" ).arg( m_rubberband.c_settings );
 	const auto sFrequency =
 		QString( "%1" ).arg( compute_pitch_scale( m_rubberband ) );
@@ -768,11 +766,15 @@ bool Sample::execRubberbandCli( float fBpm )
 				 .arg( sProgram )
 				 .arg( arguments.join( " " ) ) );
 
+	auto pRubberbandProc = new QProcess( nullptr );
 	pRubberbandProc->start( sProgram, arguments );
 
-	while ( pRubberbandProc->state() != QProcess::NotRunning &&
-			!pRubberbandProc->waitForFinished() ) {
-	}
+    // BUG This part is highly dangerous. The rubberband CLI segfaults on
+    // extreme (?invalid?) input parameters accesssible through the
+    // SampleEditor.
+	while ( pRubberbandProc->state() != QProcess::NotRunning ) {
+        pRubberbandProc->waitForFinished();
+    }
 
 	delete pRubberbandProc;
 	if ( !Filesystem::file_exists( sTmpFilePathProcessed ) ) {
