@@ -594,12 +594,6 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 	}
 
 	long long nFrame;
-	auto pAudioDriver = pHydrogen->getAudioOutput();
-	if ( pAudioDriver == nullptr ) {
-		ERRORLOG( "AudioDriver is not ready!" );
-		return true;
-	}
-
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	if ( pAudioEngine->getState() == AudioEngine::State::Playing ||
 		 pAudioEngine->getState() == AudioEngine::State::Testing ) {
@@ -713,7 +707,6 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
      * instruments with more than one component. */
     bool bSendMidiNoteOn = false;
 
-	DEBUGLOG( "select layers" );
 	auto pComponents = pInstr->getComponents();
 	auto returnValues = std::vector<bool>( pComponents->size() );
 
@@ -815,9 +808,12 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
             bSendMidiNoteOn = true;
 		}
 
-		if ( pLayer == nullptr || pSample == nullptr ) {
-			returnValues[ ii ] = true;
-            continue;
+        // We delay checking for the audio driver till here in order to allow
+        // usign Hydrogen in "MIDI-only" mode.
+		if ( pLayer == nullptr || pSample == nullptr ||
+			 pHydrogen->getAudioOutput() == nullptr ) {
+			returnValues[ii] = true;
+			continue;
 		}
 
 		const float fLayerGain = pLayer->getGain();
