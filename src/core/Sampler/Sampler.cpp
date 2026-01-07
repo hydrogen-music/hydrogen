@@ -208,18 +208,18 @@ bool Sampler::isRenderingNotes() const {
 	return m_playingNotesQueue.size() > 0;
 }
 
-void Sampler::noteOn( std::shared_ptr<Note> pNote )
+bool Sampler::noteOn( std::shared_ptr<Note> pNote )
 {
 	assert( pNote );
 	if ( pNote == nullptr ) {
 		ERRORLOG( "Invalid note" );
-		return;
+		return false;
 	}
 
 	if ( pNote->getInstrument() == nullptr ||
 		 pNote->getAdsr() == nullptr ) {
 		ERRORLOG( QString( "Invalid note [%1]" ).arg( pNote->toQString() ) );
-		return;
+		return false;
 	}
 
 	pNote->getAdsr()->attack();
@@ -255,7 +255,7 @@ void Sampler::noteOn( std::shared_ptr<Note> pNote )
 					 pSong->getDrumkit()->getInstruments()->index( pInstr ) ) {
 					// There is another note of the same mute group at a lower
 					// position. We keep it and discard the provided note.
-					return;
+					return false;
 				}
 				else {
 					pOtherNote->getAdsr()->release();
@@ -279,7 +279,10 @@ void Sampler::noteOn( std::shared_ptr<Note> pNote )
 	if ( ! pNote->getNoteOff() ){
 		pInstr->enqueue( pNote );
 		m_playingNotesQueue.push_back( pNote );
+        return true;
 	}
+
+    return false;
 }
 
 void Sampler::midiKeyboardNoteOff(
