@@ -75,7 +75,11 @@ QString SelectedLayerInfo::toQString( const QString& sPrefix, bool bShort )
 					  .append( QString( "%1%2pLayer: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
-								   .arg( pLayer->toQString( "", bShort ) ) )
+								   .arg(
+									   pLayer != nullptr
+										   ? pLayer->toQString( "", bShort )
+										   : "nullptr"
+								   ) )
 					  .append( QString( "%1%2fSamplePosition: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
@@ -89,7 +93,11 @@ QString SelectedLayerInfo::toQString( const QString& sPrefix, bool bShort )
 		sOutput =
 			QString( "[SelectedLayerInfo] " )
 				.append( QString( "pLayer: %1" )
-							 .arg( pLayer->toQString( "", bShort ) ) )
+							 .arg(
+								 pLayer != nullptr
+									 ? pLayer->toQString( "", bShort )
+									 : "nullptr"
+							 ) )
 				.append(
 					QString( ", fSamplePosition: %1" ).arg( fSamplePosition )
 				)
