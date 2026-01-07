@@ -36,6 +36,7 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Sample.h>
@@ -176,7 +177,10 @@ void Sampler::process( uint32_t nFrames )
 				pNote = m_queuedNoteOffs[0];
 
 				if ( pNote != nullptr && pNote->getInstrument() != nullptr &&
-					 pNote->getMidiNoteOnSent() ) {
+					 pNote->getMidiNoteOnSent() &&
+					 ( Preferences::get_instance()->getMidiSendNoteOff() !=
+						   Preferences::MidiSendNoteOff::OnCustomLengths ||
+                     pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) ) {
 					const auto noteRef =
 						pMidiInstrumentMap->getOutputMapping( pNote );
 					MidiMessage::NoteOff noteOff;
