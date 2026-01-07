@@ -175,8 +175,8 @@ void Sampler::process( uint32_t nFrames )
 			while ( !m_queuedNoteOffs.empty() ) {
 				pNote = m_queuedNoteOffs[0];
 
-				if ( pNote->getInstrument() != nullptr &&
-					 !pNote->getInstrument()->isMuted() ) {
+				if ( pNote != nullptr && pNote->getInstrument() != nullptr &&
+					 pNote->getMidiNoteOnSent() ) {
 					const auto noteRef =
 						pMidiInstrumentMap->getOutputMapping( pNote );
 					MidiMessage::NoteOff noteOff;
@@ -189,7 +189,8 @@ void Sampler::process( uint32_t nFrames )
 						);
 					}
 				}
-				else if ( pNote->getInstrument() == nullptr ) {
+				else if ( pNote == nullptr ||
+						  pNote->getInstrument() == nullptr ) {
 					ERRORLOG( QString( "Queued note off in sampler does not "
 									   "have instrument! [%1]" )
 								  .arg( pNote->toQString() ) );
@@ -907,6 +908,7 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 				pHydrogen->getMidiDriver()->sendMessage( noteOffMessage );
 			}
 			pHydrogen->getMidiDriver()->sendMessage( noteOnMessage );
+            pNote->setMidiNoteOnSent( true );
 		}
 	}
 

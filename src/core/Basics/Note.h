@@ -548,6 +548,9 @@ class Note : public H2Core::Object<Note> {
 
 	float getPitchHumanization() const;
 
+	bool getMidiNoteOnSent() const;
+	void setMidiNoteOnSent( bool bNew );
+
 	/**
 	 * @return true if the #Sampler already started rendering this
 	 * note.
@@ -679,6 +682,10 @@ class Note : public H2Core::Object<Note> {
 		std::shared_ptr<InstrumentComponent>,
 		std::shared_ptr<SelectedLayerInfo> >
 		m_selectedLayerInfoMap;
+
+	/** Transient member note written to file. Indicates whether a `NOTE_ON`
+	 * MIDI message was sent for this note within the #Sampler. */
+	bool m_bMidiNoteOnSent;
 
 	/** The instrument (of the current drumkit) the note is associated with.
 	 * It will be used to render the note and, if not `nullptr`, to indicate
@@ -960,6 +967,14 @@ inline float Note::getUsedTickSize() const
 inline float Note::getPitchHumanization() const
 {
 	return m_fPitchHumanization;
+}
+inline bool Note::getMidiNoteOnSent() const
+{
+    return m_bMidiNoteOnSent;
+}
+inline void Note::setMidiNoteOnSent( bool bNew )
+{
+    m_bMidiNoteOnSent = bNew;
 }
 };	// namespace H2Core
 
