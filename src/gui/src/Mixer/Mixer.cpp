@@ -408,7 +408,7 @@ void Mixer::mixerSettingsChangedEvent() {
 	m_pMasterLine->updateLine();
 }
 
-void Mixer::noteOnEvent( int nInstrumentIndex ) {
+void Mixer::noteRenderEvent( int nInstrumentIndex ) {
 	auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;

@@ -1517,7 +1517,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 
 				if ( nInstrument != -1 ) {
 					EventQueue::get_instance()->pushEvent(
-						Event::Type::NoteOn, nInstrument
+						Event::Type::NoteRender, nInstrument
 					);
 				}
 			}

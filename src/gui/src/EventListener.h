@@ -60,7 +60,7 @@ class EventListener
 		virtual void mixerSettingsChangedEvent(){}
 		virtual void nextPatternsChangedEvent(){}
 		virtual void nextShotEvent(){}
-		virtual void noteOnEvent( int nInstrument ) { UNUSED( nInstrument ); }
+		virtual void noteRenderEvent( int nInstrument ) { UNUSED( nInstrument ); }
 		virtual void patternEditorLockedEvent(){}
 		virtual void patternModifiedEvent() {}
 		virtual void playbackTrackChangedEvent(){}

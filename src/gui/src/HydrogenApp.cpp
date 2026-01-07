@@ -1084,8 +1084,8 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->nextShotEvent();
 				break;
 
-			case Event::Type::NoteOn:
-				ppEventListener->noteOnEvent( pEvent->getValue() );
+			case Event::Type::NoteRender:
+				ppEventListener->noteRenderEvent( pEvent->getValue() );
 				break;
 
 			case Event::Type::Quit:
