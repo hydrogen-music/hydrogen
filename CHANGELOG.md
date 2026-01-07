@@ -76,6 +76,8 @@ All notable changes to this project will be documented in this file.
     messages if the corresponding settings are checked.
   - The channel for MIDI feedback (and clock messages) can now be configured as
     well (setting it to "Off" makes Hydrogen drop those messages) (#779).
+  - Whether or not Hydrogen is sending `NOTE_OFF` messages can now be configured
+    in the MIDI control dialog (#63).
 
 ### Changed
 
@@ -125,6 +127,8 @@ All notable changes to this project will be documented in this file.
     to a global channel for the whole drumkit at once.
   - MIDI action handling can now be disabled by setting the corresponding
     channel to "Off".
+  - Instruments without any samples can now send `NOTE_ON` and `NOTE_OFF` MIDI
+    messages as well (#63).
 - PlaylistEditor:
   - All actions can now be undone and redone.
   - Songs can be loaded by keyboard selection and pressing Enter key.
