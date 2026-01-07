@@ -271,7 +271,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		static_cast<int>( Midi::ChannelMaximum ),
 		LCDSpinBox::Flag::MinusOneAsOff
 	);
-	pOutputFeedbackChannelLayout->addWidget( m_pOutputFeedbackChannelSpinBox );
+	pOutputLabelledLayout->addWidget( m_pOutputFeedbackChannelSpinBox, 0, 1 );
 	m_pOutputFeedbackChannelSpinBox->setValue(
 		static_cast<int>( pPref->getMidiFeedbackChannel() )
 	);
@@ -811,6 +811,7 @@ void MidiControlDialog::updatePreferencesEvent( int nValue )
 	);
 	m_pOutputFeedbackChannelSpinBox->setValue(
 		static_cast<int>( pPref->getMidiFeedbackChannel() )
+	);
 	m_pOutputSendNoteOffComboBox->setCurrentIndex(
 		static_cast<int>( pPref->getMidiSendNoteOff() )
 	);

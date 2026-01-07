@@ -108,6 +108,7 @@ class MidiControlDialog : public QDialog,
 	QWidget* m_pOutputCheckboxWidget;
 	QCheckBox* m_pOutputMidiClockCheckBox;
 	QCheckBox* m_pOutputMidiTransportCheckBox;
+	QComboBox* m_pOutputSendNoteOffComboBox;
 
 	QComboBox* m_pInputNoteMappingComboBox;
 	QComboBox* m_pOutputNoteMappingComboBox;
