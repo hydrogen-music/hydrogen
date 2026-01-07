@@ -178,9 +178,11 @@ void Sampler::process( uint32_t nFrames )
 
 				if ( pNote != nullptr && pNote->getInstrument() != nullptr &&
 					 pNote->getMidiNoteOnSent() &&
-					 ( Preferences::get_instance()->getMidiSendNoteOff() !=
-						   Preferences::MidiSendNoteOff::OnCustomLengths ||
-                     pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) ) {
+					 ( Preferences::get_instance()->getMidiSendNoteOff() ==
+						   Preferences::MidiSendNoteOff::Always ||
+					   ( Preferences::get_instance()->getMidiSendNoteOff() ==
+							 Preferences::MidiSendNoteOff::OnCustomLengths &&
+						 pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) ) ) {
 					const auto noteRef =
 						pMidiInstrumentMap->getOutputMapping( pNote );
 					MidiMessage::NoteOff noteOff;
