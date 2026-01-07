@@ -46,12 +46,6 @@ std::shared_ptr<MidiOutput::HandledOutput> MidiOutput::sendMessage(
 		break;
 
 	case MidiMessage::Type::NoteOn:
-		if ( Preferences::get_instance()->getMidiSendNoteOff() !=
-			 Preferences::MidiSendNoteOff::Never ) {
-			auto noteOffMsg = MidiMessage::from( msg );
-            noteOffMsg.setType( MidiMessage::Type::NoteOff );
-			sendNoteOffMessage( noteOffMsg );
-		}
 		sendNoteOnMessage( msg );
 		break;
 

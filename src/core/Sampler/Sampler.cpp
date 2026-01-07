@@ -48,6 +48,7 @@
 #include <core/IO/AudioOutput.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/IO/MidiBaseDriver.h>
+#include <core/Midi/Midi.h>
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
 
@@ -264,7 +265,6 @@ bool Sampler::noteOn( std::shared_ptr<Note> pNote )
 		}
 	}
 
-	//note off notes
 	if ( pNote->getNoteOff() ){
 		for ( const auto& pOtherNote: m_playingNotesQueue ) {
 			if ( pOtherNote != nullptr &&
@@ -893,10 +893,20 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 			fLayerPitch, bIsMuted );
 	}
 
-	if ( bSendMidiNoteOn ) {
-		if ( pHydrogen->getMidiDriver() != nullptr ) {
-			pHydrogen->getMidiDriver()->sendMessage( MidiMessage::from( pNote )
-			);
+	if ( bSendMidiNoteOn && pHydrogen->getMidiDriver() != nullptr ) {
+		const auto noteOnMessage = MidiMessage::from( pNote );
+
+		if ( noteOnMessage.getChannel() != Midi::ChannelInvalid &&
+			 noteOnMessage.getChannel() != Midi::ChannelOff ) {
+			// Due to historical reasons Hydrogen is sending a MIDI NOTE_OFF
+			// messages right before a NOTE_ON one.
+			if ( Preferences::get_instance()->getMidiSendNoteOff() ==
+				 Preferences::MidiSendNoteOff::Always ) {
+				auto noteOffMessage = MidiMessage::from( noteOnMessage );
+				noteOffMessage.setType( MidiMessage::Type::NoteOff );
+				pHydrogen->getMidiDriver()->sendMessage( noteOffMessage );
+			}
+			pHydrogen->getMidiDriver()->sendMessage( noteOnMessage );
 		}
 	}
 
