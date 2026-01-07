@@ -24,6 +24,7 @@
 
 #include <core/IO/MidiBaseDriver.h>
 #include <core/Midi/MidiMessage.h>
+#include <core/Preferences/Preferences.h>
 
 namespace H2Core
 {
@@ -45,12 +46,20 @@ std::shared_ptr<MidiOutput::HandledOutput> MidiOutput::sendMessage(
 		break;
 
 	case MidiMessage::Type::NoteOn:
-		sendNoteOffMessage( msg );
+		if ( Preferences::get_instance()->getMidiSendNoteOff() !=
+			 Preferences::MidiSendNoteOff::Never ) {
+			auto noteOffMsg = MidiMessage::from( msg );
+            noteOffMsg.setType( MidiMessage::Type::NoteOff );
+			sendNoteOffMessage( noteOffMsg );
+		}
 		sendNoteOnMessage( msg );
 		break;
 
 	case MidiMessage::Type::NoteOff:
-		sendNoteOffMessage( msg );
+		if ( Preferences::get_instance()->getMidiSendNoteOff() !=
+			 Preferences::MidiSendNoteOff::Never ) {
+			sendNoteOffMessage( msg );
+		}
 		break;
 
 	case MidiMessage::Type::Start:
