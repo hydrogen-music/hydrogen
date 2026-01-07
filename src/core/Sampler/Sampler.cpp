@@ -739,6 +739,17 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 			returnValues[ ii ] = true;
 			continue;
 		}
+        else
+		if ( !pSample->isLoaded() ) {
+			WARNINGLOG(
+				QString( "Sample [%1] of instrument [%2] was not loaded." )
+					.arg( pSample->getFilePath() )
+					.arg( pInstr->getName() )
+			);
+			returnValues[ ii ] = true;
+			continue;
+		}
+
 
 		const float fLayerGain = pLayer->getGain();
 		const float fLayerPitch = pLayer->getPitchOffset();
