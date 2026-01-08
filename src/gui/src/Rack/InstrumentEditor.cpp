@@ -104,7 +104,7 @@ font-size: 21px;" );
 			}
 			CoreActionController::setInstrumentMidiOutChannel(
 				pSong->getDrumkit()->getInstruments()->index( pInstrument ),
-				Midi::channelFromIntClamp( static_cast<int>( fValue ) ), nullptr
+				Midi::channelFromInt( static_cast<int>( fValue ) ), nullptr
 			);
 		}
 	);

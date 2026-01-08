@@ -199,7 +199,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
 		[=]( double fValue ) {
 			Preferences::get_instance()->m_midiActionChannel =
-				Midi::channelFromIntClamp( static_cast<int>( fValue ) );
+				Midi::channelFromInt( static_cast<int>( fValue ) );
 		}
 	);
 
@@ -280,7 +280,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
 		[=]( double fValue ) {
 			Preferences::get_instance()->setMidiFeedbackChannel(
-				Midi::channelFromIntClamp( static_cast<int>( fValue ) )
+				Midi::channelFromInt( static_cast<int>( fValue ) )
 			);
 		}
 	);
@@ -491,7 +491,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 			Preferences::get_instance()
 				->getMidiInstrumentMap()
 				->setGlobalInputChannel(
-					Midi::channelFromIntClamp( static_cast<int>( fValue ) )
+					Midi::channelFromInt( static_cast<int>( fValue ) )
 				);
 			updateInstrumentTable();
 		}
@@ -547,7 +547,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 			Preferences::get_instance()
 				->getMidiInstrumentMap()
 				->setGlobalOutputChannel(
-					Midi::channelFromIntClamp( static_cast<int>( fValue ) )
+					Midi::channelFromInt( static_cast<int>( fValue ) )
 				);
 			updateInstrumentTable();
 		}
@@ -1063,7 +1063,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 							pInstrument,
 							Midi::noteFromIntClamp( pInputNoteSpinBox->value()
 							),
-							Midi::channelFromIntClamp( static_cast<int>( fValue
+							Midi::channelFromInt( static_cast<int>( fValue
 							) )
 						);
 				}
@@ -1092,7 +1092,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 							pInstrument,
 							Midi::noteFromIntClamp( static_cast<int>( fValue )
 							),
-							Midi::channelFromIntClamp(
+							Midi::channelFromInt(
 								pInputChannelSpinBox->value()
 							)
 						);
@@ -1231,7 +1231,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 						pSong->getDrumkit()->getInstruments()->index(
 							pInstrument
 						),
-						Midi::channelFromIntClamp( static_cast<int>( fValue ) ),
+						Midi::channelFromInt( static_cast<int>( fValue ) ),
 						&nEventId
 					);
 					if ( nEventId != Event::nInvalidId ) {
