@@ -237,7 +237,9 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 		break;
 
 	case MidiMessage::Type::TimingClock:
-		if ( pPref->getMidiClockInputHandling() ) {
+		if ( pPref->getMidiClockInputHandling() &&
+			 pPref->m_midiActionChannel != Midi::ChannelInvalid &&
+			 pPref->m_midiActionChannel != Midi::ChannelOff ) {
 			pMidiActionManager->handleMidiActionAsync(
 				std::make_shared<MidiAction>(
 					MidiAction::Type::TimingClockTick, timePoint
