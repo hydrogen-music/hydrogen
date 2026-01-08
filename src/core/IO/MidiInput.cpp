@@ -132,8 +132,11 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 			if ( ! pPref->getMidiClockInputHandling() ) {
 				// Start right away
 				pMidiActionManager->handleMidiActionAsync(
-					std::make_shared<MidiAction>( MidiAction::Type::Play,
-												  timePoint ) );
+					std::make_shared<MidiAction>(
+						MidiAction::Type::Play, timePoint
+					)
+				);
+				pHandledInput->actionTypes.push_back( MidiAction::Type::Play );
 			}
 			else {
 				pMidiActionManager->setPendingStart( true );
@@ -147,11 +150,14 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 			// According to the MIDI Spec 1.0 v4.2.1 Start and Continue indicate
 			// that transport is about to start. But the actual start is done on
 			// the next MIDI clock tick.
-			if ( ! pPref->getMidiClockInputHandling() ) {
+			if ( !pPref->getMidiClockInputHandling() ) {
 				// Start right away
 				pMidiActionManager->handleMidiActionAsync(
-					std::make_shared<MidiAction>( MidiAction::Type::Play,
-												  timePoint ) );
+					std::make_shared<MidiAction>(
+						MidiAction::Type::Play, timePoint
+					)
+				);
+				pHandledInput->actionTypes.push_back( MidiAction::Type::Play );
 			}
 			else {
 				pMidiActionManager->setPendingStart( true );
@@ -168,6 +174,7 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 				std::make_shared<MidiAction>( MidiAction::Type::Pause,
 											  timePoint ) );
 		}
+		pHandledInput->actionTypes.push_back( MidiAction::Type::Stop );
 		break;
 	}
 
@@ -180,6 +187,9 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 					H2Core::nTicksPerQuarter / 24,
 				true
 			);
+            // We do not have a matching MidiAction::Type to indicate this
+            // action. Until an user complaints, adding a new one just for that
+            // would be overkill.
 		}
 		break;
 
@@ -206,6 +216,9 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 						QString::number( static_cast<int>( msg.getData1() ) )
 					);
 					pMidiActionManager->handleMidiActionAsync( pAction );
+					pHandledInput->actionTypes.push_back(
+						MidiAction::Type::PlaylistSong
+					);
 				}
 			}
 			else {
@@ -216,6 +229,9 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 					QString::number( static_cast<int>( msg.getData1() ) )
 				);
 				pMidiActionManager->handleMidiActionAsync( pAction );
+				pHandledInput->actionTypes.push_back(
+					MidiAction::Type::SelectNextPattern
+				);
 			}
 		}
 		break;
@@ -223,8 +239,13 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 	case MidiMessage::Type::TimingClock:
 		if ( pPref->getMidiClockInputHandling() ) {
 			pMidiActionManager->handleMidiActionAsync(
-				std::make_shared<MidiAction>( MidiAction::Type::TimingClockTick,
-											  timePoint ));
+				std::make_shared<MidiAction>(
+					MidiAction::Type::TimingClockTick, timePoint
+				)
+			);
+			pHandledInput->actionTypes.push_back(
+				MidiAction::Type::TimingClockTick
+			);
 		}
 		break;
 
