@@ -613,8 +613,10 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent* ev )
 		bKey = ( pEv->position().y() - movingOffset.y() ) >=
 			   NotePropertiesRuler::nOctaveHeight;
 
-		fDelta = static_cast<float>( -movingOffset.y() ) /
-				 static_cast<float>( NotePropertiesRuler::nKeyLineHeight );
+		fDelta = std::round(
+			static_cast<float>( -movingOffset.y() ) /
+			static_cast<float>( NotePropertiesRuler::nKeyLineHeight )
+		);
 	}
 	else {
 		fDelta = (float) -movingOffset.y() / height();
