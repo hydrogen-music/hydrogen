@@ -808,6 +808,11 @@ CommonStrings::CommonStrings(){
 	m_sSettings = tr( "Settings" );
 	/*: Indicates a menu section which affects patterns. */
 	m_sPattern = tr( "Pattern" );
+
+	/*: Presented as an option to always e.g. perform an action. */
+	m_sOptionAlways = tr( "Always" );
+	/*: Presented as an option to never e.g. perform an action. */
+	m_sOptionNever = tr( "Never" );
 }
 
 CommonStrings::~CommonStrings(){}

@@ -23,8 +23,8 @@
 #ifndef COMMON_STRINGS_H
 #define COMMON_STRINGS_H
 
-#include <QString>
 #include <core/Object.h>
+#include <QString>
 
 /** A container class to collect all translatable strings at one place
 	in order to allow for the reusage. This will (some day) make
@@ -33,17 +33,17 @@
 	Initially I wanted the whole thing as well as the getter methods
 	to be static. But Qt requires the class to be initialized for the
 	translation engine to take effect.
-	
+
 	\ingroup docGUI
 */
 class CommonStrings : public H2Core::Object<CommonStrings> {
-	H2_OBJECT(CommonStrings)
-	Q_DECLARE_TR_FUNCTIONS(CommonStrings)
-	
-	public:
+	H2_OBJECT( CommonStrings )
+	Q_DECLARE_TR_FUNCTIONS( CommonStrings )
+
+   public:
 	CommonStrings();
 	~CommonStrings();
- 
+
 	const QString& getSmallSoloButton() const { return m_sSmallSoloButton; }
 	const QString& getSmallMuteButton() const { return m_sSmallMuteButton; }
 	const QString& getBigMuteButton() const { return m_sBigMuteButton; }
@@ -51,7 +51,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getBypassButton() const { return m_sBypassButton; }
 	const QString& getEditButton() const { return m_sEditButton; }
 	const QString& getClearButton() const { return m_sClearButton; }
-	const QString& getPlaybackTrackButton() const { return m_sPlaybackTrackButton; }
+	const QString& getPlaybackTrackButton() const
+	{
+		return m_sPlaybackTrackButton;
+	}
 	const QString& getTimelineButton() const { return m_sTimelineButton; }
 	const QString& getTimelineBigButton() const { return m_sTimelineBigButton; }
 	const QString& getFXButton() const { return m_sFXButton; }
@@ -64,66 +67,129 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getDecayLabel() const { return m_sDecayLabel; }
 	const QString& getSustainLabel() const { return m_sSustainLabel; }
 	const QString& getReleaseLabel() const { return m_sReleaseLabel; }
-	const QString& getMidiOutChannelLabel() const { return  m_sMidiOutChannelLabel; }
-	const QString& getMidiOutNoteLabel() const { return  m_sMidiOutNoteLabel; }
-	const QString& getMidiOutNoteOffsetLabel() const { return  m_sMidiOutNoteOffsetLabel; }
-	const QString& getMidiOutLabel() const { return  m_sMidiOutLabel; }
-	const QString& getMidiInputLabel() const { return  m_sMidiInputLabel; }
-	const QString& getPitchLabel() const { return  m_sPitchLabel; }
-	const QString& getPitchCoarseLabel() const { return  m_sPitchCoarseLabel; }
-	const QString& getPitchFineLabel() const { return  m_sPitchFineLabel; }
-	const QString& getPitchRandomLabel() const { return  m_sPitchRandomLabel; }
+	const QString& getMidiOutChannelLabel() const
+	{
+		return m_sMidiOutChannelLabel;
+	}
+	const QString& getMidiOutNoteLabel() const { return m_sMidiOutNoteLabel; }
+	const QString& getMidiOutNoteOffsetLabel() const
+	{
+		return m_sMidiOutNoteOffsetLabel;
+	}
+	const QString& getMidiOutLabel() const { return m_sMidiOutLabel; }
+	const QString& getMidiInputLabel() const { return m_sMidiInputLabel; }
+	const QString& getPitchLabel() const { return m_sPitchLabel; }
+	const QString& getPitchCoarseLabel() const { return m_sPitchCoarseLabel; }
+	const QString& getPitchFineLabel() const { return m_sPitchFineLabel; }
+	const QString& getPitchRandomLabel() const { return m_sPitchRandomLabel; }
 	const QString& getGainLabel() const { return m_sGainLabel; }
 	const QString& getMuteGroupLabel() const { return m_sMuteGroupLabel; }
 	const QString& getIsStopNoteLabel() const { return m_sIsStopNoteLabel; }
-	const QString& getApplyVelocityLabel() const { return m_sApplyVelocityLabel; }
+	const QString& getApplyVelocityLabel() const
+	{
+		return m_sApplyVelocityLabel;
+	}
 	const QString& getHihatGroupLabel() const { return m_sHihatGroupLabel; }
-	const QString& getHihatMaxRangeLabel() const { return m_sHihatMaxRangeLabel; }
-	const QString& getHihatMinRangeLabel() const { return m_sHihatMinRangeLabel; }
+	const QString& getHihatMaxRangeLabel() const
+	{
+		return m_sHihatMaxRangeLabel;
+	}
+	const QString& getHihatMinRangeLabel() const
+	{
+		return m_sHihatMinRangeLabel;
+	}
 	const QString& getCutoffLabel() const { return m_sCutoffLabel; }
 	const QString& getResonanceLabel() const { return m_sResonanceLabel; }
 	const QString& getLayerGainLabel() const { return m_sLayerGainLabel; }
-	const QString& getComponentGainLabel() const { return m_sComponentGainLabel; }
-	const QString& getSampleSelectionLabel() const { return m_sSampleSelectionLabel; }
+	const QString& getComponentGainLabel() const
+	{
+		return m_sComponentGainLabel;
+	}
+	const QString& getSampleSelectionLabel() const
+	{
+		return m_sSampleSelectionLabel;
+	}
 	const QString& getMidiLabel() const { return m_sMidiLabel; }
 	const QString& getCpuLabel() const { return m_sCpuLabel; }
 	const QString& getBPMLabel() const { return m_sBPMLabel; }
 	const QString& getTimeHoursLabel() const { return m_sTimeHoursLabel; }
 	const QString& getTimeMinutesLabel() const { return m_sTimeMinutesLabel; }
 	const QString& getTimeSecondsLabel() const { return m_sTimeSecondsLabel; }
-	const QString& getTimeMilliSecondsLabel() const { return m_sTimeMilliSecondsLabel; }
+	const QString& getTimeMilliSecondsLabel() const
+	{
+		return m_sTimeMilliSecondsLabel;
+	}
 	const QString& getHumanizeLabel() const { return m_sHumanizeLabel; }
 	const QString& getSwingLabel() const { return m_sSwingLabel; }
 	const QString& getTimingLabel() const { return m_sTimingLabel; }
 	const QString& getVelocityLabel() const { return m_sVelocityLabel; }
 	const QString& getMasterLabel() const { return m_sMasterLabel; }
 	const QString& getReturnLabel() const { return m_sReturnLabel; }
-	const QString& getDriverRestartButton() const { return m_sDriverRestartButton; }
+	const QString& getDriverRestartButton() const
+	{
+		return m_sDriverRestartButton;
+	}
 	const QString& getAllLabel() const { return m_sAllLabel; }
 
 	const QString& getRangeToolTip() const { return m_sRangeToolTip; }
-	const QString& getMidiToolTipHeading() const { return m_sMidiToolTipHeading; }
+	const QString& getMidiToolTipHeading() const
+	{
+		return m_sMidiToolTipHeading;
+	}
 	const QString& getMidiToolTipBound() const { return m_sMidiToolTipBound; }
-	const QString& getMidiToolTipUnbound() const { return m_sMidiToolTipUnbound; }
-	
-	const QString& getShowDrumkitEditorToolTip() const { return m_sShowDrumkitEditorToolTip; }
-	const QString& getShowPianoRollEditorToolTip() const { return m_sShowPianoRollEditorToolTip; }
-	const QString& getPatternSizeDisabledToolTip() const { return m_sPatternSizeDisabledToolTip; }
-	
-	const QString& getAudioDriverStartError() const { return m_sAudioDriverStartError; }
-	const QString& getAudioDriverErrorHint() const { return m_sAudioDriverErrorHint; }
-	const QString& getAudioDriverNotPresent() const { return m_sAudioDriverNotPresent; }
-	
-	const QString& getJackTimebaseToolTip() const { return m_sJackTimebaseToolTip; }
-	const QString& getJackTimebaseListenerToolTip() const { return m_sJackTimebaseListenerToolTip; }
-	const QString& getJackTimebaseControllerToolTip() const {
-		return m_sJackTimebaseControllerToolTip; }
+	const QString& getMidiToolTipUnbound() const
+	{
+		return m_sMidiToolTipUnbound;
+	}
+
+	const QString& getShowDrumkitEditorToolTip() const
+	{
+		return m_sShowDrumkitEditorToolTip;
+	}
+	const QString& getShowPianoRollEditorToolTip() const
+	{
+		return m_sShowPianoRollEditorToolTip;
+	}
+	const QString& getPatternSizeDisabledToolTip() const
+	{
+		return m_sPatternSizeDisabledToolTip;
+	}
+
+	const QString& getAudioDriverStartError() const
+	{
+		return m_sAudioDriverStartError;
+	}
+	const QString& getAudioDriverErrorHint() const
+	{
+		return m_sAudioDriverErrorHint;
+	}
+	const QString& getAudioDriverNotPresent() const
+	{
+		return m_sAudioDriverNotPresent;
+	}
+
+	const QString& getJackTimebaseToolTip() const
+	{
+		return m_sJackTimebaseToolTip;
+	}
+	const QString& getJackTimebaseListenerToolTip() const
+	{
+		return m_sJackTimebaseListenerToolTip;
+	}
+	const QString& getJackTimebaseControllerToolTip() const
+	{
+		return m_sJackTimebaseControllerToolTip;
+	}
 
 	const QString& getTapTempoToolTip() const { return m_sTapTempoToolTip; }
-	const QString& getBeatCounterTapToolTip() const {
-		return m_sBeatCounterTapToolTip; }
-	const QString& getBeatCounterTapAndPlayToolTip() const {
-		return m_sBeatCounterTapAndPlayToolTip; }
+	const QString& getBeatCounterTapToolTip() const
+	{
+		return m_sBeatCounterTapToolTip;
+	}
+	const QString& getBeatCounterTapAndPlayToolTip() const
+	{
+		return m_sBeatCounterTapAndPlayToolTip;
+	}
 
 	const QString& getMidiControl() const { return m_sMidiControl; }
 	const QString& getMidiSenseWindowTitle() const
@@ -141,28 +207,52 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	}
 
 	const QString& getPatternLoadError() const { return m_sPatternLoadError; }
-	const QString& getInstrumentLoadError() const { return m_sInstrumentLoadError; }
-	
-	const QString& getFileDialogMissingWritePermissions() const { return m_sFileDialogMissingWritePermissions; }
+	const QString& getInstrumentLoadError() const
+	{
+		return m_sInstrumentLoadError;
+	}
+
+	const QString& getFileDialogMissingWritePermissions() const
+	{
+		return m_sFileDialogMissingWritePermissions;
+	}
 
 	const QString& getStatusOn() const { return m_sStatusOn; }
 	const QString& getStatusOff() const { return m_sStatusOff; }
 	const QString& getStatusEnabled() const { return m_sStatusEnabled; }
 	const QString& getStatusDisabled() const { return m_sStatusDisabled; }
-		
-	const QString& getTimelineEnabled() const { return m_sTimelineEnabled; }
-	const QString& getTimelineDisabledPatternMode() const {
-		return m_sTimelineDisabledPatternMode; }
-	const QString& getTimelineDisabledMidiClock() const {
-		return m_sTimelineDisabledMidiClock; }
-	const QString& getTimelineDisabledTimebaseListener() const {
-		return m_sTimelineDisabledTimebaseListener; }
-	const QString& getPatternEditorLocked() const { return m_sPatternEditorLocked; }
 
-	const QString& getPreferencesNotCompiled() const { return m_sPreferencesNotCompiled; }
+	const QString& getTimelineEnabled() const { return m_sTimelineEnabled; }
+	const QString& getTimelineDisabledPatternMode() const
+	{
+		return m_sTimelineDisabledPatternMode;
+	}
+	const QString& getTimelineDisabledMidiClock() const
+	{
+		return m_sTimelineDisabledMidiClock;
+	}
+	const QString& getTimelineDisabledTimebaseListener() const
+	{
+		return m_sTimelineDisabledTimebaseListener;
+	}
+	const QString& getPatternEditorLocked() const
+	{
+		return m_sPatternEditorLocked;
+	}
+
+	const QString& getPreferencesNotCompiled() const
+	{
+		return m_sPreferencesNotCompiled;
+	}
 	const QString& getPreferencesNone() const { return m_sPreferencesNone; }
-	const QString& getPreferencesJackToolTip() const { return m_sPreferencesJackToolTip; }
-	const QString& getPreferencesShortcutCapture() const { return m_sPreferencesShortcutCapture; }
+	const QString& getPreferencesJackToolTip() const
+	{
+		return m_sPreferencesJackToolTip;
+	}
+	const QString& getPreferencesShortcutCapture() const
+	{
+		return m_sPreferencesShortcutCapture;
+	}
 
 	const QString& getButtonOk() const { return m_sButtonOk; }
 	const QString& getButtonApply() const { return m_sButtonApply; }
@@ -171,7 +261,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getButtonDiscard() const { return m_sButtonDiscard; }
 	const QString& getButtonKeep() const { return m_sButtonKeep; }
 	const QString& getButtonPlay() const { return m_sButtonPlay; }
-	const QString& getButtonPlayOriginalSample() const { return m_sButtonPlayOriginalSample; }
+	const QString& getButtonPlayOriginalSample() const
+	{
+		return m_sButtonPlayOriginalSample;
+	}
 	const QString& getButtonFill() const { return m_sButtonFill; }
 	const QString& getButtonClear() const { return m_sButtonClear; }
 	const QString& getUnsavedChanges() const { return m_sUnsavedChanges; }
@@ -186,44 +279,111 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getAuthorDialog() const { return m_sAuthorDialog; }
 	const QString& getNotesDialog() const { return m_sNotesDialog; }
 
-	// const QString& getDialogSongLoadError() const { return m_sDialogSongLoadError; }
-	// const QString& getDialogUnsavedChangesH1() const { return m_sDialogUnsavedChangedH1; }
-	// const QString& getDialogUnsavedChangesH2() const { return m_sDialogUnsavedChangedH2; }
+	// const QString& getDialogSongLoadError() const { return
+	// m_sDialogSongLoadError; } const QString& getDialogUnsavedChangesH1()
+	// const { return m_sDialogUnsavedChangedH1; } const QString&
+	// getDialogUnsavedChangesH2() const { return m_sDialogUnsavedChangedH2; }
 
 	const QString& getLicenseStringLbl() const { return m_sLicenseStringLbl; }
-	const QString& getLicenseComboToolTip() const { return m_sLicenseComboToolTip; }
-	const QString& getLicenseStringToolTip() const { return m_sLicenseStringToolTip; }
-	
-	const QString& getLicenseCopyleftWarning() const { return m_sLicenseCopyleftWarning; }
-	const QString& getLicenseAttributionWarning() const { return m_sLicenseAttributionWarning; }
-	const QString& getLicenseWarningWindowTitle() const { return m_sLicenseWarningWindowTitle; }
-	const QString& getLicenseMismatchingUserInput() const { return m_sLicenseMismatchingUserInput; }
+	const QString& getLicenseComboToolTip() const
+	{
+		return m_sLicenseComboToolTip;
+	}
+	const QString& getLicenseStringToolTip() const
+	{
+		return m_sLicenseStringToolTip;
+	}
+
+	const QString& getLicenseCopyleftWarning() const
+	{
+		return m_sLicenseCopyleftWarning;
+	}
+	const QString& getLicenseAttributionWarning() const
+	{
+		return m_sLicenseAttributionWarning;
+	}
+	const QString& getLicenseWarningWindowTitle() const
+	{
+		return m_sLicenseWarningWindowTitle;
+	}
+	const QString& getLicenseMismatchingUserInput() const
+	{
+		return m_sLicenseMismatchingUserInput;
+	}
 
 	const QString& getInputCaptureBpm() const { return m_sInputCaptureBpm; }
-	const QString& getInputCaptureVolume() const { return m_sInputCaptureVolume; }
-	const QString& getInputCaptureColumn() const { return m_sInputCaptureColumn; }
-	const QString& getInputCapturePattern() const { return m_sInputCapturePattern; }
+	const QString& getInputCaptureVolume() const
+	{
+		return m_sInputCaptureVolume;
+	}
+	const QString& getInputCaptureColumn() const
+	{
+		return m_sInputCaptureColumn;
+	}
+	const QString& getInputCapturePattern() const
+	{
+		return m_sInputCapturePattern;
+	}
 	const QString& getInputCaptureSong() const { return m_sInputCaptureSong; }
-	const QString& getInputCaptureInstrument() const { return m_sInputCaptureInstrument; }
-	const QString& getInputCaptureComponent() const { return m_sInputCaptureComponent; }
+	const QString& getInputCaptureInstrument() const
+	{
+		return m_sInputCaptureInstrument;
+	}
+	const QString& getInputCaptureComponent() const
+	{
+		return m_sInputCaptureComponent;
+	}
 	const QString& getInputCaptureLayer() const { return m_sInputCaptureLayer; }
-	const QString& getInputCaptureFXLevel() const { return m_sInputCaptureFXLevel; }
-	const QString& getInputCaptureFXNumber() const { return m_sInputCaptureFXNumber; }
-	const QString& getInputCaptureFilterCutoff() const { return m_sInputCaptureFilterCutoff; }
+	const QString& getInputCaptureFXLevel() const
+	{
+		return m_sInputCaptureFXLevel;
+	}
+	const QString& getInputCaptureFXNumber() const
+	{
+		return m_sInputCaptureFXNumber;
+	}
+	const QString& getInputCaptureFilterCutoff() const
+	{
+		return m_sInputCaptureFilterCutoff;
+	}
 	const QString& getInputCaptureTag() const { return m_sInputCaptureTag; }
 
-	const QString& getSoundLibraryFailedPreDrumkitLoad() const { return m_sSoundLibraryFailedPreDrumkitLoad; }
-	const QString& getSoundLibrarySystemSuffix() const { return m_sSoundLibrarySystemSuffix; }
-	const QString& getSoundLibrarySessionSuffix() const { return m_sSoundLibrarySessionSuffix; }
+	const QString& getSoundLibraryFailedPreDrumkitLoad() const
+	{
+		return m_sSoundLibraryFailedPreDrumkitLoad;
+	}
+	const QString& getSoundLibrarySystemSuffix() const
+	{
+		return m_sSoundLibrarySystemSuffix;
+	}
+	const QString& getSoundLibrarySessionSuffix() const
+	{
+		return m_sSoundLibrarySessionSuffix;
+	}
 
 	const QString& getEncodingError() const { return m_sEncodingError; }
 
 	const QString& getExportSongFailure() const { return m_sExportSongFailure; }
-	const QString& getExportDrumkitFailure() const { return m_sExportDrumkitFailure; }
-	const QString& getImportDrumkitSuccess() const { return m_sImportDrumkitSuccess; }
-	const QString& getImportDrumkitFailure() const { return m_sImportDrumkitFailure; }
-	const QString& getImportDrumkitEncodingFailure() const { return m_sImportDrumkitEncodingFailure; }
-	const QString& getPlaylistSaveFailure() const { return m_sPlaylistSaveFailure; }
+	const QString& getExportDrumkitFailure() const
+	{
+		return m_sExportDrumkitFailure;
+	}
+	const QString& getImportDrumkitSuccess() const
+	{
+		return m_sImportDrumkitSuccess;
+	}
+	const QString& getImportDrumkitFailure() const
+	{
+		return m_sImportDrumkitFailure;
+	}
+	const QString& getImportDrumkitEncodingFailure() const
+	{
+		return m_sImportDrumkitEncodingFailure;
+	}
+	const QString& getPlaylistSaveFailure() const
+	{
+		return m_sPlaylistSaveFailure;
+	}
 	const QString& getIsModified() const { return m_sIsModified; }
 	const QString& getReadOnlyAdvice() const { return m_sReadOnlyAdvice; }
 
@@ -238,170 +398,262 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getMenuActionDelete() const { return m_sMenuActionDelete; }
 	const QString& getMenuActionRename() const { return m_sMenuActionRename; }
 	const QString& getMenuActionLoad() const { return m_sMenuActionLoad; }
-	const QString& getMenuActionSaveToSoundLibrary() const { return m_sMenuActionSaveToSoundLibrary; }
+	const QString& getMenuActionSaveToSoundLibrary() const
+	{
+		return m_sMenuActionSaveToSoundLibrary;
+	}
 	const QString& getMenuActionExport() const { return m_sMenuActionExport; }
-	const QString& getMenuActionProperties() const { return m_sMenuActionProperties; }
-	const QString& getMenuActionDuplicate() const { return m_sMenuActionDuplicate; }
+	const QString& getMenuActionProperties() const
+	{
+		return m_sMenuActionProperties;
+	}
+	const QString& getMenuActionDuplicate() const
+	{
+		return m_sMenuActionDuplicate;
+	}
 	const QString& getMenuActionImport() const { return m_sMenuActionImport; }
-	const QString& getMenuActionOnlineImport() const { return m_sMenuActionOnlineImport; }
+	const QString& getMenuActionOnlineImport() const
+	{
+		return m_sMenuActionOnlineImport;
+	}
 
 	const QString& getUndoMenuUndo() const { return m_sUndoMenuUndo; }
 	const QString& getUndoMenuRedo() const { return m_sUndoMenuRedo; }
 	const QString& getUndoMenuHistory() const { return m_sUndoMenuHistory; }
 	const QString& getUndoHistoryTitle() const { return m_sUndoHistoryTitle; }
 
-		const QString& getActionEditCurrentDrumkitProperties() const {
-			return m_sActionEditCurrentDrumkitProperties; }
-		const QString& getActionEditDrumkitProperties() const { return m_sActionEditDrumkitProperties; }
-		const QString& getActionIrreversible() const { return m_sActionIrreversible; }
+	const QString& getActionEditCurrentDrumkitProperties() const
+	{
+		return m_sActionEditCurrentDrumkitProperties;
+	}
+	const QString& getActionEditDrumkitProperties() const
+	{
+		return m_sActionEditDrumkitProperties;
+	}
+	const QString& getActionIrreversible() const
+	{
+		return m_sActionIrreversible;
+	}
 
-		const QString& getActionAddInstrument() const { return m_sActionAddInstrument; }
-		const QString& getActionDuplicateInstrument() const {
-			return m_sActionDuplicateInstrument; }
-		const QString& getActionDeleteInstrument() const { return m_sActionDeleteInstrument; }
-		const QString& getActionDropInstrument() const { return m_sActionDropInstrument; }
-		const QString& getActionRenameInstrument() const { return m_sActionRenameInstrument; }
-		const QString& getActionMoveInstrument() const { return m_sActionMoveInstrument; }
-		const QString& getActionSwitchDrumkit() const { return m_sActionSwitchDrumkit; }
-		const QString& getActionNewDrumkit() const { return m_sActionNewDrumkit; }
-		const QString& getActionLoadDrumkit() const {
-			return m_sActionLoadDrumkit; }
-		const QString& getActionSaveDrumkit() const {
-			return m_sActionSaveDrumkit; }
-		const QString& getActionSaveSong() const { return m_sActionSaveSong; }
-		const QString& getActionSaveCurrentDrumkit() const {
-			return m_sActionSaveCurrentDrumkit; }
-		const QString& getActionAddComponent() const
-		{
-			return m_sActionAddComponent;
-		}
-		const QString& getActionDeleteComponent() const
-		{
-			return m_sActionDeleteComponent;
-		}
-		const QString& getActionDuplicateComponent() const
-		{
-			return m_sActionDuplicateComponent;
-		}
-		const QString& getActionRenameComponent() const
-		{
-			return m_sActionRenameComponent;
-		}
-		const QString& getActionAddInstrumentLayer() const
-		{
-			return m_sActionAddInstrumentLayer;
-		}
-		const QString& getActionReplaceInstrumentLayer() const
-		{
-			return m_sActionReplaceInstrumentLayer;
-		}
-		const QString& getActionDeleteInstrumentLayer() const
-		{
-			return m_sActionDeleteInstrumentLayer;
-		}
-		const QString& getActionDuplicateInstrumentLayer() const
-		{
-			return m_sActionDuplicateInstrumentLayer;
-		}
-		const QString& getActionEditInstrumentLayer() const
-		{
-			return m_sActionEditInstrumentLayer;
-		}
-		const QString& getActionMoveInstrumentLayer() const
-		{
-			return m_sActionMoveInstrumentLayer;
-		}
+	const QString& getActionAddInstrument() const
+	{
+		return m_sActionAddInstrument;
+	}
+	const QString& getActionDuplicateInstrument() const
+	{
+		return m_sActionDuplicateInstrument;
+	}
+	const QString& getActionDeleteInstrument() const
+	{
+		return m_sActionDeleteInstrument;
+	}
+	const QString& getActionDropInstrument() const
+	{
+		return m_sActionDropInstrument;
+	}
+	const QString& getActionRenameInstrument() const
+	{
+		return m_sActionRenameInstrument;
+	}
+	const QString& getActionMoveInstrument() const
+	{
+		return m_sActionMoveInstrument;
+	}
+	const QString& getActionSwitchDrumkit() const
+	{
+		return m_sActionSwitchDrumkit;
+	}
+	const QString& getActionNewDrumkit() const { return m_sActionNewDrumkit; }
+	const QString& getActionLoadDrumkit() const { return m_sActionLoadDrumkit; }
+	const QString& getActionSaveDrumkit() const { return m_sActionSaveDrumkit; }
+	const QString& getActionSaveSong() const { return m_sActionSaveSong; }
+	const QString& getActionSaveCurrentDrumkit() const
+	{
+		return m_sActionSaveCurrentDrumkit;
+	}
+	const QString& getActionAddComponent() const
+	{
+		return m_sActionAddComponent;
+	}
+	const QString& getActionDeleteComponent() const
+	{
+		return m_sActionDeleteComponent;
+	}
+	const QString& getActionDuplicateComponent() const
+	{
+		return m_sActionDuplicateComponent;
+	}
+	const QString& getActionRenameComponent() const
+	{
+		return m_sActionRenameComponent;
+	}
+	const QString& getActionAddInstrumentLayer() const
+	{
+		return m_sActionAddInstrumentLayer;
+	}
+	const QString& getActionReplaceInstrumentLayer() const
+	{
+		return m_sActionReplaceInstrumentLayer;
+	}
+	const QString& getActionDeleteInstrumentLayer() const
+	{
+		return m_sActionDeleteInstrumentLayer;
+	}
+	const QString& getActionDuplicateInstrumentLayer() const
+	{
+		return m_sActionDuplicateInstrumentLayer;
+	}
+	const QString& getActionEditInstrumentLayer() const
+	{
+		return m_sActionEditInstrumentLayer;
+	}
+	const QString& getActionMoveInstrumentLayer() const
+	{
+		return m_sActionMoveInstrumentLayer;
+	}
 
-		const QString& getActionClearAllNotesInRow() const {
-			return m_sActionClearAllNotesInRow; }
-		const QString& getActionClearAllNotes() const {
-			return m_sActionClearAllNotes; }
-		const QString& getActionCutAllNotes() const {
-			return m_sActionCutAllNotes; }
-		const QString& getActionPasteAllNotes() const {
-			return m_sActionPasteAllNotes; }
-		const QString& getActionFillNotes() const {
-			return m_sActionFillNotes; }
-		const QString& getActionFillAllNotes() const {
-			return m_sActionFillAllNotes; }
-		const QString& getActionFillEverySecondNote() const {
-			return m_sActionFillEverySecondNote; }
-		const QString& getActionFillEveryThirdNote() const {
-			return m_sActionFillEveryThirdNote; }
-		const QString& getActionFillEveryFourthNote() const {
-			return m_sActionFillEveryFourthNote; }
-		const QString& getActionFillEverySixthNote() const {
-			return m_sActionFillEverySixthNote; }
-		const QString& getActionFillEveryEighthNote() const {
-			return m_sActionFillEveryEighthNote; }
-		const QString& getActionFillEveryTwelfthNote() const {
-			return m_sActionFillEveryTwelfthNote; }
-		const QString& getActionFillEverySixteenthNote() const {
-			return m_sActionFillEverySixteenthNote; }
-		const QString& getActionDeleteNotes() const {
-			return m_sActionDeleteNotes; }
-		const QString& getActionSelectNotes() const {
-			return m_sActionSelectNotes; }
-		const QString& getActionEditAllPatterns() const {
-			return m_sActionEditAllPatterns; }
-		const QString& getActionCopyNotes() const {
-			return m_sActionCopyNotes; }
-		const QString& getActionEditTypes() const {
-			return m_sActionEditTypes; }
+	const QString& getActionClearAllNotesInRow() const
+	{
+		return m_sActionClearAllNotesInRow;
+	}
+	const QString& getActionClearAllNotes() const
+	{
+		return m_sActionClearAllNotes;
+	}
+	const QString& getActionCutAllNotes() const { return m_sActionCutAllNotes; }
+	const QString& getActionPasteAllNotes() const
+	{
+		return m_sActionPasteAllNotes;
+	}
+	const QString& getActionFillNotes() const { return m_sActionFillNotes; }
+	const QString& getActionFillAllNotes() const
+	{
+		return m_sActionFillAllNotes;
+	}
+	const QString& getActionFillEverySecondNote() const
+	{
+		return m_sActionFillEverySecondNote;
+	}
+	const QString& getActionFillEveryThirdNote() const
+	{
+		return m_sActionFillEveryThirdNote;
+	}
+	const QString& getActionFillEveryFourthNote() const
+	{
+		return m_sActionFillEveryFourthNote;
+	}
+	const QString& getActionFillEverySixthNote() const
+	{
+		return m_sActionFillEverySixthNote;
+	}
+	const QString& getActionFillEveryEighthNote() const
+	{
+		return m_sActionFillEveryEighthNote;
+	}
+	const QString& getActionFillEveryTwelfthNote() const
+	{
+		return m_sActionFillEveryTwelfthNote;
+	}
+	const QString& getActionFillEverySixteenthNote() const
+	{
+		return m_sActionFillEverySixteenthNote;
+	}
+	const QString& getActionDeleteNotes() const { return m_sActionDeleteNotes; }
+	const QString& getActionSelectNotes() const { return m_sActionSelectNotes; }
+	const QString& getActionEditAllPatterns() const
+	{
+		return m_sActionEditAllPatterns;
+	}
+	const QString& getActionCopyNotes() const { return m_sActionCopyNotes; }
+	const QString& getActionEditTypes() const { return m_sActionEditTypes; }
 
-		const QString& getActionInsertPattern() const {
-			return m_sActionInsertPattern; }
-		const QString& getActionReplacePattern() const {
-			return m_sActionReplacePattern; }
-		const QString& getActionDuplicatePattern() const {
-			return m_sActionDuplicatePattern; }
-		const QString& getActionRemovePattern() const {
-			return m_sActionRemovePattern; }
-		const QString& getActionCopyPatternCells() const {
-			return m_sActionCopyPatternCells; }
-		const QString& getActionDeletePatternCells() const {
-			return m_sActionDeletePatternCells; }
-		const QString& getActionMovePatternCells() const {
-			return m_sActionMovePatternCells; }
-		const QString& getActionPastePatternCells() const {
-			return m_sActionPastePatternCells; }
-		const QString& getActionTogglePatternCells() const {
-			return m_sActionTogglePatternCells; }
+	const QString& getActionInsertPattern() const
+	{
+		return m_sActionInsertPattern;
+	}
+	const QString& getActionReplacePattern() const
+	{
+		return m_sActionReplacePattern;
+	}
+	const QString& getActionDuplicatePattern() const
+	{
+		return m_sActionDuplicatePattern;
+	}
+	const QString& getActionRemovePattern() const
+	{
+		return m_sActionRemovePattern;
+	}
+	const QString& getActionCopyPatternCells() const
+	{
+		return m_sActionCopyPatternCells;
+	}
+	const QString& getActionDeletePatternCells() const
+	{
+		return m_sActionDeletePatternCells;
+	}
+	const QString& getActionMovePatternCells() const
+	{
+		return m_sActionMovePatternCells;
+	}
+	const QString& getActionPastePatternCells() const
+	{
+		return m_sActionPastePatternCells;
+	}
+	const QString& getActionTogglePatternCells() const
+	{
+		return m_sActionTogglePatternCells;
+	}
 
-		const QString& getNotePropertyVelocity() const {
-			return m_sNotePropertyVelocity; }
-		const QString& getNotePropertyPan() const { return m_sNotePropertyPan; }
-		const QString& getNotePropertyLeadLag() const {
-			return m_sNotePropertyLeadLag; }
-		const QString& getNotePropertyKeyOctave() const {
-			return m_sNotePropertyKeyOctave; }
-		const QString& getNotePropertyProbability() const {
-			return m_sNotePropertyProbability; }
-		const QString& getNotePropertyLength() const {
-			return m_sNotePropertyLength; }
+	const QString& getNotePropertyVelocity() const
+	{
+		return m_sNotePropertyVelocity;
+	}
+	const QString& getNotePropertyPan() const { return m_sNotePropertyPan; }
+	const QString& getNotePropertyLeadLag() const
+	{
+		return m_sNotePropertyLeadLag;
+	}
+	const QString& getNotePropertyKeyOctave() const
+	{
+		return m_sNotePropertyKeyOctave;
+	}
+	const QString& getNotePropertyProbability() const
+	{
+		return m_sNotePropertyProbability;
+	}
+	const QString& getNotePropertyLength() const
+	{
+		return m_sNotePropertyLength;
+	}
 
-		const QString& getNotePitchC() const { return m_sNotePitchC; }
-		const QString& getNotePitchCSharp() const { return m_sNotePitchCSharp; }
-		const QString& getNotePitchD() const { return m_sNotePitchD; }
-		const QString& getNotePitchDSharp() const { return m_sNotePitchDSharp; }
-		const QString& getNotePitchE() const { return m_sNotePitchE; }
-		const QString& getNotePitchF() const { return m_sNotePitchF; }
-		const QString& getNotePitchFSharp() const { return m_sNotePitchFSharp; }
-		const QString& getNotePitchG() const { return m_sNotePitchG; }
-		const QString& getNotePitchGSharp() const { return m_sNotePitchGSharp; }
-		const QString& getNotePitchA() const { return m_sNotePitchA; }
-		const QString& getNotePitchASharp() const { return m_sNotePitchASharp; }
-		const QString& getNotePitchB() const { return m_sNotePitchB; }
+	const QString& getNotePitchC() const { return m_sNotePitchC; }
+	const QString& getNotePitchCSharp() const { return m_sNotePitchCSharp; }
+	const QString& getNotePitchD() const { return m_sNotePitchD; }
+	const QString& getNotePitchDSharp() const { return m_sNotePitchDSharp; }
+	const QString& getNotePitchE() const { return m_sNotePitchE; }
+	const QString& getNotePitchF() const { return m_sNotePitchF; }
+	const QString& getNotePitchFSharp() const { return m_sNotePitchFSharp; }
+	const QString& getNotePitchG() const { return m_sNotePitchG; }
+	const QString& getNotePitchGSharp() const { return m_sNotePitchGSharp; }
+	const QString& getNotePitchA() const { return m_sNotePitchA; }
+	const QString& getNotePitchASharp() const { return m_sNotePitchASharp; }
+	const QString& getNotePitchB() const { return m_sNotePitchB; }
 
-		const QString& getErrorNotFound() const { return m_sErrorNotFound; }
-		const QString& getErrorNotFoundShort() const {
-			return m_sErrorNotFoundShort; }
-		const QString& getErrorEmptyType() const { return m_sErrorEmptyType; }
-		const QString& getErrorUniqueTypes() const {return m_sErrorUniqueTypes; }
+	const QString& getErrorNotFound() const { return m_sErrorNotFound; }
+	const QString& getErrorNotFoundShort() const
+	{
+		return m_sErrorNotFoundShort;
+	}
+	const QString& getErrorEmptyType() const { return m_sErrorEmptyType; }
+	const QString& getErrorUniqueTypes() const { return m_sErrorUniqueTypes; }
 
-		const QString& getSettings() const { return m_sSettings; }
-		const QString& getPattern() const { return m_sPattern; }
-private:
+	const QString& getSettings() const { return m_sSettings; }
+	const QString& getPattern() const { return m_sPattern; }
+
+	const QString& getOptionAlways() const { return m_sOptionAlways; }
+	const QString& getOptionNever() const { return m_sOptionNever; }
+
+   private:
 	QString m_sSmallSoloButton;
 	QString m_sSmallMuteButton;
 	QString m_sBigMuteButton;
@@ -464,10 +716,10 @@ private:
 	QString m_sMidiToolTipBound;
 	QString m_sMidiToolTipUnbound;
 	QString m_sPatternSizeDisabledToolTip;
-	
+
 	QString m_sShowDrumkitEditorToolTip;
 	QString m_sShowPianoRollEditorToolTip;
-	
+
 	QString m_sAudioDriverStartError;
 	QString m_sAudioDriverErrorHint;
 	QString m_sAudioDriverNotPresent;
@@ -479,7 +731,7 @@ private:
 	QString m_sTapTempoToolTip;
 	QString m_sBeatCounterTapToolTip;
 	QString m_sBeatCounterTapAndPlayToolTip;
-	
+
 	QString m_sMidiControl;
 	QString m_sMidiSenseWindowTitle;
 	QString m_sMidiSenseCurrentBindings;
@@ -490,7 +742,7 @@ private:
 	QString m_sInstrumentLoadError;
 
 	QString m_sFileDialogMissingWritePermissions;
-	
+
 	QString m_sStatusOn;
 	QString m_sStatusOff;
 	QString m_sStatusEnabled;
@@ -500,7 +752,7 @@ private:
 	QString m_sTimelineDisabledMidiClock;
 	QString m_sTimelineDisabledTimebaseListener;
 	QString m_sPatternEditorLocked;
-	
+
 	QString m_sPreferencesNotCompiled;
 	QString m_sPreferencesNone;
 	QString m_sPreferencesJackToolTip;
@@ -518,7 +770,7 @@ private:
 	QString m_sButtonPlayOriginalSample;
 	QString m_sUnsavedChanges;
 	QString m_sSavingChanges;
-	
+
 	QString m_sMutableDialog;
 	QString m_sTabGeneralDialog;
 	QString m_sTabLicensesDialog;
@@ -527,14 +779,14 @@ private:
 	QString m_sLicenseDialog;
 	QString m_sAuthorDialog;
 	QString m_sNotesDialog;
-	
+
 	// Not used yet. A redesign of the GUI startup is required first
 	// since these strings are required _before_ HydrogenApp was
 	// created.
 	// QString m_sDialogSongLoadError;
 	// QString m_sDialogUnsavedChangedH1;
 	// QString m_sDialogUnsavedChangedH2;
-	
+
 	QString m_sLicenseStringLbl;
 	QString m_sLicenseComboToolTip;
 	QString m_sLicenseStringToolTip;
@@ -543,7 +795,7 @@ private:
 	QString m_sLicenseAttributionWarning;
 	QString m_sLicenseWarningWindowTitle;
 	QString m_sLicenseMismatchingUserInput;
-	
+
 	QString m_sInputCaptureBpm;
 	QString m_sInputCaptureVolume;
 	QString m_sInputCaptureColumn;
@@ -584,99 +836,102 @@ private:
 	QString m_sMenuActionImport;
 	QString m_sMenuActionOnlineImport;
 
-		QString m_sUndoMenuUndo;
-		QString m_sUndoMenuRedo;
-		QString m_sUndoMenuHistory;
-		QString m_sUndoHistoryTitle;
+	QString m_sUndoMenuUndo;
+	QString m_sUndoMenuRedo;
+	QString m_sUndoMenuHistory;
+	QString m_sUndoHistoryTitle;
 
-		QString m_sActionEditCurrentDrumkitProperties;
-		QString m_sActionEditDrumkitProperties;
-		QString m_sActionIrreversible;
+	QString m_sActionEditCurrentDrumkitProperties;
+	QString m_sActionEditDrumkitProperties;
+	QString m_sActionIrreversible;
 
-		QString m_sActionAddInstrument;
-		QString m_sActionDuplicateInstrument;
-		QString m_sActionDeleteInstrument;
-		QString m_sActionDropInstrument;
-		QString m_sActionRenameInstrument;
-		QString m_sActionMoveInstrument;
-		QString m_sActionSwitchDrumkit;
-		QString m_sActionNewDrumkit;
-		QString m_sActionLoadDrumkit;
-		QString m_sActionSaveDrumkit;
-		QString m_sActionSaveSong;
-		QString m_sActionSaveCurrentDrumkit;
-		QString m_sActionAddComponent;
-		QString m_sActionDeleteComponent;
-		QString m_sActionDuplicateComponent;
-		QString m_sActionRenameComponent;
-		QString m_sActionAddInstrumentLayer;
-		QString m_sActionReplaceInstrumentLayer;
-		QString m_sActionDeleteInstrumentLayer;
-		QString m_sActionDuplicateInstrumentLayer;
-		QString m_sActionEditInstrumentLayer;
-		QString m_sActionMoveInstrumentLayer;
+	QString m_sActionAddInstrument;
+	QString m_sActionDuplicateInstrument;
+	QString m_sActionDeleteInstrument;
+	QString m_sActionDropInstrument;
+	QString m_sActionRenameInstrument;
+	QString m_sActionMoveInstrument;
+	QString m_sActionSwitchDrumkit;
+	QString m_sActionNewDrumkit;
+	QString m_sActionLoadDrumkit;
+	QString m_sActionSaveDrumkit;
+	QString m_sActionSaveSong;
+	QString m_sActionSaveCurrentDrumkit;
+	QString m_sActionAddComponent;
+	QString m_sActionDeleteComponent;
+	QString m_sActionDuplicateComponent;
+	QString m_sActionRenameComponent;
+	QString m_sActionAddInstrumentLayer;
+	QString m_sActionReplaceInstrumentLayer;
+	QString m_sActionDeleteInstrumentLayer;
+	QString m_sActionDuplicateInstrumentLayer;
+	QString m_sActionEditInstrumentLayer;
+	QString m_sActionMoveInstrumentLayer;
 
-		QString m_sActionClearAllNotesInRow;
-		QString m_sActionClearAllNotes;
-		QString m_sActionCutAllNotes;
-		QString m_sActionPasteAllNotes;
-		QString m_sActionFillNotes;
-		QString m_sActionFillAllNotes;
-		QString m_sActionFillEverySecondNote;
-		QString m_sActionFillEveryThirdNote;
-		QString m_sActionFillEveryFourthNote;
-		QString m_sActionFillEverySixthNote;
-		QString m_sActionFillEveryEighthNote;
-		QString m_sActionFillEveryTwelfthNote;
-		QString m_sActionFillEverySixteenthNote;
-		QString m_sActionDeleteNotes;
-		QString m_sActionSelectNotes;
-		QString m_sActionEditAllPatterns;
-		QString m_sActionCopyNotes;
-		QString m_sActionEditTypes;
+	QString m_sActionClearAllNotesInRow;
+	QString m_sActionClearAllNotes;
+	QString m_sActionCutAllNotes;
+	QString m_sActionPasteAllNotes;
+	QString m_sActionFillNotes;
+	QString m_sActionFillAllNotes;
+	QString m_sActionFillEverySecondNote;
+	QString m_sActionFillEveryThirdNote;
+	QString m_sActionFillEveryFourthNote;
+	QString m_sActionFillEverySixthNote;
+	QString m_sActionFillEveryEighthNote;
+	QString m_sActionFillEveryTwelfthNote;
+	QString m_sActionFillEverySixteenthNote;
+	QString m_sActionDeleteNotes;
+	QString m_sActionSelectNotes;
+	QString m_sActionEditAllPatterns;
+	QString m_sActionCopyNotes;
+	QString m_sActionEditTypes;
 
-		QString m_sActionInsertPattern;
-		QString m_sActionReplacePattern;
-		QString m_sActionDuplicatePattern;
-		QString m_sActionRemovePattern;
-		QString m_sActionCopyPatternCells;
-		QString m_sActionDeletePatternCells;
-		QString m_sActionMovePatternCells;
-		QString m_sActionPastePatternCells;
-		QString m_sActionTogglePatternCells;
+	QString m_sActionInsertPattern;
+	QString m_sActionReplacePattern;
+	QString m_sActionDuplicatePattern;
+	QString m_sActionRemovePattern;
+	QString m_sActionCopyPatternCells;
+	QString m_sActionDeletePatternCells;
+	QString m_sActionMovePatternCells;
+	QString m_sActionPastePatternCells;
+	QString m_sActionTogglePatternCells;
 
-		QString m_sErrorNotFound;
-		QString m_sErrorNotFoundShort;
-		QString m_sErrorEmptyType;
-		QString m_sErrorUniqueTypes;
+	QString m_sErrorNotFound;
+	QString m_sErrorNotFoundShort;
+	QString m_sErrorEmptyType;
+	QString m_sErrorUniqueTypes;
 
 	QString m_sSoundLibraryFailedPreDrumkitLoad;
 	QString m_sSoundLibrarySystemSuffix;
 	QString m_sSoundLibrarySessionSuffix;
 
-		QString m_sNotePropertyVelocity;
-		QString m_sNotePropertyPan;
-		QString m_sNotePropertyLeadLag;
-		QString m_sNotePropertyKeyOctave;
-		QString m_sNotePropertyProbability;
-		QString m_sNotePropertyLength;
+	QString m_sNotePropertyVelocity;
+	QString m_sNotePropertyPan;
+	QString m_sNotePropertyLeadLag;
+	QString m_sNotePropertyKeyOctave;
+	QString m_sNotePropertyProbability;
+	QString m_sNotePropertyLength;
 
-		QString m_sNotePitchC;
-		QString m_sNotePitchCSharp;
-		QString m_sNotePitchD;
-		QString m_sNotePitchDSharp;
-		QString m_sNotePitchE;
-		QString m_sNotePitchF;
-		QString m_sNotePitchFSharp;
-		QString m_sNotePitchG;
-		QString m_sNotePitchGSharp;
-		QString m_sNotePitchA;
-		QString m_sNotePitchASharp;
-		QString m_sNotePitchB;
+	QString m_sNotePitchC;
+	QString m_sNotePitchCSharp;
+	QString m_sNotePitchD;
+	QString m_sNotePitchDSharp;
+	QString m_sNotePitchE;
+	QString m_sNotePitchF;
+	QString m_sNotePitchFSharp;
+	QString m_sNotePitchG;
+	QString m_sNotePitchGSharp;
+	QString m_sNotePitchA;
+	QString m_sNotePitchASharp;
+	QString m_sNotePitchB;
 
 	QString m_sEncodingError;
 
-		QString m_sSettings;
-		QString m_sPattern;
+	QString m_sSettings;
+	QString m_sPattern;
+
+	QString m_sOptionAlways;
+	QString m_sOptionNever;
 };
 #endif

@@ -74,8 +74,8 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "NextPatternsChanged";
 	case Event::Type::NextShot:
 		return "NextShot";
-	case Event::Type::NoteOn:
-		return "NoteOn";
+	case Event::Type::NoteRender:
+		return "NoteRender";
 	case Event::Type::PatternEditorLocked:
 		return "PatternEditorLocked";
 	case Event::Type::PatternModified:

@@ -36,6 +36,7 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Sample.h>
@@ -48,6 +49,7 @@
 #include <core/IO/AudioOutput.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/IO/MidiBaseDriver.h>
+#include <core/Midi/Midi.h>
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
 
@@ -174,8 +176,13 @@ void Sampler::process( uint32_t nFrames )
 			while ( !m_queuedNoteOffs.empty() ) {
 				pNote = m_queuedNoteOffs[0];
 
-				if ( pNote->getInstrument() != nullptr &&
-					 !pNote->getInstrument()->isMuted() ) {
+				if ( pNote != nullptr && pNote->getInstrument() != nullptr &&
+					 pNote->getMidiNoteOnSent() &&
+					 ( Preferences::get_instance()->getMidiSendNoteOff() ==
+						   Preferences::MidiSendNoteOff::Always ||
+					   ( Preferences::get_instance()->getMidiSendNoteOff() ==
+							 Preferences::MidiSendNoteOff::OnCustomLengths &&
+						 pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) ) ) {
 					const auto noteRef =
 						pMidiInstrumentMap->getOutputMapping( pNote );
 					MidiMessage::NoteOff noteOff;
@@ -188,7 +195,8 @@ void Sampler::process( uint32_t nFrames )
 						);
 					}
 				}
-				else if ( pNote->getInstrument() == nullptr ) {
+				else if ( pNote == nullptr ||
+						  pNote->getInstrument() == nullptr ) {
 					ERRORLOG( QString( "Queued note off in sampler does not "
 									   "have instrument! [%1]" )
 								  .arg( pNote->toQString() ) );
@@ -208,18 +216,18 @@ bool Sampler::isRenderingNotes() const {
 	return m_playingNotesQueue.size() > 0;
 }
 
-void Sampler::noteOn( std::shared_ptr<Note> pNote )
+bool Sampler::noteOn( std::shared_ptr<Note> pNote )
 {
 	assert( pNote );
 	if ( pNote == nullptr ) {
 		ERRORLOG( "Invalid note" );
-		return;
+		return false;
 	}
 
 	if ( pNote->getInstrument() == nullptr ||
 		 pNote->getAdsr() == nullptr ) {
 		ERRORLOG( QString( "Invalid note [%1]" ).arg( pNote->toQString() ) );
-		return;
+		return false;
 	}
 
 	pNote->getAdsr()->attack();
@@ -255,7 +263,7 @@ void Sampler::noteOn( std::shared_ptr<Note> pNote )
 					 pSong->getDrumkit()->getInstruments()->index( pInstr ) ) {
 					// There is another note of the same mute group at a lower
 					// position. We keep it and discard the provided note.
-					return;
+					return false;
 				}
 				else {
 					pOtherNote->getAdsr()->release();
@@ -264,7 +272,6 @@ void Sampler::noteOn( std::shared_ptr<Note> pNote )
 		}
 	}
 
-	//note off notes
 	if ( pNote->getNoteOff() ){
 		for ( const auto& pOtherNote: m_playingNotesQueue ) {
 			if ( pOtherNote != nullptr &&
@@ -279,7 +286,10 @@ void Sampler::noteOn( std::shared_ptr<Note> pNote )
 	if ( ! pNote->getNoteOff() ){
 		pInstr->enqueue( pNote );
 		m_playingNotesQueue.push_back( pNote );
+        return true;
 	}
+
+    return false;
 }
 
 void Sampler::midiKeyboardNoteOff(
@@ -594,12 +604,6 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 	}
 
 	long long nFrame;
-	auto pAudioDriver = pHydrogen->getAudioOutput();
-	if ( pAudioDriver == nullptr ) {
-		ERRORLOG( "AudioDriver is not ready!" );
-		return true;
-	}
-
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	if ( pAudioEngine->getState() == AudioEngine::State::Playing ||
 		 pAudioEngine->getState() == AudioEngine::State::Testing ) {
@@ -709,6 +713,10 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		}
 	}
 
+    /** We have to ensure to only send a single MIDI NOTE_ON event. Even for
+     * instruments with more than one component. */
+    bool bSendMidiNoteOn = false;
+
 	auto pComponents = pInstr->getComponents();
 	auto returnValues = std::vector<bool>( pComponents->size() );
 
@@ -725,18 +733,96 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		}
 
 		auto pSelectedLayerInfo = pNote->getSelecterLayerInfo( pCompo );
-		if ( pSelectedLayerInfo == nullptr ||
-			 pSelectedLayerInfo->pLayer == nullptr ) {
+		if ( pSelectedLayerInfo == nullptr ) {
 			// Component skipped
 			returnValues[ ii ] = true;
 			continue;
 		}
 
+        // We delay checking for valid layer and sample because we want to
+        // support using Hydrogen with MIDI-only output.
 		auto pLayer = pSelectedLayerInfo->pLayer;
-		auto pSample = pLayer->getSample();
-		if ( pSample == nullptr ) {
-			DEBUGLOG( "Selected layer has no sample!" );
-			returnValues[ ii ] = true;
+		std::shared_ptr<Sample> pSample = nullptr;
+		if ( pLayer != nullptr ) {
+			pSample = pLayer->getSample();
+			if ( pSample == nullptr ) {
+				returnValues[ii] = true;
+				continue;
+			}
+			else if ( !pSample->isLoaded() ) {
+				WARNINGLOG(
+					QString( "Sample [%1] of instrument [%2] was not loaded." )
+						.arg( pSample->getFilePath() )
+						.arg( pInstr->getName() )
+				);
+				returnValues[ii] = true;
+				continue;
+			}
+		}
+
+		/*
+		 *  Is instrument/component/sample muted?
+		 *
+		 *  This can be the case either if:
+		 *   - the song, instrument, component, or layer is muted
+		 *   - if we're in an export session and we're doing per-instruments
+		 *     exports but this instrument is not currently being exported.
+		 *   - if another instrument  or component/layer of the same
+		 *     instrument is soloed.
+		 */
+		const bool bIsMutedForExport = ( pHydrogen->getIsExportSessionActive() &&
+										 ! pInstr->isCurrentlyExported() );
+		const bool bAnyInstrumentIsSoloed =
+			pSong->getDrumkit()->getInstruments()->isAnyInstrumentSoloed();
+		const bool bAnyComponentIsSoloed = pInstr->isAnyComponentSoloed();
+        bool bAnyLayerIsSoloed = false;
+		bool bIsMutedBecauseOfSolo = false;
+		if ( pLayer != nullptr && pSample != nullptr ) {
+			bAnyLayerIsSoloed = pCompo->isAnyLayerSoloed();
+			bIsMutedBecauseOfSolo =
+				( bAnyInstrumentIsSoloed && !pInstr->isSoloed() ||
+				  bAnyComponentIsSoloed && !pCompo->getIsSoloed() ||
+				  bAnyLayerIsSoloed && !pLayer->getIsSoloed() );
+		}
+		else {
+			// This component has no valid sample. But can we still trigger a
+			// NOTE_ON MIDI message corresponding to the note.
+			bIsMutedBecauseOfSolo =
+				( bAnyInstrumentIsSoloed && !pInstr->isSoloed() ||
+				  bAnyComponentIsSoloed && !pCompo->getIsSoloed() );
+		}
+		const bool bLayerMuted =
+			pLayer != nullptr ? pLayer->getIsMuted() : false;
+
+		bool bIsMuted = false;
+		if ( pInstr->isPreviewInstrument() ||
+			 pInstr->getId() == Instrument::MetronomeId ) {
+			// Metronome and preview is done for things not related to the what
+			// is happening in the song and pattern editors or drumkit. But,
+			// then again, it should still be possible to prevent all audio
+			// output of Hydrogen. This can be done using the master mute
+			// button.
+			bIsMuted = pSong->getIsMuted();
+		}
+		else if ( bIsMutedForExport || pInstr->isMuted() ||
+				  pSong->getIsMuted() || pCompo->getIsMuted() || bLayerMuted ||
+				  bIsMutedBecauseOfSolo ) {
+			// Regular instruments/notes.
+			bIsMuted = true;
+		}
+
+		// Once the Sampler does start rendering a note we also push
+		// it to all connected MIDI devices.
+		if ( static_cast<int>( pSelectedLayerInfo->fSamplePosition ) == 0 &&
+			 !bIsMuted ) {
+            bSendMidiNoteOn = true;
+		}
+
+        // We delay checking for the audio driver till here in order to allow
+        // usign Hydrogen in "MIDI-only" mode.
+		if ( pLayer == nullptr || pSample == nullptr ||
+			 pHydrogen->getAudioOutput() == nullptr ) {
+			returnValues[ii] = true;
 			continue;
 		}
 
@@ -762,44 +848,6 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		float fGainTrack_R = 1.0f;
 		float fGainJackTrack_L = 1.0f;
 		float fGainJackTrack_R = 1.0f;
-		
-		/*
-		 *  Is instrument/component/sample muted?
-		 *
-		 *  This can be the case either if:
-		 *   - the song, instrument, component, or layer is muted
-		 *   - if we're in an export session and we're doing per-instruments
-		 *     exports but this instrument is not currently being exported.
-		 *   - if another instrument  or component/layer of the same
-		 *     instrument is soloed.
-		 */
-		const bool bIsMutedForExport = ( pHydrogen->getIsExportSessionActive() &&
-										 ! pInstr->isCurrentlyExported() );
-		const bool bAnyInstrumentIsSoloed =
-			pSong->getDrumkit()->getInstruments()->isAnyInstrumentSoloed();
-		const bool bAnyComponentIsSoloed = pInstr->isAnyComponentSoloed();
-		const bool bAnyLayerIsSoloed = pCompo->isAnyLayerSoloed();
-		const bool bIsMutedBecauseOfSolo =
-			( bAnyInstrumentIsSoloed && ! pInstr->isSoloed() ||
-			  bAnyComponentIsSoloed && ! pCompo->getIsSoloed() ||
-			  bAnyLayerIsSoloed && ! pLayer->getIsSoloed() );
-
-		bool bIsMuted = false;
-		if ( pInstr->isPreviewInstrument() ||
-			 pInstr->getId() == Instrument::MetronomeId ) {
-			// Metronome and preview is done for things not related to the what
-			// is happening in the song and pattern editors or drumkit. But,
-			// then again, it should still be possible to prevent all audio
-			// output of Hydrogen. This can be done using the master mute
-			// button.
-			bIsMuted = pSong->getIsMuted();
-		}
-		else if ( bIsMutedForExport || pInstr->isMuted() || pSong->getIsMuted() ||
-				  pCompo->getIsMuted() || pLayer->getIsMuted() ||
-				  bIsMutedBecauseOfSolo ) {
-			// Regular instruments/notes.
-			bIsMuted = true;
-		}
 
 		if ( bIsMuted ) {
 			fGainTrack_L = 0.0;
@@ -845,20 +893,29 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 			fGainJackTrack_R *= fNotePan_R;
 		}
 
-		// Once the Sampler does start rendering a note we also push
-		// it to all connected MIDI devices.
-		if ( (int) pSelectedLayerInfo->fSamplePosition == 0  && ! pInstr->isMuted() ) {
-			if ( pHydrogen->getMidiDriver() != nullptr ) {
-				pHydrogen->getMidiDriver()->sendMessage(
-					MidiMessage::from( pNote ) );
-			}
-		}
-
 		// Actual rendering.
 		returnValues[ ii ] = renderNoteResample(
 			pSample, pNote, pSelectedLayerInfo, pCompo, ii, nBufferSize,
 			nInitialBufferPos, fGainTrack_L, fGainTrack_R, fGainJackTrack_L, fGainJackTrack_R,
 			fLayerPitch, bIsMuted );
+	}
+
+	if ( bSendMidiNoteOn && pHydrogen->getMidiDriver() != nullptr ) {
+		const auto noteOnMessage = MidiMessage::from( pNote );
+
+		if ( noteOnMessage.getChannel() != Midi::ChannelInvalid &&
+			 noteOnMessage.getChannel() != Midi::ChannelOff ) {
+			// Due to historical reasons Hydrogen is sending a MIDI NOTE_OFF
+			// messages right before a NOTE_ON one.
+			if ( Preferences::get_instance()->getMidiSendNoteOff() ==
+				 Preferences::MidiSendNoteOff::Always ) {
+				auto noteOffMessage = MidiMessage::from( noteOnMessage );
+				noteOffMessage.setType( MidiMessage::Type::NoteOff );
+				pHydrogen->getMidiDriver()->sendMessage( noteOffMessage );
+			}
+			pHydrogen->getMidiDriver()->sendMessage( noteOnMessage );
+            pNote->setMidiNoteOnSent( true );
+		}
 	}
 
 	for ( const auto& bReturnValue : returnValues ) {

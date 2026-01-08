@@ -75,7 +75,11 @@ QString SelectedLayerInfo::toQString( const QString& sPrefix, bool bShort )
 					  .append( QString( "%1%2pLayer: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
-								   .arg( pLayer->toQString( "", bShort ) ) )
+								   .arg(
+									   pLayer != nullptr
+										   ? pLayer->toQString( "", bShort )
+										   : "nullptr"
+								   ) )
 					  .append( QString( "%1%2fSamplePosition: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
@@ -89,7 +93,11 @@ QString SelectedLayerInfo::toQString( const QString& sPrefix, bool bShort )
 		sOutput =
 			QString( "[SelectedLayerInfo] " )
 				.append( QString( "pLayer: %1" )
-							 .arg( pLayer->toQString( "", bShort ) ) )
+							 .arg(
+								 pLayer != nullptr
+									 ? pLayer->toQString( "", bShort )
+									 : "nullptr"
+							 ) )
 				.append(
 					QString( ", fSamplePosition: %1" ).arg( fSamplePosition )
 				)
@@ -125,6 +133,7 @@ Note::Note(
 	  m_nNoteStart( 0 ),
 	  m_fUsedTickSize( std::nan( "" ) ),
 	  m_fPitchHumanization( 0 ),
+	  m_bMidiNoteOnSent( false ),
 	  m_pInstrument( pInstrument )
 {
 	if ( pInstrument != nullptr ) {
@@ -157,6 +166,7 @@ Note::Note( std::shared_ptr<Note> pOther )
 	  m_nNoteStart( pOther->getNoteStart() ),
 	  m_fUsedTickSize( pOther->getUsedTickSize() ),
 	  m_fPitchHumanization( pOther->m_fPitchHumanization ),
+	  m_bMidiNoteOnSent( pOther->m_bMidiNoteOnSent ),
 	  m_pInstrument( pOther->getInstrument() )
 {
 	if ( m_pInstrument != nullptr ) {
@@ -810,6 +820,10 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( sPrefix )
 						 .arg( s )
 						 .arg( m_fPitchHumanization ) )
+			.append( QString( "%1%2m_bMidiNoteOnSent: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_bMidiNoteOnSent ) )
 			.append( QString( "%1%2m_selectedLayerInfoMap:\n" )
 						 .arg( sPrefix )
 						 .arg( s ) );
@@ -876,6 +890,8 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const
 			.append( QString( ", m_fUsedTickSize: %1" ).arg( m_fUsedTickSize ) )
 			.append( QString( ", m_fPitchHumanization: %1" )
 						 .arg( m_fPitchHumanization ) )
+			.append( QString( ", m_bMidiNoteOnSent: %1" )
+						 .arg( m_bMidiNoteOnSent ) )
 			.append( QString( ", m_selectedLayerInfoMap: [" ) );
 		QStringList selectedLayerInfos;
 		for ( const auto& [ppComponent, ppSelectedLayerInfo] :

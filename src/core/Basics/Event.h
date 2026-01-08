@@ -126,8 +126,8 @@ public:
 			 */
 			NextPatternsChanged,
 			NextShot,
-			/** A pattern was added, deleted, or modified. */
-			NoteOn,
+			/** Sampler does start to render a note. */
+			NoteRender,
 			/** Locks the PatternEditor on the pattern currently played back.*/
 			PatternEditorLocked,
 			PatternModified,

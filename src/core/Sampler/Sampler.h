@@ -178,8 +178,10 @@ public:
 	 */
 	bool isRenderingNotes() const;
 	
-	/// Start playing a note
-	void noteOn( std::shared_ptr<Note> pNote );
+	/** Start playing a note.
+     *
+     * @returns whether or not @a pNote was queued for rendering. */
+	bool noteOn( std::shared_ptr<Note> pNote );
 
 	void midiKeyboardNoteOff(
 		std::shared_ptr<Instrument> pInstrument,
@@ -255,7 +257,7 @@ public:
 	const std::vector<std::shared_ptr<Note>>& getPlayingNotesQueue() const;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
-	
+
 private:
 	/** function to direct the computation to the selected pan law function
 	 */

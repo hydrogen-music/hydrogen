@@ -1497,6 +1497,16 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Paragraph text within in the MidiSenseWidget - left click + shift on * some buttons - which allows the user to associate incoming MIDI events to * a particular action. After this paragraph a list of registered MIDI * events will be shown.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Always</source>
+        <extracomment>Presented as an option to always e.g. perform an action.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Never</source>
+        <extracomment>Presented as an option to never e.g. perform an action.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -3188,6 +3198,14 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
     </message>
     <message>
         <source>Channel for MIDI feedback and clock</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send NOTE_OFF messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>On custom note lengths</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

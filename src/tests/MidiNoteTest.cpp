@@ -22,22 +22,29 @@
 
 #include "MidiNoteTest.h"
 
+#include <chrono>
+
 #include "TestHelper.h"
 
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
+#include <core/IO/LoopBackMidiDriver.h>
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Sampler/Sampler.h>
 
 using namespace H2Core;
 
-void MidiNoteTest::testDefaultValues() {
+void MidiNoteTest::testDefaultValues()
+{
 	___INFOLOG( "" );
 	CPPUNIT_ASSERT(
 		( static_cast<int>( Note::OctaveDefault ) + OCTAVE_OFFSET ) *
@@ -47,12 +54,15 @@ void MidiNoteTest::testDefaultValues() {
 	___INFOLOG( "passed" );
 }
 
-void MidiNoteTest::testLoadNewSong() {
+void MidiNoteTest::testLoadNewSong()
+{
 	___INFOLOG( "" );
 	/* Read song with drumkit that have assigned distinct MIDI notes. Check
 	 * that loading that song does not change that mapping */
 
-	auto pSong = H2Core::Song::load( H2TEST_FILE( "song/legacy/test_song_0.9.7.h2song" ) );
+	auto pSong =
+		H2Core::Song::load( H2TEST_FILE( "song/legacy/test_song_0.9.7.h2song" )
+		);
 	CPPUNIT_ASSERT( pSong != nullptr );
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
@@ -74,18 +84,21 @@ void MidiNoteTest::testLoadNewSong() {
 	___INFOLOG( "passed" );
 }
 
-void MidiNoteTest::testMidiInstrumentInputMapping() {
+void MidiNoteTest::testMidiInstrumentInputMapping()
+{
 	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pNewPreferences = CoreActionController::loadPreferences(
-		H2TEST_FILE( "preferences/midi-instrument-mapping.conf" ) );
+		H2TEST_FILE( "preferences/midi-instrument-mapping.conf" )
+	);
 	CPPUNIT_ASSERT( pNewPreferences != nullptr );
 
 	const auto pNewDrumkit = Drumkit::load(
 		H2TEST_FILE( "drumkits/midi-instrument-mapping" ),
-		/* bUpgrade */true, /* pLegacy */nullptr, /*bSilent*/false );
+		/* bUpgrade */ true, /* pLegacy */ nullptr, /*bSilent*/ false
+	);
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
 	CPPUNIT_ASSERT( CoreActionController::setDrumkit( pNewDrumkit ) );
 
@@ -289,17 +302,18 @@ void MidiNoteTest::testMidiInstrumentInputMapping() {
 		pMidiInstrumentMap->setInput( MidiInstrumentMap::Input::AsOutput );
 		const auto pInstrument = pNewDrumkit->getInstruments()->get( 0 );
 		CPPUNIT_ASSERT( pInstrument != nullptr );
-		CPPUNIT_ASSERT( pInstrument->getMidiOutChannel() >=
-						Midi::ChannelMinimum );
+		CPPUNIT_ASSERT(
+			pInstrument->getMidiOutChannel() >= Midi::ChannelMinimum
+		);
 		const auto note = pInstrument->getMidiOutNote();
 		const auto channel = pInstrument->getMidiOutChannel();
 
 		// Sanity tests
 		{
-			const auto instrumentsMapped = pMidiInstrumentMap->mapInput(
-				note, channel, pNewDrumkit );
+			const auto instrumentsMapped =
+				pMidiInstrumentMap->mapInput( note, channel, pNewDrumkit );
 			CPPUNIT_ASSERT( instrumentsMapped.size() == 1 );
-			CPPUNIT_ASSERT( instrumentsMapped[ 0 ] == pInstrument );
+			CPPUNIT_ASSERT( instrumentsMapped[0] == pInstrument );
 		}
 		{
 			const auto instrumentsMapped = pMidiInstrumentMap->mapInput(
@@ -329,18 +343,21 @@ void MidiNoteTest::testMidiInstrumentInputMapping() {
 	___INFOLOG( "passed" );
 }
 
-void MidiNoteTest::testMidiInstrumentOutputMapping() {
+void MidiNoteTest::testMidiInstrumentOutputMapping()
+{
 	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pNewPreferences = CoreActionController::loadPreferences(
-		H2TEST_FILE( "preferences/midi-instrument-mapping.conf" ) );
+		H2TEST_FILE( "preferences/midi-instrument-mapping.conf" )
+	);
 	CPPUNIT_ASSERT( pNewPreferences != nullptr );
 
 	const auto pNewDrumkit = Drumkit::load(
 		H2TEST_FILE( "drumkits/midi-instrument-mapping" ),
-		/* bUpgrade */true, /* pLegacy */nullptr, /*bSilent*/false );
+		/* bUpgrade */ true, /* pLegacy */ nullptr, /*bSilent*/ false
+	);
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
 	CPPUNIT_ASSERT( CoreActionController::setDrumkit( pNewDrumkit ) );
 
@@ -350,15 +367,16 @@ void MidiNoteTest::testMidiInstrumentOutputMapping() {
 	pMidiInstrumentMap->setOutput( MidiInstrumentMap::Output::None );
 	for ( const auto& ppInstrument : *pInstrumentList ) {
 		CPPUNIT_ASSERT( ppInstrument != nullptr );
-		CPPUNIT_ASSERT( pMidiInstrumentMap->getOutputMapping(
-			nullptr, ppInstrument ).isNull() );
+		CPPUNIT_ASSERT( pMidiInstrumentMap
+							->getOutputMapping( nullptr, ppInstrument )
+							.isNull() );
 	}
 
 	pMidiInstrumentMap->setOutput( MidiInstrumentMap::Output::Constant );
 	for ( const auto& ppInstrument : *pInstrumentList ) {
 		CPPUNIT_ASSERT( ppInstrument != nullptr );
-		const auto noteRef = pMidiInstrumentMap->getOutputMapping(
-			nullptr, ppInstrument );
+		const auto noteRef =
+			pMidiInstrumentMap->getOutputMapping( nullptr, ppInstrument );
 		CPPUNIT_ASSERT( noteRef.note == ppInstrument->getMidiOutNote() );
 		CPPUNIT_ASSERT( noteRef.channel == ppInstrument->getMidiOutChannel() );
 	}
@@ -397,35 +415,40 @@ void MidiNoteTest::testMidiInstrumentOutputMapping() {
 	___INFOLOG( "passed" );
 }
 
-void MidiNoteTest::testMidiInstrumentGlobalMapping() {
+void MidiNoteTest::testMidiInstrumentGlobalMapping()
+{
 	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pNewPreferences = CoreActionController::loadPreferences(
-		H2TEST_FILE( "preferences/midi-instrument-mapping.conf" ) );
+		H2TEST_FILE( "preferences/midi-instrument-mapping.conf" )
+	);
 	CPPUNIT_ASSERT( pNewPreferences != nullptr );
 
 	const auto pNewDrumkit = Drumkit::load(
 		H2TEST_FILE( "drumkits/midi-instrument-mapping" ),
-		/* bUpgrade */true, /* pLegacy */nullptr, /*bSilent*/false );
+		/* bUpgrade */ true, /* pLegacy */ nullptr, /*bSilent*/ false
+	);
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
 	CPPUNIT_ASSERT( CoreActionController::setDrumkit( pNewDrumkit ) );
 
 	auto pMidiInstrumentMap = pNewPreferences->getMidiInstrumentMap();
 	auto pInstrumentList = pNewDrumkit->getInstruments();
 
-	auto testOutput = [&](  bool bGlobal, Midi::Channel channel ) {
+	auto testOutput = [&]( bool bGlobal, Midi::Channel channel ) {
 		for ( const auto& ppInstrument : *pInstrumentList ) {
 			CPPUNIT_ASSERT( ppInstrument != nullptr );
-			const auto noteRef = pMidiInstrumentMap->getOutputMapping(
-				nullptr, ppInstrument );
+			const auto noteRef =
+				pMidiInstrumentMap->getOutputMapping( nullptr, ppInstrument );
 			CPPUNIT_ASSERT( noteRef.note == ppInstrument->getMidiOutNote() );
 			if ( bGlobal ) {
 				CPPUNIT_ASSERT( noteRef.channel == channel );
 			}
 			else {
-				CPPUNIT_ASSERT( noteRef.channel == ppInstrument->getMidiOutChannel() );
+				CPPUNIT_ASSERT(
+					noteRef.channel == ppInstrument->getMidiOutChannel()
+				);
 			}
 		}
 	};
@@ -444,13 +467,16 @@ void MidiNoteTest::testMidiInstrumentGlobalMapping() {
 		for ( const auto& ppInstrument : *pInstrumentList ) {
 			CPPUNIT_ASSERT( ppInstrument != nullptr );
 			const auto noteRef = pMidiInstrumentMap->getInputMapping(
-				ppInstrument, pNewDrumkit );
+				ppInstrument, pNewDrumkit
+			);
 			CPPUNIT_ASSERT( noteRef.note == ppInstrument->getMidiOutNote() );
 			if ( bGlobal ) {
 				CPPUNIT_ASSERT( noteRef.channel == channel );
 			}
 			else {
-				CPPUNIT_ASSERT( noteRef.channel == ppInstrument->getMidiOutChannel() );
+				CPPUNIT_ASSERT(
+					noteRef.channel == ppInstrument->getMidiOutChannel()
+				);
 			}
 		}
 		{
@@ -503,6 +529,237 @@ void MidiNoteTest::testMidiInstrumentGlobalMapping() {
 	testInput( true, globalOutputChannel );
 	pMidiInstrumentMap->setUseGlobalOutputChannel( false );
 	testInput( false, globalOutputChannel );
+
+	___INFOLOG( "passed" );
+}
+
+void MidiNoteTest::testSendNoteOff()
+{
+	___INFOLOG( "" );
+
+	const auto pSong =
+		Song::load( H2TEST_FILE( "song/midi-send-note-off.h2song" ), false );
+	CPPUNIT_ASSERT( pSong != nullptr && pSong->getDrumkit() != nullptr );
+
+	auto pSampler = Hydrogen::get_instance()->getAudioEngine()->getSampler();
+	// Ensure no other notes are playing/ringing out.
+	auto clearSampler = [&]() {
+		pSampler->releasePlayingNotes();
+		bool bStillPlayingNotes = true;
+		for ( int ii = 0; ii < 30; ++ii ) {
+			if ( !pSampler->isRenderingNotes() ) {
+				bStillPlayingNotes = false;
+				break;
+			}
+			std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+		}
+	};
+	clearSampler();
+	CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
+
+	auto pPref = Preferences::get_instance();
+
+	auto pLoopBackMidiDriver = dynamic_cast<LoopBackMidiDriver*>(
+		Hydrogen::get_instance()->getAudioEngine()->getMidiDriver().get()
+	);
+	CPPUNIT_ASSERT( pLoopBackMidiDriver != nullptr );
+
+	////////////////////////////////////////////////////////////////////////////
+	// Tests with sample
+
+	const auto pInstrumentWithSample =
+		pSong->getDrumkit()->getInstruments()->get( 0 );
+	CPPUNIT_ASSERT( pInstrumentWithSample != nullptr );
+	CPPUNIT_ASSERT( pInstrumentWithSample->hasSamples() );
+	pInstrumentWithSample->loadSamples( Hydrogen::get_instance()
+											->getAudioEngine()
+											->getTransportPosition()
+											->getBpm() );
+
+	auto pNoteWithSample = std::make_shared<Note>( pInstrumentWithSample );
+	auto pNoteWithSampleCustomLength =
+		std::make_shared<Note>( pInstrumentWithSample );
+	pNoteWithSampleCustomLength->setLength( 10 );
+
+	{
+		pPref->setMidiSendNoteOff( Preferences::MidiSendNoteOff::Always );
+		pLoopBackMidiDriver->clearBacklogMessages();
+		CPPUNIT_ASSERT(
+			pSampler->noteOn( std::make_shared<Note>( pNoteWithSample ) )
+		);
+		clearSampler();
+		CPPUNIT_ASSERT( pSampler->noteOn(
+			std::make_shared<Note>( pNoteWithSampleCustomLength )
+		) );
+		clearSampler();
+		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
+
+		const auto messageBacklog = pLoopBackMidiDriver->getBacklogMessages();
+		CPPUNIT_ASSERT( messageBacklog.size() == 6 );
+		CPPUNIT_ASSERT(
+			messageBacklog[0].getType() == MidiMessage::Type::NoteOff
+		);
+		CPPUNIT_ASSERT(
+			messageBacklog[1].getType() == MidiMessage::Type::NoteOn
+		);
+		CPPUNIT_ASSERT(
+			messageBacklog[2].getType() == MidiMessage::Type::NoteOff
+		);
+		CPPUNIT_ASSERT(
+			messageBacklog[3].getType() == MidiMessage::Type::NoteOff
+		);
+		CPPUNIT_ASSERT(
+			messageBacklog[4].getType() == MidiMessage::Type::NoteOn
+		);
+		CPPUNIT_ASSERT(
+			messageBacklog[5].getType() == MidiMessage::Type::NoteOff
+		);
+	}
+
+	{
+		pPref->setMidiSendNoteOff( Preferences::MidiSendNoteOff::Never );
+		pLoopBackMidiDriver->clearBacklogMessages();
+		CPPUNIT_ASSERT(
+			pSampler->noteOn( std::make_shared<Note>( pNoteWithSample ) )
+		);
+		clearSampler();
+		CPPUNIT_ASSERT( pSampler->noteOn(
+			std::make_shared<Note>( pNoteWithSampleCustomLength )
+		) );
+		clearSampler();
+		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
+
+		const auto messageBacklog = pLoopBackMidiDriver->getBacklogMessages();
+		CPPUNIT_ASSERT( messageBacklog.size() == 2 );
+		CPPUNIT_ASSERT(
+			messageBacklog[0].getType() == MidiMessage::Type::NoteOn
+		);
+		CPPUNIT_ASSERT(
+			messageBacklog[1].getType() == MidiMessage::Type::NoteOn
+		);
+	}
+
+	{
+		pPref->setMidiSendNoteOff( Preferences::MidiSendNoteOff::OnCustomLengths
+		);
+		pLoopBackMidiDriver->clearBacklogMessages();
+		CPPUNIT_ASSERT(
+			pSampler->noteOn( std::make_shared<Note>( pNoteWithSample ) )
+		);
+		clearSampler();
+		CPPUNIT_ASSERT( pSampler->noteOn(
+			std::make_shared<Note>( pNoteWithSampleCustomLength )
+		) );
+		clearSampler();
+		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
+
+		const auto messageBacklog = pLoopBackMidiDriver->getBacklogMessages();
+		CPPUNIT_ASSERT( messageBacklog.size() == 3 );
+		CPPUNIT_ASSERT(
+			messageBacklog[0].getType() == MidiMessage::Type::NoteOn
+		);
+		CPPUNIT_ASSERT(
+			messageBacklog[1].getType() == MidiMessage::Type::NoteOn
+		);
+		CPPUNIT_ASSERT(
+			messageBacklog[2].getType() == MidiMessage::Type::NoteOff
+		);
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+	// Tests without sample
+
+	auto pInstrumentWithoutSample =
+		pSong->getDrumkit()->getInstruments()->get( 1 );
+	CPPUNIT_ASSERT( pInstrumentWithoutSample != nullptr );
+	CPPUNIT_ASSERT( !pInstrumentWithoutSample->hasSamples() );
+
+	auto pNoteWithoutSample =
+		std::make_shared<Note>( pInstrumentWithoutSample );
+	auto pNoteWithoutSampleCustomLength =
+		std::make_shared<Note>( pInstrumentWithoutSample );
+	pNoteWithoutSampleCustomLength->setLength( 10 );
+
+	{
+		pPref->setMidiSendNoteOff( Preferences::MidiSendNoteOff::Always );
+		pLoopBackMidiDriver->clearBacklogMessages();
+		CPPUNIT_ASSERT( pSampler->noteOn( pNoteWithoutSample ) );
+		clearSampler();
+		CPPUNIT_ASSERT( pSampler->noteOn( pNoteWithoutSampleCustomLength ) );
+		clearSampler();
+		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
+
+		const auto messageBacklog = pLoopBackMidiDriver->getBacklogMessages();
+		CPPUNIT_ASSERT( messageBacklog.size() == 6 );
+		CPPUNIT_ASSERT(
+			messageBacklog[0].getType() == MidiMessage::Type::NoteOff
+		);
+		CPPUNIT_ASSERT(
+			messageBacklog[1].getType() == MidiMessage::Type::NoteOn
+		);
+		CPPUNIT_ASSERT(
+			messageBacklog[2].getType() == MidiMessage::Type::NoteOff
+		);
+		CPPUNIT_ASSERT(
+			messageBacklog[3].getType() == MidiMessage::Type::NoteOff
+		);
+		CPPUNIT_ASSERT(
+			messageBacklog[4].getType() == MidiMessage::Type::NoteOn
+		);
+		CPPUNIT_ASSERT(
+			messageBacklog[5].getType() == MidiMessage::Type::NoteOff
+		);
+	}
+
+	{
+		pPref->setMidiSendNoteOff( Preferences::MidiSendNoteOff::Never );
+		pLoopBackMidiDriver->clearBacklogMessages();
+		CPPUNIT_ASSERT(
+			pSampler->noteOn( std::make_shared<Note>( pNoteWithoutSample ) )
+		);
+		clearSampler();
+		CPPUNIT_ASSERT( pSampler->noteOn(
+			std::make_shared<Note>( pNoteWithoutSampleCustomLength )
+		) );
+		clearSampler();
+		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
+
+		const auto messageBacklog = pLoopBackMidiDriver->getBacklogMessages();
+		CPPUNIT_ASSERT( messageBacklog.size() == 2 );
+		CPPUNIT_ASSERT(
+			messageBacklog[0].getType() == MidiMessage::Type::NoteOn
+		);
+		CPPUNIT_ASSERT(
+			messageBacklog[1].getType() == MidiMessage::Type::NoteOn
+		);
+	}
+
+	{
+		pPref->setMidiSendNoteOff( Preferences::MidiSendNoteOff::OnCustomLengths
+		);
+		pLoopBackMidiDriver->clearBacklogMessages();
+		CPPUNIT_ASSERT(
+			pSampler->noteOn( std::make_shared<Note>( pNoteWithoutSample ) )
+		);
+		clearSampler();
+		CPPUNIT_ASSERT( pSampler->noteOn(
+			std::make_shared<Note>( pNoteWithoutSampleCustomLength )
+		) );
+		clearSampler();
+		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
+
+		const auto messageBacklog = pLoopBackMidiDriver->getBacklogMessages();
+		CPPUNIT_ASSERT( messageBacklog.size() == 3 );
+		CPPUNIT_ASSERT(
+			messageBacklog[0].getType() == MidiMessage::Type::NoteOn
+		);
+		CPPUNIT_ASSERT(
+			messageBacklog[1].getType() == MidiMessage::Type::NoteOn
+		);
+		CPPUNIT_ASSERT(
+			messageBacklog[2].getType() == MidiMessage::Type::NoteOff
+		);
+	}
 
 	___INFOLOG( "passed" );
 }

@@ -1507,18 +1507,23 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 				);
 			}
 
-			m_pSampler->noteOn( pNote );
+			if ( m_pSampler->noteOn( pNote ) ) {
+				// Check whether the instrument is part of the current drumkit
+				// (and shown in the Mixer).
+				const int nInstrument =
+					pSong->getDrumkit()->getInstruments()->index(
+						pNote->getInstrument()
+					);
+
+				if ( nInstrument != -1 ) {
+					EventQueue::get_instance()->pushEvent(
+						Event::Type::NoteRender, nInstrument
+					);
+				}
+			}
 			m_songNoteQueue.pop();
 			pNote->getInstrument()->dequeue( pNote );
-			
-			const int nInstrument = pSong->getDrumkit()->getInstruments()->index( pNote->getInstrument() );
 
-			// Check whether the instrument could be found.
-			if ( nInstrument != -1 ) {
-				EventQueue::get_instance()->pushEvent(
-					Event::Type::NoteOn, nInstrument );
-			}
-			
 			continue;
 		} else {
 			// this note will not be played
