@@ -233,7 +233,10 @@ void CoreMidiDriver::sendNoteOnMessage( const MidiMessage& msg )
 
 	packetList.packet->timeStamp = 0;
 	packetList.packet->length = 3;
-	packetList.packet->data[0] = 0x90 | static_cast<int>( msg.getChannel() );
+	// Midi::Channel within Hydrogen represent user-facing values. Since the
+	// numerical value of channel `1` is `0` within the MIDI standard, we have
+	// to convert it.
+	packetList.packet->data[0] = 0x90 | ( static_cast<int>( msg.getChannel() ) - 1 );
 	packetList.packet->data[1] = static_cast<int>( msg.getData1() );
 	packetList.packet->data[2] = static_cast<int>( msg.getData2() );
 
@@ -252,7 +255,10 @@ void CoreMidiDriver::sendNoteOffMessage( const MidiMessage& msg )
 
 	packetList.packet->timeStamp = 0;
 	packetList.packet->length = 3;
-	packetList.packet->data[0] = 0x80 | static_cast<int>( msg.getChannel() );
+	// Midi::Channel within Hydrogen represent user-facing values. Since the
+	// numerical value of channel `1` is `0` within the MIDI standard, we have
+	// to convert it.
+	packetList.packet->data[0] = 0x80 | ( static_cast<int>( msg.getChannel() ) - 1 );
 	packetList.packet->data[1] = static_cast<int>( msg.getData1() );
 	packetList.packet->data[2] = static_cast<int>( msg.getData2() );
 
@@ -270,7 +276,10 @@ void CoreMidiDriver::sendControlChangeMessage( const MidiMessage& msg ) {
 
 	packetList.packet->timeStamp = 0;
 	packetList.packet->length = 3;
-	packetList.packet->data[0] = 0xB0 | static_cast<int>( msg.getChannel() );
+	// Midi::Channel within Hydrogen represent user-facing values. Since the
+	// numerical value of channel `1` is `0` within the MIDI standard, we have
+	// to convert it.
+	packetList.packet->data[0] = 0xB0 | ( static_cast<int>( msg.getChannel() ) - 1 );
 	packetList.packet->data[1] = static_cast<int>( msg.getData1() );
 	packetList.packet->data[2] = static_cast<int>( msg.getData2() );
 

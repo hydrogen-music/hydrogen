@@ -188,7 +188,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		),
 		LCDSpinBox::Type::Int, static_cast<int>( Midi::ChannelAll ),
 		static_cast<int>( Midi::ChannelMaximum ),
-		LCDSpinBox::Flag::MinusOneAsOff | LCDSpinBox::Flag::MinusTwoAsAll
+		LCDSpinBox::Flag::ZeroAsOff | LCDSpinBox::Flag::MinusOneAsAll
 	);
 	pInputActionChannelLayout->addWidget( m_pInputActionChannelSpinBox );
 	m_pInputActionChannelSpinBox->setValue(
@@ -269,7 +269,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		),
 		LCDSpinBox::Type::Int, static_cast<int>( Midi::ChannelOff ),
 		static_cast<int>( Midi::ChannelMaximum ),
-		LCDSpinBox::Flag::MinusOneAsOff
+		LCDSpinBox::Flag::ZeroAsOff
 	);
 	pOutputLabelledLayout->addWidget( m_pOutputFeedbackChannelSpinBox, 0, 1 );
 	m_pOutputFeedbackChannelSpinBox->setValue(
@@ -476,7 +476,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 		),
 		LCDSpinBox::Type::Int, static_cast<int>( Midi::ChannelAll ),
 		static_cast<int>( Midi::ChannelMaximum ),
-		LCDSpinBox::Flag::MinusOneAsOff | LCDSpinBox::Flag::MinusTwoAsAll
+		LCDSpinBox::Flag::ZeroAsOff | LCDSpinBox::Flag::MinusOneAsAll
 	);
 	m_pGlobalInputChannelSpinBox->setValue(
 		static_cast<int>( pMidiInstrumentMap->getGlobalInputChannel() )
@@ -532,7 +532,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 		),
 		LCDSpinBox::Type::Int, static_cast<int>( Midi::ChannelOff ),
 		static_cast<int>( Midi::ChannelMaximum ),
-		LCDSpinBox::Flag::MinusOneAsOff
+		LCDSpinBox::Flag::ZeroAsOff
 	);
 	m_pGlobalOutputChannelSpinBox->setValue(
 		static_cast<int>( pMidiInstrumentMap->getGlobalOutputChannel() )
@@ -938,7 +938,7 @@ void MidiControlDialog::addInstrumentTableRow() {
 								   MidiControlDialog::nMappingBoxHeight ),
 		LCDSpinBox::Type::Int, static_cast<int>(Midi::ChannelAll),
 		static_cast<int>(Midi::ChannelMaximum),
-		LCDSpinBox::Flag::MinusOneAsOff | LCDSpinBox::Flag::MinusTwoAsAll );
+		LCDSpinBox::Flag::ZeroAsOff | LCDSpinBox::Flag::MinusOneAsAll );
 	pInputChannelSpinBox->setSizePolicy( QSizePolicy::Expanding,
 										 QSizePolicy::Fixed );
 
@@ -979,7 +979,7 @@ void MidiControlDialog::addInstrumentTableRow() {
 		),
 		LCDSpinBox::Type::Int, static_cast<int>( Midi::ChannelOff ),
 		static_cast<int>( Midi::ChannelMaximum ),
-		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::MinusOneAsOff
+		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::ZeroAsOff
 	);
 	pOutputChannelSpinBox->setSizePolicy(
 		QSizePolicy::Expanding, QSizePolicy::Fixed

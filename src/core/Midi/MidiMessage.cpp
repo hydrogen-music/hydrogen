@@ -59,35 +59,42 @@ void MidiMessage::clear() {
 	m_sysexData.clear();
 }
 
-Midi::Channel MidiMessage::deriveChannel( int nStatusByte ) {
+Midi::Channel MidiMessage::deriveChannel( int nStatusByte )
+{
+    int nValue;
 	if ( nStatusByte >= 128 && nStatusByte < 144 ) {
-		return Midi::channelFromIntClamp( nStatusByte - 128 );
+		nValue =  nStatusByte - 128;
 	}
 	else if ( nStatusByte >= 144 && nStatusByte < 160 ) {
-		return Midi::channelFromIntClamp( nStatusByte - 144 );
+		nValue =  nStatusByte - 144;
 	}
 	else if ( nStatusByte >= 160 && nStatusByte < 176 ) {
-		return Midi::channelFromIntClamp( nStatusByte - 160 );
+		nValue =  nStatusByte - 160;
 	}
 	else if ( nStatusByte >= 176 && nStatusByte < 192 ) {
-		return Midi::channelFromIntClamp( nStatusByte - 176 );
+		nValue =  nStatusByte - 176;
 	}
 	else if ( nStatusByte >= 192 && nStatusByte < 208 ) {
-		return Midi::channelFromIntClamp( nStatusByte - 192 );
+		nValue =  nStatusByte - 192;
 	}
 	else if ( nStatusByte >= 208 && nStatusByte < 224 ) {
-		return Midi::channelFromIntClamp( nStatusByte - 208 );
+		nValue =  nStatusByte - 208;
 	}
 	else if ( nStatusByte >= 224 && nStatusByte < 240 ) {
-		return Midi::channelFromIntClamp( nStatusByte - 224 );
+		nValue =  nStatusByte - 224;
 	}
 	// System Common Messages
 	else if ( nStatusByte == 240 ) {
-		return Midi::channelFromIntClamp( nStatusByte - 224 );
+		nValue =  nStatusByte - 224;
 	}
 	else {
 		return Midi::ChannelInvalid;
 	}
+
+	// Midi::Channel within Hydrogen represent user-facing values. Since the
+	// numerical value of channel `1` is `0` within the MIDI standard, we have
+	// to convert it.
+    return Midi::channelFromIntClamp( nValue + 1 );
 }
 
 MidiMessage::Type MidiMessage::deriveType( int nStatusByte ) {

@@ -28,13 +28,22 @@
 namespace H2Core {
 /** \ingroup docCore docMIDI */
 namespace Midi {
+
+    /** Within the MIDI Standard the numerical representation of Channel 1 is
+     * `0`. This inconsistency lead to MADR 0008 (see docs/decisions).
+     *
+     * As a consequence all MIDI Channel values within Hydrogen will range from
+     * 1 till 16 as they are considered user-facing. But MIDI channel
+     * representations in `.h2song` and `drumkit.xml` as well as MIDI files ans
+     * MIDI events sent to MIDI drivers are still zero-based and have to be
+     * converted. */
     enum class Channel : int {};
-	static constexpr Channel ChannelMinimum = Channel( 0 );
-	static constexpr Channel ChannelDefault = Channel( 9 );
-	static constexpr Channel ChannelMaximum = Channel( 15 );
-	static constexpr Channel ChannelOff = Channel( -1 );
-	static constexpr Channel ChannelAll = Channel( -2 );
-	static constexpr Channel ChannelInvalid = Channel( -3 );
+	static constexpr Channel ChannelMinimum = Channel( 1 );
+	static constexpr Channel ChannelDefault = Channel( 10 );
+	static constexpr Channel ChannelMaximum = Channel( 16 );
+	static constexpr Channel ChannelOff = Channel( 0 );
+	static constexpr Channel ChannelAll = Channel( -1 );
+	static constexpr Channel ChannelInvalid = Channel( -2 );
 	static Channel channelFromInt( int nChannel )
 	{
 		if ( nChannel >= static_cast<int>( ChannelMinimum ) &&

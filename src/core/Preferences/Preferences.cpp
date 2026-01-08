@@ -795,10 +795,12 @@ Preferences::load( const QString& sPath, const bool bSilent )
 			// storing MIDI channels. In this variable `-1` did indicate to use
 			// "All" channels while the same value set in the MIDI output
 			// channel within the instruments of a drumkit meant "Off" or none.
-			// Starting from 2.0 we unified those ranges allowing this variable,
-			// too, to represent both "All" and "Off". But, for backward
-			// compatibility, we still use the old values and not the ones
-			// defined in Midi.h.
+			// Valid channel values were zero-based Starting from 2.0 we unified
+			// those ranges allowing this variable, too, to represent both "All"
+			// and "Off". In addition, we now use 1 based channel values in
+			// accordance with the MIDI standard. But, for backward
+			// compatibility, we still write zero-based values to file and use
+			// the old one and not those defined in Midi.h.
 			const int nMidiActionChannel = midiDriverNode.read_int(
 				"channel_filter", /*previous value used to indicate 'all'*/ -1,
 				false, false, bSilent
@@ -814,7 +816,7 @@ Preferences::load( const QString& sPath, const bool bSilent )
 			}
 			else {
 				pPref->m_midiActionChannel =
-					Midi::channelFromIntClamp( nMidiActionChannel );
+					Midi::channelFromIntClamp( nMidiActionChannel + 1 );
 			}
 			pPref->m_bMidiNoteOffIgnore = midiDriverNode.read_bool(
 				"ignore_note_off", pPref->m_bMidiNoteOffIgnore, false, false,
@@ -835,13 +837,17 @@ Preferences::load( const QString& sPath, const bool bSilent )
 				"enable_midi_feedback", pPref->m_bEnableMidiFeedback, false,
 				true, bSilent
 			);
-			pPref->setMidiFeedbackChannel(
-				Midi::channelFromInt( midiDriverNode.read_int(
+            // The file-based representation of the MIDI channel is zero-based (for
+            // historical reasons) while we start with 1 within the application (since
+            // version 2.0).
+			pPref->setMidiFeedbackChannel( Midi::channelFromInt(
+				midiDriverNode.read_int(
 					"midi_feedback_channel",
-					static_cast<int>( pPref->getMidiFeedbackChannel() ), true,
-					false, bSilent
-				) )
-			);
+					static_cast<int>( pPref->getMidiFeedbackChannel() ) - 1,
+					true, false, bSilent
+				) +
+				1
+			) );
 			pPref->setMidiClockInputHandling( midiDriverNode.read_bool(
 				"midi_clock_input_handling", pPref->getMidiClockInputHandling(),
 				true, true, bSilent
@@ -1577,11 +1583,13 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 			// storing MIDI channels. In this variable `-1` did indicate to use
 			// "All" channels while the same value set in the MIDI output
 			// channel within the instruments of a drumkit meant "Off" or none.
-			// Starting from 2.0 we unified those ranges allowing this variable,
-			// too, to represent both "All" and "Off". But, for backward
-			// compatibility, we still use the old values and not the ones
-			// defined in MidiMessage.h.
-			int nChannelFilter = static_cast<int>( m_midiActionChannel );
+			// Valid channel values were zero-based Starting from 2.0 we unified
+			// those ranges allowing this variable, too, to represent both "All"
+			// and "Off". In addition, we now use 1 based channel values in
+			// accordance with the MIDI standard. But, for backward
+			// compatibility, we still write zero-based values to file and use
+			// the old one and not those defined in Midi.h.
+			int nChannelFilter = static_cast<int>( m_midiActionChannel ) - 1;
 			if ( m_midiActionChannel == Midi::ChannelAll ) {
 				// Old value to indicate to use all channels
 				nChannelFilter = -1;
@@ -1601,9 +1609,12 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 			midiDriverNode.write_bool(
 				"enable_midi_feedback", m_bEnableMidiFeedback
 			);
+			// The file-based representation of the MIDI channel is zero-based
+			// (for historical reasons) while we start with 1 within the
+			// application (since version 2.0).
 			midiDriverNode.write_int(
 				"midi_feedback_channel",
-				static_cast<int>( getMidiFeedbackChannel() )
+				static_cast<int>( getMidiFeedbackChannel() ) - 1
 			);
 			midiDriverNode.write_bool(
 				"midi_clock_input_handling", getMidiClockInputHandling()

@@ -407,6 +407,11 @@ class Instrument : public H2Core::Object<Instrument> {
 	 * this layer. It is of the same scale as #Note::Pitch. */
 	float m_fPitchOffset;
 	Midi::Note m_midiOutNote;
+	/** Note that for historical reasons the MIDI channel was zero-based within
+	 * Hydrogen. But that led to all sorts of confusion and bugs and was changed
+	 * with version 2.0. However, file representation of this value was kept
+	 * zero-based to avoid problems during migration and to ensure compatibility
+	 * with external tools and scripts. */
 	Midi::Channel m_midiOutChannel;
 	bool m_bStopNotes;		///< will the note automatically generate a note off
 							///< after being on

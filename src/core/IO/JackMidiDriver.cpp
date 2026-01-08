@@ -120,7 +120,10 @@ void JackMidiDriver::JackMidiWrite( jack_nframes_t nframes ) {
 void JackMidiDriver::sendControlChangeMessage( const MidiMessage& msg ) {
 	uint8_t buffer[4];	
 	
-	buffer[0] = 0xB0 | static_cast<int>( msg.getChannel() );
+	// Midi::Channel within Hydrogen represent user-facing values. Since the
+	// numerical value of channel `1` is `0` within the MIDI standard, we have
+	// to convert it.
+	buffer[0] = 0xB0 | ( static_cast<int>( msg.getChannel() ) - 1 );
 	buffer[1] = static_cast<int>( msg.getData1() );
 	buffer[2] = static_cast<int>( msg.getData2() );
 	buffer[3] = 0;
@@ -342,7 +345,10 @@ void JackMidiDriver::sendNoteOnMessage( const MidiMessage& msg ) {
 
 	uint8_t buffer[4];
 
-	buffer[0] = 0x90 | static_cast<int>( msg.getChannel() );	/* note on */
+	// Midi::Channel within Hydrogen represent user-facing values. Since the
+	// numerical value of channel `1` is `0` within the MIDI standard, we have
+	// to convert it.
+	buffer[0] = 0x90 | ( static_cast<int>( msg.getChannel() ) - 1 );	/* note on */
 	buffer[1] = static_cast<int>( msg.getData1() );
 	buffer[2] = static_cast<int>( msg.getData2() );
 	buffer[3] = 0;
@@ -353,7 +359,10 @@ void JackMidiDriver::sendNoteOnMessage( const MidiMessage& msg ) {
 void JackMidiDriver::sendNoteOffMessage( const MidiMessage& msg ) {
 	uint8_t buffer[4];
 
-	buffer[0] = 0x80 | static_cast<int>( msg.getChannel() );	/* note off */
+	// Midi::Channel within Hydrogen represent user-facing values. Since the
+	// numerical value of channel `1` is `0` within the MIDI standard, we have
+	// to convert it.
+	buffer[0] = 0x80 | ( static_cast<int>( msg.getChannel() ) - 1 );	/* note off */
 	buffer[1] = static_cast<int>( msg.getData1() );
 	buffer[2] = 0;
 	buffer[3] = 0;

@@ -234,12 +234,16 @@ double LCDSpinBox::nextValueInPatternSizeDenominator( bool bUp, bool bAccelerate
 QString LCDSpinBox::textFromValue( double fValue ) const {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	QString result;
-	if ( m_type == Type::Int && ( m_flag & Flag::MinusOneAsOff ) &&
+	if ( m_type == Type::Int && ( m_flag & Flag::ZeroAsOff ) &&
+		 fValue == 0.0 ) {
+		result = pCommonStrings->getStatusOff();
+	}
+	else if ( m_type == Type::Int && ( m_flag & Flag::MinusOneAsOff ) &&
 		 fValue == -1.0 ) {
 		result = pCommonStrings->getStatusOff();
 	}
-	else if ( m_type == Type::Int && ( m_flag & Flag::MinusTwoAsAll ) &&
-		 fValue == -2.0 ) {
+	else if ( m_type == Type::Int && ( m_flag & Flag::MinusOneAsAll ) &&
+		 fValue == -1.0 ) {
 		result = pCommonStrings->getAllLabel();
 	}
 	else {

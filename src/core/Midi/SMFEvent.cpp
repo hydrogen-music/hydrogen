@@ -429,7 +429,12 @@ QByteArray SMFNoteOnEvent::getBuffer() const
 {
 	SMFBuffer buf;
 	buf.writeVarLen( m_nDeltaTime );
-	buf.writeByte( static_cast<int>( m_type ) + static_cast<int>( m_channel ) );
+	// Midi::Channel within Hydrogen represent user-facing values. Since the
+	// numerical value of channel `1` is `0` within the MIDI standard, we have
+	// to convert it.
+	buf.writeByte(
+		static_cast<int>( m_type ) + static_cast<int>( m_channel ) - 1
+	);
 	buf.writeByte( static_cast<int>( m_note ) );
 	buf.writeByte( static_cast<int>( m_velocity ) );
 
@@ -493,7 +498,12 @@ QByteArray SMFNoteOffEvent::getBuffer() const
 {
 	SMFBuffer buf;
 	buf.writeVarLen( m_nDeltaTime );
-	buf.writeByte( static_cast<int>(m_type) + static_cast<int>(m_channel) );
+	// The file-based representation of the MIDI channel is zero-based (for
+	// historical reasons) while we start with 1 within the application (since
+	// version 2.0).
+	buf.writeByte(
+		static_cast<int>( m_type ) + static_cast<int>( m_channel ) - 1
+	);
 	buf.writeByte( static_cast<int>( m_note ) );
 	buf.writeByte( static_cast<int>( m_velocity ) );
 
