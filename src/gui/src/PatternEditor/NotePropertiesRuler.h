@@ -201,14 +201,16 @@ class NotePropertiesRuler : public PatternEditor,
 	 * note was rendered with and apply it to the hovered note as well. */
 	std::map<std::shared_ptr<H2Core::Note>, int> m_offsetMap;
 
-	/** @param bKey If set to `true`, @a fDelta will be applied to the key
-	 * section in Property::KeyOctave. */
+	/** @param bKey If set to `true`, @a fDelta will be applied to #Note::Key
+	 * in #Property::KeyOctave instead of #Note::Octave. */
 	bool adjustNotePropertyDelta(
 		std::vector<std::shared_ptr<H2Core::Note> > notes,
 		float fDelta,
 		bool bKey
 	);
-	void applyCursorDelta( float fDelta );
+	/** @param bKey If set to `true`, @a fDelta will be applied to #Note::Key
+	 * in #Property::KeyOctave instead of #Note::Octave. */
+	void applyCursorDelta( float fDelta, bool bKey );
 
 	int m_nDrawPreviousColumn;
 	Layout m_layout;

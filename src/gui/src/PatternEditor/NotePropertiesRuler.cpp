@@ -388,6 +388,7 @@ void NotePropertiesRuler::yToKeyOctave(
 void NotePropertiesRuler::moveCursorDown( QKeyEvent* ev, Editor::Step step )
 {
 	float fStep;
+    bool bKey = true;
 	switch ( step ) {
 		case Editor::Step::None:
 			fStep = 0;
@@ -404,9 +405,8 @@ void NotePropertiesRuler::moveCursorDown( QKeyEvent* ev, Editor::Step step )
 						: 0.25;
 			break;
 		case Editor::Step::Page:
-			fStep = m_property == PatternEditor::Property::KeyOctave
-						? Editor::nPageSize
-						: 0.5;
+			fStep = m_property == PatternEditor::Property::KeyOctave ? 1 : 0.5;
+            bKey = false;
 			break;
 		case Editor::Step::Document:
 			fStep = m_property == PatternEditor::Property::KeyOctave
@@ -416,12 +416,13 @@ void NotePropertiesRuler::moveCursorDown( QKeyEvent* ev, Editor::Step step )
 			break;
 	}
 
-	applyCursorDelta( -1 * fStep );
+	applyCursorDelta( -1 * fStep, bKey );
 }
 
 void NotePropertiesRuler::moveCursorUp( QKeyEvent* ev, Editor::Step step )
 {
 	float fStep;
+    bool bKey = true;
 	switch ( step ) {
 		case Editor::Step::None:
 			fStep = 0;
@@ -438,9 +439,8 @@ void NotePropertiesRuler::moveCursorUp( QKeyEvent* ev, Editor::Step step )
 						: 0.25;
 			break;
 		case Editor::Step::Page:
-			fStep = m_property == PatternEditor::Property::KeyOctave
-						? Editor::nPageSize
-						: 0.5;
+			fStep = m_property == PatternEditor::Property::KeyOctave ? 1 : 0.5;
+            bKey = false;
 			break;
 		case Editor::Step::Document:
 			fStep = m_property == PatternEditor::Property::KeyOctave
@@ -450,7 +450,7 @@ void NotePropertiesRuler::moveCursorUp( QKeyEvent* ev, Editor::Step step )
 			break;
 	}
 
-	applyCursorDelta( fStep );
+	applyCursorDelta( fStep, bKey );
 }
 
 void NotePropertiesRuler::updateColors()
@@ -1136,7 +1136,7 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 	return bValueChanged;
 }
 
-void NotePropertiesRuler::applyCursorDelta( float fDelta )
+void NotePropertiesRuler::applyCursorDelta( float fDelta, bool bKey )
 {
 	if ( fDelta == 0.0 ) {
 		return;
@@ -1194,7 +1194,7 @@ void NotePropertiesRuler::applyCursorDelta( float fDelta )
 	}
 
 	// Apply delta to the property
-	const bool bValueChanged = adjustNotePropertyDelta( notes, fDelta, false );
+	const bool bValueChanged = adjustNotePropertyDelta( notes, fDelta, bKey );
 
 	if ( bValueChanged ) {
 		triggerStatusMessage( notesStatusMessage, m_property );
