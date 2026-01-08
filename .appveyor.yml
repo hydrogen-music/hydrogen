@@ -45,17 +45,17 @@ environment:
   TARGET_VERSION: '2.0.0-pre-alpha'
   matrix:
 
-    - job_name: 'Ubuntu 22.04'
-      job_group: 'Linux'
-      appveyor_build_worker_image: Ubuntu2204
+    # - job_name: 'Ubuntu 22.04'
+    #   job_group: 'Linux'
+    #   appveyor_build_worker_image: Ubuntu2204
 
-    - job_name: 'Ubuntu 18.04 (AppImage)'
-      job_group: 'Linux (AppImage)'
-      appveyor_build_worker_image: Ubuntu
+    # - job_name: 'Ubuntu 18.04 (AppImage)'
+    #   job_group: 'Linux (AppImage)'
+    #   appveyor_build_worker_image: Ubuntu
 
-    - job_name: 'OS X'
-      job_group: 'Mac OS X'
-      appveyor_build_worker_image: macos
+    # - job_name: 'OS X'
+    #   job_group: 'Mac OS X'
+    #   appveyor_build_worker_image: macos
 
     - job_name: 'Windows64'
       job_group: 'Windows'
@@ -640,6 +640,14 @@ for:
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-angleproject
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-qt5
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-qt5-tools
+
+          set PWD=%CD%
+          echo %QTDIR%
+          cd %QTDIR%
+          dir
+          cd %QTDIR%\bin
+          dir
+          cd %PWD%
 
           ccache -M 256M
           ccache -s
