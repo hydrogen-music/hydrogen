@@ -73,7 +73,8 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 		 MidiMessage::Type::Stop != type &&
 		 MidiMessage::Type::Sysex != type &&
 		 MidiMessage::Type::TimingClock != type ) {
-		if ( pPref->m_midiActionChannel == Midi::ChannelOff ) {
+		if ( pPref->m_midiActionChannel == Midi::ChannelOff ||
+			 pPref->m_midiActionChannel == Midi::ChannelInvalid ) {
 			INFOLOG( "Action handling disabled. Dropping message." );
 			return pHandledInput;
 		}
