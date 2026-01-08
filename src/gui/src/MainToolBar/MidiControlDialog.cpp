@@ -1330,7 +1330,8 @@ void MidiControlDialog::updateInputTable() {
 		return pLabel;
 	};
 
-	auto addRow = [&]( std::shared_ptr<MidiBaseDriver::HandledInput> pHandledInput,
+	auto addRow = [&]( std::shared_ptr<MidiBaseDriver::HandledInput>
+						   pHandledInput,
 					   int nRow ) {
 		if ( pHandledInput == nullptr ) {
 			return;
@@ -1345,18 +1346,30 @@ void MidiControlDialog::updateInputTable() {
 		);
 		m_pMidiInputTable->setCellWidget(
 			nRow, 2,
-			newLabel( QString::number( static_cast<int>( pHandledInput->data1 )
-			) )
+			newLabel(
+				pHandledInput->data1 != Midi::ParameterInvalid
+					? QString::number( static_cast<int>( pHandledInput->data1 )
+					  )
+					: ""
+			)
 		);
 		m_pMidiInputTable->setCellWidget(
 			nRow, 3,
-			newLabel( QString::number( static_cast<int>( pHandledInput->data2 )
-			) )
+			newLabel(
+				pHandledInput->data2 != Midi::ParameterInvalid
+					? QString::number( static_cast<int>( pHandledInput->data2 )
+					  )
+					: ""
+			)
 		);
 		m_pMidiInputTable->setCellWidget(
 			nRow, 4,
-			newLabel( QString::number( static_cast<int>( pHandledInput->channel
-			) ) )
+			newLabel(
+				pHandledInput->channel != Midi::ChannelInvalid
+					? QString::number( static_cast<int>( pHandledInput->channel
+					  ) )
+					: ""
+			)
 		);
 
 		QStringList types;
@@ -1364,9 +1377,11 @@ void MidiControlDialog::updateInputTable() {
 			types << MidiAction::typeToQString( ttype );
 		}
 		m_pMidiInputTable->setCellWidget(
-			nRow, 5, newLabel( types.join( ", " ) ) );
+			nRow, 5, newLabel( types.join( ", " ) )
+		);
 		m_pMidiInputTable->setCellWidget(
-			nRow, 6, newLabel( pHandledInput->mappedInstruments.join( ", " ) ) );
+			nRow, 6, newLabel( pHandledInput->mappedInstruments.join( ", " ) )
+		);
 	};
 
 	auto updateRow = [&]( std::shared_ptr<MidiBaseDriver::HandledInput> pHandledInput,
@@ -1391,23 +1406,38 @@ void MidiControlDialog::updateInputTable() {
 		auto ppLabelData1 =
 			dynamic_cast<QLabel*>( m_pMidiInputTable->cellWidget( nRow, 2 ) );
 		if ( ppLabelData1 != nullptr ) {
-			ppLabelData1->setText(
-				QString::number( static_cast<int>( pHandledInput->data1 ) )
-			);
+			if ( pHandledInput->data1 != Midi::ParameterInvalid ) {
+				ppLabelData1->setText(
+					QString::number( static_cast<int>( pHandledInput->data1 ) )
+				);
+			}
+			else {
+				ppLabelData1->setText( "" );
+			}
 		}
 		auto ppLabelData2 =
 			dynamic_cast<QLabel*>( m_pMidiInputTable->cellWidget( nRow, 3 ) );
 		if ( ppLabelData2 != nullptr ) {
-			ppLabelData2->setText(
-				QString::number( static_cast<int>( pHandledInput->data2 ) )
-			);
+			if ( pHandledInput->data2 != Midi::ParameterInvalid ) {
+				ppLabelData2->setText(
+					QString::number( static_cast<int>( pHandledInput->data2 ) )
+				);
+			}
+			else {
+				ppLabelData2->setText( "" );
+			}
 		}
 		auto ppLabelChannel =
 			dynamic_cast<QLabel*>( m_pMidiInputTable->cellWidget( nRow, 4 ) );
 		if ( ppLabelChannel != nullptr ) {
-			ppLabelChannel->setText(
-				QString::number( static_cast<int>( pHandledInput->channel ) )
-			);
+			if ( pHandledInput->channel != Midi::ChannelInvalid ) {
+				ppLabelChannel->setText( QString::number(
+					static_cast<int>( pHandledInput->channel )
+				) );
+			}
+			else {
+				ppLabelChannel->setText( "" );
+			}
 		}
 
 		QStringList types;
@@ -1514,18 +1544,30 @@ void MidiControlDialog::updateOutputTable() {
 		);
 		m_pMidiOutputTable->setCellWidget(
 			nRow, 2,
-			newLabel( QString::number( static_cast<int>( pHandledOutput->data1 )
-			) )
+			newLabel(
+				pHandledOutput->data1 != Midi::ParameterInvalid
+					? QString::number( static_cast<int>( pHandledOutput->data1 )
+					  )
+					: ""
+			)
 		);
 		m_pMidiOutputTable->setCellWidget(
 			nRow, 3,
-			newLabel( QString::number( static_cast<int>( pHandledOutput->data2 )
-			) )
+			newLabel(
+				pHandledOutput->data2 != Midi::ParameterInvalid
+					? QString::number( static_cast<int>( pHandledOutput->data2 )
+					  )
+					: ""
+			)
 		);
 		m_pMidiOutputTable->setCellWidget(
 			nRow, 4,
-			newLabel( QString::number( static_cast<int>( pHandledOutput->channel
-			) ) )
+			newLabel(
+				pHandledOutput->channel != Midi::ChannelInvalid
+					? QString::number( static_cast<int>( pHandledOutput->channel
+					  ) )
+					: ""
+			)
 		);
 	};
 
@@ -1552,23 +1594,38 @@ void MidiControlDialog::updateOutputTable() {
 		auto ppLabelData1 =
 			dynamic_cast<QLabel*>( m_pMidiOutputTable->cellWidget( nRow, 2 ) );
 		if ( ppLabelData1 != nullptr ) {
-			ppLabelData1->setText(
-				QString::number( static_cast<int>( pHandledOutput->data1 ) )
-			);
+			if ( pHandledOutput->data1 != Midi::ParameterInvalid ) {
+				ppLabelData1->setText(
+					QString::number( static_cast<int>( pHandledOutput->data1 ) )
+				);
+			}
+			else {
+				ppLabelData1->setText( "" );
+			}
 		}
 		auto ppLabelData2 =
 			dynamic_cast<QLabel*>( m_pMidiOutputTable->cellWidget( nRow, 3 ) );
 		if ( ppLabelData2 != nullptr ) {
-			ppLabelData2->setText(
-				QString::number( static_cast<int>( pHandledOutput->data2 ) )
-			);
+			if ( pHandledOutput->data2 != Midi::ParameterInvalid ) {
+				ppLabelData2->setText(
+					QString::number( static_cast<int>( pHandledOutput->data2 ) )
+				);
+			}
+			else {
+				ppLabelData2->setText( "" );
+			}
 		}
 		auto ppLabelChannel =
 			dynamic_cast<QLabel*>( m_pMidiOutputTable->cellWidget( nRow, 4 ) );
 		if ( ppLabelChannel != nullptr ) {
-			ppLabelChannel->setText(
-				QString::number( static_cast<int>( pHandledOutput->channel ) )
-			);
+			if ( pHandledOutput->channel != Midi::ChannelInvalid ) {
+				ppLabelChannel->setText( QString::number(
+					static_cast<int>( pHandledOutput->channel )
+				) );
+			}
+			else {
+				ppLabelChannel->setText( "" );
+			}
 		}
 	};
 
