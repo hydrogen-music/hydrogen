@@ -799,7 +799,7 @@ void MidiControlDialog::updatePreferencesEvent( int nValue )
 		pPref->getMidiTransportInputHandling()
 	);
 	m_pInputActionChannelSpinBox->setValue(
-		static_cast<int>( pPref->m_midiActionChannel )
+		static_cast<int>( pPref->m_midiActionChannel ), Event::Trigger::Suppress
 	);
 
 	m_pOutputEnableMidiFeedbackCheckBox->setChecked(
@@ -810,7 +810,8 @@ void MidiControlDialog::updatePreferencesEvent( int nValue )
 		pPref->getMidiTransportOutputSend()
 	);
 	m_pOutputFeedbackChannelSpinBox->setValue(
-		static_cast<int>( pPref->getMidiFeedbackChannel() )
+		static_cast<int>( pPref->getMidiFeedbackChannel() ),
+		Event::Trigger::Suppress
 	);
 	m_pOutputSendNoteOffComboBox->setCurrentIndex(
 		static_cast<int>( pPref->getMidiSendNoteOff() )
@@ -1026,13 +1027,16 @@ void MidiControlDialog::updateInstrumentTableRow(
 		pInputNoteSpinBox->disconnect();
 		if ( !inputMapping.isNull() ) {
 			pInputChannelSpinBox->setValue(
-				static_cast<int>( inputMapping.channel )
+				static_cast<int>( inputMapping.channel ),
+				Event::Trigger::Suppress
 			);
-			pInputNoteSpinBox->setValue( static_cast<int>( inputMapping.note )
+			pInputNoteSpinBox->setValue(
+				static_cast<int>( inputMapping.note ), Event::Trigger::Suppress
 			);
 		}
 		else {
-			pInputChannelSpinBox->setValue( static_cast<int>( Midi::ChannelOff )
+			pInputChannelSpinBox->setValue(
+				static_cast<int>( Midi::ChannelOff ), Event::Trigger::Suppress
 			);
 		}
 
@@ -1130,7 +1134,8 @@ void MidiControlDialog::updateInstrumentTableRow(
 	if ( pOutputNoteSpinBox != nullptr ) {
 		pOutputNoteSpinBox->disconnect();
 		if ( !outputMapping.isNull() ) {
-			pOutputNoteSpinBox->setValue( static_cast<int>( outputMapping.note )
+			pOutputNoteSpinBox->setValue(
+				static_cast<int>( outputMapping.note ), Event::Trigger::Suppress
 			);
 		}
 		pOutputNoteSpinBox->setEnabled(
@@ -1183,7 +1188,8 @@ void MidiControlDialog::updateInstrumentTableRow(
 				);
 				if ( !inputMapping.isNull() ) {
 					pInputNoteSpinBox->setValue(
-						static_cast<int>( inputMapping.note )
+						static_cast<int>( inputMapping.note ),
+						Event::Trigger::Suppress
 					);
 				}
 			}
@@ -1200,12 +1206,14 @@ void MidiControlDialog::updateInstrumentTableRow(
 		pOutputChannelSpinBox->disconnect();
 		if ( !outputMapping.isNull() ) {
 			pOutputChannelSpinBox->setValue(
-				static_cast<int>( outputMapping.channel )
+				static_cast<int>( outputMapping.channel ),
+				Event::Trigger::Suppress
 			);
 		}
 		else {
-			pOutputChannelSpinBox->setValue( static_cast<int>( Midi::ChannelOff
-			) );
+			pOutputChannelSpinBox->setValue(
+				static_cast<int>( Midi::ChannelOff ), Event::Trigger::Suppress
+			);
 		}
 		pOutputChannelSpinBox->setEnabled(
 			pMidiInstrumentMap->getOutput() !=
@@ -1258,12 +1266,14 @@ void MidiControlDialog::updateInstrumentTableRow(
 				);
 				if ( !inputMapping.isNull() ) {
 					pInputChannelSpinBox->setValue(
-						static_cast<int>( inputMapping.channel )
+						static_cast<int>( inputMapping.channel ),
+						Event::Trigger::Suppress
 					);
 				}
 				else {
 					pInputChannelSpinBox->setValue(
-						static_cast<int>( Midi::ChannelOff )
+						static_cast<int>( Midi::ChannelOff ),
+						Event::Trigger::Suppress
 					);
 				}
 			}
