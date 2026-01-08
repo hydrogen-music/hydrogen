@@ -105,6 +105,18 @@ public:
 		bool isNull() const { return note == Midi::NoteInvalid &&
 									 channel == Midi::ChannelInvalid; };
 
+		bool operator<( const NoteRef& other ) const
+		{
+			if ( channel < other.channel ) {
+                return true;
+			}
+			else if ( channel > other.channel ) {
+                return false;
+			}
+
+            return note <= other.note;
+		}
+
 		QString toQString( const QString& sPrefix, bool bShort ) const;
 	};
 
@@ -148,16 +160,27 @@ public:
 	void insertCustomInputMapping( std::shared_ptr<Instrument> pInstrument,
 								  Midi::Note note, Midi::Channel channel );
 
-	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+	QString toQString( const QString& sPrefix = "", bool bShort = true )
+		const override;
 
-private:
+   private:
+	/** In case no custom input mappings are defined for an instrument, their
+	 * output settings will be used as fallback.
+	 *
+	 * These fallback map will created anew each time this method is called.
+	 * This is highly inefficient but using #Input::Custom while not providing
+	 * custom mappings is most probably quite an edge case. On the other hand,
+	 * we can save all the logic for keeping a cache data structure up to date
+	 * and do not have to worry about storing shared pointers to instruments
+	 * which might not be accessible otherwise anymore. */
+	std::map<NoteRef, std::shared_ptr<Instrument>> createFallbackMap() const;
 
-		Input m_input;
-		Output m_output;
-		bool m_bUseGlobalInputChannel;
-		Midi::Channel m_globalInputChannel;
-		bool m_bUseGlobalOutputChannel;
-		Midi::Channel m_globalOutputChannel;
+	Input m_input;
+	Output m_output;
+	bool m_bUseGlobalInputChannel;
+	Midi::Channel m_globalInputChannel;
+	bool m_bUseGlobalOutputChannel;
+	Midi::Channel m_globalOutputChannel;
 
 	/** Instrument type-based note mapping. This one takes precedeence over the
      * id-based one. */

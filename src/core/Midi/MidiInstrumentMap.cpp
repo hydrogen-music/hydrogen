@@ -358,6 +358,16 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 			}
 		}
 
+		const auto fallbackMap = createFallbackMap();
+		for ( const auto& [nnoteRef, ppInstrument] : fallbackMap ) {
+			if ( nnoteRef.note == note &&
+				 ( nnoteRef.channel == channel ||
+				   nnoteRef.channel == Midi::ChannelAll ||
+				   channel == Midi::ChannelAll ) ) {
+				instruments.push_back( ppInstrument );
+			}
+		}
+
 		break;
 	}
 
@@ -578,6 +588,53 @@ void MidiInstrumentMap::insertCustomInputMapping(
 	else {
 		m_customInputMappingsId[ pInstrument->getId() ] = noteRef;
 	}
+}
+
+std::map<MidiInstrumentMap::NoteRef, std::shared_ptr<Instrument>>
+MidiInstrumentMap::createFallbackMap() const
+{
+	std::map<NoteRef, std::shared_ptr<Instrument>> fallbackMap;
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return fallbackMap;
+	}
+
+	for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
+		if ( ppInstrument == nullptr ) {
+			continue;
+		}
+
+		// Is the instrument already covered by a custom mapping?
+		if ( m_customInputMappingsType.find( ppInstrument->getType() ) !=
+				 m_customInputMappingsType.end() ||
+			 m_customInputMappingsId.find( ppInstrument->getId() ) !=
+				 m_customInputMappingsId.end() ) {
+			continue;
+		}
+
+		// No mapping yet. Create fallback.
+
+		const auto channelUsed = m_bUseGlobalInputChannel
+									 ? m_globalInputChannel
+									 : ppInstrument->getMidiOutChannel();
+
+		NoteRef noteRef;
+
+		// The global output channel has more weight as the per
+		// instrument channel. But for inputs the global input channel
+		// always wins.
+		if ( m_bUseGlobalOutputChannel && !m_bUseGlobalInputChannel ) {
+			noteRef.channel = m_globalOutputChannel;
+		}
+		else {
+			noteRef.channel = channelUsed;
+		}
+		noteRef.note = ppInstrument->getMidiOutNote();
+
+		fallbackMap[noteRef] = ppInstrument;
+	}
+	return fallbackMap;
 }
 
 QString MidiInstrumentMap::toQString( const QString& sPrefix, bool bShort ) const {
