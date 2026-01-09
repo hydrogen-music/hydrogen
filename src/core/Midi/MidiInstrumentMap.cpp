@@ -143,14 +143,19 @@ void MidiInstrumentMap::saveTo( XMLNode& node ) const {
 	auto mapNode = node.createNode( "midiInstrumentMap" );
 	mapNode.write_int( "input", static_cast<int>(getInput()) );
 	mapNode.write_int( "output", static_cast<int>(getOutput()) );
-	mapNode.write_bool( "useGlobalInputChannel",
-					   getUseGlobalInputChannel() );
+	mapNode.write_bool( "useGlobalInputChannel", getUseGlobalInputChannel() );
+	// The file-based representation of the MIDI channel is zero-based (for
+	// historical reasons) while we start with 1 within the application (since
+	// version 2.0).
 	mapNode.write_int( "globalInputChannel",
-					  static_cast<int>(getGlobalInputChannel()) );
+					  static_cast<int>(getGlobalInputChannel()) - 1 );
 	mapNode.write_bool( "useGlobalOutputChannel",
 					   getUseGlobalOutputChannel() );
+	// The file-based representation of the MIDI channel is zero-based (for
+	// historical reasons) while we start with 1 within the application (since
+	// version 2.0).
 	mapNode.write_int( "globalOutputChannel",
-					  static_cast<int>(getGlobalOutputChannel()) );
+					  static_cast<int>(getGlobalOutputChannel()) - 1 );
 
 	auto customInputNode = mapNode.createNode( "customMidiInputMappings" );
 	for ( const auto [ssType, nnoteRef] : m_customInputMappingsType ) {
@@ -161,8 +166,11 @@ void MidiInstrumentMap::saveTo( XMLNode& node ) const {
 			"instrumentId", static_cast<int>( Instrument::EmptyId )
 		);
 		customInput.write_int( "note", static_cast<int>( nnoteRef.note ) );
+		// The file-based representation of the MIDI channel is zero-based (for
+		// historical reasons) while we start with 1 within the application
+		// (since version 2.0).
 		customInput.write_int(
-			"channel", static_cast<int>( nnoteRef.channel )
+			"channel", static_cast<int>( nnoteRef.channel ) - 1
 		);
 	}
 	for ( const auto [iid, nnoteRef] : m_customInputMappingsId ) {
@@ -171,8 +179,11 @@ void MidiInstrumentMap::saveTo( XMLNode& node ) const {
 		customInput.write_string( "instrumentType", "" );
 		customInput.write_int( "instrumentId", static_cast<int>( iid ) );
 		customInput.write_int( "note", static_cast<int>( nnoteRef.note ) );
+		// The file-based representation of the MIDI channel is zero-based (for
+		// historical reasons) while we start with 1 within the application
+		// (since version 2.0).
 		customInput.write_int(
-			"channel", static_cast<int>( nnoteRef.channel )
+			"channel", static_cast<int>( nnoteRef.channel ) - 1
 		);
 	}
 }
@@ -194,24 +205,33 @@ MidiInstrumentMap::loadFrom( const XMLNode& node, bool bSilent )
 		"useGlobalInputChannel", pMidiInstrumentMap->getUseGlobalInputChannel(),
 		false, false, bSilent
 	) );
-	pMidiInstrumentMap->setGlobalInputChannel(
-		Midi::channelFromInt( node.read_int(
+	// The file-based representation of the MIDI channel is zero-based (for
+	// historical reasons) while we start with 1 within the application (since
+	// version 2.0).
+	pMidiInstrumentMap->setGlobalInputChannel( Midi::channelFromInt(
+		node.read_int(
 			"globalInputChannel",
-			static_cast<int>( pMidiInstrumentMap->getGlobalInputChannel() ),
+			static_cast<int>( pMidiInstrumentMap->getGlobalInputChannel() ) - 1,
 			false, false, bSilent
-		) )
-	);
+		) +
+		1
+	) );
 	pMidiInstrumentMap->setUseGlobalOutputChannel( node.read_bool(
 		"useGlobalOutputChannel",
 		pMidiInstrumentMap->getUseGlobalOutputChannel(), false, false, bSilent
 	) );
-	pMidiInstrumentMap->setGlobalOutputChannel(
-		Midi::channelFromInt( node.read_int(
+	// The file-based representation of the MIDI channel is zero-based (for
+	// historical reasons) while we start with 1 within the application (since
+	// version 2.0).
+	pMidiInstrumentMap->setGlobalOutputChannel( Midi::channelFromInt(
+		node.read_int(
 			"globalOutputChannel",
-			static_cast<int>( pMidiInstrumentMap->getGlobalOutputChannel() ),
+			static_cast<int>( pMidiInstrumentMap->getGlobalOutputChannel() ) -
+				1,
 			false, false, bSilent
-		) )
-	);
+		) +
+		1
+	) );
 
 	const auto customInputMappingsNode =
 		node.firstChildElement( "customMidiInputMappings" );
@@ -232,11 +252,16 @@ MidiInstrumentMap::loadFrom( const XMLNode& node, bool bSilent )
 					"note", static_cast<int>( Midi::NoteDefault ), false, false,
 					bSilent
 				) );
-			const auto channel =
-				Midi::channelFromInt( customInputMappingNode.read_int(
-					"channel", static_cast<int>( Midi::ChannelDefault ), false,
-					false, bSilent
-				) );
+			// The file-based representation of the MIDI channel is zero-based
+			// (for historical reasons) while we start with 1 within the
+			// application (since version 2.0).
+			const auto channel = Midi::channelFromInt(
+				customInputMappingNode.read_int(
+					"channel", static_cast<int>( Midi::ChannelDefault ) - 1,
+					false, false, bSilent
+				) +
+				1
+			);
 			NoteRef noteRef;
 			noteRef.note = note;
 			noteRef.channel = channel;
@@ -330,6 +355,16 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 				if ( pInstrument != nullptr ) {
 					instruments.push_back( pInstrument );
 				}
+			}
+		}
+
+		const auto fallbackMap = createFallbackMap();
+		for ( const auto& [nnoteRef, ppInstrument] : fallbackMap ) {
+			if ( nnoteRef.note == note &&
+				 ( nnoteRef.channel == channel ||
+				   nnoteRef.channel == Midi::ChannelAll ||
+				   channel == Midi::ChannelAll ) ) {
+				instruments.push_back( ppInstrument );
 			}
 		}
 
@@ -553,6 +588,53 @@ void MidiInstrumentMap::insertCustomInputMapping(
 	else {
 		m_customInputMappingsId[ pInstrument->getId() ] = noteRef;
 	}
+}
+
+std::map<MidiInstrumentMap::NoteRef, std::shared_ptr<Instrument>>
+MidiInstrumentMap::createFallbackMap() const
+{
+	std::map<NoteRef, std::shared_ptr<Instrument>> fallbackMap;
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return fallbackMap;
+	}
+
+	for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
+		if ( ppInstrument == nullptr ) {
+			continue;
+		}
+
+		// Is the instrument already covered by a custom mapping?
+		if ( m_customInputMappingsType.find( ppInstrument->getType() ) !=
+				 m_customInputMappingsType.end() ||
+			 m_customInputMappingsId.find( ppInstrument->getId() ) !=
+				 m_customInputMappingsId.end() ) {
+			continue;
+		}
+
+		// No mapping yet. Create fallback.
+
+		const auto channelUsed = m_bUseGlobalInputChannel
+									 ? m_globalInputChannel
+									 : ppInstrument->getMidiOutChannel();
+
+		NoteRef noteRef;
+
+		// The global output channel has more weight as the per
+		// instrument channel. But for inputs the global input channel
+		// always wins.
+		if ( m_bUseGlobalOutputChannel && !m_bUseGlobalInputChannel ) {
+			noteRef.channel = m_globalOutputChannel;
+		}
+		else {
+			noteRef.channel = channelUsed;
+		}
+		noteRef.note = ppInstrument->getMidiOutNote();
+
+		fallbackMap[noteRef] = ppInstrument;
+	}
+	return fallbackMap;
 }
 
 QString MidiInstrumentMap::toQString( const QString& sPrefix, bool bShort ) const {

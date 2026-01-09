@@ -174,8 +174,13 @@ void PortMidiDriver::sendControlChangeMessage( const MidiMessage& msg )
 	event.timestamp = 0;
 
 	//Control change
+	// Midi::Channel within Hydrogen represent user-facing values. Since the
+	// numerical value of channel `1` is `0` within the MIDI standard, we have
+	// to convert it.
 	event.message = Pm_Message(
-		0xB0 | static_cast<int>( msg.getChannel() ), static_cast<int>( msg.getData1() ), static_cast<int>( msg.getData2() ) );
+		0xB0 | ( static_cast<int>( msg.getChannel() ) - 1 ),
+		static_cast<int>( msg.getData1() ),
+		static_cast<int>( msg.getData2() ) );
 	Pm_Write(m_pMidiOut, &event, 1);
 }
 
@@ -456,8 +461,13 @@ void PortMidiDriver::sendNoteOnMessage( const MidiMessage& msg ) {
 
 	PmEvent event;
 	event.timestamp = 0;
+	// Midi::Channel within Hydrogen represent user-facing values. Since the
+	// numerical value of channel `1` is `0` within the MIDI standard, we have
+	// to convert it.
 	event.message = Pm_Message(
-		0x90 | static_cast<int>( msg.getChannel() ), static_cast<int>( msg.getData1() ), static_cast<int>( msg.getData2() ) );
+		0x90 | ( static_cast<int>( msg.getChannel() ) - 1 ),
+		static_cast<int>( msg.getData1() ),
+		static_cast<int>( msg.getData2() ) );
 	PmError err = Pm_Write(m_pMidiOut, &event, 1);
 	if ( err != pmNoError ) {
 		ERRORLOG( QString( "Error in Pm_Write for Note on: [%1]" )
@@ -475,8 +485,13 @@ void PortMidiDriver::sendNoteOffMessage( const MidiMessage& msg )
 	event.timestamp = 0;
 
 	//Note off
-	event.message =
-		Pm_Message( 0x80 | static_cast<int>( msg.getChannel() ), static_cast<int>( msg.getData1() ), static_cast<int>( msg.getData2() ) );
+	// Midi::Channel within Hydrogen represent user-facing values. Since the
+	// numerical value of channel `1` is `0` within the MIDI standard, we have
+	// to convert it.
+	event.message = Pm_Message(
+		0x80 | ( static_cast<int>( msg.getChannel() ) - 1 ),
+		static_cast<int>( msg.getData1() ),
+		static_cast<int>( msg.getData2() ) );
 	PmError err = Pm_Write(m_pMidiOut, &event, 1);
 	if ( err != pmNoError ) {
 		ERRORLOG( QString( "Error in Pm_Write: [%1]" )

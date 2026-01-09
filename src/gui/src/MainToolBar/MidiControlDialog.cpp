@@ -188,7 +188,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		),
 		LCDSpinBox::Type::Int, static_cast<int>( Midi::ChannelAll ),
 		static_cast<int>( Midi::ChannelMaximum ),
-		LCDSpinBox::Flag::MinusOneAsOff | LCDSpinBox::Flag::MinusTwoAsAll
+		LCDSpinBox::Flag::ZeroAsOff | LCDSpinBox::Flag::MinusOneAsAll
 	);
 	pInputActionChannelLayout->addWidget( m_pInputActionChannelSpinBox );
 	m_pInputActionChannelSpinBox->setValue(
@@ -199,7 +199,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
 		[=]( double fValue ) {
 			Preferences::get_instance()->m_midiActionChannel =
-				Midi::channelFromIntClamp( static_cast<int>( fValue ) );
+				Midi::channelFromInt( static_cast<int>( fValue ) );
 		}
 	);
 
@@ -269,7 +269,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		),
 		LCDSpinBox::Type::Int, static_cast<int>( Midi::ChannelOff ),
 		static_cast<int>( Midi::ChannelMaximum ),
-		LCDSpinBox::Flag::MinusOneAsOff
+		LCDSpinBox::Flag::ZeroAsOff
 	);
 	pOutputLabelledLayout->addWidget( m_pOutputFeedbackChannelSpinBox, 0, 1 );
 	m_pOutputFeedbackChannelSpinBox->setValue(
@@ -280,7 +280,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
 		[=]( double fValue ) {
 			Preferences::get_instance()->setMidiFeedbackChannel(
-				Midi::channelFromIntClamp( static_cast<int>( fValue ) )
+				Midi::channelFromInt( static_cast<int>( fValue ) )
 			);
 		}
 	);
@@ -476,7 +476,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 		),
 		LCDSpinBox::Type::Int, static_cast<int>( Midi::ChannelAll ),
 		static_cast<int>( Midi::ChannelMaximum ),
-		LCDSpinBox::Flag::MinusOneAsOff | LCDSpinBox::Flag::MinusTwoAsAll
+		LCDSpinBox::Flag::ZeroAsOff | LCDSpinBox::Flag::MinusOneAsAll
 	);
 	m_pGlobalInputChannelSpinBox->setValue(
 		static_cast<int>( pMidiInstrumentMap->getGlobalInputChannel() )
@@ -491,7 +491,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 			Preferences::get_instance()
 				->getMidiInstrumentMap()
 				->setGlobalInputChannel(
-					Midi::channelFromIntClamp( static_cast<int>( fValue ) )
+					Midi::channelFromInt( static_cast<int>( fValue ) )
 				);
 			updateInstrumentTable();
 		}
@@ -532,7 +532,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 		),
 		LCDSpinBox::Type::Int, static_cast<int>( Midi::ChannelOff ),
 		static_cast<int>( Midi::ChannelMaximum ),
-		LCDSpinBox::Flag::MinusOneAsOff
+		LCDSpinBox::Flag::ZeroAsOff
 	);
 	m_pGlobalOutputChannelSpinBox->setValue(
 		static_cast<int>( pMidiInstrumentMap->getGlobalOutputChannel() )
@@ -547,7 +547,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 			Preferences::get_instance()
 				->getMidiInstrumentMap()
 				->setGlobalOutputChannel(
-					Midi::channelFromIntClamp( static_cast<int>( fValue ) )
+					Midi::channelFromInt( static_cast<int>( fValue ) )
 				);
 			updateInstrumentTable();
 		}
@@ -799,7 +799,7 @@ void MidiControlDialog::updatePreferencesEvent( int nValue )
 		pPref->getMidiTransportInputHandling()
 	);
 	m_pInputActionChannelSpinBox->setValue(
-		static_cast<int>( pPref->m_midiActionChannel )
+		static_cast<int>( pPref->m_midiActionChannel ), Event::Trigger::Suppress
 	);
 
 	m_pOutputEnableMidiFeedbackCheckBox->setChecked(
@@ -810,7 +810,8 @@ void MidiControlDialog::updatePreferencesEvent( int nValue )
 		pPref->getMidiTransportOutputSend()
 	);
 	m_pOutputFeedbackChannelSpinBox->setValue(
-		static_cast<int>( pPref->getMidiFeedbackChannel() )
+		static_cast<int>( pPref->getMidiFeedbackChannel() ),
+		Event::Trigger::Suppress
 	);
 	m_pOutputSendNoteOffComboBox->setCurrentIndex(
 		static_cast<int>( pPref->getMidiSendNoteOff() )
@@ -938,7 +939,7 @@ void MidiControlDialog::addInstrumentTableRow() {
 								   MidiControlDialog::nMappingBoxHeight ),
 		LCDSpinBox::Type::Int, static_cast<int>(Midi::ChannelAll),
 		static_cast<int>(Midi::ChannelMaximum),
-		LCDSpinBox::Flag::MinusOneAsOff | LCDSpinBox::Flag::MinusTwoAsAll );
+		LCDSpinBox::Flag::ZeroAsOff | LCDSpinBox::Flag::MinusOneAsAll );
 	pInputChannelSpinBox->setSizePolicy( QSizePolicy::Expanding,
 										 QSizePolicy::Fixed );
 
@@ -979,7 +980,7 @@ void MidiControlDialog::addInstrumentTableRow() {
 		),
 		LCDSpinBox::Type::Int, static_cast<int>( Midi::ChannelOff ),
 		static_cast<int>( Midi::ChannelMaximum ),
-		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::MinusOneAsOff
+		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::ZeroAsOff
 	);
 	pOutputChannelSpinBox->setSizePolicy(
 		QSizePolicy::Expanding, QSizePolicy::Fixed
@@ -1026,13 +1027,16 @@ void MidiControlDialog::updateInstrumentTableRow(
 		pInputNoteSpinBox->disconnect();
 		if ( !inputMapping.isNull() ) {
 			pInputChannelSpinBox->setValue(
-				static_cast<int>( inputMapping.channel )
+				static_cast<int>( inputMapping.channel ),
+				Event::Trigger::Suppress
 			);
-			pInputNoteSpinBox->setValue( static_cast<int>( inputMapping.note )
+			pInputNoteSpinBox->setValue(
+				static_cast<int>( inputMapping.note ), Event::Trigger::Suppress
 			);
 		}
 		else {
-			pInputChannelSpinBox->setValue( static_cast<int>( Midi::ChannelOff )
+			pInputChannelSpinBox->setValue(
+				static_cast<int>( Midi::ChannelOff ), Event::Trigger::Suppress
 			);
 		}
 
@@ -1063,7 +1067,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 							pInstrument,
 							Midi::noteFromIntClamp( pInputNoteSpinBox->value()
 							),
-							Midi::channelFromIntClamp( static_cast<int>( fValue
+							Midi::channelFromInt( static_cast<int>( fValue
 							) )
 						);
 				}
@@ -1092,7 +1096,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 							pInstrument,
 							Midi::noteFromIntClamp( static_cast<int>( fValue )
 							),
-							Midi::channelFromIntClamp(
+							Midi::channelFromInt(
 								pInputChannelSpinBox->value()
 							)
 						);
@@ -1130,7 +1134,8 @@ void MidiControlDialog::updateInstrumentTableRow(
 	if ( pOutputNoteSpinBox != nullptr ) {
 		pOutputNoteSpinBox->disconnect();
 		if ( !outputMapping.isNull() ) {
-			pOutputNoteSpinBox->setValue( static_cast<int>( outputMapping.note )
+			pOutputNoteSpinBox->setValue(
+				static_cast<int>( outputMapping.note ), Event::Trigger::Suppress
 			);
 		}
 		pOutputNoteSpinBox->setEnabled(
@@ -1183,7 +1188,8 @@ void MidiControlDialog::updateInstrumentTableRow(
 				);
 				if ( !inputMapping.isNull() ) {
 					pInputNoteSpinBox->setValue(
-						static_cast<int>( inputMapping.note )
+						static_cast<int>( inputMapping.note ),
+						Event::Trigger::Suppress
 					);
 				}
 			}
@@ -1200,12 +1206,14 @@ void MidiControlDialog::updateInstrumentTableRow(
 		pOutputChannelSpinBox->disconnect();
 		if ( !outputMapping.isNull() ) {
 			pOutputChannelSpinBox->setValue(
-				static_cast<int>( outputMapping.channel )
+				static_cast<int>( outputMapping.channel ),
+				Event::Trigger::Suppress
 			);
 		}
 		else {
-			pOutputChannelSpinBox->setValue( static_cast<int>( Midi::ChannelOff
-			) );
+			pOutputChannelSpinBox->setValue(
+				static_cast<int>( Midi::ChannelOff ), Event::Trigger::Suppress
+			);
 		}
 		pOutputChannelSpinBox->setEnabled(
 			pMidiInstrumentMap->getOutput() !=
@@ -1231,7 +1239,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 						pSong->getDrumkit()->getInstruments()->index(
 							pInstrument
 						),
-						Midi::channelFromIntClamp( static_cast<int>( fValue ) ),
+						Midi::channelFromInt( static_cast<int>( fValue ) ),
 						&nEventId
 					);
 					if ( nEventId != Event::nInvalidId ) {
@@ -1258,12 +1266,14 @@ void MidiControlDialog::updateInstrumentTableRow(
 				);
 				if ( !inputMapping.isNull() ) {
 					pInputChannelSpinBox->setValue(
-						static_cast<int>( inputMapping.channel )
+						static_cast<int>( inputMapping.channel ),
+						Event::Trigger::Suppress
 					);
 				}
 				else {
 					pInputChannelSpinBox->setValue(
-						static_cast<int>( Midi::ChannelOff )
+						static_cast<int>( Midi::ChannelOff ),
+						Event::Trigger::Suppress
 					);
 				}
 			}
@@ -1320,7 +1330,8 @@ void MidiControlDialog::updateInputTable() {
 		return pLabel;
 	};
 
-	auto addRow = [&]( std::shared_ptr<MidiBaseDriver::HandledInput> pHandledInput,
+	auto addRow = [&]( std::shared_ptr<MidiBaseDriver::HandledInput>
+						   pHandledInput,
 					   int nRow ) {
 		if ( pHandledInput == nullptr ) {
 			return;
@@ -1335,18 +1346,30 @@ void MidiControlDialog::updateInputTable() {
 		);
 		m_pMidiInputTable->setCellWidget(
 			nRow, 2,
-			newLabel( QString::number( static_cast<int>( pHandledInput->data1 )
-			) )
+			newLabel(
+				pHandledInput->data1 != Midi::ParameterInvalid
+					? QString::number( static_cast<int>( pHandledInput->data1 )
+					  )
+					: ""
+			)
 		);
 		m_pMidiInputTable->setCellWidget(
 			nRow, 3,
-			newLabel( QString::number( static_cast<int>( pHandledInput->data2 )
-			) )
+			newLabel(
+				pHandledInput->data2 != Midi::ParameterInvalid
+					? QString::number( static_cast<int>( pHandledInput->data2 )
+					  )
+					: ""
+			)
 		);
 		m_pMidiInputTable->setCellWidget(
 			nRow, 4,
-			newLabel( QString::number( static_cast<int>( pHandledInput->channel
-			) ) )
+			newLabel(
+				pHandledInput->channel != Midi::ChannelInvalid
+					? QString::number( static_cast<int>( pHandledInput->channel
+					  ) )
+					: ""
+			)
 		);
 
 		QStringList types;
@@ -1354,9 +1377,11 @@ void MidiControlDialog::updateInputTable() {
 			types << MidiAction::typeToQString( ttype );
 		}
 		m_pMidiInputTable->setCellWidget(
-			nRow, 5, newLabel( types.join( ", " ) ) );
+			nRow, 5, newLabel( types.join( ", " ) )
+		);
 		m_pMidiInputTable->setCellWidget(
-			nRow, 6, newLabel( pHandledInput->mappedInstruments.join( ", " ) ) );
+			nRow, 6, newLabel( pHandledInput->mappedInstruments.join( ", " ) )
+		);
 	};
 
 	auto updateRow = [&]( std::shared_ptr<MidiBaseDriver::HandledInput> pHandledInput,
@@ -1381,23 +1406,38 @@ void MidiControlDialog::updateInputTable() {
 		auto ppLabelData1 =
 			dynamic_cast<QLabel*>( m_pMidiInputTable->cellWidget( nRow, 2 ) );
 		if ( ppLabelData1 != nullptr ) {
-			ppLabelData1->setText(
-				QString::number( static_cast<int>( pHandledInput->data1 ) )
-			);
+			if ( pHandledInput->data1 != Midi::ParameterInvalid ) {
+				ppLabelData1->setText(
+					QString::number( static_cast<int>( pHandledInput->data1 ) )
+				);
+			}
+			else {
+				ppLabelData1->setText( "" );
+			}
 		}
 		auto ppLabelData2 =
 			dynamic_cast<QLabel*>( m_pMidiInputTable->cellWidget( nRow, 3 ) );
 		if ( ppLabelData2 != nullptr ) {
-			ppLabelData2->setText(
-				QString::number( static_cast<int>( pHandledInput->data2 ) )
-			);
+			if ( pHandledInput->data2 != Midi::ParameterInvalid ) {
+				ppLabelData2->setText(
+					QString::number( static_cast<int>( pHandledInput->data2 ) )
+				);
+			}
+			else {
+				ppLabelData2->setText( "" );
+			}
 		}
 		auto ppLabelChannel =
 			dynamic_cast<QLabel*>( m_pMidiInputTable->cellWidget( nRow, 4 ) );
 		if ( ppLabelChannel != nullptr ) {
-			ppLabelChannel->setText(
-				QString::number( static_cast<int>( pHandledInput->channel ) )
-			);
+			if ( pHandledInput->channel != Midi::ChannelInvalid ) {
+				ppLabelChannel->setText( QString::number(
+					static_cast<int>( pHandledInput->channel )
+				) );
+			}
+			else {
+				ppLabelChannel->setText( "" );
+			}
 		}
 
 		QStringList types;
@@ -1504,18 +1544,30 @@ void MidiControlDialog::updateOutputTable() {
 		);
 		m_pMidiOutputTable->setCellWidget(
 			nRow, 2,
-			newLabel( QString::number( static_cast<int>( pHandledOutput->data1 )
-			) )
+			newLabel(
+				pHandledOutput->data1 != Midi::ParameterInvalid
+					? QString::number( static_cast<int>( pHandledOutput->data1 )
+					  )
+					: ""
+			)
 		);
 		m_pMidiOutputTable->setCellWidget(
 			nRow, 3,
-			newLabel( QString::number( static_cast<int>( pHandledOutput->data2 )
-			) )
+			newLabel(
+				pHandledOutput->data2 != Midi::ParameterInvalid
+					? QString::number( static_cast<int>( pHandledOutput->data2 )
+					  )
+					: ""
+			)
 		);
 		m_pMidiOutputTable->setCellWidget(
 			nRow, 4,
-			newLabel( QString::number( static_cast<int>( pHandledOutput->channel
-			) ) )
+			newLabel(
+				pHandledOutput->channel != Midi::ChannelInvalid
+					? QString::number( static_cast<int>( pHandledOutput->channel
+					  ) )
+					: ""
+			)
 		);
 	};
 
@@ -1542,23 +1594,38 @@ void MidiControlDialog::updateOutputTable() {
 		auto ppLabelData1 =
 			dynamic_cast<QLabel*>( m_pMidiOutputTable->cellWidget( nRow, 2 ) );
 		if ( ppLabelData1 != nullptr ) {
-			ppLabelData1->setText(
-				QString::number( static_cast<int>( pHandledOutput->data1 ) )
-			);
+			if ( pHandledOutput->data1 != Midi::ParameterInvalid ) {
+				ppLabelData1->setText(
+					QString::number( static_cast<int>( pHandledOutput->data1 ) )
+				);
+			}
+			else {
+				ppLabelData1->setText( "" );
+			}
 		}
 		auto ppLabelData2 =
 			dynamic_cast<QLabel*>( m_pMidiOutputTable->cellWidget( nRow, 3 ) );
 		if ( ppLabelData2 != nullptr ) {
-			ppLabelData2->setText(
-				QString::number( static_cast<int>( pHandledOutput->data2 ) )
-			);
+			if ( pHandledOutput->data2 != Midi::ParameterInvalid ) {
+				ppLabelData2->setText(
+					QString::number( static_cast<int>( pHandledOutput->data2 ) )
+				);
+			}
+			else {
+				ppLabelData2->setText( "" );
+			}
 		}
 		auto ppLabelChannel =
 			dynamic_cast<QLabel*>( m_pMidiOutputTable->cellWidget( nRow, 4 ) );
 		if ( ppLabelChannel != nullptr ) {
-			ppLabelChannel->setText(
-				QString::number( static_cast<int>( pHandledOutput->channel ) )
-			);
+			if ( pHandledOutput->channel != Midi::ChannelInvalid ) {
+				ppLabelChannel->setText( QString::number(
+					static_cast<int>( pHandledOutput->channel )
+				) );
+			}
+			else {
+				ppLabelChannel->setText( "" );
+			}
 		}
 	};
 

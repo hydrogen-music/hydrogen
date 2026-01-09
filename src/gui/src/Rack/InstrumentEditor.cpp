@@ -85,7 +85,7 @@ font-size: 21px;" );
 		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int,
 		static_cast<int>( Midi::ChannelOff ),
 		static_cast<int>( Midi::ChannelMaximum ),
-		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::MinusOneAsOff
+		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::ZeroAsOff
 	);
 	m_pMidiOutChannelLCD->move( 146, 257 );
 	m_pMidiOutChannelLCD->setToolTip( QString( tr( "Midi out channel" ) ) );
@@ -104,7 +104,7 @@ font-size: 21px;" );
 			}
 			CoreActionController::setInstrumentMidiOutChannel(
 				pSong->getDrumkit()->getInstruments()->index( pInstrument ),
-				Midi::channelFromIntClamp( static_cast<int>( fValue ) ), nullptr
+				Midi::channelFromInt( static_cast<int>( fValue ) ), nullptr
 			);
 		}
 	);
@@ -598,12 +598,12 @@ void InstrumentEditor::updateEditor() {
 
 		// midi out channel
 		if ( pInstrument->getMidiOutChannel() == Midi::ChannelOff ||
+             pInstrument->getMidiOutChannel() == Midi::ChannelAll ||
              pInstrument->getMidiOutChannel() == Midi::ChannelInvalid ) {
 			// turn off
-			m_pMidiOutChannelLCD->setValue( -1, Event::Trigger::Suppress );
+			m_pMidiOutChannelLCD->setValue( 0, Event::Trigger::Suppress );
 		}
 		else {
-			// The MIDI channels start at 1 instead of zero.
 			m_pMidiOutChannelLCD->setValue(
 				static_cast<int>( pInstrument->getMidiOutChannel() ),
 				Event::Trigger::Suppress

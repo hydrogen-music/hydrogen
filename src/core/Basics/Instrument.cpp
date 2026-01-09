@@ -378,10 +378,16 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 	pInstrument->setMuteGroup(
 		node.read_int( "muteGroup", -1, true, false, bSilent )
 	);
-	pInstrument->setMidiOutChannel( Midi::channelFromInt( node.read_int(
-		"midiOutChannel", static_cast<int>( Midi::ChannelOff ), true, false,
-		bSilent
-	) ) );
+	// The file-based representation of the MIDI channel is zero-based (for
+	// historical reasons) while we start with 1 within the application (since
+	// version 2.0).
+	pInstrument->setMidiOutChannel( Midi::channelFromInt(
+		node.read_int(
+			"midiOutChannel", static_cast<int>( Midi::ChannelOff ) - 1, true,
+			false, bSilent
+		) +
+		1
+	) );
 	pInstrument->setMidiOutNote( Midi::noteFromInt( node.read_int(
 		"midiOutNote", static_cast<int>( pInstrument->m_midiOutNote ), true,
 		false, bSilent
@@ -596,8 +602,11 @@ void Instrument::saveTo(
 	InstrumentNode.write_float( "Sustain", m_pAdsr->getSustain() );
 	InstrumentNode.write_int( "Release", m_pAdsr->getRelease() );
 	InstrumentNode.write_int( "muteGroup", m_nMuteGroup );
+	// The file-based representation of the MIDI channel is zero-based (for
+	// historical reasons) while we start with 1 within the application (since
+	// version 2.0).
 	InstrumentNode.write_int(
-		"midiOutChannel", static_cast<int>( m_midiOutChannel )
+		"midiOutChannel", static_cast<int>( m_midiOutChannel ) - 1
 	);
 	InstrumentNode.write_int(
 		"midiOutNote", static_cast<int>( m_midiOutNote )

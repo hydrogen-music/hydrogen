@@ -221,7 +221,10 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle ) {
 
 			MidiMessage msg;
 
-			switch ( ev->type ) {
+            // Midi::Channel within Hydrogen represent user-facing values. Since
+            // the numerical value of channel `1` is `0` within the MIDI
+            // standard, we have to convert it.
+		switch ( ev->type ) {
 				case SND_SEQ_EVENT_NOTEON:
 					msg.setType( MidiMessage::Type::NoteOn );
 					msg.setData1(
@@ -231,7 +234,7 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle ) {
 						Midi::parameterFromIntClamp( ev->data.note.velocity )
 					);
 					msg.setChannel(
-						Midi::channelFromIntClamp( ev->data.control.channel )
+						Midi::channelFromIntClamp( ev->data.control.channel + 1 )
 					);
 					break;
 
@@ -244,7 +247,7 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle ) {
 						Midi::parameterFromIntClamp( ev->data.note.velocity )
 					);
 					msg.setChannel(
-						Midi::channelFromIntClamp( ev->data.control.channel )
+						Midi::channelFromIntClamp( ev->data.control.channel + 1 )
 					);
 					break;
 
@@ -257,7 +260,7 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle ) {
 						Midi::parameterFromIntClamp( ev->data.control.value )
 					);
 					msg.setChannel(
-						Midi::channelFromIntClamp( ev->data.control.channel )
+						Midi::channelFromIntClamp( ev->data.control.channel + 1 )
 					);
 					break;
 
@@ -267,7 +270,7 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle ) {
 						Midi::parameterFromIntClamp( ev->data.control.value )
 					);
 					msg.setChannel(
-						Midi::channelFromIntClamp( ev->data.control.channel )
+						Midi::channelFromIntClamp( ev->data.control.channel + 1 )
 					);
 					break;
 
@@ -280,7 +283,7 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle ) {
 						Midi::parameterFromIntClamp( ev->data.note.velocity )
 					);
 					msg.setChannel(
-						Midi::channelFromIntClamp( ev->data.control.channel )
+						Midi::channelFromIntClamp( ev->data.control.channel + 1 )
 					);
 					break;
 
@@ -293,7 +296,7 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle ) {
 						Midi::parameterFromIntClamp( ev->data.control.value )
 					);
 					msg.setChannel(
-						Midi::channelFromIntClamp( ev->data.control.channel )
+						Midi::channelFromIntClamp( ev->data.control.channel + 1 )
 					);
 					break;
 
@@ -306,7 +309,7 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle ) {
 						Midi::parameterFromIntClamp( ev->data.control.value )
 					);
 					msg.setChannel(
-						Midi::channelFromIntClamp( ev->data.control.channel )
+						Midi::channelFromIntClamp( ev->data.control.channel + 1 )
 					);
 					break;
 
@@ -488,8 +491,11 @@ void AlsaMidiDriver::sendNoteOnMessage( const MidiMessage& msg )
 	snd_seq_ev_set_source( &ev, outPortId );
 	snd_seq_ev_set_subs( &ev );
 	snd_seq_ev_set_direct( &ev );
+	// Midi::Channel within Hydrogen represent user-facing values. Since the
+	// numerical value of channel `1` is `0` within the MIDI standard, we have
+	// to convert it.
 	snd_seq_ev_set_noteon(
-		&ev, static_cast<int>( msg.getChannel() ),
+		&ev, static_cast<int>( msg.getChannel() ) - 1,
 		static_cast<int>( msg.getData1() ), static_cast<int>( msg.getData2() )
 	);
 	snd_seq_event_output( seq_handle, &ev );
@@ -508,7 +514,10 @@ void AlsaMidiDriver::sendControlChangeMessage( const MidiMessage& msg ) {
 	
 	ev.data.control.param = static_cast<int>( msg.getData1() );
 	ev.data.control.value = static_cast<int>( msg.getData2() );
-	ev.data.control.channel = static_cast<int>( msg.getChannel() );
+	// Midi::Channel within Hydrogen represent user-facing values. Since the
+	// numerical value of channel `1` is `0` within the MIDI standard, we have
+	// to convert it.
+	ev.data.control.channel = static_cast<int>( msg.getChannel() ) - 1;
 
 	snd_seq_event_output_direct(seq_handle, &ev);
 }
@@ -526,8 +535,11 @@ void AlsaMidiDriver::sendNoteOffMessage( const MidiMessage& msg ) {
 	snd_seq_ev_set_source( &ev, outPortId );
 	snd_seq_ev_set_subs( &ev );
 	snd_seq_ev_set_direct( &ev );
+	// Midi::Channel within Hydrogen represent user-facing values. Since the
+	// numerical value of channel `1` is `0` within the MIDI standard, we have
+	// to convert it.
 	snd_seq_ev_set_noteoff(
-		&ev, static_cast<int>( msg.getChannel() ),
+		&ev, static_cast<int>( msg.getChannel() ) - 1,
 		static_cast<int>( msg.getData1() ), static_cast<int>( msg.getData2() )
 	);
 	snd_seq_event_output( seq_handle, &ev );

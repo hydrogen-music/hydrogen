@@ -74,12 +74,16 @@ public:
 	enum Flag {
 		None = 0x000,
 		ModifyOnChange = 0x001,
-		/** Used for MIDI channel spin boxes to indicate no MIDI in/output once the
-		 * value is equal to `-1` */
-		MinusOneAsOff = 0x002,
+		/** Used for MIDI channel spin boxes to indicate no MIDI in/output once
+		 * the value is equal to #Midi::ChannelOff */
+		ZeroAsOff = 0x002,
+		/** Used for other properties which can be disabled by setting their
+         * value to `-1` */
+		MinusOneAsOff = 0x004,
 		/** Used for MIDI channel spin boxes to indicate MIDI input from all
-		 * channels will be accepted once the value is equal to `-2` */
-		MinusTwoAsAll = 0x004,
+		 * channels will be accepted once the value is equal to
+		 * #Midi::ChannelAll */
+		MinusOneAsAll = 0x008,
 	};
 
 	LCDSpinBox( QWidget *pParent, QSize size = QSize(), Type type = Type::Int,
