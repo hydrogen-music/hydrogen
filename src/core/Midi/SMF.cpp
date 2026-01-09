@@ -465,10 +465,18 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 		return;
 	}
 
-	// In case a global output MIDI channel was configured in #MidiControlDialog
-	// it will take precedence over the per-instrument values.
+    // The configuration in #MidiControlDialog also affect MIDI export to file.
+    // This is done to ensure MIDI notes sent via the MIDI driver and those
+    // written to file are consistent as possible.
 	const auto pPref = Preferences::get_instance();
 	const auto pMidiInstrumentMap = pPref->getMidiInstrumentMap();
+
+    // Since the user explicitly requested to export a MIDI file, have to ensure
+    // MIDI output mapping is enabled.
+	const auto oldOutputMapping = pMidiInstrumentMap->getOutput();
+	if ( oldOutputMapping == MidiInstrumentMap::Output::None ) {
+        pMidiInstrumentMap->setOutput( MidiInstrumentMap::Output::Constant );
+	}
 	const auto globalChannel =
 		pMidiInstrumentMap->getUseGlobalOutputChannel()
 			? pMidiInstrumentMap->getGlobalOutputChannel()
@@ -642,22 +650,20 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 					) );
 
 				const auto pInstr = pCopiedNote->getInstrument();
-				const auto note = pCopiedNote->getMidiNote();
+				const auto noteRef =
+					pMidiInstrumentMap->getOutputMapping( pCopiedNote );
 
-				Midi::Channel channel;
-				if ( globalChannel != Midi::ChannelInvalid ) {
-					channel = globalChannel;
-				}
-				else {
-					channel = pInstr->getMidiOutChannel();
-					if ( channel == Midi::ChannelOff ||
-						 channel == Midi::ChannelAll ||
-						 channel == Midi::ChannelInvalid ) {
-						// These are internal values disabling MIDI in/output or
-						// allowing to use arbitrary input channels. We have to
-						// replace them by a sane fallback.
-						channel = Midi::ChannelDefault;
-					}
+				// In case the user does not want Hydrogen to send MIDI notes
+				// each time a note is rendered, she can set the MIDI output
+				// channels of an instrument to "Off". But exporting the song to
+				// MIDI is an explicit action and we should override these
+				// values with a sane default. Same holds for other internal
+				// values.
+				auto channel = noteRef.channel;
+				if ( channel == Midi::ChannelOff ||
+					 channel == Midi::ChannelAll ||
+					 channel == Midi::ChannelInvalid ) {
+					channel = Midi::ChannelDefault;
 				}
 
 				int nLength = pCopiedNote->getLength();
@@ -666,17 +672,27 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 				}
 
 				// get events for specific instrument
-				addEvent( std::make_shared<SMFNoteOnEvent>(
-							  fNoteTick, channel, note, velocity ),
-						  pInstr );
+				addEvent(
+					std::make_shared<SMFNoteOnEvent>(
+						fNoteTick, channel, noteRef.note, velocity
+					),
+					pInstr
+				);
 
-				addEvent( std::make_shared<SMFNoteOffEvent>(
-							  fNoteTick + nLength, channel, note,
-							  velocity ), pInstr );
+				addEvent(
+					std::make_shared<SMFNoteOffEvent>(
+						fNoteTick + nLength, channel, noteRef.note, velocity
+					),
+					pInstr
+				);
 			}
 		}
 
 		nTick += nColumnLength;
+	}
+
+	if ( oldOutputMapping == MidiInstrumentMap::Output::None ) {
+        pMidiInstrumentMap->setOutput( oldOutputMapping );
 	}
 
 	//tracks creation
