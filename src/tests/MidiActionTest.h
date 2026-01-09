@@ -51,6 +51,12 @@ class MidiActionTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testEffectLevelRelativeAction );
 	CPPUNIT_TEST( testFilterCutoffLevelAbsoluteAction );
 	CPPUNIT_TEST( testGainLevelAbsoluteAction );
+	CPPUNIT_TEST( testHumanizationSwingAbsoluteAction );
+	CPPUNIT_TEST( testHumanizationSwingRelativeAction );
+	CPPUNIT_TEST( testHumanizationTimingAbsoluteAction );
+	CPPUNIT_TEST( testHumanizationTimingRelativeAction );
+	CPPUNIT_TEST( testHumanizationVelocityAbsoluteAction );
+	CPPUNIT_TEST( testHumanizationVelocityRelativeAction );
 	CPPUNIT_TEST( testInstrumentPitchAction );
 	CPPUNIT_TEST( testLoadNextDrumkitAction );
 	CPPUNIT_TEST( testLoadPrevDrumkitAction );
@@ -109,6 +115,12 @@ class MidiActionTest : public CppUnit::TestCase {
 	void testEffectLevelRelativeAction();
 	void testFilterCutoffLevelAbsoluteAction();
 	void testGainLevelAbsoluteAction();
+	void testHumanizationSwingAbsoluteAction();
+	void testHumanizationSwingRelativeAction();
+	void testHumanizationTimingAbsoluteAction();
+	void testHumanizationTimingRelativeAction();
+	void testHumanizationVelocityAbsoluteAction();
+	void testHumanizationVelocityRelativeAction();
 	void testInstrumentPitchAction();
 	void testLoadNextDrumkitAction();
 	void testLoadPrevDrumkitAction();

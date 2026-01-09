@@ -33,12 +33,24 @@ All notable changes to this project will be documented in this file.
   - `COUNT_IN`
   - `COUNT_IN_PAUSE_TOGGLE`
   - `COUNT_IN_STOP_TOGGLE`
+  - `HUMANIZATION_SWING_ABSOLUTE`
+  - `HUMANIZATION_SWING_RELATIVE`
+  - `HUMANIZATION_TIMING_ABSOLUTE`
+  - `HUMANIZATION_TIMING_RELATIVE`
+  - `HUMANIZATION_VELOCITY_ABSOLUTE`
+  - `HUMANIZATION_VELOCITY_RELATIVE`
 - new MIDI actions:
   - `LOAD_PREV_DRUMKIT` (cycling through drumkits)
   - `LOAD_NEXT_DRUMKIT` (cycling through drumkits)
   - `COUNT_IN`
   - `COUNT_IN_PAUSE_TOGGLE`
   - `COUNT_IN_STOP_TOGGLE`
+  - `HUMANIZATION_SWING_ABSOLUTE`
+  - `HUMANIZATION_SWING_RELATIVE`
+  - `HUMANIZATION_TIMING_ABSOLUTE`
+  - `HUMANIZATION_TIMING_RELATIVE`
+  - `HUMANIZATION_VELOCITY_ABSOLUTE`
+  - `HUMANIZATION_VELOCITY_RELATIVE`
 - `.h2playlist` files are now backed up by and can be restored from autosave
   files as well.
 - CLI options:

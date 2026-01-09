@@ -545,6 +545,243 @@ void MidiActionTest::testEffectLevelRelativeAction()
 	___INFOLOG( "done" );
 }
 
+void MidiActionTest::testHumanizationSwingAbsoluteAction()
+{
+	___INFOLOG( "" );
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	pMidiEventMap->reset();
+
+	const auto parameter = Midi::parameterFromInt( 1 );
+	const int nValue = 100;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::HumanizationSwingAbsolute
+	);
+	pAction->setValue( QString::number( nValue ) );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	const float fOldValue = pSong->getSwingFactor();
+
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, parameter,
+		Midi::parameterFromInt( nValue ), Midi::ChannelDefault
+	) );
+	CPPUNIT_ASSERT( pSong->getSwingFactor() != fOldValue );
+
+	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
+					.arg( pSong->getSwingFactor() )
+					.arg( static_cast<float>( nValue / 127.0 ) ) );
+	CPPUNIT_ASSERT(
+		std::abs(
+			pSong->getSwingFactor() - ( static_cast<float>( nValue ) / 127.0 )
+		) < 0.01
+	);
+	pSong->setSwingFactor( fOldValue );
+
+	___INFOLOG( "done" );
+}
+
+void MidiActionTest::testHumanizationSwingRelativeAction()
+{
+	___INFOLOG( "" );
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	pMidiEventMap->reset();
+
+	const auto parameter = Midi::parameterFromInt( 1 );
+	const int nValue = 1;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::HumanizationSwingRelative
+	);
+	pAction->setValue( QString::number( nValue ) );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	const float fOldValue = pSong->getSwingFactor();
+    const float fNewValue = 0.42;
+    pSong->setSwingFactor( fNewValue );
+
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, parameter,
+		Midi::parameterFromInt( nValue ), Midi::ChannelDefault
+	) );
+	CPPUNIT_ASSERT( pSong->getSwingFactor() != fNewValue );
+	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
+					.arg( pSong->getSwingFactor() )
+					.arg( fNewValue + 0.05 ) );
+	CPPUNIT_ASSERT(
+		std::abs( pSong->getSwingFactor() - ( fNewValue + 0.05 ) ) < 0.01
+	);
+	pSong->setSwingFactor( fOldValue );
+
+	___INFOLOG( "done" );
+}
+
+void MidiActionTest::testHumanizationTimingAbsoluteAction()
+{
+	___INFOLOG( "" );
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	pMidiEventMap->reset();
+
+	const auto parameter = Midi::parameterFromInt( 1 );
+	const int nValue = 100;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::HumanizationTimingAbsolute
+	);
+	pAction->setValue( QString::number( nValue ) );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	const float fOldValue = pSong->getHumanizeTimeValue();
+
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, parameter,
+		Midi::parameterFromInt( nValue ), Midi::ChannelDefault
+	) );
+	CPPUNIT_ASSERT( pSong->getHumanizeTimeValue() != fOldValue );
+
+	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
+					.arg( pSong->getHumanizeTimeValue() )
+					.arg( static_cast<float>( nValue / 127.0 ) ) );
+	CPPUNIT_ASSERT(
+		std::abs(
+			pSong->getHumanizeTimeValue() - ( static_cast<float>( nValue ) / 127.0 )
+		) < 0.01
+	);
+	pSong->setHumanizeTimeValue( fOldValue );
+
+	___INFOLOG( "done" );
+}
+
+void MidiActionTest::testHumanizationTimingRelativeAction()
+{
+	___INFOLOG( "" );
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	pMidiEventMap->reset();
+
+	const auto parameter = Midi::parameterFromInt( 1 );
+	const int nValue = 1;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::HumanizationTimingRelative
+	);
+	pAction->setValue( QString::number( nValue ) );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	const float fOldValue = pSong->getHumanizeTimeValue();
+    const float fNewValue = 0.42;
+    pSong->setHumanizeTimeValue( fNewValue );
+
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, parameter,
+		Midi::parameterFromInt( nValue ), Midi::ChannelDefault
+	) );
+	CPPUNIT_ASSERT( pSong->getHumanizeTimeValue() != fNewValue );
+	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
+					.arg( pSong->getHumanizeTimeValue() )
+					.arg( fNewValue + 0.05 ) );
+	CPPUNIT_ASSERT(
+		std::abs( pSong->getHumanizeTimeValue() - ( fNewValue + 0.05 ) ) < 0.01
+	);
+	pSong->setHumanizeTimeValue( fOldValue );
+
+	___INFOLOG( "done" );
+}
+
+void MidiActionTest::testHumanizationVelocityAbsoluteAction()
+{
+	___INFOLOG( "" );
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	pMidiEventMap->reset();
+
+	const auto parameter = Midi::parameterFromInt( 1 );
+	const int nValue = 100;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::HumanizationVelocityAbsolute
+	);
+	pAction->setValue( QString::number( nValue ) );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	const float fOldValue = pSong->getHumanizeVelocityValue();
+
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, parameter,
+		Midi::parameterFromInt( nValue ), Midi::ChannelDefault
+	) );
+	CPPUNIT_ASSERT( pSong->getHumanizeVelocityValue() != fOldValue );
+
+	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
+					.arg( pSong->getHumanizeVelocityValue() )
+					.arg( static_cast<float>( nValue / 127.0 ) ) );
+	CPPUNIT_ASSERT(
+		std::abs(
+			pSong->getHumanizeVelocityValue() - ( static_cast<float>( nValue ) / 127.0 )
+		) < 0.01
+	);
+	pSong->setHumanizeVelocityValue( fOldValue );
+
+	___INFOLOG( "done" );
+}
+
+void MidiActionTest::testHumanizationVelocityRelativeAction()
+{
+	___INFOLOG( "" );
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	pMidiEventMap->reset();
+
+	const auto parameter = Midi::parameterFromInt( 1 );
+	const int nValue = 1;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::HumanizationVelocityRelative
+	);
+	pAction->setValue( QString::number( nValue ) );
+	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	const float fOldValue = pSong->getHumanizeVelocityValue();
+    const float fNewValue = 0.42;
+    pSong->setHumanizeVelocityValue( fNewValue );
+
+	sendMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, parameter,
+		Midi::parameterFromInt( nValue ), Midi::ChannelDefault
+	) );
+	CPPUNIT_ASSERT( pSong->getHumanizeVelocityValue() != fNewValue );
+	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
+					.arg( pSong->getHumanizeVelocityValue() )
+					.arg( fNewValue + 0.05 ) );
+	CPPUNIT_ASSERT(
+		std::abs( pSong->getHumanizeVelocityValue() - ( fNewValue + 0.05 ) ) < 0.01
+	);
+	pSong->setHumanizeVelocityValue( fOldValue );
+
+	___INFOLOG( "done" );
+}
+
 void MidiActionTest::testFilterCutoffLevelAbsoluteAction()
 {
 	___INFOLOG( "" );
