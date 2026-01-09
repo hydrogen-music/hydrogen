@@ -244,20 +244,21 @@ PitchSidebar::PitchSidebar( QWidget *parent, int nHeight, int nGridHeight )
 		*pIndex = *pIndex + 1;
 	};
 
-	// C5. Highest pitch on top.
-	int nnActualOctave = 5;
+	// Highest pitch on top.
+	//
+	// We do not render our internal octave number but adhere to the MIDI spec
+	// instead.
 	int nnIndex = 0;
-	for ( int nnOctave = 0; nnOctave < OCTAVE_NUMBER; ++nnOctave ) {
-		for ( int nnKey = static_cast<int>( Note::KeyMinimum );
-			  nnKey <= static_cast<int>( Note::KeyMaximum ); ++nnKey ) {
+	for ( int nnOctave = OCTAVE_NUMBER - 1; nnOctave >= 0; --nnOctave ) {
+		for ( int nnKey = static_cast<int>( Note::KeyMaximum );
+			  nnKey >= static_cast<int>( Note::KeyMinimum ); --nnKey ) {
 			createLabel(
 				CommonStrings::createPitchLabel(
-					Note::keyFromIntClamp( nnKey ), nnActualOctave
+					Note::keyFromIntClamp( nnKey ), nnOctave
 				),
 				&nnIndex
 			);
 		}
-		--nnActualOctave;
 	}
 
 	// Popup menu
