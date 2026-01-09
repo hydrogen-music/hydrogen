@@ -671,6 +671,27 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 					nLength = NOTE_LENGTH;
 				}
 
+				const bool bWriteNoteOffs =
+					pPref->getMidiSendNoteOff() ==
+						Preferences::MidiSendNoteOff::Always ||
+					( pPref->getMidiSendNoteOff() ==
+						  Preferences::MidiSendNoteOff::OnCustomLengths &&
+					  pCopiedNote->getLength() != LENGTH_ENTIRE_SAMPLE );
+
+				// Auto-stop note. If enabled, Hydrogen makes places a NOTE_OFF
+				// right before each NOTE_ON. In order to not get in trouble
+				// with wrong event order and the NOTE_OFF sneaking behind the
+				// NOTE_ON, we place it one tick ahead.
+				if ( pInstr->isStopNotes() && fNoteTick >= 1.0 &&
+					 bWriteNoteOffs ) {
+					addEvent(
+						std::make_shared<SMFNoteOffEvent>(
+							fNoteTick - 1, channel, noteRef.note, velocity
+						),
+						pInstr
+					);
+				}
+
 				// get events for specific instrument
 				addEvent(
 					std::make_shared<SMFNoteOnEvent>(
@@ -679,12 +700,14 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 					pInstr
 				);
 
-				addEvent(
-					std::make_shared<SMFNoteOffEvent>(
-						fNoteTick + nLength, channel, noteRef.note, velocity
-					),
-					pInstr
-				);
+				if ( bWriteNoteOffs ) {
+					addEvent(
+						std::make_shared<SMFNoteOffEvent>(
+							fNoteTick + nLength, channel, noteRef.note, velocity
+						),
+						pInstr
+					);
+				}
 			}
 		}
 
