@@ -950,7 +950,7 @@ void MidiControlDialog::addInstrumentTableRow() {
 			MidiControlDialog::nMappingBoxHeight
 		),
 		LCDSpinBox::Type::Int, static_cast<int>( Midi::NoteMinimum ),
-		static_cast<int>( Midi::NoteMaximum ), LCDSpinBox::Flag::None
+		static_cast<int>( Midi::NoteMaximum ), LCDSpinBox::Flag::ShowMidiNote
 	);
 	pInputNoteSpinBox->setSizePolicy(
 		QSizePolicy::Expanding, QSizePolicy::Fixed
@@ -969,7 +969,8 @@ void MidiControlDialog::addInstrumentTableRow() {
 			MidiControlDialog::nMappingBoxHeight
 		),
 		LCDSpinBox::Type::Int, static_cast<int>( Midi::NoteMinimum ),
-		static_cast<int>( Midi::NoteMaximum ), LCDSpinBox::Flag::ModifyOnChange
+		static_cast<int>( Midi::NoteMaximum ),
+		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::ShowMidiNote
 	);
 
 	auto pOutputChannelSpinBox = new LCDSpinBox(

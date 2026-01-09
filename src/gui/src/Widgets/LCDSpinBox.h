@@ -78,12 +78,15 @@ public:
 		 * the value is equal to #Midi::ChannelOff */
 		ZeroAsOff = 0x002,
 		/** Used for other properties which can be disabled by setting their
-         * value to `-1` */
+		 * value to `-1` */
 		MinusOneAsOff = 0x004,
 		/** Used for MIDI channel spin boxes to indicate MIDI input from all
 		 * channels will be accepted once the value is equal to
 		 * #Midi::ChannelAll */
 		MinusOneAsAll = 0x008,
+        /** Assume the provided integer represents a MIDI note and display the
+         * cooresponding name next to it. */
+        ShowMidiNote = 0x010
 	};
 
 	LCDSpinBox( QWidget *pParent, QSize size = QSize(), Type type = Type::Int,

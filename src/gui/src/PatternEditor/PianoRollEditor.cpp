@@ -244,35 +244,21 @@ PitchSidebar::PitchSidebar( QWidget *parent, int nHeight, int nGridHeight )
 		*pIndex = *pIndex + 1;
 	};
 
-	// C5. Highest pitch on top.
-	int nnActualOctave = 5;
+	// Highest pitch on top.
+	//
+	// We do not render our internal octave number but adhere to the MIDI spec
+	// instead.
 	int nnIndex = 0;
-	for ( int nnOctave = 0; nnOctave < OCTAVE_NUMBER; ++nnOctave ) {
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchB() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchASharp() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchA() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchGSharp() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchG() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchFSharp() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchF() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchE() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchDSharp() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchD() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchCSharp() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchC() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		--nnActualOctave;
+	for ( int nnOctave = OCTAVE_NUMBER - 1; nnOctave >= 0; --nnOctave ) {
+		for ( int nnKey = static_cast<int>( Note::KeyMaximum );
+			  nnKey >= static_cast<int>( Note::KeyMinimum ); --nnKey ) {
+			createLabel(
+				CommonStrings::createPitchLabel(
+					Note::keyFromIntClamp( nnKey ), nnOctave
+				),
+				&nnIndex
+			);
+		}
 	}
 
 	// Popup menu

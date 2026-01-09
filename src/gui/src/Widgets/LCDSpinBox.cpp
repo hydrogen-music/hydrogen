@@ -26,6 +26,7 @@
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
+#include "core/Basics/Note.h"
 
 #include <core/Globals.h>
 #include <core/Preferences/Preferences.h>
@@ -246,12 +247,29 @@ QString LCDSpinBox::textFromValue( double fValue ) const {
 		 fValue == -1.0 ) {
 		result = pCommonStrings->getAllLabel();
 	}
+	else if ( m_flag & Flag::ShowMidiNote ) {
+        // We do not rely on Note::Pitch in here because the pitch offset does
+        // not adhere to the defined ranges for pitch/key/octave we use
+        // throughout Hydrogen.
+		const auto nPitch = static_cast<int>( fValue );
+		int nOctave;
+		if ( fValue >= 0 ) {
+			nOctave = fValue / KEYS_PER_OCTAVE;
+		}
+		else {
+			nOctave = ( fValue - 11 ) / KEYS_PER_OCTAVE;
+		}
+		const auto nKey = fValue - KEYS_PER_OCTAVE * nOctave;
+		result = QString( "%1 (%3)" )
+					 .arg( CommonStrings::createPitchLabel( H2Core::Note::keyFromIntClamp( nKey ), nOctave ) )
+					 .arg( fValue, 0, 'f', 0 );
+	}
 	else {
 		if ( m_type == Type::Int ) {
 			result = QString( "%1" ).arg( fValue, 0, 'f', 0 );
 		}
 		else {
-			result = QString( "%1" ).arg( fValue ) ;
+			result = QString( "%1" ).arg( fValue );
 		}
 	}
 

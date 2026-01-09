@@ -26,6 +26,8 @@
 #include <core/Object.h>
 #include <QString>
 
+#include <core/Basics/Note.h>
+
 /** A container class to collect all translatable strings at one place
 	in order to allow for the reusage. This will (some day) make
 	translation work faster.
@@ -41,6 +43,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	Q_DECLARE_TR_FUNCTIONS( CommonStrings )
 
    public:
+	/** This function does not use #H2Core::Note::Octave since it is supposed to
+	 * work outside of its valid range. */
+	static QString createPitchLabel( H2Core::Note::Key key, int nOctave );
+
 	CommonStrings();
 	~CommonStrings();
 
