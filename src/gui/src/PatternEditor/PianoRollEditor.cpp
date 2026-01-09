@@ -248,30 +248,15 @@ PitchSidebar::PitchSidebar( QWidget *parent, int nHeight, int nGridHeight )
 	int nnActualOctave = 5;
 	int nnIndex = 0;
 	for ( int nnOctave = 0; nnOctave < OCTAVE_NUMBER; ++nnOctave ) {
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchB() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchASharp() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchA() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchGSharp() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchG() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchFSharp() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchF() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchE() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchDSharp() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchD() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchCSharp() )
-					 .arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchC() )
-					 .arg( nnActualOctave ) , &nnIndex );
+		for ( int nnKey = static_cast<int>( Note::KeyMinimum );
+			  nnKey <= static_cast<int>( Note::KeyMaximum ); ++nnKey ) {
+			createLabel(
+				CommonStrings::createPitchLabel(
+					Note::keyFromIntClamp( nnKey ), nnActualOctave
+				),
+				&nnIndex
+			);
+		}
 		--nnActualOctave;
 	}
 

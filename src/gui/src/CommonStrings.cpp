@@ -21,6 +21,57 @@
  */
 
 #include "CommonStrings.h"
+#include "HydrogenApp.h"
+
+using namespace H2Core;
+
+QString CommonStrings::createPitchLabel( Note::Key key, int nOctave )
+{
+    const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+    QString result;
+	switch ( key ) {
+		case Note::Key::B:
+			result = pCommonStrings->getNotePitchB();
+			break;
+		case Note::Key::Bf:
+			result = pCommonStrings->getNotePitchASharp();
+			break;
+		case Note::Key::A:
+			result = pCommonStrings->getNotePitchA();
+			break;
+		case Note::Key::Af:
+			result = pCommonStrings->getNotePitchGSharp();
+			break;
+		case Note::Key::G:
+			result = pCommonStrings->getNotePitchG();
+			break;
+		case Note::Key::Fs:
+			result = pCommonStrings->getNotePitchFSharp();
+			break;
+		case Note::Key::F:
+			result = pCommonStrings->getNotePitchF();
+			break;
+		case Note::Key::E:
+			result = pCommonStrings->getNotePitchE();
+			break;
+		case Note::Key::Ef:
+			result = pCommonStrings->getNotePitchDSharp();
+			break;
+		case Note::Key::D:
+			result = pCommonStrings->getNotePitchD();
+			break;
+		case Note::Key::Cs:
+			result = pCommonStrings->getNotePitchCSharp();
+			break;
+		case Note::Key::C:
+			result = pCommonStrings->getNotePitchC();
+			break;
+		default:
+			result = QString::number( static_cast<int>( key ) );
+	}
+
+	return result.append( QString::number( nOctave ) );
+}
 
 CommonStrings::CommonStrings(){
 	/*: Text displayed on the button to show the Playback track. Its size
