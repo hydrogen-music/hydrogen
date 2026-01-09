@@ -32,6 +32,8 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
+#include <core/Midi/MidiInstrumentMap.h>
+#include <core/Preferences/Preferences.h>
 
 #include <math.h>
 
@@ -463,6 +465,23 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 		return;
 	}
 
+    // The configuration in #MidiControlDialog also affect MIDI export to file.
+    // This is done to ensure MIDI notes sent via the MIDI driver and those
+    // written to file are consistent as possible.
+	const auto pPref = Preferences::get_instance();
+	const auto pMidiInstrumentMap = pPref->getMidiInstrumentMap();
+
+    // Since the user explicitly requested to export a MIDI file, have to ensure
+    // MIDI output mapping is enabled.
+	const auto oldOutputMapping = pMidiInstrumentMap->getOutput();
+	if ( oldOutputMapping == MidiInstrumentMap::Output::None ) {
+        pMidiInstrumentMap->setOutput( MidiInstrumentMap::Output::Constant );
+	}
+	const auto globalChannel =
+		pMidiInstrumentMap->getUseGlobalOutputChannel()
+			? pMidiInstrumentMap->getGlobalOutputChannel()
+			: Midi::ChannelInvalid;
+
 	INFOLOG( QString( "Export MIDI to [%1]" ).arg( sFileName ) );
 
 	// here writers must prepare to receive pattern events
@@ -631,15 +650,19 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 					) );
 
 				const auto pInstr = pCopiedNote->getInstrument();
-				const auto note = pCopiedNote->getMidiNote();
-						
-				auto channel =  pInstr->getMidiOutChannel();
+				const auto noteRef =
+					pMidiInstrumentMap->getOutputMapping( pCopiedNote );
+
+				// In case the user does not want Hydrogen to send MIDI notes
+				// each time a note is rendered, she can set the MIDI output
+				// channels of an instrument to "Off". But exporting the song to
+				// MIDI is an explicit action and we should override these
+				// values with a sane default. Same holds for other internal
+				// values.
+				auto channel = noteRef.channel;
 				if ( channel == Midi::ChannelOff ||
 					 channel == Midi::ChannelAll ||
 					 channel == Midi::ChannelInvalid ) {
-					// These are internal values disabling MIDI in/output or
-					// allowing to use arbitrary input channels. We have to
-					// replace them by a sane fallback.
 					channel = Midi::ChannelDefault;
 				}
 
@@ -648,18 +671,51 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 					nLength = NOTE_LENGTH;
 				}
 
-				// get events for specific instrument
-				addEvent( std::make_shared<SMFNoteOnEvent>(
-							  fNoteTick, channel, note, velocity ),
-						  pInstr );
+				const bool bWriteNoteOffs =
+					pPref->getMidiSendNoteOff() ==
+						Preferences::MidiSendNoteOff::Always ||
+					( pPref->getMidiSendNoteOff() ==
+						  Preferences::MidiSendNoteOff::OnCustomLengths &&
+					  pCopiedNote->getLength() != LENGTH_ENTIRE_SAMPLE );
 
-				addEvent( std::make_shared<SMFNoteOffEvent>(
-							  fNoteTick + nLength, channel, note,
-							  velocity ), pInstr );
+				// Auto-stop note. If enabled, Hydrogen makes places a NOTE_OFF
+				// right before each NOTE_ON. In order to not get in trouble
+				// with wrong event order and the NOTE_OFF sneaking behind the
+				// NOTE_ON, we place it one tick ahead.
+				if ( pInstr->isStopNotes() && fNoteTick >= 1.0 &&
+					 bWriteNoteOffs ) {
+					addEvent(
+						std::make_shared<SMFNoteOffEvent>(
+							fNoteTick - 1, channel, noteRef.note, velocity
+						),
+						pInstr
+					);
+				}
+
+				// get events for specific instrument
+				addEvent(
+					std::make_shared<SMFNoteOnEvent>(
+						fNoteTick, channel, noteRef.note, velocity
+					),
+					pInstr
+				);
+
+				if ( bWriteNoteOffs ) {
+					addEvent(
+						std::make_shared<SMFNoteOffEvent>(
+							fNoteTick + nLength, channel, noteRef.note, velocity
+						),
+						pInstr
+					);
+				}
 			}
 		}
 
 		nTick += nColumnLength;
+	}
+
+	if ( oldOutputMapping == MidiInstrumentMap::Output::None ) {
+        pMidiInstrumentMap->setOutput( oldOutputMapping );
 	}
 
 	//tracks creation
