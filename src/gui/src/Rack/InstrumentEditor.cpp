@@ -87,7 +87,7 @@ font-size: 21px;" );
 		static_cast<int>( Midi::ChannelMaximum ),
 		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::ZeroAsOff
 	);
-	m_pMidiOutChannelLCD->move( 146, 257 );
+	m_pMidiOutChannelLCD->move( 111, 257 );
 	m_pMidiOutChannelLCD->setToolTip( QString( tr( "Midi out channel" ) ) );
 	connect(
 		m_pMidiOutChannelLCD,
@@ -112,15 +112,16 @@ font-size: 21px;" );
 		m_pInstrumentProp, QSize( 61, 10 ),
 		pCommonStrings->getMidiOutChannelLabel()
 	);
-	m_pMidiOutChannelLbl->move( 144, 281 );
+	m_pMidiOutChannelLbl->move( 109, 281 );
 
 	///
 	m_pMidiOutNoteLCD = new LCDSpinBox(
-		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int,
+		m_pInstrumentProp, QSize( 94, 24 ), LCDSpinBox::Type::Int,
 		static_cast<int>( Midi::NoteMinimum ),
-		static_cast<int>( Midi::NoteMaximum ), LCDSpinBox::Flag::ModifyOnChange
+		static_cast<int>( Midi::NoteMaximum ),
+		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::ShowMidiNote
 	);
-	m_pMidiOutNoteLCD->move( 210, 257 );
+	m_pMidiOutNoteLCD->move( 175, 257 );
 	m_pMidiOutNoteLCD->setToolTip( QString( tr( "Midi out note" ) ) );
 	connect(
 		m_pMidiOutNoteLCD,
@@ -143,7 +144,7 @@ font-size: 21px;" );
 	);
 	m_pMidiOutNoteLbl =
 		new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ) );
-	m_pMidiOutNoteLbl->move( 208, 281 );
+	m_pMidiOutNoteLbl->move( 190, 281 );
 
 	/////////////
 
