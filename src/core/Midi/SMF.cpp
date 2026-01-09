@@ -567,9 +567,10 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 			}
 
 			for ( const auto& [ nnNote, ppNote ] : *ppPattern->getNotes() ) {
-				if ( ppNote != nullptr && ppNote->getInstrument() != nullptr &&
-					 ppNote->getProbability() >=
+				if ( ppNote == nullptr || ppNote->getInstrument() == nullptr ||
+					 ppNote->getProbability() <
 					 static_cast<float>(rand()) / static_cast<float>(RAND_MAX) ) {
+                    continue;
 				}
 
 				auto pCopiedNote = std::make_shared<Note>( ppNote );
