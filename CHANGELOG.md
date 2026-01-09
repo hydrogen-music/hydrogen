@@ -76,8 +76,8 @@ All notable changes to this project will be documented in this file.
     messages if the corresponding settings are checked.
   - The channel for MIDI feedback (and clock messages) can now be configured as
     well (setting it to "Off" makes Hydrogen drop those messages) (#779).
-  - Whether or not Hydrogen is sending `NOTE_OFF` messages can now be configured
-    in the MIDI control dialog (#63).
+  - Whether or not Hydrogen is sending or writing `NOTE_OFF` messages can now be
+    configured in the MIDI control dialog (#63).
 
 ### Changed
 
@@ -129,8 +129,8 @@ All notable changes to this project will be documented in this file.
     channel to "Off".
   - Instruments without any samples can now send `NOTE_ON` and `NOTE_OFF` MIDI
     messages as well (#63).
-  - `NOTE_OFF`s are now only send right before a `NOTE_ON` in case "Auto-stop
-    Note" is checked in the instrument editor.
+  - `NOTE_OFF`s are now only send or written right before a `NOTE_ON` in case
+    "Auto-stop Note" is checked in the instrument editor.
 - PlaylistEditor:
   - All actions can now be undone and redone.
   - Songs can be loaded by keyboard selection and pressing Enter key.
