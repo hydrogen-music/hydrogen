@@ -131,6 +131,8 @@ All notable changes to this project will be documented in this file.
     messages as well (#63).
   - `NOTE_OFF`s are now only send or written right before a `NOTE_ON` in case
     "Auto-stop Note" is checked in the instrument editor.
+  - Both MIDI note number and name are now displayed in the corresponding spin
+    boxes (#435).
 - PlaylistEditor:
   - All actions can now be undone and redone.
   - Songs can be loaded by keyboard selection and pressing Enter key.
