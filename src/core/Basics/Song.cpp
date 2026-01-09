@@ -991,17 +991,6 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 
 }
 
-void Song::setSwingFactor( float factor )
-{
-	if ( factor < 0.0 ) {
-		factor = 0.0;
-	} else if ( factor > 1.0 ) {
-		factor = 1.0;
-	}
-
-	m_fSwingFactor = factor;
-}
-
 void Song::setIsModified( bool bIsModified )
 {
 	bool Notify = false;
