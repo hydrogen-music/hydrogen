@@ -129,6 +129,8 @@ All notable changes to this project will be documented in this file.
     channel to "Off".
   - Instruments without any samples can now send `NOTE_ON` and `NOTE_OFF` MIDI
     messages as well (#63).
+  - `NOTE_OFF`s are now only send right before a `NOTE_ON` in case "Auto-stop
+    Note" is checked in the instrument editor.
 - PlaylistEditor:
   - All actions can now be undone and redone.
   - Songs can be loaded by keyboard selection and pressing Enter key.

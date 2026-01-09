@@ -654,15 +654,18 @@ void MidiNoteTest::testSendNoteOff()
 		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
 
 		const auto messageBacklog = pLoopBackMidiDriver->getBacklogMessages();
-		CPPUNIT_ASSERT( messageBacklog.size() == 3 );
+		CPPUNIT_ASSERT( messageBacklog.size() == 4 );
 		CPPUNIT_ASSERT(
 			messageBacklog[0].getType() == MidiMessage::Type::NoteOn
 		);
 		CPPUNIT_ASSERT(
-			messageBacklog[1].getType() == MidiMessage::Type::NoteOn
+			messageBacklog[1].getType() == MidiMessage::Type::NoteOff
 		);
 		CPPUNIT_ASSERT(
-			messageBacklog[2].getType() == MidiMessage::Type::NoteOff
+			messageBacklog[2].getType() == MidiMessage::Type::NoteOn
+		);
+		CPPUNIT_ASSERT(
+			messageBacklog[3].getType() == MidiMessage::Type::NoteOff
 		);
 	}
 
@@ -749,15 +752,18 @@ void MidiNoteTest::testSendNoteOff()
 		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
 
 		const auto messageBacklog = pLoopBackMidiDriver->getBacklogMessages();
-		CPPUNIT_ASSERT( messageBacklog.size() == 3 );
+		CPPUNIT_ASSERT( messageBacklog.size() == 4 );
 		CPPUNIT_ASSERT(
 			messageBacklog[0].getType() == MidiMessage::Type::NoteOn
 		);
 		CPPUNIT_ASSERT(
-			messageBacklog[1].getType() == MidiMessage::Type::NoteOn
+			messageBacklog[1].getType() == MidiMessage::Type::NoteOff
 		);
 		CPPUNIT_ASSERT(
-			messageBacklog[2].getType() == MidiMessage::Type::NoteOff
+			messageBacklog[2].getType() == MidiMessage::Type::NoteOn
+		);
+		CPPUNIT_ASSERT(
+			messageBacklog[3].getType() == MidiMessage::Type::NoteOff
 		);
 	}
 
