@@ -32,6 +32,8 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
+#include <core/Midi/MidiInstrumentMap.h>
+#include <core/Preferences/Preferences.h>
 
 #include <math.h>
 
@@ -463,6 +465,15 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 		return;
 	}
 
+	// In case a global output MIDI channel was configured in #MidiControlDialog
+	// it will take precedence over the per-instrument values.
+	const auto pPref = Preferences::get_instance();
+	const auto pMidiInstrumentMap = pPref->getMidiInstrumentMap();
+	const auto globalChannel =
+		pMidiInstrumentMap->getUseGlobalOutputChannel()
+			? pMidiInstrumentMap->getGlobalOutputChannel()
+			: Midi::ChannelInvalid;
+
 	INFOLOG( QString( "Export MIDI to [%1]" ).arg( sFileName ) );
 
 	// here writers must prepare to receive pattern events
@@ -632,15 +643,21 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 
 				const auto pInstr = pCopiedNote->getInstrument();
 				const auto note = pCopiedNote->getMidiNote();
-						
-				auto channel =  pInstr->getMidiOutChannel();
-				if ( channel == Midi::ChannelOff ||
-					 channel == Midi::ChannelAll ||
-					 channel == Midi::ChannelInvalid ) {
-					// These are internal values disabling MIDI in/output or
-					// allowing to use arbitrary input channels. We have to
-					// replace them by a sane fallback.
-					channel = Midi::ChannelDefault;
+
+				Midi::Channel channel;
+				if ( globalChannel != Midi::ChannelInvalid ) {
+					channel = globalChannel;
+				}
+				else {
+					channel = pInstr->getMidiOutChannel();
+					if ( channel == Midi::ChannelOff ||
+						 channel == Midi::ChannelAll ||
+						 channel == Midi::ChannelInvalid ) {
+						// These are internal values disabling MIDI in/output or
+						// allowing to use arbitrary input channels. We have to
+						// replace them by a sane fallback.
+						channel = Midi::ChannelDefault;
+					}
 				}
 
 				int nLength = pCopiedNote->getLength();
