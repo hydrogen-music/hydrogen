@@ -1494,12 +1494,6 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 				m_pSampler->noteOn( pOffNote );
 			}
 
-			if ( ! pNote->getInstrument()->hasSamples() ) {
-				m_songNoteQueue.pop();
-				pNote->getInstrument()->dequeue( pNote );
-				continue;
-			}
-
 			if ( pNoteInstrument == m_pMetronomeInstrument ) {
 				EventQueue::get_instance()->pushEvent(
 					Event::Type::Metronome,
