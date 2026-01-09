@@ -907,14 +907,18 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 			 noteOnMessage.getChannel() != Midi::ChannelOff ) {
 			// Due to historical reasons Hydrogen is sending a MIDI NOTE_OFF
 			// messages right before a NOTE_ON one.
-			if ( Preferences::get_instance()->getMidiSendNoteOff() ==
-				 Preferences::MidiSendNoteOff::Always ) {
+			if ( pInstr->isStopNotes() &&
+				 ( Preferences::get_instance()->getMidiSendNoteOff() ==
+					   Preferences::MidiSendNoteOff::Always ||
+				   ( Preferences::get_instance()->getMidiSendNoteOff() ==
+						 Preferences::MidiSendNoteOff::OnCustomLengths &&
+					 pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) ) ) {
 				auto noteOffMessage = MidiMessage::from( noteOnMessage );
 				noteOffMessage.setType( MidiMessage::Type::NoteOff );
 				pHydrogen->getMidiDriver()->sendMessage( noteOffMessage );
 			}
 			pHydrogen->getMidiDriver()->sendMessage( noteOnMessage );
-            pNote->setMidiNoteOnSent( true );
+			pNote->setMidiNoteOnSent( true );
 		}
 	}
 

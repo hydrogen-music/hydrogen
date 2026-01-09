@@ -60,7 +60,7 @@
     <muteGroup>-1</muteGroup>
     <midiOutChannel>0</midiOutChannel>
     <midiOutNote>36</midiOutNote>
-    <isStopNote>false</isStopNote>
+    <isStopNote>true</isStopNote>
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
@@ -120,7 +120,7 @@
     <muteGroup>-1</muteGroup>
     <midiOutChannel>1</midiOutChannel>
     <midiOutNote>36</midiOutNote>
-    <isStopNote>false</isStopNote>
+    <isStopNote>true</isStopNote>
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>

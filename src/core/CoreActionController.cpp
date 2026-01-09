@@ -2917,11 +2917,17 @@ bool CoreActionController::activatePlaylistSong( int nSongNumber ) {
 	return true;
 }
 
-bool CoreActionController::sendAllNoteOffMessages() {
+bool CoreActionController::sendAllNoteOffMessages()
+{
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 
-	const auto pMidiInstrumentMap = Preferences::get_instance()->getMidiInstrumentMap();
+	const auto pPref = Preferences::get_instance();
+	if ( pPref->getMidiSendNoteOff() != Preferences::MidiSendNoteOff::Always ) {
+		return true;
+	}
+
+	const auto pMidiInstrumentMap = pPref->getMidiInstrumentMap();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		ERRORLOG( "Unable to send MIDI messages" );
@@ -2939,8 +2945,8 @@ bool CoreActionController::sendAllNoteOffMessages() {
 		// Using a negative MIDI channel MIDI output can be deactivated per
 		// instrument.
 		if ( ppInstrument != nullptr ) {
-			const auto noteRef = pMidiInstrumentMap
-				->getOutputMapping( nullptr, ppInstrument );
+			const auto noteRef =
+				pMidiInstrumentMap->getOutputMapping( nullptr, ppInstrument );
 			noteOff.channel = noteRef.channel;
 			noteOff.note = noteRef.note;
 
