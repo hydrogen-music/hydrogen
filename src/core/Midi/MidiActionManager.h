@@ -147,6 +147,12 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool effectLevelRelative( std::shared_ptr<MidiAction> );
 		bool filterCutoffLevelAbsolute( std::shared_ptr<MidiAction> );
 		bool gainLevelAbsolute( std::shared_ptr<MidiAction> );
+		bool humanizationSwingAbsolute( std::shared_ptr<MidiAction> );
+		bool humanizationSwingRelative( std::shared_ptr<MidiAction> );
+		bool humanizationTimingAbsolute( std::shared_ptr<MidiAction> );
+		bool humanizationTimingRelative( std::shared_ptr<MidiAction> );
+		bool humanizationVelocityAbsolute( std::shared_ptr<MidiAction> );
+		bool humanizationVelocityRelative( std::shared_ptr<MidiAction> );
 		bool instrumentPitch( std::shared_ptr<MidiAction> );
 		bool loadNextDrumkit( std::shared_ptr<MidiAction> );
 		bool loadPrevDrumkit( std::shared_ptr<MidiAction> );

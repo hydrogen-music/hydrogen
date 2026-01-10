@@ -609,6 +609,93 @@ void OscServer::MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
 	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
+void OscServer::HUMANIZATION_SWING_ABSOLUTE_Handler( lo_arg** argv, int i )
+{
+	INFOLOG( "processing message" );
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::HumanizationSwingAbsolute
+	);
+	pAction->setValue( QString::number( argv[0]->f, 'f', 0 ) );
+
+	// Null song handling done in MidiActionManager.
+	H2Core::Hydrogen::get_instance()
+		->getMidiActionManager()
+		->handleMidiActionAsync( pAction );
+}
+
+void OscServer::HUMANIZATION_SWING_RELATIVE_Handler( lo_arg** argv, int i )
+{
+	INFOLOG( "processing message" );
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::HumanizationSwingRelative
+	);
+	// Rounding to ensure we do not miss the 1.0 resulting in increases.
+	pAction->setValue( QString::number( static_cast<int>(argv[0]->f) ) );
+
+	// Null song handling done in MidiActionManager.
+	H2Core::Hydrogen::get_instance()
+		->getMidiActionManager()
+		->handleMidiActionAsync( pAction );
+}
+
+void OscServer::HUMANIZATION_TIMING_ABSOLUTE_Handler( lo_arg** argv, int i )
+{
+	INFOLOG( "processing message" );
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::HumanizationTimingAbsolute
+	);
+	pAction->setValue( QString::number( argv[0]->f, 'f', 0 ) );
+
+	// Null song handling done in MidiActionManager.
+	H2Core::Hydrogen::get_instance()
+		->getMidiActionManager()
+		->handleMidiActionAsync( pAction );
+}
+
+void OscServer::HUMANIZATION_TIMING_RELATIVE_Handler( lo_arg** argv, int i )
+{
+	INFOLOG( "processing message" );
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::HumanizationTimingRelative
+	);
+	// Rounding to ensure we do not miss the 1.0 resulting in increases.
+	pAction->setValue( QString::number( static_cast<int>(argv[0]->f) ) );
+
+	// Null song handling done in MidiActionManager.
+	H2Core::Hydrogen::get_instance()
+		->getMidiActionManager()
+		->handleMidiActionAsync( pAction );
+}
+
+void OscServer::HUMANIZATION_VELOCITY_ABSOLUTE_Handler( lo_arg** argv, int i )
+{
+	INFOLOG( "processing message" );
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::HumanizationVelocityAbsolute
+	);
+	pAction->setValue( QString::number( argv[0]->f, 'f', 0 ) );
+
+	// Null song handling done in MidiActionManager.
+	H2Core::Hydrogen::get_instance()
+		->getMidiActionManager()
+		->handleMidiActionAsync( pAction );
+}
+
+void OscServer::HUMANIZATION_VELOCITY_RELATIVE_Handler( lo_arg** argv, int i )
+{
+	INFOLOG( "processing message" );
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::HumanizationVelocityRelative
+	);
+	// Rounding to ensure we do not miss the 1.0 resulting in increases.
+	pAction->setValue( QString::number( static_cast<int>( argv[0]->f ) ) );
+
+	// Null song handling done in MidiActionManager.
+	H2Core::Hydrogen::get_instance()
+		->getMidiActionManager()
+		->handleMidiActionAsync( pAction );
+}
+
 void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2)
 {
 	INFOLOG( "processing message" );
@@ -1385,9 +1472,37 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/BPM_DECR", "f", BPM_DECR_Handler);
 	m_pServerThread->add_method("/Hydrogen/BPM_INCR", "f", BPM_INCR_Handler);
 
-	m_pServerThread->add_method("/Hydrogen/MASTER_VOLUME_ABSOLUTE", "f", MASTER_VOLUME_ABSOLUTE_Handler);
-	m_pServerThread->add_method("/Hydrogen/MASTER_VOLUME_RELATIVE", "f", MASTER_VOLUME_RELATIVE_Handler);
-	
+	m_pServerThread->add_method(
+		"/Hydrogen/MASTER_VOLUME_ABSOLUTE", "f", MASTER_VOLUME_ABSOLUTE_Handler
+	);
+	m_pServerThread->add_method(
+		"/Hydrogen/MASTER_VOLUME_RELATIVE", "f", MASTER_VOLUME_RELATIVE_Handler
+	);
+	m_pServerThread->add_method(
+		"/Hydrogen/HUMANIZATION_SWING_ABSOLUTE", "f",
+		HUMANIZATION_SWING_ABSOLUTE_Handler
+	);
+	m_pServerThread->add_method(
+		"/Hydrogen/HUMANIZATION_SWING_RELATIVE", "f",
+		HUMANIZATION_SWING_RELATIVE_Handler
+	);
+	m_pServerThread->add_method(
+		"/Hydrogen/HUMANIZATION_TIMING_ABSOLUTE", "f",
+		HUMANIZATION_TIMING_ABSOLUTE_Handler
+	);
+	m_pServerThread->add_method(
+		"/Hydrogen/HUMANIZATION_TIMING_RELATIVE", "f",
+		HUMANIZATION_TIMING_RELATIVE_Handler
+	);
+	m_pServerThread->add_method(
+		"/Hydrogen/HUMANIZATION_VELOCITY_ABSOLUTE", "f",
+		HUMANIZATION_VELOCITY_ABSOLUTE_Handler
+	);
+	m_pServerThread->add_method(
+		"/Hydrogen/HUMANIZATION_VELOCITY_RELATIVE", "f",
+		HUMANIZATION_VELOCITY_RELATIVE_Handler
+	);
+
 	m_pServerThread->add_method("/Hydrogen/SELECT_NEXT_PATTERN", "f", SELECT_NEXT_PATTERN_Handler);
 	m_pServerThread->add_method("/Hydrogen/SELECT_ONLY_NEXT_PATTERN", "f", SELECT_ONLY_NEXT_PATTERN_Handler);
 	m_pServerThread->add_method("/Hydrogen/SELECT_AND_PLAY_PATTERN", "f", SELECT_AND_PLAY_PATTERN_Handler);

@@ -84,7 +84,11 @@ MasterLine::MasterLine( QWidget* pParent )
 	m_pPeakLCD->setPalette( lcdPalette );
 
 	m_pHumanizeVelocityRotary = new Rotary(
-		this, Rotary::Type::Normal, tr( "Humanize velocity" ), false );
+		this, Rotary::Type::Normal, tr( "Humanize velocity" ), false
+	);
+	m_pHumanizeVelocityRotary->setMidiAction( std::make_shared<MidiAction>(
+		MidiAction::Type::HumanizationVelocityAbsolute
+	) );
 	m_pHumanizeVelocityRotary->move( 66, 88 );
 	connect( m_pHumanizeVelocityRotary, &Rotary::valueChanged, [&]() {
 		CoreActionController::setHumanizeVelocity(
@@ -95,8 +99,11 @@ MasterLine::MasterLine( QWidget* pParent )
 			QString( "%1:humanizeVelocity" ).arg( class_name() ) );
 	});
 
-	m_pHumanizeTimeRotary = new Rotary(
-		this, Rotary::Type::Normal, tr( "Humanize time" ), false );
+	m_pHumanizeTimeRotary =
+		new Rotary( this, Rotary::Type::Normal, tr( "Humanize time" ), false );
+	m_pHumanizeTimeRotary->setMidiAction( std::make_shared<MidiAction>(
+		MidiAction::Type::HumanizationTimingAbsolute
+	) );
 	m_pHumanizeTimeRotary->move( 66, 125 );
 	connect( m_pHumanizeTimeRotary, &Rotary::valueChanged, [&]() {
 		CoreActionController::setHumanizeTime(
@@ -108,7 +115,11 @@ MasterLine::MasterLine( QWidget* pParent )
 	});
 
 	m_pSwingRotary = new Rotary(
-		this,  Rotary::Type::Normal, tr( "16th-note Swing" ), false );
+		this, Rotary::Type::Normal, tr( "16th-note Swing" ), false
+	);
+	m_pSwingRotary->setMidiAction( std::make_shared<MidiAction>(
+		MidiAction::Type::HumanizationSwingAbsolute
+	) );
 	m_pSwingRotary->move( 66, 162 );
 	connect( m_pSwingRotary, &Rotary::valueChanged, [&]() {
 		CoreActionController::setSwing( m_pSwingRotary->getValue() );

@@ -622,7 +622,8 @@ inline float Song::getHumanizeTimeValue() const
 
 inline void Song::setHumanizeTimeValue( float fValue )
 {
-	m_fHumanizeTimeValue = fValue;
+	m_fHumanizeTimeValue =
+		std::clamp( fValue, static_cast<float>( 0 ), static_cast<float>( 1 ) );
 }
 
 inline float Song::getHumanizeVelocityValue() const
@@ -632,12 +633,19 @@ inline float Song::getHumanizeVelocityValue() const
 
 inline void Song::setHumanizeVelocityValue( float fValue )
 {
-	m_fHumanizeVelocityValue = fValue;
+	m_fHumanizeVelocityValue =
+		std::clamp( fValue, static_cast<float>( 0 ), static_cast<float>( 1 ) );
 }
 
 inline float Song::getSwingFactor() const
 {
 	return m_fSwingFactor;
+}
+
+inline void Song::setSwingFactor( float fValue )
+{
+	m_fSwingFactor =
+		std::clamp( fValue, static_cast<float>( 0 ), static_cast<float>( 1 ) );
 }
 
 inline const Song::Mode& Song::getMode() const

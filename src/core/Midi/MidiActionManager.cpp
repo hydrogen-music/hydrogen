@@ -99,9 +99,34 @@ MidiActionManager::MidiActionManager() : m_nTickIntervalIndex( 0 )
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::GainLevelAbsolute,
 					   std::make_pair( &MidiActionManager::gainLevelAbsolute, 3 ) ));
-	m_midiActionMap.insert(
-		std::make_pair( MidiAction::Type::InstrumentPitch,
-						std::make_pair( &MidiActionManager::instrumentPitch, 1 ) ));
+	m_midiActionMap.insert( std::make_pair(
+		MidiAction::Type::HumanizationSwingAbsolute,
+		std::make_pair( &MidiActionManager::humanizationSwingAbsolute, 0 )
+	) );
+	m_midiActionMap.insert( std::make_pair(
+		MidiAction::Type::HumanizationSwingRelative,
+		std::make_pair( &MidiActionManager::humanizationSwingRelative, 0 )
+	) );
+	m_midiActionMap.insert( std::make_pair(
+		MidiAction::Type::HumanizationTimingAbsolute,
+		std::make_pair( &MidiActionManager::humanizationTimingAbsolute, 0 )
+	) );
+	m_midiActionMap.insert( std::make_pair(
+		MidiAction::Type::HumanizationTimingRelative,
+		std::make_pair( &MidiActionManager::humanizationTimingRelative, 0 )
+	) );
+	m_midiActionMap.insert( std::make_pair(
+		MidiAction::Type::HumanizationVelocityAbsolute,
+		std::make_pair( &MidiActionManager::humanizationVelocityAbsolute, 0 )
+	) );
+	m_midiActionMap.insert( std::make_pair(
+		MidiAction::Type::HumanizationVelocityRelative,
+		std::make_pair( &MidiActionManager::humanizationVelocityRelative, 0 )
+	) );
+	m_midiActionMap.insert( std::make_pair(
+		MidiAction::Type::InstrumentPitch,
+		std::make_pair( &MidiActionManager::instrumentPitch, 1 )
+	) );
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::LoadNextDrumkit,
 					   std::make_pair( &MidiActionManager::loadNextDrumkit, 0 ) ));
@@ -258,7 +283,7 @@ bool MidiActionManager::play( std::shared_ptr<MidiAction> pAction ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
+
 	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Ready ||
 		 pHydrogen->getAudioEngine()->getState() == AudioEngine::State::CountIn ) {
 		pHydrogen->sequencerPlay();
@@ -274,7 +299,7 @@ bool MidiActionManager::pause( std::shared_ptr<MidiAction>  ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
+
 	pHydrogen->sequencerStop();
 	return true;
 }
@@ -287,7 +312,7 @@ bool MidiActionManager::stop( std::shared_ptr<MidiAction>  ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
+
 	pHydrogen->sequencerStop();
 	return CoreActionController::locateToColumn( 0 );
 }
@@ -321,7 +346,7 @@ bool MidiActionManager::playStopToggle( std::shared_ptr<MidiAction> pAction ) {
 	if ( pHydrogen->getSong() == nullptr ) {
 		return false;
 	}
-	
+
 	switch ( pHydrogen->getAudioEngine()->getState() ) {
 	case AudioEngine::State::Ready:
 	case AudioEngine::State::CountIn:
@@ -350,7 +375,7 @@ bool MidiActionManager::mute( std::shared_ptr<MidiAction>  ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
+
 	return CoreActionController::setMasterIsMuted( true );
 }
 
@@ -362,7 +387,7 @@ bool MidiActionManager::unmute( std::shared_ptr<MidiAction>  ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
+
 	return CoreActionController::setMasterIsMuted( false );
 }
 
@@ -374,7 +399,7 @@ bool MidiActionManager::muteToggle( std::shared_ptr<MidiAction>  ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
+
 	return CoreActionController::setMasterIsMuted( !pHydrogen->getSong()->getIsMuted() );
 }
 
@@ -382,18 +407,18 @@ bool MidiActionManager::stripMuteToggle( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
-	
+
 	// Preventive measure to avoid bad things.
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
+
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
-	
+
 	auto pInstr = pInstrList->get( nLine );
 	if ( pInstr == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
@@ -408,18 +433,18 @@ bool MidiActionManager::stripSoloToggle( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
-	
+
 	// Preventive measure to avoid bad things.
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
+
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
-	
+
 	auto pInstr = pInstrList->get( nLine );
 	if ( pInstr == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
@@ -442,7 +467,7 @@ bool MidiActionManager::beatcounter( std::shared_ptr<MidiAction> pAction ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
+
 	return pHydrogen->handleBeatCounter( pAction->getTimePoint() );
 }
 
@@ -458,7 +483,7 @@ bool MidiActionManager::tapTempo( std::shared_ptr<MidiAction> pAction ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
+
 	pHydrogen->onTapTempoAccelEvent( pAction->getTimePoint() );
 	return true;
 }
@@ -561,20 +586,20 @@ bool MidiActionManager::selectNextPatternCcAbsolute( std::shared_ptr<MidiAction>
 bool MidiActionManager::nextPatternSelection( int nPatternNumber ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	
+
 	// Preventive measure to avoid bad things.
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-    
+
 	if ( nPatternNumber > pSong->getPatternList()->size() - 1 ||
 		nPatternNumber < 0 ) {
 		ERRORLOG( QString( "Provided value [%1] out of bound [0,%2]" ).arg( nPatternNumber )
 				  .arg( pSong->getPatternList()->size() - 1 ) );
 		return false;
 	}
-	
+
 	if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
 		pHydrogen->setSelectedPatternNumber(
 			nPatternNumber, true, Event::Trigger::Default );
@@ -582,7 +607,7 @@ bool MidiActionManager::nextPatternSelection( int nPatternNumber ) {
 	else if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
 		pHydrogen->toggleNextPattern( nPatternNumber );
 	}
-	
+
 	return true;
 }
 
@@ -599,13 +624,13 @@ bool MidiActionManager::selectOnlyNextPatternCcAbsolute( std::shared_ptr<MidiAct
 bool MidiActionManager::onlyNextPatternSelection( int nPatternNumber ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	
+
 	// Preventive measure to avoid bad things.
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
+
 	if ( nPatternNumber > pSong->getPatternList()->size() -1 ||
 		nPatternNumber < 0 ) {
 		if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
@@ -620,11 +645,11 @@ bool MidiActionManager::onlyNextPatternSelection( int nPatternNumber ) {
 					 .arg( pSong->getPatternList()->size() - 1 ) );
 		}
 	}
-	
+
 	if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
 		return nextPatternSelection( nPatternNumber );
 	}
-	
+
 	return pHydrogen->flushAndAddNextPattern( nPatternNumber );
 }
 
@@ -636,7 +661,7 @@ bool MidiActionManager::selectAndPlayPattern( std::shared_ptr<MidiAction> pActio
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
+
 	if ( ! selectNextPattern( pAction ) ) {
 		return false;
 	}
@@ -653,13 +678,13 @@ bool MidiActionManager::selectInstrument( std::shared_ptr<MidiAction> pAction ) 
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
-	
+
 	// Preventive measure to avoid bad things.
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
+
 	bool ok;
 	int  nInstrumentNumber = pAction->getValue().toInt(&ok,10) ;
 
@@ -668,7 +693,7 @@ bool MidiActionManager::selectInstrument( std::shared_ptr<MidiAction> pAction ) 
 	} else if ( nInstrumentNumber < 0 ) {
 		nInstrumentNumber = 0;
 	}
-	
+
 	pHydrogen->setSelectedInstrumentNumber( nInstrumentNumber );
 	return true;
 }
@@ -677,20 +702,20 @@ bool MidiActionManager::effectLevelAbsolute( std::shared_ptr<MidiAction> pAction
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
-	
+
 	// Preventive measure to avoid bad things.
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
+
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int fx_param = pAction->getValue().toInt(&ok,10);
 	int fx_id = pAction->getParameter2().toInt(&ok,10);
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
-	
+
 	auto pInstr = pInstrList->get( nLine );
 	if ( pInstr == nullptr) {
 		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
@@ -710,20 +735,20 @@ bool MidiActionManager::effectLevelRelative( std::shared_ptr<MidiAction> pAction
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
-	
+
 	// Preventive measure to avoid bad things.
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
+
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int fx_param = pAction->getValue().toInt(&ok,10);
 	int fx_id = pAction->getParameter2().toInt(&ok,10);
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
-	
+
 	auto pInstr = pInstrList->get( nLine );
 	if ( pInstr == nullptr) {
 		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
@@ -748,7 +773,7 @@ bool MidiActionManager::masterVolumeAbsolute( std::shared_ptr<MidiAction> pActio
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
-	
+
 	// Preventive measure to avoid bad things.
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
@@ -772,7 +797,7 @@ bool MidiActionManager::masterVolumeRelative( std::shared_ptr<MidiAction> pActio
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
-	
+
 	// Preventive measure to avoid bad things.
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
@@ -800,7 +825,7 @@ bool MidiActionManager::stripVolumeAbsolute( std::shared_ptr<MidiAction> pAction
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
-	
+
 	// Preventive measure to avoid bad things.
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
@@ -812,19 +837,19 @@ bool MidiActionManager::stripVolumeAbsolute( std::shared_ptr<MidiAction> pAction
 	int nVolume = pAction->getValue().toInt(&ok,10);
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
-	
+
 	auto pInstr = pInstrList->get( nLine );
 	if ( pInstr == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
 		return false;
 	}
-	
+
 	if ( nVolume != 0 ) {
 		pInstr->setVolume( 1.5* ( (float) (nVolume / static_cast<float>( Midi::ParameterMaximum ) ) ));
 	} else {
 		pInstr->setVolume( 0 );
 	}
-	
+
 	pHydrogen->setSelectedInstrumentNumber(nLine);
 	EventQueue::get_instance()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
 
@@ -850,12 +875,12 @@ bool MidiActionManager::stripVolumeRelative( std::shared_ptr<MidiAction> pAction
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
 	auto pInstr = pInstrList->get( nLine );
-	
+
 	if ( pInstr == nullptr) {
 		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
 		return false;
 	}
-	
+
 	if( nVolume != 0 ) {
 		if ( nVolume == 1 && pInstr->getVolume() < 1.5 ) {
 			pInstr->setVolume( pInstr->getVolume() + 0.1 );
@@ -867,7 +892,7 @@ bool MidiActionManager::stripVolumeRelative( std::shared_ptr<MidiAction> pAction
 	else {
 		pInstr->setVolume( 0 );
 	}
-	
+
 	pHydrogen->setSelectedInstrumentNumber( nLine );
 	EventQueue::get_instance()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
 
@@ -879,7 +904,7 @@ bool MidiActionManager::panAbsolute( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
-	
+
 	// Preventive measure to avoid bad things.
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
@@ -914,7 +939,7 @@ bool MidiActionManager::panAbsoluteSym( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
-	
+
 	// Preventive measure to avoid bad things.
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
@@ -926,7 +951,7 @@ bool MidiActionManager::panAbsoluteSym( std::shared_ptr<MidiAction> pAction ) {
 	int pan_param = pAction->getValue().toInt(&ok,10);
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
-	
+
 	auto pInstr = pInstrList->get( nLine );
 	if ( pInstr == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
@@ -952,7 +977,7 @@ bool MidiActionManager::panRelative( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
-	
+
 	// Preventive measure to avoid bad things.
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
@@ -964,13 +989,13 @@ bool MidiActionManager::panRelative( std::shared_ptr<MidiAction> pAction ) {
 	int pan_param = pAction->getValue().toInt(&ok,10);
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
-	
+
 	auto pInstr = pInstrList->get( nLine );
 	if ( pInstr == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
 		return false;
 	}
-	
+
 	float fPan = pInstr->getPan();
 
 	if ( pan_param == 1 && fPan < PAN_MAX ) {
@@ -990,13 +1015,13 @@ bool MidiActionManager::gainLevelAbsolute( std::shared_ptr<MidiAction> pAction )
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
-	
+
 	// Preventive measure to avoid bad things.
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
+
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int gain_param = pAction->getValue().toInt(&ok,10);
@@ -1004,48 +1029,140 @@ bool MidiActionManager::gainLevelAbsolute( std::shared_ptr<MidiAction> pAction )
 	int layer_id = pAction->getParameter3().toInt(&ok,10);
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
-	
+
 	auto pInstr = pInstrList->get( nLine );
 	if( pInstr == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
 		return false;
 	}
-	
+
 	auto pComponent =  pInstr->getComponent( component_id );
 	if( pComponent == nullptr) {
 		ERRORLOG( QString( "Unable to retrieve component (Par. 2) [%1]" ).arg( component_id ) );
 		return false;
 	}
-	
+
 	auto pLayer = pComponent->getLayer( layer_id );
 	if( pLayer == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve layer (Par. 3) [%1]" ).arg( layer_id ) );
 		return false;
 	}
-	
+
 	if ( gain_param != 0 ) {
 		pLayer->setGain( 5.0* ( (float) (gain_param / static_cast<float>( Midi::ParameterMaximum ) ) ) );
 	} else {
 		pLayer->setGain( 0 );
 	}
-	
+
 	pHydrogen->setSelectedInstrumentNumber( nLine );
 	EventQueue::get_instance()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
-	
+
 	return true;
 }
 
-bool MidiActionManager::pitchLevelAbsolute( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::humanizationSwingAbsolute(
+	std::shared_ptr<MidiAction> pAction
+)
+{
+	bool ok;
+	const int nValue = pAction->getValue().toInt( &ok, 10 );
+	CoreActionController::setSwing(
+		nValue != 0 ? ( static_cast<float>( nValue ) /
+						static_cast<float>( Midi::ParameterMaximum ) )
+					: 0.0
+	);
+	return true;
+}
+
+bool MidiActionManager::humanizationSwingRelative(
+	std::shared_ptr<MidiAction> pAction
+)
+{
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return false;
+	}
+	bool ok;
+	const int nValue = pAction->getValue().toInt( &ok, 10 );
+	CoreActionController::setSwing(
+		pSong->getSwingFactor() + ( nValue == 1 ? 0.05 : -0.05 )
+	);
+	return true;
+}
+
+bool MidiActionManager::humanizationTimingAbsolute(
+	std::shared_ptr<MidiAction> pAction
+)
+{
+	bool ok;
+	const int nValue = pAction->getValue().toInt( &ok, 10 );
+	CoreActionController::setHumanizeTime(
+		nValue != 0 ? ( static_cast<float>( nValue ) /
+						static_cast<float>( Midi::ParameterMaximum ) )
+					: 0.0
+	);
+	return true;
+}
+
+bool MidiActionManager::humanizationTimingRelative(
+	std::shared_ptr<MidiAction> pAction
+)
+{
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return false;
+	}
+	bool ok;
+	const int nValue = pAction->getValue().toInt( &ok, 10 );
+	CoreActionController::setHumanizeTime(
+		pSong->getHumanizeTimeValue() + ( nValue == 1 ? 0.05 : -0.05 )
+	);
+	return true;
+}
+
+bool MidiActionManager::humanizationVelocityAbsolute(
+	std::shared_ptr<MidiAction> pAction
+)
+{
+	bool ok;
+	const int nValue = pAction->getValue().toInt( &ok, 10 );
+	CoreActionController::setHumanizeVelocity(
+		nValue != 0 ? ( static_cast<float>( nValue ) /
+						static_cast<float>( Midi::ParameterMaximum ) )
+					: 0.0
+	);
+	return true;
+}
+
+bool MidiActionManager::humanizationVelocityRelative(
+	std::shared_ptr<MidiAction> pAction
+)
+{
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return false;
+	}
+	bool ok;
+	const int nValue = pAction->getValue().toInt( &ok, 10 );
+	CoreActionController::setHumanizeVelocity(
+		pSong->getHumanizeVelocityValue() + ( nValue == 1 ? 0.05 : -0.05 )
+	);
+	return true;
+}
+
+bool MidiActionManager::pitchLevelAbsolute( std::shared_ptr<MidiAction> pAction
+)
+{
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
-	
+
 	// Preventive measure to avoid bad things.
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
+
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int pitch_param = pAction->getValue().toInt(&ok,10);
@@ -1059,19 +1176,19 @@ bool MidiActionManager::pitchLevelAbsolute( std::shared_ptr<MidiAction> pAction 
 		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
 		return false;
 	}
-	
+
 	auto pComponent =  pInstr->getComponent( component_id );
 	if( pComponent == nullptr) {
 		ERRORLOG( QString( "Unable to retrieve component (Par. 2) [%1]" ).arg( component_id ) );
 		return false;
 	}
-	
+
 	auto pLayer = pComponent->getLayer( layer_id );
 	if( pLayer == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve layer (Par. 3) [%1]" ).arg( layer_id ) );
 		return false;
 	}
-	
+
 	if ( pitch_param != 0 ) {
 		pLayer->setPitchOffset(
 			( Instrument::fPitchOffsetMaximum - Instrument::fPitchOffsetMinimum ) *
@@ -1079,7 +1196,7 @@ bool MidiActionManager::pitchLevelAbsolute( std::shared_ptr<MidiAction> pAction 
 	} else {
 		pLayer->setPitchOffset( Instrument::fPitchOffsetMinimum );
 	}
-	
+
 	pHydrogen->setSelectedInstrumentNumber( nLine );
 	EventQueue::get_instance()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
 
@@ -1106,13 +1223,13 @@ bool MidiActionManager::filterCutoffLevelAbsolute( std::shared_ptr<MidiAction> p
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
-	
+
 	// Preventive measure to avoid bad things.
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
+
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int filter_cutoff_param = pAction->getValue().toInt(&ok,10);
@@ -1124,17 +1241,17 @@ bool MidiActionManager::filterCutoffLevelAbsolute( std::shared_ptr<MidiAction> p
 		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
 		return false;
 	}
-	
+
 	pInstr->setFilterActive( true );
 	if( filter_cutoff_param != 0 ) {
 		pInstr->setFilterCutoff( ( (float) (filter_cutoff_param / static_cast<float>( Midi::ParameterMaximum ) ) ) );
 	} else {
 		pInstr->setFilterCutoff( 0 );
 	}
-	
+
 	pHydrogen->setSelectedInstrumentNumber( nLine );
 	EventQueue::get_instance()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
-	
+
 	return true;
 }
 
@@ -1181,7 +1298,7 @@ bool MidiActionManager::bpmCcRelative( std::shared_ptr<MidiAction> pAction ) {
 	}
 
 	m_nLastBpmChangeCCParameter = cc_param;
-	
+
 	EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, -1 );
 
 	return true;
@@ -1227,7 +1344,7 @@ bool MidiActionManager::bpmFineCcRelative( std::shared_ptr<MidiAction> pAction )
 	}
 
 	m_nLastBpmChangeCCParameter = cc_param;
-	
+
 	EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, -1 );
 
 	return true;
@@ -1245,14 +1362,14 @@ bool MidiActionManager::bpmIncrease( std::shared_ptr<MidiAction> pAction ) {
 		EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, -1 );
 		return true;
 	}
-	
+
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	const float fBpm = pAudioEngine->getTransportPosition()->getBpm();
 
 	const float fMult = pAction->getParameter1().toFloat();
 
 	CoreActionController::setBpm( fBpm + 1 * fMult );
-	
+
 	EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, -1 );
 
 	return true;
@@ -1270,14 +1387,14 @@ bool MidiActionManager::bpmDecrease( std::shared_ptr<MidiAction> pAction ) {
 		EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, -1 );
 		return true;
 	}
-	
+
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	const float fBpm = pAudioEngine->getTransportPosition()->getBpm();
 
 	const float fMult = pAction->getParameter1().toFloat();
 
 	CoreActionController::setBpm( fBpm - 1 * fMult );
-	
+
 	EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, -1 );
 
 	return true;
@@ -1322,7 +1439,7 @@ bool MidiActionManager::nextBar( std::shared_ptr<MidiAction>  ) {
 			CoreActionController::locateToColumn( nNewColumn );
 		}
 	}
-	
+
 	return true;
 }
 
@@ -1428,7 +1545,7 @@ bool MidiActionManager::recordReady( std::shared_ptr<MidiAction> pAction ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
+
 	if ( pHydrogen->getAudioEngine()->getState() != AudioEngine::State::Playing ) {
 		return CoreActionController::toggleRecordMode();
 	}
@@ -1460,7 +1577,7 @@ bool MidiActionManager::toggleMetronome( std::shared_ptr<MidiAction> ) {
 	// order to send MIDI feedback
 	CoreActionController::setMetronomeIsActive(
 		! Preferences::get_instance()->m_bUseMetronome );
-	
+
 	return true;
 }
 
@@ -1501,7 +1618,7 @@ int MidiActionManager::getParameterNumber( const MidiAction::Type& type ) const 
 		ERRORLOG( QString( "MIDI MidiAction type [%1] couldn't be found" )
 				  .arg( MidiAction::typeToQString( type ) ) );
 	}
-		
+
 	return -1;
 }
 
@@ -1603,7 +1720,7 @@ bool MidiActionManager::countInStopToggle( std::shared_ptr<MidiAction> pAction )
 bool MidiActionManager::handleMidiActionsAsync( const std::vector<std::shared_ptr<MidiAction>>& midiActions ) {
 
 	bool bResult = false;
-	
+
 	for ( const auto& ppMidiAction : midiActions ) {
 		if ( ppMidiAction != nullptr ) {
 			if ( handleMidiActionAsync( ppMidiAction ) ) {

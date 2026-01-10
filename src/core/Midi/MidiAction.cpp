@@ -54,6 +54,18 @@ QString MidiAction::typeToQString( const Type &type ) {
 		return "FILTER_CUTOFF_LEVEL_ABSOLUTE";
 	case Type::GainLevelAbsolute:
 		return "GAIN_LEVEL_ABSOLUTE";
+	case Type::HumanizationSwingAbsolute:
+		return "HUMANIZATION_SWING_ABSOLUTE";
+	case Type::HumanizationSwingRelative:
+		return "HUMANIZATION_SWING_RELATIVE";
+	case Type::HumanizationTimingAbsolute:
+		return "HUMANIZATION_TIMING_ABSOLUTE";
+	case Type::HumanizationTimingRelative:
+		return "HUMANIZATION_TIMING_RELATIVE";
+	case Type::HumanizationVelocityAbsolute:
+		return "HUMANIZATION_VELOCITY_ABSOLUTE";
+	case Type::HumanizationVelocityRelative:
+		return "HUMANIZATION_VELOCITY_RELATIVE";
 	case Type::InstrumentPitch:
 		return "INSTRUMENT_PITCH";
 	case Type::LoadNextDrumkit:
@@ -188,6 +200,24 @@ MidiAction::Type MidiAction::parseType( const QString &sType ) {
 	}
 	else if ( s == "gain_level_absolute" ) {
 		return Type::GainLevelAbsolute;
+	}
+	else if ( s == "humanization_swing_absolute" ) {
+		return Type::HumanizationSwingAbsolute;
+	}
+	else if ( s == "humanization_swing_relative" ) {
+		return Type::HumanizationSwingRelative;
+	}
+	else if ( s == "humanization_timing_absolute" ) {
+		return Type::HumanizationTimingAbsolute;
+	}
+	else if ( s == "humanization_timing_relative" ) {
+		return Type::HumanizationTimingRelative;
+	}
+	else if ( s == "humanization_velocity_absolute" ) {
+		return Type::HumanizationVelocityAbsolute;
+	}
+	else if ( s == "humanization_velocity_relative" ) {
+		return Type::HumanizationVelocityRelative;
 	}
 	else if ( s == "instrument_pitch" ) {
 		return Type::InstrumentPitch;

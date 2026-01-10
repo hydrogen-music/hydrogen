@@ -425,6 +425,84 @@ class OscServer : public H2Core::Object<OscServer>
 		 * message.*/
 		static void MASTER_VOLUME_ABSOLUTE_Handler(lo_arg **argv, int i);
 		/**
+		 * Creates an MidiAction of type
+		 * #H2Core::MidiAction::Type::HumanizationSwingAbsolute and passes its
+		 * references to #H2Core::MidiActionManager::handleMidiActionAsync().
+		 *
+		 * The first argument in @a argv will be used to set
+		 * #H2Core::MidiAction::m_sValue.
+		 *
+		 * \param argv Pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param i Unused number of arguments passed by the OSC
+		 * message.*/
+		static void HUMANIZATION_SWING_ABSOLUTE_Handler(lo_arg **argv, int i);
+		/**
+		 * Creates an MidiAction of type
+		 * #H2Core::MidiAction::Type::HumanizationSwingRelative and passes its
+		 * references to #H2Core::MidiActionManager::handleMidiActionAsync().
+		 *
+		 * The first argument in @a argv will be used to set
+		 * #H2Core::MidiAction::m_sValue.
+		 *
+		 * \param argv Pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param i Unused number of arguments passed by the OSC
+		 * message.*/
+		static void HUMANIZATION_SWING_RELATIVE_Handler(lo_arg **argv, int i);
+		/**
+		 * Creates an MidiAction of type
+		 * #H2Core::MidiAction::Type::HumanizationTimingAbsolute and passes its
+		 * references to #H2Core::MidiActionManager::handleMidiActionAsync().
+		 *
+		 * The first argument in @a argv will be used to set
+		 * #H2Core::MidiAction::m_sValue.
+		 *
+		 * \param argv Pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param i Unused number of arguments passed by the OSC
+		 * message.*/
+		static void HUMANIZATION_TIMING_ABSOLUTE_Handler(lo_arg **argv, int i);
+		/**
+		 * Creates an MidiAction of type
+		 * #H2Core::MidiAction::Type::HumanizationTimingRelative and passes its
+		 * references to #H2Core::MidiActionManager::handleMidiActionAsync().
+		 *
+		 * The first argument in @a argv will be used to set
+		 * #H2Core::MidiAction::m_sValue.
+		 *
+		 * \param argv Pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param i Unused number of arguments passed by the OSC
+		 * message.*/
+		static void
+		HUMANIZATION_TIMING_RELATIVE_Handler( lo_arg** argv, int i );
+		/**
+		 * #H2Core::MidiAction::Type::HumanizationVelocityAbsolute and passes its
+		 * references to #H2Core::MidiActionManager::handleMidiActionAsync().
+		 *
+		 * The first argument in @a argv will be used to set
+		 * #H2Core::MidiAction::m_sValue.
+		 *
+		 * \param argv Pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param i Unused number of arguments passed by the OSC
+		 * message.*/
+		static void HUMANIZATION_VELOCITY_ABSOLUTE_Handler(lo_arg **argv, int i);
+		/**
+		 * Creates an MidiAction of type
+		 * #H2Core::MidiAction::Type::HumanizationVelocityRelative and passes its
+		 * references to #H2Core::MidiActionManager::handleMidiActionAsync().
+		 *
+		 * The first argument in @a argv will be used to set
+		 * #H2Core::MidiAction::m_sValue.
+		 *
+		 * \param argv Pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param i Unused number of arguments passed by the OSC
+		 * message.*/
+		static void HUMANIZATION_VELOCITY_RELATIVE_Handler(lo_arg **argv, int i);
+		/**
 		 * Creates an MidiAction of type @b STRIP_VOLUME_RELATIVE and
 		 * passes its references to MidiActionManager::handleMidiActionAsync().
 		 *
