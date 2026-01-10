@@ -75,7 +75,7 @@
      <isSoloed>false</isSoloed>
      <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
      <layer>
-      <filename>../drumkits/format-integrity/emptySample.flac</filename>
+      <filename>../drumkits/sampleKit/longSample.flac</filename>
       <min>0</min>
       <max>1</max>
       <gain>1</gain>
