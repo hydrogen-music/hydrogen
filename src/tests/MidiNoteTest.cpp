@@ -35,6 +35,7 @@
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/IO/LoopBackMidiDriver.h>
+#include <core/Helpers/Time.h>
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Midi/MidiMessage.h>
@@ -564,6 +565,14 @@ void MidiNoteTest::testSendNoteOff()
 	);
 	CPPUNIT_ASSERT( pLoopBackMidiDriver != nullptr );
 
+    // Maximum temporal distance between a NOTE_OFF preceding a NOTE_ON in the
+    // auto-stop feature. This is expected to be significantly shorter than the
+    // (custom) note length. Given in milliseconds.
+	const int nMaxDelayAutoStopNoteMs = 1;
+    // We do not care about the exact length of the note but just check that the
+    // corresponding NOTE_OFF is not send directly after NOTE_ON.
+	const int nMinimalNoteDurationMs = 10;
+
 	////////////////////////////////////////////////////////////////////////////
 	// Tests with sample
 
@@ -614,6 +623,36 @@ void MidiNoteTest::testSendNoteOff()
 		CPPUNIT_ASSERT(
 			messageBacklog[5].getType() == MidiMessage::Type::NoteOff
 		);
+
+		// Check the temporal distances between sent notes.
+		CPPUNIT_ASSERT(
+			std::chrono::duration_cast<std::chrono::milliseconds>(
+				messageBacklog[1].getTimePoint() -
+				messageBacklog[0].getTimePoint()
+			)
+				.count() <= nMaxDelayAutoStopNoteMs
+		);
+		CPPUNIT_ASSERT(
+			std::chrono::duration_cast<std::chrono::milliseconds>(
+				messageBacklog[2].getTimePoint() -
+				messageBacklog[1].getTimePoint()
+			)
+				.count() >= nMinimalNoteDurationMs
+		);
+		CPPUNIT_ASSERT(
+			std::chrono::duration_cast<std::chrono::milliseconds>(
+				messageBacklog[4].getTimePoint() -
+				messageBacklog[3].getTimePoint()
+			)
+				.count() <= nMaxDelayAutoStopNoteMs
+		);
+		CPPUNIT_ASSERT(
+			std::chrono::duration_cast<std::chrono::milliseconds>(
+				messageBacklog[5].getTimePoint() -
+				messageBacklog[4].getTimePoint()
+			)
+				.count() >= nMinimalNoteDurationMs
+		);
 	}
 
 	{
@@ -666,6 +705,22 @@ void MidiNoteTest::testSendNoteOff()
 		);
 		CPPUNIT_ASSERT(
 			messageBacklog[3].getType() == MidiMessage::Type::NoteOff
+		);
+
+		// Check the temporal distances between sent notes.
+		CPPUNIT_ASSERT(
+			std::chrono::duration_cast<std::chrono::milliseconds>(
+				messageBacklog[2].getTimePoint() -
+				messageBacklog[1].getTimePoint()
+			)
+				.count() <= nMaxDelayAutoStopNoteMs
+		);
+		CPPUNIT_ASSERT(
+			std::chrono::duration_cast<std::chrono::milliseconds>(
+				messageBacklog[3].getTimePoint() -
+				messageBacklog[2].getTimePoint()
+			)
+				.count() >= nMinimalNoteDurationMs
 		);
 	}
 
@@ -712,6 +767,36 @@ void MidiNoteTest::testSendNoteOff()
 		CPPUNIT_ASSERT(
 			messageBacklog[5].getType() == MidiMessage::Type::NoteOff
 		);
+
+		// Check the temporal distances between sent notes.
+		CPPUNIT_ASSERT(
+			std::chrono::duration_cast<std::chrono::milliseconds>(
+				messageBacklog[1].getTimePoint() -
+				messageBacklog[0].getTimePoint()
+			)
+				.count() <= nMaxDelayAutoStopNoteMs
+		);
+		CPPUNIT_ASSERT(
+			std::chrono::duration_cast<std::chrono::milliseconds>(
+				messageBacklog[2].getTimePoint() -
+				messageBacklog[1].getTimePoint()
+			)
+				.count() >= nMinimalNoteDurationMs
+		);
+		CPPUNIT_ASSERT(
+			std::chrono::duration_cast<std::chrono::milliseconds>(
+				messageBacklog[4].getTimePoint() -
+				messageBacklog[3].getTimePoint()
+			)
+				.count() <= nMaxDelayAutoStopNoteMs
+		);
+		CPPUNIT_ASSERT(
+			std::chrono::duration_cast<std::chrono::milliseconds>(
+				messageBacklog[5].getTimePoint() -
+				messageBacklog[4].getTimePoint()
+			)
+				.count() >= nMinimalNoteDurationMs
+		);
 	}
 
 	{
@@ -764,6 +849,22 @@ void MidiNoteTest::testSendNoteOff()
 		);
 		CPPUNIT_ASSERT(
 			messageBacklog[3].getType() == MidiMessage::Type::NoteOff
+		);
+
+		// Check the temporal distances between sent notes.
+		CPPUNIT_ASSERT(
+			std::chrono::duration_cast<std::chrono::milliseconds>(
+				messageBacklog[2].getTimePoint() -
+				messageBacklog[1].getTimePoint()
+			)
+				.count() <= nMaxDelayAutoStopNoteMs
+		);
+		CPPUNIT_ASSERT(
+			std::chrono::duration_cast<std::chrono::milliseconds>(
+				messageBacklog[3].getTimePoint() -
+				messageBacklog[2].getTimePoint()
+			)
+				.count() >= nMinimalNoteDurationMs
 		);
 	}
 
