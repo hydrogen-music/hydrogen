@@ -535,6 +535,13 @@ class Note : public H2Core::Object<Note> {
 		const std::shared_ptr<Note> pNote1,
 		const std::shared_ptr<Note> pNote2
 	);
+	struct compareStartStruct {
+		bool
+		operator()( std::shared_ptr<Note> pNote1, std::shared_ptr<Note> pNote2 )
+		{
+            return Note::compareStart( pNote1, pNote2 );
+		}
+	};
 
 	/**
 	 * compute left and right output based on filters
