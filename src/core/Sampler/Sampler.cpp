@@ -114,7 +114,6 @@ Sampler::~Sampler()
 
 void Sampler::process( uint32_t nFrames )
 {
-	const auto pMidiInstrumentMap = Preferences::get_instance()->getMidiInstrumentMap();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -146,29 +145,55 @@ void Sampler::process( uint32_t nFrames )
 	unsigned i = 0;
 	std::shared_ptr<Note> pNote = nullptr;
 	while ( i < m_playingNotesQueue.size() ) {
-		pNote = m_playingNotesQueue[ i ];
+		pNote = m_playingNotesQueue[i];
 		if ( pNote != nullptr && renderNote( pNote, nFrames ) ) {
 			// End of note was reached during rendering.
 			m_playingNotesQueue.erase( m_playingNotesQueue.begin() + i );
 			if ( pNote->getInstrument() != nullptr ) {
 				pNote->getInstrument()->dequeue( pNote );
-			} else {
-				ERRORLOG( QString( "Playing note in sampler does not have instrument! [%1]" )
-						  .arg( pNote->prettyName() ) );
 			}
-			m_queuedNoteOffs.push_back( pNote );
+			else {
+				ERRORLOG(
+					QString(
+						"Playing note in sampler does not have instrument! [%1]"
+					)
+						.arg( pNote->prettyName() )
+				);
+			}
+			if ( pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) {
+                const auto nPrevStart = pNote->getNoteStart();
+				pNote->setPosition( pNote->getPosition() + pNote->getLength() );
+                pNote->computeNoteStart();
+				m_scheduledNoteOffQueue.push( pNote );
+			}
+			else {
+				m_queuedNoteOffs.push_back( pNote );
+			}
 		}
 		else if ( pNote == nullptr ) {
 			// Pop invalid note.
 			m_playingNotesQueue.erase( m_playingNotesQueue.begin() + i );
 		}
 		else {
-			// As finished notes are poped above 
+			// As finished notes are poped above
 			++i;
 		}
 	}
 
+	auto sendNote = [&]( std::shared_ptr<Note> pNote ) {
+		return pNote != nullptr && pNote->getInstrument() != nullptr &&
+			   pNote->getMidiNoteOnSent() &&
+			   ( Preferences::get_instance()->getMidiSendNoteOff() ==
+					 Preferences::MidiSendNoteOff::Always ||
+				 ( Preferences::get_instance()->getMidiSendNoteOff() ==
+					   Preferences::MidiSendNoteOff::OnCustomLengths &&
+				   pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) );
+	};
+
+	// NoteOffs to be send immediately,
 	if ( m_queuedNoteOffs.size() > 0 ) {
+		const auto pMidiInstrumentMap =
+			Preferences::get_instance()->getMidiInstrumentMap();
 		auto pMidiDriver = pHydrogen->getMidiDriver();
 		if ( pMidiDriver != nullptr ) {
 			// Queue midi note off messages for notes that have a length
@@ -176,13 +201,7 @@ void Sampler::process( uint32_t nFrames )
 			while ( !m_queuedNoteOffs.empty() ) {
 				pNote = m_queuedNoteOffs[0];
 
-				if ( pNote != nullptr && pNote->getInstrument() != nullptr &&
-					 pNote->getMidiNoteOnSent() &&
-					 ( Preferences::get_instance()->getMidiSendNoteOff() ==
-						   Preferences::MidiSendNoteOff::Always ||
-					   ( Preferences::get_instance()->getMidiSendNoteOff() ==
-							 Preferences::MidiSendNoteOff::OnCustomLengths &&
-						 pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) ) ) {
+				if ( sendNote( pNote ) ) {
 					const auto noteRef =
 						pMidiInstrumentMap->getOutputMapping( pNote );
 					MidiMessage::NoteOff noteOff;
@@ -209,11 +228,68 @@ void Sampler::process( uint32_t nFrames )
 		}
 	}
 
-	processPlaybackTrack(nFrames);
+	// NoteOffs to be send on a given time.
+	if ( m_scheduledNoteOffQueue.size() > 0 ) {
+		const auto pMidiInstrumentMap =
+			Preferences::get_instance()->getMidiInstrumentMap();
+		auto pMidiDriver = pHydrogen->getMidiDriver();
+		while ( !m_scheduledNoteOffQueue.empty() ) {
+			if ( pMidiDriver == nullptr ) {
+				m_scheduledNoteOffQueue.pop();
+				continue;
+			}
+			auto pNote = m_scheduledNoteOffQueue.top();
+			if ( !sendNote( pNote ) ) {
+                m_scheduledNoteOffQueue.pop();
+				continue;
+			}
+
+			auto pAudioEngine = pHydrogen->getAudioEngine();
+			long long nCurrentFrame;
+			if ( pAudioEngine->getState() == AudioEngine::State::Playing ||
+				 pAudioEngine->getState() == AudioEngine::State::Testing ) {
+				// Current transport position.
+				nCurrentFrame =
+					pAudioEngine->getTransportPosition()->getFrame();
+			}
+			else {
+				// In case the playback is stopped we pretend it is still
+				// rolling using the realtime ticks while disregarding tempo
+				// changes in the Timeline. This is important as we want to
+				// continue playing back notes in the sampler and process
+				// realtime events, by e.g. MIDI or Hydrogen's virtual
+				// keyboard.
+				nCurrentFrame = pAudioEngine->getRealtimeFrame();
+			}
+
+			if ( pNote->getNoteStart() <
+				 nCurrentFrame + static_cast<long long>( nFrames ) ) {
+                m_scheduledNoteOffQueue.pop();
+
+				const auto noteRef =
+					pMidiInstrumentMap->getOutputMapping( pNote );
+				MidiMessage::NoteOff noteOff;
+				noteOff.channel = noteRef.channel;
+				noteOff.note = noteRef.note;
+				noteOff.velocity = pNote->getMidiVelocity();
+				if ( noteOff.channel != Midi::ChannelOff &&
+					 noteOff.channel != Midi::ChannelInvalid ) {
+					pMidiDriver->sendMessage( MidiMessage::from( noteOff ) );
+				}
+			}
+			else {
+                // Note has not been reached yet.
+                break;
+			}
+		}
+	}
+
+	processPlaybackTrack( nFrames );
 }
 
-bool Sampler::isRenderingNotes() const {
-	return m_playingNotesQueue.size() > 0;
+bool Sampler::isRenderingNotes() const
+{
+	return m_playingNotesQueue.size() > 0 || m_scheduledNoteOffQueue.size() > 0;
 }
 
 bool Sampler::noteOn( std::shared_ptr<Note> pNote )
@@ -1638,18 +1714,40 @@ QString Sampler::toQString( const QString& sPrefix, bool bShort ) const
 		for ( const auto& ppNote : m_queuedNoteOffs ) {
 			sOutput.append( ppNote->toQString( sPrefix + s, bShort ) );
 		}
-		sOutput.append(
-			QString( "]\n%1%2m_pPlaybackTrackInstrument: %3\n" ).arg( sPrefix ).arg( s )
-			.arg( m_pPlaybackTrackInstrument == nullptr ? "nullptr" :
-				  m_pPlaybackTrackInstrument->toQString( sPrefix + s, bShort) ) )
-			.append(
-				QString( "%1%2m_pPreviewInstrument: %3\n" ).arg( sPrefix ).arg( s )
-				.arg( m_pPreviewInstrument == nullptr ? "nullptr" :
-					  m_pPreviewInstrument->toQString( sPrefix + s, bShort) ) )
-			.append( QString( "%1%2m_nPlayBackSamplePosition: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nPlayBackSamplePosition ) )
-			.append( QString( "%1%2m_interpolateMode: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( Interpolation::ModeToQString( m_interpolateMode ) ) );
+		sOutput
+			.append( QString( "]\n%1%2m_scheduledNoteOffQueue: size = %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_scheduledNoteOffQueue.size() ) )
+			.append( QString( "]\n%1%2m_pPlaybackTrackInstrument: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg(
+							 m_pPlaybackTrackInstrument == nullptr
+								 ? "nullptr"
+								 : m_pPlaybackTrackInstrument->toQString(
+									   sPrefix + s, bShort
+								   )
+						 ) )
+			.append( QString( "%1%2m_pPreviewInstrument: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg(
+							 m_pPreviewInstrument == nullptr
+								 ? "nullptr"
+								 : m_pPreviewInstrument->toQString(
+									   sPrefix + s, bShort
+								   )
+						 ) )
+			.append( QString( "%1%2m_nPlayBackSamplePosition: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_nPlayBackSamplePosition ) )
+			.append( QString( "%1%2m_interpolateMode: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( Interpolation::ModeToQString( m_interpolateMode )
+						 ) );
 	}
 	else {
 		sOutput = QString( "[Sampler] " )
@@ -1663,18 +1761,28 @@ QString Sampler::toQString( const QString& sPrefix, bool bShort ) const
 			sOutput.append( QString( "[%1] " )
 							.arg( ppNote->prettyName() ) );
 		}
-		sOutput.append(
-			QString( "], m_pPlaybackTrackInstrument: %1" )
-			.arg( m_pPlaybackTrackInstrument == nullptr ? "nullptr" :
-				  m_pPlaybackTrackInstrument->toQString( "", bShort) ) )
-			.append(
-				QString( ", m_pPreviewInstrument: %1" )
-				.arg( m_pPreviewInstrument == nullptr ? "nullptr" :
-					  m_pPreviewInstrument->toQString( "", bShort) ) )
+		sOutput
+			.append( QString( "], m_scheduledNoteOffQueue: size = %1" )
+						 .arg( m_scheduledNoteOffQueue.size() ) )
+			.append( QString( "], m_pPlaybackTrackInstrument: %1" )
+						 .arg(
+							 m_pPlaybackTrackInstrument == nullptr
+								 ? "nullptr"
+								 : m_pPlaybackTrackInstrument->toQString(
+									   "", bShort
+								   )
+						 ) )
+			.append( QString( ", m_pPreviewInstrument: %1" )
+						 .arg(
+							 m_pPreviewInstrument == nullptr
+								 ? "nullptr"
+								 : m_pPreviewInstrument->toQString( "", bShort )
+						 ) )
 			.append( QString( ", m_nPlayBackSamplePosition: %1" )
-					 .arg( m_nPlayBackSamplePosition ) )
+						 .arg( m_nPlayBackSamplePosition ) )
 			.append( QString( ", m_interpolateMode: %1" )
-					 .arg( Interpolation::ModeToQString( m_interpolateMode ) ) );
+						 .arg( Interpolation::ModeToQString( m_interpolateMode )
+						 ) );
 	}
 
 	return sOutput;
