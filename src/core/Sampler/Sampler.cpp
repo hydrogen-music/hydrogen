@@ -160,10 +160,18 @@ void Sampler::process( uint32_t nFrames )
 						.arg( pNote->prettyName() )
 				);
 			}
-			if ( pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) {
-                const auto nPrevStart = pNote->getNoteStart();
-				pNote->setPosition( pNote->getPosition() + pNote->getLength() );
-                pNote->computeNoteStart();
+			if ( pNote->getLength() != LENGTH_ENTIRE_SAMPLE &&
+				 pNote->getMidiNoteOnSentFrame() != -1 ) {
+				const auto nPrevStart = pNote->getNoteStart();
+				pNote->setMidiNoteOffFrame(
+					pNote->getMidiNoteOnSentFrame() +
+					TransportPosition::computeFrame(
+						pNote->getLength(), Hydrogen::get_instance()
+												->getAudioEngine()
+												->getTransportPosition()
+												->getTickSize()
+					)
+				);
 				m_scheduledNoteOffQueue.push( pNote );
 			}
 			else {
@@ -182,7 +190,7 @@ void Sampler::process( uint32_t nFrames )
 
 	auto sendNote = [&]( std::shared_ptr<Note> pNote ) {
 		return pNote != nullptr && pNote->getInstrument() != nullptr &&
-			   pNote->getMidiNoteOnSent() &&
+			   pNote->getMidiNoteOnSentFrame() != -1 &&
 			   ( Preferences::get_instance()->getMidiSendNoteOff() ==
 					 Preferences::MidiSendNoteOff::Always ||
 				 ( Preferences::get_instance()->getMidiSendNoteOff() ==
@@ -240,7 +248,7 @@ void Sampler::process( uint32_t nFrames )
 			}
 			auto pNote = m_scheduledNoteOffQueue.top();
 			if ( !sendNote( pNote ) ) {
-                m_scheduledNoteOffQueue.pop();
+				m_scheduledNoteOffQueue.pop();
 				continue;
 			}
 
@@ -262,9 +270,9 @@ void Sampler::process( uint32_t nFrames )
 				nCurrentFrame = pAudioEngine->getRealtimeFrame();
 			}
 
-			if ( pNote->getNoteStart() <
+			if ( pNote->getMidiNoteOffFrame() <
 				 nCurrentFrame + static_cast<long long>( nFrames ) ) {
-                m_scheduledNoteOffQueue.pop();
+				m_scheduledNoteOffQueue.pop();
 
 				const auto noteRef =
 					pMidiInstrumentMap->getOutputMapping( pNote );
@@ -994,7 +1002,7 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 				pHydrogen->getMidiDriver()->sendMessage( noteOffMessage );
 			}
 			pHydrogen->getMidiDriver()->sendMessage( noteOnMessage );
-			pNote->setMidiNoteOnSent( true );
+			pNote->setMidiNoteOnSentFrame( nFrame );
 		}
 	}
 

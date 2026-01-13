@@ -285,7 +285,19 @@ private:
 		bool bIsMuted
 	);
 
-	std::vector<std::shared_ptr<Note>> m_playingNotesQueue;
+	struct compareMidiNoteOff {
+		bool
+		operator()( std::shared_ptr<Note> pNote1, std::shared_ptr<Note> pNote2 )
+		{
+			if ( pNote1 == nullptr || pNote2 == nullptr ) {
+				return false;
+			}
+			return pNote1->getNoteStart() >= pNote2->getNoteStart();
+		}
+	};
+
+	std::vector<std::shared_ptr<Note>>
+		m_playingNotesQueue;
 	/** Notes for which a NOTE_OFF message will be send at the end of the
 	 * next processing cycle. */
 	std::vector<std::shared_ptr<Note>> m_queuedNoteOffs;
@@ -298,7 +310,7 @@ private:
 	std::priority_queue<
 		std::shared_ptr<Note>,
 		std::deque<std::shared_ptr<Note>>,
-		Note::compareStartStruct>
+		compareMidiNoteOff>
 		m_scheduledNoteOffQueue;
 
 	/// Instrument used for the playback track feature.
