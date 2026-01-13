@@ -133,6 +133,8 @@ All notable changes to this project will be documented in this file.
     "Auto-stop Note" is checked in the instrument editor.
   - Both MIDI note number and name are now displayed in the corresponding spin
     boxes (#435).
+  - `NOTE_OFF` messages are now always send at the end of custom note lengths
+    even if they exceed the length of the underlying sample(s).
 - PlaylistEditor:
   - All actions can now be undone and redone.
   - Songs can be loaded by keyboard selection and pressing Enter key.
