@@ -544,10 +544,10 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	indicateEffectiveNoteLengthComboBox->addItem( pCommonStrings->getStatusOff() );
 	indicateEffectiveNoteLengthComboBox->setCurrentIndex( 0 );
 	if ( pPref->getInterfaceTheme()->m_bIndicateEffectiveNoteLength ) {
-		indicateNotePlaybackComboBox->setCurrentIndex( 0 );
+		indicateEffectiveNoteLengthComboBox->setCurrentIndex( 0 );
 	}
 	else {
-		indicateNotePlaybackComboBox->setCurrentIndex( 1 );
+		indicateEffectiveNoteLengthComboBox->setCurrentIndex( 1 );
 	}
 	connect( indicateEffectiveNoteLengthComboBox, SIGNAL( activated(int) ),
 			 this, SLOT( onIndicateEffectiveNoteLengthChanged(int) ) );
