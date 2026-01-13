@@ -538,11 +538,32 @@ void MidiNoteTest::testSendNoteOff()
 {
 	___INFOLOG( "" );
 
+	auto pPref = Preferences::get_instance();
+
+	// Since we rely on the Sampler to properly set the end of notes with custom
+	// length, we have to ensure the audio engine is in the right state.
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
+	CPPUNIT_ASSERT( pAudioEngine->getAudioDriver() != nullptr );
+
+	auto pSampler = pAudioEngine->getSampler();
+	auto renderNote = [&]( std::shared_ptr<Note> pNote ) {
+        pAudioEngine->lock( RIGHT_HERE );
+		pNote->setPosition( TransportPosition::computeTickFromFrame(
+			pAudioEngine->getRealtimeFrame() +
+			pAudioEngine->getAudioDriver()->getBufferSize()
+		) );
+		pNote->computeNoteStart();
+		const bool bReturn = pSampler->noteOn( pNote );
+		pAudioEngine->unlock();
+
+        return bReturn;
+	};
+
 	const auto pSong =
 		Song::load( H2TEST_FILE( "song/midi-send-note-off.h2song" ), false );
 	CPPUNIT_ASSERT( pSong != nullptr && pSong->getDrumkit() != nullptr );
 
-	auto pSampler = Hydrogen::get_instance()->getAudioEngine()->getSampler();
 	// Ensure no other notes are playing/ringing out.
 	auto clearSampler = [&]() {
 		pSampler->releasePlayingNotes();
@@ -558,10 +579,8 @@ void MidiNoteTest::testSendNoteOff()
 	clearSampler();
 	CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
 
-	auto pPref = Preferences::get_instance();
-
 	auto pLoopBackMidiDriver = dynamic_cast<LoopBackMidiDriver*>(
-		Hydrogen::get_instance()->getAudioEngine()->getMidiDriver().get()
+		pAudioEngine->getMidiDriver().get()
 	);
 	CPPUNIT_ASSERT( pLoopBackMidiDriver != nullptr );
 
@@ -572,6 +591,13 @@ void MidiNoteTest::testSendNoteOff()
     // We do not care about the exact length of the note but just check that the
     // corresponding NOTE_OFF is not send directly after NOTE_ON.
 	const int nMinimalNoteDurationMs = 10;
+
+    const int nCustomLengthInTicks = 108;
+	const int nCustomLengthDurationMs =
+		pAudioEngine->getTransportPosition()->getTickSize() * 1000 *
+		nCustomLengthInTicks /
+		pAudioEngine->getAudioDriver()->getSampleRate();
+    const int nDurationTolerance = nCustomLengthDurationMs * 0.05;
 
 	////////////////////////////////////////////////////////////////////////////
 	// Tests with sample
@@ -588,16 +614,16 @@ void MidiNoteTest::testSendNoteOff()
 	auto pNoteWithSample = std::make_shared<Note>( pInstrumentWithSample );
 	auto pNoteWithSampleCustomLength =
 		std::make_shared<Note>( pInstrumentWithSample );
-	pNoteWithSampleCustomLength->setLength( 10 );
+	pNoteWithSampleCustomLength->setLength( nCustomLengthInTicks );
 
 	{
 		pPref->setMidiSendNoteOff( Preferences::MidiSendNoteOff::Always );
 		pLoopBackMidiDriver->clearBacklogMessages();
 		CPPUNIT_ASSERT(
-			pSampler->noteOn( std::make_shared<Note>( pNoteWithSample ) )
+			renderNote( std::make_shared<Note>( pNoteWithSample ) )
 		);
 		clearSampler();
-		CPPUNIT_ASSERT( pSampler->noteOn(
+		CPPUNIT_ASSERT( renderNote(
 			std::make_shared<Note>( pNoteWithSampleCustomLength )
 		) );
 		clearSampler();
@@ -647,11 +673,14 @@ void MidiNoteTest::testSendNoteOff()
 				.count() <= nMaxDelayAutoStopNoteMs
 		);
 		CPPUNIT_ASSERT(
-			std::chrono::duration_cast<std::chrono::milliseconds>(
-				messageBacklog[5].getTimePoint() -
-				messageBacklog[4].getTimePoint()
-			)
-				.count() >= nMinimalNoteDurationMs
+			std::abs(
+				std::chrono::duration_cast<std::chrono::milliseconds>(
+					messageBacklog[5].getTimePoint() -
+					messageBacklog[4].getTimePoint()
+				)
+					.count() -
+				nCustomLengthDurationMs
+			) < nDurationTolerance
 		);
 	}
 
@@ -659,10 +688,10 @@ void MidiNoteTest::testSendNoteOff()
 		pPref->setMidiSendNoteOff( Preferences::MidiSendNoteOff::Never );
 		pLoopBackMidiDriver->clearBacklogMessages();
 		CPPUNIT_ASSERT(
-			pSampler->noteOn( std::make_shared<Note>( pNoteWithSample ) )
+			renderNote( std::make_shared<Note>( pNoteWithSample ) )
 		);
 		clearSampler();
-		CPPUNIT_ASSERT( pSampler->noteOn(
+		CPPUNIT_ASSERT( renderNote(
 			std::make_shared<Note>( pNoteWithSampleCustomLength )
 		) );
 		clearSampler();
@@ -683,10 +712,10 @@ void MidiNoteTest::testSendNoteOff()
 		);
 		pLoopBackMidiDriver->clearBacklogMessages();
 		CPPUNIT_ASSERT(
-			pSampler->noteOn( std::make_shared<Note>( pNoteWithSample ) )
+			renderNote( std::make_shared<Note>( pNoteWithSample ) )
 		);
 		clearSampler();
-		CPPUNIT_ASSERT( pSampler->noteOn(
+		CPPUNIT_ASSERT( renderNote(
 			std::make_shared<Note>( pNoteWithSampleCustomLength )
 		) );
 		clearSampler();
@@ -716,11 +745,14 @@ void MidiNoteTest::testSendNoteOff()
 				.count() <= nMaxDelayAutoStopNoteMs
 		);
 		CPPUNIT_ASSERT(
-			std::chrono::duration_cast<std::chrono::milliseconds>(
-				messageBacklog[3].getTimePoint() -
-				messageBacklog[2].getTimePoint()
-			)
-				.count() >= nMinimalNoteDurationMs
+			std::abs(
+				std::chrono::duration_cast<std::chrono::milliseconds>(
+					messageBacklog[3].getTimePoint() -
+					messageBacklog[2].getTimePoint()
+				)
+					.count() -
+				nCustomLengthDurationMs
+			) < nDurationTolerance
 		);
 	}
 
@@ -736,14 +768,14 @@ void MidiNoteTest::testSendNoteOff()
 		std::make_shared<Note>( pInstrumentWithoutSample );
 	auto pNoteWithoutSampleCustomLength =
 		std::make_shared<Note>( pInstrumentWithoutSample );
-	pNoteWithoutSampleCustomLength->setLength( 10 );
+	pNoteWithoutSampleCustomLength->setLength( nCustomLengthInTicks );
 
 	{
 		pPref->setMidiSendNoteOff( Preferences::MidiSendNoteOff::Always );
 		pLoopBackMidiDriver->clearBacklogMessages();
-		CPPUNIT_ASSERT( pSampler->noteOn( pNoteWithoutSample ) );
+		CPPUNIT_ASSERT( renderNote( pNoteWithoutSample ) );
 		clearSampler();
-		CPPUNIT_ASSERT( pSampler->noteOn( pNoteWithoutSampleCustomLength ) );
+		CPPUNIT_ASSERT( renderNote( pNoteWithoutSampleCustomLength ) );
 		clearSampler();
 		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
 
@@ -776,12 +808,13 @@ void MidiNoteTest::testSendNoteOff()
 			)
 				.count() <= nMaxDelayAutoStopNoteMs
 		);
+		// Since there is no sample, the note off will be sent right away.
 		CPPUNIT_ASSERT(
 			std::chrono::duration_cast<std::chrono::milliseconds>(
 				messageBacklog[2].getTimePoint() -
 				messageBacklog[1].getTimePoint()
 			)
-				.count() >= nMinimalNoteDurationMs
+				.count() <= nMaxDelayAutoStopNoteMs
 		);
 		CPPUNIT_ASSERT(
 			std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -791,11 +824,14 @@ void MidiNoteTest::testSendNoteOff()
 				.count() <= nMaxDelayAutoStopNoteMs
 		);
 		CPPUNIT_ASSERT(
-			std::chrono::duration_cast<std::chrono::milliseconds>(
-				messageBacklog[5].getTimePoint() -
-				messageBacklog[4].getTimePoint()
-			)
-				.count() >= nMinimalNoteDurationMs
+			std::abs(
+				std::chrono::duration_cast<std::chrono::milliseconds>(
+					messageBacklog[5].getTimePoint() -
+					messageBacklog[4].getTimePoint()
+				)
+					.count() -
+				nCustomLengthDurationMs
+			) < nDurationTolerance
 		);
 	}
 
@@ -803,10 +839,10 @@ void MidiNoteTest::testSendNoteOff()
 		pPref->setMidiSendNoteOff( Preferences::MidiSendNoteOff::Never );
 		pLoopBackMidiDriver->clearBacklogMessages();
 		CPPUNIT_ASSERT(
-			pSampler->noteOn( std::make_shared<Note>( pNoteWithoutSample ) )
+			renderNote( std::make_shared<Note>( pNoteWithoutSample ) )
 		);
 		clearSampler();
-		CPPUNIT_ASSERT( pSampler->noteOn(
+		CPPUNIT_ASSERT( renderNote(
 			std::make_shared<Note>( pNoteWithoutSampleCustomLength )
 		) );
 		clearSampler();
@@ -827,10 +863,10 @@ void MidiNoteTest::testSendNoteOff()
 		);
 		pLoopBackMidiDriver->clearBacklogMessages();
 		CPPUNIT_ASSERT(
-			pSampler->noteOn( std::make_shared<Note>( pNoteWithoutSample ) )
+			renderNote( std::make_shared<Note>( pNoteWithoutSample ) )
 		);
 		clearSampler();
-		CPPUNIT_ASSERT( pSampler->noteOn(
+		CPPUNIT_ASSERT( renderNote(
 			std::make_shared<Note>( pNoteWithoutSampleCustomLength )
 		) );
 		clearSampler();
@@ -860,11 +896,14 @@ void MidiNoteTest::testSendNoteOff()
 				.count() <= nMaxDelayAutoStopNoteMs
 		);
 		CPPUNIT_ASSERT(
-			std::chrono::duration_cast<std::chrono::milliseconds>(
-				messageBacklog[3].getTimePoint() -
-				messageBacklog[2].getTimePoint()
-			)
-				.count() >= nMinimalNoteDurationMs
+			std::abs(
+				std::chrono::duration_cast<std::chrono::milliseconds>(
+					messageBacklog[3].getTimePoint() -
+					messageBacklog[2].getTimePoint()
+				)
+					.count() -
+				nCustomLengthDurationMs
+			) < nDurationTolerance
 		);
 	}
 
