@@ -24,140 +24,142 @@
 
 using namespace H2Core;
 
-QString MidiAction::typeToQString( const Type &type ) {
-	switch( type ) {
-	case Type::BeatCounter:
-		return "BEATCOUNTER";
-	case Type::BpmCcRelative:
-		return "BPM_CC_RELATIVE";
-	case Type::BpmDecr:
-		return "BPM_DECR";
-	case Type::BpmFineCcRelative:
-		return "BPM_FINE_CC_RELATIVE";
-	case Type::BpmIncr:
-		return "BPM_INCR";
-	case Type::ClearPattern:
-		return "CLEAR_PATTERN";
-	case Type::ClearSelectedInstrument:
-		return "CLEAR_SELECTED_INSTRUMENT";
-	case Type::CountIn:
-		return "COUNT_IN";
-	case Type::CountInPauseToggle:
-		return "COUNT_IN_PAUSE_TOGGLE";
-	case Type::CountInStopToggle:
-		return "COUNT_IN_STOP_TOGGLE";
-	case Type::EffectLevelAbsolute:
-		return "EFFECT_LEVEL_ABSOLUTE";
-	case Type::EffectLevelRelative:
-		return "EFFECT_LEVEL_RELATIVE";
-	case Type::FilterCutoffLevelAbsolute:
-		return "FILTER_CUTOFF_LEVEL_ABSOLUTE";
-	case Type::GainLevelAbsolute:
-		return "GAIN_LEVEL_ABSOLUTE";
-	case Type::HumanizationSwingAbsolute:
-		return "HUMANIZATION_SWING_ABSOLUTE";
-	case Type::HumanizationSwingRelative:
-		return "HUMANIZATION_SWING_RELATIVE";
-	case Type::HumanizationTimingAbsolute:
-		return "HUMANIZATION_TIMING_ABSOLUTE";
-	case Type::HumanizationTimingRelative:
-		return "HUMANIZATION_TIMING_RELATIVE";
-	case Type::HumanizationVelocityAbsolute:
-		return "HUMANIZATION_VELOCITY_ABSOLUTE";
-	case Type::HumanizationVelocityRelative:
-		return "HUMANIZATION_VELOCITY_RELATIVE";
-	case Type::InstrumentPitch:
-		return "INSTRUMENT_PITCH";
-	case Type::LoadNextDrumkit:
-		return "LOAD_NEXT_DRUMKIT";
-	case Type::LoadPrevDrumkit:
-		return "LOAD_PREV_DRUMKIT";
-	case Type::MasterVolumeAbsolute:
-		return "MASTER_VOLUME_ABSOLUTE";
-	case Type::MasterVolumeRelative:
-		return "MASTER_VOLUME_RELATIVE";
-	case Type::Mute:
-		return "MUTE";
-	case Type::MuteToggle:
-		return "MUTE_TOGGLE";
-	case Type::NextBar:
-		return ">>_NEXT_BAR";
-	case Type::Null:
-		return "NOTHING";
-	case Type::PanAbsolute:
-		return "PAN_ABSOLUTE";
-	case Type::PanAbsoluteSym:
-		return "PAN_ABSOLUTE_SYM";
-	case Type::PanRelative:
-		return "PAN_RELATIVE";
-	case Type::Pause:
-		return "PAUSE";
-	case Type::PitchLevelAbsolute:
-		return "PITCH_LEVEL_ABSOLUTE";
-	case Type::Play:
-		return "PLAY";
-	case Type::PlaylistSong:
-		return "PLAYLIST_SONG";
-	case Type::PlaylistNextSong:
-		return "PLAYLIST_NEXT_SONG";
-	case Type::PlaylistPrevSong:
-		return "PLAYLIST_PREV_SONG";
-	case Type::PlayPauseToggle:
-		return "PLAY/PAUSE_TOGGLE";
-	case Type::PlayStopToggle:
-		return "PLAY/STOP_TOGGLE";
-	case Type::PreviousBar:
-		return "<<_PREVIOUS_BAR";
-	case Type::RecordExit:
-		return "RECORD_EXIT";
-	case Type::RecordReady:
-		return "RECORD_READY";
-	case Type::RecordStrobe:
-		return "RECORD_STROBE";
-	case Type::RecordStrobeToggle:
-		return "RECORD/STROBE_TOGGLE";
-	case Type::RedoAction:
-		return "REDO_ACTION";
-	case Type::SelectAndPlayPattern:
-		return "SELECT_AND_PLAY_PATTERN";
-	case Type::SelectInstrument:
-		return "SELECT_INSTRUMENT";
-	case Type::SelectNextPattern:
-		return "SELECT_NEXT_PATTERN";
-	case Type::SelectNextPatternCcAbsolute:
-		return "SELECT_NEXT_PATTERN_CC_ABSOLUTE";
-	case Type::SelectNextPatternRelative:
-		return "SELECT_NEXT_PATTERN_RELATIVE";
-	case Type::SelectOnlyNextPattern:
-		return "SELECT_ONLY_NEXT_PATTERN";
-	case Type::SelectOnlyNextPatternCcAbsolute:
-		return "SELECT_ONLY_NEXT_PATTERN_CC_ABSOLUTE";
-	case Type::Stop:
-		return "STOP";
-	case Type::StripMuteToggle:
-		return "STRIP_MUTE_TOGGLE";
-	case Type::StripSoloToggle:
-		return "STRIP_SOLO_TOGGLE";
-	case Type::StripVolumeAbsolute:
-		return "STRIP_VOLUME_ABSOLUTE";
-	case Type::StripVolumeRelative:
-		return "STRIP_VOLUME_RELATIVE";
-	case Type::TapTempo:
-		return "TAP_TEMPO";
-	case Type::TimingClockTick:
-		return "TIMING_CLOCK_TICK";
-	case Type::ToggleMetronome:
-		return "TOGGLE_METRONOME";
-	case Type::UndoAction:
-		return "UNDO_ACTION";
-	case Type::Unmute:
-		return "UNMUTE";
-	default:
-		return "Unknown type";
+QString MidiAction::typeToQString( const Type& type )
+{
+	switch ( type ) {
+		case Type::BeatCounter:
+			return "BEATCOUNTER";
+		case Type::BpmCcRelative:
+			return "BPM_CC_RELATIVE";
+		case Type::BpmDecr:
+			return "BPM_DECR";
+		case Type::BpmFineCcRelative:
+			return "BPM_FINE_CC_RELATIVE";
+		case Type::BpmIncr:
+			return "BPM_INCR";
+		case Type::ClearPattern:
+			return "CLEAR_PATTERN";
+		case Type::ClearSelectedInstrument:
+			return "CLEAR_SELECTED_INSTRUMENT";
+		case Type::CountIn:
+			return "COUNT_IN";
+		case Type::CountInPauseToggle:
+			return "COUNT_IN_PAUSE_TOGGLE";
+		case Type::CountInStopToggle:
+			return "COUNT_IN_STOP_TOGGLE";
+		case Type::EffectLevelAbsolute:
+			return "EFFECT_LEVEL_ABSOLUTE";
+		case Type::EffectLevelRelative:
+			return "EFFECT_LEVEL_RELATIVE";
+		case Type::FilterCutoffLevelAbsolute:
+			return "FILTER_CUTOFF_LEVEL_ABSOLUTE";
+		case Type::GainLevelAbsolute:
+			return "GAIN_LEVEL_ABSOLUTE";
+		case Type::HumanizationSwingAbsolute:
+			return "HUMANIZATION_SWING_ABSOLUTE";
+		case Type::HumanizationSwingRelative:
+			return "HUMANIZATION_SWING_RELATIVE";
+		case Type::HumanizationTimingAbsolute:
+			return "HUMANIZATION_TIMING_ABSOLUTE";
+		case Type::HumanizationTimingRelative:
+			return "HUMANIZATION_TIMING_RELATIVE";
+		case Type::HumanizationVelocityAbsolute:
+			return "HUMANIZATION_VELOCITY_ABSOLUTE";
+		case Type::HumanizationVelocityRelative:
+			return "HUMANIZATION_VELOCITY_RELATIVE";
+		case Type::InstrumentPitch:
+			return "INSTRUMENT_PITCH";
+		case Type::LoadNextDrumkit:
+			return "LOAD_NEXT_DRUMKIT";
+		case Type::LoadPrevDrumkit:
+			return "LOAD_PREV_DRUMKIT";
+		case Type::MasterVolumeAbsolute:
+			return "MASTER_VOLUME_ABSOLUTE";
+		case Type::MasterVolumeRelative:
+			return "MASTER_VOLUME_RELATIVE";
+		case Type::Mute:
+			return "MUTE";
+		case Type::MuteToggle:
+			return "MUTE_TOGGLE";
+		case Type::NextBar:
+			return ">>_NEXT_BAR";
+		case Type::Null:
+			return "NOTHING";
+		case Type::PanAbsolute:
+			return "PAN_ABSOLUTE";
+		case Type::PanAbsoluteSym:
+			return "PAN_ABSOLUTE_SYM";
+		case Type::PanRelative:
+			return "PAN_RELATIVE";
+		case Type::Pause:
+			return "PAUSE";
+		case Type::PitchLevelAbsolute:
+			return "PITCH_LEVEL_ABSOLUTE";
+		case Type::Play:
+			return "PLAY";
+		case Type::PlaylistSong:
+			return "PLAYLIST_SONG";
+		case Type::PlaylistNextSong:
+			return "PLAYLIST_NEXT_SONG";
+		case Type::PlaylistPrevSong:
+			return "PLAYLIST_PREV_SONG";
+		case Type::PlayPauseToggle:
+			return "PLAY/PAUSE_TOGGLE";
+		case Type::PlayStopToggle:
+			return "PLAY/STOP_TOGGLE";
+		case Type::PreviousBar:
+			return "<<_PREVIOUS_BAR";
+		case Type::RecordExit:
+			return "RECORD_EXIT";
+		case Type::RecordReady:
+			return "RECORD_READY";
+		case Type::RecordStrobe:
+			return "RECORD_STROBE";
+		case Type::RecordStrobeToggle:
+			return "RECORD/STROBE_TOGGLE";
+		case Type::RedoAction:
+			return "REDO_ACTION";
+		case Type::SelectAndPlayPattern:
+			return "SELECT_AND_PLAY_PATTERN";
+		case Type::SelectInstrument:
+			return "SELECT_INSTRUMENT";
+		case Type::SelectNextPattern:
+			return "SELECT_NEXT_PATTERN";
+		case Type::SelectNextPatternCcAbsolute:
+			return "SELECT_NEXT_PATTERN_CC_ABSOLUTE";
+		case Type::SelectNextPatternRelative:
+			return "SELECT_NEXT_PATTERN_RELATIVE";
+		case Type::SelectOnlyNextPattern:
+			return "SELECT_ONLY_NEXT_PATTERN";
+		case Type::SelectOnlyNextPatternCcAbsolute:
+			return "SELECT_ONLY_NEXT_PATTERN_CC_ABSOLUTE";
+		case Type::Stop:
+			return "STOP";
+		case Type::StripMuteToggle:
+			return "STRIP_MUTE_TOGGLE";
+		case Type::StripSoloToggle:
+			return "STRIP_SOLO_TOGGLE";
+		case Type::StripVolumeAbsolute:
+			return "STRIP_VOLUME_ABSOLUTE";
+		case Type::StripVolumeRelative:
+			return "STRIP_VOLUME_RELATIVE";
+		case Type::TapTempo:
+			return "TAP_TEMPO";
+		case Type::TimingClockTick:
+			return "TIMING_CLOCK_TICK";
+		case Type::ToggleMetronome:
+			return "TOGGLE_METRONOME";
+		case Type::UndoAction:
+			return "UNDO_ACTION";
+		case Type::Unmute:
+			return "UNMUTE";
+		default:
+			return "Unknown type";
 	}
 }
 
-MidiAction::Type MidiAction::parseType( const QString &sType ) {
+MidiAction::Type MidiAction::parseType( const QString& sType )
+{
 	const QString s = QString( sType ).toLower();
 	if ( s == "beatcounter" ) {
 		return Type::BeatCounter;
@@ -354,11 +356,11 @@ MidiAction::Type MidiAction::parseType( const QString &sType ) {
 }
 
 MidiAction::MidiAction( Type type, TimePoint timePoint )
-	: m_type( type )
-	, m_sParameter1( "0" )
-	, m_sParameter2( "0" )
-	, m_sParameter3( "0" )
-	, m_sValue( "0" )
+	: m_type( type ),
+	  m_sParameter1( "0" ),
+	  m_sParameter2( "0" ),
+	  m_sParameter3( "0" ),
+	  m_sValue( "0" )
 {
 	if ( timePoint == TimePoint() ) {
 		m_timePoint = Clock::now();
@@ -368,19 +370,23 @@ MidiAction::MidiAction( Type type, TimePoint timePoint )
 	}
 }
 
-MidiAction::MidiAction( const std::shared_ptr<MidiAction> pOther ) {
+MidiAction::MidiAction( const std::shared_ptr<MidiAction> pOther )
+{
 	if ( pOther != nullptr ) {
-       m_type = pOther->m_type;
-       m_sParameter1 = pOther->m_sParameter1;
-       m_sParameter2 = pOther->m_sParameter2;
-       m_sParameter3 = pOther->m_sParameter3;
-       m_sValue = pOther->m_sValue;
-	   m_timePoint = pOther->m_timePoint;
+		m_type = pOther->m_type;
+		m_sParameter1 = pOther->m_sParameter1;
+		m_sParameter2 = pOther->m_sParameter2;
+		m_sParameter3 = pOther->m_sParameter3;
+		m_sValue = pOther->m_sValue;
+		m_timePoint = pOther->m_timePoint;
 	}
 }
 
-std::shared_ptr<MidiAction> MidiAction::from( const std::shared_ptr<MidiAction> pOther,
-											  TimePoint timePoint ) {
+std::shared_ptr<MidiAction> MidiAction::from(
+	const std::shared_ptr<MidiAction> pOther,
+	TimePoint timePoint
+)
+{
 	if ( pOther == nullptr ) {
 		return nullptr;
 	}
@@ -396,51 +402,73 @@ std::shared_ptr<MidiAction> MidiAction::from( const std::shared_ptr<MidiAction> 
 	return pNew;
 }
 
-bool MidiAction::isNull() const {
+bool MidiAction::isNull() const
+{
 	return m_type == Type::Null;
 }
 
-bool MidiAction::isEquivalentTo( const std::shared_ptr<MidiAction> pOther ) const {
+bool MidiAction::isEquivalentTo( const std::shared_ptr<MidiAction> pOther
+) const
+{
 	if ( pOther == nullptr ) {
 		return false;
 	}
-	
-	return ( m_type == pOther->m_type &&
-			 m_sParameter1 == pOther->m_sParameter1 &&
-			 m_sParameter2 == pOther->m_sParameter2 &&
-			 m_sParameter3 == pOther->m_sParameter3 );
+
+	return (
+		m_type == pOther->m_type && m_sParameter1 == pOther->m_sParameter1 &&
+		m_sParameter2 == pOther->m_sParameter2 &&
+		m_sParameter3 == pOther->m_sParameter3
+	);
 }
 
-QString MidiAction::toQString( const QString& sPrefix, bool bShort ) const {
+QString MidiAction::toQString( const QString& sPrefix, bool bShort ) const
+{
 	QString s = Base::sPrintIndention;
 	QString sOutput;
 
-	if ( ! bShort ) {
-		sOutput = QString( "%1[MidiAction]\n" ).arg( sPrefix )
-			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( MidiAction::typeToQString( m_type ) ) )
-			.append( QString( "%1%2m_sValue: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_sValue ) )
-			.append( QString( "%1%2m_sParameter1: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_sParameter1 ) )
-			.append( QString( "%1%2m_sParameter2: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_sParameter2 ) )
-			.append( QString( "%1%2m_sParameter3: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_sParameter3 ) )
-			.append( QString( "%1%2m_timePoint: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( H2Core::timePointToQString( m_timePoint ) ) );
+	if ( !bShort ) {
+		sOutput =
+			QString( "%1[MidiAction]\n" )
+				.arg( sPrefix )
+				.append( QString( "%1%2m_type: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( MidiAction::typeToQString( m_type ) ) )
+				.append( QString( "%1%2m_sValue: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sValue ) )
+				.append( QString( "%1%2m_sParameter1: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sParameter1 ) )
+				.append( QString( "%1%2m_sParameter2: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sParameter2 ) )
+				.append( QString( "%1%2m_sParameter3: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sParameter3 ) )
+				.append( QString( "%1%2m_timePoint: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( H2Core::timePointToQString( m_timePoint ) )
+				);
 	}
 	else {
-		sOutput = QString( "[MidiAction]" )
-			.append( QString( " m_type: %1" )
-					 .arg( MidiAction::typeToQString( m_type ) ) )
-			.append( QString( ", m_sValue: %1" ).arg( m_sValue ) )
-			.append( QString( ", m_sParameter1: %1" ).arg( m_sParameter1 ) )
-			.append( QString( ", m_sParameter2: %1" ).arg( m_sParameter2 ) )
-			.append( QString( ", m_sParameter3: %1" ).arg( m_sParameter3 ) )
-			.append( QString( ", m_timePoint: %1" )
-					 .arg( H2Core::timePointToQString( m_timePoint ) ) );
+		sOutput =
+			QString( "[MidiAction]" )
+				.append( QString( " m_type: %1" )
+							 .arg( MidiAction::typeToQString( m_type ) ) )
+				.append( QString( ", m_sValue: %1" ).arg( m_sValue ) )
+				.append( QString( ", m_sParameter1: %1" ).arg( m_sParameter1 ) )
+				.append( QString( ", m_sParameter2: %1" ).arg( m_sParameter2 ) )
+				.append( QString( ", m_sParameter3: %1" ).arg( m_sParameter3 ) )
+				.append( QString( ", m_timePoint: %1" )
+							 .arg( H2Core::timePointToQString( m_timePoint ) )
+				);
 	}
-	
+
 	return sOutput;
 }
