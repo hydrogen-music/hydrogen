@@ -535,6 +535,13 @@ class Note : public H2Core::Object<Note> {
 		const std::shared_ptr<Note> pNote1,
 		const std::shared_ptr<Note> pNote2
 	);
+	struct compareStartStruct {
+		bool
+		operator()( std::shared_ptr<Note> pNote1, std::shared_ptr<Note> pNote2 )
+		{
+            return Note::compareStart( pNote1, pNote2 );
+		}
+	};
 
 	/**
 	 * compute left and right output based on filters
@@ -548,8 +555,11 @@ class Note : public H2Core::Object<Note> {
 
 	float getPitchHumanization() const;
 
-	bool getMidiNoteOnSent() const;
-	void setMidiNoteOnSent( bool bNew );
+	long long getMidiNoteOnSentFrame() const;
+	void setMidiNoteOnSentFrame( long long nNew );
+
+	long long getMidiNoteOffFrame() const;
+	void setMidiNoteOffFrame( long long nNew );
 
 	/**
 	 * @return true if the #Sampler already started rendering this
@@ -683,9 +693,15 @@ class Note : public H2Core::Object<Note> {
 		std::shared_ptr<SelectedLayerInfo> >
 		m_selectedLayerInfoMap;
 
-	/** Transient member note written to file. Indicates whether a `NOTE_ON`
-	 * MIDI message was sent for this note within the #Sampler. */
-	bool m_bMidiNoteOnSent;
+	/** Transient member not written to file. Indicates whether - `-1` if not -
+	 * and when a `NOTE_ON` MIDI message was sent for this note within the
+	 * #Sampler. */
+	long long m_nMidiNoteOnSentFrame;
+
+	/** Transient member not written to file. Indicates at which frame
+	 * #H2Core::Sampler is supposed to send a NOTE_OFF MIDI message
+	 * corresponding to this note. */
+	long long m_nMidiNoteOffFrame;
 
 	/** The instrument (of the current drumkit) the note is associated with.
 	 * It will be used to render the note and, if not `nullptr`, to indicate
@@ -968,13 +984,21 @@ inline float Note::getPitchHumanization() const
 {
 	return m_fPitchHumanization;
 }
-inline bool Note::getMidiNoteOnSent() const
+inline long long Note::getMidiNoteOnSentFrame() const
 {
-    return m_bMidiNoteOnSent;
+    return m_nMidiNoteOnSentFrame;
 }
-inline void Note::setMidiNoteOnSent( bool bNew )
+inline void Note::setMidiNoteOnSentFrame( long long nNew )
 {
-    m_bMidiNoteOnSent = bNew;
+    m_nMidiNoteOnSentFrame = nNew;
+}
+inline long long Note::getMidiNoteOffFrame() const
+{
+    return m_nMidiNoteOffFrame;
+}
+inline void Note::setMidiNoteOffFrame( long long nNew )
+{
+    m_nMidiNoteOffFrame = nNew;
 }
 };	// namespace H2Core
 

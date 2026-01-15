@@ -25,6 +25,7 @@
 
 #include <core/AudioEngine/AudioEngineTests.h>
 #include <core/Basics/Event.h>
+#include <core/Basics/Note.h>
 #include <core/config.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
@@ -65,7 +66,6 @@ namespace H2Core
 	class Drumkit;
 	class Instrument;
 	class MidiBaseDriver;
-	class Note;
 	class PatternList;
 	class Song;
 	class TransportPosition;
@@ -717,16 +717,9 @@ private:
 	State				m_nextState;
 	
 	audioProcessCallback m_AudioProcessCallback;
-	
-	/// Song Note FIFO
-	// overload the > operator of Note objects for priority_queue
-	struct compare_pNotes {
-		bool operator() ( std::shared_ptr<Note> pNote1,
-						  std::shared_ptr<Note> pNote2 );
-	};
 
 	std::priority_queue<std::shared_ptr<Note>,
-		std::deque<std::shared_ptr<Note>>, compare_pNotes > m_songNoteQueue;
+		std::deque<std::shared_ptr<Note>>, Note::compareStartStruct > m_songNoteQueue;
 	std::deque<std::shared_ptr<Note>>	m_midiNoteQueue;	///< Midi Note FIFO
 	
 	/**

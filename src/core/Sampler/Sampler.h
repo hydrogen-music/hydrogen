@@ -30,8 +30,9 @@
 #include <core/Sampler/Interpolation.h>
 
 #include <inttypes.h>
-#include <vector>
 #include <memory>
+#include <queue>
+#include <vector>
 
 namespace H2Core
 {
@@ -284,8 +285,33 @@ private:
 		bool bIsMuted
 	);
 
-	std::vector<std::shared_ptr<Note>> m_playingNotesQueue;
+	struct compareMidiNoteOff {
+		bool
+		operator()( std::shared_ptr<Note> pNote1, std::shared_ptr<Note> pNote2 )
+		{
+			if ( pNote1 == nullptr || pNote2 == nullptr ) {
+				return false;
+			}
+			return pNote1->getMidiNoteOffFrame() >= pNote2->getMidiNoteOffFrame();
+		}
+	};
+
+	std::vector<std::shared_ptr<Note>>
+		m_playingNotesQueue;
+	/** Notes for which a NOTE_OFF message will be send at the end of the
+	 * next processing cycle. */
 	std::vector<std::shared_ptr<Note>> m_queuedNoteOffs;
+
+	/** Notes - ordered by their start position - scheduled to become NOTE_OFF
+	 * messages as soon as the current transport position reaches their start.
+	 *
+	 * This will be used to custom note length notes either without sample or
+	 * with length reaching beyond the sample length. */
+	std::priority_queue<
+		std::shared_ptr<Note>,
+		std::deque<std::shared_ptr<Note>>,
+		compareMidiNoteOff>
+		m_scheduledNoteOffQueue;
 
 	/// Instrument used for the playback track feature.
 	std::shared_ptr<Instrument> m_pPlaybackTrackInstrument;

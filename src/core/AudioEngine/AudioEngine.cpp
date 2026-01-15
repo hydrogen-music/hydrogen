@@ -33,7 +33,6 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
-#include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Sample.h>
@@ -3108,11 +3107,6 @@ void AudioEngine::noteOn( std::shared_ptr<Note> pNote )
 	}
 
 	m_midiNoteQueue.push_back( pNote );
-}
-
-bool AudioEngine::compare_pNotes::operator()( std::shared_ptr<Note> pNote1,
-											  std::shared_ptr<Note> pNote2 ) {
-	return Note::compareStart( pNote1, pNote2 );
 }
 
 void AudioEngine::play() {
