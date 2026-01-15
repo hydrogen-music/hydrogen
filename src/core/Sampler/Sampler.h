@@ -292,7 +292,7 @@ private:
 			if ( pNote1 == nullptr || pNote2 == nullptr ) {
 				return false;
 			}
-			return pNote1->getNoteStart() >= pNote2->getNoteStart();
+			return pNote1->getMidiNoteOffFrame() >= pNote2->getMidiNoteOffFrame();
 		}
 	};
 
