@@ -965,7 +965,8 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 
 		// We delay checking for the audio driver till here in order to allow
 		// usign Hydrogen in "MIDI-only" mode.
-		if ( pLayer == nullptr || pHydrogen->getAudioOutput() == nullptr ) {
+		if ( pLayer == nullptr || pHydrogen->getAudioOutput() == nullptr ||
+			 bIsMuted ) {
 			returnValues[ii] = true;
 			continue;
 		}
