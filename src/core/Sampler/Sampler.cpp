@@ -144,7 +144,7 @@ void Sampler::process( uint32_t nFrames )
 	std::shared_ptr<Note> pNote = nullptr;
 	while ( i < m_playingNotesQueue.size() ) {
 		pNote = m_playingNotesQueue[i];
-		if ( pNote != nullptr && renderNote( pNote, nFrames ) ) {
+		if ( pNote != nullptr && handleNote( pNote, nFrames ) ) {
 			// End of note was reached during rendering.
 			m_playingNotesQueue.erase( m_playingNotesQueue.begin() + i );
 			if ( pNote->getInstrument() != nullptr ) {
@@ -727,7 +727,7 @@ void Sampler::handleSongSizeChange()
 
 //------------------------------------------------------------------
 
-bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
+bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -1060,7 +1060,7 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		}
 
 		// Actual rendering.
-		returnValues[ii] = renderNoteResample(
+		returnValues[ii] = renderNote(
 			pSample, pNote, pSelectedLayerInfo, pCompo, ii, nBufferSize,
 			nInitialBufferPos, fGainTrack_L, fGainTrack_R, fGainJackTrack_L,
 			fGainJackTrack_R, fLayerPitch, bIsMuted
@@ -1430,7 +1430,7 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 	return true;
 }
 
-bool Sampler::renderNoteResample(
+bool Sampler::renderNote(
 	std::shared_ptr<Sample> pSample,
 	std::shared_ptr<Note> pNote,
 	std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,

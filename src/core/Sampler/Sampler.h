@@ -268,9 +268,9 @@ class Sampler : public H2Core::Object<Sampler> {
 	bool processPlaybackTrack( int nBufferSize );
 
 	/** @return false - the note is not ended, true - the note is ended */
-	bool renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize );
+	bool handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize );
 
-	bool renderNoteResample(
+	bool renderNote(
 		std::shared_ptr<Sample> pSample,
 		std::shared_ptr<Note> pNote,
 		std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
