@@ -482,13 +482,6 @@ bool Hydrogen::addRealtimeNote(
 					static_cast<int>( pAudioEngine->getTransportPosition()
 										  ->getPatternTickPosition() ) -
 					m_nLastRecordedMIDINoteTick;
-
-				if ( bPlaySelectedInstrument ) {
-					nNoteLength = static_cast<int>(
-						static_cast<double>( nNoteLength ) *
-						Note::Pitch::fromMidiNote( note ).toFrequencyRatio()
-					);
-				}
 			}
 
 			for ( unsigned nnNote = 0; nnNote < nPatternSize; nnNote++ ) {

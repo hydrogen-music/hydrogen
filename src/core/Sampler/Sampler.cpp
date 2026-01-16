@@ -1518,22 +1518,20 @@ bool Sampler::renderNote(
 			double fTickMismatch;
 
 			pSelectedLayerInfo->nNoteLength =
-				TransportPosition::computeFrameFromTick(
+				(TransportPosition::computeFrameFromTick(
 					pNote->getPosition() + pNote->getLength(), &fTickMismatch,
 					pSample->getSampleRate()
 				) -
 				TransportPosition::computeFrameFromTick(
 					pNote->getPosition(), &fTickMismatch,
 					pSample->getSampleRate()
-				);
+				)) * fFrequencyRatio;
 		}
 
 		nNoteEnd = std::min(
 			nFinalBufferPos + 1,
-			static_cast<int>(
-				( static_cast<float>( pSelectedLayerInfo->nNoteLength ) -
-				  pSelectedLayerInfo->fSamplePosition ) /
-				fFrequencyRatio
+            static_cast<int>((pSelectedLayerInfo->nNoteLength -
+				  static_cast<int>(pSelectedLayerInfo->fSamplePosition)) / fFrequencyRatio
 			)
 		);
 
