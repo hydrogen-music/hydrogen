@@ -274,8 +274,6 @@ class Sampler : public H2Core::Object<Sampler> {
 		std::shared_ptr<Sample> pSample,
 		std::shared_ptr<Note> pNote,
 		std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
-		std::shared_ptr<InstrumentComponent> pCompo,
-		int nComponentIdx,
 		int nBufferSize,
 		int nInitialBufferPos,
 		float fGainTrack_L,

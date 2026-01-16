@@ -992,7 +992,7 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		const float fLayerPitch = pLayer->getPitchOffset();
 
 		if ( pSelectedLayerInfo->fSamplePosition >= pSample->getFrames() ) {
-			// Due to rounding errors in renderNoteResample() the
+			// Due to rounding errors in renderNote() the
 			// sample position can occassionaly exceed the maximum
 			// frames of a sample. AFAICS this is not itself
 			// harmful. So, we just log a warning if the difference is
@@ -1061,9 +1061,9 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 
 		// Actual rendering.
 		returnValues[ii] = renderNote(
-			pSample, pNote, pSelectedLayerInfo, pCompo, ii, nBufferSize,
-			nInitialBufferPos, fGainTrack_L, fGainTrack_R, fGainJackTrack_L,
-			fGainJackTrack_R, fLayerPitch, bIsMuted
+			pSample, pNote, pSelectedLayerInfo, nBufferSize, nInitialBufferPos,
+			fGainTrack_L, fGainTrack_R, fGainJackTrack_L, fGainJackTrack_R,
+			fLayerPitch, bIsMuted
 		);
 	}
 
@@ -1434,8 +1434,6 @@ bool Sampler::renderNote(
 	std::shared_ptr<Sample> pSample,
 	std::shared_ptr<Note> pNote,
 	std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
-	std::shared_ptr<InstrumentComponent> pCompo,
-	int nComponentIdx,
 	int nBufferSize,
 	int nInitialBufferPos,
 	float fGainTrack_L,
@@ -1446,22 +1444,17 @@ bool Sampler::renderNote(
 	bool bIsMuted
 )
 {
+	if ( pSample == nullptr || pNote == nullptr ||
+		 pSelectedLayerInfo == nullptr ) {
+		ERRORLOG( "Invalid input" );
+		return true;
+	}
+
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioDriver = pHydrogen->getAudioOutput();
 	auto pSong = pHydrogen->getSong();
-
-	if ( pSong == nullptr ) {
-		ERRORLOG( "Invalid song" );
-		return true;
-	}
-
-	if ( pNote == nullptr ) {
-		ERRORLOG( "Invalid note" );
-		return true;
-	}
-
-	if ( pAudioDriver == nullptr ) {
-		ERRORLOG( "AudioDriver is not ready!" );
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ||
+		 pAudioDriver == nullptr ) {
 		return true;
 	}
 
