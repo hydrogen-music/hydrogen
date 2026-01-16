@@ -903,23 +903,6 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		// We delay checking for valid layer and sample because we want to
 		// support using Hydrogen with MIDI-only output.
 		auto pLayer = pSelectedLayerInfo->pLayer;
-		std::shared_ptr<Sample> pSample = nullptr;
-		if ( pLayer != nullptr ) {
-			pSample = pLayer->getSample();
-			if ( pSample == nullptr ) {
-				returnValues[ii] = true;
-				continue;
-			}
-			else if ( !pSample->isLoaded() ) {
-				WARNINGLOG(
-					QString( "Sample [%1] of instrument [%2] was not loaded." )
-						.arg( pSample->getFilePath() )
-						.arg( pInstr->getName() )
-				);
-				returnValues[ii] = true;
-				continue;
-			}
-		}
 
 		/*
 		 *  Is instrument/component/sample muted?
@@ -939,7 +922,7 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		const bool bAnyComponentIsSoloed = pInstr->isAnyComponentSoloed();
 		bool bAnyLayerIsSoloed = false;
 		bool bIsMutedBecauseOfSolo = false;
-		if ( pLayer != nullptr && pSample != nullptr ) {
+		if ( pLayer != nullptr ) {
 			bAnyLayerIsSoloed = pCompo->isAnyLayerSoloed();
 			bIsMutedBecauseOfSolo =
 				( bAnyInstrumentIsSoloed && !pInstr->isSoloed() ||
@@ -982,88 +965,15 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 
 		// We delay checking for the audio driver till here in order to allow
 		// usign Hydrogen in "MIDI-only" mode.
-		if ( pLayer == nullptr || pSample == nullptr ||
-			 pHydrogen->getAudioOutput() == nullptr ) {
+		if ( pLayer == nullptr || pHydrogen->getAudioOutput() == nullptr ) {
 			returnValues[ii] = true;
 			continue;
-		}
-
-		const float fLayerGain = pLayer->getGain();
-		const float fLayerPitch = pLayer->getPitchOffset();
-
-		if ( pSelectedLayerInfo->fSamplePosition >= pSample->getFrames() ) {
-			// Due to rounding errors in renderNote() the
-			// sample position can occassionaly exceed the maximum
-			// frames of a sample. AFAICS this is not itself
-			// harmful. So, we just log a warning if the difference is
-			// larger, which might be caused by a different problem.
-			if ( pSelectedLayerInfo->fSamplePosition >=
-				 pSample->getFrames() + 3 ) {
-				WARNINGLOG(
-					QString( "sample position [%1] out of bounds [0,%2]. The "
-							 "layer has been resized during note play?" )
-						.arg( pSelectedLayerInfo->fSamplePosition )
-						.arg( pSample->getFrames() )
-				);
-			}
-			returnValues[ii] = true;
-			continue;
-		}
-
-		float fGainTrack_L = 1.0f;
-		float fGainTrack_R = 1.0f;
-		float fGainJackTrack_L = 1.0f;
-		float fGainJackTrack_R = 1.0f;
-
-		if ( bIsMuted ) {
-			fGainTrack_L = 0.0;
-			fGainTrack_R = 0.0;
-			if ( Preferences::get_instance()->m_JackTrackOutputMode ==
-				 Preferences::JackTrackOutputMode::postFader ) {
-				fGainJackTrack_L = 0.0;
-				fGainJackTrack_R = 0.0;
-			}
-		}
-		else {
-			float fMonoGain = 1.0;
-			if ( pInstr->getApplyVelocity() ) {
-				fMonoGain *= pNote->getVelocity();	// note velocity
-			}
-
-			fMonoGain *= fLayerGain;		   // layer gain
-			fMonoGain *= pInstr->getGain();	   // instrument gain
-			fMonoGain *= pCompo->getGain();	   // Component gain
-			fMonoGain *= pInstr->getVolume();  // instrument volume
-
-			fGainTrack_L = fMonoGain * fPan_L;	// pan
-			fGainTrack_R = fMonoGain * fPan_R;	// pan
-			if ( Preferences::get_instance()->m_JackTrackOutputMode ==
-				 Preferences::JackTrackOutputMode::postFader ) {
-				fGainJackTrack_R = fGainTrack_R * 2;
-				fGainJackTrack_L = fGainTrack_L * 2;
-			}
-		}
-
-		// direct track outputs only use velocity
-		if ( Preferences::get_instance()->m_JackTrackOutputMode ==
-			 Preferences::JackTrackOutputMode::preFader ) {
-			if ( pInstr->getApplyVelocity() ) {
-				fGainJackTrack_L *= pNote->getVelocity();
-			}
-			fGainJackTrack_L *= fLayerGain;
-			fGainJackTrack_L *= pCompo->getGain();
-
-			fGainJackTrack_R = fGainJackTrack_L;
-
-			fGainJackTrack_L *= fNotePan_L;
-			fGainJackTrack_R *= fNotePan_R;
 		}
 
 		// Actual rendering.
 		returnValues[ii] = renderNote(
-			pSample, pNote, pSelectedLayerInfo, nBufferSize, nInitialBufferPos,
-			fGainTrack_L, fGainTrack_R, fGainJackTrack_L, fGainJackTrack_R,
-			fLayerPitch, bIsMuted
+			pNote, pSelectedLayerInfo, nBufferSize, nInitialBufferPos,
+			pCompo->getGain(), fPan_L, fPan_R, fNotePan_L, fNotePan_R, bIsMuted
 		);
 	}
 
@@ -1431,30 +1341,37 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 }
 
 bool Sampler::renderNote(
-	std::shared_ptr<Sample> pSample,
 	std::shared_ptr<Note> pNote,
 	std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
 	int nBufferSize,
 	int nInitialBufferPos,
-	float fGainTrack_L,
-	float fGainTrack_R,
-	float fGainJackTrack_L,
-	float fGainJackTrack_R,
-	float fLayerPitch,
+    float fComponentGain,
+    float fPan_L,
+    float fPan_R,
+    float fNotePan_L,
+    float fNotePan_R,
 	bool bIsMuted
 )
 {
-	if ( pSample == nullptr || pNote == nullptr ||
-		 pSelectedLayerInfo == nullptr ) {
+	if ( pSelectedLayerInfo == nullptr ) {
 		ERRORLOG( "Invalid input" );
 		return true;
 	}
+	const auto pLayer = pSelectedLayerInfo->pLayer;
+	if ( pLayer == nullptr ) {
+		ERRORLOG( "Invalid input layer" );
+        return true;
+	}
+	const auto pSample = pLayer->getSample();
+	if ( pSample == nullptr ) {
+		ERRORLOG( "Invalid input sample" );
+		return true;
+    }
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioDriver = pHydrogen->getAudioOutput();
 	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ||
-		 pAudioDriver == nullptr ) {
+	if ( pSong == nullptr || pAudioDriver == nullptr ) {
 		return true;
 	}
 
@@ -1463,10 +1380,85 @@ bool Sampler::renderNote(
 		ERRORLOG( "Invalid note instrument" );
 		return true;
 	}
+	if ( !pSample->isLoaded() ) {
+		WARNINGLOG( QString( "Sample [%1] of instrument [%2] was not loaded." )
+						.arg( pSample->getFilePath() )
+						.arg( pInstrument->getName() ) );
+		return true;
+	}
+
+	if ( pSelectedLayerInfo->fSamplePosition >= pSample->getFrames() ) {
+		// Due to rounding errors in renderNote() the
+		// sample position can occassionaly exceed the maximum
+		// frames of a sample. AFAICS this is not itself
+		// harmful. So, we just log a warning if the difference is
+		// larger, which might be caused by a different problem.
+		if ( pSelectedLayerInfo->fSamplePosition >= pSample->getFrames() + 3 ) {
+			WARNINGLOG(
+				QString( "sample position [%1] out of bounds [0,%2]. The "
+						 "layer has been resized during note play?" )
+					.arg( pSelectedLayerInfo->fSamplePosition )
+					.arg( pSample->getFrames() )
+			);
+		}
+        return true;
+	}
+
+	const float fLayerGain = pLayer->getGain();
+	const float fLayerPitch = pLayer->getPitchOffset();
+
+	float fGainTrack_L = 1.0f;
+	float fGainTrack_R = 1.0f;
+	float fGainJackTrack_L = 1.0f;
+	float fGainJackTrack_R = 1.0f;
+
+	if ( bIsMuted ) {
+		fGainTrack_L = 0.0;
+		fGainTrack_R = 0.0;
+		if ( Preferences::get_instance()->m_JackTrackOutputMode ==
+			 Preferences::JackTrackOutputMode::postFader ) {
+			fGainJackTrack_L = 0.0;
+			fGainJackTrack_R = 0.0;
+		}
+	}
+	else {
+		float fMonoGain = 1.0;
+		if ( pInstrument->getApplyVelocity() ) {
+			fMonoGain *= pNote->getVelocity();
+		}
+
+		fMonoGain *= fLayerGain;
+		fMonoGain *= pInstrument->getGain();
+		fMonoGain *= fComponentGain;
+		fMonoGain *= pInstrument->getVolume();
+
+		fGainTrack_L = fMonoGain * fPan_L;
+		fGainTrack_R = fMonoGain * fPan_R;
+		if ( Preferences::get_instance()->m_JackTrackOutputMode ==
+			 Preferences::JackTrackOutputMode::postFader ) {
+			fGainJackTrack_R = fGainTrack_R * 2;
+			fGainJackTrack_L = fGainTrack_L * 2;
+		}
+	}
+
+	// direct track outputs only use velocity
+	if ( Preferences::get_instance()->m_JackTrackOutputMode ==
+		 Preferences::JackTrackOutputMode::preFader ) {
+		if ( pInstrument->getApplyVelocity() ) {
+			fGainJackTrack_L *= pNote->getVelocity();
+		}
+		fGainJackTrack_L *= fLayerGain;
+		fGainJackTrack_L *= fComponentGain;
+
+		fGainJackTrack_R = fGainJackTrack_L;
+
+		fGainJackTrack_L *= fNotePan_L;
+		fGainJackTrack_R *= fNotePan_R;
+	}
 
 	const auto pitch = Note::Pitch::fromFloatClamp(
 		static_cast<float>( pNote->toPitch() ) + pNote->getPitchHumanization() +
-		pNote->getInstrument()->getPitchOffset() + fLayerPitch
+		pInstrument->getPitchOffset() + fLayerPitch
 	);
 	const bool bResample =
 		pitch != Note::Pitch::Default ||

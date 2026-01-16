@@ -271,16 +271,15 @@ class Sampler : public H2Core::Object<Sampler> {
 	bool handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize );
 
 	bool renderNote(
-		std::shared_ptr<Sample> pSample,
 		std::shared_ptr<Note> pNote,
 		std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
 		int nBufferSize,
 		int nInitialBufferPos,
-		float fGainTrack_L,
-		float fGainTrack_R,
-		float fGainJackTrack_L,
-		float fGainJackTrack_R,
-		float fLayerPitch,
+		float fComponentGain,
+		float fPan_L,
+		float fPan_R,
+		float fNotePan_L,
+		float fNotePan_R,
 		bool bIsMuted
 	);
 
