@@ -2231,21 +2231,12 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 	int nLen = gridPoint.getColumn() - m_nDragStartColumn;
 
 	if ( nLen <= 0 ) {
-		nLen = -1;
+		nLen = LENGTH_ENTIRE_SAMPLE;
 	}
 
 	for ( auto& [ ppNote, _ ] : m_draggedNotes ) {
 		if ( m_dragType == DragType::Length ) {
-            // When dealing with pitch shifted notes - their key/octave have
-            // been changed - of custom length, we have to scale the length by
-            // the ratio of the target to the source frequency. For all other
-            // notes this is irrelevant since we let the sample ring till the
-            // end. Regardless of its length.
-			double fFrequencyRatio = 1.0;
-			if ( nLen > -1 ){
-				fFrequencyRatio = ppNote->toPitch().toFrequencyRatio();
-			}
-			ppNote->setLength( nLen * fFrequencyRatio );
+			ppNote->setLength( nLen );
 
 			triggerStatusMessage( m_elementsHoveredOnDragStart, Property::Length );
 		}
@@ -3322,7 +3313,7 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 	}
 
 	if ( pNote->getNoteOff() == false ) {
-		int width = w;
+		int nWidth = w;
 
 		if ( ! ( noteStyle & NoteStyle::Moved) &&
 			 noteStyle & ( NoteStyle::Selected |
@@ -3336,17 +3327,7 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 
 		// Draw tail
 		if ( nNoteLength != LENGTH_ENTIRE_SAMPLE ) {
-			if ( nNoteLength == pNote->getLength() ) {
-				// When we deal with a genuine length of a note instead of an
-				// indication when playback for this note will be stopped, we
-				// have to take its pitch into account.
-				width =
-					m_fGridWidth * nNoteLength / pNote->toPitch().toFrequencyRatio();
-			}
-			else {
-				width = m_fGridWidth * nNoteLength;
-			}
-			width = width - 1;	// lascio un piccolo spazio tra una nota ed un altra
+            nWidth = m_fGridWidth * nNoteLength - 1;	// lascio un piccolo spazio tra una nota ed un altra
 
 			// Since the note body is transparent for an inactive note, we
 			// try to start the tail at its boundary. For regular notes we
@@ -3361,26 +3342,26 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 					p.setBrush( highlightBrush );
 					// Tail highlight
 					p.drawRect( point.x() - 3, point.y() - 1,
-								width + 6, 3 + 6 );
+								nWidth + 6, 3 + 6 );
 					p.drawEllipse( point.x() - 4 - 3, point.y() - 3,
 								   w + 6, h + 6 );
 					p.fillRect( point.x() - 4, point.y(),
-								width, 3 + 4, highlightBrush );
+								nWidth, 3 + 4, highlightBrush );
 				}
 
 				p.setPen( noteTailPen );
 				p.setBrush( noteTailBrush );
 
 				int nRectOnsetX = point.x();
-				int nRectWidth = width;
+				int nRectWidth = nWidth;
 				if ( noteStyle & NoteStyle::Background ) {
 					nRectOnsetX = nRectOnsetX + w / 2;
 					nRectWidth = nRectWidth - w / 2;
 				}
 
 				p.drawRect( nRectOnsetX, point.y() + 2, nRectWidth, 3 );
-				p.drawLine( point.x() + width, point.y(),
-							point.x() + width, point.y() + h );
+				p.drawLine( point.x() + nWidth, point.y(),
+							point.x() + nWidth, point.y() + h );
 			}
 		}
 
@@ -3418,11 +3399,11 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 						   ( 360 - 2 * nAngleIntersection ) * 16 );
 
 				p.drawLine( nMoveX + w - 2, nMoveY,
-							nMoveX + width + 2, nMoveY );
-				p.drawLine( nMoveX + width + 2, nMoveY,
-							nMoveX + width + 2, nMoveY + nHeightTail );
+							nMoveX + nWidth + 2, nMoveY );
+				p.drawLine( nMoveX + nWidth + 2, nMoveY,
+							nMoveX + nWidth + 2, nMoveY + nHeightTail );
 				p.drawLine( nMoveX + w - 2, nMoveY + nHeightTail,
-							nMoveX + width + 2, nMoveY + nHeightTail );
+							nMoveX + nWidth + 2, nMoveY + nHeightTail );
 			}
 		}
 	}
@@ -3670,16 +3651,13 @@ int PatternEditor::calculateEffectiveNoteLength(
 		// at which point of the song - thus using which tempo - the note will
 		// be played back.
 		const int nMaxFrames = pNote->getInstrument()->getLongestSampleFrames();
-
-		// We also need to take the note's pitch into account as this
-		// effectively scales the length of the note too.
-		const float fCurrentTickSize = Hydrogen::get_instance()->getAudioEngine()
-			->getTransportPosition()->getTickSize();
 		const int nEffectiveFrames =
 			static_cast<int>( TransportPosition::computeFrame(
-				static_cast<double>( nEffectiveLength ) *
-					pNote->toPitch().toFrequencyRatio(),
-				fCurrentTickSize
+				static_cast<double>( nEffectiveLength ),
+				Hydrogen::get_instance()
+					->getAudioEngine()
+					->getTransportPosition()
+					->getTickSize()
 			) );
 
 		if ( nEffectiveFrames < nMaxFrames ) {
