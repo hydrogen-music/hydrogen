@@ -35,49 +35,53 @@
 namespace H2Core {
 
 MidiBaseDriver::MidiBaseDriver()
- : MidiInput()
-   , MidiOutput()
-   , m_bSendClockTick( false )
-   , m_bNotifyOnNextTick( false )
-   , m_interval( 20.0 )
-   , m_intervalCompensation( std::chrono::microseconds::zero() )
-   , m_nAverageIntervalNs( 0 )
-   , m_lastTick( TimePoint() )
-   , m_nTickCount( 0 )
-   , m_pClockThread( nullptr )
+	: MidiInput(),
+	  MidiOutput(),
+	  m_bSendClockTick( false ),
+	  m_bNotifyOnNextTick( false ),
+	  m_interval( 20.0 ),
+	  m_intervalCompensation( std::chrono::microseconds::zero() ),
+	  m_nAverageIntervalNs( 0 ),
+	  m_lastTick( TimePoint() ),
+	  m_nTickCount( 0 ),
+	  m_pClockThread( nullptr )
 {
 	if ( Preferences::get_instance()->getMidiClockOutputSend() ) {
-		startMidiClockStream(
-							 Hydrogen::get_instance()->getAudioEngine()
-							 ->getTransportPosition()->getBpm() );
+		startMidiClockStream( Hydrogen::get_instance()
+								  ->getAudioEngine()
+								  ->getTransportPosition()
+								  ->getBpm() );
 	}
 }
 
-MidiBaseDriver::~MidiBaseDriver() {
+MidiBaseDriver::~MidiBaseDriver()
+{
 	if ( m_pClockThread != nullptr ) {
 		stopMidiClockStream();
 	}
 }
 
-QString MidiBaseDriver::portTypeToQString( const PortType& portType ) {
+QString MidiBaseDriver::portTypeToQString( const PortType& portType )
+{
 	switch ( portType ) {
-	case PortType::Input:
-		return "Input";
-	case PortType::Output:
-		return "Output";
-	default:
-		return "Unhandled port type";
+		case PortType::Input:
+			return "Input";
+		case PortType::Output:
+			return "Output";
+		default:
+			return "Unhandled port type";
 	}
 }
 
 std::shared_ptr<MidiInput::HandledInput> MidiBaseDriver::handleMessage(
-	const MidiMessage &msg )
+	const MidiMessage& msg
+)
 {
 	const auto pHandledInput = MidiInput::handleMessage( msg );
 
 	if ( pHandledInput != nullptr &&
 		 pHandledInput->type != MidiMessage::Type::Unknown ) {
-		QMutexLocker mx( &m_inputMutex );
+		QMutexLocker mx( &m_handledInputsMutex );
 		m_handledInputs.push_back( pHandledInput );
 		if ( m_handledInputs.size() > MidiBaseDriver::nBacklogSize ) {
 			m_handledInputs.pop_front();
@@ -90,13 +94,14 @@ std::shared_ptr<MidiInput::HandledInput> MidiBaseDriver::handleMessage(
 }
 
 std::shared_ptr<MidiOutput::HandledOutput> MidiBaseDriver::sendMessage(
-	const MidiMessage &msg )
+	const MidiMessage& msg
+)
 {
 	const auto pHandledOutput = MidiOutput::sendMessage( msg );
 
 	if ( pHandledOutput != nullptr &&
 		 pHandledOutput->type != MidiMessage::Type::Unknown ) {
-		QMutexLocker mx( &m_outputMutex );
+		QMutexLocker mx( &m_handledOutputMutex );
 		m_handledOutputs.push_back( pHandledOutput );
 		if ( m_handledOutputs.size() > MidiBaseDriver::nBacklogSize ) {
 			m_handledOutputs.pop_front();
@@ -108,10 +113,12 @@ std::shared_ptr<MidiOutput::HandledOutput> MidiBaseDriver::sendMessage(
 	return pHandledOutput;
 }
 
-std::vector< std::shared_ptr<MidiInput::HandledInput> > MidiBaseDriver::getHandledInputs() {
-	std::vector< std::shared_ptr<MidiInput::HandledInput> > inputs;
+std::vector<std::shared_ptr<MidiInput::HandledInput> >
+MidiBaseDriver::getHandledInputs()
+{
+	std::vector<std::shared_ptr<MidiInput::HandledInput> > inputs;
 
-	QMutexLocker mx( &m_inputMutex );
+	QMutexLocker mx( &m_handledInputsMutex );
 	inputs.reserve( m_handledInputs.size() );
 
 	for ( const auto& ppHandledInput : m_handledInputs ) {
@@ -121,10 +128,12 @@ std::vector< std::shared_ptr<MidiInput::HandledInput> > MidiBaseDriver::getHandl
 	return std::move( inputs );
 }
 
-std::vector< std::shared_ptr<MidiOutput::HandledOutput> > MidiBaseDriver::getHandledOutputs() {
-	std::vector< std::shared_ptr<MidiOutput::HandledOutput> > outputs;
+std::vector<std::shared_ptr<MidiOutput::HandledOutput> >
+MidiBaseDriver::getHandledOutputs()
+{
+	std::vector<std::shared_ptr<MidiOutput::HandledOutput> > outputs;
 
-	QMutexLocker mx( &m_outputMutex );
+	QMutexLocker mx( &m_handledOutputMutex );
 	outputs.reserve( m_handledOutputs.size() );
 
 	for ( const auto& ppHandledOutput : m_handledOutputs ) {
@@ -134,7 +143,8 @@ std::vector< std::shared_ptr<MidiOutput::HandledOutput> > MidiBaseDriver::getHan
 	return std::move( outputs );
 }
 
-void MidiBaseDriver::startMidiClockStream( float fBpm ) {
+void MidiBaseDriver::startMidiClockStream( float fBpm )
+{
 	// Ensure there is just a single thread.
 	m_bSendClockTick = false;
 	if ( m_pClockThread != nullptr ) {
@@ -144,15 +154,17 @@ void MidiBaseDriver::startMidiClockStream( float fBpm ) {
 
 	// 24 MIDI Clock messages should make up a quarter.
 	const double fInterval = 60000 / fBpm / 24.0;
-	m_interval = std::chrono::duration<double, std::milli>(fInterval);
+	m_interval = std::chrono::duration<double, std::milli>( fInterval );
 
 	m_bSendClockTick = true;
 	m_nTickCount = 0;
 	m_pClockThread = std::make_shared<std::thread>(
-		MidiBaseDriver::midiClockStream, ( void* ) this );
+		MidiBaseDriver::midiClockStream, (void*) this
+	);
 }
 
-void MidiBaseDriver::stopMidiClockStream() {
+void MidiBaseDriver::stopMidiClockStream()
+{
 	m_bSendClockTick = false;
 
 	if ( m_pClockThread != nullptr ) {
@@ -168,19 +180,21 @@ void MidiBaseDriver::stopMidiClockStream() {
 	m_nAverageIntervalNs = 0;
 }
 
-void MidiBaseDriver::waitForNextMidiClockTick() {
-	if ( ! m_bSendClockTick || m_pClockThread == nullptr ) {
+void MidiBaseDriver::waitForNextMidiClockTick()
+{
+	if ( !m_bSendClockTick || m_pClockThread == nullptr ) {
 		return;
 	}
 
-    std::unique_lock lock{ m_midiClockMutex };
+	std::unique_lock lock{ m_midiClockMutex };
 
 	m_bNotifyOnNextTick = true;
 
-	m_midiClockCV.wait( lock, [&]{ return ! m_bNotifyOnNextTick; });
+	m_midiClockCV.wait( lock, [&] { return !m_bNotifyOnNextTick; } );
 }
 
-void MidiBaseDriver::midiClockStream( void* pInstance ) {
+void MidiBaseDriver::midiClockStream( void* pInstance )
+{
 	auto pMidiDriver = static_cast<MidiBaseDriver*>( pInstance );
 	if ( pMidiDriver == nullptr ) {
 		ERRORLOG( "Invalid instance provided. Shutting down." );
@@ -196,28 +210,37 @@ void MidiBaseDriver::midiClockStream( void* pInstance ) {
 		long nSleepBiasNs = 0;
 		if ( pMidiDriver->m_lastTick != TimePoint() ) {
 			if ( start - pMidiDriver->m_lastTick >=
-				 pMidiDriver->m_interval + pMidiDriver->m_intervalCompensation ) {
-				WARNINGLOG( QString( "MIDI Clock message could not be sent in time. Duration: [%1], Interval: [%2], compensation: [%3]" )
-							.arg( ( pMidiDriver->m_lastTick - start ).count() )
-							.arg( pMidiDriver->m_interval.count() )
-							.arg( pMidiDriver->m_intervalCompensation.count() ) );
+				 pMidiDriver->m_interval +
+					 pMidiDriver->m_intervalCompensation ) {
+				WARNINGLOG(
+					QString(
+						"MIDI Clock message could not be sent in time. "
+						"Duration: [%1], Interval: [%2], compensation: [%3]"
+					)
+						.arg( ( pMidiDriver->m_lastTick - start ).count() )
+						.arg( pMidiDriver->m_interval.count() )
+						.arg( pMidiDriver->m_intervalCompensation.count() )
+				);
 			}
 			else {
 				// Compensate for the processing time.
 				const auto sleepDuration = pMidiDriver->m_interval +
-					pMidiDriver->m_intervalCompensation -
-					( start - pMidiDriver->m_lastTick );
+										   pMidiDriver->m_intervalCompensation -
+										   ( start - pMidiDriver->m_lastTick );
 
 				const auto preSleep = Clock::now();
-				pHydrogen->getTimeHelper()->highResolutionSleep( sleepDuration );
+				pHydrogen->getTimeHelper()->highResolutionSleep( sleepDuration
+				);
 				const auto postSleep = Clock::now();
 
 				// Sleep routines only guarantee to sleep for _at least_ the
 				// provided amount of time. The additional sleep time we have to
 				// compensate on the next tick.
-				nSleepBiasNs = std::chrono::duration_cast<
-					std::chrono::nanoseconds>(
-						postSleep - preSleep - sleepDuration ).count();
+				nSleepBiasNs =
+					std::chrono::duration_cast<std::chrono::nanoseconds>(
+						postSleep - preSleep - sleepDuration
+					)
+						.count();
 			}
 		}
 
@@ -227,8 +250,8 @@ void MidiBaseDriver::midiClockStream( void* pInstance ) {
 		const auto preSend = Clock::now();
 
 		// Send event
-        if ( pPref->getMidiFeedbackChannel() != Midi::ChannelOff &&
-            pPref->getMidiFeedbackChannel() != Midi::ChannelInvalid ) {
+		if ( pPref->getMidiFeedbackChannel() != Midi::ChannelOff &&
+			 pPref->getMidiFeedbackChannel() != Midi::ChannelInvalid ) {
 			pMidiDriver->sendMessage( MidiMessage(
 				MidiMessage::Type::TimingClock, Midi::ParameterMinimum,
 				Midi::ParameterMinimum, pPref->getMidiFeedbackChannel()
@@ -250,15 +273,19 @@ void MidiBaseDriver::midiClockStream( void* pInstance ) {
 			// Cumulative average.
 			pMidiDriver->m_nAverageIntervalNs =
 				( std::chrono::duration_cast<std::chrono::nanoseconds>(
-					end - pMidiDriver->m_lastTick ).count() +
+					  end - pMidiDriver->m_lastTick
+				  )
+					  .count() +
 				  pMidiDriver->m_nAverageIntervalNs *
-				  ( pMidiDriver->m_nTickCount - 2 ) ) /
+					  ( pMidiDriver->m_nTickCount - 2 ) ) /
 				( pMidiDriver->m_nTickCount - 1 );
 
 			pMidiDriver->m_intervalCompensation =
-				( pMidiDriver->m_nTickCount - 1 ) * ( pMidiDriver->m_interval -
-				std::chrono::duration<long, std::nano>(
-					pMidiDriver->m_nAverageIntervalNs ) );
+				( pMidiDriver->m_nTickCount - 1 ) *
+				( pMidiDriver->m_interval -
+				  std::chrono::duration<long, std::nano>(
+					  pMidiDriver->m_nAverageIntervalNs
+				  ) );
 		}
 
 		// Componesate for the surplus time consumed during sleep.
@@ -275,8 +302,8 @@ void MidiBaseDriver::midiClockStream( void* pInstance ) {
 		// A notification on a tick event is only required for starting
 		// transport. This occurs very seldomly compared to sending a tick
 		// without. It is not 100% clean but we omit locking the mutex when
-		// accessing the atomic shared data pMidiDriver->m_bNotifyOnNextTick because of its
-		// average cost.
+		// accessing the atomic shared data pMidiDriver->m_bNotifyOnNextTick
+		// because of its average cost.
 		if ( pMidiDriver->m_bNotifyOnNextTick ) {
 			std::scoped_lock lock{ pMidiDriver->m_midiClockMutex };
 
@@ -284,7 +311,6 @@ void MidiBaseDriver::midiClockStream( void* pInstance ) {
 
 			pMidiDriver->m_midiClockCV.notify_all();
 		}
-
 	}
 }
-};
+};	// namespace H2Core
