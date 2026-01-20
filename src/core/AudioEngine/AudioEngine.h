@@ -308,8 +308,9 @@ public:
 		
 	
 	void raiseError( unsigned nErrorCode );
-	
-	const State& 	getState() const;
+
+	const State& getState() const;
+	const State& getNextState() const;
 
 	void 			setMasterPeak_L( float value );
 	float 			getMasterPeak_L() const;
@@ -829,6 +830,9 @@ inline float AudioEngine::getMaxProcessTime() const {
 
 inline const AudioEngine::State& AudioEngine::getState() const {
 	return m_state;
+}
+inline const AudioEngine::State& AudioEngine::getNextState() const {
+	return m_nextState;
 }
 inline void AudioEngine::setNextState( const AudioEngine::State& state) {
 	m_nextState = state;
