@@ -26,6 +26,7 @@
 #include "AssertionTest.cpp"
 #include "AudioBenchmark.h"
 #include "AudioDriverTest.h"
+#include "AudioEngineTest.h"
 #include "AudioExportTest.h"
 #include "AutomationPathSerializerTest.cpp"
 #include "AutomationPathTest.cpp"
@@ -57,6 +58,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( ADSRTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AssertionTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AudioBenchmark );
 CPPUNIT_TEST_SUITE_REGISTRATION( AudioDriverTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( AudioEngineTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AudioExportTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathSerializerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathTest );
