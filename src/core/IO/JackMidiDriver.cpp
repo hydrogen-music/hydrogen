@@ -113,7 +113,7 @@ void JackMidiDriver::JackMidiWrite( jack_nframes_t nframes ) {
 			msg.setData1( Midi::parameterFromIntClamp( buffer[1] ) );
 			msg.setData2( Midi::parameterFromIntClamp( buffer[2] ) );
 		}
-		handleMessage( msg );
+		enqueueInputMessage( msg );
 	}
 }
 

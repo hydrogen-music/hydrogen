@@ -69,8 +69,6 @@ public:
 		 * outside of Hydrogen without letting us know. */
 		virtual bool isInputActive() const = 0;
 
-		virtual std::shared_ptr<HandledInput> handleMessage(
-			const MidiMessage& msg );
 		void handleSysexMessage( const MidiMessage& msg,
 								 std::shared_ptr<HandledInput> handledInput );
 		void handleControlChangeMessage(
@@ -81,6 +79,8 @@ public:
 			const MidiMessage& msg, std::shared_ptr<HandledInput> handledInput );
 
 protected:
+	virtual std::shared_ptr<HandledInput> handleMessage(
+		const MidiMessage& msg );
 	void handleNoteOnMessage(
 		const MidiMessage& msg, std::shared_ptr<HandledInput> handledInput );
 	void handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke,

@@ -35,6 +35,7 @@
 #include <deque>
 #include <memory>
 #include <mutex>
+#include <queue>
 #include <thread>
 #include <vector>
 
@@ -63,9 +64,7 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 	void clearHandledInput();
 	void clearHandledOutput();
 
-	std::shared_ptr<MidiInput::HandledInput> handleMessage(
-		const MidiMessage& msg
-	) override;
+	void enqueueInputMessage( const MidiMessage& msg );
 	std::shared_ptr<MidiOutput::HandledOutput> sendMessage(
 		const MidiMessage& msg
 	) override;
@@ -141,6 +140,25 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 	/** @} */
 
 	std::shared_ptr<std::thread> m_pClockThread;
+
+	/** These shared members are used to provide a separate worker thread for
+	 * incoming MIDI messages. This is done in order to keep the MIDI driver as
+	 * responsive as possible - since on NOTE_ON events
+	 * #Hydrogen::addRealtimeNote() is called, which locks the audio engine.
+	 * Otherwise MIDI clock signals interwoved with other messages would yield
+	 * poor results.
+	 *
+	 * @{ */
+	std::shared_ptr<MidiInput::HandledInput> handleMessage(
+		const MidiMessage& msg
+	) override;
+	static void inputMessageHandler( void* pInstance );
+	std::shared_ptr<std::thread> m_pInputMessageHandler;
+	std::condition_variable m_inputMessageHandlerCV;
+	std::mutex m_inputMessageHandlerMutex;
+	std::queue<MidiMessage> m_inputMessageQueue;
+	bool m_bInputActive;
+	/** @} */
 };
 
 inline void MidiBaseDriver::clearHandledInput()

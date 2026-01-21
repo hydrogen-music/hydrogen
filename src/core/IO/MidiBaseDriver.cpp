@@ -27,10 +27,10 @@
 #include <core/EventQueue.h>
 #include <core/Helpers/TimeHelper.h>
 #include <core/Hydrogen.h>
+#include <core/Midi/Midi.h>
 #include <core/Preferences/Preferences.h>
 
 #include <QMutexLocker>
-#include "Midi/Midi.h"
 
 namespace H2Core {
 
@@ -44,7 +44,8 @@ MidiBaseDriver::MidiBaseDriver()
 	  m_nAverageIntervalNs( 0 ),
 	  m_lastTick( TimePoint() ),
 	  m_nTickCount( 0 ),
-	  m_pClockThread( nullptr )
+	  m_pClockThread( nullptr ),
+      m_bInputActive( false )
 {
 	if ( Preferences::get_instance()->getMidiClockOutputSend() ) {
 		startMidiClockStream( Hydrogen::get_instance()
@@ -52,12 +53,32 @@ MidiBaseDriver::MidiBaseDriver()
 								  ->getTransportPosition()
 								  ->getBpm() );
 	}
+
+	{
+		std::unique_lock lock{ m_inputMessageHandlerMutex };
+		m_pInputMessageHandler = std::make_shared<std::thread>(
+			MidiBaseDriver::inputMessageHandler, (void*) this
+		);
+
+		// Wait till the thread as created successfully.
+		m_inputMessageHandlerCV.wait( lock, [&] { return m_bInputActive; } );
+	}
 }
 
 MidiBaseDriver::~MidiBaseDriver()
 {
 	if ( m_pClockThread != nullptr ) {
 		stopMidiClockStream();
+	}
+
+	if ( m_pInputMessageHandler != nullptr ) {
+        m_bInputActive = false;
+		{
+			std::scoped_lock lock{ m_inputMessageHandlerMutex };
+			m_inputMessageHandlerCV.notify_all();
+		}
+		m_pInputMessageHandler->join();
+		m_pInputMessageHandler = nullptr;
 	}
 }
 
@@ -73,24 +94,22 @@ QString MidiBaseDriver::portTypeToQString( const PortType& portType )
 	}
 }
 
-std::shared_ptr<MidiInput::HandledInput> MidiBaseDriver::handleMessage(
-	const MidiMessage& msg
-)
+void MidiBaseDriver::enqueueInputMessage( const MidiMessage& msg )
 {
-	const auto pHandledInput = MidiInput::handleMessage( msg );
-
-	if ( pHandledInput != nullptr &&
-		 pHandledInput->type != MidiMessage::Type::Unknown ) {
-		QMutexLocker mx( &m_handledInputsMutex );
-		m_handledInputs.push_back( pHandledInput );
-		if ( m_handledInputs.size() > MidiBaseDriver::nBacklogSize ) {
-			m_handledInputs.pop_front();
-		}
-
-		EventQueue::get_instance()->pushEvent( Event::Type::MidiInput, 0 );
+	if ( m_pInputMessageHandler == nullptr || !m_bInputActive ) {
+		ERRORLOG(
+			QString(
+				"Midi driver not functional. Can't handle incoming message [%1]"
+			)
+				.arg( msg.toQString() )
+		);
+		return;
 	}
 
-	return pHandledInput;
+	std::scoped_lock lock{ m_inputMessageHandlerMutex };
+
+	m_inputMessageQueue.push( msg );
+	m_inputMessageHandlerCV.notify_all();
 }
 
 std::shared_ptr<MidiOutput::HandledOutput> MidiBaseDriver::sendMessage(
@@ -310,6 +329,70 @@ void MidiBaseDriver::midiClockStream( void* pInstance )
 			pMidiDriver->m_bNotifyOnNextTick = false;
 
 			pMidiDriver->m_midiClockCV.notify_all();
+		}
+	}
+}
+
+std::shared_ptr<MidiInput::HandledInput> MidiBaseDriver::handleMessage(
+	const MidiMessage& msg
+)
+{
+	const auto pHandledInput = MidiInput::handleMessage( msg );
+
+	if ( pHandledInput != nullptr &&
+		 pHandledInput->type != MidiMessage::Type::Unknown ) {
+		QMutexLocker mx( &m_handledInputsMutex );
+		m_handledInputs.push_back( pHandledInput );
+		if ( m_handledInputs.size() > MidiBaseDriver::nBacklogSize ) {
+			m_handledInputs.pop_front();
+		}
+
+		EventQueue::get_instance()->pushEvent( Event::Type::MidiInput, 0 );
+	}
+
+	return pHandledInput;
+}
+
+void MidiBaseDriver::inputMessageHandler( void* pInstance )
+{
+	auto pDriver = static_cast<MidiBaseDriver*>( pInstance );
+	if ( pDriver == nullptr ) {
+		ERRORLOG( "Invalid instance provided. Shutting down." );
+		return;
+	}
+
+	// Signal the instance that we are ready.
+	pDriver->m_bInputActive = true;
+	pDriver->m_inputMessageHandlerCV.notify_all();
+
+	std::vector<MidiMessage> messages;
+	while ( pDriver->m_bInputActive ) {
+		messages.clear();
+		{
+			std::unique_lock lock{ pDriver->m_inputMessageHandlerMutex };
+			pDriver->m_inputMessageHandlerCV.wait( lock, [&] {
+				return pDriver->m_inputMessageQueue.size() > 0 ||
+					   !pDriver->m_bInputActive;
+			} );
+
+			if ( !pDriver->m_bInputActive ) {
+				return;
+			}
+
+			// We pop all events and store it in a vector to block the minimum
+			// time possible and the have our MIDI driver to be as responsive as
+			// possible.
+			messages.reserve( pDriver->m_inputMessageQueue.size() );
+			while ( pDriver->m_inputMessageQueue.size() > 0 ) {
+				messages.push_back(
+					std::move( pDriver->m_inputMessageQueue.front() )
+				);
+				pDriver->m_inputMessageQueue.pop();
+			}
+		}
+
+		for ( const auto& mmessage : messages ) {
+			pDriver->handleMessage( mmessage );
 		}
 	}
 }

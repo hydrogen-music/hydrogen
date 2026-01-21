@@ -57,6 +57,7 @@ void MidiActionTest::setUp()
 	auto pPref = Preferences::get_instance();
 	pPref->m_midiActionChannel = Midi::ChannelAll;
 
+	CoreActionController::activateSongMode( true );
 	CoreActionController::activateTimeline( false );
 }
 
@@ -2519,10 +2520,19 @@ void MidiActionTest::sendMessage( const MidiMessage& msg )
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	pDriver->clearBacklogMessages();
+    const auto nPreviousHandledInputMessages = pDriver->getHandledInputs().size();
 	pDriver->sendMessage( msg );
 
 	// Wait till the LoopBackMidiDriver did send, receive, and handle the
 	// message.
-	TestHelper::waitForMidiDriver();
+	const int nMaxTries = 100;
+	int nnTry = 0;
+	while ( pDriver->getHandledInputs().size() <= nPreviousHandledInputMessages
+	) {
+		CPPUNIT_ASSERT( nnTry < nMaxTries );
+
+		++nnTry;
+		std::this_thread::sleep_for( std::chrono::milliseconds( 5 ) );
+	}
 	TestHelper::waitForMidiActionManagerWorkerThread();
 }
