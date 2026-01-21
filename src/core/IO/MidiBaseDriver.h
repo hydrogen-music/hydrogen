@@ -65,9 +65,7 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 	void clearHandledOutput();
 
 	void enqueueInputMessage( const MidiMessage& msg );
-	std::shared_ptr<MidiOutput::HandledOutput> sendMessage(
-		const MidiMessage& msg
-	) override;
+	void enqueueOutputMessage( const MidiMessage& msg );
 
 	std::vector<std::shared_ptr<MidiInput::HandledInput> > getHandledInputs();
 	std::vector<std::shared_ptr<MidiOutput::HandledOutput> > getHandledOutputs(
@@ -158,6 +156,23 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 	std::mutex m_inputMessageHandlerMutex;
 	std::queue<MidiMessage> m_inputMessageQueue;
 	bool m_bInputActive;
+	/** @} */
+
+	/** These shared members are used to provide a separate worker thread for
+	 * outgoing MIDI messages. This is done in order to keep the audio engine as
+	 * responsive as possible. Otherwise we might get worse latency or X-runs on
+	 * larger amounts of MIDI messages sent..
+	 *
+	 * @{ */
+	std::shared_ptr<MidiOutput::HandledOutput> sendMessage(
+		const MidiMessage& msg
+	) override;
+	static void outputMessageHandler( void* pInstance );
+	std::shared_ptr<std::thread> m_pOutputMessageHandler;
+	std::condition_variable m_outputMessageHandlerCV;
+	std::mutex m_outputMessageHandlerMutex;
+	std::queue<MidiMessage> m_outputMessageQueue;
+	bool m_bOutputActive;
 	/** @} */
 };
 

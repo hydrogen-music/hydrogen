@@ -45,7 +45,8 @@ MidiBaseDriver::MidiBaseDriver()
 	  m_lastTick( TimePoint() ),
 	  m_nTickCount( 0 ),
 	  m_pClockThread( nullptr ),
-      m_bInputActive( false )
+      m_bInputActive( false ),
+      m_bOutputActive( false )
 {
 	if ( Preferences::get_instance()->getMidiClockOutputSend() ) {
 		startMidiClockStream( Hydrogen::get_instance()
@@ -59,9 +60,16 @@ MidiBaseDriver::MidiBaseDriver()
 		m_pInputMessageHandler = std::make_shared<std::thread>(
 			MidiBaseDriver::inputMessageHandler, (void*) this
 		);
-
 		// Wait till the thread as created successfully.
 		m_inputMessageHandlerCV.wait( lock, [&] { return m_bInputActive; } );
+	}
+	{
+		std::unique_lock lock{ m_outputMessageHandlerMutex };
+		m_pOutputMessageHandler = std::make_shared<std::thread>(
+			MidiBaseDriver::outputMessageHandler, (void*) this
+		);
+		// Wait till the thread as created successfully.
+		m_outputMessageHandlerCV.wait( lock, [&] { return m_bOutputActive; } );
 	}
 }
 
@@ -72,13 +80,23 @@ MidiBaseDriver::~MidiBaseDriver()
 	}
 
 	if ( m_pInputMessageHandler != nullptr ) {
-        m_bInputActive = false;
+		m_bInputActive = false;
 		{
 			std::scoped_lock lock{ m_inputMessageHandlerMutex };
 			m_inputMessageHandlerCV.notify_all();
 		}
 		m_pInputMessageHandler->join();
 		m_pInputMessageHandler = nullptr;
+	}
+
+	if ( m_pOutputMessageHandler != nullptr ) {
+		m_bOutputActive = false;
+		{
+			std::scoped_lock lock{ m_outputMessageHandlerMutex };
+			m_outputMessageHandlerCV.notify_all();
+		}
+		m_pOutputMessageHandler->join();
+		m_pOutputMessageHandler = nullptr;
 	}
 }
 
@@ -112,24 +130,22 @@ void MidiBaseDriver::enqueueInputMessage( const MidiMessage& msg )
 	m_inputMessageHandlerCV.notify_all();
 }
 
-std::shared_ptr<MidiOutput::HandledOutput> MidiBaseDriver::sendMessage(
-	const MidiMessage& msg
-)
+void MidiBaseDriver::enqueueOutputMessage( const MidiMessage& msg )
 {
-	const auto pHandledOutput = MidiOutput::sendMessage( msg );
-
-	if ( pHandledOutput != nullptr &&
-		 pHandledOutput->type != MidiMessage::Type::Unknown ) {
-		QMutexLocker mx( &m_handledOutputMutex );
-		m_handledOutputs.push_back( pHandledOutput );
-		if ( m_handledOutputs.size() > MidiBaseDriver::nBacklogSize ) {
-			m_handledOutputs.pop_front();
-		}
-
-		EventQueue::get_instance()->pushEvent( Event::Type::MidiOutput, 0 );
+	if ( m_pOutputMessageHandler == nullptr || !m_bOutputActive ) {
+		ERRORLOG(
+			QString(
+				"Midi driver not functional. Can't handle incoming message [%1]"
+			)
+				.arg( msg.toQString() )
+		);
+		return;
 	}
 
-	return pHandledOutput;
+	std::scoped_lock lock{ m_outputMessageHandlerMutex };
+
+	m_outputMessageQueue.push( msg );
+	m_outputMessageHandlerCV.notify_all();
 }
 
 std::vector<std::shared_ptr<MidiInput::HandledInput> >
@@ -393,6 +409,70 @@ void MidiBaseDriver::inputMessageHandler( void* pInstance )
 
 		for ( const auto& mmessage : messages ) {
 			pDriver->handleMessage( mmessage );
+		}
+	}
+}
+
+std::shared_ptr<MidiOutput::HandledOutput> MidiBaseDriver::sendMessage(
+	const MidiMessage& msg
+)
+{
+	const auto pHandledOutput = MidiOutput::sendMessage( msg );
+
+	if ( pHandledOutput != nullptr &&
+		 pHandledOutput->type != MidiMessage::Type::Unknown ) {
+		QMutexLocker mx( &m_handledOutputMutex );
+		m_handledOutputs.push_back( pHandledOutput );
+		if ( m_handledOutputs.size() > MidiBaseDriver::nBacklogSize ) {
+			m_handledOutputs.pop_front();
+		}
+
+		EventQueue::get_instance()->pushEvent( Event::Type::MidiOutput, 0 );
+	}
+
+	return pHandledOutput;
+}
+
+void MidiBaseDriver::outputMessageHandler( void* pInstance )
+{
+	auto pDriver = static_cast<MidiBaseDriver*>( pInstance );
+	if ( pDriver == nullptr ) {
+		ERRORLOG( "Invalid instance provided. Shutting down." );
+		return;
+	}
+
+	// Signal the instance that we are ready.
+	pDriver->m_bOutputActive = true;
+	pDriver->m_outputMessageHandlerCV.notify_all();
+
+	std::vector<MidiMessage> messages;
+	while ( pDriver->m_bOutputActive ) {
+		messages.clear();
+		{
+			std::unique_lock lock{ pDriver->m_outputMessageHandlerMutex };
+			pDriver->m_outputMessageHandlerCV.wait( lock, [&] {
+				return pDriver->m_outputMessageQueue.size() > 0 ||
+					   !pDriver->m_bOutputActive;
+			} );
+
+			if ( !pDriver->m_bOutputActive ) {
+				return;
+			}
+
+			// We pop all events and store it in a vector to block the minimum
+			// time possible and the have our MIDI driver to be as responsive as
+			// possible.
+			messages.reserve( pDriver->m_outputMessageQueue.size() );
+			while ( pDriver->m_outputMessageQueue.size() > 0 ) {
+				messages.push_back(
+					std::move( pDriver->m_outputMessageQueue.front() )
+				);
+				pDriver->m_outputMessageQueue.pop();
+			}
+		}
+
+		for ( const auto& mmessage : messages ) {
+			pDriver->sendMessage( mmessage );
 		}
 	}
 }

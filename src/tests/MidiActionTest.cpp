@@ -2521,13 +2521,16 @@ void MidiActionTest::sendMessage( const MidiMessage& msg )
 
 	pDriver->clearBacklogMessages();
     const auto nPreviousHandledInputMessages = pDriver->getHandledInputs().size();
-	pDriver->sendMessage( msg );
+    const auto nPreviousHandledOutputMessages = pDriver->getHandledOutputs().size();
+	pDriver->enqueueOutputMessage( msg );
 
 	// Wait till the LoopBackMidiDriver did send, receive, and handle the
 	// message.
 	const int nMaxTries = 100;
 	int nnTry = 0;
-	while ( pDriver->getHandledInputs().size() <= nPreviousHandledInputMessages
+	while (
+		pDriver->getHandledInputs().size() <= nPreviousHandledInputMessages &&
+		pDriver->getHandledOutputs().size() <= nPreviousHandledOutputMessages
 	) {
 		CPPUNIT_ASSERT( nnTry < nMaxTries );
 

@@ -323,7 +323,7 @@ void AudioEngine::startPlayback()
 		else {
 			midiMessage.setType( MidiMessage::Type::Start );
 		}
-		m_pMidiDriver->sendMessage( midiMessage );
+		m_pMidiDriver->enqueueOutputMessage( midiMessage );
 	}
 
 	handleSelectedPattern();
@@ -347,7 +347,7 @@ void AudioEngine::stopPlayback( Event::Trigger trigger )
 		 pPref->getMidiFeedbackChannel() != Midi::ChannelInvalid ) {
 		MidiMessage midiMessage;
 		midiMessage.setType( MidiMessage::Type::Stop );
-		m_pMidiDriver->sendMessage( midiMessage );
+		m_pMidiDriver->enqueueOutputMessage( midiMessage );
 	}
 }
 

@@ -64,8 +64,11 @@ class MidiOutput : public virtual Object<MidiOutput>
 		 * Hydrogen without letting us know. */
 		virtual bool isOutputActive() const = 0;
 
+	   protected:
 		/** @returns true in case #msg could be sent. */
-		virtual std::shared_ptr<HandledOutput> sendMessage( const MidiMessage& msg );
+		virtual std::shared_ptr<HandledOutput> sendMessage(
+			const MidiMessage& msg
+		);
 
 	private:
 	virtual void sendControlChangeMessage( const MidiMessage& msg ) {};
