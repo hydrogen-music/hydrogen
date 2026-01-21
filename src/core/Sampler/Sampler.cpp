@@ -216,7 +216,8 @@ void Sampler::process( uint32_t nFrames )
 					noteOff.velocity = pNote->getMidiVelocity();
 					if ( noteOff.channel != Midi::ChannelOff &&
 						 noteOff.channel != Midi::ChannelInvalid ) {
-						pMidiDriver->sendMessage( MidiMessage::from( noteOff )
+						pMidiDriver->enqueueOutputMessage(
+							MidiMessage::from( noteOff )
 						);
 					}
 				}
@@ -280,7 +281,9 @@ void Sampler::process( uint32_t nFrames )
 				noteOff.velocity = pNote->getMidiVelocity();
 				if ( noteOff.channel != Midi::ChannelOff &&
 					 noteOff.channel != Midi::ChannelInvalid ) {
-					pMidiDriver->sendMessage( MidiMessage::from( noteOff ) );
+					pMidiDriver->enqueueOutputMessage(
+						MidiMessage::from( noteOff )
+					);
 				}
 			}
 			else {
@@ -993,9 +996,10 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 					 pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) ) ) {
 				auto noteOffMessage = MidiMessage::from( noteOnMessage );
 				noteOffMessage.setType( MidiMessage::Type::NoteOff );
-				pHydrogen->getMidiDriver()->sendMessage( noteOffMessage );
+				pHydrogen->getMidiDriver()->enqueueOutputMessage( noteOffMessage
+				);
 			}
-			pHydrogen->getMidiDriver()->sendMessage( noteOnMessage );
+			pHydrogen->getMidiDriver()->enqueueOutputMessage( noteOnMessage );
 			pNote->setMidiNoteOnSentFrame( nFrame );
 		}
 	}

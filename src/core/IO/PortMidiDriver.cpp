@@ -92,7 +92,7 @@ void* PortMidiDriver_thread( void* param )
 					sysExMsg.setType( MidiMessage::Type::Sysex );
 					if ( PortMidiDriver::appendSysExData( &sysExMsg,
 														  buffer[0].message ) ) {
-						instance->handleMessage( sysExMsg );
+						instance->enqueueInputMessage( sysExMsg );
 					}
 				}
 				else {
@@ -102,7 +102,7 @@ void* PortMidiDriver_thread( void* param )
 					msg.setType( MidiMessage::deriveType( nEventType ) );
 					msg.setData1( Midi::parameterFromIntClamp( Pm_MessageData1( buffer[0].message ) ) );
 					msg.setData2( Midi::parameterFromIntClamp( Pm_MessageData2( buffer[0].message ) ) );
-					instance->handleMessage( msg );
+					instance->enqueueInputMessage( msg );
 				}
 			}
 			else if ( nEventType >= 256 ) {
@@ -113,7 +113,7 @@ void* PortMidiDriver_thread( void* param )
 				// Continuation of a SysEx message.
 				if ( PortMidiDriver::appendSysExData( &sysExMsg,
 													  buffer[0].message ) ) {
-					instance->handleMessage( sysExMsg );
+					instance->enqueueInputMessage( sysExMsg );
 				}
 			}
 		}

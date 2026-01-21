@@ -742,7 +742,8 @@ bool CoreActionController::handleOutgoingControlChanges(
 			controlChange.value = value;
 			// For now the MIDI feedback channel is always 0.
 			controlChange.channel = pPref->getMidiFeedbackChannel();
-			pMidiDriver->sendMessage( MidiMessage::from( controlChange ) );
+			pMidiDriver->enqueueOutputMessage( MidiMessage::from( controlChange
+			) );
 		}
 	}
 
@@ -2209,7 +2210,7 @@ bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast ) {
 				H2Core::nTicksPerQuarter
 			) );
 			midiMessage.setChannel( pPref->getMidiFeedbackChannel() );
-			pMidiDriver->sendMessage( midiMessage );
+			pMidiDriver->enqueueOutputMessage( midiMessage );
 		}
 	}
 
@@ -2951,7 +2952,8 @@ bool CoreActionController::sendAllNoteOffMessages()
 			noteOff.note = noteRef.note;
 
 			if ( noteOff.channel != Midi::ChannelOff ) {
-				pMidiDriver->sendMessage( MidiMessage::from( noteOff ) );
+				pMidiDriver->enqueueOutputMessage( MidiMessage::from( noteOff )
+				);
 			}
 		}
 	}

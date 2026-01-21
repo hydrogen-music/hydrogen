@@ -174,7 +174,7 @@ void LoopBackMidiDriver::messageHandler( void* pInstance ) {
 		while ( pDriver->m_messageQueue.size() > 0 ) {
 			const auto midiMessage = pDriver->m_messageQueue.front();
 			pDriver->m_backlogQueue.push_back( MidiMessage( midiMessage ) );
-			pDriver->handleMessage( MidiMessage::from( midiMessage ) );
+			pDriver->enqueueInputMessage( MidiMessage::from( midiMessage ) );
 			pDriver->m_messageQueue.pop_front();
 
 			if ( pDriver->m_backlogQueue.size() >

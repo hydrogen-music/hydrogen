@@ -66,7 +66,7 @@ static void midiProc ( const MIDIPacketList * pktlist,
 			msg.setData2( Midi::parameterFromIntClamp( packet->data[2] ) );
 		}
 
-		instance->handleMessage( msg );
+		instance->enqueueInputMessage( msg );
 		packet = MIDIPacketNext( packet );
 	}
 }
