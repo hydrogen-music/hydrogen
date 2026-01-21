@@ -60,18 +60,27 @@ void AudioEngineTest::testNotePickup()
     // NOTE_ON events are sent for each encountered note.
     CPPUNIT_ASSERT( pSong->getPatternGroupVector()->size() == 1 );
 
+    // Ensure we do not build a MIDI feedback loop
+	const auto oldInputMapping = pPref->getMidiInstrumentMap()->getInput();
 	const auto oldOutputMapping = pPref->getMidiInstrumentMap()->getOutput();
 	const auto bOldUseGlobalOutputChannel =
 		pPref->getMidiInstrumentMap()->getUseGlobalOutputChannel();
 	const auto oldGlobalOutputChannel =
 		pPref->getMidiInstrumentMap()->getGlobalOutputChannel();
+	const auto oldActionChannel = pPref->m_midiActionChannel;
 
+	pPref->getMidiInstrumentMap()->setInput(
+		MidiInstrumentMap::Input::None
+	);
 	pPref->getMidiInstrumentMap()->setOutput(
 		MidiInstrumentMap::Output::Constant
 	);
 	pPref->getMidiInstrumentMap()->setUseGlobalOutputChannel( true );
 	pPref->getMidiInstrumentMap()->setGlobalOutputChannel( Midi::ChannelDefault
 	);
+    // We must disable action event handling. Otherwise, NOTE_ON events set in
+    // the config files might cause weird side effects in this test.
+    pPref->m_midiActionChannel = Midi::ChannelOff;
 
 	const auto bOldSongMode = pSong->getMode();
 	const auto bOldLoopMode = pSong->getLoopMode();
@@ -133,6 +142,7 @@ void AudioEngineTest::testNotePickup()
 	CPPUNIT_ASSERT( CoreActionController::activateSongMode( bOldSongMode == Song::Mode::Song ) );
 	CPPUNIT_ASSERT( CoreActionController::activateLoopMode( bOldLoopMode == Song::LoopMode::Enabled ) );
 
+	pPref->getMidiInstrumentMap()->setInput( oldInputMapping );
 	pPref->getMidiInstrumentMap()->setOutput( oldOutputMapping );
 	pPref->getMidiInstrumentMap()->setUseGlobalOutputChannel(
 		bOldUseGlobalOutputChannel
@@ -140,6 +150,7 @@ void AudioEngineTest::testNotePickup()
 	pPref->getMidiInstrumentMap()->setGlobalOutputChannel(
 		oldGlobalOutputChannel
 	);
+    pPref->m_midiActionChannel = oldActionChannel;
 
 	___INFOLOG( "passed" );
 }
