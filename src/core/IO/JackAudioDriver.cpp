@@ -1396,7 +1396,16 @@ void JackAudioDriver::stopTransport() {
 
 	if ( m_pClient != nullptr ) {
 		jack_transport_stop( m_pClient );
-	} else {
+
+        // Do not wait for the JACK server to inform the audio engine that
+        // transport has stopped during the next processing cycle. This would
+        // make transport restarting for song + disabled loop mode once the end
+        // of the song is reached and process notes for one additional cycle.
+		Hydrogen::get_instance()->getAudioEngine()->setNextState(
+			AudioEngine::State::Ready
+		);
+	}
+	else {
 		ERRORLOG( "No client registered" );
 	}
 }
