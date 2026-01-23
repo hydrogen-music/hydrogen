@@ -1610,6 +1610,10 @@ bool MidiActionManager::loadPrevDrumkit( std::shared_ptr<MidiAction> ) {
 }
 
 int MidiActionManager::getParameterNumber( const MidiAction::Type& type ) const {
+	if ( type == MidiAction::Type::Null ) {
+        return 0;
+	}
+
 	auto foundActionPair = m_midiActionMap.find( type );
 	if ( foundActionPair != m_midiActionMap.end() ) {
 		return foundActionPair->second.second;
