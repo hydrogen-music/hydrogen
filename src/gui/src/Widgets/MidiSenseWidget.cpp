@@ -106,6 +106,7 @@ MidiSenseWidget::MidiSenseWidget(
 		sIconPath.append( "/icons/black/" );
 	}
 	m_pClearButton->setIcon( QIcon( sIconPath + "bin.svg" ) );
+    m_pClearButton->setVisible( bDirectWrite );
 	pContainerLayout->addWidget( m_pClearButton );
 
 	m_pTextLabel = new QLabel( pContainerWidget );
