@@ -22,6 +22,7 @@
 
 #include "MidiActionTable.h"
 
+#include "../HydrogenApp.h"
 #include "../Skin.h"
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/LCDSpinBox.h"
@@ -39,288 +40,23 @@
 
 #include <QHeaderView>
 
+using namespace H2Core;
+
 MidiActionTable::MidiActionTable( QWidget* pParent ) : QTableWidget( pParent )
 {
 	// Add an "empty" action used to reset the combo box.
 	m_availableActions << "";
 
 	const auto pActionHandler =
-		H2Core::Hydrogen::get_instance()->getMidiActionManager();
+		Hydrogen::get_instance()->getMidiActionManager();
 	for ( const auto& ttype : pActionHandler->getMidiActions() ) {
 		m_availableActions << MidiAction::typeToQString( ttype );
 	}
-
-	m_nRowCount = 0;
-	setupMidiActionTable();
-
-	m_pUpdateTimer = new QTimer( this );
-	m_nCurrentMidiAutosenseRow = 0;
-}
-
-MidiActionTable::~MidiActionTable()
-{
-	for ( int myRow = 0; myRow <= m_nRowCount; myRow++ ) {
-		delete cellWidget( myRow, 0 );
-		delete cellWidget( myRow, 1 );
-		delete cellWidget( myRow, 2 );
-		delete cellWidget( myRow, 3 );
-		delete cellWidget( myRow, 4 );
-		delete cellWidget( myRow, 5 );
-		delete cellWidget( myRow, 6 );
-	}
-}
-
-void MidiActionTable::midiSensePressed( int nRow )
-{
-	m_nCurrentMidiAutosenseRow = nRow;
-	MidiSenseWidget midiSenseWidget( this );
-	midiSenseWidget.exec();
-	if ( midiSenseWidget.getLastMidiEvent() == H2Core::MidiEvent::Type::Null ) {
-		// Rejected
-		return;
-	}
-
-	LCDCombo* pEventCombo = dynamic_cast<LCDCombo*>( cellWidget( nRow, 1 ) );
-	LCDSpinBox* pEventSpinner =
-		dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 2 ) );
-	if ( pEventCombo == nullptr ) {
-		ERRORLOG( QString( "No event combobox in row [%1]" ).arg( nRow ) );
-		return;
-	}
-	if ( pEventSpinner == nullptr ) {
-		ERRORLOG( QString( "No event spinner in row [%1]" ).arg( nRow ) );
-		return;
-	}
-
-	pEventCombo->setCurrentIndex( pEventCombo->findText(
-		H2Core::MidiEvent::TypeToQString( midiSenseWidget.getLastMidiEvent() )
-	) );
-	pEventSpinner->setValue(
-		static_cast<int>( midiSenseWidget.getLastMidiEventParameter() )
-	);
-
-	m_pUpdateTimer->start( 100 );
-
-	emit changed();
-}
-
-// Reimplementing this one is quite expensive. But the visibility of
-// the spinBoxes is reset after the end of updateTable(). In addition,
-// the function is only called frequently when interacting the the
-// table via mouse. This won't happen too often.
-void MidiActionTable::paintEvent( QPaintEvent* ev )
-{
-	QTableWidget::paintEvent( ev );
-	updateTable();
-}
-
-void MidiActionTable::updateTable()
-{
-	if ( m_nRowCount > 0 ) {
-		// Ensure that the last row is empty
-		LCDCombo* pEventCombo =
-			dynamic_cast<LCDCombo*>( cellWidget( m_nRowCount - 1, 1 ) );
-		LCDCombo* pActionCombo =
-			dynamic_cast<LCDCombo*>( cellWidget( m_nRowCount - 1, 3 ) );
-
-		if ( pEventCombo == nullptr || pActionCombo == nullptr ) {
-			return;
-		}
-
-		if ( !pActionCombo->currentText().isEmpty() &&
-			 !pEventCombo->currentText().isEmpty() ) {
-			auto pAction =
-				std::make_shared<MidiAction>( MidiAction::Type::Null );
-			insertNewRow( pAction, "", H2Core::Midi::ParameterMinimum );
-		}
-
-		// Ensure that all other empty rows are removed and that the
-		// parameter spinboxes are only shown when required for that
-		// particular parameter.
-		for ( int ii = 0; ii < m_nRowCount; ii++ ) {
-			updateRow( ii );
-		}
-	}
-}
-
-void MidiActionTable::sendChanged()
-{
-	emit changed();
-}
-
-void MidiActionTable::insertNewRow(
-	std::shared_ptr<MidiAction> pAction,
-	const QString& eventString,
-	H2Core::Midi::Parameter eventParameter
-)
-{
-	auto pMidiActionManager =
-		H2Core::Hydrogen::get_instance()->getMidiActionManager();
-
-	insertRow( m_nRowCount );
-
-	int oldRowCount = m_nRowCount;
-
-	setRowCount( ++m_nRowCount );
-
-	QString sIconPath( Skin::getSvgImagePath() );
-	if ( H2Core::Preferences::get_instance()
-			 ->getInterfaceTheme()
-			 ->m_iconColor == H2Core::InterfaceTheme::IconColor::White ) {
-		sIconPath.append( "/icons/white/" );
-	}
-	else {
-		sIconPath.append( "/icons/black/" );
-	}
-
-	QPushButton* midiSenseButton = new QPushButton( this );
-	midiSenseButton->setObjectName( "MidiSenseButton" );
-	midiSenseButton->setIcon( QIcon( sIconPath + "record.svg" ) );
-	midiSenseButton->setIconSize( QSize( 13, 13 ) );
-	midiSenseButton->setToolTip( tr( "press button to record midi event" ) );
-
-	connect( midiSenseButton, &QPushButton::clicked, [=]() {
-		for ( int ii = 0; ii < rowCount(); ii++ ) {
-			if ( cellWidget( ii, 0 ) == midiSenseButton ) {
-				midiSensePressed( ii );
-				return;
-			}
-		}
-		ERRORLOG( QString( "Unable to midiSenseButton of initial row [%1] in "
-						   "MidiActionTable!" )
-					  .arg( oldRowCount ) );
-	} );
-	setCellWidget( oldRowCount, 0, midiSenseButton );
-
-	LCDCombo* eventBox = new LCDCombo( this );
-	eventBox->setMinimumSize(
-		QSize( MidiActionTable::nMinComboWidth, MidiActionTable::nRowHeight )
-	);
-	eventBox->setMaximumSize(
-		QSize( MidiActionTable::nMaxComboWidth, MidiActionTable::nRowHeight )
-	);
-	eventBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
-	eventBox->insertItems( oldRowCount, H2Core::MidiEvent::getAllTypes() );
-
-	eventBox->setCurrentIndex( eventBox->findText( eventString ) );
-	connect(
-		eventBox, SIGNAL( currentIndexChanged( int ) ), this,
-		SLOT( updateTable() )
-	);
-	connect(
-		eventBox, SIGNAL( currentIndexChanged( int ) ), this,
-		SLOT( sendChanged() )
-	);
-	setCellWidget( oldRowCount, 1, eventBox );
-
-	LCDSpinBox* eventParameterSpinner = new LCDSpinBox(
-		this,
-		QSize( MidiActionTable::nSpinBoxWidth, MidiActionTable::nRowHeight )
-	);
-	eventParameterSpinner->setSizePolicy(
-		QSizePolicy::Fixed, QSizePolicy::Fixed
-	);
-	setCellWidget( oldRowCount, 2, eventParameterSpinner );
-	eventParameterSpinner->setMaximum(
-		static_cast<int>( H2Core::Midi::ParameterMaximum )
-	);
-	eventParameterSpinner->setValue( static_cast<int>( eventParameter ) );
-	connect(
-		eventParameterSpinner, SIGNAL( valueChanged( double ) ), this,
-		SLOT( sendChanged() )
-	);
-
-	LCDCombo* actionBox = new LCDCombo( this );
-	actionBox->setMinimumSize(
-		QSize( MidiActionTable::nMinComboWidth, MidiActionTable::nRowHeight )
-	);
-	actionBox->setMaximumSize(
-		QSize( MidiActionTable::nMaxComboWidth, MidiActionTable::nRowHeight )
-	);
-	actionBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
-	actionBox->insertItems( oldRowCount, m_availableActions );
-	actionBox->setCurrentIndex(
-		actionBox->findText( MidiAction::typeToQString( pAction->getType() ) )
-	);
-	connect(
-		actionBox, SIGNAL( currentIndexChanged( int ) ), this,
-		SLOT( updateTable() )
-	);
-	connect(
-		actionBox, SIGNAL( currentIndexChanged( int ) ), this,
-		SLOT( sendChanged() )
-	);
-	setCellWidget( oldRowCount, 3, actionBox );
-
-	bool ok;
-	LCDSpinBox* actionParameterSpinner1 = new LCDSpinBox(
-		this,
-		QSize( MidiActionTable::nSpinBoxWidth, MidiActionTable::nRowHeight )
-	);
-	actionParameterSpinner1->setSizePolicy(
-		QSizePolicy::Fixed, QSizePolicy::Fixed
-	);
-	setCellWidget( oldRowCount, 4, actionParameterSpinner1 );
-	actionParameterSpinner1->setMaximum( 999 );
-	actionParameterSpinner1->setValue( pAction->getParameter1().toInt( &ok, 10 )
-	);
-	actionParameterSpinner1->hide();
-	connect(
-		actionParameterSpinner1, SIGNAL( valueChanged( double ) ), this,
-		SLOT( sendChanged() )
-	);
-
-	LCDSpinBox* actionParameterSpinner2 = new LCDSpinBox(
-		this,
-		QSize( MidiActionTable::nSpinBoxWidth, MidiActionTable::nRowHeight )
-	);
-	actionParameterSpinner2->setSizePolicy(
-		QSizePolicy::Fixed, QSizePolicy::Fixed
-	);
-	setCellWidget( oldRowCount, 5, actionParameterSpinner2 );
-	// Since this spinner handles both the FX and component number, this hard
-	// coded value could in principle - as the user is allowed to add arbitrary
-	// components to an instrument - be set too low. But I doubt this will ever
-	// happen in a real-world example.
-	actionParameterSpinner2->setMaximum( 999 );
-	actionParameterSpinner2->setValue( pAction->getParameter2().toInt( &ok, 10 )
-	);
-	actionParameterSpinner2->hide();
-	connect(
-		actionParameterSpinner2, SIGNAL( valueChanged( double ) ), this,
-		SLOT( sendChanged() )
-	);
-
-	LCDSpinBox* actionParameterSpinner3 = new LCDSpinBox(
-		this,
-		QSize( MidiActionTable::nSpinBoxWidth, MidiActionTable::nRowHeight )
-	);
-	actionParameterSpinner3->setSizePolicy(
-		QSizePolicy::Fixed, QSizePolicy::Fixed
-	);
-	setCellWidget( oldRowCount, 6, actionParameterSpinner3 );
-	actionParameterSpinner3->setMaximum( 999 );
-	actionParameterSpinner3->setValue( pAction->getParameter3().toInt( &ok, 10 )
-	);
-	actionParameterSpinner3->hide();
-	connect(
-		actionParameterSpinner3, SIGNAL( valueChanged( double ) ), this,
-		SLOT( sendChanged() )
-	);
-}
-
-void MidiActionTable::setupMidiActionTable()
-{
-	const auto pMidiEventMap =
-		H2Core::Preferences::get_instance()->getMidiEventMap();
-
-	clear();
 
 	QStringList items;
 	items << "" << tr( "Incoming Event" ) << tr( "E. Para." ) << tr( "Action" )
 		  << tr( "Para. 1" ) << tr( "Para. 2" ) << tr( "Para. 3" );
 
-	m_nRowCount = 0;
 	setRowCount( 0 );
 	setColumnCount( 7 );
 
@@ -348,159 +84,412 @@ void MidiActionTable::setupMidiActionTable()
 	horizontalHeader()->setSectionResizeMode( 5, QHeaderView::Fixed );
 	horizontalHeader()->setSectionResizeMode( 6, QHeaderView::Fixed );
 
+	updateTable();
+
+	m_nCurrentMidiAutosenseRow = 0;
+
+	HydrogenApp::get_instance()->addEventListener( this );
+}
+
+MidiActionTable::~MidiActionTable()
+{
+	for ( int myRow = 0; myRow < rowCount(); myRow++ ) {
+		delete cellWidget( myRow, 0 );
+		delete cellWidget( myRow, 1 );
+		delete cellWidget( myRow, 2 );
+		delete cellWidget( myRow, 3 );
+		delete cellWidget( myRow, 4 );
+		delete cellWidget( myRow, 5 );
+		delete cellWidget( myRow, 6 );
+	}
+
+	HydrogenApp::get_instance()->removeEventListener( this );
+}
+
+void MidiActionTable::updateTable()
+{
+	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+
+	m_cachedEventMap.clear();
+
+	int nIndex = 0;
 	for ( const auto& ppEvent : pMidiEventMap->getMidiEvents() ) {
 		if ( ppEvent != nullptr && ppEvent->getMidiAction() != nullptr &&
 			 !ppEvent->getMidiAction()->isNull() ) {
-			insertNewRow(
-				ppEvent->getMidiAction(),
-				H2Core::MidiEvent::TypeToQString( ppEvent->getType() ),
-				ppEvent->getParameter()
-			);
+			if ( nIndex >= rowCount() ) {
+				appendNewRow();
+			}
+			updateRow( ppEvent, nIndex );
+
+			m_cachedEventMap[nIndex] = ppEvent;
+
+			++nIndex;
 		}
 	}
 
-	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::Null );
-	insertNewRow( pAction, "", H2Core::Midi::ParameterMinimum );
+	// All other rows are superfluous ones and have to be removed.
+	for ( int ii = nIndex; ii < rowCount(); ++ii ) {
+		removeRow( ii );
+	}
 }
 
-void MidiActionTable::saveMidiActionTable()
+void MidiActionTable::appendNewRow()
 {
-	auto pMidiEventMap = H2Core::Preferences::get_instance()->getMidiEventMap();
-	pMidiEventMap->reset();
+	auto pMidiActionManager = Hydrogen::get_instance()->getMidiActionManager();
 
-	for ( int row = 0; row < m_nRowCount; row++ ) {
-		LCDCombo* eventCombo = dynamic_cast<LCDCombo*>( cellWidget( row, 1 ) );
-		LCDSpinBox* eventSpinner =
-			dynamic_cast<LCDSpinBox*>( cellWidget( row, 2 ) );
-		LCDCombo* actionCombo = dynamic_cast<LCDCombo*>( cellWidget( row, 3 ) );
-		LCDSpinBox* actionSpinner1 =
-			dynamic_cast<LCDSpinBox*>( cellWidget( row, 4 ) );
-		LCDSpinBox* actionSpinner2 =
-			dynamic_cast<LCDSpinBox*>( cellWidget( row, 5 ) );
-		LCDSpinBox* actionSpinner3 =
-			dynamic_cast<LCDSpinBox*>( cellWidget( row, 6 ) );
+	const int nNewRow = rowCount();
+	setRowCount( rowCount() + 1 );
 
-		if ( !eventCombo->currentText().isEmpty() &&
-			 !actionCombo->currentText().isEmpty() ) {
-			const QString sEventString = eventCombo->currentText();
-			const auto type = H2Core::MidiEvent::QStringToType( sEventString );
-
-			const QString actionString = actionCombo->currentText();
-
-			std::shared_ptr<MidiAction> pAction = std::make_shared<MidiAction>(
-				MidiAction::parseType( actionString )
-			);
-
-			if ( actionSpinner1->cleanText() != "" ) {
-				pAction->setParameter1( actionSpinner1->cleanText() );
-			}
-			if ( actionSpinner2->cleanText() != "" ) {
-				pAction->setParameter2( actionSpinner2->cleanText() );
-			}
-			if ( actionSpinner3->cleanText() != "" ) {
-				pAction->setParameter3( actionSpinner3->cleanText() );
-			}
-
-			pMidiEventMap->registerEvent(
-				type,
-				H2Core::Midi::parameterFromIntClamp(
-					eventSpinner->cleanText().toInt()
-				),
-				pAction
-			);
-		}
+	QString sIconPath( Skin::getSvgImagePath() );
+	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+		 InterfaceTheme::IconColor::White ) {
+		sIconPath.append( "/icons/white/" );
 	}
+	else {
+		sIconPath.append( "/icons/black/" );
+	}
+
+	QPushButton* midiSenseButton = new QPushButton( this );
+	midiSenseButton->setObjectName( "MidiSenseButton" );
+	midiSenseButton->setIcon( QIcon( sIconPath + "record.svg" ) );
+	midiSenseButton->setIconSize( QSize( 13, 13 ) );
+	midiSenseButton->setToolTip( tr( "press button to record midi event" ) );
+
+	connect( midiSenseButton, &QPushButton::clicked, [=]() {
+		midiSensePressed( nNewRow );
+	} );
+	setCellWidget( nNewRow, 0, midiSenseButton );
+
+	auto pEventTypeComboBox = new LCDCombo( this );
+	pEventTypeComboBox->setMinimumSize(
+		QSize( MidiActionTable::nMinComboWidth, MidiActionTable::nRowHeight )
+	);
+	pEventTypeComboBox->setMaximumSize(
+		QSize( MidiActionTable::nMaxComboWidth, MidiActionTable::nRowHeight )
+	);
+	pEventTypeComboBox->setSizePolicy(
+		QSizePolicy::Expanding, QSizePolicy::Fixed
+	);
+	pEventTypeComboBox->insertItems( 0, MidiEvent::getAllTypes() );
+
+	connect(
+		pEventTypeComboBox, QOverload<int>::of( &QComboBox::activated ),
+		[=]() {
+			updateRow( nNewRow );
+			saveRow( nNewRow );
+		}
+	);
+	setCellWidget( nNewRow, 1, pEventTypeComboBox );
+
+	auto pEventParameterSpinBox = new LCDSpinBox(
+		this,
+		QSize( MidiActionTable::nSpinBoxWidth, MidiActionTable::nRowHeight )
+	);
+	pEventParameterSpinBox->setSizePolicy(
+		QSizePolicy::Fixed, QSizePolicy::Fixed
+	);
+	pEventParameterSpinBox->hide();
+	pEventParameterSpinBox->setMaximum( static_cast<int>( Midi::ParameterMaximum
+	) );
+	setCellWidget( nNewRow, 2, pEventParameterSpinBox );
+	connect(
+		pEventParameterSpinBox,
+		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
+		[=]() { saveRow( nNewRow ); }
+	);
+
+	auto pActionTypeComboBox = new LCDCombo( this );
+	pActionTypeComboBox->setMinimumSize(
+		QSize( MidiActionTable::nMinComboWidth, MidiActionTable::nRowHeight )
+	);
+	pActionTypeComboBox->setMaximumSize(
+		QSize( MidiActionTable::nMaxComboWidth, MidiActionTable::nRowHeight )
+	);
+	pActionTypeComboBox->setSizePolicy(
+		QSizePolicy::Expanding, QSizePolicy::Fixed
+	);
+	pActionTypeComboBox->insertItems( 0, m_availableActions );
+	connect(
+		pActionTypeComboBox, QOverload<int>::of( &QComboBox::activated ),
+		[=]() {
+			// Find row and update it.
+			updateRow( nNewRow );
+			saveRow( nNewRow );
+		}
+	);
+	setCellWidget( nNewRow, 3, pActionTypeComboBox );
+
+	auto pActionParameterSpinBox1 = new LCDSpinBox(
+		this,
+		QSize( MidiActionTable::nSpinBoxWidth, MidiActionTable::nRowHeight )
+	);
+	pActionParameterSpinBox1->setSizePolicy(
+		QSizePolicy::Fixed, QSizePolicy::Fixed
+	);
+	pActionParameterSpinBox1->setMaximum( 999 );
+	pActionParameterSpinBox1->hide();
+	setCellWidget( nNewRow, 4, pActionParameterSpinBox1 );
+	connect(
+		pActionParameterSpinBox1,
+		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
+		[=]() { saveRow( nNewRow ); }
+	);
+
+	auto pActionParameterSpinBox2 = new LCDSpinBox(
+		this,
+		QSize( MidiActionTable::nSpinBoxWidth, MidiActionTable::nRowHeight )
+	);
+	pActionParameterSpinBox2->setSizePolicy(
+		QSizePolicy::Fixed, QSizePolicy::Fixed
+	);
+	// Since this spinner handles both the FX and component number, this hard
+	// coded value could in principle - as the user is allowed to add arbitrary
+	// components to an instrument - be set too low. But I doubt this will ever
+	// happen in a real-world example.
+	pActionParameterSpinBox2->setMaximum( 999 );
+	pActionParameterSpinBox2->hide();
+	setCellWidget( nNewRow, 5, pActionParameterSpinBox2 );
+	connect(
+		pActionParameterSpinBox2,
+		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
+		[=]() { saveRow( nNewRow ); }
+	);
+
+	auto pActionParameterSpinBox3 = new LCDSpinBox(
+		this,
+		QSize( MidiActionTable::nSpinBoxWidth, MidiActionTable::nRowHeight )
+	);
+	pActionParameterSpinBox3->setSizePolicy(
+		QSizePolicy::Fixed, QSizePolicy::Fixed
+	);
+	pActionParameterSpinBox3->setMaximum( 999 );
+	pActionParameterSpinBox3->hide();
+	setCellWidget( nNewRow, 6, pActionParameterSpinBox3 );
+	connect(
+		pActionParameterSpinBox3,
+		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
+		[=]() { saveRow( nNewRow ); }
+	);
+}
+
+void MidiActionTable::midiMapChangedEvent()
+{
+	updateTable();
+}
+
+void MidiActionTable::midiSensePressed( int nRow )
+{
+	m_nCurrentMidiAutosenseRow = nRow;
+	MidiSenseWidget midiSenseWidget( this );
+	midiSenseWidget.exec();
+	if ( midiSenseWidget.getLastMidiEvent() == MidiEvent::Type::Null ) {
+		// Rejected
+		return;
+	}
+
+	auto pEventComboBox = dynamic_cast<LCDCombo*>( cellWidget( nRow, 1 ) );
+	auto pEventSpinBox = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 2 ) );
+	if ( pEventComboBox == nullptr ) {
+		ERRORLOG( QString( "No event combobox in row [%1]" ).arg( nRow ) );
+		return;
+	}
+	if ( pEventSpinBox == nullptr ) {
+		ERRORLOG( QString( "No event spinner in row [%1]" ).arg( nRow ) );
+		return;
+	}
+
+	pEventComboBox->setCurrentIndex( pEventComboBox->findText(
+		MidiEvent::TypeToQString( midiSenseWidget.getLastMidiEvent() )
+	) );
+	pEventSpinBox->setValue(
+		static_cast<int>( midiSenseWidget.getLastMidiEventParameter() ),
+		Event::Trigger::Suppress
+	);
+
+	updateRow( nRow );
+	saveRow( nRow );
 }
 
 void MidiActionTable::updateRow( int nRow )
 {
-	LCDCombo* pEventCombo = dynamic_cast<LCDCombo*>( cellWidget( nRow, 1 ) );
-	LCDCombo* pActionCombo = dynamic_cast<LCDCombo*>( cellWidget( nRow, 3 ) );
-
-	if ( pEventCombo == nullptr || pActionCombo == nullptr ) {
-		return;
-	}
-
-	if ( pActionCombo->currentText().isEmpty() &&
-		 pEventCombo->currentText().isEmpty() && nRow != m_nRowCount - 1 ) {
-		removeRow( nRow );
-		m_nRowCount--;
-		return;
-	}
-
-	// Adjust the event parameter spin box to fit the need of the
-	// particular event.
-	LCDSpinBox* pEventParameterSpinner =
+	auto pEventTypeComboBox = dynamic_cast<LCDCombo*>( cellWidget( nRow, 1 ) );
+	auto pEventParameterSpinBox =
 		dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 2 ) );
-	const QString sEventString = pEventCombo->currentText();
-	const auto event = H2Core::MidiEvent::QStringToType( sEventString );
+	auto pActionTypeComboBox = dynamic_cast<LCDCombo*>( cellWidget( nRow, 3 ) );
+	auto pActionParameterSpinBox1 =
+		dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 4 ) );
+	auto pActionParameterSpinBox2 =
+		dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 5 ) );
+	auto pActionParameterSpinBox3 =
+		dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 6 ) );
 
-	switch ( event ) {
-		case H2Core::MidiEvent::Type::CC:
-		case H2Core::MidiEvent::Type::Note:
-			pEventParameterSpinner->show();
-			pEventParameterSpinner->setMinimum(
-				static_cast<int>( H2Core::Midi::ParameterMinimum )
-			);
-			pEventParameterSpinner->setMaximum(
-				static_cast<int>( H2Core::Midi::ParameterMaximum )
-			);
-			break;
+	MidiEvent::Type eventType = MidiEvent::Type::Null;
+	if ( !pEventTypeComboBox->currentText().isEmpty() ) {
+		eventType =
+			MidiEvent::QStringToType( pEventTypeComboBox->currentText() );
+	}
+	pEventParameterSpinBox->setVisible(
+		eventType == MidiEvent::Type::CC || eventType == MidiEvent::Type::Note
+	);
 
-		case H2Core::MidiEvent::Type::PC:
-		case H2Core::MidiEvent::Type::Null:
-		default:
-			// Includes all MMC events
-			pEventParameterSpinner->hide();
+	MidiAction::Type actionType = MidiAction::Type::Null;
+	if ( !pActionTypeComboBox->currentText().isEmpty() ) {
+		actionType =
+			MidiAction::parseType( pActionTypeComboBox->currentText() );
+	}
+	const int nActionParameters =
+		Hydrogen::get_instance()->getMidiActionManager()->getParameterNumber(
+			actionType
+		);
+	pActionParameterSpinBox1->setVisible( nActionParameters >= 1 );
+	pActionParameterSpinBox2->setVisible( nActionParameters >= 2 );
+	pActionParameterSpinBox3->setVisible( nActionParameters >= 3 );
+}
+
+void MidiActionTable::updateRow( std::shared_ptr<MidiEvent> pEvent, int nRow )
+{
+	if ( pEvent == nullptr || pEvent->getMidiAction() == nullptr ) {
+		ERRORLOG( "Invalid event" );
+		return;
+	}
+	const auto pMidiAction = pEvent->getMidiAction();
+
+	auto pEventTypeComboBox = dynamic_cast<LCDCombo*>( cellWidget( nRow, 1 ) );
+	pEventTypeComboBox->setCurrentIndex( pEventTypeComboBox->findText(
+		MidiEvent::TypeToQString( pEvent->getType() )
+	) );
+
+	auto pEventParameterSpinBox =
+		dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 2 ) );
+	pEventParameterSpinBox->setValue(
+		static_cast<int>( pEvent->getParameter() ), Event::Trigger::Suppress
+	);
+	pEventParameterSpinBox->setVisible(
+		pEvent->getType() == MidiEvent::Type::CC ||
+		pEvent->getType() == MidiEvent::Type::Note
+	);
+
+	auto pActionTypeComboBox = dynamic_cast<LCDCombo*>( cellWidget( nRow, 3 ) );
+	pActionTypeComboBox->setCurrentIndex( pActionTypeComboBox->findText(
+		MidiAction::typeToQString( pMidiAction->getType() )
+	) );
+
+	auto pActionParameterSpinBox1 =
+		dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 4 ) );
+	auto pActionParameterSpinBox2 =
+		dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 5 ) );
+	auto pActionParameterSpinBox3 =
+		dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 6 ) );
+	pActionParameterSpinBox1->setValue(
+		pMidiAction->getParameter1().toInt(), Event::Trigger::Suppress
+	);
+	pActionParameterSpinBox2->setValue(
+		pMidiAction->getParameter2().toInt(), Event::Trigger::Suppress
+	);
+	pActionParameterSpinBox3->setValue(
+		pMidiAction->getParameter3().toInt(), Event::Trigger::Suppress
+	);
+
+	const int nActionParameters =
+		Hydrogen::get_instance()->getMidiActionManager()->getParameterNumber(
+			pMidiAction->getType()
+		);
+	pActionParameterSpinBox1->setVisible( nActionParameters >= 1 );
+	pActionParameterSpinBox2->setVisible( nActionParameters >= 2 );
+	pActionParameterSpinBox3->setVisible( nActionParameters >= 3 );
+}
+
+void MidiActionTable::saveRow( int nRow )
+{
+	auto pEventTypeComboBox = dynamic_cast<LCDCombo*>( cellWidget( nRow, 1 ) );
+	auto pEventParameterSpinBox =
+		dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 2 ) );
+	auto pActionTypeComboBox = dynamic_cast<LCDCombo*>( cellWidget( nRow, 3 ) );
+	auto pActionParameterSpinBox1 =
+		dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 4 ) );
+	auto pActionParameterSpinBox2 =
+		dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 5 ) );
+	auto pActionParameterSpinBox3 =
+		dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 6 ) );
+
+	MidiEvent::Type eventType = MidiEvent::Type::Null;
+	Midi::Parameter eventParameter = Midi::ParameterInvalid;
+	std::shared_ptr<MidiAction> pNewMidiAction;
+	if ( pEventTypeComboBox->currentText().isEmpty() &&
+		 pActionTypeComboBox->currentText().isEmpty() ) {
+		eventType =
+			MidiEvent::QStringToType( pEventTypeComboBox->currentText() );
+		eventParameter =
+			Midi::parameterFromIntClamp( pEventParameterSpinBox->value() );
+
+		pNewMidiAction = std::make_shared<MidiAction>(
+			MidiAction::parseType( pActionTypeComboBox->currentText() )
+		);
+
+		if ( pActionParameterSpinBox1->cleanText() != "" ) {
+			pNewMidiAction->setParameter1( pActionParameterSpinBox1->cleanText()
+			);
+		}
+		if ( pActionParameterSpinBox2->cleanText() != "" ) {
+			pNewMidiAction->setParameter2( pActionParameterSpinBox2->cleanText()
+			);
+		}
+		if ( pActionParameterSpinBox3->cleanText() != "" ) {
+			pNewMidiAction->setParameter3( pActionParameterSpinBox3->cleanText()
+			);
+		}
 	}
 
-	const QString sActionType = pActionCombo->currentText();
-	LCDSpinBox* pActionSpinner1 =
-		dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 4 ) );
-	LCDSpinBox* pActionSpinner2 =
-		dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 5 ) );
-	LCDSpinBox* pActionSpinner3 =
-		dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 6 ) );
-	if ( sActionType == MidiAction::typeToQString( MidiAction::Type::Null ) ||
-		 sActionType.isEmpty() ) {
-		pActionSpinner1->hide();
-		pActionSpinner2->hide();
-		pActionSpinner3->hide();
+	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+
+	const auto pOldEvent = m_cachedEventMap[nRow];
+	if ( pOldEvent != nullptr ) {
+		long nEventId = Event::nInvalidId;
+		if ( !pMidiEventMap->removeRegisteredEvent(
+				 pOldEvent->getType(), pOldEvent->getParameter(),
+				 pOldEvent->getMidiAction(), &nEventId
+			 ) ) {
+			ERRORLOG( QString( "Old event [%1 of row [%2] could not be removed."
+			)
+						  .arg( pOldEvent->toQString() )
+						  .arg( nRow ) );
+		}
+		if ( nEventId != Event::nInvalidId ) {
+			// The row is already up-to-date. We just store its state.
+			blacklistEventId( nEventId );
+		}
+	}
+
+	if ( eventType != MidiEvent::Type::Null && pNewMidiAction != nullptr ) {
+		long nEventId = Event::nInvalidId;
+		pMidiEventMap->registerEvent(
+			eventType, eventParameter, pNewMidiAction, &nEventId
+		);
+		if ( nEventId != Event::nInvalidId ) {
+			// The row is already up-to-date. We just store its state.
+			blacklistEventId( nEventId );
+		}
+
+		auto pNewMidiEvent = std::make_shared<MidiEvent>();
+		pNewMidiEvent->setType( eventType );
+		pNewMidiEvent->setParameter( eventParameter );
+		pNewMidiEvent->setMidiAction( pNewMidiAction );
+
+		m_cachedEventMap[nRow] = pNewMidiEvent;
 	}
 	else {
-		const int nParameterNumber =
-			H2Core::Hydrogen::get_instance()
-				->getMidiActionManager()
-				->getParameterNumber( MidiAction::parseType( sActionType ) );
-		if ( nParameterNumber != -1 ) {
-			if ( nParameterNumber < 3 ) {
-				pActionSpinner3->hide();
-			}
-			else {
-				pActionSpinner3->show();
-			}
-			if ( nParameterNumber < 2 ) {
-				pActionSpinner2->hide();
-			}
-			else {
-				pActionSpinner2->show();
-			}
-			if ( nParameterNumber < 1 ) {
-				pActionSpinner1->hide();
-			}
-			else {
-				pActionSpinner1->show();
-			}
-		}
-		else {
-			ERRORLOG( QString( "Unable to find MIDI Midiaction [%1]" )
-						  .arg( sActionType ) );
-		}
+		m_cachedEventMap[nRow] = nullptr;
+	}
+}
 
-		// Relative changes should allow for both increasing and
-		// decreasing the pattern number.
-		if ( sActionType == "SELECT_NEXT_PATTERN_RELATIVE" ) {
-			pActionSpinner1->setMinimum( -1 * pActionSpinner1->maximum() );
-		}
+// Reimplementing this one is quite expensive. But the visibility of
+// the spinBoxes is reset after the end of updateTable(). In addition,
+// the function is only called frequently when interacting the the
+// table via mouse. This won't happen too often.
+void MidiActionTable::paintEvent( QPaintEvent* ev )
+{
+	QTableWidget::paintEvent( ev );
+	for ( int nnRow = 0; nnRow < rowCount(); ++nnRow ) {
+		updateRow( nnRow );
 	}
 }

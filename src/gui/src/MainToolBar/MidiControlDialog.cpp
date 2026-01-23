@@ -619,13 +619,6 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	m_pMidiActionTable = new MidiActionTable( this );
 	m_pTabWidget->addTab( m_pMidiActionTable, tr( "Midi Actions" ) );
 
-	connect( m_pMidiActionTable, &MidiActionTable::changed, [=]() {
-		m_pMidiActionTable->saveMidiActionTable();
-		blacklistEventId( H2Core::EventQueue::get_instance()->pushEvent(
-			H2Core::Event::Type::MidiEventMapChanged, 0
-		) );
-	} );
-
 	////////////////////////////////////////////////////////////////////////////
 
 	auto pInputWidget = new QWidget( m_pTabWidget );
@@ -771,11 +764,6 @@ void MidiControlDialog::instrumentParametersChangedEvent( int ) {
 void MidiControlDialog::midiDriverChangedEvent() {
 }
 
-void MidiControlDialog::midiMapChangedEvent()
-{
-    m_pMidiActionTable->setupMidiActionTable();
-}
-
 void MidiControlDialog::midiInputEvent() {
 	updateInputTable();
 }
@@ -817,7 +805,7 @@ void MidiControlDialog::updatePreferencesEvent( int nValue )
 		static_cast<int>( pPref->getMidiSendNoteOff() )
 	);
 
-	m_pMidiActionTable->setupMidiActionTable();
+	m_pMidiActionTable->updateTable();
 }
 
 void MidiControlDialog::updateSongEvent( int nValue ) {

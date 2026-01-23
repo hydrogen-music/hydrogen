@@ -50,8 +50,12 @@ public:
 	
 	void reset();  ///< Reinitializes the object.
 
-	void
-	registerEvent( const MidiEvent::Type&, Midi::Parameter parameter, std::shared_ptr<MidiAction> );
+	void registerEvent(
+		const MidiEvent::Type&,
+		Midi::Parameter parameter,
+		std::shared_ptr<MidiAction> pAction,
+		long* pEventId
+	);
 
 	const std::vector<std::shared_ptr<MidiEvent>>& getMidiEvents() const;
 
@@ -78,7 +82,13 @@ public:
 	std::vector<std::pair<MidiEvent::Type, Midi::Parameter>>
 	getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction ) const;
 
-	void removeRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction );
+	bool removeRegisteredEvents( std::shared_ptr<MidiAction> pAction );
+	bool removeRegisteredEvent(
+		const MidiEvent::Type&,
+		Midi::Parameter parameter,
+		std::shared_ptr<MidiAction> pAction,
+		long* pEventId
+	);
 
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of

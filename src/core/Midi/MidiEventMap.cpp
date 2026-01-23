@@ -27,6 +27,7 @@
 #include <core/Basics/Event.h>
 #include <core/EventQueue.h>
 #include <core/Helpers/Xml.h>
+#include <core/Hydrogen.h>
 
 namespace H2Core {
 
@@ -122,7 +123,9 @@ MidiEventMap::loadFrom( const H2Core::XMLNode& node, bool bSilent )
 			auto pAction = MidiAction::fromQStrings(
 				actionType, sParameter1, sParameter2, sParameter3
 			);
-			pMidiEventMap->registerEvent( eventType, parameter, pAction );
+			pMidiEventMap->registerEvent(
+				eventType, parameter, pAction, nullptr
+			);
 		}
 		else {
 			WARNINGLOG( QString( "Invalid MIDI action. action [%1], parameter1 "
@@ -242,10 +245,13 @@ void MidiEventMap::reset()
 void MidiEventMap::registerEvent(
 	const MidiEvent::Type& type,
 	Midi::Parameter parameter,
-	std::shared_ptr<MidiAction> pAction
+	std::shared_ptr<MidiAction> pAction,
+	long* pEventId
 )
 {
-	QMutexLocker mx( &__mutex );
+	if ( pEventId != nullptr ) {
+		*pEventId = Event::nInvalidId;
+	}
 
 	if ( pAction == nullptr || pAction->isNull() ||
 		 type == H2Core::MidiEvent::Type::Null ) {
@@ -259,29 +265,51 @@ void MidiEventMap::registerEvent(
 		return;
 	}
 
-	auto pEvent = std::make_shared<MidiEvent>();
-	pEvent->setType( type );
-	pEvent->setParameter( parameter );
-	pEvent->setMidiAction( pAction );
+	{
+		QMutexLocker mx( &__mutex );
 
-	for ( const auto& ppEvent : m_events ) {
-		if ( ppEvent != nullptr && ppEvent->getMidiAction() != nullptr &&
-			 ppEvent->getType() == type &&
-			 ppEvent->getParameter() == parameter &&
-			 ppEvent->getMidiAction()->isEquivalentTo( pAction ) ) {
-			WARNINGLOG(
-				QString( "Event [%1] for MidiAction [%2] was already registered" )
-					.arg( MidiEvent::TypeToQString( type ) )
-					.arg( pAction->toQString() )
-			);
-			return;
+		auto pEvent = std::make_shared<MidiEvent>();
+		pEvent->setType( type );
+		pEvent->setParameter( parameter );
+		pEvent->setMidiAction( pAction );
+
+		for ( const auto& ppEvent : m_events ) {
+			if ( ppEvent != nullptr && ppEvent->getMidiAction() != nullptr &&
+				 ppEvent->getType() == type &&
+				 ppEvent->getParameter() == parameter &&
+				 ppEvent->getMidiAction()->isEquivalentTo( pAction ) ) {
+				WARNINGLOG(
+					QString(
+						"Event [%1] for MidiAction [%2] was already registered"
+					)
+						.arg( MidiEvent::TypeToQString( type ) )
+						.arg( pAction->toQString() )
+				);
+				return;
+			}
 		}
+
+		m_events.push_back( pEvent );
 	}
 
-	m_events.push_back( pEvent );
+	const auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen == nullptr ) {
+        // The MidiEventMap is loaded during startup. We skip sending event,
+        // since the EventQueue is not ready yet.
+        return;
+	}
+
+	const auto nId = EventQueue::get_instance()->pushEvent(
+		Event::Type::MidiEventMapChanged, 0
+	);
+	if ( pEventId != nullptr ) {
+		*pEventId = nId;
+	}
 }
 
-std::vector<std::shared_ptr<MidiAction>> MidiEventMap::getMMCActions( const QString& sEventString )
+std::vector<std::shared_ptr<MidiAction>> MidiEventMap::getMMCActions(
+	const QString& sEventString
+)
 {
 	QMutexLocker mx(&__mutex);
 
@@ -407,25 +435,70 @@ MidiEventMap::getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction
 	return midiEvents;
 }
 
-void MidiEventMap::removeRegisteredMidiEvents(
-	std::shared_ptr<MidiAction> pAction
-)
+bool MidiEventMap::removeRegisteredEvents( std::shared_ptr<MidiAction> pAction )
 {
 	QMutexLocker mx( &__mutex );
 
+	bool bModified = false;
 	for ( auto it = m_events.begin(); it != m_events.end(); ) {
 		if ( *it != nullptr && ( *it )->getMidiAction() != nullptr &&
 			 ( *it )->getMidiAction()->isEquivalentTo( pAction ) ) {
 			m_events.erase( it );
+			bModified = true;
 		}
 		else {
 			++it;
 		}
 	}
 
-	EventQueue::get_instance()->pushEvent(
-		Event::Type::MidiEventMapChanged, 0
-	);
+	if ( bModified ) {
+		EventQueue::get_instance()->pushEvent(
+			Event::Type::MidiEventMapChanged, 0
+		);
+	}
+
+	return bModified;
+}
+
+bool MidiEventMap::removeRegisteredEvent(
+	const MidiEvent::Type& type,
+	Midi::Parameter parameter,
+	std::shared_ptr<MidiAction> pAction,
+    long* pEventId
+)
+{
+	if ( pEventId != nullptr ) {
+		*pEventId = Event::nInvalidId;
+	}
+
+	bool bModified = false;
+	{
+		QMutexLocker mx( &__mutex );
+
+		for ( auto it = m_events.begin(); it != m_events.end(); ) {
+			if ( *it != nullptr && ( *it )->getType() == type &&
+				 ( *it )->getParameter() == parameter &&
+				 ( *it )->getMidiAction() != nullptr &&
+				 ( *it )->getMidiAction()->isEquivalentTo( pAction ) ) {
+				m_events.erase( it );
+				bModified = true;
+			}
+			else {
+				++it;
+			}
+		}
+	}
+
+	if ( bModified ) {
+		const auto nId = EventQueue::get_instance()->pushEvent(
+			Event::Type::MidiEventMapChanged, 0
+		);
+		if ( pEventId != nullptr ) {
+			*pEventId = nId;
+		}
+	}
+
+	return bModified;
 }
 
 QString MidiEventMap::toQString( const QString& sPrefix, bool bShort ) const

@@ -93,7 +93,7 @@ MidiSenseWidget::MidiSenseWidget(
 	connect( m_pClearButton, &QToolButton::clicked, [&]() {
 		H2Core::Preferences::get_instance()
 			->getMidiEventMap()
-			->removeRegisteredMidiEvents( pAction );
+			->removeRegisteredEvents( pAction );
 		updateLabels();
 	} );
 	QString sIconPath( Skin::getSvgImagePath() );
@@ -157,11 +157,7 @@ void MidiSenseWidget::updateMidi()
 			pAction->setValue( "0" );
 
 			pMidiEventMap->registerEvent(
-				m_lastMidiEvent, m_lastMidiEventParameter, pAction
-			);
-
-			H2Core::EventQueue::get_instance()->pushEvent(
-				H2Core::Event::Type::MidiEventMapChanged, 0
+				m_lastMidiEvent, m_lastMidiEventParameter, pAction, nullptr
 			);
 		}
 

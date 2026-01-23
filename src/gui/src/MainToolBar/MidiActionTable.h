@@ -31,10 +31,16 @@
 #include <QtGui>
 #include <QtWidgets>
 
+#include "../EventListener.h"
+
 class MidiAction;
+namespace H2Core {
+class MidiEvent;
+}
 
 /** \ingroup docGUI docWidgets docMIDI*/
 class MidiActionTable : public QTableWidget,
+						public EventListener,
 						public H2Core::Object<MidiActionTable> {
 	H2_OBJECT( MidiActionTable )
 	Q_OBJECT
@@ -50,30 +56,37 @@ class MidiActionTable : public QTableWidget,
 	explicit MidiActionTable( QWidget* pParent );
 	~MidiActionTable();
 
-	void setupMidiActionTable();
-	void saveMidiActionTable();
+	/** Recreates the table based on the #H2Core::MidiEventMap stored within
+	 * #H2Core::Preferences. Local changes will be discarded. */
+	void updateTable();
 
-   signals:
-	/** Identicates a user action changing the content of the table.*/
-	void changed();
+	void appendNewRow();
+
+	// EventListerer
+	void midiMapChangedEvent() override;
 
    private slots:
-	void updateTable();
 	void midiSensePressed( int );
-	void sendChanged();
 
    private:
-	void insertNewRow(
-		std::shared_ptr<MidiAction> pAction,
-		const QString& eventString,
-		H2Core::Midi::Parameter eventParameter
-	);
+	/** Update the row based on its widgets. This focusses on the combo box
+	 * holding the types for both #H2Core::MidiAction and #H2Core::MidiEvent.
+	 * Different types require different parameter spin boxes. */
 	void updateRow( int nRow );
+
+	/** Update the row based on external data provided via #a pEvent. */
+	void updateRow( std::shared_ptr<H2Core::MidiEvent> pEvent, int nRow );
+
+	/** Replaces the #H2Core::MidiEvent associated with @n nRow in
+	 * #H2Core::MidiEventMap with the values hold by the row's widgets. */
+	void saveRow( int nRow );
+
 	virtual void paintEvent( QPaintEvent* ev ) override;
 
-	int m_nRowCount;
 	int m_nCurrentMidiAutosenseRow;
-	QTimer* m_pUpdateTimer;
+
+	/** Maps a row to the corresponding #H2Core::MidiEvent. */
+	std::map<int, std::shared_ptr<H2Core::MidiEvent>> m_cachedEventMap;
 
 	QStringList m_availableActions;
 };
