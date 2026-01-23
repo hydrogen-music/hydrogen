@@ -35,46 +35,45 @@ class MidiAction;
 
 /** \ingroup docGUI docWidgets docMIDI*/
 class MidiActionTable : public QTableWidget,
-						public H2Core::Object<MidiActionTable>
-{
-    H2_OBJECT(MidiActionTable)
+						public H2Core::Object<MidiActionTable> {
+	H2_OBJECT( MidiActionTable )
 	Q_OBJECT
-	public:
-		explicit MidiActionTable( QWidget* pParent );
-		~MidiActionTable();
+   public:
+	explicit MidiActionTable( QWidget* pParent );
+	~MidiActionTable();
 
-		void setupMidiActionTable();
-		void saveMidiActionTable();
+	void setupMidiActionTable();
+	void saveMidiActionTable();
 
-signals:
+   signals:
 	/** Identicates a user action changing the content of the table.*/
 	void changed();
 
-private slots:
+   private slots:
 	void updateTable();
 	void midiSensePressed( int );
 	void sendChanged();
-	
-private:
- void insertNewRow(
-	 std::shared_ptr<MidiAction> pAction,
-	 const QString& eventString,
-	 H2Core::Midi::Parameter eventParameter
- );
- void updateRow( int nRow );
- virtual void paintEvent( QPaintEvent* ev ) override;
 
- int m_nRowCount;
- int m_nCurrentMidiAutosenseRow;
- QTimer* m_pUpdateTimer;
- int m_nRowHeight;
- int m_nColumn0Width;
- int m_nMinComboWidth;
- int m_nMaxComboWidth;
- int m_nDefaultComboWidth;
- int m_nSpinBoxWidth;
+   private:
+	void insertNewRow(
+		std::shared_ptr<MidiAction> pAction,
+		const QString& eventString,
+		H2Core::Midi::Parameter eventParameter
+	);
+	void updateRow( int nRow );
+	virtual void paintEvent( QPaintEvent* ev ) override;
 
- QStringList m_availableActions;
+	int m_nRowCount;
+	int m_nCurrentMidiAutosenseRow;
+	QTimer* m_pUpdateTimer;
+	int m_nRowHeight;
+	int m_nColumn0Width;
+	int m_nMinComboWidth;
+	int m_nMaxComboWidth;
+	int m_nDefaultComboWidth;
+	int m_nSpinBoxWidth;
+
+	QStringList m_availableActions;
 };
 
 #endif
