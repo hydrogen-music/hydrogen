@@ -19,6 +19,7 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
+
 #ifndef MIDI_ACTION_H
 #define MIDI_ACTION_H
 
@@ -54,6 +55,9 @@
 class MidiAction : public H2Core::Object<MidiAction> {
 	H2_OBJECT( MidiAction )
    public:
+	static constexpr int nInvalidParameter = -10;
+	static constexpr float fInvalidParameter = -999;
+
 	enum class Type {
 		BeatCounter,
 		BpmCcRelative,
@@ -122,6 +126,19 @@ class MidiAction : public H2Core::Object<MidiAction> {
 	static QString typeToQString( const Type& type );
 	static Type parseType( const QString& sType );
 
+	/** Can be ORed to define which parameters an action both can and must
+	 * hold in order to be valid. */
+	enum Requires {
+		RequiresNone = 0x000,
+		RequiresComponent = 0x001,
+		RequiresFactor = 0x002,
+		RequiresFx = 0x004,
+		RequiresInstrument = 0x008,
+		RequiresLayer = 0x010,
+		RequiresPattern = 0x020,
+		RequiresSong = 0x040,
+	};
+	static Requires requiresFromType( const Type& type );
 
 	MidiAction( Type type, TimePoint timePoint = TimePoint() );
 	MidiAction( const std::shared_ptr<MidiAction> pMidiAction );
@@ -132,6 +149,28 @@ class MidiAction : public H2Core::Object<MidiAction> {
 		const std::shared_ptr<MidiAction> pOther,
 		TimePoint timePoint = TimePoint()
 	);
+
+	/** Prior to version 2.0 of Hydrogen all action parameters were stored as
+	 * strings (in order to work around different parameter types, like int vs.
+	 * float). This method can be used for compatibility to older config
+	 * files. */
+	static std::shared_ptr<MidiAction> fromQStrings(
+		Type type,
+		const QString& sParameter1,
+		const QString& sParameter2,
+		const QString& sParameter3
+	);
+	/** In versions of Hydrogen < 2.0 all parameters of MIDI actions were
+	 * encoded as QStrings and stored as "parameter", "parameter2", and
+	 * "parameter3" within the hydrogen.conf file. Regardless of the actual
+	 * value of the parameter. Although it is less expressive and accessible for
+	 * folks directly interacting with our XML files, we will keep this scheme
+	 * for backward compatibility. */
+	void toQStrings(
+		QString* pParameter1,
+		QString* pParameter2,
+		QString* pParameter3
+	) const;
 
 	bool isNull() const;
 
@@ -147,6 +186,23 @@ class MidiAction : public H2Core::Object<MidiAction> {
 	const QString& getValue() const;
 	void setValue( const QString& text );
 
+	Requires getRequires() const;
+
+	int getComponent() const;
+	void setComponent( int nComponent );
+	float getFactor() const;
+	void setFactor( float fFactor );
+	int getFx() const;
+	void setFx( int nFx );
+	int getInstrument() const;
+	void setInstrument( int nInstrument );
+	int getLayer() const;
+	void setLayer( int nLayer );
+	int getPattern() const;
+	void setPattern( int nPattern );
+	int getSong() const;
+	void setSong( int nSong );
+
 	const Type& getType() const;
 	const TimePoint& getTimePoint() const;
 
@@ -161,21 +217,23 @@ class MidiAction : public H2Core::Object<MidiAction> {
 	friend bool operator==( const MidiAction& lhs, const MidiAction& rhs )
 	{
 		return (
-			lhs.m_type == rhs.m_type &&
-			lhs.m_sParameter1 == rhs.m_sParameter1 &&
-			lhs.m_sParameter2 == rhs.m_sParameter2 &&
-			lhs.m_sParameter3 == rhs.m_sParameter3 &&
-			lhs.m_sValue == rhs.m_sValue && lhs.m_timePoint == rhs.m_timePoint
+			lhs.m_type == rhs.m_type && lhs.m_nComponent == rhs.m_nComponent &&
+			lhs.m_fFactor == rhs.m_fFactor && lhs.m_nFx == rhs.m_nFx &&
+			lhs.m_nInstrument == rhs.m_nInstrument &&
+			lhs.m_nLayer == rhs.m_nLayer && lhs.m_nPattern == rhs.m_nPattern &&
+			lhs.m_nSong == rhs.m_nSong && lhs.m_sValue == rhs.m_sValue &&
+			lhs.m_timePoint == rhs.m_timePoint
 		);
 	}
 	friend bool operator!=( const MidiAction& lhs, const MidiAction& rhs )
 	{
 		return (
-			lhs.m_type != rhs.m_type ||
-			lhs.m_sParameter1 != rhs.m_sParameter1 ||
-			lhs.m_sParameter2 != rhs.m_sParameter2 ||
-			lhs.m_sParameter3 != rhs.m_sParameter3 ||
-			lhs.m_sValue != rhs.m_sValue || lhs.m_timePoint != rhs.m_timePoint
+			lhs.m_type != rhs.m_type || lhs.m_nComponent != rhs.m_nComponent ||
+			lhs.m_fFactor != rhs.m_fFactor || lhs.m_nFx != rhs.m_nFx ||
+			lhs.m_nInstrument != rhs.m_nInstrument ||
+			lhs.m_nLayer != rhs.m_nLayer || lhs.m_nPattern != rhs.m_nPattern ||
+			lhs.m_nSong != rhs.m_nSong || lhs.m_sValue != rhs.m_sValue ||
+			lhs.m_timePoint != rhs.m_timePoint
 		);
 	}
 	friend bool operator==(
@@ -188,10 +246,12 @@ class MidiAction : public H2Core::Object<MidiAction> {
 		}
 		return (
 			lhs->m_type == rhs->m_type &&
-			lhs->m_sParameter1 == rhs->m_sParameter1 &&
-			lhs->m_sParameter2 == rhs->m_sParameter2 &&
-			lhs->m_sParameter3 == rhs->m_sParameter3 &&
-			lhs->m_sValue == rhs->m_sValue &&
+			lhs->m_nComponent == rhs->m_nComponent &&
+			lhs->m_fFactor == rhs->m_fFactor && lhs->m_nFx == rhs->m_nFx &&
+			lhs->m_nInstrument == rhs->m_nInstrument &&
+			lhs->m_nLayer == rhs->m_nLayer &&
+			lhs->m_nPattern == rhs->m_nPattern &&
+			lhs->m_nSong == rhs->m_nSong && lhs->m_sValue == rhs->m_sValue &&
 			lhs->m_timePoint == rhs->m_timePoint
 		);
 	}
@@ -205,10 +265,12 @@ class MidiAction : public H2Core::Object<MidiAction> {
 		}
 		return (
 			lhs->m_type != rhs->m_type ||
-			lhs->m_sParameter1 != rhs->m_sParameter1 ||
-			lhs->m_sParameter2 != rhs->m_sParameter2 ||
-			lhs->m_sParameter3 != rhs->m_sParameter3 ||
-			lhs->m_sValue != rhs->m_sValue ||
+			lhs->m_nComponent != rhs->m_nComponent ||
+			lhs->m_fFactor != rhs->m_fFactor || lhs->m_nFx != rhs->m_nFx ||
+			lhs->m_nInstrument != rhs->m_nInstrument ||
+			lhs->m_nLayer != rhs->m_nLayer ||
+			lhs->m_nPattern != rhs->m_nPattern ||
+			lhs->m_nSong != rhs->m_nSong || lhs->m_sValue != rhs->m_sValue ||
 			lhs->m_timePoint != rhs->m_timePoint
 		);
 	}
@@ -230,6 +292,17 @@ class MidiAction : public H2Core::Object<MidiAction> {
 	QString m_sParameter2;
 	QString m_sParameter3;
 	QString m_sValue;
+
+	Requires m_requires;
+
+	int m_nComponent;
+	float m_fFactor;
+	int m_nFx;
+	int m_nInstrument;
+	int m_nLayer;
+	int m_nPattern;
+	int m_nSong;
+
 	TimePoint m_timePoint;
 };
 
@@ -271,6 +344,11 @@ inline const QString& MidiAction::getValue() const
 inline void MidiAction::setValue( const QString& text )
 {
 	m_sValue = text;
+}
+
+inline MidiAction::Requires MidiAction::getRequires() const
+{
+	return m_requires;
 }
 
 inline const MidiAction::Type& MidiAction::getType() const

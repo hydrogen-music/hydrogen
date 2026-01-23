@@ -2730,20 +2730,39 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				pMidiActionManager->handleMidiActionSync( pAction );
 				break;
 			}
-				
+
 			case Shortcuts::Action::SelectNextPattern:
 			case Shortcuts::Action::SelectOnlyNextPattern:
-			case Shortcuts::Action::SelectAndPlayPattern:
-			case Shortcuts::Action::PlaylistSong:
+			case Shortcuts::Action::SelectAndPlayPattern: {
+				auto pAction = std::make_shared<MidiAction>( midiActionType );
+				pAction->setPattern( sArg.toInt() );
+				if ( action == Shortcuts::Action::StripVolumeIncrease ) {
+					pAction->setValue( QString::number( 1 ) );
+				}
+				else if ( action == Shortcuts::Action::StripVolumeDecrease ) {
+					pAction->setValue( QString::number( -1 ) );
+				}
+				pMidiActionManager->handleMidiActionSync( pAction );
+				break;
+			}
+
+			case Shortcuts::Action::PlaylistSong: {
+				auto pAction = std::make_shared<MidiAction>( midiActionType );
+				pAction->setSong( sArg.toInt() );
+				pMidiActionManager->handleMidiActionSync( pAction );
+				break;
+			}
+
 			case Shortcuts::Action::StripVolumeIncrease:
 			case Shortcuts::Action::StripVolumeDecrease:
 			case Shortcuts::Action::StripMuteToggle:
 			case Shortcuts::Action::StripSoloToggle: {
 				auto pAction = std::make_shared<MidiAction>( midiActionType );
-				pAction->setParameter1( sArg );
+				pAction->setInstrument( sArg.toInt() );
 				if ( action == Shortcuts::Action::StripVolumeIncrease ) {
 					pAction->setValue( QString::number( 1 ) );
-				} else if ( action == Shortcuts::Action::StripVolumeDecrease ) {
+				}
+				else if ( action == Shortcuts::Action::StripVolumeDecrease ) {
 					pAction->setValue( QString::number( -1 ) );
 				}
 				pMidiActionManager->handleMidiActionSync( pAction );
@@ -2848,7 +2867,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::StripFilterCutoff: {
 				auto pAction = std::make_shared<MidiAction>( midiActionType );
 				pAction->setValue( sArg1 );
-				pAction->setParameter1( sArg2 );
+				pAction->setInstrument( sArg2.toInt() );
 				pMidiActionManager->handleMidiActionSync( pAction );
 				break;
 			}
@@ -2913,8 +2932,8 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			auto pAction = std::make_shared<MidiAction>(
 				MidiAction::Type::EffectLevelAbsolute );
 			pAction->setValue( sValue );
-			pAction->setParameter1( QString::number( nInstrument ) );
-			pAction->setParameter2( sFX );
+			pAction->setInstrument( nInstrument );
+			pAction->setFx( sFX.toInt() );
 			pMidiActionManager->handleMidiActionSync( pAction );
 		}
 		else if ( action == Shortcuts::Action::LayerPitch ||
@@ -2996,9 +3015,9 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			// Deploy action
 			auto pAction = std::make_shared<MidiAction>( midiActionType );
 			pAction->setValue( sValue );
-			pAction->setParameter1( QString::number( nInstrument ) );
-			pAction->setParameter2( QString::number( nComponent ) );
-			pAction->setParameter3( QString::number( nLayer )  );
+			pAction->setInstrument( nInstrument );
+			pAction->setComponent( nComponent );
+			pAction->setLayer( nLayer );
 			pMidiActionManager->handleMidiActionSync( pAction );
 		}
 		else {
@@ -3088,22 +3107,22 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::BPMIncreaseCoarse:
 				pAction = std::make_shared<MidiAction>(
 					MidiAction::Type::BpmIncr );
-				pAction->setParameter1( QString::number( 0.1 ) );
+				pAction->setFactor( 0.1 );
 				break;
 			case Shortcuts::Action::BPMDecreaseCoarse:
 				pAction = std::make_shared<MidiAction>(
 					MidiAction::Type::BpmDecr );
-				pAction->setParameter1( QString::number( 0.1 ) );
+				pAction->setFactor( 0.1 );
 				break;
 			case Shortcuts::Action::BPMIncreaseFine:
 				pAction = std::make_shared<MidiAction>(
 					MidiAction::Type::BpmIncr );
-				pAction->setParameter1( QString::number( 0.01 ) );
+				pAction->setFactor( 0.01 );
 				break;
 			case Shortcuts::Action::BPMDecreaseFine:
 				pAction = std::make_shared<MidiAction>(
 					MidiAction::Type::BpmDecr );
-				pAction->setParameter1( QString::number( 0.01 ) );
+				pAction->setFactor( 0.01 );
 				break;
 
 			case Shortcuts::Action::BeatCounter:

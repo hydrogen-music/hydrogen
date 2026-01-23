@@ -66,12 +66,9 @@ public:
 	/** Returns the pc Midiaction which was linked to the given event. */
 	std::vector<std::shared_ptr<MidiAction>> getPCActions();
 
-	std::vector<Midi::Parameter> findCCParametersByTypeAndParam1(
-		MidiAction::Type type,
-		const QString& sParam1
-	);
-	std::vector<Midi::Parameter> findCCParametersByType( MidiAction::Type type
-	);
+	std::vector<Midi::Parameter> findCCParameters( MidiAction::Type type );
+	std::vector<Midi::Parameter>
+	findCCParameters( MidiAction::Type type, int nInstrument );
 
 	/**
 	 * @returns a list of all MIDI events registered to a particular

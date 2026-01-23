@@ -163,10 +163,10 @@ void MidiActionTest::testBpmCcRelativeAction()
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	const auto parameter = Midi::parameterFromInt( 1 );
-	const int nDiff = 3;
+	const float fFactor = 3.0;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::BpmCcRelative );
-	pAction->setParameter1( QString::number( nDiff ) );
+	pAction->setFactor(  fFactor );
 
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
@@ -190,7 +190,7 @@ void MidiActionTest::testBpmCcRelativeAction()
 	pAudioEngine->unlock();
 
 	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldBpm ).arg( fNewBpm ) );
-	CPPUNIT_ASSERT( fNewBpm == fOldBpm - nDiff );
+	CPPUNIT_ASSERT( fNewBpm == fOldBpm - fFactor );
 
 	___INFOLOG( "done" );
 }
@@ -211,10 +211,10 @@ void MidiActionTest::testBpmDecreaseAction()
 
 	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nValue = 1;
-	const int nDiff = 5;
+	const float fFactor = 5;
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::BpmDecr );
 	pAction->setValue( QString::number( nValue ) );
-	pAction->setParameter1( QString::number( nDiff ) );
+	pAction->setFactor( fFactor );
 
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
@@ -238,7 +238,7 @@ void MidiActionTest::testBpmDecreaseAction()
 	pAudioEngine->unlock();
 
 	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldBpm ).arg( fNewBpm ) );
-	CPPUNIT_ASSERT( fNewBpm == fOldBpm - nDiff );
+	CPPUNIT_ASSERT( fNewBpm == fOldBpm - fFactor );
 
 	___INFOLOG( "done" );
 }
@@ -258,10 +258,10 @@ void MidiActionTest::testBpmFineCcRelativeAction()
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	const auto parameter = Midi::parameterFromInt( 1 );
-	const int nDiff = 2;
+	const float fFactor = 2.0;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::BpmFineCcRelative );
-	pAction->setParameter1( QString::number( nDiff ) );
+	pAction->setFactor( fFactor );
 
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
@@ -286,7 +286,7 @@ void MidiActionTest::testBpmFineCcRelativeAction()
 
 	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldBpm ).arg( fNewBpm ) );
 	CPPUNIT_ASSERT(
-		std::abs( fNewBpm - ( fOldBpm - 0.01 * static_cast<float>( nDiff ) ) ) <
+		std::abs( fNewBpm - ( fOldBpm - 0.01 * fFactor ) ) <
 		0.01
 	);
 
@@ -309,10 +309,10 @@ void MidiActionTest::testBpmIncreaseAction()
 
 	const auto parameter = Midi::parameterFromInt( 1 );
 	const int nValue = 1;
-	const int nDiff = 7;
+	const float fFactor = 7.0;
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::BpmIncr );
 	pAction->setValue( QString::number( nValue ) );
-	pAction->setParameter1( QString::number( nDiff ) );
+	pAction->setFactor( fFactor );
 
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
@@ -336,7 +336,7 @@ void MidiActionTest::testBpmIncreaseAction()
 	pAudioEngine->unlock();
 
 	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldBpm ).arg( fNewBpm ) );
-	CPPUNIT_ASSERT( fNewBpm == fOldBpm + nDiff );
+	CPPUNIT_ASSERT( fNewBpm == fOldBpm + fFactor );
 
 	___INFOLOG( "done" );
 }
@@ -467,8 +467,8 @@ void MidiActionTest::testEffectLevelAbsoluteAction()
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::EffectLevelAbsolute );
 	pAction->setValue( QString::number( nFxValue ) );
-	pAction->setParameter1( QString::number( nInstrumentNumber ) );
-	pAction->setParameter2( QString::number( nFxId ) );
+	pAction->setInstrument( nInstrumentNumber );
+	pAction->setFx( nFxId );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
@@ -515,8 +515,8 @@ void MidiActionTest::testEffectLevelRelativeAction()
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::EffectLevelRelative );
 	pAction->setValue( QString::number( nFxValue ) );
-	pAction->setParameter1( QString::number( nInstrumentNumber ) );
-	pAction->setParameter2( QString::number( nFxId ) );
+	pAction->setInstrument( nInstrumentNumber );
+	pAction->setFx( nFxId );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
@@ -798,7 +798,7 @@ void MidiActionTest::testFilterCutoffLevelAbsoluteAction()
 		MidiAction::Type::FilterCutoffLevelAbsolute
 	);
 	pAction->setValue( QString::number( nCutoffValue ) );
-	pAction->setParameter1( QString::number( nInstrumentNumber ) );
+	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
@@ -846,9 +846,9 @@ void MidiActionTest::testGainLevelAbsoluteAction()
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::GainLevelAbsolute );
 	pAction->setValue( QString::number( nGainValue ) );
-	pAction->setParameter1( QString::number( nInstrumentNumber ) );
-	pAction->setParameter2( QString::number( nComponentId ) );
-	pAction->setParameter3( QString::number( nLayerId ) );
+	pAction->setInstrument( nInstrumentNumber );
+	pAction->setComponent( nComponentId );
+	pAction->setLayer( nLayerId );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
@@ -898,7 +898,7 @@ void MidiActionTest::testInstrumentPitchAction()
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::InstrumentPitch );
 	pAction->setValue( QString::number( nPitchValue ) );
-	pAction->setParameter1( QString::number( nInstrumentNumber ) );
+	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
@@ -1187,7 +1187,7 @@ void MidiActionTest::testPanAbsoluteAction()
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::PanAbsolute );
 	pAction->setValue( QString::number( nPanValue ) );
-	pAction->setParameter1( QString::number( nInstrumentNumber ) );
+	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
@@ -1230,7 +1230,7 @@ void MidiActionTest::testPanAbsoluteSymAction()
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::PanAbsoluteSym );
 	pAction->setValue( QString::number( nPanValue ) );
-	pAction->setParameter1( QString::number( nInstrumentNumber ) );
+	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
@@ -1271,7 +1271,7 @@ void MidiActionTest::testPanRelativeAction()
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::PanRelative );
 	pAction->setValue( QString::number( nPanValue ) );
-	pAction->setParameter1( QString::number( nInstrumentNumber ) );
+	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
@@ -1351,9 +1351,9 @@ void MidiActionTest::testPitchLevelAbsoluteAction()
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::PitchLevelAbsolute );
 	pAction->setValue( QString::number( nPitchValue ) );
-	pAction->setParameter1( QString::number( nInstrumentNumber ) );
-	pAction->setParameter2( QString::number( nComponentId ) );
-	pAction->setParameter3( QString::number( nLayerId ) );
+	pAction->setInstrument( nInstrumentNumber );
+	pAction->setComponent( nComponentId );
+	pAction->setLayer( nLayerId );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
@@ -1551,7 +1551,7 @@ void MidiActionTest::testPlaylistSongAction()
 	const auto parameterOldSong = Midi::parameterFromInt( 1 );
 	auto pActionOldSong =
 		std::make_shared<MidiAction>( MidiAction::Type::PlaylistSong );
-	pActionOldSong->setParameter1( QString::number( nOldSongNumber ) );
+	pActionOldSong->setSong( nOldSongNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameterOldSong, pActionOldSong
 	);
@@ -1559,7 +1559,7 @@ void MidiActionTest::testPlaylistSongAction()
 	const auto parameterNewSong = Midi::parameterFromInt( 2 );
 	auto pActionNewSong =
 		std::make_shared<MidiAction>( MidiAction::Type::PlaylistSong );
-	pActionNewSong->setParameter1( QString::number( nNewSongNumber ) );
+	pActionNewSong->setSong( nNewSongNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameterNewSong, pActionNewSong
 	);
@@ -1926,7 +1926,7 @@ void MidiActionTest::testSelectAndPlayPatternAction()
 	const int nPatternNumber = 3;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::SelectAndPlayPattern );
-	pAction->setParameter1( QString::number( nPatternNumber ) );
+	pAction->setPattern( nPatternNumber );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	pHydrogen->sequencerStop();
@@ -2000,7 +2000,7 @@ void MidiActionTest::testSelectNextPatternAction()
 	const int nPatternNumber = 3;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::SelectNextPattern );
-	pAction->setParameter1( QString::number( nPatternNumber ) );
+	pAction->setPattern( nPatternNumber );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	sendMessage(
@@ -2064,7 +2064,7 @@ void MidiActionTest::testSelectNextPatternRelativeAction()
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::SelectNextPatternRelative
 	);
-	pAction->setParameter1( QString::number( nPatternNumber ) );
+	pAction->setPattern( nPatternNumber );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	sendMessage(
@@ -2098,7 +2098,7 @@ void MidiActionTest::testSelectOnlyNextPatternAction()
 	const int nPatternNumber = 3;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::SelectOnlyNextPattern );
-	pAction->setParameter1( QString::number( nPatternNumber ) );
+	pAction->setPattern( nPatternNumber );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	sendMessage(
@@ -2192,7 +2192,7 @@ void MidiActionTest::testStripMuteToggleAction()
 	const int nInstrumentNumber = 3;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::StripMuteToggle );
-	pAction->setParameter1( QString::number( nInstrumentNumber ) );
+	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
@@ -2229,7 +2229,7 @@ void MidiActionTest::testStripSoloToggleAction()
 	const int nInstrumentNumber = 3;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::StripSoloToggle );
-	pAction->setParameter1( QString::number( nInstrumentNumber ) );
+	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
@@ -2268,7 +2268,7 @@ void MidiActionTest::testStripVolumeAbsoluteAction()
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::StripVolumeAbsolute );
 	pAction->setValue( QString::number( static_cast<int>( volumeValue ) ) );
-	pAction->setParameter1( QString::number( nInstrumentNumber ) );
+	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();
@@ -2309,7 +2309,7 @@ void MidiActionTest::testStripVolumeRelativeAction()
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::StripVolumeRelative );
 	pAction->setValue( QString::number( static_cast<int>( volumeValue ) ) );
-	pAction->setParameter1( QString::number( nInstrumentNumber ) );
+	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent( MidiEvent::Type::CC, parameter, pAction );
 
 	auto pSong = pHydrogen->getSong();

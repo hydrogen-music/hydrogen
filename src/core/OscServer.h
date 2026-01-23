@@ -506,12 +506,11 @@ class OscServer : public H2Core::Object<OscServer>
 		 * Creates an MidiAction of type @b STRIP_VOLUME_RELATIVE and
 		 * passes its references to MidiActionManager::handleMidiActionAsync().
 		 *
-		 * \param param1 Sets MidiAction::parameter1 of the newly created
-		 * MidiAction.
-		 * \param param2 Sets MidiAction::parameter2 of the newly created
+		 * \param nInstrument Instrument index to act on.
+		 * \param sValue Sets MidiAction::parameter2 of the newly created
 		 * MidiAction.*/
-		static void STRIP_VOLUME_RELATIVE_Handler( const QString& param1,
-												   const QString& param2);
+		static void STRIP_VOLUME_RELATIVE_Handler( int nInstrument,
+												   const QString& sValue);
 		/**
 		 * Calls H2Core::CoreActionController::setStripVolume() with
 		 * both @a param1 and @a param2.
@@ -563,12 +562,11 @@ class OscServer : public H2Core::Object<OscServer>
 		 * and passes its references to
 		 * MidiActionManager::handleMidiActionAsync().
 		 *
-		 * \param param1 Sets MidiAction::parameter1 of the newly created
-		 * MidiAction.
-		 * \param param2 Sets MidiAction::parameter2 of the newly created
+		 * \param nInstrument Instrument index to act on.
+		 * \param sValue Sets MidiAction::parameter2 of the newly created
 		 * MidiAction.*/
-		static void FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( const QString& param1,
-														  const QString& param2);
+		static void FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( int nInstrument,
+														  const QString& sValue);
 		/**
 		 * Creates an MidiAction of type @b BEATCOUNTER and passes its
 		 * references to MidiActionManager::handleMidiActionAsync().

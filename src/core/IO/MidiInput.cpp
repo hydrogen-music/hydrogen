@@ -212,9 +212,7 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 					auto pAction = std::make_shared<MidiAction>(
 						MidiAction::Type::PlaylistSong, timePoint
 					);
-					pAction->setParameter1(
-						QString::number( static_cast<int>( msg.getData1() ) )
-					);
+					pAction->setSong( static_cast<int>( msg.getData1() ) );
 					pMidiActionManager->handleMidiActionAsync( pAction );
 					pHandledInput->actionTypes.push_back(
 						MidiAction::Type::PlaylistSong
@@ -225,9 +223,7 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 				auto pAction = std::make_shared<MidiAction>(
 					MidiAction::Type::SelectNextPattern, timePoint
 				);
-				pAction->setParameter1(
-					QString::number( static_cast<int>( msg.getData1() ) )
-				);
+				pAction->setPattern( static_cast<int>( msg.getData1() ) );
 				pMidiActionManager->handleMidiActionAsync( pAction );
 				pHandledInput->actionTypes.push_back(
 					MidiAction::Type::SelectNextPattern

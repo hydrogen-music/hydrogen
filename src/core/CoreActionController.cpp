@@ -505,7 +505,7 @@ bool CoreActionController::sendMasterVolumeFeedback() {
 	
 	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	
-	auto ccParamValues = pMidiEventMap->findCCParametersByType(
+	auto ccParamValues = pMidiEventMap->findCCParameters(
 		MidiAction::Type::MasterVolumeAbsolute );
 
 	return handleOutgoingControlChanges(
@@ -530,7 +530,7 @@ bool CoreActionController::sendStripVolumeFeedback( int nStrip ) {
 			auto pFeedbackAction = std::make_shared<MidiAction>(
 				MidiAction::Type::StripVolumeAbsolute );
 		
-			pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
+			pFeedbackAction->setInstrument( nStrip + 1 );
 			pFeedbackAction->setValue( QString("%1").arg( fStripVolume ) );
 			OscServer::get_instance()->handleMidiAction( pFeedbackAction );
 		}
@@ -538,8 +538,8 @@ bool CoreActionController::sendStripVolumeFeedback( int nStrip ) {
 
 		const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	
-		auto ccParamValues = pMidiEventMap->findCCParametersByTypeAndParam1(
-			MidiAction::Type::StripVolumeAbsolute, QString("%1").arg( nStrip ) );
+		auto ccParamValues = pMidiEventMap->findCCParameters(
+			MidiAction::Type::StripVolumeAbsolute, nStrip );
 
 		return handleOutgoingControlChanges(
 			ccParamValues, Midi::parameterFromIntClamp(
@@ -562,7 +562,7 @@ bool CoreActionController::sendMetronomeIsActiveFeedback() {
 		auto pFeedbackAction = std::make_shared<MidiAction>(
 			MidiAction::Type::ToggleMetronome );
 		
-		pFeedbackAction->setParameter1(
+		pFeedbackAction->setValue(
 			QString("%1") .arg( static_cast<int>(pPref->m_bUseMetronome) ) );
 		OscServer::get_instance()->handleMidiAction( pFeedbackAction );
 	}
@@ -570,7 +570,7 @@ bool CoreActionController::sendMetronomeIsActiveFeedback() {
 	
 	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	
-	auto ccParamValues = pMidiEventMap->findCCParametersByType(
+	auto ccParamValues = pMidiEventMap->findCCParameters(
 		MidiAction::Type::ToggleMetronome );
 
 	return handleOutgoingControlChanges(
@@ -595,7 +595,7 @@ bool CoreActionController::sendMasterIsMutedFeedback() {
 		auto pFeedbackAction = std::make_shared<MidiAction>(
 			MidiAction::Type::MuteToggle );
 		
-		pFeedbackAction->setParameter1(
+		pFeedbackAction->setValue(
 			QString("%1") .arg( static_cast<int>(pSong->getIsMuted()) ) );
 		OscServer::get_instance()->handleMidiAction( pFeedbackAction );
 	}
@@ -603,7 +603,7 @@ bool CoreActionController::sendMasterIsMutedFeedback() {
 
 	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 
-	auto ccParamValues = pMidiEventMap->findCCParametersByType(
+	auto ccParamValues = pMidiEventMap->findCCParameters(
 		MidiAction::Type::MuteToggle );
 
 	return handleOutgoingControlChanges(
@@ -625,7 +625,7 @@ bool CoreActionController::sendStripIsMutedFeedback( int nStrip ) {
 			auto pFeedbackAction = std::make_shared<MidiAction>(
 				MidiAction::Type::StripMuteToggle );
 		
-			pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
+			pFeedbackAction->setInstrument( nStrip + 1 );
 			pFeedbackAction->setValue(
 				QString("%1") .arg( static_cast<int>(pInstr->isMuted()) ) );
 			OscServer::get_instance()->handleMidiAction( pFeedbackAction );
@@ -634,8 +634,8 @@ bool CoreActionController::sendStripIsMutedFeedback( int nStrip ) {
 
 		const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	
-		auto ccParamValues = pMidiEventMap->findCCParametersByTypeAndParam1(
-			MidiAction::Type::StripMuteToggle, QString("%1").arg( nStrip ) );
+		auto ccParamValues = pMidiEventMap->findCCParameters(
+			MidiAction::Type::StripMuteToggle, nStrip );
 
 		return handleOutgoingControlChanges(
 			ccParamValues, Midi::parameterFromIntClamp(
@@ -659,7 +659,7 @@ bool CoreActionController::sendStripIsSoloedFeedback( int nStrip ) {
 			auto pFeedbackAction = std::make_shared<MidiAction>(
 				MidiAction::Type::StripSoloToggle );
 		
-			pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
+			pFeedbackAction->setInstrument( nStrip + 1 );
 			pFeedbackAction->setValue(
 				QString("%1") .arg( static_cast<int>(pInstr->isSoloed()) ) );
 			OscServer::get_instance()->handleMidiAction( pFeedbackAction );
@@ -667,8 +667,8 @@ bool CoreActionController::sendStripIsSoloedFeedback( int nStrip ) {
 #endif
 
 		const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
-		auto ccParamValues = pMidiEventMap->findCCParametersByTypeAndParam1(
-			MidiAction::Type::StripSoloToggle, QString("%1").arg( nStrip ) );
+		auto ccParamValues = pMidiEventMap->findCCParameters(
+			MidiAction::Type::StripSoloToggle, nStrip );
 
 		return handleOutgoingControlChanges(
 			ccParamValues, Midi::parameterFromIntClamp(
@@ -692,7 +692,7 @@ bool CoreActionController::sendStripPanFeedback( int nStrip ) {
 			auto pFeedbackAction = std::make_shared<MidiAction>(
 				MidiAction::Type::PanAbsolute );
 		
-			pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
+			pFeedbackAction->setInstrument( nStrip + 1 );
 			pFeedbackAction->setValue(
 				QString("%1") .arg( pInstr->getPanWithRangeFrom0To1() ) );
 			OscServer::get_instance()->handleMidiAction( pFeedbackAction );
@@ -700,8 +700,8 @@ bool CoreActionController::sendStripPanFeedback( int nStrip ) {
 #endif
 	
 		const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
-		auto ccParamValues = pMidiEventMap->findCCParametersByTypeAndParam1(
-			MidiAction::Type::PanAbsolute, QString("%1").arg( nStrip ) );
+		auto ccParamValues = pMidiEventMap->findCCParameters(
+			MidiAction::Type::PanAbsolute, nStrip );
 
 		return handleOutgoingControlChanges(
 			ccParamValues, Midi::parameterFromIntClamp(
