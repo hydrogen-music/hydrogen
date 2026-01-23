@@ -39,14 +39,7 @@
 
 #include <QHeaderView>
 
-MidiActionTable::MidiActionTable( QWidget* pParent )
-	: QTableWidget( pParent ),
-	  m_nRowHeight( 29 ),
-	  m_nColumn0Width( 25 ),
-	  m_nMinComboWidth( 100 ),
-	  m_nMaxComboWidth( 1460 ),
-	  m_nDefaultComboWidth( 146 ),
-	  m_nSpinBoxWidth( 75 )
+MidiActionTable::MidiActionTable( QWidget* pParent ) : QTableWidget( pParent )
 {
 	// Add an "empty" action used to reset the combo box.
 	m_availableActions << "";
@@ -200,8 +193,12 @@ void MidiActionTable::insertNewRow(
 	setCellWidget( oldRowCount, 0, midiSenseButton );
 
 	LCDCombo* eventBox = new LCDCombo( this );
-	eventBox->setMinimumSize( QSize( m_nMinComboWidth, m_nRowHeight ) );
-	eventBox->setMaximumSize( QSize( m_nMaxComboWidth, m_nRowHeight ) );
+	eventBox->setMinimumSize(
+		QSize( MidiActionTable::nMinComboWidth, MidiActionTable::nRowHeight )
+	);
+	eventBox->setMaximumSize(
+		QSize( MidiActionTable::nMaxComboWidth, MidiActionTable::nRowHeight )
+	);
 	eventBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 	eventBox->insertItems( oldRowCount, H2Core::MidiEvent::getAllTypes() );
 
@@ -216,8 +213,10 @@ void MidiActionTable::insertNewRow(
 	);
 	setCellWidget( oldRowCount, 1, eventBox );
 
-	LCDSpinBox* eventParameterSpinner =
-		new LCDSpinBox( this, QSize( m_nSpinBoxWidth, m_nRowHeight ) );
+	LCDSpinBox* eventParameterSpinner = new LCDSpinBox(
+		this,
+		QSize( MidiActionTable::nSpinBoxWidth, MidiActionTable::nRowHeight )
+	);
 	eventParameterSpinner->setSizePolicy(
 		QSizePolicy::Fixed, QSizePolicy::Fixed
 	);
@@ -232,8 +231,12 @@ void MidiActionTable::insertNewRow(
 	);
 
 	LCDCombo* actionBox = new LCDCombo( this );
-	actionBox->setMinimumSize( QSize( m_nMinComboWidth, m_nRowHeight ) );
-	actionBox->setMaximumSize( QSize( m_nMaxComboWidth, m_nRowHeight ) );
+	actionBox->setMinimumSize(
+		QSize( MidiActionTable::nMinComboWidth, MidiActionTable::nRowHeight )
+	);
+	actionBox->setMaximumSize(
+		QSize( MidiActionTable::nMaxComboWidth, MidiActionTable::nRowHeight )
+	);
 	actionBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 	actionBox->insertItems( oldRowCount, m_availableActions );
 	actionBox->setCurrentIndex(
@@ -250,8 +253,10 @@ void MidiActionTable::insertNewRow(
 	setCellWidget( oldRowCount, 3, actionBox );
 
 	bool ok;
-	LCDSpinBox* actionParameterSpinner1 =
-		new LCDSpinBox( this, QSize( m_nSpinBoxWidth, m_nRowHeight ) );
+	LCDSpinBox* actionParameterSpinner1 = new LCDSpinBox(
+		this,
+		QSize( MidiActionTable::nSpinBoxWidth, MidiActionTable::nRowHeight )
+	);
 	actionParameterSpinner1->setSizePolicy(
 		QSizePolicy::Fixed, QSizePolicy::Fixed
 	);
@@ -265,8 +270,10 @@ void MidiActionTable::insertNewRow(
 		SLOT( sendChanged() )
 	);
 
-	LCDSpinBox* actionParameterSpinner2 =
-		new LCDSpinBox( this, QSize( m_nSpinBoxWidth, m_nRowHeight ) );
+	LCDSpinBox* actionParameterSpinner2 = new LCDSpinBox(
+		this,
+		QSize( MidiActionTable::nSpinBoxWidth, MidiActionTable::nRowHeight )
+	);
 	actionParameterSpinner2->setSizePolicy(
 		QSizePolicy::Fixed, QSizePolicy::Fixed
 	);
@@ -284,8 +291,10 @@ void MidiActionTable::insertNewRow(
 		SLOT( sendChanged() )
 	);
 
-	LCDSpinBox* actionParameterSpinner3 =
-		new LCDSpinBox( this, QSize( m_nSpinBoxWidth, m_nRowHeight ) );
+	LCDSpinBox* actionParameterSpinner3 = new LCDSpinBox(
+		this,
+		QSize( MidiActionTable::nSpinBoxWidth, MidiActionTable::nRowHeight )
+	);
 	actionParameterSpinner3->setSizePolicy(
 		QSizePolicy::Fixed, QSizePolicy::Fixed
 	);
@@ -319,13 +328,13 @@ void MidiActionTable::setupMidiActionTable()
 
 	setHorizontalHeaderLabels( items );
 
-	setColumnWidth( 0, m_nColumn0Width );
-	setColumnWidth( 1, m_nDefaultComboWidth );
-	setColumnWidth( 2, m_nSpinBoxWidth );
-	setColumnWidth( 3, m_nDefaultComboWidth );
-	setColumnWidth( 4, m_nSpinBoxWidth );
-	setColumnWidth( 5, m_nSpinBoxWidth );
-	setColumnWidth( 6, m_nSpinBoxWidth );
+	setColumnWidth( 0, MidiActionTable::nColumn0Width );
+	setColumnWidth( 1, MidiActionTable::nDefaultComboWidth );
+	setColumnWidth( 2, MidiActionTable::nSpinBoxWidth );
+	setColumnWidth( 3, MidiActionTable::nDefaultComboWidth );
+	setColumnWidth( 4, MidiActionTable::nSpinBoxWidth );
+	setColumnWidth( 5, MidiActionTable::nSpinBoxWidth );
+	setColumnWidth( 6, MidiActionTable::nSpinBoxWidth );
 
 	// When resizing the table all of the new space should go into the
 	// combo boxes. They can hold long strings which per default do

@@ -38,6 +38,14 @@ class MidiActionTable : public QTableWidget,
 						public H2Core::Object<MidiActionTable> {
 	H2_OBJECT( MidiActionTable )
 	Q_OBJECT
+
+	static constexpr int nRowHeight = 29;
+	static constexpr int nColumn0Width = 25;
+	static constexpr int nMinComboWidth = 100;
+	static constexpr int nMaxComboWidth = 1460;
+	static constexpr int nDefaultComboWidth = 146;
+	static constexpr int nSpinBoxWidth = 75;
+
    public:
 	explicit MidiActionTable( QWidget* pParent );
 	~MidiActionTable();
@@ -66,12 +74,6 @@ class MidiActionTable : public QTableWidget,
 	int m_nRowCount;
 	int m_nCurrentMidiAutosenseRow;
 	QTimer* m_pUpdateTimer;
-	int m_nRowHeight;
-	int m_nColumn0Width;
-	int m_nMinComboWidth;
-	int m_nMaxComboWidth;
-	int m_nDefaultComboWidth;
-	int m_nSpinBoxWidth;
 
 	QStringList m_availableActions;
 };
