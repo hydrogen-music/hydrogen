@@ -42,6 +42,9 @@
 #include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/License.h>
+#include <core/Midi/MidiEvent.h>
+#include <core/Midi/MidiEventMap.h>
+#include <core/Preferences/Preferences.h>
 
 #include "CommonStrings.h"
 #include "HydrogenApp.h"
@@ -1233,6 +1236,70 @@ private:
 	std::shared_ptr<H2Core::Playlist> m_pOldPlaylist;
 };
 
+////////////////////////////////////////////////////////////////////////////////
 
+class SE_editMidiEventsAction : public QUndoCommand {
+   public:
+	SE_editMidiEventsAction(
+		std::shared_ptr<H2Core::MidiEvent> pNewEvent,
+		std::shared_ptr<H2Core::MidiEvent> pOldEvent,
+		long* pEventIdAdd,
+		long* pEventIdRemove
+	)
+		: m_pNewEvent( pNewEvent ),
+		  m_pOldEvent( pOldEvent ),
+		  m_pEventIdAdd( pEventIdAdd ),
+		  m_pEventIdRemove( pEventIdRemove )
+	{
+		setText( QObject::tr( "Change an entry in the MIDI Action Table" ) );
+	}
+
+	virtual void redo()
+	{
+		auto pMidiEventMap =
+			H2Core::Preferences::get_instance()->getMidiEventMap();
+		if ( m_pOldEvent != nullptr ) {
+			pMidiEventMap->removeRegisteredEvent(
+				m_pOldEvent->getType(), m_pOldEvent->getParameter(),
+				m_pOldEvent->getMidiAction(), m_pEventIdRemove
+			);
+		}
+		if ( m_pNewEvent != nullptr ) {
+			pMidiEventMap->registerEvent(
+				m_pNewEvent->getType(), m_pNewEvent->getParameter(),
+				m_pNewEvent->getMidiAction(), m_pEventIdAdd
+			);
+		}
+
+		// We only use this pointer for blacklisting an event of the EventQueue
+		// once.
+		m_pEventIdAdd = nullptr;
+		m_pEventIdRemove = nullptr;
+	}
+
+	virtual void undo()
+	{
+		auto pMidiEventMap =
+			H2Core::Preferences::get_instance()->getMidiEventMap();
+		if ( m_pNewEvent != nullptr ) {
+			pMidiEventMap->removeRegisteredEvent(
+				m_pNewEvent->getType(), m_pNewEvent->getParameter(),
+				m_pNewEvent->getMidiAction(), nullptr
+			);
+		}
+		if ( m_pOldEvent != nullptr ) {
+			pMidiEventMap->registerEvent(
+				m_pOldEvent->getType(), m_pOldEvent->getParameter(),
+				m_pOldEvent->getMidiAction(), nullptr
+			);
+		}
+	}
+
+   private:
+	std::shared_ptr<H2Core::MidiEvent> m_pNewEvent;
+	std::shared_ptr<H2Core::MidiEvent> m_pOldEvent;
+	long* m_pEventIdAdd;
+	long* m_pEventIdRemove;
+};
 
 #endif // UNDOACTIONS_H

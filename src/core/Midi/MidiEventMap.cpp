@@ -467,6 +467,10 @@ bool MidiEventMap::removeRegisteredEvent(
     long* pEventId
 )
 {
+	if ( pAction == nullptr ) {
+        return false;
+	}
+
 	if ( pEventId != nullptr ) {
 		*pEventId = Event::nInvalidId;
 	}

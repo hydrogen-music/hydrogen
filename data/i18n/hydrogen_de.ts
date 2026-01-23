@@ -4740,6 +4740,10 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Add new pattern</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Change an entry in the MIDI Action Table</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Rack</name>

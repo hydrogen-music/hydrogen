@@ -4753,6 +4753,10 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <source>Add new pattern</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Change an entry in the MIDI Action Table</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Rack</name>

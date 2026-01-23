@@ -24,6 +24,7 @@
 
 #include "../HydrogenApp.h"
 #include "../Skin.h"
+#include "../UndoActions.h"
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/MidiSenseWidget.h"
@@ -91,6 +92,7 @@ MidiActionTable::MidiActionTable( QWidget* pParent ) : QTableWidget( pParent )
 	m_nCurrentMidiAutosenseRow = 0;
 
 	HydrogenApp::get_instance()->addEventListener( this );
+    installEventFilter( HydrogenApp::get_instance()->getMainForm() );
 }
 
 MidiActionTable::~MidiActionTable()
@@ -274,26 +276,19 @@ void MidiActionTable::appendNewRow()
 	pDeleteRowButton->setIconSize( QSize( 18, 18 ) );
 	pDeleteRowButton->setToolTip( tr( "press to delete row" ) );
 	connect( pDeleteRowButton, &QPushButton::clicked, [=]() {
-		const auto pOldEvent = m_cachedEventMap[nNewRow];
-		if ( pOldEvent != nullptr ) {
-			long nEventId = Event::nInvalidId;
-			if ( !Preferences::get_instance()
-					  ->getMidiEventMap()
-					  ->removeRegisteredEvent(
-						  pOldEvent->getType(), pOldEvent->getParameter(),
-						  pOldEvent->getMidiAction(), &nEventId
-					  ) ) {
-				ERRORLOG( QString(
-							  "Old event [%1] of row [%2] could not be removed."
+		const auto pOldMidiEvent = m_cachedEventMap[nNewRow];
+		if ( pOldMidiEvent != nullptr ) {
+			long nEventIdRemove = Event::nInvalidId;
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_editMidiEventsAction(
+					nullptr, pOldMidiEvent, nullptr, &nEventIdRemove
 				)
-							  .arg( pOldEvent->toQString() )
-							  .arg( nNewRow ) );
+			);
+
+			if ( nEventIdRemove != Event::nInvalidId ) {
+				blacklistEventId( nEventIdRemove );
 			}
-			if ( nEventId != Event::nInvalidId ) {
-				// The row is already up-to-date. We just store its state.
-				blacklistEventId( nEventId );
-			}
-            updateTable();
+			updateTable();
 		}
 	} );
 	setCellWidget( nNewRow, 7, pDeleteRowButton );
@@ -442,8 +437,9 @@ void MidiActionTable::saveRow( int nRow )
 	MidiEvent::Type eventType = MidiEvent::Type::Null;
 	Midi::Parameter eventParameter = Midi::ParameterInvalid;
 	std::shared_ptr<MidiAction> pNewMidiAction;
-	if ( pEventTypeComboBox->currentText().isEmpty() &&
-		 pActionTypeComboBox->currentText().isEmpty() ) {
+	std::shared_ptr<MidiEvent> pNewMidiEvent;
+	if ( ! pEventTypeComboBox->currentText().isEmpty() &&
+		 ! pActionTypeComboBox->currentText().isEmpty() ) {
 		eventType =
 			MidiEvent::QStringToType( pEventTypeComboBox->currentText() );
 		eventParameter =
@@ -465,47 +461,34 @@ void MidiActionTable::saveRow( int nRow )
 			pNewMidiAction->setParameter3( pActionParameterSpinBox3->cleanText()
 			);
 		}
-	}
 
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
-
-	const auto pOldEvent = m_cachedEventMap[nRow];
-	if ( pOldEvent != nullptr ) {
-		long nEventId = Event::nInvalidId;
-		if ( !pMidiEventMap->removeRegisteredEvent(
-				 pOldEvent->getType(), pOldEvent->getParameter(),
-				 pOldEvent->getMidiAction(), &nEventId
-			 ) ) {
-			ERRORLOG( QString( "Old event [%1] of row [%2] could not be removed."
-			)
-						  .arg( pOldEvent->toQString() )
-						  .arg( nRow ) );
-		}
-		if ( nEventId != Event::nInvalidId ) {
-			// The row is already up-to-date. We just store its state.
-			blacklistEventId( nEventId );
+		if ( eventType != MidiEvent::Type::Null &&
+			 pNewMidiAction->getType() != MidiAction::Type::Null ) {
+			pNewMidiEvent = std::make_shared<MidiEvent>();
+			pNewMidiEvent->setType( eventType );
+			pNewMidiEvent->setParameter( eventParameter );
+			pNewMidiEvent->setMidiAction( pNewMidiAction );
 		}
 	}
 
-	if ( eventType != MidiEvent::Type::Null && pNewMidiAction != nullptr ) {
-		long nEventId = Event::nInvalidId;
-		pMidiEventMap->registerEvent(
-			eventType, eventParameter, pNewMidiAction, &nEventId
-		);
-		if ( nEventId != Event::nInvalidId ) {
-			// The row is already up-to-date. We just store its state.
-			blacklistEventId( nEventId );
-		}
+	const auto pOldMidiEvent = m_cachedEventMap[nRow];
 
-		auto pNewMidiEvent = std::make_shared<MidiEvent>();
-		pNewMidiEvent->setType( eventType );
-		pNewMidiEvent->setParameter( eventParameter );
-		pNewMidiEvent->setMidiAction( pNewMidiAction );
+	m_cachedEventMap[nRow] = pNewMidiEvent;
 
-		m_cachedEventMap[nRow] = pNewMidiEvent;
+	long nEventIdAdd = Event::nInvalidId;
+	long nEventIdRemove = Event::nInvalidId;
+	HydrogenApp::get_instance()->pushUndoCommand(
+		new SE_editMidiEventsAction(
+			pNewMidiEvent, pOldMidiEvent, &nEventIdAdd, &nEventIdRemove
+		),
+		QString( "MidiActionTable::%1" ).arg( nRow )
+	);
+
+	if ( nEventIdAdd != Event::nInvalidId ) {
+		blacklistEventId( nEventIdAdd );
 	}
-	else {
-		m_cachedEventMap[nRow] = nullptr;
+	if ( nEventIdRemove != Event::nInvalidId ) {
+		blacklistEventId( nEventIdRemove );
 	}
 }
 
