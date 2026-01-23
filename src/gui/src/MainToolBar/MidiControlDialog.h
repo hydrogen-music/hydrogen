@@ -126,6 +126,7 @@ class MidiControlDialog : public QDialog,
 	QToolButton* m_pOutputBinButton;
 
 	MidiActionTable* m_pMidiActionTable;
+	QToolButton* m_pMidiActionAddButton;
 
 	/** We cache the instruments used in slot handlers of
 	 * #m_pInstrumentTable in this map and access them with a combination
