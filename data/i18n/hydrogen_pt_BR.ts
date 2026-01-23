@@ -3099,6 +3099,10 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <source>E. Para.</source>
         <translation>Parâm. Entrada</translation>
     </message>
+    <message>
+        <source>press to delete row</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MidiControlDialog</name>

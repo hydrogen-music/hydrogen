@@ -46,7 +46,7 @@ class MidiActionTable : public QTableWidget,
 	Q_OBJECT
 
 	static constexpr int nRowHeight = 29;
-	static constexpr int nColumn0Width = 25;
+	static constexpr int nColumnButtonWidth = 25;
 	static constexpr int nMinComboWidth = 100;
 	static constexpr int nMaxComboWidth = 1460;
 	static constexpr int nDefaultComboWidth = 146;

@@ -3102,6 +3102,10 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <source>E. Para.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>press to delete row</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MidiControlDialog</name>

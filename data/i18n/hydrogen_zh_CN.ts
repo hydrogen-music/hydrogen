@@ -3096,6 +3096,10 @@ LilyPond 导出是一项实验性功能。
         <source>E. Para.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>press to delete row</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MidiControlDialog</name>

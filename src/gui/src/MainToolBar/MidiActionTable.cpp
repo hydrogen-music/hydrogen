@@ -55,22 +55,23 @@ MidiActionTable::MidiActionTable( QWidget* pParent ) : QTableWidget( pParent )
 
 	QStringList items;
 	items << "" << tr( "Incoming Event" ) << tr( "E. Para." ) << tr( "Action" )
-		  << tr( "Para. 1" ) << tr( "Para. 2" ) << tr( "Para. 3" );
+		  << tr( "Para. 1" ) << tr( "Para. 2" ) << tr( "Para. 3" ) << "";
 
 	setRowCount( 0 );
-	setColumnCount( 7 );
+	setColumnCount( 8 );
 
 	verticalHeader()->hide();
 
 	setHorizontalHeaderLabels( items );
 
-	setColumnWidth( 0, MidiActionTable::nColumn0Width );
+	setColumnWidth( 0, MidiActionTable::nColumnButtonWidth );
 	setColumnWidth( 1, MidiActionTable::nDefaultComboWidth );
 	setColumnWidth( 2, MidiActionTable::nSpinBoxWidth );
 	setColumnWidth( 3, MidiActionTable::nDefaultComboWidth );
 	setColumnWidth( 4, MidiActionTable::nSpinBoxWidth );
 	setColumnWidth( 5, MidiActionTable::nSpinBoxWidth );
 	setColumnWidth( 6, MidiActionTable::nSpinBoxWidth );
+	setColumnWidth( 7, MidiActionTable::nColumnButtonWidth );
 
 	// When resizing the table all of the new space should go into the
 	// combo boxes. They can hold long strings which per default do
@@ -83,6 +84,7 @@ MidiActionTable::MidiActionTable( QWidget* pParent ) : QTableWidget( pParent )
 	horizontalHeader()->setSectionResizeMode( 4, QHeaderView::Fixed );
 	horizontalHeader()->setSectionResizeMode( 5, QHeaderView::Fixed );
 	horizontalHeader()->setSectionResizeMode( 6, QHeaderView::Fixed );
+	horizontalHeader()->setSectionResizeMode( 7, QHeaderView::Fixed );
 
 	updateTable();
 
@@ -93,14 +95,10 @@ MidiActionTable::MidiActionTable( QWidget* pParent ) : QTableWidget( pParent )
 
 MidiActionTable::~MidiActionTable()
 {
-	for ( int myRow = 0; myRow < rowCount(); myRow++ ) {
-		delete cellWidget( myRow, 0 );
-		delete cellWidget( myRow, 1 );
-		delete cellWidget( myRow, 2 );
-		delete cellWidget( myRow, 3 );
-		delete cellWidget( myRow, 4 );
-		delete cellWidget( myRow, 5 );
-		delete cellWidget( myRow, 6 );
+	for ( int nnRow = 0; nnRow < rowCount(); nnRow++ ) {
+		for ( int nnColumn = 0; nnColumn < columnCount(); ++nnColumn ) {
+			delete cellWidget( nnRow, nnColumn );
+		}
 	}
 
 	HydrogenApp::get_instance()->removeEventListener( this );
@@ -154,7 +152,6 @@ void MidiActionTable::appendNewRow()
 	pMidiSenseButton->setIcon( QIcon( sIconPath + "record.svg" ) );
 	pMidiSenseButton->setIconSize( QSize( 13, 13 ) );
 	pMidiSenseButton->setToolTip( tr( "press button to record midi event" ) );
-
 	connect( pMidiSenseButton, &QPushButton::clicked, [=]() {
 		midiSensePressed( nNewRow );
 	} );
@@ -270,6 +267,36 @@ void MidiActionTable::appendNewRow()
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
 		[=]() { saveRow( nNewRow ); }
 	);
+
+	auto pDeleteRowButton = new QToolButton( this );
+	pDeleteRowButton->setObjectName( "MidiActionDeleteRowButton" );
+	pDeleteRowButton->setIcon( QIcon( sIconPath + "bin.svg" ) );
+	pDeleteRowButton->setIconSize( QSize( 18, 18 ) );
+	pDeleteRowButton->setToolTip( tr( "press to delete row" ) );
+	connect( pDeleteRowButton, &QPushButton::clicked, [=]() {
+		const auto pOldEvent = m_cachedEventMap[nNewRow];
+		if ( pOldEvent != nullptr ) {
+			long nEventId = Event::nInvalidId;
+			if ( !Preferences::get_instance()
+					  ->getMidiEventMap()
+					  ->removeRegisteredEvent(
+						  pOldEvent->getType(), pOldEvent->getParameter(),
+						  pOldEvent->getMidiAction(), &nEventId
+					  ) ) {
+				ERRORLOG( QString(
+							  "Old event [%1] of row [%2] could not be removed."
+				)
+							  .arg( pOldEvent->toQString() )
+							  .arg( nNewRow ) );
+			}
+			if ( nEventId != Event::nInvalidId ) {
+				// The row is already up-to-date. We just store its state.
+				blacklistEventId( nEventId );
+			}
+            updateTable();
+		}
+	} );
+	setCellWidget( nNewRow, 7, pDeleteRowButton );
 }
 
 void MidiActionTable::midiMapChangedEvent()
@@ -449,7 +476,7 @@ void MidiActionTable::saveRow( int nRow )
 				 pOldEvent->getType(), pOldEvent->getParameter(),
 				 pOldEvent->getMidiAction(), &nEventId
 			 ) ) {
-			ERRORLOG( QString( "Old event [%1 of row [%2] could not be removed."
+			ERRORLOG( QString( "Old event [%1] of row [%2] could not be removed."
 			)
 						  .arg( pOldEvent->toQString() )
 						  .arg( nRow ) );

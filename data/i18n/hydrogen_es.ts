@@ -3101,6 +3101,10 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <source>E. Para.</source>
         <translation>Parám. Evento</translation>
     </message>
+    <message>
+        <source>press to delete row</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MidiControlDialog</name>
