@@ -149,16 +149,16 @@ void MidiActionTable::appendNewRow()
 		sIconPath.append( "/icons/black/" );
 	}
 
-	QPushButton* midiSenseButton = new QPushButton( this );
-	midiSenseButton->setObjectName( "MidiSenseButton" );
-	midiSenseButton->setIcon( QIcon( sIconPath + "record.svg" ) );
-	midiSenseButton->setIconSize( QSize( 13, 13 ) );
-	midiSenseButton->setToolTip( tr( "press button to record midi event" ) );
+	auto pMidiSenseButton = new QToolButton( this );
+	pMidiSenseButton->setObjectName( "pMidiSenseButton" );
+	pMidiSenseButton->setIcon( QIcon( sIconPath + "record.svg" ) );
+	pMidiSenseButton->setIconSize( QSize( 13, 13 ) );
+	pMidiSenseButton->setToolTip( tr( "press button to record midi event" ) );
 
-	connect( midiSenseButton, &QPushButton::clicked, [=]() {
+	connect( pMidiSenseButton, &QPushButton::clicked, [=]() {
 		midiSensePressed( nNewRow );
 	} );
-	setCellWidget( nNewRow, 0, midiSenseButton );
+	setCellWidget( nNewRow, 0, pMidiSenseButton );
 
 	auto pEventTypeComboBox = new LCDCombo( this );
 	pEventTypeComboBox->setMinimumSize(
