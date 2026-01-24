@@ -26,17 +26,29 @@
 #include <memory>
 
 #include <core/Midi/Midi.h>
+#include <core/Midi/MidiAction.h>
 #include <core/Object.h>
 
 #include <QtGui>
 #include <QtWidgets>
 
 #include "../EventListener.h"
+#include "Widgets/LCDSpinBox.h"
 
-class MidiAction;
+class Button;
+
 namespace H2Core {
 class MidiEvent;
 }
+
+class SpinBoxWithIcon : public QWidget {
+   public:
+	SpinBoxWithIcon( QWidget* pParent );
+	~SpinBoxWithIcon();
+
+	Button* m_pButton;
+	LCDSpinBox* m_pSpinBox;
+};
 
 /** \ingroup docGUI docWidgets docMIDI*/
 class MidiActionTable : public QTableWidget,
@@ -45,6 +57,7 @@ class MidiActionTable : public QTableWidget,
 	H2_OBJECT( MidiActionTable )
 	Q_OBJECT
 
+   public:
 	static constexpr int nRowHeight = 29;
 	static constexpr int nColumnButtonWidth = 25;
 	static constexpr int nMinComboWidth = 100;
@@ -52,7 +65,6 @@ class MidiActionTable : public QTableWidget,
 	static constexpr int nDefaultComboWidth = 146;
 	static constexpr int nSpinBoxWidth = 75;
 
-   public:
 	explicit MidiActionTable( QWidget* pParent );
 	~MidiActionTable();
 
@@ -80,6 +92,13 @@ class MidiActionTable : public QTableWidget,
 	/** Replaces the #H2Core::MidiEvent associated with @n nRow in
 	 * #H2Core::MidiEventMap with the values hold by the row's widgets. */
 	void saveRow( int nRow );
+
+	void updateActionParameters(
+		MidiAction::Type type,
+		SpinBoxWithIcon* pSpinBox1,
+		SpinBoxWithIcon* pSpinBox2,
+		SpinBoxWithIcon* pSpinBox3
+	);
 
 	virtual void paintEvent( QPaintEvent* ev ) override;
 
