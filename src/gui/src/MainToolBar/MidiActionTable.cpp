@@ -271,7 +271,7 @@ void MidiActionTable::appendNewRow()
 				blacklistEventId( nEventIdRemove );
 			}
 		}
-        updateTable();
+		updateTable();
 	} );
 	setCellWidget( nNewRow, 7, pDeleteRowButton );
 }
@@ -381,15 +381,47 @@ void MidiActionTable::updateRow( std::shared_ptr<MidiEvent> pEvent, int nRow )
 		dynamic_cast<SpinBoxWithIcon*>( cellWidget( nRow, 5 ) );
 	auto pActionParameterSpinBox3 =
 		dynamic_cast<SpinBoxWithIcon*>( cellWidget( nRow, 6 ) );
-	pActionParameterSpinBox1->m_pSpinBox->setValue(
-		pMidiAction->getParameter1().toInt(), Event::Trigger::Suppress
-	);
-	pActionParameterSpinBox2->m_pSpinBox->setValue(
-		pMidiAction->getParameter2().toInt(), Event::Trigger::Suppress
-	);
-	pActionParameterSpinBox3->m_pSpinBox->setValue(
-		pMidiAction->getParameter3().toInt(), Event::Trigger::Suppress
-	);
+
+	const auto required =
+		MidiAction::requiresFromType( pMidiAction->getType() );
+
+	if ( required & MidiAction::RequiresInstrument ) {
+		pActionParameterSpinBox1->m_pSpinBox->setValue(
+			pMidiAction->getInstrument(), Event::Trigger::Suppress
+		);
+	}
+	else if ( required & MidiAction::RequiresFactor ) {
+		pActionParameterSpinBox1->m_pSpinBox->setValue(
+			pMidiAction->getFactor(), Event::Trigger::Suppress
+		);
+	}
+	else if ( required & MidiAction::RequiresPattern ) {
+		pActionParameterSpinBox1->m_pSpinBox->setValue(
+			pMidiAction->getPattern(), Event::Trigger::Suppress
+		);
+	}
+	else if ( required & MidiAction::RequiresSong ) {
+		pActionParameterSpinBox1->m_pSpinBox->setValue(
+			pMidiAction->getSong(), Event::Trigger::Suppress
+		);
+	}
+
+	if ( required & MidiAction::RequiresComponent ) {
+		pActionParameterSpinBox2->m_pSpinBox->setValue(
+			pMidiAction->getComponent(), Event::Trigger::Suppress
+		);
+	}
+	else if ( required & MidiAction::RequiresFx ) {
+		pActionParameterSpinBox2->m_pSpinBox->setValue(
+			pMidiAction->getFx(), Event::Trigger::Suppress
+		);
+	}
+
+	if ( required & MidiAction::RequiresLayer ) {
+		pActionParameterSpinBox3->m_pSpinBox->setValue(
+			pMidiAction->getLayer(), Event::Trigger::Suppress
+		);
+	}
 
 	updateActionParameters(
 		pMidiAction->getType(), pActionParameterSpinBox1,
@@ -421,23 +453,46 @@ void MidiActionTable::saveRow( int nRow )
 		eventParameter =
 			Midi::parameterFromIntClamp( pEventParameterSpinBox->value() );
 
-		pNewMidiAction = std::make_shared<MidiAction>(
-			MidiAction::parseType( pActionTypeComboBox->currentText() )
-		);
+		const auto actionType =
+			MidiAction::parseType( pActionTypeComboBox->currentText() );
+		pNewMidiAction = std::make_shared<MidiAction>( actionType );
 
-		if ( pActionParameterSpinBox1->m_pSpinBox->cleanText() != "" ) {
-			pNewMidiAction->setParameter1(
-				pActionParameterSpinBox1->m_pSpinBox->cleanText()
+		const auto required = MidiAction::requiresFromType( actionType );
+
+		if ( required & MidiAction::RequiresInstrument ) {
+			pNewMidiAction->setInstrument(
+				pActionParameterSpinBox1->m_pSpinBox->value()
 			);
 		}
-		if ( pActionParameterSpinBox2->m_pSpinBox->cleanText() != "" ) {
-			pNewMidiAction->setParameter2(
-				pActionParameterSpinBox2->m_pSpinBox->cleanText()
+		else if ( required & MidiAction::RequiresFactor ) {
+			pNewMidiAction->setFactor(
+				pActionParameterSpinBox1->m_pSpinBox->value()
 			);
 		}
-		if ( pActionParameterSpinBox3->m_pSpinBox->cleanText() != "" ) {
-			pNewMidiAction->setParameter3(
-				pActionParameterSpinBox3->m_pSpinBox->cleanText()
+		else if ( required & MidiAction::RequiresPattern ) {
+			pNewMidiAction->setPattern(
+				pActionParameterSpinBox1->m_pSpinBox->value()
+			);
+		}
+		else if ( required & MidiAction::RequiresSong ) {
+			pNewMidiAction->setSong(
+				pActionParameterSpinBox1->m_pSpinBox->value()
+			);
+		}
+
+		if ( required & MidiAction::RequiresComponent ) {
+			pNewMidiAction->setComponent(
+				pActionParameterSpinBox2->m_pSpinBox->value()
+			);
+		}
+		else if ( required & MidiAction::RequiresFx ) {
+			pNewMidiAction->setFx( pActionParameterSpinBox2->m_pSpinBox->value()
+			);
+		}
+
+		if ( required & MidiAction::RequiresLayer ) {
+			pNewMidiAction->setLayer(
+				pActionParameterSpinBox3->m_pSpinBox->value()
 			);
 		}
 
@@ -511,15 +566,12 @@ void MidiActionTable::updateActionParameters(
 	}
 	else if ( required & MidiAction::RequiresPattern ) {
 		pSpinBox1->m_pButton->setText( "" );
-		pSpinBox1->m_pButton->setIcon(
-			QIcon( sIconPath + "pattern-editor.svg" )
+		pSpinBox1->m_pButton->setIcon( QIcon( sIconPath + "pattern-editor.svg" )
 		);
 	}
 	else if ( required & MidiAction::RequiresSong ) {
 		pSpinBox1->m_pButton->setText( "" );
-		pSpinBox1->m_pButton->setIcon(
-			QIcon( sIconPath + "song-editor.svg" )
-		);
+		pSpinBox1->m_pButton->setIcon( QIcon( sIconPath + "song-editor.svg" ) );
 	}
 
 	if ( required & MidiAction::RequiresComponent ) {
@@ -534,8 +586,7 @@ void MidiActionTable::updateActionParameters(
 	}
 
 	if ( required & MidiAction::RequiresLayer ) {
-		pSpinBox3->m_pButton->setIcon(
-			QIcon( sIconPath + "sample-editor.svg" )
+		pSpinBox3->m_pButton->setIcon( QIcon( sIconPath + "sample-editor.svg" )
 		);
 	}
 }
