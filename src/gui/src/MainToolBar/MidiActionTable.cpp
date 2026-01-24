@@ -61,6 +61,7 @@ MidiActionTable::MidiActionTable( QWidget* pParent ) : QTableWidget( pParent )
 	setRowCount( 0 );
 	setColumnCount( 8 );
 
+	setSelectionMode( QAbstractItemView::NoSelection );
 	verticalHeader()->hide();
 
 	setHorizontalHeaderLabels( items );
