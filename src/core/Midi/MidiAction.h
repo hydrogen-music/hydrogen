@@ -174,15 +174,6 @@ class MidiAction : public H2Core::Object<MidiAction> {
 
 	bool isNull() const;
 
-	const QString& getParameter1() const;
-	void setParameter1( const QString& text );
-
-	const QString& getParameter2() const;
-	void setParameter2( const QString& text );
-
-	const QString& getParameter3() const;
-	void setParameter3( const QString& text );
-
 	const QString& getValue() const;
 	void setValue( const QString& text );
 
@@ -288,9 +279,6 @@ class MidiAction : public H2Core::Object<MidiAction> {
 
    private:
 	Type m_type;
-	QString m_sParameter1;
-	QString m_sParameter2;
-	QString m_sParameter3;
 	QString m_sValue;
 
 	Requires m_requires;
@@ -305,36 +293,6 @@ class MidiAction : public H2Core::Object<MidiAction> {
 
 	TimePoint m_timePoint;
 };
-
-inline const QString& MidiAction::getParameter1() const
-{
-	return m_sParameter1;
-}
-
-inline void MidiAction::setParameter1( const QString& text )
-{
-	m_sParameter1 = text;
-}
-
-inline const QString& MidiAction::getParameter2() const
-{
-	return m_sParameter2;
-}
-
-inline void MidiAction::setParameter2( const QString& text )
-{
-	m_sParameter2 = text;
-}
-
-inline const QString& MidiAction::getParameter3() const
-{
-	return m_sParameter3;
-}
-
-inline void MidiAction::setParameter3( const QString& text )
-{
-	m_sParameter3 = text;
-}
 
 inline const QString& MidiAction::getValue() const
 {

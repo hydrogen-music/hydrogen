@@ -410,9 +410,6 @@ MidiAction::Requires MidiAction::requiresFromType( const Type& type )
 
 MidiAction::MidiAction( Type type, TimePoint timePoint )
 	: m_type( type ),
-	  m_sParameter1( "0" ),
-	  m_sParameter2( "0" ),
-	  m_sParameter3( "0" ),
 	  m_sValue( "0" ),
 	  m_nComponent( MidiAction::nInvalidParameter ),
 	  m_fFactor( MidiAction::fInvalidParameter ),
@@ -436,9 +433,6 @@ MidiAction::MidiAction( const std::shared_ptr<MidiAction> pOther )
 {
 	if ( pOther != nullptr ) {
 		m_type = pOther->m_type;
-		m_sParameter1 = pOther->m_sParameter1;
-		m_sParameter2 = pOther->m_sParameter2;
-		m_sParameter3 = pOther->m_sParameter3;
 		m_sValue = pOther->m_sValue;
 		m_requires = pOther->m_requires;
 		m_nComponent = pOther->m_nComponent;
@@ -855,18 +849,6 @@ QString MidiAction::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_sValue ) )
-				.append( QString( "%1%2m_sParameter1: %3\n" )
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( m_sParameter1 ) )
-				.append( QString( "%1%2m_sParameter2: %3\n" )
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( m_sParameter2 ) )
-				.append( QString( "%1%2m_sParameter3: %3\n" )
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( m_sParameter3 ) )
 				.append( QString( "%1%2m_requires: [%3]\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -911,9 +893,6 @@ QString MidiAction::toQString( const QString& sPrefix, bool bShort ) const
 				.append( QString( " m_type: %1" )
 							 .arg( MidiAction::typeToQString( m_type ) ) )
 				.append( QString( ", m_sValue: %1" ).arg( m_sValue ) )
-				.append( QString( ", m_sParameter1: %1" ).arg( m_sParameter1 ) )
-				.append( QString( ", m_sParameter2: %1" ).arg( m_sParameter2 ) )
-				.append( QString( ", m_sParameter3: %1" ).arg( m_sParameter3 ) )
 				.append(
 					QString( ", m_requires: [%1]" ).arg( requires.join( ", " ) )
 				)
