@@ -269,8 +269,8 @@ void MidiActionTable::appendNewRow()
 			if ( nEventIdRemove != Event::nInvalidId ) {
 				blacklistEventId( nEventIdRemove );
 			}
-			updateTable();
 		}
+        updateTable();
 	} );
 	setCellWidget( nNewRow, 7, pDeleteRowButton );
 }
