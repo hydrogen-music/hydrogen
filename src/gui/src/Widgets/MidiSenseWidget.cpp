@@ -155,7 +155,7 @@ void MidiSenseWidget::updateMidi()
 			assert( m_pAction );
 
 			auto pAction = std::make_shared<MidiAction>( m_pAction );
-			pAction->setValue( "0" );
+			pAction->setValue( 0 );
 
 			pMidiEventMap->registerEvent(
 				m_lastMidiEvent, m_lastMidiEventParameter, pAction, nullptr

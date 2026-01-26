@@ -285,9 +285,7 @@ void MidiInput::handleControlChangeMessage(
 		  pMidiEventMap->getCCActions( msg.getData1() ) ) {
 		if ( ppAction != nullptr && !ppAction->isNull() ) {
 			auto pNewAction = MidiAction::from( ppAction, msg.getTimePoint() );
-			pNewAction->setValue(
-				QString::number( static_cast<int>( msg.getData2() ) )
-			);
+			pNewAction->setValue( static_cast<int>( msg.getData2() ) );
 			pMidiActionManager->handleMidiActionAsync( pNewAction );
 			pHandledInput->actionTypes.push_back( pNewAction->getType() );
 		}
@@ -313,9 +311,7 @@ void MidiInput::handleProgramChangeMessage(
 	for ( const auto& ppAction : pMidiEventMap->getPCActions() ) {
 		if ( ppAction != nullptr && !ppAction->isNull() ) {
 			auto pNewAction = MidiAction::from( ppAction, msg.getTimePoint() );
-			pNewAction->setValue(
-				QString::number( static_cast<int>( msg.getData1() ) )
-			);
+			pNewAction->setValue( static_cast<int>( msg.getData1() ) );
 			pMidiActionManager->handleMidiActionAsync( pNewAction );
 			pHandledInput->actionTypes.push_back( pNewAction->getType() );
 		}
@@ -350,11 +346,10 @@ void MidiInput::handleNoteOnMessage(
 		 ( pPref->m_midiActionChannel != Midi::ChannelOff &&
 		   pPref->m_midiActionChannel == msg.getChannel() ) ) {
 		for ( const auto& ppAction : pMidiEventMap->getNoteActions( note ) ) {
-			if ( ppAction != nullptr && ! ppAction->isNull() ) {
-				auto pNewAction = MidiAction::from( ppAction, msg.getTimePoint() );
-				pNewAction->setValue(
-					QString::number( static_cast<int>( msg.getData2() ) )
-				);
+			if ( ppAction != nullptr && !ppAction->isNull() ) {
+				auto pNewAction =
+					MidiAction::from( ppAction, msg.getTimePoint() );
+				pNewAction->setValue( static_cast<int>( msg.getData2() ) );
 				if ( pMidiActionManager->handleMidiActionAsync( pNewAction ) ) {
 					pHandledInput->actionTypes.push_back( pNewAction->getType()
 					);

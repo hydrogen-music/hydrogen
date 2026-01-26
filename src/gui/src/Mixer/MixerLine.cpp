@@ -407,7 +407,7 @@ void MixerLine::updateActions() {
 
 	pAction = std::make_shared<MidiAction>( MidiAction::Type::PanAbsolute );
 	pAction->setInstrument( nInstrument );
-	pAction->setValue( QString::number( 0 ));
+	pAction->setValue( 0 );
 	m_pPanRotary->setMidiAction( pAction );
 
 	// FX send

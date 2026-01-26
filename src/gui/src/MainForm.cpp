@@ -2726,7 +2726,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::SelectInstrument:
 			case Shortcuts::Action::MasterVolume: {
 				auto pAction = std::make_shared<MidiAction>( midiActionType );
-				pAction->setValue( sArg );
+				pAction->setValue( sArg.toInt() );
 				pMidiActionManager->handleMidiActionSync( pAction );
 				break;
 			}
@@ -2737,10 +2737,10 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				auto pAction = std::make_shared<MidiAction>( midiActionType );
 				pAction->setPattern( sArg.toInt() );
 				if ( action == Shortcuts::Action::StripVolumeIncrease ) {
-					pAction->setValue( QString::number( 1 ) );
+					pAction->setValue( 1 );
 				}
 				else if ( action == Shortcuts::Action::StripVolumeDecrease ) {
-					pAction->setValue( QString::number( -1 ) );
+					pAction->setValue( -1 );
 				}
 				pMidiActionManager->handleMidiActionSync( pAction );
 				break;
@@ -2760,10 +2760,10 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				auto pAction = std::make_shared<MidiAction>( midiActionType );
 				pAction->setInstrument( sArg.toInt() );
 				if ( action == Shortcuts::Action::StripVolumeIncrease ) {
-					pAction->setValue( QString::number( 1 ) );
+					pAction->setValue( 1 );
 				}
 				else if ( action == Shortcuts::Action::StripVolumeDecrease ) {
-					pAction->setValue( QString::number( -1 ) );
+					pAction->setValue( -1 );
 				}
 				pMidiActionManager->handleMidiActionSync( pAction );
 				break;
@@ -2866,7 +2866,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::StripPan:
 			case Shortcuts::Action::StripFilterCutoff: {
 				auto pAction = std::make_shared<MidiAction>( midiActionType );
-				pAction->setValue( sArg1 );
+				pAction->setValue( sArg1.toInt() );
 				pAction->setInstrument( sArg2.toInt() );
 				pMidiActionManager->handleMidiActionSync( pAction );
 				break;
@@ -2931,7 +2931,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			// Deploy action
 			auto pAction = std::make_shared<MidiAction>(
 				MidiAction::Type::EffectLevelAbsolute );
-			pAction->setValue( sValue );
+			pAction->setValue( sValue.toInt() );
 			pAction->setInstrument( nInstrument );
 			pAction->setFx( sFX.toInt() );
 			pMidiActionManager->handleMidiActionSync( pAction );
@@ -3014,7 +3014,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 
 			// Deploy action
 			auto pAction = std::make_shared<MidiAction>( midiActionType );
-			pAction->setValue( sValue );
+			pAction->setValue( sValue.toInt() );
 			pAction->setInstrument( nInstrument );
 			pAction->setComponent( nComponent );
 			pAction->setLayer( nLayer );
@@ -3084,12 +3084,12 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::MasterVolumeIncrease:
 				pAction = std::make_shared<MidiAction>(
 					MidiAction::Type::MasterVolumeRelative );
-				pAction->setValue( QString::number( 1 ) );
+				pAction->setValue( 1 );
 				break;
 			case Shortcuts::Action::MasterVolumeDecrease:
 				pAction = std::make_shared<MidiAction>(
 					MidiAction::Type::MasterVolumeRelative );
-				pAction->setValue( QString::number( -1 ) );
+				pAction->setValue( -1 );
 				break;
 
 			case Shortcuts::Action::JumpToStart:

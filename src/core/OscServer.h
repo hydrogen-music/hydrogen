@@ -27,8 +27,9 @@
 
 #include <lo/lo.h>
 
-
+#include <core/Midi/MidiAction.h>
 #include <core/Object.h>
+
 #include <cassert>
 #include <memory>
 
@@ -477,10 +478,10 @@ class OscServer : public H2Core::Object<OscServer>
 		 * passes its references to MidiActionManager::handleMidiActionAsync().
 		 *
 		 * \param nInstrument Instrument index to act on.
-		 * \param sValue Sets MidiAction::parameter2 of the newly created
+		 * \param nValue By which the current colume will be changed.
 		 * MidiAction.*/
-		static void STRIP_VOLUME_RELATIVE_Handler( int nInstrument,
-												   const QString& sValue);
+		static void
+		STRIP_VOLUME_RELATIVE_Handler( int nValue, int nInstrument );
 		/**
 		 * Calls H2Core::CoreActionController::setStripVolume() with
 		 * both @a param1 and @a param2.
@@ -532,11 +533,11 @@ class OscServer : public H2Core::Object<OscServer>
 		 * and passes its references to
 		 * MidiActionManager::handleMidiActionAsync().
 		 *
+		 * \param nValue New value of the filter cutoff.
 		 * \param nInstrument Instrument index to act on.
-		 * \param sValue Sets MidiAction::parameter2 of the newly created
-		 * MidiAction.*/
-		static void FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( int nInstrument,
-														  const QString& sValue);
+		 */
+		static void
+		FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( int nValue, int nInstrument );
 		/**
 		 * Creates an MidiAction of type @b BEATCOUNTER and passes its
 		 * references to MidiActionManager::handleMidiActionAsync().

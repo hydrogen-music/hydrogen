@@ -224,8 +224,9 @@ int OscServer::generic_handler(const char *	path,
 	if ( rxStripVolRelMatch.hasMatch() && argc == 1 ) {
 		const int nStrip = rxStripVolRelMatch.captured( 1 ).toInt() - 1;
 		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
-			STRIP_VOLUME_RELATIVE_Handler( nStrip,
-										   QString::number( argv[0]->f, 'f', 0 ) );
+			STRIP_VOLUME_RELATIVE_Handler(
+				static_cast<int>( argv[0]->f ), nStrip
+			);
 			bMessageProcessed = true;
 		}
 		else {
@@ -293,7 +294,7 @@ int OscServer::generic_handler(const char *	path,
 			auto pAction = std::make_shared<MidiAction>(
 				MidiAction::Type::PanRelative );
 			pAction->setInstrument( nStrip );
-			pAction->setValue( QString::number( argv[0]->f, 'f', 0 ) );
+			pAction->setValue( static_cast<int>( argv[0]->f ) );
 			pMidiActionManager->handleMidiActionAsync( pAction );
 			bMessageProcessed = true;
 		}
@@ -315,7 +316,8 @@ int OscServer::generic_handler(const char *	path,
 		const int nStrip = rxStripFilterCutoffAbsMatch.captured( 1 ).toInt() - 1;
 		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 			FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler(
-				nStrip, QString::number( argv[0]->f, 'f', 0 ) );
+				static_cast<int>( argv[0]->f ), nStrip
+			);
 			bMessageProcessed = true;
 		}
 		else {
@@ -603,7 +605,7 @@ void OscServer::MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::MasterVolumeRelative );
-	pAction->setValue( QString::number( argv[0]->f, 'f', 0 ));
+	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
@@ -615,7 +617,7 @@ void OscServer::HUMANIZATION_SWING_ABSOLUTE_Handler( lo_arg** argv, int i )
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::HumanizationSwingAbsolute
 	);
-	pAction->setValue( QString::number( argv[0]->f, 'f', 0 ) );
+	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()
@@ -630,7 +632,7 @@ void OscServer::HUMANIZATION_SWING_RELATIVE_Handler( lo_arg** argv, int i )
 		MidiAction::Type::HumanizationSwingRelative
 	);
 	// Rounding to ensure we do not miss the 1.0 resulting in increases.
-	pAction->setValue( QString::number( static_cast<int>(argv[0]->f) ) );
+	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()
@@ -644,7 +646,7 @@ void OscServer::HUMANIZATION_TIMING_ABSOLUTE_Handler( lo_arg** argv, int i )
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::HumanizationTimingAbsolute
 	);
-	pAction->setValue( QString::number( argv[0]->f, 'f', 0 ) );
+	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()
@@ -659,7 +661,7 @@ void OscServer::HUMANIZATION_TIMING_RELATIVE_Handler( lo_arg** argv, int i )
 		MidiAction::Type::HumanizationTimingRelative
 	);
 	// Rounding to ensure we do not miss the 1.0 resulting in increases.
-	pAction->setValue( QString::number( static_cast<int>(argv[0]->f) ) );
+	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()
@@ -673,7 +675,7 @@ void OscServer::HUMANIZATION_VELOCITY_ABSOLUTE_Handler( lo_arg** argv, int i )
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::HumanizationVelocityAbsolute
 	);
-	pAction->setValue( QString::number( argv[0]->f, 'f', 0 ) );
+	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()
@@ -688,7 +690,7 @@ void OscServer::HUMANIZATION_VELOCITY_RELATIVE_Handler( lo_arg** argv, int i )
 		MidiAction::Type::HumanizationVelocityRelative
 	);
 	// Rounding to ensure we do not miss the 1.0 resulting in increases.
-	pAction->setValue( QString::number( static_cast<int>( argv[0]->f ) ) );
+	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()
@@ -702,14 +704,13 @@ void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2)
 	H2Core::CoreActionController::setStripVolume( param1, param2, false );
 }
 
-void OscServer::STRIP_VOLUME_RELATIVE_Handler( int nInstrument,
-											  const QString& sValue )
+void OscServer::STRIP_VOLUME_RELATIVE_Handler( int nValue, int nInstrument )
 {
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::StripVolumeRelative );
+	pAction->setValue( nValue );
 	pAction->setInstrument( nInstrument );
-	pAction->setValue( sValue );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
@@ -748,14 +749,13 @@ void OscServer::SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv,int i)
 	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
-void OscServer::FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( int nInstrument,
-													  const QString& sValue)
+void OscServer::FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( int nValue, int nInstrument )
 {
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::FilterCutoffLevelAbsolute );
 	pAction->setInstrument( nInstrument );
-	pAction->setValue( sValue );
+	pAction->setValue( nValue );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
@@ -831,7 +831,7 @@ void OscServer::SELECT_INSTRUMENT_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::SelectInstrument );
-	pAction->setValue( QString::number( argv[0]->f, 'f', 0 ) );
+	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );

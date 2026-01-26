@@ -410,7 +410,7 @@ MidiAction::Requires MidiAction::requiresFromType( const Type& type )
 
 MidiAction::MidiAction( Type type, TimePoint timePoint )
 	: m_type( type ),
-	  m_sValue( "0" ),
+	  m_nValue( 0 ),
 	  m_nComponent( MidiAction::nInvalidParameter ),
 	  m_fFactor( MidiAction::fInvalidParameter ),
 	  m_nFx( MidiAction::nInvalidParameter ),
@@ -433,7 +433,7 @@ MidiAction::MidiAction( const std::shared_ptr<MidiAction> pOther )
 {
 	if ( pOther != nullptr ) {
 		m_type = pOther->m_type;
-		m_sValue = pOther->m_sValue;
+		m_nValue = pOther->m_nValue;
 		m_requires = pOther->m_requires;
 		m_nComponent = pOther->m_nComponent;
 		m_fFactor = pOther->m_fFactor;
@@ -801,7 +801,7 @@ bool MidiAction::isEquivalentTo( const std::shared_ptr<MidiAction> pOther
 		m_type == pOther->m_type && m_nComponent == pOther->m_nComponent &&
 		m_fFactor == pOther->m_fFactor && m_nFx == pOther->m_nFx &&
 		m_nLayer == pOther->m_nLayer && m_nPattern == pOther->m_nPattern &&
-		m_nSong == pOther->m_nSong && m_sValue == pOther->m_sValue
+		m_nSong == pOther->m_nSong && m_nValue == pOther->m_nValue
 	);
 }
 
@@ -845,10 +845,10 @@ QString MidiAction::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( MidiAction::typeToQString( m_type ) ) )
-				.append( QString( "%1%2m_sValue: %3\n" )
+				.append( QString( "%1%2m_nValue: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( m_sValue ) )
+							 .arg( m_nValue ) )
 				.append( QString( "%1%2m_requires: [%3]\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -892,7 +892,7 @@ QString MidiAction::toQString( const QString& sPrefix, bool bShort ) const
 			QString( "[MidiAction]" )
 				.append( QString( " m_type: %1" )
 							 .arg( MidiAction::typeToQString( m_type ) ) )
-				.append( QString( ", m_sValue: %1" ).arg( m_sValue ) )
+				.append( QString( ", m_nValue: %1" ).arg( m_nValue ) )
 				.append(
 					QString( ", m_requires: [%1]" ).arg( requires.join( ", " ) )
 				)

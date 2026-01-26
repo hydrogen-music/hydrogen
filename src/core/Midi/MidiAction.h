@@ -43,12 +43,6 @@
  * An action can be linked to an event. If this event occurs, the action gets
  * triggered. The handling of events takes place in #MidiInput.
  *
- * Each action has two independent parameters. The two parameters are optional
- * and can be used to carry additional information, which mean only something to
- * this very Action. They can have totally different meanings for other Actions.
- * Example: parameter1 is the Mixer strip and parameter 2 a multiplier for the
- * volume change on this strip
- *
  * @author Sebastian Moors
  *
  * \ingroup docCore docMIDI */
@@ -174,8 +168,8 @@ class MidiAction : public H2Core::Object<MidiAction> {
 
 	bool isNull() const;
 
-	const QString& getValue() const;
-	void setValue( const QString& text );
+	int getValue() const;
+	void setValue( int nValue );
 
 	Requires getRequires() const;
 
@@ -199,7 +193,7 @@ class MidiAction : public H2Core::Object<MidiAction> {
 
 	/**
 	 * @returns whether the current MidiAction and @a pOther identically in all
-	 *   member except of #m_sValue and #m_timePoint. If true, they are
+	 *   member except of #m_nValue and #m_timePoint. If true, they are
 	 *   associated with the same widget. The value will differ depending on the
 	 *   incoming MIDI event.
 	 */
@@ -212,7 +206,7 @@ class MidiAction : public H2Core::Object<MidiAction> {
 			lhs.m_fFactor == rhs.m_fFactor && lhs.m_nFx == rhs.m_nFx &&
 			lhs.m_nInstrument == rhs.m_nInstrument &&
 			lhs.m_nLayer == rhs.m_nLayer && lhs.m_nPattern == rhs.m_nPattern &&
-			lhs.m_nSong == rhs.m_nSong && lhs.m_sValue == rhs.m_sValue &&
+			lhs.m_nSong == rhs.m_nSong && lhs.m_nValue == rhs.m_nValue &&
 			lhs.m_timePoint == rhs.m_timePoint
 		);
 	}
@@ -223,7 +217,7 @@ class MidiAction : public H2Core::Object<MidiAction> {
 			lhs.m_fFactor != rhs.m_fFactor || lhs.m_nFx != rhs.m_nFx ||
 			lhs.m_nInstrument != rhs.m_nInstrument ||
 			lhs.m_nLayer != rhs.m_nLayer || lhs.m_nPattern != rhs.m_nPattern ||
-			lhs.m_nSong != rhs.m_nSong || lhs.m_sValue != rhs.m_sValue ||
+			lhs.m_nSong != rhs.m_nSong || lhs.m_nValue != rhs.m_nValue ||
 			lhs.m_timePoint != rhs.m_timePoint
 		);
 	}
@@ -242,7 +236,7 @@ class MidiAction : public H2Core::Object<MidiAction> {
 			lhs->m_nInstrument == rhs->m_nInstrument &&
 			lhs->m_nLayer == rhs->m_nLayer &&
 			lhs->m_nPattern == rhs->m_nPattern &&
-			lhs->m_nSong == rhs->m_nSong && lhs->m_sValue == rhs->m_sValue &&
+			lhs->m_nSong == rhs->m_nSong && lhs->m_nValue == rhs->m_nValue &&
 			lhs->m_timePoint == rhs->m_timePoint
 		);
 	}
@@ -261,7 +255,7 @@ class MidiAction : public H2Core::Object<MidiAction> {
 			lhs->m_nInstrument != rhs->m_nInstrument ||
 			lhs->m_nLayer != rhs->m_nLayer ||
 			lhs->m_nPattern != rhs->m_nPattern ||
-			lhs->m_nSong != rhs->m_nSong || lhs->m_sValue != rhs->m_sValue ||
+			lhs->m_nSong != rhs->m_nSong || lhs->m_nValue != rhs->m_nValue ||
 			lhs->m_timePoint != rhs->m_timePoint
 		);
 	}
@@ -279,7 +273,7 @@ class MidiAction : public H2Core::Object<MidiAction> {
 
    private:
 	Type m_type;
-	QString m_sValue;
+	int m_nValue;
 
 	Requires m_requires;
 
@@ -294,14 +288,14 @@ class MidiAction : public H2Core::Object<MidiAction> {
 	TimePoint m_timePoint;
 };
 
-inline const QString& MidiAction::getValue() const
+inline int MidiAction::getValue() const
 {
-	return m_sValue;
+	return m_nValue;
 }
 
-inline void MidiAction::setValue( const QString& text )
+inline void MidiAction::setValue( int nValue )
 {
-	m_sValue = text;
+	m_nValue = nValue;
 }
 
 inline MidiAction::Requires MidiAction::getRequires() const

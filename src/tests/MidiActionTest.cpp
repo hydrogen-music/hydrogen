@@ -216,7 +216,7 @@ void MidiActionTest::testBpmDecreaseAction()
 	const int nValue = 1;
 	const float fFactor = 5;
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::BpmDecr );
-	pAction->setValue( QString::number( nValue ) );
+	pAction->setValue( nValue );
 	pAction->setFactor( fFactor );
 
 	pMidiEventMap->registerEvent(
@@ -317,7 +317,7 @@ void MidiActionTest::testBpmIncreaseAction()
 	const int nValue = 1;
 	const float fFactor = 7.0;
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::BpmIncr );
-	pAction->setValue( QString::number( nValue ) );
+	pAction->setValue( nValue );
 	pAction->setFactor( fFactor );
 
 	pMidiEventMap->registerEvent(
@@ -481,7 +481,7 @@ void MidiActionTest::testEffectLevelAbsoluteAction()
 	const int nInstrumentNumber = 3;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::EffectLevelAbsolute );
-	pAction->setValue( QString::number( nFxValue ) );
+	pAction->setValue( nFxValue );
 	pAction->setInstrument( nInstrumentNumber );
 	pAction->setFx( nFxId );
 	pMidiEventMap->registerEvent(
@@ -531,7 +531,7 @@ void MidiActionTest::testEffectLevelRelativeAction()
 	const int nInstrumentNumber = 3;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::EffectLevelRelative );
-	pAction->setValue( QString::number( nFxValue ) );
+	pAction->setValue( nFxValue );
 	pAction->setInstrument( nInstrumentNumber );
 	pAction->setFx( nFxId );
 	pMidiEventMap->registerEvent(
@@ -578,7 +578,7 @@ void MidiActionTest::testHumanizationSwingAbsoluteAction()
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::HumanizationSwingAbsolute
 	);
-	pAction->setValue( QString::number( nValue ) );
+	pAction->setValue( nValue );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, nullptr
 	);
@@ -620,7 +620,7 @@ void MidiActionTest::testHumanizationSwingRelativeAction()
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::HumanizationSwingRelative
 	);
-	pAction->setValue( QString::number( nValue ) );
+	pAction->setValue( nValue );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, nullptr
 	);
@@ -661,7 +661,7 @@ void MidiActionTest::testHumanizationTimingAbsoluteAction()
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::HumanizationTimingAbsolute
 	);
-	pAction->setValue( QString::number( nValue ) );
+	pAction->setValue( nValue );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, nullptr
 	);
@@ -704,7 +704,7 @@ void MidiActionTest::testHumanizationTimingRelativeAction()
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::HumanizationTimingRelative
 	);
-	pAction->setValue( QString::number( nValue ) );
+	pAction->setValue( nValue );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, nullptr
 	);
@@ -745,7 +745,7 @@ void MidiActionTest::testHumanizationVelocityAbsoluteAction()
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::HumanizationVelocityAbsolute
 	);
-	pAction->setValue( QString::number( nValue ) );
+	pAction->setValue( nValue );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, nullptr
 	);
@@ -788,7 +788,7 @@ void MidiActionTest::testHumanizationVelocityRelativeAction()
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::HumanizationVelocityRelative
 	);
-	pAction->setValue( QString::number( nValue ) );
+	pAction->setValue( nValue );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, nullptr
 	);
@@ -831,7 +831,7 @@ void MidiActionTest::testFilterCutoffLevelAbsoluteAction()
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::FilterCutoffLevelAbsolute
 	);
-	pAction->setValue( QString::number( nCutoffValue ) );
+	pAction->setValue( nCutoffValue );
 	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, nullptr
@@ -881,7 +881,7 @@ void MidiActionTest::testGainLevelAbsoluteAction()
 	const int nLayerId = 0;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::GainLevelAbsolute );
-	pAction->setValue( QString::number( nGainValue ) );
+	pAction->setValue( nGainValue );
 	pAction->setInstrument( nInstrumentNumber );
 	pAction->setComponent( nComponentId );
 	pAction->setLayer( nLayerId );
@@ -935,7 +935,7 @@ void MidiActionTest::testInstrumentPitchAction()
 	const int nInstrumentNumber = 3;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::InstrumentPitch );
-	pAction->setValue( QString::number( nPitchValue ) );
+	pAction->setValue( nPitchValue );
 	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, nullptr
@@ -1046,7 +1046,7 @@ void MidiActionTest::testMasterVolumeAbsoluteAction()
 	const auto volumeValue = Midi::parameterFromInt( 102 );
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::MasterVolumeAbsolute );
-	pAction->setValue( QString::number( static_cast<int>( volumeValue ) ) );
+	pAction->setValue( static_cast<int>( volumeValue ) );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, nullptr
 	);
@@ -1085,7 +1085,7 @@ void MidiActionTest::testMasterVolumeRelativeAction()
 	const auto volumeValue = Midi::parameterFromInt( 1 );
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::MasterVolumeRelative );
-	pAction->setValue( QString::number( static_cast<int>( volumeValue ) ) );
+	pAction->setValue( static_cast<int>( volumeValue ) );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, nullptr
 	);
@@ -1247,7 +1247,7 @@ void MidiActionTest::testPanAbsoluteAction()
 	const int nInstrumentNumber = 2;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::PanAbsolute );
-	pAction->setValue( QString::number( nPanValue ) );
+	pAction->setValue( nPanValue );
 	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, nullptr
@@ -1292,7 +1292,7 @@ void MidiActionTest::testPanAbsoluteSymAction()
 	const int nInstrumentNumber = 2;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::PanAbsoluteSym );
-	pAction->setValue( QString::number( nPanValue ) );
+	pAction->setValue( nPanValue );
 	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, nullptr
@@ -1335,7 +1335,7 @@ void MidiActionTest::testPanRelativeAction()
 	const int nInstrumentNumber = 2;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::PanRelative );
-	pAction->setValue( QString::number( nPanValue ) );
+	pAction->setValue( nPanValue );
 	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, nullptr
@@ -1420,7 +1420,7 @@ void MidiActionTest::testPitchLevelAbsoluteAction()
 	const int nLayerId = 0;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::PitchLevelAbsolute );
-	pAction->setValue( QString::number( nPitchValue ) );
+	pAction->setValue( nPitchValue );
 	pAction->setInstrument( nInstrumentNumber );
 	pAction->setComponent( nComponentId );
 	pAction->setLayer( nLayerId );
@@ -2408,7 +2408,7 @@ void MidiActionTest::testStripVolumeAbsoluteAction()
 	const int nInstrumentNumber = 3;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::StripVolumeAbsolute );
-	pAction->setValue( QString::number( static_cast<int>( volumeValue ) ) );
+	pAction->setValue( static_cast<int>( volumeValue ) );
 	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, nullptr
@@ -2451,7 +2451,7 @@ void MidiActionTest::testStripVolumeRelativeAction()
 	const int nInstrumentNumber = 3;
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::StripVolumeRelative );
-	pAction->setValue( QString::number( static_cast<int>( volumeValue ) ) );
+	pAction->setValue( static_cast<int>( volumeValue ) );
 	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, nullptr
