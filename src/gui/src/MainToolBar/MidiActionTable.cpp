@@ -162,7 +162,7 @@ void MidiActionTable::appendNewRow()
 	pMidiSenseButton->setIconSize( QSize( 13, 13 ) );
 	pMidiSenseButton->setToolTip( tr( "press button to record midi event" ) );
 	connect( pMidiSenseButton, &QPushButton::clicked, [=]() {
-		midiSensePressed( nNewRow );
+		midiSensePressed( findRowOf( pMidiSenseButton ) );
 	} );
 	setCellWidget( nNewRow, 0, pMidiSenseButton );
 
@@ -181,8 +181,11 @@ void MidiActionTable::appendNewRow()
 	connect(
 		pEventTypeComboBox, QOverload<int>::of( &QComboBox::activated ),
 		[=]() {
-			updateRow( nNewRow );
-			saveRow( nNewRow );
+			const int nRow = findRowOf( pEventTypeComboBox );
+			if ( nRow != -1 ) {
+				updateRow( nRow );
+				saveRow( nRow );
+			}
 		}
 	);
 	setCellWidget( nNewRow, 1, pEventTypeComboBox );
@@ -201,7 +204,7 @@ void MidiActionTable::appendNewRow()
 	connect(
 		pEventParameterSpinBox,
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
-		[=]() { saveRow( nNewRow ); }
+		[=]() { saveRow( findRowOf( pEventParameterSpinBox ) ); }
 	);
 
 	auto pActionTypeComboBox = new LCDCombo( this );
@@ -219,8 +222,11 @@ void MidiActionTable::appendNewRow()
 		pActionTypeComboBox, QOverload<int>::of( &QComboBox::activated ),
 		[=]() {
 			// Find row and update it.
-			updateRow( nNewRow );
-			saveRow( nNewRow );
+			const int nRow = findRowOf( pActionTypeComboBox );
+			if ( nRow != -1 ) {
+				updateRow( nRow );
+				saveRow( nRow );
+			}
 		}
 	);
 	setCellWidget( nNewRow, 3, pActionTypeComboBox );
@@ -231,7 +237,7 @@ void MidiActionTable::appendNewRow()
 	connect(
 		pActionParameterSpinBox1->m_pSpinBox,
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
-		[=]() { saveRow( nNewRow ); }
+		[=]() { saveRow( findRowOf( pActionParameterSpinBox1 ) ); }
 	);
 
 	auto pActionParameterSpinBox2 = new SpinBoxWithIcon( this );
@@ -240,7 +246,7 @@ void MidiActionTable::appendNewRow()
 	connect(
 		pActionParameterSpinBox2->m_pSpinBox,
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
-		[=]() { saveRow( nNewRow ); }
+		[=]() { saveRow( findRowOf( pActionParameterSpinBox2 ) ); }
 	);
 
 	auto pActionParameterSpinBox3 = new SpinBoxWithIcon( this );
@@ -249,7 +255,7 @@ void MidiActionTable::appendNewRow()
 	connect(
 		pActionParameterSpinBox3->m_pSpinBox,
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
-		[=]() { saveRow( nNewRow ); }
+		[=]() { saveRow( findRowOf( pActionParameterSpinBox3 ) ); }
 	);
 
 	auto pDeleteRowButton = new QToolButton( this );
@@ -258,7 +264,11 @@ void MidiActionTable::appendNewRow()
 	pDeleteRowButton->setIconSize( QSize( 18, 18 ) );
 	pDeleteRowButton->setToolTip( tr( "press to delete row" ) );
 	connect( pDeleteRowButton, &QPushButton::clicked, [=]() {
-		const auto pOldMidiEvent = m_cachedEventMap[nNewRow];
+		const int nRow = findRowOf( pDeleteRowButton );
+		if ( nRow < 0 || nRow >= m_cachedEventMap.size() ) {
+			return;
+		}
+		const auto pOldMidiEvent = m_cachedEventMap[nRow];
 		if ( pOldMidiEvent != nullptr ) {
 			long nEventIdRemove = Event::nInvalidId;
 			HydrogenApp::get_instance()->pushUndoCommand(
@@ -589,6 +599,22 @@ void MidiActionTable::updateActionParameters(
 		pSpinBox3->m_pButton->setIcon( QIcon( sIconPath + "sample-editor.svg" )
 		);
 	}
+}
+
+int MidiActionTable::findRowOf( QWidget* pWidget ) const
+{
+	if ( pWidget == nullptr ) {
+		return -1;
+	}
+
+	for ( int nnRow = 0; nnRow < rowCount(); ++nnRow ) {
+		for ( int nnColumn = 0; nnColumn < columnCount(); ++nnColumn ) {
+			if ( pWidget == cellWidget( nnRow, nnColumn ) ) {
+				return nnRow;
+			}
+		}
+	}
+	return -1;
 }
 
 // Reimplementing this one is quite expensive. But the visibility of

@@ -100,6 +100,8 @@ class MidiActionTable : public QTableWidget,
 		SpinBoxWithIcon* pSpinBox3
 	);
 
+	int findRowOf( QWidget* pWidget ) const;
+
 	virtual void paintEvent( QPaintEvent* ev ) override;
 
 	int m_nCurrentMidiAutosenseRow;
