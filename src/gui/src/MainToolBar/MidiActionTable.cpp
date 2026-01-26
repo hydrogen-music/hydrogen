@@ -451,6 +451,14 @@ void MidiActionTable::saveRow( int nRow )
 		dynamic_cast<SpinBoxWithIcon*>( cellWidget( nRow, 5 ) );
 	auto pActionParameterSpinBox3 =
 		dynamic_cast<SpinBoxWithIcon*>( cellWidget( nRow, 6 ) );
+	if ( pEventTypeComboBox == nullptr || pEventParameterSpinBox == nullptr ||
+		 pActionTypeComboBox == nullptr ||
+		 pActionParameterSpinBox1 == nullptr ||
+		 pActionParameterSpinBox2 == nullptr ||
+		 pActionParameterSpinBox3 == nullptr ) {
+		ERRORLOG( "Unable to retrieve widgets" );
+		return;
+	}
 
 	MidiEvent::Type eventType = MidiEvent::Type::Null;
 	Midi::Parameter eventParameter = Midi::ParameterInvalid;
@@ -513,6 +521,10 @@ void MidiActionTable::saveRow( int nRow )
 			pNewMidiEvent->setParameter( eventParameter );
 			pNewMidiEvent->setMidiAction( pNewMidiAction );
 		}
+	}
+
+	if ( nRow < 0 || nRow >= m_cachedEventMap.size() ) {
+		return;
 	}
 
 	const auto pOldMidiEvent = m_cachedEventMap[nRow];
