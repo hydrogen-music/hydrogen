@@ -1268,121 +1268,110 @@ void OscServer::broadcastMessage( const char* msgText, const lo_message& message
 // -------------------------------------------------------------------
 // Main Midiaction handler
 
-void OscServer::handleMidiAction( std::shared_ptr<MidiAction> pAction )
+void OscServer::sendFeedbackMessage(
+	MidiAction::Type type,
+	float fValue,
+	int nInstrumentIndex
+)
 {
-	if ( ! H2Core::Preferences::get_instance()->getOscFeedbackEnabled() ) {
+	if ( !H2Core::Preferences::get_instance()->getOscFeedbackEnabled() ) {
 		return;
 	}
-	
-	if ( pAction->getType() == MidiAction::Type::MasterVolumeAbsolute ) {
-		bool ok;
-		float fValue = pAction->getValue().toFloat(&ok);
-			
+
+	if ( type == MidiAction::Type::MasterVolumeAbsolute ) {
 		lo_message reply = lo_message_new();
 		lo_message_add_float( reply, fValue );
 
-		broadcastMessage("/Hydrogen/MASTER_VOLUME_ABSOLUTE", reply);
-		
+		broadcastMessage( "/Hydrogen/MASTER_VOLUME_ABSOLUTE", reply );
+
 		lo_message_free( reply );
 	}
-	
-	if ( pAction->getType() == MidiAction::Type::StripVolumeAbsolute ) {
-		bool ok;
-		float fValue = pAction->getValue().toFloat(&ok);
 
+	if ( type == MidiAction::Type::StripVolumeAbsolute ) {
 		lo_message reply = lo_message_new();
 		lo_message_add_float( reply, fValue );
 
-		QByteArray ba = QString("/Hydrogen/STRIP_VOLUME_ABSOLUTE/%1").arg(pAction->getInstrument()).toLatin1();
-		const char *c_str2 = ba.data();
+		QByteArray ba = QString( "/Hydrogen/STRIP_VOLUME_ABSOLUTE/%1" )
+							.arg( nInstrumentIndex )
+							.toLatin1();
+		const char* c_str2 = ba.data();
 
-		broadcastMessage( c_str2, reply);
-		
+		broadcastMessage( c_str2, reply );
+
 		lo_message_free( reply );
 	}
-	
-	if ( pAction->getType() == MidiAction::Type::ToggleMetronome ) {
-		bool ok;
-		const float fValue = pAction->getValue().toFloat(&ok);
 
-		lo_message reply = lo_message_new();
-		lo_message_add_float(reply, fValue);
-
-		broadcastMessage("/Hydrogen/TOGGLE_METRONOME", reply);
-		
-		lo_message_free( reply );
-	}
-	
-	if ( pAction->getType() == MidiAction::Type::MuteToggle ) {
-		bool ok;
-		const float fValue = pAction->getValue().toFloat(&ok);
-
-		lo_message reply = lo_message_new();
-		lo_message_add_float(reply, fValue);
-		
-		broadcastMessage("/Hydrogen/MUTE_TOGGLE", reply);
-		
-		lo_message_free( reply );
-	}
-	
-	if ( pAction->getType() == MidiAction::Type::StripMuteToggle ) {
-		bool ok;
-		const float fValue = pAction->getValue().toFloat(&ok);
-
+	if ( type == MidiAction::Type::ToggleMetronome ) {
 		lo_message reply = lo_message_new();
 		lo_message_add_float( reply, fValue );
 
-		QByteArray ba = QString("/Hydrogen/STRIP_MUTE_TOGGLE/%1")
-			.arg(pAction->getInstrument()).toLatin1();
-		const char *c_str2 = ba.data();
+		broadcastMessage( "/Hydrogen/TOGGLE_METRONOME", reply );
 
-		broadcastMessage( c_str2, reply);
-		
-		lo_message_free( reply );
-	}
-	
-	if ( pAction->getType() == MidiAction::Type::StripSoloToggle ) {
-		bool ok;
-		const float fValue = pAction->getValue().toFloat(&ok);
-
-		lo_message reply = lo_message_new();
-		lo_message_add_float( reply, fValue );
-
-		QByteArray ba = QString("/Hydrogen/STRIP_SOLO_TOGGLE/%1").arg(pAction->getInstrument()).toLatin1();
-		const char *c_str2 = ba.data();
-
-		broadcastMessage( c_str2, reply);
-		
-		lo_message_free( reply );
-	}
-	
-	if ( pAction->getType() == MidiAction::Type::PanAbsolute ) {
-		bool ok;
-		const float fValue = pAction->getValue().toFloat(&ok);
-
-		lo_message reply = lo_message_new();
-		lo_message_add_float( reply, fValue );
-
-		QByteArray ba = QString("/Hydrogen/PAN_ABSOLUTE/%1").arg(pAction->getInstrument()).toLatin1();
-		const char *c_str2 = ba.data();
-
-		broadcastMessage( c_str2, reply);
-		
 		lo_message_free( reply );
 	}
 
-	if ( pAction->getType() == MidiAction::Type::PanAbsoluteSym ) {
-		bool ok;
-		const float fValue = pAction->getValue().toFloat(&ok);
-
+	if ( type == MidiAction::Type::MuteToggle ) {
 		lo_message reply = lo_message_new();
 		lo_message_add_float( reply, fValue );
 
-		QByteArray ba = QString("/Hydrogen/PAN_ABSOLUTE_SYM/%1").arg(pAction->getInstrument()).toLatin1();
-		const char *c_str2 = ba.data();
+		broadcastMessage( "/Hydrogen/MUTE_TOGGLE", reply );
 
-		broadcastMessage( c_str2, reply);
-		
+		lo_message_free( reply );
+	}
+
+	if ( type == MidiAction::Type::StripMuteToggle ) {
+		lo_message reply = lo_message_new();
+		lo_message_add_float( reply, fValue );
+
+		QByteArray ba = QString( "/Hydrogen/STRIP_MUTE_TOGGLE/%1" )
+							.arg( nInstrumentIndex )
+							.toLatin1();
+		const char* c_str2 = ba.data();
+
+		broadcastMessage( c_str2, reply );
+
+		lo_message_free( reply );
+	}
+
+	if ( type == MidiAction::Type::StripSoloToggle ) {
+		lo_message reply = lo_message_new();
+		lo_message_add_float( reply, fValue );
+
+		QByteArray ba = QString( "/Hydrogen/STRIP_SOLO_TOGGLE/%1" )
+							.arg( nInstrumentIndex )
+							.toLatin1();
+		const char* c_str2 = ba.data();
+
+		broadcastMessage( c_str2, reply );
+
+		lo_message_free( reply );
+	}
+
+	if ( type == MidiAction::Type::PanAbsolute ) {
+		lo_message reply = lo_message_new();
+		lo_message_add_float( reply, fValue );
+
+		QByteArray ba = QString( "/Hydrogen/PAN_ABSOLUTE/%1" )
+							.arg( nInstrumentIndex )
+							.toLatin1();
+		const char* c_str2 = ba.data();
+
+		broadcastMessage( c_str2, reply );
+
+		lo_message_free( reply );
+	}
+
+	if ( type == MidiAction::Type::PanAbsoluteSym ) {
+		lo_message reply = lo_message_new();
+		lo_message_add_float( reply, fValue );
+
+		QByteArray ba = QString( "/Hydrogen/PAN_ABSOLUTE_SYM/%1" )
+							.arg( nInstrumentIndex )
+							.toLatin1();
+		const char* c_str2 = ba.data();
+
+		broadcastMessage( c_str2, reply );
+
 		lo_message_free( reply );
 	}
 }

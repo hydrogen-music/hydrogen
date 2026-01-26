@@ -167,19 +167,6 @@ class OscServer : public H2Core::Object<OscServer>
 		 * - OPEN_SONG_Handler()
 		 * - SAVE_SONG_AS_Handler()
 		 *
-		 * The generic_handler() will be registered to match all paths
-		 * and types.
-		 *
-		 * In addition, a lambda function will be registered to match
-		 * all types and paths too. If the client has not sent any
-		 * message to Hydrogen yet, it will take care of its
-		 * registration to #m_pClientRegistry using the address of the
-		 * received OSC message. More importantly, it also will call
-		 * H2Core::CoreActionController::initExternalControlInterfaces(),
-		 * which, apart from MIDI related stuff, use handleMidiAction() to
-		 * push the current state of Hydrogen to the registered OSC
-		 * clients. This will happen each time the state of Hydrogen
-		 * does change.
 		 *
 		 * \return `true` on success.
 		 */
@@ -201,24 +188,6 @@ class OscServer : public H2Core::Object<OscServer>
 		 * to inform all clients about the current state of Hydrogen
 		 * using OSC messages send by Hydrogen itself.
 		 *
-		 * The following feedback functions will be used to describe
-		 * the aforementioned state:
-		 * - H2Core::CoreActionController::setMasterVolume()
-		 * - H2Core::CoreActionController::setMetronomeIsActive()
-		 * - H2Core::CoreActionController::setMasterIsMuted()
-		 * - H2Core::CoreActionController::setStripVolume() [*]
-		 * - H2Core::CoreActionController::setStripPan() [*]
-		 * - H2Core::CoreActionController::setStripIsMuted() [*]
-		 * - H2Core::CoreActionController::setStripIsSoloed() [*]
-		 *
-		 * [*] Function will be called for all Instruments in
-		 * H2Core::Song::__instrument_list.
-		 *
-		 * The constructed messages will contain the
-		 * Action::parameter2 of @a pAction as float types (or
-		 * Action::parameter1 for the actions @b TOGGLE_METRONOME and
-		 * @b MUTE_TOGGLE) and will be associated with one of the
-		 * following paths:
 		 * - \e /Hydrogen/MASTER_VOLUME_ABSOLUTE
 		 * - \e /Hydrogen/TOGGLE_METRONOME
 		 * - \e /Hydrogen/MUTE_TOGGLE
@@ -230,16 +199,17 @@ class OscServer : public H2Core::Object<OscServer>
 		 * - \e /Hydrogen/STRIP_MUTE_TOGGLE/[x]
 		 * - \e /Hydrogen/STRIP_SOLO_TOGGLE/[x]
 		 *
-		 * [x] The last part of the URI is determined by
-		 * Action::parameter1 and specifies an individual strip.
+		 * [x] The last part of the URI is determined by @a nInstrumentIndex and
+		 * specifies an individual instrument.
 		 *
 		 * Only called if H2Core::Preferences::m_bOscServerEnabled is
 		 * true.
-		 *
-		 * \param pAction Action to be sent to all registered
-		 * clients. 
 		 */
-		void handleMidiAction(std::shared_ptr<MidiAction> pMidiAction);
+		void sendFeedbackMessage(
+			MidiAction::Type type,
+			float fValue,
+			int nInstrumentIndex
+		);
 
 		/** Should be only used within the integration tests! */
 	lo::ServerThread* getServerThread() const;

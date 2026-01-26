@@ -493,13 +493,9 @@ bool CoreActionController::sendMasterVolumeFeedback() {
 	
 #ifdef H2CORE_HAVE_OSC
 	if ( Preferences::get_instance()->getOscFeedbackEnabled() ) {
-		
-		auto pFeedbackAction = std::make_shared<MidiAction>(
-			MidiAction::Type::MasterVolumeAbsolute );
-		
-		pFeedbackAction->setValue( QString("%1")
-								   .arg( fMasterVolume ) );
-		OscServer::get_instance()->handleMidiAction( pFeedbackAction );
+		OscServer::get_instance()->sendFeedbackMessage(
+			MidiAction::Type::MasterVolumeAbsolute, fMasterVolume, -1
+		);
 	}
 #endif
 	
@@ -526,13 +522,9 @@ bool CoreActionController::sendStripVolumeFeedback( int nStrip ) {
 		
 #ifdef H2CORE_HAVE_OSC
 		if ( Preferences::get_instance()->getOscFeedbackEnabled() ) {
-		
-			auto pFeedbackAction = std::make_shared<MidiAction>(
-				MidiAction::Type::StripVolumeAbsolute );
-		
-			pFeedbackAction->setInstrument( nStrip + 1 );
-			pFeedbackAction->setValue( QString("%1").arg( fStripVolume ) );
-			OscServer::get_instance()->handleMidiAction( pFeedbackAction );
+			OscServer::get_instance()->sendFeedbackMessage(
+				MidiAction::Type::StripVolumeAbsolute, fStripVolume, nStrip + 1
+			);
 		}
 #endif
 
@@ -559,12 +551,10 @@ bool CoreActionController::sendMetronomeIsActiveFeedback() {
 	
 #ifdef H2CORE_HAVE_OSC
 	if ( pPref->getOscFeedbackEnabled() ) {
-		auto pFeedbackAction = std::make_shared<MidiAction>(
-			MidiAction::Type::ToggleMetronome );
-		
-		pFeedbackAction->setValue(
-			QString("%1") .arg( static_cast<int>(pPref->m_bUseMetronome) ) );
-		OscServer::get_instance()->handleMidiAction( pFeedbackAction );
+		OscServer::get_instance()->sendFeedbackMessage(
+			MidiAction::Type::ToggleMetronome,
+			static_cast<float>( pPref->m_bUseMetronome ), -1
+		);
 	}
 #endif
 	
@@ -592,12 +582,10 @@ bool CoreActionController::sendMasterIsMutedFeedback() {
 	
 #ifdef H2CORE_HAVE_OSC
 	if ( Preferences::get_instance()->getOscFeedbackEnabled() ) {
-		auto pFeedbackAction = std::make_shared<MidiAction>(
-			MidiAction::Type::MuteToggle );
-		
-		pFeedbackAction->setValue(
-			QString("%1") .arg( static_cast<int>(pSong->getIsMuted()) ) );
-		OscServer::get_instance()->handleMidiAction( pFeedbackAction );
+		OscServer::get_instance()->sendFeedbackMessage(
+			MidiAction::Type::MuteToggle,
+			static_cast<int>( pSong->getIsMuted() ), -1
+		);
 	}
 #endif
 
@@ -622,13 +610,10 @@ bool CoreActionController::sendStripIsMutedFeedback( int nStrip ) {
 	
 #ifdef H2CORE_HAVE_OSC
 		if ( Preferences::get_instance()->getOscFeedbackEnabled() ) {
-			auto pFeedbackAction = std::make_shared<MidiAction>(
-				MidiAction::Type::StripMuteToggle );
-		
-			pFeedbackAction->setInstrument( nStrip + 1 );
-			pFeedbackAction->setValue(
-				QString("%1") .arg( static_cast<int>(pInstr->isMuted()) ) );
-			OscServer::get_instance()->handleMidiAction( pFeedbackAction );
+			OscServer::get_instance()->sendFeedbackMessage(
+				MidiAction::Type::StripMuteToggle,
+				static_cast<float>( pInstr->isMuted() ), nStrip + 1
+			);
 		}
 #endif
 
@@ -656,13 +641,10 @@ bool CoreActionController::sendStripIsSoloedFeedback( int nStrip ) {
 	
 #ifdef H2CORE_HAVE_OSC
 		if ( Preferences::get_instance()->getOscFeedbackEnabled() ) {
-			auto pFeedbackAction = std::make_shared<MidiAction>(
-				MidiAction::Type::StripSoloToggle );
-		
-			pFeedbackAction->setInstrument( nStrip + 1 );
-			pFeedbackAction->setValue(
-				QString("%1") .arg( static_cast<int>(pInstr->isSoloed()) ) );
-			OscServer::get_instance()->handleMidiAction( pFeedbackAction );
+			OscServer::get_instance()->sendFeedbackMessage(
+				MidiAction::Type::StripSoloToggle,
+				static_cast<float>( pInstr->isSoloed() ), nStrip + 1
+			);
 		}
 #endif
 
@@ -689,13 +671,10 @@ bool CoreActionController::sendStripPanFeedback( int nStrip ) {
 
 #ifdef H2CORE_HAVE_OSC
 		if ( Preferences::get_instance()->getOscFeedbackEnabled() ) {
-			auto pFeedbackAction = std::make_shared<MidiAction>(
-				MidiAction::Type::PanAbsolute );
-		
-			pFeedbackAction->setInstrument( nStrip + 1 );
-			pFeedbackAction->setValue(
-				QString("%1") .arg( pInstr->getPanWithRangeFrom0To1() ) );
-			OscServer::get_instance()->handleMidiAction( pFeedbackAction );
+			OscServer::get_instance()->sendFeedbackMessage(
+				MidiAction::Type::PanAbsolute,
+				pInstr->getPanWithRangeFrom0To1(), nStrip + 1
+			);
 		}
 #endif
 	
