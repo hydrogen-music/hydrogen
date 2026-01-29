@@ -506,8 +506,10 @@ void MidiActionTable::updateRowContent(
 
 	auto pActionTypeComboBox = dynamic_cast<LCDCombo*>( cellWidget( nRow, 3 ) );
 	if ( pActionTypeComboBox != nullptr ) {
-		pActionTypeComboBox->setCurrentIndex( pActionTypeComboBox->findText(
-			MidiAction::typeToQString( actionType )
+		pActionTypeComboBox->setCurrentIndex( std::max(
+			0,
+			pActionTypeComboBox->findText( MidiAction::typeToQString( actionType
+			) )
 		) );
 	}
 
