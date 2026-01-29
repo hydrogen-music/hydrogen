@@ -30,6 +30,7 @@ https://www.gnu.org/licenses
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 #include "../Widgets/LCDSpinBox.h"
+#include "../UndoActions.h"
 #include "core/Midi/Midi.h"
 
 #include <core/Basics/Drumkit.h>
@@ -651,8 +652,12 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	pMidiActionLayout->addWidget( m_pMidiActionTable );
 	m_pMidiActionAddButton = addBinButton( pMidiActionWidget );
 	connect( m_pMidiActionAddButton, &QToolButton::clicked, [&]() {
-		m_pMidiActionTable->appendNewRow();
-	});
+		HydrogenApp::get_instance()->pushUndoCommand(
+			new SE_addOrRemoveMidiEventsAction(
+				-1, MidiEvent::Type::Null, Midi::ParameterMinimum, nullptr, true
+			)
+		);
+	} );
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -818,7 +823,7 @@ void MidiControlDialog::updatePreferencesEvent( int nValue )
 		static_cast<int>( pPref->getMidiSendNoteOff() )
 	);
 
-	m_pMidiActionTable->updateTable();
+	m_pMidiActionTable->resetTable();
 }
 
 void MidiControlDialog::updateSongEvent( int nValue ) {

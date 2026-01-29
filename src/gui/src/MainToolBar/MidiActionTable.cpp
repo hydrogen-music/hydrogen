@@ -58,7 +58,6 @@ MidiActionTable::MidiActionTable( QWidget* pParent ) : QTableWidget( pParent )
 	items << "" << tr( "Incoming Event" ) << tr( "E. Para." ) << tr( "Action" )
 		  << tr( "Para. 1" ) << tr( "Para. 2" ) << tr( "Para. 3" ) << "";
 
-	setRowCount( 0 );
 	setColumnCount( 8 );
 
 	setSelectionMode( QAbstractItemView::NoSelection );
@@ -94,9 +93,7 @@ MidiActionTable::MidiActionTable( QWidget* pParent ) : QTableWidget( pParent )
 	horizontalHeader()->setSectionResizeMode( 6, QHeaderView::Fixed );
 	horizontalHeader()->setSectionResizeMode( 7, QHeaderView::Fixed );
 
-	updateTable();
-
-	m_nCurrentMidiAutosenseRow = 0;
+	resetTable();
 
 	HydrogenApp::get_instance()->addEventListener( this );
 	installEventFilter( HydrogenApp::get_instance()->getMainForm() );
@@ -113,34 +110,228 @@ MidiActionTable::~MidiActionTable()
 	HydrogenApp::get_instance()->removeEventListener( this );
 }
 
-void MidiActionTable::updateTable()
+void MidiActionTable::resetTable()
 {
-	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	for ( int nnRow = rowCount() - 1; nnRow >= 0; --nnRow ) {
+		removeRow( nnRow );
+	}
+	setRowCount( 0 );
 
-	m_cachedEventMap.clear();
+	// Initialize all data with the ones found in data structure loaded from
+	// disk. Afterwards, #m_tableData will serve as our single source of truth.
+	const auto midiEvents =
+		Preferences::get_instance()->getMidiEventMap()->getMidiEvents();
 
-	int nIndex = 0;
-	for ( const auto& ppEvent : pMidiEventMap->getMidiEvents() ) {
-		if ( ppEvent != nullptr && ppEvent->getMidiAction() != nullptr &&
-			 !ppEvent->getMidiAction()->isNull() ) {
-			if ( nIndex >= rowCount() ) {
-				appendNewRow();
-			}
-			updateRow( ppEvent, nIndex );
-
-			m_cachedEventMap[nIndex] = ppEvent;
-
-			++nIndex;
+	m_tableRows.clear();
+	for ( const auto& ppEvent : midiEvents ) {
+		if ( ppEvent != nullptr && ppEvent->getMidiAction() != nullptr ) {
+			RowContent row = {
+				ppEvent->getType(), ppEvent->getParameter(),
+				ppEvent->getMidiAction()
+			};
+			m_tableRows.push_back( std::move( row ) );
 		}
 	}
 
-	// All other rows are superfluous ones and have to be removed.
-	for ( int ii = nIndex; ii < rowCount(); ++ii ) {
-		removeRow( ii );
+	int nIndex = 0;
+	for ( const auto& rrow : m_tableRows ) {
+		appendEmptyRow();
+		updateRowContent(
+			nIndex, rrow.eventType, rrow.eventParameter, rrow.pMidiAction
+		);
+		++nIndex;
 	}
 }
 
-void MidiActionTable::appendNewRow()
+void MidiActionTable::insertRow(
+	int nRow,
+	H2Core::MidiEvent::Type eventType,
+	H2Core::Midi::Parameter eventParameter,
+	std::shared_ptr<MidiAction> pMidiAction
+)
+{
+	if ( eventType != MidiEvent::Type::Null && pMidiAction != nullptr &&
+		 pMidiAction->getType() != MidiAction::Type::Null ) {
+		long nEventId;
+		H2Core::Preferences::get_instance()->getMidiEventMap()->registerEvent(
+			eventType, eventParameter, pMidiAction, &nEventId
+		);
+		if ( nEventId != Event::nInvalidId ) {
+			blacklistEventId( nEventId );
+		}
+	}
+
+	RowContent newRow = { eventType, eventParameter, pMidiAction };
+	if ( nRow >= 0 && nRow < m_tableRows.size() ) {
+		m_tableRows.insert( m_tableRows.begin() + nRow, newRow );
+	}
+	else {
+		// Append
+		m_tableRows.push_back( newRow );
+	}
+
+	appendEmptyRow();
+
+	// Update the content of the entire table since we inserted at an arbitrary
+	// row.
+	int nIndex = 0;
+	for ( const auto& rrow : m_tableRows ) {
+		updateRowContent(
+			nIndex, rrow.eventType, rrow.eventParameter, rrow.pMidiAction
+		);
+		++nIndex;
+	}
+}
+
+void MidiActionTable::removeRow( int nRow )
+{
+	if ( nRow < 0 || nRow >= m_tableRows.size() ) {
+		ERRORLOG( QString( "Row [%1] out of bounds [0,%2)" )
+					  .arg( nRow )
+					  .arg( m_tableRows.size() ) );
+		return;
+	}
+
+	const auto row = m_tableRows[nRow];
+	if ( row.eventType != MidiEvent::Type::Null && row.pMidiAction != nullptr &&
+		 row.pMidiAction->getType() != MidiAction::Type::Null ) {
+		long nEventId;
+		H2Core::Preferences::get_instance()
+			->getMidiEventMap()
+			->removeRegisteredEvent(
+				row.eventType, row.eventParameter, row.pMidiAction, &nEventId
+			);
+		if ( nEventId != Event::nInvalidId ) {
+			blacklistEventId( nEventId );
+		}
+	}
+
+	QTableWidget::removeRow( nRow );
+}
+
+void MidiActionTable::replaceRow(
+	int nRow,
+	H2Core::MidiEvent::Type eventType,
+	H2Core::Midi::Parameter eventParameter,
+	std::shared_ptr<MidiAction> pMidiAction
+)
+{
+	if ( nRow < 0 || nRow >= m_tableRows.size() ) {
+		ERRORLOG( QString( "Row [%1] out of bounds [0,%2)" )
+					  .arg( nRow )
+					  .arg( m_tableRows.size() ) );
+		return;
+	}
+
+	// Remove old event
+	const auto row = m_tableRows[nRow];
+	if ( row.eventType != MidiEvent::Type::Null && row.pMidiAction != nullptr &&
+		 row.pMidiAction->getType() != MidiAction::Type::Null ) {
+		long nEventId;
+		H2Core::Preferences::get_instance()
+			->getMidiEventMap()
+			->removeRegisteredEvent(
+				row.eventType, row.eventParameter, row.pMidiAction, &nEventId
+			);
+		if ( nEventId != Event::nInvalidId ) {
+			blacklistEventId( nEventId );
+		}
+	}
+
+	// Add new one
+	if ( eventType != MidiEvent::Type::Null && pMidiAction != nullptr &&
+		 pMidiAction->getType() != MidiAction::Type::Null ) {
+		long nEventId;
+		H2Core::Preferences::get_instance()->getMidiEventMap()->registerEvent(
+			eventType, eventParameter, pMidiAction, &nEventId
+		);
+		if ( nEventId != Event::nInvalidId ) {
+			blacklistEventId( nEventId );
+		}
+	}
+
+	m_tableRows[nRow].eventType = eventType;
+	m_tableRows[nRow].eventParameter = eventParameter;
+	m_tableRows[nRow].pMidiAction = pMidiAction;
+
+	updateRowContent( nRow, eventType, eventParameter, pMidiAction );
+}
+
+void MidiActionTable::removeRegisteredEvents(
+	std::shared_ptr<MidiAction> pMidiAction
+)
+{
+	if ( pMidiAction == nullptr ) {
+		return;
+	}
+
+	std::vector<std::pair<int, RowContent>> rowsToRemove;
+	for ( int nnRow = m_tableRows.size() - 1; nnRow >= 0; --nnRow ) {
+		if ( m_tableRows[nnRow].eventType != MidiEvent::Type::Null &&
+			 m_tableRows[nnRow].pMidiAction != nullptr &&
+			 m_tableRows[nnRow].pMidiAction->isEquivalentTo( pMidiAction ) ) {
+			rowsToRemove.push_back( std::make_pair( nnRow, m_tableRows[nnRow] )
+			);
+		}
+	}
+
+	if ( rowsToRemove.size() == 0 ) {
+		return;
+	}
+
+	/*: Label for entry within the undo/redo history. The name of the action
+	 *  will be appended after an additional white space. */
+	HydrogenApp::get_instance()->beginUndoMacro(
+		QString( "%1 [%2]" )
+			.arg( tr( "Remove all binding for MIDI action" ) )
+			.arg( MidiAction::typeToQString( pMidiAction->getType() ) )
+	);
+
+	for ( const auto [nnRow, rrowContent] : rowsToRemove ) {
+		HydrogenApp::get_instance()->pushUndoCommand(
+			new SE_addOrRemoveMidiEventsAction(
+				nnRow, rrowContent.eventType, rrowContent.eventParameter,
+				rrowContent.pMidiAction, false
+			)
+		);
+	}
+
+	HydrogenApp::get_instance()->endUndoMacro();
+}
+
+void MidiActionTable::midiMapChangedEvent()
+{
+	WARNINGLOG( "Discarding mapping table and reloading it from Preferences file." );
+}
+
+void MidiActionTable::midiSensePressed( int nRow )
+{
+	if ( nRow < 0 || nRow >= m_tableRows.size() ) {
+		ERRORLOG( QString( "Row [%1] out of bounds [0,%2)" )
+					  .arg( nRow )
+					  .arg( m_tableRows.size() ) );
+		return;
+	}
+
+	MidiSenseWidget midiSenseWidget( this );
+	midiSenseWidget.exec();
+	if ( midiSenseWidget.getLastMidiEvent() == MidiEvent::Type::Null ) {
+		// Rejected
+		return;
+	}
+
+	HydrogenApp::get_instance()->pushUndoCommand(
+		new SE_replaceMidiEventsAction(
+			nRow, midiSenseWidget.getLastMidiEvent(),
+			m_tableRows[nRow].eventType,
+			midiSenseWidget.getLastMidiEventParameter(),
+			m_tableRows[nRow].eventParameter, m_tableRows[nRow].pMidiAction,
+			m_tableRows[nRow].pMidiAction
+		)
+	);
+}
+
+void MidiActionTable::appendEmptyRow()
 {
 	auto pMidiActionManager = Hydrogen::get_instance()->getMidiActionManager();
 
@@ -183,8 +374,7 @@ void MidiActionTable::appendNewRow()
 		[=]() {
 			const int nRow = findRowOf( pEventTypeComboBox );
 			if ( nRow != -1 ) {
-				updateRow( nRow );
-				saveRow( nRow );
+				writeBackRow( nRow );
 			}
 		}
 	);
@@ -204,7 +394,7 @@ void MidiActionTable::appendNewRow()
 	connect(
 		pEventParameterSpinBox,
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
-		[=]() { saveRow( findRowOf( pEventParameterSpinBox ) ); }
+		[=]() { writeBackRow( findRowOf( pEventParameterSpinBox ) ); }
 	);
 
 	auto pActionTypeComboBox = new LCDCombo( this );
@@ -224,8 +414,7 @@ void MidiActionTable::appendNewRow()
 			// Find row and update it.
 			const int nRow = findRowOf( pActionTypeComboBox );
 			if ( nRow != -1 ) {
-				updateRow( nRow );
-				saveRow( nRow );
+				writeBackRow( nRow );
 			}
 		}
 	);
@@ -237,7 +426,7 @@ void MidiActionTable::appendNewRow()
 	connect(
 		pActionParameterSpinBox1->m_pSpinBox,
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
-		[=]() { saveRow( findRowOf( pActionParameterSpinBox1 ) ); }
+		[=]() { writeBackRow( findRowOf( pActionParameterSpinBox1 ) ); }
 	);
 
 	auto pActionParameterSpinBox2 = new SpinBoxWithIcon( this );
@@ -246,7 +435,7 @@ void MidiActionTable::appendNewRow()
 	connect(
 		pActionParameterSpinBox2->m_pSpinBox,
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
-		[=]() { saveRow( findRowOf( pActionParameterSpinBox2 ) ); }
+		[=]() { writeBackRow( findRowOf( pActionParameterSpinBox2 ) ); }
 	);
 
 	auto pActionParameterSpinBox3 = new SpinBoxWithIcon( this );
@@ -255,7 +444,7 @@ void MidiActionTable::appendNewRow()
 	connect(
 		pActionParameterSpinBox3->m_pSpinBox,
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
-		[=]() { saveRow( findRowOf( pActionParameterSpinBox3 ) ); }
+		[=]() { writeBackRow( findRowOf( pActionParameterSpinBox3 ) ); }
 	);
 
 	auto pDeleteRowButton = new QToolButton( this );
@@ -265,125 +454,62 @@ void MidiActionTable::appendNewRow()
 	pDeleteRowButton->setToolTip( tr( "press to delete row" ) );
 	connect( pDeleteRowButton, &QPushButton::clicked, [=]() {
 		const int nRow = findRowOf( pDeleteRowButton );
-		if ( nRow < 0 || nRow >= m_cachedEventMap.size() ) {
+		if ( nRow < 0 || nRow >= m_tableRows.size() ) {
+			ERRORLOG(
+				QString(
+					"Delete button associated with incorrect row [%1] [0,%2)"
+				)
+					.arg( nRow )
+					.arg( m_tableRows.size() )
+			);
 			return;
 		}
-		const auto pOldMidiEvent = m_cachedEventMap[nRow];
-		if ( pOldMidiEvent != nullptr ) {
-			long nEventIdRemove = Event::nInvalidId;
-			HydrogenApp::get_instance()->pushUndoCommand(
-				new SE_editMidiEventsAction(
-					nullptr, pOldMidiEvent, nullptr, &nEventIdRemove
-				)
-			);
-
-			if ( nEventIdRemove != Event::nInvalidId ) {
-				blacklistEventId( nEventIdRemove );
-			}
-		}
-		updateTable();
+		HydrogenApp::get_instance()->pushUndoCommand(
+			new SE_addOrRemoveMidiEventsAction(
+				nRow, m_tableRows[nRow].eventType,
+				m_tableRows[nRow].eventParameter, m_tableRows[nRow].pMidiAction,
+				false
+			)
+		);
 	} );
 	setCellWidget( nNewRow, 7, pDeleteRowButton );
 }
 
-void MidiActionTable::midiMapChangedEvent()
-{
-	updateTable();
-}
-
-void MidiActionTable::midiSensePressed( int nRow )
-{
-	m_nCurrentMidiAutosenseRow = nRow;
-	MidiSenseWidget midiSenseWidget( this );
-	midiSenseWidget.exec();
-	if ( midiSenseWidget.getLastMidiEvent() == MidiEvent::Type::Null ) {
-		// Rejected
-		return;
-	}
-
-	auto pEventComboBox = dynamic_cast<LCDCombo*>( cellWidget( nRow, 1 ) );
-	auto pEventSpinBox = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 2 ) );
-	if ( pEventComboBox == nullptr ) {
-		ERRORLOG( QString( "No event combobox in row [%1]" ).arg( nRow ) );
-		return;
-	}
-	if ( pEventSpinBox == nullptr ) {
-		ERRORLOG( QString( "No event spinner in row [%1]" ).arg( nRow ) );
-		return;
-	}
-
-	pEventComboBox->setCurrentIndex( pEventComboBox->findText(
-		MidiEvent::TypeToQString( midiSenseWidget.getLastMidiEvent() )
-	) );
-	pEventSpinBox->setValue(
-		static_cast<int>( midiSenseWidget.getLastMidiEventParameter() ),
-		Event::Trigger::Suppress
-	);
-
-	updateRow( nRow );
-	saveRow( nRow );
-}
-
-void MidiActionTable::updateRow( int nRow )
+void MidiActionTable::updateRowContent(
+	int nRow,
+	H2Core::MidiEvent::Type eventType,
+	H2Core::Midi::Parameter eventParameter,
+	std::shared_ptr<MidiAction> pMidiAction
+)
 {
 	auto pEventTypeComboBox = dynamic_cast<LCDCombo*>( cellWidget( nRow, 1 ) );
-	auto pEventParameterSpinBox =
-		dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 2 ) );
-	auto pActionTypeComboBox = dynamic_cast<LCDCombo*>( cellWidget( nRow, 3 ) );
-	auto pActionParameterSpinBox1 =
-		dynamic_cast<SpinBoxWithIcon*>( cellWidget( nRow, 4 ) );
-	auto pActionParameterSpinBox2 =
-		dynamic_cast<SpinBoxWithIcon*>( cellWidget( nRow, 5 ) );
-	auto pActionParameterSpinBox3 =
-		dynamic_cast<SpinBoxWithIcon*>( cellWidget( nRow, 6 ) );
-
-	MidiEvent::Type eventType = MidiEvent::Type::Null;
-	if ( !pEventTypeComboBox->currentText().isEmpty() ) {
-		eventType =
-			MidiEvent::QStringToType( pEventTypeComboBox->currentText() );
+	if ( pEventTypeComboBox != nullptr ) {
+		pEventTypeComboBox->setCurrentIndex( pEventTypeComboBox->findText(
+			MidiEvent::TypeToQString( eventType )
+		) );
 	}
-	pEventParameterSpinBox->setVisible(
-		eventType == MidiEvent::Type::CC || eventType == MidiEvent::Type::Note
-	);
-
-	MidiAction::Type actionType = MidiAction::Type::Null;
-	if ( !pActionTypeComboBox->currentText().isEmpty() ) {
-		actionType =
-			MidiAction::parseType( pActionTypeComboBox->currentText() );
-	}
-	updateActionParameters(
-		actionType, pActionParameterSpinBox1, pActionParameterSpinBox2,
-		pActionParameterSpinBox3
-	);
-}
-
-void MidiActionTable::updateRow( std::shared_ptr<MidiEvent> pEvent, int nRow )
-{
-	if ( pEvent == nullptr || pEvent->getMidiAction() == nullptr ) {
-		ERRORLOG( "Invalid event" );
-		return;
-	}
-	const auto pMidiAction = pEvent->getMidiAction();
-
-	auto pEventTypeComboBox = dynamic_cast<LCDCombo*>( cellWidget( nRow, 1 ) );
-	pEventTypeComboBox->setCurrentIndex( pEventTypeComboBox->findText(
-		MidiEvent::TypeToQString( pEvent->getType() )
-	) );
 
 	auto pEventParameterSpinBox =
 		dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 2 ) );
-	pEventParameterSpinBox->setValue(
-		static_cast<int>( pEvent->getParameter() ), Event::Trigger::Suppress
-	);
-	pEventParameterSpinBox->setVisible(
-		pEvent->getType() == MidiEvent::Type::CC ||
-		pEvent->getType() == MidiEvent::Type::Note
-	);
+	if ( pEventParameterSpinBox != nullptr ) {
+		pEventParameterSpinBox->setValue(
+			static_cast<int>( eventParameter ), Event::Trigger::Suppress
+		);
+		pEventParameterSpinBox->setVisible(
+			eventType == MidiEvent::Type::CC ||
+			eventType == MidiEvent::Type::Note
+		);
+	}
+
+	const auto actionType = pMidiAction != nullptr ? pMidiAction->getType()
+												   : MidiAction::Type::Null;
 
 	auto pActionTypeComboBox = dynamic_cast<LCDCombo*>( cellWidget( nRow, 3 ) );
-	pActionTypeComboBox->setCurrentIndex( pActionTypeComboBox->findText(
-		MidiAction::typeToQString( pMidiAction->getType() )
-	) );
+	if ( pActionTypeComboBox != nullptr ) {
+		pActionTypeComboBox->setCurrentIndex( pActionTypeComboBox->findText(
+			MidiAction::typeToQString( actionType )
+		) );
+	}
 
 	auto pActionParameterSpinBox1 =
 		dynamic_cast<SpinBoxWithIcon*>( cellWidget( nRow, 4 ) );
@@ -392,55 +518,167 @@ void MidiActionTable::updateRow( std::shared_ptr<MidiEvent> pEvent, int nRow )
 	auto pActionParameterSpinBox3 =
 		dynamic_cast<SpinBoxWithIcon*>( cellWidget( nRow, 6 ) );
 
-	const auto required =
-		MidiAction::requiresFromType( pMidiAction->getType() );
+	if ( pActionParameterSpinBox1 != nullptr &&
+		 pActionParameterSpinBox2 != nullptr &&
+		 pActionParameterSpinBox3 != nullptr ) {
+		const int nActionParameters = Hydrogen::get_instance()
+										  ->getMidiActionManager()
+										  ->getParameterNumber( actionType );
+		pActionParameterSpinBox1->setVisible( nActionParameters >= 1 );
+		pActionParameterSpinBox2->setVisible( nActionParameters >= 2 );
+		pActionParameterSpinBox3->setVisible( nActionParameters >= 3 );
 
-	if ( required & MidiAction::RequiresInstrument ) {
-		pActionParameterSpinBox1->m_pSpinBox->setValue(
-			pMidiAction->getInstrument(), Event::Trigger::Suppress
-		);
-	}
-	else if ( required & MidiAction::RequiresFactor ) {
-		pActionParameterSpinBox1->m_pSpinBox->setValue(
-			pMidiAction->getFactor(), Event::Trigger::Suppress
-		);
-	}
-	else if ( required & MidiAction::RequiresPattern ) {
-		pActionParameterSpinBox1->m_pSpinBox->setValue(
-			pMidiAction->getPattern(), Event::Trigger::Suppress
-		);
-	}
-	else if ( required & MidiAction::RequiresSong ) {
-		pActionParameterSpinBox1->m_pSpinBox->setValue(
-			pMidiAction->getSong(), Event::Trigger::Suppress
-		);
-	}
+		if ( actionType == MidiAction::Type::Null ) {
+			return;
+		}
+		const auto required = MidiAction::requiresFromType( actionType );
 
-	if ( required & MidiAction::RequiresComponent ) {
-		pActionParameterSpinBox2->m_pSpinBox->setValue(
-			pMidiAction->getComponent(), Event::Trigger::Suppress
-		);
-	}
-	else if ( required & MidiAction::RequiresFx ) {
-		pActionParameterSpinBox2->m_pSpinBox->setValue(
-			pMidiAction->getFx(), Event::Trigger::Suppress
-		);
-	}
+		if ( required & MidiAction::RequiresInstrument ) {
+			pActionParameterSpinBox1->m_pSpinBox->setValue(
+				pMidiAction->getInstrument(), Event::Trigger::Suppress
+			);
+		}
+		else if ( required & MidiAction::RequiresFactor ) {
+			pActionParameterSpinBox1->m_pSpinBox->setValue(
+				pMidiAction->getFactor(), Event::Trigger::Suppress
+			);
+		}
+		else if ( required & MidiAction::RequiresPattern ) {
+			pActionParameterSpinBox1->m_pSpinBox->setValue(
+				pMidiAction->getPattern(), Event::Trigger::Suppress
+			);
+		}
+		else if ( required & MidiAction::RequiresSong ) {
+			pActionParameterSpinBox1->m_pSpinBox->setValue(
+				pMidiAction->getSong(), Event::Trigger::Suppress
+			);
+		}
 
-	if ( required & MidiAction::RequiresLayer ) {
-		pActionParameterSpinBox3->m_pSpinBox->setValue(
-			pMidiAction->getLayer(), Event::Trigger::Suppress
-		);
-	}
+		if ( required & MidiAction::RequiresComponent ) {
+			pActionParameterSpinBox2->m_pSpinBox->setValue(
+				pMidiAction->getComponent(), Event::Trigger::Suppress
+			);
+		}
+		else if ( required & MidiAction::RequiresFx ) {
+			pActionParameterSpinBox2->m_pSpinBox->setValue(
+				pMidiAction->getFx(), Event::Trigger::Suppress
+			);
+		}
 
-	updateActionParameters(
-		pMidiAction->getType(), pActionParameterSpinBox1,
-		pActionParameterSpinBox2, pActionParameterSpinBox3
-	);
+		if ( required & MidiAction::RequiresLayer ) {
+			pActionParameterSpinBox3->m_pSpinBox->setValue(
+				pMidiAction->getLayer(), Event::Trigger::Suppress
+			);
+		}
+
+		QString sIconPath( Skin::getSvgImagePath() );
+		if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+			 InterfaceTheme::IconColor::White ) {
+			sIconPath.append( "/icons/white/" );
+		}
+		else {
+			sIconPath.append( "/icons/black/" );
+		}
+
+		if ( required & MidiAction::RequiresInstrument ) {
+			pActionParameterSpinBox1->m_pButton->setText( "" );
+			pActionParameterSpinBox1->m_pButton->setIcon(
+				QIcon( sIconPath + "drum.svg" )
+			);
+		}
+		else if ( required & MidiAction::RequiresFactor ) {
+			pActionParameterSpinBox1->m_pButton->setIcon( QIcon() );
+			pActionParameterSpinBox1->m_pButton->setText(
+				QString::fromUtf8( "\u00d7" )
+			);
+		}
+		else if ( required & MidiAction::RequiresPattern ) {
+			pActionParameterSpinBox1->m_pButton->setText( "" );
+			pActionParameterSpinBox1->m_pButton->setIcon(
+				QIcon( sIconPath + "pattern-editor.svg" )
+			);
+		}
+		else if ( required & MidiAction::RequiresSong ) {
+			pActionParameterSpinBox1->m_pButton->setText( "" );
+			pActionParameterSpinBox1->m_pButton->setIcon(
+				QIcon( sIconPath + "song-editor.svg" )
+			);
+		}
+
+		if ( required & MidiAction::RequiresComponent ) {
+			pActionParameterSpinBox2->m_pButton->setText( "" );
+			pActionParameterSpinBox2->m_pButton->setIcon(
+				QIcon( sIconPath + "component-editor.svg" )
+			);
+		}
+		else if ( required & MidiAction::RequiresFx ) {
+			pActionParameterSpinBox2->m_pButton->setIcon( QIcon() );
+			pActionParameterSpinBox2->m_pButton->setText( "Fx" );
+		}
+
+		if ( required & MidiAction::RequiresLayer ) {
+			pActionParameterSpinBox3->m_pButton->setIcon(
+				QIcon( sIconPath + "sample-editor.svg" )
+			);
+		}
+	}
 }
 
-void MidiActionTable::saveRow( int nRow )
+void MidiActionTable::updateRowVisibility( int nRow )
 {
+	if ( nRow < 0 || nRow >= m_tableRows.size() ) {
+		ERRORLOG( QString( "Row [%1] out of bounds [0,%2)" )
+					  .arg( nRow )
+					  .arg( m_tableRows.size() ) );
+		return;
+	}
+
+	auto pEventParameterSpinBox =
+		dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 2 ) );
+	if ( pEventParameterSpinBox != nullptr ) {
+		pEventParameterSpinBox->setVisible(
+			m_tableRows[nRow].eventType == MidiEvent::Type::CC ||
+			m_tableRows[nRow].eventType == MidiEvent::Type::Note
+		);
+	}
+
+	const auto actionType = m_tableRows[nRow].pMidiAction != nullptr
+								? m_tableRows[nRow].pMidiAction->getType()
+								: MidiAction::Type::Null;
+
+	auto pActionParameterSpinBox1 =
+		dynamic_cast<SpinBoxWithIcon*>( cellWidget( nRow, 4 ) );
+	auto pActionParameterSpinBox2 =
+		dynamic_cast<SpinBoxWithIcon*>( cellWidget( nRow, 5 ) );
+	auto pActionParameterSpinBox3 =
+		dynamic_cast<SpinBoxWithIcon*>( cellWidget( nRow, 6 ) );
+
+	const int nActionParameters =
+		Hydrogen::get_instance()->getMidiActionManager()->getParameterNumber(
+			actionType
+		);
+	if ( pActionParameterSpinBox1 != nullptr &&
+		 pActionParameterSpinBox2 != nullptr &&
+		 pActionParameterSpinBox3 != nullptr ) {
+		pActionParameterSpinBox1->setVisible( nActionParameters >= 1 );
+		pActionParameterSpinBox2->setVisible( nActionParameters >= 2 );
+		pActionParameterSpinBox3->setVisible( nActionParameters >= 3 );
+	}
+}
+
+void MidiActionTable::writeBackRow( int nRow )
+{
+	if ( nRow < 0 || nRow >= m_tableRows.size() ) {
+		ERRORLOG( QString( "Row [%1] out of bounds [0,%2)" )
+					  .arg( nRow )
+					  .arg( m_tableRows.size() ) );
+		return;
+	}
+
+	// Used to define a macro combining all undo events of a single widget
+	// within this row.
+	QString sChange;
+
 	auto pEventTypeComboBox = dynamic_cast<LCDCombo*>( cellWidget( nRow, 1 ) );
 	auto pEventParameterSpinBox =
 		dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 2 ) );
@@ -462,155 +700,106 @@ void MidiActionTable::saveRow( int nRow )
 
 	MidiEvent::Type eventType = MidiEvent::Type::Null;
 	Midi::Parameter eventParameter = Midi::ParameterInvalid;
-	std::shared_ptr<MidiAction> pNewMidiAction;
-	std::shared_ptr<MidiEvent> pNewMidiEvent;
-	if ( !pEventTypeComboBox->currentText().isEmpty() &&
-		 !pActionTypeComboBox->currentText().isEmpty() ) {
+	if ( !pEventTypeComboBox->currentText().isEmpty() ) {
 		eventType =
 			MidiEvent::QStringToType( pEventTypeComboBox->currentText() );
 		eventParameter =
 			Midi::parameterFromIntClamp( pEventParameterSpinBox->value() );
 
+		if ( eventType != m_tableRows[nRow].eventType ) {
+			sChange = "EventType";
+		}
+		else if ( eventParameter != m_tableRows[nRow].eventParameter ) {
+			sChange = "EventParameter";
+		}
+	}
+
+	std::shared_ptr<MidiAction> pMidiAction;
+	if ( !pActionTypeComboBox->currentText().isEmpty() ) {
 		const auto actionType =
 			MidiAction::parseType( pActionTypeComboBox->currentText() );
-		pNewMidiAction = std::make_shared<MidiAction>( actionType );
+		pMidiAction = std::make_shared<MidiAction>( actionType );
+
+		const auto previsousActionType =
+			m_tableRows[nRow].pMidiAction != nullptr
+				? m_tableRows[nRow].pMidiAction->getType()
+				: MidiAction::Type::Null;
+		if ( actionType != previsousActionType ) {
+			sChange = "ActionType";
+		}
 
 		const auto required = MidiAction::requiresFromType( actionType );
 
 		if ( required & MidiAction::RequiresInstrument ) {
-			pNewMidiAction->setInstrument(
+			pMidiAction->setInstrument(
 				pActionParameterSpinBox1->m_pSpinBox->value()
 			);
 		}
 		else if ( required & MidiAction::RequiresFactor ) {
-			pNewMidiAction->setFactor(
-				pActionParameterSpinBox1->m_pSpinBox->value()
-			);
+			pMidiAction->setFactor( pActionParameterSpinBox1->m_pSpinBox->value(
+			) );
 		}
 		else if ( required & MidiAction::RequiresPattern ) {
-			pNewMidiAction->setPattern(
+			pMidiAction->setPattern(
 				pActionParameterSpinBox1->m_pSpinBox->value()
 			);
 		}
 		else if ( required & MidiAction::RequiresSong ) {
-			pNewMidiAction->setSong(
-				pActionParameterSpinBox1->m_pSpinBox->value()
+			pMidiAction->setSong( pActionParameterSpinBox1->m_pSpinBox->value()
 			);
 		}
 
 		if ( required & MidiAction::RequiresComponent ) {
-			pNewMidiAction->setComponent(
+			pMidiAction->setComponent(
 				pActionParameterSpinBox2->m_pSpinBox->value()
 			);
 		}
 		else if ( required & MidiAction::RequiresFx ) {
-			pNewMidiAction->setFx( pActionParameterSpinBox2->m_pSpinBox->value()
-			);
+			pMidiAction->setFx( pActionParameterSpinBox2->m_pSpinBox->value() );
 		}
 
 		if ( required & MidiAction::RequiresLayer ) {
-			pNewMidiAction->setLayer(
-				pActionParameterSpinBox3->m_pSpinBox->value()
+			pMidiAction->setLayer( pActionParameterSpinBox3->m_pSpinBox->value()
 			);
 		}
 
-		if ( eventType != MidiEvent::Type::Null &&
-			 pNewMidiAction->getType() != MidiAction::Type::Null ) {
-			pNewMidiEvent = std::make_shared<MidiEvent>();
-			pNewMidiEvent->setType( eventType );
-			pNewMidiEvent->setParameter( eventParameter );
-			pNewMidiEvent->setMidiAction( pNewMidiAction );
+		if ( sChange.isEmpty() && m_tableRows[nRow].pMidiAction != nullptr ) {
+			QString sParameter1, sParameter2, sParameter3;
+			m_tableRows[nRow].pMidiAction->toQStrings(
+				&sParameter1, &sParameter2, &sParameter3
+			);
+			if ( sParameter1 !=
+				 QString::number( pActionParameterSpinBox1->m_pSpinBox->value()
+				 ) ) {
+				sChange = "ActionParameter1";
+			}
+			else if ( sParameter2 !=
+					  QString::number(
+						  pActionParameterSpinBox2->m_pSpinBox->value()
+					  ) ) {
+				sChange = "ActionParameter2";
+			}
+			else if ( sParameter3 !=
+					  QString::number(
+						  pActionParameterSpinBox3->m_pSpinBox->value()
+					  ) ) {
+				sChange = "ActionParameter3";
+			}
 		}
 	}
 
-	if ( nRow < 0 || nRow >= m_cachedEventMap.size() ) {
-		return;
-	}
+	const QString sContext = QString( "MidiActionTable::writeBackRow::%1::%2" )
+								 .arg( nRow )
+								 .arg( sChange );
 
-	const auto pOldMidiEvent = m_cachedEventMap[nRow];
-
-	m_cachedEventMap[nRow] = pNewMidiEvent;
-
-	long nEventIdAdd = Event::nInvalidId;
-	long nEventIdRemove = Event::nInvalidId;
 	HydrogenApp::get_instance()->pushUndoCommand(
-		new SE_editMidiEventsAction(
-			pNewMidiEvent, pOldMidiEvent, &nEventIdAdd, &nEventIdRemove
+		new SE_replaceMidiEventsAction(
+			nRow, eventType, m_tableRows[nRow].eventType, eventParameter,
+			m_tableRows[nRow].eventParameter, pMidiAction,
+			m_tableRows[nRow].pMidiAction
 		),
-		QString( "MidiActionTable::%1" ).arg( nRow )
+		sContext
 	);
-
-	if ( nEventIdAdd != Event::nInvalidId ) {
-		blacklistEventId( nEventIdAdd );
-	}
-	if ( nEventIdRemove != Event::nInvalidId ) {
-		blacklistEventId( nEventIdRemove );
-	}
-}
-
-void MidiActionTable::updateActionParameters(
-	MidiAction::Type type,
-	SpinBoxWithIcon* pSpinBox1,
-	SpinBoxWithIcon* pSpinBox2,
-	SpinBoxWithIcon* pSpinBox3
-)
-{
-	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
-		 InterfaceTheme::IconColor::White ) {
-		sIconPath.append( "/icons/white/" );
-	}
-	else {
-		sIconPath.append( "/icons/black/" );
-	}
-
-	const int nActionParameters =
-		Hydrogen::get_instance()->getMidiActionManager()->getParameterNumber(
-			type
-		);
-	pSpinBox1->setVisible( nActionParameters >= 1 );
-	pSpinBox2->setVisible( nActionParameters >= 2 );
-	pSpinBox3->setVisible( nActionParameters >= 3 );
-
-	if ( nActionParameters < 1 ) {
-		return;
-	}
-
-	const auto required = MidiAction::requiresFromType( type );
-
-	if ( required & MidiAction::RequiresInstrument ) {
-		pSpinBox1->m_pButton->setText( "" );
-		pSpinBox1->m_pButton->setIcon( QIcon( sIconPath + "drum.svg" ) );
-	}
-	else if ( required & MidiAction::RequiresFactor ) {
-		pSpinBox1->m_pButton->setIcon( QIcon() );
-		pSpinBox1->m_pButton->setText( QString::fromUtf8( "\u00d7" ) );
-	}
-	else if ( required & MidiAction::RequiresPattern ) {
-		pSpinBox1->m_pButton->setText( "" );
-		pSpinBox1->m_pButton->setIcon( QIcon( sIconPath + "pattern-editor.svg" )
-		);
-	}
-	else if ( required & MidiAction::RequiresSong ) {
-		pSpinBox1->m_pButton->setText( "" );
-		pSpinBox1->m_pButton->setIcon( QIcon( sIconPath + "song-editor.svg" ) );
-	}
-
-	if ( required & MidiAction::RequiresComponent ) {
-		pSpinBox2->m_pButton->setText( "" );
-		pSpinBox2->m_pButton->setIcon(
-			QIcon( sIconPath + "component-editor.svg" )
-		);
-	}
-	else if ( required & MidiAction::RequiresFx ) {
-		pSpinBox2->m_pButton->setIcon( QIcon() );
-		pSpinBox2->m_pButton->setText( "Fx" );
-	}
-
-	if ( required & MidiAction::RequiresLayer ) {
-		pSpinBox3->m_pButton->setIcon( QIcon( sIconPath + "sample-editor.svg" )
-		);
-	}
 }
 
 int MidiActionTable::findRowOf( QWidget* pWidget ) const
@@ -636,8 +825,9 @@ int MidiActionTable::findRowOf( QWidget* pWidget ) const
 void MidiActionTable::paintEvent( QPaintEvent* ev )
 {
 	QTableWidget::paintEvent( ev );
+
 	for ( int nnRow = 0; nnRow < rowCount(); ++nnRow ) {
-		updateRow( nnRow );
+		updateRowVisibility( nnRow );
 	}
 }
 

@@ -50,6 +50,9 @@
 #include "HydrogenApp.h"
 #include "Rack/ComponentEditor/ComponentEditor.h"
 #include "MainForm.h"
+#include "MainToolBar/MainToolBar.h"
+#include "MainToolBar/MidiActionTable.h"
+#include "MainToolBar/MidiControlDialog.h"
 #include "PatternEditor/NotePropertiesRuler.h"
 #include "PatternEditor/DrumPatternEditor.h"
 #include "PatternEditor/PatternEditorPanel.h"
@@ -1238,68 +1241,115 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class SE_editMidiEventsAction : public QUndoCommand {
+class SE_addOrRemoveMidiEventsAction : public QUndoCommand {
    public:
-	SE_editMidiEventsAction(
-		std::shared_ptr<H2Core::MidiEvent> pNewEvent,
-		std::shared_ptr<H2Core::MidiEvent> pOldEvent,
-		long* pEventIdAdd,
-		long* pEventIdRemove
+	SE_addOrRemoveMidiEventsAction(
+		int nRow,
+		H2Core::MidiEvent::Type eventType,
+		H2Core::Midi::Parameter eventParameter,
+		std::shared_ptr<MidiAction> pMidiAction,
+		bool bAdd
 	)
-		: m_pNewEvent( pNewEvent ),
-		  m_pOldEvent( pOldEvent ),
-		  m_pEventIdAdd( pEventIdAdd ),
-		  m_pEventIdRemove( pEventIdRemove )
+		: m_nRow( nRow ),
+		  m_eventType( eventType ),
+		  m_eventParameter( eventParameter ),
+		  m_pMidiAction( pMidiAction ),
+		  m_bAdd( bAdd )
 	{
-		setText( QObject::tr( "Change an entry in the MIDI Action Table" ) );
+		setText( QObject::tr( "Add or remove an entry in the MIDI Action Table"
+		) );
 	}
 
 	virtual void redo()
 	{
-		auto pMidiEventMap =
-			H2Core::Preferences::get_instance()->getMidiEventMap();
-		if ( m_pOldEvent != nullptr ) {
-			pMidiEventMap->removeRegisteredEvent(
-				m_pOldEvent->getType(), m_pOldEvent->getParameter(),
-				m_pOldEvent->getMidiAction(), m_pEventIdRemove
+		auto pMidiActionTable = HydrogenApp::get_instance()
+									->getMainToolBar()
+									->getMidiControlDialog()
+									->getMidiActionTable();
+		if ( m_bAdd ) {
+			pMidiActionTable->insertRow(
+				m_nRow, m_eventType, m_eventParameter, m_pMidiAction
 			);
 		}
-		if ( m_pNewEvent != nullptr ) {
-			pMidiEventMap->registerEvent(
-				m_pNewEvent->getType(), m_pNewEvent->getParameter(),
-				m_pNewEvent->getMidiAction(), m_pEventIdAdd
-			);
+		else {
+			pMidiActionTable->removeRow( m_nRow );
 		}
-
-		// We only use this pointer for blacklisting an event of the EventQueue
-		// once.
-		m_pEventIdAdd = nullptr;
-		m_pEventIdRemove = nullptr;
 	}
-
 	virtual void undo()
 	{
-		auto pMidiEventMap =
-			H2Core::Preferences::get_instance()->getMidiEventMap();
-		if ( m_pNewEvent != nullptr ) {
-			pMidiEventMap->removeRegisteredEvent(
-				m_pNewEvent->getType(), m_pNewEvent->getParameter(),
-				m_pNewEvent->getMidiAction(), nullptr
+		auto pMidiActionTable = HydrogenApp::get_instance()
+									->getMainToolBar()
+									->getMidiControlDialog()
+									->getMidiActionTable();
+		if ( !m_bAdd ) {
+			pMidiActionTable->insertRow(
+				m_nRow, m_eventType, m_eventParameter, m_pMidiAction
 			);
 		}
-		if ( m_pOldEvent != nullptr ) {
-			pMidiEventMap->registerEvent(
-				m_pOldEvent->getType(), m_pOldEvent->getParameter(),
-				m_pOldEvent->getMidiAction(), nullptr
-			);
+		else {
+			pMidiActionTable->removeRow( m_nRow );
 		}
 	}
 
    private:
-	std::shared_ptr<H2Core::MidiEvent> m_pNewEvent;
-	std::shared_ptr<H2Core::MidiEvent> m_pOldEvent;
-	long* m_pEventIdAdd;
-	long* m_pEventIdRemove;
+	int m_nRow;
+	H2Core::MidiEvent::Type m_eventType;
+	H2Core::Midi::Parameter m_eventParameter;
+	std::shared_ptr<MidiAction> m_pMidiAction;
+	bool m_bAdd;
 };
 
-#endif // UNDOACTIONS_H
+class SE_replaceMidiEventsAction : public QUndoCommand {
+   public:
+	SE_replaceMidiEventsAction(
+		int nRow,
+		H2Core::MidiEvent::Type newEventType,
+		H2Core::MidiEvent::Type oldEventType,
+		H2Core::Midi::Parameter newEventParameter,
+		H2Core::Midi::Parameter oldEventParameter,
+		std::shared_ptr<MidiAction> pNewMidiAction,
+		std::shared_ptr<MidiAction> pOldMidiAction
+	)
+		: m_nRow( nRow ),
+		  m_newEventType( newEventType ),
+		  m_oldEventType( oldEventType ),
+		  m_newEventParameter( newEventParameter ),
+		  m_oldEventParameter( oldEventParameter ),
+		  m_pNewMidiAction( pNewMidiAction ),
+		  m_pOldMidiAction( pOldMidiAction )
+	{
+		setText( QObject::tr( "Replace an entry in the MIDI Action Table" ) );
+	}
+
+	virtual void redo()
+	{
+		HydrogenApp::get_instance()
+			->getMainToolBar()
+			->getMidiControlDialog()
+			->getMidiActionTable()
+			->replaceRow(
+				m_nRow, m_newEventType, m_newEventParameter, m_pNewMidiAction
+			);
+	}
+	virtual void undo()
+	{
+		HydrogenApp::get_instance()
+			->getMainToolBar()
+			->getMidiControlDialog()
+			->getMidiActionTable()
+			->replaceRow(
+				m_nRow, m_oldEventType, m_oldEventParameter, m_pOldMidiAction
+			);
+	}
+
+   private:
+	int m_nRow;
+	H2Core::MidiEvent::Type m_newEventType;
+	H2Core::MidiEvent::Type m_oldEventType;
+	H2Core::Midi::Parameter m_newEventParameter;
+	H2Core::Midi::Parameter m_oldEventParameter;
+	std::shared_ptr<MidiAction> m_pNewMidiAction;
+	std::shared_ptr<MidiAction> m_pOldMidiAction;
+};
+
+#endif	// UNDOACTIONS_H

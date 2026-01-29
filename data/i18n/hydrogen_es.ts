@@ -3105,6 +3105,11 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <source>press to delete row</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Remove all binding for MIDI action</source>
+        <extracomment>Label for entry within the undo/redo history. The name of the action * will be appended after an additional white space.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MidiControlDialog</name>
@@ -4753,7 +4758,11 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Change an entry in the MIDI Action Table</source>
+        <source>Add or remove an entry in the MIDI Action Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace an entry in the MIDI Action Table</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

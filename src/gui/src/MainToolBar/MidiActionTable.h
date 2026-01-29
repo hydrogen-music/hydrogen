@@ -27,6 +27,7 @@
 
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiAction.h>
+#include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
 
 #include <QtGui>
@@ -36,10 +37,6 @@
 #include "Widgets/LCDSpinBox.h"
 
 class Button;
-
-namespace H2Core {
-class MidiEvent;
-}
 
 class SpinBoxWithIcon : public QWidget {
    public:
@@ -68,11 +65,31 @@ class MidiActionTable : public QTableWidget,
 	explicit MidiActionTable( QWidget* pParent );
 	~MidiActionTable();
 
-	/** Recreates the table based on the #H2Core::MidiEventMap stored within
-	 * #H2Core::Preferences. Local changes will be discarded. */
-	void updateTable();
+	/** Should only used in very rare occassions when the underlying data is
+	 * change. E.g. when loading a different Preferences file during
+	 * runtime. */
+	void resetTable();
 
-	void appendNewRow();
+	/** Redo/undo interface.
+	 *
+	 * @param nRow a value of -1 makes the function append the new row.
+	 * @{ */
+	void insertRow(
+		int nRow,
+		H2Core::MidiEvent::Type eventType,
+		H2Core::Midi::Parameter eventParameter,
+		std::shared_ptr<MidiAction> pMidiAction
+	);
+	void removeRow( int nRow );
+	void replaceRow(
+		int nRow,
+		H2Core::MidiEvent::Type eventType,
+		H2Core::Midi::Parameter eventParameter,
+		std::shared_ptr<MidiAction> pMidiAction
+	);
+	/** @} */
+
+	void removeRegisteredEvents( std::shared_ptr<MidiAction> pMidiAction );
 
 	// EventListerer
 	void midiMapChangedEvent() override;
@@ -81,33 +98,49 @@ class MidiActionTable : public QTableWidget,
 	void midiSensePressed( int );
 
    private:
-	/** Update the row based on its widgets. This focusses on the combo box
-	 * holding the types for both #H2Core::MidiAction and #H2Core::MidiEvent.
-	 * Different types require different parameter spin boxes. */
-	void updateRow( int nRow );
+	/** Reflects the options the user can set within one row of the table. */
+	struct RowContent {
+		H2Core::MidiEvent::Type eventType;
+		H2Core::Midi::Parameter eventParameter;
+		std::shared_ptr<MidiAction> pMidiAction;
+	};
 
-	/** Update the row based on external data provided via #a pEvent. */
-	void updateRow( std::shared_ptr<H2Core::MidiEvent> pEvent, int nRow );
+	void appendEmptyRow();
 
-	/** Replaces the #H2Core::MidiEvent associated with @n nRow in
-	 * #H2Core::MidiEventMap with the values hold by the row's widgets. */
-	void saveRow( int nRow );
-
-	void updateActionParameters(
-		MidiAction::Type type,
-		SpinBoxWithIcon* pSpinBox1,
-		SpinBoxWithIcon* pSpinBox2,
-		SpinBoxWithIcon* pSpinBox3
+	void updateRowContent(
+		int nRow,
+		H2Core::MidiEvent::Type eventType,
+		H2Core::Midi::Parameter eventParameter,
+		std::shared_ptr<MidiAction> pMidiAction
 	);
+	/** We can not use updateRowContent() in paintEvent() because the former
+	 * does trigger a redraw itself. */
+	void updateRowVisibility( int nRow );
+
+	/** Writes back changes in the visual representation of the row (current
+	 * values of all widgets) into #m_tableRows via redo/undo routines. */
+	void writeBackRow( int nRow );
 
 	int findRowOf( QWidget* pWidget ) const;
 
 	virtual void paintEvent( QPaintEvent* ev ) override;
 
-	int m_nCurrentMidiAutosenseRow;
-
-	/** Maps a row to the corresponding #H2Core::MidiEvent. */
-	std::map<int, std::shared_ptr<H2Core::MidiEvent>> m_cachedEventMap;
+	/** Instead of using #H2Core::MidiEventMap as single source of truth, we
+	 * duplicates its content and using this member as a middleware between the
+	 * data written to/loader from disk and the content presented in the table.
+	 *
+	 * This way we combine two advantages (while suffering from more
+	 * complexity):
+	 *
+	 * - We do not have to worry about "nullptr" being stored and loaded from
+	 *   disk as well as ensuring backward compatibility.
+	 * - We do not have to deal with glitches and reordering in the user-facing
+	 *   table. E.g. when having multiple "empty" lines not written to
+	 *   #H2Core::MidiEventMap dealing with a delete operation for a row would
+	 *   be a non-trivial task.
+	 *
+	 * Each element of the vector represents a row of the table. */
+	std::vector<RowContent> m_tableRows;
 
 	QStringList m_availableActions;
 };
