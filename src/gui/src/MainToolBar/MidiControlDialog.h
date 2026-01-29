@@ -63,6 +63,8 @@ class MidiControlDialog : public QDialog,
 	explicit MidiControlDialog( QWidget* pParent );
 	~MidiControlDialog();
 
+	MidiActionTable* getMidiActionTable() const;
+
 	// EventListerer
 	void drumkitLoadedEvent() override;
 	void instrumentParametersChangedEvent( int ) override;
@@ -138,5 +140,10 @@ class MidiControlDialog : public QDialog,
 		std::shared_ptr<H2Core::Instrument> >
 		m_instrumentMap;
 };
+
+inline MidiActionTable* MidiControlDialog::getMidiActionTable() const
+{
+	return m_pMidiActionTable;
+}
 
 #endif
