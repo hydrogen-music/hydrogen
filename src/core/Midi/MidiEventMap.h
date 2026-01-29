@@ -82,8 +82,7 @@ public:
 	std::vector<std::pair<MidiEvent::Type, Midi::Parameter>>
 	getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction ) const;
 
-	bool removeRegisteredEvents( std::shared_ptr<MidiAction> pAction );
-	bool removeRegisteredEvent(
+	void removeRegisteredEvent(
 		const MidiEvent::Type&,
 		Midi::Parameter parameter,
 		std::shared_ptr<MidiAction> pAction,

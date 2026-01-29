@@ -435,32 +435,7 @@ MidiEventMap::getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction
 	return midiEvents;
 }
 
-bool MidiEventMap::removeRegisteredEvents( std::shared_ptr<MidiAction> pAction )
-{
-	QMutexLocker mx( &__mutex );
-
-	bool bModified = false;
-	for ( auto it = m_events.begin(); it != m_events.end(); ) {
-		if ( *it != nullptr && ( *it )->getMidiAction() != nullptr &&
-			 ( *it )->getMidiAction()->isEquivalentTo( pAction ) ) {
-			m_events.erase( it );
-			bModified = true;
-		}
-		else {
-			++it;
-		}
-	}
-
-	if ( bModified ) {
-		EventQueue::get_instance()->pushEvent(
-			Event::Type::MidiEventMapChanged, 0
-		);
-	}
-
-	return bModified;
-}
-
-bool MidiEventMap::removeRegisteredEvent(
+void MidiEventMap::removeRegisteredEvent(
 	const MidiEvent::Type& type,
 	Midi::Parameter parameter,
 	std::shared_ptr<MidiAction> pAction,
@@ -468,7 +443,7 @@ bool MidiEventMap::removeRegisteredEvent(
 )
 {
 	if ( pAction == nullptr ) {
-        return false;
+        return;
 	}
 
 	if ( pEventId != nullptr ) {
@@ -501,8 +476,6 @@ bool MidiEventMap::removeRegisteredEvent(
 			*pEventId = nId;
 		}
 	}
-
-	return bModified;
 }
 
 QString MidiEventMap::toQString( const QString& sPrefix, bool bShort ) const
