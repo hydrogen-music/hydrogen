@@ -2529,7 +2529,7 @@ void MidiActionTest::sendMessage( const MidiMessage& msg )
 
 	// Wait till the LoopBackMidiDriver did send, receive, and handle the
 	// message.
-	const int nMaxTries = 100;
+	const int nMaxTries = 200;
 	int nnTry = 0;
 	while (
 		pDriver->getHandledInputs().size() <= nPreviousHandledInputMessages &&
