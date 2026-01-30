@@ -286,6 +286,10 @@ CommonStrings::CommonStrings(){
 	/*: Combo or spin box item - e.g. used in the Settings tab of the
 	 *  MidiControl - indicating that every option is permissible. */
 	m_sAllLabel = tr( "All" );
+	/*: Used as spin box item - in Midi Action table of the MidiControl -
+	 *  indicating that an action is associated with the currently selected
+	 *  instrument. Designed to hold about 7 characters. */
+	m_sCurrentlySelectedLabel = tr( "Select." );
 
 	/*: Displayed in the tooltip of input widgets. Indicates the
 	  allowed values from minimum to maximum.*/

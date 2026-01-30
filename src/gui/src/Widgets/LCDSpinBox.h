@@ -84,9 +84,12 @@ public:
 		 * channels will be accepted once the value is equal to
 		 * #Midi::ChannelAll */
 		MinusOneAsAll = 0x008,
-        /** Assume the provided integer represents a MIDI note and display the
-         * cooresponding name next to it. */
-        ShowMidiNote = 0x010
+		/** Assume the provided integer represents a MIDI note and display the
+		 * cooresponding name next to it. */
+		ShowMidiNote = 0x010,
+		/** Used to indicate that the selected value is associated to the
+		 * currently selected instrument. */
+		MinusOneAsCurrentlySelected = 0x020
 	};
 
 	LCDSpinBox( QWidget *pParent, QSize size = QSize(), Type type = Type::Int,
