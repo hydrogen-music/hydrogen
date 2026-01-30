@@ -176,7 +176,6 @@ void LoopBackMidiDriver::messageHandler( void* pInstance ) {
 			pDriver->m_backlogQueue.push_back( MidiMessage( midiMessage ) );
 			pDriver->enqueueInputMessage( MidiMessage::from( midiMessage ) );
 			pDriver->m_messageQueue.pop_front();
-            DEBUGLOG( QString( "sending message [%1]" ).arg( midiMessage.toQString() ) );
 
 			if ( pDriver->m_backlogQueue.size() >
 				 LoopBackMidiDriver::nBacklogSize ) {
@@ -191,8 +190,6 @@ void LoopBackMidiDriver::enqueueMessage( const MidiMessage& msg ) {
 		return;
 	}
 
-    DEBUGLOG( QString( "Receiving message [%1]" ).arg( msg.toQString() ) );
-
     std::scoped_lock lock{ m_messageHandlerMutex };
 
 	m_messageQueue.push_back( msg );
@@ -203,7 +200,6 @@ void LoopBackMidiDriver::enqueueMessage( const MidiMessage& msg ) {
 	}
 
 	m_messageHandlerCV.notify_all();
-    DEBUGLOG( QString( "DONE message [%1]" ).arg( msg.toQString() ) );
 }
 
 };
