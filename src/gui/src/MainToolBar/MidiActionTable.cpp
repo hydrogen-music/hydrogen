@@ -204,7 +204,18 @@ void MidiActionTable::removeRow( int nRow )
 		}
 	}
 
+    m_tableRows.erase( m_tableRows.begin() + nRow );
+
 	QTableWidget::removeRow( nRow );
+
+	// Update the content of the entire table since we remote an arbitrary row.
+	int nIndex = 0;
+	for ( const auto& rrow : m_tableRows ) {
+		updateRowContent(
+			nIndex, rrow.eventType, rrow.eventParameter, rrow.pMidiAction
+		);
+		++nIndex;
+	}
 }
 
 void MidiActionTable::replaceRow(
