@@ -24,13 +24,15 @@
 
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
+#include "../MainToolBar/MainToolBar.h"
+#include "../MainToolBar/MidiActionTable.h"
+#include "../MainToolBar/MidiControlDialog.h"
 #include "../Skin.h"
-#include "core/Midi/Midi.h"
+#include "../UndoActions.h"
 
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiAction.h>
-#include <core/Midi/MidiEvent.h>
 #include <core/Midi/MidiEventMap.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
@@ -91,9 +93,11 @@ MidiSenseWidget::MidiSenseWidget(
 	m_pClearButton->setIconSize( QSize( 26, 26 ) );
 	m_pClearButton->setCheckable( false );
 	connect( m_pClearButton, &QToolButton::clicked, [&]() {
-		H2Core::Preferences::get_instance()
-			->getMidiEventMap()
-			->removeRegisteredMidiEvents( pAction );
+		HydrogenApp::get_instance()
+			->getMainToolBar()
+			->getMidiControlDialog()
+			->getMidiActionTable()
+			->removeRegisteredEvents( pAction );
 		updateLabels();
 	} );
 	QString sIconPath( Skin::getSvgImagePath() );
@@ -106,6 +110,7 @@ MidiSenseWidget::MidiSenseWidget(
 		sIconPath.append( "/icons/black/" );
 	}
 	m_pClearButton->setIcon( QIcon( sIconPath + "bin.svg" ) );
+    m_pClearButton->setVisible( bDirectWrite );
 	pContainerLayout->addWidget( m_pClearButton );
 
 	m_pTextLabel = new QLabel( pContainerWidget );
@@ -154,14 +159,10 @@ void MidiSenseWidget::updateMidi()
 			assert( m_pAction );
 
 			auto pAction = std::make_shared<MidiAction>( m_pAction );
-			pAction->setValue( "0" );
-
-			pMidiEventMap->registerEvent(
-				m_lastMidiEvent, m_lastMidiEventParameter, pAction
-			);
-
-			H2Core::EventQueue::get_instance()->pushEvent(
-				H2Core::Event::Type::MidiEventMapChanged, 0
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_addOrRemoveMidiEventsAction(
+					-1, m_lastMidiEvent, m_lastMidiEventParameter, pAction, true
+				)
 			);
 		}
 

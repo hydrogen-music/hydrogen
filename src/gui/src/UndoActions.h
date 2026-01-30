@@ -42,11 +42,17 @@
 #include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/License.h>
+#include <core/Midi/MidiEvent.h>
+#include <core/Midi/MidiEventMap.h>
+#include <core/Preferences/Preferences.h>
 
 #include "CommonStrings.h"
 #include "HydrogenApp.h"
 #include "Rack/ComponentEditor/ComponentEditor.h"
 #include "MainForm.h"
+#include "MainToolBar/MainToolBar.h"
+#include "MainToolBar/MidiActionTable.h"
+#include "MainToolBar/MidiControlDialog.h"
 #include "PatternEditor/NotePropertiesRuler.h"
 #include "PatternEditor/DrumPatternEditor.h"
 #include "PatternEditor/PatternEditorPanel.h"
@@ -1233,6 +1239,117 @@ private:
 	std::shared_ptr<H2Core::Playlist> m_pOldPlaylist;
 };
 
+////////////////////////////////////////////////////////////////////////////////
 
+class SE_addOrRemoveMidiEventsAction : public QUndoCommand {
+   public:
+	SE_addOrRemoveMidiEventsAction(
+		int nRow,
+		H2Core::MidiEvent::Type eventType,
+		H2Core::Midi::Parameter eventParameter,
+		std::shared_ptr<MidiAction> pMidiAction,
+		bool bAdd
+	)
+		: m_nRow( nRow ),
+		  m_eventType( eventType ),
+		  m_eventParameter( eventParameter ),
+		  m_pMidiAction( pMidiAction ),
+		  m_bAdd( bAdd )
+	{
+		setText( QObject::tr( "Add or remove an entry in the MIDI Action Table"
+		) );
+	}
 
-#endif // UNDOACTIONS_H
+	virtual void redo()
+	{
+		auto pMidiActionTable = HydrogenApp::get_instance()
+									->getMainToolBar()
+									->getMidiControlDialog()
+									->getMidiActionTable();
+		if ( m_bAdd ) {
+			pMidiActionTable->insertRow(
+				m_nRow, m_eventType, m_eventParameter, m_pMidiAction
+			);
+		}
+		else {
+			pMidiActionTable->removeRow( m_nRow );
+		}
+	}
+	virtual void undo()
+	{
+		auto pMidiActionTable = HydrogenApp::get_instance()
+									->getMainToolBar()
+									->getMidiControlDialog()
+									->getMidiActionTable();
+		if ( !m_bAdd ) {
+			pMidiActionTable->insertRow(
+				m_nRow, m_eventType, m_eventParameter, m_pMidiAction
+			);
+		}
+		else {
+			pMidiActionTable->removeRow( m_nRow );
+		}
+	}
+
+   private:
+	int m_nRow;
+	H2Core::MidiEvent::Type m_eventType;
+	H2Core::Midi::Parameter m_eventParameter;
+	std::shared_ptr<MidiAction> m_pMidiAction;
+	bool m_bAdd;
+};
+
+class SE_replaceMidiEventsAction : public QUndoCommand {
+   public:
+	SE_replaceMidiEventsAction(
+		int nRow,
+		H2Core::MidiEvent::Type newEventType,
+		H2Core::MidiEvent::Type oldEventType,
+		H2Core::Midi::Parameter newEventParameter,
+		H2Core::Midi::Parameter oldEventParameter,
+		std::shared_ptr<MidiAction> pNewMidiAction,
+		std::shared_ptr<MidiAction> pOldMidiAction
+	)
+		: m_nRow( nRow ),
+		  m_newEventType( newEventType ),
+		  m_oldEventType( oldEventType ),
+		  m_newEventParameter( newEventParameter ),
+		  m_oldEventParameter( oldEventParameter ),
+		  m_pNewMidiAction( pNewMidiAction ),
+		  m_pOldMidiAction( pOldMidiAction )
+	{
+		setText( QObject::tr( "Replace an entry in the MIDI Action Table" ) );
+	}
+
+	virtual void redo()
+	{
+		HydrogenApp::get_instance()
+			->getMainToolBar()
+			->getMidiControlDialog()
+			->getMidiActionTable()
+			->replaceRow(
+				m_nRow, m_newEventType, m_newEventParameter, m_pNewMidiAction
+			);
+	}
+	virtual void undo()
+	{
+		HydrogenApp::get_instance()
+			->getMainToolBar()
+			->getMidiControlDialog()
+			->getMidiActionTable()
+			->replaceRow(
+				m_nRow, m_oldEventType, m_oldEventParameter, m_pOldMidiAction
+			);
+	}
+
+   private:
+	int m_nRow;
+	H2Core::MidiEvent::Type m_newEventType;
+	H2Core::MidiEvent::Type m_oldEventType;
+	H2Core::Midi::Parameter m_newEventParameter;
+	H2Core::Midi::Parameter m_oldEventParameter;
+	std::shared_ptr<MidiAction> m_pNewMidiAction;
+	std::shared_ptr<MidiAction> m_pOldMidiAction;
+};
+
+#endif	// UNDOACTIONS_H

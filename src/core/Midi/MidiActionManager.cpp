@@ -415,7 +415,7 @@ bool MidiActionManager::stripMuteToggle( std::shared_ptr<MidiAction> pAction ) {
 	}
 
 	bool ok;
-	int nLine = pAction->getParameter1().toInt(&ok,10);
+	const int nLine = pAction->getInstrument();
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
@@ -441,7 +441,7 @@ bool MidiActionManager::stripSoloToggle( std::shared_ptr<MidiAction> pAction ) {
 	}
 
 	bool ok;
-	int nLine = pAction->getParameter1().toInt(&ok,10);
+	const int nLine = pAction->getInstrument();
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
@@ -566,7 +566,7 @@ void MidiActionManager::resetTimingClockTicks() {
 
 bool MidiActionManager::selectNextPattern( std::shared_ptr<MidiAction> pAction ) {
 	bool ok;
-	return nextPatternSelection( pAction->getParameter1().toInt(&ok,10) );
+	return nextPatternSelection( pAction->getPattern() );
 }
 
 
@@ -575,12 +575,12 @@ bool MidiActionManager::selectNextPatternRelative( std::shared_ptr<MidiAction> p
 
 	bool ok;
 	return nextPatternSelection( pHydrogen->getSelectedPatternNumber() +
-								 pAction->getParameter1().toInt(&ok,10) );
+								 pAction->getPattern() );
 }
 
 bool MidiActionManager::selectNextPatternCcAbsolute( std::shared_ptr<MidiAction> pAction ) {
 	bool ok;
-	return nextPatternSelection( pAction->getValue().toInt(&ok,10) );
+	return nextPatternSelection( pAction->getValue() );
 }
 
 bool MidiActionManager::nextPatternSelection( int nPatternNumber ) {
@@ -613,12 +613,12 @@ bool MidiActionManager::nextPatternSelection( int nPatternNumber ) {
 
 bool MidiActionManager::selectOnlyNextPattern( std::shared_ptr<MidiAction> pAction ) {
 	bool ok;
-	return onlyNextPatternSelection( pAction->getParameter1().toInt(&ok,10) );
+	return onlyNextPatternSelection( pAction->getPattern() );
 }
 
 bool MidiActionManager::selectOnlyNextPatternCcAbsolute( std::shared_ptr<MidiAction> pAction ) {
 	bool ok;
-	return onlyNextPatternSelection( pAction->getValue().toInt(&ok,10) );
+	return onlyNextPatternSelection( pAction->getValue() );
 }
 
 bool MidiActionManager::onlyNextPatternSelection( int nPatternNumber ) {
@@ -686,7 +686,7 @@ bool MidiActionManager::selectInstrument( std::shared_ptr<MidiAction> pAction ) 
 	}
 
 	bool ok;
-	int  nInstrumentNumber = pAction->getValue().toInt(&ok,10) ;
+	int  nInstrumentNumber = pAction->getValue() ;
 
 	if ( pSong->getDrumkit()->getInstruments()->size() < nInstrumentNumber ) {
 		nInstrumentNumber = pSong->getDrumkit()->getInstruments()->size() -1;
@@ -710,9 +710,9 @@ bool MidiActionManager::effectLevelAbsolute( std::shared_ptr<MidiAction> pAction
 	}
 
 	bool ok;
-	int nLine = pAction->getParameter1().toInt(&ok,10);
-	int fx_param = pAction->getValue().toInt(&ok,10);
-	int fx_id = pAction->getParameter2().toInt(&ok,10);
+	const int nLine = pAction->getInstrument();
+	const int nFxValue = pAction->getValue();
+	const int nFxId = pAction->getFx();
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
@@ -723,12 +723,12 @@ bool MidiActionManager::effectLevelAbsolute( std::shared_ptr<MidiAction> pAction
 	}
 
 	float fValue = 0;
-	if ( fx_param != 0 ) {
-		fValue = static_cast<float>( fx_param ) /
+	if ( nFxValue != 0 ) {
+		fValue = static_cast<float>( nFxValue ) /
 				 static_cast<float>( Midi::ParameterMaximum );
 	}
 
-	return CoreActionController::setStripEffectLevel( nLine, fx_id, fValue, true );
+	return CoreActionController::setStripEffectLevel( nLine, nFxId, fValue, true );
 }
 
 bool MidiActionManager::effectLevelRelative( std::shared_ptr<MidiAction> pAction ) {
@@ -743,9 +743,9 @@ bool MidiActionManager::effectLevelRelative( std::shared_ptr<MidiAction> pAction
 	}
 
 	bool ok;
-	int nLine = pAction->getParameter1().toInt(&ok,10);
-	int fx_param = pAction->getValue().toInt(&ok,10);
-	int fx_id = pAction->getParameter2().toInt(&ok,10);
+	const int nLine = pAction->getInstrument();
+	const int nFxValue = pAction->getValue();
+	const int nFxId = pAction->getFx();
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
@@ -756,16 +756,16 @@ bool MidiActionManager::effectLevelRelative( std::shared_ptr<MidiAction> pAction
 	}
 
 	float fValue = 0;
-	if ( fx_param != 0 ) {
-		if ( fx_param == 1 && pInstr->getFxLevel( fx_id ) <= 0.95 ) {
-			fValue = pInstr->getFxLevel( fx_id ) + 0.05;
+	if ( nFxValue != 0 ) {
+		if ( nFxValue == 1 && pInstr->getFxLevel( nFxId ) <= 0.95 ) {
+			fValue = pInstr->getFxLevel( nFxId ) + 0.05;
 		}
-		else if ( pInstr->getFxLevel( fx_id ) >= 0.05 ) {
-			fValue = pInstr->getFxLevel( fx_id ) - 0.05;
+		else if ( pInstr->getFxLevel( nFxId ) >= 0.05 ) {
+			fValue = pInstr->getFxLevel( nFxId ) - 0.05;
 		}
 	}
 
-	return CoreActionController::setStripEffectLevel( nLine, fx_id, fValue, true );
+	return CoreActionController::setStripEffectLevel( nLine, nFxId, fValue, true );
 }
 
 //sets the volume of a master output to a given level (percentage)
@@ -781,7 +781,7 @@ bool MidiActionManager::masterVolumeAbsolute( std::shared_ptr<MidiAction> pActio
 	}
 
 	bool ok;
-	int nVolume = pAction->getValue().toInt(&ok,10);
+	int nVolume = pAction->getValue();
 
 	if ( nVolume != 0 ) {
 		pSong->setVolume( 1.5* ( (float) (nVolume / static_cast<float>( Midi::ParameterMaximum ) ) ));
@@ -805,7 +805,7 @@ bool MidiActionManager::masterVolumeRelative( std::shared_ptr<MidiAction> pActio
 	}
 
 	bool ok;
-	int nVolume = pAction->getValue().toInt(&ok,10);
+	int nVolume = pAction->getValue();
 
 	if ( nVolume != 0 ) {
 		if ( nVolume == 1 && pSong->getVolume() < 1.5 ) {
@@ -833,8 +833,8 @@ bool MidiActionManager::stripVolumeAbsolute( std::shared_ptr<MidiAction> pAction
 	}
 
 	bool ok;
-	int nLine = pAction->getParameter1().toInt(&ok,10);
-	int nVolume = pAction->getValue().toInt(&ok,10);
+	const int nLine = pAction->getInstrument();
+	const int nVolume = pAction->getValue();
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
@@ -869,8 +869,8 @@ bool MidiActionManager::stripVolumeRelative( std::shared_ptr<MidiAction> pAction
 	}
 
 	bool ok;
-	int nLine = pAction->getParameter1().toInt(&ok,10);
-	int nVolume = pAction->getValue().toInt(&ok,10);
+	const int nLine = pAction->getInstrument();
+	const int nVolume = pAction->getValue();
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
@@ -912,8 +912,8 @@ bool MidiActionManager::panAbsolute( std::shared_ptr<MidiAction> pAction ) {
 	}
 
 	bool ok;
-	int nLine = pAction->getParameter1().toInt(&ok,10);
-	int pan_param = pAction->getValue().toInt(&ok,10);
+	const int nLine = pAction->getInstrument();
+	const int nPanValue = pAction->getValue();
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
@@ -924,7 +924,7 @@ bool MidiActionManager::panAbsolute( std::shared_ptr<MidiAction> pAction ) {
 	}
 
 	pInstr->setPanWithRangeFrom0To1(
-		(float) pan_param / static_cast<float>( Midi::ParameterMaximum )
+		(float) nPanValue / static_cast<float>( Midi::ParameterMaximum )
 	);
 
 	pHydrogen->setSelectedInstrumentNumber(nLine);
@@ -947,8 +947,8 @@ bool MidiActionManager::panAbsoluteSym( std::shared_ptr<MidiAction> pAction ) {
 	}
 
 	bool ok;
-	int nLine = pAction->getParameter1().toInt(&ok,10);
-	int pan_param = pAction->getValue().toInt(&ok,10);
+	const int nLine = pAction->getInstrument();
+	const int nPanValue = pAction->getValue();
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
@@ -959,7 +959,7 @@ bool MidiActionManager::panAbsoluteSym( std::shared_ptr<MidiAction> pAction ) {
 	}
 
 	pInstr->setPan(
-		(float) pan_param / static_cast<float>( Midi::ParameterMaximum )
+		(float) nPanValue / static_cast<float>( Midi::ParameterMaximum )
 	);
 
 	pHydrogen->setSelectedInstrumentNumber( nLine );
@@ -985,8 +985,8 @@ bool MidiActionManager::panRelative( std::shared_ptr<MidiAction> pAction ) {
 	}
 
 	bool ok;
-	int nLine = pAction->getParameter1().toInt(&ok,10);
-	int pan_param = pAction->getValue().toInt(&ok,10);
+	const int nLine = pAction->getInstrument();
+	const int nPanValue = pAction->getValue();
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
@@ -998,10 +998,10 @@ bool MidiActionManager::panRelative( std::shared_ptr<MidiAction> pAction ) {
 
 	float fPan = pInstr->getPan();
 
-	if ( pan_param == 1 && fPan < PAN_MAX ) {
+	if ( nPanValue == 1 && fPan < PAN_MAX ) {
 		pInstr->setPan( fPan + 0.1 );
 	}
-	else if ( pan_param != 1 && fPan > PAN_MIN ) {
+	else if ( nPanValue != 1 && fPan > PAN_MIN ) {
 		pInstr->setPan( fPan - 0.1 );
 	}
 
@@ -1023,10 +1023,10 @@ bool MidiActionManager::gainLevelAbsolute( std::shared_ptr<MidiAction> pAction )
 	}
 
 	bool ok;
-	int nLine = pAction->getParameter1().toInt(&ok,10);
-	int gain_param = pAction->getValue().toInt(&ok,10);
-	int component_id = pAction->getParameter2().toInt(&ok,10);
-	int layer_id = pAction->getParameter3().toInt(&ok,10);
+	const int nGainValue = pAction->getValue();
+	const int nLine = pAction->getInstrument();
+	const int nComponentId = pAction->getComponent();
+	const int nLayerId = pAction->getLayer();
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
@@ -1036,20 +1036,20 @@ bool MidiActionManager::gainLevelAbsolute( std::shared_ptr<MidiAction> pAction )
 		return false;
 	}
 
-	auto pComponent =  pInstr->getComponent( component_id );
+	auto pComponent =  pInstr->getComponent( nComponentId );
 	if( pComponent == nullptr) {
-		ERRORLOG( QString( "Unable to retrieve component (Par. 2) [%1]" ).arg( component_id ) );
+		ERRORLOG( QString( "Unable to retrieve component (Par. 2) [%1]" ).arg( nComponentId ) );
 		return false;
 	}
 
-	auto pLayer = pComponent->getLayer( layer_id );
+	auto pLayer = pComponent->getLayer( nLayerId );
 	if( pLayer == nullptr ) {
-		ERRORLOG( QString( "Unable to retrieve layer (Par. 3) [%1]" ).arg( layer_id ) );
+		ERRORLOG( QString( "Unable to retrieve layer (Par. 3) [%1]" ).arg( nLayerId ) );
 		return false;
 	}
 
-	if ( gain_param != 0 ) {
-		pLayer->setGain( 5.0* ( (float) (gain_param / static_cast<float>( Midi::ParameterMaximum ) ) ) );
+	if ( nGainValue != 0 ) {
+		pLayer->setGain( 5.0* ( (float) (nGainValue / static_cast<float>( Midi::ParameterMaximum ) ) ) );
 	} else {
 		pLayer->setGain( 0 );
 	}
@@ -1065,7 +1065,7 @@ bool MidiActionManager::humanizationSwingAbsolute(
 )
 {
 	bool ok;
-	const int nValue = pAction->getValue().toInt( &ok, 10 );
+	const int nValue = pAction->getValue();
 	CoreActionController::setSwing(
 		nValue != 0 ? ( static_cast<float>( nValue ) /
 						static_cast<float>( Midi::ParameterMaximum ) )
@@ -1083,7 +1083,7 @@ bool MidiActionManager::humanizationSwingRelative(
 		return false;
 	}
 	bool ok;
-	const int nValue = pAction->getValue().toInt( &ok, 10 );
+	const int nValue = pAction->getValue();
 	CoreActionController::setSwing(
 		pSong->getSwingFactor() + ( nValue == 1 ? 0.05 : -0.05 )
 	);
@@ -1095,7 +1095,7 @@ bool MidiActionManager::humanizationTimingAbsolute(
 )
 {
 	bool ok;
-	const int nValue = pAction->getValue().toInt( &ok, 10 );
+	const int nValue = pAction->getValue();
 	CoreActionController::setHumanizeTime(
 		nValue != 0 ? ( static_cast<float>( nValue ) /
 						static_cast<float>( Midi::ParameterMaximum ) )
@@ -1113,7 +1113,7 @@ bool MidiActionManager::humanizationTimingRelative(
 		return false;
 	}
 	bool ok;
-	const int nValue = pAction->getValue().toInt( &ok, 10 );
+	const int nValue = pAction->getValue();
 	CoreActionController::setHumanizeTime(
 		pSong->getHumanizeTimeValue() + ( nValue == 1 ? 0.05 : -0.05 )
 	);
@@ -1125,7 +1125,7 @@ bool MidiActionManager::humanizationVelocityAbsolute(
 )
 {
 	bool ok;
-	const int nValue = pAction->getValue().toInt( &ok, 10 );
+	const int nValue = pAction->getValue();
 	CoreActionController::setHumanizeVelocity(
 		nValue != 0 ? ( static_cast<float>( nValue ) /
 						static_cast<float>( Midi::ParameterMaximum ) )
@@ -1143,7 +1143,7 @@ bool MidiActionManager::humanizationVelocityRelative(
 		return false;
 	}
 	bool ok;
-	const int nValue = pAction->getValue().toInt( &ok, 10 );
+	const int nValue = pAction->getValue();
 	CoreActionController::setHumanizeVelocity(
 		pSong->getHumanizeVelocityValue() + ( nValue == 1 ? 0.05 : -0.05 )
 	);
@@ -1164,10 +1164,10 @@ bool MidiActionManager::pitchLevelAbsolute( std::shared_ptr<MidiAction> pAction
 	}
 
 	bool ok;
-	int nLine = pAction->getParameter1().toInt(&ok,10);
-	int pitch_param = pAction->getValue().toInt(&ok,10);
-	int component_id = pAction->getParameter2().toInt(&ok,10);
-	int layer_id = pAction->getParameter3().toInt(&ok,10);
+	const int nPitchValue = pAction->getValue();
+	const int nLine = pAction->getInstrument();
+	const int nComponentId = pAction->getComponent();
+	const int nLayerId = pAction->getLayer();
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
@@ -1177,22 +1177,22 @@ bool MidiActionManager::pitchLevelAbsolute( std::shared_ptr<MidiAction> pAction
 		return false;
 	}
 
-	auto pComponent =  pInstr->getComponent( component_id );
+	auto pComponent =  pInstr->getComponent( nComponentId );
 	if( pComponent == nullptr) {
-		ERRORLOG( QString( "Unable to retrieve component (Par. 2) [%1]" ).arg( component_id ) );
+		ERRORLOG( QString( "Unable to retrieve component (Par. 2) [%1]" ).arg( nComponentId ) );
 		return false;
 	}
 
-	auto pLayer = pComponent->getLayer( layer_id );
+	auto pLayer = pComponent->getLayer( nLayerId );
 	if( pLayer == nullptr ) {
-		ERRORLOG( QString( "Unable to retrieve layer (Par. 3) [%1]" ).arg( layer_id ) );
+		ERRORLOG( QString( "Unable to retrieve layer (Par. 3) [%1]" ).arg( nLayerId ) );
 		return false;
 	}
 
-	if ( pitch_param != 0 ) {
+	if ( nPitchValue != 0 ) {
 		pLayer->setPitchOffset(
 			( Instrument::fPitchOffsetMaximum - Instrument::fPitchOffsetMinimum ) *
-			( (float) (pitch_param / static_cast<float>( Midi::ParameterMaximum ) ) ) + Instrument::fPitchOffsetMinimum );
+			( (float) (nPitchValue / static_cast<float>( Midi::ParameterMaximum ) ) ) + Instrument::fPitchOffsetMinimum );
 	} else {
 		pLayer->setPitchOffset( Instrument::fPitchOffsetMinimum );
 	}
@@ -1207,8 +1207,8 @@ bool MidiActionManager::instrumentPitch( std::shared_ptr<MidiAction> pAction ) {
 
 	bool ok;
 	float fPitch;
-	const int nInstrument = pAction->getParameter1().toInt(&ok,10);
-	const int nPitchMidi = pAction->getValue().toInt(&ok,10);
+	const int nInstrument = pAction->getInstrument();
+	const int nPitchMidi = pAction->getValue();
 	if ( nPitchMidi != 0 ) {
 		fPitch = ( Instrument::fPitchOffsetMaximum - Instrument::fPitchOffsetMinimum ) *
 			( (float) (nPitchMidi / static_cast<float>( Midi::ParameterMaximum ) ) ) + Instrument::fPitchOffsetMinimum;
@@ -1231,8 +1231,8 @@ bool MidiActionManager::filterCutoffLevelAbsolute( std::shared_ptr<MidiAction> p
 	}
 
 	bool ok;
-	int nLine = pAction->getParameter1().toInt(&ok,10);
-	int filter_cutoff_param = pAction->getValue().toInt(&ok,10);
+	const int nLine = pAction->getInstrument();
+	const int nFilterCutoffValue = pAction->getValue();
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
@@ -1243,8 +1243,8 @@ bool MidiActionManager::filterCutoffLevelAbsolute( std::shared_ptr<MidiAction> p
 	}
 
 	pInstr->setFilterActive( true );
-	if( filter_cutoff_param != 0 ) {
-		pInstr->setFilterCutoff( ( (float) (filter_cutoff_param / static_cast<float>( Midi::ParameterMaximum ) ) ) );
+	if( nFilterCutoffValue != 0 ) {
+		pInstr->setFilterCutoff( ( (float) (nFilterCutoffValue / static_cast<float>( Midi::ParameterMaximum ) ) ) );
 	} else {
 		pInstr->setFilterCutoff( 0 );
 	}
@@ -1279,25 +1279,25 @@ bool MidiActionManager::bpmCcRelative( std::shared_ptr<MidiAction> pAction ) {
 	//this MidiAction should be triggered only by CC commands
 
 	bool ok;
-	int mult = pAction->getParameter1().toInt(&ok,10);
+	const float fFactor = pAction->getFactor();
 	//this value should be 1 to decrement and something other then 1 to increment the bpm
-	int cc_param = pAction->getValue().toInt(&ok,10);
+	const int nCcParameter = pAction->getValue();
 
 	if( m_nLastBpmChangeCCParameter == -1) {
-		m_nLastBpmChangeCCParameter = cc_param;
+		m_nLastBpmChangeCCParameter = nCcParameter;
 	}
 
-	if ( m_nLastBpmChangeCCParameter >= cc_param &&
-		 fBpm - mult > MIN_BPM ) {
-		CoreActionController::setBpm( fBpm - 1*mult );
+	if ( m_nLastBpmChangeCCParameter >= nCcParameter &&
+		 fBpm - fFactor > MIN_BPM ) {
+		CoreActionController::setBpm( fBpm - 1*fFactor );
 	}
 
-	if ( m_nLastBpmChangeCCParameter < cc_param
-		 && fBpm + mult < MAX_BPM ) {
-		CoreActionController::setBpm( fBpm + 1*mult );
+	if ( m_nLastBpmChangeCCParameter < nCcParameter
+		 && fBpm + fFactor < MAX_BPM ) {
+		CoreActionController::setBpm( fBpm + 1*fFactor );
 	}
 
-	m_nLastBpmChangeCCParameter = cc_param;
+	m_nLastBpmChangeCCParameter = nCcParameter;
 
 	EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, -1 );
 
@@ -1326,24 +1326,24 @@ bool MidiActionManager::bpmFineCcRelative( std::shared_ptr<MidiAction> pAction )
 
 	//this MidiAction should be triggered only by CC commands
 	bool ok;
-	int mult = pAction->getParameter1().toInt(&ok,10);
+	const float fFactor = pAction->getFactor();
 	//this value should be 1 to decrement and something other then 1 to increment the bpm
-	int cc_param = pAction->getValue().toInt(&ok,10);
+	const int nCcParameter = pAction->getValue();
 
 	if( m_nLastBpmChangeCCParameter == -1) {
-		m_nLastBpmChangeCCParameter = cc_param;
+		m_nLastBpmChangeCCParameter = nCcParameter;
 	}
 
-	if ( m_nLastBpmChangeCCParameter >= cc_param &&
-		 fBpm - mult > MIN_BPM ) {
-		CoreActionController::setBpm( fBpm - 0.01*mult );
+	if ( m_nLastBpmChangeCCParameter >= nCcParameter &&
+		 fBpm - fFactor > MIN_BPM ) {
+		CoreActionController::setBpm( fBpm - 0.01*fFactor );
 	}
-	if ( m_nLastBpmChangeCCParameter < cc_param
-		 && fBpm + mult < MAX_BPM ) {
-		CoreActionController::setBpm( fBpm + 0.01*mult );
+	if ( m_nLastBpmChangeCCParameter < nCcParameter
+		 && fBpm + fFactor < MAX_BPM ) {
+		CoreActionController::setBpm( fBpm + 0.01*fFactor );
 	}
 
-	m_nLastBpmChangeCCParameter = cc_param;
+	m_nLastBpmChangeCCParameter = nCcParameter;
 
 	EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, -1 );
 
@@ -1366,9 +1366,9 @@ bool MidiActionManager::bpmIncrease( std::shared_ptr<MidiAction> pAction ) {
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	const float fBpm = pAudioEngine->getTransportPosition()->getBpm();
 
-	const float fMult = pAction->getParameter1().toFloat();
+	const float fFactor = pAction->getFactor();
 
-	CoreActionController::setBpm( fBpm + 1 * fMult );
+	CoreActionController::setBpm( fBpm + 1 * fFactor );
 
 	EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, -1 );
 
@@ -1391,9 +1391,9 @@ bool MidiActionManager::bpmDecrease( std::shared_ptr<MidiAction> pAction ) {
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	const float fBpm = pAudioEngine->getTransportPosition()->getBpm();
 
-	const float fMult = pAction->getParameter1().toFloat();
+	const float fFactor = pAction->getFactor();
 
-	CoreActionController::setBpm( fBpm - 1 * fMult );
+	CoreActionController::setBpm( fBpm - 1 * fFactor );
 
 	EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, -1 );
 
@@ -1519,8 +1519,8 @@ bool MidiActionManager::setSongFromPlaylist( int nSongNumber ) {
 
 bool MidiActionManager::playlistSong( std::shared_ptr<MidiAction> pAction ) {
 	bool ok;
-	int songnumber = pAction->getParameter1().toInt(&ok,10);
-	return setSongFromPlaylist( songnumber );
+	const int nSongNumber = pAction->getSong();
+	return setSongFromPlaylist( nSongNumber );
 }
 
 bool MidiActionManager::playlistNextSong( std::shared_ptr<MidiAction> pAction ) {
@@ -1610,6 +1610,10 @@ bool MidiActionManager::loadPrevDrumkit( std::shared_ptr<MidiAction> ) {
 }
 
 int MidiActionManager::getParameterNumber( const MidiAction::Type& type ) const {
+	if ( type == MidiAction::Type::Null ) {
+        return 0;
+	}
+
 	auto foundActionPair = m_midiActionMap.find( type );
 	if ( foundActionPair != m_midiActionMap.end() ) {
 		return foundActionPair->second.second;
@@ -1649,7 +1653,7 @@ bool MidiActionManager::clearPattern( std::shared_ptr<MidiAction> pAction ) {
 		return false;
 	}
 
-	int nPattern = pHydrogen->getSelectedPatternNumber();
+	const int nPattern = pHydrogen->getSelectedPatternNumber();
 
 	auto pPattern = pSong->getPatternList()->get( nPattern );
 	if ( pPattern == nullptr ) {

@@ -3059,6 +3059,15 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <source>E. Para.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>press to delete row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove all binding for MIDI action</source>
+        <extracomment>Label for entry within the undo/redo history. The name of the action * will be appended after an additional white space.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MidiControlDialog</name>
@@ -4697,6 +4706,14 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Add new pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add or remove an entry in the MIDI Action Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace an entry in the MIDI Action Table</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

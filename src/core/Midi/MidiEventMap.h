@@ -50,8 +50,12 @@ public:
 	
 	void reset();  ///< Reinitializes the object.
 
-	void
-	registerEvent( const MidiEvent::Type&, Midi::Parameter parameter, std::shared_ptr<MidiAction> );
+	void registerEvent(
+		const MidiEvent::Type&,
+		Midi::Parameter parameter,
+		std::shared_ptr<MidiAction> pAction,
+		long* pEventId
+	);
 
 	const std::vector<std::shared_ptr<MidiEvent>>& getMidiEvents() const;
 
@@ -66,12 +70,9 @@ public:
 	/** Returns the pc Midiaction which was linked to the given event. */
 	std::vector<std::shared_ptr<MidiAction>> getPCActions();
 
-	std::vector<Midi::Parameter> findCCParametersByTypeAndParam1(
-		MidiAction::Type type,
-		const QString& sParam1
-	);
-	std::vector<Midi::Parameter> findCCParametersByType( MidiAction::Type type
-	);
+	std::vector<Midi::Parameter> findCCParameters( MidiAction::Type type );
+	std::vector<Midi::Parameter>
+	findCCParameters( MidiAction::Type type, int nInstrument );
 
 	/**
 	 * @returns a list of all MIDI events registered to a particular
@@ -81,7 +82,12 @@ public:
 	std::vector<std::pair<MidiEvent::Type, Midi::Parameter>>
 	getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction ) const;
 
-	void removeRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction );
+	void removeRegisteredEvent(
+		const MidiEvent::Type&,
+		Midi::Parameter parameter,
+		std::shared_ptr<MidiAction> pAction,
+		long* pEventId
+	);
 
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of

@@ -224,8 +224,9 @@ int OscServer::generic_handler(const char *	path,
 	if ( rxStripVolRelMatch.hasMatch() && argc == 1 ) {
 		const int nStrip = rxStripVolRelMatch.captured( 1 ).toInt() - 1;
 		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
-			STRIP_VOLUME_RELATIVE_Handler( QString::number( nStrip ),
-										   QString::number( argv[0]->f, 'f', 0 ) );
+			STRIP_VOLUME_RELATIVE_Handler(
+				static_cast<int>( argv[0]->f ), nStrip
+			);
 			bMessageProcessed = true;
 		}
 		else {
@@ -292,8 +293,8 @@ int OscServer::generic_handler(const char *	path,
 					 .arg( nStrip ) );
 			auto pAction = std::make_shared<MidiAction>(
 				MidiAction::Type::PanRelative );
-			pAction->setParameter1( QString::number( nStrip ) );
-			pAction->setValue( QString::number( argv[0]->f, 'f', 0 ) );
+			pAction->setInstrument( nStrip );
+			pAction->setValue( static_cast<int>( argv[0]->f ) );
 			pMidiActionManager->handleMidiActionAsync( pAction );
 			bMessageProcessed = true;
 		}
@@ -315,7 +316,8 @@ int OscServer::generic_handler(const char *	path,
 		const int nStrip = rxStripFilterCutoffAbsMatch.captured( 1 ).toInt() - 1;
 		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 			FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler(
-				QString::number( nStrip ), QString::number( argv[0]->f, 'f', 0 ) );
+				static_cast<int>( argv[0]->f ), nStrip
+			);
 			bMessageProcessed = true;
 		}
 		else {
@@ -576,7 +578,7 @@ void OscServer::BPM_INCR_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::BpmIncr );
-	pAction->setParameter1( QString::number( argv[0]->f, 'f', 0 ));
+	pAction->setFactor( argv[0]->f );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
@@ -586,7 +588,7 @@ void OscServer::BPM_DECR_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::BpmDecr );
-	pAction->setParameter1( QString::number( argv[0]->f, 'f', 0 ));
+	pAction->setFactor( argv[0]->f );
 	
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
@@ -603,7 +605,7 @@ void OscServer::MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::MasterVolumeRelative );
-	pAction->setValue( QString::number( argv[0]->f, 'f', 0 ));
+	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
@@ -615,7 +617,7 @@ void OscServer::HUMANIZATION_SWING_ABSOLUTE_Handler( lo_arg** argv, int i )
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::HumanizationSwingAbsolute
 	);
-	pAction->setValue( QString::number( argv[0]->f, 'f', 0 ) );
+	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()
@@ -630,7 +632,7 @@ void OscServer::HUMANIZATION_SWING_RELATIVE_Handler( lo_arg** argv, int i )
 		MidiAction::Type::HumanizationSwingRelative
 	);
 	// Rounding to ensure we do not miss the 1.0 resulting in increases.
-	pAction->setValue( QString::number( static_cast<int>(argv[0]->f) ) );
+	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()
@@ -644,7 +646,7 @@ void OscServer::HUMANIZATION_TIMING_ABSOLUTE_Handler( lo_arg** argv, int i )
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::HumanizationTimingAbsolute
 	);
-	pAction->setValue( QString::number( argv[0]->f, 'f', 0 ) );
+	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()
@@ -659,7 +661,7 @@ void OscServer::HUMANIZATION_TIMING_RELATIVE_Handler( lo_arg** argv, int i )
 		MidiAction::Type::HumanizationTimingRelative
 	);
 	// Rounding to ensure we do not miss the 1.0 resulting in increases.
-	pAction->setValue( QString::number( static_cast<int>(argv[0]->f) ) );
+	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()
@@ -673,7 +675,7 @@ void OscServer::HUMANIZATION_VELOCITY_ABSOLUTE_Handler( lo_arg** argv, int i )
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::HumanizationVelocityAbsolute
 	);
-	pAction->setValue( QString::number( argv[0]->f, 'f', 0 ) );
+	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()
@@ -688,7 +690,7 @@ void OscServer::HUMANIZATION_VELOCITY_RELATIVE_Handler( lo_arg** argv, int i )
 		MidiAction::Type::HumanizationVelocityRelative
 	);
 	// Rounding to ensure we do not miss the 1.0 resulting in increases.
-	pAction->setValue( QString::number( static_cast<int>( argv[0]->f ) ) );
+	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()
@@ -702,14 +704,13 @@ void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2)
 	H2Core::CoreActionController::setStripVolume( param1, param2, false );
 }
 
-void OscServer::STRIP_VOLUME_RELATIVE_Handler( const QString& param1,
-											  const QString& param2 )
+void OscServer::STRIP_VOLUME_RELATIVE_Handler( int nValue, int nInstrument )
 {
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::StripVolumeRelative );
-	pAction->setParameter1( param1 );
-	pAction->setValue( param2 );
+	pAction->setValue( nValue );
+	pAction->setInstrument( nInstrument );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
@@ -720,7 +721,7 @@ void OscServer::SELECT_NEXT_PATTERN_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::SelectNextPattern );
-	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
+	pAction->setPattern(  static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
@@ -731,7 +732,7 @@ void OscServer::SELECT_ONLY_NEXT_PATTERN_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::SelectOnlyNextPattern );
-	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
+	pAction->setPattern(  static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
@@ -742,20 +743,19 @@ void OscServer::SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::SelectAndPlayPattern );
-	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
+	pAction->setPattern(  static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
-void OscServer::FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( const QString& param1,
-													  const QString& param2)
+void OscServer::FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( int nValue, int nInstrument )
 {
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::FilterCutoffLevelAbsolute );
-	pAction->setParameter1( param1 );
-	pAction->setValue( param2 );
+	pAction->setInstrument( nInstrument );
+	pAction->setValue( nValue );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
@@ -793,7 +793,7 @@ void OscServer::PLAYLIST_SONG_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::PlaylistSong );
-	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
+	pAction->setSong( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
@@ -831,7 +831,7 @@ void OscServer::SELECT_INSTRUMENT_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::SelectInstrument );
-	pAction->setValue( QString::number( argv[0]->f, 'f', 0 ) );
+	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
 	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
@@ -1268,121 +1268,110 @@ void OscServer::broadcastMessage( const char* msgText, const lo_message& message
 // -------------------------------------------------------------------
 // Main Midiaction handler
 
-void OscServer::handleMidiAction( std::shared_ptr<MidiAction> pAction )
+void OscServer::sendFeedbackMessage(
+	MidiAction::Type type,
+	float fValue,
+	int nInstrumentIndex
+)
 {
-	if ( ! H2Core::Preferences::get_instance()->getOscFeedbackEnabled() ) {
+	if ( !H2Core::Preferences::get_instance()->getOscFeedbackEnabled() ) {
 		return;
 	}
-	
-	if ( pAction->getType() == MidiAction::Type::MasterVolumeAbsolute ) {
-		bool ok;
-		float fValue = pAction->getValue().toFloat(&ok);
-			
+
+	if ( type == MidiAction::Type::MasterVolumeAbsolute ) {
 		lo_message reply = lo_message_new();
 		lo_message_add_float( reply, fValue );
 
-		broadcastMessage("/Hydrogen/MASTER_VOLUME_ABSOLUTE", reply);
-		
+		broadcastMessage( "/Hydrogen/MASTER_VOLUME_ABSOLUTE", reply );
+
 		lo_message_free( reply );
 	}
-	
-	if ( pAction->getType() == MidiAction::Type::StripVolumeAbsolute ) {
-		bool ok;
-		float fValue = pAction->getValue().toFloat(&ok);
 
+	if ( type == MidiAction::Type::StripVolumeAbsolute ) {
 		lo_message reply = lo_message_new();
 		lo_message_add_float( reply, fValue );
 
-		QByteArray ba = QString("/Hydrogen/STRIP_VOLUME_ABSOLUTE/%1").arg(pAction->getParameter1()).toLatin1();
-		const char *c_str2 = ba.data();
+		QByteArray ba = QString( "/Hydrogen/STRIP_VOLUME_ABSOLUTE/%1" )
+							.arg( nInstrumentIndex )
+							.toLatin1();
+		const char* c_str2 = ba.data();
 
-		broadcastMessage( c_str2, reply);
-		
+		broadcastMessage( c_str2, reply );
+
 		lo_message_free( reply );
 	}
-	
-	if ( pAction->getType() == MidiAction::Type::ToggleMetronome ) {
-		bool ok;
-		float param1 = pAction->getParameter1().toFloat(&ok);
 
-		lo_message reply = lo_message_new();
-		lo_message_add_float(reply, param1);
-
-		broadcastMessage("/Hydrogen/TOGGLE_METRONOME", reply);
-		
-		lo_message_free( reply );
-	}
-	
-	if ( pAction->getType() == MidiAction::Type::MuteToggle ) {
-		bool ok;
-		float param1 = pAction->getParameter1().toFloat(&ok);
-
-		lo_message reply = lo_message_new();
-		lo_message_add_float(reply, param1);
-		
-		broadcastMessage("/Hydrogen/MUTE_TOGGLE", reply);
-		
-		lo_message_free( reply );
-	}
-	
-	if ( pAction->getType() == MidiAction::Type::StripMuteToggle ) {
-		bool ok;
-		float fValue = pAction->getValue().toFloat(&ok);
-
+	if ( type == MidiAction::Type::ToggleMetronome ) {
 		lo_message reply = lo_message_new();
 		lo_message_add_float( reply, fValue );
 
-		QByteArray ba = QString("/Hydrogen/STRIP_MUTE_TOGGLE/%1")
-			.arg(pAction->getParameter1()).toLatin1();
-		const char *c_str2 = ba.data();
+		broadcastMessage( "/Hydrogen/TOGGLE_METRONOME", reply );
 
-		broadcastMessage( c_str2, reply);
-		
-		lo_message_free( reply );
-	}
-	
-	if ( pAction->getType() == MidiAction::Type::StripSoloToggle ) {
-		bool ok;
-		float fValue = pAction->getValue().toFloat(&ok);
-
-		lo_message reply = lo_message_new();
-		lo_message_add_float( reply, fValue );
-
-		QByteArray ba = QString("/Hydrogen/STRIP_SOLO_TOGGLE/%1").arg(pAction->getParameter1()).toLatin1();
-		const char *c_str2 = ba.data();
-
-		broadcastMessage( c_str2, reply);
-		
-		lo_message_free( reply );
-	}
-	
-	if ( pAction->getType() == MidiAction::Type::PanAbsolute ) {
-		bool ok;
-		float fValue = pAction->getValue().toFloat(&ok);
-
-		lo_message reply = lo_message_new();
-		lo_message_add_float( reply, fValue );
-
-		QByteArray ba = QString("/Hydrogen/PAN_ABSOLUTE/%1").arg(pAction->getParameter1()).toLatin1();
-		const char *c_str2 = ba.data();
-
-		broadcastMessage( c_str2, reply);
-		
 		lo_message_free( reply );
 	}
 
-	if ( pAction->getType() == MidiAction::Type::PanAbsoluteSym ) {
-		bool ok;
-		float fValue = pAction->getValue().toFloat(&ok);
-
+	if ( type == MidiAction::Type::MuteToggle ) {
 		lo_message reply = lo_message_new();
 		lo_message_add_float( reply, fValue );
 
-		QByteArray ba = QString("/Hydrogen/PAN_ABSOLUTE_SYM/%1").arg(pAction->getParameter1()).toLatin1();
-		const char *c_str2 = ba.data();
+		broadcastMessage( "/Hydrogen/MUTE_TOGGLE", reply );
 
-		broadcastMessage( c_str2, reply);
-		
+		lo_message_free( reply );
+	}
+
+	if ( type == MidiAction::Type::StripMuteToggle ) {
+		lo_message reply = lo_message_new();
+		lo_message_add_float( reply, fValue );
+
+		QByteArray ba = QString( "/Hydrogen/STRIP_MUTE_TOGGLE/%1" )
+							.arg( nInstrumentIndex )
+							.toLatin1();
+		const char* c_str2 = ba.data();
+
+		broadcastMessage( c_str2, reply );
+
+		lo_message_free( reply );
+	}
+
+	if ( type == MidiAction::Type::StripSoloToggle ) {
+		lo_message reply = lo_message_new();
+		lo_message_add_float( reply, fValue );
+
+		QByteArray ba = QString( "/Hydrogen/STRIP_SOLO_TOGGLE/%1" )
+							.arg( nInstrumentIndex )
+							.toLatin1();
+		const char* c_str2 = ba.data();
+
+		broadcastMessage( c_str2, reply );
+
+		lo_message_free( reply );
+	}
+
+	if ( type == MidiAction::Type::PanAbsolute ) {
+		lo_message reply = lo_message_new();
+		lo_message_add_float( reply, fValue );
+
+		QByteArray ba = QString( "/Hydrogen/PAN_ABSOLUTE/%1" )
+							.arg( nInstrumentIndex )
+							.toLatin1();
+		const char* c_str2 = ba.data();
+
+		broadcastMessage( c_str2, reply );
+
+		lo_message_free( reply );
+	}
+
+	if ( type == MidiAction::Type::PanAbsoluteSym ) {
+		lo_message reply = lo_message_new();
+		lo_message_add_float( reply, fValue );
+
+		QByteArray ba = QString( "/Hydrogen/PAN_ABSOLUTE_SYM/%1" )
+							.arg( nInstrumentIndex )
+							.toLatin1();
+		const char* c_str2 = ba.data();
+
+		broadcastMessage( c_str2, reply );
+
 		lo_message_free( reply );
 	}
 }

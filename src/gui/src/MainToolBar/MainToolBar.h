@@ -67,6 +67,8 @@ public:
 		explicit MainToolBar(QWidget *parent);
 		~MainToolBar();
 
+		MidiControlDialog* getMidiControlDialog() const;
+
 		void setMidiControlDialogVisible( bool bVisible );
 		/** Unlike all other widgets we have provide visibility buttons for,
 		 * #PreferencesDialog is a transient widget we can not check visibility
@@ -174,9 +176,14 @@ private:
 		Editor::Input m_input;
 };
 
-inline Editor::Input MainToolBar::getInput() const {
-	return m_input;
+inline MidiControlDialog* MainToolBar::getMidiControlDialog() const
+{
+	return m_pMidiControlDialog;
 }
 
+inline Editor::Input MainToolBar::getInput() const
+{
+	return m_input;
+}
 
 #endif

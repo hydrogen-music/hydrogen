@@ -63,12 +63,13 @@ class MidiControlDialog : public QDialog,
 	explicit MidiControlDialog( QWidget* pParent );
 	~MidiControlDialog();
 
+	MidiActionTable* getMidiActionTable() const;
+
 	// EventListerer
 	void drumkitLoadedEvent() override;
 	void instrumentParametersChangedEvent( int ) override;
 	void midiDriverChangedEvent() override;
 	void midiInputEvent() override;
-	void midiMapChangedEvent() override;
 	void midiOutputEvent() override;
 	void updatePreferencesEvent( int ) override;
 	void updateSongEvent( int ) override;
@@ -127,6 +128,7 @@ class MidiControlDialog : public QDialog,
 	QToolButton* m_pOutputBinButton;
 
 	MidiActionTable* m_pMidiActionTable;
+	QToolButton* m_pMidiActionAddButton;
 
 	/** We cache the instruments used in slot handlers of
 	 * #m_pInstrumentTable in this map and access them with a combination
@@ -138,5 +140,10 @@ class MidiControlDialog : public QDialog,
 		std::shared_ptr<H2Core::Instrument> >
 		m_instrumentMap;
 };
+
+inline MidiActionTable* MidiControlDialog::getMidiActionTable() const
+{
+	return m_pMidiActionTable;
+}
 
 #endif

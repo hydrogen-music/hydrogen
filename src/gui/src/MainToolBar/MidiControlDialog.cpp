@@ -30,6 +30,7 @@ https://www.gnu.org/licenses
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 #include "../Widgets/LCDSpinBox.h"
+#include "../UndoActions.h"
 #include "core/Midi/Midi.h"
 
 #include <core/Basics/Drumkit.h>
@@ -69,6 +70,29 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 
 	m_pTabWidget = new QTabWidget( this );
 	pMainLayout->addWidget( m_pTabWidget );
+
+	const auto binButtonSize = QSize(
+		MidiControlDialog::nBinButtonHeight * Skin::fButtonWidthHeightRatio,
+		MidiControlDialog::nBinButtonHeight );
+
+	auto addBinButton = [&]( QWidget* pParent ) {
+		auto pContainerWidget = new QWidget( pParent );
+		pParent->layout()->addWidget( pContainerWidget );
+		auto pContainerLayout = new QHBoxLayout( pContainerWidget );
+		pContainerLayout->setAlignment( Qt::AlignRight );
+		pContainerLayout->setContentsMargins( 1, 1, 1, 1 );
+		pContainerWidget->setLayout( pContainerLayout );
+
+		auto pBinButton = new QToolButton( pContainerWidget );
+		pBinButton->setCheckable( false );
+		pBinButton->setFixedSize( binButtonSize );
+		pBinButton->setIconSize(
+			binButtonSize - QSize( MidiControlDialog::nBinButtonMargin,
+								   MidiControlDialog::nBinButtonMargin ) );
+		pContainerLayout->addWidget( pBinButton );
+
+		return pBinButton;
+	};
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -616,14 +640,23 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 
 	////////////////////////////////////////////////////////////////////////////
 
-	m_pMidiActionTable = new MidiActionTable( this );
-	m_pTabWidget->addTab( m_pMidiActionTable, tr( "Midi Actions" ) );
+	auto pMidiActionWidget = new QWidget( m_pTabWidget );
+	m_pTabWidget->addTab( pMidiActionWidget, tr( "Midi Actions" ) );
+	auto pMidiActionLayout = new QVBoxLayout( pMidiActionWidget );
+	pMidiActionLayout->setContentsMargins( 0, 0, 0, 0 );
+	pMidiActionLayout->setSpacing( 1 );
+	pMidiActionWidget->setLayout( pMidiActionLayout );
 
-	connect( m_pMidiActionTable, &MidiActionTable::changed, [=]() {
-		m_pMidiActionTable->saveMidiActionTable();
-		blacklistEventId( H2Core::EventQueue::get_instance()->pushEvent(
-			H2Core::Event::Type::MidiEventMapChanged, 0
-		) );
+	m_pMidiActionTable = new MidiActionTable( pMidiActionWidget );
+
+	pMidiActionLayout->addWidget( m_pMidiActionTable );
+	m_pMidiActionAddButton = addBinButton( pMidiActionWidget );
+	connect( m_pMidiActionAddButton, &QToolButton::clicked, [&]() {
+		HydrogenApp::get_instance()->pushUndoCommand(
+			new SE_addOrRemoveMidiEventsAction(
+				-1, MidiEvent::Type::Null, Midi::ParameterMinimum, nullptr, true
+			)
+		);
 	} );
 
 	////////////////////////////////////////////////////////////////////////////
@@ -670,28 +703,6 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 		6, MidiControlDialog::nColumnInstrumentWidth );
 	pInputLayout->addWidget( m_pMidiInputTable );
 
-	const auto binButtonSize = QSize(
-		MidiControlDialog::nBinButtonHeight * Skin::fButtonWidthHeightRatio,
-		MidiControlDialog::nBinButtonHeight );
-
-	auto addBinButton = [&]( QWidget* pParent ) {
-		auto pContainerWidget = new QWidget( pParent );
-		pParent->layout()->addWidget( pContainerWidget );
-		auto pContainerLayout = new QHBoxLayout( pContainerWidget );
-		pContainerLayout->setAlignment( Qt::AlignRight );
-		pContainerLayout->setContentsMargins( 1, 1, 1, 1 );
-		pContainerWidget->setLayout( pContainerLayout );
-
-		auto pBinButton = new QToolButton( pContainerWidget );
-		pBinButton->setCheckable( false );
-		pBinButton->setFixedSize( binButtonSize );
-		pBinButton->setIconSize(
-			binButtonSize - QSize( MidiControlDialog::nBinButtonMargin,
-								   MidiControlDialog::nBinButtonMargin ) );
-		pContainerLayout->addWidget( pBinButton );
-
-		return pBinButton;
-	};
 	m_pInputBinButton = addBinButton( pInputWidget );
 	connect( m_pInputBinButton, &QToolButton::clicked, [&]() {
 		auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
@@ -771,11 +782,6 @@ void MidiControlDialog::instrumentParametersChangedEvent( int ) {
 void MidiControlDialog::midiDriverChangedEvent() {
 }
 
-void MidiControlDialog::midiMapChangedEvent()
-{
-    m_pMidiActionTable->setupMidiActionTable();
-}
-
 void MidiControlDialog::midiInputEvent() {
 	updateInputTable();
 }
@@ -817,7 +823,7 @@ void MidiControlDialog::updatePreferencesEvent( int nValue )
 		static_cast<int>( pPref->getMidiSendNoteOff() )
 	);
 
-	m_pMidiActionTable->setupMidiActionTable();
+	m_pMidiActionTable->resetTable();
 }
 
 void MidiControlDialog::updateSongEvent( int nValue ) {
@@ -891,6 +897,7 @@ void MidiControlDialog::updateIcons() {
 		sIconPath.append( "/icons/black/" );
 	}
 
+    m_pMidiActionAddButton->setIcon( QIcon( sIconPath + "new.svg" ) );
 	m_pInputBinButton->setIcon( QIcon( sIconPath + "bin.svg" ) );
 	m_pOutputBinButton->setIcon( QIcon( sIconPath + "bin.svg" ) );
 
