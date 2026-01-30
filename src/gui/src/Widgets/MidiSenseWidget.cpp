@@ -49,7 +49,6 @@ MidiSenseWidget::MidiSenseWidget(
 	m_pAction = pAction;
 
 	setWindowTitle( pCommonStrings->getMidiSenseWindowTitle() );
-	setMinimumWidth( 280 );
 
 	auto pMainLayout = new QVBoxLayout( this );
 	pMainLayout->setSpacing( 10 );
