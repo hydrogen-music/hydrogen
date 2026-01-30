@@ -128,21 +128,20 @@ class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput {
 		InstrumentPorts();
 		InstrumentPorts( const InstrumentPorts& other );
 
-		/** When switching kits/manipulating instruments we check whether
-		 * they are currently used to render a sample. If so, they are added
-		 * to the Hydrogen::m_instrumentDeathRow. This way they can live on
-		 * until all rendering using their samples is done and we avoid
-		 * audible glitches when switching kits.
+		/** When switching kits/manipulating instruments we check whether they
+		 * are currently used to render a sample. If so, they are added to the
+		 * Hydrogen::m_instrumentDeathRow. This way they can live on until all
+		 * rendering using their samples is done and we avoid audible glitches
+		 * when switching kits.
 		 *
 		 * But when using per-track JACK output ports we have to ensure too,
-		 * that the ports associated with those instruments are kept open
-		 * till all rendering is done. Instruments which's ports are mapped
-		 * to the ones of another instrument will continue using those ports
-		 * (but we must not remove them since the new instruments are still
-		 * using them - Marked::ForRemoval). Instruments not having a
-		 * corresponding mapping target will keep their ports till all
-		 * rendering is done (Marked::ForDeath). See
-		 * cleanupPerTrackPorts(). */
+		 * that the ports associated with those instruments are kept open till
+		 * all rendering is done. Instruments which's ports are mapped to the
+		 * ones of another instrument will continue using those ports (but we
+		 * must not remove them since the new instruments are still using them -
+		 * Marked::ForRemoval). Instruments not having a corresponding mapping
+		 * target will keep their ports till all rendering is done
+		 * (Marked::ForDeath). See cleanupPerTrackPorts(). */
 		enum class Marked { ForDeath, ForRemoval, None };
 
 		QString sPortNameBase;
@@ -151,110 +150,62 @@ class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput {
 		Marked marked;
 	};
 
+	static double bbtToTick( const jack_position_t& pos );
+	static bool isBBTValid( const jack_position_t& pos );
+	static void transportToBBT(
+		const TransportPosition& transportPos,
+		jack_position_t* pPos
+	);
+	static QString JackTransportPosToQString( const jack_position_t& pPos );
+
 	typedef std::map<std::shared_ptr<Instrument>, InstrumentPorts> PortMap;
 
-	/**
-	 * Object holding the external client session with the JACK
-	 * server.
-	 */
-	jack_client_t* m_pClient;
-	/**
-	 * Constructor of the JACK server driver.
-	 *
-	 * @param m_processCallback Function that is called by the
-			 AudioEngine during every processing cycle.
-	 */
 	JackAudioDriver( JackProcessCallback m_processCallback );
-	/**
-	 * Destructor of the JACK server driver.
-	 *
-	 * Calling disconnect().
-	 */
 	~JackAudioDriver();
-
-	/**
-	 * Connects to output ports via the JACK server.
-	 *	 *
-	 * @return
-	 * - __0__ : on success.
-	 * - __1__ : The activation of the JACK client using
-	 *           did fail.
-	 * - __2__ : The connections to #m_sOutputPortName1 and
-	 *       #m_sOutputPortName2 could not be established and the
-	 *       there were either no JACK ports holding the
-	 *       JackPortIsInput flag found or no connection to them could
-	 *       be established.
-	 */
-	virtual int connect() override;
-	/**
-	 * Disconnects the JACK client of the Hydrogen from the JACK
-	 * server.
-	 */
-	virtual void disconnect() override;
-	/**
-	 * Deactivates the JACK client of Hydrogen and disconnects all
-	 * ports belonging to it.
-	 */
-	void deactivate();
-	/** \return Global variable #jackServerBufferSize. */
-	virtual unsigned getBufferSize() override;
-	/** \return Global variable #jackServerSampleRate. */
-	virtual unsigned getSampleRate() override;
-
-	virtual int getXRuns() const override;
 
 	Mode getMode() const;
 
-	/** Resets the buffers contained in #m_pTrackOutputPortsL and
-	 * #m_pTrackOutputPortsR.
+	/** Re-positions the transport position to @a nFrame.
 	 *
-	 * @param nFrames Size of the buffers used in the audio process
-	 *   callback function.
+	 * The new position takes effect in two process cycles during which JACK's
+	 * state will be in JackTransportStarting and the transport won't be
+	 * rolling.
+	 *
+	 * \param nFrame Requested new transport position.
 	 */
-	void clearPerTrackAudioBuffers( uint32_t nFrames );
+	void locateTransport( long long nFrame );
+	/** Tells the JACK server to start transport. */
+	void startTransport();
+	/** Tells the JACK server to stop transport. */
+	void stopTransport();
 	/**
-	 * Get buffer of a specific port associated with the instrument.
-	 *
-	 * \return Pointer to buffer content of type
-	 *   _jack_default_audio_sample_t*_ (jack/types.h)
+	 * The function queries the transport position and additional information
+	 * from the JACK server, writes them to #m_JackTransportPos and in
+	 * #m_JackTransportState, and updates the AudioEngine in case of a mismatch.
 	 */
-	float* getTrackBuffer(
-		std::shared_ptr<Instrument> pInstrument,
-		Channel channel
-	) const;
-	/** Creates per-instrument output ports.
+	void updateTransportPosition();
+
+	/** \return the BPM reported by the current (external) Timebase controller
+		or NAN if there is none.*/
+	float getTimebaseControllerBpm() const;
+	Timebase getTimebaseState() const;
+	/** Acquires control of JACK Timebase. */
+	void initTimebaseControl();
+	/** Release Hydrogen from the JACK Timebase control.
 	 *
-	 * In case the previous drumkit is provided as well, a more sophisticated
-	 * mapping between the instrument corresponding to the ports can be done. */
-	void makeTrackPorts(
-		std::shared_ptr<Song> pSong,
-		std::shared_ptr<Drumkit> pOldDrumkit = nullptr
-	);
-
-	/** Checks whether there are ports associated with instrument in
-	 * #Hydrogen::m_instrumentDeathRow and whether they can be torn down. */
-	void cleanupPerTrackPorts();
-
-	/** \param flag Sets #m_bConnectDefaults*/
-	void setConnectDefaults( bool flag ) { m_bConnectDefaults = flag; }
-	/** \return #m_bConnectDefaults */
-	bool getConnectDefaults() { return m_bConnectDefaults; }
-
-	/**
-	 * Get content in the left stereo output port.
+	 * This causes the JackTimebaseCallback() callback function to not be called
+	 * by the JACK server anymore. */
+	void releaseTimebaseControl();
+	/** Uses the bar-beat-tick information to relocate the transport position.
 	 *
-	 * \return Pointer to buffer content of type
-	 * _jack_default_audio_sample_t*_ (jack/types.h)
-	 */
-	virtual float* getOut_L() override;
-	/**
-	 * Get content in the right stereo output port.
-	 *
-	 * \return Pointer to buffer content of type
-	 * _jack_default_audio_sample_t*_ (jack/types.h)
-	 */
-	virtual float* getOut_R() override;
+	 * This type of operation is triggered whenever the transport position gets
+	 * relocated or the tempo is changed using JACK in the presence of an
+	 * external Timebase controller. */
+	void relocateUsingBBT();
 
+	const jack_position_t& getJackPosition() const;
+
+	/** Implementation of the AudioOuput interface @{*/
 	/**
 	 * Initializes the JACK audio driver.
 	 *
@@ -269,115 +220,77 @@ class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput {
 	 * output ports for the JACK client using
 	 * _jack_port_register()_ (jack/jack.h).
 	 */
-	virtual int init( unsigned bufferSize ) override;
+	int init( unsigned bufferSize ) override;
+	/** Connects to output ports via the JACK server.
+	 *	 *
+	 * @return
+	 * - __0__ : on success.
+	 * - __1__ : The activation of the JACK client using
+	 *           did fail.
+	 * - __2__ : The connections to #m_sOutputPortName1 and
+	 *       #m_sOutputPortName2 could not be established and the
+	 *       there were either no JACK ports holding the
+	 *       JackPortIsInput flag found or no connection to them could
+	 *       be established.
+	 */
+	int connect() override;
+	void disconnect() override;
+	unsigned getBufferSize() override;
+	unsigned getSampleRate() override;
+	int getXRuns() const override;
+	float* getOut_L() override;
+	float* getOut_R() override;
+	/** @} */
 
-	/**
-	 * Tells the JACK server to start transport.
-	 */
-	void startTransport();
-	/**
-	 * Tells the JACK server to stop transport.
-	 */
-	void stopTransport();
-	/**
-	 * Re-positions the transport position to @a nFrame.
-	 *
-	 * The new position takes effect in two process cycles during
-	 * which JACK's state will be in JackTransportStarting and the
-	 * transport won't be rolling.
-	 *
-	 * \param nFrame Requested new transport position.
-	 */
-	void locateTransport( long long nFrame );
-	/**
-	 * The function queries the transport position and additional
-	 * information from the JACK server, writes them to
-	 * #m_JackTransportPos and in #m_JackTransportState, and updates
-	 * the AudioEngine in case of a mismatch.
-	 */
-	void updateTransportPosition();
-
-	/**
-	 * Acquires control of JACK Timebase.
-	 */
-	void initTimebaseControl();
-	/**
-	 * Release Hydrogen from the JACK Timebase control.
-	 *
-	 * This causes the JackTimebaseCallback() callback function to not
-	 * be called by the JACK server anymore.
-	 */
-	void releaseTimebaseControl();
-
-	/**
-	 * \return #m_timebaseState
-	 */
-	Timebase getTimebaseState() const;
-
-	/**
-	 * Sample rate of the JACK audio server.
-	 */
-	static unsigned long jackServerSampleRate;
-	/**
-	 * Buffer size of the JACK audio server.
-	 */
-	static jack_nframes_t jackServerBufferSize;
-	/**
-	 * Instance of the JackAudioDriver.
-	 */
-	static JackAudioDriver* pJackDriverInstance;
-	/** Number of XRuns since the driver started.*/
-	static int jackServerXRuns;
-
-	/**
-	 * Callback function for the JACK audio server to set the sample
-	 * rate #jackServerSampleRate.
-	 *
-	 * \param nframes New sample rate.
-	 * \param param Object inheriting from the #Logger class.
-	 *
-	 * @return 0 on success
-	 */
-	static int jackDriverSampleRate( jack_nframes_t nframes, void* param );
-
-	/**
-	 * Callback function for the JACK audio server to set the buffer
+	/** Members required to implement the Audio part of the driver. @{ */
+	/** Callback function for the JACK audio server to set the buffer
 	 * size #jackServerBufferSize.
 	 *
 	 * \param nframes New buffer size.
 	 * \param arg Not used
 	 *
-	 * @return 0 on success
-	 */
+	 * @return 0 on success */
 	static int jackDriverBufferSize( jack_nframes_t nframes, void* arg );
+	/** Callback function for the JACK audio server to set the sample
+	 * rate #jackServerSampleRate.
+	 *
+	 * \param nframes New sample rate.
+	 * \param param Object inheriting from the #Logger class.
+	 *
+	 * @return 0 on success */
+	static int jackDriverSampleRate( jack_nframes_t nframes, void* param );
 	/** Report an XRun event to the GUI.*/
 	static int jackXRunCallback( void* arg );
-
-	/** \return the BPM reported by the current (external) Timebase controller
-		or NAN if there is none.*/
-	float getTimebaseControllerBpm() const;
-
-	/**
-	 * Uses the bar-beat-tick information to relocate the transport
-	 * position.
+	/** Checks whether there are ports associated with instrument in
+	 * #Hydrogen::m_instrumentDeathRow and whether they can be torn down. */
+	void cleanupPerTrackPorts();
+	void clearPerTrackAudioBuffers( uint32_t nFrames );
+	void deactivate();
+	float* getTrackBuffer(
+		std::shared_ptr<Instrument> pInstrument,
+		Channel channel
+	) const;
+	bool getConnectDefaults() { return m_bConnectDefaults; }
+	/** Creates per-instrument output ports.
 	 *
-	 * This type of operation is triggered whenever the transport position gets
-	 * relocated or the tempo is changed using JACK in the presence of an
-	 * external Timebase controller. */
-	void relocateUsingBBT();
-	/** Used within the unit tests and checks whether the last JACK
-	 * transport position retrieved has valid BBT information. */
-	bool checkBBTPos() const;
-
-	const jack_position_t& getJackPosition() const;
-
-	static bool isBBTValid( const jack_position_t& pos );
-	static double bbtToTick( const jack_position_t& pos );
-	static void transportToBBT(
-		const TransportPosition& transportPos,
-		jack_position_t* pPos
+	 * In case the previous drumkit is provided as well, a more sophisticated
+	 * mapping between the instrument corresponding to the ports can be done. */
+	void makeTrackPorts(
+		std::shared_ptr<Song> pSong,
+		std::shared_ptr<Drumkit> pOldDrumkit = nullptr
 	);
-	static QString JackTransportPosToQString( const jack_position_t& pPos );
+	void setConnectDefaults( bool flag ) { m_bConnectDefaults = flag; }
+
+	/** Sample rate of the JACK audio server. */
+	static unsigned long jackServerSampleRate;
+	/** Buffer size of the JACK audio server. */
+	static jack_nframes_t jackServerBufferSize;
+	/** Instance of the JackAudioDriver. */
+	static JackAudioDriver* pJackDriverInstance;
+	/** Number of XRuns since the driver started.*/
+	static int jackServerXRuns;
+	jack_client_t* m_pClient;
+	/** @} */
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true )
 		const override;
@@ -463,6 +376,8 @@ class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput {
 	 */
 	static void jackDriverShutdown( void* arg );
 
+	void unregisterTrackPorts( InstrumentPorts ports );
+
 	static QString JackTransportStateToQString(
 		const jack_transport_state_t& pPos
 	);
@@ -494,8 +409,6 @@ class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput {
 	 * a connection will be established in connect().
 	 */
 	QString m_sOutputPortName2;
-
-	void unregisterTrackPorts( InstrumentPorts ports );
 
 	/** The left and right jack port (in that order) associated with a
 	 * channel of an instrument. */
@@ -628,7 +541,7 @@ class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput {
 
 inline JackAudioDriver::Mode JackAudioDriver::getMode() const
 {
-    return m_mode;
+	return m_mode;
 }
 
 };	// namespace H2Core
