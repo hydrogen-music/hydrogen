@@ -106,8 +106,6 @@ MidiActionTable::~MidiActionTable()
 			delete cellWidget( nnRow, nnColumn );
 		}
 	}
-
-	HydrogenApp::get_instance()->removeEventListener( this );
 }
 
 void MidiActionTable::resetTable()
