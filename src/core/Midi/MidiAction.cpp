@@ -703,7 +703,10 @@ void MidiAction::setInstrument( int newInstrument )
 		return;
 	}
 
-	m_nInstrument = std::max( 0, newInstrument );
+	m_nInstrument = std::max(
+		static_cast<int>( MidiAction::nCurrentSelectionParameter ),
+		newInstrument
+	);
 }
 
 int MidiAction::getLayer() const
