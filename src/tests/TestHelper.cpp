@@ -311,6 +311,7 @@ void TestHelper::waitForMidiDriver() {
 }
 
 void TestHelper::waitForMidiActionManagerWorkerThread() {
+    ___DEBUGLOG("");
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 
@@ -327,4 +328,6 @@ void TestHelper::waitForMidiActionManagerWorkerThread() {
 		std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
 	}
 	CPPUNIT_ASSERT( nnTry < nMaxTries );
+
+    ___DEBUGLOG("DONE");
 }

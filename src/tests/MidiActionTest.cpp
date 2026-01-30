@@ -2509,6 +2509,7 @@ void MidiActionTest::testUnmuteAction()
 
 void MidiActionTest::sendMessage( const MidiMessage& msg )
 {
+    ___DEBUGLOG( "" );
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
@@ -2522,7 +2523,9 @@ void MidiActionTest::sendMessage( const MidiMessage& msg )
 	pDriver->clearBacklogMessages();
     const auto nPreviousHandledInputMessages = pDriver->getHandledInputs().size();
     const auto nPreviousHandledOutputMessages = pDriver->getHandledOutputs().size();
+    ___DEBUGLOG( "pre enqueuing message" );
 	pDriver->enqueueOutputMessage( msg );
+    ___DEBUGLOG( "post enqueuing message" );
 
 	// Wait till the LoopBackMidiDriver did send, receive, and handle the
 	// message.
@@ -2536,6 +2539,8 @@ void MidiActionTest::sendMessage( const MidiMessage& msg )
 
 		++nnTry;
 		std::this_thread::sleep_for( std::chrono::milliseconds( 5 ) );
+        ___DEBUGLOG( QString( "post sleep [%1]" ).arg( nnTry ) );
 	}
 	TestHelper::waitForMidiActionManagerWorkerThread();
+    ___DEBUGLOG( "DONE" );
 }
