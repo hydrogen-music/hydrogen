@@ -544,6 +544,23 @@ void MidiActionTable::updateRowContent(
 		}
 		const auto required = MidiAction::requiresFromType( actionType );
 
+        // For instruments we provide a special value indicating that the action
+        // will be applied to the currently selected instrument.
+		if ( required & MidiAction::RequiresInstrument ) {
+			pActionParameterSpinBox1->m_pSpinBox->setFlag(
+				LCDSpinBox::Flag::MinusOneAsCurrentlySelected
+			);
+			pActionParameterSpinBox1->m_pSpinBox->setMinimum(
+				static_cast<int>( MidiAction::nCurrentSelectionParameter )
+			);
+		}
+		else {
+			pActionParameterSpinBox1->m_pSpinBox->setFlag(
+				LCDSpinBox::Flag::None
+			);
+			pActionParameterSpinBox1->m_pSpinBox->setMinimum( 0 );
+		}
+
 		if ( required & MidiAction::RequiresInstrument ) {
 			pActionParameterSpinBox1->m_pSpinBox->setValue(
 				pMidiAction->getInstrument(), Event::Trigger::Suppress

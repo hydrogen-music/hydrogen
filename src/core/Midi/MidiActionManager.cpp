@@ -415,7 +415,10 @@ bool MidiActionManager::stripMuteToggle( std::shared_ptr<MidiAction> pAction ) {
 	}
 
 	bool ok;
-	const int nLine = pAction->getInstrument();
+	const int nLine =
+		pAction->getInstrument() == MidiAction::nCurrentSelectionParameter
+			? pHydrogen->getSelectedInstrumentNumber()
+			: pAction->getInstrument();
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
@@ -441,7 +444,10 @@ bool MidiActionManager::stripSoloToggle( std::shared_ptr<MidiAction> pAction ) {
 	}
 
 	bool ok;
-	const int nLine = pAction->getInstrument();
+	const int nLine =
+		pAction->getInstrument() == MidiAction::nCurrentSelectionParameter
+			? pHydrogen->getSelectedInstrumentNumber()
+			: pAction->getInstrument();
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
@@ -710,7 +716,10 @@ bool MidiActionManager::effectLevelAbsolute( std::shared_ptr<MidiAction> pAction
 	}
 
 	bool ok;
-	const int nLine = pAction->getInstrument();
+	const int nLine =
+		pAction->getInstrument() == MidiAction::nCurrentSelectionParameter
+			? pHydrogen->getSelectedInstrumentNumber()
+			: pAction->getInstrument();
 	const int nFxValue = pAction->getValue();
 	const int nFxId = pAction->getFx();
 
@@ -743,7 +752,10 @@ bool MidiActionManager::effectLevelRelative( std::shared_ptr<MidiAction> pAction
 	}
 
 	bool ok;
-	const int nLine = pAction->getInstrument();
+	const int nLine =
+		pAction->getInstrument() == MidiAction::nCurrentSelectionParameter
+			? pHydrogen->getSelectedInstrumentNumber()
+			: pAction->getInstrument();
 	const int nFxValue = pAction->getValue();
 	const int nFxId = pAction->getFx();
 
@@ -833,7 +845,10 @@ bool MidiActionManager::stripVolumeAbsolute( std::shared_ptr<MidiAction> pAction
 	}
 
 	bool ok;
-	const int nLine = pAction->getInstrument();
+	const int nLine =
+		pAction->getInstrument() == MidiAction::nCurrentSelectionParameter
+			? pHydrogen->getSelectedInstrumentNumber()
+			: pAction->getInstrument();
 	const int nVolume = pAction->getValue();
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
@@ -869,7 +884,10 @@ bool MidiActionManager::stripVolumeRelative( std::shared_ptr<MidiAction> pAction
 	}
 
 	bool ok;
-	const int nLine = pAction->getInstrument();
+	const int nLine =
+		pAction->getInstrument() == MidiAction::nCurrentSelectionParameter
+			? pHydrogen->getSelectedInstrumentNumber()
+			: pAction->getInstrument();
 	const int nVolume = pAction->getValue();
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
@@ -912,7 +930,10 @@ bool MidiActionManager::panAbsolute( std::shared_ptr<MidiAction> pAction ) {
 	}
 
 	bool ok;
-	const int nLine = pAction->getInstrument();
+	const int nLine =
+		pAction->getInstrument() == MidiAction::nCurrentSelectionParameter
+			? pHydrogen->getSelectedInstrumentNumber()
+			: pAction->getInstrument();
 	const int nPanValue = pAction->getValue();
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
@@ -947,7 +968,10 @@ bool MidiActionManager::panAbsoluteSym( std::shared_ptr<MidiAction> pAction ) {
 	}
 
 	bool ok;
-	const int nLine = pAction->getInstrument();
+	const int nLine =
+		pAction->getInstrument() == MidiAction::nCurrentSelectionParameter
+			? pHydrogen->getSelectedInstrumentNumber()
+			: pAction->getInstrument();
 	const int nPanValue = pAction->getValue();
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
@@ -985,7 +1009,10 @@ bool MidiActionManager::panRelative( std::shared_ptr<MidiAction> pAction ) {
 	}
 
 	bool ok;
-	const int nLine = pAction->getInstrument();
+	const int nLine =
+		pAction->getInstrument() == MidiAction::nCurrentSelectionParameter
+			? pHydrogen->getSelectedInstrumentNumber()
+			: pAction->getInstrument();
 	const int nPanValue = pAction->getValue();
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
@@ -1024,7 +1051,10 @@ bool MidiActionManager::gainLevelAbsolute( std::shared_ptr<MidiAction> pAction )
 
 	bool ok;
 	const int nGainValue = pAction->getValue();
-	const int nLine = pAction->getInstrument();
+	const int nLine =
+		pAction->getInstrument() == MidiAction::nCurrentSelectionParameter
+			? pHydrogen->getSelectedInstrumentNumber()
+			: pAction->getInstrument();
 	const int nComponentId = pAction->getComponent();
 	const int nLayerId = pAction->getLayer();
 
@@ -1165,7 +1195,10 @@ bool MidiActionManager::pitchLevelAbsolute( std::shared_ptr<MidiAction> pAction
 
 	bool ok;
 	const int nPitchValue = pAction->getValue();
-	const int nLine = pAction->getInstrument();
+	const int nLine =
+		pAction->getInstrument() == MidiAction::nCurrentSelectionParameter
+			? pHydrogen->getSelectedInstrumentNumber()
+			: pAction->getInstrument();
 	const int nComponentId = pAction->getComponent();
 	const int nLayerId = pAction->getLayer();
 
@@ -1207,7 +1240,10 @@ bool MidiActionManager::instrumentPitch( std::shared_ptr<MidiAction> pAction ) {
 
 	bool ok;
 	float fPitch;
-	const int nInstrument = pAction->getInstrument();
+	const int nInstrument =
+		pAction->getInstrument() == MidiAction::nCurrentSelectionParameter
+			? Hydrogen::get_instance()->getSelectedInstrumentNumber()
+			: pAction->getInstrument();
 	const int nPitchMidi = pAction->getValue();
 	if ( nPitchMidi != 0 ) {
 		fPitch = ( Instrument::fPitchOffsetMaximum - Instrument::fPitchOffsetMinimum ) *
@@ -1231,7 +1267,10 @@ bool MidiActionManager::filterCutoffLevelAbsolute( std::shared_ptr<MidiAction> p
 	}
 
 	bool ok;
-	const int nLine = pAction->getInstrument();
+	const int nLine =
+		pAction->getInstrument() == MidiAction::nCurrentSelectionParameter
+			? pHydrogen->getSelectedInstrumentNumber()
+			: pAction->getInstrument();
 	const int nFilterCutoffValue = pAction->getValue();
 
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
