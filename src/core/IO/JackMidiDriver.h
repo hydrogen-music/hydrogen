@@ -37,8 +37,6 @@
 #include <jack/midiport.h>
 #include <jack/ringbuffer.h>
 
-#include <memory>
-#include <string>
 #include <vector>
 
 #define JACK_MIDI_BUFFER_MAX 64 /* events */
@@ -61,31 +59,31 @@ class JackMidiDriver : public Object<JackMidiDriver>,
 	void open() override;
 
 	void getPortInfo( const QString& sPortName, int& nClient, int& nPort );
-	void JackMidiWrite( jack_nframes_t nframes );
-	void JackMidiRead( jack_nframes_t nframes );
+	void readJackMidi( jack_nframes_t nframes );
+	void writeJackMidi( jack_nframes_t nframes );
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true )
 		const override;
 
    private:
-	void JackMidiOutEvent( uint8_t* buf, uint8_t len );
+	void jackMidiOutEvent( uint8_t* buf, uint8_t len );
 
 	void sendControlChangeMessage( const MidiMessage& msg ) override;
 	void sendNoteOnMessage( const MidiMessage& msg ) override;
 	void sendNoteOffMessage( const MidiMessage& msg ) override;
 	void sendSystemRealTimeMessage( const MidiMessage& msg ) override;
 
-	void lock();
-	void unlock();
+	void lockMidiPart();
+	void unlockMidiPart();
 
-	jack_port_t* output_port;
-	jack_port_t* input_port;
-	jack_client_t* jack_client;
-	pthread_mutex_t mtx;
-	int running;
-	uint8_t jack_buffer[JACK_MIDI_BUFFER_MAX * 4];
-	uint32_t rx_in_pos;
-	uint32_t rx_out_pos;
+	jack_port_t* m_pMidiOutputPort;
+	jack_port_t* m_pMidiInputPort;
+	jack_client_t* m_pJackClient;
+	pthread_mutex_t m_midiMutex;
+	int m_nRunning;
+	uint8_t m_jackMidiBuffer[JACK_MIDI_BUFFER_MAX * 4];
+	uint32_t m_midiRxInPosition;
+	uint32_t m_midiRxOutPosition;
 };
 
 };	// namespace H2Core

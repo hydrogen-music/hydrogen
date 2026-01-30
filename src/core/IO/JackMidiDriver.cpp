@@ -37,17 +37,17 @@
 
 namespace H2Core {
 
-void JackMidiDriver::lock( void )
+void JackMidiDriver::lockMidiPart( void )
 {
-	pthread_mutex_lock( &mtx );
+	pthread_mutex_lock( &m_midiMutex );
 }
 
-void JackMidiDriver::unlock( void )
+void JackMidiDriver::unlockMidiPart( void )
 {
-	pthread_mutex_unlock( &mtx );
+	pthread_mutex_unlock( &m_midiMutex );
 }
 
-void JackMidiDriver::JackMidiWrite( jack_nframes_t nframes )
+void JackMidiDriver::writeJackMidi( jack_nframes_t nframes )
 {
 	int error;
 	int events;
@@ -56,11 +56,11 @@ void JackMidiDriver::JackMidiWrite( jack_nframes_t nframes )
 	jack_midi_event_t event;
 	uint8_t buffer[13];	 // 13 is needed if we get sysex goto messages
 
-	if ( input_port == nullptr ) {
+	if ( m_pMidiInputPort == nullptr ) {
 		return;
 	}
 
-	buf = jack_port_get_buffer( input_port, nframes );
+	buf = jack_port_get_buffer( m_pMidiInputPort, nframes );
 	if ( buf == nullptr ) {
 		return;
 	}
@@ -81,7 +81,7 @@ void JackMidiDriver::JackMidiWrite( jack_nframes_t nframes )
 			continue;
 		}
 
-		if ( running < 1 ) {
+		if ( m_nRunning < 1 ) {
 			continue;
 		}
 
@@ -130,10 +130,10 @@ void JackMidiDriver::sendControlChangeMessage( const MidiMessage& msg )
 	buffer[2] = static_cast<int>( msg.getData2() );
 	buffer[3] = 0;
 
-	JackMidiOutEvent( buffer, 3 );
+	jackMidiOutEvent( buffer, 3 );
 }
 
-void JackMidiDriver::JackMidiRead( jack_nframes_t nframes )
+void JackMidiDriver::readJackMidi( jack_nframes_t nframes )
 {
 	uint8_t* buffer;
 	void* buf;
@@ -141,11 +141,11 @@ void JackMidiDriver::JackMidiRead( jack_nframes_t nframes )
 	uint8_t data[1];
 	uint8_t len;
 
-	if ( output_port == nullptr ) {
+	if ( m_pMidiOutputPort == nullptr ) {
 		return;
 	}
 
-	buf = jack_port_get_buffer( output_port, nframes );
+	buf = jack_port_get_buffer( m_pMidiOutputPort, nframes );
 	if ( buf == nullptr ) {
 		return;
 	}
@@ -157,13 +157,13 @@ void JackMidiDriver::JackMidiRead( jack_nframes_t nframes )
 #endif
 
 	t = 0;
-	lock();
-	while ( ( t < nframes ) && ( rx_out_pos != rx_in_pos ) ) {
-		len = jack_buffer[4 * rx_in_pos];
+	lockMidiPart();
+	while ( ( t < nframes ) && ( m_midiRxOutPosition != m_midiRxInPosition ) ) {
+		len = m_jackMidiBuffer[4 * m_midiRxInPosition];
 		if ( len == 0 ) {
-			rx_in_pos++;
-			if ( rx_in_pos >= JACK_MIDI_BUFFER_MAX ) {
-				rx_in_pos = 0;
+			m_midiRxInPosition++;
+			if ( m_midiRxInPosition >= JACK_MIDI_BUFFER_MAX ) {
+				m_midiRxInPosition = 0;
 			}
 			continue;
 		}
@@ -177,29 +177,29 @@ void JackMidiDriver::JackMidiRead( jack_nframes_t nframes )
 			break;
 		}
 		t++;
-		rx_in_pos++;
-		if ( rx_in_pos >= JACK_MIDI_BUFFER_MAX ) {
-			rx_in_pos = 0;
+		m_midiRxInPosition++;
+		if ( m_midiRxInPosition >= JACK_MIDI_BUFFER_MAX ) {
+			m_midiRxInPosition = 0;
 		}
-		memcpy( buffer, jack_buffer + ( 4 * rx_in_pos ) + 1, len );
+		memcpy( buffer, m_jackMidiBuffer + ( 4 * m_midiRxInPosition ) + 1, len );
 	}
-	unlock();
+	unlockMidiPart();
 }
 
-void JackMidiDriver::JackMidiOutEvent( uint8_t buf[4], uint8_t len )
+void JackMidiDriver::jackMidiOutEvent( uint8_t buf[4], uint8_t len )
 {
 	uint32_t next_pos;
 
-	lock();
+	lockMidiPart();
 
-	next_pos = rx_out_pos + 1;
+	next_pos = m_midiRxOutPosition + 1;
 	if ( next_pos >= JACK_MIDI_BUFFER_MAX ) {
 		next_pos = 0;
 	}
 
-	if ( next_pos == rx_in_pos ) {
+	if ( next_pos == m_midiRxInPosition ) {
 		/* buffer is full */
-		unlock();
+		unlockMidiPart();
 		return;
 	}
 
@@ -207,14 +207,14 @@ void JackMidiDriver::JackMidiOutEvent( uint8_t buf[4], uint8_t len )
 		len = 3;
 	}
 
-	jack_buffer[( 4 * next_pos )] = len;
-	jack_buffer[( 4 * next_pos ) + 1] = buf[0];
-	jack_buffer[( 4 * next_pos ) + 2] = buf[1];
-	jack_buffer[( 4 * next_pos ) + 3] = buf[2];
+	m_jackMidiBuffer[( 4 * next_pos )] = len;
+	m_jackMidiBuffer[( 4 * next_pos ) + 1] = buf[0];
+	m_jackMidiBuffer[( 4 * next_pos ) + 2] = buf[1];
+	m_jackMidiBuffer[( 4 * next_pos ) + 3] = buf[2];
 
-	rx_out_pos = next_pos;
+	m_midiRxOutPosition = next_pos;
 
-	unlock();
+	unlockMidiPart();
 }
 
 static int JackMidiProcessCallback( jack_nframes_t nframes, void* arg )
@@ -225,8 +225,8 @@ static int JackMidiProcessCallback( jack_nframes_t nframes, void* arg )
 		return ( 0 );
 	}
 
-	jmd->JackMidiRead( nframes );
-	jmd->JackMidiWrite( nframes );
+	jmd->readJackMidi( nframes );
+	jmd->writeJackMidi( nframes );
 
 	return ( 0 );
 }
@@ -241,13 +241,13 @@ static void JackMidiShutdown( void* arg )
 
 JackMidiDriver::JackMidiDriver() : MidiBaseDriver()
 {
-	pthread_mutex_init( &mtx, nullptr );
+	pthread_mutex_init( &m_midiMutex, nullptr );
 
-	running = 0;
-	rx_in_pos = 0;
-	rx_out_pos = 0;
-	output_port = nullptr;
-	input_port = nullptr;
+	m_nRunning = 0;
+	m_midiRxInPosition = 0;
+	m_midiRxOutPosition = 0;
+	m_pMidiOutputPort = nullptr;
+	m_pMidiInputPort = nullptr;
 
 	QString jackMidiClientId = "Hydrogen";
 
@@ -261,70 +261,70 @@ JackMidiDriver::JackMidiDriver() : MidiBaseDriver()
 
 	jackMidiClientId.append( "-midi" );
 
-	jack_client = jack_client_open(
+	m_pJackClient = jack_client_open(
 		jackMidiClientId.toLocal8Bit(), JackNoStartServer, nullptr
 	);
 
-	if ( jack_client == nullptr ) {
+	if ( m_pJackClient == nullptr ) {
 		return;
 	}
 
-	jack_set_process_callback( jack_client, JackMidiProcessCallback, this );
+	jack_set_process_callback( m_pJackClient, JackMidiProcessCallback, this );
 
-	jack_on_shutdown( jack_client, JackMidiShutdown, nullptr );
+	jack_on_shutdown( m_pJackClient, JackMidiShutdown, nullptr );
 
-	output_port = jack_port_register(
-		jack_client, "TX", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0
+	m_pMidiOutputPort = jack_port_register(
+		m_pJackClient, "TX", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0
 	);
 
-	input_port = jack_port_register(
-		jack_client, "RX", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0
+	m_pMidiInputPort = jack_port_register(
+		m_pJackClient, "RX", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0
 	);
 
-	jack_activate( jack_client );
+	jack_activate( m_pJackClient );
 }
 
 JackMidiDriver::~JackMidiDriver()
 {
-	if ( jack_client != nullptr ) {
-		if ( jack_port_unregister( jack_client, input_port ) != 0 ) {
+	if ( m_pJackClient != nullptr ) {
+		if ( jack_port_unregister( m_pJackClient, m_pMidiInputPort ) != 0 ) {
 			ERRORLOG( "Failed to unregister jack midi input out" );
 		}
 
-		if ( jack_port_unregister( jack_client, output_port ) != 0 ) {
+		if ( jack_port_unregister( m_pJackClient, m_pMidiOutputPort ) != 0 ) {
 			ERRORLOG( "Failed to unregister jack midi input out" );
 		}
 
 		// jack_port_unregister( jack_client, output_port);
-		if ( jack_deactivate( jack_client ) != 0 ) {
+		if ( jack_deactivate( m_pJackClient ) != 0 ) {
 			ERRORLOG( "Failed to unregister jack midi input out" );
 		}
 
-		if ( jack_client_close( jack_client ) != 0 ) {
+		if ( jack_client_close( m_pJackClient ) != 0 ) {
 			ERRORLOG( "Failed close jack midi client" );
 		}
 	}
-	pthread_mutex_destroy( &mtx );
+	pthread_mutex_destroy( &m_midiMutex );
 }
 
 void JackMidiDriver::close()
 {
-	running--;
+	m_nRunning--;
 }
 
 bool JackMidiDriver::isInputActive() const
 {
-	return jack_client != nullptr && input_port != nullptr;
+	return m_pJackClient != nullptr && m_pMidiInputPort != nullptr;
 }
 
 bool JackMidiDriver::isOutputActive() const
 {
-	return jack_client != nullptr && output_port != nullptr;
+	return m_pJackClient != nullptr && m_pMidiOutputPort != nullptr;
 }
 
 void JackMidiDriver::open()
 {
-	running++;
+	m_nRunning++;
 }
 
 std::vector<QString> JackMidiDriver::getExternalPortList(
@@ -367,7 +367,7 @@ void JackMidiDriver::sendNoteOnMessage( const MidiMessage& msg )
 	buffer[2] = static_cast<int>( msg.getData2() );
 	buffer[3] = 0;
 
-	JackMidiOutEvent( buffer, 3 );
+	jackMidiOutEvent( buffer, 3 );
 }
 
 void JackMidiDriver::sendNoteOffMessage( const MidiMessage& msg )
@@ -383,7 +383,7 @@ void JackMidiDriver::sendNoteOffMessage( const MidiMessage& msg )
 	buffer[2] = 0;
 	buffer[3] = 0;
 
-	JackMidiOutEvent( buffer, 3 );
+	jackMidiOutEvent( buffer, 3 );
 }
 
 void JackMidiDriver::sendSystemRealTimeMessage( const MidiMessage& msg )
@@ -411,7 +411,7 @@ void JackMidiDriver::sendSystemRealTimeMessage( const MidiMessage& msg )
 	buffer[2] = 0;
 	buffer[3] = 0;
 
-	JackMidiOutEvent( buffer, 3 );
+	jackMidiOutEvent( buffer, 3 );
 }
 
 QString JackMidiDriver::toQString( const QString& sPrefix, bool bShort ) const
@@ -424,22 +424,22 @@ QString JackMidiDriver::toQString( const QString& sPrefix, bool bShort ) const
 					  .append( QString( "%1%2running: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
-								   .arg( running ) )
+								   .arg( m_nRunning ) )
 					  .append( QString( "%1%2rx_in_pos: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
-								   .arg( rx_in_pos ) )
+								   .arg( m_midiRxInPosition ) )
 					  .append( QString( "%1%2rx_out_pos: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
-								   .arg( rx_out_pos ) );
+								   .arg( m_midiRxOutPosition ) );
 	}
 	else {
 		sOutput =
 			QString( "[JackMidiDriver]" )
-				.append( QString( ", running: %1" ).arg( running ) )
-				.append( QString( ", rx_in_pos: %1" ).arg( rx_in_pos ) )
-				.append( QString( ", rx_out_pos: %1" ).arg( rx_out_pos ) );
+				.append( QString( ", running: %1" ).arg( m_nRunning ) )
+				.append( QString( ", rx_in_pos: %1" ).arg( m_midiRxInPosition ) )
+				.append( QString( ", rx_out_pos: %1" ).arg( m_midiRxOutPosition ) );
 	}
 
 	return sOutput;
