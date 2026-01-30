@@ -93,9 +93,18 @@ class TransportPosition;
 class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput {
 	H2_OBJECT( JackAudioDriver )
    public:
-	/**
-	 * Whether Hydrogen or another program is in Timebase control.
-	 */
+	/** Whether Hydrogen or another program is in Timebase control. */
+	enum class Mode {
+		/** Only the audio part of the driver is used. */
+		Audio,
+		/** Only the MIDI part of the driver is used. */
+		Midi,
+		/** Both audio and MIDI part of the driver are used. */
+		Combined
+	};
+	static QString ModeToQString( const Mode& m );
+
+	/** Whether Hydrogen or another program is in Timebase control. */
 	enum class Timebase {
 		/** Hydrogen itself is Timebase controller and provides its current
 		 * tempo to other Timebase listeners.*/
@@ -193,6 +202,8 @@ class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput {
 	virtual unsigned getSampleRate() override;
 
 	virtual int getXRuns() const override;
+
+	Mode getMode() const;
 
 	/** Resets the buffers contained in #m_pTrackOutputPortsL and
 	 * #m_pTrackOutputPortsR.
@@ -459,6 +470,8 @@ class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput {
 	/** Show debugging information.*/
 	void printState() const;
 
+	Mode m_mode;
+
 	QString m_sClientName;
 
 	/** Main process callback. */
@@ -612,6 +625,11 @@ class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput {
 	bool m_bIntegrationCheckRelocationLoop;
 #endif
 };
+
+inline JackAudioDriver::Mode JackAudioDriver::getMode() const
+{
+    return m_mode;
+}
 
 };	// namespace H2Core
 

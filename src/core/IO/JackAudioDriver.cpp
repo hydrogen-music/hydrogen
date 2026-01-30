@@ -144,6 +144,7 @@ JackAudioDriver* JackAudioDriver::pJackDriverInstance = nullptr;
 
 JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	: AudioOutput(),
+      m_mode( Mode::Audio ),
 	  m_pClient( nullptr ),
 	  m_sClientName( "Hydrogen" ),
 	  m_pOutputPort1( nullptr ),
@@ -1856,6 +1857,20 @@ QString JackAudioDriver::JackTransportPosToQString( const jack_position_t& pos )
 		.arg( pos.next_time );
 }
 
+QString JackAudioDriver::ModeToQString( const JackAudioDriver::Mode& m )
+{
+	switch ( m ) {
+		case Mode::Audio:
+			return "Audio";
+		case Mode::Midi:
+			return "Midi";
+		case Mode::Combined:
+			return "Combined";
+		default:
+			return "Unknown";
+	}
+}
+
 QString JackAudioDriver::TimebaseToQString( const JackAudioDriver::Timebase& t )
 {
 	switch ( t ) {
@@ -1925,6 +1940,10 @@ QString JackAudioDriver::toQString( const QString& sPrefix, bool bShort ) const
 		sOutput =
 			QString( "%1[JackAudioDriver]\n" )
 				.arg( sPrefix )
+				.append( QString( "%1%2m_mode: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( ModeToQString( m_mode ) ) )
 				.append( QString( "%1%2m_sOutputPortName1: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -2011,6 +2030,8 @@ QString JackAudioDriver::toQString( const QString& sPrefix, bool bShort ) const
 	else {
 		sOutput = QString( "[JackAudioDriver]" )
 					  .arg( sPrefix )
+					  .append( QString( " m_mode: %1" )
+								   .arg( ModeToQString( m_mode ) ) )
 					  .append( QString( " m_sOutputPortName1: %1" )
 								   .arg( m_sOutputPortName1 ) )
 					  .append( QString( ", m_sOutputPortName2: %1" )
