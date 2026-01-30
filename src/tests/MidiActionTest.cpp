@@ -2514,24 +2514,27 @@ void MidiActionTest::sendMessage( const MidiMessage& msg )
 
 	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );
 
-	auto pDriver =
+	auto pLoopBackDriver =
 		dynamic_cast<LoopBackMidiDriver*>( pAudioEngine->getMidiDriver().get()
 		);
-	CPPUNIT_ASSERT( pDriver != nullptr );
+	CPPUNIT_ASSERT( pLoopBackDriver != nullptr );
 
-	pDriver->clearBacklogMessages();
-    const auto nPreviousHandledInputMessages = pDriver->getHandledInputs().size();
-    const auto nPreviousHandledOutputMessages = pDriver->getHandledOutputs().size();
-	pDriver->enqueueOutputMessage( msg );
+	pLoopBackDriver->clearBacklogMessages();
+	const auto nPreviousHandledInputMessages =
+		pLoopBackDriver->getHandledInputs().size();
+	const auto nPreviousHandledOutputMessages =
+		pLoopBackDriver->getHandledOutputs().size();
+	pLoopBackDriver->enqueueOutputMessage( msg );
 
 	// Wait till the LoopBackMidiDriver did send, receive, and handle the
 	// message.
 	const int nMaxTries = 100;
 	int nnTry = 0;
-	while (
-		pDriver->getHandledInputs().size() <= nPreviousHandledInputMessages &&
-		pDriver->getHandledOutputs().size() <= nPreviousHandledOutputMessages
-	) {
+	while ( pLoopBackDriver->getMessageQueueSize() > 0 ||
+			pLoopBackDriver->getHandledInputs().size() <=
+				nPreviousHandledInputMessages ||
+			pLoopBackDriver->getHandledOutputs().size() <=
+				nPreviousHandledOutputMessages ) {
 		CPPUNIT_ASSERT( nnTry < nMaxTries );
 
 		++nnTry;
