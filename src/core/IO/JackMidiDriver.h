@@ -29,7 +29,7 @@
 
 #include <core/IO/MidiBaseDriver.h>
 
-#if defined(H2CORE_HAVE_JACK) || _DOXYGEN_
+#if defined( H2CORE_HAVE_JACK ) || _DOXYGEN_
 
 #include <pthread.h>
 
@@ -37,37 +37,38 @@
 #include <jack/midiport.h>
 #include <jack/ringbuffer.h>
 
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
-#define	JACK_MIDI_BUFFER_MAX 64	/* events */
+#define JACK_MIDI_BUFFER_MAX 64 /* events */
 
-namespace H2Core
-{
+namespace H2Core {
 
 /** \ingroup docCore docMIDI */
 class JackMidiDriver : public Object<JackMidiDriver>,
-					   public virtual MidiBaseDriver
-{
-	H2_OBJECT(JackMidiDriver)
-public:
+					   public virtual MidiBaseDriver {
+	H2_OBJECT( JackMidiDriver )
+   public:
 	JackMidiDriver();
 	virtual ~JackMidiDriver();
 
 	void close() override;
-	std::vector<QString> getExternalPortList( const PortType& portType ) override;
+	std::vector<QString> getExternalPortList( const PortType& portType
+	) override;
 	bool isInputActive() const override;
 	bool isOutputActive() const override;
 	void open() override;
 
 	void getPortInfo( const QString& sPortName, int& nClient, int& nPort );
-	void JackMidiWrite(jack_nframes_t nframes);
-	void JackMidiRead(jack_nframes_t nframes);
-	
-	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
-private:
-	void JackMidiOutEvent(uint8_t *buf, uint8_t len);
+	void JackMidiWrite( jack_nframes_t nframes );
+	void JackMidiRead( jack_nframes_t nframes );
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true )
+		const override;
+
+   private:
+	void JackMidiOutEvent( uint8_t* buf, uint8_t len );
 
 	void sendControlChangeMessage( const MidiMessage& msg ) override;
 	void sendNoteOnMessage( const MidiMessage& msg ) override;
@@ -77,18 +78,18 @@ private:
 	void lock();
 	void unlock();
 
-	jack_port_t *output_port;
-	jack_port_t *input_port;
-	jack_client_t *jack_client;
+	jack_port_t* output_port;
+	jack_port_t* input_port;
+	jack_client_t* jack_client;
 	pthread_mutex_t mtx;
 	int running;
-		uint8_t jack_buffer[JACK_MIDI_BUFFER_MAX * 4];
+	uint8_t jack_buffer[JACK_MIDI_BUFFER_MAX * 4];
 	uint32_t rx_in_pos;
 	uint32_t rx_out_pos;
 };
 
-};
+};	// namespace H2Core
 
-#endif			/* H2CORE_HAVE_JACK */
+#endif /* H2CORE_HAVE_JACK */
 
 #endif
