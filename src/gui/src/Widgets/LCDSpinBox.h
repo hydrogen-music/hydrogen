@@ -95,6 +95,7 @@ public:
 
 	void setType( Type type );
 	void setKind( Kind kind );
+	void setFlag( Flag flag );
 	void setSize( QSize size );
 
 	virtual QValidator::State validate( QString &text, int &pos ) const override;
@@ -151,8 +152,17 @@ private:
 	virtual bool event( QEvent* ev ) override;
 };
 
-inline void LCDSpinBox::setKind( Kind kind ) {
-	m_kind = kind;
+inline void LCDSpinBox::setKind( Kind kind )
+{
+	if ( m_kind != kind ) {
+		m_kind = kind;
+	}
+}
+inline void LCDSpinBox::setFlag( Flag flag )
+{
+	if ( m_flag != flag ) {
+		m_flag = flag;
+	}
 }
 inline bool LCDSpinBox::getIsActive() const {
 	return m_bIsActive;
