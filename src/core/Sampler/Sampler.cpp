@@ -1287,7 +1287,7 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 	float* pTrackOutR = nullptr;
 
 	if ( Preferences::get_instance()->m_bJackTrackOuts ) {
-		auto pJackDriver = dynamic_cast<JackDriver*>( pAudioDriver );
+		auto pJackDriver = std::dynamic_pointer_cast<JackDriver>( pAudioDriver );
 		if ( pJackDriver != nullptr ) {
 			pTrackOutL = pJackDriver->getTrackBuffer(
 				m_pPlaybackTrackInstrument, JackDriver::Channel::Left
@@ -1574,7 +1574,7 @@ bool Sampler::renderNote(
 	float* pTrackOutR = nullptr;
 
 	if ( Preferences::get_instance()->m_bJackTrackOuts ) {
-		auto pJackDriver = dynamic_cast<JackDriver*>( pAudioDriver );
+		auto pJackDriver = std::dynamic_pointer_cast<JackDriver>( pAudioDriver );
 		if ( pJackDriver != nullptr ) {
 			pTrackOutL = pJackDriver->getTrackBuffer(
 				pInstrument, JackDriver::Channel::Left

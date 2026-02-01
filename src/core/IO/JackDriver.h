@@ -94,7 +94,7 @@ class TransportPosition;
  */
 /** \ingroup docCore docAudioDriver docMIDI */
 class JackDriver : public Object<JackDriver>,
-				   public virtual MidiBaseDriver,
+				   public MidiBaseDriver,
 				   public AudioOutput {
 	H2_OBJECT( JackDriver )
    public:
@@ -171,6 +171,9 @@ class JackDriver : public Object<JackDriver>,
 
 	JackDriver( JackProcessCallback m_processCallback );
 	~JackDriver();
+
+	/** Reports whether the driver was successfully activate and is usable. */
+	bool isActive() const;
 
 	void deactivate();
 	float* getTrackBuffer(

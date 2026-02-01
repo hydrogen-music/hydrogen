@@ -211,15 +211,18 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFileName,
 	// Check whether the audio driver could be loaded based on the
 	// content of the config file
 	if ( pHydrogen->getAudioOutput() == nullptr ||
-		 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
+		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioOutput() ) !=
+			 nullptr ) {
 		QMessageBox::warning(
-			this, "Hydrogen", QString( "%1 [%2]\n%3" )
-			.arg( pCommonStrings->getAudioDriverStartError() )
-			.arg( Preferences::audioDriverToQString( pPref->m_audioDriver ) )
-			.arg( pCommonStrings->getAudioDriverErrorHint() ) );
+			this, "Hydrogen",
+			QString( "%1 [%2]\n%3" )
+				.arg( pCommonStrings->getAudioDriverStartError() )
+				.arg( Preferences::audioDriverToQString( pPref->m_audioDriver )
+				)
+				.arg( pCommonStrings->getAudioDriverErrorHint() )
+		);
 	}
 }
-
 
 MainForm::~MainForm()
 {
@@ -1941,11 +1944,14 @@ bool MainForm::nullDriverCheck() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	if ( pHydrogen->getAudioOutput() == nullptr ||
-		 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
-		QMessageBox::warning( this, "Hydrogen",
-							  QString( "%1\n%2" )
-							  .arg( pCommonStrings->getAudioDriverNotPresent() )
-							  .arg( pCommonStrings->getAudioDriverErrorHint() ) );
+		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioOutput() ) !=
+			 nullptr ) {
+		QMessageBox::warning(
+			this, "Hydrogen",
+			QString( "%1\n%2" )
+				.arg( pCommonStrings->getAudioDriverNotPresent() )
+				.arg( pCommonStrings->getAudioDriverErrorHint() )
+		);
 		return false;
 	}
 

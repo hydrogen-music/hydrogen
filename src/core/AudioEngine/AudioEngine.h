@@ -280,7 +280,7 @@ public:
 	/** * Choice, creation, and initialization of th audio driver. */
 	void			startAudioDriver( Event::Trigger trigger );
 	void			stopAudioDriver( Event::Trigger trigger );
-	AudioOutput*	getAudioDriver() const;
+	std::shared_ptr<AudioOutput> getAudioDriver() const;
 	/**
 	 * Create an audio driver using audioEngine_process() as its argument
 	 * based on the provided choice and calling their _init()_ function to
@@ -294,12 +294,14 @@ public:
 	 * creation resulted in a NullDriver, the corresponding object will be
 	 * deleted and a null pointer returned instead.
 	 */
-	AudioOutput*	createAudioDriver( const Preferences::AudioDriver& driver,
-									   Event::Trigger trigger );
-					
-		void startMidiDriver( Event::Trigger trigger );
-		void stopMidiDriver( Event::Trigger trigger );
-		std::shared_ptr<MidiBaseDriver> getMidiDriver() const;
+	std::shared_ptr<AudioOutput> createAudioDriver(
+		const Preferences::AudioDriver& driver,
+		Event::Trigger trigger
+	);
+
+	void startMidiDriver( Event::Trigger trigger );
+	void stopMidiDriver( Event::Trigger trigger );
+	std::shared_ptr<MidiBaseDriver> getMidiDriver() const;
 
 	void			setupLadspaFX();
 
@@ -617,10 +619,10 @@ private:
 	QString getDriverNames() const;
 
 	Sampler* 			m_pSampler;
-	AudioOutput *		m_pAudioDriver;
-	std::shared_ptr<MidiBaseDriver>		m_pMidiDriver;
+	std::shared_ptr<AudioOutput> m_pAudioDriver;
+	std::shared_ptr<MidiBaseDriver> m_pMidiDriver;
 
-	#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
+#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
 	float				m_fFXPeak_L[MAX_FX];
 	float				m_fFXPeak_R[MAX_FX];
 	#endif
@@ -840,7 +842,8 @@ inline void AudioEngine::setNextState( const AudioEngine::State& state) {
 	m_nextState = state;
 }
 
-inline AudioOutput*	AudioEngine::getAudioDriver() const {
+inline std::shared_ptr<AudioOutput> AudioEngine::getAudioDriver() const
+{
 	return m_pAudioDriver;
 }
 

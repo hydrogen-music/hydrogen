@@ -339,8 +339,9 @@ void TransportTest::perform( std::function<void()> func ) {
 	try {
 		// Stop the processing of the callback of the AudioEngine. TransportTest
 		// was written before `FakeAudioDriver` was a proper driver.
-		auto pDriver = dynamic_cast<FakeAudioDriver*>(
-			Hydrogen::get_instance()->getAudioEngine()->getAudioDriver() );
+		auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
+			Hydrogen::get_instance()->getAudioEngine()->getAudioDriver()
+		);
 		if ( pDriver != nullptr ) {
 			pDriver->deactivate();
 		}

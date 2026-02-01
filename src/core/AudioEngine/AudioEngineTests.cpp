@@ -2830,7 +2830,8 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 	stopJackDriver();
 }
 
-JackDriver* AudioEngineTests::startJackDriver() {
+std::shared_ptr<JackDriver> AudioEngineTests::startJackDriver()
+{
 	INFOLOG( "Starting custom JACK driver..." );
 
 	auto pHydrogen = Hydrogen::get_instance();
@@ -2844,7 +2845,7 @@ JackDriver* AudioEngineTests::startJackDriver() {
 	pAudioEngine->stopAudioDriver( Event::Trigger::Default );
 
 	// Start a modified version of the JACK audio driver.
-	auto pDriver = new JackDriver( jackTestProcessCallback );
+	auto pDriver = std::make_shared<JackDriver>( jackTestProcessCallback );
 	if ( pDriver == nullptr ) {
 		throwException( "[startJackDriver] Unable to create JackDriver" );
 	}
@@ -2858,7 +2859,6 @@ JackDriver* AudioEngineTests::startJackDriver() {
 	pAudioEngine->lock( RIGHT_HERE );
 
 	if ( pDriver->init( pPref->m_nBufferSize ) != 0 ) {
-		delete pDriver;
 		pAudioEngine->unlock();
 		throwException( "[startJackDriver] Unable to initialize driver" );
 	}
@@ -2917,10 +2917,12 @@ void AudioEngineTests::stopJackDriver() {
 	pHydrogen->restartAudioDriver();
 
 #ifdef H2CORE_HAVE_JACK
-	auto pDriver = dynamic_cast<JackDriver*>(pAudioEngine->m_pAudioDriver);
+	auto pDriver =
+		std::dynamic_pointer_cast<JackDriver>( pAudioEngine->m_pAudioDriver );
 	if ( pDriver == nullptr ) {
 		AudioEngineTests::throwException(
-			"[stopJackDriver] No JACK driver after restart!" );
+			"[stopJackDriver] No JACK driver after restart!"
+		);
 	}
 
 	pDriver->m_timebaseState = m_referenceTimebase;
@@ -2930,8 +2932,12 @@ void AudioEngineTests::stopJackDriver() {
 	INFOLOG( "DONE Stopping custom JACK driver." );
 }
 
-void AudioEngineTests::waitForRelocation( JackDriver* pDriver,
-										  double fTick, long long nFrame ) {
+void AudioEngineTests::waitForRelocation(
+	std::shared_ptr<JackDriver> pDriver,
+	double fTick,
+	long long nFrame
+)
+{
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();
@@ -3012,10 +3018,12 @@ void AudioEngineTests::waitForRelocation( JackDriver* pDriver,
 int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 
 	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
-	auto pDriver = dynamic_cast<JackDriver*>(pAudioEngine->m_pAudioDriver);
+	auto pDriver =
+		std::dynamic_pointer_cast<JackDriver>( pAudioEngine->m_pAudioDriver );
 	if ( pDriver == nullptr ) {
 		AudioEngineTests::throwException(
-			"[jackTestProcessCallback] No JACK driver!" );
+			"[jackTestProcessCallback] No JACK driver!"
+		);
 	}
 
 	// For the JACK driver it is very important (#1867) to not do anything while

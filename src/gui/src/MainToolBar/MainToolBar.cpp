@@ -661,11 +661,14 @@ void MainToolBar::playBtnClicked() {
 	// Hint that something is wrong in case there is no proper audio
 	// driver set.
 	if ( pHydrogen->getAudioOutput() == nullptr ||
-		 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
-		QMessageBox::warning( this, "Hydrogen",
-							   QString( "%1\n%2" )
-							  .arg( pCommonStrings->getAudioDriverNotPresent() )
-							  .arg( pCommonStrings->getAudioDriverErrorHint() ) );
+		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioOutput() ) !=
+			 nullptr ) {
+		QMessageBox::warning(
+			this, "Hydrogen",
+			QString( "%1\n%2" )
+				.arg( pCommonStrings->getAudioDriverNotPresent() )
+				.arg( pCommonStrings->getAudioDriverErrorHint() )
+		);
 		return;
 	}
 
@@ -694,14 +697,15 @@ void MainToolBar::stopBtnClicked()
 	// Hint that something is wrong in case there is no proper audio
 	// driver set.
 	if ( pHydrogen->getAudioOutput() == nullptr ||
-		 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
+		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioOutput() ) !=
+			 nullptr ) {
 		QMessageBox::warning( this, "Hydrogen",
 							   QString( "%1\n%2" )
 							  .arg( pCommonStrings->getAudioDriverNotPresent() )
 							  .arg( pCommonStrings->getAudioDriverErrorHint() ) );
 		return;
 	}
-	
+
 	pHydrogen->sequencerStop();
 	CoreActionController::locateToColumn( 0 );
 	(HydrogenApp::get_instance())->showStatusBarMessage( tr("Stopped.") );

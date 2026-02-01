@@ -417,6 +417,26 @@ JackDriver::~JackDriver()
 	pthread_mutex_destroy( &m_midiMutex );
 }
 
+bool JackDriver::isActive() const
+{
+	if ( m_pClient == nullptr || m_mode == Mode::None ) {
+        return false;
+	}
+
+	if ( ( m_mode == Mode::Audio || m_mode == Mode::Combined ) &&
+		 ( m_pAudioOutputPort1 == nullptr || m_pAudioOutputPort2 == nullptr
+		 ) ) {
+        return false;
+	}
+
+	if ( ( m_mode == Mode::Midi || m_mode == Mode::Combined ) &&
+		 ( m_pMidiInputPort == nullptr || m_pMidiOutputPort == nullptr ) ) {
+		return false;
+	}
+
+	return true;
+}
+
 void JackDriver::deactivate()
 {
 	if ( m_pClient != nullptr ) {
@@ -1881,6 +1901,7 @@ void JackDriver::unregisterPerTrackAudioPorts( InstrumentPorts ports )
 
 void JackDriver::close()
 {
+    disconnect();
 	m_nRunning--;
 }
 

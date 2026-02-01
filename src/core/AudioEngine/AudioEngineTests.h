@@ -137,7 +137,7 @@ public:
 		 * #H2Core::JackDriver */
 		static int jackTestProcessCallback( uint32_t nFrames, void* args );
 
-	static JackDriver* startJackDriver();
+	static std::shared_ptr<JackDriver> startJackDriver();
 
 	static JackDriver::Timebase m_referenceTimebase;
 #endif
@@ -191,8 +191,11 @@ private:
 
 #ifdef H2CORE_HAVE_JACK
 	static void stopJackDriver();
-	static void
-	waitForRelocation( JackDriver* pDriver, double fTick, long long nFrame );
+	static void waitForRelocation(
+		std::shared_ptr<JackDriver> pDriver,
+		double fTick,
+		long long nFrame
+	);
 #endif
 };
 };

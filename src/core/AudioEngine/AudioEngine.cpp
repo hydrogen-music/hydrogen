@@ -389,7 +389,8 @@ void AudioEngine::reset( bool bWithJackBroadcast, Event::Trigger trigger ) {
 	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
 		// Tell the JACK server to locate to the beginning as well
 		// (done in the next run of audioEngine_process()).
-		static_cast<JackDriver*>( m_pAudioDriver )->locateTransport( 0 );
+		std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver )
+			->locateTransport( 0 );
 	}
 #endif
 }
@@ -461,7 +462,7 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast,
 					 .arg( fTick ).arg( fNewTick ) .arg( nNewFrame ) );
 #endif
 
-		static_cast<JackDriver*>( m_pAudioDriver )->
+		std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver )->
 			locateTransport( nNewFrame );
 		return;
 	}
@@ -567,7 +568,11 @@ void AudioEngine::createPerTrackJackAudioPorts( std::shared_ptr<Song> pSong,
 								  std::shared_ptr<Drumkit> pOldDrumkit ) {
 
 #ifdef H2CORE_HAVE_JACK
-	auto pJackDriver = dynamic_cast<JackDriver*>( m_pAudioDriver );
+	if ( m_pAudioDriver == nullptr ) {
+        return;
+	}
+
+	auto pJackDriver = std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver );
 	if ( pJackDriver != nullptr ) {
 		// We have to guard this call using the special output buffer mutex to
 		// avoid `JackDriver::createPerTrackAudioPorts` being called in parallel
@@ -967,8 +972,8 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 	
 #ifdef H2CORE_HAVE_JACK
 	if ( Hydrogen::get_instance()->hasJackDriver() ) {
-		auto pJackDriver = static_cast<JackDriver*>(m_pAudioDriver);
-	
+		auto pJackDriver =
+			std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver );
 		if ( pJackDriver != nullptr ) {
 			pJackDriver->clearPerTrackAudioBuffers( nFrames );
 		}
@@ -996,8 +1001,10 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 #endif
 }
 
-AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& driver,
-											 Event::Trigger trigger )
+std::shared_ptr<AudioOutput> AudioEngine::createAudioDriver(
+	const Preferences::AudioDriver& driver,
+	Event::Trigger trigger
+)
 {
 	AE_INFOLOG( QString( "Creating driver [%1]" )
 				.arg( Preferences::audioDriverToQString( driver ) ) );
@@ -1005,39 +1012,60 @@ AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& dri
 	const auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	AudioOutput *pAudioDriver = nullptr;
+	std::shared_ptr<AudioOutput> pAudioDriver = nullptr;
 
 	if ( driver == Preferences::AudioDriver::Oss ) {
-		pAudioDriver = new OssDriver( m_AudioProcessCallback );
+		pAudioDriver = std::make_shared<OssDriver>( m_AudioProcessCallback );
 	}
 	else if ( driver == Preferences::AudioDriver::Jack ) {
-		pAudioDriver = new JackDriver( m_AudioProcessCallback );
+#ifdef H2CORE_HAVE_JACK
+		auto pJackDriver =
+			std::dynamic_pointer_cast<JackDriver>( m_pMidiDriver );
+		if ( pJackDriver != nullptr &&
+			 pJackDriver->getMode() == JackDriver::Mode::Combined &&
+			 pJackDriver->isActive() ) {
+			INFOLOG( "Reusing JACK MIDI driver as audio driver." );
+			return std::static_pointer_cast<AudioOutput>( pJackDriver );
+		}
+		else {
+			pAudioDriver =
+				std::make_shared<JackDriver>( m_AudioProcessCallback );
+		}
+#else
+		pAudioDriver = std::make_shared<JackDriver>( m_AudioProcessCallback );
+#endif
 	}
 	else if ( driver == Preferences::AudioDriver::Alsa ) {
-		pAudioDriver = new AlsaAudioDriver( m_AudioProcessCallback );
+		pAudioDriver =
+			std::make_shared<AlsaAudioDriver>( m_AudioProcessCallback );
 	}
 	else if ( driver == Preferences::AudioDriver::PortAudio ) {
-		pAudioDriver = new PortAudioDriver( m_AudioProcessCallback );
+		pAudioDriver =
+			std::make_shared<PortAudioDriver>( m_AudioProcessCallback );
 	}
 	else if ( driver == Preferences::AudioDriver::CoreAudio ) {
-		pAudioDriver = new CoreAudioDriver( m_AudioProcessCallback );
+		pAudioDriver =
+			std::make_shared<CoreAudioDriver>( m_AudioProcessCallback );
 	}
 	else if ( driver == Preferences::AudioDriver::PulseAudio ) {
-		pAudioDriver = new PulseAudioDriver( m_AudioProcessCallback );
+		pAudioDriver =
+			std::make_shared<PulseAudioDriver>( m_AudioProcessCallback );
 	}
 	else if ( driver == Preferences::AudioDriver::Fake ) {
 		AE_WARNINGLOG( "*** Using FAKE audio driver ***" );
-		pAudioDriver = new FakeAudioDriver( m_AudioProcessCallback );
+		pAudioDriver =
+			std::make_shared<FakeAudioDriver>( m_AudioProcessCallback );
 	}
 	else if ( driver == Preferences::AudioDriver::Disk ) {
-		pAudioDriver = new DiskWriterDriver( m_AudioProcessCallback );
+		pAudioDriver =
+			std::make_shared<DiskWriterDriver>( m_AudioProcessCallback );
 	}
 	else if ( driver == Preferences::AudioDriver::Null ) {
-		pAudioDriver = new NullDriver( m_AudioProcessCallback );
+		pAudioDriver = std::make_shared<NullDriver>( m_AudioProcessCallback );
 	}
 	else {
 		AE_ERRORLOG( QString( "Unknown driver [%1]" )
-				.arg( Preferences::audioDriverToQString( driver ) ) );
+						 .arg( Preferences::audioDriverToQString( driver ) ) );
 		raiseError( Hydrogen::UNKNOWN_DRIVER );
 		return nullptr;
 	}
@@ -1053,7 +1081,6 @@ AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& dri
 	if ( nRes != 0 ) {
 		AE_ERRORLOG( QString( "Error code [%2] while initializing audio driver [%1]." )
 				.arg( Preferences::audioDriverToQString( driver ) ).arg( nRes ) );
-		delete pAudioDriver;
 		return nullptr;
 	}
 
@@ -1084,7 +1111,6 @@ AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& dri
 		this->lock( RIGHT_HERE );
 		m_MutexOutputPointer.lock();
 		
-		delete m_pAudioDriver;
 		m_pAudioDriver = nullptr;
 		
 		m_MutexOutputPointer.unlock();
@@ -1132,10 +1158,11 @@ void AudioEngine::startAudioDriver( Event::Trigger trigger ) {
 		createAudioDriver( audioDriver, Event::Trigger::Suppress );
 	}
 	else {
-		AudioOutput* pAudioDriver;
+		std::shared_ptr<AudioOutput> pAudioDriver;
 		for ( const auto& ddriver : Preferences::getSupportedAudioDrivers() ) {
-			if ( ( pAudioDriver = createAudioDriver(
-					   ddriver, Event::Trigger::Suppress ) ) != nullptr ) {
+			if ( ( pAudioDriver =
+					   createAudioDriver( ddriver, Event::Trigger::Suppress )
+				 ) != nullptr ) {
 				break;
 			}
 		}
@@ -1177,7 +1204,6 @@ void AudioEngine::stopAudioDriver( Event::Trigger trigger )
 	if ( m_pAudioDriver != nullptr ) {
 		m_pAudioDriver->disconnect();
 		m_MutexOutputPointer.lock();
-		delete m_pAudioDriver;
 		m_pAudioDriver = nullptr;
 		m_MutexOutputPointer.unlock();
 	}
@@ -1244,7 +1270,9 @@ void AudioEngine::stopMidiDriver( Event::Trigger trigger )
 	if ( m_pMidiDriver != nullptr ) {
 		m_pMidiDriver->stopMidiClockStream();
 		m_pMidiDriver->close();
+		m_MutexOutputPointer.lock();
 		m_pMidiDriver = nullptr;
+		m_MutexOutputPointer.unlock();
 	}
 
 	this->unlock();
@@ -1579,10 +1607,11 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// the JACK client is stopped/closed. Otherwise it will segfault on mutex
 	// locking or message logging.
 	if ( pAudioEngine->m_pAudioDriver == nullptr ||
-		 ( ! ( pAudioEngine->getState() == AudioEngine::State::Ready ||
-			   pAudioEngine->getState() == AudioEngine::State::CountIn ||
-			   pAudioEngine->getState() == AudioEngine::State::Playing ) &&
-		   dynamic_cast<JackDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) ) {
+		 ( !( pAudioEngine->getState() == AudioEngine::State::Ready ||
+			  pAudioEngine->getState() == AudioEngine::State::CountIn ||
+			  pAudioEngine->getState() == AudioEngine::State::Playing ) &&
+		   std::dynamic_pointer_cast<JackDriver>( pAudioEngine->m_pAudioDriver
+		   ) != nullptr ) ) {
 		return 0;
 	}
 
@@ -1616,8 +1645,11 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		___ERRORLOG( QString( "[%1] Failed to lock audioEngine in allowed %2 ms, missed buffer" )
 					 .arg( sDrivers ).arg( fSlackTime ) );
 
-		if ( dynamic_cast<DiskWriterDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) {
-			// Returning the special return value "2" enables the disk 
+		if ( pAudioEngine->m_pAudioDriver != nullptr &&
+			 std::dynamic_pointer_cast<DiskWriterDriver>(
+				 pAudioEngine->m_pAudioDriver
+			 ) != nullptr ) {
+			// Returning the special return value "2" enables the disk
 			// writer driver - which does not require running in
 			// realtime - to repeat the processing of the current data.
 			return 2;
@@ -1640,19 +1672,10 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// designed that way)
 #ifdef H2CORE_HAVE_JACK
 	auto pJackDriver =
-		dynamic_cast<JackDriver*>( pAudioEngine->m_pAudioDriver );
+		std::dynamic_pointer_cast<JackDriver>( pAudioEngine->m_pAudioDriver );
 	if ( pJackDriver != nullptr ) {
 		if ( Hydrogen::get_instance()->hasJackTransport() ) {
-			auto pAudioDriver = pHydrogen->getAudioOutput();
-			if ( pAudioDriver == nullptr ) {
-				___ERRORLOG(
-					QString( "[%1] AudioDriver is not ready!" ).arg( sDrivers )
-				);
-				assert( pAudioDriver );
-				return 1;
-			}
-			static_cast<JackDriver*>( pAudioDriver )
-				->updateTransportPosition();
+			pJackDriver->updateTransportPosition();
 		}
 
 		// We separate JACK transport+audio from handling MIDI events via JACK
@@ -1773,12 +1796,15 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 				// once at the end of the count in.
 				pAudioEngine->setState( State::Ready );
 
-				// Tell all other JACK clients to start as well and wait for the
-				// JACK server to give the signal.
-				static_cast<JackDriver*>( pAudioEngine->m_pAudioDriver )
-					->locateTransport( nNewTransportFrame );
-				static_cast<JackDriver*>( pAudioEngine->m_pAudioDriver )
-					->startTransport();
+				auto pJackDriver = std::dynamic_pointer_cast<JackDriver>(
+					pAudioEngine->m_pAudioDriver
+				);
+				if ( pJackDriver != nullptr ) {
+					// Tell all other JACK clients to start as well and wait for
+					// the JACK server to give the signal.
+					pJackDriver->locateTransport( nNewTransportFrame );
+					pJackDriver->startTransport();
+				}
 			}
 			else
 #endif
@@ -1788,7 +1814,6 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 					pAudioEngine->getTransportPosition(),
 					Event::Trigger::Default );
 				pAudioEngine->setNextState( State::Playing );
-
 			}
 		}
 	}
@@ -3126,7 +3151,7 @@ void AudioEngine::play() {
 	if ( Hydrogen::get_instance()->hasJackTransport() ) {
 		// Tell all other JACK clients to start as well and wait for
 		// the JACK server to give the signal.
-		static_cast<JackDriver*>( m_pAudioDriver )->startTransport();
+		std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver )->startTransport();
 		return;
 	}
 #endif
@@ -3152,7 +3177,7 @@ void AudioEngine::stop() {
 
 		// Tell all other JACK clients to stop as well and wait for
 		// the JACK server to give the signal.
-		static_cast<JackDriver*>( m_pAudioDriver )->stopTransport();
+		std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver )->stopTransport();
 		return;
 	}
 #endif
@@ -3438,61 +3463,75 @@ QString AudioEngine::getDriverNames() const {
 	if ( m_pAudioDriver == nullptr ) {
 		audioDriver = Preferences::AudioDriver::None;
 	}
-	else if ( dynamic_cast<JackDriver*>(m_pAudioDriver) != nullptr ) {
+	else if ( std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver ) !=
+			  nullptr ) {
 		audioDriver = Preferences::AudioDriver::Jack;
 	}
-	else if ( dynamic_cast<PortAudioDriver*>(m_pAudioDriver) != nullptr ) {
+	else if ( std::dynamic_pointer_cast<PortAudioDriver>( m_pAudioDriver ) !=
+			  nullptr ) {
 		audioDriver = Preferences::AudioDriver::PortAudio;
 	}
-	else if ( dynamic_cast<CoreAudioDriver*>(m_pAudioDriver) != nullptr ) {
+	else if ( std::dynamic_pointer_cast<CoreAudioDriver>( m_pAudioDriver ) !=
+			  nullptr ) {
 		audioDriver = Preferences::AudioDriver::CoreAudio;
 	}
-	else if ( dynamic_cast<PulseAudioDriver*>(m_pAudioDriver) != nullptr ) {
+	else if ( std::dynamic_pointer_cast<PulseAudioDriver>( m_pAudioDriver ) !=
+			  nullptr ) {
 		audioDriver = Preferences::AudioDriver::PulseAudio;
 	}
-	else if ( dynamic_cast<OssDriver*>(m_pAudioDriver) != nullptr ) {
+	else if ( std::dynamic_pointer_cast<OssDriver>( m_pAudioDriver ) !=
+			  nullptr ) {
 		audioDriver = Preferences::AudioDriver::Oss;
 	}
-	else if ( dynamic_cast<AlsaAudioDriver*>(m_pAudioDriver) != nullptr ) {
+	else if ( std::dynamic_pointer_cast<AlsaAudioDriver>( m_pAudioDriver ) !=
+			  nullptr ) {
 		audioDriver = Preferences::AudioDriver::Alsa;
 	}
-	else if ( dynamic_cast<FakeAudioDriver*>(m_pAudioDriver) != nullptr ) {
+	else if ( std::dynamic_pointer_cast<FakeAudioDriver>( m_pAudioDriver ) !=
+			  nullptr ) {
 		audioDriver = Preferences::AudioDriver::Fake;
 	}
-	else if ( dynamic_cast<NullDriver*>(m_pAudioDriver) != nullptr ) {
+	else if ( std::dynamic_pointer_cast<NullDriver>( m_pAudioDriver ) !=
+			  nullptr ) {
 		audioDriver = Preferences::AudioDriver::Null;
 	}
-	else if ( dynamic_cast<DiskWriterDriver*>(m_pAudioDriver) != nullptr ) {
+	else if ( std::dynamic_pointer_cast<DiskWriterDriver>( m_pAudioDriver ) !=
+			  nullptr ) {
 		audioDriver = Preferences::AudioDriver::Disk;
 	}
-	
+
 	if ( m_pMidiDriver == nullptr ) {
 		sMidiDriver = "nullptr";
 #ifdef H2CORE_HAVE_ALSA
-	} else if ( std::dynamic_pointer_cast<AlsaMidiDriver>(m_pMidiDriver) !=
-				nullptr ) {
+	}
+	else if ( std::dynamic_pointer_cast<AlsaMidiDriver>( m_pMidiDriver ) !=
+			  nullptr ) {
 		sMidiDriver = "ALSA";
 #endif
 #ifdef H2CORE_HAVE_PORTMIDI
-	} else if ( std::dynamic_pointer_cast<PortMidiDriver>(m_pMidiDriver) !=
-				nullptr ) {
+	}
+	else if ( std::dynamic_pointer_cast<PortMidiDriver>( m_pMidiDriver ) !=
+			  nullptr ) {
 		sMidiDriver = "PortMidi";
 #endif
 #ifdef H2CORE_HAVE_COREMIDI
-	} else if ( std::dynamic_pointer_cast<CoreMidiDriver>(m_pMidiDriver) !=
-				nullptr ) {
+	}
+	else if ( std::dynamic_pointer_cast<CoreMidiDriver>( m_pMidiDriver ) !=
+			  nullptr ) {
 		sMidiDriver = "CoreMidi";
 #endif
 #ifdef H2CORE_HAVE_JACK
-	} else if ( std::dynamic_pointer_cast<JackMidiDriver>(m_pMidiDriver) !=
-				nullptr ) {
+	}
+	else if ( std::dynamic_pointer_cast<JackMidiDriver>( m_pMidiDriver ) !=
+			  nullptr ) {
 		sMidiDriver = "JACK";
 #endif
-	} else if ( std::dynamic_pointer_cast<LoopBackMidiDriver>(m_pMidiDriver) !=
-				nullptr ) {
+	}
+	else if ( std::dynamic_pointer_cast<LoopBackMidiDriver>( m_pMidiDriver ) !=
+			  nullptr ) {
 		sMidiDriver = "LoopBack";
 	}
-		
+
 	auto res = QString( "%1|%2" )
 		.arg( Preferences::audioDriverToQString( audioDriver ) )
 		.arg( sMidiDriver );

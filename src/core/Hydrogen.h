@@ -254,7 +254,7 @@ public:
 	void restartAudioDriver();
 	void restartMidiDriver();
 
-	AudioOutput* getAudioOutput() const;
+	std::shared_ptr<AudioOutput> getAudioOutput() const;
 	std::shared_ptr<MidiBaseDriver> getMidiDriver() const;
 
 	/** Wrapper around Song::setIsModified() that checks whether a

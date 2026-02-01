@@ -727,30 +727,37 @@ void PreferencesDialog::writeAudioDriverPreferences() {
 	
 	// Driver-specific settings
 	if ( selectedDriver == Preferences::AudioDriver::Alsa ||
-			  ( selectedDriver == Preferences::AudioDriver::Auto &&
-				dynamic_cast<H2Core::AlsaAudioDriver*>(pAudioDriver) != nullptr ) ) {
-		if ( pPref->m_sAlsaAudioDevice != m_pAudioDeviceTxt->lineEdit()->text() ) {
+		 ( selectedDriver == Preferences::AudioDriver::Auto &&
+		   std::dynamic_pointer_cast<H2Core::AlsaAudioDriver>( pAudioDriver ) !=
+			   nullptr ) ) {
+		if ( pPref->m_sAlsaAudioDevice !=
+			 m_pAudioDeviceTxt->lineEdit()->text() ) {
 			pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
 			bAudioOptionAltered = true;
 		}
 	}
 	else if ( selectedDriver == Preferences::AudioDriver::Oss ||
 			  ( selectedDriver == Preferences::AudioDriver::Auto &&
-				dynamic_cast<H2Core::OssDriver*>(pAudioDriver) != nullptr ) ) {
+				std::dynamic_pointer_cast<H2Core::OssDriver>( pAudioDriver ) !=
+					nullptr ) ) {
 		if ( pPref->m_sOSSDevice != m_pAudioDeviceTxt->lineEdit()->text() ) {
 			pPref->m_sOSSDevice = m_pAudioDeviceTxt->lineEdit()->text();
 			bAudioOptionAltered = true;
 		}
 	}
 	else if ( selectedDriver == Preferences::AudioDriver::PortAudio ||
-			 ( selectedDriver == Preferences::AudioDriver::Auto &&
-			   dynamic_cast<H2Core::PortAudioDriver*>(pAudioDriver) != nullptr ) ) {
-		if ( pPref->m_sPortAudioDevice != m_pAudioDeviceTxt->lineEdit()->text() ) {
+			  ( selectedDriver == Preferences::AudioDriver::Auto &&
+				std::dynamic_pointer_cast<H2Core::PortAudioDriver>( pAudioDriver
+				) != nullptr ) ) {
+		if ( pPref->m_sPortAudioDevice !=
+			 m_pAudioDeviceTxt->lineEdit()->text() ) {
 			pPref->m_sPortAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
 			bAudioOptionAltered = true;
 		}
-		if ( pPref->m_sPortAudioHostAPI != portaudioHostAPIComboBox->currentText() ) {
-			pPref->m_sPortAudioHostAPI = portaudioHostAPIComboBox->currentText();
+		if ( pPref->m_sPortAudioHostAPI !=
+			 portaudioHostAPIComboBox->currentText() ) {
+			pPref->m_sPortAudioHostAPI =
+				portaudioHostAPIComboBox->currentText();
 			bAudioOptionAltered = true;
 		}
 		if ( pPref->m_nLatencyTarget != latencyTargetSpinBox->value() ) {
@@ -758,10 +765,12 @@ void PreferencesDialog::writeAudioDriverPreferences() {
 			bAudioOptionAltered = true;
 		}
 	}
-	else if (selectedDriver == Preferences::AudioDriver::CoreAudio ||
-			 ( selectedDriver == Preferences::AudioDriver::Auto &&
-			   dynamic_cast<H2Core::CoreAudioDriver*>(pAudioDriver) != nullptr ) ) {
-		if ( pPref->m_sCoreAudioDevice != m_pAudioDeviceTxt->lineEdit()->text() ) {
+	else if ( selectedDriver == Preferences::AudioDriver::CoreAudio ||
+			  ( selectedDriver == Preferences::AudioDriver::Auto &&
+				std::dynamic_pointer_cast<H2Core::CoreAudioDriver>( pAudioDriver
+				) != nullptr ) ) {
+		if ( pPref->m_sCoreAudioDevice !=
+			 m_pAudioDeviceTxt->lineEdit()->text() ) {
 			pPref->m_sCoreAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
 			bAudioOptionAltered = true;
 		}
@@ -898,17 +907,19 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	// Check whether the current audio driver is valid
 	if ( pHydrogen->getAudioOutput() == nullptr ||
-		 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
+		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioOutput() ) !=
+			 nullptr ) {
 		if ( QMessageBox::warning(
-				 this, "Hydrogen", QString( "%1\n" )
-				 .arg( pCommonStrings->getAudioDriverNotPresent() )
-				 .append( tr( "Are you sure you want to proceed?" ) ),
-				 QMessageBox::Ok | QMessageBox::Cancel,
-				 QMessageBox::Cancel ) == QMessageBox::Cancel ) {
+				 this, "Hydrogen",
+				 QString( "%1\n" )
+					 .arg( pCommonStrings->getAudioDriverNotPresent() )
+					 .append( tr( "Are you sure you want to proceed?" ) ),
+				 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel
+			 ) == QMessageBox::Cancel ) {
 			return;
 		}
 	}
-	
+
 	if ( pPref->m_fMetronomeVolume != metronomeVolumeSpinBox->value() / 100.0 ) {
 		pPref->m_fMetronomeVolume = metronomeVolumeSpinBox->value() / 100.0;
 		bAudioOptionAltered = true;
@@ -1131,27 +1142,35 @@ void PreferencesDialog::updateAudioDriverInfo()
 		driverComboBox->currentText() );
 
 	if ( selectedAudioDriver == Preferences::AudioDriver::Auto ) {
-
-		if ( dynamic_cast<H2Core::JackDriver*>(pAudioDriver) != nullptr ) {
+		if ( std::dynamic_pointer_cast<H2Core::JackDriver>( pAudioDriver ) !=
+			 nullptr ) {
 			setAudioDriverInfoJack();
 		}
-		else if ( dynamic_cast<H2Core::AlsaAudioDriver*>(pAudioDriver) != nullptr ) {
+		else if ( std::dynamic_pointer_cast<H2Core::AlsaAudioDriver>(
+					  pAudioDriver
+				  ) != nullptr ) {
 			setAudioDriverInfoAlsa();
 		}
-		else if ( dynamic_cast<H2Core::PortAudioDriver*>(pAudioDriver) != nullptr ) {
+		else if ( std::dynamic_pointer_cast<H2Core::PortAudioDriver>(
+					  pAudioDriver
+				  ) != nullptr ) {
 			setAudioDriverInfoPortAudio();
 		}
-		else if ( dynamic_cast<H2Core::CoreAudioDriver*>(pAudioDriver) != nullptr ) {
+		else if ( std::dynamic_pointer_cast<H2Core::CoreAudioDriver>(
+					  pAudioDriver
+				  ) != nullptr ) {
 			setAudioDriverInfoCoreAudio();
 		}
-		else if ( dynamic_cast<H2Core::PulseAudioDriver*>(pAudioDriver) != nullptr ) {
+		else if ( std::dynamic_pointer_cast<H2Core::PulseAudioDriver>(
+					  pAudioDriver
+				  ) != nullptr ) {
 			setAudioDriverInfoPulseAudio();
 		}
-		else if ( dynamic_cast<H2Core::OssDriver*>(pAudioDriver) != nullptr ) {
+		else if ( std::dynamic_pointer_cast<H2Core::OssDriver>( pAudioDriver ) !=
+				  nullptr ) {
 			setAudioDriverInfoOss();
 		}
 		else {
-		
 			m_pAudioDeviceTxt->setDriver( Preferences::AudioDriver::Null );
 			m_pAudioDeviceTxt->setIsActive( false );
 			m_pAudioDeviceTxt->lineEdit()->setText( "" );
@@ -1215,82 +1234,104 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 		sInfo.append( tr("Automatic driver selection") )
 			.append( "<br><br>" );
 	}
-	
-	if ( dynamic_cast<H2Core::JackDriver*>(pAudioDriver) != nullptr ) {
+
+	if ( std::dynamic_pointer_cast<H2Core::JackDriver>( pAudioDriver ) !=
+		 nullptr ) {
 		sInfo.append( "<b>" )
 			.append( tr( "JACK Audio Connection Kit Driver" ) )
 			.append( "</b><br>" )
 			.append( tr( "Low latency audio driver" ) );
 #ifndef H2CORE_HAVE_JACK
 		sInfo.append( "<br><b><font color=" )
-			.append( m_sColorRed ).append( ">")
+			.append( m_sColorRed )
+			.append( ">" )
 			.append( pCommonStrings->getPreferencesNotCompiled() )
 			.append( "</font></b>" );
 #endif
 	}
-	else if ( dynamic_cast<H2Core::AlsaAudioDriver*>(pAudioDriver) != nullptr ) {
-		sInfo.append( "<b>" ).append( tr( "ALSA Driver" ) )
+	else if ( std::dynamic_pointer_cast<H2Core::AlsaAudioDriver>( pAudioDriver
+			  ) != nullptr ) {
+		sInfo.append( "<b>" )
+			.append( tr( "ALSA Driver" ) )
 			.append( "</b><br>" );
 #ifndef H2CORE_HAVE_ALSA
 		sInfo.append( "<br><b><font color=" )
-			.append( m_sColorRed ).append( ">")
+			.append( m_sColorRed )
+			.append( ">" )
 			.append( pCommonStrings->getPreferencesNotCompiled() )
 			.append( "</font></b>" );
 #else
 		auto pAlsaDriver =
-			dynamic_cast<H2Core::AlsaAudioDriver*>(pAudioDriver);
+			std::dynamic_pointer_cast<H2Core::AlsaAudioDriver>( pAudioDriver );
 		if ( pAlsaDriver != nullptr ) {
-			sInfo.append( "<br>" ).append( tr( "Currently connected to device: " ) )
-				.append( "<b>" ).append( pAlsaDriver->m_sAlsaAudioDevice )
+			sInfo.append( "<br>" )
+				.append( tr( "Currently connected to device: " ) )
+				.append( "<b>" )
+				.append( pAlsaDriver->m_sAlsaAudioDevice )
 				.append( "</b>" );
-		} else {
-			ERRORLOG( "ALSA driver selected in PreferencesDialog but no ALSA driver running?" );
+		}
+		else {
+			ERRORLOG(
+				"ALSA driver selected in PreferencesDialog but no ALSA driver "
+				"running?"
+			);
 		}
 #endif
 	}
-	else if ( dynamic_cast<H2Core::PortAudioDriver*>(pAudioDriver) != nullptr ) {
-		sInfo.append( "<b>" ).append( tr( "PortAudio Driver" ) )
+	else if ( std::dynamic_pointer_cast<H2Core::PortAudioDriver>( pAudioDriver
+			  ) != nullptr ) {
+		sInfo.append( "<b>" )
+			.append( tr( "PortAudio Driver" ) )
 			.append( "</b><br>" );
 #ifndef H2CORE_HAVE_PORTAUDIO
 		sInfo.append( "<br><b><font color=" )
-			.append( m_sColorRed ).append( ">")
+			.append( m_sColorRed )
+			.append( ">" )
 			.append( pCommonStrings->getPreferencesNotCompiled() )
 			.append( "</font></b>" );
 #endif
 	}
-	else if ( dynamic_cast<H2Core::CoreAudioDriver*>(pAudioDriver) != nullptr ) {	
-		sInfo.append( "<b>" ).append( tr( "CoreAudio Driver" ) )
+	else if ( std::dynamic_pointer_cast<H2Core::CoreAudioDriver>( pAudioDriver
+			  ) != nullptr ) {
+		sInfo.append( "<b>" )
+			.append( tr( "CoreAudio Driver" ) )
 			.append( "</b><br>" );
 #ifndef H2CORE_HAVE_COREAUDIO
 		sInfo.append( "<br><b><font color=" )
-			.append( m_sColorRed ).append( ">")
+			.append( m_sColorRed )
+			.append( ">" )
 			.append( pCommonStrings->getPreferencesNotCompiled() )
 			.append( "</font></b>" );
 #endif
 	}
-	else if ( dynamic_cast<H2Core::PulseAudioDriver*>(pAudioDriver) != nullptr ) {		
-		sInfo.append( "<b>" ).append( tr( "PulseAudio Driver" ) )
+	else if ( std::dynamic_pointer_cast<H2Core::PulseAudioDriver>( pAudioDriver
+			  ) != nullptr ) {
+		sInfo.append( "<b>" )
+			.append( tr( "PulseAudio Driver" ) )
 			.append( "</b><br>" );
 #ifndef H2CORE_HAVE_PULSEAUDIO
 		sInfo.append( "<br><b><font color=" )
-			.append( m_sColorRed ).append( ">")
+			.append( m_sColorRed )
+			.append( ">" )
 			.append( pCommonStrings->getPreferencesNotCompiled() )
 			.append( "</font></b>" );
 #endif
 	}
-	else if ( dynamic_cast<H2Core::OssDriver*>(pAudioDriver) != nullptr ) {
-		sInfo.append( "<b>" ).append( tr( "Open Sound System" ) )
+	else if ( std::dynamic_pointer_cast<H2Core::OssDriver>( pAudioDriver ) !=
+			  nullptr ) {
+		sInfo.append( "<b>" )
+			.append( tr( "Open Sound System" ) )
 			.append( "</b><br>" )
 			.append( tr( "Simple audio driver [/dev/dsp]" ) );
 #ifndef H2CORE_HAVE_OSS
 		sInfo.append( "<br><b><font color=" )
-			.append( m_sColorRed ).append( ">")
+			.append( m_sColorRed )
+			.append( ">" )
 			.append( pCommonStrings->getPreferencesNotCompiled() )
 			.append( "</font></b>" );
 #endif
 	}
 	else {
-		
 		if ( driverComboBox->currentText() ==
 			 Preferences::audioDriverToQString( Preferences::AudioDriver::Auto ) ) {
 		
@@ -1307,7 +1348,7 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 			.append( pCommonStrings->getAudioDriverNotPresent() )
 			.append( "</font></b>" );
 	}
-	
+
 	driverInfoLbl->setText( sInfo );
 }
 
@@ -1904,9 +1945,11 @@ void PreferencesDialog::on_restartAudioDriverBtn_clicked()
 	QApplication::restoreOverrideCursor();
 
 	if ( pHydrogen->getAudioOutput() == nullptr ||
-		 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
-		QMessageBox::critical( this, "Hydrogen",
-							   pCommonStrings->getAudioDriverStartError() );
+		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioOutput() ) !=
+			 nullptr ) {
+		QMessageBox::critical(
+			this, "Hydrogen", pCommonStrings->getAudioDriverStartError()
+		);
 	}
 
 	m_bAudioDriverRestartRequired = false;
