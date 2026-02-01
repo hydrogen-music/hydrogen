@@ -81,6 +81,8 @@ namespace H2Core {
 QString JackAudioDriver::ModeToQString( const JackAudioDriver::Mode& m )
 {
 	switch ( m ) {
+		case Mode::None:
+			return "None";
 		case Mode::Audio:
 			return "Audio";
 		case Mode::Midi:
@@ -350,25 +352,48 @@ JackAudioDriver* JackAudioDriver::pJackDriverInstance = nullptr;
 
 JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	: AudioOutput(),
-	  m_mode( Mode::Audio ),
 	  m_pClient( nullptr ),
 	  m_sClientName( "Hydrogen" ),
-	  m_pOutputPort1( nullptr ),
-	  m_pOutputPort2( nullptr ),
+	  m_pAudioOutputPort1( nullptr ),
+	  m_pAudioOutputPort2( nullptr ),
 	  m_timebaseTracking( TimebaseTracking::None ),
 	  m_timebaseState( Timebase::None ),
 	  m_fLastTimebaseBpm( 120 ),
 	  m_nTimebaseFrameOffset( 0 ),
-	  m_lastTransportBits( 0 )
+	  m_lastTransportBits( 0 ),
+	  m_nRunning( 0 ),
+	  m_midiRxInPosition( 0 ),
+	  m_midiRxOutPosition( 0 ),
+	  m_pMidiOutputPort( nullptr ),
+	  m_pMidiInputPort( nullptr )
 #ifdef HAVE_INTEGRATION_TESTS
 	  ,
 	  m_bIntegrationRelocationLoop( false ),
 	  m_bIntegrationCheckRelocationLoop( false )
 #endif
 {
+	pthread_mutex_init( &m_midiMutex, nullptr );
 	auto pPreferences = Preferences::get_instance();
 
 	m_bConnectDefaults = pPreferences->m_bJackConnectDefaults;
+
+	if ( pPreferences->m_audioDriver == Preferences::AudioDriver::Jack &&
+		 pPreferences->m_midiDriver == Preferences::MidiDriver::Jack ) {
+		m_mode = Mode::Combined;
+	}
+	else if ( pPreferences->m_audioDriver == Preferences::AudioDriver::Jack ) {
+		m_mode = Mode::Audio;
+	}
+	else if ( pPreferences->m_midiDriver == Preferences::MidiDriver::Jack ) {
+		m_mode = Mode::Midi;
+	}
+	else {
+		m_mode = Mode::None;
+		ERRORLOG(
+			"JACK driver start while being neither set as audio nor MIDI "
+			"driver."
+		);
+	}
 
 	JackAudioDriver::pJackDriverInstance = this;
 	this->m_processCallback = m_processCallback;
@@ -380,8 +405,8 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 
 	// Destination ports the output of Hydrogen will be connected
 	// to.
-	m_sOutputPortName1 = pPreferences->m_sJackPortName1;
-	m_sOutputPortName2 = pPreferences->m_sJackPortName2;
+	m_sAudioOutputPortName1 = pPreferences->m_sJackPortName1;
+	m_sAudioOutputPortName2 = pPreferences->m_sJackPortName2;
 
 	m_JackTransportState = JackTransportStopped;
 }
@@ -389,6 +414,36 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 JackAudioDriver::~JackAudioDriver()
 {
 	disconnect();
+
+	pthread_mutex_destroy( &m_midiMutex );
+}
+
+void JackAudioDriver::deactivate()
+{
+	if ( m_pClient != nullptr ) {
+		if ( m_mode == Mode::Audio || m_mode == Mode::Combined ) {
+			for ( auto& [_, ports] : m_audioPortMap ) {
+				unregisterPerTrackAudioPorts( ports );
+			}
+			for ( auto& [_, ports] : m_audioPortMapStatic ) {
+				unregisterPerTrackAudioPorts( ports );
+			}
+		}
+
+		if ( m_mode == Mode::Midi || m_mode == Mode::Combined ) {
+			if ( jack_port_unregister( m_pClient, m_pMidiInputPort ) != 0 ) {
+				ERRORLOG( "Failed to unregister jack midi input out" );
+			}
+
+			if ( jack_port_unregister( m_pClient, m_pMidiOutputPort ) != 0 ) {
+				ERRORLOG( "Failed to unregister jack midi input out" );
+			}
+		}
+
+		if ( jack_deactivate( m_pClient ) != 0 ) {
+			ERRORLOG( "Error in jack_deactivate" );
+		}
+	}
 }
 
 void JackAudioDriver::locateTransport( long long nFrame )
@@ -923,6 +978,11 @@ int JackAudioDriver::init( unsigned bufferSize )
 {
 	auto pPreferences = Preferences::get_instance();
 
+	if ( m_pClient != nullptr ) {
+		ERRORLOG( "Client already initialized!" );
+		return -1;
+	}
+
 #ifdef H2CORE_HAVE_OSC
 	const QString sNsmClientId = NsmClient::get_instance()->getClientId();
 
@@ -1077,40 +1137,75 @@ int JackAudioDriver::init( unsigned bufferSize )
 	*/
 	jack_on_shutdown( m_pClient, jackDriverShutdown, nullptr );
 
-	// Create two new ports for Hydrogen's client. These are
-	// objects used for moving data of any type in or out of the
-	// client. Ports may be connected in various ways. The
-	// function `jack_port_register' (jack/jack.h) is called like
+	// Create new audio and MIDI ports for Hydrogen's client. These are objects
+	// used for moving data of any type in or out of the client. Ports may be
+	// connected in various ways. The function `jack_port_register'
+	// (jack/jack.h) is called like
+	//
 	// jack_port_register( jack_client_t *client,
 	//                     const char *port_name,
 	//                     const char *port_type,
 	//                     unsigned long flags,
 	//                     unsigned long buffer_size)
 	//
-	// All ports have a type, which may be any non-NULL and non-zero
-	// length string, passed as an argument. Some port types are built
-	// into the JACK API, currently only JACK_DEFAULT_AUDIO_TYPE.
 	// It returns a _jack_port_t_ pointer on success, otherwise NULL.
-	m_pOutputPort1 = jack_port_register(
-		m_pClient, "out_L", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0
-	);
-	if ( jack_set_property(
-			 m_pClient, jack_port_uuid( m_pOutputPort1 ),
-			 JACK_METADATA_PRETTY_NAME, "Main Output L", "text/plain"
-		 ) != 0 ) {
-		INFOLOG( "Unable to set pretty name of left main output" );
+	if ( m_mode == Mode::Audio || m_mode == Mode::Combined ) {
+		m_pAudioOutputPort1 = jack_port_register(
+			m_pClient, "out_L", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0
+		);
+		if ( jack_set_property(
+				 m_pClient, jack_port_uuid( m_pAudioOutputPort1 ),
+				 JACK_METADATA_PRETTY_NAME, "Main Output L", "text/plain"
+			 ) != 0 ) {
+			INFOLOG( "Unable to set pretty name of left main output" );
+		}
+		m_pAudioOutputPort2 = jack_port_register(
+			m_pClient, "out_R", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0
+		);
+		if ( jack_set_property(
+				 m_pClient, jack_port_uuid( m_pAudioOutputPort2 ),
+				 JACK_METADATA_PRETTY_NAME, "Main Output R", "text/plain"
+			 ) != 0 ) {
+			INFOLOG( "Unable to set pretty name of right main output" );
+		}
 	}
-	m_pOutputPort2 = jack_port_register(
-		m_pClient, "out_R", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0
-	);
-	if ( jack_set_property(
-			 m_pClient, jack_port_uuid( m_pOutputPort2 ),
-			 JACK_METADATA_PRETTY_NAME, "Main Output R", "text/plain"
-		 ) != 0 ) {
-		INFOLOG( "Unable to set pretty name of right main output" );
+
+	if ( m_mode == Mode::Midi || m_mode == Mode::Combined ) {
+		m_pMidiOutputPort = jack_port_register(
+			m_pClient, "TX", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0
+		);
+		if ( jack_set_property(
+				 m_pClient, jack_port_uuid( m_pMidiOutputPort ),
+				 JACK_METADATA_PRETTY_NAME, "MIDI Output", "text/plain"
+			 ) != 0 ) {
+			INFOLOG( "Unable to set pretty name of MIDI output port" );
+		}
+
+		m_pMidiInputPort = jack_port_register(
+			m_pClient, "RX", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0
+		);
+		if ( jack_set_property(
+				 m_pClient, jack_port_uuid( m_pMidiInputPort ),
+				 JACK_METADATA_PRETTY_NAME, "MIDI Input", "text/plain"
+			 ) != 0 ) {
+			INFOLOG( "Unable to set pretty name of MIDI input port" );
+		}
 	}
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	if ( ( m_pOutputPort1 == nullptr ) || ( m_pOutputPort2 == nullptr ) ) {
+
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( ( m_mode == Mode::Audio || m_mode == Mode::Combined ) &&
+		 ( m_pAudioOutputPort1 == nullptr || m_pAudioOutputPort2 == nullptr
+		 ) ) {
+		ERRORLOG( "Unable to create main audio output ports" );
+		pHydrogen->getAudioEngine()->raiseError(
+			Hydrogen::JACK_ERROR_IN_PORT_REGISTER
+		);
+		return 4;
+	}
+
+	if ( ( m_mode == Mode::Midi || m_mode == Mode::Combined ) &&
+		 ( m_pMidiInputPort == nullptr || m_pMidiOutputPort == nullptr ) ) {
+		ERRORLOG( "Unable to create MIDI input and output ports" );
 		pHydrogen->getAudioEngine()->raiseError(
 			Hydrogen::JACK_ERROR_IN_PORT_REGISTER
 		);
@@ -1125,14 +1220,11 @@ int JackAudioDriver::init( unsigned bufferSize )
 		initTimebaseControl();
 	}
 
-	// TODO: Apart from the makeTrackOutputs() all other calls should
-	// be redundant.
-	//
 	// Whenever there is a Song present, create per track outputs (if
 	// activated in the Preferences).
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	auto pSong = pHydrogen->getSong();
 	if ( pSong != nullptr ) {
-		makeTrackPorts( pSong );
+		createPerTrackAudioPorts( pSong );
 	}
 
 	return 0;
@@ -1153,7 +1245,8 @@ int JackAudioDriver::connect()
 		return 1;
 	}
 
-	if ( m_bConnectDefaults ) {
+	if ( m_bConnectDefaults &&
+		 ( m_mode == Mode::Audio || m_mode == Mode::Combined ) ) {
 		// Connect the left and right default ports of Hydrogen.
 		//
 		// The `jack_connect' function is defined in the
@@ -1171,12 +1264,12 @@ int JackAudioDriver::connect()
 		// the jack/jack.h header returns the full name of a
 		// provided port of type jack_port_t.
 		if ( jack_connect(
-				 m_pClient, jack_port_name( m_pOutputPort1 ),
-				 m_sOutputPortName1.toLocal8Bit()
+				 m_pClient, jack_port_name( m_pAudioOutputPort1 ),
+				 m_sAudioOutputPortName1.toLocal8Bit()
 			 ) == 0 &&
 			 jack_connect(
-				 m_pClient, jack_port_name( m_pOutputPort2 ),
-				 m_sOutputPortName2.toLocal8Bit()
+				 m_pClient, jack_port_name( m_pAudioOutputPort2 ),
+				 m_sAudioOutputPortName2.toLocal8Bit()
 			 ) == 0 ) {
 			return 0;
 		}
@@ -1202,10 +1295,10 @@ int JackAudioDriver::connect()
 			return 2;
 		}
 		if ( jack_connect(
-				 m_pClient, jack_port_name( m_pOutputPort1 ), portnames[0]
+				 m_pClient, jack_port_name( m_pAudioOutputPort1 ), portnames[0]
 			 ) != 0 ||
 			 jack_connect(
-				 m_pClient, jack_port_name( m_pOutputPort2 ), portnames[1]
+				 m_pClient, jack_port_name( m_pAudioOutputPort2 ), portnames[1]
 			 ) != 0 ) {
 			ERRORLOG( "Couldn't connect to first pair of Jack input ports" );
 			Hydrogen::get_instance()->getAudioEngine()->raiseError(
@@ -1258,6 +1351,10 @@ int JackAudioDriver::getXRuns() const
 
 float* JackAudioDriver::getOut_L()
 {
+	if ( m_mode != Mode::Audio && m_mode != Mode::Combined ) {
+		return nullptr;
+	}
+
 	/**
 	 * This returns a pointer to the memory area associated with
 	 * the specified port. For an output port, it will be a memory
@@ -1268,16 +1365,20 @@ float* JackAudioDriver::getOut_L()
 	 */
 	jack_default_audio_sample_t* out =
 		static_cast<jack_default_audio_sample_t*>( jack_port_get_buffer(
-			m_pOutputPort1, JackAudioDriver::jackServerBufferSize
+			m_pAudioOutputPort1, JackAudioDriver::jackServerBufferSize
 		) );
 	return out;
 }
 
 float* JackAudioDriver::getOut_R()
 {
+	if ( m_mode != Mode::Audio && m_mode != Mode::Combined ) {
+		return nullptr;
+	}
+
 	jack_default_audio_sample_t* out =
 		static_cast<jack_default_audio_sample_t*>( jack_port_get_buffer(
-			m_pOutputPort2, JackAudioDriver::jackServerBufferSize
+			m_pAudioOutputPort2, JackAudioDriver::jackServerBufferSize
 		) );
 	return out;
 }
@@ -1326,16 +1427,20 @@ int JackAudioDriver::jackXRunCallback( void* arg )
 	return 0;
 }
 
-void JackAudioDriver::cleanupPerTrackPorts()
+void JackAudioDriver::cleanUpPerTrackAudioPorts()
 {
-	for ( auto it = m_portMap.cbegin(); it != m_portMap.cend(); ) {
+	if ( m_mode != Mode::Audio && m_mode != Mode::Combined ) {
+		return;
+	}
+
+	for ( auto it = m_audioPortMap.cbegin(); it != m_audioPortMap.cend(); ) {
 		if ( it->first != nullptr &&
 			 it->second.marked != InstrumentPorts::Marked::None &&
 			 !it->first->isQueued() ) {
 			if ( it->second.marked == InstrumentPorts::Marked::ForDeath ) {
-				unregisterTrackPorts( it->second );
+				unregisterPerTrackAudioPorts( it->second );
 			}
-			m_portMap.erase( it++ );
+			m_audioPortMap.erase( it++ );
 		}
 		else {
 			++it;
@@ -1345,9 +1450,13 @@ void JackAudioDriver::cleanupPerTrackPorts()
 
 void JackAudioDriver::clearPerTrackAudioBuffers( uint32_t nFrames )
 {
+	if ( m_mode != Mode::Audio && m_mode != Mode::Combined ) {
+		return;
+	}
+
 	if ( m_pClient != nullptr &&
 		 Preferences::get_instance()->m_bJackTrackOuts ) {
-		for ( auto& [ppInstrument, _] : m_portMapStatic ) {
+		for ( auto& [ppInstrument, _] : m_audioPortMapStatic ) {
 			auto pLeft = getTrackBuffer( ppInstrument, Channel::Left );
 			if ( pLeft != nullptr ) {
 				memset( pLeft, 0, nFrames * sizeof( float ) );
@@ -1358,7 +1467,7 @@ void JackAudioDriver::clearPerTrackAudioBuffers( uint32_t nFrames )
 			}
 		}
 
-		for ( auto& [ppInstrument, _] : m_portMap ) {
+		for ( auto& [ppInstrument, _] : m_audioPortMap ) {
 			auto pLeft = getTrackBuffer( ppInstrument, Channel::Left );
 			if ( pLeft != nullptr ) {
 				memset( pLeft, 0, nFrames * sizeof( float ) );
@@ -1367,22 +1476,6 @@ void JackAudioDriver::clearPerTrackAudioBuffers( uint32_t nFrames )
 			if ( pRight != nullptr ) {
 				memset( pRight, 0, nFrames * sizeof( float ) );
 			}
-		}
-	}
-}
-
-void JackAudioDriver::deactivate()
-{
-	if ( m_pClient != nullptr ) {
-		for ( auto& [_, ports] : m_portMap ) {
-			unregisterTrackPorts( ports );
-		}
-		for ( auto& [_, ports] : m_portMapStatic ) {
-			unregisterTrackPorts( ports );
-		}
-
-		if ( jack_deactivate( m_pClient ) != 0 ) {
-			ERRORLOG( "Error in jack_deactivate" );
 		}
 	}
 }
@@ -1392,6 +1485,10 @@ float* JackAudioDriver::getTrackBuffer(
 	Channel channel
 ) const
 {
+	if ( m_mode != Mode::Audio && m_mode != Mode::Combined ) {
+		return nullptr;
+	}
+
 	if ( pInstrument == nullptr ) {
 		return nullptr;
 	}
@@ -1399,19 +1496,20 @@ float* JackAudioDriver::getTrackBuffer(
 	InstrumentPorts ports;
 	if ( pInstrument->getId() == Instrument::MetronomeId ||
 		 pInstrument->getId() == Instrument::PlaybackTrackId ) {
-		if ( m_portMapStatic.find( pInstrument ) == m_portMapStatic.end() ) {
+		if ( m_audioPortMapStatic.find( pInstrument ) ==
+			 m_audioPortMapStatic.end() ) {
 			ERRORLOG( QString( "No ports for instrument [%1]" )
 						  .arg( pInstrument->getName() ) );
 			return nullptr;
 		}
 
-		ports = m_portMapStatic.at( pInstrument );
+		ports = m_audioPortMapStatic.at( pInstrument );
 	}
-	else if ( m_portMap.find( pInstrument ) != m_portMap.end() ) {
-		ports = m_portMap.at( pInstrument );
+	else if ( m_audioPortMap.find( pInstrument ) != m_audioPortMap.end() ) {
+		ports = m_audioPortMap.at( pInstrument );
 	}
 	else if ( pInstrument->isPreviewInstrument() ) {
-		ports = m_portMapStatic.at( m_pDummyPreviewInstrument );
+		ports = m_audioPortMapStatic.at( m_pDummyPreviewInstrument );
 	}
 	else {
 		ERRORLOG( QString( "No ports for instrument [%1]" )
@@ -1436,7 +1534,7 @@ float* JackAudioDriver::getTrackBuffer(
 	);
 }
 
-void JackAudioDriver::makeTrackPorts(
+void JackAudioDriver::createPerTrackAudioPorts(
 	std::shared_ptr<Song> pSong,
 	std::shared_ptr<Drumkit> pOldDrumkit
 )
@@ -1445,8 +1543,12 @@ void JackAudioDriver::makeTrackPorts(
 		return;
 	}
 
+	if ( m_mode != Mode::Audio && m_mode != Mode::Combined ) {
+		return;
+	}
+
 	// Clean up all ports not required anymore.
-	cleanupPerTrackPorts();
+	cleanUpPerTrackAudioPorts();
 
 	auto createPorts = [=]( std::shared_ptr<Instrument> pInstrument,
 							const QString& sPortName, bool* pError ) {
@@ -1491,13 +1593,13 @@ void JackAudioDriver::makeTrackPorts(
 	bool bErrorEncountered = false;
 	bool bError = false;
 	// These ports have to be created only once per Hydrogen session.
-	if ( m_portMapStatic.size() == 0 ) {
+	if ( m_audioPortMapStatic.size() == 0 ) {
 		const auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 		auto pMetronome = pAudioEngine->getMetronomeInstrument();
 
 		auto ports = createPorts( pMetronome, "Metronome", &bError );
 		if ( !bError ) {
-			m_portMapStatic[pMetronome] = ports;
+			m_audioPortMapStatic[pMetronome] = ports;
 		}
 		else {
 			bErrorEncountered = true;
@@ -1507,7 +1609,7 @@ void JackAudioDriver::makeTrackPorts(
 			pAudioEngine->getSampler()->getPlaybackTrackInstrument();
 		ports = createPorts( pPlaybackTrack, "PlaybackTrack", &bError );
 		if ( !bError ) {
-			m_portMapStatic[pPlaybackTrack] = ports;
+			m_audioPortMapStatic[pPlaybackTrack] = ports;
 		}
 		else {
 			bErrorEncountered = true;
@@ -1516,7 +1618,7 @@ void JackAudioDriver::makeTrackPorts(
 		ports =
 			createPorts( m_pDummyPreviewInstrument, "SamplePreview", &bError );
 		if ( !bError ) {
-			m_portMapStatic[m_pDummyPreviewInstrument] = ports;
+			m_audioPortMapStatic[m_pDummyPreviewInstrument] = ports;
 		}
 		else {
 			bErrorEncountered = true;
@@ -1645,7 +1747,7 @@ void JackAudioDriver::makeTrackPorts(
 		return sName;
 	};
 
-	if ( m_portMap.size() > 0 ) {
+	if ( m_audioPortMap.size() > 0 ) {
 		const QString sDeathRowSuffix = "_removed";
 
 		// We switched from one drumkit to another. Let's harness the same
@@ -1653,7 +1755,7 @@ void JackAudioDriver::makeTrackPorts(
 		std::shared_ptr<Instrument> pMapped;
 		std::list<std::pair<std::shared_ptr<Instrument>, InstrumentPorts> >
 			newPorts;
-		for ( auto& [ppInstrument, pports] : m_portMap ) {
+		for ( auto& [ppInstrument, pports] : m_audioPortMap ) {
 			if ( pports.marked != InstrumentPorts::Marked::None ) {
 				// These ports had only been kept for fading out audio. They
 				// should not be carried over to the next configuration.
@@ -1689,7 +1791,7 @@ void JackAudioDriver::makeTrackPorts(
 					QString( "%1%2" )
 						.arg( pports.sPortNameBase )
 						.arg( sDeathRowSuffix ),
-					m_portMap, ppInstrument
+					m_audioPortMap, ppInstrument
 				);
 				renamePorts( pports );
 			}
@@ -1697,12 +1799,12 @@ void JackAudioDriver::makeTrackPorts(
 
 		Instrument::Type sMappedName;
 		for ( const auto& [ppInstrument, pports] : newPorts ) {
-			m_portMap[ppInstrument] = pports;
+			m_audioPortMap[ppInstrument] = pports;
 
-			sMappedName = portNameFrom( ppInstrument, m_portMap );
-			if ( m_portMap[ppInstrument].sPortNameBase != sMappedName ) {
-				m_portMap[ppInstrument].sPortNameBase = sMappedName;
-				renamePorts( m_portMap[ppInstrument] );
+			sMappedName = portNameFrom( ppInstrument, m_audioPortMap );
+			if ( m_audioPortMap[ppInstrument].sPortNameBase != sMappedName ) {
+				m_audioPortMap[ppInstrument].sPortNameBase = sMappedName;
+				renamePorts( m_audioPortMap[ppInstrument] );
 			}
 		}
 	}
@@ -1712,10 +1814,10 @@ void JackAudioDriver::makeTrackPorts(
 			continue;
 		}
 
-		if ( m_portMap.find( ppInstrument ) != m_portMap.end() ) {
+		if ( m_audioPortMap.find( ppInstrument ) != m_audioPortMap.end() ) {
 			// Already added during the previous mapping step or already present
 			// in the death row.
-			auto ports = m_portMap[ppInstrument];
+			auto ports = m_audioPortMap[ppInstrument];
 			if ( ports.marked != InstrumentPorts::Marked::None ) {
 				// The instrument is already associated with ports in the death
 				// row. This can happen for particular long samples when e.g.
@@ -1723,18 +1825,20 @@ void JackAudioDriver::makeTrackPorts(
 				// action shortly after. We will remove the ports from the death
 				// row and reuse it.
 				ports.marked = InstrumentPorts::Marked::None;
-				ports.sPortNameBase = portNameFrom( ppInstrument, m_portMap );
+				ports.sPortNameBase =
+					portNameFrom( ppInstrument, m_audioPortMap );
 				renamePorts( ports );
-				m_portMap[ppInstrument] = ports;
+				m_audioPortMap[ppInstrument] = ports;
 			}
 		}
 		else {
 			// No matching port found. Register a new ones.
 			auto ports = createPorts(
-				ppInstrument, portNameFrom( ppInstrument, m_portMap ), &bError
+				ppInstrument, portNameFrom( ppInstrument, m_audioPortMap ),
+				&bError
 			);
 			if ( !bError ) {
-				m_portMap[ppInstrument] = ports;
+				m_audioPortMap[ppInstrument] = ports;
 			}
 			else {
 				bErrorEncountered = true;
@@ -1752,10 +1856,10 @@ void JackAudioDriver::makeTrackPorts(
 	}
 
 	// Clean up all ports not required anymore.
-	cleanupPerTrackPorts();
+	cleanUpPerTrackAudioPorts();
 }
 
-void JackAudioDriver::unregisterTrackPorts( InstrumentPorts ports )
+void JackAudioDriver::unregisterPerTrackAudioPorts( InstrumentPorts ports )
 {
 	if ( m_pClient == nullptr ) {
 		return;
@@ -1772,6 +1876,188 @@ void JackAudioDriver::unregisterTrackPorts( InstrumentPorts ports )
 			ERRORLOG( QString( "Unable to unregister right port of [%1]" )
 						  .arg( ports.sPortNameBase ) );
 		}
+	}
+}
+
+void JackAudioDriver::close()
+{
+	m_nRunning--;
+}
+
+std::vector<QString> JackAudioDriver::getExternalPortList(
+	const PortType& portType
+)
+{
+	std::vector<QString> portList;
+
+	portList.push_back( "Default" );
+
+	return portList;
+}
+
+bool JackAudioDriver::isInputActive() const
+{
+	return m_pClient != nullptr && m_pMidiInputPort != nullptr;
+}
+
+bool JackAudioDriver::isOutputActive() const
+{
+	return m_pClient != nullptr && m_pMidiOutputPort != nullptr;
+}
+
+void JackAudioDriver::open()
+{
+	init( /*parameter not used*/ 512 );
+	m_nRunning++;
+}
+
+void JackAudioDriver::getPortInfo(
+	const QString& sPortName,
+	int& nClient,
+	int& nPort
+)
+{
+	if ( sPortName == Preferences::getNullMidiPort() ) {
+		nClient = -1;
+		nPort = -1;
+		return;
+	}
+
+	nClient = 0;
+	nPort = 0;
+}
+
+void JackAudioDriver::readJackMidi( jack_nframes_t nframes )
+{
+	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
+		return;
+	}
+
+	uint8_t* buffer;
+	void* buf;
+	jack_nframes_t t;
+	uint8_t data[1];
+	uint8_t len;
+
+	if ( m_pMidiOutputPort == nullptr ) {
+		return;
+	}
+
+	buf = jack_port_get_buffer( m_pMidiOutputPort, nframes );
+	if ( buf == nullptr ) {
+		return;
+	}
+
+#ifdef JACK_MIDI_NEEDS_NFRAMES
+	jack_midi_clear_buffer( buf, nframes );
+#else
+	jack_midi_clear_buffer( buf );
+#endif
+
+	t = 0;
+	lockMidiPart();
+	while ( ( t < nframes ) && ( m_midiRxOutPosition != m_midiRxInPosition ) ) {
+		len = m_jackMidiBuffer[4 * m_midiRxInPosition];
+		if ( len == 0 ) {
+			m_midiRxInPosition++;
+			if ( m_midiRxInPosition >= JackAudioDriver::jackMidiBufferMax ) {
+				m_midiRxInPosition = 0;
+			}
+			continue;
+		}
+
+#ifdef JACK_MIDI_NEEDS_NFRAMES
+		buffer = jack_midi_event_reserve( buf, t, len, nframes );
+#else
+		buffer = jack_midi_event_reserve( buf, t, len );
+#endif
+		if ( buffer == nullptr ) {
+			break;
+		}
+		t++;
+		m_midiRxInPosition++;
+		if ( m_midiRxInPosition >= JackAudioDriver::jackMidiBufferMax ) {
+			m_midiRxInPosition = 0;
+		}
+		memcpy(
+			buffer, m_jackMidiBuffer + ( 4 * m_midiRxInPosition ) + 1, len
+		);
+	}
+	unlockMidiPart();
+}
+
+void JackAudioDriver::writeJackMidi( jack_nframes_t nframes )
+{
+	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
+		return;
+	}
+
+	int error;
+	int events;
+	int i;
+	void* buf;
+	jack_midi_event_t event;
+	uint8_t buffer[13];	 // 13 is needed if we get sysex goto messages
+
+	if ( m_pMidiInputPort == nullptr ) {
+		return;
+	}
+
+	buf = jack_port_get_buffer( m_pMidiInputPort, nframes );
+	if ( buf == nullptr ) {
+		return;
+	}
+
+#ifdef JACK_MIDI_NEEDS_NFRAMES
+	events = jack_midi_get_event_count( buf, nframes );
+#else
+	events = jack_midi_get_event_count( buf );
+#endif
+
+	for ( i = 0; i < events; i++ ) {
+#ifdef JACK_MIDI_NEEDS_NFRAMES
+		error = jack_midi_event_get( &event, buf, i, nframes );
+#else
+		error = jack_midi_event_get( &event, buf, i );
+#endif
+		if ( error ) {
+			continue;
+		}
+
+		if ( m_nRunning < 1 ) {
+			continue;
+		}
+
+		MidiMessage msg;
+
+		error = event.size;
+		if ( error > (int) sizeof( buffer ) ) {
+			error = (int) sizeof( buffer );
+		}
+
+		memset( buffer, 0, sizeof( buffer ) );
+		memcpy( buffer, event.buffer, error );
+
+		msg.setType( MidiMessage::deriveType( buffer[0] ) );
+		msg.setChannel( MidiMessage::deriveChannel( buffer[0] ) );
+		if ( msg.getType() == MidiMessage::Type::Sysex ) {
+			if ( buffer[3] == 06 ) {  // MMC message
+				for ( int i = 0; i < sizeof( buffer ) && i < 6; i++ ) {
+					msg.appendToSysexData( buffer[i] );
+				}
+			}
+			else {
+				for ( int i = 0; i < sizeof( buffer ); i++ ) {
+					msg.appendToSysexData( buffer[i] );
+				}
+			}
+		}
+		else {
+			// All other MIDI messages
+			msg.setData1( Midi::parameterFromIntClamp( buffer[1] ) );
+			msg.setData2( Midi::parameterFromIntClamp( buffer[2] ) );
+		}
+		enqueueInputMessage( msg );
 	}
 }
 
@@ -1882,6 +2168,142 @@ void JackAudioDriver::jackDriverShutdown( void* arg )
 	);
 }
 
+void JackAudioDriver::jackMidiOutEvent( uint8_t buf[4], uint8_t len )
+{
+	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
+		return;
+	}
+
+	uint32_t next_pos;
+
+	lockMidiPart();
+
+	next_pos = m_midiRxOutPosition + 1;
+	if ( next_pos >= JackAudioDriver::jackMidiBufferMax ) {
+		next_pos = 0;
+	}
+
+	if ( next_pos == m_midiRxInPosition ) {
+		/* buffer is full */
+		unlockMidiPart();
+		return;
+	}
+
+	if ( len > 3 ) {
+		len = 3;
+	}
+
+	m_jackMidiBuffer[( 4 * next_pos )] = len;
+	m_jackMidiBuffer[( 4 * next_pos ) + 1] = buf[0];
+	m_jackMidiBuffer[( 4 * next_pos ) + 2] = buf[1];
+	m_jackMidiBuffer[( 4 * next_pos ) + 3] = buf[2];
+
+	m_midiRxOutPosition = next_pos;
+
+	unlockMidiPart();
+}
+
+void JackAudioDriver::sendControlChangeMessage( const MidiMessage& msg )
+{
+	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
+		return;
+	}
+
+	uint8_t buffer[4];
+
+	// Midi::Channel within Hydrogen represent user-facing values. Since the
+	// numerical value of channel `1` is `0` within the MIDI standard, we have
+	// to convert it.
+	buffer[0] = 0xB0 | ( static_cast<int>( msg.getChannel() ) - 1 );
+	buffer[1] = static_cast<int>( msg.getData1() );
+	buffer[2] = static_cast<int>( msg.getData2() );
+	buffer[3] = 0;
+
+	jackMidiOutEvent( buffer, 3 );
+}
+
+void JackAudioDriver::sendNoteOnMessage( const MidiMessage& msg )
+{
+	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
+		return;
+	}
+
+	uint8_t buffer[4];
+
+	// Midi::Channel within Hydrogen represent user-facing values. Since the
+	// numerical value of channel `1` is `0` within the MIDI standard, we have
+	// to convert it.
+	buffer[0] =
+		0x90 | ( static_cast<int>( msg.getChannel() ) - 1 ); /* note on */
+	buffer[1] = static_cast<int>( msg.getData1() );
+	buffer[2] = static_cast<int>( msg.getData2() );
+	buffer[3] = 0;
+
+	jackMidiOutEvent( buffer, 3 );
+}
+
+void JackAudioDriver::sendNoteOffMessage( const MidiMessage& msg )
+{
+	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
+		return;
+	}
+
+	uint8_t buffer[4];
+
+	// Midi::Channel within Hydrogen represent user-facing values. Since the
+	// numerical value of channel `1` is `0` within the MIDI standard, we have
+	// to convert it.
+	buffer[0] =
+		0x80 | ( static_cast<int>( msg.getChannel() ) - 1 ); /* note off */
+	buffer[1] = static_cast<int>( msg.getData1() );
+	buffer[2] = 0;
+	buffer[3] = 0;
+
+	jackMidiOutEvent( buffer, 3 );
+}
+
+void JackAudioDriver::sendSystemRealTimeMessage( const MidiMessage& msg )
+{
+	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
+		return;
+	}
+
+	uint8_t buffer[4];
+
+	if ( msg.getType() == MidiMessage::Type::Start ) {
+		buffer[0] = 0xFA;
+	}
+	else if ( msg.getType() == MidiMessage::Type::Continue ) {
+		buffer[0] = 0xFB;
+	}
+	else if ( msg.getType() == MidiMessage::Type::Stop ) {
+		buffer[0] = 0xFC;
+	}
+	else if ( msg.getType() == MidiMessage::Type::TimingClock ) {
+		buffer[0] = 0xF8;
+	}
+	else {
+		ERRORLOG( QString( "Unsupported event [%1]" )
+					  .arg( MidiMessage::TypeToQString( msg.getType() ) ) );
+		return;
+	}
+	buffer[1] = 0;
+	buffer[2] = 0;
+	buffer[3] = 0;
+
+	jackMidiOutEvent( buffer, 3 );
+}
+
+void JackAudioDriver::lockMidiPart( void )
+{
+	pthread_mutex_lock( &m_midiMutex );
+}
+
+void JackAudioDriver::unlockMidiPart( void )
+{
+	pthread_mutex_unlock( &m_midiMutex );
+}
+
 QString JackAudioDriver::JackTransportStateToQString(
 	const jack_transport_state_t& t
 )
@@ -1949,15 +2371,15 @@ QString JackAudioDriver::toQString( const QString& sPrefix, bool bShort ) const
 				.append( QString( "%1%2m_sOutputPortName1: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( m_sOutputPortName1 ) )
+							 .arg( m_sAudioOutputPortName1 ) )
 				.append( QString( "%1%2m_sOutputPortName2: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( m_sOutputPortName2 ) )
+							 .arg( m_sAudioOutputPortName2 ) )
 				.append(
 					QString( "%1%2m_portMapStatic:\n" ).arg( sPrefix ).arg( s )
 				);
-		for ( const auto& [ppInstrument, ports] : m_portMapStatic ) {
+		for ( const auto& [ppInstrument, ports] : m_audioPortMapStatic ) {
 			sOutput.append( QString( "%1%2%2[%3]: %4\n" )
 								.arg( sPrefix )
 								.arg( s )
@@ -1965,7 +2387,7 @@ QString JackAudioDriver::toQString( const QString& sPrefix, bool bShort ) const
 								.arg( ports.sPortNameBase ) );
 		}
 		sOutput.append( QString( "%1%2m_portMap:\n" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& [ppInstrument, ports] : m_portMap ) {
+		for ( const auto& [ppInstrument, ports] : m_audioPortMap ) {
 			sOutput.append( QString( "%1%2%2[%3]: %4\n" )
 								.arg( sPrefix )
 								.arg( s )
@@ -2012,7 +2434,19 @@ QString JackAudioDriver::toQString( const QString& sPrefix, bool bShort ) const
 			.append( QString( "%1%2m_lastTransportBits: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
-						 .arg( m_lastTransportBits ) );
+						 .arg( m_lastTransportBits ) )
+			.append( QString( "%1%2m_nRunning: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_nRunning ) )
+			.append( QString( "%1%2m_midiRxInPosition: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_midiRxInPosition ) )
+			.append( QString( "%1%2m_midiRxOutPosition: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_midiRxOutPosition ) );
 #ifdef HAVE_INTEGRATION_TESTS
 		sOutput
 			.append( QString( "%1%2m_nIntegrationLastRelocationFrame: %3\n" )
@@ -2036,17 +2470,17 @@ QString JackAudioDriver::toQString( const QString& sPrefix, bool bShort ) const
 				.append( QString( " m_mode: %1" ).arg( ModeToQString( m_mode ) )
 				)
 				.append( QString( " m_sOutputPortName1: %1" )
-							 .arg( m_sOutputPortName1 ) )
+							 .arg( m_sAudioOutputPortName1 ) )
 				.append( QString( ", m_sOutputPortName2: %1" )
-							 .arg( m_sOutputPortName2 ) )
+							 .arg( m_sAudioOutputPortName2 ) )
 				.append( ", m_portMapStatic: [" );
-		for ( const auto& [ppInstrument, ports] : m_portMapStatic ) {
+		for ( const auto& [ppInstrument, ports] : m_audioPortMapStatic ) {
 			sOutput.append( QString( "[%1]: %2], " )
 								.arg( ppInstrument->getName() )
 								.arg( ports.sPortNameBase ) );
 		}
 		sOutput.append( ", m_portMap: [" );
-		for ( const auto& [ppInstrument, ports] : m_portMap ) {
+		for ( const auto& [ppInstrument, ports] : m_audioPortMap ) {
 			sOutput.append( QString( "[%1]: %2], " )
 								.arg( ppInstrument->getName() )
 								.arg( ports.sPortNameBase ) );
@@ -2075,7 +2509,13 @@ QString JackAudioDriver::toQString( const QString& sPrefix, bool bShort ) const
 			.append( QString( ", m_nTimebaseFrameOffset: %1" )
 						 .arg( m_nTimebaseFrameOffset ) )
 			.append( QString( ", m_lastTransportBits: %1" )
-						 .arg( m_lastTransportBits ) );
+						 .arg( m_lastTransportBits ) )
+			.append( QString( ", m_nRunning: %1" ).arg( m_nRunning ) )
+			.append(
+				QString( ", m_midiRxInPosition: %1" ).arg( m_midiRxInPosition )
+			)
+			.append( QString( ", m_midiRxOutPosition: %1" )
+						 .arg( m_midiRxOutPosition ) );
 #ifdef HAVE_INTEGRATION_TESTS
 		sOutput
 			.append( QString( ", m_nIntegrationLastRelocationFrame: %1" )

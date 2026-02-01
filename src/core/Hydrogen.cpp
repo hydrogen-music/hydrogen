@@ -1094,7 +1094,7 @@ void Hydrogen::killInstruments() {
 		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>(
 			m_pAudioEngine->getAudioDriver());
 		if ( pJackAudioDriver != nullptr ) {
-			pJackAudioDriver->cleanupPerTrackPorts();
+			pJackAudioDriver->cleanUpPerTrackAudioPorts();
 		}
 	}
 #endif

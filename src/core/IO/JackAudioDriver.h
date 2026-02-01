@@ -24,6 +24,7 @@
 #define H2_JACK_OUTPUT_H
 
 #include <core/IO/AudioOutput.h>
+#include <core/IO/MidiBaseDriver.h>
 #include <core/IO/NullDriver.h>
 
 // check if jack support is disabled
@@ -31,6 +32,8 @@
 // JACK support is enabled.
 
 #include <jack/jack.h>
+#include <jack/midiport.h>
+#include <jack/ringbuffer.h>
 #include <jack/transport.h>
 #include <pthread.h>
 #include <map>
@@ -90,11 +93,14 @@ class TransportPosition;
  * Instead, we refer to controller and listener.
  */
 /** \ingroup docCore docAudioDriver */
-class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput {
+class JackAudioDriver : public Object<JackAudioDriver>,
+						public virtual MidiBaseDriver,
+						public AudioOutput {
 	H2_OBJECT( JackAudioDriver )
    public:
 	/** Whether Hydrogen or another program is in Timebase control. */
 	enum class Mode {
+		None,
 		/** Only the audio part of the driver is used. */
 		Audio,
 		/** Only the MIDI part of the driver is used. */
@@ -150,6 +156,9 @@ class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput {
 		Marked marked;
 	};
 
+	/** Maximum number of supported event. */
+	static constexpr uint32_t jackMidiBufferMax = 64;
+
 	static double bbtToTick( const jack_position_t& pos );
 	static bool isBBTValid( const jack_position_t& pos );
 	static void transportToBBT(
@@ -163,6 +172,11 @@ class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput {
 	JackAudioDriver( JackProcessCallback m_processCallback );
 	~JackAudioDriver();
 
+	void deactivate();
+	float* getTrackBuffer(
+		std::shared_ptr<Instrument> pInstrument,
+		Channel channel
+	) const;
 	Mode getMode() const;
 
 	/** Re-positions the transport position to @a nFrame.
@@ -263,22 +277,17 @@ class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput {
 	static int jackXRunCallback( void* arg );
 	/** Checks whether there are ports associated with instrument in
 	 * #Hydrogen::m_instrumentDeathRow and whether they can be torn down. */
-	void cleanupPerTrackPorts();
+	void cleanUpPerTrackAudioPorts();
 	void clearPerTrackAudioBuffers( uint32_t nFrames );
-	void deactivate();
-	float* getTrackBuffer(
-		std::shared_ptr<Instrument> pInstrument,
-		Channel channel
-	) const;
-	bool getConnectDefaults() { return m_bConnectDefaults; }
 	/** Creates per-instrument output ports.
 	 *
 	 * In case the previous drumkit is provided as well, a more sophisticated
 	 * mapping between the instrument corresponding to the ports can be done. */
-	void makeTrackPorts(
+	void createPerTrackAudioPorts(
 		std::shared_ptr<Song> pSong,
 		std::shared_ptr<Drumkit> pOldDrumkit = nullptr
 	);
+	bool getConnectDefaults() { return m_bConnectDefaults; }
 	void setConnectDefaults( bool flag ) { m_bConnectDefaults = flag; }
 
 	/** Sample rate of the JACK audio server. */
@@ -290,6 +299,21 @@ class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput {
 	/** Number of XRuns since the driver started.*/
 	static int jackServerXRuns;
 	jack_client_t* m_pClient;
+	/** @} */
+
+	/** Methods to implement #MidiBaseDriver @{ */
+	void close() override;
+	std::vector<QString> getExternalPortList( const PortType& portType
+	) override;
+	bool isInputActive() const override;
+	bool isOutputActive() const override;
+	void open() override;
+	/** @} */
+
+	/** Methods handling the MIDI part of the driver @{ */
+	void getPortInfo( const QString& sPortName, int& nClient, int& nPort );
+	void readJackMidi( jack_nframes_t nframes );
+	void writeJackMidi( jack_nframes_t nframes );
 	/** @} */
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true )
@@ -376,7 +400,19 @@ class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput {
 	 */
 	static void jackDriverShutdown( void* arg );
 
-	void unregisterTrackPorts( InstrumentPorts ports );
+	void unregisterPerTrackAudioPorts( InstrumentPorts ports );
+
+	/** Methods handling the MIDI part of the driver @{ */
+	void jackMidiOutEvent( uint8_t* buf, uint8_t len );
+
+	void sendControlChangeMessage( const MidiMessage& msg ) override;
+	void sendNoteOnMessage( const MidiMessage& msg ) override;
+	void sendNoteOffMessage( const MidiMessage& msg ) override;
+	void sendSystemRealTimeMessage( const MidiMessage& msg ) override;
+
+	void lockMidiPart();
+	void unlockMidiPart();
+	/** @} */
 
 	static QString JackTransportStateToQString(
 		const jack_transport_state_t& pPos
@@ -394,30 +430,30 @@ class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput {
 	/**
 	 * Left source port.
 	 */
-	jack_port_t* m_pOutputPort1;
+	jack_port_t* m_pAudioOutputPort1;
 	/**
 	 * Right source port.
 	 */
-	jack_port_t* m_pOutputPort2;
+	jack_port_t* m_pAudioOutputPort2;
 	/**
 	 * Destination of the left source port #m_pOutputPort1, for which
 	 * a connection will be established in connect().
 	 */
-	QString m_sOutputPortName1;
+	QString m_sAudioOutputPortName1;
 	/**
 	 * Destination of the right source port #m_pOutputPort2, for which
 	 * a connection will be established in connect().
 	 */
-	QString m_sOutputPortName2;
+	QString m_sAudioOutputPortName2;
 
 	/** The left and right jack port (in that order) associated with a
 	 * channel of an instrument. */
-	PortMap m_portMap;
+	PortMap m_audioPortMap;
 
 	/** Contains the ports for the metronome and the playback track, which
 	 * do not change when e.g. switching drumkits or loading a different
 	 * song. They will stay till teardown. */
-	PortMap m_portMapStatic;
+	PortMap m_audioPortMapStatic;
 
 	/** Since #Sampler::m_pPreviewInstrument is changed with each new sample
 	 * to preview, this one serves as a dummy instrument mapping all
@@ -527,6 +563,16 @@ class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput {
 	 * relocate to the exact frame we requested ourselves. But AFAICS this
 	 * is a bug in the JACK API. */
 	int m_lastTransportBits;
+
+	/** MIDI-related members @{ */
+	jack_port_t* m_pMidiOutputPort;
+	jack_port_t* m_pMidiInputPort;
+	pthread_mutex_t m_midiMutex;
+	int m_nRunning;
+	uint8_t m_jackMidiBuffer[jackMidiBufferMax * 4];
+	uint32_t m_midiRxInPosition;
+	uint32_t m_midiRxOutPosition;
+	/** @} */
 
 #ifdef HAVE_INTEGRATION_TESTS
 	/** Remember the last location we relocate to in order to detect

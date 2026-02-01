@@ -575,7 +575,7 @@ void AudioEngine::makeTrackPorts( std::shared_ptr<Song> pSong,
 		// AudioEngine lock).
 		m_MutexOutputPointer.lock();
 
-		pJackAudioDriver->makeTrackPorts( pSong, pOldDrumkit );
+		pJackAudioDriver->createPerTrackAudioPorts( pSong, pOldDrumkit );
 
 		m_MutexOutputPointer.unlock();
 	}
@@ -1639,15 +1639,31 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// Sync transport with server (in case the current audio driver is
 	// designed that way)
 #ifdef H2CORE_HAVE_JACK
-	if ( Hydrogen::get_instance()->hasJackTransport() ) {
-		auto pAudioDriver = pHydrogen->getAudioOutput();
-		if ( pAudioDriver == nullptr ) {
-			___ERRORLOG( QString( "[%1] AudioDriver is not ready!" )
-						 .arg( sDrivers ) );
-			assert( pAudioDriver );
-			return 1;
+	auto pJackDriver =
+		dynamic_cast<JackAudioDriver*>( pAudioEngine->m_pAudioDriver );
+	if ( pJackDriver != nullptr ) {
+		if ( Hydrogen::get_instance()->hasJackTransport() ) {
+			auto pAudioDriver = pHydrogen->getAudioOutput();
+			if ( pAudioDriver == nullptr ) {
+				___ERRORLOG(
+					QString( "[%1] AudioDriver is not ready!" ).arg( sDrivers )
+				);
+				assert( pAudioDriver );
+				return 1;
+			}
+			static_cast<JackAudioDriver*>( pAudioDriver )
+				->updateTransportPosition();
 		}
-		static_cast<JackAudioDriver*>( pAudioDriver )->updateTransportPosition();
+
+		// We separate JACK transport+audio from handling MIDI events via JACK
+		// MIDI (but in production the latter will most probably be used very
+		// rarely without the former).
+		if ( nframes > 0 &&
+			 ( pJackDriver->getMode() == JackAudioDriver::Mode::Midi ||
+			   pJackDriver->getMode() == JackAudioDriver::Mode::Combined ) ) {
+			pJackDriver->readJackMidi( nframes );
+			pJackDriver->writeJackMidi( nframes );
+		}
 	}
 #endif
 
