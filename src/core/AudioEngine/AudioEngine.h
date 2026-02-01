@@ -32,7 +32,7 @@
 #include <core/IO/AudioOutput.h>
 #include <core/IO/DiskWriterDriver.h>
 #include <core/IO/FakeAudioDriver.h>
-#include <core/IO/JackAudioDriver.h>
+#include <core/IO/JackDriver.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
@@ -433,8 +433,10 @@ public:
 	void			prepare( Event::Trigger trigger );
 	bool			isEndOfSongReached( std::shared_ptr<TransportPosition> pPos ) const;
 
-		void makeTrackPorts( std::shared_ptr<Song> pSong,
-							 std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
+	void createPerTrackJackAudioPorts(
+		std::shared_ptr<Song> pSong,
+		std::shared_ptr<Drumkit> pOldDrumkit = nullptr
+	);
 
 	long long getLastLoopFrame() const;
 
@@ -476,7 +478,7 @@ public:
 	friend int FakeAudioDriver::connect();
 
 	friend class AudioEngineTests;
-		friend class JackAudioDriver;
+		friend class JackDriver;
 private:
 
 	/**

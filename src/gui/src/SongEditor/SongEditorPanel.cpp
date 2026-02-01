@@ -45,7 +45,6 @@
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/PatternList.h>
-#include <core/IO/JackAudioDriver.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 

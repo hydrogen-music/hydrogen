@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef H2_JACK_OUTPUT_H
-#define H2_JACK_OUTPUT_H
+#ifndef H2_JACK_DRIVER_H
+#define H2_JACK_DRIVER_H
 
 #include <core/IO/AudioOutput.h>
 #include <core/IO/MidiBaseDriver.h>
@@ -92,11 +92,11 @@ class TransportPosition;
  * Note that we do not use the original terms coined in the Timebase API.
  * Instead, we refer to controller and listener.
  */
-/** \ingroup docCore docAudioDriver */
-class JackAudioDriver : public Object<JackAudioDriver>,
-						public virtual MidiBaseDriver,
-						public AudioOutput {
-	H2_OBJECT( JackAudioDriver )
+/** \ingroup docCore docAudioDriver docMIDI */
+class JackDriver : public Object<JackDriver>,
+				   public virtual MidiBaseDriver,
+				   public AudioOutput {
+	H2_OBJECT( JackDriver )
    public:
 	/** Whether Hydrogen or another program is in Timebase control. */
 	enum class Mode {
@@ -169,8 +169,8 @@ class JackAudioDriver : public Object<JackAudioDriver>,
 
 	typedef std::map<std::shared_ptr<Instrument>, InstrumentPorts> PortMap;
 
-	JackAudioDriver( JackProcessCallback m_processCallback );
-	~JackAudioDriver();
+	JackDriver( JackProcessCallback m_processCallback );
+	~JackDriver();
 
 	void deactivate();
 	float* getTrackBuffer(
@@ -294,8 +294,8 @@ class JackAudioDriver : public Object<JackAudioDriver>,
 	static unsigned long jackServerSampleRate;
 	/** Buffer size of the JACK audio server. */
 	static jack_nframes_t jackServerBufferSize;
-	/** Instance of the JackAudioDriver. */
-	static JackAudioDriver* pJackDriverInstance;
+	/** Instance of the JackDriver. */
+	static JackDriver* pJackDriverInstance;
 	/** Number of XRuns since the driver started.*/
 	static int jackServerXRuns;
 	jack_client_t* m_pClient;
@@ -383,7 +383,7 @@ class JackAudioDriver : public Object<JackAudioDriver>,
 	 * \param nFrames Unused.
 	 * \param pJackPosition Current transport position.
 	 * \param new_pos Unused.
-	 * \param arg Pointer to a JackAudioDriver instance.
+	 * \param arg Pointer to a JackDriver instance.
 	 */
 	static void JackTimebaseCallback(
 		jack_transport_state_t state,
@@ -585,7 +585,7 @@ class JackAudioDriver : public Object<JackAudioDriver>,
 #endif
 };
 
-inline JackAudioDriver::Mode JackAudioDriver::getMode() const
+inline JackDriver::Mode JackDriver::getMode() const
 {
 	return m_mode;
 }
@@ -596,9 +596,9 @@ inline JackAudioDriver::Mode JackAudioDriver::getMode() const
 // JACK is disabled
 
 namespace H2Core {
-/** \ingroup docCore docAudioDriver */
-class JackAudioDriver : public NullDriver {
-	H2_OBJECT( JackAudioDriver )
+/** \ingroup docCore docAudioDriver docMIDI */
+class JackDriver : public NullDriver {
+	H2_OBJECT( JackDriver )
    public:
 	enum class Timebase { Controller = 1, Listener = 0, None = -1 };
 	static QString TimebaseToQString( const Timebase& t )
@@ -607,12 +607,12 @@ class JackAudioDriver : public NullDriver {
 	};
 	static Timebase TimebaseFromInt( int nState ) { return Timebase::None; };
 	/**
-	 * Fallback version of the JackAudioDriver in case
+	 * Fallback version of the JackDriver in case
 	 * #H2CORE_HAVE_JACK was not defined during the configuration
 	 * and the usage of the JACK audio server is not intended by
 	 * the user.
 	 */
-	JackAudioDriver( audioProcessCallback m_processCallback )
+	JackDriver( audioProcessCallback m_processCallback )
 		: NullDriver( m_processCallback )
 	{
 	}

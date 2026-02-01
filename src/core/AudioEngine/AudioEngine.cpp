@@ -389,7 +389,7 @@ void AudioEngine::reset( bool bWithJackBroadcast, Event::Trigger trigger ) {
 	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
 		// Tell the JACK server to locate to the beginning as well
 		// (done in the next run of audioEngine_process()).
-		static_cast<JackAudioDriver*>( m_pAudioDriver )->locateTransport( 0 );
+		static_cast<JackDriver*>( m_pAudioDriver )->locateTransport( 0 );
 	}
 #endif
 }
@@ -461,7 +461,7 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast,
 					 .arg( fTick ).arg( fNewTick ) .arg( nNewFrame ) );
 #endif
 
-		static_cast<JackAudioDriver*>( m_pAudioDriver )->
+		static_cast<JackDriver*>( m_pAudioDriver )->
 			locateTransport( nNewFrame );
 		return;
 	}
@@ -563,19 +563,19 @@ bool AudioEngine::isEndOfSongReached( std::shared_ptr<TransportPosition> pPos ) 
 	return false;
 }
 
-void AudioEngine::makeTrackPorts( std::shared_ptr<Song> pSong,
+void AudioEngine::createPerTrackJackAudioPorts( std::shared_ptr<Song> pSong,
 								  std::shared_ptr<Drumkit> pOldDrumkit ) {
 
 #ifdef H2CORE_HAVE_JACK
-	auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>( m_pAudioDriver );
-	if ( pJackAudioDriver != nullptr ) {
+	auto pJackDriver = dynamic_cast<JackDriver*>( m_pAudioDriver );
+	if ( pJackDriver != nullptr ) {
 		// We have to guard this call using the special output buffer mutex to
-		// avoid `JackAudioDriver::makeTrackPorts` being called in parallel to
-		// `JackAudioDriver::clearPerTrackAudioBuffers` (called without an
+		// avoid `JackDriver::createPerTrackAudioPorts` being called in parallel
+		// to `JackDriver::clearPerTrackAudioBuffers` (called without an
 		// AudioEngine lock).
 		m_MutexOutputPointer.lock();
 
-		pJackAudioDriver->createPerTrackAudioPorts( pSong, pOldDrumkit );
+		pJackDriver->createPerTrackAudioPorts( pSong, pOldDrumkit );
 
 		m_MutexOutputPointer.unlock();
 	}
@@ -966,11 +966,11 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 	}
 	
 #ifdef H2CORE_HAVE_JACK
-	if ( Hydrogen::get_instance()->hasJackAudioDriver() ) {
-		JackAudioDriver* pJackAudioDriver = static_cast<JackAudioDriver*>(m_pAudioDriver);
+	if ( Hydrogen::get_instance()->hasJackDriver() ) {
+		auto pJackDriver = static_cast<JackDriver*>(m_pAudioDriver);
 	
-		if ( pJackAudioDriver != nullptr ) {
-			pJackAudioDriver->clearPerTrackAudioBuffers( nFrames );
+		if ( pJackDriver != nullptr ) {
+			pJackDriver->clearPerTrackAudioBuffers( nFrames );
 		}
 	}
 #endif
@@ -1011,7 +1011,7 @@ AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& dri
 		pAudioDriver = new OssDriver( m_AudioProcessCallback );
 	}
 	else if ( driver == Preferences::AudioDriver::Jack ) {
-		pAudioDriver = new JackAudioDriver( m_AudioProcessCallback );
+		pAudioDriver = new JackDriver( m_AudioProcessCallback );
 	}
 	else if ( driver == Preferences::AudioDriver::Alsa ) {
 		pAudioDriver = new AlsaAudioDriver( m_AudioProcessCallback );
@@ -1093,8 +1093,8 @@ AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& dri
 		return nullptr;
 	}
 
-	if ( pSong != nullptr && pHydrogen->hasJackAudioDriver() ) {
-		pHydrogen->renameJackPorts( pSong, nullptr );
+	if ( pSong != nullptr && pHydrogen->hasJackDriver() ) {
+		pHydrogen->renamePerTrackJackAudioPorts( pSong, nullptr );
 	}
 
 	lock( RIGHT_HERE );
@@ -1292,7 +1292,7 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 	float fBpm = pAudioEngine->getTransportPosition()->getBpm();
 
 	if ( pHydrogen->getJackTimebaseState() ==
-		 JackAudioDriver::Timebase::Listener ) {
+		 JackDriver::Timebase::Listener ) {
 		// Hydrogen is using the BPM broadcasted by the JACK
 		// server. This one does solely depend on external
 		// applications and will NOT be stored in the Song.
@@ -1582,7 +1582,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		 ( ! ( pAudioEngine->getState() == AudioEngine::State::Ready ||
 			   pAudioEngine->getState() == AudioEngine::State::CountIn ||
 			   pAudioEngine->getState() == AudioEngine::State::Playing ) &&
-		   dynamic_cast<JackAudioDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) ) {
+		   dynamic_cast<JackDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) ) {
 		return 0;
 	}
 
@@ -1640,7 +1640,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// designed that way)
 #ifdef H2CORE_HAVE_JACK
 	auto pJackDriver =
-		dynamic_cast<JackAudioDriver*>( pAudioEngine->m_pAudioDriver );
+		dynamic_cast<JackDriver*>( pAudioEngine->m_pAudioDriver );
 	if ( pJackDriver != nullptr ) {
 		if ( Hydrogen::get_instance()->hasJackTransport() ) {
 			auto pAudioDriver = pHydrogen->getAudioOutput();
@@ -1651,7 +1651,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 				assert( pAudioDriver );
 				return 1;
 			}
-			static_cast<JackAudioDriver*>( pAudioDriver )
+			static_cast<JackDriver*>( pAudioDriver )
 				->updateTransportPosition();
 		}
 
@@ -1659,8 +1659,8 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		// MIDI (but in production the latter will most probably be used very
 		// rarely without the former).
 		if ( nframes > 0 &&
-			 ( pJackDriver->getMode() == JackAudioDriver::Mode::Midi ||
-			   pJackDriver->getMode() == JackAudioDriver::Mode::Combined ) ) {
+			 ( pJackDriver->getMode() == JackDriver::Mode::Midi ||
+			   pJackDriver->getMode() == JackDriver::Mode::Combined ) ) {
 			pJackDriver->readJackMidi( nframes );
 			pJackDriver->writeJackMidi( nframes );
 		}
@@ -1775,9 +1775,9 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 				// Tell all other JACK clients to start as well and wait for the
 				// JACK server to give the signal.
-				static_cast<JackAudioDriver*>( pAudioEngine->m_pAudioDriver )
+				static_cast<JackDriver*>( pAudioEngine->m_pAudioDriver )
 					->locateTransport( nNewTransportFrame );
-				static_cast<JackAudioDriver*>( pAudioEngine->m_pAudioDriver )
+				static_cast<JackDriver*>( pAudioEngine->m_pAudioDriver )
 					->startTransport();
 			}
 			else
@@ -3126,7 +3126,7 @@ void AudioEngine::play() {
 	if ( Hydrogen::get_instance()->hasJackTransport() ) {
 		// Tell all other JACK clients to start as well and wait for
 		// the JACK server to give the signal.
-		static_cast<JackAudioDriver*>( m_pAudioDriver )->startTransport();
+		static_cast<JackDriver*>( m_pAudioDriver )->startTransport();
 		return;
 	}
 #endif
@@ -3152,7 +3152,7 @@ void AudioEngine::stop() {
 
 		// Tell all other JACK clients to stop as well and wait for
 		// the JACK server to give the signal.
-		static_cast<JackAudioDriver*>( m_pAudioDriver )->stopTransport();
+		static_cast<JackDriver*>( m_pAudioDriver )->stopTransport();
 		return;
 	}
 #endif
@@ -3438,7 +3438,7 @@ QString AudioEngine::getDriverNames() const {
 	if ( m_pAudioDriver == nullptr ) {
 		audioDriver = Preferences::AudioDriver::None;
 	}
-	else if ( dynamic_cast<JackAudioDriver*>(m_pAudioDriver) != nullptr ) {
+	else if ( dynamic_cast<JackDriver*>(m_pAudioDriver) != nullptr ) {
 		audioDriver = Preferences::AudioDriver::Jack;
 	}
 	else if ( dynamic_cast<PortAudioDriver*>(m_pAudioDriver) != nullptr ) {

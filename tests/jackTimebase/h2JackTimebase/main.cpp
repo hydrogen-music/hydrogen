@@ -106,7 +106,7 @@ void startTestJackDriver( lo_arg **argv, int argc ) {
 	CoreActionController::locateToTick( 0 );
 
 #ifdef H2CORE_HAVE_JACK
-	AudioEngineTests::startJackAudioDriver();
+	AudioEngineTests::startJackDriver();
 #else
 	___ERRORLOG( "Compiled without JACK support!" );
 #endif
@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
 				exit( 1 );
 		}
 		const auto timebaseState =
-			static_cast<JackAudioDriver::Timebase>(nTimebaseStateOption);
+			static_cast<JackDriver::Timebase>(nTimebaseStateOption);
 #ifdef H2CORE_HAVE_JACK
 		AudioEngineTests::m_referenceTimebase = timebaseState;
 #else
@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
 		Preferences::create_instance();
 		auto pPref = Preferences::get_instance();
 		pPref->setOscServerEnabled( true );
-		if ( timebaseState == JackAudioDriver::Timebase::Controller ) {
+		if ( timebaseState == JackDriver::Timebase::Controller ) {
 			pPref->m_bJackTimebaseMode = Preferences::USE_JACK_TIMEBASE_CONTROL;
 		} else {
 			pPref->m_bJackTimebaseMode = Preferences::NO_JACK_TIMEBASE_CONTROL;
@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
 		}
 		pHydrogen->setSong( pSong );
 
-        if ( ! pHydrogen->hasJackAudioDriver() ) {
+        if ( ! pHydrogen->hasJackDriver() ) {
 			___ERRORLOG( "Unable to start JACK driver" );
 			bQuit = true;
 		}

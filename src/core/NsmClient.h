@@ -220,7 +220,7 @@ class NsmClient : public H2Core::Object<NsmClient>
 	 * \param clientID Unique prefix also present in \a name, "nJKUV". It
 	 *   will be stored in H2Core::Preferences::m_sNsmClientId to provide it
 	 *   as a suffix when creating a JACK client in
-	 *   H2Core::JackAudioDriver::init().
+	 *   H2Core::JackDriver::init().
 	 * \param outMsg Unused argument. Kept for API compatibility.
 	 * \param userData Unused argument. Kept for API compatibility.
 	 *

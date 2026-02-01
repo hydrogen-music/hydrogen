@@ -1132,7 +1132,7 @@ void PreferencesDialog::updateAudioDriverInfo()
 
 	if ( selectedAudioDriver == Preferences::AudioDriver::Auto ) {
 
-		if ( dynamic_cast<H2Core::JackAudioDriver*>(pAudioDriver) != nullptr ) {
+		if ( dynamic_cast<H2Core::JackDriver*>(pAudioDriver) != nullptr ) {
 			setAudioDriverInfoJack();
 		}
 		else if ( dynamic_cast<H2Core::AlsaAudioDriver*>(pAudioDriver) != nullptr ) {
@@ -1216,7 +1216,7 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 			.append( "<br><br>" );
 	}
 	
-	if ( dynamic_cast<H2Core::JackAudioDriver*>(pAudioDriver) != nullptr ) {		
+	if ( dynamic_cast<H2Core::JackDriver*>(pAudioDriver) != nullptr ) {
 		sInfo.append( "<b>" )
 			.append( tr( "JACK Audio Connection Kit Driver" ) )
 			.append( "</b><br>" )

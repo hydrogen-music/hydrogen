@@ -51,7 +51,7 @@ https://www.gnu.org/licenses
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
-#include <core/IO/JackAudioDriver.h>
+#include <core/IO/JackDriver.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Hydrogen.h>
 
@@ -511,11 +511,11 @@ void MainToolBar::jackTimebaseStateChangedEvent( int nState )
 	QString sMessage = tr("JACK Timebase mode" ) + QString( " = " );
 
 	switch( Hydrogen::get_instance()->getJackTimebaseState() ) {
-	case JackAudioDriver::Timebase::Controller:
+	case JackDriver::Timebase::Controller:
 		sMessage.append( "Controller" );
 		break;
 
-	case JackAudioDriver::Timebase::Listener:
+	case JackDriver::Timebase::Listener:
 		sMessage.append( "Listener" );
 		break;
 
@@ -784,7 +784,7 @@ void MainToolBar::beatCounterEvent() {
 
 void MainToolBar::jackTransportBtnClicked()
 {
-	if ( ! Hydrogen::get_instance()->hasJackAudioDriver() ) {
+	if ( ! Hydrogen::get_instance()->hasJackDriver() ) {
 		QMessageBox::warning(
 			this, "Hydrogen", tr( "JACK-transport will work only with JACK driver." ) );
 		return;
@@ -903,7 +903,7 @@ void MainToolBar::updateBpmSpinBox() {
 
 void MainToolBar::updateJackTransport() {
 	auto pHydrogen = Hydrogen::get_instance();
-	const bool bVisible = pHydrogen->hasJackAudioDriver();
+	const bool bVisible = pHydrogen->hasJackDriver();
 	m_pJackTimebaseAction->setVisible( bVisible &&
 		Preferences::get_instance()->m_bJackTimebaseEnabled );
 	m_pJackTransportAction->setVisible( bVisible );
@@ -921,7 +921,7 @@ void MainToolBar::updateJackTimebase()
 	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	const bool bVisible = pHydrogen->hasJackAudioDriver();
+	const bool bVisible = pHydrogen->hasJackDriver();
 	m_pJackTimebaseAction->setVisible( bVisible &&
 		Preferences::get_instance()->m_bJackTimebaseEnabled );
 	m_pJackTransportAction->setVisible( bVisible );
@@ -934,7 +934,7 @@ void MainToolBar::updateJackTimebase()
 	m_pJackTimebaseButton->setStyleSheet( "" );
 	if ( pHydrogen->hasJackTransport() ) {
 		switch ( pHydrogen->getJackTimebaseState() ) {
-		case JackAudioDriver::Timebase::Controller:
+		case JackDriver::Timebase::Controller:
 			m_pJackTimebaseButton->setChecked( true );
 			m_pJackTimebaseButton->setStyleSheet( QString( "\
 #JackTimebaseButton {\
@@ -944,7 +944,7 @@ void MainToolBar::updateJackTimebase()
 				pCommonStrings->getJackTimebaseControllerToolTip() );
 			break;
 
-		case JackAudioDriver::Timebase::Listener:
+		case JackDriver::Timebase::Listener:
 			m_pJackTimebaseButton->setChecked( true );
 			m_pJackTimebaseButton->setStyleSheet( QString( "\
 #JackTimebaseButton {\

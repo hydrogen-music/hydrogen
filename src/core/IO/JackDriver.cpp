@@ -20,7 +20,7 @@
  *
  */
 
-#include <core/IO/JackAudioDriver.h>
+#include <core/IO/JackDriver.h>
 #if defined( H2CORE_HAVE_JACK ) || _DOXYGEN_
 
 #include <jack/metadata.h>
@@ -78,7 +78,7 @@
 
 namespace H2Core {
 
-QString JackAudioDriver::ModeToQString( const JackAudioDriver::Mode& m )
+QString JackDriver::ModeToQString( const JackDriver::Mode& m )
 {
 	switch ( m ) {
 		case Mode::None:
@@ -94,7 +94,7 @@ QString JackAudioDriver::ModeToQString( const JackAudioDriver::Mode& m )
 	}
 }
 
-QString JackAudioDriver::TimebaseToQString( const JackAudioDriver::Timebase& t )
+QString JackDriver::TimebaseToQString( const JackDriver::Timebase& t )
 {
 	switch ( t ) {
 		case Timebase::None:
@@ -108,7 +108,7 @@ QString JackAudioDriver::TimebaseToQString( const JackAudioDriver::Timebase& t )
 	}
 }
 
-JackAudioDriver::Timebase JackAudioDriver::TimebaseFromInt( int nState )
+JackDriver::Timebase JackDriver::TimebaseFromInt( int nState )
 {
 	switch ( nState ) {
 		case static_cast<int>( Timebase::Listener ):
@@ -121,7 +121,7 @@ JackAudioDriver::Timebase JackAudioDriver::TimebaseFromInt( int nState )
 	}
 }
 
-JackAudioDriver::InstrumentPorts::InstrumentPorts()
+JackDriver::InstrumentPorts::InstrumentPorts()
 	: sPortNameBase( "" ),
 	  Left( nullptr ),
 	  Right( nullptr ),
@@ -129,8 +129,7 @@ JackAudioDriver::InstrumentPorts::InstrumentPorts()
 {
 }
 
-JackAudioDriver::InstrumentPorts::InstrumentPorts( const InstrumentPorts& other
-)
+JackDriver::InstrumentPorts::InstrumentPorts( const InstrumentPorts& other )
 	: sPortNameBase( other.sPortNameBase ),
 	  Left( other.Left ),
 	  Right( other.Right ),
@@ -138,7 +137,7 @@ JackAudioDriver::InstrumentPorts::InstrumentPorts( const InstrumentPorts& other
 {
 }
 
-double JackAudioDriver::bbtToTick( const jack_position_t& pos )
+double JackDriver::bbtToTick( const jack_position_t& pos )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 
@@ -210,7 +209,7 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos )
 	return fNewTick;
 }
 
-bool JackAudioDriver::isBBTValid( const jack_position_t& pos )
+bool JackDriver::isBBTValid( const jack_position_t& pos )
 {
 	if ( !( pos.valid & JackPositionBBT ) ) {
 		// No BBT information
@@ -254,7 +253,7 @@ bool JackAudioDriver::isBBTValid( const jack_position_t& pos )
 	return true;
 }
 
-void JackAudioDriver::transportToBBT(
+void JackDriver::transportToBBT(
 	const TransportPosition& transportPos,
 	jack_position_t* pJackPosition
 )
@@ -319,7 +318,7 @@ void JackAudioDriver::transportToBBT(
 	}
 }
 
-QString JackAudioDriver::JackTransportPosToQString( const jack_position_t& pos )
+QString JackDriver::JackTransportPosToQString( const jack_position_t& pos )
 {
 	return QString(
 			   "frame: %1, frame_rate: %2, valid: %3, bar: %4, beat: %5, tick: "
@@ -342,15 +341,15 @@ QString JackAudioDriver::JackTransportPosToQString( const jack_position_t& pos )
 		.arg( pos.next_time );
 }
 
-unsigned long JackAudioDriver::jackServerSampleRate = 0;
-int JackAudioDriver::jackServerXRuns = 0;
-jack_nframes_t JackAudioDriver::jackServerBufferSize = 0;
+unsigned long JackDriver::jackServerSampleRate = 0;
+int JackDriver::jackServerXRuns = 0;
+jack_nframes_t JackDriver::jackServerBufferSize = 0;
 #ifdef HAVE_INTEGRATION_TESTS
-long JackAudioDriver::m_nIntegrationLastRelocationFrame = -1;
+long JackDriver::m_nIntegrationLastRelocationFrame = -1;
 #endif
-JackAudioDriver* JackAudioDriver::pJackDriverInstance = nullptr;
+JackDriver* JackDriver::pJackDriverInstance = nullptr;
 
-JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
+JackDriver::JackDriver( JackProcessCallback m_processCallback )
 	: AudioOutput(),
 	  m_pClient( nullptr ),
 	  m_sClientName( "Hydrogen" ),
@@ -395,7 +394,7 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 		);
 	}
 
-	JackAudioDriver::pJackDriverInstance = this;
+	JackDriver::pJackDriverInstance = this;
 	this->m_processCallback = m_processCallback;
 
 	m_pDummyPreviewInstrument =
@@ -411,14 +410,14 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	m_JackTransportState = JackTransportStopped;
 }
 
-JackAudioDriver::~JackAudioDriver()
+JackDriver::~JackDriver()
 {
 	disconnect();
 
 	pthread_mutex_destroy( &m_midiMutex );
 }
 
-void JackAudioDriver::deactivate()
+void JackDriver::deactivate()
 {
 	if ( m_pClient != nullptr ) {
 		if ( m_mode == Mode::Audio || m_mode == Mode::Combined ) {
@@ -446,7 +445,7 @@ void JackAudioDriver::deactivate()
 	}
 }
 
-void JackAudioDriver::locateTransport( long long nFrame )
+void JackDriver::locateTransport( long long nFrame )
 {
 	const auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
@@ -510,7 +509,7 @@ void JackAudioDriver::locateTransport( long long nFrame )
 	}
 }
 
-void JackAudioDriver::startTransport()
+void JackDriver::startTransport()
 {
 #if JACK_DEBUG
 	J_DEBUGLOG( "" );
@@ -524,7 +523,7 @@ void JackAudioDriver::startTransport()
 	}
 }
 
-void JackAudioDriver::stopTransport()
+void JackDriver::stopTransport()
 {
 #if JACK_DEBUG
 	J_DEBUGLOG( "" );
@@ -546,7 +545,7 @@ void JackAudioDriver::stopTransport()
 	}
 }
 
-void JackAudioDriver::updateTransportPosition()
+void JackDriver::updateTransportPosition()
 {
 	if ( Preferences::get_instance()->m_nJackTransportMode !=
 		 Preferences::USE_JACK_TRANSPORT ) {
@@ -560,7 +559,7 @@ void JackAudioDriver::updateTransportPosition()
 		Preferences::get_instance()->m_bJackTimebaseEnabled;
 
 #ifdef HAVE_INTEGRATION_TESTS
-	const int nPreviousXruns = JackAudioDriver::jackServerXRuns;
+	const int nPreviousXruns = JackDriver::jackServerXRuns;
 #endif
 
 	// jack_transport_query() (jack/transport.h) queries the
@@ -762,10 +761,10 @@ void JackAudioDriver::updateTransportPosition()
 		// We only perform the check in case no XRun occurred over the course of
 		// this function. They would mess things up.
 		if ( m_bIntegrationCheckRelocationLoop && bRelocation &&
-			 nPreviousXruns == JackAudioDriver::jackServerXRuns ) {
-			if ( JackAudioDriver::m_nIntegrationLastRelocationFrame !=
+			 nPreviousXruns == JackDriver::jackServerXRuns ) {
+			if ( JackDriver::m_nIntegrationLastRelocationFrame !=
 				 m_JackTransportPos.frame ) {
-				JackAudioDriver::m_nIntegrationLastRelocationFrame =
+				JackDriver::m_nIntegrationLastRelocationFrame =
 					m_JackTransportPos.frame;
 			}
 			else {
@@ -790,7 +789,7 @@ void JackAudioDriver::updateTransportPosition()
 	return;
 }
 
-float JackAudioDriver::getTimebaseControllerBpm() const
+float JackDriver::getTimebaseControllerBpm() const
 {
 	if ( m_timebaseState != Timebase::Listener ) {
 		return std::nan( "no tempo, no masters" );
@@ -798,7 +797,7 @@ float JackAudioDriver::getTimebaseControllerBpm() const
 	return m_fLastTimebaseBpm;
 }
 
-JackAudioDriver::Timebase JackAudioDriver::getTimebaseState() const
+JackDriver::Timebase JackDriver::getTimebaseState() const
 {
 	if ( Preferences::get_instance()->m_bJackTimebaseEnabled ) {
 		return m_timebaseState;
@@ -806,7 +805,7 @@ JackAudioDriver::Timebase JackAudioDriver::getTimebaseState() const
 	return Timebase::None;
 }
 
-void JackAudioDriver::initTimebaseControl()
+void JackDriver::initTimebaseControl()
 {
 	if ( m_pClient == nullptr ) {
 		ERRORLOG( "No client yet" );
@@ -858,7 +857,7 @@ void JackAudioDriver::initTimebaseControl()
 	}
 }
 
-void JackAudioDriver::releaseTimebaseControl()
+void JackDriver::releaseTimebaseControl()
 {
 	if ( m_pClient == nullptr ) {
 		ERRORLOG( QString( "Not fully initialized yet" ) );
@@ -900,7 +899,7 @@ void JackAudioDriver::releaseTimebaseControl()
 	);
 }
 
-void JackAudioDriver::relocateUsingBBT()
+void JackDriver::relocateUsingBBT()
 {
 	if ( !Preferences::get_instance()->m_bJackTimebaseEnabled ) {
 		ERRORLOG(
@@ -969,12 +968,12 @@ void JackAudioDriver::relocateUsingBBT()
 	return;
 }
 
-const jack_position_t& JackAudioDriver::getJackPosition() const
+const jack_position_t& JackDriver::getJackPosition() const
 {
 	return m_JackTransportPos;
 }
 
-int JackAudioDriver::init( unsigned bufferSize )
+int JackDriver::init( unsigned bufferSize )
 {
 	auto pPreferences = Preferences::get_instance();
 
@@ -1093,11 +1092,11 @@ int JackAudioDriver::init( unsigned bufferSize )
 	if ( m_pClient == nullptr ) {
 		return -1;
 	}
-	JackAudioDriver::jackServerSampleRate = jack_get_sample_rate( m_pClient );
-	JackAudioDriver::jackServerBufferSize = jack_get_buffer_size( m_pClient );
+	JackDriver::jackServerSampleRate = jack_get_sample_rate( m_pClient );
+	JackDriver::jackServerBufferSize = jack_get_buffer_size( m_pClient );
 
-	pPreferences->m_nSampleRate = JackAudioDriver::jackServerSampleRate;
-	pPreferences->m_nBufferSize = JackAudioDriver::jackServerBufferSize;
+	pPreferences->m_nSampleRate = JackDriver::jackServerSampleRate;
+	pPreferences->m_nBufferSize = JackDriver::jackServerBufferSize;
 
 	/* tell the JACK server to call `process()' whenever
 	   there is work to be done.
@@ -1230,7 +1229,7 @@ int JackAudioDriver::init( unsigned bufferSize )
 	return 0;
 }
 
-int JackAudioDriver::connect()
+int JackDriver::connect()
 {
 	INFOLOG( "connect" );
 
@@ -1312,7 +1311,7 @@ int JackAudioDriver::connect()
 	return 0;
 }
 
-void JackAudioDriver::disconnect()
+void JackDriver::disconnect()
 {
 	INFOLOG( "disconnect" );
 
@@ -1334,22 +1333,22 @@ void JackAudioDriver::disconnect()
 	m_pClient = nullptr;
 }
 
-unsigned JackAudioDriver::getBufferSize()
+unsigned JackDriver::getBufferSize()
 {
-	return JackAudioDriver::jackServerBufferSize;
+	return JackDriver::jackServerBufferSize;
 }
 
-unsigned JackAudioDriver::getSampleRate()
+unsigned JackDriver::getSampleRate()
 {
-	return JackAudioDriver::jackServerSampleRate;
+	return JackDriver::jackServerSampleRate;
 }
 
-int JackAudioDriver::getXRuns() const
+int JackDriver::getXRuns() const
 {
-	return JackAudioDriver::jackServerXRuns;
+	return JackDriver::jackServerXRuns;
 }
 
-float* JackAudioDriver::getOut_L()
+float* JackDriver::getOut_L()
 {
 	if ( m_mode != Mode::Audio && m_mode != Mode::Combined ) {
 		return nullptr;
@@ -1365,12 +1364,12 @@ float* JackAudioDriver::getOut_L()
 	 */
 	jack_default_audio_sample_t* out =
 		static_cast<jack_default_audio_sample_t*>( jack_port_get_buffer(
-			m_pAudioOutputPort1, JackAudioDriver::jackServerBufferSize
+			m_pAudioOutputPort1, JackDriver::jackServerBufferSize
 		) );
 	return out;
 }
 
-float* JackAudioDriver::getOut_R()
+float* JackDriver::getOut_R()
 {
 	if ( m_mode != Mode::Audio && m_mode != Mode::Combined ) {
 		return nullptr;
@@ -1378,22 +1377,22 @@ float* JackAudioDriver::getOut_R()
 
 	jack_default_audio_sample_t* out =
 		static_cast<jack_default_audio_sample_t*>( jack_port_get_buffer(
-			m_pAudioOutputPort2, JackAudioDriver::jackServerBufferSize
+			m_pAudioOutputPort2, JackDriver::jackServerBufferSize
 		) );
 	return out;
 }
 
-int JackAudioDriver::jackDriverBufferSize( jack_nframes_t nframes, void* param )
+int JackDriver::jackDriverBufferSize( jack_nframes_t nframes, void* param )
 {
 	// This function does _NOT_ have to be realtime safe.
 	Base* __object = (Base*) param;
 	__INFOLOG( QString( "new JACK buffer size: [%1]" )
 				   .arg( QString::number( static_cast<int>( nframes ) ) ) );
-	JackAudioDriver::jackServerBufferSize = nframes;
+	JackDriver::jackServerBufferSize = nframes;
 	return 0;
 }
 
-int JackAudioDriver::jackDriverSampleRate( jack_nframes_t nframes, void* param )
+int JackDriver::jackDriverSampleRate( jack_nframes_t nframes, void* param )
 {
 	// Used for logging.
 	Base* __object = (Base*) param;
@@ -1403,31 +1402,32 @@ int JackAudioDriver::jackDriverSampleRate( jack_nframes_t nframes, void* param )
 	// (see object.h).
 	__INFOLOG( QString( "New JACK sample rate: [%1]/sec" )
 				   .arg( QString::number( static_cast<int>( nframes ) ) ) );
-	JackAudioDriver::jackServerSampleRate = nframes;
+	JackDriver::jackServerSampleRate = nframes;
 	return 0;
 }
 
-int JackAudioDriver::jackXRunCallback( void* arg )
+int JackDriver::jackXRunCallback( void* arg )
 {
 	UNUSED( arg );
-	++JackAudioDriver::jackServerXRuns;
+	++JackDriver::jackServerXRuns;
 
 #if JACK_DEBUG
-	___INFOLOG( QString( "New XRun. [%1] in total" )
-					.arg( JackAudioDriver::jackServerXRuns ) );
+	___INFOLOG(
+		QString( "New XRun. [%1] in total" ).arg( JackDriver::jackServerXRuns )
+	);
 #endif
 
 #ifdef HAVE_INTEGRATION_TESTS
 	// Xruns do mess up the current transport position and we might get the same
 	// frame two times in a row while the audio engine is already at a new
 	// position.
-	JackAudioDriver::m_nIntegrationLastRelocationFrame = -1;
+	JackDriver::m_nIntegrationLastRelocationFrame = -1;
 #endif
 	EventQueue::get_instance()->pushEvent( Event::Type::Xrun, 0 );
 	return 0;
 }
 
-void JackAudioDriver::cleanUpPerTrackAudioPorts()
+void JackDriver::cleanUpPerTrackAudioPorts()
 {
 	if ( m_mode != Mode::Audio && m_mode != Mode::Combined ) {
 		return;
@@ -1448,7 +1448,7 @@ void JackAudioDriver::cleanUpPerTrackAudioPorts()
 	}
 }
 
-void JackAudioDriver::clearPerTrackAudioBuffers( uint32_t nFrames )
+void JackDriver::clearPerTrackAudioBuffers( uint32_t nFrames )
 {
 	if ( m_mode != Mode::Audio && m_mode != Mode::Combined ) {
 		return;
@@ -1480,7 +1480,7 @@ void JackAudioDriver::clearPerTrackAudioBuffers( uint32_t nFrames )
 	}
 }
 
-float* JackAudioDriver::getTrackBuffer(
+float* JackDriver::getTrackBuffer(
 	std::shared_ptr<Instrument> pInstrument,
 	Channel channel
 ) const
@@ -1530,11 +1530,11 @@ float* JackAudioDriver::getTrackBuffer(
 	}
 
 	return static_cast<jack_default_audio_sample_t*>(
-		jack_port_get_buffer( pPort, JackAudioDriver::jackServerBufferSize )
+		jack_port_get_buffer( pPort, JackDriver::jackServerBufferSize )
 	);
 }
 
-void JackAudioDriver::createPerTrackAudioPorts(
+void JackDriver::createPerTrackAudioPorts(
 	std::shared_ptr<Song> pSong,
 	std::shared_ptr<Drumkit> pOldDrumkit
 )
@@ -1859,7 +1859,7 @@ void JackAudioDriver::createPerTrackAudioPorts(
 	cleanUpPerTrackAudioPorts();
 }
 
-void JackAudioDriver::unregisterPerTrackAudioPorts( InstrumentPorts ports )
+void JackDriver::unregisterPerTrackAudioPorts( InstrumentPorts ports )
 {
 	if ( m_pClient == nullptr ) {
 		return;
@@ -1879,14 +1879,12 @@ void JackAudioDriver::unregisterPerTrackAudioPorts( InstrumentPorts ports )
 	}
 }
 
-void JackAudioDriver::close()
+void JackDriver::close()
 {
 	m_nRunning--;
 }
 
-std::vector<QString> JackAudioDriver::getExternalPortList(
-	const PortType& portType
-)
+std::vector<QString> JackDriver::getExternalPortList( const PortType& portType )
 {
 	std::vector<QString> portList;
 
@@ -1895,23 +1893,23 @@ std::vector<QString> JackAudioDriver::getExternalPortList(
 	return portList;
 }
 
-bool JackAudioDriver::isInputActive() const
+bool JackDriver::isInputActive() const
 {
 	return m_pClient != nullptr && m_pMidiInputPort != nullptr;
 }
 
-bool JackAudioDriver::isOutputActive() const
+bool JackDriver::isOutputActive() const
 {
 	return m_pClient != nullptr && m_pMidiOutputPort != nullptr;
 }
 
-void JackAudioDriver::open()
+void JackDriver::open()
 {
 	init( /*parameter not used*/ 512 );
 	m_nRunning++;
 }
 
-void JackAudioDriver::getPortInfo(
+void JackDriver::getPortInfo(
 	const QString& sPortName,
 	int& nClient,
 	int& nPort
@@ -1927,7 +1925,7 @@ void JackAudioDriver::getPortInfo(
 	nPort = 0;
 }
 
-void JackAudioDriver::readJackMidi( jack_nframes_t nframes )
+void JackDriver::readJackMidi( jack_nframes_t nframes )
 {
 	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
 		return;
@@ -1960,7 +1958,7 @@ void JackAudioDriver::readJackMidi( jack_nframes_t nframes )
 		len = m_jackMidiBuffer[4 * m_midiRxInPosition];
 		if ( len == 0 ) {
 			m_midiRxInPosition++;
-			if ( m_midiRxInPosition >= JackAudioDriver::jackMidiBufferMax ) {
+			if ( m_midiRxInPosition >= JackDriver::jackMidiBufferMax ) {
 				m_midiRxInPosition = 0;
 			}
 			continue;
@@ -1976,7 +1974,7 @@ void JackAudioDriver::readJackMidi( jack_nframes_t nframes )
 		}
 		t++;
 		m_midiRxInPosition++;
-		if ( m_midiRxInPosition >= JackAudioDriver::jackMidiBufferMax ) {
+		if ( m_midiRxInPosition >= JackDriver::jackMidiBufferMax ) {
 			m_midiRxInPosition = 0;
 		}
 		memcpy(
@@ -1986,7 +1984,7 @@ void JackAudioDriver::readJackMidi( jack_nframes_t nframes )
 	unlockMidiPart();
 }
 
-void JackAudioDriver::writeJackMidi( jack_nframes_t nframes )
+void JackDriver::writeJackMidi( jack_nframes_t nframes )
 {
 	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
 		return;
@@ -2061,7 +2059,7 @@ void JackAudioDriver::writeJackMidi( jack_nframes_t nframes )
 	}
 }
 
-void JackAudioDriver::JackTimebaseCallback(
+void JackDriver::JackTimebaseCallback(
 	jack_transport_state_t state,
 	jack_nframes_t nFrames,
 	jack_position_t* pJackPosition,
@@ -2069,7 +2067,7 @@ void JackAudioDriver::JackTimebaseCallback(
 	void* arg
 )
 {
-	JackAudioDriver* pDriver = static_cast<JackAudioDriver*>( arg );
+	JackDriver* pDriver = static_cast<JackDriver*>( arg );
 	if ( pDriver == nullptr ) {
 		return;
 	}
@@ -2109,7 +2107,7 @@ void JackAudioDriver::JackTimebaseCallback(
 		transportToBBT( *pPos, pJackPosition );
 	};
 
-	// In the face of heavy load - can be triggered by enabling JackAudioDriver,
+	// In the face of heavy load - can be triggered by enabling JackDriver,
 	// TransportPosition, and AudioEngine debug logs - XRuns occur and the frame
 	// information provided by the JACK server glitches(!!!!). So, it just
 	// changes under the hood in the pointer passed to this callback. The very
@@ -2154,7 +2152,7 @@ void JackAudioDriver::JackTimebaseCallback(
 	pAudioEngine->unlock();
 }
 
-void JackAudioDriver::jackDriverShutdown( void* arg )
+void JackDriver::jackDriverShutdown( void* arg )
 {
 	UNUSED( arg );
 
@@ -2162,13 +2160,13 @@ void JackAudioDriver::jackDriverShutdown( void* arg )
 	___INFOLOG( "" );
 #endif
 
-	JackAudioDriver::pJackDriverInstance->m_pClient = nullptr;
+	JackDriver::pJackDriverInstance->m_pClient = nullptr;
 	Hydrogen::get_instance()->getAudioEngine()->raiseError(
 		Hydrogen::JACK_SERVER_SHUTDOWN
 	);
 }
 
-void JackAudioDriver::jackMidiOutEvent( uint8_t buf[4], uint8_t len )
+void JackDriver::jackMidiOutEvent( uint8_t buf[4], uint8_t len )
 {
 	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
 		return;
@@ -2179,7 +2177,7 @@ void JackAudioDriver::jackMidiOutEvent( uint8_t buf[4], uint8_t len )
 	lockMidiPart();
 
 	next_pos = m_midiRxOutPosition + 1;
-	if ( next_pos >= JackAudioDriver::jackMidiBufferMax ) {
+	if ( next_pos >= JackDriver::jackMidiBufferMax ) {
 		next_pos = 0;
 	}
 
@@ -2203,7 +2201,7 @@ void JackAudioDriver::jackMidiOutEvent( uint8_t buf[4], uint8_t len )
 	unlockMidiPart();
 }
 
-void JackAudioDriver::sendControlChangeMessage( const MidiMessage& msg )
+void JackDriver::sendControlChangeMessage( const MidiMessage& msg )
 {
 	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
 		return;
@@ -2222,7 +2220,7 @@ void JackAudioDriver::sendControlChangeMessage( const MidiMessage& msg )
 	jackMidiOutEvent( buffer, 3 );
 }
 
-void JackAudioDriver::sendNoteOnMessage( const MidiMessage& msg )
+void JackDriver::sendNoteOnMessage( const MidiMessage& msg )
 {
 	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
 		return;
@@ -2242,7 +2240,7 @@ void JackAudioDriver::sendNoteOnMessage( const MidiMessage& msg )
 	jackMidiOutEvent( buffer, 3 );
 }
 
-void JackAudioDriver::sendNoteOffMessage( const MidiMessage& msg )
+void JackDriver::sendNoteOffMessage( const MidiMessage& msg )
 {
 	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
 		return;
@@ -2262,7 +2260,7 @@ void JackAudioDriver::sendNoteOffMessage( const MidiMessage& msg )
 	jackMidiOutEvent( buffer, 3 );
 }
 
-void JackAudioDriver::sendSystemRealTimeMessage( const MidiMessage& msg )
+void JackDriver::sendSystemRealTimeMessage( const MidiMessage& msg )
 {
 	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
 		return;
@@ -2294,18 +2292,17 @@ void JackAudioDriver::sendSystemRealTimeMessage( const MidiMessage& msg )
 	jackMidiOutEvent( buffer, 3 );
 }
 
-void JackAudioDriver::lockMidiPart( void )
+void JackDriver::lockMidiPart( void )
 {
 	pthread_mutex_lock( &m_midiMutex );
 }
 
-void JackAudioDriver::unlockMidiPart( void )
+void JackDriver::unlockMidiPart( void )
 {
 	pthread_mutex_unlock( &m_midiMutex );
 }
 
-QString JackAudioDriver::JackTransportStateToQString(
-	const jack_transport_state_t& t
+QString JackDriver::JackTransportStateToQString( const jack_transport_state_t& t
 )
 {
 	switch ( t ) {
@@ -2326,7 +2323,7 @@ QString JackAudioDriver::JackTransportStateToQString(
 	}
 }
 
-void JackAudioDriver::printState() const
+void JackDriver::printState() const
 {
 	auto pHydrogen = Hydrogen::get_instance();
 
@@ -2342,7 +2339,7 @@ void JackAudioDriver::printState() const
 	);
 }
 
-QString JackAudioDriver::TimebaseTrackingToQString( const TimebaseTracking& t )
+QString JackDriver::TimebaseTrackingToQString( const TimebaseTracking& t )
 {
 	switch ( t ) {
 		case TimebaseTracking::Valid:
@@ -2356,13 +2353,13 @@ QString JackAudioDriver::TimebaseTrackingToQString( const TimebaseTracking& t )
 	}
 }
 
-QString JackAudioDriver::toQString( const QString& sPrefix, bool bShort ) const
+QString JackDriver::toQString( const QString& sPrefix, bool bShort ) const
 {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( !bShort ) {
 		sOutput =
-			QString( "%1[JackAudioDriver]\n" )
+			QString( "%1[JackDriver]\n" )
 				.arg( sPrefix )
 				.append( QString( "%1%2m_mode: %3\n" )
 							 .arg( sPrefix )
@@ -2465,7 +2462,7 @@ QString JackAudioDriver::toQString( const QString& sPrefix, bool bShort ) const
 	}
 	else {
 		sOutput =
-			QString( "[JackAudioDriver]" )
+			QString( "[JackDriver]" )
 				.arg( sPrefix )
 				.append( QString( " m_mode: %1" ).arg( ModeToQString( m_mode ) )
 				)

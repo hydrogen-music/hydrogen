@@ -39,7 +39,7 @@
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
 #include <core/IO/AlsaMidiDriver.h>
-#include <core/IO/JackAudioDriver.h>
+#include <core/IO/JackDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiEventMap.h>
@@ -1204,7 +1204,7 @@ bool CoreActionController::activateJackTransport( bool bActivate ) {
 	ASSERT_HYDROGEN
 
 #ifdef H2CORE_HAVE_JACK
-	if ( !pHydrogen->hasJackAudioDriver() ) {
+	if ( !pHydrogen->hasJackDriver() ) {
 		ERRORLOG( "Unable to (de)activate Jack transport. Please select the Jack driver first." );
 		return false;
 	}
@@ -1244,7 +1244,7 @@ bool CoreActionController::activateJackTimebaseControl( bool bActivate ) {
 	ASSERT_HYDROGEN
 
 #ifdef H2CORE_HAVE_JACK
-	if ( !pHydrogen->hasJackAudioDriver() ) {
+	if ( !pHydrogen->hasJackDriver() ) {
 		ERRORLOG( "Unable to (de)activate JACK Timebase support. Please select the JACK driver first." );
 		return false;
 	}
@@ -1478,7 +1478,7 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit ) {
 	pSong->setDrumkit( pNewDrumkit );
 	pSong->getPatternList()->mapToDrumkit( pNewDrumkit, pPreviousDrumkit );
 
-	pHydrogen->renameJackPorts( pSong, pPreviousDrumkit );
+	pHydrogen->renamePerTrackJackAudioPorts( pSong, pPreviousDrumkit );
 
 	if ( pHydrogen->getSelectedInstrumentNumber() >=
 		 pNewDrumkit->getInstruments()->size() ) {
@@ -1910,7 +1910,7 @@ bool CoreActionController::addInstrument( std::shared_ptr<Instrument> pInstrumen
 	pInstrument->loadSamples( pAudioEngine->getTransportPosition()->getBpm() );
 
 	pDrumkit->addInstrument( pInstrument, nIndex );
-	pHydrogen->renameJackPorts( pSong, nullptr );
+	pHydrogen->renamePerTrackJackAudioPorts( pSong, nullptr );
 	pSong->getPatternList()->mapToDrumkit( pDrumkit, pDrumkit );
 
 	pAudioEngine->unlock();
@@ -1975,7 +1975,7 @@ bool CoreActionController::removeInstrument( std::shared_ptr<Instrument> pInstru
 			Event::Trigger::Suppress );
 	}
 
-	pHydrogen->renameJackPorts( pSong, nullptr );
+	pHydrogen->renamePerTrackJackAudioPorts( pSong, nullptr );
 	pSong->getPatternList()->mapToDrumkit( pDrumkit, pDrumkit );
 
 	pAudioEngine->unlock();
@@ -2037,7 +2037,7 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 
 	pDrumkit->addInstrument( pNewInstrument,
 							 nOldInstrumentNumber );
-	pHydrogen->renameJackPorts( pSong, nullptr );
+	pHydrogen->renamePerTrackJackAudioPorts( pSong, nullptr );
 	pSong->getPatternList()->mapToDrumkit( pDrumkit, pDrumkit );
 
 	// Unloading the samples of the old instrument will be done in the death
@@ -2083,7 +2083,7 @@ bool CoreActionController::moveInstrument( int nSourceIndex, int nTargetIndex ) 
 	}
 
 	pInstrumentList->move( nSourceIndex, nTargetIndex );
-	pHydrogen->renameJackPorts( pSong, nullptr );
+	pHydrogen->renamePerTrackJackAudioPorts( pSong, nullptr );
 
 	pHydrogen->getAudioEngine()->unlock();
 

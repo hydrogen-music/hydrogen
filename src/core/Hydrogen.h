@@ -26,7 +26,7 @@
 #include <core/Basics/Song.h>
 #include <core/config.h>
 #include <core/Helpers/Time.h>
-#include <core/IO/JackAudioDriver.h>
+#include <core/IO/JackDriver.h>
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
@@ -97,29 +97,11 @@ public:
 		ERROR_STARTING_DRIVER,
 		JACK_SERVER_SHUTDOWN,
 		JACK_CANNOT_ACTIVATE_CLIENT,
-		/**
-		 * Unable to connect either the
-		 * JackAudioDriver::output_port_1 and the
-		 * JackAudioDriver::output_port_name_1 as well as the
-		 * JackAudioDriver::output_port_2 and the
-		 * JackAudioDriver::output_port_name_2 port using
-		 * _jack_connect()_ (jack/jack.h) or the fallback
-		 * version using the first two input ports in
-		 * JackAudioDriver::connect().
-		 */
+		/** Can't connect the main audio output ports to the default. */
 		JACK_CANNOT_CONNECT_OUTPUT_PORT,
-		/**
-		 * The client of Hydrogen can not be disconnected from
-		 * the JACK server using _jack_client_close()_
-		 * (jack/jack.h). Used within JackAudioDriver::disconnect().
-		 */
+		/** Our JACK client can not be disconnected from the JACK server. */
 		JACK_CANNOT_CLOSE_CLIENT,
-		/**
-		 * Unable to register output ports for the JACK client
-		 * using _jack_port_register()_ (jack/jack.h) in
-		 * JackAudioDriver::init() or
-		 * JackAudioDriver::setTrackOutput().
-		 */
+		/** Can't register either audio or MIDI ports for our JACK client. */
 		JACK_ERROR_IN_PORT_REGISTER,
 		/**
 		 * Unable to start the OSC server with the given
@@ -316,8 +298,10 @@ public:
 		int nInstrument, Event::Trigger trigger = Event::Trigger::Default );
 	std::shared_ptr<Instrument>		getSelectedInstrument() const;
 
-	void	renameJackPorts( std::shared_ptr<Song> pSong,
-							 std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
+	void renamePerTrackJackAudioPorts(
+		std::shared_ptr<Song> pSong,
+		std::shared_ptr<Drumkit> pOldDrumkit = nullptr
+	);
 
 	/** Starts/stops the OSC server
 	 * \param bEnable `true` = start, `false` = stop.*/
@@ -335,12 +319,8 @@ public:
 	bool			handleBeatCounter( TimePoint start = TimePoint() );
 	void			updateBeatCounterSettings();
 
-	/** Calling JackAudioDriver::releaseTimebaseControl() directly from
-	    the GUI*/
-	void			releaseJackTimebaseControl();
-	/** Calling JackAudioDriver::initTimebaseControl() directly from
-	    the GUI*/
 	void			initJackTimebaseControl();
+	void			releaseJackTimebaseControl();
 
 	void			panic();
 	std::shared_ptr<Timeline>	getTimeline() const;
@@ -384,14 +364,10 @@ public:
 	/**\param state Specifies whether the Qt5 GUI is active. Sets
 	   #m_GUIState.*/
 	void			setGUIState( const GUIState& state );
+	bool			hasJackDriver() const;
 	/**
-	 * \return Whether JackAudioDriver is used as current audio
-	 * driver.
-	 */
-	bool			hasJackAudioDriver() const;
-	/**
-	 * \return Whether JackAudioDriver is used as current audio driver
-	 * and JACK transport was activated via the GUI
+	 * \return Whether #H2Core::JackDriver is used as current audio driver and
+	 * JACK transport was activated via the GUI
 	 * (#H2Core::Preferences::m_nJackTransportMode).
 	 */
 	bool			hasJackTransport() const;
@@ -419,9 +395,9 @@ public:
 	 * \return Whether we hasJackTransport() and there is an external JACK
 	 *   Timebase controller broadcasting tempo information. If so, we disregard
 	 *   Hydrogen's Timeline information (see
-	 *   #H2Core::JackAudioDriver::m_timebaseState).
+	 *   #H2Core::JackDriver::m_timebaseState).
 	 */
-	JackAudioDriver::Timebase		getJackTimebaseState() const;
+	JackDriver::Timebase		getJackTimebaseState() const;
 	/** \return NsmClient::m_bUnderSessionManagement if NSM is
 		supported.*/
 	bool			isUnderSessionManagement() const;
