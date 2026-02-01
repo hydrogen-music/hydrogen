@@ -1012,13 +1012,6 @@ AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& dri
 	}
 	else if ( driver == Preferences::AudioDriver::Jack ) {
 		pAudioDriver = new JackAudioDriver( m_AudioProcessCallback );
-#ifdef H2CORE_HAVE_JACK
-		if ( auto pJackDriver = dynamic_cast<JackAudioDriver*>( pAudioDriver ) ) {
-			pJackDriver->setConnectDefaults(
-				Preferences::get_instance()->m_bJackConnectDefaults
-			);
-		}
-#endif
 	}
 	else if ( driver == Preferences::AudioDriver::Alsa ) {
 		pAudioDriver = new AlsaAudioDriver( m_AudioProcessCallback );
