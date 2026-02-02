@@ -1266,6 +1266,25 @@ Preferences::load( const QString& sPath, const bool bSilent )
 			),
 			0, 50
 		);
+		const int nIconColor = guiNode.read_int(
+			"iconColor", static_cast<int>( pInterfaceTheme->m_iconColor ), true,
+			false, bSilent
+		);
+		pInterfaceTheme->m_iconColor =
+			nIconColor == static_cast<int>( InterfaceTheme::IconColor::White )
+				? InterfaceTheme::IconColor::White
+				: InterfaceTheme::IconColor::Black;
+
+		pInterfaceTheme->m_bIndicateNotePlayback = guiNode.read_bool(
+			"indicateNotePlayback", pInterfaceTheme->m_bIndicateNotePlayback,
+			true, false, bSilent
+		);
+
+		pInterfaceTheme->m_bIndicateEffectiveNoteLength = guiNode.read_bool(
+			"indicateEffectiveNoteLength",
+			pInterfaceTheme->m_bIndicateEffectiveNoteLength, true, false,
+			bSilent
+		);
 	}
 	else {
 		WARNINGLOG( "<gui> node not found" );
@@ -1842,6 +1861,17 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 		guiNode.write_int(
 			"SongEditor_visible_pattern_colors",
 			pInterfaceTheme->m_nVisiblePatternColors
+		);
+
+		guiNode.write_int(
+			"iconColor", static_cast<int>( pInterfaceTheme->m_iconColor )
+		);
+		guiNode.write_bool(
+			"indicateNotePlayback", pInterfaceTheme->m_bIndicateNotePlayback
+		);
+		guiNode.write_bool(
+			"indicateEffectiveNoteLength",
+			pInterfaceTheme->m_bIndicateEffectiveNoteLength
 		);
 	}
 
