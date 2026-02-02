@@ -84,9 +84,12 @@ public:
 		 * channels will be accepted once the value is equal to
 		 * #Midi::ChannelAll */
 		MinusOneAsAll = 0x008,
-        /** Assume the provided integer represents a MIDI note and display the
-         * cooresponding name next to it. */
-        ShowMidiNote = 0x010
+		/** Assume the provided integer represents a MIDI note and display the
+		 * cooresponding name next to it. */
+		ShowMidiNote = 0x010,
+		/** Used to indicate that the selected value is associated to the
+		 * currently selected instrument. */
+		MinusOneAsCurrentlySelected = 0x020
 	};
 
 	LCDSpinBox( QWidget *pParent, QSize size = QSize(), Type type = Type::Int,
@@ -95,6 +98,7 @@ public:
 
 	void setType( Type type );
 	void setKind( Kind kind );
+	void setFlag( Flag flag );
 	void setSize( QSize size );
 
 	virtual QValidator::State validate( QString &text, int &pos ) const override;
@@ -151,8 +155,17 @@ private:
 	virtual bool event( QEvent* ev ) override;
 };
 
-inline void LCDSpinBox::setKind( Kind kind ) {
-	m_kind = kind;
+inline void LCDSpinBox::setKind( Kind kind )
+{
+	if ( m_kind != kind ) {
+		m_kind = kind;
+	}
+}
+inline void LCDSpinBox::setFlag( Flag flag )
+{
+	if ( m_flag != flag ) {
+		m_flag = flag;
+	}
 }
 inline bool LCDSpinBox::getIsActive() const {
 	return m_bIsActive;

@@ -1507,6 +1507,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Presented as an option to never e.g. perform an action.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Select.</source>
+        <extracomment>Used as spin box item - in Midi Action table of the MidiControl - * indicating that an action is associated with the currently selected * instrument. Designed to hold about 7 characters.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>

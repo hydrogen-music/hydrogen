@@ -50,6 +50,9 @@ class MidiAction : public H2Core::Object<MidiAction> {
 	H2_OBJECT( MidiAction )
    public:
 	static constexpr int nInvalidParameter = -10;
+	/** Used to indicate a special dynamic value relating to the currently
+	 * selected instrument instead of a particular one. */
+	static constexpr int nCurrentSelectionParameter = -1;
 	static constexpr float fInvalidParameter = -999;
 
 	enum class Type {

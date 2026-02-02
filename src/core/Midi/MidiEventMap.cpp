@@ -409,7 +409,12 @@ MidiEventMap::findCCParameters( MidiAction::Type type, int nInstrument )
 			 ppEvent->getMidiAction()->getType() == type &&
 			 ( ppEvent->getMidiAction()->getRequires() &
 			   MidiAction::RequiresInstrument ) &&
-			 ppEvent->getMidiAction()->getInstrument() == nInstrument ) {
+			 ( ppEvent->getMidiAction()->getInstrument() == nInstrument ||
+			   ( ppEvent->getMidiAction()->getInstrument() ==
+					 MidiAction::nCurrentSelectionParameter &&
+				 nInstrument ==
+					 Hydrogen::get_instance()->getSelectedInstrumentNumber() )
+			 ) ) {
 			values.push_back( ppEvent->getParameter() );
 		}
 	}

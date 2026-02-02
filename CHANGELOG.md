@@ -91,6 +91,8 @@ All notable changes to this project will be documented in this file.
   - Whether or not Hydrogen is sending or writing `NOTE_OFF` messages can now be
     configured in the MIDI control dialog (#63).
   - Changes in the MIDI Action table can now be undone.
+  - MIDI actions can be mapped to the currently selected instrument (by
+    scrolling beyond `0`) (#459).
 
 ### Changed
 
