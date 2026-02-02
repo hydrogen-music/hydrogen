@@ -1245,8 +1245,17 @@ void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 	}
 	else if ( pPref->m_midiDriver == Preferences::MidiDriver::Jack ) {
 #ifdef H2CORE_HAVE_JACK
-		m_pMidiDriver = std::make_shared<JackMidiDriver>();
-		m_pMidiDriver->open();
+		auto pDriver = std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver );
+		if ( pDriver != nullptr &&
+			 pDriver->getMode() == JackDriver::Mode::Combined &&
+			 pDriver->isActive() ) {
+			INFOLOG( "Reusing JACK audio driver as MIDI driver." );
+			m_pMidiDriver = std::static_pointer_cast<MidiBaseDriver>( pDriver );
+		}
+		else {
+			m_pMidiDriver = std::make_shared<JackDriver>( m_AudioProcessCallback );
+			m_pMidiDriver->open();
+		}
 #endif
 	}
 	else if ( pPref->m_midiDriver == Preferences::MidiDriver::LoopBack ) {
@@ -3522,7 +3531,7 @@ QString AudioEngine::getDriverNames() const {
 #endif
 #ifdef H2CORE_HAVE_JACK
 	}
-	else if ( std::dynamic_pointer_cast<JackMidiDriver>( m_pMidiDriver ) !=
+	else if ( std::dynamic_pointer_cast<JackDriver>( m_pMidiDriver ) !=
 			  nullptr ) {
 		sMidiDriver = "JACK";
 #endif
