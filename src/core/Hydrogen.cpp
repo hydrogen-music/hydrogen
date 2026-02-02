@@ -63,7 +63,6 @@
 #include <core/IO/DiskWriterDriver.h>
 #include <core/IO/FakeAudioDriver.h>
 #include <core/IO/JackDriver.h>
-#include <core/IO/JackMidiDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/IO/NullDriver.h>
 #include <core/IO/OssDriver.h>

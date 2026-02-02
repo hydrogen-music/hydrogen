@@ -46,7 +46,6 @@
 #include <core/IO/AlsaMidiDriver.h>
 #include <core/IO/CoreAudioDriver.h>
 #include <core/IO/CoreMidiDriver.h>
-#include <core/IO/JackMidiDriver.h>
 #include <core/IO/LoopBackMidiDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/IO/NullDriver.h>
