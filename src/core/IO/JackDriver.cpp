@@ -371,7 +371,6 @@ JackDriver::JackDriver( JackProcessCallback m_processCallback )
 	  m_bIntegrationCheckRelocationLoop( false )
 #endif
 {
-	pthread_mutex_init( &m_midiMutex, nullptr );
 	auto pPreferences = Preferences::get_instance();
 
 	m_bConnectDefaults = pPreferences->m_bJackConnectDefaults;
@@ -413,8 +412,6 @@ JackDriver::JackDriver( JackProcessCallback m_processCallback )
 JackDriver::~JackDriver()
 {
 	disconnect();
-
-	pthread_mutex_destroy( &m_midiMutex );
 }
 
 bool JackDriver::isActive() const
@@ -1974,7 +1971,8 @@ void JackDriver::readJackMidi( jack_nframes_t nframes )
 #endif
 
 	t = 0;
-	lockMidiPart();
+
+    std::scoped_lock lock{ m_midiMutex };
 	while ( ( t < nframes ) && ( m_midiRxOutPosition != m_midiRxInPosition ) ) {
 		len = m_jackMidiBuffer[4 * m_midiRxInPosition];
 		if ( len == 0 ) {
@@ -2002,7 +2000,6 @@ void JackDriver::readJackMidi( jack_nframes_t nframes )
 			buffer, m_jackMidiBuffer + ( 4 * m_midiRxInPosition ) + 1, len
 		);
 	}
-	unlockMidiPart();
 }
 
 void JackDriver::writeJackMidi( jack_nframes_t nframes )
@@ -2195,7 +2192,7 @@ void JackDriver::jackMidiOutEvent( uint8_t buf[4], uint8_t len )
 
 	uint32_t next_pos;
 
-	lockMidiPart();
+    std::scoped_lock lock{ m_midiMutex };
 
 	next_pos = m_midiRxOutPosition + 1;
 	if ( next_pos >= JackDriver::jackMidiBufferMax ) {
@@ -2204,7 +2201,6 @@ void JackDriver::jackMidiOutEvent( uint8_t buf[4], uint8_t len )
 
 	if ( next_pos == m_midiRxInPosition ) {
 		/* buffer is full */
-		unlockMidiPart();
 		return;
 	}
 
@@ -2218,8 +2214,6 @@ void JackDriver::jackMidiOutEvent( uint8_t buf[4], uint8_t len )
 	m_jackMidiBuffer[( 4 * next_pos ) + 3] = buf[2];
 
 	m_midiRxOutPosition = next_pos;
-
-	unlockMidiPart();
 }
 
 void JackDriver::sendControlChangeMessage( const MidiMessage& msg )
@@ -2311,16 +2305,6 @@ void JackDriver::sendSystemRealTimeMessage( const MidiMessage& msg )
 	buffer[3] = 0;
 
 	jackMidiOutEvent( buffer, 3 );
-}
-
-void JackDriver::lockMidiPart( void )
-{
-	pthread_mutex_lock( &m_midiMutex );
-}
-
-void JackDriver::unlockMidiPart( void )
-{
-	pthread_mutex_unlock( &m_midiMutex );
 }
 
 QString JackDriver::JackTransportStateToQString( const jack_transport_state_t& t

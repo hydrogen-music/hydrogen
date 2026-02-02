@@ -35,9 +35,9 @@
 #include <jack/midiport.h>
 #include <jack/ringbuffer.h>
 #include <jack/transport.h>
-#include <pthread.h>
 #include <map>
 #include <memory>
+#include <mutex>
 
 #include <core/Globals.h>
 
@@ -412,9 +412,6 @@ class JackDriver : public Object<JackDriver>,
 	void sendNoteOnMessage( const MidiMessage& msg ) override;
 	void sendNoteOffMessage( const MidiMessage& msg ) override;
 	void sendSystemRealTimeMessage( const MidiMessage& msg ) override;
-
-	void lockMidiPart();
-	void unlockMidiPart();
 	/** @} */
 
 	static QString JackTransportStateToQString(
@@ -570,7 +567,7 @@ class JackDriver : public Object<JackDriver>,
 	/** MIDI-related members @{ */
 	jack_port_t* m_pMidiOutputPort;
 	jack_port_t* m_pMidiInputPort;
-	pthread_mutex_t m_midiMutex;
+	std::mutex m_midiMutex;
 	int m_nRunning;
 	uint8_t m_jackMidiBuffer[jackMidiBufferMax * 4];
 	uint32_t m_midiRxInPosition;
