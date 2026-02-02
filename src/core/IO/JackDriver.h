@@ -264,20 +264,20 @@ class JackDriver : public Object<JackDriver>,
 	 * size #jackServerBufferSize.
 	 *
 	 * \param nframes New buffer size.
-	 * \param arg Not used
+	 * \param pInstance current instance of JackDriver.
 	 *
 	 * @return 0 on success */
-	static int jackDriverBufferSize( jack_nframes_t nframes, void* arg );
+	static int jackDriverBufferSize( jack_nframes_t nframes, void* pInstance );
 	/** Callback function for the JACK audio server to set the sample
 	 * rate #jackServerSampleRate.
 	 *
 	 * \param nframes New sample rate.
-	 * \param param Object inheriting from the #Logger class.
+	 * \param pInstance current instance of JackDriver.
 	 *
 	 * @return 0 on success */
-	static int jackDriverSampleRate( jack_nframes_t nframes, void* param );
+	static int jackDriverSampleRate( jack_nframes_t nframes, void* pInstance );
 	/** Report an XRun event to the GUI.*/
-	static int jackXRunCallback( void* arg );
+	static int jackXRunCallback( void* pInstance );
 	/** Checks whether there are ports associated with instrument in
 	 * #Hydrogen::m_instrumentDeathRow and whether they can be torn down. */
 	void cleanUpPerTrackAudioPorts();
@@ -292,14 +292,6 @@ class JackDriver : public Object<JackDriver>,
 	);
 	bool getConnectDefaults() { return m_bConnectDefaults; }
 	void setConnectDefaults( bool flag ) { m_bConnectDefaults = flag; }
-
-	/** Sample rate of the JACK audio server. */
-	static unsigned long jackServerSampleRate;
-	/** Buffer size of the JACK audio server. */
-	static jack_nframes_t jackServerBufferSize;
-	/** Number of XRuns since the driver started.*/
-	static int jackServerXRuns;
-	jack_client_t* m_pClient;
 	/** @} */
 
 	/** Methods to implement #MidiBaseDriver @{ */
@@ -384,14 +376,14 @@ class JackDriver : public Object<JackDriver>,
 	 * \param nFrames Unused.
 	 * \param pJackPosition Current transport position.
 	 * \param new_pos Unused.
-	 * \param arg Pointer to a JackDriver instance.
+	 * \param pInstance Pointer to a JackDriver instance.
 	 */
 	static void JackTimebaseCallback(
 		jack_transport_state_t state,
 		jack_nframes_t nFrames,
 		jack_position_t* pJackPosition,
 		int new_pos,
-		void* arg
+		void* pInstance
 	);
 	/**
 	 * Callback function for the JACK audio server to shutting down the
@@ -399,7 +391,7 @@ class JackDriver : public Object<JackDriver>,
 	 *
 	 * \param arg The current instance of the JackDriver.
 	 */
-	static void jackDriverShutdown( void* arg );
+	static void jackDriverShutdown( void* pInstance );
 
 	void unregisterPerTrackAudioPorts( InstrumentPorts ports );
 
@@ -423,25 +415,25 @@ class JackDriver : public Object<JackDriver>,
 
 	QString m_sClientName;
 
+	/** Buffer size of the JACK audio server. */
+	jack_nframes_t m_jackServerBufferSize;
+	/** Sample rate of the JACK audio server. */
+	jack_nframes_t m_jackServerSampleRate;
+	/** Number of XRuns since the driver started.*/
+	int m_nJackServerXRuns;
+	jack_client_t* m_pClient;
+
 	/** Main process callback. */
 	JackProcessCallback m_processCallback;
-	/**
-	 * Left source port.
-	 */
+	/** Left source port. */
 	jack_port_t* m_pAudioOutputPort1;
-	/**
-	 * Right source port.
-	 */
+	/** Right source port. */
 	jack_port_t* m_pAudioOutputPort2;
-	/**
-	 * Destination of the left source port #m_pOutputPort1, for which
-	 * a connection will be established in connect().
-	 */
+	/** Destination of the left source port #m_pOutputPort1, for which a
+	 * connection will be established in connect(). */
 	QString m_sAudioOutputPortName1;
-	/**
-	 * Destination of the right source port #m_pOutputPort2, for which
-	 * a connection will be established in connect().
-	 */
+	/** Destination of the right source port #m_pOutputPort2, for which a
+	 * connection will be established in connect(). */
 	QString m_sAudioOutputPortName2;
 
 	/** The left and right jack port (in that order) associated with a
@@ -586,6 +578,21 @@ class JackDriver : public Object<JackDriver>,
 inline JackDriver::Mode JackDriver::getMode() const
 {
 	return m_mode;
+}
+
+inline unsigned JackDriver::getBufferSize()
+{
+	return static_cast<unsigned>( m_jackServerBufferSize );
+}
+
+inline unsigned JackDriver::getSampleRate()
+{
+	return static_cast<unsigned>( m_jackServerSampleRate );
+}
+
+inline int JackDriver::getXRuns() const
+{
+	return m_nJackServerXRuns;
 }
 
 };	// namespace H2Core

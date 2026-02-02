@@ -274,8 +274,9 @@ void JackDriver::transportToBBT(
 	const float fTicksPerBeat =
 		static_cast<float>( H2Core::nTicksPerQuarter ) * 4 / fDenumerator;
 
-	pJackPosition->frame_rate =
-		Hydrogen::get_instance()->getAudioDriver()->getSampleRate();
+	pJackPosition->frame_rate = static_cast<jack_nframes_t>(
+		Hydrogen::get_instance()->getAudioDriver()->getSampleRate()
+	);
 	pJackPosition->ticks_per_beat = fTicksPerBeat;
 	pJackPosition->valid = JackPositionBBT;
 	// Time signature "numerator"
@@ -341,9 +342,6 @@ QString JackDriver::JackTransportPosToQString( const jack_position_t& pos )
 		.arg( pos.next_time );
 }
 
-unsigned long JackDriver::jackServerSampleRate = 0;
-int JackDriver::jackServerXRuns = 0;
-jack_nframes_t JackDriver::jackServerBufferSize = 0;
 #ifdef HAVE_INTEGRATION_TESTS
 long JackDriver::m_nIntegrationLastRelocationFrame = -1;
 #endif
@@ -352,6 +350,9 @@ JackDriver::JackDriver( JackProcessCallback processCallback )
 	: AudioDriver(),
 	  m_pClient( nullptr ),
 	  m_sClientName( "Hydrogen" ),
+	  m_jackServerBufferSize( 0 ),
+	  m_jackServerSampleRate( 0 ),
+	  m_nJackServerXRuns( 0 ),
 	  m_processCallback( processCallback ),
 	  m_pAudioOutputPort1( nullptr ),
 	  m_pAudioOutputPort2( nullptr ),
@@ -573,7 +574,7 @@ void JackDriver::updateTransportPosition()
 		Preferences::get_instance()->m_bJackTimebaseEnabled;
 
 #ifdef HAVE_INTEGRATION_TESTS
-	const int nPreviousXruns = JackDriver::jackServerXRuns;
+	const int nPreviousXruns = m_nJackServerXRuns;
 #endif
 
 	// jack_transport_query() (jack/transport.h) queries the
@@ -775,7 +776,7 @@ void JackDriver::updateTransportPosition()
 		// We only perform the check in case no XRun occurred over the course of
 		// this function. They would mess things up.
 		if ( m_bIntegrationCheckRelocationLoop && bRelocation &&
-			 nPreviousXruns == JackDriver::jackServerXRuns ) {
+			 nPreviousXruns == m_nJackServerXRuns ) {
 			if ( JackDriver::m_nIntegrationLastRelocationFrame !=
 				 m_JackTransportPos.frame ) {
 				JackDriver::m_nIntegrationLastRelocationFrame =
@@ -1106,11 +1107,11 @@ int JackDriver::init( unsigned bufferSize )
 	if ( m_pClient == nullptr ) {
 		return -1;
 	}
-	JackDriver::jackServerSampleRate = jack_get_sample_rate( m_pClient );
-	JackDriver::jackServerBufferSize = jack_get_buffer_size( m_pClient );
+	m_jackServerBufferSize = jack_get_buffer_size( m_pClient );
+	m_jackServerSampleRate = jack_get_sample_rate( m_pClient );
 
-	pPreferences->m_nSampleRate = JackDriver::jackServerSampleRate;
-	pPreferences->m_nBufferSize = JackDriver::jackServerBufferSize;
+	pPreferences->m_nSampleRate = static_cast<unsigned>(m_jackServerBufferSize);
+	pPreferences->m_nBufferSize = static_cast<unsigned>(m_jackServerSampleRate);
 
 	/* tell the JACK server to call `process()' whenever
 	   there is work to be done.
@@ -1125,7 +1126,7 @@ int JackDriver::init( unsigned bufferSize )
 	   the sample rate of the system changes.
 	*/
 	if ( jack_set_sample_rate_callback(
-			 m_pClient, jackDriverSampleRate, this
+			 m_pClient, jackDriverSampleRate, (void*) this
 		 ) != 0 ) {
 		ERRORLOG( "Unable to set sample rate callback" );
 	}
@@ -1134,13 +1135,14 @@ int JackDriver::init( unsigned bufferSize )
 	   (frames per process cycle) changes.
 	*/
 	if ( jack_set_buffer_size_callback(
-			 m_pClient, jackDriverBufferSize, this
+			 m_pClient, jackDriverBufferSize, (void*) this
 		 ) != 0 ) {
 		ERRORLOG( "Unable to set buffersize callback" );
 	}
 
 	/* display an XRun event in the GUI.*/
-	if ( jack_set_xrun_callback( m_pClient, jackXRunCallback, nullptr ) != 0 ) {
+	if ( jack_set_xrun_callback( m_pClient, jackXRunCallback, (void*) this ) !=
+		 0 ) {
 		ERRORLOG( "Unable to set XRun callback" );
 	}
 
@@ -1347,21 +1349,6 @@ void JackDriver::disconnect()
 	m_pClient = nullptr;
 }
 
-unsigned JackDriver::getBufferSize()
-{
-	return JackDriver::jackServerBufferSize;
-}
-
-unsigned JackDriver::getSampleRate()
-{
-	return JackDriver::jackServerSampleRate;
-}
-
-int JackDriver::getXRuns() const
-{
-	return JackDriver::jackServerXRuns;
-}
-
 float* JackDriver::getOut_L()
 {
 	if ( m_mode != Mode::Audio && m_mode != Mode::Combined ) {
@@ -1378,7 +1365,7 @@ float* JackDriver::getOut_L()
 	 */
 	jack_default_audio_sample_t* out =
 		static_cast<jack_default_audio_sample_t*>( jack_port_get_buffer(
-			m_pAudioOutputPort1, JackDriver::jackServerBufferSize
+			m_pAudioOutputPort1, m_jackServerBufferSize
 		) );
 	return out;
 }
@@ -1391,44 +1378,59 @@ float* JackDriver::getOut_R()
 
 	jack_default_audio_sample_t* out =
 		static_cast<jack_default_audio_sample_t*>( jack_port_get_buffer(
-			m_pAudioOutputPort2, JackDriver::jackServerBufferSize
+			m_pAudioOutputPort2, m_jackServerBufferSize
 		) );
 	return out;
 }
 
-int JackDriver::jackDriverBufferSize( jack_nframes_t nframes, void* param )
+int JackDriver::jackDriverBufferSize( jack_nframes_t nframes, void* pInstance )
 {
+	auto pJackDriver = static_cast<JackDriver*>( pInstance );
+	if ( pJackDriver == nullptr ) {
+		___ERRORLOG( "Provided driver is incompatible" );
+		return 1;
+	}
+
 	// This function does _NOT_ have to be realtime safe.
-	Base* __object = (Base*) param;
-	__INFOLOG( QString( "new JACK buffer size: [%1]" )
+	___INFOLOG( QString( "new JACK buffer size: [%1]" )
 				   .arg( QString::number( static_cast<int>( nframes ) ) ) );
-	JackDriver::jackServerBufferSize = nframes;
+	pJackDriver->m_jackServerBufferSize = nframes;
+	Preferences::get_instance()->m_nBufferSize =
+		static_cast<unsigned>( nframes );
+
 	return 0;
 }
 
-int JackDriver::jackDriverSampleRate( jack_nframes_t nframes, void* param )
+int JackDriver::jackDriverSampleRate( jack_nframes_t nframes, void* pInstance )
 {
-	// Used for logging.
-	Base* __object = (Base*) param;
-	// The __INFOLOG macro uses the Base *__object and not the
-	// Object instance as INFOLOG does. It will call
-	// __object->logger()->log( H2Core::Logger::Info, ..., msg )
-	// (see object.h).
-	__INFOLOG( QString( "New JACK sample rate: [%1]/sec" )
+	auto pJackDriver = static_cast<JackDriver*>( pInstance );
+	if ( pJackDriver == nullptr ) {
+		___ERRORLOG( "Provided driver is incompatible" );
+		return 1;
+	}
+
+	___INFOLOG( QString( "New JACK sample rate: [%1]/sec" )
 				   .arg( QString::number( static_cast<int>( nframes ) ) ) );
-	JackDriver::jackServerSampleRate = nframes;
+	pJackDriver->m_jackServerSampleRate = nframes;
+	Preferences::get_instance()->m_nSampleRate =
+		static_cast<unsigned>( nframes );
+
 	return 0;
 }
 
-int JackDriver::jackXRunCallback( void* arg )
+int JackDriver::jackXRunCallback( void* pInstance )
 {
-	UNUSED( arg );
-	++JackDriver::jackServerXRuns;
+	auto pJackDriver = static_cast<JackDriver*>( pInstance );
+	if ( pJackDriver == nullptr ) {
+		___ERRORLOG( "Provided driver is incompatible" );
+		return 1;
+	}
+
+	pJackDriver->m_nJackServerXRuns = pJackDriver->m_nJackServerXRuns + 1;
 
 #if JACK_DEBUG
-	___INFOLOG(
-		QString( "New XRun. [%1] in total" ).arg( JackDriver::jackServerXRuns )
-	);
+	___INFOLOG( QString( "New XRun. [%1] in total" )
+					.arg( pJackDriver->m_nJackServerXRuns ) );
 #endif
 
 #ifdef HAVE_INTEGRATION_TESTS
@@ -1544,7 +1546,7 @@ float* JackDriver::getTrackBuffer(
 	}
 
 	return static_cast<jack_default_audio_sample_t*>(
-		jack_port_get_buffer( pPort, JackDriver::jackServerBufferSize )
+		jack_port_get_buffer( pPort, m_jackServerBufferSize )
 	);
 }
 
@@ -2079,10 +2081,10 @@ void JackDriver::JackTimebaseCallback(
 	jack_nframes_t nFrames,
 	jack_position_t* pJackPosition,
 	int new_pos,
-	void* arg
+	void* pInstance
 )
 {
-	JackDriver* pDriver = static_cast<JackDriver*>( arg );
+	auto pDriver = static_cast<JackDriver*>( pInstance );
 	if ( pDriver == nullptr ) {
 		return;
 	}
@@ -2167,12 +2169,12 @@ void JackDriver::JackTimebaseCallback(
 	pAudioEngine->unlock();
 }
 
-void JackDriver::jackDriverShutdown( void* arg )
+void JackDriver::jackDriverShutdown( void* pInstance )
 {
-	auto pJackDriver = static_cast<JackDriver*>(arg);
+	auto pJackDriver = static_cast<JackDriver*>( pInstance );
 	if ( pJackDriver == nullptr ) {
 		___ERRORLOG( "Provided driver is incompatible" );
-        return;
+		return;
 	}
 
 #if JACK_DEBUG
