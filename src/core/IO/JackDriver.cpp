@@ -347,12 +347,12 @@ jack_nframes_t JackDriver::jackServerBufferSize = 0;
 #ifdef HAVE_INTEGRATION_TESTS
 long JackDriver::m_nIntegrationLastRelocationFrame = -1;
 #endif
-JackDriver* JackDriver::pJackDriverInstance = nullptr;
 
-JackDriver::JackDriver( JackProcessCallback m_processCallback )
+JackDriver::JackDriver( JackProcessCallback processCallback )
 	: AudioDriver(),
 	  m_pClient( nullptr ),
 	  m_sClientName( "Hydrogen" ),
+	  m_processCallback( processCallback ),
 	  m_pAudioOutputPort1( nullptr ),
 	  m_pAudioOutputPort2( nullptr ),
 	  m_timebaseTracking( TimebaseTracking::None ),
@@ -392,9 +392,6 @@ JackDriver::JackDriver( JackProcessCallback m_processCallback )
 			"driver."
 		);
 	}
-
-	JackDriver::pJackDriverInstance = this;
-	this->m_processCallback = m_processCallback;
 
 	m_pDummyPreviewInstrument =
 		std::make_shared<Instrument>( Instrument::EmptyId );
@@ -1151,7 +1148,7 @@ int JackDriver::init( unsigned bufferSize )
 	   it ever shuts down, either entirely, or if it
 	   just decides to stop calling us.
 	*/
-	jack_on_shutdown( m_pClient, jackDriverShutdown, nullptr );
+	jack_on_shutdown( m_pClient, jackDriverShutdown, (void*) this );
 
 	// Create new audio and MIDI ports for Hydrogen's client. These are objects
 	// used for moving data of any type in or out of the client. Ports may be
@@ -2172,13 +2169,20 @@ void JackDriver::JackTimebaseCallback(
 
 void JackDriver::jackDriverShutdown( void* arg )
 {
-	UNUSED( arg );
+	auto pJackDriver = static_cast<JackDriver*>(arg);
+	if ( pJackDriver == nullptr ) {
+		___ERRORLOG( "Provided driver is incompatible" );
+        return;
+	}
 
 #if JACK_DEBUG
 	___INFOLOG( "" );
 #endif
 
-	JackDriver::pJackDriverInstance->m_pClient = nullptr;
+	{
+		std::scoped_lock lock{ pJackDriver->m_midiMutex };
+		pJackDriver->m_pClient = nullptr;
+	}
 	Hydrogen::get_instance()->getAudioEngine()->raiseError(
 		Hydrogen::JACK_SERVER_SHUTDOWN
 	);

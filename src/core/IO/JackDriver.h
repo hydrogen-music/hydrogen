@@ -297,8 +297,6 @@ class JackDriver : public Object<JackDriver>,
 	static unsigned long jackServerSampleRate;
 	/** Buffer size of the JACK audio server. */
 	static jack_nframes_t jackServerBufferSize;
-	/** Instance of the JackDriver. */
-	static JackDriver* pJackDriverInstance;
 	/** Number of XRuns since the driver started.*/
 	static int jackServerXRuns;
 	jack_client_t* m_pClient;
@@ -399,7 +397,7 @@ class JackDriver : public Object<JackDriver>,
 	 * Callback function for the JACK audio server to shutting down the
 	 * JACK driver.
 	 *
-	 * \param arg Unused.
+	 * \param arg The current instance of the JackDriver.
 	 */
 	static void jackDriverShutdown( void* arg );
 
