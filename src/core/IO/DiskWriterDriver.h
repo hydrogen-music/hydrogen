@@ -27,7 +27,7 @@
 
 #include <inttypes.h>
 
-#include <core/IO/AudioOutput.h>
+#include <core/IO/AudioDriver.h>
 #include <core/Object.h>
 
 namespace H2Core
@@ -38,7 +38,7 @@ namespace H2Core
 /// Driver for export audio to disk
 ///
 /** \ingroup docCore docAudioDriver */
-class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
+class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioDriver
 {
 	H2_OBJECT(DiskWriterDriver)
 	public:

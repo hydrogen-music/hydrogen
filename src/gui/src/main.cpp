@@ -437,7 +437,7 @@ int main(int argc, char *argv[])
 		// called by now). However, the presence of the environmental
 		// variable does not guarantee for a session management and if
 		// no audio driver is initialized yet, we will do it here. 
-		if ( pHydrogen->getAudioOutput() == nullptr ) {
+		if ( pHydrogen->getAudioDriver() == nullptr ) {
 			// Starting drivers can take some time, so show the wait cursor to let the user know that, yes,
 			// we're definitely busy.
 			QApplication::setOverrideCursor( Qt::WaitCursor );

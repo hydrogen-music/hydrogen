@@ -275,7 +275,7 @@ void JackDriver::transportToBBT(
 		static_cast<float>( H2Core::nTicksPerQuarter ) * 4 / fDenumerator;
 
 	pJackPosition->frame_rate =
-		Hydrogen::get_instance()->getAudioOutput()->getSampleRate();
+		Hydrogen::get_instance()->getAudioDriver()->getSampleRate();
 	pJackPosition->ticks_per_beat = fTicksPerBeat;
 	pJackPosition->valid = JackPositionBBT;
 	// Time signature "numerator"
@@ -350,7 +350,7 @@ long JackDriver::m_nIntegrationLastRelocationFrame = -1;
 JackDriver* JackDriver::pJackDriverInstance = nullptr;
 
 JackDriver::JackDriver( JackProcessCallback m_processCallback )
-	: AudioOutput(),
+	: AudioDriver(),
 	  m_pClient( nullptr ),
 	  m_sClientName( "Hydrogen" ),
 	  m_pAudioOutputPort1( nullptr ),

@@ -413,7 +413,7 @@ double AudioEngine::computeDoubleTickSize( const int nSampleRate, const float fB
 float AudioEngine::getElapsedTime() const {
 	
 	const auto pHydrogen = Hydrogen::get_instance();
-	const auto pDriver = pHydrogen->getAudioOutput();
+	const auto pDriver = pHydrogen->getAudioDriver();
 	
 	if ( pDriver == nullptr || pDriver->getSampleRate() == 0 ) {
 		return 0;
@@ -1000,7 +1000,7 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 #endif
 }
 
-std::shared_ptr<AudioOutput> AudioEngine::createAudioDriver(
+std::shared_ptr<AudioDriver> AudioEngine::createAudioDriver(
 	const Preferences::AudioDriver& driver,
 	Event::Trigger trigger
 )
@@ -1011,7 +1011,7 @@ std::shared_ptr<AudioOutput> AudioEngine::createAudioDriver(
 	const auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	std::shared_ptr<AudioOutput> pAudioDriver = nullptr;
+	std::shared_ptr<AudioDriver> pAudioDriver = nullptr;
 
 	if ( driver == Preferences::AudioDriver::Oss ) {
 		pAudioDriver = std::make_shared<OssDriver>( m_AudioProcessCallback );
@@ -1024,7 +1024,7 @@ std::shared_ptr<AudioOutput> AudioEngine::createAudioDriver(
 			 pJackDriver->getMode() == JackDriver::Mode::Combined &&
 			 pJackDriver->isActive() ) {
 			INFOLOG( "Reusing JACK MIDI driver as audio driver." );
-			return std::static_pointer_cast<AudioOutput>( pJackDriver );
+			return std::static_pointer_cast<AudioDriver>( pJackDriver );
 		}
 		else {
 			pAudioDriver =
@@ -1157,7 +1157,7 @@ void AudioEngine::startAudioDriver( Event::Trigger trigger ) {
 		createAudioDriver( audioDriver, Event::Trigger::Suppress );
 	}
 	else {
-		std::shared_ptr<AudioOutput> pAudioDriver;
+		std::shared_ptr<AudioDriver> pAudioDriver;
 		for ( const auto& ddriver : Preferences::getSupportedAudioDrivers() ) {
 			if ( ( pAudioDriver =
 					   createAudioDriver( ddriver, Event::Trigger::Suppress )

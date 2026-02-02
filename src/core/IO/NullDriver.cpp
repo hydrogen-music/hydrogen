@@ -28,7 +28,7 @@ namespace H2Core
 {
 
 NullDriver::NullDriver( audioProcessCallback processCallback )
-		: AudioOutput()
+		: AudioDriver()
 {
 	UNUSED( processCallback );
 //	

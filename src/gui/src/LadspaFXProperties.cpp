@@ -24,7 +24,7 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Song.h>
 #include <core/FX/Effects.h>
-#include <core/IO/AudioOutput.h>
+#include <core/IO/AudioDriver.h>
 
 
 #include "LadspaFXProperties.h"
@@ -325,7 +325,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 {
 #ifdef H2CORE_HAVE_LADSPA
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioDriver = pHydrogen->getAudioOutput();
+	auto pAudioDriver = pHydrogen->getAudioDriver();
 	if ( pAudioDriver == nullptr ) {
 		ERRORLOG( "AudioDriver is not ready!" );
 		return;

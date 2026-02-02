@@ -184,7 +184,7 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 	pHydrogen->startExportSong( sFileName );
 
 	auto pDriver = std::dynamic_pointer_cast<H2Core::DiskWriterDriver>(
-		pHydrogen->getAudioOutput()
+		pHydrogen->getAudioDriver()
 	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
@@ -226,7 +226,7 @@ void TestHelper::exportSong( const QString& sFileName )
 	pHydrogen->startExportSong( sFileName );
 
 	auto pDriver = std::dynamic_pointer_cast<H2Core::DiskWriterDriver>(
-		pHydrogen->getAudioOutput()
+		pHydrogen->getAudioDriver()
 	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
 

@@ -707,7 +707,7 @@ void PreferencesDialog::on_cancelBtn_clicked() {
 
 void PreferencesDialog::writeAudioDriverPreferences() {
 	auto pPref = Preferences::get_instance();
-	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
+	auto pAudioDriver = Hydrogen::get_instance()->getAudioDriver();
 
 	bool bAudioOptionAltered = false;
 	const auto prevAudioDriver = pPref->m_audioDriver;
@@ -906,8 +906,8 @@ void PreferencesDialog::on_okBtn_clicked()
 	writeAudioDriverPreferences();
 
 	// Check whether the current audio driver is valid
-	if ( pHydrogen->getAudioOutput() == nullptr ||
-		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioOutput() ) !=
+	if ( pHydrogen->getAudioDriver() == nullptr ||
+		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioDriver() ) !=
 			 nullptr ) {
 		if ( QMessageBox::warning(
 				 this, "Hydrogen",
@@ -1115,7 +1115,7 @@ void PreferencesDialog::updateAudioDriverInfo()
 {
 	const auto pPref = Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
+	auto pAudioDriver = Hydrogen::get_instance()->getAudioDriver();
 
 	// Reset info text
 	updateAudioDriverInfoLabel();
@@ -1226,7 +1226,7 @@ void PreferencesDialog::updateAudioDriverInfo()
 void PreferencesDialog::updateAudioDriverInfoLabel() {
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
+	auto pAudioDriver = Hydrogen::get_instance()->getAudioDriver();
 	QString sInfo;
 
 	if ( driverComboBox->currentText() ==
@@ -1556,7 +1556,7 @@ void PreferencesDialog::setAudioDriverInfoPortAudio() {
 	latencyTargetSpinBox->show();
 	latencyValueLabel->show();
 
-	const auto pAudioDriver = H2Core::Hydrogen::get_instance()->getAudioOutput();
+	const auto pAudioDriver = H2Core::Hydrogen::get_instance()->getAudioDriver();
 	int nLatency;
 	if ( pAudioDriver == nullptr ) {
 		ERRORLOG( "AudioDriver is not ready!" );
@@ -1944,8 +1944,8 @@ void PreferencesDialog::on_restartAudioDriverBtn_clicked()
 
 	QApplication::restoreOverrideCursor();
 
-	if ( pHydrogen->getAudioOutput() == nullptr ||
-		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioOutput() ) !=
+	if ( pHydrogen->getAudioDriver() == nullptr ||
+		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioDriver() ) !=
 			 nullptr ) {
 		QMessageBox::critical(
 			this, "Hydrogen", pCommonStrings->getAudioDriverStartError()

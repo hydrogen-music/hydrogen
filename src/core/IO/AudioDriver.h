@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef H2_AUDIO_OUTPUT_H
-#define H2_AUDIO_OUTPUT_H
+#ifndef H2_AUDIO_DRIVER_H
+#define H2_AUDIO_DRIVER_H
 
 
 #include <core/config.h>
@@ -31,16 +31,15 @@ namespace H2Core
 
 typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
-///
-/// Base abstract class for audio output classes.
-///
-/** \ingroup docCore docAudioDriver */
-class AudioOutput : public H2Core::Object<AudioOutput>
+/** Base class for all our audio drivers.
+ *
+ * \ingroup docCore docAudioDriver */
+class AudioDriver : public H2Core::Object<AudioDriver>
 {
-	H2_OBJECT(AudioOutput)
+	H2_OBJECT(AudioDriver)
 public:
-	AudioOutput() = default;
-	virtual ~AudioOutput() { }
+	AudioDriver() = default;
+	virtual ~AudioDriver() { }
 
 	virtual int init( unsigned nBufferSize ) = 0;
 	virtual int connect() = 0;

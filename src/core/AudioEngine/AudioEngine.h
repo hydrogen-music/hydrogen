@@ -29,7 +29,7 @@
 #include <core/config.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
-#include <core/IO/AudioOutput.h>
+#include <core/IO/AudioDriver.h>
 #include <core/IO/DiskWriterDriver.h>
 #include <core/IO/FakeAudioDriver.h>
 #include <core/IO/JackDriver.h>
@@ -280,7 +280,7 @@ public:
 	/** * Choice, creation, and initialization of th audio driver. */
 	void			startAudioDriver( Event::Trigger trigger );
 	void			stopAudioDriver( Event::Trigger trigger );
-	std::shared_ptr<AudioOutput> getAudioDriver() const;
+	std::shared_ptr<AudioDriver> getAudioDriver() const;
 	/**
 	 * Create an audio driver using audioEngine_process() as its argument
 	 * based on the provided choice and calling their _init()_ function to
@@ -294,7 +294,7 @@ public:
 	 * creation resulted in a NullDriver, the corresponding object will be
 	 * deleted and a null pointer returned instead.
 	 */
-	std::shared_ptr<AudioOutput> createAudioDriver(
+	std::shared_ptr<AudioDriver> createAudioDriver(
 		const Preferences::AudioDriver& driver,
 		Event::Trigger trigger
 	);
@@ -619,7 +619,7 @@ private:
 	QString getDriverNames() const;
 
 	Sampler* 			m_pSampler;
-	std::shared_ptr<AudioOutput> m_pAudioDriver;
+	std::shared_ptr<AudioDriver> m_pAudioDriver;
 	std::shared_ptr<MidiBaseDriver> m_pMidiDriver;
 
 #if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
@@ -842,7 +842,7 @@ inline void AudioEngine::setNextState( const AudioEngine::State& state) {
 	m_nextState = state;
 }
 
-inline std::shared_ptr<AudioOutput> AudioEngine::getAudioDriver() const
+inline std::shared_ptr<AudioDriver> AudioEngine::getAudioDriver() const
 {
 	return m_pAudioDriver;
 }

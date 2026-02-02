@@ -23,7 +23,7 @@
 #ifndef PORT_AUDIO_DRIVER_H
 #define PORT_AUDIO_DRIVER_H
 
-#include <core/IO/AudioOutput.h>
+#include <core/IO/AudioDriver.h>
 #include <core/IO/NullDriver.h>
 
 #include <unistd.h>
@@ -37,7 +37,7 @@ namespace H2Core
 {
 
 /** \ingroup docCore docAudioDriver */
-class PortAudioDriver : public Object<PortAudioDriver>, public AudioOutput
+class PortAudioDriver : public Object<PortAudioDriver>, public AudioDriver
 {
 	H2_OBJECT(PortAudioDriver)
 public:

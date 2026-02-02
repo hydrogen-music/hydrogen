@@ -57,7 +57,7 @@
 #include <core/Helpers/TimeHelper.h>
 #include <core/IO/AlsaAudioDriver.h>
 #include <core/IO/AlsaMidiDriver.h>
-#include <core/IO/AudioOutput.h>
+#include <core/IO/AudioDriver.h>
 #include <core/IO/CoreAudioDriver.h>
 #include <core/IO/CoreMidiDriver.h>
 #include <core/IO/DiskWriterDriver.h>
@@ -722,7 +722,7 @@ void Hydrogen::stopExportSession()
 }
 
 /// Used to display audio driver info
-std::shared_ptr<AudioOutput> Hydrogen::getAudioOutput() const
+std::shared_ptr<AudioDriver> Hydrogen::getAudioDriver() const
 {
 	return m_pAudioEngine->getAudioDriver();
 }

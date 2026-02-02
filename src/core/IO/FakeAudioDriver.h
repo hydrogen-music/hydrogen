@@ -24,7 +24,7 @@
 #define FAKE_DRIVER_H
 
 #include <core/Helpers/Time.h>
-#include <core/IO/AudioOutput.h>
+#include <core/IO/AudioDriver.h>
 
 #include <chrono>
 #include <memory>
@@ -35,7 +35,7 @@ namespace H2Core {
 /** Fake audio driver. Used only for profiling and unit tests.
  *
  * \ingroup docCore docAudioDriver docMIDI */
-class FakeAudioDriver : Object<FakeAudioDriver>, public AudioOutput
+class FakeAudioDriver : Object<FakeAudioDriver>, public AudioDriver
 {
 	H2_OBJECT(FakeAudioDriver)
 public:

@@ -62,7 +62,7 @@ bool PortAudioDriver::m_bInitialised = false;
 
 
 PortAudioDriver::PortAudioDriver( audioProcessCallback processCallback )
-		: AudioOutput()
+		: AudioDriver()
 		, m_processCallback( processCallback )
 		, m_pOut_L( nullptr )
 		, m_pOut_R( nullptr )

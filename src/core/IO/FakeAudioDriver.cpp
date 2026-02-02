@@ -29,7 +29,7 @@
 namespace H2Core {
 
 FakeAudioDriver::FakeAudioDriver( audioProcessCallback processCallback )
-		: AudioOutput()
+		: AudioDriver()
 		, m_processCallback( processCallback )
 		, m_pOut_L( nullptr )
 		, m_pOut_R( nullptr )

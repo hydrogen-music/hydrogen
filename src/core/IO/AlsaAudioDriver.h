@@ -22,7 +22,7 @@
 #ifndef ALSA_AUDIO_DRIVER_H
 #define ALSA_AUDIO_DRIVER_H
 
-#include <core/IO/AudioOutput.h>
+#include <core/IO/AudioDriver.h>
 #include <core/IO/NullDriver.h>
 
 #if defined(H2CORE_HAVE_ALSA) || _DOXYGEN_
@@ -34,7 +34,7 @@ namespace H2Core
 {
 
 /** \ingroup docCore docAudioDriver */
-class AlsaAudioDriver : public Object<AlsaAudioDriver>, public AudioOutput
+class AlsaAudioDriver : public Object<AlsaAudioDriver>, public AudioDriver
 {
 	H2_OBJECT(AlsaAudioDriver)
 public:

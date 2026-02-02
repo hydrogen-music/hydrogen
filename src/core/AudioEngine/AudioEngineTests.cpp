@@ -1801,7 +1801,7 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 	auto pTransportPos = pAE->getTransportPosition();
 
 	double fPassedFrames = static_cast<double>(nPassedFrames);
-	const int nSampleRate = pHydrogen->getAudioOutput()->getSampleRate();
+	const int nSampleRate = pHydrogen->getAudioDriver()->getSampleRate();
 	
 	int nNotesFound = 0;
 	for ( const auto& ppNewNote : newNotes ) {
@@ -1960,7 +1960,7 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 	auto pSampler = pAE->getSampler();
 	auto pTransportPos = pAE->getTransportPosition();
 	
-	const unsigned long nBufferSize = pHydrogen->getAudioOutput()->getBufferSize();
+	const unsigned long nBufferSize = pHydrogen->getAudioDriver()->getBufferSize();
 
 	pAE->updateNoteQueue( nBufferSize );
 	pAE->processAudio( nBufferSize );

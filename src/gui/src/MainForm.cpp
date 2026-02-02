@@ -210,8 +210,8 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFileName,
 
 	// Check whether the audio driver could be loaded based on the
 	// content of the config file
-	if ( pHydrogen->getAudioOutput() == nullptr ||
-		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioOutput() ) !=
+	if ( pHydrogen->getAudioDriver() == nullptr ||
+		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioDriver() ) !=
 			 nullptr ) {
 		QMessageBox::warning(
 			this, "Hydrogen",
@@ -1943,8 +1943,8 @@ void MainForm::onPreferencesChanged( const H2Core::Preferences::Changes& changes
 bool MainForm::nullDriverCheck() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	if ( pHydrogen->getAudioOutput() == nullptr ||
-		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioOutput() ) !=
+	if ( pHydrogen->getAudioDriver() == nullptr ||
+		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioDriver() ) !=
 			 nullptr ) {
 		QMessageBox::warning(
 			this, "Hydrogen",

@@ -804,7 +804,7 @@ void SampleEditor::valueChangedLoopCountSpinBox( int )
 	}
 
 	const auto pHydrogen = Hydrogen::get_instance();
-	const auto pAudioDriver = pHydrogen->getAudioOutput();
+	const auto pAudioDriver = pHydrogen->getAudioDriver();
 	if ( pAudioDriver == nullptr ) {
 		ERRORLOG( "AudioDriver is not ready!" );
 		return;

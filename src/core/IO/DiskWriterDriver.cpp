@@ -429,7 +429,7 @@ void* diskWriterDriver_thread( void* param )
 
 
 DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback )
-		: AudioOutput()
+		: AudioDriver()
 		, m_nSampleRate( 4800 )
 		, m_nSampleDepth( 32 )
 		, m_processCallback( processCallback )

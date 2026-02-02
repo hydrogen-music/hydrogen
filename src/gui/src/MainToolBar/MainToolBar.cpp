@@ -660,8 +660,8 @@ void MainToolBar::playBtnClicked() {
 
 	// Hint that something is wrong in case there is no proper audio
 	// driver set.
-	if ( pHydrogen->getAudioOutput() == nullptr ||
-		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioOutput() ) !=
+	if ( pHydrogen->getAudioDriver() == nullptr ||
+		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioDriver() ) !=
 			 nullptr ) {
 		QMessageBox::warning(
 			this, "Hydrogen",
@@ -696,8 +696,8 @@ void MainToolBar::stopBtnClicked()
 
 	// Hint that something is wrong in case there is no proper audio
 	// driver set.
-	if ( pHydrogen->getAudioOutput() == nullptr ||
-		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioOutput() ) !=
+	if ( pHydrogen->getAudioDriver() == nullptr ||
+		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioDriver() ) !=
 			 nullptr ) {
 		QMessageBox::warning( this, "Hydrogen",
 							   QString( "%1\n%2" )

@@ -44,7 +44,7 @@
 #include <core/Globals.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
-#include <core/IO/AudioOutput.h>
+#include <core/IO/AudioDriver.h>
 #include <core/IO/JackDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/Midi/Midi.h>
@@ -968,7 +968,7 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 
 		// We delay checking for the audio driver till here in order to allow
 		// usign Hydrogen in "MIDI-only" mode.
-		if ( pLayer == nullptr || pHydrogen->getAudioOutput() == nullptr ||
+		if ( pLayer == nullptr || pHydrogen->getAudioDriver() == nullptr ||
 			 bIsMuted ) {
 			returnValues[ii] = true;
 			continue;
@@ -1213,7 +1213,7 @@ void resample(
 bool Sampler::processPlaybackTrack( int nBufferSize )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	auto pAudioDriver = pHydrogen->getAudioOutput();
+	auto pAudioDriver = pHydrogen->getAudioDriver();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
@@ -1374,7 +1374,7 @@ bool Sampler::renderNote(
     }
 
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioDriver = pHydrogen->getAudioOutput();
+	auto pAudioDriver = pHydrogen->getAudioDriver();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pAudioDriver == nullptr ) {
 		return true;

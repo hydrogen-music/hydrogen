@@ -23,7 +23,7 @@
 #ifndef H2_JACK_DRIVER_H
 #define H2_JACK_DRIVER_H
 
-#include <core/IO/AudioOutput.h>
+#include <core/IO/AudioDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/IO/NullDriver.h>
 
@@ -95,7 +95,7 @@ class TransportPosition;
 /** \ingroup docCore docAudioDriver docMIDI */
 class JackDriver : public Object<JackDriver>,
 				   public MidiBaseDriver,
-				   public AudioOutput {
+				   public AudioDriver {
 	H2_OBJECT( JackDriver )
    public:
 	/** Whether Hydrogen or another program is in Timebase control. */

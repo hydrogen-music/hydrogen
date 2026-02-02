@@ -33,7 +33,7 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Hydrogen.h>
-#include <core/IO/AudioOutput.h>
+#include <core/IO/AudioDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
@@ -134,7 +134,7 @@ void AudioEngineInfoForm::updateInfo()
 
 
 	// Audio driver info
-	auto pAudioDriver = pHydrogen->getAudioOutput();
+	auto pAudioDriver = pHydrogen->getAudioDriver();
 	if ( pAudioDriver != nullptr ) {
 		QString audioDriverName = pAudioDriver->class_name();
 		driverLbl->setText( audioDriverName );
