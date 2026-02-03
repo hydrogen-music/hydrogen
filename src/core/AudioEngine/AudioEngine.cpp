@@ -1123,6 +1123,24 @@ std::shared_ptr<AudioDriver> AudioEngine::createAudioDriver(
 	}
 
 	lock( RIGHT_HERE );
+
+#ifdef H2CORE_HAVE_JACK
+	auto pJackDriver = std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver );
+	if ( pJackDriver != nullptr &&
+		 pJackDriver->getMode() == JackDriver::Mode::Combined ) {
+		INFOLOG( "Reusing JACK audio driver as MIDI driver." );
+		if ( m_pMidiDriver != nullptr ) {
+			WARNINGLOG(
+				"MIDI driver still active. Replacing it with combined "
+				"JackDriver."
+			);
+			m_pMidiDriver->stopMidiClockStream();
+			m_pMidiDriver->close();
+		}
+		m_pMidiDriver = pJackDriver;
+	}
+#endif
+
 	setupLadspaFX();
 
 	if ( pSong != nullptr ) {
@@ -1147,7 +1165,19 @@ void AudioEngine::startAudioDriver( Event::Trigger trigger ) {
 		return;
 	}
 
-	if ( m_pAudioDriver != nullptr ) {	// check if audio driver is still alive
+#ifdef H2CORE_HAVE_JACK
+	auto pJackDriver = std::dynamic_pointer_cast<JackDriver>( m_pMidiDriver );
+	if ( pJackDriver != nullptr &&
+		 pJackDriver->getMode() == JackDriver::Mode::Combined &&
+		 pJackDriver->isActive() ) {
+		INFOLOG( "Reusing JACK MIDI driver as audio driver." );
+		m_pAudioDriver = std::static_pointer_cast<AudioDriver>( pJackDriver );
+        return;
+	}
+	else
+#endif
+		if ( m_pAudioDriver !=
+			 nullptr ) {  // check if audio driver is still alive
 		AE_ERRORLOG( "The audio driver is still alive" );
 	}
 
@@ -1201,9 +1231,21 @@ void AudioEngine::stopAudioDriver( Event::Trigger trigger )
 	setState( State::Initialized );
 
 	if ( m_pAudioDriver != nullptr ) {
+		bool bCombinedDriver = false;
+#ifdef H2CORE_HAVE_JACK
+		auto pJackDriver =
+			std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver );
+		if ( pJackDriver != nullptr &&
+			 pJackDriver->getMode() == JackDriver::Mode::Combined ) {
+			bCombinedDriver = true;
+		}
+#endif
 		m_pAudioDriver->disconnect();
 		m_MutexOutputPointer.lock();
 		m_pAudioDriver = nullptr;
+		if ( bCombinedDriver ) {
+            m_pMidiDriver = nullptr;
+		}
 		m_MutexOutputPointer.unlock();
 	}
 
@@ -1218,7 +1260,18 @@ void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 	AE_INFOLOG("");
 	const auto pPref = Preferences::get_instance();
 
-	if ( m_pMidiDriver != nullptr ) {
+#ifdef H2CORE_HAVE_JACK
+	auto pJackDriver = std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver );
+	if ( pJackDriver != nullptr &&
+		 pJackDriver->getMode() == JackDriver::Mode::Combined &&
+		 pJackDriver->isActive() ) {
+		INFOLOG( "Reusing JACK audio driver as MIDI driver." );
+		m_pMidiDriver = std::static_pointer_cast<MidiBaseDriver>( pJackDriver );
+        return;
+	}
+	else
+#endif
+		if ( m_pMidiDriver != nullptr ) {
 		AE_ERRORLOG( "The MIDI driver is still active" );
 	}
 
@@ -1244,16 +1297,22 @@ void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 	}
 	else if ( pPref->m_midiDriver == Preferences::MidiDriver::Jack ) {
 #ifdef H2CORE_HAVE_JACK
-		auto pDriver = std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver );
-		if ( pDriver != nullptr &&
-			 pDriver->getMode() == JackDriver::Mode::Combined &&
-			 pDriver->isActive() ) {
-			INFOLOG( "Reusing JACK audio driver as MIDI driver." );
-			m_pMidiDriver = std::static_pointer_cast<MidiBaseDriver>( pDriver );
-		}
-		else {
-			m_pMidiDriver = std::make_shared<JackDriver>( m_AudioProcessCallback );
-			m_pMidiDriver->open();
+		auto pJackDriver =
+			std::make_shared<JackDriver>( m_AudioProcessCallback );
+		pJackDriver->open();
+		m_pMidiDriver = pJackDriver;
+		if ( pJackDriver->getMode() == JackDriver::Mode::Combined ) {
+			INFOLOG( "Reusing JACK MIDI driver as audio driver." );
+			if ( m_pAudioDriver != nullptr ) {
+				WARNINGLOG(
+					"Audio driver still active. Replacing it with combined "
+					"JackDriver."
+				);
+				m_pAudioDriver->disconnect();
+			}
+			m_MutexOutputPointer.lock();
+			m_pAudioDriver = pJackDriver;
+			m_MutexOutputPointer.unlock();
 		}
 #endif
 	}
@@ -1276,10 +1335,22 @@ void AudioEngine::stopMidiDriver( Event::Trigger trigger )
 	this->lock( RIGHT_HERE );
 
 	if ( m_pMidiDriver != nullptr ) {
+		bool bCombinedDriver = false;
+#ifdef H2CORE_HAVE_JACK
+		auto pJackDriver =
+			std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver );
+		if ( pJackDriver != nullptr &&
+			 pJackDriver->getMode() == JackDriver::Mode::Combined ) {
+			bCombinedDriver = true;
+		}
+#endif
 		m_pMidiDriver->stopMidiClockStream();
 		m_pMidiDriver->close();
 		m_MutexOutputPointer.lock();
 		m_pMidiDriver = nullptr;
+		if ( bCombinedDriver ) {
+			m_pAudioDriver = nullptr;
+		}
 		m_MutexOutputPointer.unlock();
 	}
 
