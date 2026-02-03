@@ -371,6 +371,10 @@ JackDriver::JackDriver( JackProcessCallback processCallback )
 	  m_bIntegrationCheckRelocationLoop( false )
 #endif
 {
+#if JACK_DEBUG
+	J_DEBUGLOG( "" );
+#endif
+
 	auto pPreferences = Preferences::get_instance();
 
 	m_bConnectDefaults = pPreferences->m_bJackConnectDefaults;
@@ -408,6 +412,10 @@ JackDriver::JackDriver( JackProcessCallback processCallback )
 
 JackDriver::~JackDriver()
 {
+#if JACK_DEBUG
+	J_DEBUGLOG( "" );
+#endif
+
 	disconnect();
 }
 
@@ -433,6 +441,9 @@ bool JackDriver::isActive() const
 
 void JackDriver::deactivate()
 {
+#if JACK_DEBUG
+	J_DEBUGLOG( "" );
+#endif
 	if ( m_pClient != nullptr ) {
 		if ( m_mode == Mode::Audio || m_mode == Mode::Combined ) {
 			for ( auto& [_, ports] : m_audioPortMap ) {
@@ -1896,6 +1907,10 @@ void JackDriver::unregisterPerTrackAudioPorts( InstrumentPorts ports )
 
 void JackDriver::close()
 {
+#if JACK_DEBUG
+	J_DEBUGLOG( "" );
+#endif
+
     disconnect();
 }
 
@@ -1920,6 +1935,10 @@ bool JackDriver::isOutputActive() const
 
 void JackDriver::open()
 {
+#if JACK_DEBUG
+	J_DEBUGLOG( "" );
+#endif
+
 	init( /*parameter not used*/ 512 );
 }
 
@@ -1968,7 +1987,7 @@ void JackDriver::readJackMidi( jack_nframes_t nframes )
 
 	t = 0;
 
-    std::scoped_lock lock{ m_midiMutex };
+	std::scoped_lock lock{ m_midiMutex };
 	while ( ( t < nframes ) && ( m_midiRxOutPosition != m_midiRxInPosition ) ) {
 		len = m_jackMidiBuffer[4 * m_midiRxInPosition];
 		if ( len == 0 ) {
