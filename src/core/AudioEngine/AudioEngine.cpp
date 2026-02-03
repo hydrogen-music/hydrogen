@@ -1207,6 +1207,8 @@ void AudioEngine::startAudioDriver( Event::Trigger trigger ) {
 	if ( trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->pushEvent( Event::Type::AudioDriverChanged, 0 );
 	}
+
+	AE_INFOLOG("done");
 }
 
 void AudioEngine::stopAudioDriver( Event::Trigger trigger )
@@ -1254,6 +1256,8 @@ void AudioEngine::stopAudioDriver( Event::Trigger trigger )
 	if ( trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->pushEvent( Event::Type::AudioDriverChanged, 0 );
 	}
+
+	AE_INFOLOG("done");
 }
 
 void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
@@ -1326,6 +1330,8 @@ void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 	if ( trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->pushEvent( Event::Type::MidiDriverChanged, 0 );
 	}
+
+	AE_INFOLOG("done");
 }
 
 void AudioEngine::stopMidiDriver( Event::Trigger trigger )
@@ -1359,6 +1365,8 @@ void AudioEngine::stopMidiDriver( Event::Trigger trigger )
 	if ( trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->pushEvent( Event::Type::MidiDriverChanged, 0 );
 	}
+
+	AE_INFOLOG("done");
 }
 
 void AudioEngine::handleLoopModeChanged() {
