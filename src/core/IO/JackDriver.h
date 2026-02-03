@@ -49,27 +49,31 @@ class Song;
 class TransportPosition;
 
 /**
- * JACK (Jack Audio Connection Kit) server driver.
+ * JACK (Jack Audio Connection Kit) server driver. A holistic driver, which can
+ * be used both as audio and MIDI driver.
+ *
+ * Due to its design the JackDriver is a special case within Hydrogen. All other
+ * drivers are either audio or MIDI ones but this one can be either of them or
+ * both at the same time. Which of those options is used, will be determined
+ * with the constructor and stored as #JackDriver::Mode. Starting the driver via
+ * both the audio and the MIDI interface results in the same setup.
  *
  * __Transport Control__:
  *
- * Each JACK client can start and stop the transport or relocate the
- * current transport position. The request will take place in
- * cycles. During the first the status of the transport changes to
- * _JackTransportStarting_ to inform all clients a change is about to
- * happen. During the second the status is again
- * _JackTransportRolling_ and the transport position is updated
- * according to the request.
+ * Each JACK client can start and stop the transport or relocate the current
+ * transport position. The request will take place in cycles. During the first
+ * the status of the transport changes to _JackTransportStarting_ to inform all
+ * clients a change is about to happen. During the second the status is again
+ * _JackTransportRolling_ and the transport position is updated according to the
+ * request.
  *
- * Also note that Hydrogen overwrites its local TransportPosition only
- * with the transport position of the JACK server if there is a
- * mismatch due to a relocation triggered by another JACK
- * client. During normal transport the current position
- * TransportPosition::m_nFrames will be always the same as the one of JACK
- * during a cycle and incremented by the buffer size in
- * audioEngine_process() at the very end of the cycle. The same
- * happens for the transport information of the JACK server but in
- * parallel.
+ * Also note that Hydrogen overwrites its local TransportPosition only with the
+ * transport position of the JACK server if there is a mismatch due to a
+ * relocation triggered by another JACK client. During normal transport the
+ * current position TransportPosition::m_nFrames will be always the same as the
+ * one of JACK during a cycle and incremented by the buffer size in
+ * audioEngine_process() at the very end of the cycle. The same happens for the
+ * transport information of the JACK server but in parallel.
  *
  * __Timebase support__:
  *
@@ -86,8 +90,8 @@ class TransportPosition;
  * responsibility, the registered client has no other rights compared to others.
  *
  * After the status of the JACK transport has changed from
- * _JackTransportStarting_ to _JackTransportRolling_, the Timebase
- * controller needs an additional cycle to update its information.
+ * _JackTransportStarting_ to _JackTransportRolling_, the Timebase controller
+ * needs an additional cycle to update its information.
  *
  * Note that we do not use the original terms coined in the Timebase API.
  * Instead, we refer to controller and listener.
@@ -116,8 +120,8 @@ class JackDriver : public Object<JackDriver>,
 		 * tempo to other Timebase listeners.*/
 		Controller = 1,
 		/** An external program is Timebase controller and Hydrogen will
-		 * disregard all tempo markers on the Timeline and, instead,
-		 * only use the BPM provided by JACK.
+		 * disregard all tempo markers on the Timeline and, instead, only use
+		 * the BPM provided by JACK.
 		 *
 		 * Note: the JACK standard is using a different term we do not want to
 		 * repeat or spread. */
@@ -140,13 +144,13 @@ class JackDriver : public Object<JackDriver>,
 		 * rendering using their samples is done and we avoid audible glitches
 		 * when switching kits.
 		 *
-		 * But when using per-track JACK output ports we have to ensure too,
-		 * that the ports associated with those instruments are kept open till
-		 * all rendering is done. Instruments which's ports are mapped to the
-		 * ones of another instrument will continue using those ports (but we
-		 * must not remove them since the new instruments are still using them -
-		 * Marked::ForRemoval). Instruments not having a corresponding mapping
-		 * target will keep their ports till all rendering is done
+		 * But when using per-track JACK audio output ports we have to ensure
+		 * too, that the ports associated with those instruments are kept open
+		 * till all rendering is done. Instruments which's ports are mapped to
+		 * the ones of another instrument will continue using those ports (but
+		 * we must not remove them since the new instruments are still using
+		 * them - Marked::ForRemoval). Instruments not having a corresponding
+		 * mapping target will keep their ports till all rendering is done
 		 * (Marked::ForDeath). See cleanupPerTrackPorts(). */
 		enum class Marked { ForDeath, ForRemoval, None };
 
@@ -226,8 +230,8 @@ class JackDriver : public Object<JackDriver>,
 	/**
 	 * Initializes the JACK audio driver.
 	 *
-	 * \param bufferSize Unused and only present to assure
-	 * compatibility with the JACK API.
+	 * \param bufferSize Unused and only present to assure compatibility with
+	 * the JACK API.
 	 *
 	 * \return
 	 * -  __0__ : on success.
@@ -260,8 +264,8 @@ class JackDriver : public Object<JackDriver>,
 	/** @} */
 
 	/** Members required to implement the Audio part of the driver. @{ */
-	/** Callback function for the JACK audio server to set the buffer
-	 * size #jackServerBufferSize.
+	/** Callback function for the JACK audio server to set the buffer size
+	 * #jackServerBufferSize.
 	 *
 	 * \param nframes New buffer size.
 	 * \param pInstance current instance of JackDriver.
@@ -282,9 +286,7 @@ class JackDriver : public Object<JackDriver>,
 	 * #Hydrogen::m_instrumentDeathRow and whether they can be torn down. */
 	void cleanUpPerTrackAudioPorts();
 	void clearPerTrackAudioBuffers( uint32_t nFrames );
-	/** Creates per-instrument output ports.
-	 *
-	 * In case the previous drumkit is provided as well, a more sophisticated
+	/** In case the previous drumkit is provided as well, a more sophisticated
 	 * mapping between the instrument corresponding to the ports can be done. */
 	void createPerTrackAudioPorts(
 		std::shared_ptr<Song> pSong,
@@ -318,29 +320,28 @@ class JackDriver : public Object<JackDriver>,
 	/** Used internally to keep track of the current Timebase state.
 	 *
 	 * While Hydrogen can drop Timebase control on its own, it can not be
-	 * observed directly whether another application has taken over as
-	 * Timebase controller. When the JACK server is releasing Hydrogen in
-	 * the later case, it won't advertise this fact but simply won't call
-	 * the JackTimebaseCallback() anymore. But since this will be called in
-	 * every cycle after updateTransportPosition(), we make the former set
-	 * the tracking state to #Valid and the latter to #OnHold. If we
-	 * encounter a second process cycle with #OnHold, we have been released.
+	 * observed directly whether another application has taken over as Timebase
+	 * controller. When the JACK server is releasing Hydrogen in the later case,
+	 * it won't advertise this fact but simply won't call the
+	 * JackTimebaseCallback() anymore. But since this will be called in every
+	 * cycle after updateTransportPosition(), we make the former set the
+	 * tracking state to #Valid and the latter to #OnHold. If we encounter a
+	 * second process cycle with #OnHold, we have been released.
 	 *
-	 * A second use case is relocation triggered by a JACK client other than
-	 * the Timebase controller. The JACK server won't have any corresponding
-	 * BBT information at hand and distribute the frame information without
-	 * the BBT capability. The process cycle afterwards the controller
-	 * starts again to send BBT. This intermediate state will be covered by
-	 * #OnHold too, as we do not want the timebase state (and timeline
-	 * support) to glitch on each relocation. Instead, we cache the last
-	 * tempo and pretend to still have BBT information. will be updated
-	 * accordingly.
+	 * A second use case is relocation triggered by a JACK client other than the
+	 * Timebase controller. The JACK server won't have any corresponding BBT
+	 * information at hand and distribute the frame information without the BBT
+	 * capability. The process cycle afterwards the controller starts again to
+	 * send BBT. This intermediate state will be covered by #OnHold too, as we
+	 * do not want the timebase state (and timeline support) to glitch on each
+	 * relocation. Instead, we cache the last tempo and pretend to still have
+	 * BBT information. will be updated accordingly.
 	 */
 	enum class TimebaseTracking {
 		/** Current timebase state is on par with JACK server. */
 		Valid,
-		/** We are uncertain of the current timebase state and wait a
-		 * processing cycle to determine what to do next.*/
+		/** We are uncertain of the current timebase state and wait a processing
+		 * cycle to determine what to do next.*/
 		OnHold,
 		/** Null element */
 		None
@@ -348,12 +349,11 @@ class JackDriver : public Object<JackDriver>,
 	static QString TimebaseTrackingToQString( const TimebaseTracking& t );
 
 	/**
-	 * Callback function for the JACK server to supply additional
-	 * timebase information.
+	 * Callback function for the JACK server to supply additional timebase
+	 * information.
 	 *
-	 * The function it will be called after the
-	 * audioEngine_process() function and only if the
-	 * #m_JackTransportState is _JackTransportRolling_.
+	 * The function it will be called after the audioEngine_process() function
+	 * and only if the #m_JackTransportState is _JackTransportRolling_.
 	 *
 	 * What is the BBT information?
 	 *
@@ -367,10 +367,10 @@ class JackDriver : public Object<JackDriver>,
 	 * tick: Number of ticks passed since the last beat (with respect
 	 *     to the current frame).
 	 *
-	 * A tick is an internal measure representing the smallest
-	 * resolution of the transport position in terms of the
-	 * patterns. It consist of pAudioEngine->getTickSize() frames, which
-	 * changes depending on the current tempo.
+	 * A tick is an internal measure representing the smallest resolution of the
+	 * transport position in terms of the patterns. It consist of
+	 * pAudioEngine->getTickSize() frames, which changes depending on the
+	 * current tempo.
 	 *
 	 * \param state Unused.
 	 * \param nFrames Unused.
@@ -386,8 +386,8 @@ class JackDriver : public Object<JackDriver>,
 		void* pInstance
 	);
 	/**
-	 * Callback function for the JACK audio server to shutting down the
-	 * JACK driver.
+	 * Callback function for the JACK audio server to shutting down the JACK
+	 * driver.
 	 *
 	 * \param arg The current instance of the JackDriver.
 	 */
@@ -440,16 +440,15 @@ class JackDriver : public Object<JackDriver>,
 	 * channel of an instrument. */
 	PortMap m_audioPortMap;
 
-	/** Contains the ports for the metronome and the playback track, which
-	 * do not change when e.g. switching drumkits or loading a different
-	 * song. They will stay till teardown. */
+	/** Contains the ports for the metronome and the playback track, which do
+	 * not change when e.g. switching drumkits or loading a different song. They
+	 * will stay till teardown. */
 	PortMap m_audioPortMapStatic;
 
-	/** Since #Sampler::m_pPreviewInstrument is changed with each new sample
-	 * to preview, this one serves as a dummy instrument mapping all
-	 * instruments not found in #m_portMap but with
-	 * #Instrument::m_bIsPreviewInstrument set to the per-track output ports
-	 * of the sample preview. */
+	/** Since #Sampler::m_pPreviewInstrument is changed with each new sample to
+	 * preview, this one serves as a dummy instrument mapping all instruments
+	 * not found in #m_portMap but with #Instrument::m_bIsPreviewInstrument set
+	 * to the per-track output ports of the sample preview. */
 	std::shared_ptr<Instrument> m_pDummyPreviewInstrument;
 
 	/**
@@ -466,23 +465,23 @@ class JackDriver : public Object<JackDriver>,
 	 * - _JackTransportNetStarting_ = 4 : Waiting for sync ready
 	 *   on the network
 	 *
-	 * The actual number of states depends on your JACK
-	 * version. The listing above was done for version 1.9.12.
+	 * The actual number of states depends on your JACK version. The listing
+	 * above was done for version 1.9.12.
 	 */
 	jack_transport_state_t m_JackTransportState;
 	/**
-	 * Current transport position obtained using
-	 * _jack_transport_query()_ (jack/transport.h).
+	 * Current transport position obtained using _jack_transport_query()_
+	 * (jack/transport.h).
 	 *
 	 * It corresponds to the first frame of the current cycle.
 	 *
-	 * The __valid__ member of #m_JackTransportPos will show which
-	 * fields contain valid data. Thus, if it is set to
-	 * _JackPositionBBT_, bar, beat, and tick information are
-	 * provided by the current Timebase controller in addition to the
-	 * transport information in frames. It is of class
-	 * _jack_position_bits_t_ (jack/types.h) and is an enumerator
-	 * with five different options:
+	 * The __valid__ member of #m_JackTransportPos will show which fields
+	 * contain valid data. Thus, if it is set to _JackPositionBBT_, bar, beat,
+	 * and tick information are provided by the current Timebase controller in
+	 * addition to the transport information in frames. It is of class
+	 * _jack_position_bits_t_ (jack/types.h) and is an enumerator with five
+	 * different options:
+	 *
 	 * - _JackPositionBBT_ = 0x10 : Bar, Beat, Tick
 	 * - _JackPositionTimecode_ = 0x20 : External timecode
 	 * - _JackBBTFrameOffset_ = 0x40 : Frame offset of BBT
@@ -499,9 +498,9 @@ class JackDriver : public Object<JackDriver>,
 	jack_position_t m_nextJackTransportPos;
 
 	/**
-	 * Specifies whether the default left and right (master) audio
-	 * JACK ports will be automatically connected to the system's sink
-	 * when registering the JACK client in connect().
+	 * Specifies whether the default left and right (master) audio JACK ports
+	 * will be automatically connected to the system's sink when registering the
+	 * JACK client in connect().
 	 */
 	bool m_bConnectDefaults;
 
@@ -519,57 +518,56 @@ class JackDriver : public Object<JackDriver>,
 	 *
 	 * In case of #Timebase::Listener and #TimebaseTracking::OnHold - a
 	 * relocation was done by a client other than the current Timebase
-	 * controller - the JACK server does not have any BBT information to
-	 * share for at least one cycle. We have guard against this or else we
-	 * have some spurious state changes. If such a thing happens, it is very
-	 * likely that the controller will still be controller and we will still
-	 * be listener once transport is starting again. Therefore, we pretend
-	 * to still be in this state instead of dropping Timebase state too and
-	 * offer the last tempo to the remainder of Hydrogen. */
+	 * controller - the JACK server does not have any BBT information to share
+	 * for at least one cycle. We have guard against this or else we have some
+	 * spurious state changes. If such a thing happens, it is very likely that
+	 * the controller will still be controller and we will still be listener
+	 * once transport is starting again. Therefore, we pretend to still be in
+	 * this state instead of dropping Timebase state too and offer the last
+	 * tempo to the remainder of Hydrogen. */
 	float m_fLastTimebaseBpm;
 
-	/** Stores an intended deviation of our transport position from the one
-	 * hold by the JACK server.
+	/** Stores an intended deviation of our transport position from the one hold
+	 * by the JACK server.
 	 *
 	 * In case we act as listener we will relocate based on the provided BBT
-	 * information. This is done by converting them into a tick and
-	 * calculating the corresponding frame. That resultant frame does not
-	 * necessarily have to coincide with the one broadcasted by the JACK
-	 * server. But this is no problems as BBT takes precedeence. */
+	 * information. This is done by converting them into a tick and calculating
+	 * the corresponding frame. That resultant frame does not necessarily have
+	 * to coincide with the one broadcasted by the JACK server. But this is no
+	 * problems as BBT takes precedeence. */
 	long long m_nTimebaseFrameOffset;
 
 	/** Remembers the BBT capability bit received in a JACK process cycle.
 	 *
-	 * In case a regular client triggeres a relocation, the transport bit
-	 * will be 0 and we rely on just the frame position to relocate
-	 * internally. However, in the next process cycle the JACK Timebase
-	 * controller will have added additional BBT information to that
-	 * location. Since we want to use its tempo, we also have to use the
-	 * remainder of the BBT information and trigger a relocation (although
-	 * the overall frame might not even have changed). In addition, the
-	 * Timebase controller could alter its capabilities.
+	 * In case a regular client triggeres a relocation, the transport bit will
+	 * be 0 and we rely on just the frame position to relocate internally.
+	 * However, in the next process cycle the JACK Timebase controller will have
+	 * added additional BBT information to that location. Since we want to use
+	 * its tempo, we also have to use the remainder of the BBT information and
+	 * trigger a relocation (although the overall frame might not even have
+	 * changed). In addition, the Timebase controller could alter its
+	 * capabilities.
 	 *
-	 * The behavior above has the negativ side effect that we might not
-	 * relocate to the exact frame we requested ourselves. But AFAICS this
-	 * is a bug in the JACK API. */
+	 * The behavior above has the negativ side effect that we might not relocate
+	 * to the exact frame we requested ourselves. But AFAICS this is a bug in
+	 * the JACK API. */
 	int m_lastTransportBits;
 
 	/** MIDI-related members @{ */
 	jack_port_t* m_pMidiOutputPort;
 	jack_port_t* m_pMidiInputPort;
 	std::mutex m_midiMutex;
-	int m_nRunning;
 	uint8_t m_jackMidiBuffer[jackMidiBufferMax * 4];
 	uint32_t m_midiRxInPosition;
 	uint32_t m_midiRxOutPosition;
 	/** @} */
 
 #ifdef HAVE_INTEGRATION_TESTS
-	/** Remember the last location we relocate to in order to detect
-	 * relocation loops during the integration tests.*/
+	/** Remember the last location we relocate to in order to detect relocation
+	 * loops during the integration tests.*/
 	static long m_nIntegrationLastRelocationFrame;
-	/** Whether a relocation loop took place (the same position is
-	 * considered a relocation over and over again.)*/
+	/** Whether a relocation loop took place (the same position is considered a
+	 * relocation over and over again.)*/
 	bool m_bIntegrationRelocationLoop;
 	bool m_bIntegrationCheckRelocationLoop;
 #endif

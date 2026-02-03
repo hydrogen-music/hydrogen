@@ -361,7 +361,6 @@ JackDriver::JackDriver( JackProcessCallback processCallback )
 	  m_fLastTimebaseBpm( 120 ),
 	  m_nTimebaseFrameOffset( 0 ),
 	  m_lastTransportBits( 0 ),
-	  m_nRunning( 0 ),
 	  m_midiRxInPosition( 0 ),
 	  m_midiRxOutPosition( 0 ),
 	  m_pMidiOutputPort( nullptr ),
@@ -1898,7 +1897,6 @@ void JackDriver::unregisterPerTrackAudioPorts( InstrumentPorts ports )
 void JackDriver::close()
 {
     disconnect();
-	m_nRunning--;
 }
 
 std::vector<QString> JackDriver::getExternalPortList( const PortType& portType )
@@ -1923,7 +1921,6 @@ bool JackDriver::isOutputActive() const
 void JackDriver::open()
 {
 	init( /*parameter not used*/ 512 );
-	m_nRunning++;
 }
 
 void JackDriver::getPortInfo(
@@ -2036,10 +2033,6 @@ void JackDriver::writeJackMidi( jack_nframes_t nframes )
 		error = jack_midi_event_get( &event, buf, i );
 #endif
 		if ( error ) {
-			continue;
-		}
-
-		if ( m_nRunning < 1 ) {
 			continue;
 		}
 
@@ -2443,10 +2436,6 @@ QString JackDriver::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( sPrefix )
 						 .arg( s )
 						 .arg( m_lastTransportBits ) )
-			.append( QString( "%1%2m_nRunning: %3\n" )
-						 .arg( sPrefix )
-						 .arg( s )
-						 .arg( m_nRunning ) )
 			.append( QString( "%1%2m_midiRxInPosition: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
@@ -2518,7 +2507,6 @@ QString JackDriver::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( m_nTimebaseFrameOffset ) )
 			.append( QString( ", m_lastTransportBits: %1" )
 						 .arg( m_lastTransportBits ) )
-			.append( QString( ", m_nRunning: %1" ).arg( m_nRunning ) )
 			.append(
 				QString( ", m_midiRxInPosition: %1" ).arg( m_midiRxInPosition )
 			)
