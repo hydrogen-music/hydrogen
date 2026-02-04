@@ -269,6 +269,7 @@ All notable changes to this project will be documented in this file.
 - Instrument peaks are no longer affected by main volume.
 - MIDI NOTE_OFF events are now properly send for all notes regardless of their
   pitch.
+- JACK MIDI and audio ports are now part of the same client (#422).
 
 ### Removed
 
