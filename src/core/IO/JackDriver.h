@@ -307,8 +307,8 @@ class JackDriver : public Object<JackDriver>,
 
 	/** Methods handling the MIDI part of the driver @{ */
 	void getPortInfo( const QString& sPortName, int& nClient, int& nPort );
-	void readJackMidi( jack_nframes_t nframes );
-	void writeJackMidi( jack_nframes_t nframes );
+	void handleJackMidiOutput( jack_nframes_t nframes );
+	void handleJackMidiInput( jack_nframes_t nframes );
 	/** @} */
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true )
@@ -396,7 +396,7 @@ class JackDriver : public Object<JackDriver>,
 	void unregisterPerTrackAudioPorts( InstrumentPorts ports );
 
 	/** Methods handling the MIDI part of the driver @{ */
-	void jackMidiOutEvent( uint8_t* buf, uint8_t len );
+	void sendJackMidiMessage( uint8_t* buf, uint8_t len );
 
 	void sendControlChangeMessage( const MidiMessage& msg ) override;
 	void sendNoteOnMessage( const MidiMessage& msg ) override;

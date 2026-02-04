@@ -1772,8 +1772,8 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			 ( pJackDriver->getMode() == JackDriver::Mode::Midi ||
 			   pJackDriver->getMode() == JackDriver::Mode::Combined ) &&
 			 pJackDriver->isActive() ) {
-			pJackDriver->readJackMidi( nframes );
-			pJackDriver->writeJackMidi( nframes );
+			pJackDriver->handleJackMidiOutput( nframes );
+			pJackDriver->handleJackMidiInput( nframes );
 		}
 	}
 #endif

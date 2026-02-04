@@ -1958,7 +1958,7 @@ void JackDriver::getPortInfo(
 	nPort = 0;
 }
 
-void JackDriver::readJackMidi( jack_nframes_t nframes )
+void JackDriver::handleJackMidiOutput( jack_nframes_t nframes )
 {
 	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
 		return;
@@ -2017,7 +2017,7 @@ void JackDriver::readJackMidi( jack_nframes_t nframes )
 	}
 }
 
-void JackDriver::writeJackMidi( jack_nframes_t nframes )
+void JackDriver::handleJackMidiInput( jack_nframes_t nframes )
 {
 	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
 		return;
@@ -2202,7 +2202,7 @@ void JackDriver::jackDriverShutdown( void* pInstance )
 	);
 }
 
-void JackDriver::jackMidiOutEvent( uint8_t buf[4], uint8_t len )
+void JackDriver::sendJackMidiMessage( uint8_t buf[4], uint8_t len )
 {
 	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
 		return;
@@ -2250,7 +2250,7 @@ void JackDriver::sendControlChangeMessage( const MidiMessage& msg )
 	buffer[2] = static_cast<int>( msg.getData2() );
 	buffer[3] = 0;
 
-	jackMidiOutEvent( buffer, 3 );
+	sendJackMidiMessage( buffer, 3 );
 }
 
 void JackDriver::sendNoteOnMessage( const MidiMessage& msg )
@@ -2270,7 +2270,7 @@ void JackDriver::sendNoteOnMessage( const MidiMessage& msg )
 	buffer[2] = static_cast<int>( msg.getData2() );
 	buffer[3] = 0;
 
-	jackMidiOutEvent( buffer, 3 );
+	sendJackMidiMessage( buffer, 3 );
 }
 
 void JackDriver::sendNoteOffMessage( const MidiMessage& msg )
@@ -2290,7 +2290,7 @@ void JackDriver::sendNoteOffMessage( const MidiMessage& msg )
 	buffer[2] = 0;
 	buffer[3] = 0;
 
-	jackMidiOutEvent( buffer, 3 );
+	sendJackMidiMessage( buffer, 3 );
 }
 
 void JackDriver::sendSystemRealTimeMessage( const MidiMessage& msg )
@@ -2322,7 +2322,7 @@ void JackDriver::sendSystemRealTimeMessage( const MidiMessage& msg )
 	buffer[2] = 0;
 	buffer[3] = 0;
 
-	jackMidiOutEvent( buffer, 3 );
+	sendJackMidiMessage( buffer, 3 );
 }
 
 QString JackDriver::JackTransportStateToQString( const jack_transport_state_t& t
