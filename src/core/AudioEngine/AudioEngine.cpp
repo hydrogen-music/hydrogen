@@ -1317,6 +1317,12 @@ void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 			m_MutexOutputPointer.lock();
 			m_pAudioDriver = pJackDriver;
 			m_MutexOutputPointer.unlock();
+			if ( Hydrogen::get_instance()->getSong() != nullptr ) {
+				setState( State::Ready );
+			}
+			else {
+				setState( State::Prepared );
+			}
 		}
 #endif
 	}
@@ -1355,6 +1361,7 @@ void AudioEngine::stopMidiDriver( Event::Trigger trigger )
 		m_MutexOutputPointer.lock();
 		m_pMidiDriver = nullptr;
 		if ( bCombinedDriver ) {
+            setState( State::Initialized );
 			m_pAudioDriver = nullptr;
 		}
 		m_MutexOutputPointer.unlock();
