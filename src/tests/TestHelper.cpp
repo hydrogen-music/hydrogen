@@ -183,8 +183,9 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 	pHydrogen->startExportSession( nSampleRate, nSampleDepth, fCompressionLevel );
 	pHydrogen->startExportSong( sFileName );
 
-	auto pDriver =
-		dynamic_cast<H2Core::DiskWriterDriver*>(pHydrogen->getAudioOutput());
+	auto pDriver = std::dynamic_pointer_cast<H2Core::DiskWriterDriver>(
+		pHydrogen->getAudioDriver()
+	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	// in 0.1 * `nMaxSleeps` ms
@@ -224,8 +225,9 @@ void TestHelper::exportSong( const QString& sFileName )
 	pHydrogen->startExportSession( 44100, 16, 1.0 );
 	pHydrogen->startExportSong( sFileName );
 
-	auto pDriver =
-		dynamic_cast<H2Core::DiskWriterDriver*>(pHydrogen->getAudioOutput());
+	auto pDriver = std::dynamic_pointer_cast<H2Core::DiskWriterDriver>(
+		pHydrogen->getAudioDriver()
+	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	const int nMaxSleeps = 30;
@@ -294,8 +296,9 @@ void TestHelper::waitForMidiDriver() {
 
 	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );
 
-	auto pDriver = dynamic_cast<H2Core::LoopBackMidiDriver*>(
-		pAudioEngine->getMidiDriver().get() );
+	auto pDriver = std::dynamic_pointer_cast<H2Core::LoopBackMidiDriver>(
+		pAudioEngine->getMidiDriver()
+	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	// Wait till the LoopBackMidiDriver did send, receive, and handle the

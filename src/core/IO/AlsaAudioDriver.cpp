@@ -187,7 +187,7 @@ QStringList AlsaAudioDriver::getDevices()
 }
 
 AlsaAudioDriver::AlsaAudioDriver( audioProcessCallback processCallback )
-		: AudioOutput()
+		: AudioDriver()
 		, m_bIsRunning( false )
 		, m_pOut_L( nullptr )
 		, m_pOut_R( nullptr )

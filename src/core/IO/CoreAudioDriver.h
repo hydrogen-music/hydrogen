@@ -29,7 +29,7 @@
 #ifndef COREAUDIO_DRIVER_H
 #define COREAUDIO_DRIVER_H
 
-#include <core/IO/AudioOutput.h>
+#include <core/IO/AudioDriver.h>
 #include <core/IO/NullDriver.h>
 
 #if defined(H2CORE_HAVE_COREAUDIO) || _DOXYGEN_
@@ -49,7 +49,7 @@ namespace H2Core
 #if defined(H2CORE_HAVE_COREAUDIO) || _DOXYGEN_
 
 /** \ingroup docCore docAudioDriver */
-class CoreAudioDriver : public Object<CoreAudioDriver>, public AudioOutput
+class CoreAudioDriver : public Object<CoreAudioDriver>, public AudioDriver
 {
 	H2_OBJECT(CoreAudioDriver)
 public:

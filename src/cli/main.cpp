@@ -603,8 +603,9 @@ int main(int argc, char *argv[])
 							pEvent->getValue() << "%";
 					}
 					else {
-						const auto pDriver = static_cast<DiskWriterDriver*>(
-							pHydrogen->getAudioEngine()->getAudioDriver());
+						const auto pDriver = std::dynamic_pointer_cast<DiskWriterDriver>(
+							pHydrogen->getAudioEngine()->getAudioDriver()
+						);
 						if ( pDriver != nullptr && pDriver->m_bWritingFailed ) {
 							std::cerr << "\rExport FAILED" << std::endl;
 							nReturnCode = 1;

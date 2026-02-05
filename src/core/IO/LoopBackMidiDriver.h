@@ -41,7 +41,7 @@ namespace H2Core {
  *
  * \ingroup docCore docMIDI */
 class LoopBackMidiDriver : public Object<LoopBackMidiDriver>
-						 , public virtual MidiBaseDriver
+						 , public MidiBaseDriver
 {
 	H2_OBJECT(LoopBackMidiDriver)
 

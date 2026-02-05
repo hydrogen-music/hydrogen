@@ -25,7 +25,7 @@
 
 #include <core/Object.h>
 #include <core/Basics/Note.h>
-#include <core/IO/JackAudioDriver.h>
+#include <core/IO/JackDriver.h>
 
 #include <memory>
 #include <vector>
@@ -134,12 +134,12 @@ public:
 	static void testTransportRelocationOffsetsJack();
 
 		/** Process callback for the testing instance of the
-		 * #H2Core::JackAudioDriver */
+		 * #H2Core::JackDriver */
 		static int jackTestProcessCallback( uint32_t nFrames, void* args );
 
-	static JackAudioDriver* startJackAudioDriver();
+	static std::shared_ptr<JackDriver> startJackDriver();
 
-	static JackAudioDriver::Timebase m_referenceTimebase;
+	static JackDriver::Timebase m_referenceTimebase;
 #endif
 
 private:
@@ -190,9 +190,12 @@ private:
 	static void throwException( const QString& sMsg );
 
 #ifdef H2CORE_HAVE_JACK
-	static void stopJackAudioDriver();
-		static void waitForRelocation( JackAudioDriver* pDriver,
-									   double fTick, long long nFrame );
+	static void stopJackDriver();
+	static void waitForRelocation(
+		std::shared_ptr<JackDriver> pDriver,
+		double fTick,
+		long long nFrame
+	);
 #endif
 };
 };

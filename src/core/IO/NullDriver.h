@@ -24,7 +24,7 @@
 #ifndef NULL_AUDIO_DRIVER_H
 #define NULL_AUDIO_DRIVER_H
 
-#include <core/IO/AudioOutput.h>
+#include <core/IO/AudioDriver.h>
 
 #include <inttypes.h>
 
@@ -34,7 +34,7 @@ namespace H2Core
 typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
 /** \ingroup docCore docAudioDriver */
-class NullDriver : public Object<NullDriver>, public AudioOutput
+class NullDriver : public Object<NullDriver>, public AudioDriver
 {
 	H2_OBJECT(NullDriver)
 public:

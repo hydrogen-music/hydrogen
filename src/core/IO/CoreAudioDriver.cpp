@@ -317,7 +317,7 @@ void CoreAudioDriver::printStreamInfo(void)
 
 
 CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
-		: H2Core::AudioOutput()
+		: H2Core::AudioDriver()
 		, H2Core::Object<CoreAudioDriver>()
 		, m_bIsRunning( false )
 		, mProcessCallback( processCallback )

@@ -43,7 +43,7 @@
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
-#include <core/IO/AudioOutput.h>
+#include <core/IO/AudioDriver.h>
 #include <core/IO/DiskWriterDriver.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
@@ -877,8 +877,9 @@ void ExportSongDialog::progressEvent( int nValue )
 
 		const auto pSong = Hydrogen::get_instance()->getSong();
 		// Check whether an error occured during export.
-		const auto pDriver = static_cast<DiskWriterDriver*>(
-			Hydrogen::get_instance()->getAudioEngine()->getAudioDriver());
+		const auto pDriver = std::dynamic_pointer_cast<DiskWriterDriver>(
+			Hydrogen::get_instance()->getAudioEngine()->getAudioDriver()
+		);
 		if ( pDriver != nullptr && pDriver->m_bWritingFailed ) {
 			m_nInstrument = 0;
 			m_bExportTrackouts = false;

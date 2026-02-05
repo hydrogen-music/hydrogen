@@ -23,7 +23,7 @@
 #ifndef OSS_AUDIO_DRIVER_H
 #define OSS_AUDIO_DRIVER_H
 
-#include <core/IO/AudioOutput.h>
+#include <core/IO/AudioDriver.h>
 #include <core/IO/NullDriver.h>
 
 // check if OSS support is enabled
@@ -61,7 +61,7 @@ namespace H2Core
 /// OSS Audio Driver
 ///
 /** \ingroup docCore docAudioDriver */
-class OssDriver : public Object<OssDriver>, public AudioOutput
+class OssDriver : public Object<OssDriver>, public AudioDriver
 {
 	H2_OBJECT(OssDriver)
 public:

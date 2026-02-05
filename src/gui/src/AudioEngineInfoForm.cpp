@@ -33,7 +33,7 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Hydrogen.h>
-#include <core/IO/AudioOutput.h>
+#include <core/IO/AudioDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
@@ -134,35 +134,41 @@ void AudioEngineInfoForm::updateInfo()
 
 
 	// Audio driver info
-	AudioOutput *driver = pHydrogen->getAudioOutput();
-	if (driver) {
-		QString audioDriverName = driver->class_name();
-		driverLbl->setText(audioDriverName);
+	auto pAudioDriver = pHydrogen->getAudioDriver();
+	if ( pAudioDriver != nullptr ) {
+		QString audioDriverName = pAudioDriver->class_name();
+		driverLbl->setText( audioDriverName );
 
-		// Audio driver buffer size
-		sprintf(tmp, "%d", driver->getBufferSize());
-		bufferSizeLbl->setText(QString(tmp));
+		// Audio pAudioDriver buffer size
+		sprintf( tmp, "%d", pAudioDriver->getBufferSize() );
+		bufferSizeLbl->setText( QString( tmp ) );
 
 		// Audio latency estimate
-		latencyLbl->setText( QString( "%1 frames" ).arg( driver->getLatency() ) );
+		latencyLbl->setText(
+			QString( "%1 frames" ).arg( pAudioDriver->getLatency() )
+		);
 
-		// Audio driver sampleRate
-		sprintf(tmp, "%d", driver->getSampleRate());
-		sampleRateLbl->setText(QString(tmp));
+		// Audio pAudioDriver sampleRate
+		sprintf( tmp, "%d", pAudioDriver->getSampleRate() );
+		sampleRateLbl->setText( QString( tmp ) );
 
 		// Number of frames
-		sprintf(tmp, "%d", static_cast<int>( pAudioEngine->getTransportPosition()->getFrame() ) );
-		nFramesLbl->setText(tmp);
+		sprintf(
+			tmp, "%d",
+			static_cast<int>( pAudioEngine->getTransportPosition()->getFrame() )
+		);
+		nFramesLbl->setText( tmp );
 	}
 	else {
-		driverLbl->setText( "NULL driver" );
+		driverLbl->setText( "NULL pAudioDriver" );
 		bufferSizeLbl->setText( "N/A" );
 		latencyLbl->setText( "N/A" );
 		sampleRateLbl->setText( "N/A" );
 		nFramesLbl->setText( "N/A" );
 	}
-	nRealtimeFramesLbl->setText( QString( "%1" ).arg( pAudioEngine->getRealtimeFrame() ) );
-
+	nRealtimeFramesLbl->setText(
+		QString( "%1" ).arg( pAudioEngine->getRealtimeFrame() )
+	);
 
 	// Midi driver info
 	midiDriverName->setText(

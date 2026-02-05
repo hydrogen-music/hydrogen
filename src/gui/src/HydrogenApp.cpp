@@ -792,7 +792,7 @@ void HydrogenApp::showStatusBarMessage( const QString& sMessage, const QString& 
 }
 
 void HydrogenApp::XRunEvent() {
-	const auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
+	const auto pAudioDriver = Hydrogen::get_instance()->getAudioDriver();
 	if ( pAudioDriver == nullptr ) {
 		ERRORLOG( "AudioDriver is not ready!" );
 		return;

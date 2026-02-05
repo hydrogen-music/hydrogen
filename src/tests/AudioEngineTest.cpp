@@ -43,11 +43,12 @@ void AudioEngineTest::testNotePickup()
 	auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pAudioDriver =
-		dynamic_cast<FakeAudioDriver*>( pAudioEngine->getAudioDriver() );
-	auto pMidiDriver =
-		dynamic_cast<LoopBackMidiDriver*>( pAudioEngine->getMidiDriver().get()
-		);
+	auto pAudioDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
+		pAudioEngine->getAudioDriver()
+	);
+	auto pMidiDriver = std::dynamic_pointer_cast<LoopBackMidiDriver>(
+		pAudioEngine->getMidiDriver()
+	);
 
 	CPPUNIT_ASSERT( pAudioDriver != nullptr );
 	CPPUNIT_ASSERT( pMidiDriver != nullptr );

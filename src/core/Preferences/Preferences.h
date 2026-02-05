@@ -63,27 +63,25 @@ class Preferences : public H2Core::Object<Preferences> {
 		 * control.
 		 *
 		 * This represent the state desired by the user. The actual one is
-		 * stored in H2Core::JackAudioDriver::m_timebaseState.
+		 * stored in H2Core::JackDriver::m_timebaseState.
 		 *
 		 * Its counterpart is #NO_JACK_TIMEBASE_CONTROL.
 		 */
 		USE_JACK_TIMEBASE_CONTROL = 0,
 		/**
-		 * Specifies whether or not to use JACK transport
-		 * capabilities. If set, Hydrogen can be used
-		 * independent of the JACK system while still using the
-		 * JackAudioDriver. Its counterpart is
-		 * #USE_JACK_TRANSPORT.
+		 * Specifies whether or not to use JACK transport capabilities. If set,
+		 * Hydrogen can be used independent of the JACK system while still using
+		 * the JackDriver. Its counterpart is #USE_JACK_TRANSPORT.
 		 */
 		NO_JACK_TRANSPORT = 1,
 		/**
 		 * Specifies that Hydrogen should not be in control of JACK Timebase
 		 * information. This could mean both that there is an external
-		 * application controlling position and tempo of Hydrogen and that
-		 * there are just equal JACK clients.
+		 * application controlling position and tempo of Hydrogen and that there
+		 * are just equal JACK clients.
 		 *
 		 * This represent the state desired by the user. The actual one is
-		 * stored in H2Core::JackAudioDriver::m_timebaseState.
+		 * stored in H2Core::JackDriver::m_timebaseState.
 		 *
 		 * Its counterpart is #USE_JACK_TIMEBASE_CONTROL.
 		 */
@@ -258,19 +256,9 @@ class Preferences : public H2Core::Object<Preferences> {
 	float m_fMetronomeVolume;
 	/// max notes
 	unsigned m_nMaxNotes;
-	/**
-	 * Buffer size of the audio.
-	 *
-	 * It is set e.g. by JackAudioDriver::init() to the buffer
-	 * size of the freshly opened JACK client.
-	 */
+	/** Buffer size of the audio. */
 	unsigned m_nBufferSize;
-	/**
-	 * Sample rate of the audio.
-	 *
-	 * It is set e.g. by JackAudioDriver::init() to the sample
-	 * rate of the freshly opened JACK client.
-	 */
+	/** Sample rate of the audio. */
 	unsigned m_nSampleRate;
 
 	//	OSS driver properties ___
@@ -356,12 +344,9 @@ class Preferences : public H2Core::Object<Preferences> {
 	/** Toggles auto-connecting of the main stereo output ports to the
 		system's default ports when starting the JACK server.*/
 	bool m_bJackConnectDefaults;
-	/**
-	 * If set to _true_, JackAudioDriver::makeTrackOutputs() will
-	 * create two individual left and right output ports for every
-	 * component of each instrument. If _false_, one usual stereo
-	 * output will be created.
-	 */
+	/** If set to _true_, JackDriver::createPerTrackAudioPorts() will create two
+	 * individual left and right output ports for every component of each
+	 * instrument. If _false_, one usual stereo output will be created. */
 	bool m_bJackTrackOuts;
 
 	/** Specifies which audio settings will be applied to the sample
@@ -375,14 +360,12 @@ class Preferences : public H2Core::Object<Preferences> {
 	 * the frame number broadcast by the JACK server.
 	 */
 	bool m_bJackTimebaseEnabled;
-	/**
-	 * Specifies if Hydrogen support the of JACK Timebase protocol. It has two
+	/** Specifies if Hydrogen support the of JACK Timebase protocol. It has two
 	 * states: Preferences::USE_JACK_TIMEBASE_CONTROL and
 	 * Preferences::NO_JACK_TIMEBASE_CONTROL. It is set to
 	 * Preferences::NO_JACK_TIMEBASE_CONTROL by the
-	 * JackAudioDriver::initTimebaseControl() if Hydrogen couldn't acquire
-	 * Timebase control.
-	 */
+	 * JackDriver::initTimebaseControl() if Hydrogen couldn't acquire Timebase
+	 * control. */
 	int m_bJackTimebaseMode;
 	// ~ jack driver properties
 

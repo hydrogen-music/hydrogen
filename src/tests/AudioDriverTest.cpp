@@ -42,7 +42,7 @@ void AudioDriverTest::testDriverSwitching() {
 	// offer JACK support. There is no need to test it again (which saves a
 	// significant amount of time for the unit tests/pipelines).
 	bool bCheckJack = H2Core::Preferences::checkJackSupport();
-	H2Core::AudioOutput* pDriver;
+	std::shared_ptr<H2Core::AudioDriver> pDriver;
 
 	for ( int ii = 0; ii < 10; ++ii ) {
 		if ( bCheckJack ) {

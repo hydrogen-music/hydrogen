@@ -57,13 +57,12 @@
 #include <core/Helpers/TimeHelper.h>
 #include <core/IO/AlsaAudioDriver.h>
 #include <core/IO/AlsaMidiDriver.h>
-#include <core/IO/AudioOutput.h>
+#include <core/IO/AudioDriver.h>
 #include <core/IO/CoreAudioDriver.h>
 #include <core/IO/CoreMidiDriver.h>
 #include <core/IO/DiskWriterDriver.h>
 #include <core/IO/FakeAudioDriver.h>
-#include <core/IO/JackAudioDriver.h>
-#include <core/IO/JackMidiDriver.h>
+#include <core/IO/JackDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/IO/NullDriver.h>
 #include <core/IO/OssDriver.h>
@@ -292,7 +291,7 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 		}
 	}
 
-	renameJackPorts( pSong, m_pSong != nullptr ? m_pSong->getDrumkit() : nullptr );
+	renamePerTrackJackAudioPorts( pSong, m_pSong != nullptr ? m_pSong->getDrumkit() : nullptr );
 
 	// In order to allow functions like audioEngine_setupLadspaFX() to
 	// load the settings of the new song, like whether the LADSPA FX
@@ -653,19 +652,16 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth,
 	// exporting audio to file.
 	pAudioEngine->stopMidiDriver( Event::Trigger::Default );
 
-	AudioOutput* pDriver = pAudioEngine->createAudioDriver(
+	auto pDriver = pAudioEngine->createAudioDriver(
 		Preferences::AudioDriver::Disk, Event::Trigger::Default );
 
-	DiskWriterDriver* pDiskWriterDriver = dynamic_cast<DiskWriterDriver*>( pDriver );
+	auto pDiskWriterDriver =
+		std::dynamic_pointer_cast<DiskWriterDriver>( pDriver );
 	if ( pDriver == nullptr || pDiskWriterDriver == nullptr ) {
 		ERRORLOG( "Unable to start up DiskWriterDriver" );
-
-		if ( pDriver != nullptr ) {
-			delete pDriver;
-		}
 		return false;
 	}
-	
+
 	pDiskWriterDriver->setSampleRate( static_cast<unsigned>(nSampleRate) );
 	pDiskWriterDriver->setSampleDepth( nSampleDepth );
 	pDiskWriterDriver->setCompressionLevel( fCompressionLevel );
@@ -683,7 +679,8 @@ void Hydrogen::startExportSong( const QString& sFileName)
 	pAudioEngine->play();
 	pAudioEngine->getSampler()->stopPlayingNotes();
 
-	DiskWriterDriver* pDiskWriterDriver = static_cast<DiskWriterDriver*>(pAudioEngine->getAudioDriver());
+	auto pDiskWriterDriver =
+		std::dynamic_pointer_cast<DiskWriterDriver>( pAudioEngine->getAudioDriver() );
 	pDiskWriterDriver->setFileName( sFileName );
 	pDiskWriterDriver->write();
 }
@@ -725,7 +722,7 @@ void Hydrogen::stopExportSession()
 }
 
 /// Used to display audio driver info
-AudioOutput* Hydrogen::getAudioOutput() const
+std::shared_ptr<AudioDriver> Hydrogen::getAudioDriver() const
 {
 	return m_pAudioEngine->getAudioDriver();
 }
@@ -871,7 +868,7 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument,
 	}
 }
 
-void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong,
+void Hydrogen::renamePerTrackJackAudioPorts( std::shared_ptr<Song> pSong,
 								std::shared_ptr<Drumkit> pOldDrumkit )
 {
 #ifdef H2CORE_HAVE_JACK
@@ -880,7 +877,7 @@ void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong,
 	}
 	
 	if ( Preferences::get_instance()->m_bJackTrackOuts == true &&
-		hasJackAudioDriver() ) {
+		hasJackDriver() ) {
 
 		// When restarting the audio driver after loading a new song under
 		// Non session management all ports have to be registered _prior_
@@ -890,7 +887,7 @@ void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong,
 			return;
 		}
 
-		m_pAudioEngine->makeTrackPorts( pSong, pOldDrumkit );
+		m_pAudioEngine->createPerTrackJackAudioPorts( pSong, pOldDrumkit );
 	}
 #endif
 }
@@ -1031,9 +1028,10 @@ void Hydrogen::releaseJackTimebaseControl()
 {
 #ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
-	
+
 	if ( hasJackTransport() ) {
-		static_cast< JackAudioDriver* >( pAudioEngine->getAudioDriver() )->releaseTimebaseControl();
+		std::dynamic_pointer_cast<JackDriver>( pAudioEngine->getAudioDriver() )
+			->releaseTimebaseControl();
 	}
 #endif
 }
@@ -1042,14 +1040,16 @@ void Hydrogen::initJackTimebaseControl()
 {
 #ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
-	
+
 	if ( hasJackTransport() ) {
-		static_cast< JackAudioDriver* >( pAudioEngine->getAudioDriver() )->initTimebaseControl();
+		std::dynamic_pointer_cast<JackDriver>( pAudioEngine->getAudioDriver() )
+			->initTimebaseControl();
 	}
 #endif
 }
 
-void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr ) {
+void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr )
+{
 	m_instrumentDeathRow.push_back( pInstr );
 	killInstruments();
 }
@@ -1090,17 +1090,16 @@ void Hydrogen::killInstruments() {
 	}
 
 #ifdef H2CORE_HAVE_JACK
-	if ( hasJackAudioDriver() ) {
-		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>(
-			m_pAudioEngine->getAudioDriver());
-		if ( pJackAudioDriver != nullptr ) {
-			pJackAudioDriver->cleanupPerTrackPorts();
+	if ( hasJackDriver() ) {
+		auto pJackDriver = std::dynamic_pointer_cast<JackDriver>(
+			m_pAudioEngine->getAudioDriver()
+		);
+		if ( pJackDriver != nullptr ) {
+			pJackDriver->cleanUpPerTrackAudioPorts();
 		}
 	}
 #endif
 }
-
-
 
 void Hydrogen::panic()
 {
@@ -1110,66 +1109,85 @@ void Hydrogen::panic()
 	m_pAudioEngine->unlock();
 }
 
-bool Hydrogen::hasJackAudioDriver() const {
+bool Hydrogen::hasJackDriver() const
+{
 #ifdef H2CORE_HAVE_JACK
 	if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
-		if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr ) {
+		if ( std::dynamic_pointer_cast<JackDriver>(
+				 m_pAudioEngine->getAudioDriver()
+			 ) != nullptr ) {
 			return true;
 		}
 	}
 	return false;
 #else
 	return false;
-#endif	
-}
-
-bool Hydrogen::hasJackTransport() const {
-#ifdef H2CORE_HAVE_JACK
-	if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
-		if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr &&
-			 Preferences::get_instance()->m_nJackTransportMode ==
-			 Preferences::USE_JACK_TRANSPORT ){
-			return true;
-		}
-	}
-	return false;
-#else
-	return false;
-#endif	
-}
-
-float Hydrogen::getJackTimebaseControllerBpm() const {
-#ifdef H2CORE_HAVE_JACK
-  if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
-	  if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr ) {
-		  return static_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver())->getTimebaseControllerBpm();
-	  } else {
-		  ERRORLOG("No JACK driver");
-		  return std::nan("");
-	  }
-  } else {
-	  ERRORLOG("No audio driver");
-	  return std::nan("");
-  }
-#else
-  ERRORLOG("No JACK support");
-  return std::nan("");
 #endif
 }
 
-JackAudioDriver::Timebase Hydrogen::getJackTimebaseState() const {
+bool Hydrogen::hasJackTransport() const
+{
+#ifdef H2CORE_HAVE_JACK
+	if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
+		if ( std::dynamic_pointer_cast<JackDriver>(
+				 m_pAudioEngine->getAudioDriver()
+			 ) != nullptr &&
+			 Preferences::get_instance()->m_nJackTransportMode ==
+				 Preferences::USE_JACK_TRANSPORT ) {
+			return true;
+		}
+	}
+	return false;
+#else
+	return false;
+#endif
+}
+
+float Hydrogen::getJackTimebaseControllerBpm() const
+{
+#ifdef H2CORE_HAVE_JACK
+	if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
+		if ( std::dynamic_pointer_cast<JackDriver>(
+				 m_pAudioEngine->getAudioDriver()
+			 ) != nullptr ) {
+			return std::dynamic_pointer_cast<JackDriver>(
+					   m_pAudioEngine->getAudioDriver()
+			)
+				->getTimebaseControllerBpm();
+		}
+		else {
+			ERRORLOG( "No JACK driver" );
+			return std::nan( "" );
+		}
+	}
+	else {
+		ERRORLOG( "No audio driver" );
+		return std::nan( "" );
+	}
+#else
+	ERRORLOG( "No JACK support" );
+	return std::nan( "" );
+#endif
+}
+
+JackDriver::Timebase Hydrogen::getJackTimebaseState() const
+{
 #ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	if ( hasJackTransport() ) {
-		return static_cast<JackAudioDriver*>(pAudioEngine->getAudioDriver())->getTimebaseState();
-	} 
-	return JackAudioDriver::Timebase::None;
+		return std::dynamic_pointer_cast<JackDriver>(
+				   pAudioEngine->getAudioDriver()
+		)
+			->getTimebaseState();
+	}
+	return JackDriver::Timebase::None;
 #else
-	return JackAudioDriver::Timebase::None;
-#endif	
+	return JackDriver::Timebase::None;
+#endif
 }
 
-bool Hydrogen::isUnderSessionManagement() const {
+bool Hydrogen::isUnderSessionManagement() const
+{
 #ifdef H2CORE_HAVE_OSC
 	if ( NsmClient::get_instance() != nullptr ) {
 		if ( NsmClient::get_instance()->getUnderSessionManagement() ) {
@@ -1189,7 +1207,7 @@ bool Hydrogen::isTimelineEnabled() const {
 	if ( m_pSong != nullptr && m_pSong->getIsTimelineActivated() &&
 		 getMode() == Song::Mode::Song &&
 		 ! Preferences::get_instance()->getMidiClockInputHandling() &&
-		 getJackTimebaseState() != JackAudioDriver::Timebase::Listener ) {
+		 getJackTimebaseState() != JackDriver::Timebase::Listener ) {
 		return true;
 	}
 
@@ -1293,7 +1311,7 @@ void Hydrogen::setPatternMode( const Song::PatternMode& mode )
 }
 
 Hydrogen::Tempo Hydrogen::getTempoSource() const {
-	if ( getJackTimebaseState() == JackAudioDriver::Timebase::Listener ) {
+	if ( getJackTimebaseState() == JackDriver::Timebase::Listener ) {
 		return Tempo::Jack;
 	}
 	else if ( Preferences::get_instance()->getMidiClockInputHandling() ) {

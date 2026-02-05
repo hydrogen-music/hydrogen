@@ -579,12 +579,12 @@ void MidiNoteTest::testSendNoteOff()
 	clearSampler();
 	CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
 
-	auto pLoopBackMidiDriver = dynamic_cast<LoopBackMidiDriver*>(
-		pAudioEngine->getMidiDriver().get()
+	auto pLoopBackMidiDriver = std::dynamic_pointer_cast<LoopBackMidiDriver>(
+		pAudioEngine->getMidiDriver()
 	);
 	CPPUNIT_ASSERT( pLoopBackMidiDriver != nullptr );
 
-    // Maximum temporal distance between a NOTE_OFF preceding a NOTE_ON in the
+	// Maximum temporal distance between a NOTE_OFF preceding a NOTE_ON in the
     // auto-stop feature. This is expected to be significantly shorter than the
     // (custom) note length. Given in milliseconds.
 	const int nMaxDelayAutoStopNoteMs = 2;

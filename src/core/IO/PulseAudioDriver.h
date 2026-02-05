@@ -23,7 +23,7 @@
 #define H2_PULSE_AUDIO_DRIVER_H
 
 
-#include <core/IO/AudioOutput.h>
+#include <core/IO/AudioDriver.h>
 
 #if defined(H2CORE_HAVE_PULSEAUDIO) || _DOXYGEN_
 
@@ -39,7 +39,7 @@ namespace H2Core
 /// PulseAudio driver.
 ///
 /** \ingroup docCore docAudioDriver */
-class PulseAudioDriver : public Object<PulseAudioDriver>, public AudioOutput
+class PulseAudioDriver : public Object<PulseAudioDriver>, public AudioDriver
 {
 	H2_OBJECT(PulseAudioDriver)
 public:

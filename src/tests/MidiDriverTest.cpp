@@ -72,8 +72,9 @@ void MidiDriverTest::testLoopBackMidiDriver() {
 
 	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );
 
-	auto pDriver = dynamic_cast<H2Core::LoopBackMidiDriver*>(
-		pAudioEngine->getMidiDriver().get() );
+	auto pDriver = std::dynamic_pointer_cast<H2Core::LoopBackMidiDriver>(
+		pAudioEngine->getMidiDriver()
+	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	// Ensure the MIDI driver is ready. Else, we would loose some initial
@@ -142,8 +143,9 @@ void MidiDriverTest::testMidiClock() {
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );
 
-	auto pMidiDriver = dynamic_cast<H2Core::LoopBackMidiDriver*>(
-		pAudioEngine->getMidiDriver().get() );
+	auto pMidiDriver = std::dynamic_pointer_cast<H2Core::LoopBackMidiDriver>(
+		pAudioEngine->getMidiDriver()
+	);
 	CPPUNIT_ASSERT( pMidiDriver != nullptr );
 
 	const std::vector<float> referenceTempos{
@@ -212,8 +214,9 @@ void MidiDriverTest::testMidiClockDrift() {
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );
 
-	auto pMidiDriver = dynamic_cast<H2Core::LoopBackMidiDriver*>(
-		pAudioEngine->getMidiDriver().get() );
+	auto pMidiDriver = std::dynamic_pointer_cast<H2Core::LoopBackMidiDriver>(
+		pAudioEngine->getMidiDriver()
+	);
 	CPPUNIT_ASSERT( pMidiDriver != nullptr );
 
 	const float fReferenceBpm = 120.7;
