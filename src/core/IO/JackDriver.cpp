@@ -1940,6 +1940,7 @@ void JackDriver::open()
 #endif
 
 	init( /*parameter not used*/ 512 );
+    connect();
 }
 
 void JackDriver::getPortInfo(
