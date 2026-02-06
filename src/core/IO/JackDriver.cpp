@@ -85,8 +85,6 @@ QString JackDriver::ModeToQString( const JackDriver::Mode& m )
 			return "None";
 		case Mode::Audio:
 			return "Audio";
-		case Mode::Midi:
-			return "Midi";
 		case Mode::Combined:
 			return "Combined";
 		default:
@@ -346,9 +344,10 @@ QString JackDriver::JackTransportPosToQString( const jack_position_t& pos )
 long JackDriver::m_nIntegrationLastRelocationFrame = -1;
 #endif
 
-JackDriver::JackDriver( JackProcessCallback processCallback )
+JackDriver::JackDriver( JackProcessCallback processCallback, Mode mode )
 	: AudioDriver(),
 	  m_pClient( nullptr ),
+	  m_mode( mode ),
 	  m_sClientName( "Hydrogen" ),
 	  m_jackServerBufferSize( 0 ),
 	  m_jackServerSampleRate( 0 ),
@@ -378,24 +377,6 @@ JackDriver::JackDriver( JackProcessCallback processCallback )
 	auto pPreferences = Preferences::get_instance();
 
 	m_bConnectDefaults = pPreferences->m_bJackConnectDefaults;
-
-	if ( pPreferences->m_audioDriver == Preferences::AudioDriver::Jack &&
-		 pPreferences->m_midiDriver == Preferences::MidiDriver::Jack ) {
-		m_mode = Mode::Combined;
-	}
-	else if ( pPreferences->m_audioDriver == Preferences::AudioDriver::Jack ) {
-		m_mode = Mode::Audio;
-	}
-	else if ( pPreferences->m_midiDriver == Preferences::MidiDriver::Jack ) {
-		m_mode = Mode::Midi;
-	}
-	else {
-		m_mode = Mode::None;
-		ERRORLOG(
-			"JACK driver start while being neither set as audio nor MIDI "
-			"driver."
-		);
-	}
 
 	m_pDummyPreviewInstrument =
 		std::make_shared<Instrument>( Instrument::EmptyId );
@@ -431,7 +412,7 @@ bool JackDriver::isActive() const
         return false;
 	}
 
-	if ( ( m_mode == Mode::Midi || m_mode == Mode::Combined ) &&
+	if ( m_mode == Mode::Combined &&
 		 ( m_pMidiInputPort == nullptr || m_pMidiOutputPort == nullptr ) ) {
 		return false;
 	}
@@ -454,7 +435,7 @@ void JackDriver::deactivate()
 			}
 		}
 
-		if ( m_mode == Mode::Midi || m_mode == Mode::Combined ) {
+		if ( m_mode == Mode::Combined ) {
 			if ( jack_port_unregister( m_pClient, m_pMidiInputPort ) != 0 ) {
 				ERRORLOG( "Failed to unregister jack midi input out" );
 			}
@@ -1195,7 +1176,7 @@ int JackDriver::init( unsigned bufferSize )
 		}
 	}
 
-	if ( m_mode == Mode::Midi || m_mode == Mode::Combined ) {
+	if ( m_mode == Mode::Combined ) {
 		m_pMidiOutputPort = jack_port_register(
 			m_pClient, "TX", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0
 		);
@@ -1228,7 +1209,7 @@ int JackDriver::init( unsigned bufferSize )
 		return 4;
 	}
 
-	if ( ( m_mode == Mode::Midi || m_mode == Mode::Combined ) &&
+	if ( m_mode == Mode::Combined &&
 		 ( m_pMidiInputPort == nullptr || m_pMidiOutputPort == nullptr ) ) {
 		ERRORLOG( "Unable to create MIDI input and output ports" );
 		pHydrogen->getAudioEngine()->raiseError(
@@ -1361,10 +1342,6 @@ void JackDriver::disconnect()
 
 float* JackDriver::getOut_L()
 {
-	if ( m_mode != Mode::Audio && m_mode != Mode::Combined ) {
-		return nullptr;
-	}
-
 	/**
 	 * This returns a pointer to the memory area associated with
 	 * the specified port. For an output port, it will be a memory
@@ -1382,10 +1359,6 @@ float* JackDriver::getOut_L()
 
 float* JackDriver::getOut_R()
 {
-	if ( m_mode != Mode::Audio && m_mode != Mode::Combined ) {
-		return nullptr;
-	}
-
 	jack_default_audio_sample_t* out =
 		static_cast<jack_default_audio_sample_t*>( jack_port_get_buffer(
 			m_pAudioOutputPort2, m_jackServerBufferSize
@@ -1455,10 +1428,6 @@ int JackDriver::jackXRunCallback( void* pInstance )
 
 void JackDriver::cleanUpPerTrackAudioPorts()
 {
-	if ( m_mode != Mode::Audio && m_mode != Mode::Combined ) {
-		return;
-	}
-
 	for ( auto it = m_audioPortMap.cbegin(); it != m_audioPortMap.cend(); ) {
 		if ( it->first != nullptr &&
 			 it->second.marked != InstrumentPorts::Marked::None &&
@@ -1476,10 +1445,6 @@ void JackDriver::cleanUpPerTrackAudioPorts()
 
 void JackDriver::clearPerTrackAudioBuffers( uint32_t nFrames )
 {
-	if ( m_mode != Mode::Audio && m_mode != Mode::Combined ) {
-		return;
-	}
-
 	if ( m_pClient != nullptr &&
 		 Preferences::get_instance()->m_bJackTrackOuts ) {
 		for ( auto& [ppInstrument, _] : m_audioPortMapStatic ) {
@@ -1511,10 +1476,6 @@ float* JackDriver::getTrackBuffer(
 	Channel channel
 ) const
 {
-	if ( m_mode != Mode::Audio && m_mode != Mode::Combined ) {
-		return nullptr;
-	}
-
 	if ( pInstrument == nullptr ) {
 		return nullptr;
 	}
@@ -1566,10 +1527,6 @@ void JackDriver::createPerTrackAudioPorts(
 )
 {
 	if ( Preferences::get_instance()->m_bJackTrackOuts == false ) {
-		return;
-	}
-
-	if ( m_mode != Mode::Audio && m_mode != Mode::Combined ) {
 		return;
 	}
 
@@ -1961,7 +1918,7 @@ void JackDriver::getPortInfo(
 
 void JackDriver::handleJackMidiOutput( jack_nframes_t nframes )
 {
-	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
+	if ( m_mode != Mode::Combined ) {
 		return;
 	}
 
@@ -2020,7 +1977,7 @@ void JackDriver::handleJackMidiOutput( jack_nframes_t nframes )
 
 void JackDriver::handleJackMidiInput( jack_nframes_t nframes )
 {
-	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
+	if ( m_mode != Mode::Combined ) {
 		return;
 	}
 
@@ -2205,7 +2162,7 @@ void JackDriver::jackDriverShutdown( void* pInstance )
 
 void JackDriver::sendJackMidiMessage( uint8_t buf[4], uint8_t len )
 {
-	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
+	if ( m_mode != Mode::Combined ) {
 		return;
 	}
 
@@ -2237,7 +2194,7 @@ void JackDriver::sendJackMidiMessage( uint8_t buf[4], uint8_t len )
 
 void JackDriver::sendControlChangeMessage( const MidiMessage& msg )
 {
-	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
+	if ( m_mode != Mode::Combined ) {
 		return;
 	}
 
@@ -2256,7 +2213,7 @@ void JackDriver::sendControlChangeMessage( const MidiMessage& msg )
 
 void JackDriver::sendNoteOnMessage( const MidiMessage& msg )
 {
-	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
+	if ( m_mode != Mode::Combined ) {
 		return;
 	}
 
@@ -2276,7 +2233,7 @@ void JackDriver::sendNoteOnMessage( const MidiMessage& msg )
 
 void JackDriver::sendNoteOffMessage( const MidiMessage& msg )
 {
-	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
+	if ( m_mode != Mode::Combined ) {
 		return;
 	}
 
@@ -2296,7 +2253,7 @@ void JackDriver::sendNoteOffMessage( const MidiMessage& msg )
 
 void JackDriver::sendSystemRealTimeMessage( const MidiMessage& msg )
 {
-	if ( m_mode != Mode::Midi && m_mode != Mode::Combined ) {
+	if ( m_mode != Mode::Combined ) {
 		return;
 	}
 

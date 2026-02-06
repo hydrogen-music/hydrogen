@@ -2845,7 +2845,9 @@ std::shared_ptr<JackDriver> AudioEngineTests::startJackDriver()
 	pAudioEngine->stopAudioDriver( Event::Trigger::Default );
 
 	// Start a modified version of the JACK audio driver.
-	auto pDriver = std::make_shared<JackDriver>( jackTestProcessCallback );
+	auto pDriver = std::make_shared<JackDriver>(
+		jackTestProcessCallback, JackDriver::Mode::Audio
+	);
 	if ( pDriver == nullptr ) {
 		throwException( "[startJackDriver] Unable to create JackDriver" );
 	}

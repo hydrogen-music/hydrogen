@@ -1030,11 +1030,17 @@ std::shared_ptr<AudioDriver> AudioEngine::createAudioDriver(
 			return std::static_pointer_cast<AudioDriver>( pJackDriver );
 		}
 		else {
-			pAudioDriver =
-				std::make_shared<JackDriver>( m_AudioProcessCallback );
+			pAudioDriver = std::make_shared<JackDriver>(
+				m_AudioProcessCallback,
+				pPref->m_midiDriver == Preferences::MidiDriver::Jack
+					? JackDriver::Mode::Combined
+					: JackDriver::Mode::Audio
+			);
 		}
 #else
-		pAudioDriver = std::make_shared<JackDriver>( m_AudioProcessCallback );
+		pAudioDriver = std::make_shared<JackDriver>(
+			m_AudioProcessCallback, JackDriver::Mode::Audio
+		);
 #endif
 	}
 	else if ( driver == Preferences::AudioDriver::Alsa ) {
@@ -1330,11 +1336,13 @@ void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 	}
 	else if ( pPref->m_midiDriver == Preferences::MidiDriver::Jack ) {
 #ifdef H2CORE_HAVE_JACK
-		auto pJackDriver =
-			std::make_shared<JackDriver>( m_AudioProcessCallback );
-		pJackDriver->open();
-		m_pMidiDriver = pJackDriver;
-		if ( pJackDriver->getMode() == JackDriver::Mode::Combined ) {
+		if ( pPref->m_audioDriver == Preferences::AudioDriver::Jack ) {
+			auto pJackDriver = std::make_shared<JackDriver>(
+				m_AudioProcessCallback, JackDriver::Mode::Combined
+			);
+			pJackDriver->open();
+			m_pMidiDriver = pJackDriver;
+
 			INFOLOG( "Reusing JACK MIDI driver as audio driver." );
 			if ( m_pAudioDriver != nullptr ) {
 				WARNINGLOG(
@@ -1342,6 +1350,7 @@ void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 					"JackDriver."
 				);
 				m_pAudioDriver->disconnect();
+				m_pAudioDriver = nullptr;
 			}
 			m_MutexOutputPointer.lock();
 			m_pAudioDriver = pJackDriver;
@@ -1358,6 +1367,11 @@ void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 					Event::Type::AudioDriverChanged, 0
 				);
 			}
+		}
+		else {
+			ERRORLOG(
+				"JACK-MIDI can only be used when selecting JACK audio as well!"
+			)
 		}
 #endif
 	}
@@ -1824,8 +1838,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		// MIDI (but in production the latter will most probably be used very
 		// rarely without the former).
 		if ( nframes > 0 &&
-			 ( pJackDriver->getMode() == JackDriver::Mode::Midi ||
-			   pJackDriver->getMode() == JackDriver::Mode::Combined ) &&
+			 pJackDriver->getMode() == JackDriver::Mode::Combined &&
 			 pJackDriver->isActive() ) {
 			pJackDriver->handleJackMidiOutput( nframes );
 			pJackDriver->handleJackMidiInput( nframes );

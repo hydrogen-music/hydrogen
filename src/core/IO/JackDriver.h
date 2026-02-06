@@ -53,10 +53,21 @@ class TransportPosition;
  * be used both as audio and MIDI driver.
  *
  * Due to its design the JackDriver is a special case within Hydrogen. All other
- * drivers are either audio or MIDI ones but this one can be either of them or
- * both at the same time. Which of those options is used, will be determined
+ * drivers are either audio or MIDI ones but this one can be audio or both audio
+ * and MIDI at the same time. Which of those options is used, will be determined
  * with the constructor and stored as #JackDriver::Mode. Starting the driver via
  * both the audio and the MIDI interface results in the same setup.
+ *
+ * Using JackDriver as a pure MIDI driver in combination with another audio
+ * driver, however, is not supported anymore. Up to version 1.2.X a dedicated
+ * JACK MIDI driver used a simplistic process callback handling just MIDI data
+ * and no transport control, time base support etc. When used with another audio
+ * driver, this resulted in an inconsistent state with Hydrogen being a JACK
+ * client but not being affected by the JACK transport control. But a more
+ * sophisticated callback for pure MIDI handling can not be implemented either
+ * as the fixed buffer size of JACK can not coexist with the variable buffer
+ * size of some audio drivers with introducing a huge amount of complexity into
+ * the audio engine.
  *
  * __Transport Control__:
  *
@@ -107,8 +118,6 @@ class JackDriver : public Object<JackDriver>,
 		None,
 		/** Only the audio part of the driver is used. */
 		Audio,
-		/** Only the MIDI part of the driver is used. */
-		Midi,
 		/** Both audio and MIDI part of the driver are used. */
 		Combined
 	};
@@ -173,7 +182,7 @@ class JackDriver : public Object<JackDriver>,
 
 	typedef std::map<std::shared_ptr<Instrument>, InstrumentPorts> PortMap;
 
-	JackDriver( JackProcessCallback m_processCallback );
+	JackDriver( JackProcessCallback m_processCallback, Mode mode );
 	~JackDriver();
 
 	/** Reports whether the driver was successfully activate and is usable. */
@@ -603,6 +612,15 @@ namespace H2Core {
 class JackDriver : public NullDriver {
 	H2_OBJECT( JackDriver )
    public:
+	/** Whether Hydrogen or another program is in Timebase control. */
+	enum class Mode {
+		None,
+		/** Only the audio part of the driver is used. */
+		Audio,
+		/** Both audio and MIDI part of the driver are used. */
+		Combined
+	};
+	static QString ModeToQString( const Mode& m );
 	enum class Timebase { Controller = 1, Listener = 0, None = -1 };
 	static QString TimebaseToQString( const Timebase& t )
 	{
@@ -615,7 +633,7 @@ class JackDriver : public NullDriver {
 	 * and the usage of the JACK audio server is not intended by
 	 * the user.
 	 */
-	JackDriver( audioProcessCallback m_processCallback )
+	JackDriver( audioProcessCallback m_processCallback, Mode mode )
 		: NullDriver( m_processCallback )
 	{
 	}
