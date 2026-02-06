@@ -114,6 +114,7 @@ void MidiControlButton::updateActivation() {
 		m_bMidiOutputEnabled = false;
 	}
 
+	setEnabled( pMidiDriver != nullptr );
 	update();
 }
 
@@ -187,7 +188,21 @@ void MidiControlButton::paintEvent( QPaintEvent* pEvent ) {
 		MidiControlButton::nIconWidth + MainToolBar::nSpacing,
 		MainToolBar::nMargin + 1,
 		MidiControlButton::nLogoWidth, height() - 2 * MainToolBar::nMargin - 2 );
-	m_pMidiLogoSvg->render( &painter, midiLogoRect );
+	if ( !isEnabled() ) {
+		QPixmap midiLogoPixmap( midiLogoRect.width(), midiLogoRect.height() );
+		midiLogoPixmap.fill( Qt::GlobalColor::transparent );
+
+		QPainter midiLogoPainter( &midiLogoPixmap );
+
+		m_pMidiLogoSvg->render( &midiLogoPainter );
+
+		midiLogoPainter.setCompositionMode( QPainter::CompositionMode_SourceIn );
+        midiLogoPainter.fillRect( midiLogoPixmap.rect(), disabledColor );
+		painter.drawPixmap( midiLogoRect, midiLogoPixmap );
+	}
+	else {
+		m_pMidiLogoSvg->render( &painter, midiLogoRect );
+	}
 
 	////////////////////////////////////////////////////////////////////////////
 	// Output symbol
