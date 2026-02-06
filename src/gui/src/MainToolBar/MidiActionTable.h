@@ -33,7 +33,6 @@
 #include <QtGui>
 #include <QtWidgets>
 
-#include "../EventListener.h"
 #include "Widgets/LCDSpinBox.h"
 
 class Button;
@@ -49,7 +48,6 @@ class SpinBoxWithIcon : public QWidget {
 
 /** \ingroup docGUI docWidgets docMIDI*/
 class MidiActionTable : public QTableWidget,
-						public EventListener,
 						public H2Core::Object<MidiActionTable> {
 	H2_OBJECT( MidiActionTable )
 	Q_OBJECT
@@ -90,9 +88,6 @@ class MidiActionTable : public QTableWidget,
 	/** @} */
 
 	void removeRegisteredEvents( std::shared_ptr<MidiAction> pMidiAction );
-
-	// EventListerer
-	void midiMapChangedEvent() override;
 
    private slots:
 	void midiSensePressed( int );

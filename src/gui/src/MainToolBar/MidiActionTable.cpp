@@ -95,7 +95,6 @@ MidiActionTable::MidiActionTable( QWidget* pParent ) : QTableWidget( pParent )
 
 	resetTable();
 
-	HydrogenApp::get_instance()->addEventListener( this );
 	installEventFilter( HydrogenApp::get_instance()->getMainForm() );
 }
 
@@ -308,11 +307,6 @@ void MidiActionTable::removeRegisteredEvents(
 	}
 
 	HydrogenApp::get_instance()->endUndoMacro();
-}
-
-void MidiActionTable::midiMapChangedEvent()
-{
-	WARNINGLOG( "Discarding mapping table and reloading it from Preferences file." );
 }
 
 void MidiActionTable::midiSensePressed( int nRow )
