@@ -548,7 +548,7 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getOutputMapping(
 	case Output::None:
 	default:
 		// The default constructor of NoteRef yields a null value.
-		break;
+		return noteRef;
 	};
 
 	if ( m_bUseGlobalOutputChannel ) {
