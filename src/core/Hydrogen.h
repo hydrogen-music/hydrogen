@@ -371,7 +371,6 @@ public:
 	 * (#H2Core::Preferences::m_nJackTransportMode).
 	 */
 	bool			hasJackTransport() const;
-        float			getJackTimebaseControllerBpm() const;
 
 	/**
 	 * Convenience function checking whether using the Timeline tempo is set in

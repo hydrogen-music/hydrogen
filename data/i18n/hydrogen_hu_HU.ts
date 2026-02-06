@@ -3080,6 +3080,18 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
+    <name>MidiControlButton</name>
+    <message>
+        <source>MIDI mapping and monitoring</source>
+        <extracomment>Tooltip of the MIDI button in the main toolbar.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No MIDI driver present!</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MidiControlDialog</name>
     <message>
         <source>Incoming</source>

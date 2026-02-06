@@ -51,9 +51,14 @@ MidiControlButton::MidiControlButton( QWidget* pParent )
 	setFocusPolicy( Qt::ClickFocus );
 	setObjectName( "MidiControlButton" );
 
-	setFixedWidth( MidiControlButton::nIconWidth * 2 +
-				   MainToolBar::nSpacing * 2 +
-				   MidiControlButton::nLogoWidth );
+	/*: Tooltip of the MIDI button in the main toolbar. */
+	m_sToolTipDefault = tr( "MIDI mapping and monitoring" );
+	m_sToolTipDisabled = tr( "No MIDI driver present!" );
+
+	setFixedWidth(
+		MidiControlButton::nIconWidth * 2 + MainToolBar::nSpacing * 2 +
+		MidiControlButton::nLogoWidth
+	);
 
 	m_pIconInputSvg = new QSvgRenderer( this );
 	m_pMidiLogoSvg = new QSvgRenderer( this );
@@ -113,6 +118,11 @@ void MidiControlButton::updateActivation() {
 		m_bMidiInputEnabled = false;
 		m_bMidiOutputEnabled = false;
 	}
+
+	setEnabled( pMidiDriver != nullptr );
+	setToolTip(
+		pMidiDriver != nullptr ? m_sToolTipDefault : m_sToolTipDisabled
+	);
 
 	update();
 }
@@ -187,7 +197,21 @@ void MidiControlButton::paintEvent( QPaintEvent* pEvent ) {
 		MidiControlButton::nIconWidth + MainToolBar::nSpacing,
 		MainToolBar::nMargin + 1,
 		MidiControlButton::nLogoWidth, height() - 2 * MainToolBar::nMargin - 2 );
-	m_pMidiLogoSvg->render( &painter, midiLogoRect );
+	if ( !isEnabled() ) {
+		QPixmap midiLogoPixmap( midiLogoRect.width(), midiLogoRect.height() );
+		midiLogoPixmap.fill( Qt::GlobalColor::transparent );
+
+		QPainter midiLogoPainter( &midiLogoPixmap );
+
+		m_pMidiLogoSvg->render( &midiLogoPainter );
+
+		midiLogoPainter.setCompositionMode( QPainter::CompositionMode_SourceIn );
+        midiLogoPainter.fillRect( midiLogoPixmap.rect(), disabledColor );
+		painter.drawPixmap( midiLogoRect, midiLogoPixmap );
+	}
+	else {
+		m_pMidiLogoSvg->render( &painter, midiLogoRect );
+	}
 
 	////////////////////////////////////////////////////////////////////////////
 	// Output symbol

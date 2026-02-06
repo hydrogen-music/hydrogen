@@ -611,8 +611,31 @@ void Hydrogen::restartAudioDriver() {
 	const bool bWasPlaying =
 		m_pAudioEngine->getState() == AudioEngine::State::Playing;
 
+	bool bCombinedDriver = false;
+#ifdef H2CORE_HAVE_JACK
+	{
+		// Ensure this shared pointer instance does not outlive
+		// stopAudioDriver().
+		auto pJackDriver = std::dynamic_pointer_cast<JackDriver>(
+			m_pAudioEngine->getAudioDriver()
+		);
+		if ( pJackDriver != nullptr &&
+			 pJackDriver->getMode() == JackDriver::Mode::Combined ) {
+			bCombinedDriver = true;
+		}
+	}
+#endif
+
 	m_pAudioEngine->stopAudioDriver( Event::Trigger::Suppress );
 	m_pAudioEngine->startAudioDriver( Event::Trigger::Default );
+
+	if ( bCombinedDriver && Preferences::get_instance()->m_audioDriver !=
+		 Preferences::AudioDriver::Jack ) {
+		// We stopped a combined MIDI and audio driver. But the user shows to
+		// use separate ones instead. We have to ensure the audio driver is
+		// properly restarted.
+		m_pAudioEngine->startMidiDriver( Event::Trigger::Default );
+	}
 
 	if ( bWasPlaying ) {
 		m_pAudioEngine->startPlayback();
@@ -620,8 +643,31 @@ void Hydrogen::restartAudioDriver() {
 }
 
 void Hydrogen::restartMidiDriver() {
+	bool bCombinedDriver = false;
+#ifdef H2CORE_HAVE_JACK
+	{
+		// Ensure this shared pointer instance does not outlive
+		// stopMidiDriver().
+		auto pJackDriver = std::dynamic_pointer_cast<JackDriver>(
+			m_pAudioEngine->getMidiDriver()
+		);
+		if ( pJackDriver != nullptr &&
+			 pJackDriver->getMode() == JackDriver::Mode::Combined ) {
+			bCombinedDriver = true;
+		}
+	}
+#endif
+
 	m_pAudioEngine->stopMidiDriver( Event::Trigger::Suppress );
 	m_pAudioEngine->startMidiDriver( Event::Trigger::Default );
+
+	if ( bCombinedDriver && Preferences::get_instance()->m_midiDriver !=
+		 Preferences::MidiDriver::Jack ) {
+		// We stopped a combined MIDI and audio driver. But the user shows to
+		// use separate ones instead. We have to ensure the audio driver is
+		// properly restarted.
+		m_pAudioEngine->startAudioDriver( Event::Trigger::Default );
+	}
 }
 
 bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth,
@@ -1140,33 +1186,6 @@ bool Hydrogen::hasJackTransport() const
 	return false;
 #else
 	return false;
-#endif
-}
-
-float Hydrogen::getJackTimebaseControllerBpm() const
-{
-#ifdef H2CORE_HAVE_JACK
-	if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
-		if ( std::dynamic_pointer_cast<JackDriver>(
-				 m_pAudioEngine->getAudioDriver()
-			 ) != nullptr ) {
-			return std::dynamic_pointer_cast<JackDriver>(
-					   m_pAudioEngine->getAudioDriver()
-			)
-				->getTimebaseControllerBpm();
-		}
-		else {
-			ERRORLOG( "No JACK driver" );
-			return std::nan( "" );
-		}
-	}
-	else {
-		ERRORLOG( "No audio driver" );
-		return std::nan( "" );
-	}
-#else
-	ERRORLOG( "No JACK support" );
-	return std::nan( "" );
 #endif
 }
 

@@ -24,7 +24,6 @@
 
 #include <limits>
 #include <sstream>
-#include "Midi/Midi.h"
 
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/AutomationPath.h>
@@ -53,6 +52,7 @@
 #include <core/IO/PortAudioDriver.h>
 #include <core/IO/PortMidiDriver.h>
 #include <core/IO/PulseAudioDriver.h>
+#include <core/Midi/Midi.h>
 
 #define AUDIO_ENGINE_DEBUG 0
 
@@ -304,7 +304,10 @@ void AudioEngine::startPlayback()
 {
 	AE_INFOLOG( "" );
 
-	if ( getState() != State::Ready && getState() != State::CountIn ) {
+	if ( getState() == State::Playing ) {
+		return;
+	}
+	else if ( getState() != State::Ready && getState() != State::CountIn ) {
 		AE_ERRORLOG( "Error the audio engine is not ready" );
 		return;
 	}
@@ -1027,11 +1030,17 @@ std::shared_ptr<AudioDriver> AudioEngine::createAudioDriver(
 			return std::static_pointer_cast<AudioDriver>( pJackDriver );
 		}
 		else {
-			pAudioDriver =
-				std::make_shared<JackDriver>( m_AudioProcessCallback );
+			pAudioDriver = std::make_shared<JackDriver>(
+				m_AudioProcessCallback,
+				pPref->m_midiDriver == Preferences::MidiDriver::Jack
+					? JackDriver::Mode::Combined
+					: JackDriver::Mode::Audio
+			);
 		}
 #else
-		pAudioDriver = std::make_shared<JackDriver>( m_AudioProcessCallback );
+		pAudioDriver = std::make_shared<JackDriver>(
+			m_AudioProcessCallback, JackDriver::Mode::Audio
+		);
 #endif
 	}
 	else if ( driver == Preferences::AudioDriver::Alsa ) {
@@ -1138,6 +1147,11 @@ std::shared_ptr<AudioDriver> AudioEngine::createAudioDriver(
 			m_pMidiDriver->close();
 		}
 		m_pMidiDriver = pJackDriver;
+
+        // trigger is not checked on purpose.
+		EventQueue::get_instance()->pushEvent(
+			Event::Type::MidiDriverChanged, 0
+		);
 	}
 #endif
 
@@ -1172,7 +1186,13 @@ void AudioEngine::startAudioDriver( Event::Trigger trigger ) {
 		 pJackDriver->isActive() ) {
 		INFOLOG( "Reusing JACK MIDI driver as audio driver." );
 		m_pAudioDriver = std::static_pointer_cast<AudioDriver>( pJackDriver );
-        return;
+
+		if ( trigger != Event::Trigger::Suppress ) {
+			EventQueue::get_instance()->pushEvent(
+				Event::Type::AudioDriverChanged, 0
+			);
+		}
+		return;
 	}
 	else
 #endif
@@ -1232,8 +1252,8 @@ void AudioEngine::stopAudioDriver( Event::Trigger trigger )
 
 	setState( State::Initialized );
 
+	bool bCombinedDriver = false;
 	if ( m_pAudioDriver != nullptr ) {
-		bool bCombinedDriver = false;
 #ifdef H2CORE_HAVE_JACK
 		auto pJackDriver =
 			std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver );
@@ -1246,7 +1266,7 @@ void AudioEngine::stopAudioDriver( Event::Trigger trigger )
 		m_MutexOutputPointer.lock();
 		m_pAudioDriver = nullptr;
 		if ( bCombinedDriver ) {
-            m_pMidiDriver = nullptr;
+			m_pMidiDriver = nullptr;
 		}
 		m_MutexOutputPointer.unlock();
 	}
@@ -1254,10 +1274,18 @@ void AudioEngine::stopAudioDriver( Event::Trigger trigger )
 	this->unlock();
 
 	if ( trigger != Event::Trigger::Suppress ) {
-		EventQueue::get_instance()->pushEvent( Event::Type::AudioDriverChanged, 0 );
+		EventQueue::get_instance()->pushEvent(
+			Event::Type::AudioDriverChanged, 0
+		);
+
+		if ( bCombinedDriver ) {
+			EventQueue::get_instance()->pushEvent(
+				Event::Type::MidiDriverChanged, 0
+			);
+		}
 	}
 
-	AE_INFOLOG("done");
+	AE_INFOLOG( "done" );
 }
 
 void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
@@ -1271,7 +1299,14 @@ void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 		 pJackDriver->isActive() ) {
 		INFOLOG( "Reusing JACK audio driver as MIDI driver." );
 		m_pMidiDriver = std::static_pointer_cast<MidiBaseDriver>( pJackDriver );
-        return;
+
+		if ( trigger != Event::Trigger::Suppress ) {
+			EventQueue::get_instance()->pushEvent(
+				Event::Type::MidiDriverChanged, 0
+			);
+		}
+
+		return;
 	}
 	else
 #endif
@@ -1301,11 +1336,13 @@ void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 	}
 	else if ( pPref->m_midiDriver == Preferences::MidiDriver::Jack ) {
 #ifdef H2CORE_HAVE_JACK
-		auto pJackDriver =
-			std::make_shared<JackDriver>( m_AudioProcessCallback );
-		pJackDriver->open();
-		m_pMidiDriver = pJackDriver;
-		if ( pJackDriver->getMode() == JackDriver::Mode::Combined ) {
+		if ( pPref->m_audioDriver == Preferences::AudioDriver::Jack ) {
+			auto pJackDriver = std::make_shared<JackDriver>(
+				m_AudioProcessCallback, JackDriver::Mode::Combined
+			);
+			pJackDriver->open();
+			m_pMidiDriver = pJackDriver;
+
 			INFOLOG( "Reusing JACK MIDI driver as audio driver." );
 			if ( m_pAudioDriver != nullptr ) {
 				WARNINGLOG(
@@ -1313,10 +1350,28 @@ void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 					"JackDriver."
 				);
 				m_pAudioDriver->disconnect();
+				m_pAudioDriver = nullptr;
 			}
 			m_MutexOutputPointer.lock();
 			m_pAudioDriver = pJackDriver;
 			m_MutexOutputPointer.unlock();
+			if ( Hydrogen::get_instance()->getSong() != nullptr ) {
+				setState( State::Ready );
+			}
+			else {
+				setState( State::Prepared );
+			}
+
+			if ( trigger != Event::Trigger::Suppress ) {
+				EventQueue::get_instance()->pushEvent(
+					Event::Type::AudioDriverChanged, 0
+				);
+			}
+		}
+		else {
+			ERRORLOG(
+				"JACK-MIDI can only be used when selecting JACK audio as well!"
+			)
 		}
 #endif
 	}
@@ -1340,8 +1395,8 @@ void AudioEngine::stopMidiDriver( Event::Trigger trigger )
 
 	this->lock( RIGHT_HERE );
 
+	bool bCombinedDriver = false;
 	if ( m_pMidiDriver != nullptr ) {
-		bool bCombinedDriver = false;
 #ifdef H2CORE_HAVE_JACK
 		auto pJackDriver =
 			std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver );
@@ -1355,6 +1410,7 @@ void AudioEngine::stopMidiDriver( Event::Trigger trigger )
 		m_MutexOutputPointer.lock();
 		m_pMidiDriver = nullptr;
 		if ( bCombinedDriver ) {
+            setState( State::Initialized );
 			m_pAudioDriver = nullptr;
 		}
 		m_MutexOutputPointer.unlock();
@@ -1364,6 +1420,11 @@ void AudioEngine::stopMidiDriver( Event::Trigger trigger )
 
 	if ( trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->pushEvent( Event::Type::MidiDriverChanged, 0 );
+        if ( bCombinedDriver ) {
+			EventQueue::get_instance()->pushEvent(
+				Event::Type::AudioDriverChanged, 0
+			);
+        }
 	}
 
 	AE_INFOLOG("done");
@@ -1406,21 +1467,29 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 
 	float fBpm = pAudioEngine->getTransportPosition()->getBpm();
 
-	if ( pHydrogen->getJackTimebaseState() ==
-		 JackDriver::Timebase::Listener ) {
+	if ( pHydrogen->getJackTimebaseState() == JackDriver::Timebase::Listener ) {
+#ifdef H2CORE_HAVE_JACK
 		// Hydrogen is using the BPM broadcasted by the JACK
 		// server. This one does solely depend on external
 		// applications and will NOT be stored in the Song.
-		const float fJackTimebaseBpm = pHydrogen->getJackTimebaseControllerBpm();
-		if ( ! std::isnan( fJackTimebaseBpm ) ) {
+		auto pJackDriver = std::dynamic_pointer_cast<JackDriver>(
+			pAudioEngine->getAudioDriver()
+		);
+		if ( pJackDriver != nullptr &&
+			 pJackDriver->getMode() != JackDriver::Mode::None ) {
+			const float fJackTimebaseBpm =
+				pJackDriver->getTimebaseControllerBpm();
 			if ( fBpm != fJackTimebaseBpm ) {
-				fBpm = fJackTimebaseBpm;
 #if AUDIO_ENGINE_DEBUG
-				AE_DEBUGLOG( QString( "Tempo update by the JACK server [%1]")
-							 .arg( fJackTimebaseBpm ) );
+				AE_DEBUGLOG( QString( "Tempo update by the JACK server [%1]" )
+								 .arg( fJackTimebaseBpm ) );
 #endif
+				fBpm = fJackTimebaseBpm;
 			}
-		} else {
+		}
+		else
+#endif
+		{
 			AE_ERRORLOG( "Unable to retrieve tempo from JACK server" );
 		}
 	}
@@ -1769,8 +1838,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		// MIDI (but in production the latter will most probably be used very
 		// rarely without the former).
 		if ( nframes > 0 &&
-			 ( pJackDriver->getMode() == JackDriver::Mode::Midi ||
-			   pJackDriver->getMode() == JackDriver::Mode::Combined ) &&
+			 pJackDriver->getMode() == JackDriver::Mode::Combined &&
 			 pJackDriver->isActive() ) {
 			pJackDriver->handleJackMidiOutput( nframes );
 			pJackDriver->handleJackMidiInput( nframes );
