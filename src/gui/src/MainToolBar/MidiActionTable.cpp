@@ -111,7 +111,7 @@ MidiActionTable::~MidiActionTable()
 void MidiActionTable::resetTable()
 {
 	for ( int nnRow = rowCount() - 1; nnRow >= 0; --nnRow ) {
-		removeRow( nnRow );
+		QTableWidget::removeRow( nnRow );
 	}
 	setRowCount( 0 );
 
