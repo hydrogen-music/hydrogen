@@ -304,7 +304,10 @@ void AudioEngine::startPlayback()
 {
 	AE_INFOLOG( "" );
 
-	if ( getState() != State::Ready && getState() != State::CountIn ) {
+	if ( getState() == State::Playing ) {
+		return;
+	}
+	else if ( getState() != State::Ready && getState() != State::CountIn ) {
 		AE_ERRORLOG( "Error the audio engine is not ready" );
 		return;
 	}
