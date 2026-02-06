@@ -25,6 +25,7 @@
 #include <memory>
 #include <vector>
 
+#include <core/Basics/Event.h>
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiEvent.h>
@@ -54,6 +55,7 @@ public:
 		const MidiEvent::Type&,
 		Midi::Parameter parameter,
 		std::shared_ptr<MidiAction> pAction,
+        Event::Trigger trigger,
 		long* pEventId
 	);
 

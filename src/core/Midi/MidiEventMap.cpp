@@ -124,7 +124,7 @@ MidiEventMap::loadFrom( const H2Core::XMLNode& node, bool bSilent )
 				actionType, sParameter1, sParameter2, sParameter3
 			);
 			pMidiEventMap->registerEvent(
-				eventType, parameter, pAction, nullptr
+				eventType, parameter, pAction, Event::Trigger::Suppress, nullptr
 			);
 		}
 		else {
@@ -246,6 +246,7 @@ void MidiEventMap::registerEvent(
 	const MidiEvent::Type& type,
 	Midi::Parameter parameter,
 	std::shared_ptr<MidiAction> pAction,
+    Event::Trigger trigger,
 	long* pEventId
 )
 {
@@ -299,11 +300,13 @@ void MidiEventMap::registerEvent(
         return;
 	}
 
-	const auto nId = EventQueue::get_instance()->pushEvent(
-		Event::Type::MidiEventMapChanged, 0
-	);
-	if ( pEventId != nullptr ) {
-		*pEventId = nId;
+	if ( trigger != Event::Trigger::Suppress ) {
+		const auto nId = EventQueue::get_instance()->pushEvent(
+			Event::Type::MidiEventMapChanged, 0
+		);
+		if ( pEventId != nullptr ) {
+			*pEventId = nId;
+		}
 	}
 }
 

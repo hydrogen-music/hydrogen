@@ -152,7 +152,8 @@ void MidiActionTable::insertRow(
 		 pMidiAction->getType() != MidiAction::Type::Null ) {
 		long nEventId;
 		H2Core::Preferences::get_instance()->getMidiEventMap()->registerEvent(
-			eventType, eventParameter, pMidiAction, &nEventId
+			eventType, eventParameter, pMidiAction, Event::Trigger::Default,
+			&nEventId
 		);
 		if ( nEventId != Event::nInvalidId ) {
 			blacklistEventId( nEventId );
@@ -252,7 +253,8 @@ void MidiActionTable::replaceRow(
 		 pMidiAction->getType() != MidiAction::Type::Null ) {
 		long nEventId;
 		H2Core::Preferences::get_instance()->getMidiEventMap()->registerEvent(
-			eventType, eventParameter, pMidiAction, &nEventId
+			eventType, eventParameter, pMidiAction, Event::Trigger::Default,
+			&nEventId
 		);
 		if ( nEventId != Event::nInvalidId ) {
 			blacklistEventId( nEventId );
