@@ -1189,33 +1189,6 @@ bool Hydrogen::hasJackTransport() const
 #endif
 }
 
-float Hydrogen::getJackTimebaseControllerBpm() const
-{
-#ifdef H2CORE_HAVE_JACK
-	if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
-		if ( std::dynamic_pointer_cast<JackDriver>(
-				 m_pAudioEngine->getAudioDriver()
-			 ) != nullptr ) {
-			return std::dynamic_pointer_cast<JackDriver>(
-					   m_pAudioEngine->getAudioDriver()
-			)
-				->getTimebaseControllerBpm();
-		}
-		else {
-			ERRORLOG( "No JACK driver" );
-			return std::nan( "" );
-		}
-	}
-	else {
-		ERRORLOG( "No audio driver" );
-		return std::nan( "" );
-	}
-#else
-	ERRORLOG( "No JACK support" );
-	return std::nan( "" );
-#endif
-}
-
 JackDriver::Timebase Hydrogen::getJackTimebaseState() const
 {
 #ifdef H2CORE_HAVE_JACK

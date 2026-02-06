@@ -1413,21 +1413,29 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 
 	float fBpm = pAudioEngine->getTransportPosition()->getBpm();
 
-	if ( pHydrogen->getJackTimebaseState() ==
-		 JackDriver::Timebase::Listener ) {
+	if ( pHydrogen->getJackTimebaseState() == JackDriver::Timebase::Listener ) {
+#ifdef H2CORE_HAVE_JACK
 		// Hydrogen is using the BPM broadcasted by the JACK
 		// server. This one does solely depend on external
 		// applications and will NOT be stored in the Song.
-		const float fJackTimebaseBpm = pHydrogen->getJackTimebaseControllerBpm();
-		if ( ! std::isnan( fJackTimebaseBpm ) ) {
+		auto pJackDriver = std::dynamic_pointer_cast<JackDriver>(
+			pAudioEngine->getAudioDriver()
+		);
+		if ( pJackDriver != nullptr &&
+			 pJackDriver->getMode() != JackDriver::Mode::None ) {
+			const float fJackTimebaseBpm =
+				pJackDriver->getTimebaseControllerBpm();
 			if ( fBpm != fJackTimebaseBpm ) {
-				fBpm = fJackTimebaseBpm;
 #if AUDIO_ENGINE_DEBUG
-				AE_DEBUGLOG( QString( "Tempo update by the JACK server [%1]")
-							 .arg( fJackTimebaseBpm ) );
+				AE_DEBUGLOG( QString( "Tempo update by the JACK server [%1]" )
+								 .arg( fJackTimebaseBpm ) );
 #endif
+				fBpm = fJackTimebaseBpm;
 			}
-		} else {
+		}
+		else
+#endif
+		{
 			AE_ERRORLOG( "Unable to retrieve tempo from JACK server" );
 		}
 	}
