@@ -55,8 +55,7 @@ public:
 		const MidiEvent::Type&,
 		Midi::Parameter parameter,
 		std::shared_ptr<MidiAction> pAction,
-        Event::Trigger trigger,
-		long* pEventId
+        Event::Trigger trigger
 	);
 
 	const std::vector<std::shared_ptr<MidiEvent>>& getMidiEvents() const;
@@ -87,8 +86,7 @@ public:
 	void removeRegisteredEvent(
 		const MidiEvent::Type&,
 		Midi::Parameter parameter,
-		std::shared_ptr<MidiAction> pAction,
-		long* pEventId
+		std::shared_ptr<MidiAction> pAction
 	);
 
 	/** Formatted string version for debugging purposes.

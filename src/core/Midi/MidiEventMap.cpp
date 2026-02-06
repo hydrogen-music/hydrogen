@@ -124,7 +124,7 @@ MidiEventMap::loadFrom( const H2Core::XMLNode& node, bool bSilent )
 				actionType, sParameter1, sParameter2, sParameter3
 			);
 			pMidiEventMap->registerEvent(
-				eventType, parameter, pAction, Event::Trigger::Suppress, nullptr
+				eventType, parameter, pAction, Event::Trigger::Suppress
 			);
 		}
 		else {
@@ -246,14 +246,9 @@ void MidiEventMap::registerEvent(
 	const MidiEvent::Type& type,
 	Midi::Parameter parameter,
 	std::shared_ptr<MidiAction> pAction,
-    Event::Trigger trigger,
-	long* pEventId
+    Event::Trigger trigger
 )
 {
-	if ( pEventId != nullptr ) {
-		*pEventId = Event::nInvalidId;
-	}
-
 	if ( pAction == nullptr || pAction->isNull() ||
 		 type == H2Core::MidiEvent::Type::Null ) {
 		ERRORLOG( "Invalid input" );
@@ -304,9 +299,6 @@ void MidiEventMap::registerEvent(
 		const auto nId = EventQueue::get_instance()->pushEvent(
 			Event::Type::MidiEventMapChanged, 0
 		);
-		if ( pEventId != nullptr ) {
-			*pEventId = nId;
-		}
 	}
 }
 
@@ -446,16 +438,11 @@ MidiEventMap::getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction
 void MidiEventMap::removeRegisteredEvent(
 	const MidiEvent::Type& type,
 	Midi::Parameter parameter,
-	std::shared_ptr<MidiAction> pAction,
-    long* pEventId
+	std::shared_ptr<MidiAction> pAction
 )
 {
 	if ( pAction == nullptr ) {
         return;
-	}
-
-	if ( pEventId != nullptr ) {
-		*pEventId = Event::nInvalidId;
 	}
 
 	bool bModified = false;
@@ -480,9 +467,6 @@ void MidiEventMap::removeRegisteredEvent(
 		const auto nId = EventQueue::get_instance()->pushEvent(
 			Event::Type::MidiEventMapChanged, 0
 		);
-		if ( pEventId != nullptr ) {
-			*pEventId = nId;
-		}
 	}
 }
 

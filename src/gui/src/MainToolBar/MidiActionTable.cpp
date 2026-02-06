@@ -149,14 +149,9 @@ void MidiActionTable::insertRow(
 {
 	if ( eventType != MidiEvent::Type::Null && pMidiAction != nullptr &&
 		 pMidiAction->getType() != MidiAction::Type::Null ) {
-		long nEventId;
 		H2Core::Preferences::get_instance()->getMidiEventMap()->registerEvent(
-			eventType, eventParameter, pMidiAction, Event::Trigger::Default,
-			&nEventId
+			eventType, eventParameter, pMidiAction, Event::Trigger::Default
 		);
-		if ( nEventId != Event::nInvalidId ) {
-			blacklistEventId( nEventId );
-		}
 	}
 
 	RowContent newRow = { eventType, eventParameter, pMidiAction };
@@ -193,15 +188,11 @@ void MidiActionTable::removeRow( int nRow )
 	const auto row = m_tableRows[nRow];
 	if ( row.eventType != MidiEvent::Type::Null && row.pMidiAction != nullptr &&
 		 row.pMidiAction->getType() != MidiAction::Type::Null ) {
-		long nEventId;
 		H2Core::Preferences::get_instance()
 			->getMidiEventMap()
 			->removeRegisteredEvent(
-				row.eventType, row.eventParameter, row.pMidiAction, &nEventId
+				row.eventType, row.eventParameter, row.pMidiAction
 			);
-		if ( nEventId != Event::nInvalidId ) {
-			blacklistEventId( nEventId );
-		}
 	}
 
     m_tableRows.erase( m_tableRows.begin() + nRow );
@@ -236,28 +227,19 @@ void MidiActionTable::replaceRow(
 	const auto row = m_tableRows[nRow];
 	if ( row.eventType != MidiEvent::Type::Null && row.pMidiAction != nullptr &&
 		 row.pMidiAction->getType() != MidiAction::Type::Null ) {
-		long nEventId;
 		H2Core::Preferences::get_instance()
 			->getMidiEventMap()
 			->removeRegisteredEvent(
-				row.eventType, row.eventParameter, row.pMidiAction, &nEventId
+				row.eventType, row.eventParameter, row.pMidiAction
 			);
-		if ( nEventId != Event::nInvalidId ) {
-			blacklistEventId( nEventId );
-		}
 	}
 
 	// Add new one
 	if ( eventType != MidiEvent::Type::Null && pMidiAction != nullptr &&
 		 pMidiAction->getType() != MidiAction::Type::Null ) {
-		long nEventId;
 		H2Core::Preferences::get_instance()->getMidiEventMap()->registerEvent(
-			eventType, eventParameter, pMidiAction, Event::Trigger::Default,
-			&nEventId
+			eventType, eventParameter, pMidiAction, Event::Trigger::Default
 		);
-		if ( nEventId != Event::nInvalidId ) {
-			blacklistEventId( nEventId );
-		}
 	}
 
 	m_tableRows[nRow].eventType = eventType;
