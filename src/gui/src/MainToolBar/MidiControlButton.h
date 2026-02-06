@@ -83,6 +83,9 @@ private:
 		QSvgRenderer* m_pIconOutputSvg;
 		QTimer* m_pMidiInputTimer;
 		QTimer* m_pMidiOutputTimer;
+
+		QString m_sToolTipDefault;
+        QString m_sToolTipDisabled;
 };
 
 

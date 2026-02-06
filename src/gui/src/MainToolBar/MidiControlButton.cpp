@@ -51,9 +51,14 @@ MidiControlButton::MidiControlButton( QWidget* pParent )
 	setFocusPolicy( Qt::ClickFocus );
 	setObjectName( "MidiControlButton" );
 
-	setFixedWidth( MidiControlButton::nIconWidth * 2 +
-				   MainToolBar::nSpacing * 2 +
-				   MidiControlButton::nLogoWidth );
+	/*: Tooltip of the MIDI button in the main toolbar. */
+	m_sToolTipDefault = tr( "MIDI mapping and monitoring" );
+	m_sToolTipDisabled = tr( "No MIDI driver present!" );
+
+	setFixedWidth(
+		MidiControlButton::nIconWidth * 2 + MainToolBar::nSpacing * 2 +
+		MidiControlButton::nLogoWidth
+	);
 
 	m_pIconInputSvg = new QSvgRenderer( this );
 	m_pMidiLogoSvg = new QSvgRenderer( this );
@@ -115,6 +120,10 @@ void MidiControlButton::updateActivation() {
 	}
 
 	setEnabled( pMidiDriver != nullptr );
+	setToolTip(
+		pMidiDriver != nullptr ? m_sToolTipDefault : m_sToolTipDisabled
+	);
+
 	update();
 }
 
