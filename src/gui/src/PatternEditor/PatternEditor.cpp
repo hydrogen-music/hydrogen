@@ -1932,16 +1932,6 @@ bool PatternEditor::updateMouseHoveredElements( QMouseEvent* ev ) {
 	const auto gridPointUpper = pointToGridPoint(
 		pEv->position().toPoint() + QPoint( nCursorMargin, 0 ), false );
 
-	// getElementsAtPoint is generous in finding notes by taking a margin around
-	// the cursor into account as well. We have to ensure we only use to closest
-	// notes reported.
-	int nLastDistance = gridPointUpper.getColumn() - gridPoint.getColumn() + 1;
-
-	// In addition, we have to ensure to only provide notes from a single
-	// position. In case the cursor is placed exactly in the middle of two
-	// notes, the left one wins.
-	int nLastPosition = -1;
-
 	std::vector< std::pair< std::shared_ptr<Pattern>,
 							std::vector< std::shared_ptr<Note> > > > hovered;
 	// We do not highlight hovered notes during a property drag. Else, the
@@ -1957,18 +1947,7 @@ bool PatternEditor::updateMouseHoveredElements( QMouseEvent* ev ) {
 				nCursorMargin, false, ppPattern
 			);
 			if ( hoveredNotes.size() > 0 ) {
-				const int nDistance = std::abs(
-					hoveredNotes[ 0 ]->getPosition() - gridPoint.getColumn() );
-				if ( nDistance < nLastDistance ) {
-					// This batch of notes is nearer than (potential) previous ones.
-					hovered.clear();
-					nLastDistance = nDistance;
-					nLastPosition = hoveredNotes[ 0 ]->getPosition();
-				}
-
-				if ( hoveredNotes[ 0 ]->getPosition() == nLastPosition ) {
-					hovered.push_back( std::make_pair( ppPattern, hoveredNotes ) );
-				}
+                hovered.push_back( std::make_pair( ppPattern, hoveredNotes ) );
 			}
 		}
 	}
