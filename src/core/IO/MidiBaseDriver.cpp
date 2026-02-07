@@ -178,6 +178,64 @@ MidiBaseDriver::getHandledOutputs()
 	return std::move( outputs );
 }
 
+void MidiBaseDriver::sendAllNotesOff()
+{
+	const auto threshold =
+		Clock::now() -
+		std::chrono::seconds( MidiBaseDriver::nAllNotesOffThresholdInSeconds );
+
+	std::set<std::pair<Midi::Note, Midi::Channel> > noteOnMessages;
+
+	// Note-Offs for all recent Note-On messages
+	{
+		QMutexLocker mx( &m_handledOutputMutex );
+		for ( const auto hhandledOutput : m_handledOutputs ) {
+			if ( hhandledOutput == nullptr ||
+				 hhandledOutput->timePoint < threshold ) {
+				continue;
+			}
+
+			if ( hhandledOutput->type == MidiMessage::Type::NoteOn ) {
+                // Enqueue
+				noteOnMessages.insert( std::make_pair(
+					Midi::noteFromIntClamp(
+						static_cast<int>( hhandledOutput->data1 )
+					),
+					hhandledOutput->channel
+				) );
+			}
+			else if ( hhandledOutput->type == MidiMessage::Type::NoteOff ) {
+                // Remove the corresponding Note-On message. It does not require
+                // a Note-Off anymore.
+				const auto signature = std::make_pair(
+					Midi::noteFromIntClamp(
+						static_cast<int>( hhandledOutput->data1 )
+					),
+					hhandledOutput->channel
+				);
+				const auto it = noteOnMessages.find( signature );
+				if ( it != noteOnMessages.end() ) {
+                    noteOnMessages.erase( it );
+				}
+			}
+		}
+	}
+
+	for ( const auto [nnote, cchannel] : noteOnMessages ) {
+		MidiMessage::NoteOff noteOff = {
+			nnote, Midi::ParameterMinimum, cchannel
+		};
+		enqueueOutputMessage( MidiMessage::from( noteOff ) );
+	}
+
+	// "All Notes Off" Channel Mode Message
+	MidiMessage::ControlChange allNotesOff = {
+		Midi::parameterFromIntClamp( 123 ), Midi::ParameterMinimum,
+		Preferences::get_instance()->getMidiFeedbackChannel()
+	};
+	enqueueOutputMessage( MidiMessage::from( allNotesOff ) );
+}
+
 void MidiBaseDriver::startMidiClockStream( float fBpm )
 {
 	// Ensure there is just a single thread.

@@ -1898,8 +1898,6 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 			___INFOLOG( QString( "[%1] End of song received" ).arg( sDrivers ) );
 
-			CoreActionController::sendAllNoteOffMessages();
-
 			pAudioEngine->stop();
 			pAudioEngine->stopPlayback();
 			pAudioEngine->locate( 0 );

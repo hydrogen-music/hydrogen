@@ -3211,8 +3211,6 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 
 			___INFOLOG( QString( "[%1] End of song received" ).arg( sDrivers ) );
 
-			CoreActionController::sendAllNoteOffMessages();
-
 			pAudioEngine->stop();
 			pAudioEngine->stopPlayback();
 			pAudioEngine->locate( 0 );
