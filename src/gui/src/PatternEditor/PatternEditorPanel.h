@@ -149,6 +149,13 @@ class PatternEditorPanel : public QWidget,
 		static constexpr int nToolBarMargin = 2;
 		static constexpr int nToolBarSpacing = 3;
 
+		enum class DragType {
+			None,
+			Length,
+			Property
+		};
+		static QString DragTypeToQString( DragType dragType );
+
 		explicit PatternEditorPanel(QWidget *parent);
 		~PatternEditorPanel();
 
@@ -381,6 +388,11 @@ class PatternEditorPanel : public QWidget,
 		Editor::Instance getInstance() const;
 		void setInstance( Editor::Instance instance);
 
+		DragType getDragType() const;
+		void setDragType( DragType dragType );
+		std::shared_ptr<H2Core::Note> getTransientDragNote() const;
+		void setTransientDragNote( std::shared_ptr<H2Core::Note> pNote );
+
 	public slots:
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
@@ -529,6 +541,18 @@ class PatternEditorPanel : public QWidget,
 								std::vector< std::shared_ptr<H2Core::Note> > >
 					 > m_hoveredNotesKeyboard;
 
+		/** Specifies whether the user interaction is altering the length
+		 * (horizontal) or the currently selected property (vertical) of a
+		 * note. */
+		DragType m_dragType;
+
+		/** Within the #Editor::Input::Edit the user is both allowed to change
+		 * properties of existing notes and to create a new one of custom
+		 * length. The latter is stored in this variable to ease rendering it.
+		 * It is not yet a part of the current pattern (this is established via
+		 * an undo/redo action) and only exists during the drag operation. */
+		std::shared_ptr<H2Core::Note> m_pTransientDragNote;
+
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
 };
@@ -564,6 +588,27 @@ inline const std::vector< std::pair< std::shared_ptr<H2Core::Pattern>,
 }
 inline Editor::Instance PatternEditorPanel::getInstance() const {
 	return m_instance;
+}
+inline PatternEditorPanel::DragType PatternEditorPanel::getDragType() const
+{
+	return m_dragType;
+}
+inline void PatternEditorPanel::setDragType(
+	PatternEditorPanel::DragType dragType
+)
+{
+	m_dragType = dragType;
+}
+inline std::shared_ptr<H2Core::Note> PatternEditorPanel::getTransientDragNote(
+) const
+{
+	return m_pTransientDragNote;
+}
+inline void PatternEditorPanel::setTransientDragNote(
+	std::shared_ptr<H2Core::Note> pNote
+)
+{
+	m_pTransientDragNote = pNote;
 }
 
 #endif

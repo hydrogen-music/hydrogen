@@ -192,9 +192,11 @@ All notable changes to this project will be documented in this file.
   - Pattern name is now shown together with other active patterns tab bar.
   - Property drawing in the properties ruler is now only bound to right mouse
     button.
-  - Right-click drag in drum pattern and piano roll editor does not alter note properties anymore but draws notes.
+  - Right-click drag in drum pattern and piano roll editor does not alter note properties anymore but draws notes instead. Use the edit mode button at the very left of the toolbar of the pattern editor to access this behavior using left-click drag.
   - Whether left mouse button interactions to select, draw, or editing existing
     notes can be set by buttons in the left-most part of the toolbar.
+  - In edit mode notes of custom property can now be created using left-click
+    drag too (no prior creation required).
   - Note editing does now alter either note length or property. Not both.
   - Cursor, selection lasso, and selected and hovered notes are now synced
     between among all editors.

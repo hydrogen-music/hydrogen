@@ -337,4 +337,15 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 			drawNote( painter, ppNote, NoteStyle::Moved );
 		}
 	}
+
+	// Draw transient note rendered during click-dragging the empty canvas in
+	// Input::Edit mode.
+	if ( m_pPatternEditorPanel->getTransientDragNote() != nullptr &&
+		 m_pPatternEditorPanel->getDragType() !=
+			 PatternEditorPanel::DragType::None ) {
+		drawNote(
+			painter, m_pPatternEditorPanel->getTransientDragNote(),
+			NoteStyle::Transient
+		);
+	}
 }
