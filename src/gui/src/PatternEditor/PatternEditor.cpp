@@ -1524,16 +1524,31 @@ std::vector<std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 		const auto ppNote = it->second;
 		if ( ppNote != nullptr && row.contains( ppNote ) &&
 			 ppNote->getPosition() < pPattern->getLength() ) {
+			// In case of the PianoRoll BaseEditor::editor we do have to
+			// additionally differentiate between different pitches.
+			if ( m_instance != Editor::Instance::PianoRoll ||
+				 ( m_instance == Editor::Instance::PianoRoll &&
+				   ppNote->getKey() ==
+					   Note::Pitch::fromLine( gridPoint.getRow() ).toKey() &&
+				   ppNote->getOctave() ==
+					   Note::Pitch::fromLine( gridPoint.getRow() ).toOctave()
+				 ) ) {
+				const int nDistance =
+					std::abs( ppNote->getPosition() - gridPoint.getColumn() );
 
-			const int nDistance =
-				std::abs( ppNote->getPosition() - gridPoint.getColumn() );
+				if ( nDistance < nLastDistance ) {
+					// This note is nearer than (potential) previous ones.
+					notesUnderPoint.clear();
+					nLastDistance = nDistance;
+					nLastPosition = ppNote->getPosition();
+				}
 
-			if ( nDistance < nLastDistance ) {
-				// This note is nearer than (potential) previous ones.
-				notesUnderPoint.clear();
-				nLastDistance = nDistance;
-				nLastPosition = ppNote->getPosition();
+				if ( nDistance <= nLastDistance &&
+					 ppNote->getPosition() == nLastPosition ) {
+					notesUnderPoint.push_back( ppNote );
+				}
 			}
+		}
 
 			if ( nDistance <= nLastDistance &&
 				 ppNote->getPosition() == nLastPosition ) {
