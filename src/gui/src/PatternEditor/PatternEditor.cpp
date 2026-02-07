@@ -1549,9 +1549,25 @@ std::vector<std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 				}
 			}
 		}
+	}
 
-			if ( nDistance <= nLastDistance &&
-				 ppNote->getPosition() == nLastPosition ) {
+	if ( notesUnderPoint.size() == 0 ) {
+		// No notes near point. Are there might be notes of custom length, which
+		// have a tail under point? Those tails could span the whole row and
+		// only extend to the right. We would select all notes at the nearest
+		// grid point having a tail intersecting with the cursor.
+		nLastDistance = gridPointLower.getColumn();
+		nLastPosition = -1;
+		for ( auto it = notes->lower_bound( 0 );
+			  it != notes->end() && it->first <= gridPointLower.getColumn();
+			  ++it ) {
+			const auto ppNote = it->second;
+			if ( ppNote != nullptr &&
+				 ppNote->getLength() != LENGTH_ENTIRE_SAMPLE &&
+				 row.contains( ppNote ) &&
+				 ( ppNote->getPosition() + ppNote->getLength() ) >
+					 gridPointLower.getColumn() &&
+				 ppNote->getPosition() < pPattern->getLength() ) {
 				// In case of the PianoRoll BaseEditor::editor we do have to
 				// additionally differentiate between different pitches.
 				if ( m_instance != Editor::Instance::PianoRoll ||
@@ -1562,7 +1578,22 @@ std::vector<std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 					   ppNote->getOctave() ==
 						   Note::Pitch::fromLine( gridPoint.getRow() )
 							   .toOctave() ) ) {
-					notesUnderPoint.push_back( ppNote );
+					const int nDistance = std::abs(
+						ppNote->getPosition() - gridPointUpper.getColumn()
+					);
+
+					if ( nDistance < nLastDistance ) {
+						// This note is nearer than (potential) previous
+						// ones.
+						notesUnderPoint.clear();
+						nLastDistance = nDistance;
+						nLastPosition = ppNote->getPosition();
+					}
+
+					if ( nDistance <= nLastDistance &&
+						 ppNote->getPosition() == nLastPosition ) {
+						notesUnderPoint.push_back( ppNote );
+					}
 				}
 			}
 		}
