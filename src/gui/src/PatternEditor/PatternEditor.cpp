@@ -56,9 +56,8 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	: Object()
 	, Editor::Base<Elem>( pParent )
 	, m_property( Property::None )
-	, m_dragType( DragType::None )
 	, m_nDragStartColumn( 0 )
-	, m_nDragY( 0 )
+	, m_dragUpdate( QPoint() )
 	, m_dragStart( QPoint() )
 	, m_nTick( -1 )
 	, m_drawPreviousPosition( QPointF( 0, 0 ) )
@@ -1948,9 +1947,11 @@ bool PatternEditor::updateMouseHoveredElements( QMouseEvent* ev ) {
 	// We do not highlight hovered notes during a property drag. Else, the
 	// hovered ones would appear in front of the dragged one in the ruler,
 	// hiding the newly adjusted value.
-	if ( m_dragType == DragType::None &&
+	if ( m_pPatternEditorPanel->getDragType() ==
+			 PatternEditorPanel::DragType::None &&
 		 pEv->position().x() > PatternEditor::nMarginSidebar ) {
-		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
+		for ( const auto& ppPattern :
+			  m_pPatternEditorPanel->getPatternsToShow() ) {
 			const auto hoveredNotes = getElementsAtPoint(
 				pEv->position().toPoint(), Editor::InputSource::Mouse,
 				nCursorMargin, false, ppPattern
@@ -2149,83 +2150,143 @@ void PatternEditor::mouseEditStart( QMouseEvent *ev ) {
 
 	m_property = m_pPatternEditorPanel->getSelectedNoteProperty();
 
+	const auto currentPoint = pEv->position().toPoint();
+    m_dragStart = currentPoint;
+	m_dragUpdate = currentPoint;
+
 	// Adjusting note properties.
 	const auto notesAtPoint = getElementsAtPoint(
-		pEv->position().toPoint(), Editor::InputSource::Mouse,
+		currentPoint, Editor::InputSource::Mouse,
 		getCursorMargin( ev ), true
 	);
-	if ( notesAtPoint.size() == 0 ) {
-		return;
-	}
-
-	// Focus cursor on dragged note(s).
-	m_pPatternEditorPanel->setCursorColumn(
-		notesAtPoint[ 0 ]->getPosition() );
-	m_pPatternEditorPanel->setSelectedRowDB(
-		m_pPatternEditorPanel->findRowDB( notesAtPoint[ 0 ] ) );
 
 	m_draggedNotes.clear();
-	// Either all or none of the notes at point should be selected. It is safe
-	// to just check the first one.
-	if ( m_selection.isSelected( notesAtPoint[ 0 ] ) ) {
-		// The clicked note is part of the current selection. All selected notes
-		// will be edited.
-		for ( const auto& ppNote : m_selection ) {
-			if ( ppNote != nullptr &&
-				 ! ( ppNote->getNoteOff() &&
-					 ( m_property != Property::LeadLag &&
-					   m_property != Property::Probability ) ) ) {
-				m_draggedNotes[ ppNote ] = std::make_shared<Note>( ppNote );
+	if ( notesAtPoint.size() > 0 ) {
+		// Focus cursor on dragged note(s).
+		m_pPatternEditorPanel->setCursorColumn( notesAtPoint[0]->getPosition()
+		);
+		m_pPatternEditorPanel->setSelectedRowDB(
+			m_pPatternEditorPanel->findRowDB( notesAtPoint[0] )
+		);
+
+		// Either all or none of the notes at point should be selected. It is
+		// safe to just check the first one.
+		if ( m_selection.isSelected( notesAtPoint[0] ) ) {
+			// The clicked note is part of the current selection. All selected
+			// notes will be edited.
+			for ( const auto& ppNote : m_selection ) {
+				if ( ppNote != nullptr &&
+					 !( ppNote->getNoteOff() &&
+						( m_property != Property::LeadLag &&
+						  m_property != Property::Probability ) ) ) {
+					m_draggedNotes[ppNote] = std::make_shared<Note>( ppNote );
+				}
 			}
 		}
+		else {
+			for ( const auto& ppNote : notesAtPoint ) {
+				// NoteOff notes can have both a custom lead/lag and
+				// probability. But all other properties won't take effect.
+				if ( !( ppNote->getNoteOff() &&
+						( m_property != Property::LeadLag &&
+						  m_property != Property::Probability ) ) ) {
+					m_draggedNotes[ppNote] = std::make_shared<Note>( ppNote );
+				}
+			}
+		}
+
+		// All notes at located at the same point.
+		m_nDragStartColumn = notesAtPoint[0]->getPosition();
 	}
 	else {
-		for ( const auto& ppNote : notesAtPoint ) {
-			// NoteOff notes can have both a custom lead/lag and probability.
-			// But all other properties won't take effect.
-			if ( ! ( ppNote->getNoteOff() &&
-					 ( m_property != Property::LeadLag &&
-					   m_property != Property::Probability ) ) ) {
-				m_draggedNotes[ ppNote ] = std::make_shared<Note>( ppNote );
-			}
+		// If the user clicked on an empty spot, we allow her to draw a new note
+		// of custom length.
+		const auto currentGridPoint = pointToGridPoint( currentPoint, true );
+
+		auto key = Note::Key::Invalid;
+		auto octave = Note::Octave::Invalid;
+		if ( m_instance == Editor::Instance::PianoRoll ) {
+			// Use the row of the DrumPatternEditor/DB for further note
+			// interactions.
+			octave =
+				Note::Pitch::fromLine( currentGridPoint.getRow() ).toOctave();
+			key = Note::Pitch::fromLine( currentGridPoint.getRow() ).toKey();
 		}
+
+		DrumPatternRow row;
+		if ( m_instance == Editor::Instance::DrumPattern ) {
+			row = m_pPatternEditorPanel->getRowDB( currentGridPoint.getRow() );
+		}
+		else {
+			row = m_pPatternEditorPanel->getRowDB(
+				m_pPatternEditorPanel->getSelectedRowDB()
+			);
+		}
+
+		auto pTransientDragNote =
+			std::make_shared<Note>( nullptr, currentGridPoint.getColumn() );
+		pTransientDragNote->setKey( key );
+		pTransientDragNote->setOctave( octave );
+		pTransientDragNote->setInstrumentId( row.id );
+		pTransientDragNote->setType( row.sType );
+		if ( m_instance == Editor::Instance::NotePropertiesRuler &&
+			 dynamic_cast<QMouseEvent*>( ev ) != nullptr ) {
+			const auto fYValue =
+				static_cast<NotePropertiesRuler*>( this )->eventToYValue(
+					dynamic_cast<QMouseEvent*>( ev )
+				);
+            NotePropertiesRuler::applyProperty( pTransientDragNote, m_property, fYValue );
+		}
+
+		m_pPatternEditorPanel->setTransientDragNote( pTransientDragNote );
+
+		// Slight misuse of m_draggedNotes.
+		m_draggedNotes[pTransientDragNote] = pTransientDragNote;
+
+		m_nDragStartColumn = currentGridPoint.getColumn();
 	}
-	// All notes at located at the same point.
-	m_nDragStartColumn = notesAtPoint[ 0 ]->getPosition();
-	m_nDragY = pEv->position().y();
-	m_dragStart = pEv->position().toPoint();
 }
 
 void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr || m_draggedNotes.size() == 0 ) {
+	if ( pPattern == nullptr ) {
 		return;
 	}
 
 	auto pEv = static_cast<MouseEvent*>( ev );
 
-	auto pHydrogen = Hydrogen::get_instance();
-
-	const auto gridPoint = pointToGridPoint( pEv->position().toPoint(), true );
-
 	// In case this is the first drag update, decided whether we deal with a
 	// length or property drag.
-	if ( m_dragType == DragType::None ) {
+	if ( m_pPatternEditorPanel->getDragType() ==
+		 PatternEditorPanel::DragType::None ) {
 		const int nDiffY = std::abs( pEv->position().y() - m_dragStart.y() );
 		const int nDiffX = std::abs( pEv->position().x() - m_dragStart.x() );
 
-		if ( nDiffX == nDiffY ) {
-			// User is dragging diagonally and hasn't decided yet.
+		if ( nDiffX == nDiffY ||
+			 ( pEv->position() - m_dragStart ).manhattanLength() <=
+				 QApplication::startDragDistance() ) {
+			// User is dragging to little or diagonally and hasn't decided yet.
 			return;
 		}
 		else if ( nDiffX > nDiffY ) {
-			m_dragType = DragType::Length;
+			m_pPatternEditorPanel->setDragType(
+				PatternEditorPanel::DragType::Length
+			);
 		}
 		else {
-			m_dragType = DragType::Property;
+			m_pPatternEditorPanel->setDragType(
+				PatternEditorPanel::DragType::Property
+			);
 		}
 	}
+	if ( m_draggedNotes.size() == 0 ) {
+		m_dragUpdate = pEv->position().toPoint();
+		return;
+	}
 
+	const auto gridPoint = pointToGridPoint( pEv->position().toPoint(), true );
+
+	auto pHydrogen = Hydrogen::get_instance();
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
 	int nLen = gridPoint.getColumn() - m_nDragStartColumn;
@@ -2234,13 +2295,17 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 		nLen = LENGTH_ENTIRE_SAMPLE;
 	}
 
-	for ( auto& [ ppNote, _ ] : m_draggedNotes ) {
-		if ( m_dragType == DragType::Length ) {
+	for ( auto& [ppNote, _] : m_draggedNotes ) {
+		if ( m_pPatternEditorPanel->getDragType() ==
+			 PatternEditorPanel::DragType::Length ) {
 			ppNote->setLength( nLen );
 
-			triggerStatusMessage( m_elementsHoveredOnDragStart, Property::Length );
+			triggerStatusMessage(
+				m_elementsHoveredOnDragStart, Property::Length
+			);
 		}
-		else if ( m_dragType == DragType::Property &&
+		else if ( m_pPatternEditorPanel->getDragType() ==
+					  PatternEditorPanel::DragType::Property &&
 				  m_property != Property::KeyOctave ) {
 			// edit note property. We do not support the note key property.
 			float fValue = 0.0;
@@ -2258,7 +2323,7 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 			}
 
 			fValue = fValue +
-				static_cast<float>(m_nDragY - pEv->position().y()) / 100;
+				static_cast<float>(m_dragUpdate.y() - pEv->position().y()) / 100;
 			if ( fValue > 1 ) {
 				fValue = 1;
 			}
@@ -2283,7 +2348,7 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 		}
 	}
 
-	m_nDragY = pEv->position().y();
+	m_dragUpdate = pEv->position().toPoint();
 
 	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 	pHydrogen->setIsModified( true );
@@ -2292,32 +2357,58 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 }
 
 void PatternEditor::mouseEditEnd() {
-
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
-		m_dragType = DragType::None;
+		m_pPatternEditorPanel->setDragType( PatternEditorPanel::DragType::None );
 		return;
 	}
 
-	if ( m_draggedNotes.size() == 0 ||
-		 ( m_dragType == DragType::Property &&
-		   m_property == Property::KeyOctave ) ) {
-		m_dragType = DragType::None;
+    const auto dragType = m_pPatternEditorPanel->getDragType();
+
+	if ( m_draggedNotes.size() == 0 || ( dragType == PatternEditorPanel::DragType::Property &&
+										 m_property == Property::KeyOctave ) ) {
+		m_pPatternEditorPanel->setDragType( PatternEditorPanel::DragType::None );
 		return;
 	}
+
+	const auto pTransientDragNote =
+		m_pPatternEditorPanel->getTransientDragNote();
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
 	bool bMacroStarted = false;
-	if ( m_draggedNotes.size() > 1 ) {
+	if ( pTransientDragNote != nullptr ) {
+		const auto row = m_pPatternEditorPanel->getRowDB(
+			m_pPatternEditorPanel->findRowDB( pTransientDragNote )
+		);
 
+		// Create a new note of custom length.
+		pHydrogenApp->pushUndoCommand( new SE_addOrRemoveNoteAction(
+			pTransientDragNote->getPosition(),
+			pTransientDragNote->getInstrumentId(),
+			pTransientDragNote->getType(),
+			m_pPatternEditorPanel->getPatternNumber(),
+			pTransientDragNote->getLength(),
+			pTransientDragNote->getVelocity(), pTransientDragNote->getPan(),
+			pTransientDragNote->getLeadLag(), pTransientDragNote->getKey(),
+			pTransientDragNote->getOctave(),
+			pTransientDragNote->getProbability(), Editor::Action::Add,
+			false /*bIsNoteOff*/, row.bMappedToDrumkit
+		) );
+
+		m_pPatternEditorPanel->setTransientDragNote( nullptr );
+		m_draggedNotes.clear();
+		m_pPatternEditorPanel->setDragType( PatternEditorPanel::DragType::None );
+		return;
+	}
+	else {
 		auto sMacro = tr( "Drag edit note property:" );
-		if ( m_dragType == DragType::Length ) {
+		if ( dragType == PatternEditorPanel::DragType::Length ) {
 			sMacro.append(
 				QString( " %1" ).arg( pCommonStrings->getNotePropertyLength() ) );
 		}
-		else if ( m_dragType == DragType::Property ) {
+		else if ( dragType == PatternEditorPanel::DragType::Property ) {
 			switch ( m_property ) {
 			case Property::Velocity:
 				sMacro.append( QString( " %1" ).arg(
@@ -2347,7 +2438,7 @@ void PatternEditor::mouseEditEnd() {
 	auto editNoteProperty = [=]( PatternEditor::Property property,
 								 std::shared_ptr<Note> pNewNote,
 								 std::shared_ptr<Note> pOldNote ) {
-		if ( m_dragType == DragType::Length ) {
+		if ( dragType == PatternEditorPanel::DragType::Length ) {
 			pHydrogenApp->pushUndoCommand(
 				new SE_editNotePropertiesAction(
 					property,
@@ -2372,7 +2463,7 @@ void PatternEditor::mouseEditEnd() {
 					pOldNote->getOctave(),
 					pOldNote->getOctave() ) );
 		}
-		else if ( m_dragType == DragType::Property ) {
+		else if ( dragType == PatternEditorPanel::DragType::Property ) {
 			pHydrogenApp->pushUndoCommand(
 				new SE_editNotePropertiesAction(
 					property,
@@ -2406,7 +2497,7 @@ void PatternEditor::mouseEditEnd() {
 			continue;
 		}
 
-		if ( m_dragType == DragType::Length &&
+		if ( dragType == PatternEditorPanel::DragType::Length &&
 			 ppUpdatedNote->getLength() != ppOriginalNote->getLength() ) {
 			editNoteProperty( Property::Length, ppUpdatedNote, ppOriginalNote );
 
@@ -2417,7 +2508,7 @@ void PatternEditor::mouseEditEnd() {
 				}
 			}
 		}
-		else if ( m_dragType == DragType::Property &&
+		else if ( dragType == PatternEditorPanel::DragType::Property &&
 				  ( ppUpdatedNote->getVelocity() !=
 					ppOriginalNote->getVelocity() ||
 					ppUpdatedNote->getPan() != ppOriginalNote->getPan() ||
@@ -2436,10 +2527,10 @@ void PatternEditor::mouseEditEnd() {
 	}
 
 	if ( m_draggedNotes.size() > 0 ) {
-		if ( m_dragType == DragType::Length ) {
+		if ( dragType == PatternEditorPanel::DragType::Length ) {
 			triggerStatusMessage( notesStatus, Property::Length );
 		}
-		else if ( m_dragType == DragType::Property ) {
+		else if ( dragType == PatternEditorPanel::DragType::Property ) {
 			triggerStatusMessage( notesStatus, m_property );
 		}
 		else {
@@ -2451,8 +2542,9 @@ void PatternEditor::mouseEditEnd() {
 		pHydrogenApp->endUndoMacro();
 	}
 
+    m_pPatternEditorPanel->setTransientDragNote( nullptr );
 	m_draggedNotes.clear();
-	m_dragType = DragType::None;
+	m_pPatternEditorPanel->setDragType( PatternEditorPanel::DragType::None );
 }
 
 void PatternEditor::updateAllComponents( Editor::Update update ) {
@@ -3286,17 +3378,26 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 
 	uint w = 8, h =  8;
 
-	// NoPlayback is handled in here in order to not bloat calling routines
-	// (since it has to be calculated for every note drawn).
-	if ( ! checkNotePlayback( pNote ) ) {
-		noteStyle =
-			static_cast<NoteStyle>(noteStyle | NoteStyle::NoPlayback);
+	// Transient notes are not associated with any pattern or instrument and
+	// does not need to be checked.
+    int nNoteLength;
+	if ( noteStyle & NoteStyle::Transient ) {
+		nNoteLength = pNote->getLength();
 	}
+	else {
+		// NoPlayback is handled in here in order to not bloat calling routines
+		// (since it has to be calculated for every note drawn).
+		if ( !checkNotePlayback( pNote ) ) {
+			noteStyle =
+				static_cast<NoteStyle>( noteStyle | NoteStyle::NoPlayback );
+		}
 
-	const int nNoteLength = calculateEffectiveNoteLength( pNote );
-	if ( nNoteLength != pNote->getLength() ) {
-		noteStyle =
-			static_cast<NoteStyle>(noteStyle | NoteStyle::EffectiveLength);
+		nNoteLength = calculateEffectiveNoteLength( pNote );
+		if ( nNoteLength != pNote->getLength() ) {
+			noteStyle = static_cast<NoteStyle>(
+				noteStyle | NoteStyle::EffectiveLength
+			);
+		}
 	}
 
 	QPen notePen, noteTailPen, highlightPen, movingPen;
@@ -3312,7 +3413,7 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 							   delta.getRow() * m_nGridHeight );
 	}
 
-	if ( pNote->getNoteOff() == false ) {
+	if ( ! pNote->getNoteOff() ) {
 		int nWidth = w;
 
 		if ( ! ( noteStyle & NoteStyle::Moved) &&
@@ -3334,9 +3435,9 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 			// do not care about an overlap, as it ensures that there are no
 			// white artifacts between tail and note body regardless of the
 			// scale factor.
-			if ( ! ( noteStyle & NoteStyle::Moved ) ) {
-				if ( noteStyle & ( NoteStyle::Selected |
-								   NoteStyle::Hovered |
+			if ( !( noteStyle & ( NoteStyle::Moved | NoteStyle::Transient )
+				 ) ) {
+				if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered |
 								   NoteStyle::NoPlayback ) ) {
 					p.setPen( highlightPen );
 					p.setBrush( highlightBrush );
@@ -3366,14 +3467,25 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 		}
 
 		// Draw note
-		if ( ! ( noteStyle & NoteStyle::Moved ) ) {
+		if ( ! ( noteStyle & ( NoteStyle::Moved | NoteStyle::Transient ) ) ) {
 			p.setPen( notePen );
 			p.setBrush( noteBrush );
 			p.drawEllipse( point.x() -4 , point.y(), w, h );
 		}
 		else {
 			p.setPen( movingPen );
-			p.setBrush( movingBrush );
+			if ( noteStyle & NoteStyle::Transient &&
+				 m_pPatternEditorPanel->getDragType() !=
+					 PatternEditorPanel::DragType::Length ) {
+				// When rendering a transient note during left click-dragging in
+				// Input::Edit mode on the empty canvas and the user moves the
+				// cursor vertically to set a certain property, we provide
+				// visual feedback using the resulting "hue" (of the velocity).
+				p.setBrush( noteBrush );
+			}
+			else {
+				p.setBrush( movingBrush );
+			}
 
 			if ( nNoteLength == LENGTH_ENTIRE_SAMPLE ) {
 				p.drawEllipse( movingOffset.x() + point.x() - 4 - 2,
@@ -3765,15 +3877,4 @@ QString PatternEditor::propertyToQString( const Property& property ) {
 	}
 
 	return s;
-}
-
-QString PatternEditor::DragTypeToQString( DragType dragType ) {
-	switch( dragType ) {
-	case DragType::Length:
-		return "Length";
-	case DragType::Property:
-		return "Property";
-	default:
-		return QString( "Unknown type [%1]" ).arg( static_cast<int>(dragType) );
-	}
 }

@@ -264,20 +264,15 @@ public slots:
 			 * for visualization purposes by a neighbouring note off note or one
 			 * of the same mute group. */
 			EffectiveLength = 0x020,
+            /** Note does exist only for fixed period of time (e.g. an input
+             * operation) and is not part of the current pattern. */
+            Transient = 0x040
 		};
-
-		enum class DragType {
-			None,
-			Length,
-			Property
-		};
-		static QString DragTypeToQString( DragType dragType );
 
 		/** Scaling factor by which the background colors will be made darker in
 		 * case the widget is not in focus. This should help users to determine
 		 * which of the editors currently holds focus. */
 		static constexpr int nOutOfFocusDim = 110;
-
 
 		//! Colour to use for rendering and outlining notes
 		void applyColor( std::shared_ptr<H2Core::Note> pNote, QPen* pNotePen,
@@ -334,11 +329,6 @@ public slots:
 		float m_fGridWidth;
 		unsigned m_nGridHeight;
 
-		/** Specifies whether the user interaction is altering the length
-		 * (horizontal) or the currently selected property (vertical) of a
-		 * note. */
-		DragType m_dragType;
-
 		/** Keeps track of all notes being drag-edited using the right mouse
 		 * button. It maps the new, updated version of a note to an copy of
 		 * itself still bearing the original values.*/
@@ -348,8 +338,8 @@ public slots:
 		int m_nDragStartColumn;
 		/** Latest vertical position of a drag event. Adjusted in every drag
 		 * update. */
-		int m_nDragY;
-		QPoint m_dragStart;
+		QPoint m_dragUpdate;
+        QPoint m_dragStart;
 
 		int m_nTick;
 		QPointF m_drawPreviousPosition;

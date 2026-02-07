@@ -591,6 +591,17 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 			}
 		}
 	}
+
+	// Draw transient note rendered during click-dragging the empty canvas in
+	// Input::Edit mode.
+	if ( m_pPatternEditorPanel->getTransientDragNote() != nullptr &&
+		 m_pPatternEditorPanel->getDragType() !=
+			 PatternEditorPanel::DragType::None ) {
+		drawNote(
+			painter, m_pPatternEditorPanel->getTransientDragNote(),
+			NoteStyle::Transient
+		);
+	}
 }
 
 void PianoRollEditor::createBackground()

@@ -1318,6 +1318,17 @@ void NotePropertiesRuler::paintEvent( QPaintEvent* ev )
 			drawNote( painter, ppNote, NoteStyle::Moved, nOffsetX );
 		}
 	}
+
+	// Draw transient note rendered during click-dragging the empty canvas in
+	// Input::Edit mode.
+	if ( m_pPatternEditorPanel->getTransientDragNote() != nullptr &&
+		 m_pPatternEditorPanel->getDragType() !=
+			 PatternEditorPanel::DragType::None ) {
+		drawNote(
+			painter, m_pPatternEditorPanel->getTransientDragNote(),
+			NoteStyle::Transient
+		);
+	}
 }
 
 void NotePropertiesRuler::scrolled( int nValue )
@@ -1423,7 +1434,7 @@ void NotePropertiesRuler::drawNote(
 
 	// NoPlayback is handled in here in order to not bloat calling routines
 	// (since it has to be calculated for every note drawn).
-	if ( !checkNotePlayback( pNote ) ) {
+	if ( !( noteStyle & NoteStyle::Transient ) && !checkNotePlayback( pNote ) ) {
 		noteStyle = static_cast<NoteStyle>( noteStyle | NoteStyle::NoPlayback );
 	}
 
@@ -1470,7 +1481,7 @@ void NotePropertiesRuler::drawNote(
 			// value is centered - draw circle
 			const int nY = static_cast<int>( std::round( height() * 0.5 ) );
 
-			if ( !( noteStyle & NoteStyle::Moved ) ) {
+			if ( !( noteStyle & ( NoteStyle::Moved | NoteStyle::Transient ) ) ) {
 				if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered |
 								   NoteStyle::NoPlayback ) ) {
 					p.setPen( highlightPen );
@@ -1503,7 +1514,7 @@ void NotePropertiesRuler::drawNote(
 				nHeight = fValue;
 			}
 
-			if ( !( noteStyle & NoteStyle::Moved ) ) {
+			if ( !( noteStyle & ( NoteStyle::Moved | NoteStyle::Transient ) ) ) {
 				if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered |
 								   NoteStyle::NoPlayback ) ) {
 					p.setPen( highlightPen );
@@ -1522,7 +1533,19 @@ void NotePropertiesRuler::drawNote(
 			}
 			else {
 				p.setPen( movingPen );
-				p.setBrush( movingBrush );
+				if ( noteStyle & NoteStyle::Transient &&
+					 m_pPatternEditorPanel->getDragType() !=
+						 PatternEditorPanel::DragType::Length ) {
+					// When rendering a transient note during left
+					// click-dragging in Input::Edit mode on the empty canvas
+					// and the user moves the cursor vertically to set a certain
+					// property, we provide visual feedback using the resulting
+					// "hue" (of the velocity).
+					p.setBrush( noteBrush );
+				}
+				else {
+					p.setBrush( movingBrush );
+				}
 				p.drawRoundedRect(
 					movingOffsetPoint.x() + nX - 1 - 2, nY - 2, nLineWidth + 4,
 					nHeight + 4, 5, 5
@@ -1565,8 +1588,14 @@ void NotePropertiesRuler::drawNote(
 
 		if ( !( noteStyle & NoteStyle::Moved ) ) {
 			// paint the octave
-			p.setPen( notePen );
-			p.setBrush( noteBrush );
+			if ( noteStyle & NoteStyle::Transient ) {
+				p.setPen( movingPen );
+				p.setBrush( movingBrush );
+			}
+			else {
+				p.setPen( notePen );
+				p.setBrush( noteBrush );
+			}
 			p.drawEllipse(
 				QPoint( nX, nOctaveY ), nRadiusOctave, nRadiusOctave
 			);

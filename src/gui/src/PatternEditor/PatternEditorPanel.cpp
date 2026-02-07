@@ -56,6 +56,17 @@
 
 using namespace H2Core;
 
+QString PatternEditorPanel::DragTypeToQString( DragType dragType ) {
+	switch( dragType ) {
+	case PatternEditorPanel::DragType::Length:
+		return "Length";
+	case PatternEditorPanel::DragType::Property:
+		return "Property";
+	default:
+		return QString( "Unknown type [%1]" ).arg( static_cast<int>(dragType) );
+	}
+}
+
 DrumPatternRow::DrumPatternRow() noexcept
 	: id( Instrument::EmptyId ),
 	  sType( "" ),
@@ -163,6 +174,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	, m_nCursorColumn( 0 )
 	, m_bPatternSelectedViaTab( false )
 	, m_bTypeLabelsMustBeVisible( false )
+    , m_dragType( DragType::None )
 {
 	setAcceptDrops(true);
 
