@@ -152,7 +152,7 @@ AudioFileBrowser::~AudioFileBrowser()
 
 bool AudioFileBrowser::isFileSupported( const QString& sFileName )
 {
-	return Filesystem::AudioFormatFromSuffix( sFileName ) !=
+	return Filesystem::AudioFormatFromSuffix( sFileName, true ) !=
 		Filesystem::AudioFormat::Unknown;
 }
 
@@ -364,34 +364,35 @@ void AudioFileBrowser::on_cancelBTN_clicked()
 	reject();
 }
 
-
-
 void AudioFileBrowser::on_openBTN_clicked()
 {
 	if ( m_pTree->selectionModel()->selectedRows().size() > 0 ) {
-		QList<QModelIndex>::iterator i;
 		QList<QModelIndex> list = m_pTree->selectionModel()->selectedRows();
 
-		for (i = list.begin(); i != list.end(); ++i) {
-			QString path2 = (*i).data().toString();
-			if ( isFileSupported( path2 ) ){
-				QString path = pathLineEdit->text();
-				
-				if (! path.endsWith("/") ) {
-					path = path + "/";
+		for ( auto ii = list.begin(); ii != list.end(); ++ii ) {
+			const QString sFileName = ( *ii ).data().toString();
+			if ( isFileSupported( sFileName ) ) {
+				QString sDir = pathLineEdit->text();
+				if ( !sDir.endsWith( "/" ) ) {
+					sDir = sDir + "/";
 				}
-				
-				QString act_filename = path + path2;
-				m_pSelectedFile << act_filename ;
+				const QString sFilePath = sDir + sFileName;
+				if ( Filesystem::file_exists( sFilePath, true ) ) {
+					// Open a file
+					m_pSelectedFile << sFilePath;
+				}
 			}
 		}
+	}
+
+	if ( m_pSelectedFile.size() < 3 ) {
+		// No valid audio files.
+		return;
 	}
 
 	m_sSelectedDirectory = pathLineEdit->text();
 	accept();
 }
-
-
 
 void AudioFileBrowser::on_playSamplescheckBox_clicked()
 {
@@ -408,6 +409,9 @@ QStringList AudioFileBrowser::getSelectedFiles()
 	if ( autoVelCheckBox->isChecked() ) {
 		m_pSelectedFile[1] = "true";
 	}
+
+
+
 	return m_pSelectedFile;
 }
 
