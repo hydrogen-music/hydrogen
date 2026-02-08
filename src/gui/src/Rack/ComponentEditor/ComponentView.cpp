@@ -1378,7 +1378,7 @@ void ComponentView::addNewLayer()
 		sPath = QDir::homePath();
 	}
 
-	AudioFileBrowser* pFileBrowser =
+	auto pFileBrowser =
 		new AudioFileBrowser( nullptr, true, true, sPath, sFileName );
 	// The first two elements of this list will indicate whether the user has
 	// checked the additional options.
@@ -1397,7 +1397,7 @@ void ComponentView::addNewLayer()
 
 	delete pFileBrowser;
 
-	if ( selectedFiles[2].isEmpty() ) {
+	if ( selectedFiles.size() < 3 || selectedFiles[2].isEmpty() ) {
 		return;
 	}
 
