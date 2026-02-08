@@ -2228,8 +2228,8 @@ void PatternEditor::mouseEditStart( QMouseEvent *ev ) {
 		// of custom length.
 		const auto currentGridPoint = pointToGridPoint( currentPoint, true );
 
-		auto key = Note::Key::Invalid;
-		auto octave = Note::Octave::Invalid;
+		auto key = Note::KeyDefault;
+		auto octave = Note::OctaveDefault;
 		if ( m_instance == Editor::Instance::PianoRoll ) {
 			// Use the row of the DrumPatternEditor/DB for further note
 			// interactions.
