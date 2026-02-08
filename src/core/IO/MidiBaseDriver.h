@@ -52,6 +52,7 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 	static QString portTypeToQString( const PortType& portType );
 
 	static constexpr int nBacklogSize = 200;
+	static constexpr int nAllNotesOffThresholdInSeconds = 15;
 
 	MidiBaseDriver();
 	virtual ~MidiBaseDriver();
@@ -70,6 +71,11 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 	std::vector<std::shared_ptr<MidiInput::HandledInput> > getHandledInputs();
 	std::vector<std::shared_ptr<MidiOutput::HandledOutput> > getHandledOutputs(
 	);
+
+	/** Sends Note-Off messages for all Note-On messages send during the last
+	 * #nAllNotesOffThresholdInSeconds seconds allowed by a "All Notes Off"
+	 * Channel Mode message.*/
+	void sendAllNotesOff();
 
 	/** In an ideal MIDI device the audio engine would be driven by either
 	 * an internal or external clock providing the next tick on predefined

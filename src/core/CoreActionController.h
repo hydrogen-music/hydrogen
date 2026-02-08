@@ -573,10 +573,6 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * case something went wrong. */
 		static bool activatePlaylistSong( int nSongNumber );
 
-		/** Sends NoteOff MIDI messages for all instruments of the current
-		 * drumkit. */
-		static bool sendAllNoteOffMessages();
-
 		/** Enable or disable tempo control using MIDI clock. */
 		static bool setMidiClockInputHandling( bool bHandle );
 

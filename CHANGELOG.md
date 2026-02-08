@@ -150,6 +150,10 @@ All notable changes to this project will be documented in this file.
     boxes (#435).
   - `NOTE_OFF` messages are now always send at the end of custom note lengths
     even if they exceed the length of the underlying sample(s).
+  - Hydrogen no longer sends `NOTE_OFF` MIDI messages for all instruments when
+    stopping playback. Instead, it sends them for all unpaired `NOTE_ON`
+    messages of the last 15 seconds followed by an "All Notes Off"
+    `CHANNEL_MODE` message on the MIDI feedback channel (#2285).
 - PlaylistEditor:
   - All actions can now be undone and redone.
   - Songs can be loaded by keyboard selection and pressing Enter key.

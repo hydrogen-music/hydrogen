@@ -197,8 +197,6 @@ void Hydrogen::sequencerPlay()
 /// Stop the internal sequencer
 void Hydrogen::sequencerStop()
 {
-	CoreActionController::sendAllNoteOffMessages();
-
 	m_pAudioEngine->stop();
 	CoreActionController::activateRecordMode( false );
 
@@ -1153,6 +1151,10 @@ void Hydrogen::panic()
 	sequencerStop();
 	m_pAudioEngine->getSampler()->stopPlayingNotes();
 	m_pAudioEngine->unlock();
+
+    if ( m_pAudioEngine->getMidiDriver() != nullptr ) {
+		m_pAudioEngine->getMidiDriver()->sendAllNotesOff();
+    }
 }
 
 bool Hydrogen::hasJackDriver() const
