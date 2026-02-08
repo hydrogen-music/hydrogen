@@ -180,6 +180,11 @@ MidiBaseDriver::getHandledOutputs()
 
 void MidiBaseDriver::sendAllNotesOff()
 {
+	const auto pPref = Preferences::get_instance();
+	if ( pPref->getMidiSendNoteOff() == Preferences::MidiSendNoteOff::Never ) {
+		return;
+	}
+
 	const auto threshold =
 		Clock::now() -
 		std::chrono::seconds( MidiBaseDriver::nAllNotesOffThresholdInSeconds );
@@ -196,7 +201,7 @@ void MidiBaseDriver::sendAllNotesOff()
 			}
 
 			if ( hhandledOutput->type == MidiMessage::Type::NoteOn ) {
-                // Enqueue
+				// Enqueue
 				noteOnMessages.insert( std::make_pair(
 					Midi::noteFromIntClamp(
 						static_cast<int>( hhandledOutput->data1 )
@@ -205,8 +210,8 @@ void MidiBaseDriver::sendAllNotesOff()
 				) );
 			}
 			else if ( hhandledOutput->type == MidiMessage::Type::NoteOff ) {
-                // Remove the corresponding Note-On message. It does not require
-                // a Note-Off anymore.
+				// Remove the corresponding Note-On message. It does not require
+				// a Note-Off anymore.
 				const auto signature = std::make_pair(
 					Midi::noteFromIntClamp(
 						static_cast<int>( hhandledOutput->data1 )
@@ -215,7 +220,7 @@ void MidiBaseDriver::sendAllNotesOff()
 				);
 				const auto it = noteOnMessages.find( signature );
 				if ( it != noteOnMessages.end() ) {
-                    noteOnMessages.erase( it );
+					noteOnMessages.erase( it );
 				}
 			}
 		}
