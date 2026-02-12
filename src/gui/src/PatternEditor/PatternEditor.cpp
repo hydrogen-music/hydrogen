@@ -1556,12 +1556,13 @@ std::vector<std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 		// have a tail under point? Those tails could span the whole row and
 		// only extend to the right. We would select all notes at the nearest
 		// grid point having a tail intersecting with the cursor.
-		nLastDistance = gridPointLower.getColumn();
+		nLastDistance = -1;
 		nLastPosition = -1;
-		for ( auto it = notes->lower_bound( 0 );
+		for ( auto it = notes->begin();
 			  it != notes->end() && it->first <= gridPointLower.getColumn();
 			  ++it ) {
 			const auto ppNote = it->second;
+
 			if ( ppNote != nullptr &&
 				 ppNote->getLength() != LENGTH_ENTIRE_SAMPLE &&
 				 row.contains( ppNote ) &&
@@ -1581,6 +1582,11 @@ std::vector<std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 					const int nDistance = std::abs(
 						ppNote->getPosition() - gridPointUpper.getColumn()
 					);
+
+					if ( nLastDistance == -1 ) {
+						nLastDistance = nDistance;
+						nLastPosition = ppNote->getPosition();
+					}
 
 					if ( nDistance < nLastDistance ) {
 						// This note is nearer than (potential) previous
