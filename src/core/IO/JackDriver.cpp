@@ -1955,6 +1955,10 @@ void JackDriver::handleJackMidiOutput( jack_nframes_t nframes )
 	}
 
     for ( const auto& mmessage : newMessages ) {
+		t = std::clamp(
+			static_cast<jack_nframes_t>( mmessage.getFrameOffset() ),
+			static_cast<jack_nframes_t>( 0 ), nframes
+		);
 
 #ifdef JACK_MIDI_NEEDS_NFRAMES
 		buffer = jack_midi_event_reserve( buf, t, len, nframes );
