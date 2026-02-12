@@ -982,7 +982,8 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 	}
 
 	if ( bSendMidiNoteOn && pHydrogen->getMidiDriver() != nullptr ) {
-		const auto noteOnMessage = MidiMessage::from( pNote );
+		auto noteOnMessage = MidiMessage::from( pNote );
+		noteOnMessage.setFrameOffset( nInitialBufferPos );
 
 		if ( noteOnMessage.getChannel() != Midi::ChannelInvalid &&
 			 noteOnMessage.getChannel() != Midi::ChannelOff ) {
