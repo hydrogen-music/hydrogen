@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "type": "lldb-vscode",
+            "request": "launch",
+            "name": "Hydrogen LLDB",
+            "program": "${workspaceFolder}/build/src/gui/hydrogen",
+            "cwd": "${workspaceFolder}",
+            "args": ["--child", "-VDebug"]
+        },
+        {
+            "type": "lldb-vscode",
+            "request": "launch",
+            "name": "Hydrogen Tests LLDB",
+            "program": "${workspaceFolder}/build/src/tests/tests",
+            "cwd": "${workspaceFolder}",
+            "args": ["-VDebug"]
+        }
+    ]
+}
