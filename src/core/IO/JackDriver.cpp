@@ -360,8 +360,6 @@ JackDriver::JackDriver( JackProcessCallback processCallback, Mode mode )
 	  m_fLastTimebaseBpm( 120 ),
 	  m_nTimebaseFrameOffset( 0 ),
 	  m_lastTransportBits( 0 ),
-	  m_midiRxInPosition( 0 ),
-	  m_midiRxOutPosition( 0 ),
 	  m_pMidiOutputPort( nullptr ),
 	  m_pMidiInputPort( nullptr )
 #ifdef HAVE_INTEGRATION_TESTS
@@ -1926,7 +1924,8 @@ void JackDriver::handleJackMidiOutput( jack_nframes_t nframes )
 	void* buf;
 	jack_nframes_t t;
 	uint8_t data[1];
-	uint8_t len;
+    uint8_t messageBuffer[3];
+	const uint8_t len = 3;
 
 	if ( m_pMidiOutputPort == nullptr ) {
 		return;
@@ -1945,16 +1944,17 @@ void JackDriver::handleJackMidiOutput( jack_nframes_t nframes )
 
 	t = 0;
 
-	std::scoped_lock lock{ m_midiMutex };
-	while ( ( t < nframes ) && ( m_midiRxOutPosition != m_midiRxInPosition ) ) {
-		len = m_jackMidiBuffer[4 * m_midiRxInPosition];
-		if ( len == 0 ) {
-			m_midiRxInPosition++;
-			if ( m_midiRxInPosition >= JackDriver::jackMidiBufferMax ) {
-				m_midiRxInPosition = 0;
-			}
-			continue;
+	std::vector<MidiMessage> newMessages;
+    {
+        std::scoped_lock lock{ m_midiMutex };
+		newMessages.reserve( m_outputMessageQueue.size() );
+		while ( m_outputMessageQueue.size() > 0 ) {
+            newMessages.push_back( std::move( m_outputMessageQueue.front() ) );
+            m_outputMessageQueue.pop();
 		}
+	}
+
+    for ( const auto& mmessage : newMessages ) {
 
 #ifdef JACK_MIDI_NEEDS_NFRAMES
 		buffer = jack_midi_event_reserve( buf, t, len, nframes );
@@ -1964,13 +1964,65 @@ void JackDriver::handleJackMidiOutput( jack_nframes_t nframes )
 		if ( buffer == nullptr ) {
 			break;
 		}
-		t++;
-		m_midiRxInPosition++;
-		if ( m_midiRxInPosition >= JackDriver::jackMidiBufferMax ) {
-			m_midiRxInPosition = 0;
+
+		switch ( mmessage.getType() ) {
+			case MidiMessage::Type::ControlChange: {
+				messageBuffer[0] =
+					0xB0 | ( static_cast<int>( mmessage.getChannel() ) - 1 );
+				messageBuffer[1] = static_cast<int>( mmessage.getData1() );
+				messageBuffer[2] = static_cast<int>( mmessage.getData2() );
+				break;
+			}
+			case MidiMessage::Type::NoteOn: {
+				messageBuffer[0] =
+					0x90 | ( static_cast<int>( mmessage.getChannel() ) - 1 );
+				messageBuffer[1] = static_cast<int>( mmessage.getData1() );
+				messageBuffer[2] = static_cast<int>( mmessage.getData2() );
+
+				break;
+			}
+			case MidiMessage::Type::NoteOff: {
+				messageBuffer[0] =
+					0x80 | ( static_cast<int>( mmessage.getChannel() ) - 1 );
+				messageBuffer[1] = static_cast<int>( mmessage.getData1() );
+				messageBuffer[2] = 0;
+				break;
+			}
+			case MidiMessage::Type::Start: {
+				messageBuffer[0] = 0xFA;
+				messageBuffer[1] = 0;
+				messageBuffer[2] = 0;
+				break;
+			}
+			case MidiMessage::Type::Stop: {
+				messageBuffer[0] = 0xFC;
+				messageBuffer[1] = 0;
+				messageBuffer[2] = 0;
+				break;
+			}
+
+			case MidiMessage::Type::Continue: {
+				messageBuffer[0] = 0xFB;
+				messageBuffer[1] = 0;
+				messageBuffer[2] = 0;
+				break;
+			}
+
+			case MidiMessage::Type::TimingClock: {
+				messageBuffer[0] = 0xF8;
+				messageBuffer[1] = 0;
+				messageBuffer[2] = 0;
+
+				break;
+			}
+			default:
+				ERRORLOG( QString( "Unhandled message [%1]" )
+							  .arg( mmessage.toQString() ) );
+                continue;
 		}
+
 		memcpy(
-			buffer, m_jackMidiBuffer + ( 4 * m_midiRxInPosition ) + 1, len
+			buffer, messageBuffer, len
 		);
 	}
 }
@@ -2160,7 +2212,7 @@ void JackDriver::jackDriverShutdown( void* pInstance )
 	);
 }
 
-void JackDriver::sendJackMidiMessage( uint8_t buf[4], uint8_t len )
+void JackDriver::sendJackMidiMessage( MidiMessage msg )
 {
 	if ( m_mode != Mode::Combined ) {
 		return;
@@ -2170,26 +2222,11 @@ void JackDriver::sendJackMidiMessage( uint8_t buf[4], uint8_t len )
 
     std::scoped_lock lock{ m_midiMutex };
 
-	next_pos = m_midiRxOutPosition + 1;
-	if ( next_pos >= JackDriver::jackMidiBufferMax ) {
-		next_pos = 0;
+	if ( m_outputMessageQueue.size() > 128 ) {
+        return;
 	}
 
-	if ( next_pos == m_midiRxInPosition ) {
-		/* buffer is full */
-		return;
-	}
-
-	if ( len > 3 ) {
-		len = 3;
-	}
-
-	m_jackMidiBuffer[( 4 * next_pos )] = len;
-	m_jackMidiBuffer[( 4 * next_pos ) + 1] = buf[0];
-	m_jackMidiBuffer[( 4 * next_pos ) + 2] = buf[1];
-	m_jackMidiBuffer[( 4 * next_pos ) + 3] = buf[2];
-
-	m_midiRxOutPosition = next_pos;
+    m_outputMessageQueue.push( msg );
 }
 
 void JackDriver::sendControlChangeMessage( const MidiMessage& msg )
@@ -2198,17 +2235,7 @@ void JackDriver::sendControlChangeMessage( const MidiMessage& msg )
 		return;
 	}
 
-	uint8_t buffer[4];
-
-	// Midi::Channel within Hydrogen represent user-facing values. Since the
-	// numerical value of channel `1` is `0` within the MIDI standard, we have
-	// to convert it.
-	buffer[0] = 0xB0 | ( static_cast<int>( msg.getChannel() ) - 1 );
-	buffer[1] = static_cast<int>( msg.getData1() );
-	buffer[2] = static_cast<int>( msg.getData2() );
-	buffer[3] = 0;
-
-	sendJackMidiMessage( buffer, 3 );
+	sendJackMidiMessage( msg );
 }
 
 void JackDriver::sendNoteOnMessage( const MidiMessage& msg )
@@ -2217,18 +2244,8 @@ void JackDriver::sendNoteOnMessage( const MidiMessage& msg )
 		return;
 	}
 
-	uint8_t buffer[4];
 
-	// Midi::Channel within Hydrogen represent user-facing values. Since the
-	// numerical value of channel `1` is `0` within the MIDI standard, we have
-	// to convert it.
-	buffer[0] =
-		0x90 | ( static_cast<int>( msg.getChannel() ) - 1 ); /* note on */
-	buffer[1] = static_cast<int>( msg.getData1() );
-	buffer[2] = static_cast<int>( msg.getData2() );
-	buffer[3] = 0;
-
-	sendJackMidiMessage( buffer, 3 );
+	sendJackMidiMessage( msg );
 }
 
 void JackDriver::sendNoteOffMessage( const MidiMessage& msg )
@@ -2237,18 +2254,7 @@ void JackDriver::sendNoteOffMessage( const MidiMessage& msg )
 		return;
 	}
 
-	uint8_t buffer[4];
-
-	// Midi::Channel within Hydrogen represent user-facing values. Since the
-	// numerical value of channel `1` is `0` within the MIDI standard, we have
-	// to convert it.
-	buffer[0] =
-		0x80 | ( static_cast<int>( msg.getChannel() ) - 1 ); /* note off */
-	buffer[1] = static_cast<int>( msg.getData1() );
-	buffer[2] = 0;
-	buffer[3] = 0;
-
-	sendJackMidiMessage( buffer, 3 );
+	sendJackMidiMessage( msg );
 }
 
 void JackDriver::sendSystemRealTimeMessage( const MidiMessage& msg )
@@ -2257,30 +2263,7 @@ void JackDriver::sendSystemRealTimeMessage( const MidiMessage& msg )
 		return;
 	}
 
-	uint8_t buffer[4];
-
-	if ( msg.getType() == MidiMessage::Type::Start ) {
-		buffer[0] = 0xFA;
-	}
-	else if ( msg.getType() == MidiMessage::Type::Continue ) {
-		buffer[0] = 0xFB;
-	}
-	else if ( msg.getType() == MidiMessage::Type::Stop ) {
-		buffer[0] = 0xFC;
-	}
-	else if ( msg.getType() == MidiMessage::Type::TimingClock ) {
-		buffer[0] = 0xF8;
-	}
-	else {
-		ERRORLOG( QString( "Unsupported event [%1]" )
-					  .arg( MidiMessage::TypeToQString( msg.getType() ) ) );
-		return;
-	}
-	buffer[1] = 0;
-	buffer[2] = 0;
-	buffer[3] = 0;
-
-	sendJackMidiMessage( buffer, 3 );
+	sendJackMidiMessage( msg );
 }
 
 QString JackDriver::JackTransportStateToQString( const jack_transport_state_t& t
@@ -2412,15 +2395,7 @@ QString JackDriver::toQString( const QString& sPrefix, bool bShort ) const
 			.append( QString( "%1%2m_lastTransportBits: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
-						 .arg( m_lastTransportBits ) )
-			.append( QString( "%1%2m_midiRxInPosition: %3\n" )
-						 .arg( sPrefix )
-						 .arg( s )
-						 .arg( m_midiRxInPosition ) )
-			.append( QString( "%1%2m_midiRxOutPosition: %3\n" )
-						 .arg( sPrefix )
-						 .arg( s )
-						 .arg( m_midiRxOutPosition ) );
+						 .arg( m_lastTransportBits ) );
 #ifdef HAVE_INTEGRATION_TESTS
 		sOutput
 			.append( QString( "%1%2m_nIntegrationLastRelocationFrame: %3\n" )
@@ -2483,12 +2458,7 @@ QString JackDriver::toQString( const QString& sPrefix, bool bShort ) const
 			.append( QString( ", m_nTimebaseFrameOffset: %1" )
 						 .arg( m_nTimebaseFrameOffset ) )
 			.append( QString( ", m_lastTransportBits: %1" )
-						 .arg( m_lastTransportBits ) )
-			.append(
-				QString( ", m_midiRxInPosition: %1" ).arg( m_midiRxInPosition )
-			)
-			.append( QString( ", m_midiRxOutPosition: %1" )
-						 .arg( m_midiRxOutPosition ) );
+						 .arg( m_lastTransportBits ) );
 #ifdef HAVE_INTEGRATION_TESTS
 		sOutput
 			.append( QString( ", m_nIntegrationLastRelocationFrame: %1" )
