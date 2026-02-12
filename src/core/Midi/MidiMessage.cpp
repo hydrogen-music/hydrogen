@@ -29,11 +29,14 @@
 namespace H2Core
 {
 
-MidiMessage::MidiMessage() : m_timePoint( Clock::now() )
-						   , m_type( Type::Unknown )
-						   , m_data1( Midi::ParameterInvalid )
-						   , m_data2( Midi::ParameterInvalid )
-						   , m_channel( Midi::ChannelInvalid ) {
+MidiMessage::MidiMessage()
+	: m_timePoint( Clock::now() ),
+	  m_type( Type::Unknown ),
+	  m_data1( Midi::ParameterInvalid ),
+	  m_data2( Midi::ParameterInvalid ),
+	  m_channel( Midi::ChannelInvalid ),
+	  m_nFrameOffset( 0 )
+{
 }
 
 MidiMessage::MidiMessage(
@@ -46,17 +49,20 @@ MidiMessage::MidiMessage(
 	  m_type( type ),
 	  m_data1( data1 ),
 	  m_data2( data2 ),
-	  m_channel( channel )
+	  m_channel( channel ),
+	  m_nFrameOffset( 0 )
 {
 }
 
-void MidiMessage::clear() {
+void MidiMessage::clear()
+{
 	m_timePoint = Clock::now();
 	m_type = Type::Unknown;
 	m_data1 = Midi::ParameterInvalid;
 	m_data2 = Midi::ParameterInvalid;
 	m_channel = Midi::ChannelInvalid;
 	m_sysexData.clear();
+	m_nFrameOffset = 0;
 }
 
 Midi::Channel MidiMessage::deriveChannel( int nStatusByte )
@@ -169,6 +175,7 @@ MidiMessage MidiMessage::from( const MidiMessage& otherMsg ) {
 	msg.m_data1 = otherMsg.m_data1;
 	msg.m_data2 = otherMsg.m_data2;
 	msg.m_channel = otherMsg.m_channel;
+	msg.m_nFrameOffset = otherMsg.m_nFrameOffset;
 
 	if ( otherMsg.m_sysexData.size() > 0 ) {
 		msg.m_sysexData.resize( otherMsg.m_sysexData.size() );
@@ -271,6 +278,8 @@ QString MidiMessage::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( static_cast<int>( m_data1 ) ) )
 			.append( QString( "%1%2m_data2: %3\n" )
 					 .arg( static_cast<int>( m_data2 ) ) )
+			.append( QString( "%1%2m_nFrameOffset: %3\n" )
+					 .arg( m_nFrameOffset ) )
 			.append( QString( "%1%2m_channel: %3\n" )
 					 .arg( static_cast<int>(m_channel) ) )
 			.append( QString( "%1%2m_sysexData: [" ) );
@@ -294,6 +303,7 @@ QString MidiMessage::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_data1: %1" ).arg( static_cast<int>( m_data1 ) ) )
 			.append( QString( ", m_data2: %1" ).arg( static_cast<int>( m_data2 ) ) )
 			.append( QString( ", m_channel: %1" ).arg( static_cast<int>(m_channel) ) )
+			.append( QString( ", m_nFrameOffset: %1" ).arg( static_cast<int>(m_nFrameOffset) ) )
 			.append( QString( ", m_sysexData: [" ) );
 		bool bIsFirst = true;
 		for ( const auto& dd : m_sysexData ) {
