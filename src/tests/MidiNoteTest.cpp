@@ -544,7 +544,8 @@ void MidiNoteTest::testSendNoteOff()
 	// length, we have to ensure the audio engine is in the right state.
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
-	CPPUNIT_ASSERT( pAudioEngine->getAudioDriver() != nullptr );
+	auto pAudioDriver = pAudioEngine->getAudioDriver();
+	CPPUNIT_ASSERT( pAudioDriver != nullptr );
 
 	auto pSampler = pAudioEngine->getSampler();
 	auto renderNote = [&]( std::shared_ptr<Note> pNote ) {
@@ -584,6 +585,15 @@ void MidiNoteTest::testSendNoteOff()
 		pAudioEngine->getMidiDriver()
 	);
 	CPPUNIT_ASSERT( pLoopBackMidiDriver != nullptr );
+
+	auto checkBacklogMessages = [&]( const std::vector<MidiMessage>& backlog ) {
+		for ( const auto& mmessage : backlog ) {
+			CPPUNIT_ASSERT( mmessage.getFrameOffset() >= 0 );
+			CPPUNIT_ASSERT(
+				mmessage.getFrameOffset() <= pAudioDriver->getBufferSize()
+			);
+		}
+	};
 
 	// Maximum temporal distance between a Note-Off preceding a Note-On in the
 	// auto-stop feature. This is expected to be significantly shorter than the
@@ -626,6 +636,7 @@ void MidiNoteTest::testSendNoteOff()
 		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
 
 		const auto messageBacklog = pLoopBackMidiDriver->getBacklogMessages();
+		checkBacklogMessages( messageBacklog );
 		CPPUNIT_ASSERT( messageBacklog.size() == 6 );
 		CPPUNIT_ASSERT(
 			messageBacklog[0].getType() == MidiMessage::Type::NoteOff
@@ -690,6 +701,7 @@ void MidiNoteTest::testSendNoteOff()
 		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
 
 		const auto messageBacklog = pLoopBackMidiDriver->getBacklogMessages();
+		checkBacklogMessages( messageBacklog );
 		CPPUNIT_ASSERT( messageBacklog.size() == 2 );
 		CPPUNIT_ASSERT(
 			messageBacklog[0].getType() == MidiMessage::Type::NoteOn
@@ -710,6 +722,7 @@ void MidiNoteTest::testSendNoteOff()
 		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
 
 		const auto messageBacklog = pLoopBackMidiDriver->getBacklogMessages();
+		checkBacklogMessages( messageBacklog );
 		CPPUNIT_ASSERT( messageBacklog.size() == 4 );
 		CPPUNIT_ASSERT(
 			messageBacklog[0].getType() == MidiMessage::Type::NoteOn
@@ -768,6 +781,7 @@ void MidiNoteTest::testSendNoteOff()
 		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
 
 		const auto messageBacklog = pLoopBackMidiDriver->getBacklogMessages();
+		checkBacklogMessages( messageBacklog );
 		CPPUNIT_ASSERT( messageBacklog.size() == 6 );
 		CPPUNIT_ASSERT(
 			messageBacklog[0].getType() == MidiMessage::Type::NoteOff
@@ -833,6 +847,7 @@ void MidiNoteTest::testSendNoteOff()
 		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
 
 		const auto messageBacklog = pLoopBackMidiDriver->getBacklogMessages();
+		checkBacklogMessages( messageBacklog );
 		CPPUNIT_ASSERT( messageBacklog.size() == 2 );
 		CPPUNIT_ASSERT(
 			messageBacklog[0].getType() == MidiMessage::Type::NoteOn
@@ -853,6 +868,7 @@ void MidiNoteTest::testSendNoteOff()
 		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
 
 		const auto messageBacklog = pLoopBackMidiDriver->getBacklogMessages();
+		checkBacklogMessages( messageBacklog );
 		CPPUNIT_ASSERT( messageBacklog.size() == 4 );
 		CPPUNIT_ASSERT(
 			messageBacklog[0].getType() == MidiMessage::Type::NoteOn
