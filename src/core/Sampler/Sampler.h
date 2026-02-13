@@ -275,6 +275,7 @@ class Sampler : public H2Core::Object<Sampler> {
 		std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
 		int nBufferSize,
 		int nInitialBufferPos,
+        long long nCurrentFrame,
 		float fComponentGain,
 		float fPan_L,
 		float fPan_R,
