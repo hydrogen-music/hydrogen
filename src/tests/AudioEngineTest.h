@@ -27,10 +27,16 @@
  * integration tests with both functional audio and MIDI driver. */
 class AudioEngineTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( AudioEngineTest );
+	CPPUNIT_TEST( testMidiNoteOrdering );
 	CPPUNIT_TEST( testNotePickup );
 	CPPUNIT_TEST_SUITE_END();
 
    public:
+	/** Whenever adjacent note heads are touching note tails, make sure the
+	 * Note-On events of the forrmer are send after the Note-Off events of the
+	 * former.*/
+	void testMidiNoteOrdering();
+
 	/** Ensure when playing a song in song mode without looping enabled, the
 	 * note at position zero is not picked up twice. */
 	void testNotePickup();
