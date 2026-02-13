@@ -548,16 +548,17 @@ void MidiNoteTest::testSendNoteOff()
 
 	auto pSampler = pAudioEngine->getSampler();
 	auto renderNote = [&]( std::shared_ptr<Note> pNote ) {
-        pAudioEngine->lock( RIGHT_HERE );
-		pNote->setPosition( TransportPosition::computeTickFromFrame(
+		auto pCopiedNote = std::make_shared<Note>( pNote );
+		pAudioEngine->lock( RIGHT_HERE );
+		pCopiedNote->setPosition( TransportPosition::computeTickFromFrame(
 			pAudioEngine->getRealtimeFrame() +
 			pAudioEngine->getAudioDriver()->getBufferSize()
 		) );
-		pNote->computeNoteStart();
-		const bool bReturn = pSampler->noteOn( pNote );
+		pCopiedNote->computeNoteStart();
+		const bool bReturn = pSampler->noteOn( pCopiedNote );
 		pAudioEngine->unlock();
 
-        return bReturn;
+		return bReturn;
 	};
 
 	const auto pSong =
@@ -585,19 +586,18 @@ void MidiNoteTest::testSendNoteOff()
 	CPPUNIT_ASSERT( pLoopBackMidiDriver != nullptr );
 
 	// Maximum temporal distance between a Note-Off preceding a Note-On in the
-    // auto-stop feature. This is expected to be significantly shorter than the
-    // (custom) note length. Given in milliseconds.
+	// auto-stop feature. This is expected to be significantly shorter than the
+	// (custom) note length. Given in milliseconds.
 	const int nMaxDelayAutoStopNoteMs = 2;
-    // We do not care about the exact length of the note but just check that the
-    // corresponding Note-Off is not send directly after Note-On.
+	// We do not care about the exact length of the note but just check that the
+	// corresponding Note-Off is not send directly after Note-On.
 	const int nMinimalNoteDurationMs = 10;
 
-    const int nCustomLengthInTicks = 108;
+	const int nCustomLengthInTicks = 108;
 	const int nCustomLengthDurationMs =
 		pAudioEngine->getTransportPosition()->getTickSize() * 1000 *
-		nCustomLengthInTicks /
-		pAudioEngine->getAudioDriver()->getSampleRate();
-    const int nDurationTolerance = nCustomLengthDurationMs * 0.05;
+		nCustomLengthInTicks / pAudioEngine->getAudioDriver()->getSampleRate();
+	const int nDurationTolerance = nCustomLengthDurationMs * 0.05;
 
 	////////////////////////////////////////////////////////////////////////////
 	// Tests with sample
@@ -619,13 +619,9 @@ void MidiNoteTest::testSendNoteOff()
 	{
 		pPref->setMidiSendNoteOff( Preferences::MidiSendNoteOff::Always );
 		pLoopBackMidiDriver->clearBacklogMessages();
-		CPPUNIT_ASSERT(
-			renderNote( std::make_shared<Note>( pNoteWithSample ) )
-		);
+		CPPUNIT_ASSERT( renderNote( pNoteWithSample ) );
 		clearSampler();
-		CPPUNIT_ASSERT( renderNote(
-			std::make_shared<Note>( pNoteWithSampleCustomLength )
-		) );
+		CPPUNIT_ASSERT( renderNote( pNoteWithSampleCustomLength ) );
 		clearSampler();
 		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
 
@@ -687,13 +683,9 @@ void MidiNoteTest::testSendNoteOff()
 	{
 		pPref->setMidiSendNoteOff( Preferences::MidiSendNoteOff::Never );
 		pLoopBackMidiDriver->clearBacklogMessages();
-		CPPUNIT_ASSERT(
-			renderNote( std::make_shared<Note>( pNoteWithSample ) )
-		);
+		CPPUNIT_ASSERT( renderNote( pNoteWithSample ) );
 		clearSampler();
-		CPPUNIT_ASSERT( renderNote(
-			std::make_shared<Note>( pNoteWithSampleCustomLength )
-		) );
+		CPPUNIT_ASSERT( renderNote( pNoteWithSampleCustomLength ) );
 		clearSampler();
 		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
 
@@ -711,13 +703,9 @@ void MidiNoteTest::testSendNoteOff()
 		pPref->setMidiSendNoteOff( Preferences::MidiSendNoteOff::OnCustomLengths
 		);
 		pLoopBackMidiDriver->clearBacklogMessages();
-		CPPUNIT_ASSERT(
-			renderNote( std::make_shared<Note>( pNoteWithSample ) )
-		);
+		CPPUNIT_ASSERT( renderNote( pNoteWithSample ) );
 		clearSampler();
-		CPPUNIT_ASSERT( renderNote(
-			std::make_shared<Note>( pNoteWithSampleCustomLength )
-		) );
+		CPPUNIT_ASSERT( renderNote( pNoteWithSampleCustomLength ) );
 		clearSampler();
 		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
 
@@ -838,13 +826,9 @@ void MidiNoteTest::testSendNoteOff()
 	{
 		pPref->setMidiSendNoteOff( Preferences::MidiSendNoteOff::Never );
 		pLoopBackMidiDriver->clearBacklogMessages();
-		CPPUNIT_ASSERT(
-			renderNote( std::make_shared<Note>( pNoteWithoutSample ) )
-		);
+		CPPUNIT_ASSERT( renderNote( pNoteWithoutSample ) );
 		clearSampler();
-		CPPUNIT_ASSERT( renderNote(
-			std::make_shared<Note>( pNoteWithoutSampleCustomLength )
-		) );
+		CPPUNIT_ASSERT( renderNote( pNoteWithoutSampleCustomLength ) );
 		clearSampler();
 		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
 
@@ -862,13 +846,9 @@ void MidiNoteTest::testSendNoteOff()
 		pPref->setMidiSendNoteOff( Preferences::MidiSendNoteOff::OnCustomLengths
 		);
 		pLoopBackMidiDriver->clearBacklogMessages();
-		CPPUNIT_ASSERT(
-			renderNote( std::make_shared<Note>( pNoteWithoutSample ) )
-		);
+		CPPUNIT_ASSERT( renderNote( pNoteWithoutSample ) );
 		clearSampler();
-		CPPUNIT_ASSERT( renderNote(
-			std::make_shared<Note>( pNoteWithoutSampleCustomLength )
-		) );
+		CPPUNIT_ASSERT( renderNote( pNoteWithoutSampleCustomLength ) );
 		clearSampler();
 		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
 
