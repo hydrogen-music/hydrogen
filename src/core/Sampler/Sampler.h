@@ -297,11 +297,11 @@ class Sampler : public H2Core::Object<Sampler> {
 	};
 
 	std::vector<std::shared_ptr<Note>> m_playingNotesQueue;
-	/** Notes for which a NOTE_OFF message will be send at the end of the
+	/** Notes for which a Note-Off message will be send at the end of the
 	 * next processing cycle. */
 	std::vector<std::shared_ptr<Note>> m_queuedNoteOffs;
 
-	/** Notes - ordered by their start position - scheduled to become NOTE_OFF
+	/** Notes - ordered by their start position - scheduled to become Note-Off
 	 * messages as soon as the current transport position reaches their start.
 	 *
 	 * This will be used to custom note length notes either without sample or

@@ -88,7 +88,7 @@ All notable changes to this project will be documented in this file.
     messages if the corresponding settings are checked.
   - The channel for MIDI feedback (and clock messages) can now be configured as
     well (setting it to "Off" makes Hydrogen drop those messages) (#779).
-  - Whether or not Hydrogen is sending or writing `NOTE_OFF` messages can now be
+  - Whether or not Hydrogen is sending or writing `Note-Off` messages can now be
     configured in the MIDI control dialog (#63).
   - Changes in the MIDI Action table can now be undone.
   - MIDI actions can be mapped to the currently selected instrument (by
@@ -142,16 +142,16 @@ All notable changes to this project will be documented in this file.
     to a global channel for the whole drumkit at once.
   - MIDI action handling can now be disabled by setting the corresponding
     channel to "Off".
-  - Instruments without any samples can now send `NOTE_ON` and `NOTE_OFF` MIDI
+  - Instruments without any samples can now send `Note-On` and `Note-Off` MIDI
     messages as well (#63).
-  - `NOTE_OFF`s are now only send or written right before a `NOTE_ON` in case
+  - `Note-Off`s are now only send or written right before a `Note-On` in case
     "Auto-stop Note" is checked in the instrument editor.
   - Both MIDI note number and name are now displayed in the corresponding spin
     boxes (#435).
-  - `NOTE_OFF` messages are now always send at the end of custom note lengths
+  - `Note-Off` messages are now always send at the end of custom note lengths
     even if they exceed the length of the underlying sample(s).
-  - Hydrogen no longer sends `NOTE_OFF` MIDI messages for all instruments when
-    stopping playback. Instead, it sends them for all unpaired `NOTE_ON`
+  - Hydrogen no longer sends `Note-Off` MIDI messages for all instruments when
+    stopping playback. Instead, it sends them for all unpaired `Note-On`
     messages of the last 15 seconds followed by an "All Notes Off"
     `CHANNEL_MODE` message on the MIDI feedback channel (#2285).
 - PlaylistEditor:
@@ -268,19 +268,19 @@ All notable changes to this project will be documented in this file.
   - Does now add tempo changes and tags in case the Timeline is used (#933).
   - Does now add time signature events based on the length of the longest
     pattern within a column (#1680).
-- MIDI import is now able to trigger multiple instruments using a single NOTE ON
-  event (#1765).
+- MIDI import is now able to trigger multiple instruments using a single
+  `Note-On` event (#1765).
 - Fix mixup of JACK per-track output ports on instrument reordering (see Changed
   section for new behaviour) (#71).
 - LADSPA aux do now respect instrument/component/layer mute and solo states.
 - Playback track does respect main volume.
 - Instrument peaks are no longer affected by main volume.
-- MIDI NOTE_OFF events are now properly send for all notes regardless of their
+- MIDI `Note-Off` events are now properly send for all notes regardless of their
   pitch.
 - JACK MIDI and audio ports are now part of the same client. But JACK MIDI can
   now only be used in combination with JACK audio driver. (#422).
-- Note-On and Note-Off messages send via JACK MIDI should now be (almost) frame
-  accurate (#535).
+- `Note-On` and `Note-Off` messages send via JACK MIDI should now be (almost)
+  frame accurate (#535).
 
 ### Removed
 
@@ -402,7 +402,7 @@ All notable changes to this project will be documented in this file.
   - `CLEAR_PATTERN`: to remove all notes of the selected pattern.
   - `INSTRUMENT_PITCH`: to adjust the pitch of an instrument.
 - OSC commands:
-  - `NOTE_ON` and `NOTE_OFF`: which are handled like incoming MIDI events
+  - `Note-On` and `Note-Off`: which are handled like incoming MIDI events
     without triggering their associated actions.
   - `CLEAR_INSTRUMENT`: to remove all notes of the selected pattern associated
     with the provided instrument number.
@@ -428,7 +428,7 @@ All notable changes to this project will be documented in this file.
 - Brazilian translation updated.
 - Grid lines in the Song Editor are now rendered dotted to emphasize that this
   is the space the patterns in rather than objects in their own right.
-- Virtual keyboard strokes are now mapped exactly as incoming MIDI `NOTE_ON`
+- Virtual keyboard strokes are now mapped exactly as incoming MIDI `Note-On`
   events (respecting both "Use output note as input note" and hihat pressure
   groups). But do not trigger associated actions (#1770).
 - CLI option `-d` understand driver names regardless of capitalization.
@@ -446,7 +446,7 @@ All notable changes to this project will be documented in this file.
 - Fix build failure without precompiled headers (e.g. on Gentoo) (#1944).
 - Fix persistent of hihat pressure group settings while changing/restarting MIDI
   drivers.
-- Fix mapping of `NOTE_OFF` MIDI messages in hihat pressure groups.
+- Fix mapping of `Note-Off` MIDI messages in hihat pressure groups.
 - Fix segfault when using MIDI sense button in table of Preferences > MIDI after
   removing rows above it from the table.
 - Fix synchronization problems while using JACK Timebase support (#1953).

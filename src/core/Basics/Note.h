@@ -694,12 +694,12 @@ class Note : public H2Core::Object<Note> {
 		m_selectedLayerInfoMap;
 
 	/** Transient member not written to file. Indicates whether - `-1` if not -
-	 * and when a `NOTE_ON` MIDI message was sent for this note within the
+	 * and when a `Note-On` MIDI message was sent for this note within the
 	 * #Sampler. */
 	long long m_nMidiNoteOnSentFrame;
 
 	/** Transient member not written to file. Indicates at which frame
-	 * #H2Core::Sampler is supposed to send a NOTE_OFF MIDI message
+	 * #H2Core::Sampler is supposed to send a Note-Off MIDI message
 	 * corresponding to this note. */
 	long long m_nMidiNoteOffFrame;
 

@@ -678,10 +678,10 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 						  Preferences::MidiSendNoteOff::OnCustomLengths &&
 					  pCopiedNote->getLength() != LENGTH_ENTIRE_SAMPLE );
 
-				// Auto-stop note. If enabled, Hydrogen makes places a NOTE_OFF
-				// right before each NOTE_ON. In order to not get in trouble
-				// with wrong event order and the NOTE_OFF sneaking behind the
-				// NOTE_ON, we place it one tick ahead.
+				// Auto-stop note. If enabled, Hydrogen makes places a Note-Off
+				// right before each Note-On. In order to not get in trouble
+				// with wrong event order and the Note-Off sneaking behind the
+				// Note-On, we place it one tick ahead.
 				if ( pInstr->isStopNotes() && fNoteTick >= 1.0 &&
 					 bWriteNoteOffs ) {
 					addEvent(

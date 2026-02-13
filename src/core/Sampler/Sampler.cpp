@@ -900,7 +900,7 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		}
 	}
 
-	/** We have to ensure to only send a single MIDI NOTE_ON event. Even for
+	/** We have to ensure to only send a single MIDI Note-On event. Even for
 	 * instruments with more than one component. */
 	bool bSendMidiNoteOn = false;
 
@@ -957,7 +957,7 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		}
 		else {
 			// This component has no valid sample. But can we still trigger a
-			// NOTE_ON MIDI message corresponding to the note.
+			// Note-On MIDI message corresponding to the note.
 			bIsMutedBecauseOfSolo =
 				( bAnyInstrumentIsSoloed && !pInstr->isSoloed() ||
 				  bAnyComponentIsSoloed && !pCompo->getIsSoloed() );
@@ -1019,8 +1019,8 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 
 		if ( noteOnMessage.getChannel() != Midi::ChannelInvalid &&
 			 noteOnMessage.getChannel() != Midi::ChannelOff ) {
-			// Due to historical reasons Hydrogen is sending a MIDI NOTE_OFF
-			// messages right before a NOTE_ON one.
+			// Due to historical reasons Hydrogen is sending a MIDI Note-Off
+			// messages right before a Note-On one.
 			if ( pInstr->isStopNotes() &&
 				 ( Preferences::get_instance()->getMidiSendNoteOff() ==
 					   Preferences::MidiSendNoteOff::Always ||

@@ -96,7 +96,7 @@ namespace Midi {
 	static constexpr Note NoteDefault = Note( 36 );
 	static constexpr Note NoteMaximum = Note( 127 );
 	static constexpr Note NoteInvalid = Note( -1 );
-	/** When recording notes using MIDI NOTE_ON events this offset will be
+	/** When recording notes using MIDI Note-On events this offset will be
 	 * applied to the provided pitch in order to map it to an instrument
 	 * number in the current drmmkit. It corresponds to the electric bass
 	 * drum in the General MIDI notation. */

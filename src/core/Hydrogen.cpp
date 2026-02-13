@@ -455,7 +455,7 @@ bool Hydrogen::addRealtimeNote(
 		bool bIsModified = false;
 
 		if ( bNoteOff ) {
-            // Handle the NOTE_OFF event corresponding to the previous NOTE_ON.
+            // Handle the Note-Off event corresponding to the previous Note-On.
             // This is used to record notes of custom lengths.
 			const int nPatternSize = pCurrentPattern->getLength();
 			const int nCurrentTick = static_cast<int>(

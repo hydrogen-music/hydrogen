@@ -58,7 +58,7 @@ void AudioEngineTest::testNotePickup()
 	CPPUNIT_ASSERT( CoreActionController::setSong( pSong ) );
 
     // Ensure the playback stops after playing a single pattern and that MIDI
-    // NOTE_ON events are sent for each encountered note.
+    // Note-On events are sent for each encountered note.
     CPPUNIT_ASSERT( pSong->getPatternGroupVector()->size() == 1 );
 
     // Ensure we do not build a MIDI feedback loop
@@ -79,7 +79,7 @@ void AudioEngineTest::testNotePickup()
 	pPref->getMidiInstrumentMap()->setUseGlobalOutputChannel( true );
 	pPref->getMidiInstrumentMap()->setGlobalOutputChannel( Midi::ChannelDefault
 	);
-    // We must disable action event handling. Otherwise, NOTE_ON events set in
+    // We must disable action event handling. Otherwise, Note-On events set in
     // the config files might cause weird side effects in this test.
     pPref->m_midiActionChannel = Midi::ChannelOff;
 
@@ -123,7 +123,7 @@ void AudioEngineTest::testNotePickup()
 	}
 	CPPUNIT_ASSERT( nnTry < nMaxTries );
 
-	// Compare the number of encountered NOTE_ON messages with the total number
+	// Compare the number of encountered Note-On messages with the total number
 	// of notes in the current song.
 	const auto backlogMessage = pMidiDriver->getBacklogMessages();
 	int nNoteOnMessage = 0;
