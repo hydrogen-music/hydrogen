@@ -247,7 +247,8 @@ bool MidiMessage::operator==( const MidiMessage& other ) const {
 		 m_data1 != other.m_data1 ||
 		 m_data2 != other.m_data2 ||
 		 m_channel != other.m_channel ||
-		 m_sysexData.size() != other.m_sysexData.size() ) {
+		 m_sysexData.size() != other.m_sysexData.size() ||
+		 m_nFrameOffset != other.m_nFrameOffset ) {
 		return false;
 	}
 
