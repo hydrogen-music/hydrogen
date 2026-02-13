@@ -62,7 +62,7 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 	INFOLOG( QString( "Incoming message:  [%1]" ).arg( msg.toQString() ) );
 
 	// Exclude all midi channel filtering for independent messages and for
-	// NOTE_ON and NOTE_OFF messages (the latter feature their own filtering).
+	// Note-On and Note-Off messages (the latter feature their own filtering).
 	auto type = msg.getType();
 	if ( MidiMessage::Type::Continue != type &&
 		 MidiMessage::Type::NoteOn != type &&
@@ -268,9 +268,6 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 		return pHandledInput;
 	}
 
-	// Two spaces after "msg." in a row to align message parameters
-	DEBUGLOG( QString( "DONE handling msg: [%1]" ).arg( msg.toQString() ) );
-
 	return pHandledInput;
 }
 
@@ -341,7 +338,7 @@ void MidiInput::handleNoteOnMessage(
 	pHydrogen->setLastMidiEvent( MidiEvent::Type::Note );
 	pHydrogen->setLastMidiEventParameter( msg.getData1() );
 
-	// The NOTE_ON event can be associated with a MIDI action too.
+	// The Note-On event can be associated with a MIDI action too.
 	if ( pPref->m_midiActionChannel == Midi::ChannelAll ||
 		 ( pPref->m_midiActionChannel != Midi::ChannelOff &&
 		   pPref->m_midiActionChannel == msg.getChannel() ) ) {

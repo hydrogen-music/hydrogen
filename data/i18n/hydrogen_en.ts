@@ -3185,7 +3185,7 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Send NOTE_OFF messages</source>
+        <source>Send Note-Off messages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

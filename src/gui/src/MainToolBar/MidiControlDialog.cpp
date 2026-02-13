@@ -309,7 +309,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		}
 	);
 
-	auto pOutputSendNoteOffLabel = new QLabel( tr( "Send NOTE_OFF messages" ) );
+	auto pOutputSendNoteOffLabel = new QLabel( tr( "Send Note-Off messages" ) );
 	pOutputLabelledLayout->addWidget( pOutputSendNoteOffLabel, 1, 0 );
 	m_pOutputSendNoteOffComboBox = new QComboBox( pOutputLabelledWidget );
 	m_pOutputSendNoteOffComboBox->setFixedSize( QSize(

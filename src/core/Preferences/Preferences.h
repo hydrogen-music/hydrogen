@@ -166,14 +166,14 @@ class Preferences : public H2Core::Object<Preferences> {
 		preFader = 1
 	};
 
-	/** Whether Hydrogen should pair a sent NOTE_ON message with the
-	 * corresponding NOTE_OFF.
+	/** Whether Hydrogen should pair a sent Note-On message with the
+	 * corresponding Note-Off.
 	 *
 	 * Note that this does not affect stop notes (created using Shift + click).
-	 * They will always result in a NOTE_OFF event. */
+	 * They will always result in a Note-Off event. */
 	enum class MidiSendNoteOff {
 		Always = 0,
-		/** Only send NOTE_OFF messages for notes featuring a user-defined
+		/** Only send Note-Off messages for notes featuring a user-defined
 		 * length. */
 		OnCustomLengths = 1,
 		Never = 2

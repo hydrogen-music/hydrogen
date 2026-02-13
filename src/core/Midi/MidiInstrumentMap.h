@@ -94,7 +94,7 @@ public:
 	};
 	static QString OutputToQString( Output mapping );
 
-	/** Part fo the mapping uniquely identifying a NOTE_ON or NOTE_OFF MIDI
+	/** Part fo the mapping uniquely identifying a Note-On or Note-Off MIDI
      * event. */
 	struct NoteRef {
 		NoteRef() : note( Midi::NoteInvalid ),

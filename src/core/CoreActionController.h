@@ -465,8 +465,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 */
     	static bool toggleGridCell( const GridPoint& gridPoint );
 
-		/** Handle an incoming note event, e.g. a MIDI or OSC NOTE_ON or
-		 * NOTE_OFF as well as virtual keyboard stroke.
+		/** Handle an incoming note event, e.g. a MIDI or OSC Note-On or
+		 * Note-Off as well as virtual keyboard stroke.
 		 *
 		 * @param note determines which note will be triggered.
 		 * @param channel specifies the channel on which a matching instrument

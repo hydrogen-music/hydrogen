@@ -51,6 +51,8 @@
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
 
+#define SAMPLER_DEBUG 0
+
 namespace H2Core {
 
 static std::shared_ptr<Instrument>
@@ -158,22 +160,28 @@ void Sampler::process( uint32_t nFrames )
 						.arg( pNote->prettyName() )
 				);
 			}
-			if ( pNote->getLength() != LENGTH_ENTIRE_SAMPLE &&
-				 pNote->getMidiNoteOnSentFrame() != -1 ) {
-				const auto nPrevStart = pNote->getNoteStart();
-				pNote->setMidiNoteOffFrame(
-					pNote->getMidiNoteOnSentFrame() +
-					TransportPosition::computeFrame(
-						pNote->getLength(), Hydrogen::get_instance()
-												->getAudioEngine()
-												->getTransportPosition()
-												->getTickSize()
-					)
-				);
-				m_scheduledNoteOffQueue.push( pNote );
-			}
-			else {
-				m_queuedNoteOffs.push_back( pNote );
+
+			// Only send Note-Off messages in case we already sent an Note-On.
+			if ( pNote->getMidiNoteOnSentFrame() != -1 ) {
+				// Ensure notes of custom length result in Note-On and Note-Off
+				// messages corresponding to the user-defined length (regardless
+				// of the underlying sample).
+				if ( pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) {
+					const auto nPrevStart = pNote->getNoteStart();
+					pNote->setMidiNoteOffFrame(
+						pNote->getMidiNoteOnSentFrame() +
+						TransportPosition::computeFrame(
+							pNote->getLength(), Hydrogen::get_instance()
+													->getAudioEngine()
+													->getTransportPosition()
+													->getTickSize()
+						)
+					);
+					m_scheduledNoteOffQueue.push( pNote );
+				}
+				else {
+					m_queuedNoteOffs.push_back( pNote );
+				}
 			}
 		}
 		else if ( pNote == nullptr ) {
@@ -188,7 +196,7 @@ void Sampler::process( uint32_t nFrames )
 
 	auto sendNote = [&]( std::shared_ptr<Note> pNote ) {
 		return pNote != nullptr && pNote->getInstrument() != nullptr &&
-			   pNote->getMidiNoteOnSentFrame() != -1 &&
+			   pNote->getMidiNoteOffFrame() != -1 &&
 			   ( Preferences::get_instance()->getMidiSendNoteOff() ==
 					 Preferences::MidiSendNoteOff::Always ||
 				 ( Preferences::get_instance()->getMidiSendNoteOff() ==
@@ -202,6 +210,9 @@ void Sampler::process( uint32_t nFrames )
 			Preferences::get_instance()->getMidiInstrumentMap();
 		auto pMidiDriver = pHydrogen->getMidiDriver();
 		if ( pMidiDriver != nullptr ) {
+			const long long nCurrentFrame =
+				pHydrogen->getAudioEngine()->getCurrentFrame();
+
 			// Queue midi note off messages for notes that have a length
 			// specified for them
 			while ( !m_queuedNoteOffs.empty() ) {
@@ -216,9 +227,21 @@ void Sampler::process( uint32_t nFrames )
 					noteOff.velocity = pNote->getMidiVelocity();
 					if ( noteOff.channel != Midi::ChannelOff &&
 						 noteOff.channel != Midi::ChannelInvalid ) {
-						pMidiDriver->enqueueOutputMessage(
-							MidiMessage::from( noteOff )
+						auto midiMessage = MidiMessage::from( noteOff );
+						// We adjust for the precise onset of the Note-Off
+						// message within the current processing cycle, to have
+						// the best precision possible. But we also have to
+						// ensure a Note-Off is send after the corresponding
+						// Note-On (for notes with neither custom length nor
+						// sample).
+						midiMessage.setFrameOffset(
+							std::max(
+								pNote->getMidiNoteOnSentFrame() + 1,
+								pNote->getMidiNoteOffFrame()
+							) -
+							nCurrentFrame
 						);
+						pMidiDriver->enqueueOutputMessage( midiMessage );
 					}
 				}
 				else if ( pNote == nullptr ||
@@ -251,23 +274,8 @@ void Sampler::process( uint32_t nFrames )
 				continue;
 			}
 
-			auto pAudioEngine = pHydrogen->getAudioEngine();
-			long long nCurrentFrame;
-			if ( pAudioEngine->getState() == AudioEngine::State::Playing ||
-				 pAudioEngine->getState() == AudioEngine::State::Testing ) {
-				// Current transport position.
-				nCurrentFrame =
-					pAudioEngine->getTransportPosition()->getFrame();
-			}
-			else {
-				// In case the playback is stopped we pretend it is still
-				// rolling using the realtime ticks while disregarding tempo
-				// changes in the Timeline. This is important as we want to
-				// continue playing back notes in the sampler and process
-				// realtime events, by e.g. MIDI or Hydrogen's virtual
-				// keyboard.
-				nCurrentFrame = pAudioEngine->getRealtimeFrame();
-			}
+			const long long nCurrentFrame =
+				pHydrogen->getAudioEngine()->getCurrentFrame();
 
 			if ( pNote->getMidiNoteOffFrame() <
 				 nCurrentFrame + static_cast<long long>( nFrames ) ) {
@@ -281,9 +289,21 @@ void Sampler::process( uint32_t nFrames )
 				noteOff.velocity = pNote->getMidiVelocity();
 				if ( noteOff.channel != Midi::ChannelOff &&
 					 noteOff.channel != Midi::ChannelInvalid ) {
-					pMidiDriver->enqueueOutputMessage(
-						MidiMessage::from( noteOff )
+					auto midiMessage = MidiMessage::from( noteOff );
+					// We adjust for the precise onset of the Note-Off message
+					// within the current processing cycle, to have the best
+					// precision possible. But we also have to ensure a Note-Off
+					// is send _after_ the corresponding Note-On. As the user
+					// can only set note lengths in ticks, this should always
+					// the case. But let's have a failsafe.
+					midiMessage.setFrameOffset(
+						std::max(
+							pNote->getMidiNoteOnSentFrame() + 1,
+							pNote->getMidiNoteOffFrame()
+						) -
+						nCurrentFrame
 					);
+					pMidiDriver->enqueueOutputMessage( midiMessage );
 				}
 			}
 			else {
@@ -711,20 +731,26 @@ void Sampler::handleSongSizeChange()
 										   ->getTickOffsetSongSize() ) );
 
 	for ( auto ppNote : m_playingNotesQueue ) {
-		// DEBUGLOG( QString( "pos: %1 -> %2, nTickOffset: %3, note: %4" )
-		// 		  .arg( ppNote->getPosition() )
-		// 		  .arg( std::max( ppNote->getPosition() + nTickOffset,
-		// 						  static_cast<long>(0) ) )
-		// 		  .arg( nTickOffset )
-		// 		  .arg( ppNote->toQString( "", true ) ) );
+#if SAMPLER_DEBUG
+		DEBUGLOG( QString( "pos: %1 -> %2, nTickOffset: %3, note: %4" )
+					  .arg( ppNote->getPosition() )
+					  .arg( std::max(
+						  ppNote->getPosition() + nTickOffset,
+						  static_cast<long>( 0 )
+					  ) )
+					  .arg( nTickOffset )
+					  .arg( ppNote->toQString( "", true ) ) );
+#endif
 
 		ppNote->setPosition( std::max(
 			ppNote->getPosition() + nTickOffset, static_cast<long>( 0 )
 		) );
 		ppNote->computeNoteStart();
 
-		// DEBUGLOG( QString( "new note: %1" )
-		// 		  .arg( ppNote->toQString( "", true ) ) );
+#if SAMPLER_DEBUG
+		DEBUGLOG( QString( "new note: %1" ).arg( ppNote->toQString( "", true ) )
+		);
+#endif
 	}
 }
 
@@ -749,17 +775,8 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		return true;
 	}
 
-	long long nFrame;
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	if ( pAudioEngine->getState() == AudioEngine::State::Playing ||
-		 pAudioEngine->getState() == AudioEngine::State::Testing ) {
-		nFrame = pAudioEngine->getTransportPosition()->getFrame();
-	}
-	else {
-		// use this to support realtime events when transport is not
-		// rolling.
-		nFrame = pAudioEngine->getRealtimeFrame();
-	}
+	const long long nCurrentFrame = pAudioEngine->getCurrentFrame();
 
 	// Only if the Sampler has not started rendering the note yet we
 	// care about its starting position. Else we would encounter
@@ -769,29 +786,35 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 	if ( !pNote->isPartiallyRendered() ) {
 		long long nNoteStartInFrames = pNote->getNoteStart();
 
-		// DEBUGLOG(QString( "nFrame: %1, note pos: %2,
-		// pAudioEngine->getTransportPosition()->getTickSize(): %3,
-		// pAudioEngine->getTransportPosition()->getTick(): %4,
-		// pAudioEngine->getTransportPosition()->getFrame(): %5,
-		// nNoteStartInFrames: %6 ") 		 .arg( nFrame ).arg( pNote->getPosition() )
-		//       .arg( pAudioEngine->getTransportPosition()->getTickSize() )
-		//       .arg( pAudioEngine->getTransportPosition()->getTick() )
-		//       .arg( pAudioEngine->getTransportPosition()->getFrame() )
-		// 		 .arg( nNoteStartInFrames )
-		// 		 .append( pNote->toQString( "", true ) ) );
+#if SAMPLER_DEBUG
+		DEBUGLOG(
+			QString( "nCurrentFrame: %1, note pos: %2, "
+					 "pAudioEngine->getTransportPosition()->getTickSize(): %3, "
+					 "pAudioEngine->getTransportPosition()->getTick(): %4, "
+					 "pAudioEngine->getTransportPosition()->getFrame(): %5, "
+					 "nNoteStartInFrames: %6 " )
+				.arg( nCurrentFrame )
+				.arg( pNote->getPosition() )
+				.arg( pAudioEngine->getTransportPosition()->getTickSize() )
+				.arg( pAudioEngine->getTransportPosition()->getTick() )
+				.arg( pAudioEngine->getTransportPosition()->getFrame() )
+				.arg( nNoteStartInFrames )
+				.append( pNote->toQString( "", true ) )
+		);
+#endif
 
-		if ( nNoteStartInFrames > nFrame ) {
+		if ( nNoteStartInFrames > nCurrentFrame ) {
 			// The note doesn't start right at the beginning of the
 			// buffer rendered in this cycle.
-			nInitialBufferPos = nNoteStartInFrames - nFrame;
+			nInitialBufferPos = nNoteStartInFrames - nCurrentFrame;
 
 			if ( nBufferSize < nInitialBufferPos ) {
 				// this note is not valid. it's in the future...let's skip
 				// it....
 				ERRORLOG(
-					QString( "Note pos in the future?? nFrame: %1, note start: "
+					QString( "Note pos in the future?? nCurrentFrame: %1, note start: "
 							 "%2, nInitialBufferPos: %3, nBufferSize: %4" )
-						.arg( nFrame )
+						.arg( nCurrentFrame )
 						.arg( pNote->getNoteStart() )
 						.arg( nInitialBufferPos )
 						.arg( nBufferSize )
@@ -877,7 +900,7 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		}
 	}
 
-	/** We have to ensure to only send a single MIDI NOTE_ON event. Even for
+	/** We have to ensure to only send a single MIDI Note-On event. Even for
 	 * instruments with more than one component. */
 	bool bSendMidiNoteOn = false;
 
@@ -934,7 +957,7 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		}
 		else {
 			// This component has no valid sample. But can we still trigger a
-			// NOTE_ON MIDI message corresponding to the note.
+			// Note-On MIDI message corresponding to the note.
 			bIsMutedBecauseOfSolo =
 				( bAnyInstrumentIsSoloed && !pInstr->isSoloed() ||
 				  bAnyComponentIsSoloed && !pCompo->getIsSoloed() );
@@ -970,6 +993,14 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		// usign Hydrogen in "MIDI-only" mode.
 		if ( pLayer == nullptr || pHydrogen->getAudioDriver() == nullptr ||
 			 bIsMuted ) {
+			// For note with neither custom length nor a backing sample, we will
+			// send a Note-Off immediately after its Note-On. But we have to
+			// watch out for notes associated with multi-component instruments
+			// which are only partially backed by samples.
+			if ( pNote->getMidiNoteOffFrame() < nCurrentFrame + 1 ) {
+				pNote->setMidiNoteOffFrame( nCurrentFrame + 1 );
+			}
+
 			returnValues[ii] = true;
 			continue;
 		}
@@ -977,17 +1008,19 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		// Actual rendering.
 		returnValues[ii] = renderNote(
 			pNote, pSelectedLayerInfo, nBufferSize, nInitialBufferPos,
-			pCompo->getGain(), fPan_L, fPan_R, fNotePan_L, fNotePan_R, bIsMuted
+			nCurrentFrame, pCompo->getGain(), fPan_L, fPan_R, fNotePan_L,
+			fNotePan_R, bIsMuted
 		);
 	}
 
 	if ( bSendMidiNoteOn && pHydrogen->getMidiDriver() != nullptr ) {
-		const auto noteOnMessage = MidiMessage::from( pNote );
+		auto noteOnMessage = MidiMessage::from( pNote );
+		noteOnMessage.setFrameOffset( nInitialBufferPos );
 
 		if ( noteOnMessage.getChannel() != Midi::ChannelInvalid &&
 			 noteOnMessage.getChannel() != Midi::ChannelOff ) {
-			// Due to historical reasons Hydrogen is sending a MIDI NOTE_OFF
-			// messages right before a NOTE_ON one.
+			// Due to historical reasons Hydrogen is sending a MIDI Note-Off
+			// messages right before a Note-On one.
 			if ( pInstr->isStopNotes() &&
 				 ( Preferences::get_instance()->getMidiSendNoteOff() ==
 					   Preferences::MidiSendNoteOff::Always ||
@@ -996,11 +1029,32 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 					 pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) ) ) {
 				auto noteOffMessage = MidiMessage::from( noteOnMessage );
 				noteOffMessage.setType( MidiMessage::Type::NoteOff );
+				noteOffMessage.setFrameOffset( std::max(
+					nInitialBufferPos - 1, static_cast<long long>( 0 )
+				) );
+
 				pHydrogen->getMidiDriver()->enqueueOutputMessage( noteOffMessage
 				);
+
+				if ( nInitialBufferPos == 0 ) {
+					// In case the new note is located at the very beginning of
+					// the new buffer we deliberately delay it for one frame. As
+					// such the MIDI output is not as precise as it could be.
+					// But we need to avoid spurious reordering of messages send
+					// at the same time stamp. Else the Note-Off could be
+					// handled _after_ our Note-On.
+					noteOnMessage.setFrameOffset( 1 );
+					pNote->setMidiNoteOnSentFrame( nCurrentFrame + 1 );
+				}
+				else {
+					pNote->setMidiNoteOnSentFrame( nCurrentFrame );
+				}
 			}
+			else {
+				pNote->setMidiNoteOnSentFrame( nCurrentFrame );
+			}
+
 			pHydrogen->getMidiDriver()->enqueueOutputMessage( noteOnMessage );
-			pNote->setMidiNoteOnSentFrame( nFrame );
 		}
 	}
 
@@ -1350,6 +1404,7 @@ bool Sampler::renderNote(
 	std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
 	int nBufferSize,
 	int nInitialBufferPos,
+    long long nCurrentFrame,
     float fComponentGain,
     float fPan_L,
     float fPan_R,
@@ -1406,7 +1461,8 @@ bool Sampler::renderNote(
 					.arg( pSample->getFrames() )
 			);
 		}
-        return true;
+
+		return true;
 	}
 
 	const float fLayerGain = pLayer->getGain();
@@ -1499,12 +1555,14 @@ bool Sampler::renderNote(
 		// the note is not ended yet
 		bRetValue = false;
 	}
-	else if ( pInstrument->isFilterActive() && pNote->filterSustain() ) {
-		// If filter is causing note to ring, process more samples.
-		nAvail_bytes = nBufferSize - nInitialBufferPos;
-	}
 	else {
-		nAvail_bytes = nRemainingFrames;
+		if ( pInstrument->isFilterActive() && pNote->filterSustain() ) {
+			// If filter is causing note to ring, process more samples.
+			nAvail_bytes = nBufferSize - nInitialBufferPos;
+		}
+		else {
+			nAvail_bytes = nRemainingFrames;
+		}
 	}
 
 	double fSamplePos = pSelectedLayerInfo->fSamplePosition;
@@ -1676,36 +1734,46 @@ bool Sampler::renderNote(
 	pSelectedLayerInfo->fSamplePosition += nAvail_bytes * fFrequencyRatio;
 
 #ifdef H2CORE_HAVE_LADSPA
-	// LADSPA
-	// change the below return logic if you add code after that ifdef
-	if ( bIsMuted ) {
-		return bRetValue;
-	}
-	float masterVol = pSong->getVolume();
-	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-		auto pFX = Effects::get_instance()->getLadspaFX( nFX );
-		float fLevel = pInstrument->getFxLevel( nFX );
-		if ( pFX != nullptr && fLevel != 0.0 ) {
-			fLevel = fLevel * pFX->getVolume();
+	if ( !bIsMuted ) {
+		float masterVol = pSong->getVolume();
+		for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
+			auto pFX = Effects::get_instance()->getLadspaFX( nFX );
+			float fLevel = pInstrument->getFxLevel( nFX );
+			if ( pFX != nullptr && fLevel != 0.0 ) {
+				fLevel = fLevel * pFX->getVolume();
 
-			float* pBuf_L = pFX->m_pBuffer_L;
-			float* pBuf_R = pFX->m_pBuffer_R;
+				float* pBuf_L = pFX->m_pBuffer_L;
+				float* pBuf_R = pFX->m_pBuffer_R;
 
-			float fFXCost_L = fLevel * masterVol;
-			float fFXCost_R = fLevel * masterVol;
+				float fFXCost_L = fLevel * masterVol;
+				float fFXCost_R = fLevel * masterVol;
 
-			int nBufferPos = nInitialBufferPos;
-			for ( int i = 0; i < nAvail_bytes; ++i ) {
-				fVal_L = buffer_L[nBufferPos];
-				fVal_R = buffer_R[nBufferPos];
+				int nBufferPos = nInitialBufferPos;
+				for ( int i = 0; i < nAvail_bytes; ++i ) {
+					fVal_L = buffer_L[nBufferPos];
+					fVal_R = buffer_R[nBufferPos];
 
-				pBuf_L[nBufferPos] += fVal_L * fFXCost_L;
-				pBuf_R[nBufferPos] += fVal_R * fFXCost_R;
-				++nBufferPos;
+					pBuf_L[nBufferPos] += fVal_L * fFXCost_L;
+					pBuf_R[nBufferPos] += fVal_R * fFXCost_R;
+					++nBufferPos;
+				}
 			}
 		}
 	}
 #endif
+
+	if ( bRetValue ) {
+		// Since the last portion of the layers's sample is rendered in this
+		// processing cycle, we store the corresponding frame in order to send
+		// MIDI Note-Off notes as precisely as possible.
+		if ( pNote->getMidiNoteOffFrame() < nCurrentFrame + nRemainingFrames ) {
+			// For notes corresponding to instruments holding multiple
+			// components, we send a Note-Off after all of them have been
+			// rendered.
+			pNote->setMidiNoteOffFrame( nCurrentFrame + nRemainingFrames );
+		}
+	}
+
 	return bRetValue;
 }
 

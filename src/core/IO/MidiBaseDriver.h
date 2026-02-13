@@ -147,7 +147,7 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 
 	/** These shared members are used to provide a separate worker thread for
 	 * incoming MIDI messages. This is done in order to keep the MIDI driver as
-	 * responsive as possible - since on NOTE_ON events
+	 * responsive as possible - since on Note-On events
 	 * #Hydrogen::addRealtimeNote() is called, which locks the audio engine.
 	 * Otherwise MIDI clock signals interwoved with other messages would yield
 	 * poor results.

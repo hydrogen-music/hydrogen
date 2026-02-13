@@ -1616,19 +1616,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 		return;
 	}
 
-	long long nFrame;
-	if ( getState() == State::Playing || getState() == State::Testing ) {
-		// Current transport position.
-		nFrame = m_pTransportPosition->getFrame();
-	} else {
-		// In case the playback is stopped we pretend it is still
-		// rolling using the realtime ticks while disregarding tempo
-		// changes in the Timeline. This is important as we want to
-		// continue playing back notes in the sampler and process
-		// realtime events, by e.g. MIDI or Hydrogen's virtual
-		// keyboard.
-		nFrame = getRealtimeFrame();
-	}
+	const long long nFrame = getCurrentFrame();
 
 	while ( !m_songNoteQueue.empty() ) {
 		auto pNote = m_songNoteQueue.top();
@@ -2828,22 +2816,9 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 	const auto pHydrogen = Hydrogen::get_instance();
 	auto pPos = m_pTransportPosition;
 
-	long long nFrameStart, nFrameEnd;
+	long long nFrameEnd;
+    long long nFrameStart = getCurrentFrame();
 
-	if ( getState() == State::Ready || getState() == State::CountIn ) {
-		// In case the playback is stopped we pretend it is still
-		// rolling using the realtime ticks while disregarding tempo
-		// changes in the Timeline. This is important as we want to
-		// continue playing back notes in the sampler and process
-		// realtime events, by e.g. MIDI or Hydrogen's virtual
-		// keyboard.
-		nFrameStart = getRealtimeFrame();
-	} else {
-		// Enters here when either transport is rolling or the unit
-		// tests are run.
-		nFrameStart = pPos->getFrame();
-	}
-	
 	long long nLeadLagFactor = AudioEngine::getLeadLagInFrames(
 		pPos->getDoubleTick() );
 
@@ -3375,6 +3350,23 @@ const std::shared_ptr<PatternList> AudioEngine::getNextPatterns() const {
 		return m_pTransportPosition->getNextPatterns();
 	}
 	return nullptr;
+}
+
+long long AudioEngine::getCurrentFrame() const
+{
+	if ( m_state == AudioEngine::State::Playing ||
+		 m_state == AudioEngine::State::Testing ) {
+		// Current transport position.
+		return m_pTransportPosition->getFrame();
+	}
+
+	// In case the playback is stopped we pretend it is still
+	// rolling using the realtime ticks while disregarding tempo
+	// changes in the Timeline. This is important as we want to
+	// continue playing back notes in the sampler and process
+	// realtime events, by e.g. MIDI or Hydrogen's virtual
+	// keyboard.
+	return m_nRealtimeFrame;
 }
 
 QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {

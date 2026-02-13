@@ -35,6 +35,7 @@
 #include <jack/midiport.h>
 #include <jack/ringbuffer.h>
 #include <jack/transport.h>
+#include <queue>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -405,7 +406,7 @@ class JackDriver : public Object<JackDriver>,
 	void unregisterPerTrackAudioPorts( InstrumentPorts ports );
 
 	/** Methods handling the MIDI part of the driver @{ */
-	void sendJackMidiMessage( uint8_t* buf, uint8_t len );
+	void sendJackMidiMessage( MidiMessage msg );
 
 	void sendControlChangeMessage( const MidiMessage& msg ) override;
 	void sendNoteOnMessage( const MidiMessage& msg ) override;
@@ -566,9 +567,7 @@ class JackDriver : public Object<JackDriver>,
 	jack_port_t* m_pMidiOutputPort;
 	jack_port_t* m_pMidiInputPort;
 	std::mutex m_midiMutex;
-	uint8_t m_jackMidiBuffer[jackMidiBufferMax * 4];
-	uint32_t m_midiRxInPosition;
-	uint32_t m_midiRxOutPosition;
+	std::queue<MidiMessage> m_outputMessageQueue;
 	/** @} */
 
 #ifdef HAVE_INTEGRATION_TESTS

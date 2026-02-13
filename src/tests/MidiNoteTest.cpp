@@ -584,12 +584,12 @@ void MidiNoteTest::testSendNoteOff()
 	);
 	CPPUNIT_ASSERT( pLoopBackMidiDriver != nullptr );
 
-	// Maximum temporal distance between a NOTE_OFF preceding a NOTE_ON in the
+	// Maximum temporal distance between a Note-Off preceding a Note-On in the
     // auto-stop feature. This is expected to be significantly shorter than the
     // (custom) note length. Given in milliseconds.
 	const int nMaxDelayAutoStopNoteMs = 2;
     // We do not care about the exact length of the note but just check that the
-    // corresponding NOTE_OFF is not send directly after NOTE_ON.
+    // corresponding Note-Off is not send directly after Note-On.
 	const int nMinimalNoteDurationMs = 10;
 
     const int nCustomLengthInTicks = 108;

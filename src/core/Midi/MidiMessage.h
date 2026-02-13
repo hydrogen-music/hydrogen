@@ -124,6 +124,9 @@ class MidiMessage
 		void setSysexData( std::vector<unsigned char> data );
 		void appendToSysexData( unsigned char newData );
 
+		int getFrameOffset() const;
+		void setFrameOffset( int nFrameOffset );
+
 		bool operator==( const MidiMessage& other ) const;
 		bool operator!=( const MidiMessage& other ) const;
 
@@ -144,6 +147,16 @@ class MidiMessage
 		Midi::Parameter m_data2;
 		Midi::Channel m_channel;
 		std::vector<unsigned char> m_sysexData;
+
+        /** Specifies the onset of the message relative to m_timePoint.
+         *
+         * Audio in Hydrogen is processed in separate batches of frames.
+         * Especially for large buffer sizes we could end up with a noticable
+         * deviation between MIDI and audio output when always sending MIDI
+         * notes at a single time per process cycle and allowing the audio to
+         * start e.g. at the end of the current batch of frames. This member is
+         * meant to compensate for such deviations. */
+        int m_nFrameOffset;
 
 };
 
@@ -182,6 +195,12 @@ inline void MidiMessage::setSysexData( std::vector<unsigned char> sysexData ) {
 }
 inline void MidiMessage::appendToSysexData( unsigned char newData ) {
 	m_sysexData.push_back( newData );
+}
+inline int MidiMessage::getFrameOffset() const {
+	return m_nFrameOffset;
+}
+inline void MidiMessage::setFrameOffset( int nFrameOffset ) {
+	m_nFrameOffset = nFrameOffset;
 }
 
 };
