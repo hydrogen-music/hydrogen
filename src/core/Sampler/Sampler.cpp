@@ -210,25 +210,8 @@ void Sampler::process( uint32_t nFrames )
 			Preferences::get_instance()->getMidiInstrumentMap();
 		auto pMidiDriver = pHydrogen->getMidiDriver();
 		if ( pMidiDriver != nullptr ) {
-			long long nCurrentFrame;
-			if ( pHydrogen->getAudioEngine()->getState() ==
-					 AudioEngine::State::Playing ||
-				 pHydrogen->getAudioEngine()->getState() ==
-					 AudioEngine::State::Testing ) {
-				// Current transport position.
-				nCurrentFrame = pHydrogen->getAudioEngine()
-									->getTransportPosition()
-									->getFrame();
-			}
-			else {
-				// In case the playback is stopped we pretend it is still
-				// rolling using the realtime ticks while disregarding tempo
-				// changes in the Timeline. This is important as we want to
-				// continue playing back notes in the sampler and process
-				// realtime events, by e.g. MIDI or Hydrogen's virtual
-				// keyboard.
-				nCurrentFrame = pHydrogen->getAudioEngine()->getRealtimeFrame();
-			}
+			const long long nCurrentFrame =
+				pHydrogen->getAudioEngine()->getCurrentFrame();
 
 			// Queue midi note off messages for notes that have a length
 			// specified for them
@@ -291,23 +274,8 @@ void Sampler::process( uint32_t nFrames )
 				continue;
 			}
 
-			auto pAudioEngine = pHydrogen->getAudioEngine();
-			long long nCurrentFrame;
-			if ( pAudioEngine->getState() == AudioEngine::State::Playing ||
-				 pAudioEngine->getState() == AudioEngine::State::Testing ) {
-				// Current transport position.
-				nCurrentFrame =
-					pAudioEngine->getTransportPosition()->getFrame();
-			}
-			else {
-				// In case the playback is stopped we pretend it is still
-				// rolling using the realtime ticks while disregarding tempo
-				// changes in the Timeline. This is important as we want to
-				// continue playing back notes in the sampler and process
-				// realtime events, by e.g. MIDI or Hydrogen's virtual
-				// keyboard.
-				nCurrentFrame = pAudioEngine->getRealtimeFrame();
-			}
+			const long long nCurrentFrame =
+				pHydrogen->getAudioEngine()->getCurrentFrame();
 
 			if ( pNote->getMidiNoteOffFrame() <
 				 nCurrentFrame + static_cast<long long>( nFrames ) ) {
@@ -807,17 +775,8 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		return true;
 	}
 
-	long long nCurrentFrame;
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	if ( pAudioEngine->getState() == AudioEngine::State::Playing ||
-		 pAudioEngine->getState() == AudioEngine::State::Testing ) {
-		nCurrentFrame = pAudioEngine->getTransportPosition()->getFrame();
-	}
-	else {
-		// use this to support realtime events when transport is not
-		// rolling.
-		nCurrentFrame = pAudioEngine->getRealtimeFrame();
-	}
+	const long long nCurrentFrame = pAudioEngine->getCurrentFrame();
 
 	// Only if the Sampler has not started rendering the note yet we
 	// care about its starting position. Else we would encounter

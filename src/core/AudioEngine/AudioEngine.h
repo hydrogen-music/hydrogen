@@ -327,8 +327,11 @@ public:
 
 	const std::shared_ptr<PatternList>	getNextPatterns() const;
 	const std::shared_ptr<PatternList>	getPlayingPatterns() const;
-	
-	long long		getRealtimeFrame() const;
+
+	/** @returns either the current transport position or the real time frame,
+	 * depending on the current state of the audio engine. */
+	long long getCurrentFrame() const;
+	long long getRealtimeFrame() const;
 
 	/** Maximum lead lag factor in ticks.
 	 *
