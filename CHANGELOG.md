@@ -279,6 +279,8 @@ All notable changes to this project will be documented in this file.
   pitch.
 - JACK MIDI and audio ports are now part of the same client. But JACK MIDI can
   now only be used in combination with JACK audio driver. (#422).
+- Note-On and Note-Off messages send via JACK MIDI should now be (almost) frame
+  accurate (#535).
 
 ### Removed
 
