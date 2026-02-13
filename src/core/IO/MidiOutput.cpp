@@ -41,7 +41,7 @@ std::shared_ptr<MidiOutput::HandledOutput> MidiOutput::sendMessage(
 	const MidiMessage& msg )
 {
 #if LOG_OUTGOING_MESSAGES
-	INFOLOG( QString( "Handling message [%1]" ).arg( msg.toQString() ) );
+	INFOLOG( QString( "[OUTPUT] sending [%1]" ).arg( msg.toQString() ) );
 #endif
 
 	auto pHandledOutput = std::make_shared<HandledOutput>();
@@ -83,10 +83,6 @@ std::shared_ptr<MidiOutput::HandledOutput> MidiOutput::sendMessage(
 	pHandledOutput->data1 = msg.getData1();
 	pHandledOutput->data2 = msg.getData2();
 	pHandledOutput->channel = msg.getChannel();
-
-#if LOG_OUTGOING_MESSAGES
-	INFOLOG( QString( "Handled as [%1]" ).arg( pHandledOutput->toQString() ) );
-#endif
 
 	return pHandledOutput;
 }
