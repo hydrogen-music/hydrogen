@@ -51,6 +51,8 @@
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
 
+#define SAMPLER_DEBUG 0
+
 namespace H2Core {
 
 static std::shared_ptr<Instrument>
@@ -761,20 +763,26 @@ void Sampler::handleSongSizeChange()
 										   ->getTickOffsetSongSize() ) );
 
 	for ( auto ppNote : m_playingNotesQueue ) {
-		// DEBUGLOG( QString( "pos: %1 -> %2, nTickOffset: %3, note: %4" )
-		// 		  .arg( ppNote->getPosition() )
-		// 		  .arg( std::max( ppNote->getPosition() + nTickOffset,
-		// 						  static_cast<long>(0) ) )
-		// 		  .arg( nTickOffset )
-		// 		  .arg( ppNote->toQString( "", true ) ) );
+#ifdef SAMPLER_DEBUG
+		DEBUGLOG( QString( "pos: %1 -> %2, nTickOffset: %3, note: %4" )
+					  .arg( ppNote->getPosition() )
+					  .arg( std::max(
+						  ppNote->getPosition() + nTickOffset,
+						  static_cast<long>( 0 )
+					  ) )
+					  .arg( nTickOffset )
+					  .arg( ppNote->toQString( "", true ) ) );
+#endif
 
 		ppNote->setPosition( std::max(
 			ppNote->getPosition() + nTickOffset, static_cast<long>( 0 )
 		) );
 		ppNote->computeNoteStart();
 
-		// DEBUGLOG( QString( "new note: %1" )
-		// 		  .arg( ppNote->toQString( "", true ) ) );
+#ifdef SAMPLER_DEBUG
+		DEBUGLOG( QString( "new note: %1" ).arg( ppNote->toQString( "", true ) )
+		);
+#endif
 	}
 }
 
@@ -819,16 +827,22 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 	if ( !pNote->isPartiallyRendered() ) {
 		long long nNoteStartInFrames = pNote->getNoteStart();
 
-		// DEBUGLOG(QString( "nCurrentFrame: %1, note pos: %2,
-		// pAudioEngine->getTransportPosition()->getTickSize(): %3,
-		// pAudioEngine->getTransportPosition()->getTick(): %4,
-		// pAudioEngine->getTransportPosition()->getFrame(): %5,
-		// nNoteStartInFrames: %6 ") 		 .arg( nCurrentFrame ).arg( pNote->getPosition() )
-		//       .arg( pAudioEngine->getTransportPosition()->getTickSize() )
-		//       .arg( pAudioEngine->getTransportPosition()->getTick() )
-		//       .arg( pAudioEngine->getTransportPosition()->getFrame() )
-		// 		 .arg( nNoteStartInFrames )
-		// 		 .append( pNote->toQString( "", true ) ) );
+#ifdef SAMPLER_DEBUG
+		DEBUGLOG(
+			QString( "nCurrentFrame: %1, note pos: %2, "
+					 "pAudioEngine->getTransportPosition()->getTickSize(): %3, "
+					 "pAudioEngine->getTransportPosition()->getTick(): %4, "
+					 "pAudioEngine->getTransportPosition()->getFrame(): %5, "
+					 "nNoteStartInFrames: %6 " )
+				.arg( nCurrentFrame )
+				.arg( pNote->getPosition() )
+				.arg( pAudioEngine->getTransportPosition()->getTickSize() )
+				.arg( pAudioEngine->getTransportPosition()->getTick() )
+				.arg( pAudioEngine->getTransportPosition()->getFrame() )
+				.arg( nNoteStartInFrames )
+				.append( pNote->toQString( "", true ) )
+		);
+#endif
 
 		if ( nNoteStartInFrames > nCurrentFrame ) {
 			// The note doesn't start right at the beginning of the
