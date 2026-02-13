@@ -930,6 +930,14 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		// support using Hydrogen with MIDI-only output.
 		auto pLayer = pSelectedLayerInfo->pLayer;
 
+		// But we do check whether this component was already handled
+		if ( pLayer != nullptr && pLayer->getSample() != nullptr &&
+			 pSelectedLayerInfo->fSamplePosition >=
+				 pLayer->getSample()->getFrames() ) {
+			returnValues[ii] = true;
+			continue;
+		}
+
 		/*
 		 *  Is instrument/component/sample muted?
 		 *
@@ -1444,24 +1452,6 @@ bool Sampler::renderNote(
 		WARNINGLOG( QString( "Sample [%1] of instrument [%2] was not loaded." )
 						.arg( pSample->getFilePath() )
 						.arg( pInstrument->getName() ) );
-		return true;
-	}
-
-	if ( pSelectedLayerInfo->fSamplePosition >= pSample->getFrames() ) {
-		// Due to rounding errors in renderNote() the
-		// sample position can occassionaly exceed the maximum
-		// frames of a sample. AFAICS this is not itself
-		// harmful. So, we just log a warning if the difference is
-		// larger, which might be caused by a different problem.
-		if ( pSelectedLayerInfo->fSamplePosition >= pSample->getFrames() + 3 ) {
-			WARNINGLOG(
-				QString( "sample position [%1] out of bounds [0,%2]. The "
-						 "layer has been resized during note play?" )
-					.arg( pSelectedLayerInfo->fSamplePosition )
-					.arg( pSample->getFrames() )
-			);
-		}
-
 		return true;
 	}
 
