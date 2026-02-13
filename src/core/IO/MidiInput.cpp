@@ -268,9 +268,6 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 		return pHandledInput;
 	}
 
-	// Two spaces after "msg." in a row to align message parameters
-	DEBUGLOG( QString( "DONE handling msg: [%1]" ).arg( msg.toQString() ) );
-
 	return pHandledInput;
 }
 
