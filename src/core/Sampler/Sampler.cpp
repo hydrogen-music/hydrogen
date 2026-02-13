@@ -148,6 +148,16 @@ void Sampler::process( uint32_t nFrames )
 		pNote = m_playingNotesQueue[i];
 		if ( pNote != nullptr && handleNote( pNote, nFrames ) ) {
 			// End of note was reached during rendering.
+
+#if SAMPLER_DEBUG
+			const auto nCurrentFrame =
+				Hydrogen::get_instance()->getAudioEngine()->getCurrentFrame();
+			INFOLOG( QString( "nCurrentFrame: [%1], Rendering done "
+							  "for [%2]" )
+						 .arg( nCurrentFrame )
+						 .arg( pNote->toQString() ) );
+#endif
+
 			m_playingNotesQueue.erase( m_playingNotesQueue.begin() + i );
 			if ( pNote->getInstrument() != nullptr ) {
 				pNote->getInstrument()->dequeue( pNote );
@@ -241,15 +251,30 @@ void Sampler::process( uint32_t nFrames )
 							) -
 							nCurrentFrame
 						);
+#if SAMPLER_DEBUG
+						INFOLOG( QString( "nCurrentFrame: [%1], Sending "
+										  "immediate Note-Off [%2] for [%3]" )
+									 .arg( nCurrentFrame )
+									 .arg( midiMessage.toQString() )
+									 .arg( pNote->toQString() ) );
+#endif
 						pMidiDriver->enqueueOutputMessage( midiMessage );
 					}
 				}
 				else if ( pNote == nullptr ||
 						  pNote->getInstrument() == nullptr ) {
-					ERRORLOG( QString( "Queued note off in sampler does not "
+					ERRORLOG( QString( "Note-Off in sampler does not "
 									   "have instrument! [%1]" )
 								  .arg( pNote->toQString() ) );
 				}
+#if SAMPLER_DEBUG
+				else {
+					INFOLOG( QString( "nCurrentFrame: [%1], Dropping "
+									  "immediate Note-Off for [%2]" )
+								 .arg( nCurrentFrame )
+								 .arg( pNote->toQString() ) );
+				}
+#endif
 
 				m_queuedNoteOffs.erase( m_queuedNoteOffs.begin() );
 
@@ -269,13 +294,20 @@ void Sampler::process( uint32_t nFrames )
 				continue;
 			}
 			auto pNote = m_scheduledNoteOffQueue.top();
-			if ( !sendNote( pNote ) ) {
-				m_scheduledNoteOffQueue.pop();
-				continue;
-			}
 
 			const long long nCurrentFrame =
 				pHydrogen->getAudioEngine()->getCurrentFrame();
+
+			if ( !sendNote( pNote ) ) {
+#if SAMPLER_DEBUG
+				INFOLOG( QString( "nCurrentFrame: [%1], Dropping queued "
+								  "Note-Off for [%2]" )
+							 .arg( nCurrentFrame )
+							 .arg( pNote->toQString() ) );
+#endif
+				m_scheduledNoteOffQueue.pop();
+				continue;
+			}
 
 			if ( pNote->getMidiNoteOffFrame() <
 				 nCurrentFrame + static_cast<long long>( nFrames ) ) {
@@ -303,6 +335,13 @@ void Sampler::process( uint32_t nFrames )
 						) -
 						nCurrentFrame
 					);
+#if SAMPLER_DEBUG
+					INFOLOG( QString( "nCurrentFrame: [%1], Sending "
+									  "queued Note-Off [%2] for [%3]" )
+								 .arg( nCurrentFrame )
+								 .arg( midiMessage.toQString() )
+								 .arg( pNote->toQString() ) );
+#endif
 					pMidiDriver->enqueueOutputMessage( midiMessage );
 				}
 			}
@@ -378,6 +417,13 @@ bool Sampler::noteOn( std::shared_ptr<Note> pNote )
 	}
 
 	if ( pNote->getNoteOff() ) {
+#if SAMPLER_DEBUG
+		const auto nCurrentFrame =
+			Hydrogen::get_instance()->getAudioEngine()->getCurrentFrame();
+		INFOLOG( QString( "nCurrentFrame: [%1], Receiving a stop-note [%2]" )
+					 .arg( nCurrentFrame )
+					 .arg( pNote->toQString() ) );
+#endif
 		for ( const auto& pOtherNote : m_playingNotesQueue ) {
 			if ( pOtherNote != nullptr &&
 				 pOtherNote->getInstrument() != nullptr &&
@@ -387,8 +433,14 @@ bool Sampler::noteOn( std::shared_ptr<Note> pNote )
 			}
 		}
 	}
-
-	if ( !pNote->getNoteOff() ) {
+	else {
+#if SAMPLER_DEBUG
+		const auto nCurrentFrame =
+			Hydrogen::get_instance()->getAudioEngine()->getCurrentFrame();
+		INFOLOG( QString( "nCurrentFrame: [%1], Receiving note [%2]" )
+					 .arg( nCurrentFrame )
+					 .arg( pNote->toQString() ) );
+#endif
 		pInstr->enqueue( pNote );
 		m_playingNotesQueue.push_back( pNote );
 		return true;
@@ -1041,6 +1093,14 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 					nInitialBufferPos - 1, static_cast<long long>( 0 )
 				) );
 
+#if SAMPLER_DEBUG
+				INFOLOG( QString( "nCurrentFrame: [%1], Sending "
+								  "auto-stop Note-Off [%2] for [%3]" )
+							 .arg( nCurrentFrame )
+							 .arg( noteOffMessage.toQString() )
+							 .arg( pNote->toQString() ) );
+#endif
+
 				pHydrogen->getMidiDriver()->enqueueOutputMessage( noteOffMessage
 				);
 
@@ -1061,6 +1121,14 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 			else {
 				pNote->setMidiNoteOnSentFrame( nCurrentFrame );
 			}
+
+#if SAMPLER_DEBUG
+			INFOLOG( QString( "nCurrentFrame: [%1], Sending "
+							  "Note-On [%2] for [%3]" )
+						 .arg( nCurrentFrame )
+						 .arg( noteOnMessage.toQString() )
+						 .arg( pNote->toQString() ) );
+#endif
 
 			pHydrogen->getMidiDriver()->enqueueOutputMessage( noteOnMessage );
 		}
