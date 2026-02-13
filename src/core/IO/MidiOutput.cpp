@@ -26,6 +26,8 @@
 #include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Preferences.h>
 
+#define LOG_OUTGOING_MESSAGES 0
+
 namespace H2Core
 {
 
@@ -38,6 +40,10 @@ MidiOutput::~MidiOutput() {
 std::shared_ptr<MidiOutput::HandledOutput> MidiOutput::sendMessage(
 	const MidiMessage& msg )
 {
+#if LOG_OUTGOING_MESSAGES
+	INFOLOG( QString( "Handling message [%1]" ).arg( msg.toQString() ) );
+#endif
+
 	auto pHandledOutput = std::make_shared<HandledOutput>();
 
 	switch( msg.getType() ) {
@@ -66,6 +72,9 @@ std::shared_ptr<MidiOutput::HandledOutput> MidiOutput::sendMessage(
 	default:
 		// Not handled, we won't send the corresponding event.
 		pHandledOutput->type = MidiMessage::Type::Unknown;
+#if LOG_OUTGOING_MESSAGES
+		WARNINGLOG( "Unknown message type. Dropped" );
+#endif
 		return pHandledOutput;
 	}
 
@@ -74,6 +83,10 @@ std::shared_ptr<MidiOutput::HandledOutput> MidiOutput::sendMessage(
 	pHandledOutput->data1 = msg.getData1();
 	pHandledOutput->data2 = msg.getData2();
 	pHandledOutput->channel = msg.getChannel();
+
+#if LOG_OUTGOING_MESSAGES
+	INFOLOG( QString( "Handled as [%1]" ).arg( pHandledOutput->toQString() ) );
+#endif
 
 	return pHandledOutput;
 }
