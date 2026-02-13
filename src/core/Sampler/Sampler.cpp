@@ -158,22 +158,28 @@ void Sampler::process( uint32_t nFrames )
 						.arg( pNote->prettyName() )
 				);
 			}
-			if ( pNote->getLength() != LENGTH_ENTIRE_SAMPLE &&
-				 pNote->getMidiNoteOnSentFrame() != -1 ) {
-				const auto nPrevStart = pNote->getNoteStart();
-				pNote->setMidiNoteOffFrame(
-					pNote->getMidiNoteOnSentFrame() +
-					TransportPosition::computeFrame(
-						pNote->getLength(), Hydrogen::get_instance()
-												->getAudioEngine()
-												->getTransportPosition()
-												->getTickSize()
-					)
-				);
-				m_scheduledNoteOffQueue.push( pNote );
-			}
-			else {
-				m_queuedNoteOffs.push_back( pNote );
+
+			// Only send Note-Off messages in case we already sent an Note-On.
+			if ( pNote->getMidiNoteOnSentFrame() != -1 ) {
+				// Ensure notes of custom length result in Note-On and Note-Off
+				// messages corresponding to the user-defined length (regardless
+				// of the underlying sample).
+				if ( pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) {
+					const auto nPrevStart = pNote->getNoteStart();
+					pNote->setMidiNoteOffFrame(
+						pNote->getMidiNoteOnSentFrame() +
+						TransportPosition::computeFrame(
+							pNote->getLength(), Hydrogen::get_instance()
+													->getAudioEngine()
+													->getTransportPosition()
+													->getTickSize()
+						)
+					);
+					m_scheduledNoteOffQueue.push( pNote );
+				}
+				else {
+					m_queuedNoteOffs.push_back( pNote );
+				}
 			}
 		}
 		else if ( pNote == nullptr ) {
