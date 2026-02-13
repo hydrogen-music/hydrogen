@@ -731,7 +731,7 @@ void Sampler::handleSongSizeChange()
 										   ->getTickOffsetSongSize() ) );
 
 	for ( auto ppNote : m_playingNotesQueue ) {
-#ifdef SAMPLER_DEBUG
+#if SAMPLER_DEBUG
 		DEBUGLOG( QString( "pos: %1 -> %2, nTickOffset: %3, note: %4" )
 					  .arg( ppNote->getPosition() )
 					  .arg( std::max(
@@ -747,7 +747,7 @@ void Sampler::handleSongSizeChange()
 		) );
 		ppNote->computeNoteStart();
 
-#ifdef SAMPLER_DEBUG
+#if SAMPLER_DEBUG
 		DEBUGLOG( QString( "new note: %1" ).arg( ppNote->toQString( "", true ) )
 		);
 #endif
@@ -786,7 +786,7 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 	if ( !pNote->isPartiallyRendered() ) {
 		long long nNoteStartInFrames = pNote->getNoteStart();
 
-#ifdef SAMPLER_DEBUG
+#if SAMPLER_DEBUG
 		DEBUGLOG(
 			QString( "nCurrentFrame: %1, note pos: %2, "
 					 "pAudioEngine->getTransportPosition()->getTickSize(): %3, "
