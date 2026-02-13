@@ -1339,10 +1339,11 @@ void Sampler::processMidiEvents()
 	for ( ; !m_midiMessageQueue.empty(); m_midiMessageQueue.pop() ) {
 		const auto message = std::move( m_midiMessageQueue.top() );
 
-		if ( !messagesPerTick.empty() &&
-			 message.getFrameOffset() != nCurrentFrameOffset ) {
+		if ( message.getFrameOffset() != nCurrentFrameOffset ) {
 			nCurrentFrameOffset = message.getFrameOffset();
-			sendMessages( messagesPerTick );
+			if ( !messagesPerTick.empty() ) {
+				sendMessages( messagesPerTick );
+			}
 		}
 
 		for ( const auto& qqueuedMessage : messagesPerTick ) {
