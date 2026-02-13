@@ -985,7 +985,7 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		// Once the Sampler does start rendering a note we also push
 		// it to all connected MIDI devices.
 		if ( static_cast<int>( pSelectedLayerInfo->fSamplePosition ) == 0 &&
-			 !bIsMuted ) {
+			 pNote->getMidiNoteOnSentFrame() == -1 && !bIsMuted ) {
 			bSendMidiNoteOn = true;
 		}
 
