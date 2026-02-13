@@ -172,26 +172,10 @@ void Sampler::process( uint32_t nFrames )
 			}
 
 			// Only send Note-Off messages in case we already sent an Note-On.
-			if ( pNote->getMidiNoteOnSentFrame() != -1 ) {
-				// Ensure notes of custom length result in Note-On and Note-Off
-				// messages corresponding to the user-defined length (regardless
-				// of the underlying sample).
-				if ( pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) {
-					const auto nPrevStart = pNote->getNoteStart();
-					pNote->setMidiNoteOffFrame(
-						pNote->getMidiNoteOnSentFrame() +
-						TransportPosition::computeFrame(
-							pNote->getLength(), Hydrogen::get_instance()
-													->getAudioEngine()
-													->getTransportPosition()
-													->getTickSize()
-						)
-					);
-					m_scheduledNoteOffQueue.push( pNote );
-				}
-				else {
-					m_queuedNoteOffs.push_back( pNote );
-				}
+			// Notes of custom length will be handled using the scheduled queue.
+			if ( pNote->getMidiNoteOnSentFrame() != -1 &&
+				 pNote->getLength() == LENGTH_ENTIRE_SAMPLE ) {
+				m_queuedNoteOffs.push_back( pNote );
 			}
 		}
 		else if ( pNote == nullptr ) {
@@ -300,7 +284,7 @@ void Sampler::process( uint32_t nFrames )
 
 			if ( !sendNote( pNote ) ) {
 #if SAMPLER_DEBUG
-				INFOLOG( QString( "nCurrentFrame: [%1], Dropping queued "
+				INFOLOG( QString( "nCurrentFrame: [%1], Dropping scheduled "
 								  "Note-Off for [%2]" )
 							 .arg( nCurrentFrame )
 							 .arg( pNote->toQString() ) );
@@ -337,7 +321,7 @@ void Sampler::process( uint32_t nFrames )
 					);
 #if SAMPLER_DEBUG
 					INFOLOG( QString( "nCurrentFrame: [%1], Sending "
-									  "queued Note-Off [%2] for [%3]" )
+									  "scheduled Note-Off [%2] for [%3]" )
 								 .arg( nCurrentFrame )
 								 .arg( midiMessage.toQString() )
 								 .arg( pNote->toQString() ) );
@@ -1052,7 +1036,7 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		// We delay checking for the audio driver till here in order to allow
 		// usign Hydrogen in "MIDI-only" mode.
 		if ( pLayer == nullptr || pHydrogen->getAudioDriver() == nullptr ||
-			 bIsMuted ) {
+			 bIsMuted && pNote->getLength() == LENGTH_ENTIRE_SAMPLE ) {
 			// For note with neither custom length nor a backing sample, we will
 			// send a Note-Off immediately after its Note-On. But we have to
 			// watch out for notes associated with multi-component instruments
@@ -1131,6 +1115,31 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 #endif
 
 			pHydrogen->getMidiDriver()->enqueueOutputMessage( noteOnMessage );
+
+			// Ensure notes of custom length result in Note-On and Note-Off
+			// messages corresponding to the user-defined length (regardless
+			// of the underlying sample).
+			if ( pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) {
+				const auto nPrevStart = pNote->getNoteStart();
+				pNote->setMidiNoteOffFrame(
+					pNote->getMidiNoteOnSentFrame() +
+					TransportPosition::computeFrame(
+						pNote->getLength(), Hydrogen::get_instance()
+												->getAudioEngine()
+												->getTransportPosition()
+												->getTickSize()
+					)
+				);
+
+#if SAMPLER_DEBUG
+				INFOLOG( QString( "nCurrentFrame: [%1], Scheduling "
+								  "a Note-On for [%2]" )
+							 .arg( nCurrentFrame )
+							 .arg( pNote->toQString() ) );
+#endif
+
+				m_scheduledNoteOffQueue.push( pNote );
+			}
 		}
 	}
 
@@ -1824,7 +1833,8 @@ bool Sampler::renderNote(
 		// Since the last portion of the layers's sample is rendered in this
 		// processing cycle, we store the corresponding frame in order to send
 		// MIDI Note-Off notes as precisely as possible.
-		if ( pNote->getMidiNoteOffFrame() < nCurrentFrame + nRemainingFrames ) {
+		if ( pNote->getLength() == LENGTH_ENTIRE_SAMPLE &&
+			 pNote->getMidiNoteOffFrame() < nCurrentFrame + nRemainingFrames ) {
 			// For notes corresponding to instruments holding multiple
 			// components, we send a Note-Off after all of them have been
 			// rendered.
