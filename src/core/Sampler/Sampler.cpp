@@ -1072,7 +1072,7 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 				m_midiMessageQueue.push( std::move( noteOffMessage ) );
 			}
 
-			pNote->setMidiNoteOnSentFrame( nCurrentFrame );
+			pNote->setMidiNoteOnSentFrame( nCurrentFrame + nInitialBufferPos );
 
 #if SAMPLER_DEBUG
 			INFOLOG( QString( "nCurrentFrame: [%1], Queuing "
@@ -1090,7 +1090,7 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 			if ( pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) {
 				const auto nPrevStart = pNote->getNoteStart();
 				pNote->setMidiNoteOffFrame(
-					pNote->getMidiNoteOnSentFrame() +
+					nCurrentFrame + nInitialBufferPos +
 					TransportPosition::computeFrame(
 						pNote->getLength(), Hydrogen::get_instance()
 												->getAudioEngine()
