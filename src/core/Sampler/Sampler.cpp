@@ -1637,6 +1637,7 @@ bool Sampler::renderNote(
 		  pSelectedLayerInfo->fSamplePosition ) /
 		fFrequencyRatio
 	);
+	const int nNoteOffFrame = std::min( nRemainingFrames, nBufferSize - 1 );
 
 	bool bRetValue = true;	// the note is ended
 	int nAvail_bytes;
@@ -1860,11 +1861,11 @@ bool Sampler::renderNote(
 		// processing cycle, we store the corresponding frame in order to send
 		// MIDI Note-Off notes as precisely as possible.
 		if ( pNote->getLength() == LENGTH_ENTIRE_SAMPLE &&
-			 pNote->getMidiNoteOffFrame() < nCurrentFrame + nRemainingFrames ) {
+			 pNote->getMidiNoteOffFrame() < nCurrentFrame + nNoteOffFrame ) {
 			// For notes corresponding to instruments holding multiple
 			// components, we send a Note-Off after all of them have been
 			// rendered.
-			pNote->setMidiNoteOffFrame( nCurrentFrame + nRemainingFrames );
+			pNote->setMidiNoteOffFrame( nCurrentFrame + nNoteOffFrame );
 		}
 	}
 
