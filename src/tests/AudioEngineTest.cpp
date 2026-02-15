@@ -54,7 +54,7 @@ void AudioEngineTest::testMidiNoteOrdering()
 	CPPUNIT_ASSERT( pLoopBackDriver != nullptr );
 
 	auto pSong = Song::load( H2TEST_FILE( "song/midi-note-ordering.h2song" ) );
-	CPPUNIT_ASSERT( pSong != nullptr || pSong->getDrumkit() != nullptr );
+	CPPUNIT_ASSERT( pSong != nullptr && pSong->getDrumkit() != nullptr );
 	CPPUNIT_ASSERT( CoreActionController::setSong( pSong ) );
 
     // Ensure the playback stops after playing a single pattern.
