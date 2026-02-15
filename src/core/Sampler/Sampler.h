@@ -25,6 +25,7 @@
 
 #include <core/Basics/Note.h>
 #include <core/Globals.h>
+#include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
 #include <core/Sampler/Interpolation.h>
 
@@ -265,6 +266,7 @@ class Sampler : public H2Core::Object<Sampler> {
 	 */
 	float panLaw( float fPan, std::shared_ptr<Song> pSong );
 
+	void processMidiEvents();
 	bool processPlaybackTrack( int nBufferSize );
 
 	/** @return false - the note is not ended, true - the note is ended */
@@ -296,9 +298,17 @@ class Sampler : public H2Core::Object<Sampler> {
 		}
 	};
 
+	struct compareQueuedMidiMessages {
+		bool operator()( const MidiMessage& msg1, const MidiMessage& msg2 )
+		{
+			return msg1.getFrameOffset() >= msg2.getFrameOffset();
+		}
+	};
+
 	std::vector<std::shared_ptr<Note>> m_playingNotesQueue;
+
 	/** Notes for which a Note-Off message will be send at the end of the
-	 * next processing cycle. */
+	 * processing cycle. */
 	std::vector<std::shared_ptr<Note>> m_queuedNoteOffs;
 
 	/** Notes - ordered by their start position - scheduled to become Note-Off
@@ -311,6 +321,16 @@ class Sampler : public H2Core::Object<Sampler> {
 		std::deque<std::shared_ptr<Note>>,
 		compareMidiNoteOff>
 		m_scheduledNoteOffQueue;
+
+	/** MIDI messages to be sent at the end of the processing cycle. It is used
+	 * as an intermediate cache to allow for both merging multiple Note-Off
+	 * events for the same instrument as well as ensuring ordering of Note-Off
+	 * and Note-On events. */
+	std::priority_queue<
+		MidiMessage,
+		std::deque<MidiMessage>,
+		compareQueuedMidiMessages>
+		m_midiMessageQueue;
 
 	/// Instrument used for the playback track feature.
 	std::shared_ptr<Instrument> m_pPlaybackTrackInstrument;

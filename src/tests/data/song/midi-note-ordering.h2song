@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<song>
+ <version>2.0.0-pre-alpha-'36c334a97'</version>
+ <formatVersion>2</formatVersion>
+ <bpm>120</bpm>
+ <volume>0.5</volume>
+ <isMuted>false</isMuted>
+ <metronomeVolume>0.5</metronomeVolume>
+ <userVersion>0</userVersion>
+ <name>Test note ordering</name>
+ <author>hydrogen</author>
+ <notes>...</notes>
+ <license>CC0</license>
+ <loopEnabled>false</loopEnabled>
+ <patternModeMode>true</patternModeMode>
+ <playbackTrackFilename></playbackTrackFilename>
+ <playbackTrackEnabled>false</playbackTrackEnabled>
+ <playbackTrackVolume>0.5</playbackTrackVolume>
+ <action_mode>0</action_mode>
+ <isPatternEditorLocked>false</isPatternEditorLocked>
+ <isTimelineActivated>false</isTimelineActivated>
+ <mode>pattern</mode>
+ <pan_law_type>RATIO_STRAIGHT_POLYGONAL</pan_law_type>
+ <pan_law_k_norm>1.33333</pan_law_k_norm>
+ <humanize_time>0</humanize_time>
+ <humanize_velocity>0</humanize_velocity>
+ <swing_factor>0</swing_factor>
+ <drumkit_info>
+  <formatVersion>2</formatVersion>
+  <name>New Drumkit</name>
+  <userVersion>0</userVersion>
+  <author>undefined author</author>
+  <info>No information available.</info>
+  <license>undefined license</license>
+  <image></image>
+  <imageLicense>undefined license</imageLicense>
+  <instrumentList>
+   <instrument>
+    <id>0</id>
+    <name>With sample</name>
+    <type></type>
+    <drumkitPath></drumkitPath>
+    <drumkit></drumkit>
+    <volume>1</volume>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
+    <pan_L>1</pan_L>
+    <pan_R>1</pan_R>
+    <pitchOffset>0</pitchOffset>
+    <randomPitchFactor>0</randomPitchFactor>
+    <gain>1</gain>
+    <applyVelocity>true</applyVelocity>
+    <filterActive>false</filterActive>
+    <filterCutoff>1</filterCutoff>
+    <filterResonance>0</filterResonance>
+    <Attack>0</Attack>
+    <Decay>0</Decay>
+    <Sustain>1</Sustain>
+    <Release>1000</Release>
+    <muteGroup>-1</muteGroup>
+    <midiOutChannel>0</midiOutChannel>
+    <midiOutNote>36</midiOutNote>
+    <isStopNote>false</isStopNote>
+    <isHihat>-1</isHihat>
+    <lower_cc>0</lower_cc>
+    <higher_cc>127</higher_cc>
+    <FX1Level>0</FX1Level>
+    <FX2Level>0</FX2Level>
+    <FX3Level>0</FX3Level>
+    <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
+     <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+     <layer>
+      <filename>/home/phil/git/hydrogen/src/tests/data/song/../drumkits/sampleKit/longSample.flac</filename>
+      <min>0</min>
+      <max>1</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+    </instrumentComponent>
+    <instrumentComponent>
+     <name>Empty Component</name>
+     <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+    </instrumentComponent>
+   </instrument>
+  </instrumentList>
+ </drumkit_info>
+ <lastLoadedDrumkitPath></lastLoadedDrumkitPath>
+ <patternList>
+  <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
+   <name>Pattern 1</name>
+   <author></author>
+   <info></info>
+   <license>undefined license</license>
+   <category>not_categorized</category>
+   <size>192</size>
+   <denominator>4</denominator>
+   <noteList>
+    <note>
+     <position>0</position>
+     <leadlag>0</leadlag>
+     <velocity>0.8</velocity>
+     <pan>0</pan>
+     <key>C0</key>
+     <length>24</length>
+     <instrument>0</instrument>
+     <type></type>
+     <note_off>false</note_off>
+     <probability>1</probability>
+    </note>
+    <note>
+     <position>24</position>
+     <leadlag>0</leadlag>
+     <velocity>0.8</velocity>
+     <pan>0</pan>
+     <key>Cs0</key>
+     <length>24</length>
+     <instrument>0</instrument>
+     <type></type>
+     <note_off>false</note_off>
+     <probability>1</probability>
+    </note>
+    <note>
+     <position>48</position>
+     <leadlag>0</leadlag>
+     <velocity>0.8</velocity>
+     <pan>0</pan>
+     <key>D0</key>
+     <length>24</length>
+     <instrument>0</instrument>
+     <type></type>
+     <note_off>false</note_off>
+     <probability>1</probability>
+    </note>
+    <note>
+     <position>72</position>
+     <leadlag>0</leadlag>
+     <velocity>0.8</velocity>
+     <pan>0</pan>
+     <key>Ef0</key>
+     <length>24</length>
+     <instrument>0</instrument>
+     <type></type>
+     <note_off>false</note_off>
+     <probability>1</probability>
+    </note>
+    <note>
+     <position>96</position>
+     <leadlag>0</leadlag>
+     <velocity>0.8</velocity>
+     <pan>0</pan>
+     <key>E0</key>
+     <length>24</length>
+     <instrument>0</instrument>
+     <type></type>
+     <note_off>false</note_off>
+     <probability>1</probability>
+    </note>
+    <note>
+     <position>120</position>
+     <leadlag>0</leadlag>
+     <velocity>0.8</velocity>
+     <pan>0</pan>
+     <key>F0</key>
+     <length>24</length>
+     <instrument>0</instrument>
+     <type></type>
+     <note_off>false</note_off>
+     <probability>1</probability>
+    </note>
+    <note>
+     <position>144</position>
+     <leadlag>0</leadlag>
+     <velocity>0.8</velocity>
+     <pan>0</pan>
+     <key>Fs0</key>
+     <length>24</length>
+     <instrument>0</instrument>
+     <type></type>
+     <note_off>false</note_off>
+     <probability>1</probability>
+    </note>
+    <note>
+     <position>168</position>
+     <leadlag>0</leadlag>
+     <velocity>0.8</velocity>
+     <pan>0</pan>
+     <key>G0</key>
+     <length>24</length>
+     <instrument>0</instrument>
+     <type></type>
+     <note_off>false</note_off>
+     <probability>1</probability>
+    </note>
+   </noteList>
+  </pattern>
+  <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
+   <name>Pattern 2</name>
+   <author></author>
+   <info></info>
+   <license>undefined license</license>
+   <category>not_categorized</category>
+   <size>192</size>
+   <denominator>4</denominator>
+   <noteList/>
+  </pattern>
+  <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
+   <name>Pattern 3</name>
+   <author></author>
+   <info></info>
+   <license>undefined license</license>
+   <category>not_categorized</category>
+   <size>192</size>
+   <denominator>4</denominator>
+   <noteList/>
+  </pattern>
+  <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
+   <name>Pattern 4</name>
+   <author></author>
+   <info></info>
+   <license>undefined license</license>
+   <category>not_categorized</category>
+   <size>192</size>
+   <denominator>4</denominator>
+   <noteList/>
+  </pattern>
+  <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
+   <name>Pattern 5</name>
+   <author></author>
+   <info></info>
+   <license>undefined license</license>
+   <category>not_categorized</category>
+   <size>192</size>
+   <denominator>4</denominator>
+   <noteList/>
+  </pattern>
+  <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
+   <name>Pattern 6</name>
+   <author></author>
+   <info></info>
+   <license>undefined license</license>
+   <category>not_categorized</category>
+   <size>192</size>
+   <denominator>4</denominator>
+   <noteList/>
+  </pattern>
+  <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
+   <name>Pattern 7</name>
+   <author></author>
+   <info></info>
+   <license>undefined license</license>
+   <category>not_categorized</category>
+   <size>192</size>
+   <denominator>4</denominator>
+   <noteList/>
+  </pattern>
+  <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
+   <name>Pattern 8</name>
+   <author></author>
+   <info></info>
+   <license>undefined license</license>
+   <category>not_categorized</category>
+   <size>192</size>
+   <denominator>4</denominator>
+   <noteList/>
+  </pattern>
+  <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
+   <name>Pattern 9</name>
+   <author></author>
+   <info></info>
+   <license>undefined license</license>
+   <category>not_categorized</category>
+   <size>192</size>
+   <denominator>4</denominator>
+   <noteList/>
+  </pattern>
+  <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
+   <name>Pattern 10</name>
+   <author></author>
+   <info></info>
+   <license>undefined license</license>
+   <category>not_categorized</category>
+   <size>192</size>
+   <denominator>4</denominator>
+   <noteList/>
+  </pattern>
+ </patternList>
+ <virtualPatternList/>
+ <patternSequence>
+  <group>
+   <patternID>Pattern 1</patternID>
+  </group>
+ </patternSequence>
+ <ladspa>
+  <fx>
+   <name>no plugin</name>
+   <filename>-</filename>
+   <enabled>false</enabled>
+   <volume>0</volume>
+  </fx>
+  <fx>
+   <name>no plugin</name>
+   <filename>-</filename>
+   <enabled>false</enabled>
+   <volume>0</volume>
+  </fx>
+  <fx>
+   <name>no plugin</name>
+   <filename>-</filename>
+   <enabled>false</enabled>
+   <volume>0</volume>
+  </fx>
+  <fx>
+   <name>no plugin</name>
+   <filename>-</filename>
+   <enabled>false</enabled>
+   <volume>0</volume>
+  </fx>
+ </ladspa>
+ <BPMTimeLine/>
+ <timeLineTag/>
+ <automationPaths>
+  <path adjust="velocity"/>
+ </automationPaths>
+</song>

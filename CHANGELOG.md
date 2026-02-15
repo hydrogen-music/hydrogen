@@ -381,6 +381,8 @@ All notable changes to this project will be documented in this file.
 - AppImage build folder is now removed on `build.sh r` (#2129).
 - Fix potential crash with JACK audio driver on startup, teardown, or
   song/drumkit loading.
+- In case the beginning of one note and the end of another coincide, Hydrogen
+  now ensures to send `Note-Off` events before new `Note-On`s (#2290).
   
 ### Removed
 
