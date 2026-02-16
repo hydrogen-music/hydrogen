@@ -41,6 +41,9 @@ class DetailWaveDisplay : public QWidget,
 	Q_OBJECT
 
    public:
+        static constexpr int nWidth = 180;
+        static constexpr int nHeight = 265;
+
 	explicit DetailWaveDisplay( QWidget* pParent );
 	~DetailWaveDisplay();
 
@@ -48,19 +51,19 @@ class DetailWaveDisplay : public QWidget,
 
 	virtual void paintEvent( QPaintEvent* ev ) override;
 	void setDetailSamplePosition(
-		unsigned posi,
-		float zoomfactor,
-		const QString& type
+		int nPosition,
+		float fZoomFactor,
+		const QString& sType
 	);
 
    private:
 	QPixmap m_background;
 	int* m_pPeakDatal;
 	int* m_pPeakDatar;
-	int m_pDetailSamplePosition;
-	int m_pNormalImageDetailFrames;
-	float m_pZoomFactor;
-	QString m_pType;
+	int m_nDetailSamplePosition;
+	int m_nNormalImageDetailFrames;
+	float m_fZoomFactor;
+	QString m_sType;
 };
 
 #endif

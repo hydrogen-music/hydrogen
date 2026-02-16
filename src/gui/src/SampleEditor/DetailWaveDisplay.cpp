@@ -29,14 +29,14 @@
 using namespace H2Core;
 
 DetailWaveDisplay::DetailWaveDisplay( QWidget* pParent )
-	: QWidget( pParent ), m_pPeakDatal( nullptr ), m_pPeakDatar( nullptr )
+	: QWidget( pParent ),
+	  m_pPeakDatal( nullptr ),
+	  m_pPeakDatar( nullptr ),
+	  m_nNormalImageDetailFrames( 180 ),
+	  m_nDetailSamplePosition( 0 ),
+	  m_fZoomFactor( 1 )
 {
-	//	setAttribute(Qt::WA_OpaquePaintEvent);
-
-	//
-	int w = 180;
-	int h = 265;
-	resize( w, h );
+	resize( DetailWaveDisplay::nWidth, DetailWaveDisplay::nHeight );
 
 	bool ok = m_background.load(
 		Skin::getImagePath() + "/waveDisplay/detailsamplewavedisplay.png"
@@ -44,28 +44,23 @@ DetailWaveDisplay::DetailWaveDisplay( QWidget* pParent )
 	if ( ok == false ) {
 		ERRORLOG( "Error loading pixmap" );
 	}
-
-	m_pNormalImageDetailFrames = 180;
-	m_pDetailSamplePosition = 0;
-	m_pZoomFactor = 1;
 }
 
 DetailWaveDisplay::~DetailWaveDisplay()
 {
-	// INFOLOG( "DESTROY" );
 	delete[] m_pPeakDatal;
 	delete[] m_pPeakDatar;
 }
 
 void DetailWaveDisplay::setDetailSamplePosition(
-	unsigned posi,
-	float zoomfactor,
-	const QString& type
+	int nPosition,
+	float fZoomFactor,
+	const QString& sType
 )
 {
-	m_pDetailSamplePosition = posi;
-	m_pZoomFactor = zoomfactor;
-	m_pType = type;
+	m_nDetailSamplePosition = nPosition;
+	m_fZoomFactor = fZoomFactor;
+	m_sType = sType;
 	update();
 }
 
@@ -76,60 +71,69 @@ void DetailWaveDisplay::paintEvent( QPaintEvent* ev )
 	painter.drawPixmap( ev->rect(), m_background, ev->rect() );
 
 	painter.setPen( QColor( 230, 230, 230 ) );
-	int VCenterl = height() / 4;
-	int VCenterr = height() / 4 + height() / 2;
+	const int nUpperCenter = height() / 4;
+	const int nLowerCenter = height() / 4 + height() / 2;
 
-	//	int imagedetailframes = m_pnormalimagedetailframes / m_pzoomFactor;
-	int startpos = m_pDetailSamplePosition - m_pNormalImageDetailFrames / 2;
+	int nStartPosition =
+		m_nDetailSamplePosition - m_nNormalImageDetailFrames / 2;
 
 	for ( int x = 0; x < width(); x++ ) {
-		if ( ( startpos ) > 0 ) {
+		if ( nStartPosition > 0 ) {
 			painter.drawLine(
-				x, ( -m_pPeakDatal[startpos - 1] * m_pZoomFactor ) + VCenterl,
-				x, ( -m_pPeakDatal[startpos] * m_pZoomFactor ) + VCenterl
+				x,
+				( -m_pPeakDatal[nStartPosition - 1] * m_fZoomFactor ) +
+					nUpperCenter,
+				x,
+				( -m_pPeakDatal[nStartPosition] * m_fZoomFactor ) + nUpperCenter
 			);
 			painter.drawLine(
-				x, ( -m_pPeakDatar[startpos - 1] * m_pZoomFactor ) + VCenterr,
-				x, ( -m_pPeakDatar[startpos] * m_pZoomFactor ) + VCenterr
+				x,
+				( -m_pPeakDatar[nStartPosition - 1] * m_fZoomFactor ) +
+					nLowerCenter,
+				x,
+				( -m_pPeakDatar[nStartPosition] * m_fZoomFactor ) + nLowerCenter
 			);
-			// ERRORLOG( QString("startpos: %1").arg(startpos) )
 		}
 		else {
-			painter.drawLine( x, 0 + VCenterl, x, 0 + VCenterl );
-			painter.drawLine( x, 0 + VCenterr, x, 0 + VCenterr );
+			painter.drawLine( x, 0 + nUpperCenter, x, 0 + nUpperCenter );
+			painter.drawLine( x, 0 + nLowerCenter, x, 0 + nLowerCenter );
 		}
-		startpos++;
+		nStartPosition++;
 	}
 
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
-	painter.drawLine( 0, VCenterl, width(), VCenterl );
-	painter.drawLine( 0, VCenterr, width(), VCenterr );
-	QColor _color;
-	if ( m_pType == "Start" ) {
-		_color = QColor( 32, 173, 0 );
+	painter.drawLine( 0, nUpperCenter, width(), nUpperCenter );
+	painter.drawLine( 0, nLowerCenter, width(), nLowerCenter );
+	QColor color;
+	if ( m_sType == "Start" ) {
+		color = QColor( 32, 173, 0 );
 	}
-	else if ( m_pType == "Loop" ) {
-		_color = QColor( 93, 170, 254 );
+	else if ( m_sType == "Loop" ) {
+		color = QColor( 93, 170, 254 );
 	}
-	else if ( m_pType == "End" ) {
-		_color = QColor( 217, 68, 0 );
+	else if ( m_sType == "End" ) {
+		color = QColor( 217, 68, 0 );
 	}
 	else {
-		_color = QColor( 255, 255, 255 );
+		color = QColor( 255, 255, 255 );
 	}
 
-	painter.setPen( QPen( _color, 1, Qt::SolidLine ) );
+	painter.setPen( QPen( color, 1, Qt::SolidLine ) );
 	painter.drawLine( 90, 0, 90, 265 );
 }
 
 void DetailWaveDisplay::updateDisplay( std::shared_ptr<Sample> pNewSample )
 {
-	int mSampleLength = pNewSample->getFrames();
+    if ( pNewSample == nullptr ) {
+        return;
+    }
 
-	m_pPeakDatal = new int[mSampleLength + m_pNormalImageDetailFrames / 2];
-	m_pPeakDatar = new int[mSampleLength + m_pNormalImageDetailFrames / 2];
+	const int nSampleLength = pNewSample->getFrames();
 
-	for ( int i = 0; i < mSampleLength + m_pNormalImageDetailFrames / 2; i++ ) {
+	m_pPeakDatal = new int[nSampleLength + m_nNormalImageDetailFrames / 2];
+	m_pPeakDatar = new int[nSampleLength + m_nNormalImageDetailFrames / 2];
+
+	for ( int i = 0; i < nSampleLength + m_nNormalImageDetailFrames / 2; i++ ) {
 		m_pPeakDatal[i] = 0;
 		m_pPeakDatar[i] = 0;
 	}
@@ -139,7 +143,7 @@ void DetailWaveDisplay::updateDisplay( std::shared_ptr<Sample> pNewSample )
 	auto pSampleDatal = pNewSample->getData_L();
 	auto pSampleDatar = pNewSample->getData_R();
 
-	for ( int i = 0; i < mSampleLength; i++ ) {
+	for ( int i = 0; i < nSampleLength; i++ ) {
 		m_pPeakDatal[i] = static_cast<int>( pSampleDatal[i] * fGain );
 		m_pPeakDatar[i] = static_cast<int>( pSampleDatar[i] * fGain );
 	}
