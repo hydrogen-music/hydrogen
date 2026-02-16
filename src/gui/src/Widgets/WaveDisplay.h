@@ -31,57 +31,50 @@
 
 #include "WidgetWithScalableFont.h"
 
-namespace H2Core
-{
-	class InstrumentLayer;
+namespace H2Core {
+class InstrumentLayer;
 }
 
 /** \ingroup docGUI*/
 class WaveDisplay : public QWidget,
 					protected WidgetWithScalableFont<8, 10, 12>,
-					public H2Core::Object<WaveDisplay>
-{
-    H2_OBJECT(WaveDisplay)
+					public H2Core::Object<WaveDisplay> {
+	H2_OBJECT( WaveDisplay )
 	Q_OBJECT
 
-	public:
+   public:
+	static constexpr int nGradientScaling = 130;
 
-		static constexpr int nGradientScaling = 130;
+	explicit WaveDisplay( QWidget* pParent );
+	~WaveDisplay();
 
-		explicit WaveDisplay(QWidget* pParent);
-		~WaveDisplay();
+	virtual void updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer
+	);
 
-	
-		virtual void	updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
+	virtual void paintEvent( QPaintEvent* ev ) override;
+	virtual void resizeEvent( QResizeEvent* event ) override;
+	virtual void mouseDoubleClickEvent( QMouseEvent* ev ) override;
 
-		virtual void	paintEvent( QPaintEvent *ev ) override;
-		virtual void	resizeEvent( QResizeEvent * event ) override;
-		virtual void	mouseDoubleClickEvent(QMouseEvent *ev) override;
-		
-		void			setSampleNameAlignment( const Qt::AlignmentFlag& flag );
+	void setSampleNameAlignment( const Qt::AlignmentFlag& flag );
 
-public slots:
-		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
-	
-	signals:
-		void doubleClicked(QWidget *pWidget);
+   public slots:
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
-	protected:
+   signals:
+	void doubleClicked( QWidget* pWidget );
 
+   protected:
 	void createBackground( QPainter* painter );
-	
-		Qt::AlignmentFlag			m_SampleNameAlignment;
-		QString						m_sSampleName;
-		int *						m_pPeakData;
-		
-		/*
-		 * Used to re-initialise m_pPeakData if width has changed
-		 */
-		
-		int							m_nCurrentWidth;
+
+	Qt::AlignmentFlag m_SampleNameAlignment;
+	QString m_sSampleName;
+	int* m_pPeakData;
+
+	/* Used to re-initialise m_pPeakData if width has changed */
+	int m_nCurrentWidth;
 	int m_nActiveWidth;
-		
-		std::shared_ptr<H2Core::InstrumentLayer>	m_pLayer;
+
+	std::shared_ptr<H2Core::InstrumentLayer> m_pLayer;
 };
 
 inline void WaveDisplay::setSampleNameAlignment( const Qt::AlignmentFlag& flag )
