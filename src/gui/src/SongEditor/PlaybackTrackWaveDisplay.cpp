@@ -95,7 +95,7 @@ void PlaybackTrackWaveDisplay::updatePeakData(
 			m_peakData[ii] = 0;
 		}
 
-        createBackground();
+        drawPeakData();
 		update();
 		return;
 	}
@@ -192,7 +192,7 @@ void PlaybackTrackWaveDisplay::updatePeakData(
 		m_nActiveWidth = 0;
 	}
 
-	createBackground();
+	drawPeakData();
 	update();
 }
 

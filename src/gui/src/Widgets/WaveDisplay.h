@@ -67,8 +67,10 @@ class WaveDisplay : public QWidget,
 
    protected:
 	void createBackground();
+	void drawPeakData();
 
 	QPixmap* m_pBackgroundPixmap;
+	QPixmap* m_pPeakDataPixmap;
 
 	Qt::AlignmentFlag m_SampleNameAlignment;
 	QString m_sSampleName;

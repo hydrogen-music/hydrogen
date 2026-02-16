@@ -47,6 +47,8 @@ WaveDisplay::WaveDisplay( QWidget* pParent )
 	const qreal pixelRatio = devicePixelRatio();
 	m_pBackgroundPixmap =
 		new QPixmap( width() * pixelRatio, height() * pixelRatio );
+	m_pPeakDataPixmap =
+		new QPixmap( width() * pixelRatio, height() * pixelRatio );
 
 	connect(
 		HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this,
@@ -56,9 +58,12 @@ WaveDisplay::WaveDisplay( QWidget* pParent )
 
 WaveDisplay::~WaveDisplay()
 {
-    if ( m_pBackgroundPixmap != nullptr ) {
-        delete m_pBackgroundPixmap;
-    }
+	if ( m_pBackgroundPixmap != nullptr ) {
+		delete m_pBackgroundPixmap;
+	}
+	if ( m_pPeakDataPixmap != nullptr ) {
+		delete m_pPeakDataPixmap;
+	}
 }
 
 void WaveDisplay::paintEvent( QPaintEvent* ev )
@@ -70,13 +75,14 @@ void WaveDisplay::paintEvent( QPaintEvent* ev )
 	}
 
 	const qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
+	if ( pixelRatio != m_pPeakDataPixmap->devicePixelRatio() ) {
 		createBackground();
+		drawPeakData();
 	}
 
 	QPainter painter( this );
 	painter.drawPixmap(
-		ev->rect(), *m_pBackgroundPixmap,
+		ev->rect(), *m_pPeakDataPixmap,
 		QRectF(
 			pixelRatio * ev->rect().x(), pixelRatio * ev->rect().y(),
 			pixelRatio * ev->rect().width(), pixelRatio * ev->rect().height()
@@ -90,7 +96,7 @@ void WaveDisplay::createBackground()
 	const auto pColorTheme = pPref->getColorTheme();
 
 	const QColor borderColor = Qt::black;
-	QColor textColor, backgroundColor, waveFormColor, waveFormInactiveColor;
+	QColor textColor, backgroundColor;
 	if ( m_pLayer != nullptr && m_pLayer->getIsMuted() ) {
 		textColor = pColorTheme->m_muteTextColor;
 		backgroundColor = pColorTheme->m_muteColor;
@@ -105,15 +111,6 @@ void WaveDisplay::createBackground()
 	}
 	textColor.setAlpha( 200 );
 
-	if ( Skin::moreBlackThanWhite( backgroundColor ) ) {
-		waveFormColor = Qt::white;
-		waveFormInactiveColor = pColorTheme->m_lightColor;
-	}
-	else {
-		waveFormColor = Qt::black;
-		waveFormInactiveColor = pColorTheme->m_darkColor;
-	}
-
 	const qreal pixelRatio = devicePixelRatio();
 	if ( m_pBackgroundPixmap->width() != width() ||
 		 m_pBackgroundPixmap->height() != height() ||
@@ -122,6 +119,10 @@ void WaveDisplay::createBackground()
 		m_pBackgroundPixmap =
 			new QPixmap( width() * pixelRatio, height() * pixelRatio );
 		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+		delete m_pPeakDataPixmap;
+		m_pPeakDataPixmap =
+			new QPixmap( width() * pixelRatio, height() * pixelRatio );
+		m_pPeakDataPixmap->setDevicePixelRatio( pixelRatio );
 	}
 
 	QPainter p( m_pBackgroundPixmap );
@@ -139,6 +140,71 @@ void WaveDisplay::createBackground()
 	backgroundGradient.setSpread( QGradient::ReflectSpread );
 
 	p.fillRect( 0, 0, width(), height(), QBrush( backgroundGradient ) );
+
+	if ( !m_sSampleName.isEmpty() ) {
+		QFont font(
+			pPref->getFontTheme()->m_sApplicationFontFamily,
+			getPointSize( pPref->getFontTheme()->m_fontSize )
+		);
+		font.setWeight( QFont::Bold );
+		p.setFont( font );
+		p.setPen( textColor );
+
+		if ( m_SampleNameAlignment == Qt::AlignCenter ) {
+			p.drawText(
+				0, 0, width(), 20, m_SampleNameAlignment, m_sSampleName
+			);
+		}
+		else if ( m_SampleNameAlignment == Qt::AlignLeft ) {
+			// Use a small offnset iso. starting directly at the left border
+			p.drawText(
+				20, 0, width(), 20, m_SampleNameAlignment, m_sSampleName
+			);
+		}
+	}
+
+	// Border
+	p.setPen( QPen( borderColor ) );
+	p.drawLine( 0, 0, width(), 0 );
+	p.drawLine( 0, 0, 0, height() );
+	p.drawLine( 0, height(), width(), height() );
+	p.drawLine( width(), 0, width(), height() );
+}
+
+void WaveDisplay::drawPeakData()
+{
+	const qreal pixelRatio = devicePixelRatio();
+	QPainter p( m_pPeakDataPixmap );
+	// copy the background image
+	p.drawPixmap( rect(), *m_pBackgroundPixmap,
+						QRectF( pixelRatio * rect().x(),
+								pixelRatio * rect().y(),
+								pixelRatio * rect().width(),
+								pixelRatio * rect().height() ) );
+
+	auto pPref = H2Core::Preferences::get_instance();
+	const auto pColorTheme = pPref->getColorTheme();
+
+	const QColor borderColor = Qt::black;
+	QColor backgroundColor, waveFormColor, waveFormInactiveColor;
+	if ( m_pLayer != nullptr && m_pLayer->getIsMuted() ) {
+		backgroundColor = pColorTheme->m_muteColor;
+	}
+	else if ( m_pLayer != nullptr && m_pLayer->getIsSoloed() ) {
+		backgroundColor = pColorTheme->m_soloColor;
+	}
+	else {
+		backgroundColor = pColorTheme->m_accentColor;
+	}
+
+	if ( Skin::moreBlackThanWhite( backgroundColor ) ) {
+		waveFormColor = Qt::white;
+		waveFormInactiveColor = pColorTheme->m_lightColor;
+	}
+	else {
+		waveFormColor = Qt::black;
+		waveFormInactiveColor = pColorTheme->m_darkColor;
+	}
 
 	if ( m_pLayer != nullptr ) {
 		p.setPen( waveFormColor );
@@ -176,35 +242,6 @@ void WaveDisplay::createBackground()
 			}
 		}
 	}
-
-	if ( !m_sSampleName.isEmpty() ) {
-		QFont font(
-			pPref->getFontTheme()->m_sApplicationFontFamily,
-			getPointSize( pPref->getFontTheme()->m_fontSize )
-		);
-		font.setWeight( QFont::Bold );
-		p.setFont( font );
-		p.setPen( textColor );
-
-		if ( m_SampleNameAlignment == Qt::AlignCenter ) {
-			p.drawText(
-				0, 0, width(), 20, m_SampleNameAlignment, m_sSampleName
-			);
-		}
-		else if ( m_SampleNameAlignment == Qt::AlignLeft ) {
-			// Use a small offnset iso. starting directly at the left border
-			p.drawText(
-				20, 0, width(), 20, m_SampleNameAlignment, m_sSampleName
-			);
-		}
-	}
-
-	// Border
-	p.setPen( QPen( borderColor ) );
-	p.drawLine( 0, 0, width(), 0 );
-	p.drawLine( 0, 0, 0, height() );
-	p.drawLine( 0, height(), width(), height() );
-	p.drawLine( width(), 0, width(), height() );
 }
 
 void WaveDisplay::resizeEvent( QResizeEvent* event )
@@ -224,7 +261,7 @@ void WaveDisplay::updatePeakData(
 			m_peakData[ii] = 0;
 		}
 
-        createBackground();
+        drawPeakData();
 		update();
 		return;
 	}
@@ -269,7 +306,7 @@ void WaveDisplay::updatePeakData(
 		}
 	}
 
-	createBackground();
+	drawPeakData();
 	update();
 }
 
@@ -280,6 +317,7 @@ void WaveDisplay::updateWidth()
 	}
 
 	m_peakData.resize( width() );
+    createBackground();
 	updatePeakData( m_pLayer );
 }
 
