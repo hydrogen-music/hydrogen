@@ -48,7 +48,6 @@ PlaybackTrackWaveDisplay::PlaybackTrackWaveDisplay( QWidget* pParent )
 
 PlaybackTrackWaveDisplay::~PlaybackTrackWaveDisplay()
 {
-	delete m_pBackgroundPixmap;
 }
 
 void PlaybackTrackWaveDisplay::dropEvent( QDropEvent* event )

@@ -56,6 +56,9 @@ WaveDisplay::WaveDisplay( QWidget* pParent )
 
 WaveDisplay::~WaveDisplay()
 {
+    if ( m_pBackgroundPixmap != nullptr ) {
+        delete m_pBackgroundPixmap;
+    }
 }
 
 void WaveDisplay::paintEvent( QPaintEvent* ev )
