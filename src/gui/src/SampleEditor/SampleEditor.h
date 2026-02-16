@@ -25,8 +25,8 @@
 
 #include "ui_SampleEditor_UI.h"
 
-#include <memory>
 #include <QDialog>
+#include <memory>
 
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
@@ -34,10 +34,10 @@
 #include <core/Preferences/Preferences.h>
 
 namespace H2Core {
-	class Instrument;
-	class InstrumentComponent;
-	class InstrumentLayer;
-}
+class Instrument;
+class InstrumentComponent;
+class InstrumentLayer;
+}  // namespace H2Core
 
 class DetailWaveDisplay;
 class MainSampleWaveDisplay;
@@ -47,95 +47,93 @@ class TargetWaveDisplay;
 /// This dialog is used to preview audiofiles
 ///
 /** \ingroup docGUI*/
-class SampleEditor :  public QDialog, public Ui_SampleEditor_UI,  public H2Core::Object<SampleEditor>
-{
-	H2_OBJECT(SampleEditor)
+class SampleEditor : public QDialog,
+					 public Ui_SampleEditor_UI,
+					 public H2Core::Object<SampleEditor> {
+	H2_OBJECT( SampleEditor )
 	Q_OBJECT
-	public:
-		
-		SampleEditor( QWidget* pParent,
-					 std::shared_ptr< H2Core::InstrumentLayer > pLayer,
-					 std::shared_ptr< H2Core::InstrumentComponent > pComponent,
-					 std::shared_ptr< H2Core::Instrument > pInstrument );
-		~SampleEditor();
+   public:
+	SampleEditor(
+		QWidget* pParent,
+		std::shared_ptr<H2Core::InstrumentLayer> pLayer,
+		std::shared_ptr<H2Core::InstrumentComponent> pComponent,
+		std::shared_ptr<H2Core::Instrument> pInstrument
+	);
+	~SampleEditor();
 
-		void setSampleName( const QString& name );
-		bool getCloseQuestion();
-		bool returnAllMainWaveDisplayValues();
-		void returnAllTargetDisplayValues();
-		void setUnclean();
-		void setClean();
+	void setSampleName( const QString& name );
+	bool getCloseQuestion();
+	bool returnAllMainWaveDisplayValues();
+	void returnAllTargetDisplayValues();
+	void setUnclean();
+	void setClean();
 
-		//this values come from the real sample to restore a frm song loaded sample
-		bool m_bSampleIsModified;	///< true if sample is modified
+	// this values come from the real sample to restore a frm song loaded sample
+	bool m_bSampleIsModified;  ///< true if sample is modified
 
-	private slots:
-		void valueChangedLoopCountSpinBox( int );
-		void valueChangedProcessingTypeComboBox( int );
-		void valueChangedrubberComboBox( int );
-		void valueChangedrubberbandCsettingscomboBox( int );
-		void valueChangedpitchdoubleSpinBox( double );
-		void on_ClosePushButton_clicked();
-		void on_PrevChangesPushButton_clicked();
-		void valueChangedStartFrameSpinBox( int );
-		void valueChangedLoopFrameSpinBox( int );
-		void valueChangedEndFrameSpinBox( int );
-		void on_PlayPushButton_clicked();
-		void on_PlayOrigPushButton_clicked();
-		void on_verticalzoomSlider_valueChanged ( int value );
-		void updateMainsamplePositionRuler();
-		void updateTargetsamplePositionRuler();
+   private slots:
+	void valueChangedLoopCountSpinBox( int );
+	void valueChangedProcessingTypeComboBox( int );
+	void valueChangedrubberComboBox( int );
+	void valueChangedrubberbandCsettingscomboBox( int );
+	void valueChangedpitchdoubleSpinBox( double );
+	void on_ClosePushButton_clicked();
+	void on_PrevChangesPushButton_clicked();
+	void valueChangedStartFrameSpinBox( int );
+	void valueChangedLoopFrameSpinBox( int );
+	void valueChangedEndFrameSpinBox( int );
+	void on_PlayPushButton_clicked();
+	void on_PlayOrigPushButton_clicked();
+	void on_verticalzoomSlider_valueChanged( int value );
+	void updateMainsamplePositionRuler();
+	void updateTargetsamplePositionRuler();
 
+   private:
+	void openDisplays();
+	void getAllFrameInfos();
+	void getAllLocalFrameInfos();
+	void setAllSampleProps();
+	void testPositionsSpinBoxes();
+	void createNewLayer();
+	void setSamplelengthFrames();
+	void createPositionsRulerPath();
+	void testpTimer();
+	void checkRatioSettings();
 
+	virtual void closeEvent( QCloseEvent* event ) override;
+	virtual void mouseReleaseEvent( QMouseEvent* ev ) override;
 
-	private:
+	MainSampleWaveDisplay* m_pMainSampleWaveDisplay;
+	TargetWaveDisplay* m_pTargetSampleView;
+	DetailWaveDisplay* m_pSampleAdjustView;
 
-		void openDisplays();
-		void getAllFrameInfos();
-		void getAllLocalFrameInfos();
-		void setAllSampleProps();
-		void testPositionsSpinBoxes();
-		void createNewLayer();
-		void setSamplelengthFrames();
-		void createPositionsRulerPath();
-		void testpTimer();
-		void checkRatioSettings();
+	std::shared_ptr<H2Core::InstrumentLayer> m_pLayer;
+	std::shared_ptr<H2Core::InstrumentComponent> m_pComponent;
+	std::shared_ptr<H2Core::Instrument> m_pInstrument;
+	std::shared_ptr<H2Core::Sample> m_pSample;
 
-		virtual void closeEvent(QCloseEvent *event) override;
-		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
-	
-		MainSampleWaveDisplay *m_pMainSampleWaveDisplay;
-		TargetWaveDisplay *m_pTargetSampleView;
-		DetailWaveDisplay *m_pSampleAdjustView;
+	double m_divider;
+	float m_fZoomfactor;
+	unsigned m_pDetailFrame;
+	QString m_sLineColor;
 
-	std::shared_ptr< H2Core::InstrumentLayer > m_pLayer;
-	std::shared_ptr< H2Core::InstrumentComponent > m_pComponent;
-	std::shared_ptr< H2Core::Instrument > m_pInstrument;
-	std::shared_ptr< H2Core::Sample > m_pSample;
+	bool m_bOnewayStart;
+	bool m_bOnewayLoop;
+	bool m_bOnewayEnd;
+	bool m_bPlayButton;
+	bool m_bAdjusting;
+	bool m_bSampleEditorClean;
 
-		double m_divider;
-		float m_fZoomfactor;
-		unsigned m_pDetailFrame;
-		QString m_sLineColor;
-
-		bool m_bOnewayStart;
-		bool m_bOnewayLoop;
-		bool m_bOnewayEnd;
-		bool m_bPlayButton;
-		bool m_bAdjusting;
-		bool m_bSampleEditorClean;
-		
-		unsigned long m_nRealtimeFrameEnd;
-		unsigned long m_nRealtimeFrameEndForTarget;
-		unsigned m_nSlframes;
-		unsigned m_nSamplerate;
-		QTimer *m_pTimer;
-		QTimer *m_pTargetDisplayTimer;
-		unsigned *m_pPositionsRulerPath;
-		float m_fRatio;
-		H2Core::Sample::Loops __loops;
-		H2Core::Sample::Rubberband __rubberband;
+	unsigned long m_nRealtimeFrameEnd;
+	unsigned long m_nRealtimeFrameEndForTarget;
+	unsigned m_nSlframes;
+	unsigned m_nSamplerate;
+	QTimer* m_pTimer;
+	QTimer* m_pTargetDisplayTimer;
+	unsigned* m_pPositionsRulerPath;
+	float m_fRatio;
+	H2Core::Sample::Loops __loops;
+	H2Core::Sample::Rubberband __rubberband;
 };
-
 
 #endif
