@@ -30,36 +30,37 @@
 
 #include <memory>
 
-namespace H2Core
-{
-	class Sample;
+namespace H2Core {
+class Sample;
 }
 
 /** \ingroup docGUI*/
-class DetailWaveDisplay :  public QWidget,  public H2Core::Object<DetailWaveDisplay>
-{
-    H2_OBJECT(DetailWaveDisplay)
+class DetailWaveDisplay : public QWidget,
+						  public H2Core::Object<DetailWaveDisplay> {
+	H2_OBJECT( DetailWaveDisplay )
 	Q_OBJECT
 
-	public:
-		explicit DetailWaveDisplay(QWidget* pParent);
-		~DetailWaveDisplay();
+   public:
+	explicit DetailWaveDisplay( QWidget* pParent );
+	~DetailWaveDisplay();
 
-		void updateDisplay( std::shared_ptr< H2Core::Sample > pNewSample );
+	void updateDisplay( std::shared_ptr<H2Core::Sample> pNewSample );
 
-		virtual void paintEvent(QPaintEvent *ev) override;
-		void setDetailSamplePosition( unsigned posi, float zoomfactor,
-									  const QString& type);
+	virtual void paintEvent( QPaintEvent* ev ) override;
+	void setDetailSamplePosition(
+		unsigned posi,
+		float zoomfactor,
+		const QString& type
+	);
 
-	private:
-		QPixmap m_background;
-		int *m_pPeakDatal;
-		int *m_pPeakDatar;
-		int m_pDetailSamplePosition;
-		int m_pNormalImageDetailFrames;
-		float m_pZoomFactor;
-		QString m_pType;
+   private:
+	QPixmap m_background;
+	int* m_pPeakDatal;
+	int* m_pPeakDatar;
+	int m_pDetailSamplePosition;
+	int m_pNormalImageDetailFrames;
+	float m_pZoomFactor;
+	QString m_pType;
 };
-
 
 #endif
