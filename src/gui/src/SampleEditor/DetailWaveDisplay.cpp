@@ -30,8 +30,6 @@ using namespace H2Core;
 
 DetailWaveDisplay::DetailWaveDisplay( QWidget* pParent )
 	: QWidget( pParent ),
-	  m_pPeakDatal( nullptr ),
-	  m_pPeakDatar( nullptr ),
 	  m_nNormalImageDetailFrames( 180 ),
 	  m_nDetailSamplePosition( 0 ),
 	  m_fZoomFactor( 1 )
@@ -48,8 +46,6 @@ DetailWaveDisplay::DetailWaveDisplay( QWidget* pParent )
 
 DetailWaveDisplay::~DetailWaveDisplay()
 {
-	delete[] m_pPeakDatal;
-	delete[] m_pPeakDatar;
 }
 
 void DetailWaveDisplay::setDetailSamplePosition(
@@ -81,17 +77,17 @@ void DetailWaveDisplay::paintEvent( QPaintEvent* ev )
 		if ( nStartPosition > 0 ) {
 			painter.drawLine(
 				x,
-				( -m_pPeakDatal[nStartPosition - 1] * m_fZoomFactor ) +
+				( -m_peakDataL[nStartPosition - 1] * m_fZoomFactor ) +
 					nUpperCenter,
 				x,
-				( -m_pPeakDatal[nStartPosition] * m_fZoomFactor ) + nUpperCenter
+				( -m_peakDataL[nStartPosition] * m_fZoomFactor ) + nUpperCenter
 			);
 			painter.drawLine(
 				x,
-				( -m_pPeakDatar[nStartPosition - 1] * m_fZoomFactor ) +
+				( -m_peakDataR[nStartPosition - 1] * m_fZoomFactor ) +
 					nLowerCenter,
 				x,
-				( -m_pPeakDatar[nStartPosition] * m_fZoomFactor ) + nLowerCenter
+				( -m_peakDataR[nStartPosition] * m_fZoomFactor ) + nLowerCenter
 			);
 		}
 		else {
@@ -124,27 +120,30 @@ void DetailWaveDisplay::paintEvent( QPaintEvent* ev )
 
 void DetailWaveDisplay::updateDisplay( std::shared_ptr<Sample> pNewSample )
 {
-    if ( pNewSample == nullptr ) {
-        return;
-    }
-
-	const int nSampleLength = pNewSample->getFrames();
-
-	m_pPeakDatal = new int[nSampleLength + m_nNormalImageDetailFrames / 2];
-	m_pPeakDatar = new int[nSampleLength + m_nNormalImageDetailFrames / 2];
-
-	for ( int i = 0; i < nSampleLength + m_nNormalImageDetailFrames / 2; i++ ) {
-		m_pPeakDatal[i] = 0;
-		m_pPeakDatar[i] = 0;
+	if ( pNewSample == nullptr ) {
+		return;
 	}
 
-	float fGain = height() / 4.0 * 1.0;
+	const int nSampleLength = pNewSample->getFrames();
+	const int nNewLength = nSampleLength + m_nNormalImageDetailFrames / 2;
 
-	auto pSampleDatal = pNewSample->getData_L();
-	auto pSampleDatar = pNewSample->getData_R();
+	m_peakDataL.clear();
+	m_peakDataL.resize( nNewLength );
+	m_peakDataR.clear();
+	m_peakDataR.resize( nNewLength );
 
-	for ( int i = 0; i < nSampleLength; i++ ) {
-		m_pPeakDatal[i] = static_cast<int>( pSampleDatal[i] * fGain );
-		m_pPeakDatar[i] = static_cast<int>( pSampleDatar[i] * fGain );
+	for ( int ii = nSampleLength; ii < nNewLength; ii++ ) {
+		m_peakDataL[ii] = 0;
+		m_peakDataR[ii] = 0;
+	}
+
+	const float fGain = height() / 4.0 * 1.0;
+
+	auto pSampleDataL = pNewSample->getData_L();
+	auto pSampleDataR = pNewSample->getData_R();
+
+	for ( int ii = 0; ii < nSampleLength; ii++ ) {
+		m_peakDataL[ii] = static_cast<int>( pSampleDataL[ii] * fGain );
+		m_peakDataR[ii] = static_cast<int>( pSampleDataR[ii] * fGain );
 	}
 }

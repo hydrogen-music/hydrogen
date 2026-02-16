@@ -29,6 +29,7 @@
 #include <core/Object.h>
 
 #include <memory>
+#include <vector>
 
 namespace H2Core {
 class Sample;
@@ -41,8 +42,8 @@ class DetailWaveDisplay : public QWidget,
 	Q_OBJECT
 
    public:
-        static constexpr int nWidth = 180;
-        static constexpr int nHeight = 265;
+	static constexpr int nWidth = 180;
+	static constexpr int nHeight = 265;
 
 	explicit DetailWaveDisplay( QWidget* pParent );
 	~DetailWaveDisplay();
@@ -58,8 +59,8 @@ class DetailWaveDisplay : public QWidget,
 
    private:
 	QPixmap m_background;
-	int* m_pPeakDatal;
-	int* m_pPeakDatar;
+	std::vector<int> m_peakDataL;
+	std::vector<int> m_peakDataR;
 	int m_nDetailSamplePosition;
 	int m_nNormalImageDetailFrames;
 	float m_fZoomFactor;
