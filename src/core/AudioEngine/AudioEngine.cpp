@@ -3231,16 +3231,6 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 													   pAutomationPath->get_value( fPos ) );
 						}
 
-						// Ensure the custom length of the note does not exceed
-						// the length of the current pattern.
-						if ( pCopiedNote->getLength() != LENGTH_ENTIRE_SAMPLE ) {
-							pCopiedNote->setLength(
-								std::min(
-									static_cast<long>(pCopiedNote->getLength()),
-									static_cast<long>(pPattern->getLength()) -
-									m_pQueuingPosition->getPatternTickPosition() ) );
-						}
-
 #if AUDIO_ENGINE_DEBUG
 						AE_DEBUGLOG( QString( "m_pQueuingPosition: %1, new note: %2" )
 								  .arg( m_pQueuingPosition->toQString() )
