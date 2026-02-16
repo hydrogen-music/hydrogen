@@ -88,7 +88,7 @@ void PlaybackTrackWaveDisplay::dragMoveEvent( QDragMoveEvent* event )
 	event->accept();
 }
 
-void PlaybackTrackWaveDisplay::updateDisplay(
+void PlaybackTrackWaveDisplay::updatePeakData(
 	std::shared_ptr<H2Core::InstrumentLayer> pLayer
 )
 {
@@ -125,9 +125,8 @@ void PlaybackTrackWaveDisplay::updateDisplay(
 
 	m_pLayer = pLayer;
 
-	if ( nCurrentWidth != m_nCurrentWidth ) {
+	if ( nCurrentWidth != m_peakData.size() ) {
 		m_peakData.resize( nCurrentWidth );
-		m_nCurrentWidth = nCurrentWidth;
 	}
 
 	// Initialise everything with 0..
@@ -248,7 +247,7 @@ void PlaybackTrackWaveDisplay::paintEvent( QPaintEvent* ev )
 	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
 		 width() != m_pBackgroundPixmap->width() ||
 		 height() != m_pBackgroundPixmap->height() ) {
-		updateDisplay( m_pLayer );
+		updateWidth();
 	}
 
 	// Render the wave display.

@@ -49,8 +49,9 @@ class WaveDisplay : public QWidget,
 	explicit WaveDisplay( QWidget* pParent );
 	~WaveDisplay();
 
-	virtual void updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer
+	virtual void updatePeakData( std::shared_ptr<H2Core::InstrumentLayer> pLayer
 	);
+	virtual void updateWidth();
 
 	virtual void paintEvent( QPaintEvent* ev ) override;
 	virtual void resizeEvent( QResizeEvent* event ) override;
@@ -71,8 +72,6 @@ class WaveDisplay : public QWidget,
 	QString m_sSampleName;
 	std::vector<int> m_peakData;
 
-	/* Used to re-initialise m_pPeakData if width has changed */
-	int m_nCurrentWidth;
 	int m_nActiveWidth;
 
 	std::shared_ptr<H2Core::InstrumentLayer> m_pLayer;

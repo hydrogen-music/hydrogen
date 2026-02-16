@@ -35,7 +35,6 @@ using namespace H2Core;
 
 WaveDisplay::WaveDisplay( QWidget* pParent )
 	: QWidget( pParent ),
-	  m_nCurrentWidth( 0 ),
 	  m_nActiveWidth( -1 ),
 	  m_sSampleName( "" ),
 	  m_pLayer( nullptr ),
@@ -177,15 +176,13 @@ void WaveDisplay::createBackground( QPainter* painter )
 
 void WaveDisplay::resizeEvent( QResizeEvent* event )
 {
-	updateDisplay( m_pLayer );
+	updateWidth();
 }
 
-void WaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer
+void WaveDisplay::updatePeakData( std::shared_ptr<H2Core::InstrumentLayer> pLayer
 )
 {
-	const int nCurrentWidth = width();
-
-	if ( pLayer == nullptr || nCurrentWidth <= 0 ) {
+	if ( pLayer == nullptr || pLayer->getSample() == nullptr ) {
 		m_pLayer = nullptr;
 		m_sSampleName = "";
 
@@ -197,42 +194,44 @@ void WaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer
 		return;
 	}
 
-	if ( nCurrentWidth != m_nCurrentWidth ) {
-		m_peakData.resize( nCurrentWidth );
+	m_pLayer = pLayer;
+	m_sSampleName = pLayer->getSample()->getFileName();
 
-		m_nCurrentWidth = nCurrentWidth;
-	}
+	const int nSampleLength = pLayer->getSample()->getFrames();
+	const int nScaleFactor = nSampleLength / m_peakData.size();
 
-	if ( pLayer != nullptr && pLayer->getSample() != nullptr ) {
-		m_pLayer = pLayer;
-		m_sSampleName = pLayer->getSample()->getFileName();
+	const float fGain = height() / 2.0 * pLayer->getGain();
 
-		const int nSampleLength = pLayer->getSample()->getFrames();
-		const int nScaleFactor = nSampleLength / m_nCurrentWidth;
+	auto pSampleData = pLayer->getSample()->getData_L();
 
-		const float fGain = height() / 2.0 * pLayer->getGain();
-
-		auto pSampleData = pLayer->getSample()->getData_L();
-
-		int nSamplePos = 0;
-		int nVal;
-		for ( int ii = 0; ii < m_peakData.size(); ++ii ) {
-			nVal = 0;
-			for ( int jj = 0; jj < nScaleFactor; ++jj ) {
-				if ( jj < nSampleLength ) {
-					const int nNewVal =
-						static_cast<int>( pSampleData[nSamplePos] * fGain );
-					if ( nNewVal > nVal ) {
-						nVal = nNewVal;
-					}
+	int nSamplePos = 0;
+	int nVal;
+	for ( int ii = 0; ii < m_peakData.size(); ++ii ) {
+		nVal = 0;
+		for ( int jj = 0; jj < nScaleFactor; ++jj ) {
+			if ( jj < nSampleLength ) {
+				const int nNewVal =
+					static_cast<int>( pSampleData[nSamplePos] * fGain );
+				if ( nNewVal > nVal ) {
+					nVal = nNewVal;
 				}
-				++nSamplePos;
 			}
-			m_peakData[ii] = nVal;
+			++nSamplePos;
 		}
+		m_peakData[ii] = nVal;
 	}
 
 	update();
+}
+
+void WaveDisplay::updateWidth()
+{
+	if ( width() <= 0 || width() == m_peakData.size() ) {
+        return;
+    }
+
+    m_peakData.resize( width() );
+	updatePeakData( m_pLayer );
 }
 
 void WaveDisplay::mouseDoubleClickEvent( QMouseEvent* ev )

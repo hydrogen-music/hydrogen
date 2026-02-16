@@ -43,7 +43,7 @@ class PlaybackTrackWaveDisplay : public WaveDisplay {
 	explicit PlaybackTrackWaveDisplay( QWidget* pParent );
 	~PlaybackTrackWaveDisplay();
 
-	void updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer
+	void updatePeakData( std::shared_ptr<H2Core::InstrumentLayer> pLayer
 	) override;
 	void updatePosition( float fTick );
 
