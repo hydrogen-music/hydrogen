@@ -221,6 +221,7 @@ void WaveDisplay::updatePeakData(
 			m_peakData[ii] = 0;
 		}
 
+        createBackground();
 		update();
 		return;
 	}
