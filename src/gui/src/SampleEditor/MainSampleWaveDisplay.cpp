@@ -24,34 +24,36 @@
 
 #include <core/Basics/Sample.h>
 
-#include "SampleEditor.h"
 #include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
+#include "SampleEditor.h"
 
 using namespace H2Core;
 
-MainSampleWaveDisplay::MainSampleWaveDisplay(QWidget* pParent)
- : QWidget( pParent )
- {
-//	setAttribute(Qt::WA_OpaquePaintEvent);
+MainSampleWaveDisplay::MainSampleWaveDisplay( QWidget* pParent )
+	: QWidget( pParent )
+{
+	//	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//
 	int w = 624;
 	int h = 265;
 	resize( w, h );
 
-	bool ok = m_background.load( Skin::getImagePath() + "/waveDisplay/mainsamplewavedisplay.png" );
-	if( ok == false ){
+	bool ok = m_background.load(
+		Skin::getImagePath() + "/waveDisplay/mainsamplewavedisplay.png"
+	);
+	if ( ok == false ) {
 		ERRORLOG( "Error loading pixmap" );
 	}
 
-	m_pPeakDatal = new int[ w ];
-	m_pPeakDatar = new int[ w ];
+	m_pPeakDatal = new int[w];
+	m_pPeakDatar = new int[w];
 
 	m_nStartFramePosition = 25;
 	m_nLoopFramePosition = 25;
-	m_nEndFramePosition = width() -25;
+	m_nEndFramePosition = width() - 25;
 	m_nLocator = -1;
 	m_bUpdatePosition = false;
 	m_nSampleLength = 0;
@@ -61,46 +63,60 @@ MainSampleWaveDisplay::MainSampleWaveDisplay(QWidget* pParent)
 	m_bEndSliderIsmoved = false;
 
 	m_SelectedSlider = NONE;
-	setMouseTracking(true);
+	setMouseTracking( true );
 }
-
-
-
 
 MainSampleWaveDisplay::~MainSampleWaveDisplay()
 {
-	//INFOLOG( "DESTROY" );
+	// INFOLOG( "DESTROY" );
 
 	delete[] m_pPeakDatal;
 	delete[] m_pPeakDatar;
 }
 
-void MainSampleWaveDisplay::paintLocatorEvent( int pos, bool updateposi)
+void MainSampleWaveDisplay::paintLocatorEvent( int pos, bool updateposi )
 {
 	m_bUpdatePosition = updateposi;
-	if ( !updateposi ){
+	if ( !updateposi ) {
 		m_nLocator = -1;
-	}else
-	{
+	}
+	else {
 		m_nLocator = pos;
 	}
 	update();
 }
 
-static void set_paint_color(QPainter & painter, const QColor & color, bool selected, MainSampleWaveDisplay::Slider which)
+static void set_paint_color(
+	QPainter& painter,
+	const QColor& color,
+	bool selected,
+	MainSampleWaveDisplay::Slider which
+)
 {
-	if (!selected) {
+	if ( !selected ) {
 		painter.setPen( color );
-	} else {
-		QColor highlight = QColor(std::min(255, color.red() + 20 + 20 * (which == MainSampleWaveDisplay::END)),
-				std::min(255, color.green() + 20 + 20 * (which == MainSampleWaveDisplay::START)),
-				std::min(255, color.blue() + 20 + 20 * (which == MainSampleWaveDisplay::LOOP)));
+	}
+	else {
+		QColor highlight = QColor(
+			std::min(
+				255,
+				color.red() + 20 + 20 * ( which == MainSampleWaveDisplay::END )
+			),
+			std::min(
+				255, color.green() + 20 +
+						 20 * ( which == MainSampleWaveDisplay::START )
+			),
+			std::min(
+				255, color.blue() + 20 +
+						 20 * ( which == MainSampleWaveDisplay::LOOP )
+			)
+		);
 
-		painter.setPen ( highlight );
+		painter.setPen( highlight );
 	}
 }
 
-void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
+void MainSampleWaveDisplay::paintEvent( QPaintEvent* ev )
 {
 	QPainter painter( this );
 	painter.setRenderHint( QPainter::Antialiasing );
@@ -112,70 +128,84 @@ void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
 	int VCenterl = height() / 4;
 	int VCenterr = height() / 4 + height() / 2;
 
-	if ( width() >= m_nSampleLength  ) issmaller = true;
+	if ( width() >= m_nSampleLength )
+		issmaller = true;
 
-	for ( int x = 25; x < width() -25; x++ ) {
-		if ( !issmaller || x <= m_nSampleLength){
-			painter.drawLine( x, -m_pPeakDatal[x -25] +VCenterl, x, -m_pPeakDatal[x -24] +VCenterl  );
-			painter.drawLine( x, -m_pPeakDatar[x -25] +VCenterr, x, -m_pPeakDatar[x -24] +VCenterr  );	
-		}else
-		{
-			painter.drawLine( x, 0 +VCenterl, x, 0 +VCenterl  );
-			painter.drawLine( x, 0 +VCenterr, x, 0 +VCenterr  );
+	for ( int x = 25; x < width() - 25; x++ ) {
+		if ( !issmaller || x <= m_nSampleLength ) {
+			painter.drawLine(
+				x, -m_pPeakDatal[x - 25] + VCenterl, x,
+				-m_pPeakDatal[x - 24] + VCenterl
+			);
+			painter.drawLine(
+				x, -m_pPeakDatar[x - 25] + VCenterr, x,
+				-m_pPeakDatar[x - 24] + VCenterr
+			);
 		}
-	
+		else {
+			painter.drawLine( x, 0 + VCenterl, x, 0 + VCenterl );
+			painter.drawLine( x, 0 + VCenterr, x, 0 + VCenterr );
+		}
 	}
 
-
-	painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+	painter.setCompositionMode( QPainter::CompositionMode_SourceOver );
 
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
-	painter.drawLine( 23, 4, 23, height() -4 );
-	painter.drawLine( width() -23, 4,width() -23, height() -4 );
+	painter.drawLine( 23, 4, 23, height() - 4 );
+	painter.drawLine( width() - 23, 4, width() - 23, height() - 4 );
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::SolidLine ) );
-	painter.drawLine( m_nLocator, 4, m_nLocator, height() -4);
-	painter.drawLine( 0, VCenterl, width(),VCenterl );
-	painter.drawLine( 0, VCenterr, width(),VCenterr );
+	painter.drawLine( m_nLocator, 4, m_nLocator, height() - 4 );
+	painter.drawLine( 0, VCenterl, width(), VCenterl );
+	painter.drawLine( 0, VCenterr, width(), VCenterr );
 
 	QFont font;
 
 	QColor startColor = QColor( 32, 173, 0, 200 );
 	QColor endColor = QColor( 217, 68, 0, 200 );
-	QColor loopColor =  QColor( 93, 170, 254, 200 );
+	QColor loopColor = QColor( 93, 170, 254, 200 );
 	font.setWeight( QFont::Bold );
 	painter.setFont( font );
-//start frame pointer
-	set_paint_color(painter, startColor, m_SelectedSlider == START, m_SelectedSlider);
-	painter.drawLine( m_nStartFramePosition, 4, m_nStartFramePosition, height() -4 );	
-	painter.drawText( m_nStartFramePosition -10, 250, 10,20, Qt::AlignRight, "S" );
-//endframe pointer
-	set_paint_color(painter, endColor, m_SelectedSlider == END, m_SelectedSlider);
-	painter.drawLine( m_nEndFramePosition, 4, m_nEndFramePosition, height() -4 );
-	painter.drawText( m_nEndFramePosition -10, 123, 10, 20, Qt::AlignRight, "E" );
-//loopframe pointer
-	set_paint_color(painter, loopColor, m_SelectedSlider == LOOP, m_SelectedSlider);
-	painter.drawLine( m_nLoopFramePosition, 4, m_nLoopFramePosition, height() -4 );
-	painter.drawText( m_nLoopFramePosition , 0, 10, 20, Qt::AlignLeft, "L" );
-
-
+	// start frame pointer
+	set_paint_color(
+		painter, startColor, m_SelectedSlider == START, m_SelectedSlider
+	);
+	painter.drawLine(
+		m_nStartFramePosition, 4, m_nStartFramePosition, height() - 4
+	);
+	painter.drawText(
+		m_nStartFramePosition - 10, 250, 10, 20, Qt::AlignRight, "S"
+	);
+	// endframe pointer
+	set_paint_color(
+		painter, endColor, m_SelectedSlider == END, m_SelectedSlider
+	);
+	painter.drawLine(
+		m_nEndFramePosition, 4, m_nEndFramePosition, height() - 4
+	);
+	painter.drawText(
+		m_nEndFramePosition - 10, 123, 10, 20, Qt::AlignRight, "E"
+	);
+	// loopframe pointer
+	set_paint_color(
+		painter, loopColor, m_SelectedSlider == LOOP, m_SelectedSlider
+	);
+	painter.drawLine(
+		m_nLoopFramePosition, 4, m_nLoopFramePosition, height() - 4
+	);
+	painter.drawText( m_nLoopFramePosition, 0, 10, 20, Qt::AlignLeft, "L" );
 }
-
-
 
 void MainSampleWaveDisplay::updateDisplayPointer()
 {
 	update();
 }
 
-
-
 void MainSampleWaveDisplay::updateDisplay( std::shared_ptr<Sample> pNewSample )
 {
-
 	int nSampleLength = pNewSample->getFrames();
 	m_nSampleLength = nSampleLength;
-	float nScaleFactor = nSampleLength / (width() -50);
-	if ( nScaleFactor < 1 ){
+	float nScaleFactor = nSampleLength / ( width() - 50 );
+	if ( nScaleFactor < 1 ) {
 		nScaleFactor = 1;
 	}
 
@@ -189,12 +219,14 @@ void MainSampleWaveDisplay::updateDisplay( std::shared_ptr<Sample> pNewSample )
 	int nValr = 0;
 	int newVall = 0;
 	int newValr = 0;
-	for ( int i = 0; i < width(); ++i ){
+	for ( int i = 0; i < width(); ++i ) {
 		for ( int j = 0; j < nScaleFactor; ++j ) {
-			if ( j < nSampleLength && nSamplePos < nSampleLength) {
-				if ( pSampleDatal[ nSamplePos ] && pSampleDatar[ nSamplePos ] ){
-					newVall = static_cast<int>( pSampleDatal[ nSamplePos ] * fGain );
-					newValr = static_cast<int>( pSampleDatar[ nSamplePos ] * fGain );
+			if ( j < nSampleLength && nSamplePos < nSampleLength ) {
+				if ( pSampleDatal[nSamplePos] && pSampleDatar[nSamplePos] ) {
+					newVall =
+						static_cast<int>( pSampleDatal[nSamplePos] * fGain );
+					newValr =
+						static_cast<int>( pSampleDatar[nSamplePos] * fGain );
 					nVall = newVall;
 					nValr = newValr;
 				}
@@ -205,32 +237,35 @@ void MainSampleWaveDisplay::updateDisplay( std::shared_ptr<Sample> pNewSample )
 			}
 			++nSamplePos;
 		}
-		m_pPeakDatal[ i ] = nVall;
-		m_pPeakDatar[ i ] = nValr;
+		m_pPeakDatal[i] = nVall;
+		m_pPeakDatar[i] = nValr;
 	}
 	update();
 }
 
-void MainSampleWaveDisplay::mouseUpdateDone() {
-	HydrogenApp::get_instance()->getSampleEditor()->returnAllMainWaveDisplayValues();
+void MainSampleWaveDisplay::mouseUpdateDone()
+{
+	HydrogenApp::get_instance()
+		->getSampleEditor()
+		->returnAllMainWaveDisplayValues();
 	m_bStartSliderIsMoved = false;
 	m_bLoopSliderIsMoved = false;
 	m_bEndSliderIsmoved = false;
 }
 
-
-void MainSampleWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
+void MainSampleWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 {
-	if (ev->buttons() & Qt::LeftButton) {
+	if ( ev->buttons() & Qt::LeftButton ) {
 		testPosition( ev );
-	} else {
+	}
+	else {
 		chooseSlider( ev );
 	}
 	update();
 	mouseUpdateDone();
 }
 
-void MainSampleWaveDisplay::mousePressEvent(QMouseEvent *ev)
+void MainSampleWaveDisplay::mousePressEvent( QMouseEvent* ev )
 {
 	chooseSlider( ev );
 	testPosition( ev );
@@ -238,81 +273,79 @@ void MainSampleWaveDisplay::mousePressEvent(QMouseEvent *ev)
 	mouseUpdateDone();
 }
 
-void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
+void MainSampleWaveDisplay::testPosition( QMouseEvent* ev )
 {
-	assert(ev);
+	assert( ev );
 
 	auto pEv = static_cast<MouseEvent*>( ev );
 
-//startframepointer
-	int x = std::min(width() - 25,
-					 std::max(25, static_cast<int>(pEv->position().x())));
+	// startframepointer
+	int x = std::min(
+		width() - 25, std::max( 25, static_cast<int>( pEv->position().x() ) )
+	);
 
-	if  ( m_SelectedSlider == START ) {
+	if ( m_SelectedSlider == START ) {
 		m_nStartFramePosition = x;
 		m_bStartSliderIsMoved = true;
-		if ( m_nStartFramePosition > m_nLoopFramePosition ){
+		if ( m_nStartFramePosition > m_nLoopFramePosition ) {
 			m_nLoopFramePosition = m_nStartFramePosition;
 			m_bLoopSliderIsMoved = true;
 		}
-		if ( m_nStartFramePosition > m_nEndFramePosition ){
+		if ( m_nStartFramePosition > m_nEndFramePosition ) {
 			m_nEndFramePosition = m_nStartFramePosition;
 			m_bEndSliderIsmoved = true;
 		}
 	}
 
-//loopframeposition
-	else if  ( m_SelectedSlider == LOOP ) {
-		if (x >= m_nStartFramePosition && x <= m_nEndFramePosition ) {
-			m_nLoopFramePosition = x ;
+	// loopframeposition
+	else if ( m_SelectedSlider == LOOP ) {
+		if ( x >= m_nStartFramePosition && x <= m_nEndFramePosition ) {
+			m_nLoopFramePosition = x;
 			m_bLoopSliderIsMoved = true;
 		}
 	}
-//endframeposition
-	else if  ( m_SelectedSlider == END) {
-		if (x >= m_nStartFramePosition) {
-			m_nEndFramePosition = x ;
+	// endframeposition
+	else if ( m_SelectedSlider == END ) {
+		if ( x >= m_nStartFramePosition ) {
+			m_nEndFramePosition = x;
 			m_bEndSliderIsmoved = true;
 		}
-		if ( m_nEndFramePosition <  m_nLoopFramePosition ){
+		if ( m_nEndFramePosition < m_nLoopFramePosition ) {
 			m_nLoopFramePosition = m_nEndFramePosition;
 			m_bLoopSliderIsMoved = true;
 		}
 	}
 }
 
-
-void MainSampleWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)
+void MainSampleWaveDisplay::mouseReleaseEvent( QMouseEvent* ev )
 {
 	m_SelectedSlider = NONE;
 	update();
 	mouseUpdateDone();
 }
 
-
-
-
-void MainSampleWaveDisplay::chooseSlider(QMouseEvent * ev)
+void MainSampleWaveDisplay::chooseSlider( QMouseEvent* ev )
 {
-	assert(ev);
+	assert( ev );
 
 	auto pEv = static_cast<MouseEvent*>( ev );
 
-	QPoint start = QPoint(m_nStartFramePosition, height());
-	QPoint end = QPoint(m_nEndFramePosition, height() / 2);
-	QPoint loop = QPoint(m_nLoopFramePosition, 0);
+	QPoint start = QPoint( m_nStartFramePosition, height() );
+	QPoint end = QPoint( m_nEndFramePosition, height() / 2 );
+	QPoint loop = QPoint( m_nLoopFramePosition, 0 );
 
-	int ds = (pEv->position() - start).manhattanLength();
-	int de = (pEv->position() - end).manhattanLength();
-	int dl = (pEv->position() - loop).manhattanLength();
+	int ds = ( pEv->position() - start ).manhattanLength();
+	int de = ( pEv->position() - end ).manhattanLength();
+	int dl = ( pEv->position() - loop ).manhattanLength();
 	m_SelectedSlider = NONE;
 
-	if (ds <= de && ds <= dl) {
+	if ( ds <= de && ds <= dl ) {
 		m_SelectedSlider = START;
-	} else if (de < ds && de <= dl) {
+	}
+	else if ( de < ds && de <= dl ) {
 		m_SelectedSlider = END;
-	} else if (dl < ds && dl < de) {
+	}
+	else if ( dl < ds && dl < de ) {
 		m_SelectedSlider = LOOP;
 	}
 }
-

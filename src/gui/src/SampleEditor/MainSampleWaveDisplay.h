@@ -31,67 +31,56 @@
 #include <memory>
 
 namespace H2Core {
-	class Sample;
+class Sample;
 }
 
 class SampleEditor;
 
 /** \ingroup docGUI*/
-class MainSampleWaveDisplay :  public QWidget,  public H2Core::Object<MainSampleWaveDisplay>
-{
-    H2_OBJECT(MainSampleWaveDisplay)
+class MainSampleWaveDisplay : public QWidget,
+							  public H2Core::Object<MainSampleWaveDisplay> {
+	H2_OBJECT( MainSampleWaveDisplay )
 	Q_OBJECT
 
-	public:
+   public:
+	enum Slider { NONE, START, LOOP, END };
 
-		enum Slider {
-			NONE,
-			START,
-			LOOP,
-			END
-		};
+	explicit MainSampleWaveDisplay( QWidget* pParent );
+	~MainSampleWaveDisplay();
 
-		explicit MainSampleWaveDisplay(QWidget* pParent);
-		~MainSampleWaveDisplay();
+	void updateDisplay( std::shared_ptr<H2Core::Sample> pNewSample );
+	void updateDisplayPointer();
 
-		void updateDisplay( std::shared_ptr< H2Core::Sample > pNewSample );
-		void updateDisplayPointer();
+	void paintLocatorEvent( int pos, bool last_event );
+	virtual void paintEvent( QPaintEvent* ev ) override;
 
-		void paintLocatorEvent( int pos, bool last_event);
-		virtual void paintEvent(QPaintEvent *ev) override;
-		
-		void testPositionFromSampleeditor();
-		
-		int		m_nStartFramePosition;
-		int		m_nLoopFramePosition;
-		int		m_nEndFramePosition;
+	void testPositionFromSampleeditor();
 
-		bool	m_bStartSliderIsMoved;
-		bool	m_bLoopSliderIsMoved;
-		bool	m_bEndSliderIsmoved;
+	int m_nStartFramePosition;
+	int m_nLoopFramePosition;
+	int m_nEndFramePosition;
 
-		Slider  m_SelectedSlider;
+	bool m_bStartSliderIsMoved;
+	bool m_bLoopSliderIsMoved;
+	bool m_bEndSliderIsmoved;
 
+	Slider m_SelectedSlider;
 
-	private:
-		virtual void mouseMoveEvent(QMouseEvent *ev) override;
-		virtual void mousePressEvent(QMouseEvent *ev) override;
-		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
-		void testPosition( QMouseEvent *ev );
-		void chooseSlider( QMouseEvent *ev );
-		void mouseUpdateDone();
-		
-		QPixmap m_background;
-		int*	m_pPeakDatal;
-		int*	m_pPeakDatar;
-		
-		int		m_nSampleLength;
-		int		m_nLocator;
-		bool	m_bUpdatePosition;
+   private:
+	virtual void mouseMoveEvent( QMouseEvent* ev ) override;
+	virtual void mousePressEvent( QMouseEvent* ev ) override;
+	virtual void mouseReleaseEvent( QMouseEvent* ev ) override;
+	void testPosition( QMouseEvent* ev );
+	void chooseSlider( QMouseEvent* ev );
+	void mouseUpdateDone();
 
+	QPixmap m_background;
+	int* m_pPeakDatal;
+	int* m_pPeakDatar;
 
+	int m_nSampleLength;
+	int m_nLocator;
+	bool m_bUpdatePosition;
 };
 
-
 #endif
-
