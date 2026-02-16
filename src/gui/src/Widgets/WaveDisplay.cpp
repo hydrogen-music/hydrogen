@@ -112,47 +112,61 @@ void WaveDisplay::createBackground( QPainter* painter )
 
 	if ( m_pLayer != nullptr ) {
 		painter->setPen( waveFormColor );
-		int VCenter = height() / 2;
+		const int nVerticalCenter = height() / 2;
 
 		if ( m_nActiveWidth == -1 ) {
 			// Display does not support distinction between active and inactive
 			// region.
 			for ( int x = 0; x < width(); x++ ) {
-				painter->drawLine( x, VCenter, x, m_pPeakData[x] + VCenter );
-				painter->drawLine( x, VCenter, x, -m_pPeakData[x] + VCenter );
+				painter->drawLine(
+					x, nVerticalCenter, x, m_pPeakData[x] + nVerticalCenter
+				);
+				painter->drawLine(
+					x, nVerticalCenter, x, -m_pPeakData[x] + nVerticalCenter
+				);
 			}
 		}
 		else {
 			for ( int x = 0; x < m_nActiveWidth; x++ ) {
-				painter->drawLine( x, VCenter, x, m_pPeakData[x] + VCenter );
-				painter->drawLine( x, VCenter, x, -m_pPeakData[x] + VCenter );
+				painter->drawLine(
+					x, nVerticalCenter, x, m_pPeakData[x] + nVerticalCenter
+				);
+				painter->drawLine(
+					x, nVerticalCenter, x, -m_pPeakData[x] + nVerticalCenter
+				);
 			}
 			painter->setPen( waveFormInactiveColor );
 			for ( int x = m_nActiveWidth; x < width(); x++ ) {
-				painter->drawLine( x, VCenter, x, m_pPeakData[x] + VCenter );
-				painter->drawLine( x, VCenter, x, -m_pPeakData[x] + VCenter );
+				painter->drawLine(
+					x, nVerticalCenter, x, m_pPeakData[x] + nVerticalCenter
+				);
+				painter->drawLine(
+					x, nVerticalCenter, x, -m_pPeakData[x] + nVerticalCenter
+				);
 			}
 		}
 	}
 
-	QFont font(
-		pPref->getFontTheme()->m_sApplicationFontFamily,
-		getPointSize( pPref->getFontTheme()->m_fontSize )
-	);
-	font.setWeight( QFont::Bold );
-	painter->setFont( font );
-	painter->setPen( textColor );
+	if ( !m_sSampleName.isEmpty() ) {
+		QFont font(
+			pPref->getFontTheme()->m_sApplicationFontFamily,
+			getPointSize( pPref->getFontTheme()->m_fontSize )
+		);
+		font.setWeight( QFont::Bold );
+		painter->setFont( font );
+		painter->setPen( textColor );
 
-	if ( m_SampleNameAlignment == Qt::AlignCenter ) {
-		painter->drawText(
-			0, 0, width(), 20, m_SampleNameAlignment, m_sSampleName
-		);
-	}
-	else if ( m_SampleNameAlignment == Qt::AlignLeft ) {
-		// Use a small offnset iso. starting directly at the left border
-		painter->drawText(
-			20, 0, width(), 20, m_SampleNameAlignment, m_sSampleName
-		);
+		if ( m_SampleNameAlignment == Qt::AlignCenter ) {
+			painter->drawText(
+				0, 0, width(), 20, m_SampleNameAlignment, m_sSampleName
+			);
+		}
+		else if ( m_SampleNameAlignment == Qt::AlignLeft ) {
+			// Use a small offnset iso. starting directly at the left border
+			painter->drawText(
+				20, 0, width(), 20, m_SampleNameAlignment, m_sSampleName
+			);
+		}
 	}
 
 	// Border
