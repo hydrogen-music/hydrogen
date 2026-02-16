@@ -230,27 +230,40 @@ void WaveDisplay::updatePeakData(
 	m_sSampleName = pLayer->getSample()->getFileName();
 
 	const int nSampleLength = pLayer->getSample()->getFrames();
-	const int nScaleFactor = nSampleLength / m_peakData.size();
-
+	auto pSampleData = pLayer->getSample()->getData_L();
 	const float fGain = height() / 2.0 * pLayer->getGain();
 
-	auto pSampleData = pLayer->getSample()->getData_L();
+	if ( nSampleLength > m_peakData.size() ) {
+		const int nScaleFactor = nSampleLength / m_peakData.size();
 
-	int nSamplePos = 0;
-	int nVal;
-	for ( int ii = 0; ii < m_peakData.size(); ++ii ) {
-		nVal = 0;
-		for ( int jj = 0; jj < nScaleFactor; ++jj ) {
-			if ( jj < nSampleLength ) {
-				const int nNewVal =
-					static_cast<int>( pSampleData[nSamplePos] * fGain );
-				if ( nNewVal > nVal ) {
-					nVal = nNewVal;
+		int nSamplePos = 0;
+		int nVal;
+		for ( int ii = 0; ii < m_peakData.size(); ++ii ) {
+			nVal = 0;
+			for ( int jj = 0; jj < nScaleFactor; ++jj ) {
+				if ( nSamplePos >= nSampleLength ) {
+					break;
 				}
+
+				if ( jj < nSampleLength ) {
+					const int nNewVal =
+						static_cast<int>( pSampleData[nSamplePos] * fGain );
+					if ( nNewVal > nVal ) {
+						nVal = nNewVal;
+					}
+				}
+				++nSamplePos;
 			}
-			++nSamplePos;
+			m_peakData[ii] = nVal;
 		}
-		m_peakData[ii] = nVal;
+	}
+	else {
+		for ( int ii = 0; ii < nSampleLength; ++ii ) {
+			m_peakData[ii] = static_cast<int>( pSampleData[ii] * fGain );
+		}
+		for ( int ii = nSampleLength; ii < m_peakData.size(); ++ii ) {
+			m_peakData[ii] = 0;
+		}
 	}
 
 	createBackground();
