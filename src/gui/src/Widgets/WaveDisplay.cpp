@@ -43,8 +43,7 @@ WaveDisplay::WaveDisplay( QWidget* pParent )
 {
 	setAttribute( Qt::WA_OpaquePaintEvent );
 
-	m_pPeakData = new int[width()];
-	memset( m_pPeakData, 0, width() * sizeof( m_pPeakData[0] ) );
+	m_peakData.resize( width() );
 
 	connect(
 		HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this,
@@ -54,7 +53,6 @@ WaveDisplay::WaveDisplay( QWidget* pParent )
 
 WaveDisplay::~WaveDisplay()
 {
-	delete[] m_pPeakData;
 }
 
 void WaveDisplay::paintEvent( QPaintEvent* ev )
@@ -119,29 +117,29 @@ void WaveDisplay::createBackground( QPainter* painter )
 			// region.
 			for ( int x = 0; x < width(); x++ ) {
 				painter->drawLine(
-					x, nVerticalCenter, x, m_pPeakData[x] + nVerticalCenter
+					x, nVerticalCenter, x, m_peakData[x] + nVerticalCenter
 				);
 				painter->drawLine(
-					x, nVerticalCenter, x, -m_pPeakData[x] + nVerticalCenter
+					x, nVerticalCenter, x, -m_peakData[x] + nVerticalCenter
 				);
 			}
 		}
 		else {
 			for ( int x = 0; x < m_nActiveWidth; x++ ) {
 				painter->drawLine(
-					x, nVerticalCenter, x, m_pPeakData[x] + nVerticalCenter
+					x, nVerticalCenter, x, m_peakData[x] + nVerticalCenter
 				);
 				painter->drawLine(
-					x, nVerticalCenter, x, -m_pPeakData[x] + nVerticalCenter
+					x, nVerticalCenter, x, -m_peakData[x] + nVerticalCenter
 				);
 			}
 			painter->setPen( waveFormInactiveColor );
 			for ( int x = m_nActiveWidth; x < width(); x++ ) {
 				painter->drawLine(
-					x, nVerticalCenter, x, m_pPeakData[x] + nVerticalCenter
+					x, nVerticalCenter, x, m_peakData[x] + nVerticalCenter
 				);
 				painter->drawLine(
-					x, nVerticalCenter, x, -m_pPeakData[x] + nVerticalCenter
+					x, nVerticalCenter, x, -m_peakData[x] + nVerticalCenter
 				);
 			}
 		}
@@ -191,8 +189,8 @@ void WaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer
 		m_pLayer = nullptr;
 		m_sSampleName = "";
 
-		for ( int i = 0; i < m_nCurrentWidth; ++i ) {
-			m_pPeakData[i] = 0;
+		for ( int ii = 0; ii < m_peakData.size(); ++ii ) {
+			m_peakData[ii] = 0;
 		}
 
 		update();
@@ -200,37 +198,37 @@ void WaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer
 	}
 
 	if ( nCurrentWidth != m_nCurrentWidth ) {
-		delete[] m_pPeakData;
-		m_pPeakData = new int[nCurrentWidth];
+		m_peakData.resize( nCurrentWidth );
 
 		m_nCurrentWidth = nCurrentWidth;
 	}
 
-	if ( pLayer && pLayer->getSample() ) {
+	if ( pLayer != nullptr && pLayer->getSample() != nullptr ) {
 		m_pLayer = pLayer;
 		m_sSampleName = pLayer->getSample()->getFileName();
 
-		int nSampleLength = pLayer->getSample()->getFrames();
-		int nScaleFactor = nSampleLength / m_nCurrentWidth;
+		const int nSampleLength = pLayer->getSample()->getFrames();
+		const int nScaleFactor = nSampleLength / m_nCurrentWidth;
 
-		float fGain = height() / 2.0 * pLayer->getGain();
+		const float fGain = height() / 2.0 * pLayer->getGain();
 
 		auto pSampleData = pLayer->getSample()->getData_L();
 
 		int nSamplePos = 0;
 		int nVal;
-		for ( int i = 0; i < width(); ++i ) {
+		for ( int ii = 0; ii < m_peakData.size(); ++ii ) {
 			nVal = 0;
-			for ( int j = 0; j < nScaleFactor; ++j ) {
-				if ( j < nSampleLength ) {
-					int newVal = (int) ( pSampleData[nSamplePos] * fGain );
-					if ( newVal > nVal ) {
-						nVal = newVal;
+			for ( int jj = 0; jj < nScaleFactor; ++jj ) {
+				if ( jj < nSampleLength ) {
+					const int nNewVal =
+						static_cast<int>( pSampleData[nSamplePos] * fGain );
+					if ( nNewVal > nVal ) {
+						nVal = nNewVal;
 					}
 				}
 				++nSamplePos;
 			}
-			m_pPeakData[i] = nVal;
+			m_peakData[ii] = nVal;
 		}
 	}
 

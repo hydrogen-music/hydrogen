@@ -126,14 +126,14 @@ void PlaybackTrackWaveDisplay::updateDisplay(
 	m_pLayer = pLayer;
 
 	if ( nCurrentWidth != m_nCurrentWidth ) {
-		delete[] m_pPeakData;
-		m_pPeakData = new int[nCurrentWidth];
-
+		m_peakData.resize( nCurrentWidth );
 		m_nCurrentWidth = nCurrentWidth;
 	}
 
 	// Initialise everything with 0..
-	memset( m_pPeakData, 0, nCurrentWidth * sizeof( m_pPeakData[0] ) );
+	for ( int ii = 0; ii < m_peakData.size(); ++ii ) {
+		m_peakData[ii] = 0;
+	}
 
 	if ( pLayer && pLayer->getSample() ) {
 		m_sSampleName = m_pLayer->getSample()->getFileName();
@@ -202,7 +202,7 @@ void PlaybackTrackWaveDisplay::updateDisplay(
 
 					++nSamplePos;
 				}
-				m_pPeakData[ii] = nnVal;
+				m_peakData[ii] = nnVal;
 			}
 			nRenderStartPosition += nSongEditorGridWidth;
 			nTotalFrames = nNextEndFrame;

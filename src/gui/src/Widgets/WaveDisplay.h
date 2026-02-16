@@ -25,6 +25,7 @@
 
 #include <QtGui>
 #include <QtWidgets>
+#include <vector>
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -68,7 +69,7 @@ class WaveDisplay : public QWidget,
 
 	Qt::AlignmentFlag m_SampleNameAlignment;
 	QString m_sSampleName;
-	int* m_pPeakData;
+	std::vector<int> m_peakData;
 
 	/* Used to re-initialise m_pPeakData if width has changed */
 	int m_nCurrentWidth;
