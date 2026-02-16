@@ -26,69 +26,68 @@
 #include <QtGui>
 #include <QtWidgets>
 
-#include <core/Object.h>
 #include <core/Basics/Sample.h>
+#include <core/Object.h>
 #include <memory>
 
 class SampleEditor;
 
-namespace H2Core
-{
-	class InstrumentLayer;
-	class EnvelopePoint;
-}
+namespace H2Core {
+class InstrumentLayer;
+class EnvelopePoint;
+}  // namespace H2Core
 
 /** \ingroup docGUI*/
-class TargetWaveDisplay :  public QWidget,  public H2Core::Object<TargetWaveDisplay>
-{
-	H2_OBJECT(TargetWaveDisplay)
+class TargetWaveDisplay : public QWidget,
+						  public H2Core::Object<TargetWaveDisplay> {
+	H2_OBJECT( TargetWaveDisplay )
 	Q_OBJECT
 
-	public:
-		explicit TargetWaveDisplay(QWidget* pParent);
-		~TargetWaveDisplay();
+   public:
+	explicit TargetWaveDisplay( QWidget* pParent );
+	~TargetWaveDisplay();
 
-		enum EnvelopeEditMode {
-			VELOCITY = 0,
-			PAN = 1
-		};
+	enum EnvelopeEditMode { VELOCITY = 0, PAN = 1 };
 
-		void updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
-		void updateDisplayPointer();
-		void paintLocatorEventTargetDisplay( int pos, bool last_event);
-		virtual void paintEvent(QPaintEvent *ev) override;
-		H2Core::Sample::PanEnvelope* get_pan() { return &m_PanEnvelope; }
-		H2Core::Sample::VelocityEnvelope* get_velocity() { return &m_VelocityEnvelope; }
+	void updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
+	void updateDisplayPointer();
+	void paintLocatorEventTargetDisplay( int pos, bool last_event );
+	virtual void paintEvent( QPaintEvent* ev ) override;
+	H2Core::Sample::PanEnvelope* get_pan() { return &m_PanEnvelope; }
+	H2Core::Sample::VelocityEnvelope* get_velocity()
+	{
+		return &m_VelocityEnvelope;
+	}
 
-	private:
-		QPixmap m_Background;
+   private:
+	QPixmap m_Background;
 
-		QString m_sSampleName;
-		QString m_sInfo;
+	QString m_sSampleName;
+	QString m_sInfo;
 
-		int m_nX;
-		int m_nY;
-		int m_nLocator;
+	int m_nX;
+	int m_nY;
+	int m_nLocator;
 
-		int *m_pPeakData_Left;
-		int *m_pPeakData_Right;
+	int* m_pPeakData_Left;
+	int* m_pPeakData_Right;
 
-		bool m_UpdatePosition;
-		EnvelopeEditMode m_EditMode;
+	bool m_UpdatePosition;
+	EnvelopeEditMode m_EditMode;
 
-		int m_nSnapRadius;
+	int m_nSnapRadius;
 
-		virtual void mouseMoveEvent(QMouseEvent *ev) override;
-		virtual void mousePressEvent(QMouseEvent *ev) override;
-		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
+	virtual void mouseMoveEvent( QMouseEvent* ev ) override;
+	virtual void mousePressEvent( QMouseEvent* ev ) override;
+	virtual void mouseReleaseEvent( QMouseEvent* ev ) override;
 
-		virtual void updateMouseSelection(QMouseEvent *ev);
-		virtual void updateEnvelope();
+	virtual void updateMouseSelection( QMouseEvent* ev );
+	virtual void updateEnvelope();
 
-		H2Core::Sample::PanEnvelope m_PanEnvelope;
-		H2Core::Sample::VelocityEnvelope m_VelocityEnvelope;
+	H2Core::Sample::PanEnvelope m_PanEnvelope;
+	H2Core::Sample::VelocityEnvelope m_VelocityEnvelope;
 
-		int m_nSelectedEnvelopePoint;
+	int m_nSelectedEnvelopePoint;
 };
 
 #endif
