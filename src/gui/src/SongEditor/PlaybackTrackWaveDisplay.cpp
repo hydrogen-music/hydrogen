@@ -118,7 +118,7 @@ void PlaybackTrackWaveDisplay::updatePeakData(
 		m_sSampleName = tr( "No playback track selected" );
 
 		QPainter painter( m_pBackgroundPixmap );
-		createBackground( &painter );
+		createBackground();
 		update();
 		return;
 	}
@@ -225,7 +225,7 @@ void PlaybackTrackWaveDisplay::updatePeakData(
 	}
 
 	QPainter painter( m_pBackgroundPixmap );
-	createBackground( &painter );
+	createBackground();
 	update();
 }
 
@@ -241,23 +241,9 @@ void PlaybackTrackWaveDisplay::paintEvent( QPaintEvent* ev )
 		return;
 	}
 
+	WaveDisplay::paintEvent( ev );
+
 	QPainter painter( this );
-
-	qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
-		 width() != m_pBackgroundPixmap->width() ||
-		 height() != m_pBackgroundPixmap->height() ) {
-		updateWidth();
-	}
-
-	// Render the wave display.
-	painter.drawPixmap(
-		ev->rect(), *m_pBackgroundPixmap,
-		QRectF(
-			pixelRatio * ev->rect().x(), pixelRatio * ev->rect().y(),
-			pixelRatio * ev->rect().width(), pixelRatio * ev->rect().height()
-		)
-	);
 
 	// Draw playhead
 	auto pSongEditorPanel = HydrogenApp::get_instance()->getSongEditorPanel();

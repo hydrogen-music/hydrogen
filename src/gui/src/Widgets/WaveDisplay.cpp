@@ -44,6 +44,10 @@ WaveDisplay::WaveDisplay( QWidget* pParent )
 
 	m_peakData.resize( width() );
 
+	const qreal pixelRatio = devicePixelRatio();
+	m_pBackgroundPixmap =
+		new QPixmap( width() * pixelRatio, height() * pixelRatio );
+
 	connect(
 		HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this,
 		&WaveDisplay::onPreferencesChanged
@@ -57,12 +61,27 @@ WaveDisplay::~WaveDisplay()
 void WaveDisplay::paintEvent( QPaintEvent* ev )
 {
 	UNUSED( ev );
-	QPainter painter( this );
 
-	createBackground( &painter );
+	if ( !isVisible() ) {
+		return;
+	}
+
+	const qreal pixelRatio = devicePixelRatio();
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
+		createBackground();
+	}
+
+	QPainter painter( this );
+	painter.drawPixmap(
+		ev->rect(), *m_pBackgroundPixmap,
+		QRectF(
+			pixelRatio * ev->rect().x(), pixelRatio * ev->rect().y(),
+			pixelRatio * ev->rect().width(), pixelRatio * ev->rect().height()
+		)
+	);
 }
 
-void WaveDisplay::createBackground( QPainter* painter )
+void WaveDisplay::createBackground()
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	const auto pColorTheme = pPref->getColorTheme();
@@ -92,7 +111,18 @@ void WaveDisplay::createBackground( QPainter* painter )
 		waveFormInactiveColor = pColorTheme->m_darkColor;
 	}
 
-	painter->setRenderHint( QPainter::Antialiasing );
+	const qreal pixelRatio = devicePixelRatio();
+	if ( m_pBackgroundPixmap->width() != width() ||
+		 m_pBackgroundPixmap->height() != height() ||
+		 m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
+		delete m_pBackgroundPixmap;
+		m_pBackgroundPixmap =
+			new QPixmap( width() * pixelRatio, height() * pixelRatio );
+		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+	}
+
+	QPainter p( m_pBackgroundPixmap );
+	p.setRenderHint( QPainter::Antialiasing );
 
 	QLinearGradient backgroundGradient(
 		QPointF( 0, 0 ), QPointF( 0, height() / 2 )
@@ -105,39 +135,39 @@ void WaveDisplay::createBackground( QPainter* painter )
 	);
 	backgroundGradient.setSpread( QGradient::ReflectSpread );
 
-	painter->fillRect( 0, 0, width(), height(), QBrush( backgroundGradient ) );
+	p.fillRect( 0, 0, width(), height(), QBrush( backgroundGradient ) );
 
 	if ( m_pLayer != nullptr ) {
-		painter->setPen( waveFormColor );
+		p.setPen( waveFormColor );
 		const int nVerticalCenter = height() / 2;
 
 		if ( m_nActiveWidth == -1 ) {
 			// Display does not support distinction between active and inactive
 			// region.
 			for ( int x = 0; x < width(); x++ ) {
-				painter->drawLine(
+				p.drawLine(
 					x, nVerticalCenter, x, m_peakData[x] + nVerticalCenter
 				);
-				painter->drawLine(
+				p.drawLine(
 					x, nVerticalCenter, x, -m_peakData[x] + nVerticalCenter
 				);
 			}
 		}
 		else {
 			for ( int x = 0; x < m_nActiveWidth; x++ ) {
-				painter->drawLine(
+				p.drawLine(
 					x, nVerticalCenter, x, m_peakData[x] + nVerticalCenter
 				);
-				painter->drawLine(
+				p.drawLine(
 					x, nVerticalCenter, x, -m_peakData[x] + nVerticalCenter
 				);
 			}
-			painter->setPen( waveFormInactiveColor );
+			p.setPen( waveFormInactiveColor );
 			for ( int x = m_nActiveWidth; x < width(); x++ ) {
-				painter->drawLine(
+				p.drawLine(
 					x, nVerticalCenter, x, m_peakData[x] + nVerticalCenter
 				);
-				painter->drawLine(
+				p.drawLine(
 					x, nVerticalCenter, x, -m_peakData[x] + nVerticalCenter
 				);
 			}
@@ -150,28 +180,28 @@ void WaveDisplay::createBackground( QPainter* painter )
 			getPointSize( pPref->getFontTheme()->m_fontSize )
 		);
 		font.setWeight( QFont::Bold );
-		painter->setFont( font );
-		painter->setPen( textColor );
+		p.setFont( font );
+		p.setPen( textColor );
 
 		if ( m_SampleNameAlignment == Qt::AlignCenter ) {
-			painter->drawText(
+			p.drawText(
 				0, 0, width(), 20, m_SampleNameAlignment, m_sSampleName
 			);
 		}
 		else if ( m_SampleNameAlignment == Qt::AlignLeft ) {
 			// Use a small offnset iso. starting directly at the left border
-			painter->drawText(
+			p.drawText(
 				20, 0, width(), 20, m_SampleNameAlignment, m_sSampleName
 			);
 		}
 	}
 
 	// Border
-	painter->setPen( QPen( borderColor ) );
-	painter->drawLine( 0, 0, width(), 0 );
-	painter->drawLine( 0, 0, 0, height() );
-	painter->drawLine( 0, height(), width(), height() );
-	painter->drawLine( width(), 0, width(), height() );
+	p.setPen( QPen( borderColor ) );
+	p.drawLine( 0, 0, width(), 0 );
+	p.drawLine( 0, 0, 0, height() );
+	p.drawLine( 0, height(), width(), height() );
+	p.drawLine( width(), 0, width(), height() );
 }
 
 void WaveDisplay::resizeEvent( QResizeEvent* event )
@@ -179,7 +209,8 @@ void WaveDisplay::resizeEvent( QResizeEvent* event )
 	updateWidth();
 }
 
-void WaveDisplay::updatePeakData( std::shared_ptr<H2Core::InstrumentLayer> pLayer
+void WaveDisplay::updatePeakData(
+	std::shared_ptr<H2Core::InstrumentLayer> pLayer
 )
 {
 	if ( pLayer == nullptr || pLayer->getSample() == nullptr ) {
@@ -221,16 +252,17 @@ void WaveDisplay::updatePeakData( std::shared_ptr<H2Core::InstrumentLayer> pLaye
 		m_peakData[ii] = nVal;
 	}
 
+	createBackground();
 	update();
 }
 
 void WaveDisplay::updateWidth()
 {
 	if ( width() <= 0 || width() == m_peakData.size() ) {
-        return;
-    }
+		return;
+	}
 
-    m_peakData.resize( width() );
+	m_peakData.resize( width() );
 	updatePeakData( m_pLayer );
 }
 

@@ -66,7 +66,9 @@ class WaveDisplay : public QWidget,
 	void doubleClicked( QWidget* pWidget );
 
    protected:
-	void createBackground( QPainter* painter );
+	void createBackground();
+
+	QPixmap* m_pBackgroundPixmap;
 
 	Qt::AlignmentFlag m_SampleNameAlignment;
 	QString m_sSampleName;
