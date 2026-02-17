@@ -52,9 +52,9 @@ class WaveDisplay : public QWidget,
 	virtual void setLayer( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 	virtual void updateBackground();
 
+	virtual void mouseDoubleClickEvent( QMouseEvent* ev ) override;
 	virtual void paintEvent( QPaintEvent* ev ) override;
 	virtual void resizeEvent( QResizeEvent* event ) override;
-	virtual void mouseDoubleClickEvent( QMouseEvent* ev ) override;
 
 	void setSampleNameAlignment( const Qt::AlignmentFlag& flag );
 
@@ -65,9 +65,8 @@ class WaveDisplay : public QWidget,
 	void doubleClicked( QWidget* pWidget );
 
    protected:
-	virtual void updatePeakData();
-	void createBackground();
 	void drawPeakData();
+	virtual void updatePeakData();
 
 	QPixmap* m_pBackgroundPixmap;
 	QPixmap* m_pPeakDataPixmap;

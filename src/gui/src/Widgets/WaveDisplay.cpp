@@ -67,28 +67,19 @@ WaveDisplay::~WaveDisplay()
 	}
 }
 
-void WaveDisplay::paintEvent( QPaintEvent* ev )
+void WaveDisplay::setLayer( std::shared_ptr<H2Core::InstrumentLayer> pLayer )
 {
-	UNUSED( ev );
-
-	if ( !isVisible() ) {
-		return;
+	if ( pLayer == nullptr || pLayer->getSample() == nullptr ) {
+		m_pLayer = nullptr;
+		m_sSampleName = m_sFallbackText;
+	}
+	else {
+		m_pLayer = pLayer;
+		m_sSampleName = pLayer->getSample()->getFileName();
 	}
 
-	const qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pPeakDataPixmap->devicePixelRatio() ) {
-		updateBackground();
-		drawPeakData();
-	}
-
-	QPainter painter( this );
-	painter.drawPixmap(
-		ev->rect(), *m_pPeakDataPixmap,
-		QRectF(
-			pixelRatio * ev->rect().x(), pixelRatio * ev->rect().y(),
-			pixelRatio * ev->rect().width(), pixelRatio * ev->rect().height()
-		)
-	);
+	updateBackground();
+	updatePeakData();
 }
 
 void WaveDisplay::updateBackground()
@@ -175,6 +166,56 @@ void WaveDisplay::updateBackground()
 	drawPeakData();
 }
 
+void WaveDisplay::mouseDoubleClickEvent( QMouseEvent* ev )
+{
+	if ( ev->button() == Qt::LeftButton ) {
+		emit doubleClicked( this );
+	}
+}
+
+void WaveDisplay::paintEvent( QPaintEvent* ev )
+{
+	UNUSED( ev );
+
+	if ( !isVisible() ) {
+		return;
+	}
+
+	const qreal pixelRatio = devicePixelRatio();
+	if ( pixelRatio != m_pPeakDataPixmap->devicePixelRatio() ) {
+		updateBackground();
+		drawPeakData();
+	}
+
+	QPainter painter( this );
+	painter.drawPixmap(
+		ev->rect(), *m_pPeakDataPixmap,
+		QRectF(
+			pixelRatio * ev->rect().x(), pixelRatio * ev->rect().y(),
+			pixelRatio * ev->rect().width(), pixelRatio * ev->rect().height()
+		)
+	);
+}
+
+void WaveDisplay::resizeEvent( QResizeEvent* event )
+{
+	if ( width() <= 0 || width() == m_peakData.size() ) {
+		return;
+	}
+
+	updateBackground();
+	updatePeakData();
+}
+
+void WaveDisplay::onPreferencesChanged(
+	const H2Core::Preferences::Changes& changes
+)
+{
+	if ( changes & H2Core::Preferences::Changes::Font ) {
+		update();
+	}
+}
+
 void WaveDisplay::drawPeakData()
 {
 	const qreal pixelRatio = devicePixelRatio();
@@ -248,31 +289,6 @@ void WaveDisplay::drawPeakData()
 	}
 }
 
-void WaveDisplay::resizeEvent( QResizeEvent* event )
-{
-	if ( width() <= 0 || width() == m_peakData.size() ) {
-		return;
-	}
-
-	updateBackground();
-	updatePeakData();
-}
-
-void WaveDisplay::setLayer( std::shared_ptr<H2Core::InstrumentLayer> pLayer )
-{
-	if ( pLayer == nullptr || pLayer->getSample() == nullptr ) {
-		m_pLayer = nullptr;
-		m_sSampleName = m_sFallbackText;
-	}
-	else {
-		m_pLayer = pLayer;
-		m_sSampleName = pLayer->getSample()->getFileName();
-	}
-
-	updateBackground();
-	updatePeakData();
-}
-
 void WaveDisplay::updatePeakData()
 {
 	if ( width() != m_peakData.size() ) {
@@ -328,20 +344,4 @@ void WaveDisplay::updatePeakData()
 
 	drawPeakData();
 	update();
-}
-
-void WaveDisplay::mouseDoubleClickEvent( QMouseEvent* ev )
-{
-	if ( ev->button() == Qt::LeftButton ) {
-		emit doubleClicked( this );
-	}
-}
-
-void WaveDisplay::onPreferencesChanged(
-	const H2Core::Preferences::Changes& changes
-)
-{
-	if ( changes & H2Core::Preferences::Changes::Font ) {
-		update();
-	}
 }
