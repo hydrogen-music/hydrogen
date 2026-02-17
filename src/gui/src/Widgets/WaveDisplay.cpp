@@ -35,9 +35,10 @@ using namespace H2Core;
 
 WaveDisplay::WaveDisplay( QWidget* pParent )
 	: QWidget( pParent ),
+	  m_label( Label::SampleName ),
 	  m_nActiveWidth( -1 ),
 	  m_sSampleName( "" ),
-      m_sFallbackText( "" ),
+	  m_sFallbackLabel( "" ),
 	  m_pLayer( nullptr ),
 	  m_SampleNameAlignment( Qt::AlignCenter )
 {
@@ -71,7 +72,7 @@ void WaveDisplay::setLayer( std::shared_ptr<H2Core::InstrumentLayer> pLayer )
 {
 	if ( pLayer == nullptr || pLayer->getSample() == nullptr ) {
 		m_pLayer = nullptr;
-		m_sSampleName = m_sFallbackText;
+		m_sSampleName = m_sFallbackLabel;
 	}
 	else {
 		m_pLayer = pLayer;
@@ -133,7 +134,15 @@ void WaveDisplay::updateBackground()
 
 	p.fillRect( 0, 0, width(), height(), QBrush( backgroundGradient ) );
 
-	if ( !m_sSampleName.isEmpty() ) {
+	QString sText;
+	if ( m_label == Label::SampleName ) {
+		sText = m_sSampleName;
+	}
+	else {
+		sText = m_sFallbackLabel;
+	}
+
+	if ( !sText.isEmpty() ) {
 		QFont font(
 			pPref->getFontTheme()->m_sApplicationFontFamily,
 			getPointSize( pPref->getFontTheme()->m_fontSize )
@@ -142,15 +151,16 @@ void WaveDisplay::updateBackground()
 		p.setFont( font );
 		p.setPen( textColor );
 
-		if ( m_SampleNameAlignment == Qt::AlignCenter ) {
+		if ( m_SampleNameAlignment == Qt::AlignLeft ) {
+			// Use a small offset instead of starting directly at the left
+			// border
 			p.drawText(
-				0, 0, width(), 20, m_SampleNameAlignment, m_sSampleName
+				20, 0, width(), 20, m_SampleNameAlignment, sText
 			);
 		}
-		else if ( m_SampleNameAlignment == Qt::AlignLeft ) {
-			// Use a small offnset iso. starting directly at the left border
+		else {
 			p.drawText(
-				20, 0, width(), 20, m_SampleNameAlignment, m_sSampleName
+				0, 0, width(), 20, m_SampleNameAlignment, sText
 			);
 		}
 	}

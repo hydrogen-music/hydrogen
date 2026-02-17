@@ -37,6 +37,8 @@ DetailWaveDisplay::DetailWaveDisplay( QWidget* pParent )
 	  m_nDetailSamplePosition( 0 ),
 	  m_fZoomFactor( 1 )
 {
+    m_label = WaveDisplay::Label::Fallback;
+    m_sFallbackLabel = "";
 	setFixedSize( DetailSection::nWidth - 1, DetailSection::nHeight / 2 );
 }
 

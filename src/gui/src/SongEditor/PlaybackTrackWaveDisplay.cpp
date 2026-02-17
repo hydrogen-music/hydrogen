@@ -42,7 +42,7 @@ using namespace H2Core;
 PlaybackTrackWaveDisplay::PlaybackTrackWaveDisplay( QWidget* pParent )
 	: WaveDisplay( pParent ), m_fTick( 0 )
 {
-	m_sFallbackText = tr( "No playback track selected" );
+	m_sFallbackLabel = tr( "No playback track selected" );
 
 	setAcceptDrops( true );
 }

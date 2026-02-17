@@ -46,6 +46,8 @@ class WaveDisplay : public QWidget,
    public:
 	static constexpr int nGradientScaling = 130;
 
+	enum class Label { SampleName, Fallback };
+
 	explicit WaveDisplay( QWidget* pParent );
 	~WaveDisplay();
 
@@ -71,9 +73,11 @@ class WaveDisplay : public QWidget,
 	QPixmap* m_pBackgroundPixmap;
 	QPixmap* m_pPeakDataPixmap;
 
+	Label m_label;
+
 	Qt::AlignmentFlag m_SampleNameAlignment;
 	QString m_sSampleName;
-	QString m_sFallbackText;
+	QString m_sFallbackLabel;
 	std::vector<int> m_peakData;
 
 	int m_nActiveWidth;
