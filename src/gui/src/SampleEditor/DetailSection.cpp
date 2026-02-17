@@ -58,15 +58,8 @@ void DetailSection::setDetailSamplePosition(
 	update();
 }
 
-void DetailSection::setSample( std::shared_ptr<Sample> pNewSample )
+void DetailSection::setLayer( std::shared_ptr<InstrumentLayer> pLayer )
 {
-	if ( pNewSample == nullptr ) {
-		m_pWaveDisplayL->setLayer( nullptr );
-		m_pWaveDisplayR->setLayer( nullptr );
-	}
-	else {
-		auto pLayer = std::make_shared<InstrumentLayer>( pNewSample );
-		m_pWaveDisplayL->setLayer( pLayer );
-		m_pWaveDisplayR->setLayer( pLayer );
-	}
+	m_pWaveDisplayL->setLayer( pLayer );
+	m_pWaveDisplayR->setLayer( pLayer );
 }

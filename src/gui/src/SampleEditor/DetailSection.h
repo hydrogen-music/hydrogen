@@ -32,7 +32,7 @@
 #include <vector>
 
 namespace H2Core {
-class Sample;
+class InstrumentLayer;
 }
 
 class DetailWaveDisplay;
@@ -52,7 +52,7 @@ class DetailSection : public QWidget, public H2Core::Object<DetailSection> {
 	explicit DetailSection( QWidget* pParent );
 	~DetailSection();
 
-	void setSample( std::shared_ptr<H2Core::Sample> pNewSample );
+	void setLayer( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 
 	void setDetailSamplePosition(
 		int nPosition,

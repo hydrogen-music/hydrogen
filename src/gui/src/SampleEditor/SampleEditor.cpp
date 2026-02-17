@@ -345,7 +345,7 @@ void SampleEditor::openDisplays()
 	m_pMainSampleWaveDisplay->updateDisplay( m_pSample );
 	m_pMainSampleWaveDisplay->move( 1, 1 );
 
-	m_pDetailSection->setSample( m_pSample );
+	m_pDetailSection->setLayer( m_pLayer );
 	m_pDetailSection->move( 1, 1 );
 
 	m_pTargetSampleView->move( 1, 1 );
