@@ -63,7 +63,6 @@ void DetailWaveDisplay::setSlider( SampleEditor::Slider slider )
 	if ( m_slider != slider ) {
 		m_slider = slider;
 
-		drawPeakData();
 		update();
 	}
 }
@@ -76,6 +75,34 @@ void DetailWaveDisplay::setZoomFactor( float fZoomFactor )
 		drawPeakData();
 		update();
 	}
+}
+
+void DetailWaveDisplay::paintEvent( QPaintEvent* ev )
+{
+	if ( !isVisible() ) {
+		return;
+	}
+
+	WaveDisplay::paintEvent( ev );
+
+	QColor color;
+	if ( m_slider == SampleEditor::Slider::Start ) {
+		color = QColor( 32, 173, 0 );
+	}
+	else if ( m_slider == SampleEditor::Slider::Loop ) {
+		color = QColor( 93, 170, 254 );
+	}
+	else if ( m_slider == SampleEditor::Slider::End ) {
+		color = QColor( 217, 68, 0 );
+	}
+	else {
+		color = QColor( 255, 255, 255 );
+	}
+
+	QPainter p( this );
+
+	p.setPen( QPen( color, 1, Qt::SolidLine ) );
+	p.drawLine( 90, 0, 90, 265 );
 }
 
 void DetailWaveDisplay::drawPeakData()
@@ -135,23 +162,6 @@ void DetailWaveDisplay::drawPeakData()
 		}
 		nStartPosition++;
 	}
-
-	QColor color;
-	if ( m_slider == SampleEditor::Slider::Start ) {
-		color = QColor( 32, 173, 0 );
-	}
-	else if ( m_slider == SampleEditor::Slider::Loop ) {
-		color = QColor( 93, 170, 254 );
-	}
-	else if ( m_slider == SampleEditor::Slider::End ) {
-		color = QColor( 217, 68, 0 );
-	}
-	else {
-		color = QColor( 255, 255, 255 );
-	}
-
-	p.setPen( QPen( color, 1, Qt::SolidLine ) );
-	p.drawLine( 90, 0, 90, 265 );
 }
 
 void DetailWaveDisplay::updatePeakData()

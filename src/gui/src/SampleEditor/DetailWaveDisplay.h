@@ -51,6 +51,8 @@ class DetailWaveDisplay
 	void setSlider( SampleEditor::Slider slider );
 	void setZoomFactor( float fZoomFactor );
 
+	void paintEvent( QPaintEvent* ev ) override;
+
    private:
 	void drawPeakData() override;
 	void updatePeakData() override;
