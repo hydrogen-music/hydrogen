@@ -164,6 +164,7 @@ void WaveDisplay::updateBackground()
 
 	// Propagate changes.
 	drawPeakData();
+    update();
 }
 
 void WaveDisplay::mouseDoubleClickEvent( QMouseEvent* ev )

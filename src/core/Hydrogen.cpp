@@ -222,9 +222,18 @@ void Hydrogen::mutePlaybackTrack( const bool bMuted )
 		return;
 	}
 
-	m_pSong->setPlaybackTrackEnabled( bMuted );
+	m_pSong->setPlaybackTrackEnabled( ! bMuted );
 
-	EventQueue::get_instance()->pushEvent( Event::Type::PlaybackTrackChanged, 0 );
+	auto pPlaybackTrack =
+		m_pAudioEngine->getSampler()->getPlaybackTrackInstrument();
+	if ( pPlaybackTrack != nullptr &&
+		 pPlaybackTrack->getComponents()->size() > 0 &&
+		 pPlaybackTrack->getComponents()->front() != nullptr &&
+		 pPlaybackTrack->getComponents()->front()->getLayer( 0 ) != nullptr ) {
+		pPlaybackTrack->getComponents()->front()->getLayer( 0 )->setIsMuted(
+			bMuted
+		);
+	}
 }
 
 void Hydrogen::loadPlaybackTrack( const QString& sFileName )

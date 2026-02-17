@@ -204,9 +204,10 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	m_pMutePlaybackBtn->setObjectName( "SongEditorPlaybackTrackMuteButton" );
 	m_pMutePlaybackBtn->move( 158, 4 );
 	m_pMutePlaybackBtn->hide();
-	connect( m_pMutePlaybackBtn, &QPushButton::clicked, [=](bool bChecked){
-		Hydrogen::get_instance()->mutePlaybackTrack( ! bChecked );
-	});
+	connect( m_pMutePlaybackBtn, &QPushButton::clicked, [=]( bool bChecked ) {
+		Hydrogen::get_instance()->mutePlaybackTrack( bChecked );
+		m_pPlaybackTrackWaveDisplay->updateBackground();
+	} );
 
 	if ( pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::Unavailable ) {
 		m_pPlaybackTrackFader->setIsActive( false );
