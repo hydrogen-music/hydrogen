@@ -49,9 +49,8 @@ class WaveDisplay : public QWidget,
 	explicit WaveDisplay( QWidget* pParent );
 	~WaveDisplay();
 
-	virtual void updatePeakData( std::shared_ptr<H2Core::InstrumentLayer> pLayer
-	);
-	virtual void updateWidth();
+	virtual void setLayer( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
+	virtual void updateBackground();
 
 	virtual void paintEvent( QPaintEvent* ev ) override;
 	virtual void resizeEvent( QResizeEvent* event ) override;
@@ -66,6 +65,7 @@ class WaveDisplay : public QWidget,
 	void doubleClicked( QWidget* pWidget );
 
    protected:
+	virtual void updatePeakData();
 	void createBackground();
 	void drawPeakData();
 
@@ -74,6 +74,7 @@ class WaveDisplay : public QWidget,
 
 	Qt::AlignmentFlag m_SampleNameAlignment;
 	QString m_sSampleName;
+	QString m_sFallbackText;
 	std::vector<int> m_peakData;
 
 	int m_nActiveWidth;

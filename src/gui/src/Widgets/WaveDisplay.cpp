@@ -37,6 +37,7 @@ WaveDisplay::WaveDisplay( QWidget* pParent )
 	: QWidget( pParent ),
 	  m_nActiveWidth( -1 ),
 	  m_sSampleName( "" ),
+      m_sFallbackText( "" ),
 	  m_pLayer( nullptr ),
 	  m_SampleNameAlignment( Qt::AlignCenter )
 {
@@ -76,7 +77,7 @@ void WaveDisplay::paintEvent( QPaintEvent* ev )
 
 	const qreal pixelRatio = devicePixelRatio();
 	if ( pixelRatio != m_pPeakDataPixmap->devicePixelRatio() ) {
-		createBackground();
+		updateBackground();
 		drawPeakData();
 	}
 
@@ -90,7 +91,7 @@ void WaveDisplay::paintEvent( QPaintEvent* ev )
 	);
 }
 
-void WaveDisplay::createBackground()
+void WaveDisplay::updateBackground()
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	const auto pColorTheme = pPref->getColorTheme();
@@ -169,6 +170,9 @@ void WaveDisplay::createBackground()
 	p.drawLine( 0, 0, 0, height() );
 	p.drawLine( 0, height(), width(), height() );
 	p.drawLine( width(), 0, width(), height() );
+
+	// Propagate changes.
+	drawPeakData();
 }
 
 void WaveDisplay::drawPeakData()
@@ -246,32 +250,48 @@ void WaveDisplay::drawPeakData()
 
 void WaveDisplay::resizeEvent( QResizeEvent* event )
 {
-	updateWidth();
+	if ( width() <= 0 || width() == m_peakData.size() ) {
+		return;
+	}
+
+	updateBackground();
+	updatePeakData();
 }
 
-void WaveDisplay::updatePeakData(
-	std::shared_ptr<H2Core::InstrumentLayer> pLayer
-)
+void WaveDisplay::setLayer( std::shared_ptr<H2Core::InstrumentLayer> pLayer )
 {
 	if ( pLayer == nullptr || pLayer->getSample() == nullptr ) {
 		m_pLayer = nullptr;
-		m_sSampleName = "";
+		m_sSampleName = m_sFallbackText;
+	}
+	else {
+		m_pLayer = pLayer;
+		m_sSampleName = pLayer->getSample()->getFileName();
+	}
 
+	updateBackground();
+	updatePeakData();
+}
+
+void WaveDisplay::updatePeakData()
+{
+	if ( width() != m_peakData.size() ) {
+		m_peakData.resize( width() );
+	}
+
+	if ( m_pLayer == nullptr || m_pLayer->getSample() == nullptr ) {
 		for ( int ii = 0; ii < m_peakData.size(); ++ii ) {
 			m_peakData[ii] = 0;
 		}
 
-        drawPeakData();
+		drawPeakData();
 		update();
 		return;
 	}
 
-	m_pLayer = pLayer;
-	m_sSampleName = pLayer->getSample()->getFileName();
-
-	const int nSampleLength = pLayer->getSample()->getFrames();
-	auto pSampleData = pLayer->getSample()->getData_L();
-	const float fGain = height() / 2.0 * pLayer->getGain();
+	const int nSampleLength = m_pLayer->getSample()->getFrames();
+	auto pSampleData = m_pLayer->getSample()->getData_L();
+	const float fGain = height() / 2.0 * m_pLayer->getGain();
 
 	if ( nSampleLength > m_peakData.size() ) {
 		const int nScaleFactor = nSampleLength / m_peakData.size();
@@ -308,17 +328,6 @@ void WaveDisplay::updatePeakData(
 
 	drawPeakData();
 	update();
-}
-
-void WaveDisplay::updateWidth()
-{
-	if ( width() <= 0 || width() == m_peakData.size() ) {
-		return;
-	}
-
-	m_peakData.resize( width() );
-    createBackground();
-	updatePeakData( m_pLayer );
 }
 
 void WaveDisplay::mouseDoubleClickEvent( QMouseEvent* ev )

@@ -592,7 +592,7 @@ void SongEditorPanel::updatePlaybackTrack()
 		m_pMutePlaybackBtn->setChecked( true );
 		m_pMutePlaybackBtn->setIsActive( false );
 
-		m_pPlaybackTrackWaveDisplay->updatePeakData( nullptr );
+		m_pPlaybackTrackWaveDisplay->setLayer( nullptr );
 	}
 	else {
 		// Playback track was selected by the user and is ready to
@@ -609,7 +609,7 @@ void SongEditorPanel::updatePlaybackTrack()
 		auto pPlaybackCompo = pHydrogen->getAudioEngine()->getSampler()->
 			getPlaybackTrackInstrument()->getComponents()->front();
 			
-		m_pPlaybackTrackWaveDisplay->updatePeakData( pPlaybackCompo->getLayer(0) );
+		m_pPlaybackTrackWaveDisplay->setLayer( pPlaybackCompo->getLayer(0) );
 	}
 }
 

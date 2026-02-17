@@ -43,8 +43,6 @@ class PlaybackTrackWaveDisplay : public WaveDisplay {
 	explicit PlaybackTrackWaveDisplay( QWidget* pParent );
 	~PlaybackTrackWaveDisplay();
 
-	void updatePeakData( std::shared_ptr<H2Core::InstrumentLayer> pLayer
-	) override;
 	void updatePosition( float fTick );
 
    public slots:
@@ -54,7 +52,8 @@ class PlaybackTrackWaveDisplay : public WaveDisplay {
 	virtual void paintEvent( QPaintEvent* event ) override;
 
    private:
-	QPixmap* m_pBackgroundPixmap;
+	void updatePeakData() override;
+
 	/** Cached position of the playhead.*/
 	float m_fTick;
 };

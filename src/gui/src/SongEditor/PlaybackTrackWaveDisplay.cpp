@@ -42,6 +42,7 @@ using namespace H2Core;
 PlaybackTrackWaveDisplay::PlaybackTrackWaveDisplay( QWidget* pParent )
 	: WaveDisplay( pParent ), m_fTick( 0 )
 {
+	m_sFallbackText = tr( "No playback track selected" );
 
 	setAcceptDrops( true );
 }
@@ -83,39 +84,31 @@ void PlaybackTrackWaveDisplay::dragMoveEvent( QDragMoveEvent* event )
 	event->accept();
 }
 
-void PlaybackTrackWaveDisplay::updatePeakData(
-	std::shared_ptr<H2Core::InstrumentLayer> pLayer
-)
+void PlaybackTrackWaveDisplay::updatePeakData()
 {
-	if ( pLayer == nullptr || pLayer->getSample() == nullptr ) {
-		m_pLayer = nullptr;
-		m_sSampleName = tr( "No playback track selected" );
+	if ( width() != m_peakData.size() ) {
+		m_peakData.resize( width() );
+	}
 
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( m_pLayer == nullptr || m_pLayer->getSample() == nullptr ||
+		 pSong == nullptr ) {
 		for ( int ii = 0; ii < m_peakData.size(); ++ii ) {
 			m_peakData[ii] = 0;
 		}
 
-        drawPeakData();
+		drawPeakData();
 		update();
 		return;
 	}
 
 	auto pH2App = HydrogenApp::get_instance();
-	const auto pPref = Preferences::get_instance();
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-
-    m_pLayer = pLayer;
-	m_sSampleName = m_pLayer->getSample()->getFileName();
-
 	const auto nSongLengthInTicks = pSong->lengthInTicks();
 	const auto pColumns = pSong->getPatternGroupVector();
-	const auto nMaxBars = pPref->getMaxBars();
-	auto pSampleData = pLayer->getSample()->getData_L();
+	const auto nMaxBars = Preferences::get_instance()->getMaxBars();
+	auto pSampleData = m_pLayer->getSample()->getData_L();
 	const int nSampleLength = m_pLayer->getSample()->getFrames();
-	const float fGain = height() / 2.0 * pLayer->getGain();
+	const float fGain = height() / 2.0 * m_pLayer->getGain();
 
 	int nSongEditorGridWidth;
 	if ( pH2App->getSongEditorPanel() != nullptr ) {
