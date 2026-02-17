@@ -487,19 +487,18 @@ void SampleEditor::valueChangedStartFrameSpinBox( int )
 			on_PlayPushButton_clicked();
 		return;
 	}
+
+	m_pDetailSection->setSlider( Slider::Start );
+
 	if ( !m_bOnewayStart ) {
 		m_pMainSampleWaveDisplay->m_nStartFramePosition =
 			StartFrameSpinBox->value() / m_divider + 25;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
-		m_pDetailSection->setDetailSamplePosition(
-			m_pDetailFrame, m_fZoomfactor, Slider::Start
-		);
+		m_pDetailSection->setPosition( m_pDetailFrame );
 		__loops.start_frame = m_pDetailFrame;
 	}
 	else {
-		m_pDetailSection->setDetailSamplePosition(
-			m_pDetailFrame, m_fZoomfactor, Slider::Start
-		);
+		m_pDetailSection->setPosition( m_pDetailFrame );
 		m_bOnewayStart = false;
 	}
 	testPositionsSpinBoxes();
@@ -516,19 +515,18 @@ void SampleEditor::valueChangedLoopFrameSpinBox( int )
 			on_PlayPushButton_clicked();
 		return;
 	}
+
+	m_pDetailSection->setSlider( Slider::Loop );
+
 	if ( !m_bOnewayLoop ) {
 		m_pMainSampleWaveDisplay->m_nLoopFramePosition =
 			LoopFrameSpinBox->value() / m_divider + 25;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
-		m_pDetailSection->setDetailSamplePosition(
-			m_pDetailFrame, m_fZoomfactor, Slider::Loop
-		);
+		m_pDetailSection->setPosition( m_pDetailFrame );
 		__loops.loop_frame = m_pDetailFrame;
 	}
 	else {
-		m_pDetailSection->setDetailSamplePosition(
-			m_pDetailFrame, m_fZoomfactor, Slider::Loop
-		);
+		m_pDetailSection->setPosition( m_pDetailFrame );
 		m_bOnewayLoop = false;
 	}
 	testPositionsSpinBoxes();
@@ -545,20 +543,19 @@ void SampleEditor::valueChangedEndFrameSpinBox( int )
 			on_PlayPushButton_clicked();
 		return;
 	}
+
+	m_pDetailSection->setSlider( Slider::End );
+
 	if ( !m_bOnewayEnd ) {
 		m_pMainSampleWaveDisplay->m_nEndFramePosition =
 			EndFrameSpinBox->value() / m_divider + 25;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
-		m_pDetailSection->setDetailSamplePosition(
-			m_pDetailFrame, m_fZoomfactor, Slider::End
-		);
+		m_pDetailSection->setPosition( m_pDetailFrame );
 		__loops.end_frame = m_pDetailFrame;
 	}
 	else {
 		m_bOnewayEnd = false;
-		m_pDetailSection->setDetailSamplePosition(
-			m_pDetailFrame, m_fZoomfactor, Slider::End
-		);
+		m_pDetailSection->setPosition( m_pDetailFrame );
 	}
 	testPositionsSpinBoxes();
 	setUnclean();
@@ -609,9 +606,9 @@ void SampleEditor::on_PlayPushButton_clicked()
 	m_pMainSampleWaveDisplay->paintLocatorEvent(
 		StartFrameSpinBox->value() / m_divider + 24, true
 	);
-	m_pDetailSection->setDetailSamplePosition(
-		__loops.start_frame, m_fZoomfactor, Slider::None
-	);
+
+	m_pDetailSection->setSlider( Slider::None );
+	m_pDetailSection->setPosition( __loops.start_frame );
 
 	if ( __rubberband.bUse == false ) {
 		m_pTimer->start( 40 );	// update ruler at 25 fps
@@ -642,9 +639,8 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 		m_pMainSampleWaveDisplay->paintLocatorEvent(
 			StartFrameSpinBox->value() / m_divider + 24, true
 		);
-		m_pDetailSection->setDetailSamplePosition(
-			__loops.start_frame, m_fZoomfactor, Slider::None
-		);
+		m_pDetailSection->setSlider( Slider::None );
+		m_pDetailSection->setPosition( __loops.start_frame );
 		m_pTimer->start( 40 );	// update ruler at 25 fps
 		m_nRealtimeFrameEnd =
 			pHydrogen->getAudioEngine()->getRealtimeFrame() + m_nSlframes;
@@ -707,19 +703,14 @@ void SampleEditor::updateMainsamplePositionRuler()
 			m_pMainSampleWaveDisplay->paintLocatorEvent(
 				m_pPositionsRulerPath[frame] / m_divider + 25, true
 			);
-			m_pDetailSection->setDetailSamplePosition(
-				m_pPositionsRulerPath[frame], m_fZoomfactor, Slider::None
-			);
+			m_pDetailSection->setPosition( m_pPositionsRulerPath[frame] );
 		}
 		else {
 			m_pMainSampleWaveDisplay->paintLocatorEvent(
 				frame / m_divider + 25, true
 			);
-			m_pDetailSection->setDetailSamplePosition(
-				frame, m_fZoomfactor, Slider::None
-			);
+			m_pDetailSection->setPosition( frame );
 		}
-		//		ERRORLOG( QString("sampleval: %1").arg(frame) );
 	}
 	else {
 		auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
@@ -1046,9 +1037,7 @@ void SampleEditor::valueChangedProcessingTypeComboBox( int nUnused )
 void SampleEditor::on_verticalzoomSlider_valueChanged( int value )
 {
 	m_fZoomfactor = value / 10 + 1;
-	m_pDetailSection->setDetailSamplePosition(
-		m_pDetailFrame, m_fZoomfactor, Slider::None
-	);
+	m_pDetailSection->setZoomFactor( m_fZoomfactor );
 }
 
 void SampleEditor::testPositionsSpinBoxes()

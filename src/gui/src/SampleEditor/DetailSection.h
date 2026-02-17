@@ -56,11 +56,9 @@ class DetailSection : public QWidget, public H2Core::Object<DetailSection> {
 
 	void setLayer( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 
-	void setDetailSamplePosition(
-		int nPosition,
-		float fZoomFactor,
-		SampleEditor::Slider slider
-	);
+	void setPosition( int nPosition );
+	void setSlider( SampleEditor::Slider slider );
+	void setZoomFactor( float fZoomFactor );
 
    private:
 	DetailWaveDisplay* m_pWaveDisplayL;

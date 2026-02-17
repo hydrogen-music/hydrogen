@@ -35,7 +35,7 @@ DetailWaveDisplay::DetailWaveDisplay( QWidget* pParent, Channel channel )
 	: WaveDisplay( pParent ),
 	  m_channel( channel ),
 	  m_nNormalImageDetailFrames( 180 ),
-	  m_nDetailSamplePosition( 0 ),
+	  m_nPosition( 0 ),
 	  m_fZoomFactor( 1 ),
       m_slider( SampleEditor::Slider::None )
 {
@@ -48,18 +48,34 @@ DetailWaveDisplay::~DetailWaveDisplay()
 {
 }
 
-void DetailWaveDisplay::setDetailSamplePosition(
-	int nPosition,
-	float fZoomFactor,
-	SampleEditor::Slider slider
-)
+void DetailWaveDisplay::setPosition( int nPosition )
 {
-	m_nDetailSamplePosition = nPosition;
-	m_fZoomFactor = fZoomFactor;
-	m_slider = slider;
+	if ( m_nPosition != nPosition ) {
+		m_nPosition = nPosition;
 
-    drawPeakData();
-	update();
+		drawPeakData();
+		update();
+	}
+}
+
+void DetailWaveDisplay::setSlider( SampleEditor::Slider slider )
+{
+	if ( m_slider != slider ) {
+		m_slider = slider;
+
+		drawPeakData();
+		update();
+	}
+}
+
+void DetailWaveDisplay::setZoomFactor( float fZoomFactor )
+{
+	if ( m_fZoomFactor != fZoomFactor ) {
+		m_fZoomFactor = fZoomFactor;
+
+		drawPeakData();
+		update();
+	}
 }
 
 void DetailWaveDisplay::drawPeakData()
@@ -101,7 +117,7 @@ void DetailWaveDisplay::drawPeakData()
 	const int nVerticalCenter = height() / 2;
 
 	int nStartPosition =
-		m_nDetailSamplePosition - m_nNormalImageDetailFrames / 2;
+		m_nPosition - m_nNormalImageDetailFrames / 2;
 
 	for ( int ii = 0; ii < width(); ii++ ) {
 		if ( nStartPosition > 0 && nStartPosition < m_peakData.size() ) {

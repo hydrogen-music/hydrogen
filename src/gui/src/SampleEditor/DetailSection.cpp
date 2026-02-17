@@ -49,15 +49,22 @@ DetailSection::~DetailSection()
 {
 }
 
-void DetailSection::setDetailSamplePosition(
-	int nPosition,
-	float fZoomFactor,
-	SampleEditor::Slider slider
-)
+void DetailSection::setPosition( int nPosition )
 {
-	m_pWaveDisplayL->setDetailSamplePosition( nPosition, fZoomFactor, slider );
-	m_pWaveDisplayR->setDetailSamplePosition( nPosition, fZoomFactor, slider );
-	update();
+	m_pWaveDisplayL->setPosition( nPosition );
+	m_pWaveDisplayR->setPosition( nPosition );
+}
+
+void DetailSection::setSlider( SampleEditor::Slider slider )
+{
+	m_pWaveDisplayL->setSlider( slider );
+	m_pWaveDisplayR->setSlider( slider );
+}
+
+void DetailSection::setZoomFactor( float fZoomFactor )
+{
+	m_pWaveDisplayL->setZoomFactor( fZoomFactor );
+	m_pWaveDisplayR->setZoomFactor( fZoomFactor );
 }
 
 void DetailSection::setLayer( std::shared_ptr<InstrumentLayer> pLayer )

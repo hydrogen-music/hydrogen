@@ -47,11 +47,9 @@ class DetailWaveDisplay
 	explicit DetailWaveDisplay( QWidget* pParent, Channel channel );
 	~DetailWaveDisplay();
 
-	void setDetailSamplePosition(
-		int nPosition,
-		float fZoomFactor,
-		SampleEditor::Slider slider
-	);
+	void setPosition( int nPosition );
+	void setSlider( SampleEditor::Slider slider );
+	void setZoomFactor( float fZoomFactor );
 
    private:
 	void drawPeakData() override;
@@ -59,7 +57,7 @@ class DetailWaveDisplay
 
 	Channel m_channel;
 
-	int m_nDetailSamplePosition;
+	int m_nPosition;
 	int m_nNormalImageDetailFrames;
 	float m_fZoomFactor;
 	SampleEditor::Slider m_slider;
