@@ -53,6 +53,8 @@ class SampleEditor : public QDialog,
 	H2_OBJECT( SampleEditor )
 	Q_OBJECT
    public:
+	enum class Slider { None, Start, Loop, End };
+
 	SampleEditor(
 		QWidget* pParent,
 		std::shared_ptr<H2Core::InstrumentLayer> pLayer,
@@ -115,7 +117,6 @@ class SampleEditor : public QDialog,
 	double m_divider;
 	float m_fZoomfactor;
 	unsigned m_pDetailFrame;
-	QString m_sLineColor;
 
 	bool m_bOnewayStart;
 	bool m_bOnewayLoop;

@@ -52,11 +52,11 @@ DetailSection::~DetailSection()
 void DetailSection::setDetailSamplePosition(
 	int nPosition,
 	float fZoomFactor,
-	const QString& sType
+	SampleEditor::Slider slider
 )
 {
-	m_pWaveDisplayL->setDetailSamplePosition( nPosition, fZoomFactor, sType );
-	m_pWaveDisplayR->setDetailSamplePosition( nPosition, fZoomFactor, sType );
+	m_pWaveDisplayL->setDetailSamplePosition( nPosition, fZoomFactor, slider );
+	m_pWaveDisplayR->setDetailSamplePosition( nPosition, fZoomFactor, slider );
 	update();
 }
 

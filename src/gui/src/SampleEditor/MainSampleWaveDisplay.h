@@ -23,6 +23,8 @@
 #ifndef MAIN_SAMPLE_WAVE_DISPLAY
 #define MAIN_SAMPLE_WAVE_DISPLAY
 
+#include "SampleEditor.h"
+
 #include <QtGui>
 #include <QtWidgets>
 
@@ -34,8 +36,6 @@ namespace H2Core {
 class Sample;
 }
 
-class SampleEditor;
-
 /** \ingroup docGUI*/
 class MainSampleWaveDisplay : public QWidget,
 							  public H2Core::Object<MainSampleWaveDisplay> {
@@ -43,8 +43,6 @@ class MainSampleWaveDisplay : public QWidget,
 	Q_OBJECT
 
    public:
-	enum class Slider { None, Start, Loop, End };
-
 	explicit MainSampleWaveDisplay( QWidget* pParent );
 	~MainSampleWaveDisplay();
 
@@ -64,7 +62,7 @@ class MainSampleWaveDisplay : public QWidget,
 	bool m_bLoopSliderIsMoved;
 	bool m_bEndSliderIsmoved;
 
-	Slider m_selectedSlider;
+	SampleEditor::Slider m_selectedSlider;
 
    private:
 	virtual void mouseMoveEvent( QMouseEvent* ev ) override;

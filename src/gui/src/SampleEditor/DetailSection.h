@@ -26,6 +26,8 @@
 #include <QtGui>
 #include <QtWidgets>
 
+#include "SampleEditor.h"
+
 #include <core/Object.h>
 
 #include <memory>
@@ -57,7 +59,7 @@ class DetailSection : public QWidget, public H2Core::Object<DetailSection> {
 	void setDetailSamplePosition(
 		int nPosition,
 		float fZoomFactor,
-		const QString& sType
+		SampleEditor::Slider slider
 	);
 
    private:

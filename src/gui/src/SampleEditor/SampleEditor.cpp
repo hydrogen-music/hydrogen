@@ -85,7 +85,6 @@ SampleEditor::SampleEditor(
 	setClean();
 	m_fZoomfactor = 1;
 	m_pDetailFrame = 0;
-	m_sLineColor = "default";
 	m_bOnewayStart = false;
 	m_bOnewayLoop = false;
 	m_bOnewayEnd = false;
@@ -488,19 +487,18 @@ void SampleEditor::valueChangedStartFrameSpinBox( int )
 			on_PlayPushButton_clicked();
 		return;
 	}
-	m_sLineColor = "Start";
 	if ( !m_bOnewayStart ) {
 		m_pMainSampleWaveDisplay->m_nStartFramePosition =
 			StartFrameSpinBox->value() / m_divider + 25;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
 		m_pDetailSection->setDetailSamplePosition(
-			m_pDetailFrame, m_fZoomfactor, m_sLineColor
+			m_pDetailFrame, m_fZoomfactor, Slider::Start
 		);
 		__loops.start_frame = m_pDetailFrame;
 	}
 	else {
 		m_pDetailSection->setDetailSamplePosition(
-			m_pDetailFrame, m_fZoomfactor, m_sLineColor
+			m_pDetailFrame, m_fZoomfactor, Slider::Start
 		);
 		m_bOnewayStart = false;
 	}
@@ -518,19 +516,18 @@ void SampleEditor::valueChangedLoopFrameSpinBox( int )
 			on_PlayPushButton_clicked();
 		return;
 	}
-	m_sLineColor = "Loop";
 	if ( !m_bOnewayLoop ) {
 		m_pMainSampleWaveDisplay->m_nLoopFramePosition =
 			LoopFrameSpinBox->value() / m_divider + 25;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
 		m_pDetailSection->setDetailSamplePosition(
-			m_pDetailFrame, m_fZoomfactor, m_sLineColor
+			m_pDetailFrame, m_fZoomfactor, Slider::Loop
 		);
 		__loops.loop_frame = m_pDetailFrame;
 	}
 	else {
 		m_pDetailSection->setDetailSamplePosition(
-			m_pDetailFrame, m_fZoomfactor, m_sLineColor
+			m_pDetailFrame, m_fZoomfactor, Slider::Loop
 		);
 		m_bOnewayLoop = false;
 	}
@@ -548,20 +545,19 @@ void SampleEditor::valueChangedEndFrameSpinBox( int )
 			on_PlayPushButton_clicked();
 		return;
 	}
-	m_sLineColor = "End";
 	if ( !m_bOnewayEnd ) {
 		m_pMainSampleWaveDisplay->m_nEndFramePosition =
 			EndFrameSpinBox->value() / m_divider + 25;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
 		m_pDetailSection->setDetailSamplePosition(
-			m_pDetailFrame, m_fZoomfactor, m_sLineColor
+			m_pDetailFrame, m_fZoomfactor, Slider::End
 		);
 		__loops.end_frame = m_pDetailFrame;
 	}
 	else {
 		m_bOnewayEnd = false;
 		m_pDetailSection->setDetailSamplePosition(
-			m_pDetailFrame, m_fZoomfactor, m_sLineColor
+			m_pDetailFrame, m_fZoomfactor, Slider::End
 		);
 	}
 	testPositionsSpinBoxes();
@@ -614,7 +610,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 		StartFrameSpinBox->value() / m_divider + 24, true
 	);
 	m_pDetailSection->setDetailSamplePosition(
-		__loops.start_frame, m_fZoomfactor, nullptr
+		__loops.start_frame, m_fZoomfactor, Slider::None
 	);
 
 	if ( __rubberband.bUse == false ) {
@@ -647,7 +643,7 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 			StartFrameSpinBox->value() / m_divider + 24, true
 		);
 		m_pDetailSection->setDetailSamplePosition(
-			__loops.start_frame, m_fZoomfactor, nullptr
+			__loops.start_frame, m_fZoomfactor, Slider::None
 		);
 		m_pTimer->start( 40 );	// update ruler at 25 fps
 		m_nRealtimeFrameEnd =
@@ -712,7 +708,7 @@ void SampleEditor::updateMainsamplePositionRuler()
 				m_pPositionsRulerPath[frame] / m_divider + 25, true
 			);
 			m_pDetailSection->setDetailSamplePosition(
-				m_pPositionsRulerPath[frame], m_fZoomfactor, nullptr
+				m_pPositionsRulerPath[frame], m_fZoomfactor, Slider::None
 			);
 		}
 		else {
@@ -720,7 +716,7 @@ void SampleEditor::updateMainsamplePositionRuler()
 				frame / m_divider + 25, true
 			);
 			m_pDetailSection->setDetailSamplePosition(
-				frame, m_fZoomfactor, nullptr
+				frame, m_fZoomfactor, Slider::None
 			);
 		}
 		//		ERRORLOG( QString("sampleval: %1").arg(frame) );
@@ -1051,7 +1047,7 @@ void SampleEditor::on_verticalzoomSlider_valueChanged( int value )
 {
 	m_fZoomfactor = value / 10 + 1;
 	m_pDetailSection->setDetailSamplePosition(
-		m_pDetailFrame, m_fZoomfactor, m_sLineColor
+		m_pDetailFrame, m_fZoomfactor, Slider::None
 	);
 }
 

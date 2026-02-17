@@ -23,6 +23,7 @@
 #ifndef DETAIL_WAVE_DISPLAY
 #define DETAIL_WAVE_DISPLAY
 
+#include "SampleEditor.h"
 #include "../Widgets/WaveDisplay.h"
 
 #include <QtGui>
@@ -49,7 +50,7 @@ class DetailWaveDisplay
 	void setDetailSamplePosition(
 		int nPosition,
 		float fZoomFactor,
-		const QString& sType
+		SampleEditor::Slider slider
 	);
 
    private:
@@ -61,7 +62,7 @@ class DetailWaveDisplay
 	int m_nDetailSamplePosition;
 	int m_nNormalImageDetailFrames;
 	float m_fZoomFactor;
-	QString m_sType;
+	SampleEditor::Slider m_slider;
 };
 
 #endif

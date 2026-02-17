@@ -62,7 +62,7 @@ MainSampleWaveDisplay::MainSampleWaveDisplay( QWidget* pParent )
 	m_bLoopSliderIsMoved = false;
 	m_bEndSliderIsmoved = false;
 
-	m_selectedSlider = Slider::None;
+	m_selectedSlider = SampleEditor::Slider::None;
 	setMouseTracking( true );
 }
 
@@ -90,7 +90,7 @@ static void set_paint_color(
 	QPainter& painter,
 	const QColor& color,
 	bool selected,
-	MainSampleWaveDisplay::Slider which
+	SampleEditor::Slider which
 )
 {
 	if ( !selected ) {
@@ -100,15 +100,15 @@ static void set_paint_color(
 		QColor highlight = QColor(
 			std::min(
 				255,
-				color.red() + 20 + 20 * ( which == MainSampleWaveDisplay::Slider::End )
+				color.red() + 20 + 20 * ( which == SampleEditor::Slider::End )
 			),
 			std::min(
 				255, color.green() + 20 +
-						 20 * ( which == MainSampleWaveDisplay::Slider::Start )
+						 20 * ( which == SampleEditor::Slider::Start )
 			),
 			std::min(
-				255, color.blue() + 20 +
-						 20 * ( which == MainSampleWaveDisplay::Slider::Loop )
+				255,
+				color.blue() + 20 + 20 * ( which == SampleEditor::Slider::Loop )
 			)
 		);
 
@@ -167,7 +167,8 @@ void MainSampleWaveDisplay::paintEvent( QPaintEvent* ev )
 	painter.setFont( font );
 	// start frame pointer
 	set_paint_color(
-		painter, startColor, m_selectedSlider == Slider::Start, m_selectedSlider
+		painter, startColor, m_selectedSlider == SampleEditor::Slider::Start,
+		m_selectedSlider
 	);
 	painter.drawLine(
 		m_nStartFramePosition, 4, m_nStartFramePosition, height() - 4
@@ -177,7 +178,8 @@ void MainSampleWaveDisplay::paintEvent( QPaintEvent* ev )
 	);
 	// endframe pointer
 	set_paint_color(
-		painter, endColor, m_selectedSlider == Slider::End, m_selectedSlider
+		painter, endColor, m_selectedSlider == SampleEditor::Slider::End,
+		m_selectedSlider
 	);
 	painter.drawLine(
 		m_nEndFramePosition, 4, m_nEndFramePosition, height() - 4
@@ -187,7 +189,8 @@ void MainSampleWaveDisplay::paintEvent( QPaintEvent* ev )
 	);
 	// loopframe pointer
 	set_paint_color(
-		painter, loopColor, m_selectedSlider == Slider::Loop, m_selectedSlider
+		painter, loopColor, m_selectedSlider == SampleEditor::Slider::Loop,
+		m_selectedSlider
 	);
 	painter.drawLine(
 		m_nLoopFramePosition, 4, m_nLoopFramePosition, height() - 4
@@ -284,7 +287,7 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent* ev )
 		width() - 25, std::max( 25, static_cast<int>( pEv->position().x() ) )
 	);
 
-	if ( m_selectedSlider == Slider::Start ) {
+	if ( m_selectedSlider == SampleEditor::Slider::Start ) {
 		m_nStartFramePosition = x;
 		m_bStartSliderIsMoved = true;
 		if ( m_nStartFramePosition > m_nLoopFramePosition ) {
@@ -298,14 +301,14 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent* ev )
 	}
 
 	// loopframeposition
-	else if ( m_selectedSlider == Slider::Loop ) {
+	else if ( m_selectedSlider == SampleEditor::Slider::Loop ) {
 		if ( x >= m_nStartFramePosition && x <= m_nEndFramePosition ) {
 			m_nLoopFramePosition = x;
 			m_bLoopSliderIsMoved = true;
 		}
 	}
 	// endframeposition
-	else if ( m_selectedSlider == Slider::End ) {
+	else if ( m_selectedSlider == SampleEditor::Slider::End ) {
 		if ( x >= m_nStartFramePosition ) {
 			m_nEndFramePosition = x;
 			m_bEndSliderIsmoved = true;
@@ -319,7 +322,7 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent* ev )
 
 void MainSampleWaveDisplay::mouseReleaseEvent( QMouseEvent* ev )
 {
-	m_selectedSlider = Slider::None;
+	m_selectedSlider = SampleEditor::Slider::None;
 	update();
 	mouseUpdateDone();
 }
@@ -337,15 +340,15 @@ void MainSampleWaveDisplay::chooseSlider( QMouseEvent* ev )
 	int ds = ( pEv->position() - start ).manhattanLength();
 	int de = ( pEv->position() - end ).manhattanLength();
 	int dl = ( pEv->position() - loop ).manhattanLength();
-	m_selectedSlider = Slider::None;
+	m_selectedSlider = SampleEditor::Slider::None;
 
 	if ( ds <= de && ds <= dl ) {
-		m_selectedSlider = Slider::Start;
+		m_selectedSlider = SampleEditor::Slider::Start;
 	}
 	else if ( de < ds && de <= dl ) {
-		m_selectedSlider = Slider::End;
+		m_selectedSlider = SampleEditor::Slider::End;
 	}
 	else if ( dl < ds && dl < de ) {
-		m_selectedSlider = Slider::Loop;
+		m_selectedSlider = SampleEditor::Slider::Loop;
 	}
 }

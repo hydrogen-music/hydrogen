@@ -36,7 +36,8 @@ DetailWaveDisplay::DetailWaveDisplay( QWidget* pParent, Channel channel )
 	  m_channel( channel ),
 	  m_nNormalImageDetailFrames( 180 ),
 	  m_nDetailSamplePosition( 0 ),
-	  m_fZoomFactor( 1 )
+	  m_fZoomFactor( 1 ),
+      m_slider( SampleEditor::Slider::None )
 {
 	m_label = WaveDisplay::Label::Fallback;
 	m_sFallbackLabel = "";
@@ -50,12 +51,14 @@ DetailWaveDisplay::~DetailWaveDisplay()
 void DetailWaveDisplay::setDetailSamplePosition(
 	int nPosition,
 	float fZoomFactor,
-	const QString& sType
+	SampleEditor::Slider slider
 )
 {
 	m_nDetailSamplePosition = nPosition;
 	m_fZoomFactor = fZoomFactor;
-	m_sType = sType;
+	m_slider = slider;
+
+    drawPeakData();
 	update();
 }
 
@@ -118,13 +121,13 @@ void DetailWaveDisplay::drawPeakData()
 	}
 
 	QColor color;
-	if ( m_sType == "Start" ) {
+	if ( m_slider == SampleEditor::Slider::Start ) {
 		color = QColor( 32, 173, 0 );
 	}
-	else if ( m_sType == "Loop" ) {
+	else if ( m_slider == SampleEditor::Slider::Loop ) {
 		color = QColor( 93, 170, 254 );
 	}
-	else if ( m_sType == "End" ) {
+	else if ( m_slider == SampleEditor::Slider::End ) {
 		color = QColor( 217, 68, 0 );
 	}
 	else {
