@@ -62,7 +62,7 @@ MainSampleWaveDisplay::MainSampleWaveDisplay( QWidget* pParent )
 	m_bLoopSliderIsMoved = false;
 	m_bEndSliderIsmoved = false;
 
-	m_SelectedSlider = NONE;
+	m_selectedSlider = Slider::None;
 	setMouseTracking( true );
 }
 
@@ -100,15 +100,15 @@ static void set_paint_color(
 		QColor highlight = QColor(
 			std::min(
 				255,
-				color.red() + 20 + 20 * ( which == MainSampleWaveDisplay::END )
+				color.red() + 20 + 20 * ( which == MainSampleWaveDisplay::Slider::End )
 			),
 			std::min(
 				255, color.green() + 20 +
-						 20 * ( which == MainSampleWaveDisplay::START )
+						 20 * ( which == MainSampleWaveDisplay::Slider::Start )
 			),
 			std::min(
 				255, color.blue() + 20 +
-						 20 * ( which == MainSampleWaveDisplay::LOOP )
+						 20 * ( which == MainSampleWaveDisplay::Slider::Loop )
 			)
 		);
 
@@ -167,7 +167,7 @@ void MainSampleWaveDisplay::paintEvent( QPaintEvent* ev )
 	painter.setFont( font );
 	// start frame pointer
 	set_paint_color(
-		painter, startColor, m_SelectedSlider == START, m_SelectedSlider
+		painter, startColor, m_selectedSlider == Slider::Start, m_selectedSlider
 	);
 	painter.drawLine(
 		m_nStartFramePosition, 4, m_nStartFramePosition, height() - 4
@@ -177,7 +177,7 @@ void MainSampleWaveDisplay::paintEvent( QPaintEvent* ev )
 	);
 	// endframe pointer
 	set_paint_color(
-		painter, endColor, m_SelectedSlider == END, m_SelectedSlider
+		painter, endColor, m_selectedSlider == Slider::End, m_selectedSlider
 	);
 	painter.drawLine(
 		m_nEndFramePosition, 4, m_nEndFramePosition, height() - 4
@@ -187,7 +187,7 @@ void MainSampleWaveDisplay::paintEvent( QPaintEvent* ev )
 	);
 	// loopframe pointer
 	set_paint_color(
-		painter, loopColor, m_SelectedSlider == LOOP, m_SelectedSlider
+		painter, loopColor, m_selectedSlider == Slider::Loop, m_selectedSlider
 	);
 	painter.drawLine(
 		m_nLoopFramePosition, 4, m_nLoopFramePosition, height() - 4
@@ -284,7 +284,7 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent* ev )
 		width() - 25, std::max( 25, static_cast<int>( pEv->position().x() ) )
 	);
 
-	if ( m_SelectedSlider == START ) {
+	if ( m_selectedSlider == Slider::Start ) {
 		m_nStartFramePosition = x;
 		m_bStartSliderIsMoved = true;
 		if ( m_nStartFramePosition > m_nLoopFramePosition ) {
@@ -298,14 +298,14 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent* ev )
 	}
 
 	// loopframeposition
-	else if ( m_SelectedSlider == LOOP ) {
+	else if ( m_selectedSlider == Slider::Loop ) {
 		if ( x >= m_nStartFramePosition && x <= m_nEndFramePosition ) {
 			m_nLoopFramePosition = x;
 			m_bLoopSliderIsMoved = true;
 		}
 	}
 	// endframeposition
-	else if ( m_SelectedSlider == END ) {
+	else if ( m_selectedSlider == Slider::End ) {
 		if ( x >= m_nStartFramePosition ) {
 			m_nEndFramePosition = x;
 			m_bEndSliderIsmoved = true;
@@ -319,7 +319,7 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent* ev )
 
 void MainSampleWaveDisplay::mouseReleaseEvent( QMouseEvent* ev )
 {
-	m_SelectedSlider = NONE;
+	m_selectedSlider = Slider::None;
 	update();
 	mouseUpdateDone();
 }
@@ -337,15 +337,15 @@ void MainSampleWaveDisplay::chooseSlider( QMouseEvent* ev )
 	int ds = ( pEv->position() - start ).manhattanLength();
 	int de = ( pEv->position() - end ).manhattanLength();
 	int dl = ( pEv->position() - loop ).manhattanLength();
-	m_SelectedSlider = NONE;
+	m_selectedSlider = Slider::None;
 
 	if ( ds <= de && ds <= dl ) {
-		m_SelectedSlider = START;
+		m_selectedSlider = Slider::Start;
 	}
 	else if ( de < ds && de <= dl ) {
-		m_SelectedSlider = END;
+		m_selectedSlider = Slider::End;
 	}
 	else if ( dl < ds && dl < de ) {
-		m_SelectedSlider = LOOP;
+		m_selectedSlider = Slider::Loop;
 	}
 }

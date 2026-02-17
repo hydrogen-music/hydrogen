@@ -43,7 +43,7 @@ class MainSampleWaveDisplay : public QWidget,
 	Q_OBJECT
 
    public:
-	enum Slider { NONE, START, LOOP, END };
+	enum class Slider { None, Start, Loop, End };
 
 	explicit MainSampleWaveDisplay( QWidget* pParent );
 	~MainSampleWaveDisplay();
@@ -64,7 +64,7 @@ class MainSampleWaveDisplay : public QWidget,
 	bool m_bLoopSliderIsMoved;
 	bool m_bEndSliderIsmoved;
 
-	Slider m_SelectedSlider;
+	Slider m_selectedSlider;
 
    private:
 	virtual void mouseMoveEvent( QMouseEvent* ev ) override;
