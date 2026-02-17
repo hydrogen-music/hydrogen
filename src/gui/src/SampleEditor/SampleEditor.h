@@ -39,7 +39,7 @@ class InstrumentComponent;
 class InstrumentLayer;
 }  // namespace H2Core
 
-class DetailWaveDisplay;
+class DetailSection;
 class MainSampleWaveDisplay;
 class TargetWaveDisplay;
 
@@ -105,7 +105,7 @@ class SampleEditor : public QDialog,
 
 	MainSampleWaveDisplay* m_pMainSampleWaveDisplay;
 	TargetWaveDisplay* m_pTargetSampleView;
-	DetailWaveDisplay* m_pSampleAdjustView;
+	DetailSection* m_pDetailSection;
 
 	std::shared_ptr<H2Core::InstrumentLayer> m_pLayer;
 	std::shared_ptr<H2Core::InstrumentComponent> m_pComponent;

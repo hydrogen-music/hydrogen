@@ -65,7 +65,7 @@ class WaveDisplay : public QWidget,
 	void doubleClicked( QWidget* pWidget );
 
    protected:
-	void drawPeakData();
+	virtual void drawPeakData();
 	virtual void updatePeakData();
 
 	QPixmap* m_pBackgroundPixmap;

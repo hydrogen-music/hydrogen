@@ -20,10 +20,8 @@
  *
  */
 
-#ifndef DETAIL_WAVE_DISPLAY
-#define DETAIL_WAVE_DISPLAY
-
-#include "../Widgets/WaveDisplay.h"
+#ifndef DETAIL_SECTION
+#define DETAIL_SECTION
 
 #include <QtGui>
 #include <QtWidgets>
@@ -33,16 +31,28 @@
 #include <memory>
 #include <vector>
 
-/** \ingroup docGUI*/
-class DetailWaveDisplay
-	: public WaveDisplay,
-	  public H2Core::Object<DetailWaveDisplay> {
-	H2_OBJECT( DetailWaveDisplay )
+namespace H2Core {
+class Sample;
+}
+
+class DetailWaveDisplay;
+
+/** Wrapper widget containing two #DetailWaveDisplay - one for the left and one
+ * for the right channel of the sample.
+ *
+ * \ingroup docGUI*/
+class DetailSection : public QWidget, public H2Core::Object<DetailSection> {
+	H2_OBJECT( DetailSection )
 	Q_OBJECT
 
    public:
-	explicit DetailWaveDisplay( QWidget* pParent );
-	~DetailWaveDisplay();
+	static constexpr int nWidth = 180;
+	static constexpr int nHeight = 265;
+
+	explicit DetailSection( QWidget* pParent );
+	~DetailSection();
+
+	void setSample( std::shared_ptr<H2Core::Sample> pNewSample );
 
 	void setDetailSamplePosition(
 		int nPosition,
@@ -51,13 +61,8 @@ class DetailWaveDisplay
 	);
 
    private:
-	void drawPeakData() override;
-	void updatePeakData() override;
-
-	int m_nDetailSamplePosition;
-	int m_nNormalImageDetailFrames;
-	float m_fZoomFactor;
-	QString m_sType;
+	DetailWaveDisplay* m_pWaveDisplayL;
+	DetailWaveDisplay* m_pWaveDisplayR;
 };
 
 #endif

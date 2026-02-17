@@ -22,6 +22,9 @@
 
 #include "DetailWaveDisplay.h"
 
+#include "DetailSection.h"
+
+#include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/Sample.h>
 
 #include "../Skin.h"
@@ -29,19 +32,12 @@
 using namespace H2Core;
 
 DetailWaveDisplay::DetailWaveDisplay( QWidget* pParent )
-	: QWidget( pParent ),
+	: WaveDisplay( pParent ),
 	  m_nNormalImageDetailFrames( 180 ),
 	  m_nDetailSamplePosition( 0 ),
 	  m_fZoomFactor( 1 )
 {
-	resize( DetailWaveDisplay::nWidth, DetailWaveDisplay::nHeight );
-
-	bool ok = m_background.load(
-		Skin::getImagePath() + "/waveDisplay/detailsamplewavedisplay.png"
-	);
-	if ( ok == false ) {
-		ERRORLOG( "Error loading pixmap" );
-	}
+	setFixedSize( DetailSection::nWidth - 1, DetailSection::nHeight / 2 );
 }
 
 DetailWaveDisplay::~DetailWaveDisplay()
@@ -60,46 +56,64 @@ void DetailWaveDisplay::setDetailSamplePosition(
 	update();
 }
 
-void DetailWaveDisplay::paintEvent( QPaintEvent* ev )
+void DetailWaveDisplay::drawPeakData()
 {
-	QPainter painter( this );
-	painter.setRenderHint( QPainter::Antialiasing );
-	painter.drawPixmap( ev->rect(), m_background, ev->rect() );
+	const qreal pixelRatio = devicePixelRatio();
+	QPainter p( m_pPeakDataPixmap );
+	// copy the background image
+	p.drawPixmap( rect(), *m_pBackgroundPixmap,
+						QRectF( pixelRatio * rect().x(),
+								pixelRatio * rect().y(),
+								pixelRatio * rect().width(),
+								pixelRatio * rect().height() ) );
 
-	painter.setPen( QColor( 230, 230, 230 ) );
-	const int nUpperCenter = height() / 4;
-	const int nLowerCenter = height() / 4 + height() / 2;
+	auto pPref = H2Core::Preferences::get_instance();
+	const auto pColorTheme = pPref->getColorTheme();
+
+	QColor backgroundColor, waveFormColor, waveFormInactiveColor;
+	if ( m_pLayer != nullptr && m_pLayer->getIsMuted() ) {
+		backgroundColor = pColorTheme->m_muteColor;
+	}
+	else if ( m_pLayer != nullptr && m_pLayer->getIsSoloed() ) {
+		backgroundColor = pColorTheme->m_soloColor;
+	}
+	else {
+		backgroundColor = pColorTheme->m_accentColor;
+	}
+
+	if ( Skin::moreBlackThanWhite( backgroundColor ) ) {
+		waveFormColor = Qt::white;
+		waveFormInactiveColor = pColorTheme->m_lightColor;
+	}
+	else {
+		waveFormColor = Qt::black;
+		waveFormInactiveColor = pColorTheme->m_darkColor;
+	}
+
+	p.setPen( waveFormColor );
+	p.setRenderHint( QPainter::Antialiasing );
+	const int nVerticalCenter = height() / 2;
 
 	int nStartPosition =
 		m_nDetailSamplePosition - m_nNormalImageDetailFrames / 2;
 
-	for ( int x = 0; x < width(); x++ ) {
-		if ( nStartPosition > 0 ) {
-			painter.drawLine(
-				x,
-				( -m_peakDataL[nStartPosition - 1] * m_fZoomFactor ) +
-					nUpperCenter,
-				x,
-				( -m_peakDataL[nStartPosition] * m_fZoomFactor ) + nUpperCenter
-			);
-			painter.drawLine(
-				x,
-				( -m_peakDataR[nStartPosition - 1] * m_fZoomFactor ) +
-					nLowerCenter,
-				x,
-				( -m_peakDataR[nStartPosition] * m_fZoomFactor ) + nLowerCenter
+	for ( int ii = 0; ii < width(); ii++ ) {
+		if ( nStartPosition > 0 && nStartPosition < m_peakData.size() ) {
+			p.drawLine(
+				ii,
+				( -m_peakData[nStartPosition - 1] * m_fZoomFactor ) +
+					nVerticalCenter,
+				ii,
+				( -m_peakData[nStartPosition] * m_fZoomFactor ) +
+					nVerticalCenter
 			);
 		}
 		else {
-			painter.drawLine( x, 0 + nUpperCenter, x, 0 + nUpperCenter );
-			painter.drawLine( x, 0 + nLowerCenter, x, 0 + nLowerCenter );
+			p.drawLine( ii, 0 + nVerticalCenter, ii, 0 + nVerticalCenter );
 		}
 		nStartPosition++;
 	}
 
-	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
-	painter.drawLine( 0, nUpperCenter, width(), nUpperCenter );
-	painter.drawLine( 0, nLowerCenter, width(), nLowerCenter );
 	QColor color;
 	if ( m_sType == "Start" ) {
 		color = QColor( 32, 173, 0 );
@@ -114,36 +128,40 @@ void DetailWaveDisplay::paintEvent( QPaintEvent* ev )
 		color = QColor( 255, 255, 255 );
 	}
 
-	painter.setPen( QPen( color, 1, Qt::SolidLine ) );
-	painter.drawLine( 90, 0, 90, 265 );
+	p.setPen( QPen( color, 1, Qt::SolidLine ) );
+	p.drawLine( 90, 0, 90, 265 );
 }
 
-void DetailWaveDisplay::updateDisplay( std::shared_ptr<Sample> pNewSample )
+void DetailWaveDisplay::updatePeakData()
 {
-	if ( pNewSample == nullptr ) {
+	if ( m_pLayer == nullptr || m_pLayer->getSample() == nullptr ) {
+		for ( int ii = 0; ii < m_peakData.size(); ++ii ) {
+			m_peakData[ii] = 0;
+		}
+
+		drawPeakData();
+		update();
 		return;
 	}
 
-	const int nSampleLength = pNewSample->getFrames();
+	const int nSampleLength = m_pLayer->getSample()->getFrames();
 	const int nNewLength = nSampleLength + m_nNormalImageDetailFrames / 2;
-
-	m_peakDataL.clear();
-	m_peakDataL.resize( nNewLength );
-	m_peakDataR.clear();
-	m_peakDataR.resize( nNewLength );
-
-	for ( int ii = nSampleLength; ii < nNewLength; ii++ ) {
-		m_peakDataL[ii] = 0;
-		m_peakDataR[ii] = 0;
-	}
-
 	const float fGain = height() / 4.0 * 1.0;
 
-	auto pSampleDataL = pNewSample->getData_L();
-	auto pSampleDataR = pNewSample->getData_R();
+	m_peakData.clear();
+	m_peakData.resize( nNewLength );
+
+	for ( int ii = nSampleLength; ii < nNewLength; ii++ ) {
+		m_peakData[ii] = 0;
+	}
+
+
+	auto pSampleDataL = m_pLayer->getSample()->getData_L();
 
 	for ( int ii = 0; ii < nSampleLength; ii++ ) {
-		m_peakDataL[ii] = static_cast<int>( pSampleDataL[ii] * fGain );
-		m_peakDataR[ii] = static_cast<int>( pSampleDataR[ii] * fGain );
+		m_peakData[ii] = static_cast<int>( pSampleDataL[ii] * fGain );
 	}
+
+	drawPeakData();
+	update();
 }

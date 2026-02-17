@@ -24,7 +24,7 @@
 
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
-#include "DetailWaveDisplay.h"
+#include "DetailSection.h"
 #include "MainSampleWaveDisplay.h"
 #include "TargetWaveDisplay.h"
 
@@ -97,7 +97,7 @@ SampleEditor::SampleEditor(
 
 	// init Displays
 	m_pMainSampleWaveDisplay = new MainSampleWaveDisplay( mainSampleview );
-	m_pSampleAdjustView = new DetailWaveDisplay( mainSampleAdjustView );
+	m_pDetailSection = new DetailSection( mainSampleAdjustView );
 	m_pTargetSampleView = new TargetWaveDisplay( targetSampleView );
 
 	setWindowTitle( QString( tr( "SampleEditor " ) + m_pSample->getFilePath() )
@@ -148,9 +148,9 @@ SampleEditor::~SampleEditor()
 	delete m_pMainSampleWaveDisplay;
 	m_pMainSampleWaveDisplay = nullptr;
 
-	m_pSampleAdjustView->close();
-	delete m_pSampleAdjustView;
-	m_pSampleAdjustView = nullptr;
+	m_pDetailSection->close();
+	delete m_pDetailSection;
+	m_pDetailSection = nullptr;
 
 	m_pTargetSampleView->close();
 	delete m_pTargetSampleView;
@@ -345,8 +345,8 @@ void SampleEditor::openDisplays()
 	m_pMainSampleWaveDisplay->updateDisplay( m_pSample );
 	m_pMainSampleWaveDisplay->move( 1, 1 );
 
-	m_pSampleAdjustView->updateDisplay( m_pSample );
-	m_pSampleAdjustView->move( 1, 1 );
+	m_pDetailSection->setSample( m_pSample );
+	m_pDetailSection->move( 1, 1 );
 
 	m_pTargetSampleView->move( 1, 1 );
 }
@@ -493,13 +493,13 @@ void SampleEditor::valueChangedStartFrameSpinBox( int )
 		m_pMainSampleWaveDisplay->m_nStartFramePosition =
 			StartFrameSpinBox->value() / m_divider + 25;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
-		m_pSampleAdjustView->setDetailSamplePosition(
+		m_pDetailSection->setDetailSamplePosition(
 			m_pDetailFrame, m_fZoomfactor, m_sLineColor
 		);
 		__loops.start_frame = m_pDetailFrame;
 	}
 	else {
-		m_pSampleAdjustView->setDetailSamplePosition(
+		m_pDetailSection->setDetailSamplePosition(
 			m_pDetailFrame, m_fZoomfactor, m_sLineColor
 		);
 		m_bOnewayStart = false;
@@ -523,13 +523,13 @@ void SampleEditor::valueChangedLoopFrameSpinBox( int )
 		m_pMainSampleWaveDisplay->m_nLoopFramePosition =
 			LoopFrameSpinBox->value() / m_divider + 25;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
-		m_pSampleAdjustView->setDetailSamplePosition(
+		m_pDetailSection->setDetailSamplePosition(
 			m_pDetailFrame, m_fZoomfactor, m_sLineColor
 		);
 		__loops.loop_frame = m_pDetailFrame;
 	}
 	else {
-		m_pSampleAdjustView->setDetailSamplePosition(
+		m_pDetailSection->setDetailSamplePosition(
 			m_pDetailFrame, m_fZoomfactor, m_sLineColor
 		);
 		m_bOnewayLoop = false;
@@ -553,14 +553,14 @@ void SampleEditor::valueChangedEndFrameSpinBox( int )
 		m_pMainSampleWaveDisplay->m_nEndFramePosition =
 			EndFrameSpinBox->value() / m_divider + 25;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
-		m_pSampleAdjustView->setDetailSamplePosition(
+		m_pDetailSection->setDetailSamplePosition(
 			m_pDetailFrame, m_fZoomfactor, m_sLineColor
 		);
 		__loops.end_frame = m_pDetailFrame;
 	}
 	else {
 		m_bOnewayEnd = false;
-		m_pSampleAdjustView->setDetailSamplePosition(
+		m_pDetailSection->setDetailSamplePosition(
 			m_pDetailFrame, m_fZoomfactor, m_sLineColor
 		);
 	}
@@ -613,7 +613,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 	m_pMainSampleWaveDisplay->paintLocatorEvent(
 		StartFrameSpinBox->value() / m_divider + 24, true
 	);
-	m_pSampleAdjustView->setDetailSamplePosition(
+	m_pDetailSection->setDetailSamplePosition(
 		__loops.start_frame, m_fZoomfactor, nullptr
 	);
 
@@ -646,7 +646,7 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 		m_pMainSampleWaveDisplay->paintLocatorEvent(
 			StartFrameSpinBox->value() / m_divider + 24, true
 		);
-		m_pSampleAdjustView->setDetailSamplePosition(
+		m_pDetailSection->setDetailSamplePosition(
 			__loops.start_frame, m_fZoomfactor, nullptr
 		);
 		m_pTimer->start( 40 );	// update ruler at 25 fps
@@ -711,7 +711,7 @@ void SampleEditor::updateMainsamplePositionRuler()
 			m_pMainSampleWaveDisplay->paintLocatorEvent(
 				m_pPositionsRulerPath[frame] / m_divider + 25, true
 			);
-			m_pSampleAdjustView->setDetailSamplePosition(
+			m_pDetailSection->setDetailSamplePosition(
 				m_pPositionsRulerPath[frame], m_fZoomfactor, nullptr
 			);
 		}
@@ -719,7 +719,7 @@ void SampleEditor::updateMainsamplePositionRuler()
 			m_pMainSampleWaveDisplay->paintLocatorEvent(
 				frame / m_divider + 25, true
 			);
-			m_pSampleAdjustView->setDetailSamplePosition(
+			m_pDetailSection->setDetailSamplePosition(
 				frame, m_fZoomfactor, nullptr
 			);
 		}
@@ -1050,7 +1050,7 @@ void SampleEditor::valueChangedProcessingTypeComboBox( int nUnused )
 void SampleEditor::on_verticalzoomSlider_valueChanged( int value )
 {
 	m_fZoomfactor = value / 10 + 1;
-	m_pSampleAdjustView->setDetailSamplePosition(
+	m_pDetailSection->setDetailSamplePosition(
 		m_pDetailFrame, m_fZoomfactor, m_sLineColor
 	);
 }

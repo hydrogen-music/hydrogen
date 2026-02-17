@@ -231,7 +231,6 @@ void WaveDisplay::drawPeakData()
 	auto pPref = H2Core::Preferences::get_instance();
 	const auto pColorTheme = pPref->getColorTheme();
 
-	const QColor borderColor = Qt::black;
 	QColor backgroundColor, waveFormColor, waveFormInactiveColor;
 	if ( m_pLayer != nullptr && m_pLayer->getIsMuted() ) {
 		backgroundColor = pColorTheme->m_muteColor;
