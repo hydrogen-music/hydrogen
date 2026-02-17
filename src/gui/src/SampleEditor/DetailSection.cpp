@@ -34,11 +34,13 @@ DetailSection::DetailSection( QWidget* pParent ) : QWidget( pParent )
 	resize( DetailSection::nWidth, DetailSection::nHeight );
 
 	auto pVBoxLayout = new QVBoxLayout();
-    pVBoxLayout->setContentsMargins( 0, 0, 0, 0 );
-    pVBoxLayout->setSpacing( 0 );
-	m_pWaveDisplayL = new DetailWaveDisplay( this );
+	pVBoxLayout->setContentsMargins( 0, 0, 0, 0 );
+	pVBoxLayout->setSpacing( 0 );
+	m_pWaveDisplayL =
+		new DetailWaveDisplay( this, DetailWaveDisplay::Channel::Left );
 	pVBoxLayout->addWidget( m_pWaveDisplayL );
-	m_pWaveDisplayR = new DetailWaveDisplay( this );
+	m_pWaveDisplayR =
+		new DetailWaveDisplay( this, DetailWaveDisplay::Channel::Right );
 	pVBoxLayout->addWidget( m_pWaveDisplayR );
 	setLayout( pVBoxLayout );
 }

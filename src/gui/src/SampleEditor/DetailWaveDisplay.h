@@ -41,7 +41,9 @@ class DetailWaveDisplay
 	Q_OBJECT
 
    public:
-	explicit DetailWaveDisplay( QWidget* pParent );
+	enum class Channel { Left, Right };
+
+	explicit DetailWaveDisplay( QWidget* pParent, Channel channel );
 	~DetailWaveDisplay();
 
 	void setDetailSamplePosition(
@@ -53,6 +55,8 @@ class DetailWaveDisplay
    private:
 	void drawPeakData() override;
 	void updatePeakData() override;
+
+	Channel m_channel;
 
 	int m_nDetailSamplePosition;
 	int m_nNormalImageDetailFrames;

@@ -31,14 +31,15 @@
 
 using namespace H2Core;
 
-DetailWaveDisplay::DetailWaveDisplay( QWidget* pParent )
+DetailWaveDisplay::DetailWaveDisplay( QWidget* pParent, Channel channel )
 	: WaveDisplay( pParent ),
+	  m_channel( channel ),
 	  m_nNormalImageDetailFrames( 180 ),
 	  m_nDetailSamplePosition( 0 ),
 	  m_fZoomFactor( 1 )
 {
-    m_label = WaveDisplay::Label::Fallback;
-    m_sFallbackLabel = "";
+	m_label = WaveDisplay::Label::Fallback;
+	m_sFallbackLabel = "";
 	setFixedSize( DetailSection::nWidth - 1, DetailSection::nHeight / 2 );
 }
 
@@ -157,11 +158,16 @@ void DetailWaveDisplay::updatePeakData()
 		m_peakData[ii] = 0;
 	}
 
-
-	auto pSampleDataL = m_pLayer->getSample()->getData_L();
+	float* pSampleData;
+	if ( m_channel == Channel::Left ) {
+		pSampleData = m_pLayer->getSample()->getData_L();
+	}
+	else {
+		pSampleData = m_pLayer->getSample()->getData_R();
+	}
 
 	for ( int ii = 0; ii < nSampleLength; ii++ ) {
-		m_peakData[ii] = static_cast<int>( pSampleDataL[ii] * fGain );
+		m_peakData[ii] = static_cast<int>( pSampleData[ii] * fGain );
 	}
 
 	drawPeakData();
