@@ -46,6 +46,21 @@
 
 using namespace H2Core;
 
+QString SampleEditor::SliderToQString( const Slider& slider )
+{
+	switch ( slider ) {
+		case Slider::Start:
+			return "Start";
+		case Slider::Loop:
+			return "Loop";
+		case Slider::End:
+			return "End";
+		case Slider::None:
+		default:
+			return "None";
+	}
+}
+
 SampleEditor::SampleEditor(
 	QWidget* pParent,
 	std::shared_ptr<H2Core::InstrumentLayer> pLayer,

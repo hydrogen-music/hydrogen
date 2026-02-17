@@ -54,6 +54,7 @@ class SampleEditor : public QDialog,
 	Q_OBJECT
    public:
 	enum class Slider { None, Start, Loop, End };
+	static QString SliderToQString( const Slider& slider );
 
 	SampleEditor(
 		QWidget* pParent,
