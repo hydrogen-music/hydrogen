@@ -23,9 +23,9 @@
 #ifndef SAMPLEEDITOR_H
 #define SAMPLEEDITOR_H
 
-#include "ui_SampleEditor_UI.h"
 
-#include <QDialog>
+#include <QtGui>
+#include <QtWidgets>
 #include <memory>
 
 #include <core/Basics/Sample.h>
@@ -39,7 +39,7 @@ class InstrumentComponent;
 class InstrumentLayer;
 }  // namespace H2Core
 
-class DetailSection;
+class DetailWaveDisplay;
 class MainSampleWaveDisplay;
 class TargetWaveDisplay;
 
@@ -47,12 +47,13 @@ class TargetWaveDisplay;
 /// This dialog is used to preview audiofiles
 ///
 /** \ingroup docGUI*/
-class SampleEditor : public QDialog,
-					 public Ui_SampleEditor_UI,
-					 public H2Core::Object<SampleEditor> {
+class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	H2_OBJECT( SampleEditor )
 	Q_OBJECT
    public:
+	static constexpr int nHeight = 510;
+	static constexpr int nWidth = 863;
+
 	enum class Slider { None, Start, Loop, End };
 	static QString SliderToQString( const Slider& slider );
 
@@ -64,6 +65,7 @@ class SampleEditor : public QDialog,
 	);
 	~SampleEditor();
 
+        int getEnvelopeIndex() const;
 	void setSampleName( const QString& name );
 	bool getCloseQuestion();
 	bool returnAllMainWaveDisplayValues();
@@ -80,14 +82,11 @@ class SampleEditor : public QDialog,
 	void valueChangedrubberComboBox( int );
 	void valueChangedrubberbandCsettingscomboBox( int );
 	void valueChangedpitchdoubleSpinBox( double );
-	void on_ClosePushButton_clicked();
-	void on_PrevChangesPushButton_clicked();
 	void valueChangedStartFrameSpinBox( int );
 	void valueChangedLoopFrameSpinBox( int );
 	void valueChangedEndFrameSpinBox( int );
 	void on_PlayPushButton_clicked();
 	void on_PlayOrigPushButton_clicked();
-	void on_verticalzoomSlider_valueChanged( int value );
 	void updateMainsamplePositionRuler();
 	void updateTargetsamplePositionRuler();
 
@@ -107,8 +106,27 @@ class SampleEditor : public QDialog,
 	virtual void mouseReleaseEvent( QMouseEvent* ev ) override;
 
 	MainSampleWaveDisplay* m_pMainSampleWaveDisplay;
+	DetailWaveDisplay* m_pDetailWaveDisplayL;
+	DetailWaveDisplay* m_pDetailWaveDisplayR;
+
+	QSpinBox* m_pStartFrameSpinBox;
+	QSpinBox* m_pLoopFrameSpinBox;
+	QSpinBox* m_pLoopCountSpinBox;
+	QComboBox* m_pLoopModeComboBox;
+	QSpinBox* m_pEndFrameSpinBox;
+
+	QComboBox* m_pRubberBandLengthComboBox;
+	QLabel* m_pRubberBandRatioLabel;
+	QDoubleSpinBox* m_pRubberBandPitchSpinBox;
+	QComboBox* m_pRubberBandCrispnessComboBox;
+
+	QPushButton* m_pApplyButton;
+	QPushButton* m_pPlayButton;
+	QPushButton* m_pPlayOriginalButton;
+	QLabel* m_pNewLengthLabel;
+	QComboBox* m_pEnvelopeComboBox;
+
 	TargetWaveDisplay* m_pTargetSampleView;
-	DetailSection* m_pDetailSection;
 
 	std::shared_ptr<H2Core::InstrumentLayer> m_pLayer;
 	std::shared_ptr<H2Core::InstrumentComponent> m_pComponent;

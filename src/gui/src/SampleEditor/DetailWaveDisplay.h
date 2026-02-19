@@ -42,6 +42,9 @@ class DetailWaveDisplay
 	Q_OBJECT
 
    public:
+	static constexpr int nWidth = 180;
+	static constexpr int nHeight = 132;
+
 	enum class Channel { Left, Right };
 
 	explicit DetailWaveDisplay( QWidget* pParent, Channel channel );

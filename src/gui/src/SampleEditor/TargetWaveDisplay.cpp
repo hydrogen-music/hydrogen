@@ -453,7 +453,7 @@ static TargetWaveDisplay::EnvelopeEditMode getEnvelopeEditMode()
 {
 	int editType = HydrogenApp::get_instance()
 					   ->getSampleEditor()
-					   ->EditTypeComboBox->currentIndex();
+					   ->getEnvelopeIndex();
 	if ( editType == 0 ) {
 		return TargetWaveDisplay::VELOCITY;
 	}

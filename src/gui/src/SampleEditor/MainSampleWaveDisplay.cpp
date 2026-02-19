@@ -39,7 +39,7 @@ MainSampleWaveDisplay::MainSampleWaveDisplay( QWidget* pParent )
 	//
 	int w = 624;
 	int h = 265;
-	resize( w, h );
+	setFixedSize( w, h );
 
 	bool ok = m_background.load(
 		Skin::getImagePath() + "/waveDisplay/mainsamplewavedisplay.png"

@@ -22,8 +22,6 @@
 
 #include "DetailWaveDisplay.h"
 
-#include "DetailSection.h"
-
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/Sample.h>
 
@@ -41,7 +39,7 @@ DetailWaveDisplay::DetailWaveDisplay( QWidget* pParent, Channel channel )
 {
 	m_label = WaveDisplay::Label::Fallback;
 	m_sFallbackLabel = "";
-	setFixedSize( DetailSection::nWidth - 1, DetailSection::nHeight / 2 );
+	setFixedSize( DetailWaveDisplay::nWidth, DetailWaveDisplay::nHeight );
 }
 
 DetailWaveDisplay::~DetailWaveDisplay()
