@@ -37,9 +37,35 @@
 
 namespace H2Core {
 
-const std::vector<QString> Sample::m_loopModes = {
-	"forward", "reverse", "pingpong"
-};
+QString Sample::Loops::ModeToQString( const Loops::Mode& mode )
+{
+	switch ( mode ) {
+		case Loops::Mode::Forward:
+			return "forward";
+		case Loops::Mode::Reverse:
+			return "reverse";
+		case Loops::Mode::PingPong:
+			return "pingpong";
+		default:
+			return QString( "Unknown mode [%1]" )
+				.arg( static_cast<int>( mode ) );
+	}
+}
+
+Sample::Loops::Mode Sample::Loops::ModeFromQString( const QString& sMode )
+{
+	if ( sMode == "forward" ) {
+		return Loops::Mode::Forward;
+	}
+	else if ( sMode == "reverse" ) {
+		return Loops::Mode::Reverse;
+	}
+	else if ( sMode == "pingpong" ) {
+		return Loops::Mode::PingPong;
+	}
+
+	return Loops::Mode::Forward;
+}
 
 /** Calculates the ratio of the target to the source frequency.
  *
@@ -304,82 +330,82 @@ void Sample::unload()
 
 bool Sample::applyLoops()
 {
-	if ( m_loops.start_frame == 0 && m_loops.loop_frame == 0 &&
-		 m_loops.end_frame == 0 && m_loops.count == 0 ) {
+	if ( m_loops.nStartFrame == 0 && m_loops.nLoopFrame == 0 &&
+		 m_loops.nEndFrame == 0 && m_loops.nCount == 0 ) {
 		// Default parameters. No looping was set by the
 		// user. Skipping.
 		return true;
 	}
 
-	if ( m_loops.start_frame < 0 ) {
+	if ( m_loops.nStartFrame < 0 ) {
 		ERRORLOG( QString( "start_frame %1 < 0 is not allowed" )
-					  .arg( m_loops.start_frame ) );
+					  .arg( m_loops.nStartFrame ) );
 		return false;
 	}
-	if ( m_loops.loop_frame < m_loops.start_frame ) {
+	if ( m_loops.nLoopFrame < m_loops.nStartFrame ) {
 		ERRORLOG( QString( "loop_frame %1 < start_frame %2 is not allowed" )
-					  .arg( m_loops.loop_frame )
-					  .arg( m_loops.start_frame ) );
+					  .arg( m_loops.nLoopFrame )
+					  .arg( m_loops.nStartFrame ) );
 		return false;
 	}
-	if ( m_loops.end_frame < m_loops.loop_frame ) {
+	if ( m_loops.nEndFrame < m_loops.nLoopFrame ) {
 		ERRORLOG( QString( "end_frame %1 < loop_frame %2 is not allowed" )
-					  .arg( m_loops.end_frame )
-					  .arg( m_loops.loop_frame ) );
+					  .arg( m_loops.nEndFrame )
+					  .arg( m_loops.nLoopFrame ) );
 		return false;
 	}
-	if ( m_loops.end_frame > m_nFrames ) {
+	if ( m_loops.nEndFrame > m_nFrames ) {
 		ERRORLOG( QString( "end_frame %1 > m_nFrames %2 is not allowed" )
-					  .arg( m_loops.end_frame )
+					  .arg( m_loops.nEndFrame )
 					  .arg( m_nFrames ) );
 		return false;
 	}
-	if ( m_loops.count < 0 ) {
-		ERRORLOG( QString( "count %1 < 0 is not allowed" ).arg( m_loops.count )
+	if ( m_loops.nCount < 0 ) {
+		ERRORLOG( QString( "count %1 < 0 is not allowed" ).arg( m_loops.nCount )
 		);
 		return false;
 	}
 	// if( lo == m_loops ) return true;
 
-	bool full_loop = m_loops.start_frame == m_loops.loop_frame;
-	int full_length = m_loops.end_frame - m_loops.start_frame;
-	int loop_length = m_loops.end_frame - m_loops.loop_frame;
-	int new_length = full_length + loop_length * m_loops.count;
+	bool full_loop = m_loops.nStartFrame == m_loops.nLoopFrame;
+	int full_length = m_loops.nEndFrame - m_loops.nStartFrame;
+	int loop_length = m_loops.nEndFrame - m_loops.nLoopFrame;
+	int new_length = full_length + loop_length * m_loops.nCount;
 
 	float* new_data_l = new float[new_length];
 	float* new_data_r = new float[new_length];
 
 	// copy full_length frames to new_data
-	if ( m_loops.mode == Loops::REVERSE &&
-		 ( m_loops.count == 0 || full_loop ) ) {
+	if ( m_loops.mode == Loops::Mode::Reverse &&
+		 ( m_loops.nCount == 0 || full_loop ) ) {
 		if ( full_loop ) {
 			// copy end => start
-			for ( int i = 0, j = m_loops.end_frame; i < full_length;
+			for ( int i = 0, j = m_loops.nEndFrame; i < full_length;
 				  i++, j-- ) {
 				new_data_l[i] = m_data_L[j];
 			}
-			for ( int i = 0, j = m_loops.end_frame; i < full_length;
+			for ( int i = 0, j = m_loops.nEndFrame; i < full_length;
 				  i++, j-- ) {
 				new_data_r[i] = m_data_R[j];
 			}
 		}
 		else {
 			// copy start => loop
-			int to_loop = m_loops.loop_frame - m_loops.start_frame;
+			int to_loop = m_loops.nLoopFrame - m_loops.nStartFrame;
 			memcpy(
-				new_data_l, m_data_L + m_loops.start_frame,
+				new_data_l, m_data_L + m_loops.nStartFrame,
 				sizeof( float ) * to_loop
 			);
 			memcpy(
-				new_data_r, m_data_R + m_loops.start_frame,
+				new_data_r, m_data_R + m_loops.nStartFrame,
 				sizeof( float ) * to_loop
 			);
 			// copy end => loop
-			for ( int i = to_loop, j = m_loops.end_frame; i < full_length;
+			for ( int i = to_loop, j = m_loops.nEndFrame; i < full_length;
 				  i++, j-- ) {
 				new_data_l[i] = m_data_L[j];
 			}
-			for ( int i = to_loop, j = m_loops.end_frame; i < full_length;
+			for ( int i = to_loop, j = m_loops.nEndFrame; i < full_length;
 				  i++, j-- ) {
 				new_data_r[i] = m_data_R[j];
 			}
@@ -388,38 +414,38 @@ bool Sample::applyLoops()
 	else {
 		// copy start => end
 		memcpy(
-			new_data_l, m_data_L + m_loops.start_frame,
+			new_data_l, m_data_L + m_loops.nStartFrame,
 			sizeof( float ) * full_length
 		);
 		memcpy(
-			new_data_r, m_data_R + m_loops.start_frame,
+			new_data_r, m_data_R + m_loops.nStartFrame,
 			sizeof( float ) * full_length
 		);
 	}
 	// copy the loops
-	if ( m_loops.count > 0 ) {
+	if ( m_loops.nCount > 0 ) {
 		int x = full_length;
-		bool forward = ( m_loops.mode == Loops::FORWARD );
-		bool ping_pong = ( m_loops.mode == Loops::PINGPONG );
-		for ( int i = 0; i < m_loops.count; i++ ) {
+		bool forward = ( m_loops.mode == Loops::Mode::Forward );
+		bool ping_pong = ( m_loops.mode == Loops::Mode::PingPong );
+		for ( int i = 0; i < m_loops.nCount; i++ ) {
 			if ( forward ) {
 				// copy loop => end
 				memcpy(
-					&new_data_l[x], m_data_L + m_loops.loop_frame,
+					&new_data_l[x], m_data_L + m_loops.nLoopFrame,
 					sizeof( float ) * loop_length
 				);
 				memcpy(
-					&new_data_r[x], m_data_R + m_loops.loop_frame,
+					&new_data_r[x], m_data_R + m_loops.nLoopFrame,
 					sizeof( float ) * loop_length
 				);
 			}
 			else {
 				// copy end => loop
-				for ( int i = m_loops.end_frame, y = x; i > m_loops.loop_frame;
+				for ( int i = m_loops.nEndFrame, y = x; i > m_loops.nLoopFrame;
 					  i--, y++ ) {
 					new_data_l[y] = m_data_L[i];
 				}
-				for ( int i = m_loops.end_frame, y = x; i > m_loops.loop_frame;
+				for ( int i = m_loops.nEndFrame, y = x; i > m_loops.nLoopFrame;
 					  i--, y++ ) {
 					new_data_r[y] = m_data_R[i];
 				}
@@ -807,21 +833,6 @@ bool Sample::execRubberbandCli( float fBpm )
 	return true;
 }
 
-Sample::Loops::LoopMode Sample::parseLoopMode( const QString& sMode )
-{
-	if ( sMode == "forward" ) {
-		return Loops::FORWARD;
-	}
-	else if ( sMode == "reverse" ) {
-		return Loops::REVERSE;
-	}
-	else if ( sMode == "pingpong" ) {
-		return Loops::PINGPONG;
-	}
-
-	return Loops::FORWARD;
-}
-
 bool Sample::write( const QString& path, int format ) const
 {
 	float* obuf = new float[SAMPLE_CHANNELS * m_nFrames];
@@ -905,35 +916,37 @@ QString Sample::Loops::toQString( const QString& sPrefix, bool bShort ) const
 	if ( !bShort ) {
 		sOutput = QString( "%1[Loops]\n" )
 					  .arg( sPrefix )
-					  .append( QString( "%1%2start_frame: %3\n" )
+					  .append( QString( "%1%2nStartFrame: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
-								   .arg( start_frame ) )
-					  .append( QString( "%1%2loop_frame: %3\n" )
+								   .arg( nStartFrame ) )
+					  .append( QString( "%1%2nLoopFrame: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
-								   .arg( loop_frame ) )
-					  .append( QString( "%1%2end_frame: %3\n" )
+								   .arg( nLoopFrame ) )
+					  .append( QString( "%1%2nEndFrame: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
-								   .arg( end_frame ) )
-					  .append( QString( "%1%2count: %3\n" )
+								   .arg( nEndFrame ) )
+					  .append( QString( "%1%2nCount: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
-								   .arg( count ) )
+								   .arg( nCount ) )
 					  .append( QString( "%1%2mode: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
-								   .arg( mode ) );
+								   .arg( Loops::ModeToQString( mode ) ) );
 	}
 	else {
 		sOutput =
 			QString( "[Loops]" )
-				.append( QString( " start_frame: %1" ).arg( start_frame ) )
-				.append( QString( ", loop_frame: %1" ).arg( loop_frame ) )
-				.append( QString( ", end_frame: %1" ).arg( end_frame ) )
-				.append( QString( ", count: %1" ).arg( count ) )
-				.append( QString( ", mode: %1" ).arg( mode ) );
+				.append( QString( " nStartFrame: %1" ).arg( nStartFrame ) )
+				.append( QString( ", nLoopFrame: %1" ).arg( nLoopFrame ) )
+				.append( QString( ", nEndFrame: %1" ).arg( nEndFrame ) )
+				.append( QString( ", nCount: %1" ).arg( nCount ) )
+				.append(
+					QString( ", mode: %1" ).arg( Loops::ModeToQString( mode ) )
+				);
 	}
 
 	return sOutput;

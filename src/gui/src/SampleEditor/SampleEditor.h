@@ -158,8 +158,8 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	QTimer* m_pTargetDisplayTimer;
 	unsigned* m_pPositionsRulerPath;
 	float m_fRatio;
-	H2Core::Sample::Loops __loops;
-	H2Core::Sample::Rubberband __rubberband;
+	H2Core::Sample::Loops m_loops;
+	H2Core::Sample::Rubberband m_rubberband;
 };
 
 inline int SampleEditor::getFramePosition() const

@@ -207,11 +207,11 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 		if ( bIsModified ) {
 		
 			Sample::Loops loops;
-			loops.mode = Sample::parseLoopMode( node.read_string( "smode", "forward", false, false, bSilent ) );
-			loops.start_frame = node.read_int( "startframe", 0, false, false, bSilent );
-			loops.loop_frame = node.read_int( "loopframe", 0, false, false, bSilent );
-			loops.count = node.read_int( "loops", 0, false, false, bSilent );
-			loops.end_frame = node.read_int( "endframe", 0, false, false, bSilent );
+			loops.mode = Sample::Loops::ModeFromQString( node.read_string( "smode", "forward", false, false, bSilent ) );
+			loops.nStartFrame = node.read_int( "startframe", 0, false, false, bSilent );
+			loops.nLoopFrame = node.read_int( "loopframe", 0, false, false, bSilent );
+			loops.nCount = node.read_int( "loops", 0, false, false, bSilent );
+			loops.nEndFrame = node.read_int( "endframe", 0, false, false, bSilent );
 			pSample->setLoops( loops );
 	
 			Sample::Rubberband rubberband;
@@ -322,15 +322,17 @@ void InstrumentLayer::saveTo(
 	layer_node.write_bool( "isSoloed", m_bIsSoloed );
 
 	layer_node.write_bool( "ismodified", pSample->getIsModified() );
-	layer_node.write_string( "smode", pSample->getLoopModeString() );
 
-	Sample::Loops loops = pSample->getLoops();
-	layer_node.write_int( "startframe", loops.start_frame );
-	layer_node.write_int( "loopframe", loops.loop_frame );
-	layer_node.write_int( "loops", loops.count );
-	layer_node.write_int( "endframe", loops.end_frame );
+	const Sample::Loops loops = pSample->getLoops();
+	layer_node.write_string(
+		"smode", Sample::Loops::ModeToQString( loops.mode )
+	);
+	layer_node.write_int( "startframe", loops.nStartFrame );
+	layer_node.write_int( "loopframe", loops.nLoopFrame );
+	layer_node.write_int( "loops", loops.nCount );
+	layer_node.write_int( "endframe", loops.nEndFrame );
 
-	Sample::Rubberband rubberband = pSample->getRubberband();
+	const Sample::Rubberband rubberband = pSample->getRubberband();
 	layer_node.write_int( "userubber", static_cast<int>( rubberband.bUse ) );
 	layer_node.write_float( "rubberdivider", rubberband.fLengthInBeats );
 	layer_node.write_int( "rubberCsettings", rubberband.nCrispness );
