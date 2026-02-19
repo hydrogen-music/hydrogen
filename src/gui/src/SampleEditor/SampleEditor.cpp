@@ -96,6 +96,14 @@ SampleEditor::SampleEditor(
 	);
 
 	const auto nFrames = m_pSample->getFrames();
+	m_loops = m_pSample->getLoops();
+	// Per default all loop frames will be set to zero by Hydrogen. But this is
+	// dangerous since just altering start or loop might move them beyond the
+	// end.
+	if ( m_loops.nStartFrame == 0 && m_loops.nLoopFrame == 0 &&
+		 m_loops.nEndFrame == 0 ) {
+		m_loops.nEndFrame = m_pSample->getFrames();
+	}
 
 	m_fDivider = m_pSample->getFrames() / 574.0F;
 
@@ -190,6 +198,7 @@ background-color: %1;" )
 	m_pStartFrameSpinBox->setMinimumWidth( 100 );
 	m_pStartFrameSpinBox->setToolTip( tr( "Adjust sample start frame" ) );
 	m_pStartFrameSpinBox->setRange( 0, nFrames );
+	m_pStartFrameSpinBox->setValue( m_loops.nStartFrame );
 	connect(
 		m_pStartFrameSpinBox, SIGNAL( valueChanged( int ) ), this,
 		SLOT( valueChangedStartFrameSpinBox( int ) )
@@ -206,6 +215,7 @@ background-color: %1;" )
 	m_pLoopFrameSpinBox->setMinimumWidth( 100 );
 	m_pLoopFrameSpinBox->setToolTip( tr( "Adjust sample loop begin frame" ) );
 	m_pLoopFrameSpinBox->setRange( 0, nFrames );
+	m_pLoopFrameSpinBox->setValue( m_loops.nLoopFrame );
 	connect(
 		m_pLoopFrameSpinBox, SIGNAL( valueChanged( int ) ), this,
 		SLOT( valueChangedLoopFrameSpinBox( int ) )
@@ -222,6 +232,15 @@ background-color: %1;" )
 	m_pLoopModeComboBox->addItems(
 		QStringList() << tr( "forward" ) << tr( "reverse" ) << tr( "pingpong" )
 	);
+	if ( m_loops.mode == Sample::Loops::Mode::Forward ) {
+		m_pLoopModeComboBox->setCurrentIndex( 0 );
+	}
+	if ( m_loops.mode == Sample::Loops::Mode::Reverse ) {
+		m_pLoopModeComboBox->setCurrentIndex( 1 );
+	}
+	if ( m_loops.mode == Sample::Loops::Mode::PingPong ) {
+		m_pLoopModeComboBox->setCurrentIndex( 2 );
+	}
 	connect(
 		m_pLoopModeComboBox, SIGNAL( currentIndexChanged( int ) ), this,
 		SLOT( valueChangedProcessingTypeComboBox( int ) )
@@ -236,6 +255,7 @@ background-color: %1;" )
 	m_pLoopCountSpinBox->setMinimumWidth( 60 );
 	m_pLoopCountSpinBox->setToolTip( tr( "loops" ) );
 	m_pLoopCountSpinBox->setRange( 0, 20000 );
+	m_pLoopCountSpinBox->setValue( m_loops.nCount );
 	connect(
 		m_pLoopCountSpinBox, SIGNAL( valueChanged( int ) ), this,
 		SLOT( valueChangedLoopCountSpinBox( int ) )
@@ -252,7 +272,7 @@ background-color: %1;" )
 	m_pEndFrameSpinBox->setMinimumWidth( 100 );
 	m_pEndFrameSpinBox->setToolTip( tr( "Adjust sample and loop end frame" ) );
 	m_pEndFrameSpinBox->setRange( 0, nFrames );
-	m_pEndFrameSpinBox->setValue( nFrames );
+	m_pEndFrameSpinBox->setValue( m_loops.nEndFrame );
 	connect(
 		m_pEndFrameSpinBox, SIGNAL( valueChanged( int ) ), this,
 		SLOT( valueChangedEndFrameSpinBox( int ) )
@@ -549,15 +569,7 @@ void SampleEditor::getAllFrameInfos()
 	// new song with sample changes will load
 	m_bSampleIsModified = m_pSample->getIsModified();
 	m_nSamplerate = m_pSample->getSampleRate();
-	m_loops = m_pSample->getLoops();
 
-	// Per default all loop frames will be set to zero by Hydrogen. But this is
-	// dangerous since just altering start or loop might move them beyond the
-	// end.
-	if ( m_loops.nStartFrame == 0 && m_loops.nLoopFrame == 0 &&
-		 m_loops.nEndFrame == 0 ) {
-		m_loops.nEndFrame = m_pSample->getFrames();
-	}
 	m_rubberband = m_pSample->getRubberband();
 
 	if ( m_pSample->getVelocityEnvelope().size() == 0 ) {
@@ -592,22 +604,6 @@ void SampleEditor::getAllFrameInfos()
 	}
 
 	if ( m_bSampleIsModified ) {
-		m_loops.nEndFrame = m_pSample->getLoops().nEndFrame;
-		if ( m_loops.mode == Sample::Loops::Mode::Forward ) {
-			m_pLoopModeComboBox->setCurrentIndex( 0 );
-		}
-		if ( m_loops.mode == Sample::Loops::Mode::Reverse ) {
-			m_pLoopModeComboBox->setCurrentIndex( 1 );
-		}
-		if ( m_loops.mode == Sample::Loops::Mode::PingPong ) {
-			m_pLoopModeComboBox->setCurrentIndex( 2 );
-		}
-
-		m_pStartFrameSpinBox->setValue( m_loops.nStartFrame );
-		m_pLoopFrameSpinBox->setValue( m_loops.nLoopFrame );
-		m_pEndFrameSpinBox->setValue( m_loops.nEndFrame );
-		m_pLoopCountSpinBox->setValue( m_loops.nCount );
-
 		m_pMainSampleWaveDisplay->m_nStartFramePosition =
 			m_loops.nStartFrame / m_fDivider + 25;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
@@ -1262,7 +1258,7 @@ void SampleEditor::valueChangedrubberComboBox( int )
 				(float) m_pRubberBandLengthComboBox->currentIndex() - 6.0;
 	}
 	//	QMessageBox::information ( this, "Hydrogen", tr ( "divider %1" ).arg(
-	//m_rubberband.divider )); 	float m_rubberband.divider;
+	// m_rubberband.divider )); 	float m_rubberband.divider;
 	setSamplelengthFrames();
 
 	setUnclean();
