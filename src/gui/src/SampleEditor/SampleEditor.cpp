@@ -100,8 +100,9 @@ SampleEditor::SampleEditor(
 	m_fDivider = m_pSample->getFrames() / 574.0F;
 
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-    const auto pPref = Preferences::get_instance();
-    const auto separatorColor = pPref->getColorTheme()->m_windowColor.darker( 135 );
+	const auto pPref = Preferences::get_instance();
+	const auto separatorColor =
+		pPref->getColorTheme()->m_windowColor.darker( 135 );
 
 	auto pMainLayout = new QVBoxLayout();
 	pMainLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -119,13 +120,14 @@ SampleEditor::SampleEditor(
 	auto pGridLayout = new QGridLayout();
 	pGridLayout->setContentsMargins( 9, 0, 9, 0 );
 	pGridLayout->setSpacing( 6 );
-    pScrollArea->setLayout( pGridLayout );
+	pScrollArea->setLayout( pGridLayout );
 
 	auto createSeparator = [&]( QWidget* pParent ) {
 		auto pSeparator = new QWidget( pParent );
-        pSeparator->setFixedHeight( 1 );
+		pSeparator->setFixedHeight( 1 );
 		pSeparator->setStyleSheet( QString( "\
-background-color: %1;" ).arg( separatorColor.name() ) );
+background-color: %1;" )
+									   .arg( separatorColor.name() ) );
 
 		return pSeparator;
 	};
@@ -167,8 +169,7 @@ background-color: %1;" ).arg( separatorColor.name() ) );
 	pZoomSlider->setOrientation( Qt::Vertical );
 	connect( pZoomSlider, &QSlider::valueChanged, [=]() {
 		m_fZoomfactor = pZoomSlider->value() / 10 + 1;
-		m_pDetailWaveDisplayL->setZoomFactor( m_fZoomfactor );
-		m_pDetailWaveDisplayR->setZoomFactor( m_fZoomfactor );
+		updateWaveDisplays();
 	} );
 	pWaveDisplayContainerLayout->addWidget( pZoomSlider );
 
@@ -178,7 +179,7 @@ background-color: %1;" ).arg( separatorColor.name() ) );
 	pGridLayout->addWidget( pSpinBoxContainer, 1, 0 );
 
 	auto pSpinBoxContainerLayout = new QHBoxLayout();
-    pSpinBoxContainerLayout->setContentsMargins( 0, 0, 0, 0 );
+	pSpinBoxContainerLayout->setContentsMargins( 0, 0, 0, 0 );
 	pSpinBoxContainer->setLayout( pSpinBoxContainerLayout );
 
 	auto pStartFrameLabel = new QLabel( pSpinBoxContainer );
@@ -292,8 +293,8 @@ background-color: %1;" ).arg( separatorColor.name() ) );
 	pRubberBandContainerLayout->setContentsMargins( 0, 0, 0, 0 );
 	pRubberBandContainer->setLayout( pRubberBandContainerLayout );
 
-    auto pRubberBandSeparator = createSeparator( pRubberBandContainer );
-    pRubberBandContainerLayout->addWidget( pRubberBandSeparator );
+	auto pRubberBandSeparator = createSeparator( pRubberBandContainer );
+	pRubberBandContainerLayout->addWidget( pRubberBandSeparator );
 
 	auto pRubberBandHeadingLabel = new QLabel( pRubberBandContainer );
 	pRubberBandHeadingLabel->setText(
@@ -306,7 +307,7 @@ background-color: %1;" ).arg( separatorColor.name() ) );
 	pRubberBandContainerLayout->addWidget( pRubberBandWidgetContainer );
 
 	auto pRubberBandWidgetContainerLayout = new QHBoxLayout();
-    pRubberBandWidgetContainer->setLayout( pRubberBandWidgetContainerLayout );
+	pRubberBandWidgetContainer->setLayout( pRubberBandWidgetContainerLayout );
 
 	auto pRubberBandLengthLabel = new QLabel( pRubberBandWidgetContainer );
 	pRubberBandLengthLabel->setText( tr( "Sample length to beat:" ) );
@@ -341,7 +342,8 @@ background-color: %1;" ).arg( separatorColor.name() ) );
 	pRubberBandPitchLabel->setText( tr( "Pitch (Semitone,Cent)" ) );
 	pRubberBandWidgetContainerLayout->addWidget( pRubberBandPitchLabel );
 
-	m_pRubberBandPitchSpinBox = new QDoubleSpinBox( pRubberBandWidgetContainer );
+	m_pRubberBandPitchSpinBox =
+		new QDoubleSpinBox( pRubberBandWidgetContainer );
 	m_pRubberBandPitchSpinBox->setMaximumWidth( 74 );
 	m_pRubberBandPitchSpinBox->setToolTip(
 		tr( "Pitch the sample in semitones, cents" )
@@ -359,14 +361,16 @@ background-color: %1;" ).arg( separatorColor.name() ) );
 	);
 	pRubberBandWidgetContainerLayout->addWidget( m_pRubberBandPitchSpinBox );
 
-	pRubberBandWidgetContainerLayout->addSpacerItem( new QSpacerItem( 40, 20 ) );
+	pRubberBandWidgetContainerLayout->addSpacerItem( new QSpacerItem( 40, 20 )
+	);
 
 	auto pRubberBandCrispnessLabel = new QLabel( pRubberBandWidgetContainer );
 	pRubberBandCrispnessLabel->setMinimumWidth( 100 );
 	pRubberBandCrispnessLabel->setText( tr( "Crispness: " ) );
 	pRubberBandWidgetContainerLayout->addWidget( pRubberBandCrispnessLabel );
 
-	m_pRubberBandCrispnessComboBox = new QComboBox( pRubberBandWidgetContainer );
+	m_pRubberBandCrispnessComboBox =
+		new QComboBox( pRubberBandWidgetContainer );
 	m_pRubberBandCrispnessComboBox->setMaximumWidth( 45 );
 	m_pRubberBandCrispnessComboBox->setToolTip(
 		"http://www.breakfastquay.com/rubberband/"
@@ -381,12 +385,13 @@ background-color: %1;" ).arg( separatorColor.name() ) );
 		m_pRubberBandCrispnessComboBox, SIGNAL( currentIndexChanged( int ) ),
 		this, SLOT( valueChangedrubberbandCsettingscomboBox( int ) )
 	);
-	pRubberBandWidgetContainerLayout->addWidget( m_pRubberBandCrispnessComboBox );
+	pRubberBandWidgetContainerLayout->addWidget( m_pRubberBandCrispnessComboBox
+	);
 
 	////////////////////////////////////////////////////////////////////////////
 
-    auto pButtonSeparator = createSeparator( pScrollArea );
-    pGridLayout->addWidget( pButtonSeparator, 3, 0, 1, 2 );
+	auto pButtonSeparator = createSeparator( pScrollArea );
+	pGridLayout->addWidget( pButtonSeparator, 3, 0, 1, 2 );
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -394,7 +399,7 @@ background-color: %1;" ).arg( separatorColor.name() ) );
 	pGridLayout->addWidget( pButtonContainer, 4, 0, 1, 2 );
 
 	auto pButtonContainerLayout = new QHBoxLayout();
-    pButtonContainerLayout->setContentsMargins( 0, 0, 0, 0 );
+	pButtonContainerLayout->setContentsMargins( 0, 0, 0, 0 );
 	pButtonContainer->setLayout( pButtonContainerLayout );
 
 	m_pApplyButton = new QPushButton( pButtonContainer );
@@ -482,8 +487,7 @@ background-color: %1;" ).arg( separatorColor.name() ) );
 
 #ifndef H2CORE_HAVE_RUBBERBAND
 	if ( !Filesystem::file_executable(
-			 pPref->m_sRubberBandCLIexecutable,
-			 true /* silent */
+			 pPref->m_sRubberBandCLIexecutable, true /* silent */
 		 ) ) {
 		pRubberBandContainer->hide();
 		setClean();
@@ -507,8 +511,9 @@ SampleEditor::~SampleEditor()
 	INFOLOG( "DESTROY" );
 }
 
-int SampleEditor::getEnvelopeIndex() const {
-    return m_pEnvelopeComboBox->currentIndex();
+int SampleEditor::getEnvelopeIndex() const
+{
+	return m_pEnvelopeComboBox->currentIndex();
 }
 
 void SampleEditor::closeEvent( QCloseEvent* event )
@@ -530,6 +535,12 @@ void SampleEditor::closeEvent( QCloseEvent* event )
 	else {
 		accept();
 	}
+}
+
+void SampleEditor::updateWaveDisplays()
+{
+	m_pDetailWaveDisplayL->update();
+	m_pDetailWaveDisplayR->update();
 }
 
 void SampleEditor::getAllFrameInfos()
@@ -759,26 +770,23 @@ void SampleEditor::valueChangedStartFrameSpinBox( int )
 {
 	testpTimer();
 	m_nFramePosition = m_pStartFrameSpinBox->value();
-	if ( m_nFramePosition == __loops.start_frame ) {	// no actual change
+	if ( m_nFramePosition == __loops.start_frame ) {  // no actual change
 		if ( !m_bAdjusting )
 			on_PlayPushButton_clicked();
 		return;
 	}
 
-	m_pDetailWaveDisplayL->setSlider( Slider::Start );
-	m_pDetailWaveDisplayR->setSlider( Slider::Start );
+	m_selectedSlider = Slider::Start;
+
+	updateWaveDisplays();
 
 	if ( !m_bOnewayStart ) {
 		m_pMainSampleWaveDisplay->m_nStartFramePosition =
 			m_pStartFrameSpinBox->value() / m_fDivider + 25;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
-		m_pDetailWaveDisplayL->setPosition( m_nFramePosition );
-		m_pDetailWaveDisplayR->setPosition( m_nFramePosition );
 		__loops.start_frame = m_nFramePosition;
 	}
 	else {
-		m_pDetailWaveDisplayL->setPosition( m_nFramePosition );
-		m_pDetailWaveDisplayR->setPosition( m_nFramePosition );
 		m_bOnewayStart = false;
 	}
 	testPositionsSpinBoxes();
@@ -796,20 +804,17 @@ void SampleEditor::valueChangedLoopFrameSpinBox( int )
 		return;
 	}
 
-	m_pDetailWaveDisplayL->setSlider( Slider::Loop );
-	m_pDetailWaveDisplayR->setSlider( Slider::Loop );
+	m_selectedSlider = Slider::Loop;
+
+	updateWaveDisplays();
 
 	if ( !m_bOnewayLoop ) {
 		m_pMainSampleWaveDisplay->m_nLoopFramePosition =
 			m_pLoopFrameSpinBox->value() / m_fDivider + 25;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
-		m_pDetailWaveDisplayL->setPosition( m_nFramePosition );
-		m_pDetailWaveDisplayR->setPosition( m_nFramePosition );
 		__loops.loop_frame = m_nFramePosition;
 	}
 	else {
-		m_pDetailWaveDisplayL->setPosition( m_nFramePosition );
-		m_pDetailWaveDisplayR->setPosition( m_nFramePosition );
 		m_bOnewayLoop = false;
 	}
 	testPositionsSpinBoxes();
@@ -827,21 +832,18 @@ void SampleEditor::valueChangedEndFrameSpinBox( int )
 		return;
 	}
 
-	m_pDetailWaveDisplayL->setSlider( Slider::End );
-	m_pDetailWaveDisplayR->setSlider( Slider::End );
+	m_selectedSlider = Slider::End;
+
+	updateWaveDisplays();
 
 	if ( !m_bOnewayEnd ) {
 		m_pMainSampleWaveDisplay->m_nEndFramePosition =
 			m_pEndFrameSpinBox->value() / m_fDivider + 25;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
-		m_pDetailWaveDisplayL->setPosition( m_nFramePosition );
-		m_pDetailWaveDisplayR->setPosition( m_nFramePosition );
 		__loops.end_frame = m_nFramePosition;
 	}
 	else {
 		m_bOnewayEnd = false;
-		m_pDetailWaveDisplayL->setPosition( m_nFramePosition );
-		m_pDetailWaveDisplayR->setPosition( m_nFramePosition );
 	}
 	testPositionsSpinBoxes();
 	setUnclean();
@@ -893,10 +895,10 @@ void SampleEditor::on_PlayPushButton_clicked()
 		m_pStartFrameSpinBox->value() / m_fDivider + 24, true
 	);
 
-	m_pDetailWaveDisplayL->setSlider( Slider::None );
-	m_pDetailWaveDisplayR->setSlider( Slider::None );
-	m_pDetailWaveDisplayL->setPosition( __loops.start_frame );
-	m_pDetailWaveDisplayR->setPosition( __loops.start_frame );
+	m_selectedSlider = Slider::None;
+	m_nFramePosition = __loops.start_frame;
+
+	updateWaveDisplays();
 
 	if ( __rubberband.bUse == false ) {
 		m_pTimer->start( 40 );	// update ruler at 25 fps
@@ -927,10 +929,11 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 		m_pMainSampleWaveDisplay->paintLocatorEvent(
 			m_pStartFrameSpinBox->value() / m_fDivider + 24, true
 		);
-		m_pDetailWaveDisplayL->setSlider( Slider::None );
-		m_pDetailWaveDisplayR->setSlider( Slider::None );
-		m_pDetailWaveDisplayL->setPosition( __loops.start_frame );
-		m_pDetailWaveDisplayR->setPosition( __loops.start_frame );
+		m_selectedSlider = Slider::None;
+		m_nFramePosition = __loops.start_frame;
+
+		updateWaveDisplays();
+
 		m_pTimer->start( 40 );	// update ruler at 25 fps
 		m_nRealtimeFrameEnd =
 			pHydrogen->getAudioEngine()->getRealtimeFrame() + m_nSlframes;
@@ -993,16 +996,18 @@ void SampleEditor::updateMainsamplePositionRuler()
 			m_pMainSampleWaveDisplay->paintLocatorEvent(
 				m_pPositionsRulerPath[frame] / m_fDivider + 25, true
 			);
-			m_pDetailWaveDisplayL->setPosition( m_pPositionsRulerPath[frame] );
-			m_pDetailWaveDisplayR->setPosition( m_pPositionsRulerPath[frame] );
+
+			m_nFramePosition = m_pPositionsRulerPath[frame];
 		}
 		else {
 			m_pMainSampleWaveDisplay->paintLocatorEvent(
 				frame / m_fDivider + 25, true
 			);
-			m_pDetailWaveDisplayL->setPosition( frame );
-			m_pDetailWaveDisplayR->setPosition( frame );
+
+			m_nFramePosition = frame;
 		}
+
+		updateWaveDisplays();
 	}
 	else {
 		auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();

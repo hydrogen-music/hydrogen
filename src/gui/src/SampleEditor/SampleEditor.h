@@ -65,7 +65,11 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	);
 	~SampleEditor();
 
-        int getEnvelopeIndex() const;
+	int getFramePosition() const;
+	float getZoomFactor() const;
+	Slider getSelectedSlider() const;
+
+	int getEnvelopeIndex() const;
 	void setSampleName( const QString& name );
 	bool getCloseQuestion();
 	bool returnAllMainWaveDisplayValues();
@@ -91,6 +95,7 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	void updateTargetsamplePositionRuler();
 
    private:
+	void updateWaveDisplays();
 	void getAllFrameInfos();
 	void getAllLocalFrameInfos();
 	void setAllSampleProps();
@@ -156,5 +161,18 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	H2Core::Sample::Loops __loops;
 	H2Core::Sample::Rubberband __rubberband;
 };
+
+inline int SampleEditor::getFramePosition() const
+{
+	return m_nFramePosition;
+}
+inline float SampleEditor::getZoomFactor() const
+{
+	return m_fZoomfactor;
+}
+inline SampleEditor::Slider SampleEditor::getSelectedSlider() const
+{
+	return m_selectedSlider;
+}
 
 #endif

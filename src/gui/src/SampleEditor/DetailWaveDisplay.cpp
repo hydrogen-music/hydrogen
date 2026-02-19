@@ -29,12 +29,13 @@
 
 using namespace H2Core;
 
-DetailWaveDisplay::DetailWaveDisplay( QWidget* pParent, Channel channel )
-	: WaveDisplay( pParent ),
-	  m_channel( channel ),
-	  m_nPosition( 0 ),
-	  m_fZoomFactor( 1 ),
-	  m_slider( SampleEditor::Slider::None )
+DetailWaveDisplay::DetailWaveDisplay(
+	SampleEditor* pSampleEditor,
+	Channel channel
+)
+	: WaveDisplay( pSampleEditor ),
+	  m_pSampleEditor( pSampleEditor ),
+	  m_channel( channel )
 {
 	m_label = WaveDisplay::Label::Fallback;
 	m_sFallbackLabel = "";
@@ -45,51 +46,24 @@ DetailWaveDisplay::~DetailWaveDisplay()
 {
 }
 
-void DetailWaveDisplay::setPosition( int nPosition )
-{
-	if ( m_nPosition != nPosition ) {
-		m_nPosition = nPosition;
-
-		drawPeakData();
-		update();
-	}
-}
-
-void DetailWaveDisplay::setSlider( SampleEditor::Slider slider )
-{
-	if ( m_slider != slider ) {
-		m_slider = slider;
-
-		update();
-	}
-}
-
-void DetailWaveDisplay::setZoomFactor( float fZoomFactor )
-{
-	if ( m_fZoomFactor != fZoomFactor ) {
-		m_fZoomFactor = fZoomFactor;
-
-		drawPeakData();
-		update();
-	}
-}
-
 void DetailWaveDisplay::paintEvent( QPaintEvent* ev )
 {
 	if ( !isVisible() ) {
 		return;
 	}
 
+	drawPeakData();
+
 	WaveDisplay::paintEvent( ev );
 
 	QColor color;
-	if ( m_slider == SampleEditor::Slider::Start ) {
+	if ( m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::Start ) {
 		color = QColor( 32, 173, 0 );
 	}
-	else if ( m_slider == SampleEditor::Slider::Loop ) {
+	else if ( m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::Loop ) {
 		color = QColor( 93, 170, 254 );
 	}
-	else if ( m_slider == SampleEditor::Slider::End ) {
+	else if ( m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::End ) {
 		color = QColor( 217, 68, 0 );
 	}
 	else {
@@ -142,17 +116,19 @@ void DetailWaveDisplay::drawPeakData()
 	p.setRenderHint( QPainter::Antialiasing );
 	const int nVerticalCenter = height() / 2;
 
-	int nStartPosition = m_nPosition - DetailWaveDisplay::nWidth / 2;
+	int nStartPosition =
+		m_pSampleEditor->getFramePosition() - DetailWaveDisplay::nWidth / 2;
 
 	for ( int ii = 0; ii < width(); ii++ ) {
 		if ( nStartPosition > 0 && nStartPosition < m_peakData.size() ) {
 			p.drawLine(
 				ii,
-				( -m_peakData[nStartPosition - 1] * m_fZoomFactor ) +
+				( -m_peakData[nStartPosition - 1] *
+				  m_pSampleEditor->getZoomFactor() ) +
 					nVerticalCenter,
 				ii,
-				( -m_peakData[nStartPosition] * m_fZoomFactor ) +
-					nVerticalCenter
+				( -m_peakData[nStartPosition] * m_pSampleEditor->getZoomFactor()
+				) + nVerticalCenter
 			);
 		}
 		else {

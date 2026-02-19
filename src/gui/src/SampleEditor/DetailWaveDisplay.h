@@ -47,12 +47,8 @@ class DetailWaveDisplay
 
 	enum class Channel { Left, Right };
 
-	explicit DetailWaveDisplay( QWidget* pParent, Channel channel );
+	explicit DetailWaveDisplay( SampleEditor* pParent, Channel channel );
 	~DetailWaveDisplay();
-
-	void setPosition( int nPosition );
-	void setSlider( SampleEditor::Slider slider );
-	void setZoomFactor( float fZoomFactor );
 
 	void paintEvent( QPaintEvent* ev ) override;
 
@@ -60,12 +56,9 @@ class DetailWaveDisplay
 	void drawPeakData() override;
 	void updatePeakData() override;
 
-	Channel m_channel;
+	SampleEditor* m_pSampleEditor;
 
-	int m_nPosition;
-	int m_nNormalImageDetailFrames;
-	float m_fZoomFactor;
-	SampleEditor::Slider m_slider;
+	Channel m_channel;
 };
 
 #endif
