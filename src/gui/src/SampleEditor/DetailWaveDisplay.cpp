@@ -32,10 +32,9 @@ using namespace H2Core;
 DetailWaveDisplay::DetailWaveDisplay( QWidget* pParent, Channel channel )
 	: WaveDisplay( pParent ),
 	  m_channel( channel ),
-	  m_nNormalImageDetailFrames( 180 ),
 	  m_nPosition( 0 ),
 	  m_fZoomFactor( 1 ),
-      m_slider( SampleEditor::Slider::None )
+	  m_slider( SampleEditor::Slider::None )
 {
 	m_label = WaveDisplay::Label::Fallback;
 	m_sFallbackLabel = "";
@@ -108,11 +107,13 @@ void DetailWaveDisplay::drawPeakData()
 	const qreal pixelRatio = devicePixelRatio();
 	QPainter p( m_pPeakDataPixmap );
 	// copy the background image
-	p.drawPixmap( rect(), *m_pBackgroundPixmap,
-						QRectF( pixelRatio * rect().x(),
-								pixelRatio * rect().y(),
-								pixelRatio * rect().width(),
-								pixelRatio * rect().height() ) );
+	p.drawPixmap(
+		rect(), *m_pBackgroundPixmap,
+		QRectF(
+			pixelRatio * rect().x(), pixelRatio * rect().y(),
+			pixelRatio * rect().width(), pixelRatio * rect().height()
+		)
+	);
 
 	auto pPref = H2Core::Preferences::get_instance();
 	const auto pColorTheme = pPref->getColorTheme();
@@ -141,8 +142,7 @@ void DetailWaveDisplay::drawPeakData()
 	p.setRenderHint( QPainter::Antialiasing );
 	const int nVerticalCenter = height() / 2;
 
-	int nStartPosition =
-		m_nPosition - m_nNormalImageDetailFrames / 2;
+	int nStartPosition = m_nPosition - DetailWaveDisplay::nWidth / 2;
 
 	for ( int ii = 0; ii < width(); ii++ ) {
 		if ( nStartPosition > 0 && nStartPosition < m_peakData.size() ) {
@@ -175,7 +175,7 @@ void DetailWaveDisplay::updatePeakData()
 	}
 
 	const int nSampleLength = m_pLayer->getSample()->getFrames();
-	const int nNewLength = nSampleLength + m_nNormalImageDetailFrames / 2;
+	const int nNewLength = nSampleLength + DetailWaveDisplay::nWidth / 2;
 	const float fGain = height() / 4.0 * 1.0;
 
 	m_peakData.clear();
