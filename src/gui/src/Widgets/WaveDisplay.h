@@ -46,9 +46,10 @@ class WaveDisplay : public QWidget,
    public:
 	static constexpr int nGradientScaling = 130;
 
+	enum class Channel { Left, Right };
 	enum class Label { SampleName, Fallback };
 
-	explicit WaveDisplay( QWidget* pParent );
+	explicit WaveDisplay( QWidget* pParent, Channel channel = Channel::Left );
 	~WaveDisplay();
 
 	virtual void setLayer( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
@@ -72,6 +73,8 @@ class WaveDisplay : public QWidget,
 
 	QPixmap* m_pBackgroundPixmap;
 	QPixmap* m_pPeakDataPixmap;
+
+	Channel m_channel;
 
 	Label m_label;
 

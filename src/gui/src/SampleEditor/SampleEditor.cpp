@@ -22,11 +22,11 @@
 
 #include "SampleEditor.h"
 
-#include "../CommonStrings.h"
-#include "../HydrogenApp.h"
 #include "DetailWaveDisplay.h"
 #include "MainSampleWaveDisplay.h"
 #include "TargetWaveDisplay.h"
+#include "../CommonStrings.h"
+#include "../HydrogenApp.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
@@ -162,11 +162,11 @@ background-color: %1;" )
 	pDetailSectionLayout->setContentsMargins( 0, 0, 0, 0 );
 	pDetailSectionLayout->setSpacing( 0 );
 	m_pDetailWaveDisplayL =
-		new DetailWaveDisplay( this, DetailWaveDisplay::Channel::Left );
+		new DetailWaveDisplay( this, WaveDisplay::Channel::Left );
 	m_pDetailWaveDisplayL->setLayer( m_pLayer );
 	pDetailSectionLayout->addWidget( m_pDetailWaveDisplayL );
 	m_pDetailWaveDisplayR =
-		new DetailWaveDisplay( this, DetailWaveDisplay::Channel::Right );
+		new DetailWaveDisplay( this, WaveDisplay::Channel::Right );
 	m_pDetailWaveDisplayR->setLayer( m_pLayer );
 	pDetailSectionLayout->addWidget( m_pDetailWaveDisplayR );
 	pDetailSection->setLayout( pDetailSectionLayout );

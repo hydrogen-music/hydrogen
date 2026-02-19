@@ -31,11 +31,10 @@ using namespace H2Core;
 
 DetailWaveDisplay::DetailWaveDisplay(
 	SampleEditor* pSampleEditor,
-	Channel channel
+	WaveDisplay::Channel channel
 )
-	: WaveDisplay( pSampleEditor ),
-	  m_pSampleEditor( pSampleEditor ),
-	  m_channel( channel )
+	: WaveDisplay( pSampleEditor, channel ),
+	  m_pSampleEditor( pSampleEditor )
 {
 	m_label = WaveDisplay::Label::Fallback;
 	m_sFallbackLabel = "";
@@ -162,7 +161,7 @@ void DetailWaveDisplay::updatePeakData()
 	}
 
 	float* pSampleData;
-	if ( m_channel == Channel::Left ) {
+	if ( m_channel == WaveDisplay::Channel::Left ) {
 		pSampleData = m_pLayer->getSample()->getData_L();
 	}
 	else {

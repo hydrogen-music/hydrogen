@@ -33,8 +33,9 @@
 
 using namespace H2Core;
 
-WaveDisplay::WaveDisplay( QWidget* pParent )
+WaveDisplay::WaveDisplay( QWidget* pParent, Channel channel )
 	: QWidget( pParent ),
+	  m_channel( channel ),
 	  m_label( Label::SampleName ),
 	  m_nActiveWidth( -1 ),
 	  m_sSampleName( "" ),

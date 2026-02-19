@@ -45,9 +45,10 @@ class DetailWaveDisplay
 	static constexpr int nWidth = 180;
 	static constexpr int nHeight = 132;
 
-	enum class Channel { Left, Right };
-
-	explicit DetailWaveDisplay( SampleEditor* pParent, Channel channel );
+	explicit DetailWaveDisplay(
+		SampleEditor* pParent,
+		WaveDisplay::Channel channel
+	);
 	~DetailWaveDisplay();
 
 	void paintEvent( QPaintEvent* ev ) override;
@@ -57,8 +58,6 @@ class DetailWaveDisplay
 	void updatePeakData() override;
 
 	SampleEditor* m_pSampleEditor;
-
-	Channel m_channel;
 };
 
 #endif
