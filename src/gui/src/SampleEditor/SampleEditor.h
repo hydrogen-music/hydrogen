@@ -91,7 +91,6 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	void updateTargetsamplePositionRuler();
 
    private:
-	void openDisplays();
 	void getAllFrameInfos();
 	void getAllLocalFrameInfos();
 	void setAllSampleProps();
@@ -133,9 +132,11 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	std::shared_ptr<H2Core::Instrument> m_pInstrument;
 	std::shared_ptr<H2Core::Sample> m_pSample;
 
-	double m_divider;
+	double m_fDivider;
+
 	float m_fZoomfactor;
-	unsigned m_pDetailFrame;
+	int m_nFramePosition;
+	Slider m_selectedSlider;
 
 	bool m_bOnewayStart;
 	bool m_bOnewayLoop;
