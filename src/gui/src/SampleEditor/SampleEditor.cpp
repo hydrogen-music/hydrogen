@@ -81,7 +81,8 @@ SampleEditor::SampleEditor(
 	  m_bPlayButton( false ),
 	  m_bSampleEditorClean( true ),
 	  m_pPositionsRulerPath( nullptr ),
-	  m_fRatio( 1.0f )
+	  m_fRatio( 1.0f ),
+      m_envelope( Envelope::Velocity )
 {
 	if ( pInstrument == nullptr || pComponent == nullptr || pLayer == nullptr ||
 		 pLayer->getSample() == nullptr ) {
@@ -259,8 +260,23 @@ background-color: %1;" )
 		m_pLoopModeComboBox->setCurrentIndex( 2 );
 	}
 	connect(
-		m_pLoopModeComboBox, SIGNAL( currentIndexChanged( int ) ), this,
-		SLOT( valueChangedProcessingTypeComboBox( int ) )
+		m_pLoopModeComboBox, QOverload<int>::of( &QComboBox::activated ),
+		[&]() {
+			switch ( m_pLoopModeComboBox->currentIndex() ) {
+				case 0:	 //
+					m_loops.mode = Sample::Loops::Mode::Forward;
+					break;
+				case 1:	 //
+					m_loops.mode = Sample::Loops::Mode::Reverse;
+					break;
+				case 2:	 //
+					m_loops.mode = Sample::Loops::Mode::PingPong;
+					break;
+				default:
+					m_loops.mode = Sample::Loops::Mode::Forward;
+			}
+			setUnclean();
+		}
 	);
 	pSpinBoxContainerLayout->addWidget( m_pLoopModeComboBox );
 
@@ -596,11 +612,22 @@ background-color: %1;" )
 	m_pEnvelopeComboBox->addItems(
 		QStringList() << tr( "volume" ) << tr( "panorama" )
 	);
+	connect(
+		m_pEnvelopeComboBox, QOverload<int>::of( &QComboBox::activated ),
+		[&]() {
+			if ( m_pEnvelopeComboBox->currentIndex() == 0 ) {
+				m_envelope = Envelope::Velocity;
+			}
+			else {
+				m_envelope = Envelope::Pan;
+			}
+		}
+	);
 	pButtonContainerLayout->addWidget( m_pEnvelopeComboBox );
 
 	////////////////////////////////////////////////////////////////////////////
 
-	m_pTargetSampleView = new TargetWaveDisplay( pScrollArea );
+	m_pTargetSampleView = new TargetWaveDisplay( this );
     m_pTargetSampleView->setLayer( m_pLayer );
 	m_pTargetSampleView->setMinimumHeight( 94 );
 	pGridLayout->addWidget( m_pTargetSampleView, 5, 0, 1, 2 );
@@ -736,11 +763,6 @@ void SampleEditor::setLoopEndFrame( int nFrame )
 	setUnclean();
 	updateTargetFrames();
 	updateSourceWaveDisplays();
-}
-
-int SampleEditor::getEnvelopeIndex() const
-{
-	return m_pEnvelopeComboBox->currentIndex();
 }
 
 void SampleEditor::closeEvent( QCloseEvent* event )
@@ -1210,24 +1232,6 @@ void SampleEditor::checkRubberbandSettings()
 
 	m_pRubberBandPitchSpinBox->setEnabled( m_rubberband.bUse );
 	m_pRubberBandCrispnessComboBox->setEnabled( m_rubberband.bUse );
-}
-
-void SampleEditor::valueChangedProcessingTypeComboBox( int nUnused )
-{
-	switch ( m_pLoopModeComboBox->currentIndex() ) {
-		case 0:	 //
-			m_loops.mode = Sample::Loops::Mode::Forward;
-			break;
-		case 1:	 //
-			m_loops.mode = Sample::Loops::Mode::Reverse;
-			break;
-		case 2:	 //
-			m_loops.mode = Sample::Loops::Mode::PingPong;
-			break;
-		default:
-			m_loops.mode = Sample::Loops::Mode::Forward;
-	}
-	setUnclean();
 }
 
 void SampleEditor::testpTimer()

@@ -61,6 +61,8 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	enum class Slider { None, Start, Loop, End };
 	static QString SliderToQString( const Slider& slider );
 
+	enum class Envelope { Velocity, Pan };
+
 	SampleEditor(
 		QWidget* pParent,
 		std::shared_ptr<H2Core::InstrumentLayer> pLayer,
@@ -83,7 +85,7 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	int getLoopEndFrame() const;
 	void setLoopEndFrame( int nFrame );
 
-	int getEnvelopeIndex() const;
+	Envelope getEnvelope() const;
 	void setSampleName( const QString& name );
 	bool getCloseQuestion();
 	void returnAllTargetDisplayValues();
@@ -94,7 +96,6 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	bool m_bSampleIsModified;  ///< true if sample is modified
 
    private slots:
-	void valueChangedProcessingTypeComboBox( int );
 	void on_PlayPushButton_clicked();
 	void on_PlayOrigPushButton_clicked();
 	void updateMainsamplePositionRuler();
@@ -159,6 +160,8 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	QTimer* m_pTargetDisplayTimer;
 	long long* m_pPositionsRulerPath;
 	float m_fRatio;
+
+	Envelope m_envelope;
 	H2Core::Sample::Loops m_loops;
 	H2Core::Sample::Rubberband m_rubberband;
 };
@@ -190,5 +193,9 @@ inline int SampleEditor::getLoopLoopFrame() const
 inline int SampleEditor::getLoopEndFrame() const
 {
 	return m_loops.nEndFrame;
+}
+inline SampleEditor::Envelope SampleEditor::getEnvelope() const
+{
+	return m_envelope;
 }
 #endif

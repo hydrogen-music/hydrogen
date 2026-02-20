@@ -49,10 +49,8 @@ class TargetWaveDisplay : public WaveDisplay,
         static constexpr int nHeight = 91;
         static constexpr int nWidth = 841;
 
-	explicit TargetWaveDisplay( QWidget* pParent );
+	explicit TargetWaveDisplay( SampleEditor* pParent );
 	~TargetWaveDisplay();
-
-	enum EnvelopeEditMode { VELOCITY = 0, PAN = 1 };
 
 	void updateDisplayPointer();
 	void paintLocatorEventTargetDisplay( int pos, bool last_event );
@@ -80,6 +78,8 @@ class TargetWaveDisplay : public WaveDisplay,
 	void updateMouseSelection( QMouseEvent* ev );
 	void updateEnvelope();
 
+	SampleEditor* m_pSampleEditor;
+
 	QString m_sSelectedEnvelopePointValue;
 	int m_nSelectedEnvelopePointX;
 	int m_nSelectedEnvelopePointY;
@@ -87,10 +87,8 @@ class TargetWaveDisplay : public WaveDisplay,
 	int m_nLocator;
 
 	bool m_UpdatePosition;
-	EnvelopeEditMode m_EditMode;
 
 	int m_nSnapRadius;
-
 
 	std::vector<int> m_peakDataL;
 	std::vector<int> m_peakDataR;

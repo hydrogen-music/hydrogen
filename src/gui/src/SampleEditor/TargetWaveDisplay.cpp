@@ -38,11 +38,9 @@
 
 using namespace H2Core;
 
-static TargetWaveDisplay::EnvelopeEditMode getEnvelopeEditMode();
-
-TargetWaveDisplay::TargetWaveDisplay( QWidget* pParent )
+TargetWaveDisplay::TargetWaveDisplay( SampleEditor* pParent )
 	: WaveDisplay( pParent, WaveDisplay::Channel::Left ),
-	  m_EditMode( EnvelopeEditMode::VELOCITY ),
+	  m_pSampleEditor( pParent ),
 	  m_sSelectedEnvelopePointValue( "" ),
 	  m_nSelectedEnvelopePointX( -10 ),
 	  m_nSelectedEnvelopePointY( -10 ),
@@ -129,9 +127,6 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 
 	QPainter p( this );
 
-	m_EditMode = getEnvelopeEditMode();
-
-
 	p.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::SolidLine ) );
 	p.drawLine( m_nLocator, 4, m_nLocator, height() - 4 );
 
@@ -140,18 +135,19 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 	QColor panLineColor = QColor( 249, 235, 116, 200 );
 	QColor panHandleColor = QColor( 77, 189, 55 );
 	QColor selectedtHandleColor = QColor( 255, 100, 90 );
-	// volume line
 
 	paintEnvelope(
 		m_VelocityEnvelope, p,
-		m_EditMode == TargetWaveDisplay::VELOCITY ? m_nSelectedEnvelopePoint
-												  : -1,
+		m_pSampleEditor->getEnvelope() == SampleEditor::Envelope::Velocity
+			? m_nSelectedEnvelopePoint
+			: -1,
 		volumeLineColor, volumeHandleColor, selectedtHandleColor
 	);
-	// pan line
 	paintEnvelope(
 		m_PanEnvelope, p,
-		m_EditMode == TargetWaveDisplay::PAN ? m_nSelectedEnvelopePoint : -1,
+		m_pSampleEditor->getEnvelope() == SampleEditor::Envelope::Pan
+			? m_nSelectedEnvelopePoint
+			: -1,
 		panLineColor, panHandleColor, selectedtHandleColor
 	);
 
@@ -340,10 +336,10 @@ void TargetWaveDisplay::updateMouseSelection( QMouseEvent* ev )
 {
 	auto pEv = static_cast<MouseEvent*>( ev );
 
-	m_EditMode = getEnvelopeEditMode();
 	const Sample::VelocityEnvelope& envelope =
-		( m_EditMode == TargetWaveDisplay::VELOCITY ) ? m_VelocityEnvelope
-													  : m_PanEnvelope;
+		( m_pSampleEditor->getEnvelope() == SampleEditor::Envelope::Velocity )
+			? m_VelocityEnvelope
+			: m_PanEnvelope;
 
 	m_nSelectedEnvelopePointX = std::min(
 		TargetWaveDisplay::nWidth,
@@ -388,10 +384,10 @@ void TargetWaveDisplay::updateEnvelope()
 	if ( m_nSelectedEnvelopePoint == -1 ) {
 		return;
 	}
-	m_EditMode = getEnvelopeEditMode();
 	Sample::VelocityEnvelope& envelope =
-		( m_EditMode == TargetWaveDisplay::VELOCITY ) ? m_VelocityEnvelope
-													  : m_PanEnvelope;
+		( m_pSampleEditor->getEnvelope() == SampleEditor::Envelope::Velocity )
+			? m_VelocityEnvelope
+			: m_PanEnvelope;
 	envelope.erase( envelope.begin() + m_nSelectedEnvelopePoint );
 	if ( m_nSelectedEnvelopePoint == 0 ) {
 		m_nSelectedEnvelopePointX = 0;
@@ -428,10 +424,10 @@ void TargetWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 
 void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
 {
-	m_EditMode = getEnvelopeEditMode();
 	Sample::VelocityEnvelope& envelope =
-		( m_EditMode == TargetWaveDisplay::VELOCITY ) ? m_VelocityEnvelope
-													  : m_PanEnvelope;
+		( m_pSampleEditor->getEnvelope() == SampleEditor::Envelope::Velocity )
+			? m_VelocityEnvelope
+			: m_PanEnvelope;
 
 	updateMouseSelection( ev );
 
@@ -496,20 +492,4 @@ void TargetWaveDisplay::mouseReleaseEvent( QMouseEvent* ev )
 	HydrogenApp::get_instance()
 		->getSampleEditor()
 		->returnAllTargetDisplayValues();
-}
-
-static TargetWaveDisplay::EnvelopeEditMode getEnvelopeEditMode()
-{
-	int editType =
-		HydrogenApp::get_instance()->getSampleEditor()->getEnvelopeIndex();
-	if ( editType == 0 ) {
-		return TargetWaveDisplay::VELOCITY;
-	}
-	else if ( editType == 1 ) {
-		return TargetWaveDisplay::PAN;
-	}
-	else {
-		// combo options added
-		return TargetWaveDisplay::PAN;
-	}
 }
