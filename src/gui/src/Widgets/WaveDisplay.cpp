@@ -262,10 +262,9 @@ void WaveDisplay::drawPeakData()
 		waveFormInactiveColor = pColorTheme->m_darkColor;
 	}
 
+	p.setPen( waveFormColor );
+	const int nVerticalCenter = height() / 2;
 	if ( m_pLayer != nullptr ) {
-		p.setPen( waveFormColor );
-		const int nVerticalCenter = height() / 2;
-
 		if ( m_nActiveWidth == -1 ) {
 			// Display does not support distinction between active and inactive
 			// region.
@@ -296,6 +295,18 @@ void WaveDisplay::drawPeakData()
 					x, nVerticalCenter, x, -m_peakData[x] + nVerticalCenter
 				);
 			}
+		}
+	}
+	else {
+		if ( m_nActiveWidth == -1 ) {
+			p.drawLine( 0, nVerticalCenter, width(), nVerticalCenter );
+		}
+		else {
+			p.drawLine( 0, nVerticalCenter, m_nActiveWidth, nVerticalCenter );
+			p.setPen( waveFormInactiveColor );
+			p.drawLine(
+				m_nActiveWidth, nVerticalCenter, width(), nVerticalCenter
+			);
 		}
 	}
 }
