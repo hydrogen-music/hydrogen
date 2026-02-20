@@ -64,6 +64,18 @@ QString SampleEditor::SliderToQString( const Slider& slider )
 	}
 }
 
+QString SampleEditor::EnvelopeToQString( const Envelope& envelope )
+{
+	switch ( envelope ) {
+		case Envelope::Velocity:
+			return "Velocity";
+		case Envelope::Pan:
+			return "Pan";
+		default:
+			return "Unknown";
+	}
+}
+
 SampleEditor::SampleEditor(
 	QWidget* pParent,
 	std::shared_ptr<H2Core::InstrumentLayer> pLayer,

@@ -62,6 +62,7 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	static QString SliderToQString( const Slider& slider );
 
 	enum class Envelope { Velocity, Pan };
+	static QString EnvelopeToQString( const Envelope& envelope );
 
 	SampleEditor(
 		QWidget* pParent,
