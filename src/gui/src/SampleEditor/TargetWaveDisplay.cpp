@@ -41,7 +41,15 @@ using namespace H2Core;
 static TargetWaveDisplay::EnvelopeEditMode getEnvelopeEditMode();
 
 TargetWaveDisplay::TargetWaveDisplay( QWidget* pParent )
-	: WaveDisplay( pParent, WaveDisplay::Channel::Left )
+	: WaveDisplay( pParent, WaveDisplay::Channel::Left ),
+	  m_EditMode( EnvelopeEditMode::VELOCITY ),
+	  m_sSelectedEnvelopePointValue( "" ),
+	  m_nSelectedEnvelopePointX( -10 ),
+	  m_nSelectedEnvelopePointY( -10 ),
+	  m_nLocator( -1 ),
+	  m_UpdatePosition( false ),
+	  m_nSelectedEnvelopePoint( -1 ),
+	  m_nSnapRadius( 6 )
 {
 	setFixedSize( TargetWaveDisplay::nWidth, TargetWaveDisplay::nHeight );
 
@@ -51,14 +59,6 @@ TargetWaveDisplay::TargetWaveDisplay( QWidget* pParent )
 	m_peakDataL.resize( width() );
 	m_peakDataR.resize( width() );
 
-	m_EditMode = EnvelopeEditMode::VELOCITY;
-	m_sInfo = "";
-	m_nX = -10;
-	m_nY = -10;
-	m_nLocator = -1;
-	m_UpdatePosition = false;
-	m_nSelectedEnvelopePoint = -1;
-	m_nSnapRadius = 6;
 	setMouseTracking( true );
 }
 
@@ -131,18 +131,7 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 
 	m_EditMode = getEnvelopeEditMode();
 
-	p.setRenderHint( QPainter::Antialiasing );
-	p.setPen( QColor( 252, 142, 73 ) );
 
-	int VCenter = height() / 2;
-	int LCenter = VCenter - 4;
-	int RCenter = VCenter + 4;
-
-	QFont font;
-	font.setWeight( QFont::Bold );
-	p.setFont( font );
-
-	p.setCompositionMode( QPainter::CompositionMode_SourceOver );
 	p.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::SolidLine ) );
 	p.drawLine( m_nLocator, 4, m_nLocator, height() - 4 );
 
@@ -166,40 +155,38 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 		panLineColor, panHandleColor, selectedtHandleColor
 	);
 
-	p.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
-	p.drawLine( 0, LCenter, TargetWaveDisplay::nWidth, LCenter );
-	p.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
-	p.drawLine( 0, RCenter, TargetWaveDisplay::nWidth, RCenter );
+	if ( !m_sSelectedEnvelopePointValue.isEmpty() ) {
+		QFont font;
+		font.setWeight( QFont::Bold );
+		p.setFont( font );
 
-	if ( m_nY < 50 ) {
-		if ( m_nX < 790 ) {
-			p.drawText(
-				m_nX + 5, m_nY, 60, 20, Qt::AlignLeft, QString( m_sInfo )
-			);
+		if ( m_nSelectedEnvelopePointY < 50 ) {
+			if ( m_nSelectedEnvelopePointX < 790 ) {
+				p.drawText(
+					m_nSelectedEnvelopePointX + 5, m_nSelectedEnvelopePointY, 60, 20, Qt::AlignLeft, QString( m_sSelectedEnvelopePointValue )
+				);
+			}
+			else {
+				p.drawText(
+					m_nSelectedEnvelopePointX - 65, m_nSelectedEnvelopePointY, 60, 20, Qt::AlignRight, QString( m_sSelectedEnvelopePointValue )
+				);
+			}
 		}
 		else {
-			p.drawText(
-				m_nX - 65, m_nY, 60, 20, Qt::AlignRight, QString( m_sInfo )
-			);
+			if ( m_nSelectedEnvelopePointX < 790 ) {
+				p.drawText(
+					m_nSelectedEnvelopePointX + 5, m_nSelectedEnvelopePointY - 20, 60, 20, Qt::AlignLeft,
+					QString( m_sSelectedEnvelopePointValue )
+				);
+			}
+			else {
+				p.drawText(
+					m_nSelectedEnvelopePointX - 65, m_nSelectedEnvelopePointY - 20, 60, 20, Qt::AlignRight,
+					QString( m_sSelectedEnvelopePointValue )
+				);
+			}
 		}
 	}
-	else {
-		if ( m_nX < 790 ) {
-			p.drawText(
-				m_nX + 5, m_nY - 20, 60, 20, Qt::AlignLeft, QString( m_sInfo )
-			);
-		}
-		else {
-			p.drawText(
-				m_nX - 65, m_nY - 20, 60, 20, Qt::AlignRight, QString( m_sInfo )
-			);
-		}
-	}
-}
-
-void TargetWaveDisplay::updateDisplayPointer()
-{
-	update();
 }
 
 void TargetWaveDisplay::paintLocatorEventTargetDisplay(
@@ -358,23 +345,23 @@ void TargetWaveDisplay::updateMouseSelection( QMouseEvent* ev )
 		( m_EditMode == TargetWaveDisplay::VELOCITY ) ? m_VelocityEnvelope
 													  : m_PanEnvelope;
 
-	m_nX = std::min(
+	m_nSelectedEnvelopePointX = std::min(
 		TargetWaveDisplay::nWidth,
 		std::max( 0, static_cast<int>( pEv->position().x() ) )
 	);
-	m_nY = std::min(
+	m_nSelectedEnvelopePointY = std::min(
 		TargetWaveDisplay::nHeight,
 		std::max( 0, static_cast<int>( pEv->position().y() ) )
 	);
 
 	if ( !( ev->buttons() & Qt::LeftButton ) ||
 		 m_nSelectedEnvelopePoint == -1 ) {
-		QPoint mousePoint( m_nX, m_nY );
+		QPoint mousePoint( m_nSelectedEnvelopePointX, m_nSelectedEnvelopePointY );
 		int selection = -1;
 		int min_distance = 1000000;
 		for ( int i = 0; i < static_cast<int>( envelope.size() ); i++ ) {
-			if ( envelope[i].frame >= m_nX - m_nSnapRadius &&
-				 envelope[i].frame <= m_nX + m_nSnapRadius ) {
+			if ( envelope[i].frame >= m_nSelectedEnvelopePointX - m_nSnapRadius &&
+				 envelope[i].frame <= m_nSelectedEnvelopePointX + m_nSnapRadius ) {
 				QPoint envelopePoint( envelope[i].frame, envelope[i].value );
 				int delta = ( mousePoint - envelopePoint ).manhattanLength();
 				if ( delta < min_distance ) {
@@ -386,13 +373,13 @@ void TargetWaveDisplay::updateMouseSelection( QMouseEvent* ev )
 		m_nSelectedEnvelopePoint = selection;
 	}
 	if ( m_nSelectedEnvelopePoint == -1 ) {
-		m_sInfo = "";
+		m_sSelectedEnvelopePointValue = "";
 	}
 	else {
 		float info = ( TargetWaveDisplay::nHeight -
 					   envelope[m_nSelectedEnvelopePoint].value ) /
 					 (float) TargetWaveDisplay::nHeight;
-		m_sInfo.setNum( info, 'g', 2 );
+		m_sSelectedEnvelopePointValue.setNum( info, 'g', 2 );
 	}
 }
 
@@ -407,12 +394,12 @@ void TargetWaveDisplay::updateEnvelope()
 													  : m_PanEnvelope;
 	envelope.erase( envelope.begin() + m_nSelectedEnvelopePoint );
 	if ( m_nSelectedEnvelopePoint == 0 ) {
-		m_nX = 0;
+		m_nSelectedEnvelopePointX = 0;
 	}
 	else if ( m_nSelectedEnvelopePoint == static_cast<int>( envelope.size() ) ) {
-		m_nX = TargetWaveDisplay::nWidth;
+		m_nSelectedEnvelopePointX = TargetWaveDisplay::nWidth;
 	}
-	envelope.push_back( EnvelopePoint( m_nX, m_nY ) );
+	envelope.push_back( EnvelopePoint( m_nSelectedEnvelopePointX, m_nSelectedEnvelopePointY ) );
 	sort( envelope.begin(), envelope.end(), EnvelopePoint::Comparator() );
 	for ( int i = 0; i < envelope.size() - 1; ++i ) {
 		if ( envelope[i].frame == envelope[i + 1].frame ) {
@@ -458,13 +445,13 @@ void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
 
 		if ( NewPoint ) {
 			if ( envelope.empty() ) {
-				envelope.push_back( EnvelopePoint( 0, m_nY ) );
+				envelope.push_back( EnvelopePoint( 0, m_nSelectedEnvelopePointY ) );
 				envelope.push_back(
-					EnvelopePoint( TargetWaveDisplay::nWidth, m_nY )
+					EnvelopePoint( TargetWaveDisplay::nWidth, m_nSelectedEnvelopePointY )
 				);
 			}
 			else {
-				envelope.push_back( EnvelopePoint( m_nX, m_nY ) );
+				envelope.push_back( EnvelopePoint( m_nSelectedEnvelopePointX, m_nSelectedEnvelopePointY ) );
 			}
 			sort(
 				envelope.begin(), envelope.end(), EnvelopePoint::Comparator()

@@ -80,10 +80,10 @@ class TargetWaveDisplay : public WaveDisplay,
 	void updateMouseSelection( QMouseEvent* ev );
 	void updateEnvelope();
 
-	QString m_sInfo;
+	QString m_sSelectedEnvelopePointValue;
+	int m_nSelectedEnvelopePointX;
+	int m_nSelectedEnvelopePointY;
 
-	int m_nX;
-	int m_nY;
 	int m_nLocator;
 
 	bool m_UpdatePosition;
