@@ -115,25 +115,39 @@ void DetailWaveDisplay::drawPeakData()
 	p.setRenderHint( QPainter::Antialiasing );
 	const int nVerticalCenter = height() / 2;
 
-	int nStartPosition =
-		m_pSampleEditor->getFramePosition() - DetailWaveDisplay::nWidth / 2;
+	int nnFrame;
+	switch ( m_pSampleEditor->getSelectedSlider() ) {
+		case SampleEditor::Slider::Start:
+			nnFrame = m_pSampleEditor->getLoopStartFrame();
+			break;
+		case SampleEditor::Slider::Loop:
+			nnFrame = m_pSampleEditor->getLoopLoopFrame();
+			break;
+		case SampleEditor::Slider::End:
+			nnFrame = m_pSampleEditor->getLoopEndFrame();
+			break;
+		case SampleEditor::Slider::None:
+			nnFrame = m_pSampleEditor->getFramePosition();
+			break;
+	}
+	nnFrame -= DetailWaveDisplay::nWidth / 2;
 
 	for ( int ii = 0; ii < width(); ii++ ) {
-		if ( nStartPosition > 0 && nStartPosition < m_peakData.size() ) {
+		if ( nnFrame > 0 && nnFrame < m_peakData.size() ) {
 			p.drawLine(
 				ii,
-				( -m_peakData[nStartPosition - 1] *
+				( -m_peakData[nnFrame - 1] *
 				  m_pSampleEditor->getZoomFactor() ) +
 					nVerticalCenter,
 				ii,
-				( -m_peakData[nStartPosition] * m_pSampleEditor->getZoomFactor()
+				( -m_peakData[nnFrame] * m_pSampleEditor->getZoomFactor()
 				) + nVerticalCenter
 			);
 		}
 		else {
 			p.drawLine( ii, 0 + nVerticalCenter, ii, 0 + nVerticalCenter );
 		}
-		nStartPosition++;
+		nnFrame++;
 	}
 }
 

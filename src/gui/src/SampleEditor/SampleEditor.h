@@ -27,6 +27,7 @@
 #include <QtGui>
 #include <QtWidgets>
 #include <memory>
+#include "Widgets/LCDDisplay.h"
 
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
@@ -40,6 +41,7 @@ class InstrumentLayer;
 }  // namespace H2Core
 
 class DetailWaveDisplay;
+class LCDSpinBox;
 class SampleWaveDisplay;
 class TargetWaveDisplay;
 
@@ -68,11 +70,18 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	int getFramePosition() const;
 	float getZoomFactor() const;
 	Slider getSelectedSlider() const;
+	void setSelectedSlider( Slider slider );
+
+	int getLoopStartFrame() const;
+	void setLoopStartFrame( int nFrame );
+	int getLoopLoopFrame() const;
+	void setLoopLoopFrame( int nFrame );
+	int getLoopEndFrame() const;
+	void setLoopEndFrame( int nFrame );
 
 	int getEnvelopeIndex() const;
 	void setSampleName( const QString& name );
 	bool getCloseQuestion();
-	bool returnAllMainWaveDisplayValues();
 	void returnAllTargetDisplayValues();
 	void setUnclean();
 	void setClean();
@@ -81,14 +90,9 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	bool m_bSampleIsModified;  ///< true if sample is modified
 
    private slots:
-	void valueChangedLoopCountSpinBox( int );
 	void valueChangedProcessingTypeComboBox( int );
 	void valueChangedrubberComboBox( int );
 	void valueChangedrubberbandCsettingscomboBox( int );
-	void valueChangedpitchdoubleSpinBox( double );
-	void valueChangedStartFrameSpinBox( int );
-	void valueChangedLoopFrameSpinBox( int );
-	void valueChangedEndFrameSpinBox( int );
 	void on_PlayPushButton_clicked();
 	void on_PlayOrigPushButton_clicked();
 	void updateMainsamplePositionRuler();
@@ -99,7 +103,6 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	void getAllFrameInfos();
 	void getAllLocalFrameInfos();
 	void setAllSampleProps();
-	void testPositionsSpinBoxes();
 	void createNewLayer();
 	void setSamplelengthFrames();
 	void createPositionsRulerPath();
@@ -107,22 +110,21 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	void checkRatioSettings();
 
 	virtual void closeEvent( QCloseEvent* event ) override;
-	virtual void mouseReleaseEvent( QMouseEvent* ev ) override;
 
 	SampleWaveDisplay* m_pSampleWaveDisplayL;
 	SampleWaveDisplay* m_pSampleWaveDisplayR;
 	DetailWaveDisplay* m_pDetailWaveDisplayL;
 	DetailWaveDisplay* m_pDetailWaveDisplayR;
 
-	QSpinBox* m_pStartFrameSpinBox;
-	QSpinBox* m_pLoopFrameSpinBox;
-	QSpinBox* m_pLoopCountSpinBox;
+	LCDSpinBox* m_pLoopStartFrameSpinBox;
+	LCDSpinBox* m_pLoopLoopFrameSpinBox;
+	LCDSpinBox* m_pLoopCountSpinBox;
 	QComboBox* m_pLoopModeComboBox;
-	QSpinBox* m_pEndFrameSpinBox;
+	LCDSpinBox* m_pLoopEndFrameSpinBox;
 
 	QComboBox* m_pRubberBandLengthComboBox;
 	QLabel* m_pRubberBandRatioLabel;
-	QDoubleSpinBox* m_pRubberBandPitchSpinBox;
+	LCDSpinBox* m_pRubberBandPitchSpinBox;
 	QComboBox* m_pRubberBandCrispnessComboBox;
 
 	QPushButton* m_pApplyButton;
@@ -144,11 +146,7 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	int m_nFramePosition;
 	Slider m_selectedSlider;
 
-	bool m_bOnewayStart;
-	bool m_bOnewayLoop;
-	bool m_bOnewayEnd;
 	bool m_bPlayButton;
-	bool m_bAdjusting;
 	bool m_bSampleEditorClean;
 
 	unsigned long m_nRealtimeFrameEnd;
@@ -175,5 +173,16 @@ inline SampleEditor::Slider SampleEditor::getSelectedSlider() const
 {
 	return m_selectedSlider;
 }
-
+inline int SampleEditor::getLoopStartFrame() const
+{
+	return m_loops.nStartFrame;
+}
+inline int SampleEditor::getLoopLoopFrame() const
+{
+	return m_loops.nLoopFrame;
+}
+inline int SampleEditor::getLoopEndFrame() const
+{
+	return m_loops.nEndFrame;
+}
 #endif

@@ -32,7 +32,6 @@
 #include <core/Object.h>
 
 #include <memory>
-#include <vector>
 
 /** \ingroup docGUI*/
 class DetailWaveDisplay

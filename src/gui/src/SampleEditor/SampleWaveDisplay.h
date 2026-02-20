@@ -53,38 +53,18 @@ class SampleWaveDisplay : public WaveDisplay,
 	);
 	~SampleWaveDisplay();
 
-	void updateDisplay( std::shared_ptr<H2Core::Sample> pNewSample );
-	void updateDisplayPointer();
-
-	void paintLocatorEvent( int pos, bool last_event );
-
 	void paintEvent( QPaintEvent* ev ) override;
-
-	void testPositionFromSampleeditor();
-
-	int m_nStartFramePosition;
-	int m_nLoopFramePosition;
-	int m_nEndFramePosition;
-
-	bool m_bStartSliderIsMoved;
-	bool m_bLoopSliderIsMoved;
-	bool m_bEndSliderIsmoved;
-
-	SampleEditor::Slider m_selectedSlider;
 
    private:
 	void mouseMoveEvent( QMouseEvent* ev ) override;
 	void mousePressEvent( QMouseEvent* ev ) override;
-	void mouseReleaseEvent( QMouseEvent* ev ) override;
-	void testPosition( QMouseEvent* ev );
-	void chooseSlider( QMouseEvent* ev );
-	void mouseUpdateDone();
+
+	/** In case there are more frames in the sample than the width of the widget
+	 * in pixel (very likely), we have to rescale the coordinates. */
+	int frameToX( int nFrame ) const;
+	int xToFrame( int nX ) const;
 
 	SampleEditor* m_pSampleEditor;
-
-	int m_nSampleLength;
-	int m_nLocator;
-	bool m_bUpdatePosition;
 };
 
 #endif
