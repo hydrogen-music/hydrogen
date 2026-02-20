@@ -328,7 +328,9 @@ void WaveDisplay::updatePeakData()
 	}
 
 	const int nSampleLength = m_pLayer->getSample()->getFrames();
-	auto pSampleData = m_pLayer->getSample()->getData_L();
+	const auto pSampleData = m_channel == Channel::Left
+								 ? m_pLayer->getSample()->getData_L()
+								 : m_pLayer->getSample()->getData_R();
 	const float fGain = height() / 2.0 * m_pLayer->getGain();
 
 	if ( nSampleLength > m_peakData.size() ) {
