@@ -53,11 +53,10 @@ class SampleWaveDisplay : public WaveDisplay,
 	);
 	~SampleWaveDisplay();
 
-	void paintEvent( QPaintEvent* ev ) override;
-
    private:
 	void mouseMoveEvent( QMouseEvent* ev ) override;
 	void mousePressEvent( QMouseEvent* ev ) override;
+	void paintEvent( QPaintEvent* ev ) override;
 
 	/** In case there are more frames in the sample than the width of the widget
 	 * in pixel (very likely), we have to rescale the coordinates. */

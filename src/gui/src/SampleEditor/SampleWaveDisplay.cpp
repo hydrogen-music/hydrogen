@@ -47,90 +47,6 @@ SampleWaveDisplay::~SampleWaveDisplay()
 {
 }
 
-static void set_paint_color(
-	QPainter& painter,
-	const QColor& color,
-	bool selected,
-	SampleEditor::Slider which
-)
-{
-	if ( !selected ) {
-		painter.setPen( color );
-	}
-	else {
-		QColor highlight = QColor(
-			std::min(
-				255,
-				color.red() + 20 + 20 * ( which == SampleEditor::Slider::End )
-			),
-			std::min(
-				255, color.green() + 20 +
-						 20 * ( which == SampleEditor::Slider::Start )
-			),
-			std::min(
-				255,
-				color.blue() + 20 + 20 * ( which == SampleEditor::Slider::Loop )
-			)
-		);
-
-		painter.setPen( highlight );
-	}
-}
-
-void SampleWaveDisplay::paintEvent( QPaintEvent* ev )
-{
-	if ( !isVisible() ) {
-		return;
-	}
-
-	WaveDisplay::paintEvent( ev );
-
-	QPainter p( this );
-	p.setRenderHint( QPainter::Antialiasing );
-
-	// Render playhead
-	p.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::SolidLine ) );
-	p.drawLine(
-		m_pSampleEditor->getFramePosition(), 4,
-		m_pSampleEditor->getFramePosition(), height() - 4
-	);
-
-	// Render loop sliders
-	QColor startColor = QColor( 32, 173, 0, 200 );
-	QColor endColor = QColor( 217, 68, 0, 200 );
-	QColor loopColor = QColor( 93, 170, 254, 200 );
-	QFont font;
-	font.setWeight( QFont::Bold );
-	p.setFont( font );
-
-	const auto nStart = frameToX( m_pSampleEditor->getLoopStartFrame() );
-	set_paint_color(
-		p, startColor,
-		m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::Start,
-		m_pSampleEditor->getSelectedSlider()
-	);
-	p.drawLine( nStart, 4, nStart, height() - 4 );
-	p.drawText( nStart, 0, 10, 20, Qt::AlignRight, "S" );
-
-	const auto nLoop = frameToX( m_pSampleEditor->getLoopLoopFrame() );
-	set_paint_color(
-		p, loopColor,
-		m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::Loop,
-		m_pSampleEditor->getSelectedSlider()
-	);
-	p.drawLine( nLoop, 4, nLoop, height() - 4 );
-	p.drawText( nLoop, height() / 2, 10, 20, Qt::AlignLeft, "L" );
-
-	const auto nEnd = frameToX( m_pSampleEditor->getLoopEndFrame() );
-	set_paint_color(
-		p, endColor,
-		m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::End,
-		m_pSampleEditor->getSelectedSlider()
-	);
-	p.drawLine( nEnd, 4, nEnd, height() - 4 );
-	p.drawText( nEnd - 10, height() - 30, 10, 20, Qt::AlignRight, "E" );
-}
-
 void SampleWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 {
 	if ( !( ev->buttons() & Qt::LeftButton ) ) {
@@ -187,6 +103,48 @@ void SampleWaveDisplay::mousePressEvent( QMouseEvent* ev )
 	else {
 		m_pSampleEditor->setSelectedSlider( SampleEditor::Slider::None );
 	}
+}
+
+void SampleWaveDisplay::paintEvent( QPaintEvent* ev )
+{
+	if ( !isVisible() ) {
+		return;
+	}
+
+	WaveDisplay::paintEvent( ev );
+
+	QPainter p( this );
+	p.setRenderHint( QPainter::Antialiasing );
+
+	// Render playhead
+	p.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::SolidLine ) );
+	p.drawLine(
+		m_pSampleEditor->getFramePosition(), 4,
+		m_pSampleEditor->getFramePosition(), height() - 4
+	);
+
+	// Render loop sliders
+	QColor startColor = QColor( 32, 173, 0, 200 );
+	QColor endColor = QColor( 217, 68, 0, 200 );
+	QColor loopColor = QColor( 93, 170, 254, 200 );
+	QFont font;
+	font.setWeight( QFont::Bold );
+	p.setFont( font );
+
+	const auto nStart = frameToX( m_pSampleEditor->getLoopStartFrame() );
+	p.setPen( startColor );
+	p.drawLine( nStart, 4, nStart, height() - 4 );
+	p.drawText( nStart, 0, 10, 20, Qt::AlignRight, "S" );
+
+	const auto nLoop = frameToX( m_pSampleEditor->getLoopLoopFrame() );
+	p.setPen( loopColor );
+	p.drawLine( nLoop, 4, nLoop, height() - 4 );
+	p.drawText( nLoop, height() / 2, 10, 20, Qt::AlignLeft, "L" );
+
+	const auto nEnd = frameToX( m_pSampleEditor->getLoopEndFrame() );
+	p.setPen( endColor );
+	p.drawLine( nEnd, 4, nEnd, height() - 4 );
+	p.drawText( nEnd - 10, height() - 30, 10, 20, Qt::AlignRight, "E" );
 }
 
 int SampleWaveDisplay::frameToX( int nFrame ) const
