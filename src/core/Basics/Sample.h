@@ -41,29 +41,22 @@ namespace H2Core {
 class EnvelopePoint : public H2Core::Object<EnvelopePoint> {
 	H2_OBJECT( EnvelopePoint )
    public:
-	int frame;	///< frame index
-	int value;	///< value
+	int nFrame;
+	int nValue;
 	/** to be able to sort velocity points vectors */
 	struct Comparator {
 		bool operator()( const EnvelopePoint& a, const EnvelopePoint& b ) const
 		{
-			return a.frame < b.frame;
+			return a.nFrame < b.nFrame;
 		}
 	};
-	/** default constructor */
 	EnvelopePoint();
-	/**
-	 * constructor
-	 * \param f the frame index
-	 * \param v the value associated with the frame
-	 */
-	EnvelopePoint( int f, int v );
-	/** copy constructor */
+	EnvelopePoint( int nFrame, int nValue );
 	EnvelopePoint( const EnvelopePoint& other );
 
 	bool operator==( const EnvelopePoint& other ) const
 	{
-		return frame == other.frame && value == other.value;
+		return nFrame == other.nFrame && nValue == other.nValue;
 	}
 	bool operator!=( const EnvelopePoint& other ) const
 	{

@@ -891,7 +891,7 @@ void SampleEditor::moveEnvelopePoint(
 
 	// Ensure we only have a single point at a frame.
 	for ( int i = 0; i < envelope->size() - 1; ++i ) {
-		if ( envelope->at( i ).frame == envelope->at( i + 1 ).frame ) {
+		if ( envelope->at( i ).nFrame == envelope->at( i + 1 ).nFrame ) {
 			envelope->erase( envelope->begin() + i );
 		}
 	}

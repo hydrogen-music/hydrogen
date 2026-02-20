@@ -44,13 +44,13 @@ QString EnvelopePoint::toQString( const QString& sPrefix, bool bShort ) const
 	if ( !bShort ) {
 		sOutput = QString( "%1[EnvelopePoint]\n" )
 					  .arg( sPrefix )
-					  .append( QString( "%1%2frame: %3\n" ).arg( frame ) )
-					  .append( QString( "%1%2value: %3\n" ).arg( value ) );
+					  .append( QString( "%1%2frame: %3\n" ).arg( nFrame ) )
+					  .append( QString( "%1%2value: %3\n" ).arg( nValue ) );
 	}
 	else {
 		sOutput = QString( "frame: %1" )
-					  .arg( frame )
-					  .append( QString( ", value: %1" ).arg( value ) );
+					  .arg( nFrame )
+					  .append( QString( ", value: %1" ).arg( nValue ) );
 	}
 
 	return sOutput;
@@ -100,17 +100,16 @@ static RubberBand::RubberBandStretcher::Options compute_rubberband_options(
 );
 #endif
 
-/* EnvelopePoint */
-EnvelopePoint::EnvelopePoint() : frame( 0 ), value( 0 )
+EnvelopePoint::EnvelopePoint() : nFrame( 0 ), nValue( 0 )
 {
 }
 
-EnvelopePoint::EnvelopePoint( int f, int v ) : frame( f ), value( v )
+EnvelopePoint::EnvelopePoint( int f, int v ) : nFrame( f ), nValue( v )
 {
 }
 
 EnvelopePoint::EnvelopePoint( const EnvelopePoint& other )
-	: Object( other ), frame( other.frame ), value( other.value )
+	: Object( other ), nFrame( other.nFrame ), nValue( other.nValue )
 {
 }
 /* EnvelopePoint */
@@ -498,10 +497,10 @@ void Sample::applyVelocity()
 
 	float inv_resolution = m_nFrames / 841.0F;
 	for ( int i = 1; i < m_velocityEnvelope.size(); i++ ) {
-		float y = ( 91 - m_velocityEnvelope[i - 1].value ) / 91.0F;
-		float k = ( 91 - m_velocityEnvelope[i].value ) / 91.0F;
-		int start_frame = m_velocityEnvelope[i - 1].frame * inv_resolution;
-		int end_frame = m_velocityEnvelope[i].frame * inv_resolution;
+		float y = ( 91 - m_velocityEnvelope[i - 1].nValue ) / 91.0F;
+		float k = ( 91 - m_velocityEnvelope[i].nValue ) / 91.0F;
+		int start_frame = m_velocityEnvelope[i - 1].nFrame * inv_resolution;
+		int end_frame = m_velocityEnvelope[i].nFrame * inv_resolution;
 		if ( i == m_velocityEnvelope.size() - 1 ) {
 			end_frame = m_nFrames;
 		}
@@ -526,10 +525,10 @@ void Sample::applyPan()
 
 	float inv_resolution = m_nFrames / 841.0F;
 	for ( int i = 1; i < m_panEnvelope.size(); i++ ) {
-		float y = ( 45 - m_panEnvelope[i - 1].value ) / 45.0F;
-		float k = ( 45 - m_panEnvelope[i].value ) / 45.0F;
-		int start_frame = m_panEnvelope[i - 1].frame * inv_resolution;
-		int end_frame = m_panEnvelope[i].frame * inv_resolution;
+		float y = ( 45 - m_panEnvelope[i - 1].nValue ) / 45.0F;
+		float k = ( 45 - m_panEnvelope[i].nValue ) / 45.0F;
+		int start_frame = m_panEnvelope[i - 1].nFrame * inv_resolution;
+		int end_frame = m_panEnvelope[i].nFrame * inv_resolution;
 		if ( i == m_panEnvelope.size() - 1 ) {
 			end_frame = m_nFrames;
 		}
@@ -1042,8 +1041,8 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const
 			sOutput.append( QString( "%1%2%2frame: %3, value: %4" )
 								.arg( sPrefix )
 								.arg( s )
-								.arg( ppoint.frame )
-								.arg( ppoint.value ) );
+								.arg( ppoint.nFrame )
+								.arg( ppoint.nValue ) );
 		}
 		sOutput.append(
 			QString( "]\n%1%2m_velocityEnvelope: [\n" ).arg( sPrefix ).arg( s )
@@ -1052,8 +1051,8 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const
 			sOutput.append( QString( "%1%2%2frame: %3, value: %4" )
 								.arg( sPrefix )
 								.arg( s )
-								.arg( ppoint.frame )
-								.arg( ppoint.value ) );
+								.arg( ppoint.nFrame )
+								.arg( ppoint.nValue ) );
 		}
 		sOutput
 			.append( QString( "]\n%1" ).arg(
@@ -1081,14 +1080,14 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const
 				.append( ", m_panEnvelope: [" );
 		for ( const auto& ppoint : m_panEnvelope ) {
 			sOutput.append( QString( "[frame: %1, value: %2] " )
-								.arg( ppoint.frame )
-								.arg( ppoint.value ) );
+								.arg( ppoint.nFrame )
+								.arg( ppoint.nValue ) );
 		}
 		sOutput.append( "], m_velocityEnvelope: [" );
 		for ( const auto& ppoint : m_velocityEnvelope ) {
 			sOutput.append( QString( "[frame: %1, value: %2] " )
-								.arg( ppoint.frame )
-								.arg( ppoint.value ) );
+								.arg( ppoint.nFrame )
+								.arg( ppoint.nValue ) );
 		}
 		sOutput
 			.append( QString( "], [%1]" )

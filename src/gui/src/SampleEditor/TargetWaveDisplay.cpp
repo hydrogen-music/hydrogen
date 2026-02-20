@@ -78,8 +78,8 @@ static void paintEnvelope(
 	for ( int i = 0; i < static_cast<int>( envelope.size() ) - 1; i++ ) {
 		painter.setPen( QPen( lineColor, 1, Qt::SolidLine ) );
 		painter.drawLine(
-			envelope[i].frame, envelope[i].value, envelope[i + 1].frame,
-			envelope[i + 1].value
+			envelope[i].nFrame, envelope[i].nValue, envelope[i + 1].nFrame,
+			envelope[i + 1].nValue
 		);
 		if ( i == selected ) {
 			painter.setBrush( selectedColor );
@@ -88,7 +88,7 @@ static void paintEnvelope(
 			painter.setBrush( handleColor );
 		}
 		painter.drawEllipse(
-			envelope[i].frame - 6 / 2, envelope[i].value - 6 / 2, 6, 6
+			envelope[i].nFrame - 6 / 2, envelope[i].nValue - 6 / 2, 6, 6
 		);
 	}
 
@@ -100,7 +100,7 @@ static void paintEnvelope(
 		painter.setBrush( handleColor );
 	}
 	painter.drawRect(
-		envelope[0].frame - 12 / 2, envelope[0].value - 6 / 2, 12, 6
+		envelope[0].nFrame - 12 / 2, envelope[0].nValue - 6 / 2, 12, 6
 	);
 
 	if ( envelope.size() - 1 == selected ) {
@@ -110,8 +110,8 @@ static void paintEnvelope(
 		painter.setBrush( handleColor );
 	}
 	painter.drawRect(
-		envelope[envelope.size() - 1].frame - 12 / 2,
-		envelope[envelope.size() - 1].value - 6 / 2, 12, 6
+		envelope[envelope.size() - 1].nFrame - 12 / 2,
+		envelope[envelope.size() - 1].nValue - 6 / 2, 12, 6
 	);
 }
 
@@ -342,9 +342,9 @@ void TargetWaveDisplay::updateMouseSelection( QMouseEvent* ev )
 		int selection = -1;
 		int min_distance = 1000000;
 		for ( int i = 0; i < static_cast<int>( envelope.size() ); i++ ) {
-			if ( envelope[i].frame >= m_nSelectedEnvelopePointX - m_nSnapRadius &&
-				 envelope[i].frame <= m_nSelectedEnvelopePointX + m_nSnapRadius ) {
-				QPoint envelopePoint( envelope[i].frame, envelope[i].value );
+			if ( envelope[i].nFrame >= m_nSelectedEnvelopePointX - m_nSnapRadius &&
+				 envelope[i].nFrame <= m_nSelectedEnvelopePointX + m_nSnapRadius ) {
+				QPoint envelopePoint( envelope[i].nFrame, envelope[i].nValue );
 				int delta = ( mousePoint - envelopePoint ).manhattanLength();
 				if ( delta < min_distance ) {
 					min_distance = delta;
@@ -359,7 +359,7 @@ void TargetWaveDisplay::updateMouseSelection( QMouseEvent* ev )
 	}
 	else {
 		float info = ( TargetWaveDisplay::nHeight -
-					   envelope[m_nSelectedEnvelopePoint].value ) /
+					   envelope[m_nSelectedEnvelopePoint].nValue ) /
 					 (float) TargetWaveDisplay::nHeight;
 		m_sSelectedEnvelopePointValue.setNum( info, 'g', 2 );
 	}
@@ -387,8 +387,8 @@ void TargetWaveDisplay::updateEnvelope()
 	// Refresh the selection
 	const auto envelopeUpdated = m_pSampleEditor->getCurrentEnvelope();
 	for ( int ii = 0; ii < envelopeUpdated.size(); ++ii ) {
-		if ( envelopeUpdated[ii].frame == m_nSelectedEnvelopePointX &&
-			 envelopeUpdated[ii].value == m_nSelectedEnvelopePointY ) {
+		if ( envelopeUpdated[ii].nFrame == m_nSelectedEnvelopePointX &&
+			 envelopeUpdated[ii].nValue == m_nSelectedEnvelopePointY ) {
 			m_nSelectedEnvelopePoint = ii;
 		}
 	}

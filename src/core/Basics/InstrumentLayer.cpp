@@ -233,8 +233,8 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 			Sample::VelocityEnvelope velocityEnvelope;
 			XMLNode volumeNode = node.firstChildElement( "volume" );
 			while ( ! volumeNode.isNull()  ) {
-				pt.frame = volumeNode.read_int( "volume-position", 0, false, false, bSilent );
-				pt.value = volumeNode.read_int( "volume-value", 0, false, false , bSilent);
+				pt.nFrame = volumeNode.read_int( "volume-position", 0, false, false, bSilent );
+				pt.nValue = volumeNode.read_int( "volume-value", 0, false, false , bSilent);
 				velocityEnvelope.push_back( pt );
 				volumeNode = volumeNode.nextSiblingElement( "volume" );
 			}
@@ -243,8 +243,8 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 			Sample::VelocityEnvelope panEnvelope;
 			XMLNode panNode = node.firstChildElement( "pan" );
 			while ( ! panNode.isNull()  ) {
-				pt.frame = panNode.read_int( "pan-position", 0, false, false, bSilent );
-				pt.value = panNode.read_int( "pan-value", 0, false, false, bSilent );
+				pt.nFrame = panNode.read_int( "pan-position", 0, false, false, bSilent );
+				pt.nValue = panNode.read_int( "pan-value", 0, false, false, bSilent );
 				panEnvelope.push_back( pt );
 				panNode = panNode.nextSiblingElement( "pan" );
 			}
@@ -340,14 +340,14 @@ void InstrumentLayer::saveTo(
 
 	for ( const auto& velocity : pSample->getVelocityEnvelope() ) {
 		XMLNode volumeNode = layer_node.createNode( "volume" );
-		volumeNode.write_int( "volume-position", velocity.frame );
-		volumeNode.write_int( "volume-value", velocity.value );
+		volumeNode.write_int( "volume-position", velocity.nFrame );
+		volumeNode.write_int( "volume-value", velocity.nValue );
 	}
 
 	for ( const auto& pan : pSample->getPanEnvelope() ) {
 		XMLNode panNode = layer_node.createNode( "pan" );
-		panNode.write_int( "pan-position", pan.frame );
-		panNode.write_int( "pan-value", pan.value );
+		panNode.write_int( "pan-position", pan.nFrame );
+		panNode.write_int( "pan-value", pan.nValue );
 	}
 }
 
