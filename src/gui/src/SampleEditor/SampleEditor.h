@@ -61,8 +61,8 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	enum class Slider { None, Start, Loop, End };
 	static QString SliderToQString( const Slider& slider );
 
-	enum class Envelope { Velocity, Pan };
-	static QString EnvelopeToQString( const Envelope& envelope );
+	enum class EnvelopeType { Velocity, Pan };
+	static QString EnvelopeTypeToQString( const EnvelopeType& envelopeType );
 
 	SampleEditor(
 		QWidget* pParent,
@@ -86,19 +86,19 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	int getLoopEndFrame() const;
 	void setLoopEndFrame( int nFrame );
 
-	Envelope getEnvelope() const;
+	EnvelopeType getEnvelopeType() const;
 	const std::vector<H2Core::EnvelopePoint>& getCurrentEnvelope() const;
 	const H2Core::Sample::PanEnvelope& getPanEnvelope() const;
 	const H2Core::Sample::VelocityEnvelope& getVelocityEnvelope() const;
 	void editEnvelopePoint(
 		H2Core::EnvelopePoint point,
-		SampleEditor::Envelope envelope,
+		SampleEditor::EnvelopeType envelope,
 		Editor::Action action
 	);
 	void moveEnvelopePoint(
 		H2Core::EnvelopePoint oldPoint,
 		H2Core::EnvelopePoint newPoint,
-		SampleEditor::Envelope envelope
+		SampleEditor::EnvelopeType envelope
 	);
 
 	void setSampleName( const QString& name );
@@ -179,7 +179,7 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	H2Core::Sample::Loops m_loops;
 	H2Core::Sample::Rubberband m_rubberband;
 
-	Envelope m_envelope;
+	EnvelopeType m_envelopeType;
 	H2Core::Sample::PanEnvelope m_panEnvelope;
 	H2Core::Sample::VelocityEnvelope m_velocityEnvelope;
 };
@@ -212,14 +212,14 @@ inline int SampleEditor::getLoopEndFrame() const
 {
 	return m_loops.nEndFrame;
 }
-inline SampleEditor::Envelope SampleEditor::getEnvelope() const
+inline SampleEditor::EnvelopeType SampleEditor::getEnvelopeType() const
 {
-	return m_envelope;
+	return m_envelopeType;
 }
 inline const std::vector<H2Core::EnvelopePoint>&
 SampleEditor::getCurrentEnvelope() const
 {
-	if ( m_envelope == Envelope::Velocity ) {
+	if ( m_envelopeType == EnvelopeType::Velocity ) {
 		return m_velocityEnvelope;
 	}
 	else {

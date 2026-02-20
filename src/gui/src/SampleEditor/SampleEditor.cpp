@@ -64,12 +64,12 @@ QString SampleEditor::SliderToQString( const Slider& slider )
 	}
 }
 
-QString SampleEditor::EnvelopeToQString( const Envelope& envelope )
+QString SampleEditor::EnvelopeTypeToQString( const EnvelopeType& envelopeType )
 {
-	switch ( envelope ) {
-		case Envelope::Velocity:
+	switch ( envelopeType ) {
+		case EnvelopeType::Velocity:
 			return "Velocity";
-		case Envelope::Pan:
+		case EnvelopeType::Pan:
 			return "Pan";
 		default:
 			return "Unknown";
@@ -94,7 +94,7 @@ SampleEditor::SampleEditor(
 	  m_bSampleEditorClean( true ),
 	  m_pPositionsRulerPath( nullptr ),
 	  m_fRatio( 1.0f ),
-      m_envelope( Envelope::Velocity )
+	  m_envelopeType( EnvelopeType::Velocity )
 {
 	if ( pInstrument == nullptr || pComponent == nullptr || pLayer == nullptr ||
 		 pLayer->getSample() == nullptr ) {
@@ -654,10 +654,10 @@ background-color: %1;" )
 		m_pEnvelopeComboBox, QOverload<int>::of( &QComboBox::activated ),
 		[&]() {
 			if ( m_pEnvelopeComboBox->currentIndex() == 0 ) {
-				m_envelope = Envelope::Velocity;
+				m_envelopeType = EnvelopeType::Velocity;
 			}
 			else {
-				m_envelope = Envelope::Pan;
+				m_envelopeType = EnvelopeType::Pan;
 			}
 		}
 	);
@@ -666,7 +666,7 @@ background-color: %1;" )
 	////////////////////////////////////////////////////////////////////////////
 
 	m_pTargetSampleView = new TargetWaveDisplay( this );
-    m_pTargetSampleView->setLayer( m_pLayer );
+	m_pTargetSampleView->setLayer( m_pLayer );
 	m_pTargetSampleView->setMinimumHeight( 94 );
 	pGridLayout->addWidget( m_pTargetSampleView, 5, 0, 1, 2 );
 
@@ -805,12 +805,12 @@ void SampleEditor::setLoopEndFrame( int nFrame )
 
 void SampleEditor::editEnvelopePoint(
 	H2Core::EnvelopePoint point,
-	SampleEditor::Envelope envelopeType,
+	SampleEditor::EnvelopeType envelopeType,
 	Editor::Action action
 )
 {
-	auto envelope = envelopeType == Envelope::Velocity ? &m_velocityEnvelope
-													   : &m_panEnvelope;
+	auto envelope = envelopeType == EnvelopeType::Velocity ? &m_velocityEnvelope
+														   : &m_panEnvelope;
 
 	int nIndex = -1;
 	for ( int ii = 0; ii < envelope->size(); ++ii ) {
@@ -825,7 +825,7 @@ void SampleEditor::editEnvelopePoint(
 						   "present at frame [%1] in "
 						   "[%2] envelope" )
 					  .arg( point.toQString() )
-					  .arg( EnvelopeToQString( envelopeType ) ) );
+					  .arg( EnvelopeTypeToQString( envelopeType ) ) );
 		return;
 	}
 	else if ( action == Editor::Action::Delete && nIndex == -1 ) {
@@ -834,7 +834,7 @@ void SampleEditor::editEnvelopePoint(
 				"Unable to delete ooint [%1] from [%2] envelope-> Not found."
 			)
 				.arg( point.toQString() )
-				.arg( EnvelopeToQString( envelopeType ) )
+				.arg( EnvelopeTypeToQString( envelopeType ) )
 		);
 		return;
 	}
@@ -860,15 +860,15 @@ void SampleEditor::editEnvelopePoint(
 void SampleEditor::moveEnvelopePoint(
 	H2Core::EnvelopePoint oldPoint,
 	H2Core::EnvelopePoint newPoint,
-	SampleEditor::Envelope envelopeType
+	SampleEditor::EnvelopeType envelopeType
 )
 {
 	if ( oldPoint == newPoint ) {
 		return;
 	}
 
-	auto envelope = envelopeType == Envelope::Velocity ? &m_velocityEnvelope
-													   : &m_panEnvelope;
+	auto envelope = envelopeType == EnvelopeType::Velocity ? &m_velocityEnvelope
+														   : &m_panEnvelope;
 
 	int nIndex = -1;
 	for ( int ii = 0; ii < envelope->size(); ++ii ) {
@@ -881,7 +881,7 @@ void SampleEditor::moveEnvelopePoint(
 	if ( nIndex == -1 ) {
 		ERRORLOG( QString( "Point [%1] not found in [%2] envelope" )
 					  .arg( oldPoint.toQString() )
-					  .arg( EnvelopeToQString( envelopeType ) ) );
+					  .arg( EnvelopeTypeToQString( envelopeType ) ) );
 		return;
 	}
 

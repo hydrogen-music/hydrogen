@@ -136,14 +136,15 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 
 	paintEnvelope(
 		m_pSampleEditor->getVelocityEnvelope(), p,
-		m_pSampleEditor->getEnvelope() == SampleEditor::Envelope::Velocity
+		m_pSampleEditor->getEnvelopeType() ==
+				SampleEditor::EnvelopeType::Velocity
 			? m_nSelectedEnvelopePoint
 			: -1,
 		volumeLineColor, volumeHandleColor, selectedtHandleColor
 	);
 	paintEnvelope(
 		m_pSampleEditor->getPanEnvelope(), p,
-		m_pSampleEditor->getEnvelope() == SampleEditor::Envelope::Pan
+		m_pSampleEditor->getEnvelopeType() == SampleEditor::EnvelopeType::Pan
 			? m_nSelectedEnvelopePoint
 			: -1,
 		panLineColor, panHandleColor, selectedtHandleColor
@@ -157,25 +158,31 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 		if ( m_nSelectedEnvelopePointY < 50 ) {
 			if ( m_nSelectedEnvelopePointX < 790 ) {
 				p.drawText(
-					m_nSelectedEnvelopePointX + 5, m_nSelectedEnvelopePointY, 60, 20, Qt::AlignLeft, QString( m_sSelectedEnvelopePointValue )
+					m_nSelectedEnvelopePointX + 5, m_nSelectedEnvelopePointY,
+					60, 20, Qt::AlignLeft,
+					QString( m_sSelectedEnvelopePointValue )
 				);
 			}
 			else {
 				p.drawText(
-					m_nSelectedEnvelopePointX - 65, m_nSelectedEnvelopePointY, 60, 20, Qt::AlignRight, QString( m_sSelectedEnvelopePointValue )
+					m_nSelectedEnvelopePointX - 65, m_nSelectedEnvelopePointY,
+					60, 20, Qt::AlignRight,
+					QString( m_sSelectedEnvelopePointValue )
 				);
 			}
 		}
 		else {
 			if ( m_nSelectedEnvelopePointX < 790 ) {
 				p.drawText(
-					m_nSelectedEnvelopePointX + 5, m_nSelectedEnvelopePointY - 20, 60, 20, Qt::AlignLeft,
+					m_nSelectedEnvelopePointX + 5,
+					m_nSelectedEnvelopePointY - 20, 60, 20, Qt::AlignLeft,
 					QString( m_sSelectedEnvelopePointValue )
 				);
 			}
 			else {
 				p.drawText(
-					m_nSelectedEnvelopePointX - 65, m_nSelectedEnvelopePointY - 20, 60, 20, Qt::AlignRight,
+					m_nSelectedEnvelopePointX - 65,
+					m_nSelectedEnvelopePointY - 20, 60, 20, Qt::AlignRight,
 					QString( m_sSelectedEnvelopePointValue )
 				);
 			}
@@ -338,12 +345,16 @@ void TargetWaveDisplay::updateMouseSelection( QMouseEvent* ev )
 
 	if ( !( ev->buttons() & Qt::LeftButton ) ||
 		 m_nSelectedEnvelopePoint == -1 ) {
-		QPoint mousePoint( m_nSelectedEnvelopePointX, m_nSelectedEnvelopePointY );
+		QPoint mousePoint(
+			m_nSelectedEnvelopePointX, m_nSelectedEnvelopePointY
+		);
 		int selection = -1;
 		int min_distance = 1000000;
 		for ( int i = 0; i < static_cast<int>( envelope.size() ); i++ ) {
-			if ( envelope[i].nFrame >= m_nSelectedEnvelopePointX - m_nSnapRadius &&
-				 envelope[i].nFrame <= m_nSelectedEnvelopePointX + m_nSnapRadius ) {
+			if ( envelope[i].nFrame >=
+					 m_nSelectedEnvelopePointX - m_nSnapRadius &&
+				 envelope[i].nFrame <=
+					 m_nSelectedEnvelopePointX + m_nSnapRadius ) {
 				QPoint envelopePoint( envelope[i].nFrame, envelope[i].nValue );
 				int delta = ( mousePoint - envelopePoint ).manhattanLength();
 				if ( delta < min_distance ) {
@@ -381,7 +392,7 @@ void TargetWaveDisplay::updateEnvelope()
 	m_pSampleEditor->moveEnvelopePoint(
 		envelope[m_nSelectedEnvelopePoint],
 		EnvelopePoint( m_nSelectedEnvelopePointX, m_nSelectedEnvelopePointY ),
-		m_pSampleEditor->getEnvelope()
+		m_pSampleEditor->getEnvelopeType()
 	);
 
 	// Refresh the selection
@@ -417,13 +428,13 @@ void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
 			if ( envelope.empty() ) {
 				m_pSampleEditor->editEnvelopePoint(
 					EnvelopePoint( 0, m_nSelectedEnvelopePointY ),
-					m_pSampleEditor->getEnvelope(), Editor::Action::Add
+					m_pSampleEditor->getEnvelopeType(), Editor::Action::Add
 				);
 				m_pSampleEditor->editEnvelopePoint(
 					EnvelopePoint(
 						TargetWaveDisplay::nWidth, m_nSelectedEnvelopePointY
 					),
-					m_pSampleEditor->getEnvelope(), Editor::Action::Add
+					m_pSampleEditor->getEnvelopeType(), Editor::Action::Add
 				);
 			}
 			else {
@@ -431,7 +442,7 @@ void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
 					EnvelopePoint(
 						m_nSelectedEnvelopePointX, m_nSelectedEnvelopePointY
 					),
-					m_pSampleEditor->getEnvelope(), Editor::Action::Add
+					m_pSampleEditor->getEnvelopeType(), Editor::Action::Add
 				);
 			}
 		}
@@ -456,18 +467,18 @@ void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
 		else if ( envelope.size() == 2 ) {
 			// if only 2 points, remove them both
 			m_pSampleEditor->editEnvelopePoint(
-				envelope[1], m_pSampleEditor->getEnvelope(),
+				envelope[1], m_pSampleEditor->getEnvelopeType(),
 				Editor::Action::Delete
 			);
 			m_pSampleEditor->editEnvelopePoint(
-				envelope[0], m_pSampleEditor->getEnvelope(),
+				envelope[0], m_pSampleEditor->getEnvelopeType(),
 				Editor::Action::Delete
 			);
 		}
 		else {
 			m_pSampleEditor->editEnvelopePoint(
 				envelope[m_nSelectedEnvelopePoint],
-				m_pSampleEditor->getEnvelope(), Editor::Action::Delete
+				m_pSampleEditor->getEnvelopeType(), Editor::Action::Delete
 			);
 		}
 	}
