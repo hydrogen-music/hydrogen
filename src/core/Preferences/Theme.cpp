@@ -68,6 +68,12 @@ ColorTheme::ColorTheme()
 	, m_componentEditor_componentTextColor( QColor( 0, 0, 0 ) )
 	, m_componentEditor_layerColor( QColor( 155, 161, 180 ) )
 	, m_componentEditor_layerTextColor( QColor( 18, 18, 18 ) )
+	, m_sampleEditor_playheadColor( QColor( 0, 0, 0 ) )
+	, m_sampleEditor_startSliderColor( QColor( 0, 219, 0 ) )
+	, m_sampleEditor_loopSliderColor( QColor( 219, 219, 0 ) )
+	, m_sampleEditor_endSliderColor( QColor( 217, 68, 0 ) )
+	, m_sampleEditor_velocityEnvelopeColor( QColor( 219, 110, 0 ) )
+	, m_sampleEditor_panEnvelopeColor( QColor( 255, 26, 255 ) )
 	, m_selectionHighlightColor( QColor( 255, 255, 255 ) )
 	, m_selectionInactiveColor( QColor( 199, 199, 199 ) )
 	, m_windowColor( QColor( 58, 62, 72 ) )
@@ -182,6 +188,12 @@ ColorTheme::ColorTheme( std::shared_ptr<ColorTheme> pOther )
 	  m_componentEditor_layerColor( pOther->m_componentEditor_layerColor ),
 	  m_componentEditor_layerTextColor( pOther->m_componentEditor_layerTextColor
 	  ),
+	  m_sampleEditor_playheadColor( pOther->m_sampleEditor_playheadColor),
+	  m_sampleEditor_startSliderColor( pOther->m_sampleEditor_startSliderColor),
+	  m_sampleEditor_loopSliderColor( pOther->m_sampleEditor_loopSliderColor),
+	  m_sampleEditor_endSliderColor( pOther->m_sampleEditor_endSliderColor),
+	  m_sampleEditor_velocityEnvelopeColor( pOther->m_sampleEditor_velocityEnvelopeColor),
+	  m_sampleEditor_panEnvelopeColor( pOther->m_sampleEditor_panEnvelopeColor),
 	  m_selectionHighlightColor( pOther->m_selectionHighlightColor ),
 	  m_selectionInactiveColor( pOther->m_selectionInactiveColor ),
 	  m_windowColor( pOther->m_windowColor ),
@@ -296,6 +308,26 @@ void ColorTheme::saveTo( XMLNode& parent ) const {
 	);
 	componentEditorNode.write_color(
 		"layerTextColor", m_componentEditor_layerTextColor
+	);
+
+	XMLNode sampleEditorNode = colorThemeNode.createNode( "sampleEditor" );
+	sampleEditorNode.write_color(
+		"playheadColor", m_sampleEditor_playheadColor
+	);
+	sampleEditorNode.write_color(
+		"startSliderColor", m_sampleEditor_startSliderColor
+	);
+	sampleEditorNode.write_color(
+		"loopSliderColor", m_sampleEditor_loopSliderColor
+	);
+	sampleEditorNode.write_color(
+		"endSliderColor", m_sampleEditor_endSliderColor
+	);
+	sampleEditorNode.write_color(
+		"velocityEnvelopeColor", m_sampleEditor_velocityEnvelopeColor
+	);
+	sampleEditorNode.write_color(
+		"panEnvelopeColor", m_sampleEditor_panEnvelopeColor
 	);
 
 	XMLNode selectionNode = colorThemeNode.createNode( "selection" );
@@ -531,6 +563,45 @@ std::shared_ptr<ColorTheme> ColorTheme::loadFrom( const XMLNode& parent,
 	}
 	else {
 		WARNINGLOG( "<componentEditor> node not found" );
+	}
+
+	const XMLNode sampleEditorNode = parent.firstChildElement( "sampleEditor" );
+	if ( !sampleEditorNode.isNull() ) {
+		pColorTheme->m_sampleEditor_playheadColor = sampleEditorNode.read_color(
+			"playheadColor", pColorTheme->m_sampleEditor_playheadColor, false,
+			false, bSilent
+		);
+		pColorTheme->m_sampleEditor_startSliderColor =
+			sampleEditorNode.read_color(
+				"startSliderColor",
+				pColorTheme->m_sampleEditor_startSliderColor, false, false,
+				bSilent
+			);
+		pColorTheme->m_sampleEditor_loopSliderColor =
+			sampleEditorNode.read_color(
+				"loopSliderColor", pColorTheme->m_sampleEditor_loopSliderColor,
+				false, false, bSilent
+			);
+		pColorTheme->m_sampleEditor_endSliderColor =
+			sampleEditorNode.read_color(
+				"endSliderColor", pColorTheme->m_sampleEditor_endSliderColor,
+				false, false, bSilent
+			);
+		pColorTheme->m_sampleEditor_velocityEnvelopeColor =
+			sampleEditorNode.read_color(
+				"velocityEnvelopeColor",
+				pColorTheme->m_sampleEditor_velocityEnvelopeColor, false, false,
+				bSilent
+			);
+		pColorTheme->m_sampleEditor_panEnvelopeColor =
+			sampleEditorNode.read_color(
+				"panEnvelopeColor",
+				pColorTheme->m_sampleEditor_panEnvelopeColor, false, false,
+				bSilent
+			);
+	}
+	else {
+		WARNINGLOG( "<sampleEditor> node not found" );
 	}
 
 	const XMLNode selectionNode = parent.firstChildElement( "selection" );
@@ -891,6 +962,36 @@ QString ColorTheme::toQString( const QString& sPrefix, bool bShort ) const {
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_componentEditor_layerTextColor.name() ) )
+				.append( QString( "%1%2m_sampleEditor_playheadColor: %3\n"
+				)
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sampleEditor_playheadColor.name() ) )
+				.append( QString( "%1%2m_sampleEditor_startSliderColor: %3\n"
+				)
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sampleEditor_startSliderColor.name() ) )
+				.append( QString( "%1%2m_sampleEditor_loopSliderColor: %3\n"
+				)
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sampleEditor_loopSliderColor.name() ) )
+				.append( QString( "%1%2m_sampleEditor_endSliderColor: %3\n"
+				)
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sampleEditor_endSliderColor.name() ) )
+				.append( QString( "%1%2m_sampleEditor_velocityEnvelopeColor: %3\n"
+				)
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sampleEditor_velocityEnvelopeColor.name() ) )
+				.append( QString( "%1%2m_sampleEditor_panEnvelopeColor: %3\n"
+				)
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sampleEditor_panEnvelopeColor.name() ) )
 				.append( QString( "%1%2m_selectionHighlightColor: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -1131,6 +1232,24 @@ QString ColorTheme::toQString( const QString& sPrefix, bool bShort ) const {
 							 .arg( m_componentEditor_layerColor.name() ) )
 				.append( QString( ", m_componentEditor_layerTextColor: %1" )
 							 .arg( m_componentEditor_layerTextColor.name() ) )
+				.append( QString( ", m_sampleEditor_playheadColor: %1"
+				)
+							 .arg( m_sampleEditor_playheadColor.name() ) )
+				.append( QString( ", m_sampleEditor_startSliderColor: %1"
+				)
+							 .arg( m_sampleEditor_startSliderColor.name() ) )
+				.append( QString( ", m_sampleEditor_loopSliderColor: %1"
+				)
+							 .arg( m_sampleEditor_loopSliderColor.name() ) )
+				.append( QString( ", m_sampleEditor_endSliderColor: %1"
+				)
+							 .arg( m_sampleEditor_endSliderColor.name() ) )
+				.append( QString( ", m_sampleEditor_velocityEnvelopeColor: %1"
+				)
+							 .arg( m_sampleEditor_velocityEnvelopeColor.name() ) )
+				.append( QString( ", m_sampleEditor_panEnvelopeColor: %1"
+				)
+							 .arg( m_sampleEditor_panEnvelopeColor.name() ) )
 				.append( QString( ", m_selectionHighlightColor: %1" )
 							 .arg( m_selectionHighlightColor.name() ) )
 				.append( QString( ", m_selectionInactiveColor: %1" )

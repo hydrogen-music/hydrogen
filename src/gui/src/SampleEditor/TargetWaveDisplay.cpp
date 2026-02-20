@@ -26,6 +26,8 @@
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Preferences/Theme.h>
 
 #include <algorithm>
 #include <memory>
@@ -67,8 +69,7 @@ static void paintEnvelope(
 	QPainter& painter,
 	int selected,
 	const QColor& lineColor,
-	const QColor& handleColor,
-	const QColor& selectedColor
+	const QColor& handleColor
 )
 {
 	if ( envelope.empty() ) {
@@ -82,7 +83,7 @@ static void paintEnvelope(
 			envelope[i + 1].nValue
 		);
 		if ( i == selected ) {
-			painter.setBrush( selectedColor );
+			painter.setBrush( handleColor.lighter( 150 ) );
 		}
 		else {
 			painter.setBrush( handleColor );
@@ -94,7 +95,7 @@ static void paintEnvelope(
 
 	// draw first and last points as squares
 	if ( 0 == selected ) {
-		painter.setBrush( selectedColor );
+		painter.setBrush( handleColor.lighter( 150 ) );
 	}
 	else {
 		painter.setBrush( handleColor );
@@ -104,7 +105,7 @@ static void paintEnvelope(
 	);
 
 	if ( envelope.size() - 1 == selected ) {
-		painter.setBrush( selectedColor );
+		painter.setBrush( handleColor.lighter( 150 ) );
 	}
 	else {
 		painter.setBrush( handleColor );
@@ -121,18 +122,22 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 		return;
 	}
 
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+
 	WaveDisplay::paintEvent( ev );
 
 	QPainter p( this );
 
-	p.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::SolidLine ) );
+	p.setPen(
+		QPen( pColorTheme->m_sampleEditor_playheadColor, 1, Qt::SolidLine )
+	);
 	p.drawLine( m_nLocator, 4, m_nLocator, height() - 4 );
 
-	QColor volumeLineColor = QColor( 255, 255, 255, 200 );
-	QColor volumeHandleColor = QColor( 99, 160, 233 );
-	QColor panLineColor = QColor( 249, 235, 116, 200 );
-	QColor panHandleColor = QColor( 77, 189, 55 );
-	QColor selectedtHandleColor = QColor( 255, 100, 90 );
+	QColor velocityLineColor( pColorTheme->m_sampleEditor_velocityEnvelopeColor
+	);
+	velocityLineColor.setAlpha( SampleEditor::nColorAlpha );
+	QColor panLineColor( pColorTheme->m_sampleEditor_panEnvelopeColor );
+	panLineColor.setAlpha( SampleEditor::nColorAlpha );
 
 	paintEnvelope(
 		m_pSampleEditor->getVelocityEnvelope(), p,
@@ -140,20 +145,26 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 				SampleEditor::EnvelopeType::Velocity
 			? m_nSelectedEnvelopePoint
 			: -1,
-		volumeLineColor, volumeHandleColor, selectedtHandleColor
+		velocityLineColor, pColorTheme->m_sampleEditor_velocityEnvelopeColor
 	);
 	paintEnvelope(
 		m_pSampleEditor->getPanEnvelope(), p,
 		m_pSampleEditor->getEnvelopeType() == SampleEditor::EnvelopeType::Pan
 			? m_nSelectedEnvelopePoint
 			: -1,
-		panLineColor, panHandleColor, selectedtHandleColor
+		panLineColor, pColorTheme->m_sampleEditor_panEnvelopeColor
 	);
 
 	if ( !m_sSelectedEnvelopePointValue.isEmpty() ) {
 		QFont font;
 		font.setWeight( QFont::Bold );
 		p.setFont( font );
+		p.setPen(
+			m_pSampleEditor->getEnvelopeType() ==
+					SampleEditor::EnvelopeType::Velocity
+				? pColorTheme->m_sampleEditor_velocityEnvelopeColor
+				: pColorTheme->m_sampleEditor_panEnvelopeColor
+		);
 
 		if ( m_nSelectedEnvelopePointY < 50 ) {
 			if ( m_nSelectedEnvelopePointX < 790 ) {

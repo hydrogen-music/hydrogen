@@ -24,6 +24,8 @@
 
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/Sample.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Preferences/Theme.h>
 
 #include "../Compatibility/MouseEvent.h"
 #include "../Widgets/EditorDefs.h"
@@ -99,13 +101,17 @@ void SampleWaveDisplay::paintEvent( QPaintEvent* ev )
 		return;
 	}
 
+    const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+
 	WaveDisplay::paintEvent( ev );
 
 	QPainter p( this );
 	p.setRenderHint( QPainter::Antialiasing );
 
 	// Render playhead
-	p.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::SolidLine ) );
+	p.setPen(
+		QPen( pColorTheme->m_sampleEditor_playheadColor, 1, Qt::SolidLine )
+	);
 	p.drawLine(
 		m_pSampleEditor->getFramePosition(), 4,
 		m_pSampleEditor->getFramePosition(), height() - 4
@@ -216,6 +222,8 @@ void SampleWaveDisplay::renderSlider(
 	SampleEditor::Slider slider
 )
 {
+    const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+
 	QFont font;
 	font.setWeight( QFont::Bold );
 	pPainter->setFont( font );
@@ -232,7 +240,7 @@ void SampleWaveDisplay::renderSlider(
 			nHandleX = nX;
 			nHandleY = SampleWaveDisplay::nHandleMargin +
 					   SampleWaveDisplay::nHandleSlope;
-			color = QColor( 32, 173, 0, 200 );
+			color = pColorTheme->m_sampleEditor_startSliderColor;
 			/*: Single character used as a label of the loop start slider within
 			 *  the sample editor. */
 			sLabel = tr( "S" );
@@ -244,7 +252,7 @@ void SampleWaveDisplay::renderSlider(
 			nHandleY = height() - SampleWaveDisplay::nHandleMargin * 2 -
 					   SampleWaveDisplay::nHandleHeight -
 					   SampleWaveDisplay::nHandleSlope * 2;
-			color = QColor( 93, 170, 254, 200 );
+			color = pColorTheme->m_sampleEditor_loopSliderColor;
 			/*: Single character used as a label of the loop onset slider within
 			 *  the sample editor. */
 			sLabel = tr( "L" );
@@ -256,7 +264,7 @@ void SampleWaveDisplay::renderSlider(
 			nHandleY = height() - SampleWaveDisplay::nHandleMargin * 2 -
 					   SampleWaveDisplay::nHandleHeight -
 					   SampleWaveDisplay::nHandleSlope * 2;
-			color = QColor( 217, 68, 0, 200 );
+			color = pColorTheme->m_sampleEditor_endSliderColor;
 			/*: Single character used as a label of the loop end slider within
 			 *  the sample editor. */
 			sLabel = tr( "E" );
@@ -269,6 +277,8 @@ void SampleWaveDisplay::renderSlider(
 			DEBUGLOG( "not handled yet" );
 			return;
 	}
+
+    color.setAlpha( SampleEditor::nColorAlpha );
 
 	QColor colorHovered( color );
 	colorHovered.setAlpha( SampleWaveDisplay::nHoveredAlpha );

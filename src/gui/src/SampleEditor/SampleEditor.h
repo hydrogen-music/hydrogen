@@ -55,6 +55,9 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	H2_OBJECT( SampleEditor )
 	Q_OBJECT
    public:
+	/** All overlays, like envelopes or sliders, will be map slightly
+	 * transparent. */
+	static constexpr int nColorAlpha = 200;
 	static constexpr int nHeight = 510;
 	static constexpr int nWidth = 863;
 

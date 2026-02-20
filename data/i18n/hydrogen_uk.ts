@@ -4247,6 +4247,30 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>Layer Text</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Sample Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start Slider</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Loop Slider</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>End Slider</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Velocity Envelope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pan Envelope</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>

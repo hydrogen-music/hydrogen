@@ -24,6 +24,8 @@
 
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/Sample.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Preferences/Theme.h>
 
 #include "../Skin.h"
 
@@ -51,22 +53,24 @@ void DetailWaveDisplay::paintEvent( QPaintEvent* ev )
 		return;
 	}
 
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+
 	drawPeakData();
 
 	WaveDisplay::paintEvent( ev );
 
 	QColor color;
 	if ( m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::Start ) {
-		color = QColor( 32, 173, 0 );
+		color = pColorTheme->m_sampleEditor_startSliderColor;
 	}
 	else if ( m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::Loop ) {
-		color = QColor( 93, 170, 254 );
+		color = pColorTheme->m_sampleEditor_loopSliderColor;
 	}
 	else if ( m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::End ) {
-		color = QColor( 217, 68, 0 );
+		color = pColorTheme->m_sampleEditor_endSliderColor;
 	}
 	else {
-		color = QColor( 255, 255, 255 );
+		color = pColorTheme->m_sampleEditor_playheadColor;
 	}
 
 	QPainter p( this );

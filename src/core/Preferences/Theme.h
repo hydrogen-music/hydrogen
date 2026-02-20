@@ -96,6 +96,13 @@ public:
 	QColor m_componentEditor_layerColor;
 	QColor m_componentEditor_layerTextColor;
 
+	QColor m_sampleEditor_playheadColor;
+	QColor m_sampleEditor_startSliderColor;
+	QColor m_sampleEditor_loopSliderColor;
+	QColor m_sampleEditor_endSliderColor;
+	QColor m_sampleEditor_velocityEnvelopeColor;
+	QColor m_sampleEditor_panEnvelopeColor;
+
 	QColor m_selectionHighlightColor;
 	QColor m_selectionInactiveColor;
 
