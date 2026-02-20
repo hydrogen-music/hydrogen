@@ -4822,14 +4822,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>样本编辑器 </translation>
     </message>
     <message>
-        <source>new sample length</source>
-        <translation>新采样长度</translation>
-    </message>
-    <message>
-        <source>frames</source>
-        <translation>帧</translation>
-    </message>
-    <message>
         <source> RB-Ratio</source>
         <translation> RB 比率</translation>
     </message>

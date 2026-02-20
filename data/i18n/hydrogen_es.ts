@@ -4827,14 +4827,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <translation>Editor de samples </translation>
     </message>
     <message>
-        <source>new sample length</source>
-        <translation>nueva longitud de sample</translation>
-    </message>
-    <message>
-        <source>frames</source>
-        <translation>cuadros</translation>
-    </message>
-    <message>
         <source> RB-Ratio</source>
         <translation> RB-Ratio</translation>
     </message>

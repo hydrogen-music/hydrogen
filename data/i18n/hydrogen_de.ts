@@ -4815,14 +4815,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Sample Editor </translation>
     </message>
     <message>
-        <source>new sample length</source>
-        <translation>Neue Sample Länge</translation>
-    </message>
-    <message>
-        <source>frames</source>
-        <translation>frames</translation>
-    </message>
-    <message>
         <source> RB-Ratio</source>
         <translation>RB-Ratio</translation>
     </message>

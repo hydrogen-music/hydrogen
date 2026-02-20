@@ -4795,14 +4795,6 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>new sample length</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>frames</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source> RB-Ratio</source>
         <translation type="unfinished"></translation>
     </message>

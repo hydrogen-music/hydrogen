@@ -4823,14 +4823,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>new sample length</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>frames</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source> RB-Ratio</source>
         <translation type="unfinished"></translation>
     </message>

@@ -41,6 +41,7 @@ class InstrumentLayer;
 }  // namespace H2Core
 
 class DetailWaveDisplay;
+class LCDDisplay;
 class LCDSpinBox;
 class SampleWaveDisplay;
 class TargetWaveDisplay;
@@ -129,7 +130,7 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	QPushButton* m_pApplyButton;
 	QPushButton* m_pPlayButton;
 	QPushButton* m_pPlayOriginalButton;
-	QLabel* m_pNewLengthLabel;
+	LCDDisplay* m_pNewLengthDisplay;
 	QComboBox* m_pEnvelopeComboBox;
 
 	TargetWaveDisplay* m_pTargetSampleView;

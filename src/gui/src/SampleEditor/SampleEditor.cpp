@@ -27,6 +27,7 @@
 #include "TargetWaveDisplay.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
+#include "../Widgets/LCDDisplay.h"
 #include "../Widgets/LCDSpinBox.h"
 
 #include <core/AudioEngine/AudioEngine.h>
@@ -493,10 +494,28 @@ background-color: %1;" )
 	);
 	pButtonContainerLayout->addWidget( m_pPlayOriginalButton );
 
-	m_pNewLengthLabel = new QLabel( pButtonContainer );
-	m_pNewLengthLabel->setMinimumWidth( 300 );
-	m_pNewLengthLabel->setText( tr( "new sample length:" ) );
-	pButtonContainerLayout->addWidget( m_pNewLengthLabel );
+	pButtonContainerLayout->addSpacerItem( new QSpacerItem( 40, 20 ) );
+
+    // Ensure new length label and value are close of eachother.
+    auto pNewLengthContainer = new QWidget( pButtonContainer );
+    pNewLengthContainer->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred);
+    pButtonContainerLayout->addWidget( pNewLengthContainer );
+
+    auto pNewLengthContainerLayout = new QHBoxLayout();
+    pNewLengthContainerLayout->setContentsMargins( 0, 0, 0, 0 );
+    pNewLengthContainerLayout->setSpacing( 9 );
+    pNewLengthContainer->setLayout( pNewLengthContainerLayout );
+
+	auto pNewLengthLabel = new QLabel( pNewLengthContainer );
+    pNewLengthLabel->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
+	pNewLengthLabel->setFixedWidth( 180 );
+	pNewLengthLabel->setText( tr( "new sample length:" ) );
+	pNewLengthContainerLayout->addWidget( pNewLengthLabel );
+
+	m_pNewLengthDisplay =
+		new LCDDisplay( pNewLengthContainer, QSize(), false, false );
+	m_pNewLengthDisplay->setFixedWidth( 120 );
+	pNewLengthContainerLayout->addWidget( m_pNewLengthDisplay );
 
 	pButtonContainerLayout->addSpacerItem( new QSpacerItem( 40, 20 ) );
 
@@ -1103,11 +1122,7 @@ void SampleEditor::updateTargetFrames()
 					  static_cast<long long>( nLoopFrames ) *
 						  static_cast<long long>( m_loops.nCount + 1 );
 
-	m_pNewLengthLabel->setText(
-		QString( tr( "new sample length" ) )
-			.append( QString( ": %1 " ).arg( m_nTargetFrames ) )
-			.append( tr( "frames" ) )
-	);
+	m_pNewLengthDisplay->setText( QString::number( m_nTargetFrames ) );
 	checkRatioSettings();
 }
 

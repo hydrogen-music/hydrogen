@@ -4797,14 +4797,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>new sample length</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>frames</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source> RB-Ratio</source>
         <translation type="unfinished"></translation>
     </message>

@@ -4828,14 +4828,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>Éditeur d&apos;échantillon</translation>
     </message>
     <message>
-        <source>new sample length</source>
-        <translation>nouvelle longueur d&apos;échantillon</translation>
-    </message>
-    <message>
-        <source>frames</source>
-        <translation>trames</translation>
-    </message>
-    <message>
         <source> RB-Ratio</source>
         <translation> Ratio-RB</translation>
     </message>
