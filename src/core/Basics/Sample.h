@@ -60,6 +60,8 @@ class EnvelopePoint : public H2Core::Object<EnvelopePoint> {
 	EnvelopePoint( int f, int v );
 	/** copy constructor */
 	EnvelopePoint( const EnvelopePoint& other );
+	QString toQString( const QString& sPrefix = "", bool bShort = true )
+		const override;
 };
 
 class Sample : public H2Core::Object<Sample> {

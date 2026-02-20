@@ -37,6 +37,25 @@
 
 namespace H2Core {
 
+QString EnvelopePoint::toQString( const QString& sPrefix, bool bShort ) const
+{
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( !bShort ) {
+		sOutput = QString( "%1[EnvelopePoint]\n" )
+					  .arg( sPrefix )
+					  .append( QString( "%1%2frame: %3\n" ).arg( frame ) )
+					  .append( QString( "%1%2value: %3\n" ).arg( value ) );
+	}
+	else {
+		sOutput = QString( "frame: %1" )
+					  .arg( frame )
+					  .append( QString( ", value: %1" ).arg( value ) );
+	}
+
+	return sOutput;
+}
+
 QString Sample::Loops::ModeToQString( const Loops::Mode& mode )
 {
 	switch ( mode ) {
