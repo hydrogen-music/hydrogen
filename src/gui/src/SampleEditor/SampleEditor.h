@@ -70,6 +70,8 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 
 	long long getFramePosition() const;
 	float getZoomFactor() const;
+	Slider getHoveredSlider() const;
+	void setHoveredSlider( Slider slider );
 	Slider getSelectedSlider() const;
 	void setSelectedSlider( Slider slider );
 
@@ -142,6 +144,7 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 
 	float m_fZoomfactor;
 	long long m_nFramePosition;
+	Slider m_hoveredSlider;
 	Slider m_selectedSlider;
 
 	bool m_bPlayButton;
@@ -168,6 +171,10 @@ inline long long SampleEditor::getFramePosition() const
 inline float SampleEditor::getZoomFactor() const
 {
 	return m_fZoomfactor;
+}
+inline SampleEditor::Slider SampleEditor::getHoveredSlider() const
+{
+	return m_hoveredSlider;
 }
 inline SampleEditor::Slider SampleEditor::getSelectedSlider() const
 {

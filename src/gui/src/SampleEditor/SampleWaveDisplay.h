@@ -50,6 +50,8 @@ class SampleWaveDisplay : public WaveDisplay,
 	static constexpr int nHandleMargin = 5;
 	static constexpr int nHandleSlope = 3;
 	static constexpr int nHandleWidth = 15;
+	static constexpr int nHoveredAlpha = 110;
+	static constexpr int nHoveredHalo = 4;
 
 	explicit SampleWaveDisplay(
 		SampleEditor* pParent,
@@ -62,6 +64,7 @@ class SampleWaveDisplay : public WaveDisplay,
 	void mousePressEvent( QMouseEvent* ev ) override;
 	void paintEvent( QPaintEvent* ev ) override;
 
+	SampleEditor::Slider intersectWith( const QPointF& point ) const;
 	void renderSlider( QPainter* painter, SampleEditor::Slider slider );
 
 	/** In case there are more frames in the sample than the width of the widget

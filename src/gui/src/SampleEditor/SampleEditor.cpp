@@ -75,6 +75,7 @@ SampleEditor::SampleEditor(
 	  m_pInstrument( pInstrument ),
 	  m_fZoomfactor( 1.0 ),
 	  m_nFramePosition( 0 ),
+	  m_hoveredSlider( Slider::None ),
 	  m_selectedSlider( Slider::Start ),
 	  m_bPlayButton( false ),
 	  m_bSampleEditorClean( true ),
@@ -585,6 +586,16 @@ SampleEditor::~SampleEditor()
 	m_pTargetSampleView = nullptr;
 
 	INFOLOG( "DESTROY" );
+}
+
+void SampleEditor::setHoveredSlider( Slider slider )
+{
+	if ( m_hoveredSlider == slider ) {
+		return;
+	}
+	m_hoveredSlider = slider;
+    m_pSampleWaveDisplayL->update();
+    m_pSampleWaveDisplayR->update();
 }
 
 void SampleEditor::setSelectedSlider( Slider slider )

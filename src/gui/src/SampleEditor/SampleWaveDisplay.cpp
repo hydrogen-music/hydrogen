@@ -33,7 +33,8 @@ SampleWaveDisplay::SampleWaveDisplay(
 	SampleEditor* pParent,
 	WaveDisplay::Channel channel
 )
-	: WaveDisplay( pParent, channel ), m_pSampleEditor( pParent )
+	: WaveDisplay( pParent, channel ),
+	  m_pSampleEditor( pParent )
 {
 	setFixedSize( SampleWaveDisplay::nWidth, SampleWaveDisplay::nHeight );
 
@@ -47,12 +48,21 @@ SampleWaveDisplay::~SampleWaveDisplay()
 {
 }
 
+void SampleWaveDisplay::leaveEvent( QEvent* pEv )
+{
+	m_pSampleEditor->setHoveredSlider( SampleEditor::Slider::None );
+}
+
 void SampleWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 {
+	auto pEv = static_cast<MouseEvent*>( ev );
 	if ( !( ev->buttons() & Qt::LeftButton ) ) {
+		const auto slider = intersectWith( pEv->position() );
+		if ( slider != m_pSampleEditor->getHoveredSlider() ) {
+			m_pSampleEditor->setHoveredSlider( slider );
+		}
 		return;
 	}
-	auto pEv = static_cast<MouseEvent*>( ev );
 	const int nFrame = xToFrame(
 		std::clamp( static_cast<int>( pEv->position().x() ), 0, width() )
 	);
@@ -75,34 +85,11 @@ void SampleWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 void SampleWaveDisplay::mousePressEvent( QMouseEvent* ev )
 {
 	auto pEv = static_cast<MouseEvent*>( ev );
+	if ( !( ev->buttons() & Qt::LeftButton ) ) {
+		return;
+	}
 
-	const QPoint start =
-		QPoint( frameToX( m_pSampleEditor->getLoopStartFrame() ), height() );
-	const QPoint end = QPoint(
-		frameToX( m_pSampleEditor->getLoopStartFrame() ), height() / 2
-	);
-	const QPoint loop =
-		QPoint( frameToX( m_pSampleEditor->getLoopStartFrame() ), 0 );
-
-	const int nDistanceStartHandle =
-		( pEv->position() - start ).manhattanLength();
-	const int nDistanceLoopHandle =
-		( pEv->position() - loop ).manhattanLength();
-	const int nDistanceEndHandle = ( pEv->position() - end ).manhattanLength();
-
-	if ( nDistanceStartHandle <= nDistanceEndHandle &&
-		 nDistanceStartHandle <= nDistanceLoopHandle ) {
-		m_pSampleEditor->setSelectedSlider( SampleEditor::Slider::Start );
-	}
-	else if ( nDistanceLoopHandle < nDistanceStartHandle && nDistanceLoopHandle < nDistanceEndHandle ) {
-		m_pSampleEditor->setSelectedSlider( SampleEditor::Slider::Loop );
-	}
-	else if ( nDistanceEndHandle < nDistanceStartHandle && nDistanceEndHandle <= nDistanceLoopHandle ) {
-		m_pSampleEditor->setSelectedSlider( SampleEditor::Slider::End );
-	}
-	else {
-		m_pSampleEditor->setSelectedSlider( SampleEditor::Slider::None );
-	}
+	m_pSampleEditor->setSelectedSlider( intersectWith( pEv->position() ) );
 }
 
 void SampleWaveDisplay::paintEvent( QPaintEvent* ev )
@@ -126,6 +113,36 @@ void SampleWaveDisplay::paintEvent( QPaintEvent* ev )
 	renderSlider( &p, SampleEditor::Slider::Start );
 	renderSlider( &p, SampleEditor::Slider::Loop );
 	renderSlider( &p, SampleEditor::Slider::End );
+}
+
+SampleEditor::Slider SampleWaveDisplay::intersectWith( const QPointF& point ) const
+{
+	const QPoint start =
+		QPoint( frameToX( m_pSampleEditor->getLoopStartFrame() ), height() );
+	const QPoint end = QPoint(
+		frameToX( m_pSampleEditor->getLoopStartFrame() ), height() / 2
+	);
+	const QPoint loop =
+		QPoint( frameToX( m_pSampleEditor->getLoopStartFrame() ), 0 );
+
+	const int nDistanceStartHandle =
+		( point - start ).manhattanLength();
+	const int nDistanceLoopHandle =
+		( point - loop ).manhattanLength();
+	const int nDistanceEndHandle = ( point - end ).manhattanLength();
+
+	if ( nDistanceStartHandle <= nDistanceEndHandle &&
+		 nDistanceStartHandle <= nDistanceLoopHandle ) {
+		return SampleEditor::Slider::Start;
+	}
+	else if ( nDistanceLoopHandle < nDistanceStartHandle && nDistanceLoopHandle < nDistanceEndHandle ) {
+		return SampleEditor::Slider::Loop;
+	}
+	else if ( nDistanceEndHandle < nDistanceStartHandle && nDistanceEndHandle <= nDistanceLoopHandle ) {
+		return SampleEditor::Slider::End;
+	}
+
+	return SampleEditor::Slider::None;
 }
 
 void SampleWaveDisplay::renderSlider(
@@ -187,13 +204,20 @@ void SampleWaveDisplay::renderSlider(
 			return;
 	}
 
+	QColor colorHovered( color );
+	colorHovered.setAlpha( SampleWaveDisplay::nHoveredAlpha );
+
 	// Draw slider
+	if ( slider == m_pSampleEditor->getHoveredSlider() ) {
+		pPainter->setPen( QPen( colorHovered, SampleWaveDisplay::nHoveredHalo )
+		);
+		pPainter->drawLine( nX, 0, nX, height() );
+	}
 	pPainter->setPen( color );
 	pPainter->drawLine( nX, 0, nX, height() );
 
 	// Draw slider handle
 	if ( bRenderHandle ) {
-		pPainter->setBrush( QBrush( color ) );
 		const QPointF handlePoints[4] = {
 			QPointF(
 				nX, std::max( 0, nHandleY - SampleWaveDisplay::nHandleSlope )
@@ -211,6 +235,15 @@ void SampleWaveDisplay::renderSlider(
 			),
 		};
 
+        if ( slider == m_pSampleEditor->getHoveredSlider() ) {
+		pPainter->setPen( QPen( colorHovered, SampleWaveDisplay::nHoveredHalo )
+                          );
+        pPainter->setBrush( QBrush( colorHovered ) );
+		pPainter->drawPolygon( handlePoints, 4 );
+        }
+
+        pPainter->setPen( color );
+		pPainter->setBrush( color );
 		pPainter->drawPolygon( handlePoints, 4 );
 
 		pPainter->setPen( Qt::black );
