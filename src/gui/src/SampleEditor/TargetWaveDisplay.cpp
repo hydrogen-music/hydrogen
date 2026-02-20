@@ -394,12 +394,26 @@ void TargetWaveDisplay::updateEnvelope()
 	}
 
 	const auto envelope = m_pSampleEditor->getCurrentEnvelope();
+
 	if ( m_nSelectedEnvelopePoint == 0 ) {
 		m_nSelectedEnvelopePointX = 0;
 	}
 	else if ( m_nSelectedEnvelopePoint == envelope.size() - 1 ) {
 		m_nSelectedEnvelopePointX = TargetWaveDisplay::nWidth;
 	}
+
+	// Only a single point is allowed per frame in the envelope. Ensure, that we
+	// do not overwrite another while moving. Deleting should be an explicit
+	// action.
+	if ( envelope[m_nSelectedEnvelopePoint].nFrame !=
+		 m_nSelectedEnvelopePointX ) {
+		for ( const auto& ppoint : envelope ) {
+			if ( ppoint.nFrame == m_nSelectedEnvelopePointX ) {
+				return;
+			}
+		}
+	}
+
 	m_pSampleEditor->moveEnvelopePoint(
 		envelope[m_nSelectedEnvelopePoint],
 		EnvelopePoint( m_nSelectedEnvelopePointX, m_nSelectedEnvelopePointY ),
