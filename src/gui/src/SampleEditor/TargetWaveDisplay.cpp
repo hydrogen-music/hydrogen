@@ -33,8 +33,11 @@
 #include <memory>
 #include <vector>
 
+#include "../CommonStrings.h"
 #include "../Compatibility/MouseEvent.h"
+#include "../HydrogenApp.h"
 #include "../Skin.h"
+#include "../UndoActions.h"
 #include "SampleEditor.h"
 
 using namespace H2Core;
@@ -45,6 +48,7 @@ TargetWaveDisplay::TargetWaveDisplay( SampleEditor* pParent )
 	  m_sSelectedEnvelopePointValue( "" ),
 	  m_nSelectedEnvelopePointX( -10 ),
 	  m_nSelectedEnvelopePointY( -10 ),
+	  m_oldPoint( EnvelopePoint() ),
 	  m_nLocator( -1 ),
 	  m_nSelectedEnvelopePoint( -1 ),
 	  m_nSnapRadius( 6 )
@@ -375,6 +379,7 @@ void TargetWaveDisplay::updateMouseSelection( QMouseEvent* ev )
 			}
 		}
 		m_nSelectedEnvelopePoint = selection;
+		m_oldPoint = envelope[m_nSelectedEnvelopePoint];
 	}
 	if ( m_nSelectedEnvelopePoint == -1 ) {
 		m_sSelectedEnvelopePointValue = "";
@@ -443,37 +448,36 @@ void TargetWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 
 void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
 {
+	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto envelope = m_pSampleEditor->getCurrentEnvelope();
 
 	updateMouseSelection( ev );
 
-	if ( ev->button() == Qt::LeftButton ) {
-		// add or move point
-		if ( m_nSelectedEnvelopePoint == -1 ) {
-			if ( envelope.empty() ) {
-				m_pSampleEditor->editEnvelopePoint(
-					EnvelopePoint( 0, m_nSelectedEnvelopePointY ),
-					m_pSampleEditor->getEnvelopeType(), Editor::Action::Add
-				);
-				m_pSampleEditor->editEnvelopePoint(
-					EnvelopePoint(
-						TargetWaveDisplay::nWidth, m_nSelectedEnvelopePointY
-					),
-					m_pSampleEditor->getEnvelopeType(), Editor::Action::Add
-				);
-			}
-			else {
-				m_pSampleEditor->editEnvelopePoint(
-					EnvelopePoint(
-						m_nSelectedEnvelopePointX, m_nSelectedEnvelopePointY
-					),
-					m_pSampleEditor->getEnvelopeType(), Editor::Action::Add
-				);
-			}
+	if ( ev->button() == Qt::LeftButton && m_nSelectedEnvelopePoint == -1 ) {
+		// add point
+		if ( envelope.empty() ) {
+			pHydrogenApp->beginUndoMacro(
+				pHydrogenApp->getCommonStrings()->getActionEditEnvelopePoint()
+			);
+			pHydrogenApp->pushUndoCommand( new SE_editEnvelopePointAction(
+				EnvelopePoint( 0, m_nSelectedEnvelopePointY ),
+				m_pSampleEditor->getEnvelopeType(), Editor::Action::Add
+			) );
+			pHydrogenApp->pushUndoCommand( new SE_editEnvelopePointAction(
+				EnvelopePoint(
+					TargetWaveDisplay::nWidth, m_nSelectedEnvelopePointY
+				),
+				m_pSampleEditor->getEnvelopeType(), Editor::Action::Add
+			) );
+			pHydrogenApp->endUndoMacro();
 		}
 		else {
-			// move old point to new position
-			updateEnvelope();
+			pHydrogenApp->pushUndoCommand( new SE_editEnvelopePointAction(
+				EnvelopePoint(
+					m_nSelectedEnvelopePointX, m_nSelectedEnvelopePointY
+				),
+				m_pSampleEditor->getEnvelopeType(), Editor::Action::Add
+			) );
 		}
 	}
 	else if ( ev->button() == Qt::RightButton ) {
@@ -491,22 +495,46 @@ void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
 		}
 		else if ( envelope.size() == 2 ) {
 			// if only 2 points, remove them both
-			m_pSampleEditor->editEnvelopePoint(
+			pHydrogenApp->beginUndoMacro(
+				pHydrogenApp->getCommonStrings()->getActionEditEnvelopePoint()
+			);
+			pHydrogenApp->pushUndoCommand( new SE_editEnvelopePointAction(
 				envelope[1], m_pSampleEditor->getEnvelopeType(),
 				Editor::Action::Delete
-			);
-			m_pSampleEditor->editEnvelopePoint(
+			) );
+			pHydrogenApp->pushUndoCommand( new SE_editEnvelopePointAction(
 				envelope[0], m_pSampleEditor->getEnvelopeType(),
 				Editor::Action::Delete
-			);
+			) );
+			pHydrogenApp->endUndoMacro();
 		}
 		else {
-			m_pSampleEditor->editEnvelopePoint(
+			pHydrogenApp->pushUndoCommand( new SE_editEnvelopePointAction(
 				envelope[m_nSelectedEnvelopePoint],
 				m_pSampleEditor->getEnvelopeType(), Editor::Action::Delete
-			);
+			) );
 		}
 	}
 
 	updateMouseSelection( ev );
+}
+
+void TargetWaveDisplay::mouseReleaseEvent( QMouseEvent* ev )
+{
+	UNUSED( ev );
+
+	const auto envelope = m_pSampleEditor->getCurrentEnvelope();
+
+	auto newPoint = envelope[m_nSelectedEnvelopePoint];
+	// Revert the last action and register an overall undo/redo action (this is
+	// way more efficient than creating one for each mouse move event).
+	m_pSampleEditor->moveEnvelopePoint(
+		newPoint, m_oldPoint, m_pSampleEditor->getEnvelopeType()
+	);
+
+	HydrogenApp::get_instance()->pushUndoCommand(
+		new SE_moveEnvelopePointAction(
+			m_oldPoint, newPoint, m_pSampleEditor->getEnvelopeType()
+		)
+	);
 }

@@ -1511,6 +1511,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Used as spin box item - in Midi Action table of the MidiControl - * indicating that an action is associated with the currently selected * instrument. Designed to hold about 7 characters.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add or remove envelope point in sample editor</source>
+        <extracomment>Shown in the undo history adding or deleting an envelope point in the * sample editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -4774,6 +4779,18 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     </message>
     <message>
         <source>Replace an entry in the MIDI Action Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modify slider in sample editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modify loop settings in sample editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move envelope point in sample editor</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

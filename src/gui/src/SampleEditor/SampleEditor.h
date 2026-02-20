@@ -88,6 +88,8 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	void setLoopLoopFrame( int nFrame );
 	int getLoopEndFrame() const;
 	void setLoopEndFrame( int nFrame );
+	void setLoops( H2Core::Sample::Loops newLoops );
+	void setRubberband( H2Core::Sample::Rubberband newRubberband );
 
 	EnvelopeType getEnvelopeType() const;
 	const std::vector<H2Core::EnvelopePoint>& getCurrentEnvelope() const;
@@ -95,13 +97,13 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	const H2Core::Sample::VelocityEnvelope& getVelocityEnvelope() const;
 	void editEnvelopePoint(
 		H2Core::EnvelopePoint point,
-		SampleEditor::EnvelopeType envelope,
+		SampleEditor::EnvelopeType envelopeType,
 		Editor::Action action
 	);
 	void moveEnvelopePoint(
 		H2Core::EnvelopePoint oldPoint,
 		H2Core::EnvelopePoint newPoint,
-		SampleEditor::EnvelopeType envelope
+		SampleEditor::EnvelopeType envelopeType
 	);
 
 	void setSampleName( const QString& name );

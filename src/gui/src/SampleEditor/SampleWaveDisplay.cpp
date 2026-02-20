@@ -28,6 +28,8 @@
 #include <core/Preferences/Theme.h>
 
 #include "../Compatibility/MouseEvent.h"
+#include "../HydrogenApp.h"
+#include "../UndoActions.h"
 #include "../Widgets/EditorDefs.h"
 
 using namespace H2Core;
@@ -37,7 +39,7 @@ SampleWaveDisplay::SampleWaveDisplay(
 	WaveDisplay::Channel channel
 )
 	: WaveDisplay( pParent, channel ),
-	  m_pSampleEditor( pParent )
+	  m_pSampleEditor( pParent ), m_nOldFrame( 0 )
 {
 	setFixedSize( SampleWaveDisplay::nWidth, SampleWaveDisplay::nHeight );
 
@@ -59,8 +61,9 @@ void SampleWaveDisplay::leaveEvent( QEvent* pEv )
 void SampleWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 {
 	auto pEv = static_cast<MouseEvent*>( ev );
-	if ( !( ev->buttons() & Qt::LeftButton ) ) {
-		const auto slider = intersectWith( pEv->position() );
+    const auto slider = intersectWith( pEv->position() );
+	if ( !( ev->buttons() & Qt::LeftButton ) ||
+		 slider == SampleEditor::Slider::None ) {
 		if ( slider != m_pSampleEditor->getHoveredSlider() ) {
 			m_pSampleEditor->setHoveredSlider( slider );
 		}
@@ -80,8 +83,7 @@ void SampleWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 			m_pSampleEditor->setLoopEndFrame( nFrame );
 			break;
 		case SampleEditor::Slider::None:
-			// TODO
-			DEBUGLOG( "not handled yet" );
+			WARNINGLOG( "Invalid slider" );
 	}
 }
 
@@ -93,6 +95,24 @@ void SampleWaveDisplay::mousePressEvent( QMouseEvent* ev )
 	}
 
 	m_pSampleEditor->setSelectedSlider( intersectWith( pEv->position() ) );
+	m_nOldFrame = xToFrame(
+		std::clamp( static_cast<int>( pEv->position().x() ), 0, width() )
+	);
+}
+
+void SampleWaveDisplay::mouseReleaseEvent( QMouseEvent* ev ) {
+	auto pEv = static_cast<MouseEvent*>( ev );
+	auto nNewFrame = xToFrame(
+		std::clamp( static_cast<int>( pEv->position().x() ), 0, width() )
+	);
+
+	HydrogenApp::get_instance()->pushUndoCommand(
+		new SE_changeSliderAction(
+			m_pSampleEditor->getSelectedSlider(), m_nOldFrame, nNewFrame
+		),
+		QString( "SampleEditor::slider::%1" )
+			.arg( SampleEditor::SliderToQString( m_pSampleEditor->getSelectedSlider() ) )
+	);
 }
 
 void SampleWaveDisplay::paintEvent( QPaintEvent* ev )

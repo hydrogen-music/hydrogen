@@ -24,6 +24,7 @@
 
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
+#include "../UndoActions.h"
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/LCDDisplay.h"
 #include "../Widgets/LCDSpinBox.h"
@@ -254,7 +255,16 @@ background-color: %1;" )
 		m_pLoopStartFrameSpinBox,
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
 		[&]( double ) {
-			setLoopStartFrame( m_pLoopStartFrameSpinBox->value() );
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_changeSliderAction(
+					SampleEditor::Slider::Start, m_loops.nStartFrame,
+					m_pLoopStartFrameSpinBox->value()
+				),
+				QString( "SampleEditor::slider::%1" )
+					.arg( SampleEditor::SliderToQString(
+						SampleEditor::Slider::Start
+					) )
+			);
 		}
 	);
 	pSpinBoxContainerLayout->addWidget( m_pLoopStartFrameSpinBox );
@@ -274,7 +284,18 @@ background-color: %1;" )
 	connect(
 		m_pLoopLoopFrameSpinBox,
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
-		[&]( double ) { setLoopLoopFrame( m_pLoopLoopFrameSpinBox->value() ); }
+		[&]( double ) {
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_changeSliderAction(
+					SampleEditor::Slider::Loop, m_loops.nLoopFrame,
+					m_pLoopLoopFrameSpinBox->value()
+				),
+				QString( "SampleEditor::slider::%1" )
+					.arg( SampleEditor::SliderToQString(
+						SampleEditor::Slider::Loop
+					) )
+			);
+		}
 	);
 	pSpinBoxContainerLayout->addWidget( m_pLoopLoopFrameSpinBox );
 
@@ -300,20 +321,27 @@ background-color: %1;" )
 	connect(
 		m_pLoopModeComboBox, QOverload<int>::of( &QComboBox::activated ),
 		[&]() {
+			auto newLoops = m_loops;
 			switch ( m_pLoopModeComboBox->currentIndex() ) {
 				case 0:	 //
-					m_loops.mode = Sample::Loops::Mode::Forward;
+					newLoops.mode = Sample::Loops::Mode::Forward;
 					break;
 				case 1:	 //
-					m_loops.mode = Sample::Loops::Mode::Reverse;
+					newLoops.mode = Sample::Loops::Mode::Reverse;
 					break;
 				case 2:	 //
-					m_loops.mode = Sample::Loops::Mode::PingPong;
+					newLoops.mode = Sample::Loops::Mode::PingPong;
 					break;
 				default:
-					m_loops.mode = Sample::Loops::Mode::Forward;
+					newLoops.mode = Sample::Loops::Mode::Forward;
 			}
-			setUnclean();
+			if ( newLoops.nCount == m_loops.nCount ) {
+				return;
+			}
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_changeLoopsAction( m_loops, newLoops ),
+				"SampleEditor::loop::mode"
+			);
 		}
 	);
 	pSpinBoxContainerLayout->addWidget( m_pLoopModeComboBox );
@@ -334,10 +362,12 @@ background-color: %1;" )
 			if ( m_loops.nCount == m_pLoopCountSpinBox->value() ) {
 				return;
 			}
-
-			m_loops.nCount = m_pLoopCountSpinBox->value();
-			setUnclean();
-			updateTargetFrames();
+			auto newLoops = m_loops;
+			newLoops.nCount = m_pLoopCountSpinBox->value();
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_changeLoopsAction( m_loops, newLoops ),
+				"SampleEditor::loop::count"
+			);
 		}
 	);
 	pSpinBoxContainerLayout->addWidget( m_pLoopCountSpinBox );
@@ -357,7 +387,18 @@ background-color: %1;" )
 	connect(
 		m_pLoopEndFrameSpinBox,
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
-		[&]( double ) { setLoopEndFrame( m_pLoopEndFrameSpinBox->value() ); }
+		[&]( double ) {
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_changeSliderAction(
+					SampleEditor::Slider::End, m_loops.nEndFrame,
+					m_pLoopEndFrameSpinBox->value()
+				),
+				QString( "SampleEditor::slider::%1" )
+					.arg( SampleEditor::SliderToQString(
+						SampleEditor::Slider::End
+					) )
+			);
+		}
 	);
 	pSpinBoxContainerLayout->addWidget( m_pLoopEndFrameSpinBox );
 
@@ -457,40 +498,46 @@ background-color: %1;" )
 		m_pRubberBandLengthComboBox,
 		QOverload<int>::of( &QComboBox::activated ),
 		[&]() {
-			m_rubberband.bUse = true;
+			auto newRubberband = m_rubberband;
+			newRubberband.bUse = true;
 			switch ( m_pRubberBandLengthComboBox->currentIndex() ) {
 				case 0:
-					m_rubberband.fLengthInBeats = 4.0;
-					m_rubberband.bUse = false;
+					newRubberband.fLengthInBeats = 4.0;
+					newRubberband.bUse = false;
 					break;
 				case 1:
-					m_rubberband.fLengthInBeats = 1.0 / 64.0;
+					newRubberband.fLengthInBeats = 1.0 / 64.0;
 					break;
 				case 2:
-					m_rubberband.fLengthInBeats = 1.0 / 32.0;
+					newRubberband.fLengthInBeats = 1.0 / 32.0;
 					break;
 				case 3:
-					m_rubberband.fLengthInBeats = 1.0 / 16.0;
+					newRubberband.fLengthInBeats = 1.0 / 16.0;
 					break;
 				case 4:
-					m_rubberband.fLengthInBeats = 1.0 / 8.0;
+					newRubberband.fLengthInBeats = 1.0 / 8.0;
 					break;
 				case 5:
-					m_rubberband.fLengthInBeats = 1.0 / 4.0;
+					newRubberband.fLengthInBeats = 1.0 / 4.0;
 					break;
 				case 6:
-					m_rubberband.fLengthInBeats = 1.0 / 2.0;
+					newRubberband.fLengthInBeats = 1.0 / 2.0;
 					break;
 				case 7:
-					m_rubberband.fLengthInBeats = 1.0;
+					newRubberband.fLengthInBeats = 1.0;
 					break;
 				default:
-					m_rubberband.fLengthInBeats =
+					newRubberband.fLengthInBeats =
 						(float) m_pRubberBandLengthComboBox->currentIndex() -
 						6.0;
 			}
-			checkRubberbandSettings();
-			setUnclean();
+			if ( m_rubberband.fLengthInBeats == newRubberband.fLengthInBeats ) {
+				return;
+			}
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_changeRubberbandAction( m_rubberband, newRubberband ),
+				"SampleEditor::rubberband::length"
+			);
 		}
 	);
 	pRubberBandWidgetContainerLayout->addWidget( m_pRubberBandLengthComboBox );
@@ -528,9 +575,13 @@ background-color: %1;" )
 				 ) < 0.0001 ) {
 				return;
 			}
-
-			m_rubberband.fSemitonesToShift = m_pRubberBandPitchSpinBox->value();
-			setUnclean();
+			auto newRubberband = m_rubberband;
+			newRubberband.fSemitonesToShift =
+				m_pRubberBandPitchSpinBox->value();
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_changeRubberbandAction( m_rubberband, newRubberband ),
+				"SampleEditor::rubberband::pitch"
+			);
 		}
 	);
 	pRubberBandWidgetContainerLayout->addWidget( m_pRubberBandPitchSpinBox );
@@ -564,8 +615,12 @@ background-color: %1;" )
 			if ( nNewCrispness == m_rubberband.nCrispness ) {
 				return;
 			}
-			m_rubberband.nCrispness = nNewCrispness;
-			setUnclean();
+			auto newRubberband = m_rubberband;
+			newRubberband.nCrispness = nNewCrispness;
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_changeRubberbandAction( m_rubberband, newRubberband ),
+				"SampleEditor::rubberband::crispness"
+			);
 		}
 	);
 	pRubberBandWidgetContainerLayout->addWidget( m_pRubberBandCrispnessComboBox
@@ -708,6 +763,8 @@ background-color: %1;" )
 	pRubberBandContainer->show();
 	setClean();
 #endif
+
+    installEventFilter( HydrogenApp::get_instance()->getMainForm() );
 }
 
 SampleEditor::~SampleEditor()
@@ -801,6 +858,75 @@ void SampleEditor::setLoopEndFrame( int nFrame )
 	setUnclean();
 	updateTargetFrames();
 	updateSourceWaveDisplays();
+}
+
+void SampleEditor::setLoops( Sample::Loops newLoops )
+{
+	m_loops = newLoops;
+
+	m_pLoopStartFrameSpinBox->setValue(
+		m_loops.nStartFrame, Event::Trigger::Suppress
+	);
+	m_pLoopLoopFrameSpinBox->setValue(
+		m_loops.nLoopFrame, Event::Trigger::Suppress
+	);
+	m_pLoopEndFrameSpinBox->setValue(
+		m_loops.nEndFrame, Event::Trigger::Suppress
+	);
+	m_pLoopCountSpinBox->setValue( m_loops.nCount, Event::Trigger::Suppress );
+	if ( m_loops.mode == Sample::Loops::Mode::Forward ) {
+		m_pLoopModeComboBox->setCurrentIndex( 0 );
+	}
+	if ( m_loops.mode == Sample::Loops::Mode::Reverse ) {
+		m_pLoopModeComboBox->setCurrentIndex( 1 );
+	}
+	if ( m_loops.mode == Sample::Loops::Mode::PingPong ) {
+		m_pLoopModeComboBox->setCurrentIndex( 2 );
+	}
+
+	setUnclean();
+	updateTargetFrames();
+	updateSourceWaveDisplays();
+}
+
+void SampleEditor::setRubberband( Sample::Rubberband newRubberband )
+{
+	m_rubberband = newRubberband;
+
+	if ( m_rubberband.fLengthInBeats == 1.0 / 64.0 ) {
+		m_pRubberBandLengthComboBox->setCurrentIndex( 1 );
+	}
+	else if ( m_rubberband.fLengthInBeats == 1.0 / 32.0 ) {
+		m_pRubberBandLengthComboBox->setCurrentIndex( 2 );
+	}
+	else if ( m_rubberband.fLengthInBeats == 1.0 / 16.0 ) {
+		m_pRubberBandLengthComboBox->setCurrentIndex( 3 );
+	}
+	else if ( m_rubberband.fLengthInBeats == 1.0 / 8.0 ) {
+		m_pRubberBandLengthComboBox->setCurrentIndex( 4 );
+	}
+	else if ( m_rubberband.fLengthInBeats == 1.0 / 4.0 ) {
+		m_pRubberBandLengthComboBox->setCurrentIndex( 5 );
+	}
+	else if ( m_rubberband.fLengthInBeats == 1.0 / 2.0 ) {
+		m_pRubberBandLengthComboBox->setCurrentIndex( 6 );
+	}
+	else if ( m_rubberband.bUse && ( m_rubberband.fLengthInBeats >= 1.0 ) ) {
+		m_pRubberBandLengthComboBox->setCurrentIndex( (int
+		) ( m_rubberband.fLengthInBeats + 6 ) );
+	}
+	else {
+		m_pRubberBandLengthComboBox->setCurrentIndex( 0 );
+	}
+
+	m_pRubberBandPitchSpinBox->setValue(
+		m_rubberband.fSemitonesToShift, Event::Trigger::Suppress
+	);
+
+	m_pRubberBandCrispnessComboBox->setCurrentIndex( m_rubberband.nCrispness );
+
+	checkRubberbandSettings();
+	setUnclean();
 }
 
 void SampleEditor::editEnvelopePoint(

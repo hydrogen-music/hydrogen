@@ -58,6 +58,7 @@ class TargetWaveDisplay : public WaveDisplay,
    private:
 	void mouseMoveEvent( QMouseEvent* ev ) override;
 	void mousePressEvent( QMouseEvent* ev ) override;
+	void mouseReleaseEvent( QMouseEvent* ev ) override;
 
 	void drawPeakData() override;
 	/** Since we displaying pan automation on top of the peak data and want to
@@ -76,6 +77,10 @@ class TargetWaveDisplay : public WaveDisplay,
 	QString m_sSelectedEnvelopePointValue;
 	int m_nSelectedEnvelopePointX;
 	int m_nSelectedEnvelopePointY;
+
+	/** Cache for undo/redo actions during drag moving. Otherwise, the operation
+	 * would be to inefficient. */
+	H2Core::EnvelopePoint m_oldPoint;
 
 	int m_nLocator;
 

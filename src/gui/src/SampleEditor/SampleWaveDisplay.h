@@ -63,6 +63,7 @@ class SampleWaveDisplay : public WaveDisplay,
 	void leaveEvent( QEvent* pEv ) override;
 	void mouseMoveEvent( QMouseEvent* ev ) override;
 	void mousePressEvent( QMouseEvent* ev ) override;
+	void mouseReleaseEvent( QMouseEvent* ev ) override;
 	void paintEvent( QPaintEvent* ev ) override;
 
 	SampleEditor::Slider intersectWith( const QPointF& point ) const;
@@ -74,6 +75,10 @@ class SampleWaveDisplay : public WaveDisplay,
 	int xToFrame( int nX ) const;
 
 	SampleEditor* m_pSampleEditor;
+
+	/** Cache for undo/redo actions during drag moving. Otherwise, the operation
+	 * would be to inefficient. */
+	int m_nOldFrame;
 };
 
 #endif

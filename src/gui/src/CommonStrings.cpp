@@ -785,6 +785,9 @@ CommonStrings::CommonStrings(){
 	/*: Shown in the undo history adding or toggling pattern cells in the song
 	 *  editor. */
 	m_sActionTogglePatternCells = tr( "Toggle selected cells" );
+	/*: Shown in the undo history adding or deleting an envelope point in the
+	 *  sample editor. */
+	m_sActionEditEnvelopePoint = tr( "Add or remove envelope point in sample editor" );
 
 	m_sErrorNotFound = tr( "File could not be found!" );
 	/*: Shorter version of missing file warning. E.g. used as a prefix for the
