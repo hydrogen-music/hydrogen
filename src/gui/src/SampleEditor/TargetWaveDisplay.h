@@ -23,6 +23,8 @@
 #ifndef TARGET_WAVE_DISPLAY
 #define TARGET_WAVE_DISPLAY
 
+#include "../Widgets/WaveDisplay.h"
+
 #include <QtGui>
 #include <QtWidgets>
 
@@ -38,18 +40,20 @@ class EnvelopePoint;
 }  // namespace H2Core
 
 /** \ingroup docGUI*/
-class TargetWaveDisplay : public QWidget,
+class TargetWaveDisplay : public WaveDisplay,
 						  public H2Core::Object<TargetWaveDisplay> {
 	H2_OBJECT( TargetWaveDisplay )
 	Q_OBJECT
 
    public:
+        static constexpr int nHeight = 91;
+        static constexpr int nWidth = 841;
+
 	explicit TargetWaveDisplay( QWidget* pParent );
 	~TargetWaveDisplay();
 
 	enum EnvelopeEditMode { VELOCITY = 0, PAN = 1 };
 
-	void updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 	void updateDisplayPointer();
 	void paintLocatorEventTargetDisplay( int pos, bool last_event );
 	virtual void paintEvent( QPaintEvent* ev ) override;
@@ -60,29 +64,36 @@ class TargetWaveDisplay : public QWidget,
 	}
 
    private:
-	QPixmap m_Background;
+	void mouseMoveEvent( QMouseEvent* ev ) override;
+	void mousePressEvent( QMouseEvent* ev ) override;
+	void mouseReleaseEvent( QMouseEvent* ev ) override;
 
-	QString m_sSampleName;
+	void drawPeakData() override;
+	/** Since we displaying pan automation on top of the peak data and want to
+	 * provide a visual feedback for the corresponding changes applied, we are
+	 * bound to render both the left and right channel of the audio. But we
+	 * still want to do so within a single widget. Having two instances of
+	 * `WaveDisplay` is off the table since we would have to deal with handling
+	 * automation nodes between them. */
+	void updatePeakData() override;
+
+	void updateMouseSelection( QMouseEvent* ev );
+	void updateEnvelope();
+
 	QString m_sInfo;
 
 	int m_nX;
 	int m_nY;
 	int m_nLocator;
 
-	int* m_pPeakData_Left;
-	int* m_pPeakData_Right;
-
 	bool m_UpdatePosition;
 	EnvelopeEditMode m_EditMode;
 
 	int m_nSnapRadius;
 
-	virtual void mouseMoveEvent( QMouseEvent* ev ) override;
-	virtual void mousePressEvent( QMouseEvent* ev ) override;
-	virtual void mouseReleaseEvent( QMouseEvent* ev ) override;
 
-	virtual void updateMouseSelection( QMouseEvent* ev );
-	virtual void updateEnvelope();
+	std::vector<int> m_peakDataL;
+	std::vector<int> m_peakDataR;
 
 	H2Core::Sample::PanEnvelope m_PanEnvelope;
 	H2Core::Sample::VelocityEnvelope m_VelocityEnvelope;

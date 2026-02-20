@@ -27,43 +27,31 @@
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 
+#include <algorithm>
 #include <memory>
+#include <vector>
 
 #include "../Compatibility/MouseEvent.h"
-#include "HydrogenApp.h"
+#include "../Skin.h"
+#include "../HydrogenApp.h"
 #include "SampleEditor.h"
 
 using namespace H2Core;
 
-#define UI_WIDTH 841
-#define UI_HEIGHT 91
-
-#include <algorithm>
-#include <vector>
-#include "../Skin.h"
-
 static TargetWaveDisplay::EnvelopeEditMode getEnvelopeEditMode();
 
 TargetWaveDisplay::TargetWaveDisplay( QWidget* pParent )
-	: QWidget( pParent ), m_sSampleName( "" )
+	: WaveDisplay( pParent, WaveDisplay::Channel::Left )
 {
-	//	setAttribute(Qt::WA_OpaquePaintEvent);
+	setFixedSize( TargetWaveDisplay::nWidth, TargetWaveDisplay::nHeight );
 
-	//
-	int w = UI_WIDTH;
-	int h = UI_HEIGHT;
-	resize( w, h );
+	m_label = WaveDisplay::Label::Fallback;
+	m_sFallbackLabel = "";
 
-	bool ok = m_Background.load(
-		Skin::getImagePath() + "/waveDisplay/targetsamplewavedisplay.png"
-	);
-	if ( ok == false ) {
-		ERRORLOG( "Error loading pixmap" );
-	}
+	m_peakDataL.resize( width() );
+	m_peakDataR.resize( width() );
 
 	m_EditMode = EnvelopeEditMode::VELOCITY;
-	m_pPeakData_Left = new int[w];
-	m_pPeakData_Right = new int[w];
 	m_sInfo = "";
 	m_nX = -10;
 	m_nY = -10;
@@ -76,10 +64,6 @@ TargetWaveDisplay::TargetWaveDisplay( QWidget* pParent )
 
 TargetWaveDisplay::~TargetWaveDisplay()
 {
-	// INFOLOG( "DESTROY" );
-
-	delete[] m_pPeakData_Left;
-	delete[] m_pPeakData_Right;
 }
 
 static void paintEnvelope(
@@ -137,34 +121,30 @@ static void paintEnvelope(
 
 void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 {
-	QPainter painter( this );
+	if ( !isVisible() ) {
+		return;
+	}
+
+	WaveDisplay::paintEvent( ev );
+
+	QPainter p( this );
 
 	m_EditMode = getEnvelopeEditMode();
 
-	painter.setRenderHint( QPainter::Antialiasing );
-	painter.drawPixmap( ev->rect(), m_Background, ev->rect() );
-	painter.setPen( QColor( 252, 142, 73 ) );
+	p.setRenderHint( QPainter::Antialiasing );
+	p.setPen( QColor( 252, 142, 73 ) );
 
 	int VCenter = height() / 2;
 	int LCenter = VCenter - 4;
 	int RCenter = VCenter + 4;
 
-	for ( int x = 0; x < width() - 1; x++ ) {
-		painter.drawLine( x, LCenter, x, -m_pPeakData_Left[x + 1] + LCenter );
-	}
-
-	painter.setPen( QColor( 116, 186, 255 ) );
-	for ( int x = 0; x < width() - 1; x++ ) {
-		painter.drawLine( x, RCenter, x, -m_pPeakData_Right[x + 1] + RCenter );
-	}
-
 	QFont font;
 	font.setWeight( QFont::Bold );
-	painter.setFont( font );
+	p.setFont( font );
 
-	painter.setCompositionMode( QPainter::CompositionMode_SourceOver );
-	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::SolidLine ) );
-	painter.drawLine( m_nLocator, 4, m_nLocator, height() - 4 );
+	p.setCompositionMode( QPainter::CompositionMode_SourceOver );
+	p.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::SolidLine ) );
+	p.drawLine( m_nLocator, 4, m_nLocator, height() - 4 );
 
 	QColor volumeLineColor = QColor( 255, 255, 255, 200 );
 	QColor volumeHandleColor = QColor( 99, 160, 233 );
@@ -174,43 +154,43 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 	// volume line
 
 	paintEnvelope(
-		m_VelocityEnvelope, painter,
+		m_VelocityEnvelope, p,
 		m_EditMode == TargetWaveDisplay::VELOCITY ? m_nSelectedEnvelopePoint
 												  : -1,
 		volumeLineColor, volumeHandleColor, selectedtHandleColor
 	);
 	// pan line
 	paintEnvelope(
-		m_PanEnvelope, painter,
+		m_PanEnvelope, p,
 		m_EditMode == TargetWaveDisplay::PAN ? m_nSelectedEnvelopePoint : -1,
 		panLineColor, panHandleColor, selectedtHandleColor
 	);
 
-	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
-	painter.drawLine( 0, LCenter, UI_WIDTH, LCenter );
-	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
-	painter.drawLine( 0, RCenter, UI_WIDTH, RCenter );
+	p.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
+	p.drawLine( 0, LCenter, TargetWaveDisplay::nWidth, LCenter );
+	p.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
+	p.drawLine( 0, RCenter, TargetWaveDisplay::nWidth, RCenter );
 
 	if ( m_nY < 50 ) {
 		if ( m_nX < 790 ) {
-			painter.drawText(
+			p.drawText(
 				m_nX + 5, m_nY, 60, 20, Qt::AlignLeft, QString( m_sInfo )
 			);
 		}
 		else {
-			painter.drawText(
+			p.drawText(
 				m_nX - 65, m_nY, 60, 20, Qt::AlignRight, QString( m_sInfo )
 			);
 		}
 	}
 	else {
 		if ( m_nX < 790 ) {
-			painter.drawText(
+			p.drawText(
 				m_nX + 5, m_nY - 20, 60, 20, Qt::AlignLeft, QString( m_sInfo )
 			);
 		}
 		else {
-			painter.drawText(
+			p.drawText(
 				m_nX - 65, m_nY - 20, 60, 20, Qt::AlignRight, QString( m_sInfo )
 			);
 		}
@@ -237,58 +217,135 @@ void TargetWaveDisplay::paintLocatorEventTargetDisplay(
 	update();
 }
 
-void TargetWaveDisplay::updateDisplay(
-	std::shared_ptr<H2Core::InstrumentLayer> pLayer
-)
+void TargetWaveDisplay::drawPeakData()
 {
-	if ( pLayer && pLayer->getSample() ) {
-		int nSampleLength = pLayer->getSample()->getFrames();
-		float nScaleFactor = nSampleLength / width();
+	const qreal pixelRatio = devicePixelRatio();
+	QPainter p( m_pPeakDataPixmap );
+	// copy the background image
+	p.drawPixmap(
+		rect(), *m_pBackgroundPixmap,
+		QRectF(
+			pixelRatio * rect().x(), pixelRatio * rect().y(),
+			pixelRatio * rect().width(), pixelRatio * rect().height()
+		)
+	);
 
-		float fGain = ( height() - 8 ) / 2.0 * pLayer->getGain();
+	auto pPref = H2Core::Preferences::get_instance();
+	const auto pColorTheme = pPref->getColorTheme();
 
-		auto pSampleDatal = pLayer->getSample()->getData_L();
-		auto pSampleDatar = pLayer->getSample()->getData_R();
+	QColor backgroundColor, waveFormColorL, waveFormColorR,
+		waveFormInactiveColor;
+	if ( m_pLayer != nullptr && m_pLayer->getIsMuted() ) {
+		backgroundColor = pColorTheme->m_muteColor;
+	}
+	else if ( m_pLayer != nullptr && m_pLayer->getIsSoloed() ) {
+		backgroundColor = pColorTheme->m_soloColor;
+	}
+	else {
+		backgroundColor = pColorTheme->m_accentColor;
+	}
+
+	if ( Skin::moreBlackThanWhite( backgroundColor ) ) {
+		waveFormColorL = Qt::white;
+		waveFormColorR = waveFormColorL.darker( 150 );
+		waveFormInactiveColor = pColorTheme->m_lightColor;
+	}
+	else {
+		waveFormColorL = Qt::black;
+		waveFormColorR = waveFormColorL.lighter( 150 );
+		waveFormInactiveColor = pColorTheme->m_darkColor;
+	}
+
+	p.setPen( waveFormColorL );
+	const int nVerticalCenter = height() / 2;
+	if ( m_pLayer != nullptr ) {
+		for ( int x = 0; x < width(); x++ ) {
+			p.drawLine(
+				x, nVerticalCenter, x, -m_peakDataL[x] + nVerticalCenter
+			);
+		}
+		p.setPen( waveFormColorR );
+		for ( int x = 0; x < width(); x++ ) {
+			p.drawLine(
+				x, nVerticalCenter, x, m_peakDataR[x] + nVerticalCenter
+			);
+		}
+	}
+	else {
+		p.drawLine( 0, nVerticalCenter, width(), nVerticalCenter );
+	}
+}
+
+void TargetWaveDisplay::updatePeakData()
+{
+	if ( width() != m_peakDataL.size() ) {
+		m_peakDataL.resize( width() );
+	}
+	if ( width() != m_peakDataR.size() ) {
+		m_peakDataR.resize( width() );
+	}
+
+	if ( m_pLayer == nullptr || m_pLayer->getSample() == nullptr ) {
+		for ( int ii = 0; ii < m_peakDataL.size(); ++ii ) {
+			m_peakDataL[ii] = 0;
+			m_peakDataR[ii] = 0;
+		}
+
+		drawPeakData();
+		update();
+		return;
+	}
+
+	const int nSampleLength = m_pLayer->getSample()->getFrames();
+	const auto pSampleDataL = m_pLayer->getSample()->getData_L();
+	const auto pSampleDataR = m_pLayer->getSample()->getData_R();
+	const float fGain = height() / 2.0 * m_pLayer->getGain();
+
+	if ( nSampleLength > m_peakDataL.size() ) {
+		const int nScaleFactor = nSampleLength / m_peakDataL.size();
+
 		int nSamplePos = 0;
-		int nVall;
-		int nValr;
-		for ( int i = 0; i < width(); ++i ) {
-			nVall = 0;
-			nValr = 0;
-			for ( int j = 0; j < nScaleFactor; ++j ) {
-				if ( j < nSampleLength ) {
-					if ( pSampleDatal[nSamplePos] < 0 ) {
-						int newVal = static_cast<int>(
-							pSampleDatal[nSamplePos] * -fGain
-						);
-						nVall = newVal;
+		int nValL, nValR;
+		for ( int ii = 0; ii < m_peakDataL.size(); ++ii ) {
+			nValL = 0;
+			nValR = 0;
+			for ( int jj = 0; jj < nScaleFactor; ++jj ) {
+				if ( nSamplePos >= nSampleLength ) {
+					break;
+				}
+
+				if ( jj < nSampleLength ) {
+					const int nNewValL =
+						static_cast<int>( pSampleDataL[nSamplePos] * fGain );
+					const int nNewValR =
+						static_cast<int>( pSampleDataR[nSamplePos] * fGain );
+					if ( nNewValL > nValL ) {
+						nValL = nNewValL;
 					}
-					else {
-						int newVal = static_cast<int>(
-							pSampleDatal[nSamplePos] * fGain
-						);
-						nVall = newVal;
-					}
-					if ( pSampleDatar[nSamplePos] > 0 ) {
-						int newVal = static_cast<int>(
-							pSampleDatar[nSamplePos] * -fGain
-						);
-						nValr = newVal;
-					}
-					else {
-						int newVal = static_cast<int>(
-							pSampleDatar[nSamplePos] * fGain
-						);
-						nValr = newVal;
+					if ( nNewValR > nValR ) {
+						nValR = nNewValR;
 					}
 				}
 				++nSamplePos;
 			}
-			m_pPeakData_Left[i] = nVall;
-			m_pPeakData_Right[i] = nValr;
+			m_peakDataL[ii] = std::max( nValL, 0 );
+			m_peakDataR[ii] = std::max( nValR, 0 );
+		}
+	}
+	else {
+		for ( int ii = 0; ii < nSampleLength; ++ii ) {
+			m_peakDataL[ii] =
+				std::max( 0, static_cast<int>( pSampleDataL[ii] * fGain ) );
+			m_peakDataR[ii] =
+				std::max( 0, static_cast<int>( pSampleDataR[ii] * fGain ) );
+		}
+		for ( int ii = nSampleLength; ii < m_peakDataL.size(); ++ii ) {
+			m_peakDataL[ii] = 0;
+			m_peakDataR[ii] = 0;
 		}
 	}
 
+	drawPeakData();
 	update();
 }
 
@@ -302,10 +359,12 @@ void TargetWaveDisplay::updateMouseSelection( QMouseEvent* ev )
 													  : m_PanEnvelope;
 
 	m_nX = std::min(
-		UI_WIDTH, std::max( 0, static_cast<int>( pEv->position().x() ) )
+		TargetWaveDisplay::nWidth,
+		std::max( 0, static_cast<int>( pEv->position().x() ) )
 	);
 	m_nY = std::min(
-		UI_HEIGHT, std::max( 0, static_cast<int>( pEv->position().y() ) )
+		TargetWaveDisplay::nHeight,
+		std::max( 0, static_cast<int>( pEv->position().y() ) )
 	);
 
 	if ( !( ev->buttons() & Qt::LeftButton ) ||
@@ -330,8 +389,9 @@ void TargetWaveDisplay::updateMouseSelection( QMouseEvent* ev )
 		m_sInfo = "";
 	}
 	else {
-		float info = ( UI_HEIGHT - envelope[m_nSelectedEnvelopePoint].value ) /
-					 (float) UI_HEIGHT;
+		float info = ( TargetWaveDisplay::nHeight -
+					   envelope[m_nSelectedEnvelopePoint].value ) /
+					 (float) TargetWaveDisplay::nHeight;
 		m_sInfo.setNum( info, 'g', 2 );
 	}
 }
@@ -350,7 +410,7 @@ void TargetWaveDisplay::updateEnvelope()
 		m_nX = 0;
 	}
 	else if ( m_nSelectedEnvelopePoint == static_cast<int>( envelope.size() ) ) {
-		m_nX = UI_WIDTH;
+		m_nX = TargetWaveDisplay::nWidth;
 	}
 	envelope.push_back( EnvelopePoint( m_nX, m_nY ) );
 	sort( envelope.begin(), envelope.end(), EnvelopePoint::Comparator() );
@@ -399,7 +459,9 @@ void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
 		if ( NewPoint ) {
 			if ( envelope.empty() ) {
 				envelope.push_back( EnvelopePoint( 0, m_nY ) );
-				envelope.push_back( EnvelopePoint( UI_WIDTH, m_nY ) );
+				envelope.push_back(
+					EnvelopePoint( TargetWaveDisplay::nWidth, m_nY )
+				);
 			}
 			else {
 				envelope.push_back( EnvelopePoint( m_nX, m_nY ) );
@@ -451,9 +513,8 @@ void TargetWaveDisplay::mouseReleaseEvent( QMouseEvent* ev )
 
 static TargetWaveDisplay::EnvelopeEditMode getEnvelopeEditMode()
 {
-	int editType = HydrogenApp::get_instance()
-					   ->getSampleEditor()
-					   ->getEnvelopeIndex();
+	int editType =
+		HydrogenApp::get_instance()->getSampleEditor()->getEnvelopeIndex();
 	if ( editType == 0 ) {
 		return TargetWaveDisplay::VELOCITY;
 	}

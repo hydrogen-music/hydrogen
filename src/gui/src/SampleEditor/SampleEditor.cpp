@@ -601,6 +601,7 @@ background-color: %1;" )
 	////////////////////////////////////////////////////////////////////////////
 
 	m_pTargetSampleView = new TargetWaveDisplay( pScrollArea );
+    m_pTargetSampleView->setLayer( m_pLayer );
 	m_pTargetSampleView->setMinimumHeight( 94 );
 	pGridLayout->addWidget( m_pTargetSampleView, 5, 0, 1, 2 );
 
@@ -646,9 +647,6 @@ background-color: %1;" )
 
 SampleEditor::~SampleEditor()
 {
-	m_pTargetSampleView->close();
-	delete m_pTargetSampleView;
-	m_pTargetSampleView = nullptr;
 }
 
 void SampleEditor::setHoveredSlider( Slider slider )
@@ -811,8 +809,6 @@ void SampleEditor::getAllFrameInfos()
 			m_pTargetSampleView->get_pan()->emplace_back( pt );
 		}
 	}
-
-	m_pTargetSampleView->updateDisplay( m_pLayer );
 }
 
 bool SampleEditor::getCloseQuestion()
@@ -854,7 +850,7 @@ void SampleEditor::createNewLayer()
 
 		pAudioEngine->unlock();
 
-		m_pTargetSampleView->updateDisplay( m_pLayer );
+		m_pTargetSampleView->setLayer( m_pLayer );
 	}
 }
 
