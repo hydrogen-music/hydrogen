@@ -137,14 +137,18 @@ void SampleWaveDisplay::renderSlider(
 	font.setWeight( QFont::Bold );
 	pPainter->setFont( font );
 
-	int nX, nHandleY;
+	int nX, nHandleX, nHandleY;
+	int nHandleWidth = SampleWaveDisplay::nHandleWidth;
+	bool bRenderHandle = false;
 	QColor color;
 	QString sLabel;
-	bool bLeftLeaning = false;
 	switch ( slider ) {
 		case SampleEditor::Slider::Start:
 			nX = frameToX( m_pSampleEditor->getLoopStartFrame() );
-			nHandleY = 0;
+			bRenderHandle = m_channel == WaveDisplay::Channel::Left;
+			nHandleX = nX;
+			nHandleY = SampleWaveDisplay::nHandleMargin +
+					   SampleWaveDisplay::nHandleSlope;
 			color = QColor( 32, 173, 0, 200 );
 			/*: Single character used as a label of the loop start slider within
 			 *  the sample editor. */
@@ -152,7 +156,11 @@ void SampleWaveDisplay::renderSlider(
 			break;
 		case SampleEditor::Slider::Loop:
 			nX = frameToX( m_pSampleEditor->getLoopLoopFrame() );
-			nHandleY = height() / 2 - 15;
+			bRenderHandle = m_channel == WaveDisplay::Channel::Left;
+			nHandleX = nX;
+			nHandleY = height() - SampleWaveDisplay::nHandleMargin * 2 -
+					   SampleWaveDisplay::nHandleHeight -
+					   SampleWaveDisplay::nHandleSlope * 2;
 			color = QColor( 93, 170, 254, 200 );
 			/*: Single character used as a label of the loop onset slider within
 			 *  the sample editor. */
@@ -160,27 +168,56 @@ void SampleWaveDisplay::renderSlider(
 			break;
 		case SampleEditor::Slider::End:
 			nX = frameToX( m_pSampleEditor->getLoopEndFrame() );
-			nHandleY = height() - 25;
+			bRenderHandle = m_channel == WaveDisplay::Channel::Right;
+			nHandleX = nX - SampleWaveDisplay::nHandleWidth;
+			nHandleY = height() - SampleWaveDisplay::nHandleMargin * 2 -
+					   SampleWaveDisplay::nHandleHeight -
+					   SampleWaveDisplay::nHandleSlope * 2;
 			color = QColor( 217, 68, 0, 200 );
 			/*: Single character used as a label of the loop end slider within
 			 *  the sample editor. */
 			sLabel = tr( "E" );
-			bLeftLeaning = true;
+
+			// left leaning
+			nHandleWidth = -1 * SampleWaveDisplay::nHandleWidth;
 			break;
 		case SampleEditor::Slider::None:
 			// TODO
 			DEBUGLOG( "not handled yet" );
 			return;
 	}
+
+	// Draw slider
 	pPainter->setPen( color );
-	pPainter->drawLine( nX, 4, nX, height() - 4 );
-	if ( bLeftLeaning ) {
+	pPainter->drawLine( nX, 0, nX, height() );
+
+	// Draw slider handle
+	if ( bRenderHandle ) {
+		pPainter->setBrush( QBrush( color ) );
+		const QPointF handlePoints[4] = {
+			QPointF(
+				nX, std::max( 0, nHandleY - SampleWaveDisplay::nHandleSlope )
+			),
+			QPointF( nX + nHandleWidth, std::max( 0, nHandleY ) ),
+			QPointF(
+				nX + nHandleWidth,
+				std::max( 0, nHandleY + SampleWaveDisplay::nHandleHeight )
+			),
+			QPointF(
+				nX, std::min(
+						height(), nHandleY + SampleWaveDisplay::nHandleHeight +
+									  SampleWaveDisplay::nHandleSlope
+					)
+			),
+		};
+
+		pPainter->drawPolygon( handlePoints, 4 );
+
+		pPainter->setPen( Qt::black );
 		pPainter->drawText(
-			nX - 10, nHandleY, 10, 20, Qt::AlignCenter, sLabel
+			nHandleX, nHandleY + 1, SampleWaveDisplay::nHandleWidth,
+			SampleWaveDisplay::nHandleHeight, Qt::AlignCenter, sLabel
 		);
-	}
-	else {
-		pPainter->drawText( nX, nHandleY, 10, 20, Qt::AlignCenter, sLabel );
 	}
 }
 
