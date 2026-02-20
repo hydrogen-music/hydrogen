@@ -26,6 +26,7 @@
 #include <core/Basics/Sample.h>
 
 #include "../Compatibility/MouseEvent.h"
+#include "../Widgets/EditorDefs.h"
 
 using namespace H2Core;
 
@@ -117,29 +118,94 @@ void SampleWaveDisplay::paintEvent( QPaintEvent* ev )
 
 SampleEditor::Slider SampleWaveDisplay::intersectWith( const QPointF& point ) const
 {
-	const QPoint start =
-		QPoint( frameToX( m_pSampleEditor->getLoopStartFrame() ), height() );
-	const QPoint end = QPoint(
-		frameToX( m_pSampleEditor->getLoopStartFrame() ), height() / 2
+    // The handle of a slider has higher priority than the rod of the others.
+    // The vertical space between the handles is big enough for them to not
+    // fighting for hovering.
+    if ( m_channel == WaveDisplay::Channel::Left ) {
+		QRectF startHandleRect(
+			std::max(
+				0, frameToX( m_pSampleEditor->getLoopStartFrame() ) -
+					   Editor::nDefaultCursorMargin
+			),
+			std::max(
+				0, SampleWaveDisplay::nHandleMargin +
+					   SampleWaveDisplay::nHandleSlope -
+					   Editor::nDefaultCursorMargin
+			),
+			SampleWaveDisplay::nHandleWidth + 2 * Editor::nDefaultCursorMargin,
+			SampleWaveDisplay::nHandleHeight +
+				2 * SampleWaveDisplay::nHandleSlope +
+				2 * Editor::nDefaultCursorMargin
+		);
+		if ( startHandleRect.contains( point ) ) {
+			return SampleEditor::Slider::Start;
+		}
+
+		QRectF loopHandleRect(
+			std::max(
+				0, frameToX( m_pSampleEditor->getLoopLoopFrame() ) -
+					   Editor::nDefaultCursorMargin
+			),
+			std::min(
+				height(), height() - 2 * SampleWaveDisplay::nHandleMargin -
+					   3 * SampleWaveDisplay::nHandleSlope -
+					   SampleWaveDisplay::nHandleHeight -
+					   Editor::nDefaultCursorMargin
+			),
+			SampleWaveDisplay::nHandleWidth + 2 * Editor::nDefaultCursorMargin,
+			SampleWaveDisplay::nHandleHeight +
+				2 * SampleWaveDisplay::nHandleSlope +
+				2 * Editor::nDefaultCursorMargin
+		);
+		if ( loopHandleRect.contains( point ) ) {
+			return SampleEditor::Slider::Loop;
+		}
+	}
+	else {
+		QRectF endHandleRect(
+			std::max(
+				0, frameToX( m_pSampleEditor->getLoopEndFrame() ) -
+					   SampleWaveDisplay::nHandleWidth -
+					   Editor::nDefaultCursorMargin
+			),
+			std::min(
+				height(), height() - 2 * SampleWaveDisplay::nHandleMargin -
+							  3 * SampleWaveDisplay::nHandleSlope -
+							  SampleWaveDisplay::nHandleHeight -
+							  Editor::nDefaultCursorMargin
+			),
+			SampleWaveDisplay::nHandleWidth + 2 * Editor::nDefaultCursorMargin,
+			SampleWaveDisplay::nHandleHeight +
+				2 * SampleWaveDisplay::nHandleSlope +
+				2 * Editor::nDefaultCursorMargin
+		);
+		if ( endHandleRect.contains( point ) ) {
+			return SampleEditor::Slider::End;
+		}
+	}
+
+	const int nDistanceStart = std::abs(
+		frameToX( m_pSampleEditor->getLoopStartFrame() ) - point.x()
 	);
-	const QPoint loop =
-		QPoint( frameToX( m_pSampleEditor->getLoopStartFrame() ), 0 );
+	const int nDistanceLoop =
+		std::abs( frameToX( m_pSampleEditor->getLoopLoopFrame() ) - point.x() );
+	const int nDistanceEnd =
+		std::abs( frameToX( m_pSampleEditor->getLoopEndFrame() ) - point.x() );
 
-	const int nDistanceStartHandle =
-		( point - start ).manhattanLength();
-	const int nDistanceLoopHandle =
-		( point - loop ).manhattanLength();
-	const int nDistanceEndHandle = ( point - end ).manhattanLength();
-
-	if ( nDistanceStartHandle <= nDistanceEndHandle &&
-		 nDistanceStartHandle <= nDistanceLoopHandle ) {
-		return SampleEditor::Slider::Start;
+	if ( nDistanceStart < nDistanceLoop && nDistanceStart < nDistanceEnd ) {
+		if ( nDistanceStart < Editor::nDefaultCursorMargin ) {
+			return SampleEditor::Slider::Start;
+		}
 	}
-	else if ( nDistanceLoopHandle < nDistanceStartHandle && nDistanceLoopHandle < nDistanceEndHandle ) {
-		return SampleEditor::Slider::Loop;
+	else if ( nDistanceLoop < nDistanceStart && nDistanceLoop < nDistanceEnd ) {
+		if ( nDistanceLoop < Editor::nDefaultCursorMargin ) {
+			return SampleEditor::Slider::Loop;
+		}
 	}
-	else if ( nDistanceEndHandle < nDistanceStartHandle && nDistanceEndHandle <= nDistanceLoopHandle ) {
-		return SampleEditor::Slider::End;
+	else if ( nDistanceEnd < nDistanceStart && nDistanceEnd < nDistanceLoop ) {
+		if ( nDistanceEnd < Editor::nDefaultCursorMargin ) {
+			return SampleEditor::Slider::End;
+		}
 	}
 
 	return SampleEditor::Slider::None;

@@ -51,7 +51,7 @@ class SampleWaveDisplay : public WaveDisplay,
 	static constexpr int nHandleSlope = 3;
 	static constexpr int nHandleWidth = 15;
 	static constexpr int nHoveredAlpha = 110;
-	static constexpr int nHoveredHalo = 4;
+	static constexpr int nHoveredHalo = 3;
 
 	explicit SampleWaveDisplay(
 		SampleEditor* pParent,
@@ -60,6 +60,7 @@ class SampleWaveDisplay : public WaveDisplay,
 	~SampleWaveDisplay();
 
    private:
+	void leaveEvent( QEvent* pEv ) override;
 	void mouseMoveEvent( QMouseEvent* ev ) override;
 	void mousePressEvent( QMouseEvent* ev ) override;
 	void paintEvent( QPaintEvent* ev ) override;
