@@ -52,8 +52,7 @@ class TargetWaveDisplay : public WaveDisplay,
 	explicit TargetWaveDisplay( SampleEditor* pParent );
 	~TargetWaveDisplay();
 
-	void updateDisplayPointer();
-	void paintLocatorEventTargetDisplay( int pos, bool last_event );
+	void paintLocatorEventTargetDisplay( int nPos );
 	virtual void paintEvent( QPaintEvent* ev ) override;
 	H2Core::Sample::PanEnvelope* get_pan() { return &m_PanEnvelope; }
 	H2Core::Sample::VelocityEnvelope* get_velocity()
@@ -85,8 +84,6 @@ class TargetWaveDisplay : public WaveDisplay,
 	int m_nSelectedEnvelopePointY;
 
 	int m_nLocator;
-
-	bool m_UpdatePosition;
 
 	int m_nSnapRadius;
 

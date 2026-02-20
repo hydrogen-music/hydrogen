@@ -1067,12 +1067,12 @@ void SampleEditor::updateTargetsamplePositionRuler()
 			nTargetSampleLength -
 			( m_nRealtimeFrameEndForTarget - nRealtimeFrame );
 		m_pTargetSampleView->paintLocatorEventTargetDisplay(
-			( m_pTargetSampleView->width() * nPos / nTargetSampleLength ), true
+			( m_pTargetSampleView->width() * nPos / nTargetSampleLength )
 		);
 	}
 	else {
 		auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
-		m_pTargetSampleView->paintLocatorEventTargetDisplay( -1, false );
+		m_pTargetSampleView->paintLocatorEventTargetDisplay( -1 );
 		m_pTargetDisplayTimer->stop();
 		m_pPlayButton->setText( pCommonString->getButtonPlay() );
 		m_pPlayOriginalButton->setText(

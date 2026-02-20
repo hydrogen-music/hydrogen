@@ -45,7 +45,6 @@ TargetWaveDisplay::TargetWaveDisplay( SampleEditor* pParent )
 	  m_nSelectedEnvelopePointX( -10 ),
 	  m_nSelectedEnvelopePointY( -10 ),
 	  m_nLocator( -1 ),
-	  m_UpdatePosition( false ),
 	  m_nSelectedEnvelopePoint( -1 ),
 	  m_nSnapRadius( 6 )
 {
@@ -185,18 +184,9 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 	}
 }
 
-void TargetWaveDisplay::paintLocatorEventTargetDisplay(
-	int pos,
-	bool updateposi
-)
+void TargetWaveDisplay::paintLocatorEventTargetDisplay( int nPosition )
 {
-	m_UpdatePosition = updateposi;
-	if ( !updateposi ) {
-		m_nLocator = -1;
-	}
-	else {
-		m_nLocator = pos;
-	}
+	m_nLocator = nPosition;
 	update();
 }
 
@@ -384,6 +374,7 @@ void TargetWaveDisplay::updateEnvelope()
 	if ( m_nSelectedEnvelopePoint == -1 ) {
 		return;
 	}
+
 	Sample::VelocityEnvelope& envelope =
 		( m_pSampleEditor->getEnvelope() == SampleEditor::Envelope::Velocity )
 			? m_VelocityEnvelope
