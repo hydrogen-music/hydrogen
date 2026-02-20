@@ -40,7 +40,7 @@ class InstrumentLayer;
 }  // namespace H2Core
 
 class DetailWaveDisplay;
-class MainSampleWaveDisplay;
+class SampleWaveDisplay;
 class TargetWaveDisplay;
 
 ///
@@ -109,8 +109,8 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	virtual void closeEvent( QCloseEvent* event ) override;
 	virtual void mouseReleaseEvent( QMouseEvent* ev ) override;
 
-	MainSampleWaveDisplay* m_pMainSampleWaveDisplayL;
-	MainSampleWaveDisplay* m_pMainSampleWaveDisplayR;
+	SampleWaveDisplay* m_pSampleWaveDisplayL;
+	SampleWaveDisplay* m_pSampleWaveDisplayR;
 	DetailWaveDisplay* m_pDetailWaveDisplayL;
 	DetailWaveDisplay* m_pDetailWaveDisplayR;
 

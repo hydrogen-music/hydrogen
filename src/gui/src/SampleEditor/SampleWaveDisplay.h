@@ -20,11 +20,11 @@
  *
  */
 
-#ifndef MAIN_SAMPLE_WAVE_DISPLAY
-#define MAIN_SAMPLE_WAVE_DISPLAY
+#ifndef SAMPLE_WAVE_DISPLAY
+#define SAMPLE_WAVE_DISPLAY
 
-#include "SampleEditor.h"
 #include "../Widgets/WaveDisplay.h"
+#include "SampleEditor.h"
 
 #include <QtGui>
 #include <QtWidgets>
@@ -38,20 +38,20 @@ class Sample;
 }
 
 /** \ingroup docGUI*/
-class MainSampleWaveDisplay : public WaveDisplay,
-							  public H2Core::Object<MainSampleWaveDisplay> {
-	H2_OBJECT( MainSampleWaveDisplay )
+class SampleWaveDisplay : public WaveDisplay,
+						  public H2Core::Object<SampleWaveDisplay> {
+	H2_OBJECT( SampleWaveDisplay )
 	Q_OBJECT
 
    public:
 	static constexpr int nWidth = 624;
 	static constexpr int nHeight = 132;
 
-	explicit MainSampleWaveDisplay(
+	explicit SampleWaveDisplay(
 		SampleEditor* pParent,
 		WaveDisplay::Channel channel
 	);
-	~MainSampleWaveDisplay();
+	~SampleWaveDisplay();
 
 	void updateDisplay( std::shared_ptr<H2Core::Sample> pNewSample );
 	void updateDisplayPointer();

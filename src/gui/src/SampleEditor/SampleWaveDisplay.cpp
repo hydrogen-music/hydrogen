@@ -20,7 +20,7 @@
  *
  */
 
-#include "MainSampleWaveDisplay.h"
+#include "SampleWaveDisplay.h"
 
 #include <core/Basics/Sample.h>
 
@@ -31,14 +31,14 @@
 
 using namespace H2Core;
 
-MainSampleWaveDisplay::MainSampleWaveDisplay(
+SampleWaveDisplay::SampleWaveDisplay(
 	SampleEditor* pParent,
 	WaveDisplay::Channel channel
 )
 	: WaveDisplay( pParent, channel ), m_pSampleEditor( pParent )
 {
 	setFixedSize(
-		MainSampleWaveDisplay::nWidth, MainSampleWaveDisplay::nHeight
+		SampleWaveDisplay::nWidth, SampleWaveDisplay::nHeight
 	);
 
 	m_label = WaveDisplay::Label::Fallback;
@@ -59,11 +59,11 @@ MainSampleWaveDisplay::MainSampleWaveDisplay(
 	setMouseTracking( true );
 }
 
-MainSampleWaveDisplay::~MainSampleWaveDisplay()
+SampleWaveDisplay::~SampleWaveDisplay()
 {
 }
 
-void MainSampleWaveDisplay::paintLocatorEvent( int pos, bool updateposi )
+void SampleWaveDisplay::paintLocatorEvent( int pos, bool updateposi )
 {
 	m_bUpdatePosition = updateposi;
 	if ( !updateposi ) {
@@ -105,7 +105,7 @@ static void set_paint_color(
 	}
 }
 
-void MainSampleWaveDisplay::paintEvent( QPaintEvent* ev )
+void SampleWaveDisplay::paintEvent( QPaintEvent* ev )
 {
 	if ( !isVisible() ) {
 		return;
@@ -159,12 +159,12 @@ void MainSampleWaveDisplay::paintEvent( QPaintEvent* ev )
 	painter.drawText( m_nLoopFramePosition, 0, 10, 20, Qt::AlignLeft, "L" );
 }
 
-void MainSampleWaveDisplay::updateDisplayPointer()
+void SampleWaveDisplay::updateDisplayPointer()
 {
 	update();
 }
 
-// void MainSampleWaveDisplay::updateDisplay( std::shared_ptr<Sample> pNewSample )
+// void SampleWaveDisplay::updateDisplay( std::shared_ptr<Sample> pNewSample )
 // {
 // 	int nSampleLength = pNewSample->getFrames();
 // 	m_nSampleLength = nSampleLength;
@@ -207,7 +207,7 @@ void MainSampleWaveDisplay::updateDisplayPointer()
 // 	update();
 // }
 
-void MainSampleWaveDisplay::mouseUpdateDone()
+void SampleWaveDisplay::mouseUpdateDone()
 {
 	HydrogenApp::get_instance()
 		->getSampleEditor()
@@ -217,7 +217,7 @@ void MainSampleWaveDisplay::mouseUpdateDone()
 	m_bEndSliderIsmoved = false;
 }
 
-void MainSampleWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
+void SampleWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 {
 	if ( ev->buttons() & Qt::LeftButton ) {
 		testPosition( ev );
@@ -229,7 +229,7 @@ void MainSampleWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 	mouseUpdateDone();
 }
 
-void MainSampleWaveDisplay::mousePressEvent( QMouseEvent* ev )
+void SampleWaveDisplay::mousePressEvent( QMouseEvent* ev )
 {
 	chooseSlider( ev );
 	testPosition( ev );
@@ -237,7 +237,7 @@ void MainSampleWaveDisplay::mousePressEvent( QMouseEvent* ev )
 	mouseUpdateDone();
 }
 
-void MainSampleWaveDisplay::testPosition( QMouseEvent* ev )
+void SampleWaveDisplay::testPosition( QMouseEvent* ev )
 {
 	assert( ev );
 
@@ -281,14 +281,14 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent* ev )
 	}
 }
 
-void MainSampleWaveDisplay::mouseReleaseEvent( QMouseEvent* ev )
+void SampleWaveDisplay::mouseReleaseEvent( QMouseEvent* ev )
 {
 	m_selectedSlider = SampleEditor::Slider::None;
 	update();
 	mouseUpdateDone();
 }
 
-void MainSampleWaveDisplay::chooseSlider( QMouseEvent* ev )
+void SampleWaveDisplay::chooseSlider( QMouseEvent* ev )
 {
 	assert( ev );
 

@@ -23,7 +23,7 @@
 #include "SampleEditor.h"
 
 #include "DetailWaveDisplay.h"
-#include "MainSampleWaveDisplay.h"
+#include "SampleWaveDisplay.h"
 #include "TargetWaveDisplay.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
@@ -156,16 +156,16 @@ background-color: %1;" )
 	auto pMainSectionLayout = new QVBoxLayout();
 	pMainSectionLayout->setContentsMargins( 0, 0, 0, 0 );
 	pMainSectionLayout->setSpacing( 0 );
-    pMainSection->setLayout( pMainSectionLayout );
+	pMainSection->setLayout( pMainSectionLayout );
 
-	m_pMainSampleWaveDisplayL =
-		new MainSampleWaveDisplay( this, WaveDisplay::Channel::Left );
-	m_pMainSampleWaveDisplayL->setLayer( pLayer );
-    pMainSectionLayout->addWidget( m_pMainSampleWaveDisplayL );
-	m_pMainSampleWaveDisplayR =
-		new MainSampleWaveDisplay( this, WaveDisplay::Channel::Right );
-	m_pMainSampleWaveDisplayR->setLayer( pLayer );
-    pMainSectionLayout->addWidget( m_pMainSampleWaveDisplayR );
+	m_pSampleWaveDisplayL =
+		new SampleWaveDisplay( this, WaveDisplay::Channel::Left );
+	m_pSampleWaveDisplayL->setLayer( pLayer );
+	pMainSectionLayout->addWidget( m_pSampleWaveDisplayL );
+	m_pSampleWaveDisplayR =
+		new SampleWaveDisplay( this, WaveDisplay::Channel::Right );
+	m_pSampleWaveDisplayR->setLayer( pLayer );
+	pMainSectionLayout->addWidget( m_pSampleWaveDisplayR );
 
 	auto pDetailSection = new QWidget( pWaveDisplayContainer );
 	pWaveDisplayContainerLayout->addWidget( pDetailSection );
@@ -518,7 +518,7 @@ background-color: %1;" )
 
 	getAllFrameInfos();
 
-    updateWaveDisplays();
+	updateWaveDisplays();
 
 #ifndef H2CORE_HAVE_RUBBERBAND
 	if ( !Filesystem::file_executable(
@@ -615,15 +615,15 @@ void SampleEditor::getAllFrameInfos()
 	}
 
 	if ( m_bSampleIsModified ) {
-		m_pMainSampleWaveDisplayL->m_nStartFramePosition =
+		m_pSampleWaveDisplayL->m_nStartFramePosition =
 			m_loops.nStartFrame / m_fDivider + 25;
-		m_pMainSampleWaveDisplayL->updateDisplayPointer();
-		m_pMainSampleWaveDisplayL->m_nLoopFramePosition =
+		m_pSampleWaveDisplayL->updateDisplayPointer();
+		m_pSampleWaveDisplayL->m_nLoopFramePosition =
 			m_loops.nLoopFrame / m_fDivider + 25;
-		m_pMainSampleWaveDisplayL->updateDisplayPointer();
-		m_pMainSampleWaveDisplayL->m_nEndFramePosition =
+		m_pSampleWaveDisplayL->updateDisplayPointer();
+		m_pSampleWaveDisplayL->m_nEndFramePosition =
 			m_loops.nEndFrame / m_fDivider + 25;
-		m_pMainSampleWaveDisplayL->updateDisplayPointer();
+		m_pSampleWaveDisplayL->updateDisplayPointer();
 
 		if ( !m_rubberband.bUse ) {
 			m_pRubberBandLengthComboBox->setCurrentIndex( 0 );
@@ -729,17 +729,17 @@ bool SampleEditor::returnAllMainWaveDisplayValues()
 
 	testpTimer();
 	m_bSampleIsModified = true;
-	if ( m_pMainSampleWaveDisplayL->m_bStartSliderIsMoved )
+	if ( m_pSampleWaveDisplayL->m_bStartSliderIsMoved )
 		m_loops.nStartFrame =
-			m_pMainSampleWaveDisplayL->m_nStartFramePosition * m_fDivider -
+			m_pSampleWaveDisplayL->m_nStartFramePosition * m_fDivider -
 			25 * m_fDivider;
-	if ( m_pMainSampleWaveDisplayL->m_bLoopSliderIsMoved )
+	if ( m_pSampleWaveDisplayL->m_bLoopSliderIsMoved )
 		m_loops.nLoopFrame =
-			m_pMainSampleWaveDisplayL->m_nLoopFramePosition * m_fDivider -
+			m_pSampleWaveDisplayL->m_nLoopFramePosition * m_fDivider -
 			25 * m_fDivider;
-	if ( m_pMainSampleWaveDisplayL->m_bEndSliderIsmoved )
+	if ( m_pSampleWaveDisplayL->m_bEndSliderIsmoved )
 		m_loops.nEndFrame =
-			m_pMainSampleWaveDisplayL->m_nEndFramePosition * m_fDivider -
+			m_pSampleWaveDisplayL->m_nEndFramePosition * m_fDivider -
 			25 * m_fDivider;
 	m_pStartFrameSpinBox->setValue( m_loops.nStartFrame );
 	m_pLoopFrameSpinBox->setValue( m_loops.nLoopFrame );
@@ -788,9 +788,9 @@ void SampleEditor::valueChangedStartFrameSpinBox( int )
 	updateWaveDisplays();
 
 	if ( !m_bOnewayStart ) {
-		m_pMainSampleWaveDisplayL->m_nStartFramePosition =
+		m_pSampleWaveDisplayL->m_nStartFramePosition =
 			m_pStartFrameSpinBox->value() / m_fDivider + 25;
-		m_pMainSampleWaveDisplayL->updateDisplayPointer();
+		m_pSampleWaveDisplayL->updateDisplayPointer();
 		m_loops.nStartFrame = m_nFramePosition;
 	}
 	else {
@@ -816,9 +816,9 @@ void SampleEditor::valueChangedLoopFrameSpinBox( int )
 	updateWaveDisplays();
 
 	if ( !m_bOnewayLoop ) {
-		m_pMainSampleWaveDisplayL->m_nLoopFramePosition =
+		m_pSampleWaveDisplayL->m_nLoopFramePosition =
 			m_pLoopFrameSpinBox->value() / m_fDivider + 25;
-		m_pMainSampleWaveDisplayL->updateDisplayPointer();
+		m_pSampleWaveDisplayL->updateDisplayPointer();
 		m_loops.nLoopFrame = m_nFramePosition;
 	}
 	else {
@@ -844,9 +844,9 @@ void SampleEditor::valueChangedEndFrameSpinBox( int )
 	updateWaveDisplays();
 
 	if ( !m_bOnewayEnd ) {
-		m_pMainSampleWaveDisplayL->m_nEndFramePosition =
+		m_pSampleWaveDisplayL->m_nEndFramePosition =
 			m_pEndFrameSpinBox->value() / m_fDivider + 25;
-		m_pMainSampleWaveDisplayL->updateDisplayPointer();
+		m_pSampleWaveDisplayL->updateDisplayPointer();
 		m_loops.nEndFrame = m_nFramePosition;
 	}
 	else {
@@ -898,7 +898,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 	setSamplelengthFrames();
 	createPositionsRulerPath();
 	m_bPlayButton = true;
-	m_pMainSampleWaveDisplayL->paintLocatorEvent(
+	m_pSampleWaveDisplayL->paintLocatorEvent(
 		m_pStartFrameSpinBox->value() / m_fDivider + 24, true
 	);
 
@@ -933,7 +933,7 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	}
 	auto pHydrogen = Hydrogen::get_instance();
 	auto tearDown = [&]() {
-		m_pMainSampleWaveDisplayL->paintLocatorEvent(
+		m_pSampleWaveDisplayL->paintLocatorEvent(
 			m_pStartFrameSpinBox->value() / m_fDivider + 24, true
 		);
 		m_selectedSlider = Slider::None;
@@ -1000,14 +1000,14 @@ void SampleEditor::updateMainsamplePositionRuler()
 	if ( realpos < m_nRealtimeFrameEnd ) {
 		unsigned frame = m_nSlframes - ( m_nRealtimeFrameEnd - realpos );
 		if ( m_bPlayButton == true ) {
-			m_pMainSampleWaveDisplayL->paintLocatorEvent(
+			m_pSampleWaveDisplayL->paintLocatorEvent(
 				m_pPositionsRulerPath[frame] / m_fDivider + 25, true
 			);
 
 			m_nFramePosition = m_pPositionsRulerPath[frame];
 		}
 		else {
-			m_pMainSampleWaveDisplayL->paintLocatorEvent(
+			m_pSampleWaveDisplayL->paintLocatorEvent(
 				frame / m_fDivider + 25, true
 			);
 
@@ -1018,7 +1018,7 @@ void SampleEditor::updateMainsamplePositionRuler()
 	}
 	else {
 		auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
-		m_pMainSampleWaveDisplayL->paintLocatorEvent( -1, false );
+		m_pSampleWaveDisplayL->paintLocatorEvent( -1, false );
 		m_pTimer->stop();
 		m_pPlayButton->setText( pCommonString->getButtonPlay() );
 		m_pPlayOriginalButton->setText(
@@ -1191,7 +1191,7 @@ void SampleEditor::valueChangedLoopCountSpinBox( int )
 
 	if ( m_nSlframes > pAudioDriver->getSampleRate() * 60 ) {
 		pHydrogen->getAudioEngine()->getSampler()->stopPlayingNotes();
-		m_pMainSampleWaveDisplayL->paintLocatorEvent( -1, false );
+		m_pSampleWaveDisplayL->paintLocatorEvent( -1, false );
 		m_pTimer->stop();
 		m_bPlayButton = false;
 	}
@@ -1368,7 +1368,7 @@ void SampleEditor::testpTimer()
 {
 	if ( m_pTimer->isActive() || m_pTargetDisplayTimer->isActive() ) {
 		auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
-		m_pMainSampleWaveDisplayL->paintLocatorEvent( -1, false );
+		m_pSampleWaveDisplayL->paintLocatorEvent( -1, false );
 		m_pTimer->stop();
 		m_pTargetDisplayTimer->stop();
 		m_pPlayButton->setText( pCommonString->getButtonPlay() );
