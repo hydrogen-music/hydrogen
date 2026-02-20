@@ -79,6 +79,10 @@ class SampleWaveDisplay : public WaveDisplay,
 	/** Cache for undo/redo actions during drag moving. Otherwise, the operation
 	 * would be to inefficient. */
 	int m_nOldFrame;
+
+	/** We only change for the vicinity of a slider once when pressing the left
+	 * mouse button. Else we would risk loosing it on faster mouse movements. */
+	bool m_bDragStarted;
 };
 
 #endif

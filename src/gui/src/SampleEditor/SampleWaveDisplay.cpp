@@ -39,7 +39,9 @@ SampleWaveDisplay::SampleWaveDisplay(
 	WaveDisplay::Channel channel
 )
 	: WaveDisplay( pParent, channel ),
-	  m_pSampleEditor( pParent ), m_nOldFrame( 0 )
+	  m_pSampleEditor( pParent ),
+	  m_nOldFrame( 0 ),
+	  m_bDragStarted( false )
 {
 	setFixedSize( SampleWaveDisplay::nWidth, SampleWaveDisplay::nHeight );
 
@@ -61,9 +63,9 @@ void SampleWaveDisplay::leaveEvent( QEvent* pEv )
 void SampleWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 {
 	auto pEv = static_cast<MouseEvent*>( ev );
-    const auto slider = intersectWith( pEv->position() );
+	const auto slider = intersectWith( pEv->position() );
 	if ( !( ev->buttons() & Qt::LeftButton ) ||
-		 slider == SampleEditor::Slider::None ) {
+		 ( !m_bDragStarted && slider == SampleEditor::Slider::None ) ) {
 		if ( slider != m_pSampleEditor->getHoveredSlider() ) {
 			m_pSampleEditor->setHoveredSlider( slider );
 		}
@@ -98,9 +100,11 @@ void SampleWaveDisplay::mousePressEvent( QMouseEvent* ev )
 	m_nOldFrame = xToFrame(
 		std::clamp( static_cast<int>( pEv->position().x() ), 0, width() )
 	);
+	m_bDragStarted = true;
 }
 
-void SampleWaveDisplay::mouseReleaseEvent( QMouseEvent* ev ) {
+void SampleWaveDisplay::mouseReleaseEvent( QMouseEvent* ev )
+{
 	auto pEv = static_cast<MouseEvent*>( ev );
 	auto nNewFrame = xToFrame(
 		std::clamp( static_cast<int>( pEv->position().x() ), 0, width() )
@@ -111,8 +115,12 @@ void SampleWaveDisplay::mouseReleaseEvent( QMouseEvent* ev ) {
 			m_pSampleEditor->getSelectedSlider(), m_nOldFrame, nNewFrame
 		),
 		QString( "SampleEditor::slider::%1" )
-			.arg( SampleEditor::SliderToQString( m_pSampleEditor->getSelectedSlider() ) )
+			.arg( SampleEditor::SliderToQString(
+				m_pSampleEditor->getSelectedSlider()
+			) )
 	);
+
+	m_bDragStarted = false;
 }
 
 void SampleWaveDisplay::paintEvent( QPaintEvent* ev )
@@ -121,7 +129,7 @@ void SampleWaveDisplay::paintEvent( QPaintEvent* ev )
 		return;
 	}
 
-    const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 
 	WaveDisplay::paintEvent( ev );
 
@@ -142,12 +150,13 @@ void SampleWaveDisplay::paintEvent( QPaintEvent* ev )
 	renderSlider( &p, SampleEditor::Slider::End );
 }
 
-SampleEditor::Slider SampleWaveDisplay::intersectWith( const QPointF& point ) const
+SampleEditor::Slider SampleWaveDisplay::intersectWith( const QPointF& point
+) const
 {
-    // The handle of a slider has higher priority than the rod of the others.
-    // The vertical space between the handles is big enough for them to not
-    // fighting for hovering.
-    if ( m_channel == WaveDisplay::Channel::Left ) {
+	// The handle of a slider has higher priority than the rod of the others.
+	// The vertical space between the handles is big enough for them to not
+	// fighting for hovering.
+	if ( m_channel == WaveDisplay::Channel::Left ) {
 		QRectF startHandleRect(
 			std::max(
 				0, frameToX( m_pSampleEditor->getLoopStartFrame() ) -
@@ -174,9 +183,9 @@ SampleEditor::Slider SampleWaveDisplay::intersectWith( const QPointF& point ) co
 			),
 			std::min(
 				height(), height() - 2 * SampleWaveDisplay::nHandleMargin -
-					   3 * SampleWaveDisplay::nHandleSlope -
-					   SampleWaveDisplay::nHandleHeight -
-					   Editor::nDefaultCursorMargin
+							  3 * SampleWaveDisplay::nHandleSlope -
+							  SampleWaveDisplay::nHandleHeight -
+							  Editor::nDefaultCursorMargin
 			),
 			SampleWaveDisplay::nHandleWidth + 2 * Editor::nDefaultCursorMargin,
 			SampleWaveDisplay::nHandleHeight +
@@ -242,7 +251,7 @@ void SampleWaveDisplay::renderSlider(
 	SampleEditor::Slider slider
 )
 {
-    const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 
 	QFont font;
 	font.setWeight( QFont::Bold );
@@ -298,7 +307,7 @@ void SampleWaveDisplay::renderSlider(
 			return;
 	}
 
-    color.setAlpha( SampleEditor::nColorAlpha );
+	color.setAlpha( SampleEditor::nColorAlpha );
 
 	QColor colorHovered( color );
 	colorHovered.setAlpha( SampleWaveDisplay::nHoveredAlpha );
@@ -331,14 +340,15 @@ void SampleWaveDisplay::renderSlider(
 			),
 		};
 
-        if ( slider == m_pSampleEditor->getHoveredSlider() ) {
-		pPainter->setPen( QPen( colorHovered, SampleWaveDisplay::nHoveredHalo )
-                          );
-        pPainter->setBrush( QBrush( colorHovered ) );
-		pPainter->drawPolygon( handlePoints, 4 );
-        }
+		if ( slider == m_pSampleEditor->getHoveredSlider() ) {
+			pPainter->setPen(
+				QPen( colorHovered, SampleWaveDisplay::nHoveredHalo )
+			);
+			pPainter->setBrush( QBrush( colorHovered ) );
+			pPainter->drawPolygon( handlePoints, 4 );
+		}
 
-        pPainter->setPen( color );
+		pPainter->setPen( color );
 		pPainter->setBrush( color );
 		pPainter->drawPolygon( handlePoints, 4 );
 
