@@ -54,16 +54,10 @@ class TargetWaveDisplay : public WaveDisplay,
 
 	void paintLocatorEventTargetDisplay( int nPos );
 	virtual void paintEvent( QPaintEvent* ev ) override;
-	H2Core::Sample::PanEnvelope* get_pan() { return &m_PanEnvelope; }
-	H2Core::Sample::VelocityEnvelope* get_velocity()
-	{
-		return &m_VelocityEnvelope;
-	}
 
    private:
 	void mouseMoveEvent( QMouseEvent* ev ) override;
 	void mousePressEvent( QMouseEvent* ev ) override;
-	void mouseReleaseEvent( QMouseEvent* ev ) override;
 
 	void drawPeakData() override;
 	/** Since we displaying pan automation on top of the peak data and want to
@@ -89,9 +83,6 @@ class TargetWaveDisplay : public WaveDisplay,
 
 	std::vector<int> m_peakDataL;
 	std::vector<int> m_peakDataR;
-
-	H2Core::Sample::PanEnvelope m_PanEnvelope;
-	H2Core::Sample::VelocityEnvelope m_VelocityEnvelope;
 
 	int m_nSelectedEnvelopePoint;
 };

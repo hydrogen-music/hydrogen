@@ -23,11 +23,11 @@
 #ifndef SAMPLEEDITOR_H
 #define SAMPLEEDITOR_H
 
-
 #include <QtGui>
 #include <QtWidgets>
 #include <memory>
-#include "Widgets/LCDDisplay.h"
+
+#include "../Widgets/EditorDefs.h"
 
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
@@ -87,11 +87,23 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	void setLoopEndFrame( int nFrame );
 
 	Envelope getEnvelope() const;
+	const std::vector<H2Core::EnvelopePoint>& getCurrentEnvelope() const;
+	const H2Core::Sample::PanEnvelope& getPanEnvelope() const;
+	const H2Core::Sample::VelocityEnvelope& getVelocityEnvelope() const;
+	void editEnvelopePoint(
+		H2Core::EnvelopePoint point,
+		SampleEditor::Envelope envelope,
+		Editor::Action action
+	);
+	void moveEnvelopePoint(
+		H2Core::EnvelopePoint oldPoint,
+		H2Core::EnvelopePoint newPoint,
+		SampleEditor::Envelope envelope
+	);
+
 	void setSampleName( const QString& name );
 	bool getCloseQuestion();
 	void returnAllTargetDisplayValues();
-	void setUnclean();
-	void setClean();
 
 	// this values come from the real sample to restore a frm song loaded sample
 	bool m_bSampleIsModified;  ///< true if sample is modified
@@ -103,6 +115,8 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	void updateTargetsamplePositionRuler();
 
    private:
+	void setUnclean();
+	void setClean();
 	void updateSourceWaveDisplays();
 	void getAllFrameInfos();
 	void setAllSampleProps();
@@ -162,9 +176,12 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	long long* m_pPositionsRulerPath;
 	float m_fRatio;
 
-	Envelope m_envelope;
 	H2Core::Sample::Loops m_loops;
 	H2Core::Sample::Rubberband m_rubberband;
+
+	Envelope m_envelope;
+	H2Core::Sample::PanEnvelope m_panEnvelope;
+	H2Core::Sample::VelocityEnvelope m_velocityEnvelope;
 };
 
 inline long long SampleEditor::getFramePosition() const
@@ -198,5 +215,24 @@ inline int SampleEditor::getLoopEndFrame() const
 inline SampleEditor::Envelope SampleEditor::getEnvelope() const
 {
 	return m_envelope;
+}
+inline const std::vector<H2Core::EnvelopePoint>&
+SampleEditor::getCurrentEnvelope() const
+{
+	if ( m_envelope == Envelope::Velocity ) {
+		return m_velocityEnvelope;
+	}
+	else {
+		return m_panEnvelope;
+	}
+}
+inline const H2Core::Sample::PanEnvelope& SampleEditor::getPanEnvelope() const
+{
+	return m_panEnvelope;
+}
+inline const H2Core::Sample::VelocityEnvelope&
+SampleEditor::getVelocityEnvelope() const
+{
+	return m_velocityEnvelope;
 }
 #endif

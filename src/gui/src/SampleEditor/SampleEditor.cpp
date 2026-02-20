@@ -119,6 +119,32 @@ SampleEditor::SampleEditor(
 	}
 	m_rubberband = m_pSample->getRubberband();
 
+	if ( m_pSample->getVelocityEnvelope().size() == 0 ) {
+		m_velocityEnvelope.push_back( EnvelopePoint( 0, 0 ) );
+		m_velocityEnvelope.push_back(
+			EnvelopePoint( TargetWaveDisplay::nWidth, 0 )
+		);
+	}
+	else {
+		for ( const auto& pt : m_pSample->getVelocityEnvelope() ) {
+			m_velocityEnvelope.emplace_back( pt );
+		}
+	}
+
+	if ( m_pSample->getPanEnvelope().size() == 0 ) {
+		m_panEnvelope.push_back(
+			EnvelopePoint( 0, TargetWaveDisplay::nHeight / 2 )
+		);
+		m_panEnvelope.push_back( EnvelopePoint(
+			TargetWaveDisplay::nWidth, TargetWaveDisplay::nHeight / 2
+		) );
+	}
+	else {
+		for ( const auto& pt : m_pSample->getPanEnvelope() ) {
+			m_panEnvelope.emplace_back( pt );
+		}
+	}
+
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const auto pPref = Preferences::get_instance();
 	const auto separatorColor =
@@ -777,6 +803,103 @@ void SampleEditor::setLoopEndFrame( int nFrame )
 	updateSourceWaveDisplays();
 }
 
+void SampleEditor::editEnvelopePoint(
+	H2Core::EnvelopePoint point,
+	SampleEditor::Envelope envelopeType,
+	Editor::Action action
+)
+{
+	auto envelope = envelopeType == Envelope::Velocity ? &m_velocityEnvelope
+													   : &m_panEnvelope;
+
+	int nIndex = -1;
+	for ( int ii = 0; ii < envelope->size(); ++ii ) {
+		if ( envelope->at( ii ) == point ) {
+			nIndex = ii;
+			break;
+		}
+	}
+
+	if ( action == Editor::Action::Add && nIndex != -1 ) {
+		ERRORLOG( QString( "Unable to add point [%1]. There is already a point "
+						   "present at frame [%1] in "
+						   "[%2] envelope" )
+					  .arg( point.toQString() )
+					  .arg( EnvelopeToQString( envelopeType ) ) );
+		return;
+	}
+	else if ( action == Editor::Action::Delete && nIndex == -1 ) {
+		ERRORLOG(
+			QString(
+				"Unable to delete ooint [%1] from [%2] envelope-> Not found."
+			)
+				.arg( point.toQString() )
+				.arg( EnvelopeToQString( envelopeType ) )
+		);
+		return;
+	}
+
+	if ( action == Editor::Action::Add ||
+		 ( action == Editor::Action::Toggle && nIndex == -1 ) ) {
+		envelope->push_back( point );
+		sort( envelope->begin(), envelope->end(), EnvelopePoint::Comparator() );
+	}
+	else if ( action == Editor::Action::Delete || ( action == Editor::Action::Toggle && nIndex != 1 ) ) {
+		envelope->erase( envelope->begin() + nIndex );
+		sort( envelope->begin(), envelope->end(), EnvelopePoint::Comparator() );
+	}
+	else {
+		ERRORLOG( "Nothing to do" );
+		return;
+	}
+
+	m_pTargetSampleView->update();
+	setUnclean();
+}
+
+void SampleEditor::moveEnvelopePoint(
+	H2Core::EnvelopePoint oldPoint,
+	H2Core::EnvelopePoint newPoint,
+	SampleEditor::Envelope envelopeType
+)
+{
+	if ( oldPoint == newPoint ) {
+		return;
+	}
+
+	auto envelope = envelopeType == Envelope::Velocity ? &m_velocityEnvelope
+													   : &m_panEnvelope;
+
+	int nIndex = -1;
+	for ( int ii = 0; ii < envelope->size(); ++ii ) {
+		if ( envelope->at( ii ) == oldPoint ) {
+			nIndex = ii;
+			break;
+		}
+	}
+
+	if ( nIndex == -1 ) {
+		ERRORLOG( QString( "Point [%1] not found in [%2] envelope" )
+					  .arg( oldPoint.toQString() )
+					  .arg( EnvelopeToQString( envelopeType ) ) );
+		return;
+	}
+
+	envelope->erase( envelope->begin() + nIndex );
+	envelope->push_back( newPoint );
+	sort( envelope->begin(), envelope->end(), EnvelopePoint::Comparator() );
+
+	// Ensure we only have a single point at a frame.
+	for ( int i = 0; i < envelope->size() - 1; ++i ) {
+		if ( envelope->at( i ).frame == envelope->at( i + 1 ).frame ) {
+			envelope->erase( envelope->begin() + i );
+		}
+	}
+
+	m_pTargetSampleView->update();
+	setUnclean();
+}
+
 void SampleEditor::closeEvent( QCloseEvent* event )
 {
 	if ( !m_bSampleEditorClean ) {
@@ -812,37 +935,6 @@ void SampleEditor::getAllFrameInfos()
 	// new song with sample changes will load
 	m_bSampleIsModified = m_pSample->getIsModified();
 	m_nSamplerate = m_pSample->getSampleRate();
-
-	if ( m_pSample->getVelocityEnvelope().size() == 0 ) {
-		m_pTargetSampleView->get_velocity()->clear();
-		m_pTargetSampleView->get_velocity()->push_back( EnvelopePoint( 0, 0 ) );
-		m_pTargetSampleView->get_velocity()->push_back(
-			EnvelopePoint( m_pTargetSampleView->width(), 0 )
-		);
-	}
-	else {
-		m_pTargetSampleView->get_velocity()->clear();
-
-		for ( const auto& pt : m_pSample->getVelocityEnvelope() ) {
-			m_pTargetSampleView->get_velocity()->emplace_back( pt );
-		}
-	}
-
-	if ( m_pSample->getPanEnvelope().size() == 0 ) {
-		m_pTargetSampleView->get_pan()->clear();
-		m_pTargetSampleView->get_pan()->push_back(
-			EnvelopePoint( 0, m_pTargetSampleView->height() / 2 )
-		);
-		m_pTargetSampleView->get_pan()->push_back( EnvelopePoint(
-			m_pTargetSampleView->width(), m_pTargetSampleView->height() / 2
-		) );
-	}
-	else {
-		m_pTargetSampleView->get_pan()->clear();
-		for ( const auto& pt : m_pSample->getPanEnvelope() ) {
-			m_pTargetSampleView->get_pan()->emplace_back( pt );
-		}
-	}
 }
 
 bool SampleEditor::getCloseQuestion()
@@ -866,9 +958,8 @@ void SampleEditor::createNewLayer()
 		);
 		pEditSample->setLoops( m_loops );
 		pEditSample->setRubberband( m_rubberband );
-		pEditSample->setVelocityEnvelope( *m_pTargetSampleView->get_velocity()
-		);
-		pEditSample->setPanEnvelope( *m_pTargetSampleView->get_pan() );
+		pEditSample->setVelocityEnvelope( m_velocityEnvelope );
+		pEditSample->setPanEnvelope( m_panEnvelope );
 
 		if ( !pEditSample->load( pAudioEngine->getTransportPosition()->getBpm()
 			 ) ) {
@@ -886,11 +977,6 @@ void SampleEditor::createNewLayer()
 
 		m_pTargetSampleView->setLayer( m_pLayer );
 	}
-}
-
-void SampleEditor::returnAllTargetDisplayValues()
-{
-	m_bSampleIsModified = true;
 }
 
 void SampleEditor::setUnclean()

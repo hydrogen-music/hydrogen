@@ -33,7 +33,6 @@
 
 #include "../Compatibility/MouseEvent.h"
 #include "../Skin.h"
-#include "../HydrogenApp.h"
 #include "SampleEditor.h"
 
 using namespace H2Core;
@@ -64,7 +63,7 @@ TargetWaveDisplay::~TargetWaveDisplay()
 }
 
 static void paintEnvelope(
-	Sample::VelocityEnvelope& envelope,
+	const std::vector<EnvelopePoint>& envelope,
 	QPainter& painter,
 	int selected,
 	const QColor& lineColor,
@@ -136,14 +135,14 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 	QColor selectedtHandleColor = QColor( 255, 100, 90 );
 
 	paintEnvelope(
-		m_VelocityEnvelope, p,
+		m_pSampleEditor->getVelocityEnvelope(), p,
 		m_pSampleEditor->getEnvelope() == SampleEditor::Envelope::Velocity
 			? m_nSelectedEnvelopePoint
 			: -1,
 		volumeLineColor, volumeHandleColor, selectedtHandleColor
 	);
 	paintEnvelope(
-		m_PanEnvelope, p,
+		m_pSampleEditor->getPanEnvelope(), p,
 		m_pSampleEditor->getEnvelope() == SampleEditor::Envelope::Pan
 			? m_nSelectedEnvelopePoint
 			: -1,
@@ -326,10 +325,7 @@ void TargetWaveDisplay::updateMouseSelection( QMouseEvent* ev )
 {
 	auto pEv = static_cast<MouseEvent*>( ev );
 
-	const Sample::VelocityEnvelope& envelope =
-		( m_pSampleEditor->getEnvelope() == SampleEditor::Envelope::Velocity )
-			? m_VelocityEnvelope
-			: m_PanEnvelope;
+	const auto envelope = m_pSampleEditor->getCurrentEnvelope();
 
 	m_nSelectedEnvelopePointX = std::min(
 		TargetWaveDisplay::nWidth,
@@ -375,25 +371,25 @@ void TargetWaveDisplay::updateEnvelope()
 		return;
 	}
 
-	Sample::VelocityEnvelope& envelope =
-		( m_pSampleEditor->getEnvelope() == SampleEditor::Envelope::Velocity )
-			? m_VelocityEnvelope
-			: m_PanEnvelope;
-	envelope.erase( envelope.begin() + m_nSelectedEnvelopePoint );
+	const auto envelope = m_pSampleEditor->getCurrentEnvelope();
 	if ( m_nSelectedEnvelopePoint == 0 ) {
 		m_nSelectedEnvelopePointX = 0;
 	}
-	else if ( m_nSelectedEnvelopePoint == static_cast<int>( envelope.size() ) ) {
+	else if ( m_nSelectedEnvelopePoint == envelope.size() - 1 ) {
 		m_nSelectedEnvelopePointX = TargetWaveDisplay::nWidth;
 	}
-	envelope.push_back( EnvelopePoint( m_nSelectedEnvelopePointX, m_nSelectedEnvelopePointY ) );
-	sort( envelope.begin(), envelope.end(), EnvelopePoint::Comparator() );
-	for ( int i = 0; i < envelope.size() - 1; ++i ) {
-		if ( envelope[i].frame == envelope[i + 1].frame ) {
-			envelope.erase( envelope.begin() + i );
-			if ( i + 1 == m_nSelectedEnvelopePoint ) {
-				m_nSelectedEnvelopePoint = i;
-			}
+	m_pSampleEditor->moveEnvelopePoint(
+		envelope[m_nSelectedEnvelopePoint],
+		EnvelopePoint( m_nSelectedEnvelopePointX, m_nSelectedEnvelopePointY ),
+		m_pSampleEditor->getEnvelope()
+	);
+
+	// Refresh the selection
+	const auto envelopeUpdated = m_pSampleEditor->getCurrentEnvelope();
+	for ( int ii = 0; ii < envelopeUpdated.size(); ++ii ) {
+		if ( envelopeUpdated[ii].frame == m_nSelectedEnvelopePointX &&
+			 envelopeUpdated[ii].value == m_nSelectedEnvelopePointY ) {
+			m_nSelectedEnvelopePoint = ii;
 		}
 	}
 }
@@ -403,46 +399,41 @@ void TargetWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 	updateMouseSelection( ev );
 
 	if ( !( ev->buttons() & Qt::LeftButton ) ) {
-		// we are not dragging any point
-		update();
 		return;
 	}
 	updateEnvelope();
 	updateMouseSelection( ev );
-	update();
-	HydrogenApp::get_instance()->getSampleEditor()->setUnclean();
 }
 
 void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
 {
-	Sample::VelocityEnvelope& envelope =
-		( m_pSampleEditor->getEnvelope() == SampleEditor::Envelope::Velocity )
-			? m_VelocityEnvelope
-			: m_PanEnvelope;
+	const auto envelope = m_pSampleEditor->getCurrentEnvelope();
 
 	updateMouseSelection( ev );
 
 	if ( ev->button() == Qt::LeftButton ) {
 		// add or move point
-		bool NewPoint = false;
-
 		if ( m_nSelectedEnvelopePoint == -1 ) {
-			NewPoint = true;
-		}
-
-		if ( NewPoint ) {
 			if ( envelope.empty() ) {
-				envelope.push_back( EnvelopePoint( 0, m_nSelectedEnvelopePointY ) );
-				envelope.push_back(
-					EnvelopePoint( TargetWaveDisplay::nWidth, m_nSelectedEnvelopePointY )
+				m_pSampleEditor->editEnvelopePoint(
+					EnvelopePoint( 0, m_nSelectedEnvelopePointY ),
+					m_pSampleEditor->getEnvelope(), Editor::Action::Add
+				);
+				m_pSampleEditor->editEnvelopePoint(
+					EnvelopePoint(
+						TargetWaveDisplay::nWidth, m_nSelectedEnvelopePointY
+					),
+					m_pSampleEditor->getEnvelope(), Editor::Action::Add
 				);
 			}
 			else {
-				envelope.push_back( EnvelopePoint( m_nSelectedEnvelopePointX, m_nSelectedEnvelopePointY ) );
+				m_pSampleEditor->editEnvelopePoint(
+					EnvelopePoint(
+						m_nSelectedEnvelopePointX, m_nSelectedEnvelopePointY
+					),
+					m_pSampleEditor->getEnvelope(), Editor::Action::Add
+				);
 			}
-			sort(
-				envelope.begin(), envelope.end(), EnvelopePoint::Comparator()
-			);
 		}
 		else {
 			// move old point to new position
@@ -464,23 +455,22 @@ void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
 		}
 		else if ( envelope.size() == 2 ) {
 			// if only 2 points, remove them both
-			envelope.clear();
+			m_pSampleEditor->editEnvelopePoint(
+				envelope[1], m_pSampleEditor->getEnvelope(),
+				Editor::Action::Delete
+			);
+			m_pSampleEditor->editEnvelopePoint(
+				envelope[0], m_pSampleEditor->getEnvelope(),
+				Editor::Action::Delete
+			);
 		}
 		else {
-			envelope.erase( envelope.begin() + m_nSelectedEnvelopePoint );
+			m_pSampleEditor->editEnvelopePoint(
+				envelope[m_nSelectedEnvelopePoint],
+				m_pSampleEditor->getEnvelope(), Editor::Action::Delete
+			);
 		}
 	}
 
 	updateMouseSelection( ev );
-	update();
-	HydrogenApp::get_instance()->getSampleEditor()->setUnclean();
-}
-
-void TargetWaveDisplay::mouseReleaseEvent( QMouseEvent* ev )
-{
-	updateMouseSelection( ev );
-	update();
-	HydrogenApp::get_instance()
-		->getSampleEditor()
-		->returnAllTargetDisplayValues();
 }
