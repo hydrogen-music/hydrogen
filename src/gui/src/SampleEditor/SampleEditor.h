@@ -42,6 +42,7 @@ class InstrumentLayer;
 
 class DetailWaveDisplay;
 class LCDDisplay;
+class LCDCombo;
 class LCDSpinBox;
 class SampleWaveDisplay;
 class TargetWaveDisplay;
@@ -94,8 +95,6 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 
    private slots:
 	void valueChangedProcessingTypeComboBox( int );
-	void valueChangedrubberComboBox( int );
-	void valueChangedrubberbandCsettingscomboBox( int );
 	void on_PlayPushButton_clicked();
 	void on_PlayOrigPushButton_clicked();
 	void updateMainsamplePositionRuler();
@@ -109,7 +108,7 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	void updateTargetFrames();
 	void createPositionsRulerPath();
 	void testpTimer();
-	void checkRatioSettings();
+	void checkRubberbandSettings();
 
 	virtual void closeEvent( QCloseEvent* event ) override;
 
@@ -127,7 +126,7 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	QComboBox* m_pRubberBandLengthComboBox;
 	QLabel* m_pRubberBandRatioLabel;
 	LCDSpinBox* m_pRubberBandPitchSpinBox;
-	QComboBox* m_pRubberBandCrispnessComboBox;
+	LCDCombo* m_pRubberBandCrispnessComboBox;
 
 	QPushButton* m_pApplyButton;
 	QPushButton* m_pPlayButton;
