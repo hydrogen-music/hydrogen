@@ -101,7 +101,7 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	void updateTargetsamplePositionRuler();
 
    private:
-	void updateWaveDisplays();
+	void updateSourceWaveDisplays();
 	void getAllFrameInfos();
 	void setAllSampleProps();
 	void createNewLayer();

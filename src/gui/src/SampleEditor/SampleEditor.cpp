@@ -189,7 +189,7 @@ background-color: %1;" )
 	pZoomSlider->setOrientation( Qt::Vertical );
 	connect( pZoomSlider, &QSlider::valueChanged, [=]() {
 		m_fZoomfactor = pZoomSlider->value() / 10 + 1;
-		updateWaveDisplays();
+		updateSourceWaveDisplays();
 	} );
 	pWaveDisplayContainerLayout->addWidget( pZoomSlider );
 
@@ -630,7 +630,7 @@ background-color: %1;" )
 	getAllFrameInfos();
 	updateTargetFrames();
 
-	updateWaveDisplays();
+	updateSourceWaveDisplays();
 
 #ifndef H2CORE_HAVE_RUBBERBAND
 	if ( !Filesystem::file_executable(
@@ -665,7 +665,7 @@ void SampleEditor::setSelectedSlider( Slider slider )
 		return;
 	}
 	m_selectedSlider = slider;
-	updateWaveDisplays();
+	updateSourceWaveDisplays();
 }
 
 void SampleEditor::setLoopStartFrame( int nFrame )
@@ -689,7 +689,7 @@ void SampleEditor::setLoopStartFrame( int nFrame )
 
 	setUnclean();
 	updateTargetFrames();
-	updateWaveDisplays();
+	updateSourceWaveDisplays();
 }
 
 void SampleEditor::setLoopLoopFrame( int nFrame )
@@ -712,7 +712,7 @@ void SampleEditor::setLoopLoopFrame( int nFrame )
 	m_selectedSlider = Slider::Loop;
 	setUnclean();
 	updateTargetFrames();
-	updateWaveDisplays();
+	updateSourceWaveDisplays();
 }
 
 void SampleEditor::setLoopEndFrame( int nFrame )
@@ -735,7 +735,7 @@ void SampleEditor::setLoopEndFrame( int nFrame )
 	m_selectedSlider = Slider::End;
 	setUnclean();
 	updateTargetFrames();
-	updateWaveDisplays();
+	updateSourceWaveDisplays();
 }
 
 int SampleEditor::getEnvelopeIndex() const
@@ -764,7 +764,7 @@ void SampleEditor::closeEvent( QCloseEvent* event )
 	}
 }
 
-void SampleEditor::updateWaveDisplays()
+void SampleEditor::updateSourceWaveDisplays()
 {
 	m_pDetailWaveDisplayL->update();
 	m_pDetailWaveDisplayR->update();
@@ -917,7 +917,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 	m_selectedSlider = Slider::None;
 	m_nFramePosition = static_cast<long long>( m_loops.nStartFrame );
 
-	updateWaveDisplays();
+	updateSourceWaveDisplays();
 
 	if ( m_rubberband.bUse == false ) {
 		m_pTimer->start( 40 );	// update ruler at 25 fps
@@ -948,7 +948,7 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 		m_selectedSlider = Slider::None;
 		m_nFramePosition = static_cast<long long>( m_loops.nStartFrame );
 
-		updateWaveDisplays();
+		updateSourceWaveDisplays();
 
 		m_pTimer->start( 40 );	// update ruler at 25 fps
 		m_nRealtimeFrameEnd =
@@ -1015,7 +1015,7 @@ void SampleEditor::updateMainsamplePositionRuler()
 			m_nFramePosition = nFrame;
 		}
 
-		updateWaveDisplays();
+		updateSourceWaveDisplays();
 	}
 	else {
 		auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
