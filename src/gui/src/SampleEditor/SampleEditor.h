@@ -109,7 +109,8 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	virtual void closeEvent( QCloseEvent* event ) override;
 	virtual void mouseReleaseEvent( QMouseEvent* ev ) override;
 
-	MainSampleWaveDisplay* m_pMainSampleWaveDisplay;
+	MainSampleWaveDisplay* m_pMainSampleWaveDisplayL;
+	MainSampleWaveDisplay* m_pMainSampleWaveDisplayR;
 	DetailWaveDisplay* m_pDetailWaveDisplayL;
 	DetailWaveDisplay* m_pDetailWaveDisplayR;
 

@@ -31,25 +31,18 @@
 
 using namespace H2Core;
 
-MainSampleWaveDisplay::MainSampleWaveDisplay( QWidget* pParent )
-	: QWidget( pParent )
+MainSampleWaveDisplay::MainSampleWaveDisplay(
+	SampleEditor* pParent,
+	WaveDisplay::Channel channel
+)
+	: WaveDisplay( pParent, channel ), m_pSampleEditor( pParent )
 {
-	//	setAttribute(Qt::WA_OpaquePaintEvent);
-
-	//
-	int w = 624;
-	int h = 265;
-	setFixedSize( w, h );
-
-	bool ok = m_background.load(
-		Skin::getImagePath() + "/waveDisplay/mainsamplewavedisplay.png"
+	setFixedSize(
+		MainSampleWaveDisplay::nWidth, MainSampleWaveDisplay::nHeight
 	);
-	if ( ok == false ) {
-		ERRORLOG( "Error loading pixmap" );
-	}
 
-	m_pPeakDatal = new int[w];
-	m_pPeakDatar = new int[w];
+	m_label = WaveDisplay::Label::Fallback;
+	m_sFallbackLabel = "";
 
 	m_nStartFramePosition = 25;
 	m_nLoopFramePosition = 25;
@@ -68,10 +61,6 @@ MainSampleWaveDisplay::MainSampleWaveDisplay( QWidget* pParent )
 
 MainSampleWaveDisplay::~MainSampleWaveDisplay()
 {
-	// INFOLOG( "DESTROY" );
-
-	delete[] m_pPeakDatal;
-	delete[] m_pPeakDatar;
 }
 
 void MainSampleWaveDisplay::paintLocatorEvent( int pos, bool updateposi )
@@ -118,45 +107,17 @@ static void set_paint_color(
 
 void MainSampleWaveDisplay::paintEvent( QPaintEvent* ev )
 {
-	QPainter painter( this );
-	painter.setRenderHint( QPainter::Antialiasing );
-
-	bool issmaller = false;
-
-	painter.drawPixmap( ev->rect(), m_background, ev->rect() );
-	painter.setPen( QColor( 230, 230, 230 ) );
-	int VCenterl = height() / 4;
-	int VCenterr = height() / 4 + height() / 2;
-
-	if ( width() >= m_nSampleLength )
-		issmaller = true;
-
-	for ( int x = 25; x < width() - 25; x++ ) {
-		if ( !issmaller || x <= m_nSampleLength ) {
-			painter.drawLine(
-				x, -m_pPeakDatal[x - 25] + VCenterl, x,
-				-m_pPeakDatal[x - 24] + VCenterl
-			);
-			painter.drawLine(
-				x, -m_pPeakDatar[x - 25] + VCenterr, x,
-				-m_pPeakDatar[x - 24] + VCenterr
-			);
-		}
-		else {
-			painter.drawLine( x, 0 + VCenterl, x, 0 + VCenterl );
-			painter.drawLine( x, 0 + VCenterr, x, 0 + VCenterr );
-		}
+	if ( !isVisible() ) {
+		return;
 	}
 
-	painter.setCompositionMode( QPainter::CompositionMode_SourceOver );
+	WaveDisplay::paintEvent( ev );
 
-	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
-	painter.drawLine( 23, 4, 23, height() - 4 );
-	painter.drawLine( width() - 23, 4, width() - 23, height() - 4 );
+	 QPainter painter( this );
+	painter.setRenderHint( QPainter::Antialiasing );
+
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::SolidLine ) );
 	painter.drawLine( m_nLocator, 4, m_nLocator, height() - 4 );
-	painter.drawLine( 0, VCenterl, width(), VCenterl );
-	painter.drawLine( 0, VCenterr, width(), VCenterr );
 
 	QFont font;
 
@@ -167,8 +128,8 @@ void MainSampleWaveDisplay::paintEvent( QPaintEvent* ev )
 	painter.setFont( font );
 	// start frame pointer
 	set_paint_color(
-		painter, startColor, m_selectedSlider == SampleEditor::Slider::Start,
-		m_selectedSlider
+		painter, startColor, m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::Start,
+		m_pSampleEditor->getSelectedSlider()
 	);
 	painter.drawLine(
 		m_nStartFramePosition, 4, m_nStartFramePosition, height() - 4
@@ -178,8 +139,8 @@ void MainSampleWaveDisplay::paintEvent( QPaintEvent* ev )
 	);
 	// endframe pointer
 	set_paint_color(
-		painter, endColor, m_selectedSlider == SampleEditor::Slider::End,
-		m_selectedSlider
+		painter, endColor, m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::End,
+		m_pSampleEditor->getSelectedSlider()
 	);
 	painter.drawLine(
 		m_nEndFramePosition, 4, m_nEndFramePosition, height() - 4
@@ -189,8 +150,8 @@ void MainSampleWaveDisplay::paintEvent( QPaintEvent* ev )
 	);
 	// loopframe pointer
 	set_paint_color(
-		painter, loopColor, m_selectedSlider == SampleEditor::Slider::Loop,
-		m_selectedSlider
+		painter, loopColor, m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::Loop,
+		m_pSampleEditor->getSelectedSlider()
 	);
 	painter.drawLine(
 		m_nLoopFramePosition, 4, m_nLoopFramePosition, height() - 4
@@ -203,48 +164,48 @@ void MainSampleWaveDisplay::updateDisplayPointer()
 	update();
 }
 
-void MainSampleWaveDisplay::updateDisplay( std::shared_ptr<Sample> pNewSample )
-{
-	int nSampleLength = pNewSample->getFrames();
-	m_nSampleLength = nSampleLength;
-	float nScaleFactor = nSampleLength / ( width() - 50 );
-	if ( nScaleFactor < 1 ) {
-		nScaleFactor = 1;
-	}
+// void MainSampleWaveDisplay::updateDisplay( std::shared_ptr<Sample> pNewSample )
+// {
+// 	int nSampleLength = pNewSample->getFrames();
+// 	m_nSampleLength = nSampleLength;
+// 	float nScaleFactor = nSampleLength / ( width() - 50 );
+// 	if ( nScaleFactor < 1 ) {
+// 		nScaleFactor = 1;
+// 	}
 
-	float fGain = height() / 4.0 * 1.0;
+// 	float fGain = height() / 4.0 * 1.0;
 
-	auto pSampleDatal = pNewSample->getData_L();
-	auto pSampleDatar = pNewSample->getData_R();
+// 	auto pSampleDatal = pNewSample->getData_L();
+// 	auto pSampleDatar = pNewSample->getData_R();
 
-	unsigned nSamplePos = 0;
-	int nVall = 0;
-	int nValr = 0;
-	int newVall = 0;
-	int newValr = 0;
-	for ( int i = 0; i < width(); ++i ) {
-		for ( int j = 0; j < nScaleFactor; ++j ) {
-			if ( j < nSampleLength && nSamplePos < nSampleLength ) {
-				if ( pSampleDatal[nSamplePos] && pSampleDatar[nSamplePos] ) {
-					newVall =
-						static_cast<int>( pSampleDatal[nSamplePos] * fGain );
-					newValr =
-						static_cast<int>( pSampleDatar[nSamplePos] * fGain );
-					nVall = newVall;
-					nValr = newValr;
-				}
-				else {
-					nVall = 0;
-					nValr = 0;
-				}
-			}
-			++nSamplePos;
-		}
-		m_pPeakDatal[i] = nVall;
-		m_pPeakDatar[i] = nValr;
-	}
-	update();
-}
+// 	unsigned nSamplePos = 0;
+// 	int nVall = 0;
+// 	int nValr = 0;
+// 	int newVall = 0;
+// 	int newValr = 0;
+// 	for ( int i = 0; i < width(); ++i ) {
+// 		for ( int j = 0; j < nScaleFactor; ++j ) {
+// 			if ( j < nSampleLength && nSamplePos < nSampleLength ) {
+// 				if ( pSampleDatal[nSamplePos] && pSampleDatar[nSamplePos] ) {
+// 					newVall =
+// 						static_cast<int>( pSampleDatal[nSamplePos] * fGain );
+// 					newValr =
+// 						static_cast<int>( pSampleDatar[nSamplePos] * fGain );
+// 					nVall = newVall;
+// 					nValr = newValr;
+// 				}
+// 				else {
+// 					nVall = 0;
+// 					nValr = 0;
+// 				}
+// 			}
+// 			++nSamplePos;
+// 		}
+// 		m_pPeakDatal[i] = nVall;
+// 		m_pPeakDatar[i] = nValr;
+// 	}
+// 	update();
+// }
 
 void MainSampleWaveDisplay::mouseUpdateDone()
 {

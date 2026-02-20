@@ -24,6 +24,7 @@
 #define MAIN_SAMPLE_WAVE_DISPLAY
 
 #include "SampleEditor.h"
+#include "../Widgets/WaveDisplay.h"
 
 #include <QtGui>
 #include <QtWidgets>
@@ -37,20 +38,27 @@ class Sample;
 }
 
 /** \ingroup docGUI*/
-class MainSampleWaveDisplay : public QWidget,
+class MainSampleWaveDisplay : public WaveDisplay,
 							  public H2Core::Object<MainSampleWaveDisplay> {
 	H2_OBJECT( MainSampleWaveDisplay )
 	Q_OBJECT
 
    public:
-	explicit MainSampleWaveDisplay( QWidget* pParent );
+	static constexpr int nWidth = 624;
+	static constexpr int nHeight = 132;
+
+	explicit MainSampleWaveDisplay(
+		SampleEditor* pParent,
+		WaveDisplay::Channel channel
+	);
 	~MainSampleWaveDisplay();
 
 	void updateDisplay( std::shared_ptr<H2Core::Sample> pNewSample );
 	void updateDisplayPointer();
 
 	void paintLocatorEvent( int pos, bool last_event );
-	virtual void paintEvent( QPaintEvent* ev ) override;
+
+	void paintEvent( QPaintEvent* ev ) override;
 
 	void testPositionFromSampleeditor();
 
@@ -65,16 +73,14 @@ class MainSampleWaveDisplay : public QWidget,
 	SampleEditor::Slider m_selectedSlider;
 
    private:
-	virtual void mouseMoveEvent( QMouseEvent* ev ) override;
-	virtual void mousePressEvent( QMouseEvent* ev ) override;
-	virtual void mouseReleaseEvent( QMouseEvent* ev ) override;
+	void mouseMoveEvent( QMouseEvent* ev ) override;
+	void mousePressEvent( QMouseEvent* ev ) override;
+	void mouseReleaseEvent( QMouseEvent* ev ) override;
 	void testPosition( QMouseEvent* ev );
 	void chooseSlider( QMouseEvent* ev );
 	void mouseUpdateDone();
 
-	QPixmap m_background;
-	int* m_pPeakDatal;
-	int* m_pPeakDatar;
+	SampleEditor* m_pSampleEditor;
 
 	int m_nSampleLength;
 	int m_nLocator;
