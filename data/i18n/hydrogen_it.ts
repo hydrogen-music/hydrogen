@@ -4894,6 +4894,24 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     </message>
 </context>
 <context>
+    <name>SampleWaveDisplay</name>
+    <message>
+        <source>S</source>
+        <extracomment>Single character used as a label of the loop start slider within * the sample editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>L</source>
+        <extracomment>Single character used as a label of the loop onset slider within * the sample editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>E</source>
+        <extracomment>Single character used as a label of the loop end slider within * the sample editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ShortcutCaptureDialog</name>
     <message>
         <source>Waiting for keyboard input</source>

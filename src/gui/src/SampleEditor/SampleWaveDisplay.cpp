@@ -123,28 +123,65 @@ void SampleWaveDisplay::paintEvent( QPaintEvent* ev )
 		m_pSampleEditor->getFramePosition(), height() - 4
 	);
 
-	// Render loop sliders
-	QColor startColor = QColor( 32, 173, 0, 200 );
-	QColor endColor = QColor( 217, 68, 0, 200 );
-	QColor loopColor = QColor( 93, 170, 254, 200 );
+	renderSlider( &p, SampleEditor::Slider::Start );
+	renderSlider( &p, SampleEditor::Slider::Loop );
+	renderSlider( &p, SampleEditor::Slider::End );
+}
+
+void SampleWaveDisplay::renderSlider(
+	QPainter* pPainter,
+	SampleEditor::Slider slider
+)
+{
 	QFont font;
 	font.setWeight( QFont::Bold );
-	p.setFont( font );
+	pPainter->setFont( font );
 
-	const auto nStart = frameToX( m_pSampleEditor->getLoopStartFrame() );
-	p.setPen( startColor );
-	p.drawLine( nStart, 4, nStart, height() - 4 );
-	p.drawText( nStart, 0, 10, 20, Qt::AlignRight, "S" );
-
-	const auto nLoop = frameToX( m_pSampleEditor->getLoopLoopFrame() );
-	p.setPen( loopColor );
-	p.drawLine( nLoop, 4, nLoop, height() - 4 );
-	p.drawText( nLoop, height() / 2, 10, 20, Qt::AlignLeft, "L" );
-
-	const auto nEnd = frameToX( m_pSampleEditor->getLoopEndFrame() );
-	p.setPen( endColor );
-	p.drawLine( nEnd, 4, nEnd, height() - 4 );
-	p.drawText( nEnd - 10, height() - 30, 10, 20, Qt::AlignRight, "E" );
+	int nX, nHandleY;
+	QColor color;
+	QString sLabel;
+	bool bLeftLeaning = false;
+	switch ( slider ) {
+		case SampleEditor::Slider::Start:
+			nX = frameToX( m_pSampleEditor->getLoopStartFrame() );
+			nHandleY = 0;
+			color = QColor( 32, 173, 0, 200 );
+			/*: Single character used as a label of the loop start slider within
+			 *  the sample editor. */
+			sLabel = tr( "S" );
+			break;
+		case SampleEditor::Slider::Loop:
+			nX = frameToX( m_pSampleEditor->getLoopLoopFrame() );
+			nHandleY = height() / 2 - 15;
+			color = QColor( 93, 170, 254, 200 );
+			/*: Single character used as a label of the loop onset slider within
+			 *  the sample editor. */
+			sLabel = tr( "L" );
+			break;
+		case SampleEditor::Slider::End:
+			nX = frameToX( m_pSampleEditor->getLoopEndFrame() );
+			nHandleY = height() - 25;
+			color = QColor( 217, 68, 0, 200 );
+			/*: Single character used as a label of the loop end slider within
+			 *  the sample editor. */
+			sLabel = tr( "E" );
+			bLeftLeaning = true;
+			break;
+		case SampleEditor::Slider::None:
+			// TODO
+			DEBUGLOG( "not handled yet" );
+			return;
+	}
+	pPainter->setPen( color );
+	pPainter->drawLine( nX, 4, nX, height() - 4 );
+	if ( bLeftLeaning ) {
+		pPainter->drawText(
+			nX - 10, nHandleY, 10, 20, Qt::AlignCenter, sLabel
+		);
+	}
+	else {
+		pPainter->drawText( nX, nHandleY, 10, 20, Qt::AlignCenter, sLabel );
+	}
 }
 
 int SampleWaveDisplay::frameToX( int nFrame ) const
