@@ -314,7 +314,7 @@ void SampleWaveDisplay::renderSlider(
 
 		pPainter->setPen( Qt::black );
 		pPainter->drawText(
-			nHandleX, nHandleY + 1, SampleWaveDisplay::nHandleWidth,
+			nHandleX, nHandleY, SampleWaveDisplay::nHandleWidth,
 			SampleWaveDisplay::nHandleHeight, Qt::AlignCenter, sLabel
 		);
 	}
