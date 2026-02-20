@@ -67,7 +67,7 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	);
 	~SampleEditor();
 
-	int getFramePosition() const;
+	long long getFramePosition() const;
 	float getZoomFactor() const;
 	Slider getSelectedSlider() const;
 	void setSelectedSlider( Slider slider );
@@ -101,10 +101,9 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
    private:
 	void updateWaveDisplays();
 	void getAllFrameInfos();
-	void getAllLocalFrameInfos();
 	void setAllSampleProps();
 	void createNewLayer();
-	void setSamplelengthFrames();
+	void updateTargetFrames();
 	void createPositionsRulerPath();
 	void testpTimer();
 	void checkRatioSettings();
@@ -140,28 +139,28 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	std::shared_ptr<H2Core::Instrument> m_pInstrument;
 	std::shared_ptr<H2Core::Sample> m_pSample;
 
-	double m_fDivider;
-
 	float m_fZoomfactor;
-	int m_nFramePosition;
+	long long m_nFramePosition;
 	Slider m_selectedSlider;
 
 	bool m_bPlayButton;
 	bool m_bSampleEditorClean;
 
-	unsigned long m_nRealtimeFrameEnd;
-	unsigned long m_nRealtimeFrameEndForTarget;
-	unsigned m_nSlframes;
+	/** Number of frames the resulting sample will have after applying both loop
+	 * and rubberband settings. */
+	long long m_nTargetFrames;
+	long long m_nRealtimeFrameEnd;
+	long long m_nRealtimeFrameEndForTarget;
 	unsigned m_nSamplerate;
 	QTimer* m_pTimer;
 	QTimer* m_pTargetDisplayTimer;
-	unsigned* m_pPositionsRulerPath;
+	long long* m_pPositionsRulerPath;
 	float m_fRatio;
 	H2Core::Sample::Loops m_loops;
 	H2Core::Sample::Rubberband m_rubberband;
 };
 
-inline int SampleEditor::getFramePosition() const
+inline long long SampleEditor::getFramePosition() const
 {
 	return m_nFramePosition;
 }

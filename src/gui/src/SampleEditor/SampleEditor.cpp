@@ -77,7 +77,6 @@ SampleEditor::SampleEditor(
 	  m_selectedSlider( Slider::Start ),
 	  m_bPlayButton( false ),
 	  m_bSampleEditorClean( true ),
-	  m_nSlframes( 0 ),
 	  m_pPositionsRulerPath( nullptr ),
 	  m_fRatio( 1.0f )
 {
@@ -86,6 +85,7 @@ SampleEditor::SampleEditor(
 		reject();
 	}
 	m_pSample = pLayer->getSample();
+	m_nTargetFrames = static_cast<long long>( m_pSample->getFrames() );
 
 	setFixedSize( SampleEditor::nWidth, SampleEditor::nHeight );
 	setModal( true );
@@ -101,8 +101,6 @@ SampleEditor::SampleEditor(
 		 m_loops.nEndFrame == 0 ) {
 		m_loops.nEndFrame = m_pSample->getFrames();
 	}
-
-	m_fDivider = m_pSample->getFrames() / 574.0F;
 
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const auto pPref = Preferences::get_instance();
@@ -283,7 +281,7 @@ background-color: %1;" )
 
 			m_loops.nCount = m_pLoopCountSpinBox->value();
 			setUnclean();
-			setSamplelengthFrames();
+			updateTargetFrames();
 		}
 	);
 	pSpinBoxContainerLayout->addWidget( m_pLoopCountSpinBox );
@@ -467,7 +465,6 @@ background-color: %1;" )
 	m_pApplyButton->setText( pCommonStrings->getButtonApply() );
 	connect( m_pApplyButton, &QPushButton::clicked, [&]() {
 		QApplication::setOverrideCursor( Qt::WaitCursor );
-		getAllLocalFrameInfos();
 		createNewLayer();
 		setClean();
 		Hydrogen::get_instance()->setIsModified( true );
@@ -545,7 +542,7 @@ background-color: %1;" )
 	m_rubberband.fSemitonesToShift = 0.0;
 
 	getAllFrameInfos();
-    setSamplelengthFrames();
+    updateTargetFrames();
 
 	updateWaveDisplays();
 
@@ -600,7 +597,7 @@ void SampleEditor::setLoopStartFrame( int nFrame )
 	m_selectedSlider = Slider::Start;
 
     setUnclean();
-    setSamplelengthFrames();
+    updateTargetFrames();
 	updateWaveDisplays();
 }
 
@@ -623,7 +620,7 @@ void SampleEditor::setLoopLoopFrame( int nFrame )
 
 	m_selectedSlider = Slider::Loop;
     setUnclean();
-    setSamplelengthFrames();
+    updateTargetFrames();
 	updateWaveDisplays();
 }
 
@@ -646,7 +643,7 @@ void SampleEditor::setLoopEndFrame( int nFrame )
 
 	m_selectedSlider = Slider::End;
     setUnclean();
-    setSamplelengthFrames();
+    updateTargetFrames();
 	updateWaveDisplays();
 }
 
@@ -761,19 +758,8 @@ void SampleEditor::getAllFrameInfos()
 			m_pRubberBandLengthComboBox->setCurrentIndex( (int
 			) ( m_rubberband.fLengthInBeats + 6 ) );
 		}
-
-		setSamplelengthFrames();
-		checkRatioSettings();
 	}
 	m_pTargetSampleView->updateDisplay( m_pLayer );
-}
-
-void SampleEditor::getAllLocalFrameInfos()
-{
-	m_loops.nStartFrame = m_pLoopStartFrameSpinBox->value();
-	m_loops.nLoopFrame = m_pLoopLoopFrameSpinBox->value();
-	m_loops.nCount = m_pLoopCountSpinBox->value();
-	m_loops.nEndFrame = m_pLoopEndFrameSpinBox->value();
 }
 
 bool SampleEditor::getCloseQuestion()
@@ -821,7 +807,6 @@ void SampleEditor::createNewLayer()
 
 void SampleEditor::returnAllTargetDisplayValues()
 {
-	setSamplelengthFrames();
 	m_bSampleIsModified = true;
 }
 
@@ -849,9 +834,9 @@ void SampleEditor::on_PlayPushButton_clicked()
 		return;
 	}
 
-	// Since we are in a separate dialog and working with a particular, we do
-	// not want rendering to be affected by whether some instruments of the
-	// current kit are soloed or muted.
+	// Since we are in a separate dialog and working with a particular sample,
+	// we do not want rendering to be affected by whether some instruments of
+	// the current kit are soloed or muted.
 	auto pPreviewInstr = std::make_shared<Instrument>( m_pInstrument );
 	pPreviewInstr->setIsPreviewInstrument( true );
 
@@ -877,12 +862,11 @@ void SampleEditor::on_PlayPushButton_clicked()
 
 	pHydrogen->getAudioEngine()->getSampler()->noteOn( pNote );
 
-	setSamplelengthFrames();
 	createPositionsRulerPath();
 	m_bPlayButton = true;
 
 	m_selectedSlider = Slider::None;
-	m_nFramePosition = m_loops.nStartFrame;
+	m_nFramePosition = static_cast<long long>(m_loops.nStartFrame);
 
 	updateWaveDisplays();
 
@@ -890,12 +874,12 @@ void SampleEditor::on_PlayPushButton_clicked()
 		m_pTimer->start( 40 );	// update ruler at 25 fps
 	}
 
-	m_nRealtimeFrameEnd = pAudioEngine->getRealtimeFrame() + m_nSlframes;
+	m_nRealtimeFrameEnd = pAudioEngine->getRealtimeFrame() + m_nTargetFrames;
 
 	// calculate the new rubberband sample length
 	if ( m_rubberband.bUse ) {
 		m_nRealtimeFrameEndForTarget =
-			pAudioEngine->getRealtimeFrame() + ( m_nSlframes * m_fRatio + 0.1 );
+			pAudioEngine->getRealtimeFrame() + ( m_nTargetFrames * m_fRatio + 0.1 );
 	}
 	else {
 		m_nRealtimeFrameEndForTarget = m_nRealtimeFrameEnd;
@@ -913,13 +897,13 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	auto pHydrogen = Hydrogen::get_instance();
 	auto tearDown = [&]() {
 		m_selectedSlider = Slider::None;
-		m_nFramePosition = m_loops.nStartFrame;
+		m_nFramePosition = static_cast<long long>(m_loops.nStartFrame);
 
 		updateWaveDisplays();
 
 		m_pTimer->start( 40 );	// update ruler at 25 fps
 		m_nRealtimeFrameEnd =
-			pHydrogen->getAudioEngine()->getRealtimeFrame() + m_nSlframes;
+			pHydrogen->getAudioEngine()->getRealtimeFrame() + m_nTargetFrames;
 		m_pPlayOriginalButton->setText( QString( "Stop" ) );
 	};
 
@@ -964,22 +948,21 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	pHydrogen->getAudioEngine()->getSampler()->previewInstrument(
 		pPreviewInstr, pNote
 	);
-	m_nSlframes = pNewSample->getFrames();
 
 	tearDown();
 }
 
 void SampleEditor::updateMainsamplePositionRuler()
 {
-	unsigned long realpos =
+	const auto nRealtimeFrame =
 		Hydrogen::get_instance()->getAudioEngine()->getRealtimeFrame();
-	if ( realpos < m_nRealtimeFrameEnd ) {
-		unsigned frame = m_nSlframes - ( m_nRealtimeFrameEnd - realpos );
+	if ( nRealtimeFrame < m_nRealtimeFrameEnd ) {
+		const long long nFrame = m_nTargetFrames - ( m_nRealtimeFrameEnd - nRealtimeFrame );
 		if ( m_bPlayButton == true ) {
-			m_nFramePosition = m_pPositionsRulerPath[frame];
+			m_nFramePosition = m_pPositionsRulerPath[nFrame];
 		}
 		else {
-			m_nFramePosition = frame;
+			m_nFramePosition = nFrame;
 		}
 
 		updateWaveDisplays();
@@ -997,23 +980,22 @@ void SampleEditor::updateMainsamplePositionRuler()
 
 void SampleEditor::updateTargetsamplePositionRuler()
 {
-	unsigned long realpos =
+	const auto nRealtimeFrame =
 		Hydrogen::get_instance()->getAudioEngine()->getRealtimeFrame();
-	unsigned targetSampleLength;
+	long long nTargetSampleLength;
 	if ( m_rubberband.bUse ) {
-		targetSampleLength = m_nSlframes * m_fRatio + 0.1;
+		nTargetSampleLength = m_nTargetFrames * m_fRatio + 0.1;
 	}
 	else {
-		targetSampleLength = m_nSlframes;
+		nTargetSampleLength = m_nTargetFrames;
 	}
 
-	if ( realpos < m_nRealtimeFrameEndForTarget ) {
-		unsigned pos =
-			targetSampleLength - ( m_nRealtimeFrameEndForTarget - realpos );
+	if ( nRealtimeFrame < m_nRealtimeFrameEndForTarget ) {
+		const long long nPos =
+			nTargetSampleLength - ( m_nRealtimeFrameEndForTarget - nRealtimeFrame );
 		m_pTargetSampleView->paintLocatorEventTargetDisplay(
-			( m_pTargetSampleView->width() * pos / targetSampleLength ), true
+			( m_pTargetSampleView->width() * nPos / nTargetSampleLength ), true
 		);
-		//		ERRORLOG( QString("sampleval: %1").arg(frame) );
 	}
 	else {
 		auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
@@ -1029,8 +1011,6 @@ void SampleEditor::updateTargetsamplePositionRuler()
 
 void SampleEditor::createPositionsRulerPath()
 {
-	setSamplelengthFrames();
-
 	unsigned oneSampleLength = m_loops.nEndFrame - m_loops.nStartFrame;
 	unsigned loopLength = m_loops.nEndFrame - m_loops.nLoopFrame;
 	unsigned repeatsLength = loopLength * m_loops.nCount;
@@ -1044,9 +1024,9 @@ void SampleEditor::createPositionsRulerPath()
 
 	unsigned normalLength = m_pSample->getFrames();
 
-	unsigned* normalFrames = new unsigned[normalLength];
-	unsigned* tempFrames = new unsigned[newLength];
-	unsigned* loopFrames = new unsigned[loopLength];
+	long long* normalFrames = new long long[normalLength];
+	long long* tempFrames = new long long[newLength];
+	long long* loopFrames = new long long[loopLength];
 
 	for ( unsigned i = 0; i < normalLength; i++ ) {
 		normalFrames[i] = i;
@@ -1115,26 +1095,19 @@ void SampleEditor::createPositionsRulerPath()
 	delete[] normalFrames;
 }
 
-void SampleEditor::setSamplelengthFrames()
+void SampleEditor::updateTargetFrames()
 {
-	getAllLocalFrameInfos();
-	unsigned oneSampleLength = m_loops.nEndFrame - m_loops.nStartFrame;
-	unsigned loopLength = m_loops.nEndFrame - m_loops.nLoopFrame;
-	unsigned repeatsLength = loopLength * m_loops.nCount;
-	unsigned newLength = 0;
+	const int nPreLoopFrames = m_loops.nLoopFrame - m_loops.nStartFrame;
+	const int nLoopFrames = m_loops.nEndFrame - m_loops.nLoopFrame;
+	m_nTargetFrames = static_cast<long long>( nPreLoopFrames ) +
+					  static_cast<long long>( nLoopFrames ) *
+						  static_cast<long long>( m_loops.nCount + 1 );
 
-	if ( oneSampleLength == loopLength ) {
-		newLength = oneSampleLength + oneSampleLength * m_loops.nCount;
-	}
-	else {
-		newLength = oneSampleLength + repeatsLength;
-	}
-
-	m_nSlframes = newLength;
-	m_pNewLengthLabel->setText( QString( tr( "new sample length" ) )
-									.append( QString( ": %1 " ).arg( newLength )
-									)
-									.append( tr( "frames" ) ) );
+	m_pNewLengthLabel->setText(
+		QString( tr( "new sample length" ) )
+			.append( QString( ": %1 " ).arg( m_nTargetFrames ) )
+			.append( tr( "frames" ) )
+	);
 	checkRatioSettings();
 }
 
@@ -1189,7 +1162,7 @@ void SampleEditor::valueChangedrubberComboBox( int )
 	}
 	//	QMessageBox::information ( this, "Hydrogen", tr ( "divider %1" ).arg(
 	// m_rubberband.divider )); 	float m_rubberband.divider;
-	setSamplelengthFrames();
+	checkRatioSettings();
 
 	setUnclean();
 }
@@ -1203,7 +1176,7 @@ void SampleEditor::checkRatioSettings()
 							  ->getTransportPosition()
 							  ->getBpm() *
 						  m_rubberband.fLengthInBeats;
-	double induration = (double) m_nSlframes / (double) m_nSamplerate;
+	double induration = (double) m_nTargetFrames / (double) m_nSamplerate;
 	if ( induration != 0.0 )
 		m_fRatio = durationtime / induration;
 

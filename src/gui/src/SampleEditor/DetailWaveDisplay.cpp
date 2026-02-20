@@ -115,7 +115,7 @@ void DetailWaveDisplay::drawPeakData()
 	p.setRenderHint( QPainter::Antialiasing );
 	const int nVerticalCenter = height() / 2;
 
-	int nnFrame;
+	long long nnFrame;
 	switch ( m_pSampleEditor->getSelectedSlider() ) {
 		case SampleEditor::Slider::Start:
 			nnFrame = m_pSampleEditor->getLoopStartFrame();
