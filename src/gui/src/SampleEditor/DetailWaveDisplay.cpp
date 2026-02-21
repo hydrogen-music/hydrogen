@@ -142,17 +142,27 @@ void DetailWaveDisplay::drawPeakData()
 				ii,
 				( -m_peakData[nnFrame - 1] *
 				  m_pSampleEditor->getZoomFactor() ) +
-					nVerticalCenter,
-				ii,
-				( -m_peakData[nnFrame] * m_pSampleEditor->getZoomFactor()
-				) + nVerticalCenter
-			);
-		}
-		else {
-			p.drawLine( ii, 0 + nVerticalCenter, ii, 0 + nVerticalCenter );
-		}
-		nnFrame++;
-	}
+					nVerticalCenter );
+    }
+
+    p.drawPolyline( points );
+	// for ( int ii = 0; ii < width(); ii++ ) {
+	// 	if ( nnFrame > 0 && nnFrame < m_peakData.size() ) {
+	// 		p.drawLine(
+	// 			ii,
+	// 			( -m_peakData[nnFrame - 1] *
+	// 			  m_pSampleEditor->getZoomFactor() ) +
+	// 				nVerticalCenter,
+	// 			ii,
+	// 			( -m_peakData[nnFrame] * m_pSampleEditor->getZoomFactor()
+	// 			) + nVerticalCenter
+	// 		);
+	// 	}
+	// 	else {
+	// 		p.drawLine( ii, 0 + nVerticalCenter, ii, 0 + nVerticalCenter );
+	// 	}
+	// 	nnFrame++;
+	// }
 }
 
 void DetailWaveDisplay::updatePeakData()

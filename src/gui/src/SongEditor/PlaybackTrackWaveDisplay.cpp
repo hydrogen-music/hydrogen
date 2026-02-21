@@ -44,6 +44,8 @@ PlaybackTrackWaveDisplay::PlaybackTrackWaveDisplay( QWidget* pParent )
 {
 	m_sFallbackLabel = tr( "No playback track selected" );
 
+	m_type = WaveDisplay::Type::Envelope;
+
 	setAcceptDrops( true );
 }
 
@@ -86,8 +88,9 @@ void PlaybackTrackWaveDisplay::dragMoveEvent( QDragMoveEvent* event )
 
 void PlaybackTrackWaveDisplay::updatePeakData()
 {
-	if ( width() != m_peakData.size() ) {
+	if ( width() != m_peakData.size() || width() != m_peakDataMin.size() ) {
 		m_peakData.resize( width() );
+		m_peakDataMin.resize( width() );
 	}
 
 	auto pSong = Hydrogen::get_instance()->getSong();
@@ -95,6 +98,7 @@ void PlaybackTrackWaveDisplay::updatePeakData()
 		 pSong == nullptr ) {
 		for ( int ii = 0; ii < m_peakData.size(); ++ii ) {
 			m_peakData[ii] = 0;
+			m_peakDataMin[ii] = 0;
 		}
 
 		drawPeakData();
@@ -149,24 +153,29 @@ void PlaybackTrackWaveDisplay::updatePeakData()
 			( nNextEndFrame - nTotalFrames ) / nSongEditorGridWidth;
 
 		// Render all peaks corresponding to the column
-		int nnVal;
+		int nMin, nMax;
 		for ( int ii = nRenderStartPosition;
 			  ( ii < nRenderStartPosition + nSongEditorGridWidth ) &&
 			  ( ii < m_peakData.size() );
 			  ++ii ) {
-			nnVal = 0;
+			nMin = 0;
+			nMax = 0;
 			for ( int jj = 0; jj < nFramesPerPixel; ++jj ) {
 				if ( nSamplePos < nSampleLength ) {
 					const int nNewVal =
 						(int) ( pSampleData[nSamplePos] * fGain );
-					if ( nNewVal > nnVal ) {
-						nnVal = nNewVal;
+					if ( nNewVal > nMax ) {
+						nMax = nNewVal;
+					}
+					if ( nNewVal < nMin ) {
+						nMin = nNewVal;
 					}
 				}
 
 				++nSamplePos;
 			}
-			m_peakData[ii] = nnVal;
+			m_peakData[ii] = nMax;
+			m_peakDataMin[ii] = nMin;
 		}
 		nRenderStartPosition += nSongEditorGridWidth;
 		nTotalFrames = nNextEndFrame;

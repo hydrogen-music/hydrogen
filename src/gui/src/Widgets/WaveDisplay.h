@@ -48,6 +48,11 @@ class WaveDisplay : public QWidget,
 
 	enum class Channel { Left, Right };
 	enum class Label { SampleName, Fallback };
+	/** If we have enough width to display all the available data, we render
+	 * the actual wave form. If not, we calculate the envelope (maximum
+	 * values within a time slice) of both positive and negative data and
+	 * render them insted. */
+	enum class Type { Envelope, Wave };
 
 	explicit WaveDisplay( QWidget* pParent, Channel channel = Channel::Left );
 	~WaveDisplay();
@@ -75,13 +80,16 @@ class WaveDisplay : public QWidget,
 	QPixmap* m_pPeakDataPixmap;
 
 	Channel m_channel;
-
 	Label m_label;
+	Type m_type;
 
 	Qt::AlignmentFlag m_SampleNameAlignment;
 	QString m_sSampleName;
 	QString m_sFallbackLabel;
 	std::vector<int> m_peakData;
+	/** In case we render the envelope, we use this member to keep track of
+	 * the minimum values of the wave form.*/
+	std::vector<int> m_peakDataMin;
 
 	int m_nActiveWidth;
 

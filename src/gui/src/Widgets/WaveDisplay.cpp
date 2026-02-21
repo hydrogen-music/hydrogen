@@ -37,6 +37,7 @@ WaveDisplay::WaveDisplay( QWidget* pParent, Channel channel )
 	: QWidget( pParent ),
 	  m_channel( channel ),
 	  m_label( Label::SampleName ),
+	  m_type( Type::Wave ),
 	  m_nActiveWidth( -1 ),
 	  m_sSampleName( "" ),
 	  m_sFallbackLabel( "" ),
@@ -46,6 +47,7 @@ WaveDisplay::WaveDisplay( QWidget* pParent, Channel channel )
 	setAttribute( Qt::WA_OpaquePaintEvent );
 
 	m_peakData.resize( width() );
+	m_peakDataMin.resize( width() );
 
 	const qreal pixelRatio = devicePixelRatio();
 	m_pBackgroundPixmap =
@@ -155,14 +157,10 @@ void WaveDisplay::updateBackground()
 		if ( m_SampleNameAlignment == Qt::AlignLeft ) {
 			// Use a small offset instead of starting directly at the left
 			// border
-			p.drawText(
-				20, 0, width(), 20, m_SampleNameAlignment, sText
-			);
+			p.drawText( 20, 0, width(), 20, m_SampleNameAlignment, sText );
 		}
 		else {
-			p.drawText(
-				0, 0, width(), 20, m_SampleNameAlignment, sText
-			);
+			p.drawText( 0, 0, width(), 20, m_SampleNameAlignment, sText );
 		}
 	}
 
@@ -175,7 +173,7 @@ void WaveDisplay::updateBackground()
 
 	// Propagate changes.
 	drawPeakData();
-    update();
+	update();
 }
 
 void WaveDisplay::mouseDoubleClickEvent( QMouseEvent* ev )
@@ -211,7 +209,8 @@ void WaveDisplay::paintEvent( QPaintEvent* ev )
 
 void WaveDisplay::resizeEvent( QResizeEvent* event )
 {
-	if ( width() <= 0 || width() == m_peakData.size() ) {
+	if ( width() <= 0 ||
+		 ( width() == m_peakData.size() && width() == m_peakDataMin.size() ) ) {
 		return;
 	}
 
@@ -233,11 +232,13 @@ void WaveDisplay::drawPeakData()
 	const qreal pixelRatio = devicePixelRatio();
 	QPainter p( m_pPeakDataPixmap );
 	// copy the background image
-	p.drawPixmap( rect(), *m_pBackgroundPixmap,
-						QRectF( pixelRatio * rect().x(),
-								pixelRatio * rect().y(),
-								pixelRatio * rect().width(),
-								pixelRatio * rect().height() ) );
+	p.drawPixmap(
+		rect(), *m_pBackgroundPixmap,
+		QRectF(
+			pixelRatio * rect().x(), pixelRatio * rect().y(),
+			pixelRatio * rect().width(), pixelRatio * rect().height()
+		)
+	);
 
 	auto pPref = H2Core::Preferences::get_instance();
 	const auto pColorTheme = pPref->getColorTheme();
@@ -264,42 +265,90 @@ void WaveDisplay::drawPeakData()
 
 	p.setPen( waveFormColor );
 	const int nVerticalCenter = height() / 2;
-	if ( m_pLayer != nullptr ) {
-		if ( m_nActiveWidth == -1 ) {
+	if ( m_nActiveWidth == -1 ) {
+		if ( m_pLayer != nullptr ) {
 			// Display does not support distinction between active and inactive
 			// region.
-			for ( int x = 0; x < width(); x++ ) {
-				p.drawLine(
-					x, nVerticalCenter, x, m_peakData[x] + nVerticalCenter
-				);
-				p.drawLine(
-					x, nVerticalCenter, x, -m_peakData[x] + nVerticalCenter
-				);
+			if ( m_type == Type::Wave ) {
+				QPointF peaks[width()];
+				for ( int x = 0; x < width(); x++ ) {
+					peaks[x] = QPointF( x, -m_peakData[x] + nVerticalCenter );
+				}
+				p.drawPolyline( peaks, width() );
+			}
+			else {
+				QPointF peaks[width() + m_peakDataMin.size()];
+				for ( int x = 0; x < width(); x++ ) {
+					peaks[x] = QPointF( x, -m_peakData[x] + nVerticalCenter );
+				}
+				int ii = width();
+				for ( int x = m_peakDataMin.size() - 1; x >= 0; --x ) {
+					peaks[ii] =
+						QPointF( x, -m_peakDataMin[x] + nVerticalCenter );
+					++ii;
+				}
+				p.setBrush( waveFormColor );
+				p.drawPolygon( peaks, width() + m_peakDataMin.size() );
 			}
 		}
 		else {
-			for ( int x = 0; x < m_nActiveWidth; x++ ) {
-				p.drawLine(
-					x, nVerticalCenter, x, m_peakData[x] + nVerticalCenter
-				);
-				p.drawLine(
-					x, nVerticalCenter, x, -m_peakData[x] + nVerticalCenter
-				);
-			}
-			p.setPen( waveFormInactiveColor );
-			for ( int x = m_nActiveWidth; x < width(); x++ ) {
-				p.drawLine(
-					x, nVerticalCenter, x, m_peakData[x] + nVerticalCenter
-				);
-				p.drawLine(
-					x, nVerticalCenter, x, -m_peakData[x] + nVerticalCenter
-				);
-			}
+			p.drawLine( 0, nVerticalCenter, width(), nVerticalCenter );
 		}
 	}
 	else {
-		if ( m_nActiveWidth == -1 ) {
-			p.drawLine( 0, nVerticalCenter, width(), nVerticalCenter );
+		if ( m_pLayer != nullptr ) {
+			// Active part
+			if ( m_type == Type::Wave ) {
+				QPointF peaks[m_nActiveWidth];
+				for ( int x = 0; x < m_nActiveWidth; x++ ) {
+					peaks[x] = QPointF( x, -m_peakData[x] + nVerticalCenter );
+				}
+				p.drawPolyline( peaks, m_nActiveWidth );
+			}
+			else {
+				QPointF peaks[2 * m_nActiveWidth];
+				for ( int x = 0; x < m_nActiveWidth; x++ ) {
+					peaks[x] = QPointF( x, -m_peakData[x] + nVerticalCenter );
+				}
+				int ii = m_nActiveWidth;
+				for ( int x = m_nActiveWidth - 1; x >= 0; --x ) {
+					peaks[ii] =
+						QPointF( x, -m_peakDataMin[x] + nVerticalCenter );
+					++ii;
+				}
+				p.setBrush( waveFormColor );
+				p.drawPolygon( peaks, 2 * m_nActiveWidth );
+			}
+
+			// Inactive part
+			p.setPen( waveFormInactiveColor );
+			if ( m_type == Type::Wave ) {
+				QPointF peaks[width() - m_nActiveWidth];
+				int ii = 0;
+				for ( int x = m_nActiveWidth; x < width(); x++ ) {
+					peaks[ii++] =
+						QPointF( x, -m_peakData[x] + nVerticalCenter );
+				}
+				p.drawPolyline( peaks, width() - m_nActiveWidth );
+			}
+			else {
+				const auto nSize = m_peakData.size() - m_nActiveWidth +
+								   m_peakDataMin.size() - m_nActiveWidth;
+				QPointF peaks[nSize];
+				int ii = 0;
+				for ( int x = m_nActiveWidth; x < width(); x++ ) {
+					peaks[ii] = QPointF( x, -m_peakData[x] + nVerticalCenter );
+					++ii;
+				}
+				for ( int x = m_peakDataMin.size() - 1; x >= m_nActiveWidth;
+					  --x ) {
+					peaks[ii] =
+						QPointF( x, -m_peakDataMin[x] + nVerticalCenter );
+					++ii;
+				}
+				p.setBrush( waveFormInactiveColor );
+				p.drawPolygon( peaks, nSize );
+			}
 		}
 		else {
 			p.drawLine( 0, nVerticalCenter, m_nActiveWidth, nVerticalCenter );
@@ -313,14 +362,18 @@ void WaveDisplay::drawPeakData()
 
 void WaveDisplay::updatePeakData()
 {
-	if ( width() != m_peakData.size() ) {
+	if ( width() != m_peakData.size() || width() != m_peakDataMin.size() ) {
 		m_peakData.resize( width() );
+		m_peakDataMin.resize( width() );
 	}
 
 	if ( m_pLayer == nullptr || m_pLayer->getSample() == nullptr ) {
 		for ( int ii = 0; ii < m_peakData.size(); ++ii ) {
 			m_peakData[ii] = 0;
+			m_peakDataMin[ii] = 0;
 		}
+
+		m_type = Type::Wave;
 
 		drawPeakData();
 		update();
@@ -334,12 +387,15 @@ void WaveDisplay::updatePeakData()
 	const float fGain = height() / 2.0 * m_pLayer->getGain();
 
 	if ( nSampleLength > m_peakData.size() ) {
+		m_type = Type::Envelope;
+
 		const int nScaleFactor = nSampleLength / m_peakData.size();
 
 		int nSamplePos = 0;
-		int nVal;
+		int nMin, nMax;
 		for ( int ii = 0; ii < m_peakData.size(); ++ii ) {
-			nVal = 0;
+			nMin = 0;
+			nMax = 0;
 			for ( int jj = 0; jj < nScaleFactor; ++jj ) {
 				if ( nSamplePos >= nSampleLength ) {
 					break;
@@ -348,16 +404,22 @@ void WaveDisplay::updatePeakData()
 				if ( jj < nSampleLength ) {
 					const int nNewVal =
 						static_cast<int>( pSampleData[nSamplePos] * fGain );
-					if ( nNewVal > nVal ) {
-						nVal = nNewVal;
+					if ( nNewVal > nMax ) {
+						nMax = nNewVal;
+					}
+					if ( nNewVal < nMin ) {
+						nMin = nNewVal;
 					}
 				}
 				++nSamplePos;
 			}
-			m_peakData[ii] = nVal;
+			m_peakData[ii] = nMax;
+			m_peakDataMin[ii] = nMin;
 		}
 	}
 	else {
+		m_type = Type::Wave;
+
 		for ( int ii = 0; ii < nSampleLength; ++ii ) {
 			m_peakData[ii] = static_cast<int>( pSampleData[ii] * fGain );
 		}
