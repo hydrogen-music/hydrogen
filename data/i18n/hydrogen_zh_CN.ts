@@ -711,11 +711,6 @@ Displayed in the tooltip of input widgets. General heading of the part associati
         <translation>播放(&amp;P)</translation>
     </message>
     <message>
-        <source>Play &amp;original sample</source>
-        <extracomment>Text displayed on a Play button in the SampleEditor which will start playback of the original file. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Unsaved changes left. These changes will be lost. 
 Are you sure?</source>
         <translation>有未保存的更改。这些更改将丢失。
@@ -1515,6 +1510,11 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Add or remove envelope point in sample editor</source>
         <extracomment>Shown in the undo history adding or deleting an envelope point in the * sample editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Play &amp;original</source>
+        <extracomment>Text displayed on a Play button in the SampleEditor which will start playback of the original file. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>

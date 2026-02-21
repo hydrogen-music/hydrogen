@@ -431,7 +431,7 @@ CommonStrings::CommonStrings(){
 	  start playback of the original file. The character after the '&'
 	  symbol can be used as a hotkey and the '&' symbol itself will
 	  not be displayed.*/
-	m_sButtonPlayOriginalSample = tr( "Play &original sample" );
+	m_sButtonPlayOriginalSample = tr( "Play &original" );
 	/*: Displayed in popup dialogs in case the user attempts to close
 	  a window which still contains unsaved changes. The '\n'
 	  character introduces a linebreak and must not be translated*/
