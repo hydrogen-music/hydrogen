@@ -40,6 +40,7 @@ class InstrumentComponent;
 class InstrumentLayer;
 }  // namespace H2Core
 
+class Button;
 class DetailWaveDisplay;
 class LCDDisplay;
 class LCDCombo;
@@ -55,6 +56,8 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	H2_OBJECT( SampleEditor )
 	Q_OBJECT
    public:
+	static constexpr int nButtonWidth = 120;
+	static constexpr int nButtonHeight = 24;
 	/** All overlays, like envelopes or sliders, will be map slightly
 	 * transparent. */
 	static constexpr int nColorAlpha = 200;
@@ -153,9 +156,9 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	LCDSpinBox* m_pRubberBandPitchSpinBox;
 	LCDCombo* m_pRubberBandCrispnessComboBox;
 
-	QPushButton* m_pApplyButton;
-	QPushButton* m_pPlayButton;
-	QPushButton* m_pPlayOriginalButton;
+	Button* m_pApplyButton;
+	Button* m_pPlayButton;
+	Button* m_pPlayOriginalButton;
 	LCDDisplay* m_pNewLengthDisplay;
 	QComboBox* m_pEnvelopeComboBox;
 

@@ -25,6 +25,7 @@
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../UndoActions.h"
+#include "../Widgets/Button.h"
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/LCDDisplay.h"
 #include "../Widgets/LCDSpinBox.h"
@@ -246,7 +247,7 @@ background-color: %1;" )
 
 	auto pSpinBoxContainerLayout = new QHBoxLayout();
 	pSpinBoxContainerLayout->setContentsMargins( 0, 0, 0, 0 );
-    pSpinBoxContainerLayout->setSpacing( SampleEditor::nSpacing );
+	pSpinBoxContainerLayout->setSpacing( SampleEditor::nSpacing );
 	pSpinBoxContainer->setLayout( pSpinBoxContainerLayout );
 
 	auto pStartFrameLabel = new QLabel( pSpinBoxContainer );
@@ -306,7 +307,7 @@ background-color: %1;" )
 	);
 	pSpinBoxContainerLayout->addWidget( m_pLoopLoopFrameSpinBox );
 
-    addSpacer( pSpinBoxContainerLayout );
+	addSpacer( pSpinBoxContainerLayout );
 
 	auto pLoopModeLabel = new QLabel( pSpinBoxContainer );
 	pLoopModeLabel->setText( tr( "mode" ) );
@@ -355,7 +356,7 @@ background-color: %1;" )
 	);
 	pSpinBoxContainerLayout->addWidget( m_pLoopModeComboBox );
 
-    addSpacer( pSpinBoxContainerLayout );
+	addSpacer( pSpinBoxContainerLayout );
 
 	auto pLoopCountLabel = new QLabel( pSpinBoxContainer );
 	pLoopCountLabel->setText( tr( "count" ) );
@@ -383,7 +384,7 @@ background-color: %1;" )
 	);
 	pSpinBoxContainerLayout->addWidget( m_pLoopCountSpinBox );
 
-    addSpacer( pSpinBoxContainerLayout );
+	addSpacer( pSpinBoxContainerLayout );
 
 	auto pEndFrameLabel = new QLabel( pSpinBoxContainer );
 	pEndFrameLabel->setText( tr( "End" ) );
@@ -413,7 +414,7 @@ background-color: %1;" )
 	);
 	pSpinBoxContainerLayout->addWidget( m_pLoopEndFrameSpinBox );
 
-    pSpinBoxContainerLayout->addStretch();
+	pSpinBoxContainerLayout->addStretch();
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -439,8 +440,8 @@ background-color: %1;" )
 	pRubberBandContainerLayout->addWidget( pRubberBandWidgetContainer );
 
 	auto pRubberBandWidgetContainerLayout = new QHBoxLayout();
-    pRubberBandWidgetContainerLayout->setContentsMargins( 0, 0, 0, 0 );
-    pRubberBandWidgetContainerLayout->setSpacing( SampleEditor::nSpacing );
+	pRubberBandWidgetContainerLayout->setContentsMargins( 0, 0, 0, 0 );
+	pRubberBandWidgetContainerLayout->setSpacing( SampleEditor::nSpacing );
 	pRubberBandWidgetContainer->setLayout( pRubberBandWidgetContainerLayout );
 
 	auto pRubberBandLengthLabel = new QLabel( pRubberBandWidgetContainer );
@@ -539,7 +540,7 @@ background-color: %1;" )
 	m_pRubberBandRatioLabel->setMinimumWidth( 150 );
 	pRubberBandWidgetContainerLayout->addWidget( m_pRubberBandRatioLabel );
 
-    pRubberBandWidgetContainerLayout->addStretch();
+	pRubberBandWidgetContainerLayout->addStretch();
 
 	auto pRubberBandPitchLabel = new QLabel( pRubberBandWidgetContainer );
 	pRubberBandPitchLabel->setText( tr( "Pitch (Semitone,Cent)" ) );
@@ -580,7 +581,7 @@ background-color: %1;" )
 	);
 	pRubberBandWidgetContainerLayout->addWidget( m_pRubberBandPitchSpinBox );
 
-    addSpacer( pRubberBandWidgetContainerLayout );
+	addSpacer( pRubberBandWidgetContainerLayout );
 
 	auto pRubberBandCrispnessLabel = new QLabel( pRubberBandWidgetContainer );
 	pRubberBandCrispnessLabel->setText( tr( "Crispness: " ) );
@@ -672,6 +673,10 @@ background-color: %1;" )
 
 	////////////////////////////////////////////////////////////////////////////
 
+	const QSize buttonSize(
+		SampleEditor::nButtonWidth, SampleEditor::nButtonHeight
+	);
+
 	auto pButtonContainer = new QWidget( pScrollArea );
 	pVBoxLayout->addWidget( pButtonContainer );
 
@@ -680,9 +685,10 @@ background-color: %1;" )
 	pButtonContainerLayout->setSpacing( SampleEditor::nSpacing );
 	pButtonContainer->setLayout( pButtonContainerLayout );
 
-    pButtonContainerLayout->addSpacerItem( new QSpacerItem( 150, 20 ));
+	pButtonContainerLayout->addStretch();
 
-	m_pApplyButton = new QPushButton( pButtonContainer );
+	m_pApplyButton =
+		new Button( pButtonContainer, buttonSize, Button::Type::Push );
 	m_pApplyButton->setText( pCommonStrings->getButtonApply() );
 	connect( m_pApplyButton, &QPushButton::clicked, [&]() {
 		QApplication::setOverrideCursor( Qt::WaitCursor );
@@ -693,9 +699,8 @@ background-color: %1;" )
 	} );
 	pButtonContainerLayout->addWidget( m_pApplyButton );
 
-	pButtonContainerLayout->addSpacerItem( new QSpacerItem( 13, 20 ) );
-
-	m_pPlayButton = new QPushButton( pButtonContainer );
+	m_pPlayButton =
+		new Button( pButtonContainer, buttonSize, Button::Type::Push );
 	m_pPlayButton->setText( pCommonStrings->getButtonPlay() );
 	connect(
 		m_pPlayButton, SIGNAL( clicked() ), this,
@@ -703,9 +708,8 @@ background-color: %1;" )
 	);
 	pButtonContainerLayout->addWidget( m_pPlayButton );
 
-	pButtonContainerLayout->addSpacerItem( new QSpacerItem( 13, 20 ) );
-
-	m_pPlayOriginalButton = new QPushButton( pButtonContainer );
+	m_pPlayOriginalButton =
+		new Button( pButtonContainer, buttonSize, Button::Type::Push );
 	m_pPlayOriginalButton->setText( pCommonStrings->getButtonPlayOriginalSample(
 	) );
 	connect(
@@ -714,9 +718,8 @@ background-color: %1;" )
 	);
 	pButtonContainerLayout->addWidget( m_pPlayOriginalButton );
 
-	pButtonContainerLayout->addSpacerItem( new QSpacerItem( 13, 20 ) );
-
-	auto pCloseButton = new QPushButton( pButtonContainer );
+	auto pCloseButton =
+		new Button( pButtonContainer, buttonSize, Button::Type::Push );
 	pCloseButton->setText( tr( "&Close" ) );
 	connect( pCloseButton, &QPushButton::clicked, [=]() {
 		if ( !m_bSampleEditorClean ) {
@@ -739,7 +742,7 @@ background-color: %1;" )
 	} );
 	pButtonContainerLayout->addWidget( pCloseButton );
 
-    pButtonContainerLayout->addSpacerItem( new QSpacerItem( 150, 20 ));
+	pButtonContainerLayout->addStretch();
 
 	////////////////////////////////////////////////////////////////////////////
 
