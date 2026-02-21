@@ -165,7 +165,7 @@ SampleEditor::SampleEditor(
 	pMainLayout->addWidget( pScrollArea );
 
 	auto pGridLayout = new QGridLayout();
-	pGridLayout->setContentsMargins( 9, 0, 9, 0 );
+	pGridLayout->setContentsMargins( 9, 9, 9, 9 );
 	pGridLayout->setSpacing( 6 );
 	pScrollArea->setLayout( pGridLayout );
 
@@ -236,7 +236,7 @@ background-color: %1;" )
 	////////////////////////////////////////////////////////////////////////////
 
 	auto pSpinBoxContainer = new QWidget( pScrollArea );
-	pGridLayout->addWidget( pSpinBoxContainer, 1, 0 );
+	pGridLayout->addWidget( pSpinBoxContainer, 1, 0, 1, 2 );
 
 	auto pSpinBoxContainerLayout = new QHBoxLayout();
 	pSpinBoxContainerLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -401,31 +401,6 @@ background-color: %1;" )
 		}
 	);
 	pSpinBoxContainerLayout->addWidget( m_pLoopEndFrameSpinBox );
-
-	////////////////////////////////////////////////////////////////////////////
-
-	auto pCloseButton = new QPushButton( pScrollArea );
-	pCloseButton->setText( tr( "&Close" ) );
-	connect( pCloseButton, &QPushButton::clicked, [=]() {
-		if ( !m_bSampleEditorClean ) {
-			auto pCommonStrings =
-				HydrogenApp::get_instance()->getCommonStrings();
-			if ( QMessageBox::information(
-					 this, "Hydrogen", pCommonStrings->getUnsavedChanges(),
-					 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel
-				 ) == QMessageBox::Ok ) {
-				setClean();
-				accept();
-			}
-			else {
-				return;
-			}
-		}
-		else {
-			accept();
-		}
-	} );
-	pGridLayout->addWidget( pCloseButton, 1, 1 );
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -628,17 +603,79 @@ background-color: %1;" )
 
 	////////////////////////////////////////////////////////////////////////////
 
-	auto pButtonSeparator = createSeparator( pScrollArea );
-	pGridLayout->addWidget( pButtonSeparator, 3, 0, 1, 2 );
+	auto pTargetSeparator = createSeparator( pScrollArea );
+	pGridLayout->addWidget( pTargetSeparator, 3, 0, 1, 2 );
+
+	////////////////////////////////////////////////////////////////////////////
+
+	auto pTargetContainer = new QWidget( pScrollArea );
+	pGridLayout->addWidget( pTargetContainer, 4, 0, 1, 2 );
+
+	auto pTargetContainerLayout = new QHBoxLayout();
+	pTargetContainerLayout->setContentsMargins( 0, 0, 0, 0 );
+	pTargetContainer->setLayout( pTargetContainerLayout );
+
+	// Ensure new length label and value are close of eachother.
+	auto pNewLengthContainer = new QWidget( pTargetContainer );
+	pNewLengthContainer->setSizePolicy(
+		QSizePolicy::Fixed, QSizePolicy::Preferred
+	);
+	pTargetContainerLayout->addWidget( pNewLengthContainer );
+
+	auto pNewLengthContainerLayout = new QHBoxLayout();
+	pNewLengthContainerLayout->setContentsMargins( 0, 0, 0, 0 );
+	pNewLengthContainerLayout->setSpacing( 9 );
+	pNewLengthContainer->setLayout( pNewLengthContainerLayout );
+
+	auto pNewLengthLabel = new QLabel( pNewLengthContainer );
+	pNewLengthLabel->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
+	pNewLengthLabel->setFixedWidth( 180 );
+	pNewLengthLabel->setText( tr( "new sample length:" ) );
+	pNewLengthContainerLayout->addWidget( pNewLengthLabel );
+
+	m_pNewLengthDisplay =
+		new LCDDisplay( pNewLengthContainer, QSize(), false, false );
+	m_pNewLengthDisplay->setFixedWidth( 120 );
+	pNewLengthContainerLayout->addWidget( m_pNewLengthDisplay );
+
+	pTargetContainerLayout->addStretch();
+
+	m_pEnvelopeComboBox = new QComboBox( pTargetContainer );
+	m_pEnvelopeComboBox->setMinimumWidth( 80 );
+	m_pEnvelopeComboBox->setToolTip( tr( "fade-out type" ) );
+	m_pEnvelopeComboBox->addItems(
+		QStringList() << tr( "volume" ) << tr( "panorama" )
+	);
+	connect(
+		m_pEnvelopeComboBox, QOverload<int>::of( &QComboBox::activated ),
+		[&]() {
+			if ( m_pEnvelopeComboBox->currentIndex() == 0 ) {
+				m_envelopeType = EnvelopeType::Velocity;
+			}
+			else {
+				m_envelopeType = EnvelopeType::Pan;
+			}
+		}
+	);
+	pTargetContainerLayout->addWidget( m_pEnvelopeComboBox );
+
+	////////////////////////////////////////////////////////////////////////////
+
+	m_pTargetSampleView = new TargetWaveDisplay( this );
+	m_pTargetSampleView->setLayer( m_pLayer );
+	m_pTargetSampleView->setMinimumHeight( 94 );
+	pGridLayout->addWidget( m_pTargetSampleView, 5, 0, 1, 2 );
 
 	////////////////////////////////////////////////////////////////////////////
 
 	auto pButtonContainer = new QWidget( pScrollArea );
-	pGridLayout->addWidget( pButtonContainer, 4, 0, 1, 2 );
+	pGridLayout->addWidget( pButtonContainer, 6, 0, 1, 2 );
 
 	auto pButtonContainerLayout = new QHBoxLayout();
 	pButtonContainerLayout->setContentsMargins( 0, 0, 0, 0 );
 	pButtonContainer->setLayout( pButtonContainerLayout );
+
+    pButtonContainerLayout->addSpacerItem( new QSpacerItem( 150, 20 ));
 
 	m_pApplyButton = new QPushButton( pButtonContainer );
 	m_pApplyButton->setText( pCommonStrings->getButtonApply() );
@@ -672,58 +709,32 @@ background-color: %1;" )
 	);
 	pButtonContainerLayout->addWidget( m_pPlayOriginalButton );
 
-	pButtonContainerLayout->addSpacerItem( new QSpacerItem( 40, 20 ) );
+	pButtonContainerLayout->addSpacerItem( new QSpacerItem( 13, 20 ) );
 
-	// Ensure new length label and value are close of eachother.
-	auto pNewLengthContainer = new QWidget( pButtonContainer );
-	pNewLengthContainer->setSizePolicy(
-		QSizePolicy::Fixed, QSizePolicy::Preferred
-	);
-	pButtonContainerLayout->addWidget( pNewLengthContainer );
-
-	auto pNewLengthContainerLayout = new QHBoxLayout();
-	pNewLengthContainerLayout->setContentsMargins( 0, 0, 0, 0 );
-	pNewLengthContainerLayout->setSpacing( 9 );
-	pNewLengthContainer->setLayout( pNewLengthContainerLayout );
-
-	auto pNewLengthLabel = new QLabel( pNewLengthContainer );
-	pNewLengthLabel->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
-	pNewLengthLabel->setFixedWidth( 180 );
-	pNewLengthLabel->setText( tr( "new sample length:" ) );
-	pNewLengthContainerLayout->addWidget( pNewLengthLabel );
-
-	m_pNewLengthDisplay =
-		new LCDDisplay( pNewLengthContainer, QSize(), false, false );
-	m_pNewLengthDisplay->setFixedWidth( 120 );
-	pNewLengthContainerLayout->addWidget( m_pNewLengthDisplay );
-
-	pButtonContainerLayout->addSpacerItem( new QSpacerItem( 40, 20 ) );
-
-	m_pEnvelopeComboBox = new QComboBox( pButtonContainer );
-	m_pEnvelopeComboBox->setMinimumWidth( 80 );
-	m_pEnvelopeComboBox->setToolTip( tr( "fade-out type" ) );
-	m_pEnvelopeComboBox->addItems(
-		QStringList() << tr( "volume" ) << tr( "panorama" )
-	);
-	connect(
-		m_pEnvelopeComboBox, QOverload<int>::of( &QComboBox::activated ),
-		[&]() {
-			if ( m_pEnvelopeComboBox->currentIndex() == 0 ) {
-				m_envelopeType = EnvelopeType::Velocity;
+	auto pCloseButton = new QPushButton( pButtonContainer );
+	pCloseButton->setText( tr( "&Close" ) );
+	connect( pCloseButton, &QPushButton::clicked, [=]() {
+		if ( !m_bSampleEditorClean ) {
+			auto pCommonStrings =
+				HydrogenApp::get_instance()->getCommonStrings();
+			if ( QMessageBox::information(
+					 this, "Hydrogen", pCommonStrings->getUnsavedChanges(),
+					 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel
+				 ) == QMessageBox::Ok ) {
+				setClean();
+				accept();
 			}
 			else {
-				m_envelopeType = EnvelopeType::Pan;
+				return;
 			}
 		}
-	);
-	pButtonContainerLayout->addWidget( m_pEnvelopeComboBox );
+		else {
+			accept();
+		}
+	} );
+	pButtonContainerLayout->addWidget( pCloseButton );
 
-	////////////////////////////////////////////////////////////////////////////
-
-	m_pTargetSampleView = new TargetWaveDisplay( this );
-	m_pTargetSampleView->setLayer( m_pLayer );
-	m_pTargetSampleView->setMinimumHeight( 94 );
-	pGridLayout->addWidget( m_pTargetSampleView, 5, 0, 1, 2 );
+    pButtonContainerLayout->addSpacerItem( new QSpacerItem( 150, 20 ));
 
 	////////////////////////////////////////////////////////////////////////////
 
