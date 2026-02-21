@@ -164,10 +164,10 @@ SampleEditor::SampleEditor(
 	pScrollArea->resize( SampleEditor::nWidth - 2, SampleEditor::nHeight - 2 );
 	pMainLayout->addWidget( pScrollArea );
 
-	auto pGridLayout = new QGridLayout();
-	pGridLayout->setContentsMargins( 9, 9, 9, 9 );
-	pGridLayout->setSpacing( 6 );
-	pScrollArea->setLayout( pGridLayout );
+	auto pVBoxLayout = new QVBoxLayout();
+	pVBoxLayout->setContentsMargins( 9, 9, 9, 9 );
+	pVBoxLayout->setSpacing( 6 );
+	pScrollArea->setLayout( pVBoxLayout );
 
 	auto createSeparator = [&]( QWidget* pParent ) {
 		auto pSeparator = new QWidget( pParent );
@@ -182,7 +182,7 @@ background-color: %1;" )
 	////////////////////////////////////////////////////////////////////////////
 
 	auto pWaveDisplayContainer = new QWidget( pScrollArea );
-	pGridLayout->addWidget( pWaveDisplayContainer, 0, 0, 1, 2 );
+	pVBoxLayout->addWidget( pWaveDisplayContainer );
 
 	auto pWaveDisplayContainerLayout = new QHBoxLayout();
 	pWaveDisplayContainerLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -236,7 +236,7 @@ background-color: %1;" )
 	////////////////////////////////////////////////////////////////////////////
 
 	auto pSpinBoxContainer = new QWidget( pScrollArea );
-	pGridLayout->addWidget( pSpinBoxContainer, 1, 0, 1, 2 );
+	pVBoxLayout->addWidget( pSpinBoxContainer );
 
 	auto pSpinBoxContainerLayout = new QHBoxLayout();
 	pSpinBoxContainerLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -405,7 +405,7 @@ background-color: %1;" )
 	////////////////////////////////////////////////////////////////////////////
 
 	auto pRubberBandContainer = new QWidget( pScrollArea );
-	pGridLayout->addWidget( pRubberBandContainer, 2, 0, 1, 2 );
+	pVBoxLayout->addWidget( pRubberBandContainer );
 
 	auto pRubberBandContainerLayout = new QVBoxLayout();
 	pRubberBandContainerLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -604,12 +604,12 @@ background-color: %1;" )
 	////////////////////////////////////////////////////////////////////////////
 
 	auto pTargetSeparator = createSeparator( pScrollArea );
-	pGridLayout->addWidget( pTargetSeparator, 3, 0, 1, 2 );
+	pVBoxLayout->addWidget( pTargetSeparator );
 
 	////////////////////////////////////////////////////////////////////////////
 
 	auto pTargetContainer = new QWidget( pScrollArea );
-	pGridLayout->addWidget( pTargetContainer, 4, 0, 1, 2 );
+	pVBoxLayout->addWidget( pTargetContainer );
 
 	auto pTargetContainerLayout = new QHBoxLayout();
 	pTargetContainerLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -664,12 +664,12 @@ background-color: %1;" )
 	m_pTargetSampleView = new TargetWaveDisplay( this );
 	m_pTargetSampleView->setLayer( m_pLayer );
 	m_pTargetSampleView->setMinimumHeight( 94 );
-	pGridLayout->addWidget( m_pTargetSampleView, 5, 0, 1, 2 );
+	pVBoxLayout->addWidget( m_pTargetSampleView );
 
 	////////////////////////////////////////////////////////////////////////////
 
 	auto pButtonContainer = new QWidget( pScrollArea );
-	pGridLayout->addWidget( pButtonContainer, 6, 0, 1, 2 );
+	pVBoxLayout->addWidget( pButtonContainer );
 
 	auto pButtonContainerLayout = new QHBoxLayout();
 	pButtonContainerLayout->setContentsMargins( 0, 0, 0, 0 );
