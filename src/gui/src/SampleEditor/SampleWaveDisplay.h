@@ -44,7 +44,7 @@ class SampleWaveDisplay : public WaveDisplay,
 	Q_OBJECT
 
    public:
-	static constexpr int nWidth = 624;
+	static constexpr int nWidth = 636;
 	static constexpr int nHeight = 132;
 	static constexpr int nHandleHeight = 20;
 	static constexpr int nHandleMargin = 5;
