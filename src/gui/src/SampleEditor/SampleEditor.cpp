@@ -88,7 +88,7 @@ SampleEditor::SampleEditor(
 	  m_pLayer( pLayer ),
 	  m_pComponent( pComponent ),
 	  m_pInstrument( pInstrument ),
-	  m_fZoomfactor( 1.0 ),
+	  m_fZoomfactor( 3.0 ),
 	  m_nFramePosition( 0 ),
 	  m_hoveredSlider( Slider::None ),
 	  m_selectedSlider( Slider::Start ),
@@ -245,7 +245,7 @@ font-weight: bold; " );
 
 	auto pZoomSlider = new QSlider( pWaveDisplayContainer );
 	pZoomSlider->setMaximumHeight( 265 );
-	pZoomSlider->setValue( 1 );
+	pZoomSlider->setValue( ( m_fZoomfactor - 1 ) * 10 );
 	pZoomSlider->setOrientation( Qt::Vertical );
 	connect( pZoomSlider, &QSlider::valueChanged, [=]() {
 		m_fZoomfactor = pZoomSlider->value() / 10 + 1;
