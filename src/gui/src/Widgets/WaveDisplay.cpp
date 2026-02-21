@@ -171,6 +171,13 @@ void WaveDisplay::updateBackground()
 	p.drawLine( 0, height(), width(), height() );
 	p.drawLine( width(), 0, width(), height() );
 
+	// Base line
+	const int nVerticalCenter = height() / 2;
+    QColor baseLineColor( borderColor );
+    baseLineColor.setAlpha( 80 );
+	p.setPen( QPen( baseLineColor, 1, Qt::DotLine ) );
+	p.drawLine( 0, nVerticalCenter, width(), nVerticalCenter );
+
 	// Propagate changes.
 	drawPeakData();
 	update();
@@ -240,6 +247,10 @@ void WaveDisplay::drawPeakData()
 		)
 	);
 
+	if ( m_pLayer == nullptr || m_pLayer->getSample() == nullptr ) {
+		return;
+	}
+
 	auto pPref = H2Core::Preferences::get_instance();
 	const auto pColorTheme = pPref->getColorTheme();
 
@@ -266,96 +277,77 @@ void WaveDisplay::drawPeakData()
 	p.setPen( waveFormColor );
 	const int nVerticalCenter = height() / 2;
 	if ( m_nActiveWidth == -1 ) {
-		if ( m_pLayer != nullptr ) {
-			// Display does not support distinction between active and inactive
-			// region.
-			if ( m_type == Type::Wave ) {
-				QPointF peaks[width()];
-				for ( int x = 0; x < width(); x++ ) {
-					peaks[x] = QPointF( x, -m_peakData[x] + nVerticalCenter );
-				}
-				p.drawPolyline( peaks, width() );
+		// Display does not support distinction between active and inactive
+		// region.
+		if ( m_type == Type::Wave ) {
+			QPointF peaks[width()];
+			for ( int x = 0; x < width(); x++ ) {
+				peaks[x] = QPointF( x, -m_peakData[x] + nVerticalCenter );
 			}
-			else {
-				QPointF peaks[width() + m_peakDataMin.size()];
-				for ( int x = 0; x < width(); x++ ) {
-					peaks[x] = QPointF( x, -m_peakData[x] + nVerticalCenter );
-				}
-				int ii = width();
-				for ( int x = m_peakDataMin.size() - 1; x >= 0; --x ) {
-					peaks[ii] =
-						QPointF( x, -m_peakDataMin[x] + nVerticalCenter );
-					++ii;
-				}
-				p.setBrush( waveFormColor );
-				p.drawPolygon( peaks, width() + m_peakDataMin.size() );
-			}
+			p.drawPolyline( peaks, width() );
 		}
 		else {
-			p.drawLine( 0, nVerticalCenter, width(), nVerticalCenter );
+			QPointF peaks[width() + m_peakDataMin.size()];
+			for ( int x = 0; x < width(); x++ ) {
+				peaks[x] = QPointF( x, -m_peakData[x] + nVerticalCenter );
+			}
+			int ii = width();
+			for ( int x = m_peakDataMin.size() - 1; x >= 0; --x ) {
+				peaks[ii] = QPointF( x, -m_peakDataMin[x] + nVerticalCenter );
+				++ii;
+			}
+			p.setBrush( waveFormColor );
+			p.drawPolygon( peaks, width() + m_peakDataMin.size() );
 		}
 	}
 	else {
-		if ( m_pLayer != nullptr ) {
-			// Active part
-			if ( m_type == Type::Wave ) {
-				QPointF peaks[m_nActiveWidth];
-				for ( int x = 0; x < m_nActiveWidth; x++ ) {
-					peaks[x] = QPointF( x, -m_peakData[x] + nVerticalCenter );
-				}
-				p.drawPolyline( peaks, m_nActiveWidth );
+		// Active part
+		if ( m_type == Type::Wave ) {
+			QPointF peaks[m_nActiveWidth];
+			for ( int x = 0; x < m_nActiveWidth; x++ ) {
+				peaks[x] = QPointF( x, -m_peakData[x] + nVerticalCenter );
 			}
-			else {
-				QPointF peaks[2 * m_nActiveWidth];
-				for ( int x = 0; x < m_nActiveWidth; x++ ) {
-					peaks[x] = QPointF( x, -m_peakData[x] + nVerticalCenter );
-				}
-				int ii = m_nActiveWidth;
-				for ( int x = m_nActiveWidth - 1; x >= 0; --x ) {
-					peaks[ii] =
-						QPointF( x, -m_peakDataMin[x] + nVerticalCenter );
-					++ii;
-				}
-				p.setBrush( waveFormColor );
-				p.drawPolygon( peaks, 2 * m_nActiveWidth );
-			}
-
-			// Inactive part
-			p.setPen( waveFormInactiveColor );
-			if ( m_type == Type::Wave ) {
-				QPointF peaks[width() - m_nActiveWidth];
-				int ii = 0;
-				for ( int x = m_nActiveWidth; x < width(); x++ ) {
-					peaks[ii++] =
-						QPointF( x, -m_peakData[x] + nVerticalCenter );
-				}
-				p.drawPolyline( peaks, width() - m_nActiveWidth );
-			}
-			else {
-				const auto nSize = m_peakData.size() - m_nActiveWidth +
-								   m_peakDataMin.size() - m_nActiveWidth;
-				QPointF peaks[nSize];
-				int ii = 0;
-				for ( int x = m_nActiveWidth; x < width(); x++ ) {
-					peaks[ii] = QPointF( x, -m_peakData[x] + nVerticalCenter );
-					++ii;
-				}
-				for ( int x = m_peakDataMin.size() - 1; x >= m_nActiveWidth;
-					  --x ) {
-					peaks[ii] =
-						QPointF( x, -m_peakDataMin[x] + nVerticalCenter );
-					++ii;
-				}
-				p.setBrush( waveFormInactiveColor );
-				p.drawPolygon( peaks, nSize );
-			}
+			p.drawPolyline( peaks, m_nActiveWidth );
 		}
 		else {
-			p.drawLine( 0, nVerticalCenter, m_nActiveWidth, nVerticalCenter );
-			p.setPen( waveFormInactiveColor );
-			p.drawLine(
-				m_nActiveWidth, nVerticalCenter, width(), nVerticalCenter
-			);
+			QPointF peaks[2 * m_nActiveWidth];
+			for ( int x = 0; x < m_nActiveWidth; x++ ) {
+				peaks[x] = QPointF( x, -m_peakData[x] + nVerticalCenter );
+			}
+			int ii = m_nActiveWidth;
+			for ( int x = m_nActiveWidth - 1; x >= 0; --x ) {
+				peaks[ii] = QPointF( x, -m_peakDataMin[x] + nVerticalCenter );
+				++ii;
+			}
+			p.setBrush( waveFormColor );
+			p.drawPolygon( peaks, 2 * m_nActiveWidth );
+		}
+
+		// Inactive part
+		p.setPen( waveFormInactiveColor );
+		if ( m_type == Type::Wave ) {
+			QPointF peaks[width() - m_nActiveWidth];
+			int ii = 0;
+			for ( int x = m_nActiveWidth; x < width(); x++ ) {
+				peaks[ii++] = QPointF( x, -m_peakData[x] + nVerticalCenter );
+			}
+			p.drawPolyline( peaks, width() - m_nActiveWidth );
+		}
+		else {
+			const auto nSize = m_peakData.size() - m_nActiveWidth +
+							   m_peakDataMin.size() - m_nActiveWidth;
+			QPointF peaks[nSize];
+			int ii = 0;
+			for ( int x = m_nActiveWidth; x < width(); x++ ) {
+				peaks[ii] = QPointF( x, -m_peakData[x] + nVerticalCenter );
+				++ii;
+			}
+			for ( int x = m_peakDataMin.size() - 1; x >= m_nActiveWidth; --x ) {
+				peaks[ii] = QPointF( x, -m_peakDataMin[x] + nVerticalCenter );
+				++ii;
+			}
+			p.setBrush( waveFormInactiveColor );
+			p.drawPolygon( peaks, nSize );
 		}
 	}
 }
