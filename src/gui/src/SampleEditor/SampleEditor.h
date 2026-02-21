@@ -137,6 +137,9 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	void createPositionsRulerPath();
 	void testpTimer();
 	void checkRubberbandSettings();
+	/** Since this dialog is a modal, we do not have to care about updating the
+	 * style sheet in case the theme is changed in the preferences dialog. */
+	void updateStyleSheet();
 
 	virtual void closeEvent( QCloseEvent* event ) override;
 

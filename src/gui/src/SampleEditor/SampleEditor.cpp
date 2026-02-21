@@ -783,7 +783,9 @@ background-color: %1;" )
 	setClean();
 #endif
 
-    installEventFilter( HydrogenApp::get_instance()->getMainForm() );
+	updateStyleSheet();
+
+	installEventFilter( HydrogenApp::get_instance()->getMainForm() );
 }
 
 SampleEditor::~SampleEditor()
@@ -1509,4 +1511,20 @@ void SampleEditor::testpTimer()
 			->stopPlayingNotes();
 		m_bPlayButton = false;
 	}
+}
+
+void SampleEditor::updateStyleSheet()
+{
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const QColor colorBackground = pColorTheme->m_sampleEditor_backgroundColor;
+	const QColor colorFont = pColorTheme->m_sampleEditor_textColor;
+
+	setStyleSheet( QString( "\
+QWidget {\
+     background-color: %1;                      \
+     color: %2;                                 \
+}\
+" )
+					   .arg( colorBackground.name() )
+					   .arg( colorFont.name() ) );
 }

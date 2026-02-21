@@ -96,6 +96,8 @@ public:
 	QColor m_componentEditor_layerColor;
 	QColor m_componentEditor_layerTextColor;
 
+	QColor m_sampleEditor_backgroundColor;
+	QColor m_sampleEditor_textColor;
 	QColor m_sampleEditor_playheadColor;
 	QColor m_sampleEditor_startSliderColor;
 	QColor m_sampleEditor_loopSliderColor;
