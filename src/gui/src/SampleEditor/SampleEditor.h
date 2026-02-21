@@ -60,6 +60,10 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	static constexpr int nColorAlpha = 200;
 	static constexpr int nHeight = 546;
 	static constexpr int nWidth = 863;
+	/** Visual separation between two label-widget pairs. */
+	static constexpr int nSpacerWidth = 32;
+	static constexpr int nSpacerHeight = 20;
+	static constexpr int nSpacing = 6;
 
 	enum class Slider { None, Start, Loop, End };
 	static QString SliderToQString( const Slider& slider );

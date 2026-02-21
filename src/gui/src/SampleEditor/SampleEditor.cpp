@@ -166,7 +166,7 @@ SampleEditor::SampleEditor(
 
 	auto pVBoxLayout = new QVBoxLayout();
 	pVBoxLayout->setContentsMargins( 9, 9, 9, 9 );
-	pVBoxLayout->setSpacing( 6 );
+	pVBoxLayout->setSpacing( SampleEditor::nSpacing );
 	pScrollArea->setLayout( pVBoxLayout );
 
 	auto createSeparator = [&]( QWidget* pParent ) {
@@ -179,6 +179,12 @@ background-color: %1;" )
 		return pSeparator;
 	};
 
+	auto addSpacer = [&]( QBoxLayout* pLayout ) {
+		pLayout->addSpacerItem( new QSpacerItem(
+			SampleEditor::nSpacerWidth, SampleEditor::nSpacerHeight
+		) );
+	};
+
 	////////////////////////////////////////////////////////////////////////////
 
 	auto pWaveDisplayContainer = new QWidget( pScrollArea );
@@ -186,7 +192,7 @@ background-color: %1;" )
 
 	auto pWaveDisplayContainerLayout = new QHBoxLayout();
 	pWaveDisplayContainerLayout->setContentsMargins( 0, 0, 0, 0 );
-	pWaveDisplayContainerLayout->setSpacing( 6 );
+	pWaveDisplayContainerLayout->setSpacing( SampleEditor::nSpacing );
 	pWaveDisplayContainer->setLayout( pWaveDisplayContainerLayout );
 
 	auto pMainSection = new QWidget( pWaveDisplayContainer );
@@ -240,6 +246,7 @@ background-color: %1;" )
 
 	auto pSpinBoxContainerLayout = new QHBoxLayout();
 	pSpinBoxContainerLayout->setContentsMargins( 0, 0, 0, 0 );
+    pSpinBoxContainerLayout->setSpacing( SampleEditor::nSpacing );
 	pSpinBoxContainer->setLayout( pSpinBoxContainerLayout );
 
 	auto pStartFrameLabel = new QLabel( pSpinBoxContainer );
@@ -269,7 +276,7 @@ background-color: %1;" )
 	);
 	pSpinBoxContainerLayout->addWidget( m_pLoopStartFrameSpinBox );
 
-	pSpinBoxContainerLayout->addSpacerItem( new QSpacerItem( 40, 20 ) );
+	addSpacer( pSpinBoxContainerLayout );
 
 	auto pLoopFrameLabel = new QLabel( pSpinBoxContainer );
 	pLoopFrameLabel->setText( tr( "Loop" ) );
@@ -298,6 +305,8 @@ background-color: %1;" )
 		}
 	);
 	pSpinBoxContainerLayout->addWidget( m_pLoopLoopFrameSpinBox );
+
+    addSpacer( pSpinBoxContainerLayout );
 
 	auto pLoopModeLabel = new QLabel( pSpinBoxContainer );
 	pLoopModeLabel->setText( tr( "mode" ) );
@@ -346,6 +355,8 @@ background-color: %1;" )
 	);
 	pSpinBoxContainerLayout->addWidget( m_pLoopModeComboBox );
 
+    addSpacer( pSpinBoxContainerLayout );
+
 	auto pLoopCountLabel = new QLabel( pSpinBoxContainer );
 	pLoopCountLabel->setText( tr( "count" ) );
 	pSpinBoxContainerLayout->addWidget( pLoopCountLabel );
@@ -372,7 +383,7 @@ background-color: %1;" )
 	);
 	pSpinBoxContainerLayout->addWidget( m_pLoopCountSpinBox );
 
-	pSpinBoxContainerLayout->addSpacerItem( new QSpacerItem( 40, 20 ) );
+    addSpacer( pSpinBoxContainerLayout );
 
 	auto pEndFrameLabel = new QLabel( pSpinBoxContainer );
 	pEndFrameLabel->setText( tr( "End" ) );
@@ -402,6 +413,8 @@ background-color: %1;" )
 	);
 	pSpinBoxContainerLayout->addWidget( m_pLoopEndFrameSpinBox );
 
+    pSpinBoxContainerLayout->addStretch();
+
 	////////////////////////////////////////////////////////////////////////////
 
 	auto pRubberBandContainer = new QWidget( pScrollArea );
@@ -409,6 +422,7 @@ background-color: %1;" )
 
 	auto pRubberBandContainerLayout = new QVBoxLayout();
 	pRubberBandContainerLayout->setContentsMargins( 0, 0, 0, 0 );
+	pRubberBandContainerLayout->setSpacing( SampleEditor::nSpacing );
 	pRubberBandContainer->setLayout( pRubberBandContainerLayout );
 
 	auto pRubberBandSeparator = createSeparator( pRubberBandContainer );
@@ -425,6 +439,8 @@ background-color: %1;" )
 	pRubberBandContainerLayout->addWidget( pRubberBandWidgetContainer );
 
 	auto pRubberBandWidgetContainerLayout = new QHBoxLayout();
+    pRubberBandWidgetContainerLayout->setContentsMargins( 0, 0, 0, 0 );
+    pRubberBandWidgetContainerLayout->setSpacing( SampleEditor::nSpacing );
 	pRubberBandWidgetContainer->setLayout( pRubberBandWidgetContainerLayout );
 
 	auto pRubberBandLengthLabel = new QLabel( pRubberBandWidgetContainer );
@@ -517,12 +533,15 @@ background-color: %1;" )
 	);
 	pRubberBandWidgetContainerLayout->addWidget( m_pRubberBandLengthComboBox );
 
+	addSpacer( pRubberBandWidgetContainerLayout );
+
 	m_pRubberBandRatioLabel = new QLabel( pRubberBandWidgetContainer );
 	m_pRubberBandRatioLabel->setMinimumWidth( 150 );
 	pRubberBandWidgetContainerLayout->addWidget( m_pRubberBandRatioLabel );
 
+    pRubberBandWidgetContainerLayout->addStretch();
+
 	auto pRubberBandPitchLabel = new QLabel( pRubberBandWidgetContainer );
-	pRubberBandPitchLabel->setMinimumWidth( 75 );
 	pRubberBandPitchLabel->setText( tr( "Pitch (Semitone,Cent)" ) );
 	pRubberBandWidgetContainerLayout->addWidget( pRubberBandPitchLabel );
 
@@ -561,11 +580,9 @@ background-color: %1;" )
 	);
 	pRubberBandWidgetContainerLayout->addWidget( m_pRubberBandPitchSpinBox );
 
-	pRubberBandWidgetContainerLayout->addSpacerItem( new QSpacerItem( 40, 20 )
-	);
+    addSpacer( pRubberBandWidgetContainerLayout );
 
 	auto pRubberBandCrispnessLabel = new QLabel( pRubberBandWidgetContainer );
-	pRubberBandCrispnessLabel->setMinimumWidth( 100 );
 	pRubberBandCrispnessLabel->setText( tr( "Crispness: " ) );
 	pRubberBandWidgetContainerLayout->addWidget( pRubberBandCrispnessLabel );
 
@@ -613,30 +630,17 @@ background-color: %1;" )
 
 	auto pTargetContainerLayout = new QHBoxLayout();
 	pTargetContainerLayout->setContentsMargins( 0, 0, 0, 0 );
+	pTargetContainerLayout->setSpacing( SampleEditor::nSpacing );
 	pTargetContainer->setLayout( pTargetContainerLayout );
 
-	// Ensure new length label and value are close of eachother.
-	auto pNewLengthContainer = new QWidget( pTargetContainer );
-	pNewLengthContainer->setSizePolicy(
-		QSizePolicy::Fixed, QSizePolicy::Preferred
-	);
-	pTargetContainerLayout->addWidget( pNewLengthContainer );
-
-	auto pNewLengthContainerLayout = new QHBoxLayout();
-	pNewLengthContainerLayout->setContentsMargins( 0, 0, 0, 0 );
-	pNewLengthContainerLayout->setSpacing( 9 );
-	pNewLengthContainer->setLayout( pNewLengthContainerLayout );
-
-	auto pNewLengthLabel = new QLabel( pNewLengthContainer );
-	pNewLengthLabel->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
-	pNewLengthLabel->setFixedWidth( 180 );
+	auto pNewLengthLabel = new QLabel( pTargetContainer );
 	pNewLengthLabel->setText( tr( "new sample length:" ) );
-	pNewLengthContainerLayout->addWidget( pNewLengthLabel );
+	pTargetContainerLayout->addWidget( pNewLengthLabel );
 
 	m_pNewLengthDisplay =
-		new LCDDisplay( pNewLengthContainer, QSize(), false, false );
+		new LCDDisplay( pTargetContainer, QSize(), false, false );
 	m_pNewLengthDisplay->setFixedWidth( 120 );
-	pNewLengthContainerLayout->addWidget( m_pNewLengthDisplay );
+	pTargetContainerLayout->addWidget( m_pNewLengthDisplay );
 
 	pTargetContainerLayout->addStretch();
 
@@ -673,6 +677,7 @@ background-color: %1;" )
 
 	auto pButtonContainerLayout = new QHBoxLayout();
 	pButtonContainerLayout->setContentsMargins( 0, 0, 0, 0 );
+	pButtonContainerLayout->setSpacing( SampleEditor::nSpacing );
 	pButtonContainer->setLayout( pButtonContainerLayout );
 
     pButtonContainerLayout->addSpacerItem( new QSpacerItem( 150, 20 ));
