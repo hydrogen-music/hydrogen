@@ -182,7 +182,7 @@ SampleEditor::Slider SampleWaveDisplay::intersectWith( const QPointF& point
 					   Editor::nDefaultCursorMargin
 			),
 			std::min(
-				height(), height() - 2 * SampleWaveDisplay::nHandleMargin -
+				height(), height() - SampleWaveDisplay::nHandleMargin -
 							  3 * SampleWaveDisplay::nHandleSlope -
 							  SampleWaveDisplay::nHandleHeight -
 							  Editor::nDefaultCursorMargin
@@ -204,7 +204,7 @@ SampleEditor::Slider SampleWaveDisplay::intersectWith( const QPointF& point
 					   Editor::nDefaultCursorMargin
 			),
 			std::min(
-				height(), height() - 2 * SampleWaveDisplay::nHandleMargin -
+				height(), height() - SampleWaveDisplay::nHandleMargin -
 							  3 * SampleWaveDisplay::nHandleSlope -
 							  SampleWaveDisplay::nHandleHeight -
 							  Editor::nDefaultCursorMargin
@@ -278,7 +278,7 @@ void SampleWaveDisplay::renderSlider(
 			nX = frameToX( m_pSampleEditor->getLoopLoopFrame() );
 			bRenderHandle = m_channel == WaveDisplay::Channel::Left;
 			nHandleX = nX;
-			nHandleY = height() - SampleWaveDisplay::nHandleMargin * 2 -
+			nHandleY = height() - SampleWaveDisplay::nHandleMargin -
 					   SampleWaveDisplay::nHandleHeight -
 					   SampleWaveDisplay::nHandleSlope * 2;
 			color = pColorTheme->m_sampleEditor_loopSliderColor;
@@ -290,7 +290,7 @@ void SampleWaveDisplay::renderSlider(
 			nX = frameToX( m_pSampleEditor->getLoopEndFrame() );
 			bRenderHandle = m_channel == WaveDisplay::Channel::Right;
 			nHandleX = nX - SampleWaveDisplay::nHandleWidth;
-			nHandleY = height() - SampleWaveDisplay::nHandleMargin * 2 -
+			nHandleY = height() - SampleWaveDisplay::nHandleMargin -
 					   SampleWaveDisplay::nHandleHeight -
 					   SampleWaveDisplay::nHandleSlope * 2;
 			color = pColorTheme->m_sampleEditor_endSliderColor;
