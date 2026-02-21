@@ -88,29 +88,14 @@ void Skin::drawStackedIndicator( QPainter* p, int x, int y,
 QString Skin::getGlobalStyleSheet() {
 	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
 
-	const int nFactorGradient = 120;
-	const int nHover = 10;
-	
-	const QColor buttonBackgroundLight =
-		pColorTheme->m_widgetColor.lighter( nFactorGradient );
-	const QColor buttonBackgroundDark =
-		pColorTheme->m_widgetColor.darker( nFactorGradient );
-	const QColor buttonBackgroundLightHover =
-		pColorTheme->m_widgetColor.lighter( nFactorGradient + nHover );
-	const QColor buttonBackgroundDarkHover =
-		pColorTheme->m_widgetColor.darker( nFactorGradient + nHover );
-
-	const QColor buttonBackgroundCheckedLight =
-		pColorTheme->m_accentColor.lighter( nFactorGradient );
-	const QColor buttonBackgroundCheckedDark =
-		pColorTheme->m_accentColor.darker( nFactorGradient );
-	const QColor buttonBackgroundCheckedLightHover =
-		pColorTheme->m_accentColor.lighter( nFactorGradient + nHover );
-	const QColor buttonBackgroundCheckedDarkHover =
-		pColorTheme->m_accentColor.darker( nFactorGradient + nHover );
+	const QColor buttonBackground = pColorTheme->m_widgetColor;
+	const QColor buttonBackgroundHover =
+		pColorTheme->m_widgetColor.lighter( Skin::nToolBarHoveredScaling );
+	const QColor buttonBackgroundChecked =
+		pColorTheme->m_accentColor.lighter( Skin::nToolBarCheckedScaling );
 	const QColor buttonTextChecked = pColorTheme->m_accentTextColor;
 	const QColor spinBoxSelection = pColorTheme->m_spinBoxColor.darker( 120 );
-	
+
 	return QString( "\
 QToolTip { \
     padding: 1px; \
@@ -119,54 +104,47 @@ QToolTip { \
     color: %1; \
 } \
 QPushButton { \
-    color: %12; \
+    color: %7; \
+    border: 1px solid #000; \
     border-radius: 2px; \
     padding: 5px; \
-    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
-                                      stop: 0 %4, stop: 1 %5); \
+    background-color: %4; \
 } \
 QPushButton:hover { \
-    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
-                                      stop: 0 %6, stop: 1 %7); \
+    background-color: %5; \
 } \
 QPushButton:checked { \
     color: %3; \
-    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
-                                      stop: 0 %8, stop: 1 %9); \
+    background-color: %6; \
 } \
 QPushButton:checked:hover { \
     color: %3; \
-    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
-                                      stop: 0 %10, stop: 1 %11); \
+    background-color: %6; \
 } \
 QComboBox { \
-    color: %12; \
-    background-color: %13; \
+    color: %7; \
+    background-color: %8; \
 } \
 QComboBox QAbstractItemView { \
     background-color: #babfcf; \
 } \
 QLineEdit, QTextEdit { \
-    color: %12; \
-    background-color: %13; \
+    color: %7; \
+    background-color: %8; \
 } \
 QDoubleSpinBox, QSpinBox { \
-    color: %14; \
-    background-color: %15; \
-    selection-color: %14; \
-    selection-background-color: %16; \
+    color: %9; \
+    background-color: %10; \
+    selection-color: %9; \
+    selection-background-color: %11; \
 }"
 					)
 		.arg( pColorTheme->m_toolTipTextColor.name() )
 		.arg( pColorTheme->m_toolTipBaseColor.name() )
 		.arg( buttonTextChecked.name() )
-		.arg( buttonBackgroundLight.name() ).arg( buttonBackgroundDark.name() )
-		.arg( buttonBackgroundLightHover.name() )
-		.arg( buttonBackgroundDarkHover.name() )
-		.arg( buttonBackgroundCheckedLight.name() )
-		.arg( buttonBackgroundCheckedDark.name() )
-		.arg( buttonBackgroundCheckedLightHover.name() )
-		.arg( buttonBackgroundCheckedDarkHover.name() )
+		.arg( buttonBackground.name() )
+		.arg( buttonBackgroundHover.name() )
+		.arg( buttonBackgroundChecked.name() )
 		.arg( pColorTheme->m_widgetTextColor.name() )
 		.arg( pColorTheme->m_widgetColor.name() )
 		.arg( pColorTheme->m_spinBoxTextColor.name() )
