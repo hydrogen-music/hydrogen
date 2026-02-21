@@ -166,7 +166,7 @@ void DetailWaveDisplay::updatePeakData()
 	}
 
 	const int nSampleLength = m_pLayer->getSample()->getFrames();
-	const float fGain = height() / 4.0 * 1.0;
+	const float fGain = height() / 2.0;
 
 	m_peakData.clear();
 	m_peakData.resize( nSampleLength );
