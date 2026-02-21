@@ -136,33 +136,21 @@ void DetailWaveDisplay::drawPeakData()
 	}
 	nnFrame -= DetailWaveDisplay::nWidth / 2;
 
-	for ( int ii = 0; ii < width(); ii++ ) {
-		if ( nnFrame > 0 && nnFrame < m_peakData.size() ) {
-			p.drawLine(
-				ii,
-				( -m_peakData[nnFrame - 1] *
-				  m_pSampleEditor->getZoomFactor() ) +
-					nVerticalCenter );
-    }
+	QPointF peaks[width()];
+	for ( int ii = 0; ii < width(); ++ii ) {
+		if ( nnFrame >= 0 && nnFrame < m_peakData.size() ) {
+			peaks[ii] = QPointF(
+				ii, ( -m_peakData[nnFrame] * m_pSampleEditor->getZoomFactor()
+					) + nVerticalCenter
+			);
+		}
+		else {
+			peaks[ii] = QPointF( ii, nVerticalCenter );
+		}
+		nnFrame++;
+	}
 
-    p.drawPolyline( points );
-	// for ( int ii = 0; ii < width(); ii++ ) {
-	// 	if ( nnFrame > 0 && nnFrame < m_peakData.size() ) {
-	// 		p.drawLine(
-	// 			ii,
-	// 			( -m_peakData[nnFrame - 1] *
-	// 			  m_pSampleEditor->getZoomFactor() ) +
-	// 				nVerticalCenter,
-	// 			ii,
-	// 			( -m_peakData[nnFrame] * m_pSampleEditor->getZoomFactor()
-	// 			) + nVerticalCenter
-	// 		);
-	// 	}
-	// 	else {
-	// 		p.drawLine( ii, 0 + nVerticalCenter, ii, 0 + nVerticalCenter );
-	// 	}
-	// 	nnFrame++;
-	// }
+	p.drawPolyline( peaks, width() );
 }
 
 void DetailWaveDisplay::updatePeakData()
