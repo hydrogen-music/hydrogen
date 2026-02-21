@@ -253,11 +253,9 @@ void Button::setSize( const QSize& size ) {
 	if ( m_nBorderRadius == -1 ) {
 		if ( m_size.width() <= 12 || m_size.height() <= 12 ) {
 			m_nBorderRadius = 0;
-		} else if ( m_size.width() <= 20 || m_size.height() <= 20 ) {
-			m_nBorderRadius = 3;
 		} else {
-			m_nBorderRadius = 5;
-		}
+			m_nBorderRadius = 2;
+        }
 	}
 
 	updateFont();
