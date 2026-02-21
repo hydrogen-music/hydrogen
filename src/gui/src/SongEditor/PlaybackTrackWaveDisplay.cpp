@@ -189,6 +189,11 @@ void PlaybackTrackWaveDisplay::updatePeakData()
 		}
 	}
 
+	for ( int ii = nRenderStartPosition; ii < m_peakData.size(); ++ii ) {
+		m_peakData[ii] = 0;
+		m_peakDataMin[ii] = 0;
+	}
+
 	// In pattern mode the playback track won't be played back at all.
 	if ( pSong->getMode() == Song::Mode::Pattern ) {
 		m_nActiveWidth = 0;
