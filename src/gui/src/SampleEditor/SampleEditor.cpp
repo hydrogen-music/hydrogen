@@ -116,7 +116,7 @@ SampleEditor::SampleEditor(
 	// end.
 	if ( m_loops.nStartFrame == 0 && m_loops.nLoopFrame == 0 &&
 		 m_loops.nEndFrame == 0 ) {
-		m_loops.nEndFrame = m_pSample->getFrames();
+		m_loops.nEndFrame = m_pSample->getFrames() - 1;
 	}
 	m_rubberband = m_pSample->getRubberband();
 
@@ -792,11 +792,14 @@ void SampleEditor::setSelectedSlider( Slider slider )
 
 void SampleEditor::setLoopStartFrame( int nFrame )
 {
-	if ( m_loops.nStartFrame == nFrame && m_selectedSlider == Slider::Start ) {
+	const int nFrameClamped =
+		std::clamp( nFrame, 0, m_pSample->getFrames() - 1 );
+	if ( m_loops.nStartFrame == nFrameClamped &&
+		 m_selectedSlider == Slider::Start ) {
 		return;
 	}
 
-	m_loops.nStartFrame = nFrame;
+	m_loops.nStartFrame = nFrameClamped;
 
 	if ( m_loops.nStartFrame > m_loops.nLoopFrame ) {
 		m_loops.nLoopFrame = m_loops.nStartFrame;
@@ -805,7 +808,9 @@ void SampleEditor::setLoopStartFrame( int nFrame )
 		m_loops.nEndFrame = m_loops.nStartFrame;
 	}
 
-	m_pLoopStartFrameSpinBox->setValue( nFrame, Event::Trigger::Suppress );
+	m_pLoopStartFrameSpinBox->setValue(
+		nFrameClamped, Event::Trigger::Suppress
+	);
 
 	m_selectedSlider = Slider::Start;
 
@@ -816,11 +821,14 @@ void SampleEditor::setLoopStartFrame( int nFrame )
 
 void SampleEditor::setLoopLoopFrame( int nFrame )
 {
-	if ( m_loops.nLoopFrame == nFrame && m_selectedSlider == Slider::Loop ) {
+	const int nFrameClamped =
+		std::clamp( nFrame, 0, m_pSample->getFrames() - 1 );
+	if ( m_loops.nLoopFrame == nFrameClamped &&
+		 m_selectedSlider == Slider::Loop ) {
 		return;
 	}
 
-	m_loops.nLoopFrame = nFrame;
+	m_loops.nLoopFrame = nFrameClamped;
 
 	if ( m_loops.nLoopFrame < m_loops.nStartFrame ) {
 		m_loops.nStartFrame = m_loops.nLoopFrame;
@@ -829,7 +837,9 @@ void SampleEditor::setLoopLoopFrame( int nFrame )
 		m_loops.nEndFrame = m_loops.nLoopFrame;
 	}
 
-	m_pLoopLoopFrameSpinBox->setValue( nFrame, Event::Trigger::Suppress );
+	m_pLoopLoopFrameSpinBox->setValue(
+		nFrameClamped, Event::Trigger::Suppress
+	);
 
 	m_selectedSlider = Slider::Loop;
 	setUnclean();
@@ -839,11 +849,14 @@ void SampleEditor::setLoopLoopFrame( int nFrame )
 
 void SampleEditor::setLoopEndFrame( int nFrame )
 {
-	if ( m_loops.nEndFrame == nFrame && m_selectedSlider == Slider::End ) {
+	const int nFrameClamped =
+		std::clamp( nFrame, 0, m_pSample->getFrames() - 1 );
+	if ( m_loops.nEndFrame == nFrameClamped &&
+		 m_selectedSlider == Slider::End ) {
 		return;
 	}
 
-	m_loops.nEndFrame = nFrame;
+	m_loops.nEndFrame = nFrameClamped;
 
 	if ( m_loops.nEndFrame < m_loops.nStartFrame ) {
 		m_loops.nStartFrame = m_loops.nEndFrame;
@@ -852,7 +865,7 @@ void SampleEditor::setLoopEndFrame( int nFrame )
 		m_loops.nLoopFrame = m_loops.nEndFrame;
 	}
 
-	m_pLoopEndFrameSpinBox->setValue( nFrame, Event::Trigger::Suppress );
+	m_pLoopEndFrameSpinBox->setValue( nFrameClamped, Event::Trigger::Suppress );
 
 	m_selectedSlider = Slider::End;
 	setUnclean();

@@ -72,7 +72,7 @@ void SampleWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 		return;
 	}
 	const int nFrame = xToFrame(
-		std::clamp( static_cast<int>( pEv->position().x() ), 0, width() )
+		std::clamp( static_cast<int>( pEv->position().x() ), 0, width() - 1 )
 	);
 	switch ( m_pSampleEditor->getSelectedSlider() ) {
 		case SampleEditor::Slider::Start:
@@ -98,7 +98,7 @@ void SampleWaveDisplay::mousePressEvent( QMouseEvent* ev )
 
 	m_pSampleEditor->setSelectedSlider( intersectWith( pEv->position() ) );
 	m_nOldFrame = xToFrame(
-		std::clamp( static_cast<int>( pEv->position().x() ), 0, width() )
+		std::clamp( static_cast<int>( pEv->position().x() ), 0, width() - 1 )
 	);
 	m_bDragStarted = true;
 }
@@ -107,7 +107,7 @@ void SampleWaveDisplay::mouseReleaseEvent( QMouseEvent* ev )
 {
 	auto pEv = static_cast<MouseEvent*>( ev );
 	auto nNewFrame = xToFrame(
-		std::clamp( static_cast<int>( pEv->position().x() ), 0, width() )
+		std::clamp( static_cast<int>( pEv->position().x() ), 0, width() - 1 )
 	);
 
 	HydrogenApp::get_instance()->pushUndoCommand(
