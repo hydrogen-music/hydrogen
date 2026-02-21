@@ -178,12 +178,6 @@
              </item>
              <item>
               <widget class="QWidget" name="pSampleContainer" native="true">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
                <layout class="QVBoxLayout" name="verticalLayout_2">
                 <item>
                  <widget class="WaveDisplay" name="m_pWaveDisplay" native="true">
