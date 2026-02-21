@@ -1409,9 +1409,12 @@ void SampleEditor::updateTargetFrames()
 {
 	const int nPreLoopFrames = m_loops.nLoopFrame - m_loops.nStartFrame;
 	const int nLoopFrames = m_loops.nEndFrame - m_loops.nLoopFrame;
+	// +1 since we are calculating the total number of frames - a zero-based
+	// quantity.
 	m_nTargetFrames = static_cast<long long>( nPreLoopFrames ) +
 					  static_cast<long long>( nLoopFrames ) *
-						  static_cast<long long>( m_loops.nCount + 1 );
+						  static_cast<long long>( m_loops.nCount + 1 ) +
+					  1;
 
 	m_pNewLengthDisplay->setText( QString::number( m_nTargetFrames ) );
 	checkRubberbandSettings();
