@@ -186,6 +186,19 @@ background-color: %1;" )
 		) );
 	};
 
+    auto addHeading = [&]( const QString& sText, QBoxLayout* pLayout ) {
+        auto pLabel = new QLabel( pScrollArea );
+        pLabel->setStyleSheet( "\
+font-size: 13px;                \
+font-weight: bold; " );
+        pLabel->setText( sText );
+        pLayout->addWidget( pLabel );
+    };
+
+	////////////////////////////////////////////////////////////////////////////
+
+    addHeading( tr( "Original Sample and Loop Settings" ), pVBoxLayout );
+
 	////////////////////////////////////////////////////////////////////////////
 
 	auto pWaveDisplayContainer = new QWidget( pScrollArea );
@@ -429,12 +442,24 @@ background-color: %1;" )
 	auto pRubberBandSeparator = createSeparator( pRubberBandContainer );
 	pRubberBandContainerLayout->addWidget( pRubberBandSeparator );
 
-	auto pRubberBandHeadingLabel = new QLabel( pRubberBandContainer );
+	auto pRubberBandHeaderContainer = new QWidget( pRubberBandContainer );
+	pRubberBandContainerLayout->addWidget( pRubberBandHeaderContainer );
+
+	auto pRubberBandHeaderContainerLayout = new QHBoxLayout();
+	pRubberBandHeaderContainerLayout->setContentsMargins( 0, 0, 0, 0 );
+	pRubberBandHeaderContainerLayout->setSpacing( SampleEditor::nSpacing );
+	pRubberBandHeaderContainer->setLayout( pRubberBandHeaderContainerLayout );
+
+    addHeading( tr( "Rubberband Audio Processor" ), pRubberBandHeaderContainerLayout );
+
+	auto pRubberBandHeadingLabel = new QLabel( pRubberBandHeaderContainer );
 	pRubberBandHeadingLabel->setText(
-		tr( "Rubberband Audio Processor: Change the tempo (sample length) and "
+		tr( "Change the tempo (sample length) and "
 			"pitch of audio." )
 	);
-	pRubberBandContainerLayout->addWidget( pRubberBandHeadingLabel );
+	pRubberBandHeaderContainerLayout->addWidget( pRubberBandHeadingLabel );
+
+	pRubberBandHeaderContainerLayout->addStretch();
 
 	auto pRubberBandWidgetContainer = new QWidget( pRubberBandContainer );
 	pRubberBandContainerLayout->addWidget( pRubberBandWidgetContainer );
@@ -634,6 +659,10 @@ background-color: %1;" )
 	pTargetContainerLayout->setSpacing( SampleEditor::nSpacing );
 	pTargetContainer->setLayout( pTargetContainerLayout );
 
+    addHeading( tr( "Resulting Sample and Envelopes" ), pTargetContainerLayout );
+
+	pTargetContainerLayout->addStretch();
+
 	auto pNewLengthLabel = new QLabel( pTargetContainer );
 	pNewLengthLabel->setText( tr( "new sample length:" ) );
 	pTargetContainerLayout->addWidget( pNewLengthLabel );
@@ -643,7 +672,7 @@ background-color: %1;" )
 	m_pNewLengthDisplay->setFixedWidth( 120 );
 	pTargetContainerLayout->addWidget( m_pNewLengthDisplay );
 
-	pTargetContainerLayout->addStretch();
+    addSpacer( pTargetContainerLayout );
 
 	m_pEnvelopeComboBox = new QComboBox( pTargetContainer );
 	m_pEnvelopeComboBox->setMinimumWidth( 80 );

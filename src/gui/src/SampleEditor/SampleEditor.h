@@ -61,10 +61,10 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	/** All overlays, like envelopes or sliders, will be map slightly
 	 * transparent. */
 	static constexpr int nColorAlpha = 200;
-	static constexpr int nHeight = 546;
+	static constexpr int nHeight = 566;
 	static constexpr int nWidth = 863;
 	/** Visual separation between two label-widget pairs. */
-	static constexpr int nSpacerWidth = 32;
+	static constexpr int nSpacerWidth = 24;
 	static constexpr int nSpacerHeight = 20;
 	static constexpr int nSpacing = 6;
 

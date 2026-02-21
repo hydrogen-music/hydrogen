@@ -4928,10 +4928,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <translation>&amp;Cerrar</translation>
     </message>
     <message>
-        <source>Rubberband Audio Processor: Change the tempo (sample length) and pitch of audio.</source>
-        <translation>Procesador Audio Rubberband: Cambiar el tempo (longitud sample) y tono de audio.</translation>
-    </message>
-    <message>
         <source>Sample length to beat:</source>
         <translation>Longitud de sample a pulso:</translation>
     </message>
@@ -4962,6 +4958,22 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     <message>
         <source>panorama</source>
         <translation>panorama</translation>
+    </message>
+    <message>
+        <source>Original Sample and Loop Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rubberband Audio Processor</source>
+        <translation>Procesador Audio Rubberband</translation>
+    </message>
+    <message>
+        <source>Change the tempo (sample length) and pitch of audio.</source>
+        <translation>Cambiar el tempo (longitud sample) y tono de audio.</translation>
+    </message>
+    <message>
+        <source>Resulting Sample and Envelopes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

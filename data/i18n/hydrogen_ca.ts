@@ -4896,10 +4896,6 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
         <translation>Tan&amp;car </translation>
     </message>
     <message>
-        <source>Rubberband Audio Processor: Change the tempo (sample length) and pitch of audio.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Sample length to beat:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4929,6 +4925,22 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
     </message>
     <message>
         <source>Crispness: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Original Sample and Loop Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rubberband Audio Processor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Change the tempo (sample length) and pitch of audio.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resulting Sample and Envelopes</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

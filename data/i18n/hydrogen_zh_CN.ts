@@ -4923,10 +4923,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>关闭(&amp;C)</translation>
     </message>
     <message>
-        <source>Rubberband Audio Processor: Change the tempo (sample length) and pitch of audio.</source>
-        <translation>Rubberband 音频处理器：更改音频的速度（采样长度）和音调。</translation>
-    </message>
-    <message>
         <source>Sample length to beat:</source>
         <translation>采样长度/节拍比：</translation>
     </message>
@@ -4957,6 +4953,22 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>panorama</source>
         <translation>全景</translation>
+    </message>
+    <message>
+        <source>Original Sample and Loop Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rubberband Audio Processor</source>
+        <translation>Rubberband 音频处理器</translation>
+    </message>
+    <message>
+        <source>Change the tempo (sample length) and pitch of audio.</source>
+        <translation>更改音频的速度（采样长度）和音调。</translation>
+    </message>
+    <message>
+        <source>Resulting Sample and Envelopes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

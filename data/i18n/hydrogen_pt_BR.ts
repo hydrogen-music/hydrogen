@@ -4926,10 +4926,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
         <translation>&amp;Fechar</translation>
     </message>
     <message>
-        <source>Rubberband Audio Processor: Change the tempo (sample length) and pitch of audio.</source>
-        <translation>Processador de Audio Rubberband: Mude o tempo (comprimento da amostra) e o tom do audio.</translation>
-    </message>
-    <message>
         <source>Sample length to beat:</source>
         <translation>Comprimento da amostra a bater:</translation>
     </message>
@@ -4960,6 +4956,22 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <message>
         <source>panorama</source>
         <translation>panorama</translation>
+    </message>
+    <message>
+        <source>Original Sample and Loop Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rubberband Audio Processor</source>
+        <translation>Processador de Audio Rubberband</translation>
+    </message>
+    <message>
+        <source>Change the tempo (sample length) and pitch of audio.</source>
+        <translation>Mude o tempo (comprimento da amostra) e o tom do audio.</translation>
+    </message>
+    <message>
+        <source>Resulting Sample and Envelopes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

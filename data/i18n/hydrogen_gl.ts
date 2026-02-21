@@ -4923,10 +4923,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>&amp;Pechar</translation>
     </message>
     <message>
-        <source>Rubberband Audio Processor: Change the tempo (sample length) and pitch of audio.</source>
-        <translation>Procesador de son Rubberband: Cambia o tempo (lonxitude da mostra) e a afinación do son.</translation>
-    </message>
-    <message>
         <source>Sample length to beat:</source>
         <translation>Lonxitude da mostra do pulso:</translation>
     </message>
@@ -4957,6 +4953,22 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>panorama</source>
         <translation>panorama</translation>
+    </message>
+    <message>
+        <source>Original Sample and Loop Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rubberband Audio Processor</source>
+        <translation>Procesador de son Rubberband</translation>
+    </message>
+    <message>
+        <source>Change the tempo (sample length) and pitch of audio.</source>
+        <translation>Cambia o tempo (lonxitude da mostra) e a afinación do son.</translation>
+    </message>
+    <message>
+        <source>Resulting Sample and Envelopes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

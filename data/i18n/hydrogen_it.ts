@@ -4898,10 +4898,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <translation>&amp;Chiudi</translation>
     </message>
     <message>
-        <source>Rubberband Audio Processor: Change the tempo (sample length) and pitch of audio.</source>
-        <translation>Processore Audio Rubberband: Cambia il tempo (lunghezza del campione) e il pitch.</translation>
-    </message>
-    <message>
         <source>Sample length to beat:</source>
         <translation>Lunghezza del campione:</translation>
     </message>
@@ -4932,6 +4928,22 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     <message>
         <source>panorama</source>
         <translation>panorama</translation>
+    </message>
+    <message>
+        <source>Original Sample and Loop Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rubberband Audio Processor</source>
+        <translation>Processore Audio Rubberband</translation>
+    </message>
+    <message>
+        <source>Change the tempo (sample length) and pitch of audio.</source>
+        <translation>Cambia il tempo (lunghezza del campione) e il pitch.</translation>
+    </message>
+    <message>
+        <source>Resulting Sample and Envelopes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

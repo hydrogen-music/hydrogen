@@ -4924,10 +4924,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>&amp;Закрити</translation>
     </message>
     <message>
-        <source>Rubberband Audio Processor: Change the tempo (sample length) and pitch of audio.</source>
-        <translation>Звуковий процесор Rubberband: Змінення темпу (тривалості семплу) і висоти звуку.</translation>
-    </message>
-    <message>
         <source>Sample length to beat:</source>
         <translation>Довжину семплу до долі:</translation>
     </message>
@@ -4958,6 +4954,22 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>panorama</source>
         <translation>панорама</translation>
+    </message>
+    <message>
+        <source>Original Sample and Loop Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rubberband Audio Processor</source>
+        <translation>Звуковий процесор Rubberband</translation>
+    </message>
+    <message>
+        <source>Change the tempo (sample length) and pitch of audio.</source>
+        <translation>Змінення темпу (тривалості семплу) і висоти звуку.</translation>
+    </message>
+    <message>
+        <source>Resulting Sample and Envelopes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

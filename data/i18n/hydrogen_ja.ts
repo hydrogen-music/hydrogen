@@ -4921,10 +4921,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>閉じる(&amp;C)</translation>
     </message>
     <message>
-        <source>Rubberband Audio Processor: Change the tempo (sample length) and pitch of audio.</source>
-        <translation>Rubberband オーディオプロセッサー: テンポ (サンプル長) とオーディオのピッチを変更。</translation>
-    </message>
-    <message>
         <source>Sample length to beat:</source>
         <translation>ビートあたりのサンプル長:</translation>
     </message>
@@ -4955,6 +4951,22 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>panorama</source>
         <translation>パノラマ</translation>
+    </message>
+    <message>
+        <source>Original Sample and Loop Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rubberband Audio Processor</source>
+        <translation>Rubberband オーディオプロセッサー</translation>
+    </message>
+    <message>
+        <source>Change the tempo (sample length) and pitch of audio.</source>
+        <translation>テンポ (サンプル長) とオーディオのピッチを変更。</translation>
+    </message>
+    <message>
+        <source>Resulting Sample and Envelopes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

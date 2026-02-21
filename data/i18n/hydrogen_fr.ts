@@ -4929,10 +4929,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>&amp;Fermer</translation>
     </message>
     <message>
-        <source>Rubberband Audio Processor: Change the tempo (sample length) and pitch of audio.</source>
-        <translation>Processeur audio Rubberband: modifie le tempo (la longueur de l&apos;échantillon) et la tonalité de l&apos;audio.</translation>
-    </message>
-    <message>
         <source>Sample length to beat:</source>
         <translation>Longueur de l&apos;échantillon par rapport au temps :</translation>
     </message>
@@ -4963,6 +4959,22 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <message>
         <source>panorama</source>
         <translation>panoramique</translation>
+    </message>
+    <message>
+        <source>Original Sample and Loop Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rubberband Audio Processor</source>
+        <translation>Processeur audio Rubberband</translation>
+    </message>
+    <message>
+        <source>Change the tempo (sample length) and pitch of audio.</source>
+        <translation>modifie le tempo (la longueur de l&apos;échantillon) et la tonalité de l&apos;audio.</translation>
+    </message>
+    <message>
+        <source>Resulting Sample and Envelopes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

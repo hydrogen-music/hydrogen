@@ -4930,10 +4930,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>&amp;Κλείσιμο</translation>
     </message>
     <message>
-        <source>Rubberband Audio Processor: Change the tempo (sample length) and pitch of audio.</source>
-        <translation>Ράμπερμπανντ Επεξεργαστής Ήχου: Άλλαξε το ρυθμό (μήκος δείγματος) και τον τόνο του ήχου.</translation>
-    </message>
-    <message>
         <source>Sample length to beat:</source>
         <translation>Μήκος δείγματος στο χτύπημα:</translation>
     </message>
@@ -4964,6 +4960,22 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>panorama</source>
         <translation>πανοραμικό</translation>
+    </message>
+    <message>
+        <source>Original Sample and Loop Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rubberband Audio Processor</source>
+        <translation>Ράμπερμπανντ Επεξεργαστής Ήχου</translation>
+    </message>
+    <message>
+        <source>Change the tempo (sample length) and pitch of audio.</source>
+        <translation>Άλλαξε το ρυθμό (μήκος δείγματος) και τον τόνο του ήχου.</translation>
+    </message>
+    <message>
+        <source>Resulting Sample and Envelopes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
