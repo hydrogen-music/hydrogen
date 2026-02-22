@@ -47,7 +47,7 @@ class PatternList;
 class TransportPosition : public H2Core::Object<TransportPosition> {
 	H2_OBJECT( TransportPosition )
    public:
-	enum class Type { Transport, Queuing, JackTimebaseCallback, Test0, Test1 };
+	enum class Type { Playhead, Queuing, JackTimebaseCallback, Test0, Test1 };
 	static QString TypeToQString( const Type& type );
 
 	TransportPosition( Type type );

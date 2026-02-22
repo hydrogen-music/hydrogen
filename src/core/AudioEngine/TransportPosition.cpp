@@ -1076,8 +1076,8 @@ QString TransportPosition::toQString( const QString& sPrefix, bool bShort )
 QString TransportPosition::TypeToQString( const Type& type )
 {
 	switch ( type ) {
-		case Type::Transport:
-			return "Transport";
+		case Type::Playhead:
+			return "Playhead";
 		case Type::Queuing:
 			return "Queuing";
 		case Type::JackTimebaseCallback:

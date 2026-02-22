@@ -99,7 +99,7 @@ AudioEngine::AudioEngine()
 	  m_nCountInEndFrame( 0 )
 {
 	m_pTransportPosition =
-		std::make_shared<TransportPosition>( TransportPosition::Type::Transport
+		std::make_shared<TransportPosition>( TransportPosition::Type::Playhead
 		);
 	m_pQueuingPosition =
 		std::make_shared<TransportPosition>( TransportPosition::Type::Queuing );
@@ -630,7 +630,7 @@ void AudioEngine::updateTransportPosition( double fTick, long long nFrame,
 	}
 
 	if ( pHydrogen->getSendBbtChangeEvents() &&
-		 pPos->getType() == TransportPosition::Type::Transport && bBBTChanged &&
+		 pPos->getType() == TransportPosition::Type::Playhead && bBBTChanged &&
 		 trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->pushEvent( Event::Type::BbtChanged, 0 );
 	}
@@ -756,7 +756,7 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame,
 	}
 
 	// Check whether transport was looped
-	if ( pPos->getType() == TransportPosition::Type::Transport &&
+	if ( pPos->getType() == TransportPosition::Type::Playhead &&
 		 pSong->getLoopMode() == Song::LoopMode::Enabled &&
 		 ( pPos->getColumn() > nNewColumn ||
 		   ( pPos->getColumn() == nNewColumn && nNewColumn == 0 &&
@@ -773,7 +773,7 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame,
 
 		updatePlayingPatternsPos( pPos, trigger );
 
-		if ( pPos->getType() == TransportPosition::Type::Transport ) {
+		if ( pPos->getType() == TransportPosition::Type::Playhead ) {
 			if ( trigger == Event::Trigger::Suppress ) {
 				handleSelectedPattern( trigger  );
 			}
@@ -842,7 +842,7 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 
 	if ( fNewBpm != fOldBpm ) {
 		pPos->setBpm( fNewBpm );
-		if ( pPos->getType() == TransportPosition::Type::Transport &&
+		if ( pPos->getType() == TransportPosition::Type::Playhead &&
 			 trigger != Event::Trigger::Suppress ) {
 			EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, 0 );
 		}
@@ -947,7 +947,7 @@ void AudioEngine::calculateTransportOffsetOnBpmChange(
 		pPos->setFrame( nNewFrame );
 	}
 
-	if ( pPos->getType() == TransportPosition::Type::Transport ) {
+	if ( pPos->getType() == TransportPosition::Type::Playhead ) {
 		if ( getState() == State::CountIn &&
 			 std::abs( fTickSizeOld - fTickSizeNew ) > 1e-2 ) {
 			m_nRealtimeFrameScaled *= fTickSizeNew / fTickSizeOld;
@@ -2485,7 +2485,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 			pPos->setPatternSize( 4 * H2Core::nTicksPerQuarter );
 
-			if ( pPos->getType() == TransportPosition::Type::Transport &&
+			if ( pPos->getType() == TransportPosition::Type::Playhead &&
 				 nPrevPatternNumber > 0 &&
 				 trigger != Event::Trigger::Suppress ) {
 				EventQueue::get_instance()->pushEvent( Event::Type::PlayingPatternsChanged, 0 );
@@ -2559,7 +2559,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 				// GUI does not care about the internals of the audio
 				// engine and just moves along the transport position.
-				if ( pPos->getType() == TransportPosition::Type::Transport &&
+				if ( pPos->getType() == TransportPosition::Type::Playhead &&
 					 trigger != Event::Trigger::Suppress ) {
 					EventQueue::get_instance()->pushEvent( Event::Type::PlayingPatternsChanged, 0 );
 				}
