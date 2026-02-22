@@ -24,13 +24,12 @@
 
 #include <memory>
 
-#include <core/Object.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/AudioEngineTests.h>
 #include <core/IO/JackDriver.h>
+#include <core/Object.h>
 
-namespace H2Core
-{
+namespace H2Core {
 
 class PatternList;
 
@@ -45,18 +44,10 @@ class PatternList;
  * of compensation required to retrieve the original position is
  * stored in a number of dedicated offset variables.
  */
-class TransportPosition : public H2Core::Object<TransportPosition>
-{
-	H2_OBJECT(TransportPosition)
-public:
-
-	enum class Type {
-		Transport,
-		Queuing,
-		JackTimebaseCallback,
-		Test0,
-		Test1
-	};
+class TransportPosition : public H2Core::Object<TransportPosition> {
+	H2_OBJECT( TransportPosition )
+   public:
+	enum class Type { Transport, Queuing, JackTimebaseCallback, Test0, Test1 };
 	static QString TypeToQString( const Type& type );
 
 	TransportPosition( Type type );
@@ -130,7 +121,11 @@ public:
 	 *
 	 * @return frame
 	 */
-	static long long computeFrameFromTick( double fTick, double* fTickMismatch, int nSampleRate = 0 );
+	static long long computeFrameFromTick(
+		double fTick,
+		double* fTickMismatch,
+		int nSampleRate = 0
+	);
 
 	/**
 	 * Converts ticks into frames under the assumption of a constant
@@ -153,11 +148,15 @@ public:
 	 */
 	static double computeTick( long long nFrame, float fTickSize );
 
-	friend bool operator==( std::shared_ptr<TransportPosition> lhs,
-							 std::shared_ptr<TransportPosition> rhs );
-	friend bool operator!=( std::shared_ptr<TransportPosition> lhs,
-							 std::shared_ptr<TransportPosition> rhs );
-	
+	friend bool operator==(
+		std::shared_ptr<TransportPosition> lhs,
+		std::shared_ptr<TransportPosition> rhs
+	);
+	friend bool operator!=(
+		std::shared_ptr<TransportPosition> lhs,
+		std::shared_ptr<TransportPosition> rhs
+	);
+
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
 	 * every new line
@@ -166,13 +165,14 @@ public:
 	 * displayed without line breaks.
 	 *
 	 * \return String presentation of current object.*/
-	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+	QString toQString( const QString& sPrefix = "", bool bShort = true )
+		const override;
 
 	friend class AudioEngine;
 	friend class AudioEngineTests;
 	friend class JackDriver;
 
-private:
+   private:
 	/**
 	 * Copying the content of one position into the other is a lot
 	 * cheaper than performing computations, like
@@ -180,7 +180,7 @@ private:
 	 */
 	void set( std::shared_ptr<TransportPosition> pOther );
 	void reset();
-	
+
 	void setFrame( long long nNewFrame );
 	void setTick( double fNewTick );
 	void setTickSize( float fNewTickSize );
@@ -195,7 +195,7 @@ private:
 	void setLastLeadLagFactor( long long nValue );
 	void setBar( int nBar );
 	void setBeat( int nBeat );
-	
+
 	std::shared_ptr<PatternList> getPlayingPatterns();
 	std::shared_ptr<PatternList> getNextPatterns();
 
@@ -206,7 +206,7 @@ private:
 	 */
 	const Type m_type;
 
-	/** 
+	/**
 	 * Current transport position in number of frames since the
 	 * beginning of the song.
 	 *
@@ -218,7 +218,7 @@ private:
 	 * on ticks. (#m_nFrame / #m_fTickSize)
 	 */
 	long long m_nFrame;
-	
+
 	/**
 	 * Current transport position in number of ticks since the
 	 * beginning of the song.
@@ -237,8 +237,8 @@ private:
 	 * required to keep frames and ticks in sync would be lost.
 	 */
 	double m_fTick;
-	
-	/** 
+
+	/**
 	 * Number of frames that make up one tick.
 	 *
 	 * Calculated using AudioEngine::computeTickSize().
@@ -268,7 +268,7 @@ private:
 	 * stored by Hydrogen.
 	 */
 	float m_fBpm;
-	
+
 	/**
 	 * Dicstance in ticks between the beginning of the song and the
 	 * beginning of the current column (#m_nColumn).
@@ -277,7 +277,7 @@ private:
 	 * to #m_fTick = (roughly) #m_nPatternStartTick +
 	 * #m_nPatternTickPosition.
 	 */
-	long				m_nPatternStartTick;
+	long m_nPatternStartTick;
 	/**
 	 * Ticks passed since #m_nPatternStartTick.
 	 *
@@ -285,7 +285,7 @@ private:
 	 * to #m_fTick = (roughly) #m_nPatternStartTick +
 	 * #m_nPatternTickPosition.
 	 */
-	long				m_nPatternTickPosition;
+	long m_nPatternTickPosition;
 	/**
 	 * Specifies the column transport is located in and can be used as
 	 * the index of the current PatternList/column in the
@@ -295,8 +295,8 @@ private:
 	 * and is used to indicate that transport reached the end of the
 	 * song (with transport not looped).
 	 */
-	int					m_nColumn;
-	
+	int m_nColumn;
+
 	/** Number of ticks #m_nFrame is ahead/behind of
 	 *	#m_fTick.
 	 *
@@ -304,8 +304,8 @@ private:
 	 * the frame counterpart #m_nFrame of #m_fTick using
 	 * computeFrameFromTick().
 	 * #m_nFrame.
-	**/
-	double 				m_fTickMismatch;
+	 **/
+	double m_fTickMismatch;
 
 	/**
 	 * Frame offset introduced when changing the tempo of the song, switching to
@@ -324,7 +324,7 @@ private:
 	 *
 	 * Note this is not the frame equivalent of #m_fTickOffsetQueuing.
 	 */
-	long long 			m_nFrameOffsetTempo;
+	long long m_nFrameOffsetTempo;
 	/**
 	 * Tick offset introduced when changing the tempo of the song.
 	 *
@@ -342,7 +342,7 @@ private:
 	 *
 	 * Note this is not the tick equivalent of #m_nFrameOffsetTempo.
 	 */
-	double 				m_fTickOffsetQueuing;
+	double m_fTickOffsetQueuing;
 
 	/**
 	 * Tick offset introduced when changing the size of the song.
@@ -360,7 +360,7 @@ private:
 	 * #m_fTick become synced again and #m_fTickOffsetSongSize gets
 	 * resetted.
 	 */
-	double 				m_fTickOffsetSongSize;
+	double m_fTickOffsetSongSize;
 
 	/**
 	 * Patterns used to toggle the ones in #m_pPlayingPatterns in
@@ -372,8 +372,8 @@ private:
 	 *
 	 * See AudioEngine::updatePlayingPatterns() for details.
 	 */
-	std::shared_ptr<PatternList>		m_pNextPatterns;
-	
+	std::shared_ptr<PatternList> m_pNextPatterns;
+
 	/**
 	 * Contains all Patterns currently played back.
 	 *
@@ -386,18 +386,18 @@ private:
 	 *
 	 * See AudioEngine::updatePlayingPatterns() for details.
 	 */
-	std::shared_ptr<PatternList>		m_pPlayingPatterns;
-	
+	std::shared_ptr<PatternList> m_pPlayingPatterns;
+
 	/**
 	 * Maximum size of all patterns in #m_pPlayingPatterns.
 	 *
 	 * If #m_pPlayingPatterns is empty, four quarters will be used as fallback.
 	 */
-	int 				m_nPatternSize;
+	int m_nPatternSize;
 
 	/**
 	 * #AudioEngine::getLeadLagInFrames() calculated for the previous
-     * transport position.
+	 * transport position.
 	 *
 	 * It is required to ensure a smooth update of the queuing
 	 * position in AudioEngine::updateNoteQueue() without any holes or
@@ -421,82 +421,108 @@ private:
 	int m_nBeat;
 };
 
-inline const TransportPosition::Type& TransportPosition::getType() const {
+inline const TransportPosition::Type& TransportPosition::getType() const
+{
 	return m_type;
 }
-inline long long TransportPosition::getFrame() const {
+inline long long TransportPosition::getFrame() const
+{
 	return m_nFrame;
 }
-inline double TransportPosition::getDoubleTick() const {
+inline double TransportPosition::getDoubleTick() const
+{
 	return m_fTick;
 }
-inline long TransportPosition::getTick() const {
-	return static_cast<long>(std::floor( m_fTick ));
+inline long TransportPosition::getTick() const
+{
+	return static_cast<long>( std::floor( m_fTick ) );
 }
-inline float TransportPosition::getTickSize() const {
+inline float TransportPosition::getTickSize() const
+{
 	return m_fTickSize;
 }
-inline float TransportPosition::getBpm() const {
+inline float TransportPosition::getBpm() const
+{
 	return m_fBpm;
 }
-inline long TransportPosition::getPatternStartTick() const {
+inline long TransportPosition::getPatternStartTick() const
+{
 	return m_nPatternStartTick;
 }
-inline long TransportPosition::getPatternTickPosition() const {
+inline long TransportPosition::getPatternTickPosition() const
+{
 	return m_nPatternTickPosition;
 }
-inline int TransportPosition::getColumn() const {
+inline int TransportPosition::getColumn() const
+{
 	return m_nColumn;
 }
-inline double TransportPosition::getTickMismatch() const {
+inline double TransportPosition::getTickMismatch() const
+{
 	return m_fTickMismatch;
 }
-inline long long TransportPosition::getFrameOffsetTempo() const {
+inline long long TransportPosition::getFrameOffsetTempo() const
+{
 	return m_nFrameOffsetTempo;
 }
-inline void TransportPosition::setFrameOffsetTempo( long long nFrameOffset ) {
+inline void TransportPosition::setFrameOffsetTempo( long long nFrameOffset )
+{
 	m_nFrameOffsetTempo = nFrameOffset;
 }
-inline double TransportPosition::getTickOffsetQueuing() const {
+inline double TransportPosition::getTickOffsetQueuing() const
+{
 	return m_fTickOffsetQueuing;
 }
-inline void TransportPosition::setTickOffsetQueuing( double fTickOffset ) {
+inline void TransportPosition::setTickOffsetQueuing( double fTickOffset )
+{
 	m_fTickOffsetQueuing = fTickOffset;
 }
-inline double TransportPosition::getTickOffsetSongSize() const {
+inline double TransportPosition::getTickOffsetSongSize() const
+{
 	return m_fTickOffsetSongSize;
 }
-inline void TransportPosition::setTickOffsetSongSize( double fTickOffset ) {
+inline void TransportPosition::setTickOffsetSongSize( double fTickOffset )
+{
 	m_fTickOffsetSongSize = fTickOffset;
 }
-inline const std::shared_ptr<PatternList> TransportPosition::getPlayingPatterns() const {
+inline const std::shared_ptr<PatternList> TransportPosition::getPlayingPatterns(
+) const
+{
 	return m_pPlayingPatterns;
 }
-inline std::shared_ptr<PatternList> TransportPosition::getPlayingPatterns() {
+inline std::shared_ptr<PatternList> TransportPosition::getPlayingPatterns()
+{
 	return m_pPlayingPatterns;
 }
-inline const std::shared_ptr<PatternList> TransportPosition::getNextPatterns() const {
+inline const std::shared_ptr<PatternList> TransportPosition::getNextPatterns(
+) const
+{
 	return m_pNextPatterns;
 }
-inline std::shared_ptr<PatternList> TransportPosition::getNextPatterns() {
+inline std::shared_ptr<PatternList> TransportPosition::getNextPatterns()
+{
 	return m_pNextPatterns;
 }
-inline int TransportPosition::getPatternSize() const {
+inline int TransportPosition::getPatternSize() const
+{
 	return m_nPatternSize;
 }
-inline long long TransportPosition::getLastLeadLagFactor() const {
+inline long long TransportPosition::getLastLeadLagFactor() const
+{
 	return m_nLastLeadLagFactor;
 }
-inline void TransportPosition::setLastLeadLagFactor( long long nValue ) {
+inline void TransportPosition::setLastLeadLagFactor( long long nValue )
+{
 	m_nLastLeadLagFactor = nValue;
 }
-inline int TransportPosition::getBar() const {
+inline int TransportPosition::getBar() const
+{
 	return m_nBar;
 }
-inline int TransportPosition::getBeat() const {
+inline int TransportPosition::getBeat() const
+{
 	return m_nBeat;
 }
-};
+};	// namespace H2Core
 
 #endif
-
