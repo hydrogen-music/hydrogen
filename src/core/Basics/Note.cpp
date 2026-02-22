@@ -26,7 +26,7 @@
 #include "Midi/Midi.h"
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Adsr.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
@@ -260,7 +260,7 @@ void Note::computeNoteStart()
 
 	double fTickMismatch;
 	m_nNoteStart =
-		TransportPosition::computeFrameFromTick( m_nPosition, &fTickMismatch );
+		Transport::computeFrameFromTick( m_nPosition, &fTickMismatch );
 
 	m_nNoteStart += std::clamp(
 		m_nHumanizeDelay, -1 * AudioEngine::nMaxTimeHumanize,
@@ -280,7 +280,7 @@ void Note::computeNoteStart()
 		// changes where manually applied by the user. They are not
 		// dependent on a particular position of the transport (as
 		// Timeline is not activated).
-		m_fUsedTickSize = pAudioEngine->getTransportPosition()->getTickSize();
+		m_fUsedTickSize = pAudioEngine->getPlayhead()->getTickSize();
 	}
 }
 
@@ -585,10 +585,10 @@ void Note::swing()
 		double fTickMismatch;
 		setHumanizeDelay(
 			m_nHumanizeDelay +
-			( TransportPosition::computeFrameFromTick(
+			( Transport::computeFrameFromTick(
 				  m_nPosition + H2Core::nTicksPerQuarter / 8., &fTickMismatch
 			  ) -
-			  TransportPosition::computeFrameFromTick(
+			  Transport::computeFrameFromTick(
 				  m_nPosition, &fTickMismatch
 			  ) ) *
 				pSong->getSwingFactor()

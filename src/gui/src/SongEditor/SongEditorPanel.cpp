@@ -42,7 +42,7 @@
 #include "../WidgetScrollArea.h"
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/PatternList.h>
 #include <core/Hydrogen.h>
@@ -442,7 +442,7 @@ void SongEditorPanel::updatePlayHeadPosition()
 		QPoint pos = m_pPositionRuler->pos();
 		int x = -pos.x();
 
-		int nPlayHeadPosition = pAudioEngine->getTransportPosition()->getColumn() *
+		int nPlayHeadPosition = pAudioEngine->getPlayhead()->getColumn() *
 			m_pSongEditor->getGridWidth();
 
 		int value = m_pEditorScrollView->horizontalScrollBar()->value();

@@ -27,7 +27,7 @@
 #include <core/Globals.h>
 #include <core/Preferences/Preferences.h>
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 
 LED::LED( QWidget *pParent, const QSize& size )
  : QWidget( pParent )

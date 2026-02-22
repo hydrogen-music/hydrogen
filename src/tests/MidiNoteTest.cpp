@@ -27,7 +27,7 @@
 #include "TestHelper.h"
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
@@ -551,7 +551,7 @@ void MidiNoteTest::testSendNoteOff()
 	auto renderNote = [&]( std::shared_ptr<Note> pNote ) {
 		auto pCopiedNote = std::make_shared<Note>( pNote );
 		pAudioEngine->lock( RIGHT_HERE );
-		pCopiedNote->setPosition( TransportPosition::computeTickFromFrame(
+		pCopiedNote->setPosition( Transport::computeTickFromFrame(
 			pAudioEngine->getRealtimeFrame() +
 			pAudioEngine->getAudioDriver()->getBufferSize()
 		) );
@@ -605,7 +605,7 @@ void MidiNoteTest::testSendNoteOff()
 
 	const int nCustomLengthInTicks = 108;
 	const int nCustomLengthDurationMs =
-		pAudioEngine->getTransportPosition()->getTickSize() * 1000 *
+		pAudioEngine->getPlayhead()->getTickSize() * 1000 *
 		nCustomLengthInTicks / pAudioEngine->getAudioDriver()->getSampleRate();
 	const int nDurationTolerance = nCustomLengthDurationMs * 0.05;
 
@@ -618,7 +618,7 @@ void MidiNoteTest::testSendNoteOff()
 	CPPUNIT_ASSERT( pInstrumentWithSample->hasSamples() );
 	pInstrumentWithSample->loadSamples( Hydrogen::get_instance()
 											->getAudioEngine()
-											->getTransportPosition()
+											->getPlayhead()
 											->getBpm() );
 
 	auto pNoteWithSample = std::make_shared<Note>( pInstrumentWithSample );

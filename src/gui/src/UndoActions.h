@@ -32,7 +32,7 @@
 #include <vector>
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/AutomationPath.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>

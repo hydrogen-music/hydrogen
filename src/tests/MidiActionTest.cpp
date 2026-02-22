@@ -28,7 +28,7 @@
 #include <thread>
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Event.h>
 #include <core/Basics/GridPoint.h>
@@ -155,7 +155,7 @@ void MidiActionTest::testBpmCcRelativeAction()
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pTransportPosition = pAudioEngine->getTransportPosition();
+	auto pPlayhead = pAudioEngine->getPlayhead();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
@@ -181,7 +181,7 @@ void MidiActionTest::testBpmCcRelativeAction()
 
 	// Wait for the audio engine to pick up the new tempo.
 	TestHelper::waitForAudioDriver();
-	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
+	CPPUNIT_ASSERT( pPlayhead->getBpm() == fOldBpm );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum,
@@ -191,7 +191,7 @@ void MidiActionTest::testBpmCcRelativeAction()
 	TestHelper::waitForAudioDriver();
 
 	pAudioEngine->lock( RIGHT_HERE );
-	const auto fNewBpm = pTransportPosition->getBpm();
+	const auto fNewBpm = pPlayhead->getBpm();
 	pAudioEngine->unlock();
 
 	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldBpm ).arg( fNewBpm ) );
@@ -206,7 +206,7 @@ void MidiActionTest::testBpmDecreaseAction()
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pTransportPosition = pAudioEngine->getTransportPosition();
+	auto pPlayhead = pAudioEngine->getPlayhead();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
@@ -233,7 +233,7 @@ void MidiActionTest::testBpmDecreaseAction()
 
 	// Wait for the audio engine to pick up the new tempo.
 	TestHelper::waitForAudioDriver();
-	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
+	CPPUNIT_ASSERT( pPlayhead->getBpm() == fOldBpm );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum,
@@ -258,7 +258,7 @@ void MidiActionTest::testBpmFineCcRelativeAction()
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pTransportPosition = pAudioEngine->getTransportPosition();
+	auto pPlayhead = pAudioEngine->getPlayhead();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
@@ -284,7 +284,7 @@ void MidiActionTest::testBpmFineCcRelativeAction()
 
 	// Wait for the audio engine to pick up the new tempo.
 	TestHelper::waitForAudioDriver();
-	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
+	CPPUNIT_ASSERT( pPlayhead->getBpm() == fOldBpm );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum,
@@ -294,7 +294,7 @@ void MidiActionTest::testBpmFineCcRelativeAction()
 	TestHelper::waitForAudioDriver();
 
 	pAudioEngine->lock( RIGHT_HERE );
-	const auto fNewBpm = pTransportPosition->getBpm();
+	const auto fNewBpm = pPlayhead->getBpm();
 	pAudioEngine->unlock();
 
 	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldBpm ).arg( fNewBpm ) );
@@ -309,7 +309,7 @@ void MidiActionTest::testBpmIncreaseAction()
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pTransportPosition = pAudioEngine->getTransportPosition();
+	auto pPlayhead = pAudioEngine->getPlayhead();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
@@ -336,7 +336,7 @@ void MidiActionTest::testBpmIncreaseAction()
 
 	// Wait for the audio engine to pick up the new tempo.
 	TestHelper::waitForAudioDriver();
-	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
+	CPPUNIT_ASSERT( pPlayhead->getBpm() == fOldBpm );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum,
@@ -346,7 +346,7 @@ void MidiActionTest::testBpmIncreaseAction()
 	TestHelper::waitForAudioDriver();
 
 	pAudioEngine->lock( RIGHT_HERE );
-	const auto fNewBpm = pTransportPosition->getBpm();
+	const auto fNewBpm = pPlayhead->getBpm();
 	pAudioEngine->unlock();
 
 	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldBpm ).arg( fNewBpm ) );
@@ -1225,7 +1225,7 @@ void MidiActionTest::testNextBarAction()
 	) );
 
 	pAudioEngine->lock( RIGHT_HERE );
-	const int nNewValue = pAudioEngine->getTransportPosition()->getColumn();
+	const int nNewValue = pAudioEngine->getPlayhead()->getColumn();
 	pAudioEngine->unlock();
 
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
@@ -1378,7 +1378,7 @@ void MidiActionTest::testPauseAction()
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pTransportPosition = pAudioEngine->getTransportPosition();
+	auto pPlayhead = pAudioEngine->getPlayhead();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
@@ -1406,7 +1406,7 @@ void MidiActionTest::testPauseAction()
 	) );
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
-	CPPUNIT_ASSERT( pTransportPosition->getFrame() != 0 );
+	CPPUNIT_ASSERT( pPlayhead->getFrame() != 0 );
 
 	CoreActionController::activateSongMode( true );
 
@@ -1699,7 +1699,7 @@ void MidiActionTest::testPlayPauseToggleAction()
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pTransportPosition = pAudioEngine->getTransportPosition();
+	auto pPlayhead = pAudioEngine->getPlayhead();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
@@ -1735,7 +1735,7 @@ void MidiActionTest::testPlayPauseToggleAction()
 	) );
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
-	CPPUNIT_ASSERT( pTransportPosition->getFrame() != 0 );
+	CPPUNIT_ASSERT( pPlayhead->getFrame() != 0 );
 
 	CoreActionController::activateSongMode( true );
 
@@ -1748,7 +1748,7 @@ void MidiActionTest::testPlayStopToggleAction()
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pTransportPosition = pAudioEngine->getTransportPosition();
+	auto pPlayhead = pAudioEngine->getPlayhead();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
@@ -1784,7 +1784,7 @@ void MidiActionTest::testPlayStopToggleAction()
 	) );
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
-	CPPUNIT_ASSERT( pTransportPosition->getFrame() == 0 );
+	CPPUNIT_ASSERT( pPlayhead->getFrame() == 0 );
 
 	CoreActionController::activateSongMode( true );
 
@@ -1834,7 +1834,7 @@ void MidiActionTest::testPreviousBarAction()
 	) );
 
 	pAudioEngine->lock( RIGHT_HERE );
-	const int nNewValue = pAudioEngine->getTransportPosition()->getColumn();
+	const int nNewValue = pAudioEngine->getPlayhead()->getColumn();
 	pAudioEngine->unlock();
 
 	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
@@ -2034,7 +2034,7 @@ void MidiActionTest::testSelectAndPlayPatternAction()
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pTransportPosition = pAudioEngine->getTransportPosition();
+	auto pPlayhead = pAudioEngine->getPlayhead();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
@@ -2069,7 +2069,7 @@ void MidiActionTest::testSelectAndPlayPatternAction()
 	) );
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
-	CPPUNIT_ASSERT( pTransportPosition->getFrame() != 0 );
+	CPPUNIT_ASSERT( pPlayhead->getFrame() != 0 );
 	CPPUNIT_ASSERT( pHydrogen->getSelectedPatternNumber() == nPatternNumber );
 
 	pHydrogen->sequencerStop();
@@ -2294,7 +2294,7 @@ void MidiActionTest::testStopAction()
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pTransportPosition = pAudioEngine->getTransportPosition();
+	auto pPlayhead = pAudioEngine->getPlayhead();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
 
@@ -2322,7 +2322,7 @@ void MidiActionTest::testStopAction()
 	) );
 	TestHelper::waitForAudioDriver();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
-	CPPUNIT_ASSERT( pTransportPosition->getFrame() == 0 );
+	CPPUNIT_ASSERT( pPlayhead->getFrame() == 0 );
 
 	CoreActionController::activateSongMode( true );
 
@@ -2504,7 +2504,7 @@ void MidiActionTest::testTapTempoAction()
 	auto pTestHelper = TestHelper::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pTransportPosition = pAudioEngine->getTransportPosition();
+	auto pPlayhead = pAudioEngine->getPlayhead();
 	auto pPref = Preferences::get_instance();
 	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
 	pMidiEventMap->reset();
@@ -2522,7 +2522,7 @@ void MidiActionTest::testTapTempoAction()
 	// during the next process cycle, we just check whether the next value did
 	// change.
 	pAudioEngine->lock( RIGHT_HERE );
-	const auto fOldBpm = pTransportPosition->getBpm();
+	const auto fOldBpm = pPlayhead->getBpm();
 	pAudioEngine->unlock();
 
 	const float fTargetBpm = 378.4;
@@ -2561,7 +2561,7 @@ void MidiActionTest::testTapTempoAction()
 	TestHelper::waitForAudioDriver();
 
 	pAudioEngine->lock( RIGHT_HERE );
-	const auto fNewBpm = pTransportPosition->getBpm();
+	const auto fNewBpm = pPlayhead->getBpm();
 	pAudioEngine->unlock();
 
 	const float fTolerance = 1;

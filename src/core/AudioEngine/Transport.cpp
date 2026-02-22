@@ -19,7 +19,7 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Drumkit.h>
@@ -31,7 +31,7 @@
 #include <core/Preferences/Preferences.h>
 #include <core/Timeline.h>
 
-#define TRANSPORT_POSITION_DEBUG 0
+#define TRANSPORT_DEBUG 0
 
 #define TP_DEBUGLOG( x )                                                       \
 	if ( __logger->should_log( Logger::Debug ) ) {                             \
@@ -43,7 +43,7 @@
 
 namespace H2Core {
 
-TransportPosition::TransportPosition( Type type ) : m_type( type )
+Transport::Transport( Type type ) : m_type( type )
 {
 	m_pPlayingPatterns = std::make_shared<PatternList>();
 	m_pPlayingPatterns->setNeedsLock( true );
@@ -53,8 +53,7 @@ TransportPosition::TransportPosition( Type type ) : m_type( type )
 	reset();
 }
 
-TransportPosition::TransportPosition( std::shared_ptr<TransportPosition> pOther
-)
+Transport::Transport( std::shared_ptr<Transport> pOther )
 	: m_type( pOther->m_type )
 {
 	m_pPlayingPatterns = std::make_shared<PatternList>();
@@ -65,11 +64,11 @@ TransportPosition::TransportPosition( std::shared_ptr<TransportPosition> pOther
 	set( pOther );
 }
 
-TransportPosition::~TransportPosition()
+Transport::~Transport()
 {
 }
 
-void TransportPosition::set( std::shared_ptr<TransportPosition> pOther )
+void Transport::set( std::shared_ptr<Transport> pOther )
 {
 	m_nFrame = pOther->m_nFrame;
 	m_fTick = pOther->m_fTick;
@@ -101,7 +100,7 @@ void TransportPosition::set( std::shared_ptr<TransportPosition> pOther )
 	m_nBeat = pOther->m_nBeat;
 }
 
-void TransportPosition::reset()
+void Transport::reset()
 {
 	m_nFrame = 0;
 	m_fTick = 0;
@@ -123,7 +122,7 @@ void TransportPosition::reset()
 	m_nBeat = 1;
 }
 
-void TransportPosition::setBpm( float fNewBpm )
+void Transport::setBpm( float fNewBpm )
 {
 	if ( fNewBpm > MAX_BPM ) {
 		ERRORLOG( QString( "[%1] Provided bpm [%2] is too high. Assigning "
@@ -159,7 +158,7 @@ void TransportPosition::setBpm( float fNewBpm )
 	}
 }
 
-void TransportPosition::setFrame( long long nNewFrame )
+void Transport::setFrame( long long nNewFrame )
 {
 	if ( nNewFrame < 0 ) {
 		ERRORLOG(
@@ -175,7 +174,7 @@ void TransportPosition::setFrame( long long nNewFrame )
 	m_nFrame = nNewFrame;
 }
 
-void TransportPosition::setTick( double fNewTick )
+void Transport::setTick( double fNewTick )
 {
 	if ( fNewTick < 0 ) {
 		ERRORLOG(
@@ -191,7 +190,7 @@ void TransportPosition::setTick( double fNewTick )
 	m_fTick = fNewTick;
 }
 
-void TransportPosition::setTickSize( float fNewTickSize )
+void Transport::setTickSize( float fNewTickSize )
 {
 	if ( fNewTickSize <= 0 ) {
 		ERRORLOG( QString( "[%1] Provided tick size [%2] is too small. Using "
@@ -204,7 +203,7 @@ void TransportPosition::setTickSize( float fNewTickSize )
 	m_fTickSize = fNewTickSize;
 }
 
-void TransportPosition::setPatternStartTick( long nPatternStartTick )
+void Transport::setPatternStartTick( long nPatternStartTick )
 {
 	if ( nPatternStartTick < 0 ) {
 		ERRORLOG(
@@ -220,7 +219,7 @@ void TransportPosition::setPatternStartTick( long nPatternStartTick )
 	m_nPatternStartTick = nPatternStartTick;
 }
 
-void TransportPosition::setPatternTickPosition( long nPatternTickPosition )
+void Transport::setPatternTickPosition( long nPatternTickPosition )
 {
 	if ( nPatternTickPosition < 0 ) {
 		ERRORLOG(
@@ -236,7 +235,7 @@ void TransportPosition::setPatternTickPosition( long nPatternTickPosition )
 	m_nPatternTickPosition = nPatternTickPosition;
 }
 
-void TransportPosition::setColumn( int nColumn )
+void Transport::setColumn( int nColumn )
 {
 	if ( nColumn < -1 ) {
 		ERRORLOG( QString( "[%1] Provided column [%2] it too small. Using [-1] "
@@ -249,7 +248,7 @@ void TransportPosition::setColumn( int nColumn )
 	m_nColumn = nColumn;
 }
 
-void TransportPosition::setPatternSize( int nPatternSize )
+void Transport::setPatternSize( int nPatternSize )
 {
 	if ( nPatternSize < 0 ) {
 		ERRORLOG( QString( "[%1] Provided pattern size [%2] it too small. "
@@ -261,7 +260,7 @@ void TransportPosition::setPatternSize( int nPatternSize )
 
 	m_nPatternSize = nPatternSize;
 }
-void TransportPosition::setBar( int nBar )
+void Transport::setBar( int nBar )
 {
 	if ( nBar < 1 ) {
 		ERRORLOG( QString( "[%1] Provided bar [%2] it too small. Using [1] as "
@@ -273,7 +272,7 @@ void TransportPosition::setBar( int nBar )
 	m_nBar = nBar;
 }
 
-void TransportPosition::setBeat( int nBeat )
+void Transport::setBeat( int nBeat )
 {
 	if ( nBeat < 1 ) {
 		ERRORLOG( QString( "[%1] Provided beat [%2] it too small. Using [1] as "
@@ -287,7 +286,7 @@ void TransportPosition::setBeat( int nBeat )
 
 // This function uses the assumption that sample rate and resolution
 // are constant over the whole song.
-long long TransportPosition::computeFrameFromTick(
+long long Transport::computeFrameFromTick(
 	const double fTick,
 	double* fTickMismatch,
 	int nSampleRate
@@ -393,7 +392,7 @@ long long TransportPosition::computeFrameFromTick(
 					);
 				}
 
-#if TRANSPORT_POSITION_DEBUG
+#if TRANSPORT_DEBUG
 				TP_DEBUGLOG(
 					QString(
 						"[::computeFrameFromTick mismatch : 2] fTickMismatch: "
@@ -422,7 +421,7 @@ long long TransportPosition::computeFrameFromTick(
 					fFinalTickSize;
 			}
 
-#if TRANSPORT_POSITION_DEBUG
+#if TRANSPORT_DEBUG
 			TP_DEBUGLOG(
 				QString(
 					"[::computeFrameFromTick end] fTick: %1, fNewFrame: %2, "
@@ -471,7 +470,7 @@ long long TransportPosition::computeFrameFromTick(
 					// marker ii is left of the current transport position.
 					fNewFrame += ( fNextTick - fPassedTicks ) * fNextTickSize;
 
-#if TRANSPORT_POSITION_DEBUG
+#if TRANSPORT_DEBUG
 					TP_DEBUGLOG(
 						QString(
 							"[segment] fTick: %1, fNewFrame: %2, fNextTick: "
@@ -520,7 +519,7 @@ long long TransportPosition::computeFrameFromTick(
 				fRemainingTicks = fNewTick;
 				fPassedTicks = 0;
 
-#if TRANSPORT_POSITION_DEBUG
+#if TRANSPORT_DEBUG
 				TP_DEBUGLOG(
 					QString( "[repeat] fTick: %1, fNewFrames: %2, fNewTick: "
 							 "%3, fRemainingTicks: %4, nRepetitions: %5, "
@@ -579,7 +578,7 @@ long long TransportPosition::computeFrameFromTick(
 		*fTickMismatch =
 			( fNewFrame - static_cast<double>( nNewFrame ) ) / fTickSize;
 
-#if TRANSPORT_POSITION_DEBUG
+#if TRANSPORT_DEBUG
 		TP_DEBUGLOG( QString( "[no-timeline] nNewFrame: %1, fTick: %2, "
 							  "fTickSize: %3, fTickMismatch: %4" )
 						 .arg( nNewFrame )
@@ -594,10 +593,8 @@ long long TransportPosition::computeFrameFromTick(
 
 // This function uses the assumption that sample rate and resolution
 // are constant over the whole song.
-double TransportPosition::computeTickFromFrame(
-	const long long nFrame,
-	int nSampleRate
-)
+double
+Transport::computeTickFromFrame( const long long nFrame, int nSampleRate )
 {
 	const auto pHydrogen = Hydrogen::get_instance();
 
@@ -680,7 +677,7 @@ double TransportPosition::computeTickFromFrame(
 				fNextFrame = ( fNextTicks - fPassedTicks ) * fNextTickSize;
 
 				if ( fNextFrame < ( fTargetFrame - fPassedFrames ) ) {
-#if TRANSPORT_POSITION_DEBUG
+#if TRANSPORT_DEBUG
 					TP_DEBUGLOG(
 						QString(
 							"[segment] nFrame: %1, fTick: %2, nSampleRate: %3, "
@@ -723,7 +720,7 @@ double TransportPosition::computeTickFromFrame(
 
 					fTick += fNewTick;
 
-#if TRANSPORT_POSITION_DEBUG
+#if TRANSPORT_DEBUG
 					TP_DEBUGLOG(
 						QString( "[end] nFrame: %1, fTick: %2, nSampleRate: "
 								 "%3, fNextTickSize: %4, fNextTicks: %5, "
@@ -772,7 +769,7 @@ double TransportPosition::computeTickFromFrame(
 					static_cast<double>( nRepetitions ) * fSongSizeInFrames;
 				fPassedTicks = 0;
 
-#if TRANSPORT_POSITION_DEBUG
+#if TRANSPORT_DEBUG
 				TP_DEBUGLOG(
 					QString( "[repeat] frames covered: %1, frames remaining: "
 							 "%2, ticks covered: %3,  nRepetitions: %4, "
@@ -802,7 +799,7 @@ double TransportPosition::computeTickFromFrame(
 		// Single tempo for the whole song.
 		fTick = static_cast<double>( nFrame ) / fTickSize;
 
-#if TRANSPORT_POSITION_DEBUG
+#if TRANSPORT_DEBUG
 		TP_DEBUGLOG(
 			QString( "[no timeline] nFrame: %1, sampleRate: %2, tickSize: %3" )
 				.arg( nFrame )
@@ -815,19 +812,19 @@ double TransportPosition::computeTickFromFrame(
 	return fTick;
 }
 
-long long TransportPosition::computeFrame( double fTick, float fTickSize )
+long long Transport::computeFrame( double fTick, float fTickSize )
 {
 	return std::round( fTick * fTickSize );
 }
 
-double TransportPosition::computeTick( long long nFrame, float fTickSize )
+double Transport::computeTick( long long nFrame, float fTickSize )
 {
 	return nFrame / fTickSize;
 }
 
 bool operator==(
-	std::shared_ptr<TransportPosition> pLhs,
-	std::shared_ptr<TransportPosition> pRhs
+	std::shared_ptr<Transport> pLhs,
+	std::shared_ptr<Transport> pRhs
 )
 {
 	if ( ( pLhs->m_pPlayingPatterns != nullptr &&
@@ -871,8 +868,8 @@ bool operator==(
 }
 
 bool operator!=(
-	std::shared_ptr<TransportPosition> pLhs,
-	std::shared_ptr<TransportPosition> pRhs
+	std::shared_ptr<Transport> pLhs,
+	std::shared_ptr<Transport> pRhs
 )
 {
 	if ( ( pLhs->m_pPlayingPatterns != nullptr &&
@@ -915,13 +912,12 @@ bool operator!=(
 	);
 }
 
-QString TransportPosition::toQString( const QString& sPrefix, bool bShort )
-	const
+QString Transport::toQString( const QString& sPrefix, bool bShort ) const
 {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( !bShort ) {
-		sOutput = QString( "%1[TransportPosition]\n" )
+		sOutput = QString( "%1[Transport]\n" )
 					  .arg( sPrefix )
 					  .append( QString( "%1%2m_type: %3\n" )
 								   .arg( sPrefix )
@@ -1021,7 +1017,7 @@ QString TransportPosition::toQString( const QString& sPrefix, bool bShort )
 	}
 	else {
 		sOutput =
-			QString( "%1[TransportPosition]" )
+			QString( "%1[Transport]" )
 				.arg( sPrefix )
 				.append( QString( " m_type: %1" ).arg( TypeToQString( m_type ) )
 				)
@@ -1073,7 +1069,7 @@ QString TransportPosition::toQString( const QString& sPrefix, bool bShort )
 	return sOutput;
 }
 
-QString TransportPosition::TypeToQString( const Type& type )
+QString Transport::TypeToQString( const Type& type )
 {
 	switch ( type ) {
 		case Type::Playhead:

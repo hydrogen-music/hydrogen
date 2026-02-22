@@ -23,7 +23,7 @@
 #include <core/IO/MidiBaseDriver.h>
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/EventQueue.h>
 #include <core/Helpers/TimeHelper.h>
 #include <core/Hydrogen.h>
@@ -51,7 +51,7 @@ MidiBaseDriver::MidiBaseDriver()
 	if ( Preferences::get_instance()->getMidiClockOutputSend() ) {
 		startMidiClockStream( Hydrogen::get_instance()
 								  ->getAudioEngine()
-								  ->getTransportPosition()
+								  ->getPlayhead()
 								  ->getBpm() );
 	}
 

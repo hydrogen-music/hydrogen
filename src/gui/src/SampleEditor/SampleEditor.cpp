@@ -34,7 +34,7 @@
 #include "TargetWaveDisplay.h"
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
@@ -1150,7 +1150,7 @@ void SampleEditor::createNewLayer()
 		pEditSample->setVelocityEnvelope( m_velocityEnvelope );
 		pEditSample->setPanEnvelope( m_panEnvelope );
 
-		if ( !pEditSample->load( pAudioEngine->getTransportPosition()->getBpm()
+		if ( !pEditSample->load( pAudioEngine->getPlayhead()->getBpm()
 			 ) ) {
 			ERRORLOG( "Unable to load modified sample" );
 			return;
@@ -1476,7 +1476,7 @@ void SampleEditor::checkRubberbandSettings()
 	const double fDuration = 60.0 /
 							 Hydrogen::get_instance()
 								 ->getAudioEngine()
-								 ->getTransportPosition()
+								 ->getPlayhead()
 								 ->getBpm() *
 							 m_rubberband.fLengthInBeats;
 	const double fInDuration = static_cast<double>( m_nTargetFrames ) /

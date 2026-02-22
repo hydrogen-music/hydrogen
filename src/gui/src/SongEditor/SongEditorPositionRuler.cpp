@@ -25,7 +25,7 @@
 #include <algorithm>
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
@@ -810,7 +810,7 @@ void SongEditorPositionRuler::updatePosition()
 	
 	pAudioEngine->lock( RIGHT_HERE );
 
-	const auto pTransportPos = pAudioEngine->getTransportPosition();
+	const auto pTransportPos = pAudioEngine->getPlayhead();
 	const auto pPatternGroupVector = pSong->getPatternGroupVector();
 	m_nColumn = std::max( pTransportPos->getColumn(), 0 );
 

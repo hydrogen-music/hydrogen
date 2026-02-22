@@ -34,7 +34,7 @@
 #include "../../UndoActions.h"
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
@@ -424,7 +424,7 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 
 		auto pPreviewInstrument = std::make_shared<Instrument>( pTargetInstrument );
 		pPreviewInstrument->loadSamples(
-			pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
+			pHydrogen->getAudioEngine()->getPlayhead()->getBpm() );
 
 		INFOLOG( QString( "Loading instrument [%1] from drumkit [%2] located in [%3]" )
 				 .arg( sInstrumentName ).arg( sDrumkitName ).arg( sDrumkitPath ) );

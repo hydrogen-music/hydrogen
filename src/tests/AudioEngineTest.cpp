@@ -23,7 +23,7 @@
 #include "AudioEngineTest.h"
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/IO/FakeAudioDriver.h>

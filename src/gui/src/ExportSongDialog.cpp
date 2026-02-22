@@ -31,7 +31,7 @@
 #include "Widgets/FileDialog.h"
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/Instrument.h>
@@ -761,7 +761,7 @@ void ExportSongDialog::closeExport() {
 	if ( pPref->getRubberBandBatchMode() ){
 		pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 		pSong->getDrumkit()->recalculateRubberband(
-			pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
+			pHydrogen->getAudioEngine()->getPlayhead()->getBpm() );
 		pHydrogen->getAudioEngine()->unlock();
 	}
 	pPref->setRubberBandBatchMode( m_bOldRubberbandBatchMode );

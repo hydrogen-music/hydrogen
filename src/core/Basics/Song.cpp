@@ -27,7 +27,7 @@
 #include <core/Basics/Song.h>
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/AutomationPathSerializer.h>
 #include <core/Basics/AutomationPath.h>
 #include <core/Basics/GridPoint.h>

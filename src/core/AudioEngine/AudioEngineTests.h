@@ -33,7 +33,7 @@
 namespace H2Core
 {
 
-	class TransportPosition;
+	class Transport;
 
 /** 
  * Defined in here since it requires access to methods and
@@ -108,7 +108,7 @@ public:
 		/**
 		 * Checks is reproducible and works even without any song set.
 		 */
-		static void testUpdateTransportPosition();
+		static void testUpdateTransport();
 #ifdef H2CORE_HAVE_JACK
 	/**
 	 * Unit test checking the incremental update of the transport position in
@@ -160,7 +160,7 @@ private:
 	 * \param sContext String identifying the calling function and
 	 * used for logging
 	 */
-	static void checkTransportPosition( std::shared_ptr<TransportPosition> pPos, const QString& sContext );
+	static void checkTransport( std::shared_ptr<Transport> pPos, const QString& sContext );
 	/**
 	 * Takes two instances of Sampler::m_playingNotesQueue and checks
 	 * whether matching notes have exactly @a nPassedFrames difference

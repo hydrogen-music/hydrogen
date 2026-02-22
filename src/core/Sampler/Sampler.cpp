@@ -28,7 +28,7 @@
 #include <list>
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
@@ -720,11 +720,11 @@ void Sampler::handleTimelineOrTempoChange()
 					continue;
 				}
 				const int nNewNoteLength =
-					TransportPosition::computeFrameFromTick(
+					Transport::computeFrameFromTick(
 						ppNote->getPosition() + ppNote->getLength(),
 						&fTickMismatch, pSample->getSampleRate()
 					) -
-					TransportPosition::computeFrameFromTick(
+					Transport::computeFrameFromTick(
 						ppNote->getPosition(), &fTickMismatch,
 						pSample->getSampleRate()
 					);
@@ -766,7 +766,7 @@ void Sampler::handleSongSizeChange()
 	const long nTickOffset =
 		static_cast<long>( std::floor( Hydrogen::get_instance()
 										   ->getAudioEngine()
-										   ->getTransportPosition()
+										   ->getPlayhead()
 										   ->getTickOffsetSongSize() ) );
 
 	for ( auto ppNote : m_playingNotesQueue ) {
@@ -1091,10 +1091,10 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 				const auto nPrevStart = pNote->getNoteStart();
 				pNote->setMidiNoteOffFrame(
 					nCurrentFrame + nInitialBufferPos +
-					TransportPosition::computeFrame(
+					Transport::computeFrame(
 						pNote->getLength(), Hydrogen::get_instance()
 												->getAudioEngine()
-												->getTransportPosition()
+												->getPlayhead()
 												->getTickSize()
 					)
 				);
@@ -1421,10 +1421,10 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 	int nAvail_bytes = 0;
 	int nInitialBufferPos = 0;
 
-	const long long nFrame = pAudioEngine->getTransportPosition()->getFrame() -
+	const long long nFrame = pAudioEngine->getPlayhead()->getFrame() -
 							 pAudioEngine->getLastLoopFrame();
 	const long long nFrameOffset =
-		pAudioEngine->getTransportPosition()->getFrameOffsetTempo();
+		pAudioEngine->getPlayhead()->getFrameOffsetTempo();
 
 	int nSampleFrames = pSample->getFrames();
 	float fStep =
@@ -1676,11 +1676,11 @@ bool Sampler::renderNote(
 			double fTickMismatch;
 
 			pSelectedLayerInfo->nNoteLength =
-				(TransportPosition::computeFrameFromTick(
+				(Transport::computeFrameFromTick(
 					pNote->getPosition() + pNote->getLength(), &fTickMismatch,
 					pSample->getSampleRate()
 				) -
-				TransportPosition::computeFrameFromTick(
+				Transport::computeFrameFromTick(
 					pNote->getPosition(), &fTickMismatch,
 					pSample->getSampleRate()
 				)) * fFrequencyRatio;

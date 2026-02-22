@@ -26,7 +26,7 @@
 #include "Midi/Midi.h"
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/GridPoint.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -1361,7 +1361,7 @@ bool CoreActionController::activateLoopMode( bool bActivate ) {
 		// loop mode will result in immediate stop. Instead, we want to
 		// stop transport at the end of the song.
 		if ( pSong->lengthInTicks() <
-			 pAudioEngine->getTransportPosition()->getTick() ) {
+			 pAudioEngine->getPlayhead()->getTick() ) {
 			pSong->setLoopMode( Song::LoopMode::Finishing );
 		} else {
 			pSong->setLoopMode( Song::LoopMode::Disabled );
@@ -1455,7 +1455,7 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit ) {
 	// edge-case and the regular user will benefit from a load prior to
 	// the locking resulting in lesser XRUNs.
 	pNewDrumkit->loadSamples(
-		pAudioEngine->getTransportPosition()->getBpm());
+		pAudioEngine->getPlayhead()->getBpm());
 
 	pAudioEngine->lock( RIGHT_HERE );
 
@@ -1907,7 +1907,7 @@ bool CoreActionController::addInstrument( std::shared_ptr<Instrument> pInstrumen
 
 	// Ensure instrument isn't already in the death row.
 	pHydrogen->removeInstrumentFromDeathRow( pInstrument );
-	pInstrument->loadSamples( pAudioEngine->getTransportPosition()->getBpm() );
+	pInstrument->loadSamples( pAudioEngine->getPlayhead()->getBpm() );
 
 	pDrumkit->addInstrument( pInstrument, nIndex );
 	pHydrogen->renamePerTrackJackAudioPorts( pSong, nullptr );
@@ -2007,7 +2007,7 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 		return false;
 	}
 
-	const auto fBpm = pAudioEngine->getTransportPosition()->getBpm();
+	const auto fBpm = pAudioEngine->getPlayhead()->getBpm();
 
 	pAudioEngine->lock( RIGHT_HERE );
 
@@ -2185,7 +2185,7 @@ bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast ) {
 			MidiMessage midiMessage;
 			midiMessage.setType( MidiMessage::Type::SongPos );
 			midiMessage.setData1( Midi::parameterFromIntClamp(
-				pAudioEngine->getTransportPosition()->getTick() * 24 / 6 /
+				pAudioEngine->getPlayhead()->getTick() * 24 / 6 /
 				H2Core::nTicksPerQuarter
 			) );
 			midiMessage.setChannel( pPref->getMidiFeedbackChannel() );
@@ -2949,7 +2949,7 @@ bool CoreActionController::setMidiClockOutputSend( bool bHandle ) {
 	if ( pMidiDriver != nullptr ) {
 		if ( bHandle ) {
 			pMidiDriver->startMidiClockStream(
-				pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
+				pHydrogen->getAudioEngine()->getPlayhead()->getBpm() );
 		}
 		else {
 			pMidiDriver->stopMidiClockStream();

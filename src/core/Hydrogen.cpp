@@ -35,7 +35,7 @@
 #include <core/Hydrogen.h>
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Adsr.h>
 #include <core/Basics/AutomationPath.h>
 #include <core/Basics/Drumkit.h>
@@ -391,7 +391,7 @@ bool Hydrogen::addRealtimeNote(
 		// Recording + song playback mode + actually playing
 		auto pPatternList = pSong->getPatternList();
 		auto pColumns = pSong->getPatternGroupVector();
-		int nColumn = pAudioEngine->getTransportPosition()->getColumn(); // current column
+		int nColumn = pAudioEngine->getPlayhead()->getColumn(); // current column
 		// or pattern group
 		if ( nColumn < 0 || nColumn >= pColumns->size() ) {
 			pAudioEngine->unlock(); // unlock the audio engine
@@ -401,7 +401,7 @@ bool Hydrogen::addRealtimeNote(
 			return false;
 		}
 		// Locate nTickInPattern -- may need to jump back one column
-		nTickInPattern = pAudioEngine->getTransportPosition()->getPatternTickPosition();
+		nTickInPattern = pAudioEngine->getPlayhead()->getPatternTickPosition();
 
 		// Capture new notes in the bottom-most pattern (if not already done above)
 		auto pColumn = ( *pColumns )[ nColumn ];
@@ -436,7 +436,7 @@ bool Hydrogen::addRealtimeNote(
 		}
 
 		// Locate nTickInPattern -- may need to wrap around end of pattern
-		nTickInPattern = pAudioEngine->getTransportPosition()->getPatternTickPosition();
+		nTickInPattern = pAudioEngine->getPlayhead()->getPatternTickPosition();
 	}
 
 	if ( pCurrentPattern && pPref->getQuantizeEvents() ) {
@@ -468,7 +468,7 @@ bool Hydrogen::addRealtimeNote(
             // This is used to record notes of custom lengths.
 			const int nPatternSize = pCurrentPattern->getLength();
 			const int nCurrentTick = static_cast<int>(
-				pAudioEngine->getTransportPosition()->getPatternTickPosition()
+				pAudioEngine->getPlayhead()->getPatternTickPosition()
 			);
 
 			int nNoteLength;
@@ -485,7 +485,7 @@ bool Hydrogen::addRealtimeNote(
 			}
 			else {
 				nNoteLength =
-					static_cast<int>( pAudioEngine->getTransportPosition()
+					static_cast<int>( pAudioEngine->getPlayhead()
 										  ->getPatternTickPosition() ) -
 					m_nLastRecordedMIDINoteTick;
 			}
@@ -1327,7 +1327,7 @@ void Hydrogen::setPatternMode( const Song::PatternMode& mode )
 			// Only update the playing patterns in selected pattern
 			// mode or if transport is not rolling. In stacked pattern
 			// mode with transport rolling
-			// AudioEngine::updatePatternTransportPosition() will call
+			// AudioEngine::updatePatternTransport() will call
 			// the functions and activate the next patterns once the
 			// current ones are looped.
 			m_pAudioEngine->updatePlayingPatterns( Event::Trigger::Suppress );

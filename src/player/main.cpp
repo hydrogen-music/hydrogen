@@ -35,7 +35,7 @@
 #include <core/FX/Effects.h>
 #include <core/EventQueue.h>
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Helpers/Filesystem.h>
 
 using std::cout;
@@ -147,7 +147,7 @@ int main(int argc, char** argv){
 
 			case 'f':
 				cout << "Frame = " << pHydrogen->getAudioEngine()->
-					getTransportPosition()->getFrame() << endl;
+					getPlayhead()->getFrame() << endl;
 				break;
 
 			case 'd':

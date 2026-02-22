@@ -27,7 +27,7 @@
 #include "SongEditor.h"
 #include "SongEditorPanel.h"
 
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/Pattern.h>
@@ -143,7 +143,7 @@ void PlaybackTrackWaveDisplay::updatePeakData()
 			nColumnLengthTicks = 4 * H2Core::nTicksPerQuarter;
 		}
 		nTotalTicks += nColumnLengthTicks;
-		const long long nNextEndFrame = TransportPosition::computeFrameFromTick(
+		const long long nNextEndFrame = Transport::computeFrameFromTick(
 			static_cast<double>( nTotalTicks ), &fMismatch
 		);
 

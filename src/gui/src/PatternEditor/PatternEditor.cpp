@@ -3795,11 +3795,11 @@ int PatternEditor::calculateEffectiveNoteLength(
 		// be played back.
 		const int nMaxFrames = pNote->getInstrument()->getLongestSampleFrames();
 		const int nEffectiveFrames =
-			static_cast<int>( TransportPosition::computeFrame(
+			static_cast<int>( Transport::computeFrame(
 				static_cast<double>( nEffectiveLength ),
 				Hydrogen::get_instance()
 					->getAudioEngine()
-					->getTransportPosition()
+					->getPlayhead()
 					->getTickSize()
 			) );
 
