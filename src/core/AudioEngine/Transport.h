@@ -24,13 +24,13 @@
 
 #include <memory>
 
-#include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/AudioEngineTests.h>
 #include <core/IO/JackDriver.h>
 #include <core/Object.h>
 
 namespace H2Core {
 
+class AudioEngine;
+class AudioEngineTests;
 class PatternList;
 
 /**

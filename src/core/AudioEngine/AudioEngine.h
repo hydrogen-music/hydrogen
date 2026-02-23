@@ -24,6 +24,7 @@
 #define AUDIO_ENGINE_H
 
 #include <core/AudioEngine/AudioEngineTests.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Event.h>
 #include <core/Basics/Note.h>
 #include <core/config.h>
@@ -68,8 +69,7 @@ namespace H2Core
 	class MidiBaseDriver;
 	class PatternList;
 	class Song;
-	class Transport;
-	
+
 /**
  * The audio engine deals with two distinct #Transport. The first (and most
  * important one) is #m_pPlayhead which indicated the current position of the

@@ -23,17 +23,16 @@
 #ifndef AUDIO_ENGINE_TESTS_H
 #define AUDIO_ENGINE_TESTS_H
 
-#include <core/Object.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Note.h>
 #include <core/IO/JackDriver.h>
+#include <core/Object.h>
 
 #include <memory>
 #include <vector>
 
 namespace H2Core
 {
-
-	class Transport;
 
 /** 
  * Defined in here since it requires access to methods and
