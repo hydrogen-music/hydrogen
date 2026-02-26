@@ -795,23 +795,7 @@ font-weight: bold; "
 		new Button( pButtonContainer, buttonSize, Button::Type::Push );
 	pCloseButton->setText( tr( "&Close" ) );
 	connect( pCloseButton, &QPushButton::clicked, [=]() {
-		if ( !m_bSampleEditorClean ) {
-			auto pCommonStrings =
-				HydrogenApp::get_instance()->getCommonStrings();
-			if ( QMessageBox::information(
-					 this, "Hydrogen", pCommonStrings->getUnsavedChanges(),
-					 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel
-				 ) == QMessageBox::Ok ) {
-				setClean();
-				accept();
-			}
-			else {
-				return;
-			}
-		}
-		else {
-			accept();
-		}
+        close();
 	} );
 	pButtonContainerLayout->addWidget( pCloseButton );
 
@@ -1151,22 +1135,21 @@ void SampleEditor::closeEvent( QCloseEvent* event )
 	}
 }
 
+void SampleEditor::keyPressEvent( QKeyEvent* pKeyEvent )
+{
+	if ( pKeyEvent->key() == Qt::Key_Escape ) {
+		// Close window when hitting ESC.
+		pKeyEvent->accept();
+		close();
+	}
+}
+
 void SampleEditor::updateSourceWaveDisplays()
 {
 	m_pDetailWaveDisplayL->update();
 	m_pDetailWaveDisplayR->update();
 	m_pSampleWaveDisplayL->update();
 	m_pSampleWaveDisplayR->update();
-}
-
-bool SampleEditor::getCloseQuestion()
-{
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-	return QMessageBox::information(
-			   this, "Hydrogen", pCommonStrings->getUnsavedChanges(),
-			   QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel
-		   ) == QMessageBox::Ok;
 }
 
 void SampleEditor::createNewLayer()

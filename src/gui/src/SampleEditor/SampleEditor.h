@@ -119,13 +119,6 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 		SampleEditor::EnvelopeType envelopeType
 	);
 
-	void setSampleName( const QString& name );
-	bool getCloseQuestion();
-	void returnAllTargetDisplayValues();
-
-	// this values come from the real sample to restore a frm song loaded sample
-	bool m_bSampleIsModified;  ///< true if sample is modified
-
    private:
 	enum class Playback { None, Target, Original };
 
@@ -149,7 +142,8 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	 * style sheet in case the theme is changed in the preferences dialog. */
 	void updateStyleSheet();
 
-	virtual void closeEvent( QCloseEvent* event ) override;
+	void closeEvent( QCloseEvent* event ) override;
+	void keyPressEvent( QKeyEvent* e ) override;
 
 	SampleWaveDisplay* m_pSampleWaveDisplayL;
 	SampleWaveDisplay* m_pSampleWaveDisplayR;
