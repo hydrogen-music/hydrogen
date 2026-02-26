@@ -4976,13 +4976,17 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <source>Resulting Sample and Envelopes</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Stop</source>
+        <translation>&amp;Arrêter</translation>
+    </message>
 </context>
 <context>
     <name>SampleWaveDisplay</name>
     <message>
         <source>S</source>
         <extracomment>Single character used as a label of the loop start slider within * the sample editor.</extracomment>
-        <translation type="unfinished">S</translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>L</source>
@@ -4992,7 +4996,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <message>
         <source>E</source>
         <extracomment>Single character used as a label of the loop end slider within * the sample editor.</extracomment>
-        <translation type="unfinished">Mi</translation>
+        <translation>Mi</translation>
     </message>
 </context>
 <context>

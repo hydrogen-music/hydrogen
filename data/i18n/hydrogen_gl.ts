@@ -4970,6 +4970,10 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Resulting Sample and Envelopes</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Stop</source>
+        <translation>&amp;Parar</translation>
+    </message>
 </context>
 <context>
     <name>SampleWaveDisplay</name>

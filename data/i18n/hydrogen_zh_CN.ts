@@ -4970,6 +4970,10 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>Resulting Sample and Envelopes</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Stop</source>
+        <translation>停止(&amp;S)</translation>
+    </message>
 </context>
 <context>
     <name>SampleWaveDisplay</name>
@@ -4986,7 +4990,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>E</source>
         <extracomment>Single character used as a label of the loop end slider within * the sample editor.</extracomment>
-        <translation type="unfinished">E</translation>
+        <translation>E</translation>
     </message>
 </context>
 <context>

@@ -4975,13 +4975,17 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <source>Resulting Sample and Envelopes</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Stop</source>
+        <translation>&amp;Detener</translation>
+    </message>
 </context>
 <context>
     <name>SampleWaveDisplay</name>
     <message>
         <source>S</source>
         <extracomment>Single character used as a label of the loop start slider within * the sample editor.</extracomment>
-        <translation type="unfinished">S</translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>L</source>
@@ -4991,7 +4995,7 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     <message>
         <source>E</source>
         <extracomment>Single character used as a label of the loop end slider within * the sample editor.</extracomment>
-        <translation type="unfinished">E</translation>
+        <translation>E</translation>
     </message>
 </context>
 <context>

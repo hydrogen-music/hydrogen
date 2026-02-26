@@ -52,8 +52,7 @@ class TargetWaveDisplay : public WaveDisplay,
 	explicit TargetWaveDisplay( SampleEditor* pParent );
 	~TargetWaveDisplay();
 
-	void paintLocatorEventTargetDisplay( int nPos );
-	virtual void paintEvent( QPaintEvent* ev ) override;
+	void paintEvent( QPaintEvent* ev ) override;
 
    private:
 	void mouseMoveEvent( QMouseEvent* ev ) override;
@@ -81,8 +80,6 @@ class TargetWaveDisplay : public WaveDisplay,
 	/** Cache for undo/redo actions during drag moving. Otherwise, the operation
 	 * would be to inefficient. */
 	H2Core::EnvelopePoint m_oldPoint;
-
-	int m_nLocator;
 
 	int m_nSnapRadius;
 

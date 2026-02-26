@@ -88,8 +88,15 @@ SampleEditor::SampleEditor(
 	  m_pLayer( pLayer ),
 	  m_pComponent( pComponent ),
 	  m_pInstrument( pInstrument ),
+	  m_playback( Playback::None ),
 	  m_fZoomfactor( 1.0 ),
-	  m_nFramePosition( 0 ),
+	  m_nPlayheadSample( 0 ),
+	  m_nPlayheadTarget( 0 ),
+	  m_nPreLoopFrames( 0 ),
+	  m_nLoopFrames( 0 ),
+	  m_nLastRealtimeFrame( 0 ),
+	  m_looped( Looped::NotYet ),
+	  m_bLastLoopForward( true ),
 	  m_hoveredSlider( Slider::None ),
 	  m_selectedSlider( Slider::Start ),
 	  m_bPlayButton( false ),
@@ -186,18 +193,20 @@ background-color: %1;" )
 		) );
 	};
 
-    auto addHeading = [&]( const QString& sText, QBoxLayout* pLayout ) {
-        auto pLabel = new QLabel( pScrollArea );
-        pLabel->setStyleSheet( "\
+	auto addHeading = [&]( const QString& sText, QBoxLayout* pLayout ) {
+		auto pLabel = new QLabel( pScrollArea );
+		pLabel->setStyleSheet(
+			"\
 font-size: 13px;                \
-font-weight: bold; " );
-        pLabel->setText( sText );
-        pLayout->addWidget( pLabel );
-    };
+font-weight: bold; "
+		);
+		pLabel->setText( sText );
+		pLayout->addWidget( pLabel );
+	};
 
 	////////////////////////////////////////////////////////////////////////////
 
-    addHeading( tr( "Original Sample and Loop Settings" ), pVBoxLayout );
+	addHeading( tr( "Original Sample and Loop Settings" ), pVBoxLayout );
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -358,7 +367,7 @@ font-weight: bold; " );
 				default:
 					newLoops.mode = Sample::Loops::Mode::Forward;
 			}
-			if ( newLoops.nCount == m_loops.nCount ) {
+			if ( newLoops.mode == m_loops.mode ) {
 				return;
 			}
 			HydrogenApp::get_instance()->pushUndoCommand(
@@ -450,7 +459,9 @@ font-weight: bold; " );
 	pRubberBandHeaderContainerLayout->setSpacing( SampleEditor::nSpacing );
 	pRubberBandHeaderContainer->setLayout( pRubberBandHeaderContainerLayout );
 
-    addHeading( tr( "Rubberband Audio Processor" ), pRubberBandHeaderContainerLayout );
+	addHeading(
+		tr( "Rubberband Audio Processor" ), pRubberBandHeaderContainerLayout
+	);
 
 	auto pRubberBandHeadingLabel = new QLabel( pRubberBandHeaderContainer );
 	pRubberBandHeadingLabel->setText(
@@ -659,7 +670,9 @@ font-weight: bold; " );
 	pTargetContainerLayout->setSpacing( SampleEditor::nSpacing );
 	pTargetContainer->setLayout( pTargetContainerLayout );
 
-    addHeading( tr( "Resulting Sample and Envelopes" ), pTargetContainerLayout );
+	addHeading(
+		tr( "Resulting Sample and Envelopes" ), pTargetContainerLayout
+	);
 
 	pTargetContainerLayout->addStretch();
 
@@ -672,7 +685,7 @@ font-weight: bold; " );
 	m_pNewLengthDisplay->setFixedWidth( 120 );
 	pTargetContainerLayout->addWidget( m_pNewLengthDisplay );
 
-    addSpacer( pTargetContainerLayout );
+	addSpacer( pTargetContainerLayout );
 
 	m_pEnvelopeComboBox = new QComboBox( pTargetContainer );
 	m_pEnvelopeComboBox->setMinimumWidth( 80 );
@@ -731,20 +744,28 @@ font-weight: bold; " );
 	m_pPlayButton =
 		new Button( pButtonContainer, buttonSize, Button::Type::Push );
 	m_pPlayButton->setText( pCommonStrings->getButtonPlay() );
-	connect(
-		m_pPlayButton, SIGNAL( clicked() ), this,
-		SLOT( on_PlayPushButton_clicked() )
-	);
+	connect( m_pPlayButton, &QPushButton::clicked, [&]() {
+		if ( m_playback == Playback::None ) {
+			startPlayback( Playback::Target );
+		}
+		else {
+			stopPlayback();
+		}
+	} );
 	pButtonContainerLayout->addWidget( m_pPlayButton );
 
 	m_pPlayOriginalButton =
 		new Button( pButtonContainer, buttonSize, Button::Type::Push );
 	m_pPlayOriginalButton->setText( pCommonStrings->getButtonPlayOriginalSample(
 	) );
-	connect(
-		m_pPlayOriginalButton, SIGNAL( clicked() ), this,
-		SLOT( on_PlayOrigPushButton_clicked() )
-	);
+	connect( m_pPlayOriginalButton, &QPushButton::clicked, [&]() {
+		if ( m_playback == Playback::None ) {
+			startPlayback( Playback::Original );
+		}
+		else {
+			stopPlayback();
+		}
+	} );
 	pButtonContainerLayout->addWidget( m_pPlayOriginalButton );
 
 	auto pCloseButton =
@@ -782,16 +803,10 @@ font-weight: bold; " );
 		windowFlags() | Qt::CustomizeWindowHint | Qt::WindowMinMaxButtonsHint
 	);
 
-	m_pTimer = new QTimer( this );
-	connect(
-		m_pTimer, SIGNAL( timeout() ), this,
-		SLOT( updateMainsamplePositionRuler() )
-	);
-	m_pTargetDisplayTimer = new QTimer( this );
-	connect(
-		m_pTargetDisplayTimer, SIGNAL( timeout() ), this,
-		SLOT( updateTargetsamplePositionRuler() )
-	);
+	m_pWaveDisplayUpdateTimer = new QTimer( this );
+	connect( m_pWaveDisplayUpdateTimer, &QTimer::timeout, [&]() {
+		updateTransport();
+	} );
 
 	setClean();
 
@@ -1150,8 +1165,7 @@ void SampleEditor::createNewLayer()
 		pEditSample->setVelocityEnvelope( m_velocityEnvelope );
 		pEditSample->setPanEnvelope( m_panEnvelope );
 
-		if ( !pEditSample->load( pAudioEngine->getPlayhead()->getBpm()
-			 ) ) {
+		if ( !pEditSample->load( pAudioEngine->getPlayhead()->getBpm() ) ) {
 			ERRORLOG( "Unable to load modified sample" );
 			return;
 		}
@@ -1182,15 +1196,12 @@ void SampleEditor::setClean()
 	m_pApplyButton->setFlat( true );
 }
 
-void SampleEditor::on_PlayPushButton_clicked()
+void SampleEditor::startPlayback( Playback playback )
 {
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-
-	if ( m_pPlayButton->text() == "Stop" ) {
-		testpTimer();
-		return;
+	if ( m_playback != Playback::None ) {
+		stopPlayback();
 	}
+	m_playback = playback;
 
 	// Since we are in a separate dialog and working with a particular sample,
 	// we do not want rendering to be affected by whether some instruments of
@@ -1208,251 +1219,227 @@ void SampleEditor::on_PlayPushButton_clicked()
 		return;
 	}
 
-	// We register the current component to be rendered using a specific layer.
-	// This will cause all other components _not_ to be rendered.
+	// Register the sample for playback
+	std::shared_ptr<Note> pNote;
+	long long nSampleLength;
+	if ( m_playback == Playback::Target ) {
+		pNote = std::make_shared<Note>(
+			pPreviewInstr, 0, pLayer->getEndVelocity() - 0.01
+		);
+		nSampleLength = static_cast<long long>(
+			static_cast<double>( m_nTargetFrames ) *
+				static_cast<double>( m_fRatio ) +
+			0.1
+		);
+	}
+	else {
+		// Original sample
+		auto pNewSample = Sample::load( m_pSample->getFilePath() );
+		if ( pNewSample == nullptr ) {
+			ERRORLOG( QString( "Unable to load sample from [%1]" )
+						  .arg( m_pSample->getFilePath() ) );
+			return;
+		}
+		pPreviewInstr->setSample(
+			pCompo, pLayer, pNewSample, Event::Trigger::Default
+		);
+		// Construct a note rendering just our new sample.
+		nSampleLength = static_cast<long long>( pNewSample->getFrames() );
+		pNote = std::make_shared<Note>(
+			pPreviewInstr, 0, VELOCITY_MAX, PAN_DEFAULT,
+			static_cast<int>( nSampleLength )
+		);
+	}
+	// We register the current component to be rendered using a specific
+	// layer. This will cause all other components _not_ to be rendered.
 	auto pSelectedLayerInfo = std::make_shared<SelectedLayerInfo>();
 	pSelectedLayerInfo->pLayer = pLayer;
-
-	auto pNote = std::make_shared<Note>(
-		pPreviewInstr, 0, pLayer->getEndVelocity() - 0.01
-	);
 	pNote->setSelectedLayerInfo( pSelectedLayerInfo, pCompo );
 
-	pHydrogen->getAudioEngine()->getSampler()->noteOn( pNote );
-
-	createPositionsRulerPath();
-	m_bPlayButton = true;
-
+	// Reset playhead and other widgets and perform one UI refresh before
+	// starting the actual rendering.
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	m_playback = playback;
+	m_previousState = pAudioEngine->getState();
 	m_selectedSlider = Slider::None;
-	m_nFramePosition = static_cast<long long>( m_loops.nStartFrame );
+	m_pPlayButton->setText( tr( "&Stop" ) );
+	m_pPlayOriginalButton->setText( tr( "&Stop" ) );
 
+	if ( m_playback == Playback::Original ) {
+		m_nPlayheadSample = 0;
+	}
+	else {
+		m_nPreLoopFrames =
+			static_cast<long long>( m_loops.nLoopFrame - m_loops.nStartFrame );
+		m_nLoopFrames =
+			static_cast<long long>( m_loops.nEndFrame - m_loops.nLoopFrame );
+		m_looped = Looped::NotYet;
+		m_bLastLoopForward = true;
+		m_nPlayheadSample = static_cast<long long>( m_loops.nStartFrame );
+		m_nPlayheadTarget = 0;
+		m_pTargetSampleView->update();
+	}
+	m_nTotalPlaybackFrames = nSampleLength;
 	updateSourceWaveDisplays();
 
-	if ( m_rubberband.bUse == false ) {
-		m_pTimer->start( 40 );	// update ruler at 25 fps
-	}
+	// Render sample
+	pAudioEngine->getSampler()->previewInstrument( pPreviewInstr, pNote );
+	m_nLastRealtimeFrame = pAudioEngine->getRealtimeFrame();
+	m_nRealtimeFrameEnd = m_nLastRealtimeFrame + nSampleLength;
 
-	m_nRealtimeFrameEnd = pAudioEngine->getRealtimeFrame() + m_nTargetFrames;
+	m_pWaveDisplayUpdateTimer->start( SampleEditor::nWaveDisplayUpdateInterval
+	);
+}
 
-	// calculate the new rubberband sample length
-	if ( m_rubberband.bUse ) {
-		m_nRealtimeFrameEndForTarget = pAudioEngine->getRealtimeFrame() +
-									   ( m_nTargetFrames * m_fRatio + 0.1 );
+void SampleEditor::stopPlayback()
+{
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	m_pWaveDisplayUpdateTimer->stop();
+
+	m_pPlayButton->setText( pCommonStrings->getButtonPlay() );
+	m_pPlayOriginalButton->setText( pCommonStrings->getButtonPlayOriginalSample(
+	) );
+
+	if ( m_playback == Playback::Original ) {
+		m_nPlayheadSample = 0;
 	}
 	else {
-		m_nRealtimeFrameEndForTarget = m_nRealtimeFrameEnd;
+		m_nPlayheadSample = static_cast<long long>( m_loops.nStartFrame );
+		m_nPlayheadTarget = 0;
+		m_pTargetSampleView->update();
 	}
-	m_pTargetDisplayTimer->start( 40 );	 // update ruler at 25 fps
-	m_pPlayButton->setText( QString( "Stop" ) );
+
+	m_playback = Playback::None;
+
+	updateSourceWaveDisplays();
 }
 
-void SampleEditor::on_PlayOrigPushButton_clicked()
+void SampleEditor::updateTransport()
 {
-	if ( m_pPlayOriginalButton->text() == "Stop" ) {
-		testpTimer();
+	if ( m_playback == Playback::None ) {
+		stopPlayback();
 		return;
 	}
-	auto pHydrogen = Hydrogen::get_instance();
-	auto tearDown = [&]() {
-		m_selectedSlider = Slider::None;
-		m_nFramePosition = static_cast<long long>( m_loops.nStartFrame );
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
-		updateSourceWaveDisplays();
-
-		m_pTimer->start( 40 );	// update ruler at 25 fps
-		m_nRealtimeFrameEnd =
-			pHydrogen->getAudioEngine()->getRealtimeFrame() + m_nTargetFrames;
-		m_pPlayOriginalButton->setText( QString( "Stop" ) );
-	};
-
-	// Construct a custom instrument containing the current settings -
-	// instrument, component, and layer - but using the original sample.
-	auto pPreviewInstr = std::make_shared<Instrument>( m_pInstrument );
-	pPreviewInstr->setIsPreviewInstrument( true );
-
-	auto pCompo =
-		pPreviewInstr->getComponent( m_pInstrument->index( m_pComponent ) );
-	if ( pCompo == nullptr ) {
-		tearDown();
-		return;
-	}
-	auto pLayer = pCompo->getLayer( m_pComponent->index( m_pLayer ) );
-	if ( pLayer == nullptr ) {
-		tearDown();
-		return;
-	}
-	auto pNewSample = Sample::load( m_pSample->getFilePath() );
-	if ( pNewSample == nullptr ) {
-		ERRORLOG( QString( "Unable to load sample from [%1]" )
-					  .arg( m_pSample->getFilePath() ) );
-		tearDown();
+	if ( m_previousState != pAudioEngine->getState() ) {
+		WARNINGLOG(
+			QString( "Starting/stopping transport during sample rendering is "
+					 "not supported." )
+		);
+		stopPlayback();
 		return;
 	}
 
-	pPreviewInstr->setSample(
-		pCompo, pLayer, pNewSample, Event::Trigger::Default
-	);
+	const auto nRealtimeFrame = pAudioEngine->getRealtimeFrame();
+	if ( nRealtimeFrame == m_nLastRealtimeFrame ) {
+		return;
+	}
+	else if ( nRealtimeFrame >= m_nRealtimeFrameEnd ) {
+		stopPlayback();
+		return;
+	}
+	const long long nIncrement = nRealtimeFrame - m_nLastRealtimeFrame;
 
-	// Construct a note rendering just our new sample.
-	const int nLength =
-		( pNewSample->getFrames() / pNewSample->getSampleRate() + 1 ) * 100;
-	auto pNote = std::make_shared<Note>(
-		pPreviewInstr, 0, VELOCITY_MAX, PAN_DEFAULT, nLength
-	);
-	auto pSelectedLayerInfo = std::make_shared<SelectedLayerInfo>();
-	pSelectedLayerInfo->pLayer = pLayer;
-	pNote->setSelectedLayerInfo( pSelectedLayerInfo, pCompo );
+	if ( m_playback == Playback::Original ||
+		 ( m_looped == Looped::NotYet &&
+		   m_nPlayheadSample + nIncrement <= m_loops.nEndFrame ) ) {
+		// Still in the initial pass over the sample
+		m_nPlayheadSample += nIncrement;
+	}
+	else {
+		// Transport already reached the end of the original sample.
+		if ( m_looped == Looped::NotYet ) {
+			if ( m_loops.mode == Sample::Loops::Mode::Forward ) {
+				m_looped = Looped::Forward;
+			}
+			else {
+				m_looped = Looped::Reverse;
+				// Reflect playhead at end marker for a smooth reversing of
+				// playback direction.
+				m_nPlayheadSample +=
+					2 * ( m_loops.nEndFrame - m_nPlayheadSample );
+			}
+		}
 
-	pHydrogen->getAudioEngine()->getSampler()->previewInstrument(
-		pPreviewInstr, pNote
-	);
-
-	tearDown();
-}
-
-void SampleEditor::updateMainsamplePositionRuler()
-{
-	const auto nRealtimeFrame =
-		Hydrogen::get_instance()->getAudioEngine()->getRealtimeFrame();
-	if ( nRealtimeFrame < m_nRealtimeFrameEnd ) {
-		const long long nFrame =
-			m_nTargetFrames - ( m_nRealtimeFrameEnd - nRealtimeFrame );
-		if ( m_bPlayButton == true ) {
-			m_nFramePosition = m_pPositionsRulerPath[nFrame];
+		bool bRequiresLooping = false;
+		if ( m_loops.mode == Sample::Loops::Mode::Forward ) {
+			if ( m_nPlayheadSample + nIncrement > m_loops.nEndFrame ) {
+				const long long nFramesSinceLoopPoint =
+					m_nPlayheadSample + nIncrement - m_loops.nLoopFrame;
+				m_nPlayheadSample = m_loops.nLoopFrame +
+									( nFramesSinceLoopPoint ) % m_nLoopFrames;
+			}
+			else {
+				m_nPlayheadSample += nIncrement;
+			}
+		}
+		else if ( m_loops.mode == Sample::Loops::Mode::Reverse ) {
+			if ( m_nPlayheadSample - nIncrement < m_loops.nLoopFrame ) {
+				const long long nFramesSinceLoopPoint =
+					m_loops.nEndFrame - m_nPlayheadSample + nIncrement;
+				m_nPlayheadSample = m_loops.nEndFrame -
+									( nFramesSinceLoopPoint ) % m_nLoopFrames;
+			}
+			else {
+				m_nPlayheadSample -= nIncrement;
+			}
 		}
 		else {
-			m_nFramePosition = nFrame;
-		}
-
-		updateSourceWaveDisplays();
-	}
-	else {
-		auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
-		m_pTimer->stop();
-		m_pPlayButton->setText( pCommonString->getButtonPlay() );
-		m_pPlayOriginalButton->setText(
-			pCommonString->getButtonPlayOriginalSample()
-		);
-		m_bPlayButton = false;
-	}
-}
-
-void SampleEditor::updateTargetsamplePositionRuler()
-{
-	const auto nRealtimeFrame =
-		Hydrogen::get_instance()->getAudioEngine()->getRealtimeFrame();
-	long long nTargetSampleLength;
-	if ( m_rubberband.bUse ) {
-		nTargetSampleLength = m_nTargetFrames * m_fRatio + 0.1;
-	}
-	else {
-		nTargetSampleLength = m_nTargetFrames;
-	}
-
-	if ( nRealtimeFrame < m_nRealtimeFrameEndForTarget ) {
-		const long long nPos =
-			nTargetSampleLength -
-			( m_nRealtimeFrameEndForTarget - nRealtimeFrame );
-		m_pTargetSampleView->paintLocatorEventTargetDisplay(
-			( m_pTargetSampleView->width() * nPos / nTargetSampleLength )
-		);
-	}
-	else {
-		auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
-		m_pTargetSampleView->paintLocatorEventTargetDisplay( -1 );
-		m_pTargetDisplayTimer->stop();
-		m_pPlayButton->setText( pCommonString->getButtonPlay() );
-		m_pPlayOriginalButton->setText(
-			pCommonString->getButtonPlayOriginalSample()
-		);
-		m_bPlayButton = false;
-	}
-}
-
-void SampleEditor::createPositionsRulerPath()
-{
-	unsigned oneSampleLength = m_loops.nEndFrame - m_loops.nStartFrame;
-	unsigned loopLength = m_loops.nEndFrame - m_loops.nLoopFrame;
-	unsigned repeatsLength = loopLength * m_loops.nCount;
-	unsigned newLength = 0;
-	if ( oneSampleLength == loopLength ) {
-		newLength = oneSampleLength + oneSampleLength * m_loops.nCount;
-	}
-	else {
-		newLength = oneSampleLength + repeatsLength;
-	}
-
-	unsigned normalLength = m_pSample->getFrames();
-
-	long long* normalFrames = new long long[normalLength];
-	long long* tempFrames = new long long[newLength];
-	long long* loopFrames = new long long[loopLength];
-
-	for ( unsigned i = 0; i < normalLength; i++ ) {
-		normalFrames[i] = i;
-	}
-
-	Sample::Loops::Mode mode = m_loops.mode;
-	long int z = m_loops.nLoopFrame;
-	long int y = m_loops.nStartFrame;
-
-	for ( unsigned i = 0; i < newLength; i++ ) {  // first vector
-		tempFrames[i] = 0;
-	}
-
-	for ( unsigned i = 0; i < oneSampleLength; i++, y++ ) {	 // first vector
-
-		tempFrames[i] = normalFrames[y];
-	}
-
-	for ( unsigned i = 0; i < loopLength; i++, z++ ) {	// loop vector
-
-		loopFrames[i] = normalFrames[z];
-	}
-
-	if ( mode == Sample::Loops::Mode::Reverse ) {
-		std::reverse( loopFrames, loopFrames + loopLength );
-	}
-
-	if ( mode == Sample::Loops::Mode::Reverse && m_loops.nCount > 0 &&
-		 m_loops.nStartFrame == m_loops.nLoopFrame ) {
-		std::reverse( tempFrames, tempFrames + oneSampleLength );
-	}
-
-	if ( mode == Sample::Loops::Mode::PingPong &&
-		 m_loops.nStartFrame == m_loops.nLoopFrame ) {
-		std::reverse( loopFrames, loopFrames + loopLength );
-	}
-
-	for ( int i = 0; i < m_loops.nCount; i++ ) {
-		unsigned tempdataend = oneSampleLength + ( loopLength * i );
-		if ( m_loops.nStartFrame == m_loops.nLoopFrame ) {
-			std::copy(
-				loopFrames, loopFrames + loopLength, tempFrames + tempdataend
-			);
-		}
-		if ( mode == Sample::Loops::Mode::PingPong && m_loops.nCount > 1 ) {
-			std::reverse( loopFrames, loopFrames + loopLength );
-		}
-		if ( m_loops.nStartFrame != m_loops.nLoopFrame ) {
-			std::copy(
-				loopFrames, loopFrames + loopLength, tempFrames + tempdataend
-			);
+			// Ping pong
+			if ( m_looped == Looped::Reverse ) {
+				// playhead moves backward
+				if ( m_nPlayheadSample - nIncrement < m_loops.nLoopFrame ) {
+					const long long nRemainingFrames =
+						m_loops.nLoopFrame - m_nPlayheadSample + nIncrement;
+					const int nTotalLoops =
+						std::floor( nRemainingFrames / m_nLoopFrames );
+					if ( nTotalLoops == 0 || nTotalLoops % 2 == 0 ) {
+						m_looped = Looped::Forward;
+						m_nPlayheadSample = m_loops.nLoopFrame +
+											nRemainingFrames % m_nLoopFrames;
+					}
+					else {
+						m_nPlayheadSample = m_loops.nEndFrame -
+											nRemainingFrames % m_nTargetFrames;
+					}
+				}
+				else {
+					m_nPlayheadSample -= nIncrement;
+				}
+			}
+			else {
+				// playhead moves forward
+				if ( m_nPlayheadSample + nIncrement > m_loops.nEndFrame ) {
+					const long long nRemainingFrames =
+						m_nPlayheadSample + nIncrement - m_loops.nEndFrame;
+					const int nTotalLoops =
+						std::floor( nRemainingFrames / m_nLoopFrames );
+					if ( nTotalLoops == 0 || nTotalLoops % 2 == 0 ) {
+						m_looped = Looped::Reverse;
+						m_nPlayheadSample = m_loops.nEndFrame -
+											nRemainingFrames % m_nLoopFrames;
+					}
+					else {
+						m_nPlayheadSample = m_loops.nLoopFrame +
+											nRemainingFrames % m_nTargetFrames;
+					}
+				}
+				else {
+					m_nPlayheadSample += nIncrement;
+				}
+			}
 		}
 	}
 
-	if ( m_loops.nCount == 0 && mode == Sample::Loops::Mode::Reverse ) {
-		std::reverse( tempFrames + m_loops.nLoopFrame, tempFrames + newLength );
+	updateSourceWaveDisplays();
+	if ( m_playback == Playback::Target ) {
+		m_nPlayheadTarget += nIncrement;
+		m_pTargetSampleView->update();
 	}
 
-	if ( m_pPositionsRulerPath ) {
-		delete[] m_pPositionsRulerPath;
-	}
-
-	m_pPositionsRulerPath = tempFrames;
-
-	delete[] loopFrames;
-	delete[] normalFrames;
+	m_nLastRealtimeFrame = nRealtimeFrame;
 }
 
 void SampleEditor::updateTargetFrames()
@@ -1473,16 +1460,17 @@ void SampleEditor::updateTargetFrames()
 void SampleEditor::checkRubberbandSettings()
 {
 	// calculate ratio
-	const double fDuration = 60.0 /
-							 Hydrogen::get_instance()
-								 ->getAudioEngine()
-								 ->getPlayhead()
-								 ->getBpm() *
-							 m_rubberband.fLengthInBeats;
+	const double fDuration =
+		60.0 /
+		Hydrogen::get_instance()->getAudioEngine()->getPlayhead()->getBpm() *
+		m_rubberband.fLengthInBeats;
 	const double fInDuration = static_cast<double>( m_nTargetFrames ) /
 							   static_cast<double>( m_nSamplerate );
-	if ( fInDuration != 0.0 ) {
+	if ( fInDuration != 0.0 && m_rubberband.bUse ) {
 		m_fRatio = fDuration / fInDuration;
+	}
+	else {
+		m_fRatio = 1;
 	}
 
 	// my personal ratio quality settings
@@ -1522,24 +1510,6 @@ void SampleEditor::checkRubberbandSettings()
 
 	m_pRubberBandPitchSpinBox->setEnabled( m_rubberband.bUse );
 	m_pRubberBandCrispnessComboBox->setEnabled( m_rubberband.bUse );
-}
-
-void SampleEditor::testpTimer()
-{
-	if ( m_pTimer->isActive() || m_pTargetDisplayTimer->isActive() ) {
-		auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
-		m_pTimer->stop();
-		m_pTargetDisplayTimer->stop();
-		m_pPlayButton->setText( pCommonString->getButtonPlay() );
-		m_pPlayOriginalButton->setText(
-			pCommonString->getButtonPlayOriginalSample()
-		);
-		Hydrogen::get_instance()
-			->getAudioEngine()
-			->getSampler()
-			->stopPlayingNotes();
-		m_bPlayButton = false;
-	}
 }
 
 void SampleEditor::updateStyleSheet()

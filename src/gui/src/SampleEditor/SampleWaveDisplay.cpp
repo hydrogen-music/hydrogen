@@ -140,10 +140,8 @@ void SampleWaveDisplay::paintEvent( QPaintEvent* ev )
 	p.setPen(
 		QPen( pColorTheme->m_sampleEditor_playheadColor, 1, Qt::SolidLine )
 	);
-	p.drawLine(
-		m_pSampleEditor->getFramePosition(), 4,
-		m_pSampleEditor->getFramePosition(), height() - 4
-	);
+	const int nPlayheadX = frameToX( m_pSampleEditor->getPlayheadMain() );
+	p.drawLine( nPlayheadX, 0, nPlayheadX, height() );
 
 	renderSlider( &p, SampleEditor::Slider::Start );
 	renderSlider( &p, SampleEditor::Slider::Loop );

@@ -4945,6 +4945,10 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <source>Resulting Sample and Envelopes</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Stop</source>
+        <translation>&amp;Stop</translation>
+    </message>
 </context>
 <context>
     <name>SampleWaveDisplay</name>

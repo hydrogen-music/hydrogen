@@ -29,6 +29,7 @@
 
 #include "../Widgets/EditorDefs.h"
 
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/Object.h>
@@ -67,6 +68,8 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	static constexpr int nSpacerWidth = 24;
 	static constexpr int nSpacerHeight = 20;
 	static constexpr int nSpacing = 6;
+	/** Equivalent to 50 fps.*/
+	static constexpr int nWaveDisplayUpdateInterval = 20;
 
 	enum class Slider { None, Start, Loop, End };
 	static QString SliderToQString( const Slider& slider );
@@ -82,7 +85,9 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	);
 	~SampleEditor();
 
-	long long getFramePosition() const;
+	long long getPlayheadMain() const;
+	long long getPlayheadTarget() const;
+	long long getTotalPlaybackFrames() const;
 	float getZoomFactor() const;
 	Slider getHoveredSlider() const;
 	void setHoveredSlider( Slider slider );
@@ -120,13 +125,18 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	// this values come from the real sample to restore a frm song loaded sample
 	bool m_bSampleIsModified;  ///< true if sample is modified
 
-   private slots:
-	void on_PlayPushButton_clicked();
-	void on_PlayOrigPushButton_clicked();
-	void updateMainsamplePositionRuler();
-	void updateTargetsamplePositionRuler();
-
    private:
+	enum class Playback { None, Target, Original };
+
+	void startPlayback( Playback playback );
+	void stopPlayback();
+	/** We rely on the realtime frame of the audio engine. This means neither
+	 * count in nor playback (of the audio engine) itself must be started during
+	 * rendering of a sample. But this should not be a big problem since the
+	 * whole #SampleEditor is a modal and the buttons for starting playback are
+	 * not accessible. */
+	void updateTransport();
+
 	void setUnclean();
 	void setClean();
 	void updateSourceWaveDisplays();
@@ -134,8 +144,6 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	void setAllSampleProps();
 	void createNewLayer();
 	void updateTargetFrames();
-	void createPositionsRulerPath();
-	void testpTimer();
 	void checkRubberbandSettings();
 	/** Since this dialog is a modal, we do not have to care about updating the
 	 * style sheet in case the theme is changed in the preferences dialog. */
@@ -172,8 +180,28 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	std::shared_ptr<H2Core::Instrument> m_pInstrument;
 	std::shared_ptr<H2Core::Sample> m_pSample;
 
+	Playback m_playback;
+	/** Since we rely on the real-time frames when rendering samples, we
+	 * have to check whether they have been reset within the audio engine.
+	 * This will occur on state changes. */
+	H2Core::AudioEngine::State m_previousState;
+	long long m_nPlayheadSample;
+	long long m_nPlayheadTarget;
+	long long m_nRealtimeFrameEnd;
+	/** Cache all all things required to efficiently calculate the playhead
+	 * position in the main section.
+	 *
+	 * @{*/
+	enum class Looped { NotYet, Forward, Reverse };
+	long long m_nPreLoopFrames;
+	long long m_nLoopFrames;
+	long long m_nLastRealtimeFrame;
+	long long m_nTotalPlaybackFrames;
+	Looped m_looped;
+	bool m_bLastLoopForward;
+	/** @} */
+
 	float m_fZoomfactor;
-	long long m_nFramePosition;
 	Slider m_hoveredSlider;
 	Slider m_selectedSlider;
 
@@ -183,11 +211,8 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	/** Number of frames the resulting sample will have after applying both loop
 	 * and rubberband settings. */
 	long long m_nTargetFrames;
-	long long m_nRealtimeFrameEnd;
-	long long m_nRealtimeFrameEndForTarget;
 	unsigned m_nSamplerate;
-	QTimer* m_pTimer;
-	QTimer* m_pTargetDisplayTimer;
+	QTimer* m_pWaveDisplayUpdateTimer;
 	long long* m_pPositionsRulerPath;
 	float m_fRatio;
 
@@ -199,9 +224,17 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	H2Core::Sample::VelocityEnvelope m_velocityEnvelope;
 };
 
-inline long long SampleEditor::getFramePosition() const
+inline long long SampleEditor::getPlayheadMain() const
 {
-	return m_nFramePosition;
+	return m_nPlayheadSample;
+}
+inline long long SampleEditor::getPlayheadTarget() const
+{
+	return m_nPlayheadTarget;
+}
+inline long long SampleEditor::getTotalPlaybackFrames() const
+{
+	return m_nTotalPlaybackFrames;
 }
 inline float SampleEditor::getZoomFactor() const
 {

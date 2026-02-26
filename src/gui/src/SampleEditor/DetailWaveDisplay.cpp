@@ -131,7 +131,7 @@ void DetailWaveDisplay::drawPeakData()
 			nnFrame = m_pSampleEditor->getLoopEndFrame();
 			break;
 		case SampleEditor::Slider::None:
-			nnFrame = m_pSampleEditor->getFramePosition();
+			nnFrame = m_pSampleEditor->getPlayheadMain();
 			break;
 	}
 	nnFrame -= DetailWaveDisplay::nWidth / 2;

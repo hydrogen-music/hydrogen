@@ -49,7 +49,6 @@ TargetWaveDisplay::TargetWaveDisplay( SampleEditor* pParent )
 	  m_nSelectedEnvelopePointX( -10 ),
 	  m_nSelectedEnvelopePointY( -10 ),
 	  m_oldPoint( EnvelopePoint() ),
-	  m_nLocator( -1 ),
 	  m_nSelectedEnvelopePoint( -1 ),
 	  m_nSnapRadius( 6 )
 {
@@ -135,7 +134,16 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 	p.setPen(
 		QPen( pColorTheme->m_sampleEditor_playheadColor, 1, Qt::SolidLine )
 	);
-	p.drawLine( m_nLocator, 4, m_nLocator, height() - 4 );
+	const int nTotalFrames = m_pSampleEditor->getTotalPlaybackFrames();
+	int nPlayheadX;
+	if ( nTotalFrames > 0 ) {
+		nPlayheadX =
+			m_pSampleEditor->getPlayheadTarget() * width() / nTotalFrames;
+	}
+	else {
+		nPlayheadX = 0;
+	}
+	p.drawLine( nPlayheadX, 4, nPlayheadX, height() - 4 );
 
 	QColor velocityLineColor( pColorTheme->m_sampleEditor_velocityEnvelopeColor
 	);
@@ -203,12 +211,6 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 			}
 		}
 	}
-}
-
-void TargetWaveDisplay::paintLocatorEventTargetDisplay( int nPosition )
-{
-	m_nLocator = nPosition;
-	update();
 }
 
 void TargetWaveDisplay::drawPeakData()

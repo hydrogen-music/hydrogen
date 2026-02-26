@@ -4943,6 +4943,10 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
         <source>Resulting Sample and Envelopes</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Stop</source>
+        <translation>&amp;S atura</translation>
+    </message>
 </context>
 <context>
     <name>SampleWaveDisplay</name>
