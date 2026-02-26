@@ -57,6 +57,16 @@ target_link_libraries(hydrogen-core-${VERSION}
 	Qt${QT_VERSION_MAJOR}::Gui # For QColor
 )
 
+if(Backtrace_FOUND)
+    target_include_directories(hydrogen-core-${VERSION}
+        PRIVATE
+        ${Backtrace_INCLUDE_DIRS}
+    )
+    target_link_libraries(hydrogen-core-${VERSION}
+        ${Backtrace_LIBRARIES}
+    )
+endif()
+
 #SET_TARGET_PROPERTIES(hydrogen-core-${VERSION} PROPERTIES PUBLIC_HEADER   "${hydrogen_INCLUDES}" )
 set_property(TARGET hydrogen-core-${VERSION} PROPERTY CXX_STANDARD 17)
 
