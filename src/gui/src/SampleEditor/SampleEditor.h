@@ -70,6 +70,7 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	static constexpr int nSpacing = 6;
 	/** Equivalent to 50 fps.*/
 	static constexpr int nWaveDisplayUpdateInterval = 20;
+	static constexpr int nSampleUpdateTimeout = 20;
 
 	enum class Slider { None, Start, Loop, End };
 	static QString SliderToQString( const Slider& slider );
@@ -140,10 +141,9 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	void setUnclean();
 	void setClean();
 	void updateSourceWaveDisplays();
-	void getAllFrameInfos();
-	void setAllSampleProps();
 	void createNewLayer();
-	void updateTargetFrames();
+	void triggerSampleUpdate();
+	void updateSample();
 	void checkRubberbandSettings();
 	/** Since this dialog is a modal, we do not have to care about updating the
 	 * style sheet in case the theme is changed in the preferences dialog. */
@@ -175,10 +175,23 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 
 	TargetWaveDisplay* m_pTargetSampleView;
 
-	std::shared_ptr<H2Core::InstrumentLayer> m_pLayer;
-	std::shared_ptr<H2Core::InstrumentComponent> m_pComponent;
+	/** Original instrument used to write back changes.
+	 *
+	 * @{ */
 	std::shared_ptr<H2Core::Instrument> m_pInstrument;
+	std::shared_ptr<H2Core::InstrumentComponent> m_pComponent;
+	std::shared_ptr<H2Core::InstrumentLayer> m_pLayer;
+	/** @} */
+
+	/** Contains the latest user changes (modulo #m_pSampleUpdateTimer)
+	 * _without_ the need to apply them. */
 	std::shared_ptr<H2Core::Sample> m_pSample;
+	/** Unmodified version loaded from disk */
+	std::shared_ptr<H2Core::Sample> m_pSampleOriginal;
+	/** Instrument used for playback. This way none of the
+	 * instrument/component/layer settings leaks into the SampleEditor. */
+	std::shared_ptr<H2Core::Instrument> m_pPreviewInstrument;
+	std::shared_ptr<H2Core::Instrument> m_pPreviewInstrumentOriginal;
 
 	Playback m_playback;
 	/** Since we rely on the real-time frames when rendering samples, we
@@ -208,12 +221,15 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	bool m_bPlayButton;
 	bool m_bSampleEditorClean;
 
-	/** Number of frames the resulting sample will have after applying both loop
-	 * and rubberband settings. */
-	long long m_nTargetFrames;
-	unsigned m_nSamplerate;
+	/** Updates the playhead within the wave displays while a sample is playing.
+	 */
 	QTimer* m_pWaveDisplayUpdateTimer;
-	long long* m_pPositionsRulerPath;
+	/** We provide an almost immediate update of the target sample. But in order
+	 * to not create too much unnecessary load when the user is doing a lot of
+	 * changes at once, we wait till there are no changes for at last
+	 * #SampleUpdateTimeout ms before performing the update. */
+	QTimer* m_pSampleUpdateTimer;
+	bool m_bRetriggerRequired;
 	float m_fRatio;
 
 	H2Core::Sample::Loops m_loops;

@@ -101,7 +101,7 @@ SampleEditor::SampleEditor(
 	  m_selectedSlider( Slider::Start ),
 	  m_bPlayButton( false ),
 	  m_bSampleEditorClean( true ),
-	  m_pPositionsRulerPath( nullptr ),
+	  m_bRetriggerRequired( false ),
 	  m_fRatio( 1.0f ),
 	  m_envelopeType( EnvelopeType::Velocity )
 {
@@ -109,8 +109,31 @@ SampleEditor::SampleEditor(
 		 pLayer->getSample() == nullptr ) {
 		reject();
 	}
-	m_pSample = pLayer->getSample();
-	m_nTargetFrames = static_cast<long long>( m_pSample->getFrames() );
+	m_pSample = std::make_shared<Sample>( pLayer->getSample() );
+
+	m_pPreviewInstrument = std::make_shared<Instrument>( Instrument::EmptyId );
+	auto pPreviewLayer = std::make_shared<InstrumentLayer>( m_pSample );
+	m_pPreviewInstrument->setIsPreviewInstrument( true );
+	m_pPreviewInstrument->addLayer(
+		m_pPreviewInstrument->getComponents()->front(), pPreviewLayer, 0,
+		Event::Trigger::Suppress
+	);
+
+	m_pSampleOriginal = Sample::load( m_pSample->getFilePath() );
+	if ( m_pSampleOriginal == nullptr ) {
+		ERRORLOG( QString( "Unable to load sample from [%1]" )
+					  .arg( m_pSample->getFilePath() ) );
+		reject();
+	}
+	m_pPreviewInstrumentOriginal =
+		std::make_shared<Instrument>( Instrument::EmptyId );
+	auto pPreviewLayerOriginal =
+		std::make_shared<InstrumentLayer>( m_pSampleOriginal );
+	m_pPreviewInstrumentOriginal->setIsPreviewInstrument( true );
+	m_pPreviewInstrumentOriginal->addLayer(
+		m_pPreviewInstrumentOriginal->getComponents()->front(),
+		pPreviewLayerOriginal, 0, Event::Trigger::Suppress
+	);
 
 	setFixedSize( SampleEditor::nWidth, SampleEditor::nHeight );
 	setModal( true );
@@ -808,10 +831,13 @@ font-weight: bold; "
 		updateTransport();
 	} );
 
-	setClean();
+	m_pSampleUpdateTimer = new QTimer( this );
+	connect( m_pSampleUpdateTimer, &QTimer::timeout, [&]() {
+		m_pSampleUpdateTimer->stop();
+		updateSample();
+	} );
 
-	getAllFrameInfos();
-	updateTargetFrames();
+	setClean();
 
 	updateSourceWaveDisplays();
 
@@ -880,7 +906,7 @@ void SampleEditor::setLoopStartFrame( int nFrame )
 	m_selectedSlider = Slider::Start;
 
 	setUnclean();
-	updateTargetFrames();
+	triggerSampleUpdate();
 	updateSourceWaveDisplays();
 }
 
@@ -908,7 +934,7 @@ void SampleEditor::setLoopLoopFrame( int nFrame )
 
 	m_selectedSlider = Slider::Loop;
 	setUnclean();
-	updateTargetFrames();
+	triggerSampleUpdate();
 	updateSourceWaveDisplays();
 }
 
@@ -934,7 +960,7 @@ void SampleEditor::setLoopEndFrame( int nFrame )
 
 	m_selectedSlider = Slider::End;
 	setUnclean();
-	updateTargetFrames();
+	triggerSampleUpdate();
 	updateSourceWaveDisplays();
 }
 
@@ -963,7 +989,7 @@ void SampleEditor::setLoops( Sample::Loops newLoops )
 	}
 
 	setUnclean();
-	updateTargetFrames();
+	triggerSampleUpdate();
 	updateSourceWaveDisplays();
 }
 
@@ -1003,7 +1029,7 @@ void SampleEditor::setRubberband( Sample::Rubberband newRubberband )
 
 	m_pRubberBandCrispnessComboBox->setCurrentIndex( m_rubberband.nCrispness );
 
-	checkRubberbandSettings();
+	triggerSampleUpdate();
 	setUnclean();
 }
 
@@ -1057,7 +1083,7 @@ void SampleEditor::editEnvelopePoint(
 		return;
 	}
 
-	m_pTargetSampleView->update();
+	triggerSampleUpdate();
 	setUnclean();
 }
 
@@ -1100,7 +1126,7 @@ void SampleEditor::moveEnvelopePoint(
 		}
 	}
 
-	m_pTargetSampleView->update();
+	triggerSampleUpdate();
 	setUnclean();
 }
 
@@ -1131,14 +1157,6 @@ void SampleEditor::updateSourceWaveDisplays()
 	m_pDetailWaveDisplayR->update();
 	m_pSampleWaveDisplayL->update();
 	m_pSampleWaveDisplayR->update();
-}
-
-void SampleEditor::getAllFrameInfos()
-{
-	// this values are needed if we restore a sample from disk if a
-	// new song with sample changes will load
-	m_bSampleIsModified = m_pSample->getIsModified();
-	m_nSamplerate = m_pSample->getSampleRate();
 }
 
 bool SampleEditor::getCloseQuestion()
@@ -1203,58 +1221,27 @@ void SampleEditor::startPlayback( Playback playback )
 	}
 	m_playback = playback;
 
-	// Since we are in a separate dialog and working with a particular sample,
-	// we do not want rendering to be affected by whether some instruments of
-	// the current kit are soloed or muted.
-	auto pPreviewInstr = std::make_shared<Instrument>( m_pInstrument );
-	pPreviewInstr->setIsPreviewInstrument( true );
-
-	auto pCompo =
-		pPreviewInstr->getComponent( m_pInstrument->index( m_pComponent ) );
-	if ( pCompo == nullptr ) {
-		return;
-	}
-	auto pLayer = pCompo->getLayer( m_pComponent->index( m_pLayer ) );
-	if ( pLayer == nullptr ) {
-		return;
-	}
-
 	// Register the sample for playback
 	std::shared_ptr<Note> pNote;
 	long long nSampleLength;
 	if ( m_playback == Playback::Target ) {
 		pNote = std::make_shared<Note>(
-			pPreviewInstr, 0, pLayer->getEndVelocity() - 0.01
+			m_pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT
 		);
 		nSampleLength = static_cast<long long>(
-			static_cast<double>( m_nTargetFrames ) *
+			static_cast<double>( m_pSample->getFrames() ) *
 				static_cast<double>( m_fRatio ) +
 			0.1
 		);
 	}
 	else {
-		// Original sample
-		auto pNewSample = Sample::load( m_pSample->getFilePath() );
-		if ( pNewSample == nullptr ) {
-			ERRORLOG( QString( "Unable to load sample from [%1]" )
-						  .arg( m_pSample->getFilePath() ) );
-			return;
-		}
-		pPreviewInstr->setSample(
-			pCompo, pLayer, pNewSample, Event::Trigger::Default
-		);
-		// Construct a note rendering just our new sample.
-		nSampleLength = static_cast<long long>( pNewSample->getFrames() );
 		pNote = std::make_shared<Note>(
-			pPreviewInstr, 0, VELOCITY_MAX, PAN_DEFAULT,
+			m_pPreviewInstrumentOriginal, 0, VELOCITY_MAX, PAN_DEFAULT,
 			static_cast<int>( nSampleLength )
 		);
+		nSampleLength =
+			static_cast<long long>( m_pSampleOriginal->getFrames() );
 	}
-	// We register the current component to be rendered using a specific
-	// layer. This will cause all other components _not_ to be rendered.
-	auto pSelectedLayerInfo = std::make_shared<SelectedLayerInfo>();
-	pSelectedLayerInfo->pLayer = pLayer;
-	pNote->setSelectedLayerInfo( pSelectedLayerInfo, pCompo );
 
 	// Reset playhead and other widgets and perform one UI refresh before
 	// starting the actual rendering.
@@ -1283,7 +1270,9 @@ void SampleEditor::startPlayback( Playback playback )
 	updateSourceWaveDisplays();
 
 	// Render sample
-	pAudioEngine->getSampler()->previewInstrument( pPreviewInstr, pNote );
+	pAudioEngine->getSampler()->previewInstrument(
+		pNote->getInstrument(), pNote
+	);
 	m_nLastRealtimeFrame = pAudioEngine->getRealtimeFrame();
 	m_nRealtimeFrameEnd = m_nLastRealtimeFrame + nSampleLength;
 
@@ -1311,6 +1300,11 @@ void SampleEditor::stopPlayback()
 	}
 
 	m_playback = Playback::None;
+
+	if ( m_bRetriggerRequired ) {
+		m_bRetriggerRequired = false;
+		triggerSampleUpdate();
+	}
 
 	updateSourceWaveDisplays();
 }
@@ -1402,7 +1396,7 @@ void SampleEditor::updateTransport()
 					}
 					else {
 						m_nPlayheadSample = m_loops.nEndFrame -
-											nRemainingFrames % m_nTargetFrames;
+											nRemainingFrames % m_nLoopFrames;
 					}
 				}
 				else {
@@ -1423,7 +1417,7 @@ void SampleEditor::updateTransport()
 					}
 					else {
 						m_nPlayheadSample = m_loops.nLoopFrame +
-											nRemainingFrames % m_nTargetFrames;
+											nRemainingFrames % m_nLoopFrames;
 					}
 				}
 				else {
@@ -1442,19 +1436,55 @@ void SampleEditor::updateTransport()
 	m_nLastRealtimeFrame = nRealtimeFrame;
 }
 
-void SampleEditor::updateTargetFrames()
+void SampleEditor::triggerSampleUpdate()
 {
-	const int nPreLoopFrames = m_loops.nLoopFrame - m_loops.nStartFrame;
-	const int nLoopFrames = m_loops.nEndFrame - m_loops.nLoopFrame;
-	// +1 since we are calculating the total number of frames - a zero-based
-	// quantity.
-	m_nTargetFrames = static_cast<long long>( nPreLoopFrames ) +
-					  static_cast<long long>( nLoopFrames ) *
-						  static_cast<long long>( m_loops.nCount + 1 ) +
-					  1;
+	if ( m_pSampleUpdateTimer->isActive() ) {
+		m_pSampleUpdateTimer->stop();
+	}
+	m_pSampleUpdateTimer->start( SampleEditor::nSampleUpdateTimeout );
+}
 
-	m_pNewLengthDisplay->setText( QString::number( m_nTargetFrames ) );
+void SampleEditor::updateSample()
+{
+	if ( m_playback != Playback::None ) {
+		// We delay any updates till after playback has finished.
+		m_bRetriggerRequired = true;
+		return;
+	}
+
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pEditSample = std::make_shared<Sample>(
+		m_pSample->getFilePath(), m_pSample->getLicense()
+	);
+	pEditSample->setLoops( m_loops );
+	pEditSample->setRubberband( m_rubberband );
+	pEditSample->setVelocityEnvelope( m_velocityEnvelope );
+	pEditSample->setPanEnvelope( m_panEnvelope );
+
+	if ( !pEditSample->load( pAudioEngine->getPlayhead()->getBpm() ) ) {
+		ERRORLOG( "Unable to load modified sample" );
+		return;
+	}
+
+	// Required to ensure we don't mess with the preview instrument while the
+	// sampler is still rendering its notes.
+	pAudioEngine->lock( RIGHT_HERE );
+
+	m_pPreviewInstrument->setSample(
+		m_pPreviewInstrument->getComponents()->front(),
+		m_pPreviewInstrument->getComponents()->front()->getLayer( 0 ),
+		pEditSample, Event::Trigger::Suppress
+	);
+	m_pSample = pEditSample;
+
+	pAudioEngine->unlock();
+
+	m_pNewLengthDisplay->setText( QString::number( m_pSample->getFrames() ) );
 	checkRubberbandSettings();
+	updateSourceWaveDisplays();
+	m_pTargetSampleView->setLayer(
+		m_pPreviewInstrument->getComponents()->front()->getLayer( 0 )
+	);
 }
 
 void SampleEditor::checkRubberbandSettings()
@@ -1464,8 +1494,9 @@ void SampleEditor::checkRubberbandSettings()
 		60.0 /
 		Hydrogen::get_instance()->getAudioEngine()->getPlayhead()->getBpm() *
 		m_rubberband.fLengthInBeats;
-	const double fInDuration = static_cast<double>( m_nTargetFrames ) /
-							   static_cast<double>( m_nSamplerate );
+	const double fInDuration =
+		static_cast<double>( m_pSample->getFrames() ) /
+		static_cast<double>( m_pSample->getSampleRate() );
 	if ( fInDuration != 0.0 && m_rubberband.bUse ) {
 		m_fRatio = fDuration / fInDuration;
 	}
