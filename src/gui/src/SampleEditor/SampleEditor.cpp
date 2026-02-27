@@ -646,6 +646,7 @@ font-weight: bold; "
 			else {
 				m_envelopeType = EnvelopeType::Pan;
 			}
+			m_pTargetSampleView->update();
 		}
 	);
 	pTargetContainerLayout->addWidget( m_pEnvelopeComboBox );

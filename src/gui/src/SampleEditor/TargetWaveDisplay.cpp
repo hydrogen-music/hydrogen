@@ -148,13 +148,21 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 
 	QColor velocityLineColor( pColorTheme->m_sampleEditor_velocityEnvelopeColor
 	);
-	velocityLineColor.setAlpha( SampleEditor::nColorAlpha );
 	QColor panLineColor( pColorTheme->m_sampleEditor_panEnvelopeColor );
-	panLineColor.setAlpha( SampleEditor::nColorAlpha );
 
 	if ( !m_bEnabled ) {
 		velocityLineColor = Skin::makeWidgetColorInactive( velocityLineColor );
 		panLineColor = Skin::makeWidgetColorInactive( panLineColor );
+	}
+
+	if ( m_pSampleEditor->getEnvelopeType() ==
+		 SampleEditor::EnvelopeType::Velocity ) {
+		velocityLineColor.setAlpha( SampleEditor::nColorAlpha );
+		panLineColor.setAlpha( SampleEditor::nColorAlpha - 50 );
+	}
+	else {
+		velocityLineColor.setAlpha( SampleEditor::nColorAlpha - 50 );
+		panLineColor.setAlpha( SampleEditor::nColorAlpha );
 	}
 
 	paintEnvelope(
@@ -163,14 +171,14 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 				SampleEditor::EnvelopeType::Velocity
 			? m_nSelectedEnvelopePoint
 			: -1,
-		velocityLineColor, pColorTheme->m_sampleEditor_velocityEnvelopeColor
+		velocityLineColor, velocityLineColor
 	);
 	paintEnvelope(
 		m_pSampleEditor->getPanEnvelope(), p,
 		m_pSampleEditor->getEnvelopeType() == SampleEditor::EnvelopeType::Pan
 			? m_nSelectedEnvelopePoint
 			: -1,
-		panLineColor, pColorTheme->m_sampleEditor_panEnvelopeColor
+		panLineColor, panLineColor
 	);
 
 	if ( !m_sSelectedEnvelopePointValue.isEmpty() ) {
