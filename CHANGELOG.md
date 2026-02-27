@@ -32,6 +32,7 @@ All notable changes to this project will be documented in this file.
 - Online drumkit download from SourceForge when compiled with Qt6 (none of our
   release artifacts).
 - Segfault on Port-MIDI host error by @rrrapha.
+- Fix linker error on OpenBSD by @rrrapha.
 
 ## [1.2.6] - 2025-07-29
 
