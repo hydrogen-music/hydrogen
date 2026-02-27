@@ -29,6 +29,7 @@
 
 #include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 #include "../UndoActions.h"
 #include "../Widgets/EditorDefs.h"
 
@@ -40,6 +41,7 @@ SampleWaveDisplay::SampleWaveDisplay(
 )
 	: WaveDisplay( pParent, channel ),
 	  m_pSampleEditor( pParent ),
+	  m_bEnabled( true ),
 	  m_nOldFrame( 0 ),
 	  m_bDragStarted( false )
 {
@@ -62,6 +64,10 @@ void SampleWaveDisplay::leaveEvent( QEvent* pEv )
 
 void SampleWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 {
+	if ( !m_bEnabled ) {
+		return;
+	}
+
 	auto pEv = static_cast<MouseEvent*>( ev );
 	const auto slider = intersectWith( pEv->position() );
 	if ( !( ev->buttons() & Qt::LeftButton ) ||
@@ -91,6 +97,10 @@ void SampleWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 
 void SampleWaveDisplay::mousePressEvent( QMouseEvent* ev )
 {
+	if ( !m_bEnabled ) {
+		return;
+	}
+
 	auto pEv = static_cast<MouseEvent*>( ev );
 	if ( !( ev->buttons() & Qt::LeftButton ) ) {
 		return;
@@ -105,6 +115,10 @@ void SampleWaveDisplay::mousePressEvent( QMouseEvent* ev )
 
 void SampleWaveDisplay::mouseReleaseEvent( QMouseEvent* ev )
 {
+	if ( !m_bEnabled ) {
+		return;
+	}
+
 	auto pEv = static_cast<MouseEvent*>( ev );
 	auto nNewFrame = xToFrame(
 		std::clamp( static_cast<int>( pEv->position().x() ), 0, width() - 1 )
@@ -304,6 +318,10 @@ void SampleWaveDisplay::renderSlider(
 	}
 
 	color.setAlpha( SampleEditor::nColorAlpha );
+
+	if ( !m_bEnabled ) {
+		color = Skin::makeWidgetColorInactive( color );
+	}
 
 	QColor colorHovered( color );
 	colorHovered.setAlpha( SampleWaveDisplay::nHoveredAlpha );

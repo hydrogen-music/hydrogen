@@ -137,6 +137,7 @@ class SampleEditor : public QDialog,
 	 * not accessible. */
 	void updateTransport();
 
+	void lockWidgets( bool bLock );
 	void setUnclean();
 	void setClean();
 	void updateSourceWaveDisplays();
@@ -159,10 +160,10 @@ class SampleEditor : public QDialog,
 	LCDSpinBox* m_pLoopStartFrameSpinBox;
 	LCDSpinBox* m_pLoopLoopFrameSpinBox;
 	LCDSpinBox* m_pLoopCountSpinBox;
-	QComboBox* m_pLoopModeComboBox;
+	LCDCombo* m_pLoopModeComboBox;
 	LCDSpinBox* m_pLoopEndFrameSpinBox;
 
-	QComboBox* m_pRubberBandLengthComboBox;
+	LCDCombo* m_pRubberBandLengthComboBox;
 	QLabel* m_pRubberBandRatioLabel;
 	LCDSpinBox* m_pRubberBandPitchSpinBox;
 	LCDCombo* m_pRubberBandCrispnessComboBox;

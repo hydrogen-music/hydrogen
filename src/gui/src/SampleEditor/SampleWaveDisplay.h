@@ -59,6 +59,8 @@ class SampleWaveDisplay : public WaveDisplay,
 	);
 	~SampleWaveDisplay();
 
+	void setEnabled( bool bEnabled );
+
    private:
 	void leaveEvent( QEvent* pEv ) override;
 	void mouseMoveEvent( QMouseEvent* ev ) override;
@@ -76,6 +78,8 @@ class SampleWaveDisplay : public WaveDisplay,
 
 	SampleEditor* m_pSampleEditor;
 
+	bool m_bEnabled;
+
 	/** Cache for undo/redo actions during drag moving. Otherwise, the operation
 	 * would be to inefficient. */
 	int m_nOldFrame;
@@ -84,5 +88,10 @@ class SampleWaveDisplay : public WaveDisplay,
 	 * mouse button. Else we would risk loosing it on faster mouse movements. */
 	bool m_bDragStarted;
 };
+
+inline void SampleWaveDisplay::setEnabled( bool bEnabled )
+{
+	m_bEnabled = bEnabled;
+}
 
 #endif

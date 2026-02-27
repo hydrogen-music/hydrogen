@@ -319,7 +319,7 @@ font-weight: bold; "
 	pLoopModeLabel->setText( tr( "mode" ) );
 	pSpinBoxContainerLayout->addWidget( pLoopModeLabel );
 
-	m_pLoopModeComboBox = new QComboBox( pSpinBoxContainer );
+	m_pLoopModeComboBox = new LCDCombo( pSpinBoxContainer );
 	m_pLoopModeComboBox->setMinimumWidth( 80 );
 	m_pLoopModeComboBox->setToolTip( tr( "set processing" ) );
 	m_pLoopModeComboBox->addItems(
@@ -457,7 +457,7 @@ font-weight: bold; "
 	pRubberBandLengthLabel->setText( tr( "Sample length to beat:" ) );
 	pRubberBandWidgetContainerLayout->addWidget( pRubberBandLengthLabel );
 
-	m_pRubberBandLengthComboBox = new QComboBox( pRubberBandWidgetContainer );
+	m_pRubberBandLengthComboBox = new LCDCombo( pRubberBandWidgetContainer );
 	m_pRubberBandLengthComboBox->setMaximumWidth( 75 );
 	QStringList rubberBandOptions;
 	rubberBandOptions << pCommonStrings->getStatusOff() << "1/64"
@@ -1175,6 +1175,28 @@ void SampleEditor::updateSourceWaveDisplays()
 	m_pSampleWaveDisplayR->update();
 }
 
+void SampleEditor::lockWidgets( bool bLock )
+{
+	m_pSampleWaveDisplayL->setEnabled( ! bLock );
+	m_pSampleWaveDisplayR->setEnabled( ! bLock );
+	m_pTargetSampleView->setEnabled( !bLock );
+
+	m_pLoopStartFrameSpinBox->setEnabled( ! bLock );
+	m_pLoopLoopFrameSpinBox->setEnabled( ! bLock );
+	m_pLoopCountSpinBox->setEnabled( ! bLock );
+	m_pLoopModeComboBox->setEnabled( ! bLock );
+	m_pLoopEndFrameSpinBox->setEnabled( ! bLock );
+
+	m_pRubberBandLengthComboBox->setEnabled( ! bLock );
+	m_pRubberBandRatioLabel->setEnabled( ! bLock );
+	m_pRubberBandPitchSpinBox->setEnabled( ! bLock );
+	m_pRubberBandCrispnessComboBox->setEnabled( ! bLock );
+
+	m_pApplyButton->setEnabled( ! bLock );
+	m_pNewLengthDisplay->setEnabled( ! bLock );
+	m_pEnvelopeComboBox->setEnabled( ! bLock );
+}
+
 void SampleEditor::setUnclean()
 {
 	m_bSampleEditorClean = false;
@@ -1199,6 +1221,7 @@ void SampleEditor::startPlayback( Playback playback )
 		stopPlayback();
 	}
 	m_playback = playback;
+	lockWidgets( true );
 
 	// Register the sample for playback
 	std::shared_ptr<Note> pNote;
@@ -1279,6 +1302,7 @@ void SampleEditor::stopPlayback()
 	}
 
 	m_playback = Playback::None;
+	lockWidgets( false );
 
 	if ( m_bLayerReloadRequired ) {
 		m_bLayerReloadRequired = false;

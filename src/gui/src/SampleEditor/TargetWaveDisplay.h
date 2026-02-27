@@ -52,6 +52,8 @@ class TargetWaveDisplay : public WaveDisplay,
 	explicit TargetWaveDisplay( SampleEditor* pParent );
 	~TargetWaveDisplay();
 
+	void setEnabled( bool bEnabled );
+
 	void paintEvent( QPaintEvent* ev ) override;
 
    private:
@@ -73,6 +75,8 @@ class TargetWaveDisplay : public WaveDisplay,
 
 	SampleEditor* m_pSampleEditor;
 
+	bool m_bEnabled;
+
 	QString m_sSelectedEnvelopePointValue;
 	int m_nSelectedEnvelopePointX;
 	int m_nSelectedEnvelopePointY;
@@ -88,5 +92,10 @@ class TargetWaveDisplay : public WaveDisplay,
 
 	int m_nSelectedEnvelopePoint;
 };
+
+inline void TargetWaveDisplay::setEnabled( bool bEnabled )
+{
+	m_bEnabled = bEnabled;
+}
 
 #endif

@@ -45,6 +45,7 @@ using namespace H2Core;
 TargetWaveDisplay::TargetWaveDisplay( SampleEditor* pParent )
 	: WaveDisplay( pParent, WaveDisplay::Channel::Left ),
 	  m_pSampleEditor( pParent ),
+	  m_bEnabled( true ),
 	  m_sSelectedEnvelopePointValue( "" ),
 	  m_nSelectedEnvelopePointX( -10 ),
 	  m_nSelectedEnvelopePointY( -10 ),
@@ -150,6 +151,11 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 	velocityLineColor.setAlpha( SampleEditor::nColorAlpha );
 	QColor panLineColor( pColorTheme->m_sampleEditor_panEnvelopeColor );
 	panLineColor.setAlpha( SampleEditor::nColorAlpha );
+
+	if ( !m_bEnabled ) {
+		velocityLineColor = Skin::makeWidgetColorInactive( velocityLineColor );
+		panLineColor = Skin::makeWidgetColorInactive( panLineColor );
+	}
 
 	paintEnvelope(
 		m_pSampleEditor->getVelocityEnvelope(), p,
@@ -445,6 +451,10 @@ void TargetWaveDisplay::updateEnvelope()
 
 void TargetWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 {
+	if ( !m_bEnabled ) {
+		return;
+	}
+
 	updateMouseSelection( ev );
 
 	if ( !( ev->buttons() & Qt::LeftButton ) ) {
@@ -456,6 +466,10 @@ void TargetWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 
 void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
 {
+	if ( !m_bEnabled ) {
+		return;
+	}
+
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto envelope = m_pSampleEditor->getCurrentEnvelope();
 
@@ -529,6 +543,10 @@ void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
 
 void TargetWaveDisplay::mouseReleaseEvent( QMouseEvent* ev )
 {
+	if ( !m_bEnabled ) {
+		return;
+	}
+
 	UNUSED( ev );
 
 	const auto envelope = m_pSampleEditor->getCurrentEnvelope();
