@@ -1031,7 +1031,7 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const
 					QString( "%1%2m_panEnvelope: [\n" ).arg( sPrefix ).arg( s )
 				);
 		for ( const auto& ppoint : m_panEnvelope ) {
-			sOutput.append( QString( "%1%2%2frame: %3, value: %4" )
+			sOutput.append( QString( "%1%2%2frame: %3, value: %4\n" )
 								.arg( sPrefix )
 								.arg( s )
 								.arg( ppoint.nFrame )
@@ -1041,7 +1041,7 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const
 			QString( "]\n%1%2m_velocityEnvelope: [\n" ).arg( sPrefix ).arg( s )
 		);
 		for ( const auto& ppoint : m_velocityEnvelope ) {
-			sOutput.append( QString( "%1%2%2frame: %3, value: %4" )
+			sOutput.append( QString( "%1%2%2frame: %3, value: %4\n" )
 								.arg( sPrefix )
 								.arg( s )
 								.arg( ppoint.nFrame )
