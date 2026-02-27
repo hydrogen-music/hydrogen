@@ -57,9 +57,9 @@ environment:
     #   job_group: 'Mac OS X'
     #   appveyor_build_worker_image: macos
 
-    # - job_name: 'Windows64'
-    #   job_group: 'Windows'
-    #   appveyor_build_worker_image: Visual Studio 2019
+    - job_name: 'Windows64'
+      job_group: 'Windows'
+      appveyor_build_worker_image: Visual Studio 2019
 
 build:
   verbosity: detailed
