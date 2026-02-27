@@ -1008,7 +1008,7 @@ void SampleEditor::editEnvelopePoint(
 	else if ( action == Editor::Action::Delete && nIndex == -1 ) {
 		ERRORLOG(
 			QString(
-				"Unable to delete ooint [%1] from [%2] envelope-> Not found."
+				"Unable to delete point [%1] from [%2] envelope-> Not found."
 			)
 				.arg( point.toQString() )
 				.arg( EnvelopeTypeToQString( envelopeType ) )
