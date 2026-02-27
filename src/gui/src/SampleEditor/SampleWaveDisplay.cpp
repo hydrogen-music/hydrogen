@@ -85,7 +85,7 @@ void SampleWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 			m_pSampleEditor->setLoopEndFrame( nFrame );
 			break;
 		case SampleEditor::Slider::None:
-			WARNINGLOG( "Invalid slider" );
+			return;
 	}
 }
 
@@ -300,8 +300,6 @@ void SampleWaveDisplay::renderSlider(
 			nHandleWidth = -1 * SampleWaveDisplay::nHandleWidth;
 			break;
 		case SampleEditor::Slider::None:
-			// TODO
-			DEBUGLOG( "not handled yet" );
 			return;
 	}
 
