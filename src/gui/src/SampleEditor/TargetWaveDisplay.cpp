@@ -560,6 +560,14 @@ void TargetWaveDisplay::mouseReleaseEvent( QMouseEvent* ev )
 	const auto envelope = m_pSampleEditor->getCurrentEnvelope();
 
 	auto newPoint = envelope[m_nSelectedEnvelopePoint];
+
+	const QPoint start( newPoint.nFrame, newPoint.nValue );
+	const QPoint end( m_oldPoint.nFrame, m_oldPoint.nValue );
+	if ( ( end - start ).manhattanLength() <=
+		 QApplication::startDragDistance() ) {
+		return;
+	}
+
 	// Revert the last action and register an overall undo/redo action (this is
 	// way more efficient than creating one for each mouse move event).
 	m_pSampleEditor->moveEnvelopePoint(
