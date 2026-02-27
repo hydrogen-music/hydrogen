@@ -681,7 +681,10 @@ for:
           REM *** Deploy Qt ***
           set "DEPLOY_ARGS=--no-patchqt --dir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs"
 
-          %QTDIR%\bin\windeployqt.exe %DEPLOY_ARGS% src/gui/hydrogen.exe
+          dir %QTDIR%
+          dir %QTDIR%\bin
+
+          %QTDIR%\bin\windeployqt-qt5.exe %DEPLOY_ARGS% src/gui/hydrogen.exe
 
           REM *** Deploy other libraries ***
           set PYTHON=C:\Python38\python
