@@ -215,7 +215,9 @@ HydrogenApp::~HydrogenApp()
 	delete m_pPlaylistEditor;
 	delete m_pDirector;
 	delete m_pFooter;
-	delete m_pSampleEditor;
+    if ( m_pSampleEditor != nullptr ) {
+        delete m_pSampleEditor;
+    }
 
 	if ( m_pTab ) {
 		delete m_pTab;
@@ -911,10 +913,11 @@ void HydrogenApp::showSampleEditor(
 		QApplication::restoreOverrideCursor();
 	}
 
-	QApplication::setOverrideCursor(Qt::WaitCursor);
 	m_pSampleEditor = new SampleEditor( nullptr, pLayer, pComponent, pInstrument );
-	m_pSampleEditor->show();
-	QApplication::restoreOverrideCursor();
+	m_pSampleEditor->exec();
+
+    delete m_pSampleEditor;
+    m_pSampleEditor = nullptr;
 }
 
 ComponentEditor* HydrogenApp::getComponentEditor() const
