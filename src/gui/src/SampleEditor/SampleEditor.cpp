@@ -1128,22 +1128,33 @@ void SampleEditor::drumkitLoadedEvent()
 
 void SampleEditor::closeEvent( QCloseEvent* event )
 {
-	if ( !m_bSampleEditorClean ) {
-		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-		if ( QMessageBox::information(
-				 this, "Hydrogen", pCommonStrings->getUnsavedChanges(),
-				 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel
-			 ) == QMessageBox::Ok ) {
-			setClean();
-			accept();
-		}
-		else {
-			event->ignore();
-			return;
-		}
-	}
-	else {
+	if ( m_bSampleEditorClean ) {
 		accept();
+		return;
+	}
+
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	QMessageBox messageBox( this );
+	messageBox.setWindowTitle( "Hydrogen" );
+	messageBox.setText( pCommonStrings->getUnsavedChanges() );
+	messageBox.setTextFormat( Qt::RichText );
+
+	auto pDiscardButton = messageBox.addButton(
+		pCommonStrings->getButtonDiscard(), QMessageBox::YesRole
+	);
+	auto pRejectButton = messageBox.addButton(
+		pCommonStrings->getButtonCancel(), QMessageBox::RejectRole
+	);
+	messageBox.exec();
+
+	if ( messageBox.clickedButton() == pDiscardButton ) {
+		setClean();
+		accept();
+	}
+	else if ( messageBox.clickedButton() == pRejectButton ) {
+		event->ignore();
+		return;
 	}
 }
 
