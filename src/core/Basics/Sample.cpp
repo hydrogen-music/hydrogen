@@ -978,19 +978,19 @@ QString Sample::Rubberband::toQString( const QString& sPrefix, bool bShort )
 	if ( !bShort ) {
 		sOutput = QString( "%1[Rubberband]\n" )
 					  .arg( sPrefix )
-					  .append( QString( "%1%2use: %3\n" )
+					  .append( QString( "%1%2bUse: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
 								   .arg( bUse ) )
-					  .append( QString( "%1%2divider: %3\n" )
+					  .append( QString( "%1%2fLengthInBeats: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
 								   .arg( fLengthInBeats ) )
-					  .append( QString( "%1%2pitch: %3\n" )
+					  .append( QString( "%1%2fSemitonesToShift: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
 								   .arg( fSemitonesToShift ) )
-					  .append( QString( "%1%2c_settings: %3\n" )
+					  .append( QString( "%1%2nCrispness: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
 								   .arg( nCrispness ) );
@@ -998,10 +998,12 @@ QString Sample::Rubberband::toQString( const QString& sPrefix, bool bShort )
 	else {
 		sOutput =
 			QString( "[Rubberband]" )
-				.append( QString( " use: %1" ).arg( bUse ) )
-				.append( QString( ", divider: %1" ).arg( fLengthInBeats ) )
-				.append( QString( ", pitch: %1" ).arg( fSemitonesToShift ) )
-				.append( QString( ", c_settings: %1" ).arg( nCrispness ) );
+				.append( QString( " bUse: %1" ).arg( bUse ) )
+				.append( QString( ", fLengthInBeats: %1" ).arg( fLengthInBeats )
+				)
+				.append( QString( ", fSemitonesToShift: %1" )
+							 .arg( fSemitonesToShift ) )
+				.append( QString( ", nCrispness: %1" ).arg( nCrispness ) );
 	}
 	return sOutput;
 }
