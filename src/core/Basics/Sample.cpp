@@ -597,15 +597,6 @@ void Sample::applyRubberband( float fBpm )
 	float* out_data_l_tmp;
 	float* out_data_r_tmp;
 
-	DEBUGLOG(
-		QString( "on %1\n\toptions\t\t: %2\n\ttime ratio\t: %3\n\tpitch\t\t: %4"
-		)
-			.arg( getFileName() )
-			.arg( options )
-			.arg( time_ratio )
-			.arg( pitch_scale )
-	);
-
 	float* ibuf[2];
 	int block_size = MAX_BUFFER_SIZE;
 
