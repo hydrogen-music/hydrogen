@@ -883,8 +883,8 @@ public:
 
 /** Instruments are self-contained units within a #H2Core::Drumkit. Each
  * #H2Core::Note carries a shared pointer to the #H2Core::Instrument used to
- * render it. Due to the latter we have to be careful when changing members an
- * instrument, like adding/moving/removing #H2Core::InstrumentComponent or
+ * render it. Due to the latter we have to be careful when changing members of
+ * an instrument, like adding/moving/removing #H2Core::InstrumentComponent or
  * #H2Core::InstrumentLayer. Instead, we just replace the instrument as a whole
  * in the drumkit. This way the one stored in the #H2Core::Note within the queue
  * of #H2Core::AudioEngine and #H2Core::Sampler is still valid. */
