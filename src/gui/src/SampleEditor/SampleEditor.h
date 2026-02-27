@@ -231,7 +231,7 @@ class SampleEditor : public QDialog,
 	QTimer* m_pSampleUpdateTimer;
 	bool m_bRetriggerRequired;
 	bool m_bLayerReloadRequired;
-	float m_fRatio;
+	double m_fIncrementScaling;
 
 	H2Core::Sample::Loops m_loops;
 	H2Core::Sample::Rubberband m_rubberband;

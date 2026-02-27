@@ -101,7 +101,7 @@ SampleEditor::SampleEditor(
 	  m_bSampleEditorClean( true ),
 	  m_bRetriggerRequired( false ),
 	  m_bLayerReloadRequired( false ),
-	  m_fRatio( 1.0f ),
+	  m_fIncrementScaling( 1.0f ),
 	  m_envelopeType( EnvelopeType::Velocity )
 {
 	if ( pInstrument == nullptr || pComponent == nullptr || pLayer == nullptr ||
@@ -1197,11 +1197,7 @@ void SampleEditor::startPlayback( Playback playback )
 			m_pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT,
 			LENGTH_ENTIRE_SAMPLE
 		);
-		nSampleLength = static_cast<long long>(
-			static_cast<double>( m_pSample->getFrames() ) *
-				static_cast<double>( m_fRatio ) +
-			0.1
-		);
+		nSampleLength = static_cast<long long>( m_pSample->getFrames() );
 	}
 	else {
 		pNote = std::make_shared<Note>(
@@ -1223,6 +1219,7 @@ void SampleEditor::startPlayback( Playback playback )
 
 	if ( m_playback == Playback::Original ) {
 		m_nPlayheadSample = 0;
+		m_fIncrementScaling = 1.0;
 	}
 	else {
 		m_nLoopFrames =
@@ -1231,6 +1228,11 @@ void SampleEditor::startPlayback( Playback playback )
 		m_nPlayheadSample = static_cast<long long>( m_loops.nStartFrame );
 		m_nPlayheadTarget = 0;
 		m_pTargetSampleView->update();
+		m_fIncrementScaling = static_cast<double>(
+								  m_loops.nEndFrame - m_loops.nStartFrame +
+								  m_loops.nCount * m_nLoopFrames
+							  ) /
+							  static_cast<double>( m_pSample->getFrames() );
 	}
 	m_nTotalPlaybackFrames = nSampleLength;
 	updateSourceWaveDisplays();
@@ -1305,13 +1307,19 @@ void SampleEditor::updateTransport()
 		stopPlayback();
 		return;
 	}
-	const long long nIncrement = nRealtimeFrame - m_nLastRealtimeFrame;
 
-	if ( m_playback == Playback::Original ||
-		 ( m_looped == Looped::NotYet &&
-		   m_nPlayheadSample + nIncrement <= m_loops.nEndFrame ) ) {
+	const long long nIncrementScaled = static_cast<long long>(
+		static_cast<float>( nRealtimeFrame - m_nLastRealtimeFrame ) *
+		m_fIncrementScaling
+	);
+	if ( m_playback == Playback::Original ) {
+		m_nPlayheadSample += nRealtimeFrame - m_nLastRealtimeFrame;
+	}
+	else if ( m_looped == Looped::NotYet &&
+              m_nPlayheadSample + nRealtimeFrame -
+              m_nLastRealtimeFrame <= m_loops.nEndFrame ) {
 		// Still in the initial pass over the sample
-		m_nPlayheadSample += nIncrement;
+		m_nPlayheadSample += nIncrementScaled;
 	}
 	else {
 		// Transport already reached the end of the original sample.
@@ -1330,34 +1338,36 @@ void SampleEditor::updateTransport()
 
 		bool bRequiresLooping = false;
 		if ( m_loops.mode == Sample::Loops::Mode::Forward ) {
-			if ( m_nPlayheadSample + nIncrement > m_loops.nEndFrame ) {
+			if ( m_nPlayheadSample + nIncrementScaled > m_loops.nEndFrame ) {
 				const long long nFramesSinceLoopPoint =
-					m_nPlayheadSample + nIncrement - m_loops.nLoopFrame;
+					m_nPlayheadSample + nIncrementScaled - m_loops.nLoopFrame;
 				m_nPlayheadSample = m_loops.nLoopFrame +
 									( nFramesSinceLoopPoint ) % m_nLoopFrames;
 			}
 			else {
-				m_nPlayheadSample += nIncrement;
+				m_nPlayheadSample += nIncrementScaled;
 			}
 		}
 		else if ( m_loops.mode == Sample::Loops::Mode::Reverse ) {
-			if ( m_nPlayheadSample - nIncrement < m_loops.nLoopFrame ) {
+			if ( m_nPlayheadSample - nIncrementScaled < m_loops.nLoopFrame ) {
 				const long long nFramesSinceLoopPoint =
-					m_loops.nEndFrame - m_nPlayheadSample + nIncrement;
+					m_loops.nEndFrame - m_nPlayheadSample + nIncrementScaled;
 				m_nPlayheadSample = m_loops.nEndFrame -
 									( nFramesSinceLoopPoint ) % m_nLoopFrames;
 			}
 			else {
-				m_nPlayheadSample -= nIncrement;
+				m_nPlayheadSample -= nIncrementScaled;
 			}
 		}
 		else {
 			// Ping pong
 			if ( m_looped == Looped::Reverse ) {
 				// playhead moves backward
-				if ( m_nPlayheadSample - nIncrement < m_loops.nLoopFrame ) {
-					const long long nRemainingFrames =
-						m_loops.nLoopFrame - m_nPlayheadSample + nIncrement;
+				if ( m_nPlayheadSample - nIncrementScaled <
+					 m_loops.nLoopFrame ) {
+					const long long nRemainingFrames = m_loops.nLoopFrame -
+													   m_nPlayheadSample +
+													   nIncrementScaled;
 					const int nTotalLoops =
 						std::floor( nRemainingFrames / m_nLoopFrames );
 					if ( nTotalLoops == 0 || nTotalLoops % 2 == 0 ) {
@@ -1371,14 +1381,16 @@ void SampleEditor::updateTransport()
 					}
 				}
 				else {
-					m_nPlayheadSample -= nIncrement;
+					m_nPlayheadSample -= nIncrementScaled;
 				}
 			}
 			else {
 				// playhead moves forward
-				if ( m_nPlayheadSample + nIncrement > m_loops.nEndFrame ) {
-					const long long nRemainingFrames =
-						m_nPlayheadSample + nIncrement - m_loops.nEndFrame;
+				if ( m_nPlayheadSample + nIncrementScaled >
+					 m_loops.nEndFrame ) {
+					const long long nRemainingFrames = m_nPlayheadSample +
+													   nIncrementScaled -
+													   m_loops.nEndFrame;
 					const int nTotalLoops =
 						std::floor( nRemainingFrames / m_nLoopFrames );
 					if ( nTotalLoops == 0 || nTotalLoops % 2 == 0 ) {
@@ -1392,7 +1404,7 @@ void SampleEditor::updateTransport()
 					}
 				}
 				else {
-					m_nPlayheadSample += nIncrement;
+					m_nPlayheadSample += nIncrementScaled;
 				}
 			}
 		}
@@ -1400,7 +1412,7 @@ void SampleEditor::updateTransport()
 
 	updateSourceWaveDisplays();
 	if ( m_playback == Playback::Target ) {
-		m_nPlayheadTarget += nIncrement;
+		m_nPlayheadTarget += nRealtimeFrame - m_nLastRealtimeFrame;
 		m_pTargetSampleView->update();
 	}
 
@@ -1574,19 +1586,18 @@ void SampleEditor::reloadLayer()
 
 void SampleEditor::checkRubberbandSettings()
 {
+	const double fSampleRate = static_cast<double>( Hydrogen::get_instance()
+														->getAudioEngine()
+														->getAudioDriver()
+														->getSampleRate() );
 	// calculate ratio
-	const double fDuration =
-		60.0 /
-		Hydrogen::get_instance()->getAudioEngine()->getPlayhead()->getBpm() *
-		m_rubberband.fLengthInBeats;
-	const double fInDuration =
-		static_cast<double>( m_pSample->getFrames() ) /
-		static_cast<double>( m_pSample->getSampleRate() );
-	if ( fInDuration != 0.0 && m_rubberband.bUse ) {
-		m_fRatio = fDuration / fInDuration;
+	double fRatio;
+	if ( m_rubberband.bUse ) {
+		fRatio = static_cast<double>( m_pSample->getFrames() ) /
+				 static_cast<double>( m_pSampleOriginal->getFrames() );
 	}
 	else {
-		m_fRatio = 1;
+		fRatio = 1;
 	}
 
 	// my personal ratio quality settings
@@ -1597,12 +1608,12 @@ void SampleEditor::checkRubberbandSettings()
 	//          0.1        0.5               2.0            3.0
 	//<---red---[--yellow--[------green------]----yellow----]---red--->
 
-	if ( ( m_fRatio >= 0.5 ) && ( m_fRatio <= 2.0 ) ) {
+	if ( ( fRatio >= 0.5 ) && ( fRatio <= 2.0 ) ) {
 		m_pRubberBandLengthComboBox->setStyleSheet(
 			"QComboBox { background-color: green; }"
 		);
 	}
-	else if ( ( m_fRatio >= 0.1 ) && ( m_fRatio <= 3.0 ) ) {
+	else if ( ( fRatio >= 0.1 ) && ( fRatio <= 3.0 ) ) {
 		m_pRubberBandLengthComboBox->setStyleSheet(
 			"QComboBox { background-color: yellow; }"
 		);
@@ -1620,7 +1631,7 @@ void SampleEditor::checkRubberbandSettings()
 	else {
 		m_pRubberBandRatioLabel->setText(
 			QString( tr( " RB-Ratio" ) )
-				.append( QString( ": %1" ).arg( m_fRatio ) )
+				.append( QString( ": %1" ).arg( fRatio ) )
 		);
 	}
 
