@@ -27,6 +27,7 @@
 #include <QtWidgets>
 #include <memory>
 
+#include "../EventListener.h"
 #include "../Widgets/EditorDefs.h"
 
 #include <core/AudioEngine/AudioEngine.h>
@@ -53,7 +54,9 @@ class TargetWaveDisplay;
 /// This dialog is used to preview audiofiles
 ///
 /** \ingroup docGUI*/
-class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
+class SampleEditor : public QDialog,
+					 public EventListener,
+					 public H2Core::Object<SampleEditor> {
 	H2_OBJECT( SampleEditor )
 	Q_OBJECT
    public:
@@ -119,6 +122,9 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 		SampleEditor::EnvelopeType envelopeType
 	);
 
+	/** EventListener interface */
+	void drumkitLoadedEvent() override;
+
    private:
 	enum class Playback { None, Target, Original };
 
@@ -134,9 +140,9 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	void setUnclean();
 	void setClean();
 	void updateSourceWaveDisplays();
-	void createNewLayer();
 	void triggerSampleUpdate();
 	void updateSample();
+	void reloadLayer();
 	void checkRubberbandSettings();
 	/** Since this dialog is a modal, we do not have to care about updating the
 	 * style sheet in case the theme is changed in the preferences dialog. */
@@ -224,6 +230,7 @@ class SampleEditor : public QDialog, public H2Core::Object<SampleEditor> {
 	 * #SampleUpdateTimeout ms before performing the update. */
 	QTimer* m_pSampleUpdateTimer;
 	bool m_bRetriggerRequired;
+	bool m_bLayerReloadRequired;
 	float m_fRatio;
 
 	H2Core::Sample::Loops m_loops;
