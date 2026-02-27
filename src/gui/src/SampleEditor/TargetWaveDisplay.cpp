@@ -365,25 +365,31 @@ void TargetWaveDisplay::updateMouseSelection( QMouseEvent* ev )
 		QPoint mousePoint(
 			m_nSelectedEnvelopePointX, m_nSelectedEnvelopePointY
 		);
-		int selection = -1;
-		int min_distance = 1000000;
-		for ( int i = 0; i < static_cast<int>( envelope.size() ); i++ ) {
-			if ( envelope[i].nFrame >=
+		int nSelection = -1;
+		int nMinDistance = 1000000;
+		for ( int ii = 0; ii < static_cast<int>( envelope.size() ); ii++ ) {
+			if ( envelope[ii].nFrame >=
 					 m_nSelectedEnvelopePointX - m_nSnapRadius &&
-				 envelope[i].nFrame <=
+				 envelope[ii].nFrame <=
 					 m_nSelectedEnvelopePointX + m_nSnapRadius ) {
-				QPoint envelopePoint( envelope[i].nFrame, envelope[i].nValue );
-				int delta = ( mousePoint - envelopePoint ).manhattanLength();
-				if ( delta < min_distance ) {
-					min_distance = delta;
-					selection = i;
+				QPoint envelopePoint(
+					envelope[ii].nFrame, envelope[ii].nValue
+				);
+				int nDelta = ( mousePoint - envelopePoint ).manhattanLength();
+				if ( nDelta < nMinDistance ) {
+					nMinDistance = nDelta;
+					nSelection = ii;
 				}
 			}
 		}
-		m_nSelectedEnvelopePoint = selection;
-		m_oldPoint = envelope[m_nSelectedEnvelopePoint];
+
+		m_nSelectedEnvelopePoint = nSelection;
+		if ( nSelection != -1 ) {
+			m_oldPoint = envelope[m_nSelectedEnvelopePoint];
+		}
 	}
-	if ( m_nSelectedEnvelopePoint == -1 ) {
+	if ( m_nSelectedEnvelopePoint < 0 ||
+		 m_nSelectedEnvelopePoint >= envelope.size() ) {
 		m_sSelectedEnvelopePointValue = "";
 	}
 	else {
