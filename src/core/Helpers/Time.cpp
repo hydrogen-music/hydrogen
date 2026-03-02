@@ -29,7 +29,7 @@
 
 namespace H2Core {
 	QString timePointToQString( const TimePoint& timePoint ) {
-#ifdef Q_OS_MACX
+#ifndef HAVE_HIGH_RESOLUTION_CLOCK
 		// We do not use `Clock` defined above since `high_resolution_clock` on
 		// macOS is an alias for `steady_clock`, which - in contrast to
 		// `system_clock` - does not have a `to_time_t` member.

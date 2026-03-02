@@ -416,6 +416,21 @@ if(WIN32)
     set(CMAKE_COLOR_MAKEFILE OFF)
 endif()
 
+include(CheckSourceCompiles)
+check_source_compiles(CXX [[
+  #include <chrono>
+  int main()
+  {
+    auto now = std::chrono::high_resolution_clock::now();
+    auto test = std::chrono::high_resolution_clock::to_time_t(now);
+    return 0;
+  }
+]] HAVE_HIGH_RESOLUTION_CLOCK)
+
+if(HAVE_HIGH_RESOLUTION_CLOCK)
+    add_compile_definitions(HAVE_HIGH_RESOLUTION_CLOCK=1)
+endif()
+
 #
 # CONFIG PROCESS SUMMARY
 #
