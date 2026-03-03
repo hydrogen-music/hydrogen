@@ -39,6 +39,7 @@
 #include "../Skin.h"
 #include "../UndoActions.h"
 #include "SampleEditor.h"
+#include "Widgets/EditorDefs.h"
 
 using namespace H2Core;
 
@@ -47,11 +48,10 @@ TargetWaveDisplay::TargetWaveDisplay( SampleEditor* pParent )
 	  m_pSampleEditor( pParent ),
 	  m_bEnabled( true ),
 	  m_sSelectedEnvelopePointValue( "" ),
-	  m_nSelectedEnvelopePointX( -10 ),
-	  m_nSelectedEnvelopePointY( -10 ),
-	  m_oldPoint( EnvelopePoint() ),
-	  m_nSelectedEnvelopePoint( -1 ),
-	  m_nSnapRadius( 6 )
+	  m_pHoveredPoint( nullptr ),
+	  m_pDragPoint( nullptr ),
+	  m_nDragStartX( 0 ),
+	  m_nDragStartY( 0 )
 {
 	setFixedSize( TargetWaveDisplay::nWidth, TargetWaveDisplay::nHeight );
 
@@ -68,56 +68,93 @@ TargetWaveDisplay::~TargetWaveDisplay()
 {
 }
 
-static void paintEnvelope(
+void TargetWaveDisplay::drawLine(
+	QPainter& p,
 	const std::vector<EnvelopePoint>& envelope,
-	QPainter& painter,
-	int selected,
-	const QColor& lineColor,
-	const QColor& handleColor
+	QColor color,
+	Style style
 )
 {
 	if ( envelope.empty() ) {
 		return;
 	}
+	QPen pen( color );
+	if ( style == Style::Background ) {
+		pen.setStyle( Qt::DotLine );
+	}
 
+	p.setPen( pen );
 	for ( int i = 0; i < static_cast<int>( envelope.size() ) - 1; i++ ) {
-		painter.setPen( QPen( lineColor, 1, Qt::SolidLine ) );
-		painter.drawLine(
+		p.drawLine(
 			envelope[i].nFrame, envelope[i].nValue, envelope[i + 1].nFrame,
 			envelope[i + 1].nValue
 		);
-		if ( i == selected ) {
-			painter.setBrush( handleColor.lighter( 150 ) );
+	}
+}
+
+void TargetWaveDisplay::drawPoint(
+	QPainter& p,
+	const EnvelopePoint& point,
+	QColor color,
+	Style style
+)
+{
+	QColor borderColor( Qt::black );
+	QPen pen( Qt::black );
+	QBrush brush( color );
+	if ( style == Style::Background ) {
+		pen.setStyle( Qt::DotLine );
+		brush.setStyle( Qt::Dense4Pattern );
+	}
+
+	if ( style == Style::Hovered || style == Style::Selected ) {
+		const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+		QColor highlightColor = pColorTheme->m_selectionHighlightColor;
+		if ( style == Style::Hovered ) {
+			if ( Skin::moreBlackThanWhite( highlightColor ) ) {
+				highlightColor = highlightColor.lighter( 125 );
+			}
+			else {
+				highlightColor = highlightColor.darker( 125 );
+			}
+		}
+
+		p.setPen( highlightColor );
+		p.setBrush( highlightColor );
+		if ( point.nFrame == 0 || point.nFrame == TargetWaveDisplay::nWidth ) {
+			p.drawRect(
+				point.nFrame - TargetWaveDisplay::nPointWidth - 2,
+				point.nValue - TargetWaveDisplay::nPointWidth / 2 - 2,
+				TargetWaveDisplay::nPointWidth * 2 + 4,
+				TargetWaveDisplay::nPointWidth + 4
+			);
 		}
 		else {
-			painter.setBrush( handleColor );
+			p.drawEllipse(
+				point.nFrame - TargetWaveDisplay::nPointWidth / 2 - 2,
+				point.nValue - TargetWaveDisplay::nPointWidth / 2 - 2,
+				TargetWaveDisplay::nPointWidth + 4,
+				TargetWaveDisplay::nPointWidth + 4
+			);
 		}
-		painter.drawEllipse(
-			envelope[i].nFrame - 6 / 2, envelope[i].nValue - 6 / 2, 6, 6
+	}
+
+	p.setPen( pen );
+	p.setBrush( brush );
+	if ( point.nFrame == 0 || point.nFrame == TargetWaveDisplay::nWidth ) {
+		p.drawRect(
+			point.nFrame - TargetWaveDisplay::nPointWidth,
+			point.nValue - TargetWaveDisplay::nPointWidth / 2,
+			TargetWaveDisplay::nPointWidth * 2, TargetWaveDisplay::nPointWidth
 		);
 	}
-
-	// draw first and last points as squares
-	if ( 0 == selected ) {
-		painter.setBrush( handleColor.lighter( 150 ) );
-	}
 	else {
-		painter.setBrush( handleColor );
+		p.drawEllipse(
+			point.nFrame - TargetWaveDisplay::nPointWidth / 2,
+			point.nValue - TargetWaveDisplay::nPointWidth / 2,
+			TargetWaveDisplay::nPointWidth, TargetWaveDisplay::nPointWidth
+		);
 	}
-	painter.drawRect(
-		envelope[0].nFrame - 12 / 2, envelope[0].nValue - 6 / 2, 12, 6
-	);
-
-	if ( envelope.size() - 1 == selected ) {
-		painter.setBrush( handleColor.lighter( 150 ) );
-	}
-	else {
-		painter.setBrush( handleColor );
-	}
-	painter.drawRect(
-		envelope[envelope.size() - 1].nFrame - 12 / 2,
-		envelope[envelope.size() - 1].nValue - 6 / 2, 12, 6
-	);
 }
 
 void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
@@ -127,11 +164,58 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 	}
 
 	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	QColor velocityColor( pColorTheme->m_sampleEditor_velocityEnvelopeColor );
+	QColor panColor( pColorTheme->m_sampleEditor_panEnvelopeColor );
+	const QColor selectionColor = pColorTheme->m_selectionHighlightColor;
+	QColor hoverColor;
+	if ( Skin::moreBlackThanWhite( selectionColor ) ) {
+		hoverColor = selectionColor.lighter( 115 );
+	}
+	else {
+		hoverColor = selectionColor.darker( 115 );
+	}
 
+	if ( !m_bEnabled ) {
+		velocityColor = Skin::makeWidgetColorInactive( velocityColor );
+		panColor = Skin::makeWidgetColorInactive( panColor );
+	}
+
+	bool bVelocity = m_pSampleEditor->getEnvelopeType() ==
+					 SampleEditor::EnvelopeType::Velocity;
+	const auto envelopeBackground =
+		bVelocity ? m_pSampleEditor->getPanEnvelope()
+				  : m_pSampleEditor->getVelocityEnvelope();
+	auto envelopeForeground = bVelocity ? m_pSampleEditor->getVelocityEnvelope()
+										: m_pSampleEditor->getPanEnvelope();
+    const auto colorForeground = bVelocity ? velocityColor : panColor;
+    const auto colorBackground = bVelocity ? panColor : velocityColor;
+	if ( m_pDragPoint != nullptr ) {
+		const int nFrame = m_nDragStartX;
+
+		// Make a deep pcopy of the envelope and add the new point. This is
+		// expensive, but we do not want this transient point to leak into it.
+		std::vector<EnvelopePoint> newEnvelope;
+		for ( const auto& ppoint : envelopeForeground ) {
+			if ( ppoint.nFrame != nFrame ) {
+				newEnvelope.push_back( ppoint );
+			}
+		}
+		newEnvelope.push_back(
+			EnvelopePoint( m_pDragPoint->nFrame, m_pDragPoint->nValue )
+		);
+		sort(
+			newEnvelope.begin(), newEnvelope.end(), EnvelopePoint::Comparator()
+		);
+		envelopeForeground = newEnvelope;
+	}
+
+	// Draw background
 	WaveDisplay::paintEvent( ev );
 
 	QPainter p( this );
+	p.setRenderHint( QPainter::Antialiasing );
 
+	// Draw playhead
 	p.setPen(
 		QPen( pColorTheme->m_sampleEditor_playheadColor, 1, Qt::SolidLine )
 	);
@@ -146,81 +230,71 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 	}
 	p.drawLine( nPlayheadX, 4, nPlayheadX, height() - 4 );
 
-	QColor velocityLineColor( pColorTheme->m_sampleEditor_velocityEnvelopeColor
-	);
-	QColor panLineColor( pColorTheme->m_sampleEditor_panEnvelopeColor );
-
-	if ( !m_bEnabled ) {
-		velocityLineColor = Skin::makeWidgetColorInactive( velocityLineColor );
-		panLineColor = Skin::makeWidgetColorInactive( panLineColor );
+	// Draw envelopes (start with the background one)
+	drawLine( p, envelopeBackground, colorBackground, Style::Background );
+	for ( const auto& ppoint : envelopeBackground ) {
+		drawPoint( p, ppoint, colorBackground, Style::Background );
 	}
 
-	if ( m_pSampleEditor->getEnvelopeType() ==
-		 SampleEditor::EnvelopeType::Velocity ) {
-		velocityLineColor.setAlpha( SampleEditor::nColorAlpha );
-		panLineColor.setAlpha( SampleEditor::nColorAlpha - 50 );
-	}
-	else {
-		velocityLineColor.setAlpha( SampleEditor::nColorAlpha - 50 );
-		panLineColor.setAlpha( SampleEditor::nColorAlpha );
+	drawLine( p, envelopeForeground, colorForeground, Style::None );
+	for ( const auto& ppoint : envelopeForeground ) {
+		drawPoint( p, ppoint, colorForeground, Style::None );
 	}
 
-	paintEnvelope(
-		m_pSampleEditor->getVelocityEnvelope(), p,
-		m_pSampleEditor->getEnvelopeType() ==
-				SampleEditor::EnvelopeType::Velocity
-			? m_nSelectedEnvelopePoint
-			: -1,
-		velocityLineColor, velocityLineColor
-	);
-	paintEnvelope(
-		m_pSampleEditor->getPanEnvelope(), p,
-		m_pSampleEditor->getEnvelopeType() == SampleEditor::EnvelopeType::Pan
-			? m_nSelectedEnvelopePoint
-			: -1,
-		panLineColor, panLineColor
-	);
+	// Draw highlight of dragged or hovered note
+	if ( m_pDragPoint != nullptr ) {
+		drawPoint( p, *m_pDragPoint.get(), colorForeground, Style::Selected );
+	}
+	else if ( m_pHoveredPoint != nullptr ) {
+		// Since the dragged point is always hovered, we can separate the two.
+		drawPoint( p, *m_pHoveredPoint.get(), colorForeground, Style::Hovered );
+	}
 
-	if ( !m_sSelectedEnvelopePointValue.isEmpty() ) {
+	if ( m_pDragPoint != nullptr || m_pHoveredPoint != nullptr ) {
+		QPoint point;
+		if ( m_pDragPoint != nullptr ) {
+			point = QPoint( m_pDragPoint->nFrame, m_pDragPoint->nValue );
+		}
+		else if ( m_pHoveredPoint != nullptr ) {
+			point = QPoint( m_pHoveredPoint->nFrame, m_pHoveredPoint->nValue );
+		}
+
 		QFont font;
 		font.setWeight( QFont::Bold );
 		p.setFont( font );
-		p.setPen(
-			m_pSampleEditor->getEnvelopeType() ==
-					SampleEditor::EnvelopeType::Velocity
-				? pColorTheme->m_sampleEditor_velocityEnvelopeColor
-				: pColorTheme->m_sampleEditor_panEnvelopeColor
+		p.setPen( colorForeground );
+
+		const QString sText = QString( "%1" ).arg(
+			static_cast<float>( TargetWaveDisplay::nHeight - point.y() ) /
+				static_cast<float>( TargetWaveDisplay::nHeight ),
+			0, 'g', 2
 		);
 
-		if ( m_nSelectedEnvelopePointY < 50 ) {
-			if ( m_nSelectedEnvelopePointX < 790 ) {
+		if ( point.y() < 50 ) {
+			if ( point.x() < 790 ) {
 				p.drawText(
-					m_nSelectedEnvelopePointX + 5, m_nSelectedEnvelopePointY,
-					60, 20, Qt::AlignLeft,
-					QString( m_sSelectedEnvelopePointValue )
+					point.x() + 5, point.y(), 60, 20, Qt::AlignLeft,
+					QString( sText )
 				);
 			}
 			else {
 				p.drawText(
-					m_nSelectedEnvelopePointX - 65, m_nSelectedEnvelopePointY,
-					60, 20, Qt::AlignRight,
-					QString( m_sSelectedEnvelopePointValue )
+					point.x() - 65, point.y(), 60, 20, Qt::AlignRight,
+					QString( sText )
 				);
 			}
 		}
 		else {
-			if ( m_nSelectedEnvelopePointX < 790 ) {
+			if ( point.x() < 790 ) {
 				p.drawText(
-					m_nSelectedEnvelopePointX + 5,
-					m_nSelectedEnvelopePointY - 20, 60, 20, Qt::AlignLeft,
-					QString( m_sSelectedEnvelopePointValue )
+					point.x() + 5, point.y() - 20, 60, 20, Qt::AlignLeft,
+					QString( sText )
 				);
 			}
 			else {
 				p.drawText(
-					m_nSelectedEnvelopePointX - 65,
-					m_nSelectedEnvelopePointY - 20, 60, 20, Qt::AlignRight,
-					QString( m_sSelectedEnvelopePointValue )
+					point.x() - 65, point.y() - 20, 60, 20, Qt::AlignRight,
+					QString( sText )
 				);
 			}
 		}
@@ -359,117 +433,71 @@ void TargetWaveDisplay::updatePeakData()
 	update();
 }
 
-void TargetWaveDisplay::updateMouseSelection( QMouseEvent* ev )
-{
-	auto pEv = static_cast<MouseEvent*>( ev );
-
-	const auto envelope = m_pSampleEditor->getCurrentEnvelope();
-
-	m_nSelectedEnvelopePointX = std::min(
-		TargetWaveDisplay::nWidth,
-		std::max( 0, static_cast<int>( pEv->position().x() ) )
-	);
-	m_nSelectedEnvelopePointY = std::min(
-		TargetWaveDisplay::nHeight,
-		std::max( 0, static_cast<int>( pEv->position().y() ) )
-	);
-
-	if ( !( ev->buttons() & Qt::LeftButton ) ||
-		 m_nSelectedEnvelopePoint == -1 ) {
-		QPoint mousePoint(
-			m_nSelectedEnvelopePointX, m_nSelectedEnvelopePointY
-		);
-		int nSelection = -1;
-		int nMinDistance = 1000000;
-		for ( int ii = 0; ii < static_cast<int>( envelope.size() ); ii++ ) {
-			if ( envelope[ii].nFrame >=
-					 m_nSelectedEnvelopePointX - m_nSnapRadius &&
-				 envelope[ii].nFrame <=
-					 m_nSelectedEnvelopePointX + m_nSnapRadius ) {
-				QPoint envelopePoint(
-					envelope[ii].nFrame, envelope[ii].nValue
-				);
-				int nDelta = ( mousePoint - envelopePoint ).manhattanLength();
-				if ( nDelta < nMinDistance ) {
-					nMinDistance = nDelta;
-					nSelection = ii;
-				}
-			}
-		}
-
-		m_nSelectedEnvelopePoint = nSelection;
-		if ( nSelection != -1 ) {
-			m_oldPoint = envelope[m_nSelectedEnvelopePoint];
-		}
-	}
-	if ( m_nSelectedEnvelopePoint < 0 ||
-		 m_nSelectedEnvelopePoint >= envelope.size() ) {
-		m_sSelectedEnvelopePointValue = "";
-	}
-	else {
-		float info = ( TargetWaveDisplay::nHeight -
-					   envelope[m_nSelectedEnvelopePoint].nValue ) /
-					 (float) TargetWaveDisplay::nHeight;
-		m_sSelectedEnvelopePointValue.setNum( info, 'g', 2 );
-	}
-}
-
-void TargetWaveDisplay::updateEnvelope()
-{
-	if ( m_nSelectedEnvelopePoint == -1 ) {
-		return;
-	}
-
-	const auto envelope = m_pSampleEditor->getCurrentEnvelope();
-
-	if ( m_nSelectedEnvelopePoint == 0 ) {
-		m_nSelectedEnvelopePointX = 0;
-	}
-	else if ( m_nSelectedEnvelopePoint == envelope.size() - 1 ) {
-		m_nSelectedEnvelopePointX = TargetWaveDisplay::nWidth;
-	}
-
-	// Only a single point is allowed per frame in the envelope. Ensure, that we
-	// do not overwrite another while moving. Deleting should be an explicit
-	// action.
-	if ( envelope[m_nSelectedEnvelopePoint].nFrame !=
-		 m_nSelectedEnvelopePointX ) {
-		for ( const auto& ppoint : envelope ) {
-			if ( ppoint.nFrame == m_nSelectedEnvelopePointX ) {
-				return;
-			}
-		}
-	}
-
-	m_pSampleEditor->moveEnvelopePoint(
-		envelope[m_nSelectedEnvelopePoint],
-		EnvelopePoint( m_nSelectedEnvelopePointX, m_nSelectedEnvelopePointY ),
-		m_pSampleEditor->getEnvelopeType()
-	);
-
-	// Refresh the selection
-	const auto envelopeUpdated = m_pSampleEditor->getCurrentEnvelope();
-	for ( int ii = 0; ii < envelopeUpdated.size(); ++ii ) {
-		if ( envelopeUpdated[ii].nFrame == m_nSelectedEnvelopePointX &&
-			 envelopeUpdated[ii].nValue == m_nSelectedEnvelopePointY ) {
-			m_nSelectedEnvelopePoint = ii;
-		}
-	}
-}
-
 void TargetWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 {
 	if ( !m_bEnabled ) {
 		return;
 	}
 
-	updateMouseSelection( ev );
+	auto pEv = static_cast<MouseEvent*>( ev );
 
-	if ( !( ev->buttons() & Qt::LeftButton ) ) {
-		return;
+	const auto envelope = m_pSampleEditor->getCurrentEnvelope();
+
+	if ( m_pDragPoint == nullptr ) {
+		const auto hoveredPoints = getElementsAtPoint( ev->pos() );
+		if ( hoveredPoints.size() == 0 ) {
+			m_pHoveredPoint = nullptr;
+		}
+		else {
+			m_pHoveredPoint =
+				std::make_shared<EnvelopePoint>( hoveredPoints[0] );
+		}
+		m_sSelectedEnvelopePointValue = "";
 	}
-	updateEnvelope();
-	updateMouseSelection( ev );
+	else {
+		QPoint targetPoint(
+			std::clamp(
+				static_cast<int>( pEv->position().x() ), 0,
+				TargetWaveDisplay::nWidth
+			),
+			std::clamp(
+				static_cast<int>( pEv->position().y() ), 0,
+				TargetWaveDisplay::nHeight
+			)
+		);
+
+		if ( ( QPoint( m_pDragPoint->nFrame, m_pDragPoint->nValue ) -
+			   targetPoint )
+				 .manhattanLength() <= QApplication::startDragDistance() ) {
+			update();
+			return;
+		}
+
+		// The left and right-most points are anchored and can only be moved up
+		// and down.
+		if ( m_pDragPoint->nFrame == 0 ) {
+			targetPoint.setX( 0 );
+		}
+		else if ( m_pDragPoint->nFrame == TargetWaveDisplay::nWidth ) {
+			targetPoint.setX( TargetWaveDisplay::nWidth );
+		}
+
+		// Only a single point is allowed per frame in the envelope. Ensure,
+		// that we do not overwrite another while moving. Deleting should be an
+		// explicit action.
+		if ( m_pDragPoint->nFrame != targetPoint.x() ) {
+			for ( const auto& ppoint : envelope ) {
+				if ( ppoint.nFrame == targetPoint.x() ) {
+					update();
+					return;
+				}
+			}
+		}
+
+		m_pDragPoint->nFrame = targetPoint.x();
+		m_pDragPoint->nValue = targetPoint.y();
+	}
+	update();
 }
 
 void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
@@ -481,31 +509,33 @@ void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto envelope = m_pSampleEditor->getCurrentEnvelope();
 
-	updateMouseSelection( ev );
+	const auto hoveredPoints = getElementsAtPoint( ev->pos() );
 
-	if ( ev->button() == Qt::LeftButton && m_nSelectedEnvelopePoint == -1 ) {
+	if ( ev->button() == Qt::LeftButton && hoveredPoints.size() > 0 ) {
+		// Start dragging
+		m_pDragPoint = std::make_shared<EnvelopePoint>( hoveredPoints[0] );
+		m_nDragStartX = m_pDragPoint->nFrame;
+		m_nDragStartY = m_pDragPoint->nValue;
+	}
+	else if ( ev->button() == Qt::LeftButton && hoveredPoints.size() == 0 ) {
 		// add point
 		if ( envelope.empty() ) {
 			pHydrogenApp->beginUndoMacro(
 				pHydrogenApp->getCommonStrings()->getActionEditEnvelopePoint()
 			);
 			pHydrogenApp->pushUndoCommand( new SE_editEnvelopePointAction(
-				EnvelopePoint( 0, m_nSelectedEnvelopePointY ),
+				EnvelopePoint( 0, ev->pos().y() ),
 				m_pSampleEditor->getEnvelopeType(), Editor::Action::Add
 			) );
 			pHydrogenApp->pushUndoCommand( new SE_editEnvelopePointAction(
-				EnvelopePoint(
-					TargetWaveDisplay::nWidth, m_nSelectedEnvelopePointY
-				),
+				EnvelopePoint( TargetWaveDisplay::nWidth, ev->pos().y() ),
 				m_pSampleEditor->getEnvelopeType(), Editor::Action::Add
 			) );
 			pHydrogenApp->endUndoMacro();
 		}
 		else {
 			pHydrogenApp->pushUndoCommand( new SE_editEnvelopePointAction(
-				EnvelopePoint(
-					m_nSelectedEnvelopePointX, m_nSelectedEnvelopePointY
-				),
+				EnvelopePoint( ev->pos().x(), ev->pos().y() ),
 				m_pSampleEditor->getEnvelopeType(), Editor::Action::Add
 			) );
 		}
@@ -513,10 +543,10 @@ void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
 	else if ( ev->button() == Qt::RightButton ) {
 		// remove point
 
-		if ( m_nSelectedEnvelopePoint == -1 ||
+		if ( hoveredPoints.size() == 0 ||
 			 envelope.size() > 2 &&
-				 ( m_nSelectedEnvelopePoint == 0 ||
-				   m_nSelectedEnvelopePoint == envelope.size() - 1 ) ) {
+				 ( hoveredPoints[0].nFrame == 0 ||
+				   hoveredPoints[0].nFrame == TargetWaveDisplay::nWidth ) ) {
 			// do nothing if no point is selected
 			// don't remove first or last point if more than 2 points in
 			// envelope
@@ -524,7 +554,8 @@ void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
 			return;
 		}
 		else if ( envelope.size() == 2 ) {
-			// if only 2 points, remove them both
+			// if only 2 points, remove them both in order to reset the
+			// envelope.
 			pHydrogenApp->beginUndoMacro(
 				pHydrogenApp->getCommonStrings()->getActionEditEnvelopePoint()
 			);
@@ -540,43 +571,70 @@ void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
 		}
 		else {
 			pHydrogenApp->pushUndoCommand( new SE_editEnvelopePointAction(
-				envelope[m_nSelectedEnvelopePoint],
-				m_pSampleEditor->getEnvelopeType(), Editor::Action::Delete
+				hoveredPoints[0], m_pSampleEditor->getEnvelopeType(),
+				Editor::Action::Delete
 			) );
 		}
 	}
-
-	updateMouseSelection( ev );
+	update();
 }
 
 void TargetWaveDisplay::mouseReleaseEvent( QMouseEvent* ev )
 {
-	if ( !m_bEnabled ) {
+	if ( !m_bEnabled || m_pDragPoint == nullptr ) {
+		m_pDragPoint = nullptr;
 		return;
 	}
 
 	UNUSED( ev );
 
-	const auto envelope = m_pSampleEditor->getCurrentEnvelope();
+	const auto oldPoint = EnvelopePoint( m_nDragStartX, m_nDragStartY );
+	const auto newPoint =
+		EnvelopePoint( m_pDragPoint->nFrame, m_pDragPoint->nValue );
 
-	auto newPoint = envelope[m_nSelectedEnvelopePoint];
-
-	const QPoint start( newPoint.nFrame, newPoint.nValue );
-	const QPoint end( m_oldPoint.nFrame, m_oldPoint.nValue );
+	const QPoint start( oldPoint.nFrame, oldPoint.nValue );
+	const QPoint end( newPoint.nFrame, newPoint.nValue );
 	if ( ( end - start ).manhattanLength() <=
 		 QApplication::startDragDistance() ) {
+		m_pDragPoint = nullptr;
+		m_pHoveredPoint = nullptr;
+		update();
 		return;
 	}
 
-	// Revert the last action and register an overall undo/redo action (this is
-	// way more efficient than creating one for each mouse move event).
-	m_pSampleEditor->moveEnvelopePoint(
-		newPoint, m_oldPoint, m_pSampleEditor->getEnvelopeType()
-	);
-
 	HydrogenApp::get_instance()->pushUndoCommand(
 		new SE_moveEnvelopePointAction(
-			m_oldPoint, newPoint, m_pSampleEditor->getEnvelopeType()
+			oldPoint, newPoint, m_pSampleEditor->getEnvelopeType()
 		)
 	);
+
+	m_pDragPoint = nullptr;
+	m_pHoveredPoint = nullptr;
+	update();
+}
+
+std::vector<H2Core::EnvelopePoint> TargetWaveDisplay::getElementsAtPoint(
+	const QPoint& point
+)
+{
+	// We do not need a vector in here. Envelope points are guarantueed to be
+	// unique in terms of x position.
+	std::vector<EnvelopePoint> elementsAtPoint;
+
+	const auto envelope = m_pSampleEditor->getCurrentEnvelope();
+
+	int nLastDistance = width();
+
+	for ( const auto& eelement : envelope ) {
+		const QPoint ppoint( eelement.nFrame, eelement.nValue );
+		const int nDistance = ( point - ppoint ).manhattanLength();
+		if ( nDistance <= Editor::nDefaultCursorMargin &&
+			 nDistance < nLastDistance ) {
+			elementsAtPoint.clear();
+			elementsAtPoint.push_back( eelement );
+			nLastDistance = nDistance;
+		}
+	}
+
+	return std::move( elementsAtPoint );
 }

@@ -48,19 +48,36 @@ class TargetWaveDisplay : public WaveDisplay,
    public:
         static constexpr int nHeight = 91;
         static constexpr int nWidth = 841;
+        static constexpr int nPointWidth = 8;
 
 	explicit TargetWaveDisplay( SampleEditor* pParent );
 	~TargetWaveDisplay();
 
 	void setEnabled( bool bEnabled );
 
-	void paintEvent( QPaintEvent* ev ) override;
-
    private:
+	enum class Style { None, Hovered, Selected, Background };
+
 	void mouseMoveEvent( QMouseEvent* ev ) override;
 	void mousePressEvent( QMouseEvent* ev ) override;
 	void mouseReleaseEvent( QMouseEvent* ev ) override;
+	void paintEvent( QPaintEvent* ev ) override;
 
+	std::vector<H2Core::EnvelopePoint> getElementsAtPoint( const QPoint& point
+	);
+
+	void drawLine(
+		QPainter& painter,
+		const std::vector<H2Core::EnvelopePoint>& envelope,
+		QColor color,
+		Style style
+	);
+	void drawPoint(
+		QPainter& painter,
+		const H2Core::EnvelopePoint& point,
+		QColor color,
+		Style style
+	);
 	void drawPeakData() override;
 	/** Since we displaying pan automation on top of the peak data and want to
 	 * provide a visual feedback for the corresponding changes applied, we are
@@ -78,14 +95,13 @@ class TargetWaveDisplay : public WaveDisplay,
 	bool m_bEnabled;
 
 	QString m_sSelectedEnvelopePointValue;
-	int m_nSelectedEnvelopePointX;
-	int m_nSelectedEnvelopePointY;
 
 	/** Cache for undo/redo actions during drag moving. Otherwise, the operation
 	 * would be to inefficient. */
-	H2Core::EnvelopePoint m_oldPoint;
-
-	int m_nSnapRadius;
+	std::shared_ptr<H2Core::EnvelopePoint> m_pDragPoint;
+	std::shared_ptr<H2Core::EnvelopePoint> m_pHoveredPoint;
+	int m_nDragStartX;
+	int m_nDragStartY;
 
 	std::vector<int> m_peakDataL;
 	std::vector<int> m_peakDataR;
