@@ -1092,18 +1092,22 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 				pNote->setMidiNoteOffFrame(
 					nCurrentFrame + nInitialBufferPos +
 					TransportPosition::computeFrame(
-						pNote->getLength(), Hydrogen::get_instance()
-												->getAudioEngine()
-												->getTransportPosition()
-												->getTickSize()
+						pNote->getLength(),
+						pAudioEngine->getTransportPosition()->getTickSize()
 					)
 				);
 
 #if SAMPLER_DEBUG
-				INFOLOG( QString( "nCurrentFrame: [%1], Scheduling "
-								  "a Note-Off for [%2]" )
-							 .arg( nCurrentFrame )
-							 .arg( pNote->toQString() ) );
+				INFOLOG(
+					QString( "nCurrentFrame: [%1], Scheduling "
+							 "a Note-Off for [%2] using tick size [%3] "
+							 "and sample rate [%4]" )
+						.arg( nCurrentFrame )
+						.arg( pNote->toQString() )
+						.arg( pAudioEngine->getTransportPosition()->getTickSize(
+						) )
+						.arg( pAudioEngine->getAudioDriver()->getSampleRate() )
+				);
 #endif
 
 				m_scheduledNoteOffQueue.push( pNote );
