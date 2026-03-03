@@ -55,7 +55,7 @@
    <loopSliderColor>219,219,0</loopSliderColor>
    <endSliderColor>217,68,0</endSliderColor>
    <velocityEnvelopeColor>219,110,0</velocityEnvelopeColor>
-   <panEnvelopeColor>255,26,255</panEnvelopeColor>
+   <panEnvelopeColor>234,130,255</panEnvelopeColor>
   </sampleEditor>
   <selection>
    <highlightColor>255,255,255</highlightColor>
