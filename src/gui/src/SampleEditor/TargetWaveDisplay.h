@@ -46,9 +46,11 @@ class TargetWaveDisplay : public WaveDisplay,
 	Q_OBJECT
 
    public:
-        static constexpr int nHeight = 91;
-        static constexpr int nWidth = 841;
-        static constexpr int nPointWidth = 8;
+	static constexpr int nHeight = 91;
+	static constexpr int nWidth = 841;
+	static constexpr int nPointWidth = 8;
+	static constexpr int nToolTipHeight = 20;
+	static constexpr int nToolTipWidth = 40;
 
 	explicit TargetWaveDisplay( SampleEditor* pParent );
 	~TargetWaveDisplay();

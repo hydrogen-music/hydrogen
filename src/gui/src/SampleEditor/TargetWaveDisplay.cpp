@@ -259,10 +259,41 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 			point = QPoint( m_pHoveredPoint->nFrame, m_pHoveredPoint->nValue );
 		}
 
+		// We show the tool tip to the right of the cursor and at the same
+		// height. But we have move it to the left in case the cursor moves
+		// close to the right border.
+		const int nCursorWidth = 10;
+		int nStartX;
+		if ( point.x() < TargetWaveDisplay::nWidth -
+							 TargetWaveDisplay::nToolTipWidth - nCursorWidth ) {
+			// Toop tip to the right.
+			nStartX = std::max( nCursorWidth, point.x() + nCursorWidth );
+		}
+		else {
+			// Toop tip to the right.
+			nStartX = std::min(
+				TargetWaveDisplay::nWidth - TargetWaveDisplay::nToolTipWidth -
+					nCursorWidth,
+				point.x() - TargetWaveDisplay::nToolTipWidth - nCursorWidth
+			);
+		}
+		const QRect rect(
+			nStartX,
+			std::min(
+				point.y(),
+				TargetWaveDisplay::nHeight - TargetWaveDisplay::nToolTipHeight
+			),
+			TargetWaveDisplay::nToolTipWidth, TargetWaveDisplay::nToolTipHeight
+		);
+
 		QFont font;
 		font.setWeight( QFont::Bold );
 		p.setFont( font );
-		p.setPen( colorForeground );
+
+		const QColor textColor =
+			Skin::moreBlackThanWhite( colorForeground ) ? Qt::white : Qt::black;
+		p.setPen( textColor );
+		p.setBrush( colorForeground );
 
 		const QString sText = QString( "%1" ).arg(
 			static_cast<float>( TargetWaveDisplay::nHeight - point.y() ) /
@@ -270,34 +301,8 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 			0, 'g', 2
 		);
 
-		if ( point.y() < 50 ) {
-			if ( point.x() < 790 ) {
-				p.drawText(
-					point.x() + 5, point.y(), 60, 20, Qt::AlignLeft,
-					QString( sText )
-				);
-			}
-			else {
-				p.drawText(
-					point.x() - 65, point.y(), 60, 20, Qt::AlignRight,
-					QString( sText )
-				);
-			}
-		}
-		else {
-			if ( point.x() < 790 ) {
-				p.drawText(
-					point.x() + 5, point.y() - 20, 60, 20, Qt::AlignLeft,
-					QString( sText )
-				);
-			}
-			else {
-				p.drawText(
-					point.x() - 65, point.y() - 20, 60, 20, Qt::AlignRight,
-					QString( sText )
-				);
-			}
-		}
+		p.drawRect( rect );
+		p.drawText( rect, Qt::AlignCenter, sText );
 	}
 }
 
