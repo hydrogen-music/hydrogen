@@ -559,6 +559,12 @@ void MidiNoteTest::testSendNoteOff()
 		const bool bReturn = pSampler->noteOn( pCopiedNote );
 		pAudioEngine->unlock();
 
+		// Our Windows pipeline is extremely slow. Starting rendering of a note
+		// using Sampler::noteOn() followed by Sampler::releasePlayingNotes()
+		// might very well result in notes being discarded before they were
+		// handled.
+		std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+
 		return bReturn;
 	};
 
