@@ -565,7 +565,7 @@ QString PortMidiDriver::translatePmError( const PmError& err ) {
 	if ( err == pmHostError ) {
 		// Get OS-dependent part of the error messages, e.g. something
 		// went wrong in the underlying ALSA driver.
-		char *msg;
+		char msg[100];
 		Pm_GetHostErrorText( msg, 100 );
 		sRes.append( QString( ": [%1]" ).arg( msg ) );
 	}
