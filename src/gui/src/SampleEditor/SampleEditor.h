@@ -48,7 +48,7 @@ class LCDDisplay;
 class LCDCombo;
 class LCDSpinBox;
 class SampleWaveDisplay;
-class TargetWaveDisplay;
+class TargetSection;
 
 ///
 /// This dialog is used to preview audiofiles
@@ -65,7 +65,7 @@ class SampleEditor : public QDialog,
 	/** All overlays, like envelopes or sliders, will be map slightly
 	 * transparent. */
 	static constexpr int nColorAlpha = 200;
-	static constexpr int nHeight = 566;
+	static constexpr int nHeight = 657;
 	static constexpr int nWidth = 863;
 	/** Visual separation between two label-widget pairs. */
 	static constexpr int nSpacerWidth = 24;
@@ -174,7 +174,7 @@ class SampleEditor : public QDialog,
 	LCDDisplay* m_pNewLengthDisplay;
 	QComboBox* m_pEnvelopeComboBox;
 
-	TargetWaveDisplay* m_pTargetSampleView;
+	TargetSection* m_pTargetSection;
 
 	/** Original instrument used to write back changes.
 	 *

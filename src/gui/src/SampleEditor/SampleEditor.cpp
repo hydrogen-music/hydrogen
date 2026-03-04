@@ -31,7 +31,7 @@
 #include "../Widgets/LCDSpinBox.h"
 #include "DetailWaveDisplay.h"
 #include "SampleWaveDisplay.h"
-#include "TargetWaveDisplay.h"
+#include "TargetSection.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
@@ -646,17 +646,17 @@ font-weight: bold; "
 			else {
 				m_envelopeType = EnvelopeType::Pan;
 			}
-			m_pTargetSampleView->update();
+			m_pTargetSection->update();
 		}
 	);
 	pTargetContainerLayout->addWidget( m_pEnvelopeComboBox );
 
 	////////////////////////////////////////////////////////////////////////////
 
-	m_pTargetSampleView = new TargetWaveDisplay( this );
-	m_pTargetSampleView->setLayer( pPreviewLayer );
-	m_pTargetSampleView->setMinimumHeight( 94 );
-	pVBoxLayout->addWidget( m_pTargetSampleView );
+	m_pTargetSection = new TargetSection( this );
+	m_pTargetSection->setLayer( pPreviewLayer );
+	m_pTargetSection->setMinimumHeight( 94 );
+	pVBoxLayout->addWidget( m_pTargetSection );
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -1180,7 +1180,7 @@ void SampleEditor::lockWidgets( bool bLock )
 {
 	m_pSampleWaveDisplayL->setEnabled( ! bLock );
 	m_pSampleWaveDisplayR->setEnabled( ! bLock );
-	m_pTargetSampleView->setEnabled( !bLock );
+	m_pTargetSection->setEnabled( !bLock );
 
 	m_pLoopStartFrameSpinBox->setEnabled( ! bLock );
 	m_pLoopLoopFrameSpinBox->setEnabled( ! bLock );
@@ -1262,7 +1262,7 @@ void SampleEditor::startPlayback( Playback playback )
 		m_looped = Looped::NotYet;
 		m_nPlayheadSample = static_cast<long long>( m_loops.nStartFrame );
 		m_nPlayheadTarget = 0;
-		m_pTargetSampleView->update();
+		m_pTargetSection->update();
 		m_fIncrementScaling = static_cast<double>(
 								  m_loops.nEndFrame - m_loops.nStartFrame +
 								  m_loops.nCount * m_nLoopFrames
@@ -1299,7 +1299,7 @@ void SampleEditor::stopPlayback()
 	else {
 		m_nPlayheadSample = static_cast<long long>( m_loops.nStartFrame );
 		m_nPlayheadTarget = 0;
-		m_pTargetSampleView->update();
+		m_pTargetSection->update();
 	}
 
 	m_playback = Playback::None;
@@ -1449,7 +1449,7 @@ void SampleEditor::updateTransport()
 	updateSourceWaveDisplays();
 	if ( m_playback == Playback::Target ) {
 		m_nPlayheadTarget += nRealtimeFrame - m_nLastRealtimeFrame;
-		m_pTargetSampleView->update();
+		m_pTargetSection->update();
 	}
 
 	m_nLastRealtimeFrame = nRealtimeFrame;
@@ -1501,7 +1501,7 @@ void SampleEditor::updateSample()
 	m_pNewLengthDisplay->setText( QString::number( m_pSample->getFrames() ) );
 	checkRubberbandSettings();
 	updateSourceWaveDisplays();
-	m_pTargetSampleView->setLayer(
+	m_pTargetSection->setLayer(
 		m_pPreviewInstrument->getComponents()->front()->getLayer( 0 )
 	);
 }
@@ -1536,7 +1536,7 @@ void SampleEditor::reloadLayer()
 	if ( m_pSample->getVelocityEnvelope().size() == 0 ) {
 		m_velocityEnvelope.push_back( EnvelopePoint( 0, 0 ) );
 		m_velocityEnvelope.push_back(
-			EnvelopePoint( TargetWaveDisplay::nWidth, 0 )
+			EnvelopePoint( TargetSection::nWidth, 0 )
 		);
 	}
 	else {
@@ -1548,10 +1548,10 @@ void SampleEditor::reloadLayer()
 	m_panEnvelope.clear();
 	if ( m_pSample->getPanEnvelope().size() == 0 ) {
 		m_panEnvelope.push_back(
-			EnvelopePoint( 0, TargetWaveDisplay::nHeight / 2 )
+			EnvelopePoint( 0, TargetSection::nHeight / 2 )
 		);
 		m_panEnvelope.push_back( EnvelopePoint(
-			TargetWaveDisplay::nWidth, TargetWaveDisplay::nHeight / 2
+			TargetSection::nWidth, TargetSection::nHeight / 2
 		) );
 	}
 	else {
@@ -1617,7 +1617,7 @@ void SampleEditor::reloadLayer()
 	checkRubberbandSettings();
 	m_pNewLengthDisplay->setText( QString::number( m_pSample->getFrames() ) );
 	updateSourceWaveDisplays();
-	m_pTargetSampleView->update();
+	m_pTargetSection->update();
 }
 
 void SampleEditor::checkRubberbandSettings()

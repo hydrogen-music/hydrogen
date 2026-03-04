@@ -20,7 +20,7 @@
  *
  */
 
-#include "TargetWaveDisplay.h"
+#include "SampleEnvelope.h"
 
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentLayer.h>
@@ -39,12 +39,13 @@
 #include "../Skin.h"
 #include "../UndoActions.h"
 #include "SampleEditor.h"
+#include "TargetSection.h"
 #include "Widgets/EditorDefs.h"
 
 using namespace H2Core;
 
-TargetWaveDisplay::TargetWaveDisplay( SampleEditor* pParent )
-	: WaveDisplay( pParent, WaveDisplay::Channel::Left ),
+SampleEnvelope::SampleEnvelope( SampleEditor* pParent )
+	: QWidget( pParent ),
 	  m_pSampleEditor( pParent ),
 	  m_bEnabled( true ),
 	  m_sSelectedEnvelopePointValue( "" ),
@@ -53,22 +54,22 @@ TargetWaveDisplay::TargetWaveDisplay( SampleEditor* pParent )
 	  m_nDragStartX( 0 ),
 	  m_nDragStartY( 0 )
 {
-	setFixedSize( TargetWaveDisplay::nWidth, TargetWaveDisplay::nHeight );
+	setAttribute( Qt::WA_TranslucentBackground );
+	setFixedSize( TargetSection::nWidth, TargetSection::nHeight );
 
-	m_label = WaveDisplay::Label::Fallback;
-	m_sFallbackLabel = "";
-
-	m_peakDataL.resize( width() );
-	m_peakDataR.resize( width() );
+	auto pLayout = new QVBoxLayout();
+	pLayout->setContentsMargins( 0, 0, 0, 0 );
+	pLayout->setSpacing( 0 );
+	setLayout( pLayout );
 
 	setMouseTracking( true );
 }
 
-TargetWaveDisplay::~TargetWaveDisplay()
+SampleEnvelope::~SampleEnvelope()
 {
 }
 
-void TargetWaveDisplay::drawLine(
+void SampleEnvelope::drawLine(
 	QPainter& p,
 	const std::vector<EnvelopePoint>& envelope,
 	QColor color,
@@ -92,7 +93,7 @@ void TargetWaveDisplay::drawLine(
 	}
 }
 
-void TargetWaveDisplay::drawPoint(
+void SampleEnvelope::drawPoint(
 	QPainter& p,
 	const EnvelopePoint& point,
 	QColor color,
@@ -121,43 +122,42 @@ void TargetWaveDisplay::drawPoint(
 
 		p.setPen( highlightColor );
 		p.setBrush( highlightColor );
-		if ( point.nFrame == 0 || point.nFrame == TargetWaveDisplay::nWidth ) {
+		if ( point.nFrame == 0 || point.nFrame == TargetSection::nWidth ) {
 			p.drawRect(
-				point.nFrame - TargetWaveDisplay::nPointWidth - 2,
-				point.nValue - TargetWaveDisplay::nPointWidth / 2 - 2,
-				TargetWaveDisplay::nPointWidth * 2 + 4,
-				TargetWaveDisplay::nPointWidth + 4
+				point.nFrame - SampleEnvelope::nPointWidth - 2,
+				point.nValue - SampleEnvelope::nPointWidth / 2 - 2,
+				SampleEnvelope::nPointWidth * 2 + 4,
+				SampleEnvelope::nPointWidth + 4
 			);
 		}
 		else {
 			p.drawEllipse(
-				point.nFrame - TargetWaveDisplay::nPointWidth / 2 - 2,
-				point.nValue - TargetWaveDisplay::nPointWidth / 2 - 2,
-				TargetWaveDisplay::nPointWidth + 4,
-				TargetWaveDisplay::nPointWidth + 4
+				point.nFrame - SampleEnvelope::nPointWidth / 2 - 2,
+				point.nValue - SampleEnvelope::nPointWidth / 2 - 2,
+				SampleEnvelope::nPointWidth + 4, SampleEnvelope::nPointWidth + 4
 			);
 		}
 	}
 
 	p.setPen( pen );
 	p.setBrush( brush );
-	if ( point.nFrame == 0 || point.nFrame == TargetWaveDisplay::nWidth ) {
+	if ( point.nFrame == 0 || point.nFrame == TargetSection::nWidth ) {
 		p.drawRect(
-			point.nFrame - TargetWaveDisplay::nPointWidth,
-			point.nValue - TargetWaveDisplay::nPointWidth / 2,
-			TargetWaveDisplay::nPointWidth * 2, TargetWaveDisplay::nPointWidth
+			point.nFrame - SampleEnvelope::nPointWidth,
+			point.nValue - SampleEnvelope::nPointWidth / 2,
+			SampleEnvelope::nPointWidth * 2, SampleEnvelope::nPointWidth
 		);
 	}
 	else {
 		p.drawEllipse(
-			point.nFrame - TargetWaveDisplay::nPointWidth / 2,
-			point.nValue - TargetWaveDisplay::nPointWidth / 2,
-			TargetWaveDisplay::nPointWidth, TargetWaveDisplay::nPointWidth
+			point.nFrame - SampleEnvelope::nPointWidth / 2,
+			point.nValue - SampleEnvelope::nPointWidth / 2,
+			SampleEnvelope::nPointWidth, SampleEnvelope::nPointWidth
 		);
 	}
 }
 
-void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
+void SampleEnvelope::paintEvent( QPaintEvent* ev )
 {
 	if ( !isVisible() ) {
 		return;
@@ -187,8 +187,8 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 				  : m_pSampleEditor->getVelocityEnvelope();
 	auto envelopeForeground = bVelocity ? m_pSampleEditor->getVelocityEnvelope()
 										: m_pSampleEditor->getPanEnvelope();
-    const auto colorForeground = bVelocity ? velocityColor : panColor;
-    const auto colorBackground = bVelocity ? panColor : velocityColor;
+	const auto colorForeground = bVelocity ? velocityColor : panColor;
+	const auto colorBackground = bVelocity ? panColor : velocityColor;
 	if ( m_pDragPoint != nullptr ) {
 		const int nFrame = m_nDragStartX;
 
@@ -208,9 +208,6 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 		);
 		envelopeForeground = newEnvelope;
 	}
-
-	// Draw background
-	WaveDisplay::paintEvent( ev );
 
 	QPainter p( this );
 	p.setRenderHint( QPainter::Antialiasing );
@@ -264,26 +261,26 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 		// close to the right border.
 		const int nCursorWidth = 10;
 		int nStartX;
-		if ( point.x() < TargetWaveDisplay::nWidth -
-							 TargetWaveDisplay::nToolTipWidth - nCursorWidth ) {
+		if ( point.x() < TargetSection::nWidth - SampleEnvelope::nToolTipWidth -
+							 nCursorWidth ) {
 			// Toop tip to the right.
 			nStartX = std::max( nCursorWidth, point.x() + nCursorWidth );
 		}
 		else {
 			// Toop tip to the right.
 			nStartX = std::min(
-				TargetWaveDisplay::nWidth - TargetWaveDisplay::nToolTipWidth -
+				TargetSection::nWidth - SampleEnvelope::nToolTipWidth -
 					nCursorWidth,
-				point.x() - TargetWaveDisplay::nToolTipWidth - nCursorWidth
+				point.x() - SampleEnvelope::nToolTipWidth - nCursorWidth
 			);
 		}
 		const QRect rect(
 			nStartX,
 			std::min(
 				point.y(),
-				TargetWaveDisplay::nHeight - TargetWaveDisplay::nToolTipHeight
+				TargetSection::nHeight - SampleEnvelope::nToolTipHeight
 			),
-			TargetWaveDisplay::nToolTipWidth, TargetWaveDisplay::nToolTipHeight
+			SampleEnvelope::nToolTipWidth, SampleEnvelope::nToolTipHeight
 		);
 
 		QFont font;
@@ -296,8 +293,8 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 		p.setBrush( colorForeground );
 
 		const QString sText = QString( "%1" ).arg(
-			static_cast<float>( TargetWaveDisplay::nHeight - point.y() ) /
-				static_cast<float>( TargetWaveDisplay::nHeight ),
+			static_cast<float>( TargetSection::nHeight - point.y() ) /
+				static_cast<float>( TargetSection::nHeight ),
 			0, 'g', 2
 		);
 
@@ -306,139 +303,7 @@ void TargetWaveDisplay::paintEvent( QPaintEvent* ev )
 	}
 }
 
-void TargetWaveDisplay::drawPeakData()
-{
-	const qreal pixelRatio = devicePixelRatio();
-	QPainter p( m_pPeakDataPixmap );
-	// copy the background image
-	p.drawPixmap(
-		rect(), *m_pBackgroundPixmap,
-		QRectF(
-			pixelRatio * rect().x(), pixelRatio * rect().y(),
-			pixelRatio * rect().width(), pixelRatio * rect().height()
-		)
-	);
-
-	auto pPref = H2Core::Preferences::get_instance();
-	const auto pColorTheme = pPref->getColorTheme();
-
-	QColor backgroundColor, waveFormColorL, waveFormColorR,
-		waveFormInactiveColor;
-	if ( m_pLayer != nullptr && m_pLayer->getIsMuted() ) {
-		backgroundColor = pColorTheme->m_muteColor;
-	}
-	else if ( m_pLayer != nullptr && m_pLayer->getIsSoloed() ) {
-		backgroundColor = pColorTheme->m_soloColor;
-	}
-	else {
-		backgroundColor = pColorTheme->m_accentColor;
-	}
-
-	if ( Skin::moreBlackThanWhite( backgroundColor ) ) {
-		waveFormColorL = Qt::white;
-		waveFormColorR = waveFormColorL.darker( 150 );
-		waveFormInactiveColor = pColorTheme->m_lightColor;
-	}
-	else {
-		waveFormColorL = Qt::black;
-		waveFormColorR = waveFormColorL.lighter( 150 );
-		waveFormInactiveColor = pColorTheme->m_darkColor;
-	}
-
-	p.setPen( waveFormColorL );
-	const int nVerticalCenter = height() / 2;
-	if ( m_pLayer != nullptr ) {
-		for ( int x = 0; x < width(); x++ ) {
-			p.drawLine(
-				x, nVerticalCenter, x, -m_peakDataL[x] + nVerticalCenter
-			);
-		}
-		p.setPen( waveFormColorR );
-		for ( int x = 0; x < width(); x++ ) {
-			p.drawLine(
-				x, nVerticalCenter, x, m_peakDataR[x] + nVerticalCenter
-			);
-		}
-	}
-	else {
-		p.drawLine( 0, nVerticalCenter, width(), nVerticalCenter );
-	}
-}
-
-void TargetWaveDisplay::updatePeakData()
-{
-	if ( width() != m_peakDataL.size() ) {
-		m_peakDataL.resize( width() );
-	}
-	if ( width() != m_peakDataR.size() ) {
-		m_peakDataR.resize( width() );
-	}
-
-	if ( m_pLayer == nullptr || m_pLayer->getSample() == nullptr ) {
-		for ( int ii = 0; ii < m_peakDataL.size(); ++ii ) {
-			m_peakDataL[ii] = 0;
-			m_peakDataR[ii] = 0;
-		}
-
-		drawPeakData();
-		update();
-		return;
-	}
-
-	const int nSampleLength = m_pLayer->getSample()->getFrames();
-	const auto pSampleDataL = m_pLayer->getSample()->getData_L();
-	const auto pSampleDataR = m_pLayer->getSample()->getData_R();
-	const float fGain = height() / 2.0 * m_pLayer->getGain();
-
-	if ( nSampleLength > m_peakDataL.size() ) {
-		const int nScaleFactor = nSampleLength / m_peakDataL.size();
-
-		int nSamplePos = 0;
-		int nValL, nValR;
-		for ( int ii = 0; ii < m_peakDataL.size(); ++ii ) {
-			nValL = 0;
-			nValR = 0;
-			for ( int jj = 0; jj < nScaleFactor; ++jj ) {
-				if ( nSamplePos >= nSampleLength ) {
-					break;
-				}
-
-				if ( jj < nSampleLength ) {
-					const int nNewValL =
-						static_cast<int>( pSampleDataL[nSamplePos] * fGain );
-					const int nNewValR =
-						static_cast<int>( pSampleDataR[nSamplePos] * fGain );
-					if ( nNewValL > nValL ) {
-						nValL = nNewValL;
-					}
-					if ( nNewValR > nValR ) {
-						nValR = nNewValR;
-					}
-				}
-				++nSamplePos;
-			}
-			m_peakDataL[ii] = std::max( nValL, 0 );
-			m_peakDataR[ii] = std::max( nValR, 0 );
-		}
-	}
-	else {
-		for ( int ii = 0; ii < nSampleLength; ++ii ) {
-			m_peakDataL[ii] =
-				std::max( 0, static_cast<int>( pSampleDataL[ii] * fGain ) );
-			m_peakDataR[ii] =
-				std::max( 0, static_cast<int>( pSampleDataR[ii] * fGain ) );
-		}
-		for ( int ii = nSampleLength; ii < m_peakDataL.size(); ++ii ) {
-			m_peakDataL[ii] = 0;
-			m_peakDataR[ii] = 0;
-		}
-	}
-
-	drawPeakData();
-	update();
-}
-
-void TargetWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
+void SampleEnvelope::mouseMoveEvent( QMouseEvent* ev )
 {
 	if ( !m_bEnabled ) {
 		return;
@@ -463,11 +328,11 @@ void TargetWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 		QPoint targetPoint(
 			std::clamp(
 				static_cast<int>( pEv->position().x() ), 0,
-				TargetWaveDisplay::nWidth
+				TargetSection::nWidth
 			),
 			std::clamp(
 				static_cast<int>( pEv->position().y() ), 0,
-				TargetWaveDisplay::nHeight
+				TargetSection::nHeight
 			)
 		);
 
@@ -483,8 +348,8 @@ void TargetWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 		if ( m_pDragPoint->nFrame == 0 ) {
 			targetPoint.setX( 0 );
 		}
-		else if ( m_pDragPoint->nFrame == TargetWaveDisplay::nWidth ) {
-			targetPoint.setX( TargetWaveDisplay::nWidth );
+		else if ( m_pDragPoint->nFrame == TargetSection::nWidth ) {
+			targetPoint.setX( TargetSection::nWidth );
 		}
 
 		// Only a single point is allowed per frame in the envelope. Ensure,
@@ -505,7 +370,7 @@ void TargetWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 	update();
 }
 
-void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
+void SampleEnvelope::mousePressEvent( QMouseEvent* ev )
 {
 	if ( !m_bEnabled ) {
 		return;
@@ -533,7 +398,7 @@ void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
 				m_pSampleEditor->getEnvelopeType(), Editor::Action::Add
 			) );
 			pHydrogenApp->pushUndoCommand( new SE_editEnvelopePointAction(
-				EnvelopePoint( TargetWaveDisplay::nWidth, ev->pos().y() ),
+				EnvelopePoint( TargetSection::nWidth, ev->pos().y() ),
 				m_pSampleEditor->getEnvelopeType(), Editor::Action::Add
 			) );
 			pHydrogenApp->endUndoMacro();
@@ -551,7 +416,7 @@ void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
 		if ( hoveredPoints.size() == 0 ||
 			 envelope.size() > 2 &&
 				 ( hoveredPoints[0].nFrame == 0 ||
-				   hoveredPoints[0].nFrame == TargetWaveDisplay::nWidth ) ) {
+				   hoveredPoints[0].nFrame == TargetSection::nWidth ) ) {
 			// do nothing if no point is selected
 			// don't remove first or last point if more than 2 points in
 			// envelope
@@ -584,7 +449,7 @@ void TargetWaveDisplay::mousePressEvent( QMouseEvent* ev )
 	update();
 }
 
-void TargetWaveDisplay::mouseReleaseEvent( QMouseEvent* ev )
+void SampleEnvelope::mouseReleaseEvent( QMouseEvent* ev )
 {
 	if ( !m_bEnabled || m_pDragPoint == nullptr ) {
 		m_pDragPoint = nullptr;
@@ -618,7 +483,7 @@ void TargetWaveDisplay::mouseReleaseEvent( QMouseEvent* ev )
 	update();
 }
 
-std::vector<H2Core::EnvelopePoint> TargetWaveDisplay::getElementsAtPoint(
+std::vector<H2Core::EnvelopePoint> SampleEnvelope::getElementsAtPoint(
 	const QPoint& point
 )
 {

@@ -20,15 +20,12 @@
  *
  */
 
-#ifndef TARGET_WAVE_DISPLAY
-#define TARGET_WAVE_DISPLAY
-
-#include "../Widgets/WaveDisplay.h"
+#ifndef SAMPLE_ENVELOPE
+#define SAMPLE_ENVELOPE
 
 #include <QtGui>
 #include <QtWidgets>
 
-#include <core/Basics/Sample.h>
 #include <core/Object.h>
 #include <memory>
 
@@ -40,22 +37,20 @@ class EnvelopePoint;
 }  // namespace H2Core
 
 /** \ingroup docGUI*/
-class TargetWaveDisplay : public WaveDisplay,
-						  public H2Core::Object<TargetWaveDisplay> {
-	H2_OBJECT( TargetWaveDisplay )
+class SampleEnvelope : public QWidget, public H2Core::Object<SampleEnvelope> {
+	H2_OBJECT( SampleEnvelope )
 	Q_OBJECT
 
    public:
-	static constexpr int nHeight = 91;
-	static constexpr int nWidth = 841;
 	static constexpr int nPointWidth = 8;
 	static constexpr int nToolTipHeight = 20;
 	static constexpr int nToolTipWidth = 40;
 
-	explicit TargetWaveDisplay( SampleEditor* pParent );
-	~TargetWaveDisplay();
+	explicit SampleEnvelope( SampleEditor* pParent );
+	~SampleEnvelope();
 
 	void setEnabled( bool bEnabled );
+	void setLayer( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 
    private:
 	enum class Style { None, Hovered, Selected, Background };
@@ -80,14 +75,6 @@ class TargetWaveDisplay : public WaveDisplay,
 		QColor color,
 		Style style
 	);
-	void drawPeakData() override;
-	/** Since we displaying pan automation on top of the peak data and want to
-	 * provide a visual feedback for the corresponding changes applied, we are
-	 * bound to render both the left and right channel of the audio. But we
-	 * still want to do so within a single widget. Having two instances of
-	 * `WaveDisplay` is off the table since we would have to deal with handling
-	 * automation nodes between them. */
-	void updatePeakData() override;
 
 	void updateMouseSelection( QMouseEvent* ev );
 	void updateEnvelope();
@@ -105,13 +92,10 @@ class TargetWaveDisplay : public WaveDisplay,
 	int m_nDragStartX;
 	int m_nDragStartY;
 
-	std::vector<int> m_peakDataL;
-	std::vector<int> m_peakDataR;
-
 	int m_nSelectedEnvelopePoint;
 };
 
-inline void TargetWaveDisplay::setEnabled( bool bEnabled )
+inline void SampleEnvelope::setEnabled( bool bEnabled )
 {
 	m_bEnabled = bEnabled;
 }
