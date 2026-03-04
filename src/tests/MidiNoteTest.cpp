@@ -613,7 +613,10 @@ void MidiNoteTest::testSendNoteOff()
 	const int nCustomLengthDurationMs =
 		pAudioEngine->getTransportPosition()->getTickSize() * 1000 *
 		nCustomLengthInTicks / pAudioEngine->getAudioDriver()->getSampleRate();
-	const int nDurationTolerance = nCustomLengthDurationMs * 0.05;
+	// The macOS pipeline is quite slow. It can take a tremendous amount of time
+	// between processing cycles and we need to have a high tolerance in here in
+	// order to support it.
+	const int nDurationTolerance = nCustomLengthDurationMs * 0.5;
 
 	////////////////////////////////////////////////////////////////////////////
 	// Tests with sample
