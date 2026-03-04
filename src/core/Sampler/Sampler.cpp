@@ -44,6 +44,7 @@
 #include <core/FX/Effects.h>
 #include <core/Globals.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Time.h>
 #include <core/Hydrogen.h>
 #include <core/IO/AudioDriver.h>
 #include <core/IO/JackDriver.h>
@@ -191,7 +192,7 @@ void Sampler::process( uint32_t nFrames )
 
 	auto sendNote = [&]( std::shared_ptr<Note> pNote ) {
 		return pNote != nullptr && pNote->getInstrument() != nullptr &&
-			   pNote->getMidiNoteOffFrame() != -1 &&
+			   pNote->getMidiNoteOffOffsetFrame() != -1 &&
 			   ( Preferences::get_instance()->getMidiSendNoteOff() ==
 					 Preferences::MidiSendNoteOff::Always ||
 				 ( Preferences::get_instance()->getMidiSendNoteOff() ==
@@ -232,7 +233,7 @@ void Sampler::process( uint32_t nFrames )
 						midiMessage.setFrameOffset(
 							std::max(
 								pNote->getMidiNoteOnSentFrame() + 1,
-								pNote->getMidiNoteOffFrame()
+								pNote->getMidiNoteOffOffsetFrame()
 							) -
 							nCurrentFrame
 						);
@@ -280,22 +281,30 @@ void Sampler::process( uint32_t nFrames )
 			}
 			auto pNote = m_scheduledNoteOffQueue.top();
 
-			const long long nCurrentFrame =
-				pHydrogen->getAudioEngine()->getCurrentFrame();
+            const auto now = Clock::now();
 
 			if ( !sendNote( pNote ) ) {
 #if SAMPLER_DEBUG
-				INFOLOG( QString( "nCurrentFrame: [%1], Dropping scheduled "
+				INFOLOG( QString( "now: [%1], Dropping scheduled "
 								  "Note-Off for [%2]" )
-							 .arg( nCurrentFrame )
+							 .arg( H2Core::timePointToQString( now ) )
 							 .arg( pNote->toQString() ) );
 #endif
 				m_scheduledNoteOffQueue.pop();
 				continue;
 			}
 
-			if ( pNote->getMidiNoteOffFrame() <
-				 nCurrentFrame + static_cast<long long>( nFrames ) ) {
+			const auto pAudioDriver =
+				pHydrogen->getAudioEngine()->getAudioDriver();
+			const float fSampleRate =
+				pAudioDriver != nullptr
+					? static_cast<float>( pAudioDriver->getSampleRate() )
+					: 44100;
+
+			if ( pNote->getMidiNoteOffTimePoint() <
+				 now + std::chrono::milliseconds( static_cast<int>( std::round(
+						   static_cast<float>( nFrames ) / fSampleRate * 1000
+					   ) ) ) ) {
 				m_scheduledNoteOffQueue.pop();
 
 				const auto noteRef =
@@ -307,23 +316,14 @@ void Sampler::process( uint32_t nFrames )
 				if ( noteOff.channel != Midi::ChannelOff &&
 					 noteOff.channel != Midi::ChannelInvalid ) {
 					auto midiMessage = MidiMessage::from( noteOff );
-					// We adjust for the precise onset of the Note-Off message
-					// within the current processing cycle, to have the best
-					// precision possible. But we also have to ensure a Note-Off
-					// is send _after_ the corresponding Note-On. As the user
-					// can only set note lengths in ticks, this should always
-					// the case. But let's have a failsafe.
-					midiMessage.setFrameOffset(
-						std::max(
-							pNote->getMidiNoteOnSentFrame() + 1,
-							pNote->getMidiNoteOffFrame()
-						) -
-						nCurrentFrame
-					);
+                    // We do not attempt to derive a frame offset from the
+                    // difference of the scheduled time to the current one since
+                    // rounding error could easily result in the note being send
+                    // to late (e.g. when a note tail touches a note head).
 #if SAMPLER_DEBUG
-					INFOLOG( QString( "nCurrentFrame: [%1], Queuing "
+					INFOLOG( QString( "now: [%1], Queuing "
 									  "scheduled Note-Off [%2] for [%3]" )
-								 .arg( nCurrentFrame )
+								 .arg( H2Core::timePointToQString( now ) )
 								 .arg( midiMessage.toQString() )
 								 .arg( pNote->toQString() ) );
 #endif
@@ -1027,8 +1027,8 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 			// send a Note-Off immediately after its Note-On. But we have to
 			// watch out for notes associated with multi-component instruments
 			// which are only partially backed by samples.
-			if ( pNote->getMidiNoteOffFrame() < nCurrentFrame + 1 ) {
-				pNote->setMidiNoteOffFrame( nCurrentFrame + 1 );
+			if ( pNote->getMidiNoteOffOffsetFrame() < nCurrentFrame + 1 ) {
+				pNote->setMidiNoteOffOffsetFrame( nCurrentFrame + 1 );
 			}
 
 			returnValues[ii] = true;
@@ -1088,26 +1088,39 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 			// messages corresponding to the user-defined length (regardless
 			// of the underlying sample).
 			if ( pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) {
-				const auto nPrevStart = pNote->getNoteStart();
-				pNote->setMidiNoteOffFrame(
-					nCurrentFrame + nInitialBufferPos +
+				const long long nLengthInFrames =
+                    nInitialBufferPos +
 					TransportPosition::computeFrame(
 						pNote->getLength(),
 						pAudioEngine->getTransportPosition()->getTickSize()
-					)
+					);
+
+				const float fSampleRate =
+					pAudioEngine->getAudioDriver() != nullptr
+						? static_cast<float>(
+							  pAudioEngine->getAudioDriver()->getSampleRate()
+						  )
+						: 44100;
+
+				pNote->setMidiNoteOffTimePoint(
+					Clock::now() +
+					std::chrono::milliseconds( static_cast<int>( std::round(
+						static_cast<float>( nLengthInFrames ) / fSampleRate *
+						1000
+					) ) )
 				);
+                pNote->setMidiNoteOffOffsetFrame( 0 );
 
 #if SAMPLER_DEBUG
-				INFOLOG(
-					QString( "nCurrentFrame: [%1], Scheduling "
-							 "a Note-Off for [%2] using tick size [%3] "
-							 "and sample rate [%4]" )
-						.arg( nCurrentFrame )
-						.arg( pNote->toQString() )
-						.arg( pAudioEngine->getTransportPosition()->getTickSize(
-						) )
-						.arg( pAudioEngine->getAudioDriver()->getSampleRate() )
-				);
+				INFOLOG( QString( "nCurrentFrame: [%1], Scheduling "
+								  "a Note-Off for [%2] using tick size [%3], resulting length [%4], "
+								  "and sample rate [%5]" )
+							 .arg( nCurrentFrame )
+							 .arg( pNote->toQString() )
+							 .arg( pAudioEngine->getTransportPosition()
+                                   ->getTickSize() )
+                         .arg( nLengthInFrames )
+							 .arg( fSampleRate ) );
 #endif
 
 				m_scheduledNoteOffQueue.push( pNote );
@@ -1866,11 +1879,11 @@ bool Sampler::renderNote(
 		// processing cycle, we store the corresponding frame in order to send
 		// MIDI Note-Off notes as precisely as possible.
 		if ( pNote->getLength() == LENGTH_ENTIRE_SAMPLE &&
-			 pNote->getMidiNoteOffFrame() < nCurrentFrame + nNoteOffFrame ) {
+			 pNote->getMidiNoteOffOffsetFrame() < nCurrentFrame + nNoteOffFrame ) {
 			// For notes corresponding to instruments holding multiple
 			// components, we send a Note-Off after all of them have been
 			// rendered.
-			pNote->setMidiNoteOffFrame( nCurrentFrame + nNoteOffFrame );
+			pNote->setMidiNoteOffOffsetFrame( nCurrentFrame + nNoteOffFrame );
 		}
 	}
 
