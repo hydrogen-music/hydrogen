@@ -77,7 +77,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 
 	// Playback Fader
 	m_pPlaybackTrackFader = new Fader(
-		m_pPlaybackTrackSidebar, Fader::Type::Vertical,
+		m_pPlaybackTrackSidebar, Fader::Type::Horizonal,
 		tr( "Playback track volume" ), false, false, 0.0, 1.5
 	);
 	m_pPlaybackTrackFader->setObjectName( "SongEditorPlaybackTrackFader" );

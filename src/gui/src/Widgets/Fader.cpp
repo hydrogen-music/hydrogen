@@ -56,7 +56,7 @@ Fader::Fader( QWidget *pParent, const Type& type, const QString& sBaseToolTip,
 	m_fDefaultValue = m_fMax;
 	m_fValue = m_fDefaultValue;
 
-	if ( type == Type::Vertical ){ 
+	if ( type == Type::Horizonal ){
 		m_nWidgetWidth = 200;
 		m_nWidgetHeight = 25;
 	} else if ( type == Type::Master ) {
@@ -74,7 +74,7 @@ Fader::Fader( QWidget *pParent, const Type& type, const QString& sBaseToolTip,
 	if ( type == Type::Master ) {
 		sBackgroundPath = Skin::getSvgImagePath() + "/fader_master.svg";
 		sKnobPath = Skin::getSvgImagePath() + "/fader_knob.svg";
-	} else if ( type == Type::Vertical ) {
+	} else if ( type == Type::Horizonal ) {
 		sBackgroundPath = Skin::getSvgImagePath() + "/fader_vertical.svg";
 		sKnobPath = Skin::getSvgImagePath() + "/fader_knob_vertical.svg";
 	} else {
@@ -102,7 +102,7 @@ Fader::Fader( QWidget *pParent, const Type& type, const QString& sBaseToolTip,
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Fader::onPreferencesChanged );
 	
-	if ( type == Type::Vertical ) {
+	if ( type == Type::Horizonal ) {
 		QTransform transform;
 		transform.rotate(90);
 	}
@@ -127,7 +127,7 @@ void Fader::mouseMoveEvent( QMouseEvent *ev )
 	auto pEv = static_cast<MouseEvent*>( ev );
 
 	float fValue;
-	if ( m_type == Type::Vertical ) {
+	if ( m_type == Type::Horizonal ) {
 		fValue = static_cast<float>( pEv->position().x() ) / static_cast<float>( width() );
 	} else {
 		fValue = static_cast<float>( height() - pEv->position().y() ) /
@@ -208,7 +208,7 @@ void Fader::paintEvent( QPaintEvent *ev)
 			painter.fillRect( 0, m_nWidgetHeight - 2, 19, 2, colorHighlightActive );
 			painter.fillRect( m_nWidgetWidth / 2 + 7, 0, 9, 2, colorHighlightActive );
 			painter.fillRect( m_nWidgetWidth / 2 + 7, m_nWidgetHeight - 2, 9, 2, colorHighlightActive );
-		} else if ( m_type == Type::Vertical ) {
+		} else if ( m_type == Type::Horizonal ) {
 			painter.fillRect( 0, 0, 2, m_nWidgetHeight, colorHighlightActive );
 			painter.fillRect( 2, m_nWidgetHeight / 2 - 3, m_nWidgetWidth - 4, 7, colorHighlightActive );
 			painter.fillRect( m_nWidgetWidth - 2, 0, 2, m_nWidgetHeight, colorHighlightActive );
@@ -232,7 +232,7 @@ void Fader::paintEvent( QPaintEvent *ev)
 			fFaderHeight = 186;
 			fPeak_L = ( m_fPeakValue_L - m_fMinPeak ) / ( m_fMaxPeak - m_fMinPeak ) * fFaderHeight;
 			fPeak_R = ( m_fPeakValue_R - m_fMinPeak ) / ( m_fMaxPeak - m_fMinPeak ) * fFaderHeight;
-		} else if ( m_type == Type::Vertical ) {
+		} else if ( m_type == Type::Horizonal ) {
 			fFaderTopLeftX_L = 1.5;
 			fFaderTopLeftY_L = 2;
 			fFaderTopLeftX_R = 1.5;
@@ -253,7 +253,7 @@ void Fader::paintEvent( QPaintEvent *ev)
 		}
 
 		QLinearGradient gradient;
-		if ( m_type == Type::Vertical ) {
+		if ( m_type == Type::Horizonal ) {
 			gradient = QLinearGradient( fFaderTopLeftX_L, fFaderTopLeftY_L, fFaderTopLeftX_L + fFaderWidth, fFaderTopLeftY_L );
 		gradient.setColorAt( 0.0, colorGradientNormal );
 		gradient.setColorAt( 0.6, colorGradientNormal );
@@ -271,7 +271,7 @@ void Fader::paintEvent( QPaintEvent *ev)
 		gradient.setColorAt( 0.0, colorGradientDanger );
 		}
 
-		if ( m_type == Type::Vertical ) {
+		if ( m_type == Type::Horizonal ) {
 			painter.fillRect( QRectF( fFaderTopLeftX_L, fFaderTopLeftY_L, fPeak_L, fFaderHeight ), QBrush( gradient ) );
 			painter.fillRect( QRectF( fFaderTopLeftX_R, fFaderTopLeftY_R, fPeak_R, fFaderHeight ), QBrush( gradient ) );
 		} else {
@@ -290,7 +290,7 @@ void Fader::paintEvent( QPaintEvent *ev)
 		float fVal = ( m_fValue - m_fMin ) / ( m_fMax - m_fMin );
 		float fKnobHeight, fKnobWidth, fKnobX, fKnobY;
 
-		if ( m_type == Type::Vertical ) {
+		if ( m_type == Type::Horizonal ) {
 			fKnobHeight = 15;
 			fKnobWidth = 29;
 			fKnobX = 116.0 - ( 101 * ( 1 - fVal ) ) - fKnobHeight;

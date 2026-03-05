@@ -49,7 +49,7 @@ public:
 	enum class Type {
 		Normal,
 		/** Only used for the playback track in the SongEditorPanel*/
-		Vertical,
+		Horizonal,
 		Master
 	};
 	
