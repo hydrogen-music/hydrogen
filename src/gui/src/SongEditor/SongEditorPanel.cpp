@@ -30,7 +30,6 @@
 #include "../PatternPropertiesDialog.h"
 #include "../MainToolBar/MainToolBar.h"
 #include "../Skin.h"
-#include "../SongPropertiesDialog.h"
 #include "../UndoActions.h"
 #include "../Widgets/AutomationPathView.h"
 #include "../Widgets/Button.h"
@@ -38,7 +37,6 @@
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/MidiLearnableToolButton.h"
 #include "../Widgets/MuteButton.h"
-#include "../Widgets/PixmapWidget.h"
 #include "../WidgetScrollArea.h"
 
 #include <core/AudioEngine/AudioEngine.h>
