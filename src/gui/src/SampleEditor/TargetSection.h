@@ -43,7 +43,9 @@ class TargetSection : public QWidget, public H2Core::Object<TargetSection> {
 	Q_OBJECT
 
    public:
-	static constexpr int nHeight = 182;
+	/** Do only change these value with care. They are hardcoded in Sample.cpp
+	 * and incorporated in the values of previous .h2song files. */
+	static constexpr int nHeight = 91;
 	static constexpr int nWidth = 841;
 
 	explicit TargetSection( SampleEditor* pParent );
