@@ -238,7 +238,10 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
-	const auto pTimeline = pHydrogen->getTimeline();
+	if ( pSong == nullptr ) {
+		return 0;
+	}
+	const auto pTimeline = pSong->getTimeline();
 	const auto pAudioEngine = pHydrogen->getAudioEngine();
 	const auto pAudioDriver = pHydrogen->getAudioDriver();
 
@@ -504,7 +507,10 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 	}
 	
 	const auto pSong = pHydrogen->getSong();
-	const auto pTimeline = pHydrogen->getTimeline();
+	if ( pSong == nullptr ) {
+		return 0;
+	}
+	const auto pTimeline = pSong->getTimeline();
 	const auto pAudioEngine = pHydrogen->getAudioEngine();
 	const auto pAudioDriver = pHydrogen->getAudioDriver();
 

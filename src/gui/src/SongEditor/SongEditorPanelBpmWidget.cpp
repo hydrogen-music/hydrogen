@@ -29,6 +29,7 @@
 #include "SongEditorPanelBpmWidget.h"
 #include "../Widgets/Button.h"
 
+#include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 #include <core/Timeline.h>
 
@@ -46,12 +47,15 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int nColum
 	adjustSize();
 	setFixedSize( width(), height() );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = Hydrogen::get_instance()->getSong();
+    if ( pSong == nullptr ) {
+        reject();
+    }
 
 	bpmSpinBox->setType( LCDSpinBox::Type::Double );
 	bpmSpinBox->setMinimum( MIN_BPM );
 	bpmSpinBox->setMaximum( MAX_BPM );
-	bpmSpinBox->setValue( pHydrogen->getTimeline()->getTempoAtColumn( m_nColumn ) );
+	bpmSpinBox->setValue( pSong->getTimeline()->getTempoAtColumn( m_nColumn ) );
 	bpmSpinBox->setToolTip( bTempoMarkerPresent ?
 								tr( "Alter tempo of selected tempo marker" ) :
 								tr( "Set tempo of new tempo marker" ) );
@@ -107,7 +111,7 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 		return;
 	}
 
-	auto pTimeline = Hydrogen::get_instance()->getTimeline();
+	auto pTimeline = Hydrogen::get_instance()->getSong()->getTimeline();
 	int nNewColumn = columnSpinBox->text().toInt() - 1;
 	if ( ! ( m_bTempoMarkerPresent && nNewColumn == m_nColumn ) &&
 		 pTimeline->hasColumnTempoMarker( nNewColumn ) ) {
@@ -131,7 +135,7 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 void SongEditorPanelBpmWidget::on_deleteBtn_clicked()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	auto pTimeline = pHydrogen->getTimeline();
+	auto pTimeline = pHydrogen->getSong()->getTimeline();
 
 	float fBpm = pTimeline->getTempoAtColumn( m_nColumn );
 

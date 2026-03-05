@@ -34,6 +34,7 @@
 #include <core/Basics/Song.h>
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Timeline.h>
 
 #include <math.h>
 
