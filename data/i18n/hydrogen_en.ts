@@ -5642,19 +5642,11 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation></translation>
     </message>
     <message>
-        <source>View playback track</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Mute playback track</source>
         <translation></translation>
     </message>
     <message>
         <source>Choose playback track</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>View timeline</source>
         <translation></translation>
     </message>
     <message>

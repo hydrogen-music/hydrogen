@@ -5705,20 +5705,12 @@ Are you sure?</source>
         <translation>Patrón %1</translation>
     </message>
     <message>
-        <source>View playback track</source>
-        <translation>Ver pista reproducción</translation>
-    </message>
-    <message>
         <source>Mute playback track</source>
         <translation>Silenciar pista reproducción</translation>
     </message>
     <message>
         <source>Choose playback track</source>
         <translation>Seleccionar pista reproducción</translation>
-    </message>
-    <message>
-        <source>View timeline</source>
-        <translation>Ver timeline</translation>
     </message>
     <message>
         <source>Adjust parameter values in time</source>

@@ -55,7 +55,7 @@ class SongEditorPanel : public QWidget,
 	Q_OBJECT
 
 	public:
-		static constexpr int nMinimumHeight = 50;
+		static constexpr int nHeaderWidgetHeight = 50;
 
 		explicit SongEditorPanel( QWidget *parent );
 		~SongEditorPanel();
@@ -126,8 +126,6 @@ class SongEditorPanel : public QWidget,
 		void updatePlaybackFaderPeaks();
 		void updatePlayHeadPosition();
 
-		void viewTimelineBtnClicked();
-		void viewPlaybackTrackBtnClicked();
 		void editPlaybackTrackBtnClicked();
 
 		void zoomInBtnClicked();
@@ -161,7 +159,6 @@ class SongEditorPanel : public QWidget,
 		QScrollBar *				m_pVScrollBar;
 		QScrollBar *				m_pHScrollBar;
 									
-		QStackedWidget*				m_pWidgetStack;
 		QScrollArea*				m_pAutomationPathScrollView;
 									
 		SongEditor*					m_pSongEditor;
@@ -178,11 +175,10 @@ class SongEditorPanel : public QWidget,
 
 		Fader*						m_pPlaybackTrackFader;
 
-		Button *					m_pTimelineBtn;
-		Button *					m_pViewTimelineBtn;
-		Button *					m_pViewPlaybackBtn;
-		MuteButton*					m_pMutePlaybackBtn;
+        QWidget* m_pPlaybackTrackSidebar;
+		Button *					m_pEnableTimelineBtn;
 		Button *					m_pEditPlaybackBtn;
+		Button *					m_pMutePlaybackBtn;
 
 
 		QTimer*						m_pHighlightLockedTimer;
@@ -190,8 +186,6 @@ class SongEditorPanel : public QWidget,
 		
 		AutomationPathView *		m_pAutomationPathView;
 		LCDCombo*					m_pAutomationCombo;
-
-		bool m_bLastIsTimelineActivated;
 };
 
 #endif

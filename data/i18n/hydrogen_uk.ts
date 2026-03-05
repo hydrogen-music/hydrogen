@@ -5701,20 +5701,12 @@ Are you sure?</source>
         <translation>Патерн %1</translation>
     </message>
     <message>
-        <source>View playback track</source>
-        <translation>Показати доріжку, що відтворюється</translation>
-    </message>
-    <message>
         <source>Mute playback track</source>
         <translation>Приглушити доріжку, що відтворюється</translation>
     </message>
     <message>
         <source>Choose playback track</source>
         <translation>Вибрати доріжку, що відтворюється</translation>
-    </message>
-    <message>
-        <source>View timeline</source>
-        <translation>Показати шкалу часу</translation>
     </message>
     <message>
         <source>Adjust parameter values in time</source>

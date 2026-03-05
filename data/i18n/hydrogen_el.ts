@@ -5708,20 +5708,12 @@ Are you sure?</source>
         <translation>κατάσταση λειτουργίας στοιβάγματος μήτρας</translation>
     </message>
     <message>
-        <source>View playback track</source>
-        <translation>Προβολή του καναλιού αναπαραγωγής</translation>
-    </message>
-    <message>
         <source>Mute playback track</source>
         <translation>Σίγηση του καναλιού αναπαραγωγής</translation>
     </message>
     <message>
         <source>Choose playback track</source>
         <translation>Επέλεξε κανάλι αναπαραγωγής</translation>
-    </message>
-    <message>
-        <source>View timeline</source>
-        <translation>Εμφάνιση της χρονογραμμής</translation>
     </message>
     <message>
         <source>Adjust parameter values in time</source>

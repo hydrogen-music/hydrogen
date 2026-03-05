@@ -5675,20 +5675,12 @@ Confermi?</translation>
         <translation>Pattern %1</translation>
     </message>
     <message>
-        <source>View playback track</source>
-        <translation>Visualizza traccia in riproduzione</translation>
-    </message>
-    <message>
         <source>Mute playback track</source>
         <translation>Isola traccia in riproduzione</translation>
     </message>
     <message>
         <source>Choose playback track</source>
         <translation>Scegli traccia da riprodurre</translation>
-    </message>
-    <message>
-        <source>View timeline</source>
-        <translation>Visualizza timeline</translation>
     </message>
     <message>
         <source>Adjust parameter values in time</source>

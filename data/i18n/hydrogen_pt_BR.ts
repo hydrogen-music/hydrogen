@@ -5703,20 +5703,12 @@ Está certo disto?</translation>
         <translation>Padrão %1</translation>
     </message>
     <message>
-        <source>View playback track</source>
-        <translation>Visualizar faixa de reprodução</translation>
-    </message>
-    <message>
         <source>Mute playback track</source>
         <translation>Silenciar faixa de reprodução</translation>
     </message>
     <message>
         <source>Choose playback track</source>
         <translation>Escolher faixa de reprodução</translation>
-    </message>
-    <message>
-        <source>View timeline</source>
-        <translation>Visualizar linha do tempo</translation>
     </message>
     <message>
         <source>Adjust parameter values in time</source>

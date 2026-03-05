@@ -5686,20 +5686,12 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>创建新样式</translation>
     </message>
     <message>
-        <source>View playback track</source>
-        <translation>查看回放轨道</translation>
-    </message>
-    <message>
         <source>Mute playback track</source>
         <translation>静音回放轨道</translation>
     </message>
     <message>
         <source>Choose playback track</source>
         <translation>选择回放轨道</translation>
-    </message>
-    <message>
-        <source>View timeline</source>
-        <translation>查看时间轴</translation>
     </message>
     <message>
         <source>Adjust parameter values in time</source>

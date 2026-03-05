@@ -57,8 +57,8 @@ Fader::Fader( QWidget *pParent, const Type& type, const QString& sBaseToolTip,
 	m_fValue = m_fDefaultValue;
 
 	if ( type == Type::Vertical ){ 
-		m_nWidgetWidth = 116;
-		m_nWidgetHeight = 23;
+		m_nWidgetWidth = 200;
+		m_nWidgetHeight = 25;
 	} else if ( type == Type::Master ) {
 		m_nWidgetWidth = 34;
 		m_nWidgetHeight = 189;

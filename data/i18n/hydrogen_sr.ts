@@ -5696,20 +5696,12 @@ Are you sure?</source>
         <translation>Мустра %1</translation>
     </message>
     <message>
-        <source>View playback track</source>
-        <translation>Прикажи траку која свира</translation>
-    </message>
-    <message>
         <source>Mute playback track</source>
         <translation>Утишај траку која свира</translation>
     </message>
     <message>
         <source>Choose playback track</source>
         <translation>Одабери траку за свирање</translation>
-    </message>
-    <message>
-        <source>View timeline</source>
-        <translation>Прикажи временску линију</translation>
     </message>
     <message>
         <source>Adjust parameter values in time</source>

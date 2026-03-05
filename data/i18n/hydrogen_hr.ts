@@ -5671,19 +5671,11 @@ Da li to želiš napraviti?</translation>
         <translation>Skupni Mod uzorka</translation>
     </message>
     <message>
-        <source>View playback track</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Mute playback track</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Choose playback track</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>View timeline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

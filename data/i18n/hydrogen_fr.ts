@@ -5706,20 +5706,12 @@ Voulez-vous continuer?</translation>
         <translation>Motif %1</translation>
     </message>
     <message>
-        <source>View playback track</source>
-        <translation>Afficher la piste de lecture</translation>
-    </message>
-    <message>
         <source>Mute playback track</source>
         <translation>Silencer la piste de lecture</translation>
     </message>
     <message>
         <source>Choose playback track</source>
         <translation>Choisir la piste de lecture</translation>
-    </message>
-    <message>
-        <source>View timeline</source>
-        <translation>Afficher la ligne de temps</translation>
     </message>
     <message>
         <source>Adjust parameter values in time</source>
