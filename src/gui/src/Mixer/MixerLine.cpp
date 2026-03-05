@@ -185,7 +185,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	});
 
 	// m_pFader
-	m_pFader = new Fader( this, Fader::Type::Normal, tr( "Volume" ), false,
+	m_pFader = new Fader( this, Fader::Type::Vertical, tr( "Volume" ), false,
 						  false, 0.0, 1.5 );
 	m_pFader->move( 23, 128 );
 	connect( m_pFader, &Fader::valueChanged, [&]() {

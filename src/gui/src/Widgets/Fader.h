@@ -47,7 +47,7 @@ class Fader : public WidgetWithInput, public H2Core::Object<Fader>
 	
 public:
 	enum class Type {
-		Normal,
+		Vertical,
 		/** Only used for the playback track in the SongEditorPanel*/
 		Horizonal,
 		Master

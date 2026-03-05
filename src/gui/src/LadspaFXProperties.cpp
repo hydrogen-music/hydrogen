@@ -258,7 +258,7 @@ void LadspaFXProperties::updateControls()
 
 			// fader
 			auto pFader = new Fader(
-				m_pFrame, Fader::Type::Normal, tr( "Input control param. value" ),
+				m_pFrame, Fader::Type::Vertical, tr( "Input control param. value" ),
 				pControlPort->m_bIsInteger, false, pControlPort->fLowerBound,
 				pControlPort->fUpperBound );
 			connect( pFader, SIGNAL( valueChanged( WidgetWithInput* ) ),
@@ -294,7 +294,7 @@ void LadspaFXProperties::updateControls()
 
 			// fader
 			auto pFader = new Fader(
-				m_pFrame, Fader::Type::Normal, tr( "Output control param. value" ),
+				m_pFrame, Fader::Type::Vertical, tr( "Output control param. value" ),
 				pControl->m_bIsInteger, true, pControl->fLowerBound,
 				pControl->fUpperBound );
 			pFader->move( xPos + 20, 60 );
