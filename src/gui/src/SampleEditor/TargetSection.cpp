@@ -49,8 +49,12 @@ TargetSection::TargetSection( SampleEditor* pParent )
 	pWaveWidget->setLayout( pWaveLayout );
 
 	m_pWaveDisplayL = new WaveDisplay( this, WaveDisplay::Channel::Left );
+	m_pWaveDisplayL->setFallbackLabel( "" );
+	m_pWaveDisplayL->setLabel( WaveDisplay::Label::Fallback );
 	pWaveLayout->addWidget( m_pWaveDisplayL );
 	m_pWaveDisplayR = new WaveDisplay( this, WaveDisplay::Channel::Right );
+	m_pWaveDisplayR->setFallbackLabel( "" );
+	m_pWaveDisplayR->setLabel( WaveDisplay::Label::Fallback );
 	pWaveLayout->addWidget( m_pWaveDisplayR );
 	pMainLayout->addWidget( pWaveWidget );
 }

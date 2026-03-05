@@ -64,6 +64,8 @@ class WaveDisplay : public QWidget,
 	virtual void paintEvent( QPaintEvent* ev ) override;
 	virtual void resizeEvent( QResizeEvent* event ) override;
 
+	void setFallbackLabel( const QString& sLabel );
+	void setLabel( Label label );
 	void setSampleNameAlignment( const Qt::AlignmentFlag& flag );
 
    public slots:
@@ -96,6 +98,14 @@ class WaveDisplay : public QWidget,
 	std::shared_ptr<H2Core::InstrumentLayer> m_pLayer;
 };
 
+inline void WaveDisplay::setFallbackLabel( const QString& sLabel )
+{
+	m_sFallbackLabel = sLabel;
+}
+inline void WaveDisplay::setLabel( Label label )
+{
+	m_label = label;
+}
 inline void WaveDisplay::setSampleNameAlignment( const Qt::AlignmentFlag& flag )
 {
 	m_SampleNameAlignment = flag;
