@@ -207,7 +207,13 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	} );
 
 	m_pTagAction = createAction( pTimelineToolBar, "", false );
+	connect( m_pTagAction, &QAction::triggered, [=]() {
+        m_pPositionRuler->showTagWidget( 0 );
+    });
     m_pTempoMarkerAction = createAction( pTimelineToolBar, "", false );
+	connect( m_pTempoMarkerAction, &QAction::triggered, [=]() {
+        m_pPositionRuler->showBpmWidget( 0 );
+    });
 
 	m_pSongEditorToolBar = new QToolBar( pToolBarContainer );
 	pToolBarContainerLayout->addWidget( m_pSongEditorToolBar );
