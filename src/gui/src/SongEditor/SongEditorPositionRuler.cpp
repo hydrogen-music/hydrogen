@@ -76,11 +76,11 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 		m_nActiveColumns = 0;
 	}
 
-	resize( nInitialWidth, m_nMinimumHeight );
-	setFixedHeight( m_nMinimumHeight );
+	resize( nInitialWidth, nMinimumHeight );
+	setFixedHeight( nMinimumHeight );
 
 	qreal pixelRatio = devicePixelRatio();
-	m_pBackgroundPixmap = new QPixmap( nInitialWidth * pixelRatio, m_nMinimumHeight * pixelRatio );	// initialize the pixmap
+	m_pBackgroundPixmap = new QPixmap( nInitialWidth * pixelRatio, nMinimumHeight * pixelRatio );	// initialize the pixmap
 	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 
 	m_pTimer = new QTimer(this);
@@ -124,17 +124,23 @@ void SongEditorPositionRuler::createBackground()
 	auto pTimeline = pHydrogen->getTimeline();
 	auto tagVector = pTimeline->getAllTags();
 	
-	QColor textColor( pColorTheme->m_songEditor_textColor );
+	const QColor textColor( pColorTheme->m_songEditor_textColor );
 	QColor textColorAlpha( textColor );
 	textColorAlpha.setAlpha( 45 );
 
-	QColor backgroundColor = pColorTheme->m_songEditor_alternateRowColor.darker( 115 );
-	QColor backgroundInactiveColor = pColorTheme->m_midLightColor;
-	QColor backgroundColorTempoMarkers = backgroundColor.darker( 120 );
+	const QColor backgroundColor =
+		pColorTheme->m_songEditor_alternateRowColor.darker(
+			SongEditorPositionRuler::nScalingRuler
+		);
+	const QColor backgroundInactiveColor = pColorTheme->m_midLightColor;
+	const QColor backgroundColorTempoMarkers =
+		pColorTheme->m_songEditor_alternateRowColor.darker(
+			SongEditorPositionRuler::nScalingTimeline
+		);
 
-	QColor colorHighlight = pColorTheme->m_highlightColor;
+	const QColor colorHighlight = pColorTheme->m_highlightColor;
 
-	QColor lineColor = pColorTheme->m_songEditor_lineColor;
+	const QColor lineColor = pColorTheme->m_songEditor_lineColor;
 	QColor lineColorAlpha( lineColor );
 	lineColorAlpha.setAlpha( 45 );
 		

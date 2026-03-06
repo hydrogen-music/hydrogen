@@ -337,7 +337,7 @@ void HydrogenApp::setupSinglePanedInterface()
 							  MainToolBar::nHeight +
 							  SongEditorPanel::nHeaderWidgetHeight +
 							  Rack::m_nMinimumHeight +
-							  SongEditorPositionRuler::m_nMinimumHeight +
+							  SongEditorPositionRuler::nMinimumHeight +
 							  Footer::nHeight +
 							  AutomationPathView::m_nMinimumHeight );
 
