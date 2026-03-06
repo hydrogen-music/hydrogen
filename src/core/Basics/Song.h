@@ -114,20 +114,19 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	};
 		static QString PatternModeToQString( const PatternMode& patternMode );
 
-	/** Determines the state of the Playback track with respect to
-		audio processing*/
-	enum class PlaybackTrack {
-		/** No proper playback track file set yet*/
-		Unavailable = 0,
-		/** Valid file set but the playback track is muted via the GUI*/
-		Muted = 1,
-		/** Valid file set and ready for playback.*/
-		Enabled = 2,
-		/** Null element used to indicate that either no song is
-		 * present*/
-		None = 3
-	};
-		static QString PlaybackTrackToQString( const PlaybackTrack& playbackTrack );
+		/** Determines the state of the Playback track with respect to
+			audio processing*/
+		enum class PlaybackTrack {
+			/** No proper playback track file set yet*/
+			Unavailable = 0,
+			/** Valid file set but the playback track is muted via the GUI*/
+			Muted = 1,
+			/** Valid file set and ready for playback.*/
+			Enabled = 2
+		};
+		static QString PlaybackTrackToQString(
+			const PlaybackTrack& playbackTrack
+		);
 
 		/** Please do not #H2Core::Hydrogen::setSong() a song created using this
 		 * constructor. It is just a minimal version with not all its members
@@ -705,17 +704,6 @@ inline float Song::getPlaybackTrackVolume() const
 inline void Song::setPlaybackTrackVolume( const float fVolume )
 {
 	m_fPlaybackTrackVolume = fVolume;
-}
-inline Song::PlaybackTrack Song::getPlaybackTrackState() const {
-	if ( m_sPlaybackTrackFileName.isEmpty() ) {
-		return std::move( PlaybackTrack::Unavailable );
-	}
-
-	if ( ! m_bPlaybackTrackEnabled ) {
-		return std::move( PlaybackTrack::Muted );
-	}
-
-	return std::move( PlaybackTrack::Enabled );
 }
 
 inline const Song::ActionMode& Song::getActionMode() const {

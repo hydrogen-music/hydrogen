@@ -1015,6 +1015,22 @@ void Song::setIsModified( bool bIsModified )
 
 }
 
+Song::PlaybackTrack Song::getPlaybackTrackState() const {
+	if ( m_sPlaybackTrackFileName.isEmpty() ||
+		 Hydrogen::get_instance()
+				 ->getAudioEngine()
+				 ->getSampler()
+				 ->getPlaybackTrackInstrument() == nullptr ) {
+		return std::move( PlaybackTrack::Unavailable );
+	}
+
+	if ( ! m_bPlaybackTrackEnabled ) {
+		return std::move( PlaybackTrack::Muted );
+	}
+
+	return std::move( PlaybackTrack::Enabled );
+}
+
 bool Song::hasMissingSamples() const
 {
 	auto pInstrumentList = getDrumkit()->getInstruments();
@@ -1167,8 +1183,6 @@ QString Song::PlaybackTrackToQString( const PlaybackTrack& playbackTrack ) {
 		return "Muted";
 	case PlaybackTrack::Enabled:
 		return "Enabled";
-	case PlaybackTrack::None:
-		return "None";
 	default:
 		return QString( "Unknown playbackTrack [%1]" )
 			.arg( static_cast<int>(playbackTrack) );
