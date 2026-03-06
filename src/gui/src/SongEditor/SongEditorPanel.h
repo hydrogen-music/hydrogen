@@ -166,7 +166,7 @@ class SongEditorPanel : public QWidget,
 		SongEditorPositionRuler *	m_pPositionRuler;
 		PlaybackTrackWaveDisplay*	m_pPlaybackTrackWaveDisplay;
 
-		QToolBar* m_pTimelineToolBar;
+		QWidget* m_pTimelineToolBarContainer;
 		QAction* m_pEnableTimelineAction;
         QAction* m_pTagAction;
         QAction* m_pTempoMarkerAction;

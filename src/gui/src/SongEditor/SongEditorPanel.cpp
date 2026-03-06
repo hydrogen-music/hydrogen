@@ -39,6 +39,7 @@
 #include "../Widgets/MuteButton.h"
 #include "../WidgetScrollArea.h"
 #include "SongEditor/SongEditorPatternList.h"
+#include "SongEditor/SongEditorPositionRuler.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
@@ -162,23 +163,24 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	pToolBarContainer->setLayout( pToolBarContainerLayout );
     pToolBarContainer->setStyleSheet( "border-right: 1px solid #000" );
 
-	auto pTimelineToolBarContainer = new QWidget( pToolBarContainer );
-    pToolBarContainerLayout->addWidget( pTimelineToolBarContainer );
+	m_pTimelineToolBarContainer = new QWidget( pToolBarContainer );
+    m_pTimelineToolBarContainer->setObjectName( "TimelineToolBarContainer" );
+    pToolBarContainerLayout->addWidget( m_pTimelineToolBarContainer );
 	auto pTimelineToolBarContainerLayout = new QHBoxLayout();
-	pTimelineToolBarContainerLayout->setContentsMargins( 0, 0, 0, 0 );
+	pTimelineToolBarContainerLayout->setContentsMargins( 1, 1, 1, 1 );
     pTimelineToolBarContainerLayout->setSpacing( 0 );
-	pTimelineToolBarContainer->setLayout( pTimelineToolBarContainerLayout );
+	m_pTimelineToolBarContainer->setLayout( pTimelineToolBarContainerLayout );
 
     pTimelineToolBarContainerLayout->addStretch();
 
-    m_pTimelineToolBar = new QToolBar( pTimelineToolBarContainer );
-	pTimelineToolBarContainerLayout->addWidget( m_pTimelineToolBar );
-	m_pTimelineToolBar->setFixedHeight(
-		SongEditorPanel::nHeaderWidgetHeight / 2
+    auto pTimelineToolBar = new QToolBar( m_pTimelineToolBarContainer );
+	pTimelineToolBarContainerLayout->addWidget( pTimelineToolBar );
+	pTimelineToolBar->setFixedHeight(
+		SongEditorPanel::nHeaderWidgetHeight / 2 - 2
 	);
-	m_pTimelineToolBar->setFocusPolicy( Qt::ClickFocus );
+	pTimelineToolBar->setFocusPolicy( Qt::ClickFocus );
 
-	m_pEnableTimelineAction = createAction( m_pTimelineToolBar,
+	m_pEnableTimelineAction = createAction( pTimelineToolBar,
 		pCommonStrings->getTimelineEnabled(), false
 	);
 	m_pEnableTimelineAction->setObjectName( "TimelineBtn" );
@@ -190,7 +192,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		}
 		CoreActionController::activateTimeline( !pSong->getIsTimelineActivated()
 		);
-		updateIcons();
+		updateTimeline();
 
 		const QString sMessage =
 			QString( "%1 = %2" )
@@ -204,8 +206,8 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		Hydrogen::get_instance()->setIsModified( true );
 	} );
 
-	m_pTagAction = createAction( m_pTimelineToolBar, "", false );
-    m_pTempoMarkerAction = createAction( m_pTimelineToolBar, "", false );
+	m_pTagAction = createAction( pTimelineToolBar, "", false );
+    m_pTempoMarkerAction = createAction( pTimelineToolBar, "", false );
 
 	m_pSongEditorToolBar = new QToolBar( pToolBarContainer );
 	pToolBarContainerLayout->addWidget( m_pSongEditorToolBar );
@@ -1214,7 +1216,8 @@ void SongEditorPanel::updatePatternMode() {
 
 void SongEditorPanel::updateStyleSheet() {
 	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
-	const QColor colorToolBar = pColorTheme->m_songEditor_backgroundColor;
+	const QColor colorSongEditorToolBar =
+		pColorTheme->m_songEditor_backgroundColor;
 	QColor colorToolBarText;
 	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
@@ -1223,6 +1226,10 @@ void SongEditorPanel::updateStyleSheet() {
 	else {
 		colorToolBarText = Qt::black;
 	}
+	const QColor colorTimelineToolBar =
+		pColorTheme->m_songEditor_alternateRowColor.darker(
+			SongEditorPositionRuler::nScalingTimeline
+		);
 
 	QColor backgroundInactiveColor;
 	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
@@ -1249,10 +1256,23 @@ QToolBar {\
      spacing: 2px;\
 }"
 	)
-							 .arg( colorToolBar.name() )
+							 .arg( colorSongEditorToolBar.name() )
 							 .arg( colorToolBarText.name() );
-	m_pTimelineToolBar->setStyleSheet( sToolBarStyle );
 	m_pSongEditorToolBar->setStyleSheet( sToolBarStyle );
+	m_pTimelineToolBarContainer->setStyleSheet( QString( "\
+QWidget {\
+     background-color: %1;                      \
+}                                               \
+QWidget#TimelineToolBarContainer {\
+     border: 1px solid #000; \
+}                                               \
+QToolBar {\
+     color: %2; \
+     spacing: 2px;\
+}" )
+													.arg( colorTimelineToolBar.name() )
+													.arg( colorToolBarText.name(
+													) ) );
 
 	m_pMutePlaybackBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
 	m_pMutePlaybackBtn->setCheckedBackgroundTextColor(
@@ -1270,27 +1290,38 @@ void SongEditorPanel::updateTimeline() {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const auto tempoSource = pHydrogen->getTempoSource();
 
+	bool bEnabled, bTempoEnabled;
 	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
-		m_pEnableTimelineAction->setEnabled( false );
-		m_pEnableTimelineAction->setChecked( false );
+		bEnabled = false;
+		bTempoEnabled = false;
 		m_pEnableTimelineAction->setToolTip(
-			pCommonStrings->getTimelineDisabledPatternMode() );
+			pCommonStrings->getTimelineDisabledPatternMode()
+		);
 	}
 	else if ( tempoSource == Hydrogen::Tempo::Midi ) {
-		m_pEnableTimelineAction->setEnabled( false );
-		m_pEnableTimelineAction->setChecked( false );
+		bEnabled = true;
+		bTempoEnabled = false;
 		m_pEnableTimelineAction->setToolTip(
-			pCommonStrings->getTimelineDisabledMidiClock() );
+			pCommonStrings->getTimelineDisabledMidiClock()
+		);
 	}
 	else if ( tempoSource == Hydrogen::Tempo::Jack ) {
-		m_pEnableTimelineAction->setEnabled( false );
-		m_pEnableTimelineAction->setChecked( false );
+		bEnabled = true;
+		bTempoEnabled = false;
 		m_pEnableTimelineAction->setToolTip(
-			pCommonStrings->getTimelineDisabledTimebaseListener() );
+			pCommonStrings->getTimelineDisabledTimebaseListener()
+		);
 	}
 	else {
-		m_pEnableTimelineAction->setEnabled( true );
-		m_pEnableTimelineAction->setChecked( pSong->getIsTimelineActivated() );
-		m_pEnableTimelineAction->setToolTip( pCommonStrings->getTimelineEnabled() );
+		bEnabled = true;
+		bTempoEnabled = pSong->getIsTimelineActivated();
+		m_pEnableTimelineAction->setToolTip( pCommonStrings->getTimelineEnabled(
+		) );
 	}
+
+	m_pEnableTimelineAction->setEnabled( bEnabled );
+	m_pTagAction->setEnabled( bEnabled );
+	m_pTempoMarkerAction->setEnabled( bTempoEnabled );
+
+	updateIcons();
 }
