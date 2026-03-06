@@ -1139,8 +1139,8 @@ void SongEditorPanel::updateIcons() {
 	else {
 		m_pEnableTimelineAction->setIcon( QIcon( sIconPath + "disabled.svg" ) );
 	}
-	m_pTagAction->setIcon( QIcon( sIconPath + "bin.svg" ) );
-	m_pTempoMarkerAction->setIcon( QIcon( sIconPath + "bin.svg" ) );
+	m_pTagAction->setIcon( QIcon( sIconPath + "tag.svg" ) );
+	m_pTempoMarkerAction->setIcon( QIcon( sIconPath + "metronome.svg" ) );
 
 	m_pClearAction->setIcon( QIcon( sIconPath + "bin.svg" ) );
 	m_pNewPatternAction->setIcon( QIcon( sIconPath + "new.svg" ) );
