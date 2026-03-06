@@ -28,6 +28,7 @@
 
 #include <core/Basics/DrumkitMap.h>
 #include <core/Basics/Instrument.h>
+#include <core/Helpers/Time.h>
 #include <core/Midi/Midi.h>
 #include <core/Object.h>
 
@@ -558,8 +559,11 @@ class Note : public H2Core::Object<Note> {
 	long long getMidiNoteOnSentFrame() const;
 	void setMidiNoteOnSentFrame( long long nNew );
 
-	long long getMidiNoteOffFrame() const;
-	void setMidiNoteOffFrame( long long nNew );
+	long long getMidiNoteOffOffsetFrame() const;
+	void setMidiNoteOffOffsetFrame( long long nNew );
+
+	const TimePoint& getMidiNoteOffTimePoint() const;
+	void setMidiNoteOffTimePoint( const TimePoint& timePoint );
 
 	/**
 	 * @return true if the #Sampler already started rendering this
@@ -698,10 +702,18 @@ class Note : public H2Core::Object<Note> {
 	 * #Sampler. */
 	long long m_nMidiNoteOnSentFrame;
 
-	/** Transient member not written to file. Indicates at which frame
-	 * #H2Core::Sampler is supposed to send a Note-Off MIDI message
-	 * corresponding to this note. */
-	long long m_nMidiNoteOffFrame;
+	/** Allows to compensate the onset of the MIDI message send within the
+	 * current processing cycle. This yields better precision in supporting
+	 * MIDI drivers. For all others, all Note-Off MIDI message are just send
+	 * at the beginning of the processing cycle. */
+	long long m_nMidiNoteOffOffsetFrame;
+
+	/** Point in time the MIDI Note-Off message corresponding to this note
+	 * should be send. Depending on the OS, we can not use the expected
+	 * frame for scheduling by checking for the frames that passed. On both
+	 * Windows and macOS (at least within our pipeline) the time elapsed is
+	 * always larger than frames / sample rate. */
+	TimePoint m_midiNoteOffTimePoint;
 
 	/** The instrument (of the current drumkit) the note is associated with.
 	 * It will be used to render the note and, if not `nullptr`, to indicate
@@ -992,13 +1004,21 @@ inline void Note::setMidiNoteOnSentFrame( long long nNew )
 {
     m_nMidiNoteOnSentFrame = nNew;
 }
-inline long long Note::getMidiNoteOffFrame() const
+inline long long Note::getMidiNoteOffOffsetFrame() const
 {
-    return m_nMidiNoteOffFrame;
+    return m_nMidiNoteOffOffsetFrame;
 }
-inline void Note::setMidiNoteOffFrame( long long nNew )
+inline void Note::setMidiNoteOffOffsetFrame( long long nNew )
 {
-    m_nMidiNoteOffFrame = nNew;
+    m_nMidiNoteOffOffsetFrame = nNew;
+}
+inline const TimePoint& Note::getMidiNoteOffTimePoint() const
+{
+    return m_midiNoteOffTimePoint;
+}
+inline void Note::setMidiNoteOffTimePoint( const TimePoint& timePoint )
+{
+    m_midiNoteOffTimePoint = timePoint;
 }
 };	// namespace H2Core
 

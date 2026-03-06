@@ -293,8 +293,8 @@ class Sampler : public H2Core::Object<Sampler> {
 			if ( pNote1 == nullptr || pNote2 == nullptr ) {
 				return false;
 			}
-			return pNote1->getMidiNoteOffFrame() >=
-				   pNote2->getMidiNoteOffFrame();
+			return pNote1->getMidiNoteOffTimePoint() >=
+				   pNote2->getMidiNoteOffTimePoint();
 		}
 	};
 

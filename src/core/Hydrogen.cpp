@@ -74,7 +74,7 @@
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
-
+#include <core/Timeline.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -124,8 +124,6 @@ Hydrogen::Hydrogen() : m_fBeatCounterBeatLength( 1 )
 
 	m_pSoundLibraryDatabase = std::make_shared<SoundLibraryDatabase>();
 	m_pSong = Song::getEmptySong( m_pSoundLibraryDatabase );
-
-	m_pTimeline = std::make_shared<Timeline>();
 
 	m_pAudioEngine = new AudioEngine();
 	m_pMidiActionManager = std::make_shared<MidiActionManager>();
@@ -1390,27 +1388,31 @@ bool Hydrogen::getIsModified() const {
 }
 
 void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
-	if ( getSong() != nullptr ) {
-		auto pPref = Preferences::get_instance();
-		auto pAudioEngine = getAudioEngine();
+	if ( getSong() == nullptr ) {
+        return;
+    }
 
-		if ( bEnabled != getSong()->getIsTimelineActivated() ) {
-			
-			pAudioEngine->lock( RIGHT_HERE );
-			
-			getSong()->setIsTimelineActivated( bEnabled );
+	auto pPref = Preferences::get_instance();
+	auto pAudioEngine = getAudioEngine();
 
-			if ( bEnabled ) {
-				getTimeline()->activate();
-			} else {
-				getTimeline()->deactivate();
-			}
+	if ( bEnabled != getSong()->getIsTimelineActivated() ) {
+		pAudioEngine->lock( RIGHT_HERE );
 
-			pAudioEngine->handleTimelineChange();
-			pAudioEngine->unlock();
+		m_pSong->setIsTimelineActivated( bEnabled );
 
-			EventQueue::get_instance()->pushEvent( Event::Type::TimelineActivation, static_cast<int>( bEnabled ) );
+		if ( bEnabled ) {
+			m_pSong->getTimeline()->activate();
 		}
+		else {
+			m_pSong->getTimeline()->deactivate();
+		}
+
+		pAudioEngine->handleTimelineChange();
+		pAudioEngine->unlock();
+
+		EventQueue::get_instance()->pushEvent(
+			Event::Type::TimelineActivation, static_cast<int>( bEnabled )
+		);
 	}
 }
 
@@ -1630,13 +1632,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bExportSessionIsActive ) )
 			.append( QString( "%1%2m_GUIState: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( GUIStateToQString( m_GUIState ) ) )
-			.append( QString( "%1%2m_pTimeline:\n" ).arg( sPrefix ).arg( s ) );
-		if ( m_pTimeline != nullptr ) {
-			sOutput.append( QString( "%1" ).arg( m_pTimeline->toQString( sPrefix + s, bShort ) ) );
-		} else {
-			sOutput.append( QString( "nullptr\n" ) );
-		}
-		sOutput.append( QString( "%1%2m_instrumentDeathRow:\n" ).arg( sPrefix ).arg( s ) );
+			.append( QString( "%1%2m_instrumentDeathRow:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& ii : m_instrumentDeathRow ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
@@ -1723,14 +1719,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_bOldLoopEnabled: %1" ).arg( m_bOldLoopEnabled ) )
 			.append( QString( ", m_bExportSessionIsActive: %1" ).arg( m_bExportSessionIsActive ) )
 			.append( QString( ", m_GUIState: %1" ).
-					 arg( GUIStateToQString( m_GUIState ) ) );
-		sOutput.append( QString( ", m_pTimeline: " ) );
-		if ( m_pTimeline != nullptr ) {
-			sOutput.append( QString( "%1" ).arg( m_pTimeline->toQString( sPrefix, bShort ) ) );
-		} else {
-			sOutput.append( QString( "nullptr" ) );
-		}						 
-		sOutput.append( QString( ", m_instrumentDeathRow: [" ) );
+					 arg( GUIStateToQString( m_GUIState ) ) )
+			.append( QString( ", m_instrumentDeathRow: [" ) );
 		for ( const auto& ii : m_instrumentDeathRow ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );

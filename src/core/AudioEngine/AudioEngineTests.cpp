@@ -39,6 +39,7 @@
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
+#include <core/Timeline.h>
 
 #include <random>
 #include <stdexcept>
@@ -297,7 +298,7 @@ void AudioEngineTests::testTransportProcessing() {
 void AudioEngineTests::testTransportProcessingTimeline() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	auto pTimeline = pHydrogen->getTimeline();
+	auto pTimeline = pSong->getTimeline();
 	auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();

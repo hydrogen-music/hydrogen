@@ -592,7 +592,7 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		WARNINGLOG( "'ladspa' node not found" );
 	}
 
-	std::shared_ptr<Timeline> pTimeline = std::make_shared<Timeline>();
+	auto pTimeline = std::make_shared<Timeline>();
 	XMLNode bpmTimeLineNode = rootNode.firstChildElement( "BPMTimeLine" );
 	if ( ! bpmTimeLineNode.isNull() ) {
 		XMLNode newBPMNode = bpmTimeLineNode.firstChildElement( "newBPM" );
@@ -874,13 +874,11 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples,
 	}
 
 	//bpm time line
-	auto pTimeline = Hydrogen::get_instance()->getTimeline();
-
-	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
+	auto tempoMarkerVector = m_pTimeline->getAllTempoMarkers();
 	XMLNode bpmTimeLineNode = rootNode.createNode( "BPMTimeLine" );
 	if ( tempoMarkerVector.size() >= 1 ){
 		for ( int tt = 0; tt < static_cast<int>(tempoMarkerVector.size()); tt++){
-			if ( tt == 0 && pTimeline->isFirstTempoMarkerSpecial() ) {
+			if ( tt == 0 && m_pTimeline->isFirstTempoMarkerSpecial() ) {
 				continue;
 			}
 			XMLNode newBPMNode = bpmTimeLineNode.createNode( "newBPM" );
@@ -890,7 +888,7 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples,
 	}
 
 	//time line tag
-	auto tagVector = pTimeline->getAllTags();
+	auto tagVector = m_pTimeline->getAllTags();
 	XMLNode timeLineTagNode = rootNode.createNode( "timeLineTag" );
 	if ( tagVector.size() >= 1 ){
 		for ( int t = 0; t < static_cast<int>(tagVector.size()); t++){

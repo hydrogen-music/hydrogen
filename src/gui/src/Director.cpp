@@ -57,12 +57,12 @@
 #include "Skin.h"
 #include "Widgets/PixmapWidget.h"
 
-#include <core/Preferences/Preferences.h>
-#include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
-#include <core/Timeline.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Timeline.h>
 
 using namespace H2Core;
 
@@ -175,12 +175,12 @@ void Director::updateBBT()
 
 bool Director::updateTags() {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pTimeline = pHydrogen->getTimeline();
 	auto pSong = pHydrogen->getSong();
-
 	if ( pSong == nullptr ) {
 		return false;
 	}
+
+	auto pTimeline = pSong->getTimeline();
 	
 	const int nColumns = pSong->getPatternGroupVector()->size();
 

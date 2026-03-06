@@ -32,6 +32,7 @@
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Timeline.h>
 
 #include "SongEditor.h"
 #include "SongEditorPanel.h"
@@ -121,7 +122,7 @@ void SongEditorPositionRuler::createBackground()
 	if ( pSong == nullptr ) {
 		return;
 	}
-	auto pTimeline = pHydrogen->getTimeline();
+	auto pTimeline = pSong->getTimeline();
 	auto tagVector = pTimeline->getAllTags();
 	
 	QColor textColor( pColorTheme->m_songEditor_textColor );
@@ -308,7 +309,12 @@ bool SongEditorPositionRuler::event( QEvent* ev ) {
 
 void SongEditorPositionRuler::showToolTip( const QPoint& pos, const QPoint& globalPos ) {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pTimeline = pHydrogen->getTimeline();
+    auto pSong = pHydrogen->getSong();
+    if ( pSong == nullptr ) {
+        return;
+    }
+
+	auto pTimeline = pSong->getTimeline();
 
 	const int nColumn = std::max( xToColumn( pos.x() ), 0 );
 	
@@ -347,8 +353,13 @@ void SongEditorPositionRuler::showTagWidget( int nColumn )
 
 void SongEditorPositionRuler::showBpmWidget( int nColumn )
 {
-	bool bTempoMarkerPresent =
-		Hydrogen::get_instance()->getTimeline()->hasColumnTempoMarker( nColumn );
+    auto pSong = Hydrogen::get_instance()->getSong();
+    if ( pSong == nullptr ) {
+        return;
+    }
+
+	const bool bTempoMarkerPresent =
+		pSong->getTimeline()->hasColumnTempoMarker( nColumn );
 	m_nActiveBpmWidgetColumn = nColumn;
 	update();
 	
@@ -433,7 +444,11 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	auto pSongEditorPanel = pHydrogenApp->getSongEditorPanel();
 	auto pSongEditor = pSongEditorPanel->getSongEditor();
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pTimeline = pHydrogen->getTimeline();
+	auto pSong = pHydrogen->getSong();
+    if ( pSong == nullptr ) {
+        return;
+    }
+	auto pTimeline = pSong->getTimeline();
 	const auto pPref = Preferences::get_instance();
 	const auto pColorTheme = pPref->getColorTheme();
 	const auto pFontTheme = pPref->getFontTheme();
@@ -698,7 +713,12 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 QRect SongEditorPositionRuler::calcTempoMarkerRect( std::shared_ptr<const Timeline::TempoMarker> pTempoMarker, bool bEmphasize ) const {
 	assert( pTempoMarker );
 
-	auto pTimeline = Hydrogen::get_instance()->getTimeline();
+    auto pSong = Hydrogen::get_instance()->getSong();
+    if ( pSong == nullptr ) {
+        return QRect();
+    }
+
+	auto pTimeline = pSong->getTimeline();
 	const auto pPref = Preferences::get_instance();
 	auto weight = QFont::Normal;
 	if ( bEmphasize ) {
@@ -738,7 +758,7 @@ void SongEditorPositionRuler::drawTempoMarker( std::shared_ptr<const Timeline::T
 	if ( pSong == nullptr ) {
 		return;
 	}
-	auto pTimeline = pHydrogen->getTimeline();
+	auto pTimeline = pSong->getTimeline();
 
 	// Only paint the special tempo marker in case Timeline is
 	// activated.
@@ -804,7 +824,7 @@ void SongEditorPositionRuler::updatePosition()
 		return;
 	}
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	const auto pTimeline = pHydrogen->getTimeline();
+	const auto pTimeline = pSong->getTimeline();
 	const auto pPref = Preferences::get_instance();
 	const auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 	

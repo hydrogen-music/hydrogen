@@ -30,7 +30,6 @@
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
-#include <core/Timeline.h>
 
 #include <stdint.h> // for uint32_t et al
 #include <cassert>
@@ -323,9 +322,7 @@ public:
 	void			releaseJackTimebaseControl();
 
 	void			panic();
-	std::shared_ptr<Timeline>	getTimeline() const;
-	void			setTimeline( std::shared_ptr<Timeline> );
-	
+
 	//export management
 	bool			getIsExportSessionActive() const;
 	/**
@@ -517,14 +514,9 @@ private:
 	 * Set by setGUIState() and accessed via getGUIState().
 	 */
 	GUIState		m_GUIState;
-	
-	/**
-	 * Local instance of the Timeline object.
-	 */
-	std::shared_ptr<Timeline>	m_pTimeline;
 
-		/** Helper class for time-specific methods. */
-		std::shared_ptr<TimeHelper> m_pTimeHelper;
+	/** Helper class for time-specific methods. */
+	std::shared_ptr<TimeHelper> m_pTimeHelper;
 
 	/// Deleting instruments too soon leads to potential crashes.
 	std::list<std::shared_ptr<Instrument>> 	m_instrumentDeathRow;
@@ -582,19 +574,6 @@ private:
 	bool m_bSendBbtChangeEvents;
 
 };
-
-
-/*
- * inline methods
- */
-inline std::shared_ptr<Timeline> Hydrogen::getTimeline() const
-{
-	return m_pTimeline;
-}
-inline void Hydrogen::setTimeline( std::shared_ptr<Timeline> pTimeline )
-{
-	m_pTimeline = pTimeline;
-}
 
 inline bool Hydrogen::getIsExportSessionActive() const
 {

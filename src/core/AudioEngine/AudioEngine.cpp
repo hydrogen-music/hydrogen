@@ -53,6 +53,7 @@
 #include <core/IO/PortMidiDriver.h>
 #include <core/IO/PulseAudioDriver.h>
 #include <core/Midi/Midi.h>
+#include <core/Timeline.h>
 
 #define AUDIO_ENGINE_DEBUG 0
 
@@ -1508,7 +1509,7 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 	else if ( pSong->getIsTimelineActivated() &&
 			  pHydrogen->getMode() == Song::Mode::Song ) {
 
-		const float fTimelineBpm = pHydrogen->getTimeline()->getTempoAtColumn( nColumn );
+		const float fTimelineBpm = pSong->getTimeline()->getTempoAtColumn( nColumn );
 		if ( fTimelineBpm != fBpm ) {
 #if AUDIO_ENGINE_DEBUG
 			AE_DEBUGLOG( QString( "Set tempo to timeline value [%1]")
@@ -2123,12 +2124,8 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	// Will also adapt the audio engine to the new song's BPM.
 	locate( 0 );
 
-	if ( pNewSong != nullptr ) {
-		pHydrogen->setTimeline( pNewSong->getTimeline() );
-		pHydrogen->getTimeline()->activate();
-	}
-	else {
-		pHydrogen->setTimeline( nullptr );
+	if ( pNewSong != nullptr && pNewSong->getTimeline() != nullptr ) {
+		pNewSong->getTimeline()->activate();
 	}
 
 	updateSongSize( Event::Trigger::Suppress );
