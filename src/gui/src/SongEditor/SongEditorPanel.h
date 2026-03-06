@@ -126,8 +126,6 @@ class SongEditorPanel : public QWidget,
 		void updatePlaybackFaderPeaks();
 		void updatePlayHeadPosition();
 
-		void editPlaybackTrackBtnClicked();
-
 		void zoomInBtnClicked();
 		void zoomOutBtnClicked();
 		
@@ -171,19 +169,18 @@ class SongEditorPanel : public QWidget,
         QAction* m_pTagAction;
         QAction* m_pTempoMarkerAction;
 
+		QWidget* m_pPlaybackTrackSidebar;
+		Fader* m_pPlaybackTrackFader;
+		QAction* m_pLoadPlaybackTrackAction;
+		QAction* m_pEditPlaybackTrackAction;
+		MuteButton* m_pMutePlaybackTrackButton;
+
 		QToolBar*					m_pSongEditorToolBar;
 		QAction*					m_pClearAction;
 		QAction*					m_pNewPatternAction;
 		MidiLearnableToolButton*	m_pSinglePatternModeButton;
 		MidiLearnableToolButton*	m_pStackedPatternModeButton;
 		MidiLearnableToolButton*	m_pPatternEditorLockedButton;
-
-		Fader*						m_pPlaybackTrackFader;
-
-        QWidget* m_pPlaybackTrackSidebar;
-		Button *					m_pEditPlaybackBtn;
-		Button *					m_pMutePlaybackBtn;
-
 
 		QTimer*						m_pHighlightLockedTimer;
 		QTimer*						m_pTimer;

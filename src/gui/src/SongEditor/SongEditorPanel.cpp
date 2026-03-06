@@ -81,12 +81,13 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	////////////////////////////////////////////////////////////////////////////
 
 	m_pPlaybackTrackSidebar = new QWidget( this );
+	m_pPlaybackTrackSidebar->setFixedWidth( SongEditorPatternList::nWidth );
+	m_pPlaybackTrackSidebar->setStyleSheet( "border-right: 1px solid #000" );
 	auto pPlaybackTrackSidebarLayout = new QVBoxLayout();
 	pPlaybackTrackSidebarLayout->setAlignment( Qt::AlignBottom );
 	pPlaybackTrackSidebarLayout->setContentsMargins( 0, 0, 0, 0 );
 	pPlaybackTrackSidebarLayout->setSpacing( 0 );
 	m_pPlaybackTrackSidebar->setLayout( pPlaybackTrackSidebarLayout );
-	m_pPlaybackTrackSidebar->setStyleSheet( "border-right: 1px solid #000" );
 
 	// Playback Fader
 	m_pPlaybackTrackFader = new Fader(
@@ -106,49 +107,127 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	);
 	pPlaybackTrackSidebarLayout->addWidget( m_pPlaybackTrackFader );
 
-	auto pPlaybackTrackToolBar = new QWidget( m_pPlaybackTrackSidebar );
-	pPlaybackTrackToolBar->setFixedSize(
-		SongEditorPatternList::nWidth, SongEditorPanel::nHeaderWidgetHeight / 2
+	auto pPlaybackTrackToolBarContainer = new QWidget( m_pPlaybackTrackSidebar );
+	pPlaybackTrackToolBarContainer->setObjectName(
+		"PlaybackTrackToolBarContainer"
 	);
-	pPlaybackTrackSidebarLayout->addWidget( pPlaybackTrackToolBar );
-	auto pPlaybackTrackToolBarLayout = new QHBoxLayout();
-	pPlaybackTrackToolBarLayout->setContentsMargins( 0, 0, 0, 0 );
-	pPlaybackTrackToolBar->setLayout( pPlaybackTrackToolBarLayout );
+	pPlaybackTrackSidebarLayout->addWidget( pPlaybackTrackToolBarContainer );
+	auto pPlaybackTrackToolBarContainerLayout = new QHBoxLayout();
+	pPlaybackTrackToolBarContainerLayout->setContentsMargins( 1, 1, 1, 1 );
+	pPlaybackTrackToolBarContainerLayout->setSpacing( 0 );
+	pPlaybackTrackToolBarContainer->setLayout(
+		pPlaybackTrackToolBarContainerLayout
+	);
+
+	pPlaybackTrackToolBarContainerLayout->addStretch();
+
+	auto pPlaybackTrackToolBar = new QToolBar( pPlaybackTrackToolBarContainer );
+	pPlaybackTrackToolBar->setFixedHeight(
+		SongEditorPanel::nHeaderWidgetHeight / 2
+	);
+	pPlaybackTrackToolBarContainerLayout->addWidget( pPlaybackTrackToolBar );
+
+	m_pLoadPlaybackTrackAction = createAction(
+		pPlaybackTrackToolBar, tr( "Choose playback track" ), false
+	);
+	m_pLoadPlaybackTrackAction->setObjectName(
+		"SongEditorPlaybackTrackEditButton"
+	);
+	connect( m_pLoadPlaybackTrackAction, &QAction::triggered, [=]() {
+		auto pPref = Preferences::get_instance();
+		auto pHydrogen = Hydrogen::get_instance();
+		auto pSong = pHydrogen->getSong();
+		if ( pSong == nullptr ) {
+			return;
+		}
+		QString sPath, sFileName;
+		if ( !pSong->getPlaybackTrackFileName().isEmpty() ) {
+			QFileInfo fileInfo( pSong->getPlaybackTrackFileName() );
+			sFileName = pSong->getPlaybackTrackFileName();
+			sPath = fileInfo.absoluteDir().absolutePath();
+		}
+		else {
+			sFileName = "";
+			sPath = pPref->getLastOpenPlaybackTrackDirectory();
+		}
+
+		if ( !Filesystem::dir_readable( sPath, false ) ) {
+			sPath = QDir::homePath();
+		}
+
+		QStringList filenameList;
+		// use AudioFileBrowser, but don't allow multi-select. Also, hide all no
+		// necessary controls.
+		auto pFileBrowser =
+			new AudioFileBrowser( nullptr, false, false, sPath, sFileName );
+		if ( pFileBrowser->exec() == QDialog::Accepted ) {
+			// Only overwrite the default directory if we didn't start
+			// from an existing file or the final directory differs from
+			// the starting one.
+			if ( sFileName.isEmpty() ||
+				 sPath != pFileBrowser->getSelectedDirectory() ) {
+				pPref->setLastOpenPlaybackTrackDirectory(
+					pFileBrowser->getSelectedDirectory()
+				);
+			}
+			filenameList = pFileBrowser->getSelectedFiles();
+		}
+		delete pFileBrowser;
+
+		if ( filenameList.size() != 3 || filenameList[2].isEmpty() ) {
+			return;
+		}
+		pHydrogen->loadPlaybackTrack( filenameList[2] );
+	} );
+
+	m_pEditPlaybackTrackAction =
+		createAction( pPlaybackTrackToolBar, "", false );
+	connect( m_pEditPlaybackTrackAction, &QAction::triggered, [=]() {
+		auto pInstrument = Hydrogen::get_instance()
+							   ->getAudioEngine()
+							   ->getSampler()
+							   ->getPlaybackTrackInstrument();
+		if ( pInstrument == nullptr ||
+			 pInstrument->getComponent( 0 ) == nullptr ||
+			 pInstrument->getComponent( 0 )->getLayer( 0 ) == nullptr ) {
+			return;
+		}
+		auto pComponent = pInstrument->getComponent( 0 );
+		if ( pComponent == nullptr || pComponent->getLayer( 0 ) == nullptr ) {
+			return;
+		}
+		HydrogenApp::get_instance()->showSampleEditor(
+			pComponent->getLayer( 0 ), pComponent, pInstrument
+		);
+	} );
 
 	// mute playback track toggle button
-	m_pMutePlaybackBtn = new MuteButton(
-		pPlaybackTrackToolBar, QSize( 34, 17 ), tr( "Mute playback track" ),
+	m_pMutePlaybackTrackButton = new MuteButton(
+		pPlaybackTrackToolBar, QSize( 30, 26 ), tr( "Mute playback track" ),
 		true
 	);
-	m_pMutePlaybackBtn->setObjectName( "SongEditorPlaybackTrackMuteButton" );
-	connect( m_pMutePlaybackBtn, &QPushButton::clicked, [=]( bool bChecked ) {
-		Hydrogen::get_instance()->mutePlaybackTrack( bChecked );
-		m_pPlaybackTrackWaveDisplay->updateBackground();
-	} );
-	pPlaybackTrackToolBarLayout->addWidget( m_pMutePlaybackBtn );
+	m_pMutePlaybackTrackButton->setObjectName(
+		"SongEditorPlaybackTrackMuteButton"
+	);
+	connect(
+		m_pMutePlaybackTrackButton, &QPushButton::clicked,
+		[=]( bool bChecked ) {
+			Hydrogen::get_instance()->mutePlaybackTrack( bChecked );
+			m_pPlaybackTrackWaveDisplay->updateBackground();
+		}
+	);
+	pPlaybackTrackToolBar->addWidget( m_pMutePlaybackTrackButton );
 
 	if ( pHydrogen->getPlaybackTrackState() ==
 		 Song::PlaybackTrack::Unavailable ) {
 		m_pPlaybackTrackFader->setIsActive( false );
-		m_pMutePlaybackBtn->setChecked( true );
-		m_pMutePlaybackBtn->setIsActive( false );
+		m_pMutePlaybackTrackButton->setChecked( true );
+		m_pMutePlaybackTrackButton->setIsActive( false );
 	}
 	else {
-		m_pMutePlaybackBtn->setChecked( !pSong->getPlaybackTrackEnabled() );
+		m_pMutePlaybackTrackButton->setChecked( !pSong->getPlaybackTrackEnabled(
+		) );
 	}
-
-	// edit playback track toggle button
-	m_pEditPlaybackBtn = new Button(
-		pPlaybackTrackToolBar, QSize( 34, 17 ), Button::Type::Push, "",
-		pCommonStrings->getEditButton(), QSize(), tr( "Choose playback track" )
-	);
-	m_pEditPlaybackBtn->setObjectName( "SongEditorPlaybackTrackEditButton" );
-	connect(
-		m_pEditPlaybackBtn, SIGNAL( clicked() ), this,
-		SLOT( editPlaybackTrackBtnClicked() )
-	);
-	m_pEditPlaybackBtn->setChecked( false );
-	pPlaybackTrackToolBarLayout->addWidget( m_pEditPlaybackBtn );
 
 	m_pPlaybackTrackSidebar->setVisible( bShowPlaybackTrack );
 
@@ -621,8 +700,8 @@ void SongEditorPanel::updatePlaybackTrack()
 		 pSong == nullptr ) {
 		// No playback track chosen (stored in the current song).
 		m_pPlaybackTrackFader->setIsActive( false );
-		m_pMutePlaybackBtn->setChecked( true );
-		m_pMutePlaybackBtn->setIsActive( false );
+		m_pMutePlaybackTrackButton->setChecked( true );
+		m_pMutePlaybackTrackButton->setIsActive( false );
 
 		m_pPlaybackTrackWaveDisplay->setLayer( nullptr );
 	}
@@ -631,11 +710,11 @@ void SongEditorPanel::updatePlaybackTrack()
 		// use.
 		m_pPlaybackTrackFader->setIsActive( true );
 		m_pPlaybackTrackFader->setValue( pSong->getPlaybackTrackVolume() );
-		m_pMutePlaybackBtn->setIsActive( true );
+		m_pMutePlaybackTrackButton->setIsActive( true );
 		if ( pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::Muted ) {
-			m_pMutePlaybackBtn->setChecked( true );
+			m_pMutePlaybackTrackButton->setChecked( true );
 		} else {
-			m_pMutePlaybackBtn->setChecked( false );
+			m_pMutePlaybackTrackButton->setChecked( false );
 		}
 
 		auto pPlaybackCompo = pHydrogen->getAudioEngine()->getSampler()->
@@ -940,61 +1019,6 @@ void SongEditorPanel::showPlaybackTrack()
 	HydrogenApp::get_instance()->getMainToolBar()->updateActions();
 }
 
-void SongEditorPanel::editPlaybackTrackBtnClicked()
-{
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pHydrogen->getAudioEngine()->getState() ==
-		 H2Core::AudioEngine::State::Playing ) {
-		pHydrogen->sequencerStop();
-	}
-
-	QString sPath, sFileName;
-
-	if ( ! pSong->getPlaybackTrackFileName().isEmpty() ) {
-		QFileInfo fileInfo( pSong->getPlaybackTrackFileName() );
-		sFileName = pSong->getPlaybackTrackFileName();
-		sPath = fileInfo.absoluteDir().absolutePath();
-	} else {
-		sFileName = "";
-		sPath = Preferences::get_instance()->getLastOpenPlaybackTrackDirectory();
-	}
-	
-	if ( ! Filesystem::dir_readable( sPath, false ) ){
-		sPath = QDir::homePath();
-	}
-	
-	//use AudioFileBrowser, but don't allow multi-select. Also, hide all no necessary controls.
-	AudioFileBrowser *pFileBrowser =
-		new AudioFileBrowser( nullptr, false, false, sPath, sFileName );
-	
-	QStringList filenameList;
-	
-	if ( pFileBrowser->exec() == QDialog::Accepted ) {
-
-		// Only overwrite the default directory if we didn't start
-		// from an existing file or the final directory differs from
-		// the starting one.
-		if ( sFileName.isEmpty() ||
-			 sPath != pFileBrowser->getSelectedDirectory() ) {
-			Preferences::get_instance()->setLastOpenPlaybackTrackDirectory( pFileBrowser->getSelectedDirectory() );
-		}
-		filenameList = pFileBrowser->getSelectedFiles();
-	}
-
-	delete pFileBrowser;
-
-	if( filenameList.size() != 3 ) {
-		return;
-	}
-	
-	if ( filenameList[2].isEmpty() ) {
-		return;
-	}
-
-	pHydrogen->loadPlaybackTrack( filenameList[2] );
-}
-
 void SongEditorPanel::zoomInBtnClicked()
 {
 	auto pPref = Preferences::get_instance();
@@ -1138,8 +1162,14 @@ void SongEditorPanel::updateIcons() {
 		color = Qt::black;
 	}
 
-    auto pSong = Hydrogen::get_instance()->getSong();
-    const bool bTimelineEnabled = pSong != nullptr ? pSong->getIsTimelineActivated() : false;
+	m_pLoadPlaybackTrackAction->setIcon( QIcon( sIconPath + "folder.svg" ) );
+	m_pEditPlaybackTrackAction->setIcon(
+		QIcon( sIconPath + "sample-editor.svg" )
+	);
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	const bool bTimelineEnabled =
+		pSong != nullptr ? pSong->getIsTimelineActivated() : false;
 
 	if ( bTimelineEnabled ) {
 		m_pEnableTimelineAction->setIcon( QIcon( sIconPath + "enabled.svg" ) );
@@ -1152,9 +1182,11 @@ void SongEditorPanel::updateIcons() {
 
 	m_pClearAction->setIcon( QIcon( sIconPath + "bin.svg" ) );
 	m_pNewPatternAction->setIcon( QIcon( sIconPath + "new.svg" ) );
-	m_pSinglePatternModeButton->setIcon( QIcon( sIconPath + "single_layer.svg" ) );
+	m_pSinglePatternModeButton->setIcon( QIcon( sIconPath + "single_layer.svg" )
+	);
 	m_pStackedPatternModeButton->setIcon(
-		QIcon( sIconPath + "multiple_layers.svg" ) );
+		QIcon( sIconPath + "multiple_layers.svg" )
+	);
 
 	updatePatternEditorLocked();
 }
@@ -1232,6 +1264,8 @@ void SongEditorPanel::updateStyleSheet() {
 	else {
 		colorToolBarText = Qt::black;
 	}
+	const QColor colorPlaybackTrackToolBar =
+		pColorTheme->m_accentColor.darker( 85 );
 	const QColor colorTimelineToolBar =
 		pColorTheme->m_songEditor_alternateRowColor.darker(
 			SongEditorPositionRuler::nScalingTimeline
@@ -1265,6 +1299,22 @@ QToolBar {\
 							 .arg( colorSongEditorToolBar.name() )
 							 .arg( colorToolBarText.name() );
 	m_pSongEditorToolBar->setStyleSheet( sToolBarStyle );
+
+	m_pPlaybackTrackSidebar->setStyleSheet( QString( "\
+QWidget {\
+     background-color: %1;                      \
+}                                               \
+QWidget#TimelineToolBarContainer {\
+     border: 1px solid #000; \
+}                                               \
+QToolBar {\
+     color: %2; \
+     spacing: 2px;\
+}" )
+													.arg( colorPlaybackTrackToolBar.name() )
+													.arg( colorToolBarText.name(
+													) ) );
+
 	m_pTimelineToolBarContainer->setStyleSheet( QString( "\
 QWidget {\
      background-color: %1;                      \
@@ -1280,8 +1330,8 @@ QToolBar {\
 													.arg( colorToolBarText.name(
 													) ) );
 
-	m_pMutePlaybackBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
-	m_pMutePlaybackBtn->setCheckedBackgroundTextColor(
+	m_pMutePlaybackTrackButton->setCheckedBackgroundColor( pColorTheme->m_muteColor );
+	m_pMutePlaybackTrackButton->setCheckedBackgroundTextColor(
 		pColorTheme->m_muteTextColor );
 
 }
