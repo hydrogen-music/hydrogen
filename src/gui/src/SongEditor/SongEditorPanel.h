@@ -166,7 +166,12 @@ class SongEditorPanel : public QWidget,
 		SongEditorPositionRuler *	m_pPositionRuler;
 		PlaybackTrackWaveDisplay*	m_pPlaybackTrackWaveDisplay;
 
-		QToolBar*					m_pToolBar;
+		QToolBar* m_pTimelineToolBar;
+		QAction* m_pEnableTimelineAction;
+        QAction* m_pTagAction;
+        QAction* m_pTempoMarkerAction;
+
+		QToolBar*					m_pSongEditorToolBar;
 		QAction*					m_pClearAction;
 		QAction*					m_pNewPatternAction;
 		MidiLearnableToolButton*	m_pSinglePatternModeButton;
@@ -176,7 +181,6 @@ class SongEditorPanel : public QWidget,
 		Fader*						m_pPlaybackTrackFader;
 
         QWidget* m_pPlaybackTrackSidebar;
-		Button *					m_pEnableTimelineBtn;
 		Button *					m_pEditPlaybackBtn;
 		Button *					m_pMutePlaybackBtn;
 

@@ -66,6 +66,17 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 
 	setWindowTitle( tr( "Song Editor" ) );
 
+	auto createAction = [&]( QWidget* pParent, const QString& sText,
+							 bool bCheckable ) {
+		auto pAction = new QAction( pParent );
+		pAction->setCheckable( bCheckable );
+		pAction->setIconText( sText );
+		pAction->setToolTip( sText );
+		pParent->addAction( pAction );
+
+		return pAction;
+	};
+
 	////////////////////////////////////////////////////////////////////////////
 
 	m_pPlaybackTrackSidebar = new QWidget( this );
@@ -102,30 +113,6 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	auto pPlaybackTrackToolBarLayout = new QHBoxLayout();
 	pPlaybackTrackToolBarLayout->setContentsMargins( 0, 0, 0, 0 );
 	pPlaybackTrackToolBar->setLayout( pPlaybackTrackToolBarLayout );
-
-	m_pEnableTimelineBtn = new Button(
-		pPlaybackTrackToolBar, QSize( 34, 17 ), Button::Type::Toggle, "",
-		pCommonStrings->getTimelineBigButton(), QSize(),
-		pCommonStrings->getTimelineEnabled()
-	);
-	m_pEnableTimelineBtn->setObjectName( "TimelineBtn" );
-	m_pEnableTimelineBtn->setChecked( pSong->getIsTimelineActivated() );
-	connect( m_pEnableTimelineBtn, &QPushButton::clicked, [=]() {
-		CoreActionController::activateTimeline( m_pEnableTimelineBtn->isChecked(
-		) );
-
-		const QString sMessage =
-			QString( "%1 = %2" )
-				.arg( pCommonStrings->getTimelineBigButton() )
-				.arg(
-					m_pEnableTimelineBtn->isChecked()
-						? pCommonStrings->getStatusOn()
-						: pCommonStrings->getStatusOff()
-				);
-		HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
-		Hydrogen::get_instance()->setIsModified( true );
-	} );
-	pPlaybackTrackToolBarLayout->addWidget( m_pEnableTimelineBtn );
 
 	// mute playback track toggle button
 	m_pMutePlaybackBtn = new MuteButton(
@@ -170,66 +157,103 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	auto pToolBarContainerLayout = new QVBoxLayout();
 	pToolBarContainerLayout->setAlignment( Qt::AlignBottom );
 	pToolBarContainerLayout->setContentsMargins( 0, 0, 0, 0 );
+    pToolBarContainer->setFixedWidth( SongEditorPatternList::nWidth );
+    pToolBarContainerLayout->setSpacing( 0 );
 	pToolBarContainer->setLayout( pToolBarContainerLayout );
     pToolBarContainer->setStyleSheet( "border-right: 1px solid #000" );
 
-	m_pToolBar = new QToolBar( pToolBarContainer );
-	pToolBarContainerLayout->addWidget( m_pToolBar );
-	m_pToolBar->setFixedSize(
+	auto pTimelineToolBarContainer = new QWidget( pToolBarContainer );
+    pToolBarContainerLayout->addWidget( pTimelineToolBarContainer );
+	auto pTimelineToolBarContainerLayout = new QHBoxLayout();
+	pTimelineToolBarContainerLayout->setContentsMargins( 0, 0, 0, 0 );
+    pTimelineToolBarContainerLayout->setSpacing( 0 );
+	pTimelineToolBarContainer->setLayout( pTimelineToolBarContainerLayout );
+
+    pTimelineToolBarContainerLayout->addStretch();
+
+    m_pTimelineToolBar = new QToolBar( pTimelineToolBarContainer );
+	pTimelineToolBarContainerLayout->addWidget( m_pTimelineToolBar );
+	m_pTimelineToolBar->setFixedHeight(
+		SongEditorPanel::nHeaderWidgetHeight / 2
+	);
+	m_pTimelineToolBar->setFocusPolicy( Qt::ClickFocus );
+
+	m_pEnableTimelineAction = createAction( m_pTimelineToolBar,
+		pCommonStrings->getTimelineEnabled(), false
+	);
+	m_pEnableTimelineAction->setObjectName( "TimelineBtn" );
+	m_pEnableTimelineAction->setChecked( pSong->getIsTimelineActivated() );
+	connect( m_pEnableTimelineAction, &QAction::triggered, [=]() {
+		auto pSong = Hydrogen::get_instance()->getSong();
+		if ( pSong == nullptr ) {
+			return;
+		}
+		CoreActionController::activateTimeline( !pSong->getIsTimelineActivated()
+		);
+		updateIcons();
+
+		const QString sMessage =
+			QString( "%1 = %2" )
+				.arg( pCommonStrings->getTimelineBigButton() )
+				.arg(
+					m_pEnableTimelineAction->isChecked()
+						? pCommonStrings->getStatusOn()
+						: pCommonStrings->getStatusOff()
+				);
+		HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
+		Hydrogen::get_instance()->setIsModified( true );
+	} );
+
+	m_pTagAction = createAction( m_pTimelineToolBar, "", false );
+    m_pTempoMarkerAction = createAction( m_pTimelineToolBar, "", false );
+
+	m_pSongEditorToolBar = new QToolBar( pToolBarContainer );
+	pToolBarContainerLayout->addWidget( m_pSongEditorToolBar );
+	m_pSongEditorToolBar->setFixedSize(
 		SongEditorPatternList::nWidth, SongEditorPanel::nHeaderWidgetHeight / 2
 	);
-	m_pToolBar->setFocusPolicy( Qt::ClickFocus );
+	m_pSongEditorToolBar->setFocusPolicy( Qt::ClickFocus );
 
-	auto createAction = [&]( const QString& sText, bool bCheckable ) {
-		auto pAction = new QAction( m_pToolBar );
-		pAction->setCheckable( bCheckable );
-		pAction->setIconText( sText );
-		pAction->setToolTip( sText );
+	m_pClearAction = createAction(
+		m_pSongEditorToolBar, tr( "Clear pattern sequence" ), false
+	);
+	connect( m_pClearAction, &QAction::triggered, [=]() { clearSequence(); } );
 
-		return pAction;
-	};
+	m_pSongEditorToolBar->addSeparator();
 
-	m_pClearAction = createAction( tr( "Clear pattern sequence" ), false );
-	connect( m_pClearAction, &QAction::triggered, [=]() {
-		clearSequence();
-	});
-	m_pToolBar->addAction( m_pClearAction );
-
-	m_pToolBar->addSeparator();
-
-	m_pNewPatternAction = createAction( tr( "Create new pattern" ), false );
+	m_pNewPatternAction =
+		createAction( m_pSongEditorToolBar, tr( "Create new pattern" ), false );
 	connect( m_pNewPatternAction, &QAction::triggered, [=]() {
 		addNewPattern();
-	});
-	m_pToolBar->addAction( m_pNewPatternAction );
+	} );
 
-	m_pToolBar->addSeparator();
+	m_pSongEditorToolBar->addSeparator();
 
-	auto pPatternModeGroup = new QButtonGroup( m_pToolBar );
+	auto pPatternModeGroup = new QButtonGroup( m_pSongEditorToolBar );
 	pPatternModeGroup->setExclusive( true );
 
 	m_pSinglePatternModeButton = new MidiLearnableToolButton(
-		m_pToolBar, tr( "selected pattern mode" ) );
+		m_pSongEditorToolBar, tr( "selected pattern mode" ) );
 	m_pSinglePatternModeButton->setCheckable( true );
 	connect( m_pSinglePatternModeButton, &QToolButton::clicked, [=]() {
 		Hydrogen::get_instance()->setPatternMode( Song::PatternMode::Selected );
 	});
 	pPatternModeGroup->addButton( m_pSinglePatternModeButton );
-	m_pToolBar->addWidget( m_pSinglePatternModeButton );
+	m_pSongEditorToolBar->addWidget( m_pSinglePatternModeButton );
 
 	m_pStackedPatternModeButton = new MidiLearnableToolButton(
-		m_pToolBar, tr( "stacked pattern mode" ) );
+		m_pSongEditorToolBar, tr( "stacked pattern mode" ) );
 	m_pStackedPatternModeButton->setCheckable( true );
 	connect( m_pStackedPatternModeButton, &QToolButton::clicked, [=]() {
 		Hydrogen::get_instance()->setPatternMode( Song::PatternMode::Stacked );
 	});
 	pPatternModeGroup->addButton( m_pStackedPatternModeButton );
-	m_pToolBar->addWidget( m_pStackedPatternModeButton );
+	m_pSongEditorToolBar->addWidget( m_pStackedPatternModeButton );
 
-	m_pToolBar->addSeparator();
+	m_pSongEditorToolBar->addSeparator();
 
 	m_pPatternEditorLockedButton = new MidiLearnableToolButton(
-		m_pToolBar, pCommonStrings->getPatternEditorLocked() );
+		m_pSongEditorToolBar, pCommonStrings->getPatternEditorLocked() );
 	m_pPatternEditorLockedButton->setCheckable( true );
 	m_pPatternEditorLockedButton->setObjectName( "PatternEditorLockedButton" );
 	connect( m_pPatternEditorLockedButton, &QToolButton::clicked, [=](){
@@ -237,7 +261,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		pHydrogen->setIsPatternEditorLocked(
 			! pHydrogen->isPatternEditorLocked() );
 	});
-	m_pToolBar->addWidget( m_pPatternEditorLockedButton );
+	m_pSongEditorToolBar->addWidget( m_pPatternEditorLockedButton );
 
 // ZOOM
 	m_pHScrollBar = new QScrollBar( Qt::Horizontal, nullptr );
@@ -1105,6 +1129,18 @@ void SongEditorPanel::updateIcons() {
 		color = Qt::black;
 	}
 
+    auto pSong = Hydrogen::get_instance()->getSong();
+    const bool bTimelineEnabled = pSong != nullptr ? pSong->getIsTimelineActivated() : false;
+
+	if ( bTimelineEnabled ) {
+		m_pEnableTimelineAction->setIcon( QIcon( sIconPath + "enabled.svg" ) );
+	}
+	else {
+		m_pEnableTimelineAction->setIcon( QIcon( sIconPath + "disabled.svg" ) );
+	}
+	m_pTagAction->setIcon( QIcon( sIconPath + "bin.svg" ) );
+	m_pTempoMarkerAction->setIcon( QIcon( sIconPath + "bin.svg" ) );
+
 	m_pClearAction->setIcon( QIcon( sIconPath + "bin.svg" ) );
 	m_pNewPatternAction->setIcon( QIcon( sIconPath + "new.svg" ) );
 	m_pSinglePatternModeButton->setIcon( QIcon( sIconPath + "single_layer.svg" ) );
@@ -1178,7 +1214,14 @@ void SongEditorPanel::updatePatternMode() {
 void SongEditorPanel::updateStyleSheet() {
 	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 	const QColor colorToolBar = pColorTheme->m_songEditor_backgroundColor;
-	const QColor colorToolBarText = pColorTheme->m_songEditor_textColor;
+	QColor colorToolBarText;
+	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+		 InterfaceTheme::IconColor::White ) {
+		colorToolBarText = Qt::white;
+	}
+	else {
+		colorToolBarText = Qt::black;
+	}
 
 	QColor backgroundInactiveColor;
 	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
@@ -1193,23 +1236,22 @@ void SongEditorPanel::updateStyleSheet() {
 #PatternListScrollView, #EditorScrollView, #PositionRulerScrollView,\
 #PlaybackTrackScrollView, #AutomationPathScrollView, #SongEditorPanel {\
      background-color: %1;\
-}\
-#SongEditorBackPanel {\
-     background-color: %2;\
-     border: 1px solid #000;\
 }" )
-				   .arg( backgroundInactiveColor.name() )
-				   .arg( colorToolBar.name() ) );
+				   .arg( backgroundInactiveColor.name() ) );
 
-	m_pToolBar->setStyleSheet( QString( "\
+	auto sToolBarStyle = QString(
+							 "\
 QToolBar {\
      background-color: %1; \
      color: %2; \
      border: 1px solid #000;\
      spacing: 2px;\
-}")
-							   .arg( colorToolBar.name() )
-							   .arg( colorToolBarText.name() ) );
+}"
+	)
+							 .arg( colorToolBar.name() )
+							 .arg( colorToolBarText.name() );
+	m_pTimelineToolBar->setStyleSheet( sToolBarStyle );
+	m_pSongEditorToolBar->setStyleSheet( sToolBarStyle );
 
 	m_pMutePlaybackBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
 	m_pMutePlaybackBtn->setCheckedBackgroundTextColor(
@@ -1228,26 +1270,26 @@ void SongEditorPanel::updateTimeline() {
 	const auto tempoSource = pHydrogen->getTempoSource();
 
 	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
-		m_pEnableTimelineBtn->setEnabled( false );
-		m_pEnableTimelineBtn->setChecked( false );
-		m_pEnableTimelineBtn->setToolTip(
+		m_pEnableTimelineAction->setEnabled( false );
+		m_pEnableTimelineAction->setChecked( false );
+		m_pEnableTimelineAction->setToolTip(
 			pCommonStrings->getTimelineDisabledPatternMode() );
 	}
 	else if ( tempoSource == Hydrogen::Tempo::Midi ) {
-		m_pEnableTimelineBtn->setEnabled( false );
-		m_pEnableTimelineBtn->setChecked( false );
-		m_pEnableTimelineBtn->setToolTip(
+		m_pEnableTimelineAction->setEnabled( false );
+		m_pEnableTimelineAction->setChecked( false );
+		m_pEnableTimelineAction->setToolTip(
 			pCommonStrings->getTimelineDisabledMidiClock() );
 	}
 	else if ( tempoSource == Hydrogen::Tempo::Jack ) {
-		m_pEnableTimelineBtn->setEnabled( false );
-		m_pEnableTimelineBtn->setChecked( false );
-		m_pEnableTimelineBtn->setToolTip(
+		m_pEnableTimelineAction->setEnabled( false );
+		m_pEnableTimelineAction->setChecked( false );
+		m_pEnableTimelineAction->setToolTip(
 			pCommonStrings->getTimelineDisabledTimebaseListener() );
 	}
 	else {
-		m_pEnableTimelineBtn->setEnabled( true );
-		m_pEnableTimelineBtn->setChecked( pSong->getIsTimelineActivated() );
-		m_pEnableTimelineBtn->setToolTip( pCommonStrings->getTimelineEnabled() );
+		m_pEnableTimelineAction->setEnabled( true );
+		m_pEnableTimelineAction->setChecked( pSong->getIsTimelineActivated() );
+		m_pEnableTimelineAction->setToolTip( pCommonStrings->getTimelineEnabled() );
 	}
 }
