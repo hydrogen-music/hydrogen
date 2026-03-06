@@ -53,7 +53,7 @@ public:
 		Master
 	};
 	
-	Fader( QWidget *pParent, const Type& type,
+	Fader( QWidget *pParent, const QSize& size, const Type& type,
 		   const QString& sBaseToolTip, bool bUseIntSteps = false,
 		   bool bWithoutKnob = false, float fMin = 0.0, float fMax = 1.0,
 		   bool bModifyOnChange = true );

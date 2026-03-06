@@ -62,7 +62,9 @@ MasterLine::MasterLine( QWidget* pParent )
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	m_pFader = new Fader(
-		this, Fader::Type::Master, tr( "Master volume" ), false, false, 0.0, 1.5 );
+		this, QSize( 34, 189 ), Fader::Type::Master, tr( "Master volume" ),
+		false, false, 0.0, 1.5
+	);
 	m_pFader->move( 24, 75 );
 	connect( m_pFader, &Fader::valueChanged, [&]() {
 		CoreActionController::setMasterVolume( m_pFader->getValue() );

@@ -38,6 +38,7 @@
 #include "../Widgets/MidiLearnableToolButton.h"
 #include "../Widgets/MuteButton.h"
 #include "../WidgetScrollArea.h"
+#include "SongEditor/SongEditorPatternList.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
@@ -77,8 +78,13 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 
 	// Playback Fader
 	m_pPlaybackTrackFader = new Fader(
-		m_pPlaybackTrackSidebar, Fader::Type::Horizonal,
-		tr( "Playback track volume" ), false, false, 0.0, 1.5
+		m_pPlaybackTrackSidebar,
+		QSize(
+			SongEditorPatternList::nWidth,
+			SongEditorPanel::nHeaderWidgetHeight / 2
+		),
+		Fader::Type::Horizonal, tr( "Playback track volume" ), false, false,
+		0.0, 1.5
 	);
 	m_pPlaybackTrackFader->setObjectName( "SongEditorPlaybackTrackFader" );
 	m_pPlaybackTrackFader->setValue( pSong->getPlaybackTrackVolume() );
