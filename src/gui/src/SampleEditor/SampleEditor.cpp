@@ -1302,6 +1302,10 @@ void SampleEditor::stopPlayback()
 		m_pTargetSection->update();
 	}
 
+	auto pSampler = Hydrogen::get_instance()->getAudioEngine()->getSampler();
+	pSampler->releasePlayingNotes( m_pPreviewInstrument );
+	pSampler->releasePlayingNotes( m_pPreviewInstrumentOriginal );
+
 	m_playback = Playback::None;
 	lockWidgets( false );
 
