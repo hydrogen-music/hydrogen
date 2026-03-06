@@ -33,8 +33,7 @@ class ComponentView;
 
 /** \ingroup docGUI*/
 class LayerWaveDisplay : public WaveDisplay,
-						 public H2Core::Object<LayerWaveDisplay>
-{
+						 public H2Core::Object<LayerWaveDisplay> {
 	H2_OBJECT( LayerWaveDisplay )
 	Q_OBJECT
 

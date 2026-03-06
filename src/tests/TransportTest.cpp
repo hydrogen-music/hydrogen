@@ -327,10 +327,10 @@ void TransportTest::testNoteOff() {
 	___INFOLOG( "passed" );
 }
 
-void TransportTest::testUpdateTransportPosition() {
+void TransportTest::testUpdateTransport() {
 	___INFOLOG( "" );
 
-	perform( &AudioEngineTests::testUpdateTransportPosition );
+	perform( &AudioEngineTests::testUpdateTransport );
 
 	___INFOLOG( "passed" );
 }

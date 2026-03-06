@@ -45,7 +45,7 @@ https://www.gnu.org/licenses
 #include "../Widgets/MidiLearnableToolButton.h"
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Event.h>
 #include <core/Basics/Song.h>
@@ -570,7 +570,7 @@ void MainToolBar::metronomeEvent( int nValue ) {
 	// high tempi as well.
 	const float fPercentage = 0.5;
 	const auto fBpm = H2Core::Hydrogen::get_instance()->getAudioEngine()->
-		getTransportPosition()->getBpm();
+		getPlayhead()->getBpm();
 	const std::chrono::milliseconds duration{ static_cast<int>(
 		std::round( 60 * 1000 / fBpm * fPercentage))};
 	m_pTimer->start( duration );
@@ -767,7 +767,7 @@ void MainToolBar::rubberbandButtonToggle()
 				// in the audio engine.
 				pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 				pDrumkit->recalculateRubberband(
-					pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
+					pHydrogen->getAudioEngine()->getPlayhead()->getBpm() );
 				pHydrogen->getAudioEngine()->unlock();
 			}
 		}
@@ -834,7 +834,7 @@ void MainToolBar::fastForwardBtnClicked() {
 
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
 		const int nCurrentColumn =
-			pHydrogen->getAudioEngine()->getTransportPosition()->getColumn();
+			pHydrogen->getAudioEngine()->getPlayhead()->getColumn();
 		if ( nCurrentColumn < pSong->getPatternGroupVector()->size() - 1 ) {
 			// Not within the last column
 			CoreActionController::locateToColumn(
@@ -861,7 +861,7 @@ void MainToolBar::rewindBtnClicked() {
 
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
 		const int nCurrentColumn =
-			pHydrogen->getAudioEngine()->getTransportPosition()->getColumn();
+			pHydrogen->getAudioEngine()->getPlayhead()->getColumn();
 		int nNewColumn;
 		if ( nCurrentColumn > 0 ) {
 			nNewColumn = std::max( nCurrentColumn - 1, 0 );
@@ -886,7 +886,7 @@ void MainToolBar::updateBpmSpinBox() {
 	m_pBpmSpinBox->setIsActive(
 		pHydrogen->getTempoSource() == H2Core::Hydrogen::Tempo::Song );
 	m_pBpmSpinBox->setValue(
-		pHydrogen->getAudioEngine()->getTransportPosition()->getBpm(),
+		pHydrogen->getAudioEngine()->getPlayhead()->getBpm(),
 		H2Core::Event::Trigger::Suppress );
 
 	switch ( pHydrogen->getTempoSource() ) {

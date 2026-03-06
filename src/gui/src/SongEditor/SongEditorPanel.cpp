@@ -42,7 +42,7 @@
 #include "../WidgetScrollArea.h"
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/PatternList.h>
 #include <core/Hydrogen.h>
@@ -205,9 +205,10 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	m_pMutePlaybackBtn->setObjectName( "SongEditorPlaybackTrackMuteButton" );
 	m_pMutePlaybackBtn->move( 158, 4 );
 	m_pMutePlaybackBtn->hide();
-	connect( m_pMutePlaybackBtn, &QPushButton::clicked, [=](bool bChecked){
-		Hydrogen::get_instance()->mutePlaybackTrack( ! bChecked );
-	});
+	connect( m_pMutePlaybackBtn, &QPushButton::clicked, [=]( bool bChecked ) {
+		Hydrogen::get_instance()->mutePlaybackTrack( bChecked );
+		m_pPlaybackTrackWaveDisplay->updateBackground();
+	} );
 
 	if ( pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::Unavailable ) {
 		m_pPlaybackTrackFader->setIsActive( false );
@@ -442,7 +443,7 @@ void SongEditorPanel::updatePlayHeadPosition()
 		QPoint pos = m_pPositionRuler->pos();
 		int x = -pos.x();
 
-		int nPlayHeadPosition = pAudioEngine->getTransportPosition()->getColumn() *
+		int nPlayHeadPosition = pAudioEngine->getPlayhead()->getColumn() *
 			m_pSongEditor->getGridWidth();
 
 		int value = m_pEditorScrollView->horizontalScrollBar()->value();
@@ -593,7 +594,7 @@ void SongEditorPanel::updatePlaybackTrack()
 		m_pMutePlaybackBtn->setChecked( true );
 		m_pMutePlaybackBtn->setIsActive( false );
 
-		m_pPlaybackTrackWaveDisplay->updateDisplay( nullptr );
+		m_pPlaybackTrackWaveDisplay->setLayer( nullptr );
 	}
 	else {
 		// Playback track was selected by the user and is ready to
@@ -610,7 +611,7 @@ void SongEditorPanel::updatePlaybackTrack()
 		auto pPlaybackCompo = pHydrogen->getAudioEngine()->getSampler()->
 			getPlaybackTrackInstrument()->getComponents()->front();
 			
-		m_pPlaybackTrackWaveDisplay->updateDisplay( pPlaybackCompo->getLayer(0) );
+		m_pPlaybackTrackWaveDisplay->setLayer( pPlaybackCompo->getLayer(0) );
 	}
 }
 

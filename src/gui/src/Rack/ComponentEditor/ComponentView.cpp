@@ -504,7 +504,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pLayerWaveDisplay->setMinimumSize(
 		ComponentView::nWidth - ComponentView::nMargin * 2,
 		ComponentView::nWaveDisplayHeight );
-	m_pLayerWaveDisplay->updateDisplay( nullptr );
+	m_pLayerWaveDisplay->setLayer( nullptr );
 	connect( m_pLayerWaveDisplay, SIGNAL( doubleClicked(QWidget*) ),
 			 this, SLOT( waveDisplayDoubleClicked(QWidget*) ) );
 
@@ -897,7 +897,7 @@ void ComponentView::updateView() {
 				m_pLayerPitchFineRotary->setValue( fFineLayerPitch * 100, false,
 												   Event::Trigger::Suppress );
 
-				m_pLayerWaveDisplay->updateDisplay( pLayer );
+				m_pLayerWaveDisplay->setLayer( pLayer );
 			}
 		}
 	}
@@ -1249,7 +1249,7 @@ void ComponentView::updateActivation() {
 		m_pDeleteLayerAction->setEnabled( true );
 		m_pEditLayerAction->setEnabled( pLayer->getSample() != nullptr );
 
-		m_pLayerWaveDisplay->updateDisplay( nullptr );
+		m_pLayerWaveDisplay->setLayer( pLayer );
 	}
 	else {
 		m_pLayerMuteBtn->setChecked( false );
@@ -1268,7 +1268,7 @@ void ComponentView::updateActivation() {
 		m_pDeleteLayerAction->setEnabled( false );
 		m_pEditLayerAction->setEnabled( false );
 
-		m_pLayerWaveDisplay->updateDisplay( nullptr );
+		m_pLayerWaveDisplay->setLayer( nullptr );
 	}
 }
 

@@ -613,6 +613,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	{
 		return m_sActionTogglePatternCells;
 	}
+	const QString& getActionEditEnvelopePoint() const
+	{
+		return m_sActionEditEnvelopePoint;
+	}
 
 	const QString& getNotePropertyVelocity() const
 	{
@@ -907,6 +911,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sActionMovePatternCells;
 	QString m_sActionPastePatternCells;
 	QString m_sActionTogglePatternCells;
+
+	QString m_sActionEditEnvelopePoint;
 
 	QString m_sErrorNotFound;
 	QString m_sErrorNotFoundShort;

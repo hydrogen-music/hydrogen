@@ -30,32 +30,30 @@
 #include <core/Object.h>
 #include "../Widgets/WaveDisplay.h"
 
-namespace H2Core
-{
-	class InstrumentLayer;
+namespace H2Core {
+class InstrumentLayer;
 }
 
 /** \ingroup docGUI*/
-class PlaybackTrackWaveDisplay : public WaveDisplay
-{
-    H2_OBJECT(PlaybackTrackWaveDisplay)
+class PlaybackTrackWaveDisplay : public WaveDisplay {
+	H2_OBJECT( PlaybackTrackWaveDisplay )
 	Q_OBJECT
 
-	public:
-		explicit PlaybackTrackWaveDisplay(QWidget* pParent);
-		~PlaybackTrackWaveDisplay();
+   public:
+	explicit PlaybackTrackWaveDisplay( QWidget* pParent );
+	~PlaybackTrackWaveDisplay();
 
-		void	updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer ) override;
 	void updatePosition( float fTick );
-		
-	public slots:
-		virtual void dragMoveEvent(QDragMoveEvent *event) override;
-		virtual void dropEvent(QDropEvent *event) override;
-		virtual void dragEnterEvent(QDragEnterEvent * event) override;
-	virtual void paintEvent(QPaintEvent * event) override;
 
-private: 
-	QPixmap *m_pBackgroundPixmap;
+   public slots:
+	virtual void dragMoveEvent( QDragMoveEvent* event ) override;
+	virtual void dropEvent( QDropEvent* event ) override;
+	virtual void dragEnterEvent( QDragEnterEvent* event ) override;
+	virtual void paintEvent( QPaintEvent* event ) override;
+
+   private:
+	void updatePeakData() override;
+
 	/** Cached position of the playhead.*/
 	float m_fTick;
 };

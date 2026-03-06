@@ -23,7 +23,7 @@
 #include <core/AudioEngine/AudioEngineTests.h>
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/GridPoint.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -65,11 +65,11 @@ void AudioEngineTests::testFrameToTickConversion() {
 	CoreActionController::addTempoMarker( 7, 200 );
 
 	auto checkFrame = []( long long nFrame, double fTolerance ) {
-		const double fTick = TransportPosition::computeTickFromFrame( nFrame );
+		const double fTick = Transport::computeTickFromFrame( nFrame );
 
 		double fTickMismatch;
 		const long long nFrameCheck =
-			TransportPosition::computeFrameFromTick( fTick, &fTickMismatch );
+			Transport::computeFrameFromTick( fTick, &fTickMismatch );
 		
 		if ( nFrameCheck != nFrame || std::abs( fTickMismatch ) > fTolerance ) {
 			AudioEngineTests::throwException(
@@ -86,10 +86,10 @@ void AudioEngineTests::testFrameToTickConversion() {
 	auto checkTick = []( double fTick, double fTolerance ) {
 		double fTickMismatch;
 		const long long nFrame =
-			TransportPosition::computeFrameFromTick( fTick, &fTickMismatch );
+			Transport::computeFrameFromTick( fTick, &fTickMismatch );
 		
 		const double fTickCheck =
-			TransportPosition::computeTickFromFrame( nFrame ) + fTickMismatch;
+			Transport::computeTickFromFrame( nFrame ) + fTickMismatch;
 
 		if ( abs( fTickCheck - fTick ) > fTolerance ) {
 			AudioEngineTests::throwException(
@@ -110,8 +110,8 @@ void AudioEngineTests::testTransportProcessing() {
 	auto pSong = pHydrogen->getSong();
 	const auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
-	auto pTransportPos = pAE->getTransportPosition();
-	auto pQueuingPos = pAE->m_pQueuingPosition;
+	auto pTransportPos = pAE->getPlayhead();
+	auto pQueuingPos = pAE->m_pQueuing;
 	
 	CoreActionController::activateTimeline( false );
 	CoreActionController::activateLoopMode( true );
@@ -185,9 +185,9 @@ void AudioEngineTests::testTransportProcessing() {
 	resetVariables();
 	while ( nn <= nMaxCycles ) {
 		nFrames = frameDist( randomEngine );
-		pAE->incrementTransportPosition( nFrames );
+		pAE->incrementPlayhead( nFrames );
 
-		if ( pAE->isEndOfSongReached( pAE->m_pTransportPosition ) ) {
+		if ( pAE->isEndOfSongReached( pAE->m_pPlayhead ) ) {
 			// End of song reached
 			if ( pTransportPos->getTick() < pAE->getSongSizeInTicks() ) {
 				AudioEngineTests::throwException(
@@ -301,8 +301,8 @@ void AudioEngineTests::testTransportProcessingTimeline() {
 	auto pTimeline = pSong->getTimeline();
 	auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
-	auto pTransportPos = pAE->getTransportPosition();
-	auto pQueuingPos = pAE->m_pQueuingPosition;
+	auto pTransportPos = pAE->getPlayhead();
+	auto pQueuingPos = pAE->m_pQueuing;
 	
 	CoreActionController::activateLoopMode( true );
 
@@ -432,7 +432,7 @@ void AudioEngineTests::testLoopMode() {
 	auto pSong = pHydrogen->getSong();
 	const auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
-	auto pTransportPos = pAE->getTransportPosition();
+	auto pTransportPos = pAE->getPlayhead();
 	
 	CoreActionController::activateLoopMode( true );
 	CoreActionController::activateSongMode( true );
@@ -512,10 +512,10 @@ void AudioEngineTests::testLoopMode() {
 	}
 
 	// Ensure transport did run the requested number of loops.
-	if ( pAE->m_pQueuingPosition->getDoubleTick() < fSongSizeInTicks * nLoops ) {
+	if ( pAE->m_pQueuing->getDoubleTick() < fSongSizeInTicks * nLoops ) {
 		AudioEngineTests::throwException(
 			QString( "[testLoopMode] transport ended prematurely. pAE->m_pQueuingPosition: %1,\n\tfSongSizeInTicks(): %2, nLoops: %3, pPref->m_nBufferSize: %4" )
-			.arg( pAE->m_pQueuingPosition->toQString() )
+			.arg( pAE->m_pQueuing->toQString() )
 			.arg( fSongSizeInTicks, 0, 'f' ).arg( nLoops )
 			.arg( pPref->m_nBufferSize ) );
 	}
@@ -535,8 +535,8 @@ int AudioEngineTests::processTransport( const QString& sContext,
 										 bool bCheckLookahead ) {
 	auto pSong = Hydrogen::get_instance()->getSong();
 	auto pAE = Hydrogen::get_instance()->getAudioEngine();
-	auto pTransportPos = pAE->getTransportPosition();
-	auto pQueuingPos = pAE->m_pQueuingPosition;
+	auto pTransportPos = pAE->getPlayhead();
+	auto pQueuingPos = pAE->m_pQueuing;
 
 	double fTickStart, fTickEnd;
 	const long long nLeadLag =
@@ -558,18 +558,18 @@ int AudioEngineTests::processTransport( const QString& sContext,
 	}
 
 	pAE->updateNoteQueue( nFrames );
-	pAE->incrementTransportPosition( nFrames );
+	pAE->incrementPlayhead( nFrames );
 
-	if ( pAE->isEndOfSongReached( pAE->m_pTransportPosition ) ) {
+	if ( pAE->isEndOfSongReached( pAE->m_pPlayhead ) ) {
 		// Don't check consistency at the end of the song as just the
 		// remaining frames are covered.
 		return -1;
 	}
 
-	AudioEngineTests::checkTransportPosition(
+	AudioEngineTests::checkTransport(
 		pTransportPos, "[processTransport] " + sContext );
 
-	AudioEngineTests::checkTransportPosition(
+	AudioEngineTests::checkTransport(
 		pQueuingPos, "[processTransport] " + sContext );
 
 	if ( pTransportPos->getFrame() - nFrames -
@@ -638,7 +638,7 @@ void AudioEngineTests::testTransportRelocation() {
 	auto pSong = pHydrogen->getSong();
 	const auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
-	auto pTransportPos = pAE->getTransportPosition();
+	auto pTransportPos = pAE->getPlayhead();
 
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
@@ -673,14 +673,14 @@ void AudioEngineTests::testTransportRelocation() {
 
 		pAE->locate( fNewTick, false );
 
-		AudioEngineTests::checkTransportPosition(
+		AudioEngineTests::checkTransport(
 			pTransportPos, "[testTransportRelocation] mismatch tick-based" );
 
 		// Frame-based relocation
 		nNewFrame = frameDist( randomEngine );
 		pAE->locateToFrame( nNewFrame );
 
-		AudioEngineTests::checkTransportPosition(
+		AudioEngineTests::checkTransport(
 			pTransportPos, "[testTransportRelocation] mismatch frame-based" );
 
 	}
@@ -742,7 +742,7 @@ void AudioEngineTests::testSongSizeChangeInLoopMode() {
 	auto pSong = pHydrogen->getSong();
 	const auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
-	auto pTransportPos = pAE->getTransportPosition();
+	auto pTransportPos = pAE->getPlayhead();
 	
 	CoreActionController::activateTimeline( false );
 	CoreActionController::activateLoopMode( true );
@@ -765,7 +765,7 @@ void AudioEngineTests::testSongSizeChangeInLoopMode() {
 	double fTick;
 
 	auto checkState = [&]( const QString& sContext, bool bSongSizeShouldChange ){
-		AudioEngineTests::checkTransportPosition(
+		AudioEngineTests::checkTransport(
 			pTransportPos,
 			QString( "[testSongSizeChangeInLoopMode::checkState] [%1] before increment" )
 			.arg( sContext ) );
@@ -783,9 +783,9 @@ void AudioEngineTests::testSongSizeChangeInLoopMode() {
 				.arg( sContext ).arg( fInitialSongSize ).arg( pAE->m_fSongSizeInTicks ) );
 		}
 
-		pAE->incrementTransportPosition( nFrames );
+		pAE->incrementPlayhead( nFrames );
 
-		AudioEngineTests::checkTransportPosition(
+		AudioEngineTests::checkTransport(
 			pTransportPos,
 			QString( "[testSongSizeChangeInLoopMode::checkState] [%1] after increment" )
 			.arg( sContext ) );
@@ -828,8 +828,8 @@ void AudioEngineTests::testNoteEnqueuing() {
 	const auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pSampler = pAE->getSampler();
-	auto pTransportPos = pAE->getTransportPosition();
-	auto pQueuingPos = pAE->m_pQueuingPosition;
+	auto pTransportPos = pAE->getPlayhead();
+	auto pQueuingPos = pAE->m_pQueuing;
 
 	CoreActionController::activateTimeline( false );
 	CoreActionController::activateLoopMode( false );
@@ -873,7 +873,7 @@ void AudioEngineTests::testNoteEnqueuing() {
 		AudioEngineTests::mergeQueues( &notesInSamplerQueue,
 									   pSampler->getPlayingNotesQueue() );
 
-		pAE->incrementTransportPosition( nFrames );
+		pAE->incrementPlayhead( nFrames );
 
 		++nn;
 		if ( nn > nMaxCycles ) {
@@ -1113,7 +1113,7 @@ void AudioEngineTests::testNoteEnqueuingTimeline() {
 	auto pSong = pHydrogen->getSong();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pSampler = pAE->getSampler();
-	auto pTransportPos = pAE->getTransportPosition();
+	auto pTransportPos = pAE->getPlayhead();
 	const auto pPref = Preferences::get_instance();
 
 	pAE->lock( RIGHT_HERE );
@@ -1156,7 +1156,7 @@ void AudioEngineTests::testNoteEnqueuingTimeline() {
 		AudioEngineTests::mergeQueues( &notesInSamplerQueue,
 									   pSampler->getPlayingNotesQueue() );
 
-		pAE->incrementTransportPosition( nFrames );
+		pAE->incrementPlayhead( nFrames );
 
 		++nn;
 		if ( nn > nMaxCycles ) {
@@ -1219,7 +1219,7 @@ void AudioEngineTests::testHumanization() {
 	auto pSong = pHydrogen->getSong();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pSampler = pAE->getSampler();
-	auto pTransportPos = pAE->getTransportPosition();
+	auto pTransportPos = pAE->getPlayhead();
 	const auto pPref = Preferences::get_instance();
 
 	CoreActionController::activateLoopMode( false );
@@ -1263,7 +1263,7 @@ void AudioEngineTests::testHumanization() {
 			AudioEngineTests::mergeQueues( notes,
 										   pSampler->getPlayingNotesQueue() );
 
-			pAE->incrementTransportPosition( nFrames );
+			pAE->incrementPlayhead( nFrames );
 
 			++nn;
 			if ( nn > nMaxCycles ) {
@@ -1536,7 +1536,7 @@ void AudioEngineTests::testMuteGroups() {
 	auto pSong = pHydrogen->getSong();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pSampler = pAE->getSampler();
-	auto pTransportPos = pAE->getTransportPosition();
+	auto pTransportPos = pAE->getPlayhead();
 	const auto pPref = Preferences::get_instance();
 
 	CoreActionController::activateLoopMode( false );
@@ -1613,7 +1613,7 @@ void AudioEngineTests::testMuteGroups() {
 			}
 		}
 
-		pAE->incrementTransportPosition( nFrames );
+		pAE->incrementPlayhead( nFrames );
 
 		++nn;
 		if ( nn > nMaxCycles ) {
@@ -1636,7 +1636,7 @@ void AudioEngineTests::testNoteOff() {
 	auto pSong = pHydrogen->getSong();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pSampler = pAE->getSampler();
-	auto pTransportPos = pAE->getTransportPosition();
+	auto pTransportPos = pAE->getPlayhead();
 	const auto pPref = Preferences::get_instance();
 
 	CoreActionController::activateLoopMode( false );
@@ -1689,7 +1689,7 @@ void AudioEngineTests::testNoteOff() {
 			}
 		}
 
-		pAE->incrementTransportPosition( nFrames );
+		pAE->incrementPlayhead( nFrames );
 
 		++nn;
 		if ( nn > nMaxCycles ) {
@@ -1726,7 +1726,7 @@ void AudioEngineTests::mergeQueues( std::vector<std::shared_ptr<Note>>* noteList
 	}
 }
 
-void AudioEngineTests::checkTransportPosition( std::shared_ptr<TransportPosition> pPos, const QString& sContext ) {
+void AudioEngineTests::checkTransport( std::shared_ptr<Transport> pPos, const QString& sContext ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -1734,15 +1734,15 @@ void AudioEngineTests::checkTransportPosition( std::shared_ptr<TransportPosition
 
 	double fCheckTickMismatch;
 	const long long nCheckFrame =
-		TransportPosition::computeFrameFromTick(
+		Transport::computeFrameFromTick(
 			pPos->getDoubleTick(), &fCheckTickMismatch );
 	const double fCheckTick =
-		TransportPosition::computeTickFromFrame( pPos->getFrame() );
+		Transport::computeTickFromFrame( pPos->getFrame() );
 	
 	if ( abs( fCheckTick + fCheckTickMismatch - pPos->getDoubleTick() ) > 1e-9 ||
 		 abs( fCheckTickMismatch - pPos->m_fTickMismatch ) > 1e-9 ) {
 		AudioEngineTests::throwException(
-			QString( "[checkTransportPosition] [%8] [tick mismatch]. original position: [%1],\nnCheckFrame: %2, fCheckTick: %3, fCheckTickMismatch: %4, fCheckTick + fCheckTickMismatch - pPos->getDoubleTick(): %5, fCheckTickMismatch - pPos->m_fTickMismatch: %6, nCheckFrame - pPos->getFrame(): %7" )
+			QString( "[checkTransport] [%8] [tick mismatch]. original position: [%1],\nnCheckFrame: %2, fCheckTick: %3, fCheckTickMismatch: %4, fCheckTick + fCheckTickMismatch - pPos->getDoubleTick(): %5, fCheckTickMismatch - pPos->m_fTickMismatch: %6, nCheckFrame - pPos->getFrame(): %7" )
 			.arg( pPos->toQString( "", true ) ).arg( nCheckFrame )
 			.arg( fCheckTick, 0 , 'f', 9 ).arg( fCheckTickMismatch, 0 , 'f', 9 )
 			.arg( fCheckTick + fCheckTickMismatch - pPos->getDoubleTick(), 0, 'E' )
@@ -1752,7 +1752,7 @@ void AudioEngineTests::checkTransportPosition( std::shared_ptr<TransportPosition
 
 	if ( nCheckFrame != pPos->getFrame() ) {
 		AudioEngineTests::throwException(
-			QString( "[checkTransportPosition] [%8] [frame mismatch]. original position: [%1],\nnCheckFrame: %2, fCheckTick: %3, fCheckTickMismatch: %4, fCheckTick + fCheckTickMismatch - pPos->getDoubleTick(): %5, fCheckTickMismatch - pPos->m_fTickMismatch: %6, nCheckFrame - pPos->getFrame(): %7" )
+			QString( "[checkTransport] [%8] [frame mismatch]. original position: [%1],\nnCheckFrame: %2, fCheckTick: %3, fCheckTickMismatch: %4, fCheckTick + fCheckTickMismatch - pPos->getDoubleTick(): %5, fCheckTickMismatch - pPos->m_fTickMismatch: %6, nCheckFrame - pPos->getFrame(): %7" )
 			.arg( pPos->toQString( "", true ) ).arg( nCheckFrame )
 			.arg( fCheckTick, 0 , 'f', 9 ).arg( fCheckTickMismatch, 0 , 'f', 9 )
 			.arg( fCheckTick + fCheckTickMismatch - pPos->getDoubleTick(), 0, 'E' )
@@ -1769,7 +1769,7 @@ void AudioEngineTests::checkTransportPosition( std::shared_ptr<TransportPosition
 	if ( pHydrogen->getMode() == Song::Mode::Song && pPos->getColumn() != -1 &&
 		 ( nCheckColumn != pPos->getColumn() ) ) {
 		AudioEngineTests::throwException(
-			QString( "[checkTransportPosition] [%7] [column mismatch]. current position: [%1],\nnCheckColumn: %2, nCheckPatternStartTick: %3, nCheckPatternTickPosition: %4, nTicksSinceSongStart: %5, pAE->m_fSongSizeInTicks: %6" )
+			QString( "[checkTransport] [%7] [column mismatch]. current position: [%1],\nnCheckColumn: %2, nCheckPatternStartTick: %3, nCheckPatternTickPosition: %4, nTicksSinceSongStart: %5, pAE->m_fSongSizeInTicks: %6" )
 			.arg( pPos->toQString( "", true ) ).arg( nCheckColumn )
 			.arg( nCheckPatternStartTick )
 			.arg( nTicksSinceSongStart - nCheckPatternStartTick )
@@ -1782,7 +1782,7 @@ void AudioEngineTests::checkTransportPosition( std::shared_ptr<TransportPosition
 		   ( nTicksSinceSongStart - nCheckPatternStartTick !=
 			 pPos->getPatternTickPosition() ) ) ) {
 		AudioEngineTests::throwException(
-			QString( "[checkTransportPosition] [%7] [pattern tick mismatch]. current position: [%1],\nnCheckColumn: %2, nCheckPatternStartTick: %3, nCheckPatternTickPosition: %4, nTicksSinceSongStart: %5, pAE->m_fSongSizeInTicks: %6" )
+			QString( "[checkTransport] [%7] [pattern tick mismatch]. current position: [%1],\nnCheckColumn: %2, nCheckPatternStartTick: %3, nCheckPatternTickPosition: %4, nTicksSinceSongStart: %5, pAE->m_fSongSizeInTicks: %6" )
 			.arg( pPos->toQString( "", true ) ).arg( nCheckColumn )
 			.arg( nCheckPatternStartTick )
 			.arg( nTicksSinceSongStart - nCheckPatternStartTick )
@@ -1799,7 +1799,7 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pAE = pHydrogen->getAudioEngine();
-	auto pTransportPos = pAE->getTransportPosition();
+	auto pTransportPos = pAE->getPlayhead();
 
 	double fPassedFrames = static_cast<double>(nPassedFrames);
 	const int nSampleRate = pHydrogen->getAudioDriver()->getSampleRate();
@@ -1959,13 +1959,13 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 	auto pSong = pHydrogen->getSong();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pSampler = pAE->getSampler();
-	auto pTransportPos = pAE->getTransportPosition();
+	auto pTransportPos = pAE->getPlayhead();
 	
 	const unsigned long nBufferSize = pHydrogen->getAudioDriver()->getBufferSize();
 
 	pAE->updateNoteQueue( nBufferSize );
 	pAE->processAudio( nBufferSize );
-	pAE->incrementTransportPosition( nBufferSize );
+	pAE->incrementPlayhead( nBufferSize );
 
 	// Cache some stuff in order to compare it later on.
 	long nOldSongSize;
@@ -2012,7 +2012,7 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 
 		// Check whether current frame and tick information are still
 		// consistent.
-		AudioEngineTests::checkTransportPosition( pTransportPos, sNewContext );
+		AudioEngineTests::checkTransport( pTransportPos, sNewContext );
 
 		// m_songNoteQueue have been updated properly.
 		const auto notesSongQueuePostToggle = AudioEngineTests::copySongNoteQueue();
@@ -2091,7 +2091,7 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 		// stopped before the song size change. New notes might still be
 		// added due to the lookahead, so, we just check for the
 		// processing of notes we already encountered.
-		pAE->incrementTransportPosition( nBufferSize );
+		pAE->incrementPlayhead( nBufferSize );
 		pAE->processAudio( nBufferSize );
 
 		// Update the end of the tick interval usually handled by
@@ -2099,7 +2099,7 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 		double fTickEndRolling, fTickStartUnused;
 		pAE->computeTickInterval( &fTickStartUnused, &fTickEndRolling, nBufferSize );
 		
-		pAE->incrementTransportPosition( nBufferSize );
+		pAE->incrementPlayhead( nBufferSize );
 		pAE->processAudio( nBufferSize );
 
 		pAE->m_fLastTickEnd = fTickEndRolling;
@@ -2145,7 +2145,7 @@ void AudioEngineTests::resetSampler( const QString& sContext ) {
 	// Ensure the sampler is clean.
 	while ( pSampler->isRenderingNotes() ) {
 		pAE->processAudio( pPref->m_nBufferSize );
-		pAE->incrementTransportPosition( pPref->m_nBufferSize );
+		pAE->incrementPlayhead( pPref->m_nBufferSize );
 		++nn;
 		
 		// {//DEBUG
@@ -2173,7 +2173,7 @@ void AudioEngineTests::resetSampler( const QString& sContext ) {
 	pAE->reset( false );
 }
 
-void AudioEngineTests::testUpdateTransportPosition() {
+void AudioEngineTests::testUpdateTransport() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pAE = pHydrogen->getAudioEngine();
@@ -2182,46 +2182,46 @@ void AudioEngineTests::testUpdateTransportPosition() {
 	pAE->reset( true );
 
 	// Check whether the transport positions in the audio engine are untouched
-	// by updateTransportPosition.
+	// by updateTransport.
 	pAE->locate( 42 );
 	auto pTransportOld =
-		std::make_shared<TransportPosition>( pAE->getTransportPosition() );
+		std::make_shared<Transport>( pAE->getPlayhead() );
 	auto pQueuingOld =
-		std::make_shared<TransportPosition>( pAE->m_pQueuingPosition );
+		std::make_shared<Transport>( pAE->m_pQueuing );
 
-	auto pTestPos = std::make_shared<TransportPosition>(
-		TransportPosition::Type::Test0 );
+	auto pTestPos = std::make_shared<Transport>(
+		Transport::Type::Test0 );
 	const long long nFrame = 3521;
-	const auto fTick = TransportPosition::computeTickFromFrame( nFrame );
-	pAE->updateTransportPosition( fTick, nFrame, pTestPos );
+	const auto fTick = Transport::computeTickFromFrame( nFrame );
+	pAE->updateTransport( fTick, nFrame, pTestPos );
 
-	if ( pAE->getTransportPosition() != pTransportOld ) {
-		throwException( QString( "[testUpdateTransportPosition] Glitch in pAE->m_pTransportPosition:\nOld: %1\nNew: %2" )
+	if ( pAE->getPlayhead() != pTransportOld ) {
+		throwException( QString( "[testUpdateTransport] Glitch in pAE->m_pPlayhead:\nOld: %1\nNew: %2" )
 						.arg( pTransportOld->toQString() )
-						.arg( pAE->getTransportPosition()->toQString() ) );
+						.arg( pAE->getPlayhead()->toQString() ) );
 	}
-	if ( pAE->m_pQueuingPosition != pQueuingOld ) {
-		throwException( QString( "[testUpdateTransportPosition] Glitch in pAE->m_pQueuingPosition:\nOld: %1\nNew: %2" )
+	if ( pAE->m_pQueuing != pQueuingOld ) {
+		throwException( QString( "[testUpdateTransport] Glitch in pAE->m_pQueuingPosition:\nOld: %1\nNew: %2" )
 						.arg( pQueuingOld->toQString() )
-						.arg( pAE->m_pQueuingPosition->toQString() ) );
+						.arg( pAE->m_pQueuing->toQString() ) );
 	}
 
 	if ( pTransportOld == pTestPos ) {
-		throwException( "[testUpdateTransportPosition] Test position shouldn't coincide with pAE->m_pTransportPosition" );
+		throwException( "[testUpdateTransport] Test position shouldn't coincide with pAE->m_pPlayhead" );
 	}
 
 	pAE->unlock();
 
-	// Verify that Hydrogen won't explode in case updateTransportPosition is
+	// Verify that Hydrogen won't explode in case updateTransport is
 	// called with no song set (as it is used in
 	// JackDriver::JackTimebaseCallback which will be called as long as the
 	// driver is running).
 	pHydrogen->setSong( nullptr );
 
 	pAE->lock( RIGHT_HERE );
-	auto pNullPos = std::make_shared<TransportPosition>(
-		TransportPosition::Type::Test1 );
-	pAE->updateTransportPosition( fTick, nFrame, pNullPos );
+	auto pNullPos = std::make_shared<Transport>(
+		Transport::Type::Test1 );
+	pAE->updateTransport( fTick, nFrame, pNullPos );
 	pAE->unlock();
 
 	pHydrogen->setSong( pSong );
@@ -2304,7 +2304,7 @@ void AudioEngineTests::testTransportProcessingOffsetsJack() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pAE = pHydrogen->getAudioEngine();
-	auto pTransportPos = pAE->getTransportPosition();
+	auto pTransportPos = pAE->getPlayhead();
 
 	// When being JACK Timebase listener Hydrogen will adopt tempo setting
 	// provided by an external application and discards internal changes. This
@@ -2378,7 +2378,7 @@ void AudioEngineTests::testTransportProcessingOffsetsJack() {
 		INFOLOG( QString( "[testTransportProcessingOffsetsJack] update song size [%1] -> [%2]" )
 				 .arg( nOldSongSize ).arg( pAE->m_fSongSizeInTicks ) );
 
-		AudioEngineTests::checkTransportPosition(
+		AudioEngineTests::checkTransport(
 			pTransportPos, "[testTransportProcessingOffsetsJack] mismatch after song size update" );
 
 		// The sleep helps us to keep song size and tempo-based exceptions
@@ -2423,7 +2423,7 @@ void AudioEngineTests::testTransportRelocationJack() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pAE = pHydrogen->getAudioEngine();
-	auto pTransportPos = pAE->getTransportPosition();
+	auto pTransportPos = pAE->getPlayhead();
 
 	pAE->lock( RIGHT_HERE );
 	pAE->stop();
@@ -2509,26 +2509,26 @@ void AudioEngineTests::testTransportRelocationJack() {
 			}
 #endif
 
-			AudioEngineTests::checkTransportPosition(
+			AudioEngineTests::checkTransport(
 				pTransportPos, "[testTransportRelocationJack::tick] mismatch tick-based" );
 		}
 
 		// Frame-based relocation
 		// We sample ticks and convert them since we are using tempo markers.
 		if ( nn < nProcessCycles - 1 ) {
-			nNewFrame = TransportPosition::computeFrameFromTick(
+			nNewFrame = Transport::computeFrameFromTick(
 				tickDist( randomEngine ), &fTickMismatch );
 		} else {
 			// With this one there were rounding mishaps in v1.2.3
 			nNewFrame = std::min( static_cast<long long>(2174246),
-								  TransportPosition::computeFrameFromTick(
+								  Transport::computeFrameFromTick(
 									  pSong->lengthInTicks(), &fTickMismatch ) );
 		}
 
 		pAE->lock( RIGHT_HERE );
 
 		while ( nNewFrame == pTransportPos->getFrame() ) {
-			nNewFrame = TransportPosition::computeFrameFromTick(
+			nNewFrame = Transport::computeFrameFromTick(
 				tickDist( randomEngine ), &fTickMismatch );
 		}
 
@@ -2578,7 +2578,7 @@ void AudioEngineTests::testTransportRelocationJack() {
 		}
 #endif
 
-		AudioEngineTests::checkTransportPosition(
+		AudioEngineTests::checkTransport(
 			pTransportPos, "[testTransportRelocationJack::frame] mismatch frame-based" );
 	}
 
@@ -2598,7 +2598,7 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 	auto pSong = pHydrogen->getSong();
 	auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
-	auto pTransportPos = pAE->getTransportPosition();
+	auto pTransportPos = pAE->getPlayhead();
 
 	// When being JACK Timebase listener Hydrogen will adopt tempo setting
 	// provided by an external application and discards internal changes. This
@@ -2702,7 +2702,7 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 			}
 #endif
 
-			AudioEngineTests::checkTransportPosition(
+			AudioEngineTests::checkTransport(
 				pTransportPos, "[testTransportRelocationOffsetsJack::tick] mismatch tick-based" );
 		}
 
@@ -2723,19 +2723,19 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 		// Frame-based relocation
 		// We sample ticks and convert them since we are using tempo markers.
 		if ( nn < nProcessCycles - 1 ) {
-			nNewFrame = TransportPosition::computeFrameFromTick(
+			nNewFrame = Transport::computeFrameFromTick(
 				tickDist( randomEngine ), &fTickMismatch );
 		} else {
 			// With this one there were rounding mishaps in v1.2.3
 			nNewFrame = std::min( static_cast<long long>(2174246),
-								  TransportPosition::computeFrameFromTick(
+								  Transport::computeFrameFromTick(
 									  pSong->lengthInTicks(), &fTickMismatch ) );
 		}
 
 		pAE->lock( RIGHT_HERE );
 
 		while ( nNewFrame == pTransportPos->getFrame() ) {
-			nNewFrame = TransportPosition::computeFrameFromTick(
+			nNewFrame = Transport::computeFrameFromTick(
 				tickDist( randomEngine ), &fTickMismatch );
 		}
 
@@ -2751,7 +2751,7 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 		}
 #endif
 
-		AudioEngineTests::checkTransportPosition(
+		AudioEngineTests::checkTransport(
 			pTransportPos, "[testTransportRelocationOffsetsJack] mismatch after song size update" );
 
 		INFOLOG( QString( "relocate to frame [%1]->[%2]" )
@@ -2788,7 +2788,7 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 		}
 #endif
 
-		AudioEngineTests::checkTransportPosition(
+		AudioEngineTests::checkTransport(
 			pTransportPos, "[testTransportRelocationOffsetsJack::frame] mismatch frame-based" );
 
 		// Alter tempo
@@ -2805,7 +2805,7 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 		// able to properly check for matching position.
 		QTest::qSleep( 25 );
 
-		AudioEngineTests::checkTransportPosition(
+		AudioEngineTests::checkTransport(
 			pTransportPos, "[testTransportRelocationOffsetsJack::tempo] mismatch after tempo change" );
 	}
 
@@ -2943,7 +2943,7 @@ void AudioEngineTests::waitForRelocation(
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
-	auto pTransportPos = pAE->getTransportPosition();
+	auto pTransportPos = pAE->getPlayhead();
 
 	const int nMaxMilliSeconds = 5000;
 	const int nSecondTryMilliSeconds = 1000;
@@ -3089,8 +3089,8 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 			.arg( sDrivers ) );
 	}
 
-	AudioEngineTests::checkTransportPosition(
-			pAudioEngine->getTransportPosition(),
+	AudioEngineTests::checkTransport(
+			pAudioEngine->getPlayhead(),
 			QString( "[jackTestProcessCallback] [%1] : pre updated" )
 			.arg( sDrivers ) );
 
@@ -3098,7 +3098,7 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 	// designed that way)
 #ifdef H2CORE_HAVE_JACK
 	if ( Hydrogen::get_instance()->hasJackTransport() ) {
-		pDriver->updateTransportPosition();
+		pDriver->updateTransport();
 
 #ifdef HAVE_INTEGRATION_TESTS
 		if ( pDriver->m_bIntegrationRelocationLoop ) {
@@ -3116,7 +3116,7 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 		}
 
 		// Check consistency of BBT conversion functions
-		const auto pTransportPos = pAudioEngine->getTransportPosition();
+		const auto pTransportPos = pAudioEngine->getPlayhead();
 		jack_position_t testPos;
 		if ( pTransportPos->getDoubleTick() >=
 			 pAudioEngine->m_fSongSizeInTicks ) {
@@ -3171,11 +3171,11 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 	}
 
 	// Check whether the tempo was changed.
-	pAudioEngine->updateBpmAndTickSize( pAudioEngine->m_pTransportPosition );
-	pAudioEngine->updateBpmAndTickSize( pAudioEngine->m_pQueuingPosition );
+	pAudioEngine->updateBpmAndTickSize( pAudioEngine->m_pPlayhead );
+	pAudioEngine->updateBpmAndTickSize( pAudioEngine->m_pQueuing );
 
-	AudioEngineTests::checkTransportPosition(
-			pAudioEngine->getTransportPosition(),
+	AudioEngineTests::checkTransport(
+			pAudioEngine->getPlayhead(),
 			QString( "[jackTestProcessCallback] [%1] : post JACK" )
 			.arg( sDrivers ) );
 
@@ -3186,7 +3186,7 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 			pAudioEngine->startPlayback();
 		}
 
-		pAudioEngine->setRealtimeFrame( pAudioEngine->m_pTransportPosition->getFrame() );
+		pAudioEngine->setRealtimeFrame( pAudioEngine->m_pPlayhead->getFrame() );
 	} else {
 		if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
 			pAudioEngine->stopPlayback();
@@ -3208,7 +3208,7 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 
 		// Check whether the end of the song has been reached.
 		if ( pAudioEngine->isEndOfSongReached(
-				 pAudioEngine->m_pTransportPosition ) ) {
+				 pAudioEngine->m_pPlayhead ) ) {
 
 			___INFOLOG( QString( "[%1] End of song received" ).arg( sDrivers ) );
 
@@ -3218,12 +3218,12 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 		}
 		else {
 			// We are not at the end of the song, keep rolling.
-			pAudioEngine->incrementTransportPosition( nframes );
+			pAudioEngine->incrementPlayhead( nframes );
 		}
 	}
 
-	AudioEngineTests::checkTransportPosition(
-			pAudioEngine->getTransportPosition(),
+	AudioEngineTests::checkTransport(
+			pAudioEngine->getPlayhead(),
 			QString( "[jackTestProcessCallback] [%1] : post update" )
 			.arg( sDrivers ) );
 

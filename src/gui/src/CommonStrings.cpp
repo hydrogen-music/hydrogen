@@ -431,7 +431,7 @@ CommonStrings::CommonStrings(){
 	  start playback of the original file. The character after the '&'
 	  symbol can be used as a hotkey and the '&' symbol itself will
 	  not be displayed.*/
-	m_sButtonPlayOriginalSample = tr( "Play &original sample" );
+	m_sButtonPlayOriginalSample = tr( "Play &original" );
 	/*: Displayed in popup dialogs in case the user attempts to close
 	  a window which still contains unsaved changes. The '\n'
 	  character introduces a linebreak and must not be translated*/
@@ -785,6 +785,9 @@ CommonStrings::CommonStrings(){
 	/*: Shown in the undo history adding or toggling pattern cells in the song
 	 *  editor. */
 	m_sActionTogglePatternCells = tr( "Toggle selected cells" );
+	/*: Shown in the undo history adding or deleting an envelope point in the
+	 *  sample editor. */
+	m_sActionEditEnvelopePoint = tr( "Add or remove envelope point in sample editor" );
 
 	m_sErrorNotFound = tr( "File could not be found!" );
 	/*: Shorter version of missing file warning. E.g. used as a prefix for the

@@ -23,7 +23,7 @@
 #include "MidiActionManager.h"
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -1313,7 +1313,7 @@ bool MidiActionManager::bpmCcRelative( std::shared_ptr<MidiAction> pAction ) {
 	}
 
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	const float fBpm = pAudioEngine->getTransportPosition()->getBpm();
+	const float fBpm = pAudioEngine->getPlayhead()->getBpm();
 
 	//this MidiAction should be triggered only by CC commands
 
@@ -1361,7 +1361,7 @@ bool MidiActionManager::bpmFineCcRelative( std::shared_ptr<MidiAction> pAction )
 	}
 
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	const float fBpm = pAudioEngine->getTransportPosition()->getBpm();
+	const float fBpm = pAudioEngine->getPlayhead()->getBpm();
 
 	//this MidiAction should be triggered only by CC commands
 	bool ok;
@@ -1403,7 +1403,7 @@ bool MidiActionManager::bpmIncrease( std::shared_ptr<MidiAction> pAction ) {
 	}
 
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	const float fBpm = pAudioEngine->getTransportPosition()->getBpm();
+	const float fBpm = pAudioEngine->getPlayhead()->getBpm();
 
 	const float fFactor = pAction->getFactor();
 
@@ -1428,7 +1428,7 @@ bool MidiActionManager::bpmDecrease( std::shared_ptr<MidiAction> pAction ) {
 	}
 
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	const float fBpm = pAudioEngine->getTransportPosition()->getBpm();
+	const float fBpm = pAudioEngine->getPlayhead()->getBpm();
 
 	const float fFactor = pAction->getFactor();
 
@@ -1462,7 +1462,7 @@ bool MidiActionManager::nextBar( std::shared_ptr<MidiAction>  ) {
 	else {
 		const int nTotalColumns = pSong->getPatternGroupVector()->size();
 		int nNewColumn = 1 +
-			std::max( 0, pAudioEngine->getTransportPosition()->getColumn() );
+			std::max( 0, pAudioEngine->getPlayhead()->getColumn() );
 		if ( nNewColumn >= nTotalColumns ) {
 			if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {
 				// Transport exceeds length of the song and is wrapped
@@ -1499,7 +1499,7 @@ bool MidiActionManager::previousBar( std::shared_ptr<MidiAction>  ) {
 	}
 	else {
 		int nNewColumn = pHydrogen->getAudioEngine()->
-			getTransportPosition()->getColumn() - 1;
+			getPlayhead()->getColumn() - 1;
 
 		if ( nNewColumn < 0 ) {
 			if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {

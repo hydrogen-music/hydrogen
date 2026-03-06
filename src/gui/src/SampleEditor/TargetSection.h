@@ -20,35 +20,51 @@
  *
  */
 
-#ifndef SAMPLE_WAVE_DISPLAY
-#define SAMPLE_WAVE_DISPLAY
+#ifndef TARGET_SECTION
+#define TARGET_SECTION
 
+#include <QtGui>
 #include <QtWidgets>
 
 #include <core/Object.h>
+#include <memory>
 
+class SampleEditor;
+class SampleEnvelope;
+class WaveDisplay;
 
+namespace H2Core {
+class InstrumentLayer;
+}  // namespace H2Core
 
 /** \ingroup docGUI*/
-class SampleWaveDisplay :  public QWidget,  public H2Core::Object<SampleWaveDisplay>
-{
-	H2_OBJECT(SampleWaveDisplay)
+class TargetSection : public QWidget, public H2Core::Object<TargetSection> {
+	H2_OBJECT( TargetSection )
 	Q_OBJECT
 
-	public:
-		explicit SampleWaveDisplay( QWidget* pParent );
-		~SampleWaveDisplay();
+   public:
+	/** Do only change these value with care. They are hardcoded in Sample.cpp
+	 * and incorporated in the values of previous .h2song files. */
+	static constexpr int nHeight = 91;
+	static constexpr int nWidth = 841;
 
-		void updateDisplay( const QString& sFileName );
+	explicit TargetSection( SampleEditor* pParent );
+	~TargetSection();
 
-		virtual void paintEvent(QPaintEvent *ev) override;
+	void setEnabled( bool bEnabled );
+	void setLayer( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 
-	private:
-		QPixmap m_Background;
-		QString m_sSampleName;
-		int *	m_pPeakData;
+   private:
+	WaveDisplay* m_pWaveDisplayL;
+	WaveDisplay* m_pWaveDisplayR;
+	SampleEnvelope* m_pSampleEnvelope;
+
+	bool m_bEnabled;
 };
 
+inline void TargetSection::setEnabled( bool bEnabled )
+{
+	m_bEnabled = bEnabled;
+}
 
 #endif
-

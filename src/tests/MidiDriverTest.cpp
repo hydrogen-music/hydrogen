@@ -28,7 +28,7 @@
 #include <vector>
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Event.h>
 #include <core/Helpers/Time.h>
 #include <core/Helpers/TimeHelper.h>
@@ -139,7 +139,7 @@ void MidiDriverTest::testMidiClock() {
 	auto pTestHelper = TestHelper::get_instance();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pTransportPosition = pAudioEngine->getTransportPosition();
+	auto pPlayhead = pAudioEngine->getPlayhead();
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );
 
@@ -154,7 +154,7 @@ void MidiDriverTest::testMidiClock() {
 
 	for ( const auto& ffTempo : referenceTempos ) {
 		pAudioEngine->lock( RIGHT_HERE );
-		const auto fOldBpm = pTransportPosition->getBpm();
+		const auto fOldBpm = pPlayhead->getBpm();
 		pAudioEngine->unlock();
 
 		pMidiDriver->startMidiClockStream( ffTempo );
@@ -165,7 +165,7 @@ void MidiDriverTest::testMidiClock() {
 		// Wait till we received enough ticks to synchronize.
 		while ( nnTry < nMaxTries ) {
 			pAudioEngine->lock( RIGHT_HERE );
-			fCurrentBpm = pTransportPosition->getBpm();
+			fCurrentBpm = pPlayhead->getBpm();
 			pAudioEngine->unlock();
 
 			if ( std::abs( fCurrentBpm - fOldBpm ) > fTolerance ) {
@@ -187,7 +187,7 @@ void MidiDriverTest::testMidiClock() {
 		pAudioEngine->lock( RIGHT_HERE );
 		// Get the latest tempo (after all MIDI clock messages have been
 		// processed).
-		fCurrentBpm = pTransportPosition->getBpm();
+		fCurrentBpm = pPlayhead->getBpm();
 		pMidiActionManager->resetTimingClockTicks();
 		pAudioEngine->unlock();
 
@@ -210,7 +210,7 @@ void MidiDriverTest::testMidiClockDrift() {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pTimeHelper = pHydrogen->getTimeHelper();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pTransportPosition = pAudioEngine->getTransportPosition();
+	auto pPlayhead = pAudioEngine->getPlayhead();
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );
 
@@ -223,7 +223,7 @@ void MidiDriverTest::testMidiClockDrift() {
 	const float fTolerance = 2;
 
 	pAudioEngine->lock( RIGHT_HERE );
-	const auto fOldBpm = pTransportPosition->getBpm();
+	const auto fOldBpm = pPlayhead->getBpm();
 	pAudioEngine->unlock();
 
 	pMidiActionManager->resetTimingClockTicks();
@@ -241,7 +241,7 @@ void MidiDriverTest::testMidiClockDrift() {
 		pTimeHelper->highResolutionSleep( checkInterval );
 
 		pAudioEngine->lock( RIGHT_HERE );
-		const auto fCurrentBpm = pTransportPosition->getBpm();
+		const auto fCurrentBpm = pPlayhead->getBpm();
 		pAudioEngine->unlock();
 		___DEBUGLOG( QString( "post current: %1" ).arg( fCurrentBpm ) );
 

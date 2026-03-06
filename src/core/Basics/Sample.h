@@ -41,25 +41,29 @@ namespace H2Core {
 class EnvelopePoint : public H2Core::Object<EnvelopePoint> {
 	H2_OBJECT( EnvelopePoint )
    public:
-	int frame;	///< frame index
-	int value;	///< value
+	int nFrame;
+	int nValue;
 	/** to be able to sort velocity points vectors */
 	struct Comparator {
 		bool operator()( const EnvelopePoint& a, const EnvelopePoint& b ) const
 		{
-			return a.frame < b.frame;
+			return a.nFrame < b.nFrame;
 		}
 	};
-	/** default constructor */
 	EnvelopePoint();
-	/**
-	 * constructor
-	 * \param f the frame index
-	 * \param v the value associated with the frame
-	 */
-	EnvelopePoint( int f, int v );
-	/** copy constructor */
+	EnvelopePoint( int nFrame, int nValue );
 	EnvelopePoint( const EnvelopePoint& other );
+
+	bool operator==( const EnvelopePoint& other ) const
+	{
+		return nFrame == other.nFrame && nValue == other.nValue;
+	}
+	bool operator!=( const EnvelopePoint& other ) const
+	{
+		return !operator==( other );
+	}
+	QString toQString( const QString& sPrefix = "", bool bShort = true )
+		const override;
 };
 
 class Sample : public H2Core::Object<Sample> {
@@ -73,33 +77,37 @@ class Sample : public H2Core::Object<Sample> {
 	class Loops {
 	   public:
 		/** possible sample editing loop mode */
-		enum LoopMode { FORWARD = 0, REVERSE, PINGPONG };
-		int start_frame;  ///< the frame index where to start the new sample
-						  ///< from
-		int loop_frame;	  ///< the frame index where to start the loop from
-		int end_frame;	  ///< the frame index where to end the new sample to
-		int count;		  ///< the counts of loops to apply
-		LoopMode mode;	  ///< one of the possible loop modes
-		/** constructor */
+		enum class Mode { Forward = 0, Reverse, PingPong };
+		static QString ModeToQString( const Mode& mode );
+		static Mode ModeFromQString( const QString& sText );
+
+		/** the frame index where to start the new sample from */
+		int nStartFrame;
+		/** the frame index where to start the loop from */
+		int nLoopFrame;
+		/** the frame index where to end the new sample to */
+		int nEndFrame;
+		/** the counts of loops to apply */
+		int nCount;
+		/** one of the possible loop modes */
+		Mode mode;
 		Loops()
-			: start_frame( 0 ),
-			  loop_frame( 0 ),
-			  end_frame( 0 ),
-			  count( 0 ),
-			  mode( FORWARD ) {};
-		/** copy constructor */
+			: nStartFrame( 0 ),
+			  nLoopFrame( 0 ),
+			  nEndFrame( 0 ),
+			  nCount( 0 ),
+			  mode( Mode::Forward ){};
 		Loops( const Loops* other )
-			: start_frame( other->start_frame ),
-			  loop_frame( other->loop_frame ),
-			  end_frame( other->end_frame ),
-			  count( other->count ),
-			  mode( other->mode ) {};
-		/** equal to operator */
+			: nStartFrame( other->nStartFrame ),
+			  nLoopFrame( other->nLoopFrame ),
+			  nEndFrame( other->nEndFrame ),
+			  nCount( other->nCount ),
+			  mode( other->mode ){};
 		bool operator==( const Loops& b ) const
 		{
 			return (
-				start_frame == b.start_frame && loop_frame == b.loop_frame &&
-				end_frame == b.end_frame && count == b.count && mode == b.mode
+				nStartFrame == b.nStartFrame && nLoopFrame == b.nLoopFrame &&
+				nEndFrame == b.nEndFrame && nCount == b.nCount && mode == b.mode
 			);
 		}
 		QString toQString( const QString& sPrefix = "", bool bShort = true )
@@ -276,13 +284,6 @@ class Sample : public H2Core::Object<Sample> {
 	const License& getLicense() const;
 	void setLicense( const License& license );
 
-	/**
-	 * parse the given string and rturn the corresponding loop_mode
-	 * \param string the loop mode text to be parsed
-	 */
-	static Loops::LoopMode parseLoopMode( const QString& string );
-	/** \return mode member of #m_loops as a string */
-	QString getLoopModeString() const;
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
 	 * every new line
@@ -334,8 +335,6 @@ class Sample : public H2Core::Object<Sample> {
 	VelocityEnvelope m_velocityEnvelope;  ///< velocity envelope vector
 	Loops m_loops;						  ///< set of loop parameters
 	Rubberband m_rubberband;			  ///< set of rubberband parameters
-	/** loop modes string */
-	static const std::vector<QString> m_loopModes;
 
 	/** Transient property indicating the license associated with the
 	 * sample.
@@ -413,11 +412,6 @@ inline void Sample::setIsModified( bool is_modified )
 inline bool Sample::getIsModified() const
 {
 	return m_bIsModified;
-}
-
-inline QString Sample::getLoopModeString() const
-{
-	return std::move( m_loopModes.at( m_loops.mode ) );
 }
 
 inline const Sample::PanEnvelope& Sample::getPanEnvelope() const

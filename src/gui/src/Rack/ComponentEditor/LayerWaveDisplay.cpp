@@ -22,14 +22,13 @@
 
 #include "LayerWaveDisplay.h"
 
-#include "ComponentView.h"
 #include "../../Compatibility/DropEvent.h"
+#include "ComponentView.h"
 
 using namespace H2Core;
 
 LayerWaveDisplay::LayerWaveDisplay( ComponentView* pComponentView )
-	: WaveDisplay( pComponentView ),
-	  m_pComponentView( pComponentView )
+	: WaveDisplay( pComponentView ), m_pComponentView( pComponentView )
 {
 	setAcceptDrops( true );
 }
@@ -41,8 +40,8 @@ LayerWaveDisplay::~LayerWaveDisplay()
 void LayerWaveDisplay::dragEnterEvent( QDragEnterEvent* event )
 {
 	if ( event->mimeData()->hasFormat( "text/uri-list" ) ) {
-	 	event->acceptProposedAction();
-    }
+		event->acceptProposedAction();
+	}
 }
 
 void LayerWaveDisplay::dragMoveEvent( QDragMoveEvent* event )
@@ -52,7 +51,7 @@ void LayerWaveDisplay::dragMoveEvent( QDragMoveEvent* event )
 
 void LayerWaveDisplay::dropEvent( QDropEvent* event )
 {
-    auto pEv = static_cast<DropEvent*>( event );
+	auto pEv = static_cast<DropEvent*>( event );
 
 	const QMimeData* mimeData = pEv->mimeData();
 	QString sText = pEv->mimeData()->text();
@@ -60,16 +59,16 @@ void LayerWaveDisplay::dropEvent( QDropEvent* event )
 	if ( mimeData->hasUrls() ) {
 		QList<QUrl> urlList = mimeData->urls();
 
-        QStringList filePaths;
+		QStringList filePaths;
 		for ( const auto& uurl : urlList ) {
 			const auto sPath = uurl.toLocalFile();
 			if ( !sPath.isEmpty() ) {
-                filePaths << sPath;
+				filePaths << sPath;
 			}
 		}
 
 		if ( filePaths.size() > 0 ) {
-            // We only apply the first valid path provided.
+			// We only apply the first valid path provided.
 			m_pComponentView->replaceLayer(
 				m_pComponentView->getSelectedLayer(), filePaths.front()
 			);

@@ -177,77 +177,73 @@
               </layout>
              </item>
              <item>
-              <layout class="QVBoxLayout" name="verticalLayout_2">
-               <item>
-                <widget class="QFrame" name="waveformview">
-                 <property name="minimumSize">
-                  <size>
-                   <width>451</width>
-                   <height>91</height>
-                  </size>
-                 </property>
-                 <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
-                 </property>
-                 <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_4">
-                 <item>
-                  <widget class="QToolButton" name="m_pPlayBtn">
-                   <property name="text">
-                    <string>&amp;Play Sample</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QToolButton" name="m_pStopBtn">
-                   <property name="text">
-                    <string>&amp;Stop</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QCheckBox" name="useNameCheckBox">
-                   <property name="text">
-                    <string>&amp;Filename to instrument name</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_3">
-                 <item>
-                  <widget class="QCheckBox" name="autoVelCheckBox">
-                   <property name="toolTip">
-                    <string>Be careful, this change all Layer velocity settings </string>
-                   </property>
-                   <property name="text">
-                    <string>Set automatic velocity</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="openBTN">
-                   <property name="text">
-                    <string>Open</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="cancelBTN">
-                   <property name="text">
-                    <string>Cancel</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-              </layout>
+              <widget class="QWidget" name="pSampleContainer" native="true">
+               <layout class="QVBoxLayout" name="verticalLayout_2">
+                <item>
+                 <widget class="WaveDisplay" name="m_pWaveDisplay" native="true">
+                  <property name="minimumSize">
+                   <size>
+                    <width>451</width>
+                    <height>91</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_4">
+                  <item>
+                   <widget class="QToolButton" name="m_pPlayBtn">
+                    <property name="text">
+                     <string>&amp;Play Sample</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QToolButton" name="m_pStopBtn">
+                    <property name="text">
+                     <string>&amp;Stop</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="useNameCheckBox">
+                    <property name="text">
+                     <string>&amp;Filename to instrument name</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_3">
+                  <item>
+                   <widget class="QCheckBox" name="autoVelCheckBox">
+                    <property name="toolTip">
+                     <string>Be careful, this change all Layer velocity settings </string>
+                    </property>
+                    <property name="text">
+                     <string>Set automatic velocity</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="openBTN">
+                    <property name="text">
+                     <string>Open</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="cancelBTN">
+                    <property name="text">
+                     <string>Cancel</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
              </item>
             </layout>
            </item>
@@ -261,6 +257,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>WaveDisplay</class>
+   <extends>QWidget</extends>
+   <header location="global">../src/Widgets/WaveDisplay.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>pathLineEdit</tabstop>
   <tabstop>hiddenCB</tabstop>

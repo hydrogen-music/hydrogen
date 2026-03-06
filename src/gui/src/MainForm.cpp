@@ -23,7 +23,7 @@
 #include "MainForm.h"
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/GridPoint.h>
 #include <core/Basics/InstrumentComponent.h>

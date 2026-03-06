@@ -47,7 +47,7 @@ namespace H2Core {
 class Drumkit;
 class Instrument;
 class Song;
-class TransportPosition;
+class Transport;
 
 /**
  * JACK (Jack Audio Connection Kit) server driver. A holistic driver, which can
@@ -79,10 +79,10 @@ class TransportPosition;
  * _JackTransportRolling_ and the transport position is updated according to the
  * request.
  *
- * Also note that Hydrogen overwrites its local TransportPosition only with the
+ * Also note that Hydrogen overwrites its local Transport only with the
  * transport position of the JACK server if there is a mismatch due to a
  * relocation triggered by another JACK client. During normal transport the
- * current position TransportPosition::m_nFrames will be always the same as the
+ * current position Transport::m_nFrames will be always the same as the
  * one of JACK during a cycle and incremented by the buffer size in
  * audioEngine_process() at the very end of the cycle. The same happens for the
  * transport information of the JACK server but in parallel.
@@ -176,7 +176,7 @@ class JackDriver : public Object<JackDriver>,
 	static double bbtToTick( const jack_position_t& pos );
 	static bool isBBTValid( const jack_position_t& pos );
 	static void transportToBBT(
-		const TransportPosition& transportPos,
+		const Transport& transportPos,
 		jack_position_t* pPos
 	);
 	static QString JackTransportPosToQString( const jack_position_t& pPos );
@@ -214,7 +214,7 @@ class JackDriver : public Object<JackDriver>,
 	 * from the JACK server, writes them to #m_JackTransportPos and in
 	 * #m_JackTransportState, and updates the AudioEngine in case of a mismatch.
 	 */
-	void updateTransportPosition();
+	void updateTransport();
 
 	/** \return the BPM reported by the current (external) Timebase controller
 		or NAN if there is none.*/
@@ -334,7 +334,7 @@ class JackDriver : public Object<JackDriver>,
 	 * controller. When the JACK server is releasing Hydrogen in the later case,
 	 * it won't advertise this fact but simply won't call the
 	 * JackTimebaseCallback() anymore. But since this will be called in every
-	 * cycle after updateTransportPosition(), we make the former set the
+	 * cycle after updateTransport(), we make the former set the
 	 * tracking state to #Valid and the latter to #OnHold. If we encounter a
 	 * second process cycle with #OnHold, we have been released.
 	 *
@@ -639,7 +639,7 @@ class JackDriver : public NullDriver {
 
 	// Required since these functions are a friend of AudioEngine which
 	// need to be build even if no JACK support is desired.
-	void updateTransportPosition() {}
+	void updateTransport() {}
 	void relocateUsingBBT() {}
 };
 

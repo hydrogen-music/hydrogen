@@ -23,7 +23,7 @@
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 
@@ -127,7 +127,7 @@ void PatternEditorRuler::updatePosition( bool bForce ) {
 		pAudioEngine->unlock();
 	}
 
-	int nTick = pAudioEngine->getTransportPosition()->getPatternTickPosition();
+	int nTick = pAudioEngine->getPlayhead()->getPatternTickPosition();
 
 	if ( nTick != m_nTick || bForce ) {
 		int nDiff = m_fGridWidth * (nTick - m_nTick);

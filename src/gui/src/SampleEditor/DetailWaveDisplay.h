@@ -23,6 +23,9 @@
 #ifndef DETAIL_WAVE_DISPLAY
 #define DETAIL_WAVE_DISPLAY
 
+#include "SampleEditor.h"
+#include "../Widgets/WaveDisplay.h"
+
 #include <QtGui>
 #include <QtWidgets>
 
@@ -30,36 +33,30 @@
 
 #include <memory>
 
-namespace H2Core
-{
-	class Sample;
-}
-
 /** \ingroup docGUI*/
-class DetailWaveDisplay :  public QWidget,  public H2Core::Object<DetailWaveDisplay>
-{
-    H2_OBJECT(DetailWaveDisplay)
+class DetailWaveDisplay
+	: public WaveDisplay,
+	  public H2Core::Object<DetailWaveDisplay> {
+	H2_OBJECT( DetailWaveDisplay )
 	Q_OBJECT
 
-	public:
-		explicit DetailWaveDisplay(QWidget* pParent);
-		~DetailWaveDisplay();
+   public:
+	static constexpr int nWidth = 180;
+	static constexpr int nHeight = 132;
 
-		void updateDisplay( std::shared_ptr< H2Core::Sample > pNewSample );
+	explicit DetailWaveDisplay(
+		SampleEditor* pParent,
+		WaveDisplay::Channel channel
+	);
+	~DetailWaveDisplay();
 
-		virtual void paintEvent(QPaintEvent *ev) override;
-		void setDetailSamplePosition( unsigned posi, float zoomfactor,
-									  const QString& type);
+	void paintEvent( QPaintEvent* ev ) override;
 
-	private:
-		QPixmap m_background;
-		int *m_pPeakDatal;
-		int *m_pPeakDatar;
-		int m_pDetailSamplePosition;
-		int m_pNormalImageDetailFrames;
-		float m_pZoomFactor;
-		QString m_pType;
+   private:
+	void drawPeakData() override;
+	void updatePeakData() override;
+
+	SampleEditor* m_pSampleEditor;
 };
-
 
 #endif

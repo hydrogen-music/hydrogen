@@ -32,7 +32,6 @@
 
 
 class Button;
-class SampleWaveDisplay;
 
 ///
 /// This dialog is used to preview audiofiles
@@ -76,9 +75,7 @@ class AudioFileBrowser :  public QDialog, public Ui_AudioFileBrowser_UI,  public
 
 		void getEnvironment();
 		bool isFileSupported( const QString& sFileName );
-		
-		SampleWaveDisplay *	m_pSampleWaveDisplay;
-		
+
 		QString				m_pSampleFileName;
 		QStringList			m_pSelectedFile;
 		QString				m_sSelectedDirectory;

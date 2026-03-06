@@ -24,6 +24,7 @@
 #define AUDIO_ENGINE_H
 
 #include <core/AudioEngine/AudioEngineTests.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Event.h>
 #include <core/Basics/Note.h>
 #include <core/config.h>
@@ -68,27 +69,24 @@ namespace H2Core
 	class MidiBaseDriver;
 	class PatternList;
 	class Song;
-	class TransportPosition;
-	
+
 /**
- * The audio engine deals with two distinct #TransportPosition. The
- * first (and most important one) is #m_pTransportPosition which
- * indicated the current position of the audio rendering and playhead
- * as well as all patterns associated with it. This is also the one
- * other parts of Hydrogen are concerned with.
+ * The audio engine deals with two distinct #Transport. The first (and most
+ * important one) is #m_pPlayhead which indicated the current position of the
+ * audio rendering and playhead as well as all patterns associated with it. This
+ * is also the one other parts of Hydrogen are concerned with.
  *
- * The second one is #m_pQueuingPosition which is only used
- * internally. It is one lookahead ahead of #m_pTransportPosition,
- * used for inserting notes into the song queue, and required in order
- * to supported lead and lag of notes. Formerly, this second transport
- * state was trimmed to a couple of variables making its update less
- * expensive. However, this showed to be quite error prone as things
+ * The second one is #m_pQueuing which is only used internally. It is one
+ * lookahead ahead of #m_pPlayhead, used for inserting notes into the song
+ * queue, and required in order to supported lead and lag of notes. Formerly,
+ * this second transport state was trimmed to a couple of variables making its
+ * update less expensive. However, this showed to be quite error prone as things
  * tend to went out of sync.
  *
- * All tick information (apart from note handling in
- * updateNoteQueue()) are handled as double internally. But due to
- * historical reasons the GUI and the remainder of the core only
- * access a version of the current tick rounded to integer.
+ * All tick information (apart from note handling in updateNoteQueue()) are
+ * handled as double internally. But due to historical reasons the GUI and the
+ * remainder of the core only access a version of the current tick rounded to
+ * integer.
  *
  * \ingroup docCore docAudioEngine
  */ 
@@ -323,7 +321,7 @@ public:
 	float			getProcessTime() const;
 	float			getMaxProcessTime() const;
 
-	const std::shared_ptr<TransportPosition> getTransportPosition() const;
+	const std::shared_ptr<Transport> getPlayhead() const;
 
 	const std::shared_ptr<PatternList>	getNextPatterns() const;
 	const std::shared_ptr<PatternList>	getPlayingPatterns() const;
@@ -393,7 +391,7 @@ public:
 	void removePlayingPattern( std::shared_ptr<Pattern> pPattern );
 	/**
 	 * Update the list of currently played patterns associated with
-	 * #m_pTransportPosition and #m_pQueuingPosition.
+	 * #m_pPlayhead and #m_pQueuing.
 	 *
 	 * This works in three different ways.
 	 *
@@ -436,7 +434,7 @@ public:
 		 * in #State::Prepared. (It is needs some interaction/configuration in
 		 * order to start again.) */
 	void			prepare( Event::Trigger trigger );
-	bool			isEndOfSongReached( std::shared_ptr<TransportPosition> pPos ) const;
+	bool			isEndOfSongReached( std::shared_ptr<Transport> pPos ) const;
 
 	void createPerTrackJackAudioPorts(
 		std::shared_ptr<Song> pSong,
@@ -532,14 +530,14 @@ private:
 	void			updateNoteQueue( unsigned nIntervalLengthInFrames );
 	void 			processAudio( uint32_t nFrames );
 	long long 		computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nIntervalLengthInFrames );
-	void			updateBpmAndTickSize( std::shared_ptr<TransportPosition> pTransportPosition,
+	void			updateBpmAndTickSize( std::shared_ptr<Transport> pTransport,
 										  Event::Trigger trigger = Event::Trigger::Default );
 	void			calculateTransportOffsetOnBpmChange(
-		std::shared_ptr<TransportPosition> pTransportPosition,
+		std::shared_ptr<Transport> pTransport,
 		float fTickSizeOld, float fTickSizeNew );
 
 	void			setRealtimeFrame( long long nFrame );
-	void updatePlayingPatternsPos( std::shared_ptr<TransportPosition> pPos,
+	void updatePlayingPatternsPos( std::shared_ptr<Transport> pPos,
 								   Event::Trigger trigger );
 	
 	void			setSong( std::shared_ptr<Song>pNewSong );
@@ -554,26 +552,35 @@ private:
 	void			locate( const double fTick, bool bWithJackBroadcast = true,
 							Event::Trigger trigger = Event::Trigger::Default );
 	/**
-	 * Version of the locate() function intended to be directly used
-	 * by frame-based audio drivers / servers.
+	 * Version of the locate() function intended to be directly used by
+	 * frame-based audio drivers / servers.
 	 *
-	 * @param nFrame Next position in frames. If the provided number
-	 * is larger than the song length and loop mode is enabled,
-	 * computeTickFromFrame() will wrap it.
+	 * @param nFrame Next position in frames. If the provided number is larger
+	 *   than the song length and loop mode is enabled, computeTickFromFrame()
+	 *   will wrap it.
 	 */
-	void			locateToFrame( const long long nFrame );
-	void			incrementTransportPosition( uint32_t nFrames );
-	void			updateTransportPosition( double fTick, long long nFrame,
-											 std::shared_ptr<TransportPosition> pPos,
-											 Event::Trigger trigger = Event::Trigger::Default );
-	void			updateSongTransportPosition( double fTick, long long nFrame,
-												 std::shared_ptr<TransportPosition> pPos,
-												 Event::Trigger trigger = Event::Trigger::Force );
-	void			updatePatternTransportPosition( double fTick, long long nFrame,
-													std::shared_ptr<TransportPosition> pPos,
-													Event::Trigger trigger = Event::Trigger::Default );
+	void locateToFrame( const long long nFrame );
+	void incrementPlayhead( uint32_t nFrames );
+	void updateTransport(
+		double fTick,
+		long long nFrame,
+		std::shared_ptr<Transport> pPos,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	void updateSongTransport(
+		double fTick,
+		long long nFrame,
+		std::shared_ptr<Transport> pPos,
+		Event::Trigger trigger = Event::Trigger::Force
+	);
+	void updatePatternTransport(
+		double fTick,
+		long long nFrame,
+		std::shared_ptr<Transport> pPos,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 
-		void startCountIn();
+	void startCountIn();
 
 	/**
 	 * Updates all notes in #m_songNoteQueue and #m_midiNoteQueue to
@@ -681,8 +688,8 @@ private:
 		/** In milliseconds. */
 	float				m_fLadspaTime;
 
-	std::shared_ptr<TransportPosition> m_pTransportPosition;
-	std::shared_ptr<TransportPosition> m_pQueuingPosition;
+	std::shared_ptr<Transport> m_pPlayhead;
+	std::shared_ptr<Transport> m_pQueuing;
 
 	/** Set to the total number of ticks in a Song.*/
 	double				m_fSongSizeInTicks;
@@ -865,8 +872,8 @@ inline void AudioEngine::setRealtimeFrame( long long nFrame ) {
 inline float AudioEngine::getNextBpm() const {
 	return m_fNextBpm;
 }
-inline const std::shared_ptr<TransportPosition> AudioEngine::getTransportPosition() const {
-	return m_pTransportPosition;
+inline const std::shared_ptr<Transport> AudioEngine::getPlayhead() const {
+	return m_pPlayhead;
 }
 inline double AudioEngine::getSongSizeInTicks() const {
 	return m_fSongSizeInTicks;

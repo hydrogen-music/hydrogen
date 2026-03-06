@@ -21,16 +21,18 @@
  */
 
 #include "AudioFileBrowser.h"
-#include "../HydrogenApp.h"
-#include "Rack/InstrumentEditor.h"
-#include "SampleWaveDisplay.h"
-#include "../Widgets/Button.h"
-#include "../Skin.h"
 
-#include <core/Preferences/Preferences.h>
+#include "../HydrogenApp.h"
+#include "../Rack/InstrumentEditor.h"
+#include "../Skin.h"
+#include "../Widgets/Button.h"
+#include "../Widgets/WaveDisplay.h"
+
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/Sample.h>
 #include <core/Hydrogen.h>
-#include <core/AudioEngine/AudioEngine.h>
+#include <core/Preferences/Preferences.h>
 
 #include <QFileSystemModel>
 #include <QModelIndex>
@@ -105,9 +107,7 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect,
 	m_pStopBtn->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/white/stop.svg"));
 	m_pStopBtn->setToolTip( QString( tr( "Stop" )));
 
-	m_pSampleWaveDisplay = new SampleWaveDisplay( waveformview );
-	m_pSampleWaveDisplay->updateDisplay( m_sEmptySampleFileName );
-	m_pSampleWaveDisplay->move( 3, 3 );
+	m_pWaveDisplay->setLayer( nullptr );
 
 	playSamplescheckBox->setChecked( Preferences::get_instance()->m_bPlaySamplesOnClicking );
 	//get the kde or gnome environment variable for mouse double or single clicking
@@ -249,7 +249,7 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 
 	QString path = m_pDirModel->filePath( index );
 	pathLineEdit->setText( path );
-	m_pSampleWaveDisplay->updateDisplay( m_sEmptySampleFileName );
+	m_pWaveDisplay->setLayer( nullptr );
 
 	updateModelIndex(); //with this you have a navigation like konqueror
 
@@ -292,12 +292,12 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 
 			m_pSampleFileName = path2;
 
-			m_pSampleWaveDisplay->updateDisplay( path2 );
+            const auto pLayer = std::make_shared<InstrumentLayer>( pNewSample );
+			m_pWaveDisplay->setLayer( pLayer );
+
 			m_pPlayBtn->setEnabled( true );
 			openBTN->setEnabled( true );
 
-			//important this will only working correct if m_pSampleWaveDisplay->updateDisplay( file )
-			//is ready with painting the wav file. else the playing sample get crackled sound!!
 			if (playSamplescheckBox->isChecked()){
 				if ( sec <= 600.00){
 					on_m_pPlayBtn_clicked();
@@ -317,7 +317,7 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 		m_pNBytesLable->setText( tr( "Size:" ) );
 		m_pSamplerateLable->setText( tr( "Samplerate:" ) );
 		m_pLengthLable->setText( tr( "Sample length:" ) );
-		m_pSampleWaveDisplay->updateDisplay( m_sEmptySampleFileName );
+		m_pWaveDisplay->setLayer( nullptr );
 		m_pPlayBtn->setEnabled( false );
 		m_pStopBtn->setEnabled( false );
 		openBTN->setEnabled( false );

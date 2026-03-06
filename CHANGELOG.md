@@ -93,6 +93,7 @@ All notable changes to this project will be documented in this file.
   - Changes in the MIDI Action table can now be undone.
   - MIDI actions can be mapped to the currently selected instrument (by
     scrolling beyond `0`) (#459).
+- Changes in the Sample Editor can now be undone.
 
 ### Changed
 

@@ -711,11 +711,6 @@ Displayed in the tooltip of input widgets. General heading of the part associati
         <translation>&amp;Lecture</translation>
     </message>
     <message>
-        <source>Play &amp;original sample</source>
-        <extracomment>Text displayed on a Play button in the SampleEditor which will start playback of the original file. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation>Lire l&apos;échantillon &amp;original</translation>
-    </message>
-    <message>
         <source>Unsaved changes left. These changes will be lost. 
 Are you sure?</source>
         <translation>Il reste des changements non sauvegardés. Ces changements seront perdus. 
@@ -1511,6 +1506,16 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>Select.</source>
         <extracomment>Used as spin box item - in Midi Action table of the MidiControl - * indicating that an action is associated with the currently selected * instrument. Designed to hold about 7 characters.</extracomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add or remove envelope point in sample editor</source>
+        <extracomment>Shown in the undo history adding or deleting an envelope point in the * sample editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Play &amp;original</source>
+        <extracomment>Text displayed on a Play button in the SampleEditor which will start playback of the original file. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation>Lire &amp;original</translation>
     </message>
 </context>
 <context>
@@ -4252,6 +4257,30 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <source>Layer Text</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Sample Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start Slider</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Loop Slider</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>End Slider</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Velocity Envelope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pan Envelope</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
@@ -4783,6 +4812,18 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <source>Replace an entry in the MIDI Action Table</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Modify slider in sample editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modify loop settings in sample editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move envelope point in sample editor</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Rack</name>
@@ -4828,43 +4869,28 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>Éditeur d&apos;échantillon</translation>
     </message>
     <message>
-        <source>new sample length</source>
-        <translation>nouvelle longueur d&apos;échantillon</translation>
-    </message>
-    <message>
-        <source>frames</source>
-        <translation>trames</translation>
-    </message>
-    <message>
         <source> RB-Ratio</source>
         <translation> Ratio-RB</translation>
     </message>
-</context>
-<context>
-    <name>SampleEditor_UI</name>
     <message>
-        <source>Dialog</source>
-        <translation>Dialogue</translation>
-    </message>
-    <message>
-        <source>P&amp;lay original sample</source>
-        <translation>&amp;Lecture de l&apos;échantillon original</translation>
-    </message>
-    <message>
-        <source>&amp;Apply Changes</source>
-        <translation>&amp;Appliquer les modifications</translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
-        <translation>&amp;Fermer</translation>
+        <source>Start</source>
+        <translation>Départ</translation>
     </message>
     <message>
         <source>Adjust sample start frame</source>
         <translation>Ajuster le point de départ de l&apos;échantillon</translation>
     </message>
     <message>
+        <source>Loop</source>
+        <translation>Boucle</translation>
+    </message>
+    <message>
         <source>Adjust sample loop begin frame</source>
         <translation>Ajuster le début de la boucle de l&apos;échantillon</translation>
+    </message>
+    <message>
+        <source>mode</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>set processing</source>
@@ -4883,16 +4909,40 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>ping-pong</translation>
     </message>
     <message>
+        <source>count</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>loops</source>
         <translation>boucles</translation>
     </message>
     <message>
-        <source>Adjust sample end &amp; loop end frame</source>
+        <source>End</source>
+        <translation>Fin</translation>
+    </message>
+    <message>
+        <source>Adjust sample and loop end frame</source>
         <translation>Ajuster le point d&apos;arrivé de l&apos;échantillon</translation>
     </message>
     <message>
-        <source>&amp;Play</source>
-        <translation>&amp;Lecture</translation>
+        <source>&amp;Close</source>
+        <translation>&amp;Fermer</translation>
+    </message>
+    <message>
+        <source>Sample length to beat:</source>
+        <translation>Longueur de l&apos;échantillon par rapport au temps :</translation>
+    </message>
+    <message>
+        <source>Pitch (Semitone,Cent)</source>
+        <translation>Hauteur (demi-ton,cent)</translation>
+    </message>
+    <message>
+        <source>Pitch the sample in semitones, cents</source>
+        <translation>Accorder l&apos;échantillon en demi-tons, cents</translation>
+    </message>
+    <message>
+        <source>Crispness: </source>
+        <translation>Croustillance :</translation>
     </message>
     <message>
         <source>new sample length:</source>
@@ -4911,254 +4961,42 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>panoramique</translation>
     </message>
     <message>
-        <source>0</source>
-        <translation>0</translation>
+        <source>Original Sample and Loop Settings</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>1</source>
-        <translation>1</translation>
+        <source>Rubberband Audio Processor</source>
+        <translation>Processeur audio Rubberband</translation>
     </message>
     <message>
-        <source>2</source>
-        <translation>2</translation>
+        <source>Change the tempo (sample length) and pitch of audio.</source>
+        <translation>modifie le tempo (la longueur de l&apos;échantillon) et la tonalité de l&apos;audio.</translation>
     </message>
     <message>
-        <source>3</source>
-        <translation>3</translation>
+        <source>Resulting Sample and Envelopes</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>4</source>
-        <translation>4</translation>
+        <source>&amp;Stop</source>
+        <translation>&amp;Arrêter</translation>
+    </message>
+</context>
+<context>
+    <name>SampleWaveDisplay</name>
+    <message>
+        <source>S</source>
+        <extracomment>Single character used as a label of the loop start slider within * the sample editor.</extracomment>
+        <translation>S</translation>
     </message>
     <message>
-        <source>5</source>
-        <translation>5</translation>
+        <source>L</source>
+        <extracomment>Single character used as a label of the loop onset slider within * the sample editor.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>off</source>
-        <translation>off</translation>
-    </message>
-    <message>
-        <source>1/64</source>
-        <translation>1/64</translation>
-    </message>
-    <message>
-        <source>1/32</source>
-        <translation>1/32</translation>
-    </message>
-    <message>
-        <source>1/16</source>
-        <translation>1/16</translation>
-    </message>
-    <message>
-        <source>1/8</source>
-        <translation>1/8</translation>
-    </message>
-    <message>
-        <source>1/4</source>
-        <translation>1/4</translation>
-    </message>
-    <message>
-        <source>1/2</source>
-        <translation>1/2</translation>
-    </message>
-    <message>
-        <source>6</source>
-        <translation>6</translation>
-    </message>
-    <message>
-        <source>7</source>
-        <translation>7</translation>
-    </message>
-    <message>
-        <source>8</source>
-        <translation>8</translation>
-    </message>
-    <message>
-        <source>9</source>
-        <translation>9</translation>
-    </message>
-    <message>
-        <source>10</source>
-        <translation>10</translation>
-    </message>
-    <message>
-        <source>11</source>
-        <translation>11</translation>
-    </message>
-    <message>
-        <source>12</source>
-        <translation>12</translation>
-    </message>
-    <message>
-        <source>13</source>
-        <translation>13</translation>
-    </message>
-    <message>
-        <source>14</source>
-        <translation>14</translation>
-    </message>
-    <message>
-        <source>15</source>
-        <translation>15</translation>
-    </message>
-    <message>
-        <source>16</source>
-        <translation>16</translation>
-    </message>
-    <message>
-        <source>17</source>
-        <translation>17</translation>
-    </message>
-    <message>
-        <source>18</source>
-        <translation>18</translation>
-    </message>
-    <message>
-        <source>19</source>
-        <translation>19</translation>
-    </message>
-    <message>
-        <source>20</source>
-        <translation>20</translation>
-    </message>
-    <message>
-        <source>21</source>
-        <translation>21</translation>
-    </message>
-    <message>
-        <source>22</source>
-        <translation>22</translation>
-    </message>
-    <message>
-        <source>23</source>
-        <translation>23</translation>
-    </message>
-    <message>
-        <source>24</source>
-        <translation>24</translation>
-    </message>
-    <message>
-        <source>25</source>
-        <translation>25</translation>
-    </message>
-    <message>
-        <source>26</source>
-        <translation>26</translation>
-    </message>
-    <message>
-        <source>27</source>
-        <translation>27</translation>
-    </message>
-    <message>
-        <source>28</source>
-        <translation>28</translation>
-    </message>
-    <message>
-        <source>29</source>
-        <translation>29</translation>
-    </message>
-    <message>
-        <source>30</source>
-        <translation>30</translation>
-    </message>
-    <message>
-        <source>31</source>
-        <translation>31</translation>
-    </message>
-    <message>
-        <source>32</source>
-        <translation>32</translation>
-    </message>
-    <message>
-        <source>Sample length to beat:</source>
-        <translation>Longueur de l&apos;échantillon par rapport au temps :</translation>
-    </message>
-    <message>
-        <source>Pitch the sample in semitones, cents</source>
-        <translation>Accorder l&apos;échantillon en demi-tons, cents</translation>
-    </message>
-    <message>
-        <source>Crispness: </source>
-        <translation>Croustillance :</translation>
-    </message>
-    <message>
-        <source>Start</source>
-        <translation>Départ</translation>
-    </message>
-    <message>
-        <source>Loop</source>
-        <translation>Boucle</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;mode&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;mode&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Count&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Count&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>End</source>
-        <translation>Fin</translation>
-    </message>
-    <message>
-        <source>&quot;Rubberband Audio Processor&quot; : Change the tempo (sample length) and pitch of audio.</source>
-        <translation>&quot;Processeur audio Rubberband&quot; : modifie le tempo (la longueur de l&apos;échantillon) et la tonalité de l&apos;audio.</translation>
-    </message>
-    <message>
-        <source> Pitch (Semitone,Cent)</source>
-        <translation>Hauteur (demi-ton,cent)</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&quot;Crispness&quot; levels:&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  0   equivalent to --no-transients --no-lamination --window-long&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  1   equivalent to --no-transients --no-lamination&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  2   equivalent to --no-transients&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  3   equivalent to --bl-transients&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   default processing options&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   equivalent to --no-lamination --window-short (may be good for drums)&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;you can find more information here:&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&quot;niveaux de croustillance&quot; :&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  0   équivalent à --no-transients --no-lamination --window-long&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  1   équivalent à --no-transients --no-lamination&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  2   équivalent à --no-transients&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  3   équivalent à --bl-transients&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   options de traitement par défault &lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   équivalent à --no-lamination --window-short (pourrait être bon pour les tambours)&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;vous pouvez trouver davantage d&apos;information ici :&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <source>E</source>
+        <extracomment>Single character used as a label of the loop end slider within * the sample editor.</extracomment>
+        <translation>Mi</translation>
     </message>
 </context>
 <context>

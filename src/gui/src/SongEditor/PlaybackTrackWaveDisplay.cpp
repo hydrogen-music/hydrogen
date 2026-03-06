@@ -22,16 +22,16 @@
 
 #include "PlaybackTrackWaveDisplay.h"
 
-#include "SongEditor.h"
-#include "SongEditorPanel.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
+#include "SongEditor.h"
+#include "SongEditorPanel.h"
 
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentLayer.h>
-#include <core/Basics/PatternList.h>
 #include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
@@ -39,25 +39,21 @@
 
 using namespace H2Core;
 
-PlaybackTrackWaveDisplay::PlaybackTrackWaveDisplay(QWidget* pParent)
- : WaveDisplay( pParent )
- , m_fTick( 0 )
+PlaybackTrackWaveDisplay::PlaybackTrackWaveDisplay( QWidget* pParent )
+	: WaveDisplay( pParent ), m_fTick( 0 )
 {
-	qreal pixelRatio = devicePixelRatio();
-	m_pBackgroundPixmap = new QPixmap( width() * pixelRatio,
-									   height() * pixelRatio );
-	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
-	
-	setAcceptDrops(true);
+	m_sFallbackLabel = tr( "No playback track selected" );
+
+	m_type = WaveDisplay::Type::Envelope;
+
+	setAcceptDrops( true );
 }
 
 PlaybackTrackWaveDisplay::~PlaybackTrackWaveDisplay()
 {
-	delete m_pBackgroundPixmap;
 }
 
-
-void PlaybackTrackWaveDisplay::dropEvent(QDropEvent* event)
+void PlaybackTrackWaveDisplay::dropEvent( QDropEvent* event )
 {
 	const QMimeData* mimeData = event->mimeData();
 	QString sText = event->mimeData()->text();
@@ -65,153 +61,137 @@ void PlaybackTrackWaveDisplay::dropEvent(QDropEvent* event)
 	if ( mimeData->hasUrls() ) {
 		QList<QUrl> urlList = mimeData->urls();
 
-		//someone dragged a file from an external tool.
-		//check if is a supported sample, and then try to load it
-		if( sText.startsWith("file://")) {
-			Hydrogen::get_instance()->loadPlaybackTrack( urlList.at(0).toLocalFile() );	
+		// someone dragged a file from an external tool.
+		// check if is a supported sample, and then try to load it
+		if ( sText.startsWith( "file://" ) ) {
+			Hydrogen::get_instance()->loadPlaybackTrack(
+				urlList.at( 0 ).toLocalFile()
+			);
 			HydrogenApp* pH2App = HydrogenApp::get_instance();
-			
+
 			pH2App->getSongEditorPanel()->updatePlaybackTrack();
 		}
 	}
 }
 
-void PlaybackTrackWaveDisplay::dragEnterEvent(QDragEnterEvent * event)
+void PlaybackTrackWaveDisplay::dragEnterEvent( QDragEnterEvent* event )
 {
-	if(event->mimeData()->hasFormat("text/plain")) {
+	if ( event->mimeData()->hasFormat( "text/plain" ) ) {
 		event->acceptProposedAction();
 	}
 }
 
-void PlaybackTrackWaveDisplay::dragMoveEvent(QDragMoveEvent *event)
+void PlaybackTrackWaveDisplay::dragMoveEvent( QDragMoveEvent* event )
 {
 	event->accept();
 }
 
-void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer )
+void PlaybackTrackWaveDisplay::updatePeakData()
 {
-	auto pH2App = HydrogenApp::get_instance();
-	const auto pPref = Preferences::get_instance();
+	if ( width() != m_peakData.size() || width() != m_peakDataMin.size() ) {
+		m_peakData.resize( width() );
+		m_peakDataMin.resize( width() );
+	}
+
 	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
+	if ( m_pLayer == nullptr || m_pLayer->getSample() == nullptr ||
+		 pSong == nullptr ) {
+		for ( int ii = 0; ii < m_peakData.size(); ++ii ) {
+			m_peakData[ii] = 0;
+			m_peakDataMin[ii] = 0;
+		}
 
-	// Resize pixmap if pixel ratio has changed
-	qreal pixelRatio = devicePixelRatio();
-	if ( m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ||
-		 width() != m_pBackgroundPixmap->width() ||
-		 height() != m_pBackgroundPixmap->height() ) {
-		delete m_pBackgroundPixmap;
-		m_pBackgroundPixmap = new QPixmap( width() * pixelRatio ,
-										  height() * pixelRatio );
-		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
-	}
-
-	int nCurrentWidth = width();
-
-	if ( pLayer == nullptr || nCurrentWidth <= 0 ){
-		m_pLayer = nullptr;
-		m_nActiveWidth = 0;
-		m_sSampleName = tr( "No playback track selected" );
-
-		QPainter painter( m_pBackgroundPixmap );
-		createBackground( &painter );
+		drawPeakData();
 		update();
 		return;
 	}
 
-	m_pLayer = pLayer;
-	
-	if ( nCurrentWidth != m_nCurrentWidth ) {
-		delete[] m_pPeakData;
-		m_pPeakData = new int[ nCurrentWidth ];
-		
-		m_nCurrentWidth = nCurrentWidth;
-	}
-	
-	// Initialise everything with 0..
-	memset( m_pPeakData, 0, nCurrentWidth * sizeof( m_pPeakData[ 0 ] ) );
-	
-	if ( pLayer && pLayer->getSample() ) {
+	auto pH2App = HydrogenApp::get_instance();
+	const auto nSongLengthInTicks = pSong->lengthInTicks();
+	const auto pColumns = pSong->getPatternGroupVector();
+	const auto nMaxBars = Preferences::get_instance()->getMaxBars();
+	auto pSampleData = m_pLayer->getSample()->getData_L();
+	const int nSampleLength = m_pLayer->getSample()->getFrames();
+	const float fGain = height() / 2.0 * m_pLayer->getGain();
 
-		m_sSampleName = m_pLayer->getSample()->getFileName();
-
-		const auto nSongLengthInTicks = pSong->lengthInTicks();
-		const auto pColumns = pSong->getPatternGroupVector();
-		const auto nMaxBars = pPref->getMaxBars();
-		auto pSampleData = pLayer->getSample()->getData_L();
-		const int nSampleLength = m_pLayer->getSample()->getFrames();
-		const float fGain = height() / 2.0 * pLayer->getGain();
-
-		int nSongEditorGridWidth;
-		if ( pH2App->getSongEditorPanel() != nullptr ) {
-			nSongEditorGridWidth = pH2App->getSongEditorPanel()->getSongEditor()->getGridWidth();
-		} else {
-			//this might happen during init of SongEditorPanel
-			nSongEditorGridWidth = 16;
-		}
-		
-		int nRenderStartPosition = SongEditor::nMargin;
-
-		int nTotalTicks = 0;
-		long long nTotalFrames = 0;
-		int nSamplePos = 0;
-		double fMismatch;
-		for ( int nnColumn = 0; nnColumn < nMaxBars; ++nnColumn ) {
-			int nColumnLengthTicks = 0;
-			if ( nnColumn < pColumns->size() &&
-				 pColumns->at( nnColumn ) != nullptr ) {
-				nColumnLengthTicks =
-					pColumns->at( nnColumn )->longestPatternLength();
-			}
-
-			// No pattern found in this column, use default size.
-			if ( nColumnLengthTicks <= 0 ) {
-				nColumnLengthTicks = 4 * H2Core::nTicksPerQuarter;
-			}
-			nTotalTicks += nColumnLengthTicks;
-			const long long nNextEndFrame =
-				TransportPosition::computeFrameFromTick(
-					  static_cast<double>(nTotalTicks), &fMismatch );
-
-			// We have not enough room to render all the details, so we need to
-			// coarse grain.
-			const int nFramesPerPixel = ( nNextEndFrame - nTotalFrames ) /
-										nSongEditorGridWidth;
-
-			// Render all peaks corresponding to the column
-			int nnVal;
-			for ( int ii = nRenderStartPosition;
-				 ( ii < nRenderStartPosition + nSongEditorGridWidth ) &&
-				 ( ii < nCurrentWidth ); ++ii ) {
-				nnVal = 0;
-				for ( int jj = 0; jj < nFramesPerPixel; ++jj ) {
-					if ( nSamplePos < nSampleLength ) {
-						const int nNewVal = (int)( pSampleData[ nSamplePos ] * fGain );
-						if ( nNewVal > nnVal ) {
-							nnVal = nNewVal;
-						}
-					}
-
-					++nSamplePos;
-				}
-				m_pPeakData[ ii ] = nnVal;
-			}
-			nRenderStartPosition += nSongEditorGridWidth;
-			nTotalFrames = nNextEndFrame;
-
-			if ( nTotalTicks <= nSongLengthInTicks ) {
-				m_nActiveWidth = nRenderStartPosition;
-			}
-
-			if ( nTotalFrames >= nSampleLength ) {
-				break;
-			}
-		}
+	int nSongEditorGridWidth;
+	if ( pH2App->getSongEditorPanel() != nullptr ) {
+		nSongEditorGridWidth =
+			pH2App->getSongEditorPanel()->getSongEditor()->getGridWidth();
 	}
 	else {
-		m_sSampleName = "-";
+		// this might happen during init of SongEditorPanel
+		nSongEditorGridWidth = 16;
+	}
+
+	int nRenderStartPosition = SongEditor::nMargin;
+
+	int nTotalTicks = 0;
+	long long nTotalFrames = 0;
+	int nSamplePos = 0;
+	double fMismatch;
+	for ( int nnColumn = 0; nnColumn < nMaxBars; ++nnColumn ) {
+		int nColumnLengthTicks = 0;
+		if ( nnColumn < pColumns->size() &&
+			 pColumns->at( nnColumn ) != nullptr ) {
+			nColumnLengthTicks =
+				pColumns->at( nnColumn )->longestPatternLength();
+		}
+
+		// No pattern found in this column, use default size.
+		if ( nColumnLengthTicks <= 0 ) {
+			nColumnLengthTicks = 4 * H2Core::nTicksPerQuarter;
+		}
+		nTotalTicks += nColumnLengthTicks;
+		const long long nNextEndFrame = Transport::computeFrameFromTick(
+			static_cast<double>( nTotalTicks ), &fMismatch
+		);
+
+		// We have not enough room to render all the details, so we need to
+		// coarse grain.
+		const int nFramesPerPixel =
+			( nNextEndFrame - nTotalFrames ) / nSongEditorGridWidth;
+
+		// Render all peaks corresponding to the column
+		int nMin, nMax;
+		for ( int ii = nRenderStartPosition;
+			  ( ii < nRenderStartPosition + nSongEditorGridWidth ) &&
+			  ( ii < m_peakData.size() );
+			  ++ii ) {
+			nMin = 0;
+			nMax = 0;
+			for ( int jj = 0; jj < nFramesPerPixel; ++jj ) {
+				if ( nSamplePos < nSampleLength ) {
+					const int nNewVal =
+						(int) ( pSampleData[nSamplePos] * fGain );
+					if ( nNewVal > nMax ) {
+						nMax = nNewVal;
+					}
+					if ( nNewVal < nMin ) {
+						nMin = nNewVal;
+					}
+				}
+
+				++nSamplePos;
+			}
+			m_peakData[ii] = nMax;
+			m_peakDataMin[ii] = nMin;
+		}
+		nRenderStartPosition += nSongEditorGridWidth;
+		nTotalFrames = nNextEndFrame;
+
+		if ( nTotalTicks <= nSongLengthInTicks ) {
+			m_nActiveWidth = nRenderStartPosition;
+		}
+
+		if ( nTotalFrames >= nSampleLength ) {
+			break;
+		}
+	}
+
+	for ( int ii = nRenderStartPosition; ii < m_peakData.size(); ++ii ) {
+		m_peakData[ii] = 0;
+		m_peakDataMin[ii] = 0;
 	}
 
 	// In pattern mode the playback track won't be played back at all.
@@ -219,51 +199,40 @@ void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Instrument
 		m_nActiveWidth = 0;
 	}
 
-	QPainter painter( m_pBackgroundPixmap );
-	createBackground( &painter );
+	drawPeakData();
 	update();
 }
 
-void PlaybackTrackWaveDisplay::updatePosition( float fTick ) {
+void PlaybackTrackWaveDisplay::updatePosition( float fTick )
+{
 	m_fTick = fTick;
 	update();
 }
 
-void PlaybackTrackWaveDisplay::paintEvent( QPaintEvent *ev ) {
-
-	if (!isVisible()) {
+void PlaybackTrackWaveDisplay::paintEvent( QPaintEvent* ev )
+{
+	if ( !isVisible() ) {
 		return;
 	}
 
+	WaveDisplay::paintEvent( ev );
+
 	QPainter painter( this );
-	
-	qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
-		 width() != m_pBackgroundPixmap->width() ||
-		 height() != m_pBackgroundPixmap->height() ) {
-		updateDisplay( m_pLayer );
-	}
-	
-	// Render the wave display.
-	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap,
-						QRectF( pixelRatio * ev->rect().x(),
-								pixelRatio * ev->rect().y(),
-								pixelRatio * ev->rect().width(),
-								pixelRatio * ev->rect().height() ) );
 
 	// Draw playhead
 	auto pSongEditorPanel = HydrogenApp::get_instance()->getSongEditorPanel();
 	if ( m_fTick != -1 && pSongEditorPanel != nullptr ) {
 		if ( pSongEditorPanel->getSongEditor() != nullptr ) {
-			int nX = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
-									   m_fTick *
-									   static_cast<float>(pSongEditorPanel->getSongEditor()->
-														  getGridWidth()) -
-									   static_cast<float>(Skin::nPlayheadWidth) / 2 );
+			int nX = static_cast<int>(
+				static_cast<float>( SongEditor::nMargin ) + 1 +
+				m_fTick * static_cast<float>(
+							  pSongEditorPanel->getSongEditor()->getGridWidth()
+						  ) -
+				static_cast<float>( Skin::nPlayheadWidth ) / 2
+			);
 			int nOffset = Skin::getPlayheadShaftOffset();
 			Skin::setPlayheadPen( &painter, false );
 			painter.drawLine( nX + nOffset, 0, nX + nOffset, height() );
 		}
 	}
-
 }

@@ -28,10 +28,11 @@
 #include <QDebug>
 #include <QUndoCommand>
 #include <QPoint>
+#include <cmath>
 #include <vector>
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/AutomationPath.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
@@ -61,6 +62,7 @@
 #include "SongEditor/SongEditorPanel.h"
 #include "SongEditor/SongEditorPatternList.h"
 #include "SongEditor/SongEditorPositionRuler.h"
+#include "SampleEditor/SampleEditor.h"
 #include "Rack/SoundLibrary/SoundLibraryPanel.h"
 #include "Widgets/AutomationPathView.h"
 #include "Widgets/EditorDefs.h"
@@ -881,8 +883,8 @@ public:
 
 /** Instruments are self-contained units within a #H2Core::Drumkit. Each
  * #H2Core::Note carries a shared pointer to the #H2Core::Instrument used to
- * render it. Due to the latter we have to be careful when changing members an
- * instrument, like adding/moving/removing #H2Core::InstrumentComponent or
+ * render it. Due to the latter we have to be careful when changing members of
+ * an instrument, like adding/moving/removing #H2Core::InstrumentComponent or
  * #H2Core::InstrumentLayer. Instead, we just replace the instrument as a whole
  * in the drumkit. This way the one stored in the #H2Core::Note within the queue
  * of #H2Core::AudioEngine and #H2Core::Sampler is still valid. */
@@ -1350,6 +1352,216 @@ class SE_replaceMidiEventsAction : public QUndoCommand {
 	H2Core::Midi::Parameter m_oldEventParameter;
 	std::shared_ptr<MidiAction> m_pNewMidiAction;
 	std::shared_ptr<MidiAction> m_pOldMidiAction;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+/** Short-cut action since slider changes are to most frequent loop changes. */
+class SE_changeSliderAction : public QUndoCommand {
+   public:
+	SE_changeSliderAction(
+		SampleEditor::Slider slider,
+		int nOldFrame,
+		int nNewFrame
+	)
+		: m_slider( slider ), m_nNewFrame( nNewFrame ), m_nOldFrame( nOldFrame )
+	{
+		setText( QString( "%1: [%2]" )
+					 .arg( QObject::tr( "Modify slider in sample editor" ) )
+					 .arg( SampleEditor::SliderToQString( slider ) ) );
+	}
+
+	virtual void redo()
+	{
+		auto pSampleEditor = HydrogenApp::get_instance()->getSampleEditor();
+		if ( pSampleEditor == nullptr ) {
+			return;
+		}
+		if ( m_slider == SampleEditor::Slider::Start ) {
+			pSampleEditor->setLoopStartFrame( m_nNewFrame );
+		}
+		else if ( m_slider == SampleEditor::Slider::Loop ) {
+			pSampleEditor->setLoopLoopFrame( m_nNewFrame );
+		}
+		else if ( m_slider == SampleEditor::Slider::End ) {
+			pSampleEditor->setLoopEndFrame( m_nNewFrame );
+		}
+	}
+	virtual void undo()
+	{
+		auto pSampleEditor = HydrogenApp::get_instance()->getSampleEditor();
+		if ( pSampleEditor == nullptr ) {
+			return;
+		}
+		if ( m_slider == SampleEditor::Slider::Start ) {
+			pSampleEditor->setLoopStartFrame( m_nOldFrame );
+		}
+		else if ( m_slider == SampleEditor::Slider::Loop ) {
+			pSampleEditor->setLoopLoopFrame( m_nOldFrame );
+		}
+		else if ( m_slider == SampleEditor::Slider::End ) {
+			pSampleEditor->setLoopEndFrame( m_nOldFrame );
+		}
+	}
+
+   private:
+	SampleEditor::Slider m_slider;
+	int m_nOldFrame;
+	int m_nNewFrame;
+};
+
+/** More general action for all loop-specific stuff apart from frames. */
+class SE_changeLoopsAction : public QUndoCommand {
+   public:
+	SE_changeLoopsAction(
+		H2Core::Sample::Loops oldLoops,
+		H2Core::Sample::Loops newLoops
+	)
+		: m_newLoops( newLoops ), m_oldLoops( oldLoops )
+	{
+		setText( QObject::tr( "Modify loop settings in sample editor" ) );
+	}
+
+	virtual void redo()
+	{
+		auto pSampleEditor = HydrogenApp::get_instance()->getSampleEditor();
+		if ( pSampleEditor == nullptr ) {
+			return;
+		}
+		pSampleEditor->setLoops( m_newLoops );
+	}
+	virtual void undo()
+	{
+		auto pSampleEditor = HydrogenApp::get_instance()->getSampleEditor();
+		if ( pSampleEditor == nullptr ) {
+			return;
+		}
+		pSampleEditor->setLoops( m_oldLoops );
+	}
+
+   private:
+	H2Core::Sample::Loops m_oldLoops;
+	H2Core::Sample::Loops m_newLoops;
+};
+
+class SE_changeRubberbandAction : public QUndoCommand {
+   public:
+	SE_changeRubberbandAction(
+		H2Core::Sample::Rubberband oldRubberband,
+		H2Core::Sample::Rubberband newRubberband
+	)
+		: m_newRubberband( newRubberband ), m_oldRubberband( oldRubberband )
+	{
+		setText( QObject::tr( "Modify loop settings in sample editor" ) );
+	}
+
+	virtual void redo()
+	{
+		auto pSampleEditor = HydrogenApp::get_instance()->getSampleEditor();
+		if ( pSampleEditor == nullptr ) {
+			return;
+		}
+		pSampleEditor->setRubberband( m_newRubberband );
+	}
+	virtual void undo()
+	{
+		auto pSampleEditor = HydrogenApp::get_instance()->getSampleEditor();
+		if ( pSampleEditor == nullptr ) {
+			return;
+		}
+		pSampleEditor->setRubberband( m_oldRubberband );
+	}
+
+   private:
+	H2Core::Sample::Rubberband m_oldRubberband;
+	H2Core::Sample::Rubberband m_newRubberband;
+};
+
+class SE_editEnvelopePointAction : public QUndoCommand {
+   public:
+	SE_editEnvelopePointAction(
+		H2Core::EnvelopePoint point,
+		SampleEditor::EnvelopeType envelopeType,
+		Editor::Action action
+	)
+		: m_point( point ), m_envelopType( envelopeType ), m_action( action )
+	{
+		setText( QString( "%1: [%2]" )
+					 .arg( HydrogenApp::get_instance()
+							   ->getCommonStrings()
+							   ->getActionEditEnvelopePoint() )
+					 .arg( SampleEditor::EnvelopeTypeToQString( envelopeType ) )
+		);
+	}
+
+	virtual void redo()
+	{
+		auto pSampleEditor = HydrogenApp::get_instance()->getSampleEditor();
+		if ( pSampleEditor == nullptr ) {
+			return;
+		}
+		pSampleEditor->editEnvelopePoint( m_point, m_envelopType, m_action );
+	}
+	virtual void undo()
+	{
+		auto pSampleEditor = HydrogenApp::get_instance()->getSampleEditor();
+		if ( pSampleEditor == nullptr ) {
+			return;
+		}
+		pSampleEditor->editEnvelopePoint(
+			m_point, m_envelopType, Editor::undoAction( m_action )
+		);
+	}
+
+   private:
+	H2Core::EnvelopePoint m_point;
+	SampleEditor::EnvelopeType m_envelopType;
+	Editor::Action m_action;
+};
+
+class SE_moveEnvelopePointAction : public QUndoCommand {
+   public:
+	SE_moveEnvelopePointAction(
+		H2Core::EnvelopePoint oldPoint,
+		H2Core::EnvelopePoint newPoint,
+		SampleEditor::EnvelopeType envelopeType
+	)
+		: m_oldPoint( oldPoint ),
+		  m_newPoint( newPoint ),
+		  m_envelopType( envelopeType )
+	{
+		setText(
+			QString( "%1: [%2]" )
+				.arg( QObject::tr( "Move envelope point in sample editor" ) )
+				.arg( SampleEditor::EnvelopeTypeToQString( envelopeType ) )
+		);
+	}
+
+	virtual void redo()
+	{
+		auto pSampleEditor = HydrogenApp::get_instance()->getSampleEditor();
+		if ( pSampleEditor == nullptr ) {
+			return;
+		}
+		pSampleEditor->moveEnvelopePoint(
+			m_oldPoint, m_newPoint, m_envelopType
+		);
+	}
+	virtual void undo()
+	{
+		auto pSampleEditor = HydrogenApp::get_instance()->getSampleEditor();
+		if ( pSampleEditor == nullptr ) {
+			return;
+		}
+		pSampleEditor->moveEnvelopePoint(
+			m_newPoint, m_oldPoint, m_envelopType
+		);
+	}
+
+   private:
+	H2Core::EnvelopePoint m_oldPoint;
+	H2Core::EnvelopePoint m_newPoint;
+	SampleEditor::EnvelopeType m_envelopType;
 };
 
 #endif	// UNDOACTIONS_H

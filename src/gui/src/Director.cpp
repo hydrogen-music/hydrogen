@@ -58,7 +58,7 @@
 #include "Widgets/PixmapWidget.h"
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
@@ -77,7 +77,7 @@ Director::Director ( QWidget* pParent )
 	setWindowTitle ( tr ( "Director" ) );
 
 	auto pPos = H2Core::Hydrogen::get_instance()->getAudioEngine()
-		->getTransportPosition();
+		->getPlayhead();
 	
 	m_nBar = pPos->getBar();
 	m_nBeat = pPos->getBeat();
@@ -153,7 +153,7 @@ void Director::timelineUpdateEvent( int nValue ) {
 void Director::updateBBT()
 {
 	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
-	auto pPos = Hydrogen::get_instance()->getAudioEngine()->getTransportPosition();
+	auto pPos = Hydrogen::get_instance()->getAudioEngine()->getPlayhead();
 
 	// 1000 ms / bpm / 60s
 	m_pTimer->start( static_cast<int>( 1000 / ( pPos->getBpm() / 60 )) / 2 );

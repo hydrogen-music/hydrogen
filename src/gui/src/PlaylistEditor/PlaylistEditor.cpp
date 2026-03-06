@@ -36,7 +36,7 @@
 #include "../Widgets/FileDialog.h"
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
@@ -111,7 +111,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	m_pRwdButton = new MidiLearnableToolButton( m_pToolBar, "" );
 	connect( m_pRwdButton, &QToolButton::clicked, [=](){
 		CoreActionController::locateToColumn(
-			Hydrogen::get_instance()->getAudioEngine()->getTransportPosition()->
+			Hydrogen::get_instance()->getAudioEngine()->getPlayhead()->
 			getColumn() - 1 );
 	});
 	m_pRwdButton->setMidiAction(
@@ -140,7 +140,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	m_pFfwdButton = new MidiLearnableToolButton( m_pToolBar, "" );
 	connect( m_pFfwdButton, &QToolButton::clicked, [=](){
 		CoreActionController::locateToColumn(
-			Hydrogen::get_instance()->getAudioEngine()->getTransportPosition()->
+			Hydrogen::get_instance()->getAudioEngine()->getPlayhead()->
 			getColumn() + 1 );
 	});
 	m_pFfwdButton->setMidiAction(

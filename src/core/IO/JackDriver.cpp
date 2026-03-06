@@ -32,7 +32,7 @@
 #include <cstdlib>
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -252,7 +252,7 @@ bool JackDriver::isBBTValid( const jack_position_t& pos )
 }
 
 void JackDriver::transportToBBT(
-	const TransportPosition& transportPos,
+	const Transport& transportPos,
 	jack_position_t* pJackPosition
 )
 {
@@ -459,7 +459,7 @@ void JackDriver::locateTransport( long long nFrame )
 			// as Timebase controller.
 			m_nextJackTransportPos.frame = nFrame;
 			transportToBBT(
-				*pAudioEngine->getTransportPosition(), &m_nextJackTransportPos
+				*pAudioEngine->getPlayhead(), &m_nextJackTransportPos
 			);
 #if JACK_DEBUG
 			J_DEBUGLOG(
@@ -549,7 +549,7 @@ void JackDriver::stopTransport()
 	}
 }
 
-void JackDriver::updateTransportPosition()
+void JackDriver::updateTransport()
 {
 	if ( Preferences::get_instance()->m_nJackTransportMode !=
 		 Preferences::USE_JACK_TRANSPORT ) {
@@ -721,8 +721,8 @@ void JackDriver::updateTransportPosition()
 	// (e.g. clicking the forward button or clicking somewhere on the
 	// timeline) or by a different JACK client.
 	const bool bRelocation =
-		( pAudioEngine->getTransportPosition()->getFrame() -
-		  pAudioEngine->getTransportPosition()->getFrameOffsetTempo() -
+		( pAudioEngine->getPlayhead()->getFrame() -
+		  pAudioEngine->getPlayhead()->getFrameOffsetTempo() -
 		  m_nTimebaseFrameOffset ) != m_JackTransportPos.frame;
 	if ( bRelocation || ( m_lastTransportBits != m_JackTransportPos.valid &&
 						  isBBTValid( m_JackTransportPos ) ) ) {
@@ -733,8 +733,8 @@ void JackDriver::updateTransportPosition()
 					"[relocation detected] frames: %1, offset: %2, Jack "
 					"frames: %3, m_nTimebaseFrameOffset: %4, timebase mode: %5"
 				)
-					.arg( pAudioEngine->getTransportPosition()->getFrame() )
-					.arg( pAudioEngine->getTransportPosition()
+					.arg( pAudioEngine->getPlayhead()->getFrame() )
+					.arg( pAudioEngine->getPlayhead()
 							  ->getFrameOffsetTempo() )
 					.arg( m_JackTransportPos.frame )
 					.arg( m_nTimebaseFrameOffset )
@@ -785,7 +785,7 @@ void JackDriver::updateTransportPosition()
 			QString( "[relocation done] m_nTimebaseFrameOffset: %1, new pos: %2"
 			)
 				.arg( m_nTimebaseFrameOffset )
-				.arg( pAudioEngine->getTransportPosition()->toQString() )
+				.arg( pAudioEngine->getPlayhead()->toQString() )
 		);
 #endif
 	}
@@ -966,7 +966,7 @@ void JackDriver::relocateUsingBBT()
 
 	EventQueue::get_instance()->pushEvent( Event::Type::Relocation, 0 );
 
-	m_nTimebaseFrameOffset = pAudioEngine->getTransportPosition()->getFrame() -
+	m_nTimebaseFrameOffset = pAudioEngine->getPlayhead()->getFrame() -
 							 m_JackTransportPos.frame;
 
 	return;
@@ -2116,7 +2116,7 @@ void JackDriver::JackTimebaseCallback(
 	}
 
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
-	std::shared_ptr<TransportPosition> pPos = nullptr;
+	std::shared_ptr<Transport> pPos = nullptr;
 
 	pAudioEngine->lock( RIGHT_HERE );
 
@@ -2133,25 +2133,25 @@ void JackDriver::JackTimebaseCallback(
 
 	const auto posFromFrame = [&]( long long nFrame,
 								   jack_position_t* pJackPosition ) {
-		if ( nFrame == pAudioEngine->getTransportPosition()->getFrame() ) {
+		if ( nFrame == pAudioEngine->getPlayhead()->getFrame() ) {
 			// Requested transport position coincides with the current one of
 			// the Audio Engine. We can reuse it.
-			pPos = pAudioEngine->getTransportPosition();
+			pPos = pAudioEngine->getPlayhead();
 		}
 		else {
-			pPos = std::make_shared<TransportPosition>(
-				TransportPosition::Type::JackTimebaseCallback
+			pPos = std::make_shared<Transport>(
+				Transport::Type::JackTimebaseCallback
 			);
 			const auto fTick =
-				TransportPosition::computeTickFromFrame( nFrame );
-			pAudioEngine->updateTransportPosition( fTick, nFrame, pPos );
+				Transport::computeTickFromFrame( nFrame );
+			pAudioEngine->updateTransport( fTick, nFrame, pPos );
 		}
 
 		transportToBBT( *pPos, pJackPosition );
 	};
 
 	// In the face of heavy load - can be triggered by enabling JackDriver,
-	// TransportPosition, and AudioEngine debug logs - XRuns occur and the frame
+	// Transport, and AudioEngine debug logs - XRuns occur and the frame
 	// information provided by the JACK server glitches(!!!!). So, it just
 	// changes under the hood in the pointer passed to this callback. The very
 	// quantity we should calculate BBT information based on. Well we try a
@@ -2302,7 +2302,7 @@ void JackDriver::printState() const
 			.arg( JackTransportPosToQString( m_JackTransportPos ) )
 			.arg( static_cast<int>( m_timebaseState ) )
 			.arg(
-				pHydrogen->getAudioEngine()->getTransportPosition()->getColumn()
+				pHydrogen->getAudioEngine()->getPlayhead()->getColumn()
 			)
 	);
 }

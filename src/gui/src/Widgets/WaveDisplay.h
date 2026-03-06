@@ -25,65 +25,87 @@
 
 #include <QtGui>
 #include <QtWidgets>
+#include <vector>
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
 #include "WidgetWithScalableFont.h"
 
-namespace H2Core
-{
-	class InstrumentLayer;
+namespace H2Core {
+class InstrumentLayer;
 }
 
 /** \ingroup docGUI*/
 class WaveDisplay : public QWidget,
 					protected WidgetWithScalableFont<8, 10, 12>,
-					public H2Core::Object<WaveDisplay>
-{
-    H2_OBJECT(WaveDisplay)
+					public H2Core::Object<WaveDisplay> {
+	H2_OBJECT( WaveDisplay )
 	Q_OBJECT
 
-	public:
+   public:
+	static constexpr int nGradientScaling = 130;
 
-		static constexpr int nGradientScaling = 130;
+	enum class Channel { Left, Right };
+	enum class Label { SampleName, Fallback };
+	/** If we have enough width to display all the available data, we render
+	 * the actual wave form. If not, we calculate the envelope (maximum
+	 * values within a time slice) of both positive and negative data and
+	 * render them insted. */
+	enum class Type { Envelope, Wave };
 
-		explicit WaveDisplay(QWidget* pParent);
-		~WaveDisplay();
+	explicit WaveDisplay( QWidget* pParent, Channel channel = Channel::Left );
+	~WaveDisplay();
 
-	
-		virtual void	updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
+	virtual void setLayer( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
+	virtual void updateBackground();
 
-		virtual void	paintEvent( QPaintEvent *ev ) override;
-		virtual void	resizeEvent( QResizeEvent * event ) override;
-		virtual void	mouseDoubleClickEvent(QMouseEvent *ev) override;
-		
-		void			setSampleNameAlignment( const Qt::AlignmentFlag& flag );
+	virtual void mouseDoubleClickEvent( QMouseEvent* ev ) override;
+	virtual void paintEvent( QPaintEvent* ev ) override;
+	virtual void resizeEvent( QResizeEvent* event ) override;
 
-public slots:
-		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
-	
-	signals:
-		void doubleClicked(QWidget *pWidget);
+	void setFallbackLabel( const QString& sLabel );
+	void setLabel( Label label );
+	void setSampleNameAlignment( const Qt::AlignmentFlag& flag );
 
-	protected:
+   public slots:
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
-	void createBackground( QPainter* painter );
-	
-		Qt::AlignmentFlag			m_SampleNameAlignment;
-		QString						m_sSampleName;
-		int *						m_pPeakData;
-		
-		/*
-		 * Used to re-initialise m_pPeakData if width has changed
-		 */
-		
-		int							m_nCurrentWidth;
+   signals:
+	void doubleClicked( QWidget* pWidget );
+
+   protected:
+	virtual void drawPeakData();
+	virtual void updatePeakData();
+
+	QPixmap* m_pBackgroundPixmap;
+	QPixmap* m_pPeakDataPixmap;
+
+	Channel m_channel;
+	Label m_label;
+	Type m_type;
+
+	Qt::AlignmentFlag m_SampleNameAlignment;
+	QString m_sSampleName;
+	QString m_sFallbackLabel;
+	std::vector<int> m_peakData;
+	/** In case we render the envelope, we use this member to keep track of
+	 * the minimum values of the wave form.*/
+	std::vector<int> m_peakDataMin;
+
 	int m_nActiveWidth;
-		
-		std::shared_ptr<H2Core::InstrumentLayer>	m_pLayer;
+
+	std::shared_ptr<H2Core::InstrumentLayer> m_pLayer;
 };
 
+inline void WaveDisplay::setFallbackLabel( const QString& sLabel )
+{
+	m_sFallbackLabel = sLabel;
+}
+inline void WaveDisplay::setLabel( Label label )
+{
+	m_label = label;
+}
 inline void WaveDisplay::setSampleNameAlignment( const Qt::AlignmentFlag& flag )
 {
 	m_SampleNameAlignment = flag;

@@ -45,7 +45,7 @@ class TransportTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testMuteGroups );
 	CPPUNIT_TEST( testNoteOff );
 	CPPUNIT_TEST( testHumanization );
-	CPPUNIT_TEST( testUpdateTransportPosition );
+	CPPUNIT_TEST( testUpdateTransport );
 	CPPUNIT_TEST_SUITE_END();
 private:
 	void perform( std::function<void()> func );
@@ -77,5 +77,5 @@ public:
 	void testHumanization();
 	void testMuteGroups();
 	void testNoteOff();
-		void testUpdateTransportPosition();
+		void testUpdateTransport();
 };

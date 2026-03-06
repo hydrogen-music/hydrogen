@@ -23,7 +23,7 @@
 #include "SMF.h"
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/AutomationPath.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
@@ -633,9 +633,9 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 					// Convert into ticks (while minding possible tempo
 					// markers).
 					double fMismatch;
-					const auto nNoteFrame = TransportPosition::computeFrameFromTick(
+					const auto nNoteFrame = Transport::computeFrameFromTick(
 						static_cast<double>(fNoteTick), &fMismatch );
-					fNoteTick = TransportPosition::computeTickFromFrame(
+					fNoteTick = Transport::computeTickFromFrame(
 						std::max( static_cast<long long>(0),
 								  nNoteFrame + nHumanizeFrames ) );
 				}

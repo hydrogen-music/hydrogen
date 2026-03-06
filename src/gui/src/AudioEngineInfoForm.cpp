@@ -29,7 +29,7 @@
 #include "HydrogenApp.h"
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Hydrogen.h>
@@ -97,8 +97,8 @@ void AudioEngineInfoForm::updateInfo()
 
 	// Song position
 	QString sColumn = "N/A";
-	if ( pAudioEngine->getTransportPosition()->getColumn() != -1 ) {
-		sColumn = QString::number( pAudioEngine->getTransportPosition()->getColumn() );
+	if ( pAudioEngine->getPlayhead()->getColumn() != -1 ) {
+		sColumn = QString::number( pAudioEngine->getPlayhead()->getColumn() );
 	}
 	m_pSongPositionLbl->setText( sColumn );
 
@@ -128,7 +128,7 @@ void AudioEngineInfoForm::updateInfo()
 	}
 
 	// tick number
-	sprintf(tmp, "%03d", (int)pAudioEngine->getTransportPosition()->getPatternTickPosition() );
+	sprintf(tmp, "%03d", (int)pAudioEngine->getPlayhead()->getPatternTickPosition() );
 	nTicksLbl->setText(tmp);
 
 
@@ -155,7 +155,7 @@ void AudioEngineInfoForm::updateInfo()
 		// Number of frames
 		sprintf(
 			tmp, "%d",
-			static_cast<int>( pAudioEngine->getTransportPosition()->getFrame() )
+			static_cast<int>( pAudioEngine->getPlayhead()->getFrame() )
 		);
 		nFramesLbl->setText( tmp );
 	}
