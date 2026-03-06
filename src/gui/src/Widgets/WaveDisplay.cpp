@@ -92,20 +92,16 @@ void WaveDisplay::updateBackground()
 	const auto pColorTheme = pPref->getColorTheme();
 
 	const QColor borderColor = Qt::black;
-	QColor textColor, backgroundColor;
+	QColor backgroundColor;
 	if ( m_pLayer != nullptr && m_pLayer->getIsMuted() ) {
-		textColor = pColorTheme->m_muteTextColor;
 		backgroundColor = pColorTheme->m_muteColor;
 	}
 	else if ( m_pLayer != nullptr && m_pLayer->getIsSoloed() ) {
-		textColor = pColorTheme->m_soloTextColor;
 		backgroundColor = pColorTheme->m_soloColor;
 	}
 	else {
-		textColor = pColorTheme->m_accentTextColor;
 		backgroundColor = pColorTheme->m_accentColor;
 	}
-	textColor.setAlpha( 200 );
 
 	const qreal pixelRatio = devicePixelRatio();
 	if ( m_pBackgroundPixmap->width() != width() ||
@@ -136,33 +132,6 @@ void WaveDisplay::updateBackground()
 	backgroundGradient.setSpread( QGradient::ReflectSpread );
 
 	p.fillRect( 0, 0, width(), height(), QBrush( backgroundGradient ) );
-
-	QString sText;
-	if ( m_label == Label::SampleName ) {
-		sText = m_sSampleName;
-	}
-	else {
-		sText = m_sFallbackLabel;
-	}
-
-	if ( !sText.isEmpty() ) {
-		QFont font(
-			pPref->getFontTheme()->m_sApplicationFontFamily,
-			getPointSize( pPref->getFontTheme()->m_fontSize )
-		);
-		font.setWeight( QFont::Bold );
-		p.setFont( font );
-		p.setPen( textColor );
-
-		if ( m_SampleNameAlignment == Qt::AlignLeft ) {
-			// Use a small offset instead of starting directly at the left
-			// border
-			p.drawText( 20, 0, width(), 20, m_SampleNameAlignment, sText );
-		}
-		else {
-			p.drawText( 0, 0, width(), 20, m_SampleNameAlignment, sText );
-		}
-	}
 
 	// Border
 	p.setPen( QPen( borderColor ) );
@@ -254,16 +223,20 @@ void WaveDisplay::drawPeakData()
 	auto pPref = H2Core::Preferences::get_instance();
 	const auto pColorTheme = pPref->getColorTheme();
 
-	QColor backgroundColor, waveFormColor, waveFormInactiveColor;
+	QColor backgroundColor, waveFormColor, waveFormInactiveColor, textColor;
 	if ( m_pLayer != nullptr && m_pLayer->getIsMuted() ) {
+		textColor = pColorTheme->m_muteTextColor;
 		backgroundColor = pColorTheme->m_muteColor;
 	}
 	else if ( m_pLayer != nullptr && m_pLayer->getIsSoloed() ) {
+		textColor = pColorTheme->m_soloTextColor;
 		backgroundColor = pColorTheme->m_soloColor;
 	}
 	else {
+		textColor = pColorTheme->m_accentTextColor;
 		backgroundColor = pColorTheme->m_accentColor;
 	}
+	textColor.setAlpha( 200 );
 
 	if ( Skin::moreBlackThanWhite( backgroundColor ) ) {
 		waveFormColor = Qt::white;
@@ -348,6 +321,33 @@ void WaveDisplay::drawPeakData()
 			}
 			p.setBrush( waveFormInactiveColor );
 			p.drawPolygon( peaks, nSize );
+		}
+	}
+
+	QString sText;
+	if ( m_label == Label::SampleName ) {
+		sText = m_sSampleName;
+	}
+	else {
+		sText = m_sFallbackLabel;
+	}
+
+	if ( !sText.isEmpty() ) {
+		QFont font(
+			pPref->getFontTheme()->m_sApplicationFontFamily,
+			getPointSize( pPref->getFontTheme()->m_fontSize )
+		);
+		font.setWeight( QFont::Bold );
+		p.setFont( font );
+		p.setPen( textColor );
+
+		if ( m_SampleNameAlignment == Qt::AlignLeft ) {
+			// Use a small offset instead of starting directly at the left
+			// border
+			p.drawText( 20, 0, width(), 20, m_SampleNameAlignment, sText );
+		}
+		else {
+			p.drawText( 0, 0, width(), 20, m_SampleNameAlignment, sText );
 		}
 	}
 }
