@@ -44,7 +44,7 @@ class SongEditorPositionRuler :  public QWidget,
    public:
 	static constexpr int nMinimumHeight = 50;
 	static constexpr int nScalingRuler = 115;
-	static constexpr int nScalingTimeline = 135;
+	static constexpr int nScalingTimeline = 80;
 
 	explicit SongEditorPositionRuler( QWidget* parent );
 	~SongEditorPositionRuler();
