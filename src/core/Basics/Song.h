@@ -281,6 +281,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		bool isPatternActive( const GridPoint& gridPoint ) const;
 
 	std::shared_ptr<Timeline> getTimeline() const;
+	void setTimeline( std::shared_ptr<Timeline> pTimeline );
 
 	std::vector<std::shared_ptr<Note>> getAllNotes() const;
 
@@ -422,7 +423,6 @@ private:
 		// k such that L^k+R^k = 1. Used in constant k-Norm pan law
 		float m_fPanLawKNorm;
 
-	void setTimeline( std::shared_ptr<Timeline> pTimeline );
 	std::shared_ptr<Timeline> m_pTimeline;
 
 	/** Unique identifier of the drumkit last loaded.

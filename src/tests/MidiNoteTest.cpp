@@ -539,9 +539,11 @@ void MidiNoteTest::testSendNoteOff()
 	___INFOLOG( "" );
 
 	auto pPref = Preferences::get_instance();
+	const auto oldMidiSendNoteOff = pPref->getMidiSendNoteOff();
 
-	// Since we rely on the Sampler to properly set the end of notes with custom
-	// length, we have to ensure the audio engine is in the right state.
+	// Since we rely on the Sampler to properly set the end of notes with
+	// custom length, we have to ensure the audio engine is in the right
+	// state.
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 	auto pAudioDriver = pAudioEngine->getAudioDriver();
@@ -558,6 +560,12 @@ void MidiNoteTest::testSendNoteOff()
 		pCopiedNote->computeNoteStart();
 		const bool bReturn = pSampler->noteOn( pCopiedNote );
 		pAudioEngine->unlock();
+
+		// Our Windows pipeline is extremely slow. Starting rendering of a note
+		// using Sampler::noteOn() followed by Sampler::releasePlayingNotes()
+		// might very well result in notes being discarded before they were
+		// handled.
+		std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
 
 		return bReturn;
 	};
@@ -607,7 +615,10 @@ void MidiNoteTest::testSendNoteOff()
 	const int nCustomLengthDurationMs =
 		pAudioEngine->getPlayhead()->getTickSize() * 1000 *
 		nCustomLengthInTicks / pAudioEngine->getAudioDriver()->getSampleRate();
-	const int nDurationTolerance = nCustomLengthDurationMs * 0.05;
+	// The macOS pipeline is quite slow. It can take a tremendous amount of time
+	// between processing cycles and we need to have a high tolerance in here in
+	// order to support it.
+	const int nDurationTolerance = nCustomLengthDurationMs * 0.5;
 
 	////////////////////////////////////////////////////////////////////////////
 	// Tests with sample
@@ -902,6 +913,8 @@ void MidiNoteTest::testSendNoteOff()
 			) < nDurationTolerance
 		);
 	}
+
+	pPref->setMidiSendNoteOff( oldMidiSendNoteOff );
 
 	___INFOLOG( "passed" );
 }

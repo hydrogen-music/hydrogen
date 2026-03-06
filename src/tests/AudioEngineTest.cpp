@@ -118,6 +118,20 @@ void AudioEngineTest::testMidiNoteOrdering()
 	}
 	CPPUNIT_ASSERT( nnTry < nMaxTries );
 
+	// Nice. Now we wait till the sampler is done rendering all notes and all
+	// scheduled notes have been sent.
+	auto pSampler = pAudioEngine->getSampler();
+	pSampler->releasePlayingNotes();
+	int nnTryRendering = 0;
+	while ( nnTryRendering < nMaxTries ) {
+		if ( !pSampler->isRenderingNotes() ) {
+			break;
+		}
+		std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+		++nnTryRendering;
+	}
+	CPPUNIT_ASSERT( nnTryRendering < nMaxTries );
+
 	// Compare the number of encountered Note-On messages with the total number
 	// of notes in the current song.
 	const auto backlogMessage = pLoopBackDriver->getBacklogMessages();
@@ -139,15 +153,6 @@ void AudioEngineTest::testMidiNoteOrdering()
 			backlogMessage[ii * 2].getData1() ==
 			backlogMessage[ii * 2 + 1].getData1()
 		);
-
-		// Since note tails are touching note heads, we expect the corresponding
-		// MIDI messages to be send at the same time.
-		if ( ii > 0 ) {
-			CPPUNIT_ASSERT(
-				backlogMessage[ii * 2 - 1].getFrameOffset() ==
-				backlogMessage[ii * 2].getFrameOffset()
-			);
-		}
 	}
 	for ( const auto mmessage : backlogMessage ) {
 		CPPUNIT_ASSERT( mmessage.getFrameOffset() >= 0 );

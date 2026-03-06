@@ -53,13 +53,13 @@ environment:
       job_group: 'Linux (AppImage)'
       appveyor_build_worker_image: Ubuntu
 
-    # - job_name: 'OS X'
-    #   job_group: 'Mac OS X'
-    #   appveyor_build_worker_image: macos
+    - job_name: 'OS X'
+      job_group: 'Mac OS X'
+      appveyor_build_worker_image: macos
 
-    # - job_name: 'Windows64'
-    #   job_group: 'Windows'
-    #   appveyor_build_worker_image: Visual Studio 2019
+    - job_name: 'Windows64'
+      job_group: 'Windows'
+      appveyor_build_worker_image: Visual Studio 2019
 
 build:
   verbosity: detailed
@@ -680,7 +680,7 @@ for:
           REM *** Deploy Qt ***
           set "DEPLOY_ARGS=--no-patchqt --dir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs"
 
-          %QTDIR%\bin\windeployqt.exe %DEPLOY_ARGS% src/gui/hydrogen.exe
+          %QTDIR%\bin\windeployqt-qt5.exe %DEPLOY_ARGS% src/gui/hydrogen.exe
 
           REM *** Deploy other libraries ***
           set PYTHON=C:\Python38\python

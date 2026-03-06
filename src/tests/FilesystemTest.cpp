@@ -29,7 +29,7 @@ using namespace H2Core;
 void FilesystemTest::setUp() {
 #if !defined(WIN32) 
 	m_sNotExistingPath = QDir::homePath().append( "aFunnyNameYouWouldNotExpectInYourHomeFolder.h2song" );
-#ifdef Q_OS_MACX
+#ifdef Q_OS_BSD4
 	m_sNoAccessPath = "/etc/master.passwd";
 #else
 	m_sNoAccessPath = "/etc/shadow";

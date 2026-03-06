@@ -48,6 +48,7 @@
 #include <core/OscServer.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/Timeline.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -1092,12 +1093,12 @@ bool CoreActionController::addTempoMarker( int nPosition, float fBpm ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pTimeline = pHydrogen->getTimeline();
 
 	if ( pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
+	auto pTimeline = pHydrogen->getSong()->getTimeline();
 
 	if ( pTimeline->hasColumnTempoMarker( nPosition ) ) {
 		const auto pPreviousMarker = pTimeline->getTempoMarkerAtColumn( nPosition );
@@ -1130,14 +1131,14 @@ bool CoreActionController::deleteTempoMarker( int nPosition ) {
 		return false;
 	}
 
-	if ( ! pHydrogen->getTimeline()->hasColumnTempoMarker( nPosition ) ) {
+	if ( ! pHydrogen->getSong()->getTimeline()->hasColumnTempoMarker( nPosition ) ) {
 		// Nothing to do
 		return true;
 	}
 
 	pAudioEngine->lock( RIGHT_HERE );
 	
-	pHydrogen->getTimeline()->deleteTempoMarker( nPosition );
+	pHydrogen->getSong()->getTimeline()->deleteTempoMarker( nPosition );
 	pHydrogen->getAudioEngine()->handleTimelineChange();
 
 	pAudioEngine->unlock();
@@ -1151,12 +1152,12 @@ bool CoreActionController::deleteTempoMarker( int nPosition ) {
 bool CoreActionController::addTag( int nPosition, const QString& sText ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
-	auto pTimeline = pHydrogen->getTimeline();
 
 	if ( pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
+	auto pTimeline = pHydrogen->getSong()->getTimeline();
 
 	pTimeline->deleteTag( nPosition );
 	pTimeline->addTag( nPosition, sText );
@@ -1178,7 +1179,7 @@ bool CoreActionController::deleteTag( int nPosition ) {
 		return false;
 	}
 
-	pHydrogen->getTimeline()->deleteTag( nPosition );
+	pHydrogen->getSong()->getTimeline()->deleteTag( nPosition );
 	
 	pHydrogen->setIsModified( true );
 	EventQueue::get_instance()->pushEvent( Event::Type::UpdateTimeline, 0 );

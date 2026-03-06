@@ -294,7 +294,10 @@ long long Transport::computeFrameFromTick(
 {
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
-	const auto pTimeline = pHydrogen->getTimeline();
+	if ( pSong == nullptr ) {
+		return 0;
+	}
+	const auto pTimeline = pSong->getTimeline();
 	const auto pAudioEngine = pHydrogen->getAudioEngine();
 	const auto pAudioDriver = pHydrogen->getAudioDriver();
 
@@ -605,7 +608,10 @@ Transport::computeTickFromFrame( const long long nFrame, int nSampleRate )
 	}
 
 	const auto pSong = pHydrogen->getSong();
-	const auto pTimeline = pHydrogen->getTimeline();
+	if ( pSong == nullptr ) {
+		return 0;
+	}
+	const auto pTimeline = pSong->getTimeline();
 	const auto pAudioEngine = pHydrogen->getAudioEngine();
 	const auto pAudioDriver = pHydrogen->getAudioDriver();
 

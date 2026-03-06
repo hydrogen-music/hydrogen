@@ -34,6 +34,7 @@
 #include <core/Basics/Song.h>
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Timeline.h>
 
 #include <math.h>
 
@@ -462,6 +463,7 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 					  bool bUseHumanization ) {
 	if ( pSong == nullptr || pSong->getTimeline() == nullptr ||
 		 pSong->getDrumkit() == nullptr ) {
+        ERRORLOG( "Invalid song" );
 		return;
 	}
 

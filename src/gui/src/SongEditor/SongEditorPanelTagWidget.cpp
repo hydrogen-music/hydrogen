@@ -51,7 +51,7 @@ SongEditorPanelTagWidget::~SongEditorPanelTagWidget() {
 
 void SongEditorPanelTagWidget::createTheTagTableWidget()
 {
-	auto pTimeline = Hydrogen::get_instance()->getTimeline();
+	auto pTimeline = Hydrogen::get_instance()->getSong()->getTimeline();
 
 	m_oldTags.resize( m_nMaxRows );
 	
@@ -104,7 +104,7 @@ void SongEditorPanelTagWidget::on_okBtn_clicked()
 	}
 	
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	auto pTimeline = pHydrogen->getTimeline();
+	auto pTimeline = pHydrogen->getSong()->getTimeline();
 	auto tagVector = pTimeline->getAllTags();
 
 	// First, let's check whether there are any changes.

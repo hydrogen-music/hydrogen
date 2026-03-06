@@ -134,7 +134,8 @@ Note::Note(
 	  m_fUsedTickSize( std::nan( "" ) ),
 	  m_fPitchHumanization( 0 ),
 	  m_nMidiNoteOnSentFrame( -1 ),
-	  m_nMidiNoteOffFrame( -1 ),
+	  m_nMidiNoteOffOffsetFrame( -1 ),
+	  m_midiNoteOffTimePoint( Clock::now() ),
 	  m_pInstrument( pInstrument )
 {
 	if ( pInstrument != nullptr ) {
@@ -168,7 +169,8 @@ Note::Note( std::shared_ptr<Note> pOther )
 	  m_fUsedTickSize( pOther->getUsedTickSize() ),
 	  m_fPitchHumanization( pOther->m_fPitchHumanization ),
 	  m_nMidiNoteOnSentFrame( pOther->m_nMidiNoteOnSentFrame ),
-	  m_nMidiNoteOffFrame( pOther->m_nMidiNoteOffFrame ),
+	  m_nMidiNoteOffOffsetFrame( pOther->m_nMidiNoteOffOffsetFrame ),
+	  m_midiNoteOffTimePoint( pOther->m_midiNoteOffTimePoint ),
 	  m_pInstrument( pOther->getInstrument() )
 {
 	if ( m_pInstrument != nullptr ) {
@@ -826,10 +828,16 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( sPrefix )
 						 .arg( s )
 						 .arg( m_nMidiNoteOnSentFrame ) )
-			.append( QString( "%1%2m_nMidiNoteOffFrame: %3\n" )
+			.append( QString( "%1%2m_nMidiNoteOffOffsetFrame: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
-						 .arg( m_nMidiNoteOffFrame ) )
+						 .arg( m_nMidiNoteOffOffsetFrame ) )
+			.append(
+				QString( "%1%2m_midiNoteOffTimePoint: %3\n" )
+					.arg( sPrefix )
+					.arg( s )
+					.arg( H2Core::timePointToQString( m_midiNoteOffTimePoint ) )
+			)
 			.append( QString( "%1%2m_selectedLayerInfoMap:\n" )
 						 .arg( sPrefix )
 						 .arg( s ) );
@@ -898,8 +906,10 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( m_fPitchHumanization ) )
 			.append( QString( ", m_nMidiNoteOnSentFrame: %1" )
 						 .arg( m_nMidiNoteOnSentFrame ) )
-			.append( QString( ", m_nMidiNoteOffFrame: %1" )
-						 .arg( m_nMidiNoteOffFrame ) )
+			.append( QString( ", m_nMidiNoteOffOffsetFrame: %1" )
+						 .arg( m_nMidiNoteOffOffsetFrame ) )
+			.append( QString( ", m_midiNoteOffTimePoint: %1" )
+						 .arg( H2Core::timePointToQString( m_midiNoteOffTimePoint ) ) )
 			.append( QString( ", m_selectedLayerInfoMap: [" ) );
 		QStringList selectedLayerInfos;
 		for ( const auto& [ppComponent, ppSelectedLayerInfo] :

@@ -47,6 +47,7 @@
 #include <core/Basics/PatternList.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Timeline.h>
 
 #ifdef WIN32
 #include <time.h>
@@ -810,9 +811,14 @@ void SongEditorPanel::stateChangedEvent( const H2Core::AudioEngine::State& ) {
 }
 
 void SongEditorPanel::tempoChangedEvent( int nValue ) {
+    auto pSong = Hydrogen::get_instance()->getSong();
+    if ( pSong == nullptr ) {
+        return;
+    }
+
 	updatePlaybackTrack();
 
-	auto pTimeline = Hydrogen::get_instance()->getTimeline();
+	auto pTimeline = pSong->getTimeline();
 	if ( ! pTimeline->isFirstTempoMarkerSpecial() ) {
 		return;
 	}
