@@ -1092,6 +1092,7 @@ void SongEditorPanel::onPreferencesChanged( const H2Core::Preferences::Changes& 
 		m_pSongEditor->resize( nNewWidth, m_pSongEditor->height() );
 		m_pPositionRuler->resize( nNewWidth, m_pPositionRuler->height() );
 
+        updateIcons();
 		updateEditors( Editor::Update::Background );
 	}
 }
