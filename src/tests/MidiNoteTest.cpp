@@ -539,9 +539,11 @@ void MidiNoteTest::testSendNoteOff()
 	___INFOLOG( "" );
 
 	auto pPref = Preferences::get_instance();
+	const auto oldMidiSendNoteOff = pPref->getMidiSendNoteOff();
 
-	// Since we rely on the Sampler to properly set the end of notes with custom
-	// length, we have to ensure the audio engine is in the right state.
+	// Since we rely on the Sampler to properly set the end of notes with
+	// custom length, we have to ensure the audio engine is in the right
+	// state.
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 	auto pAudioDriver = pAudioEngine->getAudioDriver();
@@ -911,6 +913,8 @@ void MidiNoteTest::testSendNoteOff()
 			) < nDurationTolerance
 		);
 	}
+
+	pPref->setMidiSendNoteOff( oldMidiSendNoteOff );
 
 	___INFOLOG( "passed" );
 }
