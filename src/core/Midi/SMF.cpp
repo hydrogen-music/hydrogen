@@ -463,6 +463,7 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 					  bool bUseHumanization ) {
 	if ( pSong == nullptr || pSong->getTimeline() == nullptr ||
 		 pSong->getDrumkit() == nullptr ) {
+        ERRORLOG( "Invalid song" );
 		return;
 	}
 
