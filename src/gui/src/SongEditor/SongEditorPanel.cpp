@@ -1320,10 +1320,12 @@ QToolBar {\
 													.arg( colorToolBarText.name(
 													) ) );
 
-	m_pMutePlaybackTrackButton->setCheckedBackgroundColor( pColorTheme->m_muteColor );
+	m_pMutePlaybackTrackButton->setDefaultBackgroundColor(
+		colorPlaybackTrackToolBar.lighter( 125 )
+	);
 	m_pMutePlaybackTrackButton->setCheckedBackgroundTextColor(
-		pColorTheme->m_muteTextColor );
-
+		pColorTheme->m_muteTextColor
+	);
 }
 
 void SongEditorPanel::updateTimeline() {
