@@ -2004,7 +2004,7 @@ void Sampler::reinitializePlaybackTrack()
 	}
 
 	if ( pHydrogen->getPlaybackTrackState() !=
-		 Song::PlaybackTrack::Unavailable ) {
+		 Song::PlaybackTrack::None ) {
 		pSample = Sample::load( pSong->getPlaybackTrackFileName() );
 	}
 

@@ -118,7 +118,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 			audio processing*/
 		enum class PlaybackTrack {
 			/** No proper playback track file set yet*/
-			Unavailable = 0,
+			None = 0,
 			/** Valid file set but the playback track is muted via the GUI*/
 			Muted = 1,
 			/** Valid file set and ready for playback.*/

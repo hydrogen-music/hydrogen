@@ -208,7 +208,7 @@ void Hydrogen::sequencerStop()
 Song::PlaybackTrack Hydrogen::getPlaybackTrackState() const {
 
 	if ( m_pSong == nullptr ) {
-		return Song::PlaybackTrack::Unavailable;
+		return Song::PlaybackTrack::None;
 	}
 	return m_pSong->getPlaybackTrackState();
 }

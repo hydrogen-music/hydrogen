@@ -1021,7 +1021,7 @@ Song::PlaybackTrack Song::getPlaybackTrackState() const {
 				 ->getAudioEngine()
 				 ->getSampler()
 				 ->getPlaybackTrackInstrument() == nullptr ) {
-		return std::move( PlaybackTrack::Unavailable );
+		return std::move( PlaybackTrack::None );
 	}
 
 	if ( ! m_bPlaybackTrackEnabled ) {
@@ -1177,8 +1177,8 @@ QString Song::PatternModeToQString( const PatternMode& patternMode ) {
 
 QString Song::PlaybackTrackToQString( const PlaybackTrack& playbackTrack ) {
 	switch( playbackTrack ) {
-	case PlaybackTrack::Unavailable:
-		return "Unavailable";
+	case PlaybackTrack::None:
+		return "None";
 	case PlaybackTrack::Muted:
 		return "Muted";
 	case PlaybackTrack::Enabled:

@@ -219,7 +219,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	pPlaybackTrackToolBar->addWidget( m_pMutePlaybackTrackButton );
 
 	if ( pHydrogen->getPlaybackTrackState() ==
-		 Song::PlaybackTrack::Unavailable ) {
+		 Song::PlaybackTrack::None ) {
 		m_pPlaybackTrackFader->setIsActive( false );
 		m_pMutePlaybackTrackButton->setChecked( true );
 		m_pMutePlaybackTrackButton->setIsActive( false );
@@ -696,7 +696,7 @@ void SongEditorPanel::updatePlaybackTrack()
 		return;
 	}
 
-	if ( pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::Unavailable ||
+	if ( pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::None ||
 		 pSong == nullptr ) {
 		// No playback track chosen (stored in the current song).
 		m_pPlaybackTrackFader->setIsActive( false );
