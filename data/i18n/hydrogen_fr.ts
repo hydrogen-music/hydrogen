@@ -2591,10 +2591,6 @@ MIDI = %2</translation>
         <translation>Régler les valeurs par défaut</translation>
     </message>
     <message>
-        <source>&amp;Timeline</source>
-        <translation>Ligne &amp;temporelle</translation>
-    </message>
-    <message>
         <source>Jack driver: cannot disconnect client</source>
         <translation>Pilote Jack : impossible de déconnecter le client</translation>
     </message>
@@ -5344,10 +5340,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <message>
         <source>Show automation path</source>
         <translation>Afficher le chemin d&apos;automation</translation>
-    </message>
-    <message>
-        <source>Show timeline</source>
-        <translation>Afficher la ligne temporelle</translation>
     </message>
     <message>
         <source>Show playback track</source>

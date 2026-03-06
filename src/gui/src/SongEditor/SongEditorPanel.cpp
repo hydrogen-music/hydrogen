@@ -452,6 +452,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	
 	m_pPlaybackTrackScrollView->setWidget( m_pPlaybackTrackWaveDisplay );
 	m_pPlaybackTrackScrollView->setFixedHeight( SongEditorPanel::nHeaderWidgetHeight );
+	m_pPlaybackTrackScrollView->setVisible( bShowPlaybackTrack );
 	
 	m_pAutomationPathScrollView = new WidgetScrollArea( nullptr );
 	m_pAutomationPathScrollView->setObjectName( "AutomationPathScrollView" );
@@ -691,8 +692,8 @@ void SongEditorPanel::updatePlaybackTrack()
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	
-	if ( ! Preferences::get_instance()->getShowPlaybackTrack() ) {
+
+	if ( !Preferences::get_instance()->getShowPlaybackTrack() ) {
 		return;
 	}
 
@@ -700,7 +701,7 @@ void SongEditorPanel::updatePlaybackTrack()
 		 pSong == nullptr ) {
 		// No playback track chosen (stored in the current song).
 		m_pPlaybackTrackFader->setIsActive( false );
-		m_pMutePlaybackTrackButton->setChecked( true );
+		m_pEditPlaybackTrackAction->setEnabled( false );
 		m_pMutePlaybackTrackButton->setIsActive( false );
 
 		m_pPlaybackTrackWaveDisplay->setLayer( nullptr );
@@ -710,17 +711,22 @@ void SongEditorPanel::updatePlaybackTrack()
 		// use.
 		m_pPlaybackTrackFader->setIsActive( true );
 		m_pPlaybackTrackFader->setValue( pSong->getPlaybackTrackVolume() );
+		m_pEditPlaybackTrackAction->setEnabled( true );
 		m_pMutePlaybackTrackButton->setIsActive( true );
-		if ( pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::Muted ) {
-			m_pMutePlaybackTrackButton->setChecked( true );
-		} else {
-			m_pMutePlaybackTrackButton->setChecked( false );
-		}
+		m_pMutePlaybackTrackButton->setChecked(
+			pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::Muted
+		);
 
-		auto pPlaybackCompo = pHydrogen->getAudioEngine()->getSampler()->
-			getPlaybackTrackInstrument()->getComponents()->front();
-			
-		m_pPlaybackTrackWaveDisplay->setLayer( pPlaybackCompo->getLayer(0) );
+		auto pInstrument = pHydrogen->getAudioEngine()
+							   ->getSampler()
+							   ->getPlaybackTrackInstrument();
+		if ( pInstrument != nullptr &&
+			 pInstrument->getComponent( 0 ) != nullptr &&
+			 pInstrument->getComponent( 0 )->getLayer( 0 ) != nullptr ) {
+			m_pPlaybackTrackWaveDisplay->setLayer(
+				pInstrument->getComponent( 0 )->getLayer( 0 )
+			);
+		}
 	}
 }
 
@@ -949,13 +955,6 @@ void SongEditorPanel::updatePreferencesEvent( int nValue ) {
 	if ( nValue == 1 ) {
 		// new preferences loaded within the core
 		const auto pPref = H2Core::Preferences::get_instance();
-		if ( pPref->getShowPlaybackTrack() ) {
-			showPlaybackTrack();
-		}
-		else {
-			showTimeline();
-		}
-
 		auto pSongEditorPanel = HydrogenApp::get_instance()->getSongEditorPanel();
 		if ( pPref->getShowAutomationArea() !=
 			 pSongEditorPanel->getAutomationPathView()->isVisible() ) {
@@ -997,21 +996,12 @@ void SongEditorPanel::updateSongEvent( int nValue ) {
 	updateEditors( Editor::Update::Background );
 }
 
-void SongEditorPanel::showTimeline()
+void SongEditorPanel::showPlaybackTrack( bool bVisible )
 {
-	m_pPlaybackTrackSidebar->hide();
-	m_pPlaybackTrackScrollView->hide();
-	Preferences::get_instance()->setShowPlaybackTrack( false );
+	m_pPlaybackTrackSidebar->setVisible( bVisible );
+	m_pPlaybackTrackScrollView->setVisible( bVisible );
 
-	// Update visibility buttons.
-	HydrogenApp::get_instance()->getMainToolBar()->updateActions();
-}
-
-void SongEditorPanel::showPlaybackTrack()
-{
-	m_pPlaybackTrackSidebar->show();
-	m_pPlaybackTrackScrollView->show();
-	Preferences::get_instance()->setShowPlaybackTrack( true );
+	Preferences::get_instance()->setShowPlaybackTrack( bVisible );
 
 	updatePlaybackTrack();
 

@@ -372,14 +372,10 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 
 	m_pShowPlaybackTrackAction = createAction( tr( "Show Playback Track" ) );
 	connect( m_pShowPlaybackTrackAction, &QAction::triggered, [=]() {
-		if ( m_pShowPlaybackTrackAction->isChecked() ) {
-			HydrogenApp::get_instance()->getSongEditorPanel()->
-				showPlaybackTrack();
-		} else {
-			HydrogenApp::get_instance()->getSongEditorPanel()->
-				showTimeline();
-		}
-	});
+		HydrogenApp::get_instance()->getSongEditorPanel()->showPlaybackTrack(
+			m_pShowPlaybackTrackAction->isChecked()
+		);
+	} );
 	addAction( m_pShowPlaybackTrackAction );
 
 	m_pShowPreferencesAction = createAction( tr( "Show Preferences" ) );

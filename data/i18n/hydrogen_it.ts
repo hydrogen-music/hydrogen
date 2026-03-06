@@ -2572,10 +2572,6 @@ MIDI = %2</translation>
         <translation>Imposta valori predefiniti</translation>
     </message>
     <message>
-        <source>&amp;Timeline</source>
-        <translation>&amp;Timeline</translation>
-    </message>
-    <message>
         <source>Jack driver: cannot disconnect client</source>
         <translation>Driver Jack: non è possibile scollegare il client</translation>
     </message>
@@ -5312,10 +5308,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     </message>
     <message>
         <source>Show automation path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show timeline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

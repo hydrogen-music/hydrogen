@@ -2597,10 +2597,6 @@ MIDI = %2</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Timeline</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Jack driver: cannot disconnect client</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5337,10 +5333,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Show automation path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show timeline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

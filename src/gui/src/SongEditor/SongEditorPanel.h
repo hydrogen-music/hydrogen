@@ -69,8 +69,7 @@ class SongEditorPanel : public QWidget,
 		void ensureCursorIsVisible();
 		void updateEditors( Editor::Update update );
 
-		void showTimeline();
-		void showPlaybackTrack();
+		void showPlaybackTrack( bool bVisible );
 		void updateAutomationPathVisibility();
 		void updatePlaybackTrack();
 

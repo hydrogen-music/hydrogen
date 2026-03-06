@@ -2671,10 +2671,6 @@ MIDI = %2</translation>
         <translation>&amp;Caminho de Automação</translation>
     </message>
     <message>
-        <source>&amp;Timeline</source>
-        <translation>&amp;Linha do Tempo</translation>
-    </message>
-    <message>
         <source>&amp;Playback Track</source>
         <translation>&amp;Faixa de Playback</translation>
     </message>
@@ -5341,10 +5337,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <message>
         <source>Show automation path</source>
         <translation>Mostrar caminho de automação</translation>
-    </message>
-    <message>
-        <source>Show timeline</source>
-        <translation>Mostrar linha do tempo</translation>
     </message>
     <message>
         <source>Show playback track</source>

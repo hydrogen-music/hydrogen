@@ -2594,10 +2594,6 @@ MIDI = %2</translation>
         <translation>Standardwerte setzen</translation>
     </message>
     <message>
-        <source>&amp;Timeline</source>
-        <translation>Timeline</translation>
-    </message>
-    <message>
         <source>Jack driver: cannot disconnect client</source>
         <translation>Jack Treiber: Trennen des Clients fehlgeschlagen</translation>
     </message>
@@ -5330,10 +5326,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Show automation path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show timeline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

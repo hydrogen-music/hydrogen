@@ -2462,10 +2462,6 @@ MIDI = %2</source>
         <translation></translation>
     </message>
     <message>
-        <source>&amp;Timeline</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>&amp;Options</source>
         <translation></translation>
     </message>
@@ -5293,10 +5289,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Show automation path</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Show timeline</source>
         <translation></translation>
     </message>
     <message>

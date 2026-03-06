@@ -2496,10 +2496,6 @@ MIDI = %2</translation>
         <translation>混音器(&amp;M)</translation>
     </message>
     <message>
-        <source>&amp;Timeline</source>
-        <translation>时间轴(&amp;T)</translation>
-    </message>
-    <message>
         <source>&amp;Options</source>
         <translation>选项(&amp;O)</translation>
     </message>
@@ -5337,10 +5333,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Show automation path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show timeline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
