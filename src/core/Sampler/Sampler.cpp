@@ -719,7 +719,7 @@ void Sampler::handleTimelineOrTempoChange()
 				if ( pSample == nullptr ) {
 					continue;
 				}
-				const int nNewNoteLength =
+				const long long nNewNoteLength =
 					Transport::computeFrameFromTick(
 						ppNote->getPosition() + ppNote->getLength(),
 						&fTickMismatch, pSample->getSampleRate()
@@ -739,13 +739,13 @@ void Sampler::handleTimelineOrTempoChange()
 				// original note length and not the patched one from the last
 				// change is required. But this is too much of an edge-case and
 				// won't be covered here.
-				const int nSamplePosition = static_cast<int>(
+				const long long nSamplePosition = static_cast<long long>(
 					std::floor( ppSelectedLayerInfo->fSamplePosition )
 				);
 
 				ppSelectedLayerInfo->nNoteLength =
 					nSamplePosition +
-					static_cast<int>( std::round(
+					static_cast<long long>( std::round(
 						static_cast<float>(
 							ppSelectedLayerInfo->nNoteLength - nSamplePosition
 						) *
@@ -1128,11 +1128,12 @@ void copySample(
 	float* __restrict__ pSample_data_R,
 	int nFrames,
 	double fSamplePos,
-	int nSampleFrames
+	long long nSampleFrames
 )
 {
-	int nSamplePos = static_cast<int>( fSamplePos );
-	int nFramesFromSample = std::min( nFrames, nSampleFrames - nSamplePos );
+	const long long nSamplePos = static_cast<long long>( fSamplePos );
+	const int nFramesFromSample =
+		std::min( nFrames, static_cast<int>( nSampleFrames - nSamplePos ) );
 
 	memcpy(
 		pBuffer_L, &pSample_data_L[nSamplePos],
@@ -1187,10 +1188,10 @@ void resample(
 	int nFrames,
 	double& fSamplePos,
 	float fStep,
-	int nSampleFrames
+	long long nSampleFrames
 )
 {
-	auto getSampleFrames = [&]( int nSamplePos, float& l0, float& l1, float& l2,
+	auto getSampleFrames = [&]( long long nSamplePos, float& l0, float& l1, float& l2,
 								float& l3, float& r0, float& r1, float& r2,
 								float& r3 ) {
 		l0 = l1 = l2 = l3 = r0 = r1 = r2 = r3 = 0.0;
@@ -1221,11 +1222,11 @@ void resample(
 
 	// Initial safe iterations to avoid reading off the beginning of the sample
 	for ( nFrame = 0; nFrame < nFrames; nFrame++ ) {
-		int nSamplePos = static_cast<int>( fSamplePos );
+		long long nSamplePos = static_cast<long long>( fSamplePos );
 		if ( nSamplePos >= 1 ) {
 			break;
 		}
-		double fDiff = fSamplePos - nSamplePos;
+		const double fDiff = fSamplePos - nSamplePos;
 		getSampleFrames( 0, l0, l1, l2, l3, r0, r1, r2, r3 );
 
 		fVal_L = Interpolation::interpolate<mode>( l0, l1, l2, l3, fDiff );
@@ -1236,12 +1237,12 @@ void resample(
 	}
 
 	// Fast iterations for main body of sample, with unconditional sample lookup
-	int nFastFrames = std::min(
+	const int nFastFrames = std::min(
 		nFrames, static_cast<int>( ( nSampleFrames - 2 - fSamplePos ) / fStep )
 	);
 	for ( ; nFrame < nFastFrames; nFrame++ ) {
-		int nSamplePos = static_cast<int>( fSamplePos );
-		double fDiff = fSamplePos - nSamplePos;
+		const long long nSamplePos = static_cast<long long>( fSamplePos );
+		const double fDiff = fSamplePos - nSamplePos;
 		// Gather frame samples
 		l0 = pSample_data_L[nSamplePos - 1];
 		l1 = pSample_data_L[nSamplePos];
@@ -1259,8 +1260,8 @@ void resample(
 	}
 
 	for ( ; nFrame < nFrames; nFrame++ ) {
-		int nSamplePos = static_cast<int>( fSamplePos );
-		double fDiff = fSamplePos - nSamplePos;
+		const long long nSamplePos = static_cast<long long>( fSamplePos );
+		const double fDiff = fSamplePos - nSamplePos;
 		getSampleFrames( nSamplePos, l0, l1, l2, l3, r0, r1, r2, r3 );
 		fVal_L = Interpolation::interpolate<mode>( l0, l1, l2, l3, fDiff );
 		fVal_R = Interpolation::interpolate<mode>( r0, r1, r2, r3, fDiff );
@@ -1280,7 +1281,7 @@ void resample(
 	int nFrames,
 	double& fSamplePos,
 	float fStep,
-	int nSampleFrames
+	long long nSampleFrames
 )
 {
 	switch ( mode ) {
@@ -1426,7 +1427,7 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 	const long long nFrameOffset =
 		pAudioEngine->getPlayhead()->getFrameOffsetTempo();
 
-	int nSampleFrames = pSample->getFrames();
+	const long long nSampleFrames = pSample->getFrames();
 	float fStep =
 		(float) pSample->getSampleRate() /
 		pAudioDriver->getSampleRate();	// Adjust for audio driver sample rate
@@ -1631,14 +1632,15 @@ bool Sampler::renderNote(
 
 	auto pSample_data_L = pSample->getData_L();
 	auto pSample_data_R = pSample->getData_R();
-	const int nSampleFrames = pSample->getFrames();
+	const long long nSampleFrames = pSample->getFrames();
 	// The number of frames of the sample left to process.
-	const int nRemainingFrames = static_cast<int>(
+	const long long nRemainingFrames = static_cast<long long>(
 		( static_cast<float>( nSampleFrames ) -
 		  pSelectedLayerInfo->fSamplePosition ) /
 		fFrequencyRatio
 	);
-	const int nNoteOffFrame = std::min( nRemainingFrames, nBufferSize - 1 );
+	const int nNoteOffFrame =
+		std::min( static_cast<int>( nRemainingFrames ), nBufferSize - 1 );
 
 	bool bRetValue = true;	// the note is ended
 	int nAvail_bytes;
@@ -1656,7 +1658,7 @@ bool Sampler::renderNote(
 			nAvail_bytes = nBufferSize - nInitialBufferPos;
 		}
 		else {
-			nAvail_bytes = nRemainingFrames;
+			nAvail_bytes = static_cast<int>(nRemainingFrames);
 		}
 	}
 
@@ -1688,8 +1690,11 @@ bool Sampler::renderNote(
 
 		nNoteEnd = std::min(
 			nFinalBufferPos + 1,
-            static_cast<int>((pSelectedLayerInfo->nNoteLength -
-				  static_cast<int>(pSelectedLayerInfo->fSamplePosition)) / fFrequencyRatio
+			static_cast<int>(
+				( pSelectedLayerInfo->nNoteLength -
+				  static_cast<long long>( pSelectedLayerInfo->fSamplePosition )
+				) /
+				fFrequencyRatio
 			)
 		);
 

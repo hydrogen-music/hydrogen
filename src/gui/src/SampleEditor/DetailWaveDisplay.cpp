@@ -134,7 +134,7 @@ void DetailWaveDisplay::drawPeakData()
 			nnFrame = m_pSampleEditor->getPlayheadMain();
 			break;
 	}
-	nnFrame -= DetailWaveDisplay::nWidth / 2;
+	nnFrame -= static_cast<long long>(DetailWaveDisplay::nWidth / 2);
 
 	QPointF peaks[width()];
 	for ( int ii = 0; ii < width(); ++ii ) {
@@ -156,7 +156,7 @@ void DetailWaveDisplay::drawPeakData()
 void DetailWaveDisplay::updatePeakData()
 {
 	if ( m_pLayer == nullptr || m_pLayer->getSample() == nullptr ) {
-		for ( int ii = 0; ii < m_peakData.size(); ++ii ) {
+		for ( long long ii = 0; ii < m_peakData.size(); ++ii ) {
 			m_peakData[ii] = 0;
 		}
 
@@ -165,7 +165,7 @@ void DetailWaveDisplay::updatePeakData()
 		return;
 	}
 
-	const int nSampleLength = m_pLayer->getSample()->getFrames();
+	const long long nSampleLength = m_pLayer->getSample()->getFrames();
 	const float fGain = height() / 2.0;
 
 	m_peakData.clear();
@@ -179,8 +179,8 @@ void DetailWaveDisplay::updatePeakData()
 		pSampleData = m_pLayer->getSample()->getData_R();
 	}
 
-	for ( int ii = 0; ii < nSampleLength; ii++ ) {
-		m_peakData[ii] = static_cast<int>( pSampleData[ii] * fGain );
+	for ( long long ii = 0; ii < nSampleLength; ii++ ) {
+		m_peakData[ii] = static_cast<long long>( pSampleData[ii] * fGain );
 	}
 
 	drawPeakData();

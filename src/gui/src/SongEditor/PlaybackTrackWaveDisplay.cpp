@@ -111,7 +111,7 @@ void PlaybackTrackWaveDisplay::updatePeakData()
 	const auto pColumns = pSong->getPatternGroupVector();
 	const auto nMaxBars = Preferences::get_instance()->getMaxBars();
 	auto pSampleData = m_pLayer->getSample()->getData_L();
-	const int nSampleLength = m_pLayer->getSample()->getFrames();
+	const long long nSampleLength = m_pLayer->getSample()->getFrames();
 	const float fGain = height() / 2.0 * m_pLayer->getGain();
 
 	int nSongEditorGridWidth;
@@ -128,7 +128,7 @@ void PlaybackTrackWaveDisplay::updatePeakData()
 
 	int nTotalTicks = 0;
 	long long nTotalFrames = 0;
-	int nSamplePos = 0;
+	long long nSamplePos = 0;
 	double fMismatch;
 	for ( int nnColumn = 0; nnColumn < nMaxBars; ++nnColumn ) {
 		int nColumnLengthTicks = 0;

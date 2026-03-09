@@ -855,9 +855,9 @@ void Instrument::setSample(
 	checkForMissingSamples( trigger );
 }
 
-int Instrument::getLongestSampleFrames() const
+long long Instrument::getLongestSampleFrames() const
 {
-	int nLongestFrames = 0;
+	long long nLongestFrames = 0;
 
 	for ( const auto& pComponent : *m_pComponents ) {
 		if ( pComponent != nullptr ) {

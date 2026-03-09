@@ -339,7 +339,7 @@ class Instrument : public H2Core::Object<Instrument> {
 		Event::Trigger trigger
 	);
 
-	int getLongestSampleFrames() const;
+	long long getLongestSampleFrames() const;
 
 	Instrument::Type getType() const;
 	void setType( Instrument::Type type );

@@ -77,7 +77,7 @@ void SampleWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 		}
 		return;
 	}
-	const int nFrame = xToFrame(
+	const long long nFrame = xToFrame(
 		std::clamp( static_cast<int>( pEv->position().x() ), 0, width() - 1 )
 	);
 	switch ( m_pSampleEditor->getSelectedSlider() ) {
@@ -374,12 +374,19 @@ void SampleWaveDisplay::renderSlider(
 	}
 }
 
-int SampleWaveDisplay::frameToX( int nFrame ) const
+int SampleWaveDisplay::frameToX( long long nFrame ) const
 {
-	return nFrame * width() / m_pLayer->getSample()->getFrames();
+	return static_cast<int>(
+		static_cast<double>( nFrame ) * static_cast<double>( width() ) /
+		static_cast<double>( m_pLayer->getSample()->getFrames() )
+	);
 }
 
-int SampleWaveDisplay::xToFrame( int nX ) const
+long long SampleWaveDisplay::xToFrame( int nX ) const
 {
-	return nX * m_pLayer->getSample()->getFrames() / width();
+	return static_cast<long long>(
+		static_cast<double>( nX ) *
+		static_cast<double>( m_pLayer->getSample()->getFrames() ) /
+		static_cast<double>( width() )
+	);
 }

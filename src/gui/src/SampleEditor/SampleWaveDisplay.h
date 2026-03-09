@@ -73,8 +73,8 @@ class SampleWaveDisplay : public WaveDisplay,
 
 	/** In case there are more frames in the sample than the width of the widget
 	 * in pixel (very likely), we have to rescale the coordinates. */
-	int frameToX( int nFrame ) const;
-	int xToFrame( int nX ) const;
+	int frameToX( long long nFrame ) const;
+	long long xToFrame( int nX ) const;
 
 	SampleEditor* m_pSampleEditor;
 
@@ -82,7 +82,7 @@ class SampleWaveDisplay : public WaveDisplay,
 
 	/** Cache for undo/redo actions during drag moving. Otherwise, the operation
 	 * would be to inefficient. */
-	int m_nOldFrame;
+	long long m_nOldFrame;
 
 	/** We only change for the vicinity of a slider once when pressing the left
 	 * mouse button. Else we would risk loosing it on faster mouse movements. */

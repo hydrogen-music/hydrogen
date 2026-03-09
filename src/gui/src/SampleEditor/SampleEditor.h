@@ -98,12 +98,12 @@ class SampleEditor : public QDialog,
 	Slider getSelectedSlider() const;
 	void setSelectedSlider( Slider slider );
 
-	int getLoopStartFrame() const;
-	void setLoopStartFrame( int nFrame );
-	int getLoopLoopFrame() const;
-	void setLoopLoopFrame( int nFrame );
-	int getLoopEndFrame() const;
-	void setLoopEndFrame( int nFrame );
+	long long getLoopStartFrame() const;
+	void setLoopStartFrame( long long nFrame );
+	long long getLoopLoopFrame() const;
+	void setLoopLoopFrame( long long nFrame );
+	long long getLoopEndFrame() const;
+	void setLoopEndFrame( long long nFrame );
 	void setLoops( H2Core::Sample::Loops newLoops );
 	void setRubberband( H2Core::Sample::Rubberband newRubberband );
 
@@ -266,15 +266,15 @@ inline SampleEditor::Slider SampleEditor::getSelectedSlider() const
 {
 	return m_selectedSlider;
 }
-inline int SampleEditor::getLoopStartFrame() const
+inline long long SampleEditor::getLoopStartFrame() const
 {
 	return m_loops.nStartFrame;
 }
-inline int SampleEditor::getLoopLoopFrame() const
+inline long long SampleEditor::getLoopLoopFrame() const
 {
 	return m_loops.nLoopFrame;
 }
-inline int SampleEditor::getLoopEndFrame() const
+inline long long SampleEditor::getLoopEndFrame() const
 {
 	return m_loops.nEndFrame;
 }

@@ -340,9 +340,7 @@ void AudioFileBrowser::on_m_pPlayBtn_clicked()
 	auto pNewSample = Sample::load( m_pSampleFileName );
 	if ( pNewSample ) {
 		assert(pNewSample->getSampleRate() != 0);
-		
-		int length = ( ( pNewSample->getFrames() / pNewSample->getSampleRate() + 1) * 100 );
-		H2Core::Hydrogen::get_instance()->getAudioEngine()->getSampler()->previewSample( pNewSample, length );
+		H2Core::Hydrogen::get_instance()->getAudioEngine()->getSampler()->previewSample( pNewSample, LENGTH_ENTIRE_SAMPLE );
 	}
 }
 

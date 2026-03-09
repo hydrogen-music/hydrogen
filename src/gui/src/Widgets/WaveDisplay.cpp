@@ -372,7 +372,7 @@ void WaveDisplay::updatePeakData()
 		return;
 	}
 
-	const int nSampleLength = m_pLayer->getSample()->getFrames();
+	const long long nSampleLength = m_pLayer->getSample()->getFrames();
 	const auto pSampleData = m_channel == Channel::Left
 								 ? m_pLayer->getSample()->getData_L()
 								 : m_pLayer->getSample()->getData_R();
@@ -381,14 +381,14 @@ void WaveDisplay::updatePeakData()
 	if ( nSampleLength > m_peakData.size() ) {
 		m_type = Type::Envelope;
 
-		const int nScaleFactor = nSampleLength / m_peakData.size();
+		const long long nScaleFactor = nSampleLength / m_peakData.size();
 
-		int nSamplePos = 0;
+		long long nSamplePos = 0;
 		int nMin, nMax;
-		for ( int ii = 0; ii < m_peakData.size(); ++ii ) {
+		for ( long long ii = 0; ii < m_peakData.size(); ++ii ) {
 			nMin = 0;
 			nMax = 0;
-			for ( int jj = 0; jj < nScaleFactor; ++jj ) {
+			for ( long long jj = 0; jj < nScaleFactor; ++jj ) {
 				if ( nSamplePos >= nSampleLength ) {
 					break;
 				}
@@ -412,10 +412,10 @@ void WaveDisplay::updatePeakData()
 	else {
 		m_type = Type::Wave;
 
-		for ( int ii = 0; ii < nSampleLength; ++ii ) {
+		for ( long long ii = 0; ii < nSampleLength; ++ii ) {
 			m_peakData[ii] = static_cast<int>( pSampleData[ii] * fGain );
 		}
-		for ( int ii = nSampleLength; ii < m_peakData.size(); ++ii ) {
+		for ( long long ii = nSampleLength; ii < m_peakData.size(); ++ii ) {
 			m_peakData[ii] = 0;
 		}
 	}

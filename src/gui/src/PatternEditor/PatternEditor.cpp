@@ -3793,8 +3793,8 @@ int PatternEditor::calculateEffectiveNoteLength(
 		// constant over the whole note length. This is done as we do not know
 		// at which point of the song - thus using which tempo - the note will
 		// be played back.
-		const int nMaxFrames = pNote->getInstrument()->getLongestSampleFrames();
-		const int nEffectiveFrames =
+		const long long nMaxFrames = pNote->getInstrument()->getLongestSampleFrames();
+		const long long nEffectiveFrames =
 			static_cast<int>( Transport::computeFrame(
 				static_cast<double>( nEffectiveLength ),
 				Hydrogen::get_instance()

@@ -41,6 +41,9 @@ namespace H2Core {
 class EnvelopePoint : public H2Core::Object<EnvelopePoint> {
 	H2_OBJECT( EnvelopePoint )
    public:
+    /** This value does _not_ correspond to the actual audio frame an envelope
+     * point is located at but the x coordinate in pixel (!!) of the
+     * #TargetWaveDisplay within the #SampleEditor of hard-coded width (!!!). */
 	int nFrame;
 	int nValue;
 	/** to be able to sort velocity points vectors */
@@ -82,11 +85,11 @@ class Sample : public H2Core::Object<Sample> {
 		static Mode ModeFromQString( const QString& sText );
 
 		/** the frame index where to start the new sample from */
-		int nStartFrame;
+		long long nStartFrame;
 		/** the frame index where to start the loop from */
-		int nLoopFrame;
+		long long nLoopFrame;
 		/** the frame index where to end the new sample to */
-		int nEndFrame;
+		long long nEndFrame;
 		/** the counts of loops to apply */
 		int nCount;
 		/** one of the possible loop modes */
@@ -158,7 +161,7 @@ class Sample : public H2Core::Object<Sample> {
 	 * Sample constructor
 	 * \param sFilePath the path to the sample
 	 * \param license associated with the sample
-	 * \param frames the number of frames per channel in the sample
+	 * \param nFrames the number of frames per channel in the sample
 	 * \param sample_rate the sample rate of the sample
 	 * \param data_l the left channel array of data
 	 * \param data_r the right channel array of data
@@ -166,7 +169,7 @@ class Sample : public H2Core::Object<Sample> {
 	Sample(
 		const QString& sFilePath,
 		const License& license = License(),
-		int frames = 0,
+		long long nFrames = 0,
 		int sample_rate = 0,
 		float* data_l = nullptr,
 		float* data_r = nullptr
@@ -249,14 +252,14 @@ class Sample : public H2Core::Object<Sample> {
 	void setFileName( const QString& fileName );
 
 	/** \return #m_nFrames accessor */
-	int getFrames() const;
+	long long getFrames() const;
 	/** \return #m_nSampleRate */
 	int getSampleRate() const;
 
 	/** \return data size, which is calculated by
 	 * #m_nFrames time sizeof( float ) * 2
 	 */
-	int getSize() const;
+	long long getSize() const;
 	/** \return #m_data_L*/
 	float* getData_L() const;
 	/** \return #m_data_R*/
@@ -326,7 +329,7 @@ class Sample : public H2Core::Object<Sample> {
 	/** Convenience variable not written to disk. */
 	bool m_bIsLoaded;
 	QString m_sFilePath;				  ///< filePath of the sample
-	int m_nFrames;						  ///< number of frames in this sample
+	long long m_nFrames;				  ///< number of frames in this sample
 	int m_nSampleRate;					  ///< samplerate for this sample
 	float* m_data_L;					  ///< left channel data
 	float* m_data_R;					  ///< right channel data
@@ -373,7 +376,7 @@ inline QString Sample::getFileName() const
 	return m_sFilePath.section( "/", -1 );
 }
 
-inline int Sample::getFrames() const
+inline long long Sample::getFrames() const
 {
 	return m_nFrames;
 }
@@ -389,7 +392,7 @@ inline double Sample::getSampleDuration() const
 		   static_cast<double>( m_nSampleRate );
 }
 
-inline int Sample::getSize() const
+inline long long Sample::getSize() const
 {
 	return m_nFrames * sizeof( float ) * 2;
 }

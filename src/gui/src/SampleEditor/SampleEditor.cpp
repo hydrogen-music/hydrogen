@@ -828,10 +828,11 @@ void SampleEditor::setSelectedSlider( Slider slider )
 	updateSourceWaveDisplays();
 }
 
-void SampleEditor::setLoopStartFrame( int nFrame )
+void SampleEditor::setLoopStartFrame( long long nFrame )
 {
-	const int nFrameClamped =
-		std::clamp( nFrame, 0, m_pSampleOriginal->getFrames() - 1 );
+	const long long nFrameClamped = std::clamp(
+		nFrame, static_cast<long long>( 0 ), m_pSampleOriginal->getFrames() - 1
+	);
 	if ( m_loops.nStartFrame == nFrameClamped &&
 		 m_selectedSlider == Slider::Start ) {
 		return;
@@ -857,10 +858,11 @@ void SampleEditor::setLoopStartFrame( int nFrame )
 	updateSourceWaveDisplays();
 }
 
-void SampleEditor::setLoopLoopFrame( int nFrame )
+void SampleEditor::setLoopLoopFrame( long long nFrame )
 {
-	const int nFrameClamped =
-		std::clamp( nFrame, 0, m_pSampleOriginal->getFrames() - 1 );
+	const long long nFrameClamped = std::clamp(
+		nFrame, static_cast<long long>( 0 ), m_pSampleOriginal->getFrames() - 1
+	);
 	if ( m_loops.nLoopFrame == nFrameClamped &&
 		 m_selectedSlider == Slider::Loop ) {
 		return;
@@ -885,10 +887,11 @@ void SampleEditor::setLoopLoopFrame( int nFrame )
 	updateSourceWaveDisplays();
 }
 
-void SampleEditor::setLoopEndFrame( int nFrame )
+void SampleEditor::setLoopEndFrame( long long nFrame )
 {
-	const int nFrameClamped =
-		std::clamp( nFrame, 0, m_pSampleOriginal->getFrames() - 1 );
+	const long long nFrameClamped = std::clamp(
+		nFrame, static_cast<long long>( 0 ), m_pSampleOriginal->getFrames() - 1
+	);
 	if ( m_loops.nEndFrame == nFrameClamped &&
 		 m_selectedSlider == Slider::End ) {
 		return;

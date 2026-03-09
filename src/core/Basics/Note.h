@@ -87,7 +87,7 @@ struct SelectedLayerInfo {
 	 * differs for the new speed. In case rendering did already started, it is
 	 * important to not rescale the whole length of the note but just the
 	 * fraction between #fSamplePosition and the former #nNoteLength.*/
-	int nNoteLength;
+	long long nNoteLength;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 };

@@ -1361,8 +1361,8 @@ class SE_changeSliderAction : public QUndoCommand {
    public:
 	SE_changeSliderAction(
 		SampleEditor::Slider slider,
-		int nOldFrame,
-		int nNewFrame
+		long long nOldFrame,
+		long long nNewFrame
 	)
 		: m_slider( slider ), m_nNewFrame( nNewFrame ), m_nOldFrame( nOldFrame )
 	{
@@ -1406,8 +1406,8 @@ class SE_changeSliderAction : public QUndoCommand {
 
    private:
 	SampleEditor::Slider m_slider;
-	int m_nOldFrame;
-	int m_nNewFrame;
+	long long m_nOldFrame;
+	long long m_nNewFrame;
 };
 
 /** More general action for all loop-specific stuff apart from frames. */
