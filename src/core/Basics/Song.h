@@ -245,6 +245,10 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 		int			getLatestRoundRobin( float fStartVelocity ) const;
 		void			setLatestRoundRobin( float fStartVelocity, int nLatestRoundRobin );
+
+        std::shared_ptr<Instrument> getPlaybackTrackInstrument() const;
+        void setPlaybackTrackInstrument( std::shared_ptr<Instrument> pInstrument );
+
 		/** \return #m_sPlaybackTrackFileName */
 		const QString&		getPlaybackTrackFileName() const;
 		/** \param sFileName Sets #m_sPlaybackTrackFileName. */
@@ -371,7 +375,9 @@ private:
 		bool			m_bIsModified;
 		std::map< float, int> 	m_latestRoundRobins;
 		Mode			m_mode;
-		
+
+        std::shared_ptr<Instrument> m_pPlaybackTrackInstrument;
+
 		/** Name of the file to be loaded as playback track.
 		*
 		 * It is set by setPlaybackTrackFileName() and
@@ -674,6 +680,16 @@ inline int Song::getLatestRoundRobin( float fStartVelocity ) const
 inline void Song::setLatestRoundRobin( float fStartVelocity, int nLatestRoundRobin )
 {
 	m_latestRoundRobins[ fStartVelocity ] = nLatestRoundRobin;
+}
+
+inline std::shared_ptr<Instrument> Song::getPlaybackTrackInstrument() const
+{
+	return m_pPlaybackTrackInstrument;
+}
+
+inline void Song::setPlaybackTrackInstrument( std::shared_ptr<Instrument> pInstrument )
+{
+	m_pPlaybackTrackInstrument = pInstrument;
 }
 
 inline const QString& Song::getPlaybackTrackFileName() const

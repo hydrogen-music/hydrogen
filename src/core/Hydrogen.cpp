@@ -222,8 +222,7 @@ void Hydrogen::mutePlaybackTrack( const bool bMuted )
 
 	m_pSong->setPlaybackTrackEnabled( ! bMuted );
 
-	auto pPlaybackTrack =
-		m_pAudioEngine->getSampler()->getPlaybackTrackInstrument();
+	auto pPlaybackTrack = m_pSong->getPlaybackTrackInstrument();
 	if ( pPlaybackTrack != nullptr &&
 		 pPlaybackTrack->getComponents()->size() > 0 &&
 		 pPlaybackTrack->getComponents()->front() != nullptr &&
@@ -241,21 +240,22 @@ void Hydrogen::loadPlaybackTrack( const QString& sFileName )
 		return;
 	}
 
-	if ( ! sFileName.isEmpty() &&
-		 ! Filesystem::file_exists( sFileName, true ) || sFileName.isEmpty() ) {
-		ERRORLOG( QString( "Invalid playback track filename [%1]. File does not exist or is empty." )
-				  .arg( sFileName ) );
+    const auto pSample = Sample::load( sFileName );
+    if ( pSample == nullptr ) {
+        ERRORLOG( QString( "Failed to load [%1]. Could not update playback track." )
+                  .arg( sFileName ));
 		m_pSong->setPlaybackTrackFileName( "" );
 		INFOLOG( "Disabling playback track" );
 		m_pSong->setPlaybackTrackEnabled( false );
-	}
-	else {
-		m_pSong->setPlaybackTrackFileName( sFileName );
-		m_pSong->setPlaybackTrackEnabled( true );
-	}
+        return;
+    }
 
-	m_pAudioEngine->getSampler()->reinitializePlaybackTrack();
-	
+    const auto pInstrument = Instrument::from( pSample );
+    m_pSong->setPlaybackTrackInstrument( pInstrument );
+
+    m_pSong->setPlaybackTrackFileName( sFileName );
+    m_pSong->setPlaybackTrackEnabled( true );
+
 	EventQueue::get_instance()->pushEvent( Event::Type::PlaybackTrackChanged, 0 );
 }
 
@@ -318,9 +318,6 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 
 	// Update the audio engine to work with the new song.
 	m_pAudioEngine->setSong( pSong );
-
-	// load new playback track information
-	m_pAudioEngine->getSampler()->reinitializePlaybackTrack();
 
 	m_pAudioEngine->unlock();
 

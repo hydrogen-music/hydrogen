@@ -183,10 +183,11 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	m_pEditPlaybackTrackAction =
 		createAction( pPlaybackTrackToolBar, "", false );
 	connect( m_pEditPlaybackTrackAction, &QAction::triggered, [=]() {
-		auto pInstrument = Hydrogen::get_instance()
-							   ->getAudioEngine()
-							   ->getSampler()
-							   ->getPlaybackTrackInstrument();
+		auto pSong = Hydrogen::get_instance()->getSong();
+		if ( pSong == nullptr ) {
+			return;
+		}
+		auto pInstrument = pSong->getPlaybackTrackInstrument();
 		if ( pInstrument == nullptr ||
 			 pInstrument->getComponent( 0 ) == nullptr ||
 			 pInstrument->getComponent( 0 )->getLayer( 0 ) == nullptr ) {
@@ -442,9 +443,6 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	m_pPlaybackTrackScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPlaybackTrackScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 
-	auto pCompo = Hydrogen::get_instance()->getAudioEngine()->getSampler()->getPlaybackTrackInstrument()->getComponents()->front();
-	assert(pCompo);
-
 	m_pPlaybackTrackWaveDisplay = new PlaybackTrackWaveDisplay( m_pPlaybackTrackScrollView->viewport() );
 	m_pPlaybackTrackWaveDisplay->setSampleNameAlignment( Qt::AlignLeft );
 	m_pPlaybackTrackWaveDisplay->resize( m_pPositionRuler->width() , SongEditorPanel::nHeaderWidgetHeight);
@@ -586,9 +584,12 @@ void SongEditorPanel::highlightPatternEditorLocked() {
 
 void SongEditorPanel::updatePlaybackFaderPeaks()
 {
-	Sampler*		pSampler = Hydrogen::get_instance()->getAudioEngine()->getSampler();
+    auto pSong = Hydrogen::get_instance()->getSong();
+    if ( pSong == nullptr ) {
+        return;
+    }
 	const auto pPref = Preferences::get_instance();
-	auto		pInstrument = pSampler->getPlaybackTrackInstrument();
+	auto pInstrument = pSong->getPlaybackTrackInstrument();
 
 	
 	bool bShowPeaks = pPref->showInstrumentPeaks();
@@ -717,9 +718,7 @@ void SongEditorPanel::updatePlaybackTrack()
 			pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::Muted
 		);
 
-		auto pInstrument = pHydrogen->getAudioEngine()
-							   ->getSampler()
-							   ->getPlaybackTrackInstrument();
+		auto pInstrument = pSong->getPlaybackTrackInstrument();
 		if ( pInstrument != nullptr &&
 			 pInstrument->getComponent( 0 ) != nullptr &&
 			 pInstrument->getComponent( 0 )->getLayer( 0 ) != nullptr ) {

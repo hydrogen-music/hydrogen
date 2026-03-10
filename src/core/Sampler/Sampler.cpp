@@ -56,26 +56,6 @@
 
 namespace H2Core {
 
-static std::shared_ptr<Instrument>
-createInstrument( Instrument::Id id, const QString& sFilePath, float volume )
-{
-	auto pInstrument = std::make_shared<Instrument>( id, sFilePath );
-	pInstrument->setVolume( volume );
-	auto pLayer =
-		std::make_shared<InstrumentLayer>( Sample::load( sFilePath ) );
-	auto pComponent = pInstrument->getComponent( 0 );
-	if ( pComponent != nullptr ) {
-		pInstrument->addLayer(
-			pComponent, pLayer, -1, Event::Trigger::Suppress
-		);
-	}
-	else {
-		___ERRORLOG( "Invalid default component" );
-	}
-
-	return pInstrument;
-}
-
 Sampler::Sampler()
 	: m_pMainOut_L( nullptr ),
 	  m_pMainOut_R( nullptr ),
@@ -85,19 +65,15 @@ Sampler::Sampler()
 	m_pMainOut_L = new float[MAX_BUFFER_SIZE];
 	m_pMainOut_R = new float[MAX_BUFFER_SIZE];
 
-	QString sEmptySampleFileName = Filesystem::empty_sample_path();
-
 	// instrument used in file preview
 	m_pDefaultPreviewInstrument =
-		createInstrument( Instrument::EmptyId, sEmptySampleFileName, 0.8 );
-	m_pDefaultPreviewInstrument->setIsPreviewInstrument( true );
+		Instrument::from( Sample::load( Filesystem::empty_sample_path() ) );
+	if ( m_pDefaultPreviewInstrument != nullptr ) {
+		m_pDefaultPreviewInstrument->setId( Instrument::EmptyId );
+		m_pDefaultPreviewInstrument->setVolume( 0.8 );
+		m_pDefaultPreviewInstrument->setIsPreviewInstrument( true );
+	}
 	m_pPreviewInstrument = m_pDefaultPreviewInstrument;
-
-	// dummy instrument used for playback track
-	m_pPlaybackTrackInstrument = createInstrument(
-		Instrument::PlaybackTrackId, sEmptySampleFileName, 0.8
-	);
-	m_nPlayBackSamplePosition = 0;
 }
 
 Sampler::~Sampler()
@@ -108,7 +84,6 @@ Sampler::~Sampler()
 	delete[] m_pMainOut_R;
 
 	m_pPreviewInstrument = nullptr;
-	m_pPlaybackTrackInstrument = nullptr;
 }
 
 void Sampler::process( uint32_t nFrames )
@@ -1384,8 +1359,7 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
-	if ( pSong == nullptr ) {
-		ERRORLOG( "No song set yet" );
+	if ( pSong == nullptr || pSong->getPlaybackTrackInstrument() == nullptr ) {
 		return true;
 	}
 
@@ -1401,16 +1375,18 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 		return true;
 	}
 
-	const auto pCompo = m_pPlaybackTrackInstrument->getComponents()->front();
+    auto pPlaybackTrackInstrument = pSong->getPlaybackTrackInstrument();
+
+	const auto pCompo = pPlaybackTrackInstrument->getComponents()->front();
 	if ( pCompo == nullptr || pCompo->getLayer( 0 ) == nullptr ||
 		 pCompo->getLayer( 0 )->getSample() == nullptr ) {
 		ERRORLOG( "Invalid playback instrument" );
 		EventQueue::get_instance()->pushEvent(
 			Event::Type::Error, Hydrogen::ErrorMessages::PLAYBACK_TRACK_INVALID
 		);
+
 		// Disable the playback track
-		pHydrogen->loadPlaybackTrack( "" );
-		reinitializePlaybackTrack();
+		pSong->setPlaybackTrackInstrument( nullptr );
 		return true;
 	}
 
@@ -1482,8 +1458,8 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 	}
 
 	// Track peaks and mix in to main output
-	float fInstrPeak_L = m_pPlaybackTrackInstrument->getPeak_L();
-	float fInstrPeak_R = m_pPlaybackTrackInstrument->getPeak_R();
+	float fInstrPeak_L = pPlaybackTrackInstrument->getPeak_L();
+	float fInstrPeak_R = pPlaybackTrackInstrument->getPeak_R();
 
 	const float fGain = pSong->getPlaybackTrackVolume() * pSong->getVolume();
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos;
@@ -1506,8 +1482,8 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 		m_pMainOut_R[nBufferPos] += fVal_R;
 	}
 
-	m_pPlaybackTrackInstrument->setPeak_L( fInstrPeak_L );
-	m_pPlaybackTrackInstrument->setPeak_R( fInstrPeak_R );
+	pPlaybackTrackInstrument->setPeak_L( fInstrPeak_L );
+	pPlaybackTrackInstrument->setPeak_R( fInstrPeak_R );
 
 	return true;
 }
@@ -1997,31 +1973,6 @@ bool Sampler::isInstrumentPlaying( std::shared_ptr<Instrument> pInstrument
 	return false;
 }
 
-void Sampler::reinitializePlaybackTrack()
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	std::shared_ptr<Sample> pSample;
-
-	if ( pSong == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-
-	if ( pHydrogen->getPlaybackTrackState() !=
-		 Song::PlaybackTrack::None ) {
-		pSample = Sample::load( pSong->getPlaybackTrackFileName() );
-	}
-
-	auto pPlaybackTrackLayer = std::make_shared<InstrumentLayer>( pSample );
-
-	m_pPlaybackTrackInstrument->setLayer(
-		m_pPlaybackTrackInstrument->getComponents()->front(),
-		pPlaybackTrackLayer, 0, Event::Trigger::Suppress
-	);
-	m_nPlayBackSamplePosition = 0;
-}
-
 QString Sampler::toQString( const QString& sPrefix, bool bShort ) const
 {
 	QString s = Base::sPrintIndention;
@@ -2046,16 +1997,6 @@ QString Sampler::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( sPrefix )
 						 .arg( s )
 						 .arg( m_scheduledNoteOffQueue.size() ) )
-			.append( QString( "]\n%1%2m_pPlaybackTrackInstrument: %3\n" )
-						 .arg( sPrefix )
-						 .arg( s )
-						 .arg(
-							 m_pPlaybackTrackInstrument == nullptr
-								 ? "nullptr"
-								 : m_pPlaybackTrackInstrument->toQString(
-									   sPrefix + s, bShort
-								   )
-						 ) )
 			.append( QString( "%1%2m_pPreviewInstrument: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
@@ -2066,10 +2007,6 @@ QString Sampler::toQString( const QString& sPrefix, bool bShort ) const
 									   sPrefix + s, bShort
 								   )
 						 ) )
-			.append( QString( "%1%2m_nPlayBackSamplePosition: %3\n" )
-						 .arg( sPrefix )
-						 .arg( s )
-						 .arg( m_nPlayBackSamplePosition ) )
 			.append( QString( "%1%2m_interpolateMode: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
@@ -2088,22 +2025,12 @@ QString Sampler::toQString( const QString& sPrefix, bool bShort ) const
 		sOutput
 			.append( QString( "], m_scheduledNoteOffQueue: size = %1" )
 						 .arg( m_scheduledNoteOffQueue.size() ) )
-			.append( QString( "], m_pPlaybackTrackInstrument: %1" )
-						 .arg(
-							 m_pPlaybackTrackInstrument == nullptr
-								 ? "nullptr"
-								 : m_pPlaybackTrackInstrument->toQString(
-									   "", bShort
-								   )
-						 ) )
 			.append( QString( ", m_pPreviewInstrument: %1" )
 						 .arg(
 							 m_pPreviewInstrument == nullptr
 								 ? "nullptr"
 								 : m_pPreviewInstrument->toQString( "", bShort )
 						 ) )
-			.append( QString( ", m_nPlayBackSamplePosition: %1" )
-						 .arg( m_nPlayBackSamplePosition ) )
 			.append( QString( ", m_interpolateMode: %1" )
 						 .arg( Interpolation::ModeToQString( m_interpolateMode )
 						 ) );

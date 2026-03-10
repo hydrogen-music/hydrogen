@@ -310,6 +310,12 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		rootNode.read_float( "playbackTrackVolume",
 							pSong->getPlaybackTrackVolume(),
 							false, false, bSilent ) );
+	auto pPlaybackTrackInstrument =
+		Instrument::from( Sample::load( sPlaybackTrack ) );
+	if ( pPlaybackTrackInstrument != nullptr ) {
+		pPlaybackTrackInstrument->setVolume( pSong->getPlaybackTrackVolume() );
+	}
+	pSong->setPlaybackTrackInstrument( pPlaybackTrackInstrument );
 
 	pSong->setHumanizeTimeValue(
 		rootNode.read_float( "humanize_time", pSong->getHumanizeTimeValue(),
@@ -1016,11 +1022,7 @@ void Song::setIsModified( bool bIsModified )
 }
 
 Song::PlaybackTrack Song::getPlaybackTrackState() const {
-	if ( m_sPlaybackTrackFileName.isEmpty() ||
-		 Hydrogen::get_instance()
-				 ->getAudioEngine()
-				 ->getSampler()
-				 ->getPlaybackTrackInstrument() == nullptr ) {
+	if ( m_pPlaybackTrackInstrument == nullptr ) {
 		return std::move( PlaybackTrack::None );
 	}
 
@@ -1247,6 +1249,16 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		sOutput.append( QString( "%1%2m_mode: %3\n" ).arg( sPrefix ).arg( s )
 						.arg( ModeToQString( m_mode ) ) )
+			.append( QString( "%1%2m_pPlaybackTrackInstrument: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg(
+							 m_pPlaybackTrackInstrument == nullptr
+								 ? "nullptr"
+								 : m_pPlaybackTrackInstrument->toQString(
+									   sPrefix + s, bShort
+								   )
+						 ) )
 			.append( QString( "%1%2m_sPlaybackTrackFileName: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_sPlaybackTrackFileName ) )
 			.append( QString( "%1%2m_bPlaybackTrackEnabled: %3\n" ).arg( sPrefix ).arg( s )
@@ -1314,6 +1326,14 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		sOutput.append( QString( ", m_mode: %1" )
 						.arg( ModeToQString( m_mode ) ) )
+			.append( QString( ", m_pPlaybackTrackInstrument: %1" )
+						 .arg(
+							 m_pPlaybackTrackInstrument == nullptr
+								 ? "nullptr"
+								 : m_pPlaybackTrackInstrument->toQString(
+									   "", bShort
+								   )
+						 ) )
 			.append( QString( ", m_sPlaybackTrackFileName: %1" ).arg( m_sPlaybackTrackFileName ) )
 			.append( QString( ", m_bPlaybackTrackEnabled: %1" ).arg( m_bPlaybackTrackEnabled ) )
 			.append( QString( ", m_fPlaybackTrackVolume: %1" ).arg( m_fPlaybackTrackVolume ) )
