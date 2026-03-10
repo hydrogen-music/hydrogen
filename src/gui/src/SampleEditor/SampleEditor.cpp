@@ -111,13 +111,9 @@ SampleEditor::SampleEditor(
 	m_pSample = std::make_shared<Sample>( pLayer->getSample() );
 	const auto nFrames = m_pSample->getFrames();
 
-	m_pPreviewInstrument = std::make_shared<Instrument>( Instrument::EmptyId );
-	auto pPreviewLayer = std::make_shared<InstrumentLayer>( m_pSample );
+	m_pPreviewInstrument = Instrument::from( m_pSample );
+    m_pPreviewInstrument->setId( Instrument::EmptyId );
 	m_pPreviewInstrument->setIsPreviewInstrument( true );
-	m_pPreviewInstrument->addLayer(
-		m_pPreviewInstrument->getComponents()->front(), pPreviewLayer, 0,
-		Event::Trigger::Suppress
-	);
 
 	m_pSampleOriginal = Sample::load( m_pSample->getFilePath() );
 	if ( m_pSampleOriginal == nullptr ) {
@@ -125,15 +121,9 @@ SampleEditor::SampleEditor(
 					  .arg( m_pSample->getFilePath() ) );
 		reject();
 	}
-	m_pPreviewInstrumentOriginal =
-		std::make_shared<Instrument>( Instrument::EmptyId );
-	auto pPreviewLayerOriginal =
-		std::make_shared<InstrumentLayer>( m_pSampleOriginal );
+	m_pPreviewInstrumentOriginal = Instrument::from( m_pSampleOriginal );
+    m_pPreviewInstrumentOriginal->setId( Instrument::EmptyId );
 	m_pPreviewInstrumentOriginal->setIsPreviewInstrument( true );
-	m_pPreviewInstrumentOriginal->addLayer(
-		m_pPreviewInstrumentOriginal->getComponents()->front(),
-		pPreviewLayerOriginal, 0, Event::Trigger::Suppress
-	);
 
 	setFixedSize( SampleEditor::nWidth, SampleEditor::nHeight );
 	setModal( true );
@@ -214,11 +204,15 @@ font-weight: bold; "
 
 	m_pSampleWaveDisplayL =
 		new SampleWaveDisplay( this, WaveDisplay::Channel::Left );
-	m_pSampleWaveDisplayL->setLayer( pPreviewLayerOriginal );
+	m_pSampleWaveDisplayL->setLayer(
+		m_pPreviewInstrumentOriginal->getComponent( 0 )->getLayer( 0 )
+	);
 	pMainSectionLayout->addWidget( m_pSampleWaveDisplayL );
 	m_pSampleWaveDisplayR =
 		new SampleWaveDisplay( this, WaveDisplay::Channel::Right );
-	m_pSampleWaveDisplayR->setLayer( pPreviewLayerOriginal );
+	m_pSampleWaveDisplayR->setLayer(
+		m_pPreviewInstrumentOriginal->getComponent( 0 )->getLayer( 0 )
+	);
 	pMainSectionLayout->addWidget( m_pSampleWaveDisplayR );
 
 	auto pDetailSection = new QWidget( pWaveDisplayContainer );
@@ -231,11 +225,15 @@ font-weight: bold; "
 
 	m_pDetailWaveDisplayL =
 		new DetailWaveDisplay( this, WaveDisplay::Channel::Left );
-	m_pDetailWaveDisplayL->setLayer( pPreviewLayerOriginal );
+	m_pDetailWaveDisplayL->setLayer(
+		m_pPreviewInstrumentOriginal->getComponent( 0 )->getLayer( 0 )
+	);
 	pDetailSectionLayout->addWidget( m_pDetailWaveDisplayL );
 	m_pDetailWaveDisplayR =
 		new DetailWaveDisplay( this, WaveDisplay::Channel::Right );
-	m_pDetailWaveDisplayR->setLayer( pPreviewLayerOriginal );
+	m_pDetailWaveDisplayR->setLayer(
+		m_pPreviewInstrumentOriginal->getComponent( 0 )->getLayer( 0 )
+	);
 	pDetailSectionLayout->addWidget( m_pDetailWaveDisplayR );
 
 	auto pZoomSlider = new QSlider( pWaveDisplayContainer );
@@ -654,7 +652,9 @@ font-weight: bold; "
 	////////////////////////////////////////////////////////////////////////////
 
 	m_pTargetSection = new TargetSection( this );
-	m_pTargetSection->setLayer( pPreviewLayer );
+	m_pTargetSection->setLayer(
+		m_pPreviewInstrument->getComponent( 0 )->getLayer( 0 )
+	);
 	m_pTargetSection->setMinimumHeight( 94 );
 	pVBoxLayout->addWidget( m_pTargetSection );
 

@@ -80,6 +80,8 @@ class Instrument : public H2Core::Object<Instrument> {
 	/** destructor */
 	~Instrument();
 
+	static std::shared_ptr<Instrument> from( std::shared_ptr<Sample> pSample );
+
 	/**
 	 * Calls the InstrumentLayer::loadSample() member
 	 * function of all layers of each component of the

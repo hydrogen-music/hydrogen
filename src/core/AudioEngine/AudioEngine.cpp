@@ -105,26 +105,15 @@ AudioEngine::AudioEngine()
 
 	srand( time( nullptr ) );
 
-	// Create metronome instrument
-	// Get the path to the file of the metronome sound.
-	QString sMetronomeFileName = Filesystem::click_file_path();
 	m_pMetronomeInstrument =
-		std::make_shared<Instrument>( Instrument::MetronomeId, "metronome" );
-
-	auto pLayer =
-		std::make_shared<InstrumentLayer>( Sample::load( sMetronomeFileName ) );
-	auto pComponent = m_pMetronomeInstrument->getComponent( 0 );
-	if ( pComponent != nullptr ) {
-		m_pMetronomeInstrument->addLayer(
-			pComponent, pLayer, -1, Event::Trigger::Suppress
+		Instrument::from( Sample::load( Filesystem::click_file_path() ) );
+	if ( m_pMetronomeInstrument != nullptr ) {
+		m_pMetronomeInstrument->setId( Instrument::MetronomeId );
+		m_pMetronomeInstrument->setName( "metronome" );
+		m_pMetronomeInstrument->setVolume(
+			Preferences::get_instance()->m_fMetronomeVolume
 		);
 	}
-	else {
-		___ERRORLOG( "Invalid default component" );
-	}
-	m_pMetronomeInstrument->setVolume(
-		Preferences::get_instance()->m_fMetronomeVolume
-	);
 
 	m_AudioProcessCallback = &audioEngine_process;
 
