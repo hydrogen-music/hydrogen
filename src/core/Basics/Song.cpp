@@ -302,92 +302,163 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		sPlaybackTrack = "";
 	}
 	pSong->setPlaybackTrackFileName( sPlaybackTrack );
-	pSong->setPlaybackTrackEnabled(
-		rootNode.read_bool( "playbackTrackEnabled",
-						   pSong->getPlaybackTrackEnabled(),
-						   false, false, bSilent ) );
 	pSong->setPlaybackTrackVolume(
 		rootNode.read_float( "playbackTrackVolume",
 							pSong->getPlaybackTrackVolume(),
 							false, false, bSilent ) );
-	auto pPlaybackTrackInstrument =
-		Instrument::from( Sample::load( sPlaybackTrack ) );
-	if ( pPlaybackTrackInstrument != nullptr ) {
-		pPlaybackTrackInstrument->setVolume( pSong->getPlaybackTrackVolume() );
+	const XMLNode playbackTrackNode =
+		rootNode.firstChildElement( "playbackTrack" );
+	std::shared_ptr<Instrument> pPlaybackTrackInstrument;
+	if ( !playbackTrackNode.isNull() ) {
+		// Current version
+		const XMLNode playbackTrackInstrumentNode =
+			playbackTrackNode.firstChildElement( "instrument" );
+		pPlaybackTrackInstrument = Instrument::loadFrom(
+			playbackTrackInstrumentNode, "", "", sSongPath, pSong->getLicense(),
+			true, nullptr, bSilent
+		);
 	}
+	else if ( !rootNode.firstChildElement( "playbackTrackFilename" )
+				   .isNull() ) {
+		// Backward compatibility. In versions prior to 2.0 just the path to
+		// the underlying sample and the volume was store in a song.
+		QString sPlaybackTrack( rootNode.read_string(
+			"playbackTrackFilename", "", false, true, bSilent
+		) );
+		QFileInfo playbackTrackInfo( sPlaybackTrack );
+		if ( !sPlaybackTrack.isEmpty() && playbackTrackInfo.isRelative() ) {
+			// Playback track has been made portable by manually
+			// converting the absolute path stored by Hydrogen into a
+			// relative one.
+			QFileInfo songPathInfo( sSongPath );
+			sPlaybackTrack =
+				songPathInfo.absoluteDir().absoluteFilePath( sPlaybackTrack );
+		}
+
+		// Check the file of the playback track and resort to the default
+		// in case the file can not be found.
+		if ( !sPlaybackTrack.isEmpty() &&
+			 !Filesystem::file_exists( sPlaybackTrack, true ) ) {
+			ERRORLOG( QString( "Provided playback track file [%1] does not "
+							   "exist. Using empty string instead" )
+						  .arg( sPlaybackTrack ) )
+			sPlaybackTrack = "";
+		}
+		if ( !sPlaybackTrack.isEmpty() ) {
+			pPlaybackTrackInstrument =
+				Instrument::from( Sample::load( sPlaybackTrack ) );
+
+			if ( pPlaybackTrackInstrument != nullptr ) {
+				pPlaybackTrackInstrument->setVolume( rootNode.read_float(
+					"playbackTrackVolume",
+					pPlaybackTrackInstrument->getVolume(), false, false, bSilent
+				) );
+			}
+		}
+	}
+
+	if ( pPlaybackTrackInstrument != nullptr ) {
+		pPlaybackTrackInstrument->setName( "PlaybackTrack" );
+		pPlaybackTrackInstrument->setId( Instrument::PlaybackTrackId );
+        pPlaybackTrackInstrument->loadSamples();
+	}
+
+	pSong->setPlaybackTrackEnabled( rootNode.read_bool(
+		"playbackTrackEnabled", pSong->getPlaybackTrackEnabled(), false, false,
+		bSilent
+	) );
 	pSong->setPlaybackTrackInstrument( pPlaybackTrackInstrument );
 
-	pSong->setHumanizeTimeValue(
-		rootNode.read_float( "humanize_time", pSong->getHumanizeTimeValue(),
-							false, false, bSilent ) );
-	pSong->setHumanizeVelocityValue(
-		rootNode.read_float( "humanize_velocity",
-							pSong->getHumanizeVelocityValue(),
-							false, false, bSilent ) );
-	pSong->setSwingFactor(
-		rootNode.read_float( "swing_factor", pSong->getSwingFactor(), false,
-							false, bSilent ) );
-	pSong->setActionMode( static_cast<Song::ActionMode>(
-		rootNode.read_int( "action_mode",
-							 static_cast<int>( pSong->getActionMode() ),
-							 false, false, bSilent ) ) );
-	pSong->setIsPatternEditorLocked(
-		rootNode.read_bool( "isPatternEditorLocked",
-						   pSong->getIsPatternEditorLocked(),
-						   true, false, true ) );
-	pSong->setIsTimelineActivated(
-		rootNode.read_bool( "isTimelineActivated",
-						   pSong->getIsTimelineActivated(), true, false, true ) );
+	pSong->setHumanizeTimeValue( rootNode.read_float(
+		"humanize_time", pSong->getHumanizeTimeValue(), false, false, bSilent
+	) );
+	pSong->setHumanizeVelocityValue( rootNode.read_float(
+		"humanize_velocity", pSong->getHumanizeVelocityValue(), false, false,
+		bSilent
+	) );
+	pSong->setSwingFactor( rootNode.read_float(
+		"swing_factor", pSong->getSwingFactor(), false, false, bSilent
+	) );
+	pSong->setActionMode( static_cast<Song::ActionMode>( rootNode.read_int(
+		"action_mode", static_cast<int>( pSong->getActionMode() ), false, false,
+		bSilent
+	) ) );
+	pSong->setIsPatternEditorLocked( rootNode.read_bool(
+		"isPatternEditorLocked", pSong->getIsPatternEditorLocked(), true, false,
+		true
+	) );
+	pSong->setIsTimelineActivated( rootNode.read_bool(
+		"isTimelineActivated", pSong->getIsTimelineActivated(), true, false,
+		true
+	) );
 
 	// pan law
-	QString sPanLawType( rootNode.read_string( "pan_law_type",
-												 "RATIO_STRAIGHT_POLYGONAL",
-												 false, false, bSilent ) );
+	QString sPanLawType( rootNode.read_string(
+		"pan_law_type", "RATIO_STRAIGHT_POLYGONAL", false, false, bSilent
+	) );
 	if ( sPanLawType == "RATIO_STRAIGHT_POLYGONAL" ) {
 		pSong->setPanLawType( Sampler::RATIO_STRAIGHT_POLYGONAL );
-	} else if ( sPanLawType == "RATIO_CONST_POWER" ) {
+	}
+	else if ( sPanLawType == "RATIO_CONST_POWER" ) {
 		pSong->setPanLawType( Sampler::RATIO_CONST_POWER );
-	} else if ( sPanLawType == "RATIO_CONST_SUM" ) {
+	}
+	else if ( sPanLawType == "RATIO_CONST_SUM" ) {
 		pSong->setPanLawType( Sampler::RATIO_CONST_SUM );
-	} else if ( sPanLawType == "LINEAR_STRAIGHT_POLYGONAL" ) {
+	}
+	else if ( sPanLawType == "LINEAR_STRAIGHT_POLYGONAL" ) {
 		pSong->setPanLawType( Sampler::LINEAR_STRAIGHT_POLYGONAL );
-	} else if ( sPanLawType == "LINEAR_CONST_POWER" ) {
+	}
+	else if ( sPanLawType == "LINEAR_CONST_POWER" ) {
 		pSong->setPanLawType( Sampler::LINEAR_CONST_POWER );
-	} else if ( sPanLawType == "LINEAR_CONST_SUM" ) {
+	}
+	else if ( sPanLawType == "LINEAR_CONST_SUM" ) {
 		pSong->setPanLawType( Sampler::LINEAR_CONST_SUM );
-	} else if ( sPanLawType == "POLAR_STRAIGHT_POLYGONAL" ) {
+	}
+	else if ( sPanLawType == "POLAR_STRAIGHT_POLYGONAL" ) {
 		pSong->setPanLawType( Sampler::POLAR_STRAIGHT_POLYGONAL );
-	} else if ( sPanLawType == "POLAR_CONST_POWER" ) {
+	}
+	else if ( sPanLawType == "POLAR_CONST_POWER" ) {
 		pSong->setPanLawType( Sampler::POLAR_CONST_POWER );
-	} else if ( sPanLawType == "POLAR_CONST_SUM" ) {
+	}
+	else if ( sPanLawType == "POLAR_CONST_SUM" ) {
 		pSong->setPanLawType( Sampler::POLAR_CONST_SUM );
-	} else if ( sPanLawType == "QUADRATIC_STRAIGHT_POLYGONAL" ) {
+	}
+	else if ( sPanLawType == "QUADRATIC_STRAIGHT_POLYGONAL" ) {
 		pSong->setPanLawType( Sampler::QUADRATIC_STRAIGHT_POLYGONAL );
-	} else if ( sPanLawType == "QUADRATIC_CONST_POWER" ) {
+	}
+	else if ( sPanLawType == "QUADRATIC_CONST_POWER" ) {
 		pSong->setPanLawType( Sampler::QUADRATIC_CONST_POWER );
-	} else if ( sPanLawType == "QUADRATIC_CONST_SUM" ) {
+	}
+	else if ( sPanLawType == "QUADRATIC_CONST_SUM" ) {
 		pSong->setPanLawType( Sampler::QUADRATIC_CONST_SUM );
-	} else if ( sPanLawType == "LINEAR_CONST_K_NORM" ) {
+	}
+	else if ( sPanLawType == "LINEAR_CONST_K_NORM" ) {
 		pSong->setPanLawType( Sampler::LINEAR_CONST_K_NORM );
-	} else if ( sPanLawType == "POLAR_CONST_K_NORM" ) {
+	}
+	else if ( sPanLawType == "POLAR_CONST_K_NORM" ) {
 		pSong->setPanLawType( Sampler::POLAR_CONST_K_NORM );
-	} else if ( sPanLawType == "RATIO_CONST_K_NORM" ) {
+	}
+	else if ( sPanLawType == "RATIO_CONST_K_NORM" ) {
 		pSong->setPanLawType( Sampler::RATIO_CONST_K_NORM );
-	} else if ( sPanLawType == "QUADRATIC_CONST_K_NORM" ) {
+	}
+	else if ( sPanLawType == "QUADRATIC_CONST_K_NORM" ) {
 		pSong->setPanLawType( Sampler::QUADRATIC_CONST_K_NORM );
-	} else {
+	}
+	else {
 		pSong->setPanLawType( Sampler::RATIO_STRAIGHT_POLYGONAL );
-		if ( ! bSilent ) {
+		if ( !bSilent ) {
 			WARNINGLOG( "Unknown pan law type in import song. Set default." );
 		}
 	}
 
 	float fPanLawKNorm = rootNode.read_float(
-		"pan_law_k_norm", pSong->getPanLawKNorm(), false, false, bSilent );
+		"pan_law_k_norm", pSong->getPanLawKNorm(), false, false, bSilent
+	);
 	if ( fPanLawKNorm <= 0.0 ) {
-		if ( ! bSilent ) {
-			WARNINGLOG( QString( "Invalid pan law k in import song [%1] (<= 0). Set default k." )
-						.arg( fPanLawKNorm ) );
+		if ( !bSilent ) {
+			WARNINGLOG( QString( "Invalid pan law k in import song [%1] "
+								 "(<= 0). Set default k." )
+							.arg( fPanLawKNorm ) );
 		}
 		fPanLawKNorm = Sampler::K_NORM_DEFAULT;
 	}
@@ -395,16 +466,18 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 
 	bool bCurrentDrumkitLoaded = false;
 	std::shared_ptr<Drumkit> pDrumkit;
-	XMLNode drumkitNode = rootNode.firstChildElement( "drumkit_info");
-	if ( ! drumkitNode.isNull() ) {
+	XMLNode drumkitNode = rootNode.firstChildElement( "drumkit_info" );
+	if ( !drumkitNode.isNull() ) {
 		// Current format (>= 2.0) storing a proper Drumkit
 		pDrumkit = Drumkit::loadFrom(
-			drumkitNode, "", sSongPath, true, nullptr, bSilent );
+			drumkitNode, "", sSongPath, true, nullptr, bSilent
+		);
 		bCurrentDrumkitLoaded = true;
 	}
 	else {
 		// Older format (< 2.0) storing only selected elements
-		pDrumkit = Legacy::loadEmbeddedSongDrumkit( rootNode, sSongPath, bSilent );
+		pDrumkit =
+			Legacy::loadEmbeddedSongDrumkit( rootNode, sSongPath, bSilent );
 	}
 
 	if ( pDrumkit == nullptr ) {
@@ -414,10 +487,10 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		bCurrentDrumkitLoaded = false;
 	}
 	pSong->setDrumkit( pDrumkit );
-	pSong->setLastLoadedDrumkitPath(
-		rootNode.read_string( "lastLoadedDrumkitPath",
-							 pSong->getLastLoadedDrumkitPath(), true, true,
-							 bSilent ) );
+	pSong->setLastLoadedDrumkitPath( rootNode.read_string(
+		"lastLoadedDrumkitPath", pSong->getLastLoadedDrumkitPath(), true, true,
+		bSilent
+	) );
 
 	// Pattern list
 	auto pPatternList = PatternList::loadFrom(
@@ -490,7 +563,8 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 	}
 
 	// Pattern sequence
-	XMLNode patternSequenceNode = rootNode.firstChildElement( "patternSequence" );
+	XMLNode patternSequenceNode =
+		rootNode.firstChildElement( "patternSequence" );
 	if ( !patternSequenceNode.isNull() ) {
 		if ( !patternSequenceNode.firstChildElement( "patternID" ).isNull() ) {
 			// back-compatibility code..
@@ -668,7 +742,7 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 	}
 
 	return pSong;
-}
+	}
 
 /// Save a song to file
 bool Song::save( const QString& sFileName, bool bKeepMissingSamples, bool bSilent )
@@ -737,6 +811,13 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples,
 	rootNode.write_bool( "patternModeMode", bPatternMode );
 
 	rootNode.write_string( "playbackTrackFilename", m_sPlaybackTrackFileName );
+	auto playbackTrackNode = rootNode.createNode( "playbackTrack" );
+	if ( m_pPlaybackTrackInstrument != nullptr ) {
+		m_pPlaybackTrackInstrument->saveTo(
+			playbackTrackNode, true, false, bSilent
+		);
+	}
+
 	rootNode.write_bool( "playbackTrackEnabled", m_bPlaybackTrackEnabled );
 	rootNode.write_float( "playbackTrackVolume", m_fPlaybackTrackVolume );
 	rootNode.write_int( "action_mode", static_cast<int>( m_actionMode ) );
