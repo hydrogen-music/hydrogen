@@ -249,11 +249,6 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
         std::shared_ptr<Instrument> getPlaybackTrackInstrument() const;
         void setPlaybackTrackInstrument( std::shared_ptr<Instrument> pInstrument );
 
-		/** \return #m_sPlaybackTrackFileName */
-		const QString&		getPlaybackTrackFileName() const;
-		/** \param sFileName Sets #m_sPlaybackTrackFileName. */
-		void			setPlaybackTrackFileName( const QString& sFileName );
-							
 		/** \return #m_bPlaybackTrackEnabled */
 		bool			getPlaybackTrackEnabled() const;
 		/** Specifies whether a playback track should be used.
@@ -261,11 +256,6 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		 * \param bEnabled Sets #m_bPlaybackTrackEnabled. */
 		void			setPlaybackTrackEnabled( const bool bEnabled );
 							
-		/** \return #m_fPlaybackTrackVolume */
-		float			getPlaybackTrackVolume() const;
-		/** \param fVolume Sets #m_fPlaybackTrackVolume. */
-		void			setPlaybackTrackVolume( const float fVolume );
-
 		PlaybackTrack getPlaybackTrackState() const;
 
 	
@@ -378,15 +368,6 @@ private:
 
         std::shared_ptr<Instrument> m_pPlaybackTrackInstrument;
 
-		/** Name of the file to be loaded as playback track.
-		*
-		 * It is set by setPlaybackTrackFileName() and
-		 * queried by getPlaybackTrackFileName().
-		 *
-		 * The playback track itself is loaded in
-		 * Sampler::reinitialize_playback_track().
-		 */
-		QString			m_sPlaybackTrackFileName;
 		/** Whether the playback track should be used at all.
 		 *
 		 * It is set by setPlaybackTrackEnabled() and
@@ -396,15 +377,6 @@ private:
 		 * Sampler::reinitialize_playback_track().
 		 */
 		bool			m_bPlaybackTrackEnabled;
-		/** Volume of the playback track.
-		 *
-		 * It is set by setPlaybackTrackVolume() and
-		 * queried by getPlaybackTrackVolume().
-		 *
-		 * The playback track itself is loaded in
-		 * Sampler::reinitialize_playback_track().
-		 */
-		float			m_fPlaybackTrackVolume;
 		AutomationPath*		m_pVelocityAutomationPath;
 		///< license of the song
 		License			m_license;
@@ -692,16 +664,6 @@ inline void Song::setPlaybackTrackInstrument( std::shared_ptr<Instrument> pInstr
 	m_pPlaybackTrackInstrument = pInstrument;
 }
 
-inline const QString& Song::getPlaybackTrackFileName() const
-{
-	return m_sPlaybackTrackFileName;
-}
-
-inline void Song::setPlaybackTrackFileName( const QString& sFileName )
-{
-	m_sPlaybackTrackFileName = sFileName;
-}
-
 inline bool Song::getPlaybackTrackEnabled() const
 {
 	return m_bPlaybackTrackEnabled;
@@ -710,16 +672,6 @@ inline bool Song::getPlaybackTrackEnabled() const
 inline void Song::setPlaybackTrackEnabled( const bool bEnabled )
 {
 	m_bPlaybackTrackEnabled = bEnabled;
-}
-
-inline float Song::getPlaybackTrackVolume() const
-{
-	return m_fPlaybackTrackVolume;
-}
-
-inline void Song::setPlaybackTrackVolume( const float fVolume )
-{
-	m_fPlaybackTrackVolume = fVolume;
 }
 
 inline const Song::ActionMode& Song::getActionMode() const {

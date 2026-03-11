@@ -1461,7 +1461,7 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 	float fInstrPeak_L = pPlaybackTrackInstrument->getPeak_L();
 	float fInstrPeak_R = pPlaybackTrackInstrument->getPeak_R();
 
-	const float fGain = pSong->getPlaybackTrackVolume() * pSong->getVolume();
+	const float fGain = pPlaybackTrackInstrument->getVolume() * pSong->getVolume();
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos;
 		  ++nBufferPos ) {
 		float fVal_L = buffer_L[nBufferPos] * fGain,

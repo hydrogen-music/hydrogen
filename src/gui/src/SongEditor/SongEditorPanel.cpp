@@ -43,8 +43,11 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
+#include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/PatternList.h>
+#include <core/Basics/Sample.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 
@@ -90,6 +93,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	m_pPlaybackTrackSidebar->setLayout( pPlaybackTrackSidebarLayout );
 
 	// Playback Fader
+	const auto pPlaybackTrackInstrument = pSong->getPlaybackTrackInstrument();
 	m_pPlaybackTrackFader = new Fader(
 		m_pPlaybackTrackSidebar,
 		QSize(
@@ -100,7 +104,10 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		0.0, 1.5
 	);
 	m_pPlaybackTrackFader->setObjectName( "SongEditorPlaybackTrackFader" );
-	m_pPlaybackTrackFader->setValue( pSong->getPlaybackTrackVolume() );
+	if ( pPlaybackTrackInstrument != nullptr ) {
+		m_pPlaybackTrackFader->setValue( pPlaybackTrackInstrument->getVolume()
+		);
+	}
 	connect(
 		m_pPlaybackTrackFader, SIGNAL( valueChanged( WidgetWithInput* ) ), this,
 		SLOT( faderChanged( WidgetWithInput* ) )
@@ -141,9 +148,13 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 			return;
 		}
 		QString sPath, sFileName;
-		if ( !pSong->getPlaybackTrackFileName().isEmpty() ) {
-			QFileInfo fileInfo( pSong->getPlaybackTrackFileName() );
-			sFileName = pSong->getPlaybackTrackFileName();
+		if ( pSong->getPlaybackTrackInstrument() != nullptr ) {
+			sFileName = pSong->getPlaybackTrackInstrument()
+							->getComponent( 0 )
+							->getLayer( 0 )
+							->getSample()
+							->getFilePath();
+			QFileInfo fileInfo( sFileName );
 			sPath = fileInfo.absoluteDir().absolutePath();
 		}
 		else {
@@ -585,7 +596,7 @@ void SongEditorPanel::highlightPatternEditorLocked() {
 void SongEditorPanel::updatePlaybackFaderPeaks()
 {
     auto pSong = Hydrogen::get_instance()->getSong();
-    if ( pSong == nullptr ) {
+    if ( pSong == nullptr || pSong->getPlaybackTrackInstrument() == nullptr ) {
         return;
     }
 	const auto pPref = Preferences::get_instance();
@@ -698,8 +709,7 @@ void SongEditorPanel::updatePlaybackTrack()
 		return;
 	}
 
-	if ( pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::None ||
-		 pSong == nullptr ) {
+	if ( pSong == nullptr || pSong->getPlaybackTrackInstrument() == nullptr ) {
 		// No playback track chosen (stored in the current song).
 		m_pPlaybackTrackFader->setIsActive( false );
 		m_pEditPlaybackTrackAction->setEnabled( false );
@@ -711,7 +721,9 @@ void SongEditorPanel::updatePlaybackTrack()
 		// Playback track was selected by the user and is ready to
 		// use.
 		m_pPlaybackTrackFader->setIsActive( true );
-		m_pPlaybackTrackFader->setValue( pSong->getPlaybackTrackVolume() );
+		m_pPlaybackTrackFader->setValue(
+			pSong->getPlaybackTrackInstrument()->getVolume()
+		);
 		m_pEditPlaybackTrackAction->setEnabled( true );
 		m_pMutePlaybackTrackButton->setIsActive( true );
 		m_pMutePlaybackTrackButton->setChecked(
@@ -1045,19 +1057,22 @@ void SongEditorPanel::faderChanged( WidgetWithInput *pRef )
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 
-	if ( pSong == nullptr ) {
+	if ( pSong == nullptr || pSong->getPlaybackTrackInstrument() == nullptr ) {
 		return;
 	}
-	
-	Fader* pFader = dynamic_cast<Fader*>( pRef );
+
+	auto pInstrument = pSong->getPlaybackTrackInstrument();
+
+	auto pFader = dynamic_cast<Fader*>( pRef );
 	const float fNewValue = std::round( pFader->getValue() * 100 ) / 100;
 
-	if ( pSong->getPlaybackTrackVolume() != fNewValue ) {
-		pSong->setPlaybackTrackVolume( fNewValue );
+	if ( pInstrument->getVolume() != fNewValue ) {
+		pInstrument->setVolume( fNewValue );
 		HydrogenApp::get_instance()->showStatusBarMessage(
 			tr( "Playback volume set to" )
-			.append( QString( " [%1]" ).arg( fNewValue ) ),
-			"SongEditorPanel:PlaybackTrackVolume" );
+				.append( QString( " [%1]" ).arg( fNewValue ) ),
+			"SongEditorPanel:PlaybackTrackVolume"
+		);
 	}
 }
 

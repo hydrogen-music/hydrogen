@@ -84,9 +84,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_fSwingFactor( 0.0 )
 	, m_bIsModified( false )
 	, m_mode( Mode::Pattern )
-	, m_sPlaybackTrackFileName( "" )
 	, m_bPlaybackTrackEnabled( false )
-	, m_fPlaybackTrackVolume( 0.5 )
 	, m_pVelocityAutomationPath( nullptr )
 	, m_license( License( "", sAuthor ) )
 	, m_actionMode( ActionMode::selectMode )
@@ -279,33 +277,6 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 
 	const auto sSongPath = Filesystem::absolute_path( sFileName );
 
-	QString sPlaybackTrack(
-		rootNode.read_string( "playbackTrackFilename",
-							 pSong->getPlaybackTrackFileName(), false, true,
-							 bSilent ) );
-	QFileInfo playbackTrackInfo( sPlaybackTrack );
-	if ( ! sPlaybackTrack.isEmpty() && playbackTrackInfo.isRelative() ) {
-		// Playback track has been made portable by manually
-		// converting the absolute path stored by Hydrogen into a
-		// relative one.
-		QFileInfo songPathInfo( sSongPath );
-		sPlaybackTrack = songPathInfo.absoluteDir()
-			.absoluteFilePath( sPlaybackTrack );
-	}
-
-	// Check the file of the playback track and resort to the default
-	// in case the file can not be found.
-	if ( ! sPlaybackTrack.isEmpty() &&
-		 ! Filesystem::file_exists( sPlaybackTrack, true ) ) {
-		ERRORLOG( QString( "Provided playback track file [%1] does not exist. Using empty string instead" )
-				  .arg( sPlaybackTrack ) )
-		sPlaybackTrack = "";
-	}
-	pSong->setPlaybackTrackFileName( sPlaybackTrack );
-	pSong->setPlaybackTrackVolume(
-		rootNode.read_float( "playbackTrackVolume",
-							pSong->getPlaybackTrackVolume(),
-							false, false, bSilent ) );
 	const XMLNode playbackTrackNode =
 		rootNode.firstChildElement( "playbackTrack" );
 	std::shared_ptr<Instrument> pPlaybackTrackInstrument;
@@ -810,7 +781,6 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples,
 	}
 	rootNode.write_bool( "patternModeMode", bPatternMode );
 
-	rootNode.write_string( "playbackTrackFilename", m_sPlaybackTrackFileName );
 	auto playbackTrackNode = rootNode.createNode( "playbackTrack" );
 	if ( m_pPlaybackTrackInstrument != nullptr ) {
 		m_pPlaybackTrackInstrument->saveTo(
@@ -819,7 +789,6 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples,
 	}
 
 	rootNode.write_bool( "playbackTrackEnabled", m_bPlaybackTrackEnabled );
-	rootNode.write_float( "playbackTrackVolume", m_fPlaybackTrackVolume );
 	rootNode.write_int( "action_mode", static_cast<int>( m_actionMode ) );
 	rootNode.write_bool( "isPatternEditorLocked",
 						   m_bIsPatternEditorLocked );
@@ -1340,12 +1309,8 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 									   sPrefix + s, bShort
 								   )
 						 ) )
-			.append( QString( "%1%2m_sPlaybackTrackFileName: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_sPlaybackTrackFileName ) )
 			.append( QString( "%1%2m_bPlaybackTrackEnabled: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_bPlaybackTrackEnabled ) )
-			.append( QString( "%1%2m_fPlaybackTrackVolume: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_fPlaybackTrackVolume ) )
 			.append( QString( "%1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_license: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_license.toQString( sPrefix + s, bShort ) ) )
@@ -1415,9 +1380,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 									   "", bShort
 								   )
 						 ) )
-			.append( QString( ", m_sPlaybackTrackFileName: %1" ).arg( m_sPlaybackTrackFileName ) )
 			.append( QString( ", m_bPlaybackTrackEnabled: %1" ).arg( m_bPlaybackTrackEnabled ) )
-			.append( QString( ", m_fPlaybackTrackVolume: %1" ).arg( m_fPlaybackTrackVolume ) )
 			.append( QString( ", m_pVelocityAutomationPath: %1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix ) ) )
 			.append( QString( ", m_license: %1" ).arg( m_license.toQString( sPrefix, bShort ) ) )
 			.append( QString( ", m_actionMode: %1" ).

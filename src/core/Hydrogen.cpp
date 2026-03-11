@@ -240,23 +240,31 @@ void Hydrogen::loadPlaybackTrack( const QString& sFileName )
 		return;
 	}
 
-    const auto pSample = Sample::load( sFileName );
-    if ( pSample == nullptr ) {
-        ERRORLOG( QString( "Failed to load [%1]. Could not update playback track." )
-                  .arg( sFileName ));
-		m_pSong->setPlaybackTrackFileName( "" );
+	const auto pSample = Sample::load( sFileName );
+	if ( pSample == nullptr ) {
+		ERRORLOG(
+			QString( "Failed to load [%1]. Could not update playback track." )
+				.arg( sFileName )
+		);
 		INFOLOG( "Disabling playback track" );
 		m_pSong->setPlaybackTrackEnabled( false );
-        return;
-    }
+		return;
+	}
 
-    const auto pInstrument = Instrument::from( pSample );
-    m_pSong->setPlaybackTrackInstrument( pInstrument );
+	const auto pInstrument = Instrument::from( pSample );
+	if ( pInstrument != nullptr ) {
+		pInstrument->setName( "PlaybackTrack" );
+		pInstrument->setId( Instrument::PlaybackTrackId );
+		pInstrument->loadSamples( m_pAudioEngine->getPlayhead()->getBpm() );
+	}
 
-    m_pSong->setPlaybackTrackFileName( sFileName );
-    m_pSong->setPlaybackTrackEnabled( true );
+	m_pSong->setPlaybackTrackInstrument( pInstrument );
 
-	EventQueue::get_instance()->pushEvent( Event::Type::PlaybackTrackChanged, 0 );
+	m_pSong->setPlaybackTrackEnabled( true );
+
+	EventQueue::get_instance()->pushEvent(
+		Event::Type::PlaybackTrackChanged, 0
+	);
 }
 
 void Hydrogen::setSong( std::shared_ptr<Song> pSong )
