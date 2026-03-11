@@ -84,7 +84,6 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_fSwingFactor( 0.0 )
 	, m_bIsModified( false )
 	, m_mode( Mode::Pattern )
-	, m_bPlaybackTrackEnabled( false )
 	, m_pVelocityAutomationPath( nullptr )
 	, m_license( License( "", sAuthor ) )
 	, m_actionMode( ActionMode::selectMode )
@@ -334,10 +333,6 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
         pPlaybackTrackInstrument->loadSamples();
 	}
 
-	pSong->setPlaybackTrackEnabled( rootNode.read_bool(
-		"playbackTrackEnabled", pSong->getPlaybackTrackEnabled(), false, false,
-		bSilent
-	) );
 	pSong->setPlaybackTrackInstrument( pPlaybackTrackInstrument );
 
 	pSong->setHumanizeTimeValue( rootNode.read_float(
@@ -788,7 +783,6 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples,
 		);
 	}
 
-	rootNode.write_bool( "playbackTrackEnabled", m_bPlaybackTrackEnabled );
 	rootNode.write_int( "action_mode", static_cast<int>( m_actionMode ) );
 	rootNode.write_bool( "isPatternEditorLocked",
 						   m_bIsPatternEditorLocked );
@@ -1076,7 +1070,7 @@ Song::PlaybackTrack Song::getPlaybackTrackState() const {
 		return std::move( PlaybackTrack::None );
 	}
 
-	if ( ! m_bPlaybackTrackEnabled ) {
+	if ( m_pPlaybackTrackInstrument->isMuted() ) {
 		return std::move( PlaybackTrack::Muted );
 	}
 
@@ -1309,8 +1303,6 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 									   sPrefix + s, bShort
 								   )
 						 ) )
-			.append( QString( "%1%2m_bPlaybackTrackEnabled: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_bPlaybackTrackEnabled ) )
 			.append( QString( "%1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_license: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_license.toQString( sPrefix + s, bShort ) ) )
@@ -1380,7 +1372,6 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 									   "", bShort
 								   )
 						 ) )
-			.append( QString( ", m_bPlaybackTrackEnabled: %1" ).arg( m_bPlaybackTrackEnabled ) )
 			.append( QString( ", m_pVelocityAutomationPath: %1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix ) ) )
 			.append( QString( ", m_license: %1" ).arg( m_license.toQString( sPrefix, bShort ) ) )
 			.append( QString( ", m_actionMode: %1" ).

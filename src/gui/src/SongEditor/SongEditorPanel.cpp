@@ -230,15 +230,15 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	);
 	pPlaybackTrackToolBar->addWidget( m_pMutePlaybackTrackButton );
 
-	if ( pHydrogen->getPlaybackTrackState() ==
-		 Song::PlaybackTrack::None ) {
+	if ( pPlaybackTrackInstrument == nullptr ) {
 		m_pPlaybackTrackFader->setIsActive( false );
 		m_pMutePlaybackTrackButton->setChecked( true );
 		m_pMutePlaybackTrackButton->setIsActive( false );
 	}
 	else {
-		m_pMutePlaybackTrackButton->setChecked( !pSong->getPlaybackTrackEnabled(
-		) );
+		m_pMutePlaybackTrackButton->setChecked(
+			pPlaybackTrackInstrument->isMuted()
+		);
 	}
 
 	m_pPlaybackTrackSidebar->setVisible( bShowPlaybackTrack );

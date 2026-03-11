@@ -215,16 +215,15 @@ Song::PlaybackTrack Hydrogen::getPlaybackTrackState() const {
 	
 void Hydrogen::mutePlaybackTrack( const bool bMuted )
 {
-	if ( m_pSong == nullptr ) {
+	if ( m_pSong == nullptr ||
+		 m_pSong->getPlaybackTrackInstrument() == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return;
 	}
-
-	m_pSong->setPlaybackTrackEnabled( ! bMuted );
-
 	auto pPlaybackTrack = m_pSong->getPlaybackTrackInstrument();
-	if ( pPlaybackTrack != nullptr &&
-		 pPlaybackTrack->getComponents()->size() > 0 &&
+	pPlaybackTrack->setMuted( bMuted );
+
+	if ( pPlaybackTrack->getComponents()->size() > 0 &&
 		 pPlaybackTrack->getComponents()->front() != nullptr &&
 		 pPlaybackTrack->getComponents()->front()->getLayer( 0 ) != nullptr ) {
 		pPlaybackTrack->getComponents()->front()->getLayer( 0 )->setIsMuted(
@@ -246,8 +245,6 @@ void Hydrogen::loadPlaybackTrack( const QString& sFileName )
 			QString( "Failed to load [%1]. Could not update playback track." )
 				.arg( sFileName )
 		);
-		INFOLOG( "Disabling playback track" );
-		m_pSong->setPlaybackTrackEnabled( false );
 		return;
 	}
 
@@ -259,8 +256,6 @@ void Hydrogen::loadPlaybackTrack( const QString& sFileName )
 	}
 
 	m_pSong->setPlaybackTrackInstrument( pInstrument );
-
-	m_pSong->setPlaybackTrackEnabled( true );
 
 	EventQueue::get_instance()->pushEvent(
 		Event::Type::PlaybackTrackChanged, 0

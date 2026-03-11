@@ -249,13 +249,6 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
         std::shared_ptr<Instrument> getPlaybackTrackInstrument() const;
         void setPlaybackTrackInstrument( std::shared_ptr<Instrument> pInstrument );
 
-		/** \return #m_bPlaybackTrackEnabled */
-		bool			getPlaybackTrackEnabled() const;
-		/** Specifies whether a playback track should be used.
-		 *
-		 * \param bEnabled Sets #m_bPlaybackTrackEnabled. */
-		void			setPlaybackTrackEnabled( const bool bEnabled );
-							
 		PlaybackTrack getPlaybackTrackState() const;
 
 	
@@ -368,15 +361,6 @@ private:
 
         std::shared_ptr<Instrument> m_pPlaybackTrackInstrument;
 
-		/** Whether the playback track should be used at all.
-		 *
-		 * It is set by setPlaybackTrackEnabled() and
-		 * queried by getPlaybackTrackEnabled().
-		 *
-		 * The playback track itself is loaded in
-		 * Sampler::reinitialize_playback_track().
-		 */
-		bool			m_bPlaybackTrackEnabled;
 		AutomationPath*		m_pVelocityAutomationPath;
 		///< license of the song
 		License			m_license;
@@ -662,16 +646,6 @@ inline std::shared_ptr<Instrument> Song::getPlaybackTrackInstrument() const
 inline void Song::setPlaybackTrackInstrument( std::shared_ptr<Instrument> pInstrument )
 {
 	m_pPlaybackTrackInstrument = pInstrument;
-}
-
-inline bool Song::getPlaybackTrackEnabled() const
-{
-	return m_bPlaybackTrackEnabled;
-}
-
-inline void Song::setPlaybackTrackEnabled( const bool bEnabled )
-{
-	m_bPlaybackTrackEnabled = bEnabled;
 }
 
 inline const Song::ActionMode& Song::getActionMode() const {

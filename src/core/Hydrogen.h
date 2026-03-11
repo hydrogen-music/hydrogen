@@ -345,9 +345,6 @@ public:
 	
 	/************************************************************/
 	/********************** Playback track **********************/
-	/**
-	 * Wrapper around Song::setPlaybackTrackEnabled().
-	 */
 	void			mutePlaybackTrack( const bool bMuted );
 	/**
 	 * Wrapper around Song::getPlaybackTrackState().
