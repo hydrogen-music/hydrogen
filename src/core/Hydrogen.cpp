@@ -205,25 +205,6 @@ void Hydrogen::sequencerStop()
 	killInstruments();
 }
 
-void Hydrogen::mutePlaybackTrack( const bool bMuted )
-{
-	if ( m_pSong == nullptr ||
-		 m_pSong->getPlaybackTrackInstrument() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-	auto pPlaybackTrack = m_pSong->getPlaybackTrackInstrument();
-	pPlaybackTrack->setMuted( bMuted );
-
-	if ( pPlaybackTrack->getComponents()->size() > 0 &&
-		 pPlaybackTrack->getComponents()->front() != nullptr &&
-		 pPlaybackTrack->getComponents()->front()->getLayer( 0 ) != nullptr ) {
-		pPlaybackTrack->getComponents()->front()->getLayer( 0 )->setIsMuted(
-			bMuted
-		);
-	}
-}
-
 void Hydrogen::loadPlaybackTrack( const QString& sFileName )
 {
 	if ( m_pSong == nullptr ) {

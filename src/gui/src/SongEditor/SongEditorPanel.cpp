@@ -224,8 +224,22 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	connect(
 		m_pMutePlaybackTrackButton, &QPushButton::clicked,
 		[=]( bool bChecked ) {
-			Hydrogen::get_instance()->mutePlaybackTrack( bChecked );
-			m_pPlaybackTrackWaveDisplay->updateBackground();
+			auto pSong = Hydrogen::get_instance()->getSong();
+			if ( pSong == nullptr ) {
+				return;
+			}
+			auto pInstrument = pSong->getPlaybackTrackInstrument();
+			if ( pInstrument != nullptr ) {
+				pInstrument->setMuted( bChecked );
+				if ( pInstrument->getComponent( 0 ) != nullptr &&
+					 pInstrument->getComponent( 0 )->getLayer( 0 ) !=
+						 nullptr ) {
+					pInstrument->getComponent( 0 )->getLayer( 0 )->setIsMuted(
+						bChecked
+					);
+				}
+				m_pPlaybackTrackWaveDisplay->updateBackground();
+			}
 		}
 	);
 	pPlaybackTrackToolBar->addWidget( m_pMutePlaybackTrackButton );

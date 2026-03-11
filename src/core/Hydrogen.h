@@ -345,7 +345,6 @@ public:
 	
 	/************************************************************/
 	/********************** Playback track **********************/
-	void			mutePlaybackTrack( const bool bMuted );
 	/**
 	 * Wrapper function for loading the playback track.
 	 */
