@@ -718,21 +718,15 @@ void SongEditorPanel::updatePlaybackTrack()
 		m_pPlaybackTrackWaveDisplay->setLayer( nullptr );
 	}
 	else {
+		auto pInstrument = pSong->getPlaybackTrackInstrument();
 		// Playback track was selected by the user and is ready to
 		// use.
 		m_pPlaybackTrackFader->setIsActive( true );
-		m_pPlaybackTrackFader->setValue(
-			pSong->getPlaybackTrackInstrument()->getVolume()
-		);
+		m_pPlaybackTrackFader->setValue( pInstrument->getVolume() );
 		m_pEditPlaybackTrackAction->setEnabled( true );
 		m_pMutePlaybackTrackButton->setIsActive( true );
-		m_pMutePlaybackTrackButton->setChecked(
-			pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::Muted
-		);
-
-		auto pInstrument = pSong->getPlaybackTrackInstrument();
-		if ( pInstrument != nullptr &&
-			 pInstrument->getComponent( 0 ) != nullptr &&
+		m_pMutePlaybackTrackButton->setChecked( pInstrument->isMuted() );
+		if ( pInstrument->getComponent( 0 ) != nullptr &&
 			 pInstrument->getComponent( 0 )->getLayer( 0 ) != nullptr ) {
 			m_pPlaybackTrackWaveDisplay->setLayer(
 				pInstrument->getComponent( 0 )->getLayer( 0 )

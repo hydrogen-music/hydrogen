@@ -1368,14 +1368,13 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 		return true;
 	}
 
-	if ( pHydrogen->getPlaybackTrackState() != Song::PlaybackTrack::Enabled ||
+    auto pPlaybackTrackInstrument = pSong->getPlaybackTrackInstrument();
+	if ( pPlaybackTrackInstrument->isMuted() ||
 		 ( pAudioEngine->getState() != AudioEngine::State::Playing ||
 		   pAudioEngine->getState() == AudioEngine::State::Testing ) ||
 		 pHydrogen->getMode() != Song::Mode::Song ) {
 		return true;
 	}
-
-    auto pPlaybackTrackInstrument = pSong->getPlaybackTrackInstrument();
 
 	const auto pCompo = pPlaybackTrackInstrument->getComponents()->front();
 	if ( pCompo == nullptr || pCompo->getLayer( 0 ) == nullptr ||

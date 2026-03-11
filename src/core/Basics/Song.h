@@ -114,20 +114,6 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	};
 		static QString PatternModeToQString( const PatternMode& patternMode );
 
-		/** Determines the state of the Playback track with respect to
-			audio processing*/
-		enum class PlaybackTrack {
-			/** No proper playback track file set yet*/
-			None = 0,
-			/** Valid file set but the playback track is muted via the GUI*/
-			Muted = 1,
-			/** Valid file set and ready for playback.*/
-			Enabled = 2
-		};
-		static QString PlaybackTrackToQString(
-			const PlaybackTrack& playbackTrack
-		);
-
 		/** Please do not #H2Core::Hydrogen::setSong() a song created using this
 		 * constructor. It is just a minimal version with not all its members
 		 * properly initialized and can causes crashes (in the
@@ -249,9 +235,6 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
         std::shared_ptr<Instrument> getPlaybackTrackInstrument() const;
         void setPlaybackTrackInstrument( std::shared_ptr<Instrument> pInstrument );
 
-		PlaybackTrack getPlaybackTrackState() const;
-
-	
 		const ActionMode& getActionMode() const;
 		void			setActionMode( const ActionMode& actionMode );
 

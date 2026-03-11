@@ -205,14 +205,6 @@ void Hydrogen::sequencerStop()
 	killInstruments();
 }
 
-Song::PlaybackTrack Hydrogen::getPlaybackTrackState() const {
-
-	if ( m_pSong == nullptr ) {
-		return Song::PlaybackTrack::None;
-	}
-	return m_pSong->getPlaybackTrackState();
-}
-	
 void Hydrogen::mutePlaybackTrack( const bool bMuted )
 {
 	if ( m_pSong == nullptr ||

@@ -1065,18 +1065,6 @@ void Song::setIsModified( bool bIsModified )
 
 }
 
-Song::PlaybackTrack Song::getPlaybackTrackState() const {
-	if ( m_pPlaybackTrackInstrument == nullptr ) {
-		return std::move( PlaybackTrack::None );
-	}
-
-	if ( m_pPlaybackTrackInstrument->isMuted() ) {
-		return std::move( PlaybackTrack::Muted );
-	}
-
-	return std::move( PlaybackTrack::Enabled );
-}
-
 bool Song::hasMissingSamples() const
 {
 	auto pInstrumentList = getDrumkit()->getInstruments();
@@ -1218,20 +1206,6 @@ QString Song::PatternModeToQString( const PatternMode& patternMode ) {
 	default:
 		return QString( "Unknown patternMode [%1]" )
 			.arg( static_cast<int>(patternMode) );
-	}
-}
-
-QString Song::PlaybackTrackToQString( const PlaybackTrack& playbackTrack ) {
-	switch( playbackTrack ) {
-	case PlaybackTrack::None:
-		return "None";
-	case PlaybackTrack::Muted:
-		return "Muted";
-	case PlaybackTrack::Enabled:
-		return "Enabled";
-	default:
-		return QString( "Unknown playbackTrack [%1]" )
-			.arg( static_cast<int>(playbackTrack) );
 	}
 }
 
