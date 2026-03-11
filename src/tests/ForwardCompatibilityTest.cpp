@@ -152,6 +152,7 @@ void ForwardCompatibilityTest::testSong()
 	CPPUNIT_ASSERT( pSong->getComponents() != nullptr );
 	CPPUNIT_ASSERT( pSong->getComponents()->size() == 2 );
 	CPPUNIT_ASSERT( pSong->getAllNotes().size() != 0 );
+	CPPUNIT_ASSERT( ! pSong->getPlaybackTrackFilename().isEmpty() );
 	___INFOLOG( "passed" );
 }
 

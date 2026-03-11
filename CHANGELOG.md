@@ -8,10 +8,11 @@ All notable changes to this project will be documented in this file.
 
 - Support for songs and drumkits created with version `0.9.3` (#2193).
 - Linux man pages for the `h2cli` and `h2player` applications have been added.
-- Forward compatibility of `hydrogen.conf` for MIDI input channel values
-  introduced in version 2.0.
-- Forward compatibility of `.h2pattern` files to version 2.0, in which the
-  `<pitch>` node will be dropped.
+- Forward compatibility to version 2.0:
+  - `hydrogen.conf` regarding MIDI input channel values.
+  - `.h2pattern`, in which the `<pitch>` node will be dropped.
+  - `.h2song`, in which the playback track will be stored as a full-blown
+    instrument.
 
 ### Changed
 
