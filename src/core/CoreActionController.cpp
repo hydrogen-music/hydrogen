@@ -1987,8 +1987,40 @@ bool CoreActionController::removeInstrument( std::shared_ptr<Instrument> pInstru
 	return true;
 }
 
-bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewInstrument,
-											  std::shared_ptr<Instrument> pOldInstrument ) {
+bool CoreActionController::replaceInstrument(
+	std::shared_ptr<Instrument> pNewInstrument,
+	std::shared_ptr<Instrument> pOldInstrument
+)
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "Song not ready yet" );
+		return false;
+	}
+
+	if ( ( pNewInstrument != nullptr &&
+		   pNewInstrument->getId() == Instrument::PlaybackTrackId ) ||
+		 ( pOldInstrument != nullptr &&
+		   pOldInstrument->getId() == Instrument::PlaybackTrackId ) ) {
+		return CoreActionController::replacePlaybackTrackInstrument(
+			pNewInstrument, pOldInstrument
+		);
+	}
+	else {
+		return CoreActionController::replaceDrumkitInstrument(
+			pNewInstrument, pOldInstrument
+		);
+	}
+}
+
+bool CoreActionController::replaceDrumkitInstrument(
+	std::shared_ptr<Instrument> pNewInstrument,
+	std::shared_ptr<Instrument> pOldInstrument
+)
+{
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 
@@ -2000,8 +2032,8 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pDrumkit = pSong->getDrumkit();
-	const int nOldInstrumentNumber = pDrumkit->getInstruments()->index(
-		pOldInstrument );
+	const int nOldInstrumentNumber =
+		pDrumkit->getInstruments()->index( pOldInstrument );
 	if ( nOldInstrumentNumber == -1 ) {
 		ERRORLOG( "Old instrument is not part of current drumkit!" );
 		return false;
@@ -2025,8 +2057,8 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 	// Thus, it will be added to the death row, which guarantuees that its
 	// samples will be unloaded once all notes referencing it are gone. Note
 	// that this does not mean the instrument will be destructed. GUI can still
-	// hold a shared pointer as part of an undo/redo Midiaction (that's why it is so
-	// important to unload the samples).
+	// hold a shared pointer as part of an undo/redo Midiaction (that's why it
+	// is so important to unload the samples).
 	pHydrogen->addInstrumentToDeathRow( pOldInstrument );
 
 	// Instead of letting all notes associated with this instrument ring till
@@ -2035,8 +2067,7 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 	pAudioEngine->clearNoteQueues( pOldInstrument );
 	pAudioEngine->getSampler()->releasePlayingNotes( pOldInstrument );
 
-	pDrumkit->addInstrument( pNewInstrument,
-							 nOldInstrumentNumber );
+	pDrumkit->addInstrument( pNewInstrument, nOldInstrumentNumber );
 	pHydrogen->renamePerTrackJackAudioPorts( pSong, nullptr );
 	pSong->getPatternList()->mapToDrumkit( pDrumkit, pDrumkit );
 
@@ -2048,6 +2079,56 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 	pHydrogen->setIsModified( true );
 
 	EventQueue::get_instance()->pushEvent( Event::Type::DrumkitLoaded, 0 );
+
+	return true;
+}
+
+bool CoreActionController::replacePlaybackTrackInstrument(
+	std::shared_ptr<Instrument> pNewInstrument,
+	std::shared_ptr<Instrument> pOldInstrument
+)
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "Song not ready yet" );
+		return false;
+	}
+
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	const auto fBpm = pAudioEngine->getPlayhead()->getBpm();
+
+	pAudioEngine->lock( RIGHT_HERE );
+
+	if ( pNewInstrument != nullptr ) {
+		// Ensure instrument isn't already in the death row.
+ 		pHydrogen->removeInstrumentFromDeathRow( pNewInstrument );
+		pNewInstrument->loadSamples( fBpm );
+	}
+
+	pSong->setPlaybackTrackInstrument( pNewInstrument );
+
+	// Although Sampler uses a different routine to render the playback track
+    // during playback, Sample preview in the SampleEditor is still Note-based.
+	pHydrogen->addInstrumentToDeathRow( pOldInstrument );
+
+	// Instead of letting all notes associated with this instrument ring till
+	// the end, we discard those for which playback did not started yet and make
+	// the remaining ones enter ADSR release phase.
+	pAudioEngine->getSampler()->releasePlayingNotes( pOldInstrument );
+
+	// Unloading the samples of the old instrument will be done in the death
+	// row.
+
+	pAudioEngine->unlock();
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->pushEvent(
+		Event::Type::PlaybackTrackChanged, 0
+	);
 
 	return true;
 }

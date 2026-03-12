@@ -713,10 +713,16 @@ font-weight: bold; "
 			pNewComponent, pNewLayer, pNewSample, Event::Trigger::Suppress
 		);
 
+		SE_replaceInstrumentAction::Type type;
+		if ( m_pInstrument->getId() == Instrument::PlaybackTrackId ) {
+			type = SE_replaceInstrumentAction::Type::EditPlaybackTrack;
+		}
+		else {
+			type = SE_replaceInstrumentAction::Type::EditLayer;
+		}
+
 		pHydrogenApp->pushUndoCommand( new SE_replaceInstrumentAction(
-			pNewInstrument, m_pInstrument,
-			SE_replaceInstrumentAction::Type::EditLayer,
-			pNewSample->getFileName()
+			pNewInstrument, m_pInstrument, type, pNewSample->getFileName()
 		) );
 		setClean();
 

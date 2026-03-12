@@ -474,7 +474,9 @@ public:
 	friend bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> );
 	friend bool CoreActionController::removeInstrument(
 		std::shared_ptr<Instrument> );
-	friend bool CoreActionController::replaceInstrument(
+	friend bool CoreActionController::replaceDrumkitInstrument(
+		std::shared_ptr<Instrument>, std::shared_ptr<Instrument> );
+	friend bool CoreActionController::replacePlaybackTrackInstrument(
 		std::shared_ptr<Instrument>, std::shared_ptr<Instrument> );
 	friend bool CoreActionController::startCountIn();
 	/** Is allowed to set m_state to State::Ready via setState()*/
