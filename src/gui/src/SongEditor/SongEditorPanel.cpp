@@ -192,6 +192,25 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		pHydrogen->loadPlaybackTrack( filenameList[2] );
 	} );
 
+	m_pDeletePlaybackTrackAction = createAction(
+		pPlaybackTrackToolBar, pCommonStrings->getActionDeletePlaybackTrack(),
+		false
+	);
+	m_pDeletePlaybackTrackAction->setObjectName(
+		"SongEditorPlaybackTrackDeleteButton"
+	);
+	connect( m_pDeletePlaybackTrackAction, &QAction::triggered, [=]() {
+		auto pPref = Preferences::get_instance();
+		auto pHydrogen = Hydrogen::get_instance();
+		auto pSong = pHydrogen->getSong();
+		if ( pSong == nullptr ) {
+			return;
+		}
+		HydrogenApp::get_instance()->pushUndoCommand( new SE_replaceInstrumentAction(
+                                                          nullptr, pSong->getPlaybackTrackInstrument(), SE_replaceInstrumentAction::Type::DeletePlaybackTrack, ""
+		) );
+	} );
+
 	m_pEditPlaybackTrackAction = createAction(
 		pPlaybackTrackToolBar, pCommonStrings->getActionEditPlaybackTrack(),
 		false
@@ -729,6 +748,7 @@ void SongEditorPanel::updatePlaybackTrack()
 	if ( pSong == nullptr || pSong->getPlaybackTrackInstrument() == nullptr ) {
 		// No playback track chosen (stored in the current song).
 		m_pPlaybackTrackFader->setIsActive( false );
+		m_pDeletePlaybackTrackAction->setEnabled( false );
 		m_pEditPlaybackTrackAction->setEnabled( false );
 		m_pMutePlaybackTrackButton->setIsActive( false );
 
@@ -740,6 +760,7 @@ void SongEditorPanel::updatePlaybackTrack()
 		// use.
 		m_pPlaybackTrackFader->setIsActive( true );
 		m_pPlaybackTrackFader->setValue( pInstrument->getVolume() );
+		m_pDeletePlaybackTrackAction->setEnabled( true );
 		m_pEditPlaybackTrackAction->setEnabled( true );
 		m_pMutePlaybackTrackButton->setIsActive( true );
 		m_pMutePlaybackTrackButton->setChecked( pInstrument->isMuted() );
@@ -1178,6 +1199,7 @@ void SongEditorPanel::updateIcons() {
 	}
 
 	m_pLoadPlaybackTrackAction->setIcon( QIcon( sIconPath + "folder.svg" ) );
+	m_pDeletePlaybackTrackAction->setIcon( QIcon( sIconPath + "bin.svg" ) );
 	m_pEditPlaybackTrackAction->setIcon(
 		QIcon( sIconPath + "sample-editor.svg" )
 	);

@@ -171,6 +171,7 @@ class SongEditorPanel : public QWidget,
 		QWidget* m_pPlaybackTrackSidebar;
 		Fader* m_pPlaybackTrackFader;
 		QAction* m_pLoadPlaybackTrackAction;
+		QAction* m_pDeletePlaybackTrackAction;
 		QAction* m_pEditPlaybackTrackAction;
 		MuteButton* m_pMutePlaybackTrackButton;
 
