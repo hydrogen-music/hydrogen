@@ -788,6 +788,15 @@ CommonStrings::CommonStrings(){
 	/*: Shown in the undo history adding or deleting an envelope point in the
 	 *  sample editor. */
 	m_sActionEditEnvelopePoint = tr( "Add or remove envelope point in sample editor" );
+	/*: Shown in the undo history and as tool tip for loading a different sample
+	 *  as playback track. */
+	m_sActionAddPlaybackTrack = tr( "Load new playback track" );
+	/*: Shown in the undo history and as tool tip for deleting the current
+	 *  playback track. */
+	m_sActionDeletePlaybackTrack = tr( "Delete playback track" );
+	/*: Shown in the undo history and as tool tip for editing the current
+	 *  instance of the playback track within the sample editor. */
+	m_sActionEditPlaybackTrack = tr( "Edit playback track" );
 
 	m_sErrorNotFound = tr( "File could not be found!" );
 	/*: Shorter version of missing file warning. E.g. used as a prefix for the

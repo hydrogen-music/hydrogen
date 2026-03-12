@@ -921,7 +921,13 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 		  * SampleEditor. */
 		 EditLayer,
 		 /** The position of a layer was changed using drag'n'drop. */
-		 MoveLayer
+		 MoveLayer,
+         /** Load a different sample as playback track. */
+         AddPlaybackTrack,
+         /** Drop the current playback track. */
+         DeletePlaybackTrack,
+         /** Change the playback track instrument using the SampleEditor. */
+         EditPlaybackTrack
 	 };
 
 	 SE_replaceInstrumentAction(
@@ -1008,6 +1014,27 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 				 setText(
 					 QString( "%1 [%2]" )
 						 .arg( pCommonStrings->getActionMoveInstrumentLayer() )
+						 .arg( sName )
+				 );
+				 break;
+			 case Type::AddPlaybackTrack:
+				 setText(
+					 QString( "%1 [%2]" )
+						 .arg( pCommonStrings->getActionAddPlaybackTrack() )
+						 .arg( sName )
+				 );
+				 break;
+			 case Type::DeletePlaybackTrack:
+				 setText(
+					 QString( "%1 [%2]" )
+						 .arg( pCommonStrings->getActionDeletePlaybackTrack() )
+						 .arg( sName )
+				 );
+				 break;
+			 case Type::EditPlaybackTrack:
+				 setText(
+					 QString( "%1 [%2]" )
+						 .arg( pCommonStrings->getActionEditPlaybackTrack() )
 						 .arg( sName )
 				 );
 				 break;

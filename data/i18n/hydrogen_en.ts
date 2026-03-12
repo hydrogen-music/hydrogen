@@ -1516,6 +1516,21 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text displayed on a Play button in the SampleEditor which will start playback of the original file. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Load new playback track</source>
+        <extracomment>Shown in the undo history and as tool tip for loading a different sample * as playback track.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete playback track</source>
+        <extracomment>Shown in the undo history and as tool tip for deleting the current * playback track.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playback track</source>
+        <extracomment>Shown in the undo history and as tool tip for editing the current * instance of the playback track within the sample editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -5635,10 +5650,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Mute playback track</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Choose playback track</source>
         <translation></translation>
     </message>
     <message>

@@ -135,7 +135,8 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	pPlaybackTrackToolBarContainerLayout->addWidget( pPlaybackTrackToolBar );
 
 	m_pLoadPlaybackTrackAction = createAction(
-		pPlaybackTrackToolBar, tr( "Choose playback track" ), false
+		pPlaybackTrackToolBar, pCommonStrings->getActionAddPlaybackTrack(),
+		false
 	);
 	m_pLoadPlaybackTrackAction->setObjectName(
 		"SongEditorPlaybackTrackEditButton"
@@ -191,8 +192,10 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		pHydrogen->loadPlaybackTrack( filenameList[2] );
 	} );
 
-	m_pEditPlaybackTrackAction =
-		createAction( pPlaybackTrackToolBar, "", false );
+	m_pEditPlaybackTrackAction = createAction(
+		pPlaybackTrackToolBar, pCommonStrings->getActionEditPlaybackTrack(),
+		false
+	);
 	connect( m_pEditPlaybackTrackAction, &QAction::triggered, [=]() {
 		auto pSong = Hydrogen::get_instance()->getSong();
 		if ( pSong == nullptr ) {
