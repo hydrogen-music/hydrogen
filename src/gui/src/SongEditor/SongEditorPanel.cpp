@@ -269,6 +269,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 					);
 				}
 				m_pPlaybackTrackWaveDisplay->updateBackground();
+				updateStyleSheet();
 			}
 		}
 	);
@@ -781,6 +782,8 @@ void SongEditorPanel::updatePlaybackTrack()
 			);
 		}
 	}
+    updateIcons();
+    updateStyleSheet();
 }
 
 ///
