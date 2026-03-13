@@ -85,7 +85,9 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	////////////////////////////////////////////////////////////////////////////
 
 	m_pPlaybackTrackSidebar = new QWidget( this );
-	m_pPlaybackTrackSidebar->setFixedWidth( SongEditorPatternList::nWidth );
+	m_pPlaybackTrackSidebar->setFixedSize(
+		SongEditorPatternList::nWidth, SongEditorPanel::nHeaderWidgetHeight
+	);
 	m_pPlaybackTrackSidebar->setStyleSheet( "border-right: 1px solid #000" );
 	auto pPlaybackTrackSidebarLayout = new QVBoxLayout();
 	pPlaybackTrackSidebarLayout->setAlignment( Qt::AlignBottom );
@@ -131,7 +133,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 
 	m_pPlaybackTrackToolBar = new QToolBar( pPlaybackTrackToolBarContainer );
 	m_pPlaybackTrackToolBar->setFixedHeight(
-		SongEditorPanel::nHeaderWidgetHeight / 2
+		SongEditorPanel::nHeaderWidgetHeight / 2 - 2
 	);
 	pPlaybackTrackToolBarContainerLayout->addWidget( m_pPlaybackTrackToolBar );
 
@@ -242,7 +244,9 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 
 	// mute playback track toggle button
 	m_pMutePlaybackTrackButton = new MuteButton(
-		m_pPlaybackTrackToolBar, QSize( 30, 24 ), tr( "Mute playback track" ),
+		m_pPlaybackTrackToolBar,
+		QSize( 30, SongEditorPanel::nHeaderWidgetHeight / 2 - 2 ),
+		tr( "Mute playback track" ),
 		ColoredButton::Flag::ModifyOnChange |
 			ColoredButton::Flag::CustomRendering |
 			ColoredButton::Flag::AsToolButton
@@ -500,12 +504,16 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	m_pPlaybackTrackScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPlaybackTrackScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPlaybackTrackScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+    m_pPlaybackTrackScrollView->setContentsMargins( 0, 0, 0, 0);
 
-	m_pPlaybackTrackWaveDisplay = new PlaybackTrackWaveDisplay( m_pPlaybackTrackScrollView->viewport() );
+	m_pPlaybackTrackWaveDisplay =
+		new PlaybackTrackWaveDisplay( m_pPlaybackTrackScrollView->viewport() );
 	m_pPlaybackTrackWaveDisplay->setSampleNameAlignment( Qt::AlignLeft );
-	m_pPlaybackTrackWaveDisplay->resize( m_pPositionRuler->width() , SongEditorPanel::nHeaderWidgetHeight);
+	m_pPlaybackTrackWaveDisplay->resize(
+		m_pPositionRuler->width(), SongEditorPanel::nHeaderWidgetHeight
+	);
 	m_pPlaybackTrackWaveDisplay->setAcceptDrops( true );
-	
+
 	m_pPlaybackTrackScrollView->setWidget( m_pPlaybackTrackWaveDisplay );
 	m_pPlaybackTrackScrollView->setFixedHeight( SongEditorPanel::nHeaderWidgetHeight );
 	m_pPlaybackTrackScrollView->setVisible( bShowPlaybackTrack );
@@ -1405,7 +1413,7 @@ void SongEditorPanel::updateStyleSheet() {
 QWidget {\
      background-color: %1;                      \
 }                                               \
-QWidget#TimelineToolBarContainer {\
+QWidget#PlaybackTrackToolBarContainer {\
      border: 1px solid #000; \
 }                                               \
 " )
