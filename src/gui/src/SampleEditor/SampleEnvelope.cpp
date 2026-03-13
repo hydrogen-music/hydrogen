@@ -47,7 +47,7 @@ using namespace H2Core;
 SampleEnvelope::SampleEnvelope( SampleEditor* pParent )
 	: QWidget( pParent ),
 	  m_pSampleEditor( pParent ),
-	  m_bEnabled( true ),
+	  m_bLocked( false ),
 	  m_sSelectedEnvelopePointValue( "" ),
 	  m_pHoveredPoint( nullptr ),
 	  m_pDragPoint( nullptr ),
@@ -175,7 +175,7 @@ void SampleEnvelope::paintEvent( QPaintEvent* ev )
 		hoverColor = selectionColor.darker( 115 );
 	}
 
-	if ( !m_bEnabled ) {
+	if ( m_bLocked ) {
 		velocityColor = Skin::makeWidgetColorInactive( velocityColor );
 		panColor = Skin::makeWidgetColorInactive( panColor );
 	}
@@ -305,7 +305,7 @@ void SampleEnvelope::paintEvent( QPaintEvent* ev )
 
 void SampleEnvelope::mouseMoveEvent( QMouseEvent* ev )
 {
-	if ( !m_bEnabled ) {
+	if ( m_bLocked ) {
 		return;
 	}
 
@@ -372,7 +372,7 @@ void SampleEnvelope::mouseMoveEvent( QMouseEvent* ev )
 
 void SampleEnvelope::mousePressEvent( QMouseEvent* ev )
 {
-	if ( !m_bEnabled ) {
+	if ( m_bLocked ) {
 		return;
 	}
 
@@ -451,7 +451,7 @@ void SampleEnvelope::mousePressEvent( QMouseEvent* ev )
 
 void SampleEnvelope::mouseReleaseEvent( QMouseEvent* ev )
 {
-	if ( !m_bEnabled || m_pDragPoint == nullptr ) {
+	if ( m_bLocked || m_pDragPoint == nullptr ) {
 		m_pDragPoint = nullptr;
 		return;
 	}

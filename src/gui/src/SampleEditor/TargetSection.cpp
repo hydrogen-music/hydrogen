@@ -31,7 +31,7 @@
 using namespace H2Core;
 
 TargetSection::TargetSection( SampleEditor* pParent )
-	: QWidget( pParent ), m_bEnabled( true )
+	: QWidget( pParent ), m_bEnvelopeLocked( false )
 {
 	setFixedSize( TargetSection::nWidth, TargetSection::nHeight );
 
@@ -61,6 +61,14 @@ TargetSection::TargetSection( SampleEditor* pParent )
 
 TargetSection::~TargetSection()
 {
+}
+
+void TargetSection::setEnvelopeLocked( bool bLocked )
+{
+	m_bEnvelopeLocked = bLocked;
+	if ( m_pSampleEnvelope != nullptr ) {
+		m_pSampleEnvelope->setLocked( bLocked );
+	}
 }
 
 void TargetSection::setLayer( std::shared_ptr<InstrumentLayer> pLayer )

@@ -51,7 +51,7 @@ class TargetSection : public QWidget, public H2Core::Object<TargetSection> {
 	explicit TargetSection( SampleEditor* pParent );
 	~TargetSection();
 
-	void setEnabled( bool bEnabled );
+	void setEnvelopeLocked( bool bLocked );
 	void setLayer( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 
    private:
@@ -59,12 +59,7 @@ class TargetSection : public QWidget, public H2Core::Object<TargetSection> {
 	WaveDisplay* m_pWaveDisplayR;
 	SampleEnvelope* m_pSampleEnvelope;
 
-	bool m_bEnabled;
+	bool m_bEnvelopeLocked;
 };
-
-inline void TargetSection::setEnabled( bool bEnabled )
-{
-	m_bEnabled = bEnabled;
-}
 
 #endif
