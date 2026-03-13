@@ -107,7 +107,8 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 
 	// Mute button
 	m_pMuteBtn = new MuteButton(
-		this, QSize( 22, 15 ), pCommonStrings->getBigMuteButton()
+		this, QSize( 22, 15 ), pCommonStrings->getBigMuteButton(),
+		ColoredButton::Flag::None
 	);
 	m_pMuteBtn->move( 5, 16 );
 	// Color used as background within the pixmap.
@@ -123,7 +124,8 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 
 	// Solo button
 	m_pSoloBtn = new SoloButton(
-		this, QSize( 22, 15 ), pCommonStrings->getBigSoloButton()
+		this, QSize( 22, 15 ), pCommonStrings->getBigSoloButton(),
+		ColoredButton::Flag::None
 	);
 	m_pSoloBtn->move( 28, 16 );
 	// Color used as background within the pixmap.

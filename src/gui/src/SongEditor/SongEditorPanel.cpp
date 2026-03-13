@@ -40,6 +40,7 @@
 #include "../WidgetScrollArea.h"
 #include "SongEditor/SongEditorPatternList.h"
 #include "SongEditor/SongEditorPositionRuler.h"
+#include "Widgets/ColoredButton.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
@@ -242,7 +243,8 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	// mute playback track toggle button
 	m_pMutePlaybackTrackButton = new MuteButton(
 		m_pPlaybackTrackToolBar, QSize( 30, 26 ), tr( "Mute playback track" ),
-		true
+		ColoredButton::Flag::ModifyOnChange |
+			ColoredButton::Flag::CustomRendering
 	);
 	m_pMutePlaybackTrackButton->setBorderless( true );
 	m_pMutePlaybackTrackButton->setObjectName(

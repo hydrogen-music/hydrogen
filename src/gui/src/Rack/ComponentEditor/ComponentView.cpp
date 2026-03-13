@@ -47,6 +47,7 @@
 #include "../../Widgets/MuteButton.h"
 #include "../../Widgets/SoloButton.h"
 #include "../../Widgets/Rotary.h"
+#include "Widgets/ColoredButton.h"
 
 using namespace H2Core;
 
@@ -262,7 +263,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pComponentMuteBtn = new MuteButton(
 		pComponentButtonContainer,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
-		tr( "Mute component" ), true
+		tr( "Mute component" ), ColoredButton::Flag::ModifyOnChange
 	);
 	m_pComponentMuteBtn->setChecked( pComponent->getIsMuted() );
     m_pComponentMuteBtn->setBorderless( true );
@@ -279,7 +280,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pComponentSoloBtn = new SoloButton(
 		pComponentButtonContainer,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
-		tr( "Solo component" ), true
+		tr( "Solo component" ), ColoredButton::Flag::ModifyOnChange
 	);
 	m_pComponentSoloBtn->setChecked( pComponent->getIsSoloed() );
     m_pComponentSoloBtn->setBorderless( true );
@@ -411,7 +412,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pLayerMuteBtn = new MuteButton(
 		pLayerButtonContainer,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
-		tr( "Mute layer" ), true
+		tr( "Mute layer" ), ColoredButton::Flag::ModifyOnChange
 	);
 	m_pLayerMuteBtn->setObjectName( "LayerMuteButton" );
     m_pLayerMuteBtn->setBorderless( true );
@@ -429,7 +430,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pLayerSoloBtn = new SoloButton(
 		m_pToolBarLayer,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
-		tr( "Solo layer" ), true
+		tr( "Solo layer" ), ColoredButton::Flag::ModifyOnChange
 	);
 	m_pLayerSoloBtn->setObjectName( "LayerSoloButton" );
     m_pLayerSoloBtn->setBorderless( true );

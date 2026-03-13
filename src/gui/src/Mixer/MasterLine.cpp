@@ -133,7 +133,7 @@ MasterLine::MasterLine( QWidget* pParent )
 
 	// Mute btn
 	m_pMuteBtn = new MuteButton(
-		this, QSize( 42, 17 ) );
+		this, QSize( 42, 17 ), "", ColoredButton::Flag::None );
 	m_pMuteBtn->setObjectName( "MixerMasterMuteButton" );
 	m_pMuteBtn->move( 20, 31 );
 	// Color used as background within the pixmap.

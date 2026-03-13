@@ -34,34 +34,36 @@ MuteButton::MuteButton(
 	QWidget* pParent,
 	const QSize& size,
 	const QString& sBaseToolTip,
-	bool bModifyOnChange
+	int flag
 )
-	: ColoredButton(
-		  pParent,
-		  size,
-		  sBaseToolTip,
-		  bModifyOnChange
-	  )
+	: ColoredButton( pParent, size, sBaseToolTip, flag )
 {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-    setText( pCommonStrings->getSmallMuteButton() );
+	if ( flag & ColoredButton::Flag::CustomRendering ) {
+		m_sText = pCommonStrings->getSmallMuteButton();
+	}
+	else {
+		setText( pCommonStrings->getSmallMuteButton() );
+	}
 
-    const auto pColorTheme = Preferences::get_instance()->getColorTheme();
-    setBaseColor( pColorTheme->m_muteColor );
-    setBaseTextColor( pColorTheme->m_muteTextColor );
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	setBaseColor( pColorTheme->m_muteColor );
+	setBaseTextColor( pColorTheme->m_muteTextColor );
 }
 
 MuteButton::~MuteButton()
 {
 }
 
-void MuteButton::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
+void MuteButton::onPreferencesChanged(
+	const H2Core::Preferences::Changes& changes
+)
 {
-    Button::onPreferencesChanged( changes );
+	Button::onPreferencesChanged( changes );
 
 	if ( changes & ( H2Core::Preferences::Changes::Colors ) ) {
-        const auto pColorTheme = Preferences::get_instance()->getColorTheme();
-        setBaseColor( pColorTheme->m_muteColor );
-        setBaseTextColor( pColorTheme->m_muteTextColor );
-    }
+		const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+		setBaseColor( pColorTheme->m_muteColor );
+		setBaseTextColor( pColorTheme->m_muteTextColor );
+	}
 }

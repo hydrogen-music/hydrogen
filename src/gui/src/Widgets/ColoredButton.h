@@ -33,11 +33,30 @@ class ColoredButton : public Button, public H2Core::Object<ColoredButton> {
 	Q_OBJECT
 
    public:
+
+	static constexpr int nTextMargin = 2;
+
+	enum Flag {
+		None = 0x000,
+		ModifyOnChange = 0x001,
+		/** Depending on the background color of the widget the colored button
+		 * is residing in - and given that it adopts the same color in unchecked
+		 * state - the default text color might be illegible. To circumvent
+		 * this problem, we support rendering its text with a custom routine
+		 * that uses either a darker or lighter outline (depending on the icon
+		 * color set in the preferences). However, the default Qt text rendering
+		 * is far superior and works a lot better for small button. So, this
+		 * option should be used with care. We also do not provide the "M" or
+		 * "S" for mute or solo button as SVG icons because we want to support
+		 * internationalization. */
+		CustomRendering = 0x002
+	};
+
 	ColoredButton(
 		QWidget* pParent,
 		const QSize& size,
 		const QString& sBaseToolTip,
-		bool bModifyOnChange
+        int flag = Flag::None
 	);
 	~ColoredButton();
 
@@ -50,8 +69,18 @@ class ColoredButton : public Button, public H2Core::Object<ColoredButton> {
 	void updateStyleSheet() override;
 
    protected:
+	void paintEvent( QPaintEvent* pEvent ) override;
+	void resizeEvent( QResizeEvent* pEvent ) override;
+
 	void setBaseColor( const QColor& color );
 	void setBaseTextColor( const QColor& color );
+
+	Flag m_flag;
+
+	/** We do not use the text member of the parent QPushButton since we
+	 * want to render the text ourselves. This gives us the ability to add
+	 * an outline and make the text more legible for many more color. */
+	QString m_sText;
 
 	QColor m_baseColor;
 	QColor m_baseTextColor;
@@ -66,7 +95,7 @@ inline void ColoredButton::setDefaultBackgroundColor( const QColor& color )
 {
 	if ( color != m_defaultBackgroundColor ) {
 		m_defaultBackgroundColor = color;
-        updateStyleSheet();
+		updateStyleSheet();
 	}
 }
 inline void ColoredButton::setBaseColor( const QColor& color )
