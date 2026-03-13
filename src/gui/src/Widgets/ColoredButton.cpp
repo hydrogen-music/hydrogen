@@ -155,15 +155,21 @@ void ColoredButton::updateStyleSheet()
 	}
 	const auto hoveredTextColor = defaultTextColor;
 
-	QString sBorder, sBorderHovered;
+	QString sBorder;
 	if ( m_bBorderless ) {
 		sBorder = "none";
-		sBorderHovered = "none";
 	}
 	else {
 		sBorder = "1px solid #000";
-		sBorderHovered = QString( "1px solid %1" ).arg( hoveredBorder.name() );
+    }
+
+	QString sBorderInteraction;
+    if ( ! m_bBorderless || ( m_flag & Flag::BordersOnInteraction ) ) {
+		sBorderInteraction = QString( "1px solid %1" ).arg( hoveredBorder.name() );
 	}
+    else {
+        sBorderInteraction = "none";
+    }
 
 	const auto disabledColor = Skin::makeWidgetColorInactive( defaultColor );
 	const auto disabledTextColor =
@@ -186,9 +192,13 @@ QPushButton:enabled:hover { \
     background: %5; \
     border: %6; \
 } \
+QPushButton:pressed { \
+    border: %6; \
+} \
 QPushButton:enabled:checked, QPushButton::enabled:checked:hover { \
     color: %7; \
     background: %8; \
+    border: %6; \
 } \
 QPushButton:disabled { \
     color: %9; \
@@ -206,7 +216,7 @@ QPushButton:disabled:checked { \
 					   .arg( sBorder )
 					   .arg( hoveredTextColor.name() )
 					   .arg( hoveredColor.name() )
-					   .arg( sBorderHovered )
+					   .arg( sBorderInteraction )
 					   .arg( checkedTextColor.name() )
 					   .arg( checkedColor.name() )
 					   .arg( disabledTextColor.name() )

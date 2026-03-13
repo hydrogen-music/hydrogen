@@ -49,7 +49,11 @@ class ColoredButton : public Button, public H2Core::Object<ColoredButton> {
 		 * option should be used with care. We also do not provide the "M" or
 		 * "S" for mute or solo button as SVG icons because we want to support
 		 * internationalization. */
-		CustomRendering = 0x002
+		CustomRendering = 0x002,
+		/** Display borders during hovering and pressing as well as in checked
+		 * state on borderless buttons. This yields the same UI/UX as for tool
+		 * buttons in a tool bar. */
+		BordersOnInteraction = 0x004
 	};
 
 	ColoredButton(
