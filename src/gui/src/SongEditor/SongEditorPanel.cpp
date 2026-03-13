@@ -245,7 +245,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		m_pPlaybackTrackToolBar, QSize( 30, 24 ), tr( "Mute playback track" ),
 		ColoredButton::Flag::ModifyOnChange |
 			ColoredButton::Flag::CustomRendering |
-			ColoredButton::Flag::BordersOnInteraction
+			ColoredButton::Flag::AsToolButton
 	);
 	m_pMutePlaybackTrackButton->setBorderless( true );
 	m_pMutePlaybackTrackButton->setObjectName(

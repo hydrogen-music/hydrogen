@@ -161,17 +161,26 @@ void ColoredButton::updateStyleSheet()
 	}
 	else {
 		sBorder = "1px solid #000";
-    }
+	}
 
 	QString sBorderInteraction;
-    if ( ! m_bBorderless || ( m_flag & Flag::BordersOnInteraction ) ) {
-		sBorderInteraction = QString( "1px solid %1" ).arg( hoveredBorder.name() );
+	if ( !m_bBorderless || ( m_flag & Flag::AsToolButton ) ) {
+		sBorderInteraction =
+			QString( "1px solid %1" ).arg( hoveredBorder.name() );
 	}
-    else {
-        sBorderInteraction = "none";
-    }
+	else {
+		sBorderInteraction = "none";
+	}
 
-	const auto disabledColor = Skin::makeWidgetColorInactive( defaultColor );
+	QColor disabledColor;
+	if ( m_flag & Flag::AsToolButton ) {
+		// When behaving like a tool button in the tool bar, we will change the
+		// icon / text color instead of the background.
+		disabledColor = defaultColor;
+	}
+	else {
+		disabledColor = Skin::makeWidgetColorInactive( defaultColor );
+	}
 	const auto disabledTextColor =
 		Skin::makeTextColorInactive( defaultTextColor );
 	const auto disabledCheckedColor =

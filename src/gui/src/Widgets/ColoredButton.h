@@ -53,7 +53,7 @@ class ColoredButton : public Button, public H2Core::Object<ColoredButton> {
 		/** Display borders during hovering and pressing as well as in checked
 		 * state on borderless buttons. This yields the same UI/UX as for tool
 		 * buttons in a tool bar. */
-		BordersOnInteraction = 0x004
+		AsToolButton = 0x004
 	};
 
 	ColoredButton(
