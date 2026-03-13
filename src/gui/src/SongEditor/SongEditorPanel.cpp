@@ -128,14 +128,14 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 
 	pPlaybackTrackToolBarContainerLayout->addStretch();
 
-	auto pPlaybackTrackToolBar = new QToolBar( pPlaybackTrackToolBarContainer );
-	pPlaybackTrackToolBar->setFixedHeight(
+	m_pPlaybackTrackToolBar = new QToolBar( pPlaybackTrackToolBarContainer );
+	m_pPlaybackTrackToolBar->setFixedHeight(
 		SongEditorPanel::nHeaderWidgetHeight / 2
 	);
-	pPlaybackTrackToolBarContainerLayout->addWidget( pPlaybackTrackToolBar );
+	pPlaybackTrackToolBarContainerLayout->addWidget( m_pPlaybackTrackToolBar );
 
 	m_pLoadPlaybackTrackAction = createAction(
-		pPlaybackTrackToolBar, pCommonStrings->getActionAddPlaybackTrack(),
+		m_pPlaybackTrackToolBar, pCommonStrings->getActionAddPlaybackTrack(),
 		false
 	);
 	m_pLoadPlaybackTrackAction->setObjectName(
@@ -193,7 +193,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	} );
 
 	m_pDeletePlaybackTrackAction = createAction(
-		pPlaybackTrackToolBar, pCommonStrings->getActionDeletePlaybackTrack(),
+		m_pPlaybackTrackToolBar, pCommonStrings->getActionDeletePlaybackTrack(),
 		false
 	);
 	m_pDeletePlaybackTrackAction->setObjectName(
@@ -211,8 +211,10 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		) );
 	} );
 
+	m_pPlaybackTrackToolBar->addSeparator();
+
 	m_pEditPlaybackTrackAction = createAction(
-		pPlaybackTrackToolBar, pCommonStrings->getActionEditPlaybackTrack(),
+		m_pPlaybackTrackToolBar, pCommonStrings->getActionEditPlaybackTrack(),
 		false
 	);
 	connect( m_pEditPlaybackTrackAction, &QAction::triggered, [=]() {
@@ -235,9 +237,11 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		);
 	} );
 
+	m_pPlaybackTrackToolBar->addSeparator();
+
 	// mute playback track toggle button
 	m_pMutePlaybackTrackButton = new MuteButton(
-		pPlaybackTrackToolBar, QSize( 30, 26 ), tr( "Mute playback track" ),
+		m_pPlaybackTrackToolBar, QSize( 30, 26 ), tr( "Mute playback track" ),
 		true
 	);
 	m_pMutePlaybackTrackButton->setObjectName(
@@ -264,7 +268,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 			}
 		}
 	);
-	pPlaybackTrackToolBar->addWidget( m_pMutePlaybackTrackButton );
+	m_pPlaybackTrackToolBar->addWidget( m_pMutePlaybackTrackButton );
 
 	if ( pPlaybackTrackInstrument == nullptr ) {
 		m_pPlaybackTrackFader->setIsActive( false );
@@ -300,14 +304,14 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 
     pTimelineToolBarContainerLayout->addStretch();
 
-    auto pTimelineToolBar = new QToolBar( m_pTimelineToolBarContainer );
-	pTimelineToolBarContainerLayout->addWidget( pTimelineToolBar );
-	pTimelineToolBar->setFixedHeight(
+    m_pTimelineToolBar = new QToolBar( m_pTimelineToolBarContainer );
+	pTimelineToolBarContainerLayout->addWidget( m_pTimelineToolBar );
+	m_pTimelineToolBar->setFixedHeight(
 		SongEditorPanel::nHeaderWidgetHeight / 2 - 2
 	);
-	pTimelineToolBar->setFocusPolicy( Qt::ClickFocus );
+	m_pTimelineToolBar->setFocusPolicy( Qt::ClickFocus );
 
-	m_pEnableTimelineAction = createAction( pTimelineToolBar,
+	m_pEnableTimelineAction = createAction( m_pTimelineToolBar,
 		pCommonStrings->getTimelineEnabled(), false
 	);
 	m_pEnableTimelineAction->setObjectName( "TimelineBtn" );
@@ -333,11 +337,13 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		Hydrogen::get_instance()->setIsModified( true );
 	} );
 
-	m_pTagAction = createAction( pTimelineToolBar, "", false );
+    m_pTimelineToolBar->addSeparator();
+
+	m_pTagAction = createAction( m_pTimelineToolBar, "", false );
 	connect( m_pTagAction, &QAction::triggered, [=]() {
         m_pPositionRuler->showTagWidget( 0 );
     });
-    m_pTempoMarkerAction = createAction( pTimelineToolBar, "", false );
+    m_pTempoMarkerAction = createAction( m_pTimelineToolBar, "", false );
 	connect( m_pTempoMarkerAction, &QAction::triggered, [=]() {
         m_pPositionRuler->showBpmWidget( 0 );
     });
@@ -1187,21 +1193,43 @@ void SongEditorPanel::resizeEvent( QResizeEvent *ev )
 }
 
 void SongEditorPanel::updateIcons() {
-	QColor color;
 	QString sIconPath( Skin::getSvgImagePath() );
 	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
-		color = Qt::white;
-	} else {
-		sIconPath.append( "/icons/black/" );
-		color = Qt::black;
 	}
+	else {
+		sIconPath.append( "/icons/black/" );
+	}
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const QColor colorSongEditorToolBarDisabled =
+		Skin::makeBackgroundColorInactive(
+			pColorTheme->m_songEditor_alternateRowColor.darker(
+				SongEditorPositionRuler::nScalingRuler
+			)
+		);
+	const QColor colorPlaybackTrackToolBarDisabled =
+		Skin::makeBackgroundColorInactive( pColorTheme->m_accentColor.darker(
+			SongEditorPanel::nScalingPlaybackTrack
+		) );
+	const QColor colorTimelineToolBarDisabled =
+		Skin::makeBackgroundColorInactive(
+			pColorTheme->m_songEditor_alternateRowColor.darker(
+				SongEditorPositionRuler::nScalingTimeline
+			)
+		);
 
-	m_pLoadPlaybackTrackAction->setIcon( QIcon( sIconPath + "folder.svg" ) );
-	m_pDeletePlaybackTrackAction->setIcon( QIcon( sIconPath + "bin.svg" ) );
-	m_pEditPlaybackTrackAction->setIcon(
-		QIcon( sIconPath + "sample-editor.svg" )
+	Skin::setToolBarIcon(
+		m_pPlaybackTrackToolBar, m_pLoadPlaybackTrackAction,
+		sIconPath + "folder.svg", colorPlaybackTrackToolBarDisabled
+	);
+	Skin::setToolBarIcon(
+		m_pPlaybackTrackToolBar, m_pDeletePlaybackTrackAction,
+		sIconPath + "bin.svg", colorPlaybackTrackToolBarDisabled
+	);
+	Skin::setToolBarIcon(
+		m_pPlaybackTrackToolBar, m_pEditPlaybackTrackAction,
+		sIconPath + "sample-editor.svg", colorPlaybackTrackToolBarDisabled
 	);
 
 	auto pSong = Hydrogen::get_instance()->getSong();
@@ -1209,40 +1237,69 @@ void SongEditorPanel::updateIcons() {
 		pSong != nullptr ? pSong->getIsTimelineActivated() : false;
 
 	if ( bTimelineEnabled ) {
-		m_pEnableTimelineAction->setIcon( QIcon( sIconPath + "enabled.svg" ) );
+		Skin::setToolBarIcon(
+			m_pTimelineToolBar, m_pEnableTimelineAction,
+			sIconPath + "enabled.svg", colorTimelineToolBarDisabled
+		);
 	}
 	else {
-		m_pEnableTimelineAction->setIcon( QIcon( sIconPath + "disabled.svg" ) );
+		Skin::setToolBarIcon(
+			m_pTimelineToolBar, m_pEnableTimelineAction,
+			sIconPath + "disabled.svg", colorTimelineToolBarDisabled
+		);
 	}
-	m_pTagAction->setIcon( QIcon( sIconPath + "tag.svg" ) );
-	m_pTempoMarkerAction->setIcon( QIcon( sIconPath + "metronome.svg" ) );
-
-	m_pClearAction->setIcon( QIcon( sIconPath + "bin.svg" ) );
-	m_pNewPatternAction->setIcon( QIcon( sIconPath + "new.svg" ) );
-	m_pSinglePatternModeButton->setIcon( QIcon( sIconPath + "single_layer.svg" )
+	Skin::setToolBarIcon(
+		m_pTimelineToolBar, m_pTagAction, sIconPath + "tag.svg",
+		colorTimelineToolBarDisabled
 	);
-	m_pStackedPatternModeButton->setIcon(
-		QIcon( sIconPath + "multiple_layers.svg" )
+	Skin::setToolBarIcon(
+		m_pTimelineToolBar, m_pTempoMarkerAction, sIconPath + "metronome.svg",
+		colorTimelineToolBarDisabled
+	);
+
+	Skin::setToolBarIcon(
+		m_pSongEditorToolBar, m_pClearAction, sIconPath + "bin.svg",
+		colorSongEditorToolBarDisabled
+	);
+	Skin::setToolBarIcon(
+		m_pSongEditorToolBar, m_pNewPatternAction, sIconPath + "new.svg",
+		colorSongEditorToolBarDisabled
+	);
+	Skin::setToolBarIcon(
+		m_pSongEditorToolBar, m_pSinglePatternModeButton,
+		sIconPath + "single_layer.svg", colorSongEditorToolBarDisabled
+	);
+	Skin::setToolBarIcon(
+		m_pSongEditorToolBar, m_pStackedPatternModeButton,
+		sIconPath + "multiple_layers.svg", colorSongEditorToolBarDisabled
 	);
 
 	updatePatternEditorLocked();
 }
 
-void SongEditorPanel::updateJacktimebaseState() {
+void SongEditorPanel::updateJacktimebaseState()
+{
 	updateTimeline();
 }
 
-void SongEditorPanel::updatePatternEditorLocked() {
-	QColor color;
+void SongEditorPanel::updatePatternEditorLocked()
+{
 	QString sIconPath( Skin::getSvgImagePath() );
 	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
-		color = Qt::white;
-	} else {
-		sIconPath.append( "/icons/black/" );
-		color = Qt::black;
 	}
+	else {
+		sIconPath.append( "/icons/black/" );
+	}
+
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const QColor colorSongEditorToolBarDisabled =
+		Skin::makeBackgroundColorInactive(
+			pColorTheme->m_songEditor_alternateRowColor.darker(
+				SongEditorPositionRuler::nScalingRuler
+			)
+		);
 
 	auto pHydrogen = Hydrogen::get_instance();
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
@@ -1250,15 +1307,20 @@ void SongEditorPanel::updatePatternEditorLocked() {
 	}
 
 	if ( pHydrogen->isPatternEditorLocked() ) {
-		m_pPatternEditorLockedButton->setIcon(
-			QIcon( sIconPath + "lock_closed" ) );
+		Skin::setToolBarIcon(
+			m_pSongEditorToolBar, m_pPatternEditorLockedButton,
+			sIconPath + "lock_closed.svg", colorSongEditorToolBarDisabled
+		);
 		m_pPatternEditorLockedButton->setChecked(
 			pHydrogen->getAudioEngine()->getState() ==
-			AudioEngine::State::Playing );
+			AudioEngine::State::Playing
+		);
 	}
 	else {
-		m_pPatternEditorLockedButton->setIcon(
-			QIcon( sIconPath + "lock_open.svg" ) );
+		Skin::setToolBarIcon(
+			m_pSongEditorToolBar, m_pPatternEditorLockedButton,
+			sIconPath + "lock_open.svg", colorSongEditorToolBarDisabled
+		);
 		m_pPatternEditorLockedButton->setChecked( false );
 	}
 
@@ -1292,17 +1354,12 @@ void SongEditorPanel::updatePatternMode() {
 void SongEditorPanel::updateStyleSheet() {
 	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 	const QColor colorSongEditorToolBar =
-		pColorTheme->m_songEditor_backgroundColor;
-	QColor colorToolBarText;
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
-		 InterfaceTheme::IconColor::White ) {
-		colorToolBarText = Qt::white;
-	}
-	else {
-		colorToolBarText = Qt::black;
-	}
-	const QColor colorPlaybackTrackToolBar =
-		pColorTheme->m_accentColor.darker( 85 );
+		pColorTheme->m_songEditor_alternateRowColor.darker(
+			SongEditorPositionRuler::nScalingRuler
+		);
+	const QColor colorPlaybackTrackToolBar = pColorTheme->m_accentColor.darker(
+		SongEditorPanel::nScalingPlaybackTrack
+	);
 	const QColor colorTimelineToolBar =
 		pColorTheme->m_songEditor_alternateRowColor.darker(
 			SongEditorPositionRuler::nScalingTimeline
@@ -1324,48 +1381,35 @@ void SongEditorPanel::updateStyleSheet() {
 }" )
 				   .arg( backgroundInactiveColor.name() ) );
 
-	auto sToolBarStyle = QString(
-							 "\
-QToolBar {\
-     background-color: %1; \
-     color: %2; \
-     border: 1px solid #000;\
-     spacing: 2px;\
-}"
-	)
-							 .arg( colorSongEditorToolBar.name() )
-							 .arg( colorToolBarText.name() );
-	m_pSongEditorToolBar->setStyleSheet( sToolBarStyle );
-
-	m_pPlaybackTrackSidebar->setStyleSheet( QString( "\
+	m_pPlaybackTrackSidebar->setStyleSheet(
+		QString( "\
 QWidget {\
      background-color: %1;                      \
 }                                               \
 QWidget#TimelineToolBarContainer {\
      border: 1px solid #000; \
 }                                               \
-QToolBar {\
-     color: %2; \
-     spacing: 2px;\
-}" )
-													.arg( colorPlaybackTrackToolBar.name() )
-													.arg( colorToolBarText.name(
-													) ) );
+" )
+			.arg( colorPlaybackTrackToolBar.name() )
+	);
 
-	m_pTimelineToolBarContainer->setStyleSheet( QString( "\
+	m_pTimelineToolBarContainer->setStyleSheet(
+		QString( "\
 QWidget {\
      background-color: %1;                      \
 }                                               \
 QWidget#TimelineToolBarContainer {\
      border: 1px solid #000; \
 }                                               \
-QToolBar {\
-     color: %2; \
-     spacing: 2px;\
-}" )
-													.arg( colorTimelineToolBar.name() )
-													.arg( colorToolBarText.name(
-													) ) );
+" )
+			.arg( colorTimelineToolBar.name() )
+	);
+
+	Skin::setToolBarStyle( m_pSongEditorToolBar, colorSongEditorToolBar, true );
+	Skin::setToolBarStyle(
+		m_pPlaybackTrackToolBar, colorPlaybackTrackToolBar, false
+	);
+	Skin::setToolBarStyle( m_pTimelineToolBar, colorTimelineToolBar, false );
 
 	m_pMutePlaybackTrackButton->setDefaultBackgroundColor(
 		colorPlaybackTrackToolBar.lighter( 125 )

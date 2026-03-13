@@ -56,6 +56,7 @@ class SongEditorPanel : public QWidget,
 
 	public:
 		static constexpr int nHeaderWidgetHeight = 50;
+		static constexpr int nScalingPlaybackTrack = 85;
 
 		explicit SongEditorPanel( QWidget *parent );
 		~SongEditorPanel();
@@ -164,11 +165,13 @@ class SongEditorPanel : public QWidget,
 		PlaybackTrackWaveDisplay*	m_pPlaybackTrackWaveDisplay;
 
 		QWidget* m_pTimelineToolBarContainer;
+        QToolBar* m_pTimelineToolBar;
 		QAction* m_pEnableTimelineAction;
         QAction* m_pTagAction;
         QAction* m_pTempoMarkerAction;
 
 		QWidget* m_pPlaybackTrackSidebar;
+        QToolBar* m_pPlaybackTrackToolBar;
 		Fader* m_pPlaybackTrackFader;
 		QAction* m_pLoadPlaybackTrackAction;
 		QAction* m_pDeletePlaybackTrackAction;
