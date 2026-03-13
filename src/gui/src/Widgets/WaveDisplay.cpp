@@ -35,6 +35,7 @@ using namespace H2Core;
 
 WaveDisplay::WaveDisplay( QWidget* pParent, Channel channel )
 	: QWidget( pParent ),
+	  m_bEnabled( true ),
 	  m_channel( channel ),
 	  m_label( Label::SampleName ),
 	  m_type( Type::Wave ),
@@ -68,6 +69,15 @@ WaveDisplay::~WaveDisplay()
 	}
 	if ( m_pPeakDataPixmap != nullptr ) {
 		delete m_pPeakDataPixmap;
+	}
+}
+
+void WaveDisplay::setEnabled( bool bEnabled )
+{
+	if ( m_bEnabled != bEnabled ) {
+		m_bEnabled = bEnabled;
+		drawPeakData();
+		update();
 	}
 }
 
@@ -245,6 +255,11 @@ void WaveDisplay::drawPeakData()
 	else {
 		waveFormColor = Qt::black;
 		waveFormInactiveColor = pColorTheme->m_darkColor;
+	}
+
+	if ( !m_bEnabled ) {
+		textColor = Skin::makeTextColorInactive( textColor );
+		waveFormColor = waveFormInactiveColor;
 	}
 
 	p.setPen( waveFormColor );
