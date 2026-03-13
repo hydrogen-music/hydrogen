@@ -244,6 +244,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		m_pPlaybackTrackToolBar, QSize( 30, 26 ), tr( "Mute playback track" ),
 		true
 	);
+	m_pMutePlaybackTrackButton->setBorderless( true );
 	m_pMutePlaybackTrackButton->setObjectName(
 		"SongEditorPlaybackTrackMuteButton"
 	);
@@ -1412,7 +1413,7 @@ QWidget#TimelineToolBarContainer {\
 	Skin::setToolBarStyle( m_pTimelineToolBar, colorTimelineToolBar, false );
 
 	m_pMutePlaybackTrackButton->setDefaultBackgroundColor(
-		colorPlaybackTrackToolBar.lighter( 125 )
+		colorPlaybackTrackToolBar
 	);
 	m_pMutePlaybackTrackButton->setCheckedBackgroundTextColor(
 		pColorTheme->m_muteTextColor
