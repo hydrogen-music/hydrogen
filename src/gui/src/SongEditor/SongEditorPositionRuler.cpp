@@ -76,11 +76,13 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 		m_nActiveColumns = 0;
 	}
 
-	resize( nInitialWidth, nMinimumHeight );
-	setFixedHeight( nMinimumHeight );
+	resize( nInitialWidth, SongEditorPanel::nHeaderWidgetHeight );
 
 	qreal pixelRatio = devicePixelRatio();
-	m_pBackgroundPixmap = new QPixmap( nInitialWidth * pixelRatio, nMinimumHeight * pixelRatio );	// initialize the pixmap
+	m_pBackgroundPixmap = new QPixmap(
+		nInitialWidth * pixelRatio,
+		SongEditorPanel::nHeaderWidgetHeight * pixelRatio
+	);	// initialize the pixmap
 	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 
 	m_pTimer = new QTimer(this);

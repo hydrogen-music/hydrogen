@@ -139,8 +139,7 @@ public:
 		 * help us to keep a consistent styling throughout all of them.*/
 		static void setToolBarStyle(
 			QToolBar* pToolBar,
-			const QColor& background,
-			bool bDrawBorders
+			const QColor& background
 		);
 };
 

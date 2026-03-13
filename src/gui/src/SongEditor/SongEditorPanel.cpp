@@ -357,10 +357,28 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
         m_pPositionRuler->showBpmWidget( 0 );
     });
 
+	////////////////////////////////////////////////////////////////////////////
+
+	m_pSongEditorToolBarContainer = new QWidget( pToolBarContainer );
+	m_pSongEditorToolBarContainer->setObjectName(
+		"SongEditorToolBarContainer"
+	);
+	m_pSongEditorToolBarContainer->setFixedWidth( SongEditorPatternList::nWidth
+	);
+	pToolBarContainerLayout->addWidget( m_pSongEditorToolBarContainer );
+	auto pSongEditorToolBarContainerLayout = new QHBoxLayout();
+	pSongEditorToolBarContainerLayout->setContentsMargins( 1, 1, 1, 1 );
+	pSongEditorToolBarContainerLayout->setSpacing( 0 );
+	m_pSongEditorToolBarContainer->setLayout(
+		pSongEditorToolBarContainerLayout
+	);
+
+	pSongEditorToolBarContainerLayout->addStretch();
+
 	m_pSongEditorToolBar = new QToolBar( pToolBarContainer );
-	pToolBarContainerLayout->addWidget( m_pSongEditorToolBar );
-	m_pSongEditorToolBar->setFixedSize(
-		SongEditorPatternList::nWidth, SongEditorPanel::nHeaderWidgetHeight / 2
+	pSongEditorToolBarContainerLayout->addWidget( m_pSongEditorToolBar );
+	m_pSongEditorToolBar->setFixedHeight(
+		SongEditorPanel::nHeaderWidgetHeight / 2
 	);
 	m_pSongEditorToolBar->setFocusPolicy( Qt::ClickFocus );
 
@@ -550,8 +568,8 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 
 	pGridLayout->addWidget( m_pPlaybackTrackSidebar, 0, 0 );
 	pGridLayout->addWidget( pToolBarContainer, 1, 0 );
-	pGridLayout->addWidget( m_pPlaybackTrackScrollView, 0, 1 );
-	pGridLayout->addWidget( m_pPositionRulerScrollView, 1, 1 );
+	pGridLayout->addWidget( m_pPlaybackTrackScrollView, 0, 1, Qt::AlignTop );
+	pGridLayout->addWidget( m_pPositionRulerScrollView, 1, 1, Qt::AlignTop );
 	pGridLayout->addWidget( m_pPatternListScrollView, 3, 0 );
 	pGridLayout->addWidget( m_pEditorScrollView, 3, 1 );
 	pGridLayout->addWidget( m_pVScrollBar, 3, 2, 2, 1 );
@@ -1432,11 +1450,21 @@ QWidget#TimelineToolBarContainer {\
 			.arg( colorTimelineToolBar.name() )
 	);
 
-	Skin::setToolBarStyle( m_pSongEditorToolBar, colorSongEditorToolBar, true );
-	Skin::setToolBarStyle(
-		m_pPlaybackTrackToolBar, colorPlaybackTrackToolBar, false
+	m_pSongEditorToolBarContainer->setStyleSheet(
+		QString( "\
+QWidget {\
+     background-color: %1;                      \
+}                                               \
+QWidget#SongEditorToolBarContainer {\
+     border: 1px solid #000; \
+}                                               \
+" )
+			.arg( colorSongEditorToolBar.name() )
 	);
-	Skin::setToolBarStyle( m_pTimelineToolBar, colorTimelineToolBar, false );
+
+	Skin::setToolBarStyle( m_pSongEditorToolBar, colorSongEditorToolBar );
+	Skin::setToolBarStyle( m_pPlaybackTrackToolBar, colorPlaybackTrackToolBar );
+	Skin::setToolBarStyle( m_pTimelineToolBar, colorTimelineToolBar );
 
 	m_pMutePlaybackTrackButton->setDefaultBackgroundColor(
 		colorPlaybackTrackToolBar
