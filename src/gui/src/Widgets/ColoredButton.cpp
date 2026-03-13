@@ -136,22 +136,30 @@ void ColoredButton::resizeEvent( QResizeEvent* pEvent )
 
 void ColoredButton::updateStyleSheet()
 {
-    const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
-	const QColor borderColor = Qt::black;
+	const auto pPref = H2Core::Preferences::get_instance();
+    const auto pColorTheme = pPref->getColorTheme();
+	QColor borderColor;
+	if ( pPref->getInterfaceTheme()->m_iconColor ==
+		 H2Core::InterfaceTheme::IconColor::White ) {
+		borderColor = Qt::white;
+	}
+	else {
+		borderColor = Qt::black;
+	}
+	const QColor borderInactiveColor =
+		Skin::makeBackgroundColorInactive( borderColor );
 
 	const QColor checkedColor( m_baseColor );
 	const QColor checkedTextColor( m_baseTextColor );
 	const auto defaultColor = m_defaultBackgroundColor;
     const auto defaultTextColor = m_baseColor;
 
-	QColor hoveredColor, hoveredBorder;
+	QColor hoveredColor;
 	if ( Skin::moreBlackThanWhite( defaultColor ) ) {
 		hoveredColor = defaultColor.lighter( Skin::nToolBarHoveredScaling );
-		hoveredBorder = borderColor.darker( Skin::nToolBarHoveredScaling );
 	}
 	else {
 		hoveredColor = defaultColor.darker( Skin::nToolBarHoveredScaling );
-		hoveredBorder = borderColor.lighter( Skin::nToolBarHoveredScaling );
 	}
 	const auto hoveredTextColor = defaultTextColor;
 
@@ -163,13 +171,16 @@ void ColoredButton::updateStyleSheet()
 		sBorder = "1px solid #000";
 	}
 
-	QString sBorderInteraction;
+	QString sBorderInteraction, sBorderInactive;
 	if ( !m_bBorderless || ( m_flag & Flag::AsToolButton ) ) {
 		sBorderInteraction =
-			QString( "1px solid %1" ).arg( hoveredBorder.name() );
+			QString( "1px solid %1" ).arg( borderColor.name() );
+		sBorderInactive =
+			QString( "1px solid %1" ).arg( borderInactiveColor.name() );
 	}
 	else {
 		sBorderInteraction = "none";
+		sBorderInactive = "none";
 	}
 
 	QColor disabledColor;
@@ -212,7 +223,7 @@ QPushButton:enabled:checked, QPushButton::enabled:checked:hover { \
 QPushButton:disabled { \
     color: %9; \
     background: %10; \
-    border: %5; \
+    border: %13; \
     padding: 0px; \
 } \
 QPushButton:disabled:checked { \
@@ -231,5 +242,6 @@ QPushButton:disabled:checked { \
 					   .arg( disabledTextColor.name() )
 					   .arg( disabledColor.name() )
 					   .arg( disabledCheckedTextColor.name() )
-					   .arg( disabledCheckedColor.name() ) );
+					   .arg( disabledCheckedColor.name() )
+					   .arg( sBorderInactive ) );
 }
