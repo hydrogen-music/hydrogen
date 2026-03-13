@@ -24,8 +24,10 @@
 
 #include <core/Helpers/Filesystem.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Preferences/Theme.h>
 
 #include <QApplication>
+#include <QSvgRenderer>
 
 void Skin::drawPlayhead( QPainter* p, int x, int y, bool bHovered ) {
 
@@ -152,6 +154,28 @@ QDoubleSpinBox, QSpinBox { \
 		.arg( spinBoxSelection.name() );
 }
 
+QString Skin::getImagePath() {
+	return H2Core::Filesystem::img_dir().append( "/gray" );
+}
+
+QString Skin::getSvgImagePath() {
+	return H2Core::Filesystem::img_dir().append( "/scalable" );
+}
+
+QColor Skin::makeBackgroundColorInactive( const QColor& color )
+{
+	int nHue, nSaturation, nValue;
+	color.getHsv( &nHue, &nSaturation, &nValue );
+
+	// Turn to gray.
+	nSaturation = 0;
+
+	// Adjust value for high contrast
+	nValue = ( nValue > 128 ) ? 70 : 170;
+
+	return QColor::fromHsv( nHue, nSaturation, nValue );
+}
+
 QColor Skin::makeTextColorInactive( const QColor& color ) {
 	int nHue, nSaturation, nValue;
 	color.getHsv( &nHue, &nSaturation, &nValue );
@@ -165,14 +189,6 @@ QColor Skin::makeTextColorInactive( const QColor& color ) {
 	auto newColor = QColor( color );
 	newColor.setHsv( nHue, nSaturation, nValue );
 	return newColor;
-}
-
-QString Skin::getImagePath() {
-	return H2Core::Filesystem::img_dir().append( "/gray" );
-}
-
-QString Skin::getSvgImagePath() {
-	return H2Core::Filesystem::img_dir().append( "/scalable" );
 }
 
 QColor Skin::makeWidgetColorInactive( const QColor& color ){
@@ -243,6 +259,87 @@ void Skin::setPlayheadPen( QPainter* p, bool bHovered ) {
 
 	p->setPen( pen );
 	p->setRenderHint( QPainter::Antialiasing );
+}
+
+void Skin::setToolBarIcon(
+	QToolBar* pToolBar,
+	QAction* pAction,
+	const QString& sIconPath,
+	const QColor& disabledColor
+)
+{
+	if ( pToolBar == nullptr || pAction == nullptr ) {
+		___ERRORLOG( "Invalid tool bar or action" );
+		return;
+	}
+
+	auto pButton =
+		dynamic_cast<QToolButton*>( pToolBar->widgetForAction( pAction ) );
+	if ( pButton == nullptr ) {
+		___ERRORLOG( "Unable to retrieve button for tool bar action" );
+		return;
+	}
+
+	Skin::setToolBarIcon( pToolBar, pButton, sIconPath, disabledColor );
+}
+
+void Skin::setToolBarIcon(
+	QToolBar* pToolBar,
+	QToolButton* pButton,
+	const QString& sIconPath,
+	const QColor& disabledColor
+)
+{
+	if ( pToolBar == nullptr || pButton == nullptr ) {
+		___ERRORLOG( "Invalid tool bar or button" );
+		return;
+	}
+
+	const auto pPref = H2Core::Preferences::get_instance();
+	QColor enabledColor;
+	if ( pPref->getInterfaceTheme()->m_iconColor ==
+		 H2Core::InterfaceTheme::IconColor::White ) {
+		enabledColor = Qt::white;
+	}
+	else {
+		enabledColor = Qt::black;
+	}
+
+	const auto size = pButton->size();
+	const auto iconSize = pButton->iconSize();
+	const QRect iconRect(
+		( size.width() - iconSize.width() ) / 2,
+		( size.height() - iconSize.height() ) / 2, iconSize.width(),
+		iconSize.height()
+	);
+
+	auto pIconInputSvg = new QSvgRenderer();
+	if ( !pIconInputSvg->load( sIconPath ) ) {
+		___ERRORLOG( QString( "Failed to load icon [%1]" ).arg( sIconPath ) );
+		return;
+	}
+
+	QPixmap pixmapEnabled( iconRect.width(), iconRect.height() );
+	pixmapEnabled.fill( Qt::GlobalColor::transparent );
+	QPainter pixmapEnabledPainter( &pixmapEnabled );
+	pixmapEnabledPainter.setRenderHint( QPainter::Antialiasing );
+	pIconInputSvg->render( &pixmapEnabledPainter );
+	pixmapEnabledPainter.setCompositionMode( QPainter::CompositionMode_SourceIn
+	);
+	pixmapEnabledPainter.fillRect( pixmapEnabled.rect(), enabledColor );
+
+	QPixmap pixmapDisabled( iconRect.width(), iconRect.height() );
+	pixmapDisabled.fill( Qt::GlobalColor::transparent );
+	QPainter pixmapDisabledPainter( &pixmapDisabled );
+	pixmapDisabledPainter.setRenderHint( QPainter::Antialiasing );
+	pIconInputSvg->render( &pixmapDisabledPainter );
+	pixmapDisabledPainter.setCompositionMode( QPainter::CompositionMode_SourceIn
+	);
+	pixmapDisabledPainter.fillRect( pixmapDisabled.rect(), disabledColor );
+
+	QIcon icon( pixmapEnabled );
+	icon.addPixmap( pixmapDisabled, QIcon::Disabled );
+	pButton->setIcon( icon );
 }
 
 void Skin::setToolBarStyle(
