@@ -63,7 +63,8 @@ public:
 		static constexpr int nScrollBarWidth = 12;
 
 		static constexpr int nToolBarCheckedScaling = 125;
-		static constexpr int nToolBarHoveredScaling = 110;
+		static constexpr int nToolBarHoveredScaling = 105;
+		static constexpr int nToolBarPressedScaling = 110;
 
 		enum class Stacked {
 			None,
@@ -108,7 +109,14 @@ public:
 		static void setPalette( QApplication *pQApp );
 
 		static void setPlayheadPen( QPainter* p, bool bHovered = false );
-};
 
+		/** Toolbars in Qt are quite hard to get right. This routine will
+		 * help us to keep a consistent styling throughout all of them.*/
+		static void setToolBarStyle(
+			QToolBar* pToolBar,
+			const QColor& background,
+			bool bDrawBorders
+		);
+};
 
 #endif

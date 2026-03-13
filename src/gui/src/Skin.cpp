@@ -244,3 +244,89 @@ void Skin::setPlayheadPen( QPainter* p, bool bHovered ) {
 	p->setPen( pen );
 	p->setRenderHint( QPainter::Antialiasing );
 }
+
+void Skin::setToolBarStyle(
+	QToolBar* pToolBar,
+	const QColor& backgroundColor,
+	bool bDrawBorders
+)
+{
+	if ( pToolBar == nullptr ) {
+		return;
+	}
+
+	const auto pPref = H2Core::Preferences::get_instance();
+	QColor iconColor, iconInactiveColor;
+	if ( pPref->getInterfaceTheme()->m_iconColor ==
+		 H2Core::InterfaceTheme::IconColor::White ) {
+		iconColor = Qt::white;
+		iconInactiveColor = iconColor.darker( 150 );
+	}
+	else {
+		iconColor = Qt::black;
+		iconInactiveColor = iconColor.lighter( 150 );
+	}
+
+	QColor backgroundCheckedColor, backgroundPressedColor,
+		backgroundHoveredColor;
+	if ( Skin::moreBlackThanWhite( backgroundColor ) ) {
+		backgroundCheckedColor =
+			backgroundColor.lighter( Skin::nToolBarCheckedScaling );
+		backgroundHoveredColor =
+			backgroundColor.lighter( Skin::nToolBarHoveredScaling );
+		backgroundPressedColor =
+			backgroundColor.lighter( Skin::nToolBarPressedScaling );
+	}
+	else {
+		backgroundCheckedColor =
+			backgroundColor.darker( Skin::nToolBarCheckedScaling );
+		backgroundHoveredColor =
+			backgroundColor.darker( Skin::nToolBarHoveredScaling );
+		backgroundPressedColor =
+			backgroundColor.darker( Skin::nToolBarPressedScaling );
+	}
+
+	const int nBorderWidth = bDrawBorders ? 1 : 0;
+    const int nButtonBorderRadius = 2;
+
+	pToolBar->setStyleSheet( QString( "\
+QToolBar {                             \
+    background-color: %1;              \
+    border: %2px solid #000;           \
+    color: %3;                         \
+    spacing: 1px;                      \
+}                                      \
+QToolBar::separator {                  \
+    background-color: %3;              \
+    width: 1px;                        \
+    margin-top: 4px;                   \
+    margin-left: 2px;                  \
+    margin-right: 2px;                 \
+    margin-bottom: 4px;                \
+}                                      \
+QToolButton:checked {                  \
+    background-color: %4;              \
+    border: 1px solid %3;              \
+    border-radius: %7px;               \
+}                                      \
+QToolButton:hover {                    \
+    background-color: %5;              \
+    border: 1px solid %3;              \
+    border-radius: %7px;               \
+}                                      \
+QToolButton:pressed {                  \
+    background-color: %6;              \
+}                                      \
+QToolButton:hover:checked {            \
+    background-color: %4;              \
+}                                      \
+QToolButton:hover:pressed {            \
+    background-color: %6;              \
+}" )
+								 .arg( backgroundColor.name() )
+								 .arg( nBorderWidth )
+                             .arg( iconColor.name() )
+                             .arg( backgroundCheckedColor.name() )
+    .arg( backgroundHoveredColor.name() )
+    .arg( backgroundPressedColor.name() ).arg( nButtonBorderRadius ));
+}
