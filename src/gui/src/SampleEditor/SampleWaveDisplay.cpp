@@ -41,7 +41,7 @@ SampleWaveDisplay::SampleWaveDisplay(
 )
 	: WaveDisplay( pParent, channel ),
 	  m_pSampleEditor( pParent ),
-	  m_bEnabled( true ),
+	  m_bSlidersLocked( false ),
 	  m_nOldFrame( 0 ),
 	  m_bDragStarted( false )
 {
@@ -64,7 +64,7 @@ void SampleWaveDisplay::leaveEvent( QEvent* pEv )
 
 void SampleWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 {
-	if ( !m_bEnabled ) {
+	if ( m_bSlidersLocked ) {
 		return;
 	}
 
@@ -97,7 +97,7 @@ void SampleWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 
 void SampleWaveDisplay::mousePressEvent( QMouseEvent* ev )
 {
-	if ( !m_bEnabled ) {
+	if ( m_bSlidersLocked ) {
 		return;
 	}
 
@@ -115,7 +115,7 @@ void SampleWaveDisplay::mousePressEvent( QMouseEvent* ev )
 
 void SampleWaveDisplay::mouseReleaseEvent( QMouseEvent* ev )
 {
-	if ( !m_bEnabled ) {
+	if ( m_bSlidersLocked ) {
 		return;
 	}
 
@@ -319,7 +319,7 @@ void SampleWaveDisplay::renderSlider(
 
 	color.setAlpha( SampleEditor::nColorAlpha );
 
-	if ( !m_bEnabled ) {
+	if ( m_bSlidersLocked ) {
 		color = Skin::makeWidgetColorInactive( color );
 	}
 

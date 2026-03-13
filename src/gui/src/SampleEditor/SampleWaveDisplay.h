@@ -59,7 +59,7 @@ class SampleWaveDisplay : public WaveDisplay,
 	);
 	~SampleWaveDisplay();
 
-	void setEnabled( bool bEnabled );
+	void setSlidersLocked( bool bLocked );
 
    private:
 	void leaveEvent( QEvent* pEv ) override;
@@ -78,7 +78,7 @@ class SampleWaveDisplay : public WaveDisplay,
 
 	SampleEditor* m_pSampleEditor;
 
-	bool m_bEnabled;
+	bool m_bSlidersLocked;
 
 	/** Cache for undo/redo actions during drag moving. Otherwise, the operation
 	 * would be to inefficient. */
@@ -89,9 +89,9 @@ class SampleWaveDisplay : public WaveDisplay,
 	bool m_bDragStarted;
 };
 
-inline void SampleWaveDisplay::setEnabled( bool bEnabled )
+inline void SampleWaveDisplay::setSlidersLocked( bool bLocked )
 {
-	m_bEnabled = bEnabled;
+	m_bSlidersLocked = bLocked;
 }
 
 #endif

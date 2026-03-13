@@ -1187,9 +1187,9 @@ void SampleEditor::updateSourceWaveDisplays()
 
 void SampleEditor::lockWidgets( bool bLock )
 {
-	m_pSampleWaveDisplayL->setEnabled( ! bLock );
-	m_pSampleWaveDisplayR->setEnabled( ! bLock );
 	m_pTargetSection->setEnabled( !bLock );
+	m_pSampleWaveDisplayL->setSlidersLocked( bLock );
+	m_pSampleWaveDisplayR->setSlidersLocked( bLock );
 
 	m_pLoopStartFrameSpinBox->setEnabled( ! bLock );
 	m_pLoopLoopFrameSpinBox->setEnabled( ! bLock );
