@@ -1361,9 +1361,21 @@ void SongEditorPanel::updateStyleSheet() {
 		pColorTheme->m_songEditor_alternateRowColor.darker(
 			SongEditorPositionRuler::nScalingRuler
 		);
-	const QColor colorPlaybackTrackToolBar = pColorTheme->m_accentColor.darker(
-		SongEditorPanel::nScalingPlaybackTrack
-	);
+
+	const auto pSong = Hydrogen::get_instance()->getSong();
+
+	QColor colorPlaybackTrackToolBar;
+	if ( pSong != nullptr && pSong->getPlaybackTrackInstrument() != nullptr &&
+		 pSong->getPlaybackTrackInstrument()->isMuted() ) {
+		colorPlaybackTrackToolBar = pColorTheme->m_muteColor;
+	}
+	else {
+		colorPlaybackTrackToolBar = pColorTheme->m_accentColor;
+	}
+	colorPlaybackTrackToolBar =
+		colorPlaybackTrackToolBar.darker( SongEditorPanel::nScalingPlaybackTrack
+		);
+
 	const QColor colorTimelineToolBar =
 		pColorTheme->m_songEditor_alternateRowColor.darker(
 			SongEditorPositionRuler::nScalingTimeline
