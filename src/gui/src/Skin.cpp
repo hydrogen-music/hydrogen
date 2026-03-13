@@ -352,16 +352,15 @@ void Skin::setToolBarStyle(
 	}
 
 	const auto pPref = H2Core::Preferences::get_instance();
-	QColor iconColor, iconInactiveColor;
+	QColor iconColor;
 	if ( pPref->getInterfaceTheme()->m_iconColor ==
 		 H2Core::InterfaceTheme::IconColor::White ) {
 		iconColor = Qt::white;
-		iconInactiveColor = iconColor.darker( 150 );
 	}
 	else {
 		iconColor = Qt::black;
-		iconInactiveColor = iconColor.lighter( 150 );
 	}
+	const QColor iconInactiveColor = makeBackgroundColorInactive( iconColor );
 
 	QColor backgroundCheckedColor, backgroundPressedColor,
 		backgroundHoveredColor;
@@ -404,6 +403,9 @@ QToolButton:checked {                  \
     border: 1px solid %2;              \
     border-radius: %6px;               \
 }                                      \
+QToolButton:disabled:checked {         \
+    border: 1px solid %7;              \
+}                                      \
 QToolButton:hover {                    \
     background-color: %4;              \
     border: 1px solid %2;              \
@@ -419,8 +421,10 @@ QToolButton:hover:pressed {            \
     background-color: %5;              \
 }" )
 								 .arg( backgroundColor.name() )
-                             .arg( iconColor.name() )
-                             .arg( backgroundCheckedColor.name() )
-    .arg( backgroundHoveredColor.name() )
-    .arg( backgroundPressedColor.name() ).arg( nButtonBorderRadius ));
+								 .arg( iconColor.name() )
+								 .arg( backgroundCheckedColor.name() )
+								 .arg( backgroundHoveredColor.name() )
+								 .arg( backgroundPressedColor.name() )
+								 .arg( nButtonBorderRadius )
+								 .arg( iconInactiveColor.name() ) );
 }
