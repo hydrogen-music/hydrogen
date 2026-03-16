@@ -1494,9 +1494,13 @@ QWidget#SongEditorToolBarContainer {\
 			.arg( colorSongEditorToolBar.name() )
 	);
 
-	Skin::setToolBarStyle( m_pSongEditorToolBar, colorSongEditorToolBar );
-	Skin::setToolBarStyle( m_pPlaybackTrackToolBar, colorPlaybackTrackToolBar );
-	Skin::setToolBarStyle( m_pTimelineToolBar, colorTimelineToolBar );
+	Skin::setToolBarStyle(
+		m_pSongEditorToolBar, colorSongEditorToolBar, false
+	);
+	Skin::setToolBarStyle(
+		m_pPlaybackTrackToolBar, colorPlaybackTrackToolBar, false
+	);
+	Skin::setToolBarStyle( m_pTimelineToolBar, colorTimelineToolBar, false );
 
 	m_pMutePlaybackTrackButton->setDefaultBackgroundColor(
 		colorPlaybackTrackToolBar
