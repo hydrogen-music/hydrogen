@@ -243,6 +243,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 	auto createButton = [&]( const QString& sText ) {
 		auto pButton = new QToolButton( m_pToolBar );
 		pButton->setCheckable( true );
+		pButton->setFocusPolicy( Qt::NoFocus );
 		pButton->setToolTip( sText );
 
 		return pButton;
