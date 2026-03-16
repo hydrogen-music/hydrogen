@@ -76,6 +76,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		auto pButton = new QToolButton( pParent );
 		pButton->setCheckable( bCheckable );
 		pButton->setToolTip( sText );
+		pButton->setFocusPolicy( Qt::NoFocus );
 		pParent->addWidget( pButton );
 
 		return pButton;
@@ -131,6 +132,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	pPlaybackTrackToolBarContainerLayout->addStretch();
 
 	m_pPlaybackTrackToolBar = new QToolBar( pPlaybackTrackToolBarContainer );
+    m_pPlaybackTrackToolBar->setFocusPolicy( Qt::NoFocus );
 	m_pPlaybackTrackToolBar->setFixedHeight(
 		SongEditorPanel::nHeaderWidgetHeight / 2 - 2
 	);
@@ -313,11 +315,11 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
     pTimelineToolBarContainerLayout->addStretch();
 
     m_pTimelineToolBar = new QToolBar( m_pTimelineToolBarContainer );
+    m_pTimelineToolBar->setFocusPolicy( Qt::NoFocus );
 	pTimelineToolBarContainerLayout->addWidget( m_pTimelineToolBar );
 	m_pTimelineToolBar->setFixedHeight(
 		SongEditorPanel::nHeaderWidgetHeight / 2 - 2
 	);
-	m_pTimelineToolBar->setFocusPolicy( Qt::ClickFocus );
 
 	m_pEnableTimelineButton = createButton( m_pTimelineToolBar,
 		pCommonStrings->getTimelineEnabled(), false
@@ -375,11 +377,11 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	pSongEditorToolBarContainerLayout->addStretch();
 
 	m_pSongEditorToolBar = new QToolBar( pToolBarContainer );
+    m_pSongEditorToolBar->setFocusPolicy( Qt::NoFocus );
 	pSongEditorToolBarContainerLayout->addWidget( m_pSongEditorToolBar );
 	m_pSongEditorToolBar->setFixedHeight(
 		SongEditorPanel::nHeaderWidgetHeight / 2
 	);
-	m_pSongEditorToolBar->setFocusPolicy( Qt::ClickFocus );
 
 	m_pClearButton = createButton(
 		m_pSongEditorToolBar, tr( "Clear pattern sequence" ), false
