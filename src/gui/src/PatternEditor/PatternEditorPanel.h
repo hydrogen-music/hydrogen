@@ -144,6 +144,7 @@ class PatternEditorPanel : public QWidget,
 	static constexpr int nToolBarBorder = 1;
 	static constexpr int nToolBarHeight = 28;
 	static constexpr int nToolBarMargin = 2;
+	static constexpr int nToolBarScaling = 134;
 	static constexpr int nToolBarSpacing = 3;
 
 	enum class DragType { None, Length, Property };
@@ -483,8 +484,8 @@ class PatternEditorPanel : public QWidget,
 
 	QToolBar* m_pToolBar;
 	MidiLearnableToolButton* m_pEditButton;
-	QAction* m_pHearNotesAction;
-	QAction* m_pQuantizeAction;
+	QToolButton* m_pHearNotesButton;
+	QToolButton* m_pQuantizeButton;
 	MidiLearnableToolButton* m_pDrumPatternButton;
 	MidiLearnableToolButton* m_pPianoRollButton;
 

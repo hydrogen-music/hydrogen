@@ -240,25 +240,25 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 	m_pToolBar->setFixedHeight( PatternEditorPanel::nToolBarHeight );
 	m_pToolBar->setFocusPolicy( Qt::ClickFocus );
 
-	auto createAction = [&]( const QString& sText ) {
-		auto pAction = new QAction( m_pToolBar );
-		pAction->setCheckable( true );
-		pAction->setIconText( sText );
-		pAction->setToolTip( sText );
+	auto createButton = [&]( const QString& sText ) {
+		auto pButton = new QToolButton( m_pToolBar );
+		pButton->setCheckable( true );
+		pButton->setToolTip( sText );
 
-		return pAction;
+		return pButton;
 	};
 
-	auto createButton = [&]( const QString& sText ) {
-		auto pAction = new MidiLearnableToolButton( m_pToolBar, sText );
-		pAction->setCheckable( true );
+	auto createLearnableButton = [&]( const QString& sText ) {
+		auto pLearnableButton =
+			new MidiLearnableToolButton( m_pToolBar, sText );
+		pLearnableButton->setCheckable( true );
 
-		return pAction;
+		return pLearnableButton;
 	};
 
 	////////////////////////////////////////////////////////////////////////////
 
-	m_pEditButton = createButton( pCommonStrings->getEditModeButton() );
+	m_pEditButton = createLearnableButton( pCommonStrings->getEditModeButton() );
 	m_pEditButton->setObjectName( "PatternEditorEditModeBtn" );
 	m_pToolBar->addWidget( m_pEditButton );
 
@@ -269,7 +269,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 	pInstanceGroup->setExclusive( true );
 
 	m_pDrumPatternButton =
-		createButton( pCommonStrings->getShowDrumkitEditorToolTip() );
+		createLearnableButton( pCommonStrings->getShowDrumkitEditorToolTip() );
 	m_pDrumPatternButton->setObjectName( "ShowDrumBtn" );
 	m_pDrumPatternButton->setChecked(
 		m_instance == Editor::Instance::DrumPattern
@@ -281,7 +281,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 	pInstanceGroup->addButton( m_pDrumPatternButton );
 
 	m_pPianoRollButton =
-		createButton( pCommonStrings->getShowPianoRollEditorToolTip() );
+		createLearnableButton( pCommonStrings->getShowPianoRollEditorToolTip() );
 	m_pPianoRollButton->setObjectName( "ShowPianoBtn" );
 	m_pPianoRollButton->setChecked( m_instance == Editor::Instance::PianoRoll );
 	connect( m_pPianoRollButton, &QToolButton::clicked, [&]() {
@@ -292,24 +292,24 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 
 	m_pToolBar->addSeparator();
 
-	m_pHearNotesAction = createAction( tr( "Hear new notes" ) );
-	connect( m_pHearNotesAction, &QAction::triggered, [=]() {
+	m_pHearNotesButton = createButton( tr( "Hear new notes" ) );
+	connect( m_pHearNotesButton, &QToolButton::clicked, [=]() {
 		hearNotesBtnClick();
 	} );
-	m_pHearNotesAction->setChecked( pPref->getHearNewNotes() );
-	m_pHearNotesAction->setObjectName( "HearNotesBtn" );
-	m_pToolBar->addAction( m_pHearNotesAction );
+	m_pHearNotesButton->setChecked( pPref->getHearNewNotes() );
+	m_pHearNotesButton->setObjectName( "HearNotesBtn" );
+	m_pToolBar->addWidget( m_pHearNotesButton );
 
 	m_pToolBar->addSeparator();
 
-	m_pQuantizeAction =
-		createAction( tr( "Quantize keyboard/midi events to grid" ) );
-	m_pQuantizeAction->setChecked( pPref->getQuantizeEvents() );
-	m_pQuantizeAction->setObjectName( "QuantizeEventsBtn" );
-	connect( m_pQuantizeAction, &QAction::triggered, [=]() {
+	m_pQuantizeButton =
+		createButton( tr( "Quantize keyboard/midi events to grid" ) );
+	m_pQuantizeButton->setChecked( pPref->getQuantizeEvents() );
+	m_pQuantizeButton->setObjectName( "QuantizeEventsBtn" );
+	connect( m_pQuantizeButton, &QToolButton::clicked, [&]() {
 		quantizeEventsBtnClick();
 	} );
-	m_pToolBar->addAction( m_pQuantizeAction );
+	m_pToolBar->addWidget( m_pQuantizeButton );
 
 	m_pToolBar->addSeparator();
 
@@ -1022,10 +1022,10 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 
 void PatternEditorPanel::hearNotesBtnClick()
 {
-	Preferences::get_instance()->setHearNewNotes( m_pHearNotesAction->isChecked(
+	Preferences::get_instance()->setHearNewNotes( m_pHearNotesButton->isChecked(
 	) );
 
-	if ( m_pHearNotesAction->isChecked() ) {
+	if ( m_pHearNotesButton->isChecked() ) {
 		( HydrogenApp::get_instance() )
 			->showStatusBarMessage( tr( "Hear new notes = On" ) );
 	}
@@ -1038,12 +1038,12 @@ void PatternEditorPanel::hearNotesBtnClick()
 void PatternEditorPanel::quantizeEventsBtnClick()
 {
 	Preferences::get_instance()->setQuantizeEvents(
-		m_pQuantizeAction->isChecked()
+		m_pQuantizeButton->isChecked()
 	);
 
 	updateQuantization( nullptr );
 
-	if ( m_pQuantizeAction->isChecked() ) {
+	if ( m_pQuantizeButton->isChecked() ) {
 		( HydrogenApp::get_instance() )
 			->showStatusBarMessage(
 				tr( "Quantize incoming keyboard/midi events = On" )
@@ -1247,6 +1247,13 @@ void PatternEditorPanel::zoomOutBtnClicked()
 
 void PatternEditorPanel::updateIcons()
 {
+	const auto pColorTheme =
+		H2Core::Preferences::get_instance()->getColorTheme();
+	const QColor colorToolBarInactive = Skin::makeBackgroundColorInactive(
+		pColorTheme->m_patternEditor_selectedRowColor.darker(
+			PatternEditorPanel::nToolBarScaling
+		)
+	);
 	QColor color;
 	QString sIconPath( Skin::getSvgImagePath() );
 	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
@@ -1259,11 +1266,25 @@ void PatternEditorPanel::updateIcons()
 		color = Qt::black;
 	}
 
-	m_pEditButton->setIcon( QIcon( sIconPath + "edit.svg" ) );
-	m_pHearNotesAction->setIcon( QIcon( sIconPath + "speaker.svg" ) );
-	m_pQuantizeAction->setIcon( QIcon( sIconPath + "quantization.svg" ) );
-	m_pDrumPatternButton->setIcon( QIcon( sIconPath + "drum.svg" ) );
-	m_pPianoRollButton->setIcon( QIcon( sIconPath + "piano.svg" ) );
+	Skin::setToolBarIcon(
+		m_pToolBar, m_pEditButton, sIconPath + "edit.svg", colorToolBarInactive
+	);
+	Skin::setToolBarIcon(
+		m_pToolBar, m_pHearNotesButton, sIconPath + "speaker.svg",
+		colorToolBarInactive
+	);
+	Skin::setToolBarIcon(
+		m_pToolBar, m_pQuantizeButton, sIconPath + "quantization.svg",
+		colorToolBarInactive
+	);
+	Skin::setToolBarIcon(
+		m_pToolBar, m_pDrumPatternButton, sIconPath + "drum.svg",
+		colorToolBarInactive
+	);
+	Skin::setToolBarIcon(
+		m_pToolBar, m_pPianoRollButton, sIconPath + "piano.svg",
+		colorToolBarInactive
+	);
 
 	m_pPatternSizeSeparatorLabel->setStyleSheet( QString( "\
 ClickableLabel {\
@@ -1719,8 +1740,8 @@ void PatternEditorPanel::updatePreferencesEvent( int nValue )
 			updateEditors( Editor::Update::Background );
 		}
 
-		m_pHearNotesAction->setChecked( pPref->getHearNewNotes() );
-		m_pQuantizeAction->setChecked( pPref->getQuantizeEvents() );
+		m_pHearNotesButton->setChecked( pPref->getHearNewNotes() );
+		m_pQuantizeButton->setChecked( pPref->getQuantizeEvents() );
 		updateTypeLabelVisibility();
 		updateResolutionCombo();
 	}
@@ -2002,7 +2023,9 @@ void PatternEditorPanel::updateStyleSheet()
 	const QColor colorPatternLabel =
 		pColorTheme->m_patternEditor_alternateRowColor.darker( 120 );
 	const QColor colorToolBar =
-		pColorTheme->m_patternEditor_selectedRowColor.darker( 134 );
+		pColorTheme->m_patternEditor_selectedRowColor.darker(
+			PatternEditorPanel::nToolBarScaling
+		);
 	const QColor colorPatternText = pColorTheme->m_patternEditor_textColor;
 
 	QColor backgroundInactiveColor;
@@ -2014,20 +2037,6 @@ void PatternEditorPanel::updateStyleSheet()
 		backgroundInactiveColor = pColorTheme->m_windowColor;
 	}
 
-	QColor colorToolBarChecked, colorToolBarHovered;
-	if ( Skin::moreBlackThanWhite( colorToolBar ) ) {
-		colorToolBarChecked =
-			colorToolBar.lighter( Skin::nToolBarCheckedScaling );
-		colorToolBarHovered =
-			colorToolBar.lighter( Skin::nToolBarHoveredScaling );
-	}
-	else {
-		colorToolBarChecked =
-			colorToolBar.darker( Skin::nToolBarCheckedScaling );
-		colorToolBarHovered =
-			colorToolBar.darker( Skin::nToolBarHoveredScaling );
-	}
-
 	setStyleSheet( QString( "\
 #MainPanel, #EditorScrollView, #RulerScrollView, #PianoRollScrollView, \
 #SidebarScrollView, #NoteVelocityScrollView, #NotePanScrollView, \
@@ -2036,32 +2045,7 @@ void PatternEditorPanel::updateStyleSheet()
 }" )
 					   .arg( backgroundInactiveColor.name() ) );
 
-	m_pToolBar->setStyleSheet( QString( "\
-QToolBar {\
-     background-color: %1; \
-     color: %2; \
-     border: 1px solid #000;\
-     spacing: 4px;\
-}\
-QToolButton {\
-    background-color: %1; \
-}\
-QToolButton:checked {\
-    background-color: %3;\
-}\
-QToolButton:hover {\
-    background-color: %4;\
-}\
-QToolButton:hover, QToolButton:checked {\
-    background-color: %3;\
-}\
-QToolButton:hover, QToolButton:pressed {\
-    background-color: %3;\
-}" )
-								   .arg( colorToolBar.name() )
-								   .arg( colorPatternText.name() )
-								   .arg( colorToolBarChecked.name() )
-								   .arg( colorToolBarHovered.name() ) );
+    Skin::setToolBarStyle( m_pToolBar, colorToolBar );
 
 	m_pTabBar->setStyleSheet( QString( "\
 QWidget#patternEditorTabBar {\
