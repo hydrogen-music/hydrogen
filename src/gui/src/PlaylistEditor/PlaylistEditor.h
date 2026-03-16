@@ -75,6 +75,10 @@ class PlaylistEditor :  public QDialog,
 	Q_OBJECT
 	public:
 
+        static constexpr int nButtonHeight = 34;
+        static constexpr int nButtonWidth = 42;
+        static constexpr int nToolBarHeight = 42;
+
 		explicit PlaylistEditor( QWidget* pParent );
 		~PlaylistEditor();
 
