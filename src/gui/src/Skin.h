@@ -118,22 +118,13 @@ public:
 		 * of them. Yet alone one that is distinct from the other toolbars and
 		 * integrates well in the overall UI. Therefore, we use this wrapper
 		 * function to introduce our own disabled color for all icons in a
-		 * toolbar.
-		 *
-		 * @{*/
-		static void setToolBarIcon(
-			QToolBar* pToolBar,
-			QAction* pAction,
-			const QString& sIconPath,
-			const QColor& disabledColor
-		);
+		 * toolbar. */
 		static void setToolBarIcon(
 			QToolBar* pToolBar,
 			QToolButton* pButton,
 			const QString& sIconPath,
 			const QColor& disabledColor
 		);
-		/** @} */
 
 		/** Toolbars in Qt are quite hard to get right. This routine will
 		 * help us to keep a consistent styling throughout all of them.*/

@@ -71,15 +71,14 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 
 	setWindowTitle( tr( "Song Editor" ) );
 
-	auto createAction = [&]( QWidget* pParent, const QString& sText,
+	auto createButton = [&]( QToolBar* pParent, const QString& sText,
 							 bool bCheckable ) {
-		auto pAction = new QAction( pParent );
-		pAction->setCheckable( bCheckable );
-		pAction->setIconText( sText );
-		pAction->setToolTip( sText );
-		pParent->addAction( pAction );
+		auto pButton = new QToolButton( pParent );
+		pButton->setCheckable( bCheckable );
+		pButton->setToolTip( sText );
+		pParent->addWidget( pButton );
 
-		return pAction;
+		return pButton;
 	};
 
 	////////////////////////////////////////////////////////////////////////////
@@ -137,14 +136,14 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	);
 	pPlaybackTrackToolBarContainerLayout->addWidget( m_pPlaybackTrackToolBar );
 
-	m_pLoadPlaybackTrackAction = createAction(
+	m_pLoadPlaybackTrackButton = createButton(
 		m_pPlaybackTrackToolBar, pCommonStrings->getActionAddPlaybackTrack(),
 		false
 	);
-	m_pLoadPlaybackTrackAction->setObjectName(
+	m_pLoadPlaybackTrackButton->setObjectName(
 		"SongEditorPlaybackTrackEditButton"
 	);
-	connect( m_pLoadPlaybackTrackAction, &QAction::triggered, [=]() {
+	connect( m_pLoadPlaybackTrackButton, &QToolButton::clicked, [=]() {
 		auto pPref = Preferences::get_instance();
 		auto pHydrogen = Hydrogen::get_instance();
 		auto pSong = pHydrogen->getSong();
@@ -195,14 +194,14 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		pHydrogen->loadPlaybackTrack( filenameList[2] );
 	} );
 
-	m_pDeletePlaybackTrackAction = createAction(
+	m_pDeletePlaybackTrackButton = createButton(
 		m_pPlaybackTrackToolBar, pCommonStrings->getActionDeletePlaybackTrack(),
 		false
 	);
-	m_pDeletePlaybackTrackAction->setObjectName(
+	m_pDeletePlaybackTrackButton->setObjectName(
 		"SongEditorPlaybackTrackDeleteButton"
 	);
-	connect( m_pDeletePlaybackTrackAction, &QAction::triggered, [=]() {
+	connect( m_pDeletePlaybackTrackButton, &QToolButton::clicked, [=]() {
 		auto pPref = Preferences::get_instance();
 		auto pHydrogen = Hydrogen::get_instance();
 		auto pSong = pHydrogen->getSong();
@@ -216,11 +215,11 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 
 	m_pPlaybackTrackToolBar->addSeparator();
 
-	m_pEditPlaybackTrackAction = createAction(
+	m_pEditPlaybackTrackButton = createButton(
 		m_pPlaybackTrackToolBar, pCommonStrings->getActionEditPlaybackTrack(),
 		false
 	);
-	connect( m_pEditPlaybackTrackAction, &QAction::triggered, [=]() {
+	connect( m_pEditPlaybackTrackButton, &QToolButton::clicked, [=]() {
 		auto pSong = Hydrogen::get_instance()->getSong();
 		if ( pSong == nullptr ) {
 			return;
@@ -320,12 +319,12 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	);
 	m_pTimelineToolBar->setFocusPolicy( Qt::ClickFocus );
 
-	m_pEnableTimelineAction = createAction( m_pTimelineToolBar,
+	m_pEnableTimelineButton = createButton( m_pTimelineToolBar,
 		pCommonStrings->getTimelineEnabled(), false
 	);
-	m_pEnableTimelineAction->setObjectName( "TimelineBtn" );
-	m_pEnableTimelineAction->setChecked( pSong->getIsTimelineActivated() );
-	connect( m_pEnableTimelineAction, &QAction::triggered, [=]() {
+	m_pEnableTimelineButton->setObjectName( "TimelineBtn" );
+	m_pEnableTimelineButton->setChecked( pSong->getIsTimelineActivated() );
+	connect( m_pEnableTimelineButton, &QToolButton::clicked, [=]() {
 		auto pSong = Hydrogen::get_instance()->getSong();
 		if ( pSong == nullptr ) {
 			return;
@@ -338,7 +337,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 			QString( "%1 = %2" )
 				.arg( pCommonStrings->getTimelineBigButton() )
 				.arg(
-					m_pEnableTimelineAction->isChecked()
+					m_pEnableTimelineButton->isChecked()
 						? pCommonStrings->getStatusOn()
 						: pCommonStrings->getStatusOff()
 				);
@@ -348,12 +347,12 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 
     m_pTimelineToolBar->addSeparator();
 
-	m_pTagAction = createAction( m_pTimelineToolBar, "", false );
-	connect( m_pTagAction, &QAction::triggered, [=]() {
+	m_pTagButton = createButton( m_pTimelineToolBar, "", false );
+	connect( m_pTagButton, &QToolButton::clicked, [=]() {
         m_pPositionRuler->showTagWidget( 0 );
     });
-    m_pTempoMarkerAction = createAction( m_pTimelineToolBar, "", false );
-	connect( m_pTempoMarkerAction, &QAction::triggered, [=]() {
+    m_pTempoMarkerButton = createButton( m_pTimelineToolBar, "", false );
+	connect( m_pTempoMarkerButton, &QToolButton::clicked, [=]() {
         m_pPositionRuler->showBpmWidget( 0 );
     });
 
@@ -382,16 +381,16 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	);
 	m_pSongEditorToolBar->setFocusPolicy( Qt::ClickFocus );
 
-	m_pClearAction = createAction(
+	m_pClearButton = createButton(
 		m_pSongEditorToolBar, tr( "Clear pattern sequence" ), false
 	);
-	connect( m_pClearAction, &QAction::triggered, [=]() { clearSequence(); } );
+	connect( m_pClearButton, &QToolButton::clicked, [=]() { clearSequence(); } );
 
 	m_pSongEditorToolBar->addSeparator();
 
-	m_pNewPatternAction =
-		createAction( m_pSongEditorToolBar, tr( "Create new pattern" ), false );
-	connect( m_pNewPatternAction, &QAction::triggered, [=]() {
+	m_pNewPatternButton =
+		createButton( m_pSongEditorToolBar, tr( "Create new pattern" ), false );
+	connect( m_pNewPatternButton, &QToolButton::clicked, [=]() {
 		addNewPattern();
 	} );
 
@@ -784,10 +783,10 @@ void SongEditorPanel::updatePlaybackTrack()
 
 	if ( pSong == nullptr || pSong->getPlaybackTrackInstrument() == nullptr ) {
 		// No playback track chosen (stored in the current song).
-		m_pLoadPlaybackTrackAction->setEnabled( true );
+		m_pLoadPlaybackTrackButton->setEnabled( true );
 		m_pPlaybackTrackFader->setIsActive( false );
-		m_pDeletePlaybackTrackAction->setEnabled( false );
-		m_pEditPlaybackTrackAction->setEnabled( false );
+		m_pDeletePlaybackTrackButton->setEnabled( false );
+		m_pEditPlaybackTrackButton->setEnabled( false );
 		m_pMutePlaybackTrackButton->setIsActive( false );
 
 		m_pPlaybackTrackWaveDisplay->setEnabled( true );
@@ -795,10 +794,10 @@ void SongEditorPanel::updatePlaybackTrack()
 	}
 	else if ( pSong->getMode() == Song::Mode::Pattern ) {
 		// Playback track is disabled in pattern mode
-		m_pLoadPlaybackTrackAction->setEnabled( false );
+		m_pLoadPlaybackTrackButton->setEnabled( false );
 		m_pPlaybackTrackFader->setIsActive( false );
-		m_pDeletePlaybackTrackAction->setEnabled( false );
-		m_pEditPlaybackTrackAction->setEnabled( false );
+		m_pDeletePlaybackTrackButton->setEnabled( false );
+		m_pEditPlaybackTrackButton->setEnabled( false );
 		m_pMutePlaybackTrackButton->setIsActive( false );
 		m_pPlaybackTrackWaveDisplay->setEnabled( false );
 	}
@@ -806,11 +805,11 @@ void SongEditorPanel::updatePlaybackTrack()
 		auto pInstrument = pSong->getPlaybackTrackInstrument();
 		// Playback track was selected by the user and is ready to
 		// use.
-		m_pLoadPlaybackTrackAction->setEnabled( true );
+		m_pLoadPlaybackTrackButton->setEnabled( true );
 		m_pPlaybackTrackFader->setIsActive( true );
 		m_pPlaybackTrackFader->setValue( pInstrument->getVolume() );
-		m_pDeletePlaybackTrackAction->setEnabled( true );
-		m_pEditPlaybackTrackAction->setEnabled( true );
+		m_pDeletePlaybackTrackButton->setEnabled( true );
+		m_pEditPlaybackTrackButton->setEnabled( true );
 		m_pMutePlaybackTrackButton->setIsActive( true );
 		m_pMutePlaybackTrackButton->setChecked( pInstrument->isMuted() );
 		m_pPlaybackTrackWaveDisplay->setEnabled( true );
@@ -1266,15 +1265,15 @@ void SongEditorPanel::updateIcons() {
 		);
 
 	Skin::setToolBarIcon(
-		m_pPlaybackTrackToolBar, m_pLoadPlaybackTrackAction,
+		m_pPlaybackTrackToolBar, m_pLoadPlaybackTrackButton,
 		sIconPath + "folder.svg", colorPlaybackTrackToolBarDisabled
 	);
 	Skin::setToolBarIcon(
-		m_pPlaybackTrackToolBar, m_pDeletePlaybackTrackAction,
+		m_pPlaybackTrackToolBar, m_pDeletePlaybackTrackButton,
 		sIconPath + "bin.svg", colorPlaybackTrackToolBarDisabled
 	);
 	Skin::setToolBarIcon(
-		m_pPlaybackTrackToolBar, m_pEditPlaybackTrackAction,
+		m_pPlaybackTrackToolBar, m_pEditPlaybackTrackButton,
 		sIconPath + "sample-editor.svg", colorPlaybackTrackToolBarDisabled
 	);
 
@@ -1284,31 +1283,31 @@ void SongEditorPanel::updateIcons() {
 
 	if ( bTimelineEnabled ) {
 		Skin::setToolBarIcon(
-			m_pTimelineToolBar, m_pEnableTimelineAction,
+			m_pTimelineToolBar, m_pEnableTimelineButton,
 			sIconPath + "enabled.svg", colorTimelineToolBarDisabled
 		);
 	}
 	else {
 		Skin::setToolBarIcon(
-			m_pTimelineToolBar, m_pEnableTimelineAction,
+			m_pTimelineToolBar, m_pEnableTimelineButton,
 			sIconPath + "disabled.svg", colorTimelineToolBarDisabled
 		);
 	}
 	Skin::setToolBarIcon(
-		m_pTimelineToolBar, m_pTagAction, sIconPath + "tag.svg",
+		m_pTimelineToolBar, m_pTagButton, sIconPath + "tag.svg",
 		colorTimelineToolBarDisabled
 	);
 	Skin::setToolBarIcon(
-		m_pTimelineToolBar, m_pTempoMarkerAction, sIconPath + "metronome.svg",
+		m_pTimelineToolBar, m_pTempoMarkerButton, sIconPath + "metronome.svg",
 		colorTimelineToolBarDisabled
 	);
 
 	Skin::setToolBarIcon(
-		m_pSongEditorToolBar, m_pClearAction, sIconPath + "bin.svg",
+		m_pSongEditorToolBar, m_pClearButton, sIconPath + "bin.svg",
 		colorSongEditorToolBarDisabled
 	);
 	Skin::setToolBarIcon(
-		m_pSongEditorToolBar, m_pNewPatternAction, sIconPath + "new.svg",
+		m_pSongEditorToolBar, m_pNewPatternButton, sIconPath + "new.svg",
 		colorSongEditorToolBarDisabled
 	);
 	Skin::setToolBarIcon(
@@ -1501,34 +1500,34 @@ void SongEditorPanel::updateTimeline() {
 	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
 		bEnabled = false;
 		bTempoEnabled = false;
-		m_pEnableTimelineAction->setToolTip(
+		m_pEnableTimelineButton->setToolTip(
 			pCommonStrings->getTimelineDisabledPatternMode()
 		);
 	}
 	else if ( tempoSource == Hydrogen::Tempo::Midi ) {
 		bEnabled = true;
 		bTempoEnabled = false;
-		m_pEnableTimelineAction->setToolTip(
+		m_pEnableTimelineButton->setToolTip(
 			pCommonStrings->getTimelineDisabledMidiClock()
 		);
 	}
 	else if ( tempoSource == Hydrogen::Tempo::Jack ) {
 		bEnabled = true;
 		bTempoEnabled = false;
-		m_pEnableTimelineAction->setToolTip(
+		m_pEnableTimelineButton->setToolTip(
 			pCommonStrings->getTimelineDisabledTimebaseListener()
 		);
 	}
 	else {
 		bEnabled = true;
 		bTempoEnabled = pSong->getIsTimelineActivated();
-		m_pEnableTimelineAction->setToolTip( pCommonStrings->getTimelineEnabled(
+		m_pEnableTimelineButton->setToolTip( pCommonStrings->getTimelineEnabled(
 		) );
 	}
 
-	m_pEnableTimelineAction->setEnabled( bEnabled );
-	m_pTagAction->setEnabled( bEnabled );
-	m_pTempoMarkerAction->setEnabled( bTempoEnabled );
+	m_pEnableTimelineButton->setEnabled( bEnabled );
+	m_pTagButton->setEnabled( bEnabled );
+	m_pTempoMarkerButton->setEnabled( bTempoEnabled );
 
 	updateIcons();
 }

@@ -263,28 +263,6 @@ void Skin::setPlayheadPen( QPainter* p, bool bHovered ) {
 
 void Skin::setToolBarIcon(
 	QToolBar* pToolBar,
-	QAction* pAction,
-	const QString& sIconPath,
-	const QColor& disabledColor
-)
-{
-	if ( pToolBar == nullptr || pAction == nullptr ) {
-		___ERRORLOG( "Invalid tool bar or action" );
-		return;
-	}
-
-	auto pButton =
-		dynamic_cast<QToolButton*>( pToolBar->widgetForAction( pAction ) );
-	if ( pButton == nullptr ) {
-		___ERRORLOG( "Unable to retrieve button for tool bar action" );
-		return;
-	}
-
-	Skin::setToolBarIcon( pToolBar, pButton, sIconPath, disabledColor );
-}
-
-void Skin::setToolBarIcon(
-	QToolBar* pToolBar,
 	QToolButton* pButton,
 	const QString& sIconPath,
 	const QColor& disabledColor
