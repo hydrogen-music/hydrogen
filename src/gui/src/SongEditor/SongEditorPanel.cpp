@@ -77,6 +77,9 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		pButton->setCheckable( bCheckable );
 		pButton->setToolTip( sText );
 		pButton->setFocusPolicy( Qt::NoFocus );
+		pButton->setFixedSize(
+			SongEditorPanel::nButtonWidth, SongEditorPanel::nButtonToolHeight
+		);
 		pParent->addWidget( pButton );
 
 		return pButton;
@@ -246,7 +249,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	// mute playback track toggle button
 	m_pMutePlaybackTrackButton = new MuteButton(
 		m_pPlaybackTrackToolBar,
-		QSize( 30, SongEditorPanel::nHeaderWidgetHeight / 2 - 2 ),
+		QSize( SongEditorPanel::nButtonWidth, SongEditorPanel::nButtonToolHeight ),
 		tr( "Mute playback track" ),
 		ColoredButton::Flag::ModifyOnChange |
 			ColoredButton::Flag::CustomRendering |
@@ -386,12 +389,18 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	m_pClearButton = createButton(
 		m_pSongEditorToolBar, tr( "Clear pattern sequence" ), false
 	);
+	m_pClearButton->setFixedSize(
+		SongEditorPanel::nButtonWidth, SongEditorPanel::nButtonMainHeight
+	);
 	connect( m_pClearButton, &QToolButton::clicked, [=]() { clearSequence(); } );
 
 	m_pSongEditorToolBar->addSeparator();
 
 	m_pNewPatternButton =
 		createButton( m_pSongEditorToolBar, tr( "Create new pattern" ), false );
+	m_pNewPatternButton->setFixedSize(
+		SongEditorPanel::nButtonWidth, SongEditorPanel::nButtonMainHeight
+	);
 	connect( m_pNewPatternButton, &QToolButton::clicked, [=]() {
 		addNewPattern();
 	} );
@@ -404,6 +413,9 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	m_pSinglePatternModeButton = new MidiLearnableToolButton(
 		m_pSongEditorToolBar, tr( "selected pattern mode" ) );
 	m_pSinglePatternModeButton->setCheckable( true );
+	m_pSinglePatternModeButton->setFixedSize(
+		SongEditorPanel::nButtonWidth, SongEditorPanel::nButtonMainHeight
+	);
 	connect( m_pSinglePatternModeButton, &QToolButton::clicked, [=]() {
 		Hydrogen::get_instance()->setPatternMode( Song::PatternMode::Selected );
 	});
@@ -413,6 +425,9 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	m_pStackedPatternModeButton = new MidiLearnableToolButton(
 		m_pSongEditorToolBar, tr( "stacked pattern mode" ) );
 	m_pStackedPatternModeButton->setCheckable( true );
+	m_pStackedPatternModeButton->setFixedSize(
+		SongEditorPanel::nButtonWidth, SongEditorPanel::nButtonMainHeight
+	);
 	connect( m_pStackedPatternModeButton, &QToolButton::clicked, [=]() {
 		Hydrogen::get_instance()->setPatternMode( Song::PatternMode::Stacked );
 	});
@@ -424,6 +439,9 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	m_pPatternEditorLockedButton = new MidiLearnableToolButton(
 		m_pSongEditorToolBar, pCommonStrings->getPatternEditorLocked() );
 	m_pPatternEditorLockedButton->setCheckable( true );
+	m_pPatternEditorLockedButton->setFixedSize(
+		SongEditorPanel::nButtonWidth, SongEditorPanel::nButtonMainHeight
+	);
 	m_pPatternEditorLockedButton->setObjectName( "PatternEditorLockedButton" );
 	connect( m_pPatternEditorLockedButton, &QToolButton::clicked, [=](){
 		auto pHydrogen = Hydrogen::get_instance();

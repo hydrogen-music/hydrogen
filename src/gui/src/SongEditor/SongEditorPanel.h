@@ -55,14 +55,19 @@ class SongEditorPanel : public QWidget,
 	Q_OBJECT
 
 	public:
-		static constexpr int nHeaderWidgetHeight = 50;
-		static constexpr int nScalingPlaybackTrack = 85;
+	 static constexpr int nButtonMainHeight = 25;
+	 static constexpr int nButtonToolHeight = 23;
+	 static constexpr int nButtonWidth = 32;
+	 static constexpr int nHeaderWidgetHeight = 50;
+	 static constexpr int nScalingPlaybackTrack = 85;
 
-		explicit SongEditorPanel( QWidget *parent );
-		~SongEditorPanel();
+	 explicit SongEditorPanel( QWidget* parent );
+	 ~SongEditorPanel();
 
-		SongEditor* getSongEditor() const { return m_pSongEditor; }
-		SongEditorPatternList* getSongEditorPatternList() const { return m_pPatternList; }
+	 SongEditor* getSongEditor() const { return m_pSongEditor; }
+	 SongEditorPatternList* getSongEditorPatternList() const
+	 {
+		 return m_pPatternList; }
 		SongEditorPositionRuler* getSongEditorPositionRuler() const { return m_pPositionRuler; }
 		AutomationPathView* getAutomationPathView() const { return m_pAutomationPathView; }
 	PlaybackTrackWaveDisplay* getPlaybackTrackWaveDisplay() const { return m_pPlaybackTrackWaveDisplay; }
