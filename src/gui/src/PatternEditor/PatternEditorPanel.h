@@ -141,6 +141,8 @@ class PatternEditorPanel : public QWidget,
 	Q_OBJECT
 
    public:
+	static constexpr int nButtonHeight = 26;
+	static constexpr int nButtonWidth = 32;
 	static constexpr int nToolBarBorder = 1;
 	static constexpr int nToolBarHeight = 28;
 	static constexpr int nToolBarMargin = 2;

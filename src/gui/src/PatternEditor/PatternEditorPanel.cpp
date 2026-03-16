@@ -245,6 +245,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 		pButton->setCheckable( true );
 		pButton->setFocusPolicy( Qt::NoFocus );
 		pButton->setToolTip( sText );
+		pButton->setFixedSize(
+			PatternEditorPanel::nButtonWidth, PatternEditorPanel::nButtonHeight
+		);
 
 		return pButton;
 	};
@@ -253,6 +256,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 		auto pLearnableButton =
 			new MidiLearnableToolButton( m_pToolBar, sText );
 		pLearnableButton->setCheckable( true );
+		pLearnableButton->setFixedSize(
+			PatternEditorPanel::nButtonWidth, PatternEditorPanel::nButtonHeight
+		);
 
 		return pLearnableButton;
 	};
