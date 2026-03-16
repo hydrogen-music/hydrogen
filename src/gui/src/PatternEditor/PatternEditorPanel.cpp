@@ -2053,7 +2053,10 @@ void PatternEditorPanel::updateStyleSheet()
 					   .arg( backgroundInactiveColor.name() ) );
 
     Skin::setToolBarStyle( m_pToolBar, colorToolBar );
-
+    m_pToolBar->setStyleSheet( m_pToolBar->styleSheet().append( "\
+QToolBar {                                      \
+     border: 1px solid #000; \
+}" ) );
 	m_pTabBar->setStyleSheet( QString( "\
 QWidget#patternEditorTabBar {\
      background-color: %1; \
