@@ -51,54 +51,52 @@ class MainToolBar : public QToolBar,
 					protected WidgetWithScalableFont<5, 6, 7>,
 					public EventListener,
 					public H2Core::Object<MainToolBar> {
-    H2_OBJECT(MainToolBar)
+	H2_OBJECT( MainToolBar )
 	Q_OBJECT
-public:
+   public:
+	static constexpr int nBorder = 1;
+	static constexpr int nFontSize = 20;
+	static constexpr int nHeight = 40;
+	static constexpr int nMargin = 3;
+	static constexpr int nSpacing = 4;
+	static constexpr int nWidgetHeight =
+		MainToolBar::nHeight - MainToolBar::nMargin * 2;
 
-		static constexpr int nBorder = 1;
-		static constexpr int nFontSize = 20;
-		static constexpr int nHeight = 40;
-		static constexpr int nMargin = 3;
-		static constexpr int nSpacing = 4;
-		static constexpr int nWidgetHeight = MainToolBar::nHeight -
-			MainToolBar::nMargin * 2;
+	explicit MainToolBar( QWidget* parent );
+	~MainToolBar();
 
+	MidiControlDialog* getMidiControlDialog() const;
 
-		explicit MainToolBar(QWidget *parent);
-		~MainToolBar();
+	void setMidiControlDialogVisible( bool bVisible );
+	/** Unlike all other widgets we have provide visibility buttons for,
+	 * #PreferencesDialog is a transient widget we can not check visibility
+	 * on. */
+	void setPreferencesVisibilityState( bool bChecked );
+	void updateActions();
+	void updateInput();
 
-		MidiControlDialog* getMidiControlDialog() const;
+	Editor::Input getInput() const;
+	void setInput( Editor::Input input );
 
-		void setMidiControlDialogVisible( bool bVisible );
-		/** Unlike all other widgets we have provide visibility buttons for,
-		 * #PreferencesDialog is a transient widget we can not check visibility
-		 * on. */
-		void setPreferencesVisibilityState( bool bChecked );
-		void updateActions();
-		void updateInput();
+	void audioDriverChangedEvent() override;
+	void beatCounterEvent() override;
+	void jackTimebaseStateChangedEvent( int nState ) override;
+	void jackTransportActivationEvent() override;
+	void loopModeActivationEvent() override;
+	void midiClockActivationEvent() override;
+	void metronomeEvent( int ) override;
+	void recordingModeChangedEvent() override;
+	void songModeActivationEvent() override;
+	void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
+	void tempoChangedEvent( int nValue ) override;
+	void timelineActivationEvent() override;
+	void updateSongEvent( int nValue ) override;
 
-		Editor::Input getInput() const;
-		void setInput( Editor::Input input );
-
-		void audioDriverChangedEvent() override;
-		void beatCounterEvent() override;
-		void jackTimebaseStateChangedEvent( int nState ) override;
-		void jackTransportActivationEvent() override;
-		void loopModeActivationEvent() override;
-		void midiClockActivationEvent() override;
-		void metronomeEvent( int ) override;
-		void recordingModeChangedEvent() override;
-		void songModeActivationEvent() override;
-		void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
-		void tempoChangedEvent( int nValue ) override;
-		void timelineActivationEvent() override;
-		void updateSongEvent( int nValue ) override;
-
-public slots:
+   public slots:
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 	void activateSongMode( bool bActivate );
 
-private slots:
+   private slots:
 	void recBtnClicked();
 	void playBtnClicked();
 	void stopBtnClicked();
@@ -108,72 +106,73 @@ private slots:
 	void fastForwardBtnClicked();
 	void rewindBtnClicked();
 
-	//rubberband
+	// rubberband
 	void rubberbandButtonToggle();
 
-		void updateTime();
-private:
-		void updateIcons();
-		void updateStyleSheet();
+	void updateTime();
 
-		QAction* m_pSelectAction;
-		QAction* m_pDrawAction;
+   private:
+	void updateIcons();
+	void updateStyleSheet();
 
-		LCDDisplay* m_pTimeDisplay;
+	QAction* m_pSelectAction;
+	QAction* m_pDrawAction;
 
-		MidiLearnableToolButton* m_pRwdButton;
-		MidiLearnableToolButton* m_pRecButton;
-		MidiLearnableToolButton* m_pPlayButton;
-		QAction* m_pPlayAction;
-		std::shared_ptr<MidiAction> m_pPlayMidiAction;
-		std::shared_ptr<MidiAction> m_pCountInMidiAction;
-		QAction* m_pCountInAction;
-		MidiLearnableToolButton* m_pStopButton;
-		MidiLearnableToolButton* m_pFfwdButton;
-		QToolButton* m_pSongLoopButton;
+	LCDDisplay* m_pTimeDisplay;
 
-		QAction* m_pSongModeAction;
-		QAction* m_pPatternModeAction;
+	MidiLearnableToolButton* m_pRwdButton;
+	MidiLearnableToolButton* m_pRecButton;
+	MidiLearnableToolButton* m_pPlayButton;
+	QAction* m_pPlayAction;
+	std::shared_ptr<MidiAction> m_pPlayMidiAction;
+	std::shared_ptr<MidiAction> m_pCountInMidiAction;
+	QAction* m_pCountInAction;
+	MidiLearnableToolButton* m_pStopButton;
+	MidiLearnableToolButton* m_pFfwdButton;
+	QToolButton* m_pSongLoopButton;
 
-		MidiLearnableToolButton* m_pMetronomeButton;
-		BpmSpinBox* m_pBpmSpinBox;
+	QAction* m_pSongModeAction;
+	QAction* m_pPatternModeAction;
 
-		BpmTap* m_pBpmTap;
+	MidiLearnableToolButton* m_pMetronomeButton;
+	BpmSpinBox* m_pBpmSpinBox;
 
-		QAction* m_pRubberBandAction;
-		QAction* m_pRubberBandSeparator;
+	BpmTap* m_pBpmTap;
 
-		QAction* m_pJackTransportAction;
-		QAction* m_pJackTimebaseAction;
-		MidiLearnableToolButton* m_pJackTimebaseButton;
-		MidiControlDialog* m_pMidiControlDialog;
-		QAction* m_pJackSeparator;
+	QAction* m_pRubberBandAction;
+	QAction* m_pRubberBandSeparator;
 
-		MidiControlButton* m_pMidiControlButton;
+	QAction* m_pJackTransportAction;
+	QAction* m_pJackTimebaseAction;
+	MidiLearnableToolButton* m_pJackTimebaseButton;
+	MidiControlDialog* m_pMidiControlDialog;
+	QAction* m_pJackSeparator;
 
-		QAction* m_pShowPlaylistEditorAction;
-		QAction* m_pShowDirectorAction;
-		QAction* m_pShowMixerAction;
-		QAction* m_pShowRackAction;
-		QAction* m_pShowPreferencesAction;
-		QAction* m_pShowAutomationAction;
-		QAction* m_pShowPlaybackTrackAction;
+	MidiControlButton* m_pMidiControlButton;
 
-		QTimer* m_pTimer;
+	QAction* m_pShowPlaylistEditorAction;
+	QAction* m_pShowDirectorAction;
+	QAction* m_pShowMixerAction;
+	QAction* m_pShowRackAction;
+	QAction* m_pShowPreferencesAction;
+	QAction* m_pShowAutomationAction;
+	QAction* m_pShowPlaybackTrackAction;
 
-		void updateBpmSpinBox();
-		void updateJackTransport();
-		void updateJackTimebase();
-		void updateLoopMode();
-		void updateRecordMode();
-		void updateSongMode();
-		void updateTransportControl();
+	QTimer* m_pTimer;
 
-		QString m_sLCDBPMSpinboxToolTip;
-		QString m_sLCDBPMSpinboxTimelineToolTip;
-		QString m_sLCDBPMSpinboxJackTimebaseToolTip;
+	void updateBpmSpinBox();
+	void updateJackTransport();
+	void updateJackTimebase();
+	void updateLoopMode();
+	void updateRecordMode();
+	void updateSongMode();
+	void updateTransportControl();
 
-		Editor::Input m_input;
+	QString m_sLCDBPMSpinboxToolTip;
+	QString m_sLCDBPMSpinboxTimelineToolTip;
+	QString m_sLCDBPMSpinboxJackTimebaseToolTip;
+
+	Editor::Input m_input;
 };
 
 inline MidiControlDialog* MainToolBar::getMidiControlDialog() const
