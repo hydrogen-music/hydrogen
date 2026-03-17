@@ -1493,10 +1493,13 @@ void SampleEditor::updateSample()
 	pEditSample->setVelocityEnvelope( m_velocityEnvelope );
 	pEditSample->setPanEnvelope( m_panEnvelope );
 
+	QApplication::setOverrideCursor( Qt::WaitCursor );
 	if ( !pEditSample->load( pAudioEngine->getPlayhead()->getBpm() ) ) {
+		QApplication::restoreOverrideCursor();
 		ERRORLOG( "Unable to load modified sample" );
 		return;
 	}
+	QApplication::restoreOverrideCursor();
 
 	// Required to ensure we don't mess with the preview instrument while the
 	// sampler is still rendering its notes.
