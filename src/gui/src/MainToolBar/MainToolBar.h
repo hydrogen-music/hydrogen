@@ -130,7 +130,7 @@ private:
 		QAction* m_pCountInAction;
 		MidiLearnableToolButton* m_pStopButton;
 		MidiLearnableToolButton* m_pFfwdButton;
-		QAction* m_pSongLoopAction;
+		QToolButton* m_pSongLoopButton;
 
 		QAction* m_pSongModeAction;
 		QAction* m_pPatternModeAction;

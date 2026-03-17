@@ -84,7 +84,17 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 		return pAction;
 	};
 
-	auto createButton = [&]( const QString& sText, bool bCheckable ) {
+	auto createButton = [&]( const QString& sText ) {
+		auto pButton = new QToolButton( this );
+		pButton->setCheckable( true );
+		pButton->setToolTip( sText );
+		pButton->setFixedSize( buttonSize );
+		pButton->setFocusPolicy( Qt::NoFocus );
+
+		return pButton;
+	};
+
+	auto createLearnableButton = [&]( const QString& sText, bool bCheckable ) {
 		auto pButton = new MidiLearnableToolButton( this, sText );
 		pButton->setCheckable( bCheckable );
 
@@ -152,7 +162,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 
 	////////////////////////////////////////////////////////////////////////////
 	// Rewind button
-	m_pRwdButton = createButton( tr( "Rewind" ), false );
+	m_pRwdButton = createLearnableButton( tr( "Rewind" ), false );
 	m_pRwdButton->setObjectName( "MainToolBarRewindButton" );
 	connect( m_pRwdButton, &QToolButton::clicked, [&]() {
 		rewindBtnClicked();
@@ -162,7 +172,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 	addWidget( m_pRwdButton );
 
 	// Record button
-	m_pRecButton = createButton( tr( "Record" ), true );
+	m_pRecButton = createLearnableButton( tr( "Record" ), true );
 	m_pRecButton->setObjectName( "MainToolBarRecordButton" );
 	connect( m_pRecButton, &QToolButton::clicked, [&]() {
 		recBtnClicked();
@@ -172,7 +182,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 	addWidget( m_pRecButton );
 
 	// Play button
-	m_pPlayButton = createButton( tr( "Play/ Pause" ), true );
+	m_pPlayButton = createLearnableButton( tr( "Play/ Pause" ), true );
 	m_pPlayButton->setObjectName( "MainToolBarPlayButton" );
 	connect( m_pPlayButton, &QToolButton::clicked, [&]() {
 		playBtnClicked();
@@ -220,7 +230,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 	addWidget( m_pPlayButton );
 
 	// Stop button
-	m_pStopButton = createButton( tr( "Stop" ), false );
+	m_pStopButton = createLearnableButton( tr( "Stop" ), false );
 	m_pStopButton->setObjectName( "MainToolBarStopButton" );
 	connect( m_pStopButton, &QToolButton::clicked, [&](){
 		stopBtnClicked();
@@ -230,7 +240,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 	addWidget( m_pStopButton );
 
 	// Fast forward button
-	m_pFfwdButton = createButton( tr( "Fast Forward" ), false );
+	m_pFfwdButton = createLearnableButton( tr( "Fast Forward" ), false );
 	m_pFfwdButton->setObjectName( "MainToolBarForwardButton" );
 	connect( m_pFfwdButton, &QToolButton::clicked, [&](){
 		fastForwardBtnClicked();
@@ -240,26 +250,26 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 	addWidget( m_pFfwdButton );
 
 	// Loop song button button
-	m_pSongLoopAction = createAction( tr( "Loop song" ) );
-	m_pSongLoopAction->setObjectName( "MainToolBarLoopButton" );
-	connect( m_pSongLoopAction, &QAction::triggered,
+	m_pSongLoopButton = createButton( tr( "Loop song" ) );
+	m_pSongLoopButton->setObjectName( "MainToolBarLoopButton" );
+	connect( m_pSongLoopButton, &QToolButton::clicked,
 			 [=]( bool bChecked ) {
 				 auto pHydrogenApp = HydrogenApp::get_instance();
 				 CoreActionController::activateLoopMode(
-					 m_pSongLoopAction->isChecked() );
-				 if ( m_pSongLoopAction->isChecked() ) {
+					 m_pSongLoopButton->isChecked() );
+				 if ( m_pSongLoopButton->isChecked() ) {
 					 pHydrogenApp->showStatusBarMessage( tr("Loop song = On") );
 				 } else {
 					 pHydrogenApp->showStatusBarMessage( tr("Loop song = Off") );
 				 }
 
 			 });
-	addAction( m_pSongLoopAction );
+	addWidget( m_pSongLoopButton );
 
 	addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
-	m_pMetronomeButton = createButton( tr( "Switch metronome on/off" ), true );
+	m_pMetronomeButton = createLearnableButton( tr( "Switch metronome on/off" ), true );
 	m_pMetronomeButton->setObjectName( "MetronomeButton" );
 	connect( m_pMetronomeButton, &QToolButton::clicked, []( bool bChecked ) {
 		CoreActionController::setMetronomeIsActive( bChecked );
@@ -311,7 +321,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 	});
 	addAction( m_pJackTransportAction );
 
-	m_pJackTimebaseButton = createButton(
+	m_pJackTimebaseButton = createLearnableButton(
 		pCommonStrings->getJackTimebaseToolTip(), true );
 	m_pJackTimebaseButton->setObjectName( "JackTimebaseButton" );
 	connect( m_pJackTimebaseButton, &QToolButton::clicked, [&]() {
@@ -968,9 +978,9 @@ void MainToolBar::updateLoopMode() {
 	}
 
 	if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {
-		m_pSongLoopAction->setChecked( true );
+		m_pSongLoopButton->setChecked( true );
 	} else {
-		m_pSongLoopAction->setChecked( false );
+		m_pSongLoopButton->setChecked( false );
 	}
 }
 
@@ -987,7 +997,7 @@ void MainToolBar::updateSongMode() {
 	m_pPatternModeAction->setChecked( ! bSongMode );
 	m_pRwdButton->setEnabled( bSongMode );
 	m_pFfwdButton->setEnabled( bSongMode );
-	m_pSongLoopAction->setEnabled( bSongMode );
+	m_pSongLoopButton->setEnabled( bSongMode );
 }
 
 void MainToolBar::updateTransportControl() {
@@ -1021,17 +1031,31 @@ void MainToolBar::updateIcons() {
 	} else {
 		sIconPath.append( "/icons/black/" );
 	}
+	const auto pColorTheme =
+		H2Core::Preferences::get_instance()->getColorTheme();
+
+	const QColor colorBackgroundInactive = Skin::makeBackgroundColorInactive(
+		pColorTheme->m_songEditor_backgroundColor.darker( 110 )
+	);
+
+	Skin::setToolBarIcon(
+		this, m_pRwdButton, sIconPath + "rewind.svg", colorBackgroundInactive
+	);
+	Skin::setToolBarIcon(
+		this, m_pFfwdButton, sIconPath + "fast_forward.svg",
+		colorBackgroundInactive
+	);
+	Skin::setToolBarIcon(
+		this, m_pSongLoopButton, sIconPath + "loop.svg", colorBackgroundInactive
+	);
 
 	m_pSelectAction->setIcon( QIcon( sIconPath + "select.svg" ) );
 	m_pDrawAction->setIcon( QIcon( sIconPath + "draw.svg" ) );
-	m_pRwdButton->setIcon( QIcon( sIconPath + "rewind.svg" ) );
 	m_pRecButton->setIcon(
 		QIcon( sIconPath + "record.svg" ) );
 	m_pPlayAction->setIcon( QIcon( sIconPath + "play.svg" ) );
 	m_pCountInAction->setIcon( QIcon( sIconPath + "play_count_in.svg" ) );
 	m_pStopButton->setIcon( QIcon( sIconPath + "stop.svg" ) );
-	m_pFfwdButton->setIcon( QIcon( sIconPath + "fast_forward.svg" ) );
-	m_pSongLoopAction->setIcon( QIcon( sIconPath + "loop.svg" ) );
 	m_pPatternModeAction->setIcon( QIcon( sIconPath + "pattern-editor.svg" ) );
 	m_pSongModeAction->setIcon( QIcon( sIconPath + "song-editor.svg" ) );
 	m_pMetronomeButton->setIcon( QIcon( sIconPath + "metronome.svg" ) );
@@ -1060,14 +1084,17 @@ void MainToolBar::updateStyleSheet() {
 	const QColor colorBackground =
 		pColorTheme->m_songEditor_backgroundColor.darker( 110 );
 
-		setStyleSheet( QString( "\
+	Skin::setToolBarStyle( this, colorBackground, false );
+	setStyleSheet(
+		styleSheet().append(
+			QString( "\
 QToolBar {\
      background-color: %1; \
      border: %2px solid #000;\
      spacing: %3px;\
 }")
 				   .arg( colorBackground.name() ).arg( MainToolBar::nBorder )
-				   .arg( MainToolBar::nSpacing ) );
+				   .arg( MainToolBar::nSpacing ) ) );
 
 	m_pBpmTap->setBackgroundColor( colorBackground );
 	m_pBpmTap->updateStyleSheet();
