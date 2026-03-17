@@ -66,6 +66,8 @@ public:
 		static constexpr int nToolBarHoveredScaling = 105;
 		static constexpr int nToolBarPressedScaling = 110;
 
+		static constexpr int nIconMargin = 2;
+
 		enum class Stacked {
 			None,
 			Off,

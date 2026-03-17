@@ -284,7 +284,9 @@ void Skin::setToolBarIcon(
 	}
 
 	const auto size = pButton->size();
-	const auto iconSize = pButton->iconSize();
+	const int nIconLength =
+		std::min( size.width(), size.height() ) - Skin::nIconMargin;
+	const auto iconSize = QSize( nIconLength, nIconLength );
 	const QRect iconRect(
 		( size.width() - iconSize.width() ) / 2,
 		( size.height() - iconSize.height() ) / 2, iconSize.width(),
