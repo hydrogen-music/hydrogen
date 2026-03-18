@@ -69,6 +69,7 @@ private:
 
 		MidiLearnableToolButton* m_pTapButton;
 
+		QWidget* m_pBackground;
 		QWidget* m_pBeatLengthButtonsGroup;
 		QToolButton* m_pBeatLengthUpBtn;
 		QToolButton* m_pBeatLengthDownBtn;
