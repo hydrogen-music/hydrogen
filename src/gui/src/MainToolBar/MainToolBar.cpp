@@ -100,6 +100,30 @@ MainToolBar::MainToolBar( QWidget* pParent )
 		return pButton;
 	};
 
+	auto addCustomSeparator = [&]() {
+		auto pContainer = new QWidget( this );
+		pContainer->setFixedSize(
+			MainToolBar::nSeparatorWidth + 2 * MainToolBar::nSeparatorMargin,
+			MainToolBar::nHeight
+		);
+		auto pContainerLayout = new QHBoxLayout();
+		pContainerLayout->setContentsMargins(
+			MainToolBar::nSeparatorMargin, 0, MainToolBar::nSeparatorMargin, 0
+		);
+		pContainer->setLayout( pContainerLayout );
+
+		auto pLine = new QWidget( pContainer );
+		pLine->setFixedSize(
+			MainToolBar::nSeparatorWidth, MainToolBar::nSeparatorHeight
+		);
+		pLine->setObjectName( "MainToolBarSeparator" );
+		pContainerLayout->addWidget( pLine );
+
+		addWidget( pContainer );
+
+		return pContainer;
+	};
+
 	auto createLearnableButton = [&]( const QString& sText, bool bCheckable ) {
 		auto pButton = new MidiLearnableToolButton( this, sText );
 		pButton->setFixedSize( buttonSize );
@@ -132,7 +156,7 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	} );
 	pInputModeGroup->addAction( m_pDrawAction );
 
-	addSeparator();
+	addCustomSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
 	auto pEditorGroup = new QActionGroup( this );
@@ -152,7 +176,7 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	} );
 	pEditorGroup->addAction( m_pSongModeAction );
 
-	addSeparator();
+	addCustomSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pTimeDisplay = new LCDDisplay(
@@ -275,7 +299,7 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	} );
 	addWidget( m_pSongLoopButton );
 
-	addSeparator();
+	addCustomSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pMetronomeButton =
@@ -312,7 +336,7 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	m_pBpmTap = new BpmTap( this );
 	addWidget( m_pBpmTap );
 
-	addSeparator();
+	addCustomSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -325,7 +349,7 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	} );
 	addWidget( m_pMidiControlButton );
 
-	addSeparator();
+	addCustomSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pJackTransportAction = createAction( tr( "JACK transport on/off" ) );
@@ -342,7 +366,7 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	} );
 	m_pJackTimebaseAction = addWidget( m_pJackTimebaseButton );
 
-	m_pJackSeparator = addSeparator();
+	m_pJackSeparator = addCustomSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pRubberBandAction = createAction(
@@ -354,7 +378,7 @@ MainToolBar::MainToolBar( QWidget* pParent )
 		rubberbandButtonToggle();
 	} );
 
-	m_pRubberBandSeparator = addSeparator();
+	m_pRubberBandSeparator = addCustomSeparator();
 
 	// test the path. if test fails, no button
 	if ( QFile( pPref->m_sRubberBandCLIexecutable ).exists() == false ) {
@@ -1178,8 +1202,17 @@ void MainToolBar::updateIcons()
 
 void MainToolBar::updateStyleSheet()
 {
-	const auto pColorTheme =
-		H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pPref = H2Core::Preferences::get_instance();
+	QColor iconColor;
+	if ( pPref->getInterfaceTheme()->m_iconColor ==
+		 H2Core::InterfaceTheme::IconColor::White ) {
+		iconColor = Qt::white;
+	}
+	else {
+		iconColor = Qt::black;
+	}
+
+	const auto pColorTheme = pPref->getColorTheme();
 
 	const QColor colorBackground =
 		pColorTheme->m_songEditor_backgroundColor.darker( 110 );
@@ -1187,9 +1220,13 @@ void MainToolBar::updateStyleSheet()
 	Skin::setToolBarStyle( this, colorBackground, false );
 	setStyleSheet( styleSheet().append( QString( "\
 QToolBar {                                        \
-    spacing: %1px;                                  \
+    spacing: %1px;                                \
+}                                                 \
+QWidget#MainToolBarSeparator {                    \
+    background-color: %2;                         \
 }" )
-											.arg( MainToolBar::nSpacing ) ) );
+											.arg( MainToolBar::nSpacing )
+											.arg( iconColor.name() ) ) );
 
 	m_pBpmTap->setBackgroundColor( colorBackground );
 	m_pBpmTap->updateStyleSheet();

@@ -59,6 +59,9 @@ class MainToolBar : public QToolBar,
 	static constexpr int nHeight = 40;
 	static constexpr int nMargin = 3;
 	static constexpr int nSpacing = 2;
+	static constexpr int nSeparatorHeight = 30;
+	static constexpr int nSeparatorMargin = 3;
+	static constexpr int nSeparatorWidth = 1;
 	static constexpr int nWidgetHeight =
 		MainToolBar::nHeight - MainToolBar::nMargin * 2;
 
@@ -140,13 +143,13 @@ class MainToolBar : public QToolBar,
 	BpmTap* m_pBpmTap;
 
 	QAction* m_pRubberBandAction;
-	QAction* m_pRubberBandSeparator;
+	QWidget* m_pRubberBandSeparator;
 
 	QAction* m_pJackTransportAction;
 	QAction* m_pJackTimebaseAction;
 	MidiLearnableToolButton* m_pJackTimebaseButton;
 	MidiControlDialog* m_pMidiControlDialog;
-	QAction* m_pJackSeparator;
+	QWidget* m_pJackSeparator;
 
 	MidiControlButton* m_pMidiControlButton;
 
