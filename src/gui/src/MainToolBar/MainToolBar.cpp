@@ -80,6 +80,13 @@ MainToolBar::MainToolBar( QWidget* pParent )
 		pAction->setIconText( sText );
 		pAction->setToolTip( sText );
 
+		addAction( pAction );
+
+		auto pButton = dynamic_cast<QToolButton*>( widgetForAction( pAction ) );
+		if ( pButton != nullptr ) {
+			pButton->setFixedSize( buttonSize );
+		}
+
 		return pAction;
 	};
 
@@ -95,6 +102,7 @@ MainToolBar::MainToolBar( QWidget* pParent )
 
 	auto createLearnableButton = [&]( const QString& sText, bool bCheckable ) {
 		auto pButton = new MidiLearnableToolButton( this, sText );
+		pButton->setFixedSize( buttonSize );
 		pButton->setCheckable( bCheckable );
 
 		return pButton;
@@ -112,7 +120,6 @@ MainToolBar::MainToolBar( QWidget* pParent )
 			updateInput();
 		}
 	} );
-	addAction( m_pSelectAction );
 	pInputModeGroup->addAction( m_pSelectAction );
 
 	m_pDrawAction = createAction( pCommonStrings->getDrawModeButton() );
@@ -123,7 +130,6 @@ MainToolBar::MainToolBar( QWidget* pParent )
 			updateInput();
 		}
 	} );
-	addAction( m_pDrawAction );
 	pInputModeGroup->addAction( m_pDrawAction );
 
 	addSeparator();
@@ -137,7 +143,6 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	connect( m_pPatternModeAction, &QAction::triggered, [=]() {
 		activateSongMode( false );
 	} );
-	addAction( m_pPatternModeAction );
 	pEditorGroup->addAction( m_pPatternModeAction );
 
 	m_pSongModeAction = createAction( tr( "Song Mode" ) );
@@ -145,7 +150,6 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	connect( m_pSongModeAction, &QAction::triggered, [=]() {
 		activateSongMode( true );
 	} );
-	addAction( m_pSongModeAction );
 	pEditorGroup->addAction( m_pSongModeAction );
 
 	addSeparator();
@@ -329,7 +333,6 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	connect( m_pJackTransportAction, &QAction::triggered, [&]() {
 		jackTransportBtnClicked();
 	} );
-	addAction( m_pJackTransportAction );
 
 	m_pJackTimebaseButton =
 		createLearnableButton( pCommonStrings->getJackTimebaseToolTip(), true );
@@ -350,7 +353,6 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	connect( m_pRubberBandAction, &QAction::triggered, [&]() {
 		rubberbandButtonToggle();
 	} );
-	addAction( m_pRubberBandAction );
 
 	m_pRubberBandSeparator = addSeparator();
 
@@ -365,26 +367,22 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	connect( m_pShowPlaylistEditorAction, &QAction::triggered, []() {
 		HydrogenApp::get_instance()->showPlaylistEditor();
 	} );
-	addAction( m_pShowPlaylistEditorAction );
 
 	m_pShowDirectorAction = createAction( tr( "Show Director" ) );
 	connect( m_pShowDirectorAction, &QAction::triggered, [&]() {
 		HydrogenApp::get_instance()->showDirector();
 	} );
-	addAction( m_pShowDirectorAction );
 
 	m_pShowMixerAction = createAction( tr( "Show mixer" ) );
 	connect( m_pShowMixerAction, &QAction::triggered, [&]() {
 		HydrogenApp::get_instance()->showMixer( m_pShowMixerAction->isChecked()
 		);
 	} );
-	addAction( m_pShowMixerAction );
 
 	m_pShowRackAction = createAction( tr( "Show Rack" ) );
 	connect( m_pShowRackAction, &QAction::triggered, [&]() {
 		HydrogenApp::get_instance()->showRack( m_pShowRackAction->isChecked() );
 	} );
-	addAction( m_pShowRackAction );
 
 	m_pShowAutomationAction = createAction( tr( "Show Automation" ) );
 	connect( m_pShowAutomationAction, &QAction::triggered, [&]() {
@@ -392,7 +390,6 @@ MainToolBar::MainToolBar( QWidget* pParent )
 			->getSongEditorPanel()
 			->toggleAutomationAreaVisibility();
 	} );
-	addAction( m_pShowAutomationAction );
 
 	m_pShowPlaybackTrackAction = createAction( tr( "Show Playback Track" ) );
 	connect( m_pShowPlaybackTrackAction, &QAction::triggered, [=]() {
@@ -400,13 +397,11 @@ MainToolBar::MainToolBar( QWidget* pParent )
 			m_pShowPlaybackTrackAction->isChecked()
 		);
 	} );
-	addAction( m_pShowPlaybackTrackAction );
 
 	m_pShowPreferencesAction = createAction( tr( "Show Preferences" ) );
 	connect( m_pShowPreferencesAction, &QAction::triggered, [&]() {
 		HydrogenApp::get_instance()->showPreferencesDialog();
 	} );
-	addAction( m_pShowPreferencesAction );
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -1191,13 +1186,9 @@ void MainToolBar::updateStyleSheet()
 
 	Skin::setToolBarStyle( this, colorBackground, false );
 	setStyleSheet( styleSheet().append( QString( "\
-QToolBar {\
-     background-color: %1; \
-     border: %2px solid #000;\
-     spacing: %3px;\
+QToolBar {                                        \
+    spacing: %1px;                                  \
 }" )
-											.arg( colorBackground.name() )
-											.arg( MainToolBar::nBorder )
 											.arg( MainToolBar::nSpacing ) ) );
 
 	m_pBpmTap->setBackgroundColor( colorBackground );
