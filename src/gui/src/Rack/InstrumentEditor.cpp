@@ -239,6 +239,7 @@ font-size: 21px;" );
 		if ( pInstrument != nullptr ) {
 			pInstrument->setFilterActive( !pInstrument->isFilterActive() );
 			pHydrogen->setIsModified( true );
+            updateActivation();
 			updateIcons();
 		}
 	} );
@@ -666,7 +667,8 @@ void InstrumentEditor::onPreferencesChanged(
 
 void InstrumentEditor::updateActivation()
 {
-	if ( Hydrogen::get_instance()->getSelectedInstrument() != nullptr ) {
+    auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	if ( pInstrument != nullptr ) {
 		m_pAttackRotary->setIsActive( true );
 		m_pDecayRotary->setIsActive( true );
 		m_pSustainRotary->setIsActive( true );
@@ -677,8 +679,8 @@ void InstrumentEditor::updateActivation()
 		m_pRandomPitchRotary->setIsActive( true );
 
 		m_pFilterBypassButton->setEnabled( true );
-		m_pCutoffRotary->setIsActive( true );
-		m_pResonanceRotary->setIsActive( true );
+		m_pCutoffRotary->setIsActive( pInstrument->isFilterActive() );
+		m_pResonanceRotary->setIsActive( pInstrument->isFilterActive() );
 
 		m_pInstrumentGain->setIsActive( true );
 
