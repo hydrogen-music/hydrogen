@@ -306,7 +306,7 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 	}
 	else if ( m_bEntered ) {
 		backgroundColor =
-			backgroundColor.lighter( Skin::nToolBarHoveredScaling );
+			backgroundColor.lighter( Skin::nToolButtonHoveredScaling );
 	}
 
 	p.fillRect( QRect( 0, 0, width(), height() ), backgroundColor );

@@ -140,7 +140,7 @@ void Button::updateStyleSheet() {
 	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
 	
 	const QColor backgroundColor = pColorTheme->m_widgetColor;
-	const QColor backgroundHoverColor = backgroundColor.lighter( Skin::nToolBarHoveredScaling );
+	const QColor backgroundHoverColor = backgroundColor.lighter( Skin::nToolButtonHoveredScaling );
 	const QColor borderColor = Qt::black;
 
 	QColor backgroundCheckedColor, backgroundCheckedTextColor;

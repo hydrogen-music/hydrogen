@@ -92,9 +92,9 @@ QString Skin::getGlobalStyleSheet() {
 
 	const QColor buttonBackground = pColorTheme->m_widgetColor;
 	const QColor buttonBackgroundHover =
-		pColorTheme->m_widgetColor.lighter( Skin::nToolBarHoveredScaling );
+		pColorTheme->m_widgetColor.lighter( Skin::nToolButtonHoveredScaling );
 	const QColor buttonBackgroundChecked =
-		pColorTheme->m_accentColor.lighter( Skin::nToolBarCheckedScaling );
+		pColorTheme->m_accentColor.lighter( Skin::nToolButtonCheckedScaling );
 	const QColor buttonTextChecked = pColorTheme->m_accentTextColor;
 	const QColor spinBoxSelection = pColorTheme->m_spinBoxColor.darker( 120 );
 
@@ -160,6 +160,73 @@ QString Skin::getImagePath() {
 
 QString Skin::getSvgImagePath() {
 	return H2Core::Filesystem::img_dir().append( "/scalable" );
+}
+
+QString Skin::getToolButtonStyle( const QColor& backgroundColor )
+{
+	const auto pPref = H2Core::Preferences::get_instance();
+	QColor iconColor;
+	if ( pPref->getInterfaceTheme()->m_iconColor ==
+		 H2Core::InterfaceTheme::IconColor::White ) {
+		iconColor = Qt::white;
+	}
+	else {
+		iconColor = Qt::black;
+	}
+	const QColor iconInactiveColor = makeBackgroundColorInactive( iconColor );
+
+	QColor backgroundCheckedColor, backgroundPressedColor,
+		backgroundHoveredColor;
+	if ( Skin::moreBlackThanWhite( backgroundColor ) ) {
+		backgroundCheckedColor =
+			backgroundColor.lighter( Skin::nToolButtonCheckedScaling );
+		backgroundHoveredColor =
+			backgroundColor.lighter( Skin::nToolButtonHoveredScaling );
+		backgroundPressedColor =
+			backgroundColor.lighter( Skin::nToolButtonPressedScaling );
+	}
+	else {
+		backgroundCheckedColor =
+			backgroundColor.darker( Skin::nToolButtonCheckedScaling );
+		backgroundHoveredColor =
+			backgroundColor.darker( Skin::nToolButtonHoveredScaling );
+		backgroundPressedColor =
+			backgroundColor.darker( Skin::nToolButtonPressedScaling );
+	}
+
+	return QString( "\
+QToolButton {                          \
+    background-color: %1;              \
+}                                      \
+QToolButton:checked {                  \
+    background-color: %3;              \
+    border: 1px solid %2;              \
+    border-radius: %6px;               \
+}                                      \
+QToolButton:disabled:checked {         \
+    border: 1px solid %7;              \
+}                                      \
+QToolButton:hover {                    \
+    background-color: %4;              \
+    border: 1px solid %2;              \
+    border-radius: %6px;               \
+}                                      \
+QToolButton:pressed {                  \
+    background-color: %5;              \
+}                                      \
+QToolButton:hover:checked {            \
+    background-color: %3;              \
+}                                      \
+QToolButton:hover:pressed {            \
+    background-color: %5;              \
+}" )
+								 .arg( backgroundColor.name() )
+								 .arg( iconColor.name() )
+								 .arg( backgroundCheckedColor.name() )
+								 .arg( backgroundHoveredColor.name() )
+								 .arg( backgroundPressedColor.name() )
+								 .arg( Skin::nToolButtonBorderRadius )
+								 .arg( iconInactiveColor.name() );
 }
 
 QColor Skin::makeBackgroundColorInactive( const QColor& color )
@@ -340,30 +407,8 @@ void Skin::setToolBarStyle(
 	else {
 		iconColor = Qt::black;
 	}
-	const QColor iconInactiveColor = makeBackgroundColorInactive( iconColor );
-
-	QColor backgroundCheckedColor, backgroundPressedColor,
-		backgroundHoveredColor;
-	if ( Skin::moreBlackThanWhite( backgroundColor ) ) {
-		backgroundCheckedColor =
-			backgroundColor.lighter( Skin::nToolBarCheckedScaling );
-		backgroundHoveredColor =
-			backgroundColor.lighter( Skin::nToolBarHoveredScaling );
-		backgroundPressedColor =
-			backgroundColor.lighter( Skin::nToolBarPressedScaling );
-	}
-	else {
-		backgroundCheckedColor =
-			backgroundColor.darker( Skin::nToolBarCheckedScaling );
-		backgroundHoveredColor =
-			backgroundColor.darker( Skin::nToolBarHoveredScaling );
-		backgroundPressedColor =
-			backgroundColor.darker( Skin::nToolBarPressedScaling );
-	}
 
     const QString sBorder = bBorder ? "1px solid #000" : "none";
-
-    const int nButtonBorderRadius = 2;
 
 	pToolBar->setStyleSheet( QString( "\
 QToolBar {                             \
@@ -380,34 +425,10 @@ QToolBar::separator {                  \
     margin-right: 2px;                 \
     margin-bottom: 4px;                \
 }                                      \
-QToolButton:checked {                  \
-    background-color: %4;              \
-    border: 1px solid %3;              \
-    border-radius: %7px;               \
-}                                      \
-QToolButton:disabled:checked {         \
-    border: 1px solid %8;              \
-}                                      \
-QToolButton:hover {                    \
-    background-color: %5;              \
-    border: 1px solid %3;              \
-    border-radius: %7px;               \
-}                                      \
-QToolButton:pressed {                  \
-    background-color: %6;              \
-}                                      \
-QToolButton:hover:checked {            \
-    background-color: %4;              \
-}                                      \
-QToolButton:hover:pressed {            \
-    background-color: %6;              \
-}" )
+%4" )
 								 .arg( backgroundColor.name() )
 								 .arg( sBorder )
 								 .arg( iconColor.name() )
-								 .arg( backgroundCheckedColor.name() )
-								 .arg( backgroundHoveredColor.name() )
-								 .arg( backgroundPressedColor.name() )
-								 .arg( nButtonBorderRadius )
-								 .arg( iconInactiveColor.name() ) );
+								 .arg( Skin::getToolButtonStyle( backgroundColor
+								 ) ) );
 }

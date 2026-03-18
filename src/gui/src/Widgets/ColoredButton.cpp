@@ -156,10 +156,10 @@ void ColoredButton::updateStyleSheet()
 
 	QColor hoveredColor;
 	if ( Skin::moreBlackThanWhite( defaultColor ) ) {
-		hoveredColor = defaultColor.lighter( Skin::nToolBarHoveredScaling );
+		hoveredColor = defaultColor.lighter( Skin::nToolButtonHoveredScaling );
 	}
 	else {
-		hoveredColor = defaultColor.darker( Skin::nToolBarHoveredScaling );
+		hoveredColor = defaultColor.darker( Skin::nToolButtonHoveredScaling );
 	}
 	const auto hoveredTextColor = defaultTextColor;
 

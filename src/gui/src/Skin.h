@@ -62,9 +62,10 @@ public:
 		/** in pixel */
 		static constexpr int nScrollBarWidth = 12;
 
-		static constexpr int nToolBarCheckedScaling = 125;
-		static constexpr int nToolBarHoveredScaling = 105;
-		static constexpr int nToolBarPressedScaling = 110;
+		static constexpr int nToolButtonBorderRadius = 2;
+		static constexpr int nToolButtonCheckedScaling = 125;
+		static constexpr int nToolButtonHoveredScaling = 105;
+		static constexpr int nToolButtonPressedScaling = 110;
 
 		static constexpr int nIconMargin = 2;
 
@@ -94,6 +95,7 @@ public:
 		static int getPlayheadShaftOffset() {
 			return std::floor( Skin::nPlayheadWidth / 2 ); }
 		static QString getSvgImagePath();
+		static QString getToolButtonStyle( const QColor& backgroundColor );
 
 		static QColor makeBackgroundColorInactive( const QColor& color );
 

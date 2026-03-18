@@ -717,9 +717,9 @@ void ComponentView::updateStyleSheet() {
 
 	const QColor headerColor = pColorTheme->m_componentEditor_componentColor;
 	const QColor headerColorHover =
-		headerColor.darker( Skin::nToolBarHoveredScaling );
+		headerColor.darker( Skin::nToolButtonHoveredScaling );
 	const QColor headerColorPressed =
-		headerColor.darker( Skin::nToolBarCheckedScaling );
+		headerColor.darker( Skin::nToolButtonCheckedScaling );
 	const QColor headerSeparator = headerColor.lighter( 115 );
 	const QColor headerTextColor =
 		pColorTheme->m_componentEditor_componentTextColor;
