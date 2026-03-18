@@ -35,7 +35,6 @@
 #include "Rack.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
-#include "../Widgets/Button.h"
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/InlineEdit.h"
 #include "../Widgets/LCDDisplay.h"
@@ -229,14 +228,21 @@ font-size: 21px;" );
 	m_pPitchRandomLbl->move( 205, 235 );
 
 	// Filter
-	m_pFilterBypassBtn = new Button(
-		m_pInstrumentProp, QSize( 36, 15 ), Button::Type::Toggle, "",
-		pCommonStrings->getBypassButton(), QSize( 0, 0 ), "", true );
-	connect( m_pFilterBypassBtn, &Button::clicked, [&]() {
-		Hydrogen::get_instance()->getSelectedInstrument()->setFilterActive(
-			! m_pFilterBypassBtn->isChecked() );
-	});
-	m_pFilterBypassBtn->move( 75, 169 );
+	m_pFilterBypassButton = new QToolButton( m_pInstrumentProp );
+	m_pFilterBypassButton->setCheckable( false );
+	m_pFilterBypassButton->setToolTip( pCommonStrings->getBypassButton() );
+	m_pFilterBypassButton->setFixedSize( QSize( 36, 23 ) );
+	m_pFilterBypassButton->setFocusPolicy( Qt::NoFocus );
+	connect( m_pFilterBypassButton, &QToolButton::clicked, [&]() {
+		auto pHydrogen = Hydrogen::get_instance();
+		auto pInstrument = pHydrogen->getSelectedInstrument();
+		if ( pInstrument != nullptr ) {
+			pInstrument->setFilterActive( !pInstrument->isFilterActive() );
+			pHydrogen->setIsModified( true );
+			updateIcons();
+		}
+	} );
+	m_pFilterBypassButton->move( 75, 165 );
 
 	m_pCutoffRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Normal, tr( "Filter Cutoff" ), false );
@@ -439,11 +445,12 @@ font-size: 21px;" );
 	);
 	m_pHihatMaxRangeLbl->move( 208, 327 );
 
-	updateColors();
 	updateEditor();
+	updateIcons();
 	updateMidiNoteLabel();
+	updateStyleSheet();
 
-    pHydrogenApp->addEventListener( this );
+	pHydrogenApp->addEventListener( this );
 	connect( pHydrogenApp, &HydrogenApp::preferencesChanged,
 			 this, &InstrumentEditor::onPreferencesChanged );
 }
@@ -486,15 +493,6 @@ void InstrumentEditor::updateSongEvent( int nValue ) {
 	}
 }
 
-void InstrumentEditor::updateColors() {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
-
-	m_pFilterBypassBtn->setCheckedBackgroundColor(
-		pColorTheme->m_muteColor );
-	m_pFilterBypassBtn->setCheckedBackgroundTextColor(
-		pColorTheme->m_muteTextColor );
-}
-
 void InstrumentEditor::updateEditor() {
 	auto pHydrogen = Hydrogen::get_instance();
 	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
@@ -523,7 +521,7 @@ void InstrumentEditor::updateEditor() {
 		// ~ ADSR
 
 		// filter
-		m_pFilterBypassBtn->setChecked( ! pInstrument->isFilterActive() );
+		m_pFilterBypassButton->setChecked( ! pInstrument->isFilterActive() );
 		m_pCutoffRotary->setValue( pInstrument->getFilterCutoff(), false,
 								   Event::Trigger::Suppress );
 		m_pResonanceRotary->setValue( pInstrument->getFilterResonance(),
@@ -659,10 +657,7 @@ void InstrumentEditor::onPreferencesChanged(
 	auto pPref = H2Core::Preferences::get_instance();
 
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
-		updateColors();
-		setStyleSheet( QString( "QLabel { background: %1 }" )
-						   .arg( pPref->getColorTheme()->m_windowColor.name() )
-		);
+		updateStyleSheet();
 	}
 	if ( changes & ( H2Core::Preferences::Changes::MidiTab ) ) {
 		updateMidiNoteLabel();
@@ -681,7 +676,7 @@ void InstrumentEditor::updateActivation()
 		m_pPitchFineRotary->setIsActive( true );
 		m_pRandomPitchRotary->setIsActive( true );
 
-		m_pFilterBypassBtn->setIsActive( true );
+		m_pFilterBypassButton->setEnabled( true );
 		m_pCutoffRotary->setIsActive( true );
 		m_pResonanceRotary->setIsActive( true );
 
@@ -711,8 +706,8 @@ void InstrumentEditor::updateActivation()
 		m_pPitchLCD->clear();
 		m_pRandomPitchRotary->setIsActive( false );
 
-		m_pFilterBypassBtn->setIsActive( false );
-		m_pFilterBypassBtn->setChecked( false );
+		m_pFilterBypassButton->setEnabled( false );
+		m_pFilterBypassButton->setChecked( false );
 		m_pCutoffRotary->setIsActive( false );
 		m_pResonanceRotary->setIsActive( false );
 
@@ -736,4 +731,47 @@ void InstrumentEditor::updateActivation()
 		m_pHihatMaxRangeLCD->setIsActive( false );
 		m_pHihatMaxRangeLCD->clear();
 	}
+}
+
+void InstrumentEditor::updateIcons()
+{
+	QString sIconPath( Skin::getSvgImagePath() );
+	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+		 InterfaceTheme::IconColor::White ) {
+		sIconPath.append( "/icons/white/" );
+	}
+	else {
+		sIconPath.append( "/icons/black/" );
+	}
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const QColor colorBackgroundDisabled =
+		Skin::makeBackgroundColorInactive( pColorTheme->m_midLightColor );
+
+	auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+
+	if ( pInstrument != nullptr && pInstrument->isFilterActive() ) {
+		Skin::setToolButtonIcon(
+			m_pFilterBypassButton, sIconPath + "enabled.svg",
+			colorBackgroundDisabled
+		);
+	}
+	else {
+		Skin::setToolButtonIcon(
+			m_pFilterBypassButton, sIconPath + "disabled.svg",
+			colorBackgroundDisabled
+		);
+	}
+}
+
+void InstrumentEditor:: updateStyleSheet() {
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	setStyleSheet(
+		QString( "\
+QLabel {                     \
+    background: %1           \
+ }                           \
+%2" )
+			.arg( pColorTheme->m_windowColor.name() )
+        .arg( Skin::getToolButtonStyle( pColorTheme->m_midLightColor ) )
+	);
 }

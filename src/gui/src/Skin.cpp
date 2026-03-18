@@ -197,6 +197,8 @@ QString Skin::getToolButtonStyle( const QColor& backgroundColor )
 	return QString( "\
 QToolButton {                          \
     background-color: %1;              \
+    border: none;                      \
+    icon-size: 20px;                   \
 }                                      \
 QToolButton:checked {                  \
     background-color: %3;              \
