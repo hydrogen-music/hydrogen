@@ -1284,17 +1284,17 @@ void SongEditorPanel::updateIcons() {
 			)
 		);
 
-	Skin::setToolBarIcon(
-		m_pPlaybackTrackToolBar, m_pLoadPlaybackTrackButton,
-		sIconPath + "folder.svg", colorPlaybackTrackToolBarDisabled
+	Skin::setToolButtonIcon(
+		m_pLoadPlaybackTrackButton, sIconPath + "folder.svg",
+		colorPlaybackTrackToolBarDisabled
 	);
-	Skin::setToolBarIcon(
-		m_pPlaybackTrackToolBar, m_pDeletePlaybackTrackButton,
-		sIconPath + "bin.svg", colorPlaybackTrackToolBarDisabled
+	Skin::setToolButtonIcon(
+		m_pDeletePlaybackTrackButton, sIconPath + "bin.svg",
+		colorPlaybackTrackToolBarDisabled
 	);
-	Skin::setToolBarIcon(
-		m_pPlaybackTrackToolBar, m_pEditPlaybackTrackButton,
-		sIconPath + "sample-editor.svg", colorPlaybackTrackToolBarDisabled
+	Skin::setToolButtonIcon(
+		m_pEditPlaybackTrackButton, sIconPath + "sample-editor.svg",
+		colorPlaybackTrackToolBarDisabled
 	);
 
 	auto pSong = Hydrogen::get_instance()->getSong();
@@ -1302,41 +1302,39 @@ void SongEditorPanel::updateIcons() {
 		pSong != nullptr ? pSong->getIsTimelineActivated() : false;
 
 	if ( bTimelineEnabled ) {
-		Skin::setToolBarIcon(
-			m_pTimelineToolBar, m_pEnableTimelineButton,
-			sIconPath + "enabled.svg", colorTimelineToolBarDisabled
+		Skin::setToolButtonIcon(
+			m_pEnableTimelineButton, sIconPath + "enabled.svg",
+			colorTimelineToolBarDisabled
 		);
 	}
 	else {
-		Skin::setToolBarIcon(
-			m_pTimelineToolBar, m_pEnableTimelineButton,
-			sIconPath + "disabled.svg", colorTimelineToolBarDisabled
+		Skin::setToolButtonIcon(
+			m_pEnableTimelineButton, sIconPath + "disabled.svg",
+			colorTimelineToolBarDisabled
 		);
 	}
-	Skin::setToolBarIcon(
-		m_pTimelineToolBar, m_pTagButton, sIconPath + "tag.svg",
-		colorTimelineToolBarDisabled
+	Skin::setToolButtonIcon(
+		m_pTagButton, sIconPath + "tag.svg", colorTimelineToolBarDisabled
 	);
-	Skin::setToolBarIcon(
-		m_pTimelineToolBar, m_pTempoMarkerButton, sIconPath + "metronome.svg",
+	Skin::setToolButtonIcon(
+		m_pTempoMarkerButton, sIconPath + "metronome.svg",
 		colorTimelineToolBarDisabled
 	);
 
-	Skin::setToolBarIcon(
-		m_pSongEditorToolBar, m_pClearButton, sIconPath + "bin.svg",
+	Skin::setToolButtonIcon(
+		m_pClearButton, sIconPath + "bin.svg", colorSongEditorToolBarDisabled
+	);
+	Skin::setToolButtonIcon(
+		m_pNewPatternButton, sIconPath + "new.svg",
 		colorSongEditorToolBarDisabled
 	);
-	Skin::setToolBarIcon(
-		m_pSongEditorToolBar, m_pNewPatternButton, sIconPath + "new.svg",
+	Skin::setToolButtonIcon(
+		m_pSinglePatternModeButton, sIconPath + "single_layer.svg",
 		colorSongEditorToolBarDisabled
 	);
-	Skin::setToolBarIcon(
-		m_pSongEditorToolBar, m_pSinglePatternModeButton,
-		sIconPath + "single_layer.svg", colorSongEditorToolBarDisabled
-	);
-	Skin::setToolBarIcon(
-		m_pSongEditorToolBar, m_pStackedPatternModeButton,
-		sIconPath + "multiple_layers.svg", colorSongEditorToolBarDisabled
+	Skin::setToolButtonIcon(
+		m_pStackedPatternModeButton, sIconPath + "multiple_layers.svg",
+		colorSongEditorToolBarDisabled
 	);
 
 	updatePatternEditorLocked();
@@ -1372,9 +1370,9 @@ void SongEditorPanel::updatePatternEditorLocked()
 	}
 
 	if ( pHydrogen->isPatternEditorLocked() ) {
-		Skin::setToolBarIcon(
-			m_pSongEditorToolBar, m_pPatternEditorLockedButton,
-			sIconPath + "lock_closed.svg", colorSongEditorToolBarDisabled
+		Skin::setToolButtonIcon(
+			m_pPatternEditorLockedButton, sIconPath + "lock_closed.svg",
+			colorSongEditorToolBarDisabled
 		);
 		m_pPatternEditorLockedButton->setChecked(
 			pHydrogen->getAudioEngine()->getState() ==
@@ -1382,9 +1380,9 @@ void SongEditorPanel::updatePatternEditorLocked()
 		);
 	}
 	else {
-		Skin::setToolBarIcon(
-			m_pSongEditorToolBar, m_pPatternEditorLockedButton,
-			sIconPath + "lock_open.svg", colorSongEditorToolBarDisabled
+		Skin::setToolButtonIcon(
+			m_pPatternEditorLockedButton, sIconPath + "lock_open.svg",
+			colorSongEditorToolBarDisabled
 		);
 		m_pPatternEditorLockedButton->setChecked( false );
 	}

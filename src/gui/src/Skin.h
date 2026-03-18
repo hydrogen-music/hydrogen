@@ -121,8 +121,7 @@ public:
 		 * integrates well in the overall UI. Therefore, we use this wrapper
 		 * function to introduce our own disabled color for all icons in a
 		 * toolbar. */
-		static void setToolBarIcon(
-			QToolBar* pToolBar,
+		static void setToolButtonIcon(
 			QToolButton* pButton,
 			const QString& sIconPath,
 			const QColor& disabledColor

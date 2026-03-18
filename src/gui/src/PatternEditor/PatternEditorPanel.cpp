@@ -1273,24 +1273,20 @@ void PatternEditorPanel::updateIcons()
 		color = Qt::black;
 	}
 
-	Skin::setToolBarIcon(
-		m_pToolBar, m_pEditButton, sIconPath + "edit.svg", colorToolBarInactive
+	Skin::setToolButtonIcon(
+		m_pEditButton, sIconPath + "edit.svg", colorToolBarInactive
 	);
-	Skin::setToolBarIcon(
-		m_pToolBar, m_pHearNotesButton, sIconPath + "speaker.svg",
-		colorToolBarInactive
+	Skin::setToolButtonIcon(
+		m_pHearNotesButton, sIconPath + "speaker.svg", colorToolBarInactive
 	);
-	Skin::setToolBarIcon(
-		m_pToolBar, m_pQuantizeButton, sIconPath + "quantization.svg",
-		colorToolBarInactive
+	Skin::setToolButtonIcon(
+		m_pQuantizeButton, sIconPath + "quantization.svg", colorToolBarInactive
 	);
-	Skin::setToolBarIcon(
-		m_pToolBar, m_pDrumPatternButton, sIconPath + "drum.svg",
-		colorToolBarInactive
+	Skin::setToolButtonIcon(
+		m_pDrumPatternButton, sIconPath + "drum.svg", colorToolBarInactive
 	);
-	Skin::setToolBarIcon(
-		m_pToolBar, m_pPianoRollButton, sIconPath + "piano.svg",
-		colorToolBarInactive
+	Skin::setToolButtonIcon(
+		m_pPianoRollButton, sIconPath + "piano.svg", colorToolBarInactive
 	);
 
 	m_pPatternSizeSeparatorLabel->setStyleSheet( QString( "\

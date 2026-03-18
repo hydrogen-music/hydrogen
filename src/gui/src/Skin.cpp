@@ -261,14 +261,13 @@ void Skin::setPlayheadPen( QPainter* p, bool bHovered ) {
 	p->setRenderHint( QPainter::Antialiasing );
 }
 
-void Skin::setToolBarIcon(
-	QToolBar* pToolBar,
+void Skin::setToolButtonIcon(
 	QToolButton* pButton,
 	const QString& sIconPath,
 	const QColor& disabledColor
 )
 {
-	if ( pToolBar == nullptr || pButton == nullptr ) {
+	if ( pButton == nullptr ) {
 		___ERRORLOG( "Invalid tool bar or button" );
 		return;
 	}

@@ -1145,15 +1145,14 @@ void MainToolBar::updateIcons()
 		pColorTheme->m_songEditor_backgroundColor.darker( 110 )
 	);
 
-	Skin::setToolBarIcon(
-		this, m_pRwdButton, sIconPath + "rewind.svg", colorBackgroundInactive
+	Skin::setToolButtonIcon(
+		m_pRwdButton, sIconPath + "rewind.svg", colorBackgroundInactive
 	);
-	Skin::setToolBarIcon(
-		this, m_pFfwdButton, sIconPath + "fast_forward.svg",
-		colorBackgroundInactive
+	Skin::setToolButtonIcon(
+		m_pFfwdButton, sIconPath + "fast_forward.svg", colorBackgroundInactive
 	);
-	Skin::setToolBarIcon(
-		this, m_pSongLoopButton, sIconPath + "loop.svg", colorBackgroundInactive
+	Skin::setToolButtonIcon(
+		m_pSongLoopButton, sIconPath + "loop.svg", colorBackgroundInactive
 	);
 
 	m_pSelectAction->setIcon( QIcon( sIconPath + "select.svg" ) );

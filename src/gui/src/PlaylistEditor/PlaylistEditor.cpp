@@ -1046,21 +1046,17 @@ void PlaylistEditor::updateIcons() {
 	const QColor colorBackgroundInactive =
 		Skin::makeBackgroundColorInactive( pColorTheme->m_baseColor );
 
-	Skin::setToolBarIcon(
-		m_pToolBar, m_pRwdButton, sIconPath + "rewind.svg",
-		colorBackgroundInactive
+	Skin::setToolButtonIcon(
+		m_pRwdButton, sIconPath + "rewind.svg", colorBackgroundInactive
 	);
-	Skin::setToolBarIcon(
-		m_pToolBar, m_pPlayButton, sIconPath + "play.svg",
-		colorBackgroundInactive
+	Skin::setToolButtonIcon(
+		m_pPlayButton, sIconPath + "play.svg", colorBackgroundInactive
 	);
-	Skin::setToolBarIcon(
-		m_pToolBar, m_pStopButton, sIconPath + "stop.svg",
-		colorBackgroundInactive
+	Skin::setToolButtonIcon(
+		m_pStopButton, sIconPath + "stop.svg", colorBackgroundInactive
 	);
-	Skin::setToolBarIcon(
-		m_pToolBar, m_pFfwdButton, sIconPath + "fast_forward.svg",
-		colorBackgroundInactive
+	Skin::setToolButtonIcon(
+		m_pFfwdButton, sIconPath + "fast_forward.svg", colorBackgroundInactive
 	);
 }
 

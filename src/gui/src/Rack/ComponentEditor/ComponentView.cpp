@@ -676,38 +676,31 @@ void ComponentView::updateIcons() {
 		QIcon( sIconPath + ( m_bIsExpanded ? "minus.svg" : "plus.svg" ) )
 	);
 
-	Skin::setToolBarIcon(
-		m_pToolBarComponent, m_pNewComponentButton, sIconPath + "new.svg",
+	Skin::setToolButtonIcon(
+		m_pNewComponentButton, sIconPath + "new.svg", headerInactiveColor
+	);
+	Skin::setToolButtonIcon(
+		m_pDuplicateComponentButton, sIconPath + "duplicate.svg",
 		headerInactiveColor
 	);
-	Skin::setToolBarIcon(
-		m_pToolBarComponent, m_pDuplicateComponentButton,
-		sIconPath + "duplicate.svg", headerInactiveColor
-	);
-	Skin::setToolBarIcon(
-		m_pToolBarComponent, m_pDeleteComponentButton, sIconPath + "bin.svg",
-		headerInactiveColor
+	Skin::setToolButtonIcon(
+		m_pDeleteComponentButton, sIconPath + "bin.svg", headerInactiveColor
 	);
 
-	Skin::setToolBarIcon(
-		m_pToolBarLayer, m_pNewLayerButton, sIconPath + "new.svg",
-		layerInactiveColor
+	Skin::setToolButtonIcon(
+		m_pNewLayerButton, sIconPath + "new.svg", layerInactiveColor
 	);
-	Skin::setToolBarIcon(
-		m_pToolBarLayer, m_pReplaceLayerButton, sIconPath + "folder.svg",
-		layerInactiveColor
+	Skin::setToolButtonIcon(
+		m_pReplaceLayerButton, sIconPath + "folder.svg", layerInactiveColor
 	);
-	Skin::setToolBarIcon(
-		m_pToolBarLayer, m_pDuplicateLayerButton, sIconPath + "duplicate.svg",
-		layerInactiveColor
+	Skin::setToolButtonIcon(
+		m_pDuplicateLayerButton, sIconPath + "duplicate.svg", layerInactiveColor
 	);
-	Skin::setToolBarIcon(
-		m_pToolBarLayer, m_pDeleteLayerButton, sIconPath + "bin.svg",
-		layerInactiveColor
+	Skin::setToolButtonIcon(
+		m_pDeleteLayerButton, sIconPath + "bin.svg", layerInactiveColor
 	);
-	Skin::setToolBarIcon(
-		m_pToolBarLayer, m_pEditLayerButton, sIconPath + "sample-editor.svg",
-		layerInactiveColor
+	Skin::setToolButtonIcon(
+		m_pEditLayerButton, sIconPath + "sample-editor.svg", layerInactiveColor
 	);
 }
 
