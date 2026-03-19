@@ -77,3 +77,10 @@ void TargetSection::setLayer( std::shared_ptr<InstrumentLayer> pLayer )
 	m_pWaveDisplayR->setLayer( pLayer );
 	update();
 }
+
+void TargetSection::update()
+{
+	m_pSampleEnvelope->update();
+	m_pWaveDisplayL->update();
+	m_pWaveDisplayR->update();
+}
