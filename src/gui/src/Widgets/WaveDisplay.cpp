@@ -233,7 +233,7 @@ void WaveDisplay::drawPeakData()
 	auto pPref = H2Core::Preferences::get_instance();
 	const auto pColorTheme = pPref->getColorTheme();
 
-	QColor backgroundColor, waveFormColor, waveFormInactiveColor, textColor;
+	QColor backgroundColor, textColor;
 	if ( m_pLayer != nullptr && m_pLayer->getIsMuted() ) {
 		textColor = pColorTheme->m_muteTextColor;
 		backgroundColor = pColorTheme->m_muteColor;
@@ -248,14 +248,9 @@ void WaveDisplay::drawPeakData()
 	}
 	textColor.setAlpha( 200 );
 
-	if ( Skin::moreBlackThanWhite( backgroundColor ) ) {
-		waveFormColor = Qt::white;
-		waveFormInactiveColor = pColorTheme->m_lightColor;
-	}
-	else {
-		waveFormColor = Qt::black;
-		waveFormInactiveColor = pColorTheme->m_darkColor;
-	}
+	QColor waveFormColor = pColorTheme->m_waveFormColor;
+	const QColor waveFormInactiveColor =
+		Skin::makeWidgetColorInactive( waveFormColor );
 
 	if ( !m_bEnabled ) {
 		textColor = Skin::makeTextColorInactive( textColor );

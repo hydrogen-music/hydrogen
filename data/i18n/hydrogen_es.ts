@@ -4291,6 +4291,10 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <source>Pan Envelope</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Waveform</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>

@@ -93,6 +93,7 @@
    <muteTextColor>255,255,255</muteTextColor>
    <soloColor>219,177,50</soloColor>
    <soloTextColor>255,255,255</soloTextColor>
+   <waveFormColor>24,35,48</waveFormColor>
   </widget>
  </colorTheme>
  <interfaceTheme>

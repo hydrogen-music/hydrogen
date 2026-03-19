@@ -97,7 +97,7 @@ void DetailWaveDisplay::drawPeakData()
 	auto pPref = H2Core::Preferences::get_instance();
 	const auto pColorTheme = pPref->getColorTheme();
 
-	QColor backgroundColor, waveFormColor, waveFormInactiveColor;
+	QColor backgroundColor;
 	if ( m_pLayer != nullptr && m_pLayer->getIsMuted() ) {
 		backgroundColor = pColorTheme->m_muteColor;
 	}
@@ -108,16 +108,7 @@ void DetailWaveDisplay::drawPeakData()
 		backgroundColor = pColorTheme->m_accentColor;
 	}
 
-	if ( Skin::moreBlackThanWhite( backgroundColor ) ) {
-		waveFormColor = Qt::white;
-		waveFormInactiveColor = pColorTheme->m_lightColor;
-	}
-	else {
-		waveFormColor = Qt::black;
-		waveFormInactiveColor = pColorTheme->m_darkColor;
-	}
-
-	p.setPen( waveFormColor );
+	p.setPen( pColorTheme->m_waveFormColor );
 	p.setRenderHint( QPainter::Antialiasing );
 	const int nVerticalCenter = height() / 2;
 

@@ -600,6 +600,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	new IndexedTreeItem( 0x20c, pWidgetItem,
 						 pCommonStrings->getBigSoloButton() );
 	new IndexedTreeItem( 0x20d, pWidgetItem, tr( "Solo Text" ) );
+	new IndexedTreeItem( 0x20e, pWidgetItem, tr( "Waveform" ) );
 	
 	pTopLevelItem = new IndexedTreeItem( 0x000, colorTree, tr( "Song Editor" ) );
 	new IndexedTreeItem( 0x300, pTopLevelItem, tr( "Background" ) );
@@ -2062,6 +2063,7 @@ std::unique_ptr<QColor> PreferencesDialog::getColorById( int nId, std::shared_pt
 	case 0x20b: return std::make_unique<QColor>(pColorTheme->m_muteTextColor);
 	case 0x20c: return std::make_unique<QColor>(pColorTheme->m_soloColor);
 	case 0x20d: return std::make_unique<QColor>(pColorTheme->m_soloTextColor);
+	case 0x20e: return std::make_unique<QColor>(pColorTheme->m_waveFormColor);
 	case 0x300: return std::make_unique<QColor>(pColorTheme->m_songEditor_backgroundColor);
 	case 0x301: return std::make_unique<QColor>(pColorTheme->m_songEditor_alternateRowColor);
 	case 0x302: return std::make_unique<QColor>(pColorTheme->m_songEditor_virtualRowColor);
@@ -2193,6 +2195,8 @@ void PreferencesDialog::setColorById( int nId, const QColor& color,
 	case 0x20c:  pColorTheme->m_soloColor = color;
 		break;
 	case 0x20d:  pColorTheme->m_soloTextColor = color;
+		break;
+	case 0x20e:  pColorTheme->m_waveFormColor = color;
 		break;
 	case 0x300:  pColorTheme->m_songEditor_backgroundColor = color;
 		break;

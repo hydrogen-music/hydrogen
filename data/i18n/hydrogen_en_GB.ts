@@ -4242,6 +4242,10 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>Pan Envelope</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Waveform</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>

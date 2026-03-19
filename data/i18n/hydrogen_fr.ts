@@ -4292,6 +4292,10 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <source>Pan Envelope</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Waveform</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
