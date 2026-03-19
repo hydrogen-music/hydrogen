@@ -318,12 +318,13 @@ void Skin::setPalette( QApplication *pQApp ) {
 }
 
 void Skin::setPlayheadPen( QPainter* p, bool bHovered ) {
-
-	QColor playheadColor( H2Core::Preferences::get_instance()->getColorTheme()->m_playheadColor );
+	QColor playheadColor(
+		H2Core::Preferences::get_instance()->getColorTheme()->m_playheadColor
+	);
 	if ( bHovered ) {
 		playheadColor = Skin::makeTextColorInactive( playheadColor );
 	}
-	QPen pen ( playheadColor );
+	QPen pen( playheadColor );
 	pen.setWidth( 2 );
 
 	p->setPen( pen );

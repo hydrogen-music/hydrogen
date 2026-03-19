@@ -59,23 +59,25 @@ void DetailWaveDisplay::paintEvent( QPaintEvent* ev )
 
 	WaveDisplay::paintEvent( ev );
 
+	QPainter p( this );
+
 	QColor color;
 	if ( m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::Start ) {
 		color = pColorTheme->m_sampleEditor_startSliderColor;
+		p.setPen( QPen( color, 1, Qt::SolidLine ) );
 	}
 	else if ( m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::Loop ) {
 		color = pColorTheme->m_sampleEditor_loopSliderColor;
+		p.setPen( QPen( color, 1, Qt::SolidLine ) );
 	}
 	else if ( m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::End ) {
 		color = pColorTheme->m_sampleEditor_endSliderColor;
+		p.setPen( QPen( color, 1, Qt::SolidLine ) );
 	}
 	else {
-		color = pColorTheme->m_sampleEditor_playheadColor;
+		Skin::setPlayheadPen( &p, false );
 	}
 
-	QPainter p( this );
-
-	p.setPen( QPen( color, 1, Qt::SolidLine ) );
 	p.drawLine( 90, 0, 90, 265 );
 }
 

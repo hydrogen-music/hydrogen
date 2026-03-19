@@ -213,9 +213,7 @@ void SampleEnvelope::paintEvent( QPaintEvent* ev )
 	p.setRenderHint( QPainter::Antialiasing );
 
 	// Draw playhead
-	p.setPen(
-		QPen( pColorTheme->m_sampleEditor_playheadColor, 1, Qt::SolidLine )
-	);
+	Skin::setPlayheadPen( &p, false );
 	const int nTotalFrames = m_pSampleEditor->getTotalPlaybackFrames();
 	int nPlayheadX;
 	if ( nTotalFrames > 0 ) {
@@ -225,7 +223,7 @@ void SampleEnvelope::paintEvent( QPaintEvent* ev )
 	else {
 		nPlayheadX = 0;
 	}
-	p.drawLine( nPlayheadX, 4, nPlayheadX, height() - 4 );
+	p.drawLine( nPlayheadX, 0, nPlayheadX, height() );
 
 	// Draw envelopes (start with the background one)
 	drawLine( p, envelopeBackground, colorBackground, Style::Background );

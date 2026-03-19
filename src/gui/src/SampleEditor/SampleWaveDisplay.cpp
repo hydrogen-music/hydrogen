@@ -151,9 +151,7 @@ void SampleWaveDisplay::paintEvent( QPaintEvent* ev )
 	p.setRenderHint( QPainter::Antialiasing );
 
 	// Render playhead
-	p.setPen(
-		QPen( pColorTheme->m_sampleEditor_playheadColor, 1, Qt::SolidLine )
-	);
+	Skin::setPlayheadPen( &p, false );
 	const int nPlayheadX = frameToX( m_pSampleEditor->getPlayheadMain() );
 	p.drawLine( nPlayheadX, 0, nPlayheadX, height() );
 
