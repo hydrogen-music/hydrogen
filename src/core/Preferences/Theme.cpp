@@ -70,7 +70,6 @@ ColorTheme::ColorTheme()
 	, m_componentEditor_layerTextColor( QColor( 18, 18, 18 ) )
 	, m_sampleEditor_backgroundColor( QColor( 128, 134, 152 ) )
 	, m_sampleEditor_textColor( QColor( 0, 0, 0 ) )
-	, m_sampleEditor_playheadColor( QColor( 0, 0, 0 ) )
 	, m_sampleEditor_startSliderColor( QColor( 0, 219, 0 ) )
 	, m_sampleEditor_loopSliderColor( QColor( 219, 219, 0 ) )
 	, m_sampleEditor_endSliderColor( QColor( 217, 68, 0 ) )
@@ -192,7 +191,6 @@ ColorTheme::ColorTheme( std::shared_ptr<ColorTheme> pOther )
 	  ),
 	  m_sampleEditor_backgroundColor( pOther->m_sampleEditor_backgroundColor),
 	  m_sampleEditor_textColor( pOther->m_sampleEditor_textColor),
-	  m_sampleEditor_playheadColor( pOther->m_sampleEditor_playheadColor),
 	  m_sampleEditor_startSliderColor( pOther->m_sampleEditor_startSliderColor),
 	  m_sampleEditor_loopSliderColor( pOther->m_sampleEditor_loopSliderColor),
 	  m_sampleEditor_endSliderColor( pOther->m_sampleEditor_endSliderColor),
@@ -320,9 +318,6 @@ void ColorTheme::saveTo( XMLNode& parent ) const {
 	);
 	sampleEditorNode.write_color(
 		"textColor", m_sampleEditor_textColor
-	);
-	sampleEditorNode.write_color(
-		"playheadColor", m_sampleEditor_playheadColor
 	);
 	sampleEditorNode.write_color(
 		"startSliderColor", m_sampleEditor_startSliderColor
@@ -583,10 +578,6 @@ std::shared_ptr<ColorTheme> ColorTheme::loadFrom( const XMLNode& parent,
 		);
 		pColorTheme->m_sampleEditor_textColor = sampleEditorNode.read_color(
 			"textColor", pColorTheme->m_sampleEditor_textColor, false,
-			false, bSilent
-		);
-		pColorTheme->m_sampleEditor_playheadColor = sampleEditorNode.read_color(
-			"playheadColor", pColorTheme->m_sampleEditor_playheadColor, false,
 			false, bSilent
 		);
 		pColorTheme->m_sampleEditor_startSliderColor =
@@ -990,11 +981,6 @@ QString ColorTheme::toQString( const QString& sPrefix, bool bShort ) const {
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_sampleEditor_textColor.name() ) )
-				.append( QString( "%1%2m_sampleEditor_playheadColor: %3\n"
-				)
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( m_sampleEditor_playheadColor.name() ) )
 				.append( QString( "%1%2m_sampleEditor_startSliderColor: %3\n"
 				)
 							 .arg( sPrefix )
@@ -1266,9 +1252,6 @@ QString ColorTheme::toQString( const QString& sPrefix, bool bShort ) const {
 				.append( QString( ", m_sampleEditor_textColor: %1"
 				)
 							 .arg( m_sampleEditor_textColor.name() ) )
-				.append( QString( ", m_sampleEditor_playheadColor: %1"
-				)
-							 .arg( m_sampleEditor_playheadColor.name() ) )
 				.append( QString( ", m_sampleEditor_startSliderColor: %1"
 				)
 							 .arg( m_sampleEditor_startSliderColor.name() ) )
