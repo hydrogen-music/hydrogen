@@ -75,6 +75,7 @@ void DetailWaveDisplay::paintEvent( QPaintEvent* ev )
 		p.setPen( QPen( color, 1, Qt::SolidLine ) );
 	}
 	else {
+		Skin::drawPlayhead( &p, 90 - Skin::nPlayheadWidth / 2, 0 );
 		Skin::setPlayheadPen( &p, false );
 	}
 

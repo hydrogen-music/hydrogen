@@ -153,6 +153,7 @@ void SampleWaveDisplay::paintEvent( QPaintEvent* ev )
 	// Render playhead
 	Skin::setPlayheadPen( &p, false );
 	const int nPlayheadX = frameToX( m_pSampleEditor->getPlayheadMain() );
+	Skin::drawPlayhead( &p, nPlayheadX - Skin::nPlayheadWidth / 2, 0 );
 	p.drawLine( nPlayheadX, 0, nPlayheadX, height() );
 
 	renderSlider( &p, SampleEditor::Slider::Start );
