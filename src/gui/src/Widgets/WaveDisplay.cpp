@@ -250,7 +250,7 @@ void WaveDisplay::drawPeakData()
 
 	QColor waveFormColor = pColorTheme->m_waveFormColor;
 	const QColor waveFormInactiveColor =
-		Skin::makeWidgetColorInactive( waveFormColor );
+		Skin::makeBackgroundColorInactive( backgroundColor );
 
 	if ( !m_bEnabled ) {
 		textColor = Skin::makeTextColorInactive( textColor );
