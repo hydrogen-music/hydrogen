@@ -600,6 +600,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	new IndexedTreeItem( 0x20c, pWidgetItem,
 						 pCommonStrings->getBigSoloButton() );
 	new IndexedTreeItem( 0x20d, pWidgetItem, tr( "Solo Text" ) );
+	new IndexedTreeItem( 0x20e, pWidgetItem, tr( "Waveform" ) );
 	
 	pTopLevelItem = new IndexedTreeItem( 0x000, colorTree, tr( "Song Editor" ) );
 	new IndexedTreeItem( 0x300, pTopLevelItem, tr( "Background" ) );
@@ -652,12 +653,11 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	pTopLevelItem = new IndexedTreeItem( 0x000, colorTree, tr( "Sample Editor" ) );
 	new IndexedTreeItem( 0x600, pTopLevelItem, tr( "Background" ) );
 	new IndexedTreeItem( 0x601, pTopLevelItem, tr( "Text" ) );
-	new IndexedTreeItem( 0x602, pTopLevelItem, tr( "Playhead" ) );
-	new IndexedTreeItem( 0x603, pTopLevelItem, tr( "Start Slider" ) );
-	new IndexedTreeItem( 0x604, pTopLevelItem, tr( "Loop Slider" ) );
-	new IndexedTreeItem( 0x605, pTopLevelItem, tr( "End Slider" ) );
-	new IndexedTreeItem( 0x606, pTopLevelItem, tr( "Velocity Envelope" ) );
-	new IndexedTreeItem( 0x607, pTopLevelItem, tr( "Pan Envelope" ) );
+	new IndexedTreeItem( 0x602, pTopLevelItem, tr( "Start Slider" ) );
+	new IndexedTreeItem( 0x603, pTopLevelItem, tr( "Loop Slider" ) );
+	new IndexedTreeItem( 0x604, pTopLevelItem, tr( "End Slider" ) );
+	new IndexedTreeItem( 0x605, pTopLevelItem, tr( "Velocity Envelope" ) );
+	new IndexedTreeItem( 0x606, pTopLevelItem, tr( "Pan Envelope" ) );
 
 	colorButton->setEnabled( false );
 
@@ -2063,6 +2063,7 @@ std::unique_ptr<QColor> PreferencesDialog::getColorById( int nId, std::shared_pt
 	case 0x20b: return std::make_unique<QColor>(pColorTheme->m_muteTextColor);
 	case 0x20c: return std::make_unique<QColor>(pColorTheme->m_soloColor);
 	case 0x20d: return std::make_unique<QColor>(pColorTheme->m_soloTextColor);
+	case 0x20e: return std::make_unique<QColor>(pColorTheme->m_waveFormColor);
 	case 0x300: return std::make_unique<QColor>(pColorTheme->m_songEditor_backgroundColor);
 	case 0x301: return std::make_unique<QColor>(pColorTheme->m_songEditor_alternateRowColor);
 	case 0x302: return std::make_unique<QColor>(pColorTheme->m_songEditor_virtualRowColor);
@@ -2116,12 +2117,11 @@ std::unique_ptr<QColor> PreferencesDialog::getColorById( int nId, std::shared_pt
 		);
 	case 0x600: return std::make_unique<QColor>(pColorTheme->m_sampleEditor_backgroundColor);
 	case 0x601: return std::make_unique<QColor>(pColorTheme->m_sampleEditor_textColor);
-	case 0x602: return std::make_unique<QColor>(pColorTheme->m_sampleEditor_playheadColor);
-	case 0x603: return std::make_unique<QColor>(pColorTheme->m_sampleEditor_startSliderColor);
-	case 0x604: return std::make_unique<QColor>(pColorTheme->m_sampleEditor_loopSliderColor);
-	case 0x605: return std::make_unique<QColor>(pColorTheme->m_sampleEditor_endSliderColor);
-	case 0x606: return std::make_unique<QColor>(pColorTheme->m_sampleEditor_velocityEnvelopeColor);
-	case 0x607: return std::make_unique<QColor>(pColorTheme->m_sampleEditor_panEnvelopeColor);
+	case 0x602: return std::make_unique<QColor>(pColorTheme->m_sampleEditor_startSliderColor);
+	case 0x603: return std::make_unique<QColor>(pColorTheme->m_sampleEditor_loopSliderColor);
+	case 0x604: return std::make_unique<QColor>(pColorTheme->m_sampleEditor_endSliderColor);
+	case 0x605: return std::make_unique<QColor>(pColorTheme->m_sampleEditor_velocityEnvelopeColor);
+	case 0x606: return std::make_unique<QColor>(pColorTheme->m_sampleEditor_panEnvelopeColor);
 	default:
 		return nullptr;
 	}
@@ -2195,6 +2195,8 @@ void PreferencesDialog::setColorById( int nId, const QColor& color,
 	case 0x20c:  pColorTheme->m_soloColor = color;
 		break;
 	case 0x20d:  pColorTheme->m_soloTextColor = color;
+		break;
+	case 0x20e:  pColorTheme->m_waveFormColor = color;
 		break;
 	case 0x300:  pColorTheme->m_songEditor_backgroundColor = color;
 		break;
@@ -2282,17 +2284,15 @@ void PreferencesDialog::setColorById( int nId, const QColor& color,
 		break;
 	case 0x601:  pColorTheme->m_sampleEditor_textColor = color;
 		break;
-	case 0x602:  pColorTheme->m_sampleEditor_playheadColor = color;
+	case 0x602:  pColorTheme->m_sampleEditor_startSliderColor = color;
 		break;
-	case 0x603:  pColorTheme->m_sampleEditor_startSliderColor = color;
+	case 0x603:  pColorTheme->m_sampleEditor_loopSliderColor = color;
 		break;
-	case 0x604:  pColorTheme->m_sampleEditor_loopSliderColor = color;
+	case 0x604:  pColorTheme->m_sampleEditor_endSliderColor = color;
 		break;
-	case 0x605:  pColorTheme->m_sampleEditor_endSliderColor = color;
+	case 0x605:  pColorTheme->m_sampleEditor_velocityEnvelopeColor = color;
 		break;
-	case 0x606:  pColorTheme->m_sampleEditor_velocityEnvelopeColor = color;
-		break;
-	case 0x607:  pColorTheme->m_sampleEditor_panEnvelopeColor = color;
+	case 0x606:  pColorTheme->m_sampleEditor_panEnvelopeColor = color;
 		break;
 	default: WARNINGLOG( "Unknown ID" );
 	}

@@ -57,26 +57,6 @@
 
 namespace H2Core {
 
-static std::shared_ptr<Instrument>
-createInstrument( Instrument::Id id, const QString& sFilePath, float volume )
-{
-	auto pInstrument = std::make_shared<Instrument>( id, sFilePath );
-	pInstrument->setVolume( volume );
-	auto pLayer =
-		std::make_shared<InstrumentLayer>( Sample::load( sFilePath ) );
-	auto pComponent = pInstrument->getComponent( 0 );
-	if ( pComponent != nullptr ) {
-		pInstrument->addLayer(
-			pComponent, pLayer, -1, Event::Trigger::Suppress
-		);
-	}
-	else {
-		___ERRORLOG( "Invalid default component" );
-	}
-
-	return pInstrument;
-}
-
 Sampler::Sampler()
 	: m_pMainOut_L( nullptr ),
 	  m_pMainOut_R( nullptr ),
@@ -86,19 +66,15 @@ Sampler::Sampler()
 	m_pMainOut_L = new float[MAX_BUFFER_SIZE];
 	m_pMainOut_R = new float[MAX_BUFFER_SIZE];
 
-	QString sEmptySampleFileName = Filesystem::empty_sample_path();
-
 	// instrument used in file preview
 	m_pDefaultPreviewInstrument =
-		createInstrument( Instrument::EmptyId, sEmptySampleFileName, 0.8 );
-	m_pDefaultPreviewInstrument->setIsPreviewInstrument( true );
+		Instrument::from( Sample::load( Filesystem::empty_sample_path() ) );
+	if ( m_pDefaultPreviewInstrument != nullptr ) {
+		m_pDefaultPreviewInstrument->setId( Instrument::EmptyId );
+		m_pDefaultPreviewInstrument->setVolume( 0.8 );
+		m_pDefaultPreviewInstrument->setIsPreviewInstrument( true );
+	}
 	m_pPreviewInstrument = m_pDefaultPreviewInstrument;
-
-	// dummy instrument used for playback track
-	m_pPlaybackTrackInstrument = createInstrument(
-		Instrument::PlaybackTrackId, sEmptySampleFileName, 0.8
-	);
-	m_nPlayBackSamplePosition = 0;
 }
 
 Sampler::~Sampler()
@@ -109,7 +85,6 @@ Sampler::~Sampler()
 	delete[] m_pMainOut_R;
 
 	m_pPreviewInstrument = nullptr;
-	m_pPlaybackTrackInstrument = nullptr;
 }
 
 void Sampler::process( uint32_t nFrames )
@@ -719,7 +694,7 @@ void Sampler::handleTimelineOrTempoChange()
 				if ( pSample == nullptr ) {
 					continue;
 				}
-				const int nNewNoteLength =
+				const long long nNewNoteLength =
 					Transport::computeFrameFromTick(
 						ppNote->getPosition() + ppNote->getLength(),
 						&fTickMismatch, pSample->getSampleRate()
@@ -739,13 +714,13 @@ void Sampler::handleTimelineOrTempoChange()
 				// original note length and not the patched one from the last
 				// change is required. But this is too much of an edge-case and
 				// won't be covered here.
-				const int nSamplePosition = static_cast<int>(
+				const long long nSamplePosition = static_cast<long long>(
 					std::floor( ppSelectedLayerInfo->fSamplePosition )
 				);
 
 				ppSelectedLayerInfo->nNoteLength =
 					nSamplePosition +
-					static_cast<int>( std::round(
+					static_cast<long long>( std::round(
 						static_cast<float>(
 							ppSelectedLayerInfo->nNoteLength - nSamplePosition
 						) *
@@ -1145,11 +1120,12 @@ void copySample(
 	float* __restrict__ pSample_data_R,
 	int nFrames,
 	double fSamplePos,
-	int nSampleFrames
+	long long nSampleFrames
 )
 {
-	int nSamplePos = static_cast<int>( fSamplePos );
-	int nFramesFromSample = std::min( nFrames, nSampleFrames - nSamplePos );
+	const long long nSamplePos = static_cast<long long>( fSamplePos );
+	const int nFramesFromSample =
+		std::min( nFrames, static_cast<int>( nSampleFrames - nSamplePos ) );
 
 	memcpy(
 		pBuffer_L, &pSample_data_L[nSamplePos],
@@ -1204,10 +1180,10 @@ void resample(
 	int nFrames,
 	double& fSamplePos,
 	float fStep,
-	int nSampleFrames
+	long long nSampleFrames
 )
 {
-	auto getSampleFrames = [&]( int nSamplePos, float& l0, float& l1, float& l2,
+	auto getSampleFrames = [&]( long long nSamplePos, float& l0, float& l1, float& l2,
 								float& l3, float& r0, float& r1, float& r2,
 								float& r3 ) {
 		l0 = l1 = l2 = l3 = r0 = r1 = r2 = r3 = 0.0;
@@ -1238,11 +1214,11 @@ void resample(
 
 	// Initial safe iterations to avoid reading off the beginning of the sample
 	for ( nFrame = 0; nFrame < nFrames; nFrame++ ) {
-		int nSamplePos = static_cast<int>( fSamplePos );
+		long long nSamplePos = static_cast<long long>( fSamplePos );
 		if ( nSamplePos >= 1 ) {
 			break;
 		}
-		double fDiff = fSamplePos - nSamplePos;
+		const double fDiff = fSamplePos - nSamplePos;
 		getSampleFrames( 0, l0, l1, l2, l3, r0, r1, r2, r3 );
 
 		fVal_L = Interpolation::interpolate<mode>( l0, l1, l2, l3, fDiff );
@@ -1253,12 +1229,12 @@ void resample(
 	}
 
 	// Fast iterations for main body of sample, with unconditional sample lookup
-	int nFastFrames = std::min(
+	const int nFastFrames = std::min(
 		nFrames, static_cast<int>( ( nSampleFrames - 2 - fSamplePos ) / fStep )
 	);
 	for ( ; nFrame < nFastFrames; nFrame++ ) {
-		int nSamplePos = static_cast<int>( fSamplePos );
-		double fDiff = fSamplePos - nSamplePos;
+		const long long nSamplePos = static_cast<long long>( fSamplePos );
+		const double fDiff = fSamplePos - nSamplePos;
 		// Gather frame samples
 		l0 = pSample_data_L[nSamplePos - 1];
 		l1 = pSample_data_L[nSamplePos];
@@ -1276,8 +1252,8 @@ void resample(
 	}
 
 	for ( ; nFrame < nFrames; nFrame++ ) {
-		int nSamplePos = static_cast<int>( fSamplePos );
-		double fDiff = fSamplePos - nSamplePos;
+		const long long nSamplePos = static_cast<long long>( fSamplePos );
+		const double fDiff = fSamplePos - nSamplePos;
 		getSampleFrames( nSamplePos, l0, l1, l2, l3, r0, r1, r2, r3 );
 		fVal_L = Interpolation::interpolate<mode>( l0, l1, l2, l3, fDiff );
 		fVal_R = Interpolation::interpolate<mode>( r0, r1, r2, r3, fDiff );
@@ -1297,7 +1273,7 @@ void resample(
 	int nFrames,
 	double& fSamplePos,
 	float fStep,
-	int nSampleFrames
+	long long nSampleFrames
 )
 {
 	switch ( mode ) {
@@ -1400,8 +1376,7 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
-	if ( pSong == nullptr ) {
-		ERRORLOG( "No song set yet" );
+	if ( pSong == nullptr || pSong->getPlaybackTrackInstrument() == nullptr ) {
 		return true;
 	}
 
@@ -1410,23 +1385,24 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 		return true;
 	}
 
-	if ( pHydrogen->getPlaybackTrackState() != Song::PlaybackTrack::Enabled ||
+    auto pPlaybackTrackInstrument = pSong->getPlaybackTrackInstrument();
+	if ( pPlaybackTrackInstrument->isMuted() ||
 		 ( pAudioEngine->getState() != AudioEngine::State::Playing ||
 		   pAudioEngine->getState() == AudioEngine::State::Testing ) ||
 		 pHydrogen->getMode() != Song::Mode::Song ) {
 		return true;
 	}
 
-	const auto pCompo = m_pPlaybackTrackInstrument->getComponents()->front();
+	const auto pCompo = pPlaybackTrackInstrument->getComponents()->front();
 	if ( pCompo == nullptr || pCompo->getLayer( 0 ) == nullptr ||
 		 pCompo->getLayer( 0 )->getSample() == nullptr ) {
 		ERRORLOG( "Invalid playback instrument" );
 		EventQueue::get_instance()->pushEvent(
 			Event::Type::Error, Hydrogen::ErrorMessages::PLAYBACK_TRACK_INVALID
 		);
+
 		// Disable the playback track
-		pHydrogen->loadPlaybackTrack( "" );
-		reinitializePlaybackTrack();
+		pSong->setPlaybackTrackInstrument( nullptr );
 		return true;
 	}
 
@@ -1443,7 +1419,7 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 	const long long nFrameOffset =
 		pAudioEngine->getPlayhead()->getFrameOffsetTempo();
 
-	int nSampleFrames = pSample->getFrames();
+	const long long nSampleFrames = pSample->getFrames();
 	float fStep =
 		(float) pSample->getSampleRate() /
 		pAudioDriver->getSampleRate();	// Adjust for audio driver sample rate
@@ -1473,10 +1449,10 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 		auto pJackDriver = std::dynamic_pointer_cast<JackDriver>( pAudioDriver );
 		if ( pJackDriver != nullptr ) {
 			pTrackOutL = pJackDriver->getTrackBuffer(
-				m_pPlaybackTrackInstrument, JackDriver::Channel::Left
+				Instrument::PlaybackTrackId, JackDriver::Channel::Left
 			);
 			pTrackOutR = pJackDriver->getTrackBuffer(
-				m_pPlaybackTrackInstrument, JackDriver::Channel::Right
+				Instrument::PlaybackTrackId, JackDriver::Channel::Right
 			);
 		}
 	}
@@ -1498,10 +1474,10 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 	}
 
 	// Track peaks and mix in to main output
-	float fInstrPeak_L = m_pPlaybackTrackInstrument->getPeak_L();
-	float fInstrPeak_R = m_pPlaybackTrackInstrument->getPeak_R();
+	float fInstrPeak_L = pPlaybackTrackInstrument->getPeak_L();
+	float fInstrPeak_R = pPlaybackTrackInstrument->getPeak_R();
 
-	const float fGain = pSong->getPlaybackTrackVolume() * pSong->getVolume();
+	const float fGain = pPlaybackTrackInstrument->getVolume() * pSong->getVolume();
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos;
 		  ++nBufferPos ) {
 		float fVal_L = buffer_L[nBufferPos] * fGain,
@@ -1522,8 +1498,8 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 		m_pMainOut_R[nBufferPos] += fVal_R;
 	}
 
-	m_pPlaybackTrackInstrument->setPeak_L( fInstrPeak_L );
-	m_pPlaybackTrackInstrument->setPeak_R( fInstrPeak_R );
+	pPlaybackTrackInstrument->setPeak_L( fInstrPeak_L );
+	pPlaybackTrackInstrument->setPeak_R( fInstrPeak_R );
 
 	return true;
 }
@@ -1648,14 +1624,15 @@ bool Sampler::renderNote(
 
 	auto pSample_data_L = pSample->getData_L();
 	auto pSample_data_R = pSample->getData_R();
-	const int nSampleFrames = pSample->getFrames();
+	const long long nSampleFrames = pSample->getFrames();
 	// The number of frames of the sample left to process.
-	const int nRemainingFrames = static_cast<int>(
+	const long long nRemainingFrames = static_cast<long long>(
 		( static_cast<float>( nSampleFrames ) -
 		  pSelectedLayerInfo->fSamplePosition ) /
 		fFrequencyRatio
 	);
-	const int nNoteOffFrame = std::min( nRemainingFrames, nBufferSize - 1 );
+	const int nNoteOffFrame =
+		std::min( static_cast<int>( nRemainingFrames ), nBufferSize - 1 );
 
 	bool bRetValue = true;	// the note is ended
 	int nAvail_bytes;
@@ -1673,7 +1650,7 @@ bool Sampler::renderNote(
 			nAvail_bytes = nBufferSize - nInitialBufferPos;
 		}
 		else {
-			nAvail_bytes = nRemainingFrames;
+			nAvail_bytes = static_cast<int>(nRemainingFrames);
 		}
 	}
 
@@ -1705,8 +1682,11 @@ bool Sampler::renderNote(
 
 		nNoteEnd = std::min(
 			nFinalBufferPos + 1,
-            static_cast<int>((pSelectedLayerInfo->nNoteLength -
-				  static_cast<int>(pSelectedLayerInfo->fSamplePosition)) / fFrequencyRatio
+			static_cast<int>(
+				( pSelectedLayerInfo->nNoteLength -
+				  static_cast<long long>( pSelectedLayerInfo->fSamplePosition )
+				) /
+				fFrequencyRatio
 			)
 		);
 
@@ -1747,10 +1727,10 @@ bool Sampler::renderNote(
 		auto pJackDriver = std::dynamic_pointer_cast<JackDriver>( pAudioDriver );
 		if ( pJackDriver != nullptr ) {
 			pTrackOutL = pJackDriver->getTrackBuffer(
-				pInstrument, JackDriver::Channel::Left
+				pInstrument->getId(), JackDriver::Channel::Left
 			);
 			pTrackOutR = pJackDriver->getTrackBuffer(
-				pInstrument, JackDriver::Channel::Right
+				pInstrument->getId(), JackDriver::Channel::Right
 			);
 		}
 	}
@@ -2009,31 +1989,6 @@ bool Sampler::isInstrumentPlaying( std::shared_ptr<Instrument> pInstrument
 	return false;
 }
 
-void Sampler::reinitializePlaybackTrack()
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	std::shared_ptr<Sample> pSample;
-
-	if ( pSong == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-
-	if ( pHydrogen->getPlaybackTrackState() !=
-		 Song::PlaybackTrack::Unavailable ) {
-		pSample = Sample::load( pSong->getPlaybackTrackFileName() );
-	}
-
-	auto pPlaybackTrackLayer = std::make_shared<InstrumentLayer>( pSample );
-
-	m_pPlaybackTrackInstrument->setLayer(
-		m_pPlaybackTrackInstrument->getComponents()->front(),
-		pPlaybackTrackLayer, 0, Event::Trigger::Suppress
-	);
-	m_nPlayBackSamplePosition = 0;
-}
-
 QString Sampler::toQString( const QString& sPrefix, bool bShort ) const
 {
 	QString s = Base::sPrintIndention;
@@ -2058,16 +2013,6 @@ QString Sampler::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( sPrefix )
 						 .arg( s )
 						 .arg( m_scheduledNoteOffQueue.size() ) )
-			.append( QString( "]\n%1%2m_pPlaybackTrackInstrument: %3\n" )
-						 .arg( sPrefix )
-						 .arg( s )
-						 .arg(
-							 m_pPlaybackTrackInstrument == nullptr
-								 ? "nullptr"
-								 : m_pPlaybackTrackInstrument->toQString(
-									   sPrefix + s, bShort
-								   )
-						 ) )
 			.append( QString( "%1%2m_pPreviewInstrument: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
@@ -2078,10 +2023,6 @@ QString Sampler::toQString( const QString& sPrefix, bool bShort ) const
 									   sPrefix + s, bShort
 								   )
 						 ) )
-			.append( QString( "%1%2m_nPlayBackSamplePosition: %3\n" )
-						 .arg( sPrefix )
-						 .arg( s )
-						 .arg( m_nPlayBackSamplePosition ) )
 			.append( QString( "%1%2m_interpolateMode: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
@@ -2100,22 +2041,12 @@ QString Sampler::toQString( const QString& sPrefix, bool bShort ) const
 		sOutput
 			.append( QString( "], m_scheduledNoteOffQueue: size = %1" )
 						 .arg( m_scheduledNoteOffQueue.size() ) )
-			.append( QString( "], m_pPlaybackTrackInstrument: %1" )
-						 .arg(
-							 m_pPlaybackTrackInstrument == nullptr
-								 ? "nullptr"
-								 : m_pPlaybackTrackInstrument->toQString(
-									   "", bShort
-								   )
-						 ) )
 			.append( QString( ", m_pPreviewInstrument: %1" )
 						 .arg(
 							 m_pPreviewInstrument == nullptr
 								 ? "nullptr"
 								 : m_pPreviewInstrument->toQString( "", bShort )
 						 ) )
-			.append( QString( ", m_nPlayBackSamplePosition: %1" )
-						 .arg( m_nPlayBackSamplePosition ) )
 			.append( QString( ", m_interpolateMode: %1" )
 						 .arg( Interpolation::ModeToQString( m_interpolateMode )
 						 ) );

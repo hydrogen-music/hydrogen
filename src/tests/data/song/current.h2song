@@ -13,9 +13,7 @@
  <license>undefined license</license>
  <loopEnabled>false</loopEnabled>
  <patternModeMode>true</patternModeMode>
- <playbackTrackFilename></playbackTrackFilename>
- <playbackTrackEnabled>false</playbackTrackEnabled>
- <playbackTrackVolume>0</playbackTrackVolume>
+ <playbackTrack/>
  <action_mode>0</action_mode>
  <isPatternEditorLocked>false</isPatternEditorLocked>
  <isTimelineActivated>false</isTimelineActivated>

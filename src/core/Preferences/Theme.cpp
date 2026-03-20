@@ -70,7 +70,6 @@ ColorTheme::ColorTheme()
 	, m_componentEditor_layerTextColor( QColor( 18, 18, 18 ) )
 	, m_sampleEditor_backgroundColor( QColor( 128, 134, 152 ) )
 	, m_sampleEditor_textColor( QColor( 0, 0, 0 ) )
-	, m_sampleEditor_playheadColor( QColor( 0, 0, 0 ) )
 	, m_sampleEditor_startSliderColor( QColor( 0, 219, 0 ) )
 	, m_sampleEditor_loopSliderColor( QColor( 219, 219, 0 ) )
 	, m_sampleEditor_endSliderColor( QColor( 217, 68, 0 ) )
@@ -108,6 +107,7 @@ ColorTheme::ColorTheme()
 	, m_muteTextColor( QColor( 255, 255, 255 ) )
 	, m_soloColor( QColor( 219, 177, 50 ) )
 	, m_soloTextColor( QColor( 255, 255, 255 ) )
+	, m_waveFormColor( QColor( 24, 35, 48 ) )
 {
 }
 
@@ -192,7 +192,6 @@ ColorTheme::ColorTheme( std::shared_ptr<ColorTheme> pOther )
 	  ),
 	  m_sampleEditor_backgroundColor( pOther->m_sampleEditor_backgroundColor),
 	  m_sampleEditor_textColor( pOther->m_sampleEditor_textColor),
-	  m_sampleEditor_playheadColor( pOther->m_sampleEditor_playheadColor),
 	  m_sampleEditor_startSliderColor( pOther->m_sampleEditor_startSliderColor),
 	  m_sampleEditor_loopSliderColor( pOther->m_sampleEditor_loopSliderColor),
 	  m_sampleEditor_endSliderColor( pOther->m_sampleEditor_endSliderColor),
@@ -229,7 +228,8 @@ ColorTheme::ColorTheme( std::shared_ptr<ColorTheme> pOther )
 	  m_muteColor( pOther->m_muteColor ),
 	  m_muteTextColor( pOther->m_muteTextColor ),
 	  m_soloColor( pOther->m_soloColor ),
-	  m_soloTextColor( pOther->m_soloTextColor )
+	  m_soloTextColor( pOther->m_soloTextColor ),
+	  m_waveFormColor( pOther->m_waveFormColor )
 {
 }
 
@@ -322,9 +322,6 @@ void ColorTheme::saveTo( XMLNode& parent ) const {
 		"textColor", m_sampleEditor_textColor
 	);
 	sampleEditorNode.write_color(
-		"playheadColor", m_sampleEditor_playheadColor
-	);
-	sampleEditorNode.write_color(
 		"startSliderColor", m_sampleEditor_startSliderColor
 	);
 	sampleEditorNode.write_color(
@@ -377,6 +374,7 @@ void ColorTheme::saveTo( XMLNode& parent ) const {
 	widgetNode.write_color( "muteTextColor", m_muteTextColor );
 	widgetNode.write_color( "soloColor", m_soloColor );
 	widgetNode.write_color( "soloTextColor", m_soloTextColor );
+	widgetNode.write_color( "waveFormColor", m_waveFormColor );
 }
 
 std::shared_ptr<ColorTheme> ColorTheme::loadFrom( const XMLNode& parent,
@@ -585,10 +583,6 @@ std::shared_ptr<ColorTheme> ColorTheme::loadFrom( const XMLNode& parent,
 			"textColor", pColorTheme->m_sampleEditor_textColor, false,
 			false, bSilent
 		);
-		pColorTheme->m_sampleEditor_playheadColor = sampleEditorNode.read_color(
-			"playheadColor", pColorTheme->m_sampleEditor_playheadColor, false,
-			false, bSilent
-		);
 		pColorTheme->m_sampleEditor_startSliderColor =
 			sampleEditorNode.read_color(
 				"startSliderColor",
@@ -766,6 +760,10 @@ std::shared_ptr<ColorTheme> ColorTheme::loadFrom( const XMLNode& parent,
 			widgetNode.read_color(
 				"soloTextColor",
 				pColorTheme->m_soloTextColor, false, false, bSilent );
+		pColorTheme->m_waveFormColor =
+			widgetNode.read_color(
+				"waveFormColor",
+				pColorTheme->m_waveFormColor, false, false, bSilent );
 }
 	else {
 		WARNINGLOG( "<widget> node not found" );
@@ -990,11 +988,6 @@ QString ColorTheme::toQString( const QString& sPrefix, bool bShort ) const {
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_sampleEditor_textColor.name() ) )
-				.append( QString( "%1%2m_sampleEditor_playheadColor: %3\n"
-				)
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( m_sampleEditor_playheadColor.name() ) )
 				.append( QString( "%1%2m_sampleEditor_startSliderColor: %3\n"
 				)
 							 .arg( sPrefix )
@@ -1147,7 +1140,11 @@ QString ColorTheme::toQString( const QString& sPrefix, bool bShort ) const {
 				.append( QString( "%1%2m_soloTextColor: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( m_soloTextColor.name() ) );
+							 .arg( m_soloTextColor.name() ) )
+				.append( QString( "%1%2m_waveFormColor: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_waveFormColor.name() ) );
 }
 	else {
 		sOutput =
@@ -1266,9 +1263,6 @@ QString ColorTheme::toQString( const QString& sPrefix, bool bShort ) const {
 				.append( QString( ", m_sampleEditor_textColor: %1"
 				)
 							 .arg( m_sampleEditor_textColor.name() ) )
-				.append( QString( ", m_sampleEditor_playheadColor: %1"
-				)
-							 .arg( m_sampleEditor_playheadColor.name() ) )
 				.append( QString( ", m_sampleEditor_startSliderColor: %1"
 				)
 							 .arg( m_sampleEditor_startSliderColor.name() ) )
@@ -1358,7 +1352,9 @@ QString ColorTheme::toQString( const QString& sPrefix, bool bShort ) const {
 					QString( ", m_soloColor: %1" ).arg( m_soloColor.name() )
 				)
 				.append( QString( ", m_soloTextColor: %1" )
-							 .arg( m_soloTextColor.name() ) );
+							 .arg( m_soloTextColor.name() ) )
+				.append( QString( ", m_waveFormColor: %1" )
+							 .arg( m_waveFormColor.name() ) );
 	}
 
 	return sOutput;

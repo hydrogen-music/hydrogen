@@ -41,14 +41,16 @@ class SongEditorPositionRuler :  public QWidget,
     H2_OBJECT(SongEditorPositionRuler)
 	Q_OBJECT
 
-	public:
-		explicit SongEditorPositionRuler( QWidget *parent );
-		~SongEditorPositionRuler();	
+   public:
+	static constexpr int nScalingRuler = 115;
+	static constexpr int nScalingTimeline = 80;
 
-		void setGridWidth( int width );
+	explicit SongEditorPositionRuler( QWidget* parent );
+	~SongEditorPositionRuler();
+
+	void setGridWidth( int width );
 
 	static int tickToColumn( float fTick, int nGridWidth );
-		static constexpr int m_nMinimumHeight = 50;
 		void showTagWidget( int nColumn );
 		void showBpmWidget( int nColumn );
 		void updateEditor();

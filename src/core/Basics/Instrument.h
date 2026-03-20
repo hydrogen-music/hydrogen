@@ -80,6 +80,8 @@ class Instrument : public H2Core::Object<Instrument> {
 	/** destructor */
 	~Instrument();
 
+	static std::shared_ptr<Instrument> from( std::shared_ptr<Sample> pSample );
+
 	/**
 	 * Calls the InstrumentLayer::loadSample() member
 	 * function of all layers of each component of the
@@ -339,7 +341,7 @@ class Instrument : public H2Core::Object<Instrument> {
 		Event::Trigger trigger
 	);
 
-	int getLongestSampleFrames() const;
+	long long getLongestSampleFrames() const;
 
 	Instrument::Type getType() const;
 	void setType( Instrument::Type type );

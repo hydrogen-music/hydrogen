@@ -33,9 +33,9 @@ class MuteButton : public ColoredButton, public H2Core::Object<MuteButton> {
    public:
 	MuteButton(
 		QWidget* pParent,
-		const QSize& size = QSize(),
-		const QString& sBaseToolTip = "",
-		bool bModifyOnChange = false
+		const QSize& size,
+		const QString& sBaseToolTip,
+		int flag
 	);
 	~MuteButton();
 

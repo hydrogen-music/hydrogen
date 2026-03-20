@@ -59,7 +59,7 @@ class SampleWaveDisplay : public WaveDisplay,
 	);
 	~SampleWaveDisplay();
 
-	void setEnabled( bool bEnabled );
+	void setSlidersLocked( bool bLocked );
 
    private:
 	void leaveEvent( QEvent* pEv ) override;
@@ -73,25 +73,25 @@ class SampleWaveDisplay : public WaveDisplay,
 
 	/** In case there are more frames in the sample than the width of the widget
 	 * in pixel (very likely), we have to rescale the coordinates. */
-	int frameToX( int nFrame ) const;
-	int xToFrame( int nX ) const;
+	int frameToX( long long nFrame ) const;
+	long long xToFrame( int nX ) const;
 
 	SampleEditor* m_pSampleEditor;
 
-	bool m_bEnabled;
+	bool m_bSlidersLocked;
 
 	/** Cache for undo/redo actions during drag moving. Otherwise, the operation
 	 * would be to inefficient. */
-	int m_nOldFrame;
+	long long m_nOldFrame;
 
 	/** We only change for the vicinity of a slider once when pressing the left
 	 * mouse button. Else we would risk loosing it on faster mouse movements. */
 	bool m_bDragStarted;
 };
 
-inline void SampleWaveDisplay::setEnabled( bool bEnabled )
+inline void SampleWaveDisplay::setSlidersLocked( bool bLocked )
 {
-	m_bEnabled = bEnabled;
+	m_bSlidersLocked = bLocked;
 }
 
 #endif

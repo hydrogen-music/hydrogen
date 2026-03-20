@@ -77,11 +77,13 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 		m_nActiveColumns = 0;
 	}
 
-	resize( nInitialWidth, m_nMinimumHeight );
-	setFixedHeight( m_nMinimumHeight );
+	resize( nInitialWidth, SongEditorPanel::nHeaderWidgetHeight );
 
 	qreal pixelRatio = devicePixelRatio();
-	m_pBackgroundPixmap = new QPixmap( nInitialWidth * pixelRatio, m_nMinimumHeight * pixelRatio );	// initialize the pixmap
+	m_pBackgroundPixmap = new QPixmap(
+		nInitialWidth * pixelRatio,
+		SongEditorPanel::nHeaderWidgetHeight * pixelRatio
+	);	// initialize the pixmap
 	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 
 	m_pTimer = new QTimer(this);
@@ -125,17 +127,24 @@ void SongEditorPositionRuler::createBackground()
 	auto pTimeline = pSong->getTimeline();
 	auto tagVector = pTimeline->getAllTags();
 	
-	QColor textColor( pColorTheme->m_songEditor_textColor );
-	QColor textColorAlpha( textColor );
-	textColorAlpha.setAlpha( 45 );
+	const QColor timelineTextColor = Qt::black;
+	const QColor rulerTextColor( pColorTheme->m_songEditor_textColor );
+	QColor timelineTextColorAlpha( timelineTextColor );
+	timelineTextColorAlpha.setAlpha( 45 );
 
-	QColor backgroundColor = pColorTheme->m_songEditor_alternateRowColor.darker( 115 );
-	QColor backgroundInactiveColor = pColorTheme->m_midLightColor;
-	QColor backgroundColorTempoMarkers = backgroundColor.darker( 120 );
+	const QColor backgroundColor =
+		pColorTheme->m_songEditor_alternateRowColor.darker(
+			SongEditorPositionRuler::nScalingRuler
+		);
+	const QColor backgroundInactiveColor = pColorTheme->m_midLightColor;
+	const QColor backgroundColorTempoMarkers =
+		pColorTheme->m_songEditor_alternateRowColor.darker(
+			SongEditorPositionRuler::nScalingTimeline
+		);
 
-	QColor colorHighlight = pColorTheme->m_highlightColor;
+	const QColor colorHighlight = pColorTheme->m_highlightColor;
 
-	QColor lineColor = pColorTheme->m_songEditor_lineColor;
+	const QColor lineColor = pColorTheme->m_songEditor_lineColor;
 	QColor lineColorAlpha( lineColor );
 	lineColorAlpha.setAlpha( 45 );
 		
@@ -163,7 +172,7 @@ void SongEditorPositionRuler::createBackground()
 
 	int nMaxPatternSequence = pPref->getMaxBars();
 	
-	QColor textColorGrid( textColor );
+	QColor textColorGrid( rulerTextColor );
 	textColorGrid.setAlpha( 200 );
 	p.setPen( QPen( textColorGrid, 1, Qt::SolidLine ) );
 	for ( int ii = 0; ii < nMaxPatternSequence + 1; ii++) {
@@ -178,7 +187,7 @@ void SongEditorPositionRuler::createBackground()
 	}
 
 	// Add every 4th number to the grid
-	p.setPen( textColor );
+	p.setPen( rulerTextColor );
 	for ( int i = 0; i < nMaxPatternSequence + 1; i += 4) {
 		int x = columnToX( i );
 
@@ -211,9 +220,9 @@ void SongEditorPositionRuler::createBackground()
 	
 	// Draw tempo marker grid.
 	if ( ! pHydrogen->isTimelineEnabled() ) {
-		p.setPen( textColorAlpha );
+		p.setPen( timelineTextColorAlpha );
 	} else {
-		QColor tempoMarkerGridColor( textColor );
+		QColor tempoMarkerGridColor( timelineTextColor );
 		tempoMarkerGridColor.setAlpha( 170 );
 		p.setPen( tempoMarkerGridColor );
 	}
@@ -464,14 +473,13 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		return;
 	}
 	
-	QColor textColor( pColorTheme->m_songEditor_textColor );
-	QColor textColorAlpha( textColor );
-	textColorAlpha.setAlpha( 45 );
 	QColor highlightColor = pColorTheme->m_highlightColor;
 	QColor colorHovered( highlightColor );
 	colorHovered.setAlpha( 200 );
-	QColor backgroundColor = pColorTheme->m_songEditor_alternateRowColor.darker( 115 );
-	QColor backgroundColorTempoMarkers = backgroundColor.darker( 120 );
+	const QColor backgroundColorTempoMarkers =
+		pColorTheme->m_songEditor_alternateRowColor.darker(
+			SongEditorPositionRuler::nScalingTimeline
+		);
 
 	int nPunchInPos = pPref->getPunchInPos();
 	int nPunchOutPos = pPref->getPunchOutPos();
@@ -774,25 +782,25 @@ void SongEditorPositionRuler::drawTempoMarker( std::shared_ptr<const Timeline::T
 	// Draw an additional small horizontal line at the top of the
 	// current column to better indicate the position of the tempo
 	// marker (for larger float values e.g. 130.67).
-	QColor textColor( pPref->getColorTheme()->m_songEditor_textColor );
+	QColor timelineTextColor( Qt::black );
 
 	if ( pTempoMarker->nColumn == 0 && pTimeline->isFirstTempoMarkerSpecial() ) {
-		textColor = textColor.darker( 150 );
+		timelineTextColor = timelineTextColor.lighter( 150 );
 	}
 			
 	if ( ! pHydrogen->isTimelineEnabled() ) {
-		QColor textColorAlpha( textColor );
-		textColorAlpha.setAlpha( 45 );
-		painter.setPen( textColorAlpha );
+		QColor timelineTextColorAlpha( timelineTextColor );
+		timelineTextColorAlpha.setAlpha( 45 );
+		painter.setPen( timelineTextColorAlpha );
 	} else {
-		QColor tempoMarkerGridColor( textColor );
+		QColor tempoMarkerGridColor( timelineTextColor );
 		tempoMarkerGridColor.setAlpha( 170 );
 		painter.setPen( tempoMarkerGridColor );
 	}
 
 	painter.drawLine( rect.x(), 2, rect.x() + m_nGridWidth / 2, 2 );
 
-	QColor tempoMarkerColor( textColor );
+	QColor tempoMarkerColor( timelineTextColor );
 	if ( ! pHydrogen->isTimelineEnabled() ) {
 		tempoMarkerColor.setAlpha( 45 );
 	}

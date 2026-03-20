@@ -136,7 +136,7 @@ void PitchLabel::paintEvent( QPaintEvent* ev )
 
 	QColor color( m_backgroundColor );
 	if ( m_bEntered ) {
-		color = color.lighter( Skin::nToolBarHoveredScaling );
+		color = color.lighter( Skin::nToolButtonHoveredScaling );
 	}
 
 	p.fillRect( QRect( 0, 0, width(), height() ), color );

@@ -23,6 +23,7 @@
 #ifndef H2_JACK_DRIVER_H
 #define H2_JACK_DRIVER_H
 
+#include <core/Basics/Instrument.h>
 #include <core/IO/AudioDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/IO/NullDriver.h>
@@ -45,7 +46,6 @@
 namespace H2Core {
 
 class Drumkit;
-class Instrument;
 class Song;
 class Transport;
 
@@ -182,6 +182,7 @@ class JackDriver : public Object<JackDriver>,
 	static QString JackTransportPosToQString( const jack_position_t& pPos );
 
 	typedef std::map<std::shared_ptr<Instrument>, InstrumentPorts> PortMap;
+	typedef std::map<Instrument::Id, InstrumentPorts> PortMapStatic;
 
 	JackDriver( JackProcessCallback m_processCallback, Mode mode );
 	~JackDriver();
@@ -190,10 +191,7 @@ class JackDriver : public Object<JackDriver>,
 	bool isActive() const;
 
 	void deactivate();
-	float* getTrackBuffer(
-		std::shared_ptr<Instrument> pInstrument,
-		Channel channel
-	) const;
+	float* getTrackBuffer( Instrument::Id id, Channel channel ) const;
 	Mode getMode() const;
 
 	/** Re-positions the transport position to @a nFrame.
@@ -453,7 +451,7 @@ class JackDriver : public Object<JackDriver>,
 	/** Contains the ports for the metronome and the playback track, which do
 	 * not change when e.g. switching drumkits or loading a different song. They
 	 * will stay till teardown. */
-	PortMap m_audioPortMapStatic;
+	PortMapStatic m_audioPortMapStatic;
 
 	/** Since #Sampler::m_pPreviewInstrument is changed with each new sample to
 	 * preview, this one serves as a dummy instrument mapping all instruments

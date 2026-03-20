@@ -373,8 +373,18 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		/** Replaces @a pOldInstrument by @a pNewInstrument in the current
 		 * drumkit without clearing notes, changing the selected instrument
 		 * number, etc. */
-		static bool replaceInstrument( std::shared_ptr<Instrument> pNewInstrument,
-									   std::shared_ptr<Instrument> pOldInstrument );
+		static bool replaceInstrument(
+			std::shared_ptr<Instrument> pNewInstrument,
+			std::shared_ptr<Instrument> pOldInstrument
+		);
+		static bool replaceDrumkitInstrument(
+			std::shared_ptr<Instrument> pNewInstrument,
+			std::shared_ptr<Instrument> pOldInstrument
+		);
+		static bool replacePlaybackTrackInstrument(
+			std::shared_ptr<Instrument> pNewInstrument,
+			std::shared_ptr<Instrument> pOldInstrument
+		);
 		/** Moves instrument @a nSourceIndex of the instrument list of the
 		 * current drumkit to index @a nTargetIndex.
 		 *

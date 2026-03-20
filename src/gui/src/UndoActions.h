@@ -921,7 +921,13 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 		  * SampleEditor. */
 		 EditLayer,
 		 /** The position of a layer was changed using drag'n'drop. */
-		 MoveLayer
+		 MoveLayer,
+         /** Load a different sample as playback track. */
+         AddPlaybackTrack,
+         /** Drop the current playback track. */
+         DeletePlaybackTrack,
+         /** Change the playback track instrument using the SampleEditor. */
+         EditPlaybackTrack
 	 };
 
 	 SE_replaceInstrumentAction(
@@ -1008,6 +1014,27 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 				 setText(
 					 QString( "%1 [%2]" )
 						 .arg( pCommonStrings->getActionMoveInstrumentLayer() )
+						 .arg( sName )
+				 );
+				 break;
+			 case Type::AddPlaybackTrack:
+				 setText(
+					 QString( "%1 [%2]" )
+						 .arg( pCommonStrings->getActionAddPlaybackTrack() )
+						 .arg( sName )
+				 );
+				 break;
+			 case Type::DeletePlaybackTrack:
+				 setText(
+					 QString( "%1 [%2]" )
+						 .arg( pCommonStrings->getActionDeletePlaybackTrack() )
+						 .arg( sName )
+				 );
+				 break;
+			 case Type::EditPlaybackTrack:
+				 setText(
+					 QString( "%1 [%2]" )
+						 .arg( pCommonStrings->getActionEditPlaybackTrack() )
 						 .arg( sName )
 				 );
 				 break;
@@ -1361,8 +1388,8 @@ class SE_changeSliderAction : public QUndoCommand {
    public:
 	SE_changeSliderAction(
 		SampleEditor::Slider slider,
-		int nOldFrame,
-		int nNewFrame
+		long long nOldFrame,
+		long long nNewFrame
 	)
 		: m_slider( slider ), m_nNewFrame( nNewFrame ), m_nOldFrame( nOldFrame )
 	{
@@ -1406,8 +1433,8 @@ class SE_changeSliderAction : public QUndoCommand {
 
    private:
 	SampleEditor::Slider m_slider;
-	int m_nOldFrame;
-	int m_nNewFrame;
+	long long m_nOldFrame;
+	long long m_nNewFrame;
 };
 
 /** More general action for all loop-specific stuff apart from frames. */

@@ -496,30 +496,12 @@ void MainForm::createMenuBar()
 		m_pViewAutomationPathAction->setChecked(false);
 	}
 
-	m_pViewMenu->addSeparator();				// -----
-
-	m_pViewTimelineAction = m_pViewMenu->addAction(
-		tr("&Timeline"), this, SLOT( action_window_showTimeline() ) );
-	m_pViewTimelineAction->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ShowTimeline ) );
-	m_pViewTimelineAction->setCheckable( true );
-	
 	m_pViewPlaybackTrackAction = m_pViewMenu->addAction(
 		tr("&Playback Track"), this, SLOT( action_window_showPlaybackTrack() ) );
 	m_pViewPlaybackTrackAction->setShortcut(
 		pShortcuts->getKeySequence( Shortcuts::Action::ShowPlaybackTrack ) );
 	m_pViewPlaybackTrackAction->setCheckable( true );
-
-	m_pViewPlaybackTrackActionGroup = new QActionGroup( this );
-	m_pViewPlaybackTrackActionGroup->addAction( m_pViewTimelineAction );
-	m_pViewPlaybackTrackActionGroup->addAction( m_pViewPlaybackTrackAction );
-
-	// Note that the ActionGroup unchecks the other menu item automatically
-	if ( pPref->getShowPlaybackTrack() ) {
-		m_pViewPlaybackTrackAction->setChecked( true );
-	} else {
-		m_pViewTimelineAction->setChecked( true );
-	}
+    m_pViewPlaybackTrackAction->setChecked( pPref->getShowPlaybackTrack() );
 
 	m_pViewMenu->addSeparator();				// -----
 
@@ -1251,15 +1233,11 @@ void MainForm::action_window_showSongEditor()
 	h2app->getSongEditorPanel()->setHidden( isVisible );
 }
 
-void MainForm::action_window_showTimeline()
-{
-	h2app->getSongEditorPanel()->showTimeline();
-}
-
-
 void MainForm::action_window_showPlaybackTrack()
 {
-	h2app->getSongEditorPanel()->showPlaybackTrack();
+	h2app->getSongEditorPanel()->showPlaybackTrack(
+		!Preferences::get_instance()->getShowPlaybackTrack()
+	);
 }
 
 void MainForm::action_window_showAutomationArea()
@@ -3292,9 +3270,6 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 			case Shortcuts::Action::ShowAutomation:
 				action_window_showAutomationArea();
-				break;
-			case Shortcuts::Action::ShowTimeline:
-				action_window_showTimeline();
 				break;
 			case Shortcuts::Action::ShowPlaybackTrack:
 				action_window_showPlaybackTrack();

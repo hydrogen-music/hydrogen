@@ -114,21 +114,6 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	};
 		static QString PatternModeToQString( const PatternMode& patternMode );
 
-	/** Determines the state of the Playback track with respect to
-		audio processing*/
-	enum class PlaybackTrack {
-		/** No proper playback track file set yet*/
-		Unavailable = 0,
-		/** Valid file set but the playback track is muted via the GUI*/
-		Muted = 1,
-		/** Valid file set and ready for playback.*/
-		Enabled = 2,
-		/** Null element used to indicate that either no song is
-		 * present*/
-		None = 3
-	};
-		static QString PlaybackTrackToQString( const PlaybackTrack& playbackTrack );
-
 		/** Please do not #H2Core::Hydrogen::setSong() a song created using this
 		 * constructor. It is just a minimal version with not all its members
 		 * properly initialized and can causes crashes (in the
@@ -246,26 +231,10 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 		int			getLatestRoundRobin( float fStartVelocity ) const;
 		void			setLatestRoundRobin( float fStartVelocity, int nLatestRoundRobin );
-		/** \return #m_sPlaybackTrackFileName */
-		const QString&		getPlaybackTrackFileName() const;
-		/** \param sFileName Sets #m_sPlaybackTrackFileName. */
-		void			setPlaybackTrackFileName( const QString& sFileName );
-							
-		/** \return #m_bPlaybackTrackEnabled */
-		bool			getPlaybackTrackEnabled() const;
-		/** Specifies whether a playback track should be used.
-		 *
-		 * \param bEnabled Sets #m_bPlaybackTrackEnabled. */
-		void			setPlaybackTrackEnabled( const bool bEnabled );
-							
-		/** \return #m_fPlaybackTrackVolume */
-		float			getPlaybackTrackVolume() const;
-		/** \param fVolume Sets #m_fPlaybackTrackVolume. */
-		void			setPlaybackTrackVolume( const float fVolume );
 
-		PlaybackTrack getPlaybackTrackState() const;
+        std::shared_ptr<Instrument> getPlaybackTrackInstrument() const;
+        void setPlaybackTrackInstrument( std::shared_ptr<Instrument> pInstrument );
 
-	
 		const ActionMode& getActionMode() const;
 		void			setActionMode( const ActionMode& actionMode );
 
@@ -373,34 +342,9 @@ private:
 		bool			m_bIsModified;
 		std::map< float, int> 	m_latestRoundRobins;
 		Mode			m_mode;
-		
-		/** Name of the file to be loaded as playback track.
-		*
-		 * It is set by setPlaybackTrackFileName() and
-		 * queried by getPlaybackTrackFileName().
-		 *
-		 * The playback track itself is loaded in
-		 * Sampler::reinitialize_playback_track().
-		 */
-		QString			m_sPlaybackTrackFileName;
-		/** Whether the playback track should be used at all.
-		 *
-		 * It is set by setPlaybackTrackEnabled() and
-		 * queried by getPlaybackTrackEnabled().
-		 *
-		 * The playback track itself is loaded in
-		 * Sampler::reinitialize_playback_track().
-		 */
-		bool			m_bPlaybackTrackEnabled;
-		/** Volume of the playback track.
-		 *
-		 * It is set by setPlaybackTrackVolume() and
-		 * queried by getPlaybackTrackVolume().
-		 *
-		 * The playback track itself is loaded in
-		 * Sampler::reinitialize_playback_track().
-		 */
-		float			m_fPlaybackTrackVolume;
+
+        std::shared_ptr<Instrument> m_pPlaybackTrackInstrument;
+
 		AutomationPath*		m_pVelocityAutomationPath;
 		///< license of the song
 		License			m_license;
@@ -677,45 +621,14 @@ inline void Song::setLatestRoundRobin( float fStartVelocity, int nLatestRoundRob
 	m_latestRoundRobins[ fStartVelocity ] = nLatestRoundRobin;
 }
 
-inline const QString& Song::getPlaybackTrackFileName() const
+inline std::shared_ptr<Instrument> Song::getPlaybackTrackInstrument() const
 {
-	return m_sPlaybackTrackFileName;
+	return m_pPlaybackTrackInstrument;
 }
 
-inline void Song::setPlaybackTrackFileName( const QString& sFileName )
+inline void Song::setPlaybackTrackInstrument( std::shared_ptr<Instrument> pInstrument )
 {
-	m_sPlaybackTrackFileName = sFileName;
-}
-
-inline bool Song::getPlaybackTrackEnabled() const
-{
-	return m_bPlaybackTrackEnabled;
-}
-
-inline void Song::setPlaybackTrackEnabled( const bool bEnabled )
-{
-	m_bPlaybackTrackEnabled = bEnabled;
-}
-
-inline float Song::getPlaybackTrackVolume() const
-{
-	return m_fPlaybackTrackVolume;
-}
-
-inline void Song::setPlaybackTrackVolume( const float fVolume )
-{
-	m_fPlaybackTrackVolume = fVolume;
-}
-inline Song::PlaybackTrack Song::getPlaybackTrackState() const {
-	if ( m_sPlaybackTrackFileName.isEmpty() ) {
-		return std::move( PlaybackTrack::Unavailable );
-	}
-
-	if ( ! m_bPlaybackTrackEnabled ) {
-		return std::move( PlaybackTrack::Muted );
-	}
-
-	return std::move( PlaybackTrack::Enabled );
+	m_pPlaybackTrackInstrument = pInstrument;
 }
 
 inline const Song::ActionMode& Song::getActionMode() const {

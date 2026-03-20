@@ -34,34 +34,36 @@ SoloButton::SoloButton(
 	QWidget* pParent,
 	const QSize& size,
 	const QString& sBaseToolTip,
-	bool bModifyOnChange
+	int flag
 )
-	: ColoredButton(
-		  pParent,
-		  size,
-		  sBaseToolTip,
-		  bModifyOnChange
-	  )
+	: ColoredButton( pParent, size, sBaseToolTip, flag )
 {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-    setText( pCommonStrings->getSmallSoloButton() );
+	if ( flag & ColoredButton::Flag::CustomRendering ) {
+		m_sText = pCommonStrings->getSmallSoloButton();
+	}
+	else {
+		setText( pCommonStrings->getSmallSoloButton() );
+	}
 
-    const auto pColorTheme = Preferences::get_instance()->getColorTheme();
-    setBaseColor( pColorTheme->m_soloColor );
-    setBaseTextColor( pColorTheme->m_soloTextColor );
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	setBaseColor( pColorTheme->m_soloColor );
+	setBaseTextColor( pColorTheme->m_soloTextColor );
 }
 
 SoloButton::~SoloButton()
 {
 }
 
-void SoloButton::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
+void SoloButton::onPreferencesChanged(
+	const H2Core::Preferences::Changes& changes
+)
 {
-    Button::onPreferencesChanged( changes );
+	Button::onPreferencesChanged( changes );
 
 	if ( changes & ( H2Core::Preferences::Changes::Colors ) ) {
-        const auto pColorTheme = Preferences::get_instance()->getColorTheme();
-        setBaseColor( pColorTheme->m_soloColor );
-        setBaseTextColor( pColorTheme->m_soloTextColor );
-    }
+		const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+		setBaseColor( pColorTheme->m_soloColor );
+		setBaseTextColor( pColorTheme->m_soloTextColor );
+	}
 }

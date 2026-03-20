@@ -55,13 +55,19 @@ class SongEditorPanel : public QWidget,
 	Q_OBJECT
 
 	public:
-		static constexpr int nMinimumHeight = 50;
+	 static constexpr int nButtonMainHeight = 25;
+	 static constexpr int nButtonToolHeight = 23;
+	 static constexpr int nButtonWidth = 32;
+	 static constexpr int nHeaderWidgetHeight = 50;
+	 static constexpr int nScalingPlaybackTrack = 85;
 
-		explicit SongEditorPanel( QWidget *parent );
-		~SongEditorPanel();
+	 explicit SongEditorPanel( QWidget* parent );
+	 ~SongEditorPanel();
 
-		SongEditor* getSongEditor() const { return m_pSongEditor; }
-		SongEditorPatternList* getSongEditorPatternList() const { return m_pPatternList; }
+	 SongEditor* getSongEditor() const { return m_pSongEditor; }
+	 SongEditorPatternList* getSongEditorPatternList() const
+	 {
+		 return m_pPatternList; }
 		SongEditorPositionRuler* getSongEditorPositionRuler() const { return m_pPositionRuler; }
 		AutomationPathView* getAutomationPathView() const { return m_pAutomationPathView; }
 	PlaybackTrackWaveDisplay* getPlaybackTrackWaveDisplay() const { return m_pPlaybackTrackWaveDisplay; }
@@ -69,8 +75,7 @@ class SongEditorPanel : public QWidget,
 		void ensureCursorIsVisible();
 		void updateEditors( Editor::Update update );
 
-		void showTimeline();
-		void showPlaybackTrack();
+		void showPlaybackTrack( bool bVisible );
 		void updateAutomationPathVisibility();
 		void updatePlaybackTrack();
 
@@ -126,10 +131,6 @@ class SongEditorPanel : public QWidget,
 		void updatePlaybackFaderPeaks();
 		void updatePlayHeadPosition();
 
-		void viewTimelineBtnClicked();
-		void viewPlaybackTrackBtnClicked();
-		void editPlaybackTrackBtnClicked();
-
 		void zoomInBtnClicked();
 		void zoomOutBtnClicked();
 		
@@ -161,7 +162,6 @@ class SongEditorPanel : public QWidget,
 		QScrollBar *				m_pVScrollBar;
 		QScrollBar *				m_pHScrollBar;
 									
-		QStackedWidget*				m_pWidgetStack;
 		QScrollArea*				m_pAutomationPathScrollView;
 									
 		SongEditor*					m_pSongEditor;
@@ -169,29 +169,33 @@ class SongEditorPanel : public QWidget,
 		SongEditorPositionRuler *	m_pPositionRuler;
 		PlaybackTrackWaveDisplay*	m_pPlaybackTrackWaveDisplay;
 
-		QToolBar*					m_pToolBar;
-		QAction*					m_pClearAction;
-		QAction*					m_pNewPatternAction;
+		QWidget* m_pTimelineToolBarContainer;
+        QToolBar* m_pTimelineToolBar;
+		QToolButton* m_pEnableTimelineButton;
+        QToolButton* m_pTagButton;
+        QToolButton* m_pTempoMarkerButton;
+
+		QWidget* m_pPlaybackTrackSidebar;
+        QToolBar* m_pPlaybackTrackToolBar;
+		Fader* m_pPlaybackTrackFader;
+		QToolButton* m_pLoadPlaybackTrackButton;
+		QToolButton* m_pDeletePlaybackTrackButton;
+		QToolButton* m_pEditPlaybackTrackButton;
+		MuteButton* m_pMutePlaybackTrackButton;
+
+        QWidget* m_pSongEditorToolBarContainer;
+		QToolBar*					m_pSongEditorToolBar;
+		QToolButton*					m_pClearButton;
+		QToolButton*					m_pNewPatternButton;
 		MidiLearnableToolButton*	m_pSinglePatternModeButton;
 		MidiLearnableToolButton*	m_pStackedPatternModeButton;
 		MidiLearnableToolButton*	m_pPatternEditorLockedButton;
-
-		Fader*						m_pPlaybackTrackFader;
-
-		Button *					m_pTimelineBtn;
-		Button *					m_pViewTimelineBtn;
-		Button *					m_pViewPlaybackBtn;
-		MuteButton*					m_pMutePlaybackBtn;
-		Button *					m_pEditPlaybackBtn;
-
 
 		QTimer*						m_pHighlightLockedTimer;
 		QTimer*						m_pTimer;
 		
 		AutomationPathView *		m_pAutomationPathView;
 		LCDCombo*					m_pAutomationCombo;
-
-		bool m_bLastIsTimelineActivated;
 };
 
 #endif

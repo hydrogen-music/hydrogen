@@ -117,14 +117,14 @@ EnvelopePoint::EnvelopePoint( const EnvelopePoint& other )
 Sample::Sample(
 	const QString& sFilePath,
 	const License& license,
-	int frames,
+	long long nFrames,
 	int sample_rate,
 	float* data_l,
 	float* data_r
 )
 	: m_bIsLoaded( false ),
 	  m_sFilePath( sFilePath ),
-	  m_nFrames( frames ),
+	  m_nFrames( nFrames ),
 	  m_nSampleRate( sample_rate ),
 	  m_data_L( data_l ),
 	  m_data_R( data_r ),
@@ -250,14 +250,12 @@ bool Sample::load( float fBpm )
 						.arg( sound_info.channels ) );
 		sound_info.channels = SAMPLE_CHANNELS;
 	}
-	if ( sound_info.frames >
-		 ( std::numeric_limits<int>::max() / sound_info.channels ) ) {
+	if ( sound_info.frames > ( SF_COUNT_MAX / sound_info.channels ) ) {
 		WARNINGLOG( QString( "sample frames count (%1) and channels (%2) are "
 							 "too much, truncate it." )
 						.arg( sound_info.frames )
 						.arg( sound_info.channels ) );
-		sound_info.frames =
-			( std::numeric_limits<int>::max() / sound_info.channels );
+		sound_info.frames = ( SF_COUNT_MAX / sound_info.channels );
 	}
 
 	// Create an array, which will hold the block of samples read
@@ -289,22 +287,22 @@ bool Sample::load( float fBpm )
 
 	// Save the metadata of the loaded file into private members
 	// of the Sample class.
-	m_nFrames = sound_info.frames;
+	m_nFrames = static_cast<long long>(sound_info.frames);
 	m_nSampleRate = sound_info.samplerate;
 
 	// Split the loaded frames into left and right channel.
 	// If only one channels was present in the underlying data,
 	// duplicate its content.
-	m_data_L = new float[sound_info.frames];
-	m_data_R = new float[sound_info.frames];
+	m_data_L = new float[m_nFrames];
+	m_data_R = new float[m_nFrames];
 	if ( sound_info.channels == 1 ) {
 		memcpy( m_data_L, buffer, m_nFrames * sizeof( float ) );
 		memcpy( m_data_R, buffer, m_nFrames * sizeof( float ) );
 	}
 	else if ( sound_info.channels == SAMPLE_CHANNELS ) {
-		for ( int i = 0; i < m_nFrames; i++ ) {
-			m_data_L[i] = buffer[i * SAMPLE_CHANNELS];
-			m_data_R[i] = buffer[i * SAMPLE_CHANNELS + 1];
+		for ( long long ii = 0; ii < m_nFrames; ii++ ) {
+			m_data_L[ii] = buffer[ii * SAMPLE_CHANNELS];
+			m_data_R[ii] = buffer[ii * SAMPLE_CHANNELS + 1];
 		}
 	}
 	delete[] buffer;
@@ -337,7 +335,8 @@ void Sample::unload()
 	if ( m_data_R != nullptr ) {
 		delete[] m_data_R;
 	}
-	m_nFrames = m_nSampleRate = 0;
+	m_nFrames = 0;
+	m_nSampleRate = 0;
 	/** #m_bIsModified = false; leave this unchanged as pan,
 		velocity, loop and rubberband are kept unchanged */
 
@@ -383,49 +382,48 @@ bool Sample::applyLoops()
 		);
 		return false;
 	}
-	// if( lo == m_loops ) return true;
 
-	bool full_loop = m_loops.nStartFrame == m_loops.nLoopFrame;
-	int full_length = m_loops.nEndFrame - m_loops.nStartFrame;
-	int loop_length = m_loops.nEndFrame - m_loops.nLoopFrame;
-	int new_length = full_length + loop_length * m_loops.nCount;
+	const bool bFullLoop = m_loops.nStartFrame == m_loops.nLoopFrame;
+	const long long nFullLength = m_loops.nEndFrame - m_loops.nStartFrame;
+	const long long nLoopLength = m_loops.nEndFrame - m_loops.nLoopFrame;
+	const long long nNewLength = nFullLength + nLoopLength * m_loops.nCount;
 
-	float* new_data_l = new float[new_length];
-	float* new_data_r = new float[new_length];
+	float* new_data_l = new float[nNewLength];
+	float* new_data_r = new float[nNewLength];
 
-	// copy full_length frames to new_data
+	// copy full length frames to new_data
 	if ( m_loops.mode == Loops::Mode::Reverse &&
-		 ( m_loops.nCount == 0 || full_loop ) ) {
-		if ( full_loop ) {
+		 ( m_loops.nCount == 0 || bFullLoop ) ) {
+		if ( bFullLoop ) {
 			// copy end => start
-			for ( int i = 0, j = m_loops.nEndFrame; i < full_length;
-				  i++, j-- ) {
-				new_data_l[i] = m_data_L[j];
+			for ( long long ii = 0, jj = m_loops.nEndFrame; ii < nFullLength;
+				  ii++, jj-- ) {
+				new_data_l[ii] = m_data_L[jj];
 			}
-			for ( int i = 0, j = m_loops.nEndFrame; i < full_length;
-				  i++, j-- ) {
-				new_data_r[i] = m_data_R[j];
+			for ( long long ii = 0, jj = m_loops.nEndFrame; ii < nFullLength;
+				  ii++, jj-- ) {
+				new_data_r[ii] = m_data_R[jj];
 			}
 		}
 		else {
 			// copy start => loop
-			int to_loop = m_loops.nLoopFrame - m_loops.nStartFrame;
+			const long long nToLoop = m_loops.nLoopFrame - m_loops.nStartFrame;
 			memcpy(
 				new_data_l, m_data_L + m_loops.nStartFrame,
-				sizeof( float ) * to_loop
+				sizeof( float ) * nToLoop
 			);
 			memcpy(
 				new_data_r, m_data_R + m_loops.nStartFrame,
-				sizeof( float ) * to_loop
+				sizeof( float ) * nToLoop
 			);
 			// copy end => loop
-			for ( int i = to_loop, j = m_loops.nEndFrame; i < full_length;
-				  i++, j-- ) {
-				new_data_l[i] = m_data_L[j];
+			for ( long long ii = nToLoop, jj = m_loops.nEndFrame; ii < nFullLength;
+				  ii++, jj-- ) {
+				new_data_l[ii] = m_data_L[jj];
 			}
-			for ( int i = to_loop, j = m_loops.nEndFrame; i < full_length;
-				  i++, j-- ) {
-				new_data_r[i] = m_data_R[j];
+			for ( long long ii = nToLoop, jj = m_loops.nEndFrame; ii < nFullLength;
+				  ii++, jj-- ) {
+				new_data_r[ii] = m_data_R[jj];
 			}
 		}
 	}
@@ -433,53 +431,53 @@ bool Sample::applyLoops()
 		// copy start => end
 		memcpy(
 			new_data_l, m_data_L + m_loops.nStartFrame,
-			sizeof( float ) * full_length
+			sizeof( float ) * nFullLength
 		);
 		memcpy(
 			new_data_r, m_data_R + m_loops.nStartFrame,
-			sizeof( float ) * full_length
+			sizeof( float ) * nFullLength
 		);
 	}
 	// copy the loops
 	if ( m_loops.nCount > 0 ) {
-		int x = full_length;
-		bool forward = ( m_loops.mode == Loops::Mode::Forward );
-		bool ping_pong = ( m_loops.mode == Loops::Mode::PingPong );
-		for ( int i = 0; i < m_loops.nCount; i++ ) {
-			if ( forward ) {
+		long long x = nFullLength;
+		bool bForward = ( m_loops.mode == Loops::Mode::Forward );
+		const bool bPingPong = ( m_loops.mode == Loops::Mode::PingPong );
+		for ( long long ii = 0; ii < m_loops.nCount; ii++ ) {
+			if ( bForward ) {
 				// copy loop => end
 				memcpy(
 					&new_data_l[x], m_data_L + m_loops.nLoopFrame,
-					sizeof( float ) * loop_length
+					sizeof( float ) * nLoopLength
 				);
 				memcpy(
 					&new_data_r[x], m_data_R + m_loops.nLoopFrame,
-					sizeof( float ) * loop_length
+					sizeof( float ) * nLoopLength
 				);
 			}
 			else {
 				// copy end => loop
-				for ( int i = m_loops.nEndFrame, y = x; i > m_loops.nLoopFrame;
-					  i--, y++ ) {
-					new_data_l[y] = m_data_L[i];
+				for ( long long ii = m_loops.nEndFrame, y = x; ii > m_loops.nLoopFrame;
+					  ii--, y++ ) {
+					new_data_l[y] = m_data_L[ii];
 				}
-				for ( int i = m_loops.nEndFrame, y = x; i > m_loops.nLoopFrame;
-					  i--, y++ ) {
-					new_data_r[y] = m_data_R[i];
+				for ( long long ii = m_loops.nEndFrame, y = x; ii > m_loops.nLoopFrame;
+					  ii--, y++ ) {
+					new_data_r[y] = m_data_R[ii];
 				}
 			}
-			x += loop_length;
-			if ( ping_pong ) {
-				forward = !forward;
+			x += nLoopLength;
+			if ( bPingPong ) {
+				bForward = !bForward;
 			}
 		}
-		assert( x == new_length );
+		assert( x == nNewLength );
 	}
 	delete[] m_data_L;
 	delete[] m_data_R;
 	m_data_L = new_data_l;
 	m_data_R = new_data_r;
-	m_nFrames = new_length;
+	m_nFrames = nNewLength;
 	m_bIsModified = true;
 
 	return true;
@@ -495,22 +493,21 @@ void Sample::applyVelocity()
 		return;
 	}
 
-	float inv_resolution = m_nFrames / 841.0F;
-	for ( int i = 1; i < m_velocityEnvelope.size(); i++ ) {
-		float y = ( 91 - m_velocityEnvelope[i - 1].nValue ) / 91.0F;
-		float k = ( 91 - m_velocityEnvelope[i].nValue ) / 91.0F;
-		int start_frame = m_velocityEnvelope[i - 1].nFrame * inv_resolution;
-		int end_frame = m_velocityEnvelope[i].nFrame * inv_resolution;
-		if ( i == m_velocityEnvelope.size() - 1 ) {
-			end_frame = m_nFrames;
+	const float fInvResolution = m_nFrames / 841.0F;
+	for ( int ii = 1; ii < m_velocityEnvelope.size(); ii++ ) {
+		float fY = ( 91 - m_velocityEnvelope[ii - 1].nValue ) / 91.0F;
+		const float fK = ( 91 - m_velocityEnvelope[ii].nValue ) / 91.0F;
+		const long long nStartFrame = m_velocityEnvelope[ii - 1].nFrame * fInvResolution;
+		long long nEndFrame = m_velocityEnvelope[ii].nFrame * fInvResolution;
+		if ( ii == m_velocityEnvelope.size() - 1 ) {
+			nEndFrame = m_nFrames;
 		}
-		int length = end_frame - start_frame;
-		float step = ( y - k ) / length;
-		;
-		for ( int z = start_frame; z < end_frame; z++ ) {
-			m_data_L[z] = m_data_L[z] * y;
-			m_data_R[z] = m_data_R[z] * y;
-			y -= step;
+		const long long nLength = nEndFrame - nStartFrame;
+		const float fStep = ( fY - fK ) / nLength;
+		for ( long long zz = nStartFrame; zz < nEndFrame; zz++ ) {
+			m_data_L[zz] = m_data_L[zz] * fY;
+			m_data_R[zz] = m_data_R[zz] * fY;
+			fY -= fStep;
 		}
 	}
 
@@ -523,35 +520,34 @@ void Sample::applyPan()
 		return;
 	}
 
-	float inv_resolution = m_nFrames / 841.0F;
-	for ( int i = 1; i < m_panEnvelope.size(); i++ ) {
-		float y = ( 45 - m_panEnvelope[i - 1].nValue ) / 45.0F;
-		float k = ( 45 - m_panEnvelope[i].nValue ) / 45.0F;
-		int start_frame = m_panEnvelope[i - 1].nFrame * inv_resolution;
-		int end_frame = m_panEnvelope[i].nFrame * inv_resolution;
-		if ( i == m_panEnvelope.size() - 1 ) {
-			end_frame = m_nFrames;
+	const float fInvResolution = m_nFrames / 841.0F;
+	for ( int ii = 1; ii < m_panEnvelope.size(); ii++ ) {
+		float fY = ( 45 - m_panEnvelope[ii - 1].nValue ) / 45.0F;
+		const float fK = ( 45 - m_panEnvelope[ii].nValue ) / 45.0F;
+		const long long nStartFrame = m_panEnvelope[ii - 1].nFrame * fInvResolution;
+		long long nEndFrame = m_panEnvelope[ii].nFrame * fInvResolution;
+		if ( ii == m_panEnvelope.size() - 1 ) {
+			nEndFrame = m_nFrames;
 		}
-		int length = end_frame - start_frame;
-		float step = ( y - k ) / length;
-		;
-		for ( int z = start_frame; z < end_frame; z++ ) {
+		const long long nLength = nEndFrame - nStartFrame;
+		const float fStep = ( fY - fK ) / nLength;
+		for ( long long zz = nStartFrame; zz < nEndFrame; zz++ ) {
 			// seems wrong to modify only one channel ?!?!
-			if ( y < 0 ) {
-				float k = 1 + y;
-				m_data_L[z] = m_data_L[z] * k;
-				m_data_R[z] = m_data_R[z];
+			if ( fY < 0 ) {
+				float k = 1 + fY;
+				m_data_L[zz] = m_data_L[zz] * k;
+				m_data_R[zz] = m_data_R[zz];
 			}
-			else if ( y > 0 ) {
-				float k = 1 - y;
-				m_data_L[z] = m_data_L[z];
-				m_data_R[z] = m_data_R[z] * k;
+			else if ( fY > 0 ) {
+				float k = 1 - fY;
+				m_data_L[zz] = m_data_L[zz];
+				m_data_R[zz] = m_data_R[zz] * k;
 			}
-			else if ( y == 0 ) {
-				m_data_L[z] = m_data_L[z];
-				m_data_R[z] = m_data_R[z];
+			else if ( fY == 0 ) {
+				m_data_L[zz] = m_data_L[zz];
+				m_data_R[zz] = m_data_R[zz];
 			}
-			y -= step;
+			fY -= fStep;
 		}
 	}
 
@@ -581,7 +577,7 @@ void Sample::applyRubberband( float fBpm )
 	// not accounting for resizing the output buffer. The +10 is in
 	// place to cover the more frequent situations of a difference of
 	// just one frame.
-	int out_buffer_size = static_cast<int>( m_nFrames * time_ratio + 0.1 + 10 );
+	long long nOutBufferSize = static_cast<long long>( m_nFrames * time_ratio + 0.1 + 10 );
 	// instantiate rubberband
 	RubberBand::RubberBandStretcher rubber = RubberBand::RubberBandStretcher(
 		m_nSampleRate, 2, options, time_ratio, pitch_scale
@@ -590,15 +586,15 @@ void Sample::applyRubberband( float fBpm )
 	// This option will be ignored in real-time processing.
 	rubber.setExpectedInputDuration( m_nFrames );
 
-	int retrieved = 0;
-	// int buffer_free = out_buffer_size;
-	float* out_data_l = new float[out_buffer_size];
-	float* out_data_r = new float[out_buffer_size];
+	long long nRetrieved = 0;
+	// int buffer_free = nOutBufferSize;
+	float* out_data_l = new float[nOutBufferSize];
+	float* out_data_r = new float[nOutBufferSize];
 	float* out_data_l_tmp;
 	float* out_data_r_tmp;
 
 	float* ibuf[2];
-	int block_size = MAX_BUFFER_SIZE;
+	const long long nBlockSize = static_cast<long long>(MAX_BUFFER_SIZE);
 
 	// If the RUB button in the player control is activated and
 	// Hydrogen is told to apply Rubber Band to samples on-the-fly
@@ -610,63 +606,63 @@ void Sample::applyRubberband( float fBpm )
 		rubber.study( ibuf, m_nFrames, true );
 	}
 	else {
-		rubber.setMaxProcessSize( block_size );
+		rubber.setMaxProcessSize( nBlockSize );
 	}
 
 	// retrieve data
 	float* obuf[2];
-	int processed = 0;
-	int available = 0;
-	int nRequired = 0;
+	long long nProcessed = 0;
+	long long nAvailable = 0;
+	long long nRequired = 0;
 
-	while ( processed < m_nFrames ) {
+	while ( nProcessed < m_nFrames ) {
 		if ( !Preferences::get_instance()->getRubberBandBatchMode() ) {
 			// Ask Rubber Band how many samples it requires to produce
 			// further output.
 			nRequired = rubber.getSamplesRequired();
 		}
 		else {
-			nRequired = block_size;
+			nRequired = nBlockSize;
 		}
-		bool final = ( processed + nRequired >= m_nFrames );
-		int ibs = ( final ? ( m_nFrames - processed ) : nRequired );
-		float tempIbufL[ibs];
-		float tempIbufR[ibs];
-		for ( int i = 0; i < ibs; i++ ) {
-			tempIbufL[i] = m_data_L[i + processed];
-			tempIbufR[i] = m_data_R[i + processed];
+		const bool bFinal = ( nProcessed + nRequired >= m_nFrames );
+		const long long nIbs = ( bFinal ? ( m_nFrames - nProcessed ) : nRequired );
+		float tempIbufL[nIbs];
+		float tempIbufR[nIbs];
+		for ( long long ii = 0; ii < nIbs; ii++ ) {
+			tempIbufL[ii] = m_data_L[ii + nProcessed];
+			tempIbufR[ii] = m_data_R[ii + nProcessed];
 		}
 		ibuf[0] = tempIbufL;
 		ibuf[1] = tempIbufR;
-		rubber.process( ibuf, ibs, final );
-		processed += ibs;
+		rubber.process( ibuf, nIbs, bFinal );
+		nProcessed += nIbs;
 
 		// .available() == 0 does indicate that Rubber Band requires
 		// more input samples in order to produce more output. Whether
 		// the stretching is complete will be checked after the parent
 		// while loop.
-		while ( ( available = rubber.available() ) > 0 ) {
-			if ( retrieved + available > out_buffer_size ) {
+		while ( ( nAvailable = rubber.available() ) > 0 ) {
+			if ( nRetrieved + nAvailable > nOutBufferSize ) {
 				// The buffers defined above are too small.
-				int nNewBufferSize =
-					static_cast<int>( ( retrieved + available ) * 1.2 );
+				const long long nNewBufferSize =
+					static_cast<long long>( ( nRetrieved + nAvailable ) * 1.2 );
 				WARNINGLOG(
 					QString(
 						"Unexpected output size of stretched Rubber Band "
 						"sample. Increasing output buffer from [%1] to [%2]"
 					)
-						.arg( out_buffer_size )
+						.arg( nOutBufferSize )
 						.arg( nNewBufferSize )
 				);
-				out_data_l_tmp = new float[out_buffer_size];
-				out_data_r_tmp = new float[out_buffer_size];
+				out_data_l_tmp = new float[nOutBufferSize];
+				out_data_r_tmp = new float[nOutBufferSize];
 				memcpy(
 					out_data_l_tmp, out_data_l,
-					out_buffer_size * sizeof( float )
+					nOutBufferSize * sizeof( float )
 				);
 				memcpy(
 					out_data_r_tmp, out_data_r,
-					out_buffer_size * sizeof( float )
+					nOutBufferSize * sizeof( float )
 				);
 				delete[] out_data_l;
 				delete[] out_data_r;
@@ -674,83 +670,83 @@ void Sample::applyRubberband( float fBpm )
 				out_data_r = new float[nNewBufferSize];
 				memcpy(
 					out_data_l, out_data_l_tmp,
-					out_buffer_size * sizeof( float )
+					nOutBufferSize * sizeof( float )
 				);
 				memcpy(
 					out_data_r, out_data_r_tmp,
-					out_buffer_size * sizeof( float )
+					nOutBufferSize * sizeof( float )
 				);
 				delete[] out_data_l_tmp;
 				delete[] out_data_r_tmp;
 			}
 
-			obuf[0] = &out_data_l[retrieved];
-			obuf[1] = &out_data_r[retrieved];
-			int n = rubber.retrieve( obuf, available );
+			obuf[0] = &out_data_l[nRetrieved];
+			obuf[1] = &out_data_r[nRetrieved];
+			long long nNew = rubber.retrieve( obuf, nAvailable );
 
-			retrieved += n;
+			nRetrieved += nNew;
 		}
 
-		if ( final ) {
+		if ( bFinal ) {
 			break;
 		}
 	}
 
 	// second run of stretcher to retrieve all last
 	// frames until stretcher returns -1.
-	while ( ( available = rubber.available() ) != -1 ) {
-		if ( retrieved + available > out_buffer_size ) {
+	while ( ( nAvailable = rubber.available() ) != -1 ) {
+		if ( nRetrieved + nAvailable > nOutBufferSize ) {
 			// The buffers defined above are too small.
-			int nNewBufferSize =
-				static_cast<int>( ( retrieved + available ) * 1.5 );
+			const long long nNewBufferSize =
+				static_cast<long long>( ( nRetrieved + nAvailable ) * 1.5 );
 			WARNINGLOG(
 				QString( "Unexpected output size of stretched Rubber Band "
 						 "sample. Increasing output buffer from [%1] to [%2[" )
-					.arg( out_buffer_size )
+					.arg( nOutBufferSize )
 					.arg( nNewBufferSize )
 			);
-			out_data_l_tmp = new float[out_buffer_size];
-			out_data_r_tmp = new float[out_buffer_size];
+			out_data_l_tmp = new float[nOutBufferSize];
+			out_data_r_tmp = new float[nOutBufferSize];
 			memcpy(
-				out_data_l_tmp, out_data_l, out_buffer_size * sizeof( float )
+				out_data_l_tmp, out_data_l, nOutBufferSize * sizeof( float )
 			);
 			memcpy(
-				out_data_r_tmp, out_data_r, out_buffer_size * sizeof( float )
+				out_data_r_tmp, out_data_r, nOutBufferSize * sizeof( float )
 			);
 			delete[] out_data_l;
 			delete[] out_data_r;
 			out_data_l = new float[nNewBufferSize];
 			out_data_r = new float[nNewBufferSize];
 			memcpy(
-				out_data_l, out_data_l_tmp, out_buffer_size * sizeof( float )
+				out_data_l, out_data_l_tmp, nOutBufferSize * sizeof( float )
 			);
 			memcpy(
-				out_data_r, out_data_r_tmp, out_buffer_size * sizeof( float )
+				out_data_r, out_data_r_tmp, nOutBufferSize * sizeof( float )
 			);
 			delete[] out_data_l_tmp;
 			delete[] out_data_r_tmp;
 
-			out_buffer_size = nNewBufferSize;
+			nOutBufferSize = nNewBufferSize;
 		}
 
-		obuf[0] = &out_data_l[retrieved];
-		obuf[1] = &out_data_r[retrieved];
-		int n = rubber.retrieve( obuf, available );
+		obuf[0] = &out_data_l[nRetrieved];
+		obuf[1] = &out_data_r[nRetrieved];
+		const long long nNew = rubber.retrieve( obuf, nAvailable );
 
-		retrieved += n;
+		nRetrieved += nNew;
 	}
 
 	delete[] m_data_L;
 	delete[] m_data_R;
-	m_data_L = new float[retrieved];
-	m_data_R = new float[retrieved];
-	memcpy( m_data_L, out_data_l, retrieved * sizeof( float ) );
-	memcpy( m_data_R, out_data_r, retrieved * sizeof( float ) );
+	m_data_L = new float[nRetrieved];
+	m_data_R = new float[nRetrieved];
+	memcpy( m_data_L, out_data_l, nRetrieved * sizeof( float ) );
+	memcpy( m_data_R, out_data_r, nRetrieved * sizeof( float ) );
 	delete[] out_data_l;
 	delete[] out_data_r;
 
 	// update sample
-	m_nFrames = retrieved;
+	m_nFrames = nRetrieved;
 	m_bIsModified = true;
 #endif
 }
@@ -845,9 +841,9 @@ bool Sample::execRubberbandCli( float fBpm )
 bool Sample::write( const QString& path, int format ) const
 {
 	float* obuf = new float[SAMPLE_CHANNELS * m_nFrames];
-	for ( int i = 0; i < m_nFrames; ++i ) {
-		float value_l = m_data_L[i];
-		float value_r = m_data_R[i];
+	for ( long long ii = 0; ii < m_nFrames; ++ii ) {
+		float value_l = m_data_L[ii];
+		float value_r = m_data_R[ii];
 
 		if ( value_l > 1.f ) {
 			value_l = 1.f;
@@ -862,8 +858,8 @@ bool Sample::write( const QString& path, int format ) const
 			value_r = -1.f;
 		}
 
-		obuf[i * SAMPLE_CHANNELS + 0] = value_l;
-		obuf[i * SAMPLE_CHANNELS + 1] = value_r;
+		obuf[ii * SAMPLE_CHANNELS + 0] = value_l;
+		obuf[ii * SAMPLE_CHANNELS + 1] = value_r;
 	}
 	SF_INFO sf_info;
 	sf_info.channels = SAMPLE_CHANNELS;

@@ -34,7 +34,6 @@
 #include "../Widgets/PixmapWidget.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
-class Button;
 class ClickableLabel;
 class InlineEdit;
 class LCDDisplay;
@@ -68,7 +67,6 @@ class InstrumentEditor : public QWidget,
 		void updateSongEvent( int ) override;
 		// ~ implements EventListener interface
 
-		void updateColors();
 		void updateEditor();
 		void updateMidiNoteLabel();
 
@@ -78,6 +76,8 @@ class InstrumentEditor : public QWidget,
 
 	   private:
 		void updateActivation();
+		void updateIcons();
+		void updateStyleSheet();
 
 		PixmapWidget *m_pInstrumentProp;
 		ClickableLabel *m_pNameLbl;
@@ -104,7 +104,7 @@ class InstrumentEditor : public QWidget,
 		ClickableLabel* m_pPitchRandomLbl;
 
 		// Low pass filter
-		Button *m_pFilterBypassBtn;
+		QToolButton *m_pFilterBypassButton;
 		Rotary *m_pCutoffRotary;
 		Rotary *m_pResonanceRotary;
 		ClickableLabel* m_pCutoffLbl;

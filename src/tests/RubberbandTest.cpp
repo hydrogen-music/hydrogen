@@ -80,20 +80,20 @@ void rubberband_test( const QString& sample_path ) {
 	
 	// buffers
 	float* obuf[2];
-	int out_buffer_size = (int)(sample->getFrames()*time_ratio)+1000;
+	long long out_buffer_size = (long long)(sample->getFrames()*time_ratio)+1000;
 	float* out_data_l = new float[ out_buffer_size ];
 	float* out_data_r = new float[ out_buffer_size ];
-	int processed = 0;
-	int retrieved = 0;
-	int available = 0;
-	int buffer_free = out_buffer_size;
+	long long processed = 0;
+	long long retrieved = 0;
+	long long available = 0;
+	long long buffer_free = out_buffer_size;
 	___DEBUGLOG( "Process ..." );
 	/*
 	while( processed < sample->getFrames() ) {
 		ibuf[0] = &sample->getData_L()[processed];
 		ibuf[1] = &sample->getData_R()[processed];
 		bool final = (processed + block_size >= sample->getFrames());
-		int ibs = (final ? (sample->getFrames()-processed) : block_size );
+		long long ibs = (final ? (sample->getFrames()-processed) : block_size );
 		//___DEBUGLOG( QString(" ibs : %1").arg( ibs ) );
 		rubber->process( ibuf, ibs, final );
 		processed += ibs;
@@ -103,7 +103,7 @@ void rubberband_test( const QString& sample_path ) {
 			obuf[0] = &out_data_l[retrieved];
 			obuf[1] = &out_data_r[retrieved];
 			//___DEBUGLOG( QString( "  available frames %1" ).arg( available ) );
-			int n = rubber->retrieve( obuf, available);
+			long long n = rubber->retrieve( obuf, available);
 			retrieved += n;
 			buffer_free -= n;
 			//___DEBUGLOG( QString( "  received frames %1" ).arg( n ) );
@@ -120,7 +120,7 @@ void rubberband_test( const QString& sample_path ) {
 		obuf[0] = &out_data_l[retrieved];
 		obuf[1] = &out_data_r[retrieved];
 		//___DEBUGLOG( QString( "  available frames %1" ).arg( available ) );
-		int n = rubber->retrieve( obuf, available);
+		long long n = rubber->retrieve( obuf, available);
 		retrieved += n;
 		buffer_free -= n;
 		//___DEBUGLOG( QString( "  received frames %1" ).arg( n ) );
@@ -130,7 +130,7 @@ void rubberband_test( const QString& sample_path ) {
 	// final data buffers
 	float* data_l = new float[ retrieved ];
 	float* data_r = new float[ retrieved ];
-	for( int i=0; i<retrieved; i++) {
+	for( long long i=0; i<retrieved; i++) {
 		data_r[i] = data_l[i] = 0.5;
 	}
        

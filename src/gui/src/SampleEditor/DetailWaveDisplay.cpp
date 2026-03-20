@@ -59,23 +59,26 @@ void DetailWaveDisplay::paintEvent( QPaintEvent* ev )
 
 	WaveDisplay::paintEvent( ev );
 
+	QPainter p( this );
+
 	QColor color;
 	if ( m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::Start ) {
 		color = pColorTheme->m_sampleEditor_startSliderColor;
+		p.setPen( QPen( color, 1, Qt::SolidLine ) );
 	}
 	else if ( m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::Loop ) {
 		color = pColorTheme->m_sampleEditor_loopSliderColor;
+		p.setPen( QPen( color, 1, Qt::SolidLine ) );
 	}
 	else if ( m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::End ) {
 		color = pColorTheme->m_sampleEditor_endSliderColor;
+		p.setPen( QPen( color, 1, Qt::SolidLine ) );
 	}
 	else {
-		color = pColorTheme->m_sampleEditor_playheadColor;
+		Skin::drawPlayhead( &p, 90 - Skin::nPlayheadWidth / 2, 0 );
+		Skin::setPlayheadPen( &p, false );
 	}
 
-	QPainter p( this );
-
-	p.setPen( QPen( color, 1, Qt::SolidLine ) );
 	p.drawLine( 90, 0, 90, 265 );
 }
 
@@ -95,7 +98,7 @@ void DetailWaveDisplay::drawPeakData()
 	auto pPref = H2Core::Preferences::get_instance();
 	const auto pColorTheme = pPref->getColorTheme();
 
-	QColor backgroundColor, waveFormColor, waveFormInactiveColor;
+	QColor backgroundColor;
 	if ( m_pLayer != nullptr && m_pLayer->getIsMuted() ) {
 		backgroundColor = pColorTheme->m_muteColor;
 	}
@@ -106,16 +109,7 @@ void DetailWaveDisplay::drawPeakData()
 		backgroundColor = pColorTheme->m_accentColor;
 	}
 
-	if ( Skin::moreBlackThanWhite( backgroundColor ) ) {
-		waveFormColor = Qt::white;
-		waveFormInactiveColor = pColorTheme->m_lightColor;
-	}
-	else {
-		waveFormColor = Qt::black;
-		waveFormInactiveColor = pColorTheme->m_darkColor;
-	}
-
-	p.setPen( waveFormColor );
+	p.setPen( pColorTheme->m_waveFormColor );
 	p.setRenderHint( QPainter::Antialiasing );
 	const int nVerticalCenter = height() / 2;
 
@@ -131,10 +125,12 @@ void DetailWaveDisplay::drawPeakData()
 			nnFrame = m_pSampleEditor->getLoopEndFrame();
 			break;
 		case SampleEditor::Slider::None:
-			nnFrame = m_pSampleEditor->getPlayheadMain();
+			nnFrame = static_cast<long long>(
+				std::round( m_pSampleEditor->getPlayheadMain() )
+			);
 			break;
 	}
-	nnFrame -= DetailWaveDisplay::nWidth / 2;
+	nnFrame -= static_cast<long long>(DetailWaveDisplay::nWidth / 2);
 
 	QPointF peaks[width()];
 	for ( int ii = 0; ii < width(); ++ii ) {
@@ -156,7 +152,7 @@ void DetailWaveDisplay::drawPeakData()
 void DetailWaveDisplay::updatePeakData()
 {
 	if ( m_pLayer == nullptr || m_pLayer->getSample() == nullptr ) {
-		for ( int ii = 0; ii < m_peakData.size(); ++ii ) {
+		for ( long long ii = 0; ii < m_peakData.size(); ++ii ) {
 			m_peakData[ii] = 0;
 		}
 
@@ -165,7 +161,7 @@ void DetailWaveDisplay::updatePeakData()
 		return;
 	}
 
-	const int nSampleLength = m_pLayer->getSample()->getFrames();
+	const long long nSampleLength = m_pLayer->getSample()->getFrames();
 	const float fGain = height() / 2.0;
 
 	m_peakData.clear();
@@ -179,8 +175,8 @@ void DetailWaveDisplay::updatePeakData()
 		pSampleData = m_pLayer->getSample()->getData_R();
 	}
 
-	for ( int ii = 0; ii < nSampleLength; ii++ ) {
-		m_peakData[ii] = static_cast<int>( pSampleData[ii] * fGain );
+	for ( long long ii = 0; ii < nSampleLength; ii++ ) {
+		m_peakData[ii] = static_cast<long long>( pSampleData[ii] * fGain );
 	}
 
 	drawPeakData();

@@ -62,8 +62,12 @@ public:
 		/** in pixel */
 		static constexpr int nScrollBarWidth = 12;
 
-		static constexpr int nToolBarCheckedScaling = 125;
-		static constexpr int nToolBarHoveredScaling = 110;
+		static constexpr int nToolButtonBorderRadius = 2;
+		static constexpr int nToolButtonCheckedScaling = 125;
+		static constexpr int nToolButtonHoveredScaling = 105;
+		static constexpr int nToolButtonPressedScaling = 110;
+
+		static constexpr int nIconMargin = 2;
 
 		enum class Stacked {
 			None,
@@ -91,6 +95,9 @@ public:
 		static int getPlayheadShaftOffset() {
 			return std::floor( Skin::nPlayheadWidth / 2 ); }
 		static QString getSvgImagePath();
+		static QString getToolButtonStyle( const QColor& backgroundColor );
+
+		static QColor makeBackgroundColorInactive( const QColor& color );
 
 		/** If a widget is marked inactive the value of its text color are
 		 * reduced by this factor.*/
@@ -108,7 +115,27 @@ public:
 		static void setPalette( QApplication *pQApp );
 
 		static void setPlayheadPen( QPainter* p, bool bHovered = false );
-};
 
+		/** The default color for disabled icons is a mid grayish one. In
+		 * combination with our default black icon color this leaves very little
+		 * room for picking a background color of the tool bar to work with both
+		 * of them. Yet alone one that is distinct from the other toolbars and
+		 * integrates well in the overall UI. Therefore, we use this wrapper
+		 * function to introduce our own disabled color for all icons in a
+		 * toolbar. */
+		static void setToolButtonIcon(
+			QToolButton* pButton,
+			const QString& sIconPath,
+			const QColor& disabledColor
+		);
+
+		/** Toolbars in Qt are quite hard to get right. This routine will
+		 * help us to keep a consistent styling throughout all of them.*/
+		static void setToolBarStyle(
+			QToolBar* pToolBar,
+			const QColor& background,
+			bool bBorder
+		);
+};
 
 #endif

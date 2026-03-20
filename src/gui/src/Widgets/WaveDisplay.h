@@ -57,6 +57,8 @@ class WaveDisplay : public QWidget,
 	explicit WaveDisplay( QWidget* pParent, Channel channel = Channel::Left );
 	~WaveDisplay();
 
+	void setEnabled( bool bEnabled );
+
 	virtual void setLayer( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 	virtual void updateBackground();
 
@@ -80,6 +82,8 @@ class WaveDisplay : public QWidget,
 
 	QPixmap* m_pBackgroundPixmap;
 	QPixmap* m_pPeakDataPixmap;
+
+	bool m_bEnabled;
 
 	Channel m_channel;
 	Label m_label;

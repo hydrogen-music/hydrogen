@@ -60,17 +60,6 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	pOverallLayout->setSpacing( 0 );
 	setLayout( pOverallLayout );
 
-	auto pBackground = new QWidget( this );
-	pBackground->setObjectName( "Background" );
-	pOverallLayout->addWidget( pBackground );
-
-	auto pMainLayout = new QHBoxLayout( pBackground );
-	pMainLayout->setAlignment( Qt::AlignTop );
-	pMainLayout->setContentsMargins(
-		BpmTap::nMargin, BpmTap::nMargin, BpmTap::nMargin, BpmTap::nMargin );
-	pMainLayout->setSpacing( BpmTap::nMargin );
-	pBackground->setLayout( pMainLayout );
-
 	const int nSmallButtonHeight = nWidgetHeight / 2 - BpmTap::nMargin;
 	const auto smallButtonSize = QSize(
 		static_cast<int>(std::round( nSmallButtonHeight *
@@ -80,7 +69,7 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 		smallButtonSize.height() - 2, smallButtonSize.height() - 2 );
 
 	////////////////////////////////////////////////////////////////////////////
-	const int nButtonHeight = nWidgetHeight - BpmTap::nMargin * 2;
+	const int nButtonHeight = nWidgetHeight;
 	const int nButtonWidth = static_cast<int>(
 		std::round( nButtonHeight * Skin::fButtonWidthHeightRatio ) );
 
@@ -147,7 +136,7 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	m_pBeatCounterMidiAction = std::make_shared<MidiAction>(
 		MidiAction::Type::BeatCounter );
 
-	m_pTapButton = new MidiLearnableToolButton( pBackground, "" );
+	m_pTapButton = new MidiLearnableToolButton( this, "" );
 	m_pTapButton->setFixedSize( nButtonWidth, nButtonHeight );
 	m_pTapButton->addAction( m_pTapTempoAction );
 	m_pTapButton->addAction( m_pBeatCounterTapAction );
@@ -164,10 +153,21 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 		// For instantaneous update.
 		updateBpmTap();
 	} );
-	pMainLayout->addWidget( m_pTapButton );
+	pOverallLayout->addWidget( m_pTapButton );
 
 	////////////////////////////////////////////////////////////////////////////
-	m_pBeatLengthButtonsGroup = new QWidget( pBackground );
+
+	m_pBackground = new QWidget( this );
+	m_pBackground->setObjectName( "Background" );
+	pOverallLayout->addWidget( m_pBackground );
+
+	auto pMainLayout = new QHBoxLayout( m_pBackground );
+	pMainLayout->setAlignment( Qt::AlignTop );
+	pMainLayout->setContentsMargins( 1, 1, 1, 1 );
+	pMainLayout->setSpacing( 0 );
+	m_pBackground->setLayout( pMainLayout );
+
+	m_pBeatLengthButtonsGroup = new QWidget( m_pBackground );
 	m_pBeatLengthButtonsGroup->setFixedWidth( smallButtonSize.width() );
 	pMainLayout->addWidget( m_pBeatLengthButtonsGroup );
 	auto pBeatLengthButtonsGroupLayout =
@@ -176,6 +176,8 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	pBeatLengthButtonsGroupLayout->setSpacing( 0 );
 
 	m_pBeatLengthUpBtn = new QToolButton( m_pBeatLengthButtonsGroup );
+	m_pBeatLengthUpBtn->setFixedSize( smallButtonSize );
+	m_pBeatLengthUpBtn->setIconSize( smallIconSize );
 	m_pBeatLengthUpBtn->setFocusPolicy( Qt::ClickFocus );
 	connect( m_pBeatLengthUpBtn, &QToolButton::clicked, [&]() {
 		auto pHydrogen = Hydrogen::get_instance();
@@ -189,6 +191,8 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	pBeatLengthButtonsGroupLayout->addWidget( m_pBeatLengthUpBtn );
 
 	m_pBeatLengthDownBtn = new QToolButton( m_pBeatLengthButtonsGroup );
+	m_pBeatLengthDownBtn->setFixedSize( smallButtonSize );
+	m_pBeatLengthDownBtn->setIconSize( smallIconSize );
 	m_pBeatLengthDownBtn->setFocusPolicy( Qt::ClickFocus );
 	connect( m_pBeatLengthDownBtn, &QToolButton::clicked, [&](){
 		auto pHydrogen = Hydrogen::get_instance();
@@ -203,7 +207,7 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	pBeatLengthButtonsGroupLayout->addStretch();
 
 	////////////////////////////////////////////////////////////////////////////
-	auto pLabelsGroup = new QWidget( pBackground );
+	auto pLabelsGroup = new QWidget( m_pBackground );
 	pMainLayout->addWidget( pLabelsGroup );
 	auto pLabelsLayout = new QHBoxLayout( pLabelsGroup );
 	pLabelsLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -231,7 +235,7 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	pLabelsLayout->addWidget( m_pTotalBeatsLabel );
 
 	////////////////////////////////////////////////////////////////////////////
-	m_pTotalBeatsButtonsGroup = new QWidget( pBackground );
+	m_pTotalBeatsButtonsGroup = new QWidget( m_pBackground );
 	m_pTotalBeatsButtonsGroup->setFixedWidth( smallButtonSize.width() );
 	pMainLayout->addWidget( m_pTotalBeatsButtonsGroup );
 	auto pTotalBeatsButtonsLayout = new QVBoxLayout( m_pTotalBeatsButtonsGroup );
@@ -239,6 +243,8 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	pTotalBeatsButtonsLayout->setSpacing( 0 );
 
 	m_pTotalBeatsUpBtn = new QToolButton( m_pTotalBeatsButtonsGroup );
+	m_pTotalBeatsUpBtn->setFixedSize( smallButtonSize );
+	m_pTotalBeatsUpBtn->setIconSize( smallIconSize );
 	m_pTotalBeatsUpBtn->setFocusPolicy( Qt::ClickFocus );
 	connect( m_pTotalBeatsUpBtn, &QToolButton::clicked, [&]() {
 		auto pHydrogen = Hydrogen::get_instance();
@@ -253,6 +259,8 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	pTotalBeatsButtonsLayout->addWidget( m_pTotalBeatsUpBtn );
 
 	m_pTotalBeatsDownBtn = new QToolButton( m_pTotalBeatsButtonsGroup );
+	m_pTotalBeatsDownBtn->setFixedSize( smallButtonSize );
+	m_pTotalBeatsDownBtn->setIconSize( smallIconSize );
 	m_pTotalBeatsDownBtn->setFocusPolicy( Qt::ClickFocus );
 	connect( m_pTotalBeatsDownBtn, &QToolButton::clicked, [&]() {
 		auto pHydrogen = Hydrogen::get_instance();
@@ -329,10 +337,7 @@ void BpmTap::updateBpmTap() {
 	};
 
 	if ( pPref->m_bpmTap == Preferences::BpmTap::BeatCounter ) {
-		m_pBeatLengthLabel->setVisible( true );
-		m_pTotalBeatsLabel->setVisible( true );
-		m_pBeatLengthButtonsGroup->setVisible( true );
-		m_pTotalBeatsButtonsGroup->setVisible( true );
+		m_pBackground->setVisible( true );
 
 		m_pBeatLengthLabel->setText(
 			QString( "%1%2%3" ).arg( toSuperScript( 1 ) ).arg( QChar( 0x2044 ) )
@@ -364,10 +369,7 @@ void BpmTap::updateBpmTap() {
 	}
 	else {
 		// Widgets disabled
-		m_pBeatLengthLabel->setVisible( false );
-		m_pTotalBeatsLabel->setVisible( false );
-		m_pBeatLengthButtonsGroup->setVisible( false );
-		m_pTotalBeatsButtonsGroup->setVisible( false );
+		m_pBackground->setVisible( false );
 
 		if ( m_pTapButton->defaultAction() != m_pTapTempoAction ) {
 			m_pTapButton->setDefaultAction( m_pTapTempoAction );
@@ -441,20 +443,11 @@ void BpmTap::updateStyleSheet() {
 	const QColor colorLabel = pColorTheme->m_windowColor;
 
 	setStyleSheet( QString( "\
-QToolButton {\
-    background-color: %1; \
-}\
-QWidget#Background {\
-     background-color: %1; \
-     color: %2; \
-     border: %3px solid #000;\
-}\
 QToolButton#BpmTapTapButton {\
      icon-size: 25px;\
-}")
-				   .arg( m_backgroundColor.name() )
-				   .arg( colorText.name() )
-				   .arg( MainToolBar::nBorder ) );
+}                    \
+%1" )
+					   .arg( Skin::getToolButtonStyle( m_backgroundColor ) ) );
 
 	const QString sLabelStyleSheet = QString( "\
 QLabel {\

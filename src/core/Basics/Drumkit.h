@@ -353,7 +353,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 
 		friend bool CoreActionController::removeInstrument(
 			std::shared_ptr<Instrument> );
-		friend bool CoreActionController::replaceInstrument(
+		friend bool CoreActionController::replaceDrumkitInstrument(
 			std::shared_ptr<Instrument>, std::shared_ptr<Instrument> );
 
 	private:

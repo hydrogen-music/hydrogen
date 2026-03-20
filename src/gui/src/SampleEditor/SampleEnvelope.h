@@ -49,7 +49,7 @@ class SampleEnvelope : public QWidget, public H2Core::Object<SampleEnvelope> {
 	explicit SampleEnvelope( SampleEditor* pParent );
 	~SampleEnvelope();
 
-	void setEnabled( bool bEnabled );
+	void setLocked( bool bLocked );
 	void setLayer( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 
    private:
@@ -81,7 +81,7 @@ class SampleEnvelope : public QWidget, public H2Core::Object<SampleEnvelope> {
 
 	SampleEditor* m_pSampleEditor;
 
-	bool m_bEnabled;
+	bool m_bLocked;
 
 	QString m_sSelectedEnvelopePointValue;
 
@@ -95,9 +95,9 @@ class SampleEnvelope : public QWidget, public H2Core::Object<SampleEnvelope> {
 	int m_nSelectedEnvelopePoint;
 };
 
-inline void SampleEnvelope::setEnabled( bool bEnabled )
+inline void SampleEnvelope::setLocked( bool bLocked )
 {
-	m_bEnabled = bEnabled;
+	m_bLocked = bLocked;
 }
 
 #endif

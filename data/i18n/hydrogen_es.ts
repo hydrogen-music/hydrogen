@@ -1517,6 +1517,21 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text displayed on a Play button in the SampleEditor which will start playback of the original file. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
         <translation>Reproducir &amp;original</translation>
     </message>
+    <message>
+        <source>Load new playback track</source>
+        <extracomment>Shown in the undo history and as tool tip for loading a different sample * as playback track.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete playback track</source>
+        <extracomment>Shown in the undo history and as tool tip for deleting the current * playback track.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playback track</source>
+        <extracomment>Shown in the undo history and as tool tip for editing the current * instance of the playback track within the sample editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -2595,10 +2610,6 @@ MIDI = %2</translation>
     <message>
         <source>Set default values</source>
         <translation>Asignar valores por defecto</translation>
-    </message>
-    <message>
-        <source>&amp;Timeline</source>
-        <translation>&amp;Línea de tiempo</translation>
     </message>
     <message>
         <source>Jack driver: cannot disconnect client</source>
@@ -4280,6 +4291,10 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <source>Pan Envelope</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Waveform</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
@@ -5345,10 +5360,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show timeline</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Show playback track</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5705,20 +5716,8 @@ Are you sure?</source>
         <translation>Patrón %1</translation>
     </message>
     <message>
-        <source>View playback track</source>
-        <translation>Ver pista reproducción</translation>
-    </message>
-    <message>
         <source>Mute playback track</source>
         <translation>Silenciar pista reproducción</translation>
-    </message>
-    <message>
-        <source>Choose playback track</source>
-        <translation>Seleccionar pista reproducción</translation>
-    </message>
-    <message>
-        <source>View timeline</source>
-        <translation>Ver timeline</translation>
     </message>
     <message>
         <source>Adjust parameter values in time</source>

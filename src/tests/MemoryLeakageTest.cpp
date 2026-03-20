@@ -514,38 +514,6 @@ void MemoryLeakageTest::testLoading()
 	}
 
 	{
-		auto pSampler = new H2Core::Sampler();
-		pSampler->reinitializePlaybackTrack();
-		delete pSampler;
-		CPPUNIT_ASSERT(
-			nAliveReference == H2Core::Base::getAliveObjectCount()
-		);
-	}
-
-	{
-		pHydrogen->getSong()->setPlaybackTrackFileName(
-			H2TEST_FILE( "drumkits/baseKit/kick.wav" )
-		);
-		auto pSampler = new H2Core::Sampler();
-		pSampler->reinitializePlaybackTrack();
-		delete pSampler;
-		CPPUNIT_ASSERT(
-			nAliveReference == H2Core::Base::getAliveObjectCount()
-		);
-	}
-
-	{
-		auto pInstrument = H2Core::createInstrument(
-			static_cast<H2Core::Instrument::Id>( 0 ),
-			H2TEST_FILE( "drumkits/baseKit/kick.wav" ), 0.7
-		);
-		pInstrument = nullptr;
-		CPPUNIT_ASSERT(
-			nAliveReference == H2Core::Base::getAliveObjectCount()
-		);
-	}
-
-	{
 		auto pDrumkit = H2Core::Drumkit::load(
 			H2TEST_FILE( "drumkits/baseKit" ), false, nullptr, true
 		);

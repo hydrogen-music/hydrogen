@@ -306,7 +306,7 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 	}
 	else if ( m_bEntered ) {
 		backgroundColor =
-			backgroundColor.lighter( Skin::nToolBarHoveredScaling );
+			backgroundColor.lighter( Skin::nToolButtonHoveredScaling );
 	}
 
 	p.fillRect( QRect( 0, 0, width(), height() ), backgroundColor );
@@ -613,7 +613,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 
 	m_pMuteBtn = new MuteButton(
 		pButtonContainer, QSize( SidebarRow::m_nButtonWidth, height() ),
-		tr( "Mute instrument" ), true
+		tr( "Mute instrument" ), ColoredButton::Flag::ModifyOnChange
 	);
 	m_pMuteBtn->setChecked( false );
 	m_pMuteBtn->setBorderless( true );
@@ -623,7 +623,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 
 	m_pSoloBtn = new SoloButton(
 		pButtonContainer, QSize( SidebarRow::m_nButtonWidth, height() ),
-		pCommonStrings->getBigSoloButton(), true
+		pCommonStrings->getBigSoloButton(), ColoredButton::Flag::ModifyOnChange
 	);
 	m_pSoloBtn->setChecked( false );
 	m_pSoloBtn->setBorderless( true );

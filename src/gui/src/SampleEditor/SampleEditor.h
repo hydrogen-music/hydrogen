@@ -89,8 +89,8 @@ class SampleEditor : public QDialog,
 	);
 	~SampleEditor();
 
-	long long getPlayheadMain() const;
-	long long getPlayheadTarget() const;
+	float getPlayheadMain() const;
+	float getPlayheadTarget() const;
 	long long getTotalPlaybackFrames() const;
 	float getZoomFactor() const;
 	Slider getHoveredSlider() const;
@@ -98,12 +98,12 @@ class SampleEditor : public QDialog,
 	Slider getSelectedSlider() const;
 	void setSelectedSlider( Slider slider );
 
-	int getLoopStartFrame() const;
-	void setLoopStartFrame( int nFrame );
-	int getLoopLoopFrame() const;
-	void setLoopLoopFrame( int nFrame );
-	int getLoopEndFrame() const;
-	void setLoopEndFrame( int nFrame );
+	long long getLoopStartFrame() const;
+	void setLoopStartFrame( long long nFrame );
+	long long getLoopLoopFrame() const;
+	void setLoopLoopFrame( long long nFrame );
+	long long getLoopEndFrame() const;
+	void setLoopEndFrame( long long nFrame );
 	void setLoops( H2Core::Sample::Loops newLoops );
 	void setRubberband( H2Core::Sample::Rubberband newRubberband );
 
@@ -199,8 +199,8 @@ class SampleEditor : public QDialog,
 	 * have to check whether they have been reset within the audio engine.
 	 * This will occur on state changes. */
 	H2Core::AudioEngine::State m_previousState;
-	long long m_nPlayheadSample;
-	long long m_nPlayheadTarget;
+	float m_fPlayheadSample;
+	float m_fPlayheadTarget;
 	long long m_nRealtimeFrameEnd;
 	/** Cache all all things required to efficiently calculate the playhead
 	 * position in the main section.
@@ -210,6 +210,7 @@ class SampleEditor : public QDialog,
 	long long m_nPreLoopFrames;
 	long long m_nLoopFrames;
 	long long m_nLastRealtimeFrame;
+	float m_fRealtimePos;
 	long long m_nTotalPlaybackFrames;
 	Looped m_looped;
 	bool m_bLastLoopForward;
@@ -242,13 +243,13 @@ class SampleEditor : public QDialog,
 	H2Core::Sample::VelocityEnvelope m_velocityEnvelope;
 };
 
-inline long long SampleEditor::getPlayheadMain() const
+inline float SampleEditor::getPlayheadMain() const
 {
-	return m_nPlayheadSample;
+	return m_fPlayheadSample;
 }
-inline long long SampleEditor::getPlayheadTarget() const
+inline float SampleEditor::getPlayheadTarget() const
 {
-	return m_nPlayheadTarget;
+	return m_fPlayheadTarget;
 }
 inline long long SampleEditor::getTotalPlaybackFrames() const
 {
@@ -266,15 +267,15 @@ inline SampleEditor::Slider SampleEditor::getSelectedSlider() const
 {
 	return m_selectedSlider;
 }
-inline int SampleEditor::getLoopStartFrame() const
+inline long long SampleEditor::getLoopStartFrame() const
 {
 	return m_loops.nStartFrame;
 }
-inline int SampleEditor::getLoopLoopFrame() const
+inline long long SampleEditor::getLoopLoopFrame() const
 {
 	return m_loops.nLoopFrame;
 }
-inline int SampleEditor::getLoopEndFrame() const
+inline long long SampleEditor::getLoopEndFrame() const
 {
 	return m_loops.nEndFrame;
 }

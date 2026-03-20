@@ -50,7 +50,6 @@
   <sampleEditor>
    <backgroundColor>128,134,152</backgroundColor>
    <textColor>0,0,0</textColor>
-   <playheadColor>0,0,0</playheadColor>
    <startSliderColor>0,219,0</startSliderColor>
    <loopSliderColor>219,219,0</loopSliderColor>
    <endSliderColor>217,68,0</endSliderColor>
@@ -94,6 +93,7 @@
    <muteTextColor>255,255,255</muteTextColor>
    <soloColor>219,177,50</soloColor>
    <soloTextColor>255,255,255</soloTextColor>
+   <waveFormColor>24,35,48</waveFormColor>
   </widget>
  </colorTheme>
  <interfaceTheme>

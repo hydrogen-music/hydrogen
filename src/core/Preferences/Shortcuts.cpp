@@ -593,9 +593,6 @@ void Shortcuts::createActionInfoMap() {
 	insertActionInfo( Shortcuts::Action::ShowAutomation, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Show automation path" ) );
-	insertActionInfo( Shortcuts::Action::ShowTimeline, Category::MainMenu,
-					  QT_TRANSLATE_NOOP( "Shortcuts",
-										 "Show timeline" ) );
 	insertActionInfo( Shortcuts::Action::ShowPlaybackTrack, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Show playback track" ) );

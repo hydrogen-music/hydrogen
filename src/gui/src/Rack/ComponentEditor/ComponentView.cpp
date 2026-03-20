@@ -47,6 +47,7 @@
 #include "../../Widgets/MuteButton.h"
 #include "../../Widgets/SoloButton.h"
 #include "../../Widgets/Rotary.h"
+#include "Widgets/ColoredButton.h"
 
 using namespace H2Core;
 
@@ -182,27 +183,30 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pToolBarComponent->setFixedHeight( ComponentView::nToolBarHeight );
 	m_pToolBarComponent->setFocusPolicy( Qt::NoFocus );
 
-	auto createAction = [&]( const QString& sText, bool bCheckable ) {
-		auto pAction = new QAction( m_pToolBarComponent );
-		pAction->setCheckable( bCheckable );
-		pAction->setIconText( sText );
-		pAction->setToolTip( sText );
+	auto createButton = [&]( const QString& sText, bool bCheckable ) {
+		auto pButton = new QToolButton( m_pToolBarComponent );
+		pButton->setCheckable( bCheckable );
+		pButton->setToolTip( sText );
+		pButton->setFocusPolicy( Qt::NoFocus );
+		pButton->setFixedSize(
+			ComponentView::nButtonWidth, ComponentView::nButtonHeight
+		);
 
-		return pAction;
+		return pButton;
 	};
 
-	m_pNewComponentAction =
-		createAction( pCommonStrings->getActionAddComponent(), false );
-	connect( m_pNewComponentAction, &QAction::triggered, [=]() {
+	m_pNewComponentButton =
+		createButton( pCommonStrings->getActionAddComponent(), false );
+	connect( m_pNewComponentButton, &QToolButton::clicked, [=]() {
 		HydrogenApp::get_instance()->getComponentEditor()->addComponent();
 	} );
-	m_pToolBarComponent->addAction( m_pNewComponentAction );
+	m_pToolBarComponent->addWidget( m_pNewComponentButton );
 
 	m_pToolBarComponent->addSeparator();
 
-	m_pDuplicateComponentAction =
-		createAction( pCommonStrings->getActionDuplicateComponent(), false );
-	connect( m_pDuplicateComponentAction, &QAction::triggered, [=]() {
+	m_pDuplicateComponentButton =
+		createButton( pCommonStrings->getActionDuplicateComponent(), false );
+	connect( m_pDuplicateComponentButton, &QToolButton::clicked, [=]() {
 		const auto pInstrument =
 			Hydrogen::get_instance()->getSelectedInstrument();
 		if ( pInstrument == nullptr || m_pComponent == nullptr ) {
@@ -232,20 +236,20 @@ ComponentView::ComponentView( QWidget* pParent,
 				.arg( m_pComponent->getName() )
 		);
 	} );
-	m_pToolBarComponent->addAction( m_pDuplicateComponentAction );
+	m_pToolBarComponent->addWidget( m_pDuplicateComponentButton );
 
 	m_pToolBarComponent->addSeparator();
 
-	m_pDeleteComponentAction =
-		createAction( pCommonStrings->getActionDeleteComponent(), false );
-	m_pDeleteComponentAction->setEnabled(
+	m_pDeleteComponentButton =
+		createButton( pCommonStrings->getActionDeleteComponent(), false );
+	m_pDeleteComponentButton->setEnabled(
 		pInstrument != nullptr ? pInstrument->getComponents()->size() > 1
 							   : false
 	);
-	connect( m_pDeleteComponentAction, &QAction::triggered, [=]() {
+	connect( m_pDeleteComponentButton, &QToolButton::clicked, [=]() {
 		deleteComponent();
 	} );
-	m_pToolBarComponent->addAction( m_pDeleteComponentAction );
+	m_pToolBarComponent->addWidget( m_pDeleteComponentButton );
 
 	auto pStretch = new QWidget();
 	pStretch->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Preferred );
@@ -262,10 +266,11 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pComponentMuteBtn = new MuteButton(
 		pComponentButtonContainer,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
-		tr( "Mute component" ), true
+		tr( "Mute component" ),
+		ColoredButton::Flag::ModifyOnChange
 	);
 	m_pComponentMuteBtn->setChecked( pComponent->getIsMuted() );
-    m_pComponentMuteBtn->setBorderless( true );
+	m_pComponentMuteBtn->setBorderless( true );
 	m_pComponentMuteBtn->setObjectName( "ComponentMuteButton" );
 	connect( m_pComponentMuteBtn, &QPushButton::clicked, [&](){
 		if ( m_pComponent != nullptr ) {
@@ -279,10 +284,11 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pComponentSoloBtn = new SoloButton(
 		pComponentButtonContainer,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
-		tr( "Solo component" ), true
+		tr( "Solo component" ),
+		ColoredButton::Flag::ModifyOnChange
 	);
 	m_pComponentSoloBtn->setChecked( pComponent->getIsSoloed() );
-    m_pComponentSoloBtn->setBorderless( true );
+	m_pComponentSoloBtn->setBorderless( true );
 	m_pComponentSoloBtn->setObjectName( "ComponentSoloButton" );
 	connect( m_pComponentSoloBtn, &QPushButton::clicked, [&](){
 		if ( m_pComponent != nullptr ) {
@@ -322,26 +328,26 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pToolBarLayer->setFixedHeight( ComponentView::nToolBarHeight );
 	m_pToolBarLayer->setFocusPolicy( Qt::NoFocus );
 
-	m_pNewLayerAction =
-		createAction( pCommonStrings->getActionAddInstrumentLayer(), false );
-	connect( m_pNewLayerAction, &QAction::triggered, [=]() {
+	m_pNewLayerButton =
+		createButton( pCommonStrings->getActionAddInstrumentLayer(), false );
+	connect( m_pNewLayerButton, &QToolButton::clicked, [=]() {
 		addNewLayer();
 	} );
-	m_pToolBarLayer->addAction( m_pNewLayerAction );
+	m_pToolBarLayer->addWidget( m_pNewLayerButton );
 
 	m_pToolBarLayer->addSeparator();
 
-	m_pReplaceLayerAction =
-		createAction( pCommonStrings->getActionReplaceInstrumentLayer(), false );
-	connect( m_pReplaceLayerAction, &QAction::triggered, [=]() {
+	m_pReplaceLayerButton =
+		createButton( pCommonStrings->getActionReplaceInstrumentLayer(), false );
+	connect( m_pReplaceLayerButton, &QToolButton::clicked, [=]() {
 		replaceLayer( m_nSelectedLayer, "" );
 	} );
-	m_pToolBarLayer->addAction( m_pReplaceLayerAction );
+	m_pToolBarLayer->addWidget( m_pReplaceLayerButton );
 
-	m_pDuplicateLayerAction = createAction(
+	m_pDuplicateLayerButton = createButton(
 		pCommonStrings->getActionDuplicateInstrumentLayer(), false
 	);
-	connect( m_pDuplicateLayerAction, &QAction::triggered, [=]() {
+	connect( m_pDuplicateLayerButton, &QToolButton::clicked, [=]() {
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		auto pHydrogen = Hydrogen::get_instance();
 		const auto pInstrument = pHydrogen->getSelectedInstrument();
@@ -374,25 +380,23 @@ ComponentView::ComponentView( QWidget* pParent,
 			SE_replaceInstrumentAction::Type::DuplicateLayer, ""
 		) );
 	} );
-	m_pToolBarLayer->addAction( m_pDuplicateLayerAction );
+	m_pToolBarLayer->addWidget( m_pDuplicateLayerButton );
 
-	m_pDeleteLayerAction =
-		createAction( pCommonStrings->getActionDeleteInstrumentLayer(), false );
-	connect( m_pDeleteLayerAction, &QAction::triggered, [=]() {
+	m_pDeleteLayerButton =
+		createButton( pCommonStrings->getActionDeleteInstrumentLayer(), false );
+	connect( m_pDeleteLayerButton, &QToolButton::clicked, [=]() {
 		removeLayerButtonClicked();
 	} );
-	m_pToolBarLayer->addAction( m_pDeleteLayerAction );
+	m_pToolBarLayer->addWidget( m_pDeleteLayerButton );
 
 	m_pToolBarLayer->addSeparator();
 
-	m_pEditLayerAction =
-		createAction( pCommonStrings->getActionEditInstrumentLayer(), false );
-	connect( m_pEditLayerAction, &QAction::triggered, [=]() {
+	m_pEditLayerButton =
+		createButton( pCommonStrings->getActionEditInstrumentLayer(), false );
+	connect( m_pEditLayerButton, &QToolButton::clicked, [=]() {
 		showSampleEditor();
 	} );
-	m_pToolBarLayer->addAction( m_pEditLayerAction );
-
-	m_pToolBarLayer->addSeparator();
+	m_pToolBarLayer->addWidget( m_pEditLayerButton );
 
 	auto pStretchLayer = new QWidget();
 	pStretchLayer->setSizePolicy(
@@ -411,10 +415,11 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pLayerMuteBtn = new MuteButton(
 		pLayerButtonContainer,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
-		tr( "Mute layer" ), true
+		tr( "Mute layer" ),
+		ColoredButton::Flag::ModifyOnChange
 	);
 	m_pLayerMuteBtn->setObjectName( "LayerMuteButton" );
-    m_pLayerMuteBtn->setBorderless( true );
+	m_pLayerMuteBtn->setBorderless( true );
 	connect( m_pLayerMuteBtn, &QPushButton::clicked, [&]() {
 		if ( m_pComponent != nullptr ) {
 			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
@@ -429,10 +434,11 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pLayerSoloBtn = new SoloButton(
 		m_pToolBarLayer,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
-		tr( "Solo layer" ), true
+		tr( "Solo layer" ),
+		ColoredButton::Flag::ModifyOnChange
 	);
 	m_pLayerSoloBtn->setObjectName( "LayerSoloButton" );
-    m_pLayerSoloBtn->setBorderless( true );
+	m_pLayerSoloBtn->setBorderless( true );
 	connect( m_pLayerSoloBtn, &QPushButton::clicked, [&]() {
 		if ( m_pComponent != nullptr ) {
 			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
@@ -662,20 +668,40 @@ void ComponentView::updateIcons() {
 		sIconPath.append( "/icons/black/" );
 	}
 
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const QColor headerInactiveColor = Skin::makeBackgroundColorInactive(pColorTheme->m_componentEditor_componentColor);
+	const QColor layerInactiveColor = Skin::makeBackgroundColorInactive(pColorTheme->m_componentEditor_layerColor);
+
 	m_pShowLayersBtn->setIcon(
 		QIcon( sIconPath + ( m_bIsExpanded ? "minus.svg" : "plus.svg" ) )
 	);
 
-	m_pNewComponentAction->setIcon( QIcon( sIconPath + "new.svg" ) );
-	m_pDuplicateComponentAction->setIcon( QIcon( sIconPath + "duplicate.svg" )
+	Skin::setToolButtonIcon(
+		m_pNewComponentButton, sIconPath + "new.svg", headerInactiveColor
 	);
-	m_pDeleteComponentAction->setIcon( QIcon( sIconPath + "bin.svg" ) );
+	Skin::setToolButtonIcon(
+		m_pDuplicateComponentButton, sIconPath + "duplicate.svg",
+		headerInactiveColor
+	);
+	Skin::setToolButtonIcon(
+		m_pDeleteComponentButton, sIconPath + "bin.svg", headerInactiveColor
+	);
 
-	m_pNewLayerAction->setIcon( QIcon( sIconPath + "new.svg" ) );
-	m_pReplaceLayerAction->setIcon( QIcon( sIconPath + "folder.svg" ) );
-	m_pDuplicateLayerAction->setIcon( QIcon( sIconPath + "duplicate.svg" ) );
-	m_pDeleteLayerAction->setIcon( QIcon( sIconPath + "bin.svg" ) );
-	m_pEditLayerAction->setIcon( QIcon( sIconPath + "sample-editor.svg" ) );
+	Skin::setToolButtonIcon(
+		m_pNewLayerButton, sIconPath + "new.svg", layerInactiveColor
+	);
+	Skin::setToolButtonIcon(
+		m_pReplaceLayerButton, sIconPath + "folder.svg", layerInactiveColor
+	);
+	Skin::setToolButtonIcon(
+		m_pDuplicateLayerButton, sIconPath + "duplicate.svg", layerInactiveColor
+	);
+	Skin::setToolButtonIcon(
+		m_pDeleteLayerButton, sIconPath + "bin.svg", layerInactiveColor
+	);
+	Skin::setToolButtonIcon(
+		m_pEditLayerButton, sIconPath + "sample-editor.svg", layerInactiveColor
+	);
 }
 
 void ComponentView::updateStyleSheet() {
@@ -691,9 +717,9 @@ void ComponentView::updateStyleSheet() {
 
 	const QColor headerColor = pColorTheme->m_componentEditor_componentColor;
 	const QColor headerColorHover =
-		headerColor.darker( Skin::nToolBarHoveredScaling );
+		headerColor.darker( Skin::nToolButtonHoveredScaling );
 	const QColor headerColorPressed =
-		headerColor.darker( Skin::nToolBarCheckedScaling );
+		headerColor.darker( Skin::nToolButtonCheckedScaling );
 	const QColor headerSeparator = headerColor.lighter( 115 );
 	const QColor headerTextColor =
 		pColorTheme->m_componentEditor_componentTextColor;
@@ -741,31 +767,14 @@ QWidget#SeparatorComponent { \
 QWidget#SeparatorToolBarComponent { \
     border-top: 1px solid %7; \
 } \
-QToolBar {\
-    spacing: 1px; \
-} \
-QToolBar#CVToolBarComponent {\
-    background-color: %1; \
-    color: %8; \
-    border-left: 1px solid %2; \
-    border-right: 1px solid %3; \
-    border-bottom: 1px solid %3; \
-} \
-QToolBar#CVToolBarLayer {\
-    background-color: %4; \
-    color: %9; \
-    border-top: 1px solid #000; \
-    border-bottom: 1px solid %6; \
-}" )
+" )
 								.arg( headerColor.name() )
 								.arg( borderHeaderLightColor.name() )
 								.arg( borderHeaderDarkColor.name() )
 								.arg( layerColor.name() )
 								.arg( borderLayerLightColor.name() )
 								.arg( borderLayerDarkColor.name() )
-								.arg( headerSeparator.name() )
-								.arg( headerTextColor.name() )
-								.arg( layerTextColor.name() ) );
+								.arg( headerSeparator.name() ) );
 }
 	else {
 		// LayerWidget won't be visible.
@@ -828,13 +837,29 @@ QWidget#LayerButtonContainer, QWidget#ComponentButtonContainer {\
 	m_pLayerPitchCoarseLbl->setColor( layerTextColor );
 	m_pLayerPitchFineLbl->setColor( layerTextColor );
 
-    m_pComponentMuteBtn->setDefaultBackgroundColor( headerColor );
-    m_pComponentSoloBtn->setDefaultBackgroundColor( headerColor );
-    m_pLayerMuteBtn->setDefaultBackgroundColor( layerColor );
-    m_pLayerSoloBtn->setDefaultBackgroundColor( layerColor );
+	m_pComponentMuteBtn->setDefaultBackgroundColor( headerColor );
+	m_pComponentSoloBtn->setDefaultBackgroundColor( headerColor );
+	m_pLayerMuteBtn->setDefaultBackgroundColor( layerColor );
+	m_pLayerSoloBtn->setDefaultBackgroundColor( layerColor );
+
+	Skin::setToolBarStyle( m_pToolBarComponent, headerColor, false );
+	Skin::setToolBarStyle( m_pToolBarLayer, layerColor, false );
+	m_pToolBarComponent->setStyleSheet(
+		m_pToolBarComponent->styleSheet().append(
+			QString( "\
+QToolBar {\
+    border-left: 1px solid %1; \
+    border-right: 1px solid %2; \
+    border-bottom: 1px solid %2; \
+}" )
+				.arg( borderHeaderLightColor.name() )
+				.arg( borderHeaderDarkColor.name() )
+		)
+	);
 }
 
-void ComponentView::updateView() {
+void ComponentView::updateView()
+{
 	updateActivation();
 
 	if ( m_pComponent != nullptr ) {
@@ -842,19 +867,20 @@ void ComponentView::updateView() {
 		m_pComponentMuteBtn->setChecked( m_pComponent->getIsMuted() );
 		m_pComponentSoloBtn->setChecked( m_pComponent->getIsSoloed() );
 		m_pComponentGainRotary->setValue(
-			m_pComponent->getGain(), false, Event::Trigger::Suppress );
+			m_pComponent->getGain(), false, Event::Trigger::Suppress
+		);
 
-		switch( m_pComponent->getSelection() ) {
-		case InstrumentComponent::Selection::RoundRobin:
-			m_pSampleSelectionCombo->setCurrentIndex( 1 );
-			break;
-		case InstrumentComponent::Selection::Random:
-			m_pSampleSelectionCombo->setCurrentIndex( 2 );
-			break;
-		case InstrumentComponent::Selection::Velocity:
-		default:
-			m_pSampleSelectionCombo->setCurrentIndex( 0 );
-			break;
+		switch ( m_pComponent->getSelection() ) {
+			case InstrumentComponent::Selection::RoundRobin:
+				m_pSampleSelectionCombo->setCurrentIndex( 1 );
+				break;
+			case InstrumentComponent::Selection::Random:
+				m_pSampleSelectionCombo->setCurrentIndex( 2 );
+				break;
+			case InstrumentComponent::Selection::Velocity:
+			default:
+				m_pSampleSelectionCombo->setCurrentIndex( 0 );
+				break;
 		}
 
 		if ( m_nSelectedLayer >= 0 ) {
@@ -865,20 +891,23 @@ void ComponentView::updateView() {
 				m_pLayerSoloBtn->setChecked( pLayer->getIsSoloed() );
 
 				// Layer GAIN
-				m_pLayerGainRotary->setValue( pLayer->getGain(), false,
-											  Event::Trigger::Suppress );
+				m_pLayerGainRotary->setValue(
+					pLayer->getGain(), false, Event::Trigger::Suppress
+				);
 
 				// Layer PITCH
 				//
-				// For most X.5 values we prefer to round the digit before point
-				// up and set the fine value to -0.5. But this is not possible
-				// for the maximum value and we have to ensure not to introduce
-				// sudden jumps in the fine pitch rotary.
+				// For most X.5 values we prefer to round the digit before
+				// point up and set the fine value to -0.5. But this is not
+				// possible for the maximum value and we have to ensure not
+				// to introduce sudden jumps in the fine pitch rotary.
 				float fCoarseLayerPitch;
 				if ( ( m_pLayerPitchFineRotary->getValue() == 50 &&
 					   pLayer->getPitchOffset() -
-					   trunc( pLayer->getPitchOffset() ) == 0.5  ) ||
-					 pLayer->getPitchOffset() == Instrument::fPitchOffsetMaximum ) {
+							   trunc( pLayer->getPitchOffset() ) ==
+						   0.5 ) ||
+					 pLayer->getPitchOffset() ==
+						 Instrument::fPitchOffsetMaximum ) {
 					fCoarseLayerPitch = trunc( pLayer->getPitchOffset() );
 				}
 				else if ( m_pLayerPitchFineRotary->getValue() == -50 &&
@@ -892,10 +921,12 @@ void ComponentView::updateView() {
 
 				const float fFineLayerPitch =
 					pLayer->getPitchOffset() - fCoarseLayerPitch;
-				m_pLayerPitchCoarseRotary->setValue( fCoarseLayerPitch, false,
-													 Event::Trigger::Suppress );
-				m_pLayerPitchFineRotary->setValue( fFineLayerPitch * 100, false,
-												   Event::Trigger::Suppress );
+				m_pLayerPitchCoarseRotary->setValue(
+					fCoarseLayerPitch, false, Event::Trigger::Suppress
+				);
+				m_pLayerPitchFineRotary->setValue(
+					fFineLayerPitch * 100, false, Event::Trigger::Suppress
+				);
 
 				m_pLayerWaveDisplay->setLayer( pLayer );
 			}
@@ -1128,7 +1159,7 @@ void ComponentView::setComponent(
 	if ( pInstrument == nullptr ) {
 		return;
 	}
-	m_pDeleteComponentAction->setEnabled(
+	m_pDeleteComponentButton->setEnabled(
 		pInstrument->getComponents()->size() > 1
 	);
 }
@@ -1244,10 +1275,10 @@ void ComponentView::updateActivation() {
 		m_pLayerPitchCoarseRotary->setIsActive( true );
 		m_pLayerPitchFineRotary->setIsActive( true );
 
-		m_pReplaceLayerAction->setEnabled( true );
-		m_pDuplicateLayerAction->setEnabled( true );
-		m_pDeleteLayerAction->setEnabled( true );
-		m_pEditLayerAction->setEnabled( pLayer->getSample() != nullptr );
+		m_pReplaceLayerButton->setEnabled( true );
+		m_pDuplicateLayerButton->setEnabled( true );
+		m_pDeleteLayerButton->setEnabled( true );
+		m_pEditLayerButton->setEnabled( pLayer->getSample() != nullptr );
 
 		m_pLayerWaveDisplay->setLayer( pLayer );
 	}
@@ -1263,10 +1294,10 @@ void ComponentView::updateActivation() {
 		m_pLayerPitchFineRotary->setIsActive( false );
 		m_pLayerPitchLCD->setText( "" );
 
-		m_pReplaceLayerAction->setEnabled( false );
-		m_pDuplicateLayerAction->setEnabled( false );
-		m_pDeleteLayerAction->setEnabled( false );
-		m_pEditLayerAction->setEnabled( false );
+		m_pReplaceLayerButton->setEnabled( false );
+		m_pDuplicateLayerButton->setEnabled( false );
+		m_pDeleteLayerButton->setEnabled( false );
+		m_pEditLayerButton->setEnabled( false );
 
 		m_pLayerWaveDisplay->setLayer( nullptr );
 	}

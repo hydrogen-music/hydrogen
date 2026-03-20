@@ -24,8 +24,10 @@
 
 #include <core/Helpers/Filesystem.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Preferences/Theme.h>
 
 #include <QApplication>
+#include <QSvgRenderer>
 
 void Skin::drawPlayhead( QPainter* p, int x, int y, bool bHovered ) {
 
@@ -90,9 +92,9 @@ QString Skin::getGlobalStyleSheet() {
 
 	const QColor buttonBackground = pColorTheme->m_widgetColor;
 	const QColor buttonBackgroundHover =
-		pColorTheme->m_widgetColor.lighter( Skin::nToolBarHoveredScaling );
+		pColorTheme->m_widgetColor.lighter( Skin::nToolButtonHoveredScaling );
 	const QColor buttonBackgroundChecked =
-		pColorTheme->m_accentColor.lighter( Skin::nToolBarCheckedScaling );
+		pColorTheme->m_accentColor.lighter( Skin::nToolButtonCheckedScaling );
 	const QColor buttonTextChecked = pColorTheme->m_accentTextColor;
 	const QColor spinBoxSelection = pColorTheme->m_spinBoxColor.darker( 120 );
 
@@ -152,6 +154,97 @@ QDoubleSpinBox, QSpinBox { \
 		.arg( spinBoxSelection.name() );
 }
 
+QString Skin::getImagePath() {
+	return H2Core::Filesystem::img_dir().append( "/gray" );
+}
+
+QString Skin::getSvgImagePath() {
+	return H2Core::Filesystem::img_dir().append( "/scalable" );
+}
+
+QString Skin::getToolButtonStyle( const QColor& backgroundColor )
+{
+	const auto pPref = H2Core::Preferences::get_instance();
+	QColor iconColor;
+	if ( pPref->getInterfaceTheme()->m_iconColor ==
+		 H2Core::InterfaceTheme::IconColor::White ) {
+		iconColor = Qt::white;
+	}
+	else {
+		iconColor = Qt::black;
+	}
+	const QColor iconInactiveColor = makeBackgroundColorInactive( iconColor );
+
+	QColor backgroundCheckedColor, backgroundPressedColor,
+		backgroundHoveredColor;
+	if ( Skin::moreBlackThanWhite( backgroundColor ) ) {
+		backgroundCheckedColor =
+			backgroundColor.lighter( Skin::nToolButtonCheckedScaling );
+		backgroundHoveredColor =
+			backgroundColor.lighter( Skin::nToolButtonHoveredScaling );
+		backgroundPressedColor =
+			backgroundColor.lighter( Skin::nToolButtonPressedScaling );
+	}
+	else {
+		backgroundCheckedColor =
+			backgroundColor.darker( Skin::nToolButtonCheckedScaling );
+		backgroundHoveredColor =
+			backgroundColor.darker( Skin::nToolButtonHoveredScaling );
+		backgroundPressedColor =
+			backgroundColor.darker( Skin::nToolButtonPressedScaling );
+	}
+
+	return QString( "\
+QToolButton {                          \
+    background-color: %1;              \
+    border: none;                      \
+    icon-size: 20px;                   \
+}                                      \
+QToolButton:checked {                  \
+    background-color: %3;              \
+    border: 1px solid %2;              \
+    border-radius: %6px;               \
+}                                      \
+QToolButton:disabled:checked {         \
+    border: 1px solid %7;              \
+}                                      \
+QToolButton:hover {                    \
+    background-color: %4;              \
+    border: 1px solid %2;              \
+    border-radius: %6px;               \
+}                                      \
+QToolButton:pressed {                  \
+    background-color: %5;              \
+}                                      \
+QToolButton:hover:checked {            \
+    background-color: %3;              \
+}                                      \
+QToolButton:hover:pressed {            \
+    background-color: %5;              \
+}" )
+								 .arg( backgroundColor.name() )
+								 .arg( iconColor.name() )
+								 .arg( backgroundCheckedColor.name() )
+								 .arg( backgroundHoveredColor.name() )
+								 .arg( backgroundPressedColor.name() )
+								 .arg( Skin::nToolButtonBorderRadius )
+								 .arg( iconInactiveColor.name() );
+}
+
+QColor Skin::makeBackgroundColorInactive( const QColor& color )
+{
+	int nHue, nSaturation, nValue;
+	color.getHsv( &nHue, &nSaturation, &nValue );
+
+	// Turn to gray.
+	nSaturation = 0;
+
+	// Adjust value for high contrast
+	nValue = ( nValue > 128 ) ? 70 : 170;
+
+	return QColor::fromHsv( nHue, nSaturation, nValue );
+}
+
 QColor Skin::makeTextColorInactive( const QColor& color ) {
 	int nHue, nSaturation, nValue;
 	color.getHsv( &nHue, &nSaturation, &nValue );
@@ -165,14 +258,6 @@ QColor Skin::makeTextColorInactive( const QColor& color ) {
 	auto newColor = QColor( color );
 	newColor.setHsv( nHue, nSaturation, nValue );
 	return newColor;
-}
-
-QString Skin::getImagePath() {
-	return H2Core::Filesystem::img_dir().append( "/gray" );
-}
-
-QString Skin::getSvgImagePath() {
-	return H2Core::Filesystem::img_dir().append( "/scalable" );
 }
 
 QColor Skin::makeWidgetColorInactive( const QColor& color ){
@@ -233,14 +318,120 @@ void Skin::setPalette( QApplication *pQApp ) {
 }
 
 void Skin::setPlayheadPen( QPainter* p, bool bHovered ) {
-
-	QColor playheadColor( H2Core::Preferences::get_instance()->getColorTheme()->m_playheadColor );
+	QColor playheadColor(
+		H2Core::Preferences::get_instance()->getColorTheme()->m_playheadColor
+	);
 	if ( bHovered ) {
 		playheadColor = Skin::makeTextColorInactive( playheadColor );
 	}
-	QPen pen ( playheadColor );
+	QPen pen( playheadColor );
 	pen.setWidth( 2 );
 
 	p->setPen( pen );
 	p->setRenderHint( QPainter::Antialiasing );
+}
+
+void Skin::setToolButtonIcon(
+	QToolButton* pButton,
+	const QString& sIconPath,
+	const QColor& disabledColor
+)
+{
+	if ( pButton == nullptr ) {
+		___ERRORLOG( "Invalid tool bar or button" );
+		return;
+	}
+
+	const auto pPref = H2Core::Preferences::get_instance();
+	QColor enabledColor;
+	if ( pPref->getInterfaceTheme()->m_iconColor ==
+		 H2Core::InterfaceTheme::IconColor::White ) {
+		enabledColor = Qt::white;
+	}
+	else {
+		enabledColor = Qt::black;
+	}
+
+	const auto size = pButton->size();
+	const int nIconLength =
+		std::min( size.width(), size.height() ) - Skin::nIconMargin;
+	const auto iconSize = QSize( nIconLength, nIconLength );
+	const QRect iconRect(
+		( size.width() - iconSize.width() ) / 2,
+		( size.height() - iconSize.height() ) / 2, iconSize.width(),
+		iconSize.height()
+	);
+
+	auto pIconInputSvg = new QSvgRenderer();
+	if ( !pIconInputSvg->load( sIconPath ) ) {
+		___ERRORLOG( QString( "Failed to load icon [%1]" ).arg( sIconPath ) );
+		return;
+	}
+
+	QPixmap pixmapEnabled( iconRect.width(), iconRect.height() );
+	pixmapEnabled.fill( Qt::GlobalColor::transparent );
+	QPainter pixmapEnabledPainter( &pixmapEnabled );
+	pixmapEnabledPainter.setRenderHint( QPainter::Antialiasing );
+	pIconInputSvg->render( &pixmapEnabledPainter );
+	pixmapEnabledPainter.setCompositionMode( QPainter::CompositionMode_SourceIn
+	);
+	pixmapEnabledPainter.fillRect( pixmapEnabled.rect(), enabledColor );
+
+	QPixmap pixmapDisabled( iconRect.width(), iconRect.height() );
+	pixmapDisabled.fill( Qt::GlobalColor::transparent );
+	QPainter pixmapDisabledPainter( &pixmapDisabled );
+	pixmapDisabledPainter.setRenderHint( QPainter::Antialiasing );
+	pIconInputSvg->render( &pixmapDisabledPainter );
+	pixmapDisabledPainter.setCompositionMode( QPainter::CompositionMode_SourceIn
+	);
+	pixmapDisabledPainter.fillRect( pixmapDisabled.rect(), disabledColor );
+
+	QIcon icon( pixmapEnabled );
+	icon.addPixmap( pixmapDisabled, QIcon::Disabled );
+	pButton->setIcon( icon );
+}
+
+void Skin::setToolBarStyle(
+	QToolBar* pToolBar,
+	const QColor& backgroundColor,
+	bool bBorder
+)
+{
+	if ( pToolBar == nullptr ) {
+		return;
+	}
+
+	const auto pPref = H2Core::Preferences::get_instance();
+	QColor iconColor;
+	if ( pPref->getInterfaceTheme()->m_iconColor ==
+		 H2Core::InterfaceTheme::IconColor::White ) {
+		iconColor = Qt::white;
+	}
+	else {
+		iconColor = Qt::black;
+	}
+
+    const QString sBorder = bBorder ? "1px solid #000" : "none";
+
+	pToolBar->setStyleSheet( QString( "\
+QToolBar {                             \
+    background-color: %1;              \
+    border: %2;                        \
+    color: %3;                         \
+    spacing: 1px;                      \
+}                                      \
+QToolBar::separator {                  \
+    background-color: %3;              \
+    width: 1px;                        \
+    margin-top: 4px;                   \
+    margin-left: 2px;                  \
+    margin-right: 2px;                 \
+    margin-bottom: 4px;                \
+}                                      \
+%4" )
+								 .arg( backgroundColor.name() )
+								 .arg( sBorder )
+								 .arg( iconColor.name() )
+								 .arg( Skin::getToolButtonStyle( backgroundColor
+								 ) ) );
 }

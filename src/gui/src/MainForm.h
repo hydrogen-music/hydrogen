@@ -205,7 +205,6 @@ class MainForm :  public QMainWindow,
 		void action_window_showPatternEditor();
 		void action_window_showRack();
 		void action_window_showAutomationArea();
-		void action_window_showTimeline();
 		void action_window_showPlaybackTrack();
 		void action_window_toggleFullscreen();
 
@@ -274,7 +273,6 @@ class MainForm :  public QMainWindow,
 		QAction *	m_pViewMixerAction;
 		QAction *	m_pViewRackAction;
 		QAction *	m_pViewAutomationPathAction;
-		QAction *	m_pViewTimelineAction;
 		QAction *	m_pViewPlaybackTrackAction;
 		QActionGroup *	m_pViewPlaybackTrackActionGroup;
 

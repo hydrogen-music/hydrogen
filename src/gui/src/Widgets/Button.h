@@ -179,6 +179,7 @@ inline bool Button::getIsActive() const {
 
 inline void Button::setFixedFontSize( int nPixelSize ) {
 	m_nFixedFontSize = nPixelSize;
+    updateFont();
 }
 inline int Button::getFixedFontSize() const {
 	return m_nFixedFontSize;

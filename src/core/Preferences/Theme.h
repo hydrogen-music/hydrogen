@@ -157,11 +157,11 @@ public:
 	QColor m_spinBoxTextColor;
 	QColor m_playheadColor;
 	QColor m_cursorColor;
-
-		QColor m_muteColor;
-		QColor m_muteTextColor;
-		QColor m_soloColor;
-		QColor m_soloTextColor;
+	QColor m_muteColor;
+	QColor m_muteTextColor;
+	QColor m_soloColor;
+	QColor m_soloTextColor;
+	QColor m_waveFormColor;
 };
 
 	

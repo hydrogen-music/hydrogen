@@ -151,9 +151,9 @@ class ComponentView : public QWidget,
 		QVBoxLayout* m_pSeparatorLayout;
 
 		QToolBar* m_pToolBarComponent;
-		QAction* m_pNewComponentAction;
-		QAction* m_pDuplicateComponentAction;
-		QAction* m_pDeleteComponentAction;
+		QToolButton* m_pNewComponentButton;
+		QToolButton* m_pDuplicateComponentButton;
+		QToolButton* m_pDeleteComponentButton;
 		SoloButton* m_pComponentSoloBtn;
 		MuteButton* m_pComponentMuteBtn;
 		Rotary* m_pComponentGainRotary;
@@ -164,11 +164,11 @@ class ComponentView : public QWidget,
 		LayerPreview *m_pLayerPreview;
 
 		QToolBar* m_pToolBarLayer;
-		QAction* m_pNewLayerAction;
-		QAction* m_pReplaceLayerAction;
-		QAction* m_pDuplicateLayerAction;
-		QAction* m_pDeleteLayerAction;
-		QAction* m_pEditLayerAction;
+		QToolButton* m_pNewLayerButton;
+		QToolButton* m_pReplaceLayerButton;
+		QToolButton* m_pDuplicateLayerButton;
+		QToolButton* m_pDeleteLayerButton;
+		QToolButton* m_pEditLayerButton;
 		SoloButton* m_pLayerSoloBtn;
 		MuteButton* m_pLayerMuteBtn;
 		Rotary *m_pLayerGainRotary;

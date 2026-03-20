@@ -47,7 +47,7 @@ using namespace H2Core;
 SampleEnvelope::SampleEnvelope( SampleEditor* pParent )
 	: QWidget( pParent ),
 	  m_pSampleEditor( pParent ),
-	  m_bEnabled( true ),
+	  m_bLocked( false ),
 	  m_sSelectedEnvelopePointValue( "" ),
 	  m_pHoveredPoint( nullptr ),
 	  m_pDragPoint( nullptr ),
@@ -175,7 +175,7 @@ void SampleEnvelope::paintEvent( QPaintEvent* ev )
 		hoverColor = selectionColor.darker( 115 );
 	}
 
-	if ( !m_bEnabled ) {
+	if ( m_bLocked ) {
 		velocityColor = Skin::makeWidgetColorInactive( velocityColor );
 		panColor = Skin::makeWidgetColorInactive( panColor );
 	}
@@ -213,19 +213,20 @@ void SampleEnvelope::paintEvent( QPaintEvent* ev )
 	p.setRenderHint( QPainter::Antialiasing );
 
 	// Draw playhead
-	p.setPen(
-		QPen( pColorTheme->m_sampleEditor_playheadColor, 1, Qt::SolidLine )
-	);
 	const int nTotalFrames = m_pSampleEditor->getTotalPlaybackFrames();
 	int nPlayheadX;
 	if ( nTotalFrames > 0 ) {
-		nPlayheadX =
-			m_pSampleEditor->getPlayheadTarget() * width() / nTotalFrames;
+		nPlayheadX = static_cast<int>( std::round(
+			m_pSampleEditor->getPlayheadTarget() *
+			static_cast<float>( width() ) / static_cast<float>( nTotalFrames )
+		) );
 	}
 	else {
 		nPlayheadX = 0;
 	}
-	p.drawLine( nPlayheadX, 4, nPlayheadX, height() - 4 );
+	Skin::drawPlayhead( &p, nPlayheadX - Skin::nPlayheadWidth / 2, 0 );
+	Skin::setPlayheadPen( &p, false );
+	p.drawLine( nPlayheadX, 0, nPlayheadX, height() );
 
 	// Draw envelopes (start with the background one)
 	drawLine( p, envelopeBackground, colorBackground, Style::Background );
@@ -305,7 +306,7 @@ void SampleEnvelope::paintEvent( QPaintEvent* ev )
 
 void SampleEnvelope::mouseMoveEvent( QMouseEvent* ev )
 {
-	if ( !m_bEnabled ) {
+	if ( m_bLocked ) {
 		return;
 	}
 
@@ -372,7 +373,7 @@ void SampleEnvelope::mouseMoveEvent( QMouseEvent* ev )
 
 void SampleEnvelope::mousePressEvent( QMouseEvent* ev )
 {
-	if ( !m_bEnabled ) {
+	if ( m_bLocked ) {
 		return;
 	}
 
@@ -451,7 +452,7 @@ void SampleEnvelope::mousePressEvent( QMouseEvent* ev )
 
 void SampleEnvelope::mouseReleaseEvent( QMouseEvent* ev )
 {
-	if ( !m_bEnabled || m_pDragPoint == nullptr ) {
+	if ( m_bLocked || m_pDragPoint == nullptr ) {
 		m_pDragPoint = nullptr;
 		return;
 	}

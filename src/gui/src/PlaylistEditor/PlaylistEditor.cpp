@@ -103,8 +103,8 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	pToolBarLayout->setSpacing( 0 );
 	pToolBarLayout->setContentsMargins( 0, 0, 0, 0 );
 
-	m_pToolBar = new QToolBar( this );
-	m_pToolBar->setFixedHeight( 36 );
+	m_pToolBar = new QToolBar( controlWidget );
+	m_pToolBar->setFixedHeight( PlaylistEditor::nToolBarHeight );
 	pToolBarLayout->addWidget( m_pToolBar );
 
 	// Rewind button
@@ -115,12 +115,19 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 			getColumn() - 1 );
 	});
 	m_pRwdButton->setMidiAction(
-		std::make_shared<MidiAction>( MidiAction::Type::PlaylistPrevSong ) );
+		std::make_shared<MidiAction>( MidiAction::Type::PlaylistPrevSong )
+	);
+	m_pRwdButton->setFixedSize(
+		PlaylistEditor::nButtonWidth, PlaylistEditor::nButtonHeight
+	);
 	m_pToolBar->addWidget( m_pRwdButton );
 
 	// Play button
 	m_pPlayButton = new MidiLearnableToolButton(
 		m_pToolBar, tr( "Play/ Pause/ Load selected song" ) );
+	m_pPlayButton->setFixedSize(
+		PlaylistEditor::nButtonWidth, PlaylistEditor::nButtonHeight
+	);
 	connect( m_pPlayButton, &QToolButton::clicked, [=](){
 		playButtonClicked();
 	});
@@ -128,6 +135,9 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 
 	// Stop button
 	m_pStopButton = new MidiLearnableToolButton( m_pToolBar, "" );
+	m_pStopButton->setFixedSize(
+		PlaylistEditor::nButtonWidth, PlaylistEditor::nButtonHeight
+	);
 	connect( m_pStopButton, &QToolButton::clicked, [=](){
 		Hydrogen::get_instance()->sequencerStop();
 		CoreActionController::locateToColumn( 0 );
@@ -138,6 +148,9 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 
 	// Fast forward button
 	m_pFfwdButton = new MidiLearnableToolButton( m_pToolBar, "" );
+	m_pFfwdButton->setFixedSize(
+		PlaylistEditor::nButtonWidth, PlaylistEditor::nButtonHeight
+	);
 	connect( m_pFfwdButton, &QToolButton::clicked, [=](){
 		CoreActionController::locateToColumn(
 			Hydrogen::get_instance()->getAudioEngine()->getPlayhead()->
@@ -1027,26 +1040,33 @@ void PlaylistEditor::updateIcons() {
 	} else {
 		sIconPath.append( "/icons/black/" );
 	}
+	const auto pColorTheme =
+		H2Core::Preferences::get_instance()->getColorTheme();
 
-	m_pRwdButton->setIcon( QIcon( sIconPath + "rewind.svg" ) );
-	m_pPlayButton->setIcon( QIcon( sIconPath + "play.svg" ) );
-	m_pStopButton->setIcon( QIcon( sIconPath + "stop.svg" ) );
-	m_pFfwdButton->setIcon( QIcon( sIconPath + "fast_forward.svg" ) );
+	const QColor colorBackgroundInactive =
+		Skin::makeBackgroundColorInactive( pColorTheme->m_baseColor );
+
+	Skin::setToolButtonIcon(
+		m_pRwdButton, sIconPath + "rewind.svg", colorBackgroundInactive
+	);
+	Skin::setToolButtonIcon(
+		m_pPlayButton, sIconPath + "play.svg", colorBackgroundInactive
+	);
+	Skin::setToolButtonIcon(
+		m_pStopButton, sIconPath + "stop.svg", colorBackgroundInactive
+	);
+	Skin::setToolButtonIcon(
+		m_pFfwdButton, sIconPath + "fast_forward.svg", colorBackgroundInactive
+	);
 }
 
-void PlaylistEditor::updateStyleSheet() {
+void PlaylistEditor::updateStyleSheet()
+{
 	const auto pColorTheme =
 		H2Core::Preferences::get_instance()->getColorTheme();
 
 	const QColor colorBackground = pColorTheme->m_baseColor;
-
-	setStyleSheet( QString( "\
-QToolBar {\
-     background-color: %1; \
-     border: 1px solid #000;\
-     spacing: 4px;\
-}")
-				   .arg( colorBackground.name() ) );
+	Skin::setToolBarStyle( m_pToolBar, colorBackground, true );
 }
 
 void PlaylistEditor::updateWindowTitle() {

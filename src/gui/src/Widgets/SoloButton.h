@@ -33,9 +33,9 @@ class SoloButton : public ColoredButton, public H2Core::Object<SoloButton> {
    public:
 	SoloButton(
 		QWidget* pParent,
-		const QSize& size = QSize(),
-		const QString& sBaseToolTip = "",
-		bool bModifyOnChange = false
+		const QSize& size,
+		const QString& sBaseToolTip,
+		int flag
 	);
 	~SoloButton();
 

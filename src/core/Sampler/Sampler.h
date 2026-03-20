@@ -221,25 +221,10 @@ class Sampler : public H2Core::Object<Sampler> {
 		m_interpolateMode = mode;
 	}
 
-	std::shared_ptr<Instrument> getPlaybackTrackInstrument() const
-	{
-		return m_pPlaybackTrackInstrument;
-	}
-
 	Interpolation::InterpolateMode getInterpolateMode() const
 	{
 		return m_interpolateMode;
 	}
-
-	/**
-	 * Loading of the playback track.
-	 *
-	 * The playback track is added to #m_pPlaybackTrackInstrument as a
-	 * new InstrumentLayer containing the loaded Sample. If
-	 * Song::__playback_track_filename is empty, the layer will be
-	 * loaded with a nullptr instead.
-	 */
-	void reinitializePlaybackTrack();
 
 	/**
 	 * Recalculates all note starts to make them valid again after a
@@ -332,9 +317,6 @@ class Sampler : public H2Core::Object<Sampler> {
 		compareQueuedMidiMessages>
 		m_midiMessageQueue;
 
-	/// Instrument used for the playback track feature.
-	std::shared_ptr<Instrument> m_pPlaybackTrackInstrument;
-
 	/// Instrument used for the preview feature.
 	std::shared_ptr<Instrument> m_pPreviewInstrument;
 
@@ -342,8 +324,6 @@ class Sampler : public H2Core::Object<Sampler> {
 	 * single layer. Whenever a sample is going to be preview, it will be
 	 * assigned to that layer and the preview instrument will be triggered. */
 	std::shared_ptr<Instrument> m_pDefaultPreviewInstrument;
-
-	int m_nPlayBackSamplePosition;
 
 	Interpolation::InterpolateMode m_interpolateMode;
 

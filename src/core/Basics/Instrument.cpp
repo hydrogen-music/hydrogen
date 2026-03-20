@@ -164,6 +164,27 @@ Instrument::~Instrument()
 	}
 }
 
+std::shared_ptr<Instrument> Instrument::from( std::shared_ptr<Sample> pSample )
+{
+	if ( pSample == nullptr ) {
+		return nullptr;
+	}
+
+	auto pInstrument = std::make_shared<Instrument>();
+	auto pLayer = std::make_shared<InstrumentLayer>( pSample );
+	auto pComponent = pInstrument->getComponent( 0 );
+	if ( pComponent != nullptr ) {
+		pInstrument->addLayer(
+			pComponent, pLayer, -1, Event::Trigger::Suppress
+		);
+	}
+	else {
+		ERRORLOG( "Invalid default component" );
+	}
+
+	return pInstrument;
+}
+
 std::shared_ptr<Instrument> Instrument::loadFrom(
 	const XMLNode& node,
 	const QString& sDrumkitPath,
@@ -855,9 +876,9 @@ void Instrument::setSample(
 	checkForMissingSamples( trigger );
 }
 
-int Instrument::getLongestSampleFrames() const
+long long Instrument::getLongestSampleFrames() const
 {
-	int nLongestFrames = 0;
+	long long nLongestFrames = 0;
 
 	for ( const auto& pComponent : *m_pComponents ) {
 		if ( pComponent != nullptr ) {

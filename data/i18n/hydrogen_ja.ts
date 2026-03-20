@@ -1517,6 +1517,21 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text displayed on a Play button in the SampleEditor which will start playback of the original file. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Load new playback track</source>
+        <extracomment>Shown in the undo history and as tool tip for loading a different sample * as playback track.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete playback track</source>
+        <extracomment>Shown in the undo history and as tool tip for deleting the current * playback track.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playback track</source>
+        <extracomment>Shown in the undo history and as tool tip for editing the current * instance of the playback track within the sample editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -2592,10 +2607,6 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Set default values</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Timeline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4273,6 +4284,10 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Pan Envelope</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Waveform</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
@@ -5338,10 +5353,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show timeline</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Show playback track</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5698,19 +5709,7 @@ Are you sure?</source>
         <translation>パターン %1</translation>
     </message>
     <message>
-        <source>View playback track</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Mute playback track</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Choose playback track</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>View timeline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

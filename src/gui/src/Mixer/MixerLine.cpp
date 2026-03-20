@@ -107,7 +107,8 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 
 	// Mute button
 	m_pMuteBtn = new MuteButton(
-		this, QSize( 22, 15 ), pCommonStrings->getBigMuteButton()
+		this, QSize( 22, 15 ), pCommonStrings->getBigMuteButton(),
+		ColoredButton::Flag::None
 	);
 	m_pMuteBtn->move( 5, 16 );
 	// Color used as background within the pixmap.
@@ -123,7 +124,8 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 
 	// Solo button
 	m_pSoloBtn = new SoloButton(
-		this, QSize( 22, 15 ), pCommonStrings->getBigSoloButton()
+		this, QSize( 22, 15 ), pCommonStrings->getBigSoloButton(),
+		ColoredButton::Flag::None
 	);
 	m_pSoloBtn->move( 28, 16 );
 	// Color used as background within the pixmap.
@@ -185,8 +187,10 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	});
 
 	// m_pFader
-	m_pFader = new Fader( this, Fader::Type::Normal, tr( "Volume" ), false,
-						  false, 0.0, 1.5 );
+	m_pFader = new Fader(
+		this, QSize( 23, 117 ), Fader::Type::Vertical, tr( "Volume" ), false,
+		false, 0.0, 1.5
+	);
 	m_pFader->move( 23, 128 );
 	connect( m_pFader, &Fader::valueChanged, [&]() {
 		const int nLine = retrieveLineNumber();

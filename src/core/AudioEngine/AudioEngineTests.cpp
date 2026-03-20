@@ -1867,7 +1867,7 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 						const auto pNewLayer = pNewSelectedLayerInfo->pLayer;
 						const auto pNewSample = pNewLayer->getSample();
 
-						const int nSampleFrames = pNewSample->getFrames();
+						const long long nSampleFrames = pNewSample->getFrames();
 						const double fExpectedFrames =
 							std::min( static_cast<double>(ppOldSelectedLayerInfo->fSamplePosition) +
 									  fPassedFrames,

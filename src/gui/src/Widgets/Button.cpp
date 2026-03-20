@@ -140,7 +140,7 @@ void Button::updateStyleSheet() {
 	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
 	
 	const QColor backgroundColor = pColorTheme->m_widgetColor;
-	const QColor backgroundHoverColor = backgroundColor.lighter( Skin::nToolBarHoveredScaling );
+	const QColor backgroundHoverColor = backgroundColor.lighter( Skin::nToolButtonHoveredScaling );
 	const QColor borderColor = Qt::black;
 
 	QColor backgroundCheckedColor, backgroundCheckedTextColor;
@@ -334,10 +334,8 @@ void Button::updateFont() {
 		}
 	}
 
-	// This method must not be called more than once in this routine. Otherwise,
-	// a repaint of the widget is triggered, which calls `updateFont()` again
-	// and we are trapped in an infinite loop.
 	setFont( font );
+	update();
 }
 
 void Button::setIconFileName( const QString& sIcon ) {
@@ -350,8 +348,6 @@ void Button::setIconFileName( const QString& sIcon ) {
 void Button::paintEvent( QPaintEvent* ev )
 {
 	QPushButton::paintEvent( ev );
-
-	updateFont();
 
 	// Grey-out the widget some more if it is not enabled
 	if ( ! isEnabled() ) {

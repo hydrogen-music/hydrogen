@@ -106,26 +106,15 @@ AudioEngine::AudioEngine()
 
 	srand( time( nullptr ) );
 
-	// Create metronome instrument
-	// Get the path to the file of the metronome sound.
-	QString sMetronomeFileName = Filesystem::click_file_path();
 	m_pMetronomeInstrument =
-		std::make_shared<Instrument>( Instrument::MetronomeId, "metronome" );
-
-	auto pLayer =
-		std::make_shared<InstrumentLayer>( Sample::load( sMetronomeFileName ) );
-	auto pComponent = m_pMetronomeInstrument->getComponent( 0 );
-	if ( pComponent != nullptr ) {
-		m_pMetronomeInstrument->addLayer(
-			pComponent, pLayer, -1, Event::Trigger::Suppress
+		Instrument::from( Sample::load( Filesystem::click_file_path() ) );
+	if ( m_pMetronomeInstrument != nullptr ) {
+		m_pMetronomeInstrument->setId( Instrument::MetronomeId );
+		m_pMetronomeInstrument->setName( "metronome" );
+		m_pMetronomeInstrument->setVolume(
+			Preferences::get_instance()->m_fMetronomeVolume
 		);
 	}
-	else {
-		___ERRORLOG( "Invalid default component" );
-	}
-	m_pMetronomeInstrument->setVolume(
-		Preferences::get_instance()->m_fMetronomeVolume
-	);
 
 	m_AudioProcessCallback = &audioEngine_process;
 
@@ -480,7 +469,8 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast,
 
 	updateTransport( fTick, nNewFrame, m_pPlayhead, trigger );
 	m_pQueuing->set( m_pPlayhead );
-	
+	m_nLastLoopFrame = 0;
+
 	handleTempoChange();
 }
 
@@ -501,6 +491,8 @@ void AudioEngine::locateToFrame( const long long nFrame ) {
 
 	updateTransport( fNewTick, nNewFrame, m_pPlayhead );
 	m_pQueuing->set( m_pPlayhead );
+
+	m_nLastLoopFrame = 0;
 
 	handleTempoChange();
 
@@ -2231,7 +2223,7 @@ void AudioEngine::updateSongSize( Event::Trigger trigger ) {
 				.arg( m_fSongSizeInTicks )
 				.arg( fNewSongSizeInTicks )
 				.arg( m_pPlayhead->toQString( "", true ) )
-				.arg( m_pQueuingPosition->toQString( "", true ) )
+				.arg( m_pQueuing->toQString( "", true ) )
 				);
 #endif
 
@@ -2263,7 +2255,7 @@ void AudioEngine::updateSongSize( Event::Trigger trigger ) {
 					.arg( m_fSongSizeInTicks )
 					.arg( fNewSongSizeInTicks )
 					.arg( m_pPlayhead->toQString( "", true ) )
-					.arg( m_pQueuingPosition->toQString( "", true ) )
+					.arg( m_pQueuing->toQString( "", true ) )
 					);
 #endif
 
@@ -2417,7 +2409,7 @@ void AudioEngine::updateSongSize( Event::Trigger trigger ) {
 				.arg( m_fSongSizeInTicks )
 				.arg( fNewSongSizeInTicks )
 				.arg( m_pPlayhead->toQString( "", true ) )
-				.arg( m_pQueuingPosition->toQString( "", true ) )
+				.arg( m_pQueuing->toQString( "", true ) )
 				);
 #endif
 
@@ -2674,7 +2666,7 @@ void AudioEngine::handleTimelineChange() {
 #if AUDIO_ENGINE_DEBUG
 	AE_DEBUGLOG( QString( "before:\n%1\n%2" )
 			 .arg( m_pPlayhead->toQString() )
-			 .arg( m_pQueuingPosition->toQString() ) );
+			 .arg( m_pQueuing->toQString() ) );
 #endif
 
 	const auto fOldTickSize = m_pPlayhead->getTickSize();
@@ -2704,7 +2696,7 @@ void AudioEngine::handleTimelineChange() {
 #if AUDIO_ENGINE_DEBUG
 	AE_DEBUGLOG( QString( "after:\n%1\n%2" )
 			 .arg( m_pPlayhead->toQString() )
-			 .arg( m_pQueuingPosition->toQString() ) );
+			 .arg( m_pQueuing->toQString() ) );
 #endif
 }
 
@@ -2866,7 +2858,7 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 		pPos->getTickOffsetQueuing();
 
 #if AUDIO_ENGINE_DEBUG
-	AE_DEBUGLOG( QString( "nFrame: [%1,%2], fTick: [%3, %4], fTick (without offset): [%5,%6], m_pPlayhead->getTickOffsetQueuing(): %7, nLookahead: %8, nIntervalLengthInFrames: %9, m_pPlayhead: %10, m_pQueuingPosition: %11,_bLookaheadApplied: %12, m_nCountInFrameOffset: %13" )
+	AE_DEBUGLOG( QString( "nFrame: [%1,%2], fTick: [%3, %4], fTick (without offset): [%5,%6], m_pPlayhead->getTickOffsetQueuing(): %7, nLookahead: %8, nIntervalLengthInFrames: %9, m_pPlayhead: %10, m_pQueuing: %11,_bLookaheadApplied: %12, m_nCountInFrameOffset: %13" )
 			 .arg( nFrameStart )
 			 .arg( nFrameEnd )
 			 .arg( *fTickStart, 0, 'f' )
@@ -2877,7 +2869,7 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 			 .arg( nLookahead )
 			 .arg( nIntervalLengthInFrames )
 			 .arg( pPos->toQString() )
-			 .arg( m_pQueuingPosition->toQString() )
+			 .arg( m_pQueuing->toQString() )
 			 .arg( m_bLookaheadApplied )
 				 .arg( m_nCountInFrameOffset )
 			 );
@@ -3059,13 +3051,13 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 	m_fLastTickEnd = fTickEndComp;
 
 #if AUDIO_ENGINE_DEBUG
-	AE_DEBUGLOG( QString( "tick interval (floor): [%1,%2], tick interval (computed): [%3,%4], nLeadLagFactor: %5, m_fSongSizeInTicks: %6, m_pPlayhead: %7, m_pQueuingPosition: %8")
+	AE_DEBUGLOG( QString( "tick interval (floor): [%1,%2], tick interval (computed): [%3,%4], nLeadLagFactor: %5, m_fSongSizeInTicks: %6, m_pPlayhead: %7, m_pQueuing: %8")
 				.arg( nTickStart ).arg( nTickEnd )
 				.arg( fTickStartComp, 0, 'f' ).arg( fTickEndComp, 0, 'f' )
 				.arg( nLeadLagFactor )
 				.arg( m_fSongSizeInTicks, 0, 'f' )
 				.arg( m_pPlayhead->toQString() )
-				.arg( m_pQueuingPosition->toQString() ) );
+				.arg( m_pQueuing->toQString() ) );
 #endif
 
 	// We loop over integer ticks to ensure that all notes encountered
@@ -3226,8 +3218,8 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 						}
 
 #if AUDIO_ENGINE_DEBUG
-						AE_DEBUGLOG( QString( "m_pQueuingPosition: %1, new note: %2" )
-								  .arg( m_pQueuingPosition->toQString() )
+						AE_DEBUGLOG( QString( "m_pQueuing: %1, new note: %2" )
+								  .arg( m_pQueuing->toQString() )
 								  .arg( pCopiedNote->toQString() ) );
 #endif
 

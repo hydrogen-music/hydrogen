@@ -154,7 +154,7 @@ Preferences::Preferences()
 	  m_bPatternEditorAlwaysShowTypeLabels( false ),
 	  m_bIsFXTabVisible( true ),
 	  m_bHideKeyboardCursor( false ),
-	  m_bShowPlaybackTrack( false ),
+	  m_bShowPlaybackTrack( true ),
 	  m_nLastOpenTab( 0 ),
 	  m_bShowAutomationArea( false ),
 	  m_nPatternEditorGridHeight( 21 ),

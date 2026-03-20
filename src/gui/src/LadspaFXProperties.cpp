@@ -255,14 +255,15 @@ void LadspaFXProperties::updateControls()
 			m_pInputControlNames.push_back( pName );
 			pName->setToolTip( pName->text() );
 
-
-			// fader
 			auto pFader = new Fader(
-				m_pFrame, Fader::Type::Normal, tr( "Input control param. value" ),
-				pControlPort->m_bIsInteger, false, pControlPort->fLowerBound,
-				pControlPort->fUpperBound );
-			connect( pFader, SIGNAL( valueChanged( WidgetWithInput* ) ),
-					 this, SLOT( faderChanged( WidgetWithInput* ) ) );
+				m_pFrame, QSize( 23, 117 ), Fader::Type::Vertical,
+				tr( "Input control param. value" ), pControlPort->m_bIsInteger,
+				false, pControlPort->fLowerBound, pControlPort->fUpperBound
+			);
+			connect(
+				pFader, SIGNAL( valueChanged( WidgetWithInput* ) ), this,
+				SLOT( faderChanged( WidgetWithInput* ) )
+			);
 			m_pInputControlFaders.push_back( pFader );
 			pFader->move( nInputControl_X + 20, 60 );
 			pFader->show();
@@ -294,9 +295,10 @@ void LadspaFXProperties::updateControls()
 
 			// fader
 			auto pFader = new Fader(
-				m_pFrame, Fader::Type::Normal, tr( "Output control param. value" ),
-				pControl->m_bIsInteger, true, pControl->fLowerBound,
-				pControl->fUpperBound );
+				m_pFrame, QSize( 23, 117 ), Fader::Type::Vertical,
+				tr( "Output control param. value" ), pControl->m_bIsInteger,
+				true, pControl->fLowerBound, pControl->fUpperBound
+			);
 			pFader->move( xPos + 20, 60 );
 			pFader->show();
 			pFader->setMaxPeak( pControl->fUpperBound );

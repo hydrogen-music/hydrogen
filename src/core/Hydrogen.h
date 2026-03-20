@@ -343,14 +343,6 @@ public:
 	/************************************************************/
 	/********************** Playback track **********************/
 	/**
-	 * Wrapper around Song::setPlaybackTrackEnabled().
-	 */
-	void			mutePlaybackTrack( const bool bMuted );
-	/**
-	 * Wrapper around Song::getPlaybackTrackState().
-	 */
-	Song::PlaybackTrack		getPlaybackTrackState() const;
-	/**
 	 * Wrapper function for loading the playback track.
 	 */
 	void			loadPlaybackTrack( const QString& sFileName );

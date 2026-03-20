@@ -41,7 +41,7 @@ SampleWaveDisplay::SampleWaveDisplay(
 )
 	: WaveDisplay( pParent, channel ),
 	  m_pSampleEditor( pParent ),
-	  m_bEnabled( true ),
+	  m_bSlidersLocked( false ),
 	  m_nOldFrame( 0 ),
 	  m_bDragStarted( false )
 {
@@ -64,7 +64,7 @@ void SampleWaveDisplay::leaveEvent( QEvent* pEv )
 
 void SampleWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 {
-	if ( !m_bEnabled ) {
+	if ( m_bSlidersLocked ) {
 		return;
 	}
 
@@ -77,7 +77,7 @@ void SampleWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 		}
 		return;
 	}
-	const int nFrame = xToFrame(
+	const long long nFrame = xToFrame(
 		std::clamp( static_cast<int>( pEv->position().x() ), 0, width() - 1 )
 	);
 	switch ( m_pSampleEditor->getSelectedSlider() ) {
@@ -97,7 +97,7 @@ void SampleWaveDisplay::mouseMoveEvent( QMouseEvent* ev )
 
 void SampleWaveDisplay::mousePressEvent( QMouseEvent* ev )
 {
-	if ( !m_bEnabled ) {
+	if ( m_bSlidersLocked ) {
 		return;
 	}
 
@@ -115,7 +115,7 @@ void SampleWaveDisplay::mousePressEvent( QMouseEvent* ev )
 
 void SampleWaveDisplay::mouseReleaseEvent( QMouseEvent* ev )
 {
-	if ( !m_bEnabled ) {
+	if ( m_bSlidersLocked ) {
 		return;
 	}
 
@@ -151,10 +151,11 @@ void SampleWaveDisplay::paintEvent( QPaintEvent* ev )
 	p.setRenderHint( QPainter::Antialiasing );
 
 	// Render playhead
-	p.setPen(
-		QPen( pColorTheme->m_sampleEditor_playheadColor, 1, Qt::SolidLine )
-	);
-	const int nPlayheadX = frameToX( m_pSampleEditor->getPlayheadMain() );
+	Skin::setPlayheadPen( &p, false );
+	const int nPlayheadX = frameToX( static_cast<long long>(
+		std::round( m_pSampleEditor->getPlayheadMain() )
+	) );
+	Skin::drawPlayhead( &p, nPlayheadX - Skin::nPlayheadWidth / 2, 0 );
 	p.drawLine( nPlayheadX, 0, nPlayheadX, height() );
 
 	renderSlider( &p, SampleEditor::Slider::Start );
@@ -319,7 +320,7 @@ void SampleWaveDisplay::renderSlider(
 
 	color.setAlpha( SampleEditor::nColorAlpha );
 
-	if ( !m_bEnabled ) {
+	if ( m_bSlidersLocked ) {
 		color = Skin::makeWidgetColorInactive( color );
 	}
 
@@ -374,12 +375,19 @@ void SampleWaveDisplay::renderSlider(
 	}
 }
 
-int SampleWaveDisplay::frameToX( int nFrame ) const
+int SampleWaveDisplay::frameToX( long long nFrame ) const
 {
-	return nFrame * width() / m_pLayer->getSample()->getFrames();
+	return static_cast<int>(
+		static_cast<double>( nFrame ) * static_cast<double>( width() ) /
+		static_cast<double>( m_pLayer->getSample()->getFrames() )
+	);
 }
 
-int SampleWaveDisplay::xToFrame( int nX ) const
+long long SampleWaveDisplay::xToFrame( int nX ) const
 {
-	return nX * m_pLayer->getSample()->getFrames() / width();
+	return static_cast<long long>(
+		static_cast<double>( nX ) *
+		static_cast<double>( m_pLayer->getSample()->getFrames() ) /
+		static_cast<double>( width() )
+	);
 }
