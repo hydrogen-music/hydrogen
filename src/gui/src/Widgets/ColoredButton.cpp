@@ -107,10 +107,15 @@ void ColoredButton::paintEvent( QPaintEvent* pEvent )
 	}
 
 	QPainter p( this );
+#ifdef H2CORE_HAVE_QT6
 	p.setRenderHints(
 		QPainter::Antialiasing | QPainter::TextAntialiasing |
 		QPainter::VerticalSubpixelPositioning
 	);
+#else
+	p.setRenderHints( QPainter::Antialiasing | QPainter::TextAntialiasing );
+#endif
+
 	p.setPen( QPen( outlineColor, 1 ) );
 	p.setBrush( textColor );
 
