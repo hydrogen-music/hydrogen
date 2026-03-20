@@ -152,7 +152,9 @@ void SampleWaveDisplay::paintEvent( QPaintEvent* ev )
 
 	// Render playhead
 	Skin::setPlayheadPen( &p, false );
-	const int nPlayheadX = frameToX( m_pSampleEditor->getPlayheadMain() );
+	const int nPlayheadX = frameToX( static_cast<long long>(
+		std::round( m_pSampleEditor->getPlayheadMain() )
+	) );
 	Skin::drawPlayhead( &p, nPlayheadX - Skin::nPlayheadWidth / 2, 0 );
 	p.drawLine( nPlayheadX, 0, nPlayheadX, height() );
 

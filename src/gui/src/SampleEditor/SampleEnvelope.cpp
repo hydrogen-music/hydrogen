@@ -216,8 +216,10 @@ void SampleEnvelope::paintEvent( QPaintEvent* ev )
 	const int nTotalFrames = m_pSampleEditor->getTotalPlaybackFrames();
 	int nPlayheadX;
 	if ( nTotalFrames > 0 ) {
-		nPlayheadX =
-			m_pSampleEditor->getPlayheadTarget() * width() / nTotalFrames;
+		nPlayheadX = static_cast<int>( std::round(
+			m_pSampleEditor->getPlayheadTarget() *
+			static_cast<float>( width() ) / static_cast<float>( nTotalFrames )
+		) );
 	}
 	else {
 		nPlayheadX = 0;

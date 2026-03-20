@@ -90,10 +90,11 @@ SampleEditor::SampleEditor(
 	  m_pInstrument( pInstrument ),
 	  m_playback( Playback::None ),
 	  m_fZoomfactor( 1.0 ),
-	  m_nPlayheadSample( 0 ),
-	  m_nPlayheadTarget( 0 ),
+	  m_fPlayheadSample( 0 ),
+	  m_fPlayheadTarget( 0 ),
 	  m_nLoopFrames( 0 ),
 	  m_nLastRealtimeFrame( 0 ),
+	  m_fRealtimePos( 0 ),
 	  m_looped( Looped::NotYet ),
 	  m_hoveredSlider( Slider::None ),
 	  m_selectedSlider( Slider::Start ),
@@ -112,7 +113,7 @@ SampleEditor::SampleEditor(
 	const auto nFrames = m_pSample->getFrames();
 
 	m_pPreviewInstrument = Instrument::from( m_pSample );
-    m_pPreviewInstrument->setId( Instrument::EmptyId );
+	m_pPreviewInstrument->setId( Instrument::EmptyId );
 	m_pPreviewInstrument->setIsPreviewInstrument( true );
 
 	m_pSampleOriginal = Sample::load( m_pSample->getFilePath() );
@@ -122,7 +123,7 @@ SampleEditor::SampleEditor(
 		reject();
 	}
 	m_pPreviewInstrumentOriginal = Instrument::from( m_pSampleOriginal );
-    m_pPreviewInstrumentOriginal->setId( Instrument::EmptyId );
+	m_pPreviewInstrumentOriginal->setId( Instrument::EmptyId );
 	m_pPreviewInstrumentOriginal->setIsPreviewInstrument( true );
 
 	setFixedSize( SampleEditor::nWidth, SampleEditor::nHeight );
@@ -1191,20 +1192,20 @@ void SampleEditor::lockWidgets( bool bLock )
 	m_pSampleWaveDisplayR->setSlidersLocked( bLock );
 	m_pTargetSection->setEnvelopeLocked( bLock );
 
-	m_pLoopStartFrameSpinBox->setEnabled( ! bLock );
-	m_pLoopLoopFrameSpinBox->setEnabled( ! bLock );
-	m_pLoopCountSpinBox->setEnabled( ! bLock );
-	m_pLoopModeComboBox->setEnabled( ! bLock );
-	m_pLoopEndFrameSpinBox->setEnabled( ! bLock );
+	m_pLoopStartFrameSpinBox->setEnabled( !bLock );
+	m_pLoopLoopFrameSpinBox->setEnabled( !bLock );
+	m_pLoopCountSpinBox->setEnabled( !bLock );
+	m_pLoopModeComboBox->setEnabled( !bLock );
+	m_pLoopEndFrameSpinBox->setEnabled( !bLock );
 
-	m_pRubberBandLengthComboBox->setEnabled( ! bLock );
-	m_pRubberBandRatioLabel->setEnabled( ! bLock );
-	m_pRubberBandPitchSpinBox->setEnabled( ! bLock );
-	m_pRubberBandCrispnessComboBox->setEnabled( ! bLock );
+	m_pRubberBandLengthComboBox->setEnabled( !bLock );
+	m_pRubberBandRatioLabel->setEnabled( !bLock );
+	m_pRubberBandPitchSpinBox->setEnabled( !bLock );
+	m_pRubberBandCrispnessComboBox->setEnabled( !bLock );
 
-	m_pApplyButton->setEnabled( ! bLock );
-	m_pNewLengthDisplay->setEnabled( ! bLock );
-	m_pEnvelopeComboBox->setEnabled( ! bLock );
+	m_pApplyButton->setEnabled( !bLock );
+	m_pNewLengthDisplay->setEnabled( !bLock );
+	m_pEnvelopeComboBox->setEnabled( !bLock );
 }
 
 void SampleEditor::setUnclean()
@@ -1262,15 +1263,15 @@ void SampleEditor::startPlayback( Playback playback )
 	m_pPlayOriginalButton->setText( tr( "&Stop" ) );
 
 	if ( m_playback == Playback::Original ) {
-		m_nPlayheadSample = 0;
+		m_fPlayheadSample = 0;
 		m_fIncrementScaling = 1.0;
 	}
 	else {
 		m_nLoopFrames =
 			static_cast<long long>( m_loops.nEndFrame - m_loops.nLoopFrame );
 		m_looped = Looped::NotYet;
-		m_nPlayheadSample = static_cast<long long>( m_loops.nStartFrame );
-		m_nPlayheadTarget = 0;
+		m_fPlayheadSample = static_cast<long long>( m_loops.nStartFrame );
+		m_fPlayheadTarget = 0;
 		m_pTargetSection->update();
 		m_fIncrementScaling = static_cast<double>(
 								  m_loops.nEndFrame - m_loops.nStartFrame +
@@ -1286,7 +1287,8 @@ void SampleEditor::startPlayback( Playback playback )
 		pNote->getInstrument(), pNote
 	);
 	m_nLastRealtimeFrame = pAudioEngine->getRealtimeFrame();
-	m_nRealtimeFrameEnd = m_nLastRealtimeFrame + nSampleLength;
+	m_fRealtimePos = m_nLastRealtimeFrame;
+	m_nRealtimeFrameEnd = m_fRealtimePos + nSampleLength;
 
 	m_pWaveDisplayUpdateTimer->start( SampleEditor::nWaveDisplayUpdateInterval
 	);
@@ -1303,11 +1305,11 @@ void SampleEditor::stopPlayback()
 	) );
 
 	if ( m_playback == Playback::Original ) {
-		m_nPlayheadSample = 0;
+		m_fPlayheadSample = 0;
 	}
 	else {
-		m_nPlayheadSample = static_cast<long long>( m_loops.nStartFrame );
-		m_nPlayheadTarget = 0;
+		m_fPlayheadSample = static_cast<float>( m_loops.nStartFrame );
+		m_fPlayheadTarget = 0;
 		m_pTargetSection->update();
 	}
 
@@ -1352,23 +1354,33 @@ void SampleEditor::updateTransport()
 	if ( nRealtimeFrame == m_nLastRealtimeFrame ) {
 		return;
 	}
-	else if ( nRealtimeFrame >= m_nRealtimeFrameEnd ) {
+
+	// If sample rates of audio driver and the underlying wave data do not
+	// match, our Sampler will resample it on the fly. We have to account for
+	// this within the increment.
+	const float fStep =
+		static_cast<float>( m_pSample->getSampleRate() ) /
+		static_cast<float>( pAudioEngine->getAudioDriver()->getSampleRate() );
+	const float fIncrement =
+		static_cast<float>( nRealtimeFrame - m_nLastRealtimeFrame ) * fStep;
+
+	if ( static_cast<long long>(
+			 std::floor( m_fRealtimePos + fIncrement ) >= m_nRealtimeFrameEnd
+		 ) ) {
 		stopPlayback();
 		return;
 	}
 
-	const long long nIncrementScaled = static_cast<long long>(
-		static_cast<float>( nRealtimeFrame - m_nLastRealtimeFrame ) *
-		m_fIncrementScaling
-	);
+	const float fIncrementScaled = fIncrement * m_fIncrementScaling;
 	if ( m_playback == Playback::Original ) {
-		m_nPlayheadSample += nRealtimeFrame - m_nLastRealtimeFrame;
+		m_fPlayheadSample += fIncrement;
 	}
 	else if ( m_looped == Looped::NotYet &&
-              m_nPlayheadSample + nRealtimeFrame -
-              m_nLastRealtimeFrame <= m_loops.nEndFrame ) {
+              static_cast<long long>(
+                  std::round(m_fPlayheadSample + fIncrement)) <=
+              m_loops.nEndFrame ) {
 		// Still in the initial pass over the sample
-		m_nPlayheadSample += nIncrementScaled;
+		m_fPlayheadSample += fIncrementScaled;
 	}
 	else {
 		// Transport already reached the end of the original sample.
@@ -1380,80 +1392,97 @@ void SampleEditor::updateTransport()
 				m_looped = Looped::Reverse;
 				// Reflect playhead at end marker for a smooth reversing of
 				// playback direction.
-				m_nPlayheadSample +=
-					2 * ( m_loops.nEndFrame - m_nPlayheadSample );
+				m_fPlayheadSample +=
+					2 * ( static_cast<float>( m_loops.nEndFrame ) -
+						  m_fPlayheadSample );
 			}
 		}
 
 		bool bRequiresLooping = false;
 		if ( m_loops.mode == Sample::Loops::Mode::Forward ) {
-			if ( m_nPlayheadSample + nIncrementScaled > m_loops.nEndFrame ) {
+			if ( m_fPlayheadSample + fIncrementScaled >
+				 static_cast<float>( m_loops.nEndFrame ) ) {
 				const long long nFramesSinceLoopPoint =
-					m_nPlayheadSample + nIncrementScaled - m_loops.nLoopFrame;
-				m_nPlayheadSample = m_loops.nLoopFrame +
+					static_cast<long long>( std::floor(
+						m_fPlayheadSample + fIncrementScaled -
+						static_cast<float>( m_loops.nLoopFrame )
+					) );
+				m_fPlayheadSample = static_cast<float>( m_loops.nLoopFrame ) +
 									( nFramesSinceLoopPoint ) % m_nLoopFrames;
 			}
 			else {
-				m_nPlayheadSample += nIncrementScaled;
+				m_fPlayheadSample += fIncrementScaled;
 			}
 		}
 		else if ( m_loops.mode == Sample::Loops::Mode::Reverse ) {
-			if ( m_nPlayheadSample - nIncrementScaled < m_loops.nLoopFrame ) {
+			if ( m_fPlayheadSample - fIncrementScaled <
+				 static_cast<float>( m_loops.nLoopFrame ) ) {
 				const long long nFramesSinceLoopPoint =
-					m_loops.nEndFrame - m_nPlayheadSample + nIncrementScaled;
-				m_nPlayheadSample = m_loops.nEndFrame -
+					static_cast<long long>( std::floor(
+						static_cast<float>( m_loops.nEndFrame ) -
+						m_fPlayheadSample + fIncrementScaled
+					) );
+				m_fPlayheadSample = static_cast<float>( m_loops.nEndFrame ) -
 									( nFramesSinceLoopPoint ) % m_nLoopFrames;
 			}
 			else {
-				m_nPlayheadSample -= nIncrementScaled;
+				m_fPlayheadSample -= fIncrementScaled;
 			}
 		}
 		else {
 			// Ping pong
 			if ( m_looped == Looped::Reverse ) {
 				// playhead moves backward
-				if ( m_nPlayheadSample - nIncrementScaled <
-					 m_loops.nLoopFrame ) {
-					const long long nRemainingFrames = m_loops.nLoopFrame -
-													   m_nPlayheadSample +
-													   nIncrementScaled;
+				if ( m_fPlayheadSample - fIncrementScaled <
+					 static_cast<float>( m_loops.nLoopFrame ) ) {
+					const long long nRemainingFrames =
+						static_cast<long long>( std::floor(
+							static_cast<float>( m_loops.nLoopFrame ) -
+							m_fPlayheadSample + fIncrementScaled
+						) );
 					const int nTotalLoops =
 						std::floor( nRemainingFrames / m_nLoopFrames );
 					if ( nTotalLoops == 0 || nTotalLoops % 2 == 0 ) {
 						m_looped = Looped::Forward;
-						m_nPlayheadSample = m_loops.nLoopFrame +
-											nRemainingFrames % m_nLoopFrames;
+						m_fPlayheadSample =
+							static_cast<float>( m_loops.nLoopFrame ) +
+							nRemainingFrames % m_nLoopFrames;
 					}
 					else {
-						m_nPlayheadSample = m_loops.nEndFrame -
-											nRemainingFrames % m_nLoopFrames;
+						m_fPlayheadSample =
+							static_cast<float>( m_loops.nEndFrame ) -
+							nRemainingFrames % m_nLoopFrames;
 					}
 				}
 				else {
-					m_nPlayheadSample -= nIncrementScaled;
+					m_fPlayheadSample -= fIncrementScaled;
 				}
 			}
 			else {
 				// playhead moves forward
-				if ( m_nPlayheadSample + nIncrementScaled >
-					 m_loops.nEndFrame ) {
-					const long long nRemainingFrames = m_nPlayheadSample +
-													   nIncrementScaled -
-													   m_loops.nEndFrame;
+				if ( m_fPlayheadSample + fIncrementScaled >
+					 static_cast<float>( m_loops.nEndFrame ) ) {
+					const long long nRemainingFrames =
+						static_cast<long long>( std::floor(
+							m_fPlayheadSample + fIncrementScaled -
+							static_cast<float>( m_loops.nEndFrame )
+						) );
 					const int nTotalLoops =
 						std::floor( nRemainingFrames / m_nLoopFrames );
 					if ( nTotalLoops == 0 || nTotalLoops % 2 == 0 ) {
 						m_looped = Looped::Reverse;
-						m_nPlayheadSample = m_loops.nEndFrame -
-											nRemainingFrames % m_nLoopFrames;
+						m_fPlayheadSample =
+							static_cast<float>( m_loops.nEndFrame ) -
+							nRemainingFrames % m_nLoopFrames;
 					}
 					else {
-						m_nPlayheadSample = m_loops.nLoopFrame +
-											nRemainingFrames % m_nLoopFrames;
+						m_fPlayheadSample =
+							static_cast<float>( m_loops.nLoopFrame ) +
+							nRemainingFrames % m_nLoopFrames;
 					}
 				}
 				else {
-					m_nPlayheadSample += nIncrementScaled;
+					m_fPlayheadSample += fIncrementScaled;
 				}
 			}
 		}
@@ -1461,10 +1490,11 @@ void SampleEditor::updateTransport()
 
 	updateSourceWaveDisplays();
 	if ( m_playback == Playback::Target ) {
-		m_nPlayheadTarget += nRealtimeFrame - m_nLastRealtimeFrame;
+		m_fPlayheadTarget += fIncrement;
 		m_pTargetSection->update();
 	}
 
+	m_fRealtimePos += fIncrement;
 	m_nLastRealtimeFrame = nRealtimeFrame;
 }
 
@@ -1551,8 +1581,7 @@ void SampleEditor::reloadLayer()
 	m_velocityEnvelope.clear();
 	if ( m_pSample->getVelocityEnvelope().size() == 0 ) {
 		m_velocityEnvelope.push_back( EnvelopePoint( 0, 0 ) );
-		m_velocityEnvelope.push_back(
-			EnvelopePoint( TargetSection::nWidth, 0 )
+		m_velocityEnvelope.push_back( EnvelopePoint( TargetSection::nWidth, 0 )
 		);
 	}
 	else {
@@ -1563,12 +1592,11 @@ void SampleEditor::reloadLayer()
 
 	m_panEnvelope.clear();
 	if ( m_pSample->getPanEnvelope().size() == 0 ) {
-		m_panEnvelope.push_back(
-			EnvelopePoint( 0, TargetSection::nHeight / 2 )
+		m_panEnvelope.push_back( EnvelopePoint( 0, TargetSection::nHeight / 2 )
 		);
-		m_panEnvelope.push_back( EnvelopePoint(
-			TargetSection::nWidth, TargetSection::nHeight / 2
-		) );
+		m_panEnvelope.push_back(
+			EnvelopePoint( TargetSection::nWidth, TargetSection::nHeight / 2 )
+		);
 	}
 	else {
 		for ( const auto& pt : m_pSample->getPanEnvelope() ) {

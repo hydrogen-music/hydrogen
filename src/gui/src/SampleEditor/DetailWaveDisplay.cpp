@@ -125,7 +125,9 @@ void DetailWaveDisplay::drawPeakData()
 			nnFrame = m_pSampleEditor->getLoopEndFrame();
 			break;
 		case SampleEditor::Slider::None:
-			nnFrame = m_pSampleEditor->getPlayheadMain();
+			nnFrame = static_cast<long long>(
+				std::round( m_pSampleEditor->getPlayheadMain() )
+			);
 			break;
 	}
 	nnFrame -= static_cast<long long>(DetailWaveDisplay::nWidth / 2);
