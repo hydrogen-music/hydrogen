@@ -27,7 +27,7 @@
 #include "SongEditor.h"
 #include "SongEditorPanel.h"
 
-#include <core/AudioEngine/Transport.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/Pattern.h>
@@ -113,6 +113,15 @@ void PlaybackTrackWaveDisplay::updatePeakData()
 	auto pSampleData = m_pLayer->getSample()->getData_L();
 	const long long nSampleLength = m_pLayer->getSample()->getFrames();
 	const float fGain = height() / 2.0 * m_pLayer->getGain();
+	// If sample rates of audio driver and the underlying wave data do not
+	// match, our Sampler will resample it on the fly. We have to account for
+	// this within the increment.
+	const float fStep =
+		static_cast<float>( m_pLayer->getSample()->getSampleRate() ) /
+		static_cast<float>( Hydrogen::get_instance()
+								->getAudioEngine()
+								->getAudioDriver()
+								->getSampleRate() );
 
 	int nSongEditorGridWidth;
 	if ( pH2App->getSongEditorPanel() != nullptr ) {
@@ -127,7 +136,8 @@ void PlaybackTrackWaveDisplay::updatePeakData()
 	int nRenderStartPosition = SongEditor::nMargin;
 
 	int nTotalTicks = 0;
-	long long nTotalFrames = 0;
+	float fTotalFrames = 0;
+    long long nLastEndFrame = 0;
 	long long nSamplePos = 0;
 	double fMismatch;
 	for ( int nnColumn = 0; nnColumn < nMaxBars; ++nnColumn ) {
@@ -147,10 +157,14 @@ void PlaybackTrackWaveDisplay::updatePeakData()
 			static_cast<double>( nTotalTicks ), &fMismatch
 		);
 
+		const float fIncrement =
+			static_cast<float>( nNextEndFrame - nLastEndFrame ) * fStep;
+
 		// We have not enough room to render all the details, so we need to
 		// coarse grain.
-		const int nFramesPerPixel =
-			( nNextEndFrame - nTotalFrames ) / nSongEditorGridWidth;
+		const int nFramesPerPixel = static_cast<int>( std::floor(
+			fIncrement / static_cast<float>( nSongEditorGridWidth )
+		) );
 
 		// Render all peaks corresponding to the column
 		int nMin, nMax;
@@ -177,14 +191,17 @@ void PlaybackTrackWaveDisplay::updatePeakData()
 			m_peakData[ii] = nMax;
 			m_peakDataMin[ii] = nMin;
 		}
+
 		nRenderStartPosition += nSongEditorGridWidth;
-		nTotalFrames = nNextEndFrame;
+		nLastEndFrame = nNextEndFrame;
+		fTotalFrames += fIncrement;
 
 		if ( nTotalTicks <= nSongLengthInTicks ) {
 			m_nActiveWidth = nRenderStartPosition;
 		}
 
-		if ( nTotalFrames >= nSampleLength ) {
+		if ( static_cast<long long>( std::floor( fTotalFrames ) ) >=
+			 nSampleLength ) {
 			break;
 		}
 	}
