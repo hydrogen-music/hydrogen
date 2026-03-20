@@ -613,6 +613,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	updateStyleSheet();
 	updateEditors( Editor::Update::Background );
 	updateTimeline();
+    updateWidth();
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
@@ -1082,7 +1083,7 @@ void SongEditorPanel::updatePreferencesEvent( int nValue ) {
 			m_pAutomationPathView->setGridWidth( nNewGridWidth );
 		}
 		// MaxBars might have change.
-		m_pSongEditor->updateWidth();
+		updateWidth();
 		updateEditors( Editor::Update::Background );
 
 		updatePlaybackTrack();
@@ -1135,7 +1136,8 @@ void SongEditorPanel::zoomInBtnClicked()
 
 	pPref->setSongEditorGridWidth( width );
 	pPref->setSongEditorGridHeight( m_pSongEditor->getGridHeight() );
-	
+
+	updateWidth();
 	updateEditors( Editor::Update::Background );
 }
 
@@ -1152,6 +1154,7 @@ void SongEditorPanel::zoomOutBtnClicked()
 	pPref->setSongEditorGridWidth( width );
 	pPref->setSongEditorGridHeight( m_pSongEditor->getGridHeight() );
 	
+	updateWidth();
 	updateEditors( Editor::Update::Background );
 }
 
@@ -1226,12 +1229,9 @@ void SongEditorPanel::onPreferencesChanged( const H2Core::Preferences::Changes& 
 					 H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font |
 					 H2Core::Preferences::Changes::AppearanceTab ) ) {
-		const int nNewWidth = SongEditor::nMargin + pPref->getMaxBars() *
-			m_pSongEditor->getGridWidth() ;
-		m_pSongEditor->resize( nNewWidth, m_pSongEditor->height() );
-		m_pPositionRuler->resize( nNewWidth, m_pPositionRuler->height() );
 
         updateIcons();
+		updateWidth();
 		updateEditors( Editor::Update::Background );
 	}
 }
@@ -1552,4 +1552,18 @@ void SongEditorPanel::updateTimeline() {
 	m_pTempoMarkerButton->setEnabled( bTempoEnabled );
 
 	updateIcons();
+}
+
+void SongEditorPanel::updateWidth()
+{
+	const auto pPref = H2Core::Preferences::get_instance();
+	const int nNewWidth = SongEditor::nMargin +
+						  pPref->getMaxBars() * m_pSongEditor->getGridWidth();
+	m_pSongEditor->setFixedWidth( nNewWidth );
+	m_pPositionRuler->setFixedWidth( nNewWidth );
+	m_pPlaybackTrackWaveDisplay->setFixedWidth( nNewWidth );
+
+	m_pSongEditor->updateWidth();
+
+	updateEditors( Editor::Update::Background );
 }
