@@ -236,7 +236,9 @@ std::shared_ptr<Song> Song::loadFrom(
 	bool bSilent )
 {
 	auto pPreferences = Preferences::get_instance();
-	
+
+	auto formatVersionNode = pRootNode->firstChildElement( "formatVersion" );
+
 	float fBpm = pRootNode->read_float( "bpm", 120, false, false, bSilent );
 	float fVolume = pRootNode->read_float( "volume", 0.5, false, false, bSilent );
 	QString sName( pRootNode->read_string( "name", "Untitled Song",
@@ -273,31 +275,61 @@ std::shared_ptr<Song> Song::loadFrom(
 		pSong->setMode( Song::Mode::Pattern );
 	}
 
-	QString sPlaybackTrack( pRootNode->read_string( "playbackTrackFilename", "",
-													false, true, bSilent ) );
-	if ( sPlaybackTrack.left( 2 ) == "./" ||
-		 sPlaybackTrack.left( 2 ) == ".\\" ) {
-		// Playback track has been made portable by manually
-		// converting the absolute path stored by Hydrogen into a
-		// relative one.
-		QFileInfo info( sFilename );
-		sPlaybackTrack = info.absoluteDir()
-			.filePath( sPlaybackTrack.right( sPlaybackTrack.size() - 2 ) );
-	}
+    if ( ! formatVersionNode.isNull() ) {
+        // Format used in versions >= 2.0 were a proper instrument is stored for
+        // the playback track.
+        const XMLNode playbackTrackNode =
+            pRootNode->firstChildElement( "playbackTrack" );
+        if ( !playbackTrackNode.isNull() ) {
+            XMLNode playbackTrackInstrumentNode =
+                playbackTrackNode.firstChildElement( "instrument" );
+            auto pPlaybackTrackInstrument = Instrument::load_from(
+                &playbackTrackInstrumentNode, "", "", sSongPath, pSong->getLicense(),
+                nullptr, bSilent
+            );
+            if ( pPlaybackTrackInstrument != nullptr ) {
+                auto pPlaybackTrackComponent =
+                    pPlaybackTrackInstrument->get_components()->front();
+                if ( pPlaybackTrackComponent != nullptr &&
+                     pPlaybackTrackComponent->get_layer( 0 ) != nullptr &&
+                     pPlaybackTrackComponent->get_layer( 0 )->get_sample() !=
+                     nullptr ) {
+                    pSong->setPlaybackTrackFilename(
+                        pPlaybackTrackComponent->get_layer( 0 ) ->get_sample()->get_filepath() );
+                }
+
+                pSong->setPlaybackTrackEnabled( pPlaybackTrackInstrument->is_muted() );
+                pSong->setPlaybackTrackVolume( pPlaybackTrackInstrument->get_volume() );
+            }
+        }
+    }
+    else {
+        QString sPlaybackTrack( pRootNode->read_string( "playbackTrackFilename", "",
+                                                        false, true, bSilent ) );
+        if ( sPlaybackTrack.left( 2 ) == "./" ||
+             sPlaybackTrack.left( 2 ) == ".\\" ) {
+            // Playback track has been made portable by manually
+            // converting the absolute path stored by Hydrogen into a
+            // relative one.
+            QFileInfo info( sFilename );
+            sPlaybackTrack = info.absoluteDir()
+                .filePath( sPlaybackTrack.right( sPlaybackTrack.size() - 2 ) );
+        }
 	
-	// Check the file of the playback track and resort to the default
-	// in case the file can not be found.
-	if ( ! sPlaybackTrack.isEmpty() &&
-		 ! Filesystem::file_exists( sPlaybackTrack, true ) ) {
-		ERRORLOG( QString( "Provided playback track file [%1] does not exist. Using empty string instead" )
-				  .arg( sPlaybackTrack ) );
-		sPlaybackTrack = "";
-	}
-	pSong->setPlaybackTrackFilename( sPlaybackTrack );
-	pSong->setPlaybackTrackEnabled( pRootNode->read_bool( "playbackTrackEnabled", false,
-														  false, false, bSilent ) );
-	pSong->setPlaybackTrackVolume( pRootNode->read_float( "playbackTrackVolume", 0.0,
-														  false, false, bSilent ) );
+        // Check the file of the playback track and resort to the default
+        // in case the file can not be found.
+        if ( ! sPlaybackTrack.isEmpty() &&
+             ! Filesystem::file_exists( sPlaybackTrack, true ) ) {
+            ERRORLOG( QString( "Provided playback track file [%1] does not exist. Using empty string instead" )
+                      .arg( sPlaybackTrack ) );
+            sPlaybackTrack = "";
+        }
+        pSong->setPlaybackTrackFilename( sPlaybackTrack );
+        pSong->setPlaybackTrackEnabled( pRootNode->read_bool( "playbackTrackEnabled", false,
+                                                              false, false, bSilent ) );
+        pSong->setPlaybackTrackVolume( pRootNode->read_float( "playbackTrackVolume", 0.0,
+                                                              false, false, bSilent ) );
+    }
 	
 	pSong->setHumanizeTimeValue( pRootNode->read_float( "humanize_time", 0.0,
 														false, false, bSilent ) );
@@ -379,7 +411,6 @@ std::shared_ptr<Song> Song::loadFrom(
 	}
 	pSong->setPanLawKNorm( fPanLawKNorm );
 
-	auto formatVersionNode = pRootNode->firstChildElement( "formatVersion" );
 	if ( ! formatVersionNode.isNull() ) {
 		WARNINGLOG( QString( "Song [%1] was created with a more recent version of Hydrogen than the current one!" )
 					.arg( sFilename ) );
