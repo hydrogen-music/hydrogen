@@ -391,7 +391,10 @@ void WaveDisplay::updatePeakData()
 	if ( nSampleLength > m_peakData.size() ) {
 		m_type = Type::Envelope;
 
-		const long long nScaleFactor = nSampleLength / m_peakData.size();
+		const long long nScaleFactor = std::ceil(
+			static_cast<float>( nSampleLength ) /
+			static_cast<float>( m_peakData.size() )
+		);
 
 		long long nSamplePos = 0;
 		int nMin, nMax;
