@@ -40,6 +40,7 @@ https://www.gnu.org/licenses
 #include "../Widgets/LCDDisplay.h"
 #include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/MidiLearnableToolButton.h"
+#include "../UndoActions.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
@@ -313,7 +314,7 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	);
 	addWidget( m_pMetronomeButton );
 
-	m_sLCDBPMSpinboxToolTip = tr( "Alter the Playback Speed" );
+	m_sLCDBPMSpinboxToolTip = pCommonStrings->getTempoChangeAction();
 	m_sLCDBPMSpinboxTimelineToolTip =
 		tr( "While the Timeline is active this widget is in read-only mode and "
 			"just displays the tempo set using the current Timeline position" );
@@ -831,10 +832,22 @@ void MainToolBar::activateSongMode( bool bActivate )
 	}
 }
 
-void MainToolBar::bpmChanged( double fNewBpmValue )
+void MainToolBar::bpmChanged( double fNewBpm )
 {
-	if ( m_pBpmSpinBox->getIsActive() ) {
-		CoreActionController::setBpm( static_cast<float>( fNewBpmValue ) );
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pHydrogen->getTempoSource() == Hydrogen::Tempo::Song &&
+		 pSong != nullptr && m_pBpmSpinBox->getIsActive() ) {
+		const float fOldBpm = pSong->getBpm();
+
+		if ( std::abs( fOldBpm - static_cast<float>( fNewBpm ) ) > 0.00001 ) {
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_tempoChangeAction(
+					static_cast<float>( fNewBpm ), fOldBpm
+				),
+				"MainToolBar::tempoChange"
+			);
+		}
 	}
 }
 
@@ -849,8 +862,8 @@ void MainToolBar::rubberbandButtonToggle()
 			auto pDrumkit = pSong->getDrumkit();
 			if ( pDrumkit != nullptr ) {
 				// Recalculate all samples ones just to be safe since the
-				// recalculation is just triggered if there is a tempo change
-				// in the audio engine.
+				// recalculation is just triggered if there is a tempo
+				// change in the audio engine.
 				pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 				pDrumkit->recalculateRubberband(
 					pHydrogen->getAudioEngine()->getPlayhead()->getBpm()

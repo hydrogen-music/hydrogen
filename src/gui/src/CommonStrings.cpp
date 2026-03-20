@@ -336,9 +336,12 @@ CommonStrings::CommonStrings(){
 	 *  bar whenever beat counter was selected and playback is set to start
 	 *  right after the tempo adjustment. */
 	m_sBeatCounterTapAndPlayToolTip = tr( "Adjust BPM using BeatCounter and start playback" );
-	
+	/*: Tool tip and undo history entry for adjusting the tempo in the main tool
+	 *  bar. */
+	m_sTempoChangeAction = tr( "Alter the Playback Speed" );
+
 	/*: Both the title of the MIDI control dialog and the name of the
-       corresponding action in the main menu. */
+	   corresponding action in the main menu. */
 	m_sMidiControl = tr( "MIDI Control" );
 	/*: Title of the window displayed when using the MIDI learning
 	  capabilities of Hydrogen.*/

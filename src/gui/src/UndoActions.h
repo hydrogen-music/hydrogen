@@ -429,6 +429,26 @@ private:
 	int m_nPosition;
 };
 
+/** \ingroup docGUI*/
+class SE_tempoChangeAction : public QUndoCommand {
+   public:
+	SE_tempoChangeAction( float fNewBpm, float fOldBpm )
+	{
+		setText( HydrogenApp::get_instance()
+					 ->getCommonStrings()
+					 ->getTempoChangeAction() );
+		m_fNewBpm = fNewBpm;
+		m_fOldBpm = fOldBpm;
+	}
+	virtual void undo() { H2Core::CoreActionController::setBpm( m_fOldBpm ); }
+
+	virtual void redo() { H2Core::CoreActionController::setBpm( m_fNewBpm ); }
+
+   private:
+	float m_fNewBpm;
+	float m_fOldBpm;
+};
+
 // ~time line commands
 //=====================================================================================================================================
 //pattern editor commands
