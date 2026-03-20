@@ -468,7 +468,8 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast,
 
 	updateTransport( fTick, nNewFrame, m_pPlayhead, trigger );
 	m_pQueuing->set( m_pPlayhead );
-	
+	m_nLastLoopFrame = 0;
+
 	handleTempoChange();
 }
 
@@ -489,6 +490,8 @@ void AudioEngine::locateToFrame( const long long nFrame ) {
 
 	updateTransport( fNewTick, nNewFrame, m_pPlayhead );
 	m_pQueuing->set( m_pPlayhead );
+
+	m_nLastLoopFrame = 0;
 
 	handleTempoChange();
 
