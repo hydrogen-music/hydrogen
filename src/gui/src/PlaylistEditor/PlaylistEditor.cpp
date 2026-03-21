@@ -109,11 +109,16 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 
 	// Rewind button
 	m_pRwdButton = new MidiLearnableToolButton( m_pToolBar, "" );
-	connect( m_pRwdButton, &QToolButton::clicked, [=](){
-		CoreActionController::locateToColumn(
-			Hydrogen::get_instance()->getAudioEngine()->getPlayhead()->
-			getColumn() - 1 );
-	});
+	connect( m_pRwdButton, &QToolButton::clicked, [=]() {
+		CoreActionController::locateToColumn( std::max(
+			Hydrogen::get_instance()
+					->getAudioEngine()
+					->getPlayhead()
+					->getColumn() -
+				1,
+			0
+		) );
+	} );
 	m_pRwdButton->setMidiAction(
 		std::make_shared<MidiAction>( MidiAction::Type::PlaylistPrevSong )
 	);

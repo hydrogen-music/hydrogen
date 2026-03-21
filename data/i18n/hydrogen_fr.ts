@@ -1532,6 +1532,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Shown in the undo history and as tool tip for editing the current * instance of the playback track within the sample editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Alter the Playback Speed</source>
+        <extracomment>Tool tip and undo history entry for adjusting the tempo in the main tool * bar.</extracomment>
+        <translation>Modifier la vitesse de lecture</translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -2988,10 +2993,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>JACK transport mode = Off</source>
         <translation>Mode transport JACK = off</translation>
-    </message>
-    <message>
-        <source>Alter the Playback Speed</source>
-        <translation>Modifier la vitesse de lecture</translation>
     </message>
     <message>
         <source>While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position</source>

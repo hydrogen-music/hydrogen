@@ -1531,6 +1531,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Shown in the undo history and as tool tip for editing the current * instance of the playback track within the sample editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Alter the Playback Speed</source>
+        <extracomment>Tool tip and undo history entry for adjusting the tempo in the main tool * bar.</extracomment>
+        <translation>Wiedergabe-Geschwindigkeit ändern</translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -2981,10 +2986,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>JACK transport mode = Off</source>
         <translation>JACK Transport Modus = Aus</translation>
-    </message>
-    <message>
-        <source>Alter the Playback Speed</source>
-        <translation>Wiedergabe-Geschwindigkeit ändern</translation>
     </message>
     <message>
         <source>While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position</source>

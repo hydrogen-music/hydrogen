@@ -200,6 +200,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	{
 		return m_sBeatCounterTapAndPlayToolTip;
 	}
+	const QString& getTempoChangeAction() const
+	{
+		return m_sTempoChangeAction;
+	}
 
 	const QString& getMidiControl() const { return m_sMidiControl; }
 	const QString& getMidiSenseWindowTitle() const
@@ -758,6 +762,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sTapTempoToolTip;
 	QString m_sBeatCounterTapToolTip;
 	QString m_sBeatCounterTapAndPlayToolTip;
+	QString m_sTempoChangeAction;
 
 	QString m_sMidiControl;
 	QString m_sMidiSenseWindowTitle;

@@ -93,7 +93,6 @@ void WaveDisplay::setLayer( std::shared_ptr<H2Core::InstrumentLayer> pLayer )
 	}
 
 	updateBackground();
-	updatePeakData();
 }
 
 void WaveDisplay::updateBackground()
@@ -158,6 +157,7 @@ void WaveDisplay::updateBackground()
 	p.drawLine( 0, nVerticalCenter, width(), nVerticalCenter );
 
 	// Propagate changes.
+    updatePeakData();
 	drawPeakData();
 	update();
 }
@@ -180,7 +180,6 @@ void WaveDisplay::paintEvent( QPaintEvent* ev )
 	const qreal pixelRatio = devicePixelRatio();
 	if ( pixelRatio != m_pPeakDataPixmap->devicePixelRatio() ) {
 		updateBackground();
-		drawPeakData();
 	}
 
 	QPainter painter( this );
@@ -201,7 +200,6 @@ void WaveDisplay::resizeEvent( QResizeEvent* event )
 	}
 
 	updateBackground();
-	updatePeakData();
 }
 
 void WaveDisplay::onPreferencesChanged(

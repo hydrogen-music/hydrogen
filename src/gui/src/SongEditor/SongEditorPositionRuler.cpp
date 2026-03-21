@@ -108,7 +108,6 @@ void SongEditorPositionRuler::setGridWidth( int width )
 	if ( SongEditor::nMinGridWidth <= width &&
 		 SongEditor::nMaxGridWidth >= width ) {
 		m_nGridWidth = width;
-		resize( columnToX( Preferences::get_instance()->getMaxBars() ), height() );
 		updateEditor();
 	}
 }

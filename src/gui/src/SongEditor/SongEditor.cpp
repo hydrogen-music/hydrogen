@@ -347,7 +347,6 @@ void SongEditor::setGridWidth( int nNewWidth ) {
 		nNewWidth, SongEditor::nMinGridWidth, SongEditor::nMaxGridWidth );
 	if ( m_nGridWidth != nWidth ) {
 		m_nGridWidth = nWidth;
-		updateWidth();
 		updateEditor( Editor::Update::Background );
 	}
 }
@@ -845,8 +844,7 @@ bool SongEditor::updateWidth() {
 		return false ;
 	}
 
-	const int nEditorWidth =
-		SongEditor::nMargin + pPref->getMaxBars() * m_nGridHeight;
+	const int nEditorWidth = width();
 	const int nEditorHeight = pSong->getPatternList()->size() * m_nGridHeight;
 
 	if ( m_nEditorHeight != nEditorHeight || m_nEditorWidth != nEditorWidth ) {

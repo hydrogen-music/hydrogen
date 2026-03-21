@@ -151,6 +151,7 @@ class SongEditorPanel : public QWidget,
 		void updatePatternMode();
 		void updateStyleSheet();
 		void updateTimeline();
+        void updateWidth();
 
 		static const int			m_nPatternListWidth = 200;
 									
