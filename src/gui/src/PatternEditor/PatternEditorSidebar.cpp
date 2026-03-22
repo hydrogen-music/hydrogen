@@ -533,7 +533,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 					m_row.id
 				);
 				if ( m_pMuteBtn != nullptr && pInstr != nullptr &&
-					 pInstr->hasSamples() && pPref->getHearNewNotes() ) {
+					 pPref->getHearNewNotes() ) {
 					const int nWidth = m_pInstrumentNameLbl->width();
 					const float fVelocity = std::clamp(
 						(float) pEv->position().x() / (float) nWidth,
