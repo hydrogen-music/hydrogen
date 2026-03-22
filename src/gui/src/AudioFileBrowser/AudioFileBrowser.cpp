@@ -380,6 +380,7 @@ void AudioFileBrowser::on_cancelBTN_clicked()
 	m_pSelectedFile << "false"
 					<< "false"
 					<< "";
+	stopPlayback();
 	reject();
 }
 
@@ -410,6 +411,7 @@ void AudioFileBrowser::on_openBTN_clicked()
 	}
 
 	m_sSelectedDirectory = pathLineEdit->text();
+	stopPlayback();
 	accept();
 }
 
@@ -535,8 +537,12 @@ void AudioFileBrowser::startPlayback()
 		pNote->getInstrument(), pNote
 	);
 	m_nLastRealtimeFrame = pAudioEngine->getRealtimeFrame();
-	m_fRealtimePos = m_nLastRealtimeFrame;
-	m_nRealtimeFrameEnd = m_fRealtimePos + nSampleLength;
+	m_fPlayheadPos = 0;
+	m_nRealtimeFrameEnd = m_nLastRealtimeFrame + nSampleLength;
+	m_nSampleLength = nSampleLength;
+
+	m_pWaveDisplay->setPlayheadPosition( 0 );
+	m_pWaveDisplay->setRenderPlayhead( true );
 
 	updateIcons();
 	m_pPlayheadUpdateTimer->start( AudioFileBrowser::nPlayheadUpdateTimeout );
@@ -548,6 +554,9 @@ void AudioFileBrowser::stopPlayback()
 
 	m_playback = Playback::Stopped;
 	m_pPlayheadUpdateTimer->stop();
+
+	m_pWaveDisplay->setRenderPlayhead( false );
+	m_pWaveDisplay->setPlayheadPosition( 0 );
 
 	auto pSampler = Hydrogen::get_instance()->getAudioEngine()->getSampler();
 	pSampler->releasePlayingNotes( m_pPreviewInstrument );
@@ -578,13 +587,20 @@ void AudioFileBrowser::updateTransport()
 		static_cast<float>( nRealtimeFrame - m_nLastRealtimeFrame ) * fStep;
 
 	if ( static_cast<long long>(
-			 std::floor( m_fRealtimePos + fIncrement ) >= m_nRealtimeFrameEnd
+			 std::floor( m_nLastRealtimeFrame + fIncrement ) >= m_nRealtimeFrameEnd
 		 ) ) {
 		stopPlayback();
 		return;
 	}
 
-	m_fRealtimePos += fIncrement;
+	m_fPlayheadPos += fIncrement;
+
+	// x-coordinate of the playhead
+	m_pWaveDisplay->setPlayheadPosition( static_cast<int>( std::floor(
+		m_fPlayheadPos * m_pWaveDisplay->width() /
+		static_cast<float>( m_nSampleLength )
+	) ) );
+
 	m_nLastRealtimeFrame = nRealtimeFrame;
 }
 

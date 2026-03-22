@@ -119,7 +119,7 @@ class AudioFileBrowser : public QDialog,
 	float m_fPlayheadPos;
 	long long m_nRealtimeFrameEnd;
 	long long m_nLastRealtimeFrame;
-	float m_fRealtimePos;
+	long long m_nSampleLength;
 
 	/** Updates the playhead within the wave displays while a sample is playing.
 	 */
