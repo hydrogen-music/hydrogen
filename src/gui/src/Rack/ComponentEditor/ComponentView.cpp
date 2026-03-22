@@ -1071,15 +1071,15 @@ void ComponentView::replaceLayer( int nLayer, const QString& sInputSamplePath )
 			}
 		}
 
+		bRenameInstrument = pFileBrowser->useFileNameAsInstrumentName();
+		bAutoVelocity = pFileBrowser->useVelocityAdjustment();
+		sNewSamplePath = filename[2];
+
 		delete pFileBrowser;
 
 		if ( filename.size() < 3 || filename[2].isEmpty() ) {
 			return;
 		}
-
-		bRenameInstrument = filename[0] == "true";
-		bAutoVelocity = filename[1] == "true";
-		sNewSamplePath = filename[2];
 	}
 
 	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
@@ -1426,6 +1426,10 @@ void ComponentView::addNewLayer()
 		}
 	}
 
+	const auto bUseVelocityAdjustment = pFileBrowser->useVelocityAdjustment();
+	const auto bUseFileNameAsInstrumentName =
+		pFileBrowser->useFileNameAsInstrumentName();
+
 	delete pFileBrowser;
 
 	if ( selectedFiles.size() < 3 || selectedFiles[2].isEmpty() ) {
@@ -1438,7 +1442,7 @@ void ComponentView::addNewLayer()
 	filePaths.removeFirst();
 
 	setLayers(
-		filePaths, selectedFiles[0] == "true", selectedFiles[1] == "true"
+		filePaths, bUseFileNameAsInstrumentName, bUseVelocityAdjustment
 	);
 }
 

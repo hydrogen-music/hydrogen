@@ -442,6 +442,20 @@ QString AudioFileBrowser::getSelectedDirectory()
 	return m_sSelectedDirectory;
 }
 
+bool AudioFileBrowser::useFileNameAsComponentName() const
+{
+	return m_pToComponentNameCheckBox->isChecked();
+}
+bool AudioFileBrowser::useFileNameAsInstrumentName() const
+{
+	return useNameCheckBox->isChecked();
+}
+
+bool AudioFileBrowser::useVelocityAdjustment() const
+{
+	return autoVelCheckBox->isChecked();
+}
+
 void AudioFileBrowser::on_m_pPathHometoolButton_clicked()
 {
 	QString path = pathLineEdit->text();

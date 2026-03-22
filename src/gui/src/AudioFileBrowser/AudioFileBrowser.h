@@ -59,6 +59,9 @@ class AudioFileBrowser : public QDialog,
 
 	QStringList getSelectedFiles();
 	QString getSelectedDirectory();
+	bool useFileNameAsInstrumentName() const;
+	bool useFileNameAsComponentName() const;
+	bool useVelocityAdjustment() const;
 
    private slots:
 	void on_cancelBTN_clicked();
