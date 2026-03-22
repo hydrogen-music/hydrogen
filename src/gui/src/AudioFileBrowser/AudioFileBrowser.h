@@ -96,17 +96,17 @@ class AudioFileBrowser : public QDialog,
 
 	Playback m_playback;
 
-	QString m_pSampleFileName;
-	QStringList m_pSelectedFile;
+	QString m_sSampleFileName;
+	QStringList m_selectedFiles;
 	QString m_sSelectedDirectory;
 
-	bool m_SingleClick;
+	bool m_bSingleClick;
 	QFileSystemModel* m_pDirModel;
 
 	QModelIndex m_ModelIndex;
 
 	QString m_sEmptySampleFileName;
-	QStringList m_Filters;
+	QStringList m_filters;
 
 	bool m_bAllowMultiSelect;
 	bool m_bShowInstrumentManipulationControls;

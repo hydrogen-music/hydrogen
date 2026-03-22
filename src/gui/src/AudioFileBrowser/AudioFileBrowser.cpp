@@ -100,8 +100,8 @@ AudioFileBrowser::AudioFileBrowser(
 	m_pTree->setRootIndex( m_pDirModel->index( sDefaultPath ) );
 
 	pathLineEdit->setText( sDefaultPath );
-	m_pSampleFileName = "";
-	m_pSelectedFile << "false"
+	m_sSampleFileName = "";
+	m_selectedFiles << "false"
 					<< "false";
 
 	m_sEmptySampleFileName = Filesystem::empty_sample_path();
@@ -122,7 +122,7 @@ AudioFileBrowser::AudioFileBrowser(
 	);
 	// get the kde or gnome environment variable for mouse double or single
 	// clicking
-	m_SingleClick = false;
+	m_bSingleClick = false;
 	getEnvironment();
 
 	if ( !m_bShowInstrumentManipulationControls ) {
@@ -201,7 +201,7 @@ void AudioFileBrowser::getEnvironment()
 		while ( !envin.atEnd() ) {
 			QString envLine = envin.readLine();
 			if ( envLine == QString( "SingleClick=true" ) ) {
-				m_SingleClick = true;
+				m_bSingleClick = true;
 				break;
 			}
 		}
@@ -246,7 +246,7 @@ void AudioFileBrowser::clicked( const QModelIndex& index )
 {
 	QString path = m_pDirModel->filePath( index );
 
-	if ( m_SingleClick ) {
+	if ( m_bSingleClick ) {
 		browseTree( index );
 	}
 
@@ -257,7 +257,7 @@ void AudioFileBrowser::clicked( const QModelIndex& index )
 
 void AudioFileBrowser::doubleClicked( const QModelIndex& index )
 {
-	if ( !m_SingleClick ) {
+	if ( !m_bSingleClick ) {
 		browseTree( index );
 		on_openBTN_clicked();
 	}
@@ -325,7 +325,7 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 				tr( "Sample length: " ) + qsec + tr( " s" )
 			);
 
-			m_pSampleFileName = path2;
+			m_sSampleFileName = path2;
 
 			m_pWaveDisplay->setLayer( pLayer );
 
@@ -361,7 +361,7 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 		m_pWaveDisplay->setLayer( nullptr );
 		m_pPlayBtn->setEnabled( false );
 		openBTN->setEnabled( false );
-		m_pSampleFileName = "";
+		m_sSampleFileName = "";
 	}
 	QApplication::restoreOverrideCursor();
 }
@@ -381,7 +381,7 @@ void AudioFileBrowser::on_m_pPlayBtn_clicked()
 void AudioFileBrowser::on_cancelBTN_clicked()
 {
 	m_sSelectedDirectory = pathLineEdit->text();
-	m_pSelectedFile << "false"
+	m_selectedFiles << "false"
 					<< "false"
 					<< "";
 	stopPlayback();
@@ -403,13 +403,13 @@ void AudioFileBrowser::on_openBTN_clicked()
 				const QString sFilePath = sDir + sFileName;
 				if ( Filesystem::file_exists( sFilePath, true ) ) {
 					// Open a file
-					m_pSelectedFile << sFilePath;
+					m_selectedFiles << sFilePath;
 				}
 			}
 		}
 	}
 
-	if ( m_pSelectedFile.size() < 3 ) {
+	if ( m_selectedFiles.size() < 3 ) {
 		// No valid audio files.
 		return;
 	}
@@ -428,13 +428,13 @@ void AudioFileBrowser::on_playSamplescheckBox_clicked()
 QStringList AudioFileBrowser::getSelectedFiles()
 {
 	if ( useNameCheckBox->isChecked() ) {
-		m_pSelectedFile[0] = "true";
+		m_selectedFiles[0] = "true";
 	}
 	if ( autoVelCheckBox->isChecked() ) {
-		m_pSelectedFile[1] = "true";
+		m_selectedFiles[1] = "true";
 	}
 
-	return m_pSelectedFile;
+	return m_selectedFiles;
 }
 
 QString AudioFileBrowser::getSelectedDirectory()
