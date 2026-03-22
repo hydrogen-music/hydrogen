@@ -224,14 +224,6 @@
         <translation>Maison</translation>
     </message>
     <message>
-        <source>Play selected</source>
-        <translation>Lecture de la sélection</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Arrêter</translation>
-    </message>
-    <message>
         <source>Name: </source>
         <translation>Nom : </translation>
     </message>
@@ -271,10 +263,6 @@
         <translation>&amp;Home</translation>
     </message>
     <message>
-        <source>&amp;Play Sample</source>
-        <translation>&amp;Jouer l&apos;échantillon</translation>
-    </message>
-    <message>
         <source>&amp;Filename to instrument name</source>
         <translation>&amp;Nommer l&apos;instrument suivant le nom du fichier</translation>
     </message>
@@ -287,10 +275,6 @@
         <translation>Annuler</translation>
     </message>
     <message>
-        <source>&amp;Stop</source>
-        <translation>&amp;Arrêter</translation>
-    </message>
-    <message>
         <source>View hidden folders</source>
         <translation>Voir les répertoires cachés</translation>
     </message>
@@ -301,6 +285,10 @@
     <message>
         <source>Set automatic velocity</source>
         <translation>Réglage automatique de vélocité</translation>
+    </message>
+    <message>
+        <source>Filename to component name</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

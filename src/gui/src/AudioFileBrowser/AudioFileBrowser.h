@@ -24,76 +24,106 @@
 #define AUDIOFILEBROWSER_H
 
 #include "ui_AudioFileBrowser_UI.h"
-#include "Rack/InstrumentEditor.h"
 
 #include <QDialog>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
-
-class Button;
+namespace H2Core {
+class Instrument;
+class Sample;
+}  // namespace H2Core
 
 ///
 /// This dialog is used to preview audiofiles
 ///
 /** \ingroup docGUI*/
-class AudioFileBrowser :  public QDialog, public Ui_AudioFileBrowser_UI,  public H2Core::Object<AudioFileBrowser>
+class AudioFileBrowser : public QDialog,
+						 public Ui_AudioFileBrowser_UI,
+						 public H2Core::Object<AudioFileBrowser>
 
 {
-	H2_OBJECT(AudioFileBrowser)
+	H2_OBJECT( AudioFileBrowser )
 	Q_OBJECT
-	public:
-		
-	AudioFileBrowser( QWidget* pParent, bool bAllowMultiSelect,
-					  bool bShowInstrumentManipulationControls,
-					  const QString& sDefaultPath = "",
-					  const QString& sFileName = "" );
+   public:
+	static constexpr int nPlayheadUpdateTimeout = 20;
+
+	AudioFileBrowser(
+		QWidget* pParent,
+		bool bAllowMultiSelect,
+		bool bShowInstrumentManipulationControls,
+		const QString& sDefaultPath = "",
+		const QString& sFileName = ""
+	);
 	~AudioFileBrowser();
-	
+
 	QStringList getSelectedFiles();
 	QString getSelectedDirectory();
 
-	private slots:
-		void on_cancelBTN_clicked();
-		void on_openBTN_clicked();
-		void clicked( const QModelIndex& index );
-		void doubleClicked( const QModelIndex& index );
-		void on_m_pPlayBtn_clicked();
-		void on_m_pStopBtn_clicked();
-		void updateModelIndex();
-		void on_m_pPathHometoolButton_clicked();
-		void on_m_pPathUptoolButton_clicked();
-		void on_playSamplescheckBox_clicked();
-		void on_hiddenCB_clicked();
+   private slots:
+	void on_cancelBTN_clicked();
+	void on_openBTN_clicked();
+	void clicked( const QModelIndex& index );
+	void doubleClicked( const QModelIndex& index );
+	void on_m_pPlayBtn_clicked();
+	void updateModelIndex();
+	void on_m_pPathHometoolButton_clicked();
+	void on_m_pPathUptoolButton_clicked();
+	void on_playSamplescheckBox_clicked();
+	void on_hiddenCB_clicked();
 
-		virtual void keyPressEvent (QKeyEvent *ev) override;
-		virtual void keyReleaseEvent (QKeyEvent *ev) override;
+	virtual void keyPressEvent( QKeyEvent* ev ) override;
+	virtual void keyReleaseEvent( QKeyEvent* ev ) override;
 
+   private:
+	enum class Playback { Rolling, Stopped };
 
-	private:
-		void browseTree( const QModelIndex& index );
+	void startPlayback();
+	void stopPlayback();
+	/** We rely on the realtime frame of the audio engine. This means neither
+	 * count in nor playback (of the audio engine) itself must be started during
+	 * rendering of a sample. But this should not be a big problem since the
+	 * whole #SampleEditor is a modal and the buttons for starting playback are
+	 * not accessible. */
+	void updateTransport();
 
-		void getEnvironment();
-		bool isFileSupported( const QString& sFileName );
+	void browseTree( const QModelIndex& index );
 
-		QString				m_pSampleFileName;
-		QStringList			m_pSelectedFile;
-		QString				m_sSelectedDirectory;
+	void getEnvironment();
+	bool isFileSupported( const QString& sFileName );
 
-		bool				m_SingleClick;
-		QFileSystemModel *	m_pDirModel;
+	void updateIcons();
 
-		QModelIndex			m_ModelIndex;
-		
-		QString				m_sEmptySampleFileName;
-		QStringList			m_Filters;
-		
-		bool				m_bAllowMultiSelect;
-		bool				m_bShowInstrumentManipulationControls;
-	
+	Playback m_playback;
+
+	QString m_pSampleFileName;
+	QStringList m_pSelectedFile;
+	QString m_sSelectedDirectory;
+
+	bool m_SingleClick;
+	QFileSystemModel* m_pDirModel;
+
+	QModelIndex m_ModelIndex;
+
+	QString m_sEmptySampleFileName;
+	QStringList m_Filters;
+
+	bool m_bAllowMultiSelect;
+	bool m_bShowInstrumentManipulationControls;
+
 	QString m_sFileName;
 
-};
+	std::shared_ptr<H2Core::Instrument> m_pPreviewInstrument;
+	std::shared_ptr<H2Core::Sample> m_pSample;
 
+	float m_fPlayheadPos;
+	long long m_nRealtimeFrameEnd;
+	long long m_nLastRealtimeFrame;
+	float m_fRealtimePos;
+
+	/** Updates the playhead within the wave displays while a sample is playing.
+	 */
+	QTimer* m_pPlayheadUpdateTimer;
+};
 
 #endif

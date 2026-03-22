@@ -225,14 +225,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Play selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>停止</translation>
-    </message>
-    <message>
         <source>Name: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -280,16 +272,8 @@
         <translation>ホーム(&amp;H)</translation>
     </message>
     <message>
-        <source>&amp;Play Sample</source>
-        <translation>サンプルの再生(&amp;P)</translation>
-    </message>
-    <message>
         <source>&amp;Filename to instrument name</source>
         <translation>ファイル名をインストルメント名にする(&amp;F)</translation>
-    </message>
-    <message>
-        <source>&amp;Stop</source>
-        <translation>停止(&amp;S)</translation>
     </message>
     <message>
         <source>View hidden folders</source>
@@ -302,6 +286,10 @@
     <message>
         <source>Set automatic velocity</source>
         <translation>ベロシティーの自動調製</translation>
+    </message>
+    <message>
+        <source>Filename to component name</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

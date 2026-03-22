@@ -225,14 +225,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Play selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Aturar</translation>
-    </message>
-    <message>
         <source>Name: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -280,16 +272,8 @@
         <translation>&amp;H Inici</translation>
     </message>
     <message>
-        <source>&amp;Play Sample</source>
-        <translation>Re&amp;produeix Mostra</translation>
-    </message>
-    <message>
         <source>&amp;Filename to instrument name</source>
         <translation>&amp;Fitxer a nom d&apos;instrument</translation>
-    </message>
-    <message>
-        <source>&amp;Stop</source>
-        <translation>&amp;S atura</translation>
     </message>
     <message>
         <source>View hidden folders</source>
@@ -302,6 +286,10 @@
     <message>
         <source>Set automatic velocity</source>
         <translation>Configurar velocitat automàtica</translation>
+    </message>
+    <message>
+        <source>Filename to component name</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

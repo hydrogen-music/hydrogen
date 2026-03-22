@@ -224,14 +224,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Play selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Stani</translation>
-    </message>
-    <message>
         <source>Name: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -283,16 +275,8 @@
         <translation>&amp;Početak</translation>
     </message>
     <message>
-        <source>&amp;Play Sample</source>
-        <translation>&amp;Sviraj Uzorak</translation>
-    </message>
-    <message>
         <source>&amp;Filename to instrument name</source>
         <translation>&amp;Ime fajla koje odgovara imenu instrumenta</translation>
-    </message>
-    <message>
-        <source>&amp;Stop</source>
-        <translation>S&amp;tani</translation>
     </message>
     <message>
         <source>Be careful, this change all Layer velocity settings </source>
@@ -300,6 +284,10 @@
     </message>
     <message>
         <source>Set automatic velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filename to component name</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

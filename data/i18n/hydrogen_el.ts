@@ -224,14 +224,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Play selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Σταμάτημα</translation>
-    </message>
-    <message>
         <source>Name: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -279,16 +271,8 @@
         <translation>&amp;Αρχική</translation>
     </message>
     <message>
-        <source>&amp;Play Sample</source>
-        <translation>Αναπαραγωγή &amp;Δείγματος</translation>
-    </message>
-    <message>
         <source>&amp;Filename to instrument name</source>
         <translation>&amp;Το όνομα αρχείου στο όνομα του οργάνου</translation>
-    </message>
-    <message>
-        <source>&amp;Stop</source>
-        <translation>&amp;Σταμάτημα</translation>
     </message>
     <message>
         <source>View hidden folders</source>
@@ -301,6 +285,10 @@
     <message>
         <source>Set automatic velocity</source>
         <translation>Αυτόματη ταχύτητα</translation>
+    </message>
+    <message>
+        <source>Filename to component name</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

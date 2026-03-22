@@ -224,14 +224,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Play selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Заустави</translation>
-    </message>
-    <message>
         <source>Name: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -271,10 +263,6 @@
         <translation>&amp;Главни директоријум</translation>
     </message>
     <message>
-        <source>&amp;Play Sample</source>
-        <translation>Свирај &amp;узорак</translation>
-    </message>
-    <message>
         <source>&amp;Filename to instrument name</source>
         <translation>&amp;Назив датотеке у назив инструмента</translation>
     </message>
@@ -287,10 +275,6 @@
         <translation>Поништи</translation>
     </message>
     <message>
-        <source>&amp;Stop</source>
-        <translation>Зау&amp;стави</translation>
-    </message>
-    <message>
         <source>View hidden folders</source>
         <translation>Прикажи скривене директоријуме</translation>
     </message>
@@ -301,6 +285,10 @@
     <message>
         <source>Set automatic velocity</source>
         <translation>Постављај сам јачину удара</translation>
+    </message>
+    <message>
+        <source>Filename to component name</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

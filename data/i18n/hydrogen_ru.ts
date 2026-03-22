@@ -224,14 +224,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Play selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Остановить</translation>
-    </message>
-    <message>
         <source>Name: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -279,16 +271,8 @@
         <translation>&amp;Домой</translation>
     </message>
     <message>
-        <source>&amp;Play Sample</source>
-        <translation>&amp;Воспроизвести</translation>
-    </message>
-    <message>
         <source>&amp;Filename to instrument name</source>
         <translation>&amp;Имя файла в название инструмента</translation>
-    </message>
-    <message>
-        <source>&amp;Stop</source>
-        <translation>&amp;Стоп</translation>
     </message>
     <message>
         <source>View hidden folders</source>
@@ -301,6 +285,10 @@
     <message>
         <source>Set automatic velocity</source>
         <translation>Автоматически назначить силу нажатия</translation>
+    </message>
+    <message>
+        <source>Filename to component name</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
