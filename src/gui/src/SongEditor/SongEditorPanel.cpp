@@ -175,7 +175,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 			sPath = QDir::homePath();
 		}
 
-		QStringList filenameList;
+		QStringList selectedFiles;
 		// use AudioFileBrowser, but don't allow multi-select. Also, hide all no
 		// necessary controls.
 		auto pFileBrowser =
@@ -190,14 +190,14 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 					pFileBrowser->getSelectedDirectory()
 				);
 			}
-			filenameList = pFileBrowser->getSelectedFiles();
+			selectedFiles = pFileBrowser->getSelectedFiles();
 		}
 		delete pFileBrowser;
 
-		if ( filenameList.size() != 3 || filenameList[2].isEmpty() ) {
+		if ( selectedFiles.isEmpty() ) {
 			return;
 		}
-		pHydrogen->loadPlaybackTrack( filenameList[2] );
+		pHydrogen->loadPlaybackTrack( selectedFiles[0] );
 	} );
 
 	m_pDeletePlaybackTrackButton = createButton(

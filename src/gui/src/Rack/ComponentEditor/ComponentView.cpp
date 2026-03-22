@@ -1058,11 +1058,10 @@ void ComponentView::replaceLayer( int nLayer, const QString& sInputSamplePath )
 			new AudioFileBrowser( nullptr, false, true, sDir, sFileName );
 		// The first two elements of this list will indicate whether the user
 		// has checked the additional options.
-		QStringList filename;
-		filename << "false" << "false" << "";
+		QStringList selectedFiles;
 
 		if ( pFileBrowser->exec() == QDialog::Accepted ) {
-			filename = pFileBrowser->getSelectedFiles();
+			selectedFiles = pFileBrowser->getSelectedFiles();
 
 			if ( sDir != pFileBrowser->getSelectedDirectory() ) {
 				Preferences::get_instance()->setLastOpenLayerDirectory(
@@ -1073,13 +1072,14 @@ void ComponentView::replaceLayer( int nLayer, const QString& sInputSamplePath )
 
 		bRenameInstrument = pFileBrowser->useFileNameAsInstrumentName();
 		bAutoVelocity = pFileBrowser->useVelocityAdjustment();
-		sNewSamplePath = filename[2];
 
 		delete pFileBrowser;
 
-		if ( filename.size() < 3 || filename[2].isEmpty() ) {
+		if ( selectedFiles.isEmpty() ) {
 			return;
 		}
+
+		sNewSamplePath = selectedFiles[0];
 	}
 
 	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
@@ -1414,7 +1414,6 @@ void ComponentView::addNewLayer()
 	// The first two elements of this list will indicate whether the user has
 	// checked the additional options.
 	QStringList selectedFiles;
-	selectedFiles << "false" << "false" << "";
 
 	if ( pFileBrowser->exec() == QDialog::Accepted ) {
 		selectedFiles = pFileBrowser->getSelectedFiles();
@@ -1432,7 +1431,7 @@ void ComponentView::addNewLayer()
 
 	delete pFileBrowser;
 
-	if ( selectedFiles.size() < 3 || selectedFiles[2].isEmpty() ) {
+	if ( selectedFiles.isEmpty() ) {
 		return;
 	}
 

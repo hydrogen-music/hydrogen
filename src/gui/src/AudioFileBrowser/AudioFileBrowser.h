@@ -57,8 +57,8 @@ class AudioFileBrowser : public QDialog,
 	);
 	~AudioFileBrowser();
 
-	QStringList getSelectedFiles();
-	QString getSelectedDirectory();
+	QStringList getSelectedFiles() const;
+	QString getSelectedDirectory() const;
 	bool useFileNameAsInstrumentName() const;
 	bool useFileNameAsComponentName() const;
 	bool useVelocityAdjustment() const;

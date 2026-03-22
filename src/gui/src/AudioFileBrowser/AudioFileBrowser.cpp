@@ -101,8 +101,6 @@ AudioFileBrowser::AudioFileBrowser(
 
 	pathLineEdit->setText( sDefaultPath );
 	m_sSampleFileName = "";
-	m_selectedFiles << "false"
-					<< "false";
 
 	m_sEmptySampleFileName = Filesystem::empty_sample_path();
 
@@ -381,9 +379,6 @@ void AudioFileBrowser::on_m_pPlayBtn_clicked()
 void AudioFileBrowser::on_cancelBTN_clicked()
 {
 	m_sSelectedDirectory = pathLineEdit->text();
-	m_selectedFiles << "false"
-					<< "false"
-					<< "";
 	stopPlayback();
 	reject();
 }
@@ -409,7 +404,7 @@ void AudioFileBrowser::on_openBTN_clicked()
 		}
 	}
 
-	if ( m_selectedFiles.size() < 3 ) {
+	if ( m_selectedFiles.isEmpty() ) {
 		// No valid audio files.
 		return;
 	}
@@ -425,19 +420,12 @@ void AudioFileBrowser::on_playSamplescheckBox_clicked()
 		playSamplescheckBox->isChecked();
 }
 
-QStringList AudioFileBrowser::getSelectedFiles()
+QStringList AudioFileBrowser::getSelectedFiles() const
 {
-	if ( useNameCheckBox->isChecked() ) {
-		m_selectedFiles[0] = "true";
-	}
-	if ( autoVelCheckBox->isChecked() ) {
-		m_selectedFiles[1] = "true";
-	}
-
 	return m_selectedFiles;
 }
 
-QString AudioFileBrowser::getSelectedDirectory()
+QString AudioFileBrowser::getSelectedDirectory() const
 {
 	return m_sSelectedDirectory;
 }
