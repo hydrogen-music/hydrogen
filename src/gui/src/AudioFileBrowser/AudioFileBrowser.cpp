@@ -265,6 +265,10 @@ void AudioFileBrowser::doubleClicked( const QModelIndex& index )
 
 void AudioFileBrowser::browseTree( const QModelIndex& index )
 {
+	if ( m_playback != Playback::Stopped ) {
+		stopPlayback();
+	}
+
 	QString path = m_pDirModel->filePath( index );
 	pathLineEdit->setText( path );
 	m_pWaveDisplay->setLayer( nullptr );
