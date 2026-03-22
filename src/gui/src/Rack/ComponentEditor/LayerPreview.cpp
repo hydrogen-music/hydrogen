@@ -165,7 +165,7 @@ void LayerPreview::dropEvent( QDropEvent* event )
 			// selected layer to the drop point.
 			m_pComponentView->setSelectedLayer( nDropLayer );
 
-			m_pComponentView->setLayers( filePaths, false, false );
+			m_pComponentView->setLayers( filePaths, false, false, false );
 		}
 	}
 	else if ( sText.startsWith( "ComponentViewLayer" ) ) {

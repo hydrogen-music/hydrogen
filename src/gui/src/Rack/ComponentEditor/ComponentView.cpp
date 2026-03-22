@@ -1038,6 +1038,7 @@ void ComponentView::replaceLayer( int nLayer, const QString& sInputSamplePath )
 	}
 
 	bool bAutoVelocity = false;
+	bool bRenameComponent = false;
 	bool bRenameInstrument = false;
     QString sNewSamplePath( sInputSamplePath );
     if ( sNewSamplePath.isEmpty() ) {
@@ -1070,6 +1071,7 @@ void ComponentView::replaceLayer( int nLayer, const QString& sInputSamplePath )
 			}
 		}
 
+		bRenameComponent = pFileBrowser->useFileNameAsComponentName();
 		bRenameInstrument = pFileBrowser->useFileNameAsInstrumentName();
 		bAutoVelocity = pFileBrowser->useVelocityAdjustment();
 
@@ -1101,11 +1103,32 @@ void ComponentView::replaceLayer( int nLayer, const QString& sInputSamplePath )
 		pNewComponent, pNewLayer, pNewSample, Event::Trigger::Default
 	);
 
-    QString sNewInstrumentName;
-	if ( bRenameInstrument ) {
-		sNewInstrumentName = sNewSamplePath.section( '/', -1 );
-		sNewInstrumentName.replace(
-			"." + sNewInstrumentName.section( '.', -1 ), ""
+	auto sCleanedFileName = sNewSamplePath.section( '/', -1 );
+	sCleanedFileName.replace( "." + sCleanedFileName.section( '.', -1 ), "" );
+
+	// The user choose to rename the instrument according to the (last) filename
+	// of the selected sample.
+	if ( bRenameInstrument && !sCleanedFileName.isEmpty() ) {
+		pNewInstrument->setName( sCleanedFileName );
+
+		pHydrogenApp->showStatusBarMessage(
+			QString( "%1 [%2] -> [%3]" )
+				.arg( pHydrogenApp->getCommonStrings()
+						  ->getActionRenameInstrument() )
+				.arg( pInstrument->getName() )
+				.arg( sCleanedFileName )
+		);
+	}
+	if ( bRenameComponent ) {
+		pNewComponent->setName( sCleanedFileName );
+
+		pHydrogenApp->showStatusBarMessage(
+			QString( "%1 [%2] -> [%3]" )
+				.arg(
+					pHydrogenApp->getCommonStrings()->getActionRenameComponent()
+				)
+				.arg( pNewComponent->getName() )
+				.arg( sCleanedFileName )
 		);
 	}
 
@@ -1114,23 +1137,7 @@ void ComponentView::replaceLayer( int nLayer, const QString& sInputSamplePath )
 		pNewComponent->setAutoVelocity();
 	}
 
-	pHydrogen->setIsModified( true );
-
 	setSelectedLayer( nLayer );
-
-	// The user choose to rename the instrument according to the (last) filename
-	// of the selected sample.
-	if ( bRenameInstrument && !sNewInstrumentName.isEmpty() ) {
-		pNewInstrument->setName( sNewInstrumentName );
-
-		pHydrogenApp->showStatusBarMessage(
-			QString( "%1 [%2] -> [%3]" )
-				.arg( pHydrogenApp->getCommonStrings()
-						  ->getActionRenameInstrument() )
-				.arg( pInstrument->getName() )
-				.arg( sNewInstrumentName )
-		);
-	}
 
 	pHydrogenApp->pushUndoCommand( new SE_replaceInstrumentAction(
 		pNewInstrument, pInstrument,
@@ -1166,6 +1173,7 @@ void ComponentView::setComponent(
 
 void ComponentView::setLayers(
 	QStringList filePaths,
+	bool bRenameComponent,
 	bool bRenameInstrument,
 	bool bAutoVelocity
 )
@@ -1175,7 +1183,7 @@ void ComponentView::setLayers(
 	}
 
 	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
-	QString sNewInstrumentName;
+	QString sLastCleanedFileName;
 
 	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
 	auto pNewComponent =
@@ -1216,10 +1224,10 @@ void ComponentView::setLayers(
 			pNewComponent, pNewLayer, m_nSelectedLayer, Event::Trigger::Default
 		);
 
-		if ( bRenameInstrument ) {
-			sNewInstrumentName = ssPath.section( '/', -1 );
-			sNewInstrumentName.replace(
-				"." + sNewInstrumentName.section( '.', -1 ), ""
+		if ( bRenameInstrument || bRenameComponent ) {
+			sLastCleanedFileName = ssPath.section( '/', -1 );
+			sLastCleanedFileName.replace(
+				"." + sLastCleanedFileName.section( '.', -1 ), ""
 			);
 		}
 
@@ -1232,15 +1240,26 @@ void ComponentView::setLayers(
     auto pHydrogenApp = HydrogenApp::get_instance();
 	// The user choose to rename the instrument according to the (last) filename
 	// of the selected sample.
-	if ( bRenameInstrument && !sNewInstrumentName.isEmpty() ) {
-		pNewInstrument->setName( sNewInstrumentName );
+	if ( bRenameInstrument && !sLastCleanedFileName.isEmpty() ) {
+		pNewInstrument->setName( sLastCleanedFileName );
 
 		pHydrogenApp->showStatusBarMessage(
 			QString( "%1 [%2] -> [%3]" )
 				.arg( pHydrogenApp->getCommonStrings()
 						  ->getActionRenameInstrument() )
 				.arg( pInstrument->getName() )
-				.arg( sNewInstrumentName )
+				.arg( sLastCleanedFileName )
+		);
+	}
+	if ( bRenameComponent && !sLastCleanedFileName.isEmpty() ) {
+		pNewComponent->setName( sLastCleanedFileName );
+
+		pHydrogenApp->showStatusBarMessage(
+			QString( "%1 [%2] -> [%3]" )
+				.arg( pHydrogenApp->getCommonStrings()
+						  ->getActionRenameComponent() )
+				.arg( pInstrument->getName() )
+				.arg( sLastCleanedFileName )
 		);
 	}
 
@@ -1426,8 +1445,8 @@ void ComponentView::addNewLayer()
 	}
 
 	const auto bUseVelocityAdjustment = pFileBrowser->useVelocityAdjustment();
-	const auto bUseFileNameAsInstrumentName =
-		pFileBrowser->useFileNameAsInstrumentName();
+	const auto bRenameComponent = pFileBrowser->useFileNameAsComponentName();
+	const auto bRenameInstrument = pFileBrowser->useFileNameAsInstrumentName();
 
 	delete pFileBrowser;
 
@@ -1435,13 +1454,9 @@ void ComponentView::addNewLayer()
 		return;
 	}
 
-	QStringList filePaths( selectedFiles );
-
-	filePaths.removeFirst();
-	filePaths.removeFirst();
-
 	setLayers(
-		filePaths, bUseFileNameAsInstrumentName, bUseVelocityAdjustment
+		selectedFiles, bRenameComponent, bRenameInstrument,
+		bUseVelocityAdjustment
 	);
 }
 

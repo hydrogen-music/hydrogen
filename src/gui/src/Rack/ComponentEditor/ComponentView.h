@@ -112,6 +112,7 @@ class ComponentView : public QWidget,
 		void setComponent( std::shared_ptr<H2Core::InstrumentComponent> );
 		void setLayers(
 			QStringList filePaths,
+			bool bRenameComponent,
 			bool bRenameInstrument,
 			bool bAutoVelocity
 		);
