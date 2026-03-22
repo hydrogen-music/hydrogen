@@ -43,7 +43,9 @@ WaveDisplay::WaveDisplay( QWidget* pParent, Channel channel )
 	  m_sSampleName( "" ),
 	  m_sFallbackLabel( "" ),
 	  m_pLayer( nullptr ),
-	  m_SampleNameAlignment( Qt::AlignCenter )
+	  m_SampleNameAlignment( Qt::AlignCenter ),
+	  m_bRenderPlayhead( false ),
+	  m_nPlayheadX( 0 )
 {
 	setAttribute( Qt::WA_OpaquePaintEvent );
 
@@ -93,6 +95,22 @@ void WaveDisplay::setLayer( std::shared_ptr<H2Core::InstrumentLayer> pLayer )
 	}
 
 	updateBackground();
+}
+
+void WaveDisplay::setPlayheadPosition( int nPlayheadX )
+{
+	if ( nPlayheadX != m_nPlayheadX ) {
+		m_nPlayheadX = nPlayheadX;
+		update();
+	}
+}
+
+void WaveDisplay::setRenderPlayhead( bool bRender )
+{
+	if ( bRender != m_bRenderPlayhead ) {
+		m_bRenderPlayhead = bRender;
+		update();
+	}
 }
 
 void WaveDisplay::updateBackground()
@@ -190,6 +208,14 @@ void WaveDisplay::paintEvent( QPaintEvent* ev )
 			pixelRatio * ev->rect().width(), pixelRatio * ev->rect().height()
 		)
 	);
+
+	if ( m_bRenderPlayhead ) {
+		Skin::setPlayheadPen( &painter, false );
+		Skin::drawPlayhead(
+			&painter, m_nPlayheadX - Skin::nPlayheadWidth / 2, 0
+		);
+		painter.drawLine( m_nPlayheadX, 0, m_nPlayheadX, height() );
+	}
 }
 
 void WaveDisplay::resizeEvent( QResizeEvent* event )
