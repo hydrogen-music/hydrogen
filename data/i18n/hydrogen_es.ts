@@ -224,14 +224,6 @@
         <translation>Inicio</translation>
     </message>
     <message>
-        <source>Play selected</source>
-        <translation>Reproducir selección</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Parar</translation>
-    </message>
-    <message>
         <source>Name: </source>
         <translation>Nombre: </translation>
     </message>
@@ -279,16 +271,8 @@
         <translation>&amp;Inicio</translation>
     </message>
     <message>
-        <source>&amp;Play Sample</source>
-        <translation>&amp;Reproduce Sample</translation>
-    </message>
-    <message>
         <source>&amp;Filename to instrument name</source>
         <translation>&amp;Nombre de archivo a nombre de instrumento</translation>
-    </message>
-    <message>
-        <source>&amp;Stop</source>
-        <translation>&amp;Detener</translation>
     </message>
     <message>
         <source>View hidden folders</source>
@@ -301,6 +285,10 @@
     <message>
         <source>Set automatic velocity</source>
         <translation>Seleccionar velocidad automática</translation>
+    </message>
+    <message>
+        <source>Filename to component name</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

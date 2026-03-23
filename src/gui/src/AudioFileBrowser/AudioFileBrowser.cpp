@@ -23,12 +23,12 @@
 #include "AudioFileBrowser.h"
 
 #include "../HydrogenApp.h"
-#include "../Rack/InstrumentEditor.h"
 #include "../Skin.h"
-#include "../Widgets/Button.h"
 #include "../Widgets/WaveDisplay.h"
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/Sample.h>
 #include <core/Hydrogen.h>
@@ -41,85 +41,95 @@
 
 using namespace H2Core;
 
-AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect,
-									 bool bShowInstrumentManipulationControls,
-									 const QString& sDefaultPath,
-									 const QString& sFileName )
-		: QDialog ( pParent )
-		, Object ()
-		, m_sFileName( sFileName )
+AudioFileBrowser::AudioFileBrowser(
+	QWidget* pParent,
+	bool bAllowMultiSelect,
+	bool bShowInstrumentManipulationControls,
+	const QString& sDefaultPath,
+	const QString& sFileName
+)
+	: QDialog( pParent ),
+	  Object(),
+	  m_playback( Playback::Stopped ),
+	  m_sFileName( sFileName )
 {
-	setupUi ( this );
+	setupUi( this );
 
 	// Show and enable maximize button. This is key when enlarging the
 	// application using a scaling factor and allows the OS to force its size
 	// beyond the minimum and make the scrollbars appear.
-	setWindowFlags( windowFlags() | Qt::CustomizeWindowHint |
-					Qt::WindowMinMaxButtonsHint );
-	
-	setWindowTitle ( tr ( "Audio File Browser" ) );
+	setWindowFlags(
+		windowFlags() | Qt::CustomizeWindowHint | Qt::WindowMinMaxButtonsHint
+	);
+
+	setWindowTitle( tr( "Audio File Browser" ) );
 
 	m_sSelectedDirectory = sDefaultPath;
 	if ( m_sSelectedDirectory.isEmpty() ) {
-		 m_sSelectedDirectory = QDir::homePath();
+		m_sSelectedDirectory = QDir::homePath();
 	}
-	
+
 	m_bAllowMultiSelect = bAllowMultiSelect;
 	m_bShowInstrumentManipulationControls = bShowInstrumentManipulationControls;
 
 	QStringList nameFilters;
 	for ( const auto& fformat : Filesystem::supportedAudioFormats() ) {
-		const QString ssFilter = QString( "*.%1" )
-			.arg( Filesystem::AudioFormatToSuffix( fformat ) );
+		const QString ssFilter =
+			QString( "*.%1" ).arg( Filesystem::AudioFormatToSuffix( fformat ) );
 		nameFilters << ssFilter << ssFilter.toUpper();
 	}
 
 	m_pDirModel = new QFileSystemModel();
-	m_pDirModel->setRootPath(""); //see https://forum.qt.io/topic/99513/qfilesystemmodel-qtreeview-doesn-t-sort/2
-	m_pDirModel->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot );
+	m_pDirModel->setRootPath( ""
+	);	// see
+		// https://forum.qt.io/topic/99513/qfilesystemmodel-qtreeview-doesn-t-sort/2
+	m_pDirModel->setFilter(
+		QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot
+	);
 	m_pDirModel->setNameFilters( nameFilters );
-	m_pDirModel->setNameFilterDisables(false);
+	m_pDirModel->setNameFilterDisables( false );
 
-	 m_ModelIndex = m_pDirModel->index( QDir::currentPath() );
-	
+	m_ModelIndex = m_pDirModel->index( QDir::currentPath() );
+
 	m_pPlayBtn->setEnabled( false );
-	m_pStopBtn->setEnabled( false );
 	openBTN->setEnabled( false );
 
 	m_pTree->setModel( m_pDirModel );
 	m_pTree->header()->resizeSection( 0, 405 );
 	m_pTree->setAlternatingRowColors( true );
 	m_pTree->setRootIndex( m_pDirModel->index( sDefaultPath ) );
-	
+
 	pathLineEdit->setText( sDefaultPath );
-	m_pSampleFileName = "";
-	m_pSelectedFile << "false" << "false";
+	m_sSampleFileName = "";
 
 	m_sEmptySampleFileName = Filesystem::empty_sample_path();
 
-	m_pPathUptoolButton->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/white/go-up.svg"));
-	m_pPathUptoolButton->setToolTip( QString( tr( "Parent Folder" )));
-	m_pPathHometoolButton->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/white/home.svg"));
-	m_pPathHometoolButton->setToolTip( QString( tr( "Home" )));
-
-	m_pPlayBtn->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/white/play.svg"));
-	m_pPlayBtn->setToolTip( QString( tr( "Play selected" ) ));
-	m_pStopBtn->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/white/stop.svg"));
-	m_pStopBtn->setToolTip( QString( tr( "Stop" )));
+	m_pPathUptoolButton->setIcon(
+		QIcon( Skin::getSvgImagePath() + "/icons/white/go-up.svg" )
+	);
+	m_pPathUptoolButton->setToolTip( QString( tr( "Parent Folder" ) ) );
+	m_pPathHometoolButton->setIcon(
+		QIcon( Skin::getSvgImagePath() + "/icons/white/home.svg" )
+	);
+	m_pPathHometoolButton->setToolTip( QString( tr( "Home" ) ) );
 
 	m_pWaveDisplay->setLayer( nullptr );
 
-	playSamplescheckBox->setChecked( Preferences::get_instance()->m_bPlaySamplesOnClicking );
-	//get the kde or gnome environment variable for mouse double or single clicking
-	m_SingleClick = false;
+	playSamplescheckBox->setChecked(
+		Preferences::get_instance()->m_bPlaySamplesOnClicking
+	);
+	// get the kde or gnome environment variable for mouse double or single
+	// clicking
+	m_bSingleClick = false;
 	getEnvironment();
-	
-	if( !m_bShowInstrumentManipulationControls ) {
+
+	if ( !m_bShowInstrumentManipulationControls ) {
 		useNameCheckBox->hide();
+		m_pToComponentNameCheckBox->hide();
 		autoVelCheckBox->hide();
 	}
-	
-	if ( ! sFileName.isEmpty() ) {
+
+	if ( !sFileName.isEmpty() ) {
 		m_pTree->setCurrentIndex( m_pDirModel->index( sFileName ) );
 		browseTree( m_pDirModel->index( sFileName ) );
 
@@ -131,14 +141,32 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect,
 		//
 		// The 50 is a heuristic that worked on my machine. This might
 		// need a little more tweaking.
-		QTimer::singleShot( 50, [this]{
-			m_pTree->scrollTo( m_pDirModel->index( m_sFileName ),
-							   QAbstractItemView::PositionAtCenter);} );
+		QTimer::singleShot( 50, [this] {
+			m_pTree->scrollTo(
+				m_pDirModel->index( m_sFileName ),
+				QAbstractItemView::PositionAtCenter
+			);
+		} );
 	}
 
-	connect( m_pTree, SIGNAL( clicked( const QModelIndex&) ), SLOT( clicked( const QModelIndex& ) ) );
-	connect( m_pTree, SIGNAL( doubleClicked( const QModelIndex&) ), SLOT( doubleClicked( const QModelIndex& ) ) );
-	connect( pathLineEdit, SIGNAL( returnPressed() ), SLOT( updateModelIndex() ) );	
+	updateIcons();
+
+	connect(
+		m_pTree, SIGNAL( clicked( const QModelIndex& ) ),
+		SLOT( clicked( const QModelIndex& ) )
+	);
+	connect(
+		m_pTree, SIGNAL( doubleClicked( const QModelIndex& ) ),
+		SLOT( doubleClicked( const QModelIndex& ) )
+	);
+	connect(
+		pathLineEdit, SIGNAL( returnPressed() ), SLOT( updateModelIndex() )
+	);
+
+	m_pPlayheadUpdateTimer = new QTimer( this );
+	connect( m_pPlayheadUpdateTimer, &QTimer::timeout, [&]() {
+		updateTransport();
+	} );
 }
 
 AudioFileBrowser::~AudioFileBrowser()
@@ -153,77 +181,70 @@ AudioFileBrowser::~AudioFileBrowser()
 bool AudioFileBrowser::isFileSupported( const QString& sFileName )
 {
 	return Filesystem::AudioFormatFromSuffix( sFileName, true ) !=
-		Filesystem::AudioFormat::Unknown;
+		   Filesystem::AudioFormat::Unknown;
 }
-
 
 void AudioFileBrowser::getEnvironment()
 {
-	QString desktopSession  = getenv("DESKTOP_SESSION");
-//kde
-	if( desktopSession == "kde" ) {
-		QFile envfile( QDir::homePath() + "/.kde/share/config/kdeglobals");
-	
-		if ( !envfile.open(QIODevice::ReadOnly | QIODevice::Text) ) {
+	QString desktopSession = getenv( "DESKTOP_SESSION" );
+	// kde
+	if ( desktopSession == "kde" ) {
+		QFile envfile( QDir::homePath() + "/.kde/share/config/kdeglobals" );
+
+		if ( !envfile.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
 			return;
 		}
-		
+
 		QTextStream envin( &envfile );
 		while ( !envin.atEnd() ) {
 			QString envLine = envin.readLine();
-			if( envLine == QString("SingleClick=true" ) ) {
-				m_SingleClick = true;
+			if ( envLine == QString( "SingleClick=true" ) ) {
+				m_bSingleClick = true;
 				break;
-			}		
+			}
 		}
 	}
 
-//for gnome, xfce and all others we use double click as default
+	// for gnome, xfce and all others we use double click as default
 }
 
-
-
-void AudioFileBrowser::keyPressEvent (QKeyEvent *ev)
+void AudioFileBrowser::keyPressEvent( QKeyEvent* ev )
 {
-	if( ( ev->modifiers()==Qt::ControlModifier ||
-		  ev->modifiers()==Qt::ShiftModifier )
-		&& m_bAllowMultiSelect) {
+	if ( ( ev->modifiers() == Qt::ControlModifier ||
+		   ev->modifiers() == Qt::ShiftModifier ) &&
+		 m_bAllowMultiSelect ) {
 		m_pTree->setSelectionMode( QAbstractItemView::ExtendedSelection );
 		openBTN->setEnabled( true );
-	}	
+	}
 }
 
-
-
-void AudioFileBrowser::keyReleaseEvent (QKeyEvent *ev)
+void AudioFileBrowser::keyReleaseEvent( QKeyEvent* ev )
 {
 	m_pTree->setSelectionMode( QAbstractItemView::SingleSelection );
 }
-
-
 
 void AudioFileBrowser::updateModelIndex()
 {
 	QString toRemove;
 	QString newPath = pathLineEdit->text();
 
-	if( QDir( newPath ).exists() ) {
+	if ( QDir( newPath ).exists() ) {
 		m_pTree->setRootIndex( m_pDirModel->index( newPath ) );
-	} else {
+	}
+	else {
 		toRemove = newPath.section( '/', -1 );
-//		QMessageBox::information ( this, "Hydrogen", newpath + toremove);
+		//		QMessageBox::information ( this, "Hydrogen", newpath +
+		//toremove);
 		newPath.replace( toRemove, "" );
 		m_pTree->setRootIndex( m_pDirModel->index( newPath ) );
 	}
 }
 
-
-
 void AudioFileBrowser::clicked( const QModelIndex& index )
 {
 	QString path = m_pDirModel->filePath( index );
 
-	if ( m_SingleClick ) {
+	if ( m_bSingleClick ) {
 		browseTree( index );
 	}
 
@@ -232,133 +253,133 @@ void AudioFileBrowser::clicked( const QModelIndex& index )
 	}
 }
 
-
-
 void AudioFileBrowser::doubleClicked( const QModelIndex& index )
 {
-	if(!m_SingleClick) {
+	if ( !m_bSingleClick ) {
 		browseTree( index );
 		on_openBTN_clicked();
 	}
 }
 
-
-
 void AudioFileBrowser::browseTree( const QModelIndex& index )
 {
+	if ( m_playback != Playback::Stopped ) {
+		stopPlayback();
+	}
 
 	QString path = m_pDirModel->filePath( index );
 	pathLineEdit->setText( path );
 	m_pWaveDisplay->setLayer( nullptr );
 
-	updateModelIndex(); //with this you have a navigation like konqueror
+	updateModelIndex();	 // with this you have a navigation like konqueror
 
-	if ( m_pDirModel->isDir( index ) ){
+	if ( m_pDirModel->isDir( index ) ) {
 		m_pPlayBtn->setEnabled( false );
 		openBTN->setEnabled( false );
 		return;
 	}
 
 	QString name = path.section( '/', -1 );
-	
+
 	QString path2 = path;
 	QString onlyPath = path;
-	if ( name != "" ){
+	if ( name != "" ) {
 		onlyPath = path.replace( name, "" );
 	}
-		
+
 	name = name.left( '.' );
 
 	QString message = QString( tr( "Name: " ) ).append( name );
 	pathLineEdit->setText( onlyPath );
 
-	QStringList path2List = path2.split("/");
+	QStringList path2List = path2.split( "/" );
 	QString fleTxt = path2List.last();
 
-	QApplication::setOverrideCursor(Qt::WaitCursor);
+	QApplication::setOverrideCursor( Qt::WaitCursor );
 
 	if ( isFileSupported( path2 ) ) {
-
 		filelineedit->setText( fleTxt );
-		auto pNewSample = Sample::load( path2 );
+		m_pSample = Sample::load( path2 );
+		m_pPreviewInstrument = Instrument::from( m_pSample );
 
-		if ( pNewSample != nullptr ) {
-			m_pNBytesLable->setText( tr( "Size: %1 bytes" ).arg( pNewSample->getSize() / 2 ) );
-			m_pSamplerateLable->setText( tr( "Samplerate: %1" ).arg( pNewSample->getSampleRate() ) );
-			float sec = ( float )( pNewSample->getFrames() / (float)pNewSample->getSampleRate() );
+		if ( m_pSample != nullptr && m_pPreviewInstrument != nullptr &&
+			 m_pPreviewInstrument->getComponent( 0 ) != nullptr &&
+			 m_pPreviewInstrument->getComponent( 0 )->getLayer( 0 ) !=
+				 nullptr ) {
+			const auto pLayer =
+				m_pPreviewInstrument->getComponent( 0 )->getLayer( 0 );
+
+			m_pNBytesLable->setText(
+				tr( "Size: %1 bytes" ).arg( m_pSample->getSize() / 2 )
+			);
+			m_pSamplerateLable->setText(
+				tr( "Samplerate: %1" ).arg( m_pSample->getSampleRate() )
+			);
+			float sec = (float
+			) ( m_pSample->getFrames() / (float) m_pSample->getSampleRate() );
 			QString qsec;
 			qsec = QString::asprintf( "%2.2f", sec );
-			m_pLengthLable->setText( tr( "Sample length: " ) + qsec + tr( " s" ) );
+			m_pLengthLable->setText(
+				tr( "Sample length: " ) + qsec + tr( " s" )
+			);
 
-			m_pSampleFileName = path2;
+			m_sSampleFileName = path2;
 
-            const auto pLayer = std::make_shared<InstrumentLayer>( pNewSample );
 			m_pWaveDisplay->setLayer( pLayer );
 
 			m_pPlayBtn->setEnabled( true );
 			openBTN->setEnabled( true );
 
-			if (playSamplescheckBox->isChecked()){
-				if ( sec <= 600.00){
+			if ( playSamplescheckBox->isChecked() ) {
+				if ( sec <= 600.00 ) {
 					on_m_pPlayBtn_clicked();
-				}else
-				{
-					QMessageBox::information ( this, "Hydrogen", tr( "Please do not preview samples which are longer than 10 minutes!" )  );
+				}
+				else {
+					QMessageBox::information(
+						this, "Hydrogen",
+						tr( "Please do not preview samples which are longer "
+							"than 10 minutes!" )
+					);
 				}
 			}
 			m_pNameLabel->setText( message );
-		} else {
-			openBTN->setEnabled( false );
-			QMessageBox::information ( this, "Hydrogen", tr( "Unable to load that sample file." )  );
 		}
-
-	}else{
-		m_pNameLabel->setText( tr( "Name:"));
+		else {
+			openBTN->setEnabled( false );
+			QMessageBox::information(
+				this, "Hydrogen", tr( "Unable to load that sample file." )
+			);
+		}
+	}
+	else {
+		m_pNameLabel->setText( tr( "Name:" ) );
 		m_pNBytesLable->setText( tr( "Size:" ) );
 		m_pSamplerateLable->setText( tr( "Samplerate:" ) );
 		m_pLengthLable->setText( tr( "Sample length:" ) );
 		m_pWaveDisplay->setLayer( nullptr );
 		m_pPlayBtn->setEnabled( false );
-		m_pStopBtn->setEnabled( false );
 		openBTN->setEnabled( false );
-		m_pSampleFileName = "";
+		m_sSampleFileName = "";
 	}
 	QApplication::restoreOverrideCursor();
 }
 
-
-
 void AudioFileBrowser::on_m_pPlayBtn_clicked()
 {
-
-	if( QFile( m_pSampleFileName ).exists() == false ) {
-		return;
+	if ( m_playback == Playback::Stopped ) {
+		if ( m_pPreviewInstrument != nullptr && m_pSample != nullptr ) {
+			startPlayback();
+		}
 	}
-	
-	m_pStopBtn->setEnabled( true );
-	
-	auto pNewSample = Sample::load( m_pSampleFileName );
-	if ( pNewSample ) {
-		assert(pNewSample->getSampleRate() != 0);
-		H2Core::Hydrogen::get_instance()->getAudioEngine()->getSampler()->previewSample( pNewSample, LENGTH_ENTIRE_SAMPLE );
+	else {
+		stopPlayback();
 	}
 }
-
-
-
-void AudioFileBrowser::on_m_pStopBtn_clicked()
-{
-	auto pNewSample = Sample::load( m_sEmptySampleFileName );
-	H2Core::Hydrogen::get_instance()->getAudioEngine()->getSampler()->previewSample( pNewSample, 100 );
-	m_pStopBtn->setEnabled( false );
-}
-
-
 
 void AudioFileBrowser::on_cancelBTN_clicked()
 {
 	m_sSelectedDirectory = pathLineEdit->text();
-	m_pSelectedFile << "false" << "false" << "";
+	stopPlayback();
 	reject();
 }
 
@@ -377,115 +398,242 @@ void AudioFileBrowser::on_openBTN_clicked()
 				const QString sFilePath = sDir + sFileName;
 				if ( Filesystem::file_exists( sFilePath, true ) ) {
 					// Open a file
-					m_pSelectedFile << sFilePath;
+					m_selectedFiles << sFilePath;
 				}
 			}
 		}
 	}
 
-	if ( m_pSelectedFile.size() < 3 ) {
+	if ( m_selectedFiles.isEmpty() ) {
 		// No valid audio files.
 		return;
 	}
 
 	m_sSelectedDirectory = pathLineEdit->text();
+	stopPlayback();
 	accept();
 }
 
 void AudioFileBrowser::on_playSamplescheckBox_clicked()
 {
-	Preferences::get_instance()->m_bPlaySamplesOnClicking = playSamplescheckBox->isChecked();
+	Preferences::get_instance()->m_bPlaySamplesOnClicking =
+		playSamplescheckBox->isChecked();
 }
 
-
-
-QStringList AudioFileBrowser::getSelectedFiles()
+QStringList AudioFileBrowser::getSelectedFiles() const
 {
-	if ( useNameCheckBox->isChecked() ) {
-		m_pSelectedFile[0] = "true";
-	}
-	if ( autoVelCheckBox->isChecked() ) {
-		m_pSelectedFile[1] = "true";
-	}
-
-
-
-	return m_pSelectedFile;
+	return m_selectedFiles;
 }
 
-QString AudioFileBrowser::getSelectedDirectory() {
+QString AudioFileBrowser::getSelectedDirectory() const
+{
 	return m_sSelectedDirectory;
+}
+
+bool AudioFileBrowser::useFileNameAsComponentName() const
+{
+	return m_pToComponentNameCheckBox->isChecked();
+}
+bool AudioFileBrowser::useFileNameAsInstrumentName() const
+{
+	return useNameCheckBox->isChecked();
+}
+
+bool AudioFileBrowser::useVelocityAdjustment() const
+{
+	return autoVelCheckBox->isChecked();
 }
 
 void AudioFileBrowser::on_m_pPathHometoolButton_clicked()
 {
-
 	QString path = pathLineEdit->text();
-	QStringList pathlist = path.split("/");
+	QStringList pathlist = path.split( "/" );
 
-	while( path != QDir::rootPath() ){
-
-		if( pathlist.isEmpty () ) {
+	while ( path != QDir::rootPath() ) {
+		if ( pathlist.isEmpty() ) {
 			break;
 		}
-		
+
 		pathlist.removeLast();
-		QString updir = pathlist.join("/");
+		QString updir = pathlist.join( "/" );
 
 		pathLineEdit->setText( updir );
 		m_pTree->setRootIndex( m_pDirModel->index( updir ) );
-		m_pTree->collapse( m_pDirModel->index( updir  ) );
-		m_pTree->setExpanded( m_pDirModel->index(updir), false  );
+		m_pTree->collapse( m_pDirModel->index( updir ) );
+		m_pTree->setExpanded( m_pDirModel->index( updir ), false );
 		path = pathLineEdit->text();
 	}
 
 	pathLineEdit->setText( QDir::homePath() );
 	m_pTree->setRootIndex( m_pDirModel->index( QDir::homePath() ) );
 
-	m_pTree->collapse( m_pDirModel->index( QDir::homePath())  );
+	m_pTree->collapse( m_pDirModel->index( QDir::homePath() ) );
 }
-
-
 
 void AudioFileBrowser::on_m_pPathUptoolButton_clicked()
 {
 	QString path = pathLineEdit->text();
-	QStringList pathlist = path.split("/");
+	QStringList pathlist = path.split( "/" );
 
-	if( pathlist.isEmpty () ) {
+	if ( pathlist.isEmpty() ) {
 		return;
 	}
 
-	if( path.endsWith( "/" ) ) {
+	if ( path.endsWith( "/" ) ) {
 		pathlist.removeLast();
-		QString tmpupdir = pathlist.join("/");
+		QString tmpupdir = pathlist.join( "/" );
 		m_pTree->setRootIndex( m_pDirModel->index( tmpupdir ) );
-		m_pTree->collapse( m_pDirModel->index( tmpupdir  ) );
-		m_pTree->setExpanded( m_pDirModel->index( tmpupdir ), false  );
+		m_pTree->collapse( m_pDirModel->index( tmpupdir ) );
+		m_pTree->setExpanded( m_pDirModel->index( tmpupdir ), false );
 	}
 
 	pathlist.removeLast();
 
-	QString updir = pathlist.join("/");
+	QString updir = pathlist.join( "/" );
 	if ( updir == "" ) {
-		pathLineEdit->setText( QString("/") );
-	} else {
+		pathLineEdit->setText( QString( "/" ) );
+	}
+	else {
 		pathLineEdit->setText( updir );
 	}
 
 	m_pTree->setRootIndex( m_pDirModel->index( updir ) );
-	m_pTree->collapse( m_pDirModel->index( updir  ) );
-	m_pTree->setExpanded( m_pDirModel->index(updir), false  );
+	m_pTree->collapse( m_pDirModel->index( updir ) );
+	m_pTree->setExpanded( m_pDirModel->index( updir ), false );
 }
-
-
 
 void AudioFileBrowser::on_hiddenCB_clicked()
 {
 	if ( hiddenCB->isChecked() ) {
-		m_pDirModel->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Hidden );
-	} else {
-		m_pDirModel->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot );
+		m_pDirModel->setFilter(
+			QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot |
+			QDir::Hidden
+		);
+	}
+	else {
+		m_pDirModel->setFilter(
+			QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot
+		);
 		m_pTree->setRootIndex( m_pDirModel->index( pathLineEdit->text() ) );
+	}
+}
+
+void AudioFileBrowser::startPlayback()
+{
+	if ( m_pPreviewInstrument == nullptr || m_pSample == nullptr ) {
+		return;
+	}
+	if ( m_playback != Playback::Stopped ) {
+		stopPlayback();
+	}
+	m_playback = Playback::Rolling;
+
+	// Register the sample for playback
+	auto pNote = std::make_shared<Note>(
+		m_pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT, LENGTH_ENTIRE_SAMPLE
+	);
+	const auto nSampleLength = static_cast<long long>( m_pSample->getFrames() );
+
+	// Reset playhead and other widgets and perform one UI refresh before
+	// starting the actual rendering.
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+
+	// Render sample
+	pAudioEngine->getSampler()->previewInstrument(
+		pNote->getInstrument(), pNote
+	);
+	m_nLastRealtimeFrame = pAudioEngine->getRealtimeFrame();
+	m_fPlayheadPos = 0;
+	m_nRealtimeFrameEnd = m_nLastRealtimeFrame + nSampleLength;
+	m_nSampleLength = nSampleLength;
+
+	m_pWaveDisplay->setPlayheadPosition( 0 );
+	m_pWaveDisplay->setRenderPlayhead( true );
+
+	updateIcons();
+	m_pPlayheadUpdateTimer->start( AudioFileBrowser::nPlayheadUpdateTimeout );
+}
+
+void AudioFileBrowser::stopPlayback()
+{
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	m_playback = Playback::Stopped;
+	m_pPlayheadUpdateTimer->stop();
+
+	m_pWaveDisplay->setRenderPlayhead( false );
+	m_pWaveDisplay->setPlayheadPosition( 0 );
+
+	auto pSampler = Hydrogen::get_instance()->getAudioEngine()->getSampler();
+	pSampler->releasePlayingNotes( m_pPreviewInstrument );
+
+	updateIcons();
+}
+
+void AudioFileBrowser::updateTransport()
+{
+	if ( m_playback == Playback::Stopped ) {
+		stopPlayback();
+		return;
+	}
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+
+	const auto nRealtimeFrame = pAudioEngine->getRealtimeFrame();
+	if ( nRealtimeFrame == m_nLastRealtimeFrame ) {
+		return;
+	}
+
+	// If sample rates of audio driver and the underlying wave data do not
+	// match, our Sampler will resample it on the fly. We have to account for
+	// this within the increment.
+	const float fStep =
+		static_cast<float>( m_pSample->getSampleRate() ) /
+		static_cast<float>( pAudioEngine->getAudioDriver()->getSampleRate() );
+	const float fIncrement =
+		static_cast<float>( nRealtimeFrame - m_nLastRealtimeFrame ) * fStep;
+
+	if ( static_cast<long long>(
+			 std::floor( m_nLastRealtimeFrame + fIncrement ) >= m_nRealtimeFrameEnd
+		 ) ) {
+		stopPlayback();
+		return;
+	}
+
+	m_fPlayheadPos += fIncrement;
+
+	// x-coordinate of the playhead
+	m_pWaveDisplay->setPlayheadPosition( static_cast<int>( std::floor(
+		m_fPlayheadPos * m_pWaveDisplay->width() /
+		static_cast<float>( m_nSampleLength )
+	) ) );
+
+	m_nLastRealtimeFrame = nRealtimeFrame;
+}
+
+void AudioFileBrowser::updateIcons()
+{
+	QString sIconPath( Skin::getSvgImagePath() );
+	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+		 InterfaceTheme::IconColor::White ) {
+		sIconPath.append( "/icons/white/" );
+	}
+	else {
+		sIconPath.append( "/icons/black/" );
+	}
+	const auto pColorTheme =
+		H2Core::Preferences::get_instance()->getColorTheme();
+
+	const QColor colorBackgroundInactive =
+		Skin::makeBackgroundColorInactive( pColorTheme->m_widgetColor );
+
+	if ( m_playback == Playback::Rolling ) {
+		Skin::setToolButtonIcon(
+			m_pPlayBtn, sIconPath + "stop.svg", colorBackgroundInactive
+		);
+	}
+	else {
+		Skin::setToolButtonIcon(
+			m_pPlayBtn, sIconPath + "play.svg", colorBackgroundInactive
+		);
 	}
 }

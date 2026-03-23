@@ -68,6 +68,8 @@ class WaveDisplay : public QWidget,
 
 	void setFallbackLabel( const QString& sLabel );
 	void setLabel( Label label );
+	void setPlayheadPosition( int nPlayheadX );
+	void setRenderPlayhead( bool bRender );
 	void setSampleNameAlignment( const Qt::AlignmentFlag& flag );
 
    public slots:
@@ -100,6 +102,9 @@ class WaveDisplay : public QWidget,
 	int m_nActiveWidth;
 
 	std::shared_ptr<H2Core::InstrumentLayer> m_pLayer;
+
+	bool m_bRenderPlayhead;
+	int m_nPlayheadX;
 };
 
 inline void WaveDisplay::setFallbackLabel( const QString& sLabel )

@@ -224,14 +224,6 @@
         <translation></translation>
     </message>
     <message>
-        <source>Play selected</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Name: </source>
         <translation></translation>
     </message>
@@ -275,14 +267,6 @@
         <translation></translation>
     </message>
     <message>
-        <source>&amp;Play Sample</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>&amp;Stop</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Be careful, this change all Layer velocity settings </source>
         <translation>Be careful, this will change all layers&apos; velocity settings</translation>
     </message>
@@ -301,6 +285,10 @@
     <message>
         <source>&amp;Filename to instrument name</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Filename to component name</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

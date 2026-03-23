@@ -107,10 +107,10 @@
             </size>
            </property>
            <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
            </property>
            <property name="sizeAdjustPolicy">
-            <enum>QAbstractScrollArea::AdjustToContents</enum>
+            <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
            </property>
           </widget>
          </item>
@@ -126,10 +126,10 @@
                <item>
                 <widget class="QFrame" name="infoframe">
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
+                  <enum>QFrame::Shadow::Raised</enum>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_2">
                   <item row="0" column="0">
@@ -194,14 +194,7 @@
                   <item>
                    <widget class="QToolButton" name="m_pPlayBtn">
                     <property name="text">
-                     <string>&amp;Play Sample</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QToolButton" name="m_pStopBtn">
-                    <property name="text">
-                     <string>&amp;Stop</string>
+                     <string notr="true"/>
                     </property>
                    </widget>
                   </item>
@@ -211,6 +204,26 @@
                      <string>&amp;Filename to instrument name</string>
                     </property>
                    </widget>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="m_pToComponentNameCheckBox">
+                    <property name="text">
+                     <string>Filename to component name</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>0</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
                   </item>
                  </layout>
                 </item>
@@ -272,7 +285,6 @@
   <tabstop>m_pPathHometoolButton</tabstop>
   <tabstop>m_pTree</tabstop>
   <tabstop>m_pPlayBtn</tabstop>
-  <tabstop>m_pStopBtn</tabstop>
   <tabstop>playSamplescheckBox</tabstop>
   <tabstop>autoVelCheckBox</tabstop>
  </tabstops>

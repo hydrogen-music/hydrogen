@@ -24,10 +24,13 @@
 
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/Sample.h>
 #include <core/Hydrogen.h>
 
 #include "ComponentView.h"
 #include "../Rack.h"
+#include "../../AudioFileBrowser/AudioFileBrowser.h"
 #include "../../CommonStrings.h"
 #include "../../Compatibility/MouseEvent.h"
 #include "../../HydrogenApp.h"
@@ -246,25 +249,104 @@ void ComponentEditor::addComponent() {
 		return;
 	}
 
-	/*: Default name for a newly created instrument component. */
-	const QString sNewName = tr( "New Component" );
+	// Get initial set of layers for the new component.
+	QString sPath = Preferences::get_instance()->getLastOpenLayerDirectory();
+	const QString sFileName = "";
+	if ( !Filesystem::dir_readable( sPath, false ) ) {
+		sPath = QDir::homePath();
+	}
+
+	auto pFileBrowser =
+		new AudioFileBrowser( nullptr, true, true, sPath, sFileName );
+	// The first two elements of this list will indicate whether the user has
+	// checked the additional options.
+	QStringList selectedFiles;
+
+	if ( pFileBrowser->exec() == QDialog::Accepted ) {
+		selectedFiles = pFileBrowser->getSelectedFiles();
+
+		if ( sPath != pFileBrowser->getSelectedDirectory() ) {
+			Preferences::get_instance()->setLastOpenLayerDirectory(
+				pFileBrowser->getSelectedDirectory()
+			);
+		}
+	}
+
+	const auto bUseVelocityAdjustment = pFileBrowser->useVelocityAdjustment();
+	const auto bRenameComponent = pFileBrowser->useFileNameAsComponentName();
+	const auto bRenameInstrument = pFileBrowser->useFileNameAsInstrumentName();
+
+	delete pFileBrowser;
+
+	if ( selectedFiles.isEmpty() ) {
+		return;
+	}
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
 	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
 
-	const auto pNewComponent = std::make_shared<InstrumentComponent>( sNewName );
+	const auto pNewComponent = std::make_shared<InstrumentComponent>( "" );
 	pNewInstrument->addComponent( pNewComponent );
 
-	pHydrogenApp->pushUndoCommand(
-		new SE_replaceInstrumentAction(
-			pNewInstrument, pInstrument,
-			SE_replaceInstrumentAction::Type::AddComponent, sNewName ) );
+	QStringList newLayersPaths;
+	QString sLastCleanedFileName;
+	for ( const auto& ssPath : selectedFiles ) {
+		auto pNewSample = Sample::load( ssPath );
+		if ( pNewSample == nullptr ) {
+			ERRORLOG( QString( "Failed to load [%1]" ).arg( ssPath ) );
+			continue;
+		}
+		newLayersPaths << ssPath;
+
+		const auto pNewLayer =
+			std::make_shared<H2Core::InstrumentLayer>( pNewSample );
+
+		pNewInstrument->addLayer(
+			pNewComponent, pNewLayer, -1, Event::Trigger::Default
+		);
+
+		if ( bRenameInstrument || bRenameComponent ) {
+			sLastCleanedFileName = ssPath.section( '/', -1 );
+			sLastCleanedFileName.replace(
+				"." + sLastCleanedFileName.section( '.', -1 ), ""
+			);
+		}
+
+		// set automatic velocity
+		if ( bUseVelocityAdjustment ) {
+			pNewComponent->setAutoVelocity();
+		}
+	}
+
+	/*: Default name for a newly created instrument component. */
+	const QString sNewComponentName =
+		bRenameComponent ? sLastCleanedFileName : tr( "New Component" ) ;
+	pNewComponent->setName( sNewComponentName );
+
+	// The user choose to rename the instrument according to the (last) filename
+	// of the selected sample.
+	if ( bRenameInstrument && !sLastCleanedFileName.isEmpty() ) {
+		pNewInstrument->setName( sLastCleanedFileName );
+
+		pHydrogenApp->showStatusBarMessage(
+			QString( "%1 [%2] -> [%3]" )
+				.arg( pHydrogenApp->getCommonStrings()
+						  ->getActionRenameInstrument() )
+				.arg( pInstrument->getName() )
+				.arg( sLastCleanedFileName )
+		);
+	}
+
+	pHydrogenApp->pushUndoCommand( new SE_replaceInstrumentAction(
+		pNewInstrument, pInstrument,
+		SE_replaceInstrumentAction::Type::AddComponent, sNewComponentName
+	) );
 	pHydrogenApp->showStatusBarMessage(
 		QString( "%1 [%2]" )
 			.arg( pCommonStrings->getActionAddComponent() )
-			.arg( sNewName )
+			.arg( sNewComponentName )
 	);
 
 	// Instant feedback

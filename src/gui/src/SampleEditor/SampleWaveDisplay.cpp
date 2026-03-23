@@ -46,11 +46,11 @@ SampleWaveDisplay::SampleWaveDisplay(
 	  m_bDragStarted( false )
 {
 	setFixedSize( SampleWaveDisplay::nWidth, SampleWaveDisplay::nHeight );
+	setMouseTracking( true );
 
 	m_label = WaveDisplay::Label::Fallback;
 	m_sFallbackLabel = "";
-
-	setMouseTracking( true );
+	m_bRenderPlayhead = true;
 }
 
 SampleWaveDisplay::~SampleWaveDisplay()
@@ -143,20 +143,16 @@ void SampleWaveDisplay::paintEvent( QPaintEvent* ev )
 		return;
 	}
 
+	m_nPlayheadX = frameToX( static_cast<long long>(
+		std::round( m_pSampleEditor->getPlayheadMain() )
+	) );
+
 	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 
 	WaveDisplay::paintEvent( ev );
 
 	QPainter p( this );
 	p.setRenderHint( QPainter::Antialiasing );
-
-	// Render playhead
-	Skin::setPlayheadPen( &p, false );
-	const int nPlayheadX = frameToX( static_cast<long long>(
-		std::round( m_pSampleEditor->getPlayheadMain() )
-	) );
-	Skin::drawPlayhead( &p, nPlayheadX - Skin::nPlayheadWidth / 2, 0 );
-	p.drawLine( nPlayheadX, 0, nPlayheadX, height() );
 
 	renderSlider( &p, SampleEditor::Slider::Start );
 	renderSlider( &p, SampleEditor::Slider::Loop );

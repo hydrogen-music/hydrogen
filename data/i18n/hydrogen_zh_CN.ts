@@ -224,14 +224,6 @@
         <translation>主页</translation>
     </message>
     <message>
-        <source>Play selected</source>
-        <translation>播放已选择</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>停止</translation>
-    </message>
-    <message>
         <source>Name: </source>
         <translation>名称： </translation>
     </message>
@@ -275,14 +267,6 @@
         <translation>主页(&amp;H)</translation>
     </message>
     <message>
-        <source>&amp;Play Sample</source>
-        <translation>播放采样(&amp;P)</translation>
-    </message>
-    <message>
-        <source>&amp;Stop</source>
-        <translation>停止(&amp;S)</translation>
-    </message>
-    <message>
         <source>Be careful, this change all Layer velocity settings </source>
         <translation>注意，这会更改所有层的力度设置 </translation>
     </message>
@@ -301,6 +285,10 @@
     <message>
         <source>&amp;Filename to instrument name</source>
         <translation>使用文件名作为乐器名称(&amp;F)</translation>
+    </message>
+    <message>
+        <source>Filename to component name</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

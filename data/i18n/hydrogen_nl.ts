@@ -224,14 +224,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Play selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Stop</translation>
-    </message>
-    <message>
         <source>Name: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -271,10 +263,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Play Sample</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Filename to instrument name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -287,10 +275,6 @@
         <translation>Annuleren</translation>
     </message>
     <message>
-        <source>&amp;Stop</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>View hidden folders</source>
         <translation type="unfinished"></translation>
     </message>
@@ -300,6 +284,10 @@
     </message>
     <message>
         <source>Set automatic velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filename to component name</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
