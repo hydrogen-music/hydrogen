@@ -150,7 +150,7 @@ AudioFileBrowser::AudioFileBrowser(
 
 	if ( !sFileName.isEmpty() ) {
 		m_pTree->setCurrentIndex( m_pDirModel->index( sFileName ) );
-		browseTree( m_pDirModel->index( sFileName ) );
+		browseTree( m_pDirModel->index( sFileName ), false );
 
 		// Right now in the constructor of AudioFileBrowser m_pTree is
 		// still busy doing something different or maybe some update
@@ -241,23 +241,26 @@ void AudioFileBrowser::clicked( const QModelIndex& index )
 	QString path = m_pDirModel->filePath( index );
 
 	if ( m_bSingleClick ) {
-		browseTree( index );
+		browseTree( index, true );
 	}
 
 	if ( Filesystem::file_exists( path, true ) && isFileSupported( path ) ) {
-		browseTree( index );
+		browseTree( index, true );
 	}
 }
 
 void AudioFileBrowser::doubleClicked( const QModelIndex& index )
 {
 	if ( !m_bSingleClick ) {
-		browseTree( index );
+		browseTree( index, true );
 		on_openBTN_clicked();
 	}
 }
 
-void AudioFileBrowser::browseTree( const QModelIndex& index )
+void AudioFileBrowser::browseTree(
+	const QModelIndex& index,
+	bool bAllowPlayback
+)
 {
 	if ( m_playback != Playback::Stopped ) {
 		stopPlayback();
@@ -326,7 +329,10 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 			m_pPlayBtn->setEnabled( true );
 			openBTN->setEnabled( true );
 
-			if ( playSamplescheckBox->isChecked() ) {
+			// This function is also called within the constructor of this
+			// dialog. However, we do not want the sample to be played back upon
+			// opening. Just those selected using user interactions.
+			if ( playSamplescheckBox->isChecked() && bAllowPlayback ) {
 				if ( sec <= 600.00 ) {
 					startPlayback();
 				}
