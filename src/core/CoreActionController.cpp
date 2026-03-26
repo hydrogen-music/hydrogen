@@ -2572,6 +2572,46 @@ bool CoreActionController::clearInstrumentInPattern( int nInstrument,
 	return true;
 }
 
+bool CoreActionController::setPatternProperties(
+	const int nNewVersion,
+	const QString& sNewPatternName,
+	const QString& sNewAuthor,
+	const QString& sNewPatternInfo,
+	const H2Core::License& newLicense,
+	const QString& sNewPatternCategory,
+	int nPatternIndex
+)
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	auto pPatternList = pHydrogen->getSong()->getPatternList();
+	auto pPattern = pPatternList->get( nPatternIndex );
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Unable to find pattern [%1]" ).arg( nPatternIndex )
+		);
+		return false;
+	}
+
+	pPattern->setVersion( nNewVersion );
+	pPattern->setName( sNewPatternName );
+	pPattern->setAuthor( sNewAuthor );
+	pPattern->setInfo( sNewPatternInfo );
+	pPattern->setLicense( newLicense );
+	pPattern->setCategory( sNewPatternCategory );
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1 );
+
+	return true;
+}
+
 bool CoreActionController::toggleGridCell( const GridPoint& gridPoint ){
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN

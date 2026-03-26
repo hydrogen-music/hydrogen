@@ -163,25 +163,22 @@ public:
 	}
 	virtual void undo()
 	{
-		//qDebug() << "Modify pattern properties undo";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditorPatternList()
-			->revertPatternPropertiesDialogSettings(
-				m_nOldVersion, __oldPatternName, m_sOldAuthor, __oldPatternInfo,
-				m_oldLicense, __oldPatternCategory, __patternNr );
+		H2Core::CoreActionController::setPatternProperties(
+			m_nOldVersion, __oldPatternName, m_sOldAuthor, __oldPatternInfo,
+			m_oldLicense, __oldPatternCategory, __patternNr
+		);
 	}
 
 	virtual void redo()
 	{
-		//qDebug() << "Modify pattern properties redo" ;
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditorPatternList()
-			->acceptPatternPropertiesDialogSettings(
-				m_nNewVersion, __newPatternName, m_sNewAuthor, __newPatternInfo,
-				m_newLicense, __newPatternCategory, __patternNr );
+		H2Core::CoreActionController::setPatternProperties(
+			m_nNewVersion, __newPatternName, m_sNewAuthor, __newPatternInfo,
+			m_newLicense, __newPatternCategory, __patternNr
+		);
 	}
-private:
-		int m_nOldVersion;
+
+   private:
+	int m_nOldVersion;
 	QString __oldPatternName;
 		QString m_sOldAuthor;
 	QString __oldPatternInfo;
