@@ -36,21 +36,17 @@
 namespace H2Core
 {
 
-Pattern::Pattern( const QString& sName, const QString& sInfo,
-				  const QString& sCategory, int nLength, int nDenominator )
+Pattern::Pattern( const QString& sName )
 	: m_nVersion( 0 )
 	, m_sDrumkitName( "" )
 	, m_sAuthor( "" )
 	, m_license( License() )
-	, m_nLength( nLength )
-	, m_nDenominator( nDenominator )
+	, m_nLength( 4 * H2Core::nTicksPerQuarter )
+	, m_nDenominator( 4 )
 	, m_sName( sName )
-	, m_sCategory( sCategory )
-	, m_sInfo( sInfo )
+	, m_sCategory( SoundLibraryDatabase::m_sPatternBaseCategory )
+	, m_sInfo( "" )
 {
-	if ( sCategory.isEmpty() ) {
-		m_sCategory = SoundLibraryDatabase::m_sPatternBaseCategory;
-	}
 }
 
 Pattern::Pattern( std::shared_ptr<Pattern> pOther )

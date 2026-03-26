@@ -69,15 +69,8 @@ class Pattern : public H2Core::Object<Pattern>
 		/**
 		 * constructor
 		 * \param name the name of the pattern
-		 * \param info Initialized with an empty string.
-		 * \param category the category of the pattern
-		 * \param length the length of the pattern
-		 * \param denominator the denominator for meter representation (eg 4/4)
 		 */
-		Pattern( const QString& name="Pattern", const QString& info="",
-				 const QString& sCategory = "",
-				 int length = 4 * H2Core::nTicksPerQuarter,
-				 int denominator=4 );
+		Pattern( const QString& name="Pattern" );
 		/** copy constructor */
 		Pattern( std::shared_ptr<Pattern> pOther );
 		/** destructor */
