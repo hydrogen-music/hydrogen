@@ -65,37 +65,31 @@ class Pattern : public H2Core::Object<Pattern>
 	/** allow iteration of all contained virtual patterns.*/
 	std::set<std::shared_ptr<Pattern>>::iterator begin();
 	std::set<std::shared_ptr<Pattern>>::iterator end();
-	
-		/**
-		 * constructor
-		 * \param name the name of the pattern
-		 */
-		Pattern( const QString& name="Pattern" );
-		/** copy constructor */
-		Pattern( std::shared_ptr<Pattern> pOther );
-		/** destructor */
-		~Pattern();
 
-		/**
-		 * load a pattern from a file
-		 * \param sPatternPath the path to the file to load the pattern from
-		 * \param bSilent Whether infos, warnings, and errors should
-		 *   be logged.
-		 */
-		static std::shared_ptr<Pattern> load( const QString& sPatternPath,
-											  bool bSilent = false );
-		/**
-		 * load a pattern from an XMLNode
-		 * \param node the XMLDode to read from
-		 * \param sDrumkitName kit the pattern was created for (only used as
-		 *   fallback).
-		 * \param pDrumkit In case the PatternList is loaded as part of a song,
-		 *   the current drumkit used to retrieve the types of all contained
-		 *   notes.
-		 * \param bSilent Whether infos, warnings, and errors should
-		 *   be logged.
-		 * \return a new Pattern instance
-		 */
+	Pattern();
+	Pattern( std::shared_ptr<Pattern> pOther );
+	~Pattern();
+
+	/**
+	 * load a pattern from a file
+	 * \param sPatternPath the path to the file to load the pattern from
+	 * \param bSilent Whether infos, warnings, and errors should
+	 *   be logged.
+	 */
+	static std::shared_ptr<Pattern>
+	load( const QString& sPatternPath, bool bSilent = false );
+	/**
+	 * load a pattern from an XMLNode
+	 * \param node the XMLDode to read from
+	 * \param sDrumkitName kit the pattern was created for (only used as
+	 *   fallback).
+	 * \param pDrumkit In case the PatternList is loaded as part of a song,
+	 *   the current drumkit used to retrieve the types of all contained
+	 *   notes.
+	 * \param bSilent Whether infos, warnings, and errors should
+	 *   be logged.
+	 * \return a new Pattern instance
+	 */
 	static std::shared_ptr<Pattern> loadFrom( const XMLNode& node,
 											  const QString& sDrumkitName,
 											  std::shared_ptr<Drumkit> pDrumkit = nullptr,

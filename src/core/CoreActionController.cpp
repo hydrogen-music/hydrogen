@@ -2284,7 +2284,8 @@ bool CoreActionController::newPattern( const QString& sPatternName )
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pPatternList = pHydrogen->getSong()->getPatternList();
-	auto pPattern = std::make_shared<Pattern>( sPatternName );
+	auto pPattern = std::make_shared<Pattern>();
+	pPattern->setName( sPatternName );
 
 	return setPattern( pPattern, pPatternList->size(), false );
 }
@@ -2459,7 +2460,7 @@ bool CoreActionController::removePattern( int nPatternNumber )
 	// Ensure there is always at least one pattern present in the
 	// list.
 	if ( pPatternList->size() == 0 ) {
-		auto pEmptyPattern = std::make_shared<Pattern>( "Pattern 1" );
+		auto pEmptyPattern = std::make_shared<Pattern>();
 		pPatternList->add( pEmptyPattern );
 	}
 

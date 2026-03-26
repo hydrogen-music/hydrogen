@@ -857,8 +857,12 @@ void SongEditorPanel::addNewPattern()
 		return;
 	}
 	auto pPatternList = pSong->getPatternList();
-	auto pNewPattern = std::make_shared<Pattern>(
-		tr( "Pattern %1" ).arg( pPatternList->size() + 1 ) );
+	auto pNewPattern = std::make_shared<Pattern>();
+    /*: Default name of a newly added pattern. A number separated by a white
+     *  space will be appended. */
+	pNewPattern->setName(
+		tr( "Pattern" ).append( QString( " %1" ).arg( pPatternList->size() + 1 ) )
+	);
 	pNewPattern->setAuthor( pSong->getAuthor() );
 	pNewPattern->setLicense( pSong->getLicense() );
 	auto pDialog = new PatternPropertiesDialog( nullptr, pNewPattern, 0, true );

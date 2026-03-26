@@ -5657,10 +5657,6 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Pattern %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Mute playback track</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5682,6 +5678,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Delete complete pattern-sequence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern</source>
+        <extracomment>Default name of a newly added pattern. A number separated by a white * space will be appended.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>

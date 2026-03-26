@@ -36,14 +36,14 @@
 namespace H2Core
 {
 
-Pattern::Pattern( const QString& sName )
+Pattern::Pattern( )
 	: m_nVersion( 0 )
 	, m_sDrumkitName( "" )
 	, m_sAuthor( "" )
 	, m_license( License() )
 	, m_nLength( 4 * H2Core::nTicksPerQuarter )
 	, m_nDenominator( 4 )
-	, m_sName( sName )
+	, m_sName( "Pattern" )
 	, m_sCategory( SoundLibraryDatabase::m_sPatternBaseCategory )
 	, m_sInfo( "" )
 {

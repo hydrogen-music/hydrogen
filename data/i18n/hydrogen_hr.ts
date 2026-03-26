@@ -5657,10 +5657,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Editor pjesme</translation>
     </message>
     <message>
-        <source>Pattern %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Warning, this will erase your pattern sequence.
 Are you sure?</source>
         <translation>Pozor, ovo će obrisati sekvencu uzoraka.
@@ -5692,6 +5688,11 @@ Da li to želiš napraviti?</translation>
     </message>
     <message>
         <source>Delete complete pattern-sequence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern</source>
+        <extracomment>Default name of a newly added pattern. A number separated by a white * space will be appended.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>

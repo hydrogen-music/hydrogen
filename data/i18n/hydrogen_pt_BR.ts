@@ -1412,7 +1412,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Pattern</source>
         <extracomment>Indicates a menu section which affects patterns.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Padrão</translation>
     </message>
     <message>
         <source>MIDI Control</source>
@@ -5699,10 +5699,6 @@ Está certo disto?</translation>
         <translation>modo padrão empilhado</translation>
     </message>
     <message>
-        <source>Pattern %1</source>
-        <translation>Padrão %1</translation>
-    </message>
-    <message>
         <source>Mute playback track</source>
         <translation>Silenciar faixa de reprodução</translation>
     </message>
@@ -5725,6 +5721,11 @@ Está certo disto?</translation>
     <message>
         <source>Delete complete pattern-sequence</source>
         <translation>Deletar a sequência de padrão completa</translation>
+    </message>
+    <message>
+        <source>Pattern</source>
+        <extracomment>Default name of a newly added pattern. A number separated by a white * space will be appended.</extracomment>
+        <translation>Padrão</translation>
     </message>
 </context>
 <context>

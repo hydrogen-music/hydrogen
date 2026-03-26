@@ -1412,7 +1412,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Pattern</source>
         <extracomment>Indicates a menu section which affects patterns.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Μήτρα</translation>
     </message>
     <message>
         <source>MIDI Control</source>
@@ -5693,10 +5693,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>Δημιουργία νέας μήτρας</translation>
     </message>
     <message>
-        <source>Pattern %1</source>
-        <translation>Μήτρα %1</translation>
-    </message>
-    <message>
         <source>Warning, this will erase your pattern sequence.
 Are you sure?</source>
         <translation>Προειδοποίηση: αυτό θα διαγράψει την ακολουθία της μήτρας σου.
@@ -5730,6 +5726,11 @@ Are you sure?</source>
     <message>
         <source>Delete complete pattern-sequence</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern</source>
+        <extracomment>Default name of a newly added pattern. A number separated by a white * space will be appended.</extracomment>
+        <translation>Μήτρα</translation>
     </message>
 </context>
 <context>

@@ -653,7 +653,7 @@ void XmlTest::testPattern()
 	// Check whether the constructor produces valid patterns.
 	const QString sEmptyPatternPath =
 		H2Core::Filesystem::tmp_dir() + "empty.h2pattern";
-	auto pPatternNew = std::make_shared<H2Core::Pattern>( "test" );
+	auto pPatternNew = std::make_shared<H2Core::Pattern>();
 	CPPUNIT_ASSERT( pPatternNew->save( sPatternPath, true ) );
 	CPPUNIT_ASSERT( doc.read( sPatternPath ) );
 	H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/empty.h2pattern" ),

@@ -1412,7 +1412,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Pattern</source>
         <extracomment>Indicates a menu section which affects patterns.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Патерн</translation>
     </message>
     <message>
         <source>MIDI Control</source>
@@ -5697,10 +5697,6 @@ Are you sure?</source>
         <translation>режим стеку патернів</translation>
     </message>
     <message>
-        <source>Pattern %1</source>
-        <translation>Патерн %1</translation>
-    </message>
-    <message>
         <source>Mute playback track</source>
         <translation>Приглушити доріжку, що відтворюється</translation>
     </message>
@@ -5723,6 +5719,11 @@ Are you sure?</source>
     <message>
         <source>Delete complete pattern-sequence</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern</source>
+        <extracomment>Default name of a newly added pattern. A number separated by a white * space will be appended.</extracomment>
+        <translation>Патерн</translation>
     </message>
 </context>
 <context>

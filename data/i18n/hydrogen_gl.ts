@@ -1412,7 +1412,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Pattern</source>
         <extracomment>Indicates a menu section which affects patterns.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Patrón</translation>
     </message>
     <message>
         <source>MIDI Control</source>
@@ -5696,10 +5696,6 @@ Está seguro?</translation>
         <translation>modo de patróns amoreados</translation>
     </message>
     <message>
-        <source>Pattern %1</source>
-        <translation>Patrón %1</translation>
-    </message>
-    <message>
         <source>Mute playback track</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5722,6 +5718,11 @@ Está seguro?</translation>
     <message>
         <source>Delete complete pattern-sequence</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern</source>
+        <extracomment>Default name of a newly added pattern. A number separated by a white * space will be appended.</extracomment>
+        <translation>Patrón</translation>
     </message>
 </context>
 <context>
