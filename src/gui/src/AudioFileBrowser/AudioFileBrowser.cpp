@@ -129,6 +129,25 @@ AudioFileBrowser::AudioFileBrowser(
 		autoVelCheckBox->hide();
 	}
 
+	updateIcons();
+
+	connect(
+		m_pTree, SIGNAL( clicked( const QModelIndex& ) ),
+		SLOT( clicked( const QModelIndex& ) )
+	);
+	connect(
+		m_pTree, SIGNAL( doubleClicked( const QModelIndex& ) ),
+		SLOT( doubleClicked( const QModelIndex& ) )
+	);
+	connect(
+		pathLineEdit, SIGNAL( returnPressed() ), SLOT( updateModelIndex() )
+	);
+
+	m_pPlayheadUpdateTimer = new QTimer( this );
+	connect( m_pPlayheadUpdateTimer, &QTimer::timeout, [&]() {
+		updateTransport();
+	} );
+
 	if ( !sFileName.isEmpty() ) {
 		m_pTree->setCurrentIndex( m_pDirModel->index( sFileName ) );
 		browseTree( m_pDirModel->index( sFileName ) );
@@ -148,34 +167,11 @@ AudioFileBrowser::AudioFileBrowser(
 			);
 		} );
 	}
-
-	updateIcons();
-
-	connect(
-		m_pTree, SIGNAL( clicked( const QModelIndex& ) ),
-		SLOT( clicked( const QModelIndex& ) )
-	);
-	connect(
-		m_pTree, SIGNAL( doubleClicked( const QModelIndex& ) ),
-		SLOT( doubleClicked( const QModelIndex& ) )
-	);
-	connect(
-		pathLineEdit, SIGNAL( returnPressed() ), SLOT( updateModelIndex() )
-	);
-
-	m_pPlayheadUpdateTimer = new QTimer( this );
-	connect( m_pPlayheadUpdateTimer, &QTimer::timeout, [&]() {
-		updateTransport();
-	} );
 }
 
 AudioFileBrowser::~AudioFileBrowser()
 {
-	auto pNewSample = Sample::load( m_sEmptySampleFileName );
-	H2Core::Hydrogen::get_instance()
-		->getAudioEngine()
-		->getSampler()
-		->previewSample( pNewSample, 100 );
+    stopPlayback();
 }
 
 bool AudioFileBrowser::isFileSupported( const QString& sFileName )
@@ -332,7 +328,7 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 
 			if ( playSamplescheckBox->isChecked() ) {
 				if ( sec <= 600.00 ) {
-					on_m_pPlayBtn_clicked();
+					startPlayback();
 				}
 				else {
 					QMessageBox::information(
@@ -520,7 +516,8 @@ void AudioFileBrowser::on_hiddenCB_clicked()
 
 void AudioFileBrowser::startPlayback()
 {
-	if ( m_pPreviewInstrument == nullptr || m_pSample == nullptr ) {
+	if ( m_pPreviewInstrument == nullptr || m_pSample == nullptr ||
+		 m_pPlayheadUpdateTimer == nullptr ) {
 		return;
 	}
 	if ( m_playback != Playback::Stopped ) {
