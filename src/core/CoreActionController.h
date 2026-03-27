@@ -473,7 +473,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 			const QString& sNewAuthor,
 			const QString& sNewPatternInfo,
 			const H2Core::License& newLicense,
-			const QString& sNewPatternCategory,
+			const QStringList& newTags,
 			int nPatternIndex
 		);
 

@@ -8,9 +8,12 @@
   <author>Hydrogen dev team</author>
   <info></info>
   <license>CC0</license>
-  <category>unknown</category>
   <size>192</size>
   <denominator>4</denominator>
+  <tags>
+    <tag>Example</tag>
+    <tag>Pattern</tag>
+  </tags>
   <noteList>
    <note>
     <position>0</position>

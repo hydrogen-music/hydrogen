@@ -106,10 +106,7 @@
             </widget>
            </item>
            <item>
-            <widget class="LCDCombo" name="categoryComboBox">
-             <property name="editable">
-              <bool>true</bool>
-             </property>
+            <widget class="LCDTextEdit" name="categoryTextEdit">
             </widget>
            </item>
           </layout>

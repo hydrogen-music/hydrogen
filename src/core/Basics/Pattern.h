@@ -133,10 +133,8 @@ class Pattern : public H2Core::Object<Pattern>
 		void setName( const QString& sName );
 		///< get the name of the pattern
 		const QString& getName() const;
-		///< set the category of the pattern
-		void setCategory( const QString& sCategory );
-		///< get the category of the pattern
-		const QString& getCategory() const;
+		void setTags( const QStringList& tags );
+		const QStringList& getTags() const;
 		///< set the info of the pattern
 		void setInfo( const QString& sInfo );
 		///< get the info of the pattern
@@ -307,8 +305,9 @@ class Pattern : public H2Core::Object<Pattern>
 		int m_nDenominator;
 		/** name of the pattern */
 		QString m_sName;
-		/** category of the pattern */
-		QString m_sCategory;
+		/** Various categories which can be used for filtering during online
+         * import. */
+		QStringList m_tags;
 		/** a description of the pattern */
 		QString m_sInfo;
 		/** multimap (hash with possible multiple values for one key) of note */
@@ -403,14 +402,14 @@ inline const QString& Pattern::getInfo() const
 	return m_sInfo;
 }
 
-inline void Pattern::setCategory( const QString& category )
+inline void Pattern::setTags( const QStringList& tags )
 {
-	m_sCategory = category;
+	m_tags = tags;
 }
 
-inline const QString& Pattern::getCategory() const
+inline const QStringList& Pattern::getTags() const
 {
-	return m_sCategory;
+	return m_tags;
 }
 
 inline void Pattern::setLength( int length )

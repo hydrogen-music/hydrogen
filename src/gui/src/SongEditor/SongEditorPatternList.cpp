@@ -237,12 +237,12 @@ void SongEditorPatternList::inlineEditingAccepted()
 			m_pPatternBeingEdited->getAuthor(),
 			m_pPatternBeingEdited->getInfo(),
 			m_pPatternBeingEdited->getLicense(),
-			m_pPatternBeingEdited->getCategory(),
+			m_pPatternBeingEdited->getTags(),
 			m_pPatternBeingEdited->getVersion(), patternName,
 			m_pPatternBeingEdited->getAuthor(),
 			m_pPatternBeingEdited->getInfo(),
 			m_pPatternBeingEdited->getLicense(),
-			m_pPatternBeingEdited->getCategory(),
+			m_pPatternBeingEdited->getTags(),
 			pPatternList->index( m_pPatternBeingEdited )
 		);
 	HydrogenApp::get_instance()->pushUndoCommand( action );

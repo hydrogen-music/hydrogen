@@ -2635,9 +2635,9 @@ p, li { white-space: pre-wrap; }
    <author></author>
    <info></info>
    <license>undefined license</license>
-   <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
+   <tags/>
    <noteList>
     <note>
      <position>0</position>
@@ -2732,9 +2732,9 @@ p, li { white-space: pre-wrap; }
    <author></author>
    <info></info>
    <license>undefined license</license>
-   <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
+   <tags/>
    <noteList/>
   </pattern>
   <pattern>
@@ -2744,9 +2744,9 @@ p, li { white-space: pre-wrap; }
    <author></author>
    <info></info>
    <license>undefined license</license>
-   <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
+   <tags/>
    <noteList/>
   </pattern>
   <pattern>
@@ -2756,9 +2756,9 @@ p, li { white-space: pre-wrap; }
    <author></author>
    <info></info>
    <license>undefined license</license>
-   <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
+   <tags/>
    <noteList/>
   </pattern>
   <pattern>
@@ -2768,9 +2768,9 @@ p, li { white-space: pre-wrap; }
    <author></author>
    <info></info>
    <license>undefined license</license>
-   <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
+   <tags/>
    <noteList/>
   </pattern>
   <pattern>
@@ -2780,9 +2780,9 @@ p, li { white-space: pre-wrap; }
    <author></author>
    <info></info>
    <license>undefined license</license>
-   <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
+   <tags/>
    <noteList/>
   </pattern>
   <pattern>
@@ -2792,9 +2792,9 @@ p, li { white-space: pre-wrap; }
    <author></author>
    <info></info>
    <license>undefined license</license>
-   <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
+   <tags/>
    <noteList/>
   </pattern>
   <pattern>
@@ -2804,9 +2804,9 @@ p, li { white-space: pre-wrap; }
    <author></author>
    <info></info>
    <license>undefined license</license>
-   <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
+   <tags/>
    <noteList/>
   </pattern>
   <pattern>
@@ -2816,9 +2816,9 @@ p, li { white-space: pre-wrap; }
    <author></author>
    <info></info>
    <license>undefined license</license>
-   <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
+   <tags/>
    <noteList/>
   </pattern>
   <pattern>
@@ -2828,9 +2828,9 @@ p, li { white-space: pre-wrap; }
    <author></author>
    <info></info>
    <license>undefined license</license>
-   <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
+   <tags/>
    <noteList/>
   </pattern>
  </patternList>

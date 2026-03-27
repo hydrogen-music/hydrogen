@@ -44,7 +44,7 @@ Pattern::Pattern( )
 	, m_nLength( 4 * H2Core::nTicksPerQuarter )
 	, m_nDenominator( 4 )
 	, m_sName( "Pattern" )
-	, m_sCategory( SoundLibraryDatabase::m_sPatternBaseCategory )
+	, m_tags( QStringList() )
 	, m_sInfo( "" )
 {
 }
@@ -57,7 +57,7 @@ Pattern::Pattern( std::shared_ptr<Pattern> pOther )
 	, m_nLength( pOther->getLength() )
 	, m_nDenominator( pOther->getDenominator() )
 	, m_sName( pOther->getName() )
-	, m_sCategory( pOther->getCategory() )
+	, m_tags( QStringList() )
 	, m_sInfo( pOther->getInfo() )
 {
 	FOREACH_NOTE_CST_IT_BEGIN_END( pOther->getNotes(),it ) {
@@ -128,9 +128,6 @@ std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
 	pPattern->setName( sName );
 	pPattern->setInfo(
 		node.read_string( "info", pPattern->getInfo(), false, true, bSilent ) );
-	pPattern->setCategory(
-	    node.read_string( "category", pPattern->getCategory(), false, true,
-						 bSilent ) );
 	pPattern->setLength(
 	    node.read_int( "size", pPattern->getLength(), false, false, bSilent ) );
 	pPattern->setDenominator(
@@ -146,6 +143,28 @@ std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
 							   "license", pPattern->m_license.getLicenseString(),
 							   false, false, bSilent ) );
 	pPattern->setLicense( license );
+
+	QStringList tags;
+	const XMLNode tagsNode = node.firstChildElement( "tags" );
+	if ( !tagsNode.isNull() ) {
+		auto tagNode = tagsNode.firstChildElement( "tag" );
+		while ( !tagNode.isNull() && ! tagNode.text().isEmpty() ) {
+            tags << tagNode.text();
+			tagNode = tagNode.nextSiblingElement( "tag" );
+		}
+	}
+	else {
+		// Prior to version 2.0 each pattern contained one "category" instead of
+		// a list of tags. For backward compatibility we will read in a possible
+		// category as a tag.
+		const QString sCategory =
+			node.read_string( "category", "", false, true, bSilent );
+		if ( !sCategory.isEmpty() && sCategory != "not_categorized" &&
+			 sCategory != "unknown" ) {
+			tags << sCategory;
+		}
+	}
+	pPattern->setTags( tags );
 
 	XMLNode note_list_node = node.firstChildElement( "noteList" );
 	if ( ! note_list_node.isNull() ) {
@@ -222,9 +241,15 @@ void Pattern::saveTo(
 	pattern_node.write_string( "author", m_sAuthor );
 	pattern_node.write_string( "info", m_sInfo );
 	pattern_node.write_string( "license", m_license.getLicenseString() );
-	pattern_node.write_string( "category", m_sCategory );
 	pattern_node.write_int( "size", m_nLength );
 	pattern_node.write_int( "denominator", m_nDenominator );
+
+	XMLNode tagsNode = pattern_node.createNode( "tags" );
+	for ( const auto& tag : m_tags ) {
+		if ( !tag.isEmpty() ) {
+			tagsNode.write_string( "tag", tag );
+		}
+	}
 
 	XMLNode note_list_node =  pattern_node.createNode( "noteList" );
 	for ( auto it = m_notes.cbegin(); it != m_notes.cend(); ++it ) {
@@ -623,7 +648,7 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_license.toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_nLength: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nLength ) )
 			.append( QString( "%1%2m_nDenominator: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nDenominator ) )
-			.append( QString( "%1%2m_sCategory: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sCategory ) )
+			.append( QString( "%1%2m_tags: %3\n" ).arg( sPrefix ).arg( s ).arg( m_tags.join( ", " ) ) )
 			.append( QString( "%1%2m_sInfo: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sInfo ) )
 			.append( QString( "%1%2m_notes:\n" ).arg( sPrefix ).arg( s ) );
 				 
@@ -659,7 +684,7 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_license.toQString( sPrefix, bShort ) ) )
 			.append( QString( ", m_nLength: %1" ).arg( m_nLength ) )
 			.append( QString( ", m_nDenominator: %1" ).arg( m_nDenominator ) )
-			.append( QString( ", m_sCategory: %1" ).arg( m_sCategory ) )
+			.append( QString( ", m_tags: %1" ).arg( m_tags.join( ", " ) ) )
 			.append( QString( ", m_sInfo: %1" ).arg( m_sInfo ) )
 			.append( QString( ", m_notes: [" ) );
 		for ( const auto& [ _, ppNote ] : m_notes ) {

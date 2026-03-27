@@ -138,13 +138,13 @@ public:
 									  const QString& sOldAuthor,
 									  const QString& oldPatternInfo,
 									  const H2Core::License& oldLicense,
-									  const QString& oldPatternCategory,
+									  const QStringList& oldTags,
 									  const int nNewVersion,
 									  const QString& newPatternName,
 									  const QString sNewAuthor,
 									  const QString& newPatternInfo,
 									  const H2Core::License& newLicense,
-									  const QString& newPatternCategory,
+									  const QStringList& newTags,
 									  int patternNr ){
 		setText( QObject::tr( "Modify pattern properties" ) );
 		m_nOldVersion =  nOldVersion;
@@ -152,20 +152,20 @@ public:
 		m_sOldAuthor = sOldAuthor;
 		__oldPatternInfo = oldPatternInfo;
 		m_oldLicense = oldLicense;
-		__oldPatternCategory = oldPatternCategory;
+		m_oldTags = oldTags;
 		m_nNewVersion =  nNewVersion;
 		__newPatternName = newPatternName;
 		m_sNewAuthor = sNewAuthor;
 		__newPatternInfo = newPatternInfo;
 		m_newLicense = newLicense;
-		__newPatternCategory = newPatternCategory;
+		m_newTags = newTags;
 		__patternNr = patternNr;
 	}
 	virtual void undo()
 	{
 		H2Core::CoreActionController::setPatternProperties(
 			m_nOldVersion, __oldPatternName, m_sOldAuthor, __oldPatternInfo,
-			m_oldLicense, __oldPatternCategory, __patternNr
+			m_oldLicense, m_oldTags, __patternNr
 		);
 	}
 
@@ -173,24 +173,24 @@ public:
 	{
 		H2Core::CoreActionController::setPatternProperties(
 			m_nNewVersion, __newPatternName, m_sNewAuthor, __newPatternInfo,
-			m_newLicense, __newPatternCategory, __patternNr
+			m_newLicense, m_newTags, __patternNr
 		);
 	}
 
    private:
 	int m_nOldVersion;
 	QString __oldPatternName;
-		QString m_sOldAuthor;
+	QString m_sOldAuthor;
 	QString __oldPatternInfo;
-		H2Core::License m_oldLicense;
-	QString __oldPatternCategory;
+	H2Core::License m_oldLicense;
+	QStringList m_oldTags;
 
-		int m_nNewVersion;
+	int m_nNewVersion;
 	QString __newPatternName;
-		QString m_sNewAuthor;
+	QString m_sNewAuthor;
 	QString __newPatternInfo;
-		H2Core::License m_newLicense;
-	QString __newPatternCategory;
+	H2Core::License m_newLicense;
+	QStringList m_newTags;
 	int __patternNr;
 };
 

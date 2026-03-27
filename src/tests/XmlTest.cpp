@@ -642,6 +642,10 @@ void XmlTest::testPattern()
 	auto pPatternLoaded = H2Core::Pattern::load(
 		H2TEST_FILE( "/pattern/pattern.h2pattern" ) );
 	CPPUNIT_ASSERT( pPatternLoaded != nullptr );
+	CPPUNIT_ASSERT( pPatternLoaded->getTags().size() == 2 );
+	CPPUNIT_ASSERT( pPatternLoaded->getTags()[ 0 ] == "Example" );
+	CPPUNIT_ASSERT( pPatternLoaded->getTags()[ 1 ] == "Pattern" );
+
 	CPPUNIT_ASSERT( pPatternLoaded->save( sPatternPath, true ) );
 
 	H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/pattern.h2pattern" ),
@@ -669,14 +673,17 @@ void XmlTest::testPattern()
 void XmlTest::testPatternLegacy() {
 	___INFOLOG( "" );
 
-	QStringList legacyPatterns;
-	legacyPatterns << H2TEST_FILE( "pattern/legacy/pattern-1.X.X.h2pattern" )
-				   << H2TEST_FILE( "pattern/legacy/legacy_pattern.h2pattern" );
+	auto pPatternOld = H2Core::Pattern::load(
+		H2TEST_FILE( "pattern/legacy/pattern-1.X.X.h2pattern" )
+	);
+	CPPUNIT_ASSERT( pPatternOld );
+	CPPUNIT_ASSERT( pPatternOld->getTags().size() == 1 );
+	CPPUNIT_ASSERT( pPatternOld->getTags().front() == "Legacy" );
 
-	for ( const auto& ssPattern : legacyPatterns ) {
-		auto pPattern = H2Core::Pattern::load( ssPattern );
-		CPPUNIT_ASSERT( pPattern );
-	}
+	auto pPatternOldest = H2Core::Pattern::load(
+		H2TEST_FILE( "pattern/legacy/legacy_pattern.h2pattern" )
+	);
+	CPPUNIT_ASSERT( pPatternOldest );
 
 	___INFOLOG( "passed" );
 }

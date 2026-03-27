@@ -2578,7 +2578,7 @@ bool CoreActionController::setPatternProperties(
 	const QString& sNewAuthor,
 	const QString& sNewPatternInfo,
 	const H2Core::License& newLicense,
-	const QString& sNewPatternCategory,
+	const QStringList& newTags,
 	int nPatternIndex
 )
 {
@@ -2603,7 +2603,7 @@ bool CoreActionController::setPatternProperties(
 	pPattern->setAuthor( sNewAuthor );
 	pPattern->setInfo( sNewPatternInfo );
 	pPattern->setLicense( newLicense );
-	pPattern->setCategory( sNewPatternCategory );
+	pPattern->setTags( newTags );
 
 	pHydrogen->setIsModified( true );
 
