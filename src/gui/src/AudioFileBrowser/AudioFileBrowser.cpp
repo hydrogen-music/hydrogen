@@ -129,26 +129,6 @@ AudioFileBrowser::AudioFileBrowser(
 		autoVelCheckBox->hide();
 	}
 
-	if ( !sFileName.isEmpty() ) {
-		m_pTree->setCurrentIndex( m_pDirModel->index( sFileName ) );
-		browseTree( m_pDirModel->index( sFileName ) );
-
-		// Right now in the constructor of AudioFileBrowser m_pTree is
-		// still busy doing something different or maybe some update
-		// is triggered afterwards. Either way, calling scrollTo()
-		// directly won't cut it. We have to wait a short amount of
-		// time till the dust has settled.
-		//
-		// The 50 is a heuristic that worked on my machine. This might
-		// need a little more tweaking.
-		QTimer::singleShot( 50, [this] {
-			m_pTree->scrollTo(
-				m_pDirModel->index( m_sFileName ),
-				QAbstractItemView::PositionAtCenter
-			);
-		} );
-	}
-
 	updateIcons();
 
 	connect(
@@ -167,15 +147,31 @@ AudioFileBrowser::AudioFileBrowser(
 	connect( m_pPlayheadUpdateTimer, &QTimer::timeout, [&]() {
 		updateTransport();
 	} );
+
+	if ( !sFileName.isEmpty() ) {
+		m_pTree->setCurrentIndex( m_pDirModel->index( sFileName ) );
+		browseTree( m_pDirModel->index( sFileName ), false );
+
+		// Right now in the constructor of AudioFileBrowser m_pTree is
+		// still busy doing something different or maybe some update
+		// is triggered afterwards. Either way, calling scrollTo()
+		// directly won't cut it. We have to wait a short amount of
+		// time till the dust has settled.
+		//
+		// The 50 is a heuristic that worked on my machine. This might
+		// need a little more tweaking.
+		QTimer::singleShot( 50, [this] {
+			m_pTree->scrollTo(
+				m_pDirModel->index( m_sFileName ),
+				QAbstractItemView::PositionAtCenter
+			);
+		} );
+	}
 }
 
 AudioFileBrowser::~AudioFileBrowser()
 {
-	auto pNewSample = Sample::load( m_sEmptySampleFileName );
-	H2Core::Hydrogen::get_instance()
-		->getAudioEngine()
-		->getSampler()
-		->previewSample( pNewSample, 100 );
+    stopPlayback();
 }
 
 bool AudioFileBrowser::isFileSupported( const QString& sFileName )
@@ -245,23 +241,26 @@ void AudioFileBrowser::clicked( const QModelIndex& index )
 	QString path = m_pDirModel->filePath( index );
 
 	if ( m_bSingleClick ) {
-		browseTree( index );
+		browseTree( index, true );
 	}
 
 	if ( Filesystem::file_exists( path, true ) && isFileSupported( path ) ) {
-		browseTree( index );
+		browseTree( index, true );
 	}
 }
 
 void AudioFileBrowser::doubleClicked( const QModelIndex& index )
 {
 	if ( !m_bSingleClick ) {
-		browseTree( index );
+		browseTree( index, true );
 		on_openBTN_clicked();
 	}
 }
 
-void AudioFileBrowser::browseTree( const QModelIndex& index )
+void AudioFileBrowser::browseTree(
+	const QModelIndex& index,
+	bool bAllowPlayback
+)
 {
 	if ( m_playback != Playback::Stopped ) {
 		stopPlayback();
@@ -330,9 +329,12 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 			m_pPlayBtn->setEnabled( true );
 			openBTN->setEnabled( true );
 
-			if ( playSamplescheckBox->isChecked() ) {
+			// This function is also called within the constructor of this
+			// dialog. However, we do not want the sample to be played back upon
+			// opening. Just those selected using user interactions.
+			if ( playSamplescheckBox->isChecked() && bAllowPlayback ) {
 				if ( sec <= 600.00 ) {
-					on_m_pPlayBtn_clicked();
+					startPlayback();
 				}
 				else {
 					QMessageBox::information(
@@ -520,7 +522,8 @@ void AudioFileBrowser::on_hiddenCB_clicked()
 
 void AudioFileBrowser::startPlayback()
 {
-	if ( m_pPreviewInstrument == nullptr || m_pSample == nullptr ) {
+	if ( m_pPreviewInstrument == nullptr || m_pSample == nullptr ||
+		 m_pPlayheadUpdateTimer == nullptr ) {
 		return;
 	}
 	if ( m_playback != Playback::Stopped ) {

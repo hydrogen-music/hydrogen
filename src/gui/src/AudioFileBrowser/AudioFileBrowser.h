@@ -90,7 +90,7 @@ class AudioFileBrowser : public QDialog,
 	 * not accessible. */
 	void updateTransport();
 
-	void browseTree( const QModelIndex& index );
+	void browseTree( const QModelIndex& index, bool bAllowPlayback );
 
 	void getEnvironment();
 	bool isFileSupported( const QString& sFileName );
