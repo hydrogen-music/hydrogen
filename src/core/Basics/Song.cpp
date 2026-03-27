@@ -73,6 +73,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_fVolume( fVolume )
 	, m_fMetronomeVolume( 0.5 )
 	, m_sNotes( "..." )
+	, m_tags( QStringList() )
 	, m_pPatternList( std::make_shared<PatternList>() )
 	, m_pPatternGroupVector( std::make_shared< std::vector<
 							   std::shared_ptr<PatternList> > >() )
@@ -246,6 +247,18 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 							false, false, bSilent ) );
 	pSong->setNotes( rootNode.read_string( "notes", pSong->getNotes(), false,
 										  false, bSilent ) );
+
+	const XMLNode tagsNode = rootNode.firstChildElement( "tags" );
+	if ( !tagsNode.isNull() ) {
+		QStringList tags;
+		auto tagNode = tagsNode.firstChildElement( "tag" );
+		while ( !tagNode.isNull() && !tagNode.text().isEmpty() ) {
+			tags << tagNode.text();
+			tagNode = tagNode.nextSiblingElement( "tag" );
+		}
+		pSong->setTags( tags );
+	}
+
 	pSong->setLicense(
 		License( rootNode.read_string( "license",
 									  pSong->getLicense().getLicenseString(),
@@ -767,6 +780,14 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples,
 	rootNode.write_string( "name", m_sName );
 	rootNode.write_string( "author", m_sAuthor );
 	rootNode.write_string( "notes", m_sNotes );
+
+	XMLNode tagsNode = rootNode.createNode( "tags" );
+	for ( const auto& tag : m_tags ) {
+		if ( !tag.isEmpty() ) {
+			tagsNode.write_string( "tag", tag );
+		}
+	}
+
 	rootNode.write_string( "license", m_license.getLicenseString() );
 	rootNode.write_bool( "loopEnabled", isLoopEnabled() );
 
@@ -1230,6 +1251,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_fMetronomeVolume ) )
 			.append( QString( "%1%2m_sNotes: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_sNotes ) )
+			.append( QString( "%1%2m_tags: %3\n" ).arg( sPrefix ).arg( s ).arg( m_tags.join( ", " ) ) )
 			.append( QString( "%1" ).arg( m_pPatternList->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_pPatternGroupVector:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& pp : *m_pPatternGroupVector ) {
@@ -1308,6 +1330,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_fVolume: %1" ).arg( m_fVolume ) )
 			.append( QString( ", m_fMetronomeVolume: %1" ).arg( m_fMetronomeVolume ) )
 			.append( QString( ", m_sNotes: %1" ).arg( m_sNotes ) )
+			.append( QString( ", m_tags: %1" ).arg( m_tags.join( ", " ) ) )
 			.append( QString( "%1" ).arg( m_pPatternList->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( ", m_pPatternGroupVector:" ) );
 		for ( const auto& pp : *m_pPatternGroupVector ) {

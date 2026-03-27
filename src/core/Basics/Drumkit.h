@@ -284,6 +284,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		void setLicense( const License& license );
 		/** #m_license accessor */
 		const License& getLicense() const;
+		void setTags( const QStringList& tags );
+		const QStringList& getTags() const;
 		/** #m_sImage setter */
 		void setImage( const QString& image );
 		/** #m_sImage accessor */
@@ -366,6 +368,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		QString m_sAuthor;				///< drumkit author
 		QString m_sInfo;					///< drumkit free text
 		License m_license;				///< drumkit license description
+		QStringList m_tags;
 		QString m_sImage;				///< drumkit image filename
 		License m_imageLicense;			///< drumkit image license
 
@@ -476,6 +479,16 @@ inline void Drumkit::setLicense( const License& license )
 inline const License& Drumkit::getLicense() const
 {
 	return m_license;
+}
+
+inline void Drumkit::setTags( const QStringList& tags )
+{
+	m_tags = tags;
+}
+
+inline const QStringList& Drumkit::getTags() const
+{
+	return m_tags;
 }
 
 inline void Drumkit::setImage( const QString& image )

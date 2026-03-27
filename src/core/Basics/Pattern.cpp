@@ -44,8 +44,8 @@ Pattern::Pattern( )
 	, m_nLength( 4 * H2Core::nTicksPerQuarter )
 	, m_nDenominator( 4 )
 	, m_sName( "Pattern" )
-	, m_tags( QStringList() )
 	, m_sInfo( "" )
+	, m_tags( QStringList() )
 {
 }
 
@@ -57,8 +57,8 @@ Pattern::Pattern( std::shared_ptr<Pattern> pOther )
 	, m_nLength( pOther->getLength() )
 	, m_nDenominator( pOther->getDenominator() )
 	, m_sName( pOther->getName() )
-	, m_tags( QStringList() )
 	, m_sInfo( pOther->getInfo() )
+	, m_tags( QStringList() )
 {
 	FOREACH_NOTE_CST_IT_BEGIN_END( pOther->getNotes(),it ) {
 		m_notes.insert( std::make_pair( it->first,
