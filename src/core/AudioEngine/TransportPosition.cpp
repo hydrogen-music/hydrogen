@@ -132,7 +132,8 @@ void TransportPosition::setBpm( float fNewBpm ) {
 	
 	m_fBpm = fNewBpm;
 
-	if ( Preferences::get_instance()->getRubberBandBatchMode() ) {
+	if (Preferences::get_instance()->getRubberBandBatchMode() &&
+        m_sLabel == "Transport") {
 		Hydrogen::get_instance()->recalculateRubberband( getBpm() );
 	}
 }

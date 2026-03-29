@@ -34,6 +34,7 @@ All notable changes to this project will be documented in this file.
   release artifacts).
 - Segfault on Port-MIDI host error by @rrrapha.
 - Fix linker error on OpenBSD by @rrrapha.
+- Fixed performance issue when using JACK audio with rubberband.
 
 ## [1.2.6] - 2025-07-29
 
