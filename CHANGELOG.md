@@ -320,6 +320,7 @@ All notable changes to this project will be documented in this file.
 - Using bpm, beat counter, and tap tempo MIDI actions or OSC commands while
   timeline is activate does no longer result in countless popups.
 - Pattern loading and deleting via the Sound Library has been fixed.
+- Fixed performance issue when using JACK audio with rubberband.
 
 ## [1.2.6] - 2025-07-29
 
