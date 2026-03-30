@@ -832,14 +832,17 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<Transport> pPos,
 
 	if ( fNewBpm != fOldBpm ) {
 		pPos->setBpm( fNewBpm );
-		if ( pPos->getType() == Transport::Type::Playhead &&
-			 trigger != Event::Trigger::Suppress ) {
-			EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, 0 );
-		}
+		if ( pPos->getType() == Transport::Type::Playhead ) {
+			if ( trigger != Event::Trigger::Suppress ) {
+				EventQueue::get_instance()->pushEvent(
+					Event::Type::TempoChanged, 0
+				);
+			}
 
-		if ( Preferences::get_instance()->getMidiClockOutputSend() &&
-			 m_pMidiDriver != nullptr ) {
-			m_pMidiDriver->startMidiClockStream( fNewBpm );
+			if ( Preferences::get_instance()->getMidiClockOutputSend() &&
+				 m_pMidiDriver != nullptr ) {
+				m_pMidiDriver->startMidiClockStream( fNewBpm );
+			}
 		}
 	}
 
