@@ -1423,7 +1423,8 @@ std::shared_ptr<Instrument> Drumkit::mapInstrument( const QString& sType,
 			if ( pOldInstrument != nullptr ) {
 				const int nOldIndex = pOldInstruments->index( pOldInstrument );
 
-				if ( nOldIndex != -1 ) {
+				if ( nOldIndex != -1 &&
+					 m_pInstruments->isValidIndex( nOldIndex ) ) {
 					pInstrument = m_pInstruments->get( nOldIndex );
 				}
 			}
