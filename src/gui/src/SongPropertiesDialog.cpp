@@ -83,6 +83,7 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 		if ( pSong->getLicense().getType() == License::Unspecified ) {
 			licenseStringTxt->hide();
 		}
+		m_pTagEdit->setTags( pSong->getTags() );
 	}
 
 	connect( licenseComboBox, SIGNAL( currentIndexChanged( int ) ),
@@ -98,6 +99,8 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 	licenseComboBox->setToolTip( pCommonStrings->getLicenseComboToolTip() );
 	licenseStringTxt->setToolTip( pCommonStrings->getLicenseStringToolTip() );
 	notesLabel->setText( pCommonStrings->getNotesDialog() );
+
+	m_pTagsLabel->setText( pCommonStrings->getTagsLabel() );
 
 	okBtn->setFixedFontSize( 12 );
 	okBtn->setSize( QSize( 70, 23 ) );
@@ -255,6 +258,11 @@ void SongPropertiesDialog::on_okBtn_clicked()
 	if ( pSong->getNotes() != notesTxt->toPlainText() ) {
 		pSong->setNotes( notesTxt->toPlainText() );
 		bIsModified = true;
+	}
+
+	const auto tags = m_pTagEdit->getTags();
+	if ( tags != pSong->getTags() ) {
+		pSong->setTags( tags );
 	}
 
 	QString sNewLicenseString( licenseStringTxt->text() );

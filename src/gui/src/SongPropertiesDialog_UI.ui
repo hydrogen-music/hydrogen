@@ -47,21 +47,21 @@
        </size>
       </property>
       <layout class="QVBoxLayout" name="outerLayout">
-        <property name="spacing">
-          <number>0</number>
-        </property>
-        <property name="leftMargin">
-          <number>0</number>
-        </property>
-        <property name="topMargin">
-          <number>0</number>
-        </property>
-        <property name="rightMargin">
-          <number>0</number>
-        </property>
-        <property name="bottomMargin">
-          <number>0</number>
-        </property>
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
        <item>
         <widget class="QTabWidget" name="tabWidget">
          <property name="sizePolicy">
@@ -71,7 +71,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tabGeneral">
           <property name="sizePolicy">
@@ -80,38 +80,15 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <attribute name="title">
+           <string/>
+          </attribute>
           <layout class="QGridLayout" name="generalLayout">
-           <item row="0" column="0">
-            <widget class="QLabel" name="nameLabel">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>20</height>
-              </size>
-             </property>
-            </widget>
+           <item row="4" column="1">
+            <widget class="LCDDisplay" name="licenseStringTxt"/>
            </item>
-           <item row="0" column="1">
-            <widget class="LCDDisplay" name="songNameTxt"/>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="versionLabel"/>
-           </item>
-           <item row="1" column="1">
-            <widget class="LCDSpinBox" name="versionSpinBox"/>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="authorLabel">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>20</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="LCDDisplay" name="authorTxt"/>
+           <item row="5" column="0">
+            <widget class="QLabel" name="notesLabel"/>
            </item>
            <item row="3" column="0">
             <widget class="QLabel" name="licenseLabel">
@@ -123,6 +100,12 @@
              </property>
             </widget>
            </item>
+           <item row="1" column="1">
+            <widget class="LCDSpinBox" name="versionSpinBox"/>
+           </item>
+           <item row="5" column="1">
+            <widget class="LCDTextEdit" name="notesTxt"/>
+           </item>
            <item row="3" column="1">
             <widget class="LCDCombo" name="licenseComboBox">
              <property name="sizePolicy">
@@ -133,18 +116,51 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
-            <widget class="LCDDisplay" name="licenseStringTxt"/>
+           <item row="2" column="0">
+            <widget class="QLabel" name="authorLabel">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
            </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="notesLabel"/>
+           <item row="1" column="0">
+            <widget class="QLabel" name="versionLabel"/>
            </item>
-           <item row="5" column="1">
-            <widget class="LCDTextEdit" name="notesTxt"/>
+           <item row="2" column="1">
+            <widget class="LCDDisplay" name="authorTxt"/>
+           </item>
+           <item row="0" column="1">
+            <widget class="LCDDisplay" name="songNameTxt"/>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="nameLabel">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="TagEdit" name="m_pTagEdit"/>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="m_pTagsLabel">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
          <widget class="QWidget" name="tabLicenses">
+          <attribute name="title">
+           <string/>
+          </attribute>
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <property name="spacing">
             <number>0</number>
@@ -173,7 +189,7 @@
          <item>
           <spacer>
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -203,7 +219,7 @@
          <item>
           <spacer>
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -251,6 +267,12 @@
    <class>LCDTextEdit</class>
    <extends>QTextEdit</extends>
    <header location="global">../src/Widgets/LCDTextEdit.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TagEdit</class>
+   <extends>QWidget</extends>
+   <header location="global">../src/Widgets/TagEdit.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
