@@ -92,6 +92,9 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 	versionLabel->setText( pCommonStrings->getVersionDialog() );
 	notesLabel->setText( pCommonStrings->getNotesDialog() );
 
+	m_pTagsLabel->setText( pCommonStrings->getTagsLabel() );
+	m_pTagEdit->setTags( pDrumkit->getTags() );
+
 	if ( bSaveToNsmSession &&
 		 ! Hydrogen::get_instance()->isUnderSessionManagement() ) {
 		ERRORLOG( "NSM session export request while there is no active NSM session. Saving to Sound Library instead." );
@@ -729,6 +732,8 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	if ( m_pDrumkit->getImageLicense() != newImageLicense ) {
 		m_pDrumkit->setImageLicense( newImageLicense );
 	}
+
+	m_pDrumkit->setTags( m_pTagEdit->getTags() );
 
 	for ( int ii = 0; ii < typesTable->rowCount(); ++ii ) {
 		auto ppItemId =
