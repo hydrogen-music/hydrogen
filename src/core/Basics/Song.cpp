@@ -296,10 +296,14 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		// Current version
 		const XMLNode playbackTrackInstrumentNode =
 			playbackTrackNode.firstChildElement( "instrument" );
-		pPlaybackTrackInstrument = Instrument::loadFrom(
-			playbackTrackInstrumentNode, "", "", sSongPath, pSong->getLicense(),
-			true, nullptr, bSilent
-		);
+		if ( !playbackTrackInstrumentNode.isNull() ) {
+            // In case the node is null the user did not provide a playback
+            // track.
+			pPlaybackTrackInstrument = Instrument::loadFrom(
+				playbackTrackInstrumentNode, "", "", sSongPath,
+				pSong->getLicense(), true, nullptr, bSilent
+			);
+		}
 	}
 	else if ( !rootNode.firstChildElement( "playbackTrackFilename" )
 				   .isNull() ) {
