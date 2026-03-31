@@ -143,7 +143,8 @@ void Transport::setBpm( float fNewBpm )
 
 	m_fBpm = fNewBpm;
 
-	if ( Preferences::get_instance()->getRubberBandBatchMode() ) {
+	if ( Preferences::get_instance()->getRubberBandBatchMode() &&
+		 m_type == Type::Playhead ) {
 		auto pHydrogen = Hydrogen::get_instance();
 		auto pSong = pHydrogen->getSong();
 		if ( pSong == nullptr ) {
