@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>315</width>
-    <height>439</height>
+    <height>539</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="overallLayout">
@@ -99,17 +99,14 @@
             <widget class="LCDTextEdit" name="patternDescTxt"/>
            </item>
            <item>
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string>Pattern category</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="LCDTextEdit" name="categoryTextEdit">
+            <widget class="QLabel" name="m_pTagsLabel">
             </widget>
            </item>
           </layout>
+         </item>
+         <item>
+           <widget class="TagEdit" name="m_pTagEdit">
+           </widget>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout">
@@ -196,6 +193,12 @@
    <class>LCDTextEdit</class>
    <extends>QTextEdit</extends>
    <header location="global">../src/Widgets/LCDTextEdit.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TagEdit</class>
+   <extends>QWidget</extends>
+   <header location="global">../src/Widgets/TagEdit.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

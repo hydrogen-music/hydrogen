@@ -1524,6 +1524,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Tool tip and undo history entry for adjusting the tempo in the main tool * bar.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Tags</source>
+        <extracomment>Shown as label text in song, pattern, and drumkit dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -3638,10 +3643,6 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
     <message>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
-    </message>
-    <message>
-        <source>Pattern category</source>
-        <translation>Kategorie paternu</translation>
     </message>
 </context>
 <context>

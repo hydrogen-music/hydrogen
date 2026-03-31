@@ -290,6 +290,8 @@ CommonStrings::CommonStrings(){
 	 *  indicating that an action is associated with the currently selected
 	 *  instrument. Designed to hold about 7 characters. */
 	m_sCurrentlySelectedLabel = tr( "Select." );
+	/*: Shown as label text in song, pattern, and drumkit dialog. */
+	m_sTagsLabel = tr( "Tags" );
 
 	/*: Displayed in the tooltip of input widgets. Indicates the
 	  allowed values from minimum to maximum.*/

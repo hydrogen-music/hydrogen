@@ -61,7 +61,6 @@ PatternPropertiesDialog::PatternPropertiesDialog( QWidget* parent,
 	// Allow to focus the widget using mouse wheel and tab
 	versionSpinBox->setFocusPolicy( Qt::WheelFocus );
 	licenseComboBox->setFocusPolicy( Qt::WheelFocus );
-	categoryTextEdit->setFocusPolicy( Qt::WheelFocus );
 	okBtn->setFocusPolicy( Qt::WheelFocus );
 	cancelBtn->setFocusPolicy( Qt::WheelFocus );
 
@@ -104,9 +103,8 @@ PatternPropertiesDialog::PatternPropertiesDialog( QWidget* parent,
 	__nselectedPattern = nselectedPattern;
 	__savepattern = savepattern;
 
-	if ( !tags.isEmpty() ) {
-		categoryTextEdit->setText( tags.join( " " ) );
-	}
+	m_pTagsLabel->setText( pCommonStrings->getTagsLabel() );
+	m_pTagEdit->setTags( pattern->getTags() );
 
 	okBtn->setFixedFontSize( 12 );
 	okBtn->setSize( QSize( 70, 23 ) );
@@ -150,7 +148,7 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	const QString sAuthor = authorTxt->text();
 	QString sPattName = patternNameTxt->text();
 	const License license( licenseStringTxt->text() );
-	const QStringList tags = categoryTextEdit->toPlainText().split( " " );
+	const QStringList tags = m_pTagEdit->getTags();
 	const QString sPattInfo = patternDescTxt->toPlainText();
 
 	// Sanity checks.
@@ -170,7 +168,6 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 			return;
 		}
 	}
-
 
 	// Ensure the pattern name is unique
 	auto pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
