@@ -987,9 +987,6 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 	QFileInfo fileInfo( fd.selectedFiles().first() );
 	pPref->setLastExportPatternAsDirectory( fileInfo.path() );
 	const QString sFilePath = fileInfo.absoluteFilePath();
-
-	QString sOriginalName = pPattern->getName();
-	pPattern->setName( fileInfo.baseName() );
 	if ( ! pPattern->save( sFilePath ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
 	}
@@ -1000,8 +997,6 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 			pHydrogen->getSoundLibraryDatabase()->updatePatterns();
 		}
 	}
-
-	pPattern->setName( sOriginalName );
 }
 
 void MainForm::action_file_open() {

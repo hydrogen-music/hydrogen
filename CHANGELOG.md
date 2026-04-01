@@ -252,7 +252,7 @@ All notable changes to this project will be documented in this file.
   instrument mute/solo state.
 - Playback track does now respect looping and is update on tempo changes.
 - Sample files in the audio file browser can now be loaded via double-clicking.
-
+- Pattern export does now leave the pattern name untouched.
 
 ### Fixed
 
