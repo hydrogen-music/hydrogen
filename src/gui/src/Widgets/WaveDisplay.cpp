@@ -88,13 +88,15 @@ void WaveDisplay::setLayer( std::shared_ptr<H2Core::InstrumentLayer> pLayer )
 	if ( pLayer == nullptr || pLayer->getSample() == nullptr ) {
 		m_pLayer = nullptr;
 		m_sSampleName = m_sFallbackLabel;
+
+		updateBackground();
 	}
-	else {
+	else if ( pLayer != m_pLayer ) {
 		m_pLayer = pLayer;
 		m_sSampleName = pLayer->getSample()->getFileName();
-	}
 
-	updateBackground();
+		updateBackground();
+	}
 }
 
 void WaveDisplay::setPlayheadPosition( int nPlayheadX )
