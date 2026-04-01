@@ -65,44 +65,31 @@ class Pattern : public H2Core::Object<Pattern>
 	/** allow iteration of all contained virtual patterns.*/
 	std::set<std::shared_ptr<Pattern>>::iterator begin();
 	std::set<std::shared_ptr<Pattern>>::iterator end();
-	
-		/**
-		 * constructor
-		 * \param name the name of the pattern
-		 * \param info Initialized with an empty string.
-		 * \param category the category of the pattern
-		 * \param length the length of the pattern
-		 * \param denominator the denominator for meter representation (eg 4/4)
-		 */
-		Pattern( const QString& name="Pattern", const QString& info="",
-				 const QString& sCategory = "",
-				 int length = 4 * H2Core::nTicksPerQuarter,
-				 int denominator=4 );
-		/** copy constructor */
-		Pattern( std::shared_ptr<Pattern> pOther );
-		/** destructor */
-		~Pattern();
 
-		/**
-		 * load a pattern from a file
-		 * \param sPatternPath the path to the file to load the pattern from
-		 * \param bSilent Whether infos, warnings, and errors should
-		 *   be logged.
-		 */
-		static std::shared_ptr<Pattern> load( const QString& sPatternPath,
-											  bool bSilent = false );
-		/**
-		 * load a pattern from an XMLNode
-		 * \param node the XMLDode to read from
-		 * \param sDrumkitName kit the pattern was created for (only used as
-		 *   fallback).
-		 * \param pDrumkit In case the PatternList is loaded as part of a song,
-		 *   the current drumkit used to retrieve the types of all contained
-		 *   notes.
-		 * \param bSilent Whether infos, warnings, and errors should
-		 *   be logged.
-		 * \return a new Pattern instance
-		 */
+	Pattern();
+	Pattern( std::shared_ptr<Pattern> pOther );
+	~Pattern();
+
+	/**
+	 * load a pattern from a file
+	 * \param sPatternPath the path to the file to load the pattern from
+	 * \param bSilent Whether infos, warnings, and errors should
+	 *   be logged.
+	 */
+	static std::shared_ptr<Pattern>
+	load( const QString& sPatternPath, bool bSilent = false );
+	/**
+	 * load a pattern from an XMLNode
+	 * \param node the XMLDode to read from
+	 * \param sDrumkitName kit the pattern was created for (only used as
+	 *   fallback).
+	 * \param pDrumkit In case the PatternList is loaded as part of a song,
+	 *   the current drumkit used to retrieve the types of all contained
+	 *   notes.
+	 * \param bSilent Whether infos, warnings, and errors should
+	 *   be logged.
+	 * \return a new Pattern instance
+	 */
 	static std::shared_ptr<Pattern> loadFrom( const XMLNode& node,
 											  const QString& sDrumkitName,
 											  std::shared_ptr<Drumkit> pDrumkit = nullptr,
@@ -146,10 +133,8 @@ class Pattern : public H2Core::Object<Pattern>
 		void setName( const QString& sName );
 		///< get the name of the pattern
 		const QString& getName() const;
-		///< set the category of the pattern
-		void setCategory( const QString& sCategory );
-		///< get the category of the pattern
-		const QString& getCategory() const;
+		void setTags( const QStringList& tags );
+		const QStringList& getTags() const;
 		///< set the info of the pattern
 		void setInfo( const QString& sInfo );
 		///< get the info of the pattern
@@ -320,8 +305,9 @@ class Pattern : public H2Core::Object<Pattern>
 		int m_nDenominator;
 		/** name of the pattern */
 		QString m_sName;
-		/** category of the pattern */
-		QString m_sCategory;
+		/** Various categories which can be used for filtering during online
+         * import. */
+		QStringList m_tags;
 		/** a description of the pattern */
 		QString m_sInfo;
 		/** multimap (hash with possible multiple values for one key) of note */
@@ -416,14 +402,14 @@ inline const QString& Pattern::getInfo() const
 	return m_sInfo;
 }
 
-inline void Pattern::setCategory( const QString& category )
+inline void Pattern::setTags( const QStringList& tags )
 {
-	m_sCategory = category;
+	m_tags = tags;
 }
 
-inline const QString& Pattern::getCategory() const
+inline const QStringList& Pattern::getTags() const
 {
-	return m_sCategory;
+	return m_tags;
 }
 
 inline void Pattern::setLength( int length )

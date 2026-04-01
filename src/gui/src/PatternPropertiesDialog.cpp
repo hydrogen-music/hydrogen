@@ -61,7 +61,6 @@ PatternPropertiesDialog::PatternPropertiesDialog( QWidget* parent,
 	// Allow to focus the widget using mouse wheel and tab
 	versionSpinBox->setFocusPolicy( Qt::WheelFocus );
 	licenseComboBox->setFocusPolicy( Qt::WheelFocus );
-	categoryComboBox->setFocusPolicy( Qt::WheelFocus );
 	okBtn->setFocusPolicy( Qt::WheelFocus );
 	cancelBtn->setFocusPolicy( Qt::WheelFocus );
 
@@ -78,7 +77,7 @@ PatternPropertiesDialog::PatternPropertiesDialog( QWidget* parent,
 
 	setupLicenseComboBox( licenseComboBox );
 
-	QString sCategory;
+	QStringList tags;
 	if ( pattern != nullptr ) {
 		versionSpinBox->setValue( pattern->getVersion() );
 		authorTxt->setText( pattern->getAuthor() );
@@ -92,7 +91,7 @@ PatternPropertiesDialog::PatternPropertiesDialog( QWidget* parent,
 		patternNameTxt->setText( pattern->getName() );
 		defaultNameCheck( pattern->getName(), savepattern );
 
-		sCategory = pattern->getCategory();
+		tags = pattern->getTags();
 	}
 
 	connect( licenseComboBox, SIGNAL( currentIndexChanged( int ) ),
@@ -104,17 +103,8 @@ PatternPropertiesDialog::PatternPropertiesDialog( QWidget* parent,
 	__nselectedPattern = nselectedPattern;
 	__savepattern = savepattern;
 
-	if ( sCategory.isEmpty() ){
-		sCategory = SoundLibraryDatabase::m_sPatternBaseCategory;
-	}
-	categoryComboBox->addItem( sCategory );
-
-	const auto pPref = H2Core::Preferences::get_instance();
-	for ( const auto& ssCategory : pPref->m_patternCategories ) {
-		if ( categoryComboBox->currentText() != ssCategory ){
-			categoryComboBox->addItem( ssCategory );
-		}
-	}
+	m_pTagsLabel->setText( pCommonStrings->getTagsLabel() );
+	m_pTagEdit->setTags( pattern->getTags() );
 
 	okBtn->setFixedFontSize( 12 );
 	okBtn->setSize( QSize( 70, 23 ) );
@@ -158,7 +148,7 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	const QString sAuthor = authorTxt->text();
 	QString sPattName = patternNameTxt->text();
 	const License license( licenseStringTxt->text() );
-	const QString sPattCategory = categoryComboBox->currentText();
+	const QStringList tags = m_pTagEdit->getTags();
 	const QString sPattInfo = patternDescTxt->toPlainText();
 
 	// Sanity checks.
@@ -179,16 +169,9 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 		}
 	}
 
-
 	// Ensure the pattern name is unique
 	auto pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
 	sPattName = pPatternList->findUnusedPatternName(sPattName, pattern);
-
-	auto pPref = H2Core::Preferences::get_instance();
-
-	if ( pPref->m_patternCategories.contains( sPattCategory ) ) {
-		pPref->m_patternCategories.push_back( sPattCategory );
-	}
 
 	if( __savepattern ){
 		if ( pattern->getVersion() != nVersion ) {
@@ -198,14 +181,14 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 		pattern->setAuthor( sAuthor );
 		pattern->setInfo( sPattInfo );
 		pattern->setLicense( license );
-		pattern->setCategory( sPattCategory );
+		pattern->setTags( tags );
 	}
 	else if ( pattern->getVersion() != nVersion ||
 			  pattern->getName() != sPattName  ||
 			  pattern->getAuthor() != sAuthor   ||
 			  pattern->getInfo() != sPattInfo  ||
 			  pattern->getLicense() != license  ||
-			  pattern->getCategory() != sPattCategory ) {
+			  pattern->getTags() != tags ) {
 		SE_modifyPatternPropertiesAction *action =
 			new SE_modifyPatternPropertiesAction(
 				pattern->getVersion(),
@@ -213,13 +196,13 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 				pattern->getAuthor(),
 				pattern->getInfo(),
 				pattern->getLicense(),
-				pattern->getCategory(),
+				pattern->getTags(),
 				nVersion,
 				sPattName,
 				sAuthor,
 				sPattInfo,
 				license,
-				sPattCategory,
+				tags,
 				__nselectedPattern );
 		HydrogenApp::get_instance()->pushUndoCommand( action );
 	}

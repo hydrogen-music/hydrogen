@@ -55,31 +55,34 @@
 namespace H2Core
 {
 
-Drumkit::Drumkit() : m_context( Context::Song ),
-					 m_sName( "empty" ),
-					 m_nVersion( 0 ),
-					 m_sAuthor( "undefined author" ),
-					 m_sInfo( "No information available." ),
-					 m_license( License() ),
-					 m_sImage( "" ),
-					 m_imageLicense( License() ),
-					 m_pInstruments( std::make_shared<InstrumentList>() )
+Drumkit::Drumkit()
+	: m_context( Context::Song ),
+	  m_sName( "empty" ),
+	  m_nVersion( 0 ),
+	  m_sAuthor( "undefined author" ),
+	  m_sInfo( "No information available." ),
+	  m_license( License() ),
+	  m_tags( QStringList() ),
+	  m_sImage( "" ),
+	  m_imageLicense( License() ),
+	  m_pInstruments( std::make_shared<InstrumentList>() )
 {
 	QDir usrDrumkitPath( Filesystem::usr_drumkits_dir() );
 	m_sPath = usrDrumkitPath.filePath( m_sName );
 }
 
-Drumkit::Drumkit( std::shared_ptr<Drumkit> other ) :
-	Object(),
-	m_context( other->getContext() ),
-	m_sPath( other->getPath() ),
-	m_sName( other->getName() ),
-	m_nVersion( other->m_nVersion ),
-	m_sAuthor( other->getAuthor() ),
-	m_sInfo( other->getInfo() ),
-	m_license( other->getLicense() ),
-	m_sImage( other->getImage() ),
-	m_imageLicense( other->getImageLicense() )
+Drumkit::Drumkit( std::shared_ptr<Drumkit> other )
+	: Object(),
+	  m_context( other->getContext() ),
+	  m_sPath( other->getPath() ),
+	  m_sName( other->getName() ),
+	  m_nVersion( other->m_nVersion ),
+	  m_sAuthor( other->getAuthor() ),
+	  m_sInfo( other->getInfo() ),
+	  m_license( other->getLicense() ),
+	  m_tags( other->m_tags ),
+	  m_sImage( other->getImage() ),
+	  m_imageLicense( other->getImageLicense() )
 {
 	m_pInstruments = std::make_shared<InstrumentList>( other->getInstruments() );
 }
@@ -188,6 +191,17 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 								  pDrumkit->getLicense().getLicenseString(),
 								  true, true, bSilent  ),
 				pDrumkit->m_sAuthor ) );
+
+	const XMLNode tagsNode = node.firstChildElement( "tags" );
+	if ( !tagsNode.isNull() ) {
+		QStringList tags;
+		auto tagNode = tagsNode.firstChildElement( "tag" );
+		while ( !tagNode.isNull() && !tagNode.text().isEmpty() ) {
+			tags << tagNode.text();
+			tagNode = tagNode.nextSiblingElement( "tag" );
+		}
+		pDrumkit->setTags( tags );
+	}
 
 	// As of 2022 we have no drumkits featuring an image in
 	// stock. Thus, verbosity of this one will be turned of in order
@@ -430,6 +444,13 @@ void Drumkit::saveTo( XMLNode& node,
 	node.write_string( "author", m_sAuthor );
 	node.write_string( "info", m_sInfo );
 	node.write_string( "license", m_license.getLicenseString() );
+
+	XMLNode tagsNode = node.createNode( "tags" );
+	for ( const auto& tag : m_tags ) {
+		if ( !tag.isEmpty() ) {
+			tagsNode.write_string( "tag", tag );
+		}
+	}
 
 	QString sImage;
 	if ( bSongKit ) {
@@ -1469,6 +1490,7 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2author: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sAuthor ) )
 			.append( QString( "%1%2info: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sInfo ) )
 			.append( QString( "%1%2license: %3\n" ).arg( sPrefix ).arg( s ).arg( m_license.toQString() ) )
+			.append( QString( "%1%2m_tags: %3\n" ).arg( sPrefix ).arg( s ).arg( m_tags.join( ", " ) ) )
 			.append( QString( "%1%2image: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sImage ) )
 			.append( QString( "%1%2imageLicense: %3\n" ).arg( sPrefix ).arg( s ).arg( m_imageLicense.toQString() ) )
 			.append( QString( "%1%2samples_loaded: %3\n" ).arg( sPrefix ).arg( s )
@@ -1486,6 +1508,7 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", author: %1" ).arg( m_sAuthor ) )
 			.append( QString( ", info: %1" ).arg( m_sInfo ) )
 			.append( QString( ", license: %1" ).arg( m_license.toQString() ) )
+			.append( QString( ", m_tags: %1" ).arg( m_tags.join( ", " ) ) )
 			.append( QString( ", image: %1" ).arg( m_sImage ) )
 			.append( QString( ", imageLicense: %1" ).arg( m_imageLicense.toQString() ) )
 			.append( QString( ", samples_loaded: %1" )

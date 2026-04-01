@@ -1413,7 +1413,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Pattern</source>
         <extracomment>Indicates a menu section which affects patterns.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Patró</translation>
     </message>
     <message>
         <source>MIDI Control</source>
@@ -1523,6 +1523,11 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Alter the Playback Speed</source>
         <extracomment>Tool tip and undo history entry for adjusting the tempo in the main tool * bar.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tags</source>
+        <extracomment>Shown as label text in song, pattern, and drumkit dialog.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3641,10 +3646,6 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
-    <message>
-        <source>Pattern category</source>
-        <translation>Categoria del patró</translation>
-    </message>
 </context>
 <context>
     <name>PlaybackTrackWaveDisplay</name>
@@ -5669,10 +5670,6 @@ N&apos;estàs segur?</translation>
         <translation>mode patrons apilats</translation>
     </message>
     <message>
-        <source>Pattern %1</source>
-        <translation>Patró %1</translation>
-    </message>
-    <message>
         <source>Mute playback track</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5695,6 +5692,11 @@ N&apos;estàs segur?</translation>
     <message>
         <source>Delete complete pattern-sequence</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern</source>
+        <extracomment>Default name of a newly added pattern. A number separated by a white * space will be appended.</extracomment>
+        <translation>Patró</translation>
     </message>
 </context>
 <context>
@@ -5844,7 +5846,7 @@ N&apos;estàs segur?</translation>
     </message>
     <message>
         <source>Patterns</source>
-        <translation type="unfinished"></translation>
+        <translation>Patrons</translation>
     </message>
     <message>
         <source>Installed</source>

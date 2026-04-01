@@ -237,12 +237,12 @@ void SongEditorPatternList::inlineEditingAccepted()
 			m_pPatternBeingEdited->getAuthor(),
 			m_pPatternBeingEdited->getInfo(),
 			m_pPatternBeingEdited->getLicense(),
-			m_pPatternBeingEdited->getCategory(),
+			m_pPatternBeingEdited->getTags(),
 			m_pPatternBeingEdited->getVersion(), patternName,
 			m_pPatternBeingEdited->getAuthor(),
 			m_pPatternBeingEdited->getInfo(),
 			m_pPatternBeingEdited->getLicense(),
-			m_pPatternBeingEdited->getCategory(),
+			m_pPatternBeingEdited->getTags(),
 			pPatternList->index( m_pPatternBeingEdited )
 		);
 	HydrogenApp::get_instance()->pushUndoCommand( action );
@@ -436,63 +436,6 @@ void SongEditorPatternList::patternPopup_properties()
 	dialog->exec();
 	delete dialog;
 	dialog = nullptr;
-}
-
-void SongEditorPatternList::acceptPatternPropertiesDialogSettings(
-	const int nNewVersion,
-	const QString& newPatternName,
-	const QString& sNewAuthor,
-	const QString& newPatternInfo,
-	const License& newLicense,
-	const QString& newPatternCategory,
-	int patternNr
-)
-{
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-
-	auto patternList = pSong->getPatternList();
-	auto pattern = patternList->get( patternNr );
-	pattern->setVersion( nNewVersion );
-	pattern->setName( newPatternName );
-	pattern->setAuthor( sNewAuthor );
-	pattern->setInfo( newPatternInfo );
-	pattern->setLicense( newLicense );
-	pattern->setCategory( newPatternCategory );
-	pHydrogen->setIsModified( true );
-
-	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1 );
-}
-
-void SongEditorPatternList::revertPatternPropertiesDialogSettings(
-	const int nOldVersion,
-	const QString& oldPatternName,
-	const QString& sOldAuthor,
-	const QString& oldPatternInfo,
-	const License& oldLicense,
-	const QString& oldPatternCategory,
-	int patternNr
-)
-{
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-
-	auto patternList = pSong->getPatternList();
-	auto pattern = patternList->get( patternNr );
-	pattern->setVersion( nOldVersion );
-	pattern->setName( oldPatternName );
-	pattern->setAuthor( sOldAuthor );
-	pattern->setInfo( oldPatternInfo );
-	pattern->setLicense( oldLicense );
-	pattern->setCategory( oldPatternCategory );
-	pHydrogen->setIsModified( true );
-	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1 );
 }
 
 void SongEditorPatternList::patternPopup_delete()

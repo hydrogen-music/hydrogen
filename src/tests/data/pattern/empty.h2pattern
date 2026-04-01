@@ -4,13 +4,13 @@
  <pattern>
   <formatVersion>2</formatVersion>
   <userVersion>0</userVersion>
-  <name>test</name>
+  <name>Pattern</name>
   <author></author>
-  <info>ladida</info>
+  <info></info>
   <license>undefined license</license>
-  <category>not_categorized</category>
-  <size>1</size>
-  <denominator>1</denominator>
+  <size>192</size>
+  <denominator>4</denominator>
+  <tags/>
   <noteList/>
  </pattern>
 </drumkit_pattern>

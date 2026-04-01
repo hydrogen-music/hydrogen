@@ -152,8 +152,7 @@ void MemoryLeakageTest::testConstructors()
 	}
 
 	{
-		auto pPattern =
-			std::make_shared<H2Core::Pattern>( "ladida", "ladida", "ladida" );
+		auto pPattern = std::make_shared<H2Core::Pattern>();
 		auto pPattern2 = std::make_shared<H2Core::Pattern>( pPattern );
 		pPattern = nullptr;
 		pPattern2 = nullptr;

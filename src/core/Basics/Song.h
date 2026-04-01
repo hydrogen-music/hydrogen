@@ -195,6 +195,8 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 		void			setNotes( const QString& sNotes );
 		const QString&		getNotes() const;
+		void setTags( const QStringList& tags );
+		const QStringList& getTags() const;
 
 		void			setLicense( const License& license );
 		const License&		getLicense() const;
@@ -303,6 +305,8 @@ private:
 		///< Metronome volume
 		float	m_fMetronomeVolume;
 		QString			m_sNotes;
+		QStringList m_tags;
+
 		///< Pattern list
 		std::shared_ptr<PatternList>	m_pPatternList;
 		///< Sequence of pattern groups
@@ -503,6 +507,15 @@ inline void Song::setNotes( const QString& sNotes )
 inline const QString& Song::getNotes() const
 {
 	return m_sNotes;
+}
+inline void Song::setTags( const QStringList& tags )
+{
+	m_tags = tags;
+}
+
+inline const QStringList& Song::getTags() const
+{
+	return m_tags;
 }
 
 inline void Song::setLicense( const License& license )

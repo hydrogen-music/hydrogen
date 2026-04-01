@@ -1524,6 +1524,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Tool tip and undo history entry for adjusting the tempo in the main tool * bar.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Tags</source>
+        <extracomment>Shown as label text in song, pattern, and drumkit dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -3636,10 +3641,6 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
-    <message>
-        <source>Pattern category</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>PlaybackTrackWaveDisplay</name>
@@ -5660,10 +5661,6 @@ Kontynuować?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Pattern %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Mute playback track</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5685,6 +5682,11 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>Delete complete pattern-sequence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern</source>
+        <extracomment>Default name of a newly added pattern. A number separated by a white * space will be appended.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>

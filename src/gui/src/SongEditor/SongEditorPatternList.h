@@ -64,24 +64,6 @@ class SongEditorPatternList : public QWidget,
 	) = delete;
 
 	void movePatternLine( int, int );
-	void acceptPatternPropertiesDialogSettings(
-		const int nNewVersion,
-		const QString& newPatternName,
-		const QString& sNewAuthor,
-		const QString& newPatternInfo,
-		const H2Core::License& newLicense,
-		const QString& newPatternCategory,
-		int patternNr
-	);
-	void revertPatternPropertiesDialogSettings(
-		const int nOldVersion,
-		const QString& oldPatternName,
-		const QString& sOldAuthor,
-		const QString& oldPatternInfo,
-		const H2Core::License& oldLicense,
-		const QString& oldPatternCategory,
-		int patternNr
-	);
 	int getGridHeight() { return m_nGridHeight; }
 
 	void updateEditor();

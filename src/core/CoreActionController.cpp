@@ -2284,7 +2284,8 @@ bool CoreActionController::newPattern( const QString& sPatternName )
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pPatternList = pHydrogen->getSong()->getPatternList();
-	auto pPattern = std::make_shared<Pattern>( sPatternName );
+	auto pPattern = std::make_shared<Pattern>();
+	pPattern->setName( sPatternName );
 
 	return setPattern( pPattern, pPatternList->size(), false );
 }
@@ -2459,7 +2460,7 @@ bool CoreActionController::removePattern( int nPatternNumber )
 	// Ensure there is always at least one pattern present in the
 	// list.
 	if ( pPatternList->size() == 0 ) {
-		auto pEmptyPattern = std::make_shared<Pattern>( "Pattern 1" );
+		auto pEmptyPattern = std::make_shared<Pattern>();
 		pPatternList->add( pEmptyPattern );
 	}
 
@@ -2567,6 +2568,46 @@ bool CoreActionController::clearInstrumentInPattern( int nInstrument,
 	pPattern->purgeInstrument( pInstrument, true );
 
 	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, 0 );
+
+	return true;
+}
+
+bool CoreActionController::setPatternProperties(
+	const int nNewVersion,
+	const QString& sNewPatternName,
+	const QString& sNewAuthor,
+	const QString& sNewPatternInfo,
+	const H2Core::License& newLicense,
+	const QStringList& newTags,
+	int nPatternIndex
+)
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	auto pPatternList = pHydrogen->getSong()->getPatternList();
+	auto pPattern = pPatternList->get( nPatternIndex );
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Unable to find pattern [%1]" ).arg( nPatternIndex )
+		);
+		return false;
+	}
+
+	pPattern->setVersion( nNewVersion );
+	pPattern->setName( sNewPatternName );
+	pPattern->setAuthor( sNewAuthor );
+	pPattern->setInfo( sNewPatternInfo );
+	pPattern->setLicense( newLicense );
+	pPattern->setTags( newTags );
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1 );
 
 	return true;
 }

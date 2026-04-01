@@ -1412,7 +1412,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Pattern</source>
         <extracomment>Indicates a menu section which affects patterns.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Мустра</translation>
     </message>
     <message>
         <source>MIDI Control</source>
@@ -1522,6 +1522,11 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Alter the Playback Speed</source>
         <extracomment>Tool tip and undo history entry for adjusting the tempo in the main tool * bar.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tags</source>
+        <extracomment>Shown as label text in song, pattern, and drumkit dialog.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3661,10 +3666,6 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
         <source>Alt+C</source>
         <translation>Алт+П</translation>
     </message>
-    <message>
-        <source>Pattern category</source>
-        <translation>Обележја мустре</translation>
-    </message>
 </context>
 <context>
     <name>PlaybackTrackWaveDisplay</name>
@@ -5692,10 +5693,6 @@ Are you sure?</source>
         <translation>Режим сложене мустре</translation>
     </message>
     <message>
-        <source>Pattern %1</source>
-        <translation>Мустра %1</translation>
-    </message>
-    <message>
         <source>Mute playback track</source>
         <translation>Утишај траку која свира</translation>
     </message>
@@ -5718,6 +5715,11 @@ Are you sure?</source>
     <message>
         <source>Delete complete pattern-sequence</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern</source>
+        <extracomment>Default name of a newly added pattern. A number separated by a white * space will be appended.</extracomment>
+        <translation>Мустра</translation>
     </message>
 </context>
 <context>

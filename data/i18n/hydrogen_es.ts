@@ -1413,7 +1413,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Pattern</source>
         <extracomment>Indicates a menu section which affects patterns.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Patrón</translation>
     </message>
     <message>
         <source>MIDI Control</source>
@@ -1524,6 +1524,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>Alter the Playback Speed</source>
         <extracomment>Tool tip and undo history entry for adjusting the tempo in the main tool * bar.</extracomment>
         <translation>Alterar Velocidad de Reproducción</translation>
+    </message>
+    <message>
+        <source>Tags</source>
+        <extracomment>Shown as label text in song, pattern, and drumkit dialog.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3670,10 +3675,6 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
-    <message>
-        <source>Pattern category</source>
-        <translation>Categoría de patrón</translation>
-    </message>
 </context>
 <context>
     <name>PlaybackTrackWaveDisplay</name>
@@ -5701,10 +5702,6 @@ Are you sure?</source>
         <translation>modo patrones apilados</translation>
     </message>
     <message>
-        <source>Pattern %1</source>
-        <translation>Patrón %1</translation>
-    </message>
-    <message>
         <source>Mute playback track</source>
         <translation>Silenciar pista reproducción</translation>
     </message>
@@ -5727,6 +5724,11 @@ Are you sure?</source>
     <message>
         <source>Delete complete pattern-sequence</source>
         <translation>Borrar secuencia entera de patrones</translation>
+    </message>
+    <message>
+        <source>Pattern</source>
+        <extracomment>Default name of a newly added pattern. A number separated by a white * space will be appended.</extracomment>
+        <translation>Patrón</translation>
     </message>
 </context>
 <context>

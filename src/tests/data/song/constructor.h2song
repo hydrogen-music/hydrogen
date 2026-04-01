@@ -10,6 +10,7 @@
  <name>Untitled Song</name>
  <author>Unknown Author</author>
  <notes>...</notes>
+ <tags/>
  <license>undefined license</license>
  <loopEnabled>false</loopEnabled>
  <patternModeMode>true</patternModeMode>
@@ -30,6 +31,7 @@
   <author>undefined author</author>
   <info>No information available.</info>
   <license>undefined license</license>
+  <tags/>
   <image></image>
   <imageLicense>undefined license</imageLicense>
   <instrumentList>

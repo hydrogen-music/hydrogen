@@ -1413,7 +1413,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Pattern</source>
         <extracomment>Indicates a menu section which affects patterns.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>样式</translation>
     </message>
     <message>
         <source>MIDI Control</source>
@@ -1523,6 +1523,11 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Alter the Playback Speed</source>
         <extracomment>Tool tip and undo history entry for adjusting the tempo in the main tool * bar.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tags</source>
+        <extracomment>Shown as label text in song, pattern, and drumkit dialog.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3658,10 +3663,6 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
 <context>
     <name>PatternPropertiesDialog_UI</name>
     <message>
-        <source>Pattern category</source>
-        <translation>样式类别</translation>
-    </message>
-    <message>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
     </message>
@@ -5694,10 +5695,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>调整时间参数值</translation>
     </message>
     <message>
-        <source>Pattern %1</source>
-        <translation>样式 %1</translation>
-    </message>
-    <message>
         <source>Warning, this will erase your pattern sequence.
 Are you sure?</source>
         <translation>警告，这会删除您的样式序列。
@@ -5722,6 +5719,11 @@ Are you sure?</source>
     <message>
         <source>Delete complete pattern-sequence</source>
         <translation>清除完成的样式序列</translation>
+    </message>
+    <message>
+        <source>Pattern</source>
+        <extracomment>Default name of a newly added pattern. A number separated by a white * space will be appended.</extracomment>
+        <translation>样式</translation>
     </message>
 </context>
 <context>
