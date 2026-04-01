@@ -10,9 +10,11 @@ All notable changes to this project will be documented in this file.
 - Linux man pages for the `h2cli` and `h2player` applications have been added.
 - Forward compatibility to version 2.0:
   - `hydrogen.conf` regarding MIDI input channel values.
-  - `.h2pattern`, in which the `<pitch>` node will be dropped.
+  - `.h2pattern`, in which the `<pitch>` and `<category>` node will be dropped
+    and `<tags>` introduced.
   - `.h2song`, in which the playback track will be stored as a full-blown
-    instrument.
+    instrument and the `<tags>` node introduced.
+  - drumkits, in the `<tags>` node will be introduced.
 
 ### Changed
 
