@@ -813,37 +813,41 @@ void SongEditorPanel::updatePlaybackTrack()
 
 		m_pPlaybackTrackWaveDisplay->setEnabled( true );
 		m_pPlaybackTrackWaveDisplay->setLayer( nullptr );
-	}
-	else if ( pSong->getMode() == Song::Mode::Pattern ) {
-		// Playback track is disabled in pattern mode
-		m_pLoadPlaybackTrackButton->setEnabled( false );
-		m_pPlaybackTrackFader->setIsActive( false );
-		m_pDeletePlaybackTrackButton->setEnabled( false );
-		m_pEditPlaybackTrackButton->setEnabled( false );
-		m_pMutePlaybackTrackButton->setIsActive( false );
-		m_pPlaybackTrackWaveDisplay->setEnabled( false );
+
 	}
 	else {
 		auto pInstrument = pSong->getPlaybackTrackInstrument();
-		// Playback track was selected by the user and is ready to
-		// use.
-		m_pLoadPlaybackTrackButton->setEnabled( true );
-		m_pPlaybackTrackFader->setIsActive( true );
-		m_pPlaybackTrackFader->setValue( pInstrument->getVolume() );
-		m_pDeletePlaybackTrackButton->setEnabled( true );
-		m_pEditPlaybackTrackButton->setEnabled( true );
-		m_pMutePlaybackTrackButton->setIsActive( true );
-		m_pMutePlaybackTrackButton->setChecked( pInstrument->isMuted() );
-		m_pPlaybackTrackWaveDisplay->setEnabled( true );
 		if ( pInstrument->getComponent( 0 ) != nullptr &&
 			 pInstrument->getComponent( 0 )->getLayer( 0 ) != nullptr ) {
 			m_pPlaybackTrackWaveDisplay->setLayer(
 				pInstrument->getComponent( 0 )->getLayer( 0 )
 			);
 		}
+
+		if ( pSong->getMode() == Song::Mode::Pattern ) {
+			// Playback track is disabled in pattern mode
+			m_pLoadPlaybackTrackButton->setEnabled( false );
+			m_pPlaybackTrackFader->setIsActive( false );
+			m_pDeletePlaybackTrackButton->setEnabled( false );
+			m_pEditPlaybackTrackButton->setEnabled( false );
+			m_pMutePlaybackTrackButton->setIsActive( false );
+			m_pPlaybackTrackWaveDisplay->setEnabled( false );
+		}
+		else {
+			// Playback track was selected by the user and is ready to
+			// use.
+			m_pLoadPlaybackTrackButton->setEnabled( true );
+			m_pPlaybackTrackFader->setIsActive( true );
+			m_pPlaybackTrackFader->setValue( pInstrument->getVolume() );
+			m_pDeletePlaybackTrackButton->setEnabled( true );
+			m_pEditPlaybackTrackButton->setEnabled( true );
+			m_pMutePlaybackTrackButton->setIsActive( true );
+			m_pMutePlaybackTrackButton->setChecked( pInstrument->isMuted() );
+			m_pPlaybackTrackWaveDisplay->setEnabled( true );
+		}
 	}
 	updateIcons();
-    updateStyleSheet();
+	updateStyleSheet();
 }
 
 ///
