@@ -803,17 +803,17 @@ void SongEditorPanel::updatePlaybackTrack()
 		return;
 	}
 
+	bool bEnabled = true;
+    bool bTrackPresent = false;
 	if ( pSong == nullptr || pSong->getPlaybackTrackInstrument() == nullptr ) {
 		// No playback track chosen (stored in the current song).
-		m_pLoadPlaybackTrackButton->setEnabled( true );
-		m_pPlaybackTrackFader->setIsActive( false );
-		m_pDeletePlaybackTrackButton->setEnabled( false );
-		m_pEditPlaybackTrackButton->setEnabled( false );
-		m_pMutePlaybackTrackButton->setIsActive( false );
+		bEnabled = pSong == nullptr
+					   ? false
+					   : ( pSong->getMode() != Song::Mode::Pattern );
+		bTrackPresent = false;
 
-		m_pPlaybackTrackWaveDisplay->setEnabled( true );
+		m_pMutePlaybackTrackButton->setChecked( false );
 		m_pPlaybackTrackWaveDisplay->setLayer( nullptr );
-
 	}
 	else {
 		auto pInstrument = pSong->getPlaybackTrackInstrument();
@@ -822,30 +822,23 @@ void SongEditorPanel::updatePlaybackTrack()
 			m_pPlaybackTrackWaveDisplay->setLayer(
 				pInstrument->getComponent( 0 )->getLayer( 0 )
 			);
-		}
-
-		if ( pSong->getMode() == Song::Mode::Pattern ) {
-			// Playback track is disabled in pattern mode
-			m_pLoadPlaybackTrackButton->setEnabled( false );
-			m_pPlaybackTrackFader->setIsActive( false );
-			m_pDeletePlaybackTrackButton->setEnabled( false );
-			m_pEditPlaybackTrackButton->setEnabled( false );
-			m_pMutePlaybackTrackButton->setIsActive( false );
-			m_pPlaybackTrackWaveDisplay->setEnabled( false );
+			m_pMutePlaybackTrackButton->setChecked( pInstrument->isMuted() );
+			bTrackPresent = true;
 		}
 		else {
-			// Playback track was selected by the user and is ready to
-			// use.
-			m_pLoadPlaybackTrackButton->setEnabled( true );
-			m_pPlaybackTrackFader->setIsActive( true );
-			m_pPlaybackTrackFader->setValue( pInstrument->getVolume() );
-			m_pDeletePlaybackTrackButton->setEnabled( true );
-			m_pEditPlaybackTrackButton->setEnabled( true );
-			m_pMutePlaybackTrackButton->setIsActive( true );
-			m_pMutePlaybackTrackButton->setChecked( pInstrument->isMuted() );
-			m_pPlaybackTrackWaveDisplay->setEnabled( true );
+			bTrackPresent = false;
 		}
+		m_pPlaybackTrackFader->setValue( pInstrument->getVolume() );
+		bEnabled = pSong->getMode() != Song::Mode::Pattern;
 	}
+
+	m_pLoadPlaybackTrackButton->setEnabled( bEnabled );
+	m_pPlaybackTrackFader->setIsActive( bTrackPresent && bEnabled );
+	m_pDeletePlaybackTrackButton->setEnabled( bTrackPresent && bEnabled );
+	m_pEditPlaybackTrackButton->setEnabled( bTrackPresent && bEnabled );
+	m_pMutePlaybackTrackButton->setIsActive( bTrackPresent && bEnabled );
+	m_pPlaybackTrackWaveDisplay->setEnabled( bTrackPresent && bEnabled );
+
 	updateIcons();
 	updateStyleSheet();
 }
