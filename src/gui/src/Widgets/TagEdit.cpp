@@ -171,13 +171,13 @@ void TagEdit::addRow( const QString& sText )
 				break;
 			}
 		}
-		if ( nRow < 0 || nRow >= m_pTable->columnCount() ) {
+		if ( nRow < 0 || nRow >= m_pTable->rowCount() ) {
 			ERRORLOG(
 				QString(
 					"Delete button associated with incorrect row [%1] [0,%2)"
 				)
 					.arg( nRow )
-					.arg( m_pTable->columnCount() )
+					.arg( m_pTable->rowCount() )
 			);
 			return;
 		}
