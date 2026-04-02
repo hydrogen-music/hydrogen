@@ -31,6 +31,8 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
+#include <core/SoundLibrary/PatternInfo.h>
+#include <core/SoundLibrary/SongInfo.h>
 
 namespace H2Core {
 
@@ -46,7 +48,7 @@ SoundLibraryDatabase::~SoundLibraryDatabase()
 bool SoundLibraryDatabase::isPatternInstalled( const QString& sPatternName
 ) const
 {
-	for ( const auto& pPatternInfo : m_patternInfoVector ) {
+	for ( const auto& pPatternInfo : m_patternInfos ) {
 		if ( pPatternInfo->getName() == sPatternName ) {
 			return true;
 		}
@@ -399,7 +401,7 @@ std::set<Instrument::Type> SoundLibraryDatabase::getAllTypes() const
 
 void SoundLibraryDatabase::updatePatterns( bool bTriggerEvent )
 {
-	m_patternInfoVector.clear();
+	m_patternInfos.clear();
 
 	// search drumkit subdirectories within patterns user directory
 	foreach ( const QString& sDrumkit, Filesystem::pattern_drumkits() ) {
@@ -415,7 +417,7 @@ void SoundLibraryDatabase::updatePatterns( bool bTriggerEvent )
 	}
 
 	// Set context on all patterns based on their file path
-	for ( auto& pInfo : m_patternInfoVector ) {
+	for ( auto& pInfo : m_patternInfos ) {
 		pInfo->setContext( Filesystem::DetermineContext( pInfo->getPath() ) );
 	}
 
@@ -430,33 +432,32 @@ void SoundLibraryDatabase::loadPatternFromDirectory( const QString& sPatternDir
 )
 {
 	foreach ( const QString& sName, Filesystem::pattern_list( sPatternDir ) ) {
-		QString sFile = sPatternDir + sName;
-		std::shared_ptr<SoundLibraryInfo> pInfo =
-			std::make_shared<SoundLibraryInfo>();
+		const auto sFile = sPatternDir + sName;
+		auto pInfo = std::make_shared<PatternInfo>();
 
 		if ( pInfo->load( sFile ) ) {
 			INFOLOG( QString( "Pattern [%1] loaded from [%2]" )
 						 .arg( pInfo->getName() )
 						 .arg( sFile ) );
 
-			m_patternInfoVector.push_back( pInfo );
+			m_patternInfos.push_back( pInfo );
 		}
 	}
 }
 
 void SoundLibraryDatabase::updateSongs( bool bTriggerEvent )
 {
-	m_songInfoVector.clear();
+	m_songInfos.clear();
 
 	// User songs
 	const QString sUsrSongsDir = Filesystem::songs_dir();
 	if ( Filesystem::dir_readable( sUsrSongsDir, true ) ) {
 		for ( const QString& sSongFile : Filesystem::song_list_cleared() ) {
 			const QString sFullPath = sUsrSongsDir + sSongFile;
-			auto pInfo = std::make_shared<SoundLibraryInfo>();
+			auto pInfo = std::make_shared<SongInfo>();
 			if ( pInfo->load( sFullPath ) ) {
 				pInfo->setContext( Filesystem::Context::User );
-				m_songInfoVector.push_back( pInfo );
+				m_songInfos.push_back( pInfo );
 			}
 		}
 	}
@@ -472,10 +473,10 @@ void SoundLibraryDatabase::updateSongs( bool bTriggerEvent )
 				);
 		for ( const QString& sSongFile : songFiles ) {
 			const QString sFullPath = sSysSongsDir + sSongFile;
-			auto pInfo = std::make_shared<SoundLibraryInfo>();
+			auto pInfo = std::make_shared<SongInfo>();
 			if ( pInfo->load( sFullPath ) ) {
 				pInfo->setContext( Filesystem::Context::System );
-				m_songInfoVector.push_back( pInfo );
+				m_songInfos.push_back( pInfo );
 			}
 		}
 	}
@@ -518,7 +519,7 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort )
 		sOutput.append(
 			QString( "%1%2m_patternInfoVector:\n" ).arg( sPrefix ).arg( s )
 		);
-		for ( const auto& ppatternInfo : m_patternInfoVector ) {
+		for ( const auto& ppatternInfo : m_patternInfos ) {
 			sOutput.append( QString( "%3\n" ).arg(
 				ppatternInfo->toQString( sPrefix + s + s, bShort )
 			) );
@@ -526,7 +527,7 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort )
 		sOutput.append(
 			QString( "%1%2m_songInfoVector:\n" ).arg( sPrefix ).arg( s )
 		);
-		for ( const auto& pSongInfo : m_songInfoVector ) {
+		for ( const auto& pSongInfo : m_songInfos ) {
 			sOutput.append( QString( "%3\n" ).arg(
 				pSongInfo->toQString( sPrefix + s + s, bShort )
 			) );
@@ -554,12 +555,12 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort )
 			sOutput.append( QString( "[%1: %2] " ).arg( ssPath ).arg( ssLabel )
 			);
 		}
-		sOutput.append( ", m_patternInfoVector: " );
-		for ( const auto& ppatternInfo : m_patternInfoVector ) {
+		sOutput.append( ", m_patternInfos: " );
+		for ( const auto& ppatternInfo : m_patternInfos ) {
 			sOutput.append( QString( "%1, " ).arg( ppatternInfo->getPath() ) );
 		}
-		sOutput.append( ", m_songInfoVector: " );
-		for ( const auto& pSongInfo : m_songInfoVector ) {
+		sOutput.append( ", m_songInfos: " );
+		for ( const auto& pSongInfo : m_songInfos ) {
 			sOutput.append( QString( "%1, " ).arg( pSongInfo->getPath() ) );
 		}
 		sOutput

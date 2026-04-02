@@ -49,6 +49,8 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/H2Exception.h>
 #include <core/Hydrogen.h>
+#include <core/SoundLibrary/PatternInfo.h>
+#include <core/SoundLibrary/SongInfo.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 using namespace H2Core;
@@ -405,7 +407,7 @@ void SoundLibraryPanel::updatePatternTree()
 				   getPointSize( pFontTheme->m_fontSize ) );
 	boldFont.setBold( true );
 
-	auto patternInfoVector = pSoundLibraryDatabase->getPatternInfoVector();
+	auto patternInfoVector = pSoundLibraryDatabase->getPatternInfos();
 
 	// Separate patterns by context
 	for ( const auto& pInfo : patternInfoVector ) {
@@ -460,7 +462,7 @@ void SoundLibraryPanel::updateSongTree()
 				   getPointSize( pFontTheme->m_fontSize ) );
 	boldFont.setBold( true );
 
-	auto songInfoVector = pSoundLibraryDatabase->getSongInfoVector();
+	auto songInfoVector = pSoundLibraryDatabase->getSongInfos();
 
 	for ( const auto& pInfo : songInfoVector ) {
 		QTreeWidgetItem* pParentItem = nullptr;

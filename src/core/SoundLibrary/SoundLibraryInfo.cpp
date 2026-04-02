@@ -22,8 +22,6 @@
 
 #include <core/SoundLibrary/SoundLibraryInfo.h>
 
-#include <core/Helpers/Xml.h>
-
 namespace H2Core {
 
 SoundLibraryInfo::SoundLibraryInfo() : m_context( Filesystem::Context::User )
@@ -48,103 +46,6 @@ SoundLibraryInfo::SoundLibraryInfo(
 	  m_sPath( sPath ),
 	  m_context( Filesystem::Context::User )
 {
-}
-
-bool SoundLibraryInfo::load( const QString& sPath )
-{
-	setPath( sPath );
-
-	XMLDoc doc;
-	if ( !doc.read( sPath, true ) ) {
-		ERRORLOG(
-			QString( "Unable to load SoundLibraryInfo from [%1]" ).arg( sPath )
-		);
-		return false;
-	}
-
-	bool bLoadingWorked = false;
-
-	XMLNode rootNode = doc.firstChildElement( "drumkit_pattern" );
-	if ( !rootNode.isNull() ) {
-		setType( "pattern" );
-
-		setAuthor( rootNode.read_string(
-			"author", "undefined author", true, false, true
-		) );
-		setLicense( H2Core::License(
-			rootNode.read_string( "license", "", true, false, true )
-		) );
-		XMLNode patternNode = rootNode.firstChildElement( "pattern" );
-		// Try legacy format fist.
-		setName( patternNode.read_string( "pattern_name", "", true, true ) );
-		if ( getName().isEmpty() ) {
-			// Try current format.
-			setName( patternNode.read_string( "name", "", false, false ) );
-		}
-		if ( getAuthor() == "undefined author" ) {
-			// current format
-			setAuthor( patternNode.read_string(
-				"author", "undefined author", true, false, true
-			) );
-		}
-		if ( getLicense().isEmpty() ) {
-			// current format
-			setLicense( H2Core::License(
-				patternNode.read_string( "license", "", true, false, true )
-			) );
-		}
-		setInfo( patternNode.read_string(
-			"info", "No information available.", false, true, true
-		) );
-
-		bLoadingWorked = true;
-	}
-
-	// New drumkits
-	rootNode = doc.firstChildElement( "drumkit_info" );
-	if ( !rootNode.isNull() ) {
-		setType( "drumkit" );
-		setAuthor(
-			rootNode.read_string( "author", "undefined author", false, false )
-		);
-		setLicense( H2Core::License(
-			rootNode.read_string( "license", "", false, false )
-		) );
-		setName( rootNode.read_string( "name", "", false, false ) );
-		setInfo( rootNode.read_string(
-			"info", "No information available.", false, false
-		) );
-
-		bLoadingWorked = true;
-	}
-
-	// Songs
-	rootNode = doc.firstChildElement( "song" );
-	if ( !rootNode.isNull() ) {
-		setType( "song" );
-		setAuthor(
-			rootNode.read_string( "author", "undefined author", false, false )
-		);
-		setLicense( H2Core::License(
-			rootNode.read_string( "license", "", false, false )
-		) );
-		setName( rootNode.read_string( "name", "", false, false ) );
-		setInfo( rootNode.read_string(
-			"info", "No information available.", false, false
-		) );
-
-		bLoadingWorked = true;
-	}
-
-	if ( !bLoadingWorked ) {
-		ERRORLOG(
-			QString( "[%1] could not be loaded as pattern, song, or drumkit" )
-				.arg( sPath )
-		);
-		return false;
-	}
-
-	return true;
 }
 
 SoundLibraryInfo::~SoundLibraryInfo()

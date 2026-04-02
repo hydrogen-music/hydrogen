@@ -30,7 +30,6 @@
 
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/DrumkitMap.h>
-#include <core/SoundLibrary/SoundLibraryInfo.h>
 #include <core/Object.h>
 
 namespace H2Core
@@ -47,6 +46,9 @@ namespace H2Core
  *
  */
 
+class PatternInfo;
+class SongInfo;
+
 /** \ingroup docGUI*/
 class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	H2_OBJECT( SoundLibraryDatabase )
@@ -54,14 +56,8 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	SoundLibraryDatabase();
 	~SoundLibraryDatabase();
 
-	std::vector<std::shared_ptr<SoundLibraryInfo>> getPatternInfoVector() const
-	{
-		return m_patternInfoVector;
-	}
-	std::vector<std::shared_ptr<SoundLibraryInfo>> getSongInfoVector() const
-	{
-		return m_songInfoVector;
-	}
+	std::vector<std::shared_ptr<PatternInfo>> getPatternInfos() const;
+	std::vector<std::shared_ptr<SongInfo>> getSongInfos() const;
 
 	void update();
 
@@ -148,8 +144,8 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	 * */
 	std::map<QString, QString> m_drumkitUniqueLabels;
 
-	std::vector<std::shared_ptr<SoundLibraryInfo>> m_patternInfoVector;
-	std::vector<std::shared_ptr<SoundLibraryInfo>> m_songInfoVector;
+	std::vector<std::shared_ptr<PatternInfo>> m_patternInfos;
+	std::vector<std::shared_ptr<SongInfo>> m_songInfos;
 
 	/**
 	 * List of drumkits the user supplied via CLI or OSC command but
@@ -164,6 +160,16 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	 * system and user drumkti folder. */
 	QStringList m_customDrumkitFolders;
 };
+inline std::vector<std::shared_ptr<PatternInfo>>
+SoundLibraryDatabase::getPatternInfos() const
+{
+	return m_patternInfos;
+};
+inline std::vector<std::shared_ptr<SongInfo>>
+SoundLibraryDatabase::getSongInfos() const
+{
+	return m_songInfos;
+}
 };	// namespace H2Core
 
 #endif	// SOUND_LIBRARY_DATABASE_H
