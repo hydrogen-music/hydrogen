@@ -24,58 +24,62 @@
 
 #include <core/Helpers/Xml.h>
 
-namespace H2Core
-{
+namespace H2Core {
 
-
-SoundLibraryInfo::SoundLibraryInfo()
-	: m_context( Filesystem::Context::User )
+SoundLibraryInfo::SoundLibraryInfo() : m_context( Filesystem::Context::User )
 {
 }
 
-SoundLibraryInfo::SoundLibraryInfo( const QString& sName,
-									const QString& sURL,
-									const QString& sInfo,
-									const QString& sAuthor,
-									const QString& sCategory,
-									const QString& sType,
-									const License& license,
-									const QString& sImage,
-									const License& imageLicense,
-									const QString& sPath )
-	: m_sName( sName )
-	, m_sURL( sURL )
-	, m_sInfo( sInfo )
-	, m_sAuthor( sAuthor )
-	, m_sCategory( sCategory )
-	, m_sType( sType )
-	, m_license( license )
-	, m_sImage( sImage )
-	, m_imageLicense( imageLicense )
-	, m_sPath( sPath )
-	, m_context( Filesystem::Context::User )
+SoundLibraryInfo::SoundLibraryInfo(
+	const QString& sName,
+	const QString& sURL,
+	const QString& sInfo,
+	const QString& sAuthor,
+	const QString& sCategory,
+	const QString& sType,
+	const License& license,
+	const QString& sImage,
+	const License& imageLicense,
+	const QString& sPath
+)
+	: m_sName( sName ),
+	  m_sURL( sURL ),
+	  m_sInfo( sInfo ),
+	  m_sAuthor( sAuthor ),
+	  m_sCategory( sCategory ),
+	  m_sType( sType ),
+	  m_license( license ),
+	  m_sImage( sImage ),
+	  m_imageLicense( imageLicense ),
+	  m_sPath( sPath ),
+	  m_context( Filesystem::Context::User )
 {
 }
 
-bool SoundLibraryInfo::load( const QString& sPath ) {
+bool SoundLibraryInfo::load( const QString& sPath )
+{
 	setPath( sPath );
 
 	XMLDoc doc;
-	if ( ! doc.read( sPath, true ) ) {
-		ERRORLOG( QString( "Unable to load SoundLibraryInfo from [%1]" )
-				  .arg( sPath ) );
+	if ( !doc.read( sPath, true ) ) {
+		ERRORLOG(
+			QString( "Unable to load SoundLibraryInfo from [%1]" ).arg( sPath )
+		);
 		return false;
 	}
 
 	bool bLoadingWorked = false;
 
-	XMLNode rootNode =  doc.firstChildElement( "drumkit_pattern" );
-	if ( ! rootNode.isNull() )
-	{
+	XMLNode rootNode = doc.firstChildElement( "drumkit_pattern" );
+	if ( !rootNode.isNull() ) {
 		setType( "pattern" );
 
-		setAuthor( rootNode.read_string( "author", "undefined author", true, false, true ) );
-		setLicense( H2Core::License( rootNode.read_string( "license", "", true, false, true ) ) );
+		setAuthor( rootNode.read_string(
+			"author", "undefined author", true, false, true
+		) );
+		setLicense( H2Core::License(
+			rootNode.read_string( "license", "", true, false, true )
+		) );
 		XMLNode patternNode = rootNode.firstChildElement( "pattern" );
 		// Try legacy format fist.
 		setName( patternNode.read_string( "pattern_name", "", true, true ) );
@@ -85,56 +89,76 @@ bool SoundLibraryInfo::load( const QString& sPath ) {
 		}
 		if ( getAuthor() == "undefined author" ) {
 			// current format
-			setAuthor( patternNode.read_string( "author", "undefined author", true, false, true ) );
+			setAuthor( patternNode.read_string(
+				"author", "undefined author", true, false, true
+			) );
 		}
 		if ( getLicense().isEmpty() ) {
 			// current format
-			setLicense( H2Core::License( patternNode.read_string( "license", "", true, false, true ) ) );
+			setLicense( H2Core::License(
+				patternNode.read_string( "license", "", true, false, true )
+			) );
 		}
-		setInfo( patternNode.read_string( "info", "No information available.", false, true, true ) );
+		setInfo( patternNode.read_string(
+			"info", "No information available.", false, true, true
+		) );
 		setCategory( patternNode.read_string( "category", "", false, true ) );
 
-		QString sDrumkitName = rootNode.read_string( "drumkit_name", "", true, false, true );
+		QString sDrumkitName =
+			rootNode.read_string( "drumkit_name", "", true, false, true );
 		if ( sDrumkitName.isEmpty() ) {
 			sDrumkitName = rootNode.read_string( "pattern_for_drumkit", "" );
 		}
 		setDrumkitName( sDrumkitName );
-		
+
 		bLoadingWorked = true;
 	}
 
-
-	//New drumkits
+	// New drumkits
 	rootNode = doc.firstChildElement( "drumkit_info" );
-	if ( ! rootNode.isNull() )
-	{
+	if ( !rootNode.isNull() ) {
 		setType( "drumkit" );
-		setAuthor( rootNode.read_string( "author", "undefined author", false, false ) );
-		setLicense( H2Core::License( rootNode.read_string( "license", "", false, false ) ) );
+		setAuthor(
+			rootNode.read_string( "author", "undefined author", false, false )
+		);
+		setLicense( H2Core::License(
+			rootNode.read_string( "license", "", false, false )
+		) );
 		setName( rootNode.read_string( "name", "", false, false ) );
-		setInfo( rootNode.read_string( "info", "No information available.", false, false ) );
+		setInfo( rootNode.read_string(
+			"info", "No information available.", false, false
+		) );
 		setImage( rootNode.read_string( "image", "", false, false ) );
-		setImageLicense( H2Core::License( rootNode.read_string( "imageLicense", "", false, false ) ) );
-		
+		setImageLicense( H2Core::License(
+			rootNode.read_string( "imageLicense", "", false, false )
+		) );
+
 		bLoadingWorked = true;
 	}
 
-	//Songs
+	// Songs
 	rootNode = doc.firstChildElement( "song" );
-	if ( ! rootNode.isNull() )
-	{
+	if ( !rootNode.isNull() ) {
 		setType( "song" );
-		setAuthor( rootNode.read_string( "author", "undefined author", false, false ) );
-		setLicense( H2Core::License( rootNode.read_string( "license", "", false, false ) ) );
+		setAuthor(
+			rootNode.read_string( "author", "undefined author", false, false )
+		);
+		setLicense( H2Core::License(
+			rootNode.read_string( "license", "", false, false )
+		) );
 		setName( rootNode.read_string( "name", "", false, false ) );
-		setInfo( rootNode.read_string( "info", "No information available.", false, false ) );
+		setInfo( rootNode.read_string(
+			"info", "No information available.", false, false
+		) );
 
 		bLoadingWorked = true;
 	}
 
-	if ( ! bLoadingWorked ) {
-		ERRORLOG( QString( "[%1] could not be loaded as pattern, song, or drumkit" )
-				  .arg( sPath ) );
+	if ( !bLoadingWorked ) {
+		ERRORLOG(
+			QString( "[%1] could not be loaded as pattern, song, or drumkit" )
+				.arg( sPath )
+		);
 		return false;
 	}
 
@@ -143,47 +167,87 @@ bool SoundLibraryInfo::load( const QString& sPath ) {
 
 SoundLibraryInfo::~SoundLibraryInfo()
 {
-	//default deconstructor
+	// default deconstructor
 }
 
-QString SoundLibraryInfo::toQString( const QString& sPrefix, bool bShort ) const {
+QString SoundLibraryInfo::toQString( const QString& sPrefix, bool bShort ) const
+{
 	QString s = Base::sPrintIndention;
 	QString sOutput;
-	if ( ! bShort ) {
-		sOutput = QString( "%1[SoundLibraryInfo]\n" ).arg( sPrefix )
-			.append( QString( "%1%2m_sName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sName ) )
-			.append( QString( "%1%2m_sURL: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sURL ) )
-			.append( QString( "%1%2m_sInfo: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sInfo ) )
-			.append( QString( "%1%2m_sAuthor: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sAuthor ) )
-			.append( QString( "%1%2m_sCategory: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sCategory ) )
-			.append( QString( "%1%2m_sType: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sType ) )
-			.append( QString( "%1%2m_license:\n%3" ).arg( sPrefix ).arg( s )
-					 .arg( m_license.toQString( sPrefix + s + s, bShort ) ) )
-			.append( QString( "%1%2m_sImage: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sImage ) )
-			.append( QString( "%1%2m_imageLicense:\n%3" ).arg( sPrefix ).arg( s )
-					 .arg( m_imageLicense.toQString( sPrefix + s + s, bShort ) ) )
-			.append( QString( "%1%2m_sPath: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sPath ) )
-			.append( QString( "%1%2m_context: %3\n" ).arg( sPrefix ).arg( s ).arg( Filesystem::ContextToQString( m_context ) ) );
+	if ( !bShort ) {
+		sOutput =
+			QString( "%1[SoundLibraryInfo]\n" )
+				.arg( sPrefix )
+				.append( QString( "%1%2m_sName: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sName ) )
+				.append( QString( "%1%2m_sURL: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sURL ) )
+				.append( QString( "%1%2m_sInfo: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sInfo ) )
+				.append( QString( "%1%2m_sAuthor: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sAuthor ) )
+				.append( QString( "%1%2m_sCategory: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sCategory ) )
+				.append( QString( "%1%2m_sType: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sType ) )
+				.append(
+					QString( "%1%2m_license:\n%3" )
+						.arg( sPrefix )
+						.arg( s )
+						.arg( m_license.toQString( sPrefix + s + s, bShort ) )
+				)
+				.append( QString( "%1%2m_sImage: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sImage ) )
+				.append( QString( "%1%2m_imageLicense:\n%3" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_imageLicense.toQString(
+								 sPrefix + s + s, bShort
+							 ) ) )
+				.append( QString( "%1%2m_sPath: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sPath ) )
+				.append( QString( "%1%2m_context: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( Filesystem::ContextToQString( m_context ) )
+				);
 	}
 	else {
-
-		sOutput = QString( "[SoundLibraryInfo]" )
-			.append( QString( " m_sName: %1" ).arg( m_sName ) )
-			.append( QString( ", m_sURL: %1" ).arg( m_sURL ) )
-			.append( QString( ", m_sInfo: %1" ).arg( m_sInfo ) )
-			.append( QString( ", m_sAuthor: %1" ).arg( m_sAuthor ) )
-			.append( QString( ", m_sCategory: %1" ).arg( m_sCategory ) )
-			.append( QString( ", m_sType: %1" ).arg( m_sType ) )
-			.append( QString( ", m_license: %1" )
-					 .arg( m_license.toQString( "", bShort ) ) )
-			.append( QString( ", m_sImage: %1" ).arg( m_sImage ) )
-			.append( QString( ", m_imageLicense: %1" )
-					 .arg( m_imageLicense.toQString( "", bShort ) ) )
-			.append( QString( ", m_sPath: %1" ).arg( m_sPath ) )
-			.append( QString( ", m_context: %1" ).arg( Filesystem::ContextToQString( m_context ) ) );
+		sOutput =
+			QString( "[SoundLibraryInfo]" )
+				.append( QString( " m_sName: %1" ).arg( m_sName ) )
+				.append( QString( ", m_sURL: %1" ).arg( m_sURL ) )
+				.append( QString( ", m_sInfo: %1" ).arg( m_sInfo ) )
+				.append( QString( ", m_sAuthor: %1" ).arg( m_sAuthor ) )
+				.append( QString( ", m_sCategory: %1" ).arg( m_sCategory ) )
+				.append( QString( ", m_sType: %1" ).arg( m_sType ) )
+				.append( QString( ", m_license: %1" )
+							 .arg( m_license.toQString( "", bShort ) ) )
+				.append( QString( ", m_sImage: %1" ).arg( m_sImage ) )
+				.append( QString( ", m_imageLicense: %1" )
+							 .arg( m_imageLicense.toQString( "", bShort ) ) )
+				.append( QString( ", m_sPath: %1" ).arg( m_sPath ) )
+				.append( QString( ", m_context: %1" )
+							 .arg( Filesystem::ContextToQString( m_context ) )
+				);
 	}
 
 	return sOutput;
 }
-}; //namespace H2Core
-
+};	// namespace H2Core
