@@ -131,6 +131,7 @@ void ForwardCompatibilityTest::testPattern()
 		H2TEST_FILE( "forwardCompatibility/future.h2pattern" ),
 		pDrumkit->get_instruments() );
 	CPPUNIT_ASSERT( pPatternLoaded != nullptr );
+	CPPUNIT_ASSERT( pPatternLoaded->get_category() == "Example" );
 	CPPUNIT_ASSERT( pPatternLoaded->get_notes()->size() == 20 );
 
 	if ( pPatternLoaded != nullptr ) {

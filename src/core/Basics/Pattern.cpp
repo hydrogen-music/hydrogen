@@ -115,10 +115,23 @@ Pattern* Pattern::load_from( XMLNode* node, std::shared_ptr<InstrumentList> pIns
 	Pattern* pPattern = new Pattern(
 		sName,
 	    node->read_string( "info", "", false, true ),
-	    node->read_string( "category", "unknown", false, true, true ),
+	    node->read_string( "category", "unknown", true, true, true ),
 	    node->read_int( "size", -1, false, false ),
 	    node->read_int( "denominator", 4, false, false )
 	);
+
+	// Patterns created in version 2.0 and above have dropped the `category`
+	// node and use a list of tags instead. In order to provide at least some
+	// degree of backward compatibility, we treat the category of an old pattern
+	// as one initial tag and the first tag of future artifacts as category.
+	const XMLNode tagsNode = node->firstChildElement("tags");
+	if (!tagsNode.isNull()) {
+		auto tagNode = tagsNode.firstChildElement("tag");
+		while (!tagNode.isNull() && !tagNode.text().isEmpty()) {
+			pPattern->set_category(tagNode.text());
+			break;
+		}
+	}
 
 	if ( pInstrumentList == nullptr ) {
 		ERRORLOG( "Invalid instrument list provided" );

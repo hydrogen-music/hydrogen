@@ -79,6 +79,13 @@
 			<xsd:element name="category"	type="xsd:string"/>
 			<xsd:element name="size"		type="xsd:nonNegativeInteger"/>
 			<xsd:element name="denominator"	type="xsd:nonNegativeInteger" minOccurs="0"/>
+			<xsd:element name="tags" minOccurs="0">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="tag" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
 			<xsd:element name="noteList">
 				<xsd:complexType>
 					<xsd:sequence>
