@@ -34,8 +34,6 @@
 
 namespace H2Core {
 
-QString SoundLibraryDatabase::m_sPatternBaseCategory = "not_categorized";
-
 SoundLibraryDatabase::SoundLibraryDatabase()
 {
 	update();
@@ -402,7 +400,6 @@ std::set<Instrument::Type> SoundLibraryDatabase::getAllTypes() const
 void SoundLibraryDatabase::updatePatterns( bool bTriggerEvent )
 {
 	m_patternInfoVector.clear();
-	m_patternCategories = QStringList();
 
 	// search drumkit subdirectories within patterns user directory
 	foreach ( const QString& sDrumkit, Filesystem::pattern_drumkits() ) {
@@ -438,16 +435,11 @@ void SoundLibraryDatabase::loadPatternFromDirectory( const QString& sPatternDir
 			std::make_shared<SoundLibraryInfo>();
 
 		if ( pInfo->load( sFile ) ) {
-			INFOLOG( QString( "Pattern [%1] of category [%2] loaded from [%3]" )
+			INFOLOG( QString( "Pattern [%1] loaded from [%2]" )
 						 .arg( pInfo->getName() )
-						 .arg( pInfo->getCategory() )
 						 .arg( sFile ) );
 
 			m_patternInfoVector.push_back( pInfo );
-
-			if ( !m_patternCategories.contains( pInfo->getCategory() ) ) {
-				m_patternCategories << pInfo->getCategory();
-			}
 		}
 	}
 }
@@ -540,10 +532,6 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort )
 			) );
 		}
 		sOutput
-			.append( QString( "%1%2m_patternCategories: %3\n" )
-						 .arg( sPrefix )
-						 .arg( s )
-						 .arg( m_patternCategories.join( ", " ) ) )
 			.append( QString( "%1%2m_customDrumkitPaths: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
@@ -575,8 +563,6 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort )
 			sOutput.append( QString( "%1, " ).arg( pSongInfo->getPath() ) );
 		}
 		sOutput
-			.append( QString( ", m_patternCategories: %1" )
-						 .arg( m_patternCategories.join( ", " ) ) )
 			.append( QString( ", m_customDrumkitPaths: %1" )
 						 .arg( m_customDrumkitPaths.join( ", " ) ) )
 			.append( QString( ", m_customDrumkitFolders: %1" )

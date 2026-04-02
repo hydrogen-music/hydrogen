@@ -54,14 +54,10 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	SoundLibraryDatabase();
 	~SoundLibraryDatabase();
 
-	/** Null element of the category list*/
-	static QString m_sPatternBaseCategory;
-
 	std::vector<std::shared_ptr<SoundLibraryInfo>> getPatternInfoVector() const
 	{
 		return m_patternInfoVector;
 	}
-	QStringList getPatternCategories() const { return m_patternCategories; }
 	std::vector<std::shared_ptr<SoundLibraryInfo>> getSongInfoVector() const
 	{
 		return m_songInfoVector;
@@ -153,7 +149,6 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	std::map<QString, QString> m_drumkitUniqueLabels;
 
 	std::vector<std::shared_ptr<SoundLibraryInfo>> m_patternInfoVector;
-	QStringList m_patternCategories;
 	std::vector<std::shared_ptr<SoundLibraryInfo>> m_songInfoVector;
 
 	/**

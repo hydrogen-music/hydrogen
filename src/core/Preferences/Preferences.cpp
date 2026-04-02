@@ -210,8 +210,6 @@ Preferences::Preferences()
 	m_serverList.push_back(
 		QString( "http://hydrogen-music.org/feeds/drumkit_list.php" )
 	);
-	m_patternCategories.push_back( SoundLibraryDatabase::m_sPatternBaseCategory
-	);
 
 	//___ MIDI Driver properties
 #if defined( H2CORE_HAVE_ALSA )
@@ -414,9 +412,6 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	for ( const auto& ssServer : pOther->m_serverList ) {
 		m_serverList.push_back( ssServer );
 	}
-	for ( const auto& ssCategory : pOther->m_patternCategories ) {
-		m_patternCategories.push_back( ssCategory );
-	}
 	for ( const auto& ssFile : pOther->m_recentFiles ) {
 		m_recentFiles.push_back( ssFile );
 	}
@@ -571,31 +566,6 @@ Preferences::load( const QString& sPath, const bool bSilent )
 	}
 	else {
 		WARNINGLOG( "<serverList> node not found" );
-	}
-
-	// Use the default categories defined in the constructor and add additional
-	// ones.
-	const XMLNode patternCategoriesNode =
-		rootNode.firstChildElement( "patternCategories" );
-	if ( !patternCategoriesNode.isNull() ) {
-		QDomElement patternCategoriesElement =
-			patternCategoriesNode.firstChildElement( "categories" );
-		while ( !patternCategoriesElement.isNull() &&
-				!patternCategoriesElement.text().isEmpty() ) {
-			if ( !pPref->m_patternCategories.contains(
-					 patternCategoriesElement.text()
-				 ) ) {
-				pPref->m_patternCategories.push_back(
-					patternCategoriesElement.text()
-				);
-			}
-
-			patternCategoriesElement =
-				patternCategoriesElement.nextSiblingElement( "categories" );
-		}
-	}
-	else {
-		WARNINGLOG( "<patternCategories> node not found" );
 	}
 
 	/////////////// AUDIO ENGINE //////////////
@@ -1471,11 +1441,6 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 		serverListNode.write_string( "server", ssServer );
 	}
 
-	XMLNode patternCategoriesNode = rootNode.createNode( "patternCategories" );
-	for ( const auto& ssCategory : m_patternCategories ) {
-		patternCategoriesNode.write_string( "categories", ssCategory );
-	}
-
 	//---- AUDIO ENGINE ----
 	XMLNode audioEngineNode = rootNode.createNode( "audio_engine" );
 	{
@@ -2216,10 +2181,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_serverList.join( ',' ) ) )
-				.append( QString( "%1%2m_patternCategories: %3\n" )
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( m_patternCategories.join( ',' ) ) )
 				.append( QString( "%1%2m_audioDriver: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -2705,8 +2666,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( m_nBeatCounterStartOffset ) )
 				.append( QString( ", m_serverList: %1" )
 							 .arg( m_serverList.join( ',' ) ) )
-				.append( QString( ", m_patternCategories: %1" )
-							 .arg( m_patternCategories.join( ',' ) ) )
 				.append( QString( ", m_audioDriver: %1" )
 							 .arg( audioDriverToQString( m_audioDriver ) ) )
 				.append(

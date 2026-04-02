@@ -244,7 +244,6 @@ class Preferences : public H2Core::Object<Preferences> {
 	int m_nBeatCounterStartOffset;
 
 	QStringList m_serverList;
-	QStringList m_patternCategories;
 
 	//___ audio engine properties ___
 	AudioDriver m_audioDriver;

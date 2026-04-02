@@ -35,22 +35,16 @@ SoundLibraryInfo::SoundLibraryInfo(
 	const QString& sURL,
 	const QString& sInfo,
 	const QString& sAuthor,
-	const QString& sCategory,
 	const QString& sType,
 	const License& license,
-	const QString& sImage,
-	const License& imageLicense,
 	const QString& sPath
 )
 	: m_sName( sName ),
 	  m_sURL( sURL ),
 	  m_sInfo( sInfo ),
 	  m_sAuthor( sAuthor ),
-	  m_sCategory( sCategory ),
 	  m_sType( sType ),
 	  m_license( license ),
-	  m_sImage( sImage ),
-	  m_imageLicense( imageLicense ),
 	  m_sPath( sPath ),
 	  m_context( Filesystem::Context::User )
 {
@@ -102,14 +96,6 @@ bool SoundLibraryInfo::load( const QString& sPath )
 		setInfo( patternNode.read_string(
 			"info", "No information available.", false, true, true
 		) );
-		setCategory( patternNode.read_string( "category", "", false, true ) );
-
-		QString sDrumkitName =
-			rootNode.read_string( "drumkit_name", "", true, false, true );
-		if ( sDrumkitName.isEmpty() ) {
-			sDrumkitName = rootNode.read_string( "pattern_for_drumkit", "" );
-		}
-		setDrumkitName( sDrumkitName );
 
 		bLoadingWorked = true;
 	}
@@ -127,10 +113,6 @@ bool SoundLibraryInfo::load( const QString& sPath )
 		setName( rootNode.read_string( "name", "", false, false ) );
 		setInfo( rootNode.read_string(
 			"info", "No information available.", false, false
-		) );
-		setImage( rootNode.read_string( "image", "", false, false ) );
-		setImageLicense( H2Core::License(
-			rootNode.read_string( "imageLicense", "", false, false )
 		) );
 
 		bLoadingWorked = true;
@@ -167,7 +149,6 @@ bool SoundLibraryInfo::load( const QString& sPath )
 
 SoundLibraryInfo::~SoundLibraryInfo()
 {
-	// default deconstructor
 }
 
 QString SoundLibraryInfo::toQString( const QString& sPrefix, bool bShort ) const
@@ -194,10 +175,6 @@ QString SoundLibraryInfo::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_sAuthor ) )
-				.append( QString( "%1%2m_sCategory: %3\n" )
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( m_sCategory ) )
 				.append( QString( "%1%2m_sType: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -208,16 +185,6 @@ QString SoundLibraryInfo::toQString( const QString& sPrefix, bool bShort ) const
 						.arg( s )
 						.arg( m_license.toQString( sPrefix + s + s, bShort ) )
 				)
-				.append( QString( "%1%2m_sImage: %3\n" )
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( m_sImage ) )
-				.append( QString( "%1%2m_imageLicense:\n%3" )
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( m_imageLicense.toQString(
-								 sPrefix + s + s, bShort
-							 ) ) )
 				.append( QString( "%1%2m_sPath: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -235,13 +202,9 @@ QString SoundLibraryInfo::toQString( const QString& sPrefix, bool bShort ) const
 				.append( QString( ", m_sURL: %1" ).arg( m_sURL ) )
 				.append( QString( ", m_sInfo: %1" ).arg( m_sInfo ) )
 				.append( QString( ", m_sAuthor: %1" ).arg( m_sAuthor ) )
-				.append( QString( ", m_sCategory: %1" ).arg( m_sCategory ) )
 				.append( QString( ", m_sType: %1" ).arg( m_sType ) )
 				.append( QString( ", m_license: %1" )
 							 .arg( m_license.toQString( "", bShort ) ) )
-				.append( QString( ", m_sImage: %1" ).arg( m_sImage ) )
-				.append( QString( ", m_imageLicense: %1" )
-							 .arg( m_imageLicense.toQString( "", bShort ) ) )
 				.append( QString( ", m_sPath: %1" ).arg( m_sPath ) )
 				.append( QString( ", m_context: %1" )
 							 .arg( Filesystem::ContextToQString( m_context ) )

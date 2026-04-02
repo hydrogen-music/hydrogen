@@ -67,7 +67,6 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  , m_pDetailAuthor( nullptr )
  , m_pDetailInfo( nullptr )
  , m_pDetailLicense( nullptr )
- , m_pDetailCategory( nullptr )
  , m_pDetailPath( nullptr )
  , __drumkit_menu( nullptr )
  , __drumkit_menu_system( nullptr )
@@ -196,8 +195,6 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	m_pDetailInfo->setWordWrap( true );
 	m_pDetailLicense = new QLabel( this );
 	m_pDetailLicense->setWordWrap( true );
-	m_pDetailCategory = new QLabel( this );
-	m_pDetailCategory->setWordWrap( true );
 	m_pDetailPath = new QLabel( this );
 	m_pDetailPath->setWordWrap( true );
 
@@ -206,7 +203,6 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	pFormLayout->addRow( pCommonStrings->getAuthorDialog(), m_pDetailAuthor );
 	pFormLayout->addRow( pCommonStrings->getNotesDialog(), m_pDetailInfo );
 	pFormLayout->addRow( pCommonStrings->getLicenseDialog(), m_pDetailLicense );
-	pFormLayout->addRow( "Category:", m_pDetailCategory );
 	pFormLayout->addRow( "Path:", m_pDetailPath );
 
 	QWidget* pDetailContainer = new QWidget( this );
@@ -438,24 +434,7 @@ void SoundLibraryPanel::updatePatternTree()
 			pParentItem = m_pPatternUserItem;
 		}
 
-		// Group by category under the system/user parent
-		QTreeWidgetItem* pCategoryItem = nullptr;
-		for ( int ii = 0; ii < pParentItem->childCount(); ++ii ) {
-			if ( pParentItem->child( ii )->text( 0 ) == pInfo->getCategory() ) {
-				pCategoryItem = pParentItem->child( ii );
-				break;
-			}
-		}
-		if ( pCategoryItem == nullptr ) {
-			QString sCat = pInfo->getCategory();
-			if ( sCat.isEmpty() ) {
-				sCat = "No category";
-			}
-			pCategoryItem = new QTreeWidgetItem( pParentItem );
-			pCategoryItem->setText( 0, sCat );
-		}
-
-		QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
+		QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pParentItem );
 		pPatternItem->setText( 0, pInfo->getName() );
 		pPatternItem->setText( 1, pInfo->getPath() );
 		m_patternRegistry[ pPatternItem ] = pInfo;
@@ -543,7 +522,6 @@ void SoundLibraryPanel::updateDetailView()
 	m_pDetailAuthor->clear();
 	m_pDetailInfo->clear();
 	m_pDetailLicense->clear();
-	m_pDetailCategory->clear();
 	m_pDetailPath->clear();
 
 	if ( pActiveTree == nullptr || pActiveTree->currentItem() == nullptr ) {
@@ -580,7 +558,6 @@ void SoundLibraryPanel::updateDetailView()
 			m_pDetailAuthor->setText( pInfo->getAuthor() );
 			m_pDetailInfo->setText( pInfo->getInfo() );
 			m_pDetailLicense->setText( pInfo->getLicense().toQString( "", true ) );
-			m_pDetailCategory->setText( pInfo->getCategory() );
 			m_pDetailPath->setText( pInfo->getPath() );
 		}
 	} else if ( nTab == 2 ) {
@@ -612,7 +589,7 @@ void SoundLibraryPanel::filterTree( SoundLibraryTree* pTree, const QString& sFil
 		for ( int jj = 0; jj < pTopItem->childCount(); ++jj ) {
 			QTreeWidgetItem* pChild = pTopItem->child( jj );
 
-			// Check if pChild itself has children (category level)
+			// Check if pChild itself has children
 			if ( pChild->childCount() > 0 ) {
 				bool bAnyCatChildVisible = false;
 				for ( int kk = 0; kk < pChild->childCount(); ++kk ) {
@@ -674,7 +651,7 @@ void SoundLibraryPanel::on_PatternTree_rightClicked( const QPoint& pos )
 		return;
 	}
 
-	// Only show menu on leaf items (patterns, not categories/top-level)
+	// Only show menu on leaf items (patterns, not folders)
 	auto it = m_patternRegistry.find( m_pPatternTree->currentItem() );
 	if ( it != m_patternRegistry.end() ) {
 		__pattern_menu->popup( pos );

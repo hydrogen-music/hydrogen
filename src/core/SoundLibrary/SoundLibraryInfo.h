@@ -35,16 +35,13 @@ namespace H2Core
 /**
  * @class SoundLibraryInfo
  *
- * @brief This class holds information about a soundlibrary.
+ * Holds meta data about a particular artifact in the Sound Library.
  *
- * This class is used to represent soundlibrary items. It contains
- * the metadata for (songs,) pattern, and drumkits.
+ * The path #m_sPath serves as the unique identifier for each info item.
  *
  * @author Sebastian Moors
  *
- */
-
-/** \ingroup docCore docDataStructure */
+ * \ingroup docCore docDataStructure */
 class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo> {
 	H2_OBJECT( SoundLibraryInfo )
    public:
@@ -54,11 +51,8 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo> {
 		const QString& sURL,
 		const QString& sInfo,
 		const QString& sAuthor,
-		const QString& sCategory,
 		const QString& sType,
 		const License& license,
-		const QString& sImage,
-		const License& imageLicense,
 		const QString& sPath
 	);
 	~SoundLibraryInfo();
@@ -72,53 +66,25 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo> {
 	bool load( const QString& sPath );
 
 	const QString& getName() const { return m_sName; }
-
-	const QString& getUrl() const { return m_sURL; }
-
-	const QString& getInfo() const { return m_sInfo; }
-
-	const QString& getAuthor() const { return m_sAuthor; }
-
-	const QString& getCategory() const { return m_sCategory; }
-
-	const QString& getType() const { return m_sType; }
-
-	const H2Core::License& getLicense() const { return m_license; }
-
-	const QString& getImage() const { return m_sImage; }
-
-	const H2Core::License& getImageLicense() const { return m_imageLicense; }
-
 	void setName( const QString& name ) { m_sName = name; }
 
+	const QString& getUrl() const { return m_sURL; }
 	void setUrl( const QString& url ) { m_sURL = url; }
 
+	const QString& getInfo() const { return m_sInfo; }
 	void setInfo( const QString& info ) { m_sInfo = info; }
 
+	const QString& getAuthor() const { return m_sAuthor; }
 	void setAuthor( const QString& author ) { m_sAuthor = author; }
 
+	const QString& getType() const { return m_sType; }
 	void setType( const QString& type ) { m_sType = type; }
 
-	void setCategory( const QString& category ) { m_sCategory = category; }
-
+	const H2Core::License& getLicense() const { return m_license; }
 	void setLicense( const H2Core::License& license ) { m_license = license; }
 
-	void setImage( const QString& image ) { m_sImage = image; }
-
-	void setImageLicense( const H2Core::License& imageLicense )
-	{
-		m_imageLicense = imageLicense;
-	}
-
 	void setPath( const QString& path ) { m_sPath = path; }
-
 	const QString& getPath() const { return m_sPath; }
-
-	void setDrumkitName( const QString& sDrumkitName )
-	{
-		m_sDrumkitName = sDrumkitName;
-	}
-	const QString& getDrumkitName() const { return m_sDrumkitName; }
 
 	Filesystem::Context getContext() const { return m_context; }
 	void setContext( const Filesystem::Context& context )
@@ -142,15 +108,10 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo> {
 	QString m_sURL;
 	QString m_sInfo;
 	QString m_sAuthor;
-	QString m_sCategory;
 	QString m_sType;
 	H2Core::License m_license;
-	QString m_sImage;
-	H2Core::License m_imageLicense;
 	QString m_sPath;
 
-	/** Drumkit the pattern was created with */
-	QString m_sDrumkitName;
 	Filesystem::Context m_context;
 };
 };	// namespace H2Core

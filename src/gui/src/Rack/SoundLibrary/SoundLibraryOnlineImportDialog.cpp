@@ -287,20 +287,17 @@ void SoundLibraryOnlineImportDialog::reloadRepositoryData()
 			 ( drumkitNode.toElement().tagName() == "drumkit" ||
 			   drumkitNode.toElement().tagName() == "song" ||
 			   drumkitNode.toElement().tagName() == "pattern" ) ) {
-
 			m_soundLibraryList.push_back( H2Core::SoundLibraryInfo(
 				drumkitNode.firstChildElement( "name" ).text(),
 				drumkitNode.firstChildElement( "url" ).text(),
 				drumkitNode.firstChildElement( "info" ).text(),
 				drumkitNode.firstChildElement( "author" ).text(),
-				drumkitNode.firstChildElement( "category" ).text(),
 				drumkitNode.toElement().tagName(),
 				H2Core::License(
-					drumkitNode.firstChildElement( "license" ).text() ),
-				drumkitNode.firstChildElement( "image" ).text(),
-				H2Core::License(
-					drumkitNode.firstChildElement( "imageLicense" ).text() ),
-				"" ) );
+					drumkitNode.firstChildElement( "license" ).text()
+				),
+				""
+			) );
 		}
 		drumkitNode = drumkitNode.nextSibling();
 	}
@@ -521,14 +518,14 @@ void SoundLibraryOnlineImportDialog::soundLibraryItemChanged( QTreeWidgetItem* p
 								 .arg( info.getLicense().getLicenseString() ) );
 
 			ImageLicenseLbl->setText( tr("Image License: %1" )
-									  .arg( info.getImageLicense().getLicenseString() ) );
+									  .arg( "deprecated" ) );
 
 			// Load the drumkit image
 			// Clear any image first
 			drumkitImageLabel->setPixmap( QPixmap() );
-			drumkitImageLabel->setText( info.getImage() );
+			drumkitImageLabel->setText( "deprecated" );
 
-			if ( info.getImage().length() > 0 ) {
+			if ( false ) {//info.getImage().length() > 0 ) {
 				if ( isSoundLibraryItemAlreadyInstalled( info ) ) {
 					// get image file from local disk
 					QString sName = QFileInfo( info.getUrl() ).fileName();
@@ -549,12 +546,11 @@ void SoundLibraryOnlineImportDialog::soundLibraryItemChanged( QTreeWidgetItem* p
 				}
 				else {
 					// Try from the cache
-					QString cachedFile = readCachedImage( info.getImage() );
+					QString cachedFile = readCachedImage( "" );
 
 					if ( cachedFile.length() > 0 ) {
 						QPixmap pixmap ( cachedFile );
 						showImage( pixmap );
-						INFOLOG( "Loaded image " + info.getImage() + " from cache (" + cachedFile + ")" );
 					}
 					else {
 						// Get the drumkit's directory name from URL
@@ -563,11 +559,11 @@ void SoundLibraryOnlineImportDialog::soundLibraryItemChanged( QTreeWidgetItem* p
 						// and the image name from the XML is Roland_TR-808_drum_machine.jpg
 						// the URL for the image will be: http://www.hydrogen-music.org/feeds/images/Roland_TR-808_drum_machine.jpg
 
-						if ( info.getImage().length() > 0 ) {
+						if ( false ) {//info.getImage().length() > 0 ) {
 							QString sImageUrl;
 							QString sLocalFile;
 
-							sImageUrl = repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) + 1 ) + info.getImage() ;
+							sImageUrl = repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) + 1 ) ;
 							sLocalFile = QDir::tempPath() + "/" + QFileInfo( sImageUrl ).fileName();
 
 							DownloadWidget dl( this, tr( "" ), sImageUrl, sLocalFile );
