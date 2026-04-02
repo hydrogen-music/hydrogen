@@ -107,15 +107,15 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 
 		versionSpinBox->setValue( pDrumkit->getVersion() );
 		auto drumkitContext = pDrumkit->getContext();
-		if ( drumkitContext == Drumkit::Context::User ||
-			 drumkitContext == Drumkit::Context::SessionReadWrite ||
-			 drumkitContext == Drumkit::Context::Song ) {
+		if ( drumkitContext == Filesystem::Context::User ||
+			 drumkitContext == Filesystem::Context::SessionReadWrite ||
+			 drumkitContext == Filesystem::Context::Song ) {
 			bDrumkitWritable = true;
 		}
 
 		nameTxt->setText( pDrumkit->getName() );
 
-		if ( m_pDrumkit->getContext() == Drumkit::Context::Song ) {
+		if ( m_pDrumkit->getContext() == Filesystem::Context::Song ) {
 			if ( bEditingNotSaving ) {
 				setWindowTitle( pCommonStrings->getActionEditCurrentDrumkitProperties() );
 			}
@@ -227,7 +227,7 @@ QTextEdit { \
 	saveBtn->setBorderRadius( 3 );
 	saveBtn->setType( Button::Type::Push );
 	if ( m_pDrumkit != nullptr && bEditingNotSaving &&
-		 m_pDrumkit->getContext() == Drumkit::Context::Song ) {
+		 m_pDrumkit->getContext() == Filesystem::Context::Song ) {
 		saveBtn->setText( pCommonStrings->getActionSaveSong() );
 	}
 	else {
@@ -774,7 +774,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	}
 
 	bool bOldImageDeleted = false;
-	if ( m_pDrumkit->getContext() == Drumkit::Context::Song ) {
+	if ( m_pDrumkit->getContext() == Filesystem::Context::Song ) {
 		// Copy the selected image into our cache folder as the kit is a
 		// floating one associated to a song.
 		if ( !sNewImagePath.isEmpty() ) {
@@ -906,7 +906,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	// Store the drumkit in the NSM session folder
 #ifdef H2CORE_HAVE_OSC
 	if ( m_bSaveToNsmSession &&
-		 m_pDrumkit->getContext() == Drumkit::Context::Song ) {
+		 m_pDrumkit->getContext() == Filesystem::Context::Song ) {
 		m_pDrumkit->setPath(
 			QDir( NsmClient::get_instance()->getSessionFolderPath() )
 				.absoluteFilePath( m_pDrumkit->getName() )
@@ -915,9 +915,9 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	if ( false ) {
 #endif
 	}  // Read-only and song kits we can only duplicate into the user folder.
-	else if ( m_pDrumkit->getContext() == Drumkit::Context::SessionReadOnly ||
-			  m_pDrumkit->getContext() == Drumkit::Context::System ||
-			  m_pDrumkit->getContext() == Drumkit::Context::Song ) {
+	else if ( m_pDrumkit->getContext() == Filesystem::Context::SessionReadOnly ||
+			  m_pDrumkit->getContext() == Filesystem::Context::System ||
+			  m_pDrumkit->getContext() == Filesystem::Context::Song ) {
 		m_pDrumkit->setPath( Filesystem::drumkit_usr_path( m_pDrumkit->getName()
 		) );
 	}
@@ -952,7 +952,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	}
 
 	if ( sOldPath != m_pDrumkit->getPath() ) {
-		if ( m_pDrumkit->getContext() == Drumkit::Context::Song ) {
+		if ( m_pDrumkit->getContext() == Filesystem::Context::Song ) {
 			pHydrogenApp->showStatusBarMessage(
 				QString( "%1 -> [%2]" )
 					.arg( pCommonStrings->getActionSaveCurrentDrumkit() )

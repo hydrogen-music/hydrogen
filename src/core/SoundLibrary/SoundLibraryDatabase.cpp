@@ -283,13 +283,13 @@ void SoundLibraryDatabase::registerUniqueLabel( const QString& sDrumkitPath,
 	QString sLabel = pDrumkit->getName();
 	const auto drumkitContext = pDrumkit->getContext();
 
-	if ( drumkitContext == Drumkit::Context::System ) {
+	if ( drumkitContext == Filesystem::Context::System ) {
 		/*: suffix appended to a drumkit name in order to make in unique.*/
 		QString sSuffix = QT_TRANSLATE_NOOP( "SoundLibraryDatabase", "system" );
 		sLabel.append( QString( " (%1)" ).arg( sSuffix ) );
 	}
-	else if ( drumkitContext == Drumkit::Context::SessionReadOnly ||
-			  drumkitContext == Drumkit::Context::SessionReadWrite ) {
+	else if ( drumkitContext == Filesystem::Context::SessionReadOnly ||
+			  drumkitContext == Filesystem::Context::SessionReadWrite ) {
 		/*: suffix appended to a drumkit name in order to make in unique.*/
 		QString sSuffix = QT_TRANSLATE_NOOP( "SoundLibraryDatabase", "session" );
 		sLabel.append( QString( " (%1)" ).arg( sSuffix ) );
@@ -390,7 +390,7 @@ void SoundLibraryDatabase::updatePatterns( bool bTriggerEvent )
 
 	// Set context on all patterns based on their file path
 	for ( auto& pInfo : m_patternInfoVector ) {
-		pInfo->setContext( SoundLibraryInfo::DetermineContext( pInfo->getPath() ) );
+		pInfo->setContext( Filesystem::DetermineContext( pInfo->getPath() ) );
 	}
 
 	if ( bTriggerEvent ) {
@@ -430,7 +430,7 @@ void SoundLibraryDatabase::updateSongs( bool bTriggerEvent )
 			const QString sFullPath = sUsrSongsDir + sSongFile;
 			auto pInfo = std::make_shared<SoundLibraryInfo>();
 			if ( pInfo->load( sFullPath ) ) {
-				pInfo->setContext( SoundLibraryInfo::Context::User );
+				pInfo->setContext( Filesystem::Context::User );
 				m_songInfoVector.push_back( pInfo );
 			}
 		}
@@ -446,7 +446,7 @@ void SoundLibraryDatabase::updateSongs( bool bTriggerEvent )
 			const QString sFullPath = sSysSongsDir + sSongFile;
 			auto pInfo = std::make_shared<SoundLibraryInfo>();
 			if ( pInfo->load( sFullPath ) ) {
-				pInfo->setContext( SoundLibraryInfo::Context::System );
+				pInfo->setContext( Filesystem::Context::System );
 				m_songInfoVector.push_back( pInfo );
 			}
 		}

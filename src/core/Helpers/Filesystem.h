@@ -67,6 +67,35 @@ namespace H2Core
 		system = 2
 	};
 
+	/** Indicates usage, storage, and access permissions of a kit.*/
+	enum class Context {
+		/** Kit is located in the system-level drumkit folder, loaded into the
+		 * #H2Core::SoundlibraryDatabase during startup, and is read-only.*/
+		System = 0,
+		/** Kit is located in the user-level drumkit folder, loaded into the
+		 * #H2Core::SoundlibraryDatabase during startup, and can be modified.*/
+		User = 1,
+		/** Kit is located at an arbitrary location of the host system and was
+		 * loaded into Hydrogen during a session using e.g. OSC or its location
+		 * was provided during startup. It is transient and located in a place
+		 * the user only has read-only access and can not be modified.*/
+		SessionReadOnly = 2,
+		/** Kit is located at an arbitrary location of the host system and was
+		 * loaded into Hydrogen during a session using e.g. OSC or its location
+		 * was provided during startup. It is transient and can be modified.*/
+		SessionReadWrite = 3,
+		/** In contrast to the other contexts this drumkit was not loaded from a
+		 * .h2drumkit or a drumkit.xml file within a drumkit folder. Instead, it
+		 * is part of a song and loaded with a .h2song or created with a new
+		 * song. It is stored with the song when saving the song and can be
+		 * converted into a regular kit by saving / exporting the drumkit. All
+		 * its metadata, like drumkit image, end up in a cache folder for
+		 * Hydrogen.*/
+		Song = 4
+	};
+	static QString ContextToQString( const Context& context );
+	static Context DetermineContext( const QString& sPath );
+
 	/** Indicates what type of file, like .h2song, .h2playlist, a function as to
 	 * handle. */
 	enum class Type {

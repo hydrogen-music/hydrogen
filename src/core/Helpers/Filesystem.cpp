@@ -124,6 +124,47 @@ QStringList Filesystem::__ladspa_paths;
 
 QString Filesystem::m_sPreferencesOverwritePath = "";
 
+Filesystem::Context Filesystem::DetermineContext( const QString& sPath )
+{
+	if ( !sPath.isEmpty() ) {
+		const QString sAbsolutePath = Filesystem::absolute_path( sPath );
+		if ( sAbsolutePath.contains( __sys_data_path ) ) {
+			return Filesystem::Context::System;
+		}
+		else if ( sAbsolutePath.contains( __usr_data_path ) ) {
+			return Filesystem::Context::User;
+		}
+		else {
+			if ( Filesystem::dir_writable( sAbsolutePath, true ) ) {
+				return Filesystem::Context::SessionReadWrite;
+			}
+			else {
+				return Filesystem::Context::SessionReadOnly;
+			}
+		}
+	}
+	else {
+		return Filesystem::Context::Song;
+	}
+}
+
+QString Filesystem::ContextToQString( const Context& context ) {
+	switch( context ) {
+	case Filesystem::Context::System:
+		return "System";
+	case Filesystem::Context::User:
+		return "User";
+	case Filesystem::Context::SessionReadOnly:
+		return "SessionReadOnly";
+	case Filesystem::Context::SessionReadWrite:
+		return "SessionReadWrite";
+	case Filesystem::Context::Song:
+		return "Song";
+	default:
+		return QString( "Unknown context [%1]" ).arg( static_cast<int>(context) );
+	}
+}
+
 std::vector<Filesystem::AudioFormat> Filesystem::m_supportedAudioFormats = {
 	AudioFormat::Wav,
 	AudioFormat::Aif,

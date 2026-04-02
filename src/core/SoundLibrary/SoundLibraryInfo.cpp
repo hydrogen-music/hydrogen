@@ -21,16 +21,15 @@
  */
 
 #include <core/SoundLibrary/SoundLibraryInfo.h>
-#include <core/Helpers/Filesystem.h>
+
 #include <core/Helpers/Xml.h>
-#include <core/License.h>
 
 namespace H2Core
 {
 
 
 SoundLibraryInfo::SoundLibraryInfo()
-	: m_context( Context::User )
+	: m_context( Filesystem::Context::User )
 {
 }
 
@@ -54,7 +53,7 @@ SoundLibraryInfo::SoundLibraryInfo( const QString& sName,
 	, m_sImage( sImage )
 	, m_imageLicense( imageLicense )
 	, m_sPath( sPath )
-	, m_context( Context::User )
+	, m_context( Filesystem::Context::User )
 {
 }
 
@@ -147,24 +146,6 @@ SoundLibraryInfo::~SoundLibraryInfo()
 	//default deconstructor
 }
 
-QString SoundLibraryInfo::ContextToString( const Context& context ) {
-	switch ( context ) {
-	case Context::System:
-		return "System";
-	case Context::User:
-		return "User";
-	default:
-		return "Unknown";
-	}
-}
-
-SoundLibraryInfo::Context SoundLibraryInfo::DetermineContext( const QString& sPath ) {
-	if ( sPath.startsWith( Filesystem::sys_data_path() ) ) {
-		return Context::System;
-	}
-	return Context::User;
-}
-
 QString SoundLibraryInfo::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
@@ -182,7 +163,7 @@ QString SoundLibraryInfo::toQString( const QString& sPrefix, bool bShort ) const
 			.append( QString( "%1%2m_imageLicense:\n%3" ).arg( sPrefix ).arg( s )
 					 .arg( m_imageLicense.toQString( sPrefix + s + s, bShort ) ) )
 			.append( QString( "%1%2m_sPath: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sPath ) )
-			.append( QString( "%1%2m_context: %3\n" ).arg( sPrefix ).arg( s ).arg( ContextToString( m_context ) ) );
+			.append( QString( "%1%2m_context: %3\n" ).arg( sPrefix ).arg( s ).arg( Filesystem::ContextToQString( m_context ) ) );
 	}
 	else {
 
@@ -199,7 +180,7 @@ QString SoundLibraryInfo::toQString( const QString& sPrefix, bool bShort ) const
 			.append( QString( ", m_imageLicense: %1" )
 					 .arg( m_imageLicense.toQString( "", bShort ) ) )
 			.append( QString( ", m_sPath: %1" ).arg( m_sPath ) )
-			.append( QString( ", m_context: %1" ).arg( ContextToString( m_context ) ) );
+			.append( QString( ", m_context: %1" ).arg( Filesystem::ContextToQString( m_context ) ) );
 	}
 
 	return sOutput;

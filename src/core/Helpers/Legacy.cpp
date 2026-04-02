@@ -26,20 +26,21 @@
 
 #include <core/Helpers/Legacy.h>
 
-#include <core/Helpers/Xml.h>
-#include <core/License.h>
-#include <core/Basics/Song.h>
+#include <core/Basics/Adsr.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/Playlist.h>
-#include <core/Basics/Pattern.h>
-#include <core/Basics/PatternList.h>
 #include <core/Basics/Instrument.h>
-#include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
-#include <core/Basics/Sample.h>
+#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
-#include <core/Basics/Adsr.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/Playlist.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Xml.h>
+#include <core/License.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 namespace H2Core {
@@ -235,7 +236,7 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 		pNewDrumkit = std::make_shared<Drumkit>();
 	} else {
 		pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
-		pNewDrumkit->setContext( Drumkit::Context::Song );
+		pNewDrumkit->setContext( Filesystem::Context::Song );
 	}
 
 	// Assign the loaded parts and load samples.

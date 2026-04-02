@@ -485,8 +485,8 @@ void Pattern::applyMissingTypes( std::shared_ptr<Drumkit> pDrumkit,
 			// Kits explicitly loaded by user via our API have highest priority.
 			for ( const auto& [ _, ppDrumkit ] : pDB->getDrumkitDatabase() ) {
 				if ( ppDrumkit != nullptr &&
-					 ( ppDrumkit->getContext() == Drumkit::Context::SessionReadOnly ||
-					   ppDrumkit->getContext() == Drumkit::Context::SessionReadWrite ) &&
+					 ( ppDrumkit->getContext() == Filesystem::Context::SessionReadOnly ||
+					   ppDrumkit->getContext() == Filesystem::Context::SessionReadWrite ) &&
 					 ppDrumkit->getName() == m_sDrumkitName ) {
 					pDrumkitMap = ppDrumkit->toDrumkitMap();
 					break;
@@ -496,7 +496,7 @@ void Pattern::applyMissingTypes( std::shared_ptr<Drumkit> pDrumkit,
 				// Kits in the user's drumkit folder are next.
 				for ( const auto& [ _, ppDrumkit ] : pDB->getDrumkitDatabase() ) {
 					if ( ppDrumkit != nullptr &&
-						 ppDrumkit->getContext() == Drumkit::Context::User &&
+						 ppDrumkit->getContext() == Filesystem::Context::User &&
 						 ppDrumkit->getName() == m_sDrumkitName ) {
 						pDrumkitMap = ppDrumkit->toDrumkitMap();
 						break;
@@ -508,7 +508,7 @@ void Pattern::applyMissingTypes( std::shared_ptr<Drumkit> pDrumkit,
 				// part of Hydrogen, have the lower priority.
 				for ( const auto& [ _, ppDrumkit ] : pDB->getDrumkitDatabase() ) {
 					if ( ppDrumkit != nullptr &&
-						 ppDrumkit->getContext() == Drumkit::Context::System &&
+						 ppDrumkit->getContext() == Filesystem::Context::System &&
 						 ppDrumkit->getName() == m_sDrumkitName ) {
 						pDrumkitMap = ppDrumkit->toDrumkitMap();
 						break;

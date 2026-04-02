@@ -2524,7 +2524,7 @@ bool MainForm::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit ) {
 		return false;
 	}
 
-	pTargetKit->setContext( Drumkit::Context::Song );
+	pTargetKit->setContext( Filesystem::Context::Song );
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();

@@ -48,14 +48,6 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo>
 {
 	H2_OBJECT(SoundLibraryInfo)
 	public:
-		/** Indicates whether the item resides at system or user level. */
-		enum class Context {
-			System = 0,
-			User = 1
-		};
-		static QString ContextToString( const Context& context );
-		/** Determine the context based on the file path — system or user. */
-		static Context DetermineContext( const QString& sPath );
 
 		SoundLibraryInfo();
 		SoundLibraryInfo( const QString& sName,
@@ -165,10 +157,10 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo>
 			return m_sDrumkitName;
 		}
 
-		Context getContext() const {
+		Filesystem::Context getContext() const {
 			return m_context;
 		}
-		void setContext( const Context& context ){
+		void setContext( const Filesystem::Context& context ){
 			m_context = context;
 		}
 
@@ -196,7 +188,7 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo>
 
 	/** Drumkit the pattern was created with */
 	QString m_sDrumkitName;
-	Context m_context;
+	Filesystem::Context m_context;
 };
 }; // namespace H2Core
 

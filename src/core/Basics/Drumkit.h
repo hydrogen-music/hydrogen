@@ -31,6 +31,7 @@
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/CoreActionController.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/License.h>
 #include <core/Object.h>
 
@@ -48,35 +49,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 {
 		H2_OBJECT(Drumkit)
 	public:
-
-	/** Indicates usage, storage, and access permissions of a kit.*/
-	enum class Context {
-		/** Kit is located in the system-level drumkit folder, loaded into the
-		 * #H2Core::SoundlibraryDatabase during startup, and is read-only.*/
-		System = 0,
-		/** Kit is located in the user-level drumkit folder, loaded into the
-		 * #H2Core::SoundlibraryDatabase during startup, and can be modified.*/
-		User = 1,
-		/** Kit is located at an arbitrary location of the host system and was
-		 * loaded into Hydrogen during a session using e.g. OSC or its location
-		 * was provided during startup. It is transient and located in a place
-		 * the user only has read-only access and can not be modified.*/
-		SessionReadOnly = 2,
-		/** Kit is located at an arbitrary location of the host system and was
-		 * loaded into Hydrogen during a session using e.g. OSC or its location
-		 * was provided during startup. It is transient and can be modified.*/
-		SessionReadWrite = 3,
-		/** In contrast to the other contexts this drumkit was not loaded from a
-		 * .h2drumkit or a drumkit.xml file within a drumkit folder. Instead, it
-		 * is part of a song and loaded with a .h2song or created with a new
-		 * song. It is stored with the song when saving the song and can be
-		 * converted into a regular kit by saving / exporting the drumkit. All
-		 * its metadata, like drumkit image, end up in a cache folder for
-		 * Hydrogen.*/
-		Song = 4
-	};
-		static QString ContextToString( const Context& context );
-		static Context DetermineContext( const QString& sPath );
 
 		/** drumkit constructor, does nothing */
 		Drumkit();
@@ -260,8 +232,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/**  returns #m_pInstruments */
 		std::shared_ptr<InstrumentList> getInstruments() const;
 
-		void setContext( const Context& context );
-		const Context& getContext() const;
+		void setContext( const Filesystem::Context& context );
+		const Filesystem::Context& getContext() const;
 		/** #m_sPath setter */
 		void setPath( const QString& path );
 		/** #m_sPath accessor */
@@ -361,7 +333,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 	private:
 		/** Transient property neither written to a drumkit.xml nor to a .h2song
 		 * but determined when loading the kit. */
-		Context m_context;
+		Filesystem::Context m_context;
 		QString m_sPath;					///< absolute drumkit path
 		QString m_sName;					///< drumkit name
 		int m_nVersion;
@@ -421,10 +393,10 @@ inline std::shared_ptr<InstrumentList> Drumkit::getInstruments() const
 	return m_pInstruments;
 }
 
-inline void Drumkit::setContext( const Drumkit::Context& context ) {
+inline void Drumkit::setContext( const Filesystem::Context& context ) {
 	m_context = context;
 }
-inline const Drumkit::Context& Drumkit::getContext() const {
+inline const Filesystem::Context& Drumkit::getContext() const {
 	return m_context;
 }
 

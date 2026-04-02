@@ -37,26 +37,23 @@
   #endif
 #endif
 
-#include <core/Basics/Sample.h>
 #include <core/Basics/DrumkitMap.h>
+#include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
-#include <core/Basics/InstrumentLayer.h>
-
-#include <core/Helpers/Filesystem.h>
-#include <core/Helpers/Xml.h>
+#include <core/Basics/Sample.h>
 #include <core/Helpers/Legacy.h>
-
+#include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
-#include <core/Preferences/Preferences.h>
 #include <core/NsmClient.h>
+#include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 namespace H2Core
 {
 
 Drumkit::Drumkit()
-	: m_context( Context::Song ),
+	: m_context( Filesystem::Context::Song ),
 	  m_sName( "empty" ),
 	  m_nVersion( 0 ),
 	  m_sAuthor( "undefined author" ),
@@ -143,7 +140,7 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath,
 		return nullptr;
 	}
 
-	pDrumkit->setContext( DetermineContext( pDrumkit->getPath() ) );
+	pDrumkit->setContext( Filesystem::DetermineContext( pDrumkit->getPath() ) );
 
 	if ( bLegacyFormatEncountered && bUpgrade ) {
 		pDrumkit->upgrade( bSilent );
@@ -539,7 +536,7 @@ bool Drumkit::saveImage( const QString& sDrumkitDir, bool bSilent ) const
 	// filename, a random prefix was introduced. This has to be stripped first.
 	QString sTargetImagePath( getAbsoluteImagePath() );
 	QString sTargetImageName( getAbsoluteImagePath() );
-	if ( m_context == Context::Song ) {
+	if ( m_context == Filesystem::Context::Song ) {
 		sTargetImageName = Filesystem::removeUniquePrefix( sTargetImagePath );
 	}
 
@@ -1295,45 +1292,6 @@ void Drumkit::recalculateRubberband( float fBpm )
 	}
 }
 
-Drumkit::Context Drumkit::DetermineContext( const QString& sPath )
-{
-	if ( ! sPath.isEmpty() ) {
-		const QString sAbsolutePath = Filesystem::absolute_path( sPath );
-		if ( sAbsolutePath.contains( Filesystem::sys_drumkits_dir() ) ) {
-			return Context::System;
-		}
-		else if ( sAbsolutePath.contains( Filesystem::usr_drumkits_dir() ) ) {
-			return Context::User;
-		}
-		else {
-			if ( Filesystem::dir_writable( sAbsolutePath, true ) ) {
-				return Context::SessionReadWrite;
-			} else {
-				return Context::SessionReadOnly;
-			}
-		}
-	} else {
-		return Context::Song;
-	}
-}
-
-QString Drumkit::ContextToString( const Context& context ) {
-	switch( context ) {
-	case Context::System:
-		return "System";
-	case Context::User:
-		return "User";
-	case Context::SessionReadOnly:
-		return "SessionReadOnly";
-	case Context::SessionReadWrite:
-		return "SessionReadWrite";
-	case Context::Song:
-		return "Song";
-	default:
-		return QString( "Unknown context [%1]" ).arg( static_cast<int>(context) );
-	}
-}
-
 std::set<Instrument::Type> Drumkit::getAllTypes() const
 {
 	std::set<Instrument::Type> types;
@@ -1482,7 +1440,7 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Drumkit]\n" ).arg( sPrefix )
 			.append( QString( "%1%2context: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( ContextToString( m_context ) ) )
+					 .arg( Filesystem::ContextToQString( m_context ) ) )
 			.append( QString( "%1%2path: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sPath ) )
 			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sName ) )
 			.append( QString( "%1%2m_nVersion: %3\n" ).arg( sPrefix ).arg( s )
@@ -1501,7 +1459,8 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 	} else {
 		
 		sOutput = QString( "[Drumkit]" )
-			.append( QString( " context: %1" ).arg( ContextToString( m_context ) ) )
+			.append( QString( " context: %1" )
+                     .arg( Filesystem::ContextToQString( m_context ) ) )
 			.append( QString( ", path: %1" ).arg( m_sPath ) )
 			.append( QString( ", name: %1" ).arg( m_sName ) )
 			.append( QString( ", version: %1" ).arg( m_nVersion ) )
