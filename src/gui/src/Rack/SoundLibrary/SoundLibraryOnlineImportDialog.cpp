@@ -361,20 +361,22 @@ void SoundLibraryOnlineImportDialog::on_UpdateListBtn_clicked()
 
 void SoundLibraryOnlineImportDialog::updateSoundLibraryList()
 {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
 	// build the sound library tree
 	m_pDrumkitTree->clear();
 
 	m_pDrumkitsItem = new QTreeWidgetItem( m_pDrumkitTree );
-	m_pDrumkitsItem->setText( 0, tr( "Drumkits" ) );
+	m_pDrumkitsItem->setText( 0, pCommonStrings->getDrumkitsLabel() );
 	m_pDrumkitsItem->setExpanded( true );
 
 
 	m_pSongItem = new QTreeWidgetItem( m_pDrumkitTree );
-	m_pSongItem->setText( 0, tr( "Songs" ) );
+	m_pSongItem->setText( 0, pCommonStrings->getSongsLabel() );
 	m_pSongItem->setExpanded( true );
 
 	m_pPatternItem = new QTreeWidgetItem( m_pDrumkitTree );
-	m_pPatternItem->setText( 0, tr( "Patterns" ) );
+	m_pPatternItem->setText( 0, pCommonStrings->getPatternsLabel() );
 	m_pPatternItem->setExpanded( true );
 
 	for ( uint i = 0; i < m_soundLibraryList.size(); ++i ) {

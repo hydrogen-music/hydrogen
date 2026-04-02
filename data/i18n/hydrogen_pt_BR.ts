@@ -940,16 +940,6 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>system</source>
-        <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
-        <translation>sistema</translation>
-    </message>
-    <message>
-        <source>session</source>
-        <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
-        <translation>sessão</translation>
-    </message>
-    <message>
         <source>The provided filename can not be handled by your current encoding</source>
         <extracomment>Displayed in a warning message in case the user tries to read * or write data to a file/path Hydrogen can not handle in the * current encoding.</extracomment>
         <translation type="unfinished"></translation>
@@ -1527,6 +1517,36 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Tags</source>
         <extracomment>Shown as label text in song, pattern, and drumkit dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkits</source>
+        <extracomment>Label shown in a tab of the Sound Library.</extracomment>
+        <translation>Drumkits</translation>
+    </message>
+    <message>
+        <source>Patterns</source>
+        <extracomment>Label shown in a tab of the Sound Library.</extracomment>
+        <translation>Padrões</translation>
+    </message>
+    <message>
+        <source>Songs</source>
+        <extracomment>Label shown in a tab of the Sound Library.</extracomment>
+        <translation>Músicas</translation>
+    </message>
+    <message>
+        <source>System</source>
+        <extracomment>Node in the Sound Library corresponding to artifacts installed on * system-level.</extracomment>
+        <translation>Sistema</translation>
+    </message>
+    <message>
+        <source>Session</source>
+        <extracomment>Node in the Sound Library corresponding to artifacts only available in * the current Hydrogen session.</extracomment>
+        <translation>Sessão</translation>
+    </message>
+    <message>
+        <source>User</source>
+        <extracomment>Node in the Sound Library corresponding to artifacts installed on * user-level.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5867,18 +5887,6 @@ Está certo disto?</translation>
         <translation>Atualizando lista de Bibliotecas de Som...</translation>
     </message>
     <message>
-        <source>Drumkits</source>
-        <translation>Drumkits</translation>
-    </message>
-    <message>
-        <source>Songs</source>
-        <translation>Músicas</translation>
-    </message>
-    <message>
-        <source>Patterns</source>
-        <translation>Padrões</translation>
-    </message>
-    <message>
         <source>Installed</source>
         <translation>Instalado</translation>
     </message>
@@ -5962,22 +5970,6 @@ imported into %2</source>
 <context>
     <name>SoundLibraryPanel</name>
     <message>
-        <source>System drumkits</source>
-        <translation>Drumkits do sistema</translation>
-    </message>
-    <message>
-        <source>User drumkits</source>
-        <translation>Drumkits do usuário</translation>
-    </message>
-    <message>
-        <source>Songs</source>
-        <translation>Músicas</translation>
-    </message>
-    <message>
-        <source>Patterns</source>
-        <translation>Padrões</translation>
-    </message>
-    <message>
         <source>Warning, the selected pattern will be deleted from disk.
 Are you sure?</source>
         <translation>Aviso, o padrão selecionado será deletado do disco.
@@ -5992,19 +5984,6 @@ Está certo disto?</translation>
     <message>
         <source>Drumkit deletion failed.</source>
         <translation>Remoção do drumkit falhou.</translation>
-    </message>
-    <message>
-        <source>Double click to expand the list</source>
-        <translation>Clique duplo pra expandir a lista</translation>
-    </message>
-    <message>
-        <source>Session drumkits</source>
-        <translation>Drumkits da Sessão</translation>
-    </message>
-    <message>
-        <source>Created for drumkit</source>
-        <extracomment>Base tooltip displayed when hovering over a pattern in the Sound Library. It indicates which drumkit the pattern was created with</extracomment>
-        <translation>Criado para drumkit</translation>
     </message>
     <message>
         <source>is a read-only drumkit and can&apos;t be deleted.</source>

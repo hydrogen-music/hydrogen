@@ -181,9 +181,11 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	// Tab widget
 	m_pTabWidget = new QTabWidget( this );
 	m_pTabWidget->setDocumentMode( true );
-	m_pTabWidget->addTab( __sound_library_tree, "Drumkits" );
-	m_pTabWidget->addTab( m_pPatternTree, "Patterns" );
-	m_pTabWidget->addTab( m_pSongTree, "Songs" );
+	m_pTabWidget->addTab(
+		__sound_library_tree, pCommonStrings->getDrumkitsLabel()
+	);
+	m_pTabWidget->addTab( m_pPatternTree, pCommonStrings->getPatternsLabel() );
+	m_pTabWidget->addTab( m_pSongTree, pCommonStrings->getSongsLabel() );
 
 	// Detail view
 	m_pDetailName = new QLabel( this );
@@ -200,10 +202,10 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	m_pDetailPath->setWordWrap( true );
 
 	QFormLayout* pFormLayout = new QFormLayout();
-	pFormLayout->addRow( "Name:", m_pDetailName );
-	pFormLayout->addRow( "Author:", m_pDetailAuthor );
-	pFormLayout->addRow( "Info:", m_pDetailInfo );
-	pFormLayout->addRow( "License:", m_pDetailLicense );
+	pFormLayout->addRow( pCommonStrings->getNameDialog(), m_pDetailName );
+	pFormLayout->addRow( pCommonStrings->getAuthorDialog(), m_pDetailAuthor );
+	pFormLayout->addRow( pCommonStrings->getNotesDialog(), m_pDetailInfo );
+	pFormLayout->addRow( pCommonStrings->getLicenseDialog(), m_pDetailLicense );
 	pFormLayout->addRow( "Category:", m_pDetailCategory );
 	pFormLayout->addRow( "Path:", m_pDetailPath );
 
@@ -257,6 +259,7 @@ void SoundLibraryPanel::updateDrumkitTree()
 	const auto pFontTheme = pPref->getFontTheme();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	__sound_library_tree->clear();
 	m_drumkitRegister.clear();
@@ -302,7 +305,9 @@ void SoundLibraryPanel::updateDrumkitTree()
 		if ( drumkitContext == Filesystem::Context::System ) {
 			if ( m_pTreeSystemDrumkitsItem == nullptr ) {
 				m_pTreeSystemDrumkitsItem = new QTreeWidgetItem();
-				m_pTreeSystemDrumkitsItem->setText( 0, tr( "System drumkits" ) );
+				m_pTreeSystemDrumkitsItem->setText(
+					0, pCommonStrings->getSoundLibrarySystem()
+				);
 				m_pTreeSystemDrumkitsItem->setFont( 0, boldFont );
 			}
 
@@ -311,24 +316,29 @@ void SoundLibraryPanel::updateDrumkitTree()
 		else if ( drumkitContext == Filesystem::Context::User ) {
 			if ( m_pTreeUserDrumkitsItem == nullptr ) {
 				m_pTreeUserDrumkitsItem = new QTreeWidgetItem();
-				m_pTreeUserDrumkitsItem->setText( 0, tr( "User drumkits" ) );
+				m_pTreeUserDrumkitsItem->setText(
+					0, pCommonStrings->getSoundLibraryUser()
+				);
 				m_pTreeUserDrumkitsItem->setFont( 0, boldFont );
 			}
 
 			pDrumkitItem = new QTreeWidgetItem( m_pTreeUserDrumkitsItem );
 		}
-		else if ( drumkitContext == Filesystem::Context::SessionReadOnly ||
-					drumkitContext == Filesystem::Context::SessionReadWrite ) {
+		else if ( drumkitContext == Filesystem::Context::SessionReadOnly || drumkitContext == Filesystem::Context::SessionReadWrite ) {
 			if ( m_pTreeSessionDrumkitsItem == nullptr ) {
 				m_pTreeSessionDrumkitsItem = new QTreeWidgetItem();
-				m_pTreeSessionDrumkitsItem->setText( 0, tr( "Session drumkits" ) );
+				m_pTreeSessionDrumkitsItem->setText(
+					0, pCommonStrings->getSoundLibrarySession()
+				);
 				m_pTreeSessionDrumkitsItem->setFont( 0, boldFont );
 			}
 			pDrumkitItem = new QTreeWidgetItem( m_pTreeSessionDrumkitsItem );
 		}
 		else {
-			ERRORLOG( QString( "Drumkits of context [%1] should not end up in the SoundLibrary." )
-					  .arg( Filesystem::ContextToQString( drumkitContext ) ) );
+			ERRORLOG( QString( "Drumkits of context [%1] should not end up in "
+							   "the SoundLibrary." )
+						  .arg( Filesystem::ContextToQString( drumkitContext ) )
+			);
 			continue;
 		}
 
@@ -393,17 +403,13 @@ void SoundLibraryPanel::updatePatternTree()
 	auto pFontTheme = pPref->getFontTheme();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	QFont boldFont( pFontTheme->m_sApplicationFontFamily,
 				   getPointSize( pFontTheme->m_fontSize ) );
 	boldFont.setBold( true );
 
 	auto patternInfoVector = pSoundLibraryDatabase->getPatternInfoVector();
-
-	/*: Base tooltip displayed when hovering over a pattern in
-	  the Sound Library. It indicates which drumkit the
-	  pattern was created with*/
-	QString sPatternTooltip = tr( "Created for drumkit" );
 
 	// Separate patterns by context
 	for ( const auto& pInfo : patternInfoVector ) {
@@ -412,15 +418,20 @@ void SoundLibraryPanel::updatePatternTree()
 		if ( pInfo->getContext() == H2Core::Filesystem::Context::System ) {
 			if ( m_pPatternSystemItem == nullptr ) {
 				m_pPatternSystemItem = new QTreeWidgetItem( m_pPatternTree );
-				m_pPatternSystemItem->setText( 0, tr( "System patterns" ) );
+				m_pPatternSystemItem->setText(
+					0, pCommonStrings->getSoundLibrarySystem()
+				);
 				m_pPatternSystemItem->setFont( 0, boldFont );
 				m_pPatternSystemItem->setExpanded( true );
 			}
 			pParentItem = m_pPatternSystemItem;
-		} else {
+		}
+		else {
 			if ( m_pPatternUserItem == nullptr ) {
 				m_pPatternUserItem = new QTreeWidgetItem( m_pPatternTree );
-				m_pPatternUserItem->setText( 0, tr( "User patterns" ) );
+				m_pPatternUserItem->setText(
+					0, pCommonStrings->getSoundLibraryUser()
+				);
 				m_pPatternUserItem->setFont( 0, boldFont );
 				m_pPatternUserItem->setExpanded( true );
 			}
@@ -447,9 +458,6 @@ void SoundLibraryPanel::updatePatternTree()
 		QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
 		pPatternItem->setText( 0, pInfo->getName() );
 		pPatternItem->setText( 1, pInfo->getPath() );
-		pPatternItem->setToolTip( 0, QString( "%1 [%2]" )
-								  .arg( sPatternTooltip )
-								  .arg( pInfo->getDrumkitName() ) );
 		m_patternRegistry[ pPatternItem ] = pInfo;
 	}
 }
@@ -467,6 +475,7 @@ void SoundLibraryPanel::updateSongTree()
 	auto pFontTheme = pPref->getFontTheme();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	QFont boldFont( pFontTheme->m_sApplicationFontFamily,
 				   getPointSize( pFontTheme->m_fontSize ) );
@@ -480,15 +489,20 @@ void SoundLibraryPanel::updateSongTree()
 		if ( pInfo->getContext() == H2Core::Filesystem::Context::System ) {
 			if ( m_pSongSystemItem == nullptr ) {
 				m_pSongSystemItem = new QTreeWidgetItem( m_pSongTree );
-				m_pSongSystemItem->setText( 0, tr( "System songs" ) );
+				m_pSongSystemItem->setText(
+					0, pCommonStrings->getSoundLibrarySystem()
+				);
 				m_pSongSystemItem->setFont( 0, boldFont );
 				m_pSongSystemItem->setExpanded( true );
 			}
 			pParentItem = m_pSongSystemItem;
-		} else {
+		}
+		else {
 			if ( m_pSongUserItem == nullptr ) {
 				m_pSongUserItem = new QTreeWidgetItem( m_pSongTree );
-				m_pSongUserItem->setText( 0, tr( "User songs" ) );
+				m_pSongUserItem->setText(
+					0, pCommonStrings->getSoundLibraryUser()
+				);
 				m_pSongUserItem->setFont( 0, boldFont );
 				m_pSongUserItem->setExpanded( true );
 			}

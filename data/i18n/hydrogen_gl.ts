@@ -940,16 +940,6 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>system</source>
-        <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>session</source>
-        <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>The provided filename can not be handled by your current encoding</source>
         <extracomment>Displayed in a warning message in case the user tries to read * or write data to a file/path Hydrogen can not handle in the * current encoding.</extracomment>
         <translation type="unfinished"></translation>
@@ -1527,6 +1517,36 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Tags</source>
         <extracomment>Shown as label text in song, pattern, and drumkit dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkits</source>
+        <extracomment>Label shown in a tab of the Sound Library.</extracomment>
+        <translation>Baterías</translation>
+    </message>
+    <message>
+        <source>Patterns</source>
+        <extracomment>Label shown in a tab of the Sound Library.</extracomment>
+        <translation>Patróns</translation>
+    </message>
+    <message>
+        <source>Songs</source>
+        <extracomment>Label shown in a tab of the Sound Library.</extracomment>
+        <translation>Cancións</translation>
+    </message>
+    <message>
+        <source>System</source>
+        <extracomment>Node in the Sound Library corresponding to artifacts installed on * system-level.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Session</source>
+        <extracomment>Node in the Sound Library corresponding to artifacts only available in * the current Hydrogen session.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User</source>
+        <extracomment>Node in the Sound Library corresponding to artifacts installed on * user-level.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5864,18 +5884,6 @@ Está seguro?</translation>
         <translation>Actualizando a lista de bibliotecas de son...</translation>
     </message>
     <message>
-        <source>Drumkits</source>
-        <translation>Baterías</translation>
-    </message>
-    <message>
-        <source>Songs</source>
-        <translation>Cancións</translation>
-    </message>
-    <message>
-        <source>Patterns</source>
-        <translation>Patróns</translation>
-    </message>
-    <message>
         <source>Installed</source>
         <translation>Instalado</translation>
     </message>
@@ -5959,22 +5967,6 @@ imported into %2</source>
 <context>
     <name>SoundLibraryPanel</name>
     <message>
-        <source>System drumkits</source>
-        <translation>Baterías do sistema</translation>
-    </message>
-    <message>
-        <source>User drumkits</source>
-        <translation>Baterías do usuario</translation>
-    </message>
-    <message>
-        <source>Songs</source>
-        <translation>Cancións</translation>
-    </message>
-    <message>
-        <source>Patterns</source>
-        <translation>Patróns</translation>
-    </message>
-    <message>
         <source>Warning, the selected pattern will be deleted from disk.
 Are you sure?</source>
         <translation>Aviso, o patrón seleccionado borrarase do disco.
@@ -5989,19 +5981,6 @@ Estás seguro?</translation>
     <message>
         <source>Drumkit deletion failed.</source>
         <translation>Non foi posíbel eliminar a batería.</translation>
-    </message>
-    <message>
-        <source>Double click to expand the list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Session drumkits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Created for drumkit</source>
-        <extracomment>Base tooltip displayed when hovering over a pattern in the Sound Library. It indicates which drumkit the pattern was created with</extracomment>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>is a read-only drumkit and can&apos;t be deleted.</source>

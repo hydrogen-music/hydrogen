@@ -292,6 +292,12 @@ CommonStrings::CommonStrings(){
 	m_sCurrentlySelectedLabel = tr( "Select." );
 	/*: Shown as label text in song, pattern, and drumkit dialog. */
 	m_sTagsLabel = tr( "Tags" );
+	/*: Label shown in a tab of the Sound Library. */
+	m_sDrumkitsLabel = tr( "Drumkits" );
+	/*: Label shown in a tab of the Sound Library. */
+	m_sPatternsLabel = tr( "Patterns" );
+	/*: Label shown in a tab of the Sound Library. */
+	m_sSongsLabel = tr( "Songs" );
 
 	/*: Displayed in the tooltip of input widgets. Indicates the
 	  allowed values from minimum to maximum.*/
@@ -810,12 +816,15 @@ CommonStrings::CommonStrings(){
 	m_sErrorEmptyType = tr( "An instrument type must not be empty!" );
 	m_sErrorUniqueTypes = tr( "Instrument types must be unique!" );
 
-	/*: Suffix appended to a drumkit, song, or pattern name in case it
-	 * is found on system-level and is read-only. */
-	m_sSoundLibrarySystemSuffix = tr( "system" );
-	/*: Suffix appended to a drumkit that are loaded non-persistently
-	 *  into the current Hydrogen session. */
-	m_sSoundLibrarySessionSuffix = tr( "session" );
+	/*: Node in the Sound Library corresponding to artifacts installed on
+	 * system-level. */
+	m_sSoundLibrarySystem = tr( "System" );
+	/*: Node in the Sound Library corresponding to artifacts only available in
+	 * the current Hydrogen session. */
+	m_sSoundLibrarySession = tr( "Session" );
+	/*: Node in the Sound Library corresponding to artifacts installed on
+	 * user-level. */
+	m_sSoundLibraryUser = tr( "User" );
 
 	/*: Name of note property adjustable in NotePropertiesRuler, using
 	 *  humanization in Mixer, or using automation path. */
