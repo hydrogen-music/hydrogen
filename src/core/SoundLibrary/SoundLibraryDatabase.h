@@ -62,6 +62,9 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	QStringList getPatternCategories() const {
 		return m_patternCategories;
 	}
+	std::vector<std::shared_ptr<SoundLibraryInfo>> getSongInfoVector() const {
+		return m_songInfoVector;
+	}
 
 	void update();
 
@@ -112,6 +115,7 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	 std::set<Instrument::Type> getAllTypes() const;
 	
 	void updatePatterns( bool bTriggerEvent = true );
+	void updateSongs( bool bTriggerEvent = true );
 	void printPatterns() const;
 	void loadPatternFromDirectory( const QString& path );
 	bool isPatternInstalled( const QString& sPatternName ) const;
@@ -144,6 +148,7 @@ private:
 
 	std::vector<std::shared_ptr<SoundLibraryInfo>> m_patternInfoVector;
 	QStringList m_patternCategories;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> m_songInfoVector;
 
 	/**
 	 * List of drumkits the user supplied via CLI or OSC command but

@@ -223,6 +223,10 @@ namespace H2Core
 		static QString patterns_dir( const QString& dk_name );
 		/** returns user patterns path, add file extension*/
 		static QString pattern_path( const QString& dk_name, const QString& p_name );
+		/** returns system patterns path */
+		static QString sys_patterns_dir();
+		/** returns system songs path (demos directory) */
+		static QString sys_songs_dir();
 		/** returns user plugins path */
 		static QString plugins_dir();
 		/** returns system drumkits path */

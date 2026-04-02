@@ -70,7 +70,7 @@ bool SoundLibraryDatabase::isPatternInstalled( const QString& sPatternName ) con
 void SoundLibraryDatabase::update()
 {
 	updatePatterns( false );
-	//updateSongs();
+	updateSongs( false );
 	updateDrumkits( false );
 	
 	EventQueue::get_instance()->pushEvent( Event::Type::SoundLibraryChanged, 0 );
@@ -382,6 +382,17 @@ void SoundLibraryDatabase::updatePatterns( bool bTriggerEvent )
 	// search patterns user directory
 	loadPatternFromDirectory( Filesystem::patterns_dir() );
 
+	// search system patterns directory if it exists
+	const QString sSysPatternsDir = Filesystem::sys_patterns_dir();
+	if ( Filesystem::dir_readable( sSysPatternsDir, true ) ) {
+		loadPatternFromDirectory( sSysPatternsDir );
+	}
+
+	// Set context on all patterns based on their file path
+	for ( auto& pInfo : m_patternInfoVector ) {
+		pInfo->setContext( SoundLibraryInfo::DetermineContext( pInfo->getPath() ) );
+	}
+
 	if ( bTriggerEvent ) {
 		EventQueue::get_instance()->pushEvent( Event::Type::SoundLibraryChanged, 0 );
 	}
@@ -408,6 +419,44 @@ void SoundLibraryDatabase::loadPatternFromDirectory( const QString& sPatternDir 
 	}
 }
 
+void SoundLibraryDatabase::updateSongs( bool bTriggerEvent )
+{
+	m_songInfoVector.clear();
+
+	// User songs
+	const QString sUsrSongsDir = Filesystem::songs_dir();
+	if ( Filesystem::dir_readable( sUsrSongsDir, true ) ) {
+		for ( const QString& sSongFile : Filesystem::song_list_cleared() ) {
+			const QString sFullPath = sUsrSongsDir + sSongFile;
+			auto pInfo = std::make_shared<SoundLibraryInfo>();
+			if ( pInfo->load( sFullPath ) ) {
+				pInfo->setContext( SoundLibraryInfo::Context::User );
+				m_songInfoVector.push_back( pInfo );
+			}
+		}
+	}
+
+	// System songs (demos)
+	const QString sSysSongsDir = Filesystem::sys_songs_dir();
+	if ( Filesystem::dir_readable( sSysSongsDir, true ) ) {
+		const QStringList songFiles = QDir( sSysSongsDir ).entryList(
+			QStringList( "*.h2song" ),
+			QDir::Files | QDir::Readable | QDir::NoDotAndDotDot );
+		for ( const QString& sSongFile : songFiles ) {
+			const QString sFullPath = sSysSongsDir + sSongFile;
+			auto pInfo = std::make_shared<SoundLibraryInfo>();
+			if ( pInfo->load( sFullPath ) ) {
+				pInfo->setContext( SoundLibraryInfo::Context::System );
+				m_songInfoVector.push_back( pInfo );
+			}
+		}
+	}
+
+	if ( bTriggerEvent ) {
+		EventQueue::get_instance()->pushEvent( Event::Type::SoundLibraryChanged, 0 );
+	}
+}
+
 QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
@@ -427,6 +476,11 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort ) c
 		for ( const auto& ppatternInfo : m_patternInfoVector ) {
 			sOutput.append( QString( "%3\n" )
 							.arg( ppatternInfo->toQString( sPrefix + s + s, bShort ) ) );
+		}
+		sOutput.append( QString( "%1%2m_songInfoVector:\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& pSongInfo : m_songInfoVector ) {
+			sOutput.append( QString( "%3\n" )
+							.arg( pSongInfo->toQString( sPrefix + s + s, bShort ) ) );
 		}
 		sOutput.append( QString( "%1%2m_patternCategories: %3\n" ).arg( sPrefix ).arg( s )
 						.arg( m_patternCategories.join( ", " ) ) )
@@ -450,6 +504,10 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort ) c
 		sOutput.append( ", m_patternInfoVector: " );
 		for ( const auto& ppatternInfo : m_patternInfoVector ) {
 			sOutput.append( QString( "%1, " ).arg( ppatternInfo->getPath() ) );
+		}
+		sOutput.append( ", m_songInfoVector: " );
+		for ( const auto& pSongInfo : m_songInfoVector ) {
+			sOutput.append( QString( "%1, " ).arg( pSongInfo->getPath() ) );
 		}
 		sOutput.append( QString( ", m_patternCategories: %1" )
 						.arg( m_patternCategories.join( ", " ) ) )

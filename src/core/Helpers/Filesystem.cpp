@@ -756,6 +756,14 @@ QString Filesystem::patterns_dir( const QString& dk_name )
 {
 	return __usr_data_path + PATTERNS + dk_name + "/";
 }
+QString Filesystem::sys_patterns_dir()
+{
+	return __sys_data_path + PATTERNS;
+}
+QString Filesystem::sys_songs_dir()
+{
+	return __sys_data_path + SONGS;
+}
 QString Filesystem::pattern_path( const QString& dk_name, const QString& p_name )
 {
 	if ( dk_name.isEmpty() ) {

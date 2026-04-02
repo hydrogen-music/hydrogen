@@ -23,6 +23,7 @@
 #ifndef SOUNDLIBRARYINFO_H
 #define SOUNDLIBRARYINFO_H
 
+#include <core/Helpers/Filesystem.h>
 #include <core/License.h>
 #include <core/Object.h>
 #include <vector>
@@ -47,6 +48,15 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo>
 {
 	H2_OBJECT(SoundLibraryInfo)
 	public:
+		/** Indicates whether the item resides at system or user level. */
+		enum class Context {
+			System = 0,
+			User = 1
+		};
+		static QString ContextToString( const Context& context );
+		/** Determine the context based on the file path — system or user. */
+		static Context DetermineContext( const QString& sPath );
+
 		SoundLibraryInfo();
 		SoundLibraryInfo( const QString& sName,
 						  const QString& sURL,
@@ -155,6 +165,13 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo>
 			return m_sDrumkitName;
 		}
 
+		Context getContext() const {
+			return m_context;
+		}
+		void setContext( const Context& context ){
+			m_context = context;
+		}
+
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
 	 * every new line
@@ -179,6 +196,7 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo>
 
 	/** Drumkit the pattern was created with */
 	QString m_sDrumkitName;
+	Context m_context;
 };
 }; // namespace H2Core
 

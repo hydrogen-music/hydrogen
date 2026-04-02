@@ -57,14 +57,30 @@ using namespace H2Core;
 
 SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  : QWidget( pParent )
+ , m_pSearchField( nullptr )
+ , m_pRescanButton( nullptr )
+ , m_pTabWidget( nullptr )
  , __sound_library_tree( nullptr )
+ , m_pPatternTree( nullptr )
+ , m_pSongTree( nullptr )
+ , m_pDetailName( nullptr )
+ , m_pDetailAuthor( nullptr )
+ , m_pDetailInfo( nullptr )
+ , m_pDetailLicense( nullptr )
+ , m_pDetailCategory( nullptr )
+ , m_pDetailPath( nullptr )
  , __drumkit_menu( nullptr )
+ , __drumkit_menu_system( nullptr )
  , __song_menu( nullptr )
  , __pattern_menu( nullptr )
  , __pattern_menu_list( nullptr )
  , m_pTreeSystemDrumkitsItem( nullptr )
  , m_pTreeUserDrumkitsItem( nullptr )
  , m_pTreeSessionDrumkitsItem( nullptr )
+ , m_pPatternSystemItem( nullptr )
+ , m_pPatternUserItem( nullptr )
+ , m_pSongSystemItem( nullptr )
+ , m_pSongUserItem( nullptr )
  , __song_item( nullptr )
  , __pattern_item( nullptr )
  , __pattern_item_list( nullptr )
@@ -124,31 +140,94 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	__pattern_menu_list->addAction( pCommonStrings->getMenuActionLoad(), this,
 									SLOT( on_patternLoadAction() ) );
 
-// DRUMKIT LIST
+	// DRUMKIT TREE (tab 0)
 	__sound_library_tree = new SoundLibraryTree( nullptr );
-	connect( __sound_library_tree, SIGNAL( currentItemChanged ( QTreeWidgetItem*, QTreeWidgetItem* ) ), this, SLOT( on_DrumkitList_ItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ) );
-	connect( __sound_library_tree, SIGNAL( itemActivated ( QTreeWidgetItem*, int ) ), this, SLOT( on_DrumkitList_itemActivated( QTreeWidgetItem*, int ) ) );
+	connect( __sound_library_tree, SIGNAL( currentItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ), this, SLOT( on_DrumkitList_ItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ) );
+	connect( __sound_library_tree, SIGNAL( itemActivated( QTreeWidgetItem*, int ) ), this, SLOT( on_DrumkitList_itemActivated( QTreeWidgetItem*, int ) ) );
 	connect( __sound_library_tree, SIGNAL( leftClicked(QPoint) ), this, SLOT( on_DrumkitList_leftClicked(QPoint)) );
+	connect( __sound_library_tree, SIGNAL( currentItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ), this, SLOT( onTreeItemSelected() ) );
 	if( ! m_bInItsOwnDialog ) {
 		connect( __sound_library_tree, SIGNAL( rightClicked(QPoint) ), this, SLOT( on_DrumkitList_rightClicked(QPoint)) );
 		connect( __sound_library_tree, SIGNAL( onMouseMove( QMouseEvent* ) ), this, SLOT( on_DrumkitList_mouseMove( QMouseEvent* ) ) );
 	}
 
+	// PATTERN TREE (tab 1)
+	m_pPatternTree = new SoundLibraryTree( nullptr );
+	connect( m_pPatternTree, SIGNAL( currentItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ), this, SLOT( onTreeItemSelected() ) );
+	if ( ! m_bInItsOwnDialog ) {
+		connect( m_pPatternTree, SIGNAL( rightClicked(QPoint) ), this, SLOT( on_PatternTree_rightClicked(QPoint)) );
+		connect( m_pPatternTree, SIGNAL( onMouseMove( QMouseEvent* ) ), this, SLOT( on_PatternTree_mouseMove( QMouseEvent* ) ) );
+	}
 
-	// LAYOUT
-	QVBoxLayout *pVBox = new QVBoxLayout();
+	// SONG TREE (tab 2)
+	m_pSongTree = new SoundLibraryTree( nullptr );
+	connect( m_pSongTree, SIGNAL( currentItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ), this, SLOT( onTreeItemSelected() ) );
+	if ( ! m_bInItsOwnDialog ) {
+		connect( m_pSongTree, SIGNAL( rightClicked(QPoint) ), this, SLOT( on_SongTree_rightClicked(QPoint)) );
+	}
+
+	// Search bar
+	m_pSearchField = new QLineEdit( this );
+	m_pSearchField->setPlaceholderText( "Search..." );
+
+	m_pRescanButton = new QPushButton( "Rescan", this );
+
+	QHBoxLayout* pSearchLayout = new QHBoxLayout();
+	pSearchLayout->setSpacing( 4 );
+	pSearchLayout->setContentsMargins( 0, 0, 0, 0 );
+	pSearchLayout->addWidget( m_pSearchField );
+	pSearchLayout->addWidget( m_pRescanButton );
+
+	// Tab widget
+	m_pTabWidget = new QTabWidget( this );
+	m_pTabWidget->setDocumentMode( true );
+	m_pTabWidget->addTab( __sound_library_tree, "Drumkits" );
+	m_pTabWidget->addTab( m_pPatternTree, "Patterns" );
+	m_pTabWidget->addTab( m_pSongTree, "Songs" );
+
+	// Detail view
+	m_pDetailName = new QLabel( this );
+	m_pDetailName->setWordWrap( true );
+	m_pDetailAuthor = new QLabel( this );
+	m_pDetailAuthor->setWordWrap( true );
+	m_pDetailInfo = new QLabel( this );
+	m_pDetailInfo->setWordWrap( true );
+	m_pDetailLicense = new QLabel( this );
+	m_pDetailLicense->setWordWrap( true );
+	m_pDetailCategory = new QLabel( this );
+	m_pDetailCategory->setWordWrap( true );
+	m_pDetailPath = new QLabel( this );
+	m_pDetailPath->setWordWrap( true );
+
+	QFormLayout* pFormLayout = new QFormLayout();
+	pFormLayout->addRow( "Name:", m_pDetailName );
+	pFormLayout->addRow( "Author:", m_pDetailAuthor );
+	pFormLayout->addRow( "Info:", m_pDetailInfo );
+	pFormLayout->addRow( "License:", m_pDetailLicense );
+	pFormLayout->addRow( "Category:", m_pDetailCategory );
+	pFormLayout->addRow( "Path:", m_pDetailPath );
+
+	QWidget* pDetailContainer = new QWidget( this );
+	pDetailContainer->setLayout( pFormLayout );
+
+	// Main layout
+	QVBoxLayout* pVBox = new QVBoxLayout();
 	pVBox->setSpacing( 0 );
 	pVBox->setContentsMargins( 0, 0, 0, 0 );
-
-	pVBox->addWidget( __sound_library_tree );
-	
+	pVBox->addLayout( pSearchLayout );
+	pVBox->addWidget( m_pTabWidget );
+	pVBox->addWidget( pDetailContainer );
 
 	this->setLayout( pVBox );
 
+	connect( m_pSearchField, &QLineEdit::textChanged, this, &SoundLibraryPanel::onSearchTextChanged );
+	connect( m_pRescanButton, &QPushButton::clicked, this, &SoundLibraryPanel::onRescanClicked );
+	connect( m_pTabWidget, &QTabWidget::currentChanged, this, &SoundLibraryPanel::onTabChanged );
+
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &SoundLibraryPanel::onPreferencesChanged );
-	
+
 	updateTree();
-	
+
 	HydrogenApp::get_instance()->addEventListener(this);
 }
 
@@ -165,14 +244,29 @@ SoundLibraryPanel::~SoundLibraryPanel()
 
 void SoundLibraryPanel::updateTree()
 {
+	updateDrumkitTree();
+	updatePatternTree();
+	updateSongTree();
+}
+
+
+
+void SoundLibraryPanel::updateDrumkitTree()
+{
 	const auto pPref = H2Core::Preferences::get_instance();
 	const auto pFontTheme = pPref->getFontTheme();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	m_patternRegistry.clear();
 	__sound_library_tree->clear();
+	m_drumkitRegister.clear();
+	m_drumkitLabels.clear();
+	m_patternRegistry.clear();
+
+	// Legacy pointers are not populated in the new design
+	__song_item = nullptr;
+	__pattern_item = nullptr;
+	__pattern_item_list = nullptr;
 
 	QFont boldFont( pFontTheme->m_sApplicationFontFamily,
 				   getPointSize( pFontTheme->m_fontSize ) );
@@ -181,7 +275,7 @@ void SoundLibraryPanel::updateTree()
 	QFont childFont( pFontTheme->m_sLevel2FontFamily,
 					getPointSize( pFontTheme->m_fontSize ) );
 	setFont( childFont );
-	
+
 	m_pTreeSystemDrumkitsItem = nullptr;
 	m_pTreeUserDrumkitsItem = nullptr;
 	m_pTreeSessionDrumkitsItem = nullptr;
@@ -190,8 +284,6 @@ void SoundLibraryPanel::updateTree()
 	QList<QTreeWidgetItem*> drumkitItems;
 
 	// drumkit list
-	m_drumkitRegister.clear();
-	m_drumkitLabels.clear();
 	for ( const auto& [ssPath, ppDrumkit] : pSoundLibraryDatabase->getDrumkitDatabase() ) {
 		if ( ppDrumkit == nullptr ) {
 			continue;
@@ -286,62 +378,330 @@ void SoundLibraryPanel::updateTree()
 	if ( m_pTreeSessionDrumkitsItem != nullptr ) {
 		m_pTreeSessionDrumkitsItem->setExpanded( true );
 	}
+}
 
-	if ( ! m_bInItsOwnDialog ) {
-		//Songlist
-		QStringList songs = Filesystem::song_list_cleared();
-		if ( songs.size() > 0 ) {
-			__song_item = new QTreeWidgetItem( __sound_library_tree );
-			__song_item->setText( 0, tr( "Songs" ) );
-			__song_item->setToolTip( 0, tr("Double click to expand the list") );
-			__song_item->setExpanded( pPref->m_bExpandSongItem );
-			__song_item->setFont( 0, boldFont );
-			for (uint i = 0; i < songs.size(); i++) {
-				QTreeWidgetItem* pSongItem = new QTreeWidgetItem( __song_item );
-				QString song = songs[i];
-				pSongItem->setText( 0 , song.left( song.indexOf(".")) );
-				pSongItem->setToolTip( 0, song );
+
+
+void SoundLibraryPanel::updatePatternTree()
+{
+	m_pPatternTree->clear();
+	m_patternRegistry.clear();
+	m_pPatternSystemItem = nullptr;
+	m_pPatternUserItem = nullptr;
+
+	auto pPref = H2Core::Preferences::get_instance();
+	auto pFontTheme = pPref->getFontTheme();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
+
+	QFont boldFont( pFontTheme->m_sApplicationFontFamily,
+				   getPointSize( pFontTheme->m_fontSize ) );
+	boldFont.setBold( true );
+
+	auto patternInfoVector = pSoundLibraryDatabase->getPatternInfoVector();
+
+	/*: Base tooltip displayed when hovering over a pattern in
+	  the Sound Library. It indicates which drumkit the
+	  pattern was created with*/
+	QString sPatternTooltip = tr( "Created for drumkit" );
+
+	// Separate patterns by context
+	for ( const auto& pInfo : patternInfoVector ) {
+		QTreeWidgetItem* pParentItem = nullptr;
+
+		if ( pInfo->getContext() == H2Core::SoundLibraryInfo::Context::System ) {
+			if ( m_pPatternSystemItem == nullptr ) {
+				m_pPatternSystemItem = new QTreeWidgetItem( m_pPatternTree );
+				m_pPatternSystemItem->setText( 0, tr( "System patterns" ) );
+				m_pPatternSystemItem->setFont( 0, boldFont );
+				m_pPatternSystemItem->setExpanded( true );
 			}
+			pParentItem = m_pPatternSystemItem;
+		} else {
+			if ( m_pPatternUserItem == nullptr ) {
+				m_pPatternUserItem = new QTreeWidgetItem( m_pPatternTree );
+				m_pPatternUserItem->setText( 0, tr( "User patterns" ) );
+				m_pPatternUserItem->setFont( 0, boldFont );
+				m_pPatternUserItem->setExpanded( true );
+			}
+			pParentItem = m_pPatternUserItem;
 		}
 
-		//Pattern list
-        auto patternInfoVector = pSoundLibraryDatabase->getPatternInfoVector();
-		if ( patternInfoVector.size() > 0 ) {
-			__pattern_item = new QTreeWidgetItem( __sound_library_tree );
-			__pattern_item->setText( 0, tr( "Patterns" ) );
-			__pattern_item->setToolTip( 0, tr("Double click to expand the list") );
-			__pattern_item->setExpanded( pPref->m_bExpandPatternItem );
-			__pattern_item->setFont( 0, boldFont );
-		
-			QStringList patternCategories =
-				pSoundLibraryDatabase->getPatternCategories();
+		// Group by category under the system/user parent
+		QTreeWidgetItem* pCategoryItem = nullptr;
+		for ( int ii = 0; ii < pParentItem->childCount(); ++ii ) {
+			if ( pParentItem->child( ii )->text( 0 ) == pInfo->getCategory() ) {
+				pCategoryItem = pParentItem->child( ii );
+				break;
+			}
+		}
+		if ( pCategoryItem == nullptr ) {
+			QString sCat = pInfo->getCategory();
+			if ( sCat.isEmpty() ) {
+				sCat = "No category";
+			}
+			pCategoryItem = new QTreeWidgetItem( pParentItem );
+			pCategoryItem->setText( 0, sCat );
+		}
 
-			//now sorting via category
+		QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
+		pPatternItem->setText( 0, pInfo->getName() );
+		pPatternItem->setText( 1, pInfo->getPath() );
+		pPatternItem->setToolTip( 0, QString( "%1 [%2]" )
+								  .arg( sPatternTooltip )
+								  .arg( pInfo->getDrumkitName() ) );
+		m_patternRegistry[ pPatternItem ] = pInfo;
+	}
+}
 
-			/*: Base tooltip displayed when hovering over a pattern in
-			  the Sound Library. It indicates which drumkit the
-			  pattern was created with*/
-			QString sPatternTooltip = tr( "Created for drumkit" );
-			for ( const auto& categoryName : patternCategories ) {
 
-				QTreeWidgetItem* pCategoryItem = new QTreeWidgetItem( __pattern_item );
-				pCategoryItem->setText( 0, categoryName  );
 
-				for ( const auto& pInfo : patternInfoVector ) {
-					QString patternCategory = pInfo->getCategory();
-					if ( ( patternCategory == categoryName ) ||
-						 ( patternCategory.isEmpty() && categoryName == "No category" ) ){
-						QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
-						pPatternItem->setText( 0, pInfo->getName());
-						pPatternItem->setText( 1, pInfo->getPath() );
-						pPatternItem->setToolTip( 0, QString( "%1 [%2]" )
-												  .arg( sPatternTooltip )
-												  .arg( pInfo->getDrumkitName() ) );
-						m_patternRegistry[ pPatternItem ] = pInfo;
-					}
+void SoundLibraryPanel::updateSongTree()
+{
+	m_pSongTree->clear();
+	m_songRegistry.clear();
+	m_pSongSystemItem = nullptr;
+	m_pSongUserItem = nullptr;
+
+	auto pPref = H2Core::Preferences::get_instance();
+	auto pFontTheme = pPref->getFontTheme();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
+
+	QFont boldFont( pFontTheme->m_sApplicationFontFamily,
+				   getPointSize( pFontTheme->m_fontSize ) );
+	boldFont.setBold( true );
+
+	auto songInfoVector = pSoundLibraryDatabase->getSongInfoVector();
+
+	for ( const auto& pInfo : songInfoVector ) {
+		QTreeWidgetItem* pParentItem = nullptr;
+
+		if ( pInfo->getContext() == H2Core::SoundLibraryInfo::Context::System ) {
+			if ( m_pSongSystemItem == nullptr ) {
+				m_pSongSystemItem = new QTreeWidgetItem( m_pSongTree );
+				m_pSongSystemItem->setText( 0, tr( "System songs" ) );
+				m_pSongSystemItem->setFont( 0, boldFont );
+				m_pSongSystemItem->setExpanded( true );
+			}
+			pParentItem = m_pSongSystemItem;
+		} else {
+			if ( m_pSongUserItem == nullptr ) {
+				m_pSongUserItem = new QTreeWidgetItem( m_pSongTree );
+				m_pSongUserItem->setText( 0, tr( "User songs" ) );
+				m_pSongUserItem->setFont( 0, boldFont );
+				m_pSongUserItem->setExpanded( true );
+			}
+			pParentItem = m_pSongUserItem;
+		}
+
+		QTreeWidgetItem* pSongItem = new QTreeWidgetItem( pParentItem );
+		QString sDisplayName = pInfo->getName();
+		if ( sDisplayName.isEmpty() ) {
+			// Fallback to filename without extension
+			QFileInfo fi( pInfo->getPath() );
+			sDisplayName = fi.completeBaseName();
+		}
+		pSongItem->setText( 0, sDisplayName );
+		pSongItem->setToolTip( 0, pInfo->getPath() );
+		m_songRegistry[ pSongItem ] = pInfo;
+	}
+}
+
+
+
+void SoundLibraryPanel::updateDetailView()
+{
+	// Determine which tree is active
+	int nTab = m_pTabWidget->currentIndex();
+	SoundLibraryTree* pActiveTree = nullptr;
+
+	if ( nTab == 0 ) {
+		pActiveTree = __sound_library_tree;
+	} else if ( nTab == 1 ) {
+		pActiveTree = m_pPatternTree;
+	} else if ( nTab == 2 ) {
+		pActiveTree = m_pSongTree;
+	}
+
+	// Clear all fields
+	m_pDetailName->clear();
+	m_pDetailAuthor->clear();
+	m_pDetailInfo->clear();
+	m_pDetailLicense->clear();
+	m_pDetailCategory->clear();
+	m_pDetailPath->clear();
+
+	if ( pActiveTree == nullptr || pActiveTree->currentItem() == nullptr ) {
+		return;
+	}
+
+	QTreeWidgetItem* pItem = pActiveTree->currentItem();
+
+	if ( nTab == 0 ) {
+		// Drumkit tab: look up the selected drumkit
+		if ( pItem->parent() == m_pTreeSystemDrumkitsItem ||
+			 pItem->parent() == m_pTreeUserDrumkitsItem ||
+			 pItem->parent() == m_pTreeSessionDrumkitsItem ) {
+			QString sDrumkitLabel = pItem->text( 0 );
+			auto it = m_drumkitRegister.find( sDrumkitLabel );
+			if ( it != m_drumkitRegister.end() ) {
+				auto pDB = H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase();
+				auto pDrumkit = pDB->getDrumkit( it->second );
+				if ( pDrumkit != nullptr ) {
+					m_pDetailName->setText( pDrumkit->getName() );
+					m_pDetailAuthor->setText( pDrumkit->getAuthor() );
+					m_pDetailInfo->setText( pDrumkit->getInfo() );
+					m_pDetailLicense->setText( pDrumkit->getLicense().toQString( "", true ) );
+					m_pDetailPath->setText( it->second );
 				}
 			}
 		}
+	} else if ( nTab == 1 ) {
+		// Pattern tab
+		auto it = m_patternRegistry.find( pItem );
+		if ( it != m_patternRegistry.end() && it->second != nullptr ) {
+			auto pInfo = it->second;
+			m_pDetailName->setText( pInfo->getName() );
+			m_pDetailAuthor->setText( pInfo->getAuthor() );
+			m_pDetailInfo->setText( pInfo->getInfo() );
+			m_pDetailLicense->setText( pInfo->getLicense().toQString( "", true ) );
+			m_pDetailCategory->setText( pInfo->getCategory() );
+			m_pDetailPath->setText( pInfo->getPath() );
+		}
+	} else if ( nTab == 2 ) {
+		// Song tab
+		auto it = m_songRegistry.find( pItem );
+		if ( it != m_songRegistry.end() && it->second != nullptr ) {
+			auto pInfo = it->second;
+			m_pDetailName->setText( pInfo->getName() );
+			m_pDetailAuthor->setText( pInfo->getAuthor() );
+			m_pDetailInfo->setText( pInfo->getInfo() );
+			m_pDetailLicense->setText( pInfo->getLicense().toQString( "", true ) );
+			m_pDetailPath->setText( pInfo->getPath() );
+		}
+	}
+}
+
+
+
+void SoundLibraryPanel::filterTree( SoundLibraryTree* pTree, const QString& sFilter )
+{
+	if ( pTree == nullptr ) {
+		return;
+	}
+
+	for ( int ii = 0; ii < pTree->topLevelItemCount(); ++ii ) {
+		QTreeWidgetItem* pTopItem = pTree->topLevelItem( ii );
+		bool bAnyChildVisible = false;
+
+		for ( int jj = 0; jj < pTopItem->childCount(); ++jj ) {
+			QTreeWidgetItem* pChild = pTopItem->child( jj );
+
+			// Check if pChild itself has children (category level)
+			if ( pChild->childCount() > 0 ) {
+				bool bAnyCatChildVisible = false;
+				for ( int kk = 0; kk < pChild->childCount(); ++kk ) {
+					QTreeWidgetItem* pLeaf = pChild->child( kk );
+					bool bMatch = sFilter.isEmpty() ||
+						pLeaf->text( 0 ).contains( sFilter, Qt::CaseInsensitive );
+					pLeaf->setHidden( !bMatch );
+					if ( bMatch ) {
+						bAnyCatChildVisible = true;
+					}
+				}
+				pChild->setHidden( !bAnyCatChildVisible );
+				if ( bAnyCatChildVisible ) {
+					bAnyChildVisible = true;
+				}
+			} else {
+				bool bMatch = sFilter.isEmpty() ||
+					pChild->text( 0 ).contains( sFilter, Qt::CaseInsensitive );
+				pChild->setHidden( !bMatch );
+				if ( bMatch ) {
+					bAnyChildVisible = true;
+				}
+			}
+		}
+		pTopItem->setHidden( !bAnyChildVisible );
+	}
+}
+
+
+
+void SoundLibraryPanel::onTabChanged( int nIndex )
+{
+	UNUSED( nIndex );
+	updateDetailView();
+}
+
+void SoundLibraryPanel::onTreeItemSelected()
+{
+	updateDetailView();
+}
+
+void SoundLibraryPanel::onSearchTextChanged( const QString& sText )
+{
+	filterTree( __sound_library_tree, sText );
+	filterTree( m_pPatternTree, sText );
+	filterTree( m_pSongTree, sText );
+}
+
+void SoundLibraryPanel::onRescanClicked()
+{
+	H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
+}
+
+
+
+void SoundLibraryPanel::on_PatternTree_rightClicked( const QPoint& pos )
+{
+	if ( m_pPatternTree->currentItem() == nullptr ) {
+		return;
+	}
+
+	// Only show menu on leaf items (patterns, not categories/top-level)
+	auto it = m_patternRegistry.find( m_pPatternTree->currentItem() );
+	if ( it != m_patternRegistry.end() ) {
+		__pattern_menu->popup( pos );
+	}
+}
+
+void SoundLibraryPanel::on_PatternTree_mouseMove( QMouseEvent* event )
+{
+	if ( !( event->buttons() & Qt::LeftButton ) ) {
+		return;
+	}
+
+	if ( m_pPatternTree->currentItem() == nullptr ) {
+		return;
+	}
+
+	auto it = m_patternRegistry.find( m_pPatternTree->currentItem() );
+	if ( it == m_patternRegistry.end() || it->second == nullptr ) {
+		return;
+	}
+
+	QString sPatternPath = it->second->getPath();
+	QString dragtype = "drag pattern";
+	QString sText = dragtype + "::" + sPatternPath;
+
+	QDrag *pDrag = new QDrag(this);
+	QMimeData *pMimeData = new QMimeData;
+	pMimeData->setText( sText );
+	pDrag->setMimeData( pMimeData );
+	pDrag->exec( Qt::CopyAction | Qt::MoveAction );
+}
+
+void SoundLibraryPanel::on_SongTree_rightClicked( const QPoint& pos )
+{
+	if ( m_pSongTree->currentItem() == nullptr ) {
+		return;
+	}
+
+	auto it = m_songRegistry.find( m_pSongTree->currentItem() );
+	if ( it != m_songRegistry.end() ) {
+		__song_menu->popup( pos );
 	}
 }
 
@@ -350,7 +710,7 @@ void SoundLibraryPanel::updateTree()
 void SoundLibraryPanel::on_DrumkitList_ItemChanged( QTreeWidgetItem * current, QTreeWidgetItem * previous )
 {
 	UNUSED( previous );
-	
+
 	if( current == nullptr ){
 		return;
 	}
@@ -362,7 +722,7 @@ void SoundLibraryPanel::on_DrumkitList_ItemChanged( QTreeWidgetItem * current, Q
 	} else {
 		emit item_changed( false );
 	}
-	
+
 	test_expandedItems();
 }
 
@@ -433,7 +793,7 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 			ERRORLOG( "Unable to load instrument. Abort" );
 			return;
 		}
-		
+
 		pPreviewInstrument->setMuted( false );
 		auto pNote = std::make_shared<Note>(
 			pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT, LENGTH_ENTIRE_SAMPLE );
@@ -445,16 +805,12 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 
 
 
-
-
-
-
 void SoundLibraryPanel::on_DrumkitList_rightClicked( const QPoint& pos )
 {
 	if( __sound_library_tree->currentItem() == nullptr ) {
 		return;
 	}
-	
+
 	if (
 		__sound_library_tree->currentItem()->parent() == nullptr ||
 		__sound_library_tree->currentItem() == m_pTreeUserDrumkitsItem ||
@@ -463,22 +819,14 @@ void SoundLibraryPanel::on_DrumkitList_rightClicked( const QPoint& pos )
 		return;
 	}
 
-	if ( __sound_library_tree->currentItem()->parent() == __song_item ) {
-		__song_menu->popup( pos );
-	}
-
-	if ( __sound_library_tree->currentItem()->parent()->parent() == __pattern_item && __pattern_item != nullptr ) {
-		__pattern_menu->popup( pos );
-	}
-
 	if ( __sound_library_tree->currentItem()->parent() == m_pTreeUserDrumkitsItem ) {
 		__drumkit_menu->popup( pos );
 	}
-	
+
 	if ( __sound_library_tree->currentItem()->parent() == m_pTreeSystemDrumkitsItem ) {
 		__drumkit_menu_system->popup( pos );
 	}
-	
+
 	// We do not provide distinct parent items for read-only and
 	// writable session drumkits as it would make the GUI unnecessary
 	// complex. Instead, the level of access for the current user is
@@ -487,14 +835,13 @@ void SoundLibraryPanel::on_DrumkitList_rightClicked( const QPoint& pos )
 		const QString sDrumkitName = __sound_library_tree->currentItem()->text( 0 );
 		const QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
 		const auto drumkitContext = Drumkit::DetermineContext( sDrumkitPath );
-		
+
 		if ( drumkitContext == Drumkit::Context::SessionReadOnly ) {
 			__drumkit_menu_system->popup( pos );
 		} else {
 			__drumkit_menu->popup( pos );
 		}
 	}
-
 }
 
 
@@ -515,7 +862,7 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 	if ( ( event->pos() - __start_drag_position ).manhattanLength() < QApplication::startDragDistance() ) {
 		return;
 	}
-	
+
 	if ( !__sound_library_tree->currentItem() ) {
 		return;
 	}
@@ -524,48 +871,22 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 		 __sound_library_tree->currentItem()->parent() == m_pTreeUserDrumkitsItem ||
 		 __sound_library_tree->currentItem()->parent() == m_pTreeSessionDrumkitsItem ) {
  		// drumkit selection
-		//INFOLOG( "ho selezionato un drumkit (system)" );
 		return;
 	}
 	else {
-		//INFOLOG( "ho selezionato uno strumento" );
 		// instrument selection
 		if ( __sound_library_tree->currentItem() == nullptr )
 		{
 			return;
 		}
-		
-		if ( __sound_library_tree->currentItem()->parent() == nullptr )
-		{
-			return;
-		}
 
-		if ( __sound_library_tree->currentItem()->parent() == __song_item )
+		if ( __sound_library_tree->currentItem()->parent() == nullptr )
 		{
 			return;
 		}
 
 		if ( __sound_library_tree->currentItem()->parent()->text(0) == nullptr )
 		{
-			return;
-		}
-
-		if ( __sound_library_tree->currentItem()->parent() == __pattern_item ) {
-			return;
-		}
-
-		if ( __sound_library_tree->currentItem()->parent()->parent() == __pattern_item ) {
-
-			QString sPatternPath = __sound_library_tree->currentItem()->text( 1 );
-			QString dragtype = "drag pattern";
-			QString sText = dragtype + "::" + sPatternPath;
-
-			QDrag *pDrag = new QDrag(this);
-			QMimeData *pMimeData = new QMimeData;
-
-			pMimeData->setText( sText );
-			pDrag->setMimeData( pMimeData);
-			pDrag->exec( Qt::CopyAction | Qt::MoveAction );
 			return;
 		}
 
@@ -595,7 +916,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	if ( pSong == nullptr ){
 		return;
 	}
-	
+
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
 	QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
 	auto pDrumkit =
@@ -645,7 +966,7 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 	const QString sDrumkitName = pItem->text(0);
 	const QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
 	const auto drumkitContext = Drumkit::DetermineContext( sDrumkitPath );
-	
+
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	if ( pItem->parent() == m_pTreeSystemDrumkitsItem ||
@@ -733,7 +1054,7 @@ void SoundLibraryPanel::on_drumkitExportAction()
 {
 	auto pSoundLibraryDatabase =
 		Hydrogen::get_instance()->getSoundLibraryDatabase();
-	
+
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
 	QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
 	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDrumkitPath );
@@ -744,17 +1065,17 @@ void SoundLibraryPanel::on_drumkitExportAction()
 void SoundLibraryPanel::editDrumkitProperties( bool bDuplicate ) {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
-	
+
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
 	QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
 	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDrumkitPath );
-	
+
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( QString( "Unable to find drumkit [%1] (mapped to path [%2]" )
 				  .arg( sDrumkitName ).arg( sDrumkitPath ) );
 		return;
 	}
-	
+
 	// We provide a copy of the recent drumkit to ensure the drumkit
 	// is not getting dirty upon saving (in case new properties are
 	// stored in the kit but writing it to disk fails).
@@ -773,10 +1094,21 @@ void SoundLibraryPanel::editDrumkitProperties( bool bDuplicate ) {
 
 void SoundLibraryPanel::on_songLoadAction()
 {
-	const QString sFileName = Filesystem::song_path(
-		__sound_library_tree->currentItem()->text( 0 ) );
+	// Support loading from the new song tree
+	if ( m_pSongTree != nullptr && m_pSongTree->currentItem() != nullptr ) {
+		auto it = m_songRegistry.find( m_pSongTree->currentItem() );
+		if ( it != m_songRegistry.end() && it->second != nullptr ) {
+			HydrogenApp::openFile( Filesystem::Type::Song, it->second->getPath() );
+			return;
+		}
+	}
 
-	HydrogenApp::openFile( Filesystem::Type::Song, sFileName );
+	// Fallback: legacy path (shouldn't be reached in new design)
+	if ( __sound_library_tree->currentItem() != nullptr ) {
+		const QString sFileName = Filesystem::song_path(
+			__sound_library_tree->currentItem()->text( 0 ) );
+		HydrogenApp::openFile( Filesystem::Type::Song, sFileName );
+	}
 }
 
 void SoundLibraryPanel::on_patternLoadAction()
@@ -786,17 +1118,28 @@ void SoundLibraryPanel::on_patternLoadAction()
 		return;
 	}
 
-	if ( m_patternRegistry.find( __sound_library_tree->currentItem() ) ==
-		 m_patternRegistry.end() ) {
-		ERRORLOG( QString( "Unable to find pattern corresponding to [%1]" )
-					  .arg( __sound_library_tree->currentItem()->text( 0 ) ) );
+	// Check pattern tree first, then fall back to the drumkit tree
+	QTreeWidgetItem* pCurrentItem = nullptr;
+	if ( m_pPatternTree != nullptr && m_pPatternTree->currentItem() != nullptr ) {
+		pCurrentItem = m_pPatternTree->currentItem();
+	} else if ( __sound_library_tree->currentItem() != nullptr ) {
+		pCurrentItem = __sound_library_tree->currentItem();
+	}
+
+	if ( pCurrentItem == nullptr ) {
 		return;
 	}
 
-	auto pInfo = m_patternRegistry.at( __sound_library_tree->currentItem() );
+	if ( m_patternRegistry.find( pCurrentItem ) == m_patternRegistry.end() ) {
+		ERRORLOG( QString( "Unable to find pattern corresponding to [%1]" )
+					  .arg( pCurrentItem->text( 0 ) ) );
+		return;
+	}
+
+	auto pInfo = m_patternRegistry.at( pCurrentItem );
 	if ( pInfo == nullptr ) {
 		ERRORLOG( QString( "Invalid pattern info for [%1]" )
-					  .arg( __sound_library_tree->currentItem()->text( 0 ) ) );
+					  .arg( pCurrentItem->text( 0 ) ) );
 		return;
 	}
 
@@ -817,17 +1160,27 @@ void SoundLibraryPanel::on_patternLoadAction()
 }
 
 void SoundLibraryPanel::on_patternDeleteAction() {
-	if ( m_patternRegistry.find( __sound_library_tree->currentItem() ) ==
-		 m_patternRegistry.end() ) {
-		ERRORLOG( QString( "Unable to find pattern corresponding to [%1]" )
-				  .arg( __sound_library_tree->currentItem()->text( 0 ) ) );
+	QTreeWidgetItem* pCurrentItem = nullptr;
+	if ( m_pPatternTree != nullptr && m_pPatternTree->currentItem() != nullptr ) {
+		pCurrentItem = m_pPatternTree->currentItem();
+	} else if ( __sound_library_tree->currentItem() != nullptr ) {
+		pCurrentItem = __sound_library_tree->currentItem();
+	}
+
+	if ( pCurrentItem == nullptr ) {
 		return;
 	}
 
-	auto pInfo = m_patternRegistry.at( __sound_library_tree->currentItem() );
+	if ( m_patternRegistry.find( pCurrentItem ) == m_patternRegistry.end() ) {
+		ERRORLOG( QString( "Unable to find pattern corresponding to [%1]" )
+				  .arg( pCurrentItem->text( 0 ) ) );
+		return;
+	}
+
+	auto pInfo = m_patternRegistry.at( pCurrentItem );
 	if ( pInfo == nullptr ) {
 		ERRORLOG( QString( "Invalid pattern info for [%1]" )
-				  .arg( __sound_library_tree->currentItem()->text( 0 ) ) );
+				  .arg( pCurrentItem->text( 0 ) ) );
 		return;
 	}
 
@@ -867,21 +1220,15 @@ void SoundLibraryPanel::test_expandedItems()
 {
 	assert( __sound_library_tree );
 
-	auto pPref = Preferences::get_instance();
-
-	if ( __song_item != nullptr ) {
-		pPref->m_bExpandSongItem = __song_item->isExpanded();
-	}
-	if ( __pattern_item != nullptr ) {
-		pPref->m_bExpandPatternItem = __pattern_item->isExpanded();
-	}
+	// __song_item and __pattern_item are always nullptr in the new design;
+	// the preference booleans are left unchanged.
 }
 
 void SoundLibraryPanel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
-	
+
 	if ( changes & H2Core::Preferences::Changes::Font ) {
-		
+
 		QFont font( pFontTheme->m_sLevel2FontFamily,
 				   getPointSize( pFontTheme->m_fontSize ) );
 		QFont boldFont( pFontTheme->m_sApplicationFontFamily,
@@ -911,7 +1258,7 @@ void SoundLibraryPanel::onPreferencesChanged( const H2Core::Preferences::Changes
 				}
 			}
 		}
-		
+
 		if ( m_pTreeSessionDrumkitsItem != nullptr ) {
 			m_pTreeSessionDrumkitsItem->setFont( 0, boldFont );
 			for ( ii = 0; ii < m_pTreeSessionDrumkitsItem->childCount(); ii++ ){ 
@@ -923,21 +1270,28 @@ void SoundLibraryPanel::onPreferencesChanged( const H2Core::Preferences::Changes
 			}
 		}
 
-		if ( __song_item != nullptr ) {
-			__song_item->setFont( 0, boldFont );
-			for ( ii = 0; ii < __song_item->childCount(); ii++ ){ 
-				__song_item->child( ii )->setFont( 0, font );
-				__song_item->setFont( ii, font );
+		// Pattern tree fonts
+		if ( m_pPatternTree != nullptr ) {
+			for ( int ii = 0; ii < m_pPatternTree->topLevelItemCount(); ++ii ) {
+				QTreeWidgetItem* pTop = m_pPatternTree->topLevelItem( ii );
+				pTop->setFont( 0, boldFont );
+				for ( int jj = 0; jj < pTop->childCount(); ++jj ) {
+					QTreeWidgetItem* pChild = pTop->child( jj );
+					pChild->setFont( 0, font );
+					for ( int kk = 0; kk < pChild->childCount(); ++kk ) {
+						pChild->child( kk )->setFont( 0, font );
+					}
+				}
 			}
 		}
 
-		if ( __pattern_item != nullptr ) {
-			__pattern_item->setFont( 0, boldFont );
-			for ( ii = 0; ii < __pattern_item->childCount(); ii++ ){ 
-				childNode = __pattern_item->child( ii );
-				childNode->setFont( 0, font );
-				for ( jj = 0; jj < childNode->childCount(); jj++ ) {
-					childNode->child( jj )->setFont( 0, font );
+		// Song tree fonts
+		if ( m_pSongTree != nullptr ) {
+			for ( int ii = 0; ii < m_pSongTree->topLevelItemCount(); ++ii ) {
+				QTreeWidgetItem* pTop = m_pSongTree->topLevelItem( ii );
+				pTop->setFont( 0, boldFont );
+				for ( int jj = 0; jj < pTop->childCount(); ++jj ) {
+					pTop->child( jj )->setFont( 0, font );
 				}
 			}
 		}

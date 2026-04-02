@@ -36,6 +36,7 @@
 
 namespace H2Core {
 	class SoundLibraryInfo;
+	class Drumkit;
 }
 
 class SoundLibraryTree;
@@ -79,27 +80,92 @@ private slots:
 	void on_patternDeleteAction();
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
+	/** Called when the active tab in m_pTabWidget changes. */
+	void onTabChanged( int nIndex );
+	/** Called when a tree item is selected in any tab. Updates the detail view. */
+	void onTreeItemSelected();
+	/** Called when the search field text changes. Filters all trees. */
+	void onSearchTextChanged( const QString& sText );
+	/** Called when the rescan button is clicked. */
+	void onRescanClicked();
+
+	// Pattern tree slots
+	void on_PatternTree_rightClicked( const QPoint& pos );
+	void on_PatternTree_mouseMove( QMouseEvent* event );
+
+	// Song tree slots
+	void on_SongTree_rightClicked( const QPoint& pos );
+
 signals:
 	void item_changed(bool bDrumkitSelected);
 
 private:
 		void editDrumkitProperties( bool bDuplicate );
+
+	/** Build the drumkit tree (tab 0). The internal structure of System /
+	 * User / Session drumkits with instrument children is preserved from
+	 * the original implementation. */
+	void updateDrumkitTree();
+	/** Build the pattern tree (tab 1). Two top-level groups: System
+	 * patterns and User patterns, with filesystem folder hierarchy
+	 * underneath. */
+	void updatePatternTree();
+	/** Build the song tree (tab 2). Two top-level groups: System songs
+	 * (demos) and User songs, with filesystem folder hierarchy
+	 * underneath. */
+	void updateSongTree();
+
+	/** Convenience wrapper that calls all three update methods. */
 	void updateTree();
 	void test_expandedItems();
 
-	SoundLibraryTree *__sound_library_tree;
+	/** Populates the detail view at the bottom with the metadata of the
+	 * currently selected item in the active tab's tree. */
+	void updateDetailView();
+	/** Recursively show/hide items in @a pTree based on @a sFilter. */
+	void filterTree( SoundLibraryTree* pTree, const QString& sFilter );
+
+	// --- Top-level layout widgets ---
+	QLineEdit* m_pSearchField;
+	QPushButton* m_pRescanButton;
+	QTabWidget* m_pTabWidget;
+
+	// --- Per-tab trees ---
+	SoundLibraryTree* __sound_library_tree;   // Drumkit tree (tab 0)
+	SoundLibraryTree* m_pPatternTree;         // Pattern tree (tab 1)
+	SoundLibraryTree* m_pSongTree;            // Song tree (tab 2)
+
+	// --- Detail view ---
+	QLabel* m_pDetailName;
+	QLabel* m_pDetailAuthor;
+	QLabel* m_pDetailInfo;
+	QLabel* m_pDetailLicense;
+	QLabel* m_pDetailCategory;
+	QLabel* m_pDetailPath;
 
 	QPoint __start_drag_position;
 
+	// --- Context menus ---
 	QMenu* __drumkit_menu;
 	QMenu* __drumkit_menu_system;
 	QMenu* __song_menu;
 	QMenu* __pattern_menu;
 	QMenu* __pattern_menu_list;
 
+	// --- Drumkit tree top-level category items ---
 	QTreeWidgetItem* m_pTreeSystemDrumkitsItem;
 	QTreeWidgetItem* m_pTreeUserDrumkitsItem;
 	QTreeWidgetItem* m_pTreeSessionDrumkitsItem;
+
+	// Pattern tree top-level items
+	QTreeWidgetItem* m_pPatternSystemItem;
+	QTreeWidgetItem* m_pPatternUserItem;
+
+	// Song tree top-level items
+	QTreeWidgetItem* m_pSongSystemItem;
+	QTreeWidgetItem* m_pSongUserItem;
+
+	// Legacy pointers kept for backward compatibility with existing slots
 	QTreeWidgetItem* __song_item;
 	QTreeWidgetItem* __pattern_item;
 	QTreeWidgetItem* __pattern_item_list;
@@ -116,12 +182,13 @@ private:
 	 * Used to ensure uniqueness.*/
 	QStringList m_drumkitLabels;
 
-	/** Starting with version 2.0 of Hydrogen patterns are not associated with a
-     * specific drumkit anymore and will no longer reside in folders with the
-     * user pattern dir which resemble the drumkit's name. To account for this,
-     * we map each entry of the pattern branch of the sound library tree to a
-     * proper info object containing the corresponding absolute path. */
+	/** Maps pattern tree items to their SoundLibraryInfo for pattern
+	 * operations (load, delete, drag-and-drop). */
 	std::map<QTreeWidgetItem*, std::shared_ptr<H2Core::SoundLibraryInfo>> m_patternRegistry;
+
+	/** Maps song tree items to their SoundLibraryInfo for song
+	 * operations (load). */
+	std::map<QTreeWidgetItem*, std::shared_ptr<H2Core::SoundLibraryInfo>> m_songRegistry;
 
 	/** Whether the dialog was constructed via a click in the MainForm or as
 	 * part of the GUI. */
