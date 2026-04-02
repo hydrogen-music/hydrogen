@@ -120,7 +120,6 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 
 	void updatePatterns( bool bTriggerEvent = true );
 	void updateSongs( bool bTriggerEvent = true );
-	void printPatterns() const;
 	void loadPatternFromDirectory( const QString& path );
 	bool isPatternInstalled( const QString& sPatternName ) const;
 

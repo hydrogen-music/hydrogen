@@ -45,17 +45,6 @@ SoundLibraryDatabase::~SoundLibraryDatabase()
 {
 }
 
-void SoundLibraryDatabase::printPatterns() const
-{
-	for ( const auto& pPatternInfo : m_patternInfoVector ) {
-		INFOLOG( QString( "Name: [%1]" ).arg( pPatternInfo->getName() ) );
-	}
-
-	for ( const auto& sCategory : m_patternCategories ) {
-		INFOLOG( QString( "Category: [%1]" ).arg( sCategory ) );
-	}
-}
-
 bool SoundLibraryDatabase::isPatternInstalled( const QString& sPatternName
 ) const
 {
