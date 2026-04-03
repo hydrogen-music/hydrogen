@@ -1602,8 +1602,10 @@ Filesystem::getAutoSaveFileName( const Artifact& artifact, const QString& sBaseN
 QString Filesystem::ArtifactToQString( const Artifact& type )
 {
 	switch ( type ) {
-		case Artifact::Drumkit:
-			return "Drumkit";
+		case Artifact::DrumkitBundled:
+			return "Drumkit bundled";
+		case Artifact::DrumkitExtracted:
+			return "Drumkit definition";
 		case Artifact::Pattern:
 			return "Pattern";
 		case Artifact::Playlist:

@@ -97,8 +97,20 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	/** Indicates what type of file - .h2song, .h2playlist, .h2pattern,
 	 * drumkit.xml, .h2drumkit - a function as to handle. This covers files
 	 * intended to be used and shared the the user herself. (.h2theme,
-	 * hydrogen.conf, and .h2map are more considered internal ones for now) */
-	enum class Artifact { Drumkit, Pattern, Playlist, Song };
+	 * hydrogen.conf, and .h2map are more considered internal ones for now).
+     */
+	enum class Artifact {
+		/** A .h2drumkit file. */
+		DrumkitBundled,
+		/** A drumkit.xml file. */
+		DrumkitExtracted,
+		/** A .h2pattern file. */
+		Pattern,
+		/** A .h2playlist file. */
+		Playlist,
+		/** A .h2song file. */
+		Song
+	};
 	static QString ArtifactToQString( const Artifact& actifact );
 
 	/** All audio file formats supported by Hydrogen */
