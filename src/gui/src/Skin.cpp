@@ -155,11 +155,11 @@ QDoubleSpinBox, QSpinBox { \
 }
 
 QString Skin::getImagePath() {
-	return H2Core::Filesystem::img_dir().append( "/gray" );
+	return H2Core::Filesystem::systemImageDir().append( "/gray" );
 }
 
 QString Skin::getSvgImagePath() {
-	return H2Core::Filesystem::img_dir().append( "/scalable" );
+	return H2Core::Filesystem::systemImageDir().append( "/scalable" );
 }
 
 QString Skin::getToolButtonStyle( const QColor& backgroundColor )

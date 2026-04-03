@@ -137,7 +137,7 @@ void SoundLibraryOnlineImportDialog::onRepositoryComboBoxIndexChanged(int i)
 	if(!repositoryCombo->currentText().isEmpty())
 	{
 		QString cacheFile = getCachedFileName();
-		if( !H2Core::Filesystem::file_exists( cacheFile, true ) )
+		if( !H2Core::Filesystem::fileExists( cacheFile, true ) )
 		{
 			SoundLibraryOnlineImportDialog::on_UpdateListBtn_clicked();
 		}
@@ -159,7 +159,7 @@ void SoundLibraryOnlineImportDialog::clearImageCache()
 {
 	// Note: After a kit is installed the list refreshes and this gets called to
 	// clear the image cache - maybe we want to keep the cache in this case?
-	QString cacheDir = H2Core::Filesystem::repositories_cache_dir() ;
+	QString cacheDir = H2Core::Filesystem::repositoriesCacheDir() ;
 	INFOLOG("Deleting cached image files from " + cacheDir );
 
 	QDir dir( cacheDir );
@@ -176,7 +176,7 @@ void SoundLibraryOnlineImportDialog::clearImageCache()
 
 QString SoundLibraryOnlineImportDialog::getCachedFileName()
 {
-	const QString sCacheDir = H2Core::Filesystem::repositories_cache_dir();
+	const QString sCacheDir = H2Core::Filesystem::repositoriesCacheDir();
 	const QString sServerMd5 = QString(
 		QCryptographicHash::hash( repositoryCombo->currentText().toLatin1(),
 								  QCryptographicHash::Md5 ).toHex() );
@@ -185,7 +185,7 @@ QString SoundLibraryOnlineImportDialog::getCachedFileName()
 
 QString SoundLibraryOnlineImportDialog::getCachedImageFileName()
 {
-	const QString sCacheDir = H2Core::Filesystem::repositories_cache_dir();
+	const QString sCacheDir = H2Core::Filesystem::repositoriesCacheDir();
 	const QString sKitNameMd5 = QString(
 		QCryptographicHash::hash( SoundLibraryNameLbl->text().toLatin1(),
 								  QCryptographicHash::Md5 ).toHex() );
@@ -265,7 +265,7 @@ void SoundLibraryOnlineImportDialog::reloadRepositoryData()
 	QString sDrumkitXML;
 	const QString sCacheFile = getCachedFileName();
 
-	if ( H2Core::Filesystem::file_exists( sCacheFile, true ) ) {
+	if ( H2Core::Filesystem::fileExists( sCacheFile, true ) ) {
 		sDrumkitXML = readCachedData( sCacheFile );
 	}
 
@@ -424,8 +424,8 @@ bool SoundLibraryOnlineImportDialog::isSoundLibraryItemAlreadyInstalled( const H
 	sName = sName.left( sName.lastIndexOf( "." ) );
 
 	if ( sInfo.getType() == "drumkit" ) {
-		if ( H2Core::Filesystem::drumkit_exists( sName ) ||
-			H2Core::Filesystem::drumkit_exists( sInfo.getName() ) ) {
+		if ( H2Core::Filesystem::drumkitExists( sName ) ||
+			H2Core::Filesystem::drumkitExists( sInfo.getName() ) ) {
 			return true;
 		}
 	}
@@ -436,7 +436,7 @@ bool SoundLibraryOnlineImportDialog::isSoundLibraryItemAlreadyInstalled( const H
 	}
 
 	if ( sInfo.getType() == "song" ) {
-		if ( H2Core::Filesystem::song_exists(sName) ) {
+		if ( H2Core::Filesystem::songExists(sName) ) {
 			return true;
 		}
 	}
@@ -626,11 +626,11 @@ void SoundLibraryOnlineImportDialog::on_DownloadBtn_clicked()
 					QDir::tempPath() + "/" + QFileInfo( sURL ).fileName();
 			}
 			else if ( sType == "song" ) {
-				sLocalFile = H2Core::Filesystem::songs_dir() +
+				sLocalFile = H2Core::Filesystem::userSongsDir() +
 							 QFileInfo( sURL ).fileName();
 			}
 			else if ( sType == "pattern" ) {
-				sLocalFile = H2Core::Filesystem::patterns_dir() +
+				sLocalFile = H2Core::Filesystem::userPatternsDir() +
 							 QFileInfo( sURL ).fileName();
 				bUpdatePatterns = true;
 			}
@@ -748,7 +748,7 @@ void SoundLibraryOnlineImportDialog::on_DownloadBtn_clicked()
 			this, "Hydrogen",
 			QString( tr( "Drumkits\n\n- %1\n\nimported into %2" ) )
 				.arg( installedDrumkits.join( "\n- " ) )
-				.arg( H2Core::Filesystem::usr_data_path() )
+				.arg( H2Core::Filesystem::userDataPath() )
 		);
 	}
 

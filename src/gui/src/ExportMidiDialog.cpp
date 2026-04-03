@@ -97,7 +97,7 @@ QString ExportMidiDialog::createDefaultFileName()
 	}
 
 	sDefaultFileName.replace( '*', "_" );
-	sDefaultFileName.replace( Filesystem::songs_ext, "" );
+	sDefaultFileName.replace( Filesystem::sSongSuffix, "" );
 	sDefaultFileName += m_sExtension;
 	return sDefaultFileName;
 }
@@ -105,8 +105,8 @@ QString ExportMidiDialog::createDefaultFileName()
 void ExportMidiDialog::on_browseBtn_clicked()
 {
 	QString sPath = Preferences::get_instance()->getLastExportMidiDirectory();
-	if ( ! Filesystem::dir_writable( sPath, false ) ){
-		sPath = Filesystem::usr_data_path();
+	if ( ! Filesystem::dirWritable( sPath, false ) ){
+		sPath = Filesystem::userDataPath();
 	}
 	
 	FileDialog fd( this );
@@ -184,7 +184,7 @@ void ExportMidiDialog::on_okBtn_clicked()
 	sLastFileName = info.fileName();
 	pPref->setLastExportMidiDirectory( dir.absolutePath() );
 
-	if ( ! Filesystem::dir_writable(  info.absoluteDir().absolutePath(), false ) ) {
+	if ( ! Filesystem::dirWritable(  info.absoluteDir().absolutePath(), false ) ) {
 		QMessageBox::warning( this, "Hydrogen",
 							  pCommonStrings->getFileDialogMissingWritePermissions(),
 							  QMessageBox::Ok );

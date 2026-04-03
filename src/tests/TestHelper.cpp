@@ -66,7 +66,7 @@ QStringList TestHelper::findDrumkitBackupFiles( const QString& sDir ) const {
 
 	QStringList results;
 
-	if ( ! H2Core::Filesystem::dir_readable( sDir, false ) ){
+	if ( ! H2Core::Filesystem::dirReadable( sDir, false ) ){
 		// Error messages handled in dir_reabable.
 
 		return results;
@@ -74,7 +74,7 @@ QStringList TestHelper::findDrumkitBackupFiles( const QString& sDir ) const {
 	QDir dir( sDir );
 
 	QStringList nameFilters;
-	nameFilters << H2Core::Filesystem::drumkit_xml() + "*" + ".bak";
+	nameFilters << H2Core::Filesystem::drumkitXml() + "*" + ".bak";
 
 	for ( const auto& ssFile : dir.entryList( nameFilters,
 											  QDir::Files ) ) {

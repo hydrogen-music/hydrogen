@@ -171,7 +171,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 			sPath = pPref->getLastOpenPlaybackTrackDirectory();
 		}
 
-		if ( !Filesystem::dir_readable( sPath, false ) ) {
+		if ( !Filesystem::dirReadable( sPath, false ) ) {
 			sPath = QDir::homePath();
 		}
 

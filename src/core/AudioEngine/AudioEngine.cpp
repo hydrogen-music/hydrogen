@@ -107,7 +107,7 @@ AudioEngine::AudioEngine()
 	srand( time( nullptr ) );
 
 	m_pMetronomeInstrument =
-		Instrument::from( Sample::load( Filesystem::click_file_path() ) );
+		Instrument::from( Sample::load( Filesystem::clickFilePath() ) );
 	if ( m_pMetronomeInstrument != nullptr ) {
 		m_pMetronomeInstrument->setId( Instrument::MetronomeId );
 		m_pMetronomeInstrument->setName( "metronome" );

@@ -57,7 +57,7 @@ void CliTest::testKitToDrumkitMap() {
 
 	// Now, we also write the output and compare it with reference files.
 	const QString sTmpRefFile =
-		H2Core::Filesystem::tmp_dir() + "sample-cli.h2map";
+		H2Core::Filesystem::tmpDir() + "sample-cli.h2map";
 	QStringList argsRefFile;
 	argsRefFile << "--kitToDrumkitMap" << sRefFolder
 		<< "-o" << sTmpRefFile;
@@ -74,7 +74,7 @@ void CliTest::testKitToDrumkitMap() {
 	// And now for the empty one.
 
 	const QString sTmpNoTypesFile =
-		H2Core::Filesystem::tmp_dir() + "empty-cli.h2map";
+		H2Core::Filesystem::tmpDir() + "empty-cli.h2map";
 	QStringList argsNoTypesFile;
 	argsNoTypesFile << "--kitToDrumkitMap" << sNoTypesFolder
 		<< "-o" << sTmpNoTypesFile;

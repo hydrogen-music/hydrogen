@@ -77,14 +77,14 @@ void FilesystemInfoForm::showEvent ( QShowEvent* )
 }
 void FilesystemInfoForm::updateInfo()
 {
-	const QString tmpDir = H2Core::Filesystem::tmp_dir();
-	const QString usrDataDir = H2Core::Filesystem::usr_data_path();
-	const QString sysDataDir = H2Core::Filesystem::sys_data_path();
+	const QString tmpDir = H2Core::Filesystem::tmpDir();
+	const QString usrDataDir = H2Core::Filesystem::userDataPath();
+	const QString sysDataDir = H2Core::Filesystem::systemDataPath();
 	
 	ui->tmpDirLineEdit->setText( tmpDir);
 	ui->tmpDirLineEdit->setToolTip( tmpDir );
 	
-	if(!H2Core::Filesystem::dir_writable( tmpDir, true)) {
+	if(!H2Core::Filesystem::dirWritable( tmpDir, true)) {
 		ui->tmpDirWarningButton->show();
 	} else {
 		ui->tmpDirWarningButton->hide();
@@ -93,7 +93,7 @@ void FilesystemInfoForm::updateInfo()
 	ui->usrDataDirLineEdit->setText( usrDataDir );
 	ui->usrDataDirLineEdit->setToolTip( usrDataDir );
 	
-	if(!H2Core::Filesystem::dir_writable( usrDataDir, true)) {
+	if(!H2Core::Filesystem::dirWritable( usrDataDir, true)) {
 		ui->usrDataDirWarningButton->show();
 	} else {
 		ui->usrDataDirWarningButton->hide();
@@ -108,17 +108,17 @@ void FilesystemInfoForm::updateInfo()
 void 
 FilesystemInfoForm::on_openTmpButton_clicked()
 {
-	QDesktopServices::openUrl( QUrl::fromLocalFile( H2Core::Filesystem::tmp_dir() ) );
+	QDesktopServices::openUrl( QUrl::fromLocalFile( H2Core::Filesystem::tmpDir() ) );
 }
 
 void 
 FilesystemInfoForm::on_openUsrButton_clicked()
 {
-	QDesktopServices::openUrl( QUrl::fromLocalFile( H2Core::Filesystem::usr_data_path() ) );
+	QDesktopServices::openUrl( QUrl::fromLocalFile( H2Core::Filesystem::userDataPath() ) );
 }
 
 void 
 FilesystemInfoForm::on_openSysButton_clicked()
 {
-	QDesktopServices::openUrl( QUrl::fromLocalFile( H2Core::Filesystem::sys_data_path() ) );
+	QDesktopServices::openUrl( QUrl::fromLocalFile( H2Core::Filesystem::systemDataPath() ) );
 }

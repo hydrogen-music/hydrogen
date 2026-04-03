@@ -1080,7 +1080,7 @@ void SoundLibraryPanel::editDrumkitProperties( bool bDuplicate ) {
 		pNewDrumkit->setName(
 			Filesystem::appendNumberOrIncrement( sDrumkitName ) );
 		pNewDrumkit->setPath(
-			H2Core::Filesystem::usr_drumkits_dir() + pNewDrumkit->getName() );
+			H2Core::Filesystem::userDrumkitsDir() + pNewDrumkit->getName() );
 	}
 
 	DrumkitPropertiesDialog dialog( this, pNewDrumkit, ! bDuplicate, false );
@@ -1100,7 +1100,7 @@ void SoundLibraryPanel::on_songLoadAction()
 
 	// Fallback: legacy path (shouldn't be reached in new design)
 	if ( __sound_library_tree->currentItem() != nullptr ) {
-		const QString sFileName = Filesystem::song_path(
+		const QString sFileName = Filesystem::songPath(
 			__sound_library_tree->currentItem()->text( 0 ) );
 		HydrogenApp::openFile( Filesystem::Artifact::Song, sFileName );
 	}

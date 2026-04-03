@@ -71,7 +71,7 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 
 	// Import an instrument from another drumkit (installed)
 	const QString sAnotherDrumkitPath(
-		Filesystem::sys_drumkits_dir() + "/TR808EmulationKit"
+		Filesystem::systemDrumkitsDir() + "/TR808EmulationKit"
 	);
 	auto pAnotherDrumkit =
 		std::make_shared<Drumkit>(Hydrogen::get_instance()->getSoundLibraryDatabase()->getDrumkit(
@@ -154,7 +154,7 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 	// Now let's do the same for the overall song and load it back as the
 	// current drumkit.
 	const QString sTmpSongPath =
-		Filesystem::tmp_file_path( "storing-samples-test-song" );
+		Filesystem::tmpFilePath( "storing-samples-test-song" );
 	CPPUNIT_ASSERT( pSong->save( sTmpSongPath, false, false ) );
 
 	auto pSongReloaded = Song::load( sTmpSongPath, false );

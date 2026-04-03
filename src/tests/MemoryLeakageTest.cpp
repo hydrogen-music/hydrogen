@@ -203,7 +203,7 @@ void MemoryLeakageTest::testConstructors()
 
 	// Test copy constructors using real-live instead of new objects.
 	auto pDrumkitProper = H2Core::Drumkit::load(
-		H2Core::Filesystem::drumkit_path_search(
+		H2Core::Filesystem::drumkitPathSearch(
 			"GMRockKit", H2Core::Filesystem::Lookup::system, true
 		),
 		false, nullptr, true
@@ -220,7 +220,7 @@ void MemoryLeakageTest::testConstructors()
 			->getSample() != nullptr
 	);
 	auto pSongProper = H2Core::Song::load(
-		H2Core::Filesystem::demos_dir() + "GM_kit_Diddley.h2song"
+		H2Core::Filesystem::demosDir() + "GM_kit_Diddley.h2song"
 	);
 	CPPUNIT_ASSERT( pSongProper != nullptr );
 
@@ -337,7 +337,7 @@ void MemoryLeakageTest::testLoading()
 
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 
-	QString sDrumkitPath = H2Core::Filesystem::drumkit_path_search(
+	QString sDrumkitPath = H2Core::Filesystem::drumkitPathSearch(
 		"GMRockKit", H2Core::Filesystem::Lookup::system
 	);
 
@@ -519,7 +519,7 @@ void MemoryLeakageTest::testLoading()
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
 		pDrumkit->loadSamples();
 		auto pDrumkit2 = H2Core::Drumkit::load(
-			H2Core::Filesystem::drumkit_path_search(
+			H2Core::Filesystem::drumkitPathSearch(
 				"GMRockKit", H2Core::Filesystem::Lookup::system, true
 			),
 			false, nullptr, true
@@ -540,8 +540,8 @@ void MemoryLeakageTest::testLoading()
 
 void MemoryLeakageTest::tearDown()
 {
-	if ( H2Core::Filesystem::drumkit_exists( "testKitLadida" ) ) {
-		QString sPath = H2Core::Filesystem::drumkit_usr_path( "testKitLadida" );
+	if ( H2Core::Filesystem::drumkitExists( "testKitLadida" ) ) {
+		QString sPath = H2Core::Filesystem::drumkitUserPath( "testKitLadida" );
 		CPPUNIT_ASSERT( H2Core::Filesystem::rm( sPath, true ) );
 	}
 }

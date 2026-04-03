@@ -64,7 +64,7 @@ Drumkit::Drumkit()
 	  m_imageLicense( License() ),
 	  m_pInstruments( std::make_shared<InstrumentList>() )
 {
-	QDir usrDrumkitPath( Filesystem::usr_drumkits_dir() );
+	QDir usrDrumkitPath( Filesystem::userDrumkitsDir() );
 	m_sPath = usrDrumkitPath.filePath( m_sName );
 }
 
@@ -110,12 +110,12 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath,
 										bool* pLegacyFormatEncountered,
 										bool bSilent )
 {
-	if ( ! Filesystem::drumkit_valid( sDrumkitPath ) ) {
+	if ( ! Filesystem::drumkitValid( sDrumkitPath ) ) {
 		ERRORLOG( QString( "[%1] is not valid drumkit folder" ).arg( sDrumkitPath ) );
 		return nullptr;
 	}
 
-	QString sDrumkitFile = Filesystem::drumkit_file( sDrumkitPath );
+	QString sDrumkitFile = Filesystem::drumkitFile( sDrumkitPath );
 	
 	XMLDoc doc;
 	doc.read( sDrumkitFile, bSilent );
@@ -317,9 +317,9 @@ void Drumkit::upgrade( bool bSilent ) {
 				 .arg( m_sName ).arg( m_sPath ) );
 	}
 
-	QString sBackupFile = Filesystem::drumkit_backup_path(
-		Filesystem::drumkit_file( m_sPath ) );
-	Filesystem::file_copy( Filesystem::drumkit_file( m_sPath ),
+	QString sBackupFile = Filesystem::drumkitBackupPath(
+		Filesystem::drumkitFile( m_sPath ) );
+	Filesystem::fileCopy( Filesystem::drumkitFile( m_sPath ),
 						   sBackupFile,
 						   false, // do not overwrite existing files
 						   bSilent );
@@ -368,22 +368,22 @@ bool Drumkit::save( const QString& sDrumkitPath, bool bSilent )
 		// happen and are plausible when just looking at the
 		// function's signature
 		QFileInfo fi( sDrumkitPath );
-		if ( fi.isFile() && fi.fileName() == Filesystem::drumkit_xml() ) {
+		if ( fi.isFile() && fi.fileName() == Filesystem::drumkitXml() ) {
 			WARNINGLOG( QString( "Please provide the path to the drumkit folder instead to the drumkit.xml file within: [%1]" )
 					 .arg( sDrumkitPath ) );
 			sDrumkitFolder = fi.dir().absolutePath();
 		}
 	}
 	
-	if ( ! Filesystem::dir_exists( sDrumkitFolder, true ) &&
+	if ( ! Filesystem::dirExists( sDrumkitFolder, true ) &&
 		 ! Filesystem::mkdir( sDrumkitFolder ) ) {
 		ERRORLOG( QString( "Unable to export drumkit [%1] to [%2]. Could not create drumkit folder." )
 			 .arg( m_sName ).arg( sDrumkitFolder ) );
 		return false;
 	}
 
-	if ( Filesystem::dir_exists( sDrumkitFolder, bSilent ) &&
-		 ! Filesystem::dir_writable( sDrumkitFolder, bSilent ) ) {
+	if ( Filesystem::dirExists( sDrumkitFolder, bSilent ) &&
+		 ! Filesystem::dirWritable( sDrumkitFolder, bSilent ) ) {
 		ERRORLOG( QString( "Unable to export drumkit [%1] to [%2]. Drumkit folder not writable." )
 			 .arg( m_sName ).arg( sDrumkitFolder ) );
 		return false;
@@ -427,7 +427,7 @@ bool Drumkit::save( const QString& sDrumkitPath, bool bSilent )
 	// and portable. Missing samples have to be discarded.
 	saveTo( root, /* bSongKit */ false,
 		   /* bKeepMissingSamples */ false, bSilent );
-	return doc.write( Filesystem::drumkit_file( sDrumkitFolder ) );
+	return doc.write( Filesystem::drumkitFile( sDrumkitFolder ) );
 }
 
 void Drumkit::saveTo( XMLNode& node,
@@ -512,7 +512,7 @@ bool Drumkit::saveSamples( const QString& sDrumkitFolder, bool bSilent ) const
 
 					ppLayer->getSample()->setFileName( dst );
 
-					if ( !Filesystem::file_copy( src, dst, bSilent ) ) {
+					if ( !Filesystem::fileCopy( src, dst, bSilent ) ) {
 						return false;
 					}
 				}
@@ -549,8 +549,8 @@ bool Drumkit::saveImage( const QString& sDrumkitDir, bool bSilent ) const
 	const QString sDestination =
 		QDir( sDrumkitDir ).absoluteFilePath( info.fileName() );
 
-	if ( Filesystem::file_exists( sTargetImagePath, bSilent ) ) {
-		if ( ! Filesystem::file_copy( sTargetImagePath, sDestination, bSilent ) ) {
+	if ( Filesystem::fileExists( sTargetImagePath, bSilent ) ) {
+		if ( ! Filesystem::fileCopy( sTargetImagePath, sDestination, bSilent ) ) {
 			ERRORLOG( QString( "Error copying image [%1] to [%2]")
 					  .arg( sTargetImagePath ).arg( sDestination ) );
 			return false;
@@ -722,7 +722,7 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
 		}
 		
 	} else {
-		if ( ! Filesystem::path_usable( sTargetPath, true, false ) ) {
+		if ( ! Filesystem::pathUsable( sTargetPath, true, false ) ) {
 			return false;
 		}
 		
@@ -810,7 +810,7 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
 	if ( ! sTargetPath.isEmpty() ) {
 		sDrumkitDir = sTargetPath + "/";
 	} else {
-		sDrumkitDir = Filesystem::usr_drumkits_dir() + "/";
+		sDrumkitDir = Filesystem::userDrumkitsDir() + "/";
 	}
 
 	// Keep track of where the artifacts where extracted to
@@ -833,7 +833,7 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
 			sNewPath = QString( archive_entry_pathname( entry ) );
 		}
 
-		if ( sNewPath.contains( Filesystem::drumkit_xml() ) ) {
+		if ( sNewPath.contains( Filesystem::drumkitXml() ) ) {
 			QFileInfo newPathInfo( sNewPath );
 			sExtractedDir = newPathInfo.absoluteDir().absolutePath();
 		}
@@ -856,7 +856,7 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
 		sNewPath.prepend( sDrumkitDir );
 
 		if ( pInstalledPath != nullptr &&
-			 sNewPath.contains( Filesystem::drumkit_xml() ) ) {
+			 sNewPath.contains( Filesystem::drumkitXml() ) ) {
 			// This file must be part of every kit and allows us to set this
 			// variable only once.
 			QFileInfo installInfo( sNewPath );
@@ -933,7 +933,7 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
 	if ( ! sTargetPath.isEmpty() ) {
 		dk_dir = sTargetPath + "/";
 	} else {
-		dk_dir = Filesystem::usr_drumkits_dir() + "/";
+		dk_dir = Filesystem::userDrumkitsDir() + "/";
 	}
 
 	strncpy( dst_dir, dk_dir.toLocal8Bit(), 1024 );
@@ -962,13 +962,13 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
 		*pUtf8Encoded = false;
 	}
 
-	if ( ! Filesystem::path_usable( sTargetDir, true, false ) ) {
+	if ( ! Filesystem::pathUsable( sTargetDir, true, false ) ) {
 		ERRORLOG( QString( "Provided destination folder [%1] is not valid" )
 				  .arg( sTargetDir ) );
 		return false;
 	}
 
-	if ( ! Filesystem::dir_readable( m_sPath, true ) ) {
+	if ( ! Filesystem::dirReadable( m_sPath, true ) ) {
 		ERRORLOG( QString( "Unabled to access folder associated with drumkit [%1]" )
 				  .arg( m_sPath ) );
 		return false;
@@ -977,7 +977,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
 	const QString sOldDrumkitName = m_sName;
 	const QString sDrumkitName = getExportName();
 	const QString sTargetName = sTargetDir + "/" + sDrumkitName +
-		Filesystem::drumkit_ext;
+		Filesystem::sDrumkitSuffix;
 	
 	if ( ! bSilent ) {
 		INFOLOG( QString( "Export drumkit to [%1]") .arg( sTargetName ) );
@@ -1038,7 +1038,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
 				// the upgrade process of the drumkits. As these were
 				// introduced using suffixes, like .bak.1, .bak.2, etc,
 				// adding `bak` to the blacklist will not work.
-				if ( !( ssFile.contains( Filesystem::drumkit_xml() ) &&
+				if ( !( ssFile.contains( Filesystem::drumkitXml() ) &&
 						ssFile.contains( ".bak" ) ) ) {
 					filesUsed << sourceDir.filePath( ssFile );
 				}
@@ -1124,7 +1124,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
 		// Small sanity check since the libarchive code won't fail
 		// gracefully but segfaults if the provided file does not
 		// exist.
-		if ( ! Filesystem::file_readable( sFileName, true ) ) {
+		if ( ! Filesystem::fileReadable( sFileName, true ) ) {
 			ERRORLOG( QString( "Unable to export drumkit. File [%1] does not exists or is not readable." )
 					  .arg( sFileName ) );
 			setName( sOldDrumkitName );

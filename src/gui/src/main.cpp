@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
 		const QString sEncoding = QTextCodec::codecForLocale()->name();
 #endif
 		___INFOLOG( QString( "System encoding: [%1]" ).arg( sEncoding ) );
-		___INFOLOG( "Using data path: " + H2Core::Filesystem::sys_data_path() );
+		___INFOLOG( "Using data path: " + H2Core::Filesystem::systemDataPath() );
 
 		auto pPref = H2Core::Preferences::get_instance();
 
@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
 				___INFOLOG( QString("Warning: No Qt translation for locale %1 found.").arg(locale.name()));
 			}
 			
-			QString sTranslationPath = H2Core::Filesystem::i18n_dir();
+			QString sTranslationPath = H2Core::Filesystem::systemInternationalizationDir();
 			QString sTranslationFile( "hydrogen" );
 			bool bTransOk = H2Core::Translations::loadTranslation( languages, tor, sTranslationFile, sTranslationPath );
 			if (bTransOk) {
@@ -475,7 +475,7 @@ int main(int argc, char *argv[])
 		// restoring unsaved changes applied to an empty song during
 		// the previous session.
 		if ( pHydrogen->getSong()->getFileName() !=
-			 H2Core::Filesystem::empty_path(
+			 H2Core::Filesystem::emptyPath(
 				 H2Core::Filesystem::Artifact::Song ) ) {
 #ifdef H2CORE_HAVE_OSC
 			// Mark empty song created in a new NSM session modified

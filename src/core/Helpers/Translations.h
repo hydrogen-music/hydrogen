@@ -47,7 +47,7 @@ class Translations : public Object<Translations>
 public:
   
   static QStringList availableTranslations( const QString& sFileName,
-                                            const QString& sDirectory = H2Core::Filesystem::i18n_dir() ) {
+                                            const QString& sDirectory = H2Core::Filesystem::systemInternationalizationDir() ) {
     QStringList translations;
     QDir d( sDirectory );
     QStringList filter = QStringList( sFileName + "_*.qm" );
@@ -79,7 +79,7 @@ public:
 
   static QString findTranslation( const QStringList& languages,
 								  const QString& sFileName,
-								  const QString& sDirectory = H2Core::Filesystem::i18n_dir() )
+								  const QString& sDirectory = H2Core::Filesystem::systemInternationalizationDir() )
   {
     for ( QString sLanguage : languages ) {
       sLanguage.replace( '-', '_' );
@@ -104,7 +104,7 @@ public:
   static bool loadTranslation( const QStringList& languages,
 							   QTranslator& tor,
 							   const QString& sFileName,
-							   const QString& sDirectory = H2Core::Filesystem::i18n_dir() )
+							   const QString& sDirectory = H2Core::Filesystem::systemInternationalizationDir() )
   {
     QString sLanguage = findTranslation( languages, sFileName, sDirectory );
     if ( sLanguage.isNull() ) {

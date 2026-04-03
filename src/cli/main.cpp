@@ -117,7 +117,7 @@ bool convertKitToDrumkitMap( const QString& sKit,
 	}
 	else {
 		// Write content to file
-		if ( ! Filesystem::dir_readable(
+		if ( ! Filesystem::dirReadable(
 				 QFileInfo( sOutFileName ).dir().absolutePath(), false ) ) {
 			___ERRORLOG( QString( "Unable to write output file [%1]. Dir not writable" )
 						 .arg( sOutFileName ) );
@@ -359,7 +359,7 @@ int main(int argc, char *argv[])
 		// See below for Hydrogen.
 
 		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
-		___INFOLOG( "Using data path: " + Filesystem::sys_data_path() );
+		___INFOLOG( "Using data path: " + Filesystem::systemDataPath() );
 
 		if ( ! sInstallDrumkitName.isEmpty() ){
 			if ( ! Drumkit::install( sInstallDrumkitName ) ) {

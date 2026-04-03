@@ -1655,11 +1655,11 @@ void PreferencesDialog::onRejected() {
 	}
 
 	auto pOldPref = CoreActionController::loadPreferences(
-		Filesystem::usr_config_path() );
+		Filesystem::userConfigPath() );
 	if ( pOldPref == nullptr ) {
 		WARNINGLOG( "Unable to load user-level preferences. Falling back to system one." );
 		pOldPref = CoreActionController::loadPreferences(
-			Filesystem::sys_config_path() );
+			Filesystem::systemConfigPath() );
 	}
 	if ( pOldPref == nullptr ) {
 		ERRORLOG( "Unable to restore preferences" );
@@ -2519,8 +2519,8 @@ void PreferencesDialog::vsliderChanged( int nValue ) {
 void PreferencesDialog::importTheme() {
 	auto pPref = H2Core::Preferences::get_instance();
 	QString sPath = pPref->getLastImportThemeDirectory();
-	if ( ! H2Core::Filesystem::dir_readable( sPath, false ) ){
-		sPath = Filesystem::sys_theme_dir();
+	if ( ! H2Core::Filesystem::dirReadable( sPath, false ) ){
+		sPath = Filesystem::systemThemesDir();
 	}
 	
 	QString sTitle = tr( "Import Theme" );
@@ -2528,11 +2528,11 @@ void PreferencesDialog::importTheme() {
 	fd.setWindowTitle( sTitle );
 	fd.setDirectory( sPath );
 	fd.setFileMode( QFileDialog::ExistingFile );
-	fd.setNameFilter( Filesystem::themes_filter_name );
+	fd.setNameFilter( Filesystem::sThemeFilter );
 	fd.setAcceptMode( QFileDialog::AcceptOpen );
-	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::sys_theme_dir() ) );
-	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::usr_theme_dir() ) );
-	fd.setDefaultSuffix( Filesystem::themes_ext );
+	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::systemThemesDir() ) );
+	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::userThemesDir() ) );
+	fd.setDefaultSuffix( Filesystem::sThemeSuffix );
 
 	if ( fd.exec() != QDialog::Accepted ) {
 		return;
@@ -2574,19 +2574,19 @@ void PreferencesDialog::importTheme() {
 void PreferencesDialog::exportTheme() {
 	auto pPref = H2Core::Preferences::get_instance();
 	QString sPath = pPref->getLastExportThemeDirectory();
-	if ( ! H2Core::Filesystem::dir_writable( sPath, false ) ){
-		sPath = Filesystem::usr_theme_dir();
+	if ( ! H2Core::Filesystem::dirWritable( sPath, false ) ){
+		sPath = Filesystem::userThemesDir();
 	}
 	QString sTitle = tr( "Export Theme" );
 	FileDialog fd( this );
 	fd.setWindowTitle( sTitle );
 	fd.setDirectory( sPath );
 	fd.setFileMode( QFileDialog::AnyFile );
-	fd.setNameFilter( Filesystem::themes_filter_name );
+	fd.setNameFilter( Filesystem::sThemeFilter );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
-	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::sys_theme_dir() ) );
-	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::usr_theme_dir() ) );
-	fd.setDefaultSuffix( Filesystem::themes_ext );
+	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::systemThemesDir() ) );
+	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::userThemesDir() ) );
+	fd.setDefaultSuffix( Filesystem::sThemeSuffix );
 
 	if ( fd.exec() != QDialog::Accepted ) {
 		return;

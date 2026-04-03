@@ -813,7 +813,7 @@ std::shared_ptr<Song> CoreActionController::loadSong( const QString& sPath,
 	}
 
 	// Check whether the provided path is valid.
-	if ( sPath != Filesystem::empty_path( Filesystem::Artifact::Song ) &&
+	if ( sPath != Filesystem::emptyPath( Filesystem::Artifact::Song ) &&
 		 ! Filesystem::isPathValid( Filesystem::Artifact::Song, sPath, true ) ) {
 		// Filesystem::isPathValid takes care of the error log message.
 		return nullptr;
@@ -877,7 +877,7 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 		// the main menu - aren't listed either.
 
 		if ( pSong->getFileName() ==
-			 Filesystem::empty_path( Filesystem::Artifact::Song ) ) {
+			 Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
 			// To indicate that the user closed the previous song in favor of a
 			// new one, we store an empty string. This way the changes from the
 			// empty song can be recovered.
@@ -896,7 +896,7 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 	}
 
 	// In case the song is read-only, autosave won't work.
-	if ( ! Filesystem::file_writable( pSong->getFileName() ) ) {
+	if ( ! Filesystem::fileWritable( pSong->getFileName() ) ) {
 		WARNINGLOG( QString( "You don't have permissions to write to the song found in path [%1]. It will be opened as read-only (no autosave)." )
 					.arg( pSong->getFileName() ));
 		EventQueue::get_instance()->pushEvent( Event::Type::UpdateSong, 2 );
@@ -968,7 +968,7 @@ bool CoreActionController::saveSongAs( const QString& sNewFileName,
 		// Filesystem::isPathValid takes care of the error log message.
 		return false;
 	}
-	if ( ! Filesystem::file_writable( sNewFileName ) ) {
+	if ( ! Filesystem::fileWritable( sNewFileName ) ) {
 		ERRORLOG( QString( "Song can not be written to read-only location [%1]" )
 				  .arg( sNewFileName ) );
 		return false;
@@ -1516,13 +1516,13 @@ bool CoreActionController::upgradeDrumkit(const QString &sDrumkitPath,
 		// Check whether there is already a file or directory
 		// present. The latter has to be writable. If none is present,
 		// create a folder.
-		if ( ! Filesystem::path_usable( sNewPath, true, false ) ) {
+		if ( ! Filesystem::pathUsable( sNewPath, true, false ) ) {
 			return false;
 		}
 	} else {
 		// We have to assure that the source folder is not just
 		// readable since an inplace upgrade was requested
-		if ( ! Filesystem::dir_writable( sourceFileInfo.dir().absolutePath(),
+		if ( ! Filesystem::dirWritable( sourceFileInfo.dir().absolutePath(),
 										 true ) ) {
 			ERRORLOG( QString( "Unable to upgrade drumkit [%1] in place: Folder is in read-only mode" )
 					  .arg( sDrumkitPath ) );
@@ -1560,7 +1560,7 @@ bool CoreActionController::upgradeDrumkit(const QString &sDrumkitPath,
 				if ( ssFile.contains( ".xml" ) ) {
 					continue;
 				}
-				Filesystem::file_copy( drumkitDir.absolutePath() + "/" + ssFile,
+				Filesystem::fileCopy( drumkitDir.absolutePath() + "/" + ssFile,
 									   sNewPath + "/" + ssFile, true, true );
 			}
 			sPath = sNewPath;
@@ -1575,17 +1575,17 @@ bool CoreActionController::upgradeDrumkit(const QString &sDrumkitPath,
 			// Make a backup of the original file in order to make the
 			// upgrade reversible.
 			QString sBackupPath =
-				Filesystem::drumkit_backup_path( Filesystem::drumkit_file( sDrumkitDir ) );
-			if ( ! Filesystem::file_copy( Filesystem::drumkit_file( sDrumkitDir ),
+				Filesystem::drumkitBackupPath( Filesystem::drumkitFile( sDrumkitDir ) );
+			if ( ! Filesystem::fileCopy( Filesystem::drumkitFile( sDrumkitDir ),
 										  sBackupPath, true, true ) ) {
 				ERRORLOG( QString( "Unable to backup source drumkit XML file from [%1] to [%2]. We abort instead of overwriting things." )
-						  .arg( Filesystem::drumkit_file( sDrumkitDir ) )
+						  .arg( Filesystem::drumkitFile( sDrumkitDir ) )
 						  .arg( sBackupPath ) );
 				return false;
 			}
 		} else {
-			QString sBackupPath = Filesystem::drumkit_backup_path( sDrumkitPath );
-			if ( ! Filesystem::file_copy( sDrumkitPath, sBackupPath, true, true ) ) {
+			QString sBackupPath = Filesystem::drumkitBackupPath( sDrumkitPath );
+			if ( ! Filesystem::fileCopy( sDrumkitPath, sBackupPath, true, true ) ) {
 				ERRORLOG( QString( "Unable to backup source .h2drumkit file from [%1] to [%2]. We abort instead of overwriting things." )
 						  .arg( sDrumkitPath ).arg( sBackupPath ) );
 				return false;
@@ -1619,7 +1619,7 @@ bool CoreActionController::upgradeDrumkit(const QString &sDrumkitPath,
 
 		INFOLOG( QString( "Upgraded drumkit exported as [%1]" )
 				 .arg( sExportPath + "/" + pDrumkit->getName() +
-					   Filesystem::drumkit_ext ) );
+					   Filesystem::sDrumkitSuffix ) );
 	}
 
 	// Upgrade was successful. Cleanup
@@ -1653,23 +1653,23 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitPath,
 		return false;
 	}
 
-	if ( ! Filesystem::drumkit_valid( sDrumkitDir ) ) {
+	if ( ! Filesystem::drumkitValid( sDrumkitDir ) ) {
 		ERRORLOG( QString( "Something went wrong in the drumkit retrieval of [%1]. Unable to load from [%2]" )
 				  .arg( sDrumkitPath ).arg( sDrumkitDir ) );
 		return false;
 	}
 
 	XMLDoc doc;
-	if ( !doc.read( Filesystem::drumkit_file( sDrumkitDir ), true ) ) {
+	if ( !doc.read( Filesystem::drumkitFile( sDrumkitDir ), true ) ) {
 		ERRORLOG( QString( "Drumkit XML file [%1] can not be parsed." )
-				  .arg( Filesystem::drumkit_file( sDrumkitDir ) ) );
+				  .arg( Filesystem::drumkitFile( sDrumkitDir ) ) );
 		return false;
 	}
 	
 	XMLNode root = doc.firstChildElement( "drumkit_info" );
 	if ( root.isNull() ) {
 		ERRORLOG( QString( "Drumkit file [%1] seems bricked: 'drumkit_info' node not found" )
-				  .arg( Filesystem::drumkit_file( sDrumkitDir ) ) );
+				  .arg( Filesystem::drumkitFile( sDrumkitDir ) ) );
 		return false;
 	}
 
@@ -1744,7 +1744,7 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit(
 
 	QFileInfo sourceFileInfo( sDrumkitPath );
 
-	if ( Filesystem::dir_readable( sDrumkitPath, true ) ) {
+	if ( Filesystem::dirReadable( sDrumkitPath, true ) ) {
 
 		// Providing the folder containing the drumkit
 		pDrumkit = Drumkit::load(
@@ -1752,8 +1752,8 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit(
 		*sDrumkitDir = sDrumkitPath;
 		
 	}
-	else if ( sourceFileInfo.fileName() == Filesystem::drumkit_xml() ) {
-		if ( ! Filesystem::file_readable( sDrumkitPath, true ) ) {
+	else if ( sourceFileInfo.fileName() == Filesystem::drumkitXml() ) {
+		if ( ! Filesystem::fileReadable( sDrumkitPath, true ) ) {
 			ERRORLOG( QString( "Drumkit file [%1] not readable" )
 					  .arg( sDrumkitPath ) );
 			return nullptr;
@@ -1767,8 +1767,8 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit(
 		*sDrumkitDir = sourceFileInfo.dir().absolutePath();
 			
 	}
-	else if ( ( "." + sourceFileInfo.suffix() ) == Filesystem::drumkit_ext ) {
-		if ( ! Filesystem::file_readable( sDrumkitPath, true ) ) {
+	else if ( ( "." + sourceFileInfo.suffix() ) == Filesystem::sDrumkitSuffix ) {
+		if ( ! Filesystem::fileReadable( sDrumkitPath, true ) ) {
 			ERRORLOG( QString( "Drumkit archive [%1] not readable" )
 					  .arg( sDrumkitPath ) );
 			return nullptr;
@@ -1778,7 +1778,7 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit(
 		
 		// Temporary folder used to extract a compressed drumkit (
 		// .h2drumkit ).
-		QString sTemplateName( Filesystem::tmp_dir() + "/XXXXXX" );
+		QString sTemplateName( Filesystem::tmpDir() + "/XXXXXX" );
 		QTemporaryDir tmpDir( sTemplateName );
 		tmpDir.setAutoRemove( false );
 		if ( ! tmpDir.isValid() ) {
@@ -1852,22 +1852,22 @@ bool CoreActionController::extractDrumkit( const QString& sDrumkitPath,
 	if ( sTargetDir.isEmpty() ) {
 		bInstall = true;
 		INFOLOG( QString( "Installing drumkit [%1]" ).arg( sDrumkitPath ) );
-		sTarget = Filesystem::usr_drumkits_dir();
+		sTarget = Filesystem::userDrumkitsDir();
 	} else {
 		INFOLOG( QString( "Extracting drumkit [%1] to [%2]" )
 				 .arg( sDrumkitPath ).arg( sTargetDir ) );
 		sTarget = sTargetDir;
 	}
 
-	if ( ! Filesystem::path_usable( sTarget, true, false ) ) {
+	if ( ! Filesystem::pathUsable( sTarget, true, false ) ) {
 		ERRORLOG( QString( "Target dir [%1] is neither a writable folder nor can it be created." )
 				  .arg( sTarget ) );
 		return false;
 	}
 
 	QFileInfo sKitInfo( sDrumkitPath );
-	if ( ! Filesystem::file_readable( sDrumkitPath, true ) ||
-		 "." + sKitInfo.suffix() != Filesystem::drumkit_ext ) {
+	if ( ! Filesystem::fileReadable( sDrumkitPath, true ) ||
+		 "." + sKitInfo.suffix() != Filesystem::sDrumkitSuffix ) {
 		ERRORLOG( QString( "Invalid drumkit path [%1]. Please provide an absolute path to a .h2drumkit file." )
 				  .arg( sDrumkitPath ) );
 		return false;
@@ -2853,7 +2853,7 @@ std::shared_ptr<Playlist> CoreActionController::loadPlaylist( const QString& sPa
 	}
 
 	// Check whether the provided path is valid.
-	if ( sPath != Filesystem::empty_path( Filesystem::Artifact::Playlist ) &&
+	if ( sPath != Filesystem::emptyPath( Filesystem::Artifact::Playlist ) &&
 		 ! Filesystem::isPathValid(
 			 Filesystem::Artifact::Playlist, sPath, true ) ) {
 		// Filesystem::isPathValid takes care of the error log message.
@@ -2896,7 +2896,7 @@ bool CoreActionController::setPlaylist( std::shared_ptr<Playlist> pPlaylist ) {
 	pHydrogen->setPlaylist( pPlaylist );
 
 	if ( pPlaylist->getFileName() ==
-		 Filesystem::empty_path( Filesystem::Artifact::Playlist ) ) {
+		 Filesystem::emptyPath( Filesystem::Artifact::Playlist ) ) {
 		// To indicate that the user closed the previous playlsit in favor
 		// of a new one, we store an empty string. This way the changes from
 		// the empty playlist can be recovered.
@@ -2910,7 +2910,7 @@ bool CoreActionController::setPlaylist( std::shared_ptr<Playlist> pPlaylist ) {
 	EventQueue::get_instance()->pushEvent( Event::Type::PlaylistChanged, 0 );
 
 	// In case the playlist is read-only, autosave won't work.
-	if ( ! Filesystem::file_writable( pPlaylist->getFileName() ) ) {
+	if ( ! Filesystem::fileWritable( pPlaylist->getFileName() ) ) {
 		WARNINGLOG( QString( "You don't have permissions to write to the playlist found in path [%1]. It will be opened as read-only (no autosave)." )
 					.arg( pPlaylist->getFileName() ));
 		EventQueue::get_instance()->pushEvent( Event::Type::PlaylistChanged, 2 );

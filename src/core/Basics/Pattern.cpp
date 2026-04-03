@@ -83,7 +83,7 @@ std::shared_ptr<Pattern> Pattern::load( const QString& sPatternPath,
 		INFOLOG( QString( "Load pattern %1" ).arg( sPatternPath ) );
 	}
 
-	if ( ! Filesystem::file_readable( sPatternPath, bSilent ) ) {
+	if ( ! Filesystem::fileReadable( sPatternPath, bSilent ) ) {
 		return nullptr;
 	}
 

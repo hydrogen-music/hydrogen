@@ -147,7 +147,7 @@ Logger* Logger::bootstrap( unsigned msk, const QString& sLogFilePath,
 		logFileInfo = QFileInfo( sLogFilePath );
 	}
 	else {
-		logFileInfo = QFileInfo( Filesystem::log_file_path() );
+		logFileInfo = QFileInfo( Filesystem::logFilePath() );
 	}
 	const auto dir = logFileInfo.absoluteDir();
 	if ( ! dir.exists() ) {
@@ -197,7 +197,7 @@ Logger::Logger( const QString& sLogFilePath, bool bUseStdout,
 	}
 	
 	if ( m_sLogFilePath.isEmpty() ) {
-		m_sLogFilePath = Filesystem::log_file_path();
+		m_sLogFilePath = Filesystem::logFilePath();
 	}
 
 	pthread_attr_t attr;

@@ -283,7 +283,7 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 		// back compatibility code ( song version <= 0.9.0 )
 		QString sFileName = node.read_string( "filename", "", false, false, bSilent );
 
-		if ( ! Filesystem::file_exists( sFileName ) && ! sDrumkitPath.isEmpty() ) {
+		if ( ! Filesystem::fileExists( sFileName ) && ! sDrumkitPath.isEmpty() ) {
 			sFileName = sDrumkitPath + "/" + sFileName;
 		}
 	

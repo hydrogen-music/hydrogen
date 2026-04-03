@@ -167,7 +167,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 	// or system drumkit folder - or due to a bug like #2174. We give it another
 	// try by checking whether the /path/to/<drumkit>/<sample> could refer to
 	// the exact same <drumkit>/<sample> in one of our drumkit folders.
-	if ( ! Filesystem::file_exists( sFilePath, true ) &&
+	if ( ! Filesystem::fileExists( sFilePath, true ) &&
 		 ( sFileName.contains( "/" ) || sFileName.contains( "\\" ) ) ) {
 		// We need to ensure we work on a single set of separators without any
 		// duplication. This is especially important as songs created on Windows
@@ -186,7 +186,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 			for ( const auto& ssFolder : drumkitFolders ) {
 				const auto sNewPath = QString( "%1/%2" )
 					.arg( ssFolder ).arg( sDrumkitSampleSegment );
-				if ( Filesystem::file_exists( sNewPath, true ) ) {
+				if ( Filesystem::fileExists( sNewPath, true ) ) {
 					WARNINGLOG( QString( "File [%1] does not exist. Loading similar file [%2] instead." )
 								.arg( sFileName ).arg( sNewPath ) );
 					sFilePath = sNewPath;
@@ -197,7 +197,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 	}
 
 	std::shared_ptr<Sample> pSample = nullptr;
-	if ( ! sFilePath.isEmpty() && Filesystem::file_exists( sFilePath, true ) ) {
+	if ( ! sFilePath.isEmpty() && Filesystem::fileExists( sFilePath, true ) ) {
 		pSample = std::make_shared<Sample>( sFilePath, drumkitLicense );
 
 		const bool bIsModified =
@@ -221,7 +221,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 			rubberband.fSemitonesToShift = node.read_float( "rubberPitch", 0.0, false, false, bSilent );
 
 			// Check whether the rubberband executable is present.
-			if ( ! Filesystem::file_exists( Preferences::get_instance()->
+			if ( ! Filesystem::fileExists( Preferences::get_instance()->
 											m_sRubberBandCLIexecutable ) ) {
 				rubberband.bUse = false;
 			}
@@ -295,7 +295,7 @@ void InstrumentLayer::saveTo(
 	QString sFileName;
 	if ( pSample != nullptr ) {
 		if ( bSongKit ) {
-			sFileName = Filesystem::prepare_sample_path(
+			sFileName = Filesystem::prepareSamplePath(
 				pSample->getFilePath(), sDrumkitPath
 			);
 		}

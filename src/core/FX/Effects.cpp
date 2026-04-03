@@ -114,7 +114,7 @@ std::vector< std::shared_ptr<LadspaFXInfo> > Effects::getPluginList()
 		return m_pluginList;
 	}
 
-	foreach ( const QString& sPluginDir, Filesystem::ladspa_paths() ) {
+	foreach ( const QString& sPluginDir, Filesystem::ladspaPaths() ) {
 		INFOLOG( "*** [getPluginList] reading directory: " + sPluginDir );
 
 		QDir dir( sPluginDir );

@@ -64,7 +64,7 @@ void AudioExportTest::testExportAudio() {
 		___INFOLOG( QString( "Testing sample rate: [%1] and depth: [%2]" )
 					.arg( setups[ii].nSampleRate )
 					.arg( setups[ii].nSampleDepth ) );
-		const auto sOutFile = Filesystem::tmp_file_path( setups[ii].sTempFile );
+		const auto sOutFile = Filesystem::tmpFilePath( setups[ii].sTempFile );
 		const auto sRefFile = H2TEST_FILE( setups[ii].sReferenceFile );
 
 		TestHelper::exportSong( sSongFile, sOutFile, setups[ii].nSampleRate,
@@ -78,7 +78,7 @@ void AudioExportTest::testExportAudio() {
 void AudioExportTest::testExportVelocityAutomationAudio() {
 	___INFOLOG( "" );
 	const auto sSongFile = H2TEST_FILE("functional/velocityautomation.h2song");
-	const auto sOutFile = Filesystem::tmp_file_path("velocityautomation.wav");
+	const auto sOutFile = Filesystem::tmpFilePath("velocityautomation.wav");
 	const auto sRefFile = H2TEST_FILE("functional/velocityautomation.ref.flac");
 
 	TestHelper::exportSong( sSongFile, sOutFile );
@@ -95,7 +95,7 @@ void AudioExportTest::testFormats() {
 	const QString sSong = H2TEST_FILE( "song/AE_sampleConsistency.h2song" );
 
 	// Will contain all exported audio files and is only cleaned up on success.
-	QTemporaryDir exportDir( H2Core::Filesystem::tmp_dir() + "testFormats-XXXXXX" );
+	QTemporaryDir exportDir( H2Core::Filesystem::tmpDir() + "testFormats-XXXXXX" );
 	exportDir.setAutoRemove( false );
 
 	// Full test

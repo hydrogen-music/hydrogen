@@ -34,7 +34,7 @@ const QString PlaylistEntry::sLegacyEmptyScriptPath = "no Script";
 
 Playlist::Playlist() : m_nActiveSongNumber( -1 ),
 					   m_bIsModified( false ) {
-	m_sFileName = Filesystem::empty_path( Filesystem::Artifact::Playlist );
+	m_sFileName = Filesystem::emptyPath( Filesystem::Artifact::Playlist );
 }
 
 void Playlist::clear()
@@ -409,7 +409,7 @@ QString PlaylistEntry::toMimeText() const {
 void PlaylistEntry::setSongPath( const QString& sSongPath ) {
 	m_sSongPath = sSongPath;
 	if ( ! sSongPath.isEmpty() ) {
-		m_bSongExists = Filesystem::file_readable( sSongPath );
+		m_bSongExists = Filesystem::fileReadable( sSongPath );
 	} else {
 		m_bSongExists = false;
 	}
@@ -419,7 +419,7 @@ void PlaylistEntry::setScriptPath( const QString& sScriptPath ) {
 	m_sScriptPath = sScriptPath;
 	if ( ! sScriptPath.isEmpty() &&
 		 sScriptPath != sLegacyEmptyScriptPath ) {
-		m_bScriptExists = Filesystem::file_readable( sScriptPath );
+		m_bScriptExists = Filesystem::fileReadable( sScriptPath );
 	} else {
 		m_bScriptExists = false;
 	}

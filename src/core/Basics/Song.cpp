@@ -97,7 +97,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_bWasAskedAboutMissingSamples( false )
 {
 	if ( m_sName.isEmpty() ){
-		m_sName = Filesystem::untitled_song_name();
+		m_sName = Filesystem::untitledSongName();
 	}
 	INFOLOG( QString( "INIT '%1'" ).arg( m_sName ) );
 
@@ -185,7 +185,7 @@ bool Song::isPatternActive( const GridPoint& gridPoint ) const {
 ///Load a song from file
 std::shared_ptr<Song> Song::load( const QString& sFileName, bool bSilent )
 {
-	QString sPath = Filesystem::absolute_path( sFileName, bSilent );
+	QString sPath = Filesystem::absolutePath( sFileName, bSilent );
 	if ( sPath.isEmpty() ) {
 		return nullptr;
 	}
@@ -287,7 +287,7 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		pSong->setMode( Song::Mode::Pattern );
 	}
 
-	const auto sSongPath = Filesystem::absolute_path( sFileName );
+	const auto sSongPath = Filesystem::absolutePath( sFileName );
 
 	const XMLNode playbackTrackNode =
 		rootNode.firstChildElement( "playbackTrack" );
@@ -325,7 +325,7 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		// Check the file of the playback track and resort to the default
 		// in case the file can not be found.
 		if ( !sPlaybackTrack.isEmpty() &&
-			 !Filesystem::file_exists( sPlaybackTrack, true ) ) {
+			 !Filesystem::fileExists( sPlaybackTrack, true ) ) {
 			ERRORLOG( QString( "Provided playback track file [%1] does not "
 							   "exist. Using empty string instead" )
 						  .arg( sPlaybackTrack ) )
@@ -731,10 +731,10 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 bool Song::save( const QString& sFileName, bool bKeepMissingSamples, bool bSilent )
 {
 	QFileInfo fi( sFileName );
-	if ( ( Filesystem::file_exists( sFileName, true ) &&
-		   ! Filesystem::file_writable( sFileName, true ) ) ||
-		 ( ! Filesystem::file_exists( sFileName, true ) &&
-		   ! Filesystem::dir_writable( fi.dir().absolutePath(), true ) ) ) {
+	if ( ( Filesystem::fileExists( sFileName, true ) &&
+		   ! Filesystem::fileWritable( sFileName, true ) ) ||
+		 ( ! Filesystem::fileExists( sFileName, true ) &&
+		   ! Filesystem::dirWritable( fi.dir().absolutePath(), true ) ) ) {
 		// In case a read-only file is loaded by Hydrogen. Beware:
 		// .isWritable() will return false if the song does not exist.
 		ERRORLOG( QString( "Unable to save song to [%1]. Path is not writable!" )
@@ -988,7 +988,7 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples,
 std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> pDB )
 {
 	std::shared_ptr<Song> pSong =
-		std::make_shared<Song>( Filesystem::untitled_song_name(), "hydrogen",
+		std::make_shared<Song>( Filesystem::untitledSongName(), "hydrogen",
 								120, 0.5 );
 
 	pSong->setMetronomeVolume( 0.5 );
@@ -1022,7 +1022,7 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 	pPatternGroupVector->push_back( patternSequence );
 	pSong->setPatternGroupVector( pPatternGroupVector );
 
-	pSong->setFileName( Filesystem::empty_path( Filesystem::Artifact::Song ) );
+	pSong->setFileName( Filesystem::emptyPath( Filesystem::Artifact::Song ) );
 
 	std::shared_ptr<SoundLibraryDatabase> pSoundLibraryDatabase;
 
@@ -1034,7 +1034,7 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 			Hydrogen::get_instance()->getSoundLibraryDatabase();
 	}
 
-	const QString sDefaultDrumkitPath = Filesystem::drumkit_default_kit();
+	const QString sDefaultDrumkitPath = Filesystem::drumkitDefaultKit();
 	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDefaultDrumkitPath );
 	if ( pDrumkit == nullptr ) {
 		for ( const auto& pEntry : pSoundLibraryDatabase->getDrumkitDatabase() ) {

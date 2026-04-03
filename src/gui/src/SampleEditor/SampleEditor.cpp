@@ -789,7 +789,7 @@ font-weight: bold; "
 	updateSourceWaveDisplays();
 
 #ifndef H2CORE_HAVE_RUBBERBAND
-	if ( !Filesystem::file_executable(
+	if ( !Filesystem::fileExecutable(
 			 pPref->m_sRubberBandCLIexecutable, true /* silent */
 		 ) ) {
 		pRubberBandContainer->hide();

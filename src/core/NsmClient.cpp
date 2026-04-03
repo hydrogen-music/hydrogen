@@ -103,7 +103,7 @@ int NsmClient::OpenCallback( const char *name,
 	const QString sSongPath = QString( "%1/%2%3" )
 		.arg( name )
 		.arg( sessionPath.fileName() )
-		.arg( H2Core::Filesystem::songs_ext );
+		.arg( H2Core::Filesystem::sSongSuffix );
 	
 	const QFileInfo songFileInfo = QFileInfo( sSongPath );
 
@@ -165,14 +165,14 @@ void NsmClient::copyPreferences( const char* name ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 
-	QFile preferences( H2Core::Filesystem::usr_config_path() );
+	QFile preferences( H2Core::Filesystem::userConfigPath() );
 	if ( !preferences.exists() ) {
-		preferences.setFileName( H2Core::Filesystem::sys_config_path() );
+		preferences.setFileName( H2Core::Filesystem::systemConfigPath() );
 	}
 	
 	const QString sNewPreferencesPath = QString( "%1/%2" )
 		.arg( name )
-		.arg( QFileInfo( H2Core::Filesystem::usr_config_path() )
+		.arg( QFileInfo( H2Core::Filesystem::userConfigPath() )
 			  .fileName() );
 	
 	// Store the path in a session variable of the Preferences

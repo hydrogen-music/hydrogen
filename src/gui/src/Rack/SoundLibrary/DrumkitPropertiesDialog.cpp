@@ -517,7 +517,7 @@ void DrumkitPropertiesDialog::updateImage( const QString& sFilePath )
 		.arg( pColorTheme->m_windowColor.name() ) );
 	drumkitImageLabel->show();
 
-	if ( ! Filesystem::file_exists( sFilePath, false ) ) {
+	if ( ! Filesystem::fileExists( sFilePath, false ) ) {
 		drumkitImageLabel->setText( "File could not be found." );
 		return;
 	}
@@ -680,7 +680,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	if ( m_pDrumkit->getName() != nameTxt->text() ) {
 		m_pDrumkit->setName( nameTxt->text() );
 		m_pDrumkit->setPath(
-			H2Core::Filesystem::usr_drumkits_dir() + nameTxt->text()
+			H2Core::Filesystem::userDrumkitsDir() + nameTxt->text()
 		);
 	}
 	if ( m_pDrumkit->getVersion() != versionSpinBox->value() ) {
@@ -709,7 +709,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	if ( imageText->text() != m_pDrumkit->getImage() ) {
 		// Only ask for deleting the previous file if it exists.
 		if ( !m_pDrumkit->getImage().isEmpty() &&
-			 Filesystem::file_exists(
+			 Filesystem::fileExists(
 				 m_pDrumkit->getAbsoluteImagePath(), true
 			 ) ) {
 			int nRes = QMessageBox::information(
@@ -781,12 +781,12 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 			QFileInfo fileInfo( sNewImagePath );
 
 			const QString sTargetPath = Filesystem::addUniquePrefix(
-				QDir( Filesystem::cache_dir() )
+				QDir( Filesystem::cacheDir() )
 					.absoluteFilePath( fileInfo.fileName() )
 			);
 
 			// Logging is done in file_copy.
-			if ( Filesystem::file_copy(
+			if ( Filesystem::fileCopy(
 					 sNewImagePath, sTargetPath, true, false
 				 ) ) {
 				m_pDrumkit->setImage( sTargetPath );
@@ -918,12 +918,12 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	else if ( m_pDrumkit->getContext() == Filesystem::Context::SessionReadOnly ||
 			  m_pDrumkit->getContext() == Filesystem::Context::System ||
 			  m_pDrumkit->getContext() == Filesystem::Context::Song ) {
-		m_pDrumkit->setPath( Filesystem::drumkit_usr_path( m_pDrumkit->getName()
+		m_pDrumkit->setPath( Filesystem::drumkitUserPath( m_pDrumkit->getName()
 		) );
 	}
 
 	// Check whether there is already a kit present we would overwrite.
-	if ( Filesystem::dir_exists( m_pDrumkit->getPath(), true ) ) {
+	if ( Filesystem::dirExists( m_pDrumkit->getPath(), true ) ) {
 		int nRes = QMessageBox::information(
 			this, "Hydrogen",
 			QString( "%1\n%2\n\n%3" )
@@ -987,7 +987,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 					.absoluteFilePath( fileInfo.fileName() );
 
 			// Logging is done in file_copy.
-			Filesystem::file_copy( sNewImagePath, sTargetPath, true, false );
+			Filesystem::fileCopy( sNewImagePath, sTargetPath, true, false );
 		}
 	}
 

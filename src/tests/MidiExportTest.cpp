@@ -36,7 +36,7 @@ using namespace H2Core;
 void MidiExportTest::testExportMIDISMF1Single() {
 	___INFOLOG( "" );
 	const auto sSongFile = H2TEST_FILE("functional/test.h2song");
-	const auto sOutFile = Filesystem::tmp_file_path("smf1single.test.mid");
+	const auto sOutFile = Filesystem::tmpFilePath("smf1single.test.mid");
 	const auto sRefFile = H2TEST_FILE("functional/smf1single.test.ref.mid");
 
 	auto pWriter = std::make_shared<SMF1WriterSingle>( true );
@@ -49,7 +49,7 @@ void MidiExportTest::testExportMIDISMF1Single() {
 void MidiExportTest::testExportMIDISMF1Multi() {
 	___INFOLOG( "" );
 	const auto sSongFile = H2TEST_FILE("functional/test.h2song");
-	const auto sOutFile = Filesystem::tmp_file_path("smf1multi.test.mid");
+	const auto sOutFile = Filesystem::tmpFilePath("smf1multi.test.mid");
 	const auto sRefFile = H2TEST_FILE("functional/smf1multi.test.ref.mid");
 
 	auto pWriter = std::make_shared<SMF1WriterMulti>( true );
@@ -62,7 +62,7 @@ void MidiExportTest::testExportMIDISMF1Multi() {
 void MidiExportTest::testExportMIDISMF0() {
 	___INFOLOG( "" );
 	const auto sSongFile = H2TEST_FILE("functional/test.h2song");
-	const auto sOutFile = Filesystem::tmp_file_path("smf0.test.mid");
+	const auto sOutFile = Filesystem::tmpFilePath("smf0.test.mid");
 	const auto sRefFile = H2TEST_FILE("functional/smf0.test.ref.mid");
 
 	auto pWriter = std::make_shared<SMF0Writer>( true );
@@ -75,7 +75,7 @@ void MidiExportTest::testExportMIDISMF0() {
 void MidiExportTest::testExportVelocityAutomationMIDISMF1() {
 	___INFOLOG( "" );
 	const auto sSongFile = H2TEST_FILE("functional/velocityautomation.h2song");
-	const auto sOutFile = Filesystem::tmp_file_path("smf1.velocityautomation.mid");
+	const auto sOutFile = Filesystem::tmpFilePath("smf1.velocityautomation.mid");
 	const auto sRefFile = H2TEST_FILE("functional/smf1.velocityautomation.ref.mid");
 
 	auto pWriter = std::make_shared<SMF1WriterSingle>( true );
@@ -89,7 +89,7 @@ void MidiExportTest::testExportVelocityAutomationMIDISMF1() {
 void MidiExportTest::testExportVelocityAutomationMIDISMF0() {
 	___INFOLOG( "" );
 	const auto sSongFile = H2TEST_FILE("functional/velocityautomation.h2song");
-	const auto sOutFile = Filesystem::tmp_file_path("smf0.velocityautomation.mid");
+	const auto sOutFile = Filesystem::tmpFilePath("smf0.velocityautomation.mid");
 	const auto sRefFile = H2TEST_FILE("functional/smf0.velocityautomation.ref.mid");
 
 	auto pWriter = std::make_shared<SMF0Writer>( true );
@@ -103,7 +103,7 @@ void MidiExportTest::testExportVelocityAutomationMIDISMF0() {
 void MidiExportTest::testExportTimelineAndTimeSignaturesMIDISMF1Single() {
 	___INFOLOG( "" );
 	const auto sSongFile = H2TEST_FILE("song/midiExport_timelineAndTimeSignatures.h2song");
-	const auto sOutFile = Filesystem::tmp_file_path("timeline-smf1single.test.mid");
+	const auto sOutFile = Filesystem::tmpFilePath("timeline-smf1single.test.mid");
 	const auto sRefFile = H2TEST_FILE("midi/timeline-smf1single.test.ref.mid");
 
 	auto pWriter = std::make_shared<SMF1WriterSingle>( true );
@@ -116,7 +116,7 @@ void MidiExportTest::testExportTimelineAndTimeSignaturesMIDISMF1Single() {
 void MidiExportTest::testExportTimelineAndTimeSignaturesMIDISMF1Multi() {
 	___INFOLOG( "" );
 	const auto sSongFile = H2TEST_FILE("song/midiExport_timelineAndTimeSignatures.h2song");
-	const auto sOutFile = Filesystem::tmp_file_path("timeline-smf1multi.test.mid");
+	const auto sOutFile = Filesystem::tmpFilePath("timeline-smf1multi.test.mid");
 	const auto sRefFile = H2TEST_FILE("midi/timeline-smf1multi.test.ref.mid");
 
 	auto pWriter = std::make_shared<SMF1WriterMulti>( true );
@@ -129,7 +129,7 @@ void MidiExportTest::testExportTimelineAndTimeSignaturesMIDISMF1Multi() {
 void MidiExportTest::testExportTimelineAndTimeSignaturesMIDISMF0() {
 	___INFOLOG( "" );
 	const auto sSongFile = H2TEST_FILE("song/midiExport_timelineAndTimeSignatures.h2song");
-	const auto sOutFile = Filesystem::tmp_file_path("timeline-smf0.test.mid");
+	const auto sOutFile = Filesystem::tmpFilePath("timeline-smf0.test.mid");
 	const auto sRefFile = H2TEST_FILE("midi/timeline-smf0.test.ref.mid");
 
 	auto pWriter = std::make_shared<SMF0Writer>( true );
@@ -142,11 +142,11 @@ void MidiExportTest::testExportTimelineAndTimeSignaturesMIDISMF0() {
 void MidiExportTest::testHumanization() {
 	___INFOLOG( "" );
 	const auto sSongFile = H2TEST_FILE("song/midiExport_humanization.h2song");
-	const auto sOutFile = Filesystem::tmp_file_path("midiExport-hum-raw.mid");
-	const auto sOutFile2 = Filesystem::tmp_file_path("midiExport-hum-raw.mid");
-	const auto sOutFileHumanized = Filesystem::tmp_file_path(
+	const auto sOutFile = Filesystem::tmpFilePath("midiExport-hum-raw.mid");
+	const auto sOutFile2 = Filesystem::tmpFilePath("midiExport-hum-raw.mid");
+	const auto sOutFileHumanized = Filesystem::tmpFilePath(
 		"midiExport-hum-humanized.mid");
-	const auto sOutFileHumanized2 = Filesystem::tmp_file_path(
+	const auto sOutFileHumanized2 = Filesystem::tmpFilePath(
 		"midiExport-hum-humanized2.mid");
 
 	auto pWriter = std::make_shared<SMF1WriterSingle>( true );

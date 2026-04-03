@@ -46,7 +46,7 @@ void TimeTest::setUp(){
 	// We need a song that has at least the maximum pattern group
 	// number provided in testElapsedTime(). An empty one won't do it.
 	auto pSong = H2Core::CoreActionController::loadSong(
-		QString( "%1/GM_kit_demo3.h2song" ).arg( Filesystem::demos_dir() ) );
+		QString( "%1/GM_kit_demo3.h2song" ).arg( Filesystem::demosDir() ) );
 	H2Core::CoreActionController::setSong( pSong );
 	H2Core::CoreActionController::saveSongAs( m_sValidPath, true );
 	

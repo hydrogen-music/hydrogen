@@ -1031,7 +1031,7 @@ void ComponentView::replaceLayer( int nLayer, const QString& sInputSamplePath )
 	}
 
 	if ( !sInputSamplePath.isEmpty() &&
-		 !Filesystem::file_exists( sInputSamplePath ) ) {
+		 !Filesystem::fileExists( sInputSamplePath ) ) {
 		ERRORLOG( QString( "Invalid input file [%1]" ).arg( sInputSamplePath )
 		);
 		return;
@@ -1424,7 +1424,7 @@ void ComponentView::addNewLayer()
 	QString sPath =
 		Preferences::get_instance()->getLastOpenLayerDirectory();
 	const QString sFileName = "";
-	if ( !Filesystem::dir_readable( sPath, false ) ) {
+	if ( !Filesystem::dirReadable( sPath, false ) ) {
 		sPath = QDir::homePath();
 	}
 

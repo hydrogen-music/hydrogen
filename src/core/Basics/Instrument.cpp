@@ -244,7 +244,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 				// portability (and to assure backward compatibility) paths are
 				// bad and we will use the drumkit name and check whether we can
 				// find the kit on the local system.
-				if ( !Filesystem::drumkit_valid( sInstrumentDrumkitPath ) ) {
+				if ( !Filesystem::drumkitValid( sInstrumentDrumkitPath ) ) {
 					WARNINGLOG( QString( "Couldn't find drumkit at [%1]. "
 										 "Searching for [%2] instead." )
 									.arg( sInstrumentDrumkitPath )
@@ -273,7 +273,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 						false, bSilent
 					) );
 
-				sInstrumentDrumkitPath = Filesystem::drumkit_path_search(
+				sInstrumentDrumkitPath = Filesystem::drumkitPathSearch(
 					sInstrumentDrumkitName, lookup, true
 				);
 
@@ -290,7 +290,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 					// other way around is also possible but much more
 					// unlikely. Nevertheless we will use the stacked
 					// search in one final effort)
-					sInstrumentDrumkitPath = Filesystem::drumkit_path_search(
+					sInstrumentDrumkitPath = Filesystem::drumkitPathSearch(
 						sInstrumentDrumkitName, Filesystem::Lookup::stacked,
 						true
 					);
@@ -321,7 +321,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 				//
 				// It features just the name of the drumkit an relies on
 				// it being unique throught the entire search path.
-				sInstrumentDrumkitPath = Filesystem::drumkit_path_search(
+				sInstrumentDrumkitPath = Filesystem::drumkitPathSearch(
 					sInstrumentDrumkitName, Filesystem::Lookup::stacked, bSilent
 				);
 

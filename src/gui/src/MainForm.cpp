@@ -674,14 +674,14 @@ void MainForm::action_file_new()
 	// not attempt to recover the autosave file generated while last
 	// working on an empty song but, instead, remove the corresponding
 	// autosave file in order to start fresh.
-	QFileInfo fileInfo( Filesystem::empty_path( Filesystem::Artifact::Song ) );
+	QFileInfo fileInfo( Filesystem::emptyPath( Filesystem::Artifact::Song ) );
 	QString sBaseName( fileInfo.completeBaseName() );
 	if ( sBaseName.startsWith( "." ) ) {
 		sBaseName.remove( 0, 1 );
 	}
 	QFileInfo autoSaveFile( QString( "%1/.%2.autosave%3" )
 							.arg( fileInfo.absoluteDir().absolutePath() )
-							.arg( sBaseName ).arg( Filesystem::songs_ext ) );
+							.arg( sBaseName ).arg( Filesystem::sSongSuffix ) );
 	if ( autoSaveFile.exists() ) {
 		Filesystem::rm( autoSaveFile.absoluteFilePath() );
 	}
@@ -709,14 +709,14 @@ bool MainForm::action_file_save_as()
 	const bool bUnderSessionManagement = pHydrogen->isUnderSessionManagement();
 
 	QString sPath = pPref->getLastSaveSongAsDirectory();
-	if ( ! Filesystem::dir_writable( sPath, false ) ){
-		sPath = Filesystem::songs_dir();
+	if ( ! Filesystem::dirWritable( sPath, false ) ){
+		sPath = Filesystem::userSongsDir();
 	}
 
 	//std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	FileDialog fd(this);
 	fd.setFileMode( QFileDialog::AnyFile );
-	fd.setNameFilter( Filesystem::songs_filter_name );
+	fd.setNameFilter( Filesystem::sSongFilter );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 	fd.setDirectory( sPath );
 
@@ -726,7 +726,7 @@ bool MainForm::action_file_save_as()
 		fd.setWindowTitle( pCommonStrings->getActionSaveSong() );
 	}
 	
-	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::songs_dir() ) );
+	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::userSongsDir() ) );
 
 	QString sDefaultFileName;
 
@@ -734,8 +734,8 @@ bool MainForm::action_file_save_as()
 	// management.
 	const QString sLastFileName = pSong->getFileName();
 
-	if ( sLastFileName == Filesystem::empty_path( Filesystem::Artifact::Song ) ) {
-		sDefaultFileName = Filesystem::default_song_name();
+	if ( sLastFileName == Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
+		sDefaultFileName = Filesystem::defaultSongName();
 	}
 	else if ( sLastFileName.isEmpty() ) {
 		sDefaultFileName = pSong->getName();
@@ -744,7 +744,7 @@ bool MainForm::action_file_save_as()
 		QFileInfo fileInfo( sLastFileName );
 		sDefaultFileName = fileInfo.completeBaseName();
 	}
-	sDefaultFileName += Filesystem::songs_ext;
+	sDefaultFileName += Filesystem::sSongSuffix;
 
 	fd.selectFile( sDefaultFileName );
 
@@ -754,8 +754,8 @@ bool MainForm::action_file_save_as()
 		if ( ! sNewFileName.isEmpty() ) {
 			pPref->setLastSaveSongAsDirectory( fd.directory().absolutePath( ) );
 
-			if ( ! sNewFileName.endsWith( Filesystem::songs_ext ) ) {
-				sNewFileName += Filesystem::songs_ext;
+			if ( ! sNewFileName.endsWith( Filesystem::sSongSuffix ) ) {
+				sNewFileName += Filesystem::sSongSuffix;
 			}
 
 			// We do not use the CoreActionController::saveSongAs
@@ -785,14 +785,14 @@ bool MainForm::action_file_save_as()
 		h2app->showStatusBarMessage( tr("Song saved as: ") + sDefaultFileName );
 #endif
 
-		if ( sLastFileName == Filesystem::empty_path( Filesystem::Artifact::Song ) ) {
+		if ( sLastFileName == Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
 			// In case we stored the song for the first time, we remove the
 			// autosave file corresponding to the empty one. Else, it might be
 			// loaded later when clicking "New Song" while not generating a new
 			// autosave file.
 			const QString sAutoSaveFile = Filesystem::getAutoSaveFileName(
 				Filesystem::Artifact::Song, sLastFileName );
-			if ( Filesystem::file_exists( sAutoSaveFile, true ) ) {
+			if ( Filesystem::fileExists( sAutoSaveFile, true ) ) {
 				Filesystem::rm( sAutoSaveFile );
 			}
 		}
@@ -821,7 +821,7 @@ bool MainForm::action_file_save( const QString& sNewFileName,
 
 	if ( sNewFileName.isEmpty() &&
 		 ( sFileName.isEmpty() ||
-		   sFileName == Filesystem::empty_path( Filesystem::Artifact::Song ) ) ) {
+		   sFileName == Filesystem::emptyPath( Filesystem::Artifact::Song ) ) ) {
 		// The empty song is treated differently in order to allow
 		// recovering changes and unsaved sessions. Therefore the
 		// users are ask to store a new song using a different file
@@ -899,7 +899,7 @@ void MainForm::action_report_bug()
 // Find and open (a translation of) the manual appropriate for the user's preferences and locale
 void MainForm::showUserManual()
 {
-	QString sDocPath = H2Core::Filesystem::doc_dir();
+	QString sDocPath = H2Core::Filesystem::systemDocumentationDir();
 	QString sPreferredLanguage = Preferences::get_instance()->getPreferredLanguage();
 	QStringList languages;
 
@@ -918,7 +918,7 @@ void MainForm::showUserManual()
 		}
 		for ( const QString& sCandidate : sCandidates ) {
 			QString sManualPath = QString( "%1/manual_%2.html" ) .arg( sDocPath ).arg( sCandidate );
-			if ( Filesystem::file_exists( sManualPath ) ) {
+			if ( Filesystem::fileExists( sManualPath ) ) {
 				QDesktopServices::openUrl( QUrl::fromLocalFile( sManualPath ) );
 				return;
 			}
@@ -964,8 +964,8 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 	}
 
 	QString sPath = pPref->getLastExportPatternAsDirectory();
-	if ( ! Filesystem::dir_writable( sPath, false ) ){
-		sPath = Filesystem::patterns_dir();
+	if ( ! Filesystem::dirWritable( sPath, false ) ){
+		sPath = Filesystem::userPatternsDir();
 	}
 
 	const QString sTitle = tr( "Save Pattern as ..." );
@@ -974,11 +974,11 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 	fd.setDirectory( sPath );
 	fd.selectFile( pPattern->getName() );
 	fd.setFileMode( QFileDialog::AnyFile );
-	fd.setNameFilter( Filesystem::patterns_filter_name );
+	fd.setNameFilter( Filesystem::sPatternFilter );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 	fd.setSidebarUrls( fd.sidebarUrls() <<
-					   QUrl::fromLocalFile( Filesystem::patterns_dir() ) );
-	fd.setDefaultSuffix( Filesystem::patterns_ext );
+					   QUrl::fromLocalFile( Filesystem::userPatternsDir() ) );
+	fd.setDefaultSuffix( Filesystem::sPatternSuffix );
 
 	if ( fd.exec() != QDialog::Accepted ) {
 		return;
@@ -993,7 +993,7 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 	else {
 		h2app->showStatusBarMessage( tr( "Pattern saved." ) );
 
-		if ( sFilePath.indexOf( Filesystem::patterns_dir() ) == 0 ) {
+		if ( sFilePath.indexOf( Filesystem::userPatternsDir() ) == 0 ) {
 			pHydrogen->getSoundLibraryDatabase()->updatePatterns(
 				Event::Trigger::Default
 			);
@@ -1003,8 +1003,8 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 
 void MainForm::action_file_open() {
 	QString sPath = Preferences::get_instance()->getLastOpenSongDirectory();
-	if ( ! Filesystem::dir_readable( sPath, false ) ){
-		sPath = Filesystem::songs_dir();
+	if ( ! Filesystem::dirReadable( sPath, false ) ){
+		sPath = Filesystem::userSongsDir();
 	}
 
 	QString sWindowTitle;
@@ -1027,8 +1027,8 @@ void MainForm::action_file_openPattern()
 	}
 
 	QString sPath = pPref->getLastOpenPatternDirectory();
-	if ( !Filesystem::dir_readable( sPath, false ) ) {
-		sPath = Filesystem::patterns_dir();
+	if ( !Filesystem::dirReadable( sPath, false ) ) {
+		sPath = Filesystem::userPatternsDir();
 	}
 
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
@@ -1037,7 +1037,7 @@ void MainForm::action_file_openPattern()
 	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setFileMode( QFileDialog::ExistingFiles );
 	fd.setDirectory( sPath );
-	fd.setNameFilter( Filesystem::patterns_filter_name );
+	fd.setNameFilter( Filesystem::sPatternFilter );
 
 	fd.setWindowTitle( pCommonStrings->getActionInsertPattern() );
 
@@ -1083,7 +1083,7 @@ void MainForm::action_file_openDemo()
 		sWindowTitle = tr( "Import Demo Song into Session" );
 	}
 
-	openSongWithDialog( sWindowTitle, Filesystem::demos_dir(), true );
+	openSongWithDialog( sWindowTitle, Filesystem::demosDir(), true );
 }
 
 bool MainForm::prepareSongOpening() {
@@ -1109,7 +1109,7 @@ void MainForm::openSongWithDialog( const QString& sWindowTitle, const QString& s
 	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setFileMode( QFileDialog::ExistingFile );
 	fd.setDirectory( sPath );
-	fd.setNameFilter( Filesystem::songs_filter_name );
+	fd.setNameFilter( Filesystem::sSongFilter );
 	fd.setWindowTitle( sWindowTitle );
 
 	QString sFileName;
@@ -1217,7 +1217,7 @@ void MainForm::action_debug_logLevel_debug()
 
 void MainForm::action_debug_openLogfile()
 {
-	QDesktopServices::openUrl( Filesystem::log_file_path() );
+	QDesktopServices::openUrl( Filesystem::logFilePath() );
 }
 
 
@@ -1583,7 +1583,7 @@ void MainForm::exportDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
 	QString sPath = pPref->getLastExportDrumkitDirectory();
-	if ( ! Filesystem::dir_writable( sPath, false ) ){
+	if ( ! Filesystem::dirWritable( sPath, false ) ){
 		sPath = QDir::homePath();
 	}
 
@@ -1596,9 +1596,9 @@ void MainForm::exportDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 	fd.setDirectory( sPath );
 	fd.selectFile( pDrumkit->getExportName() );
 	fd.setFileMode( QFileDialog::AnyFile );
-	fd.setNameFilter( Filesystem::drumkit_filter_name );
+	fd.setNameFilter( Filesystem::sDrumkitFilter );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
-	fd.setDefaultSuffix( Filesystem::drumkit_ext );
+	fd.setDefaultSuffix( Filesystem::sDrumkitSuffix );
 
 	if ( fd.exec() != QDialog::Accepted ) {
 		return;
@@ -1608,7 +1608,7 @@ void MainForm::exportDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 	pPref->setLastExportDrumkitDirectory( fileInfo.path() );
 	QString sFilePath = fileInfo.absoluteFilePath();
 
-	if ( ! Filesystem::dir_writable(
+	if ( ! Filesystem::dirWritable(
 			 fileInfo.absoluteDir().absolutePath(), false ) ) {
 		QMessageBox::warning( nullptr, "Hydrogen",
 							  pCommonStrings->getFileDialogMissingWritePermissions(),
@@ -1616,7 +1616,7 @@ void MainForm::exportDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 		return;
 	}
 
-	if ( Filesystem::file_exists( sFilePath, true ) ) {
+	if ( Filesystem::fileExists( sFilePath, true ) ) {
 		if ( QMessageBox::warning(
 				 nullptr, "Hydrogen",
 				 tr( "The file [%1] does already exist and will be overwritten.")
@@ -1686,7 +1686,7 @@ void MainForm::action_drumkit_import( bool bLoad ) {
 	auto pPreferences = H2Core::Preferences::get_instance();
 
 	QString sPath = pPreferences->getLastImportDrumkitDirectory();
-	if ( ! H2Core::Filesystem::dir_readable( sPath, false ) ){
+	if ( ! H2Core::Filesystem::dirReadable( sPath, false ) ){
 		sPath = QDir::homePath();
 	}
 
@@ -2012,9 +2012,9 @@ void MainForm::checkMidiSetup()
 void MainForm::checkNecessaryDirectories()
 {
 	//Make sure that all directories which are needed by Hydrogen are existing and usable.
-	QString sTempDir = Filesystem::tmp_dir();
+	QString sTempDir = Filesystem::tmpDir();
 	
-	if( !Filesystem::dir_writable(sTempDir))
+	if( !Filesystem::dirWritable(sTempDir))
 	{
 		QMessageBox::warning( this, "Hydrogen", tr("Could not write to temporary directory %1.").arg(sTempDir) );
 	}
@@ -2055,16 +2055,16 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 		assert( fe != nullptr );
 		QString sFileName = fe->file();
 
-		if ( sFileName.endsWith( H2Core::Filesystem::songs_ext ) ) {
+		if ( sFileName.endsWith( H2Core::Filesystem::sSongSuffix ) ) {
 			if ( HydrogenApp::handleUnsavedChanges( Filesystem::Artifact::Song ) ) {
 				HydrogenApp::openFile( Filesystem::Artifact::Song, sFileName );
 			}
 
 		}
-		else if ( sFileName.endsWith( H2Core::Filesystem::drumkit_ext ) ) {
+		else if ( sFileName.endsWith( H2Core::Filesystem::sDrumkitSuffix ) ) {
 			loadDrumkit( sFileName, true );
 		}
-		else if ( sFileName.endsWith( H2Core::Filesystem::playlist_ext ) ) {
+		else if ( sFileName.endsWith( H2Core::Filesystem::sPlaylistSuffix ) ) {
 			if ( HydrogenApp::handleUnsavedChanges( Filesystem::Artifact::Playlist ) ) {
 				HydrogenApp::openFile( Filesystem::Artifact::Playlist, sFileName );
 			}
@@ -2127,8 +2127,8 @@ void MainForm::action_file_export_lilypond()
 		QMessageBox::Ok );
 
 	QString sPath = pPref->getLastExportLilypondDirectory();
-	if ( ! Filesystem::dir_writable( sPath, false ) ){
-		sPath = Filesystem::usr_data_path();
+	if ( ! Filesystem::dirWritable( sPath, false ) ){
+		sPath = Filesystem::userDataPath();
 	}
 
 	FileDialog fd( this );

@@ -474,13 +474,13 @@ QString HydrogenApp::findAutoSaveFile( const Filesystem::Artifact& type,
 	QString sExtension, sEmpty;
 	switch ( type ) {
 	case Filesystem::Artifact::Song:
-		sExtension = Filesystem::songs_ext;
+		sExtension = Filesystem::sSongSuffix;
 		/*: Object containing unsaved changes.*/
 		sEmpty = tr( "New Song" );
 		break;
 
 	case Filesystem::Artifact::Playlist:
-		sExtension = Filesystem::playlist_ext;
+		sExtension = Filesystem::sPlaylistSuffix;
 		/*: Object containing unsaved changes.*/
 		sEmpty = tr( "New Playlist" );
 		break;
@@ -519,7 +519,7 @@ QString HydrogenApp::findAutoSaveFile( const Filesystem::Artifact& type,
 				autoSaveFileOld.lastModified() > fileInfo.lastModified() ) {
 		sRecoverFileName = autoSaveFileOld.absoluteFilePath();
 	}
-	else if ( sBaseFile == Filesystem::empty_path( type ) &&
+	else if ( sBaseFile == Filesystem::emptyPath( type ) &&
 			  autoSaveFileRecent.exists() ) {
 		sRecoverFileName = autoSaveFileRecent.absoluteFilePath();
 	}
@@ -529,7 +529,7 @@ QString HydrogenApp::findAutoSaveFile( const Filesystem::Artifact& type,
 	}
 
 	QString sFile;
-	if ( sBaseFile == Filesystem::empty_path( type ) ) {
+	if ( sBaseFile == Filesystem::emptyPath( type ) ) {
 		sFile = sEmpty;
 	} else {
 		sFile = sBaseFile;
@@ -575,10 +575,10 @@ bool HydrogenApp::openFile( const Filesystem::Artifact& type, const QString& sFi
 
 	QString sPath;
 	if ( sFileName.isEmpty() ) {
-		sPath = H2Core::Filesystem::empty_path( type );
+		sPath = H2Core::Filesystem::emptyPath( type );
 	}
 	else {
-		sPath = H2Core::Filesystem::absolute_path( sFileName );
+		sPath = H2Core::Filesystem::absolutePath( sFileName );
 	}
 	const auto sRecoverFileName = findAutoSaveFile( type, sPath );
 
@@ -812,12 +812,12 @@ void HydrogenApp::updateWindowTitle()
 		return;
 	}
 
-	QString sTitle = Filesystem::untitled_song_name();
+	QString sTitle = Filesystem::untitledSongName();
 
 	QString sSongName( pSong->getName() );
 	QString sFilePath( pSong->getFileName() );
 
-	if ( sFilePath == Filesystem::empty_path( Filesystem::Artifact::Song ) ||
+	if ( sFilePath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ||
 		 sFilePath.isEmpty() ) {
 		// An empty song is _not_ associated with a file. Therefore,
 		// we mustn't show the file name.
@@ -827,7 +827,7 @@ void HydrogenApp::updateWindowTitle()
 	} else {
 		QFileInfo fileInfo( sFilePath );
 
-		if ( sSongName == Filesystem::untitled_song_name() ||
+		if ( sSongName == Filesystem::untitledSongName() ||
 			 sSongName == fileInfo.completeBaseName() ) {
 			// The user did not alter the default name of the song or
 			// set the song name but also named the corresponding file
@@ -1346,7 +1346,7 @@ void HydrogenApp::updateEventListeners() {
  */
 void HydrogenApp::cleanupTemporaryFiles()
 {
-	Filesystem::rm( Filesystem::tmp_dir(), true );
+	Filesystem::rm( Filesystem::tmpDir(), true );
 }
 
 void HydrogenApp::updatePreferencesEvent( int nValue ) {
@@ -1357,7 +1357,7 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 	const QString sPreferencesOverwritePath = 
 		H2Core::Filesystem::getPreferencesOverwritePath();
 	if ( sPreferencesOverwritePath.isEmpty() ) {
-		sPreferencesFileName = Filesystem::usr_config_path();
+		sPreferencesFileName = Filesystem::userConfigPath();
 	} else {
 		sPreferencesFileName = sPreferencesOverwritePath;
 	}

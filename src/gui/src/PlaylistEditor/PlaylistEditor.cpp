@@ -375,8 +375,8 @@ void PlaylistEditor::addSong()
 {
 	auto pPref = Preferences::get_instance();
 	QString sPath = pPref->getLastAddSongToPlaylistDirectory();
-	if ( ! Filesystem::dir_readable( sPath, false ) ){
-		sPath = Filesystem::songs_dir();
+	if ( ! Filesystem::dirReadable( sPath, false ) ){
+		sPath = Filesystem::userSongsDir();
 	}
 
 	const QString sTitle = tr( "Add Songs to PlayList" );
@@ -385,7 +385,7 @@ void PlaylistEditor::addSong()
 	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setWindowTitle( sTitle );
 	fd.setFileMode( QFileDialog::ExistingFiles );
-	fd.setNameFilter( Filesystem::songs_filter_name );
+	fd.setNameFilter( Filesystem::sSongFilter );
 	fd.setDirectory( sPath );
 
 	if ( fd.exec() != QDialog::Accepted ) {
@@ -447,7 +447,7 @@ void PlaylistEditor::newPlaylist()
 
 	auto pNewPlaylist = std::make_shared<Playlist>();
 	pNewPlaylist->setFileName(
-		Filesystem::empty_path( Filesystem::Artifact::Playlist ) );
+		Filesystem::emptyPath( Filesystem::Artifact::Playlist ) );
 	auto pAction = new SE_replacePlaylistAction( pNewPlaylist );
 	m_pUndoStack->push( pAction );
 
@@ -455,7 +455,7 @@ void PlaylistEditor::newPlaylist()
 	// attempt to recover the autosave file generated while last working on an
 	// empty playlist but, instead, remove the corresponding autosave file in
 	// order to start fresh.
-	QFileInfo fileInfo( Filesystem::empty_path( Filesystem::Artifact::Playlist ) );
+	QFileInfo fileInfo( Filesystem::emptyPath( Filesystem::Artifact::Playlist ) );
 	QString sBaseName( fileInfo.completeBaseName() );
 	if ( sBaseName.startsWith( "." ) ) {
 		sBaseName.remove( 0, 1 );
@@ -463,7 +463,7 @@ void PlaylistEditor::newPlaylist()
 	QFileInfo autoSaveFile( QString( "%1/.%2.autosave%3" )
 							.arg( fileInfo.absoluteDir().absolutePath() )
 							.arg( sBaseName )
-							.arg( Filesystem::playlist_ext ) );
+							.arg( Filesystem::sPlaylistSuffix ) );
 	if ( autoSaveFile.exists() ) {
 		Filesystem::rm( autoSaveFile.absoluteFilePath() );
 	}
@@ -478,8 +478,8 @@ void PlaylistEditor::openPlaylist() {
 
 	auto pPref = Preferences::get_instance();
 	QString sPath = pPref->getLastPlaylistDirectory();
-	if ( ! Filesystem::dir_readable( sPath, false ) ){
-		sPath = Filesystem::playlists_dir();
+	if ( ! Filesystem::dirReadable( sPath, false ) ){
+		sPath = Filesystem::userPlaylistsDir();
 	}
 
 	FileDialog fd( nullptr );
@@ -487,7 +487,7 @@ void PlaylistEditor::openPlaylist() {
 	fd.setWindowTitle( tr( "Load Playlist" ) );
 	fd.setFileMode( QFileDialog::ExistingFile );
 	fd.setDirectory( sPath );
-	fd.setNameFilter( Filesystem::playlists_filter_name );
+	fd.setNameFilter( Filesystem::sPlaylistFilter );
 
 	if ( fd.exec() != QDialog::Accepted ) {
 		return;
@@ -531,15 +531,15 @@ void PlaylistEditor::newScript()
 	}
 
 	QString sPath = pPref->getLastPlaylistScriptDirectory();
-	if ( ! Filesystem::dir_writable( sPath, false ) ){
-		sPath = Filesystem::scripts_dir();
+	if ( ! Filesystem::dirWritable( sPath, false ) ){
+		sPath = Filesystem::userScriptsDir();
 	}
 
 
 
 	FileDialog fd(this);
 	fd.setFileMode( QFileDialog::AnyFile );
-	fd.setNameFilter( Filesystem::scripts_filter_name );
+	fd.setNameFilter( Filesystem::sScriptFilter );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 	fd.setWindowTitle( tr( "New Script" ) );
 	fd.setDirectory( sPath );
@@ -633,18 +633,18 @@ bool PlaylistEditor::savePlaylistAs() {
 	const auto sLastFileName = pPlaylist->getFileName();
 
 	QString sPath = pPref->getLastPlaylistDirectory();
-	if ( ! Filesystem::dir_writable( sPath, false ) ){
-		sPath = Filesystem::playlists_dir();
+	if ( ! Filesystem::dirWritable( sPath, false ) ){
+		sPath = Filesystem::userPlaylistsDir();
 	}
 	
 	FileDialog fd( nullptr );
 	fd.setWindowTitle( tr( "Save Playlist" ) );
 	fd.setFileMode( QFileDialog::AnyFile );
-	fd.setNameFilter( Filesystem::playlists_filter_name );
+	fd.setNameFilter( Filesystem::sPlaylistFilter );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 	fd.setDirectory( sPath );
-	fd.selectFile( Filesystem::untitled_playlist_file_name() );
-	fd.setDefaultSuffix( Filesystem::playlist_ext );
+	fd.selectFile( Filesystem::untitledPlaylistFileName() );
+	fd.setDefaultSuffix( Filesystem::sPlaylistSuffix );
 
 	if ( fd.exec() != QDialog::Accepted ) {
 		return false;
@@ -660,14 +660,14 @@ bool PlaylistEditor::savePlaylistAs() {
 
 	pPref->setLastPlaylistDirectory( fd.directory().absolutePath() );
 
-	if ( sLastFileName == Filesystem::empty_path( Filesystem::Artifact::Playlist ) ) {
+	if ( sLastFileName == Filesystem::emptyPath( Filesystem::Artifact::Playlist ) ) {
 		// In case we stored the playlist for the first time, we remove the
 		// autosave file corresponding to the empty one. Else, it might be
 		// loaded later when clicking "New Playlist" while not generating a new
 		// autosave file.
 		const QString sAutoSaveFile = Filesystem::getAutoSaveFileName(
 			Filesystem::Artifact::Playlist, sLastFileName );
-		if ( Filesystem::file_exists( sAutoSaveFile, true ) ) {
+		if ( Filesystem::fileExists( sAutoSaveFile, true ) ) {
 			Filesystem::rm( sAutoSaveFile );
 		}
 	}
@@ -684,7 +684,7 @@ bool PlaylistEditor::savePlaylist()
 
 	if ( pPlaylist->getFileName().isEmpty() ||
 		 pPlaylist->getFileName() ==
-		 Filesystem::empty_path( Filesystem::Artifact::Playlist ) ) {
+		 Filesystem::emptyPath( Filesystem::Artifact::Playlist ) ) {
 		return savePlaylistAs();
 	}
 
@@ -708,8 +708,8 @@ void PlaylistEditor::loadScript() {
 		return;
 	}
 
-	if ( ! Filesystem::dir_writable( sPath, false ) ){
-		sPath = Filesystem::scripts_dir();
+	if ( ! Filesystem::dirWritable( sPath, false ) ){
+		sPath = Filesystem::userScriptsDir();
 	}
 
 	FileDialog fd(this);
@@ -1086,7 +1086,7 @@ void PlaylistEditor::updateWindowTitle() {
 	QString sWindowTitle = tr( "Playlist Browser" );
 	if ( ! pPlaylist->getFileName().isEmpty() &&
 		 pPlaylist->getFileName() !=
-		 Filesystem::empty_path( Filesystem::Artifact::Playlist ) ) {
+		 Filesystem::emptyPath( Filesystem::Artifact::Playlist ) ) {
 		sWindowTitle.append( QString(" - %1").arg( pPlaylist->getFileName() ) );
 	}
 

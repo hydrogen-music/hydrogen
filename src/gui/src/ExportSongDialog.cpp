@@ -267,7 +267,7 @@ QString ExportSongDialog::createDefaultFileName()
 	}
 
 	sDefaultFileName.replace( '*', "_" );
-	sDefaultFileName.replace( Filesystem::songs_ext, "" );
+	sDefaultFileName.replace( Filesystem::sSongSuffix, "" );
 	return QString( "%1.%2" ).arg( sDefaultFileName ).arg( m_sExtension );
 }
 
@@ -276,7 +276,7 @@ void ExportSongDialog::on_browseBtn_clicked()
 	const auto pPref = Preferences::get_instance();
 
 	QString sPath = pPref->getLastExportSongDirectory();
-	if ( ! Filesystem::dir_writable( sPath, false ) ){
+	if ( ! Filesystem::dirWritable( sPath, false ) ){
 		sPath = QDir::homePath();
 	}
 
@@ -405,7 +405,7 @@ void ExportSongDialog::on_okBtn_clicked()
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	QFileInfo fileInfo( exportNameTxt->text() );
-	if ( ! Filesystem::dir_writable( fileInfo.absoluteDir().absolutePath(), false ) ) {
+	if ( ! Filesystem::dirWritable( fileInfo.absoluteDir().absolutePath(), false ) ) {
 		QMessageBox::warning( this, "Hydrogen",
 							  pCommonStrings->getFileDialogMissingWritePermissions(),
 							  QMessageBox::Ok );

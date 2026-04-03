@@ -52,20 +52,20 @@ void Preferences::create_instance()
 {
 	if ( __instance == nullptr ) {
 		// User-level configs
-		auto pPrefUser = load( Filesystem::usr_config_path() );
+		auto pPrefUser = load( Filesystem::userConfigPath() );
 		if ( pPrefUser != nullptr ) {
 			__instance = pPrefUser;
 			__instance->m_bLoadingSuccessful = true;
 		}
 		else {
 			// Fallback to system-level configs (the one we ship)
-			auto pPrefSystem = load( Filesystem::sys_config_path() );
+			auto pPrefSystem = load( Filesystem::systemConfigPath() );
 			if ( pPrefSystem != nullptr ) {
 				INFOLOG(
 					QString( "Couldn't load user-level configuration from "
 							 "[%1]. Falling back to system-level one in [%2]" )
-						.arg( Filesystem::usr_config_path() )
-						.arg( Filesystem::sys_config_path() )
+						.arg( Filesystem::userConfigPath() )
+						.arg( Filesystem::systemConfigPath() )
 				);
 				__instance = pPrefSystem;
 				__instance->m_bLoadingSuccessful = true;
@@ -75,8 +75,8 @@ void Preferences::create_instance()
 					QString(
 						"Couldn't load config file from neither [%1] nor [%2]."
 					)
-						.arg( Filesystem::usr_config_path() )
-						.arg( Filesystem::sys_config_path() )
+						.arg( Filesystem::userConfigPath() )
+						.arg( Filesystem::systemConfigPath() )
 				);
 				__instance = std::make_shared<Preferences>();
 				__instance->m_bLoadingSuccessful = false;
@@ -173,16 +173,16 @@ Preferences::Preferences()
 	  m_sLastExportPatternAsDirectory( QDir::homePath() ),
 	  m_sLastExportSongDirectory( QDir::homePath() ),
 	  m_sLastSaveSongAsDirectory( QDir::homePath() ),
-	  m_sLastOpenSongDirectory( Filesystem::songs_dir() ),
-	  m_sLastOpenPatternDirectory( Filesystem::patterns_dir() ),
+	  m_sLastOpenSongDirectory( Filesystem::userSongsDir() ),
+	  m_sLastOpenPatternDirectory( Filesystem::userPatternsDir() ),
 	  m_sLastExportLilypondDirectory( QDir::homePath() ),
 	  m_sLastExportMidiDirectory( QDir::homePath() ),
 	  m_sLastImportDrumkitDirectory( QDir::homePath() ),
 	  m_sLastExportDrumkitDirectory( QDir::homePath() ),
 	  m_sLastOpenLayerDirectory( QDir::homePath() ),
 	  m_sLastOpenPlaybackTrackDirectory( QDir::homePath() ),
-	  m_sLastAddSongToPlaylistDirectory( Filesystem::songs_dir() ),
-	  m_sLastPlaylistDirectory( Filesystem::playlists_dir() ),
+	  m_sLastAddSongToPlaylistDirectory( Filesystem::userSongsDir() ),
+	  m_sLastPlaylistDirectory( Filesystem::userPlaylistsDir() ),
 	  m_sLastPlaylistScriptDirectory( QDir::homePath() ),
 	  m_sLastImportThemeDirectory( QDir::homePath() ),
 	  m_sLastExportThemeDirectory( QDir::homePath() ),
@@ -432,7 +432,7 @@ Preferences::~Preferences()
 std::shared_ptr<Preferences>
 Preferences::load( const QString& sPath, const bool bSilent )
 {
-	if ( !Filesystem::file_readable( sPath, bSilent ) ) {
+	if ( !Filesystem::fileReadable( sPath, bSilent ) ) {
 		return nullptr;
 	}
 
@@ -1346,7 +1346,7 @@ bool Preferences::saveCopyAs( const QString& sPath, const bool bSilent ) const
 
 bool Preferences::save( const bool bSilent ) const
 {
-	return saveTo( Filesystem::usr_config_path(), bSilent );
+	return saveTo( Filesystem::userConfigPath(), bSilent );
 }
 
 bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
@@ -1407,7 +1407,7 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 	// extern executables
 	QString rubberBandCLIexecutable( m_sRubberBandCLIexecutable );
 	if ( !Filesystem::
-			 file_executable( rubberBandCLIexecutable, true /* silent */ ) ) {
+			 fileExecutable( rubberBandCLIexecutable, true /* silent */ ) ) {
 		rubberBandCLIexecutable = "Path to Rubberband-CLI";
 	}
 	rootNode.write_string( "path_to_rubberband", rubberBandCLIexecutable );

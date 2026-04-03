@@ -35,9 +35,9 @@ void FilesystemTest::setUp() {
 	m_sNoAccessPath = "/etc/shadow";
 #endif
 	m_sReadOnlyPath = "/etc/hosts";
-	m_sFullAccessPath = QString( Filesystem::usr_data_path() )
+	m_sFullAccessPath = QString( Filesystem::userDataPath() )
 		.append( "test.h2song"  );
-	m_sTmpPath = Filesystem::tmp_file_path( "test.h2song" );
+	m_sTmpPath = Filesystem::tmpFilePath( "test.h2song" );
 #endif
 }
 
@@ -50,16 +50,16 @@ void FilesystemTest::tearDown() {
 void FilesystemTest::testPermissions(){
 #ifndef WIN32
 	___INFOLOG( "" );
-	CPPUNIT_ASSERT( ! Filesystem::file_exists( m_sNotExistingPath, true ) );
-	CPPUNIT_ASSERT( Filesystem::file_exists( m_sNoAccessPath, true ) );
-	CPPUNIT_ASSERT( ! Filesystem::file_readable( m_sNoAccessPath, true ) );
-	CPPUNIT_ASSERT( Filesystem::file_readable( m_sReadOnlyPath, true ) );
-	CPPUNIT_ASSERT( ! Filesystem::file_writable( m_sReadOnlyPath, true ) );
-	CPPUNIT_ASSERT( Filesystem::file_writable( m_sFullAccessPath, true ) );
+	CPPUNIT_ASSERT( ! Filesystem::fileExists( m_sNotExistingPath, true ) );
+	CPPUNIT_ASSERT( Filesystem::fileExists( m_sNoAccessPath, true ) );
+	CPPUNIT_ASSERT( ! Filesystem::fileReadable( m_sNoAccessPath, true ) );
+	CPPUNIT_ASSERT( Filesystem::fileReadable( m_sReadOnlyPath, true ) );
+	CPPUNIT_ASSERT( ! Filesystem::fileWritable( m_sReadOnlyPath, true ) );
+	CPPUNIT_ASSERT( Filesystem::fileWritable( m_sFullAccessPath, true ) );
 
-	CPPUNIT_ASSERT( Filesystem::file_exists( m_sTmpPath, true ) );
-	CPPUNIT_ASSERT( Filesystem::file_readable( m_sTmpPath, true ) );
-	CPPUNIT_ASSERT( Filesystem::file_writable( m_sTmpPath, true ) );
+	CPPUNIT_ASSERT( Filesystem::fileExists( m_sTmpPath, true ) );
+	CPPUNIT_ASSERT( Filesystem::fileReadable( m_sTmpPath, true ) );
+	CPPUNIT_ASSERT( Filesystem::fileWritable( m_sTmpPath, true ) );
 	___INFOLOG( "passed" );
 #endif
 }
@@ -172,10 +172,10 @@ void FilesystemTest::testIsPathValid() {
 void FilesystemTest::testSamplePathHandling() {
 	___INFOLOG( "" );
 	const QString& sSystemKitPath(
-		QString( "%1/sampleKit" ).arg( Filesystem::sys_drumkits_dir() )
+		QString( "%1/sampleKit" ).arg( Filesystem::systemDrumkitsDir() )
 	);
 	const QString& sUserKitPath(
-		QString( "%1/sampleKit" ).arg( Filesystem::usr_drumkits_dir() )
+		QString( "%1/sampleKit" ).arg( Filesystem::userDrumkitsDir() )
 	);
 	const auto sPathInSystemKit = QString( "%1/sample.wav" )
 		.arg( sSystemKitPath );
@@ -185,28 +185,28 @@ void FilesystemTest::testSamplePathHandling() {
 	const auto sRelativePath( "../../sample.wav" );
 	const QString sFileName( "sample.wav" );
 
-	const auto sPathInSystemKitPrepared = Filesystem::prepare_sample_path(
+	const auto sPathInSystemKitPrepared = Filesystem::prepareSamplePath(
 		sPathInSystemKit, sSystemKitPath );
 	___INFOLOG( QString( "sPathInSystemKitPrepared: [%1]" )
 				.arg( sPathInSystemKitPrepared ) );
 	CPPUNIT_ASSERT( sPathInSystemKit != sPathInSystemKitPrepared );
 	CPPUNIT_ASSERT( sFileName == sPathInSystemKitPrepared );
 
-	const auto sPathInUserKitPrepared = Filesystem::prepare_sample_path(
+	const auto sPathInUserKitPrepared = Filesystem::prepareSamplePath(
 		sPathInUserKit, sUserKitPath );
 	___INFOLOG( QString( "sPathInUserKitPrepared: [%1]" )
 				.arg( sPathInUserKitPrepared ) );
 	CPPUNIT_ASSERT( sPathInUserKit != sPathInUserKitPrepared );
 	CPPUNIT_ASSERT( sFileName == sPathInUserKitPrepared );
 
-	const auto sAbsolutePathPrepared = Filesystem::prepare_sample_path(
+	const auto sAbsolutePathPrepared = Filesystem::prepareSamplePath(
 		sAbsolutePath, "" );
 	___INFOLOG( QString( "sAbsolutePathPrepared: [%1]" )
 				.arg( sAbsolutePathPrepared ) );
 	CPPUNIT_ASSERT( sAbsolutePath == sAbsolutePathPrepared );
 	CPPUNIT_ASSERT( sFileName != sAbsolutePathPrepared );
 
-	const auto sRelativePathPrepared = Filesystem::prepare_sample_path(
+	const auto sRelativePathPrepared = Filesystem::prepareSamplePath(
 		sRelativePath, "" );
 	___INFOLOG( QString( "sRelativePathPrepared: [%1]" )
 				.arg( sRelativePathPrepared ) );

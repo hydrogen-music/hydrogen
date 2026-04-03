@@ -196,7 +196,7 @@ Sample::load( const QString& sFilePath, const License& license )
 {
 	std::shared_ptr<Sample> pSample;
 
-	if ( !Filesystem::file_readable( sFilePath ) ) {
+	if ( !Filesystem::fileReadable( sFilePath ) ) {
 		ERRORLOG( QString( "Unable to read %1" ).arg( sFilePath ) );
 		return nullptr;
 	}
@@ -762,7 +762,7 @@ bool Sample::execRubberbandCli( float fBpm )
 	const auto sProgram =
 		Preferences::get_instance()->m_sRubberBandCLIexecutable;
 	// test the path. if test fails return NULL
-	if ( !Filesystem::file_exists( sProgram, false ) ) {
+	if ( !Filesystem::fileExists( sProgram, false ) ) {
 		ERRORLOG(
 			QString( "Rubberband executable [%1] not found" ).arg( sProgram )
 		);
@@ -770,7 +770,7 @@ bool Sample::execRubberbandCli( float fBpm )
 	}
 
 	const auto sTmpFilePathInput =
-		Filesystem::tmp_file_path( "rb-in-XXXX.wav" );
+		Filesystem::tmpFilePath( "rb-in-XXXX.wav" );
 	// Ensure the random part of the input and the processed file are the same.
 	// This way both artifacts can be correlated.
 	auto sTmpFilePathProcessed( sTmpFilePathInput );
@@ -815,7 +815,7 @@ bool Sample::execRubberbandCli( float fBpm )
     }
 
 	delete pRubberbandProc;
-	if ( !Filesystem::file_exists( sTmpFilePathProcessed ) ) {
+	if ( !Filesystem::fileExists( sTmpFilePathProcessed ) ) {
 		ERRORLOG( QString( "Rubberband reimporter File %1 not found" )
 					  .arg( sTmpFilePathProcessed ) );
 		return false;

@@ -73,15 +73,15 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 
 	QStringList drumkitPaths;
 	// system drumkits
-	for ( const auto& sDrumkitName : Filesystem::sys_drumkit_list() ) {
-		drumkitPaths << Filesystem::absolute_path(
-			Filesystem::sys_drumkits_dir() + sDrumkitName
+	for ( const auto& sDrumkitName : Filesystem::systemDrumkitList() ) {
+		drumkitPaths << Filesystem::absolutePath(
+			Filesystem::systemDrumkitsDir() + sDrumkitName
 		);
 	}
 	// user drumkits
-	for ( const auto& sDrumkitName : Filesystem::usr_drumkit_list() ) {
-		drumkitPaths << Filesystem::absolute_path(
-			Filesystem::usr_drumkits_dir() + sDrumkitName
+	for ( const auto& sDrumkitName : Filesystem::userDrumkitList() ) {
+		drumkitPaths << Filesystem::absolutePath(
+			Filesystem::userDrumkitsDir() + sDrumkitName
 		);
 	}
 
@@ -93,13 +93,13 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 								<< "/usr/share/hydrogen/data/drumkits"
 								<< "/usr/local/share/hydrogen/data/drumkits";
 	for ( const auto& ssDir : additionalDirs ) {
-		if ( Filesystem::dir_exists( ssDir, true ) ) {
+		if ( Filesystem::dirExists( ssDir, true ) ) {
 			for ( const auto& ssEntry : QDir( ssDir ).entryList(
 					  QDir::Dirs | QDir::Readable | QDir::NoDotAndDotDot
 				  ) ) {
 				const auto sFilePath =
 					QString( "%1/%2" ).arg( ssDir ).arg( ssEntry );
-				if ( Filesystem::drumkit_valid( sFilePath ) &&
+				if ( Filesystem::drumkitValid( sFilePath ) &&
 					 !m_customDrumkitPaths.contains( sFilePath ) ) {
 					m_customDrumkitPaths << sFilePath;
 				}
@@ -120,7 +120,7 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 	// lot of false positive error messages.
 	for ( const auto& sDrumkitFolder : m_customDrumkitFolders ) {
 		for ( const auto& sDrumkitName :
-			  Filesystem::drumkit_list( sDrumkitFolder ) ) {
+			  Filesystem::drumkitList( sDrumkitFolder ) ) {
 			drumkitPaths
 				<< QDir( sDrumkitFolder ).absoluteFilePath( sDrumkitName );
 		}
@@ -195,11 +195,11 @@ SoundLibraryDatabase::getDrumkit( const QString& sDrumkit, bool bUpgrade )
 	}
 	else {
 		// Supplied string it the name of a drumkit
-		sDrumkitPath = Filesystem::drumkit_path_search(
+		sDrumkitPath = Filesystem::drumkitPathSearch(
 			sDrumkit, Filesystem::Lookup::stacked, false
 		);
 	}
-	sDrumkitPath = Filesystem::absolute_path( sDrumkitPath );
+	sDrumkitPath = Filesystem::absolutePath( sDrumkitPath );
 
 	if ( sDrumkitPath.isEmpty() ) {
 		ERRORLOG(
@@ -351,7 +351,7 @@ QString SoundLibraryDatabase::getUniqueLabel( const QString& sDrumkitPath
 		return "";
 	}
 
-	return m_drumkitUniqueLabels.at( Filesystem::absolute_path( sDrumkitPath )
+	return m_drumkitUniqueLabels.at( Filesystem::absolutePath( sDrumkitPath )
 	);
 }
 
@@ -377,10 +377,10 @@ QStringList SoundLibraryDatabase::getDrumkitFolders() const
 	// [C:\\projects\\hydrogen/data/\\drumkits/]. For all other OSs this is not
 	// necessary. But it does no harm either and might be a live safer in some
 	// edge cases.
-	drumkitFolders << Filesystem::sys_drumkits_dir()
+	drumkitFolders << Filesystem::systemDrumkitsDir()
 						  .replace( "\\", "/" )
 						  .replace( "//", "/" )
-				   << Filesystem::usr_drumkits_dir()
+				   << Filesystem::userDrumkitsDir()
 						  .replace( "\\", "/" )
 						  .replace( "//", "/" );
 
@@ -404,15 +404,15 @@ void SoundLibraryDatabase::updatePatterns( Event::Trigger trigger )
 	m_patternInfos.clear();
 
 	// search drumkit subdirectories within patterns user directory
-	foreach ( const QString& sDrumkit, Filesystem::pattern_drumkits() ) {
-		loadPatternFromDirectory( Filesystem::patterns_dir( sDrumkit ) );
+	foreach ( const QString& sDrumkit, Filesystem::patternDrumkits() ) {
+		loadPatternFromDirectory( Filesystem::userPatternsDir( sDrumkit ) );
 	}
 	// search patterns user directory
-	loadPatternFromDirectory( Filesystem::patterns_dir() );
+	loadPatternFromDirectory( Filesystem::userPatternsDir() );
 
 	// search system patterns directory if it exists
-	const QString sSysPatternsDir = Filesystem::sys_patterns_dir();
-	if ( Filesystem::dir_readable( sSysPatternsDir, true ) ) {
+	const QString sSysPatternsDir = Filesystem::systemPatternsDir();
+	if ( Filesystem::dirReadable( sSysPatternsDir, true ) ) {
 		loadPatternFromDirectory( sSysPatternsDir );
 	}
 
@@ -431,7 +431,7 @@ void SoundLibraryDatabase::updatePatterns( Event::Trigger trigger )
 void SoundLibraryDatabase::loadPatternFromDirectory( const QString& sPatternDir
 )
 {
-	foreach ( const QString& sName, Filesystem::pattern_list( sPatternDir ) ) {
+	foreach ( const QString& sName, Filesystem::patternList( sPatternDir ) ) {
 		const auto sFile = sPatternDir + sName;
 		auto pInfo = std::make_shared<PatternInfo>();
 
@@ -450,9 +450,9 @@ void SoundLibraryDatabase::updateSongs( Event::Trigger trigger )
 	m_songInfos.clear();
 
 	// User songs
-	const QString sUsrSongsDir = Filesystem::songs_dir();
-	if ( Filesystem::dir_readable( sUsrSongsDir, true ) ) {
-		for ( const QString& sSongFile : Filesystem::song_list_cleared() ) {
+	const QString sUsrSongsDir = Filesystem::userSongsDir();
+	if ( Filesystem::dirReadable( sUsrSongsDir, true ) ) {
+		for ( const QString& sSongFile : Filesystem::songListCleared() ) {
 			const QString sFullPath = sUsrSongsDir + sSongFile;
 			auto pInfo = std::make_shared<SongInfo>();
 			if ( pInfo->load( sFullPath ) ) {
@@ -463,8 +463,8 @@ void SoundLibraryDatabase::updateSongs( Event::Trigger trigger )
 	}
 
 	// System songs (demos)
-	const QString sSysSongsDir = Filesystem::sys_songs_dir();
-	if ( Filesystem::dir_readable( sSysSongsDir, true ) ) {
+	const QString sSysSongsDir = Filesystem::systemSongsDir();
+	if ( Filesystem::dirReadable( sSysSongsDir, true ) ) {
 		const QStringList songFiles =
 			QDir( sSysSongsDir )
 				.entryList(

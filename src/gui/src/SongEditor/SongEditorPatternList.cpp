@@ -341,8 +341,8 @@ void SongEditorPatternList::patternPopup_replace()
 	}
 
 	QString sPath = pPref->getLastOpenPatternDirectory();
-	if ( !Filesystem::dir_readable( sPath, false ) ) {
-		sPath = Filesystem::patterns_dir();
+	if ( !Filesystem::dirReadable( sPath, false ) ) {
+		sPath = Filesystem::userPatternsDir();
 	}
 
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
@@ -350,7 +350,7 @@ void SongEditorPatternList::patternPopup_replace()
 	FileDialog fd( this );
 	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setFileMode( QFileDialog::ExistingFile );
-	fd.setNameFilter( Filesystem::patterns_filter_name );
+	fd.setNameFilter( Filesystem::sPatternFilter );
 	fd.setDirectory( sPath );
 	fd.setWindowTitle( QString( pCommonStrings->getActionReplacePattern() )
 						   .append( pPattern->getName() ) );
@@ -399,9 +399,9 @@ void SongEditorPatternList::patternPopup_save()
 	}
 
 	const QString sPath = QString( "%1/%2%3" )
-							  .arg( Filesystem::patterns_dir() )
+							  .arg( Filesystem::userPatternsDir() )
 							  .arg( pPattern->getName() )
-							  .arg( Filesystem::patterns_ext );
+							  .arg( Filesystem::sPatternSuffix );
 
 	if ( !pPattern->save( sPath ) ) {
 		QMessageBox::warning(

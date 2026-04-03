@@ -38,7 +38,7 @@ void FileDialog::accept() {
 	
 	QFileInfo fileInfo( selectedFiles().first() );
 	if ( acceptMode() == QFileDialog::AcceptSave &&
-		 ! H2Core::Filesystem::dir_writable(
+		 ! H2Core::Filesystem::dirWritable(
 			 fileInfo.absoluteDir().absolutePath(), false ) ) {
 			QMessageBox::warning( this, "Hydrogen",
 								  pCommonStrings->getFileDialogMissingWritePermissions(),

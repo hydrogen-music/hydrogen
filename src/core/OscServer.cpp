@@ -864,7 +864,7 @@ void OscServer::NEW_SONG_Handler(lo_arg **argv, int argc) {
 	const auto sPath = QString::fromUtf8( &argv[0]->s );
 	if ( ! H2Core::Filesystem::isPathValid(
 			 H2Core::Filesystem::Artifact::Song, sPath ) ||
-		 ! H2Core::Filesystem::file_writable( sPath ) ) {
+		 ! H2Core::Filesystem::fileWritable( sPath ) ) {
 		ERRORLOG( QString( "Unable to create new song for invalid path [%1]" )
 				  .arg( sPath ) );
 		return;

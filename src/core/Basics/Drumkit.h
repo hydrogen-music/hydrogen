@@ -63,9 +63,9 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * Load drumkit information from a directory.
 		 *
 		 * \param sDrumkitDir A directory containing a drumkit, like those
-		 *   returned by Filesystem::drumkit_dir_search().
+		 *   returned by Filesystem::drumkitDirSearch().
 		 * \param bUpgrade Whether the loaded drumkit should be
-		 *   upgraded using upgrade_drumkit() in case it did not comply
+		 *   upgraded using upgradeDrumkit() in case it did not comply
 		 *   with the current XSD file.
 		 * \param pLegacyFormatEncountered will be set to `true` is any of the
 		 *   XML elements requires legacy format support and left untouched
@@ -202,7 +202,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 * Compresses the drumkit into a .h2drumkit file.
 	 *
 	 * The name of the created file will be a concatenation of #m_sName and
-	 * Filesystem::drumkit_ext.
+	 * Filesystem::sDrumkitSuffix.
 	 *
 	 * exportTo() ? well, export is a protected name within C++. So, we needed a
 	 * less obvious name.

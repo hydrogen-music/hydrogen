@@ -95,8 +95,8 @@ void CoreActionControllerTest::testCountIn() {
 void CoreActionControllerTest::testSessionManagement() {
 	___INFOLOG( "" );
 	auto pHydrogen = Hydrogen::get_instance();
-	auto sFileName = Filesystem::tmp_dir().append( "test1.h2song" );
-	auto sFileName2 = Filesystem::tmp_dir().append( "test2.h2song" );
+	auto sFileName = Filesystem::tmpDir().append( "test1.h2song" );
+	auto sFileName2 = Filesystem::tmpDir().append( "test2.h2song" );
 
 	pHydrogen->setSong( Song::getEmptySong() );
 	

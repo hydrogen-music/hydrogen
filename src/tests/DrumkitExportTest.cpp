@@ -46,14 +46,14 @@ void DrumkitExportTest::setUp() {
 
 	// We do not check return value as the folder should not exist in the first
 	// place.
-	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitName ), true ) ) {
-		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitName ), true, true );
+	if ( Filesystem::dirExists( Filesystem::drumkitUserPath( m_sTestKitName ), true ) ) {
+		Filesystem::rm( Filesystem::drumkitUserPath( m_sTestKitName ), true, true );
 	}
-	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitNameSampleFormats ), true ) ) {
-		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitNameSampleFormats ), true, true );
+	if ( Filesystem::dirExists( Filesystem::drumkitUserPath( m_sTestKitNameSampleFormats ), true ) ) {
+		Filesystem::rm( Filesystem::drumkitUserPath( m_sTestKitNameSampleFormats ), true, true );
 	}
-	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true ) ) {
-		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true, true );
+	if ( Filesystem::dirExists( Filesystem::drumkitUserPath( m_sTestKitNameUtf8 ), true ) ) {
+		Filesystem::rm( Filesystem::drumkitUserPath( m_sTestKitNameUtf8 ), true, true );
 	}
 
 	auto pSong = CoreActionController::loadSong(
@@ -63,14 +63,14 @@ void DrumkitExportTest::setUp() {
 
 void DrumkitExportTest::tearDown() {
 	// Remove the test kit from the system.
-	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitName ), true ) ) {
-		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitName ), true, true );
+	if ( Filesystem::dirExists( Filesystem::drumkitUserPath( m_sTestKitName ), true ) ) {
+		Filesystem::rm( Filesystem::drumkitUserPath( m_sTestKitName ), true, true );
 	}
-	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitNameSampleFormats ), true ) ) {
-		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitNameSampleFormats ), true, true );
+	if ( Filesystem::dirExists( Filesystem::drumkitUserPath( m_sTestKitNameSampleFormats ), true ) ) {
+		Filesystem::rm( Filesystem::drumkitUserPath( m_sTestKitNameSampleFormats ), true, true );
 	}
-	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true ) ) {
-		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true, true );
+	if ( Filesystem::dirExists( Filesystem::drumkitUserPath( m_sTestKitNameUtf8 ), true ) ) {
+		Filesystem::rm( Filesystem::drumkitUserPath( m_sTestKitNameUtf8 ), true, true );
 	}
 
 	// Discard all changes to the test song.
@@ -86,7 +86,7 @@ void DrumkitExportTest::testDrumkitExportAndImport() {
 
 	const QString sTestKitPath =
 		H2TEST_FILE( QString( "drumkits/%1%2" ).arg( m_sTestKitName )
-					 .arg( Filesystem::drumkit_ext ) );
+					 .arg( Filesystem::sDrumkitSuffix ) );
 
 	// Check validity of test kit
 	CPPUNIT_ASSERT( CoreActionController::validateDrumkit(
@@ -98,7 +98,7 @@ void DrumkitExportTest::testDrumkitExportAndImport() {
 	// Check whether import worked, the UTF-8 path and name was read properly,
 	// and all samples are present.
 	const auto pDB = pHydrogen->getSoundLibraryDatabase();
-	const QString sExtractedKit = Filesystem::drumkit_usr_path( m_sTestKitName );
+	const QString sExtractedKit = Filesystem::drumkitUserPath( m_sTestKitName );
 	const auto pDrumkit = pDB->getDrumkit( sExtractedKit );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( pDrumkit->getName() == m_sTestKitName );
@@ -107,14 +107,14 @@ void DrumkitExportTest::testDrumkitExportAndImport() {
 	}
 
 	// Load the kit and export it.
-	CPPUNIT_ASSERT( pDrumkit->exportTo( Filesystem::tmp_dir() ) );
+	CPPUNIT_ASSERT( pDrumkit->exportTo( Filesystem::tmpDir() ) );
 
 	// Bitwise comparison of the (!extracted!) original drumkit and the one we
 	// just exported.
 	const QString sExportPath = QString( "%1%2%3" )
-		.arg( Filesystem::tmp_dir() ).arg( m_sTestKitName )
-		.arg( Filesystem::drumkit_ext );
-	QTemporaryDir exportValidation( H2Core::Filesystem::tmp_dir() + "-XXXXXX" );
+		.arg( Filesystem::tmpDir() ).arg( m_sTestKitName )
+		.arg( Filesystem::sDrumkitSuffix );
+	QTemporaryDir exportValidation( H2Core::Filesystem::tmpDir() + "-XXXXXX" );
 	exportValidation.setAutoRemove( false );
 	CPPUNIT_ASSERT( CoreActionController::extractDrumkit(
 						sExportPath, exportValidation.path() ) );
@@ -138,7 +138,7 @@ void DrumkitExportTest::testDrumkitExportAndImportSampleFormats() {
 	const QString sTestKitPath =
 		H2TEST_FILE( QString( "drumkits/%1%2" )
 					 .arg( m_sTestKitNameSampleFormats )
-					 .arg( Filesystem::drumkit_ext ) );
+					 .arg( Filesystem::sDrumkitSuffix ) );
 
 	// Check validity of test kit
 	CPPUNIT_ASSERT( CoreActionController::validateDrumkit(
@@ -151,7 +151,7 @@ void DrumkitExportTest::testDrumkitExportAndImportSampleFormats() {
 	// and all samples are present.
 	const auto pDB = pHydrogen->getSoundLibraryDatabase();
 	const QString sExtractedKit =
-		Filesystem::drumkit_usr_path( m_sTestKitNameSampleFormats );
+		Filesystem::drumkitUserPath( m_sTestKitNameSampleFormats );
 	const auto pDrumkit = pDB->getDrumkit( sExtractedKit );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( pDrumkit->getName() == m_sTestKitNameSampleFormats );
@@ -160,14 +160,14 @@ void DrumkitExportTest::testDrumkitExportAndImportSampleFormats() {
 	}
 
 	// Load the kit and export it.
-	CPPUNIT_ASSERT( pDrumkit->exportTo( Filesystem::tmp_dir() ) );
+	CPPUNIT_ASSERT( pDrumkit->exportTo( Filesystem::tmpDir() ) );
 
 	// Bitwise comparison of the (!extracted!) original drumkit and the one we
 	// just exported.
 	const QString sExportPath = QString( "%1%2%3" )
-		.arg( Filesystem::tmp_dir() ).arg( m_sTestKitNameSampleFormats )
-		.arg( Filesystem::drumkit_ext );
-	QTemporaryDir exportValidation( H2Core::Filesystem::tmp_dir() + "-XXXXXX" );
+		.arg( Filesystem::tmpDir() ).arg( m_sTestKitNameSampleFormats )
+		.arg( Filesystem::sDrumkitSuffix );
+	QTemporaryDir exportValidation( H2Core::Filesystem::tmpDir() + "-XXXXXX" );
 	exportValidation.setAutoRemove( false );
 	CPPUNIT_ASSERT( CoreActionController::extractDrumkit(
 						sExportPath, exportValidation.path() ) );
@@ -190,7 +190,7 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 
 	const QString sTestKitPath =
 		H2TEST_FILE( QString( "drumkits/%1%2" ).arg( m_sTestKitNameUtf8 )
-					 .arg( Filesystem::drumkit_ext ) );
+					 .arg( Filesystem::sDrumkitSuffix ) );
 
 	// Check validity of test kit
 	CPPUNIT_ASSERT( CoreActionController::validateDrumkit(
@@ -221,7 +221,7 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 	// Load the kit and export it.
 	bool bUtf8SupportOnSystem;
 	const auto bDrumkitExportSuccessful = pDrumkit->exportTo(
-		Filesystem::tmp_dir(), &bUtf8SupportOnSystem );
+		Filesystem::tmpDir(), &bUtf8SupportOnSystem );
 	if ( ! bUtf8SupportOnSystem ) {
 		___WARNINGLOG( "UTF-8 support couldn't be enforced. Unit test not applicable." )
 		___INFOLOG( "skipped" );
@@ -233,10 +233,10 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 	// Bitwise comparison of the (!extracted!) original drumkit and the one we
 	// just exported.
 	const QString sExportPath = QString( "%1%2%3" )
-		.arg( Filesystem::tmp_dir() ).arg( m_sTestKitNameUtf8 )
-		.arg( Filesystem::drumkit_ext );
+		.arg( Filesystem::tmpDir() ).arg( m_sTestKitNameUtf8 )
+		.arg( Filesystem::sDrumkitSuffix );
 
-	QTemporaryDir exportValidation( H2Core::Filesystem::tmp_dir() + "-XXXXXX" );
+	QTemporaryDir exportValidation( H2Core::Filesystem::tmpDir() + "-XXXXXX" );
 	exportValidation.setAutoRemove( false );
 	CPPUNIT_ASSERT( CoreActionController::extractDrumkit(
 						sExportPath, exportValidation.path() ) );
