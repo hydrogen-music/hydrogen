@@ -1204,6 +1204,15 @@ bool Filesystem::isPathValid(
 {
 	QString sExtension;
 	switch ( artifact ) {
+		case Artifact::DrumkitBundled:
+			sExtension = Filesystem::drumkit_ext;
+			break;
+		case Artifact::DrumkitExtracted:
+            sExtension = "." + QFileInfo( DRUMKIT_XML ).suffix();
+            break;
+		case Artifact::Pattern:
+			sExtension = Filesystem::patterns_ext;
+			break;
 		case Artifact::Playlist:
 			sExtension = Filesystem::playlist_ext;
 			break;
@@ -1248,6 +1257,18 @@ bool Filesystem::isPathValid(
 						   "have the suffix '%2'!" )
 					  .arg( sPath )
 					  .arg( sExtension ) );
+		return false;
+	}
+
+	if ( artifact == Artifact::DrumkitExtracted &&
+		 fileInfo.fileName() != DRUMKIT_XML ) {
+		ERRORLOG(
+			QString(
+				"Provided drumkit definition [%1] must be called [%2] instead"
+			)
+				.arg( fileInfo.fileName() )
+				.arg( DRUMKIT_XML )
+		);
 		return false;
 	}
 
