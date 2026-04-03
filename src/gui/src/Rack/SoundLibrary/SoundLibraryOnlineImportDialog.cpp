@@ -29,6 +29,7 @@
 #include "../../Widgets/DownloadWidget.h"
 
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/Event.h>
 #include <core/H2Exception.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
@@ -721,11 +722,11 @@ void SoundLibraryOnlineImportDialog::on_DownloadBtn_clicked()
 
 	auto pDB = H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase();
 	if ( bUpdatePatterns ) {
-		pDB->updatePatterns();
+		pDB->updatePatterns( H2Core::Event::Trigger::Default );
 	}
 
 	if ( bUpdateDrumkits ) {
-		pDB->updateDrumkits();
+		pDB->updateDrumkits( H2Core::Event::Trigger::Default );
 	}
 
 	QApplication::restoreOverrideCursor();

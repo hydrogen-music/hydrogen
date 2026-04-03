@@ -411,7 +411,9 @@ void SongEditorPatternList::patternPopup_save()
 	else {
 		pHydrogenApp->showStatusBarMessage( tr( "Pattern saved." ) );
 		Preferences::get_instance()->m_bExpandPatternItem = true;
-		pHydrogen->getSoundLibraryDatabase()->updatePatterns();
+		pHydrogen->getSoundLibraryDatabase()->updatePatterns(
+			Event::Trigger::Default
+		);
 	}
 }
 

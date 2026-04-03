@@ -995,7 +995,9 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		Filesystem::rm( sOldImagePath, false, false );
 	}
 
-	pHydrogen->getSoundLibraryDatabase()->updateDrumkits();
+	pHydrogen->getSoundLibraryDatabase()->updateDrumkits(
+		Event::Trigger::Default
+	);
 
 	QApplication::restoreOverrideCursor();
 

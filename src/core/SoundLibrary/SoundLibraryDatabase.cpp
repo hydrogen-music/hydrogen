@@ -58,16 +58,16 @@ bool SoundLibraryDatabase::isPatternInstalled( const QString& sPatternName
 
 void SoundLibraryDatabase::update()
 {
-	updatePatterns( false );
-	updateSongs( false );
-	updateDrumkits( false );
+	updatePatterns( Event::Trigger::Suppress );
+	updateSongs( Event::Trigger::Suppress );
+	updateDrumkits( Event::Trigger::Suppress );
 
 	EventQueue::get_instance()->pushEvent(
 		Event::Type::SoundLibraryChanged, 0
 	);
 }
 
-void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent )
+void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 {
 	m_drumkitDatabase.clear();
 
@@ -151,7 +151,7 @@ void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent )
 		}
 	}
 
-	if ( bTriggerEvent ) {
+	if ( trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->pushEvent(
 			Event::Type::SoundLibraryChanged, 0
 		);
@@ -160,7 +160,7 @@ void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent )
 
 void SoundLibraryDatabase::updateDrumkit(
 	const QString& sDrumkitPath,
-	bool bTriggerEvent
+	Event::Trigger trigger
 )
 {
 	auto pDrumkit = Drumkit::load( sDrumkitPath );
@@ -174,7 +174,7 @@ void SoundLibraryDatabase::updateDrumkit(
 		);
 	}
 
-	if ( bTriggerEvent ) {
+	if ( trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->pushEvent(
 			Event::Type::SoundLibraryChanged, 0
 		);
@@ -399,7 +399,7 @@ std::set<Instrument::Type> SoundLibraryDatabase::getAllTypes() const
 	return allTypes;
 }
 
-void SoundLibraryDatabase::updatePatterns( bool bTriggerEvent )
+void SoundLibraryDatabase::updatePatterns( Event::Trigger trigger )
 {
 	m_patternInfos.clear();
 
@@ -421,7 +421,7 @@ void SoundLibraryDatabase::updatePatterns( bool bTriggerEvent )
 		pInfo->setContext( Filesystem::DetermineContext( pInfo->getPath() ) );
 	}
 
-	if ( bTriggerEvent ) {
+	if ( trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->pushEvent(
 			Event::Type::SoundLibraryChanged, 0
 		);
@@ -445,7 +445,7 @@ void SoundLibraryDatabase::loadPatternFromDirectory( const QString& sPatternDir
 	}
 }
 
-void SoundLibraryDatabase::updateSongs( bool bTriggerEvent )
+void SoundLibraryDatabase::updateSongs( Event::Trigger trigger )
 {
 	m_songInfos.clear();
 
@@ -481,7 +481,7 @@ void SoundLibraryDatabase::updateSongs( bool bTriggerEvent )
 		}
 	}
 
-	if ( bTriggerEvent ) {
+	if ( trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->pushEvent(
 			Event::Type::SoundLibraryChanged, 0
 		);

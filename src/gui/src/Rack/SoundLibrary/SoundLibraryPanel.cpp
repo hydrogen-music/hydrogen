@@ -1037,7 +1037,9 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 	if ( ! bOk ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "Drumkit deletion failed.") );
 	} else {
-		Hydrogen::get_instance()->getSoundLibraryDatabase()->updateDrumkits();
+		Hydrogen::get_instance()->getSoundLibraryDatabase()->updateDrumkits(
+			Event::Trigger::Default
+		);
 	}
 }
 
@@ -1193,7 +1195,9 @@ void SoundLibraryPanel::on_patternDeleteAction() {
 				.arg( pInfo->getPath() ) );
 	}
 
-	H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->updatePatterns();
+	H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->updatePatterns(
+		Event::Trigger::Default
+	);
 }
 
 void SoundLibraryPanel::soundLibraryChangedEvent() {

@@ -1881,7 +1881,9 @@ bool CoreActionController::extractDrumkit( const QString& sDrumkitPath,
 	}
 
 	if ( bInstall ) {
-		pHydrogen->getSoundLibraryDatabase()->updateDrumkits();
+		pHydrogen->getSoundLibraryDatabase()->updateDrumkits(
+			Event::Trigger::Default
+		);
 	}
 
 	return true;

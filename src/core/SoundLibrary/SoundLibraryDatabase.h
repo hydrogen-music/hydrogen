@@ -30,6 +30,7 @@
 
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/DrumkitMap.h>
+#include <core/Basics/Event.h>
 #include <core/Object.h>
 
 namespace H2Core
@@ -61,9 +62,9 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 
 	void update();
 
-	void updateDrumkits( bool bTriggerEvent = true );
+	void updateDrumkits( Event::Trigger trigger );
 	void
-	updateDrumkit( const QString& sDrumkitPath, bool bTriggerEvent = true );
+	updateDrumkit( const QString& sDrumkitPath, Event::Trigger trigger );
 	/**
 	 * Retrieve a drumkit from the database.
 	 *
@@ -110,8 +111,8 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	 * @return The list of unique types sorted alphabetically.*/
 	std::set<Instrument::Type> getAllTypes() const;
 
-	void updatePatterns( bool bTriggerEvent = true );
-	void updateSongs( bool bTriggerEvent = true );
+	void updatePatterns( Event::Trigger trigger );
+	void updateSongs( Event::Trigger trigger );
 	void loadPatternFromDirectory( const QString& path );
 	bool isPatternInstalled( const QString& sPatternName ) const;
 

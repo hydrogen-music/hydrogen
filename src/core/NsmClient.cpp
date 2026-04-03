@@ -24,6 +24,7 @@
 #include "core/Helpers/Filesystem.h"
 #include "core/Preferences/Preferences.h"
 #include "core/Hydrogen.h"
+#include "core/Basics/Event.h"
 #include "core/Basics/Drumkit.h"
 #include "core/Basics/Song.h"
 #include "core/NsmClient.h"
@@ -120,7 +121,7 @@ int NsmClient::OpenCallback( const char *name,
 
 	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
 	pSoundLibraryDatabase->registerDrumkitFolder( sessionFolder.absolutePath() );
-	pSoundLibraryDatabase->updateDrumkits();
+	pSoundLibraryDatabase->updateDrumkits( H2Core::Event::Trigger::Default );
 
 	bool bEmptySongOpened = false;
 	std::shared_ptr<H2Core::Song> pSong = nullptr;

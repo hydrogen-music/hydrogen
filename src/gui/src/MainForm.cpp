@@ -994,7 +994,9 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 		h2app->showStatusBarMessage( tr( "Pattern saved." ) );
 
 		if ( sFilePath.indexOf( Filesystem::patterns_dir() ) == 0 ) {
-			pHydrogen->getSoundLibraryDatabase()->updatePatterns();
+			pHydrogen->getSoundLibraryDatabase()->updatePatterns(
+				Event::Trigger::Default
+			);
 		}
 	}
 }
@@ -1740,7 +1742,7 @@ void MainForm::loadDrumkit( const QString& sFileName, bool bLoad ) {
 	}
 
 	// update the drumkit list
-	pSoundLibraryDatabase->updateDrumkits();
+	pSoundLibraryDatabase->updateDrumkits( Event::Trigger::Default );
 
 	if ( bLoad ) {
 #ifdef H2CORE_HAVE_LIBARCHIVE
