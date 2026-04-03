@@ -813,15 +813,15 @@ std::shared_ptr<Song> CoreActionController::loadSong( const QString& sPath,
 	}
 
 	// Check whether the provided path is valid.
-	if ( sPath != Filesystem::empty_path( Filesystem::Type::Song ) &&
-		 ! Filesystem::isPathValid( Filesystem::Type::Song, sPath, true ) ) {
+	if ( sPath != Filesystem::empty_path( Filesystem::Artifact::Song ) &&
+		 ! Filesystem::isPathValid( Filesystem::Artifact::Song, sPath, true ) ) {
 		// Filesystem::isPathValid takes care of the error log message.
 		return nullptr;
 	}
 
 	std::shared_ptr<Song> pSong;
 	if ( ! sRecoverPath.isEmpty() && Filesystem::isPathValid(
-			 Filesystem::Type::Song, sRecoverPath, true ) ) {
+			 Filesystem::Artifact::Song, sRecoverPath, true ) ) {
 		// Use an autosave file to load the playlist
 		pSong = Song::load( sRecoverPath );
 		if ( pSong != nullptr ) {
@@ -877,7 +877,7 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 		// the main menu - aren't listed either.
 
 		if ( pSong->getFileName() ==
-			 Filesystem::empty_path( Filesystem::Type::Song ) ) {
+			 Filesystem::empty_path( Filesystem::Artifact::Song ) ) {
 			// To indicate that the user closed the previous song in favor of a
 			// new one, we store an empty string. This way the changes from the
 			// empty song can be recovered.
@@ -964,7 +964,7 @@ bool CoreActionController::saveSongAs( const QString& sNewFileName,
 	
 	// Check whether the provided path is valid.
 	if ( !Filesystem::isPathValid(
-			 Filesystem::Type::Song, sNewFileName ) ) {
+			 Filesystem::Artifact::Song, sNewFileName ) ) {
 		// Filesystem::isPathValid takes care of the error log message.
 		return false;
 	}
@@ -2853,16 +2853,16 @@ std::shared_ptr<Playlist> CoreActionController::loadPlaylist( const QString& sPa
 	}
 
 	// Check whether the provided path is valid.
-	if ( sPath != Filesystem::empty_path( Filesystem::Type::Playlist ) &&
+	if ( sPath != Filesystem::empty_path( Filesystem::Artifact::Playlist ) &&
 		 ! Filesystem::isPathValid(
-			 Filesystem::Type::Playlist, sPath, true ) ) {
+			 Filesystem::Artifact::Playlist, sPath, true ) ) {
 		// Filesystem::isPathValid takes care of the error log message.
 		return nullptr;
 	}
 
 	std::shared_ptr<Playlist> pPlaylist;
 	if ( ! sRecoverPath.isEmpty() && Filesystem::isPathValid(
-			 Filesystem::Type::Playlist, sRecoverPath, true ) ) {
+			 Filesystem::Artifact::Playlist, sRecoverPath, true ) ) {
 		// Use an autosave file to load the playlist
 		pPlaylist = Playlist::load( sRecoverPath );
 		if ( pPlaylist != nullptr ) {
@@ -2896,7 +2896,7 @@ bool CoreActionController::setPlaylist( std::shared_ptr<Playlist> pPlaylist ) {
 	pHydrogen->setPlaylist( pPlaylist );
 
 	if ( pPlaylist->getFileName() ==
-		 Filesystem::empty_path( Filesystem::Type::Playlist ) ) {
+		 Filesystem::empty_path( Filesystem::Artifact::Playlist ) ) {
 		// To indicate that the user closed the previous playlsit in favor
 		// of a new one, we store an empty string. This way the changes from
 		// the empty playlist can be recovered.

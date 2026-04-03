@@ -1022,7 +1022,7 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 	pPatternGroupVector->push_back( patternSequence );
 	pSong->setPatternGroupVector( pPatternGroupVector );
 
-	pSong->setFileName( Filesystem::empty_path( Filesystem::Type::Song ) );
+	pSong->setFileName( Filesystem::empty_path( Filesystem::Artifact::Song ) );
 
 	std::shared_ptr<SoundLibraryDatabase> pSoundLibraryDatabase;
 

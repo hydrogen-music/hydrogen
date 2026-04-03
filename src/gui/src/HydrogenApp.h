@@ -95,10 +95,10 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		 *   #H2Core::Song or #H2Core::Playlist.
 		 * \return bool true on success
 		 */
-		static bool openFile( const H2Core::Filesystem::Type& type,
+		static bool openFile( const H2Core::Filesystem::Artifact& type,
 							  const QString& sFileName );
 		static bool openSong( std::shared_ptr<H2Core::Song> pSong );
-		static QString findAutoSaveFile( const H2Core::Filesystem::Type& type,
+		static QString findAutoSaveFile( const H2Core::Filesystem::Artifact& type,
 										 const QString& sBaseFile );
 
 		/** Checks whether there are unsaved changes in the current song (for
@@ -106,7 +106,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		* H2Core::Filesystem::FileType::Playlist).
 		*
 		* @return `true` if handled, `false` if aborted. */
-		static bool handleUnsavedChanges( const H2Core::Filesystem::Type& type );
+		static bool handleUnsavedChanges( const H2Core::Filesystem::Artifact& type );
 
 		void showPreferencesDialog();
 		void updateMixerCheckbox();

@@ -34,7 +34,7 @@ const QString PlaylistEntry::sLegacyEmptyScriptPath = "no Script";
 
 Playlist::Playlist() : m_nActiveSongNumber( -1 ),
 					   m_bIsModified( false ) {
-	m_sFileName = Filesystem::empty_path( Filesystem::Type::Playlist );
+	m_sFileName = Filesystem::empty_path( Filesystem::Artifact::Playlist );
 }
 
 void Playlist::clear()

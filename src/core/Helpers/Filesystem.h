@@ -96,8 +96,8 @@ class Filesystem : public H2Core::Object<Filesystem> {
 
 	/** Indicates what type of file, like .h2song, .h2playlist, a function as to
 	 * handle. */
-	enum class Type { Song, Playlist };
-	static QString TypeToQString( const Type& type );
+	enum class Artifact { Song, Playlist };
+	static QString ArtifactToQString( const Artifact& actifact );
 
 	/** All audio file formats supported by Hydrogen */
 	enum class AudioFormat {
@@ -200,7 +200,7 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	 * path to a non-existing file and allow for the behavior
 	 * described above.
 	 */
-	static QString empty_path( const Type& type );
+	static QString empty_path( const Artifact& artifact );
 	/** Default option to offer the user when saving an empty song
 		to disk.*/
 	static QString default_song_name();
@@ -416,20 +416,20 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	 * It will be checked whether @a sPath
 	 * - is absolute
 	 * - exists (if @a bCheckExistance is set to true)
-	 * - has the suffix corresponding to @a type
+	 * - has the suffix corresponding to @a artifact
 	 * - is writable (read-only files are considered valid as well
 	 *   and the function returns `true`. But it also triggers an
 	 *   event informing the GUI to show a read-only warning.)
 	 *
-	 * @param type Whether the file is a .h2song or .h2playlist etc.
-	 * \param sPath Absolute path to a file of type @a type.
+	 * @param artifact Whether the file is a .h2song or .h2playlist etc.
+	 * \param sPath Absolute path to a file of artifact @a artifact.
 	 * \param bCheckExistance Whether the existence of the file is
 	 *   checked (should be true for opening and false for creating
 	 *   a new song/playlist)
 	 * \return true - if valid.
 	 */
 	static bool isPathValid(
-		const Type& type,
+		const Artifact& artifact,
 		const QString& sPath,
 		bool bCheckExistance = false
 	);
@@ -588,7 +588,7 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	removeUniquePrefix( const QString& sUniqueFilePath, bool bSilent = false );
 
 	static QString
-	getAutoSaveFileName( const Type& type, const QString& sBaseName );
+	getAutoSaveFileName( const Artifact& artifact, const QString& sBaseName );
 	/** Removes all characters not within the Latin-1 range of @a
 	 * sEncodedString. */
 	static QString removeUtf8Characters( const QString& sEncodedString );

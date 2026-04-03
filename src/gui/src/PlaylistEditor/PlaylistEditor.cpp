@@ -441,13 +441,13 @@ void PlaylistEditor::removeSong() {
 
 void PlaylistEditor::newPlaylist()
 {
-	if ( ! HydrogenApp::handleUnsavedChanges( Filesystem::Type::Playlist ) ) {
+	if ( ! HydrogenApp::handleUnsavedChanges( Filesystem::Artifact::Playlist ) ) {
 		return;
 	}
 
 	auto pNewPlaylist = std::make_shared<Playlist>();
 	pNewPlaylist->setFileName(
-		Filesystem::empty_path( Filesystem::Type::Playlist ) );
+		Filesystem::empty_path( Filesystem::Artifact::Playlist ) );
 	auto pAction = new SE_replacePlaylistAction( pNewPlaylist );
 	m_pUndoStack->push( pAction );
 
@@ -455,7 +455,7 @@ void PlaylistEditor::newPlaylist()
 	// attempt to recover the autosave file generated while last working on an
 	// empty playlist but, instead, remove the corresponding autosave file in
 	// order to start fresh.
-	QFileInfo fileInfo( Filesystem::empty_path( Filesystem::Type::Playlist ) );
+	QFileInfo fileInfo( Filesystem::empty_path( Filesystem::Artifact::Playlist ) );
 	QString sBaseName( fileInfo.completeBaseName() );
 	if ( sBaseName.startsWith( "." ) ) {
 		sBaseName.remove( 0, 1 );
@@ -472,7 +472,7 @@ void PlaylistEditor::newPlaylist()
 }
 
 void PlaylistEditor::openPlaylist() {
-	if ( ! HydrogenApp::handleUnsavedChanges( Filesystem::Type::Playlist ) ) {
+	if ( ! HydrogenApp::handleUnsavedChanges( Filesystem::Artifact::Playlist ) ) {
 		return;
 	}
 
@@ -496,7 +496,7 @@ void PlaylistEditor::openPlaylist() {
 	const QString sFilePath = fd.selectedFiles().first();
 
 	const auto sRecoverFileName = HydrogenApp::findAutoSaveFile(
-		Filesystem::Type::Playlist, sFilePath );
+		Filesystem::Artifact::Playlist, sFilePath );
 
 	auto pPlaylist = CoreActionController::loadPlaylist(
 		sFilePath, sRecoverFileName );
@@ -660,13 +660,13 @@ bool PlaylistEditor::savePlaylistAs() {
 
 	pPref->setLastPlaylistDirectory( fd.directory().absolutePath() );
 
-	if ( sLastFileName == Filesystem::empty_path( Filesystem::Type::Playlist ) ) {
+	if ( sLastFileName == Filesystem::empty_path( Filesystem::Artifact::Playlist ) ) {
 		// In case we stored the playlist for the first time, we remove the
 		// autosave file corresponding to the empty one. Else, it might be
 		// loaded later when clicking "New Playlist" while not generating a new
 		// autosave file.
 		const QString sAutoSaveFile = Filesystem::getAutoSaveFileName(
-			Filesystem::Type::Playlist, sLastFileName );
+			Filesystem::Artifact::Playlist, sLastFileName );
 		if ( Filesystem::file_exists( sAutoSaveFile, true ) ) {
 			Filesystem::rm( sAutoSaveFile );
 		}
@@ -684,7 +684,7 @@ bool PlaylistEditor::savePlaylist()
 
 	if ( pPlaylist->getFileName().isEmpty() ||
 		 pPlaylist->getFileName() ==
-		 Filesystem::empty_path( Filesystem::Type::Playlist ) ) {
+		 Filesystem::empty_path( Filesystem::Artifact::Playlist ) ) {
 		return savePlaylistAs();
 	}
 
@@ -940,7 +940,7 @@ void PlaylistEditor::playButtonClicked()
 
 	if ( pEntry->getSongPath() != pHydrogen->getSong()->getFileName() ) {
 
-		if ( ! HydrogenApp::openFile( Filesystem::Type::Song,
+		if ( ! HydrogenApp::openFile( Filesystem::Artifact::Song,
 									  pEntry->getSongPath() ) ) {
 			ERRORLOG( QString( "Unable to load song [%1]" )
 					  .arg( pEntry->getSongPath() ) );
@@ -1086,7 +1086,7 @@ void PlaylistEditor::updateWindowTitle() {
 	QString sWindowTitle = tr( "Playlist Browser" );
 	if ( ! pPlaylist->getFileName().isEmpty() &&
 		 pPlaylist->getFileName() !=
-		 Filesystem::empty_path( Filesystem::Type::Playlist ) ) {
+		 Filesystem::empty_path( Filesystem::Artifact::Playlist ) ) {
 		sWindowTitle.append( QString(" - %1").arg( pPlaylist->getFileName() ) );
 	}
 
@@ -1312,7 +1312,7 @@ void PlaylistTableWidget::loadCurrentRow() {
 	}
 
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
-	if ( ! HydrogenApp::openFile( Filesystem::Type::Song,
+	if ( ! HydrogenApp::openFile( Filesystem::Artifact::Song,
 								  pEntry->getSongPath() ) ) {
 		return;
 	}

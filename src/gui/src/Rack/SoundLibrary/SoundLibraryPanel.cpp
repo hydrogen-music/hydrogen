@@ -1093,7 +1093,7 @@ void SoundLibraryPanel::on_songLoadAction()
 	if ( m_pSongTree != nullptr && m_pSongTree->currentItem() != nullptr ) {
 		auto it = m_songRegistry.find( m_pSongTree->currentItem() );
 		if ( it != m_songRegistry.end() && it->second != nullptr ) {
-			HydrogenApp::openFile( Filesystem::Type::Song, it->second->getPath() );
+			HydrogenApp::openFile( Filesystem::Artifact::Song, it->second->getPath() );
 			return;
 		}
 	}
@@ -1102,7 +1102,7 @@ void SoundLibraryPanel::on_songLoadAction()
 	if ( __sound_library_tree->currentItem() != nullptr ) {
 		const QString sFileName = Filesystem::song_path(
 			__sound_library_tree->currentItem()->text( 0 ) );
-		HydrogenApp::openFile( Filesystem::Type::Song, sFileName );
+		HydrogenApp::openFile( Filesystem::Artifact::Song, sFileName );
 	}
 }
 

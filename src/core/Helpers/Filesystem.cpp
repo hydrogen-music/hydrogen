@@ -746,26 +746,26 @@ QString Filesystem::default_song_name()
 	return DEFAULT_SONG;
 }
 
-QString Filesystem::empty_path( const Type& type )
+QString Filesystem::empty_path( const Artifact& artifact )
 {
 	QString sPathBase, sExtension, sDefaultName;
 
-	switch ( type ) {
-		case Type::Song:
+	switch ( artifact ) {
+		case Artifact::Song:
 			sPathBase = __usr_data_path + EMPTY_SONG_BASE;
 			sExtension = Filesystem::songs_ext;
 			sDefaultName = default_song_name();
 			break;
 
-		case Type::Playlist:
+		case Artifact::Playlist:
 			sPathBase = __usr_data_path + EMPTY_PLAYLIST_BASE;
 			sExtension = Filesystem::playlist_ext;
 			sDefaultName = DEFAULT_PLAYLIST;
 			break;
 
 		default:
-			ERRORLOG( QString( "Unsupported file type: [%1]" )
-						  .arg( TypeToQString( type ) ) );
+			ERRORLOG( QString( "Unsupported file artifact: [%1]" )
+						  .arg( ArtifactToQString( artifact ) ) );
 			return "";
 	}
 
@@ -1197,26 +1197,24 @@ bool Filesystem::song_exists( const QString& sg_name )
 }
 
 bool Filesystem::isPathValid(
-	const Type& type,
+	const Artifact& artifact,
 	const QString& sPath,
 	bool bCheckExistance
 )
 {
-	QString sExtension, sType;
-	switch ( type ) {
-		case Type::Song:
+	QString sExtension;
+	switch ( artifact ) {
+		case Artifact::Song:
 			sExtension = Filesystem::songs_ext;
-			sType = "song";
 			break;
 
-		case Type::Playlist:
+		case Artifact::Playlist:
 			sExtension = Filesystem::playlist_ext;
-			sType = "playlist";
 			break;
 
 		default:
 			ERRORLOG( QString( "Unsupported file type: [%1]" )
-						  .arg( TypeToQString( type ) ) );
+						  .arg( ArtifactToQString( artifact ) ) );
 			return "";
 	}
 	QString suffix( sExtension );
@@ -1241,7 +1239,7 @@ bool Filesystem::isPathValid(
 	}
 	else if ( bCheckExistance ) {
 		ERRORLOG( QString( "Provided %1 [%2] does not exist" )
-					  .arg( sType )
+					  .arg( ArtifactToQString( artifact ) )
 					  .arg( sPath ) );
 		return false;
 	}
@@ -1301,9 +1299,9 @@ void Filesystem::info()
 		QString( "Click file                 : %1" ).arg( click_file_path() )
 	);
 	INFOLOG( QString( "Empty song                 : %1" )
-				 .arg( empty_path( Type::Song ) ) );
+				 .arg( empty_path( Artifact::Song ) ) );
 	INFOLOG( QString( "Empty playlist             : %1" )
-				 .arg( empty_path( Type::Playlist ) ) );
+				 .arg( empty_path( Artifact::Playlist ) ) );
 	INFOLOG( QString( "Demos dir                  : %1" ).arg( demos_dir() ) );
 	INFOLOG( QString( "Documentation dir          : %1" ).arg( doc_dir() )
 	);	// FIXME must be created even if no doc deployed
@@ -1543,25 +1541,23 @@ Filesystem::removeUniquePrefix( const QString& sUniqueFilePath, bool bSilent )
 }
 
 QString
-Filesystem::getAutoSaveFileName( const Type& type, const QString& sBaseName )
+Filesystem::getAutoSaveFileName( const Artifact& artifact, const QString& sBaseName )
 {
-	QString sDefaultDir, sExtension, sType;
-	switch ( type ) {
-		case Type::Song:
+	QString sDefaultDir, sExtension;
+	switch ( artifact ) {
+		case Artifact::Song:
 			sDefaultDir = songs_dir();
 			sExtension = Filesystem::songs_ext;
-			sType = "song";
 			break;
 
-		case Type::Playlist:
+		case Artifact::Playlist:
 			sDefaultDir = playlists_dir();
 			sExtension = Filesystem::playlist_ext;
-			sType = "playlist";
 			break;
 
 		default:
 			ERRORLOG( QString( "Unsupported file type: [%1]" )
-						  .arg( TypeToQString( type ) ) );
+						  .arg( ArtifactToQString( artifact ) ) );
 			return "";
 	}
 
@@ -1589,7 +1585,7 @@ Filesystem::getAutoSaveFileName( const Type& type, const QString& sBaseName )
 
 			WARNINGLOG( QString( "Path of current %1 [%2] is not writable. "
 								 "Autosave will store it as [%3] instead." )
-							.arg( sType )
+							.arg( ArtifactToQString( artifact ) )
 							.arg( sAbsolutePath )
 							.arg( sNewName ) );
 			return sNewName;
@@ -1604,13 +1600,13 @@ Filesystem::getAutoSaveFileName( const Type& type, const QString& sBaseName )
 	return QString( "%1.autosave%2" ).arg( sDefaultDir ).arg( sExtension );
 }
 
-QString Filesystem::TypeToQString( const Type& type )
+QString Filesystem::ArtifactToQString( const Artifact& type )
 {
 	switch ( type ) {
-		case Type::Song:
+		case Artifact::Song:
 			return "Song";
 
-		case Type::Playlist:
+		case Artifact::Playlist:
 			return "Playlist";
 
 		default:

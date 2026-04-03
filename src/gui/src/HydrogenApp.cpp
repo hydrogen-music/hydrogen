@@ -469,17 +469,17 @@ void HydrogenApp::closeFXProperties()
 #endif
 }
 
-QString HydrogenApp::findAutoSaveFile( const Filesystem::Type& type,
+QString HydrogenApp::findAutoSaveFile( const Filesystem::Artifact& type,
 									   const QString& sBaseFile ) {
 	QString sExtension, sEmpty;
 	switch ( type ) {
-	case Filesystem::Type::Song:
+	case Filesystem::Artifact::Song:
 		sExtension = Filesystem::songs_ext;
 		/*: Object containing unsaved changes.*/
 		sEmpty = tr( "New Song" );
 		break;
 
-	case Filesystem::Type::Playlist:
+	case Filesystem::Artifact::Playlist:
 		sExtension = Filesystem::playlist_ext;
 		/*: Object containing unsaved changes.*/
 		sEmpty = tr( "New Playlist" );
@@ -487,7 +487,7 @@ QString HydrogenApp::findAutoSaveFile( const Filesystem::Type& type,
 
 	default:
 		ERRORLOG( QString( "Unsupported file type: [%1]" )
-				  .arg( Filesystem::TypeToQString( type ) ) );
+				  .arg( Filesystem::ArtifactToQString( type ) ) );
 		return "";
 	}
 
@@ -555,21 +555,21 @@ QString HydrogenApp::findAutoSaveFile( const Filesystem::Type& type,
 	}
 }
 
-bool HydrogenApp::openFile( const Filesystem::Type& type, const QString& sFileName ) {
+bool HydrogenApp::openFile( const Filesystem::Artifact& type, const QString& sFileName ) {
 
 	QString sText;
 	switch( type ) {
-	case Filesystem::Type::Song:
+	case Filesystem::Artifact::Song:
 		sText = tr( "Error loading song." );
 		break;
 
-	case Filesystem::Type::Playlist:
+	case Filesystem::Artifact::Playlist:
 		sText = tr( "Error loading playlist." );
 		break;
 
 	default:
 		ERRORLOG( QString( "Unsupported type [%1]" )
-				  .arg( Filesystem::TypeToQString( type ) ) );
+				  .arg( Filesystem::ArtifactToQString( type ) ) );
 		return false;
 	}
 
@@ -584,7 +584,7 @@ bool HydrogenApp::openFile( const Filesystem::Type& type, const QString& sFileNa
 
 	bool bRet;
 	// Ensure the path to the file is not relative.
-	if ( type == Filesystem::Type::Song ) {
+	if ( type == Filesystem::Artifact::Song ) {
 		std::shared_ptr<Song> pSong;
 		if ( sFileName.isEmpty() && sRecoverFileName.isEmpty() ) {
 			pSong = Song::getEmptySong();
@@ -637,7 +637,7 @@ bool HydrogenApp::openSong( std::shared_ptr<Song> pSong ) {
 
 // Returns true if unsaved changes are successfully handled (saved, discarded, etc.)
 // Returns false if not (i.e. Cancel)
-bool HydrogenApp::handleUnsavedChanges( const H2Core::Filesystem::Type& type )
+bool HydrogenApp::handleUnsavedChanges( const H2Core::Filesystem::Artifact& type )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
@@ -648,7 +648,7 @@ bool HydrogenApp::handleUnsavedChanges( const H2Core::Filesystem::Type& type )
 	QString sText;
 
 	switch( type ) {
-	case Filesystem::Type::Song:
+	case Filesystem::Artifact::Song:
 		if ( pSong != nullptr ) {
 			bIsModified = pSong->getIsModified();
 		}
@@ -658,7 +658,7 @@ bool HydrogenApp::handleUnsavedChanges( const H2Core::Filesystem::Type& type )
 		sText = tr( "The current <b>Song</b> contains unsaved changes." );
 		break;
 
-	case Filesystem::Type::Playlist:
+	case Filesystem::Artifact::Playlist:
 		if ( pPlaylist != nullptr ) {
 			bIsModified = pPlaylist->getIsModified();
 		}
@@ -670,7 +670,7 @@ bool HydrogenApp::handleUnsavedChanges( const H2Core::Filesystem::Type& type )
 
 	default:
 		ERRORLOG( QString( "Unsupported type [%1]" )
-				  .arg( Filesystem::TypeToQString( type ) ) );
+				  .arg( Filesystem::ArtifactToQString( type ) ) );
 		return false;
 	}
 
@@ -696,7 +696,7 @@ bool HydrogenApp::handleUnsavedChanges( const H2Core::Filesystem::Type& type )
 		case QMessageBox::Save:
 			bool bOk;
 
-			if ( type == Filesystem::Type::Song ) {
+			if ( type == Filesystem::Artifact::Song ) {
 				if ( ! pSong->getFileName().isEmpty() ) {
 					bOk = pHydrogenApp->getMainForm()->action_file_save();
 				} else {
@@ -715,7 +715,7 @@ bool HydrogenApp::handleUnsavedChanges( const H2Core::Filesystem::Type& type )
 
 			if ( ! bOk ) {
 				ERRORLOG( QString( "Unable to save current %1" )
-						  .arg( Filesystem::TypeToQString( type ) ) );
+						  .arg( Filesystem::ArtifactToQString( type ) ) );
 				return false;
 			}
 			break;
@@ -725,12 +725,12 @@ bool HydrogenApp::handleUnsavedChanges( const H2Core::Filesystem::Type& type )
 
 		case QMessageBox::Cancel:
 			INFOLOG( QString( "Writing unsave changes to %1 canceled." )
-						  .arg( Filesystem::TypeToQString( type ) ) );
+						  .arg( Filesystem::ArtifactToQString( type ) ) );
 			return false;
 
 		default:
 			ERRORLOG( QString( "Unhandled return code for %1 [%2]" )
-						  .arg( Filesystem::TypeToQString( type ) ).arg( nRet ) );
+						  .arg( Filesystem::ArtifactToQString( type ) ).arg( nRet ) );
 		}
 	}
 
@@ -817,7 +817,7 @@ void HydrogenApp::updateWindowTitle()
 	QString sSongName( pSong->getName() );
 	QString sFilePath( pSong->getFileName() );
 
-	if ( sFilePath == Filesystem::empty_path( Filesystem::Type::Song ) ||
+	if ( sFilePath == Filesystem::empty_path( Filesystem::Artifact::Song ) ||
 		 sFilePath.isEmpty() ) {
 		// An empty song is _not_ associated with a file. Therefore,
 		// we mustn't show the file name.
