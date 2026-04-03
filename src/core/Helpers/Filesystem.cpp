@@ -1204,12 +1204,11 @@ bool Filesystem::isPathValid(
 {
 	QString sExtension;
 	switch ( artifact ) {
-		case Artifact::Song:
-			sExtension = Filesystem::songs_ext;
-			break;
-
 		case Artifact::Playlist:
 			sExtension = Filesystem::playlist_ext;
+			break;
+		case Artifact::Song:
+			sExtension = Filesystem::songs_ext;
 			break;
 
 		default:
@@ -1603,14 +1602,17 @@ Filesystem::getAutoSaveFileName( const Artifact& artifact, const QString& sBaseN
 QString Filesystem::ArtifactToQString( const Artifact& type )
 {
 	switch ( type ) {
-		case Artifact::Song:
-			return "Song";
-
+		case Artifact::Drumkit:
+			return "Drumkit";
+		case Artifact::Pattern:
+			return "Pattern";
 		case Artifact::Playlist:
 			return "Playlist";
-
+		case Artifact::Song:
+			return "Song";
 		default:
-			return "Unknown";
+			return QString( "Unknown artifact [%1]" )
+				.arg( static_cast<int>( type ) );
 	}
 }
 
