@@ -22,7 +22,11 @@
 
 #include "FilesystemTest.h"
 
+#include <cppunit/extensions/HelperMacros.h>
+
 #include <QTest>
+
+#include <core/Helpers/Filesystem.h>
 
 using namespace H2Core;
 
@@ -107,6 +111,175 @@ void FilesystemTest::testFilePathValidation() {
 		CPPUNIT_ASSERT( ssName != ssValidated );
 		CPPUNIT_ASSERT( ssValidatedTwice == ssValidated );
 	}
+	___INFOLOG( "passed" );
+}
+
+void FilesystemTest::testListContent() {
+	___INFOLOG( "" );
+
+	// We don't want this test to fail every time we add a new pattern, drumkit,
+	// or song. That's why we just check for the present of some content on
+	// system-level (the data folder of this repo).
+	CPPUNIT_ASSERT( Filesystem::listContent(
+						Filesystem::Artifact::DrumkitBundled,
+						Filesystem::Context::System
+	)
+						.isEmpty() );
+	CPPUNIT_ASSERT( !Filesystem::listContent(
+						 Filesystem::Artifact::DrumkitExtracted,
+						 Filesystem::Context::System
+	)
+						 .isEmpty() );
+	CPPUNIT_ASSERT( !Filesystem::listContent(
+						 Filesystem::Artifact::Pattern,
+						 Filesystem::Context::System
+	)
+						 .isEmpty() );
+	CPPUNIT_ASSERT( Filesystem::listContent(
+						Filesystem::Artifact::Playlist,
+						Filesystem::Context::System
+	)
+						.isEmpty() );
+	CPPUNIT_ASSERT( Filesystem::listContent(
+						Filesystem::Artifact::Song, Filesystem::Context::System
+	)
+						.isEmpty() );
+
+	// There won't be any session artifacts during unit testing.
+	CPPUNIT_ASSERT( Filesystem::listContent(
+						Filesystem::Artifact::DrumkitBundled,
+						Filesystem::Context::SessionReadOnly
+	)
+						.isEmpty() );
+	CPPUNIT_ASSERT( Filesystem::listContent(
+						Filesystem::Artifact::DrumkitExtracted,
+						Filesystem::Context::SessionReadOnly
+	)
+						.isEmpty() );
+	CPPUNIT_ASSERT( Filesystem::listContent(
+						Filesystem::Artifact::Pattern,
+						Filesystem::Context::SessionReadOnly
+	)
+						.isEmpty() );
+	CPPUNIT_ASSERT( Filesystem::listContent(
+						Filesystem::Artifact::Playlist,
+						Filesystem::Context::SessionReadOnly
+	)
+						.isEmpty() );
+	CPPUNIT_ASSERT( Filesystem::listContent(
+						Filesystem::Artifact::Song,
+						Filesystem::Context::SessionReadOnly
+	)
+						.isEmpty() );
+	CPPUNIT_ASSERT( Filesystem::listContent(
+						Filesystem::Artifact::DrumkitBundled,
+						Filesystem::Context::SessionReadWrite
+	)
+						.isEmpty() );
+	CPPUNIT_ASSERT( Filesystem::listContent(
+						Filesystem::Artifact::DrumkitExtracted,
+						Filesystem::Context::SessionReadWrite
+	)
+						.isEmpty() );
+	CPPUNIT_ASSERT( Filesystem::listContent(
+						Filesystem::Artifact::Pattern,
+						Filesystem::Context::SessionReadWrite
+	)
+						.isEmpty() );
+	CPPUNIT_ASSERT( Filesystem::listContent(
+						Filesystem::Artifact::Playlist,
+						Filesystem::Context::SessionReadWrite
+	)
+						.isEmpty() );
+	CPPUNIT_ASSERT( Filesystem::listContent(
+						Filesystem::Artifact::Song,
+						Filesystem::Context::SessionReadWrite
+	)
+						.isEmpty() );
+
+	// For the user folder we build up a dummy one containing various empty
+	// files pretending to be Hydrogen artifacts.
+	const QString sDummyDir(
+		H2Core::Filesystem::tmpDir() + "/testListArtifacts"
+	);
+	if ( Filesystem::dirExists( sDummyDir ) ) {
+		Filesystem::rm( sDummyDir, true, true );
+	}
+
+	CPPUNIT_ASSERT( Filesystem::mkdir( sDummyDir ) );
+	CPPUNIT_ASSERT( Filesystem::mkdir( sDummyDir + "/first" ) );
+	CPPUNIT_ASSERT( Filesystem::mkdir( sDummyDir + "/first/second" ) );
+	QFile firstLevelDrumkit( sDummyDir + "/first/drumkit.xml" );
+	CPPUNIT_ASSERT( firstLevelDrumkit.open( QIODevice::WriteOnly ) );
+	QFile firstLevelDrumkitBundled( sDummyDir + "/first/test.h2drumkit" );
+	CPPUNIT_ASSERT( firstLevelDrumkitBundled.open( QIODevice::WriteOnly ) );
+	QFile secondLevelDrumkit( sDummyDir + "/first/second/drumkit.xml" );
+	CPPUNIT_ASSERT( secondLevelDrumkit.open( QIODevice::WriteOnly ) );
+	QFile topLevelPattern( sDummyDir + "/top.h2pattern" );
+	CPPUNIT_ASSERT( topLevelPattern.open( QIODevice::WriteOnly ) );
+	QFile topLevelPattern2( sDummyDir + "/another.h2pattern" );
+	CPPUNIT_ASSERT( topLevelPattern2.open( QIODevice::WriteOnly ) );
+	QFile firstLevelPattern( sDummyDir + "/first/first.h2pattern" );
+	CPPUNIT_ASSERT( firstLevelPattern.open( QIODevice::WriteOnly ) );
+	QFile secondLevelPattern( sDummyDir + "/first/second/second.h2pattern" );
+	CPPUNIT_ASSERT( secondLevelPattern.open( QIODevice::WriteOnly ) );
+	QFile topLevelPlaylist( sDummyDir + "/top.h2playlist" );
+	CPPUNIT_ASSERT( topLevelPlaylist.open( QIODevice::WriteOnly ) );
+	QFile firstLevelPlaylist( sDummyDir + "/first/first.h2playlist" );
+	CPPUNIT_ASSERT( firstLevelPlaylist.open( QIODevice::WriteOnly ) );
+	QFile secondLevelPlaylist( sDummyDir + "/first/second/second.h2playlist" );
+	CPPUNIT_ASSERT( secondLevelPlaylist.open( QIODevice::WriteOnly ) );
+	QFile topLevelSong( sDummyDir + "/top.h2song" );
+	CPPUNIT_ASSERT( topLevelSong.open( QIODevice::WriteOnly ) );
+	QFile firstLevelSong( sDummyDir + "/first/first.h2song" );
+	CPPUNIT_ASSERT( firstLevelSong.open( QIODevice::WriteOnly ) );
+	QFile secondLevelSong( sDummyDir + "/first/second/second.h2song" );
+	CPPUNIT_ASSERT( secondLevelSong.open( QIODevice::WriteOnly ) );
+	QFile secondLevelSong2( sDummyDir + "/first/second/another.h2song" );
+	CPPUNIT_ASSERT( secondLevelSong2.open( QIODevice::WriteOnly ) );
+
+	// There is no user-level folder associated with bundled drumkits. They are
+	// meant to moving transport to other devices only.
+	CPPUNIT_ASSERT(
+		Filesystem::listContent(
+			Filesystem::Artifact::DrumkitBundled, Filesystem::Context::User,
+			sDummyDir
+		)
+			.size() == 0
+	);
+	CPPUNIT_ASSERT(
+		Filesystem::listContent(
+			Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::User,
+			sDummyDir
+
+		)
+			.size() == 2
+	);
+	CPPUNIT_ASSERT(
+		Filesystem::listContent(
+			Filesystem::Artifact::Pattern, Filesystem::Context::User, sDummyDir
+
+		)
+			.size() == 4
+	);
+	CPPUNIT_ASSERT(
+		Filesystem::listContent(
+			Filesystem::Artifact::Playlist, Filesystem::Context::User, sDummyDir
+
+		)
+			.size() == 3
+	);
+	CPPUNIT_ASSERT(
+		Filesystem::listContent(
+			Filesystem::Artifact::Song, Filesystem::Context::User, sDummyDir
+
+		)
+			.size() == 4
+	);
+
+	// Cleanup
+	Filesystem::rm( sDummyDir, true, true );
+
 	___INFOLOG( "passed" );
 }
 

@@ -294,6 +294,18 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	 */
 	static QString tmpFilePath( const QString& sBase );
 
+	/** Searches the folder corresponding to @a artifact and @a context
+	 * recursively.
+	 *
+     * @param sUserDirOverwrite Must only be used in unit tests.
+	 *
+	 * @returns a list of absolute file paths. */
+	static QStringList listContent(
+		Artifact artifact,
+		Context context,
+		const QString& sUserDirOverwrite = ""
+	);
+
 	/* DRUMKIT */
 	/** Returns the basename if the given path is under an instrument of an
 	 * existing user or system drumkit path, otherwise the given @a
@@ -601,7 +613,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static QString appendNumberOrIncrement( const QString& sString );
 
    private:
-	static Logger* m_pLogger;  ///< a pointer to the logger
 	static bool checkSystemPaths(
 	);	///< returns true if the system path is consistent
 	static bool checkUserPaths(
@@ -626,6 +637,10 @@ class Filesystem : public H2Core::Object<Filesystem> {
 		const int nFilePermission,
 		bool bSilent
 	);
+	static QStringList targetDirs( Artifact artifact, Context context );
+	static QString targetFilter( Artifact artifact );
+
+	static Logger* m_pLogger;  ///< a pointer to the logger
 
 	/**
 	 * Path to the system files set in Filesystem::bootstrap().

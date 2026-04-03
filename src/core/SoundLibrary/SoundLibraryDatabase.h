@@ -104,6 +104,7 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	void registerDrumkitFolder( const QString& sDrumkitFolder );
 
 	QStringList getDrumkitFolders() const;
+	QStringList getCustomDrumkitFolders() const;
 
 	/** Retrieves all #H2Core::Instrument::Type found in the registered
 	 * drumkits.
@@ -170,6 +171,10 @@ inline std::vector<std::shared_ptr<SongInfo>>
 SoundLibraryDatabase::getSongInfos() const
 {
 	return m_songInfos;
+}
+inline QStringList SoundLibraryDatabase::getCustomDrumkitFolders() const
+{
+	return m_customDrumkitFolders;
 }
 };	// namespace H2Core
 

@@ -23,6 +23,7 @@
 #include <random>
 
 #include <QtCore/QDir>
+#include <QDirIterator>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
@@ -82,6 +83,7 @@
 #define UNTITLED_PLAYLIST "untitled.h2playlist"
 
 // filters
+#define DRUMKIT_FILTER "*.h2drumkit"
 #define PATTERN_FILTER "*.h2pattern"
 #define PLAYLIST_FILTER "*.h2playlist"
 #define SONG_FILTER "*.h2song"
@@ -944,6 +946,49 @@ QString Filesystem::tmpFilePath( const QString& sBase )
 	return file.fileName();
 }
 
+QStringList Filesystem::listContent(
+	Artifact artifact,
+	Context context,
+	const QString& sUserDirOverwrite
+)
+{
+	QStringList content;
+
+	// In case of session folders, targetDirs can return more than one folder.
+	// But in generel there will be only one.
+	const auto sDirs = Filesystem::targetDirs( artifact, context );
+	if ( sDirs.isEmpty() ) {
+		ERRORLOG( QString( "Unable to find search folder for [%1] on [%2] level"
+		)
+					  .arg( ArtifactToQString( artifact ) )
+					  .arg( ContextToQString( context ) ) );
+		return content;
+	}
+
+	const auto sFilter = Filesystem::targetFilter( artifact );
+
+	// Recursively traverse all target folders and return all files matching the
+	// filter.
+	for ( auto ssDir : sDirs ) {
+		if ( !sUserDirOverwrite.isEmpty() &&
+			 ssDir.contains( userDataPath() ) ) {
+			ERRORLOG( "sUserDirOverwrite must only be used in unit tests!" );
+			ssDir = sUserDirOverwrite;
+		}
+
+		QDirIterator it(
+			ssDir, QStringList( sFilter ), QDir::Files | QDir::NoDotAndDotDot,
+			QDirIterator::Subdirectories
+		);
+
+		while ( it.hasNext() ) {
+			content << it.next();
+		}
+	}
+
+	return content;
+}
+
 // DRUMKITS
 QStringList Filesystem::drumkitList( const QString& sPath )
 {
@@ -1636,6 +1681,90 @@ QString Filesystem::appendNumberOrIncrement( const QString& sString )
 	}
 
 	return parts.join( " " );
+}
+
+QStringList Filesystem::targetDirs( Artifact artifact, Context context )
+{
+	QStringList results;
+
+	if ( context == Context::Song ) {
+		ERRORLOG( "There is no fixed target folder for song-level artifacts" );
+		return results;
+	}
+	if ( ( context == Context::SessionReadOnly ||
+		   context == Context::SessionReadWrite ) &&
+		 artifact != Artifact::DrumkitExtracted ) {
+		ERRORLOG( "Session-based folders are only supported for drumkits." );
+		return results;
+	}
+
+	switch ( artifact ) {
+		case Artifact::DrumkitBundled: {
+			ERRORLOG( "There is no common folder for bundled drumkits." );
+			return results;
+		}
+		case Artifact::DrumkitExtracted: {
+			if ( context == Context::System ) {
+				results << systemDrumkitsDir();
+			}
+			else if ( context == Context::User ) {
+				results << userDrumkitsDir();
+			}
+			else {
+				results << Hydrogen::get_instance()
+							   ->getSoundLibraryDatabase()
+							   ->getCustomDrumkitFolders();
+			}
+			break;
+		}
+		case Artifact::Pattern: {
+			if ( context == Context::System ) {
+				results << systemPatternsDir();
+			}
+			else {
+				results << userPatternsDir();
+			}
+			break;
+		}
+		case Artifact::Playlist: {
+			if ( context == Context::System ) {
+				ERRORLOG( "There are no system-level playlists yet." );
+				return results;
+			}
+			else {
+				results << userPlaylistsDir();
+			}
+			break;
+		}
+		case Artifact::Song: {
+			if ( context == Context::System ) {
+				results << systemSongsDir();
+			}
+			else {
+				results << userSongsDir();
+			}
+			break;
+		}
+	}
+	return results;
+}
+
+QString Filesystem::targetFilter( Artifact artifact )
+{
+	switch ( artifact ) {
+		case Artifact::DrumkitBundled:
+			return DRUMKIT_FILTER;
+		case Artifact::DrumkitExtracted:
+			return DRUMKIT_XML;
+		case Artifact::Pattern:
+			return PATTERN_FILTER;
+		case Artifact::Playlist:
+			return PLAYLIST_FILTER;
+		case Artifact::Song:
+			return SONG_FILTER;
+	}
+
+	return "";
 }
 };	// namespace H2Core
 

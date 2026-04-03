@@ -29,6 +29,7 @@ class FilesystemTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testPermissions );
 	CPPUNIT_TEST( testUniquePrefix );
 	CPPUNIT_TEST( testFilePathValidation );
+	CPPUNIT_TEST( testListContent );
 	CPPUNIT_TEST( testIsPathValid );
 	CPPUNIT_TEST( testSamplePathHandling );
 	CPPUNIT_TEST_SUITE_END();
@@ -40,6 +41,7 @@ class FilesystemTest : public CppUnit::TestFixture {
 	void testPermissions();
 	void testUniquePrefix();
 	void testFilePathValidation();
+	void testListContent();
 	void testIsPathValid();
 	void testSamplePathHandling();
 
