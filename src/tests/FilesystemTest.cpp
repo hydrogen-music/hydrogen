@@ -110,6 +110,65 @@ void FilesystemTest::testFilePathValidation() {
 	___INFOLOG( "passed" );
 }
 
+void FilesystemTest::testIsPathValid() {
+	___INFOLOG( "" );
+
+	// Is not absolute.
+	CPPUNIT_ASSERT( !Filesystem::isPathValid(
+						Filesystem::Artifact::DrumkitBundled, "test.h2drumkit" ) );
+	CPPUNIT_ASSERT( !Filesystem::isPathValid(
+						Filesystem::Artifact::DrumkitExtracted, "drumkit.xml" ) );
+	CPPUNIT_ASSERT( !Filesystem::isPathValid(
+						Filesystem::Artifact::Pattern, "test.h2pattern" ) );
+	CPPUNIT_ASSERT( !Filesystem::isPathValid(
+						Filesystem::Artifact::Playlist, "test.h2playlist" ) );
+	CPPUNIT_ASSERT( !Filesystem::isPathValid(
+						Filesystem::Artifact::Song, "test.h2song" ) );
+
+	const auto sTmp = QDir::tempPath() + QDir::separator();
+
+	// Improper suffix.
+	CPPUNIT_ASSERT( !Filesystem::isPathValid(
+		Filesystem::Artifact::DrumkitBundled, sTmp + "test.test"
+	) );
+	CPPUNIT_ASSERT( !Filesystem::isPathValid(
+		Filesystem::Artifact::DrumkitExtracted, sTmp + "test.test"
+	) );
+	CPPUNIT_ASSERT( !Filesystem::isPathValid(
+		Filesystem::Artifact::Pattern, sTmp + "test.test"
+	) );
+	CPPUNIT_ASSERT( !Filesystem::isPathValid(
+		Filesystem::Artifact::Playlist, sTmp + "test.test"
+	) );
+	CPPUNIT_ASSERT( !Filesystem::isPathValid(
+		Filesystem::Artifact::Song, sTmp + "test.test"
+	) );
+
+	// Improper name.
+	CPPUNIT_ASSERT( !Filesystem::isPathValid(
+		Filesystem::Artifact::DrumkitExtracted, sTmp + "test.xml"
+	) );
+
+	// Valid ones
+	CPPUNIT_ASSERT( Filesystem::isPathValid(
+		Filesystem::Artifact::DrumkitBundled, sTmp + "test.h2drumkit"
+	) );
+	CPPUNIT_ASSERT( Filesystem::isPathValid(
+		Filesystem::Artifact::DrumkitExtracted, sTmp + "drumkit.xml"
+	) );
+	CPPUNIT_ASSERT( Filesystem::isPathValid(
+		Filesystem::Artifact::Pattern, sTmp + "test.h2pattern"
+	) );
+	CPPUNIT_ASSERT( Filesystem::isPathValid(
+		Filesystem::Artifact::Playlist, sTmp + "test.h2playlist"
+	) );
+	CPPUNIT_ASSERT( Filesystem::isPathValid(
+		Filesystem::Artifact::Song, sTmp + "test.h2song"
+	) );
+
+	___INFOLOG( "passed" );
+}
+
 void FilesystemTest::testSamplePathHandling() {
 	___INFOLOG( "" );
 	const QString& sSystemKitPath(
