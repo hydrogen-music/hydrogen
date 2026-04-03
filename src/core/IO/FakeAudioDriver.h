@@ -26,6 +26,7 @@
 #include <core/Helpers/Time.h>
 #include <core/IO/AudioDriver.h>
 
+#include <atomic>
 #include <chrono>
 #include <memory>
 #include <thread>
@@ -66,7 +67,7 @@ public:
 private:
 		static void processCallback( void* pInstance );
 
-		bool m_bActive;
+		std::atomic<bool> m_bActive;
 		std::shared_ptr< std::thread > m_pCallbackHandler;
 
 		/** Time that needs to elapse between two runs of the processCallback in

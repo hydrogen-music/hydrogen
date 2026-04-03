@@ -577,14 +577,19 @@ void MidiNoteTest::testSendNoteOff()
 	// Ensure no other notes are playing/ringing out.
 	auto clearSampler = [&]() {
 		pSampler->releasePlayingNotes();
-		bool bStillPlayingNotes = true;
-		for ( int ii = 0; ii < 30; ++ii ) {
+		for ( int ii = 0; ii < 60; ++ii ) {
 			if ( !pSampler->isRenderingNotes() ) {
-				bStillPlayingNotes = false;
-				break;
+				// Small additional delay to allow the LoopBackMidiDriver
+				// handler thread to process any final messages from the
+				// message queue into the backlog queue.
+				std::this_thread::sleep_for(
+					std::chrono::milliseconds( 50 ) );
+				return;
 			}
 			std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
 		}
+		CPPUNIT_FAIL(
+			"[clearSampler] timed out: sampler is still rendering notes" );
 	};
 	clearSampler();
 	CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );

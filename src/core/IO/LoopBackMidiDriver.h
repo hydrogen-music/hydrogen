@@ -25,6 +25,7 @@
 #include <core/IO/MidiBaseDriver.h>
 #include <core/Midi/MidiMessage.h>
 
+#include <atomic>
 #include <condition_variable>
 #include <deque>
 #include <memory>
@@ -76,7 +77,7 @@ class LoopBackMidiDriver : public Object<LoopBackMidiDriver>
 		static void messageHandler( void* pInstance );
 		void enqueueMessage( const MidiMessage& msg );
 
-		bool m_bActive;
+		std::atomic<bool> m_bActive;
 		std::shared_ptr< std::thread > m_pMessageHandler;
 
 		/** Shared data

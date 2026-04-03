@@ -70,7 +70,7 @@ void LoopBackMidiDriver::open() {
 	m_pMessageHandler = std::make_shared< std::thread >(
 		LoopBackMidiDriver::messageHandler, ( void* )this );
 
-	m_messageHandlerCV.wait( lock, [&]{ return m_bActive; } );
+	m_messageHandlerCV.wait( lock, [&]{ return m_bActive.load(); } );
 }
 
 std::vector<MidiMessage> LoopBackMidiDriver::getBacklogMessages() {
@@ -165,7 +165,7 @@ void LoopBackMidiDriver::messageHandler( void* pInstance ) {
 		std::unique_lock lock{ pDriver->m_messageHandlerMutex };
 		pDriver->m_messageHandlerCV.wait(
 			lock, [&]{ return pDriver->m_messageQueue.size() > 0 ||
-					! pDriver->m_bActive; } );
+					! pDriver->m_bActive.load(); } );
 
 		if ( ! pDriver->m_bActive ) {
 			return;

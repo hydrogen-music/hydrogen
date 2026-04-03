@@ -29,6 +29,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QProcessEnvironment>
+#include <QTimer>
 
 namespace AppVeyor {
 
@@ -120,9 +121,22 @@ void BuildWorkerApiClient::doSyncRequest(QByteArray method, QString endpoint, co
     QBuffer buffer(&jsonPayload);
     auto reply = qnam.sendCustomRequest(request, method, &buffer);
     #endif
+
+    // Use a timeout to prevent the test suite from hanging indefinitely if the
+    // Appveyor Build Worker API endpoint is slow or unresponsive.
+    QTimer timer;
+    timer.setSingleShot(true);
+
     QEventLoop loop;
     QObject::connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    QObject::connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
+    timer.start(5000);
     loop.exec();
+
+    if (!timer.isActive()) {
+        reply->abort();
+    }
+    reply->deleteLater();
 }
 
 };
