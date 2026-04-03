@@ -227,9 +227,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 		* #CLICK_SAMPLE.
 		*/
 	static QString click_file_path();
-	/** returns click file path from user directory if exists, otherwise from
-	 * system */
-	static QString usr_click_file_path();
 	/** returns the drumkit XSD (xml schema definition) name */
 	static QString drumkit_xsd();
 	/** returns the path to the drumkit XSD (xml schema definition) file */
@@ -262,9 +259,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static QString patterns_dir();
 	/** returns user patterns path for a specific drumkit */
 	static QString patterns_dir( const QString& dk_name );
-	/** returns user patterns path, add file extension*/
-	static QString
-	pattern_path( const QString& dk_name, const QString& p_name );
 	/** returns system patterns path */
 	static QString sys_patterns_dir();
 	/** returns system songs path (demos directory) */
@@ -278,8 +272,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static QString sys_drumkit_maps_dir();
 	/** returns user playlist path */
 	static QString playlists_dir();
-	/** returns user playlist path, add file extension */
-	static QString playlist_path( const QString& pl_name );
 	/** returns untitled playlist file name */
 	static QString untitled_playlist_file_name();
 	/** returns user cache path */
@@ -405,10 +397,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static QStringList pattern_drumkits();
 	/**
 	 * returns a list of existing patterns
-	 */
-	static QStringList pattern_list();
-	/**
-	 * returns a list of existing patterns
 	 * \param path the path to look for patterns in
 	 */
 	static QStringList pattern_list( const QString& path );
@@ -455,14 +443,8 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	 */
 	static QString validateFilePath( const QString& sPath );
 
-	static QStringList theme_list();
-
 	/** send current settings information to logger with INFO severity */
 	static void info();
-
-	/* PLAYLISTS */
-	/** returns a list of existing playlists */
-	static QStringList playlist_list();
 
 	/**
 	 * returns true if the given path is an existing regular file
@@ -520,12 +502,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	 */
 	static QString
 	absolute_path( const QString& sFileName, bool bSilent = false );
-	/**
-	 * writes to a file
-	 * \param dst the destination path
-	 * \param content then string to write
-	 */
-	static bool write_to_file( const QString& dst, const QString& content );
 	/**
 	 * copy a source file to a destination
 	 * \param src source file path

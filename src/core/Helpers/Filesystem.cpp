@@ -520,24 +520,6 @@ bool Filesystem::path_usable( const QString& path, bool create, bool silent )
 	return dir_readable( path, silent ) && dir_writable( path, silent );
 }
 
-bool Filesystem::write_to_file( const QString& dst, const QString& content )
-{
-	if ( !file_writable( dst ) ) {
-		ERRORLOG( QString( "unable to write to %1" ).arg( dst ) );
-		return false;
-	}
-	QFile file( dst );
-	if ( !file.open( QIODevice::WriteOnly ) ) {
-		ERRORLOG( QString( "unable to write to %1" ).arg( dst ) );
-		return false;
-	}
-	const auto contentUtf8 = content.toUtf8();
-	file.write( contentUtf8.data() );
-	file.close();
-
-	return true;
-}
-
 bool Filesystem::file_copy(
 	const QString& src,
 	const QString& dst,
@@ -797,12 +779,6 @@ QString Filesystem::click_file_path()
 {
 	return __sys_data_path + CLICK_SAMPLE;
 }
-QString Filesystem::usr_click_file_path()
-{
-	if ( file_readable( __usr_data_path + CLICK_SAMPLE, true ) )
-		return __usr_data_path + CLICK_SAMPLE;
-	return click_file_path();
-}
 QString Filesystem::drumkit_xsd()
 {
 	return DRUMKIT_XSD;
@@ -877,16 +853,6 @@ QString Filesystem::sys_songs_dir()
 {
 	return __sys_data_path + SONGS;
 }
-QString
-Filesystem::pattern_path( const QString& dk_name, const QString& p_name )
-{
-	if ( dk_name.isEmpty() ) {
-		return patterns_dir() + p_name + patterns_ext;
-	}
-	else {
-		return patterns_dir( dk_name ) + p_name + patterns_ext;
-	}
-}
 QString Filesystem::plugins_dir()
 {
 	return __usr_data_path + PLUGINS;
@@ -906,10 +872,6 @@ QString Filesystem::sys_drumkit_maps_dir()
 QString Filesystem::playlists_dir()
 {
 	return __usr_data_path + PLAYLISTS;
-}
-QString Filesystem::playlist_path( const QString& pl_name )
-{
-	return patterns_dir() + pl_name + playlist_ext;
 }
 QString Filesystem::cache_dir()
 {
@@ -1157,11 +1119,6 @@ QStringList Filesystem::pattern_drumkits()
 		.entryList( QDir::Dirs | QDir::Readable | QDir::NoDotAndDotDot );
 }
 
-QStringList Filesystem::pattern_list()
-{
-	return pattern_list( patterns_dir() );
-}
-
 QStringList Filesystem::pattern_list( const QString& path )
 {
 	return QDir( path ).entryList(
@@ -1287,30 +1244,6 @@ QString Filesystem::validateFilePath( const QString& sPath )
 	return sValidName;
 }
 
-QStringList Filesystem::theme_list()
-{
-	return QDir( sys_theme_dir() )
-			   .entryList(
-				   QStringList( THEME_FILTER ),
-				   QDir::Files | QDir::Readable | QDir::NoDotAndDotDot
-			   ) +
-		   QDir( usr_theme_dir() )
-			   .entryList(
-				   QStringList( THEME_FILTER ),
-				   QDir::Files | QDir::Readable | QDir::NoDotAndDotDot
-			   );
-}
-
-// PLAYLISTS
-QStringList Filesystem::playlist_list()
-{
-	return QDir( playlists_dir() )
-		.entryList(
-			QStringList( PLAYLIST_FILTER ),
-			QDir::Files | QDir::Readable | QDir::NoDotAndDotDot
-		);
-}
-
 void Filesystem::info()
 {
 	INFOLOG( QString( "Tmp dir                    : %1" ).arg( tmp_dir() ) );
@@ -1351,9 +1284,7 @@ void Filesystem::info()
 	// USR
 	INFOLOG(
 		QString( "User config                : %1" ).arg( usr_config_path() )
-	);	// FIXME
-	INFOLOG( QString( "User Click file            : %1" )
-				 .arg( usr_click_file_path() ) );
+	);
 	INFOLOG( QString( "Cache dir                  : %1" ).arg( cache_dir() ) );
 	INFOLOG( QString( "Reporitories Cache dir     : %1" )
 				 .arg( repositories_cache_dir() ) );
