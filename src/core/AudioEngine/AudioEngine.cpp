@@ -1369,8 +1369,19 @@ void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 #endif
 	}
 	else if ( pPref->m_midiDriver == Preferences::MidiDriver::LoopBack ) {
-		m_pMidiDriver = std::make_shared<LoopBackMidiDriver>();
-		m_pMidiDriver->open();
+		// Seldomly the very slow AppVeyor blocked forever when switching
+		// drivers. We did introduce a timeout in open() and make several
+		// attempts to start the loop back driver.
+		for ( int ii = 0; ii < 3; ++ii ) {
+			m_pMidiDriver = std::make_shared<LoopBackMidiDriver>();
+			m_pMidiDriver->open();
+			if ( m_pMidiDriver->isInputActive() ) {
+				// Driver did start successfully.
+				break;
+			}
+			// There was a problem. Start over or make the driver creation fail.
+			m_pMidiDriver = nullptr;
+		}
 	}
 
 	this->unlock();

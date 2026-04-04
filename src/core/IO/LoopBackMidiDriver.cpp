@@ -67,10 +67,22 @@ void LoopBackMidiDriver::open() {
 
 	std::unique_lock lock{ m_messageHandlerMutex };
 
-	m_pMessageHandler = std::make_shared< std::thread >(
-		LoopBackMidiDriver::messageHandler, ( void* )this );
+	m_pMessageHandler = std::make_shared<std::thread>(
+		LoopBackMidiDriver::messageHandler, (void*) this
+	);
 
-	m_messageHandlerCV.wait( lock, [&]{ return m_bActive.load(); } );
+	// Sometimes a pure wait did block forever in our very slow AppVeyor
+	// pipelines.
+	auto deadline =
+		std::chrono::steady_clock::now() + std::chrono::seconds( 1 );
+	if ( m_messageHandlerCV.wait_until( lock, deadline, [&] {
+			 return m_bActive.load();
+		 } ) ) {
+		INFOLOG( "MIDI driver started" );
+	}
+	else {
+		ERRORLOG( "ERROR: MIDI driver failed to start in time!" );
+	}
 }
 
 std::vector<MidiMessage> LoopBackMidiDriver::getBacklogMessages() {
