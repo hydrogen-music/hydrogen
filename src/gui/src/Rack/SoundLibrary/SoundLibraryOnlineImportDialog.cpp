@@ -431,21 +431,23 @@ bool SoundLibraryOnlineImportDialog::isSoundLibraryItemAlreadyInstalled( const H
 	}
 
 	if ( sInfo.getType() == "pattern" ) {
-		return H2Core::Hydrogen::get_instance()
-			->getSoundLibraryDatabase()
-			->isArtifactInstalled(
-				H2Core::Filesystem::Artifact::Pattern,
-				H2Core::Filesystem::Context::User, sInfo.getName()
-			);
+		return !H2Core::Hydrogen::get_instance()
+					->getSoundLibraryDatabase()
+					->findArtifact(
+						H2Core::Filesystem::Artifact::Pattern,
+						H2Core::Filesystem::Context::User, sInfo.getName()
+					)
+					.isEmpty();
 	}
 
 	if ( sInfo.getType() == "song" ) {
-		return H2Core::Hydrogen::get_instance()
-			->getSoundLibraryDatabase()
-			->isArtifactInstalled(
-				H2Core::Filesystem::Artifact::Song,
-				H2Core::Filesystem::Context::User, sInfo.getName()
-			);
+		return !H2Core::Hydrogen::get_instance()
+					->getSoundLibraryDatabase()
+					->findArtifact(
+						H2Core::Filesystem::Artifact::Song,
+						H2Core::Filesystem::Context::User, sInfo.getName()
+					)
+					.isEmpty();
 	}
 
 	return false;

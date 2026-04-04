@@ -121,6 +121,15 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 		const QString& sName
 	) const;
 
+	/** Checks whether an artifact of type @a artifact holding the name @a
+	 * sName exists in context @a context and returns the full path to the
+	 * first artifact matching. */
+	QString findArtifact(
+		Filesystem::Artifact artifact,
+		Filesystem::Context context,
+		const QString& sName
+	) const;
+
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
 	 * every new line
