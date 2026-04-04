@@ -48,54 +48,100 @@ SoundLibraryDatabase::~SoundLibraryDatabase()
 QString SoundLibraryDatabase::findArtifact(
 	Filesystem::Artifact artifact,
 	Filesystem::Context context,
-	const QString& sName
+	const QString& sName,
+	bool bStacked
 ) const
 {
-	switch ( artifact ) {
-		case Filesystem::Artifact::DrumkitBundled:
-			ERRORLOG( "Bundled drumkits aren't installed in the Sound Library"
-			);
-			return "";
-
-		case Filesystem::Artifact::DrumkitExtracted:
-			for ( const auto& [_, ppDrumkit] : m_drumkitDatabase ) {
-				if ( ppDrumkit != nullptr && ppDrumkit->getName() == sName &&
-					 ppDrumkit->getContext() == context ) {
-					return ppDrumkit->getPath();
-				}
-			}
-			return "";
-			break;
-
-		case Filesystem::Artifact::Pattern:
-			for ( const auto& ppPatternInfo : m_patternInfos ) {
-				if ( ppPatternInfo != nullptr &&
-					 ppPatternInfo->getName() == sName &&
-					 ppPatternInfo->getContext() == context ) {
-					return ppPatternInfo->getPath();
-				}
-			}
-			return "";
-
-		case Filesystem::Artifact::Playlist:
-			ERRORLOG( "Bundled playlists aren't installed in the Sound Library"
-			);
-			return "";
-
-		case Filesystem::Artifact::Song:
-			for ( const auto& ppSongInfo : m_songInfos ) {
-				if ( ppSongInfo != nullptr && ppSongInfo->getName() == sName &&
-					 ppSongInfo->getContext() == context ) {
-					return ppSongInfo->getPath();
-				}
-			}
-			return "";
-
-		default:
-			ERRORLOG( QString( "Unsupported artifact: [%1]" )
-						  .arg( Filesystem::ArtifactToQString( artifact ) ) );
-			return "";
+	if ( artifact == Filesystem::Artifact::DrumkitBundled ||
+		 artifact == Filesystem::Artifact::Playlist ) {
+		ERRORLOG( QString( "%1 can not be installed in the Sound Library" )
+					  .arg( Filesystem::ArtifactToQString( artifact ) ) );
+		return "";
 	}
+
+	std::vector<Filesystem::Context> contexts;
+	if ( bStacked ) {
+		contexts.push_back( Filesystem::Context::SessionReadOnly );
+		contexts.push_back( Filesystem::Context::User );
+		contexts.push_back( Filesystem::Context::System );
+	}
+	else {
+		contexts.push_back( context );
+	}
+
+	// In stacked lookup, we first have to check all artifacts for one context
+	// before preceeding to the next. But we can be clever and cache the
+	// artifacts in the first pass which match by name but not by context.
+	std::vector<std::pair<QString, Filesystem::Context>> cachedArtifacts;
+	for ( const auto& ccontext : contexts ) {
+		if ( cachedArtifacts.size() > 0 ) {
+			// Starting from the second pass we can take a shortcut.
+			for ( const auto& [ssPath, ccachedContext] : cachedArtifacts ) {
+				if ( ccachedContext == ccontext ) {
+					return ssPath;
+				}
+			}
+		}
+		else {
+			// First pass
+			switch ( artifact ) {
+				case Filesystem::Artifact::DrumkitExtracted:
+					for ( const auto& [_, ppDrumkit] : m_drumkitDatabase ) {
+						if ( ppDrumkit != nullptr &&
+							 ppDrumkit->getName() == sName ) {
+							if ( ppDrumkit->getContext() == ccontext ) {
+								return ppDrumkit->getPath();
+							}
+							else if ( bStacked ) {
+								cachedArtifacts.push_back( std::make_pair(
+									ppDrumkit->getPath(),
+									ppDrumkit->getContext()
+								) );
+							}
+						}
+					}
+					break;
+
+				case Filesystem::Artifact::Pattern:
+					for ( const auto& ppPatternInfo : m_patternInfos ) {
+						if ( ppPatternInfo != nullptr &&
+							 ppPatternInfo->getName() == sName ) {
+							if ( ppPatternInfo->getContext() == ccontext ) {
+								return ppPatternInfo->getPath();
+							}
+						}
+						else if ( bStacked ) {
+							cachedArtifacts.push_back( std::make_pair(
+								ppPatternInfo->getPath(),
+								ppPatternInfo->getContext()
+							) );
+						}
+					}
+
+				case Filesystem::Artifact::Song:
+					for ( const auto& ppSongInfo : m_songInfos ) {
+						if ( ppSongInfo != nullptr &&
+							 ppSongInfo->getName() == sName ) {
+							if ( ppSongInfo->getContext() == ccontext ) {
+								return ppSongInfo->getPath();
+							}
+						}
+						else if ( bStacked ) {
+							cachedArtifacts.push_back( std::make_pair(
+								ppSongInfo->getPath(), ppSongInfo->getContext()
+							) );
+						}
+					}
+
+				default:
+					ERRORLOG( QString( "Unsupported artifact: [%1]" )
+								  .arg( Filesystem::ArtifactToQString( artifact
+								  ) ) );
+					return "";
+			}
+		}
+	}
+	return "";
 }
 
 void SoundLibraryDatabase::update()
@@ -193,31 +239,19 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 }
 
 std::shared_ptr<Drumkit>
-SoundLibraryDatabase::getDrumkit( const QString& sDrumkit, bool bUpgrade )
+SoundLibraryDatabase::getDrumkit( const QString& sDrumkitPathIn, bool bUpgrade )
 {
-	// Convert supplied path or drumkit name into absolute path used
-	// either as ID to retrieve the drumkit from cache or for loading
-	// it from disk in case it is not present yet.
-
-	QString sDrumkitPath;
-	if ( sDrumkit.contains( "/" ) || sDrumkit.contains( "\\" ) ) {
-		// Supplied string is a path to a drumkit
-		sDrumkitPath = sDrumkit;
+	if ( sDrumkitPathIn.isEmpty() ) {
+		return nullptr;
 	}
-	else {
-		// Supplied string it the name of a drumkit
-		sDrumkitPath = Filesystem::drumkitPathSearch(
-			sDrumkit, Filesystem::Lookup::stacked, false
-		);
-	}
-	sDrumkitPath = Filesystem::absolutePath( sDrumkitPath );
 
+	const auto sDrumkitPath = Filesystem::absolutePath( sDrumkitPathIn );
 	if ( sDrumkitPath.isEmpty() ) {
 		ERRORLOG(
 			QString(
 				"Unable determine drumkit path based on supplied string [%1]"
 			)
-				.arg( sDrumkit )
+				.arg( sDrumkitPathIn )
 		);
 		return nullptr;
 	}

@@ -62,8 +62,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/**
 		 * Load drumkit information from a directory.
 		 *
-		 * \param sDrumkitDir A directory containing a drumkit, like those
-		 *   returned by Filesystem::drumkitDirSearch().
+		 * \param sDrumkitDir A directory containing a drumkit.
 		 * \param bUpgrade Whether the loaded drumkit should be
 		 *   upgraded using upgradeDrumkit() in case it did not comply
 		 *   with the current XSD file.

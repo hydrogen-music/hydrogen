@@ -46,25 +46,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 		IsExecutable = 0x10
 	};
 
-	/** Whenever a drumkit is loaded by name a collision between a
-	 * user and a system drumkit carrying the same name can
-	 * occur.
-	 */
-	enum class Lookup {
-		/** First, looks in the system drumkits and, afterwards, in
-		 * the user drumkits. In case both sets contain a member
-		 * sharing the requested name, the user one will override the
-		 * system one.
-		 *
-		 * This is the way Hydrogen <= 1.1 were handling all look ups.
-		 */
-		stacked = 0,
-		/** Only search the user drumkits.*/
-		user = 1,
-		/** Only search the system drumkits.*/
-		system = 2
-	};
-
 	/** Indicates usage, storage, and access permissions of a kit.*/
 	enum class Context {
 		/** Kit is located in the system-level drumkit folder, loaded into the
@@ -310,52 +291,7 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	 * @param sDrumkitName the drumkit name
 	 */
 	static QString drumkitUserPath( const QString& sDrumkitName );
-	/** Returns the path to a H2Core::Drumkit folder.
-	 *
-	 * The search will first be performed within user-level
-	 * drumkits system drumkits using userDrumkitList() and
-	 * userDrumkitsDir() and later, in case the H2Core::Drumkit
-	 * could not be found, within the system-level drumkits using
-	 * systemDrumkitList() and systemDrumkitsDir().
-	 *
-	 * When under session management (see
-	 * NsmClient::m_bUnderSessionManagement) the function will
-	 * first look for a "drumkit" symlink or folder within
-	 * NsmClient::m_sSessionFolderPath. If it either is not a
-	 * valid H2Core::Drumkit or the not the one corresponding to
-	 * \a sDrumkitName, the user- and system-level drumkits will be
-	 * searched instead.
-	 *
-	 * @param sDrumkitName Name of the H2Core::Drumkit. In the
-	 *   user-level and system-level lookup it has to correspond
-	 *   to the name of the folder holding the samples and the
-	 *   #DRUMKIT_XML file. For the usage of a local
-	 *   H2Core::Drumkit under session management it has to match
-	 *   the second-level "name" node within the
-	 *   #DRUMKIT_XML file.
-	 * @param lookup Where to search (system/user folder or both)
-	 * for the drumkit.
-	 * @param bSilent whether the function should trigger log
-	 *   messages. If set to true, the calling function is
-	 *   expected to handle the log messages instead.
-	 *
-	 * \returns Full path to the folder containing the samples of
-	 *   the H2Core::Drumkit corresponding to \a sDrumkitName.
-	 */
-	static QString drumkitPathSearch(
-		const QString& sDrumkitName,
-		const Lookup& lookup = Lookup::stacked,
-		bool bSilent = false
-	);
-	/**
-	 * @param sDrumkitName the drumkit name.
-	 * @param lookup Where to search (system/user folder or both) for the
-	 *    drumkit.
-	 * @returns the directory holding the named drumkit searching within user
-	 *   then system drumkits
-	 */
-	static QString
-	drumkitDirSearch( const QString& sDrumkitName, const Lookup& lookup );
+
 	/**
 	 * returns true if the path contains a usable drumkit
 	 * @param sDrumkitPath the root drumkit location

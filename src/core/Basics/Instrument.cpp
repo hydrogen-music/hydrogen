@@ -254,11 +254,16 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 			}
 		}
 
+		auto pHydrogen = Hydrogen::get_instance();
+
 		// Both empty drumkit path and name indicate that the instrument was
 		// added as a new one to the drumkit instead of importing it from
 		// another kit. It must only hold absolute paths for samples.
 		if ( sInstrumentDrumkitPath.isEmpty() &&
-			 !sInstrumentDrumkitName.isEmpty() ) {
+			 !sInstrumentDrumkitName.isEmpty() && pHydrogen != nullptr &&
+			 pHydrogen->getSoundLibraryDatabase() != nullptr ) {
+
+			auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
 			if ( !node.firstChildElement( "drumkitLookup" ).isNull() ) {
 				// Format introduced in #1f2a06b and used in (at least)
 				// releases 1.1.0-beta1, 1.1.0, and 1.1.1.
@@ -266,19 +271,28 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 				// Using the additional lookup variable two drumkits holding
 				// the same name but one of the residing in user-space and
 				// the other one in system-space can be distinguished.
-				Filesystem::Lookup lookup =
-					static_cast<Filesystem::Lookup>( node.read_int(
-						"drumkitLookup",
-						static_cast<int>( Filesystem::Lookup::stacked ), false,
-						false, bSilent
-					) );
+				//
+				// 2 - system-level, 1 - user-level, 0 - stacked lookup
+				const int nLookup =
+					node.read_int( "drumkitLookup", 0, false, false, bSilent );
 
-				sInstrumentDrumkitPath = Filesystem::drumkitPathSearch(
-					sInstrumentDrumkitName, lookup, true
-				);
+				if ( nLookup == 2 ) {
+					sInstrumentDrumkitPath =
+						pSoundLibraryDatabase->findArtifact(
+							Filesystem::Artifact::DrumkitExtracted,
+							Filesystem::Context::System, sInstrumentDrumkitName
+						);
+				}
+				else {
+					sInstrumentDrumkitPath =
+						pSoundLibraryDatabase->findArtifact(
+							Filesystem::Artifact::DrumkitExtracted,
+							Filesystem::Context::User, sInstrumentDrumkitName,
+							nLookup == 0 ? true : false
+						);
+				}
 
-				if ( sInstrumentDrumkitPath.isEmpty() &&
-					 lookup != Filesystem::Lookup::stacked ) {
+				if ( sInstrumentDrumkitPath.isEmpty() && nLookup != 0 ) {
 					// Drumkit could not be found.
 					//
 					// It's possible the song was composed with a
@@ -290,10 +304,12 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 					// other way around is also possible but much more
 					// unlikely. Nevertheless we will use the stacked
 					// search in one final effort)
-					sInstrumentDrumkitPath = Filesystem::drumkitPathSearch(
-						sInstrumentDrumkitName, Filesystem::Lookup::stacked,
-						true
-					);
+					sInstrumentDrumkitPath =
+						pSoundLibraryDatabase->findArtifact(
+							Filesystem::Artifact::DrumkitExtracted,
+							Filesystem::Context::User, sInstrumentDrumkitName,
+							true
+						);
 
 					if ( sInstrumentDrumkitPath.isEmpty() ) {
 						ERRORLOG( QString( "Drumkit [%1] could neither found "
@@ -306,7 +322,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 									 "lookup type [%2]. Falling back to [%3] "
 									 "found using stacked search" )
 								.arg( sInstrumentDrumkitName )
-								.arg( static_cast<int>( lookup ) )
+								.arg( nLookup )
 								.arg( sInstrumentDrumkitPath )
 						);
 					}
@@ -321,8 +337,9 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 				//
 				// It features just the name of the drumkit an relies on
 				// it being unique throught the entire search path.
-				sInstrumentDrumkitPath = Filesystem::drumkitPathSearch(
-					sInstrumentDrumkitName, Filesystem::Lookup::stacked, bSilent
+				sInstrumentDrumkitPath = pSoundLibraryDatabase->findArtifact(
+					Filesystem::Artifact::DrumkitExtracted,
+					Filesystem::Context::User, sInstrumentDrumkitName, true
 				);
 
 				if ( pLegacyFormatEncountered != nullptr ) {

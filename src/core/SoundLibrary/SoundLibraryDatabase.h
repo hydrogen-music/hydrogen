@@ -121,11 +121,15 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 
 	/** Checks whether an artifact of type @a artifact holding the name @a
 	 * sName exists in context @a context and returns the full path to the
-	 * first artifact matching. */
+	 * first artifact matching.
+	 *
+	 * In @a bStacked retrieval @a context is ignored and the we will search 1.
+	 * session, 2. user, and 3. system context for the artifact. */
 	QString findArtifact(
 		Filesystem::Artifact artifact,
 		Filesystem::Context context,
-		const QString& sName
+		const QString& sName,
+		bool bStacked = false
 	) const;
 
 	/** Formatted string version for debugging purposes.

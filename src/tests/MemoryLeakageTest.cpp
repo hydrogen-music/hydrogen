@@ -37,12 +37,12 @@
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
-#include <core/License.h>
-
 #include <core/Helpers/Legacy.h>
 #include <core/Helpers/Xml.h>
+#include <core/License.h>
 #include <core/Sampler/Sampler.h>
 #include <core/Sampler/Sampler.cpp>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include "TestHelper.h"
 
@@ -203,9 +203,12 @@ void MemoryLeakageTest::testConstructors()
 
 	// Test copy constructors using real-live instead of new objects.
 	auto pDrumkitProper = H2Core::Drumkit::load(
-		H2Core::Filesystem::drumkitPathSearch(
-			"GMRockKit", H2Core::Filesystem::Lookup::system, true
-		),
+		H2Core::Hydrogen::get_instance()
+			->getSoundLibraryDatabase()
+			->findArtifact(
+				H2Core::Filesystem::Artifact::DrumkitExtracted,
+				H2Core::Filesystem::Context::System, "GMRockKit"
+			),
 		false, nullptr, true
 	);
 	CPPUNIT_ASSERT( pDrumkitProper != nullptr );
@@ -337,8 +340,9 @@ void MemoryLeakageTest::testLoading()
 
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 
-	QString sDrumkitPath = H2Core::Filesystem::drumkitPathSearch(
-		"GMRockKit", H2Core::Filesystem::Lookup::system
+	QString sDrumkitPath = pHydrogen->getSoundLibraryDatabase()->findArtifact(
+		H2Core::Filesystem::Artifact::DrumkitExtracted,
+		H2Core::Filesystem::Context::System, "GMRockKit"
 	);
 
 	{
@@ -519,8 +523,9 @@ void MemoryLeakageTest::testLoading()
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
 		pDrumkit->loadSamples();
 		auto pDrumkit2 = H2Core::Drumkit::load(
-			H2Core::Filesystem::drumkitPathSearch(
-				"GMRockKit", H2Core::Filesystem::Lookup::system, true
+			pHydrogen->getSoundLibraryDatabase()->findArtifact(
+				H2Core::Filesystem::Artifact::DrumkitExtracted,
+				H2Core::Filesystem::Context::System, "GMRockKit"
 			),
 			false, nullptr, true
 		);

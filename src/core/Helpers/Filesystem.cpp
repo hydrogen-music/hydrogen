@@ -1030,53 +1030,7 @@ QString Filesystem::drumkitUserPath( const QString& sDrumkitName )
 {
 	return userDrumkitsDir() + sDrumkitName;
 }
-QString Filesystem::drumkitPathSearch(
-	const QString& sDrumkitName,
-	const Lookup& lookup,
-	bool bSilent
-)
-{
-	if ( lookup == Lookup::stacked || lookup == Lookup::user ) {
-		if ( userDrumkitList().contains( sDrumkitName ) ) {
-			return userDrumkitsDir() + sDrumkitName;
-		}
-	}
 
-	if ( lookup == Lookup::stacked || lookup == Lookup::system ) {
-		if ( systemDrumkitList().contains( sDrumkitName ) ) {
-			return systemDrumkitsDir() + sDrumkitName;
-		}
-	}
-
-	if ( !bSilent ) {
-		ERRORLOG( QString( "drumkit [%1] not found using lookup type [%2]" )
-					  .arg( sDrumkitName )
-					  .arg( static_cast<int>( lookup ) ) );
-	}
-
-	return QString( "" );
-}
-
-QString Filesystem::drumkitDirSearch(
-	const QString& sDrumkitName,
-	const Lookup& lookup
-)
-{
-	if ( lookup == Lookup::user || lookup == Lookup::stacked ) {
-		if ( userDrumkitList().contains( sDrumkitName ) ) {
-			return userDrumkitsDir();
-		}
-	}
-	if ( lookup == Lookup::system || lookup == Lookup::stacked ) {
-		if ( systemDrumkitList().contains( sDrumkitName ) ) {
-			return systemDrumkitsDir();
-		}
-	}
-	ERRORLOG( QString( "drumkit %1 not found with lookup mode [%2]" )
-				  .arg( sDrumkitName )
-				  .arg( static_cast<int>( lookup ) ) );
-	return "";
-}
 bool Filesystem::drumkitValid( const QString& sFolderPath )
 {
 	return fileReadable(

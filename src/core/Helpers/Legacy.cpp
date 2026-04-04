@@ -216,8 +216,19 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 	// Attempt to access the last loaded drumkit to load it into the
 	// SoundLibraryDatabase in case it was a custom one (e.g. loaded via OSC or
 	// from a different system data folder due to a different install prefix).
-	auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
-	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sLastLoadedDrumkitPath );
+	auto pSoundLibraryDatabase =
+		Hydrogen::get_instance()->getSoundLibraryDatabase();
+
+	std::shared_ptr<Drumkit> pDrumkit = nullptr;
+	if ( !sLastLoadedDrumkitPath.contains( "/" ) &&
+		 !sLastLoadedDrumkitPath.contains( "\\" ) ) {
+		// We deal with an actual path
+		pDrumkit = pSoundLibraryDatabase->getDrumkit( sLastLoadedDrumkitPath );
+	}
+	else if ( sLastLoadedDrumkitName.isEmpty() ) {
+		// This ain't a drumkit but just its name.
+		sLastLoadedDrumkitName = sLastLoadedDrumkitPath;
+	}
 
 	if ( pDrumkit == nullptr && !sLastLoadedDrumkitName.isEmpty() ) {
 		// Loading by path did not worked. But maybe loading by name will do
@@ -225,7 +236,12 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 		// but is in general not protable to other systems. Name-based lookup,
 		// however, is portable as long as btoh systems have the required kit
 		// installed).
-		pDrumkit = pSoundLibraryDatabase->getDrumkit( sLastLoadedDrumkitName );
+		pDrumkit = pSoundLibraryDatabase->getDrumkit(
+			pSoundLibraryDatabase->findArtifact(
+				Filesystem::Artifact::DrumkitExtracted,
+				Filesystem::Context::User, sLastLoadedDrumkitName, true
+			)
+		);
 	}
 
 	// Ensure we do not overwrite the original drumkit when altering the one
