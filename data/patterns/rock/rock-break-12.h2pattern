@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<drumkit_pattern xmlns="http://www.hydrogen-music.org/drumkit_pattern" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <drumkit_name>GMRockKit</drumkit_name>
+ <pattern>
+  <formatVersion>2</formatVersion>
+  <userVersion>0</userVersion>
+  <name>Rock Break 12</name>
+  <author>Albert Phelipot</author>
+  <info>Transcribed from the book "260 Drum Machine Patterns" by René-Pierre Bardet.</info>
+  <license>CC BY-SA</license>
+  <size>192</size>
+  <denominator>4</denominator>
+  <tags>
+   <tag>Rock</tag>
+   <tag>260 Drum Machine Patterns</tag>
+  </tags>
+  <noteList>
+   <note>
+    <position>0</position>
+    <leadlag>0</leadlag>
+    <velocity>0.8</velocity>
+    <pan>0</pan>
+    <key>C0</key>
+    <length>-1</length>
+    <instrument>2</instrument>
+    <type>Snare</type>
+    <note_off>false</note_off>
+    <probability>1</probability>
+   </note>
+   <note>
+    <position>0</position>
+    <leadlag>0</leadlag>
+    <velocity>0.8</velocity>
+    <pan>0</pan>
+    <key>C0</key>
+    <length>-1</length>
+    <instrument>0</instrument>
+    <type>Kick</type>
+    <note_off>false</note_off>
+    <probability>1</probability>
+   </note>
+   <note>
+    <position>12</position>
+    <leadlag>0</leadlag>
+    <velocity>0.8</velocity>
+    <pan>0</pan>
+    <key>C0</key>
+    <length>-1</length>
+    <instrument>2</instrument>
+    <type>Snare</type>
+    <note_off>false</note_off>
+    <probability>1</probability>
+   </note>
+   <note>
+    <position>36</position>
+    <leadlag>0</leadlag>
+    <velocity>0.8</velocity>
+    <pan>0</pan>
+    <key>C0</key>
+    <length>-1</length>
+    <instrument>2</instrument>
+    <type>Snare</type>
+    <note_off>false</note_off>
+    <probability>1</probability>
+   </note>
+   <note>
+    <position>48</position>
+    <leadlag>0</leadlag>
+    <velocity>0.8</velocity>
+    <pan>0</pan>
+    <key>C0</key>
+    <length>-1</length>
+    <instrument>7</instrument>
+    <type>Tom Low</type>
+    <note_off>false</note_off>
+    <probability>1</probability>
+   </note>
+   <note>
+    <position>60</position>
+    <leadlag>0</leadlag>
+    <velocity>0.8</velocity>
+    <pan>0</pan>
+    <key>C0</key>
+    <length>-1</length>
+    <instrument>7</instrument>
+    <type>Tom Low</type>
+    <note_off>false</note_off>
+    <probability>1</probability>
+   </note>
+   <note>
+    <position>84</position>
+    <leadlag>0</leadlag>
+    <velocity>0.8</velocity>
+    <pan>0</pan>
+    <key>C0</key>
+    <length>-1</length>
+    <instrument>7</instrument>
+    <type>Tom Low</type>
+    <note_off>false</note_off>
+    <probability>1</probability>
+   </note>
+   <note>
+    <position>96</position>
+    <leadlag>0</leadlag>
+    <velocity>0.8</velocity>
+    <pan>0</pan>
+    <key>C0</key>
+    <length>-1</length>
+    <instrument>9</instrument>
+    <type>Tom Mid</type>
+    <note_off>false</note_off>
+    <probability>1</probability>
+   </note>
+   <note>
+    <position>96</position>
+    <leadlag>0</leadlag>
+    <velocity>0.8</velocity>
+    <pan>0</pan>
+    <key>C0</key>
+    <length>-1</length>
+    <instrument>0</instrument>
+    <type>Kick</type>
+    <note_off>false</note_off>
+    <probability>1</probability>
+   </note>
+   <note>
+    <position>108</position>
+    <leadlag>0</leadlag>
+    <velocity>0.8</velocity>
+    <pan>0</pan>
+    <key>C0</key>
+    <length>-1</length>
+    <instrument>9</instrument>
+    <type>Tom Mid</type>
+    <note_off>false</note_off>
+    <probability>1</probability>
+   </note>
+   <note>
+    <position>132</position>
+    <leadlag>0</leadlag>
+    <velocity>0.8</velocity>
+    <pan>0</pan>
+    <key>C0</key>
+    <length>-1</length>
+    <instrument>9</instrument>
+    <type>Tom Mid</type>
+    <note_off>false</note_off>
+    <probability>1</probability>
+   </note>
+   <note>
+    <position>156</position>
+    <leadlag>0</leadlag>
+    <velocity>0.8</velocity>
+    <pan>0</pan>
+    <key>C0</key>
+    <length>-1</length>
+    <instrument>5</instrument>
+    <type>Tom Floor</type>
+    <note_off>false</note_off>
+    <probability>1</probability>
+   </note>
+   <note>
+    <position>168</position>
+    <leadlag>0</leadlag>
+    <velocity>0.8</velocity>
+    <pan>0</pan>
+    <key>C0</key>
+    <length>-1</length>
+    <instrument>5</instrument>
+    <type>Tom Floor</type>
+    <note_off>false</note_off>
+    <probability>1</probability>
+   </note>
+  </noteList>
+ </pattern>
+</drumkit_pattern>

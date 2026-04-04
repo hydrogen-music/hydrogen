@@ -94,6 +94,7 @@ All notable changes to this project will be documented in this file.
   - MIDI actions can be mapped to the currently selected instrument (by
     scrolling beyond `0`) (#459).
 - Changes in the Sample Editor can now be undone.
+- Hydrogen does now ship 267 example patterns (1.9MB).
 
 ### Changed
 
@@ -252,7 +253,7 @@ All notable changes to this project will be documented in this file.
   instrument mute/solo state.
 - Playback track does now respect looping and is update on tempo changes.
 - Sample files in the audio file browser can now be loaded via double-clicking.
-
+- Pattern export does now leave the pattern name untouched.
 
 ### Fixed
 
