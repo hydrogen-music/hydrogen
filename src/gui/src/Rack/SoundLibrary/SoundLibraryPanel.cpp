@@ -1100,9 +1100,14 @@ void SoundLibraryPanel::on_songLoadAction()
 
 	// Fallback: legacy path (shouldn't be reached in new design)
 	if ( __sound_library_tree->currentItem() != nullptr ) {
-		const QString sFileName = Filesystem::songPath(
-			__sound_library_tree->currentItem()->text( 0 ) );
-		HydrogenApp::openFile( Filesystem::Artifact::Song, sFileName );
+		const QString sFilePath =
+			Hydrogen::get_instance()->getSoundLibraryDatabase()->findArtifact(
+				Filesystem::Artifact::Song, Filesystem::Context::User,
+				__sound_library_tree->currentItem()->text( 0 )
+			);
+		if ( !sFilePath.isEmpty() ) {
+			HydrogenApp::openFile( Filesystem::Artifact::Song, sFilePath );
+		}
 	}
 }
 

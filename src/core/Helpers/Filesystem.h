@@ -243,8 +243,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static QString systemSongsDir();
 	/** returns user songs path */
 	static QString userSongsDir();
-	/** returns user song path, add file extension */
-	static QString songPath( const QString& sSongName );
 	/** returns user patterns path */
 	static QString userPatternsDir();
 	/** returns system patterns path */

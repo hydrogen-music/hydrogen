@@ -830,10 +830,6 @@ QString Filesystem::systemThemesDir()
 {
 	return m_sSystemDataPath + THEMES;
 }
-QString Filesystem::songPath( const QString& sSongName )
-{
-	return QString( userSongsDir() + sSongName + sSongSuffix );
-}
 QString Filesystem::userPatternsDir()
 {
 	return m_sUserDataPath + PATTERNS;
