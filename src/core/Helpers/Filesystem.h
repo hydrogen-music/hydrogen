@@ -405,12 +405,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static QString drumkitBackupPath( const QString& sDrumkitPath );
 
 	/**
-	 * returns true if the song file exists
-	 * @param sSongName the song name
-	 */
-	static bool songExists( const QString& sSongName );
-
-	/**
 	 * Checks the path @a sPath.
 	 *
 	 * It will be checked whether @a sPath

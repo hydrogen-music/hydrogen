@@ -1183,11 +1183,6 @@ QString Filesystem::drumkitBackupPath( const QString& sDrumkitPath )
 		   ".bak";
 }
 
-bool Filesystem::songExists( const QString& sSongName )
-{
-	return QDir( userSongsDir() ).exists( sSongName );
-}
-
 bool Filesystem::isPathValid(
 	const Artifact& artifact,
 	const QString& sPath,

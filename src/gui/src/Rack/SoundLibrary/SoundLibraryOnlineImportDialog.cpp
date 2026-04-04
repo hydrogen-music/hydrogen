@@ -440,9 +440,12 @@ bool SoundLibraryOnlineImportDialog::isSoundLibraryItemAlreadyInstalled( const H
 	}
 
 	if ( sInfo.getType() == "song" ) {
-		if ( H2Core::Filesystem::songExists(sName) ) {
-			return true;
-		}
+		return H2Core::Hydrogen::get_instance()
+			->getSoundLibraryDatabase()
+			->isArtifactInstalled(
+				H2Core::Filesystem::Artifact::Song,
+				H2Core::Filesystem::Context::User, sInfo.getName()
+			);
 	}
 
 	return false;
