@@ -57,7 +57,6 @@
 #define SONGS "songs/"
 #define THEMES "themes/"
 #define TMP "hydrogen/"
-#define XSD "xsd/"
 
 // files
 /** Sound of metronome beat */
@@ -71,11 +70,7 @@
 #define SYS_CONFIG "hydrogen.default.conf"
 #define LOG_FILE "hydrogen.log"
 #define DRUMKIT_XML "drumkit.xml"
-#define DRUMKIT_XSD "drumkit.xsd"
-#define DRUMKIT_MAP_XSD "drumkit_map.xsd"
-#define DRUMPAT_XSD "drumkit_pattern.xsd"
 #define DRUMKIT_DEFAULT_KIT "GMRockKit"
-#define PLAYLIST_XSD "playlist.xsd"
 
 #define AUTOSAVE "autosave"
 
@@ -653,14 +648,11 @@ bool Filesystem::checkSystemPaths()
 		demosDir(),
 		systemDrumkitsDir(),
 		systemDrumkitMapsDir(),
-		xsdDir(),
 		systemThemesDir(),
 		systemImageDir(),
 		systemInternationalizationDir() };
 
 	QStringList filesReadable = { clickFilePath(),	 emptySamplePath(),
-								  playlistXsdPath(), drumkitMapXsdPath(),
-								  drumkitXsdPath(),	 patternXsdPath(),
 								  systemConfigPath() };
 
 	bool bChecksPassed = true;
@@ -804,26 +796,6 @@ QString Filesystem::clickFilePath()
 {
 	return m_sSystemDataPath + CLICK_SAMPLE;
 }
-QString Filesystem::drumkitXsd()
-{
-	return DRUMKIT_XSD;
-}
-QString Filesystem::drumkitXsdPath()
-{
-	return xsdDir() + DRUMKIT_XSD;
-}
-QString Filesystem::drumkitMapXsdPath()
-{
-	return xsdDir() + DRUMKIT_MAP_XSD;
-}
-QString Filesystem::patternXsdPath()
-{
-	return xsdDir() + DRUMPAT_XSD;
-}
-QString Filesystem::playlistXsdPath()
-{
-	return xsdDir() + PLAYLIST_XSD;
-}
 const QString& Filesystem::logFilePath()
 {
 	return m_sUserLogPath;
@@ -866,10 +838,6 @@ QString Filesystem::userPatternsDir()
 {
 	return m_sUserDataPath + PATTERNS;
 }
-QString Filesystem::userPatternsDir( const QString& sDir )
-{
-	return m_sUserDataPath + PATTERNS + sDir + "/";
-}
 QString Filesystem::systemPatternsDir()
 {
 	return m_sSystemDataPath + PATTERNS;
@@ -909,14 +877,6 @@ QString Filesystem::repositoriesCacheDir()
 QString Filesystem::demosDir()
 {
 	return m_sSystemDataPath + DEMOS;
-}
-QString Filesystem::xsdDir()
-{
-	return m_sSystemDataPath + XSD;
-}
-QString Filesystem::xsdLegacyDir()
-{
-	return xsdDir() + "legacy";
 }
 QString Filesystem::tmpDir()
 {
@@ -1304,19 +1264,6 @@ void Filesystem::info()
 	INFOLOG(
 		QString( "Images dir                 : %1" ).arg( systemImageDir() )
 	);
-	INFOLOG( QString( "XSD dir                    : %1" ).arg( xsdDir() ) );
-	INFOLOG(
-		QString( "Pattern XSD                : %1" ).arg( patternXsdPath() )
-	);
-	INFOLOG(
-		QString( "Drumkit XSD                : %1" ).arg( drumkitXsdPath() )
-	);
-	INFOLOG(
-		QString( "Playlist XSD               : %1" ).arg( playlistXsdPath() )
-	);
-	INFOLOG(
-		QString( "Drumkit Map XSD            : %1" ).arg( drumkitMapXsdPath() )
-	);
 	// USR
 	INFOLOG(
 		QString( "User config                : %1" ).arg( userConfigPath() )
@@ -1353,26 +1300,6 @@ QString Filesystem::absolutePath( const QString& sFileName, bool bSilent )
 	}
 
 	return QString();
-}
-
-QStringList Filesystem::drumkitXsdLegacyPaths()
-{
-	const QDir legacyDir( xsdLegacyDir() );
-
-	const QStringList legacyDirSubfolders = legacyDir.entryList(
-		QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name | QDir::Reversed
-	);
-
-	QStringList drumkitXSDs;
-	for ( const auto& ffolder : legacyDirSubfolders ) {
-		const QDir folder( legacyDir.filePath( ffolder ) );
-
-		if ( folder.exists( drumkitXsd() ) ) {
-			drumkitXSDs << folder.filePath( drumkitXsd() );
-		}
-	}
-
-	return std::move( drumkitXSDs );
 }
 
 QString Filesystem::rerouteDrumkitPath( const QString& sDrumkitPath )

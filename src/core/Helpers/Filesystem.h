@@ -228,19 +228,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 		* #CLICK_SAMPLE.
 		*/
 	static QString clickFilePath();
-	/** returns the drumkit XSD (xml schema definition) name */
-	static QString drumkitXsd();
-	/** returns the path to the drumkit XSD (xml schema definition) file */
-	static QString drumkitXsdPath();
-	static QString drumkitMapXsdPath();
-	/** @return List of absolute paths to all formerly used
-		drumkit.xsd files.*/
-	static QStringList drumkitXsdLegacyPaths();
-	/** returns the path to the pattern XSD (xml schema definition) file */
-	static QString patternXsdPath();
-	/** returns the path to the playlist pattern XSD (xml schema definition)
-	 * file */
-	static QString playlistXsdPath();
 	/** returns the full path (including filename) of the logfile */
 	static const QString& logFilePath();
 
@@ -260,7 +247,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static QString songPath( const QString& sSongName );
 	/** returns user patterns path */
 	static QString userPatternsDir();
-	static QString userPatternsDir( const QString& sDir );
 	/** returns system patterns path */
 	static QString systemPatternsDir();
 	/** returns user plugins path */
@@ -280,9 +266,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static QString repositoriesCacheDir();
 	/** returns system demos path */
 	static QString demosDir();
-	/** returns system xsd path */
-	static QString xsdDir();
-	static QString xsdLegacyDir();
 	/** returns temp path */
 	static QString tmpDir();
 	static QString userThemesDir();
