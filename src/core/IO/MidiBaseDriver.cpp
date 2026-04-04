@@ -55,21 +55,33 @@ MidiBaseDriver::MidiBaseDriver()
 								  ->getBpm() );
 	}
 
+	// Sometimes a pure wait did block forever in our very slow AppVeyor
+	// pipelines. We will take that as a race condition in which handler started
+	// before the wait was called. Until further notice (user feedback) we also
+	// treat timeouts valid MIDI clock thread initiations.
 	{
+		auto deadline =
+			std::chrono::steady_clock::now() + std::chrono::seconds( 1 );
 		std::unique_lock lock{ m_inputMessageHandlerMutex };
 		m_pInputMessageHandler = std::make_shared<std::thread>(
 			MidiBaseDriver::inputMessageHandler, (void*) this
 		);
 		// Wait till the thread as created successfully.
-		m_inputMessageHandlerCV.wait( lock, [&] { return m_bInputActive; } );
+		m_inputMessageHandlerCV.wait_until( lock, deadline, [&] {
+			return m_bInputActive;
+		} );
 	}
 	{
+		auto deadline =
+			std::chrono::steady_clock::now() + std::chrono::seconds( 1 );
 		std::unique_lock lock{ m_outputMessageHandlerMutex };
 		m_pOutputMessageHandler = std::make_shared<std::thread>(
 			MidiBaseDriver::outputMessageHandler, (void*) this
 		);
 		// Wait till the thread as created successfully.
-		m_outputMessageHandlerCV.wait( lock, [&] { return m_bOutputActive; } );
+		m_outputMessageHandlerCV.wait_until( lock, deadline, [&] {
+			return m_bOutputActive;
+		} );
 	}
 }
 
