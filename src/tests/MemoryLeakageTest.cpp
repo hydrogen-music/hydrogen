@@ -537,11 +537,3 @@ void MemoryLeakageTest::testLoading()
 	}
 	___INFOLOG( "passed" );
 }
-
-void MemoryLeakageTest::tearDown()
-{
-	if ( H2Core::Filesystem::drumkitExists( "testKitLadida" ) ) {
-		QString sPath = H2Core::Filesystem::drumkitUserPath( "testKitLadida" );
-		CPPUNIT_ASSERT( H2Core::Filesystem::rm( sPath, true ) );
-	}
-}
