@@ -114,18 +114,12 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 	m_drumkitDatabase.clear();
 
 	QStringList drumkitPaths;
-	// system drumkits
-	for ( const auto& sDrumkitName : Filesystem::systemDrumkitList() ) {
-		drumkitPaths << Filesystem::absolutePath(
-			Filesystem::systemDrumkitsDir() + sDrumkitName
-		);
-	}
-	// user drumkits
-	for ( const auto& sDrumkitName : Filesystem::userDrumkitList() ) {
-		drumkitPaths << Filesystem::absolutePath(
-			Filesystem::userDrumkitsDir() + sDrumkitName
-		);
-	}
+	drumkitPaths << Filesystem::listContent(
+		Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::System
+	);
+	drumkitPaths << Filesystem::listContent(
+		Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::User
+	);
 
 #ifdef H2CORE_HAVE_APPIMAGE
 	// When starting Hydrogen as an AppImage, all drumkits installed via the
@@ -150,6 +144,12 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 	}
 #endif
 
+    // Either of the two session contexts does the job.
+	drumkitPaths << Filesystem::listContent(
+		Filesystem::Artifact::DrumkitExtracted,
+		Filesystem::Context::SessionReadOnly
+	);
+
 	// custom drumkits added by the user
 	for ( const auto& sDrumkitPath : m_customDrumkitPaths ) {
 		if ( !drumkitPaths.contains( sDrumkitPath ) ) {
@@ -157,19 +157,11 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 		}
 	}
 
-	// search custom drumkit folders for valid kits. Be careful not to add
-	// directories, which do not correspond to drumkits. This would lead to a
-	// lot of false positive error messages.
-	for ( const auto& sDrumkitFolder : m_customDrumkitFolders ) {
-		for ( const auto& sDrumkitName :
-			  Filesystem::drumkitList( sDrumkitFolder ) ) {
-			drumkitPaths
-				<< QDir( sDrumkitFolder ).absoluteFilePath( sDrumkitName );
-		}
-	}
-
 	for ( const auto& sDrumkitPath : drumkitPaths ) {
-		auto pDrumkit = Drumkit::load( sDrumkitPath );
+		// findContent returns the absolute path to a drumkit.xml file.
+		// Traditionally, load() requires the folder a drumkit.xml resides in.
+		QFileInfo info( sDrumkitPath );
+		auto pDrumkit = Drumkit::load( info.dir().path() );
 		if ( pDrumkit != nullptr ) {
 			if ( m_drumkitDatabase.find( sDrumkitPath ) !=
 				 m_drumkitDatabase.end() ) {
