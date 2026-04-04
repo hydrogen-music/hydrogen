@@ -1593,9 +1593,12 @@ QStringList Filesystem::targetDirs( Artifact artifact, Context context )
 				results << userDrumkitsDir();
 			}
 			else {
-				results << Hydrogen::get_instance()
-							   ->getSoundLibraryDatabase()
-							   ->getCustomDrumkitFolders();
+				auto pHydrogen = Hydrogen::get_instance();
+				if ( pHydrogen != nullptr &&
+					 pHydrogen->getSoundLibraryDatabase() != nullptr ) {
+					results << pHydrogen->getSoundLibraryDatabase()
+								   ->getCustomDrumkitFolders();
+				}
 			}
 			break;
 		}
