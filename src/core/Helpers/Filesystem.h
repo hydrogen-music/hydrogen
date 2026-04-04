@@ -405,14 +405,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static QString drumkitBackupPath( const QString& sDrumkitPath );
 
 	/**
-	 * returns a list of existing patterns
-	 * @param sPath the path to look for patterns in
-	 */
-	static QStringList patternList( const QString& sPath );
-
-	/** returns a list of existing songs */
-	static QStringList songList();
-	/**
 	 * returns true if the song file exists
 	 * @param sSongName the song name
 	 */

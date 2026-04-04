@@ -1183,24 +1183,6 @@ QString Filesystem::drumkitBackupPath( const QString& sDrumkitPath )
 		   ".bak";
 }
 
-QStringList Filesystem::patternList( const QString& sPath )
-{
-	return QDir( sPath ).entryList(
-		QStringList( PATTERN_FILTER ),
-		QDir::Files | QDir::Readable | QDir::NoDotAndDotDot
-	);
-}
-
-// SONGS
-QStringList Filesystem::songList()
-{
-	return QDir( userSongsDir() )
-		.entryList(
-			QStringList( SONG_FILTER ),
-			QDir::Files | QDir::Readable | QDir::NoDotAndDotDot
-		);
-}
-
 bool Filesystem::songExists( const QString& sSongName )
 {
 	return QDir( userSongsDir() ).exists( sSongName );
