@@ -410,11 +410,8 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	 */
 	static QStringList patternList( const QString& sPath );
 
-	/* SONGS */
 	/** returns a list of existing songs */
 	static QStringList songList();
-	/** returns a list of existing songs, excluding the autosaved one */
-	static QStringList songListCleared();
 	/**
 	 * returns true if the song file exists
 	 * @param sSongName the song name

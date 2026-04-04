@@ -1201,17 +1201,6 @@ QStringList Filesystem::songList()
 		);
 }
 
-QStringList Filesystem::songListCleared()
-{
-	QStringList result;
-	foreach ( const QString& str, songList() ) {
-		if ( !str.contains( AUTOSAVE ) ) {
-			result += str;
-		}
-	}
-	return result;
-}
-
 bool Filesystem::songExists( const QString& sSongName )
 {
 	return QDir( userSongsDir() ).exists( sSongName );

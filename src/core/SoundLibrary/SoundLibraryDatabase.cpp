@@ -437,35 +437,26 @@ void SoundLibraryDatabase::updateSongs( Event::Trigger trigger )
 {
 	m_songInfos.clear();
 
-	// User songs
-	const QString sUsrSongsDir = Filesystem::userSongsDir();
-	if ( Filesystem::dirReadable( sUsrSongsDir, true ) ) {
-		for ( const QString& sSongFile : Filesystem::songListCleared() ) {
-			const QString sFullPath = sUsrSongsDir + sSongFile;
-			auto pInfo = std::make_shared<SongInfo>();
-			if ( pInfo->load( sFullPath ) ) {
-				pInfo->setContext( Filesystem::Context::User );
-				m_songInfos.push_back( pInfo );
-			}
-		}
-	}
+	QStringList songPaths;
+	songPaths << Filesystem::listContent(
+		Filesystem::Artifact::Song, Filesystem::Context::System
+	);
+	songPaths << Filesystem::listContent(
+		Filesystem::Artifact::Song, Filesystem::Context::User
+	);
 
-	// System songs (demos)
-	const QString sSysSongsDir = Filesystem::systemSongsDir();
-	if ( Filesystem::dirReadable( sSysSongsDir, true ) ) {
-		const QStringList songFiles =
-			QDir( sSysSongsDir )
-				.entryList(
-					QStringList( "*.h2song" ),
-					QDir::Files | QDir::Readable | QDir::NoDotAndDotDot
-				);
-		for ( const QString& sSongFile : songFiles ) {
-			const QString sFullPath = sSysSongsDir + sSongFile;
-			auto pInfo = std::make_shared<SongInfo>();
-			if ( pInfo->load( sFullPath ) ) {
-				pInfo->setContext( Filesystem::Context::System );
-				m_songInfos.push_back( pInfo );
-			}
+	for ( const auto& ssPath : songPaths ) {
+		auto pInfo = std::make_shared<SongInfo>();
+		if ( pInfo->load( ssPath ) ) {
+			INFOLOG( QString( "Song [%1] registered from [%2]" )
+						 .arg( pInfo->getName() )
+						 .arg( ssPath ) );
+			m_songInfos.push_back( pInfo );
+		}
+		else {
+			WARNINGLOG(
+				QString( "Unable to register song [%1]" ).arg( ssPath )
+			);
 		}
 	}
 
