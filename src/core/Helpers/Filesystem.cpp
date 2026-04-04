@@ -70,7 +70,6 @@
 #define SYS_CONFIG "hydrogen.default.conf"
 #define LOG_FILE "hydrogen.log"
 #define DRUMKIT_XML "drumkit.xml"
-#define DRUMKIT_DEFAULT_KIT "GMRockKit"
 
 #define AUTOSAVE "autosave"
 
@@ -962,37 +961,6 @@ QStringList Filesystem::drumkitList( const QString& sPath )
 		}
 	}
 	return ok;
-}
-QString Filesystem::drumkitDefaultKit()
-{
-	QString sDefaultPath = systemDrumkitsDir() + DRUMKIT_DEFAULT_KIT;
-
-	// GMRockKit does not exist at system-level? Let's pick another
-	// one.
-	if ( !drumkitValid( sDefaultPath ) ) {
-		for ( const auto& sDrumkitName : Filesystem::systemDrumkitList() ) {
-			if ( drumkitValid(
-					 Filesystem::systemDrumkitsDir() + sDrumkitName
-				 ) ) {
-				sDefaultPath = Filesystem::systemDrumkitsDir() + sDrumkitName;
-				break;
-			}
-		}
-	}
-
-	// There is no drumkit at system-level? Let's pick one from user-space.
-	if ( !drumkitValid( sDefaultPath ) ) {
-		for ( const auto& sDrumkitName : Filesystem::userDrumkitList() ) {
-			if ( drumkitValid(
-					 Filesystem::userDrumkitsDir() + sDrumkitName
-				 ) ) {
-				sDefaultPath = Filesystem::userDrumkitsDir() + sDrumkitName;
-				break;
-			}
-		}
-	}
-
-	return sDefaultPath;
 }
 
 QStringList Filesystem::systemDrumkitList()

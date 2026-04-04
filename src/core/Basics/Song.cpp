@@ -1034,14 +1034,18 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 			Hydrogen::get_instance()->getSoundLibraryDatabase();
 	}
 
-	const QString sDefaultDrumkitPath = Filesystem::drumkitDefaultKit();
-	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDefaultDrumkitPath );
+	// Per default we use the GMRockKit shipped with Hydrogen
+	auto pDrumkit =
+		pSoundLibraryDatabase->getDrumkit( pSoundLibraryDatabase->findArtifact(
+			Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::System,
+			"GMRockKit"
+		) );
 	if ( pDrumkit == nullptr ) {
-		for ( const auto& pEntry : pSoundLibraryDatabase->getDrumkitDatabase() ) {
+		// In case we failed to load the default kit, we just use the first one
+		// registered in the sound library.
+		for ( const auto& pEntry :
+			  pSoundLibraryDatabase->getDrumkitDatabase() ) {
 			if ( pEntry.second != nullptr ) {
-				WARNINGLOG( QString( "Unable to retrieve default drumkit [%1]. Using kit [%2] instead." )
-							.arg( sDefaultDrumkitPath )
-							.arg( pEntry.first ) );
 				pDrumkit = pEntry.second;
 				break;
 			}
@@ -1049,11 +1053,12 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 	}
 
 	if ( pDrumkit == nullptr ) {
-		// In case we fail to load the default kit, we use an empty one.
+		// Seems there is not a single drumkit in the library, we use an empty
+		// one.
 		pDrumkit = Drumkit::getEmptyDrumkit();
 	}
 	else {
-		pDrumkit = std::make_shared<Drumkit>(pDrumkit);
+		pDrumkit = std::make_shared<Drumkit>( pDrumkit );
 	}
 
 	pSong->setDrumkit( pDrumkit );

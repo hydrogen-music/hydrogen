@@ -315,7 +315,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	 * @param sDrumkitName the drumkit name
 	 */
 	static QString drumkitUserPath( const QString& sDrumkitName );
-	static QString drumkitDefaultKit();
 	/** Returns the path to a H2Core::Drumkit folder.
 	 *
 	 * The search will first be performed within user-level
