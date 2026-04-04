@@ -1183,13 +1183,6 @@ QString Filesystem::drumkitBackupPath( const QString& sDrumkitPath )
 		   ".bak";
 }
 
-// PATTERNS
-QStringList Filesystem::patternDrumkits()
-{
-	return QDir( userPatternsDir() )
-		.entryList( QDir::Dirs | QDir::Readable | QDir::NoDotAndDotDot );
-}
-
 QStringList Filesystem::patternList( const QString& sPath )
 {
 	return QDir( sPath ).entryList(

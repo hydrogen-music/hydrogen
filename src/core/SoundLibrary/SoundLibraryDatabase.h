@@ -114,7 +114,6 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 
 	void updatePatterns( Event::Trigger trigger );
 	void updateSongs( Event::Trigger trigger );
-	void loadPatternFromDirectory( const QString& path );
 	bool isPatternInstalled( const QString& sPatternName ) const;
 
 	/** Formatted string version for debugging purposes.

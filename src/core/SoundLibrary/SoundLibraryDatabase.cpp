@@ -403,45 +403,33 @@ void SoundLibraryDatabase::updatePatterns( Event::Trigger trigger )
 {
 	m_patternInfos.clear();
 
-	// search drumkit subdirectories within patterns user directory
-	foreach ( const QString& sDrumkit, Filesystem::patternDrumkits() ) {
-		loadPatternFromDirectory( Filesystem::userPatternsDir( sDrumkit ) );
-	}
-	// search patterns user directory
-	loadPatternFromDirectory( Filesystem::userPatternsDir() );
+	QStringList patternPaths;
+	patternPaths << Filesystem::listContent(
+		Filesystem::Artifact::Pattern, Filesystem::Context::System
+	);
+	patternPaths << Filesystem::listContent(
+		Filesystem::Artifact::Pattern, Filesystem::Context::User
+	);
 
-	// search system patterns directory if it exists
-	const QString sSysPatternsDir = Filesystem::systemPatternsDir();
-	if ( Filesystem::dirReadable( sSysPatternsDir, true ) ) {
-		loadPatternFromDirectory( sSysPatternsDir );
-	}
-
-	// Set context on all patterns based on their file path
-	for ( auto& pInfo : m_patternInfos ) {
-		pInfo->setContext( Filesystem::DetermineContext( pInfo->getPath() ) );
+	for ( const auto& ssPath : patternPaths ) {
+		auto pInfo = std::make_shared<PatternInfo>();
+		if ( pInfo->load( ssPath ) ) {
+			INFOLOG( QString( "Pattern [%1] registered from [%2]" )
+						 .arg( pInfo->getName() )
+						 .arg( ssPath ) );
+			m_patternInfos.push_back( pInfo );
+		}
+		else {
+			WARNINGLOG(
+				QString( "Unable to register pattern [%1]" ).arg( ssPath )
+			);
+		}
 	}
 
 	if ( trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->pushEvent(
 			Event::Type::SoundLibraryChanged, 0
 		);
-	}
-}
-
-void SoundLibraryDatabase::loadPatternFromDirectory( const QString& sPatternDir
-)
-{
-	foreach ( const QString& sName, Filesystem::patternList( sPatternDir ) ) {
-		const auto sFile = sPatternDir + sName;
-		auto pInfo = std::make_shared<PatternInfo>();
-
-		if ( pInfo->load( sFile ) ) {
-			INFOLOG( QString( "Pattern [%1] loaded from [%2]" )
-						 .arg( pInfo->getName() )
-						 .arg( sFile ) );
-
-			m_patternInfos.push_back( pInfo );
-		}
 	}
 }
 
