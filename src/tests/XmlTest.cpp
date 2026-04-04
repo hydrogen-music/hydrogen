@@ -500,43 +500,41 @@ void XmlTest::testShippedDrumkits()
 
 	// Since there are also optional elements in our XML files, we load,
 	// save, and compare all shipped kit to ensure they are cutting edge.
-	for ( const auto& ssKit : H2Core::Filesystem::systemDrumkitList() ) {
-		___INFOLOG( ssKit );
+	for ( const auto& ssPath : H2Core::Filesystem::listContent( H2Core::Filesystem::Artifact::DrumkitExtracted, H2Core::Filesystem::Context::System ) ) {
+		___INFOLOG( ssPath );
+
+		QFileInfo info( ssPath );
+		const auto sFolder = info.dir().path();
 
 		// Since kits are upgraded during startup of Hydrogen, all shipped kits
 		// will cutting edge. But we can check for the presence of backup files
 		// which indicate that an upgrade was required/took place.
 		const auto backupFiles =
-			TestHelper::get_instance()->findDrumkitBackupFiles(
-				QString( "%1/%2" ).arg( H2Core::Filesystem::systemDrumkitsDir() )
-				.arg( ssKit ) );
+			TestHelper::get_instance()->findDrumkitBackupFiles( sFolder );
 		if ( backupFiles.size() > 0 ) {
 			___ERRORLOG( QString( "backup files found: %1" )
-						 .arg( backupFiles.join( ',' ) ) );
+							 .arg( backupFiles.join( ',' ) ) );
 			CPPUNIT_ASSERT( backupFiles.size() == 0 );
 		}
 
-		const auto pDrumkit = H2Core::Drumkit::load(
-			QString( "%1/%2" ).arg( H2Core::Filesystem::systemDrumkitsDir() )
-			.arg( ssKit ), false, nullptr, true );
+		const auto pDrumkit =
+			H2Core::Drumkit::load( sFolder, false, nullptr, true );
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
 
 		const QString sTmpDrumkitXml = H2Core::Filesystem::tmpFilePath(
-			QString( "newest-%1.xml" ).arg( ssKit ) );
+			QString( "newest-%1.xml" ).arg( pDrumkit->getName() )
+		);
 
 		H2Core::XMLDoc doc;
 		H2Core::XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
 		root.appendChild( doc.createComment(
-							  H2Core::License::getGPLLicenseNotice(
-								  pDrumkit->getAuthor() ) ) );
+			H2Core::License::getGPLLicenseNotice( pDrumkit->getAuthor() )
+		) );
 		pDrumkit->saveTo( root, false, true, false );
 
 		CPPUNIT_ASSERT( doc.write( sTmpDrumkitXml ) );
 
-		H2TEST_ASSERT_DRUMKIT_FILES_EQUAL(
-			H2Core::Filesystem::drumkitFile(
-				QString( "%1/%2" ).arg( H2Core::Filesystem::systemDrumkitsDir() )
-				.arg( ssKit ) ), sTmpDrumkitXml );
+		H2TEST_ASSERT_DRUMKIT_FILES_EQUAL( ssPath, sTmpDrumkitXml );
 
 		// Cleanup
 		CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpDrumkitXml ) );

@@ -944,34 +944,6 @@ QStringList Filesystem::listContent(
 	return content;
 }
 
-// DRUMKITS
-QStringList Filesystem::drumkitList( const QString& sPath )
-{
-	QDir dir( sPath );
-	QStringList ok;
-	QStringList possible =
-		dir.entryList( QDir::Dirs | QDir::Readable | QDir::NoDotAndDotDot );
-	for ( const QString& ssSubFolder : possible ) {
-		if ( drumkitValid( dir.absoluteFilePath( ssSubFolder ) ) ) {
-			ok << ssSubFolder;
-		}
-		else {
-			ERRORLOG( QString( "drumkit [%1] is not usable" ).arg( ssSubFolder )
-			);
-		}
-	}
-	return ok;
-}
-
-QStringList Filesystem::systemDrumkitList()
-{
-	return drumkitList( systemDrumkitsDir() );
-}
-QStringList Filesystem::userDrumkitList()
-{
-	return drumkitList( userDrumkitsDir() );
-}
-
 QString Filesystem::prepareSamplePath(
 	const QString& sSamplePath,
 	const QString& sDrumkitPath
