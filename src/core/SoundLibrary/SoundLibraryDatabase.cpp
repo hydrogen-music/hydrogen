@@ -45,15 +45,57 @@ SoundLibraryDatabase::~SoundLibraryDatabase()
 {
 }
 
-bool SoundLibraryDatabase::isPatternInstalled( const QString& sPatternName
+bool SoundLibraryDatabase::isArtifactInstalled(
+	Filesystem::Artifact artifact,
+	Filesystem::Context context,
+	const QString& sName
 ) const
 {
-	for ( const auto& pPatternInfo : m_patternInfos ) {
-		if ( pPatternInfo->getName() == sPatternName ) {
-			return true;
-		}
+	switch ( artifact ) {
+		case Filesystem::Artifact::DrumkitBundled:
+			ERRORLOG( "Bundled drumkits aren't installed in the Sound Library"
+			);
+			return false;
+
+		case Filesystem::Artifact::DrumkitExtracted:
+			for ( const auto& [_, ppDrumkit] : m_drumkitDatabase ) {
+				if ( ppDrumkit != nullptr && ppDrumkit->getName() == sName &&
+					 ppDrumkit->getContext() == context ) {
+					return true;
+				}
+			}
+			return false;
+			break;
+
+		case Filesystem::Artifact::Pattern:
+			for ( const auto& ppPatternInfo : m_patternInfos ) {
+				if ( ppPatternInfo != nullptr &&
+					 ppPatternInfo->getName() == sName &&
+					 ppPatternInfo->getContext() == context ) {
+					return true;
+				}
+			}
+			return false;
+
+		case Filesystem::Artifact::Playlist:
+			ERRORLOG( "Bundled playlists aren't installed in the Sound Library"
+			);
+			return false;
+
+		case Filesystem::Artifact::Song:
+			for ( const auto& ppSongInfo : m_songInfos ) {
+				if ( ppSongInfo != nullptr && ppSongInfo->getName() == sName &&
+					 ppSongInfo->getContext() == context ) {
+					return true;
+				}
+			}
+			return false;
+
+		default:
+			ERRORLOG( QString( "Unsupported artifact: [%1]" )
+						  .arg( Filesystem::ArtifactToQString( artifact ) ) );
+			return false;
 	}
-	return false;
 }
 
 void SoundLibraryDatabase::update()

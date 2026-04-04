@@ -431,8 +431,12 @@ bool SoundLibraryOnlineImportDialog::isSoundLibraryItemAlreadyInstalled( const H
 	}
 
 	if ( sInfo.getType() == "pattern" ) {
-		return H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()
-			->isPatternInstalled( sInfo.getName() );
+		return H2Core::Hydrogen::get_instance()
+			->getSoundLibraryDatabase()
+			->isArtifactInstalled(
+				H2Core::Filesystem::Artifact::Pattern,
+				H2Core::Filesystem::Context::User, sInfo.getName()
+			);
 	}
 
 	if ( sInfo.getType() == "song" ) {

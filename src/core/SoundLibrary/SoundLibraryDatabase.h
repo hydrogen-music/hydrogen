@@ -114,7 +114,12 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 
 	void updatePatterns( Event::Trigger trigger );
 	void updateSongs( Event::Trigger trigger );
-	bool isPatternInstalled( const QString& sPatternName ) const;
+
+	bool isArtifactInstalled(
+		Filesystem::Artifact artifact,
+		Filesystem::Context context,
+		const QString& sName
+	) const;
 
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
