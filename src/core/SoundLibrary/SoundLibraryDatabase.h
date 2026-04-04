@@ -63,8 +63,6 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	void update();
 
 	void updateDrumkits( Event::Trigger trigger );
-	void
-	updateDrumkit( const QString& sDrumkitPath, Event::Trigger trigger );
 	/**
 	 * Retrieve a drumkit from the database.
 	 *

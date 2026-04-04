@@ -200,29 +200,6 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 	}
 }
 
-void SoundLibraryDatabase::updateDrumkit(
-	const QString& sDrumkitPath,
-	Event::Trigger trigger
-)
-{
-	auto pDrumkit = Drumkit::load( sDrumkitPath );
-	if ( pDrumkit != nullptr ) {
-		m_drumkitDatabase[sDrumkitPath] = pDrumkit;
-		registerUniqueLabel( sDrumkitPath, pDrumkit );
-	}
-	else {
-		ERRORLOG(
-			QString( "Unable to load drumkit at [%1]" ).arg( sDrumkitPath )
-		);
-	}
-
-	if ( trigger != Event::Trigger::Suppress ) {
-		EventQueue::get_instance()->pushEvent(
-			Event::Type::SoundLibraryChanged, 0
-		);
-	}
-}
-
 std::shared_ptr<Drumkit>
 SoundLibraryDatabase::getDrumkit( const QString& sDrumkit, bool bUpgrade )
 {
