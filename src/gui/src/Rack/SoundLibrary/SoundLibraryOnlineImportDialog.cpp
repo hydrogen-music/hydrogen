@@ -424,10 +424,20 @@ bool SoundLibraryOnlineImportDialog::isSoundLibraryItemAlreadyInstalled( const H
 	sName = sName.left( sName.lastIndexOf( "." ) );
 
 	if ( sInfo.getType() == "drumkit" ) {
-		if ( H2Core::Filesystem::drumkitExists( sName ) ||
-			H2Core::Filesystem::drumkitExists( sInfo.getName() ) ) {
-			return true;
-		}
+		return !H2Core::Hydrogen::get_instance()
+					->getSoundLibraryDatabase()
+					->findArtifact(
+						H2Core::Filesystem::Artifact::DrumkitExtracted,
+						H2Core::Filesystem::Context::User, sName
+					)
+					.isEmpty() ||
+			   !H2Core::Hydrogen::get_instance()
+					->getSoundLibraryDatabase()
+					->findArtifact(
+						H2Core::Filesystem::Artifact::DrumkitExtracted,
+						H2Core::Filesystem::Context::User, sInfo.getName()
+					)
+					.isEmpty();
 	}
 
 	if ( sInfo.getType() == "pattern" ) {

@@ -306,11 +306,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	 */
 	static QStringList drumkitList( const QString& sPath );
 	/**
-	 * returns true if the drumkit exists within usable system or user drumkits
-	 * @param sDrumkitName the drumkit name
-	 */
-	static bool drumkitExists( const QString& sDrumkitName );
-	/**
 	 * returns path for a drumkit within user drumkit path
 	 * @param sDrumkitName the drumkit name
 	 */

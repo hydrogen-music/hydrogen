@@ -1026,13 +1026,6 @@ QString Filesystem::prepareSamplePath(
 	return sSamplePath;
 }
 
-bool Filesystem::drumkitExists( const QString& sDrumkitName )
-{
-	if ( userDrumkitList().contains( sDrumkitName ) ) {
-		return true;
-	}
-	return systemDrumkitList().contains( sDrumkitName );
-}
 QString Filesystem::drumkitUserPath( const QString& sDrumkitName )
 {
 	return userDrumkitsDir() + sDrumkitName;
