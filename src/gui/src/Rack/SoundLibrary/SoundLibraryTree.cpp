@@ -26,40 +26,31 @@
 
 #include <QMimeData>
 
-SoundLibraryTree::SoundLibraryTree( QWidget *pParent )
- : QTreeWidget( pParent )
+SoundLibraryTree::SoundLibraryTree( QWidget* pParent ) : QTreeWidget( pParent )
 {
 	setHeaderLabels( QStringList( tr( "Sound library" ) ) );
 	setAlternatingRowColors( true );
 	setRootIsDecorated( false );
 
-	headerItem()->setHidden( true ); // hides the header
-
+	headerItem()->setHidden( true );  // hides the header
 }
 
-
-void SoundLibraryTree::mousePressEvent(QMouseEvent *event)
+void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
 {
-//	INFOLOG( "[mousePressEvent]" );
+	//	INFOLOG( "[mousePressEvent]" );
 	QTreeWidget::mousePressEvent( event );
 
 	auto pEv = static_cast<MouseEvent*>( event );
 
 	if ( event->button() == Qt::RightButton ) {
 		emit rightClicked( pEv->globalPosition().toPoint() );
-
 	}
-	else if (event->button() == Qt::LeftButton ) {
+	else if ( event->button() == Qt::LeftButton ) {
 		emit leftClicked( pEv->globalPosition().toPoint() );
 	}
 }
 
-
-
-void SoundLibraryTree::mouseMoveEvent(QMouseEvent *event)
+void SoundLibraryTree::mouseMoveEvent( QMouseEvent* event )
 {
 	emit onMouseMove( event );
 }
-
-
-

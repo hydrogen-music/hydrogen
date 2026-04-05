@@ -29,31 +29,23 @@
 #include <core/Object.h>
 
 /** \ingroup docGUI*/
-class SoundLibraryTree : public QTreeWidget, private H2Core::Object<SoundLibraryTree>
-{
-    H2_OBJECT(SoundLibraryTree)
+class SoundLibraryTree : public QTreeWidget,
+						 private H2Core::Object<SoundLibraryTree> {
+	H2_OBJECT( SoundLibraryTree )
 	Q_OBJECT
-	public:
-		explicit SoundLibraryTree( QWidget *pParent );
+   public:
+	explicit SoundLibraryTree( QWidget* pParent );
 
-	signals:
-		void leftClicked( const QPoint& pos );
-		void rightClicked( const QPoint& pos );
-		void onMouseMove( QMouseEvent* event );
+   signals:
+	void leftClicked( const QPoint& pos );
+	void rightClicked( const QPoint& pos );
+	void onMouseMove( QMouseEvent* event );
 
+   private slots:
 
-	private slots:
-
-
-	protected:
-
-		virtual void mousePressEvent(QMouseEvent *event) override;
-		virtual void mouseMoveEvent(QMouseEvent *event) override;
-
-
+   protected:
+	virtual void mousePressEvent( QMouseEvent* event ) override;
+	virtual void mouseMoveEvent( QMouseEvent* event ) override;
 };
 
-
-
 #endif
-
