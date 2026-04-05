@@ -46,36 +46,65 @@ void DrumkitExportTest::setUp() {
 
 	// We do not check return value as the folder should not exist in the first
 	// place.
-	if ( Filesystem::dirExists( Filesystem::drumkitUserPath( m_sTestKitName ), true ) ) {
-		Filesystem::rm( Filesystem::drumkitUserPath( m_sTestKitName ), true, true );
+	if ( Filesystem::dirExists(
+			 Filesystem::userDrumkitsDir() + m_sTestKitName, true
+		 ) ) {
+		Filesystem::rm(
+			Filesystem::userDrumkitsDir() + m_sTestKitName, true, true
+		);
 	}
-	if ( Filesystem::dirExists( Filesystem::drumkitUserPath( m_sTestKitNameSampleFormats ), true ) ) {
-		Filesystem::rm( Filesystem::drumkitUserPath( m_sTestKitNameSampleFormats ), true, true );
+	if ( Filesystem::dirExists(
+			 Filesystem::userDrumkitsDir() + m_sTestKitNameSampleFormats, true
+		 ) ) {
+		Filesystem::rm(
+			Filesystem::userDrumkitsDir() + m_sTestKitNameSampleFormats, true,
+			true
+		);
 	}
-	if ( Filesystem::dirExists( Filesystem::drumkitUserPath( m_sTestKitNameUtf8 ), true ) ) {
-		Filesystem::rm( Filesystem::drumkitUserPath( m_sTestKitNameUtf8 ), true, true );
+	if ( Filesystem::dirExists(
+			 Filesystem::userDrumkitsDir() + m_sTestKitNameUtf8, true
+		 ) ) {
+		Filesystem::rm(
+			Filesystem::userDrumkitsDir() + m_sTestKitNameUtf8, true, true
+		);
 	}
 
-	auto pSong = CoreActionController::loadSong(
-		H2TEST_FILE( "functional/test.h2song" ) );
+	auto pSong =
+		CoreActionController::loadSong( H2TEST_FILE( "functional/test.h2song" )
+		);
 	CoreActionController::setSong( pSong );
 }
 
-void DrumkitExportTest::tearDown() {
+void DrumkitExportTest::tearDown()
+{
 	// Remove the test kit from the system.
-	if ( Filesystem::dirExists( Filesystem::drumkitUserPath( m_sTestKitName ), true ) ) {
-		Filesystem::rm( Filesystem::drumkitUserPath( m_sTestKitName ), true, true );
+	if ( Filesystem::dirExists(
+			 Filesystem::userDrumkitsDir() + m_sTestKitName, true
+		 ) ) {
+		Filesystem::rm(
+			Filesystem::userDrumkitsDir() + m_sTestKitName, true, true
+		);
 	}
-	if ( Filesystem::dirExists( Filesystem::drumkitUserPath( m_sTestKitNameSampleFormats ), true ) ) {
-		Filesystem::rm( Filesystem::drumkitUserPath( m_sTestKitNameSampleFormats ), true, true );
+	if ( Filesystem::dirExists(
+			 Filesystem::userDrumkitsDir() + m_sTestKitNameSampleFormats, true
+		 ) ) {
+		Filesystem::rm(
+			Filesystem::userDrumkitsDir() + m_sTestKitNameSampleFormats, true,
+			true
+		);
 	}
-	if ( Filesystem::dirExists( Filesystem::drumkitUserPath( m_sTestKitNameUtf8 ), true ) ) {
-		Filesystem::rm( Filesystem::drumkitUserPath( m_sTestKitNameUtf8 ), true, true );
+	if ( Filesystem::dirExists(
+			 Filesystem::userDrumkitsDir() + m_sTestKitNameUtf8, true
+		 ) ) {
+		Filesystem::rm(
+			Filesystem::userDrumkitsDir() + m_sTestKitNameUtf8, true, true
+		);
 	}
 
 	// Discard all changes to the test song.
-	auto pSong = CoreActionController::loadSong(
-		H2TEST_FILE( "functional/test.h2song" ) );
+	auto pSong =
+		CoreActionController::loadSong( H2TEST_FILE( "functional/test.h2song" )
+		);
 	CoreActionController::setSong( pSong );
 }
 
@@ -98,7 +127,7 @@ void DrumkitExportTest::testDrumkitExportAndImport() {
 	// Check whether import worked, the UTF-8 path and name was read properly,
 	// and all samples are present.
 	const auto pDB = pHydrogen->getSoundLibraryDatabase();
-	const QString sExtractedKit = Filesystem::drumkitUserPath( m_sTestKitName );
+	const QString sExtractedKit = Filesystem::userDrumkitsDir() + m_sTestKitName;
 	const auto pDrumkit = pDB->getDrumkit( sExtractedKit );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( pDrumkit->getName() == m_sTestKitName );
@@ -151,7 +180,7 @@ void DrumkitExportTest::testDrumkitExportAndImportSampleFormats() {
 	// and all samples are present.
 	const auto pDB = pHydrogen->getSoundLibraryDatabase();
 	const QString sExtractedKit =
-		Filesystem::drumkitUserPath( m_sTestKitNameSampleFormats );
+		Filesystem::userDrumkitsDir() + m_sTestKitNameSampleFormats;
 	const auto pDrumkit = pDB->getDrumkit( sExtractedKit );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( pDrumkit->getName() == m_sTestKitNameSampleFormats );

@@ -998,11 +998,6 @@ QString Filesystem::prepareSamplePath(
 	return sSamplePath;
 }
 
-QString Filesystem::drumkitUserPath( const QString& sDrumkitName )
-{
-	return userDrumkitsDir() + sDrumkitName;
-}
-
 bool Filesystem::drumkitValid( const QString& sFolderPath )
 {
 	return fileReadable(

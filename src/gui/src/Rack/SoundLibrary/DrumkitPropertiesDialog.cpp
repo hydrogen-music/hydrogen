@@ -918,8 +918,9 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	else if ( m_pDrumkit->getContext() == Filesystem::Context::SessionReadOnly ||
 			  m_pDrumkit->getContext() == Filesystem::Context::System ||
 			  m_pDrumkit->getContext() == Filesystem::Context::Song ) {
-		m_pDrumkit->setPath( Filesystem::drumkitUserPath( m_pDrumkit->getName()
-		) );
+		m_pDrumkit->setPath(
+			Filesystem::userDrumkitsDir() + m_pDrumkit->getName()
+		);
 	}
 
 	// Check whether there is already a kit present we would overwrite.

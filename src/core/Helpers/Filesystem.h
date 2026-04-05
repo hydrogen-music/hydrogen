@@ -276,11 +276,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 		const QString& sSamplePath,
 		const QString& sDrumkitPath
 	);
-	/**
-	 * returns path for a drumkit within user drumkit path
-	 * @param sDrumkitName the drumkit name
-	 */
-	static QString drumkitUserPath( const QString& sDrumkitName );
 
 	/**
 	 * returns true if the path contains a usable drumkit
