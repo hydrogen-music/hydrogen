@@ -31,6 +31,7 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
+#include <core/SoundLibrary/DrumkitInfo.h>
 #include <core/SoundLibrary/PatternInfo.h>
 #include <core/SoundLibrary/SongInfo.h>
 
@@ -158,6 +159,7 @@ void SoundLibraryDatabase::update()
 void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 {
 	m_drumkitDatabase.clear();
+    m_drumkitInfos.clear();
 
 	QStringList drumkitPaths;
 	drumkitPaths << Filesystem::listContent(
@@ -223,6 +225,11 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 
 			m_drumkitDatabase[sDrumkitPath] = pDrumkit;
 			registerUniqueLabel( sDrumkitPath, pDrumkit );
+
+			auto pInfo = DrumkitInfo::from( pDrumkit );
+			if ( pInfo != nullptr ) {
+				m_drumkitInfos.push_back( pInfo );
+			}
 		}
 		else {
 			ERRORLOG(

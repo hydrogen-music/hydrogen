@@ -47,6 +47,7 @@ namespace H2Core
  *
  */
 
+class DrumkitInfo;
 class PatternInfo;
 class SongInfo;
 
@@ -57,6 +58,7 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	SoundLibraryDatabase();
 	~SoundLibraryDatabase();
 
+	std::vector<std::shared_ptr<DrumkitInfo>> getDrumkitInfos() const;
 	std::vector<std::shared_ptr<PatternInfo>> getPatternInfos() const;
 	std::vector<std::shared_ptr<SongInfo>> getSongInfos() const;
 
@@ -161,6 +163,7 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	 * */
 	std::map<QString, QString> m_drumkitUniqueLabels;
 
+	std::vector<std::shared_ptr<DrumkitInfo>> m_drumkitInfos;
 	std::vector<std::shared_ptr<PatternInfo>> m_patternInfos;
 	std::vector<std::shared_ptr<SongInfo>> m_songInfos;
 
@@ -176,6 +179,11 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	/** Whole folders that will be scanned for drumkits in addition to the
 	 * system and user drumkti folder. */
 	QStringList m_customDrumkitFolders;
+};
+inline std::vector<std::shared_ptr<DrumkitInfo>>
+SoundLibraryDatabase::getDrumkitInfos() const
+{
+	return m_drumkitInfos;
 };
 inline std::vector<std::shared_ptr<PatternInfo>>
 SoundLibraryDatabase::getPatternInfos() const

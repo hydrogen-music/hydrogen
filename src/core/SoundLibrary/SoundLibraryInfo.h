@@ -103,7 +103,7 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo> {
 	QString toQString( const QString& sPrefix = "", bool bShort = true )
 		const override;
 
-   private:
+   protected:
 	QString m_sName;
 	QString m_sURL;
 	QString m_sInfo;

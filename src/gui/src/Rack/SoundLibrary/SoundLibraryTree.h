@@ -48,8 +48,6 @@ class SoundLibraryTree : public QTreeWidget,
 	void rightClicked( const QPoint& pos );
 	void onMouseMove( QMouseEvent* event );
 
-   private slots:
-
    protected:
 	virtual void mousePressEvent( QMouseEvent* event ) override;
 	virtual void mouseMoveEvent( QMouseEvent* event ) override;
