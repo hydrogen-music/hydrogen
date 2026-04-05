@@ -43,31 +43,38 @@ class SoundLibraryTree;
 class ToggleButton;
 
 /** \ingroup docGUI*/
-class SoundLibraryPanel : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, private H2Core::Object<SoundLibraryPanel>, public EventListener
-{
-	H2_OBJECT(SoundLibraryPanel)
-Q_OBJECT
-public:
+class SoundLibraryPanel : public QWidget,
+						  protected WidgetWithScalableFont<8, 10, 12>,
+						  private H2Core::Object<SoundLibraryPanel>,
+						  public EventListener {
+	H2_OBJECT( SoundLibraryPanel )
+	Q_OBJECT
+   public:
 	SoundLibraryPanel( QWidget* parent, bool bInItsOwnDialog );
 	~SoundLibraryPanel();
 
 	QString getDrumkitLabel( const QString& sDrumkitPath ) const;
 	QString getDrumkitPath( const QString& sDrumkitLabel ) const;
 
-		/** Somewhat low-level function for drumkit switching. In case drumkit
-		 * switching is triggered by the user, #MainForm::switchDrumkit() should
-		 * be used as entry point. */
-		static void switchDrumkit( std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
-								   std::shared_ptr<H2Core::Drumkit> pOldDrumkit );
-	
+	/** Somewhat low-level function for drumkit switching. In case drumkit
+	 * switching is triggered by the user, #MainForm::switchDrumkit() should
+	 * be used as entry point. */
+	static void switchDrumkit(
+		std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
+		std::shared_ptr<H2Core::Drumkit> pOldDrumkit
+	);
+
 	void soundLibraryChangedEvent() override;
 	void updateSongEvent( int nValue ) override;
 
-public slots:
+   public slots:
 	void on_drumkitLoadAction();
 
-private slots:
-	void on_DrumkitList_ItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous );
+   private slots:
+	void on_DrumkitList_ItemChanged(
+		QTreeWidgetItem* current,
+		QTreeWidgetItem* previous
+	);
 	void on_DrumkitList_itemActivated( QTreeWidgetItem* item, int column );
 	void on_DrumkitList_leftClicked( const QPoint& pos );
 	void on_DrumkitList_rightClicked( const QPoint& pos );
@@ -82,7 +89,8 @@ private slots:
 
 	/** Called when the active tab in m_pTabWidget changes. */
 	void onTabChanged( int nIndex );
-	/** Called when a tree item is selected in any tab. Updates the detail view. */
+	/** Called when a tree item is selected in any tab. Updates the detail view.
+	 */
 	void onTreeItemSelected();
 	/** Called when the search field text changes. Filters all trees. */
 	void onSearchTextChanged( const QString& sText );
@@ -96,11 +104,11 @@ private slots:
 	// Song tree slots
 	void on_SongTree_rightClicked( const QPoint& pos );
 
-signals:
-	void item_changed(bool bDrumkitSelected);
+   signals:
+	void item_changed( bool bDrumkitSelected );
 
-private:
-		void editDrumkitProperties( bool bDuplicate );
+   private:
+	void editDrumkitProperties( bool bDuplicate );
 
 	/** Build the drumkit tree (tab 0). The internal structure of System /
 	 * User / Session drumkits with instrument children is preserved from
@@ -131,9 +139,9 @@ private:
 	QTabWidget* m_pTabWidget;
 
 	// --- Per-tab trees ---
-	SoundLibraryTree* __sound_library_tree;   // Drumkit tree (tab 0)
-	SoundLibraryTree* m_pPatternTree;         // Pattern tree (tab 1)
-	SoundLibraryTree* m_pSongTree;            // Song tree (tab 2)
+	SoundLibraryTree* __sound_library_tree;	 // Drumkit tree (tab 0)
+	SoundLibraryTree* m_pPatternTree;		 // Pattern tree (tab 1)
+	SoundLibraryTree* m_pSongTree;			 // Song tree (tab 2)
 
 	// --- Detail view ---
 	QLabel* m_pDetailName;
@@ -176,7 +184,7 @@ private:
 	 * absolute path of the drumkit (value) also used as unique ID in
 	 * H2Core::Hydrogen::SoundLibraryDatabase::m_drumkitDatabase.
 	 */
-	std::map<QString,QString> m_drumkitRegister;
+	std::map<QString, QString> m_drumkitRegister;
 	/** List of all labels used for drumkits in the tree.
 	 *
 	 * Used to ensure uniqueness.*/
@@ -184,11 +192,13 @@ private:
 
 	/** Maps pattern tree items to their SoundLibraryInfo for pattern
 	 * operations (load, delete, drag-and-drop). */
-	std::map<QTreeWidgetItem*, std::shared_ptr<H2Core::SoundLibraryInfo>> m_patternRegistry;
+	std::map<QTreeWidgetItem*, std::shared_ptr<H2Core::SoundLibraryInfo>>
+		m_patternRegistry;
 
 	/** Maps song tree items to their SoundLibraryInfo for song
 	 * operations (load). */
-	std::map<QTreeWidgetItem*, std::shared_ptr<H2Core::SoundLibraryInfo>> m_songRegistry;
+	std::map<QTreeWidgetItem*, std::shared_ptr<H2Core::SoundLibraryInfo>>
+		m_songRegistry;
 
 	/** Whether the dialog was constructed via a click in the MainForm or as
 	 * part of the GUI. */
