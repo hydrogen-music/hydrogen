@@ -45,7 +45,7 @@ Rack::Rack( QWidget* pParent )
 
 	m_pInstrumentEditor = new InstrumentEditor( this );
 	m_pComponentEditor = new ComponentEditor( this );
-	m_pSoundLibraryPanel = new SoundLibraryPanel( this, false );
+	m_pSoundLibraryPanel = new SoundLibraryPanel( this, nullptr );
 
 	connect(
 		HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this,

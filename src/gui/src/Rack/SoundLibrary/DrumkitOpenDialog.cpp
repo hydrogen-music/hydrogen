@@ -22,6 +22,8 @@
 
 #include "DrumkitOpenDialog.h"
 
+#include <core/Helpers/Filesystem.h>
+
 #include "SoundLibraryPanel.h"
 #include "../../CommonStrings.h"
 #include "../../HydrogenApp.h"
@@ -42,9 +44,12 @@ DrumkitOpenDialog::DrumkitOpenDialog( QWidget* pParent )
 
 
 	// Sound Library Panel
-	m_pSoundLibraryPanel = new SoundLibraryPanel( nullptr, true );
+	m_pSoundLibraryPanel = new SoundLibraryPanel(
+		this, std::make_shared<Filesystem::Artifact>(
+				  Filesystem::Artifact::DrumkitExtracted
+			  )
+	);
 	pVBox->addWidget( m_pSoundLibraryPanel, 0 );
-
 
 	// Buttons
 	QHBoxLayout *pButtonsBox = new QHBoxLayout();

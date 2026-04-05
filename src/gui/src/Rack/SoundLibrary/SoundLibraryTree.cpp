@@ -30,9 +30,12 @@ using namespace H2Core;
 
 SoundLibraryTree::SoundLibraryTree(
 	QWidget* pParent,
-	Filesystem::Artifact artifact
+	Filesystem::Artifact artifact,
+	bool bStandAlone
 )
-	: QTreeWidget( pParent ), m_artifact( artifact )
+	: QTreeWidget( pParent ),
+	  m_artifact( artifact ),
+	  m_bStandAlone( bStandAlone )
 {
 	setAlternatingRowColors( true );
 	setRootIsDecorated( false );

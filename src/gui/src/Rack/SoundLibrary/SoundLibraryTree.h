@@ -37,7 +37,8 @@ class SoundLibraryTree : public QTreeWidget,
    public:
 	explicit SoundLibraryTree(
 		QWidget* pParent,
-		H2Core::Filesystem::Artifact artifact
+		H2Core::Filesystem::Artifact artifact,
+        bool bStandAlone
 	);
 
    signals:
@@ -53,6 +54,9 @@ class SoundLibraryTree : public QTreeWidget,
 
    private:
 	H2Core::Filesystem::Artifact m_artifact;
+	/** Whether the widget is created as part of the main window or as part of
+	 * the Open From Library dialog of the corresponding aritfact. */
+	bool m_bStandAlone;
 };
 
 #endif

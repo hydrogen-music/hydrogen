@@ -24,6 +24,7 @@
 
 #include <QtGui>
 #include <QtWidgets>
+#include <memory>
 
 #include "DrumkitPropertiesDialog.h"
 #include "SoundLibraryTree.h"
@@ -55,7 +56,7 @@
 
 using namespace H2Core;
 
-SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, bool bInItsOwnDialog )
+SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, std::shared_ptr<Filesystem::Artifact> pOpenArtifact )
 	: QWidget( pParent ),
 	  m_pSearchField( nullptr ),
 	  m_pRescanButton( nullptr ),
@@ -83,7 +84,7 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, bool bInItsOwnDialog )
 	  __song_item( nullptr ),
 	  __pattern_item( nullptr ),
 	  __pattern_item_list( nullptr ),
-	  m_bInItsOwnDialog( bInItsOwnDialog )
+	  m_pOpenArtifact( pOpenArtifact )
 {
 	setMinimumWidth( Rack::nWidth );
 	setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding ) );
@@ -160,70 +161,85 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, bool bInItsOwnDialog )
 	);
 
 	// DRUMKIT TREE (tab 0)
-	m_pDrumkitTree =
-		new SoundLibraryTree( this, Filesystem::Artifact::DrumkitExtracted );
-	connect(
-		m_pDrumkitTree,
-		SIGNAL( currentItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ),
-		this,
-		SLOT( on_DrumkitList_ItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) )
-	);
-	connect(
-		m_pDrumkitTree, SIGNAL( itemActivated( QTreeWidgetItem*, int ) ),
-		this, SLOT( on_DrumkitList_itemActivated( QTreeWidgetItem*, int ) )
-	);
-	connect(
-		m_pDrumkitTree, SIGNAL( leftClicked( QPoint ) ), this,
-		SLOT( on_DrumkitList_leftClicked( QPoint ) )
-	);
-	connect(
-		m_pDrumkitTree,
-		SIGNAL( currentItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ),
-		this, SLOT( onTreeItemSelected() )
-	);
-	if ( !m_bInItsOwnDialog ) {
-		connect(
-			m_pDrumkitTree, SIGNAL( rightClicked( QPoint ) ), this,
-			SLOT( on_DrumkitList_rightClicked( QPoint ) )
+	if ( m_pOpenArtifact == nullptr ||
+		 *m_pOpenArtifact == Filesystem::Artifact::DrumkitExtracted ) {
+		m_pDrumkitTree = new SoundLibraryTree(
+			this, Filesystem::Artifact::DrumkitExtracted,
+			m_pOpenArtifact != nullptr
 		);
 		connect(
-			m_pDrumkitTree, SIGNAL( onMouseMove( QMouseEvent* ) ), this,
-			SLOT( on_DrumkitList_mouseMove( QMouseEvent* ) )
+			m_pDrumkitTree,
+			SIGNAL( currentItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ),
+			this,
+			SLOT(
+				on_DrumkitList_ItemChanged( QTreeWidgetItem*, QTreeWidgetItem* )
+			)
 		);
+		connect(
+			m_pDrumkitTree, SIGNAL( itemActivated( QTreeWidgetItem*, int ) ),
+			this, SLOT( on_DrumkitList_itemActivated( QTreeWidgetItem*, int ) )
+		);
+		connect(
+			m_pDrumkitTree, SIGNAL( leftClicked( QPoint ) ), this,
+			SLOT( on_DrumkitList_leftClicked( QPoint ) )
+		);
+		connect(
+			m_pDrumkitTree,
+			SIGNAL( currentItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ),
+			this, SLOT( onTreeItemSelected() )
+		);
+		if ( m_pOpenArtifact == nullptr ) {
+			connect(
+				m_pDrumkitTree, SIGNAL( rightClicked( QPoint ) ), this,
+				SLOT( on_DrumkitList_rightClicked( QPoint ) )
+			);
+			connect(
+				m_pDrumkitTree, SIGNAL( onMouseMove( QMouseEvent* ) ), this,
+				SLOT( on_DrumkitList_mouseMove( QMouseEvent* ) )
+			);
+		}
 	}
 
 	// PATTERN TREE (tab 1)
-	m_pPatternTree =
-		new SoundLibraryTree( this, Filesystem::Artifact::Pattern );
-	connect(
-		m_pPatternTree,
-		SIGNAL( currentItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ),
-		this, SLOT( onTreeItemSelected() )
-	);
-	if ( !m_bInItsOwnDialog ) {
-		connect(
-			m_pPatternTree, SIGNAL( rightClicked( QPoint ) ), this,
-			SLOT( on_PatternTree_rightClicked( QPoint ) )
+	if ( m_pOpenArtifact == nullptr ||
+		 *m_pOpenArtifact == Filesystem::Artifact::Pattern ) {
+		m_pPatternTree = new SoundLibraryTree(
+			this, Filesystem::Artifact::Pattern, m_pOpenArtifact != nullptr
 		);
 		connect(
-			m_pPatternTree, SIGNAL( onMouseMove( QMouseEvent* ) ), this,
-			SLOT( on_PatternTree_mouseMove( QMouseEvent* ) )
+			m_pPatternTree,
+			SIGNAL( currentItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ),
+			this, SLOT( onTreeItemSelected() )
 		);
+		if ( m_pOpenArtifact == nullptr ) {
+			connect(
+				m_pPatternTree, SIGNAL( rightClicked( QPoint ) ), this,
+				SLOT( on_PatternTree_rightClicked( QPoint ) )
+			);
+			connect(
+				m_pPatternTree, SIGNAL( onMouseMove( QMouseEvent* ) ), this,
+				SLOT( on_PatternTree_mouseMove( QMouseEvent* ) )
+			);
+		}
 	}
 
 	// SONG TREE (tab 2)
-	m_pSongTree =
-		new SoundLibraryTree( this, Filesystem::Artifact::Song );
-	connect(
-		m_pSongTree,
-		SIGNAL( currentItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ),
-		this, SLOT( onTreeItemSelected() )
-	);
-	if ( !m_bInItsOwnDialog ) {
-		connect(
-			m_pSongTree, SIGNAL( rightClicked( QPoint ) ), this,
-			SLOT( on_SongTree_rightClicked( QPoint ) )
+	if ( m_pOpenArtifact == nullptr ||
+		 *m_pOpenArtifact == Filesystem::Artifact::Song ) {
+		m_pSongTree = new SoundLibraryTree(
+			this, Filesystem::Artifact::Song, m_pOpenArtifact != nullptr
 		);
+		connect(
+			m_pSongTree,
+			SIGNAL( currentItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ),
+			this, SLOT( onTreeItemSelected() )
+		);
+		if ( m_pOpenArtifact == nullptr ) {
+			connect(
+				m_pSongTree, SIGNAL( rightClicked( QPoint ) ), this,
+				SLOT( on_SongTree_rightClicked( QPoint ) )
+			);
+		}
 	}
 
 	// Search bar
@@ -238,14 +254,40 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, bool bInItsOwnDialog )
 	pSearchLayout->addWidget( m_pSearchField );
 	pSearchLayout->addWidget( m_pRescanButton );
 
-	// Tab widget
-	m_pTabWidget = new QTabWidget( this );
-	m_pTabWidget->setDocumentMode( true );
-	m_pTabWidget->addTab(
-		m_pDrumkitTree, pCommonStrings->getDrumkitsLabel()
-	);
-	m_pTabWidget->addTab( m_pPatternTree, pCommonStrings->getPatternsLabel() );
-	m_pTabWidget->addTab( m_pSongTree, pCommonStrings->getSongsLabel() );
+	// Main layout
+	QVBoxLayout* pMainLayout = new QVBoxLayout();
+	pMainLayout->setSpacing( 0 );
+	pMainLayout->setContentsMargins( 0, 0, 0, 0 );
+	pMainLayout->addLayout( pSearchLayout );
+
+	this->setLayout( pMainLayout );
+
+	// Tree widgets
+	if ( m_pOpenArtifact == nullptr ) {
+		m_pTabWidget = new QTabWidget( this );
+		pMainLayout->addWidget( m_pTabWidget );
+		m_pTabWidget->setDocumentMode( true );
+		m_pTabWidget->addTab(
+			m_pDrumkitTree, pCommonStrings->getDrumkitsLabel()
+		);
+		m_pTabWidget->addTab(
+			m_pPatternTree, pCommonStrings->getPatternsLabel()
+		);
+		m_pTabWidget->addTab( m_pSongTree, pCommonStrings->getSongsLabel() );
+		connect(
+			m_pTabWidget, &QTabWidget::currentChanged, this,
+			&SoundLibraryPanel::onTabChanged
+		);
+	}
+	else if ( *m_pOpenArtifact == Filesystem::Artifact::DrumkitExtracted ) {
+		pMainLayout->addWidget( m_pDrumkitTree );
+	}
+	else if ( *m_pOpenArtifact == Filesystem::Artifact::Pattern ) {
+		pMainLayout->addWidget( m_pPatternTree );
+	}
+	else if ( *m_pOpenArtifact == Filesystem::Artifact::Song ) {
+		pMainLayout->addWidget( m_pSongTree );
+	}
 
 	// Detail view
 	m_pDetailName = new QLabel( this );
@@ -268,16 +310,7 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, bool bInItsOwnDialog )
 
 	QWidget* pDetailContainer = new QWidget( this );
 	pDetailContainer->setLayout( pFormLayout );
-
-	// Main layout
-	QVBoxLayout* pVBox = new QVBoxLayout();
-	pVBox->setSpacing( 0 );
-	pVBox->setContentsMargins( 0, 0, 0, 0 );
-	pVBox->addLayout( pSearchLayout );
-	pVBox->addWidget( m_pTabWidget );
-	pVBox->addWidget( pDetailContainer );
-
-	this->setLayout( pVBox );
+	pMainLayout->addWidget( pDetailContainer );
 
 	connect(
 		m_pSearchField, &QLineEdit::textChanged, this,
@@ -286,10 +319,6 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, bool bInItsOwnDialog )
 	connect(
 		m_pRescanButton, &QPushButton::clicked, this,
 		&SoundLibraryPanel::onRescanClicked
-	);
-	connect(
-		m_pTabWidget, &QTabWidget::currentChanged, this,
-		&SoundLibraryPanel::onTabChanged
 	);
 
 	connect(
@@ -318,6 +347,10 @@ void SoundLibraryPanel::updateTree()
 
 void SoundLibraryPanel::updateDrumkitTree()
 {
+	if ( m_pDrumkitTree == nullptr ) {
+		return;
+	}
+
 	const auto pPref = H2Core::Preferences::get_instance();
 	const auto pFontTheme = pPref->getFontTheme();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
@@ -417,7 +450,7 @@ void SoundLibraryPanel::updateDrumkitTree()
 
 		pDrumkitItem->setText( 0, sItemLabel );
 		pDrumkitItem->setToolTip( 0, ssPath );
-		if ( !m_bInItsOwnDialog ) {
+		if ( m_pOpenArtifact == nullptr ) {
 			auto pInstrList = ppDrumkit->getInstruments();
 			for ( const auto& pInstrument : *ppDrumkit->getInstruments() ) {
 				if ( pInstrument != nullptr ) {
@@ -462,6 +495,10 @@ void SoundLibraryPanel::updateDrumkitTree()
 
 void SoundLibraryPanel::updatePatternTree()
 {
+	if ( m_pPatternTree == nullptr ) {
+		return;
+	}
+    
 	m_pPatternTree->clear();
 	m_patternRegistry.clear();
 	m_pPatternSystemItem = nullptr;
@@ -517,6 +554,10 @@ void SoundLibraryPanel::updatePatternTree()
 
 void SoundLibraryPanel::updateSongTree()
 {
+	if ( m_pSongTree == nullptr ) {
+		return;
+	}
+    
 	m_pSongTree->clear();
 	m_songRegistry.clear();
 	m_pSongSystemItem = nullptr;
@@ -578,16 +619,30 @@ void SoundLibraryPanel::updateSongTree()
 void SoundLibraryPanel::updateDetailView()
 {
 	// Determine which tree is active
-	int nTab = m_pTabWidget->currentIndex();
 	SoundLibraryTree* pActiveTree = nullptr;
-
-	if ( nTab == 0 ) {
+	if ( m_pTabWidget != nullptr ) {
+		switch ( m_pTabWidget->currentIndex() ) {
+			case 0:
+				pActiveTree = m_pDrumkitTree;
+				break;
+			case 1:
+				pActiveTree = m_pPatternTree;
+				break;
+			case 2:
+				pActiveTree = m_pSongTree;
+				break;
+			default:
+				ERRORLOG( "Invalid tab" );
+				return;
+		}
+	}
+	else if ( *m_pOpenArtifact == Filesystem::Artifact::DrumkitExtracted ) {
 		pActiveTree = m_pDrumkitTree;
 	}
-	else if ( nTab == 1 ) {
+	else if ( *m_pOpenArtifact == Filesystem::Artifact::Pattern ) {
 		pActiveTree = m_pPatternTree;
 	}
-	else if ( nTab == 2 ) {
+	else {
 		pActiveTree = m_pSongTree;
 	}
 
@@ -604,7 +659,7 @@ void SoundLibraryPanel::updateDetailView()
 
 	QTreeWidgetItem* pItem = pActiveTree->currentItem();
 
-	if ( nTab == 0 ) {
+	if ( pActiveTree == m_pDrumkitTree ) {
 		// Drumkit tab: look up the selected drumkit
 		if ( pItem->parent() == m_pTreeSystemDrumkitsItem ||
 			 pItem->parent() == m_pTreeUserDrumkitsItem ||
@@ -627,7 +682,7 @@ void SoundLibraryPanel::updateDetailView()
 			}
 		}
 	}
-	else if ( nTab == 1 ) {
+	else if ( pActiveTree == m_pPatternTree ) {
 		// Pattern tab
 		auto it = m_patternRegistry.find( pItem );
 		if ( it != m_patternRegistry.end() && it->second != nullptr ) {
@@ -640,7 +695,7 @@ void SoundLibraryPanel::updateDetailView()
 			m_pDetailPath->setText( pInfo->getPath() );
 		}
 	}
-	else if ( nTab == 2 ) {
+	else if ( pActiveTree == m_pSongTree ) {
 		// Song tab
 		auto it = m_songRegistry.find( pItem );
 		if ( it != m_songRegistry.end() && it->second != nullptr ) {
