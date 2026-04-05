@@ -26,7 +26,13 @@
 
 #include <QMimeData>
 
-SoundLibraryTree::SoundLibraryTree( QWidget* pParent ) : QTreeWidget( pParent )
+using namespace H2Core;
+
+SoundLibraryTree::SoundLibraryTree(
+	QWidget* pParent,
+	Filesystem::Artifact artifact
+)
+	: QTreeWidget( pParent ), m_artifact( artifact )
 {
 	setHeaderLabels( QStringList( tr( "Sound library" ) ) );
 	setAlternatingRowColors( true );

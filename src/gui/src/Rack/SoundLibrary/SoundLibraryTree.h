@@ -26,6 +26,7 @@
 #include <QtGui>
 #include <QtWidgets>
 
+#include <core/Helpers/Filesystem.h>
 #include <core/Object.h>
 
 /** \ingroup docGUI*/
@@ -34,7 +35,10 @@ class SoundLibraryTree : public QTreeWidget,
 	H2_OBJECT( SoundLibraryTree )
 	Q_OBJECT
    public:
-	explicit SoundLibraryTree( QWidget* pParent );
+	explicit SoundLibraryTree(
+		QWidget* pParent,
+		H2Core::Filesystem::Artifact artifact
+	);
 
    signals:
 	void leftClicked( const QPoint& pos );
@@ -46,6 +50,9 @@ class SoundLibraryTree : public QTreeWidget,
    protected:
 	virtual void mousePressEvent( QMouseEvent* event ) override;
 	virtual void mouseMoveEvent( QMouseEvent* event ) override;
+
+   private:
+	H2Core::Filesystem::Artifact m_artifact;
 };
 
 #endif

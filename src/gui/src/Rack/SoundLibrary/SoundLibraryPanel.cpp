@@ -160,7 +160,8 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, bool bInItsOwnDialog )
 	);
 
 	// DRUMKIT TREE (tab 0)
-	m_pDrumkitTree = new SoundLibraryTree( nullptr );
+	m_pDrumkitTree =
+		new SoundLibraryTree( this, Filesystem::Artifact::DrumkitExtracted );
 	connect(
 		m_pDrumkitTree,
 		SIGNAL( currentItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ),
@@ -192,7 +193,8 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, bool bInItsOwnDialog )
 	}
 
 	// PATTERN TREE (tab 1)
-	m_pPatternTree = new SoundLibraryTree( nullptr );
+	m_pPatternTree =
+		new SoundLibraryTree( this, Filesystem::Artifact::Pattern );
 	connect(
 		m_pPatternTree,
 		SIGNAL( currentItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ),
@@ -210,7 +212,8 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, bool bInItsOwnDialog )
 	}
 
 	// SONG TREE (tab 2)
-	m_pSongTree = new SoundLibraryTree( nullptr );
+	m_pSongTree =
+		new SoundLibraryTree( this, Filesystem::Artifact::Song );
 	connect(
 		m_pSongTree,
 		SIGNAL( currentItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ),
