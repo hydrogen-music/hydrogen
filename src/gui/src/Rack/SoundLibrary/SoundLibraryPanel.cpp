@@ -183,11 +183,6 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, std::shared_ptr<Filesyst
 			m_pDrumkitTree, SIGNAL( leftClicked( QPoint ) ), this,
 			SLOT( on_DrumkitList_leftClicked( QPoint ) )
 		);
-		connect(
-			m_pDrumkitTree,
-			SIGNAL( currentItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ),
-			this, SLOT( onTreeItemSelected() )
-		);
 		if ( m_pOpenArtifact == nullptr ) {
 			connect(
 				m_pDrumkitTree, SIGNAL( rightClicked( QPoint ) ), this,
@@ -206,11 +201,6 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, std::shared_ptr<Filesyst
 		m_pPatternTree = new SoundLibraryTree(
 			this, Filesystem::Artifact::Pattern, m_pOpenArtifact != nullptr
 		);
-		connect(
-			m_pPatternTree,
-			SIGNAL( currentItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ),
-			this, SLOT( onTreeItemSelected() )
-		);
 		if ( m_pOpenArtifact == nullptr ) {
 			connect(
 				m_pPatternTree, SIGNAL( rightClicked( QPoint ) ), this,
@@ -228,11 +218,6 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, std::shared_ptr<Filesyst
 		 *m_pOpenArtifact == Filesystem::Artifact::Song ) {
 		m_pSongTree = new SoundLibraryTree(
 			this, Filesystem::Artifact::Song, m_pOpenArtifact != nullptr
-		);
-		connect(
-			m_pSongTree,
-			SIGNAL( currentItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ),
-			this, SLOT( onTreeItemSelected() )
 		);
 		if ( m_pOpenArtifact == nullptr ) {
 			connect(
@@ -762,11 +747,6 @@ void SoundLibraryPanel::filterTree(
 void SoundLibraryPanel::onTabChanged( int nIndex )
 {
 	UNUSED( nIndex );
-	updateDetailView();
-}
-
-void SoundLibraryPanel::onTreeItemSelected()
-{
 	updateDetailView();
 }
 

@@ -22,24 +22,30 @@
 
 #include "SoundLibraryTree.h"
 
-#include "../../Compatibility/MouseEvent.h"
-
 #include <QMimeData>
+
+#include "SoundLibraryPanel.h"
+#include "../../Compatibility/MouseEvent.h"
 
 using namespace H2Core;
 
 SoundLibraryTree::SoundLibraryTree(
-	QWidget* pParent,
+	SoundLibraryPanel* pParent,
 	Filesystem::Artifact artifact,
 	bool bStandAlone
 )
 	: QTreeWidget( pParent ),
+	  m_pSoundLibraryPanel( pParent ),
 	  m_artifact( artifact ),
 	  m_bStandAlone( bStandAlone )
 {
 	setAlternatingRowColors( true );
 	setRootIsDecorated( false );
 	headerItem()->setHidden( true );
+
+	connect( this, &QTreeWidget::currentItemChanged, [&]() {
+		m_pSoundLibraryPanel->updateDetailView();
+	} );
 }
 
 void SoundLibraryTree::mousePressEvent( QMouseEvent* event )

@@ -69,6 +69,10 @@ class SoundLibraryPanel : public QWidget,
 		std::shared_ptr<H2Core::Drumkit> pOldDrumkit
 	);
 
+	/** Populates the detail view at the bottom with the metadata of the
+	 * currently selected item in the active tab's tree. */
+	void updateDetailView();
+
 	void soundLibraryChangedEvent() override;
 	void updateSongEvent( int nValue ) override;
 
@@ -94,9 +98,6 @@ class SoundLibraryPanel : public QWidget,
 
 	/** Called when the active tab in m_pTabWidget changes. */
 	void onTabChanged( int nIndex );
-	/** Called when a tree item is selected in any tab. Updates the detail view.
-	 */
-	void onTreeItemSelected();
 	/** Called when the search field text changes. Filters all trees. */
 	void onSearchTextChanged( const QString& sText );
 	/** Called when the rescan button is clicked. */
@@ -132,9 +133,6 @@ class SoundLibraryPanel : public QWidget,
 	void updateTree();
 	void test_expandedItems();
 
-	/** Populates the detail view at the bottom with the metadata of the
-	 * currently selected item in the active tab's tree. */
-	void updateDetailView();
 	/** Recursively show/hide items in @a pTree based on @a sFilter. */
 	void filterTree( SoundLibraryTree* pTree, const QString& sFilter );
 
