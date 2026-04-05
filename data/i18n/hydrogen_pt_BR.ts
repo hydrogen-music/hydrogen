@@ -6033,13 +6033,6 @@ Ele contém samples usados e carregados no kit de sons usado atualmente.</transl
     </message>
 </context>
 <context>
-    <name>SoundLibraryTree</name>
-    <message>
-        <source>Sound library</source>
-        <translation>Biblioteca de Som</translation>
-    </message>
-</context>
-<context>
     <name>Startup</name>
     <message>
         <source>No [hydrogen.conf] file found. Hydrogen was not installed properly. Aborting...</source>

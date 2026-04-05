@@ -6028,13 +6028,6 @@ It contains samples used and loaded in the current song kit.</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryTree</name>
-    <message>
-        <source>Sound library</source>
-        <translation>Biblioteca de son</translation>
-    </message>
-</context>
-<context>
     <name>Startup</name>
     <message>
         <source>No [hydrogen.conf] file found. Hydrogen was not installed properly. Aborting...</source>

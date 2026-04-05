@@ -34,11 +34,9 @@ SoundLibraryTree::SoundLibraryTree(
 )
 	: QTreeWidget( pParent ), m_artifact( artifact )
 {
-	setHeaderLabels( QStringList( tr( "Sound library" ) ) );
 	setAlternatingRowColors( true );
 	setRootIsDecorated( false );
-
-	headerItem()->setHidden( true );  // hides the header
+	headerItem()->setHidden( true );
 }
 
 void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
