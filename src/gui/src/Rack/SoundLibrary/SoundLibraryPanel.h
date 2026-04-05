@@ -139,9 +139,9 @@ class SoundLibraryPanel : public QWidget,
 	QTabWidget* m_pTabWidget;
 
 	// --- Per-tab trees ---
-	SoundLibraryTree* __sound_library_tree;	 // Drumkit tree (tab 0)
-	SoundLibraryTree* m_pPatternTree;		 // Pattern tree (tab 1)
-	SoundLibraryTree* m_pSongTree;			 // Song tree (tab 2)
+	SoundLibraryTree* m_pDrumkitTree;		// tab 0
+	SoundLibraryTree* m_pPatternTree;		// tab 1
+	SoundLibraryTree* m_pSongTree;			// tab 2
 
 	// --- Detail view ---
 	QLabel* m_pDetailName;
