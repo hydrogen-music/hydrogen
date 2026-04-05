@@ -71,7 +71,7 @@ class DrumkitInfo : public SoundLibraryInfo,
 	 */
 	bool load( const QString& sPath );
 
-	const std::vector<InstrumentInfo>& getInstrumentInfos();
+	const std::vector<InstrumentInfo>& getInstrumentInfos() const;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true )
 		const override;
@@ -80,6 +80,11 @@ class DrumkitInfo : public SoundLibraryInfo,
 	void assignFrom( std::shared_ptr<Drumkit> pDrumkit );
 	std::vector<InstrumentInfo> m_instrumentInfos;
 };
+inline const std::vector<DrumkitInfo::InstrumentInfo>&
+DrumkitInfo::getInstrumentInfos() const
+{
+	return m_instrumentInfos;
+}
 };	// namespace H2Core
 
 #endif	// DRUMKIT_INFO_H

@@ -274,14 +274,6 @@ void SoundLibraryOnlineImportDialog::reloadRepositoryData()
 	QDomDocument dom;
 	dom.setContent( sDrumkitXML );
 
-	auto setIfPresent = []( H2Core::SoundLibraryInfo& info,
-							const QDomNode& node, const QString& sLabel ) {
-		const QDomElement childNode = node.firstChildElement( sLabel );
-		if ( ! childNode.isNull() ) {
-			info.setName( childNode.text() );
-		}
-	};
-
 	QDomNode drumkitNode = dom.documentElement().firstChild();
 	while ( ! drumkitNode.isNull() ) {
 		if ( ! drumkitNode.toElement().isNull() &&

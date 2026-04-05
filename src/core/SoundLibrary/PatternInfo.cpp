@@ -38,8 +38,8 @@ PatternInfo::~PatternInfo()
 
 bool PatternInfo::load( const QString& sPath )
 {
-	setPath( sPath );
-	setContext( Filesystem::DetermineContext( sPath ) );
+	m_sPath = sPath;
+	m_context = Filesystem::DetermineContext( sPath );
 
 	XMLDoc doc;
 	if ( !doc.read( sPath, true ) ) {
@@ -51,38 +51,38 @@ bool PatternInfo::load( const QString& sPath )
 
 	XMLNode rootNode = doc.firstChildElement( "drumkit_pattern" );
 	if ( !rootNode.isNull() ) {
-		setType( "pattern" );
+		m_sType = "pattern";
 
-		setAuthor( rootNode.read_string(
+		m_sAuthor = rootNode.read_string(
 			"author", "undefined author", true, false, true
-		) );
-		setLicense( H2Core::License(
+		);
+		m_license = H2Core::License(
 			rootNode.read_string( "license", "", true, false, true )
-		) );
+		);
 		XMLNode patternNode = rootNode.firstChildElement( "pattern" );
 		// Try legacy format fist.
-		setName( patternNode.read_string( "pattern_name", "", true, true ) );
-		if ( getName().isEmpty() ) {
+		m_sName = patternNode.read_string( "pattern_name", "", true, true );
+		if ( m_sName.isEmpty() ) {
 			// Try current format.
-			setName( patternNode.read_string( "name", "", false, false ) );
+			m_sName = patternNode.read_string( "name", "", false, false );
 		}
-		if ( getAuthor() == "undefined author" ) {
+		if ( m_sAuthor == "undefined author" ) {
 			// current format
-			setAuthor( patternNode.read_string(
+			m_sAuthor = patternNode.read_string(
 				"author", "undefined author", true, false, true
-			) );
+			);
 		}
-		if ( getLicense().isEmpty() ) {
+		if ( m_license.isEmpty() ) {
 			// current format
-			setLicense( H2Core::License(
+			m_license = H2Core::License(
 				patternNode.read_string( "license", "", true, false, true )
-			) );
+			);
 		}
-		setInfo( patternNode.read_string(
+		m_sInfo = patternNode.read_string(
 			"info", "No information available.", false, true, true
-		) );
+		);
 	}
-    else {
+	else {
 		ERRORLOG(
 			QString( "Couldn't load pattern meta data from [%1]" ).arg( sPath )
 		);

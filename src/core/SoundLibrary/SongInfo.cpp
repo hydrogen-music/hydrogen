@@ -37,8 +37,8 @@ SongInfo::~SongInfo()
 
 bool SongInfo::load( const QString& sPath )
 {
-	setPath( sPath );
-	setContext( Filesystem::DetermineContext( sPath ) );
+	m_sPath = sPath;
+	m_context = Filesystem::DetermineContext( sPath );
 
 	XMLDoc doc;
 	if ( !doc.read( sPath, true ) ) {
@@ -48,15 +48,14 @@ bool SongInfo::load( const QString& sPath )
 
 	const XMLNode rootNode = doc.firstChildElement( "song" );
 	if ( !rootNode.isNull() ) {
-		setType( "song" );
-		setAuthor(
-			rootNode.read_string( "author", "undefined author", false, false )
-		);
-		setLicense( H2Core::License(
-			rootNode.read_string( "license", "", false, false )
-		) );
-		setName( rootNode.read_string( "name", "", false, false ) );
-		setInfo( rootNode.read_string( "notes", "", false, false ) );
+		m_sType = "song";
+		m_sAuthor =
+			rootNode.read_string( "author", "undefined author", false, false );
+		m_license =
+			H2Core::License( rootNode.read_string( "license", "", false, false )
+			);
+		m_sName = rootNode.read_string( "name", "", false, false );
+		m_sInfo = rootNode.read_string( "notes", "", false, false );
 	}
 	else {
 		ERRORLOG(

@@ -65,6 +65,8 @@ bool DrumkitInfo::load( const QString& sPath )
 	}
 
 	assignFrom( pDrumkit );
+
+    return true;
 }
 
 void DrumkitInfo::assignFrom( std::shared_ptr<Drumkit> pDrumkit )

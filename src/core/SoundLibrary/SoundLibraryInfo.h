@@ -66,31 +66,13 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo> {
 	bool load( const QString& sPath );
 
 	const QString& getName() const { return m_sName; }
-	void setName( const QString& name ) { m_sName = name; }
-
 	const QString& getUrl() const { return m_sURL; }
-	void setUrl( const QString& url ) { m_sURL = url; }
-
 	const QString& getInfo() const { return m_sInfo; }
-	void setInfo( const QString& info ) { m_sInfo = info; }
-
 	const QString& getAuthor() const { return m_sAuthor; }
-	void setAuthor( const QString& author ) { m_sAuthor = author; }
-
 	const QString& getType() const { return m_sType; }
-	void setType( const QString& type ) { m_sType = type; }
-
 	const H2Core::License& getLicense() const { return m_license; }
-	void setLicense( const H2Core::License& license ) { m_license = license; }
-
-	void setPath( const QString& path ) { m_sPath = path; }
 	const QString& getPath() const { return m_sPath; }
-
 	Filesystem::Context getContext() const { return m_context; }
-	void setContext( const Filesystem::Context& context )
-	{
-		m_context = context;
-	}
 
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
