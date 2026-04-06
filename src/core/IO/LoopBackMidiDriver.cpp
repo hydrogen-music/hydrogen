@@ -118,7 +118,7 @@ QString LoopBackMidiDriver::toQString( const QString& sPrefix, bool bShort ) {
 	if ( ! bShort ) {
 		sOutput = QString( "%1[LoopBackMidiDriver]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_bActive: %3,\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_bActive ) )
+					 .arg( m_bActive.load() ) )
 			.append( QString( "%1%2m_messageQueue: [\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& mmessage : m_messageQueue ) {
 			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
@@ -133,7 +133,7 @@ QString LoopBackMidiDriver::toQString( const QString& sPrefix, bool bShort ) {
 	}
 	else {
 		sOutput = QString( "[LoopBackMidiDriver]" )
-			.append( QString( ", m_bActive: %1" ).arg( m_bActive ) )
+			.append( QString( ", m_bActive: %1" ).arg( m_bActive.load() ) )
 			.append( ", m_messageQueue: [" );
 		for ( const auto& mmessage : m_messageQueue ) {
 			sOutput.append( QString( " %1 " ).arg( mmessage.toQString() ) );
