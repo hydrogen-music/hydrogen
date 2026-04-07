@@ -345,7 +345,6 @@ void SoundLibraryPanel::updateDrumkitTree()
 
 	m_pDrumkitTree->clear();
 	m_drumkitRegistry.clear();
-	m_drumkitLabels.clear();
 	m_patternRegistry.clear();
 
 	// Legacy pointers are not populated in the new design

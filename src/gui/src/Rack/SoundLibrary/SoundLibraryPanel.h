@@ -182,10 +182,6 @@ class SoundLibraryPanel : public QWidget,
 	 * operations (load, delete, drag-and-drop). */
 	std::map<QTreeWidgetItem*, std::shared_ptr<H2Core::SoundLibraryInfo>>
 		m_drumkitRegistry;
-	/** List of all labels used for drumkits in the tree.
-	 *
-	 * Used to ensure uniqueness.*/
-	QStringList m_drumkitLabels;
 
 	/** Maps pattern tree items to their SoundLibraryInfo for pattern
 	 * operations (load, delete, drag-and-drop). */
