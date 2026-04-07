@@ -58,9 +58,6 @@ class SoundLibraryPanel : public QWidget,
 	);
 	~SoundLibraryPanel();
 
-	QString getDrumkitLabel( const QString& sDrumkitPath ) const;
-	QString getDrumkitPath( const QString& sDrumkitLabel ) const;
-
 	/** Somewhat low-level function for drumkit switching. In case drumkit
 	 * switching is triggered by the user, #MainForm::switchDrumkit() should
 	 * be used as entry point. */
@@ -181,13 +178,10 @@ class SoundLibraryPanel : public QWidget,
 	QTreeWidgetItem* __pattern_item;
 	QTreeWidgetItem* __pattern_item_list;
 
-	/**
-	 * Used to uniquely identify the drumkit corresponding to an item
-	 * in the tree. It maps the name used as label (key) to the
-	 * absolute path of the drumkit (value) also used as unique ID in
-	 * H2Core::Hydrogen::SoundLibraryDatabase::m_drumkitDatabase.
-	 */
-	std::map<QString, QString> m_drumkitRegister;
+	/** Maps pattern tree items to their SoundLibraryInfo for pattern
+	 * operations (load, delete, drag-and-drop). */
+	std::map<QTreeWidgetItem*, std::shared_ptr<H2Core::SoundLibraryInfo>>
+		m_drumkitRegistry;
 	/** List of all labels used for drumkits in the tree.
 	 *
 	 * Used to ensure uniqueness.*/
