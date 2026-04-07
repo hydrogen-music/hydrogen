@@ -33,7 +33,7 @@ SoundLibraryInfo::SoundLibraryInfo(
 	const QString& sURL,
 	const QString& sInfo,
 	const QString& sAuthor,
-	const QString& sType,
+	Filesystem::Artifact artifact,
 	const License& license,
 	const QString& sPath
 )
@@ -41,7 +41,7 @@ SoundLibraryInfo::SoundLibraryInfo(
 	  m_sURL( sURL ),
 	  m_sInfo( sInfo ),
 	  m_sAuthor( sAuthor ),
-	  m_sType( sType ),
+	  m_artifact( artifact ),
 	  m_license( license ),
 	  m_sPath( sPath ),
 	  m_context( Filesystem::Context::User )
@@ -76,10 +76,11 @@ QString SoundLibraryInfo::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_sAuthor ) )
-				.append( QString( "%1%2m_sType: %3\n" )
+				.append( QString( "%1%2m_artifact: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( m_sType ) )
+							 .arg( Filesystem::ArtifactToQString( m_artifact ) )
+				)
 				.append(
 					QString( "%1%2m_license:\n%3" )
 						.arg( sPrefix )
@@ -107,7 +108,9 @@ QString SoundLibraryInfo::toQString( const QString& sPrefix, bool bShort ) const
 				.append( QString( ", m_sURL: %1" ).arg( m_sURL ) )
 				.append( QString( ", m_sInfo: %1" ).arg( m_sInfo ) )
 				.append( QString( ", m_sAuthor: %1" ).arg( m_sAuthor ) )
-				.append( QString( ", m_sType: %1" ).arg( m_sType ) )
+				.append( QString( ", m_artifact: %1" )
+							 .arg( Filesystem::ArtifactToQString( m_artifact ) )
+				)
 				.append( QString( ", m_license: %1" )
 							 .arg( m_license.toQString( "", bShort ) ) )
 				.append( QString( ", m_sPath: %1" ).arg( m_sPath ) )

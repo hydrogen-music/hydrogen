@@ -37,9 +37,6 @@ SongInfo::~SongInfo()
 
 bool SongInfo::load( const QString& sPath )
 {
-	m_sPath = sPath;
-	m_context = Filesystem::DetermineContext( sPath );
-
 	XMLDoc doc;
 	if ( !doc.read( sPath, true ) ) {
 		ERRORLOG( QString( "Unable to load SongInfo from [%1]" ).arg( sPath ) );
@@ -48,7 +45,9 @@ bool SongInfo::load( const QString& sPath )
 
 	const XMLNode rootNode = doc.firstChildElement( "song" );
 	if ( !rootNode.isNull() ) {
-		m_sType = "song";
+		m_sPath = sPath;
+		m_context = Filesystem::DetermineContext( sPath );
+		m_artifact = Filesystem::Artifact::Song;
 		m_sAuthor =
 			rootNode.read_string( "author", "undefined author", false, false );
 		m_license =

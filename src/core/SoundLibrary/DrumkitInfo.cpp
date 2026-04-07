@@ -76,11 +76,11 @@ void DrumkitInfo::assignFrom( std::shared_ptr<Drumkit> pDrumkit )
 		return;
 	}
 
+	m_artifact = Filesystem::Artifact::DrumkitExtracted;
 	m_sPath = pDrumkit->getPath();
 	m_context = pDrumkit->getContext();
 	m_sName = pDrumkit->getName();
 	m_sInfo = pDrumkit->getInfo();
-	m_sType = "drumkit";
 	m_license = pDrumkit->getLicense();
 
 	m_instrumentInfos.clear();

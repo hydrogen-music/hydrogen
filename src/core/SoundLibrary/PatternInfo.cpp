@@ -38,9 +38,6 @@ PatternInfo::~PatternInfo()
 
 bool PatternInfo::load( const QString& sPath )
 {
-	m_sPath = sPath;
-	m_context = Filesystem::DetermineContext( sPath );
-
 	XMLDoc doc;
 	if ( !doc.read( sPath, true ) ) {
 		ERRORLOG(
@@ -51,7 +48,9 @@ bool PatternInfo::load( const QString& sPath )
 
 	XMLNode rootNode = doc.firstChildElement( "drumkit_pattern" );
 	if ( !rootNode.isNull() ) {
-		m_sType = "pattern";
+		m_sPath = sPath;
+		m_context = Filesystem::DetermineContext( sPath );
+		m_artifact = Filesystem::Artifact::Pattern;
 
 		m_sAuthor = rootNode.read_string(
 			"author", "undefined author", true, false, true

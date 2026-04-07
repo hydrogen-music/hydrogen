@@ -51,7 +51,7 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo> {
 		const QString& sURL,
 		const QString& sInfo,
 		const QString& sAuthor,
-		const QString& sType,
+		Filesystem::Artifact artifact,
 		const License& license,
 		const QString& sPath
 	);
@@ -69,7 +69,7 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo> {
 	const QString& getUrl() const { return m_sURL; }
 	const QString& getInfo() const { return m_sInfo; }
 	const QString& getAuthor() const { return m_sAuthor; }
-	const QString& getType() const { return m_sType; }
+	Filesystem::Artifact getArtifact() const { return m_artifact; }
 	const H2Core::License& getLicense() const { return m_license; }
 	const QString& getPath() const { return m_sPath; }
 	Filesystem::Context getContext() const { return m_context; }
@@ -92,7 +92,7 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo> {
 	QString m_sURL;
 	QString m_sInfo;
 	QString m_sAuthor;
-	QString m_sType;
+	Filesystem::Artifact m_artifact;
 	H2Core::License m_license;
 	/** Absolute path to locate the resource. This will also be used as
 	 * unique identifier for the artifact. */
