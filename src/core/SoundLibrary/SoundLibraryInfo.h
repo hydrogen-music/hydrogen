@@ -73,6 +73,8 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo> {
 	const H2Core::License& getLicense() const { return m_license; }
 	const QString& getPath() const { return m_sPath; }
 	Filesystem::Context getContext() const { return m_context; }
+	const QString& getLabel() const { return m_sLabel; }
+	void setLabel( const QString& sLabel ) { m_sLabel = sLabel; }
 
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -92,7 +94,14 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo> {
 	QString m_sAuthor;
 	QString m_sType;
 	H2Core::License m_license;
+	/** Absolute path to locate the resource. This will also be used as
+	 * unique identifier for the artifact. */
 	QString m_sPath;
+	/** Unique label of an artifact within a given context within the Sound
+	 * Library. In case there are multiple items bearing the same name, the
+	 * first one registered will keep it while all further ones be suffixed by a
+	 * number in braces. */
+	QString m_sLabel;
 
 	Filesystem::Context m_context;
 };

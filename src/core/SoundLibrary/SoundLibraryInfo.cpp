@@ -90,6 +90,10 @@ QString SoundLibraryInfo::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_sPath ) )
+				.append( QString( "%1%2m_sLabel: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sLabel ) )
 				.append( QString( "%1%2m_context: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -107,6 +111,7 @@ QString SoundLibraryInfo::toQString( const QString& sPrefix, bool bShort ) const
 				.append( QString( ", m_license: %1" )
 							 .arg( m_license.toQString( "", bShort ) ) )
 				.append( QString( ", m_sPath: %1" ).arg( m_sPath ) )
+				.append( QString( ", m_sLabel: %1" ).arg( m_sLabel ) )
 				.append( QString( ", m_context: %1" )
 							 .arg( Filesystem::ContextToQString( m_context ) )
 				);
