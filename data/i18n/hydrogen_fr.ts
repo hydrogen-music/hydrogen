@@ -5859,19 +5859,6 @@ Voulez-vous continuer?</translation>
     </message>
 </context>
 <context>
-    <name>SoundLibraryDatabase</name>
-    <message>
-        <source>system</source>
-        <extracomment>suffix appended to a drumkit name in order to make in unique.</extracomment>
-        <translation>système</translation>
-    </message>
-    <message>
-        <source>session</source>
-        <extracomment>suffix appended to a drumkit name in order to make in unique.</extracomment>
-        <translation>session</translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>

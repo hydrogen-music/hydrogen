@@ -34,6 +34,7 @@
 #include <core/SoundLibrary/DrumkitInfo.h>
 #include <core/SoundLibrary/PatternInfo.h>
 #include <core/SoundLibrary/SongInfo.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 
 namespace H2Core {
 
@@ -224,11 +225,11 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 						 .arg( sDrumkitPath ) );
 
 			m_drumkitDatabase[sDrumkitPath] = pDrumkit;
-			registerUniqueLabel( sDrumkitPath, pDrumkit );
 
 			auto pInfo = DrumkitInfo::from( pDrumkit );
 			if ( pInfo != nullptr ) {
 				m_drumkitInfos.push_back( pInfo );
+				registerUniqueLabel( pInfo );
 			}
 		}
 		else {
@@ -264,6 +265,8 @@ SoundLibraryDatabase::getDrumkit( const QString& sDrumkitPathIn, bool bUpgrade )
 	}
 
 	if ( m_drumkitDatabase.find( sDrumkitPath ) == m_drumkitDatabase.end() ) {
+		INFOLOG( QString( "Drumkit [%1] not found in DB. Loading from file" )
+					 .arg( sDrumkitPath ) );
 		// Drumkit is not present in database yet. We attempt to load
 		// and add it.
 		auto pDrumkit = Drumkit::load(
@@ -279,7 +282,12 @@ SoundLibraryDatabase::getDrumkit( const QString& sDrumkitPathIn, bool bUpgrade )
 		m_customDrumkitPaths << sDrumkitPath;
 
 		m_drumkitDatabase[sDrumkitPath] = pDrumkit;
-		registerUniqueLabel( sDrumkitPath, pDrumkit );
+
+		auto pInfo = DrumkitInfo::from( pDrumkit );
+		if ( pInfo != nullptr ) {
+			m_drumkitInfos.push_back( pInfo );
+			registerUniqueLabel( pInfo );
+		}
 
 		INFOLOG( QString( "Session Drumkit [%1] loaded from [%2]" )
 					 .arg( pDrumkit->getName() )
@@ -346,44 +354,61 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getNextDrumkit() const
 }
 
 void SoundLibraryDatabase::registerUniqueLabel(
-	const QString& sDrumkitPath,
-	std::shared_ptr<Drumkit> pDrumkit
+	std::shared_ptr<SoundLibraryInfo> pInfo
 )
 {
-	QString sLabel = pDrumkit->getName();
-	const auto drumkitContext = pDrumkit->getContext();
-
-	if ( drumkitContext == Filesystem::Context::System ) {
-		/*: suffix appended to a drumkit name in order to make in unique.*/
-		QString sSuffix = QT_TRANSLATE_NOOP( "SoundLibraryDatabase", "system" );
-		sLabel.append( QString( " (%1)" ).arg( sSuffix ) );
-	}
-	else if ( drumkitContext == Filesystem::Context::SessionReadOnly || drumkitContext == Filesystem::Context::SessionReadWrite ) {
-		/*: suffix appended to a drumkit name in order to make in unique.*/
-		QString sSuffix =
-			QT_TRANSLATE_NOOP( "SoundLibraryDatabase", "session" );
-		sLabel.append( QString( " (%1)" ).arg( sSuffix ) );
-	}
+    if ( pInfo == nullptr ) {
+        return;
+    }
 
 	// Ensure uniqueness of the label.
 	int nCount = 1;
-	QString sUniqueItemLabel = sLabel;
+	QString sUniqueItemLabel = pInfo->getName();
 
 	auto labelContained = [&]( const QString& sLabel ) {
-		for ( const auto& [_, ssLabel] : m_drumkitUniqueLabels ) {
-			if ( ssLabel == sLabel ) {
-				return true;
+		switch ( pInfo->getArtifact() ) {
+			case Filesystem::Artifact::DrumkitExtracted: {
+				for ( const auto& ppInfo : m_drumkitInfos ) {
+					// Ensure we do not pick up the label for this kit.
+					if ( ppInfo != nullptr && ppInfo->getLabel() == sLabel &&
+						 ppInfo->getPath() != pInfo->getPath() ) {
+						return true;
+					}
+				}
+				return false;
 			}
+			case Filesystem::Artifact::Pattern: {
+				for ( const auto& ppInfo : m_patternInfos ) {
+					// Ensure we do not pick up the label for this kit.
+					if ( ppInfo != nullptr && ppInfo->getLabel() == sLabel &&
+						 ppInfo->getPath() != pInfo->getPath() ) {
+						return true;
+					}
+				}
+				return false;
+			}
+			case Filesystem::Artifact::Song: {
+				for ( const auto& ppInfo : m_songInfos ) {
+					// Ensure we do not pick up the label for this kit.
+					if ( ppInfo != nullptr && ppInfo->getLabel() == sLabel &&
+						 ppInfo->getPath() != pInfo->getPath() ) {
+						return true;
+					}
+				}
+				return false;
+			}
+			default:
+				ERRORLOG( QString( "Unsupported artifact [%1]" )
+							  .arg( Filesystem::ArtifactToQString(
+								  pInfo->getArtifact()
+							  ) ) )
+				return false;
 		}
-
-		return false;
 	};
 
-	// Ensure we do not pick up the label for this kit.
-	m_drumkitUniqueLabels[sDrumkitPath] = "";
-
 	while ( labelContained( sUniqueItemLabel ) ) {
-		sUniqueItemLabel = QString( "%1 (%2)" ).arg( sLabel ).arg( nCount );
+		sUniqueItemLabel =
+			QString( "%1 (%2)" ).arg( pInfo->getName() ).arg( nCount );
 		nCount++;
 
 		if ( nCount > 1000 ) {
@@ -392,19 +417,7 @@ void SoundLibraryDatabase::registerUniqueLabel(
 		}
 	}
 
-	m_drumkitUniqueLabels[sDrumkitPath] = sUniqueItemLabel;
-}
-
-QString SoundLibraryDatabase::getUniqueLabel( const QString& sDrumkitPath
-) const
-{
-	if ( m_drumkitUniqueLabels.find( sDrumkitPath ) ==
-		 m_drumkitUniqueLabels.end() ) {
-		return "";
-	}
-
-	return m_drumkitUniqueLabels.at( Filesystem::absolutePath( sDrumkitPath )
-	);
+	pInfo->setLabel( sUniqueItemLabel );
 }
 
 void SoundLibraryDatabase::registerDrumkitFolder( const QString& sDrumkitFolder
@@ -470,6 +483,7 @@ void SoundLibraryDatabase::updatePatterns( Event::Trigger trigger )
 						 .arg( pInfo->getName() )
 						 .arg( ssPath ) );
 			m_patternInfos.push_back( pInfo );
+			registerUniqueLabel( pInfo );
 		}
 		else {
 			WARNINGLOG(
@@ -504,6 +518,7 @@ void SoundLibraryDatabase::updateSongs( Event::Trigger trigger )
 						 .arg( pInfo->getName() )
 						 .arg( ssPath ) );
 			m_songInfos.push_back( pInfo );
+			registerUniqueLabel( pInfo );
 		}
 		else {
 			WARNINGLOG(
@@ -538,16 +553,6 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort )
 								.arg( ddrumkit->toQString( "", true ) ) );
 		}
 		sOutput.append(
-			QString( "%1%2m_drumkitUniqueLabels:\n" ).arg( sPrefix ).arg( s )
-		);
-		for ( const auto& [ssPath, ssLabel] : m_drumkitUniqueLabels ) {
-			sOutput.append( QString( "%1%2%2%3: %4\n" )
-								.arg( sPrefix )
-								.arg( s )
-								.arg( ssPath )
-								.arg( ssLabel ) );
-		}
-		sOutput.append(
 			QString( "%1%2m_patternInfoVector:\n" ).arg( sPrefix ).arg( s )
 		);
 		for ( const auto& ppatternInfo : m_patternInfos ) {
@@ -579,11 +584,6 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort )
 		for ( const auto& [ssPath, ppDrumkit] : m_drumkitDatabase ) {
 			sOutput.append(
 				QString( "[%1: %2] " ).arg( ssPath ).arg( ppDrumkit->getName() )
-			);
-		}
-		sOutput.append( ", m_drumkitUniqueLabels: " );
-		for ( const auto& [ssPath, ssLabel] : m_drumkitUniqueLabels ) {
-			sOutput.append( QString( "[%1: %2] " ).arg( ssPath ).arg( ssLabel )
 			);
 		}
 		sOutput.append( ", m_patternInfos: " );

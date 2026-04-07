@@ -32,6 +32,7 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
+#include <core/SoundLibrary/DrumkitInfo.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include "PianoRollEditor.h"
@@ -896,12 +897,18 @@ void SidebarRow::set( const DrumPatternRow& row )
 				m_pDeleteInstrumentAction->setEnabled( true );
 
 				if ( !pInstrument->getDrumkitPath().isEmpty() ) {
+					QString sKit;
 					// Instrument belongs to a kit in the SoundLibrary (and was
 					// not created anew).
-					QString sKit =
-						pHydrogen->getSoundLibraryDatabase()->getUniqueLabel(
-							pInstrument->getDrumkitPath()
-						);
+					for ( const auto& ppInfo :
+						  pHydrogen->getSoundLibraryDatabase()->getDrumkitInfos(
+						  ) ) {
+						if ( ppInfo != nullptr &&
+							 ppInfo->getPath() ==
+								 pInstrument->getDrumkitPath() ) {
+							sKit = ppInfo->getLabel();
+						}
+					}
 					if ( sKit.isEmpty() ) {
 						// This should not happen. But drumkit.xml files can be
 						// created by hand and we should account for it.

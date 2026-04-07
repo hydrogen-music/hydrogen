@@ -50,6 +50,7 @@ namespace H2Core
 class DrumkitInfo;
 class PatternInfo;
 class SongInfo;
+class SoundLibraryInfo;
 
 /** \ingroup docGUI*/
 class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
@@ -92,10 +93,6 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	{
 		return m_drumkitDatabase;
 	}
-	/** Retrieves an unique label for the kit associated with @a
-	 * sDrumkitPath. This may serve as a more accessible alternative to the
-	 * absolute path of the kit in the GUI. */
-	QString getUniqueLabel( const QString& sDrumkitPath ) const;
 
 	/** Add a custom folder #SoundLibraryDatabase will look of drumkits in
 	 * during an updateDrumkits()
@@ -147,21 +144,10 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 
    private:
 	void registerUniqueLabel(
-		const QString& sDrumkitPath,
-		std::shared_ptr<Drumkit> pDrumkit
+		std::shared_ptr<SoundLibraryInfo> pInfo
 	);
 
 	std::map<QString, std::shared_ptr<Drumkit>> m_drumkitDatabase;
-	/** The absolute path to a drumkit folder is not the most accessible way
-	 * to refer to a kit in the GUI. Instead, each kit will also have an
-	 * unique label. It is derived from the name of the drumkit. But as
-	 * there can be duplicates, the following rules are applied:
-	 * - Drumkit of system-level will carry the suffix " (system)"
-	 * - Drumkit added during a session but not installed in the system or
-	 *   user drumkit folder will carry the suffix " (session)"
-	 * - If a label is already present a number will be appended, like " (1)"
-	 * */
-	std::map<QString, QString> m_drumkitUniqueLabels;
 
 	std::vector<std::shared_ptr<DrumkitInfo>> m_drumkitInfos;
 	std::vector<std::shared_ptr<PatternInfo>> m_patternInfos;
