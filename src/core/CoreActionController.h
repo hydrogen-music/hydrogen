@@ -285,17 +285,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	static bool toggleLoopMode();
 		static bool activateRecordMode( bool bActivate );
 		static bool toggleRecordMode();
-	/** Wrapper around setDrumkit() that allows loading drumkits by
-	 *	name or path.
-	 *
-	 * The function tries to retrieve the #Drumkit from cache
-	 * (#SoundLibraryDatabase) first and loads it from disk in case
-	 * this fails.
-	 *
-	 * @param sDrumkit Can be either the name of a #Drumkit or a
-	 * relative or absolute path pointing to it.
-	 */
-	static bool setDrumkit( const QString& sDrumkit );
+
 	/**
 	 * Sets Drumkit @a pDrumkit as the one used in the current #Song.
 	 *

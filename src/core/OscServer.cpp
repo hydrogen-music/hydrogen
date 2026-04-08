@@ -20,14 +20,14 @@
  *
  */
 
-#include <QRegularExpression>
-
-#include "Midi/Midi.h"
-#include "core/Helpers/Filesystem.h"
-#include "core/Preferences/Preferences.h"
 
 #include <pthread.h>
 #include <unistd.h>
+#include <QRegularExpression>
+
+#include "core/Midi/Midi.h"
+#include "core/Helpers/Filesystem.h"
+#include "core/Preferences/Preferences.h"
 
 //currently H2CORE_HAVE_OSC means: liblo is present..
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
@@ -35,20 +35,22 @@
 #include <lo/lo.h>
 #include <lo/lo_cpp.h>
 
-#include <core/Basics/Drumkit.h>
-#include <core/Basics/GridPoint.h>
+#include "core/OscServer.h"
+
+#include "core/AudioEngine/AudioEngine.h"
+#include "core/Basics/Drumkit.h"
+#include "core/Basics/GridPoint.h"
 #include "core/Basics/InstrumentList.h"
 #include "core/Basics/PatternList.h"
 #include "core/Basics/Playlist.h"
-#include "core/OscServer.h"
+#include "core/Basics/Song.h"
 #include "core/CoreActionController.h"
 #include "core/EventQueue.h"
 #include "core/Hydrogen.h"
-#include "core/AudioEngine/AudioEngine.h"
-#include "core/Basics/Song.h"
 #include "core/Midi/MidiAction.h"
 #include "core/Midi/MidiActionManager.h"
 #include "core/Midi/MidiMessage.h"
+#include "core/SoundLibrary/SoundLibraryDatabase.h"
 
 OscServer * OscServer::__instance = nullptr;
 
@@ -1119,8 +1121,20 @@ void OscServer::SONG_EDITOR_TOGGLE_GRID_CELL_Handler(lo_arg **argv, int argc) {
 void OscServer::LOAD_DRUMKIT_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 
-	H2Core::CoreActionController::setDrumkit(
-		QString::fromUtf8( &argv[0]->s ) );
+	const QString sDrumkitName = QString::fromUtf8( &argv[0]->s );
+
+	auto pDB = H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase();
+	auto pDrumkit = pDB->getDrumkit( pDB->findArtifact(
+		H2Core::Filesystem::Artifact::DrumkitExtracted,
+		H2Core::Filesystem::Context::User, sDrumkitName, true
+	) );
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve drumkit called [%1]" )
+					  .arg( sDrumkitName ) );
+		return;
+	}
+
+	H2Core::CoreActionController::setDrumkit( pDrumkit );
 }
 
 void OscServer::LOAD_NEXT_DRUMKIT_Handler(lo_arg **argv, int argc) {

@@ -37,6 +37,7 @@
 #endif
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Version.h>
 
 #include "HydrogenApp.h"
@@ -452,11 +453,24 @@ int main(int argc, char *argv[])
 		pMainForm->show();
 		// Update visibility button states.
 		pHydrogenApp->getMainToolBar()->updateActions();
-	
+
 		pSplash->finish( pMainForm );
 
-		if( ! parser.getDrumkitToLoad().isEmpty() ) {
-			H2Core::CoreActionController::setDrumkit( parser.getDrumkitToLoad() );
+		const QString sDrumkitNameToLoad = parser.getDrumkitToLoad();
+		if ( !sDrumkitNameToLoad.isEmpty() ) {
+			auto pDB =
+				H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase();
+			auto pDrumkit = pDB->getDrumkit( pDB->findArtifact(
+				H2Core::Filesystem::Artifact::DrumkitExtracted,
+				H2Core::Filesystem::Context::User, sDrumkitNameToLoad, true
+			) );
+			if ( pDrumkit != nullptr ) {
+				H2Core::CoreActionController::setDrumkit( pDrumkit );
+			}
+			else {
+				___ERRORLOG( QString( "Unable to retrieve drumkit called [%1]" )
+								 .arg( sDrumkitNameToLoad ) );
+			}
 		}
 
 		pQApp->setMainForm( pMainForm );

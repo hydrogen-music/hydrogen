@@ -1403,20 +1403,6 @@ bool CoreActionController::toggleRecordMode() {
 	return activateRecordMode( ! pHydrogen->getRecordEnabled() );
 }
 
-bool CoreActionController::setDrumkit( const QString& sDrumkit ) {
-	auto pHydrogen = Hydrogen::get_instance();
-	ASSERT_HYDROGEN
-	auto pDrumkit = pHydrogen->getSoundLibraryDatabase()
-		->getDrumkit( sDrumkit );
-	if ( pDrumkit == nullptr ) {
-		ERRORLOG( QString( "Drumkit [%1] could not be loaded." )
-				  .arg( sDrumkit ) );
-		return false;
-	}
-
-	return setDrumkit( std::make_shared<Drumkit>(pDrumkit) );
-}
-
 bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit ) {
 	if ( pNewDrumkit == nullptr ) {
 		ERRORLOG( "Provided Drumkit is not valid" );

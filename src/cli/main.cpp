@@ -52,6 +52,7 @@
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Interpolation.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Version.h>
 
 using namespace H2Core;
@@ -283,8 +284,8 @@ int main(int argc, char *argv[])
 		const QString sOutFileName = parser.value( outputFileOption );
 		const QString sSelectedDriver = parser.value( audioDriverOption );
 		const QString sVerbosityString = parser.value( verboseOption );
-		const QString sInstallDrumkitName = parser.value( installDrumkitOption );
-		const QString sDrumkitToLoad = parser.value( kitOption );
+		const QString sBundledDrumkitPath = parser.value( installDrumkitOption );
+		const QString sDrumkitNameToLoad = parser.value( kitOption );
 		const QString sKitToDrumkitMap = parser.value( kitToDrumkitMapOption );
 		const QString sDrumkitToValidate = parser.value( checkDrumkitOption );
 		const QString sDrumkitToLegacyValidate = parser.value( legacyCheckDrumkitOption );
@@ -361,10 +362,10 @@ int main(int argc, char *argv[])
 		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
 		___INFOLOG( "Using data path: " + Filesystem::systemDataPath() );
 
-		if ( ! sInstallDrumkitName.isEmpty() ){
-			if ( ! Drumkit::install( sInstallDrumkitName ) ) {
+		if ( ! sBundledDrumkitPath.isEmpty() ){
+			if ( ! Drumkit::install( sBundledDrumkitPath ) ) {
 				___ERRORLOG( QString( "Unable to install drumkit [%1]" )
-							 .arg( sInstallDrumkitName ) );
+							 .arg( sBundledDrumkitPath ) );
 				exit( 1  );
 			}
 
@@ -436,8 +437,20 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		if ( ! sDrumkitToLoad.isEmpty() ){
-			CoreActionController::setDrumkit( sDrumkitToLoad );
+		if ( !sDrumkitNameToLoad.isEmpty() ) {
+			auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
+			auto pDrumkit = pDB->getDrumkit( pDB->findArtifact(
+				Filesystem::Artifact::DrumkitExtracted,
+				Filesystem::Context::User, sDrumkitNameToLoad, true
+			) );
+			if ( pDrumkit != nullptr ) {
+				CoreActionController::setDrumkit( pDrumkit );
+			}
+			else {
+				___ERRORLOG( QString( "Unable to retrieve drumkit called [%1]" )
+								 .arg( sDrumkitNameToLoad ) );
+				nReturnCode = 1;
+			}
 		}
 
 		AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
