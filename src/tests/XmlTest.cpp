@@ -480,7 +480,8 @@ void XmlTest::testDrumkitInstrumentTypeUniqueness()
 
 	const QString sTmpRef = H2Core::Filesystem::tmpDir() + "ref-saved";
 	const QString sTmpDuplicate =
-		H2Core::Filesystem::tmpDir() + "duplicate-saved";
+		H2Core::Filesystem::tmpDir() + "duplicate-saved/drumkit.xml";
+	const QString sTmpDuplicatePath = sTmpDuplicate + "/drumkit.xml";
 
 	CPPUNIT_ASSERT( pDrumkitRef->save( sTmpRef ) );
 	CPPUNIT_ASSERT( pDrumkitDuplicates->save( sTmpDuplicate ) );
