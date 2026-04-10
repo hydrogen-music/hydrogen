@@ -24,6 +24,8 @@
 
 #include <QMimeData>
 
+#include <core/SoundLibrary/SoundLibraryInfo.h>
+
 #include "SoundLibraryPanel.h"
 #include "../../Compatibility/MouseEvent.h"
 
@@ -46,6 +48,7 @@ SoundLibraryTree::SoundLibraryTree(
 	connect( this, &QTreeWidget::currentItemChanged, [&]() {
 		m_pSoundLibraryPanel->updateDetailView();
 	} );
+
 }
 
 void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
@@ -63,7 +66,34 @@ void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
 	}
 }
 
-void SoundLibraryTree::mouseMoveEvent( QMouseEvent* event )
+void SoundLibraryTree::mouseMoveEvent( QMouseEvent* pEvent )
 {
-	emit onMouseMove( event );
+	if ( m_bStandAlone ) {
+		return;
+	}
+
+    // Initialize drag and drop events
+	if ( !( pEvent->buttons() & Qt::LeftButton ) ) {
+		return;
+	}
+
+	if ( currentItem() == nullptr ) {
+		return;
+	}
+
+	auto it = m_registry.find( currentItem() );
+	if ( it == m_registry.end() || it->second == nullptr ) {
+		return;
+	}
+
+	const QString sMimeText =
+		QString( "drag %1::%2" )
+			.arg( Filesystem::ArtifactToQString( m_artifact ) )
+			.arg( it->second->getPath() );
+
+	auto pDrag = new QDrag( this );
+	auto pMimeData = new QMimeData;
+	pMimeData->setText( sMimeText );
+	pDrag->setMimeData( pMimeData );
+	pDrag->exec( Qt::CopyAction | Qt::MoveAction );
 }

@@ -29,6 +29,10 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Object.h>
 
+namespace H2Core {
+class SoundLibraryInfo;
+}
+
 class SoundLibraryPanel;
 
 /** \ingroup docGUI*/
@@ -46,7 +50,6 @@ class SoundLibraryTree : public QTreeWidget,
    signals:
 	void leftClicked( const QPoint& pos );
 	void rightClicked( const QPoint& pos );
-	void onMouseMove( QMouseEvent* event );
 
    protected:
 	virtual void mousePressEvent( QMouseEvent* event ) override;
@@ -60,6 +63,11 @@ class SoundLibraryTree : public QTreeWidget,
 	/** Whether the widget is created as part of the main window or as part of
 	 * the Open From Library dialog of the corresponding aritfact. */
 	bool m_bStandAlone;
+
+	/** Maps pattern tree items to their SoundLibraryInfo for pattern
+	 * operations (load, delete, drag-and-drop). */
+	std::map<QTreeWidgetItem*, std::shared_ptr<H2Core::SoundLibraryInfo>>
+		m_registry;
 };
 
 #endif

@@ -189,10 +189,6 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, std::shared_ptr<Filesyst
 				m_pDrumkitTree, SIGNAL( rightClicked( QPoint ) ), this,
 				SLOT( on_DrumkitList_rightClicked( QPoint ) )
 			);
-			connect(
-				m_pDrumkitTree, SIGNAL( onMouseMove( QMouseEvent* ) ), this,
-				SLOT( on_DrumkitList_mouseMove( QMouseEvent* ) )
-			);
 		}
 	}
 
@@ -206,10 +202,6 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, std::shared_ptr<Filesyst
 			connect(
 				m_pPatternTree, SIGNAL( rightClicked( QPoint ) ), this,
 				SLOT( on_PatternTree_rightClicked( QPoint ) )
-			);
-			connect(
-				m_pPatternTree, SIGNAL( onMouseMove( QMouseEvent* ) ), this,
-				SLOT( on_PatternTree_mouseMove( QMouseEvent* ) )
 			);
 		}
 	}
