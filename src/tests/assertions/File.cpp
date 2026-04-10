@@ -267,6 +267,30 @@ void H2Test::checkXmlFilesEqual( const QString& sExpected, const QString& sActua
 
 	const int nMaxLines = std::max( expectedLines.size(), actualLines.size() );
 
+	// Some properties, like the current version or paths, do change quite a lot
+	// or are platform-specific. We do not compare their content directly. But
+	// we must ensure their nodes are present and non-empty.
+	auto containedAndNonEmpty = [&]( const QString& sNode, int nIndex ) {
+		const QString sOpeningTag = QString( "<%1>" ).arg( sNode );
+		// Check whether the element does exist in both QStringLists.
+		if ( !expectedLines.at( nIndex ).contains( sOpeningTag ) ||
+			 !actualLines.at( nIndex ).contains( sOpeningTag ) ) {
+			return false;
+		}
+
+		// Check whether there is some content written into the element.
+		const QString sClosingTag = QString( "</%1>" ).arg( sNode );
+		QString sActualContent = actualLines.at( nIndex );
+		sActualContent.remove( sOpeningTag );
+		sActualContent = sActualContent.remove( sClosingTag ).trimmed();
+
+		QString sExpectedContent = expectedLines.at( nIndex );
+		sExpectedContent.remove( sOpeningTag );
+		sExpectedContent = sExpectedContent.remove( sClosingTag ).trimmed();
+
+		return sActualContent.length() > 0 && sExpectedContent.length() > 0;
+	};
+
 	QString sMsgPart;
 	for ( int ii = 0; ii < nMaxLines; ++ii ) {
 		if ( ii >= expectedLines.size() || ii >= actualLines.size() ) {
@@ -295,18 +319,14 @@ void H2Test::checkXmlFilesEqual( const QString& sExpected, const QString& sActua
 		if ( ( fileType == FileType::Song ||
 			   fileType == FileType::Preferences ||
 			   fileType == FileType::Theme ) &&
-			 ( ( expectedLines.at( ii ).contains( "<version>" ) &&
-				 actualLines.at( ii ).contains( "<version>" ) ) ) ) {
+			 containedAndNonEmpty( "version", ii ) ) {
 			continue;
 		}
 
 		if ( fileType == FileType::Song &&
-			 ( ( expectedLines.at( ii ).contains( "<filename>" ) &&
-				 actualLines.at( ii ).contains( "<filename>" ) ) ||
-			   ( expectedLines.at( ii ).contains( "<lastLoadedDrumkitPath>" ) &&
-				 actualLines.at( ii ).contains( "<lastLoadedDrumkitPath>" ) ) ||
-			   ( expectedLines.at( ii ).contains( "<drumkitPath>" ) &&
-				 actualLines.at( ii ).contains( "<drumkitPath>" ) ) ) ) {
+			 ( containedAndNonEmpty( "filename", ii ) ||
+			   containedAndNonEmpty( "lastLoadedDrumkitPath", ii ) ||
+			   containedAndNonEmpty( "drumkitPath", ii ) ) ) {
 			continue;
 		}
 
