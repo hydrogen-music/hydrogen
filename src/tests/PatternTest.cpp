@@ -46,7 +46,7 @@ void PatternTest::testCustomLegacyImport()
 
 	// Now we load our custom kit into the db and try again
 	auto pSampleKit = pDB->getDrumkit(
-		H2TEST_FILE( "drumkits/sampleKit" ), false );
+		H2TEST_FILE( "drumkits/sampleKit/drumkit.xml" ), false );
 	CPPUNIT_ASSERT( pSampleKit != nullptr );
 	CPPUNIT_ASSERT( pSampleKit->toDrumkitMap()->getAllTypes().size() > 0 );
 

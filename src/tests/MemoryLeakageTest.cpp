@@ -347,7 +347,7 @@ void MemoryLeakageTest::testLoading()
 
 	{
 		auto pDrumkit = H2Core::Drumkit::load(
-			H2TEST_FILE( "drumkits/baseKit/" ), false, nullptr, true
+			H2TEST_FILE( "drumkits/baseKit/drumkit.xml" ), false, nullptr, true
 		);
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
 
@@ -518,7 +518,7 @@ void MemoryLeakageTest::testLoading()
 
 	{
 		auto pDrumkit = H2Core::Drumkit::load(
-			H2TEST_FILE( "drumkits/baseKit" ), false, nullptr, true
+			H2TEST_FILE( "drumkits/baseKit/drumkit.xml" ), false, nullptr, true
 		);
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
 		pDrumkit->loadSamples();

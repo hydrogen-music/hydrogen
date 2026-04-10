@@ -388,3 +388,52 @@ void FilesystemTest::testSamplePathHandling() {
 
 	___INFOLOG( "passed" );
 }
+
+void FilesystemTest::testDrumkitPathConversion()
+{
+	___INFOLOG( "" );
+
+	// These routines must not care whether there are files and folders backing
+	// the provided paths. So, we use non-existing ones right away during test.
+	const QString sDrumkitDir( "/non/existing/path/to/folder" );
+	const QString sDrumkitPath( "/non/existing/path/to/folder/drumkit.xml" );
+
+	CPPUNIT_ASSERT(
+		Filesystem::drumkitDirFromPath( sDrumkitPath ) == sDrumkitDir
+	);
+	CPPUNIT_ASSERT(
+		Filesystem::drumkitPathFromDir( sDrumkitDir ) == sDrumkitPath
+	);
+
+	___INFOLOG( "passed" );
+}
+
+void FilesystemTest::testSanitizeDrumkitPath()
+{
+	___INFOLOG( "" );
+
+	// This is how we store drumkit paths since 2.0.
+	const QString sPathValid( "/tmp/folder/drumkit.xml" );
+	// This is how we stored them prior to 2.0.
+	const QString sPathFolder( "/tmp/folder" );
+	// This folder doesn't contain a drumkit.xml and is not a valid drumkit.
+	const QString sPathSubfolder( "/tmp/folder/subfolder" );
+	const QString sPathInvalid( "/tmp/this/path/is/probably/invalid" );
+
+	CPPUNIT_ASSERT( Filesystem::mkdir( sPathFolder ) );
+	CPPUNIT_ASSERT( Filesystem::mkdir( sPathSubfolder ) );
+	QFile fileValid( sPathValid );
+	CPPUNIT_ASSERT( fileValid.open( QIODevice::WriteOnly ) );
+
+	CPPUNIT_ASSERT(
+		Filesystem::sanitizeDrumkitPath( sPathValid ) == sPathValid
+	);
+	CPPUNIT_ASSERT( Filesystem::sanitizeDrumkitPath( sPathInvalid ).isEmpty() );
+	CPPUNIT_ASSERT(
+		Filesystem::sanitizeDrumkitPath( sPathFolder ) == sPathValid
+	);
+	CPPUNIT_ASSERT( Filesystem::sanitizeDrumkitPath( sPathSubfolder ).isEmpty()
+	);
+
+	___INFOLOG( "passed" );
+}

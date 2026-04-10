@@ -62,23 +62,23 @@ TestHelper::TestHelper()
 	m_sTestDataDir = sRootDir + "/src/tests/data/";
 }
 
-QStringList TestHelper::findDrumkitBackupFiles( const QString& sDir ) const {
+QStringList TestHelper::findDrumkitBackupFiles( const QString& sPath ) const {
 
 	QStringList results;
 
-	if ( ! H2Core::Filesystem::dirReadable( sDir, false ) ){
+	if ( ! H2Core::Filesystem::fileReadable( sPath, false ) ){
 		// Error messages handled in dir_reabable.
 
 		return results;
 	}
-	QDir dir( sDir );
+	QDir dir = QFileInfo( sPath ).absoluteDir();
 
 	QStringList nameFilters;
 	nameFilters << H2Core::Filesystem::drumkitXml() + "*" + ".bak";
 
 	for ( const auto& ssFile : dir.entryList( nameFilters,
 											  QDir::Files ) ) {
-		results << sDir + "/" + ssFile;
+		results << dir.filePath( ssFile );
 	}
 
 	return results;

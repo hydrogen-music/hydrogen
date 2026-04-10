@@ -139,7 +139,8 @@ namespace H2Core
 		 * load an instrument layer from an XMLNode
 		 *
 		 * \param pNode the XMLDode to read from
-		 * \param sDrumkitPath the directory holding the drumkit data
+		 * @param sDrumkitPath Absolute path to the drumkit.xml file holding the
+		 *   definition of the drumkit. If empty, it will be read from @a pNode.
 		 * @param sSongPath If not empty, absolute path to the .h2song file the
 		 *   instrument layer is contained in. It is used to resolve sample
 		 *   paths relative to the .h2song file.

@@ -181,7 +181,8 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * load an instrument list from an XMLNode
 		 *
 		 * \param node the XMLDode to read from
-		 * \param sDrumkitPath the directory holding the #Drumkit
+		 * @param sDrumkitPath Absolute path to the drumkit.xml file holding the
+		 *   definition of the drumkit. If empty, it will be read from @a pNode.
 		 * \param sDrumkitName name of the #Drumkit found in @a sDrumkitPath
 		 * @param sSongPath If not empty, absolute path to the .h2song file the
 		 *   instrument list is contained in. It is used to resolve sample

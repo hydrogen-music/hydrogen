@@ -949,35 +949,35 @@ QString Filesystem::prepareSamplePath(
 	const QString& sDrumkitPath
 )
 {
-	// Check whether the provided absolute sample sPath is located within a
-	// known drumkit directory.
+	// Check whether the provided absolute sample path is located within a known
+	// drumkit directory.
 	int nIndexMatch = -1;
 	const QStringList drumkitFolders =
 		Hydrogen::get_instance()->getSoundLibraryDatabase()->getDrumkitFolders(
 		);
 
 	QString sSamplePathCleaned( sSamplePath );
-	QString sDrumkitPathCleaned( sDrumkitPath );
+	QString sDrumkitDirCleaned = Filesystem::drumkitDirFromPath( sDrumkitPath );
 #ifdef WIN32
 	// Qt uses posix separators `/` internally but things can easily mix up
 	// (maybe due to our code) and we end up with something like
 	// C:\projects\hydrogen/data/\drumkits/GMRockKit/Kick-Softest.wav .
 	// We have to ensure to work on a single separator.
 	sSamplePathCleaned = QString( sSamplePathCleaned ).replace( "\\", "/" );
-	sDrumkitPathCleaned = QString( sDrumkitPathCleaned ).replace( "\\", "/" );
+	sDrumkitDirCleaned = QString( sDrumkitDirCleaned ).replace( "\\", "/" );
 #endif
 
 	// When composing paths by combining different elements, two file separators
 	// can be used in a row. This is no problem in file access itself but would
 	// mess up our index-based approach in here.
 	sSamplePathCleaned = QString( sSamplePathCleaned ).replace( "//", "/" );
-	sDrumkitPathCleaned = QString( sDrumkitPathCleaned ).replace( "//", "/" );
+	sDrumkitDirCleaned = QString( sDrumkitDirCleaned ).replace( "//", "/" );
 
 	// When storing just the file name, the sample will be loaded by
 	// concatenating the drumkit sPath associated with an instrument and the
 	// sample file name. Thus, we have to make sure to just string paths belong
 	// to that very drumkit.
-	if ( sSamplePathCleaned.startsWith( sDrumkitPathCleaned ) ) {
+	if ( sSamplePathCleaned.startsWith( sDrumkitDirCleaned ) ) {
 		for ( const auto& ssFolder : drumkitFolders ) {
 			if ( sSamplePathCleaned.startsWith( ssFolder ) ) {
 				nIndexMatch =
@@ -1012,6 +1012,38 @@ QString Filesystem::drumkitFile( const QString& sDrumkitPath )
 QString Filesystem::drumkitXml()
 {
 	return DRUMKIT_XML;
+}
+
+QString Filesystem::sanitizeDrumkitPath( const QString& sDrumkitPath )
+{
+	if ( sDrumkitPath.contains( DRUMKIT_XML ) ) {
+		return sDrumkitPath;
+	}
+	else if ( dirReadable( sDrumkitPath, true ) && fileReadable( sDrumkitPath + "/" + DRUMKIT_XML ) ) {
+		return Filesystem::drumkitPathFromDir( sDrumkitPath );
+	}
+	else {
+		ERRORLOG( QString( "Invalid drumkit path [%1]" ).arg( sDrumkitPath ) );
+		return "";
+	}
+}
+
+QString Filesystem::drumkitDirFromPath( const QString& sDrumkitPath )
+{
+	if ( !sDrumkitPath.contains( DRUMKIT_XML ) ) {
+		ERRORLOG( QString( "Path [%1] is not a valid drumkit path" )
+					  .arg( sDrumkitPath ) );
+	}
+	return QFileInfo( sDrumkitPath ).absoluteDir().absolutePath();
+}
+
+QString Filesystem::drumkitPathFromDir( const QString& sDrumkitDir )
+{
+	if ( sDrumkitDir.contains( DRUMKIT_XML ) ) {
+		WARNINGLOG( QString( "Path [%1] does not look like a drumkit folder" )
+						.arg( sDrumkitDir ) )
+	}
+	return QDir( sDrumkitDir ).filePath( DRUMKIT_XML );
 }
 
 QString Filesystem::drumkitBackupPath( const QString& sDrumkitPath )

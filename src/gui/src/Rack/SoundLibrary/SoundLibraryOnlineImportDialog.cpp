@@ -692,10 +692,10 @@ void SoundLibraryOnlineImportDialog::on_DownloadBtn_clicked()
 				updateDownloadBtn();
 
 				if ( artifact == H2Core::Filesystem::Artifact::DrumkitExtracted ) {
-					QString sImportedPath;
+					QString sImportedDir;
 					bool bEncodingIssues;
 					if ( H2Core::Drumkit::install(
-							 sLocalFile, "", &sImportedPath, &bEncodingIssues
+							 sLocalFile, "", &sImportedDir, &bEncodingIssues
 						 ) ) {
 						QDir dir;
 						dir.remove( sLocalFile );
@@ -710,7 +710,7 @@ void SoundLibraryOnlineImportDialog::on_DownloadBtn_clicked()
 									.arg( sName )
 									.arg( pCommonStrings
 											  ->getImportDrumkitSuccess() )
-									.arg( sImportedPath )
+									.arg( sImportedDir )
 									.arg( pCommonStrings
 											  ->getImportDrumkitEncodingFailure(
 											  ) )

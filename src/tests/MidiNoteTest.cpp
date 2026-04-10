@@ -97,7 +97,7 @@ void MidiNoteTest::testMidiInstrumentInputMapping()
 	CPPUNIT_ASSERT( pNewPreferences != nullptr );
 
 	const auto pNewDrumkit = Drumkit::load(
-		H2TEST_FILE( "drumkits/midi-instrument-mapping" ),
+		H2TEST_FILE( "drumkits/midi-instrument-mapping/drumkit.xml" ),
 		/* bUpgrade */ true, /* pLegacy */ nullptr, /*bSilent*/ false
 	);
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
@@ -356,7 +356,7 @@ void MidiNoteTest::testMidiInstrumentOutputMapping()
 	CPPUNIT_ASSERT( pNewPreferences != nullptr );
 
 	const auto pNewDrumkit = Drumkit::load(
-		H2TEST_FILE( "drumkits/midi-instrument-mapping" ),
+		H2TEST_FILE( "drumkits/midi-instrument-mapping/drumkit.xml" ),
 		/* bUpgrade */ true, /* pLegacy */ nullptr, /*bSilent*/ false
 	);
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
@@ -428,7 +428,7 @@ void MidiNoteTest::testMidiInstrumentGlobalMapping()
 	CPPUNIT_ASSERT( pNewPreferences != nullptr );
 
 	const auto pNewDrumkit = Drumkit::load(
-		H2TEST_FILE( "drumkits/midi-instrument-mapping" ),
+		H2TEST_FILE( "drumkits/midi-instrument-mapping/drumkit.xml" ),
 		/* bUpgrade */ true, /* pLegacy */ nullptr, /*bSilent*/ false
 	);
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );

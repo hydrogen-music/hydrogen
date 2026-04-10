@@ -43,7 +43,7 @@ class TestHelper {
 		QString getDataDir() const;
 		QString getTestDataDir() const;
 		QString getTestFile(const QString& file) const;
-	QStringList findDrumkitBackupFiles( const QString& sDir ) const;
+	QStringList findDrumkitBackupFiles( const QString& sPath ) const;
 
 		static QString sRootDir;
 

@@ -120,8 +120,8 @@ class Instrument : public H2Core::Object<Instrument> {
 	/**
 	 * load an instrument from an XMLNode
 	 * \param pNode the XMLDode to read from
-	 * \param sDrumkitPath the directory holding the drumkit
-	 *   data. If empty, it will be read from @a pNode.
+	 * @param sDrumkitPath Absolute path to the drumkit.xml file holding the
+	 *   definition of the drumkit. If empty, it will be read from @a pNode.
 	 * \param sDrumkitName Name of the drumkit found in @a
 	 *   sDrumkitPath.
 	 * @param sSongPath If not empty, absolute path to the .h2song file the
@@ -373,10 +373,9 @@ class Instrument : public H2Core::Object<Instrument> {
 	Instrument::Type m_type;
 	/** Path of the #Drumkit this #Instrument belongs to.
 	 *
-	 * An instrument belonging to a #Drumkit uses relative paths for * its
-	 * #Sample. Therefore we have to take care of mapping them to * absolute
-	 * paths ourselves in case instruments of several * drumkits are mixed in
-	 * one #Song.
+	 * An instrument belonging to a #Drumkit uses relative paths for its
+	 * #Sample. Therefore we have to take care of mapping them to absolute paths
+	 * ourselves in case instruments of several drumkits are mixed in one #Song.
 	 */
 	QString m_sDrumkitPath;
 	/** Name of the #Drumkit found at @a m_sDrumkitPath.

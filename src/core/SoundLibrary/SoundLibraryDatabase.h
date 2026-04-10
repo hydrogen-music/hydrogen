@@ -71,8 +71,8 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	 *
 	 * If the kit is not already present, it will be loaded from disk.
 	 *
-	 * @param sDrumkitPath Absolute path to the drumkit directory
-	 *   (containing a drumkit.xml) file as unique identifier.
+	 * @param sDrumkitPath Absolute path to the drumkit.xml file holding the
+	 *   definition of the drumkit. If empty, it will be read from @a pNode.
 	 * @param bUpgrade In case the drumkit is not part of the DB and needs to be
 	 *   loaded, should it be upgrade while doing so?
 	 */

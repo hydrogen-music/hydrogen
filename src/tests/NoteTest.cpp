@@ -114,7 +114,9 @@ void NoteTest::testMappingLegacyDrumkit() {
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( ! pDrumkit->hasMissingTypes() );
 	auto pDrumkitOther = Drumkit::load(
-		H2TEST_FILE( "drumkits/legacy_GMkit" ), false, nullptr, false );
+		H2TEST_FILE( "drumkits/legacy_GMkit/drumkit.xml" ), false, nullptr,
+		false
+	);
 	CPPUNIT_ASSERT( pDrumkitOther != nullptr );
 	CPPUNIT_ASSERT( pDrumkitOther->hasMissingTypes() );
 	CPPUNIT_ASSERT( ! pDrumkitOther->hasMissingSamples() );

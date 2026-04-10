@@ -233,6 +233,9 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 				node.read_string( "drumkitPath", "", false, true, bSilent );
 
 			if ( !sInstrumentDrumkitPath.isEmpty() ) {
+				sInstrumentDrumkitPath =
+					Filesystem::sanitizeDrumkitPath( sInstrumentDrumkitPath );
+
 #ifdef H2CORE_HAVE_APPIMAGE
 				sInstrumentDrumkitPath =
 					Filesystem::rerouteDrumkitPath( sInstrumentDrumkitPath );
@@ -244,13 +247,8 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 				// portability (and to assure backward compatibility) paths are
 				// bad and we will use the drumkit name and check whether we can
 				// find the kit on the local system.
-				if ( !Filesystem::drumkitValid( sInstrumentDrumkitPath ) ) {
-					WARNINGLOG( QString( "Couldn't find drumkit at [%1]. "
-										 "Searching for [%2] instead." )
-									.arg( sInstrumentDrumkitPath )
-									.arg( sInstrumentDrumkitName ) );
-					sInstrumentDrumkitPath = "";
-				}
+				sInstrumentDrumkitPath =
+					Filesystem::sanitizeDrumkitPath( sInstrumentDrumkitPath );
 			}
 		}
 
@@ -361,6 +359,9 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 		sInstrumentDrumkitPath = sDrumkitPath;
 		sInstrumentDrumkitName = sDrumkitName;
 	}
+
+	sInstrumentDrumkitPath =
+		Filesystem::sanitizeDrumkitPath( sInstrumentDrumkitPath );
 
 	pInstrument->setDrumkitPath( sInstrumentDrumkitPath );
 	pInstrument->m_sDrumkitName = sInstrumentDrumkitName;

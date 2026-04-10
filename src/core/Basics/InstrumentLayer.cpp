@@ -151,12 +151,15 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 			// Plain filenames of samples associated with an installed drumkit.
 			QFileInfo drumkitPathInfo( sDrumkitPath );
 			if ( drumkitPathInfo.isDir() ) {
+				// Path to the overall drumkit folder. This likely was written
+				// using a pre 2.0 version of Hydrogen.
 				sFilePath = QDir( sDrumkitPath ).absoluteFilePath( sFileName );
-			} else {
-				// Path to drumkit.xml was entered. Not standard. Probably done
-				// manually.
-				sFilePath = drumkitPathInfo.absoluteDir().absoluteFilePath(
-					sFileName );
+			}
+			else {
+				// Path to drumkit.xml was entered. This is the way to store
+				// drumkit paths since 2.0.
+				sFilePath =
+					drumkitPathInfo.absoluteDir().absoluteFilePath( sFileName );
 			}
 		}
 	}

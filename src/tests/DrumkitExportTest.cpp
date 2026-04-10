@@ -122,14 +122,21 @@ void DrumkitExportTest::testDrumkitExportAndImport() {
 						sTestKitPath, false ) );
 
 	// Import test kit into Hydrogen.
-	CPPUNIT_ASSERT( CoreActionController::extractDrumkit( sTestKitPath ) );
+	QString sInstalledDir;
+	CPPUNIT_ASSERT(
+		CoreActionController::extractDrumkit( sTestKitPath, "", &sInstalledDir )
+	);
 
 	// Check whether import worked, the UTF-8 path and name was read properly,
 	// and all samples are present.
 	const auto pDB = pHydrogen->getSoundLibraryDatabase();
-	const QString sExtractedKit = Filesystem::userDrumkitsDir() + m_sTestKitName;
-	const auto pDrumkit = pDB->getDrumkit( sExtractedKit );
+	const QString sExtractedKitPath =
+		Filesystem::userDrumkitsDir() + m_sTestKitName + "/drumkit.xml";
+	const auto pDrumkit = pDB->getDrumkit( sExtractedKitPath );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
+	CPPUNIT_ASSERT(
+		Filesystem::drumkitPathFromDir( sInstalledDir ) == sExtractedKitPath
+	);
 	CPPUNIT_ASSERT( pDrumkit->getName() == m_sTestKitName );
 	for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {
 		CPPUNIT_ASSERT( ! ppInstrument->hasMissingSamples() );
@@ -149,8 +156,10 @@ void DrumkitExportTest::testDrumkitExportAndImport() {
 						sExportPath, exportValidation.path() ) );
 
 	H2TEST_ASSERT_DIRS_EQUAL(
-		exportValidation.path() + QDir::separator() + m_sTestKitName,
-		sExtractedKit );
+		exportValidation.path() + QDir::separator() + m_sTestKitName +
+			QDir::separator() + Filesystem::drumkitXml(),
+		sExtractedKitPath
+	);
 
 	// Cleanup
 	H2Core::Filesystem::rm( exportValidation.path(), true, true );
@@ -179,9 +188,10 @@ void DrumkitExportTest::testDrumkitExportAndImportSampleFormats() {
 	// Check whether import worked, the UTF-8 path and name was read properly,
 	// and all samples are present.
 	const auto pDB = pHydrogen->getSoundLibraryDatabase();
-	const QString sExtractedKit =
-		Filesystem::userDrumkitsDir() + m_sTestKitNameSampleFormats;
-	const auto pDrumkit = pDB->getDrumkit( sExtractedKit );
+	const QString sExtractedKitPath = Filesystem::userDrumkitsDir() +
+									  m_sTestKitNameSampleFormats +
+									  "/drumkit.xml";
+	const auto pDrumkit = pDB->getDrumkit( sExtractedKitPath );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( pDrumkit->getName() == m_sTestKitNameSampleFormats );
 	for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {
@@ -202,8 +212,11 @@ void DrumkitExportTest::testDrumkitExportAndImportSampleFormats() {
 						sExportPath, exportValidation.path() ) );
 
 	H2TEST_ASSERT_DIRS_EQUAL(
-		exportValidation.path() + QDir::separator() + m_sTestKitNameSampleFormats,
-		sExtractedKit );
+		exportValidation.path() + QDir::separator() +
+			m_sTestKitNameSampleFormats + QDir::separator() +
+			Filesystem::drumkitXml(),
+		sExtractedKitPath
+	);
 
 	// Cleanup
 	H2Core::Filesystem::rm( exportValidation.path(), true, true );
@@ -226,16 +239,17 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 						sTestKitPath, false ) );
 
 	// Import test kit into Hydrogen.
-	QString sInstalledPath;
+	QString sInstalledDir;
 	bool bEncodingIssuesDetected;
 	CPPUNIT_ASSERT( CoreActionController::extractDrumkit(
-						sTestKitPath, "", &sInstalledPath,
+						sTestKitPath, "", &sInstalledDir,
 						&bEncodingIssuesDetected ) );
 
 	// Check whether import worked, the UTF-8 path and name was read properly,
 	// and all samples are present.
 	const auto pDB = pHydrogen->getSoundLibraryDatabase();
-	const auto pDrumkit = pDB->getDrumkit( sInstalledPath );
+	const auto pDrumkit =
+		pDB->getDrumkit( Filesystem::drumkitPathFromDir( sInstalledDir ) );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( pDrumkit->getName() == m_sTestKitNameUtf8 );
 	if ( ! bEncodingIssuesDetected ) {
@@ -276,11 +290,11 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 		exportDir.entryList( QDir::Dirs | QDir::NoDotAndDotDot );
 	CPPUNIT_ASSERT( exportDirContent.size() == 1 );
 	H2TEST_ASSERT_DIRS_EQUAL( exportDir.filePath( exportDirContent[ 0 ] ),
-							  sInstalledPath );
+							  sInstalledDir );
 
 	// Cleanup
 	H2Core::Filesystem::rm( exportValidation.path(), true, true );
-	H2Core::Filesystem::rm( sInstalledPath, true, true );
+	H2Core::Filesystem::rm( sInstalledDir, true, true );
 
 	___INFOLOG( "passed" );
 }

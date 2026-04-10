@@ -87,9 +87,10 @@ void XmlTest::tearDown() {
 
 void XmlTest::testDrumkitFormatIntegrity() {
 	___INFOLOG( "" );
-	const QString sTestFolder = H2TEST_FILE( "/drumkits/format-integrity/");
-	const auto pDrumkit = H2Core::Drumkit::load(
-		sTestFolder, false, nullptr, true );
+	const QString sTestKitPath =
+		H2TEST_FILE( "/drumkits/format-integrity/drumkit.xml" );
+	const auto pDrumkit =
+		H2Core::Drumkit::load( sTestKitPath, false, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 
 	const QString sTmpDrumkitXml =
@@ -103,8 +104,7 @@ void XmlTest::testDrumkitFormatIntegrity() {
 
 	CPPUNIT_ASSERT( doc.write( sTmpDrumkitXml ) );
 
-	H2TEST_ASSERT_DRUMKIT_FILES_EQUAL(
-		H2Core::Filesystem::drumkitFile( sTestFolder ), sTmpDrumkitXml );
+	H2TEST_ASSERT_DRUMKIT_FILES_EQUAL( sTestKitPath, sTmpDrumkitXml );
 
 	// Cleanup
 	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpDrumkitXml ) );
@@ -114,7 +114,9 @@ void XmlTest::testDrumkitFormatIntegrity() {
 void XmlTest::testDrumkit()
 {
 	___INFOLOG( "" );
-	QString sDrumkitPath = H2Core::Filesystem::tmpDir()+"dk0";
+	const QString sDrumkitDir = H2Core::Filesystem::tmpDir()+"dk0";
+	const QString sDrumkitPath =
+		H2Core::Filesystem::drumkitPathFromDir( sDrumkitDir );
 
 	std::shared_ptr<H2Core::Drumkit> pDrumkitLoaded = nullptr;
 	std::shared_ptr<H2Core::Drumkit> pDrumkitReloaded = nullptr;
@@ -122,14 +124,14 @@ void XmlTest::testDrumkit()
 	std::shared_ptr<H2Core::Drumkit> pDrumkitNew = nullptr;
 	H2Core::XMLDoc doc;
 
-	QFileInfo info( H2Core::Filesystem::drumkitFile(
-						H2TEST_FILE( "/drumkits/baseKit") ) );
+    const QString sBaseKitPath = H2TEST_FILE( "/drumkits/baseKit/drumkit.xml" );
+	QFileInfo info( sBaseKitPath );
 	const auto timestampStart = info.lastModified();
 
 	// load without samples
-	pDrumkitLoaded = H2Core::Drumkit::load(
-		H2TEST_FILE( "/drumkits/baseKit"), false, nullptr, true );
-	CPPUNIT_ASSERT( pDrumkitLoaded!=nullptr );
+	pDrumkitLoaded =
+		H2Core::Drumkit::load( sBaseKitPath, false, nullptr, true );
+	CPPUNIT_ASSERT( pDrumkitLoaded != nullptr );
 	CPPUNIT_ASSERT( pDrumkitLoaded->areSamplesLoaded()==false );
 	CPPUNIT_ASSERT( checkSampleData( pDrumkitLoaded, false ) );
 	CPPUNIT_ASSERT_EQUAL( 4, pDrumkitLoaded->getInstruments()->size() );
@@ -141,7 +143,7 @@ void XmlTest::testDrumkit()
 
 	// Check if drumkit was valid (what we assume in this test)
 	CPPUNIT_ASSERT( TestHelper::get_instance()->findDrumkitBackupFiles(
-						H2TEST_FILE( "drumkits/baseKit/" ) ).size() == 0 );
+						sBaseKitPath ).size() == 0 );
 	
 	// manually load samples
 	pDrumkitLoaded->loadSamples();
@@ -155,9 +157,9 @@ void XmlTest::testDrumkit()
 	pDrumkitLoaded = nullptr;
 	
 	// load with samples
-	pDrumkitLoaded = H2Core::Drumkit::load(
-		H2TEST_FILE( "/drumkits/baseKit" ), false, nullptr, true );
-	CPPUNIT_ASSERT( pDrumkitLoaded!=nullptr );
+	pDrumkitLoaded =
+		H2Core::Drumkit::load( sBaseKitPath, false, nullptr, true );
+	CPPUNIT_ASSERT( pDrumkitLoaded != nullptr );
 
 	pDrumkitLoaded->loadSamples();
 	CPPUNIT_ASSERT( pDrumkitLoaded->areSamplesLoaded()==true );
@@ -175,18 +177,18 @@ void XmlTest::testDrumkit()
 	// save drumkit elsewhere
 	pDrumkitLoaded->setName( "pDrumkitLoaded" );
 	CPPUNIT_ASSERT( pDrumkitLoaded->save( sDrumkitPath ) );
-	CPPUNIT_ASSERT( H2Core::Filesystem::fileReadable( sDrumkitPath+"/drumkit.xml" ) );
-	CPPUNIT_ASSERT( H2Core::Filesystem::fileReadable( sDrumkitPath+"/crash.wav" ) );
-	CPPUNIT_ASSERT( H2Core::Filesystem::fileReadable( sDrumkitPath+"/hh.wav" ) );
-	CPPUNIT_ASSERT( H2Core::Filesystem::fileReadable( sDrumkitPath+"/kick.wav" ) );
-	CPPUNIT_ASSERT( H2Core::Filesystem::fileReadable( sDrumkitPath+"/snare.wav" ) );
+	CPPUNIT_ASSERT( H2Core::Filesystem::fileReadable( sDrumkitDir+"/drumkit.xml" ) );
+	CPPUNIT_ASSERT( H2Core::Filesystem::fileReadable( sDrumkitDir+"/crash.wav" ) );
+	CPPUNIT_ASSERT( H2Core::Filesystem::fileReadable( sDrumkitDir+"/hh.wav" ) );
+	CPPUNIT_ASSERT( H2Core::Filesystem::fileReadable( sDrumkitDir+"/kick.wav" ) );
+	CPPUNIT_ASSERT( H2Core::Filesystem::fileReadable( sDrumkitDir+"/snare.wav" ) );
 
 	info.refresh();
 	const auto timestampSave = info.lastModified();
 	CPPUNIT_ASSERT( timestampSave == timestampStart );
 
 	// Check whether the generated drumkit is valid.
-	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkitFile( sDrumkitPath ) ) );
+	CPPUNIT_ASSERT( doc.read( sDrumkitPath ) );
 	
 	// load file
 	pDrumkitReloaded = H2Core::Drumkit::load(
@@ -210,13 +212,13 @@ void XmlTest::testDrumkit()
 	pDrumkitNew = std::make_shared<H2Core::Drumkit>();
 	CPPUNIT_ASSERT( pDrumkitNew != nullptr );
 	CPPUNIT_ASSERT( pDrumkitNew->save( sDrumkitPath ) );
-	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkitFile( sDrumkitPath ) ) );
+	CPPUNIT_ASSERT( doc.read( sDrumkitPath ) );
 	pDrumkitReloaded = H2Core::Drumkit::load(
 		sDrumkitPath, false, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkitReloaded != nullptr );
 
 	// Cleanup
-	H2Core::Filesystem::rm( sDrumkitPath, true );
+	H2Core::Filesystem::rm( sDrumkitDir, true );
 	___INFOLOG( "passed" );
 }
 
@@ -231,7 +233,10 @@ void XmlTest::testDrumkitLegacy()
 													QDir::NoDotAndDotDot ) ) {
 		___INFOLOG( ssDir );
 		const auto pDrumkit = H2Core::Drumkit::load(
-			legacyDir.filePath( ssDir ), false, nullptr, false );
+			H2Core::Filesystem::drumkitPathFromDir( legacyDir.filePath( ssDir )
+			),
+			false, nullptr, false
+		);
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
 		CPPUNIT_ASSERT( pDrumkit->getInstruments() != nullptr );
 		CPPUNIT_ASSERT( pDrumkit->getInstruments() != nullptr );
@@ -245,7 +250,9 @@ void XmlTest::testDrumkitLegacy()
 	// Check wether the names stored in the DrumkitComponents in version 0.9.7 -
 	// 1.2.X are properly ported to InstrumentComponents.
 	const auto pDrumkit = H2Core::Drumkit::load(
-		H2TEST_FILE( "drumkits/legacyKits/kit-1.2.3" ), false, nullptr, false );
+		H2TEST_FILE( "drumkits/legacyKits/kit-1.2.3/drumkit.xml" ), false,
+		nullptr, false
+	);
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( pDrumkit->getInstruments()->get( 0 ) != nullptr );
 	const auto pInstrument = pDrumkit->getInstruments()->get( 0 );
@@ -267,7 +274,8 @@ void XmlTest::testDrumkit_invalidADSRValues()
 
 	//1. Check, if the drumkit has been loaded
 	pDrumkit = H2Core::Drumkit::load(
-		H2TEST_FILE( "drumkits/invAdsrKit"), true, nullptr, true );
+		H2TEST_FILE( "drumkits/invAdsrKit/drumkit.xml" ), true, nullptr, true
+	);
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 
 	//2. Make sure that the instruments of the drumkit have been loaded correctly (see GH issue #839)
@@ -307,14 +315,14 @@ void XmlTest::testDrumkitUpgrade() {
 	QStringList nameFilters;
 	nameFilters << "*" + H2Core::Filesystem::sDrumkitSuffix;
 
-	QString sDrumkitPath;
+	QString sDrumkitDir;
 
 	for ( const auto& ssFile : legacyDir.entryList( nameFilters, QDir::Files ) ) {
 
-		sDrumkitPath = H2TEST_FILE( "drumkits/legacyKits" ) + "/" + ssFile;
+		sDrumkitDir = H2TEST_FILE( "drumkits/legacyKits" ) + "/" + ssFile;
 
 		CPPUNIT_ASSERT( ! H2Core::CoreActionController::validateDrumkit(
-							sDrumkitPath, false ) );
+							sDrumkitDir, false ) );
 
 		// The number of files within the drumkit has to be constant.
 		QTemporaryDir contentOriginal( H2Core::Filesystem::tmpDir() +
@@ -323,7 +331,7 @@ void XmlTest::testDrumkitUpgrade() {
 									   "-XXXXXX" );
 		contentOriginal.setAutoRemove( false );
 		CPPUNIT_ASSERT( H2Core::CoreActionController::extractDrumkit(
-							sDrumkitPath, contentOriginal.path() ) );
+							sDrumkitDir, contentOriginal.path() ) );
 		QDir contentDirOriginal( contentOriginal.path() );
 		int nFilesOriginal = contentDirOriginal.entryList(
 			QDir::AllEntries | QDir::NoDotAndDotDot ).size();
@@ -337,7 +345,7 @@ void XmlTest::testDrumkitUpgrade() {
 									"-XXXXXX" );
 		firstUpgrade.setAutoRemove( false );
 		CPPUNIT_ASSERT( H2Core::CoreActionController::upgradeDrumkit(
-							sDrumkitPath, firstUpgrade.path() ) );
+							sDrumkitDir, firstUpgrade.path() ) );
 		// The upgrade should have yielded a single .h2drumkit file.
 		QDir upgradeFolder( firstUpgrade.path() );
 		CPPUNIT_ASSERT( upgradeFolder.entryList(
@@ -465,33 +473,35 @@ void XmlTest::testDrumkitInstrumentTypeUniqueness()
 
 	// Test resilience against loading duplicate type and key. They should both
 	// be dropped.
-	const QString sRefFolder = H2TEST_FILE( "drumkits/instrument-type-ref" );
-	const QString sDuplicateFolder =
-		H2TEST_FILE( "drumkits/instrument-type-ref-duplicate" );
-	const auto pDrumkitRef = H2Core::Drumkit::load(
-		sRefFolder, false, nullptr, true );
+	const QString sRefPath =
+		H2TEST_FILE( "drumkits/instrument-type-ref/drumkit.xml" );
+	const QString sDuplicatePath =
+		H2TEST_FILE( "drumkits/instrument-type-ref-duplicate/drumkit.xml" );
+	const auto pDrumkitRef =
+		H2Core::Drumkit::load( sRefPath, false, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkitRef != nullptr );
-	const auto pDrumkitDuplicates = H2Core::Drumkit::load(
-		sDuplicateFolder, false, nullptr, true );
+	const auto pDrumkitDuplicates =
+		H2Core::Drumkit::load( sDuplicatePath, false, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkitDuplicates != nullptr );
 
-	H2TEST_ASSERT_DRUMKIT_FILES_UNEQUAL( sRefFolder + "/drumkit.xml",
-								   sDuplicateFolder + "/drumkit.xml" );
+	H2TEST_ASSERT_DRUMKIT_FILES_UNEQUAL( sRefPath, sDuplicatePath );
 
-	const QString sTmpRef = H2Core::Filesystem::tmpDir() + "ref-saved";
-	const QString sTmpDuplicate =
-		H2Core::Filesystem::tmpDir() + "duplicate-saved/drumkit.xml";
-	const QString sTmpDuplicatePath = sTmpDuplicate + "/drumkit.xml";
+	const QString sTmpRefDir = H2Core::Filesystem::tmpDir() + "ref-saved";
+	const QString sTmpRefPath =
+		H2Core::Filesystem::drumkitPathFromDir( sTmpRefDir );
+	const QString sTmpDuplicateDir =
+		H2Core::Filesystem::tmpDir() + "duplicate-saved";
+	const QString sTmpDuplicatePath =
+		H2Core::Filesystem::drumkitPathFromDir( sTmpDuplicateDir );
 
-	CPPUNIT_ASSERT( pDrumkitRef->save( sTmpRef ) );
-	CPPUNIT_ASSERT( pDrumkitDuplicates->save( sTmpDuplicate ) );
+	CPPUNIT_ASSERT( pDrumkitRef->save( sTmpRefPath ) );
+	CPPUNIT_ASSERT( pDrumkitDuplicates->save( sTmpDuplicatePath ) );
 
-	H2TEST_ASSERT_DRUMKIT_FILES_EQUAL( sTmpRef + "/drumkit.xml",
-								   sTmpDuplicate + "/drumkit.xml" );
-	H2TEST_ASSERT_DIRS_EQUAL( sTmpRef, sTmpDuplicate );
+	H2TEST_ASSERT_DRUMKIT_FILES_EQUAL( sTmpRefPath, sTmpDuplicatePath );
+	H2TEST_ASSERT_DIRS_EQUAL( sTmpRefDir, sTmpDuplicateDir );
 
-	H2Core::Filesystem::rm( sTmpRef, true );
-	H2Core::Filesystem::rm( sTmpDuplicate, true );
+	H2Core::Filesystem::rm( sTmpRefDir, true );
+	H2Core::Filesystem::rm( sTmpDuplicateDir, true );
 	___INFOLOG( "passed" );
 }
 
@@ -504,14 +514,11 @@ void XmlTest::testShippedDrumkits()
 	for ( const auto& ssPath : H2Core::Filesystem::listContent( H2Core::Filesystem::Artifact::DrumkitExtracted, H2Core::Filesystem::Context::System ) ) {
 		___INFOLOG( ssPath );
 
-		QFileInfo info( ssPath );
-		const auto sFolder = info.dir().path();
-
 		// Since kits are upgraded during startup of Hydrogen, all shipped kits
 		// will cutting edge. But we can check for the presence of backup files
 		// which indicate that an upgrade was required/took place.
 		const auto backupFiles =
-			TestHelper::get_instance()->findDrumkitBackupFiles( sFolder );
+			TestHelper::get_instance()->findDrumkitBackupFiles( ssPath );
 		if ( backupFiles.size() > 0 ) {
 			___ERRORLOG( QString( "backup files found: %1" )
 							 .arg( backupFiles.join( ',' ) ) );
@@ -519,7 +526,7 @@ void XmlTest::testShippedDrumkits()
 		}
 
 		const auto pDrumkit =
-			H2Core::Drumkit::load( sFolder, false, nullptr, true );
+			H2Core::Drumkit::load( ssPath, false, nullptr, true );
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
 
 		const QString sTmpDrumkitXml = H2Core::Filesystem::tmpFilePath(
@@ -633,7 +640,7 @@ void XmlTest::testPattern()
 	H2Core::XMLDoc doc;
 
 	auto pDrumkit = H2Core::Drumkit::load(
-		H2TEST_FILE( "/drumkits/baseKit" ), false, nullptr, true );
+		H2TEST_FILE( "/drumkits/baseKit/drumkit.xml" ), false, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkit!=nullptr );
 	auto pInstrumentList = pDrumkit->getInstruments();
 	CPPUNIT_ASSERT( pInstrumentList->size()==4 );
@@ -1059,7 +1066,7 @@ void XmlTest::testSamplePathsWritten() {
 	___INFOLOG( "" );
 
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	const auto sBaseKit = QString( "%1/GMRockKit" )
+	const auto sBaseKit = QString( "%1/GMRockKit/drumkit.xml" )
 		.arg( H2Core::Filesystem::systemDrumkitsDir() );
 
 	// We use a two-stage approach to check all the sample paths: 1. we parse
@@ -1081,16 +1088,18 @@ void XmlTest::testSamplePathsWritten() {
 	CPPUNIT_ASSERT( pNewKit != nullptr );
 
 	pNewKit->setName( "testSamplePathsWrittenKit" );
-	const auto sNewKitPath = QString( "%1/%2" )
-		.arg( H2Core::Filesystem::userDrumkitsDir() ).arg( pNewKit->getName() );
-	CPPUNIT_ASSERT( ! H2Core::Filesystem::dirExists( sNewKitPath ) );
+	const auto sNewKitDir = QString( "%1/%2" )
+								.arg( H2Core::Filesystem::userDrumkitsDir() )
+								.arg( pNewKit->getName() );
+	const auto sNewKitPath =
+		H2Core::Filesystem::drumkitPathFromDir( sNewKitDir );
+	CPPUNIT_ASSERT( !H2Core::Filesystem::dirExists( sNewKitPath ) );
 	CPPUNIT_ASSERT( pNewKit->save( sNewKitPath ) );
 
 	// Load the new drumkit.xml file and validate that there are no absolute
 	// paths.
 	H2Core::XMLDoc docNewKit;
-	CPPUNIT_ASSERT( docNewKit.read( H2Core::Filesystem::drumkitFile(
-										sNewKitPath ) ) );
+	CPPUNIT_ASSERT( docNewKit.read( sNewKitPath ) );
 
 	auto rootNodeNewKit = docNewKit.firstChildElement( "drumkit_info" );
 	CPPUNIT_ASSERT( ! rootNodeNewKit.isNull() );
@@ -1112,7 +1121,7 @@ void XmlTest::testSamplePathsWritten() {
 		}
 	}
 
-	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sNewKitPath, true ) );
+	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sNewKitDir, true ) );
 
 	////////////////////////////////////////////////////////////////////////////
 

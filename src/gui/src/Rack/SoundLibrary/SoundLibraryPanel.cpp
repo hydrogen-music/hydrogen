@@ -1095,6 +1095,7 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 	// match the selected one and the instrument has to contain at least one
 	// sample with a non-empty, relative path.
 	bool bSampleContained = false;
+	const QString sDrumkitDir = Filesystem::drumkitDirFromPath( sDrumkitPath );
 	for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {
 		if ( ppInstrument != nullptr &&
 			 ppInstrument->getDrumkitPath() == sDrumkitPath ) {
@@ -1105,7 +1106,7 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 							 ppLayer->getSample() != nullptr &&
 							 !ppLayer->getSample()->getFilePath().isEmpty() &&
 							 ppLayer->getSample()->getFilePath().contains(
-								 sDrumkitPath
+								 sDrumkitDir
 							 ) ) {
 							bSampleContained = true;
 							break;
@@ -1145,8 +1146,8 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 
-	INFOLOG( QString( "Removing drumkit: %1" ).arg( sDrumkitPath ) );
-	const bool bOk = Filesystem::rm( sDrumkitPath, true );
+	INFOLOG( QString( "Removing drumkit: %1" ).arg( sDrumkitDir ) );
+	const bool bOk = Filesystem::rm( sDrumkitDir, true );
 
 	QApplication::restoreOverrideCursor();
 

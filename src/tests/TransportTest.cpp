@@ -214,7 +214,7 @@ void TransportTest::testSampleConsistency() {
 	___INFOLOG( "" );
 
 	const QString sSongFile = H2TEST_FILE( "song/AE_sampleConsistency.h2song" );
-	const QString sDrumkitDir = H2TEST_FILE( "drumkits/sampleKit/" );
+	const QString sDrumkitPath = H2TEST_FILE( "drumkits/sampleKit/drumkit.xml" );
 	const QString sOutFile = Filesystem::tmpFilePath("testsampleConsistency.wav");
 	const QString sRefFile = H2TEST_FILE("drumkits/sampleKit/longSample.flac");
 
@@ -227,7 +227,7 @@ void TransportTest::testSampleConsistency() {
 
 	// Apply drumkit containing the long sample to be tested.
 	const auto pDrumkit = H2Core::Drumkit::load(
-		sDrumkitDir, false, nullptr, true );
+		sDrumkitPath, false, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	H2Core::CoreActionController::setDrumkit( pDrumkit );
 

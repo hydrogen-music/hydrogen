@@ -292,6 +292,22 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	 * Returns filename and extension of the expected drumkit file.
 	 */
 	static QString drumkitXml();
+	/** Prior to version 2.0 not the absolute path to the drumkit.xml file but
+	 * the absolute path to the folder that files was contained in was used as
+	 * drumkit path. This method ensure the path does point to the drumkit.xml
+	 * file. In case it was not valid at all, an empty string is returned and an
+	 * error logged. */
+	static QString sanitizeDrumkitPath( const QString& sDrumkitPath );
+
+	/** Expects a path to the drumkit.xml file of a drumkit and returns the
+	 * absolute path to the folder it is contained in. The drumkit.xml file or
+	 * the folder itself, however, do not have to exist yet. */
+	static QString drumkitDirFromPath( const QString& sDrumkitPath );
+	/** Expects a path to directory containing a drumkit and returns the
+	 * absolute path to the contained drumkit.xml definition. The
+	 * drumkit.xml file or the folder itself, however, do not have to exist
+	 * yet. */
+	static QString drumkitPathFromDir( const QString& sDrumkitDir );
 
 	/**
 	 * Create a backup path from a drumkit path. It will contain

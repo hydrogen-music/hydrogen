@@ -182,9 +182,11 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 			for ( const auto& ssEntry : QDir( ssDir ).entryList(
 					  QDir::Dirs | QDir::Readable | QDir::NoDotAndDotDot
 				  ) ) {
-				const auto sFilePath =
-					QString( "%1/%2" ).arg( ssDir ).arg( ssEntry );
-				if ( Filesystem::drumkitValid( sFilePath ) &&
+				const auto sFilePath = QString( "%1/%2/%3" )
+										   .arg( ssDir )
+										   .arg( ssEntry )
+										   .arg( Filesystem::drumkitXml() );
+				if ( Filesystem::fileExists( sFilePath ) &&
 					 !m_customDrumkitPaths.contains( sFilePath ) ) {
 					m_customDrumkitPaths << sFilePath;
 				}
@@ -193,7 +195,7 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 	}
 #endif
 
-    // Either of the two session contexts does the job.
+	// Either of the two session contexts does the job.
 	drumkitPaths << Filesystem::listContent(
 		Filesystem::Artifact::DrumkitExtracted,
 		Filesystem::Context::SessionReadOnly
@@ -207,10 +209,7 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 	}
 
 	for ( const auto& sDrumkitPath : drumkitPaths ) {
-		// findContent returns the absolute path to a drumkit.xml file.
-		// Traditionally, load() requires the folder a drumkit.xml resides in.
-		QFileInfo info( sDrumkitPath );
-		auto pDrumkit = Drumkit::load( info.dir().path() );
+		auto pDrumkit = Drumkit::load( sDrumkitPath );
 		if ( pDrumkit != nullptr ) {
 			if ( m_drumkitDatabase.find( sDrumkitPath ) !=
 				 m_drumkitDatabase.end() ) {
@@ -247,20 +246,10 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 }
 
 std::shared_ptr<Drumkit>
-SoundLibraryDatabase::getDrumkit( const QString& sDrumkitPathIn, bool bUpgrade )
+SoundLibraryDatabase::getDrumkit( const QString& sDrumkitPath, bool bUpgrade )
 {
-	if ( sDrumkitPathIn.isEmpty() ) {
-		return nullptr;
-	}
-
-	const auto sDrumkitPath = Filesystem::absolutePath( sDrumkitPathIn );
 	if ( sDrumkitPath.isEmpty() ) {
-		ERRORLOG(
-			QString(
-				"Unable determine drumkit path based on supplied string [%1]"
-			)
-				.arg( sDrumkitPathIn )
-		);
+		ERRORLOG( "No drumkit path provided" );
 		return nullptr;
 	}
 

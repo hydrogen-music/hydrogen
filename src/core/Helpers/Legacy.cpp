@@ -204,12 +204,18 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 
 #ifdef H2CORE_HAVE_APPIMAGE
 	if ( !sLastLoadedDrumkitPath.isEmpty() ) {
+		sLastLoadedDrumkitPath =
+			Filesystem::sanitizeDrumkitPath( sLastLoadedDrumkitPath );
+
 		// The drumkit path contains an absolute path to the last drumkit used.
 		// Since the system kits are mounted at a different (temporary) path on
 		// each run of the AppImage, we need to manually adjust the path to
 		// ensure consistency.
 		sLastLoadedDrumkitPath =
 			Filesystem::rerouteDrumkitPath( sLastLoadedDrumkitPath );
+
+		sLastLoadedDrumkitPath =
+			Filesystem::sanitizeDrumkitPath( sLastLoadedDrumkitPath );
 	}
 #endif
 
@@ -220,8 +226,8 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 		Hydrogen::get_instance()->getSoundLibraryDatabase();
 
 	std::shared_ptr<Drumkit> pDrumkit = nullptr;
-	if ( !sLastLoadedDrumkitPath.contains( "/" ) &&
-		 !sLastLoadedDrumkitPath.contains( "\\" ) ) {
+	if ( sLastLoadedDrumkitPath.contains( "/" ) &&
+		 sLastLoadedDrumkitPath.contains( "\\" ) ) {
 		// We deal with an actual path
 		pDrumkit = pSoundLibraryDatabase->getDrumkit( sLastLoadedDrumkitPath );
 	}
@@ -234,7 +240,7 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 		// Loading by path did not worked. But maybe loading by name will do
 		// (per-path loading guarantees to uniquely identify kits on one system
 		// but is in general not protable to other systems. Name-based lookup,
-		// however, is portable as long as btoh systems have the required kit
+		// however, is portable as long as both systems have the required kit
 		// installed).
 		pDrumkit = pSoundLibraryDatabase->getDrumkit(
 			pSoundLibraryDatabase->findArtifact(
@@ -300,9 +306,17 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 		QString sFileName = node.read_string( "filename", "", false, false, bSilent );
 
 		if ( ! Filesystem::fileExists( sFileName ) && ! sDrumkitPath.isEmpty() ) {
-			sFileName = sDrumkitPath + "/" + sFileName;
+			// Starting from 2.0 sDrumkitPath does not point to the overall
+			// drumkit folder anymore but to the drumkit.xml file describing the
+			// drumkit.
+			const auto sDrumkitPathCleaned =
+				Filesystem::sanitizeDrumkitPath( sDrumkitPath );
+			const auto sDrumkitDir =
+				Filesystem::drumkitDirFromPath( sDrumkitPathCleaned );
+
+			sFileName = sDrumkitDir + "/" + sFileName;
 		}
-	
+
 		auto pSample = Sample::load( sFileName, drumkitLicense );
 		if ( pSample == nullptr ) {
 			// nel passaggio tra 0.8.2 e 0.9.0 il drumkit di default e' cambiato.

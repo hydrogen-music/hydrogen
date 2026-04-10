@@ -298,30 +298,29 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 */
 	static bool setDrumkit( std::shared_ptr<Drumkit> pDrumkit );
 	/** 
-	 * Upgrades the drumkit found at absolute path @a sDrumkitPath.
+	 * Upgrades the drumkit found at absolute path @a sDrumkitDirOrXml.
 	 *
-	 * If @a sNewPath is missing, the drumkit will be upgraded in
+	 * If @a sNewDir is missing, the drumkit will be upgraded in
 	 * place and a backup file will be created in order to not
 	 * overwrite the existing state. 
 	 */
-	static bool upgradeDrumkit( const QString& sDrumkitPath, const QString& sNewPath = "" );
+	static bool upgradeDrumkit( const QString& sDrumkitDirOrXml, const QString& sNewDir = "" );
 
 	/**
-	 * Checks whether the provided drumkit in @a sDrumkitPath can be
-	 * found, can be loaded, and does comply with the current XSD
-	 * definition.
+	 * Checks whether the provided drumkit in @a sDrumkitDirOrXml can be found,
+	 * can be loaded, and does comply with the current XSD definition.
 	 *
-	 * @param sDrumkitPath Can be either an absolute path to a folder
+	 * @param sDrumkitDirOrXml Can be either an absolute path to a folder
 	 *   containing a drumkit file (drumkit.xml), an absolute path to a
 	 *   drumkit file itself, or an absolute file to a compressed
 	 *   drumkit (.h2drumkit).
 	 * @param bCheckLegacyVersions Whether just the current XSD
 	 *   definition or also all previous versions should be checked.
 	 */
-	static bool validateDrumkit( const QString& sDrumkitPath, bool bCheckLegacyVersions = false );
+	static bool validateDrumkit( const QString& sDrumkitDirOrXml, bool bCheckLegacyVersions = false );
 	/**
-	 * Extracts the compressed .h2drumkit file in @a sDrumkitPath into
-	 * @a sTargetDir.
+	 * Extracts the compressed .h2drumkit file in @a sDrumkitBundledPath into @a
+	 * sTargetDir.
 	 *
 	 * The function does not automatically load the extracted kit into
 	 * the current Hydrogen session in case a custom @a sTargetDir was
@@ -329,11 +328,11 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * tarball is required (might differ from the name of the tarball)
 	 * and it is not easily obtained.
 	 *
-	 * \param sDrumkitPath Tar-compressed drumkit with .h2drumkit extension
+	 * \param sDrumkitBundledPath Tar-compressed drumkit with .h2drumkit extension
 	 * \param sTargetDir Folder to extract the drumkit to. If the folder is not
 	 *   present yet, it will be created. If left empty, the drumkit will be
 	 *   installed to the users drumkit data folder.
-	 * \param pInstalledPath Will contain the actual name of the folder the kit
+	 * \param pInstalledDir Will contain the actual name of the folder the kit
 	 *   was installed to. In most cases this will coincide with a folder within
 	 *   @a sTargetPath named like the kit itself. But in case the system does
 	 *   not support UTF-8 encoding and @a sTargetPath contains characters other
@@ -344,9 +343,9 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *   filepath of extracted kit had to be altered in order to not run into
 	 *   UTF-8 issues.
 	 */
-	static bool extractDrumkit( const QString& sDrumkitPath,
+	static bool extractDrumkit( const QString& sDrumkitBundledPath,
 								const QString& sTargetDir = "",
-								QString* pInstalledPath = nullptr,
+								QString* pInstalledDir = nullptr,
 								bool* pEncodingIssuesDetected = nullptr );
 
 		/** Adds @a pInstrument to the current drumkit.
@@ -498,14 +497,14 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		);
 
 		/**
-		 * Loads the drumkit specified in @a sDrumkitPath.
+		 * Loads the drumkit specified in @a sDrumkitDirOrXml.
 		 *
 		 * Methods from within Hydrogen should _never_ call this function
 		 * directly but, instead, use
 		 * #SoundLibrarydatabase::getDrumkit(). It is only exposed
 		 * publicly to be used within the unit tests.
 		 *
-		 * \param sDrumkitPath Can be either an absolute path to a folder
+		 * \param sDrumkitDirOrXml Can be either an absolute path to a folder
 		 *   containing a drumkit file (drumkit.xml), an absolute path to a
 		 *   drumkit file itself, or an absolute file to a compressed
 		 *   drumkit (.h2drumkit).
@@ -515,14 +514,14 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 *   file. If a compressed drumkit was provided, this will point to
 		 *   a temporary folder.
 		 * \param sTemporaryFolder Root path of a temporary folder
-		 *   containing the extracted drumkit in case @a sDrumkitPath
+		 *   containing the extracted drumkit in case @a sDrumkitDirOrXml
 		 *   pointed to a compressed .h2drumkit file.
 		 * \param pLegacyFormatEncountered will be set to `true` is any of the
 		 *   XML elements requires legacy format support and left untouched
 		 *   otherwise.
 		 */
 		static std::shared_ptr<Drumkit> retrieveDrumkit(
-			const QString& sDrumkitPath,
+			const QString& sDrumkitDirOrXml,
 			bool* bIsCompressed,
 			QString* sDrumkitDir,
 			QString* sTemporaryFolder,

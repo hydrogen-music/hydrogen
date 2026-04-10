@@ -32,6 +32,8 @@ class FilesystemTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testListContent );
 	CPPUNIT_TEST( testIsPathValid );
 	CPPUNIT_TEST( testSamplePathHandling );
+	CPPUNIT_TEST( testDrumkitPathConversion );
+	CPPUNIT_TEST( testSanitizeDrumkitPath );
 	CPPUNIT_TEST_SUITE_END();
 
    public:
@@ -44,6 +46,8 @@ class FilesystemTest : public CppUnit::TestFixture {
 	void testListContent();
 	void testIsPathValid();
 	void testSamplePathHandling();
+	void testDrumkitPathConversion();
+	void testSanitizeDrumkitPath();
 
    private:
 	QString m_sNotExistingPath;

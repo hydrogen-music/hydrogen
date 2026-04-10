@@ -1556,13 +1556,16 @@ void MainForm::action_drumkit_export() {
 	INFOLOG( QString( "Saving song kit to temporary folder [%1] for export" )
 			 .arg( tmpDir.path() ) );
 
-	auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
-	pNewDrumkit->setPath( tmpDir.path() );
+	const QString sTmpDrumkitPath =
+		Filesystem::drumkitPathFromDir( tmpDir.path() );
 
-	if ( ! pNewDrumkit->save( tmpDir.path() ) ) {
+	auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
+	pNewDrumkit->setPath( sTmpDrumkitPath );
+
+	if ( ! pNewDrumkit->save( sTmpDrumkitPath ) ) {
 		QApplication::restoreOverrideCursor();
 		ERRORLOG( QString( "Unable to save kit to tmp folder [%1]" )
-				  .arg( tmpDir.path() ) );
+				  .arg( sTmpDrumkitPath ) );
 		QMessageBox::critical( nullptr, "Hydrogen",
 							   pCommonStrings->getExportDrumkitFailure() );
 		return;
@@ -1723,9 +1726,9 @@ void MainForm::loadDrumkit( const QString& sFileName, bool bLoad ) {
 
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 
-	QString sImportedPath;
+	QString sImportedDir;
 	bool bEncodingIssues;
-	if ( ! H2Core::Drumkit::install( sFileName, "", &sImportedPath,
+	if ( ! H2Core::Drumkit::install( sFileName, "", &sImportedDir,
 									 &bEncodingIssues, false ) ) {
 		QApplication::restoreOverrideCursor();
 		if ( checkDrumkitPathEncoding(
@@ -1746,8 +1749,10 @@ void MainForm::loadDrumkit( const QString& sFileName, bool bLoad ) {
 
 	if ( bLoad ) {
 #ifdef H2CORE_HAVE_LIBARCHIVE
-		if ( ! sImportedPath.isEmpty() ) {
-			auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sImportedPath );
+		if ( ! sImportedDir.isEmpty() ) {
+			auto pDrumkit = pSoundLibraryDatabase->getDrumkit(
+				Filesystem::drumkitDirFromPath( sImportedDir )
+			);
 			if ( pDrumkit == nullptr ) {
 				ERRORLOG( QString( "Unable to load freshly imported kit [%1]" )
 						  .arg( sFileName ) );
@@ -1776,13 +1781,13 @@ void MainForm::loadDrumkit( const QString& sFileName, bool bLoad ) {
 		QMessageBox::information( this, "Hydrogen",
 								  QString( "%1 [%2]" )
 								  .arg( pCommonStrings->getImportDrumkitSuccess() )
-								  .arg( sImportedPath ) );
+								  .arg( sImportedDir ) );
 	}
 	else {
 		QMessageBox::warning(
 			this, "Hydrogen",
 			QString( "%1 [%2]%3" ).arg( pCommonStrings->getImportDrumkitSuccess() )
-			.arg( sImportedPath )
+			.arg( sImportedDir )
 			.arg( pCommonStrings->getImportDrumkitEncodingFailure() ) );
 	}
 }

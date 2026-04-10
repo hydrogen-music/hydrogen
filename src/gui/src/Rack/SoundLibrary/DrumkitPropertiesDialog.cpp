@@ -680,7 +680,8 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	if ( m_pDrumkit->getName() != nameTxt->text() ) {
 		m_pDrumkit->setName( nameTxt->text() );
 		m_pDrumkit->setPath(
-			H2Core::Filesystem::userDrumkitsDir() + nameTxt->text()
+			H2Core::Filesystem::userDrumkitsDir() + nameTxt->text() +
+			QDir::separator() + Filesystem::drumkitXml()
 		);
 	}
 	if ( m_pDrumkit->getVersion() != versionSpinBox->value() ) {
@@ -908,8 +909,11 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	if ( m_bSaveToNsmSession &&
 		 m_pDrumkit->getContext() == Filesystem::Context::Song ) {
 		m_pDrumkit->setPath(
-			QDir( NsmClient::get_instance()->getSessionFolderPath() )
-				.absoluteFilePath( m_pDrumkit->getName() )
+			QDir(
+				NsmClient::get_instance()->getSessionFolderPath() +
+				QDir::separator() + m_pDrumkit->getName()
+			)
+				.absoluteFilePath( Filesystem::drumkitXml() )
 		);
 #else
 	if ( false ) {
@@ -919,12 +923,13 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 			  m_pDrumkit->getContext() == Filesystem::Context::System ||
 			  m_pDrumkit->getContext() == Filesystem::Context::Song ) {
 		m_pDrumkit->setPath(
-			Filesystem::userDrumkitsDir() + m_pDrumkit->getName()
+			Filesystem::userDrumkitsDir() + m_pDrumkit->getName() +
+			QDir::separator() + Filesystem::drumkitXml()
 		);
 	}
 
 	// Check whether there is already a kit present we would overwrite.
-	if ( Filesystem::dirExists( m_pDrumkit->getPath(), true ) ) {
+	if ( Filesystem::fileExists( m_pDrumkit->getPath(), true ) ) {
 		int nRes = QMessageBox::information(
 			this, "Hydrogen",
 			QString( "%1\n%2\n\n%3" )

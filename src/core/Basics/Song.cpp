@@ -470,10 +470,13 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		bCurrentDrumkitLoaded = false;
 	}
 	pSong->setDrumkit( pDrumkit );
-	pSong->setLastLoadedDrumkitPath( rootNode.read_string(
+	QString sLastLoadedDrumkitPath = rootNode.read_string(
 		"lastLoadedDrumkitPath", pSong->getLastLoadedDrumkitPath(), true, true,
 		bSilent
-	) );
+	);
+	pSong->setLastLoadedDrumkitPath(
+		Filesystem::sanitizeDrumkitPath( sLastLoadedDrumkitPath )
+	);
 
 	// Pattern list
 	auto pPatternList = PatternList::loadFrom(
