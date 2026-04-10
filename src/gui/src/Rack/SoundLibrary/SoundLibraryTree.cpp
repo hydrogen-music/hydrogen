@@ -109,26 +109,26 @@ void SoundLibraryTree::updateRegistry() {
 		}
 	}
 
-	if ( systemInfos.size() > 0 ) {
-		m_pSystemItem = new QTreeWidgetItem( this );
-		m_pSystemItem->setText( 0, pCommonStrings->getSoundLibrarySystem() );
-		m_pSystemItem->setFont( 0, boldFont );
-		m_pSystemItem->setExpanded( true );
-        addNodes( m_pSystemItem, systemInfos, "" );
+	if ( sessionInfos.size() > 0 ) {
+		m_pSessionItem = new QTreeWidgetItem( this );
+		m_pSessionItem->setText( 0, pCommonStrings->getSoundLibrarySession() );
+		m_pSessionItem->setFont( 0, boldFont );
+		m_pSessionItem->setExpanded( true );
+		addNodes( m_pSessionItem, sessionInfos, "" );
 	}
 	if ( userInfos.size() > 0 ) {
 		m_pUserItem = new QTreeWidgetItem( this );
 		m_pUserItem->setText( 0, pCommonStrings->getSoundLibraryUser() );
 		m_pUserItem->setFont( 0, boldFont );
 		m_pUserItem->setExpanded( true );
-        addNodes( m_pUserItem, userInfos, "" );
+		addNodes( m_pUserItem, userInfos, "" );
 	}
-	if ( sessionInfos.size() > 0 ) {
-		m_pSessionItem = new QTreeWidgetItem( this );
-		m_pSessionItem->setText( 0, pCommonStrings->getSoundLibrarySession() );
-		m_pSessionItem->setFont( 0, boldFont );
-		m_pSessionItem->setExpanded( true );
-        addNodes( m_pSessionItem, sessionInfos, "" );
+	if ( systemInfos.size() > 0 ) {
+		m_pSystemItem = new QTreeWidgetItem( this );
+		m_pSystemItem->setText( 0, pCommonStrings->getSoundLibrarySystem() );
+		m_pSystemItem->setFont( 0, boldFont );
+		m_pSystemItem->setExpanded( true );
+		addNodes( m_pSystemItem, systemInfos, "" );
 	}
 }
 
