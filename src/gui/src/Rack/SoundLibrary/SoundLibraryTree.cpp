@@ -62,8 +62,7 @@ void SoundLibraryTree::updateRegistry() {
 	m_pSystemItem = nullptr;
 	m_pUserItem = nullptr;
 
-	auto pPref = H2Core::Preferences::get_instance();
-	auto pFontTheme = pPref->getFontTheme();
+	const auto pFontTheme = Preferences::get_instance()->getFontTheme();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
@@ -90,54 +89,46 @@ void SoundLibraryTree::updateRegistry() {
 		return;
 	}
 
-	// Separate patterns by context
-	for ( const auto& pInfo : infos ) {
-		QTreeWidgetItem* pParentItem = nullptr;
+    std::vector<std::shared_ptr<SoundLibraryInfo>> sessionInfos;
+    std::vector<std::shared_ptr<SoundLibraryInfo>> systemInfos;
+    std::vector<std::shared_ptr<SoundLibraryInfo>> userInfos;
 
-		if ( pInfo->getContext() == H2Core::Filesystem::Context::System ) {
-			if ( m_pSystemItem == nullptr ) {
-				m_pSystemItem = new QTreeWidgetItem( this );
-				m_pSystemItem->setText(
-					0, pCommonStrings->getSoundLibrarySystem()
-				);
-				m_pSystemItem->setFont( 0, boldFont );
-				m_pSystemItem->setExpanded( true );
-			}
-			pParentItem = m_pSystemItem;
+	// Separate patterns by context
+	for ( const auto& ppInfo : infos ) {
+		if ( ppInfo == nullptr ) {
+			continue;
 		}
-		else if ( pInfo->getContext() == H2Core::Filesystem::Context::User ) {
-			if ( m_pUserItem == nullptr ) {
-				m_pUserItem = new QTreeWidgetItem( this );
-				m_pUserItem->setText(
-					0, pCommonStrings->getSoundLibraryUser()
-				);
-				m_pUserItem->setFont( 0, boldFont );
-				m_pUserItem->setExpanded( true );
-			}
-			pParentItem = m_pUserItem;
+		else if ( ppInfo->getContext() == H2Core::Filesystem::Context::System ) {
+			systemInfos.push_back( ppInfo );
+		}
+		else if ( ppInfo->getContext() == H2Core::Filesystem::Context::User ) {
+			userInfos.push_back( ppInfo );
 		}
 		else {
-			if ( m_pSessionItem == nullptr ) {
-				m_pSessionItem = new QTreeWidgetItem( this );
-				m_pSessionItem->setText(
-					0, pCommonStrings->getSoundLibraryUser()
-				);
-				m_pSessionItem->setFont( 0, boldFont );
-				m_pSessionItem->setExpanded( true );
-			}
-			pParentItem = m_pSessionItem;
+			sessionInfos.push_back( ppInfo );
 		}
+	}
 
-		auto pNewItem = new QTreeWidgetItem( pParentItem );
-		QString sDisplayName = pInfo->getName();
-		if ( sDisplayName.isEmpty() ) {
-			// Fallback to filename without extension
-			QFileInfo fi( pInfo->getPath() );
-			sDisplayName = fi.completeBaseName();
-		}
-		pNewItem->setText( 0, sDisplayName );
-		pNewItem->setText( 1, pInfo->getPath() );
-		m_registry[pNewItem] = pInfo;
+	if ( systemInfos.size() > 0 ) {
+		m_pSystemItem = new QTreeWidgetItem( this );
+		m_pSystemItem->setText( 0, pCommonStrings->getSoundLibrarySystem() );
+		m_pSystemItem->setFont( 0, boldFont );
+		m_pSystemItem->setExpanded( true );
+        addNodes( m_pSystemItem, systemInfos, "" );
+	}
+	if ( userInfos.size() > 0 ) {
+		m_pUserItem = new QTreeWidgetItem( this );
+		m_pUserItem->setText( 0, pCommonStrings->getSoundLibraryUser() );
+		m_pUserItem->setFont( 0, boldFont );
+		m_pUserItem->setExpanded( true );
+        addNodes( m_pUserItem, userInfos, "" );
+	}
+	if ( sessionInfos.size() > 0 ) {
+		m_pSessionItem = new QTreeWidgetItem( this );
+		m_pSessionItem->setText( 0, pCommonStrings->getSoundLibrarySession() );
+		m_pSessionItem->setFont( 0, boldFont );
+		m_pSessionItem->setExpanded( true );
+        addNodes( m_pSessionItem, sessionInfos, "" );
 	}
 }
 
@@ -186,4 +177,109 @@ void SoundLibraryTree::mouseMoveEvent( QMouseEvent* pEvent )
 	pMimeData->setText( sMimeText );
 	pDrag->setMimeData( pMimeData );
 	pDrag->exec( Qt::CopyAction | Qt::MoveAction );
+}
+
+void SoundLibraryTree::addNodes(
+	QTreeWidgetItem* pParent,
+	std::vector<std::shared_ptr<SoundLibraryInfo>> infos,
+	const QString& sBasePath
+)
+{
+	const auto pFontTheme = Preferences::get_instance()->getFontTheme();
+	QFont dirFont(
+		pFontTheme->m_sApplicationFontFamily,
+		getPointSize( pFontTheme->m_fontSize )
+	);
+	dirFont.setItalic( true );
+
+	// Let's be sure to write platform-independent code.
+	auto splitCleanly = []( const QString& sPath ) {
+		QString sCleanedPath( sPath );
+		sCleanedPath.replace( "\\", QDir::separator() );
+		sCleanedPath.replace( "/", QDir::separator() );
+		return sCleanedPath.split( QDir::separator() );
+	};
+
+	QString sCurrentDir( sBasePath );
+	// During the initial call of this function we have to figure out the
+	// common demoniator of all supplied path as the root of this tree
+	// section.
+	if ( sBasePath.isEmpty() ) {
+		QString sCommonPart = infos[0]->getPath();
+		for ( const auto& ppInfo : infos ) {
+			while ( !ppInfo->getPath().contains( sCommonPart ) ) {
+				auto commonParts = splitCleanly( sCommonPart );
+				if ( commonParts.length() < 2 ) {
+					break;
+				}
+				commonParts.removeLast();
+				sCommonPart = commonParts.join( QDir::separator() );
+			}
+		}
+		sCurrentDir = sCommonPart;
+	}
+
+	// Split content into subfolders and files. We store them in maps using
+	// their path relative to the current folder to harness automatic
+	// alphanumeric ordering.
+	std::map<QString, std::vector<std::shared_ptr<SoundLibraryInfo>>> dirInfos;
+	std::map<QString, std::shared_ptr<SoundLibraryInfo>> fileInfos;
+	for ( const auto& ppInfo : infos ) {
+		QString sPath = ppInfo->getPath();
+		sPath.remove( sCurrentDir );
+		if ( sPath.startsWith( "/" ) || sPath.startsWith( "\\" ) ) {
+			sPath.removeFirst();
+		}
+		if ( sPath.contains( "/" ) || sPath.contains( "\\" ) ) {
+			auto ppathSplit = splitCleanly( sPath );
+			if ( ppathSplit.first().isEmpty() ) {
+				// We deal with an absolute path and the leading `/` causes the
+				// first element to be empty.
+				ppathSplit.removeFirst();
+			}
+			if ( ppathSplit.length() < 1 ) {
+				ERRORLOG( QString( "Couldn't handle path [%1] in folder [%2]" )
+							  .arg( ppInfo->getPath() )
+							  .arg( sCurrentDir ) );
+				continue;
+			}
+			const QString sFolderName = ppathSplit.first();
+			if ( dirInfos.find( sFolderName ) != dirInfos.end() ) {
+				dirInfos.at( sFolderName ).push_back( ppInfo );
+			}
+			else {
+				std::vector<std::shared_ptr<SoundLibraryInfo>> infos{ ppInfo };
+				dirInfos[sFolderName] = std::move( infos );
+			}
+		}
+		else {
+			fileInfos[sPath] = ppInfo;
+		}
+	}
+
+	for ( const auto& [ssFolderName, iinfos] : dirInfos ) {
+		auto pDirItem = new QTreeWidgetItem( pParent );
+		pDirItem->setText( 0, ssFolderName );
+		pDirItem->setFont( 0, dirFont );
+		pDirItem->setExpanded( false );
+		addNodes(
+			pDirItem, iinfos,
+			QString( "%1%2%3" )
+				.arg( sCurrentDir )
+				.arg( QDir::separator() )
+				.arg( ssFolderName )
+		);
+	}
+
+	for ( const auto& [ssPath, ppInfo] : fileInfos ) {
+		auto pFileItem = new QTreeWidgetItem( pParent );
+		QString sDisplayName = ppInfo->getName();
+		if ( sDisplayName.isEmpty() ) {
+				// Fallback to filename without extension
+				QFileInfo fi( ppInfo->getPath() );
+				sDisplayName = fi.completeBaseName();
+		}
+		pFileItem->setText( 0, sDisplayName );
+		pFileItem->setText( 1, ppInfo->getPath() );
+	}
 }

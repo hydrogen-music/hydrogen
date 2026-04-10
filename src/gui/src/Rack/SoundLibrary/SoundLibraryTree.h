@@ -23,6 +23,9 @@
 #ifndef SOUND_LIBRARY_TREE_H
 #define SOUND_LIBRARY_TREE_H
 
+#include <memory>
+#include <vector>
+
 #include <QtGui>
 #include <QtWidgets>
 
@@ -63,6 +66,16 @@ class SoundLibraryTree : public QTreeWidget,
 	virtual void mouseMoveEvent( QMouseEvent* event ) override;
 
    private:
+	/** Items in the tree are arranged alpha-numerically with subfolders shown
+	 * first followed by files within the folder. This function will be called
+	 * recursively in order to account for nested folders in the user data
+	 * directory. */
+	void addNodes(
+		QTreeWidgetItem* pParent,
+		std::vector<std::shared_ptr<H2Core::SoundLibraryInfo>> infos,
+		const QString& sBasePath
+	);
+
 	SoundLibraryPanel* m_pSoundLibraryPanel;
 
 	H2Core::Filesystem::Artifact m_artifact;
