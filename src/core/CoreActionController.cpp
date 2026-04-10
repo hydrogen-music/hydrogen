@@ -1666,23 +1666,24 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitDirOrXml,
 		return false;
 	}
 
-	if ( ! Filesystem::drumkitValid( sDrumkitDir ) ) {
+    const QString sDrumkitPath = Filesystem::drumkitPathFromDir( sDrumkitDir );
+	if ( ! Filesystem::fileReadable( sDrumkitPath ) ) {
 		ERRORLOG( QString( "Something went wrong in the drumkit retrieval of [%1]. Unable to load from [%2]" )
 				  .arg( sDrumkitDirOrXml ).arg( sDrumkitDir ) );
 		return false;
 	}
 
 	XMLDoc doc;
-	if ( !doc.read( Filesystem::drumkitFile( sDrumkitDir ), true ) ) {
+	if ( !doc.read( sDrumkitPath, true ) ) {
 		ERRORLOG( QString( "Drumkit XML file [%1] can not be parsed." )
-				  .arg( Filesystem::drumkitFile( sDrumkitDir ) ) );
+					  .arg( sDrumkitPath ) );
 		return false;
 	}
 	
 	XMLNode root = doc.firstChildElement( "drumkit_info" );
 	if ( root.isNull() ) {
 		ERRORLOG( QString( "Drumkit file [%1] seems bricked: 'drumkit_info' node not found" )
-				  .arg( Filesystem::drumkitFile( sDrumkitDir ) ) );
+				  .arg( sDrumkitPath ) );
 		return false;
 	}
 

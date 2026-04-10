@@ -426,7 +426,7 @@ bool Drumkit::save( const QString& sDrumkitPath, bool bSilent )
 	// and portable. Missing samples have to be discarded.
 	saveTo( root, /* bSongKit */ false,
 		   /* bKeepMissingSamples */ false, bSilent );
-	return doc.write( Filesystem::drumkitFile( sDrumkitFolder ) );
+	return doc.write( sDrumkitPath );
 }
 
 void Drumkit::saveTo( XMLNode& node,

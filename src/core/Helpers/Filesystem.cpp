@@ -998,17 +998,6 @@ QString Filesystem::prepareSamplePath(
 	return sSamplePath;
 }
 
-bool Filesystem::drumkitValid( const QString& sFolderPath )
-{
-	return fileReadable(
-		QDir( sFolderPath ).absoluteFilePath( DRUMKIT_XML ), true
-	);
-}
-QString Filesystem::drumkitFile( const QString& sDrumkitPath )
-{
-	return sDrumkitPath + "/" + DRUMKIT_XML;
-}
-
 QString Filesystem::drumkitXml()
 {
 	return DRUMKIT_XML;

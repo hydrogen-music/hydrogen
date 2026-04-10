@@ -278,17 +278,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	);
 
 	/**
-	 * returns true if the path contains a usable drumkit
-	 * @param sDrumkitPath the root drumkit location
-	 */
-	static bool drumkitValid( const QString& sDrumkitPath );
-	/**
-	 * returns the path to the xml file within a supposed drumkit path
-	 * @param sDrumkitPath the path to the drumkit
-	 */
-	static QString drumkitFile( const QString& sDrumkitPath );
-
-	/**
 	 * Returns filename and extension of the expected drumkit file.
 	 */
 	static QString drumkitXml();
