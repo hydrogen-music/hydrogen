@@ -47,9 +47,6 @@ namespace H2Core
  *
  */
 
-class DrumkitInfo;
-class PatternInfo;
-class SongInfo;
 class SoundLibraryInfo;
 
 /** \ingroup docGUI*/
@@ -59,9 +56,9 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	SoundLibraryDatabase();
 	~SoundLibraryDatabase();
 
-	std::vector<std::shared_ptr<DrumkitInfo>> getDrumkitInfos() const;
-	std::vector<std::shared_ptr<PatternInfo>> getPatternInfos() const;
-	std::vector<std::shared_ptr<SongInfo>> getSongInfos() const;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> getDrumkitInfos() const;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> getPatternInfos() const;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> getSongInfos() const;
 
 	void update();
 
@@ -149,9 +146,9 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 
 	std::map<QString, std::shared_ptr<Drumkit>> m_drumkitDatabase;
 
-	std::vector<std::shared_ptr<DrumkitInfo>> m_drumkitInfos;
-	std::vector<std::shared_ptr<PatternInfo>> m_patternInfos;
-	std::vector<std::shared_ptr<SongInfo>> m_songInfos;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> m_drumkitInfos;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> m_patternInfos;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> m_songInfos;
 
 	/**
 	 * List of drumkits the user supplied via CLI or OSC command but
@@ -166,17 +163,17 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	 * system and user drumkti folder. */
 	QStringList m_customDrumkitFolders;
 };
-inline std::vector<std::shared_ptr<DrumkitInfo>>
+inline std::vector<std::shared_ptr<SoundLibraryInfo>>
 SoundLibraryDatabase::getDrumkitInfos() const
 {
 	return m_drumkitInfos;
 };
-inline std::vector<std::shared_ptr<PatternInfo>>
+inline std::vector<std::shared_ptr<SoundLibraryInfo>>
 SoundLibraryDatabase::getPatternInfos() const
 {
 	return m_patternInfos;
 };
-inline std::vector<std::shared_ptr<SongInfo>>
+inline std::vector<std::shared_ptr<SoundLibraryInfo>>
 SoundLibraryDatabase::getSongInfos() const
 {
 	return m_songInfos;

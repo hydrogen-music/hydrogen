@@ -24,10 +24,14 @@
 
 #include <QMimeData>
 
+#include <core/Hydrogen.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/SoundLibrary/SoundLibraryInfo.h>
 
 #include "SoundLibraryPanel.h"
+#include "../../CommonStrings.h"
 #include "../../Compatibility/MouseEvent.h"
+#include "../../HydrogenApp.h"
 
 using namespace H2Core;
 
@@ -49,6 +53,92 @@ SoundLibraryTree::SoundLibraryTree(
 		m_pSoundLibraryPanel->updateDetailView();
 	} );
 
+}
+
+void SoundLibraryTree::updateRegistry() {
+	clear();
+	m_registry.clear();
+	m_pSessionItem = nullptr;
+	m_pSystemItem = nullptr;
+	m_pUserItem = nullptr;
+
+	auto pPref = H2Core::Preferences::get_instance();
+	auto pFontTheme = pPref->getFontTheme();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	QFont boldFont(
+		pFontTheme->m_sApplicationFontFamily,
+		getPointSize( pFontTheme->m_fontSize )
+	);
+	boldFont.setBold( true );
+
+	std::vector<std::shared_ptr<SoundLibraryInfo>> infos;
+	if ( m_artifact == Filesystem::Artifact::DrumkitExtracted ) {
+		infos = pSoundLibraryDatabase->getDrumkitInfos();
+	}
+	else if ( m_artifact == Filesystem::Artifact::Pattern ) {
+		infos = pSoundLibraryDatabase->getPatternInfos();
+	}
+	else if ( m_artifact == Filesystem::Artifact::Song ) {
+		infos = pSoundLibraryDatabase->getSongInfos();
+	}
+	else {
+		ERRORLOG( QString( "Unsupported artifact [%1]" )
+					  .arg( Filesystem::ArtifactToQString( m_artifact ) ) );
+		return;
+	}
+
+	// Separate patterns by context
+	for ( const auto& pInfo : infos ) {
+		QTreeWidgetItem* pParentItem = nullptr;
+
+		if ( pInfo->getContext() == H2Core::Filesystem::Context::System ) {
+			if ( m_pSystemItem == nullptr ) {
+				m_pSystemItem = new QTreeWidgetItem( this );
+				m_pSystemItem->setText(
+					0, pCommonStrings->getSoundLibrarySystem()
+				);
+				m_pSystemItem->setFont( 0, boldFont );
+				m_pSystemItem->setExpanded( true );
+			}
+			pParentItem = m_pSystemItem;
+		}
+		else if ( pInfo->getContext() == H2Core::Filesystem::Context::User ) {
+			if ( m_pUserItem == nullptr ) {
+				m_pUserItem = new QTreeWidgetItem( this );
+				m_pUserItem->setText(
+					0, pCommonStrings->getSoundLibraryUser()
+				);
+				m_pUserItem->setFont( 0, boldFont );
+				m_pUserItem->setExpanded( true );
+			}
+			pParentItem = m_pUserItem;
+		}
+		else {
+			if ( m_pSessionItem == nullptr ) {
+				m_pSessionItem = new QTreeWidgetItem( this );
+				m_pSessionItem->setText(
+					0, pCommonStrings->getSoundLibraryUser()
+				);
+				m_pSessionItem->setFont( 0, boldFont );
+				m_pSessionItem->setExpanded( true );
+			}
+			pParentItem = m_pSessionItem;
+		}
+
+		auto pNewItem = new QTreeWidgetItem( pParentItem );
+		QString sDisplayName = pInfo->getName();
+		if ( sDisplayName.isEmpty() ) {
+			// Fallback to filename without extension
+			QFileInfo fi( pInfo->getPath() );
+			sDisplayName = fi.completeBaseName();
+		}
+		pNewItem->setText( 0, sDisplayName );
+		pNewItem->setText( 1, pInfo->getPath() );
+		m_registry[pNewItem] = pInfo;
+	}
 }
 
 void SoundLibraryTree::mousePressEvent( QMouseEvent* event )

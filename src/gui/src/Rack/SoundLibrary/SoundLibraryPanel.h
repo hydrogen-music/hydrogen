@@ -102,7 +102,6 @@ class SoundLibraryPanel : public QWidget,
 
 	// Pattern tree slots
 	void on_PatternTree_rightClicked( const QPoint& pos );
-	void on_PatternTree_mouseMove( QMouseEvent* event );
 
 	// Song tree slots
 	void on_SongTree_rightClicked( const QPoint& pos );
@@ -182,16 +181,6 @@ class SoundLibraryPanel : public QWidget,
 	 * operations (load, delete, drag-and-drop). */
 	std::map<QTreeWidgetItem*, std::shared_ptr<H2Core::SoundLibraryInfo>>
 		m_drumkitRegistry;
-
-	/** Maps pattern tree items to their SoundLibraryInfo for pattern
-	 * operations (load, delete, drag-and-drop). */
-	std::map<QTreeWidgetItem*, std::shared_ptr<H2Core::SoundLibraryInfo>>
-		m_patternRegistry;
-
-	/** Maps song tree items to their SoundLibraryInfo for song
-	 * operations (load). */
-	std::map<QTreeWidgetItem*, std::shared_ptr<H2Core::SoundLibraryInfo>>
-		m_songRegistry;
 
 	/** Whether the dialog was constructed as part of an Open from Library
 	 * dialog for the corresponding artifact via a click in the MainForm or as

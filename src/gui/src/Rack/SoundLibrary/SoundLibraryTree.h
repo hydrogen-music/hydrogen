@@ -29,6 +29,8 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Object.h>
 
+#include "../../Widgets/WidgetWithScalableFont.h"
+
 namespace H2Core {
 class SoundLibraryInfo;
 }
@@ -37,6 +39,7 @@ class SoundLibraryPanel;
 
 /** \ingroup docGUI*/
 class SoundLibraryTree : public QTreeWidget,
+						 protected WidgetWithScalableFont<8, 10, 12>,
 						 private H2Core::Object<SoundLibraryTree> {
 	H2_OBJECT( SoundLibraryTree )
 	Q_OBJECT
@@ -46,6 +49,10 @@ class SoundLibraryTree : public QTreeWidget,
 		H2Core::Filesystem::Artifact artifact,
 		bool bStandAlone
 	);
+
+	const std::map<QTreeWidgetItem*, std::shared_ptr<H2Core::SoundLibraryInfo>>&
+	getRegistry() const;
+	void updateRegistry();
 
    signals:
 	void leftClicked( const QPoint& pos );
@@ -68,6 +75,17 @@ class SoundLibraryTree : public QTreeWidget,
 	 * operations (load, delete, drag-and-drop). */
 	std::map<QTreeWidgetItem*, std::shared_ptr<H2Core::SoundLibraryInfo>>
 		m_registry;
+
+	QTreeWidgetItem* m_pSessionItem;
+	QTreeWidgetItem* m_pSystemItem;
+	QTreeWidgetItem* m_pUserItem;
 };
+
+inline const std::
+	map<QTreeWidgetItem*, std::shared_ptr<H2Core::SoundLibraryInfo>>&
+	SoundLibraryTree::getRegistry() const
+{
+	return m_registry;
+}
 
 #endif

@@ -337,7 +337,6 @@ void SoundLibraryPanel::updateDrumkitTree()
 
 	m_pDrumkitTree->clear();
 	m_drumkitRegistry.clear();
-	m_patternRegistry.clear();
 
 	// Legacy pointers are not populated in the new design
 	__song_item = nullptr;
@@ -438,124 +437,18 @@ void SoundLibraryPanel::updateDrumkitTree()
 
 void SoundLibraryPanel::updatePatternTree()
 {
-	if ( m_pPatternTree == nullptr ) {
-		return;
-	}
-    
-	m_pPatternTree->clear();
-	m_patternRegistry.clear();
-	m_pPatternSystemItem = nullptr;
-	m_pPatternUserItem = nullptr;
-
-	auto pPref = H2Core::Preferences::get_instance();
-	auto pFontTheme = pPref->getFontTheme();
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-	QFont boldFont(
-		pFontTheme->m_sApplicationFontFamily,
-		getPointSize( pFontTheme->m_fontSize )
-	);
-	boldFont.setBold( true );
-
-	auto patternInfoVector = pSoundLibraryDatabase->getPatternInfos();
-
-	// Separate patterns by context
-	for ( const auto& pInfo : patternInfoVector ) {
-		QTreeWidgetItem* pParentItem = nullptr;
-
-		if ( pInfo->getContext() == H2Core::Filesystem::Context::System ) {
-			if ( m_pPatternSystemItem == nullptr ) {
-				m_pPatternSystemItem = new QTreeWidgetItem( m_pPatternTree );
-				m_pPatternSystemItem->setText(
-					0, pCommonStrings->getSoundLibrarySystem()
-				);
-				m_pPatternSystemItem->setFont( 0, boldFont );
-				m_pPatternSystemItem->setExpanded( true );
-			}
-			pParentItem = m_pPatternSystemItem;
-		}
-		else {
-			if ( m_pPatternUserItem == nullptr ) {
-				m_pPatternUserItem = new QTreeWidgetItem( m_pPatternTree );
-				m_pPatternUserItem->setText(
-					0, pCommonStrings->getSoundLibraryUser()
-				);
-				m_pPatternUserItem->setFont( 0, boldFont );
-				m_pPatternUserItem->setExpanded( true );
-			}
-			pParentItem = m_pPatternUserItem;
-		}
-
-		QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pParentItem );
-		pPatternItem->setText( 0, pInfo->getName() );
-		pPatternItem->setText( 1, pInfo->getPath() );
-		m_patternRegistry[pPatternItem] = pInfo;
+	if ( m_pPatternTree != nullptr ) {
+		m_pPatternTree->updateRegistry();
 	}
 }
 
 void SoundLibraryPanel::updateSongTree()
 {
+	if ( m_pSongTree != nullptr ) {
+		m_pSongTree->updateRegistry();
+	}
 	if ( m_pSongTree == nullptr ) {
 		return;
-	}
-    
-	m_pSongTree->clear();
-	m_songRegistry.clear();
-	m_pSongSystemItem = nullptr;
-	m_pSongUserItem = nullptr;
-
-	auto pPref = H2Core::Preferences::get_instance();
-	auto pFontTheme = pPref->getFontTheme();
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-	QFont boldFont(
-		pFontTheme->m_sApplicationFontFamily,
-		getPointSize( pFontTheme->m_fontSize )
-	);
-	boldFont.setBold( true );
-
-	auto songInfoVector = pSoundLibraryDatabase->getSongInfos();
-
-	for ( const auto& pInfo : songInfoVector ) {
-		QTreeWidgetItem* pParentItem = nullptr;
-
-		if ( pInfo->getContext() == H2Core::Filesystem::Context::System ) {
-			if ( m_pSongSystemItem == nullptr ) {
-				m_pSongSystemItem = new QTreeWidgetItem( m_pSongTree );
-				m_pSongSystemItem->setText(
-					0, pCommonStrings->getSoundLibrarySystem()
-				);
-				m_pSongSystemItem->setFont( 0, boldFont );
-				m_pSongSystemItem->setExpanded( true );
-			}
-			pParentItem = m_pSongSystemItem;
-		}
-		else {
-			if ( m_pSongUserItem == nullptr ) {
-				m_pSongUserItem = new QTreeWidgetItem( m_pSongTree );
-				m_pSongUserItem->setText(
-					0, pCommonStrings->getSoundLibraryUser()
-				);
-				m_pSongUserItem->setFont( 0, boldFont );
-				m_pSongUserItem->setExpanded( true );
-			}
-			pParentItem = m_pSongUserItem;
-		}
-
-		QTreeWidgetItem* pSongItem = new QTreeWidgetItem( pParentItem );
-		QString sDisplayName = pInfo->getName();
-		if ( sDisplayName.isEmpty() ) {
-			// Fallback to filename without extension
-			QFileInfo fi( pInfo->getPath() );
-			sDisplayName = fi.completeBaseName();
-		}
-		pSongItem->setText( 0, sDisplayName );
-		pSongItem->setToolTip( 0, pInfo->getPath() );
-		m_songRegistry[pSongItem] = pInfo;
 	}
 }
 
@@ -620,10 +513,9 @@ void SoundLibraryPanel::updateDetailView()
 			}
 		}
 	}
-	else if ( pActiveTree == m_pPatternTree ) {
-		// Pattern tab
-		auto it = m_patternRegistry.find( pItem );
-		if ( it != m_patternRegistry.end() && it->second != nullptr ) {
+	else if ( pActiveTree == m_pPatternTree || pActiveTree == m_pSongTree ) {
+		auto it = pActiveTree->getRegistry().find( pItem );
+		if ( it != pActiveTree->getRegistry().end() && it->second != nullptr ) {
 			auto pInfo = it->second;
 			m_pDetailName->setText( pInfo->getName() );
 			m_pDetailAuthor->setText( pInfo->getAuthor() );
@@ -632,20 +524,7 @@ void SoundLibraryPanel::updateDetailView()
 			);
 			m_pDetailPath->setText( pInfo->getPath() );
 		}
-	}
-	else if ( pActiveTree == m_pSongTree ) {
-		// Song tab
-		auto it = m_songRegistry.find( pItem );
-		if ( it != m_songRegistry.end() && it->second != nullptr ) {
-			auto pInfo = it->second;
-			m_pDetailName->setText( pInfo->getName() );
-			m_pDetailAuthor->setText( pInfo->getAuthor() );
-			m_pDetailInfo->setText( pInfo->getInfo() );
-			m_pDetailLicense->setText( pInfo->getLicense().toQString( "", true )
-			);
-			m_pDetailPath->setText( pInfo->getPath() );
-		}
-	}
+    }
 }
 
 void SoundLibraryPanel::filterTree(
@@ -717,51 +596,28 @@ void SoundLibraryPanel::onRescanClicked()
 
 void SoundLibraryPanel::on_PatternTree_rightClicked( const QPoint& pos )
 {
-	if ( m_pPatternTree->currentItem() == nullptr ) {
+	if ( m_pPatternTree == nullptr ||
+		 m_pPatternTree->currentItem() == nullptr ) {
 		return;
 	}
 
 	// Only show menu on leaf items (patterns, not folders)
-	auto it = m_patternRegistry.find( m_pPatternTree->currentItem() );
-	if ( it != m_patternRegistry.end() ) {
+	auto it =
+		m_pPatternTree->getRegistry().find( m_pPatternTree->currentItem() );
+	if ( it != m_pPatternTree->getRegistry().end() ) {
 		__pattern_menu->popup( pos );
 	}
 }
 
-void SoundLibraryPanel::on_PatternTree_mouseMove( QMouseEvent* event )
-{
-	if ( !( event->buttons() & Qt::LeftButton ) ) {
-		return;
-	}
-
-	if ( m_pPatternTree->currentItem() == nullptr ) {
-		return;
-	}
-
-	auto it = m_patternRegistry.find( m_pPatternTree->currentItem() );
-	if ( it == m_patternRegistry.end() || it->second == nullptr ) {
-		return;
-	}
-
-	QString sPatternPath = it->second->getPath();
-	QString dragtype = "drag pattern";
-	QString sText = dragtype + "::" + sPatternPath;
-
-	QDrag* pDrag = new QDrag( this );
-	QMimeData* pMimeData = new QMimeData;
-	pMimeData->setText( sText );
-	pDrag->setMimeData( pMimeData );
-	pDrag->exec( Qt::CopyAction | Qt::MoveAction );
-}
-
 void SoundLibraryPanel::on_SongTree_rightClicked( const QPoint& pos )
 {
-	if ( m_pSongTree->currentItem() == nullptr ) {
+	if ( m_pSongTree == nullptr ||
+		 m_pSongTree->currentItem() == nullptr ) {
 		return;
 	}
 
-	auto it = m_songRegistry.find( m_pSongTree->currentItem() );
-	if ( it != m_songRegistry.end() ) {
+	auto it = m_pSongTree->getRegistry().find( m_pSongTree->currentItem() );
+	if ( it != m_pSongTree->getRegistry().end() ) {
 		__song_menu->popup( pos );
 	}
 }
@@ -1212,8 +1068,8 @@ void SoundLibraryPanel::on_songLoadAction()
 {
 	// Support loading from the new song tree
 	if ( m_pSongTree != nullptr && m_pSongTree->currentItem() != nullptr ) {
-		auto it = m_songRegistry.find( m_pSongTree->currentItem() );
-		if ( it != m_songRegistry.end() && it->second != nullptr ) {
+		auto it = m_pSongTree->getRegistry().find( m_pSongTree->currentItem() );
+		if ( it != m_pSongTree->getRegistry().end() && it->second != nullptr ) {
 			HydrogenApp::openFile(
 				Filesystem::Artifact::Song, it->second->getPath()
 			);
@@ -1255,13 +1111,14 @@ void SoundLibraryPanel::on_patternLoadAction()
 		return;
 	}
 
-	if ( m_patternRegistry.find( pCurrentItem ) == m_patternRegistry.end() ) {
+	if ( m_pPatternTree->getRegistry().find( pCurrentItem ) ==
+		 m_pPatternTree->getRegistry().end() ) {
 		ERRORLOG( QString( "Unable to find pattern corresponding to [%1]" )
 					  .arg( pCurrentItem->text( 0 ) ) );
 		return;
 	}
 
-	auto pInfo = m_patternRegistry.at( pCurrentItem );
+	auto pInfo = m_pPatternTree->getRegistry().at( pCurrentItem );
 	if ( pInfo == nullptr ) {
 		ERRORLOG( QString( "Invalid pattern info for [%1]" )
 					  .arg( pCurrentItem->text( 0 ) ) );
@@ -1299,13 +1156,14 @@ void SoundLibraryPanel::on_patternDeleteAction()
 		return;
 	}
 
-	if ( m_patternRegistry.find( pCurrentItem ) == m_patternRegistry.end() ) {
+	if ( m_pPatternTree->getRegistry().find( pCurrentItem ) ==
+		 m_pPatternTree->getRegistry().end() ) {
 		ERRORLOG( QString( "Unable to find pattern corresponding to [%1]" )
 					  .arg( pCurrentItem->text( 0 ) ) );
 		return;
 	}
 
-	auto pInfo = m_patternRegistry.at( pCurrentItem );
+	auto pInfo = m_pPatternTree->getRegistry().at( pCurrentItem );
 	if ( pInfo == nullptr ) {
 		ERRORLOG( QString( "Invalid pattern info for [%1]" )
 					  .arg( pCurrentItem->text( 0 ) ) );
