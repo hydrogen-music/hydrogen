@@ -237,10 +237,12 @@ void SoundLibraryTree::addNodes(
 				// first element to be empty.
 				ppathSplit.removeFirst();
 			}
-			if ( ppathSplit.length() < 1 ) {
-				ERRORLOG( QString( "Couldn't handle path [%1] in folder [%2]" )
-							  .arg( ppInfo->getPath() )
-							  .arg( sCurrentDir ) );
+			// The folder containing the drumkit files will be treated as
+			// the drumkit itself.
+			const int nMinLength =
+				m_artifact == Filesystem::Artifact::DrumkitExtracted ? 2 : 1;
+			if ( ppathSplit.length() <= nMinLength ) {
+				fileInfos[sPath] = ppInfo;
 				continue;
 			}
 			const QString sFolderName = ppathSplit.first();

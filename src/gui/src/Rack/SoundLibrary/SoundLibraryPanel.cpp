@@ -325,113 +325,9 @@ void SoundLibraryPanel::updateTree()
 
 void SoundLibraryPanel::updateDrumkitTree()
 {
-	if ( m_pDrumkitTree == nullptr ) {
+	if ( m_pDrumkitTree != nullptr ) {
+		m_pDrumkitTree->updateRegistry();
 		return;
-	}
-
-	const auto pPref = H2Core::Preferences::get_instance();
-	const auto pFontTheme = pPref->getFontTheme();
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-	m_pDrumkitTree->clear();
-	m_drumkitRegistry.clear();
-
-	// Legacy pointers are not populated in the new design
-	__song_item = nullptr;
-	__pattern_item = nullptr;
-	__pattern_item_list = nullptr;
-
-	QFont boldFont(
-		pFontTheme->m_sApplicationFontFamily,
-		getPointSize( pFontTheme->m_fontSize )
-	);
-	boldFont.setBold( true );
-
-	QFont childFont(
-		pFontTheme->m_sLevel2FontFamily, getPointSize( pFontTheme->m_fontSize )
-	);
-	setFont( childFont );
-
-	m_pTreeSystemDrumkitsItem = nullptr;
-	m_pTreeUserDrumkitsItem = nullptr;
-	m_pTreeSessionDrumkitsItem = nullptr;
-
-	const auto drumkitInfoVector = pSoundLibraryDatabase->getDrumkitInfos();
-
-	// Separate drumkits by context
-	for ( const auto& pInfo : drumkitInfoVector ) {
-		QTreeWidgetItem* pParentItem = nullptr;
-
-		if ( pInfo->getContext() == H2Core::Filesystem::Context::System ) {
-			if ( m_pTreeSystemDrumkitsItem == nullptr ) {
-				m_pTreeSystemDrumkitsItem =
-					new QTreeWidgetItem( m_pDrumkitTree );
-				m_pTreeSystemDrumkitsItem->setText(
-					0, pCommonStrings->getSoundLibrarySystem()
-				);
-				m_pTreeSystemDrumkitsItem->setFont( 0, boldFont );
-				m_pTreeSystemDrumkitsItem->setExpanded( true );
-			}
-			pParentItem = m_pTreeSystemDrumkitsItem;
-		}
-		else if ( pInfo->getContext() == H2Core::Filesystem::Context::User ) {
-			if ( m_pTreeUserDrumkitsItem == nullptr ) {
-				m_pTreeUserDrumkitsItem = new QTreeWidgetItem( m_pDrumkitTree );
-				m_pTreeUserDrumkitsItem->setText(
-					0, pCommonStrings->getSoundLibraryUser()
-				);
-				m_pTreeUserDrumkitsItem->setFont( 0, boldFont );
-				m_pTreeUserDrumkitsItem->setExpanded( true );
-			}
-			pParentItem = m_pTreeUserDrumkitsItem;
-		}
-		else {
-			if ( m_pTreeSessionDrumkitsItem == nullptr ) {
-				m_pTreeSessionDrumkitsItem =
-					new QTreeWidgetItem( m_pDrumkitTree );
-				m_pTreeSessionDrumkitsItem->setText(
-					0, pCommonStrings->getSoundLibraryUser()
-				);
-				m_pTreeSessionDrumkitsItem->setFont( 0, boldFont );
-				m_pTreeSessionDrumkitsItem->setExpanded( true );
-			}
-			pParentItem = m_pTreeSessionDrumkitsItem;
-		}
-
-		QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( pParentItem );
-		pDrumkitItem->setText( 0, pInfo->getName() );
-		pDrumkitItem->setText( 1, pInfo->getPath() );
-		m_drumkitRegistry[pDrumkitItem] = pInfo;
-	}
-
-	// top-level drumkit items found
-	QList<QTreeWidgetItem*> drumkitItems;
-
-	// Ensure the ordering of the top-level nodes is always
-	// system > user > session
-	if ( m_pTreeSystemDrumkitsItem != nullptr ) {
-		drumkitItems << m_pTreeSystemDrumkitsItem;
-	}
-	if ( m_pTreeUserDrumkitsItem != nullptr ) {
-		drumkitItems << m_pTreeUserDrumkitsItem;
-	}
-	if ( m_pTreeSessionDrumkitsItem != nullptr ) {
-		drumkitItems << m_pTreeSessionDrumkitsItem;
-	}
-	m_pDrumkitTree->addTopLevelItems( drumkitItems );
-
-	// Ensure drumkit nodes are expanded (necessary when added as
-	// above.)
-	if ( m_pTreeSystemDrumkitsItem != nullptr ) {
-		m_pTreeSystemDrumkitsItem->setExpanded( true );
-	}
-	if ( m_pTreeUserDrumkitsItem != nullptr ) {
-		m_pTreeUserDrumkitsItem->setExpanded( true );
-	}
-	if ( m_pTreeSessionDrumkitsItem != nullptr ) {
-		m_pTreeSessionDrumkitsItem->setExpanded( true );
 	}
 }
 
@@ -446,9 +342,6 @@ void SoundLibraryPanel::updateSongTree()
 {
 	if ( m_pSongTree != nullptr ) {
 		m_pSongTree->updateRegistry();
-	}
-	if ( m_pSongTree == nullptr ) {
-		return;
 	}
 }
 
@@ -500,8 +393,8 @@ void SoundLibraryPanel::updateDetailView()
 		if ( pItem->parent() == m_pTreeSystemDrumkitsItem ||
 			 pItem->parent() == m_pTreeUserDrumkitsItem ||
 			 pItem->parent() == m_pTreeSessionDrumkitsItem ) {
-			auto it = m_drumkitRegistry.find( pItem );
-			if ( it != m_drumkitRegistry.end() && it->second != nullptr ) {
+			auto it = m_pDrumkitTree->getRegistry().find( pItem );
+			if ( it != m_pDrumkitTree->getRegistry().end() && it->second != nullptr ) {
 				auto pInfo = it->second;
 				m_pDetailName->setText( pInfo->getName() );
 				m_pDetailAuthor->setText( pInfo->getAuthor() );
@@ -683,8 +576,8 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated(
 		QString sInstrumentName =
 			sSelectedName.remove( 0, sSelectedName.indexOf( "] " ) + 2 );
 		QString sDrumkitName = pItem->parent()->text( 0 );
-		auto it = m_drumkitRegistry.find( pItem );
-		if ( it == m_drumkitRegistry.end() || it->second == nullptr ) {
+		auto it = m_pDrumkitTree->getRegistry().find( pItem );
+		if ( it == m_pDrumkitTree->getRegistry().end() || it->second == nullptr ) {
 			ERRORLOG( "Unable to retrieve drumkit" );
 			return;
 		}
@@ -769,8 +662,8 @@ void SoundLibraryPanel::on_DrumkitList_rightClicked( const QPoint& pos )
 	// checked during runtime (which should be a very rare thing to do).
 	if ( m_pDrumkitTree->currentItem()->parent() ==
 		 m_pTreeSessionDrumkitsItem ) {
-		auto it = m_drumkitRegistry.find( m_pDrumkitTree->currentItem() );
-		if ( it == m_drumkitRegistry.end() || it->second == nullptr ) {
+		auto it = m_pDrumkitTree->getRegistry().find( m_pDrumkitTree->currentItem() );
+		if ( it == m_pDrumkitTree->getRegistry().end() || it->second == nullptr ) {
 			ERRORLOG( "Unable to retrieve drumkit" );
 			return;
 		}
@@ -832,8 +725,8 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent* event )
 		}
 
 		auto it =
-			m_drumkitRegistry.find( m_pDrumkitTree->currentItem()->parent() );
-		if ( it == m_drumkitRegistry.end() || it->second == nullptr ) {
+			m_pDrumkitTree->getRegistry().find( m_pDrumkitTree->currentItem()->parent() );
+		if ( it == m_pDrumkitTree->getRegistry().end() || it->second == nullptr ) {
 			ERRORLOG( "Unable to retrieve drumkit" );
 			return;
 		}
@@ -866,8 +759,8 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 		return;
 	}
 
-	auto it = m_drumkitRegistry.find( m_pDrumkitTree->currentItem() );
-	if ( it == m_drumkitRegistry.end() || it->second == nullptr ) {
+	auto it = m_pDrumkitTree->getRegistry().find( m_pDrumkitTree->currentItem() );
+	if ( it == m_pDrumkitTree->getRegistry().end() || it->second == nullptr ) {
 		ERRORLOG( "Unable to retrieve drumkit" );
 		return;
 	}
@@ -907,8 +800,8 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 {
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	QTreeWidgetItem* pItem = m_pDrumkitTree->currentItem();
-	auto it = m_drumkitRegistry.find( pItem );
-	if ( it == m_drumkitRegistry.end() || it->second == nullptr ) {
+	auto it = m_pDrumkitTree->getRegistry().find( pItem );
+	if ( it == m_pDrumkitTree->getRegistry().end() || it->second == nullptr ) {
 		ERRORLOG( "Unable to retrieve drumkit" );
 		return;
 	}
@@ -1016,8 +909,8 @@ void SoundLibraryPanel::on_drumkitExportAction()
 	auto pSoundLibraryDatabase =
 		Hydrogen::get_instance()->getSoundLibraryDatabase();
 
-	auto it = m_drumkitRegistry.find( m_pDrumkitTree->currentItem() );
-	if ( it == m_drumkitRegistry.end() || it->second == nullptr ) {
+	auto it = m_pDrumkitTree->getRegistry().find( m_pDrumkitTree->currentItem() );
+	if ( it == m_pDrumkitTree->getRegistry().end() || it->second == nullptr ) {
 		ERRORLOG( "Unable to retrieve drumkit" );
 		return;
 	}
@@ -1032,8 +925,8 @@ void SoundLibraryPanel::editDrumkitProperties( bool bDuplicate )
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
 
-	auto it = m_drumkitRegistry.find( m_pDrumkitTree->currentItem() );
-	if ( it == m_drumkitRegistry.end() || it->second == nullptr ) {
+	auto it = m_pDrumkitTree->getRegistry().find( m_pDrumkitTree->currentItem() );
+	if ( it == m_pDrumkitTree->getRegistry().end() || it->second == nullptr ) {
 		ERRORLOG( "Unable to retrieve drumkit" );
 		return;
 	}
