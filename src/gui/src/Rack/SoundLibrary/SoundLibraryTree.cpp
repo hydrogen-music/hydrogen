@@ -284,6 +284,7 @@ void SoundLibraryTree::addNodes(
 		}
 		pFileItem->setText( 0, sDisplayName );
 		pFileItem->setText( 1, ppInfo->getPath() );
+		m_registry[pFileItem] = ppInfo;
 
 		if ( ppInfo->getType() == SoundLibraryInfo::Type::Drumkit ) {
 			auto pDrumkitInfo =
@@ -298,6 +299,7 @@ void SoundLibraryTree::addNodes(
 					}
 					pInstrumentItem->setText( 0, sDisplayName );
 					pInstrumentItem->setText( 1, ppInstrumentInfo->getPath() );
+					m_registry[pInstrumentItem] = ppInstrumentInfo;
 				}
 			}
 		}
