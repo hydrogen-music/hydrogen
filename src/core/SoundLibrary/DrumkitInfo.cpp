@@ -27,6 +27,7 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
+#include <core/SoundLibrary/InstrumentInfo.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 namespace H2Core {
@@ -88,10 +89,10 @@ void DrumkitInfo::assignFrom( std::shared_ptr<Drumkit> pDrumkit )
 		if ( ppInstrument == nullptr ) {
 			continue;
 		}
-		InstrumentInfo instrumentInfo{
-			ppInstrument->getName(), ppInstrument->getId(),
-			ppInstrument->getType() };
-		m_instrumentInfos.push_back( instrumentInfo );
+		m_instrumentInfos.push_back( std::make_shared<InstrumentInfo>(
+			this, ppInstrument->getName(), ppInstrument->getId(),
+			ppInstrument->getType()
+		) );
 	}
 }
 
@@ -103,11 +104,10 @@ QString DrumkitInfo::toQString( const QString& sPrefix, bool bShort ) const
 	sOutput.replace( "SoundLibraryInfo", "DrumkitInfo" );
 
 	QStringList infoStrings;
-	for ( const auto& iinfo : m_instrumentInfos ) {
-		infoStrings << QString( "[sName: %1, id: %2, sType: %3]" )
-						   .arg( iinfo.sName )
-						   .arg( static_cast<int>( iinfo.id ) )
-						   .arg( iinfo.sType );
+	for ( const auto& ppInfo : m_instrumentInfos ) {
+		infoStrings << QString( "[id: %1, sType: %2]" )
+						   .arg( static_cast<int>( ppInfo->getId() ) )
+						   .arg( ppInfo->getType() );
 	}
 
 	if ( !bShort ) {

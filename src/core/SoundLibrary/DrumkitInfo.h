@@ -26,7 +26,6 @@
 #include <memory>
 #include <vector>
 
-#include <core/Basics/Instrument.h>
 #include <core/Object.h>
 #include <core/SoundLibrary/SoundLibraryInfo.h>
 
@@ -34,6 +33,7 @@ namespace H2Core
 {
 
 class Drumkit;
+class InstrumentInfo;
 
 /**
  * @class DrumkitInfo
@@ -52,12 +52,6 @@ class DrumkitInfo : public SoundLibraryInfo,
 	H2_OBJECT( DrumkitInfo )
 
    public:
-	struct InstrumentInfo {
-		const QString& sName;
-		Instrument::Id id;
-		Instrument::Type sType;
-	};
-
 	DrumkitInfo();
 	~DrumkitInfo();
 
@@ -71,16 +65,17 @@ class DrumkitInfo : public SoundLibraryInfo,
 	 */
 	bool load( const QString& sPath );
 
-	const std::vector<InstrumentInfo>& getInstrumentInfos() const;
+	const std::vector<std::shared_ptr<InstrumentInfo>>& getInstrumentInfos(
+	) const;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true )
 		const override;
 
    private:
 	void assignFrom( std::shared_ptr<Drumkit> pDrumkit );
-	std::vector<InstrumentInfo> m_instrumentInfos;
+	std::vector<std::shared_ptr<InstrumentInfo>> m_instrumentInfos;
 };
-inline const std::vector<DrumkitInfo::InstrumentInfo>&
+inline const std::vector<std::shared_ptr<InstrumentInfo>>&
 DrumkitInfo::getInstrumentInfos() const
 {
 	return m_instrumentInfos;
