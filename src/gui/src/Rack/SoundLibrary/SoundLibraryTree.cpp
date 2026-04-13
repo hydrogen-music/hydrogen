@@ -25,6 +25,8 @@
 #include <QMimeData>
 
 #include <core/Hydrogen.h>
+#include <core/SoundLibrary/DrumkitInfo.h>
+#include <core/SoundLibrary/InstrumentInfo.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/SoundLibrary/SoundLibraryInfo.h>
 
@@ -277,11 +279,28 @@ void SoundLibraryTree::addNodes(
 		auto pFileItem = new QTreeWidgetItem( pParent );
 		QString sDisplayName = ppInfo->getName();
 		if ( sDisplayName.isEmpty() ) {
-				// Fallback to filename without extension
-				QFileInfo fi( ppInfo->getPath() );
-				sDisplayName = fi.completeBaseName();
+			// Fallback to filename without extension
+			QFileInfo fi( ppInfo->getPath() );
+			sDisplayName = fi.completeBaseName();
 		}
 		pFileItem->setText( 0, sDisplayName );
 		pFileItem->setText( 1, ppInfo->getPath() );
+
+		if ( ppInfo->getArtifact() == Filesystem::Artifact::DrumkitExtracted ) {
+			auto pDrumkitInfo =
+				std::dynamic_pointer_cast<DrumkitInfo>( ppInfo );
+			if ( pDrumkitInfo != nullptr ) {
+				for ( const auto& ppInstrumentInfo :
+					  pDrumkitInfo->getInstrumentInfos() ) {
+					auto pInstrumentItem = new QTreeWidgetItem( pFileItem );
+					QString sDisplayName = ppInstrumentInfo->getName();
+					if ( sDisplayName.isEmpty() ) {
+						sDisplayName = ppInstrumentInfo->getType();
+					}
+					pInstrumentItem->setText( 0, sDisplayName );
+					pInstrumentItem->setText( 1, ppInstrumentInfo->getPath() );
+				}
+			}
+		}
 	}
 }
