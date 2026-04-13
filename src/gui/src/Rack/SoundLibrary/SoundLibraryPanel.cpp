@@ -57,7 +57,10 @@
 
 using namespace H2Core;
 
-SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, std::shared_ptr<Filesystem::Artifact> pOpenArtifact )
+SoundLibraryPanel::SoundLibraryPanel(
+	QWidget* pParent,
+	std::shared_ptr<SoundLibraryInfo::Type> pOpenType
+)
 	: QWidget( pParent ),
 	  m_pSearchField( nullptr ),
 	  m_pRescanButton( nullptr ),
@@ -85,7 +88,7 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, std::shared_ptr<Filesyst
 	  __song_item( nullptr ),
 	  __pattern_item( nullptr ),
 	  __pattern_item_list( nullptr ),
-	  m_pOpenArtifact( pOpenArtifact )
+	  m_pOpenType( pOpenType )
 {
 	setMinimumWidth( Rack::nWidth );
 	setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding ) );
@@ -162,11 +165,10 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, std::shared_ptr<Filesyst
 	);
 
 	// DRUMKIT TREE (tab 0)
-	if ( m_pOpenArtifact == nullptr ||
-		 *m_pOpenArtifact == Filesystem::Artifact::DrumkitExtracted ) {
+	if ( m_pOpenType == nullptr ||
+		 *m_pOpenType == SoundLibraryInfo::Type::Drumkit ) {
 		m_pDrumkitTree = new SoundLibraryTree(
-			this, Filesystem::Artifact::DrumkitExtracted,
-			m_pOpenArtifact != nullptr
+			this, SoundLibraryInfo::Type::Drumkit, m_pOpenType != nullptr
 		);
 		connect(
 			m_pDrumkitTree,
@@ -184,7 +186,7 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, std::shared_ptr<Filesyst
 			m_pDrumkitTree, SIGNAL( leftClicked( QPoint ) ), this,
 			SLOT( on_DrumkitList_leftClicked( QPoint ) )
 		);
-		if ( m_pOpenArtifact == nullptr ) {
+		if ( m_pOpenType == nullptr ) {
 			connect(
 				m_pDrumkitTree, SIGNAL( rightClicked( QPoint ) ), this,
 				SLOT( on_DrumkitList_rightClicked( QPoint ) )
@@ -193,12 +195,12 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, std::shared_ptr<Filesyst
 	}
 
 	// PATTERN TREE (tab 1)
-	if ( m_pOpenArtifact == nullptr ||
-		 *m_pOpenArtifact == Filesystem::Artifact::Pattern ) {
+	if ( m_pOpenType == nullptr ||
+		 *m_pOpenType == SoundLibraryInfo::Type::Pattern ) {
 		m_pPatternTree = new SoundLibraryTree(
-			this, Filesystem::Artifact::Pattern, m_pOpenArtifact != nullptr
+			this, SoundLibraryInfo::Type::Pattern, m_pOpenType != nullptr
 		);
-		if ( m_pOpenArtifact == nullptr ) {
+		if ( m_pOpenType == nullptr ) {
 			connect(
 				m_pPatternTree, SIGNAL( rightClicked( QPoint ) ), this,
 				SLOT( on_PatternTree_rightClicked( QPoint ) )
@@ -207,12 +209,12 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, std::shared_ptr<Filesyst
 	}
 
 	// SONG TREE (tab 2)
-	if ( m_pOpenArtifact == nullptr ||
-		 *m_pOpenArtifact == Filesystem::Artifact::Song ) {
+	if ( m_pOpenType == nullptr ||
+		 *m_pOpenType == SoundLibraryInfo::Type::Song ) {
 		m_pSongTree = new SoundLibraryTree(
-			this, Filesystem::Artifact::Song, m_pOpenArtifact != nullptr
+			this, SoundLibraryInfo::Type::Song, m_pOpenType != nullptr
 		);
-		if ( m_pOpenArtifact == nullptr ) {
+		if ( m_pOpenType == nullptr ) {
 			connect(
 				m_pSongTree, SIGNAL( rightClicked( QPoint ) ), this,
 				SLOT( on_SongTree_rightClicked( QPoint ) )
@@ -241,7 +243,7 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, std::shared_ptr<Filesyst
 	this->setLayout( pMainLayout );
 
 	// Tree widgets
-	if ( m_pOpenArtifact == nullptr ) {
+	if ( m_pOpenType == nullptr ) {
 		m_pTabWidget = new QTabWidget( this );
 		pMainLayout->addWidget( m_pTabWidget );
 		m_pTabWidget->setDocumentMode( true );
@@ -257,13 +259,13 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget* pParent, std::shared_ptr<Filesyst
 			&SoundLibraryPanel::onTabChanged
 		);
 	}
-	else if ( *m_pOpenArtifact == Filesystem::Artifact::DrumkitExtracted ) {
+	else if ( *m_pOpenType == SoundLibraryInfo::Type::Drumkit ) {
 		pMainLayout->addWidget( m_pDrumkitTree );
 	}
-	else if ( *m_pOpenArtifact == Filesystem::Artifact::Pattern ) {
+	else if ( *m_pOpenType == SoundLibraryInfo::Type::Pattern ) {
 		pMainLayout->addWidget( m_pPatternTree );
 	}
-	else if ( *m_pOpenArtifact == Filesystem::Artifact::Song ) {
+	else if ( *m_pOpenType == SoundLibraryInfo::Type::Song ) {
 		pMainLayout->addWidget( m_pSongTree );
 	}
 
@@ -365,10 +367,10 @@ void SoundLibraryPanel::updateDetailView()
 				return;
 		}
 	}
-	else if ( *m_pOpenArtifact == Filesystem::Artifact::DrumkitExtracted ) {
+	else if ( *m_pOpenType == SoundLibraryInfo::Type::Drumkit ) {
 		pActiveTree = m_pDrumkitTree;
 	}
-	else if ( *m_pOpenArtifact == Filesystem::Artifact::Pattern ) {
+	else if ( *m_pOpenType == SoundLibraryInfo::Type::Pattern ) {
 		pActiveTree = m_pPatternTree;
 	}
 	else {

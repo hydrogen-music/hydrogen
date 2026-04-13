@@ -31,12 +31,9 @@
 
 #include <core/Helpers/Filesystem.h>
 #include <core/Object.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 
 #include "../../Widgets/WidgetWithScalableFont.h"
-
-namespace H2Core {
-class SoundLibraryInfo;
-}
 
 class SoundLibraryPanel;
 
@@ -49,7 +46,7 @@ class SoundLibraryTree : public QTreeWidget,
    public:
 	explicit SoundLibraryTree(
 		SoundLibraryPanel* pParent,
-		H2Core::Filesystem::Artifact artifact,
+		H2Core::SoundLibraryInfo::Type type,
 		bool bStandAlone
 	);
 
@@ -78,7 +75,7 @@ class SoundLibraryTree : public QTreeWidget,
 
 	SoundLibraryPanel* m_pSoundLibraryPanel;
 
-	H2Core::Filesystem::Artifact m_artifact;
+	H2Core::SoundLibraryInfo::Type m_type;
 
 	/** Whether the widget is created as part of the main window or as part of
 	 * the Open From Library dialog of the corresponding aritfact. */

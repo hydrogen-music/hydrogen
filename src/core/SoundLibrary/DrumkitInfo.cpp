@@ -77,7 +77,7 @@ void DrumkitInfo::assignFrom( std::shared_ptr<Drumkit> pDrumkit )
 		return;
 	}
 
-	m_artifact = Filesystem::Artifact::DrumkitExtracted;
+	m_type = SoundLibraryInfo::Type::Drumkit;
 	m_sPath = pDrumkit->getPath();
 	m_context = pDrumkit->getContext();
 	m_sName = pDrumkit->getName();

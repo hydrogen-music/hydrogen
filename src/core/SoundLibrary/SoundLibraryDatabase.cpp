@@ -355,8 +355,8 @@ void SoundLibraryDatabase::registerUniqueLabel(
 	QString sUniqueItemLabel = pInfo->getName();
 
 	auto labelContained = [&]( const QString& sLabel ) {
-		switch ( pInfo->getArtifact() ) {
-			case Filesystem::Artifact::DrumkitExtracted: {
+		switch ( pInfo->getType() ) {
+			case SoundLibraryInfo::Type::Drumkit: {
 				for ( const auto& ppInfo : m_drumkitInfos ) {
 					// Ensure we do not pick up the label for this kit.
 					if ( ppInfo != nullptr && ppInfo->getLabel() == sLabel &&
@@ -366,7 +366,7 @@ void SoundLibraryDatabase::registerUniqueLabel(
 				}
 				return false;
 			}
-			case Filesystem::Artifact::Pattern: {
+			case SoundLibraryInfo::Type::Pattern: {
 				for ( const auto& ppInfo : m_patternInfos ) {
 					// Ensure we do not pick up the label for this kit.
 					if ( ppInfo != nullptr && ppInfo->getLabel() == sLabel &&
@@ -376,7 +376,7 @@ void SoundLibraryDatabase::registerUniqueLabel(
 				}
 				return false;
 			}
-			case Filesystem::Artifact::Song: {
+			case SoundLibraryInfo::Type::Song: {
 				for ( const auto& ppInfo : m_songInfos ) {
 					// Ensure we do not pick up the label for this kit.
 					if ( ppInfo != nullptr && ppInfo->getLabel() == sLabel &&
@@ -387,9 +387,9 @@ void SoundLibraryDatabase::registerUniqueLabel(
 				return false;
 			}
 			default:
-				ERRORLOG( QString( "Unsupported artifact [%1]" )
-							  .arg( Filesystem::ArtifactToQString(
-								  pInfo->getArtifact()
+				ERRORLOG( QString( "Unsupported type [%1]" )
+							  .arg( SoundLibraryInfo::TypeToQString(
+								  pInfo->getType()
 							  ) ) )
 				return false;
 		}

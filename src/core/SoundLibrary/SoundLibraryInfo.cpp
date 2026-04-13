@@ -24,6 +24,23 @@
 
 namespace H2Core {
 
+QString SoundLibraryInfo::TypeToQString( SoundLibraryInfo::Type type ) {
+	switch( type ) {
+	case SoundLibraryInfo::Type::Drumkit:
+		return "Drumkit";
+	case SoundLibraryInfo::Type::Instrument:
+		return "Instrument";
+	case SoundLibraryInfo::Type::Pattern:
+		return "Pattern";
+	case SoundLibraryInfo::Type::Song:
+		return "Song";
+	default:
+		break;
+	}
+
+	return QString( "Unknown event: [%1]" ).arg( static_cast<int>(type));
+}
+
 SoundLibraryInfo::SoundLibraryInfo() : m_context( Filesystem::Context::User )
 {
 }
@@ -33,7 +50,7 @@ SoundLibraryInfo::SoundLibraryInfo(
 	const QString& sURL,
 	const QString& sInfo,
 	const QString& sAuthor,
-	Filesystem::Artifact artifact,
+	Type type,
 	const License& license,
 	const QString& sPath
 )
@@ -41,7 +58,7 @@ SoundLibraryInfo::SoundLibraryInfo(
 	  m_sURL( sURL ),
 	  m_sInfo( sInfo ),
 	  m_sAuthor( sAuthor ),
-	  m_artifact( artifact ),
+	  m_type( type ),
 	  m_license( license ),
 	  m_sPath( sPath ),
 	  m_context( Filesystem::Context::User )
@@ -76,10 +93,10 @@ QString SoundLibraryInfo::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_sAuthor ) )
-				.append( QString( "%1%2m_artifact: %3\n" )
+				.append( QString( "%1%2m_type: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( Filesystem::ArtifactToQString( m_artifact ) )
+							 .arg( TypeToQString( m_type ) )
 				)
 				.append(
 					QString( "%1%2m_license:\n%3" )
@@ -108,8 +125,8 @@ QString SoundLibraryInfo::toQString( const QString& sPrefix, bool bShort ) const
 				.append( QString( ", m_sURL: %1" ).arg( m_sURL ) )
 				.append( QString( ", m_sInfo: %1" ).arg( m_sInfo ) )
 				.append( QString( ", m_sAuthor: %1" ).arg( m_sAuthor ) )
-				.append( QString( ", m_artifact: %1" )
-							 .arg( Filesystem::ArtifactToQString( m_artifact ) )
+				.append( QString( ", m_type: %1" )
+							 .arg( TypeToQString( m_type ) )
 				)
 				.append( QString( ", m_license: %1" )
 							 .arg( m_license.toQString( "", bShort ) ) )

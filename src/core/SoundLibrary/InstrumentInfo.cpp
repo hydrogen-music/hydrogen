@@ -37,11 +37,12 @@ InstrumentInfo::InstrumentInfo(
 	: m_id( id ), m_sType( sType )
 {
 	m_sName = sName;
+	m_type = SoundLibraryInfo::Type::Instrument;
+
 	if ( pInfo != nullptr ) {
 		m_sURL = pInfo->getUrl();
 		m_sInfo = pInfo->getInfo();
 		m_sAuthor = pInfo->getAuthor();
-		m_artifact = pInfo->getArtifact();
 		m_license = pInfo->getLicense();
 		m_sPath = pInfo->getPath();
 		m_sLabel = pInfo->getLabel();

@@ -28,7 +28,6 @@
 #include <core/SoundLibrary/DrumkitInfo.h>
 #include <core/SoundLibrary/InstrumentInfo.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
-#include <core/SoundLibrary/SoundLibraryInfo.h>
 
 #include "SoundLibraryPanel.h"
 #include "../../CommonStrings.h"
@@ -39,12 +38,12 @@ using namespace H2Core;
 
 SoundLibraryTree::SoundLibraryTree(
 	SoundLibraryPanel* pParent,
-	Filesystem::Artifact artifact,
+	SoundLibraryInfo::Type type,
 	bool bStandAlone
 )
 	: QTreeWidget( pParent ),
 	  m_pSoundLibraryPanel( pParent ),
-	  m_artifact( artifact ),
+	  m_type( type ),
 	  m_bStandAlone( bStandAlone )
 {
 	setAlternatingRowColors( true );
@@ -54,10 +53,10 @@ SoundLibraryTree::SoundLibraryTree(
 	connect( this, &QTreeWidget::currentItemChanged, [&]() {
 		m_pSoundLibraryPanel->updateDetailView();
 	} );
-
 }
 
-void SoundLibraryTree::updateRegistry() {
+void SoundLibraryTree::updateRegistry()
+{
 	clear();
 	m_registry.clear();
 	m_pSessionItem = nullptr;
@@ -76,24 +75,24 @@ void SoundLibraryTree::updateRegistry() {
 	boldFont.setBold( true );
 
 	std::vector<std::shared_ptr<SoundLibraryInfo>> infos;
-	if ( m_artifact == Filesystem::Artifact::DrumkitExtracted ) {
+	if ( m_type == SoundLibraryInfo::Type::Drumkit ) {
 		infos = pSoundLibraryDatabase->getDrumkitInfos();
 	}
-	else if ( m_artifact == Filesystem::Artifact::Pattern ) {
+	else if ( m_type == SoundLibraryInfo::Type::Pattern ) {
 		infos = pSoundLibraryDatabase->getPatternInfos();
 	}
-	else if ( m_artifact == Filesystem::Artifact::Song ) {
+	else if ( m_type == SoundLibraryInfo::Type::Song ) {
 		infos = pSoundLibraryDatabase->getSongInfos();
 	}
 	else {
-		ERRORLOG( QString( "Unsupported artifact [%1]" )
-					  .arg( Filesystem::ArtifactToQString( m_artifact ) ) );
+		ERRORLOG( QString( "Unsupported type [%1]" )
+					  .arg( SoundLibraryInfo::TypeToQString( m_type ) ) );
 		return;
 	}
 
-    std::vector<std::shared_ptr<SoundLibraryInfo>> sessionInfos;
-    std::vector<std::shared_ptr<SoundLibraryInfo>> systemInfos;
-    std::vector<std::shared_ptr<SoundLibraryInfo>> userInfos;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> sessionInfos;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> systemInfos;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> userInfos;
 
 	// Separate patterns by context
 	for ( const auto& ppInfo : infos ) {
@@ -155,7 +154,7 @@ void SoundLibraryTree::mouseMoveEvent( QMouseEvent* pEvent )
 		return;
 	}
 
-    // Initialize drag and drop events
+	// Initialize drag and drop events
 	if ( !( pEvent->buttons() & Qt::LeftButton ) ) {
 		return;
 	}
@@ -171,7 +170,7 @@ void SoundLibraryTree::mouseMoveEvent( QMouseEvent* pEvent )
 
 	const QString sMimeText =
 		QString( "drag %1::%2" )
-			.arg( Filesystem::ArtifactToQString( m_artifact ) )
+			.arg( SoundLibraryInfo::TypeToQString( m_type ) )
 			.arg( it->second->getPath() );
 
 	auto pDrag = new QDrag( this );
@@ -242,7 +241,7 @@ void SoundLibraryTree::addNodes(
 			// The folder containing the drumkit files will be treated as
 			// the drumkit itself.
 			const int nMinLength =
-				m_artifact == Filesystem::Artifact::DrumkitExtracted ? 2 : 1;
+				m_type == SoundLibraryInfo::Type::Drumkit ? 2 : 1;
 			if ( ppathSplit.length() <= nMinLength ) {
 				fileInfos[sPath] = ppInfo;
 				continue;
@@ -286,7 +285,7 @@ void SoundLibraryTree::addNodes(
 		pFileItem->setText( 0, sDisplayName );
 		pFileItem->setText( 1, ppInfo->getPath() );
 
-		if ( ppInfo->getArtifact() == Filesystem::Artifact::DrumkitExtracted ) {
+		if ( ppInfo->getType() == SoundLibraryInfo::Type::Drumkit ) {
 			auto pDrumkitInfo =
 				std::dynamic_pointer_cast<DrumkitInfo>( ppInfo );
 			if ( pDrumkitInfo != nullptr ) {

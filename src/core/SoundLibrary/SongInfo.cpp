@@ -47,7 +47,7 @@ bool SongInfo::load( const QString& sPath )
 	if ( !rootNode.isNull() ) {
 		m_sPath = sPath;
 		m_context = Filesystem::DetermineContext( sPath );
-		m_artifact = Filesystem::Artifact::Song;
+		m_type = SoundLibraryInfo::Type::Song;
 		m_sAuthor =
 			rootNode.read_string( "author", "undefined author", false, false );
 		m_license =

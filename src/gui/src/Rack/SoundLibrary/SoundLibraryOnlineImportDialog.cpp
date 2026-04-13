@@ -36,6 +36,7 @@
 #include <core/License.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 
 #include <QTreeWidget>
 #include <QDomDocument>
@@ -280,15 +281,15 @@ void SoundLibraryOnlineImportDialog::reloadRepositoryData()
 			node = node.nextSibling();
 			continue;
 		}
-		H2Core::Filesystem::Artifact artifact;
+		H2Core::SoundLibraryInfo::Type type;
 		if ( node.toElement().tagName() == "drumkit" ) {
-			artifact = H2Core::Filesystem::Artifact::DrumkitExtracted;
+			type = H2Core::SoundLibraryInfo::Type::Drumkit;
 		}
 		else if ( node.toElement().tagName() == "pattern" ) {
-			artifact = H2Core::Filesystem::Artifact::Pattern;
+			type = H2Core::SoundLibraryInfo::Type::Pattern;
 		}
 		else if ( node.toElement().tagName() == "song" ) {
-			artifact = H2Core::Filesystem::Artifact::Song;
+			type = H2Core::SoundLibraryInfo::Type::Song;
 		}
 		else {
 			node = node.nextSibling();
@@ -299,7 +300,7 @@ void SoundLibraryOnlineImportDialog::reloadRepositoryData()
 			node.firstChildElement( "name" ).text(),
 			node.firstChildElement( "url" ).text(),
 			node.firstChildElement( "info" ).text(),
-			node.firstChildElement( "author" ).text(), artifact,
+			node.firstChildElement( "author" ).text(), type,
 			H2Core::License( node.firstChildElement( "license" ).text() ), ""
 		) );
 		node = node.nextSibling();
@@ -384,14 +385,14 @@ void SoundLibraryOnlineImportDialog::updateSoundLibraryList()
 
 		QTreeWidgetItem* pDrumkitItem = nullptr;
 
-		if ( m_soundLibraryList[i].getArtifact() ==
-			 H2Core::Filesystem::Artifact::Song ) {
+		if ( m_soundLibraryList[i].getType() ==
+			 H2Core::SoundLibraryInfo::Type::Song ) {
 			pDrumkitItem = new QTreeWidgetItem( m_pSongItem );
 		}
-		else if ( m_soundLibraryList[i].getArtifact() == H2Core::Filesystem::Artifact::DrumkitExtracted ) {
+		else if ( m_soundLibraryList[i].getType() == H2Core::SoundLibraryInfo::Type::Drumkit ) {
 			pDrumkitItem = new QTreeWidgetItem( m_pDrumkitsItem );
 		}
-		else if ( m_soundLibraryList[i].getArtifact() == H2Core::Filesystem::Artifact::Pattern ) {
+		else if ( m_soundLibraryList[i].getType() == H2Core::SoundLibraryInfo::Type::Pattern ) {
 			pDrumkitItem = new QTreeWidgetItem( m_pPatternItem );
 		}
 
@@ -428,8 +429,8 @@ bool SoundLibraryOnlineImportDialog::isSoundLibraryItemAlreadyInstalled( const H
 	QString sName = QFileInfo( sInfo.getUrl() ).fileName();
 	sName = sName.left( sName.lastIndexOf( "." ) );
 
-	if ( sInfo.getArtifact() ==
-		 H2Core::Filesystem::Artifact::DrumkitExtracted ) {
+	if ( sInfo.getType() ==
+		 H2Core::SoundLibraryInfo::Type::Drumkit ) {
 		return !H2Core::Hydrogen::get_instance()
 					->getSoundLibraryDatabase()
 					->findArtifact(
@@ -446,7 +447,7 @@ bool SoundLibraryOnlineImportDialog::isSoundLibraryItemAlreadyInstalled( const H
 					.isEmpty();
 	}
 
-	if ( sInfo.getArtifact() == H2Core::Filesystem::Artifact::Pattern ) {
+	if ( sInfo.getType() == H2Core::SoundLibraryInfo::Type::Pattern ) {
 		return !H2Core::Hydrogen::get_instance()
 					->getSoundLibraryDatabase()
 					->findArtifact(
@@ -456,7 +457,7 @@ bool SoundLibraryOnlineImportDialog::isSoundLibraryItemAlreadyInstalled( const H
 					.isEmpty();
 	}
 
-	if ( sInfo.getArtifact() == H2Core::Filesystem::Artifact::Song ) {
+	if ( sInfo.getType() == H2Core::SoundLibraryInfo::Type::Song ) {
 		return !H2Core::Hydrogen::get_instance()
 					->getSoundLibraryDatabase()
 					->findArtifact(
@@ -636,19 +637,19 @@ void SoundLibraryOnlineImportDialog::on_DownloadBtn_clicked()
 			}
 			// Download the sound library
 			const QString sName = m_soundLibraryList[ii].getName();
-			const auto artifact = m_soundLibraryList[ii].getArtifact();
+			const auto artifact = m_soundLibraryList[ii].getType();
 			QString sURL = m_soundLibraryList[ii].getUrl();
 			QString sLocalFile;
 
-			if ( artifact == H2Core::Filesystem::Artifact::DrumkitExtracted ) {
+			if ( artifact == H2Core::SoundLibraryInfo::Type::Drumkit ) {
 				sLocalFile =
 					QDir::tempPath() + "/" + QFileInfo( sURL ).fileName();
 			}
-			else if ( artifact == H2Core::Filesystem::Artifact::Song ) {
+			else if ( artifact == H2Core::SoundLibraryInfo::Type::Song ) {
 				sLocalFile = H2Core::Filesystem::userSongsDir() +
 							 QFileInfo( sURL ).fileName();
 			}
-			else if ( artifact == H2Core::Filesystem::Artifact::Pattern ) {
+			else if ( artifact == H2Core::SoundLibraryInfo::Type::Pattern ) {
 				sLocalFile = H2Core::Filesystem::userPatternsDir() +
 							 QFileInfo( sURL ).fileName();
 				bUpdatePatterns = true;
@@ -656,7 +657,7 @@ void SoundLibraryOnlineImportDialog::on_DownloadBtn_clicked()
 			else {
 				ERRORLOG(
 					QString( "Unknown type [%1]" )
-						.arg( H2Core::Filesystem::ArtifactToQString( artifact )
+						.arg( H2Core::SoundLibraryInfo::TypeToQString( artifact )
 						)
 				);
 				continue;
@@ -691,7 +692,7 @@ void SoundLibraryOnlineImportDialog::on_DownloadBtn_clicked()
 				ppItem->setText( 1, m_sLabelInstalled );
 				updateDownloadBtn();
 
-				if ( artifact == H2Core::Filesystem::Artifact::DrumkitExtracted ) {
+				if ( artifact == H2Core::SoundLibraryInfo::Type::Drumkit ) {
 					QString sImportedDir;
 					bool bEncodingIssues;
 					if ( H2Core::Drumkit::install(

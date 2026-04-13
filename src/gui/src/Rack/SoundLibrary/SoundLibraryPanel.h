@@ -29,9 +29,9 @@
 #include <QtGui>
 #include <QtWidgets>
 
-#include <core/Helpers/Filesystem.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 
 #include "../../EventListener.h"
 #include "../../Widgets/WidgetWithScalableFont.h"
@@ -54,7 +54,7 @@ class SoundLibraryPanel : public QWidget,
    public:
 	SoundLibraryPanel(
 		QWidget* parent,
-		std::shared_ptr<H2Core::Filesystem::Artifact> pOpenArtifact
+		std::shared_ptr<H2Core::SoundLibraryInfo::Type> pOpenType
 	);
 	~SoundLibraryPanel();
 
@@ -185,7 +185,7 @@ class SoundLibraryPanel : public QWidget,
 	/** Whether the dialog was constructed as part of an Open from Library
 	 * dialog for the corresponding artifact via a click in the MainForm or as
 	 * part of the main window. */
-	std::shared_ptr<H2Core::Filesystem::Artifact> m_pOpenArtifact;
+	std::shared_ptr<H2Core::SoundLibraryInfo::Type> m_pOpenType;
 };
 
 #endif

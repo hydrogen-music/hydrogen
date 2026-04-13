@@ -50,7 +50,7 @@ bool PatternInfo::load( const QString& sPath )
 	if ( !rootNode.isNull() ) {
 		m_sPath = sPath;
 		m_context = Filesystem::DetermineContext( sPath );
-		m_artifact = Filesystem::Artifact::Pattern;
+		m_type = SoundLibraryInfo::Type::Pattern;
 
 		m_sAuthor = rootNode.read_string(
 			"author", "undefined author", true, false, true

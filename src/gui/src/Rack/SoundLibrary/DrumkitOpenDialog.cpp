@@ -22,7 +22,7 @@
 
 #include "DrumkitOpenDialog.h"
 
-#include <core/Helpers/Filesystem.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 
 #include "SoundLibraryPanel.h"
 #include "../../CommonStrings.h"
@@ -45,8 +45,8 @@ DrumkitOpenDialog::DrumkitOpenDialog( QWidget* pParent )
 
 	// Sound Library Panel
 	m_pSoundLibraryPanel = new SoundLibraryPanel(
-		this, std::make_shared<Filesystem::Artifact>(
-				  Filesystem::Artifact::DrumkitExtracted
+		this, std::make_shared<SoundLibraryInfo::Type>(
+				  SoundLibraryInfo::Type::Drumkit
 			  )
 	);
 	pVBox->addWidget( m_pSoundLibraryPanel, 0 );
