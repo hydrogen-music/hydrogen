@@ -233,10 +233,6 @@ class Preferences : public H2Core::Object<Preferences> {
 	bool m_bPlaySamplesOnClicking;	// audio file browser
 	bool m_bFollowPlayhead;
 
-	// SoundLibraryPanel expand song and pattern item
-	bool m_bExpandSongItem;
-	bool m_bExpandPatternItem;
-
 	// BeatCounter
 	BpmTap m_bpmTap;
 	BeatCounter m_beatCounter;

@@ -93,8 +93,6 @@ void Preferences::replaceInstance( std::shared_ptr<Preferences> pOther )
 Preferences::Preferences()
 	: m_bPlaySamplesOnClicking( false ),
 	  m_bFollowPlayhead( true ),
-	  m_bExpandSongItem( true ),
-	  m_bExpandPatternItem( true ),
 	  m_bpmTap( BpmTap::TapTempo ),
 	  m_beatCounter( BeatCounter::Tap ),
 	  m_nBeatCounterDriftCompensation( 0 ),
@@ -277,8 +275,6 @@ Preferences::Preferences()
 Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	: m_bPlaySamplesOnClicking( pOther->m_bPlaySamplesOnClicking ),
 	  m_bFollowPlayhead( pOther->m_bFollowPlayhead ),
-	  m_bExpandSongItem( pOther->m_bExpandSongItem ),
-	  m_bExpandPatternItem( pOther->m_bExpandPatternItem ),
 	  m_bpmTap( pOther->m_bpmTap ),
 	  m_beatCounter( pOther->m_beatCounter ),
 	  m_nBeatCounterDriftCompensation( pOther->m_nBeatCounterDriftCompensation
@@ -1182,15 +1178,6 @@ Preferences::load( const QString& sPath, const bool bSilent )
 			bSilent
 		);
 
-		// SoundLibraryPanel expand items
-		pPref->m_bExpandSongItem = guiNode.read_bool(
-			"expandSongItem", pPref->m_bExpandSongItem, false, false, bSilent
-		);
-		pPref->m_bExpandPatternItem = guiNode.read_bool(
-			"expandPatternItem", pPref->m_bExpandPatternItem, false, false,
-			bSilent
-		);
-
 		for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
 			auto ladspaPropertiesNode = guiNode.firstChildElement(
 				QString( "ladspaFX_properties%1" ).arg( nFX )
@@ -1805,10 +1792,6 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 
 		guiNode.write_int( "autosavesPerHour", m_nAutosavesPerHour );
 
-		// SoundLibraryPanel expand items
-		guiNode.write_bool( "expandSongItem", m_bExpandSongItem );
-		guiNode.write_bool( "expandPatternItem", m_bExpandPatternItem );
-
 		// User interface style
 		m_pTheme->m_pColor->saveTo( guiNode );
 
@@ -2146,14 +2129,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_bFollowPlayhead ) )
-				.append( QString( "%1%2m_bExpandSongItem: %3\n" )
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( m_bExpandSongItem ) )
-				.append( QString( "%1%2m_bExpandPatternItem: %3\n" )
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( m_bExpandPatternItem ) )
 				.append( QString( "%1%2m_bpmTap: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -2645,10 +2620,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( m_bPlaySamplesOnClicking ) )
 				.append( QString( ", m_bFollowPlayhead: %1" )
 							 .arg( m_bFollowPlayhead ) )
-				.append( QString( ", m_bExpandSongItem: %1" )
-							 .arg( m_bExpandSongItem ) )
-				.append( QString( ", m_bExpandPatternItem: %1" )
-							 .arg( m_bExpandPatternItem ) )
 				.append( QString( ", m_bpmTap: %1" )
 							 .arg(
 								 m_bpmTap == BpmTap::TapTempo ? "Tap Tempo"
