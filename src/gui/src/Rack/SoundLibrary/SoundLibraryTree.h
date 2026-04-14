@@ -65,6 +65,9 @@ class SoundLibraryTree : public QTreeWidget,
 	void actionImport();
 	void actionOnlineImport();
 
+   signals:
+	void itemChanged( bool bSelected );
+
    private:
 	/** Items in the tree are arranged alpha-numerically with subfolders shown
 	 * first followed by files within the folder. This function will be called

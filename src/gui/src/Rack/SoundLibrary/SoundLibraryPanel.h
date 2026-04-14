@@ -76,10 +76,6 @@ class SoundLibraryPanel : public QWidget,
 	void updateSongEvent( int nValue ) override;
 
    private slots:
-	void on_DrumkitList_ItemChanged(
-		QTreeWidgetItem* current,
-		QTreeWidgetItem* previous
-	);
 	void on_DrumkitList_itemActivated( QTreeWidgetItem* item, int column );
 
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
@@ -92,7 +88,7 @@ class SoundLibraryPanel : public QWidget,
 	void onRescanClicked();
 
    signals:
-	void item_changed( bool bDrumkitSelected );
+	void itemChanged( bool bSelected );
 
    private:
 	/** Convenience wrapper that calls all three update methods. */

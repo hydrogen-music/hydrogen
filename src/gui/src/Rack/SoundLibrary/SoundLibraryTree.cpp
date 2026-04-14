@@ -107,6 +107,11 @@ SoundLibraryTree::SoundLibraryTree(
 
 	connect( this, &QTreeWidget::currentItemChanged, [&]() {
 		m_pSoundLibraryPanel->updateDetailView();
+		if ( m_bStandAlone && currentItem() != nullptr ) {
+			emit itemChanged(
+				m_registry.find( currentItem() ) != m_registry.end()
+			);
+		}
 	} );
 }
 

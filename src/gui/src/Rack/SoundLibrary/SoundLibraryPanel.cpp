@@ -90,12 +90,8 @@ SoundLibraryPanel::SoundLibraryPanel(
 			this, SoundLibraryInfo::Type::Drumkit, m_pOpenType != nullptr
 		);
 		connect(
-			m_pDrumkitTree,
-			SIGNAL( currentItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ),
-			this,
-			SLOT(
-				on_DrumkitList_ItemChanged( QTreeWidgetItem*, QTreeWidgetItem* )
-			)
+			m_pDrumkitTree, &SoundLibraryTree::itemChanged,
+			[&]( bool bSelected ) { emit itemChanged( bSelected ); }
 		);
 		connect(
 			m_pDrumkitTree, SIGNAL( itemActivated( QTreeWidgetItem*, int ) ),
@@ -109,6 +105,10 @@ SoundLibraryPanel::SoundLibraryPanel(
 		m_pPatternTree = new SoundLibraryTree(
 			this, SoundLibraryInfo::Type::Pattern, m_pOpenType != nullptr
 		);
+		connect(
+			m_pPatternTree, &SoundLibraryTree::itemChanged,
+			[&]( bool bSelected ) { emit itemChanged( bSelected ); }
+		);
 	}
 
 	// SONG TREE (tab 2)
@@ -116,6 +116,10 @@ SoundLibraryPanel::SoundLibraryPanel(
 		 *m_pOpenType == SoundLibraryInfo::Type::Song ) {
 		m_pSongTree = new SoundLibraryTree(
 			this, SoundLibraryInfo::Type::Song, m_pOpenType != nullptr
+		);
+		connect(
+			m_pSongTree, &SoundLibraryTree::itemChanged,
+			[&]( bool bSelected ) { emit itemChanged( bSelected ); }
 		);
 	}
 
@@ -368,27 +372,6 @@ void SoundLibraryPanel::onSearchTextChanged( const QString& sText )
 void SoundLibraryPanel::onRescanClicked()
 {
 	H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
-}
-
-void SoundLibraryPanel::on_DrumkitList_ItemChanged(
-	QTreeWidgetItem* current,
-	QTreeWidgetItem* previous
-)
-{
-	UNUSED( previous );
-
-	if ( current == nullptr ) {
-		return;
-	}
-
-	if ( current->parent() == m_pTreeSystemDrumkitsItem ||
-		 current->parent() == m_pTreeUserDrumkitsItem ||
-		 current->parent() == m_pTreeSessionDrumkitsItem ) {
-		emit item_changed( true );
-	}
-	else {
-		emit item_changed( false );
-	}
 }
 
 void SoundLibraryPanel::on_DrumkitList_itemActivated(

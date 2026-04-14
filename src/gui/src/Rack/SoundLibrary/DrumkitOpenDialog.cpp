@@ -70,7 +70,9 @@ DrumkitOpenDialog::DrumkitOpenDialog( QWidget* pParent )
 
 	this->setLayout( pVBox );
 
-	connect( m_pSoundLibraryPanel, SIGNAL( item_changed ( bool ) ), this, SLOT( on_soundLib_item_changed( bool ) ) );
+	connect( m_pSoundLibraryPanel, &SoundLibraryPanel::itemChanged, [&]( bool bSelected ) {
+        m_pOkBtn->setEnabled( bSelected );
+    });
 	connect( m_pOkBtn, SIGNAL( clicked ( ) ), this, SLOT( on_open_btn_clicked( ) ) );
 	connect( m_pCancelBtn, SIGNAL( clicked ( ) ), this, SLOT( on_cancel_btn_clicked( ) ) );
 }
@@ -80,13 +82,6 @@ DrumkitOpenDialog::~DrumkitOpenDialog()
 {
 
 }
-
-
-void DrumkitOpenDialog::on_soundLib_item_changed( bool bDrumkitSelected)
-{
-	m_pOkBtn->setEnabled( bDrumkitSelected );
-}
-
 
 void DrumkitOpenDialog::on_open_btn_clicked()
 {
