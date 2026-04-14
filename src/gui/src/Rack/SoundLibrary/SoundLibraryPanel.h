@@ -76,8 +76,6 @@ class SoundLibraryPanel : public QWidget,
 	void updateSongEvent( int nValue ) override;
 
    private slots:
-	void on_DrumkitList_itemActivated( QTreeWidgetItem* item, int column );
-
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	/** Called when the active tab in m_pTabWidget changes. */

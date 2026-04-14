@@ -31,20 +31,7 @@
 #include "../../CommonStrings.h"
 #include "../../HydrogenApp.h"
 
-#include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/Transport.h>
-#include <core/Basics/Drumkit.h>
-#include <core/Basics/Instrument.h>
-#include <core/Basics/InstrumentComponent.h>
-#include <core/Basics/InstrumentLayer.h>
-#include <core/Basics/InstrumentList.h>
-#include <core/Basics/Pattern.h>
-#include <core/Basics/PatternList.h>
-#include <core/Basics/Sample.h>
-#include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
-#include <core/Helpers/Filesystem.h>
-#include <core/H2Exception.h>
 #include <core/Hydrogen.h>
 #include <core/SoundLibrary/DrumkitInfo.h>
 #include <core/SoundLibrary/PatternInfo.h>
@@ -92,10 +79,6 @@ SoundLibraryPanel::SoundLibraryPanel(
 		connect(
 			m_pDrumkitTree, &SoundLibraryTree::itemChanged,
 			[&]( bool bSelected ) { emit itemChanged( bSelected ); }
-		);
-		connect(
-			m_pDrumkitTree, SIGNAL( itemActivated( QTreeWidgetItem*, int ) ),
-			this, SLOT( on_DrumkitList_itemActivated( QTreeWidgetItem*, int ) )
 		);
 	}
 
@@ -372,101 +355,6 @@ void SoundLibraryPanel::onSearchTextChanged( const QString& sText )
 void SoundLibraryPanel::onRescanClicked()
 {
 	H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
-}
-
-void SoundLibraryPanel::on_DrumkitList_itemActivated(
-	QTreeWidgetItem* pItem,
-	int column
-)
-{
-	UNUSED( column );
-
-	//	INFOLOG( "[on_DrumkitList_itemActivated]" );
-	if ( pItem == m_pTreeSystemDrumkitsItem || pItem == m_pTreeUserDrumkitsItem ||
-		 pItem == m_pTreeSessionDrumkitsItem ||
-		 ( ( m_pTreeSystemDrumkitsItem != nullptr &&
-			 pItem == m_pTreeSystemDrumkitsItem->parent() ) ||
-		   ( m_pTreeUserDrumkitsItem != nullptr &&
-			 pItem == m_pTreeUserDrumkitsItem->parent() ) ||
-		   ( m_pTreeSessionDrumkitsItem != nullptr &&
-			 pItem == m_pTreeSessionDrumkitsItem->parent() ) ) ||
-		 pItem->parent() == __song_item || pItem == __song_item ||
-		 pItem == __pattern_item || pItem->parent() == __pattern_item ||
-		 pItem->parent()->parent() == __pattern_item ||
-		 pItem == __pattern_item_list || pItem->parent() == __pattern_item_list ||
-		 pItem->parent()->parent() == __pattern_item_list ) {
-		return;
-	}
-
-	if ( pItem->parent() == m_pTreeSystemDrumkitsItem ||
-		 pItem->parent() == m_pTreeUserDrumkitsItem ||
-		 pItem->parent() == m_pTreeSessionDrumkitsItem ) {
-		// Double clicking a drumkit
-	}
-	else {
-		auto pHydrogen = Hydrogen::get_instance();
-
-		// Double clicking an instrument
-		QString sSelectedName = pItem->text( 0 );
-
-		QString sInstrumentName =
-			sSelectedName.remove( 0, sSelectedName.indexOf( "] " ) + 2 );
-		QString sDrumkitName = pItem->parent()->text( 0 );
-		auto it = m_pDrumkitTree->getRegistry().find( pItem );
-		if ( it == m_pDrumkitTree->getRegistry().end() || it->second == nullptr ) {
-			ERRORLOG( "Unable to retrieve drumkit" );
-			return;
-		}
-		const QString sDrumkitPath = it->second->getPath();
-
-		auto pDrumkit =
-			pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
-		if ( pDrumkit == nullptr ) {
-			ERRORLOG( QString( "Unable to retrieve kit [%1] for instrument [%2]"
-			)
-						  .arg( sDrumkitPath )
-						  .arg( sInstrumentName ) );
-			return;
-		}
-		const auto pTargetInstrument =
-			pDrumkit->getInstruments()->find( sInstrumentName );
-		if ( pTargetInstrument == nullptr ) {
-			ERRORLOG(
-				QString( "Unable to retrieve instrument [%1] from kit [%2]" )
-					.arg( sInstrumentName )
-					.arg( sDrumkitPath )
-			);
-			return;
-		}
-
-		auto pPreviewInstrument =
-			std::make_shared<Instrument>( pTargetInstrument );
-		pPreviewInstrument->loadSamples(
-			pHydrogen->getAudioEngine()->getPlayhead()->getBpm()
-		);
-
-		INFOLOG( QString(
-					 "Loading instrument [%1] from drumkit [%2] located in [%3]"
-		)
-					 .arg( sInstrumentName )
-					 .arg( sDrumkitName )
-					 .arg( sDrumkitPath ) );
-
-		if ( pPreviewInstrument == nullptr ) {
-			ERRORLOG( "Unable to load instrument. Abort" );
-			return;
-		}
-
-		pPreviewInstrument->setMuted( false );
-		auto pNote = std::make_shared<Note>(
-			pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT,
-			LENGTH_ENTIRE_SAMPLE
-		);
-
-		pHydrogen->getAudioEngine()->getSampler()->previewInstrument(
-			pPreviewInstrument, pNote
-		);
-	}
 }
 
 void SoundLibraryPanel::switchDrumkit(

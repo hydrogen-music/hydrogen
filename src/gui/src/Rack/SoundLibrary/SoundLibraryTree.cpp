@@ -24,15 +24,19 @@
 
 #include <QMimeData>
 
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Sample.h>
 #include <core/Hydrogen.h>
+#include <core/Sampler/Sampler.h>
 #include <core/SoundLibrary/DrumkitInfo.h>
 #include <core/SoundLibrary/InstrumentInfo.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
@@ -573,6 +577,70 @@ void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
 	}
 	else if ( event->button() == Qt::LeftButton ) {
 		m_dragStartPosition = pEv->globalPosition().toPoint();
+
+        // Preview the clicked instrument
+		if ( m_type == SoundLibraryInfo::Type::Drumkit &&
+			 currentItem() != nullptr ) {
+			auto it = m_registry.find( currentItem() );
+			if ( it != m_registry.end() && it->second != nullptr &&
+				 it->second->getType() == SoundLibraryInfo::Type::Instrument ) {
+				auto pHydrogen = Hydrogen::get_instance();
+				auto pInstrumentInfo =
+					std::dynamic_pointer_cast<InstrumentInfo>( it->second );
+				if ( pInstrumentInfo == nullptr ) {
+					return;
+				}
+				auto pDrumkit =
+					pHydrogen->getSoundLibraryDatabase()->getDrumkit(
+						pInstrumentInfo->getPath()
+					);
+				if ( pDrumkit == nullptr ) {
+					ERRORLOG(
+						QString(
+							"Unable to retrieve kit [%1] for instrument [%2]"
+						)
+							.arg( pInstrumentInfo->getPath() )
+							.arg( pInstrumentInfo->getName() )
+					);
+					return;
+				}
+				const auto pTargetInstrument =
+					pDrumkit->getInstruments()->find( pInstrumentInfo->getId() );
+				if ( pTargetInstrument == nullptr ) {
+					ERRORLOG(
+						QString(
+							"Unable to retrieve instrument [%1](%2) from kit [%3]"
+						)
+							.arg( pInstrumentInfo->getName() )
+							.arg( static_cast<int>(pInstrumentInfo->getId()) )
+							.arg( pInstrumentInfo->getPath() )
+					);
+					return;
+				}
+
+				auto pPreviewInstrument =
+					std::make_shared<Instrument>( pTargetInstrument );
+				pPreviewInstrument->loadSamples(
+					pHydrogen->getAudioEngine()->getPlayhead()->getBpm()
+				);
+				pPreviewInstrument->setIsPreviewInstrument( true );
+				pPreviewInstrument->setId( Instrument::EmptyId );
+
+				INFOLOG( QString( "Loading instrument [%1] from drumkit [%2]" )
+							 .arg( pInstrumentInfo->getName() )
+							 .arg( pInstrumentInfo->getPath() ) );
+
+				pPreviewInstrument->setMuted( false );
+				auto pNote = std::make_shared<Note>(
+					pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT,
+					LENGTH_ENTIRE_SAMPLE
+				);
+
+				pHydrogen->getAudioEngine()->getSampler()->previewInstrument(
+					pPreviewInstrument, pNote
+				);
+			}
+		}
 	}
 }
 
