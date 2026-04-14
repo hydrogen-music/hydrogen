@@ -54,9 +54,6 @@ class SoundLibraryTree : public QTreeWidget,
 	getRegistry() const;
 	void updateRegistry();
 
-   signals:
-	void leftClicked( const QPoint& pos );
-
    public slots:
 	void actionLoad();
 	void actionProperties();
@@ -98,6 +95,8 @@ class SoundLibraryTree : public QTreeWidget,
 
 	QMenu* m_pPopupMenu;
 	QMenu* m_pPopupMenuReadOnly;
+
+	QPoint m_dragStartPosition;
 };
 
 inline const std::

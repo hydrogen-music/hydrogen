@@ -43,6 +43,7 @@
 #include "../../Compatibility/MouseEvent.h"
 #include "../../HydrogenApp.h"
 #include "../../UndoActions.h"
+#include "core/SoundLibrary/SoundLibraryInfo.h"
 
 using namespace H2Core;
 
@@ -54,7 +55,8 @@ SoundLibraryTree::SoundLibraryTree(
 	: QTreeWidget( pParent ),
 	  m_pSoundLibraryPanel( pParent ),
 	  m_type( type ),
-	  m_bStandAlone( bStandAlone )
+	  m_bStandAlone( bStandAlone ),
+	  m_dragStartPosition( QPoint() )
 {
 	setAlternatingRowColors( true );
 	setRootIsDecorated( false );
@@ -507,7 +509,7 @@ void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
 		}
 	}
 	else if ( event->button() == Qt::LeftButton ) {
-		emit leftClicked( pEv->globalPosition().toPoint() );
+		m_dragStartPosition = pEv->globalPosition().toPoint();
 	}
 }
 
@@ -522,6 +524,11 @@ void SoundLibraryTree::mouseMoveEvent( QMouseEvent* pEvent )
 		return;
 	}
 
+	if ( ( pEvent->pos() - m_dragStartPosition ).manhattanLength() <
+		 QApplication::startDragDistance() ) {
+		return;
+	}
+
 	if ( currentItem() == nullptr ) {
 		return;
 	}
@@ -531,10 +538,25 @@ void SoundLibraryTree::mouseMoveEvent( QMouseEvent* pEvent )
 		return;
 	}
 
-	const QString sMimeText =
-		QString( "drag %1::%2" )
-			.arg( SoundLibraryInfo::TypeToQString( m_type ) )
-			.arg( it->second->getPath() );
+	QString sMimeText;
+	switch ( m_type ) {
+		case SoundLibraryInfo::Type::Drumkit:
+			if ( it->second->getType() == SoundLibraryInfo::Type::Instrument ) {
+				sMimeText = "importInstrument:" + it->second->getPath() +
+							"::" + it->second->getName();
+			}
+			else {
+				WARNINGLOG( "not implemented" );
+			}
+			break;
+		case SoundLibraryInfo::Type::Pattern:
+			sMimeText = QString( "drag %1::%2" )
+							.arg( SoundLibraryInfo::TypeToQString( m_type ) )
+							.arg( it->second->getPath() );
+			break;
+		default:
+			WARNINGLOG( "no implemented" );
+	}
 
 	auto pDrag = new QDrag( this );
 	auto pMimeData = new QMimeData;

@@ -76,10 +76,6 @@ SoundLibraryPanel::SoundLibraryPanel(
 	  m_pTreeSystemDrumkitsItem( nullptr ),
 	  m_pTreeUserDrumkitsItem( nullptr ),
 	  m_pTreeSessionDrumkitsItem( nullptr ),
-	  m_pPatternSystemItem( nullptr ),
-	  m_pPatternUserItem( nullptr ),
-	  m_pSongSystemItem( nullptr ),
-	  m_pSongUserItem( nullptr ),
 	  __song_item( nullptr ),
 	  __pattern_item( nullptr ),
 	  __pattern_item_list( nullptr ),
@@ -108,10 +104,6 @@ SoundLibraryPanel::SoundLibraryPanel(
 		connect(
 			m_pDrumkitTree, SIGNAL( itemActivated( QTreeWidgetItem*, int ) ),
 			this, SLOT( on_DrumkitList_itemActivated( QTreeWidgetItem*, int ) )
-		);
-		connect(
-			m_pDrumkitTree, SIGNAL( leftClicked( QPoint ) ), this,
-			SLOT( on_DrumkitList_leftClicked( QPoint ) )
 		);
 	}
 
@@ -229,28 +221,12 @@ SoundLibraryPanel::~SoundLibraryPanel()
 
 void SoundLibraryPanel::updateTree()
 {
-	updateDrumkitTree();
-	updatePatternTree();
-	updateSongTree();
-}
-
-void SoundLibraryPanel::updateDrumkitTree()
-{
 	if ( m_pDrumkitTree != nullptr ) {
 		m_pDrumkitTree->updateRegistry();
-		return;
 	}
-}
-
-void SoundLibraryPanel::updatePatternTree()
-{
 	if ( m_pPatternTree != nullptr ) {
 		m_pPatternTree->updateRegistry();
 	}
-}
-
-void SoundLibraryPanel::updateSongTree()
-{
 	if ( m_pSongTree != nullptr ) {
 		m_pSongTree->updateRegistry();
 	}
@@ -515,78 +491,6 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated(
 		);
 	}
 }
-
-void SoundLibraryPanel::on_DrumkitList_leftClicked( const QPoint& pos )
-{
-	__start_drag_position = pos;
-}
-
-void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent* event )
-{
-	if ( !( event->buttons() & Qt::LeftButton ) ) {
-		return;
-	}
-
-	if ( ( event->pos() - __start_drag_position ).manhattanLength() <
-		 QApplication::startDragDistance() ) {
-		return;
-	}
-
-	if ( !m_pDrumkitTree->currentItem() ) {
-		return;
-	}
-
-	if ( m_pDrumkitTree->currentItem()->parent() ==
-			 m_pTreeSystemDrumkitsItem ||
-		 m_pDrumkitTree->currentItem()->parent() ==
-			 m_pTreeUserDrumkitsItem ||
-		 m_pDrumkitTree->currentItem()->parent() ==
-			 m_pTreeSessionDrumkitsItem ) {
-		// drumkit selection
-		return;
-	}
-	else {
-		// instrument selection
-		if ( m_pDrumkitTree->currentItem() == nullptr ) {
-			return;
-		}
-
-		if ( m_pDrumkitTree->currentItem()->parent() == nullptr ) {
-			return;
-		}
-
-		if ( m_pDrumkitTree->currentItem()->parent()->text( 0 ) ==
-			 nullptr ) {
-			return;
-		}
-
-		auto it =
-			m_pDrumkitTree->getRegistry().find( m_pDrumkitTree->currentItem()->parent() );
-		if ( it == m_pDrumkitTree->getRegistry().end() || it->second == nullptr ) {
-			ERRORLOG( "Unable to retrieve drumkit" );
-			return;
-		}
-		const QString sDrumkitPath = it->second->getPath();
-		const QString sInstrumentName =
-			( m_pDrumkitTree->currentItem()->text( 0 ) )
-				.remove(
-					0,
-					m_pDrumkitTree->currentItem()->text( 0 ).indexOf( "] " ) + 2
-				);
-
-		const QString sText =
-			"importInstrument:" + sDrumkitPath + "::" + sInstrumentName;
-
-		QDrag* pDrag = new QDrag( this );
-		QMimeData* pMimeData = new QMimeData;
-
-		pMimeData->setText( sText );
-		pDrag->setMimeData( pMimeData );
-
-		pDrag->exec( Qt::CopyAction | Qt::MoveAction );
-	}
-}
-
 
 void SoundLibraryPanel::switchDrumkit(
 	std::shared_ptr<H2Core::Drumkit> pNewDrumkit,

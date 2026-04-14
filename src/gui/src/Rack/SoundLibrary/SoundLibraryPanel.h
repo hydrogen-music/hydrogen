@@ -81,8 +81,6 @@ class SoundLibraryPanel : public QWidget,
 		QTreeWidgetItem* previous
 	);
 	void on_DrumkitList_itemActivated( QTreeWidgetItem* item, int column );
-	void on_DrumkitList_leftClicked( const QPoint& pos );
-	void on_DrumkitList_mouseMove( QMouseEvent* event );
 
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
@@ -97,21 +95,6 @@ class SoundLibraryPanel : public QWidget,
 	void item_changed( bool bDrumkitSelected );
 
    private:
-	void editDrumkitProperties( bool bDuplicate );
-
-	/** Build the drumkit tree (tab 0). The internal structure of System /
-	 * User / Session drumkits with instrument children is preserved from
-	 * the original implementation. */
-	void updateDrumkitTree();
-	/** Build the pattern tree (tab 1). Two top-level groups: System
-	 * patterns and User patterns, with filesystem folder hierarchy
-	 * underneath. */
-	void updatePatternTree();
-	/** Build the song tree (tab 2). Two top-level groups: System songs
-	 * (demos) and User songs, with filesystem folder hierarchy
-	 * underneath. */
-	void updateSongTree();
-
 	/** Convenience wrapper that calls all three update methods. */
 	void updateTree();
 	void test_expandedItems();
@@ -137,30 +120,15 @@ class SoundLibraryPanel : public QWidget,
 	QLabel* m_pDetailCategory;
 	QLabel* m_pDetailPath;
 
-	QPoint __start_drag_position;
-
 	// --- Drumkit tree top-level category items ---
 	QTreeWidgetItem* m_pTreeSystemDrumkitsItem;
 	QTreeWidgetItem* m_pTreeUserDrumkitsItem;
 	QTreeWidgetItem* m_pTreeSessionDrumkitsItem;
 
-	// Pattern tree top-level items
-	QTreeWidgetItem* m_pPatternSystemItem;
-	QTreeWidgetItem* m_pPatternUserItem;
-
-	// Song tree top-level items
-	QTreeWidgetItem* m_pSongSystemItem;
-	QTreeWidgetItem* m_pSongUserItem;
-
 	// Legacy pointers kept for backward compatibility with existing slots
 	QTreeWidgetItem* __song_item;
 	QTreeWidgetItem* __pattern_item;
 	QTreeWidgetItem* __pattern_item_list;
-
-	/** Maps pattern tree items to their SoundLibraryInfo for pattern
-	 * operations (load, delete, drag-and-drop). */
-	std::map<QTreeWidgetItem*, std::shared_ptr<H2Core::SoundLibraryInfo>>
-		m_drumkitRegistry;
 
 	/** Whether the dialog was constructed as part of an Open from Library
 	 * dialog for the corresponding artifact via a click in the MainForm or as
