@@ -97,7 +97,6 @@ class SoundLibraryPanel : public QWidget,
    private:
 	/** Convenience wrapper that calls all three update methods. */
 	void updateTree();
-	void test_expandedItems();
 
 	/** Recursively show/hide items in @a pTree based on @a sFilter. */
 	void filterTree( SoundLibraryTree* pTree, const QString& sFilter );

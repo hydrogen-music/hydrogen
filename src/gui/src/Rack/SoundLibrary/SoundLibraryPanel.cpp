@@ -26,17 +26,13 @@
 #include <QtWidgets>
 #include <memory>
 
-#include "DrumkitPropertiesDialog.h"
 #include "SoundLibraryTree.h"
 #include "../Rack.h"
 #include "../../CommonStrings.h"
 #include "../../HydrogenApp.h"
-#include "../../MainForm.h"
-#include "../../UndoActions.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
-#include <core/Basics/Adsr.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -393,8 +389,6 @@ void SoundLibraryPanel::on_DrumkitList_ItemChanged(
 	else {
 		emit item_changed( false );
 	}
-
-	test_expandedItems();
 }
 
 void SoundLibraryPanel::on_DrumkitList_itemActivated(
@@ -534,7 +528,6 @@ SoundLibraryTree* SoundLibraryPanel::getCurrentTree()
 
 void SoundLibraryPanel::soundLibraryChangedEvent()
 {
-	test_expandedItems();
 	updateTree();
 }
 
@@ -542,15 +535,8 @@ void SoundLibraryPanel::updateSongEvent( int nValue )
 {
 	if ( nValue == 1 ) {
 		// A song was saved.
-		test_expandedItems();
 		updateTree();
 	}
-}
-
-void SoundLibraryPanel::test_expandedItems()
-{
-	// __song_item and __pattern_item are always nullptr in the new design;
-	// the preference booleans are left unchanged.
 }
 
 void SoundLibraryPanel::onPreferencesChanged(
