@@ -110,6 +110,27 @@ SoundLibraryTree::SoundLibraryTree(
 	} );
 }
 
+void SoundLibraryTree::updateFont() {
+	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+	QFont boldFont(
+		pFontTheme->m_sApplicationFontFamily,
+		getPointSize( pFontTheme->m_fontSize )
+	);
+	boldFont.setBold( true );
+	if ( m_pSessionItem != nullptr ) {
+		m_pSessionItem->setFont( 0, boldFont );
+		recursivelyUpdateFont( m_pSessionItem );
+	}
+	if ( m_pSystemItem != nullptr ) {
+		m_pSystemItem->setFont( 0, boldFont );
+		recursivelyUpdateFont( m_pSystemItem );
+	}
+	if ( m_pUserItem != nullptr ) {
+		m_pUserItem->setFont( 0, boldFont );
+		recursivelyUpdateFont( m_pUserItem );
+	}
+}
+
 void SoundLibraryTree::updateRegistry()
 {
 	clear();
@@ -482,6 +503,42 @@ void SoundLibraryTree::actionOnlineImport()
 	}
 
 	HydrogenApp::get_instance()->getMainForm()->action_drumkit_onlineImport();
+}
+
+void SoundLibraryTree::recursivelyUpdateFont( QTreeWidgetItem* pItem )
+{
+	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+	const QFont font(
+		pFontTheme->m_sLevel2FontFamily, getPointSize( pFontTheme->m_fontSize )
+	);
+	QFont dirFont(
+		pFontTheme->m_sApplicationFontFamily,
+		getPointSize( pFontTheme->m_fontSize )
+	);
+	dirFont.setItalic( true );
+	for ( int ii = 0; ii < pItem->childCount(); ++ii ) {
+		auto pChildNode = pItem->child( ii );
+		if ( pChildNode == nullptr ) {
+			continue;
+		}
+		bool bIsDir;
+		if ( m_type == SoundLibraryInfo::Type::Drumkit ) {
+			// In the drumkit tree it is rather hard to distinguish between
+			// general folders and those containing only a single drumkit.
+			bIsDir = m_registry.find( pChildNode ) == m_registry.end();
+		}
+		else {
+			bIsDir = pChildNode->childCount() > 0;
+		}
+
+		if ( bIsDir ) {
+			pChildNode->setFont( 0, dirFont );
+			recursivelyUpdateFont( pChildNode );
+		}
+		else {
+			pChildNode->setFont( 0, font );
+		}
+	}
 }
 
 void SoundLibraryTree::mousePressEvent( QMouseEvent* event )

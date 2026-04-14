@@ -52,6 +52,8 @@ class SoundLibraryTree : public QTreeWidget,
 
 	const std::map<QTreeWidgetItem*, std::shared_ptr<H2Core::SoundLibraryInfo>>&
 	getRegistry() const;
+
+	void updateFont();
 	void updateRegistry();
 
    public slots:
@@ -73,6 +75,8 @@ class SoundLibraryTree : public QTreeWidget,
 		std::vector<std::shared_ptr<H2Core::SoundLibraryInfo>> infos,
 		const QString& sBasePath
 	);
+	void recursivelyUpdateFont( QTreeWidgetItem* pItem );
+
 	void mousePressEvent( QMouseEvent* event ) override;
 	void mouseMoveEvent( QMouseEvent* event ) override;
 

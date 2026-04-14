@@ -557,79 +557,15 @@ void SoundLibraryPanel::onPreferencesChanged(
 	const H2Core::Preferences::Changes& changes
 )
 {
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
-
 	if ( changes & H2Core::Preferences::Changes::Font ) {
-		QFont font(
-			pFontTheme->m_sLevel2FontFamily,
-			getPointSize( pFontTheme->m_fontSize )
-		);
-		QFont boldFont(
-			pFontTheme->m_sApplicationFontFamily,
-			getPointSize( pFontTheme->m_fontSize )
-		);
-		boldFont.setBold( true );
-
-		int ii, jj;
-		QTreeWidgetItem* childNode;
-		if ( m_pTreeSystemDrumkitsItem != nullptr ) {
-			m_pTreeSystemDrumkitsItem->setFont( 0, boldFont );
-			for ( ii = 0; ii < m_pTreeSystemDrumkitsItem->childCount(); ii++ ) {
-				childNode = m_pTreeSystemDrumkitsItem->child( ii );
-				childNode->setFont( 0, font );
-				for ( jj = 0; jj < childNode->childCount(); jj++ ) {
-					childNode->child( jj )->setFont( 0, font );
-				}
-			}
+		if ( m_pDrumkitTree != nullptr ) {
+			m_pDrumkitTree->updateFont();
 		}
-
-		if ( m_pTreeUserDrumkitsItem != nullptr ) {
-			m_pTreeUserDrumkitsItem->setFont( 0, boldFont );
-			for ( ii = 0; ii < m_pTreeUserDrumkitsItem->childCount(); ii++ ) {
-				childNode = m_pTreeUserDrumkitsItem->child( ii );
-				childNode->setFont( 0, font );
-				for ( jj = 0; jj < childNode->childCount(); jj++ ) {
-					childNode->child( jj )->setFont( 0, font );
-				}
-			}
-		}
-
-		if ( m_pTreeSessionDrumkitsItem != nullptr ) {
-			m_pTreeSessionDrumkitsItem->setFont( 0, boldFont );
-			for ( ii = 0; ii < m_pTreeSessionDrumkitsItem->childCount();
-				  ii++ ) {
-				childNode = m_pTreeSessionDrumkitsItem->child( ii );
-				childNode->setFont( 0, font );
-				for ( jj = 0; jj < childNode->childCount(); jj++ ) {
-					childNode->child( jj )->setFont( 0, font );
-				}
-			}
-		}
-
-		// Pattern tree fonts
 		if ( m_pPatternTree != nullptr ) {
-			for ( int ii = 0; ii < m_pPatternTree->topLevelItemCount(); ++ii ) {
-				QTreeWidgetItem* pTop = m_pPatternTree->topLevelItem( ii );
-				pTop->setFont( 0, boldFont );
-				for ( int jj = 0; jj < pTop->childCount(); ++jj ) {
-					QTreeWidgetItem* pChild = pTop->child( jj );
-					pChild->setFont( 0, font );
-					for ( int kk = 0; kk < pChild->childCount(); ++kk ) {
-						pChild->child( kk )->setFont( 0, font );
-					}
-				}
-			}
+			m_pPatternTree->updateFont();
 		}
-
-		// Song tree fonts
 		if ( m_pSongTree != nullptr ) {
-			for ( int ii = 0; ii < m_pSongTree->topLevelItemCount(); ++ii ) {
-				QTreeWidgetItem* pTop = m_pSongTree->topLevelItem( ii );
-				pTop->setFont( 0, boldFont );
-				for ( int jj = 0; jj < pTop->childCount(); ++jj ) {
-					pTop->child( jj )->setFont( 0, font );
-				}
-			}
+			m_pSongTree->updateFont();
 		}
 	}
 }
