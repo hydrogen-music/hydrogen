@@ -537,4 +537,17 @@ void SoundLibraryPanel::onPreferencesChanged(
 			m_pSongTree->updateFont();
 		}
 	}
+	if ( changes & H2Core::Preferences::Changes::AppearanceTab ) {
+		// Not the most efficient way to icon update. But this operation is most
+		// probably done very rarely. So, it should be fine.
+		if ( m_pDrumkitTree != nullptr ) {
+			m_pDrumkitTree->updateRegistry();
+		}
+		if ( m_pPatternTree != nullptr ) {
+			m_pPatternTree->updateRegistry();
+		}
+		if ( m_pSongTree != nullptr ) {
+			m_pSongTree->updateRegistry();
+		}
+	}
 }

@@ -42,6 +42,7 @@
 #include "../../CommonStrings.h"
 #include "../../Compatibility/MouseEvent.h"
 #include "../../HydrogenApp.h"
+#include "../../Skin.h"
 #include "../../UndoActions.h"
 #include "core/SoundLibrary/SoundLibraryInfo.h"
 
@@ -633,6 +634,14 @@ void SoundLibraryTree::addNodes(
 	const QString& sBasePath
 )
 {
+	QString sIconPath( Skin::getSvgImagePath() );
+	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+		 InterfaceTheme::IconColor::White ) {
+		sIconPath.append( "/icons/white/" );
+	} else {
+		sIconPath.append( "/icons/black/" );
+	}
+
 	const auto pFontTheme = Preferences::get_instance()->getFontTheme();
 	QFont dirFont(
 		pFontTheme->m_sApplicationFontFamily,
@@ -711,6 +720,7 @@ void SoundLibraryTree::addNodes(
 		auto pDirItem = new QTreeWidgetItem( pParent );
 		pDirItem->setText( 0, ssFolderName );
 		pDirItem->setFont( 0, dirFont );
+		pDirItem->setIcon( 0, QIcon( sIconPath + "folder.svg" ) );
 		pDirItem->setExpanded( false );
 		addNodes(
 			pDirItem, iinfos,
@@ -730,7 +740,6 @@ void SoundLibraryTree::addNodes(
 			sDisplayName = fi.completeBaseName();
 		}
 		pFileItem->setText( 0, sDisplayName );
-		pFileItem->setText( 1, ppInfo->getPath() );
 		m_registry[pFileItem] = ppInfo;
 
 		if ( ppInfo->getType() == SoundLibraryInfo::Type::Drumkit ) {
@@ -745,7 +754,9 @@ void SoundLibraryTree::addNodes(
 						sDisplayName = ppInstrumentInfo->getType();
 					}
 					pInstrumentItem->setText( 0, sDisplayName );
-					pInstrumentItem->setText( 1, ppInstrumentInfo->getPath() );
+					pInstrumentItem->setIcon(
+						0, QIcon( sIconPath + "speaker.svg" )
+					);
 					m_registry[pInstrumentItem] = ppInstrumentInfo;
 				}
 			}
