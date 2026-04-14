@@ -5945,34 +5945,6 @@ imported into %2</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryPanel</name>
-    <message>
-        <source>Warning, the selected pattern will be deleted from disk.
-Are you sure?</source>
-        <translation>Achtung! Das ausgewählte Pattern wird von der Festplatte gelöscht werden. Bist Du sicher? </translation>
-    </message>
-    <message>
-        <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
-Are you sure?</source>
-        <translation>Achtung! Das Schlagzeug &quot;%1&quot; wird von der Festplatte gelöscht.
-Bist Du sicher?</translation>
-    </message>
-    <message>
-        <source>Drumkit deletion failed.</source>
-        <translation>Löschen des Schlagzeuges ist fehlgeschlagen.</translation>
-    </message>
-    <message>
-        <source>is a read-only drumkit and can&apos;t be deleted.</source>
-        <translation>ist schreibgeschützt und kann nicht gelöscht werden.</translation>
-    </message>
-    <message>
-        <source>It is not possible to delete drumkit: 
-  [%1]
-It contains samples used and loaded in the current song kit.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryRepositoryDialog</name>
     <message>
         <source>Edit repository settings</source>
@@ -6004,6 +5976,28 @@ It contains samples used and loaded in the current song kit.</source>
     <message>
         <source>Close</source>
         <translation>Schliessen</translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryTree</name>
+    <message>
+        <source>is a read-only and can&apos;t be deleted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>It is not possible to delete drumkit: 
+  [%1]
+It contains samples used and loaded in the current song kit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning, &quot;%1&quot; [%2] will be deleted from disk.
+Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit deletion failed.</source>
+        <translation type="unfinished">Löschen des Schlagzeuges ist fehlgeschlagen.</translation>
     </message>
 </context>
 <context>

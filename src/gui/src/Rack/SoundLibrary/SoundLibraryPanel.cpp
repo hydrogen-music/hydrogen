@@ -73,11 +73,6 @@ SoundLibraryPanel::SoundLibraryPanel(
 	  m_pDetailInfo( nullptr ),
 	  m_pDetailLicense( nullptr ),
 	  m_pDetailPath( nullptr ),
-	  __drumkit_menu( nullptr ),
-	  __drumkit_menu_system( nullptr ),
-	  __song_menu( nullptr ),
-	  __pattern_menu( nullptr ),
-	  __pattern_menu_list( nullptr ),
 	  m_pTreeSystemDrumkitsItem( nullptr ),
 	  m_pTreeUserDrumkitsItem( nullptr ),
 	  m_pTreeSessionDrumkitsItem( nullptr ),
@@ -95,74 +90,6 @@ SoundLibraryPanel::SoundLibraryPanel(
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const auto pPref = Preferences::get_instance();
-
-	auto addDrumkitActions = [&]( QMenu* pMenu, bool bWritable ) {
-		pMenu->addAction(
-			pCommonStrings->getMenuActionLoad(), this,
-			SLOT( on_drumkitLoadAction() )
-		);
-		pMenu->addAction(
-			pCommonStrings->getMenuActionProperties(), this,
-			[=]() { editDrumkitProperties( false ); }
-		);
-		pMenu->addSeparator();
-		pMenu->addAction(
-			pCommonStrings->getMenuActionDuplicate(), this,
-			[=]() { editDrumkitProperties( true ); }
-		);
-		auto pDeleteAction = pMenu->addAction(
-			pCommonStrings->getMenuActionDelete(), this,
-			SLOT( on_drumkitDeleteAction() )
-		);
-		if ( !bWritable ) {
-			pDeleteAction->setEnabled( false );
-		}
-		pMenu->addAction(
-			pCommonStrings->getMenuActionExport(), this,
-			SLOT( on_drumkitExportAction() )
-		);
-		pMenu->addSeparator();
-		pMenu->addAction( pCommonStrings->getMenuActionImport(), this, [=]() {
-			HydrogenApp::get_instance()->getMainForm()->action_drumkit_import(
-				false
-			);
-		} );
-		pMenu->addAction(
-			pCommonStrings->getMenuActionOnlineImport(),
-			HydrogenApp::get_instance()->getMainForm(),
-			SLOT( action_drumkit_onlineImport() )
-		);
-	};
-
-	__drumkit_menu = new QMenu( this );
-	addDrumkitActions( __drumkit_menu, true );
-
-	__drumkit_menu_system = new QMenu( this );
-	addDrumkitActions( __drumkit_menu_system, false );
-
-	__song_menu = new QMenu( this );
-	__song_menu->addSeparator();
-	__song_menu->addAction(
-		pCommonStrings->getMenuActionLoad(), this, SLOT( on_songLoadAction() )
-	);
-
-	__pattern_menu = new QMenu( this );
-	__pattern_menu->addSeparator();
-	__pattern_menu->addAction(
-		pCommonStrings->getMenuActionLoad(), this,
-		SLOT( on_patternLoadAction() )
-	);
-	__pattern_menu->addAction(
-		pCommonStrings->getMenuActionDelete(), this,
-		SLOT( on_patternDeleteAction() )
-	);
-
-	__pattern_menu_list = new QMenu( this );
-	__pattern_menu_list->addSeparator();
-	__pattern_menu_list->addAction(
-		pCommonStrings->getMenuActionLoad(), this,
-		SLOT( on_patternLoadAction() )
-	);
 
 	// DRUMKIT TREE (tab 0)
 	if ( m_pOpenType == nullptr ||
@@ -186,12 +113,6 @@ SoundLibraryPanel::SoundLibraryPanel(
 			m_pDrumkitTree, SIGNAL( leftClicked( QPoint ) ), this,
 			SLOT( on_DrumkitList_leftClicked( QPoint ) )
 		);
-		if ( m_pOpenType == nullptr ) {
-			connect(
-				m_pDrumkitTree, SIGNAL( rightClicked( QPoint ) ), this,
-				SLOT( on_DrumkitList_rightClicked( QPoint ) )
-			);
-		}
 	}
 
 	// PATTERN TREE (tab 1)
@@ -200,12 +121,6 @@ SoundLibraryPanel::SoundLibraryPanel(
 		m_pPatternTree = new SoundLibraryTree(
 			this, SoundLibraryInfo::Type::Pattern, m_pOpenType != nullptr
 		);
-		if ( m_pOpenType == nullptr ) {
-			connect(
-				m_pPatternTree, SIGNAL( rightClicked( QPoint ) ), this,
-				SLOT( on_PatternTree_rightClicked( QPoint ) )
-			);
-		}
 	}
 
 	// SONG TREE (tab 2)
@@ -214,12 +129,6 @@ SoundLibraryPanel::SoundLibraryPanel(
 		m_pSongTree = new SoundLibraryTree(
 			this, SoundLibraryInfo::Type::Song, m_pOpenType != nullptr
 		);
-		if ( m_pOpenType == nullptr ) {
-			connect(
-				m_pSongTree, SIGNAL( rightClicked( QPoint ) ), this,
-				SLOT( on_SongTree_rightClicked( QPoint ) )
-			);
-		}
 	}
 
 	// Search bar
@@ -489,34 +398,6 @@ void SoundLibraryPanel::onRescanClicked()
 	H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
 }
 
-void SoundLibraryPanel::on_PatternTree_rightClicked( const QPoint& pos )
-{
-	if ( m_pPatternTree == nullptr ||
-		 m_pPatternTree->currentItem() == nullptr ) {
-		return;
-	}
-
-	// Only show menu on leaf items (patterns, not folders)
-	auto it =
-		m_pPatternTree->getRegistry().find( m_pPatternTree->currentItem() );
-	if ( it != m_pPatternTree->getRegistry().end() ) {
-		__pattern_menu->popup( pos );
-	}
-}
-
-void SoundLibraryPanel::on_SongTree_rightClicked( const QPoint& pos )
-{
-	if ( m_pSongTree == nullptr ||
-		 m_pSongTree->currentItem() == nullptr ) {
-		return;
-	}
-
-	auto it = m_pSongTree->getRegistry().find( m_pSongTree->currentItem() );
-	if ( it != m_pSongTree->getRegistry().end() ) {
-		__song_menu->popup( pos );
-	}
-}
-
 void SoundLibraryPanel::on_DrumkitList_ItemChanged(
 	QTreeWidgetItem* current,
 	QTreeWidgetItem* previous
@@ -635,53 +516,6 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated(
 	}
 }
 
-void SoundLibraryPanel::on_DrumkitList_rightClicked( const QPoint& pos )
-{
-	if ( m_pDrumkitTree->currentItem() == nullptr ) {
-		return;
-	}
-
-	if ( m_pDrumkitTree->currentItem()->parent() == nullptr ||
-		 m_pDrumkitTree->currentItem() == m_pTreeUserDrumkitsItem ||
-		 m_pDrumkitTree->currentItem() == m_pTreeSystemDrumkitsItem ||
-		 m_pDrumkitTree->currentItem() == m_pTreeSessionDrumkitsItem ) {
-		return;
-	}
-
-	if ( m_pDrumkitTree->currentItem()->parent() ==
-		 m_pTreeUserDrumkitsItem ) {
-		__drumkit_menu->popup( pos );
-	}
-
-	if ( m_pDrumkitTree->currentItem()->parent() ==
-		 m_pTreeSystemDrumkitsItem ) {
-		__drumkit_menu_system->popup( pos );
-	}
-
-	// We do not provide distinct parent items for read-only and
-	// writable session drumkits as it would make the GUI unnecessary
-	// complex. Instead, the level of access for the current user is
-	// checked during runtime (which should be a very rare thing to do).
-	if ( m_pDrumkitTree->currentItem()->parent() ==
-		 m_pTreeSessionDrumkitsItem ) {
-		auto it = m_pDrumkitTree->getRegistry().find( m_pDrumkitTree->currentItem() );
-		if ( it == m_pDrumkitTree->getRegistry().end() || it->second == nullptr ) {
-			ERRORLOG( "Unable to retrieve drumkit" );
-			return;
-		}
-		const QString sDrumkitPath = it->second->getPath();
-		const auto drumkitContext =
-			Filesystem::DetermineContext( sDrumkitPath );
-
-		if ( drumkitContext == Filesystem::Context::SessionReadOnly ) {
-			__drumkit_menu_system->popup( pos );
-		}
-		else {
-			__drumkit_menu->popup( pos );
-		}
-	}
-}
-
 void SoundLibraryPanel::on_DrumkitList_leftClicked( const QPoint& pos )
 {
 	__start_drag_position = pos;
@@ -753,33 +587,6 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent* event )
 	}
 }
 
-void SoundLibraryPanel::on_drumkitLoadAction()
-{
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-
-	auto it = m_pDrumkitTree->getRegistry().find( m_pDrumkitTree->currentItem() );
-	if ( it == m_pDrumkitTree->getRegistry().end() || it->second == nullptr ) {
-		ERRORLOG( "Unable to retrieve drumkit" );
-		return;
-	}
-	const QString sDrumkitPath = it->second->getPath();
-	auto pDrumkit =
-		pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
-	if ( pDrumkit == nullptr ) {
-		ERRORLOG( QString( "Unable to find drumkit [%1] (mapped to path [%2]" )
-					  .arg( it->second->getName() )
-					  .arg( sDrumkitPath ) );
-		return;
-	}
-
-	// Pass a copy of the kit since we do not want to alter the settings of the
-	// original one.
-	MainForm::switchDrumkit( std::make_shared<Drumkit>( pDrumkit ) );
-}
 
 void SoundLibraryPanel::switchDrumkit(
 	std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
@@ -798,294 +605,27 @@ void SoundLibraryPanel::switchDrumkit(
 	QApplication::restoreOverrideCursor();
 }
 
-void SoundLibraryPanel::on_drumkitDeleteAction()
+SoundLibraryTree* SoundLibraryPanel::getCurrentTree()
 {
-	const auto pSong = Hydrogen::get_instance()->getSong();
-	QTreeWidgetItem* pItem = m_pDrumkitTree->currentItem();
-	auto it = m_pDrumkitTree->getRegistry().find( pItem );
-	if ( it == m_pDrumkitTree->getRegistry().end() || it->second == nullptr ) {
-		ERRORLOG( "Unable to retrieve drumkit" );
-		return;
-	}
-	const QString sDrumkitPath = it->second->getPath();
-	const auto drumkitContext = Filesystem::DetermineContext( sDrumkitPath );
-
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-	if ( pItem->parent() == m_pTreeSystemDrumkitsItem ||
-		 ( pItem->parent() == m_pTreeSessionDrumkitsItem &&
-		   drumkitContext == Filesystem::Context::SessionReadOnly ) ) {
-		QMessageBox::warning(
-			this, "Hydrogen",
-			QString( "\"%1\" " )
-				.arg( it->second->getName() )
-				.append( tr( "is a read-only drumkit and can't be deleted." ) )
-		);
-		return;
-	}
-
-	// If we delete a kit containing samples used and loaded in the current
-	// song's drumkit, we get into trouble.
-	if ( pSong == nullptr ) {
-		return;
-	}
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit == nullptr ) {
-		return;
-	}
-
-	// For a sample to be contained both the instrument's drumkit path must
-	// match the selected one and the instrument has to contain at least one
-	// sample with a non-empty, relative path.
-	bool bSampleContained = false;
-	const QString sDrumkitDir = Filesystem::drumkitDirFromPath( sDrumkitPath );
-	for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {
-		if ( ppInstrument != nullptr &&
-			 ppInstrument->getDrumkitPath() == sDrumkitPath ) {
-			for ( const auto& ppComponent : *ppInstrument->getComponents() ) {
-				if ( ppComponent != nullptr ) {
-					for ( const auto& ppLayer : ppComponent->getLayers() ) {
-						if ( ppLayer != nullptr &&
-							 ppLayer->getSample() != nullptr &&
-							 !ppLayer->getSample()->getFilePath().isEmpty() &&
-							 ppLayer->getSample()->getFilePath().contains(
-								 sDrumkitDir
-							 ) ) {
-							bSampleContained = true;
-							break;
-						}
-					}
-				}
-
-				if ( bSampleContained ) {
-					break;
-				}
-			}
-		}
-
-		if ( bSampleContained ) {
-			break;
+	if ( m_pOpenType == nullptr ) {
+		switch ( m_pTabWidget->currentIndex() ) {
+			case 0:
+				return m_pDrumkitTree;
+			case 1:
+				return m_pPatternTree;
+			default:
+				return m_pSongTree;
 		}
 	}
-	if ( bSampleContained ) {
-		QMessageBox::critical(
-			this, "Hydrogen",
-			tr( "It is not possible to delete drumkit: \n  [%1]\nIt contains "
-				"samples used and loaded in the current song kit." )
-				.arg( it->second->getName() )
-		);
-		return;
+	else if ( *m_pOpenType == SoundLibraryInfo::Type::Drumkit ) {
+		return m_pDrumkitTree;
 	}
-
-	if ( QMessageBox::warning(
-			 this, "Hydrogen",
-			 tr( "Warning, the \"%1\" drumkit will be deleted from disk.\nAre "
-				 "you sure?" )
-				 .arg( it->second->getName() ),
-			 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel
-		 ) == QMessageBox::Cancel ) {
-		return;
-	}
-
-	QApplication::setOverrideCursor( Qt::WaitCursor );
-
-	INFOLOG( QString( "Removing drumkit: %1" ).arg( sDrumkitDir ) );
-	const bool bOk = Filesystem::rm( sDrumkitDir, true );
-
-	QApplication::restoreOverrideCursor();
-
-	if ( !bOk ) {
-		QMessageBox::warning(
-			this, "Hydrogen", tr( "Drumkit deletion failed." )
-		);
+	else if ( *m_pOpenType == SoundLibraryInfo::Type::Pattern ) {
+		return m_pPatternTree;
 	}
 	else {
-		Hydrogen::get_instance()->getSoundLibraryDatabase()->updateDrumkits(
-			Event::Trigger::Default
-		);
+		return m_pSongTree;
 	}
-}
-
-void SoundLibraryPanel::on_drumkitExportAction()
-{
-	auto pSoundLibraryDatabase =
-		Hydrogen::get_instance()->getSoundLibraryDatabase();
-
-	auto it = m_pDrumkitTree->getRegistry().find( m_pDrumkitTree->currentItem() );
-	if ( it == m_pDrumkitTree->getRegistry().end() || it->second == nullptr ) {
-		ERRORLOG( "Unable to retrieve drumkit" );
-		return;
-	}
-	const QString sDrumkitPath = it->second->getPath();
-	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDrumkitPath );
-
-	MainForm::exportDrumkit( std::make_shared<Drumkit>( pDrumkit ) );
-}
-
-void SoundLibraryPanel::editDrumkitProperties( bool bDuplicate )
-{
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
-
-	auto it = m_pDrumkitTree->getRegistry().find( m_pDrumkitTree->currentItem() );
-	if ( it == m_pDrumkitTree->getRegistry().end() || it->second == nullptr ) {
-		ERRORLOG( "Unable to retrieve drumkit" );
-		return;
-	}
-	const QString sDrumkitPath = it->second->getPath();
-	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDrumkitPath );
-
-	if ( pDrumkit == nullptr ) {
-		ERRORLOG( QString( "Unable to find drumkit [%1] (mapped to path [%2]" )
-					  .arg( it->second->getName() )
-					  .arg( sDrumkitPath ) );
-		return;
-	}
-
-	// We provide a copy of the recent drumkit to ensure the drumkit
-	// is not getting dirty upon saving (in case new properties are
-	// stored in the kit but writing it to disk fails).
-	auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
-	if ( bDuplicate ) {
-		// Suggest an unique drumkit name.
-		pNewDrumkit->setName( Filesystem::appendNumberOrIncrement( it->second->getName()
-		) );
-		pNewDrumkit->setPath(
-			H2Core::Filesystem::userDrumkitsDir() + pNewDrumkit->getName()
-		);
-	}
-
-	DrumkitPropertiesDialog dialog( this, pNewDrumkit, !bDuplicate, false );
-	dialog.exec();
-}
-
-void SoundLibraryPanel::on_songLoadAction()
-{
-	// Support loading from the new song tree
-	if ( m_pSongTree != nullptr && m_pSongTree->currentItem() != nullptr ) {
-		auto it = m_pSongTree->getRegistry().find( m_pSongTree->currentItem() );
-		if ( it != m_pSongTree->getRegistry().end() && it->second != nullptr ) {
-			HydrogenApp::openFile(
-				Filesystem::Artifact::Song, it->second->getPath()
-			);
-			return;
-		}
-	}
-
-	// Fallback: legacy path (shouldn't be reached in new design)
-	if ( m_pDrumkitTree->currentItem() != nullptr ) {
-		const QString sFilePath =
-			Hydrogen::get_instance()->getSoundLibraryDatabase()->findArtifact(
-				Filesystem::Artifact::Song, Filesystem::Context::User,
-				m_pDrumkitTree->currentItem()->text( 0 )
-			);
-		if ( !sFilePath.isEmpty() ) {
-			HydrogenApp::openFile( Filesystem::Artifact::Song, sFilePath );
-		}
-	}
-}
-
-void SoundLibraryPanel::on_patternLoadAction()
-{
-	const auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-
-	// Check pattern tree first, then fall back to the drumkit tree
-	QTreeWidgetItem* pCurrentItem = nullptr;
-	if ( m_pPatternTree != nullptr &&
-		 m_pPatternTree->currentItem() != nullptr ) {
-		pCurrentItem = m_pPatternTree->currentItem();
-	}
-	else if ( m_pDrumkitTree->currentItem() != nullptr ) {
-		pCurrentItem = m_pDrumkitTree->currentItem();
-	}
-
-	if ( pCurrentItem == nullptr ) {
-		return;
-	}
-
-	if ( m_pPatternTree->getRegistry().find( pCurrentItem ) ==
-		 m_pPatternTree->getRegistry().end() ) {
-		ERRORLOG( QString( "Unable to find pattern corresponding to [%1]" )
-					  .arg( pCurrentItem->text( 0 ) ) );
-		return;
-	}
-
-	auto pInfo = m_pPatternTree->getRegistry().at( pCurrentItem );
-	if ( pInfo == nullptr ) {
-		ERRORLOG( QString( "Invalid pattern info for [%1]" )
-					  .arg( pCurrentItem->text( 0 ) ) );
-		return;
-	}
-
-	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	const auto pPattern =
-		H2Core::CoreActionController::loadPattern( pInfo->getPath() );
-	if ( pPattern == nullptr ) {
-		QMessageBox::critical(
-			this, "Hydrogen", pCommonStrings->getPatternLoadError()
-		);
-		return;
-	}
-
-	HydrogenApp::get_instance()->pushUndoCommand( new SE_insertPatternAction(
-		SE_insertPatternAction::Type::Insert, pSong->getPatternList()->size(),
-		pPattern, nullptr
-	) );
-}
-
-void SoundLibraryPanel::on_patternDeleteAction()
-{
-	QTreeWidgetItem* pCurrentItem = nullptr;
-	if ( m_pPatternTree != nullptr &&
-		 m_pPatternTree->currentItem() != nullptr ) {
-		pCurrentItem = m_pPatternTree->currentItem();
-	}
-	else if ( m_pDrumkitTree->currentItem() != nullptr ) {
-		pCurrentItem = m_pDrumkitTree->currentItem();
-	}
-
-	if ( pCurrentItem == nullptr ) {
-		return;
-	}
-
-	if ( m_pPatternTree->getRegistry().find( pCurrentItem ) ==
-		 m_pPatternTree->getRegistry().end() ) {
-		ERRORLOG( QString( "Unable to find pattern corresponding to [%1]" )
-					  .arg( pCurrentItem->text( 0 ) ) );
-		return;
-	}
-
-	auto pInfo = m_pPatternTree->getRegistry().at( pCurrentItem );
-	if ( pInfo == nullptr ) {
-		ERRORLOG( QString( "Invalid pattern info for [%1]" )
-					  .arg( pCurrentItem->text( 0 ) ) );
-		return;
-	}
-
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-	if ( QMessageBox::information(
-			 this, "Hydrogen",
-			 tr( "Warning, the selected pattern will be deleted from "
-				 "disk.\nAre you sure?" ) +
-				 QString( "\n\n%1" ).arg( pInfo->getPath() ),
-			 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel
-		 ) == QMessageBox::Cancel ) {
-		return;
-	}
-
-	if ( Filesystem::rm( pInfo->getPath() ) ) {
-		ERRORLOG(
-			QString( "Error removing the pattern [%1]" ).arg( pInfo->getPath() )
-		);
-	}
-
-	H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->updatePatterns(
-		Event::Trigger::Default
-	);
 }
 
 void SoundLibraryPanel::soundLibraryChangedEvent()

@@ -5952,35 +5952,6 @@ imported into %2</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryPanel</name>
-    <message>
-        <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
-Are you sure?</source>
-        <translation>警告，&quot;%1&quot; 鼓组将从磁盘上删除。
-是否确定？</translation>
-    </message>
-    <message>
-        <source>Drumkit deletion failed.</source>
-        <translation>鼓组删除失败。</translation>
-    </message>
-    <message>
-        <source>Warning, the selected pattern will be deleted from disk.
-Are you sure?</source>
-        <translation>警告，所选样式将从磁盘中删除。
-是否确定？</translation>
-    </message>
-    <message>
-        <source>is a read-only drumkit and can&apos;t be deleted.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>It is not possible to delete drumkit: 
-  [%1]
-It contains samples used and loaded in the current song kit.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryRepositoryDialog</name>
     <message>
         <source>Edit repository settings</source>
@@ -6012,6 +5983,28 @@ It contains samples used and loaded in the current song kit.</source>
     <message>
         <source>Close</source>
         <translation>关闭</translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryTree</name>
+    <message>
+        <source>is a read-only and can&apos;t be deleted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>It is not possible to delete drumkit: 
+  [%1]
+It contains samples used and loaded in the current song kit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning, &quot;%1&quot; [%2] will be deleted from disk.
+Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit deletion failed.</source>
+        <translation type="unfinished">鼓组删除失败。</translation>
     </message>
 </context>
 <context>

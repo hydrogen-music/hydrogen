@@ -5957,35 +5957,6 @@ imported into %2</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryPanel</name>
-    <message>
-        <source>Warning, the selected pattern will be deleted from disk.
-Are you sure?</source>
-        <translation>Atención, el patrón seleccionado se borrará del disco.
-¿Seguir?</translation>
-    </message>
-    <message>
-        <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
-Are you sure?</source>
-        <translation>Atención, el drumkit &quot;%1&quot; será borrado del disco.
-¿Seguir?</translation>
-    </message>
-    <message>
-        <source>Drumkit deletion failed.</source>
-        <translation>Error al borrar drumkit.</translation>
-    </message>
-    <message>
-        <source>is a read-only drumkit and can&apos;t be deleted.</source>
-        <translation>es un drumkit solo de lectura y no puede ser borrado.</translation>
-    </message>
-    <message>
-        <source>It is not possible to delete drumkit: 
-  [%1]
-It contains samples used and loaded in the current song kit.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryRepositoryDialog</name>
     <message>
         <source>Edit repository settings</source>
@@ -6017,6 +5988,28 @@ It contains samples used and loaded in the current song kit.</source>
     <message>
         <source>Close</source>
         <translation>Cerrar</translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryTree</name>
+    <message>
+        <source>is a read-only and can&apos;t be deleted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>It is not possible to delete drumkit: 
+  [%1]
+It contains samples used and loaded in the current song kit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning, &quot;%1&quot; [%2] will be deleted from disk.
+Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit deletion failed.</source>
+        <translation type="unfinished">Error al borrar drumkit.</translation>
     </message>
 </context>
 <context>

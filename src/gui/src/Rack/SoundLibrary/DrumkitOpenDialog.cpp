@@ -25,6 +25,7 @@
 #include <core/SoundLibrary/SoundLibraryInfo.h>
 
 #include "SoundLibraryPanel.h"
+#include "SoundLibraryTree.h"
 #include "../../CommonStrings.h"
 #include "../../HydrogenApp.h"
 
@@ -89,7 +90,7 @@ void DrumkitOpenDialog::on_soundLib_item_changed( bool bDrumkitSelected)
 
 void DrumkitOpenDialog::on_open_btn_clicked()
 {
-	m_pSoundLibraryPanel->on_drumkitLoadAction();
+	m_pSoundLibraryPanel->getCurrentTree()->actionLoad();
 	accept();
 }
 

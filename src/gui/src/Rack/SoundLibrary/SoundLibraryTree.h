@@ -56,11 +56,15 @@ class SoundLibraryTree : public QTreeWidget,
 
    signals:
 	void leftClicked( const QPoint& pos );
-	void rightClicked( const QPoint& pos );
 
-   protected:
-	virtual void mousePressEvent( QMouseEvent* event ) override;
-	virtual void mouseMoveEvent( QMouseEvent* event ) override;
+   public slots:
+	void actionLoad();
+	void actionProperties();
+	void actionDuplicate();
+	void actionDelete();
+	void actionExport();
+	void actionImport();
+	void actionOnlineImport();
 
    private:
 	/** Items in the tree are arranged alpha-numerically with subfolders shown
@@ -72,6 +76,8 @@ class SoundLibraryTree : public QTreeWidget,
 		std::vector<std::shared_ptr<H2Core::SoundLibraryInfo>> infos,
 		const QString& sBasePath
 	);
+	void mousePressEvent( QMouseEvent* event ) override;
+	void mouseMoveEvent( QMouseEvent* event ) override;
 
 	SoundLibraryPanel* m_pSoundLibraryPanel;
 
@@ -89,6 +95,9 @@ class SoundLibraryTree : public QTreeWidget,
 	QTreeWidgetItem* m_pSessionItem;
 	QTreeWidgetItem* m_pSystemItem;
 	QTreeWidgetItem* m_pUserItem;
+
+	QMenu* m_pPopupMenu;
+	QMenu* m_pPopupMenuReadOnly;
 };
 
 inline const std::

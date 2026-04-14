@@ -5955,37 +5955,6 @@ imported into %2</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryPanel</name>
-    <message>
-        <source>Warning, the selected pattern will be deleted from disk.
-Are you sure?</source>
-        <translation>Aviso, o padrão selecionado será deletado do disco.
-Está certo disto?</translation>
-    </message>
-    <message>
-        <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
-Are you sure?</source>
-        <translation>Aviso, o drumkit &quot;%1&quot; drumkit será deletado do disco.
-Está certo disto?</translation>
-    </message>
-    <message>
-        <source>Drumkit deletion failed.</source>
-        <translation>Remoção do drumkit falhou.</translation>
-    </message>
-    <message>
-        <source>is a read-only drumkit and can&apos;t be deleted.</source>
-        <translation>é um kit de apenas leitura e não pode ser removido.</translation>
-    </message>
-    <message>
-        <source>It is not possible to delete drumkit: 
-  [%1]
-It contains samples used and loaded in the current song kit.</source>
-        <translation>Não foi possível deletar o drumkit:
-  [%1]
-Ele contém samples usados e carregados no kit de sons usado atualmente.</translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryRepositoryDialog</name>
     <message>
         <source>Edit repository settings</source>
@@ -6017,6 +5986,30 @@ Ele contém samples usados e carregados no kit de sons usado atualmente.</transl
     <message>
         <source>Close</source>
         <translation>Fechar</translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryTree</name>
+    <message>
+        <source>is a read-only and can&apos;t be deleted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>It is not possible to delete drumkit: 
+  [%1]
+It contains samples used and loaded in the current song kit.</source>
+        <translation type="unfinished">Não foi possível deletar o drumkit:
+  [%1]
+Ele contém samples usados e carregados no kit de sons usado atualmente.</translation>
+    </message>
+    <message>
+        <source>Warning, &quot;%1&quot; [%2] will be deleted from disk.
+Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit deletion failed.</source>
+        <translation type="unfinished">Remoção do drumkit falhou.</translation>
     </message>
 </context>
 <context>

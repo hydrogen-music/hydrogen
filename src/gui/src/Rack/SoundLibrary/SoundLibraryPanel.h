@@ -66,15 +66,14 @@ class SoundLibraryPanel : public QWidget,
 		std::shared_ptr<H2Core::Drumkit> pOldDrumkit
 	);
 
+	SoundLibraryTree* getCurrentTree();
+
 	/** Populates the detail view at the bottom with the metadata of the
 	 * currently selected item in the active tab's tree. */
 	void updateDetailView();
 
 	void soundLibraryChangedEvent() override;
 	void updateSongEvent( int nValue ) override;
-
-   public slots:
-	void on_drumkitLoadAction();
 
    private slots:
 	void on_DrumkitList_ItemChanged(
@@ -83,14 +82,8 @@ class SoundLibraryPanel : public QWidget,
 	);
 	void on_DrumkitList_itemActivated( QTreeWidgetItem* item, int column );
 	void on_DrumkitList_leftClicked( const QPoint& pos );
-	void on_DrumkitList_rightClicked( const QPoint& pos );
 	void on_DrumkitList_mouseMove( QMouseEvent* event );
 
-	void on_drumkitDeleteAction();
-	void on_drumkitExportAction();
-	void on_songLoadAction();
-	void on_patternLoadAction();
-	void on_patternDeleteAction();
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	/** Called when the active tab in m_pTabWidget changes. */
@@ -99,12 +92,6 @@ class SoundLibraryPanel : public QWidget,
 	void onSearchTextChanged( const QString& sText );
 	/** Called when the rescan button is clicked. */
 	void onRescanClicked();
-
-	// Pattern tree slots
-	void on_PatternTree_rightClicked( const QPoint& pos );
-
-	// Song tree slots
-	void on_SongTree_rightClicked( const QPoint& pos );
 
    signals:
 	void item_changed( bool bDrumkitSelected );
@@ -151,13 +138,6 @@ class SoundLibraryPanel : public QWidget,
 	QLabel* m_pDetailPath;
 
 	QPoint __start_drag_position;
-
-	// --- Context menus ---
-	QMenu* __drumkit_menu;
-	QMenu* __drumkit_menu_system;
-	QMenu* __song_menu;
-	QMenu* __pattern_menu;
-	QMenu* __pattern_menu_list;
 
 	// --- Drumkit tree top-level category items ---
 	QTreeWidgetItem* m_pTreeSystemDrumkitsItem;

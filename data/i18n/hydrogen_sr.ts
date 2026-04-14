@@ -5948,35 +5948,6 @@ imported into %2</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryPanel</name>
-    <message>
-        <source>Warning, the selected pattern will be deleted from disk.
-Are you sure?</source>
-        <translation>ПАЖЊА:
-Желите ли да одабрану мустру уклоните са диска?</translation>
-    </message>
-    <message>
-        <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
-Are you sure?</source>
-        <translation>ПАЖЊА: „%1“ ће бити уклоњени са диска.
-Да ли сте сигурни?</translation>
-    </message>
-    <message>
-        <source>Drumkit deletion failed.</source>
-        <translation>Није успело уклањање бубњева.</translation>
-    </message>
-    <message>
-        <source>is a read-only drumkit and can&apos;t be deleted.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>It is not possible to delete drumkit: 
-  [%1]
-It contains samples used and loaded in the current song kit.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryRepositoryDialog</name>
     <message>
         <source>Edit server list</source>
@@ -6008,6 +5979,28 @@ It contains samples used and loaded in the current song kit.</source>
     <message>
         <source>Close</source>
         <translation>Затвори</translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryTree</name>
+    <message>
+        <source>is a read-only and can&apos;t be deleted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>It is not possible to delete drumkit: 
+  [%1]
+It contains samples used and loaded in the current song kit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning, &quot;%1&quot; [%2] will be deleted from disk.
+Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit deletion failed.</source>
+        <translation type="unfinished">Није успело уклањање бубњева.</translation>
     </message>
 </context>
 <context>

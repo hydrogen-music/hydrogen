@@ -24,15 +24,25 @@
 
 #include <QMimeData>
 
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/Sample.h>
 #include <core/Hydrogen.h>
 #include <core/SoundLibrary/DrumkitInfo.h>
 #include <core/SoundLibrary/InstrumentInfo.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
+#include "DrumkitPropertiesDialog.h"
 #include "SoundLibraryPanel.h"
 #include "../../CommonStrings.h"
 #include "../../Compatibility/MouseEvent.h"
 #include "../../HydrogenApp.h"
+#include "../../UndoActions.h"
 
 using namespace H2Core;
 
@@ -49,6 +59,49 @@ SoundLibraryTree::SoundLibraryTree(
 	setAlternatingRowColors( true );
 	setRootIsDecorated( false );
 	headerItem()->setHidden( true );
+
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	auto addDrumkitActions = [&]( QMenu* pMenu, bool bWritable ) {
+		if ( m_bStandAlone ) {
+			return;
+		}
+		pMenu->addAction(
+			pCommonStrings->getMenuActionLoad(), this, SLOT( actionLoad() )
+		);
+		pMenu->addAction(
+			pCommonStrings->getMenuActionProperties(), this,
+			SLOT( actionProperties() )
+		);
+		pMenu->addSeparator();
+		pMenu->addAction(
+			pCommonStrings->getMenuActionDuplicate(), this,
+			SLOT( actionDuplicate() )
+		);
+		auto pDeleteAction = pMenu->addAction(
+			pCommonStrings->getMenuActionDelete(), this, SLOT( actionDelete() )
+		);
+		if ( !bWritable ) {
+			pDeleteAction->setEnabled( false );
+		}
+		pMenu->addAction(
+			pCommonStrings->getMenuActionExport(), this, SLOT( actionExport() )
+		);
+		pMenu->addSeparator();
+		pMenu->addAction(
+			pCommonStrings->getMenuActionImport(), this, SLOT( actionImport() )
+		);
+		pMenu->addAction(
+			pCommonStrings->getMenuActionOnlineImport(), this,
+			SLOT( actionOnlineImport() )
+		);
+	};
+
+	m_pPopupMenu = new QMenu( this );
+	addDrumkitActions( m_pPopupMenu, true );
+
+	m_pPopupMenuReadOnly = new QMenu( this );
+	addDrumkitActions( m_pPopupMenuReadOnly, false );
 
 	connect( this, &QTreeWidget::currentItemChanged, [&]() {
 		m_pSoundLibraryPanel->updateDetailView();
@@ -133,15 +186,325 @@ void SoundLibraryTree::updateRegistry()
 	}
 }
 
+void SoundLibraryTree::actionLoad()
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	auto it = m_registry.find( currentItem() );
+	if ( it == m_registry.end() || it->second == nullptr ) {
+		return;
+	}
+	if ( pHydrogen->getSong() == nullptr ) {
+		return;
+	}
+
+	if ( m_type == SoundLibraryInfo::Type::Drumkit ) {
+		auto pDrumkit = pHydrogen->getSoundLibraryDatabase()->getDrumkit(
+			it->second->getPath()
+		);
+		if ( pDrumkit == nullptr ) {
+			ERRORLOG( QString( "Unable to find drumkit [%1] at [%2]" )
+						  .arg( it->second->getName() )
+						  .arg( it->second->getPath() ) );
+			return;
+		}
+		// Pass a copy of the kit since we do not want to alter the settings of
+		// the original one.
+		MainForm::switchDrumkit( std::make_shared<Drumkit>( pDrumkit ) );
+	}
+	else if ( m_type == SoundLibraryInfo::Type::Pattern ) {
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		const auto pPattern =
+			H2Core::CoreActionController::loadPattern( it->second->getPath() );
+		if ( pPattern == nullptr ) {
+			QMessageBox::critical(
+				this, "Hydrogen", pCommonStrings->getPatternLoadError()
+			);
+			return;
+		}
+
+		HydrogenApp::get_instance()->pushUndoCommand(
+			new SE_insertPatternAction(
+				SE_insertPatternAction::Type::Insert,
+				pHydrogen->getSong()->getPatternList()->size(), pPattern,
+				nullptr
+			)
+		);
+	}
+	else {
+		// Error handling and dialog is handled within openFile.
+		HydrogenApp::get_instance()->openFile(
+			Filesystem::Artifact::Song, it->second->getPath()
+		);
+	}
+}
+
+void SoundLibraryTree::actionProperties()
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	auto it = m_registry.find( currentItem() );
+	if ( it == m_registry.end() || it->second == nullptr ) {
+		return;
+	}
+
+	if ( m_type == SoundLibraryInfo::Type::Drumkit ) {
+		auto pDrumkit = pHydrogen->getSoundLibraryDatabase()->getDrumkit(
+			it->second->getPath()
+		);
+		if ( pDrumkit == nullptr ) {
+			ERRORLOG( QString( "Unable to find drumkit [%1] at [%2]" )
+						  .arg( it->second->getName() )
+						  .arg( it->second->getPath() ) );
+			return;
+		}
+		// We provide a copy of the recent drumkit to ensure the drumkit
+		// is not getting dirty upon saving (in case new properties are
+		// stored in the kit but writing it to disk fails).
+		auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
+		DrumkitPropertiesDialog dialog( this, pNewDrumkit, true, false );
+		dialog.exec();
+	}
+	else {
+		INFOLOG( "not implemented" );
+	}
+}
+void SoundLibraryTree::actionDuplicate()
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	auto it = m_registry.find( currentItem() );
+	if ( it == m_registry.end() || it->second == nullptr ) {
+		return;
+	}
+
+	if ( m_type == SoundLibraryInfo::Type::Drumkit ) {
+		auto pDrumkit = pHydrogen->getSoundLibraryDatabase()->getDrumkit(
+			it->second->getPath()
+		);
+		if ( pDrumkit == nullptr ) {
+			ERRORLOG( QString( "Unable to find drumkit [%1] at [%2]" )
+						  .arg( it->second->getName() )
+						  .arg( it->second->getPath() ) );
+			return;
+		}
+		// We provide a copy of the recent drumkit to ensure the drumkit
+		// is not getting dirty upon saving (in case new properties are
+		// stored in the kit but writing it to disk fails).
+		auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
+		// Suggest an unique drumkit name.
+		pNewDrumkit->setName(
+			Filesystem::appendNumberOrIncrement( it->second->getName() )
+		);
+		pNewDrumkit->setPath(
+			H2Core::Filesystem::userDrumkitsDir() + pNewDrumkit->getName()
+		);
+
+		DrumkitPropertiesDialog dialog( this, pNewDrumkit, false, false );
+		dialog.exec();
+	}
+	else {
+		INFOLOG( "not implemented" );
+	}
+}
+
+void SoundLibraryTree::actionDelete()
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	auto it = m_registry.find( currentItem() );
+	if ( it == m_registry.end() || it->second == nullptr ) {
+		return;
+	}
+
+	if ( it->second->getContext() == Filesystem::Context::System ||
+		 it->second->getContext() == Filesystem::Context::SessionReadOnly ) {
+		QMessageBox::warning(
+			this, "Hydrogen",
+			QString( "%1 [%2] " )
+				.arg( it->second->getName() )
+				.arg( it->second->getPath() )
+				.append( tr( "is a read-only and can't be deleted." ) )
+		);
+		return;
+	}
+
+	QString sTargetPath = it->second->getPath();
+
+	if ( m_type == SoundLibraryInfo::Type::Drumkit ) {
+		// If we delete a kit containing samples used and loaded in the current
+		// song's drumkit, we get into trouble.
+		if ( pHydrogen->getSong() == nullptr ||
+			 pHydrogen->getSong()->getDrumkit() ) {
+			return;
+		}
+		auto pDrumkit = pHydrogen->getSong()->getDrumkit();
+
+		// For a sample to be contained both the instrument's drumkit path must
+		// match the selected one and the instrument has to contain at least one
+		// sample with a non-empty, relative path.
+		bool bSampleContained = false;
+		sTargetPath = Filesystem::drumkitDirFromPath( it->second->getPath() );
+		for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {
+			if ( ppInstrument != nullptr &&
+				 ppInstrument->getDrumkitPath() == it->second->getPath() ) {
+				for ( const auto& ppComponent :
+					  *ppInstrument->getComponents() ) {
+					if ( ppComponent != nullptr ) {
+						for ( const auto& ppLayer : ppComponent->getLayers() ) {
+							if ( ppLayer != nullptr &&
+								 ppLayer->getSample() != nullptr &&
+								 !ppLayer->getSample()->getFilePath().isEmpty(
+								 ) &&
+								 ppLayer->getSample()->getFilePath().contains(
+									 sTargetPath
+								 ) ) {
+								bSampleContained = true;
+								break;
+							}
+						}
+					}
+
+					if ( bSampleContained ) {
+						break;
+					}
+				}
+			}
+
+			if ( bSampleContained ) {
+				break;
+			}
+		}
+		if ( bSampleContained ) {
+			QMessageBox::critical(
+				this, "Hydrogen",
+				tr( "It is not possible to delete drumkit: \n  [%1]\nIt "
+					"contains "
+					"samples used and loaded in the current song kit." )
+					.arg( it->second->getName() )
+			);
+			return;
+		}
+	}
+
+	if ( QMessageBox::warning(
+			 this, "Hydrogen",
+			 tr( "Warning, \"%1\" [%2] will be deleted from disk.\nAre "
+				 "you sure?" )
+				 .arg( it->second->getName() )
+				 .arg( sTargetPath ),
+			 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel
+		 ) == QMessageBox::Cancel ) {
+		return;
+	}
+
+	QApplication::setOverrideCursor( Qt::WaitCursor );
+
+	INFOLOG( QString( "Removing %1 [%2] at [%3]" )
+				 .arg( SoundLibraryInfo::TypeToQString( it->second->getType() )
+				 )
+				 .arg( it->second->getName() )
+				 .arg( sTargetPath ) );
+	const bool bOk = Filesystem::rm( sTargetPath, true );
+	if ( !bOk ) {
+		QApplication::restoreOverrideCursor();
+		QMessageBox::warning(
+			this, "Hydrogen", tr( "Drumkit deletion failed." )
+		);
+		return;
+	}
+
+	switch ( m_type ) {
+		case SoundLibraryInfo::Type::Drumkit:
+			Hydrogen::get_instance()->getSoundLibraryDatabase()->updateDrumkits(
+				Event::Trigger::Default
+			);
+			break;
+		case SoundLibraryInfo::Type::Pattern:
+			Hydrogen::get_instance()->getSoundLibraryDatabase()->updatePatterns(
+				Event::Trigger::Default
+			);
+			break;
+		default:
+			Hydrogen::get_instance()->getSoundLibraryDatabase()->updateSongs(
+				Event::Trigger::Default
+			);
+	}
+	QApplication::restoreOverrideCursor();
+}
+
+void SoundLibraryTree::actionExport()
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	auto it = m_registry.find( currentItem() );
+	if ( it == m_registry.end() || it->second == nullptr ) {
+		return;
+	}
+
+	if ( m_type == SoundLibraryInfo::Type::Drumkit ) {
+		auto pDrumkit = pHydrogen->getSoundLibraryDatabase()->getDrumkit(
+			it->second->getPath()
+		);
+		if ( pDrumkit == nullptr ) {
+			ERRORLOG( QString( "Unable to find drumkit [%1] at [%2]" )
+						  .arg( it->second->getName() )
+						  .arg( it->second->getPath() ) );
+			return;
+		}
+		// Pass a copy of the kit since we do not want to alter the settings of
+		// the original one.
+		MainForm::exportDrumkit( std::make_shared<Drumkit>( pDrumkit ) );
+	}
+	else {
+		INFOLOG( "not implemented" );
+	}
+}
+void SoundLibraryTree::actionImport()
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	auto it = m_registry.find( currentItem() );
+	if ( it == m_registry.end() || it->second == nullptr ) {
+		return;
+	}
+	if ( m_type == SoundLibraryInfo::Type::Drumkit ) {
+		HydrogenApp::get_instance()->getMainForm()->action_drumkit_import( false
+		);
+	}
+	else {
+		INFOLOG( "not implemented" );
+	}
+}
+void SoundLibraryTree::actionOnlineImport()
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	auto it = m_registry.find( currentItem() );
+	if ( it == m_registry.end() || it->second == nullptr ) {
+		return;
+	}
+
+	HydrogenApp::get_instance()->getMainForm()->action_drumkit_onlineImport();
+}
+
 void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
 {
-	//	INFOLOG( "[mousePressEvent]" );
 	QTreeWidget::mousePressEvent( event );
 
 	auto pEv = static_cast<MouseEvent*>( event );
 
-	if ( event->button() == Qt::RightButton ) {
-		emit rightClicked( pEv->globalPosition().toPoint() );
+	if ( event->button() == Qt::RightButton && ! m_bStandAlone &&
+		 currentItem() != nullptr ) {
+		// Show popup menu
+		auto it = m_registry.find( currentItem() );
+		if ( it != m_registry.end() && it->second != nullptr ) {
+			QMenu* pMenu;
+			if ( it->second->getContext() == Filesystem::Context::System ||
+				 it->second->getContext() ==
+					 Filesystem::Context::SessionReadOnly ) {
+				pMenu = m_pPopupMenuReadOnly;
+			}
+			else {
+				pMenu = m_pPopupMenu;
+			}
+
+			pMenu->popup( pEv->globalPosition().toPoint() );
+		}
 	}
 	else if ( event->button() == Qt::LeftButton ) {
 		emit leftClicked( pEv->globalPosition().toPoint() );
