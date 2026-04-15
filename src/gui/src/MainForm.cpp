@@ -732,16 +732,16 @@ bool MainForm::action_file_save_as()
 
 	// Cache a couple of things we have to restore when under session
 	// management.
-	const QString sLastFileName = pSong->getFileName();
+	const QString sLastPath = pSong->getFileName();
 
-	if ( sLastFileName == Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
+	if ( sLastPath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
 		sDefaultFileName = Filesystem::defaultSongName();
 	}
-	else if ( sLastFileName.isEmpty() ) {
+	else if ( sLastPath.isEmpty() ) {
 		sDefaultFileName = pSong->getName();
 	}
 	else {
-		QFileInfo fileInfo( sLastFileName );
+		QFileInfo fileInfo( sLastPath );
 		sDefaultFileName = fileInfo.completeBaseName();
 	}
 	sDefaultFileName += Filesystem::sSongSuffix;
@@ -749,20 +749,20 @@ bool MainForm::action_file_save_as()
 	fd.selectFile( sDefaultFileName );
 
 	if (fd.exec() == QDialog::Accepted) {
-		QString sNewFileName = fd.selectedFiles().first();
+		QString sNewPath = fd.selectedFiles().first();
 
-		if ( ! sNewFileName.isEmpty() ) {
+		if ( ! sNewPath.isEmpty() ) {
 			pPref->setLastSaveSongAsDirectory( fd.directory().absolutePath( ) );
 
-			if ( ! sNewFileName.endsWith( Filesystem::sSongSuffix ) ) {
-				sNewFileName += Filesystem::sSongSuffix;
+			if ( ! sNewPath.endsWith( Filesystem::sSongSuffix ) ) {
+				sNewPath += Filesystem::sSongSuffix;
 			}
 
 			// We do not use the CoreActionController::saveSongAs
 			// function directly since action_file_save as does some
 			// additional checks and prompts the user a warning dialog
 			// if required.
-			if ( ! action_file_save( sNewFileName ) ) {
+			if ( ! action_file_save( sNewPath ) ) {
 				ERRORLOG( "Unable to save song" );
 				return false;
 			}
@@ -773,25 +773,25 @@ bool MainForm::action_file_save_as()
 		// backup of the song to a different place but keep working on
 		// the original.
 		if ( bUnderSessionManagement ) {
-			pSong->setFileName( sLastFileName );
+			pSong->setFileName( sLastPath );
 
-			h2app->showStatusBarMessage( tr("Song exported as: ") + sDefaultFileName );
+			h2app->showStatusBarMessage( tr("Song exported as: ") + sLastPath );
 			pHydrogen->setSessionIsExported( false );
 		}
 		else {
-			h2app->showStatusBarMessage( tr("Song saved as: ") + sDefaultFileName );
+			h2app->showStatusBarMessage( tr("Song saved as: ") + sNewPath );
 		}
 #else
-		h2app->showStatusBarMessage( tr("Song saved as: ") + sDefaultFileName );
+		h2app->showStatusBarMessage( tr("Song saved as: ") + sNewPath );
 #endif
 
-		if ( sLastFileName == Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
+		if ( sLastPath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
 			// In case we stored the song for the first time, we remove the
 			// autosave file corresponding to the empty one. Else, it might be
 			// loaded later when clicking "New Song" while not generating a new
 			// autosave file.
 			const QString sAutoSaveFile = Filesystem::getAutoSaveFileName(
-				Filesystem::Artifact::Song, sLastFileName );
+				Filesystem::Artifact::Song, sLastPath );
 			if ( Filesystem::fileExists( sAutoSaveFile, true ) ) {
 				Filesystem::rm( sAutoSaveFile );
 			}
