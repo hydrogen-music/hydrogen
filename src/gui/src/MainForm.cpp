@@ -732,7 +732,7 @@ bool MainForm::action_file_save_as()
 
 	// Cache a couple of things we have to restore when under session
 	// management.
-	const QString sLastPath = pSong->getFileName();
+	const QString sLastPath = pSong->getPath();
 
 	if ( sLastPath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
 		sDefaultFileName = Filesystem::defaultSongName();
@@ -773,7 +773,7 @@ bool MainForm::action_file_save_as()
 		// backup of the song to a different place but keep working on
 		// the original.
 		if ( bUnderSessionManagement ) {
-			pSong->setFileName( sLastPath );
+			pSong->setPath( sLastPath );
 
 			h2app->showStatusBarMessage( tr("Song exported as: ") + sLastPath );
 			pHydrogen->setSessionIsExported( false );
@@ -807,7 +807,7 @@ bool MainForm::action_file_save()
 {
 	return action_file_save( "" );
 }
-bool MainForm::action_file_save( const QString& sNewFileName,
+bool MainForm::action_file_save( const QString& sNewPath,
 								 bool bTriggerMessage )
 {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
@@ -817,11 +817,11 @@ bool MainForm::action_file_save( const QString& sNewFileName,
 		return false;
 	}
 	
-	QString sFileName = pSong->getFileName();
+	QString sPath = pSong->getPath();
 
-	if ( sNewFileName.isEmpty() &&
-		 ( sFileName.isEmpty() ||
-		   sFileName == Filesystem::emptyPath( Filesystem::Artifact::Song ) ) ) {
+	if ( sNewPath.isEmpty() &&
+		 ( sPath.isEmpty() ||
+		   sPath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ) ) {
 		// The empty song is treated differently in order to allow
 		// recovering changes and unsaved sessions. Therefore the
 		// users are ask to store a new song using a different file
@@ -866,11 +866,11 @@ bool MainForm::action_file_save( const QString& sNewFileName,
 	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->clearSelection();
 
 	bool bSaved;
-	if ( sNewFileName.isEmpty() ) {
+	if ( sNewPath.isEmpty() ) {
 		bSaved = H2Core::CoreActionController::saveSong( bKeepMissingSamples );
 	} else {
 		bSaved = H2Core::CoreActionController::saveSongAs(
-			sNewFileName, bKeepMissingSamples );
+			sNewPath, bKeepMissingSamples );
 	}
 	
 	if( ! bSaved ) {
@@ -880,7 +880,7 @@ bool MainForm::action_file_save( const QString& sNewFileName,
 
 	if ( bTriggerMessage ) {
 		h2app->showStatusBarMessage( tr("Song saved into") + QString(": ") +
-									 sFileName );
+									 sPath );
 	}
 
 	return true;
@@ -1124,7 +1124,7 @@ void MainForm::openSongWithDialog( const QString& sWindowTitle, const QString& s
 		HydrogenApp::get_instance()->openFile( Filesystem::Artifact::Song, sFileName );
 		if ( bIsDemo &&
 			 ! pHydrogen->isUnderSessionManagement() ) {
-			pHydrogen->getSong()->setFileName( "" );
+			pHydrogen->getSong()->setPath( "" );
 		}
 	}
 
@@ -2282,22 +2282,22 @@ void MainForm::onAutoSaveTimer()
 	auto pPlaylist = pHydrogen->getPlaylist();
 
 	if ( pSong != nullptr && pSong->getIsModified() ) {
-		const QString sOldFileName = pSong->getFileName();
+		const QString sOldPath = pSong->getPath();
 
-		const QString sAutoSaveFileName = Filesystem::getAutoSaveFileName(
-			Filesystem::Artifact::Song, pSong->getFileName() );
-		if ( sAutoSaveFileName != m_sPreviousAutoSaveSongFile ) {
+		const QString sAutoSavePath = Filesystem::getAutoSaveFileName(
+			Filesystem::Artifact::Song, pSong->getPath() );
+		if ( sAutoSavePath != m_sPreviousAutoSaveSongFile ) {
 			if ( ! m_sPreviousAutoSaveSongFile.isEmpty() ) {
 				QFile file( m_sPreviousAutoSaveSongFile );
 				file.remove();
 			}
-			m_sPreviousAutoSaveSongFile = sAutoSaveFileName;
+			m_sPreviousAutoSaveSongFile = sAutoSavePath;
 		}
 			
-		pSong->save( sAutoSaveFileName, /* bKeepMissingSamples */ true,
+		pSong->save( sAutoSavePath, /* bKeepMissingSamples */ true,
 					/* bSilent */ true );
 
-		pSong->setFileName( sOldFileName );
+		pSong->setPath( sOldPath );
 		pSong->setIsModified( true );
 	}
 
@@ -2342,7 +2342,7 @@ void MainForm::onPlaylistDisplayTimer()
 	}
 
 	if ( pSong->getName() == Song::sDefaultName ){
-		songname = pSong->getFileName();
+		songname = pSong->getPath();
 	} else {
 		songname = pSong->getName();
 	}

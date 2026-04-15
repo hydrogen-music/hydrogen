@@ -143,15 +143,15 @@ class MainForm :  public QMainWindow,
 		/**
 		 * Saves the current song to disk.
 		 *
-		 * As Song::m_sFileName is not set by the GUI but by the core, this
-		 * function serves both the "save as" functionality (with sNewFileName
-		 * being non-empty) and the "save" one.
+		 * As Song::m_sPath is not set by the GUI but by the core, this function
+		 * serves both the "save as" functionality (with @a sNewPath being
+		 * non-empty) and the "save" one.
 		 *
 		 * Using @a bTriggerMessage the status message triggered by this method
 		 * can be suppressed (e.g. when the calling routine wants to trigger a
 		 * dedicated message instead).
 		 */
-		bool action_file_save( const QString& sNewFileName,
+		bool action_file_save( const QString& sNewPath,
 							   bool bTriggerMessage = true );
 	bool action_file_save();
 

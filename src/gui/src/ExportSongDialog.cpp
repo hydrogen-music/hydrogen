@@ -255,12 +255,9 @@ QString ExportSongDialog::createDefaultFileName()
 	if ( pSong == nullptr ) {
 		return "";
 	}
-	QString sDefaultFileName = pSong->getFileName();
+	QString sDefaultFileName = pSong->getName();
 
-	// If song is not saved then use song name otherwise use the song filename
-	if( sDefaultFileName.isEmpty() ){
-		sDefaultFileName = pSong->getName();
-	} else {
+	if ( sDefaultFileName.isEmpty() ){
 		// extracting filename from full path
 		QFileInfo qDefaultFile( sDefaultFileName ); 
 		sDefaultFileName = qDefaultFile.fileName();

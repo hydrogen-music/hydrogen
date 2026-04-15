@@ -406,7 +406,7 @@ void PlaylistEditor::addSong()
 void PlaylistEditor::addCurrentSong()
 {
 	const std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	const auto sPath = pSong->getFileName();
+	const auto sPath = pSong->getPath();
 
 	if ( sPath == "" ) {
 		// just in case!
@@ -938,7 +938,7 @@ void PlaylistEditor::playButtonClicked()
 		return;
 	}
 
-	if ( pEntry->getSongPath() != pHydrogen->getSong()->getFileName() ) {
+	if ( pEntry->getSongPath() != pHydrogen->getSong()->getPath() ) {
 
 		if ( ! HydrogenApp::openFile( Filesystem::Artifact::Song,
 									  pEntry->getSongPath() ) ) {

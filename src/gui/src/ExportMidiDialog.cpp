@@ -86,13 +86,11 @@ QString ExportMidiDialog::createDefaultFileName()
 	if ( pSong == nullptr ) {
 		return "";
 	}
-	QString sDefaultFileName = pSong->getFileName();
+	QString sDefaultFileName = pSong->getName();
 
-	if( sDefaultFileName.isEmpty() ){
-		sDefaultFileName = pSong->getName();
-	} else {
+	if ( sDefaultFileName.isEmpty() ){
 		// extracting filename from full path
-		QFileInfo qDefaultFile( sDefaultFileName ); 
+		QFileInfo qDefaultFile( pSong->getPath() );
 		sDefaultFileName = qDefaultFile.fileName();
 	}
 

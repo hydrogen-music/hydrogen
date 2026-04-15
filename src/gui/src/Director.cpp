@@ -126,7 +126,7 @@ void Director::updateSongEvent( int nValue ) {
 		 nValue == 1 ) { // current one saved
 
 		// Update song name
-		QStringList list = pSong->getFileName().split("/");
+		QStringList list = pSong->getPath().split("/");
 
 		if ( !list.isEmpty() ){
 			m_sSongName = list.last().replace( Filesystem::sSongSuffix, "" );

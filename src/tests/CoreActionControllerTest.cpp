@@ -95,25 +95,25 @@ void CoreActionControllerTest::testCountIn() {
 void CoreActionControllerTest::testSessionManagement() {
 	___INFOLOG( "" );
 	auto pHydrogen = Hydrogen::get_instance();
-	auto sFileName = Filesystem::tmpDir().append( "test1.h2song" );
-	auto sFileName2 = Filesystem::tmpDir().append( "test2.h2song" );
+	auto sFilePath = Filesystem::tmpDir().append( "test1.h2song" );
+	auto sFilePath2 = Filesystem::tmpDir().append( "test2.h2song" );
 
 	pHydrogen->setSong( Song::getEmptySong() );
 	
-	QTemporaryFile fileWrongName;
-	CPPUNIT_ASSERT( fileWrongName.open() );
-	const auto sFileNameImproper = fileWrongName.fileName();
+	QTemporaryFile fileWrong;
+	CPPUNIT_ASSERT( fileWrong.open() );
+	const auto sFileNameImproper = fileWrong.fileName();
 
 	// Create a new song with a proper file name and existing and
 	// writable file.
-	sFileName = QString( "%1.h2song" ).arg( sFileNameImproper );
-	QFile fileProperName( sFileName );
-	if ( fileProperName.open( QIODevice::ReadWrite ) ) {
+	sFilePath = QString( "%1.h2song" ).arg( sFileNameImproper );
+	QFile fileProper( sFilePath );
+	if ( fileProper.open( QIODevice::ReadWrite ) ) {
 
 		auto pSong = H2Core::Song::getEmptySong();
-		pSong->setFileName( fileProperName.fileName() );
+		pSong->setPath( fileProper.fileName() );
 		CPPUNIT_ASSERT( H2Core::CoreActionController::setSong( pSong ) );
-		CPPUNIT_ASSERT( sFileName == pHydrogen->getSong()->getFileName() );
+		CPPUNIT_ASSERT( sFilePath == pHydrogen->getSong()->getPath() );
 	
 		// -----------------------------------------------------------
 		// Test CoreActionController::saveSong()
@@ -127,11 +127,11 @@ void CoreActionControllerTest::testSessionManagement() {
 	
 	// Create a new song with proper a file name but no existing file.
 	std::shared_ptr<H2Core::Song> pSong;
-	sFileName2 = QString( "%1_new.h2song" ).arg( sFileNameImproper );
+	sFilePath2 = QString( "%1_new.h2song" ).arg( sFileNameImproper );
 	pSong = H2Core::Song::getEmptySong();
-	pSong->setFileName( sFileName2 );
+	pSong->setPath( sFilePath2 );
 	CPPUNIT_ASSERT( H2Core::CoreActionController::setSong( pSong ) );
-	CPPUNIT_ASSERT( sFileName2 == pHydrogen->getSong()->getFileName() );
+	CPPUNIT_ASSERT( sFilePath2 == pHydrogen->getSong()->getPath() );
 
 	// ---------------------------------------------------------------
 	// Test CoreActionController::loadSong() and ::setSong();
@@ -143,19 +143,19 @@ void CoreActionControllerTest::testSessionManagement() {
 	CPPUNIT_ASSERT( ! H2Core::CoreActionController::setSong( pSong ) );
 	
 	// The previous action should have not affected the current song.
-	CPPUNIT_ASSERT( sFileName2 == pHydrogen->getSong()->getFileName() );
+	CPPUNIT_ASSERT( sFilePath2 == pHydrogen->getSong()->getPath() );
 	CPPUNIT_ASSERT( pSong != pHydrogen->getSong() );
 	
 	// Load the first song (which was saved).
-	pSong = H2Core::CoreActionController::loadSong( sFileName );
+	pSong = H2Core::CoreActionController::loadSong( sFilePath );
 	CPPUNIT_ASSERT( pSong != nullptr );
 	CPPUNIT_ASSERT( H2Core::CoreActionController::setSong( pSong ) );
-	CPPUNIT_ASSERT( sFileName == pHydrogen->getSong()->getFileName() );
+	CPPUNIT_ASSERT( sFilePath == pHydrogen->getSong()->getPath() );
 	CPPUNIT_ASSERT( pSong == pHydrogen->getSong() );
 
 	// Attempt to load the second song. This will fail since it should not be
 	// present on disk.
-	CPPUNIT_ASSERT( H2Core::CoreActionController::loadSong( sFileName2 ) ==
+	CPPUNIT_ASSERT( H2Core::CoreActionController::loadSong( sFilePath2 ) ==
 					nullptr );
 	
 	// ---------------------------------------------------------------
@@ -163,30 +163,30 @@ void CoreActionControllerTest::testSessionManagement() {
 	// ---------------------------------------------------------------
 	
 	// But we can, instead, make a copy of the current song by saving
-	// it to sFileName2.
-	CPPUNIT_ASSERT( H2Core::CoreActionController::saveSongAs( sFileName2, true ) );
+	// it to sFilePath2.
+	CPPUNIT_ASSERT( H2Core::CoreActionController::saveSongAs( sFilePath2, true ) );
 	
 	// Check if everything worked out.
-	pSong = H2Core::CoreActionController::loadSong( sFileName );
+	pSong = H2Core::CoreActionController::loadSong( sFilePath );
 	CPPUNIT_ASSERT( H2Core::CoreActionController::setSong( pSong ) );
-	CPPUNIT_ASSERT( sFileName == pHydrogen->getSong()->getFileName() );
-	pSong = H2Core::CoreActionController::loadSong( sFileName2 );
+	CPPUNIT_ASSERT( sFilePath == pHydrogen->getSong()->getPath() );
+	pSong = H2Core::CoreActionController::loadSong( sFilePath2 );
 	CPPUNIT_ASSERT( H2Core::CoreActionController::setSong( pSong ) );
-	CPPUNIT_ASSERT( sFileName2 == pHydrogen->getSong()->getFileName() );
+	CPPUNIT_ASSERT( sFilePath2 == pHydrogen->getSong()->getPath() );
 
 	// ---------------------------------------------------------------
 	
-	CPPUNIT_ASSERT( fileProperName.remove() );
+	CPPUNIT_ASSERT( fileProper.remove() );
 
 	// ---------------------------------------------------------------
 	
 	pHydrogen->setSong( Song::getEmptySong() );
 
-	if ( QFile::exists( sFileName ) ) {
-		QFile::remove( sFileName );
+	if ( QFile::exists( sFilePath ) ) {
+		QFile::remove( sFilePath );
 	}
-	if ( QFile::exists( sFileName2 ) ) {
-		QFile::remove( sFileName2 );
+	if ( QFile::exists( sFilePath2 ) ) {
+		QFile::remove( sFilePath2 );
 	}
 
 	___INFOLOG( "passed" );

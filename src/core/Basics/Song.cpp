@@ -80,7 +80,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_pPatternList( std::make_shared<PatternList>() )
 	, m_pPatternGroupVector( std::make_shared< std::vector<
 							   std::shared_ptr<PatternList> > >() )
-	, m_sFileName( "" )
+	, m_sPath( "" )
 	, m_loopMode( LoopMode::Disabled )
 	, m_patternMode( PatternMode::Selected )
 	, m_fHumanizeTimeValue( 0.0 )
@@ -186,9 +186,9 @@ bool Song::isPatternActive( const GridPoint& gridPoint ) const {
 }
 
 ///Load a song from file
-std::shared_ptr<Song> Song::load( const QString& sFileName, bool bSilent )
+std::shared_ptr<Song> Song::load( const QString& sInputPath, bool bSilent )
 {
-	QString sPath = Filesystem::absolutePath( sFileName, bSilent );
+	QString sPath = Filesystem::absolutePath( sInputPath, bSilent );
 	if ( sPath.isEmpty() ) {
 		return nullptr;
 	}
@@ -198,9 +198,9 @@ std::shared_ptr<Song> Song::load( const QString& sFileName, bool bSilent )
 	}
 
 	XMLDoc doc;
-	if ( ! doc.read( sFileName ) && ! bSilent ) {
+	if ( ! doc.read( sPath ) && ! bSilent ) {
 		ERRORLOG( QString( "Something went wrong while loading song [%1]" )
-				  .arg( sFileName ) );
+				  .arg( sPath ) );
 	}
 
 	XMLNode songNode = doc.firstChildElement( "song" );
@@ -214,21 +214,21 @@ std::shared_ptr<Song> Song::load( const QString& sFileName, bool bSilent )
 		QString sSongVersion = songNode.read_string( "version", "Unknown version", false, false );
 		if ( sSongVersion != QString( get_version().c_str() ) ) {
 			INFOLOG( QString( "Trying to load a song [%1] created with a different version [%2] of hydrogen. Current version: %3" )
-					 .arg( sFileName )
+					 .arg( sPath )
 					 .arg( sSongVersion )
 					 .arg( get_version().c_str() ) );
 		}
 	}
 
-	auto pSong = Song::loadFrom( songNode, sFileName, bSilent );
+	auto pSong = Song::loadFrom( songNode, sPath, bSilent );
 	if ( pSong != nullptr ) {
-		pSong->setFileName( sFileName );
+		pSong->setPath( sPath );
 	}
 
 	return pSong;
 }
 
-std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sFileName, bool bSilent )
+std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
 {
 	auto pPreferences = Preferences::get_instance();
 	auto pSong = std::make_shared<Song>();
@@ -290,7 +290,7 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		pSong->setMode( Song::Mode::Pattern );
 	}
 
-	const auto sSongPath = Filesystem::absolutePath( sFileName );
+	const auto sSongPath = Filesystem::absolutePath( sPath );
 
 	const XMLNode playbackTrackNode =
 		rootNode.firstChildElement( "playbackTrack" );
@@ -734,22 +734,22 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 	}
 
 /// Save a song to file
-bool Song::save( const QString& sFileName, bool bKeepMissingSamples, bool bSilent )
+bool Song::save( const QString& sPath, bool bKeepMissingSamples, bool bSilent )
 {
-	QFileInfo fi( sFileName );
-	if ( ( Filesystem::fileExists( sFileName, true ) &&
-		   ! Filesystem::fileWritable( sFileName, true ) ) ||
-		 ( ! Filesystem::fileExists( sFileName, true ) &&
+	QFileInfo fi( sPath );
+	if ( ( Filesystem::fileExists( sPath, true ) &&
+		   ! Filesystem::fileWritable( sPath, true ) ) ||
+		 ( ! Filesystem::fileExists( sPath, true ) &&
 		   ! Filesystem::dirWritable( fi.dir().absolutePath(), true ) ) ) {
 		// In case a read-only file is loaded by Hydrogen. Beware:
 		// .isWritable() will return false if the song does not exist.
 		ERRORLOG( QString( "Unable to save song to [%1]. Path is not writable!" )
-				  .arg( sFileName ) );
+				  .arg( sPath ) );
 		return false;
 	}
 
 	if ( ! bSilent ) {
-		INFOLOG( QString( "Saving song to [%1]" ).arg( sFileName ) );
+		INFOLOG( QString( "Saving song to [%1]" ).arg( sPath ) );
 	}
 
 	XMLDoc doc;
@@ -763,11 +763,11 @@ bool Song::save( const QString& sFileName, bool bKeepMissingSamples, bool bSilen
 
 	saveTo( rootNode, bKeepMissingSamples, bSilent );
 
-	setFileName( sFileName );
+	setPath( sPath );
 	setIsModified( false );
 
-	if ( ! doc.write( sFileName ) ) {
-		ERRORLOG( QString( "Error writing song to [%1]" ).arg( sFileName ) );
+	if ( ! doc.write( sPath ) ) {
+		ERRORLOG( QString( "Error writing song to [%1]" ).arg( sPath ) );
 		return false;
 	}
 
@@ -1028,7 +1028,7 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 	pPatternGroupVector->push_back( patternSequence );
 	pSong->setPatternGroupVector( pPatternGroupVector );
 
-	pSong->setFileName( Filesystem::emptyPath( Filesystem::Artifact::Song ) );
+	pSong->setPath( Filesystem::emptyPath( Filesystem::Artifact::Song ) );
 
 	std::shared_ptr<SoundLibraryDatabase> pSoundLibraryDatabase;
 
@@ -1281,8 +1281,8 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			sOutput.append( QString( "%1%2m_pDrumkit: nullptr\n" ).arg( sPrefix )
 							.arg( s ) );
 		}
-		sOutput.append( QString( "%1%2m_sFileName: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_sFileName ) )
+		sOutput.append( QString( "%1%2m_sPath: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sPath ) )
 			.append( QString( "%1%2m_loopMode: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( LoopModeToQString( m_loopMode ) ) )
 			.append( QString( "%1%2m_patternMode: %3\n" ).arg( sPrefix ).arg( s )
@@ -1359,7 +1359,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( ", m_pDrumkit: nullptr" );
 		}
-		sOutput.append( QString( ", m_sFileName: %1" ).arg( m_sFileName ) )
+		sOutput.append( QString( ", m_sPath: %1" ).arg( m_sPath ) )
 			.append( QString( ", m_loopMode: %1" )
 					 .arg( LoopModeToQString( m_loopMode ) ) )
 			.append( QString( ", m_patternMode: %1" )

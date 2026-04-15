@@ -488,7 +488,7 @@ int main(int argc, char *argv[])
 		// the modification flag. This does not apply in case we are
 		// restoring unsaved changes applied to an empty song during
 		// the previous session.
-		if ( pHydrogen->getSong()->getFileName() !=
+		if ( pHydrogen->getSong()->getPath() !=
 			 H2Core::Filesystem::emptyPath(
 				 H2Core::Filesystem::Artifact::Song ) ) {
 #ifdef H2CORE_HAVE_OSC

@@ -826,7 +826,7 @@ std::shared_ptr<Song> CoreActionController::loadSong( const QString& sPath,
 		// Use an autosave file to load the playlist
 		pSong = Song::load( sRecoverPath );
 		if ( pSong != nullptr ) {
-			pSong->setFileName( sPath );
+			pSong->setPath( sPath );
 		} else {
 			ERRORLOG( QString( "Unable to recover changes from [%1]. Loading [%2] instead." )
 					  .arg( sRecoverPath ).arg( sPath ) );
@@ -877,7 +877,7 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 		// empty songs - created and set when hitting "New Song" in
 		// the main menu - aren't listed either.
 
-		if ( pSong->getFileName() ==
+		if ( pSong->getPath() ==
 			 Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
 			// To indicate that the user closed the previous song in favor of a
 			// new one, we store an empty string. This way the changes from the
@@ -885,8 +885,8 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 			Preferences::get_instance()->setLastSongFileName( "" );
 		}
 		else {
-			insertRecentFile( pSong->getFileName() );
-			Preferences::get_instance()->setLastSongFileName( pSong->getFileName() );
+			insertRecentFile( pSong->getPath() );
+			Preferences::get_instance()->setLastSongFileName( pSong->getPath() );
 		}
 	}
 
@@ -897,9 +897,9 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 	}
 
 	// In case the song is read-only, autosave won't work.
-	if ( ! Filesystem::fileWritable( pSong->getFileName() ) ) {
+	if ( ! Filesystem::fileWritable( pSong->getPath() ) ) {
 		WARNINGLOG( QString( "You don't have permissions to write to the song found in path [%1]. It will be opened as read-only (no autosave)." )
-					.arg( pSong->getFileName() ));
+					.arg( pSong->getPath() ));
 		EventQueue::get_instance()->pushEvent( Event::Type::UpdateSong, 2 );
 	}
 
@@ -920,7 +920,7 @@ bool CoreActionController::saveSong( bool bKeepMissingSamples ) {
 	}
 	
 	// Extract the path to the associate .h2song file.
-	QString sSongPath = pSong->getFileName();
+	QString sSongPath = pSong->getPath();
 	
 	if ( sSongPath.isEmpty() ) {
 		ERRORLOG( "Unable to save song. Empty filename!" );
@@ -975,8 +975,7 @@ bool CoreActionController::saveSongAs( const QString& sNewFileName,
 		return false;
 	}
 
-	QString sPreviousFileName( pSong->getFileName() );
-	pSong->setFileName( sNewFileName );
+	pSong->setPath( sNewFileName );
 	
 	// Actual saving
 	if ( ! saveSong( bKeepMissingSamples ) ) {
@@ -987,7 +986,7 @@ bool CoreActionController::saveSongAs( const QString& sNewFileName,
 	// with the new one.
 	insertRecentFile( sNewFileName );
 	if ( ! pHydrogen->isUnderSessionManagement() ) {
-		Preferences::get_instance()->setLastSongFileName( pSong->getFileName() );
+		Preferences::get_instance()->setLastSongFileName( pSong->getPath() );
 	}
 
 	EventQueue::get_instance()->pushEvent( Event::Type::UpdateSong, 1 );

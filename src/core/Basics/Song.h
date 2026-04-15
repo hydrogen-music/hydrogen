@@ -136,16 +136,16 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		static std::shared_ptr<Song> getEmptySong(
 			std::shared_ptr<SoundLibraryDatabase> pDB = nullptr );
 
-	static std::shared_ptr<Song> 	load( const QString& sFileName, bool bSilent = false );
+	static std::shared_ptr<Song> 	load( const QString& sPath, bool bSilent = false );
 	/** Writes the song as .h2song to disk.
 	 *
-	 * @param sFileName Absolute path to write the song to.
+	 * @param sPath Absolute path to write the song to.
 	 * @param bKeepMissingSamples Whether layers containing a missing sample
 	 *   should be kept or discarded.
 	 * \param bSilent if set to true, all log messages except of errors and
 	 *   warnings are suppressed.
 	 */
-	bool 			save( const QString& sFileName, bool bKeepMissingSamples,
+	bool 			save( const QString& sPath, bool bKeepMissingSamples,
 						 bool bSilent = false );
 
 	bool getIsTimelineActivated() const;
@@ -207,8 +207,8 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		void			setAuthor( const QString& sAuthor );
 		const QString&		getAuthor() const;
 
-		const QString&		getFileName() const;
-		void			setFileName( const QString& sFileName );
+		const QString&		getPath() const;
+		void			setPath( const QString& sPath );
 							
 		const LoopMode&	getLoopMode() const;
 		void			setLoopMode( const LoopMode& loopMode );
@@ -321,7 +321,7 @@ private:
 		 * `SoundLibraryDatabase` or is a brand new kit. */
 		std::shared_ptr<Drumkit> m_pDrumkit;
 
-		QString			m_sFileName;
+		QString			m_sPath;
 
 		/**
 		 * The three states of this enum is just a way to handle the
@@ -541,14 +541,14 @@ inline const QString& Song::getAuthor() const
 	return m_sAuthor;
 }
 
-inline const QString& Song::getFileName() const
+inline const QString& Song::getPath() const
 {
-	return m_sFileName;
+	return m_sPath;
 }
 
-inline void Song::setFileName( const QString& sFileName )
+inline void Song::setPath( const QString& sPath )
 {
-	m_sFileName = sFileName;
+	m_sPath = sPath;
 }
 
 inline bool Song::isLoopEnabled() const

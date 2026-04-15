@@ -72,7 +72,7 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 	setupLicenseComboBox( licenseComboBox );
 
 	if ( pSong != nullptr ) {
-		m_pPathEdit->setText( pSong->getFileName() );
+		m_pPathEdit->setText( pSong->getPath() );
 		versionSpinBox->setValue( pSong->getVersion() );
 		songNameTxt->setText( pSong->getName() );
 

@@ -697,7 +697,7 @@ bool HydrogenApp::handleUnsavedChanges( const H2Core::Filesystem::Artifact& type
 			bool bOk;
 
 			if ( type == Filesystem::Artifact::Song ) {
-				if ( ! pSong->getFileName().isEmpty() ) {
+				if ( ! pSong->getPath().isEmpty() ) {
 					bOk = pHydrogenApp->getMainForm()->action_file_save();
 				} else {
 					// never been saved
@@ -815,7 +815,7 @@ void HydrogenApp::updateWindowTitle()
 	QString sTitle;
 
 	QString sSongName( pSong->getName() );
-	QString sFilePath( pSong->getFileName() );
+	QString sFilePath( pSong->getPath() );
 
 	if ( sFilePath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ||
 		 sFilePath.isEmpty() ) {
