@@ -994,7 +994,7 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples,
 std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> pDB )
 {
 	std::shared_ptr<Song> pSong =
-		std::make_shared<Song>( Filesystem::untitledSongName(), "hydrogen",
+		std::make_shared<Song>( Song::sDefaultName, Song::sDefaultAuthor,
 								120, 0.5 );
 
 	pSong->setMetronomeVolume( 0.5 );
