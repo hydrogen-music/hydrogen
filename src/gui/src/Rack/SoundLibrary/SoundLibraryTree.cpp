@@ -267,7 +267,7 @@ void SoundLibraryTree::actionLoad()
 		);
 		if ( pDrumkit == nullptr ) {
 			ERRORLOG( QString( "Unable to find drumkit [%1] at [%2]" )
-						  .arg( it->second->getName() )
+						  .arg( it->second->getLabel() )
 						  .arg( it->second->getPath() ) );
 			return;
 		}
@@ -317,7 +317,7 @@ void SoundLibraryTree::actionProperties()
 		);
 		if ( pDrumkit == nullptr ) {
 			ERRORLOG( QString( "Unable to find drumkit [%1] at [%2]" )
-						  .arg( it->second->getName() )
+						  .arg( it->second->getLabel() )
 						  .arg( it->second->getPath() ) );
 			return;
 		}
@@ -346,7 +346,7 @@ void SoundLibraryTree::actionDuplicate()
 		);
 		if ( pDrumkit == nullptr ) {
 			ERRORLOG( QString( "Unable to find drumkit [%1] at [%2]" )
-						  .arg( it->second->getName() )
+						  .arg( it->second->getLabel() )
 						  .arg( it->second->getPath() ) );
 			return;
 		}
@@ -383,7 +383,7 @@ void SoundLibraryTree::actionDelete()
 		QMessageBox::warning(
 			this, "Hydrogen",
 			QString( "%1 [%2] " )
-				.arg( it->second->getName() )
+				.arg( it->second->getLabel() )
 				.arg( it->second->getPath() )
 				.append( tr( "is a read-only and can't be deleted." ) )
 		);
@@ -442,7 +442,7 @@ void SoundLibraryTree::actionDelete()
 				tr( "It is not possible to delete drumkit: \n  [%1]\nIt "
 					"contains "
 					"samples used and loaded in the current song kit." )
-					.arg( it->second->getName() )
+					.arg( it->second->getLabel() )
 			);
 			return;
 		}
@@ -452,7 +452,7 @@ void SoundLibraryTree::actionDelete()
 			 this, "Hydrogen",
 			 tr( "Warning, \"%1\" [%2] will be deleted from disk.\nAre "
 				 "you sure?" )
-				 .arg( it->second->getName() )
+				 .arg( it->second->getLabel() )
 				 .arg( sTargetPath ),
 			 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel
 		 ) == QMessageBox::Cancel ) {
@@ -464,7 +464,7 @@ void SoundLibraryTree::actionDelete()
 	INFOLOG( QString( "Removing %1 [%2] at [%3]" )
 				 .arg( SoundLibraryInfo::TypeToQString( it->second->getType() )
 				 )
-				 .arg( it->second->getName() )
+				 .arg( it->second->getLabel() )
 				 .arg( sTargetPath ) );
 	const bool bOk = Filesystem::rm( sTargetPath, true );
 	if ( !bOk ) {
@@ -508,7 +508,7 @@ void SoundLibraryTree::actionExport()
 		);
 		if ( pDrumkit == nullptr ) {
 			ERRORLOG( QString( "Unable to find drumkit [%1] at [%2]" )
-						  .arg( it->second->getName() )
+						  .arg( it->second->getLabel() )
 						  .arg( it->second->getPath() ) );
 			return;
 		}
@@ -625,7 +625,7 @@ void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
 							"Unable to retrieve kit [%1] for instrument [%2]"
 						)
 							.arg( pInstrumentInfo->getPath() )
-							.arg( pInstrumentInfo->getName() )
+							.arg( pInstrumentInfo->getLabel() )
 					);
 					return;
 				}
@@ -636,7 +636,7 @@ void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
 						QString(
 							"Unable to retrieve instrument [%1](%2) from kit [%3]"
 						)
-							.arg( pInstrumentInfo->getName() )
+							.arg( pInstrumentInfo->getLabel() )
 							.arg( static_cast<int>(pInstrumentInfo->getId()) )
 							.arg( pInstrumentInfo->getPath() )
 					);
@@ -652,7 +652,7 @@ void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
 				pPreviewInstrument->setId( Instrument::EmptyId );
 
 				INFOLOG( QString( "Loading instrument [%1] from drumkit [%2]" )
-							 .arg( pInstrumentInfo->getName() )
+							 .arg( pInstrumentInfo->getLabel() )
 							 .arg( pInstrumentInfo->getPath() ) );
 
 				pPreviewInstrument->setMuted( false );
@@ -826,13 +826,13 @@ void SoundLibraryTree::addNodes(
 
 	for ( const auto& [ssPath, ppInfo] : fileInfos ) {
 		auto pFileItem = new QTreeWidgetItem( pParent );
-		QString sDisplayName = ppInfo->getName();
-		if ( sDisplayName.isEmpty() ) {
+		QString sDisplayLabel = ppInfo->getLabel();
+		if ( sDisplayLabel.isEmpty() ) {
 			// Fallback to filename without extension
 			QFileInfo fi( ppInfo->getPath() );
-			sDisplayName = fi.completeBaseName();
+			sDisplayLabel = fi.completeBaseName();
 		}
-		pFileItem->setText( 0, sDisplayName );
+		pFileItem->setText( 0, sDisplayLabel );
 		m_registry[pFileItem] = ppInfo;
 
 		if ( ppInfo->getType() == SoundLibraryInfo::Type::Drumkit ) {
@@ -842,11 +842,11 @@ void SoundLibraryTree::addNodes(
 				for ( const auto& ppInstrumentInfo :
 					  pDrumkitInfo->getInstrumentInfos() ) {
 					auto pInstrumentItem = new QTreeWidgetItem( pFileItem );
-					QString sDisplayName = ppInstrumentInfo->getName();
-					if ( sDisplayName.isEmpty() ) {
-						sDisplayName = ppInstrumentInfo->getType();
+					QString sInstrumentLabel = ppInstrumentInfo->getLabel();
+					if ( sInstrumentLabel.isEmpty() ) {
+						sInstrumentLabel = ppInstrumentInfo->getType();
 					}
-					pInstrumentItem->setText( 0, sDisplayName );
+					pInstrumentItem->setText( 0, sInstrumentLabel );
 					pInstrumentItem->setIcon(
 						0, QIcon( sIconPath + "speaker.svg" )
 					);
