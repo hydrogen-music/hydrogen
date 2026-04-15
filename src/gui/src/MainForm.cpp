@@ -142,7 +142,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFileName,
 	// We need no fallback for the playlist as a new one corresponds to an empty
 	// one.
 	openFile( Filesystem::Artifact::Playlist, sPlaylistFileName,
-			  pPref->getLastPlaylistFileName() );
+			  pPref->getLastPlaylistPath() );
 
 	QFont font( pPref->getFontTheme()->m_sApplicationFontFamily,
 			   getPointSize( pPref->getFontTheme()->m_fontSize ) );

@@ -391,8 +391,8 @@ class Preferences : public H2Core::Object<Preferences> {
 
 	const QString& getLastSongPath() const;
 	void setLastSongPath( const QString& sPath );
-	const QString& getLastPlaylistFileName() const;
-	void setLastPlaylistFileName( const QString& sFileName );
+	const QString& getLastPlaylistPath() const;
+	void setLastPlaylistPath( const QString& sPath );
 
 	bool getHearNewNotes() const;
 	void setHearNewNotes( bool value );
@@ -596,7 +596,7 @@ class Preferences : public H2Core::Object<Preferences> {
 
 	///< Last song used
 	QString m_sLastSongPath;
-	QString m_sLastPlaylistFileName;
+	QString m_sLastPlaylistPath;
 
 	bool m_bHearNewNotes;
 	int m_nPunchInPos;
@@ -981,13 +981,13 @@ inline const QString& Preferences::getLastSongPath() const
 	return m_sLastSongPath;
 }
 
-inline void Preferences::setLastPlaylistFileName( const QString& sFileName )
+inline void Preferences::setLastPlaylistPath( const QString& sPath )
 {
-	m_sLastPlaylistFileName = sFileName;
+	m_sLastPlaylistPath = sPath;
 }
-inline const QString& Preferences::getLastPlaylistFileName() const
+inline const QString& Preferences::getLastPlaylistPath() const
 {
-	return m_sLastPlaylistFileName;
+	return m_sLastPlaylistPath;
 }
 
 inline void Preferences::setHearNewNotes( bool value )

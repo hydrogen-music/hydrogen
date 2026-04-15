@@ -133,7 +133,7 @@ Preferences::Preferences()
 	  m_bShowDevelWarning( false ),
 	  m_bShowNoteOverwriteWarning( true ),
 	  m_sLastSongPath( "" ),
-	  m_sLastPlaylistFileName( "" ),
+	  m_sLastPlaylistPath( "" ),
 	  m_bHearNewNotes( true ),
 	  m_bQuantizeEvents( true ),
 	  m_recentFiles( QStringList() ),
@@ -321,7 +321,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	  m_bShowDevelWarning( pOther->m_bShowDevelWarning ),
 	  m_bShowNoteOverwriteWarning( pOther->m_bShowNoteOverwriteWarning ),
 	  m_sLastSongPath( pOther->m_sLastSongPath ),
-	  m_sLastPlaylistFileName( pOther->m_sLastPlaylistFileName ),
+	  m_sLastPlaylistPath( pOther->m_sLastPlaylistPath ),
 	  m_bHearNewNotes( pOther->m_bHearNewNotes ),
 	  m_nPunchInPos( pOther->m_nPunchInPos ),
 	  m_nPunchOutPos( pOther->m_nPunchOutPos ),
@@ -1253,8 +1253,8 @@ Preferences::load( const QString& sPath, const bool bSilent )
 		pPref->m_sLastSongPath = filesNode.read_string(
 			"lastSongFilename", pPref->m_sLastSongPath, false, true, bSilent
 		);
-		pPref->m_sLastPlaylistFileName = filesNode.read_string(
-			"lastPlaylistFilename", pPref->m_sLastPlaylistFileName, false, true,
+		pPref->m_sLastPlaylistPath = filesNode.read_string(
+			"lastPlaylistFilename", pPref->m_sLastPlaylistPath, false, true,
 			bSilent
 		);
 		pPref->m_sDefaultEditor = filesNode.read_string(
@@ -1829,7 +1829,7 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 		// last used song
 		filesNode.write_string( "lastSongFilename", m_sLastSongPath );
 		filesNode.write_string(
-			"lastPlaylistFilename", m_sLastPlaylistFileName
+			"lastPlaylistFilename", m_sLastPlaylistPath
 		);
 		filesNode.write_string( "defaulteditor", m_sDefaultEditor );
 	}
@@ -2338,10 +2338,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_sLastSongPath ) )
-				.append( QString( "%1%2m_sLastPlaylistFileName: %3\n" )
+				.append( QString( "%1%2m_sLastPlaylistPath: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( m_sLastPlaylistFileName ) )
+							 .arg( m_sLastPlaylistPath ) )
 				.append( QString( "%1%2m_bHearNewNotes: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -2730,8 +2730,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( m_bShowNoteOverwriteWarning ) )
 				.append( QString( ", m_sLastSongPath: %1" )
 							 .arg( m_sLastSongPath ) )
-				.append( QString( ", m_sLastPlaylistFileName: %1" )
-							 .arg( m_sLastPlaylistFileName ) )
+				.append( QString( ", m_sLastPlaylistPath: %1" )
+							 .arg( m_sLastPlaylistPath ) )
 				.append(
 					QString( ", m_bHearNewNotes: %1" ).arg( m_bHearNewNotes )
 				)

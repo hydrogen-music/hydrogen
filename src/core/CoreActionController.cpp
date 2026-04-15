@@ -2901,10 +2901,10 @@ bool CoreActionController::setPlaylist( std::shared_ptr<Playlist> pPlaylist ) {
 		// To indicate that the user closed the previous playlsit in favor
 		// of a new one, we store an empty string. This way the changes from
 		// the empty playlist can be recovered.
-		Preferences::get_instance()->setLastPlaylistFileName( "" );
+		Preferences::get_instance()->setLastPlaylistPath( "" );
 	}
 	else {
-		Preferences::get_instance()->setLastPlaylistFileName(
+		Preferences::get_instance()->setLastPlaylistPath(
 			pPlaylist->getFileName() );
 	}
 
@@ -2952,7 +2952,7 @@ bool CoreActionController::savePlaylistAs( const QString& sPath ) {
 
 	pPlaylist->setIsModified( false );
 
-	Preferences::get_instance()->setLastPlaylistFileName( sPath );
+	Preferences::get_instance()->setLastPlaylistPath( sPath );
 
 	EventQueue::get_instance()->pushEvent( Event::Type::PlaylistChanged, 0 );
 
