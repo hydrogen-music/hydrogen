@@ -418,7 +418,7 @@ int main(int argc, char *argv[])
 			}
 			else {
 				/* Try load last song */
-				const QString sSongPath = pPref->getLastSongFileName();
+				const QString sSongPath = pPref->getLastSongPath();
 				if ( ! sSongPath.isEmpty() ) {
 					pSong = CoreActionController::loadSong( sSongPath, "" );
 				}

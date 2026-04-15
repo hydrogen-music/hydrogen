@@ -134,7 +134,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFileName,
 	// loaded Song.
 	if ( ! pHydrogen->isUnderSessionManagement() ) {
 		if ( ! openFile( Filesystem::Artifact::Song, sSongFileName,
-						 pPref->getLastSongFileName() ) ) {
+						 pPref->getLastSongPath() ) ) {
 			// Fall back to an empty song.
 			HydrogenApp::openSong( H2Core::Song::getEmptySong() );		}
 	}

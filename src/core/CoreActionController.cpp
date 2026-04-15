@@ -882,11 +882,11 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 			// To indicate that the user closed the previous song in favor of a
 			// new one, we store an empty string. This way the changes from the
 			// empty song can be recovered.
-			Preferences::get_instance()->setLastSongFileName( "" );
+			Preferences::get_instance()->setLastSongPath( "" );
 		}
 		else {
 			insertRecentFile( pSong->getPath() );
-			Preferences::get_instance()->setLastSongFileName( pSong->getPath() );
+			Preferences::get_instance()->setLastSongPath( pSong->getPath() );
 		}
 	}
 
@@ -986,7 +986,7 @@ bool CoreActionController::saveSongAs( const QString& sNewFileName,
 	// with the new one.
 	insertRecentFile( sNewFileName );
 	if ( ! pHydrogen->isUnderSessionManagement() ) {
-		Preferences::get_instance()->setLastSongFileName( pSong->getPath() );
+		Preferences::get_instance()->setLastSongPath( pSong->getPath() );
 	}
 
 	EventQueue::get_instance()->pushEvent( Event::Type::UpdateSong, 1 );

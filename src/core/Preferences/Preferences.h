@@ -389,8 +389,8 @@ class Preferences : public H2Core::Object<Preferences> {
 	bool getShowNoteOverwriteWarning() const;
 	void setShowNoteOverwriteWarning( bool bValue );
 
-	const QString& getLastSongFileName() const;
-	void setLastSongFileName( const QString& sFileName );
+	const QString& getLastSongPath() const;
+	void setLastSongPath( const QString& sPath );
 	const QString& getLastPlaylistFileName() const;
 	void setLastPlaylistFileName( const QString& sFileName );
 
@@ -595,7 +595,7 @@ class Preferences : public H2Core::Object<Preferences> {
 	bool m_bShowNoteOverwriteWarning;
 
 	///< Last song used
-	QString m_sLastSongFileName;
+	QString m_sLastSongPath;
 	QString m_sLastPlaylistFileName;
 
 	bool m_bHearNewNotes;
@@ -972,13 +972,13 @@ inline bool Preferences::getUseRelativeFileNamesForPlaylists() const
 	return m_bUseRelativeFileNamesForPlaylists;
 }
 
-inline void Preferences::setLastSongFileName( const QString& sFileName )
+inline void Preferences::setLastSongPath( const QString& sPath )
 {
-	m_sLastSongFileName = sFileName;
+	m_sLastSongPath = sPath;
 }
-inline const QString& Preferences::getLastSongFileName() const
+inline const QString& Preferences::getLastSongPath() const
 {
-	return m_sLastSongFileName;
+	return m_sLastSongPath;
 }
 
 inline void Preferences::setLastPlaylistFileName( const QString& sFileName )
