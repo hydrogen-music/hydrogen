@@ -67,7 +67,7 @@
 #include "SongPropertiesDialog.h"
 #include "Rack/SoundLibrary/SoundLibraryOnlineImportDialog.h"
 #include "Rack/SoundLibrary/DrumkitOpenDialog.h"
-#include "Rack/SoundLibrary/DrumkitPropertiesDialog.h"
+#include "DrumkitPropertiesDialog.h"
 #include "UndoActions.h"
 #include "Widgets/FileDialog.h"
 #include "Widgets/InfoBar.h"

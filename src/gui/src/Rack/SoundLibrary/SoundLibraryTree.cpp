@@ -41,7 +41,7 @@
 #include <core/SoundLibrary/InstrumentInfo.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
-#include "DrumkitPropertiesDialog.h"
+#include "../../DrumkitPropertiesDialog.h"
 #include "SoundLibraryPanel.h"
 #include "../../CommonStrings.h"
 #include "../../Compatibility/MouseEvent.h"
