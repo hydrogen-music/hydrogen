@@ -2341,7 +2341,7 @@ void MainForm::onPlaylistDisplayTimer()
 		return;
 	}
 
-	if ( pSong->getName() == "Untitled Song" ){
+	if ( pSong->getName() == Song::sDefaultName ){
 		songname = pSong->getFileName();
 	} else {
 		songname = pSong->getName();

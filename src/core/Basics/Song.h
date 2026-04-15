@@ -114,13 +114,16 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	};
 		static QString PatternModeToQString( const PatternMode& patternMode );
 
+		static QString sDefaultName;
+		static QString sDefaultAuthor;
+
 		/** Please do not #H2Core::Hydrogen::setSong() a song created using this
 		 * constructor. It is just a minimal version with not all its members
 		 * properly initialized and can causes crashes (in the
 		 * #H2Core::AudioEngine) when used directly. Please use getEmptySong()
 		 * instead. */
-		Song( const QString& sName = "Untitled Song",
-			  const QString& sAuthor = "Unknown Author",
+		Song( const QString& sName = Song::sDefaultName,
+			  const QString& sAuthor = Song::sDefaultAuthor,
 			  float fBpm = 120,
 			  float fVolume = 0.5 );
 		~Song();

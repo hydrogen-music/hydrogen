@@ -200,8 +200,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	/** Default option to offer the user when saving an empty song
 		to disk.*/
 	static QString defaultSongName();
-	/** returns untitled song name */
-	static QString untitledSongName();
 	/** Returns a string containing the path to the
 		_click.wav_ file used in the metronome.
 		*

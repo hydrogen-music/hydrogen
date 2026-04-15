@@ -73,7 +73,6 @@
 
 #define AUTOSAVE "autosave"
 
-#define UNTITLED_SONG "Untitled Song"
 #define UNTITLED_PLAYLIST "untitled.h2playlist"
 
 // filters
@@ -783,10 +782,6 @@ QString Filesystem::emptyPath( const Artifact& artifact )
 	return sPath;
 }
 
-QString Filesystem::untitledSongName()
-{
-	return UNTITLED_SONG;
-}
 QString Filesystem::untitledPlaylistFileName()
 {
 	return UNTITLED_PLAYLIST;

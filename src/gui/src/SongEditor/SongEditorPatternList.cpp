@@ -504,7 +504,7 @@ void SongEditorPatternList::patternPopup_duplicate()
 	// here.
 	if ( pNewPattern->getAuthor().isEmpty() &&
 		 pSong->getAuthor() != "hydrogen" &&
-		 pSong->getAuthor() != "Unknown Author" ) {
+		 pSong->getAuthor() != Song::sDefaultAuthor ) {
 		pNewPattern->setAuthor( pSong->getAuthor() );
 	}
 	if ( pNewPattern->getLicense().isEmpty() &&

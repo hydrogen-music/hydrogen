@@ -812,7 +812,7 @@ void HydrogenApp::updateWindowTitle()
 		return;
 	}
 
-	QString sTitle = Filesystem::untitledSongName();
+	QString sTitle;
 
 	QString sSongName( pSong->getName() );
 	QString sFilePath( pSong->getFileName() );
@@ -824,10 +824,13 @@ void HydrogenApp::updateWindowTitle()
 		if ( ! sSongName.isEmpty() ) {
 			sTitle = sSongName;
 		}
+        else {
+            sTitle = Song::sDefaultName;
+        }
 	} else {
 		QFileInfo fileInfo( sFilePath );
 
-		if ( sSongName == Filesystem::untitledSongName() ||
+		if ( sSongName == Song::sDefaultName ||
 			 sSongName == fileInfo.completeBaseName() ) {
 			// The user did not alter the default name of the song or
 			// set the song name but also named the corresponding file

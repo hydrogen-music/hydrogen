@@ -20,8 +20,11 @@
  *
  */
 
-#include <QRegularExpression>
 #include "core/License.h"
+
+#include <QRegularExpression>
+
+#include <core/Basics/Song.h>
 
 namespace H2Core {
 
@@ -40,7 +43,7 @@ void License::setType( const LicenseType& license ) {
 bool License::isEmpty() const {
 	if ( m_license == License::Unspecified &&
 		 ( m_sCopyrightHolder.isEmpty() ||
-		   m_sCopyrightHolder == "Unknown Author" ) ) {
+		   m_sCopyrightHolder == Song::sDefaultAuthor ) ) {
 		return true;
 	}
 

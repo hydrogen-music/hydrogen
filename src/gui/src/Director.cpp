@@ -133,7 +133,7 @@ void Director::updateSongEvent( int nValue ) {
 
 			// if songname is not set, default on an empty song, we call them "Untitled Song".
 			if( m_sSongName.isEmpty() ){
-				m_sSongName = QString("Untitled Song");
+				m_sSongName = Song::sDefaultName;
 			}
 		}
 

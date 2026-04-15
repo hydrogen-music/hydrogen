@@ -63,6 +63,9 @@ namespace
 namespace H2Core
 {
 
+QString Song::sDefaultName = "Untitled Song";
+QString Song::sDefaultAuthor = "Unknown Author";
+
 Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume )
 	: m_bIsTimelineActivated( false )
 	, m_bIsMuted( false )
@@ -97,7 +100,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_bWasAskedAboutMissingSamples( false )
 {
 	if ( m_sName.isEmpty() ){
-		m_sName = Filesystem::untitledSongName();
+		m_sName = Song::sDefaultName;
 	}
 	INFOLOG( QString( "INIT '%1'" ).arg( m_sName ) );
 
