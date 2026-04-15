@@ -122,6 +122,25 @@ SoundLibraryTree::SoundLibraryTree(
 	m_pPopupMenuReadOnly = new QMenu( this );
 	addDrumkitActions( m_pPopupMenuReadOnly, false );
 
+	// Select the expanded node (in case it is a drumkit). Else selecting an
+	// instrument would cause preview sounds of that instrument on each
+	// subsequent drumkit expanding.
+	if ( m_type == SoundLibraryInfo::Type::Drumkit ) {
+		auto selectItem = [&]( QTreeWidgetItem* pItem ) {
+			if ( pItem == nullptr ) {
+				return;
+			}
+			auto it = m_registry.find( pItem );
+			if ( it != m_registry.end() && it->second != nullptr &&
+				 it->second->getType() == SoundLibraryInfo::Type::Drumkit ) {
+				setCurrentItem( pItem );
+			}
+		};
+
+		connect( this, &QTreeWidget::itemCollapsed, selectItem );
+		connect( this, &QTreeWidget::itemExpanded, selectItem );
+	}
+
 	connect( this, &QTreeWidget::currentItemChanged, [&]() {
 		m_pSoundLibraryPanel->updateDetailView();
 		if ( m_bStandAlone && currentItem() != nullptr ) {
