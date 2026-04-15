@@ -91,13 +91,25 @@ SoundLibraryTree::SoundLibraryTree(
 		if ( !bWritable ) {
 			pDeleteAction->setEnabled( false );
 		}
-		pMenu->addAction(
-			pCommonStrings->getMenuActionExport(), this, SLOT( actionExport() )
-		);
-		pMenu->addSeparator();
-		pMenu->addAction(
-			pCommonStrings->getMenuActionImport(), this, SLOT( actionImport() )
-		);
+		if ( m_type == SoundLibraryInfo::Type::Drumkit ) {
+			// Only for drumkits we support the notion of import/export in the
+			// Sound Library to convert between their bundled and extracted
+			// versions. For songs "export" is already in use for rendering to
+			// audio and both songs and patterns can be easily moved using a
+			// file browser.
+			pMenu->addAction(
+				pCommonStrings->getMenuActionExport(), this,
+				SLOT( actionExport() )
+			);
+			pMenu->addSeparator();
+			pMenu->addAction(
+				pCommonStrings->getMenuActionImport(), this,
+				SLOT( actionImport() )
+			);
+		}
+		else {
+			pMenu->addSeparator();
+		}
 		pMenu->addAction(
 			pCommonStrings->getMenuActionOnlineImport(), this,
 			SLOT( actionOnlineImport() )
@@ -485,9 +497,6 @@ void SoundLibraryTree::actionExport()
 		// the original one.
 		MainForm::exportDrumkit( std::make_shared<Drumkit>( pDrumkit ) );
 	}
-	else {
-		INFOLOG( "not implemented" );
-	}
 }
 void SoundLibraryTree::actionImport()
 {
@@ -499,9 +508,6 @@ void SoundLibraryTree::actionImport()
 	if ( m_type == SoundLibraryInfo::Type::Drumkit ) {
 		HydrogenApp::get_instance()->getMainForm()->action_drumkit_import( false
 		);
-	}
-	else {
-		INFOLOG( "not implemented" );
 	}
 }
 void SoundLibraryTree::actionOnlineImport()
