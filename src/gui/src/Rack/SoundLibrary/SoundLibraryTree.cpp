@@ -396,7 +396,7 @@ void SoundLibraryTree::actionDelete()
 		// If we delete a kit containing samples used and loaded in the current
 		// song's drumkit, we get into trouble.
 		if ( pHydrogen->getSong() == nullptr ||
-			 pHydrogen->getSong()->getDrumkit() ) {
+			 pHydrogen->getSong()->getDrumkit() == nullptr ) {
 			return;
 		}
 		auto pDrumkit = pHydrogen->getSong()->getDrumkit();
