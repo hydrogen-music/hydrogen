@@ -483,6 +483,9 @@ CommonStrings::CommonStrings(){
 	/*: Label of the text input in pattern/song/drumkit properties dialog to
 	 *  fill in notes about the particular artifact. */
 	m_sNotesDialog = tr( "Notes" );
+	/*: Label of the read-only text input in pattern/song/drumkit properties
+	 *  dialog displaying the absolute file backing the particular artifact. */
+	m_sPathDialog = tr( "Path" );
 	
 	// Not used yet.
 	/*: Displayed in the Open dialog window if the selected song could

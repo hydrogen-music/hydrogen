@@ -296,6 +296,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getLicenseDialog() const { return m_sLicenseDialog; }
 	const QString& getAuthorDialog() const { return m_sAuthorDialog; }
 	const QString& getNotesDialog() const { return m_sNotesDialog; }
+	const QString& getPathDialog() const { return m_sPathDialog; }
 
 	// const QString& getDialogSongLoadError() const { return
 	// m_sDialogSongLoadError; } const QString& getDialogUnsavedChangesH1()
@@ -823,6 +824,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sLicenseDialog;
 	QString m_sAuthorDialog;
 	QString m_sNotesDialog;
+	QString m_sPathDialog;
 
 	// Not used yet. A redesign of the GUI startup is required first
 	// since these strings are required _before_ HydrogenApp was

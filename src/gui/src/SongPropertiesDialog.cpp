@@ -64,6 +64,7 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 	// Allow to save the dialog by pressing Return.
 	okBtn->setFocus();
 
+    m_pPathLabel->setText( pCommonStrings->getPathDialog() );
 	versionLabel->setText( pCommonStrings->getVersionDialog() );
 
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
@@ -71,6 +72,7 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 	setupLicenseComboBox( licenseComboBox );
 
 	if ( pSong != nullptr ) {
+		m_pPathEdit->setText( pSong->getFileName() );
 		versionSpinBox->setValue( pSong->getVersion() );
 		songNameTxt->setText( pSong->getName() );
 
@@ -85,6 +87,7 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 		}
 		m_pTagEdit->setTags( pSong->getTags() );
 	}
+	m_pPathEdit->setIsActive( false );
 
 	connect( licenseComboBox, SIGNAL( currentIndexChanged( int ) ),
 			 this, SLOT( licenseComboBoxChanged( int ) ) );

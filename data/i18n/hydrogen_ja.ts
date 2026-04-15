@@ -1550,6 +1550,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Node in the Sound Library corresponding to artifacts installed on * user-level.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Path</source>
+        <extracomment>Label of the read-only text input in pattern/song/drumkit properties * dialog displaying the absolute file backing the particular artifact.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
