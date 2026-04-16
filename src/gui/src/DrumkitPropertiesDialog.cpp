@@ -92,8 +92,8 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 	versionLabel->setText( pCommonStrings->getVersionDialog() );
 	notesLabel->setText( pCommonStrings->getNotesDialog() );
 
+	m_pPathLabel->setText( pCommonStrings->getPathDialog() );
 	m_pTagsLabel->setText( pCommonStrings->getTagsLabel() );
-	m_pTagEdit->setTags( pDrumkit->getTags() );
 
 	if ( bSaveToNsmSession &&
 		 ! Hydrogen::get_instance()->isUnderSessionManagement() ) {
@@ -141,6 +141,9 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 		authorTxt->setText( QString( pDrumkit->getAuthor() ) );
 		infoTxt->append( QString( pDrumkit->getInfo() ) );
 
+		m_pPathEdit->setText( pDrumkit->getPath() );
+		m_pTagEdit->setTags( pDrumkit->getTags() );
+
 		License license = pDrumkit->getLicense();
 		licenseComboBox->setCurrentIndex( static_cast<int>( license.getType() ) );
 		licenseStringTxt->setText( license.getLicenseString() );
@@ -155,6 +158,8 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 		imageLicenseComboBox->setCurrentIndex( static_cast<int>( imageLicense.getType() ) );
 		imageLicenseStringTxt->setText( imageLicense.getLicenseString() );
 	}
+
+	m_pPathEdit->setIsActive( false );
 
 	if ( licenseComboBox->currentIndex() == static_cast<int>( License::Unspecified ) ) {
 		licenseStringLbl->hide();
