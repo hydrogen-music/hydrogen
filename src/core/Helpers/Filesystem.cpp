@@ -1393,7 +1393,7 @@ QString Filesystem::getAutoSaveFileName(
 				.arg( sExtension );
 
 		if ( !Filesystem::fileWritable( sAbsolutePath, true ) ) {
-			QString sNewName = QString( "%1.%2.autosave%3" )
+			QString sNewName = QString( "%1/.%2.autosave%3" )
 								   .arg( sDefaultDir )
 								   .arg( sBaseName )
 								   .arg( sExtension );
