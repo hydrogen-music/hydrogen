@@ -321,7 +321,13 @@ private:
 		 * `SoundLibraryDatabase` or is a brand new kit. */
 		std::shared_ptr<Drumkit> m_pDrumkit;
 
-		QString			m_sPath;
+		/** Absolute path to the underlying artifact serving as an unique
+		 * identifier of the artifact throughout Hydrogen.
+		 *
+		 * In case is no file backing the resource (yet), an path to an
+		 * non-existing file retrieved via #Filesystem::emptyPath will be used
+		 * instead. */
+		QString m_sPath;
 
 		/**
 		 * The three states of this enum is just a way to handle the
