@@ -2867,7 +2867,7 @@ std::shared_ptr<Playlist> CoreActionController::loadPlaylist( const QString& sPa
 		// Use an autosave file to load the playlist
 		pPlaylist = Playlist::load( sRecoverPath );
 		if ( pPlaylist != nullptr ) {
-			pPlaylist->setFileName( sPath );
+			pPlaylist->setPath( sPath );
 		} else {
 			ERRORLOG( QString( "Unable to recover changes from [%1]. Loading [%2] instead." )
 					  .arg( sRecoverPath ).arg( sPath ) );
@@ -2896,7 +2896,7 @@ bool CoreActionController::setPlaylist( std::shared_ptr<Playlist> pPlaylist ) {
 	}
 	pHydrogen->setPlaylist( pPlaylist );
 
-	if ( pPlaylist->getFileName() ==
+	if ( pPlaylist->getPath() ==
 		 Filesystem::emptyPath( Filesystem::Artifact::Playlist ) ) {
 		// To indicate that the user closed the previous playlsit in favor
 		// of a new one, we store an empty string. This way the changes from
@@ -2905,15 +2905,15 @@ bool CoreActionController::setPlaylist( std::shared_ptr<Playlist> pPlaylist ) {
 	}
 	else {
 		Preferences::get_instance()->setLastPlaylistPath(
-			pPlaylist->getFileName() );
+			pPlaylist->getPath() );
 	}
 
 	EventQueue::get_instance()->pushEvent( Event::Type::PlaylistChanged, 0 );
 
 	// In case the playlist is read-only, autosave won't work.
-	if ( ! Filesystem::fileWritable( pPlaylist->getFileName() ) ) {
+	if ( ! Filesystem::fileWritable( pPlaylist->getPath() ) ) {
 		WARNINGLOG( QString( "You don't have permissions to write to the playlist found in path [%1]. It will be opened as read-only (no autosave)." )
-					.arg( pPlaylist->getFileName() ));
+					.arg( pPlaylist->getPath() ));
 		EventQueue::get_instance()->pushEvent( Event::Type::PlaylistChanged, 2 );
 	}
 

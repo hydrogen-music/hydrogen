@@ -705,7 +705,7 @@ bool HydrogenApp::handleUnsavedChanges( const H2Core::Filesystem::Artifact& type
 				}
 			}
 			else {
-				if ( ! pPlaylist->getFileName().isEmpty() ) {
+				if ( ! pPlaylist->getPath().isEmpty() ) {
 					bOk = pHydrogenApp->getPlaylistEditor()->savePlaylist();
 				} else {
 					// never been saved

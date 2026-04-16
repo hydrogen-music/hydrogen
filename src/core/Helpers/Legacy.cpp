@@ -362,7 +362,7 @@ std::shared_ptr<Playlist> Legacy::load_playlist( const QString& sPath )
 	}
 
 	auto pPlaylist = std::make_shared<Playlist>();
-	pPlaylist->setFileName( sPath );
+	pPlaylist->setPath( sPath );
 
 	XMLNode songsNode = root.firstChildElement( "Songs" );
 	if ( !songsNode.isNull() ) {

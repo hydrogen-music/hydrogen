@@ -2302,10 +2302,10 @@ void MainForm::onAutoSaveTimer()
 	}
 
 	if ( pPlaylist != nullptr && pPlaylist->getIsModified() ) {
-		const QString sOldFileName = pPlaylist->getFileName();
+		const QString sOldFileName = pPlaylist->getPath();
 
 		const QString sAutoSaveFileName = Filesystem::getAutoSaveFileName(
-			Filesystem::Artifact::Playlist, pPlaylist->getFileName() );
+			Filesystem::Artifact::Playlist, pPlaylist->getPath() );
 		if ( sAutoSaveFileName != m_sPreviousAutoSavePlaylistFile ) {
 			if ( ! m_sPreviousAutoSavePlaylistFile.isEmpty() ) {
 				QFile file( m_sPreviousAutoSavePlaylistFile );
@@ -2316,7 +2316,7 @@ void MainForm::onAutoSaveTimer()
 
 		pPlaylist->saveAs( sAutoSaveFileName );
 
-		pPlaylist->setFileName( sOldFileName );
+		pPlaylist->setPath( sOldFileName );
 		pPlaylist->setIsModified( true );
 
 	}

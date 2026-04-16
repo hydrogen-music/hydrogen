@@ -34,7 +34,7 @@ const QString PlaylistEntry::sLegacyEmptyScriptPath = "no Script";
 
 Playlist::Playlist() : m_nActiveSongNumber( -1 ),
 					   m_bIsModified( false ) {
-	m_sFileName = Filesystem::emptyPath( Filesystem::Artifact::Playlist );
+	m_sPath = Filesystem::emptyPath( Filesystem::Artifact::Playlist );
 }
 
 void Playlist::clear()
@@ -90,7 +90,7 @@ std::shared_ptr<Playlist> Playlist::load( const QString& sPath )
 	}
 
 	auto pPlaylist = std::make_shared<Playlist>();
-	pPlaylist->setFileName( fileInfo.absoluteFilePath() );
+	pPlaylist->setPath( fileInfo.absoluteFilePath() );
 
 	XMLNode songsNode = rootNode.firstChildElement( "songs" );
 	if ( !songsNode.isNull() ) {
@@ -135,22 +135,22 @@ std::shared_ptr<Playlist> Playlist::load( const QString& sPath )
 bool Playlist::saveAs( const QString& sTargetPath, bool bSilent ) {
 	if ( ! bSilent  ) {
 		INFOLOG( QString( "Saving playlist [%1] as [%2]" )
-				 .arg( m_sFileName ).arg( sTargetPath ) );
+				 .arg( m_sPath ).arg( sTargetPath ) );
 	}
 
-	setFileName( sTargetPath );
+	setPath( sTargetPath );
 
 	return save( true );
 }
 
 bool Playlist::save( bool bSilent ) const {
-	if ( m_sFileName.isEmpty() ) {
+	if ( m_sPath.isEmpty() ) {
 		ERRORLOG( "No filepath provided!" );
 		return false;
 	}
 
 	if ( ! bSilent ) {
-		INFOLOG( QString( "Saving playlist to [%1]" ).arg( m_sFileName ) );
+		INFOLOG( QString( "Saving playlist to [%1]" ).arg( m_sPath ) );
 	}
 
 	XMLDoc doc;
@@ -159,12 +159,12 @@ bool Playlist::save( bool bSilent ) const {
 	root.write_int( "formatVersion", nCurrentFormatVersion );
 
 	saveTo( root );
-	return doc.write( m_sFileName );
+	return doc.write( m_sPath );
 }
 
 void Playlist::saveTo( XMLNode& node ) const
 {
-	QFileInfo fileInfo( m_sFileName );
+	QFileInfo fileInfo( m_sPath );
 
 	XMLNode songs = node.createNode( "songs" );
 
@@ -342,7 +342,7 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Playlist]\n" ).arg( sPrefix )
-			.append( QString( "%1%2m_sFileName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sFileName ) )
+			.append( QString( "%1%2m_sPath: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sPath ) )
 			.append( QString( "%1%2entries:\n" ).arg( sPrefix ).arg( s ) );
 		if ( size() > 0 ) {
 			for ( const auto& pEntry : m_entries ) {
@@ -354,7 +354,7 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 		.append( QString( "%1%2m_bIsModified: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsModified ) );
 	} else {
 		sOutput = QString( "[Playlist]" )
-			.append( QString( " m_sFileName: %1" ).arg( m_sFileName ) )
+			.append( QString( " m_sPath: %1" ).arg( m_sPath ) )
 			.append( ", entries: {" );
 		if ( size() > 0 ) {
 			for ( const auto& pEntry : m_entries ) {

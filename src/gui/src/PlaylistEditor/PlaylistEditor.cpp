@@ -85,7 +85,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 
 	const auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
 	setWindowTitle( sWindowTitleBase + QString(" - ") +
-					 pPlaylist->getFileName() );
+					 pPlaylist->getPath() );
 
 	installEventFilter( this );
 
@@ -446,7 +446,7 @@ void PlaylistEditor::newPlaylist()
 	}
 
 	auto pNewPlaylist = std::make_shared<Playlist>();
-	pNewPlaylist->setFileName(
+	pNewPlaylist->setPath(
 		Filesystem::emptyPath( Filesystem::Artifact::Playlist ) );
 	auto pAction = new SE_replacePlaylistAction( pNewPlaylist );
 	m_pUndoStack->push( pAction );
@@ -630,7 +630,7 @@ bool PlaylistEditor::savePlaylistAs() {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pPlaylist = pHydrogen->getPlaylist();
-	const auto sLastFileName = pPlaylist->getFileName();
+	const auto sLastFileName = pPlaylist->getPath();
 
 	QString sPath = pPref->getLastPlaylistDirectory();
 	if ( ! Filesystem::dirWritable( sPath, false ) ){
@@ -682,8 +682,8 @@ bool PlaylistEditor::savePlaylist()
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pPlaylist = pHydrogen->getPlaylist();
 
-	if ( pPlaylist->getFileName().isEmpty() ||
-		 pPlaylist->getFileName() ==
+	if ( pPlaylist->getPath().isEmpty() ||
+		 pPlaylist->getPath() ==
 		 Filesystem::emptyPath( Filesystem::Artifact::Playlist ) ) {
 		return savePlaylistAs();
 	}
@@ -1084,10 +1084,10 @@ void PlaylistEditor::updateWindowTitle() {
 
 
 	QString sWindowTitle = tr( "Playlist Browser" );
-	if ( ! pPlaylist->getFileName().isEmpty() &&
-		 pPlaylist->getFileName() !=
+	if ( ! pPlaylist->getPath().isEmpty() &&
+		 pPlaylist->getPath() !=
 		 Filesystem::emptyPath( Filesystem::Artifact::Playlist ) ) {
-		sWindowTitle.append( QString(" - %1").arg( pPlaylist->getFileName() ) );
+		sWindowTitle.append( QString(" - %1").arg( pPlaylist->getPath() ) );
 	}
 
 	if ( pPlaylist->getIsModified() ) {
