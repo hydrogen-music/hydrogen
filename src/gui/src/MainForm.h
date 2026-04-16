@@ -295,8 +295,6 @@ class MainForm :  public QMainWindow,
 
 		void checkNecessaryDirectories();
 
-		QString getAutoSaveFileName();
-
 		InfoBar *m_pMidiSetupInfoBar;
 		InfoBar *m_pMissingSamplesInfoBar;
 

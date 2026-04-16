@@ -665,7 +665,7 @@ bool PlaylistEditor::savePlaylistAs() {
 		// autosave file corresponding to the empty one. Else, it might be
 		// loaded later when clicking "New Playlist" while not generating a new
 		// autosave file.
-		const QString sAutoSaveFile = Filesystem::getAutoSaveFileName(
+		const QString sAutoSaveFile = Filesystem::getAutoSavePath(
 			Filesystem::Artifact::Playlist, sLastFileName );
 		if ( Filesystem::fileExists( sAutoSaveFile, true ) ) {
 			Filesystem::rm( sAutoSaveFile );

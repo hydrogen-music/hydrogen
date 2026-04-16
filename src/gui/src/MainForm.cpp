@@ -790,7 +790,7 @@ bool MainForm::action_file_save_as()
 			// autosave file corresponding to the empty one. Else, it might be
 			// loaded later when clicking "New Song" while not generating a new
 			// autosave file.
-			const QString sAutoSaveFile = Filesystem::getAutoSaveFileName(
+			const QString sAutoSaveFile = Filesystem::getAutoSavePath(
 				Filesystem::Artifact::Song, sLastPath );
 			if ( Filesystem::fileExists( sAutoSaveFile, true ) ) {
 				Filesystem::rm( sAutoSaveFile );
@@ -2284,7 +2284,7 @@ void MainForm::onAutoSaveTimer()
 	if ( pSong != nullptr && pSong->getIsModified() ) {
 		const QString sOldPath = pSong->getPath();
 
-		const QString sAutoSavePath = Filesystem::getAutoSaveFileName(
+		const QString sAutoSavePath = Filesystem::getAutoSavePath(
 			Filesystem::Artifact::Song, pSong->getPath() );
 		if ( sAutoSavePath != m_sPreviousAutoSaveSongFile ) {
 			if ( ! m_sPreviousAutoSaveSongFile.isEmpty() ) {
@@ -2302,21 +2302,21 @@ void MainForm::onAutoSaveTimer()
 	}
 
 	if ( pPlaylist != nullptr && pPlaylist->getIsModified() ) {
-		const QString sOldFileName = pPlaylist->getPath();
+		const QString sOldPath = pPlaylist->getPath();
 
-		const QString sAutoSaveFileName = Filesystem::getAutoSaveFileName(
+		const QString sAutoSavePath = Filesystem::getAutoSavePath(
 			Filesystem::Artifact::Playlist, pPlaylist->getPath() );
-		if ( sAutoSaveFileName != m_sPreviousAutoSavePlaylistFile ) {
+		if ( sAutoSavePath != m_sPreviousAutoSavePlaylistFile ) {
 			if ( ! m_sPreviousAutoSavePlaylistFile.isEmpty() ) {
 				QFile file( m_sPreviousAutoSavePlaylistFile );
 				file.remove();
 			}
-			m_sPreviousAutoSavePlaylistFile = sAutoSaveFileName;
+			m_sPreviousAutoSavePlaylistFile = sAutoSavePath;
 		}
 
-		pPlaylist->saveAs( sAutoSaveFileName );
+		pPlaylist->saveAs( sAutoSavePath );
 
-		pPlaylist->setPath( sOldFileName );
+		pPlaylist->setPath( sOldPath );
 		pPlaylist->setIsModified( true );
 
 	}

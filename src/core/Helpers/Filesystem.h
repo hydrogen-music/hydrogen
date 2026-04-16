@@ -474,7 +474,7 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	removeUniquePrefix( const QString& sUniqueFilePath, bool bSilent = false );
 
 	static QString
-	getAutoSaveFileName( const Artifact& artifact, const QString& sBaseName );
+	getAutoSavePath( const Artifact& artifact, const QString& sBaseName );
 	/** Removes all characters not within the Latin-1 range of @a
 	 * sEncodedString. */
 	static QString removeUtf8Characters( const QString& sEncodedString );

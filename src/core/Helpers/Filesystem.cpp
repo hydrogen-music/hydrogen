@@ -1353,7 +1353,7 @@ Filesystem::removeUniquePrefix( const QString& sUniqueFilePath, bool bSilent )
 	}
 }
 
-QString Filesystem::getAutoSaveFileName(
+QString Filesystem::getAutoSavePath(
 	const Artifact& artifact,
 	const QString& sBaseName
 )
