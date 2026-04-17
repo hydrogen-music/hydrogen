@@ -313,6 +313,8 @@ void SoundLibraryTree::actionProperties()
 		return;
 	}
 
+	auto pDB = pHydrogen->getSoundLibraryDatabase();
+
 	if ( m_type == SoundLibraryInfo::Type::Drumkit ) {
 		auto pDrumkit = pHydrogen->getSoundLibraryDatabase()->getDrumkit(
 			it->second->getPath()
@@ -340,9 +342,10 @@ void SoundLibraryTree::actionProperties()
 		}
 
 		PatternPropertiesDialog dialog( this, pPattern, -1, true );
-		dialog.exec();
-
-		pPattern->save( pPattern->getPath() );
+		if ( dialog.exec() == QDialog::Accepted ) {
+			pPattern->save( pPattern->getPath() );
+			pDB->updatePatterns( Event::Trigger::Default );
+		}
 	}
 	else {
 		auto pSong = Song::from( it->second );
@@ -354,9 +357,10 @@ void SoundLibraryTree::actionProperties()
 		}
 
 		SongPropertiesDialog dialog( this, pSong );
-		dialog.exec();
-
-		pSong->save( pSong->getPath(), true, true );
+		if ( dialog.exec() == QDialog::Accepted ) {
+			pSong->save( pSong->getPath(), true, true );
+			pDB->updateSongs( Event::Trigger::Default );
+		}
 	}
 }
 void SoundLibraryTree::actionDuplicate()
