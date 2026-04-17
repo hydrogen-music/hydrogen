@@ -178,11 +178,10 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 		*pLegacyFormatEncountered = true;
 	}
 
-
 	pDrumkit->m_sPath = sDrumkitPath;
 	pDrumkit->m_sName = sDrumkitName;
 	pDrumkit->m_nVersion = node.read_int(
-		"userVersion", pDrumkit->getVersion(), true, false, bSilent );
+		"userVersion", pDrumkit->getVersion(), true, false, true );
 	pDrumkit->m_sAuthor = node.read_string( "author", pDrumkit->getAuthor(),
 											true, true, true );
 	pDrumkit->m_sInfo = node.read_string( "info", pDrumkit->getInfo(),
