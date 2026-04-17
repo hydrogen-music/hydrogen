@@ -359,15 +359,15 @@ QString Drumkit::getExportName() const {
 	return Filesystem::validateFilePath( m_sName );
 }
 
-bool Drumkit::save( const QString& sDrumkitPath, bool bSilent )
+bool Drumkit::save( const QString& sPath, bool bSilent )
 {
-	QString sDrumkitFile( sDrumkitPath );
-	if ( sDrumkitPath.isEmpty() ) {
+	QString sDrumkitPath( sPath );
+	if ( sPath.isEmpty() ) {
 		if ( m_sPath.isEmpty() ) {
 			ERRORLOG( "Unable to save drumkit" );
 			return false;
 		}
-		sDrumkitFile = m_sPath;
+		sDrumkitPath = m_sPath;
 	}
 
 	const QString sDrumkitFolder =
