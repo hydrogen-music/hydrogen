@@ -102,7 +102,6 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	if ( m_sName.isEmpty() ){
 		m_sName = Song::sDefaultName;
 	}
-	INFOLOG( QString( "INIT '%1'" ).arg( m_sName ) );
 
 	m_pVelocityAutomationPath = new AutomationPath(0.0f, 1.5f,  1.0f);
 }
@@ -116,8 +115,6 @@ Song::~Song()
 	 */
 
 	delete m_pVelocityAutomationPath;
-
-	INFOLOG( QString( "DESTROY '%1'" ).arg( m_sName ) );
 }
 
 void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
