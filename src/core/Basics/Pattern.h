@@ -39,6 +39,7 @@ class Drumkit;
 class XMLNode;
 class InstrumentList;
 class PatternList;
+class SoundLibraryInfo;
 
 /**
 Pattern class is a Note container
@@ -67,6 +68,10 @@ class Pattern : public H2Core::Object<Pattern> {
 	Pattern();
 	Pattern( std::shared_ptr<Pattern> pOther );
 	~Pattern();
+
+	static std::shared_ptr<Pattern> from(
+		std::shared_ptr<SoundLibraryInfo> pInfo
+	);
 
 	/**
 	 * load a pattern from a file

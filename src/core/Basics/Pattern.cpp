@@ -32,6 +32,7 @@
 #include <core/Helpers/Legacy.h>
 #include <core/Hydrogen.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 
 namespace H2Core
 {
@@ -80,6 +81,23 @@ Pattern::Pattern( std::shared_ptr<Pattern> pOther )
 
 Pattern::~Pattern()
 {
+}
+
+std::shared_ptr<Pattern> Pattern::from( std::shared_ptr<SoundLibraryInfo> pInfo
+)
+{
+	if ( pInfo == nullptr ) {
+		return nullptr;
+	}
+
+	auto pPattern = Pattern::load( pInfo->getPath() );
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Unable to load pattern from [%1]" )
+					  .arg( pInfo->toQString() ) );
+		return nullptr;
+	}
+
+	return pPattern;
 }
 
 std::shared_ptr<Pattern>
