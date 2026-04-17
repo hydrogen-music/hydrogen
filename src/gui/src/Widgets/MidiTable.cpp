@@ -177,7 +177,6 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 	eventParameterSpinner->setSize( QSize( m_nColumn2Width, m_nRowHeight ) );
 	setCellWidget( oldRowCount , 2, eventParameterSpinner );
 	eventParameterSpinner->setMaximum( 999 );
-	eventParameterSpinner->setValue( eventParameter );
 	connect( eventParameterSpinner, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( sendChanged() ) );
 
@@ -196,7 +195,6 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 	actionParameterSpinner1->setSize( QSize( m_nColumn4Width, m_nRowHeight ) );
 	setCellWidget( oldRowCount , 4, actionParameterSpinner1 );
 	actionParameterSpinner1->setMaximum( 999 );
-	actionParameterSpinner1->setValue( pAction->getParameter1().toInt(&ok,10) );
 	actionParameterSpinner1->hide();
 	connect( actionParameterSpinner1, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( sendChanged() ) );
@@ -205,7 +203,6 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 	actionParameterSpinner2->setSize( QSize( m_nColumn5Width, m_nRowHeight ) );
 	setCellWidget( oldRowCount , 5, actionParameterSpinner2 );
 	actionParameterSpinner2->setMaximum( std::max(MAX_FX, MAX_COMPONENTS) );
-	actionParameterSpinner2->setValue( pAction->getParameter2().toInt(&ok,10) );
 	actionParameterSpinner2->hide();
 	connect( actionParameterSpinner2, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( sendChanged() ) );
@@ -214,10 +211,16 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 	actionParameterSpinner3->setSize( QSize( m_nColumn6Width, m_nRowHeight ) );
 	setCellWidget( oldRowCount , 6, actionParameterSpinner3 );
 	actionParameterSpinner3->setMaximum( H2Core::InstrumentComponent::getMaxLayers() );
-	actionParameterSpinner3->setValue( pAction->getParameter3().toInt(&ok,10) );
 	actionParameterSpinner3->hide();
 	connect( actionParameterSpinner3, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( sendChanged() ) );
+
+	// Update the bounds of each widget before setting the actual value.
+	updateRow( oldRowCount );
+	eventParameterSpinner->setValue( eventParameter );
+	actionParameterSpinner1->setValue( pAction->getParameter1().toInt(&ok, 10) );
+	actionParameterSpinner2->setValue( pAction->getParameter2().toInt(&ok, 10) );
+	actionParameterSpinner3->setValue( pAction->getParameter3().toInt(&ok, 10) );
 }
 
 void MidiTable::setupMidiTable()
