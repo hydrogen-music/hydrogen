@@ -168,9 +168,6 @@ Instrument::Type DrumkitMap::getType( Instrument::Id id ) const
 {
 	const auto it = m_mapping.find( id );
 	if ( it == m_mapping.end() ) {
-		WARNINGLOG(
-			QString( "No type found for id [%1]" ).arg( static_cast<int>( id ) )
-		);
 		return "";
 	}
 
