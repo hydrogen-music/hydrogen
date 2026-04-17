@@ -1004,7 +1004,6 @@ QString Filesystem::sanitizeDrumkitPath( const QString& sDrumkitPath )
 		return Filesystem::drumkitPathFromDir( sDrumkitPath );
 	}
 	else {
-		ERRORLOG( QString( "Invalid drumkit path [%1]" ).arg( sDrumkitPath ) );
 		return "";
 	}
 }
