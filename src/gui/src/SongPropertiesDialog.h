@@ -25,9 +25,16 @@
 
 
 #include "ui_SongPropertiesDialog_UI.h"
+
+#include <memory>
+
 #include "Widgets/WidgetWithLicenseProperty.h"
 
 #include <core/Object.h>
+
+namespace H2Core {
+class Song;
+}
 
 /**
  * Song Properties Dialog
@@ -36,23 +43,26 @@
 class SongPropertiesDialog : public QDialog,
 							 protected WidgetWithLicenseProperty,
 							 private Ui_SongPropertiesDialog_UI,
-							 public H2Core::Object<SongPropertiesDialog>
-{
-	H2_OBJECT(SongPropertiesDialog)
+							 public H2Core::Object<SongPropertiesDialog> {
+	H2_OBJECT( SongPropertiesDialog )
 	Q_OBJECT
 
-	public:
-		explicit SongPropertiesDialog(QWidget* parent);
-		~SongPropertiesDialog();
+   public:
+	explicit SongPropertiesDialog(
+		QWidget* parent,
+		std::shared_ptr<H2Core::Song> pSong
+	);
+	~SongPropertiesDialog();
 
-	private slots:
-		void on_cancelBtn_clicked();
-		void on_okBtn_clicked();
+   private slots:
+	void on_cancelBtn_clicked();
+	void on_okBtn_clicked();
 	void licenseComboBoxChanged( int );
 
-	private:
-		void updatePatternLicenseTable();
+   private:
+	void updatePatternLicenseTable();
 
+	std::shared_ptr<H2Core::Song> m_pSong;
 };
 
 #endif

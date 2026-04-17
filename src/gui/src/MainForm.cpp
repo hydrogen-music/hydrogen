@@ -2218,17 +2218,17 @@ void MainForm::errorEvent( int nErrorCode )
 
 void MainForm::action_file_songProperties()
 {
-	if ( H2Core::Hydrogen::get_instance()->getSong() == nullptr ) {
+    auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
 		return;
 	}
 	
-	SongPropertiesDialog *pDialog = new SongPropertiesDialog( this );
-	if ( pDialog->exec() ) {
+	SongPropertiesDialog dialog( this, pSong );
+	if ( dialog.exec() ) {
 		// Ensure the update name is taken into account in the window
 		// title.
 		HydrogenApp::get_instance()->updateWindowTitle();
 	}
-	delete pDialog;
 }
 
 
