@@ -38,13 +38,12 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 	QWidget* pParent,
 	std::shared_ptr<Pattern> pPattern,
 	int nSelectedPattern,
-	bool bSavePattern
+	Action action
 )
 	: QDialog( pParent ),
 	  m_pPattern( pPattern ),
 	  m_nSelectedPattern( nSelectedPattern ),
-	  m_bSavePattern( bSavePattern )
-
+	  m_action( action )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
@@ -97,12 +96,12 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 		}
 		patternDescTxt->setText( pPattern->getInfo() );
 		patternNameTxt->setText( pPattern->getName() );
-		defaultNameCheck( pPattern->getName(), bSavePattern );
+		defaultNameCheck( pPattern->getName(), action & Action::ModifyViaUndo );
 
 		tags = pPattern->getTags();
 	}
 
-	m_pPathEdit->setIsActive( false );
+	m_pPathEdit->setIsActive( action & Action::Duplicate );
 
 	connect(
 		licenseComboBox, SIGNAL( currentIndexChanged( int ) ), this,
@@ -191,7 +190,7 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	auto pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
 	sPattName = pPatternList->findUnusedPatternName( sPattName, m_pPattern );
 
-	if ( m_bSavePattern ) {
+	if ( ! ( m_action & Action::ModifyViaUndo ) ) {
 		if ( m_pPattern->getVersion() != nVersion ) {
 			m_pPattern->setVersion( nVersion );
 		}

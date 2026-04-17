@@ -46,11 +46,22 @@ class PatternPropertiesDialog : public QDialog,
 	H2_OBJECT( PatternPropertiesDialog )
 	Q_OBJECT
    public:
+	enum Action {
+		None = 0x00,
+		/** Instead of writing the changes to the supplied #m_pPattern directly,
+		 * the dialog uses an undo action to exchange the pattern. This is
+		 * suitable for patterns within the pattern list of the current song. */
+		ModifyViaUndo = 0x01,
+		/** Provides the user write access the path of the underlying resource
+		 * as well. */
+		Duplicate = 0x02
+	};
+
 	PatternPropertiesDialog(
 		QWidget* pParent,
 		std::shared_ptr<H2Core::Pattern> pPattern,
 		int nSelectedPattern,
-		bool bSave
+		Action action
 	);
 
 	~PatternPropertiesDialog();
@@ -66,7 +77,7 @@ class PatternPropertiesDialog : public QDialog,
    private:
 	std::shared_ptr<H2Core::Pattern> m_pPattern;
 	int m_nSelectedPattern;
-	bool m_bSavePattern;
+	Action m_action;
 };
 
 #endif

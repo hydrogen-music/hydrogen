@@ -227,7 +227,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 				);
 			if ( pPattern != nullptr ) {
 				PatternPropertiesDialog dialog(
-					this, pPattern, nPattern, false
+					this, pPattern, nPattern,
+					PatternPropertiesDialog::Action::ModifyViaUndo
 				);
 				dialog.exec();
 			}

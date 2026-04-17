@@ -341,7 +341,9 @@ void SoundLibraryTree::actionProperties()
 			return;
 		}
 
-		PatternPropertiesDialog dialog( this, pPattern, -1, true );
+		PatternPropertiesDialog dialog(
+			this, pPattern, -1, PatternPropertiesDialog::Action::None
+		);
 		if ( dialog.exec() == QDialog::Accepted ) {
 			pPattern->save( pPattern->getPath() );
 			pDB->updatePatterns( Event::Trigger::Default );

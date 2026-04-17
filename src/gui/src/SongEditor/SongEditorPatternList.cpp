@@ -432,11 +432,11 @@ void SongEditorPatternList::patternPopup_properties()
 
 	auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
 
-	PatternPropertiesDialog* dialog =
-		new PatternPropertiesDialog( this, pPattern, m_nRowClicked, false );
-	dialog->exec();
-	delete dialog;
-	dialog = nullptr;
+	PatternPropertiesDialog dialog(
+		this, pPattern, m_nRowClicked,
+		PatternPropertiesDialog::Action::ModifyViaUndo
+	);
+	dialog.exec();
 }
 
 void SongEditorPatternList::patternPopup_delete()
@@ -512,14 +512,13 @@ void SongEditorPatternList::patternPopup_duplicate()
 		pNewPattern->setLicense( pSong->getLicense() );
 	}
 
-	PatternPropertiesDialog* dialog =
-		new PatternPropertiesDialog( this, pNewPattern, m_nRowClicked, true );
-
-	if ( dialog->exec() != QDialog::Accepted ) {
-		delete dialog;
+	PatternPropertiesDialog dialog(
+		this, pNewPattern, m_nRowClicked,
+		PatternPropertiesDialog::Action::ModifyViaUndo
+	);
+	if ( dialog.exec() != QDialog::Accepted ) {
 		return;
 	}
-	delete dialog;
 
 	pHydrogenApp->beginUndoMacro( pCommonStrings->getActionDuplicatePattern() );
 	pHydrogenApp->pushUndoCommand( new SE_insertPatternAction(
