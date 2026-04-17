@@ -906,12 +906,9 @@ QStringList Filesystem::listContent(
 
 	// In case of session folders, targetDirs can return more than one folder.
 	// But in generel there will be only one.
-	const auto sDirs = Filesystem::targetDirs( artifact, context );
-	if ( sDirs.isEmpty() ) {
-		ERRORLOG( QString( "Unable to find search folder for [%1] on [%2] level"
-		)
-					  .arg( ArtifactToQString( artifact ) )
-					  .arg( ContextToQString( context ) ) );
+	const auto dirs = Filesystem::targetDirs( artifact, context );
+	if ( dirs.size() == 0 ) {
+        // No content in this context.
 		return content;
 	}
 
@@ -919,7 +916,7 @@ QStringList Filesystem::listContent(
 
 	// Recursively traverse all target folders and return all files matching the
 	// filter.
-	for ( auto ssDir : sDirs ) {
+	for ( auto ssDir : dirs ) {
 		if ( !sUserDirOverwrite.isEmpty() &&
 			 ssDir.contains( userDataPath() ) ) {
 			ERRORLOG( "sUserDirOverwrite must only be used in unit tests!" );
