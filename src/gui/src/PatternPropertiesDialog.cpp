@@ -34,11 +34,13 @@
 
 using namespace H2Core;
 
-PatternPropertiesDialog::PatternPropertiesDialog( QWidget* parent,
-												  std::shared_ptr<Pattern> pattern,
-												  int nselectedPattern,
-												  bool savepattern)
- : QDialog(parent)
+PatternPropertiesDialog::PatternPropertiesDialog(
+	QWidget* parent,
+	std::shared_ptr<Pattern> pattern,
+	int nselectedPattern,
+	bool savepattern
+)
+	: QDialog( parent )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
@@ -48,8 +50,9 @@ PatternPropertiesDialog::PatternPropertiesDialog( QWidget* parent,
 	// Show and enable maximize button. This is key when enlarging the
 	// application using a scaling factor and allows the OS to force its size
 	// beyond the minimum and make the scrollbars appear.
-	setWindowFlags( windowFlags() | Qt::CustomizeWindowHint |
-					Qt::WindowMinMaxButtonsHint );
+	setWindowFlags(
+		windowFlags() | Qt::CustomizeWindowHint | Qt::WindowMinMaxButtonsHint
+	);
 
 	this->pattern = pattern;
 
@@ -84,7 +87,8 @@ PatternPropertiesDialog::PatternPropertiesDialog( QWidget* parent,
 		versionSpinBox->setValue( pattern->getVersion() );
 		authorTxt->setText( pattern->getAuthor() );
 		licenseComboBox->setCurrentIndex(
-			static_cast<int>( pattern->getLicense().getType() ) );
+			static_cast<int>( pattern->getLicense().getType() )
+		);
 		licenseStringTxt->setText( pattern->getLicense().getLicenseString() );
 		if ( pattern->getLicense().getType() == License::Unspecified ) {
 			licenseStringTxt->hide();
@@ -98,8 +102,10 @@ PatternPropertiesDialog::PatternPropertiesDialog( QWidget* parent,
 
 	m_pPathEdit->setIsActive( false );
 
-	connect( licenseComboBox, SIGNAL( currentIndexChanged( int ) ),
-			 this, SLOT( licenseComboBoxChanged( int ) ) );
+	connect(
+		licenseComboBox, SIGNAL( currentIndexChanged( int ) ), this,
+		SLOT( licenseComboBoxChanged( int ) )
+	);
 
 	licenseComboBox->setToolTip( pCommonStrings->getLicenseComboToolTip() );
 	licenseStringTxt->setToolTip( pCommonStrings->getLicenseStringToolTip() );
@@ -123,15 +129,18 @@ PatternPropertiesDialog::PatternPropertiesDialog( QWidget* parent,
 	cancelBtn->setText( pCommonStrings->getButtonCancel() );
 }
 
-PatternPropertiesDialog::~PatternPropertiesDialog() {
+PatternPropertiesDialog::~PatternPropertiesDialog()
+{
 }
 
-void PatternPropertiesDialog::licenseComboBoxChanged( int ) {
-
+void PatternPropertiesDialog::licenseComboBoxChanged( int )
+{
 	licenseStringTxt->setText( License::LicenseTypeToQString(
-		static_cast<License::LicenseType>( licenseComboBox->currentIndex() ) ) );
+		static_cast<License::LicenseType>( licenseComboBox->currentIndex() )
+	) );
 
-	if ( licenseComboBox->currentIndex() == static_cast<int>( License::Unspecified ) ) {
+	if ( licenseComboBox->currentIndex() ==
+		 static_cast<int>( License::Unspecified ) ) {
 		licenseStringTxt->hide();
 	}
 	else {
@@ -143,7 +152,6 @@ void PatternPropertiesDialog::on_cancelBtn_clicked()
 {
 	reject();
 }
-
 
 void PatternPropertiesDialog::on_okBtn_clicked()
 {
@@ -160,24 +168,31 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	// Check whether the license strings from the line edits comply to
 	// the license types selected in the combo boxes.
 	License licenseCheck( licenseStringTxt->text() );
-	if ( static_cast<int>(licenseCheck.getType()) != licenseComboBox->currentIndex() ) {
+	if ( static_cast<int>( licenseCheck.getType() ) !=
+		 licenseComboBox->currentIndex() ) {
 		if ( QMessageBox::warning(
-				 this, "Hydrogen", pCommonStrings->getLicenseMismatchingUserInput(),
-				 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel )
-			 == QMessageBox::Cancel ) {
-			WARNINGLOG( QString( "Abort, since drumkit License String [%1] does not comply to selected License Type [%2]" )
-						.arg( licenseStringTxt->text() )
-						.arg( License::LicenseTypeToQString(
-						    static_cast<License::LicenseType>(licenseComboBox->currentIndex()) ) ) );
+				 this, "Hydrogen",
+				 pCommonStrings->getLicenseMismatchingUserInput(),
+				 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel
+			 ) == QMessageBox::Cancel ) {
+			WARNINGLOG( QString( "Abort, since drumkit License String [%1] "
+								 "does not comply to selected License Type [%2]"
+			)
+							.arg( licenseStringTxt->text() )
+							.arg( License::LicenseTypeToQString(
+								static_cast<License::LicenseType>(
+									licenseComboBox->currentIndex()
+								)
+							) ) );
 			return;
 		}
 	}
 
 	// Ensure the pattern name is unique
 	auto pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
-	sPattName = pPatternList->findUnusedPatternName(sPattName, pattern);
+	sPattName = pPatternList->findUnusedPatternName( sPattName, pattern );
 
-	if( __savepattern ){
+	if ( __savepattern ) {
 		if ( pattern->getVersion() != nVersion ) {
 			pattern->setVersion( nVersion );
 		}
@@ -187,41 +202,31 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 		pattern->setLicense( license );
 		pattern->setTags( tags );
 	}
-	else if ( pattern->getVersion() != nVersion ||
-			  pattern->getName() != sPattName  ||
-			  pattern->getAuthor() != sAuthor   ||
-			  pattern->getInfo() != sPattInfo  ||
-			  pattern->getLicense() != license  ||
-			  pattern->getTags() != tags ) {
-		SE_modifyPatternPropertiesAction *action =
+	else if ( pattern->getVersion() != nVersion || pattern->getName() != sPattName || pattern->getAuthor() != sAuthor || pattern->getInfo() != sPattInfo || pattern->getLicense() != license || pattern->getTags() != tags ) {
+		SE_modifyPatternPropertiesAction* action =
 			new SE_modifyPatternPropertiesAction(
-				pattern->getVersion(),
-				pattern->getName(),
-				pattern->getAuthor(),
-				pattern->getInfo(),
-				pattern->getLicense(),
-				pattern->getTags(),
-				nVersion,
-				sPattName,
-				sAuthor,
-				sPattInfo,
-				license,
-				tags,
-				__nselectedPattern );
+				pattern->getVersion(), pattern->getName(), pattern->getAuthor(),
+				pattern->getInfo(), pattern->getLicense(), pattern->getTags(),
+				nVersion, sPattName, sAuthor, sPattInfo, license, tags,
+				__nselectedPattern
+			);
 		HydrogenApp::get_instance()->pushUndoCommand( action );
 	}
 	accept();
 }
 
-void PatternPropertiesDialog::defaultNameCheck( const QString& pattName, bool savepattern)
+void PatternPropertiesDialog::defaultNameCheck(
+	const QString& pattName,
+	bool savepattern
+)
 {
 	auto pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
-	if ( savepattern && !pPatternList->checkName(pattName, pattern) ) {
+	if ( savepattern && !pPatternList->checkName( pattName, pattern ) ) {
 		patternNameTxt->setText(
-			pPatternList->findUnusedPatternName(pattName, pattern));
+			pPatternList->findUnusedPatternName( pattName, pattern )
+		);
 	}
 	else {
-		patternNameTxt->setText(pattName);
+		patternNameTxt->setText( pattName );
 	}
-
 }

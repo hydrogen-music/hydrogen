@@ -32,14 +32,10 @@
 
 #include <core/Object.h>
 
-namespace H2Core
-{
-	class Pattern;
+namespace H2Core {
+class Pattern;
 }
 
-///
-///Pattern Properties Dialog
-///
 /** \ingroup docGUI*/
 class PatternPropertiesDialog : public QDialog,
 								protected WidgetWithLicenseProperty,
@@ -47,29 +43,31 @@ class PatternPropertiesDialog : public QDialog,
 								public H2Core::Object<PatternPropertiesDialog>
 
 {
-	H2_OBJECT(PatternPropertiesDialog)
+	H2_OBJECT( PatternPropertiesDialog )
 	Q_OBJECT
-	public:
-		PatternPropertiesDialog( QWidget* parent,
-								 std::shared_ptr<H2Core::Pattern> pattern,
-								 int nselectedPattern, bool save );
+   public:
+	PatternPropertiesDialog(
+		QWidget* parent,
+		std::shared_ptr<H2Core::Pattern> pattern,
+		int nselectedPattern,
+		bool save
+	);
 
-		~PatternPropertiesDialog();
+	~PatternPropertiesDialog();
 
-		/// Does some name check
-		void defaultNameCheck( const QString& , bool);
+	/// Does some name check
+	void defaultNameCheck( const QString&, bool );
 
-	private slots:
-		void on_cancelBtn_clicked();
-		void on_okBtn_clicked();
-		void licenseComboBoxChanged( int );
+   private slots:
+	void on_cancelBtn_clicked();
+	void on_okBtn_clicked();
+	void licenseComboBoxChanged( int );
 
-	private:
-		std::shared_ptr<H2Core::Pattern> pattern;
-		int __nselectedPattern;
-		bool __savepattern;
+   private:
+	std::shared_ptr<H2Core::Pattern> pattern;
+	int __nselectedPattern;
+	bool __savepattern;
 };
-
 
 #endif
 
