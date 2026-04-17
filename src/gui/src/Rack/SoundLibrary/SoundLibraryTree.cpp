@@ -789,7 +789,7 @@ void SoundLibraryTree::mouseMoveEvent( QMouseEvent* pEvent )
 							"::" + it->second->getName();
 			}
 			else {
-				WARNINGLOG( "not implemented" );
+				return;
 			}
 			break;
 		case SoundLibraryInfo::Type::Pattern:
@@ -798,7 +798,7 @@ void SoundLibraryTree::mouseMoveEvent( QMouseEvent* pEvent )
 							.arg( it->second->getPath() );
 			break;
 		default:
-			WARNINGLOG( "no implemented" );
+			return;
 	}
 
 	auto pDrag = new QDrag( this );
