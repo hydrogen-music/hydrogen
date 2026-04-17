@@ -40,16 +40,17 @@
 #include <core/SoundLibrary/DrumkitInfo.h>
 #include <core/SoundLibrary/InstrumentInfo.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 
-#include "../../DrumkitPropertiesDialog.h"
-#include "PatternPropertiesDialog.h"
 #include "SoundLibraryPanel.h"
 #include "../../CommonStrings.h"
 #include "../../Compatibility/MouseEvent.h"
+#include "../../DrumkitPropertiesDialog.h"
 #include "../../HydrogenApp.h"
+#include "../../PatternPropertiesDialog.h"
 #include "../../Skin.h"
+#include "../../SongPropertiesDialog.h"
 #include "../../UndoActions.h"
-#include "core/SoundLibrary/SoundLibraryInfo.h"
 
 using namespace H2Core;
 
@@ -344,7 +345,18 @@ void SoundLibraryTree::actionProperties()
 		pPattern->save( pPattern->getPath() );
 	}
 	else {
-		INFOLOG( "not implemented" );
+		auto pSong = Song::from( it->second );
+		if ( pSong == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve song [%1] at [%2]" )
+						  .arg( it->second->getLabel() )
+						  .arg( it->second->getPath() ) );
+			return;
+		}
+
+		SongPropertiesDialog dialog( this, pSong );
+		dialog.exec();
+
+		pSong->save( pSong->getPath(), true, true );
 	}
 }
 void SoundLibraryTree::actionDuplicate()
