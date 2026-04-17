@@ -50,6 +50,7 @@
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 #include <core/Timeline.h>
 #include <core/Version.h>
 
@@ -115,6 +116,23 @@ Song::~Song()
 	 */
 
 	delete m_pVelocityAutomationPath;
+}
+
+std::shared_ptr<Song> Song::from( std::shared_ptr<SoundLibraryInfo> pInfo
+)
+{
+	if ( pInfo == nullptr ) {
+		return nullptr;
+	}
+
+	auto pSong = Song::load( pInfo->getPath() );
+	if ( pSong == nullptr ) {
+		ERRORLOG( QString( "Unable to load song from [%1]" )
+					  .arg( pInfo->toQString() ) );
+		return nullptr;
+	}
+
+	return pSong;
 }
 
 void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {

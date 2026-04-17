@@ -50,6 +50,7 @@ class Pattern;
 class PatternList;
 class Sample;
 class SoundLibraryDatabase;
+class SoundLibraryInfo;
 class Timeline;
 
 /**
@@ -135,6 +136,10 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		 *   compensated by passing the created instance directly instead. */
 		static std::shared_ptr<Song> getEmptySong(
 			std::shared_ptr<SoundLibraryDatabase> pDB = nullptr );
+
+	static std::shared_ptr<Song> from(
+		std::shared_ptr<SoundLibraryInfo> pInfo
+	);
 
 	static std::shared_ptr<Song> 	load( const QString& sPath, bool bSilent = false );
 	/** Writes the song as .h2song to disk.
