@@ -47,10 +47,10 @@ class PatternPropertiesDialog : public QDialog,
 	Q_OBJECT
    public:
 	PatternPropertiesDialog(
-		QWidget* parent,
-		std::shared_ptr<H2Core::Pattern> pattern,
-		int nselectedPattern,
-		bool save
+		QWidget* pParent,
+		std::shared_ptr<H2Core::Pattern> pPattern,
+		int nSelectedPattern,
+		bool bSave
 	);
 
 	~PatternPropertiesDialog();
@@ -64,9 +64,9 @@ class PatternPropertiesDialog : public QDialog,
 	void licenseComboBoxChanged( int );
 
    private:
-	std::shared_ptr<H2Core::Pattern> pattern;
-	int __nselectedPattern;
-	bool __savepattern;
+	std::shared_ptr<H2Core::Pattern> m_pPattern;
+	int m_nSelectedPattern;
+	bool m_bSavePattern;
 };
 
 #endif

@@ -35,12 +35,16 @@
 using namespace H2Core;
 
 PatternPropertiesDialog::PatternPropertiesDialog(
-	QWidget* parent,
-	std::shared_ptr<Pattern> pattern,
-	int nselectedPattern,
-	bool savepattern
+	QWidget* pParent,
+	std::shared_ptr<Pattern> pPattern,
+	int nSelectedPattern,
+	bool bSavePattern
 )
-	: QDialog( parent )
+	: QDialog( pParent ),
+	  m_pPattern( pPattern ),
+	  m_nSelectedPattern( nSelectedPattern ),
+	  m_bSavePattern( bSavePattern )
+
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
@@ -53,8 +57,6 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 	setWindowFlags(
 		windowFlags() | Qt::CustomizeWindowHint | Qt::WindowMinMaxButtonsHint
 	);
-
-	this->pattern = pattern;
 
 	// Remove size constraints
 	versionSpinBox->setFixedSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
@@ -82,22 +84,22 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 	setupLicenseComboBox( licenseComboBox );
 
 	QStringList tags;
-	if ( pattern != nullptr ) {
-		m_pPathEdit->setText( pattern->getPath() );
-		versionSpinBox->setValue( pattern->getVersion() );
-		authorTxt->setText( pattern->getAuthor() );
+	if ( pPattern != nullptr ) {
+		m_pPathEdit->setText( pPattern->getPath() );
+		versionSpinBox->setValue( pPattern->getVersion() );
+		authorTxt->setText( pPattern->getAuthor() );
 		licenseComboBox->setCurrentIndex(
-			static_cast<int>( pattern->getLicense().getType() )
+			static_cast<int>( pPattern->getLicense().getType() )
 		);
-		licenseStringTxt->setText( pattern->getLicense().getLicenseString() );
-		if ( pattern->getLicense().getType() == License::Unspecified ) {
+		licenseStringTxt->setText( pPattern->getLicense().getLicenseString() );
+		if ( pPattern->getLicense().getType() == License::Unspecified ) {
 			licenseStringTxt->hide();
 		}
-		patternDescTxt->setText( pattern->getInfo() );
-		patternNameTxt->setText( pattern->getName() );
-		defaultNameCheck( pattern->getName(), savepattern );
+		patternDescTxt->setText( pPattern->getInfo() );
+		patternNameTxt->setText( pPattern->getName() );
+		defaultNameCheck( pPattern->getName(), bSavePattern );
 
-		tags = pattern->getTags();
+		tags = pPattern->getTags();
 	}
 
 	m_pPathEdit->setIsActive( false );
@@ -110,11 +112,8 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 	licenseComboBox->setToolTip( pCommonStrings->getLicenseComboToolTip() );
 	licenseStringTxt->setToolTip( pCommonStrings->getLicenseStringToolTip() );
 
-	__nselectedPattern = nselectedPattern;
-	__savepattern = savepattern;
-
 	m_pTagsLabel->setText( pCommonStrings->getTagsLabel() );
-	m_pTagEdit->setTags( pattern->getTags() );
+	m_pTagEdit->setTags( pPattern->getTags() );
 
 	okBtn->setFixedFontSize( 12 );
 	okBtn->setSize( QSize( 70, 23 ) );
@@ -190,25 +189,25 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 
 	// Ensure the pattern name is unique
 	auto pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
-	sPattName = pPatternList->findUnusedPatternName( sPattName, pattern );
+	sPattName = pPatternList->findUnusedPatternName( sPattName, m_pPattern );
 
-	if ( __savepattern ) {
-		if ( pattern->getVersion() != nVersion ) {
-			pattern->setVersion( nVersion );
+	if ( m_bSavePattern ) {
+		if ( m_pPattern->getVersion() != nVersion ) {
+			m_pPattern->setVersion( nVersion );
 		}
-		pattern->setName( sPattName );
-		pattern->setAuthor( sAuthor );
-		pattern->setInfo( sPattInfo );
-		pattern->setLicense( license );
-		pattern->setTags( tags );
+		m_pPattern->setName( sPattName );
+		m_pPattern->setAuthor( sAuthor );
+		m_pPattern->setInfo( sPattInfo );
+		m_pPattern->setLicense( license );
+		m_pPattern->setTags( tags );
 	}
-	else if ( pattern->getVersion() != nVersion || pattern->getName() != sPattName || pattern->getAuthor() != sAuthor || pattern->getInfo() != sPattInfo || pattern->getLicense() != license || pattern->getTags() != tags ) {
+	else if ( m_pPattern->getVersion() != nVersion || m_pPattern->getName() != sPattName || m_pPattern->getAuthor() != sAuthor || m_pPattern->getInfo() != sPattInfo || m_pPattern->getLicense() != license || m_pPattern->getTags() != tags ) {
 		SE_modifyPatternPropertiesAction* action =
 			new SE_modifyPatternPropertiesAction(
-				pattern->getVersion(), pattern->getName(), pattern->getAuthor(),
-				pattern->getInfo(), pattern->getLicense(), pattern->getTags(),
+				m_pPattern->getVersion(), m_pPattern->getName(), m_pPattern->getAuthor(),
+				m_pPattern->getInfo(), m_pPattern->getLicense(), m_pPattern->getTags(),
 				nVersion, sPattName, sAuthor, sPattInfo, license, tags,
-				__nselectedPattern
+				m_nSelectedPattern
 			);
 		HydrogenApp::get_instance()->pushUndoCommand( action );
 	}
@@ -217,13 +216,13 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 
 void PatternPropertiesDialog::defaultNameCheck(
 	const QString& pattName,
-	bool savepattern
+	bool bSavePattern
 )
 {
 	auto pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
-	if ( savepattern && !pPatternList->checkName( pattName, pattern ) ) {
+	if ( bSavePattern && !pPatternList->checkName( pattName, m_pPattern ) ) {
 		patternNameTxt->setText(
-			pPatternList->findUnusedPatternName( pattName, pattern )
+			pPatternList->findUnusedPatternName( pattName, m_pPattern )
 		);
 	}
 	else {
