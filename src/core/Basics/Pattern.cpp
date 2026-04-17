@@ -36,21 +36,23 @@
 namespace H2Core
 {
 
-Pattern::Pattern( )
-	: m_nVersion( 0 )
-	, m_sDrumkitName( "" )
-	, m_sAuthor( "" )
-	, m_license( License() )
-	, m_nLength( 4 * H2Core::nTicksPerQuarter )
-	, m_nDenominator( 4 )
-	, m_sName( "Pattern" )
-	, m_sInfo( "" )
-	, m_tags( QStringList() )
+Pattern::Pattern()
+	: m_sPath( "" ),
+	  m_nVersion( 0 ),
+	  m_sDrumkitName( "" ),
+	  m_sAuthor( "" ),
+	  m_license( License() ),
+	  m_nLength( 4 * H2Core::nTicksPerQuarter ),
+	  m_nDenominator( 4 ),
+	  m_sName( "Pattern" ),
+	  m_sInfo( "" ),
+	  m_tags( QStringList() )
 {
 }
 
 Pattern::Pattern( std::shared_ptr<Pattern> pOther )
-	: m_nVersion( pOther->m_nVersion )
+	: m_sPath( pOther->m_sPath )
+	, m_nVersion( pOther->m_nVersion )
 	, m_sDrumkitName( pOther->m_sDrumkitName )
 	, m_sAuthor( pOther->m_sAuthor )
 	, m_license( pOther->m_license )
@@ -111,7 +113,12 @@ std::shared_ptr<Pattern> Pattern::load( const QString& sPatternPath,
 	const QString sDrumkitName = rootNode.read_string(
 		"drumkit_name", "", false, false, bSilent );
 
-	return loadFrom( patternNode, sDrumkitName, nullptr, bSilent );
+	auto pPattern = loadFrom( patternNode, sDrumkitName, nullptr, bSilent );
+	if ( pPattern != nullptr ) {
+		pPattern->setPath( sPatternPath );
+	}
+
+	return pPattern;
 }
 
 std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
@@ -637,6 +644,7 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Pattern]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_sPath: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sPath ) )
 			.append( QString( "%1%2m_sName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sName ) )
 			.append( QString( "%1%2m_nVersion: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nVersion ) )
@@ -677,6 +685,7 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 
 		sOutput = QString( "[Pattern]" )
 			.append( QString( " m_sName: %1" ).arg( m_sName ) )
+			.append( QString( ", m_sPath: %1" ).arg( m_sPath ) )
 			.append( QString( ", m_nVersion: %1" ).arg( m_nVersion ) )
 			.append( QString( ", m_sDrumkitName: %1" ).arg( m_sDrumkitName ) )
 			.append( QString( ", m_sAuthor: %1" ).arg( m_sAuthor ) )

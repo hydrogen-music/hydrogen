@@ -121,6 +121,9 @@ class Pattern : public H2Core::Object<Pattern>
 			bool bSilent = false
 		) const;
 
+		const QString& getPath() const;
+		void setPath( const QString& sPath );
+
 		void setVersion( int nVersion );
 		int getVersion() const;
 		void setDrumkitName( const QString& sDrumkitName );
@@ -281,7 +284,23 @@ class Pattern : public H2Core::Object<Pattern>
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
-	private:
+	   private:
+		/** Absolute path pointing to the underlying artifact.
+		 *
+		 * This one is only non-empty in case the pattern was loaded via a
+		 * .h2pattern file and is used to based some "is modified" and "write
+		 * back" semantics on.
+		 *
+		 * This member is not written to the .h2pattern. However, it is not a
+		 * transient one either. It is stored in the corresponding .h2song file
+		 * as a list <patternPaths> containing a node for each pattern in the
+		 * pattern list of the song. Mapping between the list of pattern paths
+		 * and the actual patterns is done by index within the corresponding
+		 * list (as there is no other unique identifier of a pattern than its
+		 * path). The overall song can be thought of the session the pattern was
+		 * loaded in. */
+		QString m_sPath;
+
 		int m_nVersion;
 		/** Name of the kit using which the pattern was written. This is mainly
 		 * used for backward compatibility. */
@@ -358,6 +377,14 @@ class Pattern : public H2Core::Object<Pattern>
 	for( Pattern::notes_it_t _it=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->end() && (_it)->first == (_bound) && (_it)->first < (_pattern)->getLength(); (_it)++ )
 
 // DEFINITIONS
+inline const QString& Pattern::getPath() const
+{
+		return m_sPath;
+}
+inline void Pattern::setPath( const QString& sPath )
+{
+		m_sPath = sPath;
+}
 inline void Pattern::setVersion( int nVersion ) {
 	m_nVersion = nVersion;
 }

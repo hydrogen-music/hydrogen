@@ -27,6 +27,9 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/Song.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
@@ -54,6 +57,61 @@ void PatternTest::testCustomLegacyImport()
 		H2TEST_FILE( "pattern/legacyImport.h2pattern" ) );
 	CPPUNIT_ASSERT( pPatternReload != nullptr );
 	CPPUNIT_ASSERT( pPatternReload->getAllTypes().size() > 0 );
+
+	___INFOLOG( "passed" );
+}
+
+void PatternTest::testPatternPathStorage()
+{
+	___INFOLOG( "" );
+
+	const QString sPath = H2TEST_FILE( "pattern/pattern.h2pattern" );
+	const QString sPathNonExisting( "/non/existing/one" );
+
+	auto pSong = Song::getEmptySong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	CPPUNIT_ASSERT( pSong->getPatternList()->size() == 10 );
+	pSong->getPatternList()->get( 5 )->setPath( sPathNonExisting );
+
+	auto pPattern = Pattern::load( sPath, false );
+	CPPUNIT_ASSERT( pPattern != nullptr );
+	CPPUNIT_ASSERT( !pPattern->getPath().isEmpty() );
+	pSong->getPatternList()->add( pPattern, false );
+
+	const QString sTmpPath =
+		Filesystem::tmpFilePath( "test-pattern-path-storage-XXXX.h2song" );
+
+	CPPUNIT_ASSERT( pSong->save( sTmpPath, true, false ) );
+
+	auto pSongReload = Song::load( sTmpPath, false );
+	CPPUNIT_ASSERT( pSongReload != nullptr );
+	CPPUNIT_ASSERT( pSongReload->getPatternList()->size() == 11 );
+
+	QStringList expectedPaths;
+	expectedPaths << ""
+				  << ""
+				  << ""
+				  << ""
+				  << "" << sPathNonExisting << ""
+				  << ""
+				  << ""
+				  << "" << sPath;
+	CPPUNIT_ASSERT(
+		expectedPaths.size() == pSongReload->getPatternList()->size()
+	);
+	QStringList actualPaths;
+	for ( const auto& ppPattern : *pSongReload->getPatternList() ) {
+		CPPUNIT_ASSERT( ppPattern != nullptr );
+		actualPaths << ppPattern->getPath();
+	}
+	___INFOLOG( QString( "expected: [%1]\nactual: [%2]" )
+					.arg( expectedPaths.join( ", " ) )
+					.arg( actualPaths.join( ", " ) ) );
+	for ( int ii = 0; ii < expectedPaths.size(); ++ii ) {
+		CPPUNIT_ASSERT( expectedPaths[ii] == actualPaths[ii] );
+	}
+
+	CPPUNIT_ASSERT( Filesystem::rm( sTmpPath ) );
 
 	___INFOLOG( "passed" );
 }

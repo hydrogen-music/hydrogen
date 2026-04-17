@@ -491,6 +491,29 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sP
 	}
 	pSong->setPatternList( pPatternList );
 
+	// In case a pattern was loaded from disk, we store the corresponding path
+	// in #Pattern but not in .h2pattern. The path is an unique identifier on
+	// the system but has not any use when sharing .h2pattern file but leaking
+	// interna, like user name. Instead, those paths are stored in .h2song as
+	// the surrounding session of the patterns.
+	XMLNode patternPathsNode = rootNode.firstChildElement( "patternPaths" );
+	if ( !patternPathsNode.isNull() ) {
+		QStringList patternPaths;
+		auto patternPathNode =
+			patternPathsNode.firstChildElement( "patternPath" );
+		while ( !patternPathNode.isNull() ) {
+			patternPaths << patternPathNode.text();
+			patternPathNode =
+				patternPathNode.nextSiblingElement( "patternPath" );
+		}
+
+		for ( int ii = 0; ii < patternPaths.size(); ++ii ) {
+			if ( ii < pPatternList->size() && !patternPaths[ii].isEmpty() ) {
+				pPatternList->get( ii )->setPath( patternPaths[ii] );
+			}
+		}
+	}
+
 	// Virtual Patterns
 	XMLNode virtualPatternListNode =
 		rootNode.firstChildElement( "virtualPatternList" );
@@ -883,6 +906,18 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples,
 
 	if ( m_pPatternList != nullptr ) {
 		m_pPatternList->saveTo( rootNode );
+
+		XMLNode patternPathsNode = rootNode.createNode( "patternPaths" );
+		for ( const auto& ppPattern : *m_pPatternList ) {
+			if ( ppPattern != nullptr && !ppPattern->getPath().isEmpty() ) {
+				patternPathsNode.write_string(
+					"patternPath", ppPattern->getPath()
+				);
+			}
+			else {
+				patternPathsNode.write_string( "patternPath", "" );
+			}
+		}
 
 		XMLNode virtualPatternListNode =
 			rootNode.createNode( "virtualPatternList" );

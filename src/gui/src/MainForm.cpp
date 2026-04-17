@@ -1044,8 +1044,8 @@ void MainForm::action_file_openPattern()
 	if ( fd.exec() == QDialog::Accepted ) {
 		pPref->setLastOpenPatternDirectory( fd.directory().absolutePath() );
 
-		for ( const auto& ssFileName : fd.selectedFiles() ) {
-			auto pNewPattern = Pattern::load( ssFileName );
+		for ( const auto& ssPath : fd.selectedFiles() ) {
+			auto pNewPattern = Pattern::load( ssPath );
 			if ( pNewPattern == nullptr ) {
 				QMessageBox::critical(
 					this, "Hydrogen",
@@ -1957,10 +1957,10 @@ void MainForm::updateRecentUsedSongList()
 	const QStringList recentUsedSongs =
 		Preferences::get_instance()->getRecentFiles();
 
-	for ( const auto& ssFileName : recentUsedSongs ) {
-		if ( ! ssFileName.isEmpty() ) {
+	for ( const auto& ssPath : recentUsedSongs ) {
+		if ( ! ssPath.isEmpty() ) {
 			QAction *pAction = new QAction( this  );
-			pAction->setText( ssFileName );
+			pAction->setText( ssPath );
 			m_pRecentFilesMenu->addAction( pAction );
 		}
 	}
