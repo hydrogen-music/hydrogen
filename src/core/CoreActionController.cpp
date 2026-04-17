@@ -1562,6 +1562,11 @@ bool CoreActionController::upgradeDrumkit(
 		if ( ! bIsCompressed ) {
 			const auto sDrumkitPath =
 				Filesystem::sanitizeDrumkitPath( sDrumkitDir );
+			if ( sDrumkitPath.isEmpty() ) {
+				ERRORLOG( QString( "Upgrade failed. Invalid drumkit dir [%1]" )
+							  .arg( sDrumkitDir ) );
+				return false;
+			}
 
 			// Make a backup of the original file in order to make the
 			// upgrade reversible.
@@ -1606,6 +1611,10 @@ bool CoreActionController::upgradeDrumkit(
 	// internally, a path to a drumkit is now expected to be the absolute path
 	// to its drumkit.xml file.
 	sPath = Filesystem::sanitizeDrumkitPath( sPath );
+	if ( sPath.isEmpty() ) {
+		ERRORLOG( "Upgrade failed. Invalid drumkit path" );
+		return false;
+	}
 
 	if ( !pDrumkit->save( sPath, true ) ) {
 		ERRORLOG( QString( "Error while saving upgraded kit to [%1]" )
