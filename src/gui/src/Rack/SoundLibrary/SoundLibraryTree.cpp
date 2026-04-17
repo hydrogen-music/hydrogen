@@ -42,6 +42,7 @@
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include "../../DrumkitPropertiesDialog.h"
+#include "PatternPropertiesDialog.h"
 #include "SoundLibraryPanel.h"
 #include "../../CommonStrings.h"
 #include "../../Compatibility/MouseEvent.h"
@@ -327,6 +328,20 @@ void SoundLibraryTree::actionProperties()
 		auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
 		DrumkitPropertiesDialog dialog( this, pNewDrumkit, true, false );
 		dialog.exec();
+	}
+	else if ( m_type == SoundLibraryInfo::Type::Pattern ) {
+		auto pPattern = Pattern::from( it->second );
+		if ( pPattern == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve pattern [%1] at [%2]" )
+						  .arg( it->second->getLabel() )
+						  .arg( it->second->getPath() ) );
+			return;
+		}
+
+		PatternPropertiesDialog dialog( this, pPattern, -1, true );
+		dialog.exec();
+
+		pPattern->save( pPattern->getPath() );
 	}
 	else {
 		INFOLOG( "not implemented" );
