@@ -373,6 +373,8 @@ void SoundLibraryTree::actionDuplicate()
 		return;
 	}
 
+	auto pDB = pHydrogen->getSoundLibraryDatabase();
+
 	if ( m_type == SoundLibraryInfo::Type::Drumkit ) {
 		auto pDrumkit = pHydrogen->getSoundLibraryDatabase()->getDrumkit(
 			it->second->getPath()
@@ -397,6 +399,23 @@ void SoundLibraryTree::actionDuplicate()
 
 		DrumkitPropertiesDialog dialog( this, pNewDrumkit, false, false );
 		dialog.exec();
+	}
+	else if ( m_type == SoundLibraryInfo::Type::Pattern ) {
+		auto pPattern = Pattern::from( it->second );
+		if ( pPattern == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve pattern [%1] at [%2]" )
+						  .arg( it->second->getLabel() )
+						  .arg( it->second->getPath() ) );
+			return;
+		}
+
+		PatternPropertiesDialog dialog(
+			this, pPattern, -1, PatternPropertiesDialog::Action::Duplicate
+		);
+		if ( dialog.exec() == QDialog::Accepted ) {
+			pPattern->save( pPattern->getPath() );
+			pDB->updatePatterns( Event::Trigger::Default );
+		}
 	}
 	else {
 		INFOLOG( "not implemented" );

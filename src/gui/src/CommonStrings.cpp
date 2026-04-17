@@ -818,6 +818,13 @@ CommonStrings::CommonStrings(){
 	m_sErrorNotFoundShort = tr( "File not found" );
 	m_sErrorEmptyType = tr( "An instrument type must not be empty!" );
 	m_sErrorUniqueTypes = tr( "Instrument types must be unique!" );
+	/*: Text of an error dialog shown in the properties dialogs of pattern and
+	 * song. Above the text - in a separate line - the invalid path will be
+	 * shown. Directly after the text - in the same line and contained in square
+	 * brackets - the particular file extension will be appended. */
+	m_sErrorInvalidPath =
+		tr( "The provided path is invalid! Please ensure you have write access "
+			"and use the file extension" );
 
 	/*: Node in the Sound Library corresponding to artifacts installed on
 	 * system-level. */

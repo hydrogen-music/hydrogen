@@ -1555,6 +1555,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Label of the read-only text input in pattern/song/drumkit properties * dialog displaying the absolute file backing the particular artifact.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>The provided path is invalid! Please ensure you have write access and use the file extension</source>
+        <extracomment>Text of an error dialog shown in the properties dialogs of pattern and * song. Above the text - in a separate line - the invalid path will be * shown. Directly after the text - in the same line and contained in square * brackets - the particular file extension will be appended.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>

@@ -48,7 +48,12 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	setupUi( this );
-	setWindowTitle( tr( "Pattern properties" ) );
+	if ( action & Action::Duplicate ) {
+		setWindowTitle( pCommonStrings->getActionDuplicatePattern() );
+	}
+	else {
+		setWindowTitle( tr( "Pattern properties" ) );
+	}
 
 	// Show and enable maximize button. This is key when enlarging the
 	// application using a scaling factor and allows the OS to force its size
@@ -191,6 +196,22 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	sPattName = pPatternList->findUnusedPatternName( sPattName, m_pPattern );
 
 	if ( ! ( m_action & Action::ModifyViaUndo ) ) {
+		if ( m_action & Action::Duplicate &&
+			 m_pPattern->getPath() != m_pPathEdit->text() ) {
+			if ( !Filesystem::isPathValid(
+					 Filesystem::Artifact::Pattern, m_pPathEdit->text(), false
+				 ) ) {
+				QMessageBox::critical(
+					this, "Hydrogen",
+					QString( "[%1]\n\n%2 [%3]" )
+						.arg( m_pPathEdit->text() )
+						.arg( pCommonStrings->getErrorInvalidPath() )
+						.arg( Filesystem::sPatternSuffix )
+				);
+				return;
+			}
+			m_pPattern->setPath( m_pPathEdit->text() );
+		}
 		if ( m_pPattern->getVersion() != nVersion ) {
 			m_pPattern->setVersion( nVersion );
 		}

@@ -685,6 +685,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	}
 	const QString& getErrorEmptyType() const { return m_sErrorEmptyType; }
 	const QString& getErrorUniqueTypes() const { return m_sErrorUniqueTypes; }
+	const QString& getErrorInvalidPath() const { return m_sErrorInvalidPath; }
 
 	const QString& getSettings() const { return m_sSettings; }
 	const QString& getPattern() const { return m_sPattern; }
@@ -952,6 +953,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sErrorNotFoundShort;
 	QString m_sErrorEmptyType;
 	QString m_sErrorUniqueTypes;
+	QString m_sErrorInvalidPath;
 
 	QString m_sSoundLibraryFailedPreDrumkitLoad;
 	QString m_sSoundLibrarySession;
