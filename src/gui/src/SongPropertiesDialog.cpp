@@ -37,9 +37,10 @@ using namespace H2Core;
 
 SongPropertiesDialog::SongPropertiesDialog(
 	QWidget* parent,
-	std::shared_ptr<Song> pSong
+	std::shared_ptr<Song> pSong,
+	bool bDuplicate
 )
-	: QDialog( parent ), m_pSong( pSong )
+	: QDialog( parent ), m_pSong( pSong ), m_bDuplicate( bDuplicate )
 {
 	setupUi( this );
 
@@ -51,7 +52,12 @@ SongPropertiesDialog::SongPropertiesDialog(
 	setWindowFlags( windowFlags() | Qt::CustomizeWindowHint |
 					Qt::WindowMinMaxButtonsHint );
 
-	setWindowTitle( tr( "Song properties" ) );
+	if ( bDuplicate ) {
+		setWindowTitle( pCommonStrings->getMenuActionDuplicate() );
+	}
+	else {
+		setWindowTitle( tr( "Song properties" ) );
+	}
 
 	// Remove size constraints
 	versionSpinBox->setFixedSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
@@ -88,7 +94,7 @@ SongPropertiesDialog::SongPropertiesDialog(
 		}
 		m_pTagEdit->setTags( pSong->getTags() );
 	}
-	m_pPathEdit->setIsActive( false );
+	m_pPathEdit->setIsActive( bDuplicate );
 
 	connect( licenseComboBox, SIGNAL( currentIndexChanged( int ) ),
 			 this, SLOT( licenseComboBoxChanged( int ) ) );
@@ -245,6 +251,24 @@ void SongPropertiesDialog::on_okBtn_clicked()
 	}
 
 	bool bIsModified = false;
+
+	if ( m_bDuplicate && m_pSong->getPath() != m_pPathEdit->text() ) {
+		if ( !Filesystem::isPathValid(
+				 Filesystem::Artifact::Song, m_pPathEdit->text(), false
+			 ) ) {
+			QMessageBox::critical(
+				this, "Hydrogen",
+				QString( "[%1]\n\n%2 [%3]" )
+					.arg( m_pPathEdit->text() )
+					.arg( pCommonStrings->getErrorInvalidPath() )
+					.arg( Filesystem::sSongSuffix )
+			);
+			return;
+		}
+		m_pSong->setPath( m_pPathEdit->text() );
+		bIsModified = true;
+	}
+
 	if ( versionSpinBox->value() != m_pSong->getVersion() ) {
 		m_pSong->setVersion( versionSpinBox->value() );
 		bIsModified = true;

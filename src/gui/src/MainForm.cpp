@@ -2223,7 +2223,7 @@ void MainForm::action_file_songProperties()
 		return;
 	}
 	
-	SongPropertiesDialog dialog( this, pSong );
+	SongPropertiesDialog dialog( this, pSong, false );
 	if ( dialog.exec() ) {
 		// Ensure the update name is taken into account in the window
 		// title.

@@ -358,7 +358,7 @@ void SoundLibraryTree::actionProperties()
 			return;
 		}
 
-		SongPropertiesDialog dialog( this, pSong );
+		SongPropertiesDialog dialog( this, pSong, false );
 		if ( dialog.exec() == QDialog::Accepted ) {
 			pSong->save( pSong->getPath(), true, true );
 			pDB->updateSongs( Event::Trigger::Default );
@@ -418,7 +418,19 @@ void SoundLibraryTree::actionDuplicate()
 		}
 	}
 	else {
-		INFOLOG( "not implemented" );
+		auto pSong = Song::from( it->second );
+		if ( pSong == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve song [%1] at [%2]" )
+						  .arg( it->second->getLabel() )
+						  .arg( it->second->getPath() ) );
+			return;
+		}
+
+		SongPropertiesDialog dialog( this, pSong, true );
+		if ( dialog.exec() == QDialog::Accepted ) {
+			pSong->save( pSong->getPath(), true, true );
+			pDB->updateSongs( Event::Trigger::Default );
+		}
 	}
 }
 

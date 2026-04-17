@@ -50,7 +50,8 @@ class SongPropertiesDialog : public QDialog,
    public:
 	explicit SongPropertiesDialog(
 		QWidget* parent,
-		std::shared_ptr<H2Core::Song> pSong
+		std::shared_ptr<H2Core::Song> pSong,
+		bool bDuplicate
 	);
 	~SongPropertiesDialog();
 
@@ -63,6 +64,7 @@ class SongPropertiesDialog : public QDialog,
 	void updatePatternLicenseTable();
 
 	std::shared_ptr<H2Core::Song> m_pSong;
+	bool m_bDuplicate;
 };
 
 #endif
