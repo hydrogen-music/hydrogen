@@ -37,7 +37,7 @@
         <x>0</x>
         <y>0</y>
         <width>313</width>
-        <height>437</height>
+        <height>537</height>
        </rect>
       </property>
       <property name="minimumSize">
@@ -51,6 +51,16 @@
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QLabel" name="m_pPathLabel">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="LCDDisplay" name="m_pPathEdit"/>
+           </item>
            <item>
             <widget class="QLabel" name="nameLabel"/>
            </item>
@@ -99,21 +109,19 @@
             <widget class="LCDTextEdit" name="patternDescTxt"/>
            </item>
            <item>
-            <widget class="QLabel" name="m_pTagsLabel">
-            </widget>
+            <widget class="QLabel" name="m_pTagsLabel"/>
            </item>
           </layout>
          </item>
          <item>
-           <widget class="TagEdit" name="m_pTagEdit">
-           </widget>
+          <widget class="TagEdit" name="m_pTagEdit" native="true"/>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout">
            <item>
             <spacer>
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -143,7 +151,7 @@
            <item>
             <spacer>
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>

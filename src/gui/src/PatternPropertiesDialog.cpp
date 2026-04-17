@@ -67,6 +67,7 @@ PatternPropertiesDialog::PatternPropertiesDialog( QWidget* parent,
 	// Allow to save the dialog by pressing Return.
 	okBtn->setFocus();
 
+	m_pPathLabel->setText( pCommonStrings->getPathDialog() );
 	nameLabel->setText( pCommonStrings->getNameDialog() );
 	versionLabel->setText( pCommonStrings->getVersionDialog() );
 	licenseLabel->setText( pCommonStrings->getLicenseDialog() );
@@ -79,6 +80,7 @@ PatternPropertiesDialog::PatternPropertiesDialog( QWidget* parent,
 
 	QStringList tags;
 	if ( pattern != nullptr ) {
+		m_pPathEdit->setText( pattern->getPath() );
 		versionSpinBox->setValue( pattern->getVersion() );
 		authorTxt->setText( pattern->getAuthor() );
 		licenseComboBox->setCurrentIndex(
@@ -93,6 +95,8 @@ PatternPropertiesDialog::PatternPropertiesDialog( QWidget* parent,
 
 		tags = pattern->getTags();
 	}
+
+	m_pPathEdit->setIsActive( false );
 
 	connect( licenseComboBox, SIGNAL( currentIndexChanged( int ) ),
 			 this, SLOT( licenseComboBoxChanged( int ) ) );
