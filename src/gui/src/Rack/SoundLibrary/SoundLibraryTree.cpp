@@ -71,13 +71,20 @@ SoundLibraryTree::SoundLibraryTree(
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	auto addDrumkitActions = [&]( QMenu* pMenu, bool bWritable ) {
+	auto addDrumkitActions = [&]( QMenu* pMenu, bool bWritable, bool bAdd ) {
 		if ( m_bStandAlone ) {
 			return;
 		}
-		pMenu->addAction(
-			pCommonStrings->getMenuActionLoad(), this, SLOT( actionLoad() )
-		);
+		if ( bAdd ) {
+			pMenu->addAction(
+				pCommonStrings->getMenuActionAdd(), this, SLOT( actionLoad() )
+			);
+		}
+		else {
+			pMenu->addAction(
+				pCommonStrings->getMenuActionLoad(), this, SLOT( actionLoad() )
+			);
+		}
 		pMenu->addAction(
 			pCommonStrings->getMenuActionProperties(), this,
 			SLOT( actionProperties() )
@@ -119,10 +126,14 @@ SoundLibraryTree::SoundLibraryTree(
 	};
 
 	m_pPopupMenu = new QMenu( this );
-	addDrumkitActions( m_pPopupMenu, true );
-
+	addDrumkitActions( m_pPopupMenu, true, false );
 	m_pPopupMenuReadOnly = new QMenu( this );
-	addDrumkitActions( m_pPopupMenuReadOnly, false );
+	addDrumkitActions( m_pPopupMenuReadOnly, false, false );
+
+	m_pPopupMenuAdd = new QMenu( this );
+	addDrumkitActions( m_pPopupMenuAdd, true, true );
+	m_pPopupMenuAddReadOnly = new QMenu( this );
+	addDrumkitActions( m_pPopupMenuAddReadOnly, false, true );
 
 	// Select the expanded node (in case it is a drumkit). Else selecting an
 	// instrument would cause preview sounds of that instrument on each
@@ -655,10 +666,22 @@ void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
 			if ( it->second->getContext() == Filesystem::Context::System ||
 				 it->second->getContext() ==
 					 Filesystem::Context::SessionReadOnly ) {
-				pMenu = m_pPopupMenuReadOnly;
+				if ( it->second->getType() == SoundLibraryInfo::Type::Drumkit ||
+					 it->second->getType() == SoundLibraryInfo::Type::Song ) {
+					pMenu = m_pPopupMenuReadOnly;
+				}
+				else {
+					pMenu = m_pPopupMenuAddReadOnly;
+				}
 			}
 			else {
-				pMenu = m_pPopupMenu;
+				if ( it->second->getType() == SoundLibraryInfo::Type::Drumkit ||
+					 it->second->getType() == SoundLibraryInfo::Type::Song ) {
+					pMenu = m_pPopupMenu;
+				}
+				else {
+					pMenu = m_pPopupMenuAdd;
+				}
 			}
 
 			pMenu->popup( pEv->globalPosition().toPoint() );

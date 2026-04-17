@@ -102,6 +102,12 @@ class SoundLibraryTree : public QTreeWidget,
 
 	QMenu* m_pPopupMenu;
 	QMenu* m_pPopupMenuReadOnly;
+	/** Second version of the menu backed by the same actions but with
+	 * slightly different naming. This hints that both drumkit and song do
+	 * replace the current one when loaded and instrument and pattern are
+	 * appended to the corresponding list of the current drumkit/song. */
+	QMenu* m_pPopupMenuAdd;
+	QMenu* m_pPopupMenuAddReadOnly;
 
 	QPoint m_dragStartPosition;
 };
