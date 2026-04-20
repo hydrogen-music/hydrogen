@@ -80,6 +80,10 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 	public:
 		static constexpr int nMinimumWidth = 1040;
 
+		static QString sMimeDragInstrument;
+		static QString sMimeDragPattern;
+		static QString sMimeSeparator;
+
 		HydrogenApp( MainForm* pMainForm, QUndoStack* pUndoStack );
 
 		/// Returns the instance of HydrogenApp class

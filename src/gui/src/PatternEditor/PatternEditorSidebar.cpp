@@ -1495,7 +1495,7 @@ void PatternEditorSidebar::dragEnterEvent( QDragEnterEvent* event )
 
 	const QString sText = event->mimeData()->text();
 	if ( !sText.startsWith( "move instrument:" ) &&
-		 !sText.startsWith( "importInstrument:" ) ) {
+		 !sText.startsWith( HydrogenApp::sMimeDragInstrument ) ) {
 		event->ignore();
 		return;
 	}
@@ -1547,7 +1547,7 @@ void PatternEditorSidebar::dropEvent( QDropEvent* event )
 
 	if ( sText.startsWith( "Songs:" ) || sText.startsWith( "Patterns:" ) ||
 		 sText.startsWith( "move pattern:" ) ||
-		 sText.startsWith( "drag pattern:" ) ) {
+		 sText.startsWith( HydrogenApp::sMimeDragPattern ) ) {
 		return;
 	}
 
@@ -1578,14 +1578,13 @@ void PatternEditorSidebar::dropEvent( QDropEvent* event )
 
 		event->acceptProposedAction();
 	}
-	else if ( sText.startsWith( "importInstrument:" ) ) {
+	else if ( sText.startsWith( HydrogenApp::sMimeDragInstrument ) ) {
 		// an instrument was dragged from the soundlibrary browser to the
 		// pattern editor
-		sText.remove( 0, QString( "importInstrument:" ).length() );
 
-		QStringList tokens = sText.split( "::" );
-		const QString sDrumkitPath = tokens.at( 0 );
-		const QString sInstrumentName = tokens.at( 1 );
+		QStringList tokens = sText.split( HydrogenApp::sMimeSeparator );
+		const QString sDrumkitPath = tokens.at( 1 );
+		const QString sInstrumentName = tokens.at( 2 );
 
 		// Load Instrument
 		const auto pNewDrumkit =

@@ -691,7 +691,7 @@ void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 
 	if ( sText.startsWith( "Songs:" ) ||
 		 sText.startsWith( "move instrument:" ) ||
-		 sText.startsWith( "importInstrument:" ) ) {
+		 sText.startsWith( HydrogenApp::sMimeDragInstrument ) ) {
 		pEvent->acceptProposedAction();
 		return;
 	}
@@ -753,8 +753,8 @@ void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 			}
 		}
 	}
-	else if ( sText.startsWith( "drag pattern" ) ) {
-		const QStringList tokens = sText.split( "::" );
+	else if ( sText.startsWith( HydrogenApp::sMimeDragPattern ) ) {
+		const QStringList tokens = sText.split( HydrogenApp::sMimeSeparator );
 		auto pNewPattern = CoreActionController::loadPattern( tokens.at( 1 ) );
 		if ( pNewPattern == nullptr ) {
 			ERRORLOG( QString( "Unabble to obtain new pattern based on [%1]" )

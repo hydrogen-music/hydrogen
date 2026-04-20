@@ -785,16 +785,20 @@ void SoundLibraryTree::mouseMoveEvent( QMouseEvent* pEvent )
 	switch ( m_type ) {
 		case SoundLibraryInfo::Type::Drumkit:
 			if ( it->second->getType() == SoundLibraryInfo::Type::Instrument ) {
-				sMimeText = "importInstrument:" + it->second->getPath() +
-							"::" + it->second->getName();
+				sMimeText = QString( "%1%2%3%2%4" )
+								.arg( HydrogenApp::sMimeDragInstrument )
+								.arg( HydrogenApp::sMimeSeparator )
+								.arg( it->second->getPath() )
+								.arg( it->second->getName() );
 			}
 			else {
 				return;
 			}
 			break;
 		case SoundLibraryInfo::Type::Pattern:
-			sMimeText = QString( "drag %1::%2" )
-							.arg( SoundLibraryInfo::TypeToQString( m_type ) )
+			sMimeText = QString( "%1%2%3" )
+							.arg( HydrogenApp::sMimeDragPattern )
+							.arg( HydrogenApp::sMimeSeparator )
 							.arg( it->second->getPath() );
 			break;
 		default:
