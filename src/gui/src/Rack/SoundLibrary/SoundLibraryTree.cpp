@@ -933,11 +933,18 @@ void SoundLibraryTree::addNodes(
 				for ( const auto& ppInstrumentInfo :
 					  pDrumkitInfo->getInstrumentInfos() ) {
 					auto pInstrumentItem = new QTreeWidgetItem( pFileItem );
-					QString sInstrumentLabel = ppInstrumentInfo->getLabel();
-					if ( sInstrumentLabel.isEmpty() ) {
+					QString sInstrumentLabel;
+					if ( !ppInstrumentInfo->getName().isEmpty() ) {
+						sInstrumentLabel =
+							QString( "%1 [%2]" )
+								.arg( ppInstrumentInfo->getName() )
+								.arg( ppInstrumentInfo->getType() );
+					}
+					else {
 						sInstrumentLabel = ppInstrumentInfo->getType();
 					}
 					pInstrumentItem->setText( 0, sInstrumentLabel );
+					pInstrumentItem->setToolTip( 0, sInstrumentLabel );
 					pInstrumentItem->setIcon(
 						0, QIcon( sIconPath + "speaker.svg" )
 					);
