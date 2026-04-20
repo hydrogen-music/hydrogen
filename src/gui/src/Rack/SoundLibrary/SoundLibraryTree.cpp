@@ -924,6 +924,15 @@ void SoundLibraryTree::addNodes(
 			sDisplayLabel = fi.completeBaseName();
 		}
 		pFileItem->setText( 0, sDisplayLabel );
+		if ( m_type == SoundLibraryInfo::Type::Drumkit ) {
+			pFileItem->setIcon( 0, QIcon( sIconPath + "drum.svg" ) );
+		}
+		else if ( m_type == SoundLibraryInfo::Type::Pattern ) {
+			pFileItem->setIcon( 0, QIcon( sIconPath + "pattern-editor.svg" ) );
+		}
+		else if ( m_type == SoundLibraryInfo::Type::Song ) {
+			pFileItem->setIcon( 0, QIcon( sIconPath + "song-editor.svg" ) );
+		}
 		m_registry[pFileItem] = ppInfo;
 
 		if ( ppInfo->getType() == SoundLibraryInfo::Type::Drumkit ) {
