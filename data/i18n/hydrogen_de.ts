@@ -6001,13 +6001,15 @@ It contains samples used and loaded in the current song kit.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Warning, &quot;%1&quot; [%2] will be deleted from disk.
-Are you sure?</source>
+        <source>Warning, the following will be deleted from disk.
+Are you sure?
+
+%1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drumkit deletion failed.</source>
-        <translation type="unfinished">Löschen des Schlagzeuges ist fehlgeschlagen.</translation>
+        <source>Deletion failed.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -310,39 +310,46 @@ void SoundLibraryTree::actionAdd()
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
-	auto it = m_registry.find( currentItem() );
-	if ( it == m_registry.end() || it->second == nullptr ) {
-		return;
-	}
 	if ( pHydrogen->getSong() == nullptr ) {
 		return;
 	}
 
-	if ( m_type == SoundLibraryInfo::Type::Drumkit &&
-		 it->second->getType() == SoundLibraryInfo::Type::Instrument ) {
-		pHydrogenApp->getPatternEditorPanel()->addInstrument(
-			it->second->getPath(), it->second->getName(), -1
-		);
-	}
-	else if ( m_type == SoundLibraryInfo::Type::Pattern ) {
-		const auto pCommonStrings = pHydrogenApp->getCommonStrings();
-		const auto pPattern =
-			H2Core::CoreActionController::loadPattern( it->second->getPath() );
-		if ( pPattern == nullptr ) {
-			QMessageBox::critical(
-				this, "Hydrogen", pCommonStrings->getPatternLoadError()
-			);
-			return;
+	for ( auto* pItem : selectedItems() ) {
+		auto it = m_registry.find( pItem );
+		if ( it == m_registry.end() || it->second == nullptr ) {
+			continue;
 		}
 
-		pHydrogenApp->pushUndoCommand( new SE_insertPatternAction(
-			SE_insertPatternAction::Type::Insert,
-			pHydrogen->getSong()->getPatternList()->size(), pPattern, nullptr
-		) );
-	}
-	else {
-		ERRORLOG( QString( "Invalid type [%1]" )
-					  .arg( SoundLibraryInfo::TypeToQString( m_type ) ) );
+		if ( m_type == SoundLibraryInfo::Type::Drumkit &&
+			 it->second->getType() == SoundLibraryInfo::Type::Instrument ) {
+			pHydrogenApp->getPatternEditorPanel()->addInstrument(
+				it->second->getPath(), it->second->getName(), -1
+			);
+		}
+		else if ( m_type == SoundLibraryInfo::Type::Pattern ) {
+			const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+			const auto pPattern =
+				H2Core::CoreActionController::loadPattern( it->second->getPath() );
+			if ( pPattern == nullptr ) {
+				QMessageBox::critical(
+					this, "Hydrogen", pCommonStrings->getPatternLoadError()
+				);
+				continue;
+			}
+
+			pHydrogenApp->pushUndoCommand(
+				new SE_insertPatternAction(
+					SE_insertPatternAction::Type::Insert,
+					pHydrogen->getSong()->getPatternList()->size(), pPattern,
+					nullptr
+				),
+				"SoundLibraryTree::insertPatternAction"
+			);
+		}
+		else {
+			ERRORLOG( QString( "Invalid type [%1]" )
+						  .arg( SoundLibraryInfo::TypeToQString( m_type ) ) );
+		}
 	}
 }
 
@@ -515,56 +522,68 @@ void SoundLibraryTree::actionDuplicate()
 void SoundLibraryTree::actionDelete()
 {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto it = m_registry.find( currentItem() );
-	if ( it == m_registry.end() || it->second == nullptr ) {
-		return;
-	}
 
-	if ( it->second->getContext() == Filesystem::Context::System ||
-		 it->second->getContext() == Filesystem::Context::SessionReadOnly ) {
-		QMessageBox::warning(
-			this, "Hydrogen",
-			QString( "%1 [%2] " )
-				.arg( it->second->getLabel() )
-				.arg( it->second->getPath() )
-				.append( tr( "is a read-only and can't be deleted." ) )
-		);
-		return;
-	}
+	// Collect all deletable items from the selection.
+	struct DeleteCandidate {
+		std::shared_ptr<SoundLibraryInfo> pInfo;
+		QString sTargetPath;
+	};
+	std::vector<DeleteCandidate> candidates;
 
-	QString sTargetPath = it->second->getPath();
-
-	if ( m_type == SoundLibraryInfo::Type::Drumkit ) {
-		// If we delete a kit containing samples used and loaded in the current
-		// song's drumkit, we get into trouble.
-		if ( pHydrogen->getSong() == nullptr ||
-			 pHydrogen->getSong()->getDrumkit() == nullptr ) {
-			return;
+	for ( auto* pItem : selectedItems() ) {
+		auto it = m_registry.find( pItem );
+		if ( it == m_registry.end() || it->second == nullptr ) {
+			continue;
 		}
-		auto pDrumkit = pHydrogen->getSong()->getDrumkit();
 
-		// For a sample to be contained both the instrument's drumkit path must
-		// match the selected one and the instrument has to contain at least one
-		// sample with a non-empty, relative path.
-		bool bSampleContained = false;
-		sTargetPath = Filesystem::drumkitDirFromPath( it->second->getPath() );
-		for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {
-			if ( ppInstrument != nullptr &&
-				 ppInstrument->getDrumkitPath() == it->second->getPath() ) {
+		if ( it->second->getContext() == Filesystem::Context::System ||
+			 it->second->getContext() == Filesystem::Context::SessionReadOnly ) {
+			QMessageBox::warning(
+				this, "Hydrogen",
+				QString( "%1 [%2] " )
+					.arg( it->second->getLabel() )
+					.arg( it->second->getPath() )
+					.append( tr( "is a read-only and can't be deleted." ) )
+			);
+			continue;
+		}
+
+		QString sTargetPath = it->second->getPath();
+
+		if ( m_type == SoundLibraryInfo::Type::Drumkit ) {
+			// If we delete a kit containing samples used and loaded in the
+			// current song's drumkit, we get into trouble.
+			if ( pHydrogen->getSong() == nullptr ||
+				 pHydrogen->getSong()->getDrumkit() == nullptr ) {
+				continue;
+			}
+			auto pDrumkit = pHydrogen->getSong()->getDrumkit();
+
+			// For a sample to be contained both the instrument's drumkit path
+			// must match the selected one and the instrument has to contain at
+			// least one sample with a non-empty, relative path.
+			bool bSampleContained = false;
+			sTargetPath =
+				Filesystem::drumkitDirFromPath( it->second->getPath() );
+			for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {
+				if ( ppInstrument == nullptr ||
+					 ppInstrument->getDrumkitPath() != it->second->getPath() ) {
+					continue;
+				}
 				for ( const auto& ppComponent :
 					  *ppInstrument->getComponents() ) {
-					if ( ppComponent != nullptr ) {
-						for ( const auto& ppLayer : ppComponent->getLayers() ) {
-							if ( ppLayer != nullptr &&
-								 ppLayer->getSample() != nullptr &&
-								 !ppLayer->getSample()->getFilePath().isEmpty(
-								 ) &&
-								 ppLayer->getSample()->getFilePath().contains(
-									 sTargetPath
-								 ) ) {
-								bSampleContained = true;
-								break;
-							}
+					if ( ppComponent == nullptr ) {
+						continue;
+					}
+					for ( const auto& ppLayer : ppComponent->getLayers() ) {
+						if ( ppLayer != nullptr &&
+							 ppLayer->getSample() != nullptr &&
+							 !ppLayer->getSample()->getFilePath().isEmpty() &&
+							 ppLayer->getSample()->getFilePath().contains(
+								 sTargetPath
+							 ) ) {
+							bSampleContained = true;
+							break;
 						}
 					}
 
@@ -572,30 +591,43 @@ void SoundLibraryTree::actionDelete()
 						break;
 					}
 				}
-			}
 
+				if ( bSampleContained ) {
+					break;
+				}
+			}
 			if ( bSampleContained ) {
-				break;
+				QMessageBox::critical(
+					this, "Hydrogen",
+					tr( "It is not possible to delete drumkit: \n  [%1]\nIt "
+						"contains "
+						"samples used and loaded in the current song kit." )
+						.arg( it->second->getLabel() )
+				);
+				continue;
 			}
 		}
-		if ( bSampleContained ) {
-			QMessageBox::critical(
-				this, "Hydrogen",
-				tr( "It is not possible to delete drumkit: \n  [%1]\nIt "
-					"contains "
-					"samples used and loaded in the current song kit." )
-					.arg( it->second->getLabel() )
-			);
-			return;
-		}
+
+		candidates.push_back( { it->second, sTargetPath } );
+	}
+
+	if ( candidates.empty() ) {
+		return;
+	}
+
+	// Build a single confirmation message listing all items.
+	QStringList itemLabels;
+	for ( const auto& candidate : candidates ) {
+		itemLabels << QString( "\"%1\" [%2]" )
+						  .arg( candidate.pInfo->getLabel() )
+						  .arg( candidate.sTargetPath );
 	}
 
 	if ( QMessageBox::warning(
 			 this, "Hydrogen",
-			 tr( "Warning, \"%1\" [%2] will be deleted from disk.\nAre "
-				 "you sure?" )
-				 .arg( it->second->getLabel() )
-				 .arg( sTargetPath ),
+			 tr( "Warning, the following will be deleted from "
+				 "disk.\nAre you sure?\n\n%1" )
+				 .arg( itemLabels.join( "\n" ) ),
 			 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel
 		 ) == QMessageBox::Cancel ) {
 		return;
@@ -603,18 +635,17 @@ void SoundLibraryTree::actionDelete()
 
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 
-	INFOLOG( QString( "Removing %1 [%2] at [%3]" )
-				 .arg( SoundLibraryInfo::TypeToQString( it->second->getType() )
-				 )
-				 .arg( it->second->getLabel() )
-				 .arg( sTargetPath ) );
-	const bool bOk = Filesystem::rm( sTargetPath, true );
-	if ( !bOk ) {
-		QApplication::restoreOverrideCursor();
-		QMessageBox::warning(
-			this, "Hydrogen", tr( "Drumkit deletion failed." )
-		);
-		return;
+	bool bDeleteFailed = false;
+	for ( const auto& candidate : candidates ) {
+		INFOLOG( QString( "Removing %1 [%2] at [%3]" )
+					 .arg( SoundLibraryInfo::TypeToQString(
+						 candidate.pInfo->getType() ) )
+					 .arg( candidate.pInfo->getLabel() )
+					 .arg( candidate.sTargetPath ) );
+		const bool bOk = Filesystem::rm( candidate.sTargetPath, true );
+		if ( !bOk ) {
+			bDeleteFailed = true;
+		}
 	}
 
 	switch ( m_type ) {
@@ -633,7 +664,14 @@ void SoundLibraryTree::actionDelete()
 				Event::Trigger::Default
 			);
 	}
+
 	QApplication::restoreOverrideCursor();
+
+	if ( bDeleteFailed ) {
+		QMessageBox::warning(
+			this, "Hydrogen", tr( "Deletion failed." )
+		);
+	}
 }
 
 void SoundLibraryTree::actionExport()
