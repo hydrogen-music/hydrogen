@@ -25,12 +25,14 @@
 
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/GridPoint.h>
+#include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include "DrumPatternEditor.h"
 #include "NotePropertiesRuler.h"
@@ -1713,6 +1715,74 @@ void PatternEditorPanel::patternSizeChangedAction(
 	}
 
 	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1 );
+}
+
+void PatternEditorPanel::addInstrument(
+	const QString& sDrumkitPath,
+	const QString& sInstrumentName,
+	int nTargetRow
+)
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+	const auto pNewDrumkit =
+		pHydrogen->getSoundLibraryDatabase()->getDrumkit(
+			sDrumkitPath
+		);
+	if ( pNewDrumkit == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve kit [%1] for instrument [%2]" )
+					  .arg( sDrumkitPath )
+					  .arg( sInstrumentName ) );
+		QMessageBox::critical(
+			this, "Hydrogen", pCommonStrings->getInstrumentLoadError()
+		);
+		return;
+	}
+	const auto pTargetInstrument =
+		pNewDrumkit->getInstruments()->find( sInstrumentName );
+	if ( pTargetInstrument == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument [%1] from kit [%2]" )
+					  .arg( sInstrumentName )
+					  .arg( sDrumkitPath ) );
+		QMessageBox::critical(
+			this, "Hydrogen", pCommonStrings->getInstrumentLoadError()
+		);
+		return;
+	}
+
+	// Appending in this action is done by setting the target row to -1.
+	const int nTargetRowSE =
+		nTargetRow == ( pInstrumentList->size() - 1 ) ? -1 : nTargetRow;
+
+	// We provide a copy of the instrument in order to not leak any changes
+	// into the original kit.
+	pHydrogenApp->pushUndoCommand(
+		new SE_addInstrumentAction(
+			std::make_shared<Instrument>( pTargetInstrument ), nTargetRowSE,
+			SE_addInstrumentAction::Type::DropInstrument
+		),
+		"PatternEditorPanel::AddInstrumentAction"
+	);
+	pHydrogenApp->showStatusBarMessage(
+		QString( "%1 [%2]" )
+			.arg( pCommonStrings->getActionDropInstrument() )
+			.arg( pTargetInstrument->getName() )
+	);
+
+	if ( nTargetRowSE == -1 ) {
+		setSelectedRowDB( m_db.size() - 1 );
+	}
+	else {
+		setSelectedRowDB( nTargetRow );
+	}
 }
 
 void PatternEditorPanel::dragEnterEvent( QDragEnterEvent* event )

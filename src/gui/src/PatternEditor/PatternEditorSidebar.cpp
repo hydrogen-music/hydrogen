@@ -1538,8 +1538,6 @@ void PatternEditorSidebar::dropEvent( QDropEvent* event )
 		return;
 	}
 
-	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-	const auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
@@ -1586,50 +1584,9 @@ void PatternEditorSidebar::dropEvent( QDropEvent* event )
 		const QString sDrumkitPath = tokens.at( 1 );
 		const QString sInstrumentName = tokens.at( 2 );
 
-		// Load Instrument
-		const auto pNewDrumkit =
-			pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
-		if ( pNewDrumkit == nullptr ) {
-			ERRORLOG( QString( "Unable to retrieve kit [%1] for instrument [%2]"
-			)
-						  .arg( sDrumkitPath )
-						  .arg( sInstrumentName ) );
-			QMessageBox::critical(
-				this, "Hydrogen", pCommonStrings->getInstrumentLoadError()
-			);
-			return;
-		}
-		const auto pTargetInstrument =
-			pNewDrumkit->getInstruments()->find( sInstrumentName );
-		if ( pTargetInstrument == nullptr ) {
-			ERRORLOG(
-				QString( "Unable to retrieve instrument [%1] from kit [%2]" )
-					.arg( sInstrumentName )
-					.arg( sDrumkitPath )
-			);
-			QMessageBox::critical(
-				this, "Hydrogen", pCommonStrings->getInstrumentLoadError()
-			);
-			return;
-		}
-
-		// Appending in this action is done by setting the target row to -1.
-		const int nTargetRowSE = nTargetRow == ( pInstrumentList->size() - 1 ) ? -1 : nTargetRow;
-
-		// We provide a copy of the instrument in order to not leak any changes
-		// into the original kit.
-		pHydrogenApp->pushUndoCommand( new SE_addInstrumentAction(
-			std::make_shared<Instrument>( pTargetInstrument ), nTargetRowSE,
-			SE_addInstrumentAction::Type::DropInstrument
-		) );
-		pHydrogenApp->showStatusBarMessage(
-			QString( "%1 [%2]" )
-				.arg( pCommonStrings->getActionDropInstrument() )
-				.arg( pTargetInstrument->getName() )
+		m_pPatternEditorPanel->addInstrument(
+			sDrumkitPath, sInstrumentName, nTargetRow
 		);
-
-		m_pPatternEditorPanel->setSelectedRowDB( nTargetRow );
-
 		event->acceptProposedAction();
 	}
 	else {
