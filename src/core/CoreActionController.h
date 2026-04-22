@@ -353,7 +353,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * In case @a nIndex is `-1` @a pInstrument will be appended to the
 		 * instrument list.*/
 		static bool addInstrument( std::shared_ptr<Instrument> pInstrument,
-								   int nIndex = -1 );
+								   int nIndex );
 		/** Removes @a pInstrument from the current drumkit and adds it to the
 		 * instrument death row. This way it is guarantueed that its samples
 		 * stay loaded until the last #H2Core::Note is done rendering it.
