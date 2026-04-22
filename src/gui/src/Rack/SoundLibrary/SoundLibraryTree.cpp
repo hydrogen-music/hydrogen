@@ -308,6 +308,7 @@ void SoundLibraryTree::updateRegistry()
 
 void SoundLibraryTree::actionAdd()
 {
+	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto it = m_registry.find( currentItem() );
 	if ( it == m_registry.end() || it->second == nullptr ) {
@@ -317,9 +318,14 @@ void SoundLibraryTree::actionAdd()
 		return;
 	}
 
-	if ( m_type == SoundLibraryInfo::Type::Pattern ) {
-		const auto pCommonStrings =
-			HydrogenApp::get_instance()->getCommonStrings();
+	if ( m_type == SoundLibraryInfo::Type::Drumkit &&
+		 it->second->getType() == SoundLibraryInfo::Type::Instrument ) {
+		pHydrogenApp->getPatternEditorPanel()->addInstrument(
+			it->second->getPath(), it->second->getName(), -1
+		);
+	}
+	else if ( m_type == SoundLibraryInfo::Type::Pattern ) {
+		const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 		const auto pPattern =
 			H2Core::CoreActionController::loadPattern( it->second->getPath() );
 		if ( pPattern == nullptr ) {
@@ -329,13 +335,10 @@ void SoundLibraryTree::actionAdd()
 			return;
 		}
 
-		HydrogenApp::get_instance()->pushUndoCommand(
-			new SE_insertPatternAction(
-				SE_insertPatternAction::Type::Insert,
-				pHydrogen->getSong()->getPatternList()->size(), pPattern,
-				nullptr
-			)
-		);
+		pHydrogenApp->pushUndoCommand( new SE_insertPatternAction(
+			SE_insertPatternAction::Type::Insert,
+			pHydrogen->getSong()->getPatternList()->size(), pPattern, nullptr
+		) );
 	}
 	else {
 		ERRORLOG( QString( "Invalid type [%1]" )
