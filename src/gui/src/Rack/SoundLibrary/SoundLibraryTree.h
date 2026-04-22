@@ -57,6 +57,7 @@ class SoundLibraryTree : public QTreeWidget,
 	void updateRegistry();
 
    public slots:
+	void actionAdd();
 	void actionLoad();
 	void actionProperties();
 	void actionDuplicate();

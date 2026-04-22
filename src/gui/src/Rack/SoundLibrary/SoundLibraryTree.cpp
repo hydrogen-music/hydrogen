@@ -78,7 +78,7 @@ SoundLibraryTree::SoundLibraryTree(
 		}
 		if ( bAdd ) {
 			pMenu->addAction(
-				pCommonStrings->getMenuActionAdd(), this, SLOT( actionLoad() )
+				pCommonStrings->getMenuActionAdd(), this, SLOT( actionAdd() )
 			);
 		}
 		else {
@@ -301,6 +301,43 @@ void SoundLibraryTree::updateRegistry()
 	}
 }
 
+void SoundLibraryTree::actionAdd()
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	auto it = m_registry.find( currentItem() );
+	if ( it == m_registry.end() || it->second == nullptr ) {
+		return;
+	}
+	if ( pHydrogen->getSong() == nullptr ) {
+		return;
+	}
+
+	if ( m_type == SoundLibraryInfo::Type::Pattern ) {
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		const auto pPattern =
+			H2Core::CoreActionController::loadPattern( it->second->getPath() );
+		if ( pPattern == nullptr ) {
+			QMessageBox::critical(
+				this, "Hydrogen", pCommonStrings->getPatternLoadError()
+			);
+			return;
+		}
+
+		HydrogenApp::get_instance()->pushUndoCommand(
+			new SE_insertPatternAction(
+				SE_insertPatternAction::Type::Insert,
+				pHydrogen->getSong()->getPatternList()->size(), pPattern,
+				nullptr
+			)
+		);
+	}
+	else {
+		ERRORLOG( QString( "Invalid type [%1]" )
+					  .arg( SoundLibraryInfo::TypeToQString( m_type ) ) );
+	}
+}
+
 void SoundLibraryTree::actionLoad()
 {
 	auto pHydrogen = Hydrogen::get_instance();
@@ -326,31 +363,15 @@ void SoundLibraryTree::actionLoad()
 		// the original one.
 		MainForm::switchDrumkit( std::make_shared<Drumkit>( pDrumkit ) );
 	}
-	else if ( m_type == SoundLibraryInfo::Type::Pattern ) {
-		const auto pCommonStrings =
-			HydrogenApp::get_instance()->getCommonStrings();
-		const auto pPattern =
-			H2Core::CoreActionController::loadPattern( it->second->getPath() );
-		if ( pPattern == nullptr ) {
-			QMessageBox::critical(
-				this, "Hydrogen", pCommonStrings->getPatternLoadError()
-			);
-			return;
-		}
-
-		HydrogenApp::get_instance()->pushUndoCommand(
-			new SE_insertPatternAction(
-				SE_insertPatternAction::Type::Insert,
-				pHydrogen->getSong()->getPatternList()->size(), pPattern,
-				nullptr
-			)
-		);
-	}
-	else {
+	else if ( m_type == SoundLibraryInfo::Type::Song ) {
 		// Error handling and dialog is handled within openFile.
 		HydrogenApp::get_instance()->openFile(
 			Filesystem::Artifact::Song, it->second->getPath()
 		);
+	}
+	else {
+		ERRORLOG( QString( "Invalid type [%1]" )
+					  .arg( SoundLibraryInfo::TypeToQString( m_type ) ) );
 	}
 }
 
