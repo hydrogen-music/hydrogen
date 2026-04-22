@@ -86,6 +86,11 @@ SoundLibraryTree::SoundLibraryTree(
 				pCommonStrings->getMenuActionLoad(), this, SLOT( actionLoad() )
 			);
 		}
+		if ( m_type == SoundLibraryInfo::Type::Drumkit && bAdd ) {
+			// The popup menu for the instrument node does solely allow to add
+			// instruments.
+			return;
+		}
 		pMenu->addAction(
 			pCommonStrings->getMenuActionProperties(), this,
 			SLOT( actionProperties() )
