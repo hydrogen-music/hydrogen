@@ -1362,9 +1362,10 @@ void MainForm::action_drumkit_addInstrument(
 		}
 	}
 
-	pHydrogenApp->pushUndoCommand(
-		new SE_addInstrumentAction(
-			pInstrument, -1, SE_addInstrumentAction::Type::AddEmptyInstrument ) );
+	pHydrogenApp->pushUndoCommand( new SE_addInstrumentAction(
+		pInstrument, -1, SE_addInstrumentAction::Type::AddEmptyInstrument,
+		nullptr
+	) );
 
 	if ( affectedNotes.size() > 0 ) {
 		// After the action was pushed and the corresponding redo executed, the
@@ -1440,7 +1441,7 @@ void MainForm::action_drumkit_duplicateInstrument( int nInstrumentIndex )
 	// Duplicate the instrument and insert the new one below.
 	auto pAction = new SE_addInstrumentAction(
 		pNewInstrument, nInstrumentIndex + 1,
-	  SE_addInstrumentAction::Type::DuplicateInstrument );
+	  SE_addInstrumentAction::Type::DuplicateInstrument, nullptr );
 	pHydrogenApp->pushUndoCommand( pAction );
 
 	// Select the new instrument

@@ -473,7 +473,7 @@ public:
 	friend bool CoreActionController::activateLoopMode( bool );
 	friend bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> );
 	friend bool CoreActionController::removeInstrument(
-		std::shared_ptr<Instrument> );
+		std::shared_ptr<Instrument>, long* );
 	friend bool CoreActionController::replaceDrumkitInstrument(
 		std::shared_ptr<Instrument>, std::shared_ptr<Instrument> );
 	friend bool CoreActionController::replacePlaybackTrackInstrument(

@@ -2102,11 +2102,16 @@ bool CoreActionController::extractDrumkit(
 
 bool CoreActionController::addInstrument(
 	std::shared_ptr<Instrument> pInstrument,
-	int nIndex
+	int nIndex,
+	long* pEventId
 )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
+
+	if ( pEventId != nullptr ) {
+		*pEventId = Event::nInvalidId;
+	}
 
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
@@ -2134,17 +2139,26 @@ bool CoreActionController::addInstrument(
 
 	pHydrogen->setIsModified( true );
 
-	EventQueue::get_instance()->pushEvent( Event::Type::DrumkitLoaded, 0 );
+	const auto nId =
+		EventQueue::get_instance()->pushEvent( Event::Type::DrumkitLoaded, 0 );
+	if ( pEventId != nullptr ) {
+		*pEventId = nId;
+	}
 
 	return true;
 }
 
 bool CoreActionController::removeInstrument(
-	std::shared_ptr<Instrument> pInstrument
+	std::shared_ptr<Instrument> pInstrument,
+	long* pEventId
 )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
+
+	if ( pEventId != nullptr ) {
+		*pEventId = Event::nInvalidId;
+	}
 
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
@@ -2206,7 +2220,11 @@ bool CoreActionController::removeInstrument(
 
 	pHydrogen->setIsModified( true );
 
-	EventQueue::get_instance()->pushEvent( Event::Type::DrumkitLoaded, 0 );
+	const auto nId =
+		EventQueue::get_instance()->pushEvent( Event::Type::DrumkitLoaded, 0 );
+	if ( pEventId != nullptr ) {
+		*pEventId = nId;
+	}
 
 	return true;
 }

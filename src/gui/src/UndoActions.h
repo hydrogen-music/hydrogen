@@ -825,7 +825,7 @@ class SE_switchDrumkitAction : public QUndoCommand {
 
 /** \ingroup docGUI*/
 class SE_addInstrumentAction : public QUndoCommand {
-	public:
+	   public:
 		enum class Type {
 			/** Create and add a new instrument */
 			AddEmptyInstrument = 0,
@@ -834,42 +834,62 @@ class SE_addInstrumentAction : public QUndoCommand {
 			/** Duplicate an instrument already present in the drumkit */
 			DuplicateInstrument = 2
 		};
-		SE_addInstrumentAction( std::shared_ptr<H2Core::Instrument> pInstrument,
-								int nIndex, Type type )
-		: m_pInstrument( pInstrument )
-		, m_nIndex( nIndex ) {
-			const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-				switch ( type ) {
+		SE_addInstrumentAction(
+			std::shared_ptr<H2Core::Instrument> pInstrument,
+			int nIndex,
+			Type type,
+			long* pEventId
+		)
+			: m_pInstrument( pInstrument ),
+			  m_nIndex( nIndex ),
+			  m_pEventId( pEventId )
+		{
+			const auto pCommonStrings =
+				HydrogenApp::get_instance()->getCommonStrings();
+			switch ( type ) {
 			case Type::AddEmptyInstrument:
 				setText( pCommonStrings->getActionAddInstrument() );
 				break;
 			case Type::DropInstrument:
 				setText( QString( "%1 [%2]" )
-						 .arg( pCommonStrings->getActionDropInstrument() )
-						 .arg( pInstrument != nullptr ? pInstrument->getName() :
-							   "nullptr" ) );
+							 .arg( pCommonStrings->getActionDropInstrument() )
+							 .arg(
+								 pInstrument != nullptr ? pInstrument->getName()
+														: "nullptr"
+							 ) );
 			case Type::DuplicateInstrument:
 				setText( QString( "%1 [%2]" )
-						 .arg( pCommonStrings->getActionDuplicateInstrument() )
-						 .arg( pInstrument != nullptr ? pInstrument->getName() :
-							   "nullptr" ) );
+							 .arg( pCommonStrings->getActionDuplicateInstrument(
+							 ) )
+							 .arg(
+								 pInstrument != nullptr ? pInstrument->getName()
+														: "nullptr"
+							 ) );
 				break;
 			default:
 				___ERRORLOG( QString( "Unknown type [%1]" )
-							 .arg( static_cast<int>(type) ) );
+								 .arg( static_cast<int>( type ) ) );
 			}
 		}
 
-		virtual void undo() {
-			H2Core::CoreActionController::removeInstrument( m_pInstrument );
+		virtual void undo()
+		{
+			H2Core::CoreActionController::removeInstrument(
+				m_pInstrument, m_pEventId
+			);
 		}
-		virtual void redo() {
-			H2Core::CoreActionController::addInstrument( m_pInstrument, m_nIndex );
+		virtual void redo()
+		{
+			H2Core::CoreActionController::addInstrument(
+				m_pInstrument, m_nIndex, m_pEventId
+			);
 		}
-	private:
+
+	   private:
 		std::shared_ptr<H2Core::Instrument> m_pInstrument;
 		/** `-1` indicates that the instrument will be appended. */
 		int m_nIndex;
+		long* m_pEventId;
 };
 
 /** \ingroup docGUI*/
@@ -888,10 +908,11 @@ public:
 	~SE_deleteInstrumentAction(){}
 
 	virtual void undo() {
-		H2Core::CoreActionController::addInstrument( m_pInstrument, m_nIndex );
+		H2Core::CoreActionController::addInstrument( m_pInstrument, m_nIndex, nullptr );
+
 	}
 	virtual void redo() {
-		H2Core::CoreActionController::removeInstrument( m_pInstrument );
+		H2Core::CoreActionController::removeInstrument( m_pInstrument, nullptr );
 	}
 	private:
 		std::shared_ptr<H2Core::Instrument> m_pInstrument;

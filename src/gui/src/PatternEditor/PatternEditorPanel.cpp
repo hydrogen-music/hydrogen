@@ -1762,20 +1762,31 @@ void PatternEditorPanel::addInstrument(
 	const int nTargetRowSE =
 		nTargetRow == ( pInstrumentList->size() - 1 ) ? -1 : nTargetRow;
 
+	// We do not wait for the DB to be updated asynchronously but do so right
+	// away. This ensures we select the right row when appending an instrument.
+	long nEventId = Event::nInvalidId;
+
 	// We provide a copy of the instrument in order to not leak any changes
 	// into the original kit.
 	pHydrogenApp->pushUndoCommand(
 		new SE_addInstrumentAction(
 			std::make_shared<Instrument>( pTargetInstrument ), nTargetRowSE,
-			SE_addInstrumentAction::Type::DropInstrument
+			SE_addInstrumentAction::Type::DropInstrument, &nEventId
 		),
 		"PatternEditorPanel::AddInstrumentAction"
 	);
+	if ( nEventId != Event::nInvalidId ) {
+		// Ensure we do not act on the queued event
+		// ourself.
+		blacklistEventId( nEventId );
+	}
 	pHydrogenApp->showStatusBarMessage(
 		QString( "%1 [%2]" )
 			.arg( pCommonStrings->getActionDropInstrument() )
 			.arg( pTargetInstrument->getName() )
 	);
+
+	drumkitLoadedEvent();
 
 	if ( nTargetRowSE == -1 ) {
 		setSelectedRowDB( m_db.size() - 1 );
