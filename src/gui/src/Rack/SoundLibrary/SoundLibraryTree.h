@@ -68,6 +68,11 @@ class SoundLibraryTree : public QTreeWidget,
    signals:
 	void itemChanged( bool bSelected );
 
+   protected:
+	QItemSelectionModel::SelectionFlags selectionCommand(
+		const QModelIndex& index, const QEvent* event
+	) const override;
+
    private:
 	/** Items in the tree are arranged alpha-numerically with subfolders shown
 	 * first followed by files within the folder. This function will be called

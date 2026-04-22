@@ -67,6 +67,7 @@ SoundLibraryTree::SoundLibraryTree(
 {
 	setAlternatingRowColors( true );
 	setRootIsDecorated( false );
+	setSelectionMode( QAbstractItemView::ExtendedSelection );
 	headerItem()->setHidden( true );
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
@@ -164,7 +165,37 @@ SoundLibraryTree::SoundLibraryTree(
 	} );
 }
 
-void SoundLibraryTree::updateFont() {
+QItemSelectionModel::SelectionFlags SoundLibraryTree::selectionCommand(
+	const QModelIndex& index,
+	const QEvent* event
+) const
+{
+	QTreeWidgetItem* pItem = itemFromIndex( index );
+	if ( pItem == nullptr ) {
+		return QTreeWidget::selectionCommand( index, event );
+	}
+
+	auto it = m_registry.find( pItem );
+	if ( it == m_registry.end() ) {
+		// Top-level or subfolder node — do not alter selection
+		return QItemSelectionModel::NoUpdate;
+	}
+
+	if ( it->second != nullptr ) {
+		const auto infoType = it->second->getType();
+		if ( infoType == SoundLibraryInfo::Type::Pattern ||
+			 infoType == SoundLibraryInfo::Type::Instrument ) {
+			// Selectable — delegate to default ExtendedSelection behavior
+			return QTreeWidget::selectionCommand( index, event );
+		}
+	}
+
+	// Drumkit, Song, or null info — clear selection
+	return QItemSelectionModel::Clear;
+}
+
+void SoundLibraryTree::updateFont()
+{
 	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
 	QFont boldFont(
 		pFontTheme->m_sApplicationFontFamily,
@@ -245,6 +276,9 @@ void SoundLibraryTree::updateRegistry()
 		m_pSessionItem->setText( 0, pCommonStrings->getSoundLibrarySession() );
 		m_pSessionItem->setFont( 0, boldFont );
 		m_pSessionItem->setExpanded( true );
+		m_pSessionItem->setFlags(
+			m_pSessionItem->flags() & ~Qt::ItemIsSelectable
+		);
 		addNodes( m_pSessionItem, sessionInfos, "" );
 	}
 	if ( userInfos.size() > 0 ) {
@@ -252,6 +286,7 @@ void SoundLibraryTree::updateRegistry()
 		m_pUserItem->setText( 0, pCommonStrings->getSoundLibraryUser() );
 		m_pUserItem->setFont( 0, boldFont );
 		m_pUserItem->setExpanded( true );
+		m_pUserItem->setFlags( m_pUserItem->flags() & ~Qt::ItemIsSelectable );
 		addNodes( m_pUserItem, userInfos, "" );
 	}
 	if ( systemInfos.size() > 0 ) {
@@ -259,6 +294,9 @@ void SoundLibraryTree::updateRegistry()
 		m_pSystemItem->setText( 0, pCommonStrings->getSoundLibrarySystem() );
 		m_pSystemItem->setFont( 0, boldFont );
 		m_pSystemItem->setExpanded( true );
+		m_pSystemItem->setFlags(
+			m_pSystemItem->flags() & ~Qt::ItemIsSelectable
+		);
 		addNodes( m_pSystemItem, systemInfos, "" );
 	}
 }
@@ -657,7 +695,7 @@ void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
 
 	auto pEv = static_cast<MouseEvent*>( event );
 
-	if ( event->button() == Qt::RightButton && ! m_bStandAlone &&
+	if ( event->button() == Qt::RightButton && !m_bStandAlone &&
 		 currentItem() != nullptr ) {
 		// Show popup menu
 		auto it = m_registry.find( currentItem() );
@@ -690,7 +728,7 @@ void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
 	else if ( event->button() == Qt::LeftButton ) {
 		m_dragStartPosition = pEv->globalPosition().toPoint();
 
-        // Preview the clicked instrument
+		// Preview the clicked instrument
 		if ( m_type == SoundLibraryInfo::Type::Drumkit &&
 			 currentItem() != nullptr ) {
 			auto it = m_registry.find( currentItem() );
@@ -717,14 +755,14 @@ void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
 					return;
 				}
 				const auto pTargetInstrument =
-					pDrumkit->getInstruments()->find( pInstrumentInfo->getId() );
+					pDrumkit->getInstruments()->find( pInstrumentInfo->getId()
+					);
 				if ( pTargetInstrument == nullptr ) {
 					ERRORLOG(
-						QString(
-							"Unable to retrieve instrument [%1](%2) from kit [%3]"
-						)
+						QString( "Unable to retrieve instrument [%1](%2) from "
+								 "kit [%3]" )
 							.arg( pInstrumentInfo->getLabel() )
-							.arg( static_cast<int>(pInstrumentInfo->getId()) )
+							.arg( static_cast<int>( pInstrumentInfo->getId() ) )
 							.arg( pInstrumentInfo->getPath() )
 					);
 					return;
@@ -822,7 +860,8 @@ void SoundLibraryTree::addNodes(
 	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
-	} else {
+	}
+	else {
 		sIconPath.append( "/icons/black/" );
 	}
 
@@ -906,6 +945,7 @@ void SoundLibraryTree::addNodes(
 		pDirItem->setFont( 0, dirFont );
 		pDirItem->setIcon( 0, QIcon( sIconPath + "folder.svg" ) );
 		pDirItem->setExpanded( false );
+		pDirItem->setFlags( pDirItem->flags() & ~Qt::ItemIsSelectable );
 		addNodes(
 			pDirItem, iinfos,
 			QString( "%1%2%3" )
@@ -934,6 +974,11 @@ void SoundLibraryTree::addNodes(
 			pFileItem->setIcon( 0, QIcon( sIconPath + "song-editor.svg" ) );
 		}
 		m_registry[pFileItem] = ppInfo;
+
+		if ( ppInfo->getType() != SoundLibraryInfo::Type::Pattern &&
+			 ppInfo->getType() != SoundLibraryInfo::Type::Instrument ) {
+			pFileItem->setFlags( pFileItem->flags() & ~Qt::ItemIsSelectable );
+		}
 
 		if ( ppInfo->getType() == SoundLibraryInfo::Type::Drumkit ) {
 			auto pDrumkitInfo =
