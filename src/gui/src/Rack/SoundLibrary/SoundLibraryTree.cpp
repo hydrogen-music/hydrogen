@@ -77,9 +77,9 @@ SoundLibraryTree::SoundLibraryTree(
 			return;
 		}
 		if ( bAdd ) {
-			pMenu->addAction(
+			m_multiSelectActions.insert( pMenu->addAction(
 				pCommonStrings->getMenuActionAdd(), this, SLOT( actionAdd() )
-			);
+			) );
 		}
 		else {
 			pMenu->addAction(
@@ -103,6 +103,7 @@ SoundLibraryTree::SoundLibraryTree(
 		auto pDeleteAction = pMenu->addAction(
 			pCommonStrings->getMenuActionDelete(), this, SLOT( actionDelete() )
 		);
+		m_multiSelectActions.insert( pDeleteAction );
 		if ( !bWritable ) {
 			pDeleteAction->setEnabled( false );
 		}
@@ -786,6 +787,16 @@ void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
 				}
 				else {
 					pMenu = m_pPopupMenuAdd;
+				}
+			}
+
+			const bool bMultiSelect = selectedItems().size() > 1;
+			for ( auto* pAction : pMenu->actions() ) {
+				if ( pAction->isSeparator() ) {
+					continue;
+				}
+				if ( !m_multiSelectActions.contains( pAction ) ) {
+					pAction->setEnabled( !bMultiSelect );
 				}
 			}
 

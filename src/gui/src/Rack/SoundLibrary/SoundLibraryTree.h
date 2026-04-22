@@ -115,6 +115,10 @@ class SoundLibraryTree : public QTreeWidget,
 	QMenu* m_pPopupMenuAdd;
 	QMenu* m_pPopupMenuAddReadOnly;
 
+	/** Actions that remain available when multiple items are selected. All
+	 * other actions will be hidden in multi-select context. */
+	QSet<QAction*> m_multiSelectActions;
+
 	QPoint m_dragStartPosition;
 };
 
