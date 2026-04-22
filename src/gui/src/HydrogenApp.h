@@ -83,6 +83,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		static QString sMimeDragInstrument;
 		static QString sMimeDragPattern;
 		static QString sMimeSeparator;
+		static QString sMimeSubSeparator;
 
 		HydrogenApp( MainForm* pMainForm, QUndoStack* pUndoStack );
 

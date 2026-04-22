@@ -888,35 +888,52 @@ void SoundLibraryTree::mouseMoveEvent( QMouseEvent* pEvent )
 		return;
 	}
 
-	if ( currentItem() == nullptr ) {
-		return;
-	}
-
-	auto it = m_registry.find( currentItem() );
-	if ( it == m_registry.end() || it->second == nullptr ) {
+	const auto items = selectedItems();
+	if ( items.isEmpty() ) {
 		return;
 	}
 
 	QString sMimeText;
 	switch ( m_type ) {
-		case SoundLibraryInfo::Type::Drumkit:
-			if ( it->second->getType() == SoundLibraryInfo::Type::Instrument ) {
-				sMimeText = QString( "%1%2%3%2%4" )
-								.arg( HydrogenApp::sMimeDragInstrument )
-								.arg( HydrogenApp::sMimeSeparator )
-								.arg( it->second->getPath() )
-								.arg( it->second->getName() );
+		case SoundLibraryInfo::Type::Drumkit: {
+			QStringList parts;
+			for ( auto* pItem : items ) {
+				auto it = m_registry.find( pItem );
+				if ( it == m_registry.end() || it->second == nullptr ||
+					 it->second->getType() !=
+						 SoundLibraryInfo::Type::Instrument ) {
+					continue;
+				}
+				parts << QString( "%1%2%3" )
+							 .arg( it->second->getPath() )
+							 .arg( HydrogenApp::sMimeSubSeparator )
+							 .arg( it->second->getName() );
 			}
-			else {
+			if ( parts.isEmpty() ) {
 				return;
 			}
+			sMimeText = HydrogenApp::sMimeDragInstrument +
+						HydrogenApp::sMimeSeparator +
+						parts.join( HydrogenApp::sMimeSeparator );
 			break;
-		case SoundLibraryInfo::Type::Pattern:
-			sMimeText = QString( "%1%2%3" )
-							.arg( HydrogenApp::sMimeDragPattern )
-							.arg( HydrogenApp::sMimeSeparator )
-							.arg( it->second->getPath() );
+		}
+		case SoundLibraryInfo::Type::Pattern: {
+			QStringList paths;
+			for ( auto* pItem : items ) {
+				auto it = m_registry.find( pItem );
+				if ( it == m_registry.end() || it->second == nullptr ) {
+					continue;
+				}
+				paths << it->second->getPath();
+			}
+			if ( paths.isEmpty() ) {
+				return;
+			}
+			sMimeText = HydrogenApp::sMimeDragPattern +
+						HydrogenApp::sMimeSeparator +
+						paths.join( HydrogenApp::sMimeSeparator );
 			break;
+		}
 		default:
 			return;
 	}

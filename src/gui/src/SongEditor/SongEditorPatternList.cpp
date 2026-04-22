@@ -755,23 +755,26 @@ void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 	}
 	else if ( sText.startsWith( HydrogenApp::sMimeDragPattern ) ) {
 		const QStringList tokens = sText.split( HydrogenApp::sMimeSeparator );
-		auto pNewPattern = CoreActionController::loadPattern( tokens.at( 1 ) );
-		if ( pNewPattern == nullptr ) {
-			ERRORLOG( QString( "Unabble to obtain new pattern based on [%1]" )
-						  .arg( sText ) );
-			return;
-		}
+		int nInsertPos = nTargetPattern;
+		for ( int ii = 1; ii < tokens.size(); ++ii ) {
+			auto pNewPattern =
+				CoreActionController::loadPattern( tokens.at( ii ) );
+			if ( pNewPattern == nullptr ) {
+				ERRORLOG(
+					QString( "Unable to obtain new pattern based on [%1]" )
+						.arg( tokens.at( ii ) ) );
+				continue;
+			}
 
-		auto pOldPattern = pSong->getPatternList()->get( nTargetPattern );
-		if ( pOldPattern == nullptr ) {
-			ERRORLOG( "Unabble to obtain original pattern" );
-			return;
+			pHydrogenApp->pushUndoCommand(
+				new SE_insertPatternAction(
+					SE_insertPatternAction::Type::Insert, nInsertPos,
+					pNewPattern, pSong->getPatternList()->get( nInsertPos )
+				),
+				"SongEditorPatternList::insertPatternAction"
+			);
+			++nInsertPos;
 		}
-
-		pHydrogenApp->pushUndoCommand( new SE_insertPatternAction(
-			SE_insertPatternAction::Type::Insert, nTargetPattern, pNewPattern,
-			pOldPattern
-		) );
 	}
 }
 

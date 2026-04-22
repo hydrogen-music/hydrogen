@@ -71,6 +71,7 @@ using namespace H2Core;
 QString HydrogenApp::sMimeDragInstrument = "dragInstrument";
 QString HydrogenApp::sMimeDragPattern = "dragPattern";
 QString HydrogenApp::sMimeSeparator = "::";
+QString HydrogenApp::sMimeSubSeparator = ":";
 
 HydrogenApp* HydrogenApp::m_pInstance = nullptr;
 

@@ -1577,16 +1577,28 @@ void PatternEditorSidebar::dropEvent( QDropEvent* event )
 		event->acceptProposedAction();
 	}
 	else if ( sText.startsWith( HydrogenApp::sMimeDragInstrument ) ) {
-		// an instrument was dragged from the soundlibrary browser to the
-		// pattern editor
+		// Instrument(s) dragged from the sound library browser to the
+		// pattern editor. Each item token is "path:name" using the sub
+		// separator.
 
 		QStringList tokens = sText.split( HydrogenApp::sMimeSeparator );
-		const QString sDrumkitPath = tokens.at( 1 );
-		const QString sInstrumentName = tokens.at( 2 );
+		int nRow = nTargetRow;
+		for ( int ii = 1; ii < tokens.size(); ++ii ) {
+			const QStringList subTokens =
+				tokens.at( ii ).split( HydrogenApp::sMimeSubSeparator );
+			if ( subTokens.size() < 2 ) {
+				continue;
+			}
+			const QString sDrumkitPath = subTokens.at( 0 );
+			const QString sInstrumentName = subTokens.at( 1 );
 
-		m_pPatternEditorPanel->addInstrument(
-			sDrumkitPath, sInstrumentName, nTargetRow
-		);
+			m_pPatternEditorPanel->addInstrument(
+				sDrumkitPath, sInstrumentName, nRow
+			);
+			if ( nRow >= 0 ) {
+				++nRow;
+			}
+		}
 		event->acceptProposedAction();
 	}
 	else {
