@@ -26,6 +26,7 @@
 #include <QtWidgets>
 #include <memory>
 
+#include "InfoView.h"
 #include "SoundLibraryTree.h"
 #include "../Rack.h"
 #include "../../CommonStrings.h"
@@ -51,11 +52,6 @@ SoundLibraryPanel::SoundLibraryPanel(
 	  m_pDrumkitTree( nullptr ),
 	  m_pPatternTree( nullptr ),
 	  m_pSongTree( nullptr ),
-	  m_pDetailName( nullptr ),
-	  m_pDetailAuthor( nullptr ),
-	  m_pDetailInfo( nullptr ),
-	  m_pDetailLicense( nullptr ),
-	  m_pDetailPath( nullptr ),
 	  m_pTreeSystemDrumkitsItem( nullptr ),
 	  m_pTreeUserDrumkitsItem( nullptr ),
 	  m_pTreeSessionDrumkitsItem( nullptr ),
@@ -159,28 +155,8 @@ SoundLibraryPanel::SoundLibraryPanel(
 	}
 
 	// Detail view
-	m_pDetailName = new QLabel( this );
-	m_pDetailName->setWordWrap( true );
-	m_pDetailAuthor = new QLabel( this );
-	m_pDetailAuthor->setWordWrap( true );
-	m_pDetailInfo = new QLabel( this );
-	m_pDetailInfo->setWordWrap( true );
-	m_pDetailLicense = new QLabel( this );
-	m_pDetailLicense->setWordWrap( true );
-	m_pDetailPath = new QLabel( this );
-	m_pDetailPath->setWordWrap( true );
-
-	QFormLayout* pFormLayout = new QFormLayout();
-	pFormLayout->addRow( pCommonStrings->getNameDialog(), m_pDetailName );
-	pFormLayout->addRow( pCommonStrings->getAuthorDialog(), m_pDetailAuthor );
-	pFormLayout->addRow( pCommonStrings->getNotesDialog(), m_pDetailInfo );
-	pFormLayout->addRow( pCommonStrings->getLicenseDialog(), m_pDetailLicense );
-	pFormLayout->addRow( "Path:", m_pDetailPath );
-
-	QWidget* pDetailContainer = new QWidget( this );
-	pDetailContainer->setLayout( pFormLayout );
-	pDetailContainer->setObjectName( "DetailContainer" );
-	pMainLayout->addWidget( pDetailContainer );
+	m_pInfoView = new InfoView( this );
+	pMainLayout->addWidget( m_pInfoView );
 
 	connect(
 		m_pSearchField, &QLineEdit::textChanged, this,
@@ -253,14 +229,8 @@ void SoundLibraryPanel::updateDetailView()
 		pActiveTree = m_pSongTree;
 	}
 
-	// Clear all fields
-	m_pDetailName->clear();
-	m_pDetailAuthor->clear();
-	m_pDetailInfo->clear();
-	m_pDetailLicense->clear();
-	m_pDetailPath->clear();
-
 	if ( pActiveTree == nullptr || pActiveTree->currentItem() == nullptr ) {
+		m_pInfoView->updateContent( nullptr );
 		return;
 	}
 
@@ -273,27 +243,14 @@ void SoundLibraryPanel::updateDetailView()
 			 pItem->parent() == m_pTreeSessionDrumkitsItem ) {
 			auto it = m_pDrumkitTree->getRegistry().find( pItem );
 			if ( it != m_pDrumkitTree->getRegistry().end() && it->second != nullptr ) {
-				auto pInfo = it->second;
-				m_pDetailName->setText( pInfo->getName() );
-				m_pDetailAuthor->setText( pInfo->getAuthor() );
-				m_pDetailInfo->setText( pInfo->getInfo() );
-				m_pDetailLicense->setText(
-					pInfo->getLicense().toQString( "", true )
-				);
-				m_pDetailPath->setText( pInfo->getPath() );
+				m_pInfoView->updateContent( it->second );
 			}
 		}
 	}
 	else if ( pActiveTree == m_pPatternTree || pActiveTree == m_pSongTree ) {
 		auto it = pActiveTree->getRegistry().find( pItem );
 		if ( it != pActiveTree->getRegistry().end() && it->second != nullptr ) {
-			auto pInfo = it->second;
-			m_pDetailName->setText( pInfo->getName() );
-			m_pDetailAuthor->setText( pInfo->getAuthor() );
-			m_pDetailInfo->setText( pInfo->getInfo() );
-			m_pDetailLicense->setText( pInfo->getLicense().toQString( "", true )
-			);
-			m_pDetailPath->setText( pInfo->getPath() );
+			m_pInfoView->updateContent( it->second );
 		}
     }
 }
@@ -505,7 +462,7 @@ QLineEdit {						       \
     background: %2;         	       \
     color: %3;               	       \
 }                          	           \
-QWidget#DetailContainer, QTabBar, QLabel {  \
+QTabBar {			   \
     background-color: %4;     	       \
     color: %5;              	       \
 }                          	           \
@@ -516,4 +473,12 @@ QWidget#DetailContainer, QTabBar, QLabel {  \
 			.arg( backgroundColor.name() )
 			.arg( textColor.name() )
 	);
+
+	m_pInfoView->setStyleSheet( QString( "\
+QWidget {						 \
+    background-color: %1;			 \
+    color: %2;						 \
+}" )
+									.arg( backgroundColor.name() )
+									.arg( textColor.name() ) );
 }

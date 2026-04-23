@@ -41,6 +41,7 @@ namespace H2Core {
 	class Drumkit;
 }
 
+class InfoView;
 class SoundLibraryTree;
 class ToggleButton;
 
@@ -115,13 +116,7 @@ class SoundLibraryPanel : public QWidget,
 	SoundLibraryTree* m_pPatternTree;  // tab 1
 	SoundLibraryTree* m_pSongTree;	   // tab 2
 
-	// --- Detail view ---
-	QLabel* m_pDetailName;
-	QLabel* m_pDetailAuthor;
-	QLabel* m_pDetailInfo;
-	QLabel* m_pDetailLicense;
-	QLabel* m_pDetailCategory;
-	QLabel* m_pDetailPath;
+	InfoView* m_pInfoView;
 
 	// --- Drumkit tree top-level category items ---
 	QTreeWidgetItem* m_pTreeSystemDrumkitsItem;
