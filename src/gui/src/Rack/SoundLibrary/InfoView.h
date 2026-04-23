@@ -69,6 +69,8 @@ class InfoView : public QWidget,
 	QLabel* m_pTagsText;
 
 	QMenu* m_pMenu;
+
+	std::shared_ptr<H2Core::SoundLibraryInfo> m_pInfo;
 };
 
 #endif

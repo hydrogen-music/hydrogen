@@ -43,6 +43,7 @@ InfoView::InfoView( QWidget* pParent ) : QWidget( pParent )
 	setMinimumHeight( 30 );
 	setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred ) );
 
+	const auto pPref = Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	auto pContainer = new QWidget( this );
@@ -61,7 +62,9 @@ InfoView::InfoView( QWidget* pParent ) : QWidget( pParent )
 	pMainLayout->setColumnStretch( 2, 1 );
 	pContainer->setLayout( pMainLayout );
 
-	auto addRow = [=]( const QString& sText, QLabel** pLabel ) {
+	m_pMenu = new QMenu();
+
+	auto addRow = [=]( const QString& sText, QLabel** pLabel, QLabel** pText ) {
 		const int nRow = pMainLayout->rowCount();
 
 		auto pDescription = new QLabel( this );
@@ -69,19 +72,61 @@ InfoView::InfoView( QWidget* pParent ) : QWidget( pParent )
 		pMainLayout->addWidget( pDescription, nRow, 0 );
 		*pLabel = pDescription;
 
-		auto pText = new QLabel( this );
-		pMainLayout->addWidget( pText, nRow, 2 );
+		auto pContent = new QLabel( this );
+		pMainLayout->addWidget( pContent, nRow, 2 );
+		*pText = pContent;
 
-		return pText;
+		// Allow the user the show and hide the row via the popup menu.
+		auto pAction = new QAction( sText, this );
+		pAction->setCheckable( true );
+		m_pMenu->addAction( pAction );
+
+	return pAction;
 	};
 
-	m_pNameText = addRow( pCommonStrings->getNameDialog(), &m_pNameLabel );
-	m_pAuthorText = addRow( pCommonStrings->getAuthorDialog(), &m_pAuthorLabel );
-	m_pInfoText = addRow( pCommonStrings->getNotesDialog(), &m_pInfoLabel );
-	m_pLicenseText =
-		addRow( pCommonStrings->getLicenseDialog(), &m_pLicenseLabel );
-	m_pPathText = addRow( "Path", &m_pPathLabel );
-	m_pTagsText = addRow( pCommonStrings->getTagsLabel(), &m_pTagsLabel );
+	auto pNameAction =
+		addRow( pCommonStrings->getNameDialog(), &m_pNameLabel, &m_pNameText );
+	pNameAction->setChecked( pPref->getSoundLibraryShowName() );
+	connect( pNameAction, &QAction::toggled, this, [&]( bool bChecked ) {
+		Preferences::get_instance()->setSoundLibraryShowName( bChecked );
+		updateVisibility();
+	} );
+	auto pAuthorAction = addRow(
+		pCommonStrings->getAuthorDialog(), &m_pAuthorLabel, &m_pAuthorText
+	);
+	pAuthorAction->setChecked( pPref->getSoundLibraryShowAuthor() );
+	connect( pAuthorAction, &QAction::toggled, this, [&]( bool bChecked ) {
+		Preferences::get_instance()->setSoundLibraryShowAuthor( bChecked );
+		updateVisibility();
+	} );
+	auto pInfoAction =
+		addRow( pCommonStrings->getNotesDialog(), &m_pInfoLabel, &m_pInfoText );
+	pInfoAction->setChecked( pPref->getSoundLibraryShowInfo() );
+	connect( pInfoAction, &QAction::toggled, this, [&]( bool bChecked ) {
+		Preferences::get_instance()->setSoundLibraryShowInfo( bChecked );
+		updateVisibility();
+	} );
+	auto pLicenseAction = addRow(
+		pCommonStrings->getLicenseDialog(), &m_pLicenseLabel, &m_pLicenseText
+	);
+	pLicenseAction->setChecked( pPref->getSoundLibraryShowLicense() );
+	connect( pLicenseAction, &QAction::toggled, this, [&]( bool bChecked ) {
+		Preferences::get_instance()->setSoundLibraryShowLicense( bChecked );
+		updateVisibility();
+	} );
+	auto pPathAction = addRow( "Path", &m_pPathLabel, &m_pPathText );
+	pPathAction->setChecked( pPref->getSoundLibraryShowPath() );
+	connect( pPathAction, &QAction::toggled, this, [&]( bool bChecked ) {
+		Preferences::get_instance()->setSoundLibraryShowPath( bChecked );
+		updateVisibility();
+	} );
+	auto pTagsAction =
+		addRow( pCommonStrings->getTagsLabel(), &m_pTagsLabel, &m_pTagsText );
+	pTagsAction->setChecked( pPref->getSoundLibraryShowTags() );
+	connect( pTagsAction, &QAction::toggled, this, [&]( bool bChecked ) {
+		Preferences::get_instance()->setSoundLibraryShowTags( bChecked );
+		updateVisibility();
+	} );
 
 	auto pSeparator = new QFrame( this );
 	pSeparator->setFixedWidth( 1 );
@@ -98,6 +143,8 @@ InfoView::~InfoView()
 
 void InfoView::updateContent( std::shared_ptr<H2Core::SoundLibraryInfo> pInfo )
 {
+	m_pInfo = pInfo;
+
 	if ( pInfo == nullptr ) {
 		m_pNameText->clear();
 		m_pNameText->setToolTip( "" );
@@ -183,6 +230,12 @@ void InfoView::updateVisibility()
 	m_pPathText->setVisible( pPref->getSoundLibraryShowPath() );
 	m_pTagsLabel->setVisible( pPref->getSoundLibraryShowTags() );
 	m_pTagsText->setVisible( pPref->getSoundLibraryShowTags() );
+
+	// In case a row was initial hidden, its string cutting based on the
+	// widget's width did not work as expected since the visible widget will
+	// have a different width. That's why we play it save and regenerate all
+	// strings.
+	updateContent( m_pInfo );
 }
 
 void InfoView::mousePressEvent( QMouseEvent* pEvent )
