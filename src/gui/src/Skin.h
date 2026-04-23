@@ -29,113 +29,112 @@
 /// Skin support
 ///
 /** \ingroup docGUI*/
-class Skin
-{
-public:
-		/** Factor by which an average button (in a panel) is more wide than
-		 * high. */
-		static constexpr float fButtonWidthHeightRatio = 1.2;
+class Skin {
+   public:
+	/** Factor by which an average button (in a panel) is more wide than
+	 * high. */
+	static constexpr float fButtonWidthHeightRatio = 1.2;
 
-		/** Factor by which the window background (empty space not covered by
-		 * any other widget) of either pattern or song editor is made lighter in
-		 * case the particular editor is chosen. */
-		static constexpr int nEditorActiveScaling = 120;
+	/** Factor by which the window background (empty space not covered by
+	 * any other widget) of either pattern or song editor is made lighter in
+	 * case the particular editor is chosen. */
+	static constexpr int nEditorActiveScaling = 120;
 
-		/** Different parts of the pattern editor share a common cursor. We will
-		 * add a slight transparency to those cursors _not_ current focussed by
-		 * the user. */
-		static constexpr int nInactiveCursorAlpha = 170;
+	/** Different parts of the pattern editor share a common cursor. We will
+	 * add a slight transparency to those cursors _not_ current focussed by
+	 * the user. */
+	static constexpr int nInactiveCursorAlpha = 170;
 
-		/** Factor by which the background of a list element (sidebar) will be
-		 * darker than the corresponding line. */
-		static constexpr int nListBackgroundColorScaling = 120;
-		/** Factor by which the background color of a list element will be
-		 * darkened in order to produce the border color. */
-		static constexpr int nListBackgroundDarkBorderScaling = 220;
-		/** Factor by which the background color of a list element will be
-		 * lightened in order to produce the border color. */
-		static constexpr int nListBackgroundLightBorderScaling = 150;
+	/** Factor by which the background of a list element (sidebar) will be
+	 * darker than the corresponding line. */
+	static constexpr int nListBackgroundColorScaling = 120;
+	/** Factor by which the background color of a list element will be
+	 * darkened in order to produce the border color. */
+	static constexpr int nListBackgroundDarkBorderScaling = 220;
+	/** Factor by which the background color of a list element will be
+	 * lightened in order to produce the border color. */
+	static constexpr int nListBackgroundLightBorderScaling = 150;
 
-		static constexpr int nPlayheadHeight = 8;
-		static constexpr int nPlayheadWidth = 11;
+	static constexpr int nPlayheadHeight = 8;
+	static constexpr int nPlayheadWidth = 11;
 
-		/** in pixel */
-		static constexpr int nScrollBarWidth = 12;
+	/** in pixel */
+	static constexpr int nScrollBarWidth = 12;
 
-		static constexpr int nToolButtonBorderRadius = 2;
-		static constexpr int nToolButtonCheckedScaling = 125;
-		static constexpr int nToolButtonHoveredScaling = 105;
-		static constexpr int nToolButtonPressedScaling = 110;
+	static constexpr int nToolButtonBorderRadius = 2;
+	static constexpr int nToolButtonCheckedScaling = 125;
+	static constexpr int nToolButtonHoveredScaling = 105;
+	static constexpr int nToolButtonPressedScaling = 110;
 
-		static constexpr int nIconMargin = 2;
+	static constexpr int nIconMargin = 2;
 
-		enum class Stacked {
-			None,
-			Off,
-			OffNext,
-			On,
-			OnNext
-		};
+	enum class Stacked { None, Off, OffNext, On, OnNext };
 
-		static void drawPlayhead( QPainter* p, int x, int y,
-								  bool bHovered = false );
-		static void drawStackedIndicator( QPainter* p, int x, int y,
-										  const Skin::Stacked& stacked );
+	static void
+	drawPlayhead( QPainter* p, int x, int y, bool bHovered = false );
+	static void drawStackedIndicator(
+		QPainter* p,
+		int x,
+		int y,
+		const Skin::Stacked& stacked
+	);
 
-		/** Top-level stylesheet for Hydrogen.
-		 *
-		 * This one affects all widgets within Hydrogen (including popups, file
-		 * browser etc) and will get the most recent color values from the
-		 * #H2Core::Preferences.
-		 *
-		 * \return String version of the stylesheet.*/
-		static QString getGlobalStyleSheet();
+	/** Top-level stylesheet for Hydrogen.
+	 *
+	 * This one affects all widgets within Hydrogen (including popups, file
+	 * browser etc) and will get the most recent color values from the
+	 * #H2Core::Preferences.
+	 *
+	 * \return String version of the stylesheet.*/
+	static QString getGlobalStyleSheet();
 
-		static QString getImagePath();
-		static int getPlayheadShaftOffset() {
-			return std::floor( Skin::nPlayheadWidth / 2 ); }
-		static QString getSvgImagePath();
-		static QString getToolButtonStyle( const QColor& backgroundColor );
+	static QString getImagePath();
+	static int getPlayheadShaftOffset()
+	{
+		return std::floor( Skin::nPlayheadWidth / 2 );
+	}
+	static QString getSvgImagePath();
+	static QString getToolButtonStyle( const QColor& backgroundColor );
 
-		static QColor makeBackgroundColorInactive( const QColor& color );
+	static QColor makeBackgroundColorInactive( const QColor& color );
 
-		/** If a widget is marked inactive the value of its text color are
-		 * reduced by this factor.*/
-		static QColor makeTextColorInactive( const QColor& color );
-		/** If a widget is marked inactive the value of its background color are
-		 * reduced by this factor.*/
-		static QColor makeWidgetColorInactive( const QColor& color );
+	/** If a widget is marked inactive the value of its text color are
+	 * reduced by this factor.*/
+	static QColor makeTextColorInactive( const QColor& color );
+	/** If a widget is marked inactive the value of its background color are
+	 * reduced by this factor.*/
+	static QColor makeWidgetColorInactive( const QColor& color );
 
-		static bool moreBlackThanWhite( const QColor& color );
+	static bool moreBlackThanWhite( const QColor& color );
 
-		/** Function used to update the global palette of the QApplication.
-		 *
-		 * It will get the most recent color values from the
-		 * #H2Core::Preferences. */
-		static void setPalette( QApplication *pQApp );
+	/** Function used to update the global palette of the QApplication.
+	 *
+	 * It will get the most recent color values from the
+	 * #H2Core::Preferences. */
+	static void setPalette( QApplication* pQApp );
 
-		static void setPlayheadPen( QPainter* p, bool bHovered = false );
+	static void setPlayheadPen( QPainter* p, bool bHovered = false );
 
-		/** The default color for disabled icons is a mid grayish one. In
-		 * combination with our default black icon color this leaves very little
-		 * room for picking a background color of the tool bar to work with both
-		 * of them. Yet alone one that is distinct from the other toolbars and
-		 * integrates well in the overall UI. Therefore, we use this wrapper
-		 * function to introduce our own disabled color for all icons in a
-		 * toolbar. */
-		static void setToolButtonIcon(
-			QToolButton* pButton,
-			const QString& sIconPath,
-			const QColor& disabledColor
-		);
+	/** The default color for disabled icons is a mid grayish one. In
+	 * combination with our default black icon color this leaves very little
+	 * room for picking a background color of the tool bar to work with both
+	 * of them. Yet alone one that is distinct from the other toolbars and
+	 * integrates well in the overall UI. Therefore, we use this wrapper
+	 * function to introduce our own disabled color for all icons in a
+	 * toolbar. */
+	static void setToolButtonIcon(
+		QToolButton* pButton,
+		const QString& sIconPath,
+		const QColor& disabledColor
+	);
 
-		/** Toolbars in Qt are quite hard to get right. This routine will
-		 * help us to keep a consistent styling throughout all of them.*/
-		static void setToolBarStyle(
-			QToolBar* pToolBar,
-			const QColor& background,
-			bool bBorder
-		);
+	/** Toolbars in Qt are quite hard to get right. This routine will
+	 * help us to keep a consistent styling throughout all of them.*/
+	static void setToolBarStyle(
+		QToolBar* pToolBar,
+		const QColor& background,
+		bool bBorder
+	);
 };
 
 #endif
