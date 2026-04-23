@@ -161,14 +161,7 @@ SoundLibraryTree::SoundLibraryTree(
 		connect( this, &QTreeWidget::itemExpanded, selectItem );
 	}
 
-	connect( this, &QTreeWidget::currentItemChanged, [&]() {
-		m_pSoundLibraryPanel->updateDetailView();
-		if ( m_bStandAlone && currentItem() != nullptr ) {
-			emit itemChanged(
-				m_registry.find( currentItem() ) != m_registry.end()
-			);
-		}
-	} );
+	connect( this, &QTreeWidget::currentItemChanged, [&]() { updateInfo(); } );
 }
 
 QItemSelectionModel::SelectionFlags SoundLibraryTree::selectionCommand(
@@ -219,6 +212,24 @@ void SoundLibraryTree::updateFont()
 	if ( m_pUserItem != nullptr ) {
 		m_pUserItem->setFont( 0, boldFont );
 		recursivelyUpdateFont( m_pUserItem );
+	}
+}
+
+void SoundLibraryTree::updateInfo()
+{
+	if ( currentItem() != nullptr ) {
+		auto it = m_registry.find( currentItem() );
+		if ( it != m_registry.end() && it->second != nullptr ) {
+			m_pSoundLibraryPanel->updateInfoView( it->second );
+			if ( m_bStandAlone ) {
+				emit itemChanged( true );
+			}
+			return;
+		}
+	}
+	m_pSoundLibraryPanel->updateInfoView( nullptr );
+	if ( m_bStandAlone ) {
+		emit itemChanged( false );
 	}
 }
 

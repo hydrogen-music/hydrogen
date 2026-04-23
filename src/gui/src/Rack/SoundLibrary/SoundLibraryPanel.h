@@ -73,7 +73,7 @@ class SoundLibraryPanel : public QWidget,
 
 	/** Populates the detail view at the bottom with the metadata of the
 	 * currently selected item in the active tab's tree. */
-	void updateDetailView();
+	void updateInfoView( std::shared_ptr<H2Core::SoundLibraryInfo> pInfo );
 
 	void soundLibraryChangedEvent() override;
 	void updateSongEvent( int nValue ) override;
@@ -117,16 +117,6 @@ class SoundLibraryPanel : public QWidget,
 	SoundLibraryTree* m_pSongTree;	   // tab 2
 
 	InfoView* m_pInfoView;
-
-	// --- Drumkit tree top-level category items ---
-	QTreeWidgetItem* m_pTreeSystemDrumkitsItem;
-	QTreeWidgetItem* m_pTreeUserDrumkitsItem;
-	QTreeWidgetItem* m_pTreeSessionDrumkitsItem;
-
-	// Legacy pointers kept for backward compatibility with existing slots
-	QTreeWidgetItem* __song_item;
-	QTreeWidgetItem* __pattern_item;
-	QTreeWidgetItem* __pattern_item_list;
 
 	/** Whether the dialog was constructed as part of an Open from Library
 	 * dialog for the corresponding artifact via a click in the MainForm or as

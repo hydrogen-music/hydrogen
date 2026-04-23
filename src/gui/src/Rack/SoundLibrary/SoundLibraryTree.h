@@ -54,6 +54,7 @@ class SoundLibraryTree : public QTreeWidget,
 	getRegistry() const;
 
 	void updateFont();
+	void updateInfo();
 	void updateRegistry();
 
    public slots:

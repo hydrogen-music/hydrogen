@@ -31,6 +31,7 @@
 #include "../Rack.h"
 #include "../../CommonStrings.h"
 #include "../../HydrogenApp.h"
+#include "core/SoundLibrary/SoundLibraryInfo.h"
 
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
@@ -52,12 +53,6 @@ SoundLibraryPanel::SoundLibraryPanel(
 	  m_pDrumkitTree( nullptr ),
 	  m_pPatternTree( nullptr ),
 	  m_pSongTree( nullptr ),
-	  m_pTreeSystemDrumkitsItem( nullptr ),
-	  m_pTreeUserDrumkitsItem( nullptr ),
-	  m_pTreeSessionDrumkitsItem( nullptr ),
-	  __song_item( nullptr ),
-	  __pattern_item( nullptr ),
-	  __pattern_item_list( nullptr ),
 	  m_pOpenType( pOpenType )
 {
 	setMinimumWidth( Rack::nWidth );
@@ -199,60 +194,9 @@ void SoundLibraryPanel::updateTree()
 	}
 }
 
-void SoundLibraryPanel::updateDetailView()
+void SoundLibraryPanel::updateInfoView( std::shared_ptr<SoundLibraryInfo> pInfo )
 {
-	// Determine which tree is active
-	SoundLibraryTree* pActiveTree = nullptr;
-	if ( m_pTabWidget != nullptr ) {
-		switch ( m_pTabWidget->currentIndex() ) {
-			case 0:
-				pActiveTree = m_pDrumkitTree;
-				break;
-			case 1:
-				pActiveTree = m_pPatternTree;
-				break;
-			case 2:
-				pActiveTree = m_pSongTree;
-				break;
-			default:
-				ERRORLOG( "Invalid tab" );
-				return;
-		}
-	}
-	else if ( *m_pOpenType == SoundLibraryInfo::Type::Drumkit ) {
-		pActiveTree = m_pDrumkitTree;
-	}
-	else if ( *m_pOpenType == SoundLibraryInfo::Type::Pattern ) {
-		pActiveTree = m_pPatternTree;
-	}
-	else {
-		pActiveTree = m_pSongTree;
-	}
-
-	if ( pActiveTree == nullptr || pActiveTree->currentItem() == nullptr ) {
-		m_pInfoView->updateContent( nullptr );
-		return;
-	}
-
-	QTreeWidgetItem* pItem = pActiveTree->currentItem();
-
-	if ( pActiveTree == m_pDrumkitTree ) {
-		// Drumkit tab: look up the selected drumkit
-		if ( pItem->parent() == m_pTreeSystemDrumkitsItem ||
-			 pItem->parent() == m_pTreeUserDrumkitsItem ||
-			 pItem->parent() == m_pTreeSessionDrumkitsItem ) {
-			auto it = m_pDrumkitTree->getRegistry().find( pItem );
-			if ( it != m_pDrumkitTree->getRegistry().end() && it->second != nullptr ) {
-				m_pInfoView->updateContent( it->second );
-			}
-		}
-	}
-	else if ( pActiveTree == m_pPatternTree || pActiveTree == m_pSongTree ) {
-		auto it = pActiveTree->getRegistry().find( pItem );
-		if ( it != pActiveTree->getRegistry().end() && it->second != nullptr ) {
-			m_pInfoView->updateContent( it->second );
-		}
-    }
+	m_pInfoView->updateContent( pInfo );
 }
 
 void SoundLibraryPanel::filterTree(
@@ -326,8 +270,8 @@ void SoundLibraryPanel::hideRecursive( QTreeWidgetItem* pItem, bool bHidden )
 void SoundLibraryPanel::onTabChanged( int nIndex )
 {
 	UNUSED( nIndex );
+	getCurrentTree()->updateInfo();
 	filterTree( getCurrentTree(), m_pSearchField->text() );
-	updateDetailView();
 }
 
 void SoundLibraryPanel::onSearchTextChanged( const QString& sText )
