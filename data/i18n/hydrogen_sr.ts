@@ -5958,6 +5958,13 @@ imported into %2</source>
     </message>
 </context>
 <context>
+    <name>SoundLibraryPanel</name>
+    <message>
+        <source>Search...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SoundLibraryRepositoryDialog</name>
     <message>
         <source>Edit server list</source>
