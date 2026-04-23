@@ -85,18 +85,18 @@ void Legacy::loadComponentNames( std::shared_ptr<InstrumentList> pInstrumentList
 		XMLNode instrumentNode =
 			instrumentListNode.firstChildElement( "instrument" );
 		while ( !instrumentNode.isNull() ) {
-
-
-			const int nInstrumentId = instrumentNode.read_int(
-				"id", -2, false, false, bSilent );
-			auto pInstrument = pInstrumentList->get( nInstrumentId );
+			const auto instrumentId = static_cast<Instrument::Id>(
+				instrumentNode.read_int( "id", -2, false, false, bSilent )
+			);
+			auto pInstrument = pInstrumentList->find( instrumentId );
 			if ( pInstrument == nullptr ) {
-				if ( ! bSilent ) {
-					WARNINGLOG( QString( "No instrument found for ID [%1]" )
-								.arg( nInstrumentId ) );
-				}
-				instrumentNode = instrumentNode.nextSiblingElement( "instrument" );
-				continue;
+				 if ( !bSilent ) {
+					 WARNINGLOG( QString( "No instrument found for ID [%1]" )
+									 .arg( static_cast<int>( instrumentId ) ) );
+				 }
+				 instrumentNode =
+					 instrumentNode.nextSiblingElement( "instrument" );
+				 continue;
 			}
 
 			// In current versions of Hydrogen there is no dedicated ID but the
