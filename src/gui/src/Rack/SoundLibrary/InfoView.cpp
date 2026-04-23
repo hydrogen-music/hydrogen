@@ -28,6 +28,7 @@
 #include "../Rack.h"
 #include "../../Skin.h"
 
+#include <core/License.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/DrumkitInfo.h>
 #include <core/SoundLibrary/PatternInfo.h>
@@ -121,7 +122,10 @@ void InfoView::updateContent( std::shared_ptr<H2Core::SoundLibraryInfo> pInfo )
 		setText( m_pNameText, pInfo->getName() );
 		setText( m_pAuthorText, pInfo->getAuthor() );
 		setText( m_pInfoText, pInfo->getInfo() );
-		setText( m_pLicenseText, pInfo->getLicense().toQString( "", true ) );
+		setText(
+			m_pLicenseText,
+			License::LicenseTypeToQString( pInfo->getLicense().getType() )
+		);
 		setText( m_pPathText, pInfo->getPath() );
 		setText( m_pTagsText, pInfo->getTags().join( ", " ) );
 	}
