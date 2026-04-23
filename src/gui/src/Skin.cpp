@@ -435,3 +435,24 @@ QToolBar::separator {                  \
 								 .arg( Skin::getToolButtonStyle( backgroundColor
 								 ) ) );
 }
+
+QString Skin::trimToFitWidth( const QString& sText, const QFont& font, int nWidth, const QMargins& margins ) {
+
+	const QString sEllipsis = QString::fromUtf8( "\u2026" );
+	QString sTextTrim = sText;
+	// Check whether the width of the text fits the available frame
+	// width of the label
+	while ( QFontMetrics( font ).size( Qt::TextSingleLine, sTextTrim ).width() >
+				nWidth - margins.left() - 4 &&
+			sTextTrim.size() > 3 ) {
+		if ( sTextTrim.at( sTextTrim.size() - 2 ) != sEllipsis ) {
+			// First trim action
+			sTextTrim.replace( sTextTrim.size() - 2, 1, sEllipsis );
+		}
+		else {
+			sTextTrim = sTextTrim.remove( sTextTrim.size() - 3, 1 );
+		}
+	}
+
+	return sTextTrim;
+}

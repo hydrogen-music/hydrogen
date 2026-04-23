@@ -196,22 +196,8 @@ void SidebarLabel::updateFont()
 	// and we are trapped in an infinite loop.
 	setFont( font );
 
-	const QString sEllipsis = QString::fromUtf8( "\u2026" );
-	QString sText = m_sText;
-	// Check whether the width of the text fits the available frame
-	// width of the label
-	while ( QFontMetrics( font ).size( Qt::TextSingleLine, sText ).width() >
-				width() - textMargins().left() - 4 &&
-			sText.size() > 3 ) {
-		if ( sText.at( sText.size() - 2 ) != sEllipsis ) {
-			// First trim action
-			sText.replace( sText.size() - 2, 1, sEllipsis );
-		}
-		else {
-			sText = sText.remove( sText.size() - 3, 1 );
-		}
-	}
-
+	const auto sText =
+		Skin::trimToFitWidth( m_sText, font, width(), textMargins() );
 	if ( sText != text() ) {
 		QLineEdit::setText( sText );
 	}

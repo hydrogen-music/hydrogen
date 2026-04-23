@@ -135,6 +135,15 @@ class Skin {
 		const QColor& background,
 		bool bBorder
 	);
+
+	/** Removes characters from @a sText until the result fits into @a nWidth
+	 * for a given @a font. The right-most character will be kept. */
+	static QString trimToFitWidth(
+		const QString& sText,
+		const QFont& font,
+		int nWidth,
+		const QMargins& margins
+	);
 };
 
 #endif
