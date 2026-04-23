@@ -191,6 +191,12 @@ Preferences::Preferences()
 	  m_fExportCompressionLevel( 0.0 ),
 	  m_nMidiExportMode( 0 ),
 	  m_bMidiExportUseHumanization( false ),
+	  m_bSoundLibraryShowName( true ),
+	  m_bSoundLibraryShowAuthor( false ),
+	  m_bSoundLibraryShowInfo( true ),
+	  m_bSoundLibraryShowLicense( false ),
+	  m_bSoundLibraryShowPath( false ),
+	  m_bSoundLibraryShowTags( true ),
 	  m_bShowExportSongLicenseWarning( true ),
 	  m_bShowExportDrumkitLicenseWarning( true ),
 	  m_bShowExportDrumkitCopyleftWarning( true ),
@@ -388,6 +394,12 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	  m_fExportCompressionLevel( pOther->m_fExportCompressionLevel ),
 	  m_nMidiExportMode( pOther->m_nMidiExportMode ),
 	  m_bMidiExportUseHumanization( pOther->m_bMidiExportUseHumanization ),
+	  m_bSoundLibraryShowName( pOther->m_bSoundLibraryShowName ),
+	  m_bSoundLibraryShowAuthor( pOther->m_bSoundLibraryShowAuthor ),
+	  m_bSoundLibraryShowInfo( pOther->m_bSoundLibraryShowInfo ),
+	  m_bSoundLibraryShowLicense( pOther->m_bSoundLibraryShowLicense ),
+	  m_bSoundLibraryShowPath( pOther->m_bSoundLibraryShowPath ),
+	  m_bSoundLibraryShowTags( pOther->m_bSoundLibraryShowTags ),
 	  m_bShowExportSongLicenseWarning( pOther->m_bShowExportSongLicenseWarning
 	  ),
 	  m_bShowExportDrumkitLicenseWarning(
@@ -1130,6 +1142,31 @@ Preferences::load( const QString& sPath, const bool bSilent )
 			pPref->m_bMidiExportUseHumanization, true, false, bSilent
 		);
 
+		pPref->m_bSoundLibraryShowName = guiNode.read_bool(
+			"soundLibraryShowName",
+			pPref->m_bSoundLibraryShowName, true, false, bSilent
+		);
+		pPref->m_bSoundLibraryShowAuthor = guiNode.read_bool(
+			"soundLibraryShowAuthor",
+			pPref->m_bSoundLibraryShowAuthor, true, false, bSilent
+		);
+		pPref->m_bSoundLibraryShowInfo = guiNode.read_bool(
+			"soundLibraryShowInfo",
+			pPref->m_bSoundLibraryShowInfo, true, false, bSilent
+		);
+		pPref->m_bSoundLibraryShowLicense = guiNode.read_bool(
+			"soundLibraryShowLicense",
+			pPref->m_bSoundLibraryShowLicense, true, false, bSilent
+		);
+		pPref->m_bSoundLibraryShowPath = guiNode.read_bool(
+			"soundLibraryShowPath",
+			pPref->m_bSoundLibraryShowPath, true, false, bSilent
+		);
+		pPref->m_bSoundLibraryShowTags = guiNode.read_bool(
+			"soundLibraryShowTags",
+			pPref->m_bSoundLibraryShowTags, true, false, bSilent
+		);
+
 		// beatcounter
 		const QString sUseBeatCounter =
 			guiNode.read_string( "bc", "", false, false, bSilent );
@@ -1770,6 +1807,17 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 		guiNode.write_bool(
 			"midiExportDialogUseHumanization", m_bMidiExportUseHumanization
 		);
+
+		guiNode.write_bool( "soundLibraryShowName", m_bSoundLibraryShowName );
+		guiNode.write_bool(
+			"soundLibraryShowAuthor", m_bSoundLibraryShowAuthor
+		);
+		guiNode.write_bool( "soundLibraryShowInfo", m_bSoundLibraryShowInfo );
+		guiNode.write_bool(
+			"soundLibraryShowLicense", m_bSoundLibraryShowLicense
+		);
+		guiNode.write_bool( "soundLibraryShowPath", m_bSoundLibraryShowPath );
+		guiNode.write_bool( "soundLibraryShowTags", m_bSoundLibraryShowTags );
 
 		// beatcounter
 		QString sBeatCounterOn( "BC_OFF" );
@@ -2575,6 +2623,30 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( sPrefix )
 						 .arg( s )
 						 .arg( m_bMidiExportUseHumanization ) )
+			.append( QString( "%1%2m_bSoundLibraryShowName: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_bSoundLibraryShowName ) )
+			.append( QString( "%1%2m_bSoundLibraryShowAuthor: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_bSoundLibraryShowAuthor ) )
+			.append( QString( "%1%2m_bSoundLibraryShowInfo: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_bSoundLibraryShowInfo ) )
+			.append( QString( "%1%2m_bSoundLibraryShowLicense: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_bSoundLibraryShowLicense ) )
+			.append( QString( "%1%2m_bSoundLibraryShowPath: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_bSoundLibraryShowPath ) )
+			.append( QString( "%1%2m_bSoundLibraryShowTags: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_bSoundLibraryShowTags ) )
 			.append( QString( "%1%2m_bShowExportSongLicenseWarning: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
@@ -2857,6 +2929,18 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 			)
 			.append( QString( ", m_bMidiExportUseHumanization: %1" )
 						 .arg( m_bMidiExportUseHumanization ) )
+			.append( QString( ", m_bSoundLibraryShowName: %1" )
+						 .arg( m_bSoundLibraryShowName ) )
+			.append( QString( ", m_bSoundLibraryShowAuthor: %1" )
+						 .arg( m_bSoundLibraryShowAuthor ) )
+			.append( QString( ", m_bSoundLibraryShowInfo: %1" )
+						 .arg( m_bSoundLibraryShowInfo ) )
+			.append( QString( ", m_bSoundLibraryShowLicense: %1" )
+						 .arg( m_bSoundLibraryShowLicense ) )
+			.append( QString( ", m_bSoundLibraryShowPath: %1" )
+						 .arg( m_bSoundLibraryShowPath ) )
+			.append( QString( ", m_bSoundLibraryShowTags: %1" )
+						 .arg( m_bSoundLibraryShowTags ) )
 			.append( QString( ", m_bShowExportSongLicenseWarning: %1" )
 						 .arg( m_bShowExportSongLicenseWarning ) )
 			.append( QString( ", m_bShowExportDrumkitLicenseWarning: %1" )

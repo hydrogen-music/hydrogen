@@ -169,7 +169,20 @@ QLabel {						     \
 
 void InfoView::updateVisibility()
 {
-	DEBUGLOG( "not implemented" );
+	const auto pPref = Preferences::get_instance();
+
+	m_pNameLabel->setVisible( pPref->getSoundLibraryShowName() );
+	m_pNameText->setVisible( pPref->getSoundLibraryShowName() );
+	m_pAuthorLabel->setVisible( pPref->getSoundLibraryShowAuthor() );
+	m_pAuthorText->setVisible( pPref->getSoundLibraryShowAuthor() );
+	m_pInfoLabel->setVisible( pPref->getSoundLibraryShowInfo() );
+	m_pInfoText->setVisible( pPref->getSoundLibraryShowInfo() );
+	m_pLicenseLabel->setVisible( pPref->getSoundLibraryShowLicense() );
+	m_pLicenseText->setVisible( pPref->getSoundLibraryShowLicense() );
+	m_pPathLabel->setVisible( pPref->getSoundLibraryShowPath() );
+	m_pPathText->setVisible( pPref->getSoundLibraryShowPath() );
+	m_pTagsLabel->setVisible( pPref->getSoundLibraryShowTags() );
+	m_pTagsText->setVisible( pPref->getSoundLibraryShowTags() );
 }
 
 void InfoView::mousePressEvent( QMouseEvent* pEvent )

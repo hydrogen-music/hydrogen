@@ -542,6 +542,19 @@ class Preferences : public H2Core::Object<Preferences> {
 	bool getMidiExportUseHumanization() const;
 	void setMidiExportUseHumanization( bool bHumanization );
 
+	bool getSoundLibraryShowName() const;
+	void setSoundLibraryShowName( bool bShow );
+	bool getSoundLibraryShowAuthor() const;
+	void setSoundLibraryShowAuthor( bool bShow );
+	bool getSoundLibraryShowInfo() const;
+	void setSoundLibraryShowInfo( bool bShow );
+	bool getSoundLibraryShowLicense() const;
+	void setSoundLibraryShowLicense( bool bShow );
+	bool getSoundLibraryShowPath() const;
+	void setSoundLibraryShowPath( bool bShow );
+	bool getSoundLibraryShowTags() const;
+	void setSoundLibraryShowTags( bool bShow );
+
 	bool m_bShowExportSongLicenseWarning;
 	bool m_bShowExportDrumkitLicenseWarning;
 	bool m_bShowExportDrumkitCopyleftWarning;
@@ -694,6 +707,13 @@ class Preferences : public H2Core::Object<Preferences> {
 	// Export midi dialog
 	int m_nMidiExportMode;
 	bool m_bMidiExportUseHumanization;
+
+	bool m_bSoundLibraryShowName;
+	bool m_bSoundLibraryShowAuthor;
+	bool m_bSoundLibraryShowInfo;
+	bool m_bSoundLibraryShowLicense;
+	bool m_bSoundLibraryShowPath;
+	bool m_bSoundLibraryShowTags;
 
 	std::shared_ptr<Theme> m_pTheme;
 
@@ -850,6 +870,55 @@ inline bool Preferences::getMidiExportUseHumanization() const
 inline void Preferences::setMidiExportUseHumanization( bool bUseHumanization )
 {
 	m_bMidiExportUseHumanization = bUseHumanization;
+}
+
+inline bool Preferences::getSoundLibraryShowName() const
+{
+	return m_bSoundLibraryShowName;
+}
+inline void Preferences::setSoundLibraryShowName( bool bShow )
+{
+	m_bSoundLibraryShowName = bShow;
+}
+inline bool Preferences::getSoundLibraryShowAuthor() const
+{
+	return m_bSoundLibraryShowAuthor;
+}
+inline void Preferences::setSoundLibraryShowAuthor( bool bShow )
+{
+	m_bSoundLibraryShowAuthor = bShow;
+}
+inline bool Preferences::getSoundLibraryShowInfo() const
+{
+	return m_bSoundLibraryShowInfo;
+}
+inline void Preferences::setSoundLibraryShowInfo( bool bShow )
+{
+	m_bSoundLibraryShowInfo = bShow;
+}
+inline bool Preferences::getSoundLibraryShowLicense() const
+{
+	return m_bSoundLibraryShowLicense;
+}
+inline void Preferences::setSoundLibraryShowLicense( bool bShow )
+{
+	m_bSoundLibraryShowLicense = bShow;
+}
+inline bool Preferences::getSoundLibraryShowPath() const
+{
+	return m_bSoundLibraryShowPath;
+}
+inline void Preferences::setSoundLibraryShowPath( bool bShow )
+{
+	m_bSoundLibraryShowPath = bShow;
+}
+inline bool Preferences::getSoundLibraryShowTags() const
+{
+	return m_bSoundLibraryShowTags;
+}
+inline void Preferences::setSoundLibraryShowTags( bool bShow )
+{
+	m_bSoundLibraryShowTags = bShow;
 }
 
 inline int Preferences::getExportSampleDepthIdx() const
