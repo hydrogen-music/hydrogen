@@ -55,6 +55,16 @@ bool SongInfo::load( const QString& sPath )
 			);
 		m_sName = rootNode.read_string( "name", "", false, false );
 		m_sInfo = rootNode.read_string( "notes", "", false, false );
+		const XMLNode tagsNode = rootNode.firstChildElement( "tags" );
+		if ( !tagsNode.isNull() ) {
+			QStringList tags;
+			auto tagNode = tagsNode.firstChildElement( "tag" );
+			while ( !tagNode.isNull() && !tagNode.text().isEmpty() ) {
+				tags << tagNode.text();
+				tagNode = tagNode.nextSiblingElement( "tag" );
+			}
+			m_tags = tags;
+		}
 	}
 	else {
 		ERRORLOG(

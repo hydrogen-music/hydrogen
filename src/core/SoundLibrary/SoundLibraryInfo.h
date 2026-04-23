@@ -57,7 +57,8 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo> {
 		 const QString& sAuthor,
 		 Type type,
 		 const License& license,
-		 const QString& sPath
+		 const QString& sPath,
+		 const QStringList& tags
 	 );
 	 ~SoundLibraryInfo();
 
@@ -77,6 +78,7 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo> {
 	 const H2Core::License& getLicense() const { return m_license; }
 	 const QString& getPath() const { return m_sPath; }
 	 Filesystem::Context getContext() const { return m_context; }
+	 const QStringList& getTags() const { return m_tags; }
 	 const QString& getLabel() const { return m_sLabel; }
 	 void setLabel( const QString& sLabel ) { m_sLabel = sLabel; }
 
@@ -101,6 +103,7 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo> {
 	 /** Absolute path to locate the resource. This will also be used as
 	  * unique identifier for the artifact. */
 	 QString m_sPath;
+	 QStringList m_tags;
 	 /** Unique label of an artifact within a given context within the Sound
 	  * Library. In case there are multiple items bearing the same name, the
 	  * first one registered will keep it while all further ones be suffixed by

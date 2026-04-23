@@ -52,7 +52,8 @@ SoundLibraryInfo::SoundLibraryInfo(
 	const QString& sAuthor,
 	Type type,
 	const License& license,
-	const QString& sPath
+	const QString& sPath,
+	const QStringList& tags
 )
 	: m_sName( sName ),
 	  m_sURL( sURL ),
@@ -61,6 +62,7 @@ SoundLibraryInfo::SoundLibraryInfo(
 	  m_type( type ),
 	  m_license( license ),
 	  m_sPath( sPath ),
+	  m_tags( tags ),
 	  m_context( Filesystem::Context::User )
 {
 }
@@ -112,6 +114,10 @@ QString SoundLibraryInfo::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_sLabel ) )
+				.append( QString( "%1%2m_tags: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_tags.join( ", " ) ) )
 				.append( QString( "%1%2m_context: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -132,6 +138,7 @@ QString SoundLibraryInfo::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( m_license.toQString( "", bShort ) ) )
 				.append( QString( ", m_sPath: %1" ).arg( m_sPath ) )
 				.append( QString( ", m_sLabel: %1" ).arg( m_sLabel ) )
+				.append( QString( ", m_tags: %1" ).arg( m_tags.join( ", " ) ) )
 				.append( QString( ", m_context: %1" )
 							 .arg( Filesystem::ContextToQString( m_context ) )
 				);

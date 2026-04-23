@@ -301,7 +301,8 @@ void SoundLibraryOnlineImportDialog::reloadRepositoryData()
 			node.firstChildElement( "url" ).text(),
 			node.firstChildElement( "info" ).text(),
 			node.firstChildElement( "author" ).text(), type,
-			H2Core::License( node.firstChildElement( "license" ).text() ), ""
+			H2Core::License( node.firstChildElement( "license" ).text() ), "",
+			QStringList()
 		) );
 		node = node.nextSibling();
 	}

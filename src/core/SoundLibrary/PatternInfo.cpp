@@ -65,12 +65,6 @@ bool PatternInfo::load( const QString& sPath )
 			// Try current format.
 			m_sName = patternNode.read_string( "name", "", false, false );
 		}
-		if ( m_sAuthor == "undefined author" ) {
-			// current format
-			m_sAuthor = patternNode.read_string(
-				"author", "undefined author", true, false, true
-			);
-		}
 		if ( m_license.isEmpty() ) {
 			// current format
 			m_license = H2Core::License(
@@ -80,6 +74,25 @@ bool PatternInfo::load( const QString& sPath )
 		m_sInfo = patternNode.read_string(
 			"info", "No information available.", false, true, true
 		);
+		const XMLNode tagsNode = patternNode.firstChildElement( "tags" );
+		if ( !tagsNode.isNull() ) {
+			auto tagNode = tagsNode.firstChildElement( "tag" );
+			while ( !tagNode.isNull() && !tagNode.text().isEmpty() ) {
+				m_tags << tagNode.text();
+				tagNode = tagNode.nextSiblingElement( "tag" );
+			}
+		}
+		else {
+			// Prior to version 2.0 each pattern contained one "category"
+			// instead of a list of tags. For backward compatibility we will
+			// read in a possible category as a tag.
+			const QString sCategory =
+				rootNode.read_string( "category", "", false, true, true );
+			if ( !sCategory.isEmpty() && sCategory != "not_categorized" &&
+				 sCategory != "unknown" ) {
+				m_tags << sCategory;
+			}
+		}
 	}
 	else {
 		ERRORLOG(
