@@ -350,14 +350,13 @@ void SoundLibraryPanel::filterTree(
 void SoundLibraryPanel::onTabChanged( int nIndex )
 {
 	UNUSED( nIndex );
+	filterTree( getCurrentTree(), m_pSearchField->text() );
 	updateDetailView();
 }
 
 void SoundLibraryPanel::onSearchTextChanged( const QString& sText )
 {
-	filterTree( m_pDrumkitTree, sText );
-	filterTree( m_pPatternTree, sText );
-	filterTree( m_pSongTree, sText );
+	filterTree( getCurrentTree(), m_pSearchField->text() );
 }
 
 void SoundLibraryPanel::onRescanClicked()
