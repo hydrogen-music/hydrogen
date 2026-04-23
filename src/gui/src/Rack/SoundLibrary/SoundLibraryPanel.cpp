@@ -418,11 +418,5 @@ QTabBar {			   \
 			.arg( textColor.name() )
 	);
 
-	m_pInfoView->setStyleSheet( QString( "\
-QWidget {						 \
-    background-color: %1;			 \
-    color: %2;						 \
-}" )
-									.arg( backgroundColor.name() )
-									.arg( textColor.name() ) );
+	m_pInfoView->updateStyleSheet();
 }

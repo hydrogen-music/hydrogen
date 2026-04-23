@@ -38,38 +38,55 @@ using namespace H2Core;
 InfoView::InfoView( QWidget* pParent ) : QWidget( pParent )
 {
 	setMinimumWidth( Rack::nWidth );
+	setMinimumHeight( 30 );
 	setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred ) );
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	// Main layout
-	QVBoxLayout* pMainLayout = new QVBoxLayout();
+	auto pContainer = new QWidget( this );
+	pContainer->setObjectName( "InfoViewContainer" );
+	auto pOverallLayout = new QVBoxLayout();
+	pOverallLayout->setSpacing( 0 );
+	pOverallLayout->setContentsMargins( 0, 0, 0, 0 );
+	pOverallLayout->addWidget( pContainer );
+	setLayout( pOverallLayout );
+
+	auto pMainLayout = new QGridLayout();
 	pMainLayout->setSpacing( 0 );
-	pMainLayout->setContentsMargins( 0, 0, 0, 0 );
-	setLayout( pMainLayout );
+	pMainLayout->setContentsMargins( 3, 3, 3, 0 );
+	pMainLayout->setColumnStretch( 0, 0 );
+	pMainLayout->setColumnStretch( 1, 0 );
+	pMainLayout->setColumnStretch( 2, 1 );
+	pContainer->setLayout( pMainLayout );
 
-	m_pDetailName = new QLabel( this );
-	m_pDetailName->setWordWrap( true );
-	m_pDetailAuthor = new QLabel( this );
-	m_pDetailAuthor->setWordWrap( true );
-	m_pDetailInfo = new QLabel( this );
-	m_pDetailInfo->setWordWrap( true );
-	m_pDetailLicense = new QLabel( this );
-	m_pDetailLicense->setWordWrap( true );
-	m_pDetailPath = new QLabel( this );
-	m_pDetailPath->setWordWrap( true );
+	auto addRow = [=]( const QString& sText, QLabel** pLabel ) {
+		const int nRow = pMainLayout->rowCount();
 
-	QFormLayout* pFormLayout = new QFormLayout();
-	pFormLayout->addRow( pCommonStrings->getNameDialog(), m_pDetailName );
-	pFormLayout->addRow( pCommonStrings->getAuthorDialog(), m_pDetailAuthor );
-	pFormLayout->addRow( pCommonStrings->getNotesDialog(), m_pDetailInfo );
-	pFormLayout->addRow( pCommonStrings->getLicenseDialog(), m_pDetailLicense );
-	pFormLayout->addRow( "Path", m_pDetailPath );
+		auto pDescription = new QLabel( this );
+		pDescription->setText( sText );
+		pMainLayout->addWidget( pDescription, nRow, 0 );
+		*pLabel = pDescription;
 
-	QWidget* pDetailContainer = new QWidget( this );
-	pDetailContainer->setLayout( pFormLayout );
-	pMainLayout->addWidget( pDetailContainer );
+		auto pText = new QLabel( this );
+		pMainLayout->addWidget( pText, nRow, 2 );
 
+		return pText;
+	};
+
+	m_pNameText = addRow( pCommonStrings->getNameDialog(), &m_pNameLabel );
+	m_pAuthorText = addRow( pCommonStrings->getAuthorDialog(), &m_pAuthorLabel );
+	m_pInfoText = addRow( pCommonStrings->getNotesDialog(), &m_pInfoLabel );
+	m_pLicenseText =
+		addRow( pCommonStrings->getLicenseDialog(), &m_pLicenseLabel );
+	m_pPathText = addRow( "Path", &m_pPathLabel );
+	m_pTagsText = addRow( pCommonStrings->getTagsLabel(), &m_pTagsLabel );
+
+	auto pSeparator = new QFrame( this );
+	pSeparator->setFixedWidth( 1 );
+	pSeparator->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
+	pMainLayout->addWidget( pSeparator, 0, 1, pMainLayout->rowCount(), 1 );
+
+	updateStyleSheet();
 	updateVisibility();
 }
 
@@ -80,19 +97,55 @@ InfoView::~InfoView()
 void InfoView::updateContent( std::shared_ptr<H2Core::SoundLibraryInfo> pInfo )
 {
 	if ( pInfo == nullptr ) {
-		m_pDetailName->clear();
-		m_pDetailAuthor->clear();
-		m_pDetailInfo->clear();
-		m_pDetailLicense->clear();
-		m_pDetailPath->clear();
+		m_pNameText->clear();
+		m_pAuthorText->clear();
+		m_pInfoText->clear();
+		m_pLicenseText->clear();
+		m_pPathText->clear();
+		m_pTagsText->clear();
 	}
 	else {
-		m_pDetailName->setText( pInfo->getName() );
-		m_pDetailAuthor->setText( pInfo->getAuthor() );
-		m_pDetailInfo->setText( pInfo->getInfo() );
-		m_pDetailLicense->setText( pInfo->getLicense().toQString( "", true ) );
-		m_pDetailPath->setText( pInfo->getPath() );
+		m_pNameText->setText( pInfo->getName() );
+		m_pAuthorText->setText( pInfo->getAuthor() );
+		m_pInfoText->setText( pInfo->getInfo() );
+		m_pLicenseText->setText( pInfo->getLicense().toQString( "", true ) );
+		m_pPathText->setText( pInfo->getPath() );
+		m_pTagsText->setText( pInfo->getTags().join( ", " ) );
 	}
+}
+
+void InfoView::updateStyleSheet()
+{
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+
+	const auto borderColor = pColorTheme->m_windowColor.darker( 140 );
+	const auto separatorColor = pColorTheme->m_windowColor;
+
+	const auto backgroundColor = pColorTheme->m_baseColor;
+	const QColor textColor = Skin::moreBlackThanWhite( backgroundColor )
+							   ? Qt::white
+							   : Qt::black;
+	setStyleSheet( QString( "        \
+QWidget#InfoViewContainer {			 \
+    background-color: %1;			 \
+    border-left: 1px solid %3;		 \
+    border-right: 1px solid %3;		 \
+    border-bottom: 1px solid %3;	 \
+}									 \
+QFrame {		 \
+    background-color: %4;			 \
+}									 \
+QLabel {						     \
+    background-color: %1;			 \
+    color: %2;						 \
+    border-bottom: 1px solid %4;	 \
+    padding: 5px;					 \
+}									 \
+" )
+					   .arg( backgroundColor.name() )
+					   .arg( textColor.name() )
+					   .arg( borderColor.name() )
+					   .arg( separatorColor.name() ) );
 }
 
 void InfoView::updateVisibility()

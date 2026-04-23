@@ -48,17 +48,25 @@ class InfoView : public QWidget,
 	~InfoView();
 
 	void updateContent( std::shared_ptr<H2Core::SoundLibraryInfo> pInfo );
+	void updateStyleSheet();
 	void updateVisibility();
 
    private:
 	void mousePressEvent( QMouseEvent* event ) override;
 
-	QLabel* m_pDetailName;
-	QLabel* m_pDetailAuthor;
-	QLabel* m_pDetailInfo;
-	QLabel* m_pDetailLicense;
-	QLabel* m_pDetailCategory;
-	QLabel* m_pDetailPath;
+	QLabel* m_pNameLabel;
+	QLabel* m_pAuthorLabel;
+	QLabel* m_pInfoLabel;
+	QLabel* m_pLicenseLabel;
+	QLabel* m_pPathLabel;
+	QLabel* m_pTagsLabel;
+
+	QLabel* m_pNameText;
+	QLabel* m_pAuthorText;
+	QLabel* m_pInfoText;
+	QLabel* m_pLicenseText;
+	QLabel* m_pPathText;
+	QLabel* m_pTagsText;
 
 	QMenu* m_pMenu;
 };
