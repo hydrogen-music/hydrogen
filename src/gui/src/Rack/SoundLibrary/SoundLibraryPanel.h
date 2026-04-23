@@ -52,7 +52,7 @@ class SoundLibraryPanel : public QWidget,
 	H2_OBJECT( SoundLibraryPanel )
 	Q_OBJECT
    public:
-	static constexpr int nHeaderHeight = 24;
+	static constexpr int nHeaderHeight = 26;
 
 	SoundLibraryPanel(
 		QWidget* parent,
@@ -91,6 +91,8 @@ class SoundLibraryPanel : public QWidget,
 	void itemChanged( bool bSelected );
 
    private:
+	void updateIcons();
+	void updateStyleSheet();
 	/** Convenience wrapper that calls all three update methods. */
 	void updateTree();
 
@@ -99,7 +101,7 @@ class SoundLibraryPanel : public QWidget,
 
 	// --- Top-level layout widgets ---
 	QLineEdit* m_pSearchField;
-	QPushButton* m_pRescanButton;
+	QToolButton* m_pRescanButton;
 	QTabWidget* m_pTabWidget;
 
 	// --- Per-tab trees ---

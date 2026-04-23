@@ -108,23 +108,26 @@ SoundLibraryPanel::SoundLibraryPanel(
 
 	// Search bar
 	m_pSearchField = new QLineEdit( this );
-	m_pSearchField->setFixedHeight( SoundLibraryPanel::nHeaderHeight );
+	m_pSearchField->setFixedHeight( SoundLibraryPanel::nHeaderHeight - 2 );
 	m_pSearchField->setPlaceholderText( "Search..." );
 
-	m_pRescanButton = new QPushButton( "Rescan", this );
-	m_pRescanButton->setFixedHeight( SoundLibraryPanel::nHeaderHeight );
+	m_pRescanButton = new QToolButton( this );
+	m_pRescanButton->setFixedHeight( SoundLibraryPanel::nHeaderHeight - 2 );
 
-	QHBoxLayout* pSearchLayout = new QHBoxLayout();
-	pSearchLayout->setSpacing( 4 );
-	pSearchLayout->setContentsMargins( 0, 0, 0, 0 );
+	auto pSearchWidget = new QWidget( this );
+	pSearchWidget->setObjectName( "SearchWidget" );
+	auto pSearchLayout = new QHBoxLayout();
+	pSearchLayout->setSpacing( 0 );
+	pSearchLayout->setContentsMargins( 1, 1, 1, 1 );
 	pSearchLayout->addWidget( m_pSearchField );
 	pSearchLayout->addWidget( m_pRescanButton );
+	pSearchWidget->setLayout( pSearchLayout );
 
 	// Main layout
 	QVBoxLayout* pMainLayout = new QVBoxLayout();
 	pMainLayout->setSpacing( 0 );
 	pMainLayout->setContentsMargins( 0, 0, 0, 0 );
-	pMainLayout->addLayout( pSearchLayout );
+	pMainLayout->addWidget( pSearchWidget );
 
 	this->setLayout( pMainLayout );
 
@@ -192,6 +195,8 @@ SoundLibraryPanel::SoundLibraryPanel(
 		&SoundLibraryPanel::onPreferencesChanged
 	);
 
+	updateIcons();
+	updateStyleSheet();
 	updateTree();
 
 	HydrogenApp::get_instance()->addEventListener( this );
@@ -416,6 +421,9 @@ void SoundLibraryPanel::onPreferencesChanged(
 	const H2Core::Preferences::Changes& changes
 )
 {
+	if ( changes & H2Core::Preferences::Changes::Colors ) {
+		updateStyleSheet();
+	}
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		if ( m_pDrumkitTree != nullptr ) {
 			m_pDrumkitTree->updateFont();
@@ -428,6 +436,7 @@ void SoundLibraryPanel::onPreferencesChanged(
 		}
 	}
 	if ( changes & H2Core::Preferences::Changes::AppearanceTab ) {
+		updateIcons();
 		// Not the most efficient way to icon update. But this operation is most
 		// probably done very rarely. So, it should be fine.
 		if ( m_pDrumkitTree != nullptr ) {
@@ -440,4 +449,48 @@ void SoundLibraryPanel::onPreferencesChanged(
 			m_pSongTree->updateRegistry();
 		}
 	}
+}
+
+void SoundLibraryPanel::updateIcons()
+{
+	QString sIconPath( Skin::getSvgImagePath() );
+	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+		 InterfaceTheme::IconColor::White ) {
+		sIconPath.append( "/icons/white/" );
+	}
+	else {
+		sIconPath.append( "/icons/black/" );
+	}
+
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const QColor headerInactiveColor = Skin::makeBackgroundColorInactive(
+		pColorTheme->m_componentEditor_componentColor
+	);
+	const QColor layerInactiveColor = Skin::makeBackgroundColorInactive(
+		pColorTheme->m_componentEditor_layerColor
+	);
+
+	m_pRescanButton->setIcon( QIcon( sIconPath + "loop.svg" ) );
+}
+
+void SoundLibraryPanel::updateStyleSheet()
+{
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	setStyleSheet(
+		QString( "\
+QWidget#SearchWidget {                 \
+    border: 1px solid #000;			   \
+    border-radius: 2px;			       \
+}									   \
+%1				                       \
+QLineEdit {						       \
+    border-radius: 0px;			       \
+    background: %2;         	       \
+    color: %3;               	       \
+}                          	           \
+" )
+			.arg( Skin::getToolButtonStyle( pColorTheme->m_windowColor ) )
+			.arg( pColorTheme->m_spinBoxColor.name() )
+			.arg( pColorTheme->m_spinBoxTextColor.name() )
+	);
 }
