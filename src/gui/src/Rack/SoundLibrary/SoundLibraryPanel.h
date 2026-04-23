@@ -103,6 +103,7 @@ class SoundLibraryPanel : public QWidget,
 		QTreeWidgetItem* pItem,
 		const QString& sFilter
 	);
+	void hideRecursive( QTreeWidgetItem* pItem, bool bHidden );
 
 	// --- Top-level layout widgets ---
 	QLineEdit* m_pSearchField;

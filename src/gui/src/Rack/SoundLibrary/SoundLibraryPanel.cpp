@@ -323,31 +323,47 @@ bool SoundLibraryPanel::filterTreeRecursive(
 	for ( int jj = 0; jj < pItem->childCount(); ++jj ) {
 		QTreeWidgetItem* pChild = pItem->child( jj );
 
-		bool bMatch;
-		if ( pChild->childCount() > 0 ) {
+		bool bRecursiveVisibility = true;
+		bool bMatch =
+			sFilter.isEmpty() ||
+			pChild->text( 0 ).contains( sFilter, Qt::CaseInsensitive );
+		if ( !bMatch && pChild->childCount() > 0 ) {
 			bMatch = filterTreeRecursive( pTree, pChild, sFilter );
+			// In case we show this item because one of its children is visible,
+			// we must not apply show all other siblings as well.
+			bRecursiveVisibility = !bMatch;
 		}
-		else {
-			bMatch = sFilter.isEmpty() ||
-					 pChild->text( 0 ).contains( sFilter, Qt::CaseInsensitive );
-			if ( ! bMatch ) {
-				// We also filter by tags.
-				auto it = pTree->getRegistry().find( pChild );
-				if ( it != pTree->getRegistry().end() &&
-					 it->second != nullptr && it->second->getTags().size() > 0 ) {
-					bMatch = it->second->getTags().join( "" ).contains(
-						sFilter, Qt::CaseInsensitive
-					);
-				}
+		if ( !bMatch ) {
+			// We also filter by tags.
+			auto it = pTree->getRegistry().find( pChild );
+			if ( it != pTree->getRegistry().end() && it->second != nullptr &&
+				 it->second->getTags().size() > 0 ) {
+				bMatch = it->second->getTags().join( "" ).contains(
+					sFilter, Qt::CaseInsensitive
+				);
 			}
 		}
-		pChild->setHidden( !bMatch );
+		if ( bRecursiveVisibility ) {
+			hideRecursive( pChild, !bMatch );
+		}
+		else {
+			pChild->setHidden( !bMatch );
+		}
 		if ( bMatch ) {
 			bAnyChildVisible = true;
 		}
 	}
 
 	return bAnyChildVisible;
+}
+
+void SoundLibraryPanel::hideRecursive( QTreeWidgetItem* pItem, bool bHidden )
+{
+	pItem->setHidden( bHidden );
+	for ( int jj = 0; jj < pItem->childCount(); ++jj ) {
+		QTreeWidgetItem* pChild = pItem->child( jj );
+		hideRecursive( pChild, bHidden );
+	}
 }
 
 void SoundLibraryPanel::onTabChanged( int nIndex )
