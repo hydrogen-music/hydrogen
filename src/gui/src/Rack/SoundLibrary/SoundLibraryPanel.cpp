@@ -309,11 +309,12 @@ void SoundLibraryPanel::filterTree(
 
 	for ( int ii = 0; ii < pTree->topLevelItemCount(); ++ii ) {
 		QTreeWidgetItem* pTopItem = pTree->topLevelItem( ii );
-		pTopItem->setHidden( !filterTreeRecursive( pTopItem, sFilter ) );
+		pTopItem->setHidden( !filterTreeRecursive( pTree, pTopItem, sFilter ) );
 	}
 }
 
 bool SoundLibraryPanel::filterTreeRecursive(
+	SoundLibraryTree* pTree,
 	QTreeWidgetItem* pItem,
 	const QString& sFilter
 )
@@ -324,11 +325,21 @@ bool SoundLibraryPanel::filterTreeRecursive(
 
 		bool bMatch;
 		if ( pChild->childCount() > 0 ) {
-			bMatch = filterTreeRecursive( pChild, sFilter );
+			bMatch = filterTreeRecursive( pTree, pChild, sFilter );
 		}
 		else {
 			bMatch = sFilter.isEmpty() ||
 					 pChild->text( 0 ).contains( sFilter, Qt::CaseInsensitive );
+			if ( ! bMatch ) {
+				// We also filter by tags.
+				auto it = pTree->getRegistry().find( pChild );
+				if ( it != pTree->getRegistry().end() &&
+					 it->second != nullptr && it->second->getTags().size() > 0 ) {
+					bMatch = it->second->getTags().join( "" ).contains(
+						sFilter, Qt::CaseInsensitive
+					);
+				}
+			}
 		}
 		pChild->setHidden( !bMatch );
 		if ( bMatch ) {
