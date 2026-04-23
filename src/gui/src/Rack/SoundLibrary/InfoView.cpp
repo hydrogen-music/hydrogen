@@ -26,6 +26,7 @@
 #include "../../Compatibility/MouseEvent.h"
 #include "../../HydrogenApp.h"
 #include "../Rack.h"
+#include "../../Skin.h"
 
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/DrumkitInfo.h>
@@ -98,19 +99,31 @@ void InfoView::updateContent( std::shared_ptr<H2Core::SoundLibraryInfo> pInfo )
 {
 	if ( pInfo == nullptr ) {
 		m_pNameText->clear();
+		m_pNameText->setToolTip( "" );
 		m_pAuthorText->clear();
+		m_pAuthorText->setToolTip( "" );
 		m_pInfoText->clear();
+		m_pInfoText->setToolTip( "" );
 		m_pLicenseText->clear();
+		m_pLicenseText->setToolTip( "" );
 		m_pPathText->clear();
+		m_pPathText->setToolTip( "" );
 		m_pTagsText->clear();
+		m_pTagsText->setToolTip( "" );
 	}
 	else {
-		m_pNameText->setText( pInfo->getName() );
-		m_pAuthorText->setText( pInfo->getAuthor() );
-		m_pInfoText->setText( pInfo->getInfo() );
-		m_pLicenseText->setText( pInfo->getLicense().toQString( "", true ) );
-		m_pPathText->setText( pInfo->getPath() );
-		m_pTagsText->setText( pInfo->getTags().join( ", " ) );
+		auto setText = [&]( QLabel* pLabel, const QString& sText ) {
+			pLabel->setToolTip( sText );
+			pLabel->setText( Skin::trimToFitWidth(
+				sText, pLabel->font(), pLabel->width(), QMargins( 5, 0, 0, 0 )
+			) );
+		};
+		setText( m_pNameText, pInfo->getName() );
+		setText( m_pAuthorText, pInfo->getAuthor() );
+		setText( m_pInfoText, pInfo->getInfo() );
+		setText( m_pLicenseText, pInfo->getLicense().toQString( "", true ) );
+		setText( m_pPathText, pInfo->getPath() );
+		setText( m_pTagsText, pInfo->getTags().join( ", " ) );
 	}
 }
 
