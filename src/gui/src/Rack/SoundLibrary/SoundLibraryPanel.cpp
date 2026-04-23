@@ -309,42 +309,34 @@ void SoundLibraryPanel::filterTree(
 
 	for ( int ii = 0; ii < pTree->topLevelItemCount(); ++ii ) {
 		QTreeWidgetItem* pTopItem = pTree->topLevelItem( ii );
-		bool bAnyChildVisible = false;
-
-		for ( int jj = 0; jj < pTopItem->childCount(); ++jj ) {
-			QTreeWidgetItem* pChild = pTopItem->child( jj );
-
-			// Check if pChild itself has children
-			if ( pChild->childCount() > 0 ) {
-				bool bAnyCatChildVisible = false;
-				for ( int kk = 0; kk < pChild->childCount(); ++kk ) {
-					QTreeWidgetItem* pLeaf = pChild->child( kk );
-					bool bMatch =
-						sFilter.isEmpty() || pLeaf->text( 0 ).contains(
-												 sFilter, Qt::CaseInsensitive
-											 );
-					pLeaf->setHidden( !bMatch );
-					if ( bMatch ) {
-						bAnyCatChildVisible = true;
-					}
-				}
-				pChild->setHidden( !bAnyCatChildVisible );
-				if ( bAnyCatChildVisible ) {
-					bAnyChildVisible = true;
-				}
-			}
-			else {
-				bool bMatch =
-					sFilter.isEmpty() ||
-					pChild->text( 0 ).contains( sFilter, Qt::CaseInsensitive );
-				pChild->setHidden( !bMatch );
-				if ( bMatch ) {
-					bAnyChildVisible = true;
-				}
-			}
-		}
-		pTopItem->setHidden( !bAnyChildVisible );
+		pTopItem->setHidden( !filterTreeRecursive( pTopItem, sFilter ) );
 	}
+}
+
+bool SoundLibraryPanel::filterTreeRecursive(
+	QTreeWidgetItem* pItem,
+	const QString& sFilter
+)
+{
+	bool bAnyChildVisible = false;
+	for ( int jj = 0; jj < pItem->childCount(); ++jj ) {
+		QTreeWidgetItem* pChild = pItem->child( jj );
+
+		bool bMatch;
+		if ( pChild->childCount() > 0 ) {
+			bMatch = filterTreeRecursive( pChild, sFilter );
+		}
+		else {
+			bMatch = sFilter.isEmpty() ||
+					 pChild->text( 0 ).contains( sFilter, Qt::CaseInsensitive );
+		}
+		pChild->setHidden( !bMatch );
+		if ( bMatch ) {
+			bAnyChildVisible = true;
+		}
+	}
+
+	return bAnyChildVisible;
 }
 
 void SoundLibraryPanel::onTabChanged( int nIndex )

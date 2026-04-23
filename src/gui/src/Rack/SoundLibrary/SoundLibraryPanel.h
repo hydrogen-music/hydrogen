@@ -98,6 +98,7 @@ class SoundLibraryPanel : public QWidget,
 
 	/** Recursively show/hide items in @a pTree based on @a sFilter. */
 	void filterTree( SoundLibraryTree* pTree, const QString& sFilter );
+	bool filterTreeRecursive( QTreeWidgetItem* pTree, const QString& sFilter );
 
 	// --- Top-level layout widgets ---
 	QLineEdit* m_pSearchField;
