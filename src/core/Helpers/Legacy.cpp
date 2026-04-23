@@ -305,7 +305,8 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 		// back compatibility code ( song version <= 0.9.0 )
 		QString sFileName = node.read_string( "filename", "", false, false, bSilent );
 
-		if ( ! Filesystem::fileExists( sFileName ) && ! sDrumkitPath.isEmpty() ) {
+		if ( !Filesystem::fileExists( sFileName, true ) &&
+			 !sDrumkitPath.isEmpty() ) {
 			// Starting from 2.0 sDrumkitPath does not point to the overall
 			// drumkit folder anymore but to the drumkit.xml file describing the
 			// drumkit.
