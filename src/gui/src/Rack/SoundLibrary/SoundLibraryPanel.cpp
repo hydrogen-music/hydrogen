@@ -179,6 +179,7 @@ SoundLibraryPanel::SoundLibraryPanel(
 
 	QWidget* pDetailContainer = new QWidget( this );
 	pDetailContainer->setLayout( pFormLayout );
+	pDetailContainer->setObjectName( "DetailContainer" );
 	pMainLayout->addWidget( pDetailContainer );
 
 	connect(
@@ -453,22 +454,14 @@ void SoundLibraryPanel::onPreferencesChanged(
 
 void SoundLibraryPanel::updateIcons()
 {
+	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
-		 InterfaceTheme::IconColor::White ) {
+	if ( Skin::moreBlackThanWhite( pColorTheme->m_baseColor ) ) {
 		sIconPath.append( "/icons/white/" );
 	}
 	else {
 		sIconPath.append( "/icons/black/" );
 	}
-
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
-	const QColor headerInactiveColor = Skin::makeBackgroundColorInactive(
-		pColorTheme->m_componentEditor_componentColor
-	);
-	const QColor layerInactiveColor = Skin::makeBackgroundColorInactive(
-		pColorTheme->m_componentEditor_layerColor
-	);
 
 	m_pRescanButton->setIcon( QIcon( sIconPath + "reload.svg" ) );
 }
@@ -476,6 +469,12 @@ void SoundLibraryPanel::updateIcons()
 void SoundLibraryPanel::updateStyleSheet()
 {
 	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+
+	const auto backgroundColor = pColorTheme->m_baseColor;
+	const QColor textColor = Skin::moreBlackThanWhite( backgroundColor )
+							   ? Qt::white
+							   : Qt::black;
+
 	setStyleSheet(
 		QString( "\
 QWidget#SearchWidget {                 \
@@ -488,9 +487,15 @@ QLineEdit {						       \
     background: %2;         	       \
     color: %3;               	       \
 }                          	           \
+QWidget#DetailContainer, QTabBar, QLabel {  \
+    background-color: %4;     	       \
+    color: %5;              	       \
+}                          	           \
 " )
-			.arg( Skin::getToolButtonStyle( pColorTheme->m_windowColor ) )
+			.arg( Skin::getToolButtonStyle( backgroundColor ) )
 			.arg( pColorTheme->m_spinBoxColor.name() )
 			.arg( pColorTheme->m_spinBoxTextColor.name() )
+			.arg( backgroundColor.name() )
+			.arg( textColor.name() )
 	);
 }
