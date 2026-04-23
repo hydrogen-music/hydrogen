@@ -108,9 +108,11 @@ SoundLibraryPanel::SoundLibraryPanel(
 
 	// Search bar
 	m_pSearchField = new QLineEdit( this );
+	m_pSearchField->setFixedHeight( SoundLibraryPanel::nHeaderHeight );
 	m_pSearchField->setPlaceholderText( "Search..." );
 
 	m_pRescanButton = new QPushButton( "Rescan", this );
+	m_pRescanButton->setFixedHeight( SoundLibraryPanel::nHeaderHeight );
 
 	QHBoxLayout* pSearchLayout = new QHBoxLayout();
 	pSearchLayout->setSpacing( 4 );

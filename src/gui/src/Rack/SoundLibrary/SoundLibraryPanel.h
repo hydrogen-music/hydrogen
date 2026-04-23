@@ -52,6 +52,8 @@ class SoundLibraryPanel : public QWidget,
 	H2_OBJECT( SoundLibraryPanel )
 	Q_OBJECT
    public:
+	static constexpr int nHeaderHeight = 24;
+
 	SoundLibraryPanel(
 		QWidget* parent,
 		std::shared_ptr<H2Core::SoundLibraryInfo::Type> pOpenType
@@ -101,9 +103,9 @@ class SoundLibraryPanel : public QWidget,
 	QTabWidget* m_pTabWidget;
 
 	// --- Per-tab trees ---
-	SoundLibraryTree* m_pDrumkitTree;		// tab 0
-	SoundLibraryTree* m_pPatternTree;		// tab 1
-	SoundLibraryTree* m_pSongTree;			// tab 2
+	SoundLibraryTree* m_pDrumkitTree;  // tab 0
+	SoundLibraryTree* m_pPatternTree;  // tab 1
+	SoundLibraryTree* m_pSongTree;	   // tab 2
 
 	// --- Detail view ---
 	QLabel* m_pDetailName;
