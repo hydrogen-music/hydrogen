@@ -470,7 +470,7 @@ void SoundLibraryPanel::updateIcons()
 		pColorTheme->m_componentEditor_layerColor
 	);
 
-	m_pRescanButton->setIcon( QIcon( sIconPath + "loop.svg" ) );
+	m_pRescanButton->setIcon( QIcon( sIconPath + "reload.svg" ) );
 }
 
 void SoundLibraryPanel::updateStyleSheet()
