@@ -37,6 +37,7 @@ All notable changes to this project will be documented in this file.
 - Segfault on Port-MIDI host error by @rrrapha.
 - Fix linker error on OpenBSD by @rrrapha.
 - Fixed performance issue when using JACK audio with rubberband.
+- Parameter loss in the MIDI table within the preferences (#2328).
 
 ## [1.2.6] - 2025-07-29
 
