@@ -137,6 +137,8 @@ SoundLibraryPanel::SoundLibraryPanel(
 
 		m_pTabWidget->setCurrentIndex( pPref->getSoundLibraryLastTab() );
 
+		m_pTabWidget->tabBar()->setExpanding( true );
+
 		connect(
 			m_pTabWidget, &QTabWidget::currentChanged, this,
 			&SoundLibraryPanel::onTabChanged
