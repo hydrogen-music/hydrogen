@@ -197,6 +197,7 @@ Preferences::Preferences()
 	  m_bSoundLibraryShowLicense( false ),
 	  m_bSoundLibraryShowPath( false ),
 	  m_bSoundLibraryShowTags( true ),
+	  m_nSoundLibraryLastTab( 0 ),
 	  m_bShowExportSongLicenseWarning( true ),
 	  m_bShowExportDrumkitLicenseWarning( true ),
 	  m_bShowExportDrumkitCopyleftWarning( true ),
@@ -400,6 +401,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	  m_bSoundLibraryShowLicense( pOther->m_bSoundLibraryShowLicense ),
 	  m_bSoundLibraryShowPath( pOther->m_bSoundLibraryShowPath ),
 	  m_bSoundLibraryShowTags( pOther->m_bSoundLibraryShowTags ),
+	  m_nSoundLibraryLastTab( pOther->m_nSoundLibraryLastTab ),
 	  m_bShowExportSongLicenseWarning( pOther->m_bShowExportSongLicenseWarning
 	  ),
 	  m_bShowExportDrumkitLicenseWarning(
@@ -1166,6 +1168,10 @@ Preferences::load( const QString& sPath, const bool bSilent )
 			"soundLibraryShowTags",
 			pPref->m_bSoundLibraryShowTags, true, false, bSilent
 		);
+		pPref->m_nSoundLibraryLastTab = guiNode.read_int(
+			"soundLibraryLastTab",
+			pPref->m_nSoundLibraryLastTab, true, false, bSilent
+		);
 
 		// beatcounter
 		const QString sUseBeatCounter =
@@ -1818,6 +1824,7 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 		);
 		guiNode.write_bool( "soundLibraryShowPath", m_bSoundLibraryShowPath );
 		guiNode.write_bool( "soundLibraryShowTags", m_bSoundLibraryShowTags );
+		guiNode.write_int( "soundLibraryLastTab", m_nSoundLibraryLastTab );
 
 		// beatcounter
 		QString sBeatCounterOn( "BC_OFF" );
@@ -2647,6 +2654,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( sPrefix )
 						 .arg( s )
 						 .arg( m_bSoundLibraryShowTags ) )
+			.append( QString( "%1%2m_nSoundLibraryLastTab: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_nSoundLibraryLastTab ) )
 			.append( QString( "%1%2m_bShowExportSongLicenseWarning: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
@@ -2941,6 +2952,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( m_bSoundLibraryShowPath ) )
 			.append( QString( ", m_bSoundLibraryShowTags: %1" )
 						 .arg( m_bSoundLibraryShowTags ) )
+			.append( QString( ", m_nSoundLibraryLastTab: %1" )
+						 .arg( m_nSoundLibraryLastTab ) )
 			.append( QString( ", m_bShowExportSongLicenseWarning: %1" )
 						 .arg( m_bShowExportSongLicenseWarning ) )
 			.append( QString( ", m_bShowExportDrumkitLicenseWarning: %1" )

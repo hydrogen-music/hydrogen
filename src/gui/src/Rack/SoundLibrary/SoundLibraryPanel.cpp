@@ -134,6 +134,9 @@ SoundLibraryPanel::SoundLibraryPanel(
 			m_pPatternTree, pCommonStrings->getPatternsLabel()
 		);
 		m_pTabWidget->addTab( m_pSongTree, pCommonStrings->getSongsLabel() );
+
+		m_pTabWidget->setCurrentIndex( pPref->getSoundLibraryLastTab() );
+
 		connect(
 			m_pTabWidget, &QTabWidget::currentChanged, this,
 			&SoundLibraryPanel::onTabChanged
@@ -272,6 +275,7 @@ void SoundLibraryPanel::onTabChanged( int nIndex )
 	UNUSED( nIndex );
 	getCurrentTree()->updateInfo();
 	filterTree( getCurrentTree(), m_pSearchField->text() );
+	Preferences::get_instance()->setSoundLibraryLastTab( nIndex );
 }
 
 void SoundLibraryPanel::onSearchTextChanged( const QString& sText )
