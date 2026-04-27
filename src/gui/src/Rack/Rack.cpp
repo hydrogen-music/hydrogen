@@ -42,6 +42,8 @@ Rack::Rack( QWidget* pParent )
 	setFixedWidth( Rack::nWidth );
 	setFocusPolicy( Qt::NoFocus );
 	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
+	tabBar()->setDocumentMode( true );
+	tabBar()->setExpanding( true );
 
 	m_pInstrumentEditor = new InstrumentEditor( this );
 	m_pComponentEditor = new ComponentEditor( this );
