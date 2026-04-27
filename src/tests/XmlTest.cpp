@@ -239,7 +239,6 @@ void XmlTest::testDrumkitLegacy()
 		);
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
 		CPPUNIT_ASSERT( pDrumkit->getInstruments() != nullptr );
-		CPPUNIT_ASSERT( pDrumkit->getInstruments() != nullptr );
 		for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {
 			CPPUNIT_ASSERT( ppInstrument != nullptr );
 			CPPUNIT_ASSERT( ppInstrument->hasSamples() );
@@ -261,6 +260,28 @@ void XmlTest::testDrumkitLegacy()
 	CPPUNIT_ASSERT( pInstrument->getComponent( 0 )->getName() == "Second" );
 	CPPUNIT_ASSERT( pInstrument->getComponent( 1 )->getName() == "First" );
 
+
+	___INFOLOG( "passed" );
+}
+
+void XmlTest::testDrumkitLegacyEncoding()
+{
+	___INFOLOG( "" );
+
+	QDir legacyDir( H2TEST_FILE( "drumkits/legacyEncoding" ) );
+
+	// Check whether all contained kits can be loaded.
+	for ( const auto& ssDir : legacyDir.entryList( QDir::Dirs |
+													QDir::NoDotAndDotDot ) ) {
+		___INFOLOG( ssDir );
+		const auto pDrumkit = H2Core::Drumkit::load(
+			H2Core::Filesystem::drumkitPathFromDir( legacyDir.filePath( ssDir )
+			),
+			false, nullptr, false
+		);
+		CPPUNIT_ASSERT( pDrumkit != nullptr );
+		CPPUNIT_ASSERT( pDrumkit->getInstruments() != nullptr );
+	}
 
 	___INFOLOG( "passed" );
 }
