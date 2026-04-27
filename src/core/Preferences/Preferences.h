@@ -556,6 +556,8 @@ class Preferences : public H2Core::Object<Preferences> {
 	void setSoundLibraryShowTags( bool bShow );
 	int getSoundLibraryLastTab() const;
 	void setSoundLibraryLastTab( int nTab );
+	int getRackLastTab() const;
+	void setRackLastTab( int nTab );
 
 	bool m_bShowExportSongLicenseWarning;
 	bool m_bShowExportDrumkitLicenseWarning;
@@ -717,6 +719,7 @@ class Preferences : public H2Core::Object<Preferences> {
 	bool m_bSoundLibraryShowPath;
 	bool m_bSoundLibraryShowTags;
 	int m_nSoundLibraryLastTab;
+	int m_nRackLastTab;
 
 	std::shared_ptr<Theme> m_pTheme;
 
@@ -930,6 +933,14 @@ inline int Preferences::getSoundLibraryLastTab() const
 inline void Preferences::setSoundLibraryLastTab( int nTab )
 {
 	m_nSoundLibraryLastTab = nTab;
+}
+inline int Preferences::getRackLastTab() const
+{
+	return m_nRackLastTab;
+}
+inline void Preferences::setRackLastTab( int nTab )
+{
+	m_nRackLastTab = nTab;
 }
 
 inline int Preferences::getExportSampleDepthIdx() const

@@ -53,6 +53,14 @@ Rack::Rack( QWidget* pParent )
 	);
 
 	updateIcons();
+
+	setCurrentIndex( Preferences::get_instance()->getRackLastTab() );
+	connect(
+		this, &QTabWidget::currentChanged, this, [&] {
+			Preferences::get_instance()->setRackLastTab( currentIndex() );
+		}
+	);
+
 	updateStyleSheet();
 }
 
@@ -75,16 +83,19 @@ void Rack::onPreferencesChanged(
 void Rack::showInstrument()
 {
 	setTabEnabled( 0, true );
+	Preferences::get_instance()->setRackLastTab( 0 );
 }
 
 void Rack::showComponents()
 {
 	setTabEnabled( 1, true );
+	Preferences::get_instance()->setRackLastTab( 1 );
 }
 
 void Rack::showSoundLibrary()
 {
 	setTabEnabled( 2, true );
+	Preferences::get_instance()->setRackLastTab( 2 );
 }
 
 void Rack::updateStyleSheet()
