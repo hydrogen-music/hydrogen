@@ -476,6 +476,20 @@ QByteArray Legacy::convertFromTinyXML( QFile* pFile, bool bSilent ) {
 		buf += line;
 	}
 
+#if QT_VERSION >= QT_VERSION_CHECK( 6, 3, 0 )
+	// We do not provide a code path for previous Qt versions since the issue
+	// does not seem to appear there. (At least not in 5.15)
+	if ( ! buf.isValidUtf8() ) {
+		// At least in one of the drumkits we host at SourceForge there is an
+		// invalid UTF-8 character. If not mended, this would prevent Hydrogen
+		// from loading the kit altogether. Instead, we just drop the character.
+		WARNINGLOG( QString( "Buffer [%1] is not valid UTF8. Dropping invalid characters." )
+					.arg( buf ));
+		buf = QString( buf ).toUtf8();
+		DEBUGLOG( buf );
+	}
+#endif
+
 	return std::move( buf );
 }
 	
