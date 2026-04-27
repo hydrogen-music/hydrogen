@@ -1014,7 +1014,7 @@ void SoundLibraryTree::addNodes(
 		QString sPath = ppInfo->getPath();
 		sPath.remove( sCurrentDir );
 		if ( sPath.startsWith( "/" ) || sPath.startsWith( "\\" ) ) {
-			sPath.removeFirst();
+			sPath.remove( 0, 1 );
 		}
 		if ( sPath.contains( "/" ) || sPath.contains( "\\" ) ) {
 			auto ppathSplit = splitCleanly( sPath );
