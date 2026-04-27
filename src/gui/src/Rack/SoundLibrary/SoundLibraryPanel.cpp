@@ -373,16 +373,21 @@ void SoundLibraryPanel::onPreferencesChanged(
 
 void SoundLibraryPanel::updateIcons()
 {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Skin::moreBlackThanWhite( pColorTheme->m_baseColor ) ) {
+	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
-	}
-	else {
+	} else {
 		sIconPath.append( "/icons/black/" );
 	}
 
 	m_pRescanButton->setIcon( QIcon( sIconPath + "reload.svg" ) );
+
+	if ( m_pTabWidget != nullptr ) {
+		m_pTabWidget->setTabIcon( 0, QIcon( sIconPath + "drum.svg" ) );
+		m_pTabWidget->setTabIcon( 1, QIcon( sIconPath + "pattern-editor.svg" ) );
+		m_pTabWidget->setTabIcon( 2, QIcon( sIconPath + "song-editor.svg" ) );
+	}
 }
 
 void SoundLibraryPanel::updateStyleSheet()
