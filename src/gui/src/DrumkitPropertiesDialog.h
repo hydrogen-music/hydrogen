@@ -30,41 +30,39 @@
 #include <core/Basics/Instrument.h>
 #include <core/Object.h>
 
-///
-///
-namespace H2Core
-{
+namespace H2Core {
 
 /** \ingroup docGUI*/
-class DrumkitPropertiesDialog :  public QDialog,
-								 protected WidgetWithLicenseProperty,
-								 public Ui_DrumkitPropertiesDialog_UI,
-								 public H2Core::Object<DrumkitPropertiesDialog>
-{
-	H2_OBJECT(DrumkitPropertiesDialog)
+class DrumkitPropertiesDialog : public QDialog,
+								protected WidgetWithLicenseProperty,
+								public Ui_DrumkitPropertiesDialog_UI,
+								public H2Core::Object<DrumkitPropertiesDialog> {
+	H2_OBJECT( DrumkitPropertiesDialog )
 	Q_OBJECT
-	public:
-		/** @param nInstrumentID If set to a value different than
-		 *   #Instrument::EmptyId, the corresponding line in the type tab will be
-		 *   selected on startup. */
-		DrumkitPropertiesDialog( QWidget* pParent,
-								 std::shared_ptr<Drumkit> pDrumkit,
-								 bool bEditingNotSaving,
-								 bool bSaveToNsmSession,
-								 Instrument::Id id = Instrument::EmptyId );
-		~DrumkitPropertiesDialog();
-		void showEvent( QShowEvent *e ) override;
+   public:
+	/** @param nInstrumentID If set to a value different than
+	 *   #Instrument::EmptyId, the corresponding line in the type tab will be
+	 *   selected on startup. */
+	DrumkitPropertiesDialog(
+		QWidget* pParent,
+		std::shared_ptr<Drumkit> pDrumkit,
+		bool bEditingNotSaving,
+		bool bSaveToNsmSession,
+		Instrument::Id id = Instrument::EmptyId
+	);
+	~DrumkitPropertiesDialog();
+	void showEvent( QShowEvent* e ) override;
 
-	private slots:
-		void on_saveBtn_clicked();
-		void on_imageBrowsePushButton_clicked();
+   private slots:
+	void on_saveBtn_clicked();
+	void on_imageBrowsePushButton_clicked();
 	void licenseComboBoxChanged( int );
 	void imageLicenseComboBoxChanged( int );
 
-  private:
+   private:
 	void updateTypesTable( bool bDrumkitWritable );
 	void updateLicensesTable();
-		void highlightDuplicates();
+	void highlightDuplicates();
 	void updateImage( const QString& sFilePath );
 	void saveDrumkitMap();
 
@@ -75,17 +73,17 @@ class DrumkitPropertiesDialog :  public QDialog,
 	 */
 	bool m_bEditingNotSaving;
 
-		/** Whether the kit should be stored in the users' drumkit folder or in
-		 * the NSM session folder (only available when Hydrogen is under session
-		 * management). */
-		bool m_bSaveToNsmSession;
+	/** Whether the kit should be stored in the users' drumkit folder or in
+	 * the NSM session folder (only available when Hydrogen is under session
+	 * management). */
+	bool m_bSaveToNsmSession;
 
 	QString m_sNewImagePath;
 
-		/** used to selected a specific instrument type row on opening based on
-		 * the provided instrument ID. */
-		std::map<Instrument::Id, LCDCombo*> m_idToTypeMap;
+	/** used to selected a specific instrument type row on opening based on
+	 * the provided instrument ID. */
+	std::map<Instrument::Id, LCDCombo*> m_idToTypeMap;
 };
 
-}
+}  // namespace H2Core
 #endif
