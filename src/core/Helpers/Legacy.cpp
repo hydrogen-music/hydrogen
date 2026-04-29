@@ -226,7 +226,7 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 		Hydrogen::get_instance()->getSoundLibraryDatabase();
 
 	std::shared_ptr<Drumkit> pDrumkit = nullptr;
-	if ( sLastLoadedDrumkitPath.contains( "/" ) &&
+	if ( sLastLoadedDrumkitPath.contains( "/" ) ||
 		 sLastLoadedDrumkitPath.contains( "\\" ) ) {
 		// We deal with an actual path
 		pDrumkit = pSoundLibraryDatabase->getDrumkit( sLastLoadedDrumkitPath );
