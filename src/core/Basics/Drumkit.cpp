@@ -533,7 +533,7 @@ bool Drumkit::saveImage( const QString& sDrumkitDir, bool bSilent ) const
 	// not practical and error prone). In order to preserve the original
 	// filename, a random prefix was introduced. This has to be stripped first.
 	QString sTargetImagePath( getAbsoluteImagePath() );
-	QString sTargetImageName( getAbsoluteImagePath() );
+	QString sTargetImageName( sTargetImagePath );
 	if ( m_context == Filesystem::Context::Song ) {
 		sTargetImageName = Filesystem::removeUniquePrefix( sTargetImagePath );
 	}
@@ -548,9 +548,12 @@ bool Drumkit::saveImage( const QString& sDrumkitDir, bool bSilent ) const
 		QDir( sDrumkitDir ).absoluteFilePath( info.fileName() );
 
 	if ( Filesystem::fileExists( sTargetImagePath, bSilent ) ) {
-		if ( ! Filesystem::fileCopy( sTargetImagePath, sDestination, bSilent ) ) {
-			ERRORLOG( QString( "Error copying image [%1] to [%2]")
-					  .arg( sTargetImagePath ).arg( sDestination ) );
+		if ( !Filesystem::fileCopy(
+				 sTargetImagePath, sDestination, /* bOverwrite */ true, bSilent
+			 ) ) {
+			ERRORLOG( QString( "Error copying image [%1] to [%2]" )
+						  .arg( sTargetImagePath )
+						  .arg( sDestination ) );
 			return false;
 		}
 	}
@@ -566,7 +569,8 @@ QString Drumkit::getAbsoluteImagePath() const {
 	QFileInfo info( m_sImage );
 	if ( info.isRelative() ) {
 		// Image was stored as plain filename and is located in drumkit folder.
-		return std::move( QDir( m_sPath ).absoluteFilePath( m_sImage ) );
+		return std::move( QDir( Filesystem::drumkitDirFromPath( m_sPath ) )
+							  .absoluteFilePath( m_sImage ) );
 	}
 	else {
 		return m_sImage;

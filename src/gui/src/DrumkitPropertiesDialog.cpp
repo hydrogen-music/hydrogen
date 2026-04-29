@@ -1032,7 +1032,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 
 		if ( fileInfo.dir().absolutePath() != m_pDrumkit->getPath() ) {
 			const QString sTargetPath =
-				QDir( m_pDrumkit->getPath() )
+				QDir( Filesystem::drumkitDirFromPath( m_pDrumkit->getPath() ) )
 					.absoluteFilePath( fileInfo.fileName() );
 
 			// Logging is done in file_copy.
