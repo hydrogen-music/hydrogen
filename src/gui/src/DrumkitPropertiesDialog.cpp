@@ -153,7 +153,17 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 		authorTxt->setText( QString( pDrumkit->getAuthor() ) );
 		infoTxt->append( QString( pDrumkit->getInfo() ) );
 
-		m_pPathEdit->setText( pDrumkit->getPath() );
+		if ( pDrumkit->getContext() == Filesystem::Context::Song &&
+			 bEditingNotSaving ) {
+			// In case the drumkit is not a standalone one but part of a .h2song
+			// file, we show the path to that file instead of Drumkit::m_sPath,
+			// which is still set to the drumkit file loaded into the song.
+			m_pPathEdit->setText( Hydrogen::get_instance()->getSong()->getPath()
+			);
+		}
+		else {
+			m_pPathEdit->setText( pDrumkit->getPath() );
+		}
 		m_pTagEdit->setTags( pDrumkit->getTags() );
 
 		License license = pDrumkit->getLicense();
