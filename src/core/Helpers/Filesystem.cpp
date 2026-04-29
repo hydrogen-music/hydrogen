@@ -1518,6 +1518,7 @@ QStringList Filesystem::targetDirs( Artifact artifact, Context context )
 		case Artifact::Song: {
 			if ( context == Context::System ) {
 				results << systemSongsDir();
+				results << demosDir();
 			}
 			else {
 				results << userSongsDir();
