@@ -490,9 +490,9 @@ void SoundLibraryTree::actionDuplicate()
 		pNewDrumkit->setName(
 			Filesystem::appendNumberOrIncrement( it->second->getName() )
 		);
-		pNewDrumkit->setPath(
+		pNewDrumkit->setPath( Filesystem::drumkitPathFromDir(
 			H2Core::Filesystem::userDrumkitsDir() + pNewDrumkit->getName()
-		);
+		) );
 
 		DrumkitPropertiesDialog dialog( this, pNewDrumkit, false, false );
 		dialog.exec();
