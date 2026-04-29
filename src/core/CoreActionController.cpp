@@ -965,7 +965,7 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong )
 	}
 
 	// In case the song is read-only, autosave won't work.
-	if ( !Filesystem::fileWritable( pSong->getPath() ) ) {
+	if ( !Filesystem::fileWritable( pSong->getPath(), true ) ) {
 		WARNINGLOG(
 			QString( "You don't have permissions to write to the song found in "
 					 "path [%1]. It will be opened as read-only (no autosave)."
