@@ -28,6 +28,7 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/License.h>
 
@@ -79,7 +80,14 @@ SongPropertiesDialog::SongPropertiesDialog(
 	setupLicenseComboBox( licenseComboBox );
 
 	if ( pSong != nullptr ) {
-		m_pPathEdit->setText( pSong->getPath() );
+		if ( pSong->getPath() != Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
+			// In order to allow to recover empty songs not associated with a
+			// file (path) yet from an autosave file, we assign those "empty"
+			// paths. But we do not show them in here since those paths are not
+			// actually backed by a file but only might have an associated
+			// autosave file.
+			m_pPathEdit->setText( pSong->getPath() );
+		}
 		versionSpinBox->setValue( pSong->getVersion() );
 		songNameTxt->setText( pSong->getName() );
 
