@@ -354,12 +354,30 @@ void SoundLibraryDatabase::registerUniqueLabel(
 	int nCount = 1;
 	QString sUniqueItemLabel = pInfo->getName();
 
-	auto labelContained = [&]( const QString& sLabel ) {
+	// For we display both read-write and read-only session kits within same
+	// node in the sound library.
+	auto contextMatch = [&]( Filesystem::Context context1,
+							 Filesystem::Context context2 ) {
+		if ( ( context1 == Filesystem::Context::SessionReadOnly ||
+			   context1 == Filesystem::Context::SessionReadWrite ) &&
+			 ( context2 == Filesystem::Context::SessionReadOnly ||
+			   context2 == Filesystem::Context::SessionReadWrite ) ) {
+			return true;
+		}
+		else {
+			return context1 == context2;
+		}
+	};
+	auto labelContained = [&]( const QString& sLabel,
+							   Filesystem::Context context ) {
 		switch ( pInfo->getType() ) {
 			case SoundLibraryInfo::Type::Drumkit: {
 				for ( const auto& ppInfo : m_drumkitInfos ) {
 					// Ensure we do not pick up the label for this kit.
 					if ( ppInfo != nullptr && ppInfo->getLabel() == sLabel &&
+						 contextMatch(
+							 ppInfo->getContext(), pInfo->getContext()
+						 ) &&
 						 ppInfo->getPath() != pInfo->getPath() ) {
 						return true;
 					}
@@ -370,6 +388,9 @@ void SoundLibraryDatabase::registerUniqueLabel(
 				for ( const auto& ppInfo : m_patternInfos ) {
 					// Ensure we do not pick up the label for this kit.
 					if ( ppInfo != nullptr && ppInfo->getLabel() == sLabel &&
+						 contextMatch(
+							 ppInfo->getContext(), pInfo->getContext()
+						 ) &&
 						 ppInfo->getPath() != pInfo->getPath() ) {
 						return true;
 					}
@@ -380,6 +401,9 @@ void SoundLibraryDatabase::registerUniqueLabel(
 				for ( const auto& ppInfo : m_songInfos ) {
 					// Ensure we do not pick up the label for this kit.
 					if ( ppInfo != nullptr && ppInfo->getLabel() == sLabel &&
+						 contextMatch(
+							 ppInfo->getContext(), pInfo->getContext()
+						 ) &&
 						 ppInfo->getPath() != pInfo->getPath() ) {
 						return true;
 					}
@@ -395,7 +419,7 @@ void SoundLibraryDatabase::registerUniqueLabel(
 		}
 	};
 
-	while ( labelContained( sUniqueItemLabel ) ) {
+	while ( labelContained( sUniqueItemLabel, pInfo->getContext() ) ) {
 		sUniqueItemLabel =
 			QString( "%1 (%2)" ).arg( pInfo->getName() ).arg( nCount );
 		nCount++;
