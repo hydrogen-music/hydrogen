@@ -140,7 +140,7 @@ void FilesystemTest::testListContent() {
 						Filesystem::Context::System
 	)
 						.isEmpty() );
-	CPPUNIT_ASSERT( Filesystem::listContent(
+	CPPUNIT_ASSERT( !Filesystem::listContent(
 						Filesystem::Artifact::Song, Filesystem::Context::System
 	)
 						.isEmpty() );
