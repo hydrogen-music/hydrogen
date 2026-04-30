@@ -100,6 +100,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	exportTypeCombo->addItem(tr("Both"));
 
 	HydrogenApp::get_instance()->addEventListener( this );
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
 	const auto pPref = Preferences::get_instance();
@@ -108,6 +109,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	browseBtn->setSize( QSize( 80, 26 ) );
 	browseBtn->setBorderRadius( 3 );
 	browseBtn->setType( Button::Type::Push );
+	browseBtn->setText( pCommonStrings->getButtonBrowse() );
 	okBtn->setFixedFontSize( 13 );
 	okBtn->setSize( QSize( 80, 26 ) );
 	okBtn->setBorderRadius( 3 );

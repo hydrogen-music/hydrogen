@@ -1559,6 +1559,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text of an error dialog shown in the properties dialogs of pattern and * song. Above the text - in a separate line - the invalid path will be * shown. Directly after the text - in the same line and contained in square * brackets - the particular file extension will be appended.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Browse...</source>
+        <extracomment>Text displayed on the Browse button in various dialog, which opens a file browser to allow the user to select a particular file or path. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation>&amp;Cerca...</translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -1672,10 +1677,6 @@ Please set your system&apos;s locale to UTF-8!</source>
         <translation>Licenza immagine</translation>
     </message>
     <message>
-        <source>Browse</source>
-        <translation>Cerca</translation>
-    </message>
-    <message>
         <source>Drumkit License</source>
         <translation>Licenza drumkit</translation>
     </message>
@@ -1739,14 +1740,6 @@ Please make the numerator an integers and the denominator a power of two (like 1
     <message>
         <source>Filename</source>
         <translation>Nome file</translation>
-    </message>
-    <message>
-        <source>&amp;Browse...</source>
-        <translation>&amp;Cerca...</translation>
-    </message>
-    <message>
-        <source>Alt+B</source>
-        <translation>Alt+B</translation>
     </message>
     <message>
         <source>Modus:</source>
@@ -1819,10 +1812,6 @@ Sovrascrivere il file esistente?</translation>
     <message>
         <source>&amp;Export</source>
         <translation>&amp;Esporta</translation>
-    </message>
-    <message>
-        <source>&amp;Browse...</source>
-        <translation>&amp;Cerca...</translation>
     </message>
     <message>
         <source>&amp;Close</source>

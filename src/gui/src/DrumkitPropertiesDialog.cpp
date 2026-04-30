@@ -84,6 +84,7 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 	m_cancelBtn->setFocusPolicy( Qt::WheelFocus );
 	saveBtn->setFocusPolicy( Qt::WheelFocus );
 	imageBrowsePushButton->setFocusPolicy( Qt::WheelFocus );
+	imageBrowsePushButton->setText( pCommonStrings->getButtonBrowse() );
 
 	// Allow to save the dialog by pressing Return.
 	saveBtn->setFocus();

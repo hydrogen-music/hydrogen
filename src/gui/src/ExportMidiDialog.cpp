@@ -50,6 +50,8 @@ ExportMidiDialog::ExportMidiDialog( QWidget* parent )
 	setModal( true );
 	setWindowTitle( tr( "Export midi" ) );
 
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
 	exportTypeCombo->addItem( tr("SMF1 single: export all instruments to a single track") );
 	exportTypeCombo->addItem( tr("SMF1 multi: export each instrument to separate track") );
 	exportTypeCombo->addItem( tr("SMF0: export all events to one track") );
@@ -63,6 +65,8 @@ ExportMidiDialog::ExportMidiDialog( QWidget* parent )
 	const auto pPref = Preferences::get_instance();
 
 	QDir lastExportDir = QDir( pPref->getLastExportMidiDirectory() );
+
+	browseBtn->setText( pCommonStrings->getButtonBrowse() );
 
 	// joining filepath with dirname
 	const QString sFullPath = lastExportDir.absoluteFilePath( sLastFileName );

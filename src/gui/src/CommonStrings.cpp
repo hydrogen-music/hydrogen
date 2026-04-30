@@ -458,6 +458,11 @@ CommonStrings::CommonStrings(){
 	  will be displayed in combination with "Cancel" and "Fill" and the symbol
 	  after '&' should be different in all three translations. */
 	m_sButtonClear = tr( "Clea&r" );
+	/*: Text displayed on the Browse button in various dialog, which opens a
+	 file browser to allow the user to select a particular file or path. The
+	 character after the '&' symbol can be used as a hotkey and the '&' symbol
+	 itself will not be displayed. */
+	m_sButtonBrowse = tr( "&Browse..." );
 	m_sUnsavedChanges = tr( "Unsaved changes left. These changes will be lost. \nAre you sure?" );
 	m_sSavingChanges = tr( "Do you want to save the changes?" );
 

@@ -1559,6 +1559,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text of an error dialog shown in the properties dialogs of pattern and * song. Above the text - in a separate line - the invalid path will be * shown. Directly after the text - in the same line and contained in square * brackets - the particular file extension will be appended.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Browse...</source>
+        <extracomment>Text displayed on the Browse button in various dialog, which opens a file browser to allow the user to select a particular file or path. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation>&amp;Navegar...</translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -1672,10 +1677,6 @@ Please set your system&apos;s locale to UTF-8!</source>
         <translation>Licença da imagem</translation>
     </message>
     <message>
-        <source>Browse</source>
-        <translation>Procurar</translation>
-    </message>
-    <message>
         <source>Drumkit License</source>
         <translation>Licença do drumkit</translation>
     </message>
@@ -1739,14 +1740,6 @@ Please make the numerator an integers and the denominator a power of two (like 1
     <message>
         <source>Filename</source>
         <translation>Nome do arquivo</translation>
-    </message>
-    <message>
-        <source>&amp;Browse...</source>
-        <translation>&amp;Navegar...</translation>
-    </message>
-    <message>
-        <source>Alt+B</source>
-        <translation>Alt+B</translation>
     </message>
     <message>
         <source>Modus:</source>
@@ -1819,10 +1812,6 @@ Sobrescrever o arquivo existente?</translation>
     <message>
         <source>&amp;Export</source>
         <translation>&amp;Exportar</translation>
-    </message>
-    <message>
-        <source>&amp;Browse...</source>
-        <translation>&amp;Navegar...</translation>
     </message>
     <message>
         <source>&amp;Close</source>
@@ -6015,7 +6004,7 @@ imported into %2</source>
         <source>It is not possible to delete drumkit: 
   [%1]
 It contains samples used and loaded in the current song kit.</source>
-        <translation type="unfinished">Não foi possível deletar o drumkit:
+        <translation>Não foi possível deletar o drumkit:
   [%1]
 Ele contém samples usados e carregados no kit de sons usado atualmente.</translation>
     </message>
