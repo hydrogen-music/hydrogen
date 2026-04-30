@@ -54,6 +54,7 @@ namespace H2Core
 
 Drumkit::Drumkit()
 	: m_context( Filesystem::Context::Song ),
+	  m_sPath( "" ),
 	  m_sName( "empty" ),
 	  m_nVersion( 0 ),
 	  m_sAuthor( "undefined author" ),
@@ -64,9 +65,6 @@ Drumkit::Drumkit()
 	  m_imageLicense( License() ),
 	  m_pInstruments( std::make_shared<InstrumentList>() )
 {
-	QDir usrDrumkitPath( Filesystem::userDrumkitsDir() );
-	m_sPath =
-		Filesystem::drumkitPathFromDir( usrDrumkitPath.filePath( m_sName ) );
 }
 
 Drumkit::Drumkit( std::shared_ptr<Drumkit> other )
