@@ -24,6 +24,12 @@
 
 #include "HydrogenApp.h"
 #include "UndoActions.h"
+#include "Widgets/Button.h"
+#include "Widgets/LCDCombo.h"
+#include "Widgets/LCDDisplay.h"
+#include "Widgets/LCDSpinBox.h"
+#include "Widgets/LCDTextEdit.h"
+#include "Widgets/TagEdit.h"
 
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
@@ -31,6 +37,13 @@
 #include <core/License.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+
+#include <QGridLayout>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QScrollArea>
+#include <QSpacerItem>
+#include <QVBoxLayout>
 
 using namespace H2Core;
 
@@ -47,7 +60,6 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	setupUi( this );
 	if ( action & Action::Duplicate ) {
 		setWindowTitle( pCommonStrings->getActionDuplicatePattern() );
 	}
@@ -62,45 +74,142 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 		windowFlags() | Qt::CustomizeWindowHint | Qt::WindowMinMaxButtonsHint
 	);
 
+	resize( 318, 442 );
+
+	// Overall layout
+	auto pOverallLayout = new QVBoxLayout( this );
+	pOverallLayout->setSpacing( 0 );
+	pOverallLayout->setContentsMargins( 0, 0, 0, 0 );
+	setLayout( pOverallLayout );
+
+	auto pScrollArea = new QScrollArea( this );
+	pScrollArea->setWidgetResizable( true );
+	pOverallLayout->addWidget( pScrollArea );
+
+	auto pScrollAreaContent = new QWidget( pScrollArea );
+	pScrollAreaContent->setMinimumSize( 311, 434 );
+	pScrollArea->setWidget( pScrollAreaContent );
+
+	auto pGridLayout = new QGridLayout( pScrollAreaContent );
+	pScrollAreaContent->setLayout( pGridLayout );
+
+	auto pOuterVLayout = new QVBoxLayout();
+	pGridLayout->addLayout( pOuterVLayout, 0, 0 );
+
+	auto pFormLayout = new QVBoxLayout();
+	pOuterVLayout->addLayout( pFormLayout );
+
+	auto pPathLabel = new QLabel( pScrollAreaContent );
+	pFormLayout->addWidget( pPathLabel );
+
+	m_pPathEdit = new LCDDisplay( pScrollAreaContent );
+	pFormLayout->addWidget( m_pPathEdit );
+
+	auto pNameLabel = new QLabel( pScrollAreaContent );
+	pFormLayout->addWidget( pNameLabel );
+
+	m_pPatternNameTxt = new LCDDisplay( pScrollAreaContent );
+	pFormLayout->addWidget( m_pPatternNameTxt );
+
+	auto pVersionLabel = new QLabel( pScrollAreaContent );
+	pFormLayout->addWidget( pVersionLabel );
+
+	m_pVersionSpinBox = new LCDSpinBox( pScrollAreaContent );
+	pFormLayout->addWidget( m_pVersionSpinBox );
+
+	auto pAuthorLabel = new QLabel( pScrollAreaContent );
+	pFormLayout->addWidget( pAuthorLabel );
+
+	m_pAuthorTxt = new LCDDisplay( pScrollAreaContent );
+	pFormLayout->addWidget( m_pAuthorTxt );
+
+	auto pLicenseLabel = new QLabel( pScrollAreaContent );
+	pLicenseLabel->setMinimumHeight( 20 );
+	pFormLayout->addWidget( pLicenseLabel );
+
+	m_pLicenseComboBox = new LCDCombo( pScrollAreaContent );
+	m_pLicenseComboBox->setSizePolicy(
+		QSizePolicy::Expanding, QSizePolicy::Fixed
+	);
+	pFormLayout->addWidget( m_pLicenseComboBox );
+
+	m_pLicenseStringTxt = new LCDDisplay( pScrollAreaContent );
+	pFormLayout->addWidget( m_pLicenseStringTxt );
+
+	auto pNotesLabel = new QLabel( pScrollAreaContent );
+	pFormLayout->addWidget( pNotesLabel );
+
+	m_pPatternDescTxt = new LCDTextEdit( pScrollAreaContent );
+	pFormLayout->addWidget( m_pPatternDescTxt );
+
+	auto pTagsLabel = new QLabel( pScrollAreaContent );
+	pFormLayout->addWidget( pTagsLabel );
+
+	m_pTagEdit = new TagEdit( pScrollAreaContent );
+	pOuterVLayout->addWidget( m_pTagEdit );
+
+	// Bottom button bar
+	auto pButtonLayout = new QHBoxLayout();
+	pButtonLayout->addSpacerItem(
+		new QSpacerItem( 37, 28, QSizePolicy::Expanding, QSizePolicy::Minimum )
+	);
+
+	m_pCancelBtn = new Button( pScrollAreaContent );
+	pButtonLayout->addWidget( m_pCancelBtn );
+
+	m_pOkBtn = new Button( pScrollAreaContent );
+	m_pOkBtn->setDefault( true );
+	pButtonLayout->addWidget( m_pOkBtn );
+
+	pButtonLayout->addSpacerItem(
+		new QSpacerItem( 37, 28, QSizePolicy::Expanding, QSizePolicy::Minimum )
+	);
+	pOuterVLayout->addLayout( pButtonLayout );
+
+	// ---- Widget configuration ----
+
 	// Remove size constraints
-	versionSpinBox->setFixedSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
-	versionSpinBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+	m_pVersionSpinBox->setFixedSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
+	m_pVersionSpinBox->setSizePolicy(
+		QSizePolicy::Expanding, QSizePolicy::Fixed
+	);
 	// Arbitrary high number.
-	versionSpinBox->setMaximum( 300 );
+	m_pVersionSpinBox->setMaximum( 300 );
 	// Allow to focus the widget using mouse wheel and tab
-	versionSpinBox->setFocusPolicy( Qt::WheelFocus );
-	licenseComboBox->setFocusPolicy( Qt::WheelFocus );
-	okBtn->setFocusPolicy( Qt::WheelFocus );
-	cancelBtn->setFocusPolicy( Qt::WheelFocus );
+	m_pVersionSpinBox->setFocusPolicy( Qt::WheelFocus );
+	m_pLicenseComboBox->setFocusPolicy( Qt::WheelFocus );
+	m_pOkBtn->setFocusPolicy( Qt::WheelFocus );
+	m_pCancelBtn->setFocusPolicy( Qt::WheelFocus );
 
 	// Allow to save the dialog by pressing Return.
-	okBtn->setFocus();
+	m_pOkBtn->setFocus();
 
-	m_pPathLabel->setText( pCommonStrings->getPathDialog() );
-	nameLabel->setText( pCommonStrings->getNameDialog() );
-	versionLabel->setText( pCommonStrings->getVersionDialog() );
-	licenseLabel->setText( pCommonStrings->getLicenseDialog() );
-	authorLabel->setText( pCommonStrings->getAuthorDialog() );
-	notesLabel->setText( pCommonStrings->getNotesDialog() );
+	pPathLabel->setText( pCommonStrings->getPathDialog() );
+	pNameLabel->setText( pCommonStrings->getNameDialog() );
+	pVersionLabel->setText( pCommonStrings->getVersionDialog() );
+	pLicenseLabel->setText( pCommonStrings->getLicenseDialog() );
+	pAuthorLabel->setText( pCommonStrings->getAuthorDialog() );
+	pNotesLabel->setText( pCommonStrings->getNotesDialog() );
 
-	patternNameTxt->selectAll();
+	m_pPatternNameTxt->selectAll();
 
-	setupLicenseComboBox( licenseComboBox );
+	setupLicenseComboBox( m_pLicenseComboBox );
 
 	QStringList tags;
 	if ( pPattern != nullptr ) {
 		m_pPathEdit->setText( pPattern->getPath() );
-		versionSpinBox->setValue( pPattern->getVersion() );
-		authorTxt->setText( pPattern->getAuthor() );
-		licenseComboBox->setCurrentIndex(
+		m_pVersionSpinBox->setValue( pPattern->getVersion() );
+		m_pAuthorTxt->setText( pPattern->getAuthor() );
+		m_pLicenseComboBox->setCurrentIndex(
 			static_cast<int>( pPattern->getLicense().getType() )
 		);
-		licenseStringTxt->setText( pPattern->getLicense().getLicenseString() );
+		m_pLicenseStringTxt->setText( pPattern->getLicense().getLicenseString()
+		);
 		if ( pPattern->getLicense().getType() == License::Unspecified ) {
-			licenseStringTxt->hide();
+			m_pLicenseStringTxt->hide();
 		}
-		patternDescTxt->setText( pPattern->getInfo() );
-		patternNameTxt->setText( pPattern->getName() );
+		m_pPatternDescTxt->setText( pPattern->getInfo() );
+		m_pPatternNameTxt->setText( pPattern->getName() );
 		defaultNameCheck( pPattern->getName(), action & Action::ModifyViaUndo );
 
 		tags = pPattern->getTags();
@@ -109,27 +218,34 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 	m_pPathEdit->setIsActive( action & Action::Duplicate );
 
 	connect(
-		licenseComboBox, SIGNAL( currentIndexChanged( int ) ), this,
+		m_pLicenseComboBox, SIGNAL( currentIndexChanged( int ) ), this,
 		SLOT( licenseComboBoxChanged( int ) )
 	);
 
-	licenseComboBox->setToolTip( pCommonStrings->getLicenseComboToolTip() );
-	licenseStringTxt->setToolTip( pCommonStrings->getLicenseStringToolTip() );
+	m_pLicenseComboBox->setToolTip( pCommonStrings->getLicenseComboToolTip() );
+	m_pLicenseStringTxt->setToolTip( pCommonStrings->getLicenseStringToolTip()
+	);
 
-	m_pTagsLabel->setText( pCommonStrings->getTagsLabel() );
+	pTagsLabel->setText( pCommonStrings->getTagsLabel() );
 	m_pTagEdit->setTags( pPattern->getTags() );
 
-	okBtn->setFixedFontSize( 12 );
-	okBtn->setSize( QSize( 70, 23 ) );
-	okBtn->setBorderRadius( 3 );
-	okBtn->setType( Button::Type::Push );
-	okBtn->setIsActive( true );
-	okBtn->setText( pCommonStrings->getButtonOk() );
-	cancelBtn->setFixedFontSize( 12 );
-	cancelBtn->setSize( QSize( 70, 23 ) );
-	cancelBtn->setBorderRadius( 3 );
-	cancelBtn->setType( Button::Type::Push );
-	cancelBtn->setText( pCommonStrings->getButtonCancel() );
+	m_pOkBtn->setFixedFontSize( 12 );
+	m_pOkBtn->setSize( QSize( 70, 23 ) );
+	m_pOkBtn->setBorderRadius( 3 );
+	m_pOkBtn->setType( Button::Type::Push );
+	m_pOkBtn->setIsActive( true );
+	m_pOkBtn->setText( pCommonStrings->getButtonOk() );
+	m_pCancelBtn->setFixedFontSize( 12 );
+	m_pCancelBtn->setSize( QSize( 70, 23 ) );
+	m_pCancelBtn->setBorderRadius( 3 );
+	m_pCancelBtn->setType( Button::Type::Push );
+	m_pCancelBtn->setText( pCommonStrings->getButtonCancel() );
+
+	// Explicit button connections (previously auto-connected by setupUi)
+	connect( m_pOkBtn, SIGNAL( clicked() ), this, SLOT( on_okBtn_clicked() ) );
+	connect(
+		m_pCancelBtn, SIGNAL( clicked() ), this, SLOT( on_cancelBtn_clicked() )
+	);
 }
 
 PatternPropertiesDialog::~PatternPropertiesDialog()
@@ -138,16 +254,16 @@ PatternPropertiesDialog::~PatternPropertiesDialog()
 
 void PatternPropertiesDialog::licenseComboBoxChanged( int )
 {
-	licenseStringTxt->setText( License::LicenseTypeToQString(
-		static_cast<License::LicenseType>( licenseComboBox->currentIndex() )
+	m_pLicenseStringTxt->setText( License::LicenseTypeToQString(
+		static_cast<License::LicenseType>( m_pLicenseComboBox->currentIndex() )
 	) );
 
-	if ( licenseComboBox->currentIndex() ==
+	if ( m_pLicenseComboBox->currentIndex() ==
 		 static_cast<int>( License::Unspecified ) ) {
-		licenseStringTxt->hide();
+		m_pLicenseStringTxt->hide();
 	}
 	else {
-		licenseStringTxt->show();
+		m_pLicenseStringTxt->show();
 	}
 }
 
@@ -159,20 +275,20 @@ void PatternPropertiesDialog::on_cancelBtn_clicked()
 void PatternPropertiesDialog::on_okBtn_clicked()
 {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	const int nVersion = versionSpinBox->value();
-	const QString sAuthor = authorTxt->text();
-	QString sPattName = patternNameTxt->text();
-	const License license( licenseStringTxt->text() );
+	const int nVersion = m_pVersionSpinBox->value();
+	const QString sAuthor = m_pAuthorTxt->text();
+	QString sPattName = m_pPatternNameTxt->text();
+	const License license( m_pLicenseStringTxt->text() );
 	const QStringList tags = m_pTagEdit->getTags();
-	const QString sPattInfo = patternDescTxt->toPlainText();
+	const QString sPattInfo = m_pPatternDescTxt->toPlainText();
 
 	// Sanity checks.
 	//
 	// Check whether the license strings from the line edits comply to
 	// the license types selected in the combo boxes.
-	License licenseCheck( licenseStringTxt->text() );
+	License licenseCheck( m_pLicenseStringTxt->text() );
 	if ( static_cast<int>( licenseCheck.getType() ) !=
-		 licenseComboBox->currentIndex() ) {
+		 m_pLicenseComboBox->currentIndex() ) {
 		if ( QMessageBox::warning(
 				 this, "Hydrogen",
 				 pCommonStrings->getLicenseMismatchingUserInput(),
@@ -181,10 +297,10 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 			WARNINGLOG( QString( "Abort, since drumkit License String [%1] "
 								 "does not comply to selected License Type [%2]"
 			)
-							.arg( licenseStringTxt->text() )
+							.arg( m_pLicenseStringTxt->text() )
 							.arg( License::LicenseTypeToQString(
 								static_cast<License::LicenseType>(
-									licenseComboBox->currentIndex()
+									m_pLicenseComboBox->currentIndex()
 								)
 							) ) );
 			return;
@@ -241,11 +357,11 @@ void PatternPropertiesDialog::defaultNameCheck(
 {
 	auto pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
 	if ( bSavePattern && !pPatternList->checkName( pattName, m_pPattern ) ) {
-		patternNameTxt->setText(
+		m_pPatternNameTxt->setText(
 			pPatternList->findUnusedPatternName( pattName, m_pPattern )
 		);
 	}
 	else {
-		patternNameTxt->setText( pattName );
+		m_pPatternNameTxt->setText( pattName );
 	}
 }

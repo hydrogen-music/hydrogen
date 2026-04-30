@@ -3643,17 +3643,6 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
     </message>
 </context>
 <context>
-    <name>PatternPropertiesDialog_UI</name>
-    <message>
-        <source>Alt+C</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Alt+O</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
     <name>PlaybackTrackWaveDisplay</name>
     <message>
         <source>No playback track selected</source>

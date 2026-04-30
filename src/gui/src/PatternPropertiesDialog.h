@@ -23,14 +23,20 @@
 #ifndef PATTERN_PROPERTIES_DIALOG_H
 #define PATTERN_PROPERTIES_DIALOG_H
 
+#include <memory>
 
-#include <QtGui>
 #include <QtWidgets>
+
 #include "Widgets/WidgetWithLicenseProperty.h"
 
-#include "ui_PatternPropertiesDialog_UI.h"
-
 #include <core/Object.h>
+
+class Button;
+class LCDCombo;
+class LCDDisplay;
+class LCDSpinBox;
+class LCDTextEdit;
+class TagEdit;
 
 namespace H2Core {
 class Pattern;
@@ -39,7 +45,6 @@ class Pattern;
 /** \ingroup docGUI*/
 class PatternPropertiesDialog : public QDialog,
 								protected WidgetWithLicenseProperty,
-								public Ui_PatternPropertiesDialog_UI,
 								public H2Core::Object<PatternPropertiesDialog>
 
 {
@@ -78,8 +83,17 @@ class PatternPropertiesDialog : public QDialog,
 	std::shared_ptr<H2Core::Pattern> m_pPattern;
 	int m_nSelectedPattern;
 	Action m_action;
+
+	LCDDisplay* m_pPathEdit;
+	LCDDisplay* m_pPatternNameTxt;
+	LCDSpinBox* m_pVersionSpinBox;
+	LCDDisplay* m_pAuthorTxt;
+	LCDCombo* m_pLicenseComboBox;
+	LCDDisplay* m_pLicenseStringTxt;
+	LCDTextEdit* m_pPatternDescTxt;
+	TagEdit* m_pTagEdit;
+	Button* m_pOkBtn;
+	Button* m_pCancelBtn;
 };
 
 #endif
-
-
