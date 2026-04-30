@@ -5805,17 +5805,6 @@ Kontynuować?</translation>
     </message>
 </context>
 <context>
-    <name>SongPropertiesDialog_UI</name>
-    <message>
-        <source>Alt+O</source>
-        <translation>Alt+O</translation>
-    </message>
-    <message>
-        <source>Alt+C</source>
-        <translation>Alt+C</translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>

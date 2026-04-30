@@ -24,6 +24,12 @@
 
 #include "CommonStrings.h"
 #include "HydrogenApp.h"
+#include "Widgets/Button.h"
+#include "Widgets/LCDCombo.h"
+#include "Widgets/LCDDisplay.h"
+#include "Widgets/LCDSpinBox.h"
+#include "Widgets/LCDTextEdit.h"
+#include "Widgets/TagEdit.h"
 
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
@@ -32,7 +38,15 @@
 #include <core/Hydrogen.h>
 #include <core/License.h>
 
-#include <QPixmap>
+#include <QGridLayout>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QLabel>
+#include <QScrollArea>
+#include <QSpacerItem>
+#include <QTabWidget>
+#include <QTableWidget>
+#include <QVBoxLayout>
 
 using namespace H2Core;
 
@@ -43,9 +57,9 @@ SongPropertiesDialog::SongPropertiesDialog(
 )
 	: QDialog( parent ), m_pSong( pSong ), m_bDuplicate( bDuplicate )
 {
-	setupUi( this );
-
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	setMinimumSize( 757, 876 );
 
 	// Show and enable maximize button. This is key when enlarging the
 	// application using a scaling factor and allows the OS to force its size
@@ -60,24 +74,159 @@ SongPropertiesDialog::SongPropertiesDialog(
 		setWindowTitle( tr( "Song properties" ) );
 	}
 
+	// Overall layout
+	auto pOverallLayout = new QVBoxLayout( this );
+	pOverallLayout->setSpacing( 0 );
+	pOverallLayout->setContentsMargins( 0, 0, 0, 0 );
+	setLayout( pOverallLayout );
+
+	auto pScrollArea = new QScrollArea( this );
+	pScrollArea->setWidgetResizable( true );
+	pOverallLayout->addWidget( pScrollArea );
+
+	auto pScrollAreaContent = new QWidget( pScrollArea );
+	pScrollAreaContent->setMinimumSize( 752, 869 );
+	pScrollArea->setWidget( pScrollAreaContent );
+
+	auto pOuterLayout = new QVBoxLayout( pScrollAreaContent );
+	pOuterLayout->setSpacing( 0 );
+	pOuterLayout->setContentsMargins( 0, 0, 0, 0 );
+	pScrollAreaContent->setLayout( pOuterLayout );
+
+	// Tab widget
+	m_pTabWidget = new QTabWidget( pScrollAreaContent );
+	m_pTabWidget->setSizePolicy(
+		QSizePolicy::Expanding, QSizePolicy::Expanding
+	);
+	pOuterLayout->addWidget( m_pTabWidget );
+
+	// ---- General tab ----
+	auto pTabGeneral = new QWidget( m_pTabWidget );
+	pTabGeneral->setSizePolicy(
+		QSizePolicy::Expanding, QSizePolicy::Expanding
+	);
+	m_pTabWidget->addTab( pTabGeneral, QString() );
+
+	auto pGeneralLayout = new QGridLayout( pTabGeneral );
+	pTabGeneral->setLayout( pGeneralLayout );
+
+	// Row 0: Path
+	auto pPathLabel = new QLabel( pTabGeneral );
+	pGeneralLayout->addWidget( pPathLabel, 0, 0 );
+
+	auto pPathContainer = new QWidget( pTabGeneral );
+	auto pPathContainerLayout = new QHBoxLayout( pPathContainer );
+	pPathContainerLayout->setSpacing( 0 );
+	pPathContainerLayout->setContentsMargins( 0, 0, 0, 0 );
+	pPathContainer->setLayout( pPathContainerLayout );
+
+	m_pPathEdit = new LCDDisplay( pPathContainer );
+	pPathContainerLayout->addWidget( m_pPathEdit );
+
+	m_pPathBrowseButton = new Button( pPathContainer );
+	m_pPathBrowseButton->setSizePolicy(
+		QSizePolicy::Expanding, QSizePolicy::Preferred
+	);
+	m_pPathBrowseButton->setMaximumWidth( 120 );
+	pPathContainerLayout->addWidget( m_pPathBrowseButton );
+
+	pGeneralLayout->addWidget( pPathContainer, 0, 1 );
+
+	auto pNameLabel = new QLabel( pTabGeneral );
+	pNameLabel->setMinimumHeight( 20 );
+	pGeneralLayout->addWidget( pNameLabel, 1, 0 );
+
+	m_pSongNameTxt = new LCDDisplay( pTabGeneral );
+	pGeneralLayout->addWidget( m_pSongNameTxt, 1, 1 );
+
+	auto pVersionLabel = new QLabel( pTabGeneral );
+	pGeneralLayout->addWidget( pVersionLabel, 2, 0 );
+
+	m_pVersionSpinBox = new LCDSpinBox( pTabGeneral );
+	pGeneralLayout->addWidget( m_pVersionSpinBox, 2, 1 );
+
+	auto pAuthorLabel = new QLabel( pTabGeneral );
+	pAuthorLabel->setMinimumHeight( 20 );
+	pGeneralLayout->addWidget( pAuthorLabel, 3, 0 );
+
+	m_pAuthorTxt = new LCDDisplay( pTabGeneral );
+	pGeneralLayout->addWidget( m_pAuthorTxt, 3, 1 );
+
+	auto pLicenseLabel = new QLabel( pTabGeneral );
+	pLicenseLabel->setMinimumHeight( 20 );
+	pGeneralLayout->addWidget( pLicenseLabel, 4, 0 );
+
+	m_pLicenseComboBox = new LCDCombo( pTabGeneral );
+	m_pLicenseComboBox->setSizePolicy(
+		QSizePolicy::Expanding, QSizePolicy::Fixed
+	);
+	pGeneralLayout->addWidget( m_pLicenseComboBox, 4, 1 );
+
+	m_pLicenseStringTxt = new LCDDisplay( pTabGeneral );
+	pGeneralLayout->addWidget( m_pLicenseStringTxt, 5, 1 );
+
+	auto pNotesLabel = new QLabel( pTabGeneral );
+	pGeneralLayout->addWidget( pNotesLabel, 6, 0 );
+
+	m_pNotesTxt = new LCDTextEdit( pTabGeneral );
+	pGeneralLayout->addWidget( m_pNotesTxt, 6, 1 );
+
+	auto pTagsLabel = new QLabel( pTabGeneral );
+	pGeneralLayout->addWidget( pTagsLabel, 7, 0 );
+
+	m_pTagEdit = new TagEdit( pTabGeneral );
+	pGeneralLayout->addWidget( m_pTagEdit, 7, 1 );
+
+	// ---- Licenses tab ----
+	auto pTabLicenses = new QWidget( m_pTabWidget );
+	m_pTabWidget->addTab( pTabLicenses, QString() );
+
+	auto pLicensesLayout = new QHBoxLayout( pTabLicenses );
+	pLicensesLayout->setSpacing( 0 );
+	pLicensesLayout->setContentsMargins( 0, 0, 0, 0 );
+	pTabLicenses->setLayout( pLicensesLayout );
+
+	m_pLicensesTable = new QTableWidget( pTabLicenses );
+	pLicensesLayout->addWidget( m_pLicensesTable );
+
+	// ---- Bottom button bar ----
+	auto pButtonLayout = new QHBoxLayout();
+	pButtonLayout->addSpacerItem(
+		new QSpacerItem( 37, 28, QSizePolicy::Expanding, QSizePolicy::Minimum )
+	);
+
+	m_pCancelBtn = new Button( pScrollAreaContent );
+	pButtonLayout->addWidget( m_pCancelBtn );
+
+	m_pOkBtn = new Button( pScrollAreaContent );
+	m_pOkBtn->setDefault( true );
+	pButtonLayout->addWidget( m_pOkBtn );
+
+	pButtonLayout->addSpacerItem(
+		new QSpacerItem( 37, 28, QSizePolicy::Expanding, QSizePolicy::Minimum )
+	);
+	pOuterLayout->addLayout( pButtonLayout );
+
+	// ---- Widget configuration ----
+
 	// Remove size constraints
-	versionSpinBox->setFixedSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
-	versionSpinBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+	m_pVersionSpinBox->setFixedSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
+	m_pVersionSpinBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 	// Arbitrary high number.
-	versionSpinBox->setMaximum( 300 );
+	m_pVersionSpinBox->setMaximum( 300 );
 	// Allow to focus the widget using mouse wheel and tab
-	versionSpinBox->setFocusPolicy( Qt::WheelFocus );
-	licenseComboBox->setFocusPolicy( Qt::WheelFocus );
-	okBtn->setFocusPolicy( Qt::WheelFocus );
-	cancelBtn->setFocusPolicy( Qt::WheelFocus );
+	m_pVersionSpinBox->setFocusPolicy( Qt::WheelFocus );
+	m_pLicenseComboBox->setFocusPolicy( Qt::WheelFocus );
+	m_pOkBtn->setFocusPolicy( Qt::WheelFocus );
+	m_pCancelBtn->setFocusPolicy( Qt::WheelFocus );
 
 	// Allow to save the dialog by pressing Return.
-	okBtn->setFocus();
+	m_pOkBtn->setFocus();
 
-    m_pPathLabel->setText( pCommonStrings->getPathDialog() );
-	versionLabel->setText( pCommonStrings->getVersionDialog() );
+	pPathLabel->setText( pCommonStrings->getPathDialog() );
+	pVersionLabel->setText( pCommonStrings->getVersionDialog() );
 
-	setupLicenseComboBox( licenseComboBox );
+	setupLicenseComboBox( m_pLicenseComboBox );
 
 	if ( pSong != nullptr ) {
 		if ( pSong->getPath() != Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
@@ -88,17 +237,17 @@ SongPropertiesDialog::SongPropertiesDialog(
 			// autosave file.
 			m_pPathEdit->setText( pSong->getPath() );
 		}
-		versionSpinBox->setValue( pSong->getVersion() );
-		songNameTxt->setText( pSong->getName() );
+		m_pVersionSpinBox->setValue( pSong->getVersion() );
+		m_pSongNameTxt->setText( pSong->getName() );
 
-		authorTxt->setText( pSong->getAuthor() );
-		notesTxt->append( pSong->getNotes() );
+		m_pAuthorTxt->setText( pSong->getAuthor() );
+		m_pNotesTxt->append( pSong->getNotes() );
 
-		licenseComboBox->setCurrentIndex(
+		m_pLicenseComboBox->setCurrentIndex(
 			static_cast<int>( pSong->getLicense().getType() ) );
-		licenseStringTxt->setText( pSong->getLicense().getLicenseString() );
+		m_pLicenseStringTxt->setText( pSong->getLicense().getLicenseString() );
 		if ( pSong->getLicense().getType() == License::Unspecified ) {
-			licenseStringTxt->hide();
+			m_pLicenseStringTxt->hide();
 		}
 		m_pTagEdit->setTags( pSong->getTags() );
 	}
@@ -106,33 +255,38 @@ SongPropertiesDialog::SongPropertiesDialog(
 	m_pPathBrowseButton->setText( pCommonStrings->getButtonBrowse() );
 	m_pPathBrowseButton->setVisible( bDuplicate );
 
-	connect( licenseComboBox, SIGNAL( currentIndexChanged( int ) ),
+	connect( m_pLicenseComboBox, SIGNAL( currentIndexChanged( int ) ),
 			 this, SLOT( licenseComboBoxChanged( int ) ) );
 
-	tabWidget->setTabText( 0, pCommonStrings->getTabGeneralDialog() );
-	tabWidget->setTabText( 1, pCommonStrings->getTabLicensesDialog() );
-	tabWidget->setCurrentIndex( 0 );
+	m_pTabWidget->setTabText( 0, pCommonStrings->getTabGeneralDialog() );
+	m_pTabWidget->setTabText( 1, pCommonStrings->getTabLicensesDialog() );
+	m_pTabWidget->setCurrentIndex( 0 );
 
-	nameLabel->setText( pCommonStrings->getNameDialog() );
-	authorLabel->setText( pCommonStrings->getAuthorDialog() );
-	licenseLabel->setText( pCommonStrings->getLicenseDialog() );
-	licenseComboBox->setToolTip( pCommonStrings->getLicenseComboToolTip() );
-	licenseStringTxt->setToolTip( pCommonStrings->getLicenseStringToolTip() );
-	notesLabel->setText( pCommonStrings->getNotesDialog() );
+	pNameLabel->setText( pCommonStrings->getNameDialog() );
+	pAuthorLabel->setText( pCommonStrings->getAuthorDialog() );
+	pLicenseLabel->setText( pCommonStrings->getLicenseDialog() );
+	m_pLicenseComboBox->setToolTip( pCommonStrings->getLicenseComboToolTip() );
+	m_pLicenseStringTxt->setToolTip( pCommonStrings->getLicenseStringToolTip() );
+	pNotesLabel->setText( pCommonStrings->getNotesDialog() );
 
-	m_pTagsLabel->setText( pCommonStrings->getTagsLabel() );
+	pTagsLabel->setText( pCommonStrings->getTagsLabel() );
 
-	okBtn->setFixedFontSize( 12 );
-	okBtn->setSize( QSize( 70, 23 ) );
-	okBtn->setBorderRadius( 3 );
-	okBtn->setType( Button::Type::Push );
-	okBtn->setIsActive( true );
-	okBtn->setText( pCommonStrings->getButtonOk() );
-	cancelBtn->setFixedFontSize( 12 );
-	cancelBtn->setSize( QSize( 70, 23 ) );
-	cancelBtn->setBorderRadius( 3 );
-	cancelBtn->setType( Button::Type::Push );
-	cancelBtn->setText( pCommonStrings->getButtonCancel() );
+	m_pOkBtn->setFixedFontSize( 12 );
+	m_pOkBtn->setSize( QSize( 70, 23 ) );
+	m_pOkBtn->setBorderRadius( 3 );
+	m_pOkBtn->setType( Button::Type::Push );
+	m_pOkBtn->setIsActive( true );
+	m_pOkBtn->setText( pCommonStrings->getButtonOk() );
+	m_pCancelBtn->setFixedFontSize( 12 );
+	m_pCancelBtn->setSize( QSize( 70, 23 ) );
+	m_pCancelBtn->setBorderRadius( 3 );
+	m_pCancelBtn->setType( Button::Type::Push );
+	m_pCancelBtn->setText( pCommonStrings->getButtonCancel() );
+
+	// Explicit button connections (previously auto-connected by setupUi)
+	connect( m_pOkBtn, SIGNAL( clicked() ), this, SLOT( on_okBtn_clicked() ) );
+	connect( m_pCancelBtn, SIGNAL( clicked() ), this,
+			 SLOT( on_cancelBtn_clicked() ) );
 
 	updatePatternLicenseTable();
 }
@@ -144,25 +298,25 @@ void SongPropertiesDialog::updatePatternLicenseTable() {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
 
-	licensesTable->setColumnCount( 4 );
-	licensesTable->setHorizontalHeaderLabels(
+	m_pLicensesTable->setColumnCount( 4 );
+	m_pLicensesTable->setHorizontalHeaderLabels(
 		QStringList() <<
 		pCommonStrings->getNameDialog() <<
 		pCommonStrings->getVersionDialog() <<
 		pCommonStrings->getAuthorDialog() <<
 		pCommonStrings->getLicenseDialog() );
-	licensesTable->verticalHeader()->hide();
-	licensesTable->horizontalHeader()->setStretchLastSection( true );
-	licensesTable->setColumnWidth( 0, 210 );
-	licensesTable->setColumnWidth( 1, 60 );
-	licensesTable->setColumnWidth( 2, 140 );
+	m_pLicensesTable->verticalHeader()->hide();
+	m_pLicensesTable->horizontalHeader()->setStretchLastSection( true );
+	m_pLicensesTable->setColumnWidth( 0, 210 );
+	m_pLicensesTable->setColumnWidth( 1, 60 );
+	m_pLicensesTable->setColumnWidth( 2, 140 );
 
 	if ( m_pSong == nullptr ){
 		return;
 	}
 
 	const auto pPatternList = m_pSong->getPatternList();
-	licensesTable->setRowCount( pPatternList->size() );
+	m_pLicensesTable->setRowCount( pPatternList->size() );
 
 	int nFirstMismatchRow = -1;
 	int rrow = 0;
@@ -204,10 +358,10 @@ void SongPropertiesDialog::updatePatternLicenseTable() {
 				}
 			}
 
-			licensesTable->setCellWidget( rrow, 0, pNameItem );
-			licensesTable->setCellWidget( rrow, 1, pVersionItem );
-			licensesTable->setCellWidget( rrow, 2, pAuthorItem );
-			licensesTable->setCellWidget( rrow, 3, pLicenseItem );
+			m_pLicensesTable->setCellWidget( rrow, 0, pNameItem );
+			m_pLicensesTable->setCellWidget( rrow, 1, pVersionItem );
+			m_pLicensesTable->setCellWidget( rrow, 2, pAuthorItem );
+			m_pLicensesTable->setCellWidget( rrow, 3, pLicenseItem );
 
 			++rrow;
 		}
@@ -215,20 +369,20 @@ void SongPropertiesDialog::updatePatternLicenseTable() {
 
 	// In case of a mismatch scroll into view
 	if ( nFirstMismatchRow != -1 ) {
-		licensesTable->showRow( nFirstMismatchRow );
+		m_pLicensesTable->showRow( nFirstMismatchRow );
 	}
 }
 
 void SongPropertiesDialog::licenseComboBoxChanged( int ) {
 
-	licenseStringTxt->setText( License::LicenseTypeToQString(
-		static_cast<License::LicenseType>( licenseComboBox->currentIndex() ) ) );
+	m_pLicenseStringTxt->setText( License::LicenseTypeToQString(
+		static_cast<License::LicenseType>( m_pLicenseComboBox->currentIndex() ) ) );
 
-	if ( licenseComboBox->currentIndex() == static_cast<int>( License::Unspecified ) ) {
-		licenseStringTxt->hide();
+	if ( m_pLicenseComboBox->currentIndex() == static_cast<int>( License::Unspecified ) ) {
+		m_pLicenseStringTxt->hide();
 	}
 	else {
-		licenseStringTxt->show();
+		m_pLicenseStringTxt->show();
 	}
 }
 
@@ -246,16 +400,16 @@ void SongPropertiesDialog::on_okBtn_clicked()
 	//
 	// Check whether the license strings from the line edits comply to
 	// the license types selected in the combo boxes.
-	License licenseCheck( licenseStringTxt->text() );
-	if ( static_cast<int>(licenseCheck.getType()) != licenseComboBox->currentIndex() ) {
+	License licenseCheck( m_pLicenseStringTxt->text() );
+	if ( static_cast<int>(licenseCheck.getType()) != m_pLicenseComboBox->currentIndex() ) {
 		if ( QMessageBox::warning(
 				 this, "Hydrogen", pCommonStrings->getLicenseMismatchingUserInput(),
 				 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel )
 			 == QMessageBox::Cancel ) {
 			WARNINGLOG( QString( "Abort, since drumkit License String [%1] does not comply to selected License Type [%2]" )
-						.arg( licenseStringTxt->text() )
+						.arg( m_pLicenseStringTxt->text() )
 						.arg( License::LicenseTypeToQString(
-						    static_cast<License::LicenseType>(licenseComboBox->currentIndex()) ) ) );
+						    static_cast<License::LicenseType>(m_pLicenseComboBox->currentIndex()) ) ) );
 			return;
 		}
 	}
@@ -279,20 +433,20 @@ void SongPropertiesDialog::on_okBtn_clicked()
 		bIsModified = true;
 	}
 
-	if ( versionSpinBox->value() != m_pSong->getVersion() ) {
-		m_pSong->setVersion( versionSpinBox->value() );
+	if ( m_pVersionSpinBox->value() != m_pSong->getVersion() ) {
+		m_pSong->setVersion( m_pVersionSpinBox->value() );
 		bIsModified = true;
 	}
-	if ( songNameTxt->text() != m_pSong->getName() ) {
-		m_pSong->setName( songNameTxt->text() );
+	if ( m_pSongNameTxt->text() != m_pSong->getName() ) {
+		m_pSong->setName( m_pSongNameTxt->text() );
 		bIsModified = true;
 	}
-	if ( m_pSong->getAuthor() != authorTxt->text() ) {
-		m_pSong->setAuthor( authorTxt->text() );
+	if ( m_pSong->getAuthor() != m_pAuthorTxt->text() ) {
+		m_pSong->setAuthor( m_pAuthorTxt->text() );
 		bIsModified = true;
 	}
-	if ( m_pSong->getNotes() != notesTxt->toPlainText() ) {
-		m_pSong->setNotes( notesTxt->toPlainText() );
+	if ( m_pSong->getNotes() != m_pNotesTxt->toPlainText() ) {
+		m_pSong->setNotes( m_pNotesTxt->toPlainText() );
 		bIsModified = true;
 	}
 
@@ -301,8 +455,8 @@ void SongPropertiesDialog::on_okBtn_clicked()
 		m_pSong->setTags( tags );
 	}
 
-	QString sNewLicenseString( licenseStringTxt->text() );
-	if ( licenseComboBox->currentIndex() ==
+	QString sNewLicenseString( m_pLicenseStringTxt->text() );
+	if ( m_pLicenseComboBox->currentIndex() ==
 		 static_cast<int>(License::Unspecified) ) {
 		sNewLicenseString = "";
 	}

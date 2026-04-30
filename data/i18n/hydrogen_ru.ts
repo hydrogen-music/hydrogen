@@ -5837,17 +5837,6 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>SongPropertiesDialog_UI</name>
-    <message>
-        <source>Alt+C</source>
-        <translation>Alt+т</translation>
-    </message>
-    <message>
-        <source>Alt+O</source>
-        <translation>Alt+о</translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>

@@ -5812,17 +5812,6 @@ Da li to želiš napraviti?</translation>
     </message>
 </context>
 <context>
-    <name>SongPropertiesDialog_UI</name>
-    <message>
-        <source>Alt+O</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Alt+C</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
