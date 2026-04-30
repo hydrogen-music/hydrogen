@@ -252,7 +252,6 @@ SongPropertiesDialog::SongPropertiesDialog(
 		m_pTagEdit->setTags( pSong->getTags() );
 	}
 	m_pPathEdit->setIsActive( bDuplicate );
-	m_pPathBrowseButton->setText( pCommonStrings->getButtonBrowse() );
 	m_pPathBrowseButton->setVisible( bDuplicate );
 
 	connect( m_pLicenseComboBox, SIGNAL( currentIndexChanged( int ) ),
@@ -271,17 +270,20 @@ SongPropertiesDialog::SongPropertiesDialog(
 
 	pTagsLabel->setText( pCommonStrings->getTagsLabel() );
 
-	m_pOkBtn->setFixedFontSize( 12 );
-	m_pOkBtn->setSize( QSize( 70, 23 ) );
-	m_pOkBtn->setBorderRadius( 3 );
-	m_pOkBtn->setType( Button::Type::Push );
-	m_pOkBtn->setIsActive( true );
+	auto styleButton = [&]( Button* pButton ) {
+		pButton->setFixedFontSize( 12 );
+		pButton->setSize( QSize( 70, 23 ) );
+		pButton->setBorderRadius( 3 );
+		pButton->setType( Button::Type::Push );
+		pButton->setIsActive( true );
+	};
+
+	styleButton( m_pOkBtn );
 	m_pOkBtn->setText( pCommonStrings->getButtonOk() );
-	m_pCancelBtn->setFixedFontSize( 12 );
-	m_pCancelBtn->setSize( QSize( 70, 23 ) );
-	m_pCancelBtn->setBorderRadius( 3 );
-	m_pCancelBtn->setType( Button::Type::Push );
+	styleButton( m_pCancelBtn );
 	m_pCancelBtn->setText( pCommonStrings->getButtonCancel() );
+	styleButton( m_pPathBrowseButton );
+	m_pPathBrowseButton->setText( pCommonStrings->getButtonBrowse() );
 
 	// Explicit button connections (previously auto-connected by setupUi)
 	connect( m_pOkBtn, SIGNAL( clicked() ), this, SLOT( on_okBtn_clicked() ) );
