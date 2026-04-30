@@ -477,8 +477,6 @@ QByteArray Legacy::convertFromTinyXML( QFile* pFile, bool bSilent ) {
 	}
 
 #if QT_VERSION >= QT_VERSION_CHECK( 6, 3, 0 )
-	// We do not provide a code path for previous Qt versions since the issue
-	// does not seem to appear there. (At least not in 5.15)
 	if ( ! buf.isValidUtf8() ) {
 		// At least in one of the drumkits we host at SourceForge there is an
 		// invalid UTF-8 character. If not mended, this would prevent Hydrogen
@@ -488,6 +486,14 @@ QByteArray Legacy::convertFromTinyXML( QFile* pFile, bool bSilent ) {
 		buf = QString( buf ).toUtf8();
 		DEBUGLOG( buf );
 	}
+#else
+	// Older Qt versions are not able to check whether the byte array contains
+	// valid Qt6. In Qt 5.15 this does not seem to be an issue. All tests do
+	// pass and noone complained. But e.g for Qt 6.2 we suffer the same problem
+	// handled above. Since this part of the code is only run once an old kit is
+	// downloaded, we can use a wasteful approach and ensure proper encoding by
+	// conversion in all cases.
+	buf = QString( buf ).toUtf8();
 #endif
 
 	return std::move( buf );
