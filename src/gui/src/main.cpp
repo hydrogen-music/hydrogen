@@ -456,6 +456,14 @@ int main(int argc, char *argv[])
 
 		pSplash->finish( pMainForm );
 
+		pQApp->setMainForm( pMainForm );
+
+		// Tell the core that the GUI is now fully loaded and ready.
+		pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::ready );
+
+		// The drumkit assigned via the command line must be applied _after_ the
+		// GUI is fully set up. We rely on our core events to reflect changes
+		// during loading and those have to be fully wired.
 		const QString sDrumkitNameToLoad = parser.getDrumkitToLoad();
 		if ( !sDrumkitNameToLoad.isEmpty() ) {
 			auto pDB =
@@ -472,11 +480,6 @@ int main(int argc, char *argv[])
 								 .arg( sDrumkitNameToLoad ) );
 			}
 		}
-
-		pQApp->setMainForm( pMainForm );
-
-		// Tell the core that the GUI is now fully loaded and ready.
-		pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::ready );
 
 		if ( ! parser.getShotList().isEmpty() ) {
 			ShotList *sl = new ShotList( parser.getShotList() );
