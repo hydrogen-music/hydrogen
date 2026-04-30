@@ -298,9 +298,14 @@ void InstrumentLayer::saveTo(
 	QString sFileName;
 	if ( pSample != nullptr ) {
 		if ( bSongKit ) {
-			sFileName = Filesystem::prepareSamplePath(
-				pSample->getFilePath(), sDrumkitPath
-			);
+			if ( !sDrumkitPath.isEmpty() ) {
+				sFileName = Filesystem::prepareSamplePath(
+					pSample->getFilePath(), sDrumkitPath
+				);
+			}
+			else {
+				sFileName = pSample->getFilePath();
+			}
 		}
 		else {
 			sFileName = pSample->getFileName();
