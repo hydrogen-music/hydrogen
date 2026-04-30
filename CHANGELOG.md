@@ -226,6 +226,14 @@ All notable changes to this project will be documented in this file.
   - The default background color of the header was changed to red to help the
     user to find "holes" between layers.
   - Layers and components can now be duplicated.
+- SoundLibrary:
+  - Drumkit, songs, and patterns are now shown in dedicated tabs.
+  - Subfolders of arbitrary depth are supported.
+  - A button was added to rescan the entire library without restart.
+  - A search bar was added to narrow the displayed content by name and tag.
+  - Multiple instruments and pattern can be added at once.
+  - A detail view showing basic information about the selected item was added.
+    It can be configured using a right-click context menu.
 - JACK per-track output ports are now mapped on drumkit switch or manipulation
   on instrument with same type. Ports of instruments without type aren't mapped
   at all (same as for notes) (#1071).
