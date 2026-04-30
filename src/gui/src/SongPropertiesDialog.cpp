@@ -103,6 +103,8 @@ SongPropertiesDialog::SongPropertiesDialog(
 		m_pTagEdit->setTags( pSong->getTags() );
 	}
 	m_pPathEdit->setIsActive( bDuplicate );
+	m_pPathBrowseButton->setText( pCommonStrings->getButtonBrowse() );
+	m_pPathBrowseButton->setVisible( bDuplicate );
 
 	connect( licenseComboBox, SIGNAL( currentIndexChanged( int ) ),
 			 this, SLOT( licenseComboBoxChanged( int ) ) );
