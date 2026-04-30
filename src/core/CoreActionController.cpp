@@ -1563,16 +1563,23 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit )
 		return true;
 	}
 
-	if ( pPreviousDrumkit == nullptr ) {
-		INFOLOG( QString( "Setting drumkit [%1] located at [%2]" )
-					 .arg( pNewDrumkit->getName() )
-					 .arg( pNewDrumkit->getPath() ) );
+	QString sNewDrumkitLog;
+	if ( !pNewDrumkit->getPath().isEmpty() ) {
+		sNewDrumkitLog = QString( "[%1] located at [%2]" )
+							 .arg( pNewDrumkit->getName() )
+							 .arg( pNewDrumkit->getPath() );
 	}
 	else {
-		INFOLOG( QString( "Switching drumkits [%1] -> [%2] located at [%3]" )
+		sNewDrumkitLog = QString( "new drumkit" );
+	}
+
+	if ( pPreviousDrumkit == nullptr ) {
+		INFOLOG( QString( "Setting drumkit %1" ).arg( sNewDrumkitLog ) );
+	}
+	else {
+		INFOLOG( QString( "Switching drumkits [%1] -> %2" )
 					 .arg( pPreviousDrumkit->getName() )
-					 .arg( pNewDrumkit->getName() )
-					 .arg( pNewDrumkit->getPath() ) );
+					 .arg( sNewDrumkitLog ) );
 	}
 
 	// Ensure instruments of the new kit aren't already in the death row.
