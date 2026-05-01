@@ -1014,7 +1014,21 @@ QString Filesystem::drumkitDirFromPath( const QString& sDrumkitPath )
 		ERRORLOG( QString( "Path [%1] is not a valid drumkit path" )
 					  .arg( sDrumkitPath ) );
 	}
-	return QFileInfo( sDrumkitPath ).absoluteDir().absolutePath();
+	QString sDir = QFileInfo( sDrumkitPath ).absoluteDir().absolutePath();
+
+#ifdef WIN32
+	// Absolute paths in Windows start with a drive prefix, like "C:". This will
+	// be created automatically by QFileInfo. In case it is also present in the
+	// provided input path, we keep it. If not, we strip it.
+	const int nSeparatorPosPath = sDrumkitPath.indexOf( "/" );
+	const int nSeparatorPosDir = sDir.indexOf( "/" );
+	// A value of -1 indicates that there is no separator present at all, which is
+	// also covered.
+	if ( nSeparatorPosDir > 0 && nSeparatorPosPath == 0 ) {
+		sDir = sDir.mid( nSeparatorPosDir );
+	}
+#endif
+	return sDir;
 }
 
 QString Filesystem::drumkitPathFromDir( const QString& sDrumkitDir )
