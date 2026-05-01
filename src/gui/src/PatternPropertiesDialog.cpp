@@ -74,7 +74,7 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 		windowFlags() | Qt::CustomizeWindowHint | Qt::WindowMinMaxButtonsHint
 	);
 
-	resize( 318, 442 );
+	resize( 657, 542 );
 
 	// Overall layout
 	auto pOverallLayout = new QVBoxLayout( this );
@@ -87,66 +87,74 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 	pOverallLayout->addWidget( pScrollArea );
 
 	auto pScrollAreaContent = new QWidget( pScrollArea );
-	pScrollAreaContent->setMinimumSize( 311, 434 );
+	pScrollAreaContent->setMinimumSize( 652, 534 );
 	pScrollArea->setWidget( pScrollAreaContent );
 
-	auto pGridLayout = new QGridLayout( pScrollAreaContent );
-	pScrollAreaContent->setLayout( pGridLayout );
+	auto pOuterLayout = new QVBoxLayout();
+	pOuterLayout->setSpacing( 0 );
+	pOuterLayout->setContentsMargins( 0, 0, 0, 0 );
+	pScrollAreaContent->setLayout( pOuterLayout );
 
-	auto pOuterVLayout = new QVBoxLayout();
-	pGridLayout->addLayout( pOuterVLayout, 0, 0 );
+	auto pFormContainer = new QWidget( pScrollAreaContent );
+	pFormContainer->setSizePolicy(
+		QSizePolicy::Expanding, QSizePolicy::Expanding
+	);
+	pOuterLayout->addWidget( pFormContainer );
+
+	auto pGridLayout = new QGridLayout( pFormContainer );
+	pFormContainer->setLayout( pGridLayout );
 
 	auto pFormLayout = new QVBoxLayout();
-	pOuterVLayout->addLayout( pFormLayout );
+	pOuterLayout->addLayout( pFormLayout );
 
-	auto pPathLabel = new QLabel( pScrollAreaContent );
-	pFormLayout->addWidget( pPathLabel );
+	auto pPathLabel = new QLabel( pFormContainer );
+	pGridLayout->addWidget( pPathLabel, 0, 0 );
 
-	m_pPathEdit = new LCDDisplay( pScrollAreaContent );
-	pFormLayout->addWidget( m_pPathEdit );
+	m_pPathEdit = new LCDDisplay( pFormContainer );
+	pGridLayout->addWidget( m_pPathEdit, 0, 1 );
 
-	auto pNameLabel = new QLabel( pScrollAreaContent );
-	pFormLayout->addWidget( pNameLabel );
+	auto pNameLabel = new QLabel( pFormContainer );
+	pGridLayout->addWidget( pNameLabel, 1, 0 );
 
-	m_pPatternNameTxt = new LCDDisplay( pScrollAreaContent );
-	pFormLayout->addWidget( m_pPatternNameTxt );
+	m_pPatternNameTxt = new LCDDisplay( pFormContainer );
+	pGridLayout->addWidget( m_pPatternNameTxt, 1, 1 );
 
-	auto pVersionLabel = new QLabel( pScrollAreaContent );
-	pFormLayout->addWidget( pVersionLabel );
+	auto pVersionLabel = new QLabel( pFormContainer );
+	pGridLayout->addWidget( pVersionLabel, 2, 0 );
 
-	m_pVersionSpinBox = new LCDSpinBox( pScrollAreaContent );
-	pFormLayout->addWidget( m_pVersionSpinBox );
+	m_pVersionSpinBox = new LCDSpinBox( pFormContainer );
+	pGridLayout->addWidget( m_pVersionSpinBox, 2, 1 );
 
-	auto pAuthorLabel = new QLabel( pScrollAreaContent );
-	pFormLayout->addWidget( pAuthorLabel );
+	auto pAuthorLabel = new QLabel( pFormContainer );
+	pGridLayout->addWidget( pAuthorLabel, 3, 0 );
 
-	m_pAuthorTxt = new LCDDisplay( pScrollAreaContent );
-	pFormLayout->addWidget( m_pAuthorTxt );
+	m_pAuthorTxt = new LCDDisplay( pFormContainer );
+	pGridLayout->addWidget( m_pAuthorTxt, 3, 1 );
 
-	auto pLicenseLabel = new QLabel( pScrollAreaContent );
+	auto pLicenseLabel = new QLabel( pFormContainer );
 	pLicenseLabel->setMinimumHeight( 20 );
-	pFormLayout->addWidget( pLicenseLabel );
+	pGridLayout->addWidget( pLicenseLabel, 4, 0 );
 
-	m_pLicenseComboBox = new LCDCombo( pScrollAreaContent );
+	m_pLicenseComboBox = new LCDCombo( pFormContainer );
 	m_pLicenseComboBox->setSizePolicy(
 		QSizePolicy::Expanding, QSizePolicy::Fixed
 	);
-	pFormLayout->addWidget( m_pLicenseComboBox );
+	pGridLayout->addWidget( m_pLicenseComboBox, 4, 1 );
 
-	m_pLicenseStringTxt = new LCDDisplay( pScrollAreaContent );
-	pFormLayout->addWidget( m_pLicenseStringTxt );
+	m_pLicenseStringTxt = new LCDDisplay( pFormContainer );
+	pGridLayout->addWidget( m_pLicenseStringTxt, 5, 1 );
 
-	auto pNotesLabel = new QLabel( pScrollAreaContent );
-	pFormLayout->addWidget( pNotesLabel );
+	auto pNotesLabel = new QLabel( pFormContainer );
+	pGridLayout->addWidget( pNotesLabel, 6, 0 );
 
-	m_pPatternDescTxt = new LCDTextEdit( pScrollAreaContent );
-	pFormLayout->addWidget( m_pPatternDescTxt );
+	m_pPatternDescTxt = new LCDTextEdit( pFormContainer );
+	pGridLayout->addWidget( m_pPatternDescTxt, 6, 1 );
 
-	auto pTagsLabel = new QLabel( pScrollAreaContent );
-	pFormLayout->addWidget( pTagsLabel );
+	auto pTagsLabel = new QLabel( pFormContainer );
+	pGridLayout->addWidget( pTagsLabel, 7, 0 );
 
-	m_pTagEdit = new TagEdit( pScrollAreaContent );
-	pOuterVLayout->addWidget( m_pTagEdit );
+	m_pTagEdit = new TagEdit( pFormContainer );
+	pGridLayout->addWidget( m_pTagEdit, 7, 1 );
 
 	// Bottom button bar
 	auto pButtonLayout = new QHBoxLayout();
@@ -164,7 +172,7 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 	pButtonLayout->addSpacerItem(
 		new QSpacerItem( 37, 28, QSizePolicy::Expanding, QSizePolicy::Minimum )
 	);
-	pOuterVLayout->addLayout( pButtonLayout );
+	pOuterLayout->addLayout( pButtonLayout );
 
 	// ---- Widget configuration ----
 
