@@ -108,7 +108,7 @@ void PatternTest::testPatternPathStorage()
 					.arg( expectedPaths.join( ", " ) )
 					.arg( actualPaths.join( ", " ) ) );
 	for ( int ii = 0; ii < expectedPaths.size(); ++ii ) {
-		CPPUNIT_ASSERT( expectedPaths[ii] == actualPaths[ii] );
+		ASSERT_PATH( expectedPaths[ii], actualPaths[ii] );
 	}
 
 	CPPUNIT_ASSERT( Filesystem::rm( sTmpPath ) );

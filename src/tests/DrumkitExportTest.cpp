@@ -134,8 +134,8 @@ void DrumkitExportTest::testDrumkitExportAndImport() {
 		Filesystem::userDrumkitsDir() + m_sTestKitName + "/drumkit.xml";
 	const auto pDrumkit = pDB->getDrumkit( sExtractedKitPath );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
-	CPPUNIT_ASSERT(
-		Filesystem::drumkitPathFromDir( sInstalledDir ) == sExtractedKitPath
+	ASSERT_PATH(
+		Filesystem::drumkitPathFromDir( sInstalledDir ), sExtractedKitPath
 	);
 	CPPUNIT_ASSERT( pDrumkit->getName() == m_sTestKitName );
 	for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {

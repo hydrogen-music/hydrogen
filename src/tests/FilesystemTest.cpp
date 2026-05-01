@@ -22,6 +22,8 @@
 
 #include "FilesystemTest.h"
 
+#include "TestHelper.h"
+
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <QTest>
@@ -74,10 +76,10 @@ void FilesystemTest::testUniquePrefix() {
 	QString sBaseUniquePath, sBasePathAgain;
 	for ( int ii = 0; ii < 10; ++ii ) {
 		sBaseUniquePath = Filesystem::addUniquePrefix( sBasePath );
-		CPPUNIT_ASSERT( sBaseUniquePath != sBasePath );
+		ASSERT_PATH_UNEQUAL( sBaseUniquePath, sBasePath );
 
 		sBasePathAgain = Filesystem::removeUniquePrefix( sBaseUniquePath );
-		CPPUNIT_ASSERT( sBasePathAgain == sBasePath );
+		ASSERT_PATH( sBasePathAgain, sBasePath );
 	}
 
 	// Almost our prefix, but not exactly.
@@ -86,9 +88,9 @@ void FilesystemTest::testUniquePrefix() {
 	const QString sNoPrefixPath2( QDir::temp().absoluteFilePath(
 									 "tmp-AEWFDSD4-test.h2song" ) );
 
-	CPPUNIT_ASSERT( sNoPrefixPath ==
+	ASSERT_PATH( sNoPrefixPath,
 					Filesystem::removeUniquePrefix( sNoPrefixPath ) );
-	CPPUNIT_ASSERT( sNoPrefixPath2 ==
+	ASSERT_PATH( sNoPrefixPath2,
 					Filesystem::removeUniquePrefix( sNoPrefixPath2 ) );
 }
 
@@ -362,28 +364,28 @@ void FilesystemTest::testSamplePathHandling() {
 		sPathInSystemKit, sSystemKitPath );
 	___INFOLOG( QString( "sPathInSystemKitPrepared: [%1]" )
 				.arg( sPathInSystemKitPrepared ) );
-	CPPUNIT_ASSERT( sPathInSystemKit != sPathInSystemKitPrepared );
+	ASSERT_PATH_UNEQUAL( sPathInSystemKit, sPathInSystemKitPrepared );
 	CPPUNIT_ASSERT( sFileName == sPathInSystemKitPrepared );
 
 	const auto sPathInUserKitPrepared = Filesystem::prepareSamplePath(
 		sPathInUserKit, sUserKitPath );
 	___INFOLOG( QString( "sPathInUserKitPrepared: [%1]" )
 				.arg( sPathInUserKitPrepared ) );
-	CPPUNIT_ASSERT( sPathInUserKit != sPathInUserKitPrepared );
+	ASSERT_PATH_UNEQUAL( sPathInUserKit, sPathInUserKitPrepared );
 	CPPUNIT_ASSERT( sFileName == sPathInUserKitPrepared );
 
 	const auto sAbsolutePathPrepared = Filesystem::prepareSamplePath(
 		sAbsolutePath, "" );
 	___INFOLOG( QString( "sAbsolutePathPrepared: [%1]" )
 				.arg( sAbsolutePathPrepared ) );
-	CPPUNIT_ASSERT( sAbsolutePath == sAbsolutePathPrepared );
+	ASSERT_PATH( sAbsolutePath, sAbsolutePathPrepared );
 	CPPUNIT_ASSERT( sFileName != sAbsolutePathPrepared );
 
 	const auto sRelativePathPrepared = Filesystem::prepareSamplePath(
 		sRelativePath, "" );
 	___INFOLOG( QString( "sRelativePathPrepared: [%1]" )
 				.arg( sRelativePathPrepared ) );
-	CPPUNIT_ASSERT( sRelativePath == sRelativePathPrepared );
+	ASSERT_PATH( sRelativePath, sRelativePathPrepared );
 	CPPUNIT_ASSERT( sFileName != sRelativePathPrepared );
 
 	___INFOLOG( "passed" );
@@ -398,11 +400,11 @@ void FilesystemTest::testDrumkitPathConversion()
 	const QString sDrumkitDir( "/non/existing/path/to/folder" );
 	const QString sDrumkitPath( "/non/existing/path/to/folder/drumkit.xml" );
 
-	CPPUNIT_ASSERT(
-		Filesystem::drumkitDirFromPath( sDrumkitPath ) == sDrumkitDir
+	ASSERT_PATH(
+		Filesystem::drumkitDirFromPath( sDrumkitPath ), sDrumkitDir
 	);
-	CPPUNIT_ASSERT(
-		Filesystem::drumkitPathFromDir( sDrumkitDir ) == sDrumkitPath
+	ASSERT_PATH(
+		Filesystem::drumkitPathFromDir( sDrumkitDir ), sDrumkitPath
 	);
 
 	___INFOLOG( "passed" );
@@ -425,12 +427,12 @@ void FilesystemTest::testSanitizeDrumkitPath()
 	QFile fileValid( sPathValid );
 	CPPUNIT_ASSERT( fileValid.open( QIODevice::WriteOnly ) );
 
-	CPPUNIT_ASSERT(
-		Filesystem::sanitizeDrumkitPath( sPathValid ) == sPathValid
+	ASSERT_PATH(
+		Filesystem::sanitizeDrumkitPath( sPathValid ), sPathValid
 	);
 	CPPUNIT_ASSERT( Filesystem::sanitizeDrumkitPath( sPathInvalid ).isEmpty() );
-	CPPUNIT_ASSERT(
-		Filesystem::sanitizeDrumkitPath( sPathFolder ) == sPathValid
+	ASSERT_PATH(
+		Filesystem::sanitizeDrumkitPath( sPathFolder ), sPathValid
 	);
 	CPPUNIT_ASSERT( Filesystem::sanitizeDrumkitPath( sPathSubfolder ).isEmpty()
 	);

@@ -25,6 +25,8 @@
 #ifdef H2CORE_HAVE_OSC
 
 #include "OscServerTest.h"
+#include "TestHelper.h"
+
 #include <core/OscServer.h>
 
 #include <QTest>
@@ -102,21 +104,21 @@ void OscServerTest::testSessionManagement(){
 	// Store it to disk so we can retrieve it later on.
 	hydrogenOSC.send("/Hydrogen/SAVE_SONG");
 	WAIT(m_sValidPath == m_pHydrogen->getSong()->getPath());
-	CPPUNIT_ASSERT( m_sValidPath == m_pHydrogen->getSong()->getPath() );
+	ASSERT_PATH( m_sValidPath, m_pHydrogen->getSong()->getPath() );
 
 	// Store a copy in another file.
 	const auto sValidPath2Local8Bit = m_sValidPath2.toLocal8Bit();
 	hydrogenOSC.send("/Hydrogen/SAVE_SONG_AS", "s",
 					 sValidPath2Local8Bit.data());
 	WAIT(m_sValidPath2 == m_pHydrogen->getSong()->getPath());
-	CPPUNIT_ASSERT( m_sValidPath2 == m_pHydrogen->getSong()->getPath() );
+	ASSERT_PATH( m_sValidPath2, m_pHydrogen->getSong()->getPath() );
 	
 	// Load the first song. This will only be successful if the
 	// SAVE_SONG did work.
 	hydrogenOSC.send("/Hydrogen/OPEN_SONG", "s",
 					 sValidPathLocal8Bit.data());
 	WAIT(m_sValidPath == m_pHydrogen->getSong()->getPath());
-	CPPUNIT_ASSERT( m_sValidPath == m_pHydrogen->getSong()->getPath() );
+	ASSERT_PATH( m_sValidPath, m_pHydrogen->getSong()->getPath() );
 	___INFOLOG( "passed" );
 }
 

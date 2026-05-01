@@ -113,7 +113,7 @@ void CoreActionControllerTest::testSessionManagement() {
 		auto pSong = H2Core::Song::getEmptySong();
 		pSong->setPath( fileProper.fileName() );
 		CPPUNIT_ASSERT( H2Core::CoreActionController::setSong( pSong ) );
-		CPPUNIT_ASSERT( sFilePath == pHydrogen->getSong()->getPath() );
+		ASSERT_PATH( sFilePath, pHydrogen->getSong()->getPath() );
 	
 		// -----------------------------------------------------------
 		// Test CoreActionController::saveSong()
@@ -131,7 +131,7 @@ void CoreActionControllerTest::testSessionManagement() {
 	pSong = H2Core::Song::getEmptySong();
 	pSong->setPath( sFilePath2 );
 	CPPUNIT_ASSERT( H2Core::CoreActionController::setSong( pSong ) );
-	CPPUNIT_ASSERT( sFilePath2 == pHydrogen->getSong()->getPath() );
+	ASSERT_PATH( sFilePath2, pHydrogen->getSong()->getPath() );
 
 	// ---------------------------------------------------------------
 	// Test CoreActionController::loadSong() and ::setSong();
@@ -143,14 +143,14 @@ void CoreActionControllerTest::testSessionManagement() {
 	CPPUNIT_ASSERT( ! H2Core::CoreActionController::setSong( pSong ) );
 	
 	// The previous action should have not affected the current song.
-	CPPUNIT_ASSERT( sFilePath2 == pHydrogen->getSong()->getPath() );
+	ASSERT_PATH( sFilePath2, pHydrogen->getSong()->getPath() );
 	CPPUNIT_ASSERT( pSong != pHydrogen->getSong() );
 	
 	// Load the first song (which was saved).
 	pSong = H2Core::CoreActionController::loadSong( sFilePath );
 	CPPUNIT_ASSERT( pSong != nullptr );
 	CPPUNIT_ASSERT( H2Core::CoreActionController::setSong( pSong ) );
-	CPPUNIT_ASSERT( sFilePath == pHydrogen->getSong()->getPath() );
+	ASSERT_PATH( sFilePath, pHydrogen->getSong()->getPath() );
 	CPPUNIT_ASSERT( pSong == pHydrogen->getSong() );
 
 	// Attempt to load the second song. This will fail since it should not be
@@ -169,10 +169,10 @@ void CoreActionControllerTest::testSessionManagement() {
 	// Check if everything worked out.
 	pSong = H2Core::CoreActionController::loadSong( sFilePath );
 	CPPUNIT_ASSERT( H2Core::CoreActionController::setSong( pSong ) );
-	CPPUNIT_ASSERT( sFilePath == pHydrogen->getSong()->getPath() );
+	ASSERT_PATH( sFilePath, pHydrogen->getSong()->getPath() );
 	pSong = H2Core::CoreActionController::loadSong( sFilePath2 );
 	CPPUNIT_ASSERT( H2Core::CoreActionController::setSong( pSong ) );
-	CPPUNIT_ASSERT( sFilePath2 == pHydrogen->getSong()->getPath() );
+	ASSERT_PATH( sFilePath2, pHydrogen->getSong()->getPath() );
 
 	// ---------------------------------------------------------------
 	
