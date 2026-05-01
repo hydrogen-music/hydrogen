@@ -23,19 +23,29 @@
 #ifndef DRUMKIT_PROPERTIES_DIALOG_H
 #define DRUMKIT_PROPERTIES_DIALOG_H
 
-#include "ui_DrumkitPropertiesDialog_UI.h"
+#include <memory>
+
+#include <QtWidgets>
+
 #include "Widgets/WidgetWithLicenseProperty.h"
 
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Object.h>
 
+class Button;
+class LCDCombo;
+class LCDDisplay;
+class LCDSpinBox;
+class LCDTextEdit;
+class TagEdit;
+class TypesTable;
+
 namespace H2Core {
 
 /** \ingroup docGUI*/
 class DrumkitPropertiesDialog : public QDialog,
 								protected WidgetWithLicenseProperty,
-								public Ui_DrumkitPropertiesDialog_UI,
 								public H2Core::Object<DrumkitPropertiesDialog> {
 	H2_OBJECT( DrumkitPropertiesDialog )
 	Q_OBJECT
@@ -83,6 +93,27 @@ class DrumkitPropertiesDialog : public QDialog,
 	/** used to selected a specific instrument type row on opening based on
 	 * the provided instrument ID. */
 	std::map<Instrument::Id, LCDCombo*> m_idToTypeMap;
+
+	QTabWidget* m_pTabWidget;
+	LCDDisplay* m_pPathEdit;
+	LCDDisplay* m_pNameTxt;
+	LCDSpinBox* m_pVersionSpinBox;
+	LCDDisplay* m_pAuthorTxt;
+	LCDCombo* m_pLicenseComboBox;
+	QLabel* m_pLicenseStringLbl;
+	LCDDisplay* m_pLicenseStringTxt;
+	LCDTextEdit* m_pInfoTxt;
+	TagEdit* m_pTagEdit;
+	LCDDisplay* m_pImageText;
+	Button* m_pImageBrowsePushButton;
+	LCDCombo* m_pImageLicenseComboBox;
+	QLabel* m_pImageLicenseStringLbl;
+	LCDDisplay* m_pImageLicenseStringTxt;
+	QLabel* m_pDrumkitImageLabel;
+	TypesTable* m_pTypesTable;
+	QTableWidget* m_pLicensesTable;
+	Button* m_pSaveBtn;
+	Button* m_pCancelBtn;
 };
 
 }  // namespace H2Core

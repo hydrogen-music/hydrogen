@@ -1671,25 +1671,6 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
 </context>
 <context>
-    <name>DrumkitPropertiesDialog_UI</name>
-    <message>
-        <source>Image License</source>
-        <translation>Ліцензія зображення</translation>
-    </message>
-    <message>
-        <source>Drumkit License</source>
-        <translation>Ліцензія набору</translation>
-    </message>
-    <message>
-        <source>Image</source>
-        <translation>Зображення</translation>
-    </message>
-    <message>
-        <source>Types</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>ExportMidiDialog</name>
     <message>
         <source>Export midi</source>
@@ -2026,6 +2007,22 @@ Overwrite the existing file?</source>
     <message>
         <source>Save a copy of the current drumkit to NSM session folder</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation>Зображення</translation>
+    </message>
+    <message>
+        <source>Image License</source>
+        <translation>Ліцензія зображення</translation>
+    </message>
+    <message>
+        <source>Types</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit License</source>
+        <translation>Ліцензія набору</translation>
     </message>
 </context>
 <context>
