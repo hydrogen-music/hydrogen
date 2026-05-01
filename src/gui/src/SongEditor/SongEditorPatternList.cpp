@@ -232,12 +232,14 @@ void SongEditorPatternList::inlineEditingAccepted()
 
 	SE_modifyPatternPropertiesAction* action =
 		new SE_modifyPatternPropertiesAction(
+			m_pPatternBeingEdited->getPath(),
 			m_pPatternBeingEdited->getVersion(),
 			m_pPatternBeingEdited->getName(),
 			m_pPatternBeingEdited->getAuthor(),
 			m_pPatternBeingEdited->getInfo(),
 			m_pPatternBeingEdited->getLicense(),
 			m_pPatternBeingEdited->getTags(),
+			m_pPatternBeingEdited->getPath(),
 			m_pPatternBeingEdited->getVersion(), patternName,
 			m_pPatternBeingEdited->getAuthor(),
 			m_pPatternBeingEdited->getInfo(),
@@ -435,7 +437,9 @@ void SongEditorPatternList::patternPopup_properties()
 		return;
 	}
 
-	auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
+	auto pPattern =
+		std::make_shared<Pattern>( pSong->getPatternList()->get( m_nRowClicked )
+		);
 
 	PatternPropertiesDialog dialog(
 		this, pPattern, m_nRowClicked,

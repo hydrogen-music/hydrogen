@@ -140,12 +140,14 @@ class SE_deletePatternAction : public QUndoCommand {
 class SE_modifyPatternPropertiesAction : public QUndoCommand {
    public:
 	SE_modifyPatternPropertiesAction(
+		const QString& sOldPatternPath,
 		const int nOldVersion,
 		const QString& oldPatternName,
 		const QString& sOldAuthor,
 		const QString& oldPatternInfo,
 		const H2Core::License& oldLicense,
 		const QStringList& oldTags,
+		const QString& sNewPatternPath,
 		const int nNewVersion,
 		const QString& newPatternName,
 		const QString sNewAuthor,
@@ -156,12 +158,14 @@ class SE_modifyPatternPropertiesAction : public QUndoCommand {
 	)
 	{
 		setText( QObject::tr( "Modify pattern properties" ) );
+		m_sOldPatternPath = sOldPatternPath;
 		m_nOldVersion = nOldVersion;
 		__oldPatternName = oldPatternName;
 		m_sOldAuthor = sOldAuthor;
 		__oldPatternInfo = oldPatternInfo;
 		m_oldLicense = oldLicense;
 		m_oldTags = oldTags;
+		m_sNewPatternPath = sNewPatternPath;
 		m_nNewVersion = nNewVersion;
 		__newPatternName = newPatternName;
 		m_sNewAuthor = sNewAuthor;
@@ -173,20 +177,21 @@ class SE_modifyPatternPropertiesAction : public QUndoCommand {
 	virtual void undo()
 	{
 		H2Core::CoreActionController::setPatternProperties(
-			m_nOldVersion, __oldPatternName, m_sOldAuthor, __oldPatternInfo,
-			m_oldLicense, m_oldTags, __patternNr
+			m_sOldPatternPath, m_nOldVersion, __oldPatternName, m_sOldAuthor,
+			__oldPatternInfo, m_oldLicense, m_oldTags, __patternNr
 		);
 	}
 
 	virtual void redo()
 	{
 		H2Core::CoreActionController::setPatternProperties(
-			m_nNewVersion, __newPatternName, m_sNewAuthor, __newPatternInfo,
-			m_newLicense, m_newTags, __patternNr
+			m_sNewPatternPath, m_nNewVersion, __newPatternName, m_sNewAuthor,
+			__newPatternInfo, m_newLicense, m_newTags, __patternNr
 		);
 	}
 
    private:
+	QString m_sOldPatternPath;
 	int m_nOldVersion;
 	QString __oldPatternName;
 	QString m_sOldAuthor;
@@ -194,6 +199,7 @@ class SE_modifyPatternPropertiesAction : public QUndoCommand {
 	H2Core::License m_oldLicense;
 	QStringList m_oldTags;
 
+	QString m_sNewPatternPath;
 	int m_nNewVersion;
 	QString __newPatternName;
 	QString m_sNewAuthor;

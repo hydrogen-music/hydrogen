@@ -59,7 +59,9 @@ class PatternPropertiesDialog : public QDialog,
 		ModifyViaUndo = 0x01,
 		/** Provides the user write access the path of the underlying resource
 		 * as well. */
-		Duplicate = 0x02
+		Duplicate = 0x02,
+		/** Same as #Duplicate but with a different window title. */
+		SaveAs = 0x04
 	};
 
 	PatternPropertiesDialog(

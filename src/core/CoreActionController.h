@@ -471,6 +471,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	static bool
 	clearInstrumentInPattern( int nInstrumentNumber, int nPatternNumber = -1 );
 	static bool setPatternProperties(
+		const QString& sNewPatternPath,
 		const int nNewVersion,
 		const QString& sNewPatternName,
 		const QString& sNewAuthor,

@@ -2835,6 +2835,7 @@ bool CoreActionController::clearInstrumentInPattern(
 }
 
 bool CoreActionController::setPatternProperties(
+	const QString& sNewPatternPath,
 	const int nNewVersion,
 	const QString& sNewPatternName,
 	const QString& sNewAuthor,
@@ -2860,6 +2861,7 @@ bool CoreActionController::setPatternProperties(
 		return false;
 	}
 
+	pPattern->setPath( sNewPatternPath );
 	pPattern->setVersion( nNewVersion );
 	pPattern->setName( sNewPatternName );
 	pPattern->setAuthor( sNewAuthor );

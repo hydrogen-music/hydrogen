@@ -465,6 +465,7 @@ void SoundLibraryTree::actionProperties()
 void SoundLibraryTree::actionDuplicate()
 {
 	auto pHydrogen = Hydrogen::get_instance();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto it = m_registry.find( currentItem() );
 	if ( it == m_registry.end() || it->second == nullptr ) {
 		return;
@@ -510,8 +511,14 @@ void SoundLibraryTree::actionDuplicate()
 			this, pPattern, -1, PatternPropertiesDialog::Action::Duplicate
 		);
 		if ( dialog.exec() == QDialog::Accepted ) {
-			pPattern->save( pPattern->getPath() );
-			pDB->updatePatterns( Event::Trigger::Default );
+			if ( pPattern->save( pPattern->getPath() ) ) {
+				pDB->updatePatterns( Event::Trigger::Default );
+			}
+			else {
+				QMessageBox::warning(
+					this, "Hydrogen", pCommonStrings->getErrorPatternSaved()
+				);
+			}
 		}
 	}
 	else {

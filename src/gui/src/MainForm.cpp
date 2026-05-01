@@ -59,6 +59,7 @@
 #include "LadspaFXProperties.h"
 #include "Mixer/Mixer.h"
 #include "PatternEditor/PatternEditorPanel.h"
+#include "PatternPropertiesDialog.h"
 #include "PlaylistEditor/PlaylistEditor.h"
 #include "MainToolBar/MainToolBar.h"
 #include "Skin.h"
@@ -957,47 +958,42 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 		return;
 	}
 
-	auto pPattern = pSong->getPatternList()->get( nPatternRow );
-	if ( pPattern == nullptr ){
+	auto pPattern =
+		std::make_shared<Pattern>( pSong->getPatternList()->get( nPatternRow )
+		);
+	if ( pPattern == nullptr ) {
 		ERRORLOG( QString( "Pattern [%1] could not be retrieved" )
 				  .arg( nPatternRow ) );
 		return;
 	}
 
-	QString sPath = pPref->getLastExportPatternAsDirectory();
-	if ( ! Filesystem::dirWritable( sPath, false ) ){
-		sPath = Filesystem::userPatternsDir();
+	// In case the pattern is not backed by a file yet, we default to the
+	// user-level pattern folder.
+	if ( pPattern->getPath().isEmpty() ) {
+		pPattern->setPath( QString( "%1/%2%3" )
+							   .arg( Filesystem::userPatternsDir() )
+							   .arg( pPattern->getName() )
+							   .arg( Filesystem::sPatternSuffix ) );
 	}
 
-	FileDialog fd(this);
-	fd.setWindowTitle( pCommonStrings->getActionSavePatternAs() );
-	fd.setDirectory( sPath );
-	fd.selectFile( pPattern->getName() );
-	fd.setFileMode( QFileDialog::AnyFile );
-	fd.setNameFilter( Filesystem::sPatternFilter );
-	fd.setAcceptMode( QFileDialog::AcceptSave );
-	fd.setSidebarUrls( fd.sidebarUrls() <<
-					   QUrl::fromLocalFile( Filesystem::userPatternsDir() ) );
-	fd.setDefaultSuffix( Filesystem::sPatternSuffix );
-
-	if ( fd.exec() != QDialog::Accepted ) {
-		return;
-	}
-
-	QFileInfo fileInfo( fd.selectedFiles().first() );
-	pPref->setLastExportPatternAsDirectory( fileInfo.path() );
-	const QString sFilePath = fileInfo.absoluteFilePath();
-	if ( ! pPattern->save( sFilePath ) ) {
-		QMessageBox::warning(
-			this, "Hydrogen", pCommonStrings->getErrorPatternSaved()
-		);
-	}
-	else {
-		h2app->showStatusBarMessage( pCommonStrings->getStatusPatternLoaded() );
-
-		if ( sFilePath.indexOf( Filesystem::userPatternsDir() ) == 0 ) {
+	// Since we act on one of the currently loaded patterns, we have to modify
+	// its meta data using an undo action as well.
+	PatternPropertiesDialog dialog(
+		this, pPattern, nPatternRow,
+		static_cast<PatternPropertiesDialog::Action>(
+			PatternPropertiesDialog::Action::ModifyViaUndo |
+			PatternPropertiesDialog::Action::SaveAs
+		)
+	);
+	if ( dialog.exec() == QDialog::Accepted ) {
+		if ( pPattern->save( pPattern->getPath() ) ) {
 			pHydrogen->getSoundLibraryDatabase()->updatePatterns(
 				Event::Trigger::Default
+			);
+		}
+		else {
+			QMessageBox::warning(
+				this, "Hydrogen", pCommonStrings->getErrorPatternSaved()
 			);
 		}
 	}

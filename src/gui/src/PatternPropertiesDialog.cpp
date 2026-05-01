@@ -64,6 +64,9 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 	if ( action & Action::Duplicate ) {
 		setWindowTitle( pCommonStrings->getActionDuplicatePattern() );
 	}
+	else if ( action & Action::SaveAs ) {
+		setWindowTitle( pCommonStrings->getActionSavePatternAs() );
+	}
 	else {
 		setWindowTitle( tr( "Pattern properties" ) );
 	}
@@ -236,8 +239,12 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 		tags = pPattern->getTags();
 	}
 
-	m_pPathEdit->setIsActive( action & Action::Duplicate );
-	m_pPathBrowseButton->setVisible( action & Action::Duplicate );
+	m_pPathEdit->setIsActive(
+		( action & Action::Duplicate ) || ( action & Action::SaveAs )
+	);
+	m_pPathBrowseButton->setVisible(
+		( action & Action::Duplicate ) || ( action & Action::SaveAs )
+	);
 
 	connect(
 		m_pLicenseComboBox, SIGNAL( currentIndexChanged( int ) ), this,
@@ -368,42 +375,56 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	auto pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
 	sPattName = pPatternList->findUnusedPatternName( sPattName, m_pPattern );
 
-	if ( ! ( m_action & Action::ModifyViaUndo ) ) {
-		if ( m_action & Action::Duplicate &&
-			 m_pPattern->getPath() != m_pPathEdit->text() ) {
-			if ( !Filesystem::isPathValid(
-					 Filesystem::Artifact::Pattern, m_pPathEdit->text(), false
-				 ) ) {
-				QMessageBox::critical(
-					this, "Hydrogen",
-					QString( "[%1]\n\n%2 [%3]" )
-						.arg( m_pPathEdit->text() )
-						.arg( pCommonStrings->getErrorInvalidPath() )
-						.arg( Filesystem::sPatternSuffix )
-				);
-				return;
-			}
-			m_pPattern->setPath( m_pPathEdit->text() );
+	if ( ( ( m_action & Action::Duplicate ) || ( m_action & Action::SaveAs )
+		 ) &&
+		 ( m_pPattern->getPath() != m_pPathEdit->text() &&
+		   !m_pPathEdit->text().isEmpty() ) ) {
+		if ( !Filesystem::isPathValid(
+				 Filesystem::Artifact::Pattern, m_pPathEdit->text(), false
+			 ) ) {
+			QMessageBox::critical(
+				this, "Hydrogen",
+				QString( "[%1]\n\n%2 [%3]" )
+					.arg( m_pPathEdit->text() )
+					.arg( pCommonStrings->getErrorInvalidPath() )
+					.arg( Filesystem::sPatternSuffix )
+			);
+			return;
 		}
-		if ( m_pPattern->getVersion() != nVersion ) {
-			m_pPattern->setVersion( nVersion );
-		}
-		m_pPattern->setName( sPattName );
-		m_pPattern->setAuthor( sAuthor );
-		m_pPattern->setInfo( sPattInfo );
-		m_pPattern->setLicense( license );
-		m_pPattern->setTags( tags );
 	}
-	else if ( m_pPattern->getVersion() != nVersion || m_pPattern->getName() != sPattName || m_pPattern->getAuthor() != sAuthor || m_pPattern->getInfo() != sPattInfo || m_pPattern->getLicense() != license || m_pPattern->getTags() != tags ) {
+
+	if ( ( m_action & Action::ModifyViaUndo ) &&
+		 ( m_pPattern->getPath() != m_pPathEdit->text() ||
+		   m_pPattern->getVersion() != nVersion ||
+		   m_pPattern->getName() != sPattName ||
+		   m_pPattern->getAuthor() != sAuthor ||
+		   m_pPattern->getInfo() != sPattInfo ||
+		   m_pPattern->getLicense() != license ||
+		   m_pPattern->getTags() != tags ) ) {
 		SE_modifyPatternPropertiesAction* action =
 			new SE_modifyPatternPropertiesAction(
-				m_pPattern->getVersion(), m_pPattern->getName(), m_pPattern->getAuthor(),
-				m_pPattern->getInfo(), m_pPattern->getLicense(), m_pPattern->getTags(),
-				nVersion, sPattName, sAuthor, sPattInfo, license, tags,
-				m_nSelectedPattern
+				m_pPattern->getPath(), m_pPattern->getVersion(),
+				m_pPattern->getName(), m_pPattern->getAuthor(),
+				m_pPattern->getInfo(), m_pPattern->getLicense(),
+				m_pPattern->getTags(), m_pPathEdit->text(), nVersion, sPattName,
+				sAuthor, sPattInfo, license, tags, m_nSelectedPattern
 			);
 		HydrogenApp::get_instance()->pushUndoCommand( action );
 	}
+
+	if ( ( m_action & Action::Duplicate || m_action & Action::SaveAs ) &&
+		 m_pPattern->getPath() != m_pPathEdit->text() ) {
+		m_pPattern->setPath( m_pPathEdit->text() );
+	}
+	if ( m_pPattern->getVersion() != nVersion ) {
+		m_pPattern->setVersion( nVersion );
+	}
+	m_pPattern->setName( sPattName );
+	m_pPattern->setAuthor( sAuthor );
+	m_pPattern->setInfo( sPattInfo );
+	m_pPattern->setLicense( license );
+	m_pPattern->setTags( tags );
+
 	accept();
 }
 
