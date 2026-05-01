@@ -234,7 +234,14 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 		}
 		m_pPatternDescTxt->setText( pPattern->getInfo() );
 		m_pPatternNameTxt->setText( pPattern->getName() );
-		defaultNameCheck( pPattern->getName(), action & Action::ModifyViaUndo );
+		if ( ( action & Action::SaveAs ) || ( action & Action::Duplicate ) ) {
+			auto pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
+			if ( ! pPatternList->checkName( pPattern->getName(), m_pPattern ) ) {
+				m_pPatternNameTxt->setText(
+					pPatternList->findUnusedPatternName( pPattern->getName(), m_pPattern )
+										   );
+			}
+		}
 
 		tags = pPattern->getTags();
 	}
@@ -426,20 +433,4 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	m_pPattern->setTags( tags );
 
 	accept();
-}
-
-void PatternPropertiesDialog::defaultNameCheck(
-	const QString& pattName,
-	bool bSavePattern
-)
-{
-	auto pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
-	if ( bSavePattern && !pPatternList->checkName( pattName, m_pPattern ) ) {
-		m_pPatternNameTxt->setText(
-			pPatternList->findUnusedPatternName( pattName, m_pPattern )
-		);
-	}
-	else {
-		m_pPatternNameTxt->setText( pattName );
-	}
 }

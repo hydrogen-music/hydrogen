@@ -73,9 +73,6 @@ class PatternPropertiesDialog : public QDialog,
 
 	~PatternPropertiesDialog();
 
-	/// Does some name check
-	void defaultNameCheck( const QString&, bool );
-
    private slots:
 	void on_cancelBtn_clicked();
 	void on_okBtn_clicked();
