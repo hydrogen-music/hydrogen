@@ -936,6 +936,7 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 {
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pPref = Preferences::get_instance();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	if ( Hydrogen::get_instance()->getAudioEngine()->getState() ==
 		 H2Core::AudioEngine::State::Playing ) {
@@ -968,9 +969,8 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 		sPath = Filesystem::userPatternsDir();
 	}
 
-	const QString sTitle = tr( "Save Pattern as ..." );
 	FileDialog fd(this);
-	fd.setWindowTitle( sTitle );
+	fd.setWindowTitle( pCommonStrings->getActionSavePatternAs() );
 	fd.setDirectory( sPath );
 	fd.selectFile( pPattern->getName() );
 	fd.setFileMode( QFileDialog::AnyFile );
@@ -988,10 +988,12 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 	pPref->setLastExportPatternAsDirectory( fileInfo.path() );
 	const QString sFilePath = fileInfo.absoluteFilePath();
 	if ( ! pPattern->save( sFilePath ) ) {
-		QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
+		QMessageBox::warning(
+			this, "Hydrogen", pCommonStrings->getErrorPatternSaved()
+		);
 	}
 	else {
-		h2app->showStatusBarMessage( tr( "Pattern saved." ) );
+		h2app->showStatusBarMessage( pCommonStrings->getStatusPatternLoaded() );
 
 		if ( sFilePath.indexOf( Filesystem::userPatternsDir() ) == 0 ) {
 			pHydrogen->getSoundLibraryDatabase()->updatePatterns(

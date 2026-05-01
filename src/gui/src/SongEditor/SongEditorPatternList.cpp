@@ -407,12 +407,14 @@ void SongEditorPatternList::patternPopup_save()
 		QMessageBox::warning(
 			this, "Hydrogen",
 			QString( "%1\n\n%2" )
-				.arg( tr( "Could not save pattern." ).arg( pPattern->getPath() )
-				)
+				.arg( pCommonStrings->getErrorPatternSaved() )
+				.arg( pPattern->getPath() )
 		);
 	}
 	else {
-		pHydrogenApp->showStatusBarMessage( tr( "Pattern saved." ) );
+		pHydrogenApp->showStatusBarMessage(
+			pCommonStrings->getStatusPatternLoaded()
+		);
 		pHydrogen->getSoundLibraryDatabase()->updatePatterns(
 			Event::Trigger::Default
 		);

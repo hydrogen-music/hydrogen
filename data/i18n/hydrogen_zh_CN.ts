@@ -1575,6 +1575,21 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Pattern saved.</source>
+        <extracomment>Status message shown when a pattern was saved.</extracomment>
+        <translation>样式已保存。</translation>
+    </message>
+    <message>
+        <source>Save Pattern as</source>
+        <extracomment>Shown in the undo history after saving a loaded pattern to a file.</extracomment>
+        <translation>样式另存为</translation>
+    </message>
+    <message>
+        <source>Could not save pattern</source>
+        <extracomment>Text in warning dialog shown in case a pattern could not be saved.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -2557,18 +2572,6 @@ MIDI = %2</translation>
     <message>
         <source>Could not save song.</source>
         <translation>无法保存乐曲。</translation>
-    </message>
-    <message>
-        <source>Save Pattern as ...</source>
-        <translation>样式另存为...</translation>
-    </message>
-    <message>
-        <source>Could not export pattern.</source>
-        <translation>无法导出样式。</translation>
-    </message>
-    <message>
-        <source>Pattern saved.</source>
-        <translation>样式已保存。</translation>
     </message>
     <message>
         <source>Open song</source>
@@ -5798,10 +5801,6 @@ Are you sure?</source>
         <translation>虚拟样式</translation>
     </message>
     <message>
-        <source>Pattern saved.</source>
-        <translation>样式已保存。</translation>
-    </message>
-    <message>
         <source>Fill/remove range of pattern</source>
         <translation>填充/删除样式范围</translation>
     </message>
@@ -5815,10 +5814,6 @@ Are you sure?</source>
     </message>
     <message>
         <source>Select cells</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not save pattern.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

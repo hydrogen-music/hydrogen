@@ -239,6 +239,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getStatusOff() const { return m_sStatusOff; }
 	const QString& getStatusEnabled() const { return m_sStatusEnabled; }
 	const QString& getStatusDisabled() const { return m_sStatusDisabled; }
+	const QString& getStatusPatternLoaded() const
+	{
+		return m_sStatusPatternLoaded;
+	}
 
 	const QString& getTimelineEnabled() const { return m_sTimelineEnabled; }
 	const QString& getTimelineDisabledPatternMode() const
@@ -601,6 +605,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	{
 		return m_sActionReplacePattern;
 	}
+	const QString& getActionSavePatternAs() const
+	{
+		return m_sActionSavePatternAs;
+	}
 	const QString& getActionDuplicatePattern() const
 	{
 		return m_sActionDuplicatePattern;
@@ -689,6 +697,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getErrorEmptyType() const { return m_sErrorEmptyType; }
 	const QString& getErrorUniqueTypes() const { return m_sErrorUniqueTypes; }
 	const QString& getErrorInvalidPath() const { return m_sErrorInvalidPath; }
+	const QString& getErrorPatternSaved() const { return m_sErrorPatternSaved; }
 
 	const QString& getSettings() const { return m_sSettings; }
 	const QString& getPattern() const { return m_sPattern; }
@@ -796,6 +805,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sStatusOff;
 	QString m_sStatusEnabled;
 	QString m_sStatusDisabled;
+	QString m_sStatusPatternLoaded;
 	QString m_sTimelineEnabled;
 	QString m_sTimelineDisabledPatternMode;
 	QString m_sTimelineDisabledMidiClock;
@@ -942,6 +952,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 
 	QString m_sActionInsertPattern;
 	QString m_sActionReplacePattern;
+	QString m_sActionSavePatternAs;
 	QString m_sActionDuplicatePattern;
 	QString m_sActionRemovePattern;
 	QString m_sActionCopyPatternCells;
@@ -960,6 +971,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sErrorEmptyType;
 	QString m_sErrorUniqueTypes;
 	QString m_sErrorInvalidPath;
+	QString m_sErrorPatternSaved;
 
 	QString m_sSoundLibraryFailedPreDrumkitLoad;
 	QString m_sSoundLibrarySession;

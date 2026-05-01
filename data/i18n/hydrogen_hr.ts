@@ -1574,6 +1574,21 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Pattern saved.</source>
+        <extracomment>Status message shown when a pattern was saved.</extracomment>
+        <translation>Uzorak spremljen.</translation>
+    </message>
+    <message>
+        <source>Save Pattern as</source>
+        <extracomment>Shown in the undo history after saving a loaded pattern to a file.</extracomment>
+        <translation>Spremi uzorak kao</translation>
+    </message>
+    <message>
+        <source>Could not save pattern</source>
+        <extracomment>Text in warning dialog shown in case a pattern could not be saved.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -2539,10 +2554,6 @@ MIDI = %2</source>
         <translation>&amp;Informacije</translation>
     </message>
     <message>
-        <source>Could not export pattern.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Unknown error %1</source>
         <translation>nepoznata pogreška %1</translation>
     </message>
@@ -2557,14 +2568,6 @@ MIDI = %2</source>
     <message>
         <source>Open &amp;Pattern</source>
         <translation>Otvori &amp;uzorak</translation>
-    </message>
-    <message>
-        <source>Save Pattern as ...</source>
-        <translation>Spremi uzorak kao ...</translation>
-    </message>
-    <message>
-        <source>Pattern saved.</source>
-        <translation>Uzorak spremljen.</translation>
     </message>
     <message>
         <source></source>
@@ -5769,10 +5772,6 @@ Da li to želiš napraviti?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Pattern saved.</source>
-        <translation>Uzorak spremljen.</translation>
-    </message>
-    <message>
         <source>Fill/remove range of pattern</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5786,10 +5785,6 @@ Da li to želiš napraviti?</translation>
     </message>
     <message>
         <source>Select cells</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not save pattern.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

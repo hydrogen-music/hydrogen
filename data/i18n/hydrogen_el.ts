@@ -1574,6 +1574,21 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Pattern saved.</source>
+        <extracomment>Status message shown when a pattern was saved.</extracomment>
+        <translation>Αποθηκεύτηκε η μήτρα.</translation>
+    </message>
+    <message>
+        <source>Save Pattern as</source>
+        <extracomment>Shown in the undo history after saving a loaded pattern to a file.</extracomment>
+        <translation>Αποθήκευση της Μήτρας ως</translation>
+    </message>
+    <message>
+        <source>Could not save pattern</source>
+        <extracomment>Text in warning dialog shown in case a pattern could not be saved.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -2547,18 +2562,6 @@ MIDI = %2</source>
     <message>
         <source>Could not save song.</source>
         <translation>Αδυναμία αποθήκευσης του τραγουδιού.</translation>
-    </message>
-    <message>
-        <source>Save Pattern as ...</source>
-        <translation>Αποθήκευση της Μήτρας ως ...</translation>
-    </message>
-    <message>
-        <source>Could not export pattern.</source>
-        <translation>Αδυναμία εξαγωγής της μήτρας.</translation>
-    </message>
-    <message>
-        <source>Pattern saved.</source>
-        <translation>Αποθηκεύτηκε η μήτρα.</translation>
     </message>
     <message>
         <source>Open song</source>
@@ -5806,10 +5809,6 @@ Are you sure?</source>
         <translation>Εικονική Μήτρα</translation>
     </message>
     <message>
-        <source>Pattern saved.</source>
-        <translation>Αποθηκεύτηκε η μήτρα.</translation>
-    </message>
-    <message>
         <source>Fill/remove range of pattern</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5823,10 +5822,6 @@ Are you sure?</source>
     </message>
     <message>
         <source>Select cells</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not save pattern.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

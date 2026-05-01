@@ -1575,6 +1575,21 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Pattern saved.</source>
+        <extracomment>Status message shown when a pattern was saved.</extracomment>
+        <translation>Patrón guardado.</translation>
+    </message>
+    <message>
+        <source>Save Pattern as</source>
+        <extracomment>Shown in the undo history after saving a loaded pattern to a file.</extracomment>
+        <translation>Guardar Patrón como</translation>
+    </message>
+    <message>
+        <source>Could not save pattern</source>
+        <extracomment>Text in warning dialog shown in case a pattern could not be saved.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -2583,14 +2598,6 @@ MIDI = %2</translation>
         <translation>Abrir &amp;Patrón</translation>
     </message>
     <message>
-        <source>Save Pattern as ...</source>
-        <translation>Guardar Patrón como...</translation>
-    </message>
-    <message>
-        <source>Pattern saved.</source>
-        <translation>Patrón guardado.</translation>
-    </message>
-    <message>
         <source></source>
         <comment>Info|About</comment>
         <translation>Info|Acerca de</translation>
@@ -2598,10 +2605,6 @@ MIDI = %2</translation>
     <message>
         <source>Playlist: Song No. %1</source>
         <translation>Playlist: Canción nº %1</translation>
-    </message>
-    <message>
-        <source>Could not export pattern.</source>
-        <translation>No se pudo exportar el patrón.</translation>
     </message>
     <message>
         <source>LilyPond file (*.ly)</source>
@@ -5803,10 +5806,6 @@ Are you sure?</source>
         <translation>Patrón Virtual</translation>
     </message>
     <message>
-        <source>Pattern saved.</source>
-        <translation>Patrón guardado.</translation>
-    </message>
-    <message>
         <source>Fill/remove range of pattern</source>
         <translation>Rellenar/quitar rango de patrón</translation>
     </message>
@@ -5820,10 +5819,6 @@ Are you sure?</source>
     </message>
     <message>
         <source>Select cells</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not save pattern.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

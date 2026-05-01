@@ -1575,6 +1575,21 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Pattern saved.</source>
+        <extracomment>Status message shown when a pattern was saved.</extracomment>
+        <translation>Motif sauvegardé.</translation>
+    </message>
+    <message>
+        <source>Save Pattern as</source>
+        <extracomment>Shown in the undo history after saving a loaded pattern to a file.</extracomment>
+        <translation>Sauvegarder le motif sous</translation>
+    </message>
+    <message>
+        <source>Could not save pattern</source>
+        <extracomment>Text in warning dialog shown in case a pattern could not be saved.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -2577,14 +2592,6 @@ MIDI = %2</translation>
         <translation>Ouvrir un &amp;motif...</translation>
     </message>
     <message>
-        <source>Save Pattern as ...</source>
-        <translation>Sauvegarder le motif sous...</translation>
-    </message>
-    <message>
-        <source>Pattern saved.</source>
-        <translation>Motif sauvegardé.</translation>
-    </message>
-    <message>
         <source></source>
         <comment>Info|About</comment>
         <translation>Info|À propos</translation>
@@ -2592,10 +2599,6 @@ MIDI = %2</translation>
     <message>
         <source>Playlist: Song No. %1</source>
         <translation>Liste de lecture : morceau %1</translation>
-    </message>
-    <message>
-        <source>Could not export pattern.</source>
-        <translation>Ne peut pas exporter le motif.</translation>
     </message>
     <message>
         <source>LilyPond file (*.ly)</source>
@@ -5804,10 +5807,6 @@ Voulez-vous continuer?</translation>
         <translation>Motif virtuel</translation>
     </message>
     <message>
-        <source>Pattern saved.</source>
-        <translation>Motif sauvegardé.</translation>
-    </message>
-    <message>
         <source>Fill/remove range of pattern</source>
         <translation>Remplir/retirer une série de motif</translation>
     </message>
@@ -5821,10 +5820,6 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Select cells</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not save pattern.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

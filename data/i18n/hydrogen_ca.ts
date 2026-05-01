@@ -1575,6 +1575,21 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Pattern saved.</source>
+        <extracomment>Status message shown when a pattern was saved.</extracomment>
+        <translation>Patrón desat.</translation>
+    </message>
+    <message>
+        <source>Save Pattern as</source>
+        <extracomment>Shown in the undo history after saving a loaded pattern to a file.</extracomment>
+        <translation>Desar Patró com a</translation>
+    </message>
+    <message>
+        <source>Could not save pattern</source>
+        <extracomment>Text in warning dialog shown in case a pattern could not be saved.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -2556,14 +2571,6 @@ MIDI = %2</source>
         <translation>Obrir &amp;Patró</translation>
     </message>
     <message>
-        <source>Save Pattern as ...</source>
-        <translation>Desar Patró com a...</translation>
-    </message>
-    <message>
-        <source>Pattern saved.</source>
-        <translation>Patrón desat.</translation>
-    </message>
-    <message>
         <source></source>
         <comment>Info|About</comment>
         <translatorcomment>Informació|Sobre</translatorcomment>
@@ -2572,10 +2579,6 @@ MIDI = %2</source>
     <message>
         <source>Playlist: Song No. %1</source>
         <translation>Llista de reproducció: Cançó No. %1</translation>
-    </message>
-    <message>
-        <source>Could not export pattern.</source>
-        <translation>No ha estat possible exportar el patró.</translation>
     </message>
     <message>
         <source>Pro&amp;ject</source>
@@ -5771,10 +5774,6 @@ N&apos;estàs segur?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Pattern saved.</source>
-        <translation>Patrón desat.</translation>
-    </message>
-    <message>
         <source>Fill/remove range of pattern</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5788,10 +5787,6 @@ N&apos;estàs segur?</translation>
     </message>
     <message>
         <source>Select cells</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not save pattern.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

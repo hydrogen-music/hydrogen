@@ -386,6 +386,8 @@ CommonStrings::CommonStrings(){
 	m_sStatusEnabled = tr( "enabled" );
 	/*: Displayed within a status message when disabling a widget.*/
 	m_sStatusDisabled = tr( "disabled" );
+	/*: Status message shown when a pattern was saved. */
+	m_sStatusPatternLoaded = tr( "Pattern saved." );
 		
 	m_sTimelineEnabled = tr( "Enable the Timeline for custom tempo changes" );
 	m_sTimelineDisabledPatternMode =
@@ -793,6 +795,8 @@ CommonStrings::CommonStrings(){
 	m_sActionReplacePattern = tr( "Open Pattern to Replace " );
 	/*: Shown in the undo history after duplicating a pattern. */
 	m_sActionDuplicatePattern = tr( "Duplicate pattern" );
+	/*: Shown in the undo history after saving a loaded pattern to a file. */
+	m_sActionSavePatternAs = tr( "Save Pattern as" );
 	/*: Shown in the undo history after removing a pattern. */
 	m_sActionRemovePattern = tr( "Delete pattern from list" );
 	/*: Shown in the undo history copying pattern cells in the song editor to
@@ -834,6 +838,8 @@ CommonStrings::CommonStrings(){
 	m_sErrorInvalidPath =
 		tr( "The provided path is invalid! Please ensure you have write access "
 			"and use the file extension" );
+	/*: Text in warning dialog shown in case a pattern could not be saved. */
+	m_sErrorPatternSaved = tr( "Could not save pattern" );
 
 	/*: Node in the Sound Library corresponding to artifacts installed on
 	 * system-level. */

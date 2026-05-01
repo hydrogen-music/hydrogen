@@ -1574,6 +1574,21 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Pattern saved.</source>
+        <extracomment>Status message shown when a pattern was saved.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Pattern as</source>
+        <extracomment>Shown in the undo history after saving a loaded pattern to a file.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not save pattern</source>
+        <extracomment>Text in warning dialog shown in case a pattern could not be saved.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -2549,24 +2564,12 @@ MIDI = %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Save Pattern as ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pattern saved.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source></source>
         <comment>Info|About</comment>
         <translation></translation>
     </message>
     <message>
         <source>Playlist: Song No. %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not export pattern.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5759,10 +5762,6 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Pattern saved.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Fill/remove range of pattern</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5776,10 +5775,6 @@ Are you sure?</source>
     </message>
     <message>
         <source>Select cells</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not save pattern.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

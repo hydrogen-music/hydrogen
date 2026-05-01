@@ -1574,6 +1574,21 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Pattern saved.</source>
+        <extracomment>Status message shown when a pattern was saved.</extracomment>
+        <translation>Padrão salvo.</translation>
+    </message>
+    <message>
+        <source>Save Pattern as</source>
+        <extracomment>Shown in the undo history after saving a loaded pattern to a file.</extracomment>
+        <translation>Salvar padrão como</translation>
+    </message>
+    <message>
+        <source>Could not save pattern</source>
+        <extracomment>Text in warning dialog shown in case a pattern could not be saved.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -2581,14 +2596,6 @@ MIDI = %2</translation>
         <translation>Abrir &amp;Padrão</translation>
     </message>
     <message>
-        <source>Save Pattern as ...</source>
-        <translation>Salvar padrão como ...</translation>
-    </message>
-    <message>
-        <source>Pattern saved.</source>
-        <translation>Padrão salvo.</translation>
-    </message>
-    <message>
         <source></source>
         <comment>Info|About</comment>
         <translation>Info|Sobre</translation>
@@ -2596,10 +2603,6 @@ MIDI = %2</translation>
     <message>
         <source>Playlist: Song No. %1</source>
         <translation>Lista de reprodução: Música Nº %1</translation>
-    </message>
-    <message>
-        <source>Could not export pattern.</source>
-        <translation>Não foi possível exportar padrão.</translation>
     </message>
     <message>
         <source>LilyPond file (*.ly)</source>
@@ -5801,10 +5804,6 @@ Está certo disto?</translation>
         <translation>Padrão Virtual</translation>
     </message>
     <message>
-        <source>Pattern saved.</source>
-        <translation>Padrão salvo.</translation>
-    </message>
-    <message>
         <source>Fill/remove range of pattern</source>
         <translation>Preencher/remover intervalo do padrão</translation>
     </message>
@@ -5818,10 +5817,6 @@ Está certo disto?</translation>
     </message>
     <message>
         <source>Select cells</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not save pattern.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

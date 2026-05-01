@@ -1574,6 +1574,21 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Pattern saved.</source>
+        <extracomment>Status message shown when a pattern was saved.</extracomment>
+        <translation>Мустра је сачувана.</translation>
+    </message>
+    <message>
+        <source>Save Pattern as</source>
+        <extracomment>Shown in the undo history after saving a loaded pattern to a file.</extracomment>
+        <translation>Сачувај мустру као</translation>
+    </message>
+    <message>
+        <source>Could not save pattern</source>
+        <extracomment>Text in warning dialog shown in case a pattern could not be saved.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -2578,20 +2593,8 @@ MIDI = %2</source>
         <translation>Отвори &amp;мустру</translation>
     </message>
     <message>
-        <source>Save Pattern as ...</source>
-        <translation>Сачувај мустру као...</translation>
-    </message>
-    <message>
-        <source>Pattern saved.</source>
-        <translation>Мустра је сачувана.</translation>
-    </message>
-    <message>
         <source>Playlist: Song No. %1</source>
         <translation>Листа: Песму бр.  %1</translation>
-    </message>
-    <message>
-        <source>Could not export pattern.</source>
-        <translation>Не могох извести мустру.</translation>
     </message>
     <message>
         <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
@@ -5794,10 +5797,6 @@ Are you sure?</source>
         <translation>Виртуелна мустра</translation>
     </message>
     <message>
-        <source>Pattern saved.</source>
-        <translation>Мустра је сачувана.</translation>
-    </message>
-    <message>
         <source>Fill/remove range of pattern</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5811,10 +5810,6 @@ Are you sure?</source>
     </message>
     <message>
         <source>Select cells</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not save pattern.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
