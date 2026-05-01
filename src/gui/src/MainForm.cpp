@@ -404,24 +404,24 @@ void MainForm::createMenuBar()
 
 	m_pPatternMenu->addSeparator();				// -----
 
-	auto pActionPatternProperties = m_pPatternMenu->addAction(
+	m_pPatternPropertiesAction = m_pPatternMenu->addAction(
 		tr( "&Properties" ), this, SLOT( action_pattern_properties() ) );
 	// pActionPatternProperties->setShortcut(
 	// 	pShortcuts->getKeySequence( Shortcuts::Action::EditPatternProperties ) );
 
-	auto pActionDuplicatePattern = m_pPatternMenu->addAction(
+	m_pDuplicatePatternAction = m_pPatternMenu->addAction(
 		tr( "&Duplicate" ), this, SLOT( action_pattern_duplicate() ) );
 	// pActionDuplicatePattern->setShortcut(
 	// 	pShortcuts->getKeySequence( Shortcuts::Action::DuplicatePattern ) );
 
 	m_pPatternMenu->addSeparator();				// -----
 
-	auto pActionPatternSave = m_pPatternMenu->addAction(
+	m_pSavePatternAction = m_pPatternMenu->addAction(
 		tr( "&Save" ), this, SLOT( action_pattern_save() ) );
 	// pActionPatternSave->setShortcut(
 	// 	pShortcuts->getKeySequence( Shortcuts::Action::SavePatternToSoundLibrary ) );
 
-	auto pActionPatternSaveAs = m_pPatternMenu->addAction(
+	m_pSavePatternAsAction = m_pPatternMenu->addAction(
 		sLabelSaveAs, this, SLOT( action_pattern_save_as() ) );
 	// pActionPatternSaveAs->setShortcut(
 	// 	pShortcuts->getKeySequence( Shortcuts::Action::SaveAsPattern ) );
@@ -2639,6 +2639,34 @@ void MainForm::editDrumkitProperties( bool bWriteToDisk, bool bSaveToNsmSession,
 	DrumkitPropertiesDialog dialog( nullptr, pNewDrumkit, ! bWriteToDisk,
 									bSaveToNsmSession, id );
 	dialog.exec();
+}
+
+void MainForm::selectedPatternChangedEvent() {
+	const auto pHydrogen = Hydrogen::get_instance();
+
+	const auto pSong = pHydrogen->getSong();
+	const int nPattern = pHydrogen->getSelectedPatternNumber();
+	if ( pSong == nullptr || nPattern == -1 ) {
+		m_pPatternPropertiesAction->setEnabled( false );
+		m_pDuplicatePatternAction->setEnabled( false );
+		m_pSavePatternAction->setEnabled( false );
+		m_pSavePatternAsAction->setEnabled( false );
+		return;
+	}
+
+	const auto pPattern = pSong->getPatternList()->get( nPattern );
+	if ( pPattern == nullptr ) {
+		m_pPatternPropertiesAction->setEnabled( false );
+		m_pDuplicatePatternAction->setEnabled( false );
+		m_pSavePatternAction->setEnabled( false );
+		m_pSavePatternAsAction->setEnabled( false );
+		return;
+	}
+
+	m_pPatternPropertiesAction->setEnabled( true );
+	m_pDuplicatePatternAction->setEnabled( true );
+	m_pSavePatternAction->setEnabled( ! pPattern->getPath().isEmpty() );
+	m_pSavePatternAsAction->setEnabled( true );
 }
 
 void MainForm::updateSongEvent( int nValue ) {

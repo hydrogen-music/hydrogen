@@ -70,6 +70,7 @@ class MainForm :  public QMainWindow,
 		void updateAutomationPathVisibility();
 
 		virtual void errorEvent( int nErrorCode ) override;
+		void selectedPatternChangedEvent() override;
 		virtual void updateSongEvent( int nValue ) override;
 	virtual void quitEvent( int ) override;
 
@@ -320,6 +321,8 @@ class MainForm :  public QMainWindow,
 		QMenu* m_pFileMenu;
 		QMenu* m_pUndoMenu;
 		QMenu* m_pPatternMenu;
+		QAction* m_pPatternPropertiesAction;
+		QAction* m_pDuplicatePatternAction;
 		QAction* m_pSavePatternAction;
 		QAction* m_pSavePatternAsAction;
 		QMenu* m_pDrumkitMenu;
