@@ -25,6 +25,7 @@
 #include "HydrogenApp.h"
 #include "UndoActions.h"
 #include "Widgets/Button.h"
+#include "Widgets/FileDialog.h"
 #include "Widgets/LCDCombo.h"
 #include "Widgets/LCDDisplay.h"
 #include "Widgets/LCDSpinBox.h"
@@ -104,14 +105,26 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 	auto pGridLayout = new QGridLayout( pFormContainer );
 	pFormContainer->setLayout( pGridLayout );
 
-	auto pFormLayout = new QVBoxLayout();
-	pOuterLayout->addLayout( pFormLayout );
-
 	auto pPathLabel = new QLabel( pFormContainer );
 	pGridLayout->addWidget( pPathLabel, 0, 0 );
 
-	m_pPathEdit = new LCDDisplay( pFormContainer );
-	pGridLayout->addWidget( m_pPathEdit, 0, 1 );
+	auto pPathContainer = new QWidget( pFormContainer );
+	auto pPathContainerLayout = new QHBoxLayout( pPathContainer );
+	pPathContainerLayout->setSpacing( 0 );
+	pPathContainerLayout->setContentsMargins( 0, 0, 0, 0 );
+	pPathContainer->setLayout( pPathContainerLayout );
+
+	m_pPathEdit = new LCDDisplay( pPathContainer );
+	pPathContainerLayout->addWidget( m_pPathEdit );
+
+	m_pPathBrowseButton = new Button( pPathContainer );
+	m_pPathBrowseButton->setSizePolicy(
+		QSizePolicy::Expanding, QSizePolicy::Preferred
+	);
+	m_pPathBrowseButton->setMaximumWidth( 120 );
+	pPathContainerLayout->addWidget( m_pPathBrowseButton );
+
+	pGridLayout->addWidget( pPathContainer, 0, 1 );
 
 	auto pNameLabel = new QLabel( pFormContainer );
 	pGridLayout->addWidget( pNameLabel, 1, 0 );
@@ -224,6 +237,7 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 	}
 
 	m_pPathEdit->setIsActive( action & Action::Duplicate );
+	m_pPathBrowseButton->setVisible( action & Action::Duplicate );
 
 	connect(
 		m_pLicenseComboBox, SIGNAL( currentIndexChanged( int ) ), this,
@@ -237,23 +251,58 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 	pTagsLabel->setText( pCommonStrings->getTagsLabel() );
 	m_pTagEdit->setTags( pPattern->getTags() );
 
-	m_pOkBtn->setFixedFontSize( 12 );
-	m_pOkBtn->setSize( QSize( 70, 23 ) );
-	m_pOkBtn->setBorderRadius( 3 );
-	m_pOkBtn->setType( Button::Type::Push );
-	m_pOkBtn->setIsActive( true );
+	auto styleButton = [&]( Button* pButton ) {
+		pButton->setFixedFontSize( 12 );
+		pButton->setSize( QSize( 70, 23 ) );
+		pButton->setBorderRadius( 3 );
+		pButton->setType( Button::Type::Push );
+		pButton->setIsActive( true );
+	};
+
+	styleButton( m_pOkBtn );
 	m_pOkBtn->setText( pCommonStrings->getButtonOk() );
-	m_pCancelBtn->setFixedFontSize( 12 );
-	m_pCancelBtn->setSize( QSize( 70, 23 ) );
-	m_pCancelBtn->setBorderRadius( 3 );
-	m_pCancelBtn->setType( Button::Type::Push );
+	styleButton( m_pCancelBtn );
 	m_pCancelBtn->setText( pCommonStrings->getButtonCancel() );
+	styleButton( m_pPathBrowseButton );
+	m_pPathBrowseButton->setText( pCommonStrings->getButtonBrowse() );
 
 	// Explicit button connections (previously auto-connected by setupUi)
 	connect( m_pOkBtn, SIGNAL( clicked() ), this, SLOT( on_okBtn_clicked() ) );
 	connect(
 		m_pCancelBtn, SIGNAL( clicked() ), this, SLOT( on_cancelBtn_clicked() )
 	);
+	connect( m_pPathBrowseButton, &QPushButton::clicked, [&]() {
+		const QString sPath = m_pPathEdit->text();
+		QFileInfo info( sPath );
+		QString sDir = info.absoluteDir().absolutePath();
+		if ( sDir.isEmpty() || !Filesystem::dirWritable( sDir, false ) ) {
+			sDir = Filesystem::userDataPath();
+		}
+
+		FileDialog fd( this );
+
+		fd.setFileMode( QFileDialog::AnyFile );
+		fd.setNameFilter( Filesystem::sPatternFilter );
+		fd.setDirectory( sDir );
+		fd.setWindowTitle( windowTitle() );
+		fd.setAcceptMode( QFileDialog::AcceptSave );
+		fd.selectFile( info.fileName() );
+
+		if ( fd.exec() != QDialog::Accepted ) {
+			return;
+		}
+
+		QString sFilePath = fd.selectedFiles().first();
+		if ( sFilePath.isEmpty() ) {
+			return;
+		}
+
+		if ( sFilePath.endsWith( Filesystem::sPatternSuffix ) == false ) {
+			sFilePath += Filesystem::sPatternSuffix;
+		}
+
+		m_pPathEdit->setText( sFilePath );
+	} );
 }
 
 PatternPropertiesDialog::~PatternPropertiesDialog()

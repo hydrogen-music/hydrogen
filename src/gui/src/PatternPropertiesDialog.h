@@ -94,6 +94,7 @@ class PatternPropertiesDialog : public QDialog,
 	TagEdit* m_pTagEdit;
 	Button* m_pOkBtn;
 	Button* m_pCancelBtn;
+	Button* m_pPathBrowseButton;
 };
 
 #endif
