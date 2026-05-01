@@ -144,11 +144,11 @@ SongEditorPatternList::SongEditorPatternList( QWidget* parent )
 	);
 	m_pPatternPopup->addSeparator();
 	m_pPatternPopup->addAction(
-		pCommonStrings->getMenuActionSaveToSoundLibrary(), this,
+		pCommonStrings->getMenuActionSave(), this,
 		SLOT( patternPopup_save() )
 	);
 	m_pPatternPopup->addAction(
-		pCommonStrings->getMenuActionExport(), this,
+		pCommonStrings->getMenuActionSaveAs(), this,
 		SLOT( patternPopup_export() )
 	);
 	m_pPatternPopup->addSeparator();

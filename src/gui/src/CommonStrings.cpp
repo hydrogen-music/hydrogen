@@ -607,6 +607,10 @@ CommonStrings::CommonStrings(){
 	m_sMenuActionImport = tr( "Import" );
 	/*: Names an action in a drop down or pop up menu. (with no further text)*/
 	m_sMenuActionOnlineImport = tr( "Online Import" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionSave = tr( "Save" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionSaveAs = tr( "Save As" );
 
 	/*: Used both as name for the undo menu in the main and playlist menu bar as
 	 *  well as for the undo action itself. Mind the & symbol. The character

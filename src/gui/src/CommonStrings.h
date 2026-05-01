@@ -440,6 +440,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	{
 		return m_sMenuActionOnlineImport;
 	}
+	const QString& getMenuActionSave() const { return m_sMenuActionSave; }
+	const QString& getMenuActionSaveAs() const { return m_sMenuActionSaveAs; }
 
 	const QString& getUndoMenuUndo() const { return m_sUndoMenuUndo; }
 	const QString& getUndoMenuRedo() const { return m_sUndoMenuRedo; }
@@ -884,6 +886,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sMenuActionDuplicate;
 	QString m_sMenuActionImport;
 	QString m_sMenuActionOnlineImport;
+	QString m_sMenuActionSave;
+	QString m_sMenuActionSaveAs;
 
 	QString m_sUndoMenuUndo;
 	QString m_sUndoMenuRedo;
