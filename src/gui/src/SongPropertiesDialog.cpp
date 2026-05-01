@@ -25,6 +25,7 @@
 #include "CommonStrings.h"
 #include "HydrogenApp.h"
 #include "Widgets/Button.h"
+#include "Widgets/FileDialog.h"
 #include "Widgets/LCDCombo.h"
 #include "Widgets/LCDDisplay.h"
 #include "Widgets/LCDSpinBox.h"
@@ -287,8 +288,41 @@ SongPropertiesDialog::SongPropertiesDialog(
 
 	// Explicit button connections (previously auto-connected by setupUi)
 	connect( m_pOkBtn, SIGNAL( clicked() ), this, SLOT( on_okBtn_clicked() ) );
-	connect( m_pCancelBtn, SIGNAL( clicked() ), this,
-			 SLOT( on_cancelBtn_clicked() ) );
+	connect(
+		m_pCancelBtn, SIGNAL( clicked() ), this, SLOT( on_cancelBtn_clicked() )
+	);
+	connect( m_pPathBrowseButton, &QPushButton::clicked, [&]() {
+		const QString sPath = m_pPathEdit->text();
+		QFileInfo info( sPath );
+		QString sDir = info.absoluteDir().absolutePath();
+		if ( sDir.isEmpty() || !Filesystem::dirWritable( sDir, false ) ) {
+			sDir = Filesystem::userDataPath();
+		}
+
+		FileDialog fd( this );
+
+		fd.setFileMode( QFileDialog::AnyFile );
+		fd.setNameFilter( Filesystem::sSongFilter );
+		fd.setDirectory( sDir );
+		fd.setWindowTitle( windowTitle() );
+		fd.setAcceptMode( QFileDialog::AcceptSave );
+		fd.selectFile( info.fileName() );
+
+		if ( fd.exec() != QDialog::Accepted ) {
+			return;
+		}
+
+		QString sFilePath = fd.selectedFiles().first();
+		if ( sFilePath.isEmpty() ) {
+			return;
+		}
+
+		if ( sFilePath.endsWith( Filesystem::sSongSuffix ) == false ) {
+			sFilePath += Filesystem::sSongSuffix;
+		}
+
+		m_pPathEdit->setText( sFilePath );
+	} );
 
 	updatePatternLicenseTable();
 }
