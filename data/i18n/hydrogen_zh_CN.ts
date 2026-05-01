@@ -2534,10 +2534,6 @@ MIDI = %2</translation>
         <translation>保存(&amp;S)</translation>
     </message>
     <message>
-        <source>Open &amp;Pattern</source>
-        <translation>打开样式(&amp;P)</translation>
-    </message>
-    <message>
         <source>&amp;Quit</source>
         <translation>退出(&amp;Q)</translation>
     </message>
@@ -2676,10 +2672,6 @@ MIDI = %2</translation>
     <message>
         <source>Save &amp;As...</source>
         <translation>另存为(&amp;A)</translation>
-    </message>
-    <message>
-        <source>E&amp;xport Pattern As...</source>
-        <translation>导出样式为(&amp;X)</translation>
     </message>
     <message>
         <source>Export &amp;MIDI File</source>
@@ -2905,6 +2897,14 @@ LilyPond 导出是一项实验性功能。
     </message>
     <message>
         <source>&amp;Rack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pa&amp;ttern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Duplicate</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

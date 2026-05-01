@@ -71,7 +71,7 @@ class SongEditorPatternList : public QWidget,
    public slots:
 	void patternPopup_edit();
 	void patternPopup_save();
-	void patternPopup_export();
+	void patternPopup_saveAs();
 	void patternPopup_replace();
 	void patternPopup_properties();
 	void patternPopup_delete();

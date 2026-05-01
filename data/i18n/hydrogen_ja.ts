@@ -2592,10 +2592,6 @@ MIDI = %2</source>
         <translation>ソングを保存できませんでした。</translation>
     </message>
     <message>
-        <source>Open &amp;Pattern</source>
-        <translation>パターンを開く(&amp;P)</translation>
-    </message>
-    <message>
         <source></source>
         <comment>Info|About</comment>
         <translation></translation>
@@ -2666,10 +2662,6 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Save &amp;As...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>E&amp;xport Pattern As...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2905,6 +2897,14 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>&amp;Rack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pa&amp;ttern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Duplicate</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

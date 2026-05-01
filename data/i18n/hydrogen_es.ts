@@ -2594,10 +2594,6 @@ MIDI = %2</translation>
         <translation>No se pudo guardar la canción.</translation>
     </message>
     <message>
-        <source>Open &amp;Pattern</source>
-        <translation>Abrir &amp;Patrón</translation>
-    </message>
-    <message>
         <source></source>
         <comment>Info|About</comment>
         <translation>Info|Acerca de</translation>
@@ -2669,10 +2665,6 @@ MIDI = %2</translation>
     <message>
         <source>Save &amp;As...</source>
         <translation>Guard&amp;ar Como...</translation>
-    </message>
-    <message>
-        <source>E&amp;xport Pattern As...</source>
-        <translation>E&amp;xportar Patrón Como...</translation>
     </message>
     <message>
         <source>Export &amp;MIDI File</source>
@@ -2910,6 +2902,14 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     </message>
     <message>
         <source>&amp;Rack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pa&amp;ttern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Duplicate</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -2592,10 +2592,6 @@ MIDI = %2</source>
         <translation>Вы используете нестабильную версию Hydrogen. Помогите нам улучшить ее, присылая в список рассылки hydrogen-devel свои отчеты об ошибках и предложения. &lt;br&gt;&lt;br&gt;Спасибо!</translation>
     </message>
     <message>
-        <source>Open &amp;Pattern</source>
-        <translation>Открыть &amp;паттерн</translation>
-    </message>
-    <message>
         <source>Playlist: Song No. %1</source>
         <translation>Список воспроизведения: композиция №%1</translation>
     </message>
@@ -2666,10 +2662,6 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Save &amp;As...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>E&amp;xport Pattern As...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2905,6 +2897,14 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>&amp;Rack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pa&amp;ttern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Duplicate</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -167,8 +167,6 @@ class MainForm :  public QMainWindow,
 		 * of the session fails.
 		 */
 		bool action_file_save_as();
-		void action_file_openPattern();
-		void action_file_export_pattern_as( int nPatternRow = -1 );
 		void action_file_exit();
 
 		void action_file_export();
@@ -179,6 +177,13 @@ class MainForm :  public QMainWindow,
 		void action_help_about();
 		void action_report_bug();
 		void action_donate();
+
+		void action_pattern_new();
+		void action_pattern_open();
+		void action_pattern_properties( int nPatternRow = -1 );
+		void action_pattern_duplicate( int nPatternRow = -1 );
+		void action_pattern_save( int nPattrnRow = -1 );
+		void action_pattern_save_as( int nPatternRow = -1 );
 
 		void action_drumkit_new();
 		void action_drumkit_properties();
@@ -314,6 +319,9 @@ class MainForm :  public QMainWindow,
 
 		QMenu* m_pFileMenu;
 		QMenu* m_pUndoMenu;
+		QMenu* m_pPatternMenu;
+		QAction* m_pSavePatternAction;
+		QAction* m_pSavePatternAsAction;
 		QMenu* m_pDrumkitMenu;
 		QMenu* m_pViewMenu;
 		QMenu* m_pOptionsMenu;

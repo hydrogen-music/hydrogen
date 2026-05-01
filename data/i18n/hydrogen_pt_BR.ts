@@ -2592,10 +2592,6 @@ MIDI = %2</translation>
         <translation>Não foi possível salvar a música.</translation>
     </message>
     <message>
-        <source>Open &amp;Pattern</source>
-        <translation>Abrir &amp;Padrão</translation>
-    </message>
-    <message>
         <source></source>
         <comment>Info|About</comment>
         <translation>Info|Sobre</translation>
@@ -2663,10 +2659,6 @@ MIDI = %2</translation>
     <message>
         <source>Save &amp;As...</source>
         <translation>Salvar Como...</translation>
-    </message>
-    <message>
-        <source>E&amp;xport Pattern As...</source>
-        <translation>Exportar Padrão Como...</translation>
     </message>
     <message>
         <source>Export &amp;MIDI File</source>
@@ -2908,6 +2900,14 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
     <message>
         <source>&amp;Rack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pa&amp;ttern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Duplicate</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

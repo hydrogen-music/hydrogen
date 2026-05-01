@@ -2589,10 +2589,6 @@ MIDI = %2</translation>
         <translation>Non foi posíbel gardar a canción.</translation>
     </message>
     <message>
-        <source>Open &amp;Pattern</source>
-        <translation>Abrir un &amp;patrón</translation>
-    </message>
-    <message>
         <source>Playlist: Song No. %1</source>
         <translation>Lista de reprodución: canción num. %1</translation>
     </message>
@@ -2668,10 +2664,6 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Save &amp;As...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>E&amp;xport Pattern As...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2907,6 +2899,14 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>&amp;Rack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pa&amp;ttern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Duplicate</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

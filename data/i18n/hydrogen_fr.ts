@@ -2588,10 +2588,6 @@ MIDI = %2</translation>
         <translation>Impossible de sauvegarder le morceau.</translation>
     </message>
     <message>
-        <source>Open &amp;Pattern</source>
-        <translation>Ouvrir un &amp;motif...</translation>
-    </message>
-    <message>
         <source></source>
         <comment>Info|About</comment>
         <translation>Info|À propos</translation>
@@ -2716,10 +2712,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>Save &amp;As...</source>
         <translation>Sauvegarder &amp;sous...</translation>
-    </message>
-    <message>
-        <source>E&amp;xport Pattern As...</source>
-        <translation>E&amp;xporter le motif sous...</translation>
     </message>
     <message>
         <source>Export &amp;MIDI File</source>
@@ -2911,6 +2903,14 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>&amp;Rack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pa&amp;ttern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Duplicate</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

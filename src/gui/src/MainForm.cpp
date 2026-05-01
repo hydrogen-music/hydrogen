@@ -344,17 +344,6 @@ void MainForm::createMenuBar()
 	
 	m_pFileMenu->addSeparator();				// -----
 
-	auto pActionOpenPattern = m_pFileMenu->addAction(
-		tr( "Open &Pattern" ), this, SLOT ( action_file_openPattern() ) );
-	pActionOpenPattern->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::OpenPattern ) );
-	auto pActionExportPattern = m_pFileMenu->addAction(
-		tr( "E&xport Pattern As..." ), this, SLOT( action_file_export_pattern_as() ) );
-	pActionExportPattern->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ExportPattern ) );
-
-	m_pFileMenu->addSeparator();				// -----
-
 	auto pActionExportMidi = m_pFileMenu->addAction(
 		tr( "Export &MIDI File" ), this, SLOT( action_file_export_midi() ) );
 	pActionExportMidi->setShortcut(
@@ -400,6 +389,42 @@ void MainForm::createMenuBar()
 		pCommonStrings->getUndoMenuHistory(), this, SLOT( openUndoStack() ) );
 	pActionUndoHistory->setShortcut(
 		pShortcuts->getKeySequence( Shortcuts::Action::ShowUndoHistory ) );
+
+	// Pattern menu
+	m_pPatternMenu = pMenubar->addMenu( tr( "Pa&ttern" ) );
+	auto pActionPatternNew = m_pPatternMenu->addAction(
+		tr( "&New" ), this, SLOT( action_pattern_new() ) );
+	// pActionPatternNew->setShortcut(
+	// 	pShortcuts->getKeySequence( Shortcuts::Action::NewPattern ) );
+
+	auto pActionPatternOpen = m_pPatternMenu->addAction(
+		tr( "&Open" ), this, SLOT( action_pattern_open() ) );
+	// pActionPatternOpen->setShortcut(
+	// 	pShortcuts->getKeySequence( Shortcuts::Action::OpenPattern ) );
+
+	m_pPatternMenu->addSeparator();				// -----
+
+	auto pActionPatternProperties = m_pPatternMenu->addAction(
+		tr( "&Properties" ), this, SLOT( action_pattern_properties() ) );
+	// pActionPatternProperties->setShortcut(
+	// 	pShortcuts->getKeySequence( Shortcuts::Action::EditPatternProperties ) );
+
+	auto pActionDuplicatePattern = m_pPatternMenu->addAction(
+		tr( "&Duplicate" ), this, SLOT( action_pattern_duplicate() ) );
+	// pActionDuplicatePattern->setShortcut(
+	// 	pShortcuts->getKeySequence( Shortcuts::Action::DuplicatePattern ) );
+
+	m_pPatternMenu->addSeparator();				// -----
+
+	auto pActionPatternSave = m_pPatternMenu->addAction(
+		tr( "&Save" ), this, SLOT( action_pattern_save() ) );
+	// pActionPatternSave->setShortcut(
+	// 	pShortcuts->getKeySequence( Shortcuts::Action::SavePatternToSoundLibrary ) );
+
+	auto pActionPatternSaveAs = m_pPatternMenu->addAction(
+		sLabelSaveAs, this, SLOT( action_pattern_save_as() ) );
+	// pActionPatternSaveAs->setShortcut(
+	// 	pShortcuts->getKeySequence( Shortcuts::Action::SaveAsPattern ) );
 
 	// DRUMKITS MENU
 	m_pDrumkitMenu = pMenubar->addMenu( tr( "Drum&kit" ) );
@@ -933,72 +958,6 @@ void MainForm::showUserManual()
 
 }
 
-void MainForm::action_file_export_pattern_as( int nPatternRow )
-{
-	const auto pHydrogen = Hydrogen::get_instance();
-	const auto pPref = Preferences::get_instance();
-	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-	if ( Hydrogen::get_instance()->getAudioEngine()->getState() ==
-		 H2Core::AudioEngine::State::Playing ) {
-		Hydrogen::get_instance()->sequencerStop();
-	}
-
-	if ( nPatternRow == -1 ) {
-		nPatternRow = pHydrogen->getSelectedPatternNumber();
-	}
-
-	if ( nPatternRow == -1 ) {
-		QMessageBox::warning( this, "Hydrogen", tr("No pattern selected.") );
-		return;
-	}
-
-	const auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ){
-		return;
-	}
-
-	auto pPattern =
-		std::make_shared<Pattern>( pSong->getPatternList()->get( nPatternRow )
-		);
-	if ( pPattern == nullptr ) {
-		ERRORLOG( QString( "Pattern [%1] could not be retrieved" )
-				  .arg( nPatternRow ) );
-		return;
-	}
-
-	// In case the pattern is not backed by a file yet, we default to the
-	// user-level pattern folder.
-	if ( pPattern->getPath().isEmpty() ) {
-		pPattern->setPath( QString( "%1/%2%3" )
-							   .arg( Filesystem::userPatternsDir() )
-							   .arg( pPattern->getName() )
-							   .arg( Filesystem::sPatternSuffix ) );
-	}
-
-	// Since we act on one of the currently loaded patterns, we have to modify
-	// its meta data using an undo action as well.
-	PatternPropertiesDialog dialog(
-		this, pPattern, nPatternRow,
-		static_cast<PatternPropertiesDialog::Action>(
-			PatternPropertiesDialog::Action::ModifyViaUndo |
-			PatternPropertiesDialog::Action::SaveAs
-		)
-	);
-	if ( dialog.exec() == QDialog::Accepted ) {
-		if ( pPattern->save( pPattern->getPath() ) ) {
-			pHydrogen->getSoundLibraryDatabase()->updatePatterns(
-				Event::Trigger::Default
-			);
-		}
-		else {
-			QMessageBox::warning(
-				this, "Hydrogen", pCommonStrings->getErrorPatternSaved()
-			);
-		}
-	}
-}
-
 void MainForm::action_file_open() {
 	QString sPath = Preferences::get_instance()->getLastOpenSongDirectory();
 	if ( ! Filesystem::dirReadable( sPath, false ) ){
@@ -1013,63 +972,6 @@ void MainForm::action_file_open() {
 	}
 
 	openSongWithDialog( sWindowTitle, sPath, false );
-}
-
-void MainForm::action_file_openPattern()
-{
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pPref = Preferences::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-	  return;
-	}
-
-	QString sPath = pPref->getLastOpenPatternDirectory();
-	if ( !Filesystem::dirReadable( sPath, false ) ) {
-		sPath = Filesystem::userPatternsDir();
-	}
-
-	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-	FileDialog fd( this );
-	fd.setAcceptMode( QFileDialog::AcceptOpen );
-	fd.setFileMode( QFileDialog::ExistingFiles );
-	fd.setDirectory( sPath );
-	fd.setNameFilter( Filesystem::sPatternFilter );
-
-	fd.setWindowTitle( pCommonStrings->getActionInsertPattern() );
-
-	if ( fd.exec() == QDialog::Accepted ) {
-		pPref->setLastOpenPatternDirectory( fd.directory().absolutePath() );
-
-		for ( const auto& ssPath : fd.selectedFiles() ) {
-			auto pNewPattern = Pattern::load( ssPath );
-			if ( pNewPattern == nullptr ) {
-				QMessageBox::critical(
-					this, "Hydrogen",
-					HydrogenApp::get_instance()
-						->getCommonStrings()
-						->getPatternLoadError()
-				);
-			}
-			else {
-				int nRow;
-				if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
-					nRow = pSong->getPatternList()->size();
-				}
-				else {
-					nRow = pHydrogen->getSelectedPatternNumber() + 1;
-				}
-
-				HydrogenApp::get_instance()->pushUndoCommand(
-					new SE_insertPatternAction(
-						SE_insertPatternAction::Type::Insert, nRow, pNewPattern,
-						nullptr
-					)
-				);
-			}
-		}
-	}
 }
 
 void MainForm::action_file_openDemo()
@@ -1238,6 +1140,302 @@ void MainForm::action_window_showPlaybackTrack()
 void MainForm::action_window_showAutomationArea()
 {
 	h2app->getSongEditorPanel()->toggleAutomationAreaVisibility();
+}
+
+void MainForm::action_pattern_new() {
+	SongEditorPanel::addNewPattern();
+}
+
+void MainForm::action_pattern_open()
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pPref = Preferences::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+	  return;
+	}
+
+	QString sPath = pPref->getLastOpenPatternDirectory();
+	if ( !Filesystem::dirReadable( sPath, false ) ) {
+		sPath = Filesystem::userPatternsDir();
+	}
+
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	FileDialog fd( this );
+	fd.setAcceptMode( QFileDialog::AcceptOpen );
+	fd.setFileMode( QFileDialog::ExistingFiles );
+	fd.setDirectory( sPath );
+	fd.setNameFilter( Filesystem::sPatternFilter );
+
+	fd.setWindowTitle( pCommonStrings->getActionInsertPattern() );
+
+	if ( fd.exec() == QDialog::Accepted ) {
+		pPref->setLastOpenPatternDirectory( fd.directory().absolutePath() );
+
+		for ( const auto& ssPath : fd.selectedFiles() ) {
+			auto pNewPattern = Pattern::load( ssPath );
+			if ( pNewPattern == nullptr ) {
+				QMessageBox::critical(
+					this, "Hydrogen",
+					HydrogenApp::get_instance()
+						->getCommonStrings()
+						->getPatternLoadError()
+				);
+			}
+			else {
+				int nRow;
+				if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
+					nRow = pSong->getPatternList()->size();
+				}
+				else {
+					nRow = pHydrogen->getSelectedPatternNumber() + 1;
+				}
+
+				HydrogenApp::get_instance()->pushUndoCommand(
+					new SE_insertPatternAction(
+						SE_insertPatternAction::Type::Insert, nRow, pNewPattern,
+						nullptr
+					)
+				);
+			}
+		}
+	}
+}
+
+void MainForm::action_pattern_properties( int nPatternRow )
+{
+	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	if ( nPatternRow == -1 ) {
+		nPatternRow = pHydrogen->getSelectedPatternNumber();
+	}
+
+	if ( nPatternRow == -1 ) {
+		QMessageBox::warning( this, "Hydrogen", tr("No pattern selected.") );
+		return;
+	}
+
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ){
+		return;
+	}
+
+	auto pPattern =
+		std::make_shared<Pattern>( pSong->getPatternList()->get( nPatternRow )
+		);
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Pattern [%1] could not be retrieved" )
+				  .arg( nPatternRow ) );
+		return;
+	}
+
+	// Since we act on one of the currently loaded patterns, we have to modify
+	// its meta data using an undo action as well.
+	PatternPropertiesDialog dialog(
+		this, pPattern, nPatternRow,
+			PatternPropertiesDialog::Action::ModifyViaUndo);
+	dialog.exec();
+}
+
+void MainForm::action_pattern_duplicate( int nPatternRow )
+{
+	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+	if ( nPatternRow == -1 ) {
+		nPatternRow = pHydrogen->getSelectedPatternNumber();
+	}
+
+	if ( nPatternRow == -1 ) {
+		QMessageBox::warning( this, "Hydrogen", tr("No pattern selected.") );
+		return;
+	}
+
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ){
+		return;
+	}
+
+	auto pPattern =
+		std::make_shared<Pattern>( pSong->getPatternList()->get( nPatternRow )
+		);
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Pattern [%1] could not be retrieved" )
+				  .arg( nPatternRow ) );
+		return;
+	}
+
+	PatternPropertiesDialog dialog(
+		this, pPattern, nPatternRow,
+		static_cast<PatternPropertiesDialog::Action>(
+			PatternPropertiesDialog::Action::ModifyViaUndo |
+			PatternPropertiesDialog::Action::Duplicate
+		)
+	);
+	if ( dialog.exec() != QDialog::Accepted ) {
+		return;
+	}
+
+	pHydrogenApp->beginUndoMacro( pCommonStrings->getActionDuplicatePattern() );
+	pHydrogenApp->pushUndoCommand( new SE_insertPatternAction(
+		SE_insertPatternAction::Type::Duplicate, nPatternRow + 1, pPattern,
+		nullptr
+	) );
+
+	// Duplicate all activations of the corresponding row as well. Because we
+	// will select the newly created patterns, we should clear the former
+	// selection first.
+	pHydrogenApp->getSongEditorPanel()
+		->getSongEditor()
+		->m_selection.clearSelection();
+
+	const auto pPatternGroupVector = pSong->getPatternGroupVector();
+	for ( int nnColumn = 0; nnColumn < pPatternGroupVector->size();
+		  ++nnColumn ) {
+		const auto ppColumn = pPatternGroupVector->at( nnColumn );
+		if ( ppColumn != nullptr ) {
+			for ( int nnPattern = 0; nnPattern < ppColumn->size();
+				  ++nnPattern ) {
+				const auto ppPattern = ppColumn->get( nnPattern );
+				if ( ppPattern != nullptr && ppPattern == pPattern ) {
+					pHydrogenApp->pushUndoCommand(
+						new SE_addOrRemovePatternCellAction(
+							GridPoint( nnColumn, nPatternRow + 1 ),
+							Editor::Action::Add,
+							Editor::ActionModifier::AddToSelection
+						)
+					);
+				}
+			}
+		}
+	}
+	pHydrogenApp->endUndoMacro();
+}
+
+void MainForm::action_pattern_save( int nPatternRow )
+{
+	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+	if ( nPatternRow == -1 ) {
+		nPatternRow = pHydrogen->getSelectedPatternNumber();
+	}
+
+	if ( nPatternRow == -1 ) {
+		QMessageBox::warning( this, "Hydrogen", tr("No pattern selected.") );
+		return;
+	}
+
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ){
+		return;
+	}
+
+	auto pPattern = pSong->getPatternList()->get( nPatternRow );
+	if ( pPattern == nullptr ) {
+		ERRORLOG(
+			QString( "Pattern [%1] could not be retrieved" ).arg( nPatternRow )
+		);
+		return;
+	}
+	else if ( pPattern->getPath().isEmpty() ) {
+		return;
+	}
+
+	if ( !pPattern->save( pPattern->getPath() ) ) {
+		QMessageBox::warning(
+			this, "Hydrogen",
+			QString( "%1\n\n%2" )
+				.arg( pCommonStrings->getErrorPatternSaved() )
+				.arg( pPattern->getPath() )
+		);
+	}
+	else {
+		pHydrogenApp->showStatusBarMessage(
+			pCommonStrings->getStatusPatternLoaded()
+		);
+		pHydrogen->getSoundLibraryDatabase()->updatePatterns(
+			Event::Trigger::Default
+		);
+	}
+}
+
+void MainForm::action_pattern_save_as( int nPatternRow )
+{
+	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	if ( nPatternRow == -1 ) {
+		nPatternRow = pHydrogen->getSelectedPatternNumber();
+	}
+
+	if ( nPatternRow == -1 ) {
+		QMessageBox::warning( this, "Hydrogen", tr("No pattern selected.") );
+		return;
+	}
+
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ){
+		return;
+	}
+
+	auto pPattern =
+		std::make_shared<Pattern>( pSong->getPatternList()->get( nPatternRow )
+		);
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Pattern [%1] could not be retrieved" )
+				  .arg( nPatternRow ) );
+		return;
+	}
+
+	// In case the original pattern does not feature license and/or author, fall
+	// back to the ones set in the song. This way user can just set those
+	// parameters once in the SongPropertiesDialog and reuse those values in
+	// here.
+	if ( pPattern->getAuthor().isEmpty() &&
+		 pSong->getAuthor() != "hydrogen" &&
+		 pSong->getAuthor() != Song::sDefaultAuthor ) {
+		pPattern->setAuthor( pSong->getAuthor() );
+	}
+	if ( pPattern->getLicense().isEmpty() &&
+		 !pSong->getLicense().isEmpty() ) {
+		pPattern->setLicense( pSong->getLicense() );
+	}
+
+	// In case the pattern is not backed by a file yet, we default to the
+	// user-level pattern folder.
+	if ( pPattern->getPath().isEmpty() ) {
+		pPattern->setPath( QString( "%1/%2%3" )
+							   .arg( Filesystem::userPatternsDir() )
+							   .arg( pPattern->getName() )
+							   .arg( Filesystem::sPatternSuffix ) );
+	}
+
+	// Since we act on one of the currently loaded patterns, we have to modify
+	// its meta data using an undo action as well.
+	PatternPropertiesDialog dialog(
+		this, pPattern, nPatternRow,
+		static_cast<PatternPropertiesDialog::Action>(
+			PatternPropertiesDialog::Action::ModifyViaUndo |
+			PatternPropertiesDialog::Action::SaveAs
+		)
+	);
+	if ( dialog.exec() == QDialog::Accepted ) {
+		if ( pPattern->save( pPattern->getPath() ) ) {
+			pHydrogen->getSoundLibraryDatabase()->updatePatterns(
+				Event::Trigger::Default
+			);
+		}
+		else {
+			QMessageBox::warning(
+				this, "Hydrogen", pCommonStrings->getErrorPatternSaved()
+			);
+		}
+	}
 }
 
 void MainForm::action_drumkit_open()
@@ -1895,6 +2093,7 @@ void MainForm::onPreferencesChanged( const H2Core::Preferences::Changes& changes
 
 		m_pFileMenu->setFont( font );
 		m_pUndoMenu->setFont( font );
+		m_pPatternMenu->setFont( font );
 		m_pDrumkitMenu->setFont( font );
 		m_pViewMenu->setFont( font );
 		m_pOptionsMenu->setFont( font );
@@ -3193,10 +3392,10 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				action_file_save_as();
 				break;
 			case Shortcuts::Action::OpenPattern:
-				action_file_openPattern();
+				action_pattern_open();
 				break;
 			case Shortcuts::Action::ExportPattern:
-				action_file_export_pattern_as();
+				action_pattern_save_as();
 				break;
 			case Shortcuts::Action::ExportSong:
 				action_file_export();
