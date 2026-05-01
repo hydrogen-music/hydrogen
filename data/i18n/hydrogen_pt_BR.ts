@@ -5801,10 +5801,6 @@ Está certo disto?</translation>
         <translation>Padrão Virtual</translation>
     </message>
     <message>
-        <source>Could not export pattern.</source>
-        <translation>Não foi possível exportar padrão.</translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation>Padrão salvo.</translation>
     </message>
@@ -5822,6 +5818,10 @@ Está certo disto?</translation>
     </message>
     <message>
         <source>Select cells</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not save pattern.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

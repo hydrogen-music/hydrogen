@@ -5806,10 +5806,6 @@ Are you sure?</source>
         <translation>Εικονική Μήτρα</translation>
     </message>
     <message>
-        <source>Could not export pattern.</source>
-        <translation>Αδυναμία εξαγωγής της μήτρας.</translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation>Αποθηκεύτηκε η μήτρα.</translation>
     </message>
@@ -5827,6 +5823,10 @@ Are you sure?</source>
     </message>
     <message>
         <source>Select cells</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not save pattern.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

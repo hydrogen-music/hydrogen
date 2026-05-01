@@ -5804,10 +5804,6 @@ Voulez-vous continuer?</translation>
         <translation>Motif virtuel</translation>
     </message>
     <message>
-        <source>Could not export pattern.</source>
-        <translation>Ne peut pas exporter le motif.</translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation>Motif sauvegardé.</translation>
     </message>
@@ -5825,6 +5821,10 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Select cells</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not save pattern.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

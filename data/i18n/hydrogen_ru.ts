@@ -5794,10 +5794,6 @@ Are you sure?</source>
         <translation>Виртуальный паттерн</translation>
     </message>
     <message>
-        <source>Could not export pattern.</source>
-        <translation>Не удалось экспортировать паттерн.</translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation>Паттерн сохранён.</translation>
     </message>
@@ -5815,6 +5811,10 @@ Are you sure?</source>
     </message>
     <message>
         <source>Select cells</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not save pattern.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

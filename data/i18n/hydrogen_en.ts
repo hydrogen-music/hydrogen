@@ -5753,10 +5753,6 @@ Are you sure?</source>
         <translation></translation>
     </message>
     <message>
-        <source>Could not export pattern.</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation></translation>
     </message>
@@ -5774,6 +5770,10 @@ Are you sure?</source>
     </message>
     <message>
         <source>Select cells</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not save pattern.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -5771,10 +5771,6 @@ N&apos;estàs segur?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Could not export pattern.</source>
-        <translation>No ha estat possible exportar el patró.</translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation>Patrón desat.</translation>
     </message>
@@ -5792,6 +5788,10 @@ N&apos;estàs segur?</translation>
     </message>
     <message>
         <source>Select cells</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not save pattern.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

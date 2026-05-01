@@ -5791,10 +5791,6 @@ Fortsetzen?</translation>
         <translation>Virtuelles Pattern</translation>
     </message>
     <message>
-        <source>Could not export pattern.</source>
-        <translation>Pattern konnte nicht exportiert werden.</translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation>Pattern gespeichert.</translation>
     </message>
@@ -5812,6 +5808,10 @@ Fortsetzen?</translation>
     </message>
     <message>
         <source>Select cells</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not save pattern.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

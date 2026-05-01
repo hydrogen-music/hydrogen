@@ -5803,10 +5803,6 @@ Are you sure?</source>
         <translation>Patrón Virtual</translation>
     </message>
     <message>
-        <source>Could not export pattern.</source>
-        <translation>No se pudo exportar el patrón.</translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation>Patrón guardado.</translation>
     </message>
@@ -5824,6 +5820,10 @@ Are you sure?</source>
     </message>
     <message>
         <source>Select cells</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not save pattern.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

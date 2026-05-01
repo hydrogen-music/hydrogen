@@ -5773,10 +5773,6 @@ Confermi?</translation>
         <translation>Modello Virtuale</translation>
     </message>
     <message>
-        <source>Could not export pattern.</source>
-        <translation>Non riesco a esportare il modello.</translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation>Pattern salvato.</translation>
     </message>
@@ -5794,6 +5790,10 @@ Confermi?</translation>
     </message>
     <message>
         <source>Select cells</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not save pattern.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

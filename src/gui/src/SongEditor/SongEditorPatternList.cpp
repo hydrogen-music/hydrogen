@@ -143,7 +143,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget* parent )
 		SLOT( patternPopup_delete() )
 	);
 	m_pPatternPopup->addSeparator();
-	m_pPatternPopup->addAction(
+	m_pPatternSaveAction = m_pPatternPopup->addAction(
 		pCommonStrings->getMenuActionSave(), this,
 		SLOT( patternPopup_save() )
 	);
@@ -394,7 +394,7 @@ void SongEditorPatternList::patternPopup_save()
 	}
 
 	const auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
-	if ( pPattern == nullptr ) {
+	if ( pPattern == nullptr || pPattern->getPath().isEmpty() ) {
 		return;
 	}
 
@@ -403,9 +403,12 @@ void SongEditorPatternList::patternPopup_save()
 							  .arg( pPattern->getName() )
 							  .arg( Filesystem::sPatternSuffix );
 
-	if ( !pPattern->save( sPath ) ) {
+	if ( !pPattern->save( pPattern->getPath() ) ) {
 		QMessageBox::warning(
-			this, "Hydrogen", tr( "Could not export pattern." )
+			this, "Hydrogen",
+			QString( "%1\n\n%2" )
+				.arg( tr( "Could not save pattern." ).arg( pPattern->getPath() )
+				)
 		);
 	}
 	else {
@@ -899,6 +902,10 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent* ev )
 
 		if ( ev->button() == Qt::RightButton ) {
 			m_nRowClicked = nRow;
+			const auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
+			m_pPatternSaveAction->setEnabled(
+				pPattern != nullptr && !pPattern->getPath().isEmpty()
+			);
 			m_pPatternPopup->popup( pEv->globalPosition().toPoint() );
 		}
 	}

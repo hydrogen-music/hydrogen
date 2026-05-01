@@ -5762,10 +5762,6 @@ Kontynuować?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Could not export pattern.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5783,6 +5779,10 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>Select cells</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not save pattern.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
