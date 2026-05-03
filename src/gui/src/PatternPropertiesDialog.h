@@ -52,15 +52,19 @@ class PatternPropertiesDialog : public QDialog,
 	Q_OBJECT
    public:
 	enum Action {
+		/** With no additional actions, the window title suggests a change of
+		 * properties and content changed will the written to the provided
+		 * pattern. */
 		None = 0x00,
 		/** Instead of writing the changes to the supplied #m_pPattern directly,
 		 * the dialog uses an undo action to exchange the pattern. This is
 		 * suitable for patterns within the pattern list of the current song. */
 		ModifyViaUndo = 0x01,
-		/** Provides the user write access the path of the underlying resource
-		 * as well. */
+		/** Ensures the pattern has an unique name and alters the window title.
+		 */
 		Duplicate = 0x02,
-		/** Same as #Duplicate but with a different window title. */
+		/** Provides the user write access the path of the underlying resource
+		 * as well and alters the window title. */
 		SaveAs = 0x04
 	};
 

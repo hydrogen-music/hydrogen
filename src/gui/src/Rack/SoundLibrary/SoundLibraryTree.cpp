@@ -508,7 +508,11 @@ void SoundLibraryTree::actionDuplicate()
 		}
 
 		PatternPropertiesDialog dialog(
-			this, pPattern, -1, PatternPropertiesDialog::Action::Duplicate
+			this, pPattern, -1,
+			static_cast<PatternPropertiesDialog::Action>(
+				PatternPropertiesDialog::Action::Duplicate |
+				PatternPropertiesDialog::Action::SaveAs
+			)
 		);
 		if ( dialog.exec() == QDialog::Accepted ) {
 			if ( pPattern->save( pPattern->getPath() ) ) {

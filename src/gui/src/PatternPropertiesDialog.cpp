@@ -234,24 +234,25 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 		}
 		m_pPatternDescTxt->setText( pPattern->getInfo() );
 		m_pPatternNameTxt->setText( pPattern->getName() );
-		if ( ( action & Action::SaveAs ) || ( action & Action::Duplicate ) ) {
-			auto pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
-			if ( ! pPatternList->checkName( pPattern->getName(), m_pPattern ) ) {
-				m_pPatternNameTxt->setText(
-					pPatternList->findUnusedPatternName( pPattern->getName(), m_pPattern )
-										   );
+		// Only if we duplicate the pattern in the pattern list of the current
+		// song (Action::ModifyViaUndo) we care about uniqueness. This approach
+		// would scale badly within the sound library.
+		if ( ( action & Action::ModifyViaUndo ) &&
+			 ( action & Action::Duplicate ) ) {
+			auto pPatternList =
+				Hydrogen::get_instance()->getSong()->getPatternList();
+			if ( !pPatternList->checkName( pPattern->getName(), m_pPattern ) ) {
+				m_pPatternNameTxt->setText( pPatternList->findUnusedPatternName(
+					pPattern->getName(), m_pPattern
+				) );
 			}
 		}
 
 		tags = pPattern->getTags();
 	}
 
-	m_pPathEdit->setIsActive(
-		( action & Action::Duplicate ) || ( action & Action::SaveAs )
-	);
-	m_pPathBrowseButton->setVisible(
-		( action & Action::Duplicate ) || ( action & Action::SaveAs )
-	);
+	m_pPathEdit->setIsActive( action & Action::SaveAs );
+	m_pPathBrowseButton->setVisible( action & Action::SaveAs );
 
 	connect(
 		m_pLicenseComboBox, SIGNAL( currentIndexChanged( int ) ), this,
@@ -382,8 +383,7 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	auto pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
 	sPattName = pPatternList->findUnusedPatternName( sPattName, m_pPattern );
 
-	if ( ( ( m_action & Action::Duplicate ) || ( m_action & Action::SaveAs )
-		 ) &&
+	if ( ( m_action & Action::SaveAs ) &&
 		 ( m_pPattern->getPath() != m_pPathEdit->text() &&
 		   !m_pPathEdit->text().isEmpty() ) ) {
 		if ( !Filesystem::isPathValid(
@@ -419,7 +419,7 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 		HydrogenApp::get_instance()->pushUndoCommand( action );
 	}
 
-	if ( ( m_action & Action::Duplicate || m_action & Action::SaveAs ) &&
+	if ( ( m_action & Action::SaveAs ) &&
 		 m_pPattern->getPath() != m_pPathEdit->text() ) {
 		m_pPattern->setPath( m_pPathEdit->text() );
 	}
