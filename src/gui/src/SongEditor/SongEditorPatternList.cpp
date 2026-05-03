@@ -227,7 +227,7 @@ void SongEditorPatternList::inlineEditingAccepted()
 	 */
 
 	QString patternName = pPatternList->findUnusedPatternName(
-		m_pInlineEdit->text(), m_pPatternBeingEdited
+		m_pInlineEdit->text(), pPatternList->index( m_pPatternBeingEdited )
 	);
 
 	SE_modifyPatternPropertiesAction* action =

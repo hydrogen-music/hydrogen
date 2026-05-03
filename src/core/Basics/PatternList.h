@@ -156,17 +156,17 @@ class XMLNode;
 		/**
 		 * check if a pattern with name patternName already exists in this list
 		 * \param patternName name of a pattern to check
-		 * \param pIgnore optional pattern in the list to ignore
+		 * \param nIgnoreIdx optional pattern in the list to ignore
 		 */
 		bool checkName( const QString& patternName,
-						std::shared_ptr<Pattern> pIgnore = nullptr ) const;
+						int nIgnoreIdx = -1 ) const;
 		/**
 		 * find unused patternName
 		 * \param sourceName base name to start with
-		 * \param pIgnore optional pattern in the list to ignore
+		 * \param nIgnoreIdx optional pattern in the list to ignore
 		 */
 		QString findUnusedPatternName( const QString& sourceName,
-									   std::shared_ptr<Pattern> pIgnore = nullptr ) const;
+									   int nIgnoreIdx = -1 ) const;
 
 		/**
 		 * Get the length of the longest pattern in the list

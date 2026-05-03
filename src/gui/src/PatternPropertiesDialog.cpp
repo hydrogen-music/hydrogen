@@ -241,11 +241,9 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 			 ( action & Action::Duplicate ) ) {
 			auto pPatternList =
 				Hydrogen::get_instance()->getSong()->getPatternList();
-			if ( !pPatternList->checkName( pPattern->getName(), m_pPattern ) ) {
-				m_pPatternNameTxt->setText( pPatternList->findUnusedPatternName(
-					pPattern->getName(), m_pPattern
-				) );
-			}
+			m_pPatternNameTxt->setText(
+				pPatternList->findUnusedPatternName( pPattern->getName() )
+			);
 		}
 
 		tags = pPattern->getTags();
@@ -379,10 +377,6 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 		}
 	}
 
-	// Ensure the pattern name is unique
-	auto pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
-	sPattName = pPatternList->findUnusedPatternName( sPattName, m_pPattern );
-
 	if ( ( m_action & Action::SaveAs ) &&
 		 ( m_pPattern->getPath() != m_pPathEdit->text() &&
 		   !m_pPathEdit->text().isEmpty() ) ) {
@@ -401,6 +395,7 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	}
 
 	if ( ( m_action & Action::ModifyViaUndo ) &&
+		 ( ! ( m_action & Action::Duplicate ) ) &&
 		 ( m_pPattern->getPath() != m_pPathEdit->text() ||
 		   m_pPattern->getVersion() != nVersion ||
 		   m_pPattern->getName() != sPattName ||
@@ -408,6 +403,15 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 		   m_pPattern->getInfo() != sPattInfo ||
 		   m_pPattern->getLicense() != license ||
 		   m_pPattern->getTags() != tags ) ) {
+
+		// Within the current song we need to take extra care for the current
+		// song to have an unique name.
+		auto pPatternList =
+			Hydrogen::get_instance()->getSong()->getPatternList();
+		sPattName = pPatternList->findUnusedPatternName(
+			sPattName, m_nSelectedPattern
+		);
+
 		SE_modifyPatternPropertiesAction* action =
 			new SE_modifyPatternPropertiesAction(
 				m_pPattern->getPath(), m_pPattern->getVersion(),
