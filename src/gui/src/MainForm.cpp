@@ -723,11 +723,16 @@ void MainForm::action_file_new()
 bool MainForm::action_file_save_as()
 {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
 	auto pPref = Preferences::get_instance();
 
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
+		return false;
+	}
+
+	bool bKeepMissingSamples = false;
+	if ( ! songSaveSanityChecks( &bKeepMissingSamples ) ) {
 		return false;
 	}
 
@@ -783,11 +788,7 @@ bool MainForm::action_file_save_as()
 				sNewPath += Filesystem::sSongSuffix;
 			}
 
-			// We do not use the CoreActionController::saveSongAs
-			// function directly since action_file_save as does some
-			// additional checks and prompts the user a warning dialog
-			// if required.
-			if ( ! action_file_save( sNewPath ) ) {
+			if ( ! CoreActionController::saveSongAs( sNewPath, bKeepMissingSamples ) ) {
 				ERRORLOG( "Unable to save song" );
 				return false;
 			}
@@ -826,27 +827,18 @@ bool MainForm::action_file_save_as()
 	return true;
 }
 
-
-
-bool MainForm::action_file_save()
-{
-	return action_file_save( "" );
-}
-bool MainForm::action_file_save( const QString& sNewPath,
-								 bool bTriggerMessage )
+bool MainForm::action_file_save( bool bTriggerMessage )
 {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-
 	if ( pSong == nullptr ) {
 		return false;
 	}
-	
-	QString sPath = pSong->getPath();
 
-	if ( sNewPath.isEmpty() &&
-		 ( sPath.isEmpty() ||
-		   sPath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ) ) {
+	// In case the song was not saved yet, do so via the properties dialog.
+	const QString sPath = pSong->getPath();
+	if ( sPath.isEmpty() ||
+		 sPath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
 		// The empty song is treated differently in order to allow
 		// recovering changes and unsaved sessions. Therefore the
 		// users are ask to store a new song using a different file
@@ -854,58 +846,20 @@ bool MainForm::action_file_save( const QString& sNewPath,
 		return action_file_save_as();
 	}
 
-	bool bKeepMissingSamples = true;
-	if ( pSong->hasMissingSamples() &&
-		 ! pSong->getWasAskedAboutMissingSamples() ) {
-		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-		QMessageBox missingSampleBox( this );
-		missingSampleBox.setWindowTitle( "Hydrogen" );
-		missingSampleBox.setText(
-			tr( "Some samples used by this song failed to load."
-				" Do you wish to keep or discard them? " ) );
-		missingSampleBox.setTextFormat( Qt::RichText );
-
-		missingSampleBox.addButton( pCommonStrings->getButtonKeep(),
-								  QMessageBox::AcceptRole );
-		auto pDiscardButton =
-			missingSampleBox.addButton( pCommonStrings->getButtonDiscard(),
-									  QMessageBox::YesRole );
-		auto pRejectButton =
-			missingSampleBox.addButton( pCommonStrings->getButtonCancel(),
-									  QMessageBox::RejectRole );
-		missingSampleBox.exec();
-
-		if ( missingSampleBox.clickedButton() == pDiscardButton ) {
-			bKeepMissingSamples = false;
-		}
-		else if ( missingSampleBox.clickedButton() == pRejectButton ) {
-			return false;
-		}
-
-		// Only ask once per song.
-		pSong->setWasAskedAboutMissingSamples( true );
+	bool bKeepMissingSamples = false;
+	if ( ! songSaveSanityChecks( &bKeepMissingSamples ) ) {
+		return false;
 	}
 
-	// Clear the pattern editor selection to resolve any duplicates
-	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->clearSelection();
-
-	bool bSaved;
-	if ( sNewPath.isEmpty() ) {
-		bSaved = H2Core::CoreActionController::saveSong( bKeepMissingSamples );
-	} else {
-		bSaved = H2Core::CoreActionController::saveSongAs(
-			sNewPath, bKeepMissingSamples );
-	}
-	
-	if( ! bSaved ) {
-		QMessageBox::warning( this, "Hydrogen", tr("Could not save song.") );
+	if ( ! H2Core::CoreActionController::saveSong( bKeepMissingSamples ) ) {
+		QMessageBox::warning( this, "Hydrogen", tr( "Could not save song." ) );
 		return false;
 	}
 
 	if ( bTriggerMessage ) {
-		h2app->showStatusBarMessage( tr("Song saved into") + QString(": ") +
-									 sPath );
+		h2app->showStatusBarMessage(
+			tr( "Song saved into" ) + QString( ": " ) + sPath
+		);
 	}
 
 	return true;
@@ -2144,6 +2098,60 @@ bool MainForm::handleUnsavedChangesDuringShutdown() {
 	}
 
 	m_bUnsavedChangesHandled = true;
+
+	return true;
+}
+
+bool MainForm::songSaveSanityChecks( bool* pKeepMissingSamples )
+{
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr || pKeepMissingSamples == nullptr ) {
+		return false;
+	}
+
+	*pKeepMissingSamples = true;
+	if ( pSong->hasMissingSamples() &&
+		 !pSong->getWasAskedAboutMissingSamples() ) {
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+
+		QMessageBox missingSampleBox( this );
+		missingSampleBox.setWindowTitle( "Hydrogen" );
+		missingSampleBox.setText(
+			tr( "Some samples used by this song failed to load."
+				" Do you wish to keep or discard them? " )
+		);
+		missingSampleBox.setTextFormat( Qt::RichText );
+
+		missingSampleBox.addButton(
+			pCommonStrings->getButtonKeep(), QMessageBox::AcceptRole
+		);
+		auto pDiscardButton = missingSampleBox.addButton(
+			pCommonStrings->getButtonDiscard(), QMessageBox::YesRole
+		);
+		auto pRejectButton = missingSampleBox.addButton(
+			pCommonStrings->getButtonCancel(), QMessageBox::RejectRole
+		);
+		missingSampleBox.exec();
+
+		if ( missingSampleBox.clickedButton() == pDiscardButton ) {
+			*pKeepMissingSamples = false;
+		}
+		else if ( missingSampleBox.clickedButton() == pRejectButton ) {
+			return false;
+		}
+
+		// Only ask once per song.
+		pSong->setWasAskedAboutMissingSamples( true );
+	}
+
+	// Clear the pattern editor selection to resolve any duplicates
+	HydrogenApp::get_instance()
+		->getPatternEditorPanel()
+		->getDrumPatternEditor()
+		->clearSelection();
 
 	return true;
 }

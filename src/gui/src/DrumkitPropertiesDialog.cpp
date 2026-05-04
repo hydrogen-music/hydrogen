@@ -1194,7 +1194,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 
 		// Since we hit save on the song's drumkit, we should also save the song
 		// for the sake of consistency.
-		pHydrogenApp->getMainForm()->action_file_save( "", false );
+		pHydrogenApp->getMainForm()->action_file_save( false );
 
 		if ( m_bEditingNotSaving ) {
 			// We are not saving the kit to the Sound Library and are done for

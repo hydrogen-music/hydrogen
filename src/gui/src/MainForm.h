@@ -152,9 +152,7 @@ class MainForm :  public QMainWindow,
 		 * can be suppressed (e.g. when the calling routine wants to trigger a
 		 * dedicated message instead).
 		 */
-		bool action_file_save( const QString& sNewPath,
-							   bool bTriggerMessage = true );
-	bool action_file_save();
+		bool action_file_save( bool bTriggerMessage = true );
 
 		/**
 		 * Project > Save As / Export from Session handling function.
@@ -263,6 +261,7 @@ class MainForm :  public QMainWindow,
 
 	private:
 		bool handleUnsavedChangesDuringShutdown();
+		bool songSaveSanityChecks( bool* pKeepMissingSamples );
 		void updateRecentUsedSongList();
 
 		void loadDrumkit( const QString& sFileName, bool bLoad );
