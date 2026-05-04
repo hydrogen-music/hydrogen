@@ -993,8 +993,7 @@ bool CoreActionController::saveSong( bool bKeepMissingSamples )
 	}
 
 	// Extract the path to the associate .h2song file.
-	QString sSongPath = pSong->getPath();
-
+	const QString sSongPath = pSong->getPath();
 	if ( sSongPath.isEmpty() ) {
 		ERRORLOG( "Unable to save song. Empty filename!" );
 		return false;
@@ -1003,8 +1002,7 @@ bool CoreActionController::saveSong( bool bKeepMissingSamples )
 	const bool bHadMissingSamples = pSong->hasMissingSamples();
 
 	// Actual saving
-	bool bSaved = pSong->save( sSongPath, bKeepMissingSamples, true );
-	if ( !bSaved ) {
+	if ( ! pSong->save( sSongPath, bKeepMissingSamples, true ) ) {
 		ERRORLOG(
 			QString( "Current song [%1] could not be saved!" ).arg( sSongPath )
 		);
@@ -1034,7 +1032,6 @@ bool CoreActionController::saveSongAs(
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pSong = pHydrogen->getSong();
-
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
