@@ -120,8 +120,6 @@ class SongEditorPatternList : public QWidget,
 	/** A value of -1 will cause the rendering to be omitted. */
 	int m_nLastDragRow;
 
-	QAction* m_pPatternSaveAction;
-
 	/**
 	 * Specifies the row the mouse cursor is currently hovered
 	 * over. -1 for no cursor.

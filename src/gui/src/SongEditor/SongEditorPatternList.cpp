@@ -143,7 +143,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget* parent )
 		SLOT( patternPopup_delete() )
 	);
 	m_pPatternPopup->addSeparator();
-	m_pPatternSaveAction = m_pPatternPopup->addAction(
+	m_pPatternPopup->addAction(
 		pCommonStrings->getMenuActionSave(), this,
 		SLOT( patternPopup_save() )
 	);
@@ -796,10 +796,6 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent* ev )
 
 		if ( ev->button() == Qt::RightButton ) {
 			m_nRowClicked = nRow;
-			const auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
-			m_pPatternSaveAction->setEnabled(
-				pPattern != nullptr && !pPattern->getPath().isEmpty()
-			);
 			m_pPatternPopup->popup( pEv->globalPosition().toPoint() );
 		}
 	}

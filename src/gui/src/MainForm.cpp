@@ -1343,6 +1343,7 @@ void MainForm::action_pattern_save( int nPatternRow )
 		return;
 	}
 	else if ( pPattern->getPath().isEmpty() ) {
+		action_pattern_save_as( nPatternRow );
 		return;
 	}
 
@@ -2646,27 +2647,14 @@ void MainForm::selectedPatternChangedEvent() {
 
 	const auto pSong = pHydrogen->getSong();
 	const int nPattern = pHydrogen->getSelectedPatternNumber();
-	if ( pSong == nullptr || nPattern == -1 ) {
-		m_pPatternPropertiesAction->setEnabled( false );
-		m_pDuplicatePatternAction->setEnabled( false );
-		m_pSavePatternAction->setEnabled( false );
-		m_pSavePatternAsAction->setEnabled( false );
-		return;
-	}
 
-	const auto pPattern = pSong->getPatternList()->get( nPattern );
-	if ( pPattern == nullptr ) {
-		m_pPatternPropertiesAction->setEnabled( false );
-		m_pDuplicatePatternAction->setEnabled( false );
-		m_pSavePatternAction->setEnabled( false );
-		m_pSavePatternAsAction->setEnabled( false );
-		return;
-	}
+	const bool bDisable = nPattern == -1 || pSong == nullptr ||
+						  pSong->getPatternList()->get( nPattern ) == nullptr;
 
-	m_pPatternPropertiesAction->setEnabled( true );
-	m_pDuplicatePatternAction->setEnabled( true );
-	m_pSavePatternAction->setEnabled( ! pPattern->getPath().isEmpty() );
-	m_pSavePatternAsAction->setEnabled( true );
+	m_pPatternPropertiesAction->setEnabled( !bDisable );
+	m_pDuplicatePatternAction->setEnabled( !bDisable );
+	m_pSavePatternAction->setEnabled( !bDisable );
+	m_pSavePatternAsAction->setEnabled( !bDisable );
 }
 
 void MainForm::updateSongEvent( int nValue ) {
