@@ -316,11 +316,6 @@ void MainForm::createMenuBar()
 	pActionFileNew->setShortcut(
 		pShortcuts->getKeySequence( Shortcuts::Action::NewSong ) );
 
-	auto pActionSongProperties = m_pFileMenu->addAction(
-		tr( "Song Properties" ), this, SLOT( action_file_songProperties() ) );
-	pActionSongProperties->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::EditSongProperties ) );
-	
 	auto pActionOpenSong = m_pFileMenu->addAction(
 		sLabelOpen, this, SLOT( action_file_open() ) );
 	pActionOpenSong->setShortcut(
@@ -332,6 +327,11 @@ void MainForm::createMenuBar()
 	m_pRecentFilesMenu = m_pFileMenu->addMenu( sLabelOpenRecent );
 
 	m_pFileMenu->addSeparator();				// -----
+
+	auto pActionSongProperties = m_pFileMenu->addAction(
+		tr( "Song Properties" ), this, SLOT( action_file_songProperties() ) );
+	pActionSongProperties->setShortcut(
+		pShortcuts->getKeySequence( Shortcuts::Action::EditSongProperties ) );
 
 	auto pActionSongSave = m_pFileMenu->addAction(
 		tr( "&Save" ), this, SLOT( action_file_save() ) );
