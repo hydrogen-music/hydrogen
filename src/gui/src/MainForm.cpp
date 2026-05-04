@@ -408,14 +408,6 @@ void MainForm::createMenuBar()
 		tr( "&Properties" ), this, SLOT( action_pattern_properties() ) );
 	// pActionPatternProperties->setShortcut(
 	// 	pShortcuts->getKeySequence( Shortcuts::Action::EditPatternProperties ) );
-
-	m_pDuplicatePatternAction = m_pPatternMenu->addAction(
-		tr( "&Duplicate" ), this, SLOT( action_pattern_duplicate() ) );
-	// pActionDuplicatePattern->setShortcut(
-	// 	pShortcuts->getKeySequence( Shortcuts::Action::DuplicatePattern ) );
-
-	m_pPatternMenu->addSeparator();				// -----
-
 	m_pSavePatternAction = m_pPatternMenu->addAction(
 		tr( "&Save" ), this, SLOT( action_pattern_save() ) );
 	// pActionPatternSave->setShortcut(
@@ -425,6 +417,13 @@ void MainForm::createMenuBar()
 		sLabelSaveAs, this, SLOT( action_pattern_save_as() ) );
 	// pActionPatternSaveAs->setShortcut(
 	// 	pShortcuts->getKeySequence( Shortcuts::Action::SaveAsPattern ) );
+
+	m_pPatternMenu->addSeparator();				// -----
+
+	m_pDuplicatePatternAction = m_pPatternMenu->addAction(
+		tr( "&Duplicate" ), this, SLOT( action_pattern_duplicate() ) );
+	// pActionDuplicatePattern->setShortcut(
+	// 	pShortcuts->getKeySequence( Shortcuts::Action::DuplicatePattern ) );
 
 	// DRUMKITS MENU
 	m_pDrumkitMenu = pMenubar->addMenu( tr( "Drum&kit" ) );
