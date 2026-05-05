@@ -311,8 +311,8 @@ bool Filesystem::bootstrap(
 					 .arg( sSysDataPath ) );
 		m_sSystemDataPath = sSysDataPath;
 		// Sanity check
-		if ( !m_sSystemDataPath.endsWith( QDir::separator() ) ) {
-			m_sSystemDataPath.append( QDir::separator() );
+		if ( !m_sSystemDataPath.endsWith( "/" ) ) {
+			m_sSystemDataPath.append( "/" );
 		}
 	}
 
@@ -322,8 +322,8 @@ bool Filesystem::bootstrap(
 		);
 		m_sUserDataPath = sUsrDataPath;
 		// Sanity check
-		if ( !m_sUserDataPath.endsWith( QDir::separator() ) ) {
-			m_sUserDataPath.append( QDir::separator() );
+		if ( !m_sUserDataPath.endsWith( "/" ) ) {
+			m_sUserDataPath.append( "/" );
 		}
 	}
 
