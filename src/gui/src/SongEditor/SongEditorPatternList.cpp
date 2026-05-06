@@ -341,8 +341,8 @@ void SongEditorPatternList::patternPopup_replace()
 	}
 
 	QString sPath = pPref->getLastOpenPatternDirectory();
-	if ( !Filesystem::dir_readable( sPath, false ) ) {
-		sPath = Filesystem::patterns_dir();
+	if ( !Filesystem::dirReadable( sPath, false ) ) {
+		sPath = Filesystem::userPatternsDir();
 	}
 
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
@@ -350,7 +350,7 @@ void SongEditorPatternList::patternPopup_replace()
 	FileDialog fd( this );
 	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setFileMode( QFileDialog::ExistingFile );
-	fd.setNameFilter( Filesystem::patterns_filter_name );
+	fd.setNameFilter( Filesystem::sPatternFilter );
 	fd.setDirectory( sPath );
 	fd.setWindowTitle( QString( pCommonStrings->getActionReplacePattern() )
 						   .append( pPattern->getName() ) );
@@ -399,9 +399,9 @@ void SongEditorPatternList::patternPopup_save()
 	}
 
 	const QString sPath = QString( "%1/%2%3" )
-							  .arg( Filesystem::patterns_dir() )
+							  .arg( Filesystem::userPatternsDir() )
 							  .arg( pPattern->getName() )
-							  .arg( Filesystem::patterns_ext );
+							  .arg( Filesystem::sPatternSuffix );
 
 	if ( !pPattern->save( sPath ) ) {
 		QMessageBox::warning(
@@ -410,8 +410,9 @@ void SongEditorPatternList::patternPopup_save()
 	}
 	else {
 		pHydrogenApp->showStatusBarMessage( tr( "Pattern saved." ) );
-		Preferences::get_instance()->m_bExpandPatternItem = true;
-		pHydrogen->getSoundLibraryDatabase()->updatePatterns();
+		pHydrogen->getSoundLibraryDatabase()->updatePatterns(
+			Event::Trigger::Default
+		);
 	}
 }
 
@@ -431,11 +432,11 @@ void SongEditorPatternList::patternPopup_properties()
 
 	auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
 
-	PatternPropertiesDialog* dialog =
-		new PatternPropertiesDialog( this, pPattern, m_nRowClicked, false );
-	dialog->exec();
-	delete dialog;
-	dialog = nullptr;
+	PatternPropertiesDialog dialog(
+		this, pPattern, m_nRowClicked,
+		PatternPropertiesDialog::Action::ModifyViaUndo
+	);
+	dialog.exec();
 }
 
 void SongEditorPatternList::patternPopup_delete()
@@ -503,7 +504,7 @@ void SongEditorPatternList::patternPopup_duplicate()
 	// here.
 	if ( pNewPattern->getAuthor().isEmpty() &&
 		 pSong->getAuthor() != "hydrogen" &&
-		 pSong->getAuthor() != "Unknown Author" ) {
+		 pSong->getAuthor() != Song::sDefaultAuthor ) {
 		pNewPattern->setAuthor( pSong->getAuthor() );
 	}
 	if ( pNewPattern->getLicense().isEmpty() &&
@@ -511,14 +512,13 @@ void SongEditorPatternList::patternPopup_duplicate()
 		pNewPattern->setLicense( pSong->getLicense() );
 	}
 
-	PatternPropertiesDialog* dialog =
-		new PatternPropertiesDialog( this, pNewPattern, m_nRowClicked, true );
-
-	if ( dialog->exec() != QDialog::Accepted ) {
-		delete dialog;
+	PatternPropertiesDialog dialog(
+		this, pNewPattern, m_nRowClicked,
+		PatternPropertiesDialog::Action::ModifyViaUndo
+	);
+	if ( dialog.exec() != QDialog::Accepted ) {
 		return;
 	}
-	delete dialog;
 
 	pHydrogenApp->beginUndoMacro( pCommonStrings->getActionDuplicatePattern() );
 	pHydrogenApp->pushUndoCommand( new SE_insertPatternAction(
@@ -691,7 +691,7 @@ void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 
 	if ( sText.startsWith( "Songs:" ) ||
 		 sText.startsWith( "move instrument:" ) ||
-		 sText.startsWith( "importInstrument:" ) ) {
+		 sText.startsWith( HydrogenApp::sMimeDragInstrument ) ) {
 		pEvent->acceptProposedAction();
 		return;
 	}
@@ -753,25 +753,28 @@ void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 			}
 		}
 	}
-	else if ( sText.startsWith( "drag pattern" ) ) {
-		const QStringList tokens = sText.split( "::" );
-		auto pNewPattern = CoreActionController::loadPattern( tokens.at( 1 ) );
-		if ( pNewPattern == nullptr ) {
-			ERRORLOG( QString( "Unabble to obtain new pattern based on [%1]" )
-						  .arg( sText ) );
-			return;
-		}
+	else if ( sText.startsWith( HydrogenApp::sMimeDragPattern ) ) {
+		const QStringList tokens = sText.split( HydrogenApp::sMimeSeparator );
+		int nInsertPos = nTargetPattern;
+		for ( int ii = 1; ii < tokens.size(); ++ii ) {
+			auto pNewPattern =
+				CoreActionController::loadPattern( tokens.at( ii ) );
+			if ( pNewPattern == nullptr ) {
+				ERRORLOG(
+					QString( "Unable to obtain new pattern based on [%1]" )
+						.arg( tokens.at( ii ) ) );
+				continue;
+			}
 
-		auto pOldPattern = pSong->getPatternList()->get( nTargetPattern );
-		if ( pOldPattern == nullptr ) {
-			ERRORLOG( "Unabble to obtain original pattern" );
-			return;
+			pHydrogenApp->pushUndoCommand(
+				new SE_insertPatternAction(
+					SE_insertPatternAction::Type::Insert, nInsertPos,
+					pNewPattern, pSong->getPatternList()->get( nInsertPos )
+				),
+				"SongEditorPatternList::insertPatternAction"
+			);
+			++nInsertPos;
 		}
-
-		pHydrogenApp->pushUndoCommand( new SE_insertPatternAction(
-			SE_insertPatternAction::Type::Insert, nTargetPattern, pNewPattern,
-			pOldPattern
-		) );
 	}
 }
 

@@ -171,7 +171,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 			sPath = pPref->getLastOpenPlaybackTrackDirectory();
 		}
 
-		if ( !Filesystem::dir_readable( sPath, false ) ) {
+		if ( !Filesystem::dirReadable( sPath, false ) ) {
 			sPath = QDir::homePath();
 		}
 
@@ -862,25 +862,24 @@ void SongEditorPanel::addNewPattern()
 	);
 	pNewPattern->setAuthor( pSong->getAuthor() );
 	pNewPattern->setLicense( pSong->getLicense() );
-	auto pDialog = new PatternPropertiesDialog( nullptr, pNewPattern, 0, true );
+	PatternPropertiesDialog dialog(
+		nullptr, pNewPattern, 0, PatternPropertiesDialog::Action::None
+	);
 
-	if ( pDialog->exec() == QDialog::Accepted ) {
-		int nRow;
-		if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
-			nRow = pPatternList->size();
-		}
-		else {
-			nRow = pHydrogen->getSelectedPatternNumber() + 1;
-		}
-		HydrogenApp::get_instance()->pushUndoCommand(
-			new SE_insertPatternAction(
-				SE_insertPatternAction::Type::New, nRow,
-				std::make_shared<Pattern>( pNewPattern ), nullptr
-			)
-		);
+	if ( dialog.exec() != QDialog::Accepted ) {
+		return;
 	}
-
-	delete pDialog;
+	int nRow;
+	if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
+		nRow = pPatternList->size();
+	}
+	else {
+		nRow = pHydrogen->getSelectedPatternNumber() + 1;
+	}
+	HydrogenApp::get_instance()->pushUndoCommand( new SE_insertPatternAction(
+		SE_insertPatternAction::Type::New, nRow,
+		std::make_shared<Pattern>( pNewPattern ), nullptr
+	) );
 }
 
 void SongEditorPanel::clearSequence()

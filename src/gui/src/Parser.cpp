@@ -210,13 +210,13 @@ bool Parser::parse( int argc, char* argv[] ) {
 	// enables "Open with" as well as default document bindings to work.
 	QString sArg;
 	foreach ( sArg, parser.positionalArguments() ) {
-		if ( sArg.endsWith( H2Core::Filesystem::songs_ext ) ) {
+		if ( sArg.endsWith( H2Core::Filesystem::sSongSuffix ) ) {
 			m_sSongFileName = sArg;
 		}
-		if ( sArg.endsWith( H2Core::Filesystem::drumkit_ext ) ) {
+		if ( sArg.endsWith( H2Core::Filesystem::sDrumkitSuffix ) ) {
 			m_sInstallDrumkitPath = sArg;
 		}
-		if ( sArg.endsWith( H2Core::Filesystem::playlist_ext ) ) {
+		if ( sArg.endsWith( H2Core::Filesystem::sPlaylistSuffix ) ) {
 			m_sPlaylistFileName = sArg;
 		}
 	}

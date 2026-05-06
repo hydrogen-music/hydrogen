@@ -40,8 +40,6 @@ class DrumkitOpenDialog :  public QDialog,  public H2Core::Object<DrumkitOpenDia
 		~DrumkitOpenDialog();
 
 	private slots:
-		void on_soundLib_item_changed( bool bDrumkitSelected );
-
 		void on_cancel_btn_clicked();
 		void on_open_btn_clicked();
 

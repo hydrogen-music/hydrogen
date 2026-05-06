@@ -153,7 +153,7 @@ double AudioBenchmark::timeExport( int nSampleRate,
 								   Interpolation::InterpolateMode interpolateMode,
 								   double fReference,
 								   double *pfRMS ) {
-	auto outFile = Filesystem::tmp_file_path("test.wav");
+	auto outFile = Filesystem::tmpFilePath("test.wav");
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	int nIterations = 32;
 	std::vector< clock_t > times;

@@ -147,7 +147,7 @@ int main( int argc, char **argv)
 
 	// Transient user-level data to ensure no data of the system the unit tests
 	// are run on does leak into the test setup.
-	QTemporaryDir userDataDir( H2Core::Filesystem::tmp_dir() + "-user-data-XXXXX" );
+	QTemporaryDir userDataDir( H2Core::Filesystem::tmpDir() + "-user-data-XXXXX" );
 	userDataDir.setAutoRemove( false );
 
 	qDebug() << "Using transient data dir: [" << userDataDir.path() << "]";

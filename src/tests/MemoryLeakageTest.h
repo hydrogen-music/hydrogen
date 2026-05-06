@@ -31,7 +31,6 @@ class MemoryLeakageTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE_END();
 
 public:
-	void tearDown();
 	/** Creates and destroys all basic classes using their
 	 * destructors and checks whether there are some objects alive
 	 * afterwards.

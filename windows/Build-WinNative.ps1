@@ -105,7 +105,7 @@ if($build)
     & python $arguments
 
     Write-Host 'Bundling additional libraries'
-    $arguments="..\windows\ci\copy_thirdparty_dlls.py","--no-overwrite", "-V", "debug" ,"-L","$msys\bin","-d","windows\extralibs", "--ignore-missing", "src/gui/hydrogen.exe", "src/core/libhydrogen-core-*.dll"
+    $arguments="..\windows\ci\copy_thirdparty_dlls.py","--no-overwrite", "-V", "debug" ,"-L","$msys\bin","-d","windows\extralibs", "--ignore-missing", "src/gui/hydrogen.exe", "src/core/libhydrogen-core-2.0.0-pre-alpha.dll"
     & python $arguments
 
     # libcrypto and libssl are not picked up by the Python script
@@ -126,13 +126,13 @@ if($test)
     ..\build\src\tests\tests.exe
 }
 
-if($deploy) 
+if($deploy)
 {
     Write-Host 'Creating installer'
     cd ../build
     cpack -G NSIS -v
     cd ../windows
-} 
+}
 
 if(!$deploy -and !$build -and !$installdeps -and !$test )
 {

@@ -22,7 +22,10 @@
 
 #include "DrumkitOpenDialog.h"
 
+#include <core/SoundLibrary/SoundLibraryInfo.h>
+
 #include "SoundLibraryPanel.h"
+#include "SoundLibraryTree.h"
 #include "../../CommonStrings.h"
 #include "../../HydrogenApp.h"
 
@@ -42,9 +45,12 @@ DrumkitOpenDialog::DrumkitOpenDialog( QWidget* pParent )
 
 
 	// Sound Library Panel
-	m_pSoundLibraryPanel = new SoundLibraryPanel( nullptr, true );
+	m_pSoundLibraryPanel = new SoundLibraryPanel(
+		this, std::make_shared<SoundLibraryInfo::Type>(
+				  SoundLibraryInfo::Type::Drumkit
+			  )
+	);
 	pVBox->addWidget( m_pSoundLibraryPanel, 0 );
-
 
 	// Buttons
 	QHBoxLayout *pButtonsBox = new QHBoxLayout();
@@ -64,7 +70,9 @@ DrumkitOpenDialog::DrumkitOpenDialog( QWidget* pParent )
 
 	this->setLayout( pVBox );
 
-	connect( m_pSoundLibraryPanel, SIGNAL( item_changed ( bool ) ), this, SLOT( on_soundLib_item_changed( bool ) ) );
+	connect( m_pSoundLibraryPanel, &SoundLibraryPanel::itemChanged, [&]( bool bSelected ) {
+        m_pOkBtn->setEnabled( bSelected );
+    });
 	connect( m_pOkBtn, SIGNAL( clicked ( ) ), this, SLOT( on_open_btn_clicked( ) ) );
 	connect( m_pCancelBtn, SIGNAL( clicked ( ) ), this, SLOT( on_cancel_btn_clicked( ) ) );
 }
@@ -75,16 +83,9 @@ DrumkitOpenDialog::~DrumkitOpenDialog()
 
 }
 
-
-void DrumkitOpenDialog::on_soundLib_item_changed( bool bDrumkitSelected)
-{
-	m_pOkBtn->setEnabled( bDrumkitSelected );
-}
-
-
 void DrumkitOpenDialog::on_open_btn_clicked()
 {
-	m_pSoundLibraryPanel->on_drumkitLoadAction();
+	m_pSoundLibraryPanel->getCurrentTree()->actionLoad();
 	accept();
 }
 

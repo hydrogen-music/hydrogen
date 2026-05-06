@@ -283,6 +283,13 @@ class PatternEditorPanel : public QWidget,
 	 * pattern. */
 	std::vector<std::shared_ptr<H2Core::Pattern>> getPatternsToShow() const;
 
+	/** A @a nTargetRow of -1 will append the loaded instrument. */
+	void addInstrument(
+		const QString& sDrumkitPath,
+		const QString& sInstrumentName,
+		int nTargetRow
+	);
+
 	////////////////////////////////////////////////////////////////////////
 	////////// Top-level actions for the overall pattern editor. ///////////
 

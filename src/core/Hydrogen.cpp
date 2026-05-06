@@ -252,13 +252,13 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 	if ( pCurrentSong != nullptr ) {
 		if ( isUnderSessionManagement() ) {
 #ifdef H2CORE_HAVE_OSC
-			if ( pCurrentSong->getFileName().contains(
+			if ( pCurrentSong->getPath().contains(
 					 NsmClient::get_instance()->getSessionFolderPath() ) ) {
 				// When under session management Hydrogen is only allowed to
 				// replace the content of the session song but not to write to a
 				// different location.
 				if ( pSong != nullptr ) {
-					pSong->setFileName( pCurrentSong->getFileName() );
+					pSong->setPath( pCurrentSong->getPath() );
 				}
 			}
 #endif

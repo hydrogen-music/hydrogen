@@ -22,18 +22,19 @@
 
 #include <random>
 
-#include <core/Basics/Drumkit.h>
-#include <core/config.h>
-#include <core/Helpers/Filesystem.h>
-#include <core/Hydrogen.h>
-#include <core/SoundLibrary/SoundLibraryDatabase.h>
-
 #include <QtCore/QDir>
+#include <QDirIterator>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
 #include <QDateTime>
 #include <QRegularExpression>
+
+#include <core/Basics/Drumkit.h>
+#include <core/config.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Hydrogen.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -41,100 +42,132 @@
 
 // directories
 #define LOCAL_DATA_PATH "data/"
-#define CACHE           "cache/"
-#define DEMOS           "demo_songs/"
-#define DOC             "doc/"
-#define DRUMKITS        "drumkits/"
-#define DRUMKIT_MAPS    "drumkit_maps/"
-#define I18N            "i18n/"
-#define IMG             "img/"
-#define PATTERNS        "patterns/"
-#define PLAYLISTS       "playlists/"
-#define PLUGINS         "plugins/"
-#define REPOSITORIES    "repositories/"
-#define SCRIPTS         "scripts/"
-#define SONGS           "songs/"
-#define THEMES          "themes/"
-#define TMP             "hydrogen/"
-#define XSD             "xsd/"
-
+#define CACHE "cache/"
+#define DEMOS "demo_songs/"
+#define DOC "doc/"
+#define DRUMKITS "drumkits/"
+#define DRUMKIT_MAPS "drumkit_maps/"
+#define I18N "i18n/"
+#define IMG "img/"
+#define PATTERNS "patterns/"
+#define PLAYLISTS "playlists/"
+#define PLUGINS "plugins/"
+#define REPOSITORIES "repositories/"
+#define SCRIPTS "scripts/"
+#define SONGS "songs/"
+#define THEMES "themes/"
+#define TMP "hydrogen/"
 
 // files
 /** Sound of metronome beat */
-#define CLICK_SAMPLE    "click.wav"
-#define EMPTY_SAMPLE    "emptySample.wav"
-#define DEFAULT_SONG    "DefaultSong"
+#define CLICK_SAMPLE "click.wav"
+#define EMPTY_SAMPLE "emptySample.wav"
+#define DEFAULT_SONG "DefaultSong"
 #define DEFAULT_PLAYLIST "DefaultPlaylist"
 #define EMPTY_SONG_BASE "emptySong"
 #define EMPTY_PLAYLIST_BASE "emptyPlaylist"
-#define USR_CONFIG		"hydrogen.conf"
-#define SYS_CONFIG		"hydrogen.default.conf"
-#define LOG_FILE		"hydrogen.log"
-#define DRUMKIT_XML     "drumkit.xml"
-#define DRUMKIT_XSD     "drumkit.xsd"
-#define DRUMKIT_MAP_XSD "drumkit_map.xsd"
-#define DRUMPAT_XSD     "drumkit_pattern.xsd"
-#define DRUMKIT_DEFAULT_KIT "GMRockKit"
-#define PLAYLIST_XSD     "playlist.xsd"
+#define USR_CONFIG "hydrogen.conf"
+#define SYS_CONFIG "hydrogen.default.conf"
+#define LOG_FILE "hydrogen.log"
+#define DRUMKIT_XML "drumkit.xml"
 
-#define AUTOSAVE        "autosave"
+#define AUTOSAVE "autosave"
 
-#define UNTITLED_SONG		"Untitled Song"
-#define UNTITLED_PLAYLIST	"untitled.h2playlist"
+#define UNTITLED_PLAYLIST "untitled.h2playlist"
 
 // filters
-#define PATTERN_FILTER  "*.h2pattern"
+#define DRUMKIT_FILTER "*.h2drumkit"
+#define PATTERN_FILTER "*.h2pattern"
 #define PLAYLIST_FILTER "*.h2playlist"
-#define SONG_FILTER     "*.h2song"
-#define THEME_FILTER    "*.h2theme"
+#define SONG_FILTER "*.h2song"
+#define THEME_FILTER "*.h2theme"
 
-namespace H2Core
-{
+namespace H2Core {
 
-Logger* Filesystem::__logger = nullptr;
+Logger* Filesystem::m_pLogger = nullptr;
 
-const QString Filesystem::scripts_ext = ".sh";
-const QString Filesystem::songs_ext = ".h2song";
-const QString Filesystem::themes_ext = ".h2theme";
-const QString Filesystem::patterns_ext = ".h2pattern";
-const QString Filesystem::playlist_ext = ".h2playlist";
-const QString Filesystem::drumkit_ext = ".h2drumkit";
-const QString Filesystem::drumkit_map_ext = ".h2map";
-const QString Filesystem::scripts_filter_name = "Hydrogen Scripts (*.sh)";
-const QString Filesystem::drumkit_filter_name = "Hydrogen Drumkit (*.h2drumkit)";
-const QString Filesystem::songs_filter_name = "Hydrogen Songs (*.h2song)";
-const QString Filesystem::themes_filter_name = "Hydrogen Theme (*.h2theme)";
-const QString Filesystem::patterns_filter_name = "Hydrogen Patterns (*.h2pattern)";
-const QString Filesystem::playlists_filter_name = "Hydrogen Playlists (*.h2playlist)";
+const QString Filesystem::sScriptSuffix = ".sh";
+const QString Filesystem::sSongSuffix = ".h2song";
+const QString Filesystem::sThemeSuffix = ".h2theme";
+const QString Filesystem::sPatternSuffix = ".h2pattern";
+const QString Filesystem::sPlaylistSuffix = ".h2playlist";
+const QString Filesystem::sDrumkitSuffix = ".h2drumkit";
+const QString Filesystem::sDrumkitMapSuffix = ".h2map";
+const QString Filesystem::sScriptFilter = "Hydrogen Scripts (*.sh)";
+const QString Filesystem::sDrumkitFilter = "Hydrogen Drumkit (*.h2drumkit)";
+const QString Filesystem::sSongFilter = "Hydrogen Songs (*.h2song)";
+const QString Filesystem::sThemeFilter = "Hydrogen Theme (*.h2theme)";
+const QString Filesystem::sPatternFilter = "Hydrogen Patterns (*.h2pattern)";
+const QString Filesystem::sPlaylistFilter = "Hydrogen Playlists (*.h2playlist)";
 
-QString Filesystem::__sys_data_path;
-QString Filesystem::__usr_data_path;
-QString Filesystem::__usr_cfg_path;
+QString Filesystem::m_sSystemDataPath;
+QString Filesystem::m_sUserDataPath;
+QString Filesystem::m_sUserConfigPath;
 
 #ifdef Q_OS_MACX
-	QString Filesystem::__usr_log_path =QDir::homePath().append( "/Library/Application Support/Hydrogen/" LOG_FILE );
+QString Filesystem::m_sUserLogPath =
+	QDir::homePath().append( "/Library/Application Support/Hydrogen/" LOG_FILE
+	);
 #elif WIN32
-	QString Filesystem::__usr_log_path = QDir::homePath().append( "/.hydrogen/" LOG_FILE );
+QString Filesystem::m_sUserLogPath =
+	QDir::homePath().append( "/.hydrogen/" LOG_FILE );
 #else
-	QString Filesystem::__usr_log_path = QDir::homePath().append( "/" H2_USR_PATH "/" LOG_FILE);
+QString Filesystem::m_sUserLogPath =
+	QDir::homePath().append( "/" H2_USR_PATH "/" LOG_FILE );
 #endif
 
-
-QStringList Filesystem::__ladspa_paths;
+QStringList Filesystem::m_ladspaPaths;
 
 QString Filesystem::m_sPreferencesOverwritePath = "";
 
+Filesystem::Context Filesystem::DetermineContext( const QString& sPath )
+{
+	if ( !sPath.isEmpty() ) {
+		const QString sAbsolutePath = Filesystem::absolutePath( sPath );
+		if ( sAbsolutePath.contains( m_sSystemDataPath ) ) {
+			return Filesystem::Context::System;
+		}
+		else if ( sAbsolutePath.contains( m_sUserDataPath ) ) {
+			return Filesystem::Context::User;
+		}
+		else {
+			if ( Filesystem::dirWritable( sAbsolutePath, true ) ) {
+				return Filesystem::Context::SessionReadWrite;
+			}
+			else {
+				return Filesystem::Context::SessionReadOnly;
+			}
+		}
+	}
+	else {
+		return Filesystem::Context::Song;
+	}
+}
+
+QString Filesystem::ContextToQString( const Context& context )
+{
+	switch ( context ) {
+		case Filesystem::Context::System:
+			return "System";
+		case Filesystem::Context::User:
+			return "User";
+		case Filesystem::Context::SessionReadOnly:
+			return "SessionReadOnly";
+		case Filesystem::Context::SessionReadWrite:
+			return "SessionReadWrite";
+		case Filesystem::Context::Song:
+			return "Song";
+		default:
+			return QString( "Unknown context [%1]" )
+				.arg( static_cast<int>( context ) );
+	}
+}
+
 std::vector<Filesystem::AudioFormat> Filesystem::m_supportedAudioFormats = {
-	AudioFormat::Wav,
-	AudioFormat::Aif,
-	AudioFormat::Aifc,
-	AudioFormat::Aiff,
-	AudioFormat::Au,
-	AudioFormat::Caf,
-	AudioFormat::Voc,
+	AudioFormat::Wav,  AudioFormat::Aif,  AudioFormat::Aifc, AudioFormat::Aiff,
+	AudioFormat::Au,   AudioFormat::Caf,  AudioFormat::Voc,
 #ifdef H2CORE_HAVE_FLAC_SUPPORT
-	AudioFormat::Ogg,
-	AudioFormat::Flac,
+	AudioFormat::Ogg,  AudioFormat::Flac,
 #endif
 #ifdef H2CORE_HAVE_OPUS_SUPPORT
 	AudioFormat::Opus,
@@ -142,11 +175,12 @@ std::vector<Filesystem::AudioFormat> Filesystem::m_supportedAudioFormats = {
 #ifdef H2CORE_HAVE_MP3_SUPPORT
 	AudioFormat::Mp3,
 #endif
-	AudioFormat::W64
-};
+	AudioFormat::W64 };
 
-QString Filesystem::AudioFormatToSuffix( const AudioFormat& format, bool bSilent ) {
-	switch( format ) {
+QString
+Filesystem::AudioFormatToSuffix( const AudioFormat& format, bool bSilent )
+{
+	switch ( format ) {
 		case AudioFormat::Aif:
 		case AudioFormat::Aifc:
 		case AudioFormat::Aiff:
@@ -171,15 +205,16 @@ QString Filesystem::AudioFormatToSuffix( const AudioFormat& format, bool bSilent
 			return "wav";
 		case AudioFormat::Unknown:
 		default:
-			if ( ! bSilent ) {
+			if ( !bSilent ) {
 				ERRORLOG( "Unknown audio format" );
 			}
 			return "";
 	}
 }
 
-Filesystem::AudioFormat Filesystem::AudioFormatFromSuffix( const QString& sPath,
-														   bool bSilent ) {
+Filesystem::AudioFormat
+Filesystem::AudioFormatFromSuffix( const QString& sPath, bool bSilent )
+{
 	const QString sPathLower = sPath.toLower();
 	if ( sPathLower.endsWith( "aiff" ) ) {
 		return AudioFormat::Aif;
@@ -210,22 +245,27 @@ Filesystem::AudioFormat Filesystem::AudioFormatFromSuffix( const QString& sPath,
 	}
 	else if ( sPathLower.endsWith( "wav" ) ) {
 		return AudioFormat::Wav;
-	} else {
-		if ( ! bSilent ) {
+	}
+	else {
+		if ( !bSilent ) {
 			ERRORLOG( QString( "Unknown suffix in [%1]" ).arg( sPath ) );
 		}
 		return AudioFormat::Unknown;
 	}
 }
 
-bool Filesystem::bootstrap( Logger* logger, const QString& sSysDataPath,
-							const QString& sUsrDataPath,
-							const QString& sUserConfigPath,
-							const QString& sLogFile )
+bool Filesystem::bootstrap(
+	Logger* logger,
+	const QString& sSysDataPath,
+	const QString& sUsrDataPath,
+	const QString& sUserConfigPath,
+	const QString& sLogFile
+)
 {
-	if( __logger==nullptr && logger!=nullptr ) {
-		__logger = logger;
-	} else {
+	if ( m_pLogger == nullptr && logger != nullptr ) {
+		m_pLogger = logger;
+	}
+	else {
 		return false;
 	}
 
@@ -234,61 +274,78 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sSysDataPath,
 
 #ifdef Q_OS_MACX
 #ifdef H2CORE_HAVE_BUNDLE
-	// Bundle: Prepare hydrogen to use path names which are used in app bundles: http://en.wikipedia.org/wiki/Application_Bundle
-	__sys_data_path = QCoreApplication::applicationDirPath().append( "/../Resources/data/" ) ;
+	// Bundle: Prepare hydrogen to use path names which are used in app bundles:
+	// http://en.wikipedia.org/wiki/Application_Bundle
+	m_sSystemDataPath =
+		QCoreApplication::applicationDirPath().append( "/../Resources/data/" );
 #else
-	__sys_data_path = QCoreApplication::applicationDirPath().append( "/data/" ) ;
+	m_sSystemDataPath =
+		QCoreApplication::applicationDirPath().append( "/data/" );
 #endif
-	__usr_data_path = QDir::homePath().append( "/Library/Application Support/Hydrogen/data/" );
-	__usr_cfg_path = QDir::homePath().append( "/Library/Application Support/Hydrogen/" USR_CONFIG );
+	m_sUserDataPath =
+		QDir::homePath().append( "/Library/Application Support/Hydrogen/data/"
+		);
+	m_sUserConfigPath = QDir::homePath().append(
+		"/Library/Application Support/Hydrogen/" USR_CONFIG
+	);
 #elif WIN32
-	__sys_data_path = QCoreApplication::applicationDirPath().append( "/data/" ) ;
-	__usr_data_path = QDir::homePath().append( "/.hydrogen/data/" ) ;
-	__usr_cfg_path = QDir::homePath().append( "/.hydrogen/" USR_CONFIG ) ;
+	m_sSystemDataPath =
+		QCoreApplication::applicationDirPath().append( "/data/" );
+	m_sUserDataPath = QDir::homePath().append( "/.hydrogen/data/" );
+	m_sUserConfigPath = QDir::homePath().append( "/.hydrogen/" USR_CONFIG );
 #else
 #ifdef H2CORE_HAVE_APPIMAGE
-	__sys_data_path = absolute_path( QCoreApplication::applicationDirPath().append( "/../share/hydrogen/data/" ) ) ;
+	m_sSystemDataPath =
+		absolutePath( QCoreApplication::applicationDirPath().append(
+			"/../share/hydrogen/data/"
+		) );
 #else
-	__sys_data_path = H2_SYS_PATH "/data/";
+	m_sSystemDataPath = H2_SYS_PATH "/data/";
 #endif
-	__usr_data_path = QDir::homePath().append( "/" H2_USR_PATH "/data/" );
-	__usr_cfg_path = QDir::homePath().append( "/" H2_USR_PATH "/" USR_CONFIG );
+	m_sUserDataPath = QDir::homePath().append( "/" H2_USR_PATH "/data/" );
+	m_sUserConfigPath =
+		QDir::homePath().append( "/" H2_USR_PATH "/" USR_CONFIG );
 #endif
-	if ( ! sSysDataPath.isEmpty() ) {
+	if ( !sSysDataPath.isEmpty() ) {
 		INFOLOG( QString( "Using custom system data folder [%1]" )
-				 .arg( sSysDataPath ) );
-		__sys_data_path = sSysDataPath;
+					 .arg( sSysDataPath ) );
+		m_sSystemDataPath = sSysDataPath;
 		// Sanity check
-		if ( ! __sys_data_path.endsWith( QDir::separator() ) ) {
-			__sys_data_path.append( QDir::separator() );
+		if ( !m_sSystemDataPath.endsWith( "/" ) ) {
+			m_sSystemDataPath.append( "/" );
 		}
 	}
 
-	if ( ! sUsrDataPath.isEmpty() ) {
-		INFOLOG( QString( "Using custom user data folder [%1]" )
-				 .arg( sUsrDataPath ) );
-		__usr_data_path = sUsrDataPath;
+	if ( !sUsrDataPath.isEmpty() ) {
+		INFOLOG(
+			QString( "Using custom user data folder [%1]" ).arg( sUsrDataPath )
+		);
+		m_sUserDataPath = sUsrDataPath;
 		// Sanity check
-		if ( ! __usr_data_path.endsWith( QDir::separator() ) ) {
-			__usr_data_path.append( QDir::separator() );
+		if ( !m_sUserDataPath.endsWith( "/" ) ) {
+			m_sUserDataPath.append( "/" );
 		}
 	}
 
-	if ( ! sUserConfigPath.isEmpty() ) {
+	if ( !sUserConfigPath.isEmpty() ) {
 		INFOLOG( QString( "Using custom user-level config file [%1]" )
-				 .arg( sUserConfigPath ) );
-		__usr_cfg_path = sUserConfigPath;
+					 .arg( sUserConfigPath ) );
+		m_sUserConfigPath = sUserConfigPath;
 	}
 
-	if ( ! sLogFile.isEmpty() ) {
+	if ( !sLogFile.isEmpty() ) {
 		// No need for an info log. This is done within the bootstrap of the
 		// logger.
-		Filesystem::__usr_log_path = sLogFile;
+		Filesystem::m_sUserLogPath = sLogFile;
 	}
 
-	if( !dir_readable( __sys_data_path ) ) {
-		__sys_data_path = QCoreApplication::applicationDirPath().append( "/" LOCAL_DATA_PATH );
-		ERRORLOG( QString( "will use local data path : %1" ).arg( __sys_data_path ) );
+	if ( !dirReadable( m_sSystemDataPath ) ) {
+		m_sSystemDataPath =
+			QCoreApplication::applicationDirPath().append( "/" LOCAL_DATA_PATH
+			);
+		ERRORLOG(
+			QString( "will use local data path : %1" ).arg( m_sSystemDataPath )
+		);
 	}
 
 	char* ladspaPath = getenv( "LADSPA_PATH" );
@@ -298,626 +355,621 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sSysDataPath,
 		int pos;
 		while ( ( pos = sLadspaPath.indexOf( ":" ) ) != -1 ) {
 			QString sPath = sLadspaPath.left( pos );
-			__ladspa_paths << QFileInfo(sPath).canonicalFilePath();
+			m_ladspaPaths << QFileInfo( sPath ).canonicalFilePath();
 			sLadspaPath = sLadspaPath.mid( pos + 1, sLadspaPath.length() );
 		}
-		__ladspa_paths << QFileInfo( sLadspaPath ).canonicalFilePath();
-	} else {
+		m_ladspaPaths << QFileInfo( sLadspaPath ).canonicalFilePath();
+	}
+	else {
 #ifdef Q_OS_MACX
-		__ladspa_paths << QFileInfo( QCoreApplication::applicationDirPath(), "/../Resources/plugins" ).canonicalFilePath();
-		__ladspa_paths << QFileInfo( "/Library/Audio/Plug-Ins/LADSPA/" ).canonicalFilePath();
-		__ladspa_paths << QFileInfo( QDir::homePath(), "/Library/Audio/Plug-Ins/LADSPA" ).canonicalFilePath();
+		m_ladspaPaths << QFileInfo(
+							 QCoreApplication::applicationDirPath(),
+							 "/../Resources/plugins"
+		)
+							 .canonicalFilePath();
+		m_ladspaPaths << QFileInfo( "/Library/Audio/Plug-Ins/LADSPA/" )
+							 .canonicalFilePath();
+		m_ladspaPaths << QFileInfo(
+							 QDir::homePath(), "/Library/Audio/Plug-Ins/LADSPA"
+		)
+							 .canonicalFilePath();
 #else
-		__ladspa_paths << QFileInfo( "/usr/lib/ladspa" ).canonicalFilePath();
-		__ladspa_paths << QFileInfo( "/usr/local/lib/ladspa" ).canonicalFilePath();
-		__ladspa_paths << QFileInfo( "/usr/lib64/ladspa" ).canonicalFilePath();
-		__ladspa_paths << QFileInfo( "/usr/local/lib64/ladspa" ).canonicalFilePath();
+		m_ladspaPaths << QFileInfo( "/usr/lib/ladspa" ).canonicalFilePath();
+		m_ladspaPaths
+			<< QFileInfo( "/usr/local/lib/ladspa" ).canonicalFilePath();
+		m_ladspaPaths << QFileInfo( "/usr/lib64/ladspa" ).canonicalFilePath();
+		m_ladspaPaths
+			<< QFileInfo( "/usr/local/lib64/ladspa" ).canonicalFilePath();
 #endif
 	}
-	__ladspa_paths.sort();
-	__ladspa_paths.removeDuplicates();
-	if ( !__ladspa_paths.isEmpty() && __ladspa_paths.at( 0 ).isEmpty() ) {
-		__ladspa_paths.removeFirst();
+	m_ladspaPaths.sort();
+	m_ladspaPaths.removeDuplicates();
+	if ( !m_ladspaPaths.isEmpty() && m_ladspaPaths.at( 0 ).isEmpty() ) {
+		m_ladspaPaths.removeFirst();
 	}
 	// we want this first
-	__ladspa_paths << Filesystem::plugins_dir();
-	__ladspa_paths.removeDuplicates();
+	m_ladspaPaths << Filesystem::userPluginsDir();
+	m_ladspaPaths.removeDuplicates();
 
-	bool ret = check_sys_paths();
-	ret &= check_usr_paths();
+	bool ret = checkSystemPaths();
+	ret &= checkUserPaths();
 	info();
 	return ret;
 }
 
-bool Filesystem::check_permissions( const QString& path, const int perms, bool silent )
+bool Filesystem::checkPermissions(
+	const QString& sPath,
+	const int nFilePermission,
+	bool bSilent
+)
 {
-	QFileInfo fi( path );
-	if( ( perms & is_file ) && ( perms & is_writable ) && !fi.exists() ) {
-		QFileInfo folder( path.left( path.lastIndexOf( "/" ) ) );
-		if( !folder.isDir() ) {
-			if( !silent ) {
-				ERRORLOG( QString( "%1 is not a directory" ).arg( folder.fileName() ) );
+	QFileInfo fi( sPath );
+	if ( ( nFilePermission & FilePermission::IsFile ) &&
+		 ( nFilePermission & FilePermission::IsWritable ) && !fi.exists() ) {
+		QFileInfo folder( sPath.left( sPath.lastIndexOf( "/" ) ) );
+		if ( !folder.isDir() ) {
+			if ( !bSilent ) {
+				ERRORLOG(
+					QString( "%1 is not a directory" ).arg( folder.fileName() )
+				);
 			}
 			return false;
 		}
-		if( !folder.isWritable() ) {
-			if( !silent ) {
-				ERRORLOG( QString( "%1 is not writable" ).arg( folder.fileName() ) );
+		if ( !folder.isWritable() ) {
+			if ( !bSilent ) {
+				ERRORLOG(
+					QString( "%1 is not writable" ).arg( folder.fileName() )
+				);
 			}
 			return false;
 		}
 		return true;
 	}
-	if( ( perms & is_dir ) && !fi.isDir() ) {
-		if( !silent ) {
-			ERRORLOG( QString( "%1 is not a directory" ).arg( path ) );
+	if ( ( nFilePermission & FilePermission::IsDir ) && !fi.isDir() ) {
+		if ( !bSilent ) {
+			ERRORLOG( QString( "%1 is not a directory" ).arg( sPath ) );
 		}
 		return false;
 	}
-	if( ( perms & is_file ) && !fi.isFile() ) {
-		if( !silent ) {
-			ERRORLOG( QString( "%1 is not a file" ).arg( path ) );
+	if ( ( nFilePermission & FilePermission::IsFile ) && !fi.isFile() ) {
+		if ( !bSilent ) {
+			ERRORLOG( QString( "%1 is not a file" ).arg( sPath ) );
 		}
 		return false;
 	}
-	if( ( perms & is_readable ) && !fi.isReadable() ) {
-		if( !silent ) {
-			ERRORLOG( QString( "%1 is not readable" ).arg( path ) );
+	if ( ( nFilePermission & FilePermission::IsReadable ) &&
+		 !fi.isReadable() ) {
+		if ( !bSilent ) {
+			ERRORLOG( QString( "%1 is not readable" ).arg( sPath ) );
 		}
 		return false;
 	}
-	if( ( perms & is_writable ) && !fi.isWritable() ) {
-		if( !silent ) {
-			ERRORLOG( QString( "%1 is not writable" ).arg( path ) );
+	if ( ( nFilePermission & FilePermission::IsWritable ) &&
+		 !fi.isWritable() ) {
+		if ( !bSilent ) {
+			ERRORLOG( QString( "%1 is not writable" ).arg( sPath ) );
 		}
 		return false;
 	}
-	if( ( perms & is_executable ) && !fi.isExecutable() ) {
-		if( !silent ) {
-			ERRORLOG( QString( "%1 is not executable" ).arg( path ) );
+	if ( ( nFilePermission & FilePermission::IsExecutable ) &&
+		 !fi.isExecutable() ) {
+		if ( !bSilent ) {
+			ERRORLOG( QString( "%1 is not executable" ).arg( sPath ) );
 		}
 		return false;
 	}
 	return true;
 }
 
-bool Filesystem::file_exists( const QString& path, bool silent )
+bool Filesystem::fileExists( const QString& sPath, bool bSilent )
 {
-	return check_permissions( path, is_file, silent );
+	return checkPermissions( sPath, FilePermission::IsFile, bSilent );
 }
-bool Filesystem::file_readable( const QString& path, bool silent )
+bool Filesystem::fileReadable( const QString& sPath, bool bSilent )
 {
-	return check_permissions( path, is_file|is_readable, silent );
+	return checkPermissions(
+		sPath, FilePermission::IsFile | FilePermission::IsReadable, bSilent
+	);
 }
-bool Filesystem::file_writable( const QString& path, bool silent )
+bool Filesystem::fileWritable( const QString& sPath, bool bSilent )
 {
-	return check_permissions( path, is_file|is_readable|is_writable, silent );
+	return checkPermissions(
+		sPath,
+		FilePermission::IsFile | FilePermission::IsReadable |
+			FilePermission::IsWritable,
+		bSilent
+	);
 }
-bool Filesystem::file_executable( const QString& path, bool silent )
+bool Filesystem::fileExecutable( const QString& sPath, bool bSilent )
 {
-	return check_permissions( path, is_file|is_executable, silent );
+	return checkPermissions(
+		sPath, FilePermission::IsFile | FilePermission::IsExecutable, bSilent
+	);
 }
-bool Filesystem::dir_exists(  const QString& path, bool silent )
+bool Filesystem::dirExists( const QString& sPath, bool bSilent )
 {
-	return check_permissions( path, is_dir, silent );
+	return checkPermissions( sPath, FilePermission::IsDir, bSilent );
 }
-bool Filesystem::dir_readable(  const QString& path, bool silent )
+bool Filesystem::dirReadable( const QString& sPath, bool bSilent )
 {
-	return check_permissions( path, is_dir|is_readable|is_executable, silent );
+	return checkPermissions(
+		sPath,
+		FilePermission::IsDir | FilePermission::IsReadable |
+			FilePermission::IsExecutable,
+		bSilent
+	);
 }
-bool Filesystem::dir_writable(  const QString& path, bool silent )
+bool Filesystem::dirWritable( const QString& sPath, bool bSilent )
 {
-	return check_permissions( path, is_dir|is_writable, silent );
+	return checkPermissions(
+		sPath, FilePermission::IsDir | FilePermission::IsWritable, bSilent
+	);
 }
 
-bool Filesystem::mkdir( const QString& path )
+bool Filesystem::mkdir( const QString& sPath )
 {
-	if ( !QDir( "/" ).mkpath( QDir( path ).absolutePath() ) ) {
-		ERRORLOG( QString( "unable to create directory : %1" ).arg( path ) );
+	if ( !QDir( "/" ).mkpath( QDir( sPath ).absolutePath() ) ) {
+		ERRORLOG( QString( "unable to create directory : %1" ).arg( sPath ) );
 		return false;
 	}
 	return true;
 }
 
-bool Filesystem::path_usable( const QString& path, bool create, bool silent )
+bool Filesystem::pathUsable( const QString& sPath, bool bCreate, bool bSilent )
 {
-	if ( !QDir( path ).exists() ) {
-		if ( !silent ) {
-			INFOLOG( QString( "create user directory : %1" ).arg( path ) );
+	if ( !QDir( sPath ).exists() ) {
+		if ( !bSilent ) {
+			INFOLOG( QString( "bCreate user directory : %1" ).arg( sPath ) );
 		}
-		if ( create && !QDir( "/" ).mkpath( path ) ) {
-			ERRORLOG( QString( "unable to create user directory : %1" ).arg( path ) );
+		if ( bCreate && !QDir( "/" ).mkpath( sPath ) ) {
+			ERRORLOG(
+				QString( "unable to create user directory : %1" ).arg( sPath )
+			);
 			return false;
 		}
 	}
-	return dir_readable( path, silent ) && dir_writable( path, silent );
+	return dirReadable( sPath, bSilent ) && dirWritable( sPath, bSilent );
 }
 
-bool Filesystem::write_to_file( const QString& dst, const QString& content )
+bool Filesystem::fileCopy(
+	const QString& sSourcePath,
+	const QString& sDestinationPath,
+	bool bOverwrite,
+	bool bSilent
+)
 {
-	if ( !file_writable( dst ) ) {
-		ERRORLOG( QString( "unable to write to %1" ).arg( dst ) );
-		return false;
-	}
-	QFile file( dst );
-	if ( !file.open( QIODevice::WriteOnly ) ) {
-		ERRORLOG( QString( "unable to write to %1" ).arg( dst ) );
-		return false;
-	}
-	const auto contentUtf8 = content.toUtf8();
-	file.write( contentUtf8.data() );
-	file.close();
-
-	return true;
-}
-
-bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwrite, bool bSilent )
-{
-	if( !overwrite && file_exists( dst, true ) ) {
-		WARNINGLOG( QString( "do not overwrite %1 with %2 as it already exists" ).arg( dst ).arg( src ) );
+	if ( !bOverwrite && fileExists( sDestinationPath, true ) ) {
+		WARNINGLOG( QString( "do not overwrite %1 with %2 as it already exists"
+		)
+						.arg( sDestinationPath )
+						.arg( sSourcePath ) );
 		return true;
 	}
-	if ( !file_readable( src ) ) {
-		ERRORLOG( QString( "unable to copy %1 to %2, %1 is not readable" ).arg( src ).arg( dst ) );
+	if ( !fileReadable( sSourcePath ) ) {
+		ERRORLOG( QString( "unable to copy %1 to %2, %1 is not readable" )
+					  .arg( sSourcePath )
+					  .arg( sDestinationPath ) );
 		return false;
 	}
-	if ( !file_writable( dst ) ) {
-		ERRORLOG( QString( "unable to copy %1 to %2, %2 is not writable" ).arg( src ).arg( dst ) );
+	if ( !fileWritable( sDestinationPath ) ) {
+		ERRORLOG( QString( "unable to copy %1 to %2, %2 is not writable" )
+					  .arg( sSourcePath )
+					  .arg( sDestinationPath ) );
 		return false;
 	}
-	if ( ! bSilent ) {
-		INFOLOG( QString( "copy %1 to %2" ).arg( src ).arg( dst ) );
+	if ( !bSilent ) {
+		INFOLOG( QString( "copy %1 to %2" )
+					 .arg( sSourcePath )
+					 .arg( sDestinationPath ) );
 	}
-	
+
 	// Since QFile::copy does not overwrite, we have to make sure the
 	// destination does not exist.
-	if ( overwrite && file_exists( dst, true ) ) {
-		rm( dst, true, bSilent );
+	if ( bOverwrite && fileExists( sDestinationPath, true ) ) {
+		rm( sDestinationPath, true, bSilent );
 	}
 
-	bool bOk = QFile::copy( src, dst );
-	if ( ! bOk ) {
+	bool bOk = QFile::copy( sSourcePath, sDestinationPath );
+	if ( !bOk ) {
 		ERRORLOG( QString( "Error while copying [%1] to [%2]" )
-				  .arg( src ).arg( dst ) );
+					  .arg( sSourcePath )
+					  .arg( sDestinationPath ) );
 	}
 
 	return bOk;
 }
 
-bool Filesystem::rm( const QString& path, bool recursive, bool bSilent )
+bool Filesystem::rm( const QString& sPath, bool bRecursive, bool bSilent )
 {
-	if ( check_permissions( path, is_file, true ) ) {
-		QFile file( path );
+	if ( checkPermissions( sPath, FilePermission::IsFile, true ) ) {
+		QFile file( sPath );
 		bool ret = file.remove();
-		if( !ret ) {
-			ERRORLOG( QString( "unable to remove file %1" ).arg( path ) );
+		if ( !ret ) {
+			ERRORLOG( QString( "unable to remove file %1" ).arg( sPath ) );
 		}
 		return ret;
 	}
-	if ( !check_permissions( path, is_dir, true )  ) {
-		ERRORLOG( QString( "%1 is neither a file nor a directory ?!?!" ).arg( path ) );
+	if ( !checkPermissions( sPath, FilePermission::IsDir, true ) ) {
+		ERRORLOG(
+			QString( "%1 is neither a file nor a directory ?!?!" ).arg( sPath )
+		);
 		return false;
 	}
-	if ( !recursive ) {
+	if ( !bRecursive ) {
 		QDir dir;
-		bool ret = dir.rmdir( path );
-		if( !ret ) {
-			ERRORLOG( QString( "unable to remove dir %1 without recursive argument, maybe it is not empty?" ).arg( path ) );
+		bool ret = dir.rmdir( sPath );
+		if ( !ret ) {
+			ERRORLOG( QString( "unable to remove dir %1 without recursive "
+							   "argument, maybe it is not empty?" )
+						  .arg( sPath ) );
 		}
 		return ret;
 	}
-	return rm_fr( path, bSilent );
+	return rmForceRecursive( sPath, bSilent );
 }
 
-bool Filesystem::rm_fr( const QString& path, bool bSilent )
+bool Filesystem::rmForceRecursive( const QString& sPath, bool bSilent )
 {
-	if ( ! bSilent ) {
-		INFOLOG( QString( "Removing [%1] recursively" ).arg( path ) );
+	if ( !bSilent ) {
+		INFOLOG( QString( "Removing [%1] recursively" ).arg( sPath ) );
 	}
-	
-	bool ret = true;
-	QDir dir( path );
-	QFileInfoList entries = dir.entryInfoList( QDir::NoDotAndDotDot | QDir::AllEntries );
-	for ( int idx = 0; ( ( idx < entries.size() ) && ret ); idx++ ) {
+
+	bool bRet = true;
+	QDir dir( sPath );
+	QFileInfoList entries =
+		dir.entryInfoList( QDir::NoDotAndDotDot | QDir::AllEntries );
+	for ( int idx = 0; ( ( idx < entries.size() ) && bRet ); idx++ ) {
 		QFileInfo entryInfo = entries[idx];
 		if ( entryInfo.isDir() && !entryInfo.isSymLink() ) {
-			ret = rm_fr( entryInfo.absoluteFilePath(), bSilent );
-		} else {
+			bRet = rmForceRecursive( entryInfo.absoluteFilePath(), bSilent );
+		}
+		else {
 			QFile file( entryInfo.absoluteFilePath() );
 			if ( !file.remove() ) {
-				ERRORLOG( QString( "unable to remove %1" ).arg( entryInfo.absoluteFilePath() ) );
-				ret = false;
+				ERRORLOG( QString( "unable to remove %1" )
+							  .arg( entryInfo.absoluteFilePath() ) );
+				bRet = false;
 			}
 		}
 	}
 	if ( !dir.rmdir( dir.absolutePath() ) ) {
 		ERRORLOG( QString( "unable to remove %1" ).arg( dir.absolutePath() ) );
-		ret = false;
+		bRet = false;
 	}
-	return ret;
+	return bRet;
 }
 
-bool Filesystem::check_sys_paths()
+bool Filesystem::checkSystemPaths()
 {
-	QStringList dirsReadable = { __sys_data_path,	 demos_dir(),
-								 sys_drumkits_dir(), sys_drumkit_maps_dir(),
-								 xsd_dir(),			 sys_theme_dir(),
-								 img_dir(),			 i18n_dir() };
+	QStringList dirsReadable = {
+		m_sSystemDataPath,
+		demosDir(),
+		systemDrumkitsDir(),
+		systemDrumkitMapsDir(),
+		systemThemesDir(),
+		systemImageDir(),
+		systemInternationalizationDir() };
 
-	QStringList filesReadable = { click_file_path(),   empty_sample_path(),
-								  playlist_xsd_path(), drumkit_map_xsd_path(),
-								  drumkit_xsd_path(),  pattern_xsd_path(),
-								  sys_config_path() };
+	QStringList filesReadable = { clickFilePath(),	 emptySamplePath(),
+								  systemConfigPath() };
 
 	bool bChecksPassed = true;
 	for ( const auto& ssPath : dirsReadable ) {
-		if ( ! dir_readable( ssPath ) ) {
+		if ( !dirReadable( ssPath ) ) {
 			bChecksPassed = false;
 		}
 	}
 
 	for ( const auto& ssFile : filesReadable ) {
-		if ( ! file_readable( ssFile ) ) {
+		if ( !fileReadable( ssFile ) ) {
 			bChecksPassed = false;
 		}
 	}
 
 	if ( bChecksPassed ) {
-		INFOLOG( QString( "system wide data path %1 is usable." )
-				 .arg( __sys_data_path ) );
+		INFOLOG( QString( "system wide data sPath %1 is usable." )
+					 .arg( m_sSystemDataPath ) );
 	}
 
 	return bChecksPassed;
 }
 
-bool Filesystem::check_usr_paths() {
-	QStringList pathsUsable = { tmp_dir(),			__usr_data_path,
-								cache_dir(),		repositories_cache_dir(),
-								usr_drumkits_dir(), patterns_dir(),
-								playlists_dir(),    plugins_dir(),
-								scripts_dir(), songs_dir(),	usr_theme_dir() };
+bool Filesystem::checkUserPaths()
+{
+	QStringList pathsUsable = { tmpDir(),			m_sUserDataPath,
+								cacheDir(),			repositoriesCacheDir(),
+								userDrumkitsDir(),	userPatternsDir(),
+								userPlaylistsDir(), userPluginsDir(),
+								userScriptsDir(),	userSongsDir(),
+								userThemesDir() };
 
-	QStringList filesWritable = { usr_config_path() };
-	
+	QStringList filesWritable = { userConfigPath() };
+
 	bool bChecksPassed = true;
 	for ( const auto& ssPath : pathsUsable ) {
-		if ( ! path_usable( ssPath ) ) {
+		if ( !pathUsable( ssPath ) ) {
 			bChecksPassed = false;
 		}
 	}
 
 	for ( const auto& ssFile : filesWritable ) {
-		if ( ! file_writable( ssFile ) ) {
+		if ( !fileWritable( ssFile ) ) {
 			bChecksPassed = false;
 		}
 	}
 
 	if ( bChecksPassed ) {
-		INFOLOG( QString( "user path %1 is usable." ).arg( __usr_data_path ) );
+		INFOLOG( QString( "user sPath %1 is usable." ).arg( m_sUserDataPath ) );
 	}
-	
+
 	return bChecksPassed;
 }
 
-const QString& Filesystem::sys_data_path()
+const QString& Filesystem::systemDataPath()
 {
-	return __sys_data_path;
+	return m_sSystemDataPath;
 }
-const QString& Filesystem::usr_data_path()
+const QString& Filesystem::userDataPath()
 {
-	return __usr_data_path;
+	return m_sUserDataPath;
 }
 
-const QStringList& Filesystem::ladspa_paths()
+const QStringList& Filesystem::ladspaPaths()
 {
-	return __ladspa_paths;
+	return m_ladspaPaths;
 }
 
 // FILES
-QString Filesystem::sys_config_path()
+QString Filesystem::systemConfigPath()
 {
-       return __sys_data_path + SYS_CONFIG;
+	return m_sSystemDataPath + SYS_CONFIG;
 }
-QString Filesystem::usr_config_path()
+QString Filesystem::userConfigPath()
 {
-	if ( ! m_sPreferencesOverwritePath.isEmpty() ) {
+	if ( !m_sPreferencesOverwritePath.isEmpty() ) {
 		return m_sPreferencesOverwritePath;
-	} else {
-		return __usr_cfg_path;
+	}
+	else {
+		return m_sUserConfigPath;
 	}
 }
-QString Filesystem::empty_sample_path()
+QString Filesystem::emptySamplePath()
 {
-	return __sys_data_path + EMPTY_SAMPLE;
+	return m_sSystemDataPath + EMPTY_SAMPLE;
 }
 
-QString Filesystem::default_song_name() {
+QString Filesystem::defaultSongName()
+{
 	return DEFAULT_SONG;
 }
 
-QString Filesystem::empty_path( const Type& type ) {
+QString Filesystem::emptyPath( const Artifact& artifact )
+{
 	QString sPathBase, sExtension, sDefaultName;
 
-	switch ( type ) {
-	case Type::Song:
-		sPathBase = __usr_data_path + EMPTY_SONG_BASE;
-		sExtension = Filesystem::songs_ext;
-		sDefaultName = default_song_name();
-		break;
+	switch ( artifact ) {
+		case Artifact::Song:
+			sPathBase = m_sUserDataPath + EMPTY_SONG_BASE;
+			sExtension = Filesystem::sSongSuffix;
+			sDefaultName = defaultSongName();
+			break;
 
-	case Type::Playlist:
-		sPathBase = __usr_data_path + EMPTY_PLAYLIST_BASE;
-		sExtension = Filesystem::playlist_ext;
-		sDefaultName = DEFAULT_PLAYLIST;
-		break;
+		case Artifact::Playlist:
+			sPathBase = m_sUserDataPath + EMPTY_PLAYLIST_BASE;
+			sExtension = Filesystem::sPlaylistSuffix;
+			sDefaultName = DEFAULT_PLAYLIST;
+			break;
 
-	default:
-		ERRORLOG( QString( "Unsupported file type: [%1]" )
-				  .arg( TypeToQString( type ) ) );
-		return "";
+		default:
+			ERRORLOG( QString( "Unsupported file artifact: [%1]" )
+						  .arg( ArtifactToQString( artifact ) ) );
+			return "";
 	}
 
 	QString sPath( sPathBase + sExtension );
 
 	int nIterations = 0;
-	while ( file_exists( sPath, true ) ) {
+	while ( fileExists( sPath, true ) ) {
 		sPath = sPathBase + QString::number( nIterations ) + sExtension;
 		++nIterations;
 
 		if ( nIterations > 1000 ) {
 			ERRORLOG( "That's a bit much. Something is wrong in here." );
-			return __usr_data_path + SONGS + sDefaultName + sExtension;
+			return m_sUserDataPath + SONGS + sDefaultName + sExtension;
 		}
 	}
 
 	return sPath;
 }
 
-QString Filesystem::untitled_song_name()
-{
-	return UNTITLED_SONG;
-}
-QString Filesystem::untitled_playlist_file_name()
+QString Filesystem::untitledPlaylistFileName()
 {
 	return UNTITLED_PLAYLIST;
 }
-QString Filesystem::click_file_path()
+QString Filesystem::clickFilePath()
 {
-	return __sys_data_path + CLICK_SAMPLE;
+	return m_sSystemDataPath + CLICK_SAMPLE;
 }
-QString Filesystem::usr_click_file_path()
+const QString& Filesystem::logFilePath()
 {
-	if( file_readable( __usr_data_path + CLICK_SAMPLE, true ) ) return __usr_data_path + CLICK_SAMPLE;
-	return click_file_path();
-}
-QString Filesystem::drumkit_xsd( )
-{
-	return DRUMKIT_XSD;
-}
-QString Filesystem::drumkit_xsd_path( )
-{
-	return xsd_dir() + DRUMKIT_XSD;
-}
-QString Filesystem::drumkit_map_xsd_path( )
-{
-	return xsd_dir() + DRUMKIT_MAP_XSD;
-}
-QString Filesystem::pattern_xsd_path( )
-{
-	return xsd_dir() + DRUMPAT_XSD;
-}
-QString Filesystem::playlist_xsd_path( )
-{
-	return xsd_dir() + PLAYLIST_XSD;
-}
-const QString& Filesystem::log_file_path()
-{
-	return __usr_log_path;
+	return m_sUserLogPath;
 }
 
 // DIRS
-QString Filesystem::img_dir()
+QString Filesystem::systemImageDir()
 {
-	return __sys_data_path + IMG;
+	return m_sSystemDataPath + IMG;
 }
-QString Filesystem::doc_dir()
+QString Filesystem::systemDocumentationDir()
 {
-	return __sys_data_path + DOC;
+	return m_sSystemDataPath + DOC;
 }
-QString Filesystem::i18n_dir()
+QString Filesystem::systemInternationalizationDir()
 {
-	return __sys_data_path + I18N;
+	return m_sSystemDataPath + I18N;
 }
-QString Filesystem::scripts_dir()
+QString Filesystem::userScriptsDir()
 {
-	return __usr_data_path + SCRIPTS;
+	return m_sUserDataPath + SCRIPTS;
 }
-QString Filesystem::songs_dir()
+QString Filesystem::userSongsDir()
 {
-	return __usr_data_path + SONGS;
+	return m_sUserDataPath + SONGS;
 }
-QString Filesystem::usr_theme_dir()
+QString Filesystem::userThemesDir()
 {
-	return __usr_data_path + THEMES;
+	return m_sUserDataPath + THEMES;
 }
-QString Filesystem::sys_theme_dir()
+QString Filesystem::systemThemesDir()
 {
-	return __sys_data_path + THEMES;
+	return m_sSystemDataPath + THEMES;
 }
-QString Filesystem::song_path( const QString& sg_name )
+QString Filesystem::userPatternsDir()
 {
-	return QString( songs_dir() + sg_name + songs_ext );
+	return m_sUserDataPath + PATTERNS;
 }
-QString Filesystem::patterns_dir()
+QString Filesystem::systemPatternsDir()
 {
-	return __usr_data_path + PATTERNS;
+	return m_sSystemDataPath + PATTERNS;
 }
-QString Filesystem::patterns_dir( const QString& dk_name )
+QString Filesystem::systemSongsDir()
 {
-	return __usr_data_path + PATTERNS + dk_name + "/";
+	return m_sSystemDataPath + SONGS;
 }
-QString Filesystem::pattern_path( const QString& dk_name, const QString& p_name )
+QString Filesystem::userPluginsDir()
 {
-	if ( dk_name.isEmpty() ) {
-		return patterns_dir() + p_name + patterns_ext;
-	} else {
-		return patterns_dir( dk_name ) + p_name + patterns_ext;
-	}
+	return m_sUserDataPath + PLUGINS;
 }
-QString Filesystem::plugins_dir()
+QString Filesystem::systemDrumkitsDir()
 {
-	return __usr_data_path + PLUGINS;
+	return m_sSystemDataPath + DRUMKITS;
 }
-QString Filesystem::sys_drumkits_dir()
+QString Filesystem::userDrumkitsDir()
 {
-	return __sys_data_path + DRUMKITS;
+	return m_sUserDataPath + DRUMKITS;
 }
-QString Filesystem::usr_drumkits_dir()
+QString Filesystem::systemDrumkitMapsDir()
 {
-	return __usr_data_path + DRUMKITS;
+	return m_sSystemDataPath + DRUMKIT_MAPS;
 }
-QString Filesystem::sys_drumkit_maps_dir()
+QString Filesystem::userPlaylistsDir()
 {
-	return __sys_data_path + DRUMKIT_MAPS;
+	return m_sUserDataPath + PLAYLISTS;
 }
-QString Filesystem::playlists_dir()
+QString Filesystem::cacheDir()
 {
-	return __usr_data_path + PLAYLISTS;
+	return m_sUserDataPath + CACHE;
 }
-QString Filesystem::playlist_path( const QString& pl_name )
+QString Filesystem::repositoriesCacheDir()
 {
-	return patterns_dir() + pl_name + playlist_ext;
+	return m_sUserDataPath + CACHE + REPOSITORIES;
 }
-QString Filesystem::cache_dir()
+QString Filesystem::demosDir()
 {
-	return __usr_data_path + CACHE;
+	return m_sSystemDataPath + DEMOS;
 }
-QString Filesystem::repositories_cache_dir()
-{
-	return __usr_data_path + CACHE + REPOSITORIES;
-}
-QString Filesystem::demos_dir()
-{
-	return __sys_data_path + DEMOS;
-}
-QString Filesystem::xsd_dir()
-{
-	return __sys_data_path + XSD;
-}
-QString Filesystem::xsd_legacy_dir()
-{
-	return xsd_dir() + "legacy";
-}
-QString Filesystem::tmp_dir()
+QString Filesystem::tmpDir()
 {
 	return QDir::tempPath() + "/" + TMP;
 }
-QString Filesystem::tmp_file_path( const QString &base )
+QString Filesystem::tmpFilePath( const QString& sBase )
 {
 	// Ensure template base will produce a valid filename
-	QString validBase = base;
-	validBase.remove(
-		QRegularExpression( "[\\\\|\\/|\\*|\\,|\\$|:|=|@|!|\\^|&|\\?|\"|'|>|<|\\||%|:]+" ) );
+	QString validBase = sBase;
+	validBase.remove( QRegularExpression(
+		"[\\\\|\\/|\\*|\\,|\\$|:|=|@|!|\\^|&|\\?|\"|'|>|<|\\||%|:]+"
+	) );
 
 	QFileInfo f( validBase );
-	QString templateName( tmp_dir() + "/" );
+	QString sTemplateName( tmpDir() + "/" );
 	if ( f.suffix().isEmpty() ) {
-		templateName += validBase.left( 20 );
-	} else {
-		templateName += f.completeBaseName().left( 20 ) + "-XXXXXX." + f.suffix();
+		sTemplateName += validBase.left( 20 );
 	}
-	QTemporaryFile file( templateName);
+	else {
+		sTemplateName +=
+			f.completeBaseName().left( 20 ) + "-XXXXXX." + f.suffix();
+	}
+	QTemporaryFile file( sTemplateName );
 	file.setAutoRemove( false );
 	file.open();
 	file.close();
 	return file.fileName();
 }
 
-// DRUMKITS
-QStringList Filesystem::drumkit_list( const QString& sPath )
+QStringList Filesystem::listContent(
+	Artifact artifact,
+	Context context,
+	const QString& sUserDirOverwrite
+)
 {
-	QDir dir( sPath );
-	QStringList ok;
-	QStringList possible = dir.entryList( QDir::Dirs | QDir::Readable | QDir::NoDotAndDotDot );
-	for ( const QString& ssSubFolder : possible ) {
-		if ( drumkit_valid( dir.absoluteFilePath( ssSubFolder ) ) ) {
-			ok << ssSubFolder;
-		} else {
-			ERRORLOG( QString( "drumkit [%1] is not usable" ).arg( ssSubFolder ) );
-		}
-	}
-	return ok;
-}
-QString Filesystem::drumkit_default_kit() {
-	QString sDefaultPath = sys_drumkits_dir() + DRUMKIT_DEFAULT_KIT;
+	QStringList content;
 
-	// GMRockKit does not exist at system-level? Let's pick another
-	// one.
-	if ( ! drumkit_valid( sDefaultPath ) ) {
-		for ( const auto& sDrumkitName : Filesystem::sys_drumkit_list() ) {
-			if ( drumkit_valid( Filesystem::sys_drumkits_dir() + sDrumkitName ) ) {
-				sDefaultPath = Filesystem::sys_drumkits_dir() + sDrumkitName;
-				break;
-			}
-		}
+	// In case of session folders, targetDirs can return more than one folder.
+	// But in generel there will be only one.
+	const auto dirs = Filesystem::targetDirs( artifact, context );
+	if ( dirs.size() == 0 ) {
+        // No content in this context.
+		return content;
 	}
 
-	// There is no drumkit at system-level? Let's pick one from user-space.
-	if ( ! drumkit_valid( sDefaultPath ) ) {
-		for ( const auto& sDrumkitName : Filesystem::usr_drumkit_list() ) {
-			if ( drumkit_valid( Filesystem::usr_drumkits_dir() + sDrumkitName ) ) {
-				sDefaultPath = Filesystem::usr_drumkits_dir() + sDrumkitName;
-				break;
-			}
+	const auto sFilter = Filesystem::targetFilter( artifact );
+
+	// Recursively traverse all target folders and return all files matching the
+	// filter.
+	for ( auto ssDir : dirs ) {
+		if ( !sUserDirOverwrite.isEmpty() &&
+			 ssDir.contains( userDataPath() ) ) {
+			ERRORLOG( "sUserDirOverwrite must only be used in unit tests!" );
+			ssDir = sUserDirOverwrite;
+		}
+
+		QDirIterator it(
+			ssDir, QStringList( sFilter ), QDir::Files | QDir::NoDotAndDotDot,
+			QDirIterator::Subdirectories
+		);
+
+		while ( it.hasNext() ) {
+			content << it.next();
 		}
 	}
 
-	return sDefaultPath;
+	return content;
 }
 
-QStringList Filesystem::sys_drumkit_list( )
-{
-	return drumkit_list( sys_drumkits_dir() ) ;
-}
-QStringList Filesystem::usr_drumkit_list( )
-{
-	return drumkit_list( usr_drumkits_dir() ) ;
-}
-
-QString Filesystem::prepare_sample_path(
+QString Filesystem::prepareSamplePath(
 	const QString& sSamplePath,
 	const QString& sDrumkitPath
 )
 {
-	// Check whether the provided absolute sample path is located within a
-	// known drumkit directory.
+	// Check whether the provided absolute sample path is located within a known
+	// drumkit directory.
 	int nIndexMatch = -1;
 	const QStringList drumkitFolders =
 		Hydrogen::get_instance()->getSoundLibraryDatabase()->getDrumkitFolders(
 		);
 
 	QString sSamplePathCleaned( sSamplePath );
-	QString sDrumkitPathCleaned( sDrumkitPath );
+	QString sDrumkitDirCleaned = Filesystem::drumkitDirFromPath( sDrumkitPath );
 #ifdef WIN32
 	// Qt uses posix separators `/` internally but things can easily mix up
 	// (maybe due to our code) and we end up with something like
 	// C:\projects\hydrogen/data/\drumkits/GMRockKit/Kick-Softest.wav .
 	// We have to ensure to work on a single separator.
 	sSamplePathCleaned = QString( sSamplePathCleaned ).replace( "\\", "/" );
-	sDrumkitPathCleaned = QString( sDrumkitPathCleaned ).replace( "\\", "/" );
+	sDrumkitDirCleaned = QString( sDrumkitDirCleaned ).replace( "\\", "/" );
 #endif
 
 	// When composing paths by combining different elements, two file separators
 	// can be used in a row. This is no problem in file access itself but would
 	// mess up our index-based approach in here.
 	sSamplePathCleaned = QString( sSamplePathCleaned ).replace( "//", "/" );
-	sDrumkitPathCleaned = QString( sDrumkitPathCleaned ).replace( "//", "/" );
+	sDrumkitDirCleaned = QString( sDrumkitDirCleaned ).replace( "//", "/" );
 
-    // When storing just the file name, the sample will be loaded by
-    // concatenating the drumkit path associated with an instrument and the
-    // sample file name. Thus, we have to make sure to just string paths belong
-    // to that very drumkit.
-	if ( sSamplePathCleaned.startsWith( sDrumkitPathCleaned ) ) {
+	// When storing just the file name, the sample will be loaded by
+	// concatenating the drumkit sPath associated with an instrument and the
+	// sample file name. Thus, we have to make sure to just string paths belong
+	// to that very drumkit.
+	if ( sSamplePathCleaned.startsWith( sDrumkitDirCleaned ) ) {
 		for ( const auto& ssFolder : drumkitFolders ) {
 			if ( sSamplePathCleaned.startsWith( ssFolder ) ) {
 				nIndexMatch =
@@ -938,251 +990,224 @@ QString Filesystem::prepare_sample_path(
 	return sSamplePath;
 }
 
-bool Filesystem::drumkit_exists( const QString& dk_name )
+QString Filesystem::drumkitXml()
 {
-	if( usr_drumkit_list().contains( dk_name ) ) return true;
-	return sys_drumkit_list().contains( dk_name );
-}
-QString Filesystem::drumkit_usr_path( const QString& dk_name )
-{
-	return usr_drumkits_dir() + dk_name;
-}
-QString Filesystem::drumkit_path_search( const QString& dk_name, const Lookup& lookup, bool bSilent )
-{
-	if ( lookup == Lookup::stacked || lookup == Lookup::user ) {
-		if ( usr_drumkit_list().contains( dk_name ) ){
-			return usr_drumkits_dir() + dk_name;
-		}
-	}
-
-	if ( lookup == Lookup::stacked || lookup == Lookup::system ) {
-		if( sys_drumkit_list().contains( dk_name ) ){
-			return sys_drumkits_dir() + dk_name;
-		}
-	}
-
-	if ( ! bSilent ) {
-		ERRORLOG( QString( "drumkit [%1] not found using lookup type [%2]" )
-				  .arg( dk_name )
-				  .arg( static_cast<int>(lookup)));
-	}
-	
-	return QString("");
-}
-	
-QString Filesystem::drumkit_dir_search( const QString& dk_name, const Lookup& lookup )
-{
-	if ( lookup == Lookup::user || lookup == Lookup::stacked ) {
-		if ( usr_drumkit_list().contains( dk_name ) ) {
-			return usr_drumkits_dir();
-		}
-	}
-	if ( lookup == Lookup::system || lookup == Lookup::stacked ) {
-		if( sys_drumkit_list().contains( dk_name ) ) {
-			return sys_drumkits_dir();
-		}
-	}
-	ERRORLOG( QString( "drumkit %1 not found with lookup mode [%2]" )
-			  .arg( dk_name ).arg( static_cast<int>(lookup) ) );
-	return "";
-}
-bool Filesystem::drumkit_valid( const QString& sFolderPath )
-{
-	return file_readable( QDir( sFolderPath ).absoluteFilePath( DRUMKIT_XML ),
-						  true );
-}
-QString Filesystem::drumkit_file( const QString& dk_path )
-{
-	return dk_path + "/" + DRUMKIT_XML;
-}
-
-QString Filesystem::drumkit_xml() {
 	return DRUMKIT_XML;
 }
 
-QString Filesystem::drumkit_backup_path( const QString& dk_path ) {
-	return dk_path + "." +
-		QDateTime::currentDateTime().toString( "yyyy-MM-dd_hh-mm-ss" ) + ".bak";
-}
-
-// PATTERNS
-QStringList Filesystem::pattern_drumkits()
+QString Filesystem::sanitizeDrumkitPath( const QString& sDrumkitPath )
 {
-	return QDir( patterns_dir() ).entryList( QDir::Dirs | QDir::Readable | QDir::NoDotAndDotDot );
-}
-
-QStringList Filesystem::pattern_list()
-{
-	return pattern_list( patterns_dir() );
-}
-
-QStringList Filesystem::pattern_list( const QString& path)
-{
-	return QDir( path ).entryList( QStringList( PATTERN_FILTER ), QDir::Files | QDir::Readable | QDir::NoDotAndDotDot );
-}
-
-// SONGS
-QStringList Filesystem::song_list( )
-{
-	return QDir( songs_dir() ).entryList( QStringList( SONG_FILTER ), QDir::Files | QDir::Readable | QDir::NoDotAndDotDot );
-}
-
-QStringList Filesystem::song_list_cleared( )
-{
-	QStringList result;
-	foreach ( const QString& str, song_list() ) {
-		if ( !str.contains( AUTOSAVE ) ) {
-			result += str;
-		}
+	if ( sDrumkitPath.contains( DRUMKIT_XML ) ) {
+		return sDrumkitPath;
 	}
-	return result;
-}
-
-bool Filesystem::song_exists( const QString& sg_name )
-{
-	return QDir( songs_dir() ).exists( sg_name );
-}
-
-bool Filesystem::isPathValid( const Type& type, const QString& sPath,
-							  bool bCheckExistance ) {
-	QString sExtension, sType;
-	switch ( type ) {
-	case Type::Song:
-		sExtension = Filesystem::songs_ext;
-		sType = "song";
-		break;
-
-	case Type::Playlist:
-		sExtension = Filesystem::playlist_ext;
-		sType = "playlist";
-		break;
-
-	default:
-		ERRORLOG( QString( "Unsupported file type: [%1]" )
-				  .arg( TypeToQString( type ) ) );
+	else if ( dirReadable( sDrumkitPath, true ) && fileReadable( sDrumkitPath + "/" + DRUMKIT_XML ) ) {
+		return Filesystem::drumkitPathFromDir( sDrumkitPath );
+	}
+	else {
 		return "";
+	}
+}
+
+QString Filesystem::drumkitDirFromPath( const QString& sDrumkitPath )
+{
+	if ( !sDrumkitPath.contains( DRUMKIT_XML ) ) {
+		ERRORLOG( QString( "Path [%1] is not a valid drumkit path" )
+					  .arg( sDrumkitPath ) );
+	}
+	QString sDir = QFileInfo( sDrumkitPath ).absoluteDir().absolutePath();
+
+#ifdef WIN32
+	// Absolute paths in Windows start with a drive prefix, like "C:". This will
+	// be created automatically by QFileInfo. In case it is also present in the
+	// provided input path, we keep it. If not, we strip it.
+	const int nSeparatorPosPath = sDrumkitPath.indexOf( "/" );
+	const int nSeparatorPosDir = sDir.indexOf( "/" );
+	// A value of -1 indicates that there is no separator present at all, which is
+	// also covered.
+	if ( nSeparatorPosDir > 0 && nSeparatorPosPath == 0 ) {
+		sDir = sDir.mid( nSeparatorPosDir );
+	}
+#endif
+	return sDir;
+}
+
+QString Filesystem::drumkitPathFromDir( const QString& sDrumkitDir )
+{
+	if ( sDrumkitDir.contains( DRUMKIT_XML ) ) {
+		WARNINGLOG( QString( "Path [%1] does not look like a drumkit folder" )
+						.arg( sDrumkitDir ) )
+	}
+	return QDir( sDrumkitDir ).filePath( DRUMKIT_XML );
+}
+
+QString Filesystem::drumkitBackupPath( const QString& sDrumkitPath )
+{
+	return sDrumkitPath + "." +
+		   QDateTime::currentDateTime().toString( "yyyy-MM-dd_hh-mm-ss" ) +
+		   ".bak";
+}
+
+bool Filesystem::isPathValid(
+	const Artifact& artifact,
+	const QString& sPath,
+	bool bCheckExistance
+)
+{
+	QString sExtension;
+	switch ( artifact ) {
+		case Artifact::DrumkitBundled:
+			sExtension = Filesystem::sDrumkitSuffix;
+			break;
+		case Artifact::DrumkitExtracted:
+			sExtension = "." + QFileInfo( DRUMKIT_XML ).suffix();
+			break;
+		case Artifact::Pattern:
+			sExtension = Filesystem::sPatternSuffix;
+			break;
+		case Artifact::Playlist:
+			sExtension = Filesystem::sPlaylistSuffix;
+			break;
+		case Artifact::Song:
+			sExtension = Filesystem::sSongSuffix;
+			break;
+
+		default:
+			ERRORLOG( QString( "Unsupported file type: [%1]" )
+						  .arg( ArtifactToQString( artifact ) ) );
+			return "";
 	}
 	QString suffix( sExtension );
 	suffix.remove( 0, 1 );
-	
+
 	QFileInfo fileInfo = QFileInfo( sPath );
 
 	if ( !fileInfo.isAbsolute() ) {
-		ERRORLOG( QString( "Error: Unable to handle path [%1]. Please provide an absolute file path!" )
-						.arg( sPath ));
+		ERRORLOG( QString( "Error: Unable to handle sPath [%1]. Please provide "
+						   "an absolute file sPath!" )
+					  .arg( sPath ) );
 		return false;
 	}
-	
+
 	if ( fileInfo.exists() ) {
 		if ( !fileInfo.isReadable() ) {
-			ERRORLOG( QString( "Unable to handle path [%1]. You must have permissions to read the file!" )
-						.arg( sPath ));
+			ERRORLOG( QString( "Unable to handle sPath [%1]. You must have "
+							   "permissions to read the file!" )
+						  .arg( sPath ) );
 			return false;
 		}
-	} else if ( bCheckExistance ) {
+	}
+	else if ( bCheckExistance ) {
 		ERRORLOG( QString( "Provided %1 [%2] does not exist" )
-				  .arg( sType ).arg( sPath ) );
+					  .arg( ArtifactToQString( artifact ) )
+					  .arg( sPath ) );
 		return false;
 	}
-	
+
 	if ( fileInfo.suffix() != suffix ) {
-		ERRORLOG( QString( "Unable to handle path [%1]. The provided file must have the suffix '%2'!" )
-					.arg( sPath ).arg( sExtension ));
+		ERRORLOG(
+			QString( "Unable to handle sPath [%1]. The provided file must "
+					 "have the suffix '%2'!" )
+				.arg( sPath )
+				.arg( sExtension )
+		);
 		return false;
 	}
-	
+
+	if ( artifact == Artifact::DrumkitExtracted &&
+		 fileInfo.fileName() != DRUMKIT_XML ) {
+		ERRORLOG(
+			QString(
+				"Provided drumkit definition [%1] must be called [%2] instead"
+			)
+				.arg( fileInfo.fileName() )
+				.arg( DRUMKIT_XML )
+		);
+		return false;
+	}
+
 	return true;
 }
 
-QString Filesystem::validateFilePath( const QString& sPath ) {
-
+QString Filesystem::validateFilePath( const QString& sPath )
+{
 	// Ensure the name will be a valid filename
 	QString sValidName( sPath );
 	sValidName.replace( " ", "_" );
-	sValidName.remove(
-		QRegularExpression( "[\\\\|\\/|\\*|\\,|\\$|:|=|@|!|\\^|&|\\?|\"|'|>|<|\\||%|:]+" ) );
+	sValidName.remove( QRegularExpression(
+		"[\\\\|\\/|\\*|\\,|\\$|:|=|@|!|\\^|&|\\?|\"|'|>|<|\\||%|:]+"
+	) );
 
 	return sValidName;
 }
 
-QStringList Filesystem::theme_list( )
-{
-	return QDir( sys_theme_dir() ).entryList( QStringList( THEME_FILTER ), QDir::Files | QDir::Readable | QDir::NoDotAndDotDot ) +
-		QDir( usr_theme_dir() ).entryList( QStringList( THEME_FILTER ), QDir::Files | QDir::Readable | QDir::NoDotAndDotDot );
-}
-
-// PLAYLISTS
-QStringList Filesystem::playlist_list( )
-{
-	return QDir( playlists_dir() ).entryList( QStringList( PLAYLIST_FILTER ), QDir::Files | QDir::Readable | QDir::NoDotAndDotDot );
-}
-
 void Filesystem::info()
 {
-	INFOLOG( QString( "Tmp dir                    : %1" ).arg( tmp_dir() ) );
+	INFOLOG( QString( "Tmp dir                    : %1" ).arg( tmpDir() ) );
 	// SYS
-	INFOLOG( QString( "Click file                 : %1" ).arg( click_file_path() ) );
+	INFOLOG( QString( "Click file                 : %1" ).arg( clickFilePath() )
+	);
 	INFOLOG( QString( "Empty song                 : %1" )
-			 .arg( empty_path( Type::Song ) ) );
+				 .arg( emptyPath( Artifact::Song ) ) );
 	INFOLOG( QString( "Empty playlist             : %1" )
-			 .arg( empty_path( Type::Playlist ) ) );
-	INFOLOG( QString( "Demos dir                  : %1" ).arg( demos_dir() ) );
-	INFOLOG( QString( "Documentation dir          : %1" ).arg( doc_dir() ) );					// FIXME must be created even if no doc deployed
-	INFOLOG( QString( "System drumkit dir         : %1" ).arg( sys_drumkits_dir() ) );
-	INFOLOG( QString( "Empty sample               : %1" ).arg( empty_sample_path() ) );
-	INFOLOG( QString( "Default config             : %1" ).arg( sys_config_path() ) );
-	INFOLOG( QString( "Internationalization dir   : %1" ).arg( i18n_dir() ) );
-	INFOLOG( QString( "Images dir                 : %1" ).arg( img_dir() ) );
-	INFOLOG( QString( "XSD dir                    : %1" ).arg( xsd_dir() ) );
-	INFOLOG( QString( "Pattern XSD                : %1" ).arg( pattern_xsd_path() ) );
-	INFOLOG( QString( "Drumkit XSD                : %1" ).arg( drumkit_xsd_path() ) );
-	INFOLOG( QString( "Playlist XSD               : %1" ).arg( playlist_xsd_path() ) );
-	INFOLOG( QString( "Drumkit Map XSD            : %1" )
-			 .arg( drumkit_map_xsd_path() ) );
+				 .arg( emptyPath( Artifact::Playlist ) ) );
+	INFOLOG( QString( "Demos dir                  : %1" ).arg( demosDir() ) );
+	INFOLOG( QString( "Documentation dir          : %1" )
+				 .arg( systemDocumentationDir() )
+	);	// FIXME must be created even if no doc deployed
+	INFOLOG(
+		QString( "System drumkit dir         : %1" ).arg( systemDrumkitsDir() )
+	);
+	INFOLOG(
+		QString( "Empty sample               : %1" ).arg( emptySamplePath() )
+	);
+	INFOLOG(
+		QString( "Default config             : %1" ).arg( systemConfigPath() )
+	);
+	INFOLOG( QString( "Internationalization dir   : %1" )
+				 .arg( systemInternationalizationDir() ) );
+	INFOLOG(
+		QString( "Images dir                 : %1" ).arg( systemImageDir() )
+	);
 	// USR
-	INFOLOG( QString( "User config                : %1" ).arg( usr_config_path() ) );			// FIXME
-	INFOLOG( QString( "User Click file            : %1" ).arg( usr_click_file_path() ) );
-	INFOLOG( QString( "Cache dir                  : %1" ).arg( cache_dir() ) );
-	INFOLOG( QString( "Reporitories Cache dir     : %1" ).arg( repositories_cache_dir() ) );
-	INFOLOG( QString( "User drumkit dir           : %1" ).arg( usr_drumkits_dir() ) );
-	INFOLOG( QString( "Patterns dir               : %1" ).arg( patterns_dir() ) );
-	INFOLOG( QString( "Playlist dir               : %1" ).arg( playlists_dir() ) );
-	INFOLOG( QString( "Plugins dir                : %1" ).arg( plugins_dir() ) );
-	INFOLOG( QString( "Scripts dir                : %1" ).arg( scripts_dir() ) );
-	INFOLOG( QString( "Songs dir                  : %1" ).arg( songs_dir() ) );
+	INFOLOG(
+		QString( "User config                : %1" ).arg( userConfigPath() )
+	);
+	INFOLOG( QString( "Cache dir                  : %1" ).arg( cacheDir() ) );
+	INFOLOG( QString( "Reporitories Cache dir     : %1" )
+				 .arg( repositoriesCacheDir() ) );
+	INFOLOG(
+		QString( "User drumkit dir           : %1" ).arg( userDrumkitsDir() )
+	);
+	INFOLOG(
+		QString( "Patterns dir               : %1" ).arg( userPatternsDir() )
+	);
+	INFOLOG(
+		QString( "Playlist dir               : %1" ).arg( userPlaylistsDir() )
+	);
+	INFOLOG(
+		QString( "Plugins dir                : %1" ).arg( userPluginsDir() )
+	);
+	INFOLOG(
+		QString( "Scripts dir                : %1" ).arg( userScriptsDir() )
+	);
+	INFOLOG( QString( "Songs dir                  : %1" ).arg( userSongsDir() )
+	);
 }
 
-QString Filesystem::absolute_path( const QString& sFileName, bool bSilent ) {
+QString Filesystem::absolutePath( const QString& sFileName, bool bSilent )
+{
 	if ( QFile( sFileName ).exists() ) {
 		return QFileInfo( sFileName ).absoluteFilePath();
 	}
-	else if ( ! bSilent ) {
+	else if ( !bSilent ) {
 		___ERRORLOG( QString( "File [%1] not found" ).arg( sFileName ) );
 	}
 
 	return QString();
 }
 
-QStringList Filesystem::drumkit_xsd_legacy_paths() {
-	const QDir legacyDir( xsd_legacy_dir() );
-
-	const QStringList legacyDirSubfolders =
-		legacyDir.entryList( QDir::Dirs | QDir::NoDotAndDotDot,
-							 QDir::Name | QDir::Reversed );
-
-	QStringList drumkitXSDs;
-	for ( const auto& ffolder : legacyDirSubfolders ) {
-		const QDir folder( legacyDir.filePath( ffolder ) );
-		
-		if ( folder.exists( drumkit_xsd() ) ) {
-			drumkitXSDs << folder.filePath( drumkit_xsd() );
-		}
-	}
-
-	return std::move( drumkitXSDs );
-}
-
-QString Filesystem::rerouteDrumkitPath( const QString& sDrumkitPath ) {
+QString Filesystem::rerouteDrumkitPath( const QString& sDrumkitPath )
+{
 #ifdef H2CORE_HAVE_APPIMAGE
 
 	if ( sDrumkitPath.isEmpty() ) {
@@ -1190,9 +1215,9 @@ QString Filesystem::rerouteDrumkitPath( const QString& sDrumkitPath ) {
 		return "";
 	}
 
-	// Since the path to a system kits of a previously mounted image
+	// Since the sPath to a system kits of a previously mounted image
 	// does most probably not exist anymore we can _not_ use
-	// Filesystem::absolute_path in here.
+	// Filesystem::absolutePath in here.
 	const QString sAbsolutePath = QDir( sDrumkitPath ).absolutePath();
 	QString sResult = sAbsolutePath;
 
@@ -1205,7 +1230,7 @@ QString Filesystem::rerouteDrumkitPath( const QString& sDrumkitPath ) {
 	bool bIsForeignSystemKit = false;
 	for ( const auto& ssPrefix : systemPrefixes ) {
 		if ( sAbsolutePath.startsWith( ssPrefix ) &&
-			 ! sAbsolutePath.contains( Filesystem::sys_data_path() ) ) {
+			 !sAbsolutePath.contains( Filesystem::systemDataPath() ) ) {
 			bIsForeignSystemKit = true;
 		}
 	}
@@ -1213,20 +1238,21 @@ QString Filesystem::rerouteDrumkitPath( const QString& sDrumkitPath ) {
 	if ( bIsForeignSystemKit ) {
 		const QStringList pathComponents = sAbsolutePath.split( "/" );
 		if ( pathComponents.size() > 2 ) {
-			const QString sNewPath = QString( "%1%2/%3" )
-				.arg( Filesystem::sys_data_path() )
-				.arg( pathComponents[ pathComponents.size() - 2 ] )
-				.arg( pathComponents[ pathComponents.size() - 1 ] );
+			const QString sNewPath =
+				QString( "%1%2/%3" )
+					.arg( Filesystem::systemDataPath() )
+					.arg( pathComponents[pathComponents.size() - 2] )
+					.arg( pathComponents[pathComponents.size() - 1] );
 
 			INFOLOG( QString( "Rerouting system kit: [%1] -> [%2]" )
-					 .arg( sDrumkitPath )
-					 .arg( Filesystem::absolute_path( sNewPath ) ) );
+						 .arg( sDrumkitPath )
+						 .arg( Filesystem::absolutePath( sNewPath ) ) );
 
-			sResult = Filesystem::absolute_path( sNewPath );
+			sResult = Filesystem::absolutePath( sNewPath );
 		}
 		else {
-			ERRORLOG( QString( "Unable to replace drumkit path [%1]" )
-					  .arg( sDrumkitPath ) );
+			ERRORLOG( QString( "Unable to replace drumkit sPath [%1]" )
+						  .arg( sDrumkitPath ) );
 		}
 	}
 
@@ -1236,37 +1262,43 @@ QString Filesystem::rerouteDrumkitPath( const QString& sDrumkitPath ) {
 #endif
 }
 
-QString Filesystem::getDrumkitMap( const QString& sDrumkitName,
-								   bool bSilent ) {
-	const QString sMapDir = sys_drumkit_maps_dir();
+QString Filesystem::getDrumkitMap( const QString& sDrumkitName, bool bSilent )
+{
+	const QString sMapDir = systemDrumkitMapsDir();
 
-	if ( ! dir_readable( sMapDir ) ) {
+	if ( !dirReadable( sMapDir ) ) {
 		ERRORLOG( QString( "Unable to access system drumkit map folder [%1]" )
 					  .arg( sMapDir ) );
 		return QString();
 	}
 
-	QString sTarget = QString( "%1%2" ).arg( sDrumkitName )
-		.arg( drumkit_map_ext );
-	
+	QString sTarget =
+		QString( "%1%2" ).arg( sDrumkitName ).arg( sDrumkitMapSuffix );
+
 	QDir mapDir( sMapDir );
 	// The mapping file must exactly match drumkit name.
-	if ( ! mapDir.exists( sTarget ) ) {
-		WARNINGLOG( QString( "No .h2map fallback file for kit [%1] found. Please add types in the kit's Properties dialog yourself" )
-					.arg( sDrumkitName ) );
+	if ( !mapDir.exists( sTarget ) ) {
+		WARNINGLOG(
+			QString( "No .h2map fallback file for kit [%1] found. Please add "
+					 "types in the kit's Properties dialog yourself" )
+				.arg( sDrumkitName )
+		);
 		return QString();
 	}
 
 	if ( bSilent ) {
-		INFOLOG(QString( "Found map file [%1] for kit [%2]" )
-				 .arg( mapDir.filePath( sTarget ) ).arg( sDrumkitName ) );
+		INFOLOG( QString( "Found map file [%1] for kit [%2]" )
+					 .arg( mapDir.filePath( sTarget ) )
+					 .arg( sDrumkitName ) );
 	}
 	return mapDir.filePath( sTarget );
 }
 
-QString Filesystem::addUniquePrefix( const QString& sBaseFilePath ) {
-
-	QString sChars( "abcdefghijklmnopqrstuvwxuzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" );
+QString Filesystem::addUniquePrefix( const QString& sBaseFilePath )
+{
+	QString sChars(
+		"abcdefghijklmnopqrstuvwxuzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	);
 
 	// a seed source for the random number engine
 	std::random_device randomDevice;
@@ -1277,7 +1309,7 @@ QString Filesystem::addUniquePrefix( const QString& sBaseFilePath ) {
 
 	// A prefix will be formatted as "tmp-XXXXXX-" with X being a latin
 	// character or digit.
-	auto createPrefix = [&](){
+	auto createPrefix = [&]() {
 		QString sPrefix( "tmp-" );
 		for ( int ii = 0; ii < 6; ++ii ) {
 			sPrefix.append( sChars.at( distr( randomEngine ) ) );
@@ -1288,19 +1320,21 @@ QString Filesystem::addUniquePrefix( const QString& sBaseFilePath ) {
 
 	QFileInfo baseInfo( sBaseFilePath );
 
-	QString sUniquePath = baseInfo.absoluteDir()
-		.absoluteFilePath( createPrefix() + baseInfo.fileName() );
+	QString sUniquePath = baseInfo.absoluteDir().absoluteFilePath(
+		createPrefix() + baseInfo.fileName()
+	);
 
 	int maxTries = 100;
 	int ii = 0;
-	while ( file_exists( sUniquePath, true ) ) {
-		sUniquePath = baseInfo.absoluteDir()
-			.absoluteFilePath( createPrefix() + baseInfo.fileName() );
+	while ( fileExists( sUniquePath, true ) ) {
+		sUniquePath = baseInfo.absoluteDir().absoluteFilePath(
+			createPrefix() + baseInfo.fileName()
+		);
 
 		ii++;
 		if ( ii >= maxTries ) {
-			ERRORLOG( QString( "Unable to create unique path for [%1]" )
-					  .arg( sBaseFilePath ) );
+			ERRORLOG( QString( "Unable to create unique sPath for [%1]" )
+						  .arg( sBaseFilePath ) );
 			return "";
 		}
 	}
@@ -1308,47 +1342,51 @@ QString Filesystem::addUniquePrefix( const QString& sBaseFilePath ) {
 	return std::move( sUniquePath );
 }
 
-QString Filesystem::removeUniquePrefix( const QString& sUniqueFilePath,
-										bool bSilent ) {
+QString
+Filesystem::removeUniquePrefix( const QString& sUniqueFilePath, bool bSilent )
+{
 	QRegularExpression prefix( "tmp-[\\w]{6}-+" );
 
 	if ( sUniqueFilePath.contains( prefix ) ) {
 		QFileInfo info( sUniqueFilePath );
 
-		return info.absoluteDir().
-			absoluteFilePath( info.fileName().remove( prefix ) );
+		return info.absoluteDir().absoluteFilePath(
+			info.fileName().remove( prefix )
+		);
 	}
 	else {
-		if ( ! bSilent ) {
-			WARNINGLOG( QString( "Path [%1] does not contain unique prefix" )
-						.arg( sUniqueFilePath ) );
+		if ( !bSilent ) {
+			WARNINGLOG( QString( "sPath [%1] does not contain unique prefix" )
+							.arg( sUniqueFilePath ) );
 		}
 		return sUniqueFilePath;
 	}
 }
 
-QString Filesystem::getAutoSaveFileName( const Type& type, const QString& sBaseName ) {
-	QString sDefaultDir, sExtension, sType;
-	switch ( type ) {
-	case Type::Song:
-		sDefaultDir = songs_dir();
-		sExtension = Filesystem::songs_ext;
-		sType = "song";
-		break;
+QString Filesystem::getAutoSavePath(
+	const Artifact& artifact,
+	const QString& sBaseName
+)
+{
+	QString sDefaultDir, sExtension;
+	switch ( artifact ) {
+		case Artifact::Song:
+			sDefaultDir = userSongsDir();
+			sExtension = Filesystem::sSongSuffix;
+			break;
 
-	case Type::Playlist:
-		sDefaultDir = playlists_dir();
-		sExtension = Filesystem::playlist_ext;
-		sType = "playlist";
-		break;
+		case Artifact::Playlist:
+			sDefaultDir = userPlaylistsDir();
+			sExtension = Filesystem::sPlaylistSuffix;
+			break;
 
-	default:
-		ERRORLOG( QString( "Unsupported file type: [%1]" )
-				  .arg( TypeToQString( type ) ) );
-		return "";
+		default:
+			ERRORLOG( QString( "Unsupported file type: [%1]" )
+						  .arg( ArtifactToQString( artifact ) ) );
+			return "";
 	}
 
-	if ( ! sBaseName.isEmpty() ) {
+	if ( !sBaseName.isEmpty() ) {
 		QFileInfo fileInfo( sBaseName );
 
 		// In case the user did open a hidden file, the baseName()
@@ -1358,16 +1396,23 @@ QString Filesystem::getAutoSaveFileName( const Type& type, const QString& sBaseN
 			sBaseName.remove( 0, 1 );
 		}
 
-		const QString sAbsolutePath = QString( "%1/.%2.autosave%3" )
-			.arg( fileInfo.absoluteDir().absolutePath() )
-			.arg( sBaseName ).arg( sExtension );
+		const QString sAbsolutePath =
+			QString( "%1/.%2.autosave%3" )
+				.arg( fileInfo.absoluteDir().absolutePath() )
+				.arg( sBaseName )
+				.arg( sExtension );
 
-		if ( ! Filesystem::file_writable( sAbsolutePath, true ) ) {
-			QString sNewName = QString( "%1.%2.autosave%3" )
-				.arg( sDefaultDir ).arg( sBaseName ).arg( sExtension );
+		if ( !Filesystem::fileWritable( sAbsolutePath, true ) ) {
+			QString sNewName = QString( "%1/.%2.autosave%3" )
+								   .arg( sDefaultDir )
+								   .arg( sBaseName )
+								   .arg( sExtension );
 
-			WARNINGLOG( QString( "Path of current %1 [%2] is not writable. Autosave will store it as [%3] instead." )
-						.arg( sType ).arg( sAbsolutePath ).arg( sNewName ) );
+			WARNINGLOG( QString( "sPath of current %1 [%2] is not writable. "
+								 "Autosave will store it as [%3] instead." )
+							.arg( ArtifactToQString( artifact ) )
+							.arg( sAbsolutePath )
+							.arg( sNewName ) );
 			return sNewName;
 		}
 		else {
@@ -1380,29 +1425,39 @@ QString Filesystem::getAutoSaveFileName( const Type& type, const QString& sBaseN
 	return QString( "%1.autosave%2" ).arg( sDefaultDir ).arg( sExtension );
 }
 
-QString Filesystem::TypeToQString( const Type& type ) {
-	switch( type ) {
-	case Type::Song:
-		return "Song";
-
-	case Type::Playlist:
-		return "Playlist";
-
-	default:
-		return "Unknown";
+QString Filesystem::ArtifactToQString( const Artifact& type )
+{
+	switch ( type ) {
+		case Artifact::DrumkitBundled:
+			return "Drumkit bundled";
+		case Artifact::DrumkitExtracted:
+			return "Drumkit definition";
+		case Artifact::Pattern:
+			return "Pattern";
+		case Artifact::Playlist:
+			return "Playlist";
+		case Artifact::Song:
+			return "Song";
+		default:
+			return QString( "Unknown artifact [%1]" )
+				.arg( static_cast<int>( type ) );
 	}
 }
 
-QString Filesystem::removeUtf8Characters( const QString &sEncodedString ) {
+QString Filesystem::removeUtf8Characters( const QString& sEncodedString )
+{
 	QString sCleaned( sEncodedString );
 	return sCleaned.remove(
-		QRegularExpression( "[^a-zA-Z0-9._/\\s()\\[\\]\\&\\+\\-]" ) );
+		QRegularExpression( "[^a-zA-Z0-9._/\\s()\\[\\]\\&\\+\\-]" )
+	);
 }
-const std::vector<Filesystem::AudioFormat>& Filesystem::supportedAudioFormats() {
+const std::vector<Filesystem::AudioFormat>& Filesystem::supportedAudioFormats()
+{
 	return m_supportedAudioFormats;
 }
 
-QString Filesystem::appendNumberOrIncrement( const QString& sString ) {
+QString Filesystem::appendNumberOrIncrement( const QString& sString )
+{
 	auto parts = sString.split( " " );
 
 	bool bOk;
@@ -1417,6 +1472,94 @@ QString Filesystem::appendNumberOrIncrement( const QString& sString ) {
 
 	return parts.join( " " );
 }
-};
+
+QStringList Filesystem::targetDirs( Artifact artifact, Context context )
+{
+	QStringList results;
+
+	if ( context == Context::Song ) {
+		ERRORLOG( "There is no fixed target folder for song-level artifacts" );
+		return results;
+	}
+	if ( ( context == Context::SessionReadOnly ||
+		   context == Context::SessionReadWrite ) &&
+		 artifact != Artifact::DrumkitExtracted ) {
+		ERRORLOG( "Session-based folders are only supported for drumkits." );
+		return results;
+	}
+
+	switch ( artifact ) {
+		case Artifact::DrumkitBundled: {
+			ERRORLOG( "There is no common folder for bundled drumkits." );
+			return results;
+		}
+		case Artifact::DrumkitExtracted: {
+			if ( context == Context::System ) {
+				results << systemDrumkitsDir();
+			}
+			else if ( context == Context::User ) {
+				results << userDrumkitsDir();
+			}
+			else {
+				auto pHydrogen = Hydrogen::get_instance();
+				if ( pHydrogen != nullptr &&
+					 pHydrogen->getSoundLibraryDatabase() != nullptr ) {
+					results << pHydrogen->getSoundLibraryDatabase()
+								   ->getCustomDrumkitFolders();
+				}
+			}
+			break;
+		}
+		case Artifact::Pattern: {
+			if ( context == Context::System ) {
+				results << systemPatternsDir();
+			}
+			else {
+				results << userPatternsDir();
+			}
+			break;
+		}
+		case Artifact::Playlist: {
+			if ( context == Context::System ) {
+				ERRORLOG( "There are no system-level playlists yet." );
+				return results;
+			}
+			else {
+				results << userPlaylistsDir();
+			}
+			break;
+		}
+		case Artifact::Song: {
+			if ( context == Context::System ) {
+				results << systemSongsDir();
+				results << demosDir();
+			}
+			else {
+				results << userSongsDir();
+			}
+			break;
+		}
+	}
+	return results;
+}
+
+QString Filesystem::targetFilter( Artifact artifact )
+{
+	switch ( artifact ) {
+		case Artifact::DrumkitBundled:
+			return DRUMKIT_FILTER;
+		case Artifact::DrumkitExtracted:
+			return DRUMKIT_XML;
+		case Artifact::Pattern:
+			return PATTERN_FILTER;
+		case Artifact::Playlist:
+			return PLAYLIST_FILTER;
+		case Artifact::Song:
+			return SONG_FILTER;
+	}
+
+	return "";
+}
+};	// namespace H2Core
 
 /* vim: set softtabstop=4 noexpandtab: */

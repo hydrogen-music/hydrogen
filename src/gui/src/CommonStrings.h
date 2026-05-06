@@ -141,6 +141,9 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		return m_sCurrentlySelectedLabel;
 	}
 	const QString& getTagsLabel() const { return m_sTagsLabel; }
+	const QString& getDrumkitsLabel() const { return m_sDrumkitsLabel; }
+	const QString& getPatternsLabel() const { return m_sPatternsLabel; }
+	const QString& getSongsLabel() const { return m_sSongsLabel; }
 
 	const QString& getRangeToolTip() const { return m_sRangeToolTip; }
 	const QString& getMidiToolTipHeading() const
@@ -293,6 +296,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getLicenseDialog() const { return m_sLicenseDialog; }
 	const QString& getAuthorDialog() const { return m_sAuthorDialog; }
 	const QString& getNotesDialog() const { return m_sNotesDialog; }
+	const QString& getPathDialog() const { return m_sPathDialog; }
 
 	// const QString& getDialogSongLoadError() const { return
 	// m_sDialogSongLoadError; } const QString& getDialogUnsavedChangesH1()
@@ -367,13 +371,17 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	{
 		return m_sSoundLibraryFailedPreDrumkitLoad;
 	}
-	const QString& getSoundLibrarySystemSuffix() const
+	const QString& getSoundLibrarySession() const
 	{
-		return m_sSoundLibrarySystemSuffix;
+		return m_sSoundLibrarySession;
 	}
-	const QString& getSoundLibrarySessionSuffix() const
+	const QString& getSoundLibrarySystem() const
 	{
-		return m_sSoundLibrarySessionSuffix;
+		return m_sSoundLibrarySystem;
+	}
+	const QString& getSoundLibraryUser() const
+	{
+		return m_sSoundLibraryUser;
 	}
 
 	const QString& getEncodingError() const { return m_sEncodingError; }
@@ -677,6 +685,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	}
 	const QString& getErrorEmptyType() const { return m_sErrorEmptyType; }
 	const QString& getErrorUniqueTypes() const { return m_sErrorUniqueTypes; }
+	const QString& getErrorInvalidPath() const { return m_sErrorInvalidPath; }
 
 	const QString& getSettings() const { return m_sSettings; }
 	const QString& getPattern() const { return m_sPattern; }
@@ -743,6 +752,9 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sAllLabel;
 	QString m_sCurrentlySelectedLabel;
 	QString m_sTagsLabel;
+	QString m_sDrumkitsLabel;
+	QString m_sPatternsLabel;
+	QString m_sSongsLabel;
 
 	QString m_sRangeToolTip;
 	QString m_sMidiToolTipHeading;
@@ -813,6 +825,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sLicenseDialog;
 	QString m_sAuthorDialog;
 	QString m_sNotesDialog;
+	QString m_sPathDialog;
 
 	// Not used yet. A redesign of the GUI startup is required first
 	// since these strings are required _before_ HydrogenApp was
@@ -940,10 +953,12 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sErrorNotFoundShort;
 	QString m_sErrorEmptyType;
 	QString m_sErrorUniqueTypes;
+	QString m_sErrorInvalidPath;
 
 	QString m_sSoundLibraryFailedPreDrumkitLoad;
-	QString m_sSoundLibrarySystemSuffix;
-	QString m_sSoundLibrarySessionSuffix;
+	QString m_sSoundLibrarySession;
+	QString m_sSoundLibrarySystem;
+	QString m_sSoundLibraryUser;
 
 	QString m_sNotePropertyVelocity;
 	QString m_sNotePropertyPan;

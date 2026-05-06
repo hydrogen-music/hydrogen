@@ -102,7 +102,7 @@ AudioFileBrowser::AudioFileBrowser(
 	pathLineEdit->setText( sDefaultPath );
 	m_sSampleFileName = "";
 
-	m_sEmptySampleFileName = Filesystem::empty_sample_path();
+	m_sEmptySampleFileName = Filesystem::emptySamplePath();
 
 	m_pPathUptoolButton->setIcon(
 		QIcon( Skin::getSvgImagePath() + "/icons/white/go-up.svg" )
@@ -244,7 +244,7 @@ void AudioFileBrowser::clicked( const QModelIndex& index )
 		browseTree( index, true );
 	}
 
-	if ( Filesystem::file_exists( path, true ) && isFileSupported( path ) ) {
+	if ( Filesystem::fileExists( path, true ) && isFileSupported( path ) ) {
 		browseTree( index, true );
 	}
 }
@@ -398,7 +398,7 @@ void AudioFileBrowser::on_openBTN_clicked()
 					sDir = sDir + "/";
 				}
 				const QString sFilePath = sDir + sFileName;
-				if ( Filesystem::file_exists( sFilePath, true ) ) {
+				if ( Filesystem::fileExists( sFilePath, true ) ) {
 					// Open a file
 					m_selectedFiles << sFilePath;
 				}

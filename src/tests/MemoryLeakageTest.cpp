@@ -37,12 +37,12 @@
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
-#include <core/License.h>
-
 #include <core/Helpers/Legacy.h>
 #include <core/Helpers/Xml.h>
+#include <core/License.h>
 #include <core/Sampler/Sampler.h>
 #include <core/Sampler/Sampler.cpp>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include "TestHelper.h"
 
@@ -203,9 +203,12 @@ void MemoryLeakageTest::testConstructors()
 
 	// Test copy constructors using real-live instead of new objects.
 	auto pDrumkitProper = H2Core::Drumkit::load(
-		H2Core::Filesystem::drumkit_path_search(
-			"GMRockKit", H2Core::Filesystem::Lookup::system, true
-		),
+		H2Core::Hydrogen::get_instance()
+			->getSoundLibraryDatabase()
+			->findArtifact(
+				H2Core::Filesystem::Artifact::DrumkitExtracted,
+				H2Core::Filesystem::Context::System, "GMRockKit"
+			),
 		false, nullptr, true
 	);
 	CPPUNIT_ASSERT( pDrumkitProper != nullptr );
@@ -220,7 +223,7 @@ void MemoryLeakageTest::testConstructors()
 			->getSample() != nullptr
 	);
 	auto pSongProper = H2Core::Song::load(
-		H2Core::Filesystem::demos_dir() + "GM_kit_Diddley.h2song"
+		H2Core::Filesystem::demosDir() + "GM_kit_Diddley.h2song"
 	);
 	CPPUNIT_ASSERT( pSongProper != nullptr );
 
@@ -337,13 +340,14 @@ void MemoryLeakageTest::testLoading()
 
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 
-	QString sDrumkitPath = H2Core::Filesystem::drumkit_path_search(
-		"GMRockKit", H2Core::Filesystem::Lookup::system
+	QString sDrumkitPath = pHydrogen->getSoundLibraryDatabase()->findArtifact(
+		H2Core::Filesystem::Artifact::DrumkitExtracted,
+		H2Core::Filesystem::Context::System, "GMRockKit"
 	);
 
 	{
 		auto pDrumkit = H2Core::Drumkit::load(
-			H2TEST_FILE( "drumkits/baseKit/" ), false, nullptr, true
+			H2TEST_FILE( "drumkits/baseKit/drumkit.xml" ), false, nullptr, true
 		);
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
 
@@ -514,13 +518,14 @@ void MemoryLeakageTest::testLoading()
 
 	{
 		auto pDrumkit = H2Core::Drumkit::load(
-			H2TEST_FILE( "drumkits/baseKit" ), false, nullptr, true
+			H2TEST_FILE( "drumkits/baseKit/drumkit.xml" ), false, nullptr, true
 		);
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
 		pDrumkit->loadSamples();
 		auto pDrumkit2 = H2Core::Drumkit::load(
-			H2Core::Filesystem::drumkit_path_search(
-				"GMRockKit", H2Core::Filesystem::Lookup::system, true
+			pHydrogen->getSoundLibraryDatabase()->findArtifact(
+				H2Core::Filesystem::Artifact::DrumkitExtracted,
+				H2Core::Filesystem::Context::System, "GMRockKit"
 			),
 			false, nullptr, true
 		);
@@ -536,12 +541,4 @@ void MemoryLeakageTest::testLoading()
 		CPPUNIT_ASSERT( nLoaded == H2Core::Base::getAliveObjectCount() );
 	}
 	___INFOLOG( "passed" );
-}
-
-void MemoryLeakageTest::tearDown()
-{
-	if ( H2Core::Filesystem::drumkit_exists( "testKitLadida" ) ) {
-		QString sPath = H2Core::Filesystem::drumkit_usr_path( "testKitLadida" );
-		CPPUNIT_ASSERT( H2Core::Filesystem::rm( sPath, true ) );
-	}
 }

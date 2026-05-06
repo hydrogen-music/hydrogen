@@ -67,31 +67,37 @@
 #include "Widgets/AutomationPathView.h"
 #include "Widgets/EditorDefs.h"
 
-
 //=====================================================================================================================================
-//song editor commands
+// song editor commands
 /** \ingroup docGUI*/
-class SE_movePatternListItemAction : public QUndoCommand
-{
-public:
-	SE_movePatternListItemAction(  int nSourcePattern , int nTargetPattern ){
-		setText( QObject::tr( "Move pattern list item ( %1, %2 )" ).arg( nSourcePattern ).arg( nTargetPattern ) );
+class SE_movePatternListItemAction : public QUndoCommand {
+   public:
+	SE_movePatternListItemAction( int nSourcePattern, int nTargetPattern )
+	{
+		setText( QObject::tr( "Move pattern list item ( %1, %2 )" )
+					 .arg( nSourcePattern )
+					 .arg( nTargetPattern ) );
 		__nSourcePattern = nSourcePattern;
 		__nTargetPattern = nTargetPattern;
 	}
 	virtual void undo()
 	{
-		//qDebug() << "Move Pattern List Item Undo ";
+		// qDebug() << "Move Pattern List Item Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditorPatternList()->movePatternLine( __nTargetPattern, __nSourcePattern );
+		h2app->getSongEditorPanel()
+			->getSongEditorPatternList()
+			->movePatternLine( __nTargetPattern, __nSourcePattern );
 	}
 	virtual void redo()
 	{
-		//qDebug() << "Move Pattern List Item redo " ;
+		// qDebug() << "Move Pattern List Item redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditorPatternList()->movePatternLine( __nSourcePattern , __nTargetPattern );
+		h2app->getSongEditorPanel()
+			->getSongEditorPatternList()
+			->movePatternLine( __nSourcePattern, __nTargetPattern );
 	}
-private:
+
+   private:
 	int __nSourcePattern;
 	int __nTargetPattern;
 };
@@ -124,36 +130,39 @@ class SE_deletePatternAction : public QUndoCommand {
 	{
 		H2Core::CoreActionController::removePattern( m_nPatternPosition );
 	}
+
    private:
 	int m_nPatternPosition;
 	std::shared_ptr<H2Core::Pattern> m_pPattern;
 };
 
 /** \ingroup docGUI*/
-class SE_modifyPatternPropertiesAction : public QUndoCommand
-{
-public:
-	SE_modifyPatternPropertiesAction( const int nOldVersion,
-									  const QString& oldPatternName,
-									  const QString& sOldAuthor,
-									  const QString& oldPatternInfo,
-									  const H2Core::License& oldLicense,
-									  const QStringList& oldTags,
-									  const int nNewVersion,
-									  const QString& newPatternName,
-									  const QString sNewAuthor,
-									  const QString& newPatternInfo,
-									  const H2Core::License& newLicense,
-									  const QStringList& newTags,
-									  int patternNr ){
+class SE_modifyPatternPropertiesAction : public QUndoCommand {
+   public:
+	SE_modifyPatternPropertiesAction(
+		const int nOldVersion,
+		const QString& oldPatternName,
+		const QString& sOldAuthor,
+		const QString& oldPatternInfo,
+		const H2Core::License& oldLicense,
+		const QStringList& oldTags,
+		const int nNewVersion,
+		const QString& newPatternName,
+		const QString sNewAuthor,
+		const QString& newPatternInfo,
+		const H2Core::License& newLicense,
+		const QStringList& newTags,
+		int patternNr
+	)
+	{
 		setText( QObject::tr( "Modify pattern properties" ) );
-		m_nOldVersion =  nOldVersion;
-		__oldPatternName =  oldPatternName;
+		m_nOldVersion = nOldVersion;
+		__oldPatternName = oldPatternName;
 		m_sOldAuthor = sOldAuthor;
 		__oldPatternInfo = oldPatternInfo;
 		m_oldLicense = oldLicense;
 		m_oldTags = oldTags;
-		m_nNewVersion =  nNewVersion;
+		m_nNewVersion = nNewVersion;
 		__newPatternName = newPatternName;
 		m_sNewAuthor = sNewAuthor;
 		__newPatternInfo = newPatternInfo;
@@ -262,7 +271,7 @@ class SE_insertPatternAction : public QUndoCommand {
 				m_nPatternPosition, m_type == Type::Replace
 			);
 		}
-	    else {
+		else {
 			H2Core::CoreActionController::removePattern( m_nPatternPosition );
 		}
 	}
@@ -270,8 +279,7 @@ class SE_insertPatternAction : public QUndoCommand {
 	{
 		H2Core::CoreActionController::setPattern(
 			std::make_shared<H2Core::Pattern>( m_pNewPattern ),
-			m_nPatternPosition,
-			m_type == Type::Replace
+			m_nPatternPosition, m_type == Type::Replace
 		);
 	}
 
@@ -283,56 +291,69 @@ class SE_insertPatternAction : public QUndoCommand {
 };
 
 class SE_addOrRemovePatternCellAction : public QUndoCommand {
-	public:
-		SE_addOrRemovePatternCellAction( const H2Core::GridPoint& gridPoint,
-										 Editor::Action action,
-										 Editor::ActionModifier modifier )
-			: m_gridPoint( gridPoint )
-			, m_action( action )
-			, m_modifier( modifier ) {
-			const auto pCommonStrings =
-				HydrogenApp::get_instance()->getCommonStrings();
-			if ( ( action == Editor::Action::Toggle ) ||
-				 ( action == Editor::Action::Add ) ) {
-				setText( pCommonStrings->getActionTogglePatternCells() );
-			}
-			else if ( action == Editor::Action::Delete ) {
-				setText( pCommonStrings->getActionDeletePatternCells() );
-			}
-			else {
-				setText( QString( "Performing [%1] on pattern cell [%2]" )
+   public:
+	SE_addOrRemovePatternCellAction(
+		const H2Core::GridPoint& gridPoint,
+		Editor::Action action,
+		Editor::ActionModifier modifier
+	)
+		: m_gridPoint( gridPoint ), m_action( action ), m_modifier( modifier )
+	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		if ( ( action == Editor::Action::Toggle ) ||
+			 ( action == Editor::Action::Add ) ) {
+			setText( pCommonStrings->getActionTogglePatternCells() );
+		}
+		else if ( action == Editor::Action::Delete ) {
+			setText( pCommonStrings->getActionDeletePatternCells() );
+		}
+		else {
+			setText( QString( "Performing [%1] on pattern cell [%2]" )
 						 .arg( Editor::actionToQString( action ) )
 						 .arg( gridPoint.toQString() ) );
-			}
 		}
-		virtual void redo() {
-			HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()
-				->addOrRemovePatternCellAction(
-					m_gridPoint, m_action, m_modifier );
-		}
-		virtual void undo() {
-			// The side effect of the modifier is only triggered once.
-			m_modifier = Editor::ActionModifier::None;
-			HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()
-				->addOrRemovePatternCellAction(
-					m_gridPoint, Editor::undoAction( m_action ), m_modifier );
-		}
-	private:
-		H2Core::GridPoint m_gridPoint;
-		Editor::Action m_action;
-		Editor::ActionModifier m_modifier;
-};
+	}
+	virtual void redo()
+	{
+		HydrogenApp::get_instance()
+			->getSongEditorPanel()
+			->getSongEditor()
+			->addOrRemovePatternCellAction( m_gridPoint, m_action, m_modifier );
+	}
+	virtual void undo()
+	{
+		// The side effect of the modifier is only triggered once.
+		m_modifier = Editor::ActionModifier::None;
+		HydrogenApp::get_instance()
+			->getSongEditorPanel()
+			->getSongEditor()
+			->addOrRemovePatternCellAction(
+				m_gridPoint, Editor::undoAction( m_action ), m_modifier
+			);
+	}
 
+   private:
+	H2Core::GridPoint m_gridPoint;
+	Editor::Action m_action;
+	Editor::ActionModifier m_modifier;
+};
 
 // ~song editor commands
 //=====================================================================================================================================
-//time line commands
+// time line commands
 
 /** \ingroup docGUI*/
-class SE_editTimelineAction : public QUndoCommand
-{
-public:
-	SE_editTimelineAction( int nOldColumn, int nNewColumn, float fOldBpm, float fNewBpm, bool bTempoMarkerPresent ){
+class SE_editTimelineAction : public QUndoCommand {
+   public:
+	SE_editTimelineAction(
+		int nOldColumn,
+		int nNewColumn,
+		float fOldBpm,
+		float fNewBpm,
+		bool bTempoMarkerPresent
+	)
+	{
 		setText( QObject::tr( "Edit tempo marker" ) );
 		m_nOldColumn = nOldColumn;
 		m_nNewColumn = nNewColumn;
@@ -340,28 +361,38 @@ public:
 		m_fNewBpm = fNewBpm;
 		m_bTempoMarkerPresent = bTempoMarkerPresent;
 	}
-	virtual void undo() {
-		if ( m_bTempoMarkerPresent ){
+	virtual void undo()
+	{
+		if ( m_bTempoMarkerPresent ) {
 			if ( m_nOldColumn != m_nNewColumn ) {
 				H2Core::CoreActionController::deleteTempoMarker( m_nNewColumn );
 			}
-			H2Core::CoreActionController::addTempoMarker( m_nOldColumn, m_fOldBpm );
-		} else {
+			H2Core::CoreActionController::addTempoMarker(
+				m_nOldColumn, m_fOldBpm
+			);
+		}
+		else {
 			H2Core::CoreActionController::deleteTempoMarker( m_nNewColumn );
 		}
-		HydrogenApp::get_instance()->getSongEditorPanel()->
-			getSongEditorPositionRuler()->updateEditor();
+		HydrogenApp::get_instance()
+			->getSongEditorPanel()
+			->getSongEditorPositionRuler()
+			->updateEditor();
 	}
 
-	virtual void redo() {
+	virtual void redo()
+	{
 		if ( m_nOldColumn != m_nNewColumn ) {
 			H2Core::CoreActionController::deleteTempoMarker( m_nOldColumn );
 		}
 		H2Core::CoreActionController::addTempoMarker( m_nNewColumn, m_fNewBpm );
-		HydrogenApp::get_instance()->getSongEditorPanel()->
-			getSongEditorPositionRuler()->updateEditor();
+		HydrogenApp::get_instance()
+			->getSongEditorPanel()
+			->getSongEditorPositionRuler()
+			->updateEditor();
 	}
-private:
+
+   private:
 	int m_nOldColumn;
 	int m_nNewColumn;
 	float m_fOldBpm;
@@ -370,57 +401,72 @@ private:
 };
 
 /** \ingroup docGUI*/
-class SE_deleteTimelineAction : public QUndoCommand
-{
-public:
-	SE_deleteTimelineAction( int nColumn, float fBpm ){
+class SE_deleteTimelineAction : public QUndoCommand {
+   public:
+	SE_deleteTimelineAction( int nColumn, float fBpm )
+	{
 		setText( QObject::tr( "Delete tempo marker" ) );
 		m_nColumn = nColumn;
 		m_fBpm = fBpm;
 	}
-	virtual void undo() {
+	virtual void undo()
+	{
 		H2Core::CoreActionController::addTempoMarker( m_nColumn, m_fBpm );
-		HydrogenApp::get_instance()->getSongEditorPanel()->
-			getSongEditorPositionRuler()->updateEditor();
+		HydrogenApp::get_instance()
+			->getSongEditorPanel()
+			->getSongEditorPositionRuler()
+			->updateEditor();
 	}
 
-	virtual void redo() {
+	virtual void redo()
+	{
 		H2Core::CoreActionController::deleteTempoMarker( m_nColumn );
-		HydrogenApp::get_instance()->getSongEditorPanel()->
-			getSongEditorPositionRuler()->updateEditor();
+		HydrogenApp::get_instance()
+			->getSongEditorPanel()
+			->getSongEditorPositionRuler()
+			->updateEditor();
 	}
-private:
+
+   private:
 	int m_nColumn;
 	float m_fBpm;
 };
 
 /** \ingroup docGUI*/
-class SE_editTagAction : public QUndoCommand
-{
-public:
-	SE_editTagAction( const QString& sText, const QString& sOldText, int nPosition ){
+class SE_editTagAction : public QUndoCommand {
+   public:
+	SE_editTagAction(
+		const QString& sText,
+		const QString& sOldText,
+		int nPosition
+	)
+	{
 		setText( QObject::tr( "Edit timeline tag" ) );
 		m_sText = sText;
 		m_sOldText = sOldText;
 		m_nPosition = nPosition;
-
 	}
-	virtual void undo() {
-		if ( ! m_sOldText.isEmpty() ){
+	virtual void undo()
+	{
+		if ( !m_sOldText.isEmpty() ) {
 			H2Core::CoreActionController::addTag( m_nPosition, m_sOldText );
-		} else {
+		}
+		else {
 			H2Core::CoreActionController::deleteTag( m_nPosition );
 		}
 	}
 
-	virtual void redo() {
-		if ( ! m_sText.isEmpty() ){
+	virtual void redo()
+	{
+		if ( !m_sText.isEmpty() ) {
 			H2Core::CoreActionController::addTag( m_nPosition, m_sText );
-		} else {
+		}
+		else {
 			H2Core::CoreActionController::deleteTag( m_nPosition );
 		}
 	}
-private:
+
+   private:
 	QString m_sText;
 	QString m_sOldText;
 	int m_nPosition;
@@ -448,29 +494,29 @@ class SE_tempoChangeAction : public QUndoCommand {
 
 // ~time line commands
 //=====================================================================================================================================
-//pattern editor commands
+// pattern editor commands
 
 /** \ingroup docGUI*/
-class SE_addOrRemoveNoteAction : public QUndoCommand
-{
-public:
-	SE_addOrRemoveNoteAction( int nColumn,
-							  H2Core::Instrument::Id id,
-							  const H2Core::Instrument::Type& sType,
-							  int nPatternNumber,
-							  int nOldLength,
-							  float fOldVelocity,
-							  float fOldPan,
-							  float fOldLeadLag,
-							  H2Core::Note::Key oldKey,
-							  H2Core::Note::Octave oldOctave,
-							  float fOldProbability,
-							  Editor::Action action,
-							  bool bIsNoteOff,
-							  bool bIsMappedToDrumkit,
-							  Editor::ActionModifier modifier =
-							  Editor::ActionModifier::None
- ){
+class SE_addOrRemoveNoteAction : public QUndoCommand {
+   public:
+	SE_addOrRemoveNoteAction(
+		int nColumn,
+		H2Core::Instrument::Id id,
+		const H2Core::Instrument::Type& sType,
+		int nPatternNumber,
+		int nOldLength,
+		float fOldVelocity,
+		float fOldPan,
+		float fOldLeadLag,
+		H2Core::Note::Key oldKey,
+		H2Core::Note::Octave oldOctave,
+		float fOldProbability,
+		Editor::Action action,
+		bool bIsNoteOff,
+		bool bIsMappedToDrumkit,
+		Editor::ActionModifier modifier = Editor::ActionModifier::None
+	)
+	{
 		if ( action == Editor::Action::Delete ) {
 			setText( QString( "%1 [column: %2, id: %3, type: %4, pattern: %5]" )
 						 .arg( QObject::tr( "Delete note" ) )
@@ -503,43 +549,28 @@ public:
 		m_bIsMappedToDrumkit = bIsMappedToDrumkit;
 		m_modifier = modifier;
 	}
-	virtual void undo() {
-		PatternEditor::addOrRemoveNoteAction( m_nColumn,
-											  m_id,
-											  m_sType,
-											  m_nPatternNumber,
-											  m_nOldLength,
-											  m_fOldVelocity,
-											  m_fOldPan,
-											  m_fOldLeadLag,
-											  m_oldKey,
-											  m_oldOctave,
-											  m_fOldProbability,
-											  Editor::undoAction( m_action ),
-											  m_bIsNoteOff,
-											  m_bIsMappedToDrumkit,
-											  m_modifier );
+	virtual void undo()
+	{
+		PatternEditor::addOrRemoveNoteAction(
+			m_nColumn, m_id, m_sType, m_nPatternNumber, m_nOldLength,
+			m_fOldVelocity, m_fOldPan, m_fOldLeadLag, m_oldKey, m_oldOctave,
+			m_fOldProbability, Editor::undoAction( m_action ), m_bIsNoteOff,
+			m_bIsMappedToDrumkit, m_modifier
+		);
 	}
-	virtual void redo() {
-		PatternEditor::addOrRemoveNoteAction( m_nColumn,
-											  m_id,
-											  m_sType,
-											  m_nPatternNumber,
-											  m_nOldLength,
-											  m_fOldVelocity,
-											  m_fOldPan,
-											  m_fOldLeadLag,
-											  m_oldKey,
-											  m_oldOctave,
-											  m_fOldProbability,
-											  m_action,
-											  m_bIsNoteOff,
-											  m_bIsMappedToDrumkit,
-											  m_modifier );
+	virtual void redo()
+	{
+		PatternEditor::addOrRemoveNoteAction(
+			m_nColumn, m_id, m_sType, m_nPatternNumber, m_nOldLength,
+			m_fOldVelocity, m_fOldPan, m_fOldLeadLag, m_oldKey, m_oldOctave,
+			m_fOldProbability, m_action, m_bIsNoteOff, m_bIsMappedToDrumkit,
+			m_modifier
+		);
 		// Only on the first redo the corresponding action is triggered.
 		m_modifier = Editor::ActionModifier::None;
 	}
-private:
+
+   private:
 	int m_nColumn;
 	H2Core::Instrument::Id m_id;
 	H2Core::Instrument::Type m_sType;
@@ -559,12 +590,16 @@ private:
 
 // Deselect some notes and overwrite them
 /** \ingroup docGUI*/
-class SE_patternSizeChangedAction : public QUndoCommand
-{
-public:
-	SE_patternSizeChangedAction( int nNewLength, int nOldLength,
-								 double fNewDenominator, double fOldDenominator,
-								 int nSelectedPatternNumber ) {
+class SE_patternSizeChangedAction : public QUndoCommand {
+   public:
+	SE_patternSizeChangedAction(
+		int nNewLength,
+		int nOldLength,
+		double fNewDenominator,
+		double fOldDenominator,
+		int nSelectedPatternNumber
+	)
+	{
 		setText( QObject::tr( "Altering the length of the current pattern" ) );
 		m_nNewLength = nNewLength;
 		m_nOldLength = nOldLength;
@@ -573,19 +608,25 @@ public:
 		m_nSelectedPatternNumber = nSelectedPatternNumber;
 	}
 
-	virtual void undo() {
-		HydrogenApp::get_instance()->getPatternEditorPanel()
-			->patternSizeChangedAction( m_nOldLength, m_fOldDenominator,
-										m_nSelectedPatternNumber );
+	virtual void undo()
+	{
+		HydrogenApp::get_instance()
+			->getPatternEditorPanel()
+			->patternSizeChangedAction(
+				m_nOldLength, m_fOldDenominator, m_nSelectedPatternNumber
+			);
 	}
 
-	virtual void redo() {
-		HydrogenApp::get_instance()->getPatternEditorPanel()
-			->patternSizeChangedAction( m_nNewLength, m_fNewDenominator,
-										m_nSelectedPatternNumber );
+	virtual void redo()
+	{
+		HydrogenApp::get_instance()
+			->getPatternEditorPanel()
+			->patternSizeChangedAction(
+				m_nNewLength, m_fNewDenominator, m_nSelectedPatternNumber
+			);
 	}
 
-private:
+   private:
 	int m_nNewLength;
 	int m_nOldLength;
 	double m_fNewDenominator;
@@ -595,178 +636,175 @@ private:
 
 // Deselect some notes and overwrite them
 /** \ingroup docGUI*/
-class SE_deselectAndOverwriteNotesAction : public QUndoCommand
-{
-public:
+class SE_deselectAndOverwriteNotesAction : public QUndoCommand {
+   public:
 	SE_deselectAndOverwriteNotesAction(
-		const std::vector< std::shared_ptr<H2Core::Note> >& selected,
-		const std::vector< std::shared_ptr<H2Core::Note> >& overwritten )
-		{
-		setText( QObject::tr( "Overwrite %1 notes" ).arg( overwritten.size() ) );
+		const std::vector<std::shared_ptr<H2Core::Note> >& selected,
+		const std::vector<std::shared_ptr<H2Core::Note> >& overwritten
+	)
+	{
+		setText( QObject::tr( "Overwrite %1 notes" ).arg( overwritten.size() )
+		);
 		for ( auto ppNote : selected ) {
 			if ( ppNote != nullptr ) {
-				m_selected.push_back( std::make_shared<H2Core::Note>( ppNote ) );
+				m_selected.push_back( std::make_shared<H2Core::Note>( ppNote )
+				);
 			}
 		}
 		for ( auto ppNote : overwritten ) {
 			if ( ppNote != nullptr ) {
-				m_overwritten.push_back( std::make_shared<H2Core::Note>( ppNote ) );
+				m_overwritten.push_back( std::make_shared<H2Core::Note>( ppNote
+				) );
 			}
 		}
 	}
 
-	~SE_deselectAndOverwriteNotesAction() {
-	}
+	~SE_deselectAndOverwriteNotesAction() {}
 
-	virtual void undo() {
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()
+	virtual void undo()
+	{
+		HydrogenApp::get_instance()
+			->getPatternEditorPanel()
+			->getDrumPatternEditor()
 			->undoDeselectAndOverwriteNotes( m_selected, m_overwritten );
 	}
 
-	virtual void redo() {
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()
+	virtual void redo()
+	{
+		HydrogenApp::get_instance()
+			->getPatternEditorPanel()
+			->getDrumPatternEditor()
 			->deselectAndOverwriteNotes( m_selected, m_overwritten );
 	}
 
-private:
-	std::vector< std::shared_ptr<H2Core::Note> > m_selected;
-	std::vector< std::shared_ptr<H2Core::Note> > m_overwritten;
+   private:
+	std::vector<std::shared_ptr<H2Core::Note> > m_selected;
+	std::vector<std::shared_ptr<H2Core::Note> > m_overwritten;
 };
 
 /** \ingroup docGUI*/
-class SE_editNotePropertiesAction : public QUndoCommand
-{
-public:
-	SE_editNotePropertiesAction( const PatternEditor::Property& property,
-								 int nPatternNumber,
-								 int nColumn,
-								 H2Core::Instrument::Id id,
-								 H2Core::Instrument::Id nOldId,
-								 const H2Core::Instrument::Type& sType,
-								 const H2Core::Instrument::Type& sOldType,
-								 float fVelocity,
-								 float fOldVelocity,
-								 float fPan,
-								 float fOldPan,
-								 float fLeadLag,
-								 float fOldLeadLag,
-								 float fProbability,
-								 float fOldProbability,
-								 int nLength,
-								 int nOldLength,
-								 H2Core::Note::Key key,
-								 H2Core::Note::Key oldKey,
-								 H2Core::Note::Octave octave,
-								 H2Core::Note::Octave oldOctave ) :
-		m_property( property ),
-		m_nPatternNumber( nPatternNumber ),
-		m_nColumn( nColumn ),
-		m_id( id ),
-		m_oldId( nOldId ),
-		m_sType( sType ),
-		m_sOldType( sOldType ),
-		m_fVelocity( fVelocity ),
-		m_fOldVelocity( fOldVelocity ),
-		m_fPan( fPan ),
-		m_fOldPan( fOldPan ),
-		m_fLeadLag( fLeadLag ),
-		m_fOldLeadLag( fOldLeadLag ),
-		m_fProbability( fProbability ),
-		m_fOldProbability( fOldProbability ),
-		m_nLength( nLength ),
-		m_nOldLength( nOldLength ),
-		m_key( key ),
-		m_oldKey( oldKey ),
-		m_octaveKey( octave ),
-		m_oldOctaveKey( oldOctave ) {
-
+class SE_editNotePropertiesAction : public QUndoCommand {
+   public:
+	SE_editNotePropertiesAction(
+		const PatternEditor::Property& property,
+		int nPatternNumber,
+		int nColumn,
+		H2Core::Instrument::Id id,
+		H2Core::Instrument::Id nOldId,
+		const H2Core::Instrument::Type& sType,
+		const H2Core::Instrument::Type& sOldType,
+		float fVelocity,
+		float fOldVelocity,
+		float fPan,
+		float fOldPan,
+		float fLeadLag,
+		float fOldLeadLag,
+		float fProbability,
+		float fOldProbability,
+		int nLength,
+		int nOldLength,
+		H2Core::Note::Key key,
+		H2Core::Note::Key oldKey,
+		H2Core::Note::Octave octave,
+		H2Core::Note::Octave oldOctave
+	)
+		: m_property( property ),
+		  m_nPatternNumber( nPatternNumber ),
+		  m_nColumn( nColumn ),
+		  m_id( id ),
+		  m_oldId( nOldId ),
+		  m_sType( sType ),
+		  m_sOldType( sOldType ),
+		  m_fVelocity( fVelocity ),
+		  m_fOldVelocity( fOldVelocity ),
+		  m_fPan( fPan ),
+		  m_fOldPan( fOldPan ),
+		  m_fLeadLag( fLeadLag ),
+		  m_fOldLeadLag( fOldLeadLag ),
+		  m_fProbability( fProbability ),
+		  m_fOldProbability( fOldProbability ),
+		  m_nLength( nLength ),
+		  m_nOldLength( nOldLength ),
+		  m_key( key ),
+		  m_oldKey( oldKey ),
+		  m_octaveKey( octave ),
+		  m_oldOctaveKey( oldOctave )
+	{
 		setText( QObject::tr( "Edit note property %1" )
-				 .arg( PatternEditor::propertyToQString( property ) ) );
+					 .arg( PatternEditor::propertyToQString( property ) ) );
 	}
-	virtual void undo() {
-		PatternEditor::editNotePropertiesAction( m_property,
-												 m_nPatternNumber,
-												 m_nColumn,
-												 m_id,
-												 m_oldId,
-												 m_sType,
-												 m_sOldType,
-												 m_fOldVelocity,
-												 m_fOldPan,
-												 m_fOldLeadLag,
-												 m_fOldProbability,
-												 m_nOldLength,
-												 m_oldKey,
-												 m_key,
-												 m_oldOctaveKey,
-												 m_octaveKey );
+	virtual void undo()
+	{
+		PatternEditor::editNotePropertiesAction(
+			m_property, m_nPatternNumber, m_nColumn, m_id, m_oldId, m_sType,
+			m_sOldType, m_fOldVelocity, m_fOldPan, m_fOldLeadLag,
+			m_fOldProbability, m_nOldLength, m_oldKey, m_key, m_oldOctaveKey,
+			m_octaveKey
+		);
 	}
-	virtual void redo() {
-		PatternEditor::editNotePropertiesAction( m_property,
-												 m_nPatternNumber,
-												 m_nColumn,
-												 m_oldId,
-												 m_id,
-												 m_sOldType,
-												 m_sType,
-												 m_fVelocity,
-												 m_fPan,
-												 m_fLeadLag,
-												 m_fProbability,
-												 m_nLength,
-												 m_key,
-												 m_oldKey,
-												 m_octaveKey,
-												 m_oldOctaveKey );
+	virtual void redo()
+	{
+		PatternEditor::editNotePropertiesAction(
+			m_property, m_nPatternNumber, m_nColumn, m_oldId, m_id, m_sOldType,
+			m_sType, m_fVelocity, m_fPan, m_fLeadLag, m_fProbability, m_nLength,
+			m_key, m_oldKey, m_octaveKey, m_oldOctaveKey
+		);
 	}
 
-private:
-		PatternEditor::Property m_property;
-		int m_nPatternNumber;
-		int m_nColumn;
-		/** Row selected in #DrumPatternEditor the moment the action was
-		 * created. */
-		H2Core::Instrument::Id m_id;
-		H2Core::Instrument::Id m_oldId;
-		H2Core::Instrument::Type m_sType;
-		H2Core::Instrument::Type m_sOldType;
-		float m_fVelocity;
-		float m_fOldVelocity;
-		float m_fPan;
-		float m_fOldPan;
-		float m_fLeadLag;
-		float m_fOldLeadLag;
-		float m_fProbability;
-		float m_fOldProbability;
-		int m_nLength;
-		int m_nOldLength;
-		H2Core::Note::Key m_key;
-		H2Core::Note::Key m_oldKey;
-		H2Core::Note::Octave m_octaveKey;
-		H2Core::Note::Octave m_oldOctaveKey;
+   private:
+	PatternEditor::Property m_property;
+	int m_nPatternNumber;
+	int m_nColumn;
+	/** Row selected in #DrumPatternEditor the moment the action was
+	 * created. */
+	H2Core::Instrument::Id m_id;
+	H2Core::Instrument::Id m_oldId;
+	H2Core::Instrument::Type m_sType;
+	H2Core::Instrument::Type m_sOldType;
+	float m_fVelocity;
+	float m_fOldVelocity;
+	float m_fPan;
+	float m_fOldPan;
+	float m_fLeadLag;
+	float m_fOldLeadLag;
+	float m_fProbability;
+	float m_fOldProbability;
+	int m_nLength;
+	int m_nOldLength;
+	H2Core::Note::Key m_key;
+	H2Core::Note::Key m_oldKey;
+	H2Core::Note::Octave m_octaveKey;
+	H2Core::Note::Octave m_oldOctaveKey;
 };
 
 /** \ingroup docGUI*/
-class SE_moveInstrumentAction : public QUndoCommand
-{
-public:
-	SE_moveInstrumentAction(  int nSourceIndex, int nTargetIndex  ){
-		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+class SE_moveInstrumentAction : public QUndoCommand {
+   public:
+	SE_moveInstrumentAction( int nSourceIndex, int nTargetIndex )
+	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
 		setText( QString( "%1 [%2] -> [%3]" )
-				 .arg( pCommonStrings->getActionMoveInstrument() )
-				 .arg( nSourceIndex ) .arg( nTargetIndex ) );
+					 .arg( pCommonStrings->getActionMoveInstrument() )
+					 .arg( nSourceIndex )
+					 .arg( nTargetIndex ) );
 		m_nSourceIndex = nSourceIndex;
 		m_nTargetIndex = nTargetIndex;
 	}
-	virtual void undo() {
+	virtual void undo()
+	{
 		H2Core::CoreActionController::moveInstrument(
-			m_nTargetIndex, m_nSourceIndex );
+			m_nTargetIndex, m_nSourceIndex
+		);
 	}
-	virtual void redo() {
+	virtual void redo()
+	{
 		H2Core::CoreActionController::moveInstrument(
-			m_nSourceIndex, m_nTargetIndex );
+			m_nSourceIndex, m_nTargetIndex
+		);
 	}
-private:
+
+   private:
 	int m_nSourceIndex;
 	int m_nTargetIndex;
 };
@@ -774,34 +812,42 @@ private:
 // ~pattern editor commands
 
 class SE_switchDrumkitAction : public QUndoCommand {
-	public:
-		/** Switching entire drumkits is a rather clean way to accomplish a
-		 * number of different task. To still display the proper text in the
-		 * undo history, this enum is used to indicate the intention calling
-		 * this undo action. */
-		enum class Type {
-			/** Actual switching of two fully-fledge kits */
-			SwitchDrumkit = 0,
-			/** Replace the current kit with an empty one */
-			NewDrumkit = 1,
-			/** Editing properties of the current song's kit. */
-			EditProperties = 2
-		};
+   public:
+	/** Switching entire drumkits is a rather clean way to accomplish a
+	 * number of different task. To still display the proper text in the
+	 * undo history, this enum is used to indicate the intention calling
+	 * this undo action. */
+	enum class Type {
+		/** Actual switching of two fully-fledge kits */
+		SwitchDrumkit = 0,
+		/** Replace the current kit with an empty one */
+		NewDrumkit = 1,
+		/** Editing properties of the current song's kit. */
+		EditProperties = 2
+	};
 
-		SE_switchDrumkitAction( std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
-								std::shared_ptr<H2Core::Drumkit> pOldDrumkit,
-								const Type& type,
-								const QString& sComponentName = "" ) :
-			m_pNewDrumkit( pNewDrumkit ),
-			m_pOldDrumkit( pOldDrumkit )
-		{
-			const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-				switch ( type ) {
+	SE_switchDrumkitAction(
+		std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
+		std::shared_ptr<H2Core::Drumkit> pOldDrumkit,
+		const Type& type,
+		const QString& sComponentName = ""
+	)
+		: m_pNewDrumkit( pNewDrumkit ), m_pOldDrumkit( pOldDrumkit )
+	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		switch ( type ) {
 			case Type::SwitchDrumkit:
 				setText( QString( "%1: [%2] -> [%3]" )
-						 .arg( pCommonStrings->getActionSwitchDrumkit() )
-						 .arg( pOldDrumkit != nullptr ? pOldDrumkit->getName() : "nullptr" )
-						 .arg( pNewDrumkit != nullptr ? pNewDrumkit->getName() : "nullptr" ) );
+							 .arg( pCommonStrings->getActionSwitchDrumkit() )
+							 .arg(
+								 pOldDrumkit != nullptr ? pOldDrumkit->getName()
+														: "nullptr"
+							 )
+							 .arg(
+								 pNewDrumkit != nullptr ? pNewDrumkit->getName()
+														: "nullptr"
+							 ) );
 				break;
 			case Type::NewDrumkit:
 				setText( pCommonStrings->getActionNewDrumkit() );
@@ -809,93 +855,124 @@ class SE_switchDrumkitAction : public QUndoCommand {
 			case Type::EditProperties:
 				setText( pCommonStrings->getActionEditDrumkitProperties() );
 				break;
-			}
 		}
-		virtual void undo() {
-			SoundLibraryPanel::switchDrumkit( m_pOldDrumkit, m_pNewDrumkit );
-		}
-		virtual void redo() {
-			SoundLibraryPanel::switchDrumkit( m_pNewDrumkit, m_pOldDrumkit );
-		}
+	}
+	virtual void undo()
+	{
+		SoundLibraryPanel::switchDrumkit( m_pOldDrumkit, m_pNewDrumkit );
+	}
+	virtual void redo()
+	{
+		SoundLibraryPanel::switchDrumkit( m_pNewDrumkit, m_pOldDrumkit );
+	}
 
-	private:
-		std::shared_ptr<H2Core::Drumkit> m_pNewDrumkit;
-		std::shared_ptr<H2Core::Drumkit> m_pOldDrumkit;
+   private:
+	std::shared_ptr<H2Core::Drumkit> m_pNewDrumkit;
+	std::shared_ptr<H2Core::Drumkit> m_pOldDrumkit;
 };
 
 /** \ingroup docGUI*/
 class SE_addInstrumentAction : public QUndoCommand {
-	public:
-		enum class Type {
-			/** Create and add a new instrument */
-			AddEmptyInstrument = 0,
-			/** Add an instrument from another drumkit. */
-			DropInstrument = 1,
-			/** Duplicate an instrument already present in the drumkit */
-			DuplicateInstrument = 2
-		};
-		SE_addInstrumentAction( std::shared_ptr<H2Core::Instrument> pInstrument,
-								int nIndex, Type type )
-		: m_pInstrument( pInstrument )
-		, m_nIndex( nIndex ) {
-			const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-				switch ( type ) {
+   public:
+	enum class Type {
+		/** Create and add a new instrument */
+		AddEmptyInstrument = 0,
+		/** Add an instrument from another drumkit. */
+		DropInstrument = 1,
+		/** Duplicate an instrument already present in the drumkit */
+		DuplicateInstrument = 2
+	};
+	SE_addInstrumentAction(
+		std::shared_ptr<H2Core::Instrument> pInstrument,
+		int nIndex,
+		Type type,
+		long* pEventId
+	)
+		: m_pInstrument( pInstrument ),
+		  m_nIndex( nIndex ),
+		  m_pEventId( pEventId )
+	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		switch ( type ) {
 			case Type::AddEmptyInstrument:
 				setText( pCommonStrings->getActionAddInstrument() );
 				break;
 			case Type::DropInstrument:
 				setText( QString( "%1 [%2]" )
-						 .arg( pCommonStrings->getActionDropInstrument() )
-						 .arg( pInstrument != nullptr ? pInstrument->getName() :
-							   "nullptr" ) );
+							 .arg( pCommonStrings->getActionDropInstrument() )
+							 .arg(
+								 pInstrument != nullptr ? pInstrument->getName()
+														: "nullptr"
+							 ) );
 			case Type::DuplicateInstrument:
 				setText( QString( "%1 [%2]" )
-						 .arg( pCommonStrings->getActionDuplicateInstrument() )
-						 .arg( pInstrument != nullptr ? pInstrument->getName() :
-							   "nullptr" ) );
+							 .arg( pCommonStrings->getActionDuplicateInstrument(
+							 ) )
+							 .arg(
+								 pInstrument != nullptr ? pInstrument->getName()
+														: "nullptr"
+							 ) );
 				break;
 			default:
 				___ERRORLOG( QString( "Unknown type [%1]" )
-							 .arg( static_cast<int>(type) ) );
-			}
+								 .arg( static_cast<int>( type ) ) );
 		}
+	}
 
-		virtual void undo() {
-			H2Core::CoreActionController::removeInstrument( m_pInstrument );
-		}
-		virtual void redo() {
-			H2Core::CoreActionController::addInstrument( m_pInstrument, m_nIndex );
-		}
-	private:
-		std::shared_ptr<H2Core::Instrument> m_pInstrument;
-		/** `-1` indicates that the instrument will be appended. */
-		int m_nIndex;
+	virtual void undo()
+	{
+		H2Core::CoreActionController::removeInstrument(
+			m_pInstrument, m_pEventId
+		);
+	}
+	virtual void redo()
+	{
+		H2Core::CoreActionController::addInstrument(
+			m_pInstrument, m_nIndex, m_pEventId
+		);
+	}
+
+   private:
+	std::shared_ptr<H2Core::Instrument> m_pInstrument;
+	/** `-1` indicates that the instrument will be appended. */
+	int m_nIndex;
+	long* m_pEventId;
 };
 
 /** \ingroup docGUI*/
-class SE_deleteInstrumentAction : public QUndoCommand
-{
-public:
-	SE_deleteInstrumentAction( std::shared_ptr<H2Core::Instrument> pInstrument,
-							   int nIndex )
-		: m_pInstrument( pInstrument )
-		, m_nIndex( nIndex ) {
-		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+class SE_deleteInstrumentAction : public QUndoCommand {
+   public:
+	SE_deleteInstrumentAction(
+		std::shared_ptr<H2Core::Instrument> pInstrument,
+		int nIndex
+	)
+		: m_pInstrument( pInstrument ), m_nIndex( nIndex )
+	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
 		setText( QString( "%1 [%2]" )
-				 .arg( pCommonStrings->getActionDeleteInstrument() )
-				 .arg( pInstrument->getName() ) );
+					 .arg( pCommonStrings->getActionDeleteInstrument() )
+					 .arg( pInstrument->getName() ) );
 	}
-	~SE_deleteInstrumentAction(){}
+	~SE_deleteInstrumentAction() {}
 
-	virtual void undo() {
-		H2Core::CoreActionController::addInstrument( m_pInstrument, m_nIndex );
+	virtual void undo()
+	{
+		H2Core::CoreActionController::addInstrument(
+			m_pInstrument, m_nIndex, nullptr
+		);
 	}
-	virtual void redo() {
-		H2Core::CoreActionController::removeInstrument( m_pInstrument );
+	virtual void redo()
+	{
+		H2Core::CoreActionController::removeInstrument(
+			m_pInstrument, nullptr
+		);
 	}
-	private:
-		std::shared_ptr<H2Core::Instrument> m_pInstrument;
-		int m_nIndex;
+
+   private:
+	std::shared_ptr<H2Core::Instrument> m_pInstrument;
+	int m_nIndex;
 };
 
 /** Instruments are self-contained units within a #H2Core::Drumkit. Each
@@ -906,170 +983,163 @@ public:
  * in the drumkit. This way the one stored in the #H2Core::Note within the queue
  * of #H2Core::AudioEngine and #H2Core::Sampler is still valid. */
 class SE_replaceInstrumentAction : public QUndoCommand {
-	public:
-	 enum class Type {
-		 /** Replace the instrument with a copy containing an additional
-		  * component */
-		 AddComponent,
-		 /** Replace the instrument with a copy containing a duplicate of an
-			already existing component. */
-		 DuplicateComponent,
-		 /** Replace the instrument with a copy from which one component was
-		  * removed. */
-		 DeleteComponent,
-		 /** There must be at least one instrument in a drumkit. Instead of
-		  * the deleting the last one, it will be replaced by an empty
-		  * one. */
-		 DeleteLastInstrument,
-		 /** This could definitely be done more efficiently. But compared to
-		  * altering other instrument parameters, its name will most probably
-		  * only change very rarely. */
-		 RenameInstrument,
-		 /** At least one layer of one component was added. */
-		 AddLayer,
-		 /** The sample of one layer was replaced with a different one. */
-		 ReplaceLayer,
-		 /** An identical copy of the currently selected layer will be appended.
-		  */
-		 DuplicateLayer,
-		 /** At least one layer of one component was deleted. */
-		 DeleteLayer,
-		 /** At least one layer of one component was editing via the
-		  * SampleEditor. */
-		 EditLayer,
-		 /** The position of a layer was changed using drag'n'drop. */
-		 MoveLayer,
-         /** Load a different sample as playback track. */
-         AddPlaybackTrack,
-         /** Drop the current playback track. */
-         DeletePlaybackTrack,
-         /** Change the playback track instrument using the SampleEditor. */
-         EditPlaybackTrack
-	 };
+   public:
+	enum class Type {
+		/** Replace the instrument with a copy containing an additional
+		 * component */
+		AddComponent,
+		/** Replace the instrument with a copy containing a duplicate of an
+		   already existing component. */
+		DuplicateComponent,
+		/** Replace the instrument with a copy from which one component was
+		 * removed. */
+		DeleteComponent,
+		/** There must be at least one instrument in a drumkit. Instead of
+		 * the deleting the last one, it will be replaced by an empty
+		 * one. */
+		DeleteLastInstrument,
+		/** This could definitely be done more efficiently. But compared to
+		 * altering other instrument parameters, its name will most probably
+		 * only change very rarely. */
+		RenameInstrument,
+		/** At least one layer of one component was added. */
+		AddLayer,
+		/** The sample of one layer was replaced with a different one. */
+		ReplaceLayer,
+		/** An identical copy of the currently selected layer will be appended.
+		 */
+		DuplicateLayer,
+		/** At least one layer of one component was deleted. */
+		DeleteLayer,
+		/** At least one layer of one component was editing via the
+		 * SampleEditor. */
+		EditLayer,
+		/** The position of a layer was changed using drag'n'drop. */
+		MoveLayer,
+		/** Load a different sample as playback track. */
+		AddPlaybackTrack,
+		/** Drop the current playback track. */
+		DeletePlaybackTrack,
+		/** Change the playback track instrument using the SampleEditor. */
+		EditPlaybackTrack
+	};
 
-	 SE_replaceInstrumentAction(
-		 std::shared_ptr<H2Core::Instrument> pNew,
-		 std::shared_ptr<H2Core::Instrument> pOld,
-		 SE_replaceInstrumentAction::Type type,
-		 const QString& sName,
-		 const QString& sOldName = ""
-	 )
-		 : m_pNew( pNew ), m_pOld( pOld )
-	 {
-		 const auto pCommonStrings =
-			 HydrogenApp::get_instance()->getCommonStrings();
-		 switch ( type ) {
-			 case Type::AddComponent:
-				 setText( QString( "%1 [%2]" )
-							  .arg( pCommonStrings->getActionAddComponent() )
-							  .arg( sName ) );
-				 break;
-			 case Type::DuplicateComponent:
-				 setText( QString( "%1 [%2]" )
-							  .arg( pCommonStrings->getActionDuplicateComponent(
-							  ) )
-							  .arg( sName ) );
-				 break;
-			 case Type::DeleteComponent:
-				 setText( QString( "%1 [%2]" )
-							  .arg( pCommonStrings->getActionDeleteComponent() )
-							  .arg( sName ) );
-				 break;
-			 case Type::DeleteLastInstrument:
-				 setText( QString( "%1 [%2]" )
-							  .arg( pCommonStrings->getActionDeleteInstrument()
-							  )
-							  .arg( sName ) );
-				 break;
-			 case Type::RenameInstrument:
-				 setText( QString( "%1 [%2] -> [%3]" )
-							  .arg( pCommonStrings->getActionRenameInstrument()
-							  )
-							  .arg( sOldName )
-							  .arg( sName ) );
-				 break;
-			 case Type::AddLayer:
-				 setText(
-					 QString( "%1 [%2]: [%3]" )
-						 .arg( pCommonStrings->getActionAddInstrumentLayer() )
-						 .arg( pNew != nullptr ? pNew->getName() : "nullptr" )
-						 .arg( sName )
-				 );
-			 case Type::ReplaceLayer:
-				 setText(
-					 QString( "%1 [%2]: [%3]" )
-						 .arg( pCommonStrings->getActionReplaceInstrumentLayer()
-						 )
-						 .arg( pNew != nullptr ? pNew->getName() : "nullptr" )
-						 .arg( sName )
-				 );
-			 case Type::DuplicateLayer:
-				 setText(
-					 QString( "%1 [%2]" )
-						 .arg(
-							 pCommonStrings->getActionDuplicateInstrumentLayer()
-						 )
-						 .arg( pNew != nullptr ? pNew->getName() : "nullptr" )
-				 );
-			 case Type::DeleteLayer:
-				 setText(
-					 QString( "%1 [%2]: [%3]" )
-						 .arg( pCommonStrings->getActionDeleteInstrumentLayer()
-						 )
-						 .arg( pNew != nullptr ? pNew->getName() : "nullptr" )
-						 .arg( sName )
-				 );
-			 case Type::EditLayer:
-				 setText(
-					 QString( "%1 [%2]: [%3]" )
-						 .arg( pCommonStrings->getActionEditInstrumentLayer() )
-						 .arg( pNew != nullptr ? pNew->getName() : "nullptr" )
-						 .arg( sName )
-				 );
-				 break;
-			 case Type::MoveLayer:
-				 setText(
-					 QString( "%1 [%2]" )
-						 .arg( pCommonStrings->getActionMoveInstrumentLayer() )
-						 .arg( sName )
-				 );
-				 break;
-			 case Type::AddPlaybackTrack:
-				 setText(
-					 QString( "%1 [%2]" )
-						 .arg( pCommonStrings->getActionAddPlaybackTrack() )
-						 .arg( sName )
-				 );
-				 break;
-			 case Type::DeletePlaybackTrack:
-				 setText(
-					 QString( "%1 [%2]" )
-						 .arg( pCommonStrings->getActionDeletePlaybackTrack() )
-						 .arg( sName )
-				 );
-				 break;
-			 case Type::EditPlaybackTrack:
-				 setText(
-					 QString( "%1 [%2]" )
-						 .arg( pCommonStrings->getActionEditPlaybackTrack() )
-						 .arg( sName )
-				 );
-				 break;
-			 default:
-				 ___ERRORLOG( QString( "Unknown type [%1]" )
-								  .arg( static_cast<int>( type ) ) );
-		 }
+	SE_replaceInstrumentAction(
+		std::shared_ptr<H2Core::Instrument> pNew,
+		std::shared_ptr<H2Core::Instrument> pOld,
+		SE_replaceInstrumentAction::Type type,
+		const QString& sName,
+		const QString& sOldName = ""
+	)
+		: m_pNew( pNew ), m_pOld( pOld )
+	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		switch ( type ) {
+			case Type::AddComponent:
+				setText( QString( "%1 [%2]" )
+							 .arg( pCommonStrings->getActionAddComponent() )
+							 .arg( sName ) );
+				break;
+			case Type::DuplicateComponent:
+				setText( QString( "%1 [%2]" )
+							 .arg( pCommonStrings->getActionDuplicateComponent()
+							 )
+							 .arg( sName ) );
+				break;
+			case Type::DeleteComponent:
+				setText( QString( "%1 [%2]" )
+							 .arg( pCommonStrings->getActionDeleteComponent() )
+							 .arg( sName ) );
+				break;
+			case Type::DeleteLastInstrument:
+				setText( QString( "%1 [%2]" )
+							 .arg( pCommonStrings->getActionDeleteInstrument() )
+							 .arg( sName ) );
+				break;
+			case Type::RenameInstrument:
+				setText( QString( "%1 [%2] -> [%3]" )
+							 .arg( pCommonStrings->getActionRenameInstrument() )
+							 .arg( sOldName )
+							 .arg( sName ) );
+				break;
+			case Type::AddLayer:
+				setText(
+					QString( "%1 [%2]: [%3]" )
+						.arg( pCommonStrings->getActionAddInstrumentLayer() )
+						.arg( pNew != nullptr ? pNew->getName() : "nullptr" )
+						.arg( sName )
+				);
+			case Type::ReplaceLayer:
+				setText(
+					QString( "%1 [%2]: [%3]" )
+						.arg( pCommonStrings->getActionReplaceInstrumentLayer()
+						)
+						.arg( pNew != nullptr ? pNew->getName() : "nullptr" )
+						.arg( sName )
+				);
+			case Type::DuplicateLayer:
+				setText(
+					QString( "%1 [%2]" )
+						.arg( pCommonStrings->getActionDuplicateInstrumentLayer(
+						) )
+						.arg( pNew != nullptr ? pNew->getName() : "nullptr" )
+				);
+			case Type::DeleteLayer:
+				setText(
+					QString( "%1 [%2]: [%3]" )
+						.arg( pCommonStrings->getActionDeleteInstrumentLayer() )
+						.arg( pNew != nullptr ? pNew->getName() : "nullptr" )
+						.arg( sName )
+				);
+			case Type::EditLayer:
+				setText(
+					QString( "%1 [%2]: [%3]" )
+						.arg( pCommonStrings->getActionEditInstrumentLayer() )
+						.arg( pNew != nullptr ? pNew->getName() : "nullptr" )
+						.arg( sName )
+				);
+				break;
+			case Type::MoveLayer:
+				setText( QString( "%1 [%2]" )
+							 .arg( pCommonStrings->getActionMoveInstrumentLayer(
+							 ) )
+							 .arg( sName ) );
+				break;
+			case Type::AddPlaybackTrack:
+				setText( QString( "%1 [%2]" )
+							 .arg( pCommonStrings->getActionAddPlaybackTrack() )
+							 .arg( sName ) );
+				break;
+			case Type::DeletePlaybackTrack:
+				setText( QString( "%1 [%2]" )
+							 .arg( pCommonStrings->getActionDeletePlaybackTrack(
+							 ) )
+							 .arg( sName ) );
+				break;
+			case Type::EditPlaybackTrack:
+				setText( QString( "%1 [%2]" )
+							 .arg( pCommonStrings->getActionEditPlaybackTrack()
+							 )
+							 .arg( sName ) );
+				break;
+			default:
+				___ERRORLOG( QString( "Unknown type [%1]" )
+								 .arg( static_cast<int>( type ) ) );
 		}
-		virtual void undo() {
-			H2Core::CoreActionController::replaceInstrument( m_pOld, m_pNew );
-		}
-		virtual void redo() {
-			H2Core::CoreActionController::replaceInstrument( m_pNew, m_pOld );
-		}
+	}
+	virtual void undo()
+	{
+		H2Core::CoreActionController::replaceInstrument( m_pOld, m_pNew );
+	}
+	virtual void redo()
+	{
+		H2Core::CoreActionController::replaceInstrument( m_pNew, m_pOld );
+	}
 
-	private:
-		std::shared_ptr<H2Core::Instrument> m_pNew;
-		std::shared_ptr<H2Core::Instrument> m_pOld;
+   private:
+	std::shared_ptr<H2Core::Instrument> m_pNew;
+	std::shared_ptr<H2Core::Instrument> m_pOld;
 };
 
 class SE_renameComponentAction : public QUndoCommand {
@@ -1110,10 +1180,13 @@ class SE_renameComponentAction : public QUndoCommand {
 };
 
 /** \ingroup docGUI*/
-class SE_automationPathAddPointAction : public QUndoCommand
-{
-public:
-	SE_automationPathAddPointAction( H2Core::AutomationPath *path, float x, float y)
+class SE_automationPathAddPointAction : public QUndoCommand {
+   public:
+	SE_automationPathAddPointAction(
+		H2Core::AutomationPath* path,
+		float x,
+		float y
+	)
 	{
 		setText( QObject::tr( "Add point" ) );
 		__path = path;
@@ -1136,18 +1209,21 @@ public:
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();
 	}
-private:
+
+   private:
 	H2Core::AutomationPath* __path;
 	float __x;
 	float __y;
 };
 
-
 /** \ingroup docGUI*/
-class SE_automationPathRemovePointAction : public QUndoCommand
-{
-public:
-	SE_automationPathRemovePointAction( H2Core::AutomationPath *path, float x, float y)
+class SE_automationPathRemovePointAction : public QUndoCommand {
+   public:
+	SE_automationPathRemovePointAction(
+		H2Core::AutomationPath* path,
+		float x,
+		float y
+	)
 	{
 		setText( QObject::tr( "Remove point" ) );
 		__path = path;
@@ -1170,18 +1246,23 @@ public:
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();
 	}
-private:
+
+   private:
 	H2Core::AutomationPath* __path;
 	float __x;
 	float __y;
 };
 
-
 /** \ingroup docGUI*/
-class SE_automationPathMovePointAction : public QUndoCommand
-{
-public:
-	SE_automationPathMovePointAction( H2Core::AutomationPath *path, float ox, float oy, float tx, float ty)
+class SE_automationPathMovePointAction : public QUndoCommand {
+   public:
+	SE_automationPathMovePointAction(
+		H2Core::AutomationPath* path,
+		float ox,
+		float oy,
+		float tx,
+		float ty
+	)
 	{
 		setText( QObject::tr( "Move point" ) );
 		__path = path;
@@ -1208,7 +1289,8 @@ public:
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();
 	}
-private:
+
+   private:
 	H2Core::AutomationPath* __path;
 	float __ox;
 	float __oy;
@@ -1219,68 +1301,84 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 // Playlist related actions.
 class SE_addEntryToPlaylistAction : public QUndoCommand {
-public:
-	SE_addEntryToPlaylistAction( std::shared_ptr<H2Core::PlaylistEntry> pEntry,
-								 int nIndex = -1 )
-		: m_pEntry( pEntry )
-		, m_nIndex( nIndex ){
+   public:
+	SE_addEntryToPlaylistAction(
+		std::shared_ptr<H2Core::PlaylistEntry> pEntry,
+		int nIndex = -1
+	)
+		: m_pEntry( pEntry ), m_nIndex( nIndex )
+	{
 		setText( QObject::tr( "Add song to playlist" ) );
 	}
 
-	virtual void redo() {
+	virtual void redo()
+	{
 		H2Core::CoreActionController::addToPlaylist( m_pEntry, m_nIndex );
 	}
 
-	virtual void undo() {
+	virtual void undo()
+	{
 		H2Core::CoreActionController::removeFromPlaylist( m_pEntry, m_nIndex );
 	}
-private:
+
+   private:
 	std::shared_ptr<H2Core::PlaylistEntry> m_pEntry;
 	int m_nIndex;
 };
 
 class SE_removeEntryFromPlaylistAction : public QUndoCommand {
-public:
-	SE_removeEntryFromPlaylistAction( std::shared_ptr<H2Core::PlaylistEntry> pEntry,
-									  int nIndex = -1 )
-		: m_pEntry( pEntry )
-		, m_nIndex( nIndex ) {
+   public:
+	SE_removeEntryFromPlaylistAction(
+		std::shared_ptr<H2Core::PlaylistEntry> pEntry,
+		int nIndex = -1
+	)
+		: m_pEntry( pEntry ), m_nIndex( nIndex )
+	{
 		setText( QObject::tr( "Remove song to playlist" ) );
 	}
 
-	virtual void redo() {
+	virtual void redo()
+	{
 		H2Core::CoreActionController::removeFromPlaylist( m_pEntry, m_nIndex );
 	}
 
-	virtual void undo() {
+	virtual void undo()
+	{
 		H2Core::CoreActionController::addToPlaylist( m_pEntry, m_nIndex );
 	}
-private:
+
+   private:
 	std::shared_ptr<H2Core::PlaylistEntry> m_pEntry;
 	int m_nIndex;
 };
 
 class SE_replacePlaylistAction : public QUndoCommand {
-public:
+   public:
 	SE_replacePlaylistAction( std::shared_ptr<H2Core::Playlist> pPlaylist )
-		: m_pNewPlaylist( pPlaylist ) {
+		: m_pNewPlaylist( pPlaylist )
+	{
 		setText( QObject::tr( "Replace playlist" ) );
 
 		m_pOldPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
 	}
 
-	virtual void redo() {
+	virtual void redo()
+	{
 		H2Core::CoreActionController::setPlaylist( m_pNewPlaylist );
-		HydrogenApp::get_instance()->getMainForm()->
-			setPreviousAutoSavePlaylistFile( "" );
+		HydrogenApp::get_instance()
+			->getMainForm()
+			->setPreviousAutoSavePlaylistFile( "" );
 	}
 
-	virtual void undo() {
+	virtual void undo()
+	{
 		H2Core::CoreActionController::setPlaylist( m_pOldPlaylist );
-		HydrogenApp::get_instance()->getMainForm()->
-			setPreviousAutoSavePlaylistFile( "" );
+		HydrogenApp::get_instance()
+			->getMainForm()
+			->setPreviousAutoSavePlaylistFile( "" );
 	}
-private:
+
+   private:
 	std::shared_ptr<H2Core::Playlist> m_pNewPlaylist;
 	std::shared_ptr<H2Core::Playlist> m_pOldPlaylist;
 };

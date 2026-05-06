@@ -28,6 +28,7 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/License.h>
 
@@ -35,11 +36,15 @@
 
 using namespace H2Core;
 
-SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
- : QDialog(parent)
+SongPropertiesDialog::SongPropertiesDialog(
+	QWidget* parent,
+	std::shared_ptr<Song> pSong,
+	bool bDuplicate
+)
+	: QDialog( parent ), m_pSong( pSong ), m_bDuplicate( bDuplicate )
 {
 	setupUi( this );
-	
+
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	// Show and enable maximize button. This is key when enlarging the
@@ -48,7 +53,12 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 	setWindowFlags( windowFlags() | Qt::CustomizeWindowHint |
 					Qt::WindowMinMaxButtonsHint );
 
-	setWindowTitle( tr( "Song properties" ) );
+	if ( bDuplicate ) {
+		setWindowTitle( pCommonStrings->getMenuActionDuplicate() );
+	}
+	else {
+		setWindowTitle( tr( "Song properties" ) );
+	}
 
 	// Remove size constraints
 	versionSpinBox->setFixedSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
@@ -64,13 +74,20 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 	// Allow to save the dialog by pressing Return.
 	okBtn->setFocus();
 
+    m_pPathLabel->setText( pCommonStrings->getPathDialog() );
 	versionLabel->setText( pCommonStrings->getVersionDialog() );
-
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 
 	setupLicenseComboBox( licenseComboBox );
 
 	if ( pSong != nullptr ) {
+		if ( pSong->getPath() != Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
+			// In order to allow to recover empty songs not associated with a
+			// file (path) yet from an autosave file, we assign those "empty"
+			// paths. But we do not show them in here since those paths are not
+			// actually backed by a file but only might have an associated
+			// autosave file.
+			m_pPathEdit->setText( pSong->getPath() );
+		}
 		versionSpinBox->setValue( pSong->getVersion() );
 		songNameTxt->setText( pSong->getName() );
 
@@ -85,6 +102,7 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 		}
 		m_pTagEdit->setTags( pSong->getTags() );
 	}
+	m_pPathEdit->setIsActive( bDuplicate );
 
 	connect( licenseComboBox, SIGNAL( currentIndexChanged( int ) ),
 			 this, SLOT( licenseComboBoxChanged( int ) ) );
@@ -123,7 +141,6 @@ SongPropertiesDialog::~SongPropertiesDialog() {
 void SongPropertiesDialog::updatePatternLicenseTable() {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
-	const auto pSong = H2Core::Hydrogen::get_instance()->getSong();
 
 	licensesTable->setColumnCount( 4 );
 	licensesTable->setHorizontalHeaderLabels(
@@ -138,11 +155,11 @@ void SongPropertiesDialog::updatePatternLicenseTable() {
 	licensesTable->setColumnWidth( 1, 60 );
 	licensesTable->setColumnWidth( 2, 140 );
 
-	if ( pSong == nullptr ){
+	if ( m_pSong == nullptr ){
 		return;
 	}
 
-	const auto pPatternList = pSong->getPatternList();
+	const auto pPatternList = m_pSong->getPatternList();
 	licensesTable->setRowCount( pPatternList->size() );
 
 	int nFirstMismatchRow = -1;
@@ -171,7 +188,7 @@ void SongPropertiesDialog::updatePatternLicenseTable() {
 			// does not match the one set for the whole song, we highlight the
 			// corresponding row.
 			if ( ! ppPattern->getLicense().isEmpty() &&
-				 ppPattern->getLicense() != pSong->getLicense() ) {
+				 ppPattern->getLicense() != m_pSong->getLicense() ) {
 				QString sHighlight = QString( "color: %1; background-color: %2" )
 					.arg( pColorTheme->m_buttonRedTextColor.name() )
 					.arg( pColorTheme->m_buttonRedColor.name() );
@@ -222,7 +239,6 @@ void SongPropertiesDialog::on_okBtn_clicked()
 {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
 
 	// Sanity checks.
 	//
@@ -243,26 +259,44 @@ void SongPropertiesDialog::on_okBtn_clicked()
 	}
 
 	bool bIsModified = false;
-	if ( versionSpinBox->value() != pSong->getVersion() ) {
-		pSong->setVersion( versionSpinBox->value() );
+
+	if ( m_bDuplicate && m_pSong->getPath() != m_pPathEdit->text() ) {
+		if ( !Filesystem::isPathValid(
+				 Filesystem::Artifact::Song, m_pPathEdit->text(), false
+			 ) ) {
+			QMessageBox::critical(
+				this, "Hydrogen",
+				QString( "[%1]\n\n%2 [%3]" )
+					.arg( m_pPathEdit->text() )
+					.arg( pCommonStrings->getErrorInvalidPath() )
+					.arg( Filesystem::sSongSuffix )
+			);
+			return;
+		}
+		m_pSong->setPath( m_pPathEdit->text() );
 		bIsModified = true;
 	}
-	if ( songNameTxt->text() != pSong->getName() ) {
-		pSong->setName( songNameTxt->text() );
+
+	if ( versionSpinBox->value() != m_pSong->getVersion() ) {
+		m_pSong->setVersion( versionSpinBox->value() );
 		bIsModified = true;
 	}
-	if ( pSong->getAuthor() != authorTxt->text() ) {
-		pSong->setAuthor( authorTxt->text() );
+	if ( songNameTxt->text() != m_pSong->getName() ) {
+		m_pSong->setName( songNameTxt->text() );
 		bIsModified = true;
 	}
-	if ( pSong->getNotes() != notesTxt->toPlainText() ) {
-		pSong->setNotes( notesTxt->toPlainText() );
+	if ( m_pSong->getAuthor() != authorTxt->text() ) {
+		m_pSong->setAuthor( authorTxt->text() );
+		bIsModified = true;
+	}
+	if ( m_pSong->getNotes() != notesTxt->toPlainText() ) {
+		m_pSong->setNotes( notesTxt->toPlainText() );
 		bIsModified = true;
 	}
 
 	const auto tags = m_pTagEdit->getTags();
-	if ( tags != pSong->getTags() ) {
-		pSong->setTags( tags );
+	if ( tags != m_pSong->getTags() ) {
+		m_pSong->setTags( tags );
 	}
 
 	QString sNewLicenseString( licenseStringTxt->text() );
@@ -271,13 +305,16 @@ void SongPropertiesDialog::on_okBtn_clicked()
 		sNewLicenseString = "";
 	}
 	License newLicense( sNewLicenseString );
-	if ( pSong->getLicense() != newLicense ) {
-		pSong->setLicense( newLicense );
+	if ( m_pSong->getLicense() != newLicense ) {
+		m_pSong->setLicense( newLicense );
 		bIsModified = true;
 	}
 
-	if ( bIsModified ) {
+	if ( bIsModified && m_pSong == pHydrogen->getSong() ) {
 		pHydrogen->setIsModified( true );
+	}
+	else {
+		m_pSong->setIsModified( true );
 	}
 
 	accept();

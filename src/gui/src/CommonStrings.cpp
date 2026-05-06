@@ -292,6 +292,12 @@ CommonStrings::CommonStrings(){
 	m_sCurrentlySelectedLabel = tr( "Select." );
 	/*: Shown as label text in song, pattern, and drumkit dialog. */
 	m_sTagsLabel = tr( "Tags" );
+	/*: Label shown in a tab of the Sound Library. */
+	m_sDrumkitsLabel = tr( "Drumkits" );
+	/*: Label shown in a tab of the Sound Library. */
+	m_sPatternsLabel = tr( "Patterns" );
+	/*: Label shown in a tab of the Sound Library. */
+	m_sSongsLabel = tr( "Songs" );
 
 	/*: Displayed in the tooltip of input widgets. Indicates the
 	  allowed values from minimum to maximum.*/
@@ -477,6 +483,9 @@ CommonStrings::CommonStrings(){
 	/*: Label of the text input in pattern/song/drumkit properties dialog to
 	 *  fill in notes about the particular artifact. */
 	m_sNotesDialog = tr( "Notes" );
+	/*: Label of the read-only text input in pattern/song/drumkit properties
+	 *  dialog displaying the absolute file backing the particular artifact. */
+	m_sPathDialog = tr( "Path" );
 	
 	// Not used yet.
 	/*: Displayed in the Open dialog window if the selected song could
@@ -809,13 +818,23 @@ CommonStrings::CommonStrings(){
 	m_sErrorNotFoundShort = tr( "File not found" );
 	m_sErrorEmptyType = tr( "An instrument type must not be empty!" );
 	m_sErrorUniqueTypes = tr( "Instrument types must be unique!" );
+	/*: Text of an error dialog shown in the properties dialogs of pattern and
+	 * song. Above the text - in a separate line - the invalid path will be
+	 * shown. Directly after the text - in the same line and contained in square
+	 * brackets - the particular file extension will be appended. */
+	m_sErrorInvalidPath =
+		tr( "The provided path is invalid! Please ensure you have write access "
+			"and use the file extension" );
 
-	/*: Suffix appended to a drumkit, song, or pattern name in case it
-	 * is found on system-level and is read-only. */
-	m_sSoundLibrarySystemSuffix = tr( "system" );
-	/*: Suffix appended to a drumkit that are loaded non-persistently
-	 *  into the current Hydrogen session. */
-	m_sSoundLibrarySessionSuffix = tr( "session" );
+	/*: Node in the Sound Library corresponding to artifacts installed on
+	 * system-level. */
+	m_sSoundLibrarySystem = tr( "System" );
+	/*: Node in the Sound Library corresponding to artifacts only available in
+	 * the current Hydrogen session. */
+	m_sSoundLibrarySession = tr( "Session" );
+	/*: Node in the Sound Library corresponding to artifacts installed on
+	 * user-level. */
+	m_sSoundLibraryUser = tr( "User" );
 
 	/*: Name of note property adjustable in NotePropertiesRuler, using
 	 *  humanization in Mixer, or using automation path. */

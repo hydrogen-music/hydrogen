@@ -118,220 +118,246 @@ void H2Test::checkXmlFilesEqual( const QString& sExpected, const QString& sActua
 	const QString sDocExpected = docExpected.toString();
 	const QString sDocActual = docActual.toString();
 
-	if ( sDocExpected != sDocActual ) {
-		if ( bEquality ) {
-			// Does not match. Let's compare it line by line to produce a more
-			// helpful assert message.
-			QStringList expectedLines = sDocExpected.split( "\n" );
-			QStringList actualLines = sDocActual.split( "\n" );
-
-			if ( fileType == FileType::Preferences ) {
-				// In the preferences config files there are various elements
-				// `lastXXDirectory` used to cache last folders selected in
-				// various file browsers. These elements must not exist (to
-				// allow them to fallback to e.g. the users home directory).
-				//
-				// In addition, we will remove the <path_to_rubberband> elements
-				// as they would differ depending of whether the rubberband CLI
-				// was installed on the system or not.
-				auto removeLines = [&]( QStringList lines ){
-					QStringList linesToRemove;
-					for ( const auto& ssLine : lines ) {
-						if ( ssLine.contains( "<lastExportPatternAsDirectory>" ) ||
-							 ssLine.contains( "<lastExportSongDirectory>" ) ||
-							 ssLine.contains( "<lastSaveSongAsDirectory>" ) ||
-							 ssLine.contains( "<lastOpenSongDirectory>" ) ||
-							 ssLine.contains( "<lastOpenPatternDirectory>" ) ||
-							 ssLine.contains( "<lastExportLilypondDirectory>" ) ||
-							 ssLine.contains( "<lastExportMidiDirectory>" ) ||
-							 ssLine.contains( "<lastImportDrumkitDirectory>" ) ||
-							 ssLine.contains( "<lastExportDrumkitDirectory>" ) ||
-							 ssLine.contains( "<lastOpenLayerDirectory>" ) ||
-							 ssLine.contains( "<lastOpenPlaybackTrackDirectory>" ) ||
-							 ssLine.contains( "<lastAddSongToPlaylistDirectory>" ) ||
-							 ssLine.contains( "<lastPlaylistDirectory>" ) ||
-							 ssLine.contains( "<lastPlaylistScriptDirectory>" ) ||
-							 ssLine.contains( "<lastImportThemeDirectory>" ) ||
-							 ssLine.contains( "<lastExportThemeDirectory>" ) ||
-							 ssLine.contains( "<path_to_rubberband>" ) ) {
-							linesToRemove << ssLine;
-						}
-					}
-					for ( const auto& ssRemoveLine : linesToRemove ) {
-						CPPUNIT_ASSERT( lines.removeAll( ssRemoveLine ) == 1 );
-					}
-
-					return lines;
-				};
-
-				actualLines = removeLines( actualLines );
-				expectedLines = removeLines( expectedLines );
-			}
-			else if ( fileType == FileType::Theme ) {
-				// In case the fonts specified in the theme are not installed on
-				// the system, Qt falls back to sane defaults.
-				QStringList linesToRemove;
-				for ( const auto& ssLine : actualLines ) {
-					if ( ssLine.contains( "<application_font_family>" ) ||
-						 ssLine.contains( "<level2_font_family>" ) ||
-						 ssLine.contains( "<level3_font_family>" ) ) {
-						linesToRemove << ssLine;
-					}
-				}
-				for ( const auto& ssRemoveLine : linesToRemove ) {
-					CPPUNIT_ASSERT( actualLines.removeAll( ssRemoveLine ) == 1 );
-				}
-
-				linesToRemove.clear();
-				for ( const auto& ssLine : expectedLines ) {
-					if ( ssLine.contains( "<application_font_family>" ) ||
-						 ssLine.contains( "<level2_font_family>" ) ||
-						 ssLine.contains( "<level3_font_family>" ) ) {
-						linesToRemove << ssLine;
-					}
-				}
-				for ( const auto& ssRemoveLine : linesToRemove ) {
-					CPPUNIT_ASSERT( expectedLines.removeAll( ssRemoveLine ) == 1 );
-				}
-
-			}
-			else if ( fileType == FileType::Drumkit ) {
-				QStringList actualLinesToRemove;
-				QStringList expectedLinesToRemove;
-#ifdef WIN32
-				// Drop all comment lines (Drumkit GPL license notice) as their
-				// line break mess up comparison within the AppVeyor Windows
-				// pipeline (but not locally which is why I use this more
-				// sluggish way of dealing with it).
-				for ( const auto& ssLine : actualLines ) {
-					// Ignore both comments and lines which do not contain a
-					// valid XML element.
-					if ( ssLine.contains( "<!--" ) ||
-						 ssLine.contains( "-->" ) ||
-						 ! ( ssLine.contains( "<" ) && ssLine.contains( ">" ) ||
-							 ssLine.contains( "</" ) && ssLine.contains( ">" ) ) ) {
-						actualLinesToRemove << ssLine;
-					}
-				}
-				for ( const auto& ssLine : expectedLines ) {
-					// Ignore both comments and lines which do not contain a
-					// valid XML element.
-					if ( ssLine.contains( "<!--" ) ||
-						 ssLine.contains( "-->" ) ||
-						 ! ( ssLine.contains( "<" ) && ssLine.contains( ">" ) ||
-							 ssLine.contains( "</" ) && ssLine.contains( ">" ) ) ) {
-						expectedLinesToRemove << ssLine;
-					}
-				}
-#else
-				// Ignore the copyright since it contains a timestamp and would
-				// require us to update the copyright date of our drumkits every
-				// year.
-				for ( const auto& ssLine : actualLines ) {
-					// Ignore both comments and lines which do not contain a
-					// valid XML element.
-					if ( ssLine.contains( "<!--Copyright" ) ) {
-						actualLinesToRemove << ssLine;
-					}
-				}
-				for ( const auto& ssLine : expectedLines ) {
-					if ( ssLine.contains( "<!--Copyright" ) ) {
-						expectedLinesToRemove << ssLine;
-					}
-				}
-#endif
-				for ( const auto& ssRemoveLine : actualLinesToRemove ) {
-					actualLines.removeAll( ssRemoveLine );
-				}
-				for ( const auto& ssRemoveLine : expectedLinesToRemove ) {
-					expectedLines.removeAll( ssRemoveLine );
-				}
-			}
-
-			const int nMaxLines =
-				std::max( expectedLines.size(), actualLines.size() );
-
-			QString sMsgPart;
-			for ( int ii = 0; ii < nMaxLines; ++ii ) {
-				if ( ii >= expectedLines.size() || ii >= actualLines.size() ) {
-					sMsgPart = QString( "in number of lines: expected [%1] - actual [%2]" )
-						.arg( expectedLines.size() ).arg( actualLines.size() );
-					break;
-				}
-
-				// Sometimes the attributes in the root element are written in a
-				// different order. This is totally ok for with respect to the
-				// XML standard but messes up file comparison.
-				if ( expectedLines.at( ii ).contains( "xmlns:xsi" ) &&
-					 actualLines.at( ii ).contains( "xmlns:xsi" ) ) {
-					continue;
-				}
-
-				// In song files we ignore both the current Hydrogen versions
-				// (changes with every commit) as well as sample and drumkit
-				// paths (so, we do not have to teach Hydrogen to store song
-				// with relative paths just to pass some unit tests).
-				//
-				// Preferences do only change the version when saving them
-				// straight away.
-				if ( ( fileType == FileType::Song ||
-					   fileType == FileType::Preferences ||
-					   fileType == FileType::Theme ) && (
-						( expectedLines.at( ii ).contains( "<version>" ) &&
-						  actualLines.at( ii ).contains( "<version>" ) )
-						) ) {
-					continue;
-				}
-
-				if ( fileType == FileType::Song  && (
-						( expectedLines.at( ii ).contains( "<filename>" ) &&
-						  actualLines.at( ii ).contains( "<filename>" ) ) ||
-						( expectedLines.at( ii ).contains( "<lastLoadedDrumkitPath>" ) &&
-						  actualLines.at( ii ).contains( "<lastLoadedDrumkitPath>" ) ) ||
-						( expectedLines.at( ii ).contains( "<drumkitPath>" ) &&
-						  actualLines.at( ii ).contains( "<drumkitPath>" ) )
-						) ) {
-					continue;
-				}
-
-#ifdef WIN32
-				// Windows uses its own set of carriage returns and line feeds.
-				// These might be introduced into the <info> elements and mess
-				// up the unit test.
-				if ( expectedLines.at( ii ).contains( "&#xd;" ) ||
-					 actualLines.at( ii ).contains( "&#xd;" ) ||
-					 expectedLines.at( ii ).contains( "&#xa;" ) ||
-					 actualLines.at( ii ).contains( "&#xa;" ) ) {
-					continue;
-				}
-#endif
-
-				if ( expectedLines.at( ii ) != actualLines.at( ii ) ) {
-					sMsgPart = QString( "at line [%1]:\n\texpected: %2\n\tactual  : %3" )
-						.arg( ii ).arg( expectedLines.at( ii ) )
-						.arg( actualLines.at( ii ) );
-					break;
-				}
-			}
-
-			if ( ! sMsgPart.isEmpty() ) {
-				CppUnit::Message msg(
-					std::string( "XML files differ " ) + sMsgPart.toStdString(),
-					std::string( "Expected: " ) + sExpected.toStdString(),
-					std::string( "Actual  : " ) + sActual.toStdString() );
-				throw CppUnit::Exception( msg, sourceLine );
-			}
+    // We check for inequality first because it is more easy.
+	if ( !bEquality ) {
+		if ( sDocExpected == sDocActual ) {
+			CppUnit::Message msg(
+				std::string( "Files are idential. But they should not" ),
+				std::string( "Expected: " ) + sExpected.toStdString(),
+				std::string( "Actual  : " ) + sActual.toStdString()
+			);
+			throw CppUnit::Exception( msg, sourceLine );
 		}
 		else {
+			// Everything as expected
 			return;
 		}
 	}
 
-	if ( ! bEquality ) {
+	// Check for equality
+	if ( sDocExpected == sDocActual ) {
+		// Everything as expected
+		return;
+	}
+
+	// Does not match. Let's compare it line by line to produce a more
+	// helpful assert message.
+	QStringList expectedLines = sDocExpected.split( "\n" );
+	QStringList actualLines = sDocActual.split( "\n" );
+
+	if ( fileType == FileType::Preferences ) {
+		// In the preferences config files there are various elements
+		// `lastXXDirectory` used to cache last folders selected in
+		// various file browsers. These elements must not exist (to
+		// allow them to fallback to e.g. the users home directory).
+		//
+		// In addition, we will remove the <path_to_rubberband> elements
+		// as they would differ depending of whether the rubberband CLI
+		// was installed on the system or not.
+		auto removeLines = [&]( QStringList lines ) {
+			QStringList linesToRemove;
+			for ( const auto& ssLine : lines ) {
+				if ( ssLine.contains( "<lastExportPatternAsDirectory>" ) ||
+					 ssLine.contains( "<lastExportSongDirectory>" ) ||
+					 ssLine.contains( "<lastSaveSongAsDirectory>" ) ||
+					 ssLine.contains( "<lastOpenSongDirectory>" ) ||
+					 ssLine.contains( "<lastOpenPatternDirectory>" ) ||
+					 ssLine.contains( "<lastExportLilypondDirectory>" ) ||
+					 ssLine.contains( "<lastExportMidiDirectory>" ) ||
+					 ssLine.contains( "<lastImportDrumkitDirectory>" ) ||
+					 ssLine.contains( "<lastExportDrumkitDirectory>" ) ||
+					 ssLine.contains( "<lastOpenLayerDirectory>" ) ||
+					 ssLine.contains( "<lastOpenPlaybackTrackDirectory>" ) ||
+					 ssLine.contains( "<lastAddSongToPlaylistDirectory>" ) ||
+					 ssLine.contains( "<lastPlaylistDirectory>" ) ||
+					 ssLine.contains( "<lastPlaylistScriptDirectory>" ) ||
+					 ssLine.contains( "<lastImportThemeDirectory>" ) ||
+					 ssLine.contains( "<lastExportThemeDirectory>" ) ||
+					 ssLine.contains( "<path_to_rubberband>" ) ) {
+					linesToRemove << ssLine;
+				}
+			}
+			for ( const auto& ssRemoveLine : linesToRemove ) {
+				CPPUNIT_ASSERT( lines.removeAll( ssRemoveLine ) == 1 );
+			}
+
+			return lines;
+		};
+
+		actualLines = removeLines( actualLines );
+		expectedLines = removeLines( expectedLines );
+	}
+	else if ( fileType == FileType::Theme ) {
+		// In case the fonts specified in the theme are not installed on
+		// the system, Qt falls back to sane defaults.
+		QStringList linesToRemove;
+		for ( const auto& ssLine : actualLines ) {
+			if ( ssLine.contains( "<application_font_family>" ) ||
+				 ssLine.contains( "<level2_font_family>" ) ||
+				 ssLine.contains( "<level3_font_family>" ) ) {
+				linesToRemove << ssLine;
+			}
+		}
+		for ( const auto& ssRemoveLine : linesToRemove ) {
+			CPPUNIT_ASSERT( actualLines.removeAll( ssRemoveLine ) == 1 );
+		}
+
+		linesToRemove.clear();
+		for ( const auto& ssLine : expectedLines ) {
+			if ( ssLine.contains( "<application_font_family>" ) ||
+				 ssLine.contains( "<level2_font_family>" ) ||
+				 ssLine.contains( "<level3_font_family>" ) ) {
+				linesToRemove << ssLine;
+			}
+		}
+		for ( const auto& ssRemoveLine : linesToRemove ) {
+			CPPUNIT_ASSERT( expectedLines.removeAll( ssRemoveLine ) == 1 );
+		}
+	}
+	else if ( fileType == FileType::Drumkit ) {
+		QStringList actualLinesToRemove;
+		QStringList expectedLinesToRemove;
+#ifdef WIN32
+		// Drop all comment lines (Drumkit GPL license notice) as their
+		// line break mess up comparison within the AppVeyor Windows
+		// pipeline (but not locally which is why I use this more
+		// sluggish way of dealing with it).
+		for ( const auto& ssLine : actualLines ) {
+			// Ignore both comments and lines which do not contain a
+			// valid XML element.
+			if ( ssLine.contains( "<!--" ) || ssLine.contains( "-->" ) ||
+				 !( ssLine.contains( "<" ) && ssLine.contains( ">" ) ||
+					ssLine.contains( "</" ) && ssLine.contains( ">" ) ) ) {
+				actualLinesToRemove << ssLine;
+			}
+		}
+		for ( const auto& ssLine : expectedLines ) {
+			// Ignore both comments and lines which do not contain a
+			// valid XML element.
+			if ( ssLine.contains( "<!--" ) || ssLine.contains( "-->" ) ||
+				 !( ssLine.contains( "<" ) && ssLine.contains( ">" ) ||
+					ssLine.contains( "</" ) && ssLine.contains( ">" ) ) ) {
+				expectedLinesToRemove << ssLine;
+			}
+		}
+#else
+		// Ignore the copyright since it contains a timestamp and would
+		// require us to update the copyright date of our drumkits every
+		// year.
+		for ( const auto& ssLine : actualLines ) {
+			// Ignore both comments and lines which do not contain a
+			// valid XML element.
+			if ( ssLine.contains( "<!--Copyright" ) ) {
+				actualLinesToRemove << ssLine;
+			}
+		}
+		for ( const auto& ssLine : expectedLines ) {
+			if ( ssLine.contains( "<!--Copyright" ) ) {
+				expectedLinesToRemove << ssLine;
+			}
+		}
+#endif
+		for ( const auto& ssRemoveLine : actualLinesToRemove ) {
+			actualLines.removeAll( ssRemoveLine );
+		}
+		for ( const auto& ssRemoveLine : expectedLinesToRemove ) {
+			expectedLines.removeAll( ssRemoveLine );
+		}
+	}
+
+	const int nMaxLines = std::max( expectedLines.size(), actualLines.size() );
+
+	// Some properties, like the current version or paths, do change quite a lot
+	// or are platform-specific. We do not compare their content directly. But
+	// we must ensure their nodes are present and non-empty.
+	auto containedAndNonEmpty = [&]( const QString& sNode, int nIndex ) {
+		const QString sOpeningTag = QString( "<%1>" ).arg( sNode );
+		// Check whether the element does exist in both QStringLists.
+		if ( !expectedLines.at( nIndex ).contains( sOpeningTag ) ||
+			 !actualLines.at( nIndex ).contains( sOpeningTag ) ) {
+			return false;
+		}
+
+		// Check whether there is some content written into the element.
+		const QString sClosingTag = QString( "</%1>" ).arg( sNode );
+		QString sActualContent = actualLines.at( nIndex );
+		sActualContent.remove( sOpeningTag );
+		sActualContent = sActualContent.remove( sClosingTag ).trimmed();
+
+		QString sExpectedContent = expectedLines.at( nIndex );
+		sExpectedContent.remove( sOpeningTag );
+		sExpectedContent = sExpectedContent.remove( sClosingTag ).trimmed();
+
+		return sActualContent.length() > 0 && sExpectedContent.length() > 0;
+	};
+
+	QString sMsgPart;
+	for ( int ii = 0; ii < nMaxLines; ++ii ) {
+		if ( ii >= expectedLines.size() || ii >= actualLines.size() ) {
+			sMsgPart =
+				QString( "in number of lines: expected [%1] - actual [%2]" )
+					.arg( expectedLines.size() )
+					.arg( actualLines.size() );
+			break;
+		}
+
+		// Sometimes the attributes in the root element are written in a
+		// different order. This is totally ok for with respect to the
+		// XML standard but messes up file comparison.
+		if ( expectedLines.at( ii ).contains( "xmlns:xsi" ) &&
+			 actualLines.at( ii ).contains( "xmlns:xsi" ) ) {
+			continue;
+		}
+
+		// In song files we ignore both the current Hydrogen versions
+		// (changes with every commit) as well as sample and drumkit
+		// paths (so, we do not have to teach Hydrogen to store song
+		// with relative paths just to pass some unit tests).
+		//
+		// Preferences do only change the version when saving them
+		// straight away.
+		if ( ( fileType == FileType::Song ||
+			   fileType == FileType::Preferences ||
+			   fileType == FileType::Theme ) &&
+			 containedAndNonEmpty( "version", ii ) ) {
+			continue;
+		}
+
+		if ( fileType == FileType::Song &&
+			 ( containedAndNonEmpty( "filename", ii ) ||
+			   containedAndNonEmpty( "lastLoadedDrumkitPath", ii ) ||
+			   containedAndNonEmpty( "drumkitPath", ii ) ) ) {
+			continue;
+		}
+
+#ifdef WIN32
+		// Windows uses its own set of carriage returns and line feeds.
+		// These might be introduced into the <info> elements and mess
+		// up the unit test.
+		if ( expectedLines.at( ii ).contains( "&#xd;" ) ||
+			 actualLines.at( ii ).contains( "&#xd;" ) ||
+			 expectedLines.at( ii ).contains( "&#xa;" ) ||
+			 actualLines.at( ii ).contains( "&#xa;" ) ) {
+			continue;
+		}
+#endif
+
+		if ( expectedLines.at( ii ) != actualLines.at( ii ) ) {
+			sMsgPart =
+				QString( "at line [%1]:\n\texpected: %2\n\tactual  : %3" )
+					.arg( ii )
+					.arg( expectedLines.at( ii ) )
+					.arg( actualLines.at( ii ) );
+			break;
+		}
+	}
+
+	if ( !sMsgPart.isEmpty() ) {
 		CppUnit::Message msg(
-			std::string( "Files are idential" ),
+			std::string( "XML files differ " ) + sMsgPart.toStdString(),
 			std::string( "Expected: " ) + sExpected.toStdString(),
-			std::string( "Actual  : " ) + sActual.toStdString() );
+			std::string( "Actual  : " ) + sActual.toStdString()
+		);
 		throw CppUnit::Exception( msg, sourceLine );
 	}
 }

@@ -20,101 +20,113 @@
  *
  */
 
-#ifndef SOUNDLIBRARYDATASTRUCTURES_H
-#define SOUNDLIBRARYDATASTRUCTURES_H
+#ifndef SOUND_LIBRARY_DATABASE_H
+#define SOUND_LIBRARY_DATABASE_H
 
-#include <core/Basics/Drumkit.h>
-#include <core/Basics/DrumkitMap.h>
-#include <core/SoundLibrary/SoundLibraryInfo.h>
-#include <core/Object.h>
 #include <QStringList>
 #include <map>
 #include <memory>
 #include <vector>
 
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/DrumkitMap.h>
+#include <core/Basics/Event.h>
+#include <core/Object.h>
+
 namespace H2Core
 {
 /**
-* @class SoundLibraryDatabase
-*
-* @brief This class holds information about all installed soundlibrary items.
-*
-* This class organizes the metadata of all locally installed soundlibrary items.
-*
-* @author Sebastian Moors
-*
-*/
+ * @class SoundLibraryDatabase
+ *
+ * @brief This class holds information about all installed soundlibrary items.
+ *
+ * This class organizes the metadata of all locally installed soundlibrary
+ * items.
+ *
+ * @author Sebastian Moors
+ *
+ */
+
+class SoundLibraryInfo;
 
 /** \ingroup docGUI*/
-class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
-{
-	H2_OBJECT(SoundLibraryDatabase)
-	public:
+class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
+	H2_OBJECT( SoundLibraryDatabase )
+   public:
 	SoundLibraryDatabase();
 	~SoundLibraryDatabase();
 
-		/** Null element of the category list*/
-		static QString m_sPatternBaseCategory;
-
-	std::vector<std::shared_ptr<SoundLibraryInfo>> getPatternInfoVector() const {
-		return m_patternInfoVector;
-	}
-	QStringList getPatternCategories() const {
-		return m_patternCategories;
-	}
+	std::vector<std::shared_ptr<SoundLibraryInfo>> getDrumkitInfos() const;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> getPatternInfos() const;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> getSongInfos() const;
 
 	void update();
 
-	void updateDrumkits( bool bTriggerEvent = true );
-	void updateDrumkit( const QString& sDrumkitPath, bool bTriggerEvent = true );
+	void updateDrumkits( Event::Trigger trigger );
 	/**
 	 * Retrieve a drumkit from the database.
 	 *
 	 * If the kit is not already present, it will be loaded from disk.
 	 *
-	 * @param sDrumkitPath Absolute path to the drumkit directory
-	 *   (containing a drumkit.xml) file as unique identifier.
+	 * @param sDrumkitPath Absolute path to the drumkit.xml file holding the
+	 *   definition of the drumkit. If empty, it will be read from @a pNode.
 	 * @param bUpgrade In case the drumkit is not part of the DB and needs to be
 	 *   loaded, should it be upgrade while doing so?
 	 */
-	std::shared_ptr<Drumkit> getDrumkit( const QString& sDrumkitPath,
-										 bool bUpgrade = true );
+	std::shared_ptr<Drumkit>
+	getDrumkit( const QString& sDrumkitPath, bool bUpgrade = true );
 
-		/** Based on #Song::m_sLastLoadedDrumkitPath get the previous drumkit in
-		 * the data base (the one shown above the last loaded one in the Sound
-		 * Library widget) */
-		std::shared_ptr<Drumkit> getPreviousDrumkit() const;
-		/** Based on #Song::m_sLastLoadedDrumkitPath get the next drumkit in the
-		 * data base (the one shown below the last loaded one in the Sound
-		 * Library widget) */
-		std::shared_ptr<Drumkit> getNextDrumkit() const;
+	/** Based on #Song::m_sLastLoadedDrumkitPath get the previous drumkit in
+	 * the data base (the one shown above the last loaded one in the Sound
+	 * Library widget) */
+	std::shared_ptr<Drumkit> getPreviousDrumkit() const;
+	/** Based on #Song::m_sLastLoadedDrumkitPath get the next drumkit in the
+	 * data base (the one shown below the last loaded one in the Sound
+	 * Library widget) */
+	std::shared_ptr<Drumkit> getNextDrumkit() const;
 
-	const std::map<QString, std::shared_ptr<Drumkit>>& getDrumkitDatabase() const {
+	const std::map<QString, std::shared_ptr<Drumkit>>& getDrumkitDatabase(
+	) const
+	{
 		return m_drumkitDatabase;
 	}
-		/** Retrieves an unique label for the kit associated with @a
-		 * sDrumkitPath. This may serve as a more accessible alternative to the
-		 * absolute path of the kit in the GUI. */
-		QString getUniqueLabel( const QString& sDrumkitPath ) const;
 
-		/** Add a custom folder #SoundLibraryDatabase will look of drumkits in
-		 * during an updateDrumkits()
-		 *
-		 * @param sDrumkitFolder Absolute path. */
-		void registerDrumkitFolder( const QString& sDrumkitFolder );
+	/** Add a custom folder #SoundLibraryDatabase will look of drumkits in
+	 * during an updateDrumkits()
+	 *
+	 * @param sDrumkitFolder Absolute path. */
+	void registerDrumkitFolder( const QString& sDrumkitFolder );
 
-		QStringList getDrumkitFolders() const;
+	QStringList getDrumkitFolders() const;
+	QStringList getCustomDrumkitFolders() const;
 
 	/** Retrieves all #H2Core::Instrument::Type found in the registered
 	 * drumkits.
 	 *
 	 * @return The list of unique types sorted alphabetically.*/
-	 std::set<Instrument::Type> getAllTypes() const;
-	
-	void updatePatterns( bool bTriggerEvent = true );
-	void printPatterns() const;
-	void loadPatternFromDirectory( const QString& path );
-	bool isPatternInstalled( const QString& sPatternName ) const;
+	std::set<Instrument::Type> getAllTypes() const;
+
+	void updatePatterns( Event::Trigger trigger );
+	void updateSongs( Event::Trigger trigger );
+
+	bool isArtifactInstalled(
+		Filesystem::Artifact artifact,
+		Filesystem::Context context,
+		const QString& sName
+	) const;
+
+	/** Checks whether an artifact of type @a artifact holding the name @a
+	 * sName exists in context @a context and returns the full path to the
+	 * first artifact matching.
+	 *
+	 * In @a bStacked retrieval @a context is ignored and the we will search 1.
+	 * session, 2. user, and 3. system context for the artifact. */
+	QString findArtifact(
+		Filesystem::Artifact artifact,
+		Filesystem::Context context,
+		const QString& sName,
+		bool bStacked = false
+	) const;
 
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -124,26 +136,19 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	 * displayed without line breaks.
 	 *
 	 * \return String presentation of current object.*/
-	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+	QString toQString( const QString& sPrefix = "", bool bShort = true )
+		const override;
 
-private:
-		void registerUniqueLabel( const QString& sDrumkitPath,
-								  std::shared_ptr<Drumkit> pDrumkit );
+   private:
+	void registerUniqueLabel(
+		std::shared_ptr<SoundLibraryInfo> pInfo
+	);
 
 	std::map<QString, std::shared_ptr<Drumkit>> m_drumkitDatabase;
-		/** The absolute path to a drumkit folder is not the most accessible way
-		 * to refer to a kit in the GUI. Instead, each kit will also have an
-		 * unique label. It is derived from the name of the drumkit. But as
-		 * there can be duplicates, the following rules are applied:
-		 * - Drumkit of system-level will carry the suffix " (system)"
-		 * - Drumkit added during a session but not installed in the system or
-		 *   user drumkit folder will carry the suffix " (session)"
-		 * - If a label is already present a number will be appended, like " (1)"
-		 * */
-		std::map<QString, QString> m_drumkitUniqueLabels;
 
-	std::vector<std::shared_ptr<SoundLibraryInfo>> m_patternInfoVector;
-	QStringList m_patternCategories;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> m_drumkitInfos;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> m_patternInfos;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> m_songInfos;
 
 	/**
 	 * List of drumkits the user supplied via CLI or OSC command but
@@ -154,10 +159,29 @@ private:
 	 */
 	QStringList m_customDrumkitPaths;
 
-		/** Whole folders that will be scanned for drumkits in addition to the
-		 * system and user drumkti folder. */
-		QStringList m_customDrumkitFolders;
+	/** Whole folders that will be scanned for drumkits in addition to the
+	 * system and user drumkti folder. */
+	QStringList m_customDrumkitFolders;
 };
-}; // namespace H2Core
+inline std::vector<std::shared_ptr<SoundLibraryInfo>>
+SoundLibraryDatabase::getDrumkitInfos() const
+{
+	return m_drumkitInfos;
+};
+inline std::vector<std::shared_ptr<SoundLibraryInfo>>
+SoundLibraryDatabase::getPatternInfos() const
+{
+	return m_patternInfos;
+};
+inline std::vector<std::shared_ptr<SoundLibraryInfo>>
+SoundLibraryDatabase::getSongInfos() const
+{
+	return m_songInfos;
+}
+inline QStringList SoundLibraryDatabase::getCustomDrumkitFolders() const
+{
+	return m_customDrumkitFolders;
+}
+};	// namespace H2Core
 
-#endif // SOUNDLIBRARYDATASTRUCTURES_H
+#endif	// SOUND_LIBRARY_DATABASE_H

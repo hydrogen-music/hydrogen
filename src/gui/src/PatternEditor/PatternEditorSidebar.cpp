@@ -32,6 +32,7 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
+#include <core/SoundLibrary/DrumkitInfo.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include "PianoRollEditor.h"
@@ -195,22 +196,8 @@ void SidebarLabel::updateFont()
 	// and we are trapped in an infinite loop.
 	setFont( font );
 
-	const QString sEllipsis = QString::fromUtf8( "\u2026" );
-	QString sText = m_sText;
-	// Check whether the width of the text fits the available frame
-	// width of the label
-	while ( QFontMetrics( font ).size( Qt::TextSingleLine, sText ).width() >
-				width() - textMargins().left() - 4 &&
-			sText.size() > 3 ) {
-		if ( sText.at( sText.size() - 2 ) != sEllipsis ) {
-			// First trim action
-			sText.replace( sText.size() - 2, 1, sEllipsis );
-		}
-		else {
-			sText = sText.remove( sText.size() - 3, 1 );
-		}
-	}
-
+	const auto sText =
+		Skin::trimToFitWidth( m_sText, font, width(), textMargins() );
 	if ( sText != text() ) {
 		QLineEdit::setText( sText );
 	}
@@ -896,12 +883,18 @@ void SidebarRow::set( const DrumPatternRow& row )
 				m_pDeleteInstrumentAction->setEnabled( true );
 
 				if ( !pInstrument->getDrumkitPath().isEmpty() ) {
+					QString sKit;
 					// Instrument belongs to a kit in the SoundLibrary (and was
 					// not created anew).
-					QString sKit =
-						pHydrogen->getSoundLibraryDatabase()->getUniqueLabel(
-							pInstrument->getDrumkitPath()
-						);
+					for ( const auto& ppInfo :
+						  pHydrogen->getSoundLibraryDatabase()->getDrumkitInfos(
+						  ) ) {
+						if ( ppInfo != nullptr &&
+							 ppInfo->getPath() ==
+								 pInstrument->getDrumkitPath() ) {
+							sKit = ppInfo->getLabel();
+						}
+					}
 					if ( sKit.isEmpty() ) {
 						// This should not happen. But drumkit.xml files can be
 						// created by hand and we should account for it.
@@ -1488,7 +1481,7 @@ void PatternEditorSidebar::dragEnterEvent( QDragEnterEvent* event )
 
 	const QString sText = event->mimeData()->text();
 	if ( !sText.startsWith( "move instrument:" ) &&
-		 !sText.startsWith( "importInstrument:" ) ) {
+		 !sText.startsWith( HydrogenApp::sMimeDragInstrument ) ) {
 		event->ignore();
 		return;
 	}
@@ -1531,8 +1524,6 @@ void PatternEditorSidebar::dropEvent( QDropEvent* event )
 		return;
 	}
 
-	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-	const auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
@@ -1540,7 +1531,7 @@ void PatternEditorSidebar::dropEvent( QDropEvent* event )
 
 	if ( sText.startsWith( "Songs:" ) || sText.startsWith( "Patterns:" ) ||
 		 sText.startsWith( "move pattern:" ) ||
-		 sText.startsWith( "drag pattern:" ) ) {
+		 sText.startsWith( HydrogenApp::sMimeDragPattern ) ) {
 		return;
 	}
 
@@ -1571,59 +1562,29 @@ void PatternEditorSidebar::dropEvent( QDropEvent* event )
 
 		event->acceptProposedAction();
 	}
-	else if ( sText.startsWith( "importInstrument:" ) ) {
-		// an instrument was dragged from the soundlibrary browser to the
-		// pattern editor
-		sText.remove( 0, QString( "importInstrument:" ).length() );
+	else if ( sText.startsWith( HydrogenApp::sMimeDragInstrument ) ) {
+		// Instrument(s) dragged from the sound library browser to the
+		// pattern editor. Each item token is "path:name" using the sub
+		// separator.
 
-		QStringList tokens = sText.split( "::" );
-		const QString sDrumkitPath = tokens.at( 0 );
-		const QString sInstrumentName = tokens.at( 1 );
+		QStringList tokens = sText.split( HydrogenApp::sMimeSeparator );
+		int nRow = nTargetRow;
+		for ( int ii = 1; ii < tokens.size(); ++ii ) {
+			const QStringList subTokens =
+				tokens.at( ii ).split( HydrogenApp::sMimeSubSeparator );
+			if ( subTokens.size() < 2 ) {
+				continue;
+			}
+			const QString sDrumkitPath = subTokens.at( 0 );
+			const QString sInstrumentName = subTokens.at( 1 );
 
-		// Load Instrument
-		const auto pNewDrumkit =
-			pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
-		if ( pNewDrumkit == nullptr ) {
-			ERRORLOG( QString( "Unable to retrieve kit [%1] for instrument [%2]"
-			)
-						  .arg( sDrumkitPath )
-						  .arg( sInstrumentName ) );
-			QMessageBox::critical(
-				this, "Hydrogen", pCommonStrings->getInstrumentLoadError()
+			m_pPatternEditorPanel->addInstrument(
+				sDrumkitPath, sInstrumentName, nRow
 			);
-			return;
+			if ( nRow >= 0 ) {
+				++nRow;
+			}
 		}
-		const auto pTargetInstrument =
-			pNewDrumkit->getInstruments()->find( sInstrumentName );
-		if ( pTargetInstrument == nullptr ) {
-			ERRORLOG(
-				QString( "Unable to retrieve instrument [%1] from kit [%2]" )
-					.arg( sInstrumentName )
-					.arg( sDrumkitPath )
-			);
-			QMessageBox::critical(
-				this, "Hydrogen", pCommonStrings->getInstrumentLoadError()
-			);
-			return;
-		}
-
-		// Appending in this action is done by setting the target row to -1.
-		const int nTargetRowSE = nTargetRow == ( pInstrumentList->size() - 1 ) ? -1 : nTargetRow;
-
-		// We provide a copy of the instrument in order to not leak any changes
-		// into the original kit.
-		pHydrogenApp->pushUndoCommand( new SE_addInstrumentAction(
-			std::make_shared<Instrument>( pTargetInstrument ), nTargetRowSE,
-			SE_addInstrumentAction::Type::DropInstrument
-		) );
-		pHydrogenApp->showStatusBarMessage(
-			QString( "%1 [%2]" )
-				.arg( pCommonStrings->getActionDropInstrument() )
-				.arg( pTargetInstrument->getName() )
-		);
-
-		m_pPatternEditorPanel->setSelectedRowDB( nTargetRow );
-
 		event->acceptProposedAction();
 	}
 	else {

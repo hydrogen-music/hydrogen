@@ -8,7 +8,7 @@
  <metronomeVolume>0.5</metronomeVolume>
  <userVersion>0</userVersion>
  <name>Untitled Song</name>
- <author>hydrogen</author>
+ <author>Unknown Author</author>
  <notes>...</notes>
  <tags/>
  <license>undefined license</license>
@@ -2538,6 +2538,18 @@ p, li { white-space: pre-wrap; }
    <noteList/>
   </pattern>
  </patternList>
+ <patternPaths>
+  <patternPath></patternPath>
+  <patternPath></patternPath>
+  <patternPath></patternPath>
+  <patternPath></patternPath>
+  <patternPath></patternPath>
+  <patternPath></patternPath>
+  <patternPath></patternPath>
+  <patternPath></patternPath>
+  <patternPath></patternPath>
+  <patternPath></patternPath>
+ </patternPaths>
  <virtualPatternList/>
  <patternSequence>
   <group>

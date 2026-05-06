@@ -26,20 +26,21 @@
 
 #include <core/Helpers/Legacy.h>
 
-#include <core/Helpers/Xml.h>
-#include <core/License.h>
-#include <core/Basics/Song.h>
+#include <core/Basics/Adsr.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/Playlist.h>
-#include <core/Basics/Pattern.h>
-#include <core/Basics/PatternList.h>
 #include <core/Basics/Instrument.h>
-#include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
-#include <core/Basics/Sample.h>
+#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
-#include <core/Basics/Adsr.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/Playlist.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Xml.h>
+#include <core/License.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 namespace H2Core {
@@ -84,18 +85,18 @@ void Legacy::loadComponentNames( std::shared_ptr<InstrumentList> pInstrumentList
 		XMLNode instrumentNode =
 			instrumentListNode.firstChildElement( "instrument" );
 		while ( !instrumentNode.isNull() ) {
-
-
-			const int nInstrumentId = instrumentNode.read_int(
-				"id", -2, false, false, bSilent );
-			auto pInstrument = pInstrumentList->get( nInstrumentId );
+			const auto instrumentId = static_cast<Instrument::Id>(
+				instrumentNode.read_int( "id", -2, false, false, bSilent )
+			);
+			auto pInstrument = pInstrumentList->find( instrumentId );
 			if ( pInstrument == nullptr ) {
-				if ( ! bSilent ) {
-					WARNINGLOG( QString( "No instrument found for ID [%1]" )
-								.arg( nInstrumentId ) );
-				}
-				instrumentNode = instrumentNode.nextSiblingElement( "instrument" );
-				continue;
+				 if ( !bSilent ) {
+					 WARNINGLOG( QString( "No instrument found for ID [%1]" )
+									 .arg( static_cast<int>( instrumentId ) ) );
+				 }
+				 instrumentNode =
+					 instrumentNode.nextSiblingElement( "instrument" );
+				 continue;
 			}
 
 			// In current versions of Hydrogen there is no dedicated ID but the
@@ -203,28 +204,50 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 
 #ifdef H2CORE_HAVE_APPIMAGE
 	if ( !sLastLoadedDrumkitPath.isEmpty() ) {
+		sLastLoadedDrumkitPath =
+			Filesystem::sanitizeDrumkitPath( sLastLoadedDrumkitPath );
+
 		// The drumkit path contains an absolute path to the last drumkit used.
 		// Since the system kits are mounted at a different (temporary) path on
 		// each run of the AppImage, we need to manually adjust the path to
 		// ensure consistency.
 		sLastLoadedDrumkitPath =
 			Filesystem::rerouteDrumkitPath( sLastLoadedDrumkitPath );
+
+		sLastLoadedDrumkitPath =
+			Filesystem::sanitizeDrumkitPath( sLastLoadedDrumkitPath );
 	}
 #endif
 
 	// Attempt to access the last loaded drumkit to load it into the
 	// SoundLibraryDatabase in case it was a custom one (e.g. loaded via OSC or
 	// from a different system data folder due to a different install prefix).
-	auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
-	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sLastLoadedDrumkitPath );
+	auto pSoundLibraryDatabase =
+		Hydrogen::get_instance()->getSoundLibraryDatabase();
+
+	std::shared_ptr<Drumkit> pDrumkit = nullptr;
+	if ( sLastLoadedDrumkitPath.contains( "/" ) ||
+		 sLastLoadedDrumkitPath.contains( "\\" ) ) {
+		// We deal with an actual path
+		pDrumkit = pSoundLibraryDatabase->getDrumkit( sLastLoadedDrumkitPath );
+	}
+	else if ( sLastLoadedDrumkitName.isEmpty() ) {
+		// This ain't a drumkit but just its name.
+		sLastLoadedDrumkitName = sLastLoadedDrumkitPath;
+	}
 
 	if ( pDrumkit == nullptr && !sLastLoadedDrumkitName.isEmpty() ) {
 		// Loading by path did not worked. But maybe loading by name will do
 		// (per-path loading guarantees to uniquely identify kits on one system
 		// but is in general not protable to other systems. Name-based lookup,
-		// however, is portable as long as btoh systems have the required kit
+		// however, is portable as long as both systems have the required kit
 		// installed).
-		pDrumkit = pSoundLibraryDatabase->getDrumkit( sLastLoadedDrumkitName );
+		pDrumkit = pSoundLibraryDatabase->getDrumkit(
+			pSoundLibraryDatabase->findArtifact(
+				Filesystem::Artifact::DrumkitExtracted,
+				Filesystem::Context::User, sLastLoadedDrumkitName, true
+			)
+		);
 	}
 
 	// Ensure we do not overwrite the original drumkit when altering the one
@@ -235,7 +258,7 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 		pNewDrumkit = std::make_shared<Drumkit>();
 	} else {
 		pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
-		pNewDrumkit->setContext( Drumkit::Context::Song );
+		pNewDrumkit->setContext( Filesystem::Context::Song );
 	}
 
 	// Assign the loaded parts and load samples.
@@ -282,10 +305,19 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 		// back compatibility code ( song version <= 0.9.0 )
 		QString sFileName = node.read_string( "filename", "", false, false, bSilent );
 
-		if ( ! Filesystem::file_exists( sFileName ) && ! sDrumkitPath.isEmpty() ) {
-			sFileName = sDrumkitPath + "/" + sFileName;
+		if ( !Filesystem::fileExists( sFileName, true ) &&
+			 !sDrumkitPath.isEmpty() ) {
+			// Starting from 2.0 sDrumkitPath does not point to the overall
+			// drumkit folder anymore but to the drumkit.xml file describing the
+			// drumkit.
+			const auto sDrumkitPathCleaned =
+				Filesystem::sanitizeDrumkitPath( sDrumkitPath );
+			const auto sDrumkitDir =
+				Filesystem::drumkitDirFromPath( sDrumkitPathCleaned );
+
+			sFileName = sDrumkitDir + "/" + sFileName;
 		}
-	
+
 		auto pSample = Sample::load( sFileName, drumkitLicense );
 		if ( pSample == nullptr ) {
 			// nel passaggio tra 0.8.2 e 0.9.0 il drumkit di default e' cambiato.
@@ -331,7 +363,7 @@ std::shared_ptr<Playlist> Legacy::load_playlist( const QString& sPath )
 	}
 
 	auto pPlaylist = std::make_shared<Playlist>();
-	pPlaylist->setFileName( sPath );
+	pPlaylist->setPath( sPath );
 
 	XMLNode songsNode = root.firstChildElement( "Songs" );
 	if ( !songsNode.isNull() ) {
@@ -443,6 +475,26 @@ QByteArray Legacy::convertFromTinyXML( QFile* pFile, bool bSilent ) {
 		Legacy::convertStringFromTinyXML( &line );
 		buf += line;
 	}
+
+#if QT_VERSION >= QT_VERSION_CHECK( 6, 3, 0 )
+	if ( ! buf.isValidUtf8() ) {
+		// At least in one of the drumkits we host at SourceForge there is an
+		// invalid UTF-8 character. If not mended, this would prevent Hydrogen
+		// from loading the kit altogether. Instead, we just drop the character.
+		WARNINGLOG( QString( "Buffer [%1] is not valid UTF8. Dropping invalid characters." )
+					.arg( buf ));
+		buf = QString( buf ).toUtf8();
+		DEBUGLOG( buf );
+	}
+#else
+	// Older Qt versions are not able to check whether the byte array contains
+	// valid Qt6. In Qt 5.15 this does not seem to be an issue. All tests do
+	// pass and noone complained. But e.g for Qt 6.2 we suffer the same problem
+	// handled above. Since this part of the code is only run once an old kit is
+	// downloaded, we can use a wasteful approach and ensure proper encoding by
+	// conversion in all cases.
+	buf = QString( buf ).toUtf8();
+#endif
 
 	return std::move( buf );
 }

@@ -252,7 +252,7 @@ void ComponentEditor::addComponent() {
 	// Get initial set of layers for the new component.
 	QString sPath = Preferences::get_instance()->getLastOpenLayerDirectory();
 	const QString sFileName = "";
-	if ( !Filesystem::dir_readable( sPath, false ) ) {
+	if ( !Filesystem::dirReadable( sPath, false ) ) {
 		sPath = QDir::homePath();
 	}
 

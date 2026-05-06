@@ -43,7 +43,7 @@ class TestHelper {
 		QString getDataDir() const;
 		QString getTestDataDir() const;
 		QString getTestFile(const QString& file) const;
-	QStringList findDrumkitBackupFiles( const QString& sDir ) const;
+	QStringList findDrumkitBackupFiles( const QString& sPath ) const;
 
 		static QString sRootDir;
 
@@ -142,6 +142,17 @@ inline QString TestHelper::getTestFile(const QString& file) const
 	CPPUNIT_ASSERT( pSong != nullptr );				                            \
 	CPPUNIT_ASSERT( pSong->getDrumkit() != nullptr );                           \
 	CPPUNIT_ASSERT( ! pSong->getDrumkit()->hasMissingSamples() );               \
+}
+// Ensure consistency between POSIX systems and Windows.
+#define ASSERT_PATH(sPath1, sPath2) {			\
+		const auto sCleanedPath1 = QString( sPath1 ).replace( '\\', '/' ); \
+		const auto sCleanedPath2 = QString( sPath2 ).replace( '\\', '/' ); \
+		CPPUNIT_ASSERT( sCleanedPath1 == sCleanedPath2 );				\
+}
+#define ASSERT_PATH_UNEQUAL(sPath1, sPath2) {			\
+		const auto sCleanedPath1 = QString( sPath1 ).replace( '\\', '/' ); \
+		const auto sCleanedPath2 = QString( sPath2 ).replace( '\\', '/' ); \
+		CPPUNIT_ASSERT( sCleanedPath1 != sCleanedPath2 );				\
 }
 
 #endif

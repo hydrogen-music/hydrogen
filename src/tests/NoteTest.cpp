@@ -107,11 +107,16 @@ void NoteTest::testMappingLegacyDrumkit() {
 	___INFOLOG( "" );
 
 	const auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
-	auto pDrumkit = pDB->getDrumkit( "GMRockKit" );
+	auto pDrumkit = pDB->getDrumkit( pDB->findArtifact(
+		H2Core::Filesystem::Artifact::DrumkitExtracted,
+		H2Core::Filesystem::Context::System, "GMRockKit"
+	) );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( ! pDrumkit->hasMissingTypes() );
 	auto pDrumkitOther = Drumkit::load(
-		H2TEST_FILE( "drumkits/legacy_GMkit" ), false, nullptr, false );
+		H2TEST_FILE( "drumkits/legacy_GMkit/drumkit.xml" ), false, nullptr,
+		false
+	);
 	CPPUNIT_ASSERT( pDrumkitOther != nullptr );
 	CPPUNIT_ASSERT( pDrumkitOther->hasMissingTypes() );
 	CPPUNIT_ASSERT( ! pDrumkitOther->hasMissingSamples() );
@@ -243,10 +248,16 @@ void NoteTest::testMappingValidDrumkits() {
 	___INFOLOG( "" );
 
 	const auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
-	auto pDrumkit = pDB->getDrumkit( "GMRockKit" );
+	auto pDrumkit = pDB->getDrumkit( pDB->findArtifact(
+		H2Core::Filesystem::Artifact::DrumkitExtracted,
+		H2Core::Filesystem::Context::System, "GMRockKit"
+	) );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
-	CPPUNIT_ASSERT( ! pDrumkit->hasMissingTypes() );
-	auto pDrumkitOther = pDB->getDrumkit( "TR808EmulationKit" );
+	CPPUNIT_ASSERT( !pDrumkit->hasMissingTypes() );
+	auto pDrumkitOther = pDB->getDrumkit( pDB->findArtifact(
+		H2Core::Filesystem::Artifact::DrumkitExtracted,
+		H2Core::Filesystem::Context::System, "TR808EmulationKit"
+	) );
 	CPPUNIT_ASSERT( pDrumkitOther != nullptr );
 	CPPUNIT_ASSERT( ! pDrumkitOther->hasMissingTypes() );
 

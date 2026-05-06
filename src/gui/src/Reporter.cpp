@@ -69,7 +69,7 @@ Reporter::Reporter( QProcess *pChild )
 	m_children.insert( pChild );
 
 	if ( m_sLogFile.isEmpty() ) {
-		m_sLogFile = H2Core::Filesystem::log_file_path();
+		m_sLogFile = H2Core::Filesystem::logFilePath();
 	}
 
 	connect( pChild, &QProcess::readyReadStandardOutput,

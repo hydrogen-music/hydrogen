@@ -24,6 +24,7 @@
 #include "core/Helpers/Filesystem.h"
 #include "core/Preferences/Preferences.h"
 #include "core/Hydrogen.h"
+#include "core/Basics/Event.h"
 #include "core/Basics/Drumkit.h"
 #include "core/Basics/Song.h"
 #include "core/NsmClient.h"
@@ -102,7 +103,7 @@ int NsmClient::OpenCallback( const char *name,
 	const QString sSongPath = QString( "%1/%2%3" )
 		.arg( name )
 		.arg( sessionPath.fileName() )
-		.arg( H2Core::Filesystem::songs_ext );
+		.arg( H2Core::Filesystem::sSongSuffix );
 	
 	const QFileInfo songFileInfo = QFileInfo( sSongPath );
 
@@ -120,7 +121,7 @@ int NsmClient::OpenCallback( const char *name,
 
 	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
 	pSoundLibraryDatabase->registerDrumkitFolder( sessionFolder.absolutePath() );
-	pSoundLibraryDatabase->updateDrumkits();
+	pSoundLibraryDatabase->updateDrumkits( H2Core::Event::Trigger::Default );
 
 	bool bEmptySongOpened = false;
 	std::shared_ptr<H2Core::Song> pSong = nullptr;
@@ -139,7 +140,7 @@ int NsmClient::OpenCallback( const char *name,
 			NsmClient::printError( "Unable to open new Song." );
 			return ERR_LAUNCH_FAILED;
 		}
-		pSong->setFileName( sSongPath );
+		pSong->setPath( sSongPath );
 		bEmptySongOpened = true;
 
 		// Mark empty song modified in order to emphasis that an
@@ -164,14 +165,14 @@ void NsmClient::copyPreferences( const char* name ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 
-	QFile preferences( H2Core::Filesystem::usr_config_path() );
+	QFile preferences( H2Core::Filesystem::userConfigPath() );
 	if ( !preferences.exists() ) {
-		preferences.setFileName( H2Core::Filesystem::sys_config_path() );
+		preferences.setFileName( H2Core::Filesystem::systemConfigPath() );
 	}
 	
 	const QString sNewPreferencesPath = QString( "%1/%2" )
 		.arg( name )
-		.arg( QFileInfo( H2Core::Filesystem::usr_config_path() )
+		.arg( QFileInfo( H2Core::Filesystem::userConfigPath() )
 			  .fileName() );
 	
 	// Store the path in a session variable of the Preferences

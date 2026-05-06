@@ -31,6 +31,7 @@
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/CoreActionController.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/License.h>
 #include <core/Object.h>
 
@@ -49,35 +50,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		H2_OBJECT(Drumkit)
 	public:
 
-	/** Indicates usage, storage, and access permissions of a kit.*/
-	enum class Context {
-		/** Kit is located in the system-level drumkit folder, loaded into the
-		 * #H2Core::SoundlibraryDatabase during startup, and is read-only.*/
-		System = 0,
-		/** Kit is located in the user-level drumkit folder, loaded into the
-		 * #H2Core::SoundlibraryDatabase during startup, and can be modified.*/
-		User = 1,
-		/** Kit is located at an arbitrary location of the host system and was
-		 * loaded into Hydrogen during a session using e.g. OSC or its location
-		 * was provided during startup. It is transient and located in a place
-		 * the user only has read-only access and can not be modified.*/
-		SessionReadOnly = 2,
-		/** Kit is located at an arbitrary location of the host system and was
-		 * loaded into Hydrogen during a session using e.g. OSC or its location
-		 * was provided during startup. It is transient and can be modified.*/
-		SessionReadWrite = 3,
-		/** In contrast to the other contexts this drumkit was not loaded from a
-		 * .h2drumkit or a drumkit.xml file within a drumkit folder. Instead, it
-		 * is part of a song and loaded with a .h2song or created with a new
-		 * song. It is stored with the song when saving the song and can be
-		 * converted into a regular kit by saving / exporting the drumkit. All
-		 * its metadata, like drumkit image, end up in a cache folder for
-		 * Hydrogen.*/
-		Song = 4
-	};
-		static QString ContextToString( const Context& context );
-		static Context DetermineContext( const QString& sPath );
-
 		/** drumkit constructor, does nothing */
 		Drumkit();
 		/** copy constructor */
@@ -90,10 +62,10 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/**
 		 * Load drumkit information from a directory.
 		 *
-		 * \param sDrumkitDir A directory containing a drumkit, like those
-		 *   returned by Filesystem::drumkit_dir_search().
+		 * \param sDrumkitPath Absolute path to the drumkit.xml file describing
+		 *   the drumkit.
 		 * \param bUpgrade Whether the loaded drumkit should be
-		 *   upgraded using upgrade_drumkit() in case it did not comply
+		 *   upgraded using upgradeDrumkit() in case it did not comply
 		 *   with the current XSD file.
 		 * \param pLegacyFormatEncountered will be set to `true` is any of the
 		 *   XML elements requires legacy format support and left untouched
@@ -103,7 +75,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static std::shared_ptr<Drumkit> load( const QString& sDrumkitDir,
+		static std::shared_ptr<Drumkit> load( const QString& sDrumkitPath,
 											  bool bUpgrade = true,
 											  bool* pLegacyFormatEncountered = nullptr,
 											  bool bSilent = false );
@@ -112,7 +84,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * load a drumkit from an XMLNode
 		 *
 		 * \param pNode the XMLDode to read from
-		 * \param sPath the directory holding the drumkit data
+		 * @param sDrumkitPath Absolute path to the drumkit.xml file describing
+		 *   the drumkit.
 		 * @param sSongPath If not empty, absolute path to the .h2song file the
 		 *   drumkit is contained in. It is used to resolve sample paths
 		 *   relative to the .h2song file.
@@ -132,7 +105,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * errors and warnings are suppressed.
 		 */
 		static std::shared_ptr<Drumkit> loadFrom( const XMLNode& pNode,
-												  const QString& sPath,
+												  const QString& sDrumkitPath,
 												  const QString& sSongPath,
 												  bool bSongKit = false,
 												  bool* pLegacyFormatEncountered = nullptr,
@@ -164,15 +137,15 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * drumkit.xml file as well as copying both associated samples
 		 * and images.
 		 *
-		 * \param sDrumkitDir the path (folder) to save the #Drumkit
-		 * into. If left empty, the path stored in #m_sPath will be
-		 * used instead.
+		 * \param sDrumkitPath Absolute path to the drumkit.xml file describing
+		 *   the drumkit. If left empty, the path stored in #m_sPath will be
+		 *   used instead.
 		 * \param bSilent if set to true, all log messages except of
-		 * errors and warnings are suppressed.
+		 *   errors and warnings are suppressed.
 		 *
 		 * \return true on success
 		 */
-		bool save( const QString& sDrumkitDir = "",
+		bool save( const QString& sDrumkitPath = "",
 				   bool bSilent = false );
 
 
@@ -203,13 +176,13 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * Extract a .h2drumkit file.
 		 *
 		 * \param sSourcePath Absolute path to the new drumkit archive
-		 * \param sTargetPath Absolute path to where the new drumkit should be
+		 * \param sTargetDir Absolute path to where the new drumkit should be
 		 *   extracted to. If left empty, the user's drumkit folder will be
 		 *   used.
-		 * \param pInstalledPath Will contain the actual name of the folder the
+		 * \param pInstalledDir Will contain the actual name of the folder the
 		 *   kit was installed to. In most cases this will coincide with a
-		 *   folder within @a sTargetPath named like the kit itself. But in case
-		 *   the system does not support UTF-8 encoding and @a sTargetPath
+		 *   folder within @a sTargetDir named like the kit itself. But in case
+		 *   the system does not support UTF-8 encoding and @a sTargetDir
 		 *   contains characters other than those whitelisted in
 		 *   #Filesystem::removeUtf8Characters, those might be omitted and the
 		 *   directory and files created using `libarchive` might differ.
@@ -221,8 +194,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \return true on success
 		 */
 	static bool install( const QString& sSourcePath,
-						 const QString& sTargetPath = "",
-						 QString* pInstalledPath = nullptr,
+						 const QString& sTargetDir = "",
+						 QString* pInstalledDir = nullptr,
 						 bool* pEncodingIssuesDetected = nullptr,
 						 bool bSilent = false );
 
@@ -230,7 +203,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 * Compresses the drumkit into a .h2drumkit file.
 	 *
 	 * The name of the created file will be a concatenation of #m_sName and
-	 * Filesystem::drumkit_ext.
+	 * Filesystem::sDrumkitSuffix.
 	 *
 	 * exportTo() ? well, export is a protected name within C++. So, we needed a
 	 * less obvious name.
@@ -260,8 +233,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/**  returns #m_pInstruments */
 		std::shared_ptr<InstrumentList> getInstruments() const;
 
-		void setContext( const Context& context );
-		const Context& getContext() const;
+		void setContext( const Filesystem::Context& context );
+		const Filesystem::Context& getContext() const;
 		/** #m_sPath setter */
 		void setPath( const QString& path );
 		/** #m_sPath accessor */
@@ -354,14 +327,14 @@ class Drumkit : public H2Core::Object<Drumkit>
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 		friend bool CoreActionController::removeInstrument(
-			std::shared_ptr<Instrument> );
+			std::shared_ptr<Instrument>, long* );
 		friend bool CoreActionController::replaceDrumkitInstrument(
 			std::shared_ptr<Instrument>, std::shared_ptr<Instrument> );
 
 	private:
 		/** Transient property neither written to a drumkit.xml nor to a .h2song
 		 * but determined when loading the kit. */
-		Context m_context;
+		Filesystem::Context m_context;
 		QString m_sPath;					///< absolute drumkit path
 		QString m_sName;					///< drumkit name
 		int m_nVersion;
@@ -421,16 +394,16 @@ inline std::shared_ptr<InstrumentList> Drumkit::getInstruments() const
 	return m_pInstruments;
 }
 
-inline void Drumkit::setContext( const Drumkit::Context& context ) {
+inline void Drumkit::setContext( const Filesystem::Context& context ) {
 	m_context = context;
 }
-inline const Drumkit::Context& Drumkit::getContext() const {
+inline const Filesystem::Context& Drumkit::getContext() const {
 	return m_context;
 }
 
-inline void Drumkit::setPath( const QString& path )
+inline void Drumkit::setPath( const QString& sPath )
 {
-	m_sPath = path;
+	m_sPath = sPath;
 }
 
 inline void Drumkit::setName( const QString& name )

@@ -233,10 +233,6 @@ class Preferences : public H2Core::Object<Preferences> {
 	bool m_bPlaySamplesOnClicking;	// audio file browser
 	bool m_bFollowPlayhead;
 
-	// SoundLibraryPanel expand song and pattern item
-	bool m_bExpandSongItem;
-	bool m_bExpandPatternItem;
-
 	// BeatCounter
 	BpmTap m_bpmTap;
 	BeatCounter m_beatCounter;
@@ -244,7 +240,6 @@ class Preferences : public H2Core::Object<Preferences> {
 	int m_nBeatCounterStartOffset;
 
 	QStringList m_serverList;
-	QStringList m_patternCategories;
 
 	//___ audio engine properties ___
 	AudioDriver m_audioDriver;
@@ -394,10 +389,10 @@ class Preferences : public H2Core::Object<Preferences> {
 	bool getShowNoteOverwriteWarning() const;
 	void setShowNoteOverwriteWarning( bool bValue );
 
-	const QString& getLastSongFileName() const;
-	void setLastSongFileName( const QString& sFileName );
-	const QString& getLastPlaylistFileName() const;
-	void setLastPlaylistFileName( const QString& sFileName );
+	const QString& getLastSongPath() const;
+	void setLastSongPath( const QString& sPath );
+	const QString& getLastPlaylistPath() const;
+	void setLastPlaylistPath( const QString& sPath );
 
 	bool getHearNewNotes() const;
 	void setHearNewNotes( bool value );
@@ -547,6 +542,23 @@ class Preferences : public H2Core::Object<Preferences> {
 	bool getMidiExportUseHumanization() const;
 	void setMidiExportUseHumanization( bool bHumanization );
 
+	bool getSoundLibraryShowName() const;
+	void setSoundLibraryShowName( bool bShow );
+	bool getSoundLibraryShowAuthor() const;
+	void setSoundLibraryShowAuthor( bool bShow );
+	bool getSoundLibraryShowInfo() const;
+	void setSoundLibraryShowInfo( bool bShow );
+	bool getSoundLibraryShowLicense() const;
+	void setSoundLibraryShowLicense( bool bShow );
+	bool getSoundLibraryShowPath() const;
+	void setSoundLibraryShowPath( bool bShow );
+	bool getSoundLibraryShowTags() const;
+	void setSoundLibraryShowTags( bool bShow );
+	int getSoundLibraryLastTab() const;
+	void setSoundLibraryLastTab( int nTab );
+	int getRackLastTab() const;
+	void setRackLastTab( int nTab );
+
 	bool m_bShowExportSongLicenseWarning;
 	bool m_bShowExportDrumkitLicenseWarning;
 	bool m_bShowExportDrumkitCopyleftWarning;
@@ -600,8 +612,8 @@ class Preferences : public H2Core::Object<Preferences> {
 	bool m_bShowNoteOverwriteWarning;
 
 	///< Last song used
-	QString m_sLastSongFileName;
-	QString m_sLastPlaylistFileName;
+	QString m_sLastSongPath;
+	QString m_sLastPlaylistPath;
 
 	bool m_bHearNewNotes;
 	int m_nPunchInPos;
@@ -699,6 +711,15 @@ class Preferences : public H2Core::Object<Preferences> {
 	// Export midi dialog
 	int m_nMidiExportMode;
 	bool m_bMidiExportUseHumanization;
+
+	bool m_bSoundLibraryShowName;
+	bool m_bSoundLibraryShowAuthor;
+	bool m_bSoundLibraryShowInfo;
+	bool m_bSoundLibraryShowLicense;
+	bool m_bSoundLibraryShowPath;
+	bool m_bSoundLibraryShowTags;
+	int m_nSoundLibraryLastTab;
+	int m_nRackLastTab;
 
 	std::shared_ptr<Theme> m_pTheme;
 
@@ -857,6 +878,71 @@ inline void Preferences::setMidiExportUseHumanization( bool bUseHumanization )
 	m_bMidiExportUseHumanization = bUseHumanization;
 }
 
+inline bool Preferences::getSoundLibraryShowName() const
+{
+	return m_bSoundLibraryShowName;
+}
+inline void Preferences::setSoundLibraryShowName( bool bShow )
+{
+	m_bSoundLibraryShowName = bShow;
+}
+inline bool Preferences::getSoundLibraryShowAuthor() const
+{
+	return m_bSoundLibraryShowAuthor;
+}
+inline void Preferences::setSoundLibraryShowAuthor( bool bShow )
+{
+	m_bSoundLibraryShowAuthor = bShow;
+}
+inline bool Preferences::getSoundLibraryShowInfo() const
+{
+	return m_bSoundLibraryShowInfo;
+}
+inline void Preferences::setSoundLibraryShowInfo( bool bShow )
+{
+	m_bSoundLibraryShowInfo = bShow;
+}
+inline bool Preferences::getSoundLibraryShowLicense() const
+{
+	return m_bSoundLibraryShowLicense;
+}
+inline void Preferences::setSoundLibraryShowLicense( bool bShow )
+{
+	m_bSoundLibraryShowLicense = bShow;
+}
+inline bool Preferences::getSoundLibraryShowPath() const
+{
+	return m_bSoundLibraryShowPath;
+}
+inline void Preferences::setSoundLibraryShowPath( bool bShow )
+{
+	m_bSoundLibraryShowPath = bShow;
+}
+inline bool Preferences::getSoundLibraryShowTags() const
+{
+	return m_bSoundLibraryShowTags;
+}
+inline void Preferences::setSoundLibraryShowTags( bool bShow )
+{
+	m_bSoundLibraryShowTags = bShow;
+}
+inline int Preferences::getSoundLibraryLastTab() const
+{
+	return m_nSoundLibraryLastTab;
+}
+inline void Preferences::setSoundLibraryLastTab( int nTab )
+{
+	m_nSoundLibraryLastTab = nTab;
+}
+inline int Preferences::getRackLastTab() const
+{
+	return m_nRackLastTab;
+}
+inline void Preferences::setRackLastTab( int nTab )
+{
+	m_nRackLastTab = nTab;
+}
+
 inline int Preferences::getExportSampleDepthIdx() const
 {
 	return m_nExportSampleDepthIdx;
@@ -977,22 +1063,22 @@ inline bool Preferences::getUseRelativeFileNamesForPlaylists() const
 	return m_bUseRelativeFileNamesForPlaylists;
 }
 
-inline void Preferences::setLastSongFileName( const QString& sFileName )
+inline void Preferences::setLastSongPath( const QString& sPath )
 {
-	m_sLastSongFileName = sFileName;
+	m_sLastSongPath = sPath;
 }
-inline const QString& Preferences::getLastSongFileName() const
+inline const QString& Preferences::getLastSongPath() const
 {
-	return m_sLastSongFileName;
+	return m_sLastSongPath;
 }
 
-inline void Preferences::setLastPlaylistFileName( const QString& sFileName )
+inline void Preferences::setLastPlaylistPath( const QString& sPath )
 {
-	m_sLastPlaylistFileName = sFileName;
+	m_sLastPlaylistPath = sPath;
 }
-inline const QString& Preferences::getLastPlaylistFileName() const
+inline const QString& Preferences::getLastPlaylistPath() const
 {
-	return m_sLastPlaylistFileName;
+	return m_sLastPlaylistPath;
 }
 
 inline void Preferences::setHearNewNotes( bool value )

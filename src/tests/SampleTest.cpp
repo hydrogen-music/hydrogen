@@ -71,7 +71,7 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 
 	// Import an instrument from another drumkit (installed)
 	const QString sAnotherDrumkitPath(
-		Filesystem::sys_drumkits_dir() + "/TR808EmulationKit"
+		Filesystem::systemDrumkitsDir() + "/TR808EmulationKit/drumkit.xml"
 	);
 	auto pAnotherDrumkit =
 		std::make_shared<Drumkit>(Hydrogen::get_instance()->getSoundLibraryDatabase()->getDrumkit(
@@ -141,10 +141,12 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 	// Save the drumkit to disk and reload it. If everything worked, all samples
 	// can be reloaded.
 	QTemporaryDir tmpDir( "storing-sample-test-kit" );
-	pDrumkit->save( tmpDir.path(), false );
+	const QString sTmpDrumkitPath =
+		Filesystem::drumkitPathFromDir( tmpDir.path() );
+	pDrumkit->save( sTmpDrumkitPath, false );
 
 	auto pDrumkitReloaded =
-		Drumkit::load( tmpDir.path(), false, nullptr, false );
+		Drumkit::load( sTmpDrumkitPath, false, nullptr, false );
 	CPPUNIT_ASSERT( pDrumkitReloaded != nullptr );
 	CPPUNIT_ASSERT( !pDrumkitReloaded->hasMissingSamples() );
 	CPPUNIT_ASSERT(
@@ -154,7 +156,7 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 	// Now let's do the same for the overall song and load it back as the
 	// current drumkit.
 	const QString sTmpSongPath =
-		Filesystem::tmp_file_path( "storing-samples-test-song" );
+		Filesystem::tmpFilePath( "storing-samples-test-song" );
 	CPPUNIT_ASSERT( pSong->save( sTmpSongPath, false, false ) );
 
 	auto pSongReloaded = Song::load( sTmpSongPath, false );

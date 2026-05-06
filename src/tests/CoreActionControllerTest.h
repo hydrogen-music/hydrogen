@@ -29,7 +29,6 @@ class CoreActionControllerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( CoreActionControllerTest );
 	CPPUNIT_TEST( testCountIn );
 	CPPUNIT_TEST( testSessionManagement );
-	CPPUNIT_TEST( testIsPathValid );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -41,7 +40,4 @@ public:
 	// CoreActionController::saveSong()
 	// CoreActionController::saveSongAs() methods.
 	void testSessionManagement();
-	
-	// Tests Filesystem::isPathValid()
-	void testIsPathValid();
 };

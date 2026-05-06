@@ -29,20 +29,27 @@ class FilesystemTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testPermissions );
 	CPPUNIT_TEST( testUniquePrefix );
 	CPPUNIT_TEST( testFilePathValidation );
+	CPPUNIT_TEST( testListContent );
+	CPPUNIT_TEST( testIsPathValid );
 	CPPUNIT_TEST( testSamplePathHandling );
+	CPPUNIT_TEST( testDrumkitPathConversion );
+	CPPUNIT_TEST( testSanitizeDrumkitPath );
 	CPPUNIT_TEST_SUITE_END();
-	
-	
-public:
+
+   public:
 	void setUp();
 	void tearDown();
-	
-	void testPermissions();
-		void testUniquePrefix();
-	void testFilePathValidation();
-		void testSamplePathHandling();
 
-private:
+	void testPermissions();
+	void testUniquePrefix();
+	void testFilePathValidation();
+	void testListContent();
+	void testIsPathValid();
+	void testSamplePathHandling();
+	void testDrumkitPathConversion();
+	void testSanitizeDrumkitPath();
+
+   private:
 	QString m_sNotExistingPath;
 	QString m_sNoAccessPath;
 	QString m_sReadOnlyPath;

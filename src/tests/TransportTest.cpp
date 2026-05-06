@@ -62,7 +62,7 @@ void TransportTest::tearDown() {
 void TransportTest::testFrameToTickConversion() {
 	___INFOLOG( "" );
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
-								   .arg( Filesystem::demos_dir() ) );
+								   .arg( Filesystem::demosDir() ) );
 	ASSERT_SONG( pSongDemo );
 	H2Core::CoreActionController::setSong( pSongDemo );
 
@@ -77,7 +77,7 @@ void TransportTest::testFrameToTickConversion() {
 void TransportTest::testTransportProcessing() {
 	___INFOLOG( "" );
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
-								   .arg( Filesystem::demos_dir() ) );
+								   .arg( Filesystem::demosDir() ) );
 	ASSERT_SONG( pSongDemo );
 	H2Core::CoreActionController::setSong( pSongDemo );
 
@@ -108,7 +108,7 @@ void TransportTest::testTransportProcessingTimeline() {
 void TransportTest::testTransportRelocation() {
 	___INFOLOG( "" );
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
-								   .arg( Filesystem::demos_dir() ) );
+								   .arg( Filesystem::demosDir() ) );
 	ASSERT_SONG( pSongDemo );
 	H2Core::CoreActionController::setSong( pSongDemo );
 	
@@ -185,7 +185,7 @@ void TransportTest::testSongSizeChange() {
 void TransportTest::testSongSizeChangeInLoopMode() {
 	___INFOLOG( "" );
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
-								   .arg( Filesystem::demos_dir() ) );
+								   .arg( Filesystem::demosDir() ) );
 	ASSERT_SONG( pSongDemo );
 	H2Core::CoreActionController::setSong( pSongDemo );
 
@@ -201,7 +201,7 @@ void TransportTest::testPlaybackTrack() {
 	___INFOLOG( "" );
 
 	QString sSongFile = H2TEST_FILE( "song/AE_playbackTrack.h2song" );
-	QString sOutFile = Filesystem::tmp_file_path("testPlaybackTrack.wav");
+	QString sOutFile = Filesystem::tmpFilePath("testPlaybackTrack.wav");
 	QString sRefFile = H2TEST_FILE("song/res/playbackTrack.flac");
 
 	TestHelper::exportSong( sSongFile, sOutFile );
@@ -214,8 +214,8 @@ void TransportTest::testSampleConsistency() {
 	___INFOLOG( "" );
 
 	const QString sSongFile = H2TEST_FILE( "song/AE_sampleConsistency.h2song" );
-	const QString sDrumkitDir = H2TEST_FILE( "drumkits/sampleKit/" );
-	const QString sOutFile = Filesystem::tmp_file_path("testsampleConsistency.wav");
+	const QString sDrumkitPath = H2TEST_FILE( "drumkits/sampleKit/drumkit.xml" );
+	const QString sOutFile = Filesystem::tmpFilePath("testsampleConsistency.wav");
 	const QString sRefFile = H2TEST_FILE("drumkits/sampleKit/longSample.flac");
 
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
@@ -227,7 +227,7 @@ void TransportTest::testSampleConsistency() {
 
 	// Apply drumkit containing the long sample to be tested.
 	const auto pDrumkit = H2Core::Drumkit::load(
-		sDrumkitDir, false, nullptr, true );
+		sDrumkitPath, false, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	H2Core::CoreActionController::setDrumkit( pDrumkit );
 

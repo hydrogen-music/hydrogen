@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
 		}
 
 		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
-		___INFOLOG( "Using data path: " + Filesystem::sys_data_path() );
+		___INFOLOG( "Using data path: " + Filesystem::systemDataPath() );
 
 		pPref->m_bUseMetronome = false;
 		pPref->m_audioDriver = H2Core::Preferences::AudioDriver::Jack;

@@ -50,6 +50,7 @@ class Pattern;
 class PatternList;
 class Sample;
 class SoundLibraryDatabase;
+class SoundLibraryInfo;
 class Timeline;
 
 /**
@@ -114,13 +115,16 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	};
 		static QString PatternModeToQString( const PatternMode& patternMode );
 
+		static QString sDefaultName;
+		static QString sDefaultAuthor;
+
 		/** Please do not #H2Core::Hydrogen::setSong() a song created using this
 		 * constructor. It is just a minimal version with not all its members
 		 * properly initialized and can causes crashes (in the
 		 * #H2Core::AudioEngine) when used directly. Please use getEmptySong()
 		 * instead. */
-		Song( const QString& sName = "Untitled Song",
-			  const QString& sAuthor = "Unknown Author",
+		Song( const QString& sName = Song::sDefaultName,
+			  const QString& sAuthor = Song::sDefaultAuthor,
 			  float fBpm = 120,
 			  float fVolume = 0.5 );
 		~Song();
@@ -133,16 +137,20 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		static std::shared_ptr<Song> getEmptySong(
 			std::shared_ptr<SoundLibraryDatabase> pDB = nullptr );
 
-	static std::shared_ptr<Song> 	load( const QString& sFileName, bool bSilent = false );
+	static std::shared_ptr<Song> from(
+		std::shared_ptr<SoundLibraryInfo> pInfo
+	);
+
+	static std::shared_ptr<Song> 	load( const QString& sPath, bool bSilent = false );
 	/** Writes the song as .h2song to disk.
 	 *
-	 * @param sFileName Absolute path to write the song to.
+	 * @param sPath Absolute path to write the song to.
 	 * @param bKeepMissingSamples Whether layers containing a missing sample
 	 *   should be kept or discarded.
 	 * \param bSilent if set to true, all log messages except of errors and
 	 *   warnings are suppressed.
 	 */
-	bool 			save( const QString& sFileName, bool bKeepMissingSamples,
+	bool 			save( const QString& sPath, bool bKeepMissingSamples,
 						 bool bSilent = false );
 
 	bool getIsTimelineActivated() const;
@@ -204,8 +212,8 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		void			setAuthor( const QString& sAuthor );
 		const QString&		getAuthor() const;
 
-		const QString&		getFileName() const;
-		void			setFileName( const QString& sFileName );
+		const QString&		getPath() const;
+		void			setPath( const QString& sPath );
 							
 		const LoopMode&	getLoopMode() const;
 		void			setLoopMode( const LoopMode& loopMode );
@@ -318,7 +326,13 @@ private:
 		 * `SoundLibraryDatabase` or is a brand new kit. */
 		std::shared_ptr<Drumkit> m_pDrumkit;
 
-		QString			m_sFileName;
+		/** Absolute path to the underlying artifact serving as an unique
+		 * identifier of the artifact throughout Hydrogen.
+		 *
+		 * In case is no file backing the resource (yet), an path to an
+		 * non-existing file retrieved via #Filesystem::emptyPath will be used
+		 * instead. */
+		QString m_sPath;
 
 		/**
 		 * The three states of this enum is just a way to handle the
@@ -538,14 +552,14 @@ inline const QString& Song::getAuthor() const
 	return m_sAuthor;
 }
 
-inline const QString& Song::getFileName() const
+inline const QString& Song::getPath() const
 {
-	return m_sFileName;
+	return m_sPath;
 }
 
-inline void Song::setFileName( const QString& sFileName )
+inline void Song::setPath( const QString& sPath )
 {
-	m_sFileName = sFileName;
+	m_sPath = sPath;
 }
 
 inline bool Song::isLoopEnabled() const

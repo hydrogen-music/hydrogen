@@ -50,6 +50,7 @@
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 #include <core/Timeline.h>
 #include <core/Version.h>
 
@@ -62,6 +63,9 @@ namespace
 }//anonymous namespace
 namespace H2Core
 {
+
+QString Song::sDefaultName = "Untitled Song";
+QString Song::sDefaultAuthor = "Unknown Author";
 
 Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume )
 	: m_bIsTimelineActivated( false )
@@ -77,7 +81,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_pPatternList( std::make_shared<PatternList>() )
 	, m_pPatternGroupVector( std::make_shared< std::vector<
 							   std::shared_ptr<PatternList> > >() )
-	, m_sFileName( "" )
+	, m_sPath( "" )
 	, m_loopMode( LoopMode::Disabled )
 	, m_patternMode( PatternMode::Selected )
 	, m_fHumanizeTimeValue( 0.0 )
@@ -97,9 +101,8 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_bWasAskedAboutMissingSamples( false )
 {
 	if ( m_sName.isEmpty() ){
-		m_sName = Filesystem::untitled_song_name();
+		m_sName = Song::sDefaultName;
 	}
-	INFOLOG( QString( "INIT '%1'" ).arg( m_sName ) );
 
 	m_pVelocityAutomationPath = new AutomationPath(0.0f, 1.5f,  1.0f);
 }
@@ -113,15 +116,30 @@ Song::~Song()
 	 */
 
 	delete m_pVelocityAutomationPath;
+}
 
-	INFOLOG( QString( "DESTROY '%1'" ).arg( m_sName ) );
+std::shared_ptr<Song> Song::from( std::shared_ptr<SoundLibraryInfo> pInfo
+)
+{
+	if ( pInfo == nullptr ) {
+		return nullptr;
+	}
+
+	auto pSong = Song::load( pInfo->getPath() );
+	if ( pSong == nullptr ) {
+		ERRORLOG( QString( "Unable to load song from [%1]" )
+					  .arg( pInfo->toQString() ) );
+		return nullptr;
+	}
+
+	return pSong;
 }
 
 void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 	m_pDrumkit = pDrumkit;
 
-	if ( m_pDrumkit->getContext() != Drumkit::Context::Song ) {
-		m_pDrumkit->setContext( Drumkit::Context::Song );
+	if ( m_pDrumkit->getContext() != Filesystem::Context::Song ) {
+		m_pDrumkit->setContext( Filesystem::Context::Song );
 	}
 
 	m_sLastLoadedDrumkitPath = pDrumkit->getPath();
@@ -183,9 +201,9 @@ bool Song::isPatternActive( const GridPoint& gridPoint ) const {
 }
 
 ///Load a song from file
-std::shared_ptr<Song> Song::load( const QString& sFileName, bool bSilent )
+std::shared_ptr<Song> Song::load( const QString& sInputPath, bool bSilent )
 {
-	QString sPath = Filesystem::absolute_path( sFileName, bSilent );
+	QString sPath = Filesystem::absolutePath( sInputPath, bSilent );
 	if ( sPath.isEmpty() ) {
 		return nullptr;
 	}
@@ -195,9 +213,9 @@ std::shared_ptr<Song> Song::load( const QString& sFileName, bool bSilent )
 	}
 
 	XMLDoc doc;
-	if ( ! doc.read( sFileName ) && ! bSilent ) {
+	if ( ! doc.read( sPath ) && ! bSilent ) {
 		ERRORLOG( QString( "Something went wrong while loading song [%1]" )
-				  .arg( sFileName ) );
+				  .arg( sPath ) );
 	}
 
 	XMLNode songNode = doc.firstChildElement( "song" );
@@ -211,21 +229,21 @@ std::shared_ptr<Song> Song::load( const QString& sFileName, bool bSilent )
 		QString sSongVersion = songNode.read_string( "version", "Unknown version", false, false );
 		if ( sSongVersion != QString( get_version().c_str() ) ) {
 			INFOLOG( QString( "Trying to load a song [%1] created with a different version [%2] of hydrogen. Current version: %3" )
-					 .arg( sFileName )
+					 .arg( sPath )
 					 .arg( sSongVersion )
 					 .arg( get_version().c_str() ) );
 		}
 	}
 
-	auto pSong = Song::loadFrom( songNode, sFileName, bSilent );
+	auto pSong = Song::loadFrom( songNode, sPath, bSilent );
 	if ( pSong != nullptr ) {
-		pSong->setFileName( sFileName );
+		pSong->setPath( sPath );
 	}
 
 	return pSong;
 }
 
-std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sFileName, bool bSilent )
+std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
 {
 	auto pPreferences = Preferences::get_instance();
 	auto pSong = std::make_shared<Song>();
@@ -287,7 +305,7 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		pSong->setMode( Song::Mode::Pattern );
 	}
 
-	const auto sSongPath = Filesystem::absolute_path( sFileName );
+	const auto sSongPath = Filesystem::absolutePath( sPath );
 
 	const XMLNode playbackTrackNode =
 		rootNode.firstChildElement( "playbackTrack" );
@@ -325,7 +343,7 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		// Check the file of the playback track and resort to the default
 		// in case the file can not be found.
 		if ( !sPlaybackTrack.isEmpty() &&
-			 !Filesystem::file_exists( sPlaybackTrack, true ) ) {
+			 !Filesystem::fileExists( sPlaybackTrack, true ) ) {
 			ERRORLOG( QString( "Provided playback track file [%1] does not "
 							   "exist. Using empty string instead" )
 						  .arg( sPlaybackTrack ) )
@@ -470,10 +488,13 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		bCurrentDrumkitLoaded = false;
 	}
 	pSong->setDrumkit( pDrumkit );
-	pSong->setLastLoadedDrumkitPath( rootNode.read_string(
+	QString sLastLoadedDrumkitPath = rootNode.read_string(
 		"lastLoadedDrumkitPath", pSong->getLastLoadedDrumkitPath(), true, true,
 		bSilent
-	) );
+	);
+	pSong->setLastLoadedDrumkitPath(
+		Filesystem::sanitizeDrumkitPath( sLastLoadedDrumkitPath )
+	);
 
 	// Pattern list
 	auto pPatternList = PatternList::loadFrom(
@@ -484,6 +505,29 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		pPatternList->mapToDrumkit( pDrumkit, nullptr );
 	}
 	pSong->setPatternList( pPatternList );
+
+	// In case a pattern was loaded from disk, we store the corresponding path
+	// in #Pattern but not in .h2pattern. The path is an unique identifier on
+	// the system but has not any use when sharing .h2pattern file but leaking
+	// interna, like user name. Instead, those paths are stored in .h2song as
+	// the surrounding session of the patterns.
+	XMLNode patternPathsNode = rootNode.firstChildElement( "patternPaths" );
+	if ( !patternPathsNode.isNull() ) {
+		QStringList patternPaths;
+		auto patternPathNode =
+			patternPathsNode.firstChildElement( "patternPath" );
+		while ( !patternPathNode.isNull() ) {
+			patternPaths << patternPathNode.text();
+			patternPathNode =
+				patternPathNode.nextSiblingElement( "patternPath" );
+		}
+
+		for ( int ii = 0; ii < patternPaths.size(); ++ii ) {
+			if ( ii < pPatternList->size() && !patternPaths[ii].isEmpty() ) {
+				pPatternList->get( ii )->setPath( patternPaths[ii] );
+			}
+		}
+	}
 
 	// Virtual Patterns
 	XMLNode virtualPatternListNode =
@@ -728,22 +772,22 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 	}
 
 /// Save a song to file
-bool Song::save( const QString& sFileName, bool bKeepMissingSamples, bool bSilent )
+bool Song::save( const QString& sPath, bool bKeepMissingSamples, bool bSilent )
 {
-	QFileInfo fi( sFileName );
-	if ( ( Filesystem::file_exists( sFileName, true ) &&
-		   ! Filesystem::file_writable( sFileName, true ) ) ||
-		 ( ! Filesystem::file_exists( sFileName, true ) &&
-		   ! Filesystem::dir_writable( fi.dir().absolutePath(), true ) ) ) {
+	QFileInfo fi( sPath );
+	if ( ( Filesystem::fileExists( sPath, true ) &&
+		   ! Filesystem::fileWritable( sPath, true ) ) ||
+		 ( ! Filesystem::fileExists( sPath, true ) &&
+		   ! Filesystem::dirWritable( fi.dir().absolutePath(), true ) ) ) {
 		// In case a read-only file is loaded by Hydrogen. Beware:
 		// .isWritable() will return false if the song does not exist.
 		ERRORLOG( QString( "Unable to save song to [%1]. Path is not writable!" )
-				  .arg( sFileName ) );
+				  .arg( sPath ) );
 		return false;
 	}
 
 	if ( ! bSilent ) {
-		INFOLOG( QString( "Saving song to [%1]" ).arg( sFileName ) );
+		INFOLOG( QString( "Saving song to [%1]" ).arg( sPath ) );
 	}
 
 	XMLDoc doc;
@@ -757,11 +801,11 @@ bool Song::save( const QString& sFileName, bool bKeepMissingSamples, bool bSilen
 
 	saveTo( rootNode, bKeepMissingSamples, bSilent );
 
-	setFileName( sFileName );
+	setPath( sPath );
 	setIsModified( false );
 
-	if ( ! doc.write( sFileName ) ) {
-		ERRORLOG( QString( "Error writing song to [%1]" ).arg( sFileName ) );
+	if ( ! doc.write( sPath ) ) {
+		ERRORLOG( QString( "Error writing song to [%1]" ).arg( sPath ) );
 		return false;
 	}
 
@@ -878,6 +922,18 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples,
 	if ( m_pPatternList != nullptr ) {
 		m_pPatternList->saveTo( rootNode );
 
+		XMLNode patternPathsNode = rootNode.createNode( "patternPaths" );
+		for ( const auto& ppPattern : *m_pPatternList ) {
+			if ( ppPattern != nullptr && !ppPattern->getPath().isEmpty() ) {
+				patternPathsNode.write_string(
+					"patternPath", ppPattern->getPath()
+				);
+			}
+			else {
+				patternPathsNode.write_string( "patternPath", "" );
+			}
+		}
+
 		XMLNode virtualPatternListNode =
 			rootNode.createNode( "virtualPatternList" );
 		for ( const auto& pPattern : *m_pPatternList ) {
@@ -988,7 +1044,7 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples,
 std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> pDB )
 {
 	std::shared_ptr<Song> pSong =
-		std::make_shared<Song>( Filesystem::untitled_song_name(), "hydrogen",
+		std::make_shared<Song>( Song::sDefaultName, Song::sDefaultAuthor,
 								120, 0.5 );
 
 	pSong->setMetronomeVolume( 0.5 );
@@ -1022,7 +1078,7 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 	pPatternGroupVector->push_back( patternSequence );
 	pSong->setPatternGroupVector( pPatternGroupVector );
 
-	pSong->setFileName( Filesystem::empty_path( Filesystem::Type::Song ) );
+	pSong->setPath( Filesystem::emptyPath( Filesystem::Artifact::Song ) );
 
 	std::shared_ptr<SoundLibraryDatabase> pSoundLibraryDatabase;
 
@@ -1034,14 +1090,18 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 			Hydrogen::get_instance()->getSoundLibraryDatabase();
 	}
 
-	const QString sDefaultDrumkitPath = Filesystem::drumkit_default_kit();
-	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDefaultDrumkitPath );
+	// Per default we use the GMRockKit shipped with Hydrogen
+	auto pDrumkit =
+		pSoundLibraryDatabase->getDrumkit( pSoundLibraryDatabase->findArtifact(
+			Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::System,
+			"GMRockKit"
+		) );
 	if ( pDrumkit == nullptr ) {
-		for ( const auto& pEntry : pSoundLibraryDatabase->getDrumkitDatabase() ) {
+		// In case we failed to load the default kit, we just use the first one
+		// registered in the sound library.
+		for ( const auto& pEntry :
+			  pSoundLibraryDatabase->getDrumkitDatabase() ) {
 			if ( pEntry.second != nullptr ) {
-				WARNINGLOG( QString( "Unable to retrieve default drumkit [%1]. Using kit [%2] instead." )
-							.arg( sDefaultDrumkitPath )
-							.arg( pEntry.first ) );
 				pDrumkit = pEntry.second;
 				break;
 			}
@@ -1049,11 +1109,12 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 	}
 
 	if ( pDrumkit == nullptr ) {
-		// In case we fail to load the default kit, we use an empty one.
+		// Seems there is not a single drumkit in the library, we use an empty
+		// one.
 		pDrumkit = Drumkit::getEmptyDrumkit();
 	}
 	else {
-		pDrumkit = std::make_shared<Drumkit>(pDrumkit);
+		pDrumkit = std::make_shared<Drumkit>( pDrumkit );
 	}
 
 	pSong->setDrumkit( pDrumkit );
@@ -1270,8 +1331,8 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			sOutput.append( QString( "%1%2m_pDrumkit: nullptr\n" ).arg( sPrefix )
 							.arg( s ) );
 		}
-		sOutput.append( QString( "%1%2m_sFileName: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_sFileName ) )
+		sOutput.append( QString( "%1%2m_sPath: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sPath ) )
 			.append( QString( "%1%2m_loopMode: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( LoopModeToQString( m_loopMode ) ) )
 			.append( QString( "%1%2m_patternMode: %3\n" ).arg( sPrefix ).arg( s )
@@ -1348,7 +1409,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( ", m_pDrumkit: nullptr" );
 		}
-		sOutput.append( QString( ", m_sFileName: %1" ).arg( m_sFileName ) )
+		sOutput.append( QString( ", m_sPath: %1" ).arg( m_sPath ) )
 			.append( QString( ", m_loopMode: %1" )
 					 .arg( LoopModeToQString( m_loopMode ) ) )
 			.append( QString( ", m_patternMode: %1" )

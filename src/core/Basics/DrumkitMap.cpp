@@ -41,7 +41,7 @@ DrumkitMap::~DrumkitMap() {
 
 std::shared_ptr<DrumkitMap> DrumkitMap::load( const QString& sPath, bool bSilent ) {
 
-	if ( ! Filesystem::file_exists( sPath, true ) ) {
+	if ( ! Filesystem::fileExists( sPath, true ) ) {
 		ERRORLOG( QString( "Unable to find mapping file [%1]" ).arg( sPath ) );
 		return std::make_shared<DrumkitMap>();
 	}
@@ -98,7 +98,7 @@ XMLDoc DrumkitMap::toXml( bool bSilent ) const {
 
 bool DrumkitMap::save( const QString& sPath, bool bSilent ) const {
 
-	if ( ! Filesystem::dir_readable( QFileInfo( sPath ).dir().absolutePath(), false ) ) {
+	if ( ! Filesystem::dirReadable( QFileInfo( sPath ).dir().absolutePath(), false ) ) {
 		ERRORLOG( QString( "Unable to write .h2map to [%1]. Dir not writable." )
 					  .arg( sPath ) );
 		return false;
@@ -168,9 +168,6 @@ Instrument::Type DrumkitMap::getType( Instrument::Id id ) const
 {
 	const auto it = m_mapping.find( id );
 	if ( it == m_mapping.end() ) {
-		WARNINGLOG(
-			QString( "No type found for id [%1]" ).arg( static_cast<int>( id ) )
-		);
 		return "";
 	}
 

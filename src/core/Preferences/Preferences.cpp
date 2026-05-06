@@ -52,20 +52,20 @@ void Preferences::create_instance()
 {
 	if ( __instance == nullptr ) {
 		// User-level configs
-		auto pPrefUser = load( Filesystem::usr_config_path() );
+		auto pPrefUser = load( Filesystem::userConfigPath() );
 		if ( pPrefUser != nullptr ) {
 			__instance = pPrefUser;
 			__instance->m_bLoadingSuccessful = true;
 		}
 		else {
 			// Fallback to system-level configs (the one we ship)
-			auto pPrefSystem = load( Filesystem::sys_config_path() );
+			auto pPrefSystem = load( Filesystem::systemConfigPath() );
 			if ( pPrefSystem != nullptr ) {
 				INFOLOG(
 					QString( "Couldn't load user-level configuration from "
 							 "[%1]. Falling back to system-level one in [%2]" )
-						.arg( Filesystem::usr_config_path() )
-						.arg( Filesystem::sys_config_path() )
+						.arg( Filesystem::userConfigPath() )
+						.arg( Filesystem::systemConfigPath() )
 				);
 				__instance = pPrefSystem;
 				__instance->m_bLoadingSuccessful = true;
@@ -75,8 +75,8 @@ void Preferences::create_instance()
 					QString(
 						"Couldn't load config file from neither [%1] nor [%2]."
 					)
-						.arg( Filesystem::usr_config_path() )
-						.arg( Filesystem::sys_config_path() )
+						.arg( Filesystem::userConfigPath() )
+						.arg( Filesystem::systemConfigPath() )
 				);
 				__instance = std::make_shared<Preferences>();
 				__instance->m_bLoadingSuccessful = false;
@@ -93,8 +93,6 @@ void Preferences::replaceInstance( std::shared_ptr<Preferences> pOther )
 Preferences::Preferences()
 	: m_bPlaySamplesOnClicking( false ),
 	  m_bFollowPlayhead( true ),
-	  m_bExpandSongItem( true ),
-	  m_bExpandPatternItem( true ),
 	  m_bpmTap( BpmTap::TapTempo ),
 	  m_beatCounter( BeatCounter::Tap ),
 	  m_nBeatCounterDriftCompensation( 0 ),
@@ -134,8 +132,8 @@ Preferences::Preferences()
 	  m_bUseRelativeFileNamesForPlaylists( false ),
 	  m_bShowDevelWarning( false ),
 	  m_bShowNoteOverwriteWarning( true ),
-	  m_sLastSongFileName( "" ),
-	  m_sLastPlaylistFileName( "" ),
+	  m_sLastSongPath( "" ),
+	  m_sLastPlaylistPath( "" ),
 	  m_bHearNewNotes( true ),
 	  m_bQuantizeEvents( true ),
 	  m_recentFiles( QStringList() ),
@@ -173,16 +171,16 @@ Preferences::Preferences()
 	  m_sLastExportPatternAsDirectory( QDir::homePath() ),
 	  m_sLastExportSongDirectory( QDir::homePath() ),
 	  m_sLastSaveSongAsDirectory( QDir::homePath() ),
-	  m_sLastOpenSongDirectory( Filesystem::songs_dir() ),
-	  m_sLastOpenPatternDirectory( Filesystem::patterns_dir() ),
+	  m_sLastOpenSongDirectory( Filesystem::userSongsDir() ),
+	  m_sLastOpenPatternDirectory( Filesystem::userPatternsDir() ),
 	  m_sLastExportLilypondDirectory( QDir::homePath() ),
 	  m_sLastExportMidiDirectory( QDir::homePath() ),
 	  m_sLastImportDrumkitDirectory( QDir::homePath() ),
 	  m_sLastExportDrumkitDirectory( QDir::homePath() ),
 	  m_sLastOpenLayerDirectory( QDir::homePath() ),
 	  m_sLastOpenPlaybackTrackDirectory( QDir::homePath() ),
-	  m_sLastAddSongToPlaylistDirectory( Filesystem::songs_dir() ),
-	  m_sLastPlaylistDirectory( Filesystem::playlists_dir() ),
+	  m_sLastAddSongToPlaylistDirectory( Filesystem::userSongsDir() ),
+	  m_sLastPlaylistDirectory( Filesystem::userPlaylistsDir() ),
 	  m_sLastPlaylistScriptDirectory( QDir::homePath() ),
 	  m_sLastImportThemeDirectory( QDir::homePath() ),
 	  m_sLastExportThemeDirectory( QDir::homePath() ),
@@ -193,6 +191,14 @@ Preferences::Preferences()
 	  m_fExportCompressionLevel( 0.0 ),
 	  m_nMidiExportMode( 0 ),
 	  m_bMidiExportUseHumanization( false ),
+	  m_bSoundLibraryShowName( true ),
+	  m_bSoundLibraryShowAuthor( false ),
+	  m_bSoundLibraryShowInfo( true ),
+	  m_bSoundLibraryShowLicense( false ),
+	  m_bSoundLibraryShowPath( false ),
+	  m_bSoundLibraryShowTags( true ),
+	  m_nSoundLibraryLastTab( 0 ),
+	  m_nRackLastTab( 0 ),
 	  m_bShowExportSongLicenseWarning( true ),
 	  m_bShowExportDrumkitLicenseWarning( true ),
 	  m_bShowExportDrumkitCopyleftWarning( true ),
@@ -209,8 +215,6 @@ Preferences::Preferences()
 {
 	m_serverList.push_back(
 		QString( "http://hydrogen-music.org/feeds/drumkit_list.php" )
-	);
-	m_patternCategories.push_back( SoundLibraryDatabase::m_sPatternBaseCategory
 	);
 
 	//___ MIDI Driver properties
@@ -279,8 +283,6 @@ Preferences::Preferences()
 Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	: m_bPlaySamplesOnClicking( pOther->m_bPlaySamplesOnClicking ),
 	  m_bFollowPlayhead( pOther->m_bFollowPlayhead ),
-	  m_bExpandSongItem( pOther->m_bExpandSongItem ),
-	  m_bExpandPatternItem( pOther->m_bExpandPatternItem ),
 	  m_bpmTap( pOther->m_bpmTap ),
 	  m_beatCounter( pOther->m_beatCounter ),
 	  m_nBeatCounterDriftCompensation( pOther->m_nBeatCounterDriftCompensation
@@ -326,8 +328,8 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	  ),
 	  m_bShowDevelWarning( pOther->m_bShowDevelWarning ),
 	  m_bShowNoteOverwriteWarning( pOther->m_bShowNoteOverwriteWarning ),
-	  m_sLastSongFileName( pOther->m_sLastSongFileName ),
-	  m_sLastPlaylistFileName( pOther->m_sLastPlaylistFileName ),
+	  m_sLastSongPath( pOther->m_sLastSongPath ),
+	  m_sLastPlaylistPath( pOther->m_sLastPlaylistPath ),
 	  m_bHearNewNotes( pOther->m_bHearNewNotes ),
 	  m_nPunchInPos( pOther->m_nPunchInPos ),
 	  m_nPunchOutPos( pOther->m_nPunchOutPos ),
@@ -394,6 +396,14 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	  m_fExportCompressionLevel( pOther->m_fExportCompressionLevel ),
 	  m_nMidiExportMode( pOther->m_nMidiExportMode ),
 	  m_bMidiExportUseHumanization( pOther->m_bMidiExportUseHumanization ),
+	  m_bSoundLibraryShowName( pOther->m_bSoundLibraryShowName ),
+	  m_bSoundLibraryShowAuthor( pOther->m_bSoundLibraryShowAuthor ),
+	  m_bSoundLibraryShowInfo( pOther->m_bSoundLibraryShowInfo ),
+	  m_bSoundLibraryShowLicense( pOther->m_bSoundLibraryShowLicense ),
+	  m_bSoundLibraryShowPath( pOther->m_bSoundLibraryShowPath ),
+	  m_bSoundLibraryShowTags( pOther->m_bSoundLibraryShowTags ),
+	  m_nSoundLibraryLastTab( pOther->m_nSoundLibraryLastTab ),
+	  m_nRackLastTab( pOther->m_nRackLastTab ),
 	  m_bShowExportSongLicenseWarning( pOther->m_bShowExportSongLicenseWarning
 	  ),
 	  m_bShowExportDrumkitLicenseWarning(
@@ -413,9 +423,6 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 {
 	for ( const auto& ssServer : pOther->m_serverList ) {
 		m_serverList.push_back( ssServer );
-	}
-	for ( const auto& ssCategory : pOther->m_patternCategories ) {
-		m_patternCategories.push_back( ssCategory );
 	}
 	for ( const auto& ssFile : pOther->m_recentFiles ) {
 		m_recentFiles.push_back( ssFile );
@@ -437,7 +444,7 @@ Preferences::~Preferences()
 std::shared_ptr<Preferences>
 Preferences::load( const QString& sPath, const bool bSilent )
 {
-	if ( !Filesystem::file_readable( sPath, bSilent ) ) {
+	if ( !Filesystem::fileReadable( sPath, bSilent ) ) {
 		return nullptr;
 	}
 
@@ -571,31 +578,6 @@ Preferences::load( const QString& sPath, const bool bSilent )
 	}
 	else {
 		WARNINGLOG( "<serverList> node not found" );
-	}
-
-	// Use the default categories defined in the constructor and add additional
-	// ones.
-	const XMLNode patternCategoriesNode =
-		rootNode.firstChildElement( "patternCategories" );
-	if ( !patternCategoriesNode.isNull() ) {
-		QDomElement patternCategoriesElement =
-			patternCategoriesNode.firstChildElement( "categories" );
-		while ( !patternCategoriesElement.isNull() &&
-				!patternCategoriesElement.text().isEmpty() ) {
-			if ( !pPref->m_patternCategories.contains(
-					 patternCategoriesElement.text()
-				 ) ) {
-				pPref->m_patternCategories.push_back(
-					patternCategoriesElement.text()
-				);
-			}
-
-			patternCategoriesElement =
-				patternCategoriesElement.nextSiblingElement( "categories" );
-		}
-	}
-	else {
-		WARNINGLOG( "<patternCategories> node not found" );
 	}
 
 	/////////////// AUDIO ENGINE //////////////
@@ -1164,6 +1146,39 @@ Preferences::load( const QString& sPath, const bool bSilent )
 			pPref->m_bMidiExportUseHumanization, true, false, bSilent
 		);
 
+		pPref->m_bSoundLibraryShowName = guiNode.read_bool(
+			"soundLibraryShowName",
+			pPref->m_bSoundLibraryShowName, true, false, bSilent
+		);
+		pPref->m_bSoundLibraryShowAuthor = guiNode.read_bool(
+			"soundLibraryShowAuthor",
+			pPref->m_bSoundLibraryShowAuthor, true, false, bSilent
+		);
+		pPref->m_bSoundLibraryShowInfo = guiNode.read_bool(
+			"soundLibraryShowInfo",
+			pPref->m_bSoundLibraryShowInfo, true, false, bSilent
+		);
+		pPref->m_bSoundLibraryShowLicense = guiNode.read_bool(
+			"soundLibraryShowLicense",
+			pPref->m_bSoundLibraryShowLicense, true, false, bSilent
+		);
+		pPref->m_bSoundLibraryShowPath = guiNode.read_bool(
+			"soundLibraryShowPath",
+			pPref->m_bSoundLibraryShowPath, true, false, bSilent
+		);
+		pPref->m_bSoundLibraryShowTags = guiNode.read_bool(
+			"soundLibraryShowTags",
+			pPref->m_bSoundLibraryShowTags, true, false, bSilent
+		);
+		pPref->m_nSoundLibraryLastTab = guiNode.read_int(
+			"soundLibraryLastTab",
+			pPref->m_nSoundLibraryLastTab, true, false, bSilent
+		);
+		pPref->m_nRackLastTab = guiNode.read_int(
+			"rackLastTab",
+			pPref->m_nRackLastTab, true, false, bSilent
+		);
+
 		// beatcounter
 		const QString sUseBeatCounter =
 			guiNode.read_string( "bc", "", false, false, bSilent );
@@ -1209,15 +1224,6 @@ Preferences::load( const QString& sPath, const bool bSilent )
 
 		pPref->m_nAutosavesPerHour = guiNode.read_int(
 			"autosavesPerHour", pPref->m_nAutosavesPerHour, false, false,
-			bSilent
-		);
-
-		// SoundLibraryPanel expand items
-		pPref->m_bExpandSongItem = guiNode.read_bool(
-			"expandSongItem", pPref->m_bExpandSongItem, false, false, bSilent
-		);
-		pPref->m_bExpandPatternItem = guiNode.read_bool(
-			"expandPatternItem", pPref->m_bExpandPatternItem, false, false,
 			bSilent
 		);
 
@@ -1293,11 +1299,11 @@ Preferences::load( const QString& sPath, const bool bSilent )
 	/////////////// FILES //////////////
 	const XMLNode filesNode = rootNode.firstChildElement( "files" );
 	if ( !filesNode.isNull() ) {
-		pPref->m_sLastSongFileName = filesNode.read_string(
-			"lastSongFilename", pPref->m_sLastSongFileName, false, true, bSilent
+		pPref->m_sLastSongPath = filesNode.read_string(
+			"lastSongFilename", pPref->m_sLastSongPath, false, true, bSilent
 		);
-		pPref->m_sLastPlaylistFileName = filesNode.read_string(
-			"lastPlaylistFilename", pPref->m_sLastPlaylistFileName, false, true,
+		pPref->m_sLastPlaylistPath = filesNode.read_string(
+			"lastPlaylistFilename", pPref->m_sLastPlaylistPath, false, true,
 			bSilent
 		);
 		pPref->m_sDefaultEditor = filesNode.read_string(
@@ -1376,7 +1382,7 @@ bool Preferences::saveCopyAs( const QString& sPath, const bool bSilent ) const
 
 bool Preferences::save( const bool bSilent ) const
 {
-	return saveTo( Filesystem::usr_config_path(), bSilent );
+	return saveTo( Filesystem::userConfigPath(), bSilent );
 }
 
 bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
@@ -1437,7 +1443,7 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 	// extern executables
 	QString rubberBandCLIexecutable( m_sRubberBandCLIexecutable );
 	if ( !Filesystem::
-			 file_executable( rubberBandCLIexecutable, true /* silent */ ) ) {
+			 fileExecutable( rubberBandCLIexecutable, true /* silent */ ) ) {
 		rubberBandCLIexecutable = "Path to Rubberband-CLI";
 	}
 	rootNode.write_string( "path_to_rubberband", rubberBandCLIexecutable );
@@ -1469,11 +1475,6 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 	XMLNode serverListNode = rootNode.createNode( "serverList" );
 	for ( const auto& ssServer : m_serverList ) {
 		serverListNode.write_string( "server", ssServer );
-	}
-
-	XMLNode patternCategoriesNode = rootNode.createNode( "patternCategories" );
-	for ( const auto& ssCategory : m_patternCategories ) {
-		patternCategoriesNode.write_string( "categories", ssCategory );
 	}
 
 	//---- AUDIO ENGINE ----
@@ -1819,6 +1820,19 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 			"midiExportDialogUseHumanization", m_bMidiExportUseHumanization
 		);
 
+		guiNode.write_bool( "soundLibraryShowName", m_bSoundLibraryShowName );
+		guiNode.write_bool(
+			"soundLibraryShowAuthor", m_bSoundLibraryShowAuthor
+		);
+		guiNode.write_bool( "soundLibraryShowInfo", m_bSoundLibraryShowInfo );
+		guiNode.write_bool(
+			"soundLibraryShowLicense", m_bSoundLibraryShowLicense
+		);
+		guiNode.write_bool( "soundLibraryShowPath", m_bSoundLibraryShowPath );
+		guiNode.write_bool( "soundLibraryShowTags", m_bSoundLibraryShowTags );
+		guiNode.write_int( "soundLibraryLastTab", m_nSoundLibraryLastTab );
+		guiNode.write_int( "rackLastTab", m_nRackLastTab );
+
 		// beatcounter
 		QString sBeatCounterOn( "BC_OFF" );
 		if ( m_bpmTap == BpmTap::BeatCounter ) {
@@ -1839,10 +1853,6 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 		guiNode.write_bool( "playSamplesOnClicking", m_bPlaySamplesOnClicking );
 
 		guiNode.write_int( "autosavesPerHour", m_nAutosavesPerHour );
-
-		// SoundLibraryPanel expand items
-		guiNode.write_bool( "expandSongItem", m_bExpandSongItem );
-		guiNode.write_bool( "expandPatternItem", m_bExpandPatternItem );
 
 		// User interface style
 		m_pTheme->m_pColor->saveTo( guiNode );
@@ -1879,9 +1889,9 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 	XMLNode filesNode = rootNode.createNode( "files" );
 	{
 		// last used song
-		filesNode.write_string( "lastSongFilename", m_sLastSongFileName );
+		filesNode.write_string( "lastSongFilename", m_sLastSongPath );
 		filesNode.write_string(
-			"lastPlaylistFilename", m_sLastPlaylistFileName
+			"lastPlaylistFilename", m_sLastPlaylistPath
 		);
 		filesNode.write_string( "defaulteditor", m_sDefaultEditor );
 	}
@@ -2181,14 +2191,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_bFollowPlayhead ) )
-				.append( QString( "%1%2m_bExpandSongItem: %3\n" )
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( m_bExpandSongItem ) )
-				.append( QString( "%1%2m_bExpandPatternItem: %3\n" )
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( m_bExpandPatternItem ) )
 				.append( QString( "%1%2m_bpmTap: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -2216,10 +2218,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_serverList.join( ',' ) ) )
-				.append( QString( "%1%2m_patternCategories: %3\n" )
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( m_patternCategories.join( ',' ) ) )
 				.append( QString( "%1%2m_audioDriver: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -2398,14 +2396,14 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_bShowNoteOverwriteWarning ) )
-				.append( QString( "%1%2m_sLastSongFileName: %3\n" )
+				.append( QString( "%1%2m_sLastSongPath: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( m_sLastSongFileName ) )
-				.append( QString( "%1%2m_sLastPlaylistFileName: %3\n" )
+							 .arg( m_sLastSongPath ) )
+				.append( QString( "%1%2m_sLastPlaylistPath: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( m_sLastPlaylistFileName ) )
+							 .arg( m_sLastPlaylistPath ) )
 				.append( QString( "%1%2m_bHearNewNotes: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -2639,6 +2637,38 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( sPrefix )
 						 .arg( s )
 						 .arg( m_bMidiExportUseHumanization ) )
+			.append( QString( "%1%2m_bSoundLibraryShowName: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_bSoundLibraryShowName ) )
+			.append( QString( "%1%2m_bSoundLibraryShowAuthor: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_bSoundLibraryShowAuthor ) )
+			.append( QString( "%1%2m_bSoundLibraryShowInfo: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_bSoundLibraryShowInfo ) )
+			.append( QString( "%1%2m_bSoundLibraryShowLicense: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_bSoundLibraryShowLicense ) )
+			.append( QString( "%1%2m_bSoundLibraryShowPath: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_bSoundLibraryShowPath ) )
+			.append( QString( "%1%2m_bSoundLibraryShowTags: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_bSoundLibraryShowTags ) )
+			.append( QString( "%1%2m_nSoundLibraryLastTab: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_nSoundLibraryLastTab ) )
+			.append( QString( "%1%2m_nRackLastTab: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_nRackLastTab ) )
 			.append( QString( "%1%2m_bShowExportSongLicenseWarning: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
@@ -2684,10 +2714,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( m_bPlaySamplesOnClicking ) )
 				.append( QString( ", m_bFollowPlayhead: %1" )
 							 .arg( m_bFollowPlayhead ) )
-				.append( QString( ", m_bExpandSongItem: %1" )
-							 .arg( m_bExpandSongItem ) )
-				.append( QString( ", m_bExpandPatternItem: %1" )
-							 .arg( m_bExpandPatternItem ) )
 				.append( QString( ", m_bpmTap: %1" )
 							 .arg(
 								 m_bpmTap == BpmTap::TapTempo ? "Tap Tempo"
@@ -2705,8 +2731,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( m_nBeatCounterStartOffset ) )
 				.append( QString( ", m_serverList: %1" )
 							 .arg( m_serverList.join( ',' ) ) )
-				.append( QString( ", m_patternCategories: %1" )
-							 .arg( m_patternCategories.join( ',' ) ) )
 				.append( QString( ", m_audioDriver: %1" )
 							 .arg( audioDriverToQString( m_audioDriver ) ) )
 				.append(
@@ -2798,10 +2822,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( m_bShowDevelWarning ) )
 				.append( QString( ", m_bShowNoteOverwriteWarning: %1" )
 							 .arg( m_bShowNoteOverwriteWarning ) )
-				.append( QString( ", m_sLastSongFileName: %1" )
-							 .arg( m_sLastSongFileName ) )
-				.append( QString( ", m_sLastPlaylistFileName: %1" )
-							 .arg( m_sLastPlaylistFileName ) )
+				.append( QString( ", m_sLastSongPath: %1" )
+							 .arg( m_sLastSongPath ) )
+				.append( QString( ", m_sLastPlaylistPath: %1" )
+							 .arg( m_sLastPlaylistPath ) )
 				.append(
 					QString( ", m_bHearNewNotes: %1" ).arg( m_bHearNewNotes )
 				)
@@ -2927,6 +2951,22 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 			)
 			.append( QString( ", m_bMidiExportUseHumanization: %1" )
 						 .arg( m_bMidiExportUseHumanization ) )
+			.append( QString( ", m_bSoundLibraryShowName: %1" )
+						 .arg( m_bSoundLibraryShowName ) )
+			.append( QString( ", m_bSoundLibraryShowAuthor: %1" )
+						 .arg( m_bSoundLibraryShowAuthor ) )
+			.append( QString( ", m_bSoundLibraryShowInfo: %1" )
+						 .arg( m_bSoundLibraryShowInfo ) )
+			.append( QString( ", m_bSoundLibraryShowLicense: %1" )
+						 .arg( m_bSoundLibraryShowLicense ) )
+			.append( QString( ", m_bSoundLibraryShowPath: %1" )
+						 .arg( m_bSoundLibraryShowPath ) )
+			.append( QString( ", m_bSoundLibraryShowTags: %1" )
+						 .arg( m_bSoundLibraryShowTags ) )
+			.append( QString( ", m_nSoundLibraryLastTab: %1" )
+						 .arg( m_nSoundLibraryLastTab ) )
+			.append( QString( ", m_nRackLastTab: %1" )
+						 .arg( m_nRackLastTab ) )
 			.append( QString( ", m_bShowExportSongLicenseWarning: %1" )
 						 .arg( m_bShowExportSongLicenseWarning ) )
 			.append( QString( ", m_bShowExportDrumkitLicenseWarning: %1" )

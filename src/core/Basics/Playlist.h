@@ -112,8 +112,8 @@ class Playlist : public H2Core::Object<Playlist>
 
 		QString	getSongFileNameByNumber( int nSongNumber ) const;
 
-		const QString& getFileName() const;
-		void setFileName( const QString& sFileName );
+		const QString& getPath() const;
+		void setPath( const QString& sPath );
 		bool getIsModified() const;
 		void setIsModified( bool IsModified );
 
@@ -139,7 +139,14 @@ class Playlist : public H2Core::Object<Playlist>
 
 		void setActiveSongNumber( int ActiveSongNumber );
 
-		QString m_sFileName;
+		/** Absolute path to the underlying artifact serving as an unique
+		 * identifier of the artifact throughout Hydrogen.
+		 *
+		 * In case is no file backing the resource (yet), an path to an
+		 * non-existing file retrieved via #Filesystem::emptyPath will be used
+		 * instead. */
+		QString m_sPath;
+
 		std::vector<std::shared_ptr<PlaylistEntry>> m_entries;
 		int m_nActiveSongNumber;
 		bool m_bIsModified;
@@ -182,14 +189,14 @@ inline void Playlist::setActiveSongNumber( int ActiveSongNumber )
 	m_nActiveSongNumber = ActiveSongNumber ;
 }
 
-inline const QString& Playlist::getFileName() const
+inline const QString& Playlist::getPath() const
 {
-	return m_sFileName;
+	return m_sPath;
 }
 
-inline void Playlist::setFileName( const QString& sFileName )
+inline void Playlist::setPath( const QString& sPath )
 {
-	m_sFileName = sFileName;
+	m_sPath = sPath;
 }
 
 inline bool Playlist::getIsModified() const

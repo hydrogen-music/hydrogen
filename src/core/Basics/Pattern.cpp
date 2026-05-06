@@ -32,124 +32,161 @@
 #include <core/Helpers/Legacy.h>
 #include <core/Hydrogen.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 
 namespace H2Core
 {
 
-Pattern::Pattern( )
-	: m_nVersion( 0 )
-	, m_sDrumkitName( "" )
-	, m_sAuthor( "" )
-	, m_license( License() )
-	, m_nLength( 4 * H2Core::nTicksPerQuarter )
-	, m_nDenominator( 4 )
-	, m_sName( "Pattern" )
-	, m_sInfo( "" )
-	, m_tags( QStringList() )
+Pattern::Pattern()
+	: m_sPath( "" ),
+	  m_nVersion( 0 ),
+	  m_sDrumkitName( "" ),
+	  m_sAuthor( "" ),
+	  m_license( License() ),
+	  m_nLength( 4 * H2Core::nTicksPerQuarter ),
+	  m_nDenominator( 4 ),
+	  m_sName( "Pattern" ),
+	  m_sInfo( "" ),
+	  m_tags( QStringList() )
 {
 }
 
 Pattern::Pattern( std::shared_ptr<Pattern> pOther )
-	: m_nVersion( pOther->m_nVersion )
-	, m_sDrumkitName( pOther->m_sDrumkitName )
-	, m_sAuthor( pOther->m_sAuthor )
-	, m_license( pOther->m_license )
-	, m_nLength( pOther->getLength() )
-	, m_nDenominator( pOther->getDenominator() )
-	, m_sName( pOther->getName() )
-	, m_sInfo( pOther->getInfo() )
-	, m_tags( QStringList() )
+	: m_sPath( pOther->m_sPath ),
+	  m_nVersion( pOther->m_nVersion ),
+	  m_sDrumkitName( pOther->m_sDrumkitName ),
+	  m_sAuthor( pOther->m_sAuthor ),
+	  m_license( pOther->m_license ),
+	  m_nLength( pOther->getLength() ),
+	  m_nDenominator( pOther->getDenominator() ),
+	  m_sName( pOther->getName() ),
+	  m_sInfo( pOther->getInfo() ),
+	  m_tags( QStringList() )
 {
-	FOREACH_NOTE_CST_IT_BEGIN_END( pOther->getNotes(),it ) {
-		m_notes.insert( std::make_pair( it->first,
-										std::make_shared<Note>( it->second ) ) );
+	FOREACH_NOTE_CST_IT_BEGIN_END( pOther->getNotes(), it )
+	{
+		m_notes.insert(
+			std::make_pair( it->first, std::make_shared<Note>( it->second ) )
+		);
 	}
 
 	for ( const auto& ppPattern : pOther->m_virtualPatterns ) {
 		m_virtualPatterns.insert( std::make_shared<Pattern>( ppPattern ) );
 	}
 	for ( const auto& ppPattern : pOther->m_flattenedVirtualPatterns ) {
-		m_flattenedVirtualPatterns.insert(
-			std::make_shared<Pattern>( ppPattern ) );
+		m_flattenedVirtualPatterns.insert( std::make_shared<Pattern>( ppPattern
+		) );
 	}
 }
 
-Pattern::~Pattern() {
+Pattern::~Pattern()
+{
 }
 
-std::shared_ptr<Pattern> Pattern::load( const QString& sPatternPath,
-										bool bSilent ) {
-	if ( ! bSilent ) {
+std::shared_ptr<Pattern> Pattern::from( std::shared_ptr<SoundLibraryInfo> pInfo
+)
+{
+	if ( pInfo == nullptr ) {
+		return nullptr;
+	}
+
+	auto pPattern = Pattern::load( pInfo->getPath() );
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Unable to load pattern from [%1]" )
+					  .arg( pInfo->toQString() ) );
+		return nullptr;
+	}
+
+	return pPattern;
+}
+
+std::shared_ptr<Pattern>
+Pattern::load( const QString& sPatternPath, bool bSilent )
+{
+	if ( !bSilent ) {
 		INFOLOG( QString( "Load pattern %1" ).arg( sPatternPath ) );
 	}
 
-	if ( ! Filesystem::file_readable( sPatternPath, bSilent ) ) {
+	if ( !Filesystem::fileReadable( sPatternPath, bSilent ) ) {
 		return nullptr;
 	}
 
 	XMLDoc doc;
-	if ( ! doc.read( sPatternPath ) ) {
-		ERRORLOG( QString( "Unable to read pattern [%1]" )
-				  .arg( sPatternPath ) );
+	if ( !doc.read( sPatternPath ) ) {
+		ERRORLOG( QString( "Unable to read pattern [%1]" ).arg( sPatternPath )
+		);
 		return nullptr;
 	}
 
 	XMLNode rootNode = doc.firstChildElement( "drumkit_pattern" );
 	if ( rootNode.isNull() ) {
 		ERRORLOG( QString( "'drumkit_pattern' node not found in [%1]" )
-				  .arg( sPatternPath ) );
+					  .arg( sPatternPath ) );
 		return nullptr;
 	}
-	
+
 	XMLNode patternNode = rootNode.firstChildElement( "pattern" );
 	if ( patternNode.isNull() ) {
-		ERRORLOG( QString( "'pattern' node not found in [%1]" )
-				  .arg( sPatternPath ) );
+		ERRORLOG(
+			QString( "'pattern' node not found in [%1]" ).arg( sPatternPath )
+		);
 		return nullptr;
 	}
 
-	const QString sDrumkitName = rootNode.read_string(
-		"drumkit_name", "", false, false, bSilent );
+	const QString sDrumkitName =
+		rootNode.read_string( "drumkit_name", "", false, false, bSilent );
 
-	return loadFrom( patternNode, sDrumkitName, nullptr, bSilent );
+	auto pPattern = loadFrom( patternNode, sDrumkitName, nullptr, bSilent );
+	if ( pPattern != nullptr ) {
+		pPattern->setPath( sPatternPath );
+	}
+
+	return pPattern;
 }
 
-std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
-											const QString& sDrumkitName,
-											std::shared_ptr<Drumkit> pDrumkit,
-											bool bSilent )
+std::shared_ptr<Pattern> Pattern::loadFrom(
+	const XMLNode& node,
+	const QString& sDrumkitName,
+	std::shared_ptr<Drumkit> pDrumkit,
+	bool bSilent
+)
 {
 	auto pPattern = std::make_shared<Pattern>();
 	QString sName = node.read_string( "name", "", false, false );
 	if ( sName.isEmpty() ) {
 		// Fall back to previous version.
-	    sName = node.read_string( "pattern_name", pPattern->getName(), false, false );
+		sName = node.read_string(
+			"pattern_name", pPattern->getName(), false, false
+		);
 	}
 	pPattern->setName( sName );
 	pPattern->setInfo(
-		node.read_string( "info", pPattern->getInfo(), false, true, bSilent ) );
+		node.read_string( "info", pPattern->getInfo(), false, true, bSilent )
+	);
 	pPattern->setLength(
-	    node.read_int( "size", pPattern->getLength(), false, false, bSilent ) );
-	pPattern->setDenominator(
-	    node.read_int( "denominator", pPattern->getDenominator(), false, false,
-					  bSilent ) );
+		node.read_int( "size", pPattern->getLength(), false, false, bSilent )
+	);
+	pPattern->setDenominator( node.read_int(
+		"denominator", pPattern->getDenominator(), false, false, bSilent
+	) );
 
 	pPattern->setDrumkitName( sDrumkitName );
 	pPattern->m_nVersion = node.read_int(
-		"userVersion", pPattern->m_nVersion, false, false, bSilent );
-	pPattern->m_sAuthor = node.read_string(
-		"author", pPattern->m_sAuthor, false, true, bSilent );
+		"userVersion", pPattern->m_nVersion, false, false, bSilent
+	);
+	pPattern->m_sAuthor =
+		node.read_string( "author", pPattern->m_sAuthor, false, true, bSilent );
 	const License license( node.read_string(
-							   "license", pPattern->m_license.getLicenseString(),
-							   false, false, bSilent ) );
+		"license", pPattern->m_license.getLicenseString(), false, false, bSilent
+	) );
 	pPattern->setLicense( license );
 
 	QStringList tags;
 	const XMLNode tagsNode = node.firstChildElement( "tags" );
 	if ( !tagsNode.isNull() ) {
 		auto tagNode = tagsNode.firstChildElement( "tag" );
-		while ( !tagNode.isNull() && ! tagNode.text().isEmpty() ) {
-            tags << tagNode.text();
+		while ( !tagNode.isNull() && !tagNode.text().isEmpty() ) {
+			tags << tagNode.text();
 			tagNode = tagNode.nextSiblingElement( "tag" );
 		}
 	}
@@ -167,14 +204,14 @@ std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
 	pPattern->setTags( tags );
 
 	XMLNode note_list_node = node.firstChildElement( "noteList" );
-	if ( ! note_list_node.isNull() ) {
+	if ( !note_list_node.isNull() ) {
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
 		while ( !note_node.isNull() ) {
 			auto pNote = Note::loadFrom( note_node, bSilent );
 			assert( pNote );
 			if ( pNote != nullptr &&
 				 ( pNote->getInstrumentId() != Instrument::EmptyId ||
-				   ! pNote->getType().isEmpty() ) ) {
+				   !pNote->getType().isEmpty() ) ) {
 				pPattern->insertNote( pNote );
 			}
 			note_node = note_node.nextSiblingElement( "note" );
@@ -182,15 +219,15 @@ std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
 	}
 	else {
 		// Old format < 0.9.4
-		const XMLNode sequenceListNode = node.firstChildElement( "sequenceList" );
+		const XMLNode sequenceListNode =
+			node.firstChildElement( "sequenceList" );
 		XMLNode sequenceNode = sequenceListNode.firstChildElement( "sequence" );
-		while ( ! sequenceNode.isNull()  ) {
-			const XMLNode noteListNode = sequenceNode.firstChildElement(
-				"noteList" );
+		while ( !sequenceNode.isNull() ) {
+			const XMLNode noteListNode =
+				sequenceNode.firstChildElement( "noteList" );
 			XMLNode noteNode = noteListNode.firstChildElement( "note" );
-			while ( ! noteNode.isNull() ) {
-				const auto pNote = Note::loadFrom(
-					noteNode, bSilent );
+			while ( !noteNode.isNull() ) {
+				const auto pNote = Note::loadFrom( noteNode, bSilent );
 				if ( pNote != nullptr ) {
 					pPattern->insertNote( pNote );
 				}
@@ -251,19 +288,18 @@ void Pattern::saveTo(
 		}
 	}
 
-	XMLNode note_list_node =  pattern_node.createNode( "noteList" );
+	XMLNode note_list_node = pattern_node.createNode( "noteList" );
 	for ( auto it = m_notes.cbegin(); it != m_notes.cend(); ++it ) {
 		auto pNote = it->second;
 		if ( pNote != nullptr &&
 			 // Optionally filter note
-			 ( ( id == Instrument::EmptyId ||
-				 id == pNote->getInstrumentId() ) &&
+			 ( ( id == Instrument::EmptyId || id == pNote->getInstrumentId()
+			   ) &&
 			   ( sType.isEmpty() || sType == pNote->getType() ) ) &&
 			 // Check whether the note corresponds to an instrument of the
 			 // current kit at all.
 			 ( pNote->getInstrumentId() != Instrument::EmptyId ||
-			   ! pNote->getType().isEmpty() ) ) {
-
+			   !pNote->getType().isEmpty() ) ) {
 			if ( pitch != Note::Pitch::Invalid ) {
 				const auto key = pitch.toKey();
 				const auto octave = pitch.toOctave();
@@ -277,9 +313,11 @@ void Pattern::saveTo(
 	}
 }
 
-float Pattern::numerator() const {
-	return static_cast<float>(m_nLength) * static_cast<float>(m_nDenominator) /
-		( 4 * static_cast<float>(H2Core::nTicksPerQuarter) );
+float Pattern::numerator() const
+{
+	return static_cast<float>( m_nLength ) *
+		   static_cast<float>( m_nDenominator ) /
+		   ( 4 * static_cast<float>( H2Core::nTicksPerQuarter ) );
 }
 
 std::shared_ptr<Note> Pattern::findNote(
@@ -346,7 +384,7 @@ bool Pattern::references( std::shared_ptr<Instrument> pInstrument ) const
 		return false;
 	}
 
-	for ( const auto& [ _, ppNote ] : m_notes ) {
+	for ( const auto& [_, ppNote] : m_notes ) {
 		if ( ppNote != nullptr && ppNote->getInstrument() == pInstrument ) {
 			return true;
 		}
@@ -354,8 +392,10 @@ bool Pattern::references( std::shared_ptr<Instrument> pInstrument ) const
 	return false;
 }
 
-void Pattern::purgeInstrument( std::shared_ptr<Instrument> pInstrument,
-								bool bRequiresLock )
+void Pattern::purgeInstrument(
+	std::shared_ptr<Instrument> pInstrument,
+	bool bRequiresLock
+)
 {
 	if ( pInstrument == nullptr ) {
 		return;
@@ -366,12 +406,13 @@ void Pattern::purgeInstrument( std::shared_ptr<Instrument> pInstrument,
 		auto pNote = it->second;
 		assert( pNote );
 		if ( pNote != nullptr && pNote->getInstrument() == pInstrument ) {
-			if ( ! bLocked && bRequiresLock ) {
+			if ( !bLocked && bRequiresLock ) {
 				Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 				bLocked = true;
 			}
 			m_notes.erase( it++ );
-		} else {
+		}
+		else {
 			++it;
 		}
 	}
@@ -383,7 +424,7 @@ void Pattern::purgeInstrument( std::shared_ptr<Instrument> pInstrument,
 void Pattern::clear( bool bRequiresLock )
 {
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
-	if ( bRequiresLock ){
+	if ( bRequiresLock ) {
 		pAudioEngine->lock( RIGHT_HERE );
 	}
 
@@ -418,45 +459,56 @@ void Pattern::flattenedVirtualPatternsCompute()
 	}
 }
 
-void Pattern::addFlattenedVirtualPatterns( std::shared_ptr<PatternList> pPatternList ) {
+void Pattern::addFlattenedVirtualPatterns(
+	std::shared_ptr<PatternList> pPatternList
+)
+{
 	for ( virtual_patterns_cst_it_t it = m_flattenedVirtualPatterns.begin();
-		 it != m_flattenedVirtualPatterns.end(); ++it ) {
+		  it != m_flattenedVirtualPatterns.end(); ++it ) {
 		pPatternList->add( *it, true );
 	}
 }
 
-void Pattern::removeFlattenedVirtualPatterns( std::shared_ptr<PatternList> pPatternList ) {
+void Pattern::removeFlattenedVirtualPatterns(
+	std::shared_ptr<PatternList> pPatternList
+)
+{
 	for ( virtual_patterns_cst_it_t it = m_flattenedVirtualPatterns.begin();
-		 it != m_flattenedVirtualPatterns.end(); ++it ) {
+		  it != m_flattenedVirtualPatterns.end(); ++it ) {
 		pPatternList->del( *it );
 	}
 }
 
-int Pattern::longestVirtualPatternLength() const {
+int Pattern::longestVirtualPatternLength() const
+{
 	int nMax = m_nLength;
 	for ( virtual_patterns_cst_it_t it = m_flattenedVirtualPatterns.begin();
-		 it != m_flattenedVirtualPatterns.end(); ++it ) {
-		if ( (*it)->m_nLength > nMax ) {
-			nMax = (*it)->m_nLength;
+		  it != m_flattenedVirtualPatterns.end(); ++it ) {
+		if ( ( *it )->m_nLength > nMax ) {
+			nMax = ( *it )->m_nLength;
 		}
 	}
 
 	return nMax;
 }
 
-bool Pattern::isVirtual() const {
+bool Pattern::isVirtual() const
+{
 	return m_flattenedVirtualPatterns.size() > 0;
 }
 
-void Pattern::applyMissingTypes( std::shared_ptr<Drumkit> pDrumkit,
-								 bool bSilent ) {
+void Pattern::applyMissingTypes(
+	std::shared_ptr<Drumkit> pDrumkit,
+	bool bSilent
+)
+{
 	// In case no instrument type is assigned to any of the notes contained, we
 	// check whether there is a drumkit present or a .h2map file shipped with
 	// the application corresponding to the name of the kit contained in the
 	// pattern. Via instrument id -> instrument type mapping in there we can use
 	// it as a fallback to obtain types.
 	bool bMissingType = false;
-	for ( const auto& [ _ , ppNote ] : m_notes ) {
+	for ( const auto& [_, ppNote] : m_notes ) {
 		if ( ppNote != nullptr && ppNote->getType().isEmpty() ) {
 			bMissingType = true;
 			break;
@@ -480,13 +532,16 @@ void Pattern::applyMissingTypes( std::shared_ptr<Drumkit> pDrumkit,
 			// over the DB as we search in different drumkit contexts with
 			// different priority. In each context, we just take the first
 			// match.
-			const auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
+			const auto pDB =
+				Hydrogen::get_instance()->getSoundLibraryDatabase();
 
 			// Kits explicitly loaded by user via our API have highest priority.
-			for ( const auto& [ _, ppDrumkit ] : pDB->getDrumkitDatabase() ) {
+			for ( const auto& [_, ppDrumkit] : pDB->getDrumkitDatabase() ) {
 				if ( ppDrumkit != nullptr &&
-					 ( ppDrumkit->getContext() == Drumkit::Context::SessionReadOnly ||
-					   ppDrumkit->getContext() == Drumkit::Context::SessionReadWrite ) &&
+					 ( ppDrumkit->getContext() ==
+						   Filesystem::Context::SessionReadOnly ||
+					   ppDrumkit->getContext() ==
+						   Filesystem::Context::SessionReadWrite ) &&
 					 ppDrumkit->getName() == m_sDrumkitName ) {
 					pDrumkitMap = ppDrumkit->toDrumkitMap();
 					break;
@@ -494,9 +549,9 @@ void Pattern::applyMissingTypes( std::shared_ptr<Drumkit> pDrumkit,
 			}
 			if ( pDrumkitMap == nullptr ) {
 				// Kits in the user's drumkit folder are next.
-				for ( const auto& [ _, ppDrumkit ] : pDB->getDrumkitDatabase() ) {
+				for ( const auto& [_, ppDrumkit] : pDB->getDrumkitDatabase() ) {
 					if ( ppDrumkit != nullptr &&
-						 ppDrumkit->getContext() == Drumkit::Context::User &&
+						 ppDrumkit->getContext() == Filesystem::Context::User &&
 						 ppDrumkit->getName() == m_sDrumkitName ) {
 						pDrumkitMap = ppDrumkit->toDrumkitMap();
 						break;
@@ -506,9 +561,10 @@ void Pattern::applyMissingTypes( std::shared_ptr<Drumkit> pDrumkit,
 			if ( pDrumkitMap == nullptr ) {
 				// Kits in the system's drumkit folder, which were shipped as
 				// part of Hydrogen, have the lower priority.
-				for ( const auto& [ _, ppDrumkit ] : pDB->getDrumkitDatabase() ) {
+				for ( const auto& [_, ppDrumkit] : pDB->getDrumkitDatabase() ) {
 					if ( ppDrumkit != nullptr &&
-						 ppDrumkit->getContext() == Drumkit::Context::System &&
+						 ppDrumkit->getContext() ==
+							 Filesystem::Context::System &&
 						 ppDrumkit->getName() == m_sDrumkitName ) {
 						pDrumkitMap = ppDrumkit->toDrumkitMap();
 						break;
@@ -523,15 +579,21 @@ void Pattern::applyMissingTypes( std::shared_ptr<Drumkit> pDrumkit,
 				// downloaded yet. We do use these .h2map files with least
 				// priority since they were already applied during while loading
 				// the kits above.
-				const QString sMapFile = Filesystem::getDrumkitMap(
-					m_sDrumkitName, bSilent );
+				const QString sMapFile =
+					Filesystem::getDrumkitMap( m_sDrumkitName, bSilent );
 
-				if ( ! sMapFile.isEmpty() ) {
+				if ( !sMapFile.isEmpty() ) {
 					// We found a matching
 					pDrumkitMap = DrumkitMap::load( sMapFile, bSilent );
 					if ( pDrumkitMap == nullptr ) {
-						ERRORLOG( QString( "Unable to load .h2map file [%1] to replace missing Types in notes for pattern [%2]" )
-								  .arg( sMapFile ).arg( m_sName ) );
+						ERRORLOG(
+							QString(
+								"Unable to load .h2map file [%1] to replace "
+								"missing Types in notes for pattern [%2]"
+							)
+								.arg( sMapFile )
+								.arg( m_sName )
+						);
 					}
 				}
 			}
@@ -540,24 +602,34 @@ void Pattern::applyMissingTypes( std::shared_ptr<Drumkit> pDrumkit,
 		if ( pDrumkitMap != nullptr ) {
 			// We do not replace any type but only set those not defined
 			// yet.
-			for ( const auto& [ _, ppNote ] : m_notes ) {
+			for ( const auto& [_, ppNote] : m_notes ) {
 				if ( ppNote != nullptr && ppNote->getType().isEmpty() &&
-					 ! pDrumkitMap->getType(
-						 ppNote->getInstrumentId() ).isEmpty() ) {
+					 !pDrumkitMap->getType( ppNote->getInstrumentId() )
+						  .isEmpty() ) {
 					ppNote->setType(
-						pDrumkitMap->getType( ppNote->getInstrumentId() ) );
+						pDrumkitMap->getType( ppNote->getInstrumentId() )
+					);
 				}
 			}
 		}
-		else if ( ! bSilent ) {
-			INFOLOG( QString( "There are missing Types for notes in pattern [%1] and no corresponding .h2map file for registered drumkit [%2]." )
-					 .arg( m_sName ).arg( m_sDrumkitName ) );
+		else if ( !bSilent ) {
+			INFOLOG(
+				QString(
+					"There are missing Types for notes in pattern [%1] and no "
+					"corresponding .h2map file for registered drumkit [%2]."
+				)
+					.arg( m_sName )
+					.arg( m_sDrumkitName )
+			);
 		}
 	}
 }
 
-void Pattern::mapToDrumkit( std::shared_ptr<Drumkit> pDrumkit,
-							std::shared_ptr<Drumkit> pOldDrumkit ) {
+void Pattern::mapToDrumkit(
+	std::shared_ptr<Drumkit> pDrumkit,
+	std::shared_ptr<Drumkit> pOldDrumkit
+)
+{
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( "Invalid drumkit" );
 		return;
@@ -567,11 +639,12 @@ void Pattern::mapToDrumkit( std::shared_ptr<Drumkit> pDrumkit,
 
 	std::shared_ptr<Instrument> ppInstrument;
 	Instrument::Type sNewType;
-	for ( auto& [ _, ppNote ] : m_notes ) {
+	for ( auto& [_, ppNote] : m_notes ) {
 		if ( ppNote != nullptr ) {
 			ppInstrument = pDrumkit->mapInstrument(
 				ppNote->getType(), ppNote->getInstrumentId(), pOldDrumkit,
-				&sNewType );
+				&sNewType
+			);
 			if ( ppInstrument == nullptr ) {
 				INFOLOG(
 					QString(
@@ -582,7 +655,7 @@ void Pattern::mapToDrumkit( std::shared_ptr<Drumkit> pDrumkit,
 				);
 			}
 
-			if ( ! sNewType.isEmpty() ) {
+			if ( !sNewType.isEmpty() ) {
 				// The instrument type of the note was altered
 				ppNote->setType( sNewType );
 			}
@@ -592,15 +665,16 @@ void Pattern::mapToDrumkit( std::shared_ptr<Drumkit> pDrumkit,
 	}
 }
 
-std::set<Instrument::Type> Pattern::getAllTypes() const {
+std::set<Instrument::Type> Pattern::getAllTypes() const
+{
 	std::set<Instrument::Type> types;
 
-	for ( const auto& [ _, ppNote ] : m_notes ) {
-		if ( ppNote != nullptr && ! ppNote->getType().isEmpty() ) {
+	for ( const auto& [_, ppNote] : m_notes ) {
+		if ( ppNote != nullptr && !ppNote->getType().isEmpty() ) {
 			if ( auto search = types.find( ppNote->getType() );
 				 search == types.end() ) {
-				const auto [ _, bSuccess ] = types.insert( ppNote->getType() );
-				if ( ! bSuccess ) {
+				const auto [_, bSuccess] = types.insert( ppNote->getType() );
+				if ( !bSuccess ) {
 					WARNINGLOG( QString( "Unable to insert note type [%1]" ) );
 				}
 			}
@@ -611,11 +685,12 @@ std::set<Instrument::Type> Pattern::getAllTypes() const {
 }
 
 std::vector<std::shared_ptr<Note>> Pattern::getAllNotesOfType(
-	const Instrument::Type& sType ) const
+	const Instrument::Type& sType
+) const
 {
 	std::vector<std::shared_ptr<Note>> notes;
 
-	for ( const auto& [ _, ppNote ] : m_notes ) {
+	for ( const auto& [_, ppNote] : m_notes ) {
 		if ( ppNote != nullptr && ppNote->getType() == sType ) {
 			notes.push_back( ppNote );
 		}
@@ -624,72 +699,118 @@ std::vector<std::shared_ptr<Note>> Pattern::getAllNotesOfType(
 	return notes;
 }
 
-std::set<std::shared_ptr<Pattern>>::iterator Pattern::begin() {
+std::set<std::shared_ptr<Pattern>>::iterator Pattern::begin()
+{
 	return m_flattenedVirtualPatterns.begin();
 }
 
-std::set<std::shared_ptr<Pattern>>::iterator Pattern::end() {
+std::set<std::shared_ptr<Pattern>>::iterator Pattern::end()
+{
 	return m_flattenedVirtualPatterns.end();
 }
 
-QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
+QString Pattern::toQString( const QString& sPrefix, bool bShort ) const
+{
 	QString s = Base::sPrintIndention;
 	QString sOutput;
-	if ( ! bShort ) {
-		sOutput = QString( "%1[Pattern]\n" ).arg( sPrefix )
-			.append( QString( "%1%2m_sName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sName ) )
-			.append( QString( "%1%2m_nVersion: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nVersion ) )
-			.append( QString( "%1%2m_sDrumkitName: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_sDrumkitName ) )
-			.append( QString( "%1%2m_sAuthor: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_sAuthor ) )
-			.append( QString( "%1%2m_license: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_license.toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2m_nLength: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nLength ) )
-			.append( QString( "%1%2m_nDenominator: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nDenominator ) )
-			.append( QString( "%1%2m_tags: %3\n" ).arg( sPrefix ).arg( s ).arg( m_tags.join( ", " ) ) )
-			.append( QString( "%1%2m_sInfo: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sInfo ) )
-			.append( QString( "%1%2m_notes:\n" ).arg( sPrefix ).arg( s ) );
-				 
-		for ( const auto& [ _, ppNote ] : m_notes ) {
+	if ( !bShort ) {
+		sOutput =
+			QString( "%1[Pattern]\n" )
+				.arg( sPrefix )
+				.append( QString( "%1%2m_sPath: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sPath ) )
+				.append( QString( "%1%2m_sName: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sName ) )
+				.append( QString( "%1%2m_nVersion: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_nVersion ) )
+				.append( QString( "%1%2m_sDrumkitName: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sDrumkitName ) )
+				.append( QString( "%1%2m_sAuthor: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sAuthor ) )
+				.append( QString( "%1%2m_license: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_license.toQString( sPrefix + s, bShort ) )
+				)
+				.append( QString( "%1%2m_nLength: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_nLength ) )
+				.append( QString( "%1%2m_nDenominator: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_nDenominator ) )
+				.append( QString( "%1%2m_tags: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_tags.join( ", " ) ) )
+				.append( QString( "%1%2m_sInfo: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sInfo ) )
+				.append( QString( "%1%2m_notes:\n" ).arg( sPrefix ).arg( s ) );
+
+		for ( const auto& [_, ppNote] : m_notes ) {
 			if ( ppNote != nullptr ) {
-				sOutput.append( QString( "%1" ).arg( ppNote->toQString(
-					sPrefix + s + s, bShort ) ) );
+				sOutput.append( QString( "%1" ).arg(
+					ppNote->toQString( sPrefix + s + s, bShort )
+				) );
 			}
 		}
 
-		sOutput.append( QString( "%1%2m_virtualPatterns:\n" ).arg( sPrefix ).arg( s ) );
+		sOutput.append(
+			QString( "%1%2m_virtualPatterns:\n" ).arg( sPrefix ).arg( s )
+		);
 		for ( auto ii : m_virtualPatterns ) {
 			if ( ii != nullptr ) {
-				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
+				sOutput.append( QString( "%1" ).arg(
+					ii->toQString( sPrefix + s + s, bShort )
+				) );
 			}
 		}
 
-		sOutput.append( QString( "%1%2m_flattenedVirtualPatterns:\n" ).arg( sPrefix ).arg( s ) );
+		sOutput.append( QString( "%1%2m_flattenedVirtualPatterns:\n" )
+							.arg( sPrefix )
+							.arg( s ) );
 		for ( auto ii : m_flattenedVirtualPatterns ) {
 			if ( ii != nullptr ) {
-				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
+				sOutput.append( QString( "%1" ).arg(
+					ii->toQString( sPrefix + s + s, bShort )
+				) );
 			}
 		}
 	}
 	else {
-
-		sOutput = QString( "[Pattern]" )
-			.append( QString( " m_sName: %1" ).arg( m_sName ) )
-			.append( QString( ", m_nVersion: %1" ).arg( m_nVersion ) )
-			.append( QString( ", m_sDrumkitName: %1" ).arg( m_sDrumkitName ) )
-			.append( QString( ", m_sAuthor: %1" ).arg( m_sAuthor ) )
-			.append( QString( ", m_license: %1" )
-					 .arg( m_license.toQString( sPrefix, bShort ) ) )
-			.append( QString( ", m_nLength: %1" ).arg( m_nLength ) )
-			.append( QString( ", m_nDenominator: %1" ).arg( m_nDenominator ) )
-			.append( QString( ", m_tags: %1" ).arg( m_tags.join( ", " ) ) )
-			.append( QString( ", m_sInfo: %1" ).arg( m_sInfo ) )
-			.append( QString( ", m_notes: [" ) );
-		for ( const auto& [ _, ppNote ] : m_notes ) {
+		sOutput =
+			QString( "[Pattern]" )
+				.append( QString( " m_sName: %1" ).arg( m_sName ) )
+				.append( QString( ", m_sPath: %1" ).arg( m_sPath ) )
+				.append( QString( ", m_nVersion: %1" ).arg( m_nVersion ) )
+				.append( QString( ", m_sDrumkitName: %1" ).arg( m_sDrumkitName )
+				)
+				.append( QString( ", m_sAuthor: %1" ).arg( m_sAuthor ) )
+				.append( QString( ", m_license: %1" )
+							 .arg( m_license.toQString( sPrefix, bShort ) ) )
+				.append( QString( ", m_nLength: %1" ).arg( m_nLength ) )
+				.append( QString( ", m_nDenominator: %1" ).arg( m_nDenominator )
+				)
+				.append( QString( ", m_tags: %1" ).arg( m_tags.join( ", " ) ) )
+				.append( QString( ", m_sInfo: %1" ).arg( m_sInfo ) )
+				.append( QString( ", m_notes: [" ) );
+		for ( const auto& [_, ppNote] : m_notes ) {
 			if ( ppNote != nullptr ) {
-				sOutput.append( QString( "[%1], " ).arg( ppNote->prettyName() ) );
+				sOutput.append( QString( "[%1], " ).arg( ppNote->prettyName() )
+				);
 			}
 		}
 		sOutput.append( "]" );
@@ -698,7 +819,9 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		for ( auto ii : m_virtualPatterns ) {
 			if ( ii != nullptr ) {
-				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
+				sOutput.append( QString( "%1" ).arg(
+					ii->toQString( sPrefix + s + s, bShort )
+				) );
 			}
 		}
 		if ( m_flattenedVirtualPatterns.size() != 0 ) {
@@ -706,16 +829,18 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		for ( auto ii : m_flattenedVirtualPatterns ) {
 			if ( ii != nullptr ) {
-				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
+				sOutput.append( QString( "%1" ).arg(
+					ii->toQString( sPrefix + s + s, bShort )
+				) );
 			}
 		}
 		if ( m_flattenedVirtualPatterns.size() != 0 ) {
 			sOutput.append( "}" );
 		}
-	}	
+	}
 	return sOutput;
 }
 
-};
+};	// namespace H2Core
 
 /* vim: set softtabstop=4 noexpandtab: */

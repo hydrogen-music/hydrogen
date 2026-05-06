@@ -1618,7 +1618,7 @@ Theme Theme::operator=( const std::shared_ptr<const Theme> pOther ) {
 }
 
 std::shared_ptr<Theme> Theme::importFrom( const QString& sPath ) {
-	if ( ! Filesystem::file_exists( sPath ) || ! Filesystem::file_readable( sPath ) ){
+	if ( ! Filesystem::fileExists( sPath ) || ! Filesystem::fileReadable( sPath ) ){
 		return nullptr;
 	}
 

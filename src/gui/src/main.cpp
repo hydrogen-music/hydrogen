@@ -37,6 +37,7 @@
 #endif
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Version.h>
 
 #include "HydrogenApp.h"
@@ -248,7 +249,7 @@ int main(int argc, char *argv[])
 		const QString sEncoding = QTextCodec::codecForLocale()->name();
 #endif
 		___INFOLOG( QString( "System encoding: [%1]" ).arg( sEncoding ) );
-		___INFOLOG( "Using data path: " + H2Core::Filesystem::sys_data_path() );
+		___INFOLOG( "Using data path: " + H2Core::Filesystem::systemDataPath() );
 
 		auto pPref = H2Core::Preferences::get_instance();
 
@@ -328,7 +329,7 @@ int main(int argc, char *argv[])
 				___INFOLOG( QString("Warning: No Qt translation for locale %1 found.").arg(locale.name()));
 			}
 			
-			QString sTranslationPath = H2Core::Filesystem::i18n_dir();
+			QString sTranslationPath = H2Core::Filesystem::systemInternationalizationDir();
 			QString sTranslationFile( "hydrogen" );
 			bool bTransOk = H2Core::Translations::loadTranslation( languages, tor, sTranslationFile, sTranslationPath );
 			if (bTransOk) {
@@ -452,17 +453,33 @@ int main(int argc, char *argv[])
 		pMainForm->show();
 		// Update visibility button states.
 		pHydrogenApp->getMainToolBar()->updateActions();
-	
-		pSplash->finish( pMainForm );
 
-		if( ! parser.getDrumkitToLoad().isEmpty() ) {
-			H2Core::CoreActionController::setDrumkit( parser.getDrumkitToLoad() );
-		}
+		pSplash->finish( pMainForm );
 
 		pQApp->setMainForm( pMainForm );
 
 		// Tell the core that the GUI is now fully loaded and ready.
 		pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::ready );
+
+		// The drumkit assigned via the command line must be applied _after_ the
+		// GUI is fully set up. We rely on our core events to reflect changes
+		// during loading and those have to be fully wired.
+		const QString sDrumkitNameToLoad = parser.getDrumkitToLoad();
+		if ( !sDrumkitNameToLoad.isEmpty() ) {
+			auto pDB =
+				H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase();
+			auto pDrumkit = pDB->getDrumkit( pDB->findArtifact(
+				H2Core::Filesystem::Artifact::DrumkitExtracted,
+				H2Core::Filesystem::Context::User, sDrumkitNameToLoad, true
+			) );
+			if ( pDrumkit != nullptr ) {
+				H2Core::CoreActionController::setDrumkit( pDrumkit );
+			}
+			else {
+				___ERRORLOG( QString( "Unable to retrieve drumkit called [%1]" )
+								 .arg( sDrumkitNameToLoad ) );
+			}
+		}
 
 		if ( ! parser.getShotList().isEmpty() ) {
 			ShotList *sl = new ShotList( parser.getShotList() );
@@ -474,9 +491,9 @@ int main(int argc, char *argv[])
 		// the modification flag. This does not apply in case we are
 		// restoring unsaved changes applied to an empty song during
 		// the previous session.
-		if ( pHydrogen->getSong()->getFileName() !=
-			 H2Core::Filesystem::empty_path(
-				 H2Core::Filesystem::Type::Song ) ) {
+		if ( pHydrogen->getSong()->getPath() !=
+			 H2Core::Filesystem::emptyPath(
+				 H2Core::Filesystem::Artifact::Song ) ) {
 #ifdef H2CORE_HAVE_OSC
 			// Mark empty song created in a new NSM session modified
 			// in order to emphasis that an initial song save is

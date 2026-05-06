@@ -68,7 +68,7 @@ Sampler::Sampler()
 
 	// instrument used in file preview
 	m_pDefaultPreviewInstrument =
-		Instrument::from( Sample::load( Filesystem::empty_sample_path() ) );
+		Instrument::from( Sample::load( Filesystem::emptySamplePath() ) );
 	if ( m_pDefaultPreviewInstrument != nullptr ) {
 		m_pDefaultPreviewInstrument->setId( Instrument::EmptyId );
 		m_pDefaultPreviewInstrument->setVolume( 0.8 );

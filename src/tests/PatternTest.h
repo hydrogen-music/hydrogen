@@ -28,6 +28,7 @@
 class PatternTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE(PatternTest);
 	CPPUNIT_TEST( testCustomLegacyImport );
+	CPPUNIT_TEST( testPatternPathStorage );
 	CPPUNIT_TEST( testPurgeInstrument );
 	CPPUNIT_TEST_SUITE_END();
 
@@ -38,6 +39,7 @@ class PatternTest : public CppUnit::TestCase {
 		 * manually into the session. The kit itself already hold type
 		 * information. */
 		void testCustomLegacyImport();
+		void testPatternPathStorage();
 		void testPurgeInstrument();
 };
 

@@ -49,6 +49,11 @@ class AssertionTest : public CppUnit::TestCase {
 	H2TEST_ASSERT_DIRS_UNEQUAL( H2TEST_FILE( "/drumkits/instrument-type-ref" ),
 								H2TEST_FILE( "/drumkits/instrument-type-ref-duplicate" ) );
 
+	ASSERT_PATH( "/usr/example", "/usr/example" );
+	ASSERT_PATH( "/usr/example", "/usr\\example" );
+	ASSERT_PATH_UNEQUAL( "/usr/example", "/usr/bxample" );
+	ASSERT_PATH_UNEQUAL( "/usr/example", "/usr\\bxample" );
+
 	___INFOLOG( "passed" );
 	}
 };

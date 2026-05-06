@@ -303,9 +303,20 @@ bool XMLDoc::read( const QString& sFilePath, bool bSilent ) {
 	if ( Legacy::checkTinyXMLCompatMode( &file ) ) {
 		// Document was created using TinyXML and not using QtXML. We
 		// need to convert it first.
+#if QT_VERSION >= QT_VERSION_CHECK( 6, 5, 0 )
+		const auto parseResult = setContent( Legacy::convertFromTinyXML( &file ) );
+		if ( !parseResult ) {
+			ERRORLOG( QString( "Unable to read conversion result document "
+							   "[%1]. Parse error in line [%2] colum [%3]: %4" )
+						  .arg( sFilePath )
+						  .arg( parseResult.errorLine )
+						  .arg( parseResult.errorColumn )
+						  .arg( parseResult.errorMessage ) );
+#else
 		if ( ! setContent( Legacy::convertFromTinyXML( &file ) ) ) {
 			ERRORLOG( QString( "Unable to read conversion result document [%1]" )
 					  .arg( sFilePath ) );
+#endif
 			file.close();
 			return false;
 		}

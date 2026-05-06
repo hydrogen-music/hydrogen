@@ -126,14 +126,14 @@ void Director::updateSongEvent( int nValue ) {
 		 nValue == 1 ) { // current one saved
 
 		// Update song name
-		QStringList list = pSong->getFileName().split("/");
+		QStringList list = pSong->getPath().split("/");
 
 		if ( !list.isEmpty() ){
-			m_sSongName = list.last().replace( Filesystem::songs_ext, "" );
+			m_sSongName = list.last().replace( Filesystem::sSongSuffix, "" );
 
 			// if songname is not set, default on an empty song, we call them "Untitled Song".
 			if( m_sSongName.isEmpty() ){
-				m_sSongName = QString("Untitled Song");
+				m_sSongName = Song::sDefaultName;
 			}
 		}
 

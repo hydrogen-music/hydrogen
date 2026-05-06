@@ -941,16 +941,6 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>system</source>
-        <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>session</source>
-        <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>The provided filename can not be handled by your current encoding</source>
         <extracomment>Displayed in a warning message in case the user tries to read * or write data to a file/path Hydrogen can not handle in the * current encoding.</extracomment>
         <translation type="unfinished"></translation>
@@ -1528,6 +1518,46 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Tags</source>
         <extracomment>Shown as label text in song, pattern, and drumkit dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkits</source>
+        <extracomment>Label shown in a tab of the Sound Library.</extracomment>
+        <translation>Kits de bateria</translation>
+    </message>
+    <message>
+        <source>Patterns</source>
+        <extracomment>Label shown in a tab of the Sound Library.</extracomment>
+        <translation>Patrones</translation>
+    </message>
+    <message>
+        <source>Songs</source>
+        <extracomment>Label shown in a tab of the Sound Library.</extracomment>
+        <translation>Cançons</translation>
+    </message>
+    <message>
+        <source>System</source>
+        <extracomment>Node in the Sound Library corresponding to artifacts installed on * system-level.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Session</source>
+        <extracomment>Node in the Sound Library corresponding to artifacts only available in * the current Hydrogen session.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User</source>
+        <extracomment>Node in the Sound Library corresponding to artifacts installed on * user-level.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <extracomment>Label of the read-only text input in pattern/song/drumkit properties * dialog displaying the absolute file backing the particular artifact.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The provided path is invalid! Please ensure you have write access and use the file extension</source>
+        <extracomment>Text of an error dialog shown in the properties dialogs of pattern and * song. Above the text - in a separate line - the invalid path will be * shown. Directly after the text - in the same line and contained in square * brackets - the particular file extension will be appended.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5806,19 +5836,6 @@ N&apos;estàs segur?</translation>
     </message>
 </context>
 <context>
-    <name>SoundLibraryDatabase</name>
-    <message>
-        <source>system</source>
-        <extracomment>suffix appended to a drumkit name in order to make in unique.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>session</source>
-        <extracomment>suffix appended to a drumkit name in order to make in unique.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
@@ -5835,18 +5852,6 @@ N&apos;estàs segur?</translation>
     <message>
         <source>Updating SoundLibrary list...</source>
         <translation>Actualitzant llista de llibreries de sò...</translation>
-    </message>
-    <message>
-        <source>Drumkits</source>
-        <translation>Kits de bateria</translation>
-    </message>
-    <message>
-        <source>Songs</source>
-        <translation>Cançons</translation>
-    </message>
-    <message>
-        <source>Patterns</source>
-        <translation>Patrons</translation>
     </message>
     <message>
         <source>Installed</source>
@@ -5932,57 +5937,7 @@ imported into %2</source>
 <context>
     <name>SoundLibraryPanel</name>
     <message>
-        <source>System drumkits</source>
-        <translation>Kits de bateria del sistema</translation>
-    </message>
-    <message>
-        <source>User drumkits</source>
-        <translation>Kits de bateria de l&apos;usuari</translation>
-    </message>
-    <message>
-        <source>Songs</source>
-        <translation>Cançons</translation>
-    </message>
-    <message>
-        <source>Patterns</source>
-        <translation>Patrons</translation>
-    </message>
-    <message>
-        <source>Warning, the selected pattern will be deleted from disk.
-Are you sure?</source>
-        <translation>Atenció, el patró seleccionat serà esborrat del disc.
-N&apos;estàs segur?</translation>
-    </message>
-    <message>
-        <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
-Are you sure?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Drumkit deletion failed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Double click to expand the list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Session drumkits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Created for drumkit</source>
-        <extracomment>Base tooltip displayed when hovering over a pattern in the Sound Library. It indicates which drumkit the pattern was created with</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>is a read-only drumkit and can&apos;t be deleted.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>It is not possible to delete drumkit: 
-  [%1]
-It contains samples used and loaded in the current song kit.</source>
+        <source>Search...</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6023,8 +5978,25 @@ It contains samples used and loaded in the current song kit.</source>
 <context>
     <name>SoundLibraryTree</name>
     <message>
-        <source>Sound library</source>
-        <translation>Llibreria de sò</translation>
+        <source>is a read-only and can&apos;t be deleted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>It is not possible to delete drumkit: 
+  [%1]
+It contains samples used and loaded in the current song kit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning, the following will be deleted from disk.
+Are you sure?
+
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deletion failed.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

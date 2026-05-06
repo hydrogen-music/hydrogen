@@ -49,15 +49,19 @@ void CliTest::testKitToDrumkitMap() {
 	const QString sNoTypesFolder = H2TEST_FILE( "drumkits/baseKit" );
 	// We load the kits to ensure they are clean and can be loaded.
 	const auto pDrumkitRef = H2Core::Drumkit::load(
-		sRefFolder, false, nullptr, true );
+		H2Core::Filesystem::drumkitPathFromDir( sRefFolder ), false, nullptr,
+		true
+	);
 	CPPUNIT_ASSERT( pDrumkitRef != nullptr );
 	const auto pDrumkitNoTypes = H2Core::Drumkit::load(
-		sNoTypesFolder, false, nullptr, true );
+		H2Core::Filesystem::drumkitPathFromDir( sNoTypesFolder ), false,
+		nullptr, true
+	);
 	CPPUNIT_ASSERT( pDrumkitNoTypes != nullptr );
 
 	// Now, we also write the output and compare it with reference files.
 	const QString sTmpRefFile =
-		H2Core::Filesystem::tmp_dir() + "sample-cli.h2map";
+		H2Core::Filesystem::tmpDir() + "sample-cli.h2map";
 	QStringList argsRefFile;
 	argsRefFile << "--kitToDrumkitMap" << sRefFolder
 		<< "-o" << sTmpRefFile;
@@ -74,7 +78,7 @@ void CliTest::testKitToDrumkitMap() {
 	// And now for the empty one.
 
 	const QString sTmpNoTypesFile =
-		H2Core::Filesystem::tmp_dir() + "empty-cli.h2map";
+		H2Core::Filesystem::tmpDir() + "empty-cli.h2map";
 	QStringList argsNoTypesFile;
 	argsNoTypesFile << "--kitToDrumkitMap" << sNoTypesFolder
 		<< "-o" << sTmpNoTypesFile;

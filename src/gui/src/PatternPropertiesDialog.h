@@ -32,14 +32,10 @@
 
 #include <core/Object.h>
 
-namespace H2Core
-{
-	class Pattern;
+namespace H2Core {
+class Pattern;
 }
 
-///
-///Pattern Properties Dialog
-///
 /** \ingroup docGUI*/
 class PatternPropertiesDialog : public QDialog,
 								protected WidgetWithLicenseProperty,
@@ -47,29 +43,42 @@ class PatternPropertiesDialog : public QDialog,
 								public H2Core::Object<PatternPropertiesDialog>
 
 {
-	H2_OBJECT(PatternPropertiesDialog)
+	H2_OBJECT( PatternPropertiesDialog )
 	Q_OBJECT
-	public:
-		PatternPropertiesDialog( QWidget* parent,
-								 std::shared_ptr<H2Core::Pattern> pattern,
-								 int nselectedPattern, bool save );
+   public:
+	enum Action {
+		None = 0x00,
+		/** Instead of writing the changes to the supplied #m_pPattern directly,
+		 * the dialog uses an undo action to exchange the pattern. This is
+		 * suitable for patterns within the pattern list of the current song. */
+		ModifyViaUndo = 0x01,
+		/** Provides the user write access the path of the underlying resource
+		 * as well. */
+		Duplicate = 0x02
+	};
 
-		~PatternPropertiesDialog();
+	PatternPropertiesDialog(
+		QWidget* pParent,
+		std::shared_ptr<H2Core::Pattern> pPattern,
+		int nSelectedPattern,
+		Action action
+	);
 
-		/// Does some name check
-		void defaultNameCheck( const QString& , bool);
+	~PatternPropertiesDialog();
 
-	private slots:
-		void on_cancelBtn_clicked();
-		void on_okBtn_clicked();
-		void licenseComboBoxChanged( int );
+	/// Does some name check
+	void defaultNameCheck( const QString&, bool );
 
-	private:
-		std::shared_ptr<H2Core::Pattern> pattern;
-		int __nselectedPattern;
-		bool __savepattern;
+   private slots:
+	void on_cancelBtn_clicked();
+	void on_okBtn_clicked();
+	void licenseComboBoxChanged( int );
+
+   private:
+	std::shared_ptr<H2Core::Pattern> m_pPattern;
+	int m_nSelectedPattern;
+	Action m_action;
 };
-
 
 #endif
 
