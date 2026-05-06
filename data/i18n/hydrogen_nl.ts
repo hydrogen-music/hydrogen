@@ -2748,10 +2748,6 @@ Info|Over</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Export song from Session</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Song exported as: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -5797,6 +5793,10 @@ Ben je zeker?</translation>
     <message>
         <source>Song properties</source>
         <translation>Opname eigenschappen</translation>
+    </message>
+    <message>
+        <source>Export song from Session</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -2792,10 +2792,6 @@ MIDI = %2</translation>
         <translation>&amp;Spende!</translation>
     </message>
     <message>
-        <source>Export song from Session</source>
-        <translation>Lied aus Session exportieren</translation>
-    </message>
-    <message>
         <source>Song exported as: </source>
         <translation>Song exportiert als: </translation>
     </message>
@@ -5822,6 +5818,10 @@ Fortsetzen?</translation>
     <message>
         <source>Song properties</source>
         <translation>Lied-Eigenschaften</translation>
+    </message>
+    <message>
+        <source>Export song from Session</source>
+        <translation>Lied aus Session exportieren</translation>
     </message>
 </context>
 <context>

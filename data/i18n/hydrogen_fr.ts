@@ -2633,10 +2633,6 @@ MIDI = %2</translation>
         <translation>Pilote Jack : impossible de déconnecter le client</translation>
     </message>
     <message>
-        <source>Export song from Session</source>
-        <translation>Exporter le morceau de la session</translation>
-    </message>
-    <message>
         <source>Import song into Session</source>
         <translation>Importer un morceau à l&apos;intérieur de la session</translation>
     </message>
@@ -5835,6 +5831,10 @@ Voulez-vous continuer?</translation>
     <message>
         <source>Song properties</source>
         <translation>Propriétés du morceau</translation>
+    </message>
+    <message>
+        <source>Export song from Session</source>
+        <translation>Exporter le morceau de la session</translation>
     </message>
 </context>
 <context>

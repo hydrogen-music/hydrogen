@@ -60,6 +60,7 @@ SongPropertiesDialog::SongPropertiesDialog(
 	: QDialog( parent ), m_pSong( pSong ), m_action( action )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pHydrogen = Hydrogen::get_instance();
 
 	setMinimumSize( 757, 876 );
 
@@ -69,8 +70,14 @@ SongPropertiesDialog::SongPropertiesDialog(
 	setWindowFlags( windowFlags() | Qt::CustomizeWindowHint |
 					Qt::WindowMinMaxButtonsHint );
 
-	if ( action & Action::Duplicate ) {
+	if ( pHydrogen->isUnderSessionManagement() && ( action & Action::ModifyViaUndo ) && ( action & Action::SaveAs ) ) {
+		setWindowTitle( tr( "Export song from Session" ) );
+	}
+	else if ( action & Action::Duplicate ) {
 		setWindowTitle( pCommonStrings->getMenuActionDuplicate() );
+	}
+	else if ( action & Action::SaveAs ) {
+		setWindowTitle( pCommonStrings->getActionSaveSong() );
 	}
 	else {
 		setWindowTitle( tr( "Song properties" ) );

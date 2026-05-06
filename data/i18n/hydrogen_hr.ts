@@ -2747,10 +2747,6 @@ MIDI = %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Export song from Session</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Song exported as: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -5800,6 +5796,10 @@ Da li to želiš napraviti?</translation>
     <message>
         <source>Song properties</source>
         <translation>Karakteristike pjesme</translation>
+    </message>
+    <message>
+        <source>Export song from Session</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

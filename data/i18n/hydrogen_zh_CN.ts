@@ -2786,10 +2786,6 @@ MIDI = %2</translation>
         <translation>点击捐赠！(&amp;D)</translation>
     </message>
     <message>
-        <source>Export song from Session</source>
-        <translation>从会话导出乐曲</translation>
-    </message>
-    <message>
         <source>Song exported as: </source>
         <translation>乐曲另存为 </translation>
     </message>
@@ -5829,6 +5825,10 @@ Are you sure?</source>
     <message>
         <source>Song properties</source>
         <translation>乐曲属性</translation>
+    </message>
+    <message>
+        <source>Export song from Session</source>
+        <translation>从会话导出乐曲</translation>
     </message>
 </context>
 <context>

@@ -2777,10 +2777,6 @@ MIDI = %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Export song from Session</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Song exported as: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -5825,6 +5821,10 @@ Are you sure?</source>
     <message>
         <source>Song properties</source>
         <translation>Метаданные</translation>
+    </message>
+    <message>
+        <source>Export song from Session</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

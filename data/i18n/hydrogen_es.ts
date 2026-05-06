@@ -2779,10 +2779,6 @@ MIDI = %2</translation>
         <translation>¡&amp;Dona!</translation>
     </message>
     <message>
-        <source>Export song from Session</source>
-        <translation>Exportar canción de Sesión</translation>
-    </message>
-    <message>
         <source>Song exported as: </source>
         <translation>Canción exportada como: </translation>
     </message>
@@ -5834,6 +5830,10 @@ Are you sure?</source>
     <message>
         <source>Song properties</source>
         <translation>Propiedades de la canción</translation>
+    </message>
+    <message>
+        <source>Export song from Session</source>
+        <translation>Exportar canción de Sesión</translation>
     </message>
 </context>
 <context>
