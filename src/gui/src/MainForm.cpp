@@ -1307,6 +1307,7 @@ void MainForm::action_pattern_save( int nPatternRow )
 void MainForm::action_pattern_save_as( int nPatternRow )
 {
 	const auto pHydrogen = Hydrogen::get_instance();
+	auto pPref = Preferences::get_instance();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	if ( nPatternRow == -1 ) {
@@ -1350,8 +1351,7 @@ void MainForm::action_pattern_save_as( int nPatternRow )
 	// in the last used folder to store a pattern in (or the user-level pattern
 	// folder after first boot).
 	if ( pPattern->getPath().isEmpty() ) {
-		QString sDir =
-			Preferences::get_instance()->getLastExportPatternAsDirectory();
+		QString sDir = pPref->getLastExportPatternAsDirectory();
 		if ( sDir.isEmpty() ) {
 			sDir = Filesystem::userPatternsDir();
 		}
@@ -1370,17 +1370,22 @@ void MainForm::action_pattern_save_as( int nPatternRow )
 			PatternPropertiesDialog::Action::SaveAs
 		)
 	);
-	if ( dialog.exec() == QDialog::Accepted ) {
-		if ( pPattern->save( pPattern->getPath() ) ) {
-			pHydrogen->getSoundLibraryDatabase()->updatePatterns(
-				Event::Trigger::Default
-			);
-		}
-		else {
-			QMessageBox::warning(
-				this, "Hydrogen", pCommonStrings->getErrorPatternSaved()
-			);
-		}
+	if ( dialog.exec() != QDialog::Accepted ) {
+		return;
+	}
+
+	if ( pPattern->save( pPattern->getPath() ) ) {
+		pPref->setLastExportPatternAsDirectory(
+			QFileInfo( pPattern->getPath() ).absoluteDir().absolutePath()
+		);
+		pHydrogen->getSoundLibraryDatabase()->updatePatterns(
+			Event::Trigger::Default
+		);
+	}
+	else {
+		QMessageBox::warning(
+			this, "Hydrogen", pCommonStrings->getErrorPatternSaved()
+		);
 	}
 }
 
