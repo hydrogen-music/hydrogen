@@ -348,7 +348,12 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	const int nVersion = m_pVersionSpinBox->value();
 	const QString sAuthor = m_pAuthorTxt->text();
 	QString sPattName = m_pPatternNameTxt->text();
-	const License license( m_pLicenseStringTxt->text() );
+	QString sNewLicenseString( m_pLicenseStringTxt->text() );
+	if ( m_pLicenseComboBox->currentIndex() ==
+		 static_cast<int>(License::Unspecified) ) {
+		sNewLicenseString = "";
+	}
+	const License license( sNewLicenseString );
 	const QStringList tags = m_pTagEdit->getTags();
 	const QString sPattInfo = m_pPatternDescTxt->toPlainText();
 
@@ -385,10 +390,9 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 			 ) ) {
 			QMessageBox::critical(
 				this, "Hydrogen",
-				QString( "[%1]\n\n%2 [%3]" )
+				QString( "[%1]\n\n%2" )
 					.arg( m_pPathEdit->text() )
 					.arg( pCommonStrings->getErrorInvalidPath() )
-					.arg( Filesystem::sPatternSuffix )
 			);
 			return;
 		}
