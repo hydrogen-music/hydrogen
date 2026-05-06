@@ -31,6 +31,7 @@
 #include "Widgets/LCDSpinBox.h"
 #include "Widgets/LCDTextEdit.h"
 #include "Widgets/TagEdit.h"
+#include "UndoActions.h"
 
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
@@ -54,9 +55,9 @@ using namespace H2Core;
 SongPropertiesDialog::SongPropertiesDialog(
 	QWidget* parent,
 	std::shared_ptr<Song> pSong,
-	bool bDuplicate
+	Action action
 )
-	: QDialog( parent ), m_pSong( pSong ), m_bDuplicate( bDuplicate )
+	: QDialog( parent ), m_pSong( pSong ), m_action( action )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
@@ -68,7 +69,7 @@ SongPropertiesDialog::SongPropertiesDialog(
 	setWindowFlags( windowFlags() | Qt::CustomizeWindowHint |
 					Qt::WindowMinMaxButtonsHint );
 
-	if ( bDuplicate ) {
+	if ( action & Action::Duplicate ) {
 		setWindowTitle( pCommonStrings->getMenuActionDuplicate() );
 	}
 	else {
@@ -252,8 +253,9 @@ SongPropertiesDialog::SongPropertiesDialog(
 		}
 		m_pTagEdit->setTags( pSong->getTags() );
 	}
-	m_pPathEdit->setIsActive( bDuplicate );
-	m_pPathBrowseButton->setVisible( bDuplicate );
+
+	m_pPathEdit->setIsActive( action & Action::SaveAs );
+	m_pPathBrowseButton->setVisible( action & Action::SaveAs );
 
 	connect( m_pLicenseComboBox, SIGNAL( currentIndexChanged( int ) ),
 			 this, SLOT( licenseComboBoxChanged( int ) ) );
@@ -431,6 +433,17 @@ void SongPropertiesDialog::on_okBtn_clicked()
 {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
+	const int nVersion = m_pVersionSpinBox->value();
+	const QString sAuthor = m_pAuthorTxt->text();
+	const QString sSongName = m_pSongNameTxt->text();
+	QString sNewLicenseString( m_pLicenseStringTxt->text() );
+	if ( m_pLicenseComboBox->currentIndex() ==
+		 static_cast<int>(License::Unspecified) ) {
+		sNewLicenseString = "";
+	}
+	const License license( sNewLicenseString );
+	const QStringList tags = m_pTagEdit->getTags();
+	const QString sNotes = m_pNotesTxt->toPlainText();
 
 	// Sanity checks.
 	//
@@ -452,62 +465,81 @@ void SongPropertiesDialog::on_okBtn_clicked()
 
 	bool bIsModified = false;
 
-	if ( m_bDuplicate && m_pSong->getPath() != m_pPathEdit->text() ) {
+	if ( ( m_action & Action::SaveAs ) &&
+		 ( m_pSong->getPath() != m_pPathEdit->text() &&
+		   !m_pPathEdit->text().isEmpty() ) ) {
 		if ( !Filesystem::isPathValid(
 				 Filesystem::Artifact::Song, m_pPathEdit->text(), false
 			 ) ) {
 			QMessageBox::critical(
 				this, "Hydrogen",
-				QString( "[%1]\n\n%2 [%3]" )
+				QString( "[%1]\n\n%2" )
 					.arg( m_pPathEdit->text() )
 					.arg( pCommonStrings->getErrorInvalidPath() )
-					.arg( Filesystem::sSongSuffix )
 			);
 			return;
 		}
+	}
+
+	if ( ( m_action & Action::ModifyViaUndo ) &&
+		 ( m_pSong->getPath() != m_pPathEdit->text() ||
+		   m_pSong->getVersion() != nVersion ||
+		   m_pSong->getName() != sSongName ||
+		   m_pSong->getAuthor() != sAuthor ||
+		   m_pSong->getNotes() != sNotes ||
+		   m_pSong->getLicense() != license ||
+		   m_pSong->getTags() != tags ) ) {
+		auto pAction = new SE_modifySongPropertiesAction(
+			m_pSong->getPath(), m_pSong->getVersion(), m_pSong->getName(),
+			m_pSong->getAuthor(), m_pSong->getNotes(), m_pSong->getLicense(),
+			m_pSong->getTags(), m_pPathEdit->text(), nVersion, sSongName,
+			sAuthor, sNotes, license, tags
+		);
+		HydrogenApp::get_instance()->pushUndoCommand( pAction );
+
+		accept();
+
+		return;
+	}
+
+	if ( ( m_action & Action::SaveAs ) &&
+		 m_pSong->getPath() != m_pPathEdit->text() ) {
 		m_pSong->setPath( m_pPathEdit->text() );
 		bIsModified = true;
 	}
-
-	if ( m_pVersionSpinBox->value() != m_pSong->getVersion() ) {
-		m_pSong->setVersion( m_pVersionSpinBox->value() );
-		bIsModified = true;
-	}
-	if ( m_pSongNameTxt->text() != m_pSong->getName() ) {
-		m_pSong->setName( m_pSongNameTxt->text() );
-		bIsModified = true;
-	}
-	if ( m_pSong->getAuthor() != m_pAuthorTxt->text() ) {
-		m_pSong->setAuthor( m_pAuthorTxt->text() );
-		bIsModified = true;
-	}
-	if ( m_pSong->getNotes() != m_pNotesTxt->toPlainText() ) {
-		m_pSong->setNotes( m_pNotesTxt->toPlainText() );
+	if ( m_pSong->getVersion() != nVersion ) {
+		m_pSong->setVersion( nVersion );
 		bIsModified = true;
 	}
 
-	const auto tags = m_pTagEdit->getTags();
+	if ( sSongName != m_pSong->getName() ) {
+		m_pSong->setName( sSongName );
+		bIsModified = true;
+	}
+	if ( m_pSong->getAuthor() != sAuthor ) {
+		m_pSong->setAuthor( sAuthor );
+		bIsModified = true;
+	}
+	if ( m_pSong->getNotes() != sNotes ) {
+		m_pSong->setNotes( sNotes );
+		bIsModified = true;
+	}
+
 	if ( tags != m_pSong->getTags() ) {
 		m_pSong->setTags( tags );
-	}
-
-	QString sNewLicenseString( m_pLicenseStringTxt->text() );
-	if ( m_pLicenseComboBox->currentIndex() ==
-		 static_cast<int>(License::Unspecified) ) {
-		sNewLicenseString = "";
-	}
-	License newLicense( sNewLicenseString );
-	if ( m_pSong->getLicense() != newLicense ) {
-		m_pSong->setLicense( newLicense );
 		bIsModified = true;
 	}
 
-	if ( bIsModified && m_pSong == pHydrogen->getSong() ) {
-		pHydrogen->setIsModified( true );
+	if ( m_pSong->getLicense() != license ) {
+		m_pSong->setLicense( license );
+		bIsModified = true;
 	}
-	else {
-		m_pSong->setIsModified( true );
-	}
+
+	pHydrogen->setIsModified( bIsModified && !( m_action & Action::SaveAs ) );
+
+	// We do not need to send an Event::SongModified in here. This is only
+	// required for the currently active song, which must always be altered
+	// using Action::ModifyViaUndo.
 
 	accept();
 }

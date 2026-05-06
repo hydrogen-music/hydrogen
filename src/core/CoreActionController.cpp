@@ -2873,6 +2873,40 @@ bool CoreActionController::setPatternProperties(
 	return true;
 }
 
+bool CoreActionController::setSongProperties(
+	const QString& sNewPath,
+	const int nNewVersion,
+	const QString& sNewName,
+	const QString& sNewAuthor,
+	const QString& sNewNotes,
+	const H2Core::License& newLicense,
+	const QStringList& newTags
+)
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	pSong->setPath( sNewPath );
+	pSong->setVersion( nNewVersion );
+	pSong->setName( sNewName );
+	pSong->setAuthor( sNewAuthor );
+	pSong->setNotes( sNewNotes );
+	pSong->setLicense( newLicense );
+	pSong->setTags( newTags );
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->pushEvent( Event::Type::SongModified, 0 );
+
+	return true;
+}
+
 bool CoreActionController::toggleGridCell( const GridPoint& gridPoint )
 {
 	auto pHydrogen = Hydrogen::get_instance();

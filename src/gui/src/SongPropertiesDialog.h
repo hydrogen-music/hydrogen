@@ -53,10 +53,26 @@ class SongPropertiesDialog : public QDialog,
 	Q_OBJECT
 
    public:
+	enum Action {
+		/** With no additional actions, the window title suggests a change of
+		 * properties and content changed will the written to the provided
+		 * song. */
+		None = 0x00,
+		/** Instead of writing the changes to the supplied #m_pSong directly,
+		 * the dialog uses an undo action to exchange the song. This is
+		 * suitable for the current song. */
+		ModifyViaUndo = 0x01,
+		/** Alters the window title. */
+		Duplicate = 0x02,
+		/** Provides the user write access the path of the underlying resource
+		 * as well and alters the window title. */
+		SaveAs = 0x04
+	};
+
 	explicit SongPropertiesDialog(
 		QWidget* parent,
 		std::shared_ptr<H2Core::Song> pSong,
-		bool bDuplicate
+		Action action
 	);
 	~SongPropertiesDialog();
 
@@ -69,7 +85,7 @@ class SongPropertiesDialog : public QDialog,
 	void updatePatternLicenseTable();
 
 	std::shared_ptr<H2Core::Song> m_pSong;
-	bool m_bDuplicate;
+	Action m_action;
 
 	QTabWidget* m_pTabWidget;
 	LCDDisplay* m_pSongNameTxt;

@@ -2428,8 +2428,10 @@ void MainForm::action_file_songProperties()
 	if ( pSong == nullptr ) {
 		return;
 	}
-	
-	SongPropertiesDialog dialog( this, pSong, false );
+
+	SongPropertiesDialog dialog(
+		this, pSong, SongPropertiesDialog::Action::ModifyViaUndo
+	);
 	if ( dialog.exec() ) {
 		// Ensure the update name is taken into account in the window
 		// title.
