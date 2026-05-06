@@ -261,8 +261,24 @@ SongPropertiesDialog::SongPropertiesDialog(
 		m_pTagEdit->setTags( pSong->getTags() );
 	}
 
-	m_pPathEdit->setIsActive( action & Action::SaveAs );
-	m_pPathBrowseButton->setVisible( action & Action::SaveAs );
+	if ( action & Action::SaveAs ) {
+		m_pPathEdit->setIsActive( true );
+		m_pPathBrowseButton->setVisible( true );
+		m_pOkBtn->setEnabled(
+			m_pPathEdit->text().endsWith( Filesystem::sSongSuffix )
+		);
+		connect(
+			m_pPathEdit, &QLineEdit::textChanged,
+			[&]( const QString& sNewText ) {
+				m_pOkBtn->setEnabled( sNewText.endsWith( Filesystem::sSongSuffix
+				) );
+			}
+		);
+	}
+	else {
+		m_pPathEdit->setIsActive( false );
+		m_pPathBrowseButton->setVisible( false );
+	}
 
 	connect( m_pLicenseComboBox, SIGNAL( currentIndexChanged( int ) ),
 			 this, SLOT( licenseComboBoxChanged( int ) ) );
