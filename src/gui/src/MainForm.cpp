@@ -33,6 +33,7 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Playlist.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/H2Exception.h>
 #include <core/Hydrogen.h>
 #include <core/Lilipond/Lilypond.h>
@@ -738,6 +739,21 @@ bool MainForm::action_file_save_as()
 	// management.
 	const QString sLastPath = pSong->getPath();
 
+	// In case the song is not backed by a file yet, we default to the file in
+	// the last used folder to store songs in (or the user-level song folder
+	// after first boot).
+	if ( sLastPath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ||
+		 sLastPath.isEmpty() ) {
+		QString sDir = pPref->getLastSaveSongAsDirectory();
+		if ( sDir.isEmpty() ) {
+			sDir = Filesystem::userSongsDir();
+		}
+		pSong->setPath( QString( "%1/%2%3" )
+							.arg( sDir )
+							.arg( pSong->getName() )
+							.arg( Filesystem::sSongSuffix ) );
+	}
+
 	SongPropertiesDialog dialog(
 		this, pSong,
 		static_cast<SongPropertiesDialog::Action>(
@@ -746,19 +762,21 @@ bool MainForm::action_file_save_as()
 		)
 	);
 	if ( dialog.exec() != QDialog::Accepted ) {
+		// Revert possible path changes
+		pSong->setPath( sLastPath );
 		return false;
 	}
 
 	const bool bUnderSessionManagement = pHydrogen->isUnderSessionManagement();
-	pPref->setLastSaveSongAsDirectory(
-		QFileInfo( pSong->getPath() ).absoluteDir().absolutePath()
-	);
 	if ( !CoreActionController::saveSongAs(
 			 pSong->getPath(), bKeepMissingSamples
 		 ) ) {
 		ERRORLOG( "Unable to save song" );
 		return false;
 	}
+	pPref->setLastSaveSongAsDirectory(
+		QFileInfo( pSong->getPath() ).absoluteDir().absolutePath()
+	);
 
 #ifdef H2CORE_HAVE_OSC
 	// When Hydrogen is under session management, we only copy a
@@ -1328,11 +1346,17 @@ void MainForm::action_pattern_save_as( int nPatternRow )
 		pPattern->setLicense( pSong->getLicense() );
 	}
 
-	// In case the pattern is not backed by a file yet, we default to the
-	// user-level pattern folder.
+	// In case the pattern is not backed by a file yet, we default to the file
+	// in the last used folder to store a pattern in (or the user-level pattern
+	// folder after first boot).
 	if ( pPattern->getPath().isEmpty() ) {
+		QString sDir =
+			Preferences::get_instance()->getLastExportPatternAsDirectory();
+		if ( sDir.isEmpty() ) {
+			sDir = Filesystem::userPatternsDir();
+		}
 		pPattern->setPath( QString( "%1/%2%3" )
-							   .arg( Filesystem::userPatternsDir() )
+							   .arg( sDir )
 							   .arg( pPattern->getName() )
 							   .arg( Filesystem::sPatternSuffix ) );
 	}
