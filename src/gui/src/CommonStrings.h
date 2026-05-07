@@ -234,6 +234,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	{
 		return m_sFileDialogMissingWritePermissions;
 	}
+	const QString& getArtifactIsReadOnly() const
+	{
+		return m_sArtifactIsReadOnly;
+	}
 
 	const QString& getStatusOn() const { return m_sStatusOn; }
 	const QString& getStatusOff() const { return m_sStatusOff; }
@@ -801,6 +805,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sInstrumentLoadError;
 
 	QString m_sFileDialogMissingWritePermissions;
+	QString m_sArtifactIsReadOnly;
 
 	QString m_sStatusOn;
 	QString m_sStatusOff;

@@ -374,6 +374,11 @@ CommonStrings::CommonStrings(){
 	/*: Error message shown when attempt to export a song, pattern,
 	  drumkit, MIDI etc. into a read-only folder.*/
 	m_sFileDialogMissingWritePermissions = tr( "You do not have permissions to write to the selected folder. Please select another one." );
+	/*: Used as tool tip in property dialogs in case the user has not sufficient
+	 *  permissions to write the path associated with the current artifact */
+	m_sArtifactIsReadOnly =
+		tr( "The artifact is read-only. Please use 'Duplicate' to "
+			"move a copy into user space." );
 
 	/*: Displayed within a status message when activating a widget as well as in
 	 *  the preferences dialog as option to enable a setting.*/
