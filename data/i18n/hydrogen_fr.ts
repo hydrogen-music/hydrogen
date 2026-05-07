@@ -2739,10 +2739,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>Importation en &amp;ligne</translation>
     </message>
     <message>
-        <source>Add &amp;Instrument</source>
-        <translation>Ajouter un &amp;instrument</translation>
-    </message>
-    <message>
         <source>Play&amp;list Editor</source>
         <translation>Éditeur de &amp;liste de lecture</translation>
     </message>

@@ -2695,10 +2695,6 @@ MIDI = %2</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add &amp;Instrument</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Play&amp;list Editor</source>
         <translation type="unfinished"></translation>
     </message>

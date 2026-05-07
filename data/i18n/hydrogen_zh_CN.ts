@@ -2703,10 +2703,6 @@ MIDI = %2</translation>
         <translation>在线导入(&amp;L)</translation>
     </message>
     <message>
-        <source>Add &amp;Instrument</source>
-        <translation>添加乐器(&amp;I)</translation>
-    </message>
-    <message>
         <source>Play&amp;list Editor</source>
         <translation>播放列表编辑器(&amp;L)</translation>
     </message>

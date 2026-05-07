@@ -2690,10 +2690,6 @@ MIDI = %2</translation>
         <translation>Importar Online</translation>
     </message>
     <message>
-        <source>Add &amp;Instrument</source>
-        <translation>Adicionar Instrumento</translation>
-    </message>
-    <message>
         <source>Play&amp;list Editor</source>
         <translation>Editor de Playlist</translation>
     </message>

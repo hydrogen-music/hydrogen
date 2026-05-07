@@ -2669,10 +2669,6 @@ MIDI = %2</source>
         <translation></translation>
     </message>
     <message>
-        <source>Add &amp;Instrument</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Play&amp;list Editor</source>
         <translation></translation>
     </message>
