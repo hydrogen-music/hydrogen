@@ -1589,6 +1589,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text in warning dialog shown in case a pattern could not be saved.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Saving of this drumkit failed.</source>
+        <extracomment>Text in warning dialog shown in case a drumkit could not be saved.</extracomment>
+        <translation>Erro ao salvar este drumkit.</translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -2008,10 +2013,6 @@ Sobrescrever o arquivo existente?</translation>
     <message>
         <source>Delete previous drumkit image</source>
         <translation>Deletar imagem do drumkit anterior</translation>
-    </message>
-    <message>
-        <source>Saving of this drumkit failed.</source>
-        <translation>Erro ao salvar este drumkit.</translation>
     </message>
     <message>
         <source>The current drumkit is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
@@ -2855,10 +2856,6 @@ MIDI = %2</translation>
     <message>
         <source>Replace the drumkit of the current song with an empty one?</source>
         <translation>Substituir o drumkit da canção atual com um vazio?</translation>
-    </message>
-    <message>
-        <source>&amp;Save To Sound Library</source>
-        <translation>&amp;Salvar para Biblioteca de Canções</translation>
     </message>
     <message>
         <source>Save &amp;To Session</source>

@@ -188,6 +188,7 @@ class MainForm :  public QMainWindow,
 		void action_drumkit_properties();
 		void action_drumkit_open();
 		void action_drumkit_save();
+		void action_drumkit_save_as();
 		void action_drumkit_save_to_session();
 		void action_drumkit_export();
 		/** @param bLoad whether to just import the kit or, in addition, load

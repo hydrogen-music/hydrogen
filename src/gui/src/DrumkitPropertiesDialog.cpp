@@ -1256,9 +1256,9 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	if ( !m_pDrumkit->save() ) {
 		QApplication::restoreOverrideCursor();
 		QMessageBox::information(
-			this, "Hydrogen", tr( "Saving of this drumkit failed." )
+			this, "Hydrogen", pCommonStrings->getErrorDrumkitSaved()
 		);
-		ERRORLOG( "Saving of this drumkit failed." );
+		ERRORLOG( pCommonStrings->getErrorDrumkitSaved() );
 		return;
 	}
 

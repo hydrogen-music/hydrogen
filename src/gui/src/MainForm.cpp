@@ -453,9 +453,14 @@ void MainForm::createMenuBar()
 		pShortcuts->getKeySequence( Shortcuts::Action::EditDrumkitProperties ) );
 
 	auto pActionDrumkitSave = m_pDrumkitMenu->addAction(
-		tr( "&Save To Sound Library" ), this, SLOT( action_drumkit_save() ) );
-	pActionDrumkitSave->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkitToSoundLibrary ) );
+		tr( "&Save" ), this, SLOT( action_drumkit_save() ) );
+	// pActionDrumkitSave->setShortcut(
+	// 	pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkitToSoundLibrary ) );
+
+	auto pActionDrumkitSaveAs = m_pDrumkitMenu->addAction(
+		sLabelSaveAs, this, SLOT( action_drumkit_save_as() ) );
+	// pActionDrumkitSaveAs->setShortcut(
+	// 	pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkitToSoundLibrary ) );
 
 	if ( bUnderSessionManagement ) {
 		auto pActionDrumkitSaveSession = m_pDrumkitMenu->addAction(
@@ -465,13 +470,12 @@ void MainForm::createMenuBar()
 			pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkitToSession ) );
 	}
 
+	m_pDrumkitMenu->addSeparator();				// -----
+
 	auto pActionDrumkitExport = m_pDrumkitMenu->addAction(
 		tr( "&Export" ), this, SLOT( action_drumkit_export() ) );
 	pActionDrumkitExport->setShortcut(
 		pShortcuts->getKeySequence( Shortcuts::Action::ExportDrumkit ) );
-
-	m_pDrumkitMenu->addSeparator();				// -----
-
 	auto pActionDrumkitImport = m_pDrumkitMenu->addAction(
 		tr( "&Import" ), this, SLOT( action_drumkit_import() ) );
 	pActionDrumkitImport->setShortcut(
@@ -1947,6 +1951,45 @@ void MainForm::action_drumkit_onlineImport()
 }
 
 void MainForm::action_drumkit_save()
+{
+	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+	auto pDrumkit = pSong->getDrumkit();
+
+	if ( pDrumkit->getPath().isEmpty() ) {
+		editDrumkitProperties( true, false );
+		return;
+	}
+
+	if ( ! pDrumkit->save() ) {
+		QMessageBox::warning(
+			this, "Hydrogen",
+			QString( "%1\n\n%2" )
+			.arg( pCommonStrings->getErrorDrumkitSaved() )
+			.arg( pDrumkit->getPath() )
+							 );
+
+	}
+	else {
+		pHydrogenApp->showStatusBarMessage(
+			QString( "%1 [%2]" )
+				.arg( pCommonStrings->getStatusPatternLoaded() )
+				.arg( pDrumkit->getName() )
+		);
+		pHydrogen->getSoundLibraryDatabase()->updateDrumkits(
+			Event::Trigger::Default
+		);
+	}
+}
+
+void MainForm::action_drumkit_save_as()
 {
 	editDrumkitProperties( true, false );
 }

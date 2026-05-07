@@ -1590,6 +1590,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text in warning dialog shown in case a pattern could not be saved.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Saving of this drumkit failed.</source>
+        <extracomment>Text in warning dialog shown in case a drumkit could not be saved.</extracomment>
+        <translation>La sauvegarde de ce kit de batterie a échouée</translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -2011,10 +2016,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Delete previous drumkit image</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Saving of this drumkit failed.</source>
-        <translation>La sauvegarde de ce kit de batterie a échouée</translation>
     </message>
     <message>
         <source>The current drumkit is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
@@ -2867,10 +2868,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Replace the drumkit of the current song with an empty one?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Save To Sound Library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

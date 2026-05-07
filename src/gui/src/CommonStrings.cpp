@@ -838,6 +838,8 @@ CommonStrings::CommonStrings(){
 	m_sErrorInvalidPath =
 		tr( "The provided path is invalid! Please ensure you have write access "
 			"and use the file extension" );
+	/*: Text in warning dialog shown in case a drumkit could not be saved. */
+	m_sErrorDrumkitSaved = tr( "Saving of this drumkit failed." );
 	/*: Text in warning dialog shown in case a pattern could not be saved. */
 	m_sErrorPatternSaved = tr( "Could not save pattern" );
 

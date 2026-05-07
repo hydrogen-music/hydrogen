@@ -1589,6 +1589,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text in warning dialog shown in case a pattern could not be saved.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Saving of this drumkit failed.</source>
+        <extracomment>Text in warning dialog shown in case a drumkit could not be saved.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -2005,10 +2010,6 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Delete previous drumkit image</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Saving of this drumkit failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2829,10 +2830,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Replace the drumkit of the current song with an empty one?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Save To Sound Library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

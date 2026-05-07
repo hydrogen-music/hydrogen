@@ -1589,6 +1589,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text in warning dialog shown in case a pattern could not be saved.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Saving of this drumkit failed.</source>
+        <extracomment>Text in warning dialog shown in case a drumkit could not be saved.</extracomment>
+        <translation>Salvataggio del drumkit fallito.</translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -2008,10 +2013,6 @@ Sovrascrivere il file esistente?</translation>
     <message>
         <source>Delete previous drumkit image</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Saving of this drumkit failed.</source>
-        <translation>Salvataggio del drumkit fallito.</translation>
     </message>
     <message>
         <source>The current drumkit is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
@@ -2838,10 +2839,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Replace the drumkit of the current song with an empty one?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Save To Sound Library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
