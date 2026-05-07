@@ -197,7 +197,7 @@ void SidebarLabel::updateFont()
 	setFont( font );
 
 	const auto sText =
-		Skin::trimToFitWidth( m_sText, font, width(), textMargins() );
+		Skin::trimTextToFitWidth( m_sText, font, width(), textMargins() );
 	if ( sText != text() ) {
 		QLineEdit::setText( sText );
 	}

@@ -436,7 +436,7 @@ QToolBar::separator {                  \
 								 ) ) );
 }
 
-QString Skin::trimToFitWidth( const QString& sText, const QFont& font, int nWidth, const QMargins& margins ) {
+QString Skin::trimTextToFitWidth( const QString& sText, const QFont& font, int nWidth, const QMargins& margins ) {
 
 	const QString sEllipsis = QString::fromUtf8( "\u2026" );
 	QString sTextTrim = sText;

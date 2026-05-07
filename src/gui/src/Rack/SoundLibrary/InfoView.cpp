@@ -163,7 +163,7 @@ void InfoView::updateContent( std::shared_ptr<H2Core::SoundLibraryInfo> pInfo )
 		auto setText = [&]( QLabel* pLabel, const QString& sText ) {
 			pLabel->setToolTip( sText );
 
-			pLabel->setText( Skin::trimToFitWidth(
+			pLabel->setText( Skin::trimTextToFitWidth(
 				sText.simplified(), pLabel->font(), pLabel->width(),
 				QMargins( 5, 0, 0, 0 )
 			) );
