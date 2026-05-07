@@ -426,7 +426,7 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 				 pCommonStrings->getLicenseMismatchingUserInput(),
 				 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel
 			 ) == QMessageBox::Cancel ) {
-			WARNINGLOG( QString( "Abort, since drumkit License String [%1] "
+			WARNINGLOG( QString( "Abort. License string [%1] "
 								 "does not comply to selected License Type [%2]"
 			)
 							.arg( m_pLicenseStringTxt->text() )

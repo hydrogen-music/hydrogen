@@ -899,7 +899,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 				 pCommonStrings->getLicenseMismatchingUserInput(),
 				 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel
 			 ) == QMessageBox::Cancel ) {
-			WARNINGLOG( QString( "Abort, since drumkit License String [%1] "
+			WARNINGLOG( QString( "Abort. License String [%1] "
 								 "does not comply to selected License Type [%2]"
 			)
 							.arg( m_pLicenseStringTxt->text() )
@@ -921,7 +921,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 				 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel
 			 ) == QMessageBox::Cancel ) {
 			WARNINGLOG(
-				QString( "Abort, since drumkit image License String [%1] does "
+				QString( "Abort. Image License String [%1] does "
 						 "not comply to selected License Type [%2]" )
 					.arg( m_pImageLicenseStringTxt->text() )
 					.arg( License::LicenseTypeToQString(

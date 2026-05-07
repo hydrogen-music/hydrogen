@@ -520,7 +520,7 @@ void SongPropertiesDialog::on_okBtn_clicked()
 				 this, "Hydrogen", pCommonStrings->getLicenseMismatchingUserInput(),
 				 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel )
 			 == QMessageBox::Cancel ) {
-			WARNINGLOG( QString( "Abort, since drumkit License String [%1] does not comply to selected License Type [%2]" )
+			WARNINGLOG( QString( "Abort. License String [%1] does not comply to selected License Type [%2]" )
 						.arg( m_pLicenseStringTxt->text() )
 						.arg( License::LicenseTypeToQString(
 						    static_cast<License::LicenseType>(m_pLicenseComboBox->currentIndex()) ) ) );

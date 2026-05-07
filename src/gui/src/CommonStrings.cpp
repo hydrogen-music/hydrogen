@@ -524,9 +524,12 @@ CommonStrings::CommonStrings(){
 	  license issues and information.*/
 	m_sLicenseWarningWindowTitle = tr( "License Warning" );
 	/*: Shown in a warning dialog in case the user inserted a license string
-	 *  which does not comply with her selected license (in the combo box). */
-	m_sLicenseMismatchingUserInput = tr( "Specified drumkit License String does not comply with the license selected in the combo box." );
-	
+	 within a properties dialog which does not comply with her selected
+	 license (in the combo box). */
+	m_sLicenseMismatchingUserInput =
+		tr( "Specified license string does not comply with the license "
+			"selected in the combo box." );
+
 	/*: Label shown in the input capture dialog for querying a new
 	  tempo value. */
 	m_sInputCaptureBpm = tr( "BPM" );
