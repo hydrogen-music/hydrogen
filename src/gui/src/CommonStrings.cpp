@@ -850,6 +850,10 @@ CommonStrings::CommonStrings(){
 	m_sErrorDrumkitSaved = tr( "Saving of this drumkit failed." );
 	/*: Text in warning dialog shown in case a pattern could not be saved. */
 	m_sErrorPatternSaved = tr( "Could not save pattern" );
+	/*: Text in warning dialog shown in case the line edit associated with the
+	 * translatable string m_sNameDialog within a properties dialog has no
+	 * content.. */
+	m_sErrorEmptyName = tr( "'Name' must not be left empty" );
 
 	/*: Node in the Sound Library corresponding to artifacts installed on
 	 * system-level. */

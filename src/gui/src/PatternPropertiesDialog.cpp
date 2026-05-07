@@ -455,6 +455,12 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 		}
 	}
 
+	if ( sPattName.isEmpty() ) {
+		QMessageBox::warning(
+			this, "Hydrogen", pCommonStrings->getErrorEmptyName() );
+		return;
+	}
+
 	if ( ( m_action & Action::ModifyViaUndo ) &&
 		 ( ! ( m_action & Action::Duplicate ) ) &&
 		 ( m_pPattern->getPath() != m_pPathEdit->text() ||
