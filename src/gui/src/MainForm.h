@@ -99,14 +99,6 @@ class MainForm :  public QMainWindow,
 		static bool switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit );
 
 		bool eventFilter( QObject *o, QEvent *e ) override;
-		/** @param id If set to a value different than
-		 *   #Instrument::EmptyId, the corresponding line in the type tab will
-		 * be selected on startup. */
-		static void editDrumkitProperties(
-			bool bWriteToDisk,
-			bool bSaveToNsmSession,
-			H2Core::Instrument::Id id = H2Core::Instrument::EmptyId
-		);
 
 	   public slots:
 		void showPreferencesDialog();

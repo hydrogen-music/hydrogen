@@ -59,14 +59,10 @@ namespace H2Core {
 DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 	QWidget* pParent,
 	std::shared_ptr<Drumkit> pDrumkit,
-	bool bEditingNotSaving,
-	bool bSaveToNsmSession,
+	Action action,
 	Instrument::Id id
 )
-	: QDialog( pParent ),
-	  m_pDrumkit( pDrumkit ),
-	  m_bEditingNotSaving( bEditingNotSaving ),
-	  m_bSaveToNsmSession( bSaveToNsmSession )
+	: QDialog( pParent ), m_pDrumkit( pDrumkit ), m_action( action )
 {
 	setObjectName( "DrumkitPropertiesDialog" );
 
@@ -336,13 +332,13 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 	pPathLabel->setText( pCommonStrings->getPathDialog() );
 	pTagsLabel->setText( pCommonStrings->getTagsLabel() );
 
-	if ( bSaveToNsmSession &&
+	if ( ( m_action & Action::NsmSession ) &&
 		 !Hydrogen::get_instance()->isUnderSessionManagement() ) {
 		ERRORLOG(
 			"NSM session export request while there is no active NSM session. "
 			"Saving to Sound Library instead."
 		);
-		m_bSaveToNsmSession = false;
+		m_action = static_cast<Action>( m_action & ~Action::NsmSession );
 	}
 
 	bool bDrumkitWritable = false;
@@ -359,12 +355,12 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 		m_pNameTxt->setText( pDrumkit->getName() );
 
 		if ( m_pDrumkit->getContext() == Filesystem::Context::Song ) {
-			if ( bEditingNotSaving ) {
+			if ( m_action & Action::ModifyViaUndo ) {
 				setWindowTitle(
 					pCommonStrings->getActionEditCurrentDrumkitProperties()
 				);
 			}
-			else if ( m_bSaveToNsmSession ) {
+			else if ( m_action & Action::NsmSession ) {
 				setWindowTitle( tr(
 					"Save a copy of the current drumkit to NSM session folder"
 				) );
@@ -376,7 +372,7 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 			}
 		}
 		else {
-			if ( bEditingNotSaving ) {
+			if ( m_action & Action::ModifyViaUndo ) {
 				setWindowTitle( pCommonStrings->getActionEditDrumkitProperties()
 				);
 				m_pNameTxt->setIsActive( false );
@@ -395,7 +391,7 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 		m_pInfoTxt->append( QString( pDrumkit->getInfo() ) );
 
 		if ( pDrumkit->getContext() == Filesystem::Context::Song &&
-			 bEditingNotSaving ) {
+			 ( m_action & Action::ModifyViaUndo ) ) {
 			// In case the drumkit is not a standalone one but part of a .h2song
 			// file, we show the path to that file instead of Drumkit::m_sPath,
 			// which is still set to the drumkit file loaded into the song.
@@ -460,7 +456,7 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 
 	// In case the drumkit name is not locked/the dialog is used as
 	// "Save As" nothing needs to be disabled.
-	if ( !bDrumkitWritable && bEditingNotSaving ) {
+	if ( !bDrumkitWritable && ( m_action & Action::ModifyViaUndo ) ) {
 		QString sToolTip =
 			tr( "The current drumkit is read-only. Please use 'Duplicate' to "
 				"move a copy into user space." );
@@ -512,7 +508,7 @@ QTextEdit { \
 	m_pSaveBtn->setSize( QSize( 110, 23 ) );
 	m_pSaveBtn->setBorderRadius( 3 );
 	m_pSaveBtn->setType( Button::Type::Push );
-	if ( m_pDrumkit != nullptr && bEditingNotSaving &&
+	if ( m_pDrumkit != nullptr && ( m_action & Action::ModifyViaUndo ) &&
 		 m_pDrumkit->getContext() == Filesystem::Context::Song ) {
 		m_pSaveBtn->setText( pCommonStrings->getActionSaveSong() );
 	}
@@ -1196,7 +1192,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		// for the sake of consistency.
 		pHydrogenApp->getMainForm()->action_file_save( false );
 
-		if ( m_bEditingNotSaving ) {
+		if ( m_action & Action::ModifyViaUndo ) {
 			// We are not saving the kit to the Sound Library and are done for
 			// now.
 			accept();
@@ -1211,7 +1207,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 
 	// Store the drumkit in the NSM session folder
 #ifdef H2CORE_HAVE_OSC
-	if ( m_bSaveToNsmSession &&
+	if ( ( m_action & Action::NsmSession ) &&
 		 m_pDrumkit->getContext() == Filesystem::Context::Song ) {
 		m_pDrumkit->setPath(
 			QDir(

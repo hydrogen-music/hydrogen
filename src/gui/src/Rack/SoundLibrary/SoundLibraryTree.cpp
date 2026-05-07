@@ -426,7 +426,9 @@ void SoundLibraryTree::actionProperties()
 		// is not getting dirty upon saving (in case new properties are
 		// stored in the kit but writing it to disk fails).
 		auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
-		DrumkitPropertiesDialog dialog( this, pNewDrumkit, true, false );
+		DrumkitPropertiesDialog dialog(
+			this, pNewDrumkit, DrumkitPropertiesDialog::Action::None
+		);
 		dialog.exec();
 	}
 	else if ( m_type == SoundLibraryInfo::Type::Pattern ) {
@@ -497,7 +499,13 @@ void SoundLibraryTree::actionDuplicate()
 			H2Core::Filesystem::userDrumkitsDir() + pNewDrumkit->getName()
 		) );
 
-		DrumkitPropertiesDialog dialog( this, pNewDrumkit, false, false );
+		DrumkitPropertiesDialog dialog(
+			this, pNewDrumkit,
+			static_cast<DrumkitPropertiesDialog::Action>(
+				DrumkitPropertiesDialog::Action::Duplicate |
+				DrumkitPropertiesDialog::Action::SaveAs
+			)
+		);
 		dialog.exec();
 	}
 	else if ( m_type == SoundLibraryInfo::Type::Pattern ) {

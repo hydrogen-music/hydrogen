@@ -1957,7 +1957,7 @@ void MainForm::action_drumkit_save()
 	auto pDrumkit = pSong->getDrumkit();
 
 	if ( pDrumkit->getPath().isEmpty() ) {
-		editDrumkitProperties( true, false );
+		action_drumkit_save_as();
 		return;
 	}
 
@@ -1984,11 +1984,33 @@ void MainForm::action_drumkit_save()
 
 void MainForm::action_drumkit_save_as()
 {
-	editDrumkitProperties( true, false );
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+	DrumkitPropertiesDialog dialog(
+		this, std::make_shared<Drumkit>( pSong->getDrumkit() ),
+		static_cast<DrumkitPropertiesDialog::Action>(
+			DrumkitPropertiesDialog::Action::ModifyViaUndo |
+			DrumkitPropertiesDialog::Action::SaveAs
+		)
+	);
 }
 
-void MainForm::action_drumkit_save_to_session() {
-	editDrumkitProperties( true, true );
+void MainForm::action_drumkit_save_to_session()
+{
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+	DrumkitPropertiesDialog dialog(
+		this, std::make_shared<Drumkit>( pSong->getDrumkit() ),
+		static_cast<DrumkitPropertiesDialog::Action>(
+			DrumkitPropertiesDialog::Action::ModifyViaUndo |
+			DrumkitPropertiesDialog::Action::NsmSession |
+			DrumkitPropertiesDialog::Action::SaveAs
+		)
+	);
 }
 
 ///
@@ -2656,32 +2678,16 @@ void MainForm::undoRedoActionEvent( int nEvent ){
 	}
 }
 
-void MainForm::action_drumkit_properties() {
-	editDrumkitProperties( false, false );
-}
-
-void MainForm::editDrumkitProperties( bool bWriteToDisk, bool bSaveToNsmSession,
-									  Instrument::Id id )
+void MainForm::action_drumkit_properties()
 {
-	const auto pHydrogen = Hydrogen::get_instance();
-	const auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
-
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit == nullptr ){
-		ERRORLOG("Invalid drumkit")
-		return;
-	}
-
-	// We create a copy of the kit to assure not dirty data set in the dialog is
-	// leaked into the current song.
-	auto pNewDrumkit = std::make_shared<Drumkit>(pDrumkit);
-
-	DrumkitPropertiesDialog dialog( nullptr, pNewDrumkit, ! bWriteToDisk,
-									bSaveToNsmSession, id );
-	dialog.exec();
+	DrumkitPropertiesDialog dialog(
+		this, std::make_shared<Drumkit>( pSong->getDrumkit() ),
+		DrumkitPropertiesDialog::Action::ModifyViaUndo
+	);
 }
 
 void MainForm::selectedPatternChangedEvent() {
