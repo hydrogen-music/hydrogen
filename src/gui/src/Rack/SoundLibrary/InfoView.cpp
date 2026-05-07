@@ -22,6 +22,8 @@
 
 #include "InfoView.h"
 
+#include <QTextDocumentFragment>
+
 #include "../../CommonStrings.h"
 #include "../../Compatibility/MouseEvent.h"
 #include "../../HydrogenApp.h"
@@ -161,10 +163,13 @@ void InfoView::updateContent( std::shared_ptr<H2Core::SoundLibraryInfo> pInfo )
 	}
 	else {
 		auto setText = [&]( QLabel* pLabel, const QString& sText ) {
-			pLabel->setToolTip( sText );
+			// Some drumkits feature a HTML-based description.
+			const QString sTextCleaned =
+				QTextDocumentFragment::fromHtml( sText ).toPlainText();
+			pLabel->setToolTip( sTextCleaned );
 
 			pLabel->setText( Skin::trimTextToFitWidth(
-				sText.simplified(), pLabel->font(), pLabel->width(),
+				sTextCleaned.simplified(), pLabel->font(), pLabel->width(),
 				QMargins( 10, 0, 0, 0 )
 			) );
 		};
