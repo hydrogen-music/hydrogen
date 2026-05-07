@@ -528,6 +528,12 @@ void SongPropertiesDialog::on_okBtn_clicked()
 		}
 	}
 
+	if ( sSongName.isEmpty() ) {
+		QMessageBox::warning(
+			this, "Hydrogen", pCommonStrings->getErrorEmptyName() );
+		return;
+	}
+
 	bool bIsModified = false;
 
 	if ( ( m_action & Action::SaveAs ) &&
