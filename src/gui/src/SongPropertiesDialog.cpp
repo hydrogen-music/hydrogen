@@ -59,6 +59,7 @@ SongPropertiesDialog::SongPropertiesDialog(
 )
 	: QDialog( parent ), m_pSong( pSong ), m_action( action )
 {
+	auto pPref = Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
 
@@ -295,6 +296,47 @@ SongPropertiesDialog::SongPropertiesDialog(
 	pNotesLabel->setText( pCommonStrings->getNotesDialog() );
 
 	pTagsLabel->setText( pCommonStrings->getTagsLabel() );
+
+	if ( !m_pPathEdit->text().isEmpty() &&
+		 !Filesystem::fileWritable( m_pPathEdit->text(), true ) &&
+		 !( action & Action::SaveAs ) ) {
+		// Read-only artifact
+		QString sToolTip = pCommonStrings->getArtifactIsReadOnly();
+
+		m_pPathEdit->setIsActive( false );
+		m_pSongNameTxt->setIsActive( false );
+		m_pVersionSpinBox->setIsActive( false );
+		m_pAuthorTxt->setIsActive( false );
+		m_pLicenseComboBox->setIsActive( false );
+		m_pLicenseStringTxt->setIsActive( false );
+		m_pNotesTxt->setIsActive( false );
+		m_pTagEdit->setEnabled( false );
+		m_pOkBtn->setIsActive( false );
+		m_pPathBrowseButton->setIsActive( false );
+
+		m_pPathEdit->setToolTip( sToolTip );
+		m_pSongNameTxt->setToolTip( sToolTip );
+		m_pVersionSpinBox->setToolTip( sToolTip );
+		m_pAuthorTxt->setToolTip( sToolTip );
+		m_pLicenseComboBox->setToolTip( sToolTip );
+		m_pLicenseStringTxt->setToolTip( sToolTip );
+		m_pNotesTxt->setToolTip( sToolTip );
+		m_pTagEdit->setToolTip( sToolTip );
+		m_pOkBtn->setToolTip( sToolTip );
+		m_pPathBrowseButton->setToolTip( sToolTip );
+
+		// Rather dirty fix to align the design of the QTextEdit to
+		// the coloring of our custom QLineEdits.
+		m_pNotesTxt->setStyleSheet(
+			QString( "\
+QTextEdit { \
+    color: %1; \
+    background-color: %2; \
+}" )
+				.arg( pPref->getColorTheme()->m_windowTextColor.name() )
+				.arg( pPref->getColorTheme()->m_windowColor.name() )
+		);
+	}
 
 	auto styleButton = [&]( Button* pButton ) {
 		pButton->setFixedFontSize( 12 );
