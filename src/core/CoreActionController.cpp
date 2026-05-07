@@ -2863,7 +2863,11 @@ bool CoreActionController::setPatternProperties(
 	pPattern->setName( sNewPatternName );
 	pPattern->setAuthor( sNewAuthor );
 	pPattern->setInfo( sNewPatternInfo );
-	pPattern->setLicense( newLicense );
+	// Only update the license in case it changed (in order to not
+	// overwrite an attribution).
+	if ( pPattern->getLicense() != newLicense ) {
+		pPattern->setLicense( newLicense );
+	}
 	pPattern->setTags( newTags );
 
 	pHydrogen->setIsModified( true );
@@ -2897,7 +2901,11 @@ bool CoreActionController::setSongProperties(
 	pSong->setName( sNewName );
 	pSong->setAuthor( sNewAuthor );
 	pSong->setNotes( sNewNotes );
-	pSong->setLicense( newLicense );
+	// Only update the license in case it changed (in order to not
+	// overwrite an attribution).
+	if ( pSong->getLicense() != newLicense ) {
+		pSong->setLicense( newLicense );
+	}
 	pSong->setTags( newTags );
 
 	pHydrogen->setIsModified( true );

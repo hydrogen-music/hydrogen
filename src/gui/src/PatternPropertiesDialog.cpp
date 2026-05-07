@@ -410,7 +410,8 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 		 static_cast<int>(License::Unspecified) ) {
 		sNewLicenseString = "";
 	}
-	const License license( sNewLicenseString );
+	License license( sNewLicenseString );
+	license.setCopyrightHolder( sAuthor );
 	const QStringList tags = m_pTagEdit->getTags();
 	const QString sPattInfo = m_pPatternDescTxt->toPlainText();
 
@@ -500,7 +501,11 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	m_pPattern->setName( sPattName );
 	m_pPattern->setAuthor( sAuthor );
 	m_pPattern->setInfo( sPattInfo );
-	m_pPattern->setLicense( license );
+	// Only update the license in case it changed (in order to not
+	// overwrite an attribution).
+	if ( m_pPattern->getLicense() != license ) {
+		m_pPattern->setLicense( license );
+	}
 	m_pPattern->setTags( tags );
 
 	accept();

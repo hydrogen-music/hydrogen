@@ -506,7 +506,8 @@ void SongPropertiesDialog::on_okBtn_clicked()
 		 static_cast<int>(License::Unspecified) ) {
 		sNewLicenseString = "";
 	}
-	const License license( sNewLicenseString );
+	License license( sNewLicenseString );
+	license.setCopyrightHolder( sAuthor );
 	const QStringList tags = m_pTagEdit->getTags();
 	const QString sNotes = m_pNotesTxt->toPlainText();
 
