@@ -433,11 +433,6 @@ void MainForm::createMenuBar()
 	pActionDrumkitNew->setShortcut(
 		pShortcuts->getKeySequence( Shortcuts::Action::NewDrumkit ) );
 
-	auto pActionDrumkitProperties = m_pDrumkitMenu->addAction(
-		tr( "&Properties" ), this, SLOT( action_drumkit_properties() ) );
-	pActionDrumkitProperties->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::EditDrumkitProperties ) );
-
 	auto pActionDrumkitOpen = m_pDrumkitMenu->addAction(
 		tr( "&Open" ), this, SLOT( action_drumkit_open() ) );
 	pActionDrumkitOpen->setShortcut(
@@ -451,6 +446,11 @@ void MainForm::createMenuBar()
 		pShortcuts->getKeySequence( Shortcuts::Action::AddInstrument ) );
 
 	m_pDrumkitMenu->addSeparator();				// -----
+
+	auto pActionDrumkitProperties = m_pDrumkitMenu->addAction(
+		tr( "&Properties" ), this, SLOT( action_drumkit_properties() ) );
+	pActionDrumkitProperties->setShortcut(
+		pShortcuts->getKeySequence( Shortcuts::Action::EditDrumkitProperties ) );
 
 	auto pActionDrumkitSave = m_pDrumkitMenu->addAction(
 		tr( "&Save To Sound Library" ), this, SLOT( action_drumkit_save() ) );
