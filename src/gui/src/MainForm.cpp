@@ -2029,7 +2029,7 @@ void MainForm::action_drumkit_save_as()
 	// folder after first boot).
 	QString sPath = pDrumkit->getPath();
 	if ( pDrumkit->getPath().isEmpty() ) {
-		QString sDir = pPref->getLastSaveSongAsDirectory();
+		QString sDir = pPref->getLastSaveDrumkitAsDirectory();
 		if ( sDir.isEmpty() ) {
 			sDir = Filesystem::userPatternsDir();
 		}
