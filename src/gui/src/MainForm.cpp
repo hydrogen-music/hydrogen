@@ -2027,14 +2027,15 @@ void MainForm::action_drumkit_save_as()
 	// In case the drumkit is not backed by a file yet, we default to the file
 	// in the last used folder to store a drumkit in (or the user-level drumkit
 	// folder after first boot).
+	QString sPath = pDrumkit->getPath();
 	if ( pDrumkit->getPath().isEmpty() ) {
 		QString sDir = pPref->getLastSaveSongAsDirectory();
 		if ( sDir.isEmpty() ) {
 			sDir = Filesystem::userPatternsDir();
 		}
-		pDrumkit->setPath( Filesystem::drumkitPathFromDir(
+		sPath = Filesystem::drumkitPathFromDir(
 			QString( "%1/%2" ).arg( sDir ).arg( pDrumkit->getName() )
-		) );
+		);
 	}
 
 	DrumkitPropertiesDialog dialog(
@@ -2042,7 +2043,8 @@ void MainForm::action_drumkit_save_as()
 		static_cast<DrumkitPropertiesDialog::Action>(
 			DrumkitPropertiesDialog::Action::ModifyViaUndo |
 			DrumkitPropertiesDialog::Action::SaveAs
-		)
+		),
+		sPath
 	);
 	if ( dialog.exec() == QDialog::Accepted ) {
 		pPref->setLastSaveDrumkitAsDirectory(
@@ -2063,7 +2065,8 @@ void MainForm::action_drumkit_save_to_session()
 			DrumkitPropertiesDialog::Action::ModifyViaUndo |
 			DrumkitPropertiesDialog::Action::NsmSession |
 			DrumkitPropertiesDialog::Action::SaveAs
-		)
+		),
+		pSong->getDrumkit()->getPath()
 	);
 	dialog.exec();
 }
@@ -2741,7 +2744,8 @@ void MainForm::action_drumkit_properties()
 	}
 	DrumkitPropertiesDialog dialog(
 		this, std::make_shared<Drumkit>( pSong->getDrumkit() ),
-		DrumkitPropertiesDialog::Action::ModifyViaUndo
+		DrumkitPropertiesDialog::Action::ModifyViaUndo,
+		pSong->getDrumkit()->getPath()
 	);
 	dialog.exec();
 }

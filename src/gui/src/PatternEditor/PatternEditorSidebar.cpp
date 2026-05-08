@@ -641,7 +641,8 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 			}
 			DrumkitPropertiesDialog dialog(
 				this, std::make_shared<Drumkit>( pSong->getDrumkit() ),
-				DrumkitPropertiesDialog::Action::ModifyViaUndo, m_row.id
+				DrumkitPropertiesDialog::Action::ModifyViaUndo,
+				pSong->getDrumkit()->getPath(), m_row.id
 			);
 			dialog.exec();
 		}

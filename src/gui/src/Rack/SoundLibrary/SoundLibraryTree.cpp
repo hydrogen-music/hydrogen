@@ -427,7 +427,8 @@ void SoundLibraryTree::actionProperties()
 		// stored in the kit but writing it to disk fails).
 		auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
 		DrumkitPropertiesDialog dialog(
-			this, pNewDrumkit, DrumkitPropertiesDialog::Action::None
+			this, pNewDrumkit, DrumkitPropertiesDialog::Action::None,
+			pNewDrumkit->getPath()
 		);
 		dialog.exec();
 	}
@@ -495,15 +496,15 @@ void SoundLibraryTree::actionDuplicate()
 		pNewDrumkit->setName(
 			Filesystem::appendNumberOrIncrement( it->second->getName() )
 		);
-		pNewDrumkit->setPath( Filesystem::drumkitPathFromDir(
-			H2Core::Filesystem::userDrumkitsDir() + pNewDrumkit->getName()
-		) );
 
 		DrumkitPropertiesDialog dialog(
 			this, pNewDrumkit,
 			static_cast<DrumkitPropertiesDialog::Action>(
 				DrumkitPropertiesDialog::Action::Duplicate |
 				DrumkitPropertiesDialog::Action::SaveAs
+			),
+			Filesystem::drumkitPathFromDir(
+				H2Core::Filesystem::userDrumkitsDir() + pNewDrumkit->getName()
 			)
 		);
 		dialog.exec();

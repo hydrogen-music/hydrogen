@@ -61,6 +61,7 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 	QWidget* pParent,
 	std::shared_ptr<Drumkit> pDrumkit,
 	Action action,
+	const QString& sTargetPath,
 	Instrument::Id id
 )
 	: QDialog( pParent ), m_pDrumkit( pDrumkit ), m_action( action )
@@ -402,7 +403,7 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 		}
 		else {
 			m_pPathEdit->setText(
-				Filesystem::drumkitDirFromPath( pDrumkit->getPath() )
+				Filesystem::drumkitDirFromPath( sTargetPath )
 			);
 		}
 		m_pTagEdit->setTags( pDrumkit->getTags() );

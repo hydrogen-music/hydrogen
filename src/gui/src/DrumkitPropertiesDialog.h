@@ -77,6 +77,7 @@ class DrumkitPropertiesDialog : public QDialog,
 		QWidget* pParent,
 		std::shared_ptr<Drumkit> pDrumkit,
 		Action action,
+		const QString& sTargetPath,
 		Instrument::Id id = Instrument::EmptyId
 	);
 	~DrumkitPropertiesDialog();
