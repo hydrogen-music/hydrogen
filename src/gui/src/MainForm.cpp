@@ -828,6 +828,16 @@ bool MainForm::action_file_save( bool bTriggerMessage )
 		// name.
 		return action_file_save_as();
 	}
+	else if ( Filesystem::DetermineContext( pSong->getPath() ) ==
+			  Filesystem::Context::System ) {
+		// Although the system-level sound library paths are valid, the user
+		// does not have sufficient permission to write to it. Instead, the
+		// artifact will be copied to the user-level counterpart.
+		auto sPath = pSong->getPath();
+		sPath.replace( Filesystem::systemDataPath(), Filesystem::userDataPath() );
+		pSong->setPath( sPath );
+		return action_file_save_as();
+	}
 
 	bool bKeepMissingSamples = false;
 	if ( ! songSaveSanityChecks( &bKeepMissingSamples ) ) {
@@ -1279,6 +1289,17 @@ void MainForm::action_pattern_save( int nPatternRow )
 		return;
 	}
 	else if ( pPattern->getPath().isEmpty() ) {
+		action_pattern_save_as( nPatternRow );
+		return;
+	}
+	else if ( Filesystem::DetermineContext( pPattern->getPath() ) ==
+			  Filesystem::Context::System ) {
+		// Although the system-level sound library paths are valid, the user
+		// does not have sufficient permission to write to it. Instead, the
+		// artifact will be copied to the user-level counterpart.
+		auto sPath = pPattern->getPath();
+		sPath.replace( Filesystem::systemDataPath(), Filesystem::userDataPath() );
+		pPattern->setPath( sPath );
 		action_pattern_save_as( nPatternRow );
 		return;
 	}
@@ -1957,6 +1978,17 @@ void MainForm::action_drumkit_save()
 	auto pDrumkit = pSong->getDrumkit();
 
 	if ( pDrumkit->getPath().isEmpty() ) {
+		action_drumkit_save_as();
+		return;
+	}
+	else if ( Filesystem::DetermineContext( pDrumkit->getPath() ) ==
+			  Filesystem::Context::System ) {
+		// Although the system-level sound library paths are valid, the user
+		// does not have sufficient permission to write to it. Instead, the
+		// artifact will be copied to the user-level counterpart.
+		auto sPath = pDrumkit->getPath();
+		sPath.replace( Filesystem::systemDataPath(), Filesystem::userDataPath() );
+		pDrumkit->setPath( sPath );
 		action_drumkit_save_as();
 		return;
 	}
