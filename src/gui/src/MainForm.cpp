@@ -791,7 +791,7 @@ bool MainForm::action_file_save_as()
 		);
 	}
 #else
-	h2app->showStatusBarMessage( tr( "Song saved as: " ) + sNewPath );
+	h2app->showStatusBarMessage( tr( "Song saved as: " ) + pSong->getPath() );
 #endif
 
 	if ( sLastPath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
