@@ -262,6 +262,9 @@ All notable changes to this project will be documented in this file.
 - Playback track does now respect looping and is update on tempo changes.
 - Sample files in the audio file browser can now be loaded via double-clicking.
 - Pattern export does now leave the pattern name untouched.
+- Song, drumkit, and pattern "Save As" is now done via a property dialog with a
+  freely edible path field (allowing you to store the artifact wherever you
+  like).
 
 ### Fixed
 
