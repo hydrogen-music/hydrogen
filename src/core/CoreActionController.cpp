@@ -995,7 +995,7 @@ bool CoreActionController::saveSong( bool bKeepMissingSamples )
 	// Extract the path to the associate .h2song file.
 	const QString sSongPath = pSong->getPath();
 	if ( sSongPath.isEmpty() ) {
-		ERRORLOG( "Unable to save song. Empty filename!" );
+		ERRORLOG( "Unable to save song. Empty path!" );
 		return false;
 	}
 
@@ -1025,7 +1025,7 @@ bool CoreActionController::saveSong( bool bKeepMissingSamples )
 }
 
 bool CoreActionController::saveSongAs(
-	const QString& sNewFileName,
+	const QString& sNewPath,
 	bool bKeepMissingSamples
 )
 {
@@ -1039,28 +1039,30 @@ bool CoreActionController::saveSongAs(
 
 	// Check whether the provided path is valid.
 	if ( !Filesystem::isPathValid(
-			 Filesystem::Artifact::Song, sNewFileName
+			 Filesystem::Artifact::Song, sNewPath
 		 ) ) {
 		// Filesystem::isPathValid takes care of the error log message.
 		return false;
 	}
-	if ( !Filesystem::fileWritable( sNewFileName ) ) {
-		ERRORLOG( QString( "Song can not be written to read-only location [%1]"
-		)
-					  .arg( sNewFileName ) );
-		return false;
-	}
 
-	pSong->setPath( sNewFileName );
+	pSong->setPath( sNewPath );
 
 	// Actual saving
 	if ( !saveSong( bKeepMissingSamples ) ) {
+		// In case saving failed, we try to hint possible reasons. E.g. that the
+		// user has not sufficient permissions to write the selected folder.
+		if ( !Filesystem::fileWritable( sNewPath ) ) {
+			ERRORLOG(
+				QString( "Song can not be written to read-only location [%1]" )
+					.arg( sNewPath )
+			);
+		}
 		return false;
 	}
 
 	// Update the recentFiles list by replacing the former file name
 	// with the new one.
-	insertRecentFile( sNewFileName );
+	insertRecentFile( sNewPath );
 	if ( !pHydrogen->isUnderSessionManagement() ) {
 		Preferences::get_instance()->setLastSongPath( pSong->getPath() );
 	}

@@ -774,18 +774,6 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sP
 /// Save a song to file
 bool Song::save( const QString& sPath, bool bKeepMissingSamples, bool bSilent )
 {
-	QFileInfo fi( sPath );
-	if ( ( Filesystem::fileExists( sPath, true ) &&
-		   ! Filesystem::fileWritable( sPath, true ) ) ||
-		 ( ! Filesystem::fileExists( sPath, true ) &&
-		   ! Filesystem::dirWritable( fi.dir().absolutePath(), true ) ) ) {
-		// In case a read-only file is loaded by Hydrogen. Beware:
-		// .isWritable() will return false if the song does not exist.
-		ERRORLOG( QString( "Unable to save song to [%1]. Path is not writable!" )
-				  .arg( sPath ) );
-		return false;
-	}
-
 	if ( ! bSilent ) {
 		INFOLOG( QString( "Saving song to [%1]" ).arg( sPath ) );
 	}
@@ -804,8 +792,22 @@ bool Song::save( const QString& sPath, bool bKeepMissingSamples, bool bSilent )
 	setPath( sPath );
 	setIsModified( false );
 
-	if ( ! doc.write( sPath ) ) {
-		ERRORLOG( QString( "Error writing song to [%1]" ).arg( sPath ) );
+	if ( !doc.write( sPath ) ) {
+		QFileInfo fi( sPath );
+		if ( ( Filesystem::fileExists( sPath, true ) &&
+			   !Filesystem::fileWritable( sPath, true ) ) ||
+			 ( !Filesystem::fileExists( sPath, true ) &&
+			   !Filesystem::dirWritable( fi.dir().absolutePath(), true ) ) ) {
+			// In case a read-only file is loaded by Hydrogen. Beware:
+			// .isWritable() will return false if the song does not exist.
+			ERRORLOG(
+				QString( "Unable to save song to [%1]. Path is not writable!" )
+					.arg( sPath )
+			);
+		}
+		else {
+			ERRORLOG( QString( "Error writing song to [%1]" ).arg( sPath ) );
+		}
 		return false;
 	}
 
