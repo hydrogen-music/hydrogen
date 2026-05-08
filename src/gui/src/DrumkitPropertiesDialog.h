@@ -107,6 +107,7 @@ class DrumkitPropertiesDialog : public QDialog,
 
 	QTabWidget* m_pTabWidget;
 	LCDDisplay* m_pPathEdit;
+	Button* m_pPathBrowseButton;
 	LCDDisplay* m_pNameTxt;
 	LCDSpinBox* m_pVersionSpinBox;
 	LCDDisplay* m_pAuthorTxt;

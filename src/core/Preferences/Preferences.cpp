@@ -21,6 +21,7 @@
  */
 
 #include "Preferences.h"
+#include "Helpers/Filesystem.h"
 #include "Midi/Midi.h"
 
 #ifndef WIN32
@@ -177,6 +178,7 @@ Preferences::Preferences()
 	  m_sLastExportMidiDirectory( QDir::homePath() ),
 	  m_sLastImportDrumkitDirectory( QDir::homePath() ),
 	  m_sLastExportDrumkitDirectory( QDir::homePath() ),
+	  m_sLastSaveDrumkitAsDirectory( Filesystem::userDrumkitsDir() ),
 	  m_sLastOpenLayerDirectory( QDir::homePath() ),
 	  m_sLastOpenPlaybackTrackDirectory( QDir::homePath() ),
 	  m_sLastAddSongToPlaylistDirectory( Filesystem::userSongsDir() ),
@@ -378,6 +380,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	  m_sLastExportMidiDirectory( pOther->m_sLastExportMidiDirectory ),
 	  m_sLastImportDrumkitDirectory( pOther->m_sLastImportDrumkitDirectory ),
 	  m_sLastExportDrumkitDirectory( pOther->m_sLastExportDrumkitDirectory ),
+	  m_sLastSaveDrumkitAsDirectory( pOther->m_sLastSaveDrumkitAsDirectory ),
 	  m_sLastOpenLayerDirectory( pOther->m_sLastOpenLayerDirectory ),
 	  m_sLastOpenPlaybackTrackDirectory(
 		  pOther->m_sLastOpenPlaybackTrackDirectory
@@ -1062,6 +1065,10 @@ Preferences::load( const QString& sPath, const bool bSilent )
 		);
 		pPref->m_sLastExportDrumkitDirectory = guiNode.read_string(
 			"lastExportDrumkitDirectory", pPref->m_sLastExportDrumkitDirectory,
+			true, false, bSilent
+		);
+		pPref->m_sLastSaveDrumkitAsDirectory = guiNode.read_string(
+			"lastSaveDrumkitAsDirectory", pPref->m_sLastSaveDrumkitAsDirectory,
 			true, false, bSilent
 		);
 		pPref->m_sLastOpenLayerDirectory = guiNode.read_string(
@@ -1762,6 +1769,9 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 		);
 		guiNode.write_string(
 			"lastExportDrumkitDirectory", m_sLastExportDrumkitDirectory
+		);
+		guiNode.write_string(
+			"lastSaveDrumkitAsDirectory", m_sLastSaveDrumkitAsDirectory
 		);
 		guiNode.write_string(
 			"lastOpenLayerDirectory", m_sLastOpenLayerDirectory
@@ -2580,6 +2590,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( sPrefix )
 						 .arg( s )
 						 .arg( m_sLastExportDrumkitDirectory ) )
+			.append( QString( "%1%2m_sLastSaveDrumkitAsDirectory: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_sLastSaveDrumkitAsDirectory ) )
 			.append( QString( "%1%2m_sLastOpenLayerDirectory: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
@@ -2921,6 +2935,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( m_sLastImportDrumkitDirectory ) )
 			.append( QString( ", m_sLastExportDrumkitDirectory: %1" )
 						 .arg( m_sLastExportDrumkitDirectory ) )
+			.append( QString( ", m_sLastSaveDrumkitAsDirectory: %1" )
+						 .arg( m_sLastSaveDrumkitAsDirectory ) )
 			.append( QString( ", m_sLastOpenLayerDirectory: %1" )
 						 .arg( m_sLastOpenLayerDirectory ) )
 			.append( QString( ", m_sLastOpenPlaybackTrackDirectory: %1" )

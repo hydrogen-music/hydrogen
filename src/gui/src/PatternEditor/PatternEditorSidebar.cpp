@@ -643,6 +643,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 				this, std::make_shared<Drumkit>( pSong->getDrumkit() ),
 				DrumkitPropertiesDialog::Action::ModifyViaUndo, m_row.id
 			);
+			dialog.exec();
 		}
 		else {
 			m_pPatternEditorPanel->setTypeInRow(

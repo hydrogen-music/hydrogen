@@ -166,6 +166,7 @@ void H2Test::checkXmlFilesEqual( const QString& sExpected, const QString& sActua
 					 ssLine.contains( "<lastExportMidiDirectory>" ) ||
 					 ssLine.contains( "<lastImportDrumkitDirectory>" ) ||
 					 ssLine.contains( "<lastExportDrumkitDirectory>" ) ||
+					 ssLine.contains( "<lastSaveDrumkitAsDirectory>" ) ||
 					 ssLine.contains( "<lastOpenLayerDirectory>" ) ||
 					 ssLine.contains( "<lastOpenPlaybackTrackDirectory>" ) ||
 					 ssLine.contains( "<lastAddSongToPlaylistDirectory>" ) ||

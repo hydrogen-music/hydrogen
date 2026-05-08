@@ -975,11 +975,6 @@ Are you sure?</source>
         <translation>Notas</translation>
     </message>
     <message>
-        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
-        <extracomment>Shown in a warning dialog in case the user inserted a license string * which does not comply with her selected license (in the combo box).</extracomment>
-        <translation>A licença do drumkit não cumpre a licença selecionada.</translation>
-    </message>
-    <message>
         <source>Drumkit imported in</source>
         <extracomment>Shown in a dialog on successful drumkit import. The path imported kit * will be appended to the translated string.</extracomment>
         <translation>Drumkit importado em</translation>
@@ -1594,6 +1589,21 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text in warning dialog shown in case a drumkit could not be saved.</extracomment>
         <translation>Erro ao salvar este drumkit.</translation>
     </message>
+    <message>
+        <source>The artifact is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
+        <extracomment>Used as tool tip in property dialogs in case the user has not sufficient * permissions to write the path associated with the current artifact</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specified license string does not comply with the license selected in the combo box.</source>
+        <extracomment>Shown in a warning dialog in case the user inserted a license string within a properties dialog which does not comply with her selected license (in the combo box).</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&apos;Name&apos; must not be left empty</source>
+        <extracomment>Text in warning dialog shown in case the line edit associated with the * translatable string m_sNameDialog within a properties dialog has no * content..</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -1987,14 +1997,6 @@ Sobrescrever o arquivo existente?</translation>
 <context>
     <name>H2Core::DrumkitPropertiesDialog</name>
     <message>
-        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, use &apos;Duplicate&apos; instead.</source>
-        <translation>Alterar o nome do drumkit resultaria na criação de um novo. Se quiser fazer isso, use &apos;Duplicar&apos;.</translation>
-    </message>
-    <message>
-        <source>Create New Drumkit</source>
-        <translation>Criar Novo Drumkit</translation>
-    </message>
-    <message>
         <source>Open Image</source>
         <translation>Abrir imagem</translation>
     </message>
@@ -2007,20 +2009,8 @@ Sobrescrever o arquivo existente?</translation>
         <translation>A imagem especificada de Texto de Licença não cumpre com a licença na caixa de combo.</translation>
     </message>
     <message>
-        <source>The name of the drumkit must not be left empty</source>
-        <translation>O nome do drumkit não pode ser vazio</translation>
-    </message>
-    <message>
         <source>Delete previous drumkit image</source>
         <translation>Deletar imagem do drumkit anterior</translation>
-    </message>
-    <message>
-        <source>The current drumkit is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
-        <translation>O drumkit atual é apenas leitura. Por favor use &apos;Duplicar&apos; para mover a cópia para o espaço do usuário.</translation>
-    </message>
-    <message>
-        <source>Save a copy of the current drumkit to the Sound Library</source>
-        <translation>Salvar uma copia do drumkit atual para a Biblioteca de Sons</translation>
     </message>
     <message>
         <source>Overwrite existing drumkit stored in</source>
@@ -2045,10 +2035,6 @@ Sobrescrever o arquivo existente?</translation>
     <message>
         <source>Types</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Drumkit License</source>
-        <translation>Licença do drumkit</translation>
     </message>
 </context>
 <context>

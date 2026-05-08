@@ -975,11 +975,6 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <translation></translation>
     </message>
     <message>
-        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
-        <extracomment>Shown in a warning dialog in case the user inserted a license string * which does not comply with her selected license (in the combo box).</extracomment>
-        <translation></translation>
-    </message>
-    <message>
         <source>Drumkit imported in</source>
         <extracomment>Shown in a dialog on successful drumkit import. The path imported kit * will be appended to the translated string.</extracomment>
         <translation></translation>
@@ -1594,6 +1589,21 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text in warning dialog shown in case a drumkit could not be saved.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>The artifact is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
+        <extracomment>Used as tool tip in property dialogs in case the user has not sufficient * permissions to write the path associated with the current artifact</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specified license string does not comply with the license selected in the combo box.</source>
+        <extracomment>Shown in a warning dialog in case the user inserted a license string within a properties dialog which does not comply with her selected license (in the combo box).</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&apos;Name&apos; must not be left empty</source>
+        <extracomment>Text in warning dialog shown in case the line edit associated with the * translatable string m_sNameDialog within a properties dialog has no * content..</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -1985,14 +1995,6 @@ Overwrite the existing file?</source>
 <context>
     <name>H2Core::DrumkitPropertiesDialog</name>
     <message>
-        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, use &apos;Duplicate&apos; instead.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Create New Drumkit</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Open Image</source>
         <translation></translation>
     </message>
@@ -2005,19 +2007,7 @@ Overwrite the existing file?</source>
         <translation></translation>
     </message>
     <message>
-        <source>The name of the drumkit must not be left empty</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Delete previous drumkit image</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>The current drumkit is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Save a copy of the current drumkit to the Sound Library</source>
         <translation></translation>
     </message>
     <message>
@@ -2042,10 +2032,6 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Types</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Drumkit License</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
