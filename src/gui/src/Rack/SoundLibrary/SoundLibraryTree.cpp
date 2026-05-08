@@ -569,7 +569,19 @@ void SoundLibraryTree::actionDelete()
 	};
 	std::vector<DeleteCandidate> candidates;
 
-	for ( auto* pItem : selectedItems() ) {
+	auto items = selectedItems();
+	bool bCurrentItemContained = false;
+	for ( const auto& pItem : items ) {
+		if ( currentItem() == pItem ) {
+			bCurrentItemContained = true;
+			break;
+		}
+	}
+	if ( ! bCurrentItemContained ) {
+		items << currentItem();
+	}
+
+	for ( auto* pItem : items ) {
 		auto it = m_registry.find( pItem );
 		if ( it == m_registry.end() || it->second == nullptr ) {
 			continue;
