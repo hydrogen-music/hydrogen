@@ -976,11 +976,6 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <translation>Notes</translation>
     </message>
     <message>
-        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
-        <extracomment>Shown in a warning dialog in case the user inserted a license string * which does not comply with her selected license (in the combo box).</extracomment>
-        <translation>La ligne de licence du kit de batterie spécifiée ne correspond pas à la licence sélectionnée dans la liste déroulante.</translation>
-    </message>
-    <message>
         <source>Drumkit imported in</source>
         <extracomment>Shown in a dialog on successful drumkit import. The path imported kit * will be appended to the translated string.</extracomment>
         <translation type="unfinished"></translation>
@@ -1560,6 +1555,56 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text of an error dialog shown in the properties dialogs of pattern and * song. Above the text - in a separate line - the invalid path will be * shown. Directly after the text - in the same line and contained in square * brackets - the particular file extension will be appended.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Browse...</source>
+        <extracomment>Text displayed on the Browse button in various dialog, which opens a file browser to allow the user to select a particular file or path. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation>&amp;Naviguer...</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save As</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern saved.</source>
+        <extracomment>Status message shown when a pattern was saved.</extracomment>
+        <translation>Motif sauvegardé.</translation>
+    </message>
+    <message>
+        <source>Save Pattern as</source>
+        <extracomment>Shown in the undo history after saving a loaded pattern to a file.</extracomment>
+        <translation>Sauvegarder le motif sous</translation>
+    </message>
+    <message>
+        <source>Could not save pattern</source>
+        <extracomment>Text in warning dialog shown in case a pattern could not be saved.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saving of this drumkit failed.</source>
+        <extracomment>Text in warning dialog shown in case a drumkit could not be saved.</extracomment>
+        <translation>La sauvegarde de ce kit de batterie a échouée</translation>
+    </message>
+    <message>
+        <source>The artifact is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
+        <extracomment>Used as tool tip in property dialogs in case the user has not sufficient * permissions to write the path associated with the current artifact</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specified license string does not comply with the license selected in the combo box.</source>
+        <extracomment>Shown in a warning dialog in case the user inserted a license string within a properties dialog which does not comply with her selected license (in the combo box).</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&apos;Name&apos; must not be left empty</source>
+        <extracomment>Text in warning dialog shown in case the line edit associated with the * translatable string m_sNameDialog within a properties dialog has no * content..</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -1667,29 +1712,6 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
 </context>
 <context>
-    <name>DrumkitPropertiesDialog_UI</name>
-    <message>
-        <source>Image License</source>
-        <translation>Licence de l&apos;image</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>Naviguer</translation>
-    </message>
-    <message>
-        <source>Drumkit License</source>
-        <translation>Licence du kit de batterie</translation>
-    </message>
-    <message>
-        <source>Image</source>
-        <translation>Image</translation>
-    </message>
-    <message>
-        <source>Types</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>ExportMidiDialog</name>
     <message>
         <source>Export midi</source>
@@ -1740,14 +1762,6 @@ Please make the numerator an integers and the denominator a power of two (like 1
     <message>
         <source>Filename</source>
         <translation>Nom de fichier</translation>
-    </message>
-    <message>
-        <source>&amp;Browse...</source>
-        <translation>&amp;Naviguer...</translation>
-    </message>
-    <message>
-        <source>Alt+B</source>
-        <translation>Alt+B</translation>
     </message>
     <message>
         <source>Modus:</source>
@@ -1832,10 +1846,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Alt+E</source>
         <translation>Alt+E</translation>
-    </message>
-    <message>
-        <source>&amp;Browse...</source>
-        <translation>E&amp;xplorer...</translation>
     </message>
     <message>
         <source>Alt+B</source>
@@ -1990,14 +2000,6 @@ Overwrite the existing file?</source>
 <context>
     <name>H2Core::DrumkitPropertiesDialog</name>
     <message>
-        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, use &apos;Duplicate&apos; instead.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Create New Drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Open Image</source>
         <translation>Ouvrir une image</translation>
     </message>
@@ -2010,23 +2012,7 @@ Overwrite the existing file?</source>
         <translation>La ligne de licence de l&apos;image spécifiée ne correspond pas à la licence sélectionnée dans la liste déroulante.</translation>
     </message>
     <message>
-        <source>The name of the drumkit must not be left empty</source>
-        <translation>Le nom du kit de batterie ne doit pas être laissé vide</translation>
-    </message>
-    <message>
         <source>Delete previous drumkit image</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Saving of this drumkit failed.</source>
-        <translation>La sauvegarde de ce kit de batterie a échouée</translation>
-    </message>
-    <message>
-        <source>The current drumkit is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save a copy of the current drumkit to the Sound Library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2039,6 +2025,18 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Save a copy of the current drumkit to NSM session folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation>Image</translation>
+    </message>
+    <message>
+        <source>Image License</source>
+        <translation>Licence de l&apos;image</translation>
+    </message>
+    <message>
+        <source>Types</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2577,18 +2575,6 @@ MIDI = %2</translation>
         <translation>Impossible de sauvegarder le morceau.</translation>
     </message>
     <message>
-        <source>Open &amp;Pattern</source>
-        <translation>Ouvrir un &amp;motif...</translation>
-    </message>
-    <message>
-        <source>Save Pattern as ...</source>
-        <translation>Sauvegarder le motif sous...</translation>
-    </message>
-    <message>
-        <source>Pattern saved.</source>
-        <translation>Motif sauvegardé.</translation>
-    </message>
-    <message>
         <source></source>
         <comment>Info|About</comment>
         <translation>Info|À propos</translation>
@@ -2596,10 +2582,6 @@ MIDI = %2</translation>
     <message>
         <source>Playlist: Song No. %1</source>
         <translation>Liste de lecture : morceau %1</translation>
-    </message>
-    <message>
-        <source>Could not export pattern.</source>
-        <translation>Ne peut pas exporter le motif.</translation>
     </message>
     <message>
         <source>LilyPond file (*.ly)</source>
@@ -2636,10 +2618,6 @@ MIDI = %2</translation>
     <message>
         <source>Jack driver: cannot disconnect client</source>
         <translation>Pilote Jack : impossible de déconnecter le client</translation>
-    </message>
-    <message>
-        <source>Export song from Session</source>
-        <translation>Exporter le morceau de la session</translation>
     </message>
     <message>
         <source>Import song into Session</source>
@@ -2719,10 +2697,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>Sauvegarder &amp;sous...</translation>
     </message>
     <message>
-        <source>E&amp;xport Pattern As...</source>
-        <translation>E&amp;xporter le motif sous...</translation>
-    </message>
-    <message>
         <source>Export &amp;MIDI File</source>
         <translation>Exporter en fichier &amp;MIDI</translation>
     </message>
@@ -2749,10 +2723,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>On&amp;line Import</source>
         <translation>Importation en &amp;ligne</translation>
-    </message>
-    <message>
-        <source>Add &amp;Instrument</source>
-        <translation>Ajouter un &amp;instrument</translation>
     </message>
     <message>
         <source>Play&amp;list Editor</source>
@@ -2883,10 +2853,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Save To Sound Library</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Save &amp;To Session</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2912,6 +2878,14 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>&amp;Rack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pa&amp;ttern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Duplicate</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3694,17 +3668,6 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
     <message>
         <source>Pattern properties</source>
         <translation>Propriétés du motif</translation>
-    </message>
-</context>
-<context>
-    <name>PatternPropertiesDialog_UI</name>
-    <message>
-        <source>Alt+C</source>
-        <translation>Alt+C</translation>
-    </message>
-    <message>
-        <source>Alt+O</source>
-        <translation>Alt+O</translation>
     </message>
 </context>
 <context>
@@ -5819,14 +5782,6 @@ Voulez-vous continuer?</translation>
         <translation>Motif virtuel</translation>
     </message>
     <message>
-        <source>Could not export pattern.</source>
-        <translation>Ne peut pas exporter le motif.</translation>
-    </message>
-    <message>
-        <source>Pattern saved.</source>
-        <translation>Motif sauvegardé.</translation>
-    </message>
-    <message>
         <source>Fill/remove range of pattern</source>
         <translation>Remplir/retirer une série de motif</translation>
     </message>
@@ -5856,16 +5811,9 @@ Voulez-vous continuer?</translation>
         <source>Song properties</source>
         <translation>Propriétés du morceau</translation>
     </message>
-</context>
-<context>
-    <name>SongPropertiesDialog_UI</name>
     <message>
-        <source>Alt+O</source>
-        <translation>Alt+O</translation>
-    </message>
-    <message>
-        <source>Alt+C</source>
-        <translation>Alt+C</translation>
+        <source>Export song from Session</source>
+        <translation>Exporter le morceau de la session</translation>
     </message>
 </context>
 <context>

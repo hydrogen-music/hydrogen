@@ -374,6 +374,11 @@ CommonStrings::CommonStrings(){
 	/*: Error message shown when attempt to export a song, pattern,
 	  drumkit, MIDI etc. into a read-only folder.*/
 	m_sFileDialogMissingWritePermissions = tr( "You do not have permissions to write to the selected folder. Please select another one." );
+	/*: Used as tool tip in property dialogs in case the user has not sufficient
+	 *  permissions to write the path associated with the current artifact */
+	m_sArtifactIsReadOnly =
+		tr( "The artifact is read-only. Please use 'Duplicate' to "
+			"move a copy into user space." );
 
 	/*: Displayed within a status message when activating a widget as well as in
 	 *  the preferences dialog as option to enable a setting.*/
@@ -386,6 +391,8 @@ CommonStrings::CommonStrings(){
 	m_sStatusEnabled = tr( "enabled" );
 	/*: Displayed within a status message when disabling a widget.*/
 	m_sStatusDisabled = tr( "disabled" );
+	/*: Status message shown when a pattern was saved. */
+	m_sStatusPatternLoaded = tr( "Pattern saved." );
 		
 	m_sTimelineEnabled = tr( "Enable the Timeline for custom tempo changes" );
 	m_sTimelineDisabledPatternMode =
@@ -458,6 +465,11 @@ CommonStrings::CommonStrings(){
 	  will be displayed in combination with "Cancel" and "Fill" and the symbol
 	  after '&' should be different in all three translations. */
 	m_sButtonClear = tr( "Clea&r" );
+	/*: Text displayed on the Browse button in various dialog, which opens a
+	 file browser to allow the user to select a particular file or path. The
+	 character after the '&' symbol can be used as a hotkey and the '&' symbol
+	 itself will not be displayed. */
+	m_sButtonBrowse = tr( "&Browse..." );
 	m_sUnsavedChanges = tr( "Unsaved changes left. These changes will be lost. \nAre you sure?" );
 	m_sSavingChanges = tr( "Do you want to save the changes?" );
 
@@ -512,9 +524,12 @@ CommonStrings::CommonStrings(){
 	  license issues and information.*/
 	m_sLicenseWarningWindowTitle = tr( "License Warning" );
 	/*: Shown in a warning dialog in case the user inserted a license string
-	 *  which does not comply with her selected license (in the combo box). */
-	m_sLicenseMismatchingUserInput = tr( "Specified drumkit License String does not comply with the license selected in the combo box." );
-	
+	 within a properties dialog which does not comply with her selected
+	 license (in the combo box). */
+	m_sLicenseMismatchingUserInput =
+		tr( "Specified license string does not comply with the license "
+			"selected in the combo box." );
+
 	/*: Label shown in the input capture dialog for querying a new
 	  tempo value. */
 	m_sInputCaptureBpm = tr( "BPM" );
@@ -602,6 +617,10 @@ CommonStrings::CommonStrings(){
 	m_sMenuActionImport = tr( "Import" );
 	/*: Names an action in a drop down or pop up menu. (with no further text)*/
 	m_sMenuActionOnlineImport = tr( "Online Import" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionSave = tr( "Save" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionSaveAs = tr( "Save As" );
 
 	/*: Used both as name for the undo menu in the main and playlist menu bar as
 	 *  well as for the undo action itself. Mind the & symbol. The character
@@ -784,6 +803,8 @@ CommonStrings::CommonStrings(){
 	m_sActionReplacePattern = tr( "Open Pattern to Replace " );
 	/*: Shown in the undo history after duplicating a pattern. */
 	m_sActionDuplicatePattern = tr( "Duplicate pattern" );
+	/*: Shown in the undo history after saving a loaded pattern to a file. */
+	m_sActionSavePatternAs = tr( "Save Pattern as" );
 	/*: Shown in the undo history after removing a pattern. */
 	m_sActionRemovePattern = tr( "Delete pattern from list" );
 	/*: Shown in the undo history copying pattern cells in the song editor to
@@ -825,6 +846,14 @@ CommonStrings::CommonStrings(){
 	m_sErrorInvalidPath =
 		tr( "The provided path is invalid! Please ensure you have write access "
 			"and use the file extension" );
+	/*: Text in warning dialog shown in case a drumkit could not be saved. */
+	m_sErrorDrumkitSaved = tr( "Saving of this drumkit failed." );
+	/*: Text in warning dialog shown in case a pattern could not be saved. */
+	m_sErrorPatternSaved = tr( "Could not save pattern" );
+	/*: Text in warning dialog shown in case the line edit associated with the
+	 * translatable string m_sNameDialog within a properties dialog has no
+	 * content.. */
+	m_sErrorEmptyName = tr( "'Name' must not be left empty" );
 
 	/*: Node in the Sound Library corresponding to artifacts installed on
 	 * system-level. */

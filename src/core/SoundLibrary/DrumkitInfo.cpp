@@ -79,6 +79,7 @@ void DrumkitInfo::assignFrom( std::shared_ptr<Drumkit> pDrumkit )
 
 	m_type = SoundLibraryInfo::Type::Drumkit;
 	m_sPath = pDrumkit->getPath();
+	m_sAuthor = pDrumkit->getAuthor();
 	m_context = pDrumkit->getContext();
 	m_sName = pDrumkit->getName();
 	m_sInfo = pDrumkit->getInfo();

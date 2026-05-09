@@ -436,8 +436,39 @@ QToolBar::separator {                  \
 								 ) ) );
 }
 
-QString Skin::trimToFitWidth( const QString& sText, const QFont& font, int nWidth, const QMargins& margins ) {
+QString Skin::trimPathToFitWidth(
+	const QString& sPath,
+	const QFont& font,
+	int nWidth,
+	const QMargins& margins
+)
+{
+	const QString sEllipsis = QString::fromUtf8( "\u2026" );
+	QString sPathTrim = sPath;
+	// Check whether the width of the text fits the available frame
+	// width of the label
+	while ( QFontMetrics( font ).size( Qt::TextSingleLine, sPathTrim ).width() >
+				nWidth - margins.left() - 4 &&
+			sPathTrim.size() > 4 ) {
+		if ( sPathTrim.at( 2 ) != sEllipsis ) {
+			// First trim action
+			sPathTrim.replace( 2, 1, sEllipsis );
+		}
+		else {
+			sPathTrim = sPathTrim.remove( 3, 1 );
+		}
+	}
 
+	return sPathTrim;
+}
+
+QString Skin::trimTextToFitWidth(
+	const QString& sText,
+	const QFont& font,
+	int nWidth,
+	const QMargins& margins
+)
+{
 	const QString sEllipsis = QString::fromUtf8( "\u2026" );
 	QString sTextTrim = sText;
 	// Check whether the width of the text fits the available frame

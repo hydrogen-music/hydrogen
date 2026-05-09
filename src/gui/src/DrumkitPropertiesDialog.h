@@ -23,31 +23,61 @@
 #ifndef DRUMKIT_PROPERTIES_DIALOG_H
 #define DRUMKIT_PROPERTIES_DIALOG_H
 
-#include "ui_DrumkitPropertiesDialog_UI.h"
+#include <memory>
+
+#include <QtWidgets>
+
 #include "Widgets/WidgetWithLicenseProperty.h"
 
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Object.h>
 
+class Button;
+class LCDCombo;
+class LCDDisplay;
+class LCDSpinBox;
+class LCDTextEdit;
+class TagEdit;
+class TypesTable;
+
 namespace H2Core {
 
 /** \ingroup docGUI*/
 class DrumkitPropertiesDialog : public QDialog,
 								protected WidgetWithLicenseProperty,
-								public Ui_DrumkitPropertiesDialog_UI,
 								public H2Core::Object<DrumkitPropertiesDialog> {
 	H2_OBJECT( DrumkitPropertiesDialog )
 	Q_OBJECT
    public:
+	enum Action {
+		/** With no additional actions, the window title suggests a change of
+		 * properties and content changed will the written to the provided
+		 * drumkit. */
+		None = 0x00,
+		/** Instead of writing the changes to the supplied #m_pDrumkit directly,
+		 * the dialog uses an undo action to exchange the drumkit. This is
+		 * suitable for the current drumkit. */
+		ModifyViaUndo = 0x01,
+		/** Alters the window title. */
+		Duplicate = 0x02,
+		/** Provides the user write access the path of the underlying resource
+		 * as well and alters the window title. */
+		SaveAs = 0x04,
+		/** Whether the kit should be stored in the users' drumkit folder or in
+		 * the NSM session folder (only available when Hydrogen is under session
+		 * management). */
+		NsmSession = 0x08
+	};
+
 	/** @param nInstrumentID If set to a value different than
 	 *   #Instrument::EmptyId, the corresponding line in the type tab will be
 	 *   selected on startup. */
 	DrumkitPropertiesDialog(
 		QWidget* pParent,
 		std::shared_ptr<Drumkit> pDrumkit,
-		bool bEditingNotSaving,
-		bool bSaveToNsmSession,
+		Action action,
+		const QString& sTargetPath,
 		Instrument::Id id = Instrument::EmptyId
 	);
 	~DrumkitPropertiesDialog();
@@ -67,22 +97,36 @@ class DrumkitPropertiesDialog : public QDialog,
 	void saveDrumkitMap();
 
 	std::shared_ptr<Drumkit> m_pDrumkit;
-	/**
-	 * This dialog can be used to both alter the properties of a drumkit as well
-	 * as to save it as a new kit.
-	 */
-	bool m_bEditingNotSaving;
-
-	/** Whether the kit should be stored in the users' drumkit folder or in
-	 * the NSM session folder (only available when Hydrogen is under session
-	 * management). */
-	bool m_bSaveToNsmSession;
 
 	QString m_sNewImagePath;
+
+	Action m_action;
 
 	/** used to selected a specific instrument type row on opening based on
 	 * the provided instrument ID. */
 	std::map<Instrument::Id, LCDCombo*> m_idToTypeMap;
+
+	QTabWidget* m_pTabWidget;
+	LCDDisplay* m_pPathEdit;
+	Button* m_pPathBrowseButton;
+	LCDDisplay* m_pNameTxt;
+	LCDSpinBox* m_pVersionSpinBox;
+	LCDDisplay* m_pAuthorTxt;
+	LCDCombo* m_pLicenseComboBox;
+	QLabel* m_pLicenseStringLbl;
+	LCDDisplay* m_pLicenseStringTxt;
+	LCDTextEdit* m_pInfoTxt;
+	TagEdit* m_pTagEdit;
+	LCDDisplay* m_pImageText;
+	Button* m_pImageBrowsePushButton;
+	LCDCombo* m_pImageLicenseComboBox;
+	QLabel* m_pImageLicenseStringLbl;
+	LCDDisplay* m_pImageLicenseStringTxt;
+	QLabel* m_pDrumkitImageLabel;
+	TypesTable* m_pTypesTable;
+	QTableWidget* m_pLicensesTable;
+	Button* m_pSaveBtn;
+	Button* m_pCancelBtn;
 };
 
 }  // namespace H2Core

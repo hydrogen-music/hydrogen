@@ -471,6 +471,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	static bool
 	clearInstrumentInPattern( int nInstrumentNumber, int nPatternNumber = -1 );
 	static bool setPatternProperties(
+		const QString& sNewPatternPath,
 		const int nNewVersion,
 		const QString& sNewPatternName,
 		const QString& sNewAuthor,
@@ -478,6 +479,16 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		const H2Core::License& newLicense,
 		const QStringList& newTags,
 		int nPatternIndex
+	);
+
+	static bool setSongProperties(
+		const QString& sNewPath,
+		const int nNewVersion,
+		const QString& sNewName,
+		const QString& sNewAuthor,
+		const QString& sNewNotes,
+		const H2Core::License& newLicense,
+		const QStringList& newTags
 	);
 
 	/** Fills or clears a specific grid cell in the SongEditor.

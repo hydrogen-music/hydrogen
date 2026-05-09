@@ -23,14 +23,20 @@
 #ifndef SONG_PROPERTIES_DIALOG_H
 #define SONG_PROPERTIES_DIALOG_H
 
-
-#include "ui_SongPropertiesDialog_UI.h"
-
 #include <memory>
+
+#include <QtWidgets>
 
 #include "Widgets/WidgetWithLicenseProperty.h"
 
 #include <core/Object.h>
+
+class Button;
+class LCDCombo;
+class LCDDisplay;
+class LCDSpinBox;
+class LCDTextEdit;
+class TagEdit;
 
 namespace H2Core {
 class Song;
@@ -42,16 +48,31 @@ class Song;
 /** \ingroup docGUI*/
 class SongPropertiesDialog : public QDialog,
 							 protected WidgetWithLicenseProperty,
-							 private Ui_SongPropertiesDialog_UI,
 							 public H2Core::Object<SongPropertiesDialog> {
 	H2_OBJECT( SongPropertiesDialog )
 	Q_OBJECT
 
    public:
+	enum Action {
+		/** With no additional actions, the window title suggests a change of
+		 * properties and content changed will the written to the provided
+		 * song. */
+		None = 0x00,
+		/** Instead of writing the changes to the supplied #m_pSong directly,
+		 * the dialog uses an undo action to exchange the song. This is
+		 * suitable for the current song. */
+		ModifyViaUndo = 0x01,
+		/** Alters the window title. */
+		Duplicate = 0x02,
+		/** Provides the user write access the path of the underlying resource
+		 * as well and alters the window title. */
+		SaveAs = 0x04
+	};
+
 	explicit SongPropertiesDialog(
 		QWidget* parent,
 		std::shared_ptr<H2Core::Song> pSong,
-		bool bDuplicate
+		Action action
 	);
 	~SongPropertiesDialog();
 
@@ -64,9 +85,21 @@ class SongPropertiesDialog : public QDialog,
 	void updatePatternLicenseTable();
 
 	std::shared_ptr<H2Core::Song> m_pSong;
-	bool m_bDuplicate;
+	Action m_action;
+
+	QTabWidget* m_pTabWidget;
+	LCDDisplay* m_pSongNameTxt;
+	LCDSpinBox* m_pVersionSpinBox;
+	LCDDisplay* m_pAuthorTxt;
+	LCDCombo* m_pLicenseComboBox;
+	LCDDisplay* m_pLicenseStringTxt;
+	LCDTextEdit* m_pNotesTxt;
+	LCDDisplay* m_pPathEdit;
+	Button* m_pPathBrowseButton;
+	TagEdit* m_pTagEdit;
+	QTableWidget* m_pLicensesTable;
+	Button* m_pOkBtn;
+	Button* m_pCancelBtn;
 };
 
 #endif
-
-

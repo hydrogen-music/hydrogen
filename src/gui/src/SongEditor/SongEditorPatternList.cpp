@@ -132,7 +132,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget* parent )
 	m_pPatternPopup->addAction(
 		pCommonStrings->getMenuActionAdd(),
 		HydrogenApp::get_instance()->getMainForm(),
-		SLOT( action_file_openPattern() )
+		SLOT( action_pattern_open() )
 	);
 	m_pPatternPopup->addSeparator();
 	m_pPatternPopup->addAction(
@@ -144,12 +144,12 @@ SongEditorPatternList::SongEditorPatternList( QWidget* parent )
 	);
 	m_pPatternPopup->addSeparator();
 	m_pPatternPopup->addAction(
-		pCommonStrings->getMenuActionSaveToSoundLibrary(), this,
+		pCommonStrings->getMenuActionSave(), this,
 		SLOT( patternPopup_save() )
 	);
 	m_pPatternPopup->addAction(
-		pCommonStrings->getMenuActionExport(), this,
-		SLOT( patternPopup_export() )
+		pCommonStrings->getMenuActionSaveAs(), this,
+		SLOT( patternPopup_saveAs() )
 	);
 	m_pPatternPopup->addSeparator();
 	auto pRenameAction =
@@ -227,17 +227,19 @@ void SongEditorPatternList::inlineEditingAccepted()
 	 */
 
 	QString patternName = pPatternList->findUnusedPatternName(
-		m_pInlineEdit->text(), m_pPatternBeingEdited
+		m_pInlineEdit->text(), pPatternList->index( m_pPatternBeingEdited )
 	);
 
 	SE_modifyPatternPropertiesAction* action =
 		new SE_modifyPatternPropertiesAction(
+			m_pPatternBeingEdited->getPath(),
 			m_pPatternBeingEdited->getVersion(),
 			m_pPatternBeingEdited->getName(),
 			m_pPatternBeingEdited->getAuthor(),
 			m_pPatternBeingEdited->getInfo(),
 			m_pPatternBeingEdited->getLicense(),
 			m_pPatternBeingEdited->getTags(),
+			m_pPatternBeingEdited->getPath(),
 			m_pPatternBeingEdited->getVersion(), patternName,
 			m_pPatternBeingEdited->getAuthor(),
 			m_pPatternBeingEdited->getInfo(),
@@ -375,45 +377,18 @@ void SongEditorPatternList::patternPopup_replace()
 	) );
 }
 
-void SongEditorPatternList::patternPopup_export()
+void SongEditorPatternList::patternPopup_saveAs()
 {
-	HydrogenApp::get_instance()->getMainForm()->action_file_export_pattern_as(
+	HydrogenApp::get_instance()->getMainForm()->action_pattern_save_as(
 		m_nRowClicked
 	);
-	return;
 }
 
 void SongEditorPatternList::patternPopup_save()
 {
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pCommonStrings = pHydrogenApp->getCommonStrings();
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-
-	const auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
-	if ( pPattern == nullptr ) {
-		return;
-	}
-
-	const QString sPath = QString( "%1/%2%3" )
-							  .arg( Filesystem::userPatternsDir() )
-							  .arg( pPattern->getName() )
-							  .arg( Filesystem::sPatternSuffix );
-
-	if ( !pPattern->save( sPath ) ) {
-		QMessageBox::warning(
-			this, "Hydrogen", tr( "Could not export pattern." )
-		);
-	}
-	else {
-		pHydrogenApp->showStatusBarMessage( tr( "Pattern saved." ) );
-		pHydrogen->getSoundLibraryDatabase()->updatePatterns(
-			Event::Trigger::Default
-		);
-	}
+	HydrogenApp::get_instance()->getMainForm()->action_pattern_save(
+		m_nRowClicked
+	);
 }
 
 void SongEditorPatternList::patternPopup_edit()
@@ -424,19 +399,9 @@ void SongEditorPatternList::patternPopup_edit()
 
 void SongEditorPatternList::patternPopup_properties()
 {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-
-	auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
-
-	PatternPropertiesDialog dialog(
-		this, pPattern, m_nRowClicked,
-		PatternPropertiesDialog::Action::ModifyViaUndo
+	HydrogenApp::get_instance()->getMainForm()->action_pattern_properties(
+		m_nRowClicked
 	);
-	dialog.exec();
 }
 
 void SongEditorPatternList::patternPopup_delete()
@@ -483,77 +448,9 @@ void SongEditorPatternList::patternPopup_delete()
 
 void SongEditorPatternList::patternPopup_duplicate()
 {
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
-	const auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-
-	const auto pPatternList = pSong->getPatternList();
-	const auto pPattern = pPatternList->get( m_nRowClicked );
-	if ( pPattern == nullptr ) {
-		return;
-	}
-
-	auto pNewPattern = std::make_shared<Pattern>( pPattern );
-
-	// In case the original pattern does not feature license and/or author, fall
-	// back to the ones set in the song. This way user can just set those
-	// parameters once in the SongPropertiesDialog and reuse those values in
-	// here.
-	if ( pNewPattern->getAuthor().isEmpty() &&
-		 pSong->getAuthor() != "hydrogen" &&
-		 pSong->getAuthor() != Song::sDefaultAuthor ) {
-		pNewPattern->setAuthor( pSong->getAuthor() );
-	}
-	if ( pNewPattern->getLicense().isEmpty() &&
-		 !pSong->getLicense().isEmpty() ) {
-		pNewPattern->setLicense( pSong->getLicense() );
-	}
-
-	PatternPropertiesDialog dialog(
-		this, pNewPattern, m_nRowClicked,
-		PatternPropertiesDialog::Action::ModifyViaUndo
+	HydrogenApp::get_instance()->getMainForm()->action_pattern_duplicate(
+		m_nRowClicked
 	);
-	if ( dialog.exec() != QDialog::Accepted ) {
-		return;
-	}
-
-	pHydrogenApp->beginUndoMacro( pCommonStrings->getActionDuplicatePattern() );
-	pHydrogenApp->pushUndoCommand( new SE_insertPatternAction(
-		SE_insertPatternAction::Type::Duplicate, m_nRowClicked + 1, pNewPattern,
-		nullptr
-	) );
-
-	// Duplicate all activations of the corresponding row as well. Because we
-	// will select the newly created patterns, we should clear the former
-	// selection first.
-	pHydrogenApp->getSongEditorPanel()
-		->getSongEditor()
-		->m_selection.clearSelection();
-
-	const auto pPatternGroupVector = pSong->getPatternGroupVector();
-	for ( int nnColumn = 0; nnColumn < pPatternGroupVector->size();
-		  ++nnColumn ) {
-		const auto ppColumn = pPatternGroupVector->at( nnColumn );
-		if ( ppColumn != nullptr ) {
-			for ( int nnPattern = 0; nnPattern < ppColumn->size();
-				  ++nnPattern ) {
-				const auto ppPattern = ppColumn->get( nnPattern );
-				if ( ppPattern != nullptr && ppPattern == pPattern ) {
-					pHydrogenApp->pushUndoCommand(
-						new SE_addOrRemovePatternCellAction(
-							GridPoint( nnColumn, m_nRowClicked + 1 ),
-							Editor::Action::Add,
-							Editor::ActionModifier::AddToSelection
-						)
-					);
-				}
-			}
-		}
-	}
-	pHydrogenApp->endUndoMacro();
 }
 
 void SongEditorPatternList::patternPopup_fill()

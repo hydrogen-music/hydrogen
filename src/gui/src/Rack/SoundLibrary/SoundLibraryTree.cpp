@@ -426,7 +426,10 @@ void SoundLibraryTree::actionProperties()
 		// is not getting dirty upon saving (in case new properties are
 		// stored in the kit but writing it to disk fails).
 		auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
-		DrumkitPropertiesDialog dialog( this, pNewDrumkit, true, false );
+		DrumkitPropertiesDialog dialog(
+			this, pNewDrumkit, DrumkitPropertiesDialog::Action::None,
+			pNewDrumkit->getPath()
+		);
 		dialog.exec();
 	}
 	else if ( m_type == SoundLibraryInfo::Type::Pattern ) {
@@ -455,7 +458,9 @@ void SoundLibraryTree::actionProperties()
 			return;
 		}
 
-		SongPropertiesDialog dialog( this, pSong, false );
+		SongPropertiesDialog dialog(
+			this, pSong, SongPropertiesDialog::Action::None
+		);
 		if ( dialog.exec() == QDialog::Accepted ) {
 			pSong->save( pSong->getPath(), true, true );
 			pDB->updateSongs( Event::Trigger::Default );
@@ -465,6 +470,7 @@ void SoundLibraryTree::actionProperties()
 void SoundLibraryTree::actionDuplicate()
 {
 	auto pHydrogen = Hydrogen::get_instance();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto it = m_registry.find( currentItem() );
 	if ( it == m_registry.end() || it->second == nullptr ) {
 		return;
@@ -490,11 +496,17 @@ void SoundLibraryTree::actionDuplicate()
 		pNewDrumkit->setName(
 			Filesystem::appendNumberOrIncrement( it->second->getName() )
 		);
-		pNewDrumkit->setPath( Filesystem::drumkitPathFromDir(
-			H2Core::Filesystem::userDrumkitsDir() + pNewDrumkit->getName()
-		) );
 
-		DrumkitPropertiesDialog dialog( this, pNewDrumkit, false, false );
+		DrumkitPropertiesDialog dialog(
+			this, pNewDrumkit,
+			static_cast<DrumkitPropertiesDialog::Action>(
+				DrumkitPropertiesDialog::Action::Duplicate |
+				DrumkitPropertiesDialog::Action::SaveAs
+			),
+			Filesystem::drumkitPathFromDir(
+				H2Core::Filesystem::userDrumkitsDir() + pNewDrumkit->getName()
+			)
+		);
 		dialog.exec();
 	}
 	else if ( m_type == SoundLibraryInfo::Type::Pattern ) {
@@ -507,11 +519,21 @@ void SoundLibraryTree::actionDuplicate()
 		}
 
 		PatternPropertiesDialog dialog(
-			this, pPattern, -1, PatternPropertiesDialog::Action::Duplicate
+			this, pPattern, -1,
+			static_cast<PatternPropertiesDialog::Action>(
+				PatternPropertiesDialog::Action::Duplicate |
+				PatternPropertiesDialog::Action::SaveAs
+			)
 		);
 		if ( dialog.exec() == QDialog::Accepted ) {
-			pPattern->save( pPattern->getPath() );
-			pDB->updatePatterns( Event::Trigger::Default );
+			if ( pPattern->save( pPattern->getPath() ) ) {
+				pDB->updatePatterns( Event::Trigger::Default );
+			}
+			else {
+				QMessageBox::warning(
+					this, "Hydrogen", pCommonStrings->getErrorPatternSaved()
+				);
+			}
 		}
 	}
 	else {
@@ -523,7 +545,13 @@ void SoundLibraryTree::actionDuplicate()
 			return;
 		}
 
-		SongPropertiesDialog dialog( this, pSong, true );
+		SongPropertiesDialog dialog(
+			this, pSong,
+			static_cast<SongPropertiesDialog::Action>(
+				SongPropertiesDialog::Action::Duplicate |
+				SongPropertiesDialog::Action::SaveAs
+			)
+		);
 		if ( dialog.exec() == QDialog::Accepted ) {
 			pSong->save( pSong->getPath(), true, true );
 			pDB->updateSongs( Event::Trigger::Default );
@@ -542,7 +570,19 @@ void SoundLibraryTree::actionDelete()
 	};
 	std::vector<DeleteCandidate> candidates;
 
-	for ( auto* pItem : selectedItems() ) {
+	auto items = selectedItems();
+	bool bCurrentItemContained = false;
+	for ( const auto& pItem : items ) {
+		if ( currentItem() == pItem ) {
+			bCurrentItemContained = true;
+			break;
+		}
+	}
+	if ( ! bCurrentItemContained ) {
+		items << currentItem();
+	}
+
+	for ( auto* pItem : items ) {
 		auto it = m_registry.find( pItem );
 		if ( it == m_registry.end() || it->second == nullptr ) {
 			continue;

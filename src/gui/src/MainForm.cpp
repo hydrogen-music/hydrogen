@@ -33,6 +33,7 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Playlist.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/H2Exception.h>
 #include <core/Hydrogen.h>
 #include <core/Lilipond/Lilypond.h>
@@ -59,6 +60,7 @@
 #include "LadspaFXProperties.h"
 #include "Mixer/Mixer.h"
 #include "PatternEditor/PatternEditorPanel.h"
+#include "PatternPropertiesDialog.h"
 #include "PlaylistEditor/PlaylistEditor.h"
 #include "MainToolBar/MainToolBar.h"
 #include "Skin.h"
@@ -315,11 +317,6 @@ void MainForm::createMenuBar()
 	pActionFileNew->setShortcut(
 		pShortcuts->getKeySequence( Shortcuts::Action::NewSong ) );
 
-	auto pActionSongProperties = m_pFileMenu->addAction(
-		tr( "Song Properties" ), this, SLOT( action_file_songProperties() ) );
-	pActionSongProperties->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::EditSongProperties ) );
-	
 	auto pActionOpenSong = m_pFileMenu->addAction(
 		sLabelOpen, this, SLOT( action_file_open() ) );
 	pActionOpenSong->setShortcut(
@@ -332,6 +329,11 @@ void MainForm::createMenuBar()
 
 	m_pFileMenu->addSeparator();				// -----
 
+	auto pActionSongProperties = m_pFileMenu->addAction(
+		tr( "Song Properties" ), this, SLOT( action_file_songProperties() ) );
+	pActionSongProperties->setShortcut(
+		pShortcuts->getKeySequence( Shortcuts::Action::EditSongProperties ) );
+
 	auto pActionSongSave = m_pFileMenu->addAction(
 		tr( "&Save" ), this, SLOT( action_file_save() ) );
 	pActionSongSave->setShortcut(
@@ -341,17 +343,6 @@ void MainForm::createMenuBar()
 	pActionSongSaveAs->setShortcut(
 		pShortcuts->getKeySequence( Shortcuts::Action::SaveAsSong ) );
 	
-	m_pFileMenu->addSeparator();				// -----
-
-	auto pActionOpenPattern = m_pFileMenu->addAction(
-		tr( "Open &Pattern" ), this, SLOT ( action_file_openPattern() ) );
-	pActionOpenPattern->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::OpenPattern ) );
-	auto pActionExportPattern = m_pFileMenu->addAction(
-		tr( "E&xport Pattern As..." ), this, SLOT( action_file_export_pattern_as() ) );
-	pActionExportPattern->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ExportPattern ) );
-
 	m_pFileMenu->addSeparator();				// -----
 
 	auto pActionExportMidi = m_pFileMenu->addAction(
@@ -400,17 +391,47 @@ void MainForm::createMenuBar()
 	pActionUndoHistory->setShortcut(
 		pShortcuts->getKeySequence( Shortcuts::Action::ShowUndoHistory ) );
 
+	// Pattern menu
+	m_pPatternMenu = pMenubar->addMenu( tr( "Pa&ttern" ) );
+	auto pActionPatternNew = m_pPatternMenu->addAction(
+		tr( "&New" ), this, SLOT( action_pattern_new() ) );
+	// pActionPatternNew->setShortcut(
+	// 	pShortcuts->getKeySequence( Shortcuts::Action::NewPattern ) );
+
+	auto pActionPatternOpen = m_pPatternMenu->addAction(
+		tr( "&Open" ), this, SLOT( action_pattern_open() ) );
+	// pActionPatternOpen->setShortcut(
+	// 	pShortcuts->getKeySequence( Shortcuts::Action::OpenPattern ) );
+
+	m_pPatternMenu->addSeparator();				// -----
+
+	m_pPatternPropertiesAction = m_pPatternMenu->addAction(
+		tr( "&Properties" ), this, SLOT( action_pattern_properties() ) );
+	// pActionPatternProperties->setShortcut(
+	// 	pShortcuts->getKeySequence( Shortcuts::Action::EditPatternProperties ) );
+	m_pSavePatternAction = m_pPatternMenu->addAction(
+		tr( "&Save" ), this, SLOT( action_pattern_save() ) );
+	// pActionPatternSave->setShortcut(
+	// 	pShortcuts->getKeySequence( Shortcuts::Action::SavePatternToSoundLibrary ) );
+
+	m_pSavePatternAsAction = m_pPatternMenu->addAction(
+		sLabelSaveAs, this, SLOT( action_pattern_save_as() ) );
+	// pActionPatternSaveAs->setShortcut(
+	// 	pShortcuts->getKeySequence( Shortcuts::Action::SaveAsPattern ) );
+
+	m_pPatternMenu->addSeparator();				// -----
+
+	m_pDuplicatePatternAction = m_pPatternMenu->addAction(
+		tr( "&Duplicate" ), this, SLOT( action_pattern_duplicate() ) );
+	// pActionDuplicatePattern->setShortcut(
+	// 	pShortcuts->getKeySequence( Shortcuts::Action::DuplicatePattern ) );
+
 	// DRUMKITS MENU
 	m_pDrumkitMenu = pMenubar->addMenu( tr( "Drum&kit" ) );
 	auto pActionDrumkitNew = m_pDrumkitMenu->addAction(
 		tr( "&New" ), this, SLOT( action_drumkit_new() ) );
 	pActionDrumkitNew->setShortcut(
 		pShortcuts->getKeySequence( Shortcuts::Action::NewDrumkit ) );
-
-	auto pActionDrumkitProperties = m_pDrumkitMenu->addAction(
-		tr( "&Properties" ), this, SLOT( action_drumkit_properties() ) );
-	pActionDrumkitProperties->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::EditDrumkitProperties ) );
 
 	auto pActionDrumkitOpen = m_pDrumkitMenu->addAction(
 		tr( "&Open" ), this, SLOT( action_drumkit_open() ) );
@@ -419,17 +440,20 @@ void MainForm::createMenuBar()
 
 	m_pDrumkitMenu->addSeparator();				// -----
 
-	auto pActionAddInstrument = m_pDrumkitMenu->addAction(
-		tr( "Add &Instrument" ), this, SLOT( action_drumkit_addInstrument() ) );
-	pActionAddInstrument->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::AddInstrument ) );
-
-	m_pDrumkitMenu->addSeparator();				// -----
+	auto pActionDrumkitProperties = m_pDrumkitMenu->addAction(
+		tr( "&Properties" ), this, SLOT( action_drumkit_properties() ) );
+	pActionDrumkitProperties->setShortcut(
+		pShortcuts->getKeySequence( Shortcuts::Action::EditDrumkitProperties ) );
 
 	auto pActionDrumkitSave = m_pDrumkitMenu->addAction(
-		tr( "&Save To Sound Library" ), this, SLOT( action_drumkit_save() ) );
-	pActionDrumkitSave->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkitToSoundLibrary ) );
+		tr( "&Save" ), this, SLOT( action_drumkit_save() ) );
+	// pActionDrumkitSave->setShortcut(
+	// 	pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkitToSoundLibrary ) );
+
+	auto pActionDrumkitSaveAs = m_pDrumkitMenu->addAction(
+		sLabelSaveAs, this, SLOT( action_drumkit_save_as() ) );
+	// pActionDrumkitSaveAs->setShortcut(
+	// 	pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkitToSoundLibrary ) );
 
 	if ( bUnderSessionManagement ) {
 		auto pActionDrumkitSaveSession = m_pDrumkitMenu->addAction(
@@ -439,13 +463,12 @@ void MainForm::createMenuBar()
 			pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkitToSession ) );
 	}
 
+	m_pDrumkitMenu->addSeparator();				// -----
+
 	auto pActionDrumkitExport = m_pDrumkitMenu->addAction(
 		tr( "&Export" ), this, SLOT( action_drumkit_export() ) );
 	pActionDrumkitExport->setShortcut(
 		pShortcuts->getKeySequence( Shortcuts::Action::ExportDrumkit ) );
-
-	m_pDrumkitMenu->addSeparator();				// -----
-
 	auto pActionDrumkitImport = m_pDrumkitMenu->addAction(
 		tr( "&Import" ), this, SLOT( action_drumkit_import() ) );
 	pActionDrumkitImport->setShortcut(
@@ -693,194 +716,143 @@ void MainForm::action_file_new()
 	m_sPreviousAutoSaveSongFile = "";
 }
 
-
-
 bool MainForm::action_file_save_as()
 {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
 	auto pPref = Preferences::get_instance();
 
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return false;
 	}
 
-	const bool bUnderSessionManagement = pHydrogen->isUnderSessionManagement();
-
-	QString sPath = pPref->getLastSaveSongAsDirectory();
-	if ( ! Filesystem::dirWritable( sPath, false ) ){
-		sPath = Filesystem::userSongsDir();
+	bool bKeepMissingSamples = false;
+	if ( !songSaveSanityChecks( &bKeepMissingSamples ) ) {
+		return false;
 	}
-
-	//std::auto_ptr<QFileDialog> fd( new QFileDialog );
-	FileDialog fd(this);
-	fd.setFileMode( QFileDialog::AnyFile );
-	fd.setNameFilter( Filesystem::sSongFilter );
-	fd.setAcceptMode( QFileDialog::AcceptSave );
-	fd.setDirectory( sPath );
-
-	if ( bUnderSessionManagement ) {	
-		fd.setWindowTitle( tr( "Export song from Session" ) );
-	} else {
-		fd.setWindowTitle( pCommonStrings->getActionSaveSong() );
-	}
-	
-	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::userSongsDir() ) );
-
-	QString sDefaultFileName;
 
 	// Cache a couple of things we have to restore when under session
 	// management.
 	const QString sLastPath = pSong->getPath();
 
-	if ( sLastPath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
-		sDefaultFileName = Filesystem::defaultSongName();
-	}
-	else if ( sLastPath.isEmpty() ) {
-		sDefaultFileName = pSong->getName();
-	}
-	else {
-		QFileInfo fileInfo( sLastPath );
-		sDefaultFileName = fileInfo.completeBaseName();
-	}
-	sDefaultFileName += Filesystem::sSongSuffix;
-
-	fd.selectFile( sDefaultFileName );
-
-	if (fd.exec() == QDialog::Accepted) {
-		QString sNewPath = fd.selectedFiles().first();
-
-		if ( ! sNewPath.isEmpty() ) {
-			pPref->setLastSaveSongAsDirectory( fd.directory().absolutePath( ) );
-
-			if ( ! sNewPath.endsWith( Filesystem::sSongSuffix ) ) {
-				sNewPath += Filesystem::sSongSuffix;
-			}
-
-			// We do not use the CoreActionController::saveSongAs
-			// function directly since action_file_save as does some
-			// additional checks and prompts the user a warning dialog
-			// if required.
-			if ( ! action_file_save( sNewPath ) ) {
-				ERRORLOG( "Unable to save song" );
-				return false;
-			}
+	// In case the song is not backed by a file yet, we default to the file in
+	// the last used folder to store songs in (or the user-level song folder
+	// after first boot).
+	if ( sLastPath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ||
+		 sLastPath.isEmpty() ) {
+		QString sDir = pPref->getLastSaveSongAsDirectory();
+		if ( sDir.isEmpty() ) {
+			sDir = Filesystem::userSongsDir();
 		}
+		pSong->setPath( QString( "%1/%2%3" )
+							.arg( sDir )
+							.arg( pSong->getName() )
+							.arg( Filesystem::sSongSuffix ) );
+	}
+
+	SongPropertiesDialog dialog(
+		this, pSong,
+		static_cast<SongPropertiesDialog::Action>(
+			SongPropertiesDialog::Action::ModifyViaUndo |
+			SongPropertiesDialog::Action::SaveAs
+		)
+	);
+	if ( dialog.exec() != QDialog::Accepted ) {
+		// Revert possible path changes
+		pSong->setPath( sLastPath );
+		return false;
+	}
+
+	const bool bUnderSessionManagement = pHydrogen->isUnderSessionManagement();
+	if ( !CoreActionController::saveSongAs(
+			 pSong->getPath(), bKeepMissingSamples
+		 ) ) {
+		ERRORLOG( "Unable to save song" );
+		return false;
+	}
+	pPref->setLastSaveSongAsDirectory(
+		QFileInfo( pSong->getPath() ).absoluteDir().absolutePath()
+	);
 
 #ifdef H2CORE_HAVE_OSC
-		// When Hydrogen is under session management, we only copy a
-		// backup of the song to a different place but keep working on
-		// the original.
-		if ( bUnderSessionManagement ) {
-			pSong->setPath( sLastPath );
+	// When Hydrogen is under session management, we only copy a
+	// backup of the song to a different place but keep working on
+	// the original.
+	if ( bUnderSessionManagement ) {
+		pSong->setPath( sLastPath );
 
-			h2app->showStatusBarMessage( tr("Song exported as: ") + sLastPath );
-			pHydrogen->setSessionIsExported( false );
-		}
-		else {
-			h2app->showStatusBarMessage( tr("Song saved as: ") + sNewPath );
-		}
+		h2app->showStatusBarMessage( tr( "Song exported as: " ) + sLastPath );
+		pHydrogen->setSessionIsExported( false );
+	}
+	else {
+		h2app->showStatusBarMessage(
+			tr( "Song saved as: " ) + pSong->getPath()
+		);
+	}
 #else
-		h2app->showStatusBarMessage( tr("Song saved as: ") + sNewPath );
+	h2app->showStatusBarMessage( tr( "Song saved as: " ) + pSong->getPath() );
 #endif
 
-		if ( sLastPath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
-			// In case we stored the song for the first time, we remove the
-			// autosave file corresponding to the empty one. Else, it might be
-			// loaded later when clicking "New Song" while not generating a new
-			// autosave file.
-			const QString sAutoSaveFile = Filesystem::getAutoSavePath(
-				Filesystem::Artifact::Song, sLastPath );
-			if ( Filesystem::fileExists( sAutoSaveFile, true ) ) {
-				Filesystem::rm( sAutoSaveFile );
-			}
+	if ( sLastPath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
+		// In case we stored the song for the first time, we remove the
+		// autosave file corresponding to the empty one. Else, it might be
+		// loaded later when clicking "New Song" while not generating a new
+		// autosave file.
+		const QString sAutoSaveFile = Filesystem::getAutoSavePath(
+			Filesystem::Artifact::Song, sLastPath
+		);
+		if ( Filesystem::fileExists( sAutoSaveFile, true ) ) {
+			Filesystem::rm( sAutoSaveFile );
 		}
 	}
 
 	return true;
 }
 
-
-
-bool MainForm::action_file_save()
-{
-	return action_file_save( "" );
-}
-bool MainForm::action_file_save( const QString& sNewPath,
-								 bool bTriggerMessage )
+bool MainForm::action_file_save( bool bTriggerMessage )
 {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-
 	if ( pSong == nullptr ) {
 		return false;
 	}
-	
-	QString sPath = pSong->getPath();
 
-	if ( sNewPath.isEmpty() &&
-		 ( sPath.isEmpty() ||
-		   sPath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ) ) {
+	// In case the song was not saved yet, do so via the properties dialog.
+	const QString sPath = pSong->getPath();
+	if ( sPath.isEmpty() ||
+		 sPath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
 		// The empty song is treated differently in order to allow
 		// recovering changes and unsaved sessions. Therefore the
 		// users are ask to store a new song using a different file
 		// name.
 		return action_file_save_as();
 	}
-
-	bool bKeepMissingSamples = true;
-	if ( pSong->hasMissingSamples() &&
-		 ! pSong->getWasAskedAboutMissingSamples() ) {
-		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-		QMessageBox missingSampleBox( this );
-		missingSampleBox.setWindowTitle( "Hydrogen" );
-		missingSampleBox.setText(
-			tr( "Some samples used by this song failed to load."
-				" Do you wish to keep or discard them? " ) );
-		missingSampleBox.setTextFormat( Qt::RichText );
-
-		missingSampleBox.addButton( pCommonStrings->getButtonKeep(),
-								  QMessageBox::AcceptRole );
-		auto pDiscardButton =
-			missingSampleBox.addButton( pCommonStrings->getButtonDiscard(),
-									  QMessageBox::YesRole );
-		auto pRejectButton =
-			missingSampleBox.addButton( pCommonStrings->getButtonCancel(),
-									  QMessageBox::RejectRole );
-		missingSampleBox.exec();
-
-		if ( missingSampleBox.clickedButton() == pDiscardButton ) {
-			bKeepMissingSamples = false;
-		}
-		else if ( missingSampleBox.clickedButton() == pRejectButton ) {
-			return false;
-		}
-
-		// Only ask once per song.
-		pSong->setWasAskedAboutMissingSamples( true );
+	else if ( Filesystem::DetermineContext( pSong->getPath() ) ==
+			  Filesystem::Context::System ) {
+		// Although the system-level sound library paths are valid, the user
+		// does not have sufficient permission to write to it. Instead, the
+		// artifact will be copied to the user-level counterpart.
+		auto sPath = pSong->getPath();
+		sPath.replace( Filesystem::systemDataPath(), Filesystem::userDataPath() );
+		pSong->setPath( sPath );
+		return action_file_save_as();
 	}
 
-	// Clear the pattern editor selection to resolve any duplicates
-	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->clearSelection();
-
-	bool bSaved;
-	if ( sNewPath.isEmpty() ) {
-		bSaved = H2Core::CoreActionController::saveSong( bKeepMissingSamples );
-	} else {
-		bSaved = H2Core::CoreActionController::saveSongAs(
-			sNewPath, bKeepMissingSamples );
+	bool bKeepMissingSamples = false;
+	if ( ! songSaveSanityChecks( &bKeepMissingSamples ) ) {
+		return false;
 	}
-	
-	if( ! bSaved ) {
-		QMessageBox::warning( this, "Hydrogen", tr("Could not save song.") );
+
+	if ( ! H2Core::CoreActionController::saveSong( bKeepMissingSamples ) ) {
+		QMessageBox::warning( this, "Hydrogen", tr( "Could not save song." ) );
 		return false;
 	}
 
 	if ( bTriggerMessage ) {
-		h2app->showStatusBarMessage( tr("Song saved into") + QString(": ") +
-									 sPath );
+		h2app->showStatusBarMessage(
+			tr( "Song saved into" ) + QString( ": " ) + sPath
+		);
 	}
 
 	return true;
@@ -932,75 +904,6 @@ void MainForm::showUserManual()
 
 }
 
-void MainForm::action_file_export_pattern_as( int nPatternRow )
-{
-	const auto pHydrogen = Hydrogen::get_instance();
-	const auto pPref = Preferences::get_instance();
-
-	if ( Hydrogen::get_instance()->getAudioEngine()->getState() ==
-		 H2Core::AudioEngine::State::Playing ) {
-		Hydrogen::get_instance()->sequencerStop();
-	}
-
-	if ( nPatternRow == -1 ) {
-		nPatternRow = pHydrogen->getSelectedPatternNumber();
-	}
-
-	if ( nPatternRow == -1 ) {
-		QMessageBox::warning( this, "Hydrogen", tr("No pattern selected.") );
-		return;
-	}
-
-	const auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ){
-		return;
-	}
-
-	auto pPattern = pSong->getPatternList()->get( nPatternRow );
-	if ( pPattern == nullptr ){
-		ERRORLOG( QString( "Pattern [%1] could not be retrieved" )
-				  .arg( nPatternRow ) );
-		return;
-	}
-
-	QString sPath = pPref->getLastExportPatternAsDirectory();
-	if ( ! Filesystem::dirWritable( sPath, false ) ){
-		sPath = Filesystem::userPatternsDir();
-	}
-
-	const QString sTitle = tr( "Save Pattern as ..." );
-	FileDialog fd(this);
-	fd.setWindowTitle( sTitle );
-	fd.setDirectory( sPath );
-	fd.selectFile( pPattern->getName() );
-	fd.setFileMode( QFileDialog::AnyFile );
-	fd.setNameFilter( Filesystem::sPatternFilter );
-	fd.setAcceptMode( QFileDialog::AcceptSave );
-	fd.setSidebarUrls( fd.sidebarUrls() <<
-					   QUrl::fromLocalFile( Filesystem::userPatternsDir() ) );
-	fd.setDefaultSuffix( Filesystem::sPatternSuffix );
-
-	if ( fd.exec() != QDialog::Accepted ) {
-		return;
-	}
-
-	QFileInfo fileInfo( fd.selectedFiles().first() );
-	pPref->setLastExportPatternAsDirectory( fileInfo.path() );
-	const QString sFilePath = fileInfo.absoluteFilePath();
-	if ( ! pPattern->save( sFilePath ) ) {
-		QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
-	}
-	else {
-		h2app->showStatusBarMessage( tr( "Pattern saved." ) );
-
-		if ( sFilePath.indexOf( Filesystem::userPatternsDir() ) == 0 ) {
-			pHydrogen->getSoundLibraryDatabase()->updatePatterns(
-				Event::Trigger::Default
-			);
-		}
-	}
-}
-
 void MainForm::action_file_open() {
 	QString sPath = Preferences::get_instance()->getLastOpenSongDirectory();
 	if ( ! Filesystem::dirReadable( sPath, false ) ){
@@ -1015,63 +918,6 @@ void MainForm::action_file_open() {
 	}
 
 	openSongWithDialog( sWindowTitle, sPath, false );
-}
-
-void MainForm::action_file_openPattern()
-{
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pPref = Preferences::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-	  return;
-	}
-
-	QString sPath = pPref->getLastOpenPatternDirectory();
-	if ( !Filesystem::dirReadable( sPath, false ) ) {
-		sPath = Filesystem::userPatternsDir();
-	}
-
-	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-	FileDialog fd( this );
-	fd.setAcceptMode( QFileDialog::AcceptOpen );
-	fd.setFileMode( QFileDialog::ExistingFiles );
-	fd.setDirectory( sPath );
-	fd.setNameFilter( Filesystem::sPatternFilter );
-
-	fd.setWindowTitle( pCommonStrings->getActionInsertPattern() );
-
-	if ( fd.exec() == QDialog::Accepted ) {
-		pPref->setLastOpenPatternDirectory( fd.directory().absolutePath() );
-
-		for ( const auto& ssPath : fd.selectedFiles() ) {
-			auto pNewPattern = Pattern::load( ssPath );
-			if ( pNewPattern == nullptr ) {
-				QMessageBox::critical(
-					this, "Hydrogen",
-					HydrogenApp::get_instance()
-						->getCommonStrings()
-						->getPatternLoadError()
-				);
-			}
-			else {
-				int nRow;
-				if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
-					nRow = pSong->getPatternList()->size();
-				}
-				else {
-					nRow = pHydrogen->getSelectedPatternNumber() + 1;
-				}
-
-				HydrogenApp::get_instance()->pushUndoCommand(
-					new SE_insertPatternAction(
-						SE_insertPatternAction::Type::Insert, nRow, pNewPattern,
-						nullptr
-					)
-				);
-			}
-		}
-	}
 }
 
 void MainForm::action_file_openDemo()
@@ -1240,6 +1086,325 @@ void MainForm::action_window_showPlaybackTrack()
 void MainForm::action_window_showAutomationArea()
 {
 	h2app->getSongEditorPanel()->toggleAutomationAreaVisibility();
+}
+
+void MainForm::action_pattern_new() {
+	SongEditorPanel::addNewPattern();
+}
+
+void MainForm::action_pattern_open()
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pPref = Preferences::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+	  return;
+	}
+
+	QString sPath = pPref->getLastOpenPatternDirectory();
+	if ( !Filesystem::dirReadable( sPath, false ) ) {
+		sPath = Filesystem::userPatternsDir();
+	}
+
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	FileDialog fd( this );
+	fd.setAcceptMode( QFileDialog::AcceptOpen );
+	fd.setFileMode( QFileDialog::ExistingFiles );
+	fd.setDirectory( sPath );
+	fd.setNameFilter( Filesystem::sPatternFilter );
+
+	fd.setWindowTitle( pCommonStrings->getActionInsertPattern() );
+
+	if ( fd.exec() == QDialog::Accepted ) {
+		pPref->setLastOpenPatternDirectory( fd.directory().absolutePath() );
+
+		for ( const auto& ssPath : fd.selectedFiles() ) {
+			auto pNewPattern = Pattern::load( ssPath );
+			if ( pNewPattern == nullptr ) {
+				QMessageBox::critical(
+					this, "Hydrogen",
+					HydrogenApp::get_instance()
+						->getCommonStrings()
+						->getPatternLoadError()
+				);
+			}
+			else {
+				int nRow;
+				if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
+					nRow = pSong->getPatternList()->size();
+				}
+				else {
+					nRow = pHydrogen->getSelectedPatternNumber() + 1;
+				}
+
+				HydrogenApp::get_instance()->pushUndoCommand(
+					new SE_insertPatternAction(
+						SE_insertPatternAction::Type::Insert, nRow, pNewPattern,
+						nullptr
+					)
+				);
+			}
+		}
+	}
+}
+
+void MainForm::action_pattern_properties( int nPatternRow )
+{
+	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	if ( nPatternRow == -1 ) {
+		nPatternRow = pHydrogen->getSelectedPatternNumber();
+	}
+
+	if ( nPatternRow == -1 ) {
+		QMessageBox::warning( this, "Hydrogen", tr("No pattern selected.") );
+		return;
+	}
+
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ){
+		return;
+	}
+
+	auto pPattern =
+		std::make_shared<Pattern>( pSong->getPatternList()->get( nPatternRow )
+		);
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Pattern [%1] could not be retrieved" )
+				  .arg( nPatternRow ) );
+		return;
+	}
+
+	// Since we act on one of the currently loaded patterns, we have to modify
+	// its meta data using an undo action as well.
+	PatternPropertiesDialog dialog(
+		this, pPattern, nPatternRow,
+			PatternPropertiesDialog::Action::ModifyViaUndo);
+	dialog.exec();
+}
+
+void MainForm::action_pattern_duplicate( int nPatternRow )
+{
+	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+	if ( nPatternRow == -1 ) {
+		nPatternRow = pHydrogen->getSelectedPatternNumber();
+	}
+
+	if ( nPatternRow == -1 ) {
+		QMessageBox::warning( this, "Hydrogen", tr("No pattern selected.") );
+		return;
+	}
+
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ){
+		return;
+	}
+
+	auto pPattern =
+		std::make_shared<Pattern>( pSong->getPatternList()->get( nPatternRow )
+		);
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Pattern [%1] could not be retrieved" )
+				  .arg( nPatternRow ) );
+		return;
+	}
+
+	PatternPropertiesDialog dialog(
+		this, pPattern, nPatternRow,
+		static_cast<PatternPropertiesDialog::Action>(
+			PatternPropertiesDialog::Action::ModifyViaUndo |
+			PatternPropertiesDialog::Action::Duplicate
+		)
+	);
+	if ( dialog.exec() != QDialog::Accepted ) {
+		return;
+	}
+
+	pHydrogenApp->beginUndoMacro( pCommonStrings->getActionDuplicatePattern() );
+	pHydrogenApp->pushUndoCommand( new SE_insertPatternAction(
+		SE_insertPatternAction::Type::Duplicate, nPatternRow + 1, pPattern,
+		nullptr
+	) );
+
+	// Duplicate all activations of the corresponding row as well. Because we
+	// will select the newly created patterns, we should clear the former
+	// selection first.
+	pHydrogenApp->getSongEditorPanel()
+		->getSongEditor()
+		->m_selection.clearSelection();
+
+	const auto pPatternGroupVector = pSong->getPatternGroupVector();
+	for ( int nnColumn = 0; nnColumn < pPatternGroupVector->size();
+		  ++nnColumn ) {
+		const auto ppColumn = pPatternGroupVector->at( nnColumn );
+		if ( ppColumn != nullptr ) {
+			for ( int nnPattern = 0; nnPattern < ppColumn->size();
+				  ++nnPattern ) {
+				const auto ppPattern = ppColumn->get( nnPattern );
+				if ( ppPattern != nullptr && ppPattern == pPattern ) {
+					pHydrogenApp->pushUndoCommand(
+						new SE_addOrRemovePatternCellAction(
+							GridPoint( nnColumn, nPatternRow + 1 ),
+							Editor::Action::Add,
+							Editor::ActionModifier::AddToSelection
+						)
+					);
+				}
+			}
+		}
+	}
+	pHydrogenApp->endUndoMacro();
+}
+
+void MainForm::action_pattern_save( int nPatternRow )
+{
+	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+	if ( nPatternRow == -1 ) {
+		nPatternRow = pHydrogen->getSelectedPatternNumber();
+	}
+
+	if ( nPatternRow == -1 ) {
+		QMessageBox::warning( this, "Hydrogen", tr("No pattern selected.") );
+		return;
+	}
+
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ){
+		return;
+	}
+
+	auto pPattern = pSong->getPatternList()->get( nPatternRow );
+	if ( pPattern == nullptr ) {
+		ERRORLOG(
+			QString( "Pattern [%1] could not be retrieved" ).arg( nPatternRow )
+		);
+		return;
+	}
+	else if ( pPattern->getPath().isEmpty() ) {
+		action_pattern_save_as( nPatternRow );
+		return;
+	}
+	else if ( Filesystem::DetermineContext( pPattern->getPath() ) ==
+			  Filesystem::Context::System ) {
+		// Although the system-level sound library paths are valid, the user
+		// does not have sufficient permission to write to it. Instead, the
+		// artifact will be copied to the user-level counterpart.
+		auto sPath = pPattern->getPath();
+		sPath.replace( Filesystem::systemDataPath(), Filesystem::userDataPath() );
+		pPattern->setPath( sPath );
+		action_pattern_save_as( nPatternRow );
+		return;
+	}
+
+	if ( !pPattern->save( pPattern->getPath() ) ) {
+		QMessageBox::warning(
+			this, "Hydrogen",
+			QString( "%1\n\n%2" )
+				.arg( pCommonStrings->getErrorPatternSaved() )
+				.arg( pPattern->getPath() )
+		);
+	}
+	else {
+		pHydrogenApp->showStatusBarMessage(
+			pCommonStrings->getStatusPatternLoaded()
+		);
+		pHydrogen->getSoundLibraryDatabase()->updatePatterns(
+			Event::Trigger::Default
+		);
+	}
+}
+
+void MainForm::action_pattern_save_as( int nPatternRow )
+{
+	const auto pHydrogen = Hydrogen::get_instance();
+	auto pPref = Preferences::get_instance();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	if ( nPatternRow == -1 ) {
+		nPatternRow = pHydrogen->getSelectedPatternNumber();
+	}
+
+	if ( nPatternRow == -1 ) {
+		QMessageBox::warning( this, "Hydrogen", tr("No pattern selected.") );
+		return;
+	}
+
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ){
+		return;
+	}
+
+	auto pPattern =
+		std::make_shared<Pattern>( pSong->getPatternList()->get( nPatternRow )
+		);
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Pattern [%1] could not be retrieved" )
+				  .arg( nPatternRow ) );
+		return;
+	}
+
+	// In case the original pattern does not feature license and/or author, fall
+	// back to the ones set in the song. This way user can just set those
+	// parameters once in the SongPropertiesDialog and reuse those values in
+	// here.
+	if ( pPattern->getAuthor().isEmpty() &&
+		 pSong->getAuthor() != "hydrogen" &&
+		 pSong->getAuthor() != Song::sDefaultAuthor ) {
+		pPattern->setAuthor( pSong->getAuthor() );
+	}
+	if ( pPattern->getLicense().isEmpty() &&
+		 !pSong->getLicense().isEmpty() ) {
+		pPattern->setLicense( pSong->getLicense() );
+	}
+
+	// In case the pattern is not backed by a file yet, we default to the file
+	// in the last used folder to store a pattern in (or the user-level pattern
+	// folder after first boot).
+	if ( pPattern->getPath().isEmpty() ) {
+		QString sDir = pPref->getLastExportPatternAsDirectory();
+		if ( sDir.isEmpty() ) {
+			sDir = Filesystem::userPatternsDir();
+		}
+		pPattern->setPath( QString( "%1/%2%3" )
+							   .arg( sDir )
+							   .arg( pPattern->getName() )
+							   .arg( Filesystem::sPatternSuffix ) );
+	}
+
+	// Since we act on one of the currently loaded patterns, we have to modify
+	// its meta data using an undo action as well.
+	PatternPropertiesDialog dialog(
+		this, pPattern, nPatternRow,
+		static_cast<PatternPropertiesDialog::Action>(
+			PatternPropertiesDialog::Action::ModifyViaUndo |
+			PatternPropertiesDialog::Action::SaveAs
+		)
+	);
+	if ( dialog.exec() != QDialog::Accepted ) {
+		return;
+	}
+
+	if ( pPattern->save( pPattern->getPath() ) ) {
+		pPref->setLastExportPatternAsDirectory(
+			QFileInfo( pPattern->getPath() ).absoluteDir().absolutePath()
+		);
+		pHydrogen->getSoundLibraryDatabase()->updatePatterns(
+			Event::Trigger::Default
+		);
+	}
+	else {
+		QMessageBox::warning(
+			this, "Hydrogen", pCommonStrings->getErrorPatternSaved()
+		);
+	}
 }
 
 void MainForm::action_drumkit_open()
@@ -1801,11 +1966,109 @@ void MainForm::action_drumkit_onlineImport()
 
 void MainForm::action_drumkit_save()
 {
-	editDrumkitProperties( true, false );
+	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+	auto pDrumkit = pSong->getDrumkit();
+
+	if ( pDrumkit->getPath().isEmpty() ) {
+		action_drumkit_save_as();
+		return;
+	}
+	else if ( Filesystem::DetermineContext( pDrumkit->getPath() ) ==
+			  Filesystem::Context::System ) {
+		// Although the system-level sound library paths are valid, the user
+		// does not have sufficient permission to write to it. Instead, the
+		// artifact will be copied to the user-level counterpart.
+		auto sPath = pDrumkit->getPath();
+		sPath.replace( Filesystem::systemDataPath(), Filesystem::userDataPath() );
+		pDrumkit->setPath( sPath );
+		action_drumkit_save_as();
+		return;
+	}
+
+	if ( ! pDrumkit->save() ) {
+		QMessageBox::warning(
+			this, "Hydrogen",
+			QString( "%1\n\n%2" )
+			.arg( pCommonStrings->getErrorDrumkitSaved() )
+			.arg( pDrumkit->getPath() )
+							 );
+
+	}
+	else {
+		pHydrogenApp->showStatusBarMessage(
+			QString( "%1 [%2]" )
+				.arg( pCommonStrings->getStatusPatternLoaded() )
+				.arg( pDrumkit->getName() )
+		);
+		pHydrogen->getSoundLibraryDatabase()->updateDrumkits(
+			Event::Trigger::Default
+		);
+	}
 }
 
-void MainForm::action_drumkit_save_to_session() {
-	editDrumkitProperties( true, true );
+void MainForm::action_drumkit_save_as()
+{
+	auto pPref = Preferences::get_instance();
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+	auto pDrumkit = std::make_shared<Drumkit>( pSong->getDrumkit() );
+
+	// In case the drumkit is not backed by a file yet, we default to the file
+	// in the last used folder to store a drumkit in (or the user-level drumkit
+	// folder after first boot).
+	QString sPath = pDrumkit->getPath();
+	if ( pDrumkit->getPath().isEmpty() ) {
+		QString sDir = pPref->getLastSaveDrumkitAsDirectory();
+		if ( sDir.isEmpty() ) {
+			sDir = Filesystem::userPatternsDir();
+		}
+		sPath = Filesystem::drumkitPathFromDir(
+			QString( "%1/%2" ).arg( sDir ).arg( pDrumkit->getName() )
+		);
+	}
+
+	DrumkitPropertiesDialog dialog(
+		this, pDrumkit,
+		static_cast<DrumkitPropertiesDialog::Action>(
+			DrumkitPropertiesDialog::Action::ModifyViaUndo |
+			DrumkitPropertiesDialog::Action::SaveAs
+		),
+		sPath
+	);
+	if ( dialog.exec() == QDialog::Accepted ) {
+		pPref->setLastSaveDrumkitAsDirectory(
+			Filesystem::drumkitDirFromPath( pDrumkit->getPath() )
+		);
+	}
+}
+
+void MainForm::action_drumkit_save_to_session()
+{
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+	DrumkitPropertiesDialog dialog(
+		this, std::make_shared<Drumkit>( pSong->getDrumkit() ),
+		static_cast<DrumkitPropertiesDialog::Action>(
+			DrumkitPropertiesDialog::Action::ModifyViaUndo |
+			DrumkitPropertiesDialog::Action::NsmSession |
+			DrumkitPropertiesDialog::Action::SaveAs
+		),
+		pSong->getDrumkit()->getPath()
+	);
+	dialog.exec();
 }
 
 ///
@@ -1897,6 +2160,7 @@ void MainForm::onPreferencesChanged( const H2Core::Preferences::Changes& changes
 
 		m_pFileMenu->setFont( font );
 		m_pUndoMenu->setFont( font );
+		m_pPatternMenu->setFont( font );
 		m_pDrumkitMenu->setFont( font );
 		m_pViewMenu->setFont( font );
 		m_pOptionsMenu->setFont( font );
@@ -1947,6 +2211,60 @@ bool MainForm::handleUnsavedChangesDuringShutdown() {
 	}
 
 	m_bUnsavedChangesHandled = true;
+
+	return true;
+}
+
+bool MainForm::songSaveSanityChecks( bool* pKeepMissingSamples )
+{
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr || pKeepMissingSamples == nullptr ) {
+		return false;
+	}
+
+	*pKeepMissingSamples = true;
+	if ( pSong->hasMissingSamples() &&
+		 !pSong->getWasAskedAboutMissingSamples() ) {
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+
+		QMessageBox missingSampleBox( this );
+		missingSampleBox.setWindowTitle( "Hydrogen" );
+		missingSampleBox.setText(
+			tr( "Some samples used by this song failed to load."
+				" Do you wish to keep or discard them? " )
+		);
+		missingSampleBox.setTextFormat( Qt::RichText );
+
+		missingSampleBox.addButton(
+			pCommonStrings->getButtonKeep(), QMessageBox::AcceptRole
+		);
+		auto pDiscardButton = missingSampleBox.addButton(
+			pCommonStrings->getButtonDiscard(), QMessageBox::YesRole
+		);
+		auto pRejectButton = missingSampleBox.addButton(
+			pCommonStrings->getButtonCancel(), QMessageBox::RejectRole
+		);
+		missingSampleBox.exec();
+
+		if ( missingSampleBox.clickedButton() == pDiscardButton ) {
+			*pKeepMissingSamples = false;
+		}
+		else if ( missingSampleBox.clickedButton() == pRejectButton ) {
+			return false;
+		}
+
+		// Only ask once per song.
+		pSong->setWasAskedAboutMissingSamples( true );
+	}
+
+	// Clear the pattern editor selection to resolve any duplicates
+	HydrogenApp::get_instance()
+		->getPatternEditorPanel()
+		->getDrumPatternEditor()
+		->clearSelection();
 
 	return true;
 }
@@ -2223,8 +2541,10 @@ void MainForm::action_file_songProperties()
 	if ( pSong == nullptr ) {
 		return;
 	}
-	
-	SongPropertiesDialog dialog( this, pSong, false );
+
+	SongPropertiesDialog dialog(
+		this, pSong, SongPropertiesDialog::Action::ModifyViaUndo
+	);
 	if ( dialog.exec() ) {
 		// Ensure the update name is taken into account in the window
 		// title.
@@ -2416,32 +2736,33 @@ void MainForm::undoRedoActionEvent( int nEvent ){
 	}
 }
 
-void MainForm::action_drumkit_properties() {
-	editDrumkitProperties( false, false );
+void MainForm::action_drumkit_properties()
+{
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+	DrumkitPropertiesDialog dialog(
+		this, std::make_shared<Drumkit>( pSong->getDrumkit() ),
+		DrumkitPropertiesDialog::Action::ModifyViaUndo,
+		pSong->getDrumkit()->getPath()
+	);
+	dialog.exec();
 }
 
-void MainForm::editDrumkitProperties( bool bWriteToDisk, bool bSaveToNsmSession,
-									  Instrument::Id id )
-{
+void MainForm::selectedPatternChangedEvent() {
 	const auto pHydrogen = Hydrogen::get_instance();
+
 	const auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
+	const int nPattern = pHydrogen->getSelectedPatternNumber();
 
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit == nullptr ){
-		ERRORLOG("Invalid drumkit")
-		return;
-	}
+	const bool bDisable = nPattern == -1 || pSong == nullptr ||
+						  pSong->getPatternList()->get( nPattern ) == nullptr;
 
-	// We create a copy of the kit to assure not dirty data set in the dialog is
-	// leaked into the current song.
-	auto pNewDrumkit = std::make_shared<Drumkit>(pDrumkit);
-
-	DrumkitPropertiesDialog dialog( nullptr, pNewDrumkit, ! bWriteToDisk,
-									bSaveToNsmSession, id );
-	dialog.exec();
+	m_pPatternPropertiesAction->setEnabled( !bDisable );
+	m_pDuplicatePatternAction->setEnabled( !bDisable );
+	m_pSavePatternAction->setEnabled( !bDisable );
+	m_pSavePatternAsAction->setEnabled( !bDisable );
 }
 
 void MainForm::updateSongEvent( int nValue ) {
@@ -3195,10 +3516,10 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				action_file_save_as();
 				break;
 			case Shortcuts::Action::OpenPattern:
-				action_file_openPattern();
+				action_pattern_open();
 				break;
 			case Shortcuts::Action::ExportPattern:
-				action_file_export_pattern_as();
+				action_pattern_save_as();
 				break;
 			case Shortcuts::Action::ExportSong:
 				action_file_export();

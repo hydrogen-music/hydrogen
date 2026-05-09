@@ -975,11 +975,6 @@ Are you sure?</source>
         <translation>Notas</translation>
     </message>
     <message>
-        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
-        <extracomment>Shown in a warning dialog in case the user inserted a license string * which does not comply with her selected license (in the combo box).</extracomment>
-        <translation>A licença do drumkit não cumpre a licença selecionada.</translation>
-    </message>
-    <message>
         <source>Drumkit imported in</source>
         <extracomment>Shown in a dialog on successful drumkit import. The path imported kit * will be appended to the translated string.</extracomment>
         <translation>Drumkit importado em</translation>
@@ -1559,6 +1554,56 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text of an error dialog shown in the properties dialogs of pattern and * song. Above the text - in a separate line - the invalid path will be * shown. Directly after the text - in the same line and contained in square * brackets - the particular file extension will be appended.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Browse...</source>
+        <extracomment>Text displayed on the Browse button in various dialog, which opens a file browser to allow the user to select a particular file or path. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation>&amp;Navegar...</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save As</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern saved.</source>
+        <extracomment>Status message shown when a pattern was saved.</extracomment>
+        <translation>Padrão salvo.</translation>
+    </message>
+    <message>
+        <source>Save Pattern as</source>
+        <extracomment>Shown in the undo history after saving a loaded pattern to a file.</extracomment>
+        <translation>Salvar padrão como</translation>
+    </message>
+    <message>
+        <source>Could not save pattern</source>
+        <extracomment>Text in warning dialog shown in case a pattern could not be saved.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saving of this drumkit failed.</source>
+        <extracomment>Text in warning dialog shown in case a drumkit could not be saved.</extracomment>
+        <translation>Erro ao salvar este drumkit.</translation>
+    </message>
+    <message>
+        <source>The artifact is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
+        <extracomment>Used as tool tip in property dialogs in case the user has not sufficient * permissions to write the path associated with the current artifact</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specified license string does not comply with the license selected in the combo box.</source>
+        <extracomment>Shown in a warning dialog in case the user inserted a license string within a properties dialog which does not comply with her selected license (in the combo box).</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&apos;Name&apos; must not be left empty</source>
+        <extracomment>Text in warning dialog shown in case the line edit associated with the * translatable string m_sNameDialog within a properties dialog has no * content..</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -1666,29 +1711,6 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
 </context>
 <context>
-    <name>DrumkitPropertiesDialog_UI</name>
-    <message>
-        <source>Image License</source>
-        <translation>Licença da imagem</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>Procurar</translation>
-    </message>
-    <message>
-        <source>Drumkit License</source>
-        <translation>Licença do drumkit</translation>
-    </message>
-    <message>
-        <source>Image</source>
-        <translation>Imagem</translation>
-    </message>
-    <message>
-        <source>Types</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>ExportMidiDialog</name>
     <message>
         <source>Export midi</source>
@@ -1739,14 +1761,6 @@ Please make the numerator an integers and the denominator a power of two (like 1
     <message>
         <source>Filename</source>
         <translation>Nome do arquivo</translation>
-    </message>
-    <message>
-        <source>&amp;Browse...</source>
-        <translation>&amp;Navegar...</translation>
-    </message>
-    <message>
-        <source>Alt+B</source>
-        <translation>Alt+B</translation>
     </message>
     <message>
         <source>Modus:</source>
@@ -1819,10 +1833,6 @@ Sobrescrever o arquivo existente?</translation>
     <message>
         <source>&amp;Export</source>
         <translation>&amp;Exportar</translation>
-    </message>
-    <message>
-        <source>&amp;Browse...</source>
-        <translation>&amp;Navegar...</translation>
     </message>
     <message>
         <source>&amp;Close</source>
@@ -1987,14 +1997,6 @@ Sobrescrever o arquivo existente?</translation>
 <context>
     <name>H2Core::DrumkitPropertiesDialog</name>
     <message>
-        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, use &apos;Duplicate&apos; instead.</source>
-        <translation>Alterar o nome do drumkit resultaria na criação de um novo. Se quiser fazer isso, use &apos;Duplicar&apos;.</translation>
-    </message>
-    <message>
-        <source>Create New Drumkit</source>
-        <translation>Criar Novo Drumkit</translation>
-    </message>
-    <message>
         <source>Open Image</source>
         <translation>Abrir imagem</translation>
     </message>
@@ -2007,24 +2009,8 @@ Sobrescrever o arquivo existente?</translation>
         <translation>A imagem especificada de Texto de Licença não cumpre com a licença na caixa de combo.</translation>
     </message>
     <message>
-        <source>The name of the drumkit must not be left empty</source>
-        <translation>O nome do drumkit não pode ser vazio</translation>
-    </message>
-    <message>
         <source>Delete previous drumkit image</source>
         <translation>Deletar imagem do drumkit anterior</translation>
-    </message>
-    <message>
-        <source>Saving of this drumkit failed.</source>
-        <translation>Erro ao salvar este drumkit.</translation>
-    </message>
-    <message>
-        <source>The current drumkit is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
-        <translation>O drumkit atual é apenas leitura. Por favor use &apos;Duplicar&apos; para mover a cópia para o espaço do usuário.</translation>
-    </message>
-    <message>
-        <source>Save a copy of the current drumkit to the Sound Library</source>
-        <translation>Salvar uma copia do drumkit atual para a Biblioteca de Sons</translation>
     </message>
     <message>
         <source>Overwrite existing drumkit stored in</source>
@@ -2037,6 +2023,18 @@ Sobrescrever o arquivo existente?</translation>
     <message>
         <source>Save a copy of the current drumkit to NSM session folder</source>
         <translation>Salva uma cópia do drumkit atual para a pasta de sessão NSM</translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation>Imagem</translation>
+    </message>
+    <message>
+        <source>Image License</source>
+        <translation>Licença da imagem</translation>
+    </message>
+    <message>
+        <source>Types</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2581,18 +2579,6 @@ MIDI = %2</translation>
         <translation>Não foi possível salvar a música.</translation>
     </message>
     <message>
-        <source>Open &amp;Pattern</source>
-        <translation>Abrir &amp;Padrão</translation>
-    </message>
-    <message>
-        <source>Save Pattern as ...</source>
-        <translation>Salvar padrão como ...</translation>
-    </message>
-    <message>
-        <source>Pattern saved.</source>
-        <translation>Padrão salvo.</translation>
-    </message>
-    <message>
         <source></source>
         <comment>Info|About</comment>
         <translation>Info|Sobre</translation>
@@ -2600,10 +2586,6 @@ MIDI = %2</translation>
     <message>
         <source>Playlist: Song No. %1</source>
         <translation>Lista de reprodução: Música Nº %1</translation>
-    </message>
-    <message>
-        <source>Could not export pattern.</source>
-        <translation>Não foi possível exportar padrão.</translation>
     </message>
     <message>
         <source>LilyPond file (*.ly)</source>
@@ -2666,10 +2648,6 @@ MIDI = %2</translation>
         <translation>Salvar Como...</translation>
     </message>
     <message>
-        <source>E&amp;xport Pattern As...</source>
-        <translation>Exportar Padrão Como...</translation>
-    </message>
-    <message>
         <source>Export &amp;MIDI File</source>
         <translation>Exportar &amp;Arquivo MIDI</translation>
     </message>
@@ -2696,10 +2674,6 @@ MIDI = %2</translation>
     <message>
         <source>On&amp;line Import</source>
         <translation>Importar Online</translation>
-    </message>
-    <message>
-        <source>Add &amp;Instrument</source>
-        <translation>Adicionar Instrumento</translation>
     </message>
     <message>
         <source>Play&amp;list Editor</source>
@@ -2780,10 +2754,6 @@ MIDI = %2</translation>
     <message>
         <source>&amp;Donate!</source>
         <translation>&amp;Doe!</translation>
-    </message>
-    <message>
-        <source>Export song from Session</source>
-        <translation>Exportar canção da Sessão</translation>
     </message>
     <message>
         <source>Song exported as: </source>
@@ -2870,10 +2840,6 @@ MIDI = %2</translation>
         <translation>Substituir o drumkit da canção atual com um vazio?</translation>
     </message>
     <message>
-        <source>&amp;Save To Sound Library</source>
-        <translation>&amp;Salvar para Biblioteca de Canções</translation>
-    </message>
-    <message>
         <source>Save &amp;To Session</source>
         <translation>Salvar &amp;Para Sessão</translation>
     </message>
@@ -2909,6 +2875,14 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
     <message>
         <source>&amp;Rack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pa&amp;ttern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Duplicate</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3691,17 +3665,6 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
     <message>
         <source>Pattern properties</source>
         <translation>Propriedades do padrão</translation>
-    </message>
-</context>
-<context>
-    <name>PatternPropertiesDialog_UI</name>
-    <message>
-        <source>Alt+C</source>
-        <translation>Alt+C</translation>
-    </message>
-    <message>
-        <source>Alt+O</source>
-        <translation>Alt+O</translation>
     </message>
 </context>
 <context>
@@ -5816,14 +5779,6 @@ Está certo disto?</translation>
         <translation>Padrão Virtual</translation>
     </message>
     <message>
-        <source>Could not export pattern.</source>
-        <translation>Não foi possível exportar padrão.</translation>
-    </message>
-    <message>
-        <source>Pattern saved.</source>
-        <translation>Padrão salvo.</translation>
-    </message>
-    <message>
         <source>Fill/remove range of pattern</source>
         <translation>Preencher/remover intervalo do padrão</translation>
     </message>
@@ -5853,16 +5808,9 @@ Está certo disto?</translation>
         <source>Song properties</source>
         <translation>Propriedades da música</translation>
     </message>
-</context>
-<context>
-    <name>SongPropertiesDialog_UI</name>
     <message>
-        <source>Alt+O</source>
-        <translation>Alt+O</translation>
-    </message>
-    <message>
-        <source>Alt+C</source>
-        <translation>Alt+C</translation>
+        <source>Export song from Session</source>
+        <translation>Exportar canção da Sessão</translation>
     </message>
 </context>
 <context>
@@ -6015,7 +5963,7 @@ imported into %2</source>
         <source>It is not possible to delete drumkit: 
   [%1]
 It contains samples used and loaded in the current song kit.</source>
-        <translation type="unfinished">Não foi possível deletar o drumkit:
+        <translation>Não foi possível deletar o drumkit:
   [%1]
 Ele contém samples usados e carregados no kit de sons usado atualmente.</translation>
     </message>

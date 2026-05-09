@@ -140,12 +140,14 @@ class SE_deletePatternAction : public QUndoCommand {
 class SE_modifyPatternPropertiesAction : public QUndoCommand {
    public:
 	SE_modifyPatternPropertiesAction(
+		const QString& sOldPatternPath,
 		const int nOldVersion,
 		const QString& oldPatternName,
 		const QString& sOldAuthor,
 		const QString& oldPatternInfo,
 		const H2Core::License& oldLicense,
 		const QStringList& oldTags,
+		const QString& sNewPatternPath,
 		const int nNewVersion,
 		const QString& newPatternName,
 		const QString sNewAuthor,
@@ -156,12 +158,14 @@ class SE_modifyPatternPropertiesAction : public QUndoCommand {
 	)
 	{
 		setText( QObject::tr( "Modify pattern properties" ) );
+		m_sOldPatternPath = sOldPatternPath;
 		m_nOldVersion = nOldVersion;
 		__oldPatternName = oldPatternName;
 		m_sOldAuthor = sOldAuthor;
 		__oldPatternInfo = oldPatternInfo;
 		m_oldLicense = oldLicense;
 		m_oldTags = oldTags;
+		m_sNewPatternPath = sNewPatternPath;
 		m_nNewVersion = nNewVersion;
 		__newPatternName = newPatternName;
 		m_sNewAuthor = sNewAuthor;
@@ -173,20 +177,21 @@ class SE_modifyPatternPropertiesAction : public QUndoCommand {
 	virtual void undo()
 	{
 		H2Core::CoreActionController::setPatternProperties(
-			m_nOldVersion, __oldPatternName, m_sOldAuthor, __oldPatternInfo,
-			m_oldLicense, m_oldTags, __patternNr
+			m_sOldPatternPath, m_nOldVersion, __oldPatternName, m_sOldAuthor,
+			__oldPatternInfo, m_oldLicense, m_oldTags, __patternNr
 		);
 	}
 
 	virtual void redo()
 	{
 		H2Core::CoreActionController::setPatternProperties(
-			m_nNewVersion, __newPatternName, m_sNewAuthor, __newPatternInfo,
-			m_newLicense, m_newTags, __patternNr
+			m_sNewPatternPath, m_nNewVersion, __newPatternName, m_sNewAuthor,
+			__newPatternInfo, m_newLicense, m_newTags, __patternNr
 		);
 	}
 
    private:
+	QString m_sOldPatternPath;
 	int m_nOldVersion;
 	QString __oldPatternName;
 	QString m_sOldAuthor;
@@ -194,6 +199,7 @@ class SE_modifyPatternPropertiesAction : public QUndoCommand {
 	H2Core::License m_oldLicense;
 	QStringList m_oldTags;
 
+	QString m_sNewPatternPath;
 	int m_nNewVersion;
 	QString __newPatternName;
 	QString m_sNewAuthor;
@@ -201,6 +207,76 @@ class SE_modifyPatternPropertiesAction : public QUndoCommand {
 	H2Core::License m_newLicense;
 	QStringList m_newTags;
 	int __patternNr;
+};
+
+/** \ingroup docGUI*/
+class SE_modifySongPropertiesAction : public QUndoCommand {
+   public:
+	SE_modifySongPropertiesAction(
+		const QString& sOldPath,
+		const int nOldVersion,
+		const QString& sOldName,
+		const QString& sOldAuthor,
+		const QString& sOldNotes,
+		const H2Core::License& oldLicense,
+		const QStringList& oldTags,
+		const QString& sNewPatternPath,
+		const int nNewVersion,
+		const QString& sNewName,
+		const QString sNewAuthor,
+		const QString& sNewNotes,
+		const H2Core::License& newLicense,
+		const QStringList& newTags
+	)
+	{
+		setText( QObject::tr( "Modify pattern properties" ) );
+		m_sOldPath = sOldPath;
+		m_nOldVersion = nOldVersion;
+		m_sOldName = sOldName;
+		m_sOldAuthor = sOldAuthor;
+		m_sOldNotes = sOldNotes;
+		m_oldLicense = oldLicense;
+		m_oldTags = oldTags;
+		m_sNewPatternPath = sNewPatternPath;
+		m_nNewVersion = nNewVersion;
+		m_sNewName = sNewName;
+		m_sNewAuthor = sNewAuthor;
+		m_sNewNotes = sNewNotes;
+		m_newLicense = newLicense;
+		m_newTags = newTags;
+	}
+	virtual void undo()
+	{
+		H2Core::CoreActionController::setSongProperties(
+			m_sOldPath, m_nOldVersion, m_sOldName, m_sOldAuthor,
+			m_sOldNotes, m_oldLicense, m_oldTags
+		);
+	}
+
+	virtual void redo()
+	{
+		H2Core::CoreActionController::setSongProperties(
+			m_sNewPatternPath, m_nNewVersion, m_sNewName, m_sNewAuthor,
+			m_sNewNotes, m_newLicense, m_newTags
+		);
+	}
+
+   private:
+	QString m_sOldPath;
+	int m_nOldVersion;
+	QString m_sOldName;
+	QString m_sOldAuthor;
+	QString m_sOldNotes;
+	H2Core::License m_oldLicense;
+	QStringList m_oldTags;
+
+	QString m_sNewPatternPath;
+	int m_nNewVersion;
+	QString m_sNewName;
+	QString m_sNewAuthor;
+	QString m_sNewNotes;
+	H2Core::License m_newLicense;
+	QStringList m_newTags;
 };
 
 /** \ingroup docGUI*/

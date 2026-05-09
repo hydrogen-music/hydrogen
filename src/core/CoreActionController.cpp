@@ -993,18 +993,16 @@ bool CoreActionController::saveSong( bool bKeepMissingSamples )
 	}
 
 	// Extract the path to the associate .h2song file.
-	QString sSongPath = pSong->getPath();
-
+	const QString sSongPath = pSong->getPath();
 	if ( sSongPath.isEmpty() ) {
-		ERRORLOG( "Unable to save song. Empty filename!" );
+		ERRORLOG( "Unable to save song. Empty path!" );
 		return false;
 	}
 
 	const bool bHadMissingSamples = pSong->hasMissingSamples();
 
 	// Actual saving
-	bool bSaved = pSong->save( sSongPath, bKeepMissingSamples, true );
-	if ( !bSaved ) {
+	if ( ! pSong->save( sSongPath, bKeepMissingSamples, true ) ) {
 		ERRORLOG(
 			QString( "Current song [%1] could not be saved!" ).arg( sSongPath )
 		);
@@ -1027,14 +1025,13 @@ bool CoreActionController::saveSong( bool bKeepMissingSamples )
 }
 
 bool CoreActionController::saveSongAs(
-	const QString& sNewFileName,
+	const QString& sNewPath,
 	bool bKeepMissingSamples
 )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pSong = pHydrogen->getSong();
-
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
@@ -1042,28 +1039,30 @@ bool CoreActionController::saveSongAs(
 
 	// Check whether the provided path is valid.
 	if ( !Filesystem::isPathValid(
-			 Filesystem::Artifact::Song, sNewFileName
+			 Filesystem::Artifact::Song, sNewPath
 		 ) ) {
 		// Filesystem::isPathValid takes care of the error log message.
 		return false;
 	}
-	if ( !Filesystem::fileWritable( sNewFileName ) ) {
-		ERRORLOG( QString( "Song can not be written to read-only location [%1]"
-		)
-					  .arg( sNewFileName ) );
-		return false;
-	}
 
-	pSong->setPath( sNewFileName );
+	pSong->setPath( sNewPath );
 
 	// Actual saving
 	if ( !saveSong( bKeepMissingSamples ) ) {
+		// In case saving failed, we try to hint possible reasons. E.g. that the
+		// user has not sufficient permissions to write the selected folder.
+		if ( !Filesystem::fileWritable( sNewPath ) ) {
+			ERRORLOG(
+				QString( "Song can not be written to read-only location [%1]" )
+					.arg( sNewPath )
+			);
+		}
 		return false;
 	}
 
 	// Update the recentFiles list by replacing the former file name
 	// with the new one.
-	insertRecentFile( sNewFileName );
+	insertRecentFile( sNewPath );
 	if ( !pHydrogen->isUnderSessionManagement() ) {
 		Preferences::get_instance()->setLastSongPath( pSong->getPath() );
 	}
@@ -2835,6 +2834,7 @@ bool CoreActionController::clearInstrumentInPattern(
 }
 
 bool CoreActionController::setPatternProperties(
+	const QString& sNewPatternPath,
 	const int nNewVersion,
 	const QString& sNewPatternName,
 	const QString& sNewAuthor,
@@ -2860,16 +2860,59 @@ bool CoreActionController::setPatternProperties(
 		return false;
 	}
 
+	pPattern->setPath( sNewPatternPath );
 	pPattern->setVersion( nNewVersion );
 	pPattern->setName( sNewPatternName );
 	pPattern->setAuthor( sNewAuthor );
 	pPattern->setInfo( sNewPatternInfo );
-	pPattern->setLicense( newLicense );
+	// Only update the license in case it changed (in order to not
+	// overwrite an attribution).
+	if ( pPattern->getLicense() != newLicense ) {
+		pPattern->setLicense( newLicense );
+	}
 	pPattern->setTags( newTags );
 
 	pHydrogen->setIsModified( true );
 
 	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1 );
+
+	return true;
+}
+
+bool CoreActionController::setSongProperties(
+	const QString& sNewPath,
+	const int nNewVersion,
+	const QString& sNewName,
+	const QString& sNewAuthor,
+	const QString& sNewNotes,
+	const H2Core::License& newLicense,
+	const QStringList& newTags
+)
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	pSong->setPath( sNewPath );
+	pSong->setVersion( nNewVersion );
+	pSong->setName( sNewName );
+	pSong->setAuthor( sNewAuthor );
+	pSong->setNotes( sNewNotes );
+	// Only update the license in case it changed (in order to not
+	// overwrite an attribution).
+	if ( pSong->getLicense() != newLicense ) {
+		pSong->setLicense( newLicense );
+	}
+	pSong->setTags( newTags );
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->pushEvent( Event::Type::SongModified, 0 );
 
 	return true;
 }

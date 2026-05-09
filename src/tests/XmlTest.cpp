@@ -1250,6 +1250,22 @@ void XmlTest::testSamplePathsWritten() {
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testWriteToNonExistingDir() {
+	___INFOLOG( "" );
+
+	const QString sTmpDir =
+		H2Core::Filesystem::tmpDir() + "non-existing-xml-test";
+	const QString sTmpPath =
+		QString( "%1/non/existing/sub/folder/test.h2pattern" );
+
+	auto pPattern = std::make_shared<Pattern>();
+	CPPUNIT_ASSERT( pPattern->save( sTmpPath ) );
+
+	CPPUNIT_ASSERT( ! Filesystem::rm( sTmpDir ) );
+
+	___INFOLOG( "passed" );
+}
+
 bool XmlTest::checkSampleData(
 	std::shared_ptr<H2Core::Drumkit> pKit,
 	bool bLoaded

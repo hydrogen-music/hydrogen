@@ -52,13 +52,14 @@ bool PatternInfo::load( const QString& sPath )
 		m_context = Filesystem::DetermineContext( sPath );
 		m_type = SoundLibraryInfo::Type::Pattern;
 
-		m_sAuthor = rootNode.read_string(
+		const XMLNode patternNode = rootNode.firstChildElement( "pattern" );
+
+		m_sAuthor = patternNode.read_string(
 			"author", "undefined author", true, false, true
 		);
 		m_license = H2Core::License(
-			rootNode.read_string( "license", "", true, false, true )
+			patternNode.read_string( "license", "", true, false, true )
 		);
-		XMLNode patternNode = rootNode.firstChildElement( "pattern" );
 		// Try legacy format fist.
 		m_sName = patternNode.read_string( "pattern_name", "", true, true );
 		if ( m_sName.isEmpty() ) {

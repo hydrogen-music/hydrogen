@@ -39,6 +39,7 @@
 #include "../CommonStrings.h"
 #include "../Compatibility/DropEvent.h"
 #include "../Compatibility/MouseEvent.h"
+#include "../DrumkitPropertiesDialog.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
 #include "../Skin.h"
@@ -197,7 +198,7 @@ void SidebarLabel::updateFont()
 	setFont( font );
 
 	const auto sText =
-		Skin::trimToFitWidth( m_sText, font, width(), textMargins() );
+		Skin::trimTextToFitWidth( m_sText, font, width(), textMargins() );
 	if ( sText != text() ) {
 		QLineEdit::setText( sText );
 	}
@@ -631,21 +632,33 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		QSize( SidebarRow::m_nTypeLblWidth, nHeight ), m_row.sType, 3
 	);
 	m_pInnerLayout->addWidget( m_pTypeLbl );
+
+	auto editDrumkit = [&]() {
+		if ( m_row.bMappedToDrumkit ) {
+			auto pSong = Hydrogen::get_instance()->getSong();
+			if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+				return;
+			}
+			DrumkitPropertiesDialog dialog(
+				this, std::make_shared<Drumkit>( pSong->getDrumkit() ),
+				DrumkitPropertiesDialog::Action::ModifyViaUndo,
+				pSong->getDrumkit()->getPath(), m_row.id
+			);
+			dialog.exec();
+		}
+		else {
+			m_pPatternEditorPanel->setTypeInRow(
+				m_pPatternEditorPanel->getRowIndexDB( m_row )
+			);
+		}
+	};
+
 	connect(
 		m_pTypeLbl, &SidebarLabel::labelClicked,
 		[=]( QMouseEvent* pEvent ) {
 			if ( pEvent->button() == Qt::LeftButton &&
 				 m_pTypeLbl->isShowingPlusSign() ) {
-				if ( m_row.bMappedToDrumkit ) {
-					MainForm::editDrumkitProperties(
-						false, false, m_row.id
-					);
-				}
-				else {
-					m_pPatternEditorPanel->setTypeInRow(
-						m_pPatternEditorPanel->getRowIndexDB( m_row )
-					);
-				}
+				editDrumkit();
 			}
 		}
 	);
@@ -653,16 +666,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		m_pTypeLbl, &SidebarLabel::labelDoubleClicked,
 		[=]( QMouseEvent* pEvent ) {
 			if ( pEvent->button() == Qt::LeftButton ) {
-				if ( m_row.bMappedToDrumkit ) {
-					MainForm::editDrumkitProperties(
-						false, false, m_row.id
-					);
-				}
-				else {
-					m_pPatternEditorPanel->setTypeInRow(
-						m_pPatternEditorPanel->getRowIndexDB( m_row )
-					);
-				}
+				editDrumkit();
 			}
 		}
 	);

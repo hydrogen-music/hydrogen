@@ -21,6 +21,8 @@
  */
 
 #include <core/Helpers/Xml.h>
+
+#include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Legacy.h>
 
 #include <QtCore/QFile>
@@ -338,9 +340,25 @@ bool XMLDoc::read( const QString& sFilePath, bool bSilent ) {
 bool XMLDoc::write( const QString& sFilePath )
 {
 	QFile file( sFilePath );
-	if ( !file.open( QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate ) ) {
-		ERRORLOG( QString( "Unable to open %1 for writing" ).arg( sFilePath ) );
-		return false;
+	if ( !file.open(
+			 QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate
+		 ) ) {
+		// Creation failed.
+		const QString sParentDir =
+			QFileInfo( sFilePath ).absoluteDir().absolutePath();
+		if ( !Filesystem::dirExists( sParentDir, true ) ) {
+			Filesystem::mkdir( sParentDir );
+		}
+
+		// Let's try again
+		if ( !file.open(
+				 QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate
+			 ) ) {
+			ERRORLOG(
+				QString( "Unable to open %1 for writing" ).arg( sFilePath )
+			);
+			return false;
+		}
 	}
 	QTextStream out( &file );
 #ifdef H2CORE_HAVE_QT6

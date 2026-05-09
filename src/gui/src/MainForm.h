@@ -70,6 +70,7 @@ class MainForm :  public QMainWindow,
 		void updateAutomationPathVisibility();
 
 		virtual void errorEvent( int nErrorCode ) override;
+		void selectedPatternChangedEvent() override;
 		virtual void updateSongEvent( int nValue ) override;
 	virtual void quitEvent( int ) override;
 
@@ -98,14 +99,6 @@ class MainForm :  public QMainWindow,
 		static bool switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit );
 
 		bool eventFilter( QObject *o, QEvent *e ) override;
-		/** @param id If set to a value different than
-		 *   #Instrument::EmptyId, the corresponding line in the type tab will
-		 * be selected on startup. */
-		static void editDrumkitProperties(
-			bool bWriteToDisk,
-			bool bSaveToNsmSession,
-			H2Core::Instrument::Id id = H2Core::Instrument::EmptyId
-		);
 
 	   public slots:
 		void showPreferencesDialog();
@@ -151,9 +144,7 @@ class MainForm :  public QMainWindow,
 		 * can be suppressed (e.g. when the calling routine wants to trigger a
 		 * dedicated message instead).
 		 */
-		bool action_file_save( const QString& sNewPath,
-							   bool bTriggerMessage = true );
-	bool action_file_save();
+		bool action_file_save( bool bTriggerMessage = true );
 
 		/**
 		 * Project > Save As / Export from Session handling function.
@@ -167,8 +158,6 @@ class MainForm :  public QMainWindow,
 		 * of the session fails.
 		 */
 		bool action_file_save_as();
-		void action_file_openPattern();
-		void action_file_export_pattern_as( int nPatternRow = -1 );
 		void action_file_exit();
 
 		void action_file_export();
@@ -180,10 +169,18 @@ class MainForm :  public QMainWindow,
 		void action_report_bug();
 		void action_donate();
 
+		void action_pattern_new();
+		void action_pattern_open();
+		void action_pattern_properties( int nPatternRow = -1 );
+		void action_pattern_duplicate( int nPatternRow = -1 );
+		void action_pattern_save( int nPattrnRow = -1 );
+		void action_pattern_save_as( int nPatternRow = -1 );
+
 		void action_drumkit_new();
 		void action_drumkit_properties();
 		void action_drumkit_open();
 		void action_drumkit_save();
+		void action_drumkit_save_as();
 		void action_drumkit_save_to_session();
 		void action_drumkit_export();
 		/** @param bLoad whether to just import the kit or, in addition, load
@@ -257,6 +254,7 @@ class MainForm :  public QMainWindow,
 
 	private:
 		bool handleUnsavedChangesDuringShutdown();
+		bool songSaveSanityChecks( bool* pKeepMissingSamples );
 		void updateRecentUsedSongList();
 
 		void loadDrumkit( const QString& sFileName, bool bLoad );
@@ -314,6 +312,11 @@ class MainForm :  public QMainWindow,
 
 		QMenu* m_pFileMenu;
 		QMenu* m_pUndoMenu;
+		QMenu* m_pPatternMenu;
+		QAction* m_pPatternPropertiesAction;
+		QAction* m_pDuplicatePatternAction;
+		QAction* m_pSavePatternAction;
+		QAction* m_pSavePatternAsAction;
 		QMenu* m_pDrumkitMenu;
 		QMenu* m_pViewMenu;
 		QMenu* m_pOptionsMenu;

@@ -22,6 +22,8 @@
 
 #include "InfoView.h"
 
+#include <QTextDocumentFragment>
+
 #include "../../CommonStrings.h"
 #include "../../Compatibility/MouseEvent.h"
 #include "../../HydrogenApp.h"
@@ -161,11 +163,14 @@ void InfoView::updateContent( std::shared_ptr<H2Core::SoundLibraryInfo> pInfo )
 	}
 	else {
 		auto setText = [&]( QLabel* pLabel, const QString& sText ) {
-			pLabel->setToolTip( sText );
+			// Some drumkits feature a HTML-based description.
+			const QString sTextCleaned =
+				QTextDocumentFragment::fromHtml( sText ).toPlainText();
+			pLabel->setToolTip( sTextCleaned );
 
-			pLabel->setText( Skin::trimToFitWidth(
-				sText.simplified(), pLabel->font(), pLabel->width(),
-				QMargins( 5, 0, 0, 0 )
+			pLabel->setText( Skin::trimTextToFitWidth(
+				sTextCleaned.simplified(), pLabel->font(), pLabel->width(),
+				QMargins( 10, 0, 0, 0 )
 			) );
 		};
 		setText( m_pNameText, pInfo->getName() );
@@ -175,7 +180,11 @@ void InfoView::updateContent( std::shared_ptr<H2Core::SoundLibraryInfo> pInfo )
 			m_pLicenseText,
 			License::LicenseTypeToQString( pInfo->getLicense().getType() )
 		);
-		setText( m_pPathText, pInfo->getPath() );
+		m_pPathText->setToolTip( pInfo->getPath() );
+		m_pPathText->setText( Skin::trimPathToFitWidth(
+			pInfo->getPath().simplified(), m_pPathText->font(),
+			m_pPathText->width(), QMargins( 10, 0, 0, 0 )
+		) );
 		setText( m_pTagsText, pInfo->getTags().join( ", " ) );
 	}
 }

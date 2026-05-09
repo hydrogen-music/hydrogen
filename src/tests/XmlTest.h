@@ -59,6 +59,7 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testShippedThemes);
 	CPPUNIT_TEST(testSamplePathPortability);
 	CPPUNIT_TEST(testSamplePathsWritten);
+	CPPUNIT_TEST(testWriteToNonExistingDir);
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -132,6 +133,8 @@ class XmlTest : public CppUnit::TestCase {
 		 * loaded by the user, on the other hand, must hold an absolute file
 		 * path. */
 		void testSamplePathsWritten();
+
+		void testWriteToNonExistingDir();
 
 	private:
 		static bool checkSampleData( std::shared_ptr<H2Core::Drumkit> pKit,

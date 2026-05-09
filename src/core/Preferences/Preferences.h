@@ -509,6 +509,8 @@ class Preferences : public H2Core::Object<Preferences> {
 	void setLastImportDrumkitDirectory( const QString& sPath );
 	const QString& getLastExportDrumkitDirectory() const;
 	void setLastExportDrumkitDirectory( const QString& sPath );
+	const QString& getLastSaveDrumkitAsDirectory() const;
+	void setLastSaveDrumkitAsDirectory( const QString& sPath );
 	const QString& getLastOpenLayerDirectory() const;
 	void setLastOpenLayerDirectory( const QString& sPath );
 	const QString& getLastOpenPlaybackTrackDirectory() const;
@@ -692,6 +694,7 @@ class Preferences : public H2Core::Object<Preferences> {
 	QString m_sLastExportMidiDirectory;
 	QString m_sLastImportDrumkitDirectory;
 	QString m_sLastExportDrumkitDirectory;
+	QString m_sLastSaveDrumkitAsDirectory;
 	QString m_sLastOpenLayerDirectory;
 	QString m_sLastOpenPlaybackTrackDirectory;
 	QString m_sLastAddSongToPlaylistDirectory;
@@ -766,6 +769,10 @@ inline const QString& Preferences::getLastExportDrumkitDirectory() const
 {
 	return m_sLastExportDrumkitDirectory;
 }
+inline const QString& Preferences::getLastSaveDrumkitAsDirectory() const
+{
+	return m_sLastSaveDrumkitAsDirectory;
+}
 inline const QString& Preferences::getLastOpenLayerDirectory() const
 {
 	return m_sLastOpenLayerDirectory;
@@ -829,6 +836,10 @@ inline void Preferences::setLastImportDrumkitDirectory( const QString& sPath )
 inline void Preferences::setLastExportDrumkitDirectory( const QString& sPath )
 {
 	m_sLastExportDrumkitDirectory = sPath;
+}
+inline void Preferences::setLastSaveDrumkitAsDirectory( const QString& sPath )
+{
+	m_sLastSaveDrumkitAsDirectory = sPath;
 }
 inline void Preferences::setLastOpenLayerDirectory( const QString& sPath )
 {

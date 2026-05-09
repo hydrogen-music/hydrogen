@@ -224,29 +224,33 @@ void PatternList::virtualPatternDel( std::shared_ptr<Pattern> pPattern )
 	}
 }
 
-bool PatternList::checkName( const QString& sPatternName,
-							  std::shared_ptr<Pattern> pIgnore ) const
+bool PatternList::checkName(
+	const QString& sPatternName,
+	int nIgnorePatternIdx
+) const
 {
 	if ( sPatternName.isEmpty() ) {
 		return false;
 	}
 
-	for ( int i = 0; i < m_pPatterns.size(); i++ ) {
-		if ( m_pPatterns[ i ] != pIgnore &&
-			 m_pPatterns[ i ]->getName() == sPatternName ) {
+	for ( int ii = 0; ii < m_pPatterns.size(); ii++ ) {
+		if ( m_pPatterns[ii] != nullptr && ii != nIgnorePatternIdx &&
+			 m_pPatterns[ii]->getName() == sPatternName ) {
 			return false;
 		}
 	}
 	return true;
 }
 
-QString PatternList::findUnusedPatternName( const QString& sSourceName,
-											   std::shared_ptr<Pattern> pIgnore ) const
+QString PatternList::findUnusedPatternName(
+	const QString& sSourceName,
+	int nIgnoreIdx
+) const
 {
 	QString unusedPatternNameCandidate;
-	QString sSource { sSourceName };
-	
-	if( sSource.isEmpty() ) {
+	QString sSource{ sSourceName };
+
+	if ( sSource.isEmpty() ) {
 		sSource = "Pattern 11";
 	}
 
@@ -256,18 +260,18 @@ QString PatternList::findUnusedPatternName( const QString& sSourceName,
 
 	// Check if the sSource already has a number suffix, and if so, start
 	// searching for an unused name from that number.
-	QRegularExpression numberSuffixRe("(.+) #(\\d+)$");
-	QRegularExpressionMatch match = numberSuffixRe.match(sSource);
-	if (match.hasMatch()) {
-		QString numberSuffix = match.captured(2);
+	QRegularExpression numberSuffixRe( "(.+) #(\\d+)$" );
+	QRegularExpressionMatch match = numberSuffixRe.match( sSource );
+	if ( match.hasMatch() ) {
+		QString numberSuffix = match.captured( 2 );
 
 		i = numberSuffix.toInt();
-		suffix = " #" + QString::number(i);
-		unusedPatternNameCandidate = match.captured(1);
+		suffix = " #" + QString::number( i );
+		unusedPatternNameCandidate = match.captured( 1 );
 	}
 
-	while( !checkName( unusedPatternNameCandidate + suffix, pIgnore ) ) {
-		suffix = " #" + QString::number(i);
+	while ( !checkName( unusedPatternNameCandidate + suffix, nIgnoreIdx ) ) {
+		suffix = " #" + QString::number( i );
 		i++;
 	}
 

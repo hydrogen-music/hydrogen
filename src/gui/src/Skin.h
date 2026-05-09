@@ -136,9 +136,17 @@ class Skin {
 		bool bBorder
 	);
 
+	/** Pops characters from beginning of @a sPath until the result fits into @a
+	 * nWidth for a given @a font. The left-most two character will be kept. */
+	static QString trimPathToFitWidth(
+		const QString& sPath,
+		const QFont& font,
+		int nWidth,
+		const QMargins& margins
+	);
 	/** Removes characters from @a sText until the result fits into @a nWidth
 	 * for a given @a font. The right-most character will be kept. */
-	static QString trimToFitWidth(
+	static QString trimTextToFitWidth(
 		const QString& sText,
 		const QFont& font,
 		int nWidth,
