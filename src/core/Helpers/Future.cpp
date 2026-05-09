@@ -99,7 +99,7 @@ std::shared_ptr<H2Core::Drumkit> Future::loadDrumkit(
 
 		auto pInstrument = Instrument::load_from(
 			&instrumentNode, sDrumkitPath, sDrumkitName, sSongPath, license,
-			nullptr, bSilent );
+			true, nullptr, bSilent );
 		if ( pInstrument != nullptr ) {
 			auto pInstrumentComponents = pInstrument->get_components();
 

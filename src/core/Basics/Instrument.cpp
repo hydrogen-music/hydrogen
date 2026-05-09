@@ -26,6 +26,7 @@
 
 #include <core/Hydrogen.h>
 
+#include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Legacy.h>
 #include <core/Helpers/Xml.h>
 
@@ -264,6 +265,7 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode,
 												   const QString& sDrumkitName,
 												   const QString& sSongPath,
 												   const License& license,
+												   bool bFutureFormat,
 												   bool* pLegacyFormatEncountered,
 												   bool bSilent )
 {
@@ -298,6 +300,14 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode,
 			// Current format
 			sInstrumentDrumkitPath = pNode->read_string( "drumkitPath", "",
 														 false, false, bSilent  );
+
+			// In version 2.0 the path to a drumkit will be handled as the
+			// absolute path to its describing `drumkit.xml` file. Not to the
+			// folder that file is contained in was in prior versions.
+			if ( bFutureFormat &&
+				 sInstrumentDrumkitPath.contains( Filesystem::drumkit_xml() ) ) {
+				sInstrumentDrumkitPath.remove( "/" + Filesystem::drumkit_xml() );
+			}
 
 #ifdef H2CORE_HAVE_APPIMAGE
 			sInstrumentDrumkitPath =

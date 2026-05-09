@@ -285,7 +285,7 @@ std::shared_ptr<Song> Song::loadFrom(
                 playbackTrackNode.firstChildElement( "instrument" );
             auto pPlaybackTrackInstrument = Instrument::load_from(
                 &playbackTrackInstrumentNode, "", "", sSongPath, pSong->getLicense(),
-                nullptr, bSilent
+                true, nullptr, bSilent
             );
             if ( pPlaybackTrackInstrument != nullptr ) {
                 auto pPlaybackTrackComponent =

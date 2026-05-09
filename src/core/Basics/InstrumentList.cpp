@@ -95,7 +95,7 @@ std::shared_ptr<InstrumentList> InstrumentList::load_from(
 
 		auto pInstrument = Instrument::load_from(
 			&instrumentNode, sDrumkitPath, sDrumkitName, sSongPath, license,
-			pLegacyFormatEncountered, bSilent );
+			false, pLegacyFormatEncountered, bSilent );
 		if ( pInstrument != nullptr ) {
 			( *pInstrumentList ) << pInstrument;
 		}

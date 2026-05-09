@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <song>
- <version>1.3.0-alpha-'8c60eb06f'</version>
+ <version>2.0.0-pre-alpha-'3336e7141'</version>
  <formatVersion>2</formatVersion>
  <bpm>120</bpm>
  <volume>0.5</volume>
@@ -97,7 +97,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">A Sampled 5pc Pearl DX Series Drumkit.&lt;/p>&lt;/body>&lt;/html></info>
   <license>GPL</license>
   <tags>
-    <tag>GM compliant</tag>
+   <tag>GM compliant</tag>
   </tags>
   <image></image>
   <imageLicense>undefined license</imageLicense>
@@ -106,7 +106,7 @@ p, li { white-space: pre-wrap; }
     <id>0</id>
     <name>Kick</name>
     <type>Kick</type>
-    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit/drumkit.xml</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>1</volume>
     <isMuted>false</isMuted>
@@ -261,6 +261,7 @@ p, li { white-space: pre-wrap; }
      <gain>1</gain>
      <isMuted>false</isMuted>
      <isSoloed>false</isSoloed>
+     <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/Kick-Softest.wav</filename>
       <min>0</min>
@@ -286,7 +287,7 @@ p, li { white-space: pre-wrap; }
     <id>20</id>
     <name>New instrument</name>
     <type></type>
-    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit/drumkit.xml</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>1</volume>
     <isMuted>false</isMuted>
@@ -346,7 +347,7 @@ p, li { white-space: pre-wrap; }
     <id>18</id>
     <name>Kick Long</name>
     <type></type>
-    <drumkitPath>../../../../data/drumkits/TR808EmulationKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/TR808EmulationKit/drumkit.xml</drumkitPath>
     <drumkit>TR808EmulationKit</drumkit>
     <volume>1</volume>
     <isMuted>false</isMuted>
@@ -406,7 +407,7 @@ p, li { white-space: pre-wrap; }
     <id>19</id>
     <name>Snare 1</name>
     <type></type>
-    <drumkitPath>../../../../data/drumkits/TR808EmulationKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/TR808EmulationKit/drumkit.xml</drumkitPath>
     <drumkit>TR808EmulationKit</drumkit>
     <volume>1</volume>
     <isMuted>false</isMuted>
@@ -466,7 +467,7 @@ p, li { white-space: pre-wrap; }
     <id>1</id>
     <name>Stick</name>
     <type>Stick</type>
-    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit/drumkit.xml</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.99569</volume>
     <isMuted>false</isMuted>
@@ -602,7 +603,7 @@ p, li { white-space: pre-wrap; }
     <id>2</id>
     <name>Snare</name>
     <type>Snare</type>
-    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit/drumkit.xml</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>1.02155</volume>
     <isMuted>false</isMuted>
@@ -754,7 +755,7 @@ p, li { white-space: pre-wrap; }
     <id>3</id>
     <name>Hand Clap</name>
     <type>Hand Clap</type>
-    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit/drumkit.xml</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>1.02155</volume>
     <isMuted>false</isMuted>
@@ -814,7 +815,7 @@ p, li { white-space: pre-wrap; }
     <id>4</id>
     <name>Snare Rimshot</name>
     <type>Snare Rimshot</type>
-    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit/drumkit.xml</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>1</volume>
     <isMuted>false</isMuted>
@@ -950,7 +951,7 @@ p, li { white-space: pre-wrap; }
     <id>5</id>
     <name>Floor Tom</name>
     <type>Tom Floor</type>
-    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit/drumkit.xml</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>1.04741</volume>
     <isMuted>false</isMuted>
@@ -1086,7 +1087,7 @@ p, li { white-space: pre-wrap; }
     <id>6</id>
     <name>Hat Closed</name>
     <type>Hi-hat Closed</type>
-    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit/drumkit.xml</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.685345</volume>
     <isMuted>false</isMuted>
@@ -1222,7 +1223,7 @@ p, li { white-space: pre-wrap; }
     <id>7</id>
     <name>Tom 2</name>
     <type>Tom Low</type>
-    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit/drumkit.xml</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>1</volume>
     <isMuted>false</isMuted>
@@ -1358,7 +1359,7 @@ p, li { white-space: pre-wrap; }
     <id>8</id>
     <name>Hat Pedal</name>
     <type>Hi-hat Pedal</type>
-    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit/drumkit.xml</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.685345</volume>
     <isMuted>false</isMuted>
@@ -1494,7 +1495,7 @@ p, li { white-space: pre-wrap; }
     <id>9</id>
     <name>Tom 1</name>
     <type>Tom High</type>
-    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit/drumkit.xml</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>1</volume>
     <isMuted>false</isMuted>
@@ -1630,7 +1631,7 @@ p, li { white-space: pre-wrap; }
     <id>10</id>
     <name>Hat Open</name>
     <type>Hi-hat Open</type>
-    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit/drumkit.xml</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.698276</volume>
     <isMuted>false</isMuted>
@@ -1766,7 +1767,7 @@ p, li { white-space: pre-wrap; }
     <id>11</id>
     <name>Cowbell</name>
     <type>Cowbell</type>
-    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit/drumkit.xml</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.568965</volume>
     <isMuted>false</isMuted>
@@ -1902,7 +1903,7 @@ p, li { white-space: pre-wrap; }
     <id>12</id>
     <name>Ride</name>
     <type>Ride Bow</type>
-    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit/drumkit.xml</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.633621</volume>
     <isMuted>false</isMuted>
@@ -2038,7 +2039,7 @@ p, li { white-space: pre-wrap; }
     <id>13</id>
     <name>Crash</name>
     <type>Crash</type>
-    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit/drumkit.xml</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.517241</volume>
     <isMuted>false</isMuted>
@@ -2174,7 +2175,7 @@ p, li { white-space: pre-wrap; }
     <id>14</id>
     <name>Ride 2</name>
     <type>Ride Bow 2</type>
-    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit/drumkit.xml</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>1</volume>
     <isMuted>false</isMuted>
@@ -2310,7 +2311,7 @@ p, li { white-space: pre-wrap; }
     <id>15</id>
     <name>Splash</name>
     <type>Splash</type>
-    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit/drumkit.xml</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.543103</volume>
     <isMuted>false</isMuted>
@@ -2446,7 +2447,7 @@ p, li { white-space: pre-wrap; }
     <id>16</id>
     <name>Hat Semi-Open</name>
     <type>Hi-hat Semi-Open</type>
-    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit/drumkit.xml</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.69</volume>
     <isMuted>false</isMuted>
@@ -2582,7 +2583,7 @@ p, li { white-space: pre-wrap; }
     <id>17</id>
     <name>Bell</name>
     <type>Ride Bell</type>
-    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit/drumkit.xml</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.534828</volume>
     <isMuted>false</isMuted>
@@ -2924,6 +2925,18 @@ p, li { white-space: pre-wrap; }
    <noteList/>
   </pattern>
  </patternList>
+ <patternPaths>
+  <patternPath></patternPath>
+  <patternPath></patternPath>
+  <patternPath></patternPath>
+  <patternPath></patternPath>
+  <patternPath></patternPath>
+  <patternPath></patternPath>
+  <patternPath></patternPath>
+  <patternPath></patternPath>
+  <patternPath></patternPath>
+  <patternPath></patternPath>
+ </patternPaths>
  <virtualPatternList/>
  <patternSequence>
   <group>
