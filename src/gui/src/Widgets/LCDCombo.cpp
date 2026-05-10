@@ -56,7 +56,7 @@ LCDCombo::~LCDCombo() {
 
 void LCDCombo::handleIsModified( int ) {
 	if ( m_bModifyOnChange ) {
-		H2Core::Hydrogen::get_instance()->setIsModified( true );
+		H2Core::Hydrogen::get_instance()->setSongModified( true );
 	}
 }
 

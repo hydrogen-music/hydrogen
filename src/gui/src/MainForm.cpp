@@ -2351,7 +2351,7 @@ void MainForm::onFixMidiSetup()
 	auto pSong = pHydrogen->getSong();
 	if ( pSong != nullptr ) {
 		pSong->getDrumkit()->getInstruments()->setDefaultMidiOutNotes();
-		pHydrogen->setIsModified( true );
+		pHydrogen->setSongModified( true );
 
 		m_pMidiSetupInfoBar->hide();
 	}
@@ -2619,7 +2619,7 @@ void MainForm::onAutoSaveTimer()
 					/* bSilent */ true );
 
 		pSong->setPath( sOldPath );
-		pSong->setIsModified( true );
+		pHydrogen->setSongModified( true );
 	}
 
 	if ( pPlaylist != nullptr && pPlaylist->getIsModified() ) {

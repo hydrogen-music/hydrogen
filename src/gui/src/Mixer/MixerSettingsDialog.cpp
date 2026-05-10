@@ -147,7 +147,7 @@ void MixerSettingsDialog::on_okBtn_clicked() {
 	*/
 	pSong->setPanLawKNorm( - 6.0206 / fdBCenterCompensation );
 
-	Hydrogen::get_instance()->setIsModified( true );
+	Hydrogen::get_instance()->setSongModified( true );
 
 	accept();
 }

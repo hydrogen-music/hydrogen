@@ -258,10 +258,10 @@ public:
 
 	/** Wrapper around Song::setIsModified() that checks whether a
 		song is set.*/
-	void setIsModified( bool bIsModified );
+	void setSongModified( bool bIsModified );
 	/** Wrapper around Song::getIsModified() that checks whether a
 		song is set.*/
-	bool getIsModified() const;
+	bool getSongModified() const;
 
 	void			onTapTempoAccelEvent( TimePoint start = TimePoint() );
 

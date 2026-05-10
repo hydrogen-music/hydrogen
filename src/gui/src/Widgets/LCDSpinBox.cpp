@@ -134,7 +134,7 @@ void LCDSpinBox::wheelEvent( QWheelEvent *ev ) {
 
 	if ( fOldValue != value() &&
 		 ( m_flag & Flag::ModifyOnChange ) ) {
-		H2Core::Hydrogen::get_instance()->setIsModified( true );
+		H2Core::Hydrogen::get_instance()->setSongModified( true );
 	}
 }
 
@@ -190,7 +190,7 @@ void LCDSpinBox::keyPressEvent( QKeyEvent *ev ) {
 	}
 	
 	if ( fOldValue != value() && ( m_flag & Flag::ModifyOnChange ) ) {
-		H2Core::Hydrogen::get_instance()->setIsModified( true );
+		H2Core::Hydrogen::get_instance()->setSongModified( true );
 	}
 }
 
@@ -362,7 +362,7 @@ void LCDSpinBox::mousePressEvent( QMouseEvent* ev ) {
 	QDoubleSpinBox::mousePressEvent( ev );
 	
 	if ( fOldValue != value() && ( m_flag & Flag::ModifyOnChange ) ) {
-		H2Core::Hydrogen::get_instance()->setIsModified( true );
+		H2Core::Hydrogen::get_instance()->setSongModified( true );
 	}
 }
 
@@ -372,7 +372,7 @@ void LCDSpinBox::mouseMoveEvent( QMouseEvent* ev ) {
 	QDoubleSpinBox::mouseMoveEvent( ev );
 	
 	if ( fOldValue != value() && ( m_flag & Flag::ModifyOnChange ) ) {
-		H2Core::Hydrogen::get_instance()->setIsModified( true );
+		H2Core::Hydrogen::get_instance()->setSongModified( true );
 	}
 }
 
@@ -382,7 +382,7 @@ void LCDSpinBox::mouseReleaseEvent( QMouseEvent* ev ) {
 	QDoubleSpinBox::mouseReleaseEvent( ev );
 	
 	if ( fOldValue != value() && ( m_flag & Flag::ModifyOnChange ) ) {
-		H2Core::Hydrogen::get_instance()->setIsModified( true );
+		H2Core::Hydrogen::get_instance()->setSongModified( true );
 	}
 }
 

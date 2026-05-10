@@ -326,7 +326,7 @@ void AutomationPathView::mousePressEvent(QMouseEvent *event)
 		m_fOriginY = y;
 		m_bPointAdded = false;
 	}
-	H2Core::Hydrogen::get_instance()->setIsModified( true );
+	H2Core::Hydrogen::get_instance()->setSongModified( true );
 
 	createBackground();
 	update();
@@ -382,7 +382,7 @@ void AutomationPathView::mouseMoveEvent(QMouseEvent *event)
 
 	if ( m_bIsHolding && _path && _selectedPoint != _path->end() ) {
 		_selectedPoint = _path->move(_selectedPoint, x, y);
-		H2Core::Hydrogen::get_instance()->setIsModified( true );
+		H2Core::Hydrogen::get_instance()->setSongModified( true );
 	}
 
 	createBackground();
@@ -405,7 +405,7 @@ void AutomationPathView::keyPressEvent(QKeyEvent *event)
 			_path->remove_point(_selectedPoint->first);
 			_selectedPoint = _path->end();
 			
-			H2Core::Hydrogen::get_instance()->setIsModified( true );
+			H2Core::Hydrogen::get_instance()->setSongModified( true );
 
 			emit pointRemoved( x, y );
 			createBackground();

@@ -375,7 +375,7 @@ void Button::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 
 void Button::onClick() {
 	if ( m_bModifyOnChange ) {
-		H2Core::Hydrogen::get_instance()->setIsModified( true );
+		H2Core::Hydrogen::get_instance()->setSongModified( true );
 	}
 }
 

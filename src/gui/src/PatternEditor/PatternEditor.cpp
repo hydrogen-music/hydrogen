@@ -277,7 +277,7 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 		}
 	}
 
-	pHydrogen->setIsModified( true );
+	pHydrogen->setSongModified( true );
 
 	pVisibleEditor->updateMouseHoveredElements( nullptr );
 	pVisibleEditor->updateKeyboardHoveredElements();
@@ -325,7 +325,7 @@ void PatternEditor::deselectAndOverwriteNotes(
 		}
 	}
 	pHydrogen->getAudioEngine()->unlock();
-	pHydrogen->setIsModified( true );
+	pHydrogen->setSongModified( true );
 }
 
 void PatternEditor::undoDeselectAndOverwriteNotes(
@@ -355,7 +355,7 @@ void PatternEditor::undoDeselectAndOverwriteNotes(
 		}
 	}
 	pHydrogen->getAudioEngine()->unlock();
-	pHydrogen->setIsModified( true );
+	pHydrogen->setSongModified( true );
 	updateVisibleComponents( Editor::Update::Content );
 }
 
@@ -504,7 +504,7 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 	pHydrogen->getAudioEngine()->unlock();
 
 	if ( bValueChanged ) {
-		pHydrogen->setIsModified( true );
+		pHydrogen->setSongModified( true );
 		std::vector< std::shared_ptr<Note > > notes{ pNote };
 
 		if ( property == Property::Type || property == Property::InstrumentId ) {
@@ -2382,7 +2382,7 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 	m_dragUpdate = pEv->position().toPoint();
 
 	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
-	pHydrogen->setIsModified( true );
+	pHydrogen->setSongModified( true );
 
 	updateVisibleComponents( Editor::Update::Content );
 }

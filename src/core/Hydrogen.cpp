@@ -430,7 +430,7 @@ bool Hydrogen::addRealtimeNote(
 				 .arg( currentPatternNumber ).arg( pCurrentPattern->getName() )
 				 .arg( nTickInPattern ).arg( pCurrentPattern->getLength() ) );
 
-		bool bIsModified = false;
+		bool bSongModified = false;
 
 		if ( bNoteOff ) {
             // Handle the Note-Off event corresponding to the previous Note-On.
@@ -476,7 +476,7 @@ bool Hydrogen::addRealtimeNote(
 								nPatternSize - m_nLastRecordedMIDINoteTick;
 						}
 						pNote->setLength( nNewNoteLength );
-						bIsModified = true;
+						bSongModified = true;
 					}
 				}
 			}
@@ -503,12 +503,12 @@ bool Hydrogen::addRealtimeNote(
 
 			m_nLastRecordedMIDINoteTick = nTickInPattern;
 			
-			bIsModified = true;
+			bSongModified = true;
 		}
 		
-		if ( bIsModified ) {
+		if ( bSongModified ) {
 			EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1 );
-			setIsModified( true );
+			setSongModified( true );
 		}
 	}
 
@@ -1228,7 +1228,7 @@ void Hydrogen::setIsPatternEditorLocked( bool bValue ) {
 	if ( m_pSong != nullptr &&
 		 bValue != m_pSong->getIsPatternEditorLocked() ) {
 		m_pSong->setIsPatternEditorLocked( bValue );
-		m_pSong->setIsModified( true );
+		setSongModified( true );
 
 		updateSelectedPattern();
 			
@@ -1289,7 +1289,7 @@ void Hydrogen::setPatternMode( const Song::PatternMode& mode )
 		m_pAudioEngine->lock( RIGHT_HERE );
 
 		m_pSong->setPatternMode( mode );
-		setIsModified( true );
+		setSongModified( true );
 		
 		if ( m_pAudioEngine->getState() != AudioEngine::State::Playing ||
 			 mode == Song::PatternMode::Selected ) {
@@ -1353,16 +1353,28 @@ void Hydrogen::recreateOscServer() {
 #endif
 }
 
-void Hydrogen::setIsModified( bool bIsModified ) {
-	if ( getSong() != nullptr ) {
-		if ( getSong()->getIsModified() != bIsModified ) {
-			getSong()->setIsModified( bIsModified );
-		}
+void Hydrogen::setSongModified( bool bIsModified )
+{
+	if ( m_pSong == nullptr || m_pSong->getIsModified() == bIsModified ) {
+		return;
 	}
+
+	m_pSong->setIsModified( bIsModified );
+
+	EventQueue::get_instance()->pushEvent( Event::Type::SongModified, -1 );
+
+#ifdef H2CORE_HAVE_OSC
+	if ( isUnderSessionManagement() ) {
+		// If Hydrogen is under session management (NSM), tell the
+		// NSM server that the Song was modified.
+		NsmClient::get_instance()->sendDirtyState( bIsModified );
+	}
+#endif
 }
-bool Hydrogen::getIsModified() const {
-	if ( getSong() != nullptr ) {
-		return getSong()->getIsModified();
+
+bool Hydrogen::getSongModified() const {
+	if ( m_pSong != nullptr ) {
+		return m_pSong->getIsModified();
 	}
 	return false;
 }

@@ -541,7 +541,7 @@ void SongEditorPatternList::movePatternLine(
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateEditors(
 		Editor::Update::Content
 	);
-	pHydrogen->setIsModified( true );
+	pHydrogen->setSongModified( true );
 }
 
 int SongEditorPatternList::yToRow( int nY ) const

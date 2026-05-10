@@ -44,9 +44,6 @@
 #include <core/Globals.h>
 #include <core/Helpers/Legacy.h>
 #include <core/Hydrogen.h>
-#ifdef H2CORE_HAVE_OSC
-  #include <core/NsmClient.h>
-#endif
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
@@ -1129,26 +1126,9 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 
 void Song::setIsModified( bool bIsModified )
 {
-	bool Notify = false;
-
-	if( m_bIsModified != bIsModified ) {
-		Notify = true;
+	if ( m_bIsModified != bIsModified ) {
+		m_bIsModified = bIsModified;
 	}
-
-	m_bIsModified = bIsModified;
-
-	if( Notify ) {
-		EventQueue::get_instance()->pushEvent( Event::Type::SongModified, -1 );
-
-#ifdef H2CORE_HAVE_OSC
-		if ( Hydrogen::get_instance()->isUnderSessionManagement() ) {
-			// If Hydrogen is under session management (NSM), tell the
-			// NSM server that the Song was modified.
-			NsmClient::get_instance()->sendDirtyState( bIsModified );
-		}
-#endif
-	}
-
 }
 
 bool Song::hasMissingSamples() const

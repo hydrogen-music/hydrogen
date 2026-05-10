@@ -348,7 +348,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 						: pCommonStrings->getStatusOff()
 				);
 		HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
-		Hydrogen::get_instance()->setIsModified( true );
+		Hydrogen::get_instance()->setSongModified( true );
 	} );
 
     m_pTimelineToolBar->addSeparator();

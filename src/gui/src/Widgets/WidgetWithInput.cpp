@@ -126,7 +126,7 @@ void WidgetWithInput::setValue( float fValue, bool bTriggeredByUserInteraction,
 		update();
 
 		if ( m_bModifyOnChange && bTriggeredByUserInteraction ) {
-			H2Core::Hydrogen::get_instance()->setIsModified( true );
+			H2Core::Hydrogen::get_instance()->setSongModified( true );
 		}
 	}
 }

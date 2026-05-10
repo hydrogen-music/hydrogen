@@ -62,7 +62,7 @@ private:
 	bool m_bEntered;
 	bool m_bIsActive;
 
-	/** Whether Hydrogen::setIsModified() is invoked with `true` as
+	/** Whether Hydrogen::setSongModified() is invoked with `true` as
 		soon as the value of the widget does change.*/
 	bool m_bModifyOnChange;
 

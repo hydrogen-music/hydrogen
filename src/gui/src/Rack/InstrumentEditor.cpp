@@ -238,7 +238,7 @@ font-size: 21px;" );
 		auto pInstrument = pHydrogen->getSelectedInstrument();
 		if ( pInstrument != nullptr ) {
 			pInstrument->setFilterActive( !pInstrument->isFilterActive() );
-			pHydrogen->setIsModified( true );
+			pHydrogen->setSongModified( true );
             updateActivation();
 			updateIcons();
 		}
@@ -364,7 +364,7 @@ font-size: 21px;" );
 	connect( m_pIsStopNoteCheckBox, &QCheckBox::clicked, [&]() {
 		Hydrogen::get_instance()->getSelectedInstrument()->setStopNotes(
 			static_cast<int>(m_pIsStopNoteCheckBox->isChecked()) );
-		Hydrogen::get_instance()->setIsModified( true );
+		Hydrogen::get_instance()->setSongModified( true );
 	});
 	m_pIsStopNoteLbl = new ClickableLabel( m_pInstrumentProp, QSize( 87, 10 ),
 										   pCommonStrings->getIsStopNoteLabel() );
@@ -379,7 +379,7 @@ font-size: 21px;" );
 	connect( m_pApplyVelocity, &QCheckBox::clicked, [&]() {
 		Hydrogen::get_instance()->getSelectedInstrument()->setApplyVelocity(
 			static_cast<int>(m_pApplyVelocity->isChecked()) );
-		Hydrogen::get_instance()->setIsModified( true );
+		Hydrogen::get_instance()->setSongModified( true );
 	});
 	m_pApplyVelocityLbl = new ClickableLabel( m_pInstrumentProp, QSize( 87, 10 ),
 											  pCommonStrings->getApplyVelocityLabel() );

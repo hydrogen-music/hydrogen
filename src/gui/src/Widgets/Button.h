@@ -87,7 +87,7 @@ public:
 	 * \param sText
 	 * \param iconSize
 	 * \param sBaseTooltip
-	 * \param bModifyOnChange Whether Hydrogen::setIsModified() is
+	 * \param bModifyOnChange Whether Hydrogen::setSongModified() is
 	 * invoked with `true` as soon as the value of the widget does
 	 * change.
 	 * \param nBorderRadius Radius of the button in pixel, which will
@@ -161,7 +161,7 @@ private:
 
 	bool m_bIsActive;
 	
-	/** Whether Hydrogen::setIsModified() is invoked with `true` as
+	/** Whether Hydrogen::setSongModified() is invoked with `true` as
 		soon as the value of the widget does change.*/
 	bool m_bModifyOnChange;
 

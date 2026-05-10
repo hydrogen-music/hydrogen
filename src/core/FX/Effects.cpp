@@ -99,10 +99,7 @@ void Effects::setLadspaFX( std::shared_ptr<LadspaFX> pFX, int nFX ) {
 
 
 	pHydrogen->getAudioEngine()->unlock();
-
-	if ( pHydrogen->getSong() != nullptr ) {
-		pHydrogen->setIsModified( true );
-	}
+	pHydrogen->setSongModified( true );
 }
 
 ///
@@ -273,7 +270,7 @@ void Effects::updateRecentGroup()
 			}
 		}
 	}
-	Hydrogen::get_instance()->setIsModified( true );
+	Hydrogen::get_instance()->setSongModified( true );
 }
 
 #ifdef H2CORE_HAVE_LRDF
