@@ -152,7 +152,8 @@ class Instrument : public H2Core::Object<Instrument>
 			const QString& sDrumkitPath,
 			const QString& sDrumkitName,
 			const QString& sSongPath,
-			const License& license = License(),
+			const License& license,
+			bool bFutureFormat,
 			bool* pLegacyFormatEncountered = nullptr,
 			bool bSilent = false );
 

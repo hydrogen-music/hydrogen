@@ -66,6 +66,7 @@ p, li { white-space: pre-wrap; }
     <gain>1</gain>
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
     <layer>
      <filename>emptySample.flac</filename>
      <min>0</min>

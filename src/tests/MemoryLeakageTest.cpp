@@ -329,7 +329,8 @@ void MemoryLeakageTest::testLoading() {
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/instrument.xml" ) ) );
 		node = doc.firstChildElement( "instrument" );
 		auto pInstrument = H2Core::Instrument::load_from(
-			&node, H2TEST_FILE( "/drumkits/baseKit" ), "", "" );
+			&node, H2TEST_FILE( "/drumkits/baseKit" ), "", "",
+			H2Core::License(), false );
 		CPPUNIT_ASSERT( pInstrument != nullptr );
 		pInstrument = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );

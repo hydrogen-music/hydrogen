@@ -150,6 +150,10 @@ void ForwardCompatibilityTest::testSong()
 	CPPUNIT_ASSERT( pSong != nullptr );
 	CPPUNIT_ASSERT( pSong->getInstrumentList() != nullptr );
 	CPPUNIT_ASSERT( pSong->getInstrumentList()->size() == 21 );
+	for ( const auto& ppInstrument : *pSong->getInstrumentList() ) {
+		CPPUNIT_ASSERT( ppInstrument != nullptr );
+		CPPUNIT_ASSERT( ! ppInstrument->has_missing_samples() );
+	}
 	CPPUNIT_ASSERT( pSong->getComponents() != nullptr );
 	CPPUNIT_ASSERT( pSong->getComponents()->size() == 2 );
 	CPPUNIT_ASSERT( pSong->getAllNotes().size() != 0 );
