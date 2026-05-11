@@ -1369,7 +1369,7 @@ void Hydrogen::setDrumkitModified( bool bIsModified )
 
 	m_pSong->getDrumkit()->setIsModified( bIsModified );
 
-	//EventQueue::get_instance()->pushEvent( Event::Type::DrumkitModified, -1 );
+	EventQueue::get_instance()->pushEvent( Event::Type::DrumkitModified, -1 );
 }
 
 void Hydrogen::setPatternModified( bool bIsModified, int nIndex )

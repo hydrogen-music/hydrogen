@@ -851,7 +851,12 @@ void PatternEditorPanel::createEditors()
 
 void PatternEditorPanel::updateDrumkitLabel()
 {
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+	const auto pFontTheme = Preferences::get_instance()->getFontTheme();
 
 	QFont font(
 		pFontTheme->m_sApplicationFontFamily,
@@ -860,10 +865,11 @@ void PatternEditorPanel::updateDrumkitLabel()
 	font.setBold( true );
 	m_pDrumkitLabel->setFont( font );
 
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
-		m_pDrumkitLabel->setText( pSong->getDrumkit()->getName() );
+	QString sName( pSong->getDrumkit()->getName() );
+	if ( pSong->getDrumkit()->getIsModified() ) {
+		sName.append( "*" );
 	}
+	m_pDrumkitLabel->setText( sName );
 }
 
 void PatternEditorPanel::drumkitLoadedEvent()
@@ -879,6 +885,11 @@ void PatternEditorPanel::drumkitLoadedEvent()
 	if ( nPreviousRows != m_db.size() ) {
 		resizeEvent( nullptr );
 	}
+}
+
+void PatternEditorPanel::drumkitModifiedEvent()
+{
+	updateDrumkitLabel();
 }
 
 void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )

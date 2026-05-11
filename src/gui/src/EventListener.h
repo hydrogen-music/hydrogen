@@ -36,6 +36,7 @@ class EventListener
 		virtual void bbtChangedEvent(){}
 		virtual void beatCounterEvent() {}
 		virtual void drumkitLoadedEvent(){}
+		virtual void drumkitModifiedEvent(){}
 		virtual void effectChangedEvent(){}
 		virtual void errorEvent( int nErrorCode ) { UNUSED( nErrorCode ); }
     	virtual void gridCellToggledEvent(){}
