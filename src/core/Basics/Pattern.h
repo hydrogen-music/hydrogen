@@ -162,6 +162,9 @@ class Pattern : public H2Core::Object<Pattern> {
 	///< get the flattened virtual pattern set
 	const virtual_patterns_t* getFlattenedVirtualPatterns() const;
 
+	bool getIsModified() const;
+	void setIsModified( bool bIsModified );
+
 	/** Get the numerator of the time signature entered in
 	 * #PatternEditorPanel. Note that this quantity is a derived one based
 	 * and the denominator and the pattern length. */
@@ -357,6 +360,13 @@ class Pattern : public H2Core::Object<Pattern> {
 
 	/** Used to indicate changes in the underlying XSD file. */
 	static constexpr int nCurrentFormatVersion = 2;
+
+	/** Transient member not written to file stating whether a loaded pattern
+	 * was modified and should be saved to prevent a loss of data.
+	 *
+	 * Note that patterns not associated with files - a song's default or new
+	 * ones - will not be marked modified. */
+	bool m_bIsModified;
 };
 
 /** Iterate over all provided notes in an immutable way. */
@@ -518,6 +528,16 @@ inline const Pattern::virtual_patterns_t* Pattern::getFlattenedVirtualPatterns(
 ) const
 {
 	return &m_flattenedVirtualPatterns;
+}
+
+inline bool Pattern::getIsModified() const {
+	return m_bIsModified;
+}
+
+inline void Pattern::setIsModified( bool bIsModified ) {
+	if ( ! m_sPath.isEmpty() && bIsModified != m_bIsModified ) {
+		m_bIsModified = bIsModified;
+	}
 }
 
 inline void Pattern::insertNote( std::shared_ptr<Note> pNote )

@@ -1353,6 +1353,31 @@ void Hydrogen::recreateOscServer() {
 #endif
 }
 
+void Hydrogen::setPatternModified( bool bIsModified, int nIndex )
+{
+	if ( m_pSong == nullptr ) {
+		return;
+	}
+
+	auto pPattern = m_pSong->getPatternList()->get( nIndex );
+	if ( pPattern == nullptr ) {
+		return;
+	}
+
+	if ( bIsModified && ! m_pSong->getIsModified() ) {
+		m_pSong->setIsModified( true );
+	}
+
+	if ( pPattern->getIsModified() == bIsModified ) {
+		return;
+	}
+
+	pPattern->setIsModified( bIsModified );
+
+	// EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1
+	// );
+}
+
 void Hydrogen::setSongModified( bool bIsModified )
 {
 	if ( m_pSong == nullptr || m_pSong->getIsModified() == bIsModified ) {

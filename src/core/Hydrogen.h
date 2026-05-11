@@ -256,6 +256,11 @@ public:
 	std::shared_ptr<AudioDriver> getAudioDriver() const;
 	std::shared_ptr<MidiBaseDriver> getMidiDriver() const;
 
+	/** Sets the state of a pattern contained in #m_pSong to @a bIsModified.
+	 *
+	 * Use this wrapper function instead of Pattern::setIsModified() since it
+	 * ensures the modification state of the enclosing song is set as well. */
+	void setPatternModified( bool bIsModified, int nIndex );
 	/** Wrapper around Song::setIsModified() that checks whether a
 		song is set.*/
 	void setSongModified( bool bIsModified );
