@@ -1256,7 +1256,7 @@ void XmlTest::testWriteToNonExistingDir() {
 	const QString sTmpDir =
 		H2Core::Filesystem::tmpDir() + "non-existing-xml-test";
 	const QString sTmpPath =
-		QString( "%1/non/existing/sub/folder/test.h2pattern" );
+		QString( "%1/non/existing/sub/folder/test.h2pattern" ).arg( sTmpDir );
 
 	auto pPattern = std::make_shared<Pattern>();
 	CPPUNIT_ASSERT( pPattern->save( sTmpPath ) );
