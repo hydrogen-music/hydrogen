@@ -62,8 +62,9 @@ class EventListener
 		virtual void nextPatternsChangedEvent(){}
 		virtual void nextShotEvent(){}
 		virtual void noteRenderEvent( int nInstrument ) { UNUSED( nInstrument ); }
-		virtual void patternEditorLockedEvent(){}
 		virtual void patternChangedEvent() {}
+		virtual void patternEditorLockedEvent(){}
+		virtual void patternIsModifiedEvent() {}
 		virtual void playbackTrackChangedEvent(){}
 		virtual void playingPatternsChangedEvent() {}
 		virtual void playlistChangedEvent( int nValue ){ UNUSED( nValue ); }

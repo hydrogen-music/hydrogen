@@ -1393,8 +1393,9 @@ void Hydrogen::setPatternModified( bool bIsModified, int nIndex )
 
 	pPattern->setIsModified( bIsModified );
 
-	// EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1
-	// );
+	EventQueue::get_instance()->pushEvent(
+		Event::Type::PatternIsModified, nIndex
+	);
 }
 
 void Hydrogen::setSongModified( bool bIsModified )

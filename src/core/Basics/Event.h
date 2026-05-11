@@ -132,6 +132,8 @@ public:
 			PatternChanged,
 			/** Locks the PatternEditor on the pattern currently played back.*/
 			PatternEditorLocked,
+			/** Whether the modification state of a pattern changed. */
+			PatternIsModified,
 			PlaybackTrackChanged,
 			/**
 			 * Event triggered whenever part of or the whole current
