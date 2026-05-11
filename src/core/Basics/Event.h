@@ -65,9 +65,9 @@ public:
 			 */
 			BbtChanged,
 			BeatCounter,
+			DrumkitIsModified,
 			/** A the current drumkit was replaced by a new one. */
 			DrumkitLoaded,
-			DrumkitModified,
 			EffectChanged,
 			Error,
 			GridCellToggled,

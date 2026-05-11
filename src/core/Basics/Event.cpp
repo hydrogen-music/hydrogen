@@ -36,10 +36,10 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "BbtChanged";
 	case Event::Type::BeatCounter:
 		return "BeatCounter";
+	case Event::Type::DrumkitIsModified:
+		return "DrumkitIsModified";
 	case Event::Type::DrumkitLoaded:
 		return "DrumkitLoaded";
-	case Event::Type::DrumkitModified:
-		return "DrumkitModified";
 	case Event::Type::EffectChanged:
 		return "EffectChanged";
 	case Event::Type::Error:

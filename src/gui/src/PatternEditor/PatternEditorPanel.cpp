@@ -887,7 +887,7 @@ void PatternEditorPanel::drumkitLoadedEvent()
 	}
 }
 
-void PatternEditorPanel::drumkitModifiedEvent()
+void PatternEditorPanel::drumkitIsModifiedEvent()
 {
 	updateDrumkitLabel();
 }

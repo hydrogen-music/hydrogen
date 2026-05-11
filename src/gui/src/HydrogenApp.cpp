@@ -1016,8 +1016,8 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->beatCounterEvent();
 				break;
 
-			case Event::Type::DrumkitModified:
-				ppEventListener->drumkitModifiedEvent();
+			case Event::Type::DrumkitIsModified:
+				ppEventListener->drumkitIsModifiedEvent();
 				break;
 
 			case Event::Type::DrumkitLoaded:
