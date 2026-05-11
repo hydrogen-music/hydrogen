@@ -984,7 +984,11 @@ void SongEditorPatternList::createBackground()
 			PatternArray[i].bNext = false;
 		}
 
-		PatternArray[i].sPatternName = pPattern->getName();
+		QString sText( pPattern->getName() );
+		if ( pPattern->getIsModified() ) {
+			sText.append( "*" );
+		}
+		PatternArray[i].sPatternName = sText;
 	}
 	pAudioEngine->unlock();
 

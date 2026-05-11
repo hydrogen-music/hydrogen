@@ -1371,6 +1371,14 @@ void PatternEditorPanel::updatePatternInfo()
 		}
 	}
 
+	auto labelFromName = [&]( std::shared_ptr<Pattern> pPattern ) {
+		QString sText( pPattern->getName() );
+		if ( pPattern->getIsModified() ) {
+			sText.append( "*" );
+		}
+		return sText;
+	};
+
 	if ( m_pPattern == nullptr ) {
 		this->setWindowTitle( tr( "Pattern editor - No pattern selected" ) );
 
@@ -1402,7 +1410,7 @@ void PatternEditorPanel::updatePatternInfo()
 		updatePatternsToShow();
 
 		// Update pattern tabs
-		m_pTabBar->addTab( m_pPattern->getName() );
+		m_pTabBar->addTab( labelFromName( m_pPattern ) );
 		m_tabPatternMap[0] = pSong->getPatternList()->index( m_pPattern );
 
 		auto patterns = getPatternsToShow();
@@ -1416,7 +1424,7 @@ void PatternEditorPanel::updatePatternInfo()
 			if ( ppPattern != nullptr && ppPattern != m_pPattern ) {
 				m_tabPatternMap[nnCount] =
 					pSong->getPatternList()->index( ppPattern );
-				m_pTabBar->addTab( ppPattern->getName() );
+				m_pTabBar->addTab( labelFromName( ppPattern ) );
 				m_pTabBar->setTabEnabled( nnCount, bTabsEnabled );
 				++nnCount;
 			}
@@ -1434,7 +1442,7 @@ void PatternEditorPanel::updatePatternInfo()
 			const auto ppPattern = pPatternList->get( nnPattern );
 			if ( ppPattern != nullptr &&
 				 ppPattern->getName() != m_pTabBar->tabText( nnTab ) ) {
-				m_pTabBar->setTabText( nnTab, ppPattern->getName() );
+				m_pTabBar->setTabText( nnTab, labelFromName( ppPattern ) );
 			}
 
 			if ( nnPattern == nPatternIndex ) {
@@ -1552,6 +1560,10 @@ void PatternEditorPanel::patternChangedEvent()
 	updatePatternInfo();
 	updateEditors( Editor::Update::Background );
 	resizeEvent( nullptr );
+}
+
+void PatternEditorPanel::patternIsModifiedEvent() {
+	updatePatternInfo();
 }
 
 void PatternEditorPanel::playingPatternsChangedEvent()

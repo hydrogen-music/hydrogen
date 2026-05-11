@@ -974,6 +974,10 @@ void SongEditorPanel::patternChangedEvent() {
 	updateEditors( Editor::Update::Content );
 }
 
+void SongEditorPanel::patternIsModifiedEvent() {
+	m_pPatternList->updateEditor();
+}
+
 void SongEditorPanel::playbackTrackChangedEvent() {
 	updatePlaybackTrack();
 }
