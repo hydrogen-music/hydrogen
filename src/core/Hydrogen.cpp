@@ -1353,6 +1353,25 @@ void Hydrogen::recreateOscServer() {
 #endif
 }
 
+void Hydrogen::setDrumkitModified( bool bIsModified )
+{
+	if ( m_pSong == nullptr || m_pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+	if ( bIsModified && ! m_pSong->getIsModified() ) {
+		m_pSong->setIsModified( true );
+	}
+
+	if ( m_pSong->getDrumkit()->getIsModified() == bIsModified ) {
+		return;
+	}
+
+	m_pSong->getDrumkit()->setIsModified( bIsModified );
+
+	//EventQueue::get_instance()->pushEvent( Event::Type::DrumkitModified, -1 );
+}
+
 void Hydrogen::setPatternModified( bool bIsModified, int nIndex )
 {
 	if ( m_pSong == nullptr ) {
