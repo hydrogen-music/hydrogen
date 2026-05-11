@@ -191,7 +191,7 @@ public:
 			SelectedInstrumentChanged,
 			SelectedPatternChanged,
 			SongModeActivation,
-			SongModified,
+			SongIsModified,
 			SongSizeChanged,
 			SoundLibraryChanged,
 			/** Song::PatternMode::Stacked (0) or Song::PatternMode::Selected

@@ -2912,8 +2912,6 @@ bool CoreActionController::setSongProperties(
 
 	pHydrogen->setSongModified( true );
 
-	EventQueue::get_instance()->pushEvent( Event::Type::SongModified, 0 );
-
 	return true;
 }
 

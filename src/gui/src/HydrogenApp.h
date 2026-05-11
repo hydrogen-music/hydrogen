@@ -269,7 +269,7 @@ signals:
 		void engineError(uint nErrorCode);
 
 		void setupSinglePanedInterface();
-		virtual void songModifiedEvent() override;
+		virtual void songIsModifiedEvent() override;
 		virtual void XRunEvent() override;
 
 		/** Handles the loading and saving of the H2Core::Preferences

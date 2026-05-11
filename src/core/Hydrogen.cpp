@@ -1405,7 +1405,7 @@ void Hydrogen::setSongModified( bool bIsModified )
 
 	m_pSong->setIsModified( bIsModified );
 
-	EventQueue::get_instance()->pushEvent( Event::Type::SongModified, -1 );
+	EventQueue::get_instance()->pushEvent( Event::Type::SongIsModified, -1 );
 
 #ifdef H2CORE_HAVE_OSC
 	if ( isUnderSessionManagement() ) {

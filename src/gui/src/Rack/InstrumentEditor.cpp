@@ -238,7 +238,7 @@ font-size: 21px;" );
 		auto pInstrument = pHydrogen->getSelectedInstrument();
 		if ( pInstrument != nullptr ) {
 			pInstrument->setFilterActive( !pInstrument->isFilterActive() );
-			pHydrogen->setSongModified( true );
+			pHydrogen->setDrumkitModified( true );
             updateActivation();
 			updateIcons();
 		}

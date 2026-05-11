@@ -75,7 +75,7 @@ class EventListener
 		virtual void selectedPatternChangedEvent() {}
 		virtual void selectedInstrumentChangedEvent() {}
 		virtual void songModeActivationEvent(){}
-		virtual void songModifiedEvent() {}
+		virtual void songIsModifiedEvent() {}
 		virtual void songSizeChangedEvent(){}
 		virtual void soundLibraryChangedEvent(){}
 		virtual void stackedModeActivationEvent( int nValue ){ UNUSED( nValue ); }

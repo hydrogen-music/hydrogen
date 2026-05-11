@@ -953,7 +953,7 @@ SoundLibraryPanel* HydrogenApp::getSoundLibraryPanel() const
 	return m_pRack->getSoundLibraryPanel();
 }
 
-void HydrogenApp::songModifiedEvent()
+void HydrogenApp::songIsModifiedEvent()
 {
 	updateWindowTitle();
 }
@@ -1153,8 +1153,8 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->songModeActivationEvent();
 				break;
 
-			case Event::Type::SongModified:
-				ppEventListener->songModifiedEvent();
+			case Event::Type::SongIsModified:
+				ppEventListener->songIsModifiedEvent();
 				break;
 
 			case Event::Type::SongSizeChanged:

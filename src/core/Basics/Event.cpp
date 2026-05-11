@@ -104,8 +104,8 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "SelectedPatternChanged";
 	case Event::Type::SongModeActivation:
 		return "SongModeActivation";
-	case Event::Type::SongModified:
-		return "SongModified";
+	case Event::Type::SongIsModified:
+		return "SongIsModified";
 	case Event::Type::SongSizeChanged:
 		return "SongSizeChanged";
 	case Event::Type::SoundLibraryChanged:
