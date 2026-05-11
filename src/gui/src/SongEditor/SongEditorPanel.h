@@ -102,7 +102,7 @@ class SongEditorPanel : public QWidget,
 		virtual void midiClockActivationEvent() override;
 		virtual void nextPatternsChangedEvent() override;
 		virtual void patternEditorLockedEvent() override;
-		virtual void patternModifiedEvent() override;
+		virtual void patternChangedEvent() override;
 		virtual void playbackTrackChangedEvent() override;
 		virtual void playingPatternsChangedEvent() override;
 		virtual void relocationEvent() override;

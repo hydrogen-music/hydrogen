@@ -1702,7 +1702,7 @@ bool MidiActionManager::clearPattern( std::shared_ptr<MidiAction> pAction ) {
 
 	pPattern->clear( true );
 
-	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, 0 );
+	EventQueue::get_instance()->pushEvent( Event::Type::PatternChanged, 0 );
 
 	return true;
 }

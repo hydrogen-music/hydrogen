@@ -1109,8 +1109,8 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->patternEditorLockedEvent();
 				break;
 
-			case Event::Type::PatternModified:
-				ppEventListener->patternModifiedEvent();
+			case Event::Type::PatternChanged:
+				ppEventListener->patternChangedEvent();
 				break;
 
 			case Event::Type::PlaybackTrackChanged:

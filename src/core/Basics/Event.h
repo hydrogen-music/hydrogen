@@ -129,9 +129,9 @@ public:
 			NextShot,
 			/** Sampler does start to render a note. */
 			NoteRender,
+			PatternChanged,
 			/** Locks the PatternEditor on the pattern currently played back.*/
 			PatternEditorLocked,
-			PatternModified,
 			PlaybackTrackChanged,
 			/**
 			 * Event triggered whenever part of or the whole current

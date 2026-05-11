@@ -1547,7 +1547,7 @@ void PatternEditorPanel::updateEditors( Editor::Update update )
 	updateTypeLabelVisibility();
 }
 
-void PatternEditorPanel::patternModifiedEvent()
+void PatternEditorPanel::patternChangedEvent()
 {
 	updatePatternInfo();
 	updateEditors( Editor::Update::Background );
@@ -1725,7 +1725,7 @@ void PatternEditorPanel::patternSizeChangedAction(
 		setCursorColumn( nNewColumn );
 	}
 
-	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1 );
+	EventQueue::get_instance()->pushEvent( Event::Type::PatternChanged, -1 );
 }
 
 void PatternEditorPanel::addInstrument(

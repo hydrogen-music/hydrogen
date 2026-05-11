@@ -2828,7 +2828,7 @@ bool CoreActionController::clearInstrumentInPattern(
 
 	pPattern->purgeInstrument( pInstrument, true );
 
-	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, 0 );
+	EventQueue::get_instance()->pushEvent( Event::Type::PatternChanged, 0 );
 
 	return true;
 }
@@ -2874,7 +2874,7 @@ bool CoreActionController::setPatternProperties(
 
 	pHydrogen->setSongModified( true );
 
-	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1 );
+	EventQueue::get_instance()->pushEvent( Event::Type::PatternChanged, -1 );
 
 	return true;
 }

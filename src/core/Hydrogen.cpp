@@ -507,7 +507,7 @@ bool Hydrogen::addRealtimeNote(
 		}
 		
 		if ( bSongModified ) {
-			EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1 );
+			EventQueue::get_instance()->pushEvent( Event::Type::PatternChanged, -1 );
 			setSongModified( true );
 		}
 	}
@@ -1623,7 +1623,7 @@ void Hydrogen::updateVirtualPatterns( Event::Trigger trigger ) {
 
 	if ( trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->pushEvent(
-			Event::Type::PatternModified, 0
+			Event::Type::PatternChanged, 0
 		);
 	}
 }

@@ -222,7 +222,7 @@ class PatternEditorPanel : public QWidget,
 	virtual void instrumentLayerChangedEvent( int ) override;
 	virtual void instrumentMuteSoloChangedEvent( int ) override;
 	virtual void patternEditorLockedEvent() override;
-	virtual void patternModifiedEvent() override;
+	virtual void patternChangedEvent() override;
 	virtual void playingPatternsChangedEvent() override;
 	virtual void relocationEvent() override;
 	virtual void selectedInstrumentChangedEvent() override;

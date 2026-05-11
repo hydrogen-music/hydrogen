@@ -970,7 +970,7 @@ void SongEditorPanel::patternEditorLockedEvent() {
 	}
 }
 
-void SongEditorPanel::patternModifiedEvent() {
+void SongEditorPanel::patternChangedEvent() {
 	updateEditors( Editor::Update::Content );
 }
 

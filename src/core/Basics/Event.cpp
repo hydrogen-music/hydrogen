@@ -78,10 +78,10 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "NextShot";
 	case Event::Type::NoteRender:
 		return "NoteRender";
+	case Event::Type::PatternChanged:
+		return "PatternChanged";
 	case Event::Type::PatternEditorLocked:
 		return "PatternEditorLocked";
-	case Event::Type::PatternModified:
-		return "PatternModified";
 	case Event::Type::PlaybackTrackChanged:
 		return "PlaybackTrackChanged";
 	case Event::Type::PlayingPatternsChanged:
