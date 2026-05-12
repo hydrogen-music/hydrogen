@@ -72,7 +72,6 @@ void Effects::setLadspaFX( std::shared_ptr<LadspaFX> pFX, int nFX ) {
 
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
-
 	if ( m_FXs[ nFX ] != nullptr ) {
 		m_FXs[ nFX ]->deactivate();
 	}
@@ -84,9 +83,7 @@ void Effects::setLadspaFX( std::shared_ptr<LadspaFX> pFX, int nFX ) {
 		updateRecentGroup();
 	}
 
-
 	pHydrogen->getAudioEngine()->unlock();
-	pHydrogen->setSongModified( true );
 }
 
 ///
@@ -194,7 +191,7 @@ std::vector< std::shared_ptr<LadspaFXInfo> > Effects::getPluginList()
 
 std::shared_ptr<LadspaFXGroup> Effects::getLadspaFXGroup()
 {
-	INFOLOG( "[getLadspaFXGroup]" );
+	INFOLOG( "" );
 
 	if ( m_pRootGroup ) {
 		return m_pRootGroup;
@@ -245,7 +242,6 @@ void Effects::updateRecentGroup()
 
 	m_pRecentGroup->clear();
 
-
 	QString sRecent; // The recent fx names sit in the preferences object
 	foreach ( sRecent, Preferences::get_instance()->getRecentFX() ) {
 		for ( std::vector< std::shared_ptr<LadspaFXInfo> >::iterator it =
@@ -257,7 +253,6 @@ void Effects::updateRecentGroup()
 			}
 		}
 	}
-	Hydrogen::get_instance()->setSongModified( true );
 }
 
 #ifdef H2CORE_HAVE_LRDF
