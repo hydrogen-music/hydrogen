@@ -117,10 +117,6 @@ AudioEngine::AudioEngine()
 	}
 
 	m_AudioProcessCallback = &audioEngine_process;
-
-#ifdef H2CORE_HAVE_LADSPA
-	Effects::create_instance();
-#endif
 }
 
 AudioEngine::~AudioEngine()
@@ -148,10 +144,6 @@ AudioEngine::~AudioEngine()
 	m_pMetronomeInstrument = nullptr;
 
 	this->unlock();
-	
-#ifdef H2CORE_HAVE_LADSPA
-	delete Effects::get_instance();
-#endif
 
 	delete m_pSampler;
 }
@@ -978,13 +970,13 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 	m_MutexOutputPointer.unlock();
 
 #ifdef H2CORE_HAVE_LADSPA
-	if ( getState() == State::Ready ||
-		 getState() == State::CountIn ||
-		 getState() == State::Playing ||
-		 getState() == State::Testing ) {
-		Effects* pEffects = Effects::get_instance();
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( ( getState() == State::Ready || getState() == State::CountIn ||
+		   getState() == State::Playing || getState() == State::Testing ) &&
+		 pSong != nullptr ) {
+		const auto pEffects = pSong->getEffects();
 		for ( unsigned i = 0; i < MAX_FX; ++i ) {	// clear FX buffers
-			auto pFX = pEffects->getLadspaFX( i );
+			const auto pFX = pEffects->getLadspaFX( i );
 			if ( pFX != nullptr ) {
 				assert( pFX->m_pBuffer_L );
 				assert( pFX->m_pBuffer_R );
@@ -1547,7 +1539,7 @@ void AudioEngine::setupLadspaFX()
 
 #ifdef H2CORE_HAVE_LADSPA
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-		auto pFX = Effects::get_instance()->getLadspaFX( nFX );
+		auto pFX = pSong->getEffects()->getLadspaFX( nFX );
 		if ( pFX == nullptr ) {
 			return;
 		}
@@ -2016,7 +2008,7 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 	const auto ladspaStartTimePoint = Clock::now();
 
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-		auto pFX = Effects::get_instance()->getLadspaFX( nFX );
+		auto pFX = pSong->getEffects()->getLadspaFX( nFX );
 		if ( pFX != nullptr && pFX->isEnabled() ) {
 			pFX->processFX( nFrames );
 

@@ -24,71 +24,71 @@
 #define EFFECTS_H
 
 #include <core/config.h>
+#include <core/Object.h>
+
 #if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
 
-#include <core/Globals.h>
-#include <core/Object.h>
 #include <core/FX/LadspaFX.h>
+#include <core/Globals.h>
 
+#include <cassert>
 #include <memory>
 #include <vector>
-#include <cassert>
 
-namespace H2Core
-{
+namespace H2Core {
 /** \ingroup docCore docAudioEngine */
-class Effects : public H2Core::Object<Effects>
-{
-	H2_OBJECT(Effects)
-public:
-	/**
-	 * If #__instance equals 0, a new Effects
-	 * singleton will be created and stored in it.
-	 *
-	 * It is called in Hydrogen::audioEngine_init().
-	 */
-	static void create_instance();
-	/**
-	 * Returns a pointer to the current Effects singleton
-	 * stored in #__instance.
-	 */
-	static Effects* get_instance() { assert(__instance); return __instance; }
+class Effects : public H2Core::Object<Effects> {
+	H2_OBJECT( Effects )
+   public:
+	Effects();
 	~Effects();
 
 	std::shared_ptr<LadspaFX> getLadspaFX( int nFX ) const;
-	void  setLadspaFX( std::shared_ptr<LadspaFX> pFX, int nFX );
+	void setLadspaFX( std::shared_ptr<LadspaFX> pFX, int nFX );
 
-	std::vector< std::shared_ptr<LadspaFXInfo> > getPluginList();
+	std::vector<std::shared_ptr<LadspaFXInfo> > getPluginList();
 	std::shared_ptr<LadspaFXGroup> getLadspaFXGroup();
 
-
-private:
-	/**
-	 * Object holding the current Effects singleton. It is
-	 * initialized with NULL, set with create_instance(), and
-	 * accessed with get_instance().
-	 */
-	static Effects* __instance;
-	std::vector< std::shared_ptr<LadspaFXInfo> > m_pluginList;
-	std::shared_ptr<LadspaFXGroup> m_pRootGroup;
-	std::shared_ptr<LadspaFXGroup> m_pRecentGroup;
-
+   private:
+	void getRDF(
+		std::shared_ptr<LadspaFXGroup> pGroup,
+		std::vector<std::shared_ptr<LadspaFXInfo> > pluginList
+	);
+	void RDFDescend(
+		const QString& sBase,
+		std::shared_ptr<LadspaFXGroup> pGroup,
+		std::vector<std::shared_ptr<LadspaFXInfo> > pluginList
+	);
 	void updateRecentGroup();
 
-	std::vector< std::shared_ptr<LadspaFX> > m_FXs;
-
-	Effects();
-
-	void RDFDescend( const QString& sBase, std::shared_ptr<LadspaFXGroup> pGroup,
-					 std::vector< std::shared_ptr<LadspaFXInfo> > pluginList );
-	void getRDF( std::shared_ptr<LadspaFXGroup> pGroup,
-				 std::vector< std::shared_ptr<LadspaFXInfo> > pluginList );
-
+	std::vector<std::shared_ptr<LadspaFXInfo> > m_pluginList;
+	std::shared_ptr<LadspaFXGroup> m_pRootGroup;
+	std::shared_ptr<LadspaFXGroup> m_pRecentGroup;
+	std::vector<std::shared_ptr<LadspaFX> > m_FXs;
 };
 
+};	// namespace H2Core
+
+#else  // H2CORE_HAVE_LADSPA
+// LADSPA is disabled
+
+namespace H2Core {
+/** \ingroup docCore */
+class Effects : public H2Core::Object<Effects> {
+	H2_OBJECT( Effects )
+   public:
+	/**
+	 * Fallback version of the Effects in case
+	 * #H2CORE_HAVE_LADSPA was not defined during the configuration
+	 * and the usage of LADSPA plugins is not intended by
+	 * the user.
+	 */
+	Effects() {}
+	~Effects(){};
 };
 
-#endif
+};	// namespace H2Core
 
+#endif	// H2CORE_HAVE_LADSPA
 
 #endif

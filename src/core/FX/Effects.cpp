@@ -42,26 +42,13 @@
 namespace H2Core
 {
 
-// static data
-Effects* Effects::__instance = nullptr;
-
 Effects::Effects()
 		: m_pRootGroup( nullptr )
 		, m_pRecentGroup( nullptr )
 {
-	__instance = this;
-
 	m_FXs.resize( MAX_FX );
 
 	getPluginList();
-}
-
-
-void Effects::create_instance()
-{
-	if ( __instance == nullptr ) {
-		__instance = new Effects;
-	}
 }
 
 Effects::~Effects() {

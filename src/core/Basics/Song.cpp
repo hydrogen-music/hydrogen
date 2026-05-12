@@ -97,6 +97,7 @@ Song::Song(
 	  m_sLastLoadedDrumkitPath( "" ),
 	  m_pDrumkit( std::make_shared<Drumkit>() ),
 	  m_pTimeline( std::make_shared<Timeline>() ),
+	  m_pEffects( std::make_shared<Effects>() ),
 	  m_bWasAskedAboutMissingSamples( false )
 {
 	if ( m_sName.isEmpty() ) {
@@ -692,13 +693,6 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
 		WARNINGLOG( "'patternSequence' node not found. Aborting." );
 	}
 
-#ifdef H2CORE_HAVE_LADSPA
-	// reset FX
-	for ( int fx = 0; fx < MAX_FX; ++fx ) {
-		Effects::get_instance()->setLadspaFX( nullptr, fx );
-	}
-#endif
-
 	// LADSPA FX
 	XMLNode ladspaNode = rootNode.firstChildElement( "ladspa" );
 	if ( !ladspaNode.isNull() ) {
@@ -709,14 +703,14 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
 				fxNode.read_string( "name", "", false, false, bSilent );
 
 			if ( sName != "no plugin" ) {
-				// FIXME: il caricamento va fatto fare all'engine, solo lui sa
-				// il samplerate esatto
 #ifdef H2CORE_HAVE_LADSPA
+				// TODO The upload must be handled by the engine, as only it
+				// knows the exact sample rate.
 				auto pFX = LadspaFX::load(
 					fxNode.read_string( "filename", "", false, false, bSilent ),
 					sName, 44100
 				);
-				Effects::get_instance()->setLadspaFX( pFX, nFX );
+				pSong->getEffects()->setLadspaFX( pFX, nFX );
 				if ( pFX != nullptr ) {
 					pFX->setEnabled( fxNode.read_bool(
 						"enabled", false, false, false, bSilent
@@ -1059,7 +1053,7 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples, bool bSilent )
 		XMLNode fxNode = ladspaFxNode.createNode( "fx" );
 
 #ifdef H2CORE_HAVE_LADSPA
-		auto pFX = Effects::get_instance()->getLadspaFX( nFX );
+		auto pFX = m_pEffects->getLadspaFX( nFX );
 		if ( pFX != nullptr ) {
 			fxNode.write_string( "name", pFX->getPluginLabel() );
 			fxNode.write_string( "filename", pFX->getLibraryPath() );
