@@ -23,22 +23,20 @@
 #ifndef SONG_H
 #define SONG_H
 
-
-#include <QString>
 #include <QDomNode>
-#include <vector>
+#include <QString>
 #include <map>
 #include <memory>
+#include <vector>
 
-#include <core/License.h>
-#include <core/Object.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
+#include <core/License.h>
+#include <core/Object.h>
 
 class TiXmlNode;
 
-namespace H2Core
-{
+namespace H2Core {
 
 class ADSR;
 class AutomationPath;
@@ -58,45 +56,45 @@ class Timeline;
 \brief	Song class
 */
 /** \ingroup docCore docDataStructure */
-class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<Song>
-{
-		H2_OBJECT(Song)
-	public:
-		enum class Mode {
-			Pattern = 0,
-			Song = 1,
-			/** Used in case no song is set and both pattern and song
-				editor are not ready to operate yet.*/
-			None = 2
-		};
-		static QString ModeToQString( const Mode& mode );
+class Song : public H2Core::Object<Song>,
+			 public std::enable_shared_from_this<Song> {
+	H2_OBJECT( Song )
+   public:
+	enum class Mode {
+		Pattern = 0,
+		Song = 1,
+		/** Used in case no song is set and both pattern and song
+			editor are not ready to operate yet.*/
+		None = 2
+	};
+	static QString ModeToQString( const Mode& mode );
 
-		/** Defines the type of user interaction experienced in the 
-			SongEditor.*/
-		enum class ActionMode {
-			/** Holding a pressed left mouse key will draw a rectangle to
-				select a group of Notes.*/
-			selectMode = 0,
-			/** Holding a pressed left mouse key will draw/delete patterns
-				in all grid cells encountered.*/
-			drawMode = 1,
-			/** Used in case no song is set and both pattern and song
-				editor are not ready to operate yet.*/
-			None = 2
-		};
-		static QString ActionModeToQString( const ActionMode& actionMode );
+	/** Defines the type of user interaction experienced in the
+		SongEditor.*/
+	enum class ActionMode {
+		/** Holding a pressed left mouse key will draw a rectangle to
+			select a group of Notes.*/
+		selectMode = 0,
+		/** Holding a pressed left mouse key will draw/delete patterns
+			in all grid cells encountered.*/
+		drawMode = 1,
+		/** Used in case no song is set and both pattern and song
+			editor are not ready to operate yet.*/
+		None = 2
+	};
+	static QString ActionModeToQString( const ActionMode& actionMode );
 
-		enum class LoopMode {
-			Disabled = 0,
-			Enabled = 1,
-			/**
-			 * Transport is still in loop mode (frames and ticks
-			 * larger than song size are allowed) but playback ends
-			 * the next time the end of the song is reached.
-			 */
-			Finishing = 2
-		};
-		static QString LoopModeToQString( const LoopMode& loopMode );
+	enum class LoopMode {
+		Disabled = 0,
+		Enabled = 1,
+		/**
+		 * Transport is still in loop mode (frames and ticks
+		 * larger than song size are allowed) but playback ends
+		 * the next time the end of the song is reached.
+		 */
+		Finishing = 2
+	};
+	static QString LoopModeToQString( const LoopMode& loopMode );
 
 	/** Determines how patterns will be added to
 	 * AudioEngine::m_pPlayingPatterns if transport is in
@@ -113,35 +111,38 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		 */
 		None = 2
 	};
-		static QString PatternModeToQString( const PatternMode& patternMode );
+	static QString PatternModeToQString( const PatternMode& patternMode );
 
-		static QString sDefaultName;
-		static QString sDefaultAuthor;
+	static QString sDefaultName;
+	static QString sDefaultAuthor;
 
-		/** Please do not #H2Core::Hydrogen::setSong() a song created using this
-		 * constructor. It is just a minimal version with not all its members
-		 * properly initialized and can causes crashes (in the
-		 * #H2Core::AudioEngine) when used directly. Please use getEmptySong()
-		 * instead. */
-		Song( const QString& sName = Song::sDefaultName,
-			  const QString& sAuthor = Song::sDefaultAuthor,
-			  float fBpm = 120,
-			  float fVolume = 0.5 );
-		~Song();
+	/** Please do not #H2Core::Hydrogen::setSong() a song created using this
+	 * constructor. It is just a minimal version with not all its members
+	 * properly initialized and can causes crashes (in the
+	 * #H2Core::AudioEngine) when used directly. Please use getEmptySong()
+	 * instead. */
+	Song(
+		const QString& sName = Song::sDefaultName,
+		const QString& sAuthor = Song::sDefaultAuthor,
+		float fBpm = 120,
+		float fVolume = 0.5
+	);
+	~Song();
 
-		/** Creates the default / fallback song.
-		 *
-		 * @param pDB When creating an empty song during startup, the
-		 *   #H2Core::Hydrogen singleton might not be ready yet. This can be
-		 *   compensated by passing the created instance directly instead. */
-		static std::shared_ptr<Song> getEmptySong(
-			std::shared_ptr<SoundLibraryDatabase> pDB = nullptr );
-
-	static std::shared_ptr<Song> from(
-		std::shared_ptr<SoundLibraryInfo> pInfo
+	/** Creates the default / fallback song.
+	 *
+	 * @param pDB When creating an empty song during startup, the
+	 *   #H2Core::Hydrogen singleton might not be ready yet. This can be
+	 *   compensated by passing the created instance directly instead. */
+	static std::shared_ptr<Song> getEmptySong(
+		std::shared_ptr<SoundLibraryDatabase> pDB = nullptr
 	);
 
-	static std::shared_ptr<Song> 	load( const QString& sPath, bool bSilent = false );
+	static std::shared_ptr<Song> from( std::shared_ptr<SoundLibraryInfo> pInfo
+	);
+
+	static std::shared_ptr<Song>
+	load( const QString& sPath, bool bSilent = false );
 	/** Writes the song as .h2song to disk.
 	 *
 	 * @param sPath Absolute path to write the song to.
@@ -150,225 +151,238 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	 * \param bSilent if set to true, all log messages except of errors and
 	 *   warnings are suppressed.
 	 */
-	bool 			save( const QString& sPath, bool bKeepMissingSamples,
-						 bool bSilent = false );
+	bool save(
+		const QString& sPath,
+		bool bKeepMissingSamples,
+		bool bSilent = false
+	);
 
 	bool getIsTimelineActivated() const;
 	void setIsTimelineActivated( bool bIsTimelineActivated );
-	
+
 	bool getIsPatternEditorLocked() const;
 	void setIsPatternEditorLocked( bool bIsPatternEditorLocked );
 
-		bool getIsMuted() const;
-		void setIsMuted( bool bIsMuted );
+	bool getIsMuted() const;
+	void setIsMuted( bool bIsMuted );
 
-		float getBpm() const;
-		void setBpm( float fBpm );
+	float getBpm() const;
+	void setBpm( float fBpm );
 
-		int getVersion() const;
-		void setVersion( int nVersion );
+	int getVersion() const;
+	void setVersion( int nVersion );
 
-		const QString& getName() const;
-		void setName( const QString& sName );
-		
-		void setVolume( float fVolume );
-		float getVolume() const;
+	const QString& getName() const;
+	void setName( const QString& sName );
 
-		void setMetronomeVolume( float fVolume );
-		float getMetronomeVolume() const;
+	void setVolume( float fVolume );
+	float getVolume() const;
 
-		std::shared_ptr<PatternList> getPatternList() const;
-		void setPatternList( std::shared_ptr<PatternList> pList );
+	void setMetronomeVolume( float fVolume );
+	float getMetronomeVolume() const;
 
-		std::shared_ptr<Drumkit> getDrumkit() const;
-		void setDrumkit( std::shared_ptr<Drumkit> pDrumkit );
+	std::shared_ptr<PatternList> getPatternList() const;
+	void setPatternList( std::shared_ptr<PatternList> pList );
 
-		/** Return a pointer to a vector storing all Pattern
-		 * present in the Song.
-		 * \return #m_pPatternGroupVector */
-		std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > getPatternGroupVector();
-		/** Return a pointer to a vector storing all Pattern
-		 * present in the Song.
-		 * \return #m_pPatternGroupVector */
-		const std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > getPatternGroupVector() const;
+	std::shared_ptr<Drumkit> getDrumkit() const;
+	void setDrumkit( std::shared_ptr<Drumkit> pDrumkit );
 
-		/** Sets the vector storing all Pattern present in the
-		 * Song #m_pPatternGroupVector.
-		 * \param pGroupVect Pointer to a vector containing all
-		 *   Pattern of the Song.*/
-		void setPatternGroupVector( std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > pGroupVect );
+	/** Return a pointer to a vector storing all Pattern
+	 * present in the Song.
+	 * \return #m_pPatternGroupVector */
+	std::shared_ptr<std::vector<std::shared_ptr<PatternList>>>
+	getPatternGroupVector();
+	/** Return a pointer to a vector storing all Pattern
+	 * present in the Song.
+	 * \return #m_pPatternGroupVector */
+	const std::shared_ptr<std::vector<std::shared_ptr<PatternList>>>
+	getPatternGroupVector() const;
 
-		/** get the length of the song, in tick units */
-		long lengthInTicks() const;
+	/** Sets the vector storing all Pattern present in the
+	 * Song #m_pPatternGroupVector.
+	 * \param pGroupVect Pointer to a vector containing all
+	 *   Pattern of the Song.*/
+	void setPatternGroupVector(
+		std::shared_ptr<std::vector<std::shared_ptr<PatternList>>> pGroupVect
+	);
 
-		void			setNotes( const QString& sNotes );
-		const QString&		getNotes() const;
-		void setTags( const QStringList& tags );
-		const QStringList& getTags() const;
+	/** get the length of the song, in tick units */
+	long lengthInTicks() const;
 
-		void			setLicense( const License& license );
-		const License&		getLicense() const;
+	void setNotes( const QString& sNotes );
+	const QString& getNotes() const;
+	void setTags( const QStringList& tags );
+	const QStringList& getTags() const;
 
-		void			setAuthor( const QString& sAuthor );
-		const QString&		getAuthor() const;
+	void setLicense( const License& license );
+	const License& getLicense() const;
 
-		const QString&		getPath() const;
-		void			setPath( const QString& sPath );
-							
-		const LoopMode&	getLoopMode() const;
-		void			setLoopMode( const LoopMode& loopMode );
-		bool			isLoopEnabled() const;
-							
-		const PatternMode& getPatternMode() const;
-		void			setPatternMode( const PatternMode& patternMode );
-							
-		float			getHumanizeTimeValue() const;
-		void			setHumanizeTimeValue( float fValue );
-							
-		float			getHumanizeVelocityValue() const;
-		void			setHumanizeVelocityValue( float fValue );
-							
-		float			getSwingFactor() const;
-		void			setSwingFactor( float fFactor );
+	void setAuthor( const QString& sAuthor );
+	const QString& getAuthor() const;
 
-		const Mode&		getMode() const;
-		void			setMode( const Mode& mode );
-							
-		bool			getIsModified() const;
-		void			setIsModified( bool bIsModified);
+	const QString& getPath() const;
+	void setPath( const QString& sPath );
 
-		AutomationPath*	getVelocityAutomationPath() const;
+	const LoopMode& getLoopMode() const;
+	void setLoopMode( const LoopMode& loopMode );
+	bool isLoopEnabled() const;
 
-		int			getLatestRoundRobin( float fStartVelocity ) const;
-		void			setLatestRoundRobin( float fStartVelocity, int nLatestRoundRobin );
+	const PatternMode& getPatternMode() const;
+	void setPatternMode( const PatternMode& patternMode );
 
-        std::shared_ptr<Instrument> getPlaybackTrackInstrument() const;
-        void setPlaybackTrackInstrument( std::shared_ptr<Instrument> pInstrument );
+	float getHumanizeTimeValue() const;
+	void setHumanizeTimeValue( float fValue );
 
-		const ActionMode& getActionMode() const;
-		void			setActionMode( const ActionMode& actionMode );
+	float getHumanizeVelocityValue() const;
+	void setHumanizeVelocityValue( float fValue );
 
-		/** Song was incompletely loaded from file (missing samples)
-		 */
-		bool hasMissingSamples() const;
+	float getSwingFactor() const;
+	void setSwingFactor( float fFactor );
 
-		void setPanLawType( int nPanLawType );
-		int getPanLawType() const;
-		void setPanLawKNorm( float fKNorm );
-		float getPanLawKNorm() const;
+	const Mode& getMode() const;
+	void setMode( const Mode& mode );
 
-		bool isPatternActive( const GridPoint& gridPoint ) const;
+	bool getIsModified() const;
+	void setIsModified( bool bIsModified );
+
+	AutomationPath* getVelocityAutomationPath() const;
+
+	int getLatestRoundRobin( float fStartVelocity ) const;
+	void setLatestRoundRobin( float fStartVelocity, int nLatestRoundRobin );
+
+	std::shared_ptr<Instrument> getPlaybackTrackInstrument() const;
+	void setPlaybackTrackInstrument( std::shared_ptr<Instrument> pInstrument );
+
+	const ActionMode& getActionMode() const;
+	void setActionMode( const ActionMode& actionMode );
+
+	/** Song was incompletely loaded from file (missing samples)
+	 */
+	bool hasMissingSamples() const;
+
+	void setPanLawType( int nPanLawType );
+	int getPanLawType() const;
+	void setPanLawKNorm( float fKNorm );
+	float getPanLawKNorm() const;
+
+	bool isPatternActive( const GridPoint& gridPoint ) const;
 
 	std::shared_ptr<Timeline> getTimeline() const;
 	void setTimeline( std::shared_ptr<Timeline> pTimeline );
 
 	std::vector<std::shared_ptr<Note>> getAllNotes() const;
 
-		const QString& getLastLoadedDrumkitPath() const;
-		void setLastLoadedDrumkitPath( const QString& sPath );
+	const QString& getLastLoadedDrumkitPath() const;
+	void setLastLoadedDrumkitPath( const QString& sPath );
 
 	bool getWasAskedAboutMissingSamples() const;
 	void setWasAskedAboutMissingSamples( bool bValue );
 
-		/** Formatted string version for debugging purposes.
-		 * \param sPrefix String prefix which will be added in front of
-		 * every new line
-		 * \param bShort Instead of the whole content of all classes
-		 * stored as members just a single unique identifier will be
-		 * displayed without line breaks.
-		 *
-		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
-	
-private:
+	/** Formatted string version for debugging purposes.
+	 * \param sPrefix String prefix which will be added in front of
+	 * every new line
+	 * \param bShort Instead of the whole content of all classes
+	 * stored as members just a single unique identifier will be
+	 * displayed without line breaks.
+	 *
+	 * \return String presentation of current object.*/
+	QString toQString( const QString& sPrefix = "", bool bShort = true )
+		const override;
 
-	static std::shared_ptr<Song> loadFrom( const XMLNode& pNode,
-										   const QString& sFileName,
-										   bool bSilent = false );
-	void saveTo( XMLNode& pNode, bool bKeepMissingSamples,
-				bool bSilent = false ) const;
+   private:
+	static std::shared_ptr<Song> loadFrom(
+		const XMLNode& pNode,
+		const QString& sFileName,
+		bool bSilent = false
+	);
+	void saveTo(
+		XMLNode& pNode,
+		bool bKeepMissingSamples,
+		bool bSilent = false
+	) const;
 
 	/** Whether the Timeline button was pressed in the GUI or it was
 		activated via an OSC command. */
 	bool m_bIsTimelineActivated;
-							
-		bool m_bIsMuted;
-		/**
-		 * Current speed in beats per minutes.
-		 *
-		 * See Transport::m_fBpm for how the handling of the
-		 * different tempo instances work.
-		 */
-		float m_fBpm;
 
-		int m_nVersion;
-		
-		///< song name
-		QString m_sName;
-		///< author of the song
-		QString m_sAuthor;
-		
-		///< volume of the song (0.0..1.0)
-		float	m_fVolume;
-		///< Metronome volume
-		float	m_fMetronomeVolume;
-		QString			m_sNotes;
-		QStringList m_tags;
+	bool m_bIsMuted;
+	/**
+	 * Current speed in beats per minutes.
+	 *
+	 * See Transport::m_fBpm for how the handling of the
+	 * different tempo instances work.
+	 */
+	float m_fBpm;
 
-		///< Pattern list
-		std::shared_ptr<PatternList>	m_pPatternList;
-		///< Sequence of pattern groups
-		std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > m_pPatternGroupVector;
+	int m_nVersion;
 
-		/** Current drumkit
-		 *
-		 * This one is either based on the last kit loaded from the
-		 * `SoundLibraryDatabase` or is a brand new kit. */
-		std::shared_ptr<Drumkit> m_pDrumkit;
+	///< song name
+	QString m_sName;
+	///< author of the song
+	QString m_sAuthor;
 
-		/** Absolute path to the underlying artifact serving as an unique
-		 * identifier of the artifact throughout Hydrogen.
-		 *
-		 * In case is no file backing the resource (yet), an path to an
-		 * non-existing file retrieved via #Filesystem::emptyPath will be used
-		 * instead. */
-		QString m_sPath;
+	///< volume of the song (0.0..1.0)
+	float m_fVolume;
+	///< Metronome volume
+	float m_fMetronomeVolume;
+	QString m_sNotes;
+	QStringList m_tags;
 
-		/**
-		 * The three states of this enum is just a way to handle the
-		 * playback within Hydrogen. Not its content but the output of
-		 * isLoopEnabled(), whether enabled or disabled, will be
-		 * written to disk.
-		 */
-		LoopMode		m_loopMode;
-		PatternMode		m_patternMode;
-		/**
-		 * Factor to scale the random contribution when humanizing
-		 * timing between 0 and #AudioEngine::fHumanizeTimingSD.
-		 *
-		 * Supported range [0,1].
-		 */
-		float			m_fHumanizeTimeValue;
-		/**
-		 * Factor to scale the random contribution when humanizing
-		 * velocity between 0 and #AudioEngine::fHumanizeVelocitySD.
-		 *
-		 * Supported range [0,1].
-		 */
-		float			m_fHumanizeVelocityValue;
-		float			m_fSwingFactor;
-		bool			m_bIsModified;
-		std::map< float, int> 	m_latestRoundRobins;
-		Mode			m_mode;
+	///< Pattern list
+	std::shared_ptr<PatternList> m_pPatternList;
+	///< Sequence of pattern groups
+	std::shared_ptr<std::vector<std::shared_ptr<PatternList>>>
+		m_pPatternGroupVector;
 
-        std::shared_ptr<Instrument> m_pPlaybackTrackInstrument;
+	/** Current drumkit
+	 *
+	 * This one is either based on the last kit loaded from the
+	 * `SoundLibraryDatabase` or is a brand new kit. */
+	std::shared_ptr<Drumkit> m_pDrumkit;
 
-		AutomationPath*		m_pVelocityAutomationPath;
-		///< license of the song
-		License			m_license;
+	/** Absolute path to the underlying artifact serving as an unique
+	 * identifier of the artifact throughout Hydrogen.
+	 *
+	 * In case is no file backing the resource (yet), an path to an
+	 * non-existing file retrieved via #Filesystem::emptyPath will be used
+	 * instead. */
+	QString m_sPath;
 
-		/** Stores the type of interaction with the SongEditor. */
-		ActionMode		m_actionMode;
+	/**
+	 * The three states of this enum is just a way to handle the
+	 * playback within Hydrogen. Not its content but the output of
+	 * isLoopEnabled(), whether enabled or disabled, will be
+	 * written to disk.
+	 */
+	LoopMode m_loopMode;
+	PatternMode m_patternMode;
+	/**
+	 * Factor to scale the random contribution when humanizing
+	 * timing between 0 and #AudioEngine::fHumanizeTimingSD.
+	 *
+	 * Supported range [0,1].
+	 */
+	float m_fHumanizeTimeValue;
+	/**
+	 * Factor to scale the random contribution when humanizing
+	 * velocity between 0 and #AudioEngine::fHumanizeVelocitySD.
+	 *
+	 * Supported range [0,1].
+	 */
+	float m_fHumanizeVelocityValue;
+	float m_fSwingFactor;
+	bool m_bIsModified;
+	std::map<float, int> m_latestRoundRobins;
+	Mode m_mode;
+
+	std::shared_ptr<Instrument> m_pPlaybackTrackInstrument;
+
+	AutomationPath* m_pVelocityAutomationPath;
+	///< license of the song
+	License m_license;
+
+	/** Stores the type of interaction with the SongEditor. */
+	ActionMode m_actionMode;
 
 	/**
 	 * If set to true, the user won't be able to select a pattern via
@@ -380,10 +394,10 @@ private:
 	 * This mode is only supported in Song mode.
 	 */
 	bool m_bIsPatternEditorLocked;
-		
-		int m_nPanLawType;
-		// k such that L^k+R^k = 1. Used in constant k-Norm pan law
-		float m_fPanLawKNorm;
+
+	int m_nPanLawType;
+	// k such that L^k+R^k = 1. Used in constant k-Norm pan law
+	float m_fPanLawKNorm;
 
 	std::shared_ptr<Timeline> m_pTimeline;
 
@@ -401,29 +415,35 @@ private:
 	QString m_sLastLoadedDrumkitPath;
 
 	/** In case the user opts for keeping missing samples, it would be quite
-         annoying if we ask about it every single time the song gets saved. */
+		 annoying if we ask about it every single time the song gets saved. */
 	bool m_bWasAskedAboutMissingSamples;
 
-		/** Used to indicate changes in the underlying XSD file. */
-		static constexpr int nCurrentFormatVersion = 2;
+	/** Used to indicate changes in the underlying XSD file. */
+	static constexpr int nCurrentFormatVersion = 2;
 };
 
-inline bool Song::getIsTimelineActivated() const {
+inline bool Song::getIsTimelineActivated() const
+{
 	return m_bIsTimelineActivated;
 }
-inline void Song::setIsTimelineActivated( bool bIsTimelineActivated ) {
+inline void Song::setIsTimelineActivated( bool bIsTimelineActivated )
+{
 	m_bIsTimelineActivated = bIsTimelineActivated;
 }
-inline bool Song::getIsPatternEditorLocked() const {
+inline bool Song::getIsPatternEditorLocked() const
+{
 	return m_bIsPatternEditorLocked;
 }
-inline void Song::setIsPatternEditorLocked( bool bIsPatternEditorLocked ) {
+inline void Song::setIsPatternEditorLocked( bool bIsPatternEditorLocked )
+{
 	m_bIsPatternEditorLocked = bIsPatternEditorLocked;
 }
-inline std::shared_ptr<Timeline> Song::getTimeline() const {
+inline std::shared_ptr<Timeline> Song::getTimeline() const
+{
 	return m_pTimeline;
 }
-inline void Song::setTimeline( std::shared_ptr<Timeline> pTimeline ) {
+inline void Song::setTimeline( std::shared_ptr<Timeline> pTimeline )
+{
 	m_pTimeline = pTimeline;
 }
 
@@ -442,13 +462,14 @@ inline float Song::getBpm() const
 	return m_fBpm;
 }
 
-inline void Song::setVersion( int nVersion ) {
+inline void Song::setVersion( int nVersion )
+{
 	m_nVersion = nVersion;
 }
-inline int Song::getVersion() const {
+inline int Song::getVersion() const
+{
 	return m_nVersion;
 }
-
 
 inline void Song::setName( const QString& sName )
 {
@@ -480,7 +501,7 @@ inline void Song::setMetronomeVolume( float fValue )
 	m_fMetronomeVolume = fValue;
 }
 
-inline bool Song::getIsModified() const 
+inline bool Song::getIsModified() const
 {
 	return m_bIsModified;
 }
@@ -500,16 +521,21 @@ inline void Song::setPatternList( std::shared_ptr<PatternList> pList )
 	m_pPatternList = pList;
 }
 
-inline std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > Song::getPatternGroupVector() {
-	return m_pPatternGroupVector;
-}
-
-inline const std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > Song::getPatternGroupVector() const
+inline std::shared_ptr<std::vector<std::shared_ptr<PatternList>>>
+Song::getPatternGroupVector()
 {
 	return m_pPatternGroupVector;
 }
 
-inline void Song::setPatternGroupVector( std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > pGroupVector )
+inline const std::shared_ptr<std::vector<std::shared_ptr<PatternList>>>
+Song::getPatternGroupVector() const
+{
+	return m_pPatternGroupVector;
+}
+
+inline void Song::setPatternGroupVector(
+	std::shared_ptr<std::vector<std::shared_ptr<PatternList>>> pGroupVector
+)
 {
 	m_pPatternGroupVector = pGroupVector;
 }
@@ -565,8 +591,7 @@ inline void Song::setPath( const QString& sPath )
 
 inline bool Song::isLoopEnabled() const
 {
-	return m_loopMode == LoopMode::Enabled ||
-		m_loopMode == LoopMode::Finishing;
+	return m_loopMode == LoopMode::Enabled || m_loopMode == LoopMode::Finishing;
 }
 
 inline const Song::LoopMode& Song::getLoopMode() const
@@ -637,16 +662,19 @@ inline AutomationPath* Song::getVelocityAutomationPath() const
 
 inline int Song::getLatestRoundRobin( float fStartVelocity ) const
 {
-	if ( m_latestRoundRobins.find( fStartVelocity ) == m_latestRoundRobins.end() ) {
+	if ( m_latestRoundRobins.find( fStartVelocity ) ==
+		 m_latestRoundRobins.end() ) {
 		return 0;
-	} else {
+	}
+	else {
 		return m_latestRoundRobins.at( fStartVelocity );
 	}
 }
 
-inline void Song::setLatestRoundRobin( float fStartVelocity, int nLatestRoundRobin )
+inline void
+Song::setLatestRoundRobin( float fStartVelocity, int nLatestRoundRobin )
 {
-	m_latestRoundRobins[ fStartVelocity ] = nLatestRoundRobin;
+	m_latestRoundRobins[fStartVelocity] = nLatestRoundRobin;
 }
 
 inline std::shared_ptr<Instrument> Song::getPlaybackTrackInstrument() const
@@ -654,38 +682,48 @@ inline std::shared_ptr<Instrument> Song::getPlaybackTrackInstrument() const
 	return m_pPlaybackTrackInstrument;
 }
 
-inline void Song::setPlaybackTrackInstrument( std::shared_ptr<Instrument> pInstrument )
+inline void Song::setPlaybackTrackInstrument(
+	std::shared_ptr<Instrument> pInstrument
+)
 {
 	m_pPlaybackTrackInstrument = pInstrument;
 }
 
-inline const Song::ActionMode& Song::getActionMode() const {
+inline const Song::ActionMode& Song::getActionMode() const
+{
 	return m_actionMode;
 }
 
-inline void Song::setPanLawType( int nPanLawType ) {
+inline void Song::setPanLawType( int nPanLawType )
+{
 	m_nPanLawType = nPanLawType;
 }
 
-inline int Song::getPanLawType() const {
+inline int Song::getPanLawType() const
+{
 	return m_nPanLawType;
-} 
+}
 
-inline float Song::getPanLawKNorm() const {
+inline float Song::getPanLawKNorm() const
+{
 	return m_fPanLawKNorm;
 }
-inline void Song::setLastLoadedDrumkitPath( const QString& sPath ) {
+inline void Song::setLastLoadedDrumkitPath( const QString& sPath )
+{
 	m_sLastLoadedDrumkitPath = sPath;
 }
-inline const QString& Song::getLastLoadedDrumkitPath() const {
+inline const QString& Song::getLastLoadedDrumkitPath() const
+{
 	return m_sLastLoadedDrumkitPath;
 }
-inline bool Song::getWasAskedAboutMissingSamples() const {
+inline bool Song::getWasAskedAboutMissingSamples() const
+{
 	return m_bWasAskedAboutMissingSamples;
 }
-inline void Song::setWasAskedAboutMissingSamples( bool bValue ) {
+inline void Song::setWasAskedAboutMissingSamples( bool bValue )
+{
 	m_bWasAskedAboutMissingSamples = bValue;
 }
-};
+};	// namespace H2Core
 
 #endif
