@@ -389,8 +389,9 @@ private:
 
 	/** Unique identifier of the drumkit last loaded.
 	 *
-	 * This is a convenience variable allowing to cycle through the different
-	 * kits using MIDI and OSC commands (load next/previous kit).
+	 * It is assigned to the song's current drumkit on load in order to properly
+	 * link it with an artifact on disk. In addition, it allows to cycle through
+	 * the different kits using MIDI and OSC commands (load next/previous kit).
 	 *
 	 * Note: In older versions of Hydrogen (< 1.3.0) this variable was used to
 	 * determine the location of samples of the current song with relative file
