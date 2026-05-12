@@ -41,6 +41,7 @@
 #include <core/Helpers/Xml.h>
 #include <core/Preferences/Preferences.h>
 #include <core/License.h>
+#include <core/SoundLibrary/SongInfo.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include <QDir>
@@ -989,6 +990,25 @@ void XmlTest::testSongLegacy() {
 	CPPUNIT_ASSERT( Filesystem::rm( sKitDirUser, true /* recursive */,
 									false /* bSilent */ ) );
 
+	___INFOLOG( "passed" );
+}
+
+void XmlTest::testSongLoadFromInfo() {
+	___INFOLOG( "" );
+
+	auto pCurrentSong = Hydrogen::get_instance()->getSong();
+	CPPUNIT_ASSERT( pCurrentSong );
+
+	auto pInfo = std::make_shared<SongInfo>();
+	CPPUNIT_ASSERT( pInfo->load( H2TEST_FILE( "song/current.h2song" ) ) );
+
+	if ( pCurrentSong->getIsModified() ) {
+		pCurrentSong->setIsModified( false );
+	}
+
+	auto pAnotherSong = Song::from( pInfo );
+
+	CPPUNIT_ASSERT( ! pCurrentSong->getIsModified() );
 	___INFOLOG( "passed" );
 }
 
