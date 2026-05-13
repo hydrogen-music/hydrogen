@@ -583,7 +583,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 
 	m_pSampleWarning = new Button(
 		this, QSize( 15, 13 ), Button::Type::Icon, "warning.svg", "", QSize(),
-		tr( "Some samples for this instrument failed to load." ), true
+		tr( "Some samples for this instrument failed to load." )
 	);
 	m_pSampleWarning->hide();
 	m_pInnerLayout->addWidget( m_pSampleWarning );

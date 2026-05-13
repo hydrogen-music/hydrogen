@@ -36,8 +36,7 @@
 
 Button::Button( QWidget *pParent, const QSize& size, const Type& type,
 				const QString& sIcon, const QString& sText, const QSize& iconSize,
-				const QString& sBaseToolTip, bool bModifyOnChange,
-				int nBorderRadius )
+				const QString& sBaseToolTip, int nBorderRadius )
 	: QPushButton( pParent )
 	, m_size( size )
 	, m_type( type )
@@ -46,7 +45,6 @@ Button::Button( QWidget *pParent, const QSize& size, const Type& type,
 	, m_sIcon( sIcon )
 	, m_bIsActive( true )
 	, m_nFixedFontSize( -1 )
-	, m_bModifyOnChange( bModifyOnChange )
 	, m_nBorderRadius( nBorderRadius )
 	, m_bUseCustomBackgroundColors( false )
 {
@@ -78,8 +76,6 @@ Button::Button( QWidget *pParent, const QSize& size, const Type& type,
 	
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 this, &Button::onPreferencesChanged );
-
-	connect( this, SIGNAL(clicked()), this, SLOT(onClick()));
 }
 
 Button::~Button() {
@@ -373,11 +369,6 @@ void Button::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 	}
 }
 
-void Button::onClick() {
-	if ( m_bModifyOnChange ) {
-		H2Core::Hydrogen::get_instance()->setSongModified( true );
-	}
-}
 
 void Button::setBorderRadius( int nBorderRadius ) {
 	m_nBorderRadius = nBorderRadius;

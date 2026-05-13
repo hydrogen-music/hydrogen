@@ -55,9 +55,11 @@
  * in the tooltip.
  */
 /** \ingroup docGUI docWidgets*/
-class Button : public QPushButton, protected WidgetWithScalableFont<6, 8, 10>,  public H2Core::Object<Button>, public MidiLearnable
-{
-    H2_OBJECT(Button)
+class Button : public QPushButton,
+			   protected WidgetWithScalableFont<6, 8, 10>,
+			   public H2Core::Object<Button>,
+			   public MidiLearnable {
+	H2_OBJECT(Button)
 	Q_OBJECT
 
 public:
@@ -87,9 +89,6 @@ public:
 	 * \param sText
 	 * \param iconSize
 	 * \param sBaseTooltip
-	 * \param bModifyOnChange Whether Hydrogen::setSongModified() is
-	 * invoked with `true` as soon as the value of the widget does
-	 * change.
 	 * \param nBorderRadius Radius of the button in pixel, which will
 	 * be passed to the style sheet.
 	 */
@@ -101,7 +100,6 @@ public:
 		   const QString& sText = "",
 		   const QSize& iconSize = QSize( 0, 0 ),
 		   const QString& sBaseToolTip = "",
-		   bool bModifyOnChange = false,
 		   int nBorderRadius = -1
 		   );
 	~Button();
@@ -134,9 +132,6 @@ public:
 public slots:
 	virtual void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
-private slots:
-	void onClick();
-
 signals:
 	void rightClicked();
 
@@ -160,10 +155,6 @@ private:
 	bool m_bLastCheckedState;
 
 	bool m_bIsActive;
-	
-	/** Whether Hydrogen::setSongModified() is invoked with `true` as
-		soon as the value of the widget does change.*/
-	bool m_bModifyOnChange;
 
 		/** We will change the checked background color along with theme changes
 		 * until we receive an explicit user action to customize the background
@@ -171,7 +162,6 @@ private:
 		bool m_bUseCustomBackgroundColors;
 		QColor m_checkedBackgroundColor;
 		QColor m_checkedBackgroundTextColor;
-
 };
 inline bool Button::getIsActive() const {
 	return m_bIsActive;
