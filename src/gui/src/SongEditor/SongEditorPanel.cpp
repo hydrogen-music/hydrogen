@@ -250,12 +250,13 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	// mute playback track toggle button
 	m_pMutePlaybackTrackButton = new MuteButton(
 		m_pPlaybackTrackToolBar,
-		QSize( SongEditorPanel::nButtonWidth, SongEditorPanel::nButtonToolHeight ),
+		QSize(
+			SongEditorPanel::nButtonWidth, SongEditorPanel::nButtonToolHeight
+		),
 		tr( "Mute playback track" ),
-		ColoredButton::Flag::ModifyOnChange |
-			ColoredButton::Flag::CustomRendering |
-			ColoredButton::Flag::AsToolButton
+		ColoredButton::Flag::CustomRendering | ColoredButton::Flag::AsToolButton
 	);
+	m_pMutePlaybackTrackButton->setModifierTarget( Modifier::Song );
 	m_pMutePlaybackTrackButton->setBorderless( true );
 	m_pMutePlaybackTrackButton->setObjectName(
 		"SongEditorPlaybackTrackMuteButton"

@@ -24,11 +24,14 @@
 #define COLORED_BUTTON_H
 
 #include "Button.h"
+#include "Modifier.h"
 
 /** Common basis for #MuteButton and #SoloButton.
  *
  * \ingroup docGUI docWidgets*/
-class ColoredButton : public Button, public H2Core::Object<ColoredButton> {
+class ColoredButton : public Button,
+					  public Modifier,
+					  public H2Core::Object<ColoredButton> {
 	H2_OBJECT( ColoredButton )
 	Q_OBJECT
 
@@ -38,7 +41,6 @@ class ColoredButton : public Button, public H2Core::Object<ColoredButton> {
 
 	enum Flag {
 		None = 0x000,
-		ModifyOnChange = 0x001,
 		/** Depending on the background color of the widget the colored button
 		 * is residing in - and given that it adopts the same color in unchecked
 		 * state - the default text color might be illegible. To circumvent
@@ -49,11 +51,11 @@ class ColoredButton : public Button, public H2Core::Object<ColoredButton> {
 		 * option should be used with care. We also do not provide the "M" or
 		 * "S" for mute or solo button as SVG icons because we want to support
 		 * internationalization. */
-		CustomRendering = 0x002,
+		CustomRendering = 0x001,
 		/** Display borders during hovering and pressing as well as in checked
 		 * state on borderless buttons. This yields the same UI/UX as for tool
 		 * buttons in a tool bar. */
-		AsToolButton = 0x004
+		AsToolButton = 0x002
 	};
 
 	ColoredButton(
@@ -71,6 +73,9 @@ class ColoredButton : public Button, public H2Core::Object<ColoredButton> {
 	void setDefaultBackgroundColor( const QColor& color );
 
 	void updateStyleSheet() override;
+
+   private slots:
+	void onClick();
 
    protected:
 	void paintEvent( QPaintEvent* pEvent ) override;

@@ -43,12 +43,13 @@ ColoredButton::ColoredButton(
 		  "",
 		  QSize( 0, 0 ),
 		  sBaseToolTip,
-		  flag & Flag::ModifyOnChange,
 		  -1
 	  ),
       m_bBorderless( false ),
       m_flag( static_cast<Flag>(flag) )
 {
+	m_nModifierTarget = Modifier::None;
+
 	const auto pColorTheme =
 		H2Core::Preferences::get_instance()->getColorTheme();
 	m_defaultBackgroundColor = pColorTheme->m_widgetColor;
@@ -58,6 +59,8 @@ ColoredButton::ColoredButton(
 	);
 
 	setFlat( true );
+
+	connect( this, SIGNAL( clicked() ), this, SLOT( onClick() ) );
 }
 
 ColoredButton::~ColoredButton()
@@ -70,6 +73,10 @@ void ColoredButton::setBorderless( bool bBorderless )
 		m_bBorderless = bBorderless;
         updateStyleSheet();
 	}
+}
+
+void ColoredButton::onClick() {
+	modify();
 }
 
 void ColoredButton::paintEvent( QPaintEvent* pEvent )
