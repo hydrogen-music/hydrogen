@@ -321,7 +321,7 @@ bool Hydrogen::addRealtimeNote(
 	const bool bPlaySelectedInstrument = pPref->getMidiInstrumentMap()->getInput() ==
 		MidiInstrumentMap::Input::SelectedInstrument;
 	int scalar = ( 4 * 4 * H2Core::nTicksPerQuarter ) / ( res * nBase );
-	int currentPatternNumber;
+	int nCurrentPatternNumber;
 
 	std::shared_ptr<Song> pSong = getSong();
 
@@ -374,12 +374,12 @@ bool Hydrogen::addRealtimeNote(
 
 		// Capture new notes in the bottom-most pattern (if not already done above)
 		auto pColumn = ( *pColumns )[ nColumn ];
-		currentPatternNumber = -1;
+		nCurrentPatternNumber = -1;
 		for ( int n = 0; n < pColumn->size(); n++ ) {
 			auto pPattern = pColumn->get( n );
 			int nIndex = pPatternList->index( pPattern );
-			if ( nIndex > currentPatternNumber ) {
-				currentPatternNumber = nIndex;
+			if ( nIndex > nCurrentPatternNumber ) {
+				nCurrentPatternNumber = nIndex;
 				pCurrentPattern = pPattern;
 			}
 		}
@@ -395,7 +395,7 @@ bool Hydrogen::addRealtimeNote(
 			 && ( m_nSelectedPatternNumber < ( int )pPatternList->size() ) )
 		{
 			pCurrentPattern = pPatternList->get( m_nSelectedPatternNumber );
-			currentPatternNumber = m_nSelectedPatternNumber;
+			nCurrentPatternNumber = m_nSelectedPatternNumber;
 		}
 
 		if ( ! pCurrentPattern ) {
@@ -427,10 +427,8 @@ bool Hydrogen::addRealtimeNote(
 
 		INFOLOG( QString( "Recording [%1] to pattern: %2 (%3), tick: [%4/%5]." )
 				 .arg( bNoteOff ? "NoteOff" : "NoteOn")
-				 .arg( currentPatternNumber ).arg( pCurrentPattern->getName() )
+				 .arg( nCurrentPatternNumber ).arg( pCurrentPattern->getName() )
 				 .arg( nTickInPattern ).arg( pCurrentPattern->getLength() ) );
-
-		bool bSongModified = false;
 
 		if ( bNoteOff ) {
             // Handle the Note-Off event corresponding to the previous Note-On.
@@ -459,6 +457,7 @@ bool Hydrogen::addRealtimeNote(
 					m_nLastRecordedMIDINoteTick;
 			}
 
+			bool bPatternModified = false;
 			for ( unsigned nnNote = 0; nnNote < nPatternSize; nnNote++ ) {
 				const Pattern::notes_t* notes = pCurrentPattern->getNotes();
 				FOREACH_NOTE_CST_IT_BOUND_LENGTH(
@@ -476,16 +475,23 @@ bool Hydrogen::addRealtimeNote(
 								nPatternSize - m_nLastRecordedMIDINoteTick;
 						}
 						pNote->setLength( nNewNoteLength );
-						bSongModified = true;
+						bPatternModified = true;
 					}
 				}
+			}
+
+			if ( bPatternModified && ! pCurrentPattern->getIsModified() ) {
+				EventQueue::get_instance()->pushEvent(
+					Event::Type::PatternChanged, -1
+				);
+				setPatternModified( true, nCurrentPatternNumber );
 			}
 		}
 		else { // note on
 			EventQueue::AddMidiNoteVector noteAction;
 			noteAction.nColumn = nTickInPattern;
 			noteAction.id = instrumentId;
-			noteAction.nPattern = currentPatternNumber;
+			noteAction.nPattern = nCurrentPatternNumber;
 			noteAction.fVelocity = fVelocity;
 			noteAction.fPan = fPan;
 			noteAction.nLength = -1;
@@ -502,13 +508,6 @@ bool Hydrogen::addRealtimeNote(
 			EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
 
 			m_nLastRecordedMIDINoteTick = nTickInPattern;
-			
-			bSongModified = true;
-		}
-		
-		if ( bSongModified ) {
-			EventQueue::get_instance()->pushEvent( Event::Type::PatternChanged, -1 );
-			setSongModified( true );
 		}
 	}
 

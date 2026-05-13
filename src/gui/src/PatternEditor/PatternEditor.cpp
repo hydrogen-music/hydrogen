@@ -277,7 +277,7 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 		}
 	}
 
-	pHydrogen->setSongModified( true );
+	pHydrogen->setPatternModified( true, nPatternNumber );
 
 	pVisibleEditor->updateMouseHoveredElements( nullptr );
 	pVisibleEditor->updateKeyboardHoveredElements();
@@ -297,6 +297,9 @@ void PatternEditor::deselectAndOverwriteNotes(
 	// Iterate over all the notes in 'selected' and 'overwrite' by erasing any *other* notes occupying the
 	// same position.
 	auto pHydrogen = Hydrogen::get_instance();
+
+	bool bPatternModified = false;
+
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 	Pattern::notes_t *pNotes = const_cast< Pattern::notes_t *>( pPattern->getNotes() );
 	for ( auto pSelectedNote : selected ) {
@@ -317,6 +320,7 @@ void PatternEditor::deselectAndOverwriteNotes(
 					  pNote->getPosition() == pSelectedNote->getPosition() ) {
 				// Something else occupying the same position (which may or may not be an exact duplicate)
 				it = pNotes->erase( it );
+				bPatternModified = true;
 			}
 			else {
 				// Any other note
@@ -325,7 +329,12 @@ void PatternEditor::deselectAndOverwriteNotes(
 		}
 	}
 	pHydrogen->getAudioEngine()->unlock();
-	pHydrogen->setSongModified( true );
+
+	if ( bPatternModified ) {
+		pHydrogen->setPatternModified(
+			true, m_pPatternEditorPanel->getPatternNumber()
+		);
+	}
 }
 
 void PatternEditor::undoDeselectAndOverwriteNotes(
@@ -355,7 +364,12 @@ void PatternEditor::undoDeselectAndOverwriteNotes(
 		}
 	}
 	pHydrogen->getAudioEngine()->unlock();
-	pHydrogen->setSongModified( true );
+
+	if ( overwritten.size() > 0 ) {
+		pHydrogen->setPatternModified(
+			true, m_pPatternEditorPanel->getPatternNumber()
+		);
+	}
 	updateVisibleComponents( Editor::Update::Content );
 }
 
@@ -504,7 +518,7 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 	pHydrogen->getAudioEngine()->unlock();
 
 	if ( bValueChanged ) {
-		pHydrogen->setSongModified( true );
+		pHydrogen->setPatternModified( true, nPatternNumber );
 		std::vector< std::shared_ptr<Note > > notes{ pNote };
 
 		if ( property == Property::Type || property == Property::InstrumentId ) {
@@ -2382,7 +2396,9 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 	m_dragUpdate = pEv->position().toPoint();
 
 	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
-	pHydrogen->setSongModified( true );
+	pHydrogen->setPatternModified(
+		true, m_pPatternEditorPanel->getPatternNumber()
+	);
 
 	updateVisibleComponents( Editor::Update::Content );
 }

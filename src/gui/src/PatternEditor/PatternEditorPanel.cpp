@@ -1723,7 +1723,7 @@ void PatternEditorPanel::patternSizeChangedAction(
 	pHydrogen->updateSongSize();
 	pAudioEngine->unlock();
 
-	pHydrogen->setSongModified( true );
+	pHydrogen->setPatternModified( true, nSelectedPatternNumber );
 
 	// Ensure the cursor stays within the accessible region of the current
 	// pattern.

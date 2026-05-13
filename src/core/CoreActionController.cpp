@@ -2872,7 +2872,7 @@ bool CoreActionController::setPatternProperties(
 	}
 	pPattern->setTags( newTags );
 
-	pHydrogen->setSongModified( true );
+	pHydrogen->setPatternModified( true, nPatternIndex );
 
 	EventQueue::get_instance()->pushEvent( Event::Type::PatternChanged, -1 );
 
