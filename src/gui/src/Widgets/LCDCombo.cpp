@@ -50,7 +50,7 @@ LCDCombo::LCDCombo( QWidget *pParent, const QSize& size )
 		HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this,
 		&LCDCombo::onPreferencesChanged
 	);
-	connect( this, &QComboBox::activated, [&]() {
+	connect( this, QOverload<int>::of(&QComboBox::activated), [&]( int ) {
 		if ( m_nModifierTarget != Modifier::None ) {
 			modify();
 		}
