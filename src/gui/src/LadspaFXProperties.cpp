@@ -364,7 +364,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 				}
 			}
 			pSong->getEffects()->setLadspaFX( pFX, m_nLadspaFX );
-			pHydrogen->getSongModified( true );
+			pHydrogen->setSongModified( true );
 
 			pHydrogen->restartLadspaFX();
 			updateControls();
