@@ -379,7 +379,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 	m_pToolBar->addSeparator();
 
 	// GRID resolution
-	m_pResolutionCombo = new LCDCombo( m_pToolBar, QSize( 0, 0 ), true );
+	m_pResolutionCombo = new LCDCombo( m_pToolBar, QSize( 0, 0 ) );
+	m_pResolutionCombo->setModifierTarget( Modifier::Song );
 	m_pResolutionCombo->setFocusPolicy( Qt::ClickFocus );
 	m_pResolutionCombo->setMinimumSize( QSize( 24, nWidgetHeight ) );
 	m_pResolutionCombo->setMaximumSize( QSize( 500, nWidgetHeight ) );
@@ -788,7 +789,7 @@ void PatternEditorPanel::createEditors()
 	pPropertiesVBox->setSpacing( 0 );
 	pPropertiesVBox->setContentsMargins( 0, 0, 0, 0 );
 
-	m_pPropertiesCombo = new LCDCombo( nullptr, QSize( 0, 0 ), false );
+	m_pPropertiesCombo = new LCDCombo( nullptr, QSize( 0, 0 ) );
 	m_pPropertiesCombo->setFixedHeight( 18 );
 	m_pPropertiesCombo->setMaximumWidth( PatternEditorSidebar::m_nWidth );
 	m_pPropertiesCombo->setFocusPolicy( Qt::ClickFocus );

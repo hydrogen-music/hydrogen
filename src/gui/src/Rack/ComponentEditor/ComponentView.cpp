@@ -488,7 +488,8 @@ ComponentView::ComponentView( QWidget* pParent,
 	pHBoxSampleSelectionLayout->addWidget( m_pSampleSelectionLbl );
 
 	m_pSampleSelectionCombo = new LCDCombo(
-		pSampleSelectionWidget, QSize( 0, 0 ), true );
+		pSampleSelectionWidget, QSize( 0, 0 ) );
+	m_pSampleSelectionCombo->setModifierTarget( Modifier::Drumkit );
 	m_pSampleSelectionCombo->setFixedHeight(
 		ComponentView::nSampleSelectionHeight );
 	m_pSampleSelectionCombo->setToolTip( tr( "Select selection algorithm" ) );

@@ -26,25 +26,27 @@
 
 #include <QtGui>
 #include <QComboBox>
+
+#include "Modifier.h"
 #include "WidgetWithScalableFont.h"
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
 /** \ingroup docGUI docWidgets*/
-class LCDCombo : public QComboBox, protected WidgetWithScalableFont<6, 8, 9>, public H2Core::Object<LCDCombo>
-{
+class LCDCombo : public QComboBox,
+				 public Modifier,
+				 protected WidgetWithScalableFont<6, 8, 9>,
+				 public H2Core::Object<LCDCombo> {
 	H2_OBJECT(LCDCombo)
 	Q_OBJECT
 
 public:
-	explicit LCDCombo( QWidget *pParent, const QSize& size = QSize( 0, 0 ),
-					   bool bModifyOnChange = false );
+	explicit LCDCombo( QWidget *pParent, const QSize& size = QSize( 0, 0 ) );
 	~LCDCombo();
 
 	void setSize( const QSize& size );
-	void setModifyOnChange( bool bModifyOnChange );
-	
+
 	virtual void showPopup() override;
 	void addItem(const QString& sText, const QVariant& userData = QVariant());
 	
@@ -53,7 +55,6 @@ public:
 
 public slots:
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
-	void handleIsModified( int );
 
 private:
 	void updateStyleSheet();
@@ -61,10 +62,6 @@ private:
 
 	bool m_bEntered;
 	bool m_bIsActive;
-
-	/** Whether Hydrogen::setSongModified() is invoked with `true` as
-		soon as the value of the widget does change.*/
-	bool m_bModifyOnChange;
 
 	/** Keep track of the text width of the items added. It is used to
 		determine the size of the popup in order to ensure all content
@@ -79,9 +76,6 @@ private:
 #endif
 	virtual void leaveEvent( QEvent *ev ) override;
 };
-inline void LCDCombo::setModifyOnChange( bool bModifyOnChange ) {
-	m_bModifyOnChange = bModifyOnChange;
-}
 inline bool LCDCombo::getIsActive() const {
 	return m_bIsActive;
 }
