@@ -1359,7 +1359,7 @@ void Hydrogen::setDrumkitModified( bool bIsModified )
 	}
 
 	if ( bIsModified && ! m_pSong->getIsModified() ) {
-		m_pSong->setIsModified( true );
+		setSongModified( true );
 	}
 
 	if ( m_pSong->getDrumkit()->getIsModified() == bIsModified ) {
@@ -1383,7 +1383,7 @@ void Hydrogen::setPatternModified( bool bIsModified, int nIndex )
 	}
 
 	if ( bIsModified && ! m_pSong->getIsModified() ) {
-		m_pSong->setIsModified( true );
+		setSongModified( true );
 	}
 
 	if ( pPattern->getIsModified() == bIsModified ) {
