@@ -102,7 +102,7 @@ bool CoreActionController::setStripVolume(
 	if ( pInstr->getVolume() != fVolumeValue ) {
 		pInstr->setVolume( fVolumeValue );
 
-		pHydrogen->setSongModified( true );
+		pHydrogen->setDrumkitModified( true );
 
 		return sendStripVolumeFeedback( nStrip );
 	}
@@ -374,7 +374,7 @@ bool CoreActionController::setStripIsMuted(
 			Event::Type::InstrumentMuteSoloChanged, nStrip
 		);
 
-		pHydrogen->setSongModified( true );
+		pHydrogen->setDrumkitModified( true );
 
 		return sendStripIsMutedFeedback( nStrip );
 	}
@@ -421,7 +421,7 @@ bool CoreActionController::setStripIsSoloed(
 			Event::Type::InstrumentMuteSoloChanged, nStrip
 		);
 
-		pHydrogen->setSongModified( true );
+		pHydrogen->setDrumkitModified( true );
 
 		return sendStripIsSoloedFeedback( nStrip );
 	}
@@ -453,7 +453,7 @@ bool CoreActionController::setStripPan(
 			Event::Type::InstrumentParametersChanged, nStrip
 		);
 
-		pHydrogen->setSongModified( true );
+		pHydrogen->setDrumkitModified( true );
 
 		return sendStripPanFeedback( nStrip );
 	}
@@ -485,7 +485,7 @@ bool CoreActionController::setStripPanSym(
 			Event::Type::InstrumentParametersChanged, nStrip
 		);
 
-		pHydrogen->setSongModified( true );
+		pHydrogen->setDrumkitModified( true );
 
 		return sendStripPanFeedback( nStrip );
 	}
@@ -518,7 +518,7 @@ bool CoreActionController::setStripEffectLevel(
 			Event::Type::InstrumentParametersChanged, nStrip
 		);
 
-		pHydrogen->setSongModified( true );
+		pHydrogen->setDrumkitModified( true );
 	}
 
 	return true;
@@ -2143,7 +2143,7 @@ bool CoreActionController::addInstrument(
 
 	pAudioEngine->unlock();
 
-	pHydrogen->setSongModified( true );
+	pHydrogen->setDrumkitModified( true );
 
 	const auto nId =
 		EventQueue::get_instance()->pushEvent( Event::Type::DrumkitLoaded, 0 );
@@ -2224,7 +2224,7 @@ bool CoreActionController::removeInstrument(
 
 	pAudioEngine->unlock();
 
-	pHydrogen->setSongModified( true );
+	pHydrogen->setDrumkitModified( true );
 
 	const auto nId =
 		EventQueue::get_instance()->pushEvent( Event::Type::DrumkitLoaded, 0 );
@@ -2324,7 +2324,7 @@ bool CoreActionController::replaceDrumkitInstrument(
 
 	pAudioEngine->unlock();
 
-	pHydrogen->setSongModified( true );
+	pHydrogen->setDrumkitModified( true );
 
 	EventQueue::get_instance()->pushEvent( Event::Type::DrumkitLoaded, 0 );
 
@@ -2417,7 +2417,7 @@ bool CoreActionController::moveInstrument( int nSourceIndex, int nTargetIndex )
 
 	pHydrogen->getAudioEngine()->unlock();
 
-	pHydrogen->setSongModified( true );
+	pHydrogen->setDrumkitModified( true );
 
 	EventQueue::get_instance()->pushEvent( Event::Type::DrumkitLoaded, 0 );
 
@@ -2447,7 +2447,7 @@ bool CoreActionController::renameComponent(
 
 	pComponent->setName( sNewName );
 
-	pHydrogen->setSongModified( true );
+	pHydrogen->setDrumkitModified( true );
 
 	EventQueue::get_instance()->pushEvent(
 		Event::Type::SelectedInstrumentChanged, 0

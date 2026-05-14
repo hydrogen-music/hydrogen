@@ -2378,7 +2378,7 @@ void MainForm::onFixMidiSetup()
 	auto pSong = pHydrogen->getSong();
 	if ( pSong != nullptr ) {
 		pSong->getDrumkit()->getInstruments()->setDefaultMidiOutNotes();
-		pHydrogen->setSongModified( true );
+		pHydrogen->setDrumkitModified( true );
 
 		m_pMidiSetupInfoBar->hide();
 	}
