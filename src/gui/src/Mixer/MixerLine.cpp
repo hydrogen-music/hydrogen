@@ -143,6 +143,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	m_pPanRotary = new Rotary(
 		this, Rotary::Type::Center, pCommonStrings->getNotePropertyPan(), false,
 		PAN_MIN, PAN_MAX );
+	m_pPanRotary->setModifierTarget( Modifier::Drumkit );
 	m_pPanRotary->setObjectName( "PanRotary" );
 	m_pPanRotary->move( 6, 32 );
 	connect( m_pPanRotary, &Rotary::valueChanged, [&]() {
@@ -158,6 +159,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	for ( int ii = 0; ii < MAX_FX; ii++ ) {
 		auto pRotary = new Rotary(
 			this, Rotary::Type::Small, tr( "FX %1 send" ).arg( ii + 1 ), false );
+		pRotary->setModifierTarget( Modifier::Song );
 		pRotary->setObjectName( "FXRotary" );
 		if ( (ii % 2) == 0 ) {
 			pRotary->move( 9, 63 + (20 * nnRow) );
@@ -191,6 +193,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 		this, QSize( 23, 117 ), Fader::Type::Vertical, tr( "Volume" ), false,
 		false, 0.0, 1.5
 	);
+	m_pFader->setModifierTarget( Modifier::Drumkit );
 	m_pFader->move( 23, 128 );
 	connect( m_pFader, &Fader::valueChanged, [&]() {
 		const int nLine = retrieveLineNumber();

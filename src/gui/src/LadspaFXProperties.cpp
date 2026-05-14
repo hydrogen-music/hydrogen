@@ -268,6 +268,7 @@ void LadspaFXProperties::updateControls()
 				tr( "Input control param. value" ), pControlPort->m_bIsInteger,
 				false, pControlPort->fLowerBound, pControlPort->fUpperBound
 			);
+			pFader->setModifierTarget( Modifier::Song );
 			connect(
 				pFader, SIGNAL( valueChanged( WidgetWithInput* ) ), this,
 				SLOT( faderChanged( WidgetWithInput* ) )
@@ -306,7 +307,8 @@ void LadspaFXProperties::updateControls()
 				m_pFrame, QSize( 23, 117 ), Fader::Type::Vertical,
 				tr( "Output control param. value" ), pControl->m_bIsInteger,
 				true, pControl->fLowerBound, pControl->fUpperBound
-			);
+									);
+			pFader->setModifierTarget( Modifier::Song );
 			pFader->move( xPos + 20, 60 );
 			pFader->show();
 			pFader->setMaxPeak( pControl->fUpperBound );

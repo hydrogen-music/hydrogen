@@ -30,6 +30,7 @@
 #include <QtWidgets>
 
 #include "MidiLearnable.h"
+#include "Modifier.h"
 
 #include <core/Basics/Event.h>
 #include <core/Helpers/Time.h>
@@ -58,19 +59,18 @@
  * key press will fill a fresh buffer. Alternatively, the user can use
  * the ESC key to immediately flush the input buffer.
  */
-class WidgetWithInput : public QWidget, public MidiLearnable {
+class WidgetWithInput : public QWidget, public Modifier, public MidiLearnable {
 	Q_OBJECT
 
-public:
-		/** Number of seconds before #m_sInputBuffer will be flushed (happens
-			asynchronically whenever the next key input occurs.)*/
-		static constexpr std::chrono::duration<float> nInputTimeout =
-			std::chrono::duration<float>(2);
+   public:
+	/** Number of seconds before #m_sInputBuffer will be flushed (happens
+		asynchronically whenever the next key input occurs.)*/
+	static constexpr std::chrono::duration<float> nInputTimeout =
+		std::chrono::duration<float>( 2 );
 
 	WidgetWithInput( QWidget* parent, bool bUseIntSteps,
 					 const QString& sBaseToolTip, int nScrollSpeed,
-					 int nScrollSpeedFast, float fMin, float fMax,
-					 bool bModifyOnChange );
+					 int nScrollSpeedFast, float fMin, float fMax );
 	~WidgetWithInput();
 	void setMin( float fMin );
 	float getMin() const;
@@ -142,10 +142,6 @@ protected:
 	/** All key input will be appended to this string.*/
 	QString m_sInputBuffer;
 		TimePoint m_lastInputEvent;
-
-	/** Whether Hydrogen::setSongModified() is invoked with `true` as
-		soon as the value of the widget does change.*/
-	bool m_bModifyOnChange;
 };
 
 inline float WidgetWithInput::getValue() const {

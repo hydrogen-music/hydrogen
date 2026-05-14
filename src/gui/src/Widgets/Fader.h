@@ -41,11 +41,10 @@
  *
  */
 /** \ingroup docGUI docWidgets*/
-class Fader : public WidgetWithInput, public H2Core::Object<Fader>
-{
-    H2_OBJECT(Fader)
-	
-public:
+class Fader : public WidgetWithInput, public H2Core::Object<Fader> {
+	H2_OBJECT( Fader )
+
+   public:
 	enum class Type {
 		Vertical,
 		/** Only used for the playback track in the SongEditorPanel*/
@@ -55,8 +54,7 @@ public:
 	
 	Fader( QWidget *pParent, const QSize& size, const Type& type,
 		   const QString& sBaseToolTip, bool bUseIntSteps = false,
-		   bool bWithoutKnob = false, float fMin = 0.0, float fMax = 1.0,
-		   bool bModifyOnChange = true );
+		   bool bWithoutKnob = false, float fMin = 0.0, float fMax = 1.0 );
 	~Fader();
 
 	void setMaxPeak( float fMax );

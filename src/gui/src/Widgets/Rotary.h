@@ -66,8 +66,7 @@ public:
 	Rotary& operator=( const Rotary& rhs ) = delete;
 	
 	Rotary( QWidget* parent, const Type& type, const QString& sBaseTooltip,
-			bool bUseIntSteps, float fMin = 0.0, float fMax = 1.0,
-			bool bModifyOnChange = true );
+			bool bUseIntSteps, float fMin = 0.0, float fMax = 1.0 );
 	~Rotary();
 
 public slots:

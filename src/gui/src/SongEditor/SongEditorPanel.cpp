@@ -110,6 +110,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		Fader::Type::Horizonal, tr( "Playback track volume" ), false, false,
 		0.0, 1.5
 	);
+	m_pPlaybackTrackFader->setModifierTarget( Modifier::Song );
 	m_pPlaybackTrackFader->setObjectName( "SongEditorPlaybackTrackFader" );
 	if ( pPlaybackTrackInstrument != nullptr ) {
 		m_pPlaybackTrackFader->setValue( pPlaybackTrackInstrument->getVolume()

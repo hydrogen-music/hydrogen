@@ -186,6 +186,7 @@ font-size: 21px;" );
 		m_pInstrumentProp, Rotary::Type::Center, tr( "Pitch offset (Coarse)" ),
 		true, Instrument::fPitchOffsetMinimum + InstrumentEditor::nPitchFineControl,
 		Instrument::fPitchOffsetMaximum - InstrumentEditor::nPitchFineControl );
+	m_pPitchCoarseRotary->setModifierTarget( Modifier::Drumkit );
 	m_pPitchCoarseRotary->move( 94, 210 );
 	connect( m_pPitchCoarseRotary, &Rotary::valueChanged, [&]() {
 		//round fVal, since Coarse is the integer number of half steps
@@ -203,6 +204,7 @@ font-size: 21px;" );
 		false, -InstrumentEditor::nPitchFineControl,
 		InstrumentEditor::nPitchFineControl );
 	//it will have resolution of 100 steps between Min and Max => quantum delta = 0.01
+	m_pPitchFineRotary->setModifierTarget( Modifier::Drumkit );
 	m_pPitchFineRotary->move( 151, 210 );
 	connect( m_pPitchFineRotary, &Rotary::valueChanged, [&]() {
 		//round fVal, since Coarse is the integer number of half steps
@@ -218,6 +220,7 @@ font-size: 21px;" );
 	m_pRandomPitchRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Normal, tr( "Random pitch factor" ),
 		false );
+	m_pRandomPitchRotary->setModifierTarget( Modifier::Drumkit );
 	m_pRandomPitchRotary->move( 208, 210 );
 	connect( m_pRandomPitchRotary, &Rotary::valueChanged, [&]() {
 		Hydrogen::get_instance()->getSelectedInstrument()->setRandomPitchFactor(
@@ -247,6 +250,7 @@ font-size: 21px;" );
 
 	m_pCutoffRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Normal, tr( "Filter Cutoff" ), false );
+	m_pCutoffRotary->setModifierTarget( Modifier::Drumkit );
 	m_pCutoffRotary->setDefaultValue( m_pCutoffRotary->getMax() );
 	m_pCutoffRotary->move( 124, 164 );
 	connect( m_pCutoffRotary, &Rotary::valueChanged, [&]() {
@@ -259,6 +263,7 @@ font-size: 21px;" );
 
 	m_pResonanceRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Normal, tr( "Filter resonance" ), false );
+	m_pResonanceRotary->setModifierTarget( Modifier::Drumkit );
 	connect( m_pResonanceRotary, &Rotary::valueChanged, [&]() {
 		Hydrogen::get_instance()->getSelectedInstrument()->setFilterResonance(
 			std::min( 0.95f, m_pResonanceRotary->getValue() ) );
@@ -274,6 +279,7 @@ font-size: 21px;" );
 	m_pAttackRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Normal,
 		tr( "Length of Attack phase" ), false );
+	m_pAttackRotary->setModifierTarget( Modifier::Drumkit );
 	m_pAttackRotary->move( 45, 52 );
 	connect( m_pAttackRotary, &Rotary::valueChanged, [&]() {
 		Hydrogen::get_instance()->getSelectedInstrument()->getAdsr()->setAttack(
@@ -286,6 +292,7 @@ font-size: 21px;" );
 	m_pDecayRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Normal,
 		tr( "Length of Decay phase" ), false );
+	m_pDecayRotary->setModifierTarget( Modifier::Drumkit );
 	m_pDecayRotary->move( 101, 52 );
 	connect( m_pDecayRotary, &Rotary::valueChanged, [&]() {
 		Hydrogen::get_instance()->getSelectedInstrument()->getAdsr()->setDecay(
@@ -298,6 +305,7 @@ font-size: 21px;" );
 	m_pSustainRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Normal,
 		tr( "Sample volume in Sustain phase" ), false );
+	m_pSustainRotary->setModifierTarget( Modifier::Drumkit );
 	m_pSustainRotary->setDefaultValue( m_pSustainRotary->getMax() );
 	m_pSustainRotary->move( 157, 52 );
 	connect( m_pSustainRotary, &Rotary::valueChanged, [&]() {
@@ -311,6 +319,7 @@ font-size: 21px;" );
 	m_pReleaseRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Normal,
 		tr( "Length of Release phase" ), false );
+	m_pReleaseRotary->setModifierTarget( Modifier::Drumkit );
 	m_pReleaseRotary->setDefaultValue( 0.09 );
 	m_pReleaseRotary->move( 213, 52 );
 	connect( m_pReleaseRotary, &Rotary::valueChanged, [&]() {
@@ -331,6 +340,7 @@ font-size: 21px;" );
 	m_pInstrumentGain = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Normal, tr( "Instrument gain" ), false,
 		0.0, 5.0 );
+	m_pInstrumentGain->setModifierTarget( Modifier::Drumkit );
 	m_pInstrumentGain->setDefaultValue( 1.0 );
 	m_pInstrumentGain->move( 122, 100 );
 	connect( m_pInstrumentGain, &Rotary::valueChanged, [&]() {

@@ -300,6 +300,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pComponentGainRotary = new Rotary(
 		m_pToolBarComponent, Rotary::Type::Normal, tr( "Component volume" ), false,
 		0.0, 5.0 );
+	m_pComponentGainRotary->setModifierTarget( Modifier::Drumkit );
 	m_pComponentGainRotary->setDefaultValue( 1.0 );
 	connect( m_pComponentGainRotary, &Rotary::valueChanged, [&]() {
 		if ( m_pComponent != nullptr ) {
@@ -455,6 +456,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pLayerGainRotary = new Rotary(
 		m_pToolBarLayer, Rotary::Type::Normal, tr( "Layer gain" ), false,
 		0.0, 5.0 );
+	m_pLayerGainRotary->setModifierTarget( Modifier::Drumkit );
 	m_pLayerGainRotary->setDefaultValue( 1.0 );
 	connect( m_pLayerGainRotary, &Rotary::valueChanged, [&]() {
 		if ( m_pComponent != nullptr ) {
@@ -565,6 +567,7 @@ ComponentView::ComponentView( QWidget* pParent,
 		Instrument::fPitchOffsetMinimum + InstrumentEditor::nPitchFineControl,
 		Instrument::fPitchOffsetMaximum - InstrumentEditor::nPitchFineControl
 	);
+	m_pLayerPitchCoarseRotary->setModifierTarget( Modifier::Drumkit );
 	connect( m_pLayerPitchCoarseRotary, &Rotary::valueChanged, [&]() {
 		const float fNewPitch = round( m_pLayerPitchCoarseRotary->getValue() ) +
 								m_pLayerPitchFineRotary->getValue() / 100.0;
@@ -595,6 +598,7 @@ ComponentView::ComponentView( QWidget* pParent,
 		pLayerPropFineWidget, Rotary::Type::Center, tr( "Layer pitch (Fine)" ),
 		true, -50.0, 50.0
 	);
+	m_pLayerPitchFineRotary->setModifierTarget( Modifier::Drumkit );
 	connect( m_pLayerPitchFineRotary, &Rotary::valueChanged, [&]() {
 		const float fNewPitch = round( m_pLayerPitchCoarseRotary->getValue() ) +
 								m_pLayerPitchFineRotary->getValue() / 100.0;
