@@ -84,8 +84,9 @@ font-size: 21px;" );
 		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int,
 		static_cast<int>( Midi::ChannelOff ),
 		static_cast<int>( Midi::ChannelMaximum ),
-		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::ZeroAsOff
+		LCDSpinBox::Flag::ZeroAsOff
 	);
+	m_pMidiOutChannelLCD->setModifierTarget( Modifier::Drumkit );
 	m_pMidiOutChannelLCD->move( 111, 257 );
 	m_pMidiOutChannelLCD->setToolTip( QString( tr( "Midi out channel" ) ) );
 	connect(
@@ -117,9 +118,9 @@ font-size: 21px;" );
 	m_pMidiOutNoteLCD = new LCDSpinBox(
 		m_pInstrumentProp, QSize( 94, 24 ), LCDSpinBox::Type::Int,
 		static_cast<int>( Midi::NoteMinimum ),
-		static_cast<int>( Midi::NoteMaximum ),
-		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::ShowMidiNote
+		static_cast<int>( Midi::NoteMaximum ), LCDSpinBox::Flag::ShowMidiNote
 	);
+	m_pMidiOutNoteLCD->setModifierTarget( Modifier::Drumkit );
 	m_pMidiOutNoteLCD->move( 175, 257 );
 	m_pMidiOutNoteLCD->setToolTip( QString( tr( "Midi out note" ) ) );
 	connect(
@@ -352,10 +353,11 @@ font-size: 21px;" );
 									 pCommonStrings->getGainLabel() );
 	m_pGainLbl->move( 120, 125 );
 
-
 	m_pMuteGroupLCD = new LCDSpinBox(
 		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, -1, 100,
-		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::MinusOneAsOff );
+		LCDSpinBox::Flag::MinusOneAsOff
+	);
+	m_pMuteGroupLCD->setModifierTarget( Modifier::Drumkit );
 	m_pMuteGroupLCD->move( 210, 101 );
 	connect( m_pMuteGroupLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		Hydrogen::get_instance()->getSelectedInstrument()->setMuteGroup(
@@ -400,22 +402,26 @@ font-size: 21px;" );
 
 	m_pHihatGroupLCD = new LCDSpinBox(
 		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, -1, 32,
-		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::MinusOneAsOff );
+		LCDSpinBox::Flag::MinusOneAsOff
+	);
+	m_pHihatGroupLCD->setModifierTarget( Modifier::Drumkit );
 	m_pHihatGroupLCD->move( 33, 303 );
 	connect( m_pHihatGroupLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		Hydrogen::get_instance()->getSelectedInstrument()->setHihatGrp(
-			static_cast<int>(m_pHihatGroupLCD->value()) );
-	});
-	m_pHihatGroupLbl = new ClickableLabel( m_pInstrumentProp, QSize( 69, 10 ),
-										   pCommonStrings->getHihatGroupLabel() );
+			static_cast<int>( m_pHihatGroupLCD->value() )
+		);
+	} );
+	m_pHihatGroupLbl = new ClickableLabel(
+		m_pInstrumentProp, QSize( 69, 10 ), pCommonStrings->getHihatGroupLabel()
+	);
 	m_pHihatGroupLbl->move( 28, 327 );
 
 	m_pHihatMinRangeLCD = new LCDSpinBox(
 		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int,
 		static_cast<int>( Midi::ParameterMinimum ),
-		static_cast<int>( Midi::ParameterMaximum ),
-		LCDSpinBox::Flag::ModifyOnChange
+		static_cast<int>( Midi::ParameterMaximum )
 	);
+	m_pHihatMinRangeLCD->setModifierTarget( Modifier::Drumkit );
 	m_pHihatMinRangeLCD->move( 146, 303 );
 	connect( m_pHihatMinRangeLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		Hydrogen::get_instance()->getSelectedInstrument()->setLowerCc(
@@ -436,10 +442,10 @@ font-size: 21px;" );
 	m_pHihatMaxRangeLCD = new LCDSpinBox(
 		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int,
 		static_cast<int>( Midi::ParameterMinimum ),
-		static_cast<int>( Midi::ParameterMaximum ),
-		LCDSpinBox::Flag::ModifyOnChange
+		static_cast<int>( Midi::ParameterMaximum )
 	);
 	m_pHihatMaxRangeLCD->move( 210, 303 );
+	m_pHihatMaxRangeLCD->setModifierTarget( Modifier::Drumkit );
 	connect( m_pHihatMaxRangeLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		Hydrogen::get_instance()->getSelectedInstrument()->setHigherCc(
 			Midi::parameterFromIntClamp(

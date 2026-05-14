@@ -331,8 +331,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 
 	m_pLCDSpinBoxNumerator = new LCDSpinBox(
 		m_pToolBar, QSize( 62, nWidgetHeight ), LCDSpinBox::Type::Double, 0.1,
-		16.0, LCDSpinBox::Flag::ModifyOnChange
+		16.0
 	);
+	m_pLCDSpinBoxNumerator->setModifierTarget( Modifier::Pattern );
 	m_pLCDSpinBoxNumerator->setKind( LCDSpinBox::Kind::PatternSizeNumerator );
 	connect(
 		m_pLCDSpinBoxNumerator, &LCDSpinBox::slashKeyPressed, this,
@@ -359,9 +360,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 	m_pToolBar->addWidget( m_pPatternSizeSeparatorLabel );
 
 	m_pLCDSpinBoxDenominator = new LCDSpinBox(
-		m_pToolBar, QSize( 48, nWidgetHeight ), LCDSpinBox::Type::Int, 1, 192,
-		LCDSpinBox::Flag::ModifyOnChange
+		m_pToolBar, QSize( 48, nWidgetHeight ), LCDSpinBox::Type::Int, 1, 192
 	);
+	m_pLCDSpinBoxDenominator->setModifierTarget( Modifier::Pattern );
 	m_pLCDSpinBoxDenominator->setKind( LCDSpinBox::Kind::PatternSizeDenominator
 	);
 	connect(

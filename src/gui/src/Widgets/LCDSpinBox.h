@@ -27,6 +27,8 @@
 #include <QtGui>
 #include <QDoubleSpinBox>
 
+#include "Modifier.h"
+
 #include <core/Basics/Event.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -47,9 +49,10 @@
  * results.
  */
 /** \ingroup docGUI docWidgets*/
-class LCDSpinBox : public QDoubleSpinBox, public H2Core::Object<LCDSpinBox>
-{
-    H2_OBJECT(LCDSpinBox)
+class LCDSpinBox : public QDoubleSpinBox,
+				   public Modifier,
+				   public H2Core::Object<LCDSpinBox> {
+	H2_OBJECT(LCDSpinBox)
 	Q_OBJECT
 
 public:
@@ -73,23 +76,22 @@ public:
 
 	enum Flag {
 		None = 0x000,
-		ModifyOnChange = 0x001,
 		/** Used for MIDI channel spin boxes to indicate no MIDI in/output once
 		 * the value is equal to #Midi::ChannelOff */
-		ZeroAsOff = 0x002,
+		ZeroAsOff = 0x001,
 		/** Used for other properties which can be disabled by setting their
 		 * value to `-1` */
-		MinusOneAsOff = 0x004,
+		MinusOneAsOff = 0x002,
 		/** Used for MIDI channel spin boxes to indicate MIDI input from all
 		 * channels will be accepted once the value is equal to
 		 * #Midi::ChannelAll */
-		MinusOneAsAll = 0x008,
+		MinusOneAsAll = 0x004,
 		/** Assume the provided integer represents a MIDI note and display the
 		 * cooresponding name next to it. */
-		ShowMidiNote = 0x010,
+		ShowMidiNote = 0x008,
 		/** Used to indicate that the selected value is associated to the
 		 * currently selected instrument. */
-		MinusOneAsCurrentlySelected = 0x020
+		MinusOneAsCurrentlySelected = 0x010
 	};
 
 	LCDSpinBox( QWidget *pParent, QSize size = QSize(), Type type = Type::Int,
