@@ -25,12 +25,6 @@
 
 #include <QString>
 
-#include <core/Hydrogen.h>
-#include <core/Object.h>
-
-#include "../HydrogenApp.h"
-#include "../PatternEditor/PatternEditorPanel.h"
-
 /** Derived classes will have the capability to mark a corresponding artifact as
  * changed. */
 class Modifier {
@@ -39,47 +33,8 @@ class Modifier {
 	// more concise calling.
 	enum { None, Drumkit, Pattern, Song };
 
-	void setModifierTarget( int nModifierTarget )
-	{
-		if ( nModifierTarget != Drumkit && nModifierTarget != Pattern &&
-			 nModifierTarget != Song ) {
-			___ERRORLOG(
-				QString( "Invalid artifact [%1]" ).arg( nModifierTarget )
-			);
-			m_nModifierTarget = None;
-		}
-		else {
-			m_nModifierTarget = nModifierTarget;
-		}
-	};
-
-	void modify()
-	{
-		if ( m_nModifierTarget == Modifier::None ) {
-			return;
-		}
-
-		auto pHydrogen = H2Core::Hydrogen::get_instance();
-		switch ( m_nModifierTarget ) {
-			case Drumkit:
-				pHydrogen->setDrumkitModified( true );
-				break;
-			case Pattern:
-				pHydrogen->setPatternModified(
-					true, HydrogenApp::get_instance()
-							  ->getPatternEditorPanel()
-							  ->getPatternNumber()
-				);
-				break;
-			case Song:
-				pHydrogen->setSongModified( true );
-				break;
-			default:
-				___ERRORLOG(
-					QString( "Invalid artifact [%1]" ).arg( m_nModifierTarget )
-				);
-		}
-	};
+	void setModifierTarget( int nModifierTarget );
+	void modify();
 
    protected:
 	int m_nModifierTarget;
