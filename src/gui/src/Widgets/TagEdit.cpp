@@ -211,6 +211,7 @@ void TagEdit::updateStyleSheet()
 	setStyleSheet( QString( "                   \
 QTableWidget {                                  \
     background-color: %1;                       \
+    border: none;								\
     selection-background-color: %1;             \
 }                                               \
 " )
