@@ -58,6 +58,8 @@ All notable changes to this project will be documented in this file.
 - Patterns are now independent of Drumkits and the latter can switched without
   the need to adjust the patterns. Mapping between the two will be done using
   "instrument types".
+- Patterns and drumkits are now marked modified (*) in case they are loaded from
+  file.
 - `<instrumentComponent>` and `<instrumentLayer>` elements in drumkit XML
   definitions contain two new elements: `<isMuted>` and `<isSoloed>`.
 - Notes not rendered by the audio engine are now highlighted in the pattern
