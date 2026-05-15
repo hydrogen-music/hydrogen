@@ -66,6 +66,8 @@ class SoundLibraryTree : public QTreeWidget,
 	void actionExport();
 	void actionImport();
 	void actionOnlineImport();
+	void actionAddFolder();
+	void actionRemoveFolder();
 
    signals:
 	void itemChanged( bool bSelected );
@@ -107,6 +109,9 @@ class SoundLibraryTree : public QTreeWidget,
 	QTreeWidgetItem* m_pSystemItem;
 	QTreeWidgetItem* m_pUserItem;
 
+	std::vector<QTreeWidgetItem*> m_internalDirs;
+	std::vector<QTreeWidgetItem*> m_customDirs;
+
 	QMenu* m_pPopupMenu;
 	QMenu* m_pPopupMenuReadOnly;
 	/** Second version of the menu backed by the same actions but with
@@ -115,6 +120,10 @@ class SoundLibraryTree : public QTreeWidget,
 	 * appended to the corresponding list of the current drumkit/song. */
 	QMenu* m_pPopupMenuAdd;
 	QMenu* m_pPopupMenuAddReadOnly;
+
+	/** Menu for the top-level nodes / folders. */
+	QMenu* m_pPopupMenuDir;
+	QMenu* m_pPopupMenuDirReadOnly;
 
 	/** Actions that remain available when multiple items are selected. All
 	 * other actions will be hidden in multi-select context. */

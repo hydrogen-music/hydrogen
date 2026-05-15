@@ -1381,11 +1381,6 @@ Please set your system&apos;s locale to UTF-8!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Save to Sound Library</source>
-        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Keep</source>
         <extracomment>Text displayed on a Keep button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
         <translation type="unfinished"></translation>
@@ -1603,6 +1598,16 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>&apos;Name&apos; must not be left empty</source>
         <extracomment>Text in warning dialog shown in case the line edit associated with the * translatable string m_sNameDialog within a properties dialog has no * content..</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add folder to Library</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove folder from Library</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
