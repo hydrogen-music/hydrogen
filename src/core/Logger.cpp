@@ -386,6 +386,15 @@ Logger::CrashContext::~CrashContext() {
 	}
 }
 
-};
+void Logger::setCrashContext( QString* pContext )
+{
+	Logger::pCrashContext = pContext;
+}
+QString* Logger::getCrashContext()
+{
+	return Logger::pCrashContext;
+}
+
+};	// namespace H2Core
 
 /* vim: set softtabstop=4 noexpandtab: */

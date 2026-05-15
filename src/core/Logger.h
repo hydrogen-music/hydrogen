@@ -141,8 +141,8 @@ class Logger {
 		 * unlocking of a shared crash context structure.
 		 * @{
 		 */
-		static void setCrashContext( QString *pContext ) { Logger::pCrashContext = pContext; }
-		static QString *getCrashContext() { return Logger::pCrashContext; }
+		static void setCrashContext( QString *pContext );
+		static QString *getCrashContext();
 		/** @} */
 
 		bool getLogColors() const;
