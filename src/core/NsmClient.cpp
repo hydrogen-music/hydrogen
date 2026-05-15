@@ -146,7 +146,7 @@ int NsmClient::OpenCallback( const char *name,
 		// Mark empty song modified in order to emphasis that an
 		// initial song save is required to generate the song file and
 		// link the associated drumkit in the session folder.
-		pSong->setIsModified( true );
+		pHydrogen->setSongModified( true );
 		pNsmClient->setIsNewSession( true );
 	}
 

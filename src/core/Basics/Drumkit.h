@@ -273,6 +273,9 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** #m_imageLicense accessor */
 		const License& getImageLicense() const;
 
+	bool getIsModified() const;
+	void setIsModified( bool bIsModified );
+
 	/**
 	 * Returns vector of lists containing instrument name, component
 	 * name, file name, the license of all associated samples.
@@ -344,6 +347,13 @@ class Drumkit : public H2Core::Object<Drumkit>
 		QStringList m_tags;
 		QString m_sImage;				///< drumkit image filename
 		License m_imageLicense;			///< drumkit image license
+
+	/** Transient member not written to file stating whether a loaded drumkit
+	 * was modified and should be saved to prevent a loss of data.
+	 *
+	 * Note that drumkits not associated with files - new ones - will not be
+	 * marked modified. */
+	bool m_bIsModified;
 
 		std::shared_ptr<InstrumentList> m_pInstruments;  ///< the list of instruments
 
@@ -482,6 +492,16 @@ inline void Drumkit::setImageLicense( const License& imageLicense )
 inline const License& Drumkit::getImageLicense() const
 {
 	return m_imageLicense;
+}
+
+inline bool Drumkit::getIsModified() const {
+	return m_bIsModified;
+}
+
+inline void Drumkit::setIsModified( bool bIsModified ) {
+	if ( ! m_sPath.isEmpty() && bIsModified != m_bIsModified ) {
+		m_bIsModified = bIsModified;
+	}
 }
 
 };

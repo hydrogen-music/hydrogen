@@ -105,7 +105,7 @@ void ShotList::shoot( const QString& s ) {
 		// Since the shot lists do also toggle some buttons that mark
 		// the overall song modified, we need to discard the flag in
 		// order to avoid a popup dialog.
-		H2Core::Hydrogen::get_instance()->setIsModified( false );
+		H2Core::Hydrogen::get_instance()->setSongModified( false );
 		
 		QTimer::singleShot( 1, QApplication::instance(), &QApplication::closeAllWindows );
 	} else if ( sCmd.compare( "dump", Qt::CaseInsensitive) == 0 ) {

@@ -321,7 +321,7 @@ bool Hydrogen::addRealtimeNote(
 	const bool bPlaySelectedInstrument = pPref->getMidiInstrumentMap()->getInput() ==
 		MidiInstrumentMap::Input::SelectedInstrument;
 	int scalar = ( 4 * 4 * H2Core::nTicksPerQuarter ) / ( res * nBase );
-	int currentPatternNumber;
+	int nCurrentPatternNumber;
 
 	std::shared_ptr<Song> pSong = getSong();
 
@@ -374,12 +374,12 @@ bool Hydrogen::addRealtimeNote(
 
 		// Capture new notes in the bottom-most pattern (if not already done above)
 		auto pColumn = ( *pColumns )[ nColumn ];
-		currentPatternNumber = -1;
+		nCurrentPatternNumber = -1;
 		for ( int n = 0; n < pColumn->size(); n++ ) {
 			auto pPattern = pColumn->get( n );
 			int nIndex = pPatternList->index( pPattern );
-			if ( nIndex > currentPatternNumber ) {
-				currentPatternNumber = nIndex;
+			if ( nIndex > nCurrentPatternNumber ) {
+				nCurrentPatternNumber = nIndex;
 				pCurrentPattern = pPattern;
 			}
 		}
@@ -395,7 +395,7 @@ bool Hydrogen::addRealtimeNote(
 			 && ( m_nSelectedPatternNumber < ( int )pPatternList->size() ) )
 		{
 			pCurrentPattern = pPatternList->get( m_nSelectedPatternNumber );
-			currentPatternNumber = m_nSelectedPatternNumber;
+			nCurrentPatternNumber = m_nSelectedPatternNumber;
 		}
 
 		if ( ! pCurrentPattern ) {
@@ -427,10 +427,8 @@ bool Hydrogen::addRealtimeNote(
 
 		INFOLOG( QString( "Recording [%1] to pattern: %2 (%3), tick: [%4/%5]." )
 				 .arg( bNoteOff ? "NoteOff" : "NoteOn")
-				 .arg( currentPatternNumber ).arg( pCurrentPattern->getName() )
+				 .arg( nCurrentPatternNumber ).arg( pCurrentPattern->getName() )
 				 .arg( nTickInPattern ).arg( pCurrentPattern->getLength() ) );
-
-		bool bIsModified = false;
 
 		if ( bNoteOff ) {
             // Handle the Note-Off event corresponding to the previous Note-On.
@@ -459,6 +457,7 @@ bool Hydrogen::addRealtimeNote(
 					m_nLastRecordedMIDINoteTick;
 			}
 
+			bool bPatternModified = false;
 			for ( unsigned nnNote = 0; nnNote < nPatternSize; nnNote++ ) {
 				const Pattern::notes_t* notes = pCurrentPattern->getNotes();
 				FOREACH_NOTE_CST_IT_BOUND_LENGTH(
@@ -476,16 +475,23 @@ bool Hydrogen::addRealtimeNote(
 								nPatternSize - m_nLastRecordedMIDINoteTick;
 						}
 						pNote->setLength( nNewNoteLength );
-						bIsModified = true;
+						bPatternModified = true;
 					}
 				}
+			}
+
+			if ( bPatternModified && ! pCurrentPattern->getIsModified() ) {
+				EventQueue::get_instance()->pushEvent(
+					Event::Type::PatternChanged, -1
+				);
+				setPatternModified( true, nCurrentPatternNumber );
 			}
 		}
 		else { // note on
 			EventQueue::AddMidiNoteVector noteAction;
 			noteAction.nColumn = nTickInPattern;
 			noteAction.id = instrumentId;
-			noteAction.nPattern = currentPatternNumber;
+			noteAction.nPattern = nCurrentPatternNumber;
 			noteAction.fVelocity = fVelocity;
 			noteAction.fPan = fPan;
 			noteAction.nLength = -1;
@@ -502,13 +508,6 @@ bool Hydrogen::addRealtimeNote(
 			EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
 
 			m_nLastRecordedMIDINoteTick = nTickInPattern;
-			
-			bIsModified = true;
-		}
-		
-		if ( bIsModified ) {
-			EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1 );
-			setIsModified( true );
 		}
 	}
 
@@ -1228,7 +1227,7 @@ void Hydrogen::setIsPatternEditorLocked( bool bValue ) {
 	if ( m_pSong != nullptr &&
 		 bValue != m_pSong->getIsPatternEditorLocked() ) {
 		m_pSong->setIsPatternEditorLocked( bValue );
-		m_pSong->setIsModified( true );
+		setSongModified( true );
 
 		updateSelectedPattern();
 			
@@ -1289,7 +1288,7 @@ void Hydrogen::setPatternMode( const Song::PatternMode& mode )
 		m_pAudioEngine->lock( RIGHT_HERE );
 
 		m_pSong->setPatternMode( mode );
-		setIsModified( true );
+		setSongModified( true );
 		
 		if ( m_pAudioEngine->getState() != AudioEngine::State::Playing ||
 			 mode == Song::PatternMode::Selected ) {
@@ -1353,16 +1352,73 @@ void Hydrogen::recreateOscServer() {
 #endif
 }
 
-void Hydrogen::setIsModified( bool bIsModified ) {
-	if ( getSong() != nullptr ) {
-		if ( getSong()->getIsModified() != bIsModified ) {
-			getSong()->setIsModified( bIsModified );
-		}
+void Hydrogen::setDrumkitModified( bool bIsModified )
+{
+	if ( m_pSong == nullptr || m_pSong->getDrumkit() == nullptr ) {
+		return;
 	}
+
+	if ( bIsModified && ! m_pSong->getIsModified() ) {
+		setSongModified( true );
+	}
+
+	if ( m_pSong->getDrumkit()->getIsModified() == bIsModified ) {
+		return;
+	}
+
+	m_pSong->getDrumkit()->setIsModified( bIsModified );
+
+	EventQueue::get_instance()->pushEvent( Event::Type::DrumkitIsModified, -1 );
 }
-bool Hydrogen::getIsModified() const {
-	if ( getSong() != nullptr ) {
-		return getSong()->getIsModified();
+
+void Hydrogen::setPatternModified( bool bIsModified, int nIndex )
+{
+	if ( m_pSong == nullptr ) {
+		return;
+	}
+
+	auto pPattern = m_pSong->getPatternList()->get( nIndex );
+	if ( pPattern == nullptr ) {
+		return;
+	}
+
+	if ( bIsModified && ! m_pSong->getIsModified() ) {
+		setSongModified( true );
+	}
+
+	if ( pPattern->getIsModified() == bIsModified ) {
+		return;
+	}
+
+	pPattern->setIsModified( bIsModified );
+
+	EventQueue::get_instance()->pushEvent(
+		Event::Type::PatternIsModified, nIndex
+	);
+}
+
+void Hydrogen::setSongModified( bool bIsModified )
+{
+	if ( m_pSong == nullptr || m_pSong->getIsModified() == bIsModified ) {
+		return;
+	}
+
+	m_pSong->setIsModified( bIsModified );
+
+	EventQueue::get_instance()->pushEvent( Event::Type::SongIsModified, -1 );
+
+#ifdef H2CORE_HAVE_OSC
+	if ( isUnderSessionManagement() ) {
+		// If Hydrogen is under session management (NSM), tell the
+		// NSM server that the Song was modified.
+		NsmClient::get_instance()->sendDirtyState( bIsModified );
+	}
+#endif
+}
+
+bool Hydrogen::getSongModified() const {
+	if ( m_pSong != nullptr ) {
+		return m_pSong->getIsModified();
 	}
 	return false;
 }
@@ -1567,7 +1623,7 @@ void Hydrogen::updateVirtualPatterns( Event::Trigger trigger ) {
 
 	if ( trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->pushEvent(
-			Event::Type::PatternModified, 0
+			Event::Type::PatternChanged, 0
 		);
 	}
 }

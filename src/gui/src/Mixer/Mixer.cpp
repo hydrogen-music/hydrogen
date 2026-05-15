@@ -87,7 +87,11 @@ Mixer::Mixer( QWidget* pParent )
 
 // fX frame
 #ifdef H2CORE_HAVE_LADSPA
-	auto pEffects = Effects::get_instance();
+	std::shared_ptr<Effects> pEffects;
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong != nullptr ) {
+		pEffects = pSong->getEffects();
+	}
 #endif
 	m_pFXFrame = new PixmapWidget( nullptr );
 	m_pFXFrame->setObjectName( "MixerFXRack" );
@@ -95,7 +99,8 @@ Mixer::Mixer( QWidget* pParent )
 	m_pFXFrame->setPixmap( "/mixerPanel/background_FX.png" );
 	for ( int nnFX = 0; nnFX < MAX_FX; nnFX++ ) {
 #ifdef H2CORE_HAVE_LADSPA
-		auto pFX = pEffects->getLadspaFX( nnFX );
+		auto pFX =
+			pEffects != nullptr ? pEffects->getLadspaFX( nnFX ) : nullptr;
 		auto ppLine = new LadspaFXLine( m_pFXFrame, pFX, nnFX );
 #else
 		auto ppLine = new LadspaFXLine( m_pFXFrame, nullptr, nnFX );
@@ -253,7 +258,7 @@ void Mixer::updateMixer()
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
 	for ( int nnFX = 0; nnFX < MAX_FX; nnFX++ ) {
-		auto pFX = Effects::get_instance()->getLadspaFX( nnFX );
+		auto pFX = pSong->getEffects()->getLadspaFX( nnFX );
 		auto pFxLine = m_ladspaFXLines[ nnFX ];
 		if ( pFxLine->getFX() != pFX ) {
 			pFxLine->setFX( pFX );

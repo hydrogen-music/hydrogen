@@ -43,8 +43,7 @@ Fader::Fader(
 	bool bUseIntSteps,
 	bool bWithoutKnob,
 	float fMin,
-	float fMax,
-	bool bModifyOnChange
+	float fMax
 )
 	: WidgetWithInput(
 		  pParent,
@@ -53,8 +52,7 @@ Fader::Fader(
 		  1,  // nScrollSpeed
 		  5,  // nScrollSpeedFast
 		  fMin,
-		  fMax,
-		  bModifyOnChange
+		  fMax
 	  ),
 	  m_type( type ),
 	  m_bWithoutKnob( bWithoutKnob ),

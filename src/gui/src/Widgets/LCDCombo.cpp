@@ -28,14 +28,15 @@
 #include <core/Globals.h>
 
 
-LCDCombo::LCDCombo( QWidget *pParent, const QSize& size, bool bModifyOnChange )
+LCDCombo::LCDCombo( QWidget *pParent, const QSize& size )
 	: QComboBox( pParent )
 	, m_size( size )
 	, m_bEntered( false )
-	, m_bModifyOnChange( bModifyOnChange )
 	, m_nMaxWidth( 0 )
 	, m_bIsActive( true )
 {
+	m_nModifierTarget = Modifier::None;
+
 	setFocusPolicy( Qt::NoFocus );
 
 	if ( ! size.isNull() ) {
@@ -45,19 +46,18 @@ LCDCombo::LCDCombo( QWidget *pParent, const QSize& size, bool bModifyOnChange )
 
 	updateStyleSheet();
 
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &LCDCombo::onPreferencesChanged );
-	// Mark the current song modified if there was an user interaction
-	// with the widget.
-	connect( this, SIGNAL( activated(int) ), this, SLOT( handleIsModified(int) ) );
+	connect(
+		HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this,
+		&LCDCombo::onPreferencesChanged
+	);
+	connect( this, QOverload<int>::of(&QComboBox::activated), [&]( int ) {
+		if ( m_nModifierTarget != Modifier::None ) {
+			modify();
+		}
+	} );
 }
 
 LCDCombo::~LCDCombo() {
-}
-
-void LCDCombo::handleIsModified( int ) {
-	if ( m_bModifyOnChange ) {
-		H2Core::Hydrogen::get_instance()->setIsModified( true );
-	}
 }
 
 void LCDCombo::addItem( const QString& sText, const QVariant& userData ) {

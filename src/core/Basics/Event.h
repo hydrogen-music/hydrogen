@@ -65,6 +65,7 @@ public:
 			 */
 			BbtChanged,
 			BeatCounter,
+			DrumkitIsModified,
 			/** A the current drumkit was replaced by a new one. */
 			DrumkitLoaded,
 			EffectChanged,
@@ -128,9 +129,11 @@ public:
 			NextShot,
 			/** Sampler does start to render a note. */
 			NoteRender,
+			PatternChanged,
 			/** Locks the PatternEditor on the pattern currently played back.*/
 			PatternEditorLocked,
-			PatternModified,
+			/** Whether the modification state of a pattern changed. */
+			PatternIsModified,
 			PlaybackTrackChanged,
 			/**
 			 * Event triggered whenever part of or the whole current
@@ -190,7 +193,7 @@ public:
 			SelectedInstrumentChanged,
 			SelectedPatternChanged,
 			SongModeActivation,
-			SongModified,
+			SongIsModified,
 			SongSizeChanged,
 			SoundLibraryChanged,
 			/** Song::PatternMode::Stacked (0) or Song::PatternMode::Selected

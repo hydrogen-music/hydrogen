@@ -541,7 +541,7 @@ void SongEditorPatternList::movePatternLine(
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateEditors(
 		Editor::Update::Content
 	);
-	pHydrogen->setIsModified( true );
+	pHydrogen->setSongModified( true );
 }
 
 int SongEditorPatternList::yToRow( int nY ) const
@@ -984,7 +984,11 @@ void SongEditorPatternList::createBackground()
 			PatternArray[i].bNext = false;
 		}
 
-		PatternArray[i].sPatternName = pPattern->getName();
+		QString sText( pPattern->getName() );
+		if ( pPattern->getIsModified() ) {
+			sText.append( "*" );
+		}
+		PatternArray[i].sPatternName = sText;
 	}
 	pAudioEngine->unlock();
 

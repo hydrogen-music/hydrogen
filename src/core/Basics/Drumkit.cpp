@@ -63,6 +63,7 @@ Drumkit::Drumkit()
 	  m_tags( QStringList() ),
 	  m_sImage( "" ),
 	  m_imageLicense( License() ),
+	  m_bIsModified( false ),
 	  m_pInstruments( std::make_shared<InstrumentList>() )
 {
 }
@@ -78,6 +79,7 @@ Drumkit::Drumkit( std::shared_ptr<Drumkit> other )
 	  m_license( other->getLicense() ),
 	  m_tags( other->m_tags ),
 	  m_sImage( other->getImage() ),
+	  m_bIsModified( other->m_bIsModified ),
 	  m_imageLicense( other->getImageLicense() )
 {
 	m_pInstruments = std::make_shared<InstrumentList>( other->getInstruments() );
@@ -1450,6 +1452,7 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_tags: %3\n" ).arg( sPrefix ).arg( s ).arg( m_tags.join( ", " ) ) )
 			.append( QString( "%1%2image: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sImage ) )
 			.append( QString( "%1%2imageLicense: %3\n" ).arg( sPrefix ).arg( s ).arg( m_imageLicense.toQString() ) )
+			.append( QString( "%1%2m_bIsModified: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsModified ) )
 			.append( QString( "%1%2samples_loaded: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_pInstruments->isAnyInstrumentSampleLoaded() ) )
 			.append( QString( "%1" ).arg( m_pInstruments->toQString( sPrefix + s, bShort ) ) );
@@ -1469,6 +1472,7 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_tags: %1" ).arg( m_tags.join( ", " ) ) )
 			.append( QString( ", image: %1" ).arg( m_sImage ) )
 			.append( QString( ", imageLicense: %1" ).arg( m_imageLicense.toQString() ) )
+			.append( QString( ", m_bIsModified: %1" ).arg( m_bIsModified ) )
 			.append( QString( ", samples_loaded: %1" )
 					 .arg( m_pInstruments->isAnyInstrumentSampleLoaded() ) )
 			.append( QString( ", [%1]" ).arg( m_pInstruments->toQString( sPrefix + s, bShort ) ) );

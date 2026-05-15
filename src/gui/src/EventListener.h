@@ -36,6 +36,7 @@ class EventListener
 		virtual void bbtChangedEvent(){}
 		virtual void beatCounterEvent() {}
 		virtual void drumkitLoadedEvent(){}
+		virtual void drumkitIsModifiedEvent(){}
 		virtual void effectChangedEvent(){}
 		virtual void errorEvent( int nErrorCode ) { UNUSED( nErrorCode ); }
     	virtual void gridCellToggledEvent(){}
@@ -61,8 +62,9 @@ class EventListener
 		virtual void nextPatternsChangedEvent(){}
 		virtual void nextShotEvent(){}
 		virtual void noteRenderEvent( int nInstrument ) { UNUSED( nInstrument ); }
+		virtual void patternChangedEvent() {}
 		virtual void patternEditorLockedEvent(){}
-		virtual void patternModifiedEvent() {}
+		virtual void patternIsModifiedEvent() {}
 		virtual void playbackTrackChangedEvent(){}
 		virtual void playingPatternsChangedEvent() {}
 		virtual void playlistChangedEvent( int nValue ){ UNUSED( nValue ); }
@@ -74,7 +76,7 @@ class EventListener
 		virtual void selectedPatternChangedEvent() {}
 		virtual void selectedInstrumentChangedEvent() {}
 		virtual void songModeActivationEvent(){}
-		virtual void songModifiedEvent() {}
+		virtual void songIsModifiedEvent() {}
 		virtual void songSizeChangedEvent(){}
 		virtual void soundLibraryChangedEvent(){}
 		virtual void stackedModeActivationEvent( int nValue ){ UNUSED( nValue ); }

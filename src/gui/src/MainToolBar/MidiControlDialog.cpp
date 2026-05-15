@@ -976,9 +976,9 @@ void MidiControlDialog::addInstrumentTableRow() {
 			MidiControlDialog::nMappingBoxHeight
 		),
 		LCDSpinBox::Type::Int, static_cast<int>( Midi::NoteMinimum ),
-		static_cast<int>( Midi::NoteMaximum ),
-		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::ShowMidiNote
+		static_cast<int>( Midi::NoteMaximum ), LCDSpinBox::Flag::ShowMidiNote
 	);
+	pOutputNoteSpinBox->setModifierTarget( Modifier::Song );
 
 	auto pOutputChannelSpinBox = new LCDSpinBox(
 		m_pInstrumentTable,
@@ -987,9 +987,9 @@ void MidiControlDialog::addInstrumentTableRow() {
 			MidiControlDialog::nMappingBoxHeight
 		),
 		LCDSpinBox::Type::Int, static_cast<int>( Midi::ChannelOff ),
-		static_cast<int>( Midi::ChannelMaximum ),
-		LCDSpinBox::Flag::ModifyOnChange | LCDSpinBox::Flag::ZeroAsOff
+		static_cast<int>( Midi::ChannelMaximum ), LCDSpinBox::Flag::ZeroAsOff
 	);
+	pOutputChannelSpinBox->setModifierTarget( Modifier::Song );
 	pOutputChannelSpinBox->setSizePolicy(
 		QSizePolicy::Expanding, QSizePolicy::Fixed
 	);

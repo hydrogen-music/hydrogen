@@ -30,28 +30,34 @@
 
 #include <core/Hydrogen.h>
 
-WidgetWithInput::WidgetWithInput( QWidget* parent, bool bUseIntSteps,
-								  const QString& sBaseToolTip, int nScrollSpeed,
-								  int nScrollSpeedFast, float fMin, float fMax,
-								  bool bModifyOnChange )
-	: QWidget( parent )
-	, m_bUseIntSteps( bUseIntSteps )
-	, m_nScrollSpeed( nScrollSpeed )
-	, m_nScrollSpeedFast( nScrollSpeedFast )
-	, m_fMin( fMin )
-	, m_fMax( fMax )
-	, m_fDefaultValue( fMin )
-	, m_fValue( fMin )
-	, m_fMousePressValue( 0.0 )
-	, m_fMousePressY( 0.0 )
-	, m_bIgnoreMouseMove( false )
-	, m_bEntered( false )
-	, m_bIsActive( true )
-	, m_nWidgetHeight( 20 )
-	, m_nWidgetWidth( 20 )
-	, m_sInputBuffer( "" )
-	, m_bModifyOnChange( bModifyOnChange ) {
-	
+WidgetWithInput::WidgetWithInput(
+	QWidget* parent,
+	bool bUseIntSteps,
+	const QString& sBaseToolTip,
+	int nScrollSpeed,
+	int nScrollSpeedFast,
+	float fMin,
+	float fMax
+)
+	: QWidget( parent ),
+	  m_bUseIntSteps( bUseIntSteps ),
+	  m_nScrollSpeed( nScrollSpeed ),
+	  m_nScrollSpeedFast( nScrollSpeedFast ),
+	  m_fMin( fMin ),
+	  m_fMax( fMax ),
+	  m_fDefaultValue( fMin ),
+	  m_fValue( fMin ),
+	  m_fMousePressValue( 0.0 ),
+	  m_fMousePressY( 0.0 ),
+	  m_bIgnoreMouseMove( false ),
+	  m_bEntered( false ),
+	  m_bIsActive( true ),
+	  m_nWidgetHeight( 20 ),
+	  m_nWidgetWidth( 20 ),
+	  m_sInputBuffer( "" )
+{
+	m_nModifierTarget = Modifier::None;
+
 	setAttribute( Qt::WA_Hover );
 	setFocusPolicy( Qt::ClickFocus );
 	setBaseToolTip( sBaseToolTip );
@@ -125,8 +131,9 @@ void WidgetWithInput::setValue( float fValue, bool bTriggeredByUserInteraction,
 		updateToolTip();
 		update();
 
-		if ( m_bModifyOnChange && bTriggeredByUserInteraction ) {
-			H2Core::Hydrogen::get_instance()->setIsModified( true );
+		if ( m_nModifierTarget != Modifier::None &&
+			 bTriggeredByUserInteraction ) {
+			modify();
 		}
 	}
 }

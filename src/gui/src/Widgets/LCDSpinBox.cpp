@@ -26,8 +26,8 @@
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
-#include "core/Basics/Note.h"
 
+#include <core/Basics/Note.h>
 #include <core/Globals.h>
 #include <core/Preferences/Preferences.h>
 
@@ -43,6 +43,8 @@ LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin,
 {
 	setFocusPolicy( Qt::ClickFocus );
 	setLocale( QLocale( QLocale::C, QLocale::AnyCountry ) );
+
+	m_nModifierTarget = Modifier::None;
 	
 	if ( size.isNull() || size.isEmpty() ) {
 		m_size = sizeHint();
@@ -132,9 +134,8 @@ void LCDSpinBox::wheelEvent( QWheelEvent *ev ) {
 
 	}
 
-	if ( fOldValue != value() &&
-		 ( m_flag & Flag::ModifyOnChange ) ) {
-		H2Core::Hydrogen::get_instance()->setIsModified( true );
+	if ( fOldValue != value() && m_nModifierTarget != Modifier::None ) {
+		modify();
 	}
 }
 
@@ -189,8 +190,8 @@ void LCDSpinBox::keyPressEvent( QKeyEvent *ev ) {
 		 QDoubleSpinBox::keyPressEvent( ev );
 	}
 	
-	if ( fOldValue != value() && ( m_flag & Flag::ModifyOnChange ) ) {
-		H2Core::Hydrogen::get_instance()->setIsModified( true );
+	if ( fOldValue != value() && m_nModifierTarget != Modifier::None ) {
+		modify();
 	}
 }
 
@@ -361,8 +362,8 @@ void LCDSpinBox::mousePressEvent( QMouseEvent* ev ) {
 
 	QDoubleSpinBox::mousePressEvent( ev );
 	
-	if ( fOldValue != value() && ( m_flag & Flag::ModifyOnChange ) ) {
-		H2Core::Hydrogen::get_instance()->setIsModified( true );
+	if ( fOldValue != value() && m_nModifierTarget != Modifier::None ) {
+		modify();
 	}
 }
 
@@ -371,8 +372,8 @@ void LCDSpinBox::mouseMoveEvent( QMouseEvent* ev ) {
 
 	QDoubleSpinBox::mouseMoveEvent( ev );
 	
-	if ( fOldValue != value() && ( m_flag & Flag::ModifyOnChange ) ) {
-		H2Core::Hydrogen::get_instance()->setIsModified( true );
+	if ( fOldValue != value() && m_nModifierTarget != Modifier::None ) {
+		modify();
 	}
 }
 
@@ -381,8 +382,8 @@ void LCDSpinBox::mouseReleaseEvent( QMouseEvent* ev ) {
 
 	QDoubleSpinBox::mouseReleaseEvent( ev );
 	
-	if ( fOldValue != value() && ( m_flag & Flag::ModifyOnChange ) ) {
-		H2Core::Hydrogen::get_instance()->setIsModified( true );
+	if ( fOldValue != value() && m_nModifierTarget != Modifier::None ) {
+		modify();
 	}
 }
 

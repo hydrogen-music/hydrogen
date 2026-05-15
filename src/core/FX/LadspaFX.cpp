@@ -47,18 +47,15 @@ LadspaFXGroup::~LadspaFXGroup() {
 void LadspaFXGroup::clear() {
 	m_childGroups.clear();
 	m_ladspaList.clear();
-	Hydrogen::get_instance()->setIsModified( true );
 }
 
 void LadspaFXGroup::addLadspaInfo( std::shared_ptr<LadspaFXInfo> pInfo ) {
 	m_ladspaList.push_back( pInfo );
-	Hydrogen::get_instance()->setIsModified( true );
 }
 
 
 void LadspaFXGroup::addChild( std::shared_ptr<LadspaFXGroup> pChild ) {
 	m_childGroups.push_back( pChild );
-	Hydrogen::get_instance()->setIsModified( true );
 }
 
 bool LadspaFXGroup::alphabeticOrder( std::shared_ptr<LadspaFXGroup> a,
@@ -71,7 +68,6 @@ void LadspaFXGroup::sort() {
 			   LadspaFXInfo::alphabeticOrder );
 	std::sort( m_childGroups.begin(), m_childGroups.end(),
 			   LadspaFXGroup::alphabeticOrder );
-	Hydrogen::get_instance()->setIsModified( true );
 }
 
 ////////////////
@@ -149,17 +145,12 @@ LadspaFX::~LadspaFX() {
 
 void LadspaFX::setPluginName( const QString& sName ) {
 	m_sName = sName;
-	
-	if ( Hydrogen::get_instance()->getSong() != nullptr ) {
-		Hydrogen::get_instance()->setIsModified( true );
-	}
 }
 void LadspaFX::setEnabled( bool value, Event::Trigger trigger ) {
-	m_bEnabled = value;
-	
-	if ( Hydrogen::get_instance()->getSong() != nullptr ) {
-		Hydrogen::get_instance()->setIsModified( true );
+	if ( m_bEnabled == value ) {
+		return;
 	}
+	m_bEnabled = value;
 
 	if ( trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->pushEvent( Event::Type::EffectChanged, 0 );
@@ -352,10 +343,6 @@ std::shared_ptr<LadspaFX> LadspaFX::load( const QString& sLibraryPath,
 			_ERRORLOG( "unknown port" );
 		}
 	}
-	
-	if ( Hydrogen::get_instance()->getSong() != nullptr ) {
-		Hydrogen::get_instance()->setIsModified( true );
-	}
 	return pFX;
 }
 
@@ -417,7 +404,6 @@ void LadspaFX::activate( Event::Trigger trigger ) {
 		m_bActivated = true;
 		Logger::CrashContext cc( &m_sLibraryPath );
 		m_d->activate( m_handle );
-		Hydrogen::get_instance()->setIsModified( true );
 
 		if ( trigger != Event::Trigger::Suppress ) {
 			EventQueue::get_instance()->pushEvent( Event::Type::EffectChanged, 0 );
@@ -431,7 +417,6 @@ void LadspaFX::deactivate( Event::Trigger trigger ) {
 		m_bActivated = false;
 		Logger::CrashContext cc( &m_sLibraryPath );
 		m_d->deactivate( m_handle );
-		Hydrogen::get_instance()->setIsModified( true );
 
 		if ( trigger != Event::Trigger::Suppress ) {
 			EventQueue::get_instance()->pushEvent( Event::Type::EffectChanged, 0 );
@@ -447,10 +432,6 @@ void LadspaFX::setVolume( float fValue ) {
 		fValue = 0.0;
 	}
 	m_fVolume = fValue;
-
-	if ( Hydrogen::get_instance()->getSong() != nullptr ) {
-		Hydrogen::get_instance()->setIsModified( true );
-	}
 }
 };
 

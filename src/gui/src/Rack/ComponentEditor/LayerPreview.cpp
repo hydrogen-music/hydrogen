@@ -850,7 +850,7 @@ void LayerPreview::mouseMoveEvent( QMouseEvent* ev )
 
 			if ( bChanged ) {
 				update();
-				Hydrogen::get_instance()->setIsModified( true );
+				Hydrogen::get_instance()->setDrumkitModified( true );
 			}
 			break;
 		}

@@ -36,6 +36,8 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "BbtChanged";
 	case Event::Type::BeatCounter:
 		return "BeatCounter";
+	case Event::Type::DrumkitIsModified:
+		return "DrumkitIsModified";
 	case Event::Type::DrumkitLoaded:
 		return "DrumkitLoaded";
 	case Event::Type::EffectChanged:
@@ -76,10 +78,12 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "NextShot";
 	case Event::Type::NoteRender:
 		return "NoteRender";
+	case Event::Type::PatternChanged:
+		return "PatternChanged";
 	case Event::Type::PatternEditorLocked:
 		return "PatternEditorLocked";
-	case Event::Type::PatternModified:
-		return "PatternModified";
+	case Event::Type::PatternIsModified:
+		return "PatternIsModified";
 	case Event::Type::PlaybackTrackChanged:
 		return "PlaybackTrackChanged";
 	case Event::Type::PlayingPatternsChanged:
@@ -102,8 +106,8 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "SelectedPatternChanged";
 	case Event::Type::SongModeActivation:
 		return "SongModeActivation";
-	case Event::Type::SongModified:
-		return "SongModified";
+	case Event::Type::SongIsModified:
+		return "SongIsModified";
 	case Event::Type::SongSizeChanged:
 		return "SongSizeChanged";
 	case Event::Type::SoundLibraryChanged:

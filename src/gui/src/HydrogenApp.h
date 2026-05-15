@@ -107,8 +107,8 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 										 const QString& sBaseFile );
 
 		/** Checks whether there are unsaved changes in the current song (for
-		* H2Core::Filesystem::FileType::Song) or playlist (for
-		* H2Core::Filesystem::FileType::Playlist).
+		* H2Core::Filesystem::Artifact::Song) or playlist (for
+		* H2Core::Filesystem::Artifact::Playlist).
 		*
 		* @return `true` if handled, `false` if aborted. */
 		static bool handleUnsavedChanges( const H2Core::Filesystem::Artifact& type );
@@ -269,7 +269,7 @@ signals:
 		void engineError(uint nErrorCode);
 
 		void setupSinglePanedInterface();
-		virtual void songModifiedEvent() override;
+		virtual void songIsModifiedEvent() override;
 		virtual void XRunEvent() override;
 
 		/** Handles the loading and saving of the H2Core::Preferences

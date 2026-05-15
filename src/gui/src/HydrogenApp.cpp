@@ -953,7 +953,7 @@ SoundLibraryPanel* HydrogenApp::getSoundLibraryPanel() const
 	return m_pRack->getSoundLibraryPanel();
 }
 
-void HydrogenApp::songModifiedEvent()
+void HydrogenApp::songIsModifiedEvent()
 {
 	updateWindowTitle();
 }
@@ -1014,6 +1014,10 @@ void HydrogenApp::onEventQueueTimer()
 
 			case Event::Type::BeatCounter:
 				ppEventListener->beatCounterEvent();
+				break;
+
+			case Event::Type::DrumkitIsModified:
+				ppEventListener->drumkitIsModifiedEvent();
 				break;
 
 			case Event::Type::DrumkitLoaded:
@@ -1101,12 +1105,16 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->quitEvent( pEvent->getValue() );
 				break;
 
+			case Event::Type::PatternChanged:
+				ppEventListener->patternChangedEvent();
+				break;
+
 			case Event::Type::PatternEditorLocked:
 				ppEventListener->patternEditorLockedEvent();
 				break;
 
-			case Event::Type::PatternModified:
-				ppEventListener->patternModifiedEvent();
+			case Event::Type::PatternIsModified:
+				ppEventListener->patternIsModifiedEvent();
 				break;
 
 			case Event::Type::PlaybackTrackChanged:
@@ -1149,8 +1157,8 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->songModeActivationEvent();
 				break;
 
-			case Event::Type::SongModified:
-				ppEventListener->songModifiedEvent();
+			case Event::Type::SongIsModified:
+				ppEventListener->songIsModifiedEvent();
 				break;
 
 			case Event::Type::SongSizeChanged:

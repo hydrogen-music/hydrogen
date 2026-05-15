@@ -607,11 +607,7 @@ void SongPropertiesDialog::on_okBtn_clicked()
 		bIsModified = true;
 	}
 
-	pHydrogen->setIsModified( bIsModified && !( m_action & Action::SaveAs ) );
-
-	// We do not need to send an Event::SongModified in here. This is only
-	// required for the currently active song, which must always be altered
-	// using Action::ModifyViaUndo.
+	pHydrogen->setSongModified( bIsModified && !( m_action & Action::SaveAs ) );
 
 	accept();
 }

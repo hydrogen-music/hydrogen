@@ -1829,7 +1829,7 @@ bool Sampler::renderNote(
 	if ( !bIsMuted ) {
 		float masterVol = pSong->getVolume();
 		for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-			auto pFX = Effects::get_instance()->getLadspaFX( nFX );
+			auto pFX = pSong->getEffects()->getLadspaFX( nFX );
 			float fLevel = pInstrument->getFxLevel( nFX );
 			if ( pFX != nullptr && fLevel != 0.0 ) {
 				fLevel = fLevel * pFX->getVolume();

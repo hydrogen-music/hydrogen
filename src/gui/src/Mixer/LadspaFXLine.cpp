@@ -61,7 +61,7 @@ LadspaFXLine::LadspaFXLine( QWidget* pParent, std::shared_ptr<LadspaFX> pFX,
 		if ( m_pFX != nullptr ) {
 			m_pFX->setEnabled( ! m_pBypassBtn->isChecked() );
 
-			Hydrogen::get_instance()->setIsModified( true );
+			Hydrogen::get_instance()->setSongModified( true );
 		}
 	});
 #endif
@@ -91,6 +91,7 @@ LadspaFXLine::LadspaFXLine( QWidget* pParent, std::shared_ptr<LadspaFX> pFX,
 	// m_pRotary
 	m_pVolumeRotary = new Rotary(
 		this, Rotary::Type::Normal, tr( "Effect return" ), false );
+	m_pVolumeRotary->setModifierTarget( Modifier::Song );
 	m_pVolumeRotary->setDefaultValue( m_pVolumeRotary->getMax() );
 	m_pVolumeRotary->move( 124, 4 );
 	m_pVolumeRotary->setIsActive( false );
@@ -103,8 +104,6 @@ LadspaFXLine::LadspaFXLine( QWidget* pParent, std::shared_ptr<LadspaFX> pFX,
 					.arg( m_pVolumeRotary->getValue(), 0, 'f', 2 ),
 			QString( "%1:rotaryChanged:%2" )
 			.arg( class_name() ).arg( pFX->getPluginName() ) );
-
-			Hydrogen::get_instance()->setIsModified( true );
 		}
 	});
 #endif

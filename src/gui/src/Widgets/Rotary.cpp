@@ -32,15 +32,14 @@
 #include <core/Globals.h>
 
 Rotary::Rotary( QWidget* parent, const Type& type, const QString& sBaseTooltip,
-				bool bUseIntSteps, float fMin, float fMax, bool bModifyOnChange )
+				bool bUseIntSteps, float fMin, float fMax )
 	: WidgetWithInput( parent,
 					   bUseIntSteps,
 					   sBaseTooltip,
 					   1, //nScrollSpeed,
 					   5, // nScrollSpeedFast,
 					   fMin,
-					   fMax,
-					   bModifyOnChange )
+					   fMax )
 	, m_type( type ) {
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,

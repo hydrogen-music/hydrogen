@@ -503,14 +503,14 @@ int main(int argc, char *argv[])
 				 NsmClient::get_instance()->getIsNewSession() ) {
 				
 				NsmClient::get_instance()->sendDirtyState( true );
-				pHydrogen->setIsModified( true );
+				pHydrogen->setSongModified( true );
 			}
 			else {
 				NsmClient::get_instance()->sendDirtyState( false );
-				pHydrogen->setIsModified( false );
+				pHydrogen->setSongModified( false );
 			}
 #else
-			pHydrogen->setIsModified( false );
+			pHydrogen->setSongModified( false );
 #endif
 		}
 

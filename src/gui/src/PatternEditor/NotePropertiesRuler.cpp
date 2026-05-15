@@ -995,7 +995,9 @@ void NotePropertiesRuler::mouseDrawUpdate( QMouseEvent* ev )
 	}
 
 	if ( bValueChanged ) {
-		Hydrogen::get_instance()->setIsModified( true );
+		Hydrogen::get_instance()->setPatternModified(
+			true, m_pPatternEditorPanel->getPatternNumber()
+		);
 		if ( m_property == PatternEditor::Property::Velocity ) {
 			// A note's velocity determines its color in the other pattern
 			// editors as well.
@@ -1132,7 +1134,9 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 	}
 
 	if ( bValueChanged ) {
-		Hydrogen::get_instance()->setIsModified( true );
+		Hydrogen::get_instance()->setPatternModified(
+			true, m_pPatternEditorPanel->getPatternNumber()
+		);
 	}
 
 	return bValueChanged;
@@ -1210,7 +1214,9 @@ void NotePropertiesRuler::applyCursorDelta( float fDelta, bool bKey )
 			updateEditor( Editor::Update::Content );
 		}
 
-		Hydrogen::get_instance()->setIsModified( true );
+		Hydrogen::get_instance()->setPatternModified(
+			true, m_pPatternEditorPanel->getPatternNumber()
+		);
 	}
 }
 

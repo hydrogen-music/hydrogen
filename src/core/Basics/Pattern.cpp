@@ -47,7 +47,8 @@ Pattern::Pattern()
 	  m_nDenominator( 4 ),
 	  m_sName( "Pattern" ),
 	  m_sInfo( "" ),
-	  m_tags( QStringList() )
+	  m_tags( QStringList() ),
+	  m_bIsModified( false )
 {
 }
 
@@ -61,7 +62,8 @@ Pattern::Pattern( std::shared_ptr<Pattern> pOther )
 	  m_nDenominator( pOther->getDenominator() ),
 	  m_sName( pOther->getName() ),
 	  m_sInfo( pOther->getInfo() ),
-	  m_tags( QStringList() )
+	  m_tags( QStringList() ),
+	  m_bIsModified( pOther->m_bIsModified )
 {
 	FOREACH_NOTE_CST_IT_BEGIN_END( pOther->getNotes(), it )
 	{
@@ -789,6 +791,8 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const
 				) );
 			}
 		}
+		sOutput.append( QString( "%1%2m_bIsModified: %3\n" )
+						.arg( sPrefix ).arg( s ).arg( m_bIsModified ) );
 	}
 	else {
 		sOutput =
@@ -837,6 +841,7 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const
 		if ( m_flattenedVirtualPatterns.size() != 0 ) {
 			sOutput.append( "}" );
 		}
+		sOutput.append( QString( ", m_bIsModified: %1" ).arg( m_bIsModified ) );
 	}
 	return sOutput;
 }

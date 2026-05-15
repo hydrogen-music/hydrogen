@@ -33,6 +33,7 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Playlist.h>
+#include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/H2Exception.h>
 #include <core/Hydrogen.h>
@@ -1313,6 +1314,12 @@ void MainForm::action_pattern_save( int nPatternRow )
 		);
 	}
 	else {
+		// Done in the GUI instead of Pattern::save() itself because this only
+		// concerns patterns of the current song.
+		pPattern->setIsModified( false );
+		EventQueue::get_instance()->pushEvent(
+			Event::Type::PatternIsModified, nPatternRow
+		);
 		pHydrogenApp->showStatusBarMessage(
 			pCommonStrings->getStatusPatternLoaded()
 		);
@@ -1393,6 +1400,14 @@ void MainForm::action_pattern_save_as( int nPatternRow )
 	}
 
 	if ( pPattern->save( pPattern->getPath() ) ) {
+		// Done in the GUI instead of Pattern::save() itself because this only
+		// concerns patterns of the current song. We have to change the is
+		// modified state on the original pattern and not the copy we did in
+		// order to not leak any information in case saving did fail.
+		pSong->getPatternList()->get( nPatternRow )->setIsModified( false );
+		EventQueue::get_instance()->pushEvent(
+			Event::Type::PatternIsModified, nPatternRow
+		);
 		pPref->setLastExportPatternAsDirectory(
 			QFileInfo( pPattern->getPath() ).absoluteDir().absolutePath()
 		);
@@ -2003,6 +2018,10 @@ void MainForm::action_drumkit_save()
 
 	}
 	else {
+		pDrumkit->setIsModified( false );
+		EventQueue::get_instance()->pushEvent(
+			Event::Type::DrumkitIsModified, -1
+		);
 		pHydrogenApp->showStatusBarMessage(
 			QString( "%1 [%2]" )
 				.arg( pCommonStrings->getStatusPatternLoaded() )
@@ -2047,6 +2066,14 @@ void MainForm::action_drumkit_save_as()
 		sPath
 	);
 	if ( dialog.exec() == QDialog::Accepted ) {
+		// We have to change the is modified state on the original pattern and
+		// not the copy we did in order to not leak any information in case
+		// saving did fail.
+		pSong->getDrumkit()->setIsModified( false );
+		EventQueue::get_instance()->pushEvent(
+			Event::Type::DrumkitIsModified, -1
+		);
+
 		pPref->setLastSaveDrumkitAsDirectory(
 			Filesystem::drumkitDirFromPath( pDrumkit->getPath() )
 		);
@@ -2351,7 +2378,7 @@ void MainForm::onFixMidiSetup()
 	auto pSong = pHydrogen->getSong();
 	if ( pSong != nullptr ) {
 		pSong->getDrumkit()->getInstruments()->setDefaultMidiOutNotes();
-		pHydrogen->setIsModified( true );
+		pHydrogen->setDrumkitModified( true );
 
 		m_pMidiSetupInfoBar->hide();
 	}
@@ -2619,7 +2646,7 @@ void MainForm::onAutoSaveTimer()
 					/* bSilent */ true );
 
 		pSong->setPath( sOldPath );
-		pSong->setIsModified( true );
+		pHydrogen->setSongModified( true );
 	}
 
 	if ( pPlaylist != nullptr && pPlaylist->getIsModified() ) {

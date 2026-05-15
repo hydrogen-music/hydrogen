@@ -331,8 +331,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 
 	m_pLCDSpinBoxNumerator = new LCDSpinBox(
 		m_pToolBar, QSize( 62, nWidgetHeight ), LCDSpinBox::Type::Double, 0.1,
-		16.0, LCDSpinBox::Flag::ModifyOnChange
+		16.0
 	);
+	m_pLCDSpinBoxNumerator->setModifierTarget( Modifier::Pattern );
 	m_pLCDSpinBoxNumerator->setKind( LCDSpinBox::Kind::PatternSizeNumerator );
 	connect(
 		m_pLCDSpinBoxNumerator, &LCDSpinBox::slashKeyPressed, this,
@@ -359,9 +360,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 	m_pToolBar->addWidget( m_pPatternSizeSeparatorLabel );
 
 	m_pLCDSpinBoxDenominator = new LCDSpinBox(
-		m_pToolBar, QSize( 48, nWidgetHeight ), LCDSpinBox::Type::Int, 1, 192,
-		LCDSpinBox::Flag::ModifyOnChange
+		m_pToolBar, QSize( 48, nWidgetHeight ), LCDSpinBox::Type::Int, 1, 192
 	);
+	m_pLCDSpinBoxDenominator->setModifierTarget( Modifier::Pattern );
 	m_pLCDSpinBoxDenominator->setKind( LCDSpinBox::Kind::PatternSizeDenominator
 	);
 	connect(
@@ -379,7 +380,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 	m_pToolBar->addSeparator();
 
 	// GRID resolution
-	m_pResolutionCombo = new LCDCombo( m_pToolBar, QSize( 0, 0 ), true );
+	m_pResolutionCombo = new LCDCombo( m_pToolBar, QSize( 0, 0 ) );
+	m_pResolutionCombo->setModifierTarget( Modifier::Song );
 	m_pResolutionCombo->setFocusPolicy( Qt::ClickFocus );
 	m_pResolutionCombo->setMinimumSize( QSize( 24, nWidgetHeight ) );
 	m_pResolutionCombo->setMaximumSize( QSize( 500, nWidgetHeight ) );
@@ -788,7 +790,7 @@ void PatternEditorPanel::createEditors()
 	pPropertiesVBox->setSpacing( 0 );
 	pPropertiesVBox->setContentsMargins( 0, 0, 0, 0 );
 
-	m_pPropertiesCombo = new LCDCombo( nullptr, QSize( 0, 0 ), false );
+	m_pPropertiesCombo = new LCDCombo( nullptr, QSize( 0, 0 ) );
 	m_pPropertiesCombo->setFixedHeight( 18 );
 	m_pPropertiesCombo->setMaximumWidth( PatternEditorSidebar::m_nWidth );
 	m_pPropertiesCombo->setFocusPolicy( Qt::ClickFocus );
@@ -851,7 +853,12 @@ void PatternEditorPanel::createEditors()
 
 void PatternEditorPanel::updateDrumkitLabel()
 {
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+	const auto pFontTheme = Preferences::get_instance()->getFontTheme();
 
 	QFont font(
 		pFontTheme->m_sApplicationFontFamily,
@@ -860,10 +867,11 @@ void PatternEditorPanel::updateDrumkitLabel()
 	font.setBold( true );
 	m_pDrumkitLabel->setFont( font );
 
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
-		m_pDrumkitLabel->setText( pSong->getDrumkit()->getName() );
+	QString sName( pSong->getDrumkit()->getName() );
+	if ( pSong->getDrumkit()->getIsModified() ) {
+		sName.append( "*" );
 	}
+	m_pDrumkitLabel->setText( sName );
 }
 
 void PatternEditorPanel::drumkitLoadedEvent()
@@ -879,6 +887,11 @@ void PatternEditorPanel::drumkitLoadedEvent()
 	if ( nPreviousRows != m_db.size() ) {
 		resizeEvent( nullptr );
 	}
+}
+
+void PatternEditorPanel::drumkitIsModifiedEvent()
+{
+	updateDrumkitLabel();
 }
 
 void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )
@@ -1360,6 +1373,14 @@ void PatternEditorPanel::updatePatternInfo()
 		}
 	}
 
+	auto labelFromName = [&]( std::shared_ptr<Pattern> pPattern ) {
+		QString sText( pPattern->getName() );
+		if ( pPattern->getIsModified() ) {
+			sText.append( "*" );
+		}
+		return sText;
+	};
+
 	if ( m_pPattern == nullptr ) {
 		this->setWindowTitle( tr( "Pattern editor - No pattern selected" ) );
 
@@ -1391,7 +1412,7 @@ void PatternEditorPanel::updatePatternInfo()
 		updatePatternsToShow();
 
 		// Update pattern tabs
-		m_pTabBar->addTab( m_pPattern->getName() );
+		m_pTabBar->addTab( labelFromName( m_pPattern ) );
 		m_tabPatternMap[0] = pSong->getPatternList()->index( m_pPattern );
 
 		auto patterns = getPatternsToShow();
@@ -1405,7 +1426,7 @@ void PatternEditorPanel::updatePatternInfo()
 			if ( ppPattern != nullptr && ppPattern != m_pPattern ) {
 				m_tabPatternMap[nnCount] =
 					pSong->getPatternList()->index( ppPattern );
-				m_pTabBar->addTab( ppPattern->getName() );
+				m_pTabBar->addTab( labelFromName( ppPattern ) );
 				m_pTabBar->setTabEnabled( nnCount, bTabsEnabled );
 				++nnCount;
 			}
@@ -1423,7 +1444,7 @@ void PatternEditorPanel::updatePatternInfo()
 			const auto ppPattern = pPatternList->get( nnPattern );
 			if ( ppPattern != nullptr &&
 				 ppPattern->getName() != m_pTabBar->tabText( nnTab ) ) {
-				m_pTabBar->setTabText( nnTab, ppPattern->getName() );
+				m_pTabBar->setTabText( nnTab, labelFromName( ppPattern ) );
 			}
 
 			if ( nnPattern == nPatternIndex ) {
@@ -1536,11 +1557,15 @@ void PatternEditorPanel::updateEditors( Editor::Update update )
 	updateTypeLabelVisibility();
 }
 
-void PatternEditorPanel::patternModifiedEvent()
+void PatternEditorPanel::patternChangedEvent()
 {
 	updatePatternInfo();
 	updateEditors( Editor::Update::Background );
 	resizeEvent( nullptr );
+}
+
+void PatternEditorPanel::patternIsModifiedEvent() {
+	updatePatternInfo();
 }
 
 void PatternEditorPanel::playingPatternsChangedEvent()
@@ -1700,7 +1725,7 @@ void PatternEditorPanel::patternSizeChangedAction(
 	pHydrogen->updateSongSize();
 	pAudioEngine->unlock();
 
-	pHydrogen->setIsModified( true );
+	pHydrogen->setPatternModified( true, nSelectedPatternNumber );
 
 	// Ensure the cursor stays within the accessible region of the current
 	// pattern.
@@ -1714,7 +1739,7 @@ void PatternEditorPanel::patternSizeChangedAction(
 		setCursorColumn( nNewColumn );
 	}
 
-	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1 );
+	EventQueue::get_instance()->pushEvent( Event::Type::PatternChanged, -1 );
 }
 
 void PatternEditorPanel::addInstrument(

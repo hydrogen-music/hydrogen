@@ -110,6 +110,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		Fader::Type::Horizonal, tr( "Playback track volume" ), false, false,
 		0.0, 1.5
 	);
+	m_pPlaybackTrackFader->setModifierTarget( Modifier::Song );
 	m_pPlaybackTrackFader->setObjectName( "SongEditorPlaybackTrackFader" );
 	if ( pPlaybackTrackInstrument != nullptr ) {
 		m_pPlaybackTrackFader->setValue( pPlaybackTrackInstrument->getVolume()
@@ -250,12 +251,13 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	// mute playback track toggle button
 	m_pMutePlaybackTrackButton = new MuteButton(
 		m_pPlaybackTrackToolBar,
-		QSize( SongEditorPanel::nButtonWidth, SongEditorPanel::nButtonToolHeight ),
+		QSize(
+			SongEditorPanel::nButtonWidth, SongEditorPanel::nButtonToolHeight
+		),
 		tr( "Mute playback track" ),
-		ColoredButton::Flag::ModifyOnChange |
-			ColoredButton::Flag::CustomRendering |
-			ColoredButton::Flag::AsToolButton
+		ColoredButton::Flag::CustomRendering | ColoredButton::Flag::AsToolButton
 	);
+	m_pMutePlaybackTrackButton->setModifierTarget( Modifier::Song );
 	m_pMutePlaybackTrackButton->setBorderless( true );
 	m_pMutePlaybackTrackButton->setObjectName(
 		"SongEditorPlaybackTrackMuteButton"
@@ -348,7 +350,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 						: pCommonStrings->getStatusOff()
 				);
 		HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
-		Hydrogen::get_instance()->setIsModified( true );
+		Hydrogen::get_instance()->setSongModified( true );
 	} );
 
     m_pTimelineToolBar->addSeparator();
@@ -571,7 +573,8 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	connect( m_pAutomationPathView, SIGNAL( pointRemoved(float, float) ), this, SLOT( automationPathPointRemoved(float,float) ) );
 	connect( m_pAutomationPathView, SIGNAL( pointMoved(float, float, float, float) ), this, SLOT( automationPathPointMoved(float,float, float, float) ) );
 
-	m_pAutomationCombo = new LCDCombo( nullptr, QSize( m_nPatternListWidth, 18 ), true );
+	m_pAutomationCombo = new LCDCombo( nullptr, QSize( m_nPatternListWidth, 18 ) );
+	m_pAutomationCombo->setModifierTarget( Modifier::Song );
 	m_pAutomationCombo->setToolTip( tr("Adjust parameter values in time") );
 	m_pAutomationCombo->addItem( pCommonStrings->getNotePropertyVelocity() );
 	m_pAutomationCombo->setCurrentIndex( 0 );
@@ -970,8 +973,12 @@ void SongEditorPanel::patternEditorLockedEvent() {
 	}
 }
 
-void SongEditorPanel::patternModifiedEvent() {
+void SongEditorPanel::patternChangedEvent() {
 	updateEditors( Editor::Update::Content );
+}
+
+void SongEditorPanel::patternIsModifiedEvent() {
+	m_pPatternList->updateEditor();
 }
 
 void SongEditorPanel::playbackTrackChangedEvent() {

@@ -256,12 +256,23 @@ public:
 	std::shared_ptr<AudioDriver> getAudioDriver() const;
 	std::shared_ptr<MidiBaseDriver> getMidiDriver() const;
 
+	/** Sets the state of the current drumkit - the one contained in #m_pSong -
+	 * to @a bIsModified.
+	 *
+	 * Use this wrapper function instead of Drumkit::setIsModified() since it
+	 * ensures the modification state of the enclosing song is set as well. */
+	void setDrumkitModified( bool bIsModified );
+	/** Sets the state of a pattern contained in #m_pSong to @a bIsModified.
+	 *
+	 * Use this wrapper function instead of Pattern::setIsModified() since it
+	 * ensures the modification state of the enclosing song is set as well. */
+	void setPatternModified( bool bIsModified, int nIndex );
 	/** Wrapper around Song::setIsModified() that checks whether a
 		song is set.*/
-	void setIsModified( bool bIsModified );
+	void setSongModified( bool bIsModified );
 	/** Wrapper around Song::getIsModified() that checks whether a
 		song is set.*/
-	bool getIsModified() const;
+	bool getSongModified() const;
 
 	void			onTapTempoAccelEvent( TimePoint start = TimePoint() );
 

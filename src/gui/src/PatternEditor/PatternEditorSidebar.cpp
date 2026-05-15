@@ -583,7 +583,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 
 	m_pSampleWarning = new Button(
 		this, QSize( 15, 13 ), Button::Type::Icon, "warning.svg", "", QSize(),
-		tr( "Some samples for this instrument failed to load." ), true
+		tr( "Some samples for this instrument failed to load." )
 	);
 	m_pSampleWarning->hide();
 	m_pInnerLayout->addWidget( m_pSampleWarning );
@@ -601,8 +601,9 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 
 	m_pMuteBtn = new MuteButton(
 		pButtonContainer, QSize( SidebarRow::m_nButtonWidth, height() ),
-		tr( "Mute instrument" ), ColoredButton::Flag::ModifyOnChange
+		tr( "Mute instrument" ), ColoredButton::Flag::None
 	);
+	m_pMuteBtn->setModifierTarget( Modifier::Drumkit );
 	m_pMuteBtn->setChecked( false );
 	m_pMuteBtn->setBorderless( true );
 	m_pMuteBtn->setObjectName( "SidebarRowMuteButton" );
@@ -611,8 +612,9 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 
 	m_pSoloBtn = new SoloButton(
 		pButtonContainer, QSize( SidebarRow::m_nButtonWidth, height() ),
-		pCommonStrings->getBigSoloButton(), ColoredButton::Flag::ModifyOnChange
+		pCommonStrings->getBigSoloButton(), ColoredButton::Flag::None
 	);
+	m_pSoloBtn->setModifierTarget( Modifier::Drumkit );
 	m_pSoloBtn->setChecked( false );
 	m_pSoloBtn->setBorderless( true );
 	m_pSoloBtn->setObjectName( "SidebarRowSoloButton" );

@@ -55,9 +55,12 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 	m_pGroupsListView->setHeaderLabels( QStringList( tr( "Groups" ) ) );
 
 #ifdef H2CORE_HAVE_LADSPA
-	auto pFX = Effects::get_instance()->getLadspaFX(nLadspaFX);
-	if ( pFX != nullptr ) {
-		m_sSelectedPluginName = pFX->getPluginName();
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong != nullptr ) {
+		auto pFX = pSong->getEffects()->getLadspaFX( nLadspaFX );
+		if ( pFX != nullptr ) {
+			m_sSelectedPluginName = pFX->getPluginName();
+		}
 	}
 	buildLadspaGroups();
 
@@ -75,8 +78,13 @@ LadspaFXSelector::~LadspaFXSelector() {
 void LadspaFXSelector::buildLadspaGroups() {
 #ifdef H2CORE_HAVE_LADSPA
 	m_pGroupsListView->clear();
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 	
-	auto pFXGroup = Effects::get_instance()->getLadspaFXGroup();
+	auto pFXGroup = pSong->getEffects()->getLadspaFXGroup();
 
 	if ( pFXGroup != nullptr ) {
 		for ( const auto& ppNewGroup : pFXGroup->getChildList() ) {
@@ -142,10 +150,15 @@ void LadspaFXSelector::pluginSelected() {
 		return;
 	}
 
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+
 	QString sSelected = m_pPluginsListBox->currentItem()->text();
 	m_sSelectedPluginName = sSelected;
 
-	auto pluginList = Effects::get_instance()->getPluginList();
+	auto pluginList = pSong->getEffects()->getPluginList();
 	for ( const auto& ppFXInfo : pluginList ) {
 		if ( ppFXInfo->m_sName == m_sSelectedPluginName ) {
 
@@ -192,6 +205,11 @@ void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem*
 	if ( currentItem == nullptr ) {
 		return;
 	}
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 	
 	if ( currentItem->childCount() ) {
 		currentItem->setExpanded( true );
@@ -201,7 +219,7 @@ void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem*
 
 	m_pPluginsListBox->clear(); // ... Why not anyway ? Jakob Lund
 
-	auto pFXGroup = Effects::get_instance()->getLadspaFXGroup();
+	auto pFXGroup = pSong->getEffects()->getLadspaFXGroup();
 
 	auto pluginList = findPluginsInGroup( itemText, pFXGroup );
 	

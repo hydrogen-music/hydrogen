@@ -266,27 +266,27 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pComponentMuteBtn = new MuteButton(
 		pComponentButtonContainer,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
-		tr( "Mute component" ),
-		ColoredButton::Flag::ModifyOnChange
+		tr( "Mute component" ), ColoredButton::Flag::None
 	);
+	m_pComponentMuteBtn->setModifierTarget( Modifier::Drumkit );
 	m_pComponentMuteBtn->setChecked( pComponent->getIsMuted() );
 	m_pComponentMuteBtn->setBorderless( true );
 	m_pComponentMuteBtn->setObjectName( "ComponentMuteButton" );
-	connect( m_pComponentMuteBtn, &QPushButton::clicked, [&](){
+	connect( m_pComponentMuteBtn, &QPushButton::clicked, [&]() {
 		if ( m_pComponent != nullptr ) {
 			m_pComponent->setIsMuted( m_pComponentMuteBtn->isChecked() );
 			// Repaint since we indicate mute for all layers.
 			m_pLayerPreview->update();
 		}
-	});
+	} );
 	pComponentButtonContainerLayout->addWidget( m_pComponentMuteBtn );
 
 	m_pComponentSoloBtn = new SoloButton(
 		pComponentButtonContainer,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
-		tr( "Solo component" ),
-		ColoredButton::Flag::ModifyOnChange
+		tr( "Solo component" ), ColoredButton::Flag::None
 	);
+	m_pComponentSoloBtn->setModifierTarget( Modifier::Drumkit );
 	m_pComponentSoloBtn->setChecked( pComponent->getIsSoloed() );
 	m_pComponentSoloBtn->setBorderless( true );
 	m_pComponentSoloBtn->setObjectName( "ComponentSoloButton" );
@@ -300,6 +300,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pComponentGainRotary = new Rotary(
 		m_pToolBarComponent, Rotary::Type::Normal, tr( "Component volume" ), false,
 		0.0, 5.0 );
+	m_pComponentGainRotary->setModifierTarget( Modifier::Drumkit );
 	m_pComponentGainRotary->setDefaultValue( 1.0 );
 	connect( m_pComponentGainRotary, &Rotary::valueChanged, [&]() {
 		if ( m_pComponent != nullptr ) {
@@ -416,8 +417,9 @@ ComponentView::ComponentView( QWidget* pParent,
 		pLayerButtonContainer,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
 		tr( "Mute layer" ),
-		ColoredButton::Flag::ModifyOnChange
+		ColoredButton::Flag::None
 	);
+	m_pLayerMuteBtn->setModifierTarget( Modifier::Drumkit );
 	m_pLayerMuteBtn->setObjectName( "LayerMuteButton" );
 	m_pLayerMuteBtn->setBorderless( true );
 	connect( m_pLayerMuteBtn, &QPushButton::clicked, [&]() {
@@ -435,8 +437,9 @@ ComponentView::ComponentView( QWidget* pParent,
 		m_pToolBarLayer,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
 		tr( "Solo layer" ),
-		ColoredButton::Flag::ModifyOnChange
+		ColoredButton::Flag::None
 	);
+	m_pLayerSoloBtn->setModifierTarget( Modifier::Drumkit );
 	m_pLayerSoloBtn->setObjectName( "LayerSoloButton" );
 	m_pLayerSoloBtn->setBorderless( true );
 	connect( m_pLayerSoloBtn, &QPushButton::clicked, [&]() {
@@ -453,6 +456,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pLayerGainRotary = new Rotary(
 		m_pToolBarLayer, Rotary::Type::Normal, tr( "Layer gain" ), false,
 		0.0, 5.0 );
+	m_pLayerGainRotary->setModifierTarget( Modifier::Drumkit );
 	m_pLayerGainRotary->setDefaultValue( 1.0 );
 	connect( m_pLayerGainRotary, &Rotary::valueChanged, [&]() {
 		if ( m_pComponent != nullptr ) {
@@ -484,7 +488,8 @@ ComponentView::ComponentView( QWidget* pParent,
 	pHBoxSampleSelectionLayout->addWidget( m_pSampleSelectionLbl );
 
 	m_pSampleSelectionCombo = new LCDCombo(
-		pSampleSelectionWidget, QSize( 0, 0 ), true );
+		pSampleSelectionWidget, QSize( 0, 0 ) );
+	m_pSampleSelectionCombo->setModifierTarget( Modifier::Drumkit );
 	m_pSampleSelectionCombo->setFixedHeight(
 		ComponentView::nSampleSelectionHeight );
 	m_pSampleSelectionCombo->setToolTip( tr( "Select selection algorithm" ) );
@@ -563,6 +568,7 @@ ComponentView::ComponentView( QWidget* pParent,
 		Instrument::fPitchOffsetMinimum + InstrumentEditor::nPitchFineControl,
 		Instrument::fPitchOffsetMaximum - InstrumentEditor::nPitchFineControl
 	);
+	m_pLayerPitchCoarseRotary->setModifierTarget( Modifier::Drumkit );
 	connect( m_pLayerPitchCoarseRotary, &Rotary::valueChanged, [&]() {
 		const float fNewPitch = round( m_pLayerPitchCoarseRotary->getValue() ) +
 								m_pLayerPitchFineRotary->getValue() / 100.0;
@@ -593,6 +599,7 @@ ComponentView::ComponentView( QWidget* pParent,
 		pLayerPropFineWidget, Rotary::Type::Center, tr( "Layer pitch (Fine)" ),
 		true, -50.0, 50.0
 	);
+	m_pLayerPitchFineRotary->setModifierTarget( Modifier::Drumkit );
 	connect( m_pLayerPitchFineRotary, &Rotary::valueChanged, [&]() {
 		const float fNewPitch = round( m_pLayerPitchCoarseRotary->getValue() ) +
 								m_pLayerPitchFineRotary->getValue() / 100.0;
