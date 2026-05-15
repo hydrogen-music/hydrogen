@@ -135,6 +135,7 @@ Preferences::Preferences()
 	  m_bShowNoteOverwriteWarning( true ),
 	  m_sLastSongPath( "" ),
 	  m_sLastPlaylistPath( "" ),
+	  m_customSoundLibraryDirs( QStringList() ),
 	  m_bHearNewNotes( true ),
 	  m_bQuantizeEvents( true ),
 	  m_recentFiles( QStringList() ),
@@ -332,6 +333,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	  m_bShowNoteOverwriteWarning( pOther->m_bShowNoteOverwriteWarning ),
 	  m_sLastSongPath( pOther->m_sLastSongPath ),
 	  m_sLastPlaylistPath( pOther->m_sLastPlaylistPath ),
+	  m_customSoundLibraryDirs( pOther->m_customSoundLibraryDirs ),
 	  m_bHearNewNotes( pOther->m_bHearNewNotes ),
 	  m_nPunchInPos( pOther->m_nPunchInPos ),
 	  m_nPunchOutPos( pOther->m_nPunchOutPos ),
@@ -1316,6 +1318,16 @@ Preferences::load( const QString& sPath, const bool bSilent )
 		pPref->m_sDefaultEditor = filesNode.read_string(
 			"defaulteditor", pPref->m_sDefaultEditor, false, true, bSilent
 		);
+		const XMLNode customDirsNode =
+			filesNode.firstChildElement( "customSoundLibraryDirs" );
+		if ( !customDirsNode.isNull() ) {
+			auto customDirNode = customDirsNode.firstChildElement( "dir" );
+			while ( !customDirNode.isNull() && !customDirNode.text().isEmpty()
+			) {
+				pPref->m_customSoundLibraryDirs << customDirNode.text();
+				customDirNode = customDirNode.nextSiblingElement( "dir" );
+			}
+		}
 	}
 	else {
 		WARNINGLOG( "<files> node not found" );
@@ -1904,6 +1916,13 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 			"lastPlaylistFilename", m_sLastPlaylistPath
 		);
 		filesNode.write_string( "defaulteditor", m_sDefaultEditor );
+
+		XMLNode customDirsNode = filesNode.createNode( "customSoundLibraryDirs" );
+		for ( const auto& sDir : m_customSoundLibraryDirs ) {
+			if ( !sDir.isEmpty() ) {
+				customDirsNode.write_string( "dir", sDir );
+			}
+		}
 	}
 
 	m_pMidiEventMap->saveTo( rootNode, bSilent );
@@ -2414,6 +2433,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_sLastPlaylistPath ) )
+				.append( QString( "%1%2m_customSoundLibraryDirs: [%3]\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_customSoundLibraryDirs.join( ", " ) ) )
 				.append( QString( "%1%2m_bHearNewNotes: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -2840,6 +2863,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( m_sLastSongPath ) )
 				.append( QString( ", m_sLastPlaylistPath: %1" )
 							 .arg( m_sLastPlaylistPath ) )
+				.append( QString( ", m_customSoundLibraryDirs: [%1]" )
+							 .arg( m_customSoundLibraryDirs.join( ", " ) ) )
 				.append(
 					QString( ", m_bHearNewNotes: %1" ).arg( m_bHearNewNotes )
 				)
