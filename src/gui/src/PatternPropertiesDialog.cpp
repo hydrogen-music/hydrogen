@@ -93,14 +93,20 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 
 	auto pScrollAreaContent = new QWidget( pScrollArea );
 	pScrollAreaContent->setMinimumSize( 652, 534 );
+	pScrollAreaContent->setStyleSheet(
+		QString( "\
+QWidget#PatternPropsFormContainer {				\
+    background-color: %1;						\
+}" )
+			.arg( pPref->getColorTheme()->m_midLightColor.name() )
+	);
 	pScrollArea->setWidget( pScrollAreaContent );
 
 	auto pOuterLayout = new QVBoxLayout();
-	pOuterLayout->setSpacing( 0 );
-	pOuterLayout->setContentsMargins( 0, 0, 0, 0 );
 	pScrollAreaContent->setLayout( pOuterLayout );
 
 	auto pFormContainer = new QWidget( pScrollAreaContent );
+	pFormContainer->setObjectName( "PatternPropsFormContainer" );
 	pFormContainer->setSizePolicy(
 		QSizePolicy::Expanding, QSizePolicy::Expanding
 	);

@@ -214,9 +214,12 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 				->highlightPatternEditorLocked();
 		}
 		else {
-			// Select the corresponding pattern
-			m_bPatternSelectedViaTab = true;
-			CoreActionController::selectPattern( m_tabPatternMap[nIndex] );
+			// Select the pattern in case it is not already selected.
+			if ( nIndex <= m_tabPatternMap.size() &&
+				 m_tabPatternMap[ nIndex ] != m_tabPatternMap[nIndex] ) {
+				m_bPatternSelectedViaTab = true;
+				CoreActionController::selectPattern( m_tabPatternMap[nIndex] );
+			}
 		}
 	} );
 	// Open the properties dialog for a particular pattern.

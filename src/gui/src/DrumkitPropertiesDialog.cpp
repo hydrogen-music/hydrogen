@@ -326,14 +326,18 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 	// ---- Bottom button bar ----
 	auto pButtonLayout = new QHBoxLayout();
 	pButtonLayout->addSpacerItem(
-		new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum )
+		new QSpacerItem( 37, 28, QSizePolicy::Expanding, QSizePolicy::Minimum )
 	);
+
+	m_pCancelBtn = new Button( pScrollAreaContent );
+	pButtonLayout->addWidget( m_pCancelBtn );
 
 	m_pSaveBtn = new Button( pScrollAreaContent );
 	pButtonLayout->addWidget( m_pSaveBtn );
 
-	m_pCancelBtn = new Button( pScrollAreaContent );
-	pButtonLayout->addWidget( m_pCancelBtn );
+	pButtonLayout->addSpacerItem(
+		new QSpacerItem( 37, 28, QSizePolicy::Expanding, QSizePolicy::Minimum )
+	);
 
 	pVerticalLayout->addLayout( pButtonLayout );
 

@@ -99,8 +99,6 @@ SongPropertiesDialog::SongPropertiesDialog(
 	pScrollArea->setWidget( pScrollAreaContent );
 
 	auto pOuterLayout = new QVBoxLayout( pScrollAreaContent );
-	pOuterLayout->setSpacing( 0 );
-	pOuterLayout->setContentsMargins( 0, 0, 0, 0 );
 	pScrollAreaContent->setLayout( pOuterLayout );
 
 	// Tab widget
