@@ -63,6 +63,7 @@ QString SoundLibraryDatabase::findArtifact(
 
 	std::vector<Filesystem::Context> contexts;
 	if ( bStacked ) {
+		contexts.push_back( Filesystem::Context::Custom );
 		contexts.push_back( Filesystem::Context::SessionReadOnly );
 		contexts.push_back( Filesystem::Context::User );
 		contexts.push_back( Filesystem::Context::System );
@@ -199,6 +200,9 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 	drumkitPaths << Filesystem::listContent(
 		Filesystem::Artifact::DrumkitExtracted,
 		Filesystem::Context::SessionReadOnly
+	);
+	drumkitPaths << Filesystem::listContent(
+		Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::Custom
 	);
 
 	// custom drumkits added by the user
@@ -488,6 +492,9 @@ void SoundLibraryDatabase::updatePatterns( Event::Trigger trigger )
 	patternPaths << Filesystem::listContent(
 		Filesystem::Artifact::Pattern, Filesystem::Context::User
 	);
+	patternPaths << Filesystem::listContent(
+		Filesystem::Artifact::Pattern, Filesystem::Context::Custom
+	);
 
 	for ( const auto& ssPath : patternPaths ) {
 		auto pInfo = std::make_shared<PatternInfo>();
@@ -522,6 +529,9 @@ void SoundLibraryDatabase::updateSongs( Event::Trigger trigger )
 	);
 	songPaths << Filesystem::listContent(
 		Filesystem::Artifact::Song, Filesystem::Context::User
+	);
+	songPaths << Filesystem::listContent(
+		Filesystem::Artifact::Song, Filesystem::Context::Custom
 	);
 
 	for ( const auto& ssPath : songPaths ) {

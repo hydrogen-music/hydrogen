@@ -388,6 +388,7 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 		auto drumkitContext = pDrumkit->getContext();
 		if ( drumkitContext == Filesystem::Context::User ||
 			 drumkitContext == Filesystem::Context::SessionReadWrite ||
+			 drumkitContext == Filesystem::Context::Custom ||
 			 drumkitContext == Filesystem::Context::Song ) {
 			bWritable = true;
 		}

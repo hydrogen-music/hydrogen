@@ -48,29 +48,31 @@ class Filesystem : public H2Core::Object<Filesystem> {
 
 	/** Indicates usage, storage, and access permissions of a kit.*/
 	enum class Context {
-		/** Kit is located in the system-level drumkit folder, loaded into the
+		/** Artifact is located in a system-level folder, loaded into the
 		 * #H2Core::SoundlibraryDatabase during startup, and is read-only.*/
 		System = 0,
-		/** Kit is located in the user-level drumkit folder, loaded into the
+		/** Artifact is located in the user-level folder, loaded into the
 		 * #H2Core::SoundlibraryDatabase during startup, and can be modified.*/
 		User = 1,
-		/** Kit is located at an arbitrary location of the host system and was
+		/** Artifact is located at an arbitrary location of the host system and was
 		 * loaded into Hydrogen during a session using e.g. OSC or its location
 		 * was provided during startup. It is transient and located in a place
 		 * the user only has read-only access and can not be modified.*/
 		SessionReadOnly = 2,
-		/** Kit is located at an arbitrary location of the host system and was
+		/** Artifact is located at an arbitrary location of the host system and was
 		 * loaded into Hydrogen during a session using e.g. OSC or its location
 		 * was provided during startup. It is transient and can be modified.*/
 		SessionReadWrite = 3,
-		/** In contrast to the other contexts this drumkit was not loaded from a
-		 * .h2drumkit or a drumkit.xml file within a drumkit folder. Instead, it
-		 * is part of a song and loaded with a .h2song or created with a new
-		 * song. It is stored with the song when saving the song and can be
-		 * converted into a regular kit by saving / exporting the drumkit. All
-		 * its metadata, like drumkit image, end up in a cache folder for
+		/** In contrast to the other contexts this artifact was not loaded from
+		 * a separate file. Instead, it is part of a song and loaded with a
+		 * .h2song or created with a new song. It is stored with the song when
+		 * saving the song and can be converted into a regular artifact by Save
+		 * As / Export. For drumkits image ends up in a cache folder for
 		 * Hydrogen.*/
-		Song = 4
+		Song = 4,
+		/** The artifact resides in one of the folders manually added to the
+		 * SoundLibrary by the user herself. */
+		Custom = 5,
 	};
 	static QString ContextToQString( const Context& context );
 	static Context DetermineContext( const QString& sPath );

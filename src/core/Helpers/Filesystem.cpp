@@ -34,6 +34,7 @@
 #include <core/config.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #ifdef H2CORE_HAVE_OSC
@@ -131,6 +132,12 @@ Filesystem::Context Filesystem::DetermineContext( const QString& sPath )
 			return Filesystem::Context::User;
 		}
 		else {
+			for ( const auto& ssPath :
+				  Preferences::get_instance()->getCustomSoundLibraryDirs() ) {
+				if ( sAbsolutePath.contains( ssPath ) ) {
+					return Filesystem::Context::Custom;
+				}
+			}
 			if ( Filesystem::dirWritable( sAbsolutePath, true ) ) {
 				return Filesystem::Context::SessionReadWrite;
 			}
@@ -157,6 +164,8 @@ QString Filesystem::ContextToQString( const Context& context )
 			return "SessionReadWrite";
 		case Filesystem::Context::Song:
 			return "Song";
+		case Filesystem::Context::Custom:
+			return "Custom";
 		default:
 			return QString( "Unknown context [%1]" )
 				.arg( static_cast<int>( context ) );
@@ -1488,9 +1497,13 @@ QStringList Filesystem::targetDirs( Artifact artifact, Context context )
 		return results;
 	}
 
+	if ( context == Context::Custom ) {
+		return Preferences::get_instance()->getCustomSoundLibraryDirs();
+	}
+
 	switch ( artifact ) {
 		case Artifact::DrumkitBundled: {
-			ERRORLOG( "There is no common folder for bundled drumkits." );
+			ERRORLOG( "Bunled drumkits have to be imported first." );
 			return results;
 		}
 		case Artifact::DrumkitExtracted: {

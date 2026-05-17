@@ -237,6 +237,14 @@ void SoundLibraryTree::updateFont()
 		m_pUserItem->setFont( 0, boldFont );
 		recursivelyUpdateFont( m_pUserItem );
 	}
+	if ( m_customDirs.size() > 0 ) {
+		for ( auto& ppItem : m_customDirs ) {
+			if ( ppItem != nullptr ) {
+				ppItem->setFont( 0, boldFont );
+				recursivelyUpdateFont( ppItem );
+			}
+		}
+	}
 }
 
 void SoundLibraryTree::updateInfo()
@@ -267,7 +275,8 @@ void SoundLibraryTree::updateRegistry()
 	m_pSystemItem = nullptr;
 	m_pUserItem = nullptr;
 
-	const auto pFontTheme = Preferences::get_instance()->getFontTheme();
+	const auto pPref = Preferences::get_instance();
+	const auto pFontTheme = pPref->getFontTheme();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
@@ -297,8 +306,10 @@ void SoundLibraryTree::updateRegistry()
 	std::vector<std::shared_ptr<SoundLibraryInfo>> sessionInfos;
 	std::vector<std::shared_ptr<SoundLibraryInfo>> systemInfos;
 	std::vector<std::shared_ptr<SoundLibraryInfo>> userInfos;
+	std::map<QString, std::vector<std::shared_ptr<SoundLibraryInfo>>> customInfos;
 
 	// Separate artifacts by context
+	const auto customDirs = pPref->getCustomSoundLibraryDirs();
 	for ( const auto& ppInfo : infos ) {
 		if ( ppInfo == nullptr ) {
 			continue;
@@ -308,6 +319,20 @@ void SoundLibraryTree::updateRegistry()
 		}
 		else if ( ppInfo->getContext() == H2Core::Filesystem::Context::User ) {
 			userInfos.push_back( ppInfo );
+		}
+		else if ( ppInfo->getContext() == H2Core::Filesystem::Context::Custom ) {
+			for ( const auto& ssDir : customDirs ) {
+				if ( ppInfo->getPath().contains( ssDir ) ) {
+					if ( customInfos.find( ssDir ) != customInfos.end() ) {
+						customInfos[ ssDir ].push_back( ppInfo );
+					}
+					else {
+						std::vector<std::shared_ptr<SoundLibraryInfo>> infos;
+						infos.push_back( ppInfo );
+						customInfos[ ssDir ] = std::move( infos );
+					}
+				}
+			}
 		}
 		else {
 			sessionInfos.push_back( ppInfo );
@@ -324,6 +349,19 @@ void SoundLibraryTree::updateRegistry()
 		);
 		m_internalDirs.push_back( m_pSessionItem );
 		addNodes( m_pSessionItem, sessionInfos, "" );
+	}
+	if ( customInfos.size() > 0 ) {
+		for ( const auto& [ssLabel, iinfos] : customInfos ) {
+			auto pItem = new QTreeWidgetItem( this );
+			pItem->setText( 0, ssLabel );
+			pItem->setFont( 0, boldFont );
+			pItem->setExpanded( true );
+			pItem->setFlags(
+				pItem->flags() & ~Qt::ItemIsSelectable
+			);
+			m_customDirs.push_back( pItem );
+			addNodes( pItem, iinfos, ssLabel );
+		}
 	}
 	if ( userInfos.size() > 0 ) {
 		m_pUserItem = new QTreeWidgetItem( this );
@@ -823,14 +861,18 @@ void SoundLibraryTree::actionAddFolder()
 	auto customDirs = pPref->getCustomSoundLibraryDirs();
 	customDirs << sDirPath;
 	pPref->setCustomSoundLibraryDirs( customDirs );
+
+	Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
 }
 void SoundLibraryTree::actionRemoveFolder()
 {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto it = m_registry.find( currentItem() );
-	if ( it == m_registry.end() || it->second == nullptr ) {
-		return;
-	}
+	auto pPref = Preferences::get_instance();
+
+	auto customDirs = pPref->getCustomSoundLibraryDirs();
+	customDirs.removeAll( currentItem()->text( 0 ) );
+	pPref->setCustomSoundLibraryDirs( customDirs );
+
+	Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
 }
 
 void SoundLibraryTree::recursivelyUpdateFont( QTreeWidgetItem* pItem )
@@ -918,6 +960,12 @@ void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
 			for ( const auto& ppItem : m_internalDirs ) {
 				if ( ppItem == currentItem() ) {
 					pMenu = m_pPopupMenuDirReadOnly;
+					break;
+				}
+			}
+			for ( const auto& ppItem : m_customDirs ) {
+				if ( ppItem == currentItem() ) {
+					pMenu = m_pPopupMenuDir;
 					break;
 				}
 			}

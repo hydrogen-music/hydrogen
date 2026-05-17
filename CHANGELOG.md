@@ -236,6 +236,7 @@ All notable changes to this project will be documented in this file.
   - Multiple instruments and pattern can be added at once.
   - A detail view showing basic information about the selected item was added.
     It can be configured using a right-click context menu.
+  - Arbitrary folders can be added to the library.
 - JACK per-track output ports are now mapped on drumkit switch or manipulation
   on instrument with same type. Ports of instruments without type aren't mapped
   at all (same as for notes) (#1071).
