@@ -385,6 +385,33 @@ void SoundLibraryTree::updateRegistry()
 	}
 }
 
+void SoundLibraryTree::addDirToLibrary( const QString& sDirPath )
+{
+	if ( sDirPath.isEmpty() ) {
+		return;
+	}
+	auto pPref = Preferences::get_instance();
+
+	auto customDirs = pPref->getCustomSoundLibraryDirs();
+	customDirs << sDirPath;
+	pPref->setCustomSoundLibraryDirs( customDirs );
+
+	Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
+}
+void SoundLibraryTree::removeDirFromLibrary( const QString& sDirPath )
+{
+	if ( sDirPath.isEmpty() ) {
+		return;
+	}
+	auto pPref = Preferences::get_instance();
+
+	auto customDirs = pPref->getCustomSoundLibraryDirs();
+	customDirs.removeAll( sDirPath );
+	pPref->setCustomSoundLibraryDirs( customDirs );
+
+	Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
+}
+
 void SoundLibraryTree::actionAdd()
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
@@ -858,21 +885,20 @@ void SoundLibraryTree::actionAddFolder()
 		return;
 	}
 
-	auto customDirs = pPref->getCustomSoundLibraryDirs();
-	customDirs << sDirPath;
-	pPref->setCustomSoundLibraryDirs( customDirs );
-
-	Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
+	HydrogenApp::get_instance()->pushUndoCommand(
+		new SE_modifyCustomLibraryDirsAction(
+			sDirPath, SE_modifyCustomLibraryDirsAction::Action::Add
+		)
+	);
 }
 void SoundLibraryTree::actionRemoveFolder()
 {
-	auto pPref = Preferences::get_instance();
-
-	auto customDirs = pPref->getCustomSoundLibraryDirs();
-	customDirs.removeAll( currentItem()->text( 0 ) );
-	pPref->setCustomSoundLibraryDirs( customDirs );
-
-	Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
+	HydrogenApp::get_instance()->pushUndoCommand(
+		new SE_modifyCustomLibraryDirsAction(
+			currentItem()->text( 0 ),
+			SE_modifyCustomLibraryDirsAction::Action::Remove
+		)
+	);
 }
 
 void SoundLibraryTree::recursivelyUpdateFont( QTreeWidgetItem* pItem )

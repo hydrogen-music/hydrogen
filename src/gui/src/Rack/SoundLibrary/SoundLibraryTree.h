@@ -57,6 +57,9 @@ class SoundLibraryTree : public QTreeWidget,
 	void updateInfo();
 	void updateRegistry();
 
+	static void addDirToLibrary( const QString& sDirPath );
+	static void removeDirFromLibrary( const QString& sDirPath );
+
    public slots:
 	void actionAdd();
 	void actionLoad();
