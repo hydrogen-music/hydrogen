@@ -43,6 +43,7 @@
 #include <core/SoundLibrary/SoundLibraryInfo.h>
 
 #include "SoundLibraryPanel.h"
+#include "../Rack.h"
 #include "../../CommonStrings.h"
 #include "../../Compatibility/MouseEvent.h"
 #include "../../DrumkitPropertiesDialog.h"
@@ -353,7 +354,11 @@ void SoundLibraryTree::updateRegistry()
 	if ( customInfos.size() > 0 ) {
 		for ( const auto& [ssLabel, iinfos] : customInfos ) {
 			auto pItem = new QTreeWidgetItem( this );
-			pItem->setText( 0, ssLabel );
+			pItem->setText(
+				0, Skin::trimPathToFitWidth(
+					   ssLabel, boldFont, Rack::nWidth, QMargins( 15, 0, 0, 0 )
+				   )
+			);
 			pItem->setFont( 0, boldFont );
 			pItem->setExpanded( true );
 			pItem->setToolTip( 0, ssLabel );
@@ -920,7 +925,7 @@ void SoundLibraryTree::actionRemoveFolder()
 {
 	HydrogenApp::get_instance()->pushUndoCommand(
 		new SE_modifyCustomLibraryDirsAction(
-			currentItem()->text( 0 ),
+			currentItem()->toolTip( 0 ),
 			SE_modifyCustomLibraryDirsAction::Action::Remove
 		)
 	);
