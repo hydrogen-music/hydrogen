@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2025 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2026 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -43,6 +43,7 @@
 #include <core/SoundLibrary/SoundLibraryInfo.h>
 
 #include "SoundLibraryPanel.h"
+#include "../Rack.h"
 #include "../../CommonStrings.h"
 #include "../../Compatibility/MouseEvent.h"
 #include "../../DrumkitPropertiesDialog.h"
@@ -353,9 +354,14 @@ void SoundLibraryTree::updateRegistry()
 	if ( customInfos.size() > 0 ) {
 		for ( const auto& [ssLabel, iinfos] : customInfos ) {
 			auto pItem = new QTreeWidgetItem( this );
-			pItem->setText( 0, ssLabel );
+			pItem->setText(
+				0, Skin::trimPathToFitWidth(
+					   ssLabel, boldFont, Rack::nWidth, QMargins( 15, 0, 0, 0 )
+				   )
+			);
 			pItem->setFont( 0, boldFont );
 			pItem->setExpanded( true );
+			pItem->setToolTip( 0, ssLabel );
 			pItem->setFlags(
 				pItem->flags() & ~Qt::ItemIsSelectable
 			);
@@ -368,6 +374,18 @@ void SoundLibraryTree::updateRegistry()
 		m_pUserItem->setText( 0, pCommonStrings->getSoundLibraryUser() );
 		m_pUserItem->setFont( 0, boldFont );
 		m_pUserItem->setExpanded( true );
+		switch ( m_type ) {
+			case SoundLibraryInfo::Type::Drumkit:
+			case SoundLibraryInfo::Type::Instrument:
+				m_pUserItem->setToolTip( 0, Filesystem::userDrumkitsDir() );
+				break;
+			case SoundLibraryInfo::Type::Pattern:
+				m_pUserItem->setToolTip( 0, Filesystem::userPatternsDir() );
+				break;
+			case SoundLibraryInfo::Type::Song:
+				m_pUserItem->setToolTip( 0, Filesystem::userSongsDir() );
+				break;
+		}
 		m_pUserItem->setFlags( m_pUserItem->flags() & ~Qt::ItemIsSelectable );
 		m_internalDirs.push_back( m_pUserItem );
 		addNodes( m_pUserItem, userInfos, "" );
@@ -377,6 +395,18 @@ void SoundLibraryTree::updateRegistry()
 		m_pSystemItem->setText( 0, pCommonStrings->getSoundLibrarySystem() );
 		m_pSystemItem->setFont( 0, boldFont );
 		m_pSystemItem->setExpanded( true );
+		switch ( m_type ) {
+			case SoundLibraryInfo::Type::Drumkit:
+			case SoundLibraryInfo::Type::Instrument:
+				m_pSystemItem->setToolTip( 0, Filesystem::systemDrumkitsDir() );
+				break;
+			case SoundLibraryInfo::Type::Pattern:
+				m_pSystemItem->setToolTip( 0, Filesystem::systemPatternsDir() );
+				break;
+			case SoundLibraryInfo::Type::Song:
+				m_pSystemItem->setToolTip( 0, Filesystem::systemSongsDir() );
+				break;
+		}
 		m_pSystemItem->setFlags(
 			m_pSystemItem->flags() & ~Qt::ItemIsSelectable
 		);
@@ -895,7 +925,7 @@ void SoundLibraryTree::actionRemoveFolder()
 {
 	HydrogenApp::get_instance()->pushUndoCommand(
 		new SE_modifyCustomLibraryDirsAction(
-			currentItem()->text( 0 ),
+			currentItem()->toolTip( 0 ),
 			SE_modifyCustomLibraryDirsAction::Action::Remove
 		)
 	);

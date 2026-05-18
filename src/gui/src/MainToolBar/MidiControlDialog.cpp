@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2025 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2026 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -53,22 +53,47 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 	const auto pPref = Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	setMinimumSize( MidiControlDialog::nColumnActionWidth +
-					MidiControlDialog::nColumnInstrumentWidth +
-					MidiControlDialog::nColumnTimestampWidth +
-					MidiControlDialog::nColumnTypeWidth +
-					3 * MidiControlDialog::nColumnValueWidth + 20,
-					MidiControlDialog::nMinimumHeight );
 	setFocusPolicy( Qt::NoFocus );
 	setObjectName( "MidiControlDialog" );
 	// Not translated because it would make explanation within tickets more
 	// difficult.
 	setWindowTitle( pCommonStrings->getMidiControl() );
 
-	auto pMainLayout = new QVBoxLayout( this );
-	setLayout( pMainLayout );
+	// Show and enable maximize button. This is key when enlarging the
+	// application using a scaling factor and allows the OS to force its size
+	// beyond the minimum and make the scrollbars appear.
+	setWindowFlags(
+		windowFlags() | Qt::CustomizeWindowHint | Qt::WindowMinMaxButtonsHint
+	);
 
-	m_pTabWidget = new QTabWidget( this );
+	const int nMinimumWidth = MidiControlDialog::nColumnActionWidth +
+					MidiControlDialog::nColumnInstrumentWidth +
+					MidiControlDialog::nColumnTimestampWidth +
+					MidiControlDialog::nColumnTypeWidth +
+					3 * MidiControlDialog::nColumnValueWidth + 20;
+
+	resize( nMinimumWidth + 5, MidiControlDialog::nMinimumHeight + 5 );
+
+	// Overall layout
+	auto pOverallLayout = new QVBoxLayout( this );
+	pOverallLayout->setSpacing( 0 );
+	pOverallLayout->setContentsMargins( 0, 0, 0, 0 );
+	setLayout( pOverallLayout );
+
+	auto pScrollArea = new QScrollArea( this );
+	pScrollArea->setWidgetResizable( true );
+	pOverallLayout->addWidget( pScrollArea );
+
+	auto pScrollAreaContent = new QWidget( pScrollArea );
+	pScrollAreaContent->setMinimumSize(
+		nMinimumWidth, MidiControlDialog::nMinimumHeight
+	);
+	pScrollArea->setWidget( pScrollAreaContent );
+
+	auto pMainLayout = new QVBoxLayout( pScrollAreaContent );
+	pScrollAreaContent->setLayout( pMainLayout );
+
+	m_pTabWidget = new QTabWidget( pScrollAreaContent );
 	pMainLayout->addWidget( m_pTabWidget );
 
 	const auto binButtonSize = QSize(
@@ -668,7 +693,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	pInputLayout->setSpacing( 1 );
 	pInputWidget->setLayout( pInputLayout );
 
-	m_pMidiInputTable = new QTableWidget( this );
+	m_pMidiInputTable = new QTableWidget( pInputWidget );
 	m_pMidiInputTable->setColumnCount( 7 );
 	m_pMidiInputTable->setHorizontalHeaderLabels(
 		QStringList() << tr( "Timestamp" ) << tr( "Type" ) << tr( "Data1" ) <<
