@@ -606,7 +606,9 @@ CommonStrings::CommonStrings(){
 	/*: Names an action in a drop down or pop up menu. (with no further text)*/
 	m_sMenuActionLoad = tr( "Load" );
 	/*: Names an action in a drop down or pop up menu. (with no further text)*/
-	m_sMenuActionSaveToSoundLibrary = tr( "Save to Sound Library" );
+	m_sMenuActionAddDirToSoundLibrary = tr( "Add folder to Library" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionRemoveDirFromSoundLibrary = tr( "Remove folder from Library" );
 	/*: Names an action in a drop down or pop up menu. (with no further text)*/
 	m_sMenuActionExport = tr( "Export" );
 	/*: Names an action in a drop down or pop up menu. (with no further text)*/

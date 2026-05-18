@@ -57,6 +57,7 @@
 #include "PatternEditor/NotePropertiesRuler.h"
 #include "PatternEditor/DrumPatternEditor.h"
 #include "PatternEditor/PatternEditorPanel.h"
+#include "Rack/SoundLibrary/SoundLibraryTree.h"
 #include "SongEditor/PatternFillDialog.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
@@ -1780,6 +1781,48 @@ class SE_moveEnvelopePointAction : public QUndoCommand {
 	H2Core::EnvelopePoint m_oldPoint;
 	H2Core::EnvelopePoint m_newPoint;
 	SampleEditor::EnvelopeType m_envelopType;
+};
+
+class SE_modifyCustomLibraryDirsAction : public QUndoCommand {
+   public:
+	enum class Action { Add, Remove };
+	SE_modifyCustomLibraryDirsAction( const QString& sDirPath, Action action )
+		: m_sDirPath( sDirPath ), m_action( action )
+	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		QString sText;
+		if ( action == Action::Add ) {
+			sText = pCommonStrings->getMenuActionAddDirToSoundLibrary();
+		}
+		else {
+			sText = pCommonStrings->getMenuActionRemoveDirFromSoundLibrary();
+		}
+		setText( QString( "%1: [%2]" ).arg( sText ).arg( sDirPath ) );
+	}
+
+	virtual void redo()
+	{
+		if ( m_action == Action::Add ) {
+			SoundLibraryTree::addDirToLibrary( m_sDirPath );
+		}
+		else {
+			SoundLibraryTree::removeDirFromLibrary( m_sDirPath );
+		}
+	}
+	virtual void undo()
+	{
+		if ( m_action == Action::Add ) {
+			SoundLibraryTree::removeDirFromLibrary( m_sDirPath );
+		}
+		else {
+			SoundLibraryTree::addDirToLibrary( m_sDirPath );
+		}
+	}
+
+   private:
+	QString m_sDirPath;
+	Action m_action;
 };
 
 #endif	// UNDOACTIONS_H

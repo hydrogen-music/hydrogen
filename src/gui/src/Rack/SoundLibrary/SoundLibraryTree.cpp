@@ -51,6 +51,7 @@
 #include "../../Skin.h"
 #include "../../SongPropertiesDialog.h"
 #include "../../UndoActions.h"
+#include "../../Widgets/FileDialog.h"
 
 using namespace H2Core;
 
@@ -70,9 +71,10 @@ SoundLibraryTree::SoundLibraryTree(
 	setSelectionMode( QAbstractItemView::ExtendedSelection );
 	headerItem()->setHidden( true );
 
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	auto addDrumkitActions = [&]( QMenu* pMenu, bool bWritable, bool bAdd ) {
+	// Menus working on artifacts
+	auto addArtifactActions = [&]( QMenu* pMenu, bool bWritable, bool bAdd ) {
 		if ( m_bStandAlone ) {
 			return;
 		}
@@ -133,14 +135,36 @@ SoundLibraryTree::SoundLibraryTree(
 	};
 
 	m_pPopupMenu = new QMenu( this );
-	addDrumkitActions( m_pPopupMenu, true, false );
+	addArtifactActions( m_pPopupMenu, true, false );
 	m_pPopupMenuReadOnly = new QMenu( this );
-	addDrumkitActions( m_pPopupMenuReadOnly, false, false );
+	addArtifactActions( m_pPopupMenuReadOnly, false, false );
 
 	m_pPopupMenuAdd = new QMenu( this );
-	addDrumkitActions( m_pPopupMenuAdd, true, true );
+	addArtifactActions( m_pPopupMenuAdd, true, true );
 	m_pPopupMenuAddReadOnly = new QMenu( this );
-	addDrumkitActions( m_pPopupMenuAddReadOnly, false, true );
+	addArtifactActions( m_pPopupMenuAddReadOnly, false, true );
+
+	// Menus working on top-level folders
+	auto addDirActions = [&]( QMenu* pMenu, bool bWritable ) {
+		if ( m_bStandAlone ) {
+			return;
+		}
+		auto pDeleteAction = pMenu->addAction(
+			pCommonStrings->getMenuActionRemoveDirFromSoundLibrary(), this, SLOT( actionRemoveFolder() )
+		);
+		if ( !bWritable ) {
+			pDeleteAction->setEnabled( false );
+		}
+		pMenu->addAction(
+			pCommonStrings->getMenuActionAddDirToSoundLibrary(), this,
+			SLOT( actionAddFolder() )
+		);
+	};
+
+	m_pPopupMenuDir = new QMenu( this );
+	addDirActions( m_pPopupMenuDir, true );
+	m_pPopupMenuDirReadOnly = new QMenu( this );
+	addDirActions( m_pPopupMenuDirReadOnly, false );
 
 	// Select the expanded node (in case it is a drumkit). Else selecting an
 	// instrument would cause preview sounds of that instrument on each
@@ -213,6 +237,14 @@ void SoundLibraryTree::updateFont()
 		m_pUserItem->setFont( 0, boldFont );
 		recursivelyUpdateFont( m_pUserItem );
 	}
+	if ( m_customDirs.size() > 0 ) {
+		for ( auto& ppItem : m_customDirs ) {
+			if ( ppItem != nullptr ) {
+				ppItem->setFont( 0, boldFont );
+				recursivelyUpdateFont( ppItem );
+			}
+		}
+	}
 }
 
 void SoundLibraryTree::updateInfo()
@@ -237,11 +269,14 @@ void SoundLibraryTree::updateRegistry()
 {
 	clear();
 	m_registry.clear();
+	m_internalDirs.clear();
+	m_customDirs.clear();
 	m_pSessionItem = nullptr;
 	m_pSystemItem = nullptr;
 	m_pUserItem = nullptr;
 
-	const auto pFontTheme = Preferences::get_instance()->getFontTheme();
+	const auto pPref = Preferences::get_instance();
+	const auto pFontTheme = pPref->getFontTheme();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
@@ -271,8 +306,10 @@ void SoundLibraryTree::updateRegistry()
 	std::vector<std::shared_ptr<SoundLibraryInfo>> sessionInfos;
 	std::vector<std::shared_ptr<SoundLibraryInfo>> systemInfos;
 	std::vector<std::shared_ptr<SoundLibraryInfo>> userInfos;
+	std::map<QString, std::vector<std::shared_ptr<SoundLibraryInfo>>> customInfos;
 
-	// Separate patterns by context
+	// Separate artifacts by context
+	const auto customDirs = pPref->getCustomSoundLibraryDirs();
 	for ( const auto& ppInfo : infos ) {
 		if ( ppInfo == nullptr ) {
 			continue;
@@ -282,6 +319,20 @@ void SoundLibraryTree::updateRegistry()
 		}
 		else if ( ppInfo->getContext() == H2Core::Filesystem::Context::User ) {
 			userInfos.push_back( ppInfo );
+		}
+		else if ( ppInfo->getContext() == H2Core::Filesystem::Context::Custom ) {
+			for ( const auto& ssDir : customDirs ) {
+				if ( ppInfo->getPath().contains( ssDir ) ) {
+					if ( customInfos.find( ssDir ) != customInfos.end() ) {
+						customInfos[ ssDir ].push_back( ppInfo );
+					}
+					else {
+						std::vector<std::shared_ptr<SoundLibraryInfo>> infos;
+						infos.push_back( ppInfo );
+						customInfos[ ssDir ] = std::move( infos );
+					}
+				}
+			}
 		}
 		else {
 			sessionInfos.push_back( ppInfo );
@@ -296,7 +347,21 @@ void SoundLibraryTree::updateRegistry()
 		m_pSessionItem->setFlags(
 			m_pSessionItem->flags() & ~Qt::ItemIsSelectable
 		);
+		m_internalDirs.push_back( m_pSessionItem );
 		addNodes( m_pSessionItem, sessionInfos, "" );
+	}
+	if ( customInfos.size() > 0 ) {
+		for ( const auto& [ssLabel, iinfos] : customInfos ) {
+			auto pItem = new QTreeWidgetItem( this );
+			pItem->setText( 0, ssLabel );
+			pItem->setFont( 0, boldFont );
+			pItem->setExpanded( true );
+			pItem->setFlags(
+				pItem->flags() & ~Qt::ItemIsSelectable
+			);
+			m_customDirs.push_back( pItem );
+			addNodes( pItem, iinfos, ssLabel );
+		}
 	}
 	if ( userInfos.size() > 0 ) {
 		m_pUserItem = new QTreeWidgetItem( this );
@@ -304,6 +369,7 @@ void SoundLibraryTree::updateRegistry()
 		m_pUserItem->setFont( 0, boldFont );
 		m_pUserItem->setExpanded( true );
 		m_pUserItem->setFlags( m_pUserItem->flags() & ~Qt::ItemIsSelectable );
+		m_internalDirs.push_back( m_pUserItem );
 		addNodes( m_pUserItem, userInfos, "" );
 	}
 	if ( systemInfos.size() > 0 ) {
@@ -314,8 +380,36 @@ void SoundLibraryTree::updateRegistry()
 		m_pSystemItem->setFlags(
 			m_pSystemItem->flags() & ~Qt::ItemIsSelectable
 		);
+		m_internalDirs.push_back( m_pSystemItem );
 		addNodes( m_pSystemItem, systemInfos, "" );
 	}
+}
+
+void SoundLibraryTree::addDirToLibrary( const QString& sDirPath )
+{
+	if ( sDirPath.isEmpty() ) {
+		return;
+	}
+	auto pPref = Preferences::get_instance();
+
+	auto customDirs = pPref->getCustomSoundLibraryDirs();
+	customDirs << sDirPath;
+	pPref->setCustomSoundLibraryDirs( customDirs );
+
+	Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
+}
+void SoundLibraryTree::removeDirFromLibrary( const QString& sDirPath )
+{
+	if ( sDirPath.isEmpty() ) {
+		return;
+	}
+	auto pPref = Preferences::get_instance();
+
+	auto customDirs = pPref->getCustomSoundLibraryDirs();
+	customDirs.removeAll( sDirPath );
+	pPref->setCustomSoundLibraryDirs( customDirs );
+
+	Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
 }
 
 void SoundLibraryTree::actionAdd()
@@ -772,6 +866,41 @@ void SoundLibraryTree::actionOnlineImport()
 	HydrogenApp::get_instance()->getMainForm()->action_drumkit_onlineImport();
 }
 
+void SoundLibraryTree::actionAddFolder()
+{
+	auto pPref = Preferences::get_instance();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	FileDialog fd( this );
+
+	fd.setFileMode( QFileDialog::Directory );
+	fd.setDirectory( QDir::home() );
+	fd.setWindowTitle( pCommonStrings->getMenuActionAddDirToSoundLibrary() );
+	fd.setAcceptMode( QFileDialog::AcceptSave );
+	if ( fd.exec() != QDialog::Accepted ) {
+		return;
+	}
+
+	QString sDirPath = fd.selectedFiles().first();
+	if ( sDirPath.isEmpty() ) {
+		return;
+	}
+
+	HydrogenApp::get_instance()->pushUndoCommand(
+		new SE_modifyCustomLibraryDirsAction(
+			sDirPath, SE_modifyCustomLibraryDirsAction::Action::Add
+		)
+	);
+}
+void SoundLibraryTree::actionRemoveFolder()
+{
+	HydrogenApp::get_instance()->pushUndoCommand(
+		new SE_modifyCustomLibraryDirsAction(
+			currentItem()->text( 0 ),
+			SE_modifyCustomLibraryDirsAction::Action::Remove
+		)
+	);
+}
+
 void SoundLibraryTree::recursivelyUpdateFont( QTreeWidgetItem* pItem )
 {
 	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
@@ -816,10 +945,10 @@ void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
 
 	if ( event->button() == Qt::RightButton && !m_bStandAlone &&
 		 currentItem() != nullptr ) {
-		// Show popup menu
+		QMenu* pMenu = nullptr;
 		auto it = m_registry.find( currentItem() );
 		if ( it != m_registry.end() && it->second != nullptr ) {
-			QMenu* pMenu;
+			// Show popup menu for artifacts
 			if ( it->second->getContext() == Filesystem::Context::System ||
 				 it->second->getContext() ==
 					 Filesystem::Context::SessionReadOnly ) {
@@ -851,6 +980,24 @@ void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
 				}
 			}
 
+		}
+		else {
+			// Popup menu for top-level folders
+			for ( const auto& ppItem : m_internalDirs ) {
+				if ( ppItem == currentItem() ) {
+					pMenu = m_pPopupMenuDirReadOnly;
+					break;
+				}
+			}
+			for ( const auto& ppItem : m_customDirs ) {
+				if ( ppItem == currentItem() ) {
+					pMenu = m_pPopupMenuDir;
+					break;
+				}
+			}
+		}
+
+		if ( pMenu != nullptr ) {
 			pMenu->popup( pEv->globalPosition().toPoint() );
 		}
 	}

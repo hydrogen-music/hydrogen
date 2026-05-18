@@ -550,6 +550,18 @@ void Pattern::applyMissingTypes(
 				}
 			}
 			if ( pDrumkitMap == nullptr ) {
+				// Kits in folders manually added by the user have a similar
+				// priority.
+				for ( const auto& [_, ppDrumkit] : pDB->getDrumkitDatabase() ) {
+					if ( ppDrumkit != nullptr &&
+						 ppDrumkit->getContext() == Filesystem::Context::Custom &&
+						 ppDrumkit->getName() == m_sDrumkitName ) {
+						pDrumkitMap = ppDrumkit->toDrumkitMap();
+						break;
+					}
+				}
+			}
+			if ( pDrumkitMap == nullptr ) {
 				// Kits in the user's drumkit folder are next.
 				for ( const auto& [_, ppDrumkit] : pDB->getDrumkitDatabase() ) {
 					if ( ppDrumkit != nullptr &&
