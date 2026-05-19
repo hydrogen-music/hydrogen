@@ -578,7 +578,7 @@ bool Filesystem::pathUsable( const QString& sPath, bool bCreate, bool bSilent )
 {
 	if ( !QDir( sPath ).exists() ) {
 		if ( !bSilent ) {
-			INFOLOG( QString( "bCreate user directory : %1" ).arg( sPath ) );
+			INFOLOG( QString( "Create user directory : %1" ).arg( sPath ) );
 		}
 		if ( bCreate && !QDir( "/" ).mkpath( sPath ) ) {
 			ERRORLOG(
