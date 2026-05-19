@@ -36,10 +36,7 @@
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
-#if defined(Q_OS_MACX) || defined(WIN32)
-#else
-#include <QStandardPaths>
-#endif
+#include <qtenvironmentvariables.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -62,6 +59,16 @@
 #define SONGS "songs/"
 #define THEMES "themes/"
 #define TMP "hydrogen/"
+
+// XDG-compliant paths for Linux systems. Note that we do not use QStandardPaths
+// because `hydrogen`, `h2cli`, and `h2player` must use the same folders while
+// not sharing the same application name. Just temporarily setting their
+// application name to "hydrogen" would be an even dirtier solution than
+// hard-coding paths.
+#define XDG_LINUX_CACHE ".cache/"
+#define XDG_LINUX_CONFIG ".config/"
+#define XDG_LINUX_DATA ".local/share/"
+#define APPLICATION_NAME "hydrogen"
 
 // files
 /** Sound of metronome beat */
@@ -319,19 +326,37 @@ bool Filesystem::bootstrap(
 	m_sSystemDataPath = H2_SYS_PATH "/data/";
 #endif
 	// If the old path exists (e.g. ~/.hydrogen), old path is used; else uses
-	// QStandardPaths to get XDG Paths on Linux.
+	// XDG Paths on Linux. We do not use QStandardPaths in order to share the
+	// same location amongst all our binaries (bearing different application
+	// names). But we still allow the user to overwrite the default paths.
 	if ( !QFileInfo::exists( QDir::homePath().append( "/" H2_USR_PATH ) ) ) {
-		m_sUserConfigPath =
-			QStandardPaths::writableLocation( QStandardPaths::AppConfigLocation
-			)
-				.append( "/" USR_CONFIG );
-		m_sUserDataPath = QStandardPaths::writableLocation(
-							  QStandardPaths::AppLocalDataLocation
-		)
-							  .append( "/" );
-		m_sUserCachePath =
-			QStandardPaths::writableLocation( QStandardPaths::CacheLocation )
-				.append( "/" );
+		if ( qEnvironmentVariableIsSet( "XDG_CONFIG_HOME" ) ) {
+			m_sUserConfigPath = qEnvironmentVariable( "XDG_CONFIG_HOME" ) +
+								"/" + APPLICATION_NAME + "/" + USR_CONFIG;
+		}
+		else {
+			m_sUserConfigPath =
+				QDir::homePath().append( "/" XDG_LINUX_CONFIG APPLICATION_NAME
+										 "/" USR_CONFIG );
+		}
+		if ( qEnvironmentVariableIsSet( "XDG_DATA_HOME" ) ) {
+			m_sUserDataPath = qEnvironmentVariable( "XDG_DATA_HOME" ) + "/" +
+							  APPLICATION_NAME + "/";
+		}
+		else {
+			m_sUserDataPath =
+				QDir::homePath().append( "/" XDG_LINUX_DATA APPLICATION_NAME "/"
+				);
+		}
+		if ( qEnvironmentVariableIsSet( "XDG_CACHE_HOME" ) ) {
+			m_sUserCachePath = qEnvironmentVariable( "XDG_CACHE_HOME" ) + "/" +
+							   APPLICATION_NAME + "/";
+		}
+		else {
+			m_sUserCachePath =
+				QDir::homePath().append( "/" XDG_LINUX_CACHE APPLICATION_NAME
+										 "/" );
+		}
 	}
 	else {
 		m_sUserDataPath = QDir::homePath().append( "/" H2_USR_PATH "/data/" );
@@ -833,10 +858,15 @@ const QString& Filesystem::logFilePath()
 	if ( !m_bLogPathInitialized ) {
 		if ( !QFileInfo::exists( QDir::homePath().append( "/" H2_USR_PATH )
 			 ) ) {
-			m_sUserLogPath = QStandardPaths::writableLocation(
-								 QStandardPaths::AppLocalDataLocation
-			)
-								 .append( "/" LOG_FILE );
+			if ( qEnvironmentVariableIsSet( "XDG_DATA_HOME" ) ) {
+				m_sUserLogPath = qEnvironmentVariable( "XDG_DATA_HOME" ) + "/" +
+								 APPLICATION_NAME + "/" + LOG_FILE;
+			}
+			else {
+				m_sUserLogPath =
+					QDir::homePath().append( "/" XDG_LINUX_DATA APPLICATION_NAME
+											 "/" LOG_FILE );
+			}
 		}
 		m_bLogPathInitialized = true;
 	}
