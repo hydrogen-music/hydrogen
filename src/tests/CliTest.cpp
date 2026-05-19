@@ -116,13 +116,13 @@ void CliTest::testXdgPaths() {
 	const QString sKitPath = H2TEST_FILE( "drumkits/testKit.h2drumkit" );
 	CPPUNIT_ASSERT( Filesystem::fileExists( sKitPath ) );
 
-	const QString sOldUserData = QDir::homePath().append( "/" H2_USR_PATH "/data/" );
-	const bool bOldUserDataPresent = Filesystem::dirExists( sOldUserData, true );
+	const QString sOldUserDir = QDir::homePath().append( "/" H2_USR_PATH "/" );
+	const bool bOldUserDirPresent = Filesystem::dirExists( sOldUserDir, true );
 	bool bTestKitOldBackedUp = false;
-	const QString sTestKitOldPath = sOldUserData + "/drumkits/testKit";
+	const QString sTestKitOldPath = sOldUserDir + "data/drumkits/testKit";
 	const QString sTestKitOldBackupPath = Filesystem::tmpDir() + "/oldTestKit";
 	rm( sTestKitOldBackupPath );
-	if ( bOldUserDataPresent && Filesystem::dirExists( sTestKitOldPath, true ) ) {
+	if ( bOldUserDirPresent && Filesystem::dirExists( sTestKitOldPath, true ) ) {
 		QDir dir;
 		// Move the whole folder
 		CPPUNIT_ASSERT( dir.rename( sTestKitOldPath, sTestKitOldBackupPath ) );
@@ -131,12 +131,12 @@ void CliTest::testXdgPaths() {
 
 	// We back up the user-level data folder as well.
 	bool bOldUserDirBackedUp = false;
-	const QString sOldUserDataBackupPath = Filesystem::tmpDir() + "/oldUserData";
-	rm( sOldUserDataBackupPath );
-	if ( bOldUserDataPresent ) {
+	const QString sOldUserDirBackupPath = Filesystem::tmpDir() + "/oldUserData";
+	rm( sOldUserDirBackupPath );
+	if ( bOldUserDirPresent ) {
 		QDir dir;
 		// Move the whole folder
-		if ( ! dir.rename( sOldUserData, sOldUserDataBackupPath ) ) {
+		if ( ! dir.rename( sOldUserDir, sOldUserDirBackupPath ) ) {
 			// Cleanup
 			if ( bTestKitOldBackedUp ) {
 				dir.rename( sTestKitOldBackupPath, sTestKitOldPath );
@@ -150,7 +150,7 @@ void CliTest::testXdgPaths() {
 		if ( bOldUserDirBackedUp ) {
 			QDir dir;
 			// Move the whole folder
-			dir.rename( sOldUserDataBackupPath, sOldUserData );
+			dir.rename( sOldUserDirBackupPath, sOldUserDir );
 		}
 		if ( bTestKitOldBackedUp ) {
 			QDir dir;
@@ -160,11 +160,11 @@ void CliTest::testXdgPaths() {
 	};
 
 	// First, we check whether the old data folder is honored.
-	if ( Filesystem::dirExists( sOldUserData, true ) ) {
-		tearDown( "Old data dir must not be present prior to test" );
+	if ( Filesystem::dirExists( sOldUserDir, true ) ) {
+		tearDown( "Old user dir must not be present prior to test" );
 	}
-	if ( ! Filesystem::mkdir( sOldUserData ) ) {
-		tearDown( "Unable to create old data dir" );
+	if ( ! Filesystem::mkdir( sOldUserDir ) ) {
+		tearDown( "Unable to create old user dir" );
 	}
 
 	QStringList argsRefFile;
@@ -204,8 +204,8 @@ void CliTest::testXdgPaths() {
 		tearDown( "Test kit was not installed to old data dir as expected." );
 	}
 
-	if ( ! Filesystem::rm( sOldUserData, true ) ) {
-		tearDown( "Unable to remove old data dir." );
+	if ( ! Filesystem::rm( sOldUserDir, true ) ) {
+		tearDown( "Unable to remove old user dir." );
 	}
 
 	// Now we test the same thing with the XDG counter part.
@@ -239,8 +239,8 @@ void CliTest::testXdgPaths() {
 		if ( bOldUserDirBackedUp ) {
 			QDir dir;
 			// Move the whole folder
-			rm( sOldUserData );
-			dir.rename( sOldUserDataBackupPath, sOldUserData );
+			rm( sOldUserDir );
+			dir.rename( sOldUserDirBackupPath, sOldUserDir );
 		}
 		if ( bTestKitOldBackedUp ) {
 			QDir dir;
