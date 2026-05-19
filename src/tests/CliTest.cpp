@@ -169,7 +169,18 @@ void CliTest::testXdgPaths() {
 
 	QStringList argsRefFile;
 	argsRefFile << "-i" << sKitPath << "-VDebug";
-	{
+
+	const QString sXdgTmpData = Filesystem::tmpDir() + "/tmpXdgData";
+	const QString sXdgTmpCache = Filesystem::tmpDir() + "/tmpXdgCache";
+	const QString sXdgTmpConfig = Filesystem::tmpDir() + "/tmpXdgConfig";
+	rm( sXdgTmpCache );
+	rm( sXdgTmpConfig );
+	rm( sXdgTmpData );
+
+	auto startProcess = [&]( bool bUseXdg ) {
+		const QString sContext = bUseXdg ? "XDG dir" : "old user dir";
+
+		___INFOLOG( QString( "Starting process [%1]" ).arg( sContext ) );
 		auto pProcessRefFile = new QProcess();
 		// Connect signals to slots or lambdas to read output as it arrives
 		QObject::connect(
@@ -191,15 +202,27 @@ void CliTest::testXdgPaths() {
 				___DEBUGLOG( QString( "Stderr: %1" ).arg( error ) );
 			}
 		);
+		if ( bUseXdg ) {
+			auto env = QProcessEnvironment::systemEnvironment();
+			env.insert( "XDG_CONFIG_HOME", sXdgTmpConfig );
+			env.insert( "XDG_CACHE_HOME", sXdgTmpCache );
+			env.insert( "XDG_DATA_HOME", sXdgTmpData );
+			pProcessRefFile->setProcessEnvironment( env );
+		}
 		pProcessRefFile->start( m_sCliPath, argsRefFile );
 		if ( !pProcessRefFile->waitForFinished() ) {
-			tearDown( "h2cli on old data dir did not return" );
+			tearDown( QString( "h2cli on [%1] did not return" ).arg( sContext )
+			);
 		}
 		if ( pProcessRefFile->exitCode() != 0 ) {
-			tearDown( QString( "h2cli on old data dir existed with %1" )
+			tearDown( QString( "h2cli on [%1] existed with %1" )
+						  .arg( sContext )
 						  .arg( pProcessRefFile->exitCode() ) );
 		}
-	}
+	};
+
+	startProcess( false );
+
 	if ( ! Filesystem::dirExists( sTestKitOldPath, true ) ) {
 		tearDown( "Test kit was not installed to old data dir as expected." );
 	}
@@ -209,29 +232,10 @@ void CliTest::testXdgPaths() {
 	}
 
 	// Now we test the same thing with the XDG counter part.
-	const QString sXdgTmpData = Filesystem::tmpDir() + "/tmpXdgData";
-	const QString sXdgTmpCache = Filesystem::tmpDir() + "/tmpXdgCache";
-	const QString sXdgTmpConfig = Filesystem::tmpDir() + "/tmpXdgConfig";
-	rm( sXdgTmpCache );
-	rm( sXdgTmpConfig );
-	rm( sXdgTmpData );
-	const QString sTestKitXdgPath = sXdgTmpData + "drumkits/testKit";
-	{
-		auto pProcessRefFile = new QProcess();
-		auto env = QProcessEnvironment::systemEnvironment();
-		env.insert( "XDG_CONFIG_HOME", sXdgTmpConfig );
-		env.insert( "XDG_CACHE_HOME", sXdgTmpCache );
-		env.insert( "XDG_DATA_HOME", sXdgTmpData );
-		pProcessRefFile->setProcessEnvironment( env );
-		pProcessRefFile->start( m_sCliPath, argsRefFile );
-		if ( ! pProcessRefFile->waitForFinished() ) {
-			tearDown( "h2cli on XDG data dir did not return" );
-		}
-		if ( pProcessRefFile->exitCode() != 0 ) {
-			tearDown( QString( "h2cli on XDG data dir existed with %1" ).arg( pProcessRefFile->exitCode() ));
-		}
-	}
-	if ( ! Filesystem::dirExists( sTestKitOldPath, true ) ) {
+	const QString sTestKitXdgPath = sXdgTmpData + "/hydrogen/drumkits/testKit";
+	startProcess( true );
+
+	if ( ! Filesystem::dirExists( sTestKitXdgPath, true ) ) {
 		tearDown( "Test kit was not installed to XDG data dir as expected." );
 	}
 
