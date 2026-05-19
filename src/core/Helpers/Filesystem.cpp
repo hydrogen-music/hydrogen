@@ -120,8 +120,9 @@ QString Filesystem::m_sUserLogPath =
 #else
 QString Filesystem::m_sUserLogPath =
 	QDir::homePath().append( "/" H2_USR_PATH "/" LOG_FILE );
-bool m_bLogPathInitialized = false;
 #endif
+
+bool Filesystem::m_bLogPathInitialized = false;
 
 QStringList Filesystem::m_ladspaPaths;
 
@@ -319,7 +320,7 @@ bool Filesystem::bootstrap(
 #endif
 	// If the old path exists (e.g. ~/.hydrogen), old path is used; else uses
 	// QStandardPaths to get XDG Paths on Linux.
-	if ( !QFileInfo::exists( QFileInfo( m_sUserConfigPath ).absolutePath() ) ) {
+	if ( !QFileInfo::exists( QDir::homePath().append( "/" H2_USR_PATH ) ) ) {
 		m_sUserConfigPath =
 			QStandardPaths::writableLocation( QStandardPaths::AppConfigLocation
 			)
@@ -333,8 +334,8 @@ bool Filesystem::bootstrap(
 				.append( "/" );
 	}
 	else {
-		m_sUserCachePath = m_sUserDataPath + CACHE;
 		m_sUserDataPath = QDir::homePath().append( "/" H2_USR_PATH "/data/" );
+		m_sUserCachePath = m_sUserDataPath + CACHE;
 		m_sUserConfigPath =
 			QDir::homePath().append( "/" H2_USR_PATH "/" USR_CONFIG );
 	}
