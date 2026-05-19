@@ -36,7 +36,7 @@
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
-#include <qtenvironmentvariables.h>
+#include <QtEnvironmentVariables>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
