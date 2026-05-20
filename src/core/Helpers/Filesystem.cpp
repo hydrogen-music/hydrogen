@@ -30,13 +30,18 @@
 #include <QDateTime>
 #include <QRegularExpression>
 
+#if QT_VERSION >= QT_VERSION_CHECK( 6, 8, 0 )
+#include <QtEnvironmentVariables>
+#else
+#include <QtGlobal>
+#endif
+
 #include <core/Basics/Drumkit.h>
 #include <core/config.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
-#include <QtEnvironmentVariables>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -134,6 +139,25 @@ bool Filesystem::m_bLogPathInitialized = false;
 QStringList Filesystem::m_ladspaPaths;
 
 QString Filesystem::m_sPreferencesOverwritePath = "";
+
+static QString getEnvironmentVariable( const QString& sEnvironmentVariable )
+{
+#if QT_VERSION >= QT_VERSION_CHECK( 6, 8, 0 )
+	return qEnvironmentVariable( sEnvironmentVariable.toLocal8Bit().data() );
+#else
+	return QString( qgetenv( sEnvironmentVariable.toLocal8Bit().data() ) );
+#endif
+};
+
+static bool isEnvironmentVariableSet( const QString& sEnvironmentVariable )
+{
+#if QT_VERSION >= QT_VERSION_CHECK( 6, 8, 0 )
+	return qEnvironmentVariableIsSet( sEnvironmentVariable.toLocal8Bit().data()
+	);
+#else
+	return !qgetenv( sEnvironmentVariable.toLocal8Bit().data() ).isEmpty();
+#endif
+};
 
 Filesystem::Context Filesystem::DetermineContext( const QString& sPath )
 {
@@ -330,8 +354,8 @@ bool Filesystem::bootstrap(
 	// same location amongst all our binaries (bearing different application
 	// names). But we still allow the user to overwrite the default paths.
 	if ( !QFileInfo::exists( QDir::homePath().append( "/" H2_USR_PATH ) ) ) {
-		if ( qEnvironmentVariableIsSet( "XDG_CONFIG_HOME" ) ) {
-			m_sUserConfigPath = qEnvironmentVariable( "XDG_CONFIG_HOME" ) +
+		if ( isEnvironmentVariableSet( "XDG_CONFIG_HOME" ) ) {
+			m_sUserConfigPath = getEnvironmentVariable( "XDG_CONFIG_HOME" ) +
 								"/" + APPLICATION_NAME + "/" + USR_CONFIG;
 		}
 		else {
@@ -339,8 +363,8 @@ bool Filesystem::bootstrap(
 				QDir::homePath().append( "/" XDG_LINUX_CONFIG APPLICATION_NAME
 										 "/" USR_CONFIG );
 		}
-		if ( qEnvironmentVariableIsSet( "XDG_DATA_HOME" ) ) {
-			m_sUserDataPath = qEnvironmentVariable( "XDG_DATA_HOME" ) + "/" +
+		if ( isEnvironmentVariableSet( "XDG_DATA_HOME" ) ) {
+			m_sUserDataPath = getEnvironmentVariable( "XDG_DATA_HOME" ) + "/" +
 							  APPLICATION_NAME + "/";
 		}
 		else {
@@ -348,9 +372,9 @@ bool Filesystem::bootstrap(
 				QDir::homePath().append( "/" XDG_LINUX_DATA APPLICATION_NAME "/"
 				);
 		}
-		if ( qEnvironmentVariableIsSet( "XDG_CACHE_HOME" ) ) {
-			m_sUserCachePath = qEnvironmentVariable( "XDG_CACHE_HOME" ) + "/" +
-							   APPLICATION_NAME + "/";
+		if ( isEnvironmentVariableSet( "XDG_CACHE_HOME" ) ) {
+			m_sUserCachePath = getEnvironmentVariable( "XDG_CACHE_HOME" ) +
+							   "/" + APPLICATION_NAME + "/";
 		}
 		else {
 			m_sUserCachePath =
@@ -858,8 +882,8 @@ const QString& Filesystem::logFilePath()
 	if ( !m_bLogPathInitialized ) {
 		if ( !QFileInfo::exists( QDir::homePath().append( "/" H2_USR_PATH )
 			 ) ) {
-			if ( qEnvironmentVariableIsSet( "XDG_DATA_HOME" ) ) {
-				m_sUserLogPath = qEnvironmentVariable( "XDG_DATA_HOME" ) + "/" +
+			if ( isEnvironmentVariableSet( "XDG_DATA_HOME" ) ) {
+				m_sUserLogPath = getEnvironmentVariable( "XDG_DATA_HOME" ) + "/" +
 								 APPLICATION_NAME + "/" + LOG_FILE;
 			}
 			else {
