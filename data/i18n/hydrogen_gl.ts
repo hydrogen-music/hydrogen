@@ -971,7 +971,9 @@ Shown in table headers when referring to a license of an object.</extracomment>
     </message>
     <message>
         <source>Notes</source>
-        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to * fill in notes about the particular artifact.</extracomment>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to * fill in notes about the particular artifact.
+----------
+Label for the number of musical notes contained in a pattern, * shown in the Online Import detail panel. Not to be confused * with the &apos;Notes&apos; label for text annotations in property * dialogs.</extracomment>
         <translation>Notas</translation>
     </message>
     <message>
@@ -1607,6 +1609,101 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Remove folder from Library</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <extracomment>Table header shown in the Online Import dialog for the file * size column.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <extracomment>Table header shown in the Online Import dialog for the * installation status column.</extracomment>
+        <translation>Estado</translation>
+    </message>
+    <message>
+        <source>Installed</source>
+        <extracomment>Status label shown in the Online Import dialog for artifacts * already installed locally.</extracomment>
+        <translation>Instalado</translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <extracomment>Status label shown in the Online Import dialog for artifacts * that have been locally modified since installation.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Update</source>
+        <extracomment>Status label shown in the Online Import dialog when a newer * version of an installed artifact is available online.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search...</source>
+        <extracomment>Placeholder text shown in search input fields.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sources</source>
+        <extracomment>Label for the source repository filter button in the Online * Import dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <extracomment>Title of the detail panel group box in the Online Import * dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <extracomment>Text displayed on a Close button of a dialog.</extracomment>
+        <translation>Pechar</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <extracomment>Text displayed on a Download button in the Online Import * dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Download (%1)</source>
+        <extracomment>Text displayed on the Download button in the Online Import * dialog when one or more items are selected. %1 is the number * of selected items.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Download Error</source>
+        <extracomment>Title of the error dialog shown when one or more downloads * fail in the Online Import dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>One or more downloads failed.</source>
+        <extracomment>Message shown in the error dialog when one or more downloads * fail in the Online Import dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <extracomment>Label for the format version field in the Online Import * detail panel.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <extracomment>Label for the hash value field in the Online Import detail * panel.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instruments</source>
+        <extracomment>Label for the instrument count shown in the Online Import * detail panel for drumkits and patterns.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Components</source>
+        <extracomment>Label for the component count shown in the Online Import * detail panel for drumkits.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samples</source>
+        <extracomment>Label for the sample count shown in the Online Import detail * panel for drumkits.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <extracomment>Label for the description field in the Online Import detail * panel.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5826,16 +5923,8 @@ Está seguro?</translation>
         <translation>Biblioteca de son</translation>
     </message>
     <message>
-        <source>Status</source>
-        <translation>Estado</translation>
-    </message>
-    <message>
         <source>Updating SoundLibrary list...</source>
         <translation>Actualizando a lista de bibliotecas de son...</translation>
-    </message>
-    <message>
-        <source>Installed</source>
-        <translation>Instalado</translation>
     </message>
     <message>
         <source>Author: %1</source>
@@ -5912,13 +6001,6 @@ imported into %2</source>
     <message>
         <source>Close</source>
         <translation>Pechar</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryPanel</name>
-    <message>
-        <source>Search...</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -175,6 +175,7 @@ class MainForm :  public QMainWindow,
 		void action_pattern_duplicate( int nPatternRow = -1 );
 		void action_pattern_save( int nPattrnRow = -1 );
 		void action_pattern_save_as( int nPatternRow = -1 );
+		void action_pattern_onlineImport();
 
 		void action_drumkit_new();
 		void action_drumkit_properties();

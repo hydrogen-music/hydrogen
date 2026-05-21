@@ -68,6 +68,7 @@
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
 #include "SongPropertiesDialog.h"
+#include "OnlineImportDialog.h"
 #include "Rack/SoundLibrary/SoundLibraryOnlineImportDialog.h"
 #include "Rack/SoundLibrary/DrumkitOpenDialog.h"
 #include "DrumkitPropertiesDialog.h"
@@ -426,6 +427,11 @@ void MainForm::createMenuBar()
 		tr( "&Duplicate" ), this, SLOT( action_pattern_duplicate() ) );
 	// pActionDuplicatePattern->setShortcut(
 	// 	pShortcuts->getKeySequence( Shortcuts::Action::DuplicatePattern ) );
+
+	m_pPatternMenu->addSeparator();				// -----
+
+	m_pPatternMenu->addAction(
+		tr( "On&line Import" ), this, SLOT( action_pattern_onlineImport() ) );
 
 	// DRUMKITS MENU
 	m_pDrumkitMenu = pMenubar->addMenu( tr( "Drum&kit" ) );
@@ -1975,7 +1981,13 @@ void MainForm::loadDrumkit( const QString& sFileName, bool bLoad ) {
 
 void MainForm::action_drumkit_onlineImport()
 {
-	SoundLibraryOnlineImportDialog dialog( this );
+	OnlineImportDialog dialog( this, H2Core::OnlineArtifact::Type::Drumkit );
+	dialog.exec();
+}
+
+void MainForm::action_pattern_onlineImport()
+{
+	OnlineImportDialog dialog( this, H2Core::OnlineArtifact::Type::Pattern );
 	dialog.exec();
 }
 

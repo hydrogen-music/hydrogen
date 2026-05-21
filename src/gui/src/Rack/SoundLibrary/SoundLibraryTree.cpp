@@ -48,6 +48,7 @@
 #include "../../Compatibility/MouseEvent.h"
 #include "../../DrumkitPropertiesDialog.h"
 #include "../../HydrogenApp.h"
+#include "../../OnlineImportDialog.h"
 #include "../../PatternPropertiesDialog.h"
 #include "../../Skin.h"
 #include "../../SongPropertiesDialog.h"
@@ -887,13 +888,24 @@ void SoundLibraryTree::actionImport()
 }
 void SoundLibraryTree::actionOnlineImport()
 {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto it = m_registry.find( currentItem() );
-	if ( it == m_registry.end() || it->second == nullptr ) {
-		return;
+	OnlineArtifact::Type type = OnlineArtifact::Type::Pattern;
+	switch ( m_type ) {
+	case SoundLibraryInfo::Type::Pattern:
+		type = OnlineArtifact::Type::Pattern;
+		break;
+	case SoundLibraryInfo::Type::Song:
+		type = OnlineArtifact::Type::Song;
+		break;
+	case SoundLibraryInfo::Type::Drumkit:
+		type = OnlineArtifact::Type::Drumkit;
+		break;
+	default:
+		type = OnlineArtifact::Type::Pattern;
+		break;
 	}
 
-	HydrogenApp::get_instance()->getMainForm()->action_drumkit_onlineImport();
+	OnlineImportDialog dialog( this, type );
+	dialog.exec();
 }
 
 void SoundLibraryTree::actionAddFolder()

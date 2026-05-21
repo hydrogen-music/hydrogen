@@ -63,11 +63,11 @@ SoundLibraryOnlineImportDialog::SoundLibraryOnlineImportDialog( QWidget* pParent
 
 	setWindowTitle( tr( "Sound Library import" ) );
 
-	m_sLabelInstalled = tr( "Installed" );
+	m_sLabelInstalled = pCommonStrings->getOnlineInstalledStatus();
 	m_sLabelNew = pCommonStrings->getMenuActionNew();
 
 	QStringList headers;
-	headers << tr( "Sound library" ) << tr( "Status" );
+	headers << tr( "Sound library" ) << pCommonStrings->getStatusLabel();
 	QTreeWidgetItem* header = new QTreeWidgetItem( headers );
 	m_pDrumkitTree->setHeaderItem( header );
 	m_pDrumkitTree->header()->resizeSection( 0, 200 );
