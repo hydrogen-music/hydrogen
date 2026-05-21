@@ -89,7 +89,7 @@ struct OnlineArtifact {
     QStringList instrumentTypes;   // empty if N/A
 
     // Computed locally (not from JSON)
-    enum class LocalStatus { NotInstalled, Installed, UpdateAvailable };
+    enum class LocalStatus { NotInstalled, Installed, Modified, UpdateAvailable };
     LocalStatus localStatus;
 };
 
@@ -124,27 +124,35 @@ struct OnlineIndex {
 
 `OnlineImporter::resolveLocalStatus(OnlineArtifact& artifact)`:
 
-1. Checks whether a file/directory with matching name exists in:
-   - `Filesystem::userPatternsDir()` (patterns)
-   - `Filesystem::userSongsDir()` (songs)
-   - `Filesystem::userDrumkitsDir()` (drumkits)
-2. **For patterns and songs** (single files):
-   - If the file exists, compute sha256 of the local file.
+In production, local status is resolved via `SoundLibraryDatabase` which
+maintains an up-to-date view of all installed artifacts (patterns, songs,
+drumkits). Each `SoundLibraryInfo` entry carries a `m_nVersion` field parsed
+from the artifact's XML on disk.
+
+1. Look up the artifact by name and `Filesystem::Context::User` in
+   `SoundLibraryDatabase`.
+2. If not found → `NotInstalled`.
+3. **For patterns and songs** (single files):
+   - Hash the local file (sha256) and compare against the index hash.
    - If hashes match → `Installed`.
-   - If hashes differ or remote `version` > local → `UpdateAvailable`.
-3. **For drumkits** (installed as directories):
+   - If hashes differ and remote `version` > local version → `UpdateAvailable`.
+   - If hashes differ and remote `version` ≤ local version → `Modified`
+     (the user has edited the local copy).
+4. **For drumkits** (installed as directories):
    - Drumkits are extracted after download, so the original `.h2drumkit` archive
      is not available for hash comparison.
-   - Instead, compare the `version` field from the index against the version
-     stored in the local `drumkit.xml`.
-   - If versions match → `Installed`.
+   - Compare the `version` field from the index against the version stored in
+     `SoundLibraryInfo` (originally read from `drumkit.xml`).
    - If remote version > local → `UpdateAvailable`.
+   - Otherwise → `Installed`.
    - Hash verification for drumkits only applies at download time (before
      extraction), not for local status resolution.
-4. If the file/directory does not exist → `NotInstalled`.
 
 This runs **without** downloading the remote artifact. The sha256 of the remote
 is taken from the index JSON; only local files are hashed (for patterns/songs).
+
+A `setLocalSearchPath()` test helper is retained for unit tests that need to
+bypass `SoundLibraryDatabase` with temporary directories.
 
 ## Consequences
 
