@@ -53,6 +53,7 @@ target_link_libraries(hydrogen-core-${VERSION}
 	Qt${QT_VERSION_MAJOR}::Xml
     Qt${QT_VERSION_MAJOR}::Test
 	Qt${QT_VERSION_MAJOR}::Gui # For QColor
+	Qt${QT_VERSION_MAJOR}::Network
 )
 
 if(Backtrace_FOUND)
