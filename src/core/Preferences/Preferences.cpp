@@ -201,6 +201,7 @@ Preferences::Preferences()
 	  m_bSoundLibraryShowLicense( false ),
 	  m_bSoundLibraryShowPath( false ),
 	  m_bSoundLibraryShowTags( true ),
+	  m_bSoundLibraryShowVersion( false ),
 	  m_nSoundLibraryLastTab( 0 ),
 	  m_nRackLastTab( 0 ),
 	  m_bShowExportSongLicenseWarning( true ),
@@ -409,6 +410,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	  m_bSoundLibraryShowLicense( pOther->m_bSoundLibraryShowLicense ),
 	  m_bSoundLibraryShowPath( pOther->m_bSoundLibraryShowPath ),
 	  m_bSoundLibraryShowTags( pOther->m_bSoundLibraryShowTags ),
+	  m_bSoundLibraryShowVersion( pOther->m_bSoundLibraryShowVersion ),
 	  m_nSoundLibraryLastTab( pOther->m_nSoundLibraryLastTab ),
 	  m_nRackLastTab( pOther->m_nRackLastTab ),
 	  m_bShowExportSongLicenseWarning( pOther->m_bShowExportSongLicenseWarning
@@ -1194,6 +1196,10 @@ Preferences::load( const QString& sPath, const bool bSilent )
 			"soundLibraryShowTags",
 			pPref->m_bSoundLibraryShowTags, true, false, bSilent
 		);
+		pPref->m_bSoundLibraryShowVersion = guiNode.read_bool(
+			"soundLibraryShowVersion",
+			pPref->m_bSoundLibraryShowVersion, true, false, bSilent
+		);
 		pPref->m_nSoundLibraryLastTab = guiNode.read_int(
 			"soundLibraryLastTab",
 			pPref->m_nSoundLibraryLastTab, true, false, bSilent
@@ -1872,6 +1878,7 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 		);
 		guiNode.write_bool( "soundLibraryShowPath", m_bSoundLibraryShowPath );
 		guiNode.write_bool( "soundLibraryShowTags", m_bSoundLibraryShowTags );
+		guiNode.write_bool( "soundLibraryShowVersion", m_bSoundLibraryShowVersion );
 		guiNode.write_int( "soundLibraryLastTab", m_nSoundLibraryLastTab );
 		guiNode.write_int( "rackLastTab", m_nRackLastTab );
 
@@ -2722,6 +2729,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( sPrefix )
 						 .arg( s )
 						 .arg( m_bSoundLibraryShowTags ) )
+			.append( QString( "%1%2m_bSoundLibraryShowVersion: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_bSoundLibraryShowVersion ) )
 			.append( QString( "%1%2m_nSoundLibraryLastTab: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
@@ -3030,6 +3041,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( m_bSoundLibraryShowPath ) )
 			.append( QString( ", m_bSoundLibraryShowTags: %1" )
 						 .arg( m_bSoundLibraryShowTags ) )
+			.append( QString( ", m_bSoundLibraryShowVersion: %1" )
+						 .arg( m_bSoundLibraryShowVersion ) )
 			.append( QString( ", m_nSoundLibraryLastTab: %1" )
 						 .arg( m_nSoundLibraryLastTab ) )
 			.append( QString( ", m_nRackLastTab: %1" )

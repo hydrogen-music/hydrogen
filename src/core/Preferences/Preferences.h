@@ -562,6 +562,8 @@ class Preferences : public H2Core::Object<Preferences> {
 	void setSoundLibraryShowPath( bool bShow );
 	bool getSoundLibraryShowTags() const;
 	void setSoundLibraryShowTags( bool bShow );
+	bool getSoundLibraryShowVersion() const;
+	void setSoundLibraryShowVersion( bool bShow );
 	int getSoundLibraryLastTab() const;
 	void setSoundLibraryLastTab( int nTab );
 	int getRackLastTab() const;
@@ -730,6 +732,7 @@ class Preferences : public H2Core::Object<Preferences> {
 	bool m_bSoundLibraryShowLicense;
 	bool m_bSoundLibraryShowPath;
 	bool m_bSoundLibraryShowTags;
+	bool m_bSoundLibraryShowVersion;
 	int m_nSoundLibraryLastTab;
 	int m_nRackLastTab;
 
@@ -945,6 +948,14 @@ inline bool Preferences::getSoundLibraryShowTags() const
 inline void Preferences::setSoundLibraryShowTags( bool bShow )
 {
 	m_bSoundLibraryShowTags = bShow;
+}
+inline bool Preferences::getSoundLibraryShowVersion() const
+{
+	return m_bSoundLibraryShowVersion;
+}
+inline void Preferences::setSoundLibraryShowVersion( bool bShow )
+{
+	m_bSoundLibraryShowVersion = bShow;
 }
 inline int Preferences::getSoundLibraryLastTab() const
 {
