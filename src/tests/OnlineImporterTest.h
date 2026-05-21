@@ -38,6 +38,8 @@ class OnlineImporterTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testResolveLocalStatusModified );
 	CPPUNIT_TEST( testDownloadArtifactsEmptyList );
 	CPPUNIT_TEST( testDownloadArtifactsAbort );
+	CPPUNIT_TEST( testDownloadBlockingSuccess );
+	CPPUNIT_TEST( testDownloadBlockingHashMismatch );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -53,6 +55,8 @@ public:
 	void testResolveLocalStatusModified();
 	void testDownloadArtifactsEmptyList();
 	void testDownloadArtifactsAbort();
+	void testDownloadBlockingSuccess();
+	void testDownloadBlockingHashMismatch();
 };
 
 #endif

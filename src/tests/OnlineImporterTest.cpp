@@ -29,6 +29,8 @@
 #include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QCryptographicHash>
+#include <QTcpServer>
+#include <QTcpSocket>
 
 using namespace H2Core;
 
@@ -334,5 +336,89 @@ void OnlineImporterTest::testDownloadArtifactsAbort() {
 	CPPUNIT_ASSERT( args.at( 0 ).toInt() == 0 ); // nSuccessCount
 	CPPUNIT_ASSERT( args.at( 1 ).toInt() == 1 ); // nFailCount
 
+	___INFOLOG( "passed" );
+}
+
+void OnlineImporterTest::testDownloadBlockingSuccess() {
+	___INFOLOG( "" );
+
+	// Set up a local TCP server that responds with a known payload
+	const QByteArray payload = "This is the artifact content for testing.";
+	const QString sExpectedHash = QCryptographicHash::hash(
+		payload, QCryptographicHash::Sha256 ).toHex();
+
+	QTcpServer server;
+	CPPUNIT_ASSERT( server.listen( QHostAddress::LocalHost, 0 ) );
+	const quint16 nPort = server.serverPort();
+
+	QObject::connect( &server, &QTcpServer::newConnection, [&]() {
+		QTcpSocket* pSocket = server.nextPendingConnection();
+		QObject::connect( pSocket, &QTcpSocket::readyRead, [pSocket, &payload]() {
+			// Send a minimal HTTP/1.1 response
+			const QByteArray response =
+				"HTTP/1.1 200 OK\r\n"
+				"Content-Length: " + QByteArray::number( payload.size() ) + "\r\n"
+				"Connection: close\r\n"
+				"\r\n" + payload;
+			pSocket->write( response );
+			pSocket->flush();
+			pSocket->disconnectFromHost();
+		} );
+	} );
+
+	OnlineImporter importer;
+	QString sError;
+	const QUrl url( QString( "http://127.0.0.1:%1/test.h2pattern" ).arg( nPort ) );
+	const QByteArray data = importer.downloadBlocking( url, 5000, &sError );
+
+	CPPUNIT_ASSERT_MESSAGE( sError.toStdString(), sError.isEmpty() );
+	CPPUNIT_ASSERT( data == payload );
+	CPPUNIT_ASSERT( OnlineImporter::verifyHash( data, sExpectedHash ) );
+
+	server.close();
+	___INFOLOG( "passed" );
+}
+
+void OnlineImporterTest::testDownloadBlockingHashMismatch() {
+	___INFOLOG( "" );
+
+	// Server responds with valid data, but the artifact has a wrong hash
+	const QByteArray payload = "Payload that will fail hash check.";
+	const QString sWrongHash =
+		"0000000000000000000000000000000000000000000000000000000000000000";
+
+	QTcpServer server;
+	CPPUNIT_ASSERT( server.listen( QHostAddress::LocalHost, 0 ) );
+	const quint16 nPort = server.serverPort();
+
+	QObject::connect( &server, &QTcpServer::newConnection, [&]() {
+		QTcpSocket* pSocket = server.nextPendingConnection();
+		QObject::connect( pSocket, &QTcpSocket::readyRead, [pSocket, &payload]() {
+			const QByteArray response =
+				"HTTP/1.1 200 OK\r\n"
+				"Content-Length: " + QByteArray::number( payload.size() ) + "\r\n"
+				"Connection: close\r\n"
+				"\r\n" + payload;
+			pSocket->write( response );
+			pSocket->flush();
+			pSocket->disconnectFromHost();
+		} );
+	} );
+
+	// Use downloadArtifactBlocking which does both download + hash verification
+	OnlineArtifact artifact;
+	artifact.type = OnlineArtifact::Type::Pattern;
+	artifact.sName = "hash_mismatch_test";
+	artifact.url = QUrl( QString( "http://127.0.0.1:%1/test.h2pattern" ).arg( nPort ) );
+	artifact.sHash = sWrongHash;
+
+	OnlineImporter importer;
+	QString sError;
+	const bool bResult = importer.downloadArtifactBlocking( artifact, &sError );
+
+	CPPUNIT_ASSERT( !bResult );
+	CPPUNIT_ASSERT( sError.contains( "Hash mismatch" ) );
+
+	server.close();
 	___INFOLOG( "passed" );
 }
