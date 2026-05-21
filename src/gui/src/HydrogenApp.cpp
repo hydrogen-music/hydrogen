@@ -1008,6 +1008,10 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->audioDriverChangedEvent();
 				break;
 
+			case Event::Type::AudioExportProgress:
+				ppEventListener->audioExportProgressEvent( pEvent->getValue() );
+				break;
+
 			case Event::Type::BbtChanged:
 				ppEventListener->bbtChangedEvent();
 				break;
@@ -1135,10 +1139,6 @@ void HydrogenApp::onEventQueueTimer()
 
 			case Event::Type::PlaylistLoadSong:
 				ppEventListener->playlistLoadSongEvent();
-				break;
-
-			case Event::Type::Progress:
-				ppEventListener->progressEvent( pEvent->getValue() );
 				break;
 
 			case Event::Type::RecordModeChanged:

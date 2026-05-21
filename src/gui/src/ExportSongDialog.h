@@ -52,7 +52,7 @@ class ExportSongDialog :  public QDialog, public Ui_ExportSongDialog_UI, public 
 		explicit ExportSongDialog(QWidget* parent);
 		~ExportSongDialog();
 
-		virtual void progressEvent( int nValue ) override;
+		virtual void audioExportProgressEvent( int nValue ) override;
 		void closeEvent( QCloseEvent* event ) override;
 
 

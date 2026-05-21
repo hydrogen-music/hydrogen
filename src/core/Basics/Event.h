@@ -59,6 +59,13 @@ public:
 			ActionModeChanged,
 			AudioDriverChanged,
 			/**
+			 * Used by the thread of the `DiskWriterDriver` to indicate progress
+			 * of the ongoing audio export (from 0 to 100).
+			 *
+			 * The value `-1` is used to indicate exporting failed.
+			 */
+			AudioExportProgress,
+			/**
 			 * The coarse grained transport position in beats and bars did
 			 * change. (Tick - the "T" in BBT - resolution is not implemented
 			 * yet as no part of the application requires it).
@@ -171,13 +178,6 @@ public:
 			 * It is handled by EventListener::playingPatternsChangedEvent().
 			 */
 			PlayingPatternsChanged,
-			/**
-			 * Used by the thread of the `DiskWriterDriver` to indicate progress
-			 * of the ongoing audio export (from 0 to 100).
-			 *
-			 * The value `-1` is used to indicate exporting failed.
-			 */
-			Progress,
 			/**
 			 * Triggering HydrogenApp::quitEvent() and enables a shutdown of the
 			 * entire application via the command line.

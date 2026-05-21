@@ -865,7 +865,7 @@ void ExportSongDialog::on_exportNameTxt_textChanged( const QString& )
 	}
 }
 
-void ExportSongDialog::progressEvent( int nValue )
+void ExportSongDialog::audioExportProgressEvent( int nValue )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	

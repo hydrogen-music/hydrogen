@@ -606,7 +606,7 @@ int main(int argc, char *argv[])
 
 				/* Event handler */
 				switch ( pEvent->getType() ) {
-				case Event::Type::Progress: /* event used only in export mode */
+				case Event::Type::AudioExportProgress: /* event used only in export mode */
 					if ( ! bExportMode ) {
 						break;
 					}
