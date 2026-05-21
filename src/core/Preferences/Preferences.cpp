@@ -136,6 +136,7 @@ Preferences::Preferences()
 	  m_sLastSongPath( "" ),
 	  m_sLastPlaylistPath( "" ),
 	  m_customSoundLibraryDirs( QStringList() ),
+	  m_onlineRepos( QStringList() ),
 	  m_bHearNewNotes( true ),
 	  m_bQuantizeEvents( true ),
 	  m_recentFiles( QStringList() ),
@@ -334,6 +335,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	  m_sLastSongPath( pOther->m_sLastSongPath ),
 	  m_sLastPlaylistPath( pOther->m_sLastPlaylistPath ),
 	  m_customSoundLibraryDirs( pOther->m_customSoundLibraryDirs ),
+	  m_onlineRepos( pOther->m_onlineRepos ),
 	  m_bHearNewNotes( pOther->m_bHearNewNotes ),
 	  m_nPunchInPos( pOther->m_nPunchInPos ),
 	  m_nPunchOutPos( pOther->m_nPunchOutPos ),
@@ -583,6 +585,19 @@ Preferences::load( const QString& sPath, const bool bSilent )
 	}
 	else {
 		WARNINGLOG( "<serverList> node not found" );
+	}
+
+	const XMLNode onlineReposNode = rootNode.firstChildElement( "onlineRepos" );
+	if ( !onlineReposNode.isNull() ) {
+		QDomElement repoElement =
+			onlineReposNode.firstChildElement( "repo" );
+		while ( !repoElement.isNull() && !repoElement.text().isEmpty() ) {
+			if ( !pPref->m_onlineRepos.contains( repoElement.text() ) ) {
+				pPref->m_onlineRepos.push_back( repoElement.text() );
+			}
+
+			repoElement = repoElement.nextSiblingElement( "repo" );
+		}
 	}
 
 	/////////////// AUDIO ENGINE //////////////
@@ -1496,6 +1511,11 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 		serverListNode.write_string( "server", ssServer );
 	}
 
+	XMLNode onlineReposNode = rootNode.createNode( "onlineRepos" );
+	for ( const auto& sRepo : m_onlineRepos ) {
+		onlineReposNode.write_string( "repo", sRepo );
+	}
+
 	//---- AUDIO ENGINE ----
 	XMLNode audioEngineNode = rootNode.createNode( "audio_engine" );
 	{
@@ -2247,6 +2267,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_serverList.join( ',' ) ) )
+				.append( QString( "%1%2m_onlineRepos: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_onlineRepos.join( ',' ) ) )
 				.append( QString( "%1%2m_audioDriver: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -2768,6 +2792,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( m_nBeatCounterStartOffset ) )
 				.append( QString( ", m_serverList: %1" )
 							 .arg( m_serverList.join( ',' ) ) )
+				.append( QString( ", m_onlineRepos: %1" )
+							 .arg( m_onlineRepos.join( ',' ) ) )
 				.append( QString( ", m_audioDriver: %1" )
 							 .arg( audioDriverToQString( m_audioDriver ) ) )
 				.append(

@@ -397,6 +397,9 @@ class Preferences : public H2Core::Object<Preferences> {
 	const QStringList& getCustomSoundLibraryDirs() const;
 	void setCustomSoundLibraryDirs( const QStringList& folders );
 
+	const QStringList& getOnlineRepos() const;
+	void setOnlineRepos( const QStringList& repos );
+
 	bool getHearNewNotes() const;
 	void setHearNewNotes( bool value );
 
@@ -621,6 +624,7 @@ class Preferences : public H2Core::Object<Preferences> {
 	QString m_sLastPlaylistPath;
 
 	QStringList m_customSoundLibraryDirs;
+	QStringList m_onlineRepos;
 
 	bool m_bHearNewNotes;
 	int m_nPunchInPos;
@@ -1104,6 +1108,15 @@ inline void Preferences::setCustomSoundLibraryDirs( const QStringList& folders )
 inline const QStringList& Preferences::getCustomSoundLibraryDirs() const
 {
 	return m_customSoundLibraryDirs;
+}
+
+inline void Preferences::setOnlineRepos( const QStringList& repos )
+{
+	m_onlineRepos = repos;
+}
+inline const QStringList& Preferences::getOnlineRepos() const
+{
+	return m_onlineRepos;
 }
 
 inline void Preferences::setHearNewNotes( bool value )
