@@ -62,6 +62,7 @@ class EventListener
 		virtual void nextPatternsChangedEvent(){}
 		virtual void nextShotEvent(){}
 		virtual void noteRenderEvent( int nInstrument ) { UNUSED( nInstrument ); }
+		virtual void onlineImportProgressEvent( int nValue ) { UNUSED( nValue ); }
 		virtual void patternChangedEvent() {}
 		virtual void patternEditorLockedEvent(){}
 		virtual void patternIsModifiedEvent() {}

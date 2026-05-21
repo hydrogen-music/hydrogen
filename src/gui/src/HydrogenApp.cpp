@@ -1101,6 +1101,10 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->noteRenderEvent( pEvent->getValue() );
 				break;
 
+			case Event::Type::OnlineImportProgress:
+				ppEventListener->onlineImportProgressEvent( pEvent->getValue() );
+				break;
+
 			case Event::Type::Quit:
 				ppEventListener->quitEvent( pEvent->getValue() );
 				break;

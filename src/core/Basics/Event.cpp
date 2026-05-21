@@ -78,6 +78,8 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "NextShot";
 	case Event::Type::NoteRender:
 		return "NoteRender";
+	case Event::Type::OnlineImportProgress:
+		return "OnlineImportProgress";
 	case Event::Type::PatternChanged:
 		return "PatternChanged";
 	case Event::Type::PatternEditorLocked:

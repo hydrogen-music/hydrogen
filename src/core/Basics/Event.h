@@ -128,8 +128,16 @@ public:
 			NextPatternsChanged,
 			NextShot,
 			/** Sampler does start to render a note. */
-			NoteRender,
-			PatternChanged,
+		NoteRender,
+		/**
+		 * Used by OnlineImporter to report progress of an ongoing
+		 * batch download (from 0 to 100).
+		 *
+		 * The value `-1` indicates an error occurred during download.
+		 * The value `101` signals the batch is complete.
+		 */
+		OnlineImportProgress,
+		PatternChanged,
 			/** Locks the PatternEditor on the pattern currently played back.*/
 			PatternEditorLocked,
 			/** Whether the modification state of a pattern changed. */
