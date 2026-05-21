@@ -129,6 +129,14 @@ InfoView::InfoView( QWidget* pParent ) : QWidget( pParent )
 		Preferences::get_instance()->setSoundLibraryShowTags( bChecked );
 		updateVisibility();
 	} );
+	auto pVersionAction = addRow(
+		pCommonStrings->getVersionDialog(), &m_pVersionLabel, &m_pVersionText
+	);
+	pVersionAction->setChecked( pPref->getSoundLibraryShowVersion() );
+	connect( pVersionAction, &QAction::toggled, this, [&]( bool bChecked ) {
+		Preferences::get_instance()->setSoundLibraryShowVersion( bChecked );
+		updateVisibility();
+	} );
 
 	auto pSeparator = new QFrame( this );
 	pSeparator->setFixedWidth( 1 );
@@ -160,6 +168,8 @@ void InfoView::updateContent( std::shared_ptr<H2Core::SoundLibraryInfo> pInfo )
 		m_pPathText->setToolTip( "" );
 		m_pTagsText->clear();
 		m_pTagsText->setToolTip( "" );
+		m_pVersionText->clear();
+		m_pVersionText->setToolTip( "" );
 	}
 	else {
 		auto setText = [&]( QLabel* pLabel, const QString& sText ) {
@@ -186,6 +196,7 @@ void InfoView::updateContent( std::shared_ptr<H2Core::SoundLibraryInfo> pInfo )
 			m_pPathText->width(), QMargins( 10, 0, 0, 0 )
 		) );
 		setText( m_pTagsText, pInfo->getTags().join( ", " ) );
+		setText( m_pVersionText, QString::number( pInfo->getVersion() ) );
 	}
 }
 
@@ -239,6 +250,8 @@ void InfoView::updateVisibility()
 	m_pPathText->setVisible( pPref->getSoundLibraryShowPath() );
 	m_pTagsLabel->setVisible( pPref->getSoundLibraryShowTags() );
 	m_pTagsText->setVisible( pPref->getSoundLibraryShowTags() );
+	m_pVersionLabel->setVisible( pPref->getSoundLibraryShowVersion() );
+	m_pVersionText->setVisible( pPref->getSoundLibraryShowVersion() );
 
 	// In case a row was initial hidden, its string cutting based on the
 	// widget's width did not work as expected since the visible widget will
