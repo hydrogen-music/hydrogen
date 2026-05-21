@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- New online import dialog with table view, search filtering, multi-select, and
+  per-artifact metadata display. Replaces the legacy online import dialog.
 - PortMidi driver does open a input/output port which can be discovered and
   connected to by other applications when port was set to "None" in the
   Preferences (not supported on Windows).
