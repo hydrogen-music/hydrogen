@@ -1785,20 +1785,6 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
 </context>
 <context>
-    <name>Download</name>
-    <message>
-        <source>Importing item failed: %1</source>
-        <translation>导入项目失败：%1</translation>
-    </message>
-</context>
-<context>
-    <name>DownloadWidget</name>
-    <message>
-        <source>(%1/%2 KiB) - ETA %3</source>
-        <translation>(%1/%2 KiB) - ETA %3</translation>
-    </message>
-</context>
-<context>
     <name>Drumkit</name>
     <message>
         <source>New Drumkit</source>
@@ -5910,97 +5896,6 @@ Are you sure?</source>
     <message>
         <source>Export song from Session</source>
         <translation>从会话导出乐曲</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryOnlineImportDialog</name>
-    <message>
-        <source>Sound Library import</source>
-        <translation>声音库导入</translation>
-    </message>
-    <message>
-        <source>Sound library</source>
-        <translation>声音库</translation>
-    </message>
-    <message>
-        <source>Updating SoundLibrary list...</source>
-        <translation>正在更新声音库列表...</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation>作者：%1</translation>
-    </message>
-    <message>
-        <source>Drumkit License: %1</source>
-        <translation>鼓组许可协议：%1</translation>
-    </message>
-    <message>
-        <source>Image License: %1</source>
-        <translation>图像许可协议：%1</translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation>正在下载声音库...</translation>
-    </message>
-    <message>
-        <source>Drumkits
-
-- %1
-
-imported into %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Download failed for</source>
-        <extracomment>Shown in a dialog in case a download of an online resource did fail. * A list of names does follow in a new line.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryOnlineImportDialog_UI</name>
-    <message>
-        <source>Dialog</source>
-        <translation>对话框</translation>
-    </message>
-    <message>
-        <source>Update list</source>
-        <translation>更新列表</translation>
-    </message>
-    <message>
-        <source>Edit server list</source>
-        <translation>编辑服务器列表</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation>1</translation>
-    </message>
-    <message>
-        <source>Sound Library Name</source>
-        <translation>声音库名称</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation>文字标签</translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>作者...</translation>
-    </message>
-    <message>
-        <source>Drumkit License...</source>
-        <translation>鼓组许可协议...</translation>
-    </message>
-    <message>
-        <source>Image License...</source>
-        <translation>图像许可协议...</translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>下载并安装</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>关闭</translation>
     </message>
 </context>
 <context>

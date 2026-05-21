@@ -1784,20 +1784,6 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
 </context>
 <context>
-    <name>Download</name>
-    <message>
-        <source>Importing item failed: %1</source>
-        <translation>Αποτυχία εισαγωγής αντικειμένου: %1</translation>
-    </message>
-</context>
-<context>
-    <name>DownloadWidget</name>
-    <message>
-        <source>(%1/%2 KiB) - ETA %3</source>
-        <translation>(%1/%2 ΧίλιοΜπάιτια) - Εκτ.Χρ. %3</translation>
-    </message>
-</context>
-<context>
     <name>Drumkit</name>
     <message>
         <source>New Drumkit</source>
@@ -5918,97 +5904,6 @@ Are you sure?</source>
     <message>
         <source>Export song from Session</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryOnlineImportDialog</name>
-    <message>
-        <source>Sound Library import</source>
-        <translation>Εισαγωγή Βιβλιοθήκης Ήχων</translation>
-    </message>
-    <message>
-        <source>Sound library</source>
-        <translation>Βιβλιοθήκη ήχων</translation>
-    </message>
-    <message>
-        <source>Updating SoundLibrary list...</source>
-        <translation>Ενημερώνεται το κατάστιχο με τις ΒιβλιοθήκεςΉχων...</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation>Δημιουργός: %1</translation>
-    </message>
-    <message>
-        <source>Drumkit License: %1</source>
-        <translation>Άδεια της Ομάδας Κρουστών: %1</translation>
-    </message>
-    <message>
-        <source>Image License: %1</source>
-        <translation>Άδεια της Εικόνας: %1</translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation>Λαμβάνεται η ΒιβλιοθήκηΉχων...</translation>
-    </message>
-    <message>
-        <source>Drumkits
-
-- %1
-
-imported into %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Download failed for</source>
-        <extracomment>Shown in a dialog in case a download of an online resource did fail. * A list of names does follow in a new line.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryOnlineImportDialog_UI</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Διάλογος</translation>
-    </message>
-    <message>
-        <source>Update list</source>
-        <translation>Ενημέρωση του κατάλογου</translation>
-    </message>
-    <message>
-        <source>Edit server list</source>
-        <translation>Επεξεργασία της λίστας των εξυπηρετητών</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation>1</translation>
-    </message>
-    <message>
-        <source>Sound Library Name</source>
-        <translation>Όνομα της Βιβλιοθήκης Ήχων</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation>ΕτικέταΚείμενου</translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Δημιουργός...</translation>
-    </message>
-    <message>
-        <source>Drumkit License...</source>
-        <translation>Άδεια της Ομάδας Κρουστών...</translation>
-    </message>
-    <message>
-        <source>Image License...</source>
-        <translation>Άδεια της Εικόνας...</translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Λήψη και εγκατάσταση</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Κλείσιμο</translation>
     </message>
 </context>
 <context>

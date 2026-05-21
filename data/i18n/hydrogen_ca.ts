@@ -1785,20 +1785,6 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
 </context>
 <context>
-    <name>Download</name>
-    <message>
-        <source>Importing item failed: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>DownloadWidget</name>
-    <message>
-        <source>(%1/%2 KiB) - ETA %3</source>
-        <translation>(%1/%2 KiB) - T.E. %3</translation>
-    </message>
-</context>
-<context>
     <name>Drumkit</name>
     <message>
         <source>New Drumkit</source>
@@ -5883,97 +5869,6 @@ N&apos;estàs segur?</translation>
     <message>
         <source>Export song from Session</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryOnlineImportDialog</name>
-    <message>
-        <source>Sound Library import</source>
-        <translation>Importació de llibreria de sò</translation>
-    </message>
-    <message>
-        <source>Sound library</source>
-        <translation>Llibreria de sò</translation>
-    </message>
-    <message>
-        <source>Updating SoundLibrary list...</source>
-        <translation>Actualitzant llista de llibreries de sò...</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation>Autor: %1</translation>
-    </message>
-    <message>
-        <source>Drumkit License: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Image License: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation>Descarregant llibreria de sò...</translation>
-    </message>
-    <message>
-        <source>Drumkits
-
-- %1
-
-imported into %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Download failed for</source>
-        <extracomment>Shown in a dialog in case a download of an online resource did fail. * A list of names does follow in a new line.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryOnlineImportDialog_UI</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Diàleg</translation>
-    </message>
-    <message>
-        <source>Update list</source>
-        <translation>Actualitzar llista</translation>
-    </message>
-    <message>
-        <source>Edit server list</source>
-        <translation>Editar llista de servidors</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation>1</translation>
-    </message>
-    <message>
-        <source>Sound Library Name</source>
-        <translation>Nom de la llibreria de sò</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Autor...</translation>
-    </message>
-    <message>
-        <source>Drumkit License...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Image License...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Descarregar i instalar</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Tancar</translation>
     </message>
 </context>
 <context>

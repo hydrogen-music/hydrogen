@@ -1784,20 +1784,6 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
 </context>
 <context>
-    <name>Download</name>
-    <message>
-        <source>Importing item failed: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>DownloadWidget</name>
-    <message>
-        <source>(%1/%2 KiB) - ETA %3</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
     <name>Drumkit</name>
     <message>
         <source>New Drumkit</source>
@@ -5881,97 +5867,6 @@ Určitě to chcete?</translation>
     <message>
         <source>Export song from Session</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryOnlineImportDialog</name>
-    <message>
-        <source>Sound Library import</source>
-        <translation>Import knihovny zvuků</translation>
-    </message>
-    <message>
-        <source>Sound library</source>
-        <translation>Knihovna zvuků</translation>
-    </message>
-    <message>
-        <source>Updating SoundLibrary list...</source>
-        <translation>Aktualizace seznamu knihoven zvuků...</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation>Autor: %1</translation>
-    </message>
-    <message>
-        <source>Drumkit License: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Image License: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation>Stahování knihovny zvuků...</translation>
-    </message>
-    <message>
-        <source>Drumkits
-
-- %1
-
-imported into %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Download failed for</source>
-        <extracomment>Shown in a dialog in case a download of an online resource did fail. * A list of names does follow in a new line.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryOnlineImportDialog_UI</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialog</translation>
-    </message>
-    <message>
-        <source>Update list</source>
-        <translation>Aktualizovat seznam</translation>
-    </message>
-    <message>
-        <source>Edit server list</source>
-        <translation>Upravit seznam serverů</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation>1</translation>
-    </message>
-    <message>
-        <source>Sound Library Name</source>
-        <translation>Název knihovny zvuků</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Autor...</translation>
-    </message>
-    <message>
-        <source>Drumkit License...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Image License...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Stáhnout a nainstalovat</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zavřít</translation>
     </message>
 </context>
 <context>
