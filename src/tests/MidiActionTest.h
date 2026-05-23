@@ -40,7 +40,9 @@ class MidiMessage;
  * to maintain and comprehend. */
 class MidiActionTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( MidiActionTest );
+#ifndef Q_OS_MACX
 	CPPUNIT_TEST( testBeatCounterAction );
+#endif
 	CPPUNIT_TEST( testBpmCcRelativeAction );
 	CPPUNIT_TEST( testBpmDecreaseAction );
 	CPPUNIT_TEST( testBpmFineCcRelativeAction );
@@ -104,7 +106,12 @@ class MidiActionTest : public CppUnit::TestCase {
 	virtual void setUp();
 	virtual void tearDown();
 
+#ifndef Q_OS_MACX
+	/** Our macOS pipeline is really slow. Occasionally, messages take so
+	 * long they exceed the maximum difference allowed for beat counter
+	 * events. */
 	void testBeatCounterAction();
+#endif
 	void testBpmCcRelativeAction();
 	void testBpmDecreaseAction();
 	void testBpmFineCcRelativeAction();
