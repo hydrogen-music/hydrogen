@@ -285,6 +285,8 @@ void OnlineImporterTest::testDownloadArtifactsEmptyList() {
 	OnlineImporter importer;
 	QSignalSpy batchSpy( &importer, &OnlineImporter::batchFinished );
 
+	CPPUNIT_ASSERT( batchSpy.isValid() );
+
 	importer.downloadArtifactsAsync( QVector<OnlineArtifact>() );
 
 	// batchFinished signal should have been emitted exactly once
@@ -314,6 +316,7 @@ void OnlineImporterTest::testDownloadArtifactsAbort() {
 	artifact.sHash = "0000000000000000000000000000000000000000000000000000000000000000";
 
 	QSignalSpy batchSpy( &importer, &OnlineImporter::batchFinished );
+	CPPUNIT_ASSERT( batchSpy.isValid() );
 
 	QVector<OnlineArtifact> artifacts;
 	artifacts.append( artifact );
