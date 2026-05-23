@@ -202,6 +202,7 @@ public:
 	static bool verifyHash( const QByteArray& data,
 	                        const QString& sExpectedHash );
 
+public slots:
 	// --- Control ---
 
 	/** Requests cancellation of any in-progress download operation. */

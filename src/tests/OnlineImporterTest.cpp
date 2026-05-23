@@ -283,7 +283,7 @@ void OnlineImporterTest::testDownloadArtifactsEmptyList() {
 	___INFOLOG( "" );
 
 	OnlineImporter importer;
-	QSignalSpy batchSpy( &importer, &OnlineImporter::batchFinished );
+	QSignalSpy batchSpy( &importer, SIGNAL( batchFinished( int, int ) ) );
 
 	CPPUNIT_ASSERT( batchSpy.isValid() );
 
@@ -315,7 +315,7 @@ void OnlineImporterTest::testDownloadArtifactsAbort() {
 	artifact.url = QUrl( "https://invalid.example.test/does-not-exist.h2pattern" );
 	artifact.sHash = "0000000000000000000000000000000000000000000000000000000000000000";
 
-	QSignalSpy batchSpy( &importer, &OnlineImporter::batchFinished );
+	QSignalSpy batchSpy( &importer, SIGNAL( batchFinished( int, int ) ) );
 	CPPUNIT_ASSERT( batchSpy.isValid() );
 
 	QVector<OnlineArtifact> artifacts;
@@ -325,10 +325,11 @@ void OnlineImporterTest::testDownloadArtifactsAbort() {
 	// second artifact (if any) would be skipped.  With a single artifact
 	// the abort after the first item has no visible effect, but we confirm
 	// the mechanism doesn't crash.
-	QObject::connect( &importer, &OnlineImporter::downloadFinished,
-					  [&importer]( const QString&, bool, const QString& ) {
-						  importer.abort();
-					  } );
+	QObject::connect(
+		&importer,
+		SIGNAL( downloadFinished( const QString&, bool, const QString& ) ),
+		&importer, SLOT( abort() )
+	);
 
 	importer.downloadArtifactsAsync( artifacts );
 
