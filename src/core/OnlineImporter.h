@@ -62,6 +62,8 @@ struct OnlineArtifact {
 	int nPatternCount;
 
 	// Drumkit-specific
+	/** Name of the top-level folder in the archive. */
+	QString sFolderName;
 	/** Number of instruments; -1 if not applicable */
 	int nInstruments;
 	/** Number of components; -1 if not applicable */

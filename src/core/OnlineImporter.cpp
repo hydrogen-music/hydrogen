@@ -151,6 +151,7 @@ OnlineIndex OnlineImporter::parseIndex( const QByteArray& jsonData,
 			// Type-specific fields
 			artifact.nNotes = obj.value( "notes" ).toInt( -1 );
 			artifact.nPatternCount = obj.value( "patterns" ).toInt( -1 );
+			artifact.sFolderName = obj.value( "folderName" ).toString();
 			artifact.nInstruments = obj.value( "instruments" ).toInt( -1 );
 			artifact.nComponents = obj.value( "components" ).toInt( -1 );
 			artifact.nSamples = obj.value( "samples" ).toInt( -1 );
@@ -266,34 +267,74 @@ void OnlineImporter::resolveLocalStatus( OnlineArtifact& artifact )
 		return;
 	}
 
-	std::shared_ptr<SoundLibraryInfo> pLocalInfo = nullptr;
-	for ( const auto& pInfo : *pInfos ) {
-		if ( pInfo != nullptr &&
-			 pInfo->getContext() == Filesystem::Context::User &&
-			 pInfo->getName() == artifact.sName ) {
-			pLocalInfo = pInfo;
-			break;
-		}
-	}
-
-	if ( pLocalInfo == nullptr ) {
-		artifact.localStatus = OnlineArtifact::LocalStatus::NotInstalled;
-		return;
-	}
-
-	const int nLocalVersion = pLocalInfo->getVersion();
-
 	if ( artifact.type == OnlineArtifact::Type::Drumkit ) {
+		const QString sRootFolder =
+			Filesystem::userDrumkitsDir() + artifact.sFolderName;
+
+		// The name of the drumkit itself and the name of the folder it is
+		// contained in might differ.
+		if ( ! Filesystem::dirExists( sRootFolder, true ) ) {
+			artifact.localStatus = OnlineArtifact::LocalStatus::NotInstalled;
+			return;
+		}
+
+		std::shared_ptr<SoundLibraryInfo> pLocalInfo = nullptr;
+		for ( const auto& pInfo : *pInfos ) {
+			if ( pInfo != nullptr &&
+				 pInfo->getContext() == Filesystem::Context::User &&
+				 pInfo->getPath().contains( sRootFolder ) ) {
+				pLocalInfo = pInfo;
+				break;
+			}
+		}
+
+		if ( pLocalInfo == nullptr ) {
+			WARNINGLOG(
+				QString(
+					"Top-level folder [%1] exists but no corresponding drumkit is present"
+				)
+					.arg( sRootFolder )
+			);
+			artifact.localStatus = OnlineArtifact::LocalStatus::NotInstalled;
+			return;
+		}
+
 		// Drumkits are directories — no hash comparison possible.
-		if ( artifact.nVersion > nLocalVersion ) {
-			artifact.localStatus =
-				OnlineArtifact::LocalStatus::UpdateAvailable;
+		if ( artifact.sName == pLocalInfo->getName() &&
+			 artifact.sAuthor == pLocalInfo->getAuthor() ) {
+			if ( artifact.nVersion == pLocalInfo->getVersion() ) {
+				artifact.localStatus = OnlineArtifact::LocalStatus::Installed;
+			}
+			else if ( artifact.nVersion > pLocalInfo->getVersion() ) {
+				artifact.localStatus =
+					OnlineArtifact::LocalStatus::UpdateAvailable;
+			}
+			else {
+				artifact.localStatus = OnlineArtifact::LocalStatus::Modified;
+			}
 		}
 		else {
-			artifact.localStatus = OnlineArtifact::LocalStatus::Installed;
+			artifact.localStatus = OnlineArtifact::LocalStatus::Modified;
 		}
 	}
 	else {
+		std::shared_ptr<SoundLibraryInfo> pLocalInfo = nullptr;
+		for ( const auto& pInfo : *pInfos ) {
+			if ( pInfo != nullptr &&
+				 pInfo->getContext() == Filesystem::Context::User &&
+				 pInfo->getName() == artifact.sName ) {
+				pLocalInfo = pInfo;
+				break;
+			}
+		}
+
+		if ( pLocalInfo == nullptr ) {
+			artifact.localStatus = OnlineArtifact::LocalStatus::NotInstalled;
+			return;
+		}
+
+		const int nLocalVersion = pLocalInfo->getVersion();
+
 		// Patterns and songs: hash the local file for exact match detection.
 		QFile file( pLocalInfo->getPath() );
 		if ( !file.open( QIODevice::ReadOnly ) ) {

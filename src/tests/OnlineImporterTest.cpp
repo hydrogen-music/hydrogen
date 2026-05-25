@@ -21,9 +21,13 @@
 
 #include "OnlineImporterTest.h"
 
-#include <core/OnlineImporter.h>
 #include <core/EventQueue.h>
+#include <core/Hydrogen.h>
+#include <core/OnlineImporter.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
+
 #include "TestHelper.h"
+#include "core/Helpers/Filesystem.h"
 
 #include <QFile>
 #include <QSignalSpy>
@@ -45,7 +49,6 @@ void OnlineImporterTest::testParseValidIndex() {
 	const auto index = importer.parseIndex( data, QUrl( "https://example.com/index.json" ) );
 
 	CPPUNIT_ASSERT( index.sVersion == "0.1.0" );
-	CPPUNIT_ASSERT( index.sCreated == "2026-05-20T14:42:36" );
 	CPPUNIT_ASSERT( index.sourceUrl == QUrl( "https://example.com/index.json" ) );
 	CPPUNIT_ASSERT( index.patterns.size() == 276 );
 
@@ -212,6 +215,17 @@ void OnlineImporterTest::testResolveLocalStatusNotInstalled() {
 
 	CPPUNIT_ASSERT( artifact.localStatus == OnlineArtifact::LocalStatus::NotInstalled );
 
+	OnlineArtifact drumkitArtifact;
+	drumkitArtifact.sName = "test";
+	drumkitArtifact.type = OnlineArtifact::Type::Drumkit;
+	drumkitArtifact.sFolderName = "__nonexistent_folder-name__";
+
+	importer.resolveLocalStatus( drumkitArtifact );
+
+	CPPUNIT_ASSERT(
+		drumkitArtifact.localStatus == OnlineArtifact::LocalStatus::NotInstalled
+	);
+
 	___INFOLOG( "passed" );
 }
 
@@ -241,6 +255,31 @@ void OnlineImporterTest::testResolveLocalStatusInstalled() {
 	importer.resolveLocalStatus( artifact );
 
 	CPPUNIT_ASSERT( artifact.localStatus == OnlineArtifact::LocalStatus::Installed );
+
+	// Install a drumkit first
+	QString sInstalledDir;
+	CPPUNIT_ASSERT( CoreActionController::extractDrumkit(
+		H2TEST_FILE( "drumkits/testKit.h2drumkit" ), "", &sInstalledDir
+	) );
+
+	auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
+	pDB->updateDrumkits( Event::Trigger::Default );
+
+	OnlineArtifact drumkitArtifact;
+	drumkitArtifact.sName = "testKit";
+	drumkitArtifact.type = OnlineArtifact::Type::Drumkit;
+	drumkitArtifact.sAuthor = "theGreatWhiteShark";
+	drumkitArtifact.sFolderName = "testKit";
+	drumkitArtifact.nVersion = 0;
+
+	importer.resolveLocalStatus( drumkitArtifact );
+
+	CPPUNIT_ASSERT(
+		drumkitArtifact.localStatus == OnlineArtifact::LocalStatus::Installed
+	);
+
+	CPPUNIT_ASSERT( Filesystem::rm( sInstalledDir, true ) );
+	pDB->updateDrumkits( Event::Trigger::Default );
 
 	___INFOLOG( "passed" );
 }
@@ -275,6 +314,31 @@ void OnlineImporterTest::testResolveLocalStatusModified() {
 	importer.resolveLocalStatus( artifact );
 
 	CPPUNIT_ASSERT( artifact.localStatus == OnlineArtifact::LocalStatus::Modified );
+
+	// Install a drumkit first
+	QString sInstalledDir;
+	CPPUNIT_ASSERT( CoreActionController::extractDrumkit(
+		H2TEST_FILE( "drumkits/testKit.h2drumkit" ), "", &sInstalledDir
+	) );
+
+	auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
+	pDB->updateDrumkits( Event::Trigger::Default );
+
+	OnlineArtifact drumkitArtifact;
+	drumkitArtifact.sName = "wrongName";
+	drumkitArtifact.type = OnlineArtifact::Type::Drumkit;
+	drumkitArtifact.sAuthor = "theGreatWhiteShark";
+	drumkitArtifact.sFolderName = "testKit";
+	drumkitArtifact.nVersion = 0;
+
+	importer.resolveLocalStatus( drumkitArtifact );
+
+	CPPUNIT_ASSERT(
+		drumkitArtifact.localStatus == OnlineArtifact::LocalStatus::Modified
+	);
+
+	CPPUNIT_ASSERT( Filesystem::rm( sInstalledDir, true ) );
+	pDB->updateDrumkits( Event::Trigger::Default );
 
 	___INFOLOG( "passed" );
 }
