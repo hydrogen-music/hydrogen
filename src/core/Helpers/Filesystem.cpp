@@ -30,6 +30,12 @@
 #include <QDateTime>
 #include <QRegularExpression>
 
+#if QT_VERSION >= QT_VERSION_CHECK( 6, 8, 0 )
+#include <QtEnvironmentVariables>
+#else
+#include <QtGlobal>
+#endif
+
 #include <core/Basics/Drumkit.h>
 #include <core/config.h>
 #include <core/Helpers/Filesystem.h>
@@ -58,6 +64,16 @@
 #define SONGS "songs/"
 #define THEMES "themes/"
 #define TMP "hydrogen/"
+
+// XDG-compliant paths for Linux systems. Note that we do not use QStandardPaths
+// because `hydrogen`, `h2cli`, and `h2player` must use the same folders while
+// not sharing the same application name. Just temporarily setting their
+// application name to "hydrogen" would be an even dirtier solution than
+// hard-coding paths.
+#define XDG_LINUX_CACHE ".cache/"
+#define XDG_LINUX_CONFIG ".config/"
+#define XDG_LINUX_DATA ".local/share/"
+#define APPLICATION_NAME "hydrogen"
 
 // files
 /** Sound of metronome beat */
@@ -102,8 +118,9 @@ const QString Filesystem::sPatternFilter = "Hydrogen Patterns (*.h2pattern)";
 const QString Filesystem::sPlaylistFilter = "Hydrogen Playlists (*.h2playlist)";
 
 QString Filesystem::m_sSystemDataPath;
-QString Filesystem::m_sUserDataPath;
+QString Filesystem::m_sUserCachePath;
 QString Filesystem::m_sUserConfigPath;
+QString Filesystem::m_sUserDataPath;
 
 #ifdef Q_OS_MACX
 QString Filesystem::m_sUserLogPath =
@@ -117,9 +134,30 @@ QString Filesystem::m_sUserLogPath =
 	QDir::homePath().append( "/" H2_USR_PATH "/" LOG_FILE );
 #endif
 
+bool Filesystem::m_bLogPathInitialized = false;
+
 QStringList Filesystem::m_ladspaPaths;
 
 QString Filesystem::m_sPreferencesOverwritePath = "";
+
+static QString getEnvironmentVariable( const QString& sEnvironmentVariable )
+{
+#if QT_VERSION >= QT_VERSION_CHECK( 6, 8, 0 )
+	return qEnvironmentVariable( sEnvironmentVariable.toLocal8Bit().data() );
+#else
+	return QString( qgetenv( sEnvironmentVariable.toLocal8Bit().data() ) );
+#endif
+};
+
+static bool isEnvironmentVariableSet( const QString& sEnvironmentVariable )
+{
+#if QT_VERSION >= QT_VERSION_CHECK( 6, 8, 0 )
+	return qEnvironmentVariableIsSet( sEnvironmentVariable.toLocal8Bit().data()
+	);
+#else
+	return !qgetenv( sEnvironmentVariable.toLocal8Bit().data() ).isEmpty();
+#endif
+};
 
 Filesystem::Context Filesystem::DetermineContext( const QString& sPath )
 {
@@ -311,9 +349,45 @@ bool Filesystem::bootstrap(
 #else
 	m_sSystemDataPath = H2_SYS_PATH "/data/";
 #endif
-	m_sUserDataPath = QDir::homePath().append( "/" H2_USR_PATH "/data/" );
-	m_sUserConfigPath =
-		QDir::homePath().append( "/" H2_USR_PATH "/" USR_CONFIG );
+	// If the old path exists (e.g. ~/.hydrogen), old path is used; else uses
+	// XDG Paths on Linux. We do not use QStandardPaths in order to share the
+	// same location amongst all our binaries (bearing different application
+	// names). But we still allow the user to overwrite the default paths.
+	if ( !QFileInfo::exists( QDir::homePath().append( "/" H2_USR_PATH ) ) ) {
+		if ( isEnvironmentVariableSet( "XDG_CONFIG_HOME" ) ) {
+			m_sUserConfigPath = getEnvironmentVariable( "XDG_CONFIG_HOME" ) +
+								"/" + APPLICATION_NAME + "/" + USR_CONFIG;
+		}
+		else {
+			m_sUserConfigPath =
+				QDir::homePath().append( "/" XDG_LINUX_CONFIG APPLICATION_NAME
+										 "/" USR_CONFIG );
+		}
+		if ( isEnvironmentVariableSet( "XDG_DATA_HOME" ) ) {
+			m_sUserDataPath = getEnvironmentVariable( "XDG_DATA_HOME" ) + "/" +
+							  APPLICATION_NAME + "/";
+		}
+		else {
+			m_sUserDataPath =
+				QDir::homePath().append( "/" XDG_LINUX_DATA APPLICATION_NAME "/"
+				);
+		}
+		if ( isEnvironmentVariableSet( "XDG_CACHE_HOME" ) ) {
+			m_sUserCachePath = getEnvironmentVariable( "XDG_CACHE_HOME" ) +
+							   "/" + APPLICATION_NAME + "/";
+		}
+		else {
+			m_sUserCachePath =
+				QDir::homePath().append( "/" XDG_LINUX_CACHE APPLICATION_NAME
+										 "/" );
+		}
+	}
+	else {
+		m_sUserDataPath = QDir::homePath().append( "/" H2_USR_PATH "/data/" );
+		m_sUserCachePath = m_sUserDataPath + CACHE;
+		m_sUserConfigPath =
+			QDir::homePath().append( "/" H2_USR_PATH "/" USR_CONFIG );
+	}
 #endif
 	if ( !sSysDataPath.isEmpty() ) {
 		INFOLOG( QString( "Using custom system data folder [%1]" )
@@ -528,7 +602,7 @@ bool Filesystem::pathUsable( const QString& sPath, bool bCreate, bool bSilent )
 {
 	if ( !QDir( sPath ).exists() ) {
 		if ( !bSilent ) {
-			INFOLOG( QString( "bCreate user directory : %1" ).arg( sPath ) );
+			INFOLOG( QString( "Create user directory : %1" ).arg( sPath ) );
 		}
 		if ( bCreate && !QDir( "/" ).mkpath( sPath ) ) {
 			ERRORLOG(
@@ -801,6 +875,26 @@ QString Filesystem::clickFilePath()
 }
 const QString& Filesystem::logFilePath()
 {
+	// Called within the Reporter prior to the bootstrap of Filesystem itself.
+	// Therefore we need some special treatments.
+#if defined( Q_OS_MACX ) || defined( WIN32 )
+#else
+	if ( !m_bLogPathInitialized ) {
+		if ( !QFileInfo::exists( QDir::homePath().append( "/" H2_USR_PATH )
+			 ) ) {
+			if ( isEnvironmentVariableSet( "XDG_DATA_HOME" ) ) {
+				m_sUserLogPath = getEnvironmentVariable( "XDG_DATA_HOME" ) + "/" +
+								 APPLICATION_NAME + "/" + LOG_FILE;
+			}
+			else {
+				m_sUserLogPath =
+					QDir::homePath().append( "/" XDG_LINUX_DATA APPLICATION_NAME
+											 "/" LOG_FILE );
+			}
+		}
+		m_bLogPathInitialized = true;
+	}
+#endif
 	return m_sUserLogPath;
 }
 
@@ -867,11 +961,19 @@ QString Filesystem::userPlaylistsDir()
 }
 QString Filesystem::cacheDir()
 {
+#if defined(Q_OS_MACX) || defined(WIN32)
 	return m_sUserDataPath + CACHE;
+#else
+	return m_sUserCachePath;
+#endif
 }
 QString Filesystem::repositoriesCacheDir()
 {
+#if defined(Q_OS_MACX) || defined(WIN32)
 	return m_sUserDataPath + CACHE + REPOSITORIES;
+#else
+	return m_sUserCachePath + REPOSITORIES;
+#endif
 }
 QString Filesystem::demosDir()
 {

@@ -28,20 +28,34 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 class CliTest : public CppUnit::TestCase {
-	CPPUNIT_TEST_SUITE(CliTest);
-	CPPUNIT_TEST(testKitToDrumkitMap);
+	CPPUNIT_TEST_SUITE( CliTest );
+	CPPUNIT_TEST( testKitToDrumkitMap );
+#if defined( Q_OS_MACX ) || defined( WIN32 )
+#else
+	CPPUNIT_TEST( testXdgPaths );
+#endif
 	CPPUNIT_TEST_SUITE_END();
 
-	public:
-		/** Note that since h2cli is a runtime dependency, we don't have to add
-		 * it to CMakeLists.txt of the test folder but just check its present
-		 * when running the unit tests.*/
-		void setUp();
-		void testKitToDrumkitMap();
+   public:
+	/** Note that since h2cli is a runtime dependency, we don't have to add
+	 * it to CMakeLists.txt of the test folder but just check its present
+	 * when running the unit tests.*/
+	void setUp();
+	void testKitToDrumkitMap();
+#if defined( Q_OS_MACX ) || defined( WIN32 )
+#else
+	/** Checkes whether the h2cli binary correctly uses an existing
+	 * $HOME/.hydrogen folder and falls back to the XDG paths on Linux in
+	 * case it does not exist.
+	 *
+	 * Note that the test imports (and removes) a drumkit called "testKit" into
+	 * the users drumkit data folder and temporarily moves the ~/.hydrogen
+	 * folder (if present). */
+	void testXdgPaths();
+#endif
 
-	private:
-		QString m_sCliPath;
+   private:
+	QString m_sCliPath;
 };
-
 
 #endif

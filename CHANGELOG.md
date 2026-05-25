@@ -100,6 +100,10 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- On Linux user-level files are now stored in XDG paths
+  (`$XDG_CONFIG_HOME/hydrogen/hydrogen.conf`, `$XDG_CACHE_HOME/hydrogen/`,
+  `$XDG_DATA_HOME/hydrogen/ `) in case no `~/.hydrogen` folder is present.
+  (#643).
 - Drumkit handling was reworked. Each song will now hold a proper drumkit.
   Tweaking its name, instruments etc. does not affect the kits in the Sound
   Library (user and system drumkit folder) unless it is explicitly saved to it.

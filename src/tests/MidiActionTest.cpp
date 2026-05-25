@@ -66,6 +66,7 @@ void MidiActionTest::tearDown()
 	Preferences::get_instance()->getMidiEventMap()->reset();
 }
 
+#ifndef Q_OS_MACX
 void MidiActionTest::testBeatCounterAction()
 {
 	___INFOLOG( "" );
@@ -148,6 +149,7 @@ void MidiActionTest::testBeatCounterAction()
 
 	___INFOLOG( "done" );
 }
+#endif
 
 void MidiActionTest::testBpmCcRelativeAction()
 {

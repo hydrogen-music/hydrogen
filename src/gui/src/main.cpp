@@ -213,6 +213,7 @@ int main(int argc, char *argv[])
 #endif
 		// Create bootstrap QApplication to get H2 Core set up with correct Filesystem paths before starting GUI application.
 		QCoreApplication *pBootStrApp = new QCoreApplication( argc, argv );
+		pBootStrApp->setApplicationName( "hydrogen" );
 
 		Parser parser;
 		if ( ! parser.parse( argc, argv ) ) {
