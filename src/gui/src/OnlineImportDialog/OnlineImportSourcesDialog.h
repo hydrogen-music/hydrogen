@@ -45,7 +45,7 @@ class OnlineImportSourcesDialog : public QDialog {
 	static constexpr int nLedSize = 14;
 	static constexpr int nIconSize = 22;
 	static constexpr int nButtonWidth = 28;
-	static constexpr int nMinimumWidth = 450;
+	static constexpr int nMinimumWidth = 1350;
 
 public:
 	explicit OnlineImportSourcesDialog( QWidget* pParent );
