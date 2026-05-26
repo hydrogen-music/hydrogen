@@ -1009,22 +1009,22 @@ void OnlineImportDialog::onlineImportProgressEvent( int nValue )
 		// Re-resolve statuses to reflect newly installed items
 		switch ( m_pTypeCombo->currentIndex() ) {
 			case 0:
+				pDB->updatePatterns( Event::Trigger::Default );
 				for ( auto& a : m_allPatterns ) {
 					m_pImporter->resolveLocalStatus( a );
 				}
-				pDB->updatePatterns( Event::Trigger::Default );
 				break;
 			case 1:
+				pDB->updateSongs( Event::Trigger::Default );
 				for ( auto& a : m_allSongs ) {
 					m_pImporter->resolveLocalStatus( a );
 				}
-				pDB->updateSongs( Event::Trigger::Default );
 				break;
 			case 2:
+				pDB->updateDrumkits( Event::Trigger::Default );
 				for ( auto& a : m_allDrumkits ) {
 					m_pImporter->resolveLocalStatus( a );
 				}
-				pDB->updateDrumkits( Event::Trigger::Default );
 				break;
 		}
 
