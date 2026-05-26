@@ -189,8 +189,8 @@ private:
 	void loadIndices();
 	void updateTableForCurrentType();
 	void updateDetailPanel( const H2Core::OnlineArtifact* pArtifact );
-	void updateDetailStyleSheet();
 	void updateDownloadButton();
+	void updateStyleSheet();
 	void setDownloadingState( bool bDownloading );
 
 	// Merged index data from all repos

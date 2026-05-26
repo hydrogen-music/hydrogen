@@ -394,6 +394,7 @@ void OnlineImportDialog::buildLayout()
 	m_pSearchLine = new QLineEdit( pScrollAreaContent );
 	m_pSearchLine->setPlaceholderText( pCommonStrings->getSearchPlaceholder() );
 	m_pSearchLine->setClearButtonEnabled( true );
+	m_pSearchLine->setObjectName( "OnlineImportDialogSearchLine" );
 	pTopBar->addWidget( m_pSearchLine, 1 );
 
 	m_pSourceButton = new QToolButton( pScrollAreaContent );
@@ -494,9 +495,6 @@ void OnlineImportDialog::buildLayout()
 
 	pMainLayout->addWidget( m_pDetailWidget );
 
-	// Apply stylesheet theming to the detail panel.
-	updateDetailStyleSheet();
-
 	updateDetailPanel( nullptr );
 
 	// --- Bottom bar: progress, cancel, download ---
@@ -543,6 +541,8 @@ void OnlineImportDialog::buildLayout()
 		m_pTableView->selectionModel(), &QItemSelectionModel::selectionChanged,
 		this, &OnlineImportDialog::onSelectionChanged
 	);
+
+	updateStyleSheet();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -854,7 +854,7 @@ void OnlineImportDialog::updateDetailPanel( const OnlineArtifact* pArtifact )
 	}
 }
 
-void OnlineImportDialog::updateDetailStyleSheet()
+void OnlineImportDialog::updateStyleSheet()
 {
 	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
 
@@ -876,7 +876,7 @@ QWidget#OnlineImportDetailWidget {				\
 QFrame {										\
     background-color: %4;						\
 }												\
-QLabel#OnlineImportDetailLabel {					\
+QLabel#OnlineImportDetailLabel {				\
     background-color: %1;						\
     color: %2;									\
     border-bottom: 1px solid %4;				\
@@ -889,10 +889,19 @@ QLabel#OnlineImportDetailText {					\
     padding: 4px;								\
 }												\
 " )
-						  .arg( backgroundColor.name() )
-						  .arg( textColor.name() )
-						  .arg( borderColor.name() )
-						  .arg( separatorColor.name() ) );
+										.arg( backgroundColor.name() )
+										.arg( textColor.name() )
+										.arg( borderColor.name() )
+										.arg( separatorColor.name() )
+	);
+	setStyleSheet( QString( "                   \
+QLineEdit#OnlineImportDialogSearchLine {		\
+    background-color: %1;						\
+    color: %2;									\
+}												\
+" )
+					   .arg( pColorTheme->m_spinBoxColor.name() )
+					   .arg( pColorTheme->m_spinBoxTextColor.name() ) );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
