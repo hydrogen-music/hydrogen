@@ -26,7 +26,6 @@ StatusLED::StatusLED( QWidget* pParent, const QSize& size )
 	: QWidget( pParent ), m_state( State::Unchecked )
 {
 	setFixedSize( size );
-	setAttribute( Qt::WA_OpaquePaintEvent );
 }
 
 StatusLED::~StatusLED()
@@ -75,7 +74,10 @@ void StatusLED::paintEvent( QPaintEvent* )
 	gradient.setColorAt( 0, ledColor.lighter( 160 ) );
 	gradient.setColorAt( 1, ledColor.darker( 130 ) );
 
+	QPen pen( Qt::black );
+	pen.setWidth( 1 );
+
 	painter.setBrush( gradient );
-	painter.setPen( Qt::NoPen );
+	painter.setPen( pen );
 	painter.drawEllipse( center, radius, radius );
 }
