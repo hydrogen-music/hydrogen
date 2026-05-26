@@ -244,13 +244,10 @@ bool OnlineArtifactFilterProxy::filterAcceptsRow(
 
 	const auto& artifact = ( *m_pArtifacts )[nSourceRow];
 
-	// Source URL filter
+	// Source URL filter — hide artifacts from disabled sources
 	if ( !m_disabledSources.isEmpty() &&
-		 m_disabledSources.contains( artifact.url ) ) {
-		// We filter by sourceUrl. Since we don't store sourceUrl per artifact
-		// in OnlineArtifact, we use a match on QUrl from the parent index.
-		// For now, this placeholder always passes source filtering unless
-		// we add sourceUrl to OnlineArtifact.
+		 m_disabledSources.contains( artifact.sourceUrl ) ) {
+		return false;
 	}
 
 	// Text filter

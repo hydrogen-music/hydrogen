@@ -131,6 +131,7 @@ OnlineIndex OnlineImporter::parseIndex( const QByteArray& jsonData,
 			artifact.type = type;
 			artifact.sName = sName;
 			artifact.url = QUrl( sUrl );
+			artifact.sourceUrl = sourceUrl;
 			artifact.sHash = sHash;
 			artifact.sAuthor = obj.value( "author" ).toString();
 			artifact.sDescription = obj.value( "description" ).toString();

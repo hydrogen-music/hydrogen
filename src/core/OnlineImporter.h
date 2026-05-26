@@ -40,6 +40,8 @@ struct OnlineArtifact {
 	Type type;
 	QString sName;
 	QUrl url;
+	/** URL of the index this artifact was fetched from */
+	QUrl sourceUrl;
 	/** sha256 hex string */
 	QString sHash;
 	QString sAuthor;
