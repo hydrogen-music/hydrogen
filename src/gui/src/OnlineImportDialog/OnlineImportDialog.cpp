@@ -326,6 +326,60 @@ OnlineImportDialog::OnlineImportDialog(
 	);
 
 	m_pImporter = new OnlineImporter( this );
+	connect( m_pImporter, &OnlineImporter::batchFinished, [&]() {
+		setDownloadingState( false );
+
+		auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
+
+		// Re-resolve statuses to reflect newly installed items
+		switch ( m_pTypeCombo->currentIndex() ) {
+			case 0:
+				pDB->updatePatterns( Event::Trigger::Default );
+				for ( auto& a : m_allPatterns ) {
+					m_pImporter->resolveLocalStatus( a );
+				}
+				break;
+			case 1:
+				pDB->updateSongs( Event::Trigger::Default );
+				for ( auto& a : m_allSongs ) {
+					m_pImporter->resolveLocalStatus( a );
+				}
+				break;
+			case 2:
+				pDB->updateDrumkits( Event::Trigger::Default );
+				for ( auto& a : m_allDrumkits ) {
+					m_pImporter->resolveLocalStatus( a );
+				}
+				break;
+		}
+
+		updateTableForCurrentType();
+	} );
+	connect(
+		m_pImporter, &OnlineImporter::downloadProgress,
+		[&]( qint64 nDone, qint64 nTotal ) {
+			m_pProgressBar->setValue(
+				static_cast<int>( ( ( nDone + 1 ) * 100 ) / nTotal )
+			);
+		}
+	);
+	connect(
+		m_pImporter, &OnlineImporter::downloadFinished,
+		[&]( const QString&, bool, const QString& sError ) {
+			if ( sError.isEmpty() ) {
+				return;
+			}
+			const auto pCommonStrings =
+				HydrogenApp::get_instance()->getCommonStrings();
+			QMessageBox::warning(
+				this,
+				pCommonStrings->getDownloadError(),
+				QString( "%1\n\n%2" )
+					.arg( pCommonStrings->getDownloadFailed() )
+					.arg( sError )
+			);
+		}
+	);
 
 	buildLayout();
 	populateSourceMenu();
@@ -346,16 +400,11 @@ OnlineImportDialog::OnlineImportDialog(
 	}
 	m_pTypeCombo->setCurrentIndex( nInitialIndex );
 
-	HydrogenApp::get_instance()->addEventListener( this );
-
 	loadIndices();
 }
 
 OnlineImportDialog::~OnlineImportDialog()
 {
-	if ( auto pH2App = HydrogenApp::get_instance() ) {
-		pH2App->removeEventListener( this );
-	}
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -983,54 +1032,5 @@ void OnlineImportDialog::setDownloadingState( bool bDownloading )
 	else {
 		m_pCancelButton->setText( pCommonStrings->getButtonClose() );
 		updateDownloadButton();
-	}
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Progress event
-// ─────────────────────────────────────────────────────────────────────────────
-
-void OnlineImportDialog::onlineImportProgressEvent( int nValue )
-{
-	if ( nValue == OnlineImporter::nProgressError ) {
-		setDownloadingState( false );
-		const auto pCommonStrings =
-			HydrogenApp::get_instance()->getCommonStrings();
-		QMessageBox::warning(
-			this, pCommonStrings->getDownloadError(),
-			pCommonStrings->getDownloadFailed()
-		);
-	}
-	else if ( nValue == OnlineImporter::nProgressComplete ) {
-		setDownloadingState( false );
-
-		auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
-
-		// Re-resolve statuses to reflect newly installed items
-		switch ( m_pTypeCombo->currentIndex() ) {
-			case 0:
-				pDB->updatePatterns( Event::Trigger::Default );
-				for ( auto& a : m_allPatterns ) {
-					m_pImporter->resolveLocalStatus( a );
-				}
-				break;
-			case 1:
-				pDB->updateSongs( Event::Trigger::Default );
-				for ( auto& a : m_allSongs ) {
-					m_pImporter->resolveLocalStatus( a );
-				}
-				break;
-			case 2:
-				pDB->updateDrumkits( Event::Trigger::Default );
-				for ( auto& a : m_allDrumkits ) {
-					m_pImporter->resolveLocalStatus( a );
-				}
-				break;
-		}
-
-		updateTableForCurrentType();
-	}
-	else if ( nValue >= 0 && nValue <= 100 ) {
-		m_pProgressBar->setValue( nValue );
 	}
 }

@@ -23,8 +23,6 @@
 #ifndef ONLINE_IMPORT_DIALOG_H
 #define ONLINE_IMPORT_DIALOG_H
 
-#include "EventListener.h"
-
 #include <core/Object.h>
 #include <core/OnlineImporter.h>
 
@@ -152,7 +150,6 @@ private:
  * \ingroup docGUI
  */
 class OnlineImportDialog : public QDialog,
-                           public EventListener,
                            public H2Core::Object<OnlineImportDialog>
 {
 	H2_OBJECT(OnlineImportDialog)
@@ -170,9 +167,6 @@ public:
 	                             H2Core::OnlineArtifact::Type type =
 	                                 H2Core::OnlineArtifact::Type::Pattern );
 	~OnlineImportDialog() override;
-
-	// EventListener overrides
-	void onlineImportProgressEvent( int nValue ) override;
 
 private slots:
 	void onTypeChanged( int nIndex );
