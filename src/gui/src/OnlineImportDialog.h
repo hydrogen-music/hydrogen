@@ -34,7 +34,6 @@
 #include <QVector>
 
 class QComboBox;
-class QGroupBox;
 class QLabel;
 class QLineEdit;
 class QMenu;
@@ -42,6 +41,7 @@ class QProgressBar;
 class QPushButton;
 class QTableView;
 class QToolButton;
+class QWidget;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // OnlineArtifactTableModel
@@ -159,7 +159,8 @@ class OnlineImportDialog : public QDialog,
 	Q_OBJECT
 
 public:
-	static constexpr int nMinimumHeight = 700;
+	static constexpr int nDetailSectionLineHeight = 24;
+	static constexpr int nMinimumHeight = 800;
 	static constexpr int nMinimumWidth = 900;
 
 	/**
@@ -187,6 +188,7 @@ private:
 	void loadIndices();
 	void updateTableForCurrentType();
 	void updateDetailPanel( const H2Core::OnlineArtifact* pArtifact );
+	void updateDetailStyleSheet();
 	void updateDownloadButton();
 	void setDownloadingState( bool bDownloading );
 
@@ -202,15 +204,34 @@ private:
 	QMenu* m_pSourceMenu;
 	QTableView* m_pTableView;
 
-	// Detail panel labels
-	QGroupBox* m_pDetailGroup;
-	QLabel* m_pDetailName;
-	QLabel* m_pDetailAuthor;
-	QLabel* m_pDetailDescription;
-	QLabel* m_pDetailLicense;
-	QLabel* m_pDetailTags;
-	QLabel* m_pDetailVersion;
-	QLabel* m_pDetailExtra;
+	// Detail panel (InfoView-style QGridLayout)
+	QWidget* m_pDetailWidget;
+	// Common label pairs (always visible): [label, value]
+	QLabel* m_pDetailNameLabel;
+	QLabel* m_pDetailNameText;
+	QLabel* m_pDetailAuthorLabel;
+	QLabel* m_pDetailAuthorText;
+	QLabel* m_pDetailDescriptionLabel;
+	QLabel* m_pDetailDescriptionText;
+	QLabel* m_pDetailLicenseLabel;
+	QLabel* m_pDetailLicenseText;
+	QLabel* m_pDetailTagsLabel;
+	QLabel* m_pDetailTagsText;
+	QLabel* m_pDetailVersionLabel;
+	QLabel* m_pDetailVersionText;
+	// Pattern-specific rows (hidden for Song/Drumkit)
+	QLabel* m_pDetailNotesLabel;
+	QLabel* m_pDetailNotesText;
+	// Song-specific rows (hidden for Pattern/Drumkit)
+	QLabel* m_pDetailPatternCountLabel;
+	QLabel* m_pDetailPatternCountText;
+	// Drumkit-specific rows (hidden for Pattern/Song)
+	QLabel* m_pDetailInstrumentsLabel;
+	QLabel* m_pDetailInstrumentsText;
+	QLabel* m_pDetailComponentsLabel;
+	QLabel* m_pDetailComponentsText;
+	QLabel* m_pDetailSamplesLabel;
+	QLabel* m_pDetailSamplesText;
 
 	// Bottom bar
 	QProgressBar* m_pProgressBar;
