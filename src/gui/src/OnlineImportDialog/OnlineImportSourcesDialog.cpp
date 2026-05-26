@@ -93,8 +93,8 @@ void OnlineImportSourcesDialog::buildLayout()
 	m_pTable->setSelectionMode( QAbstractItemView::NoSelection );
 	m_pTable->horizontalHeader()->hide();
 	m_pTable->verticalHeader()->hide();
-	m_pTable->setColumnWidth( 0, OnlineImportSourcesDialog::nLedSize + 6 );
-	m_pTable->setColumnWidth( 2, OnlineImportSourcesDialog::nButtonWidth + 6 );
+	m_pTable->setColumnWidth( 0, OnlineImportSourcesDialog::nButtonWidth );
+	m_pTable->setColumnWidth( 2, OnlineImportSourcesDialog::nButtonWidth );
 	m_pTable->horizontalHeader()->setSectionResizeMode(
 		1, QHeaderView::Stretch
 	);
@@ -157,7 +157,7 @@ void OnlineImportSourcesDialog::populateTable()
 	);
 	pAddButton->setIcon( QIcon( sIconPath + "new.svg" ) );
 	pAddButton->setIconSize( QSize(
-		OnlineImportSourcesDialog::nLedSize, OnlineImportSourcesDialog::nLedSize
+		OnlineImportSourcesDialog::nIconSize, OnlineImportSourcesDialog::nIconSize
 	) );
 	pAddButton->setToolTip( pCommonStrings->getMenuActionAdd() );
 	connect( pAddButton, &QPushButton::clicked, this, [=]() {
@@ -177,14 +177,25 @@ void OnlineImportSourcesDialog::addRow( const QString& sUrl )
 	const int nRow = m_pTable->rowCount();
 	m_pTable->insertRow( nRow );
 
-	// LED in left column
+	// LED in left column. We will wrap it into another widget in order to
+	// center it.
+	auto pContainer = new QWidget( m_pTable );
+	pContainer->setFixedSize( QSize(
+		OnlineImportSourcesDialog::nButtonWidth,
+		OnlineImportSourcesDialog::nButtonWidth
+	) );
+	auto pContainerLayout = new QHBoxLayout();
+	pContainerLayout->setAlignment( Qt::AlignCenter );
+	pContainerLayout->setContentsMargins( 0, 0, 0, 0 );
+	pContainer->setLayout( pContainerLayout );
 	auto* pLed = new StatusLED(
-		m_pTable, QSize(
-					  OnlineImportSourcesDialog::nLedSize,
-					  OnlineImportSourcesDialog::nLedSize
-				  )
+		pContainer, QSize(
+						OnlineImportSourcesDialog::nLedSize,
+						OnlineImportSourcesDialog::nLedSize
+					)
 	);
-	m_pTable->setCellWidget( nRow, 0, pLed );
+	pContainerLayout->addWidget( pLed );
+	m_pTable->setCellWidget( nRow, 0, pContainer );
 
 	// URL edit in middle column
 	auto* pEdit = new QLineEdit( m_pTable );
@@ -228,7 +239,7 @@ void OnlineImportSourcesDialog::addRow( const QString& sUrl )
 	);
 	pRemoveButton->setIcon( QIcon( sIconPath + "bin.svg" ) );
 	pRemoveButton->setIconSize( QSize(
-		OnlineImportSourcesDialog::nLedSize, OnlineImportSourcesDialog::nLedSize
+		OnlineImportSourcesDialog::nIconSize, OnlineImportSourcesDialog::nIconSize
 	) );
 	pRemoveButton->setToolTip( pCommonStrings->getMenuActionDelete() );
 	connect( pRemoveButton, &QPushButton::clicked, this, [=]() {
@@ -247,10 +258,21 @@ void OnlineImportSourcesDialog::checkAllSourceStatus()
 
 	const int nTotal = m_pTable->rowCount() - 1;
 
+	auto getLed = [&]( int nRow ) -> StatusLED* {
+		auto pContainer = m_pTable->cellWidget( nRow, 0 );
+		if ( pContainer == nullptr || pContainer->layout()->count() == 0 ) {
+			return nullptr;
+		}
+
+		return dynamic_cast<StatusLED*>(
+			pContainer->layout()->itemAt( 0 )->widget()
+		);
+	};
+
 	// Phase 1: Set all LEDs to Unchecked (grey) — progress starts at 0%
 	for ( int i = 0; i < nTotal; ++i ) {
-		auto* pLed = qobject_cast<StatusLED*>( m_pTable->cellWidget( i, 0 ) );
-		if ( pLed ) {
+		auto* pLed = getLed( i );
+		if ( pLed != nullptr ) {
 			pLed->setState( StatusLED::State::Unchecked );
 		}
 	}
@@ -259,8 +281,8 @@ void OnlineImportSourcesDialog::checkAllSourceStatus()
 	// Phase 2: Check each source, LEDs update to Online/Offline
 	for ( int i = 0; i < nTotal; ++i ) {
 		auto* pEdit = qobject_cast<QLineEdit*>( m_pTable->cellWidget( i, 1 ) );
-		auto* pLed = qobject_cast<StatusLED*>( m_pTable->cellWidget( i, 0 ) );
-		if ( !pEdit || !pLed ) {
+		auto* pLed = getLed( i );
+		if ( pEdit == nullptr || pLed == nullptr ) {
 			continue;
 		}
 

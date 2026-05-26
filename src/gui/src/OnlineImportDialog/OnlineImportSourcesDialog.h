@@ -42,7 +42,8 @@ class QTableWidget;
 class OnlineImportSourcesDialog : public QDialog {
 	Q_OBJECT
 
-	static constexpr int nLedSize = 20;
+	static constexpr int nLedSize = 14;
+	static constexpr int nIconSize = 22;
 	static constexpr int nButtonWidth = 28;
 	static constexpr int nMinimumWidth = 450;
 
