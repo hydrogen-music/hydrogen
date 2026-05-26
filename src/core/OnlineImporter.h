@@ -80,6 +80,8 @@ struct OnlineArtifact {
 	/** Installation state computed locally — not derived from the index JSON */
 	enum class LocalStatus { NotInstalled, Installed, Modified, UpdateAvailable };
 	LocalStatus localStatus;
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 };
 
 /** Represents a parsed online index document fetched from a remote URL. */
@@ -97,6 +99,8 @@ struct OnlineIndex {
 
 	/** Optional top-level hash for integrity verification */
 	QString sHash;
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 };
 
 /**

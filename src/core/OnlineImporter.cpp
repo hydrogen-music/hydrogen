@@ -637,4 +637,209 @@ void OnlineImporter::abort()
 	m_bAborted = true;
 }
 
+QString OnlineArtifact::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+
+	QString sType;
+	switch ( type ) {
+		case Type::Pattern:
+			sType = "Pattern";
+			break;
+		case Type::Song:
+			sType = "Song";
+			break;
+		case Type::Drumkit:
+			sType = "Drumkit";
+			break;
+	}
+
+	QString sLocalStatus;
+	switch ( localStatus ) {
+		case LocalStatus::NotInstalled:
+			sLocalStatus = "NotInstalled";
+			break;
+		case LocalStatus::Installed:
+			sLocalStatus = "Installed";
+			break;
+		case LocalStatus::Modified:
+			sLocalStatus = "Modified";
+			break;
+		case LocalStatus::UpdateAvailable:
+			sLocalStatus = "UpdateAvailable";
+			break;
+	}
+
+	if ( !bShort ) {
+		sOutput = QString( "%1[OnlineArtifact]\n" )
+					  .arg( sPrefix )
+					  .append( QString( "%1%2type: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( sType ) )
+					  .append( QString( "%1%2sName: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( sName ) )
+					  .append( QString( "%1%2url: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( url.toString() ) )
+					  .append( QString( "%1%2sourceUrl: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( sourceUrl.toString() ) )
+					  .append( QString( "%1%2sHash: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( sHash ) )
+					  .append( QString( "%1%2sAuthor: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( sAuthor ) )
+					  .append( QString( "%1%2sDescription: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( sDescription ) )
+					  .append( QString( "%1%2nVersion: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( nVersion ) )
+					  .append( QString( "%1%2nFormatVersion: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( nFormatVersion ) )
+					  .append( QString( "%1%2tags: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( tags.join( ", " ) ) )
+					  .append( QString( "%1%2size: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( size ) )
+					  .append( QString( "%1%2sLicense: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( sLicense ) )
+					  .append( QString( "%1%2nNotes: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( nNotes ) )
+					  .append( QString( "%1%2nPatternCount: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( nPatternCount ) )
+					  .append( QString( "%1%2sFolderName: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( sFolderName ) )
+					  .append( QString( "%1%2nInstruments: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( nInstruments ) )
+					  .append( QString( "%1%2nComponents: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( nComponents ) )
+					  .append( QString( "%1%2nSamples: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( nSamples ) )
+					  .append( QString( "%1%2instrumentTypes: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( instrumentTypes.join( ", " ) ) )
+					  .append( QString( "%1%2localStatus: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( sLocalStatus ) );
+	}
+	else {
+		sOutput =
+			QString( "[OnlineArtifact]" )
+				.append( QString( " type: %1" ).arg( sType ) )
+				.append( QString( ", sName: %1" ).arg( sName ) )
+				.append( QString( ", url: %1" ).arg( url.toString() ) )
+				.append(
+					QString( ", sourceUrl: %1" ).arg( sourceUrl.toString() )
+				)
+				.append( QString( ", sHash: %1" ).arg( sHash ) )
+				.append( QString( ", sAuthor: %1" ).arg( sAuthor ) )
+				.append( QString( ", sDescription: %1" ).arg( sDescription ) )
+				.append( QString( ", nVersion: %1" ).arg( nVersion ) )
+				.append(
+					QString( ", nFormatVersion: %1" ).arg( nFormatVersion )
+				)
+				.append( QString( ", tags: %1" ).arg( tags.join( ", " ) ) )
+				.append( QString( ", size: %1" ).arg( size ) )
+				.append( QString( ", sLicense: %1" ).arg( sLicense ) )
+				.append( QString( ", nNotes: %1" ).arg( nNotes ) )
+				.append( QString( ", nPatternCount: %1" ).arg( nPatternCount )
+				)
+				.append( QString( ", sFolderName: %1" ).arg( sFolderName ) )
+				.append( QString( ", nInstruments: %1" ).arg( nInstruments ) )
+				.append( QString( ", nComponents: %1" ).arg( nComponents ) )
+				.append( QString( ", nSamples: %1" ).arg( nSamples ) )
+				.append( QString( ", instrumentTypes: %1" )
+							 .arg( instrumentTypes.join( ", " ) ) )
+				.append( QString( ", localStatus: %1" ).arg( sLocalStatus ) );
+	}
+
+	return sOutput;
+}
+
+QString OnlineIndex::toQString( const QString& sPrefix, bool bShort ) const
+{
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+
+	if ( !bShort ) {
+		sOutput = QString( "%1[OnlineIndex]\n" )
+					  .arg( sPrefix )
+					  .append( QString( "%1%2sVersion: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( sVersion ) )
+					  .append( QString( "%1%2sCreated: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( sCreated ) )
+					  .append( QString( "%1%2sourceUrl: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( sourceUrl.toString() ) )
+					  .append( QString( "%1%2sHash: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( sHash ) )
+					  .append( QString( "%1%2patterns: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( patterns.size() ) )
+					  .append( QString( "%1%2songs: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( songs.size() ) )
+					  .append( QString( "%1%2drumkits: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( drumkits.size() ) );
+	}
+	else {
+		sOutput =
+			QString( "[OnlineIndex] " )
+				.append( QString( "sVersion: %1" ).arg( sVersion ) )
+				.append( QString( ", sCreated: %1" ).arg( sCreated ) )
+				.append(
+					QString( ", sourceUrl: %1" ).arg( sourceUrl.toString() )
+				)
+				.append( QString( ", sHash: %1" ).arg( sHash ) )
+				.append( QString( ", patterns: %1" ).arg( patterns.size() ) )
+				.append( QString( ", songs: %1" ).arg( songs.size() ) )
+				.append( QString( ", drumkits: %1" ).arg( drumkits.size() ) );
+	}
+
+	return sOutput;
+}
+
 } // namespace H2Core
