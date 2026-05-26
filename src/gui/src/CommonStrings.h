@@ -722,6 +722,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getOnlineUpdateStatus() const { return m_sOnlineUpdateStatus; }
 	const QString& getSearchPlaceholder() const { return m_sSearchPlaceholder; }
 	const QString& getSourcesLabel() const { return m_sSourcesLabel; }
+	const QString& getManageSourcesTitle() const { return m_sManageSourcesTitle; }
+	const QString& getCheckSourcesButton() const { return m_sCheckSourcesButton; }
+	const QString& getInvalidUrl() const { return m_sInvalidUrl; }
+	const QString& getInvalidUrlMessage() const { return m_sInvalidUrlMessage; }
 	const QString& getDetailsLabel() const { return m_sDetailsLabel; }
 	const QString& getButtonClose() const { return m_sButtonClose; }
 	const QString& getButtonDownload() const { return m_sButtonDownload; }
@@ -1047,6 +1051,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sOnlineUpdateStatus;
 	QString m_sSearchPlaceholder;
 	QString m_sSourcesLabel;
+	QString m_sManageSourcesTitle;
+	QString m_sCheckSourcesButton;
+	QString m_sInvalidUrl;
+	QString m_sInvalidUrlMessage;
 	QString m_sDetailsLabel;
 	QString m_sButtonClose;
 	QString m_sButtonDownload;

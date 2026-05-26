@@ -181,6 +181,7 @@ private slots:
 	void onDownloadClicked();
 	void onCancelClicked();
 	void onSourceMenuTriggered( QAction* pAction );
+	void onEditSources();
 
 private:
 	void buildLayout();

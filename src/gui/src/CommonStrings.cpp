@@ -956,6 +956,15 @@ CommonStrings::CommonStrings(){
 	/*: Label for the source repository filter button in the Online
 	 *  Import dialog. */
 	m_sSourcesLabel = tr( "Sources" );
+	/*: Window title of the dialog for managing online import sources. */
+	m_sManageSourcesTitle = tr( "Manage Sources" );
+	/*: Button label in the sources dialog to check the connectivity
+	 *  status of all sources. */
+	m_sCheckSourcesButton = tr( "Check All" );
+	/*: Title of the warning dialog shown when a source URL is invalid. */
+	m_sInvalidUrl = tr( "Invalid URL" );
+	/*: Message shown when a source URL is invalid. */
+	m_sInvalidUrlMessage = tr( "The entered URL is not valid." );
 	/*: Title of the detail panel group box in the Online Import
 	 *  dialog. */
 	m_sDetailsLabel = tr( "Details" );

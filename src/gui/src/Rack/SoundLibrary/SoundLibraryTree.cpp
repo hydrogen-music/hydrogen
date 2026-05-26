@@ -48,7 +48,7 @@
 #include "../../Compatibility/MouseEvent.h"
 #include "../../DrumkitPropertiesDialog.h"
 #include "../../HydrogenApp.h"
-#include "../../OnlineImportDialog.h"
+#include "../../OnlineImportDialog/OnlineImportDialog.h"
 #include "../../PatternPropertiesDialog.h"
 #include "../../Skin.h"
 #include "../../SongPropertiesDialog.h"

@@ -1706,6 +1706,26 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Label for the description field in the Online Import detail * panel.</extracomment>
         <translation>Descrição</translation>
     </message>
+    <message>
+        <source>Manage Sources</source>
+        <extracomment>Window title of the dialog for managing online import sources.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Check All</source>
+        <extracomment>Button label in the sources dialog to check the connectivity * status of all sources.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid URL</source>
+        <extracomment>Title of the warning dialog shown when a source URL is invalid.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The entered URL is not valid.</source>
+        <extracomment>Message shown when a source URL is invalid.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>

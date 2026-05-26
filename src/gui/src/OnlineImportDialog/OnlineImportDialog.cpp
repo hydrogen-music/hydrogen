@@ -21,6 +21,7 @@
  */
 
 #include "OnlineImportDialog.h"
+#include "OnlineImportSourcesDialog.h"
 #include "HydrogenApp.h"
 #include "CommonStrings.h"
 #include "Skin.h"
@@ -550,6 +551,8 @@ void OnlineImportDialog::buildLayout()
 
 void OnlineImportDialog::populateSourceMenu()
 {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
 	m_pSourceMenu->clear();
 
 	const auto repos = Preferences::get_instance()->getOnlineRepos();
@@ -559,6 +562,15 @@ void OnlineImportDialog::populateSourceMenu()
 		pAction->setChecked( true );
 		pAction->setData( sUrl );
 	}
+
+	// Separator + Edit action (always present)
+	m_pSourceMenu->addSeparator();
+	auto pEditAction =
+		m_pSourceMenu->addAction( pCommonStrings->getEditButton() );
+	connect(
+		pEditAction, &QAction::triggered, this,
+		&OnlineImportDialog::onEditSources
+	);
 }
 
 void OnlineImportDialog::onSourceMenuTriggered( QAction* pAction )
@@ -568,11 +580,29 @@ void OnlineImportDialog::onSourceMenuTriggered( QAction* pAction )
 	// Rebuild disabled sources set from unchecked actions
 	QSet<QUrl> disabledSources;
 	for ( const auto* pAct : m_pSourceMenu->actions() ) {
+		if ( !pAct->isCheckable() ) {
+			continue;
+		}
 		if ( !pAct->isChecked() ) {
 			disabledSources.insert( QUrl( pAct->data().toString() ) );
 		}
 	}
 	m_pProxy->setDisabledSources( disabledSources );
+}
+
+void OnlineImportDialog::onEditSources()
+{
+	OnlineImportSourcesDialog dialog( this );
+	if ( dialog.exec() != QDialog::Accepted ) {
+		return;
+	}
+
+	const QStringList repos = dialog.getSources();
+	Preferences::get_instance()->setOnlineRepos( repos );
+
+	// Reload indices and refresh source menu
+	loadIndices();
+	populateSourceMenu();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
