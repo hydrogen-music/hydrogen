@@ -218,6 +218,9 @@ Preferences::Preferences()
 	  m_pMidiInstrumentMap( std::make_shared<MidiInstrumentMap>() ),
 	  m_bLoadingSuccessful( false )
 {
+	m_onlineRepos << "https://raw.githubusercontent.com/hydrogen-music/"
+					 "Song-and-pattern-repository/refs/heads/main/index.json"
+				  << "http://hydrogen-music.org/feeds/index.json";
 
 	//___ MIDI Driver properties
 #if defined( H2CORE_HAVE_ALSA )
@@ -427,6 +430,9 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	  m_pMidiInstrumentMap( pOther->m_pMidiInstrumentMap ),
 	  m_bLoadingSuccessful( pOther->m_bLoadingSuccessful )
 {
+	for ( const auto& ssRepo : pOther->m_onlineRepos ) {
+		m_onlineRepos << ssRepo;
+	}
 	for ( const auto& ssFile : pOther->m_recentFiles ) {
 		m_recentFiles.push_back( ssFile );
 	}
