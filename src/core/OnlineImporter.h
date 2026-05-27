@@ -133,6 +133,7 @@ public:
 	static constexpr int nProgressError = -1;
 	/** Sentinel value emitted as progress when a download has completed. */
 	static constexpr int nProgressComplete = 101;
+		static constexpr int nDefaultTimeoutMs = 60000;
 
 	explicit OnlineImporter( QObject* pParent = nullptr );
 	~OnlineImporter();
@@ -146,7 +147,7 @@ public:
 	 * \a pError is non-null, writes a human-readable description into it.
 	 */
 	OnlineIndex fetchAndParseIndex( const QUrl& url,
-	                                int nTimeoutMs = 30000,
+	                                int nTimeoutMs = nDefaultTimeoutMs,
 	                                QString* pError = nullptr );
 
 	/** Parses raw JSON \a jsonData as an index originating from \a sourceUrl. */
@@ -178,7 +179,7 @@ public:
 	 * \warning MUST NOT be called from the main GUI thread. See class docs.
 	 */
 	QByteArray downloadBlocking( const QUrl& url,
-	                             int nTimeoutMs = 30000,
+	                             int nTimeoutMs = nDefaultTimeoutMs,
 	                             QString* pError = nullptr );
 
 	/**

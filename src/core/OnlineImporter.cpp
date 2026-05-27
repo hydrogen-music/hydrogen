@@ -511,8 +511,9 @@ QVector<OnlineIndex> OnlineImporter::fetchAllIndices( const QStringList& urls )
 	QVector<OnlineIndex> results;
 	for ( const auto& sUrl : urls ) {
 		QString sError;
-		const auto index =
-			fetchAndParseIndex( QUrl( sUrl ), 30000, &sError );
+		const auto index = fetchAndParseIndex(
+			QUrl( sUrl ), OnlineImporter::nDefaultTimeoutMs, &sError
+		);
 		if ( !sError.isEmpty() ) {
 			WARNINGLOG( QString( "Failed to fetch index '%1': %2" )
 							.arg( sUrl )
@@ -528,8 +529,9 @@ QVector<OnlineIndex> OnlineImporter::fetchAllIndices( const QStringList& urls )
 bool OnlineImporter::downloadArtifactBlocking( const OnlineArtifact& artifact,
                                                QString* pError )
 {
-	const QByteArray data =
-		downloadBlocking( artifact.url, 30000, pError );
+	const QByteArray data = downloadBlocking(
+		artifact.url, OnlineImporter::nDefaultTimeoutMs, pError
+	);
 	if ( data.isEmpty() ) {
 		return false;
 	}
