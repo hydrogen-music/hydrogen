@@ -231,6 +231,14 @@ private:
 	 * Used by tests via setLocalSearchPath() to bypass SoundLibraryDatabase. */
 	void resolveLocalStatusFromPath( OnlineArtifact& artifact,
 	                                 const QString& sSearchDir );
+
+	/**
+	 * Derives a flat folder name from a source index URL.
+	 * Strips protocol prefix and trailing /index.json, replaces remaining
+	 * path separators with underscores.
+	 * E.g. https://hydrogen-music.org/online/index.json → "hydrogen-music.org_online"
+	 */
+	static QString deriveSourceFolder( const QUrl& sourceUrl );
 };
 
 } // namespace H2Core
