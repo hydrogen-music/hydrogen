@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "created": "2026-05-25T17:43:25",
+  "created": "2026-05-27T06:35:33",
   "patternCount": 276,
   "songCount": 49,
   "drumkitCount": 4,
@@ -7090,7 +7090,7 @@
       "license": "CC0",
       "folderName": "sampleFormatKit",
       "instruments": 11,
-      "components": 1,
+      "components": 11,
       "samples": 11,
       "instrumentTypes": [
         "Kick"
@@ -7110,7 +7110,7 @@
       "license": "MIT",
       "folderName": "testKit",
       "instruments": 3,
-      "components": 1,
+      "components": 3,
       "samples": 3,
       "instrumentTypes": []
     },
@@ -7128,7 +7128,7 @@
       "license": "MIT",
       "folderName": "ếИ£TestKit越",
       "instruments": 4,
-      "components": 1,
+      "components": 4,
       "samples": 5,
       "instrumentTypes": [
         "Crash",
@@ -7138,5 +7138,5 @@
       ]
     }
   ],
-  "hash": "3303ebf59064c9fd1cb6ba3cd622113b48416b7b158b654fdebd1a74c4ce109d"
+  "hash": "0d83a81282bcf449036eac2da7e95fb0650d74839b8bbcc69e2cadf768ffa274"
 }
