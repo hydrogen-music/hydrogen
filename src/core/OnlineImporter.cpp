@@ -555,12 +555,14 @@ bool OnlineImporter::downloadArtifactBlocking( const OnlineArtifact& artifact,
 		sSuffix = ".h2song";
 		break;
 	case OnlineArtifact::Type::Drumkit:
-		sDestDir = Filesystem::userDrumkitsDir();
+		// Only bundled drumkits can be downloaded. We do so into a temporary
+		// file and extract the kit right away.
+		sDestDir = Filesystem::cacheDir();
 		sSuffix = ".h2drumkit";
 		break;
 	}
 
-	const QString sDestPath = sDestDir + "/" + artifact.sName + sSuffix;
+	QString sDestPath = sDestDir + "/" + artifact.sName + sSuffix;
 
 	QFile file( sDestPath );
 	if ( !file.open( QIODevice::WriteOnly ) ) {
@@ -576,6 +578,16 @@ bool OnlineImporter::downloadArtifactBlocking( const OnlineArtifact& artifact,
 	file.write( data );
 	file.close();
 
+	if ( artifact.type == OnlineArtifact::Type::Drumkit ) {
+		QString sInstalledDir;
+		if ( !Drumkit::install( sDestPath, "", &sInstalledDir, nullptr, false ) ) {
+			ERRORLOG( QString( "Unable to install bundled drumkit [%1]" )
+					  .arg( sDestPath ));
+			return false;
+		}
+		Filesystem::rm( sDestPath );
+		sDestPath = sInstalledDir;
+	}
 	INFOLOG( QString( "Successfully downloaded artifact '%1' to '%2'" )
 				 .arg( artifact.sName )
 				 .arg( sDestPath ) );
