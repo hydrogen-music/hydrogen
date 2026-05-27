@@ -1279,6 +1279,7 @@ void SoundLibraryTree::addNodes(
 		pDirItem->setText( 0, ssFolderName );
 		pDirItem->setFont( 0, dirFont );
 		pDirItem->setIcon( 0, QIcon( sIconPath + "folder.svg" ) );
+		pDirItem->setToolTip( 0, ssFolderName );
 		pDirItem->setExpanded( false );
 		pDirItem->setFlags( pDirItem->flags() & ~Qt::ItemIsSelectable );
 		addNodes(
