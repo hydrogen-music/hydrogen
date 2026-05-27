@@ -454,20 +454,26 @@ int main(int argc, char *argv[])
 					const bool bOk = importer.downloadArtifactBlocking(
 						allArtifacts[i], &sError );
 
-					// ASCII progress bar
+					// ASCII progress bar — build full line so we can pad
+					// and erase leftover characters from longer previous names.
 					int pct = ((i + 1) * 100) / nTotal;
 					int filled = (pct / 5);
-					std::cout << "\rDownloading [";
+					QString line = QString( "\rDownloading [" );
 					for ( int f = 0; f < 20; ++f ) {
-						std::cout << (f < filled ? '#' : '-');
+						line += (f < filled ? '#' : '-');
 					}
-					std::cout << "] " << pct << "% (" << (i + 1) << "/"
-							  << nTotal << ") - "
-							  << allArtifacts[i].sName.toLocal8Bit().constData();
+					line += QString( "] %1% (%2/%3) - %4" )
+						.arg( pct )
+						.arg( i + 1 )
+						.arg( nTotal )
+						.arg( allArtifacts[i].sName );
 					if ( !bOk ) {
-						std::cout << " FAILED";
+						line += " FAILED";
 					}
-					std::cout << "   " << std::flush;
+					// Pad with spaces so \r overwrites any leftover characters
+					// from a previous longer artifact name on the same line.
+					line += QString( 40, ' ' );
+					std::cout << line.toLocal8Bit().constData() << std::flush;
 
 					if ( bOk ) {
 						++nSuccess;
