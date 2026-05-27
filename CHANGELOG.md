@@ -57,6 +57,9 @@ All notable changes to this project will be documented in this file.
   files as well.
 - CLI options:
   - `kitToDrumkitMap`: to extract a .h2map file from a drumkit.
+  - `--online-import <url>`: to download all artifacts from an online index.
+  - `--online-import-type <type>`:  to filter by `pattern`, `song`, `drumkit`,
+	or `all`.
 - Patterns are now independent of Drumkits and the latter can switched without
   the need to adjust the patterns. Mapping between the two will be done using
   "instrument types".

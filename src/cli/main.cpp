@@ -43,6 +43,7 @@
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
+#include <core/OnlineImporter.h>
 #include <core/config.h>
 #include <core/EventQueue.h>
 #include <core/Globals.h>
@@ -239,6 +240,17 @@ int main(int argc, char *argv[])
 		QCommandLineOption logTimestampsOption(
 			QStringList() << "T" << "log-timestamps",
 			"Add timestamps to all log messages" );
+		QCommandLineOption onlineImportOption(
+			QStringList() << "online-import",
+			"Download all artifacts from an online index URL. "
+			"May be specified multiple times to combine several indices. "
+			"Use --online-import-type to filter artifact types.",
+			"Url" );
+		QCommandLineOption onlineImportTypeOption(
+			QStringList() << "online-import-type",
+			"Filter artifact type for --online-import: "
+			"pattern, song, drumkit, or all [default: all]",
+			"Type" );
 #ifdef H2CORE_HAVE_OSC
 		QCommandLineOption oscPortOption(
 			QStringList() << "O" << "osc-port",
@@ -270,6 +282,8 @@ int main(int argc, char *argv[])
 		parser.addOption( verboseOption );
 		parser.addOption( logFileOption );
 		parser.addOption( logTimestampsOption );
+		parser.addOption( onlineImportOption );
+		parser.addOption( onlineImportTypeOption );
 		parser.addHelpOption();
 		parser.addVersionOption();
 		// Evaluate the options
@@ -370,6 +384,107 @@ int main(int argc, char *argv[])
 			}
 
 			exit( 0 );
+		}
+
+		// Handle --online-import
+		{
+			const QStringList sOnlineImportUrls = parser.values( onlineImportOption );
+			if ( !sOnlineImportUrls.isEmpty() ) {
+				QString sTypeFilter = parser.value( onlineImportTypeOption ).toLower();
+
+				// Validate type filter
+				if ( !sTypeFilter.isEmpty() &&
+					 sTypeFilter != "all" &&
+					 sTypeFilter != "pattern" &&
+					 sTypeFilter != "song" &&
+					 sTypeFilter != "drumkit" ) {
+					std::cerr << "Invalid --online-import-type value: '"
+							  << sTypeFilter.toLocal8Bit().constData()
+							  << "'. Use: pattern, song, drumkit, or all."
+							  << std::endl;
+					exit( 1 );
+				}
+
+				// Resolve type enum
+				OnlineArtifact::Type typeFilter = OnlineArtifact::Type::Pattern;
+				bool bFilterAll = true;
+				if ( sTypeFilter == "pattern" ) {
+					typeFilter = OnlineArtifact::Type::Pattern;
+					bFilterAll = false;
+				} else if ( sTypeFilter == "song" ) {
+					typeFilter = OnlineArtifact::Type::Song;
+					bFilterAll = false;
+				} else if ( sTypeFilter == "drumkit" ) {
+					typeFilter = OnlineArtifact::Type::Drumkit;
+					bFilterAll = false;
+				}
+
+				OnlineImporter importer;
+				auto indices = importer.fetchAllIndices( sOnlineImportUrls );
+
+				// Collect artifacts, optionally filtering by type
+				QVector<OnlineArtifact> allArtifacts;
+				for ( const auto& index : indices ) {
+					if ( bFilterAll || typeFilter == OnlineArtifact::Type::Pattern ) {
+						allArtifacts.append( index.patterns );
+					}
+					if ( bFilterAll || typeFilter == OnlineArtifact::Type::Song ) {
+						allArtifacts.append( index.songs );
+					}
+					if ( bFilterAll || typeFilter == OnlineArtifact::Type::Drumkit ) {
+						allArtifacts.append( index.drumkits );
+					}
+				}
+
+				std::cout << "Found " << indices.size() << " index(es), "
+						  << allArtifacts.size() << " artifact(s) to download."
+						  << std::endl;
+
+				if ( allArtifacts.isEmpty() ) {
+					std::cout << "No artifacts to download. Exiting." << std::endl;
+					exit( 0 );
+				}
+
+				int nSuccess = 0;
+				int nFail = 0;
+				const int nTotal = allArtifacts.size();
+
+				for ( int i = 0; i < nTotal; ++i ) {
+					QString sError;
+					const bool bOk = importer.downloadArtifactBlocking(
+						allArtifacts[i], &sError );
+
+					// ASCII progress bar
+					int pct = ((i + 1) * 100) / nTotal;
+					int filled = (pct / 5);
+					std::cout << "\rDownloading [";
+					for ( int f = 0; f < 20; ++f ) {
+						std::cout << (f < filled ? '#' : '-');
+					}
+					std::cout << "] " << pct << "% (" << (i + 1) << "/"
+							  << nTotal << ") - "
+							  << allArtifacts[i].sName.toLocal8Bit().constData();
+					if ( !bOk ) {
+						std::cout << " FAILED";
+					}
+					std::cout << "   " << std::flush;
+
+					if ( bOk ) {
+						++nSuccess;
+					} else {
+						++nFail;
+						std::cerr << "\nError downloading '"
+								  << allArtifacts[i].sName.toLocal8Bit().constData()
+								  << "': " << sError.toLocal8Bit().constData()
+								  << std::endl;
+					}
+				}
+
+				std::cout << "\nDone. " << nSuccess << " succeeded, "
+						  << nFail << " failed." << std::endl;
+
+				exit( nFail > 0 ? 1 : 0 );
+			}
 		}
 
 		if ( ! sSelectedDriver.isEmpty() ) {
