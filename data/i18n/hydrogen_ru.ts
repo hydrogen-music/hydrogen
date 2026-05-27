@@ -5915,40 +5915,6 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryRepositoryDialog</name>
-    <message>
-        <source>Edit repository settings</source>
-        <translation>Изменить параметры репозитория</translation>
-    </message>
-    <message>
-        <source>Edit server list</source>
-        <translation>Изменить список серверов</translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryRepositoryDialog_UI</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Диалог</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Добавить</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Удалить</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Закрыть</translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryTree</name>
     <message>
         <source>is a read-only and can&apos;t be deleted.</source>

@@ -5887,40 +5887,6 @@ Ben je zeker?</translation>
     </message>
 </context>
 <context>
-    <name>SoundLibraryRepositoryDialog</name>
-    <message>
-        <source>Edit repository settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Edit server list</source>
-        <translation>Bewerk server lijst</translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryRepositoryDialog_UI</name>
-    <message>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Toevoegen</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Wissen</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Sluiten</translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryTree</name>
     <message>
         <source>is a read-only and can&apos;t be deleted.</source>

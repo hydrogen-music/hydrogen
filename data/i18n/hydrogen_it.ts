@@ -5894,40 +5894,6 @@ Confermi?</translation>
     </message>
 </context>
 <context>
-    <name>SoundLibraryRepositoryDialog</name>
-    <message>
-        <source>Edit repository settings</source>
-        <translation>Modifica preferenze repository</translation>
-    </message>
-    <message>
-        <source>Edit server list</source>
-        <translation>Modifica lista server</translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryRepositoryDialog_UI</name>
-    <message>
-        <source>Dialog</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Aggiungi</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Elimina</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Chiudi</translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryTree</name>
     <message>
         <source>is a read-only and can&apos;t be deleted.</source>

@@ -5919,40 +5919,6 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryRepositoryDialog</name>
-    <message>
-        <source>Edit repository settings</source>
-        <translation>编辑存储库设置</translation>
-    </message>
-    <message>
-        <source>Edit server list</source>
-        <translation>编辑服务器列表</translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>网址</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryRepositoryDialog_UI</name>
-    <message>
-        <source>Dialog</source>
-        <translation>对话框</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>添加</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>删除</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>关闭</translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryTree</name>
     <message>
         <source>is a read-only and can&apos;t be deleted.</source>

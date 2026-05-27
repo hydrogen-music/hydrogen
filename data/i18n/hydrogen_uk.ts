@@ -5920,40 +5920,6 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryRepositoryDialog</name>
-    <message>
-        <source>Edit repository settings</source>
-        <translation>Змінити параметри сховища</translation>
-    </message>
-    <message>
-        <source>Edit server list</source>
-        <translation>Змінити список серверів</translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>Адреса</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryRepositoryDialog_UI</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Діалог</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Додати</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Видалити</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Закрити</translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryTree</name>
     <message>
         <source>is a read-only and can&apos;t be deleted.</source>

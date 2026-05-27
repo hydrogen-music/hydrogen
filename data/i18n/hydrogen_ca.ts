@@ -5892,40 +5892,6 @@ N&apos;estàs segur?</translation>
     </message>
 </context>
 <context>
-    <name>SoundLibraryRepositoryDialog</name>
-    <message>
-        <source>Edit repository settings</source>
-        <translation>Editar configuració de repositoris</translation>
-    </message>
-    <message>
-        <source>Edit server list</source>
-        <translation>Editar llista de servidors</translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryRepositoryDialog_UI</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Diàleg</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Afegir</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Eliminar</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Tancar</translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryTree</name>
     <message>
         <source>is a read-only and can&apos;t be deleted.</source>

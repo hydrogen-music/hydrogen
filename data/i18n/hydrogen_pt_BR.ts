@@ -5922,40 +5922,6 @@ Está certo disto?</translation>
     </message>
 </context>
 <context>
-    <name>SoundLibraryRepositoryDialog</name>
-    <message>
-        <source>Edit repository settings</source>
-        <translation>Editar configurações do repositório</translation>
-    </message>
-    <message>
-        <source>Edit server list</source>
-        <translation>Editar lista dos servidores</translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryRepositoryDialog_UI</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Diálogo</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Adicionar</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Remover</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Fechar</translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryTree</name>
     <message>
         <source>is a read-only and can&apos;t be deleted.</source>

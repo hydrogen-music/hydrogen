@@ -5917,40 +5917,6 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryRepositoryDialog</name>
-    <message>
-        <source>Edit repository settings</source>
-        <translation>リポジトリの設定を編集</translation>
-    </message>
-    <message>
-        <source>Edit server list</source>
-        <translation>サーバーリストを編集</translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryRepositoryDialog_UI</name>
-    <message>
-        <source>Dialog</source>
-        <translation>ダイアログ</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>追加</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>削除</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>閉じる</translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryTree</name>
     <message>
         <source>is a read-only and can&apos;t be deleted.</source>

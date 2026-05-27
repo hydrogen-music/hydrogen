@@ -5890,40 +5890,6 @@ Určitě to chcete?</translation>
     </message>
 </context>
 <context>
-    <name>SoundLibraryRepositoryDialog</name>
-    <message>
-        <source>Edit repository settings</source>
-        <translation>Upravit nastavení repozitáře</translation>
-    </message>
-    <message>
-        <source>Edit server list</source>
-        <translation>Upravit seznam serverů</translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryRepositoryDialog_UI</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialog</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Vymazat</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zavřít</translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryTree</name>
     <message>
         <source>is a read-only and can&apos;t be deleted.</source>

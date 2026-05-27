@@ -239,8 +239,6 @@ class Preferences : public H2Core::Object<Preferences> {
 	int m_nBeatCounterDriftCompensation;
 	int m_nBeatCounterStartOffset;
 
-	QStringList m_serverList;
-
 	//___ audio engine properties ___
 	AudioDriver m_audioDriver;
 	/** If set to true, samples of the metronome will be added to
