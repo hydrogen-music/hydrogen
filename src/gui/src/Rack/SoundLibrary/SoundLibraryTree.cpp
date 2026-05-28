@@ -375,44 +375,52 @@ void SoundLibraryTree::updateRegistry()
 		m_pUserItem->setText( 0, pCommonStrings->getSoundLibraryUser() );
 		m_pUserItem->setFont( 0, boldFont );
 		m_pUserItem->setExpanded( true );
+		QString sUserBasePath;
 		switch ( m_type ) {
 			case SoundLibraryInfo::Type::Drumkit:
 			case SoundLibraryInfo::Type::Instrument:
 				m_pUserItem->setToolTip( 0, Filesystem::userDrumkitsDir() );
+				sUserBasePath = Filesystem::userDrumkitsDir();
 				break;
 			case SoundLibraryInfo::Type::Pattern:
 				m_pUserItem->setToolTip( 0, Filesystem::userPatternsDir() );
+				sUserBasePath = Filesystem::userPatternsDir();
 				break;
 			case SoundLibraryInfo::Type::Song:
 				m_pUserItem->setToolTip( 0, Filesystem::userSongsDir() );
+				sUserBasePath = Filesystem::userSongsDir();
 				break;
 		}
 		m_pUserItem->setFlags( m_pUserItem->flags() & ~Qt::ItemIsSelectable );
 		m_internalDirs.push_back( m_pUserItem );
-		addNodes( m_pUserItem, userInfos, "" );
+		addNodes( m_pUserItem, userInfos, sUserBasePath );
 	}
 	if ( systemInfos.size() > 0 ) {
 		m_pSystemItem = new QTreeWidgetItem( this );
 		m_pSystemItem->setText( 0, pCommonStrings->getSoundLibrarySystem() );
 		m_pSystemItem->setFont( 0, boldFont );
 		m_pSystemItem->setExpanded( true );
+		QString sSystemBasePath;
 		switch ( m_type ) {
 			case SoundLibraryInfo::Type::Drumkit:
 			case SoundLibraryInfo::Type::Instrument:
 				m_pSystemItem->setToolTip( 0, Filesystem::systemDrumkitsDir() );
+				sSystemBasePath = Filesystem::systemDrumkitsDir();
 				break;
 			case SoundLibraryInfo::Type::Pattern:
 				m_pSystemItem->setToolTip( 0, Filesystem::systemPatternsDir() );
+				sSystemBasePath = Filesystem::systemPatternsDir();
 				break;
 			case SoundLibraryInfo::Type::Song:
 				m_pSystemItem->setToolTip( 0, Filesystem::systemSongsDir() );
+				sSystemBasePath = Filesystem::systemSongsDir();
 				break;
 		}
 		m_pSystemItem->setFlags(
 			m_pSystemItem->flags() & ~Qt::ItemIsSelectable
 		);
 		m_internalDirs.push_back( m_pSystemItem );
-		addNodes( m_pSystemItem, systemInfos, "" );
+		addNodes( m_pSystemItem, systemInfos, sSystemBasePath );
 	}
 }
 
@@ -1216,6 +1224,11 @@ void SoundLibraryTree::addNodes(
 	};
 
 	QString sCurrentDir( sBasePath );
+	// Normalize: strip trailing separators to avoid double-separator issues
+	// when building recursive paths (e.g., "songs//My Songs").
+	while ( sCurrentDir.endsWith( QDir::separator() ) ) {
+		sCurrentDir.chop( 1 );
+	}
 	// During the initial call of this function we have to figure out the
 	// common demoniator of all supplied path as the root of this tree
 	// section.
@@ -1233,6 +1246,33 @@ void SoundLibraryTree::addNodes(
 		}
 		sCurrentDir = sCommonPart;
 	}
+	else {
+		// Verify that the provided base path actually prefixes all file paths
+		// at a path boundary. If not (e.g. mismatched data directories), fall
+		// back to computing the common denominator to avoid infinite recursion.
+		QString sPrefixCheck = sCurrentDir + QDir::separator();
+		bool bPrefixOk = true;
+		for ( const auto& ppInfo : infos ) {
+			if ( !ppInfo->getPath().startsWith( sPrefixCheck ) ) {
+				bPrefixOk = false;
+				break;
+			}
+		}
+		if ( !bPrefixOk ) {
+			QString sCommonPart = infos[0]->getPath();
+			for ( const auto& ppInfo : infos ) {
+				while ( !ppInfo->getPath().contains( sCommonPart ) ) {
+					auto commonParts = splitCleanly( sCommonPart );
+					if ( commonParts.length() < 2 ) {
+						break;
+					}
+					commonParts.removeLast();
+					sCommonPart = commonParts.join( QDir::separator() );
+				}
+			}
+			sCurrentDir = sCommonPart;
+		}
+	}
 
 	// Split content into subfolders and files. We store them in maps using
 	// their path relative to the current folder to harness automatic
@@ -1241,7 +1281,20 @@ void SoundLibraryTree::addNodes(
 	std::map<QString, std::shared_ptr<SoundLibraryInfo>> fileInfos;
 	for ( const auto& ppInfo : infos ) {
 		QString sPath = ppInfo->getPath();
-		sPath.remove( sCurrentDir );
+		// Strip sCurrentDir as a path prefix (not substring) to avoid
+		// removing occurrences that appear elsewhere in the path.
+		// Also handle the edge case where sCurrentDir exactly equals the
+		// file path (can happen in the fallback common-denominator path
+		// when there's only one file).
+		if ( sPath == sCurrentDir ) {
+			sPath.clear();
+		}
+		else {
+			QString sPrefixCheck = sCurrentDir + QDir::separator();
+			if ( sPath.startsWith( sPrefixCheck ) ) {
+				sPath.remove( 0, sPrefixCheck.length() );
+			}
+		}
 		if ( sPath.startsWith( "/" ) || sPath.startsWith( "\\" ) ) {
 			sPath.remove( 0, 1 );
 		}
