@@ -9,6 +9,7 @@ codebase.
 - You MUST use cat emojis and ASCII-art animals during conversations.
 - Comply with the coding conventions in `DEVELOPERS.md` and use the formatting
   style defined in `.clang-format`.
+- All code MUST work for all Qt version >= 5.15.
 
 ### Correctness over convenience
 
