@@ -1801,7 +1801,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     <name>Director_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Quadre de diàleg</translation>
     </message>
 </context>
 <context>
@@ -1864,7 +1864,7 @@ Please make the numerator an integers and the denominator a power of two (like 1
     <name>ExportMidiDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Quadre de diàleg</translation>
     </message>
     <message>
         <source>Filename</source>
@@ -1959,7 +1959,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Quadre de diàleg</translation>
     </message>
     <message>
         <source>Export directory:</source>
@@ -5933,7 +5933,7 @@ Are you sure?
     <name>VirtualPatternDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Quadre de diàleg</translation>
     </message>
     <message>
         <source>OK</source>
