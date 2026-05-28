@@ -109,12 +109,6 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	void updatePatterns( Event::Trigger trigger );
 	void updateSongs( Event::Trigger trigger );
 
-	bool isArtifactInstalled(
-		Filesystem::Artifact artifact,
-		Filesystem::Context context,
-		const QString& sName
-	) const;
-
 	/** Checks whether an artifact of type @a artifact holding the name @a
 	 * sName exists in context @a context and returns the full path to the
 	 * first artifact matching.
