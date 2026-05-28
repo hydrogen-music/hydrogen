@@ -243,7 +243,7 @@ void OnlineImportSourcesDialog::addRow( const QString& sUrl )
 	) );
 	pRemoveButton->setToolTip( pCommonStrings->getMenuActionDelete() );
 	connect( pRemoveButton, &QPushButton::clicked, this, [=]() {
-		m_sources.remove( nRow, 1 );
+		m_sources.removeAt( nRow );
 		populateTable();
 	} );
 	m_pTable->setCellWidget( nRow, 2, pRemoveButton );
