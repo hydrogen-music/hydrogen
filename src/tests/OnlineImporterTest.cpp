@@ -30,6 +30,8 @@
 #include "core/Helpers/Filesystem.h"
 
 #include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QCryptographicHash>
@@ -488,5 +490,29 @@ void OnlineImporterTest::testDownloadBlockingHashMismatch() {
 	CPPUNIT_ASSERT( sError.contains( "Hash mismatch" ) );
 
 	server.close();
+	___INFOLOG( "passed" );
+}
+
+void OnlineImporterTest::testTopLevelHashFixtureValid() {
+	___INFOLOG( "" );
+
+	// Load the real fixture index.json and verify that its top-level hash
+	// is valid using the same code path as OnlineImporter::parseIndex().
+	QFile f( H2TEST_FILE( "onlineImport/index.json" ) );
+	CPPUNIT_ASSERT( f.open( QIODevice::ReadOnly ) );
+	const QByteArray data = f.readAll();
+	f.close();
+
+	QJsonParseError parseError;
+	const QJsonDocument doc = QJsonDocument::fromJson( data, &parseError );
+	CPPUNIT_ASSERT( parseError.error == QJsonParseError::NoError );
+	CPPUNIT_ASSERT( doc.isObject() );
+
+	const QJsonObject root = doc.object();
+	const QString sExpectedHash = root.value( "hash" ).toString();
+	CPPUNIT_ASSERT( !sExpectedHash.isEmpty() );
+
+	CPPUNIT_ASSERT( OnlineImporter::verifyIndexHash( root, sExpectedHash ) );
+
 	___INFOLOG( "passed" );
 }

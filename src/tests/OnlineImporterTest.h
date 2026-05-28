@@ -40,6 +40,7 @@ class OnlineImporterTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testDownloadArtifactsAbort );
 	CPPUNIT_TEST( testDownloadBlockingSuccess );
 	CPPUNIT_TEST( testDownloadBlockingHashMismatch );
+	CPPUNIT_TEST( testTopLevelHashFixtureValid );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -57,6 +58,7 @@ public:
 	void testDownloadArtifactsAbort();
 	void testDownloadBlockingSuccess();
 	void testDownloadBlockingHashMismatch();
+	void testTopLevelHashFixtureValid();
 };
 
 #endif

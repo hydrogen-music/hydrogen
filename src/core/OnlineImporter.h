@@ -211,6 +211,18 @@ public:
 	static bool verifyHash( const QByteArray& data,
 	                        const QString& sExpectedHash );
 
+	/**
+	 * Verifies the top-level integrity hash of an index JSON object.
+	 *
+	 * Removes the "hash" key from \a root, re-serializes the result to
+	 * compact JSON, and compares its SHA-256 digest with \a sExpectedHash
+	 * (hex string, case-sensitive).
+	 *
+	 * \return \c true if the computed hash matches \a sExpectedHash.
+	 */
+	static bool verifyIndexHash( const QJsonObject& root,
+	                             const QString& sExpectedHash );
+
 public slots:
 	// --- Control ---
 
@@ -227,6 +239,8 @@ private:
 	bool m_bAborted;
 	/** Optional override paths for local status resolution (used in tests). */
 	QMap<int, QString> m_localSearchPaths;
+
+	QString artifactToTargetPath( const OnlineArtifact& artifact, QString* pTargetDir ) const;
 
 	/** File-based status resolution using a specific directory path.
 	 * Used by tests via setLocalSearchPath() to bypass SoundLibraryDatabase. */

@@ -100,20 +100,9 @@ OnlineIndex OnlineImporter::parseIndex( const QByteArray& jsonData,
 
 	// Top-level hash validation (optional)
 	if ( !index.sHash.isEmpty() ) {
-		// Compute sha256 of the JSON with the "hash" field removed
-		QJsonObject rootWithoutHash = root;
-		rootWithoutHash.remove( "hash" );
-		const QByteArray dataWithoutHash =
-			QJsonDocument( rootWithoutHash ).toJson( QJsonDocument::Compact );
-		const QString sComputedHash =
-			QCryptographicHash::hash( dataWithoutHash, QCryptographicHash::Sha256 )
-				.toHex();
-		if ( sComputedHash != index.sHash ) {
-			WARNINGLOG( QString( "Top-level hash mismatch in index from '%1'. "
-								 "Expected: %2, Got: %3" )
-							.arg( sourceUrl.toString() )
-							.arg( index.sHash )
-							.arg( sComputedHash ) );
+		if ( !verifyIndexHash( root, index.sHash ) ) {
+			WARNINGLOG( QString( "Top-level hash mismatch in index from '%1'" )
+							.arg( sourceUrl.toString() ) );
 		}
 	}
 
@@ -226,11 +215,24 @@ OnlineIndex OnlineImporter::parseIndex( const QByteArray& jsonData,
 }
 
 bool OnlineImporter::verifyHash( const QByteArray& data,
-                                 const QString& sExpectedHash )
+                                  const QString& sExpectedHash )
 {
 	const QString sComputed =
 		QCryptographicHash::hash( data, QCryptographicHash::Sha256 ).toHex();
 	return sComputed.compare( sExpectedHash, Qt::CaseInsensitive ) == 0;
+}
+
+bool OnlineImporter::verifyIndexHash( const QJsonObject& root,
+                                      const QString& sExpectedHash )
+{
+	QJsonObject rootWithoutHash = root;
+	rootWithoutHash.remove( "hash" );
+	const QByteArray dataWithoutHash =
+		QJsonDocument( rootWithoutHash ).toJson( QJsonDocument::Compact );
+	const QString sComputedHash =
+		QCryptographicHash::hash( dataWithoutHash, QCryptographicHash::Sha256 )
+			.toHex();
+	return sComputedHash == sExpectedHash;
 }
 
 void OnlineImporter::setLocalSearchPath( OnlineArtifact::Type type,
@@ -295,22 +297,35 @@ void OnlineImporter::resolveLocalStatus( OnlineArtifact& artifact )
 	if ( !sSourceFolder.isEmpty() ) {
 		sRootFolder += sSourceFolder + "/";
 	}
-	if ( artifact.type == OnlineArtifact::Type::Drumkit ) {
-		sRootFolder += artifact.sFolderName;
-	}
-
 	if ( !Filesystem::dirExists( sRootFolder, true ) ) {
 		artifact.localStatus = OnlineArtifact::LocalStatus::NotInstalled;
 		return;
+	}
+
+	QString sTargetPath;
+	if ( artifact.type == OnlineArtifact::Type::Drumkit ) {
+		QString sTargetDir = Filesystem::userDrumkitsDir();
+		if ( ! sSourceFolder.isEmpty() ) {
+			sTargetDir += sSourceFolder + "/";
+		}
+		sTargetDir += artifact.sFolderName;
+		if ( !Filesystem::dirExists( sTargetDir, true ) ) {
+			artifact.localStatus = OnlineArtifact::LocalStatus::NotInstalled;
+			return;
+		}
+		sTargetPath = Filesystem::drumkitPathFromDir( sTargetDir );
+	}
+	else {
+		sTargetPath = artifactToTargetPath( artifact, nullptr );
 	}
 
 	std::shared_ptr<SoundLibraryInfo> pLocalInfo = nullptr;
 	for ( const auto& pInfo : *pInfos ) {
 		if ( pInfo != nullptr &&
 			 pInfo->getContext() == Filesystem::Context::User &&
-			 pInfo->getPath().contains( sRootFolder ) ) {
-		pLocalInfo = pInfo;
-		break;
+			 pInfo->getPath() == sTargetPath ) {
+			pLocalInfo = pInfo;
+			break;
 		}
 	}
 
@@ -548,28 +563,8 @@ bool OnlineImporter::downloadArtifactBlocking( const OnlineArtifact& artifact,
 		return false;
 	}
 
-	// Determine destination path within a per-source subfolder
-	QString sSourceFolder = deriveSourceFolder( artifact.sourceUrl );
 	QString sDestDir;
-	QString sSuffix;
-	switch ( artifact.type ) {
-	case OnlineArtifact::Type::Pattern:
-		sDestDir = Filesystem::userPatternsDir() + sSourceFolder;
-		sSuffix = ".h2pattern";
-		break;
-	case OnlineArtifact::Type::Song:
-		sDestDir = Filesystem::userSongsDir() + sSourceFolder;
-		sSuffix = ".h2song";
-		break;
-	case OnlineArtifact::Type::Drumkit:
-		// Only bundled drumkits can be downloaded. We do so into a temporary
-		// file and extract the kit right away.
-		sDestDir = Filesystem::cacheDir();
-		sSuffix = ".h2drumkit";
-		break;
-	}
-
-	QString sDestPath = sDestDir + "/" + artifact.sName + sSuffix;
+	QString sDestPath = artifactToTargetPath( artifact, &sDestDir );
 
 	// Ensure the (possibly nested) destination directory exists
 	if ( artifact.type != OnlineArtifact::Type::Drumkit ) {
@@ -592,8 +587,11 @@ bool OnlineImporter::downloadArtifactBlocking( const OnlineArtifact& artifact,
 
 	if ( artifact.type == OnlineArtifact::Type::Drumkit ) {
 		QString sInstalledDir;
-		QString sTargetDir = Filesystem::userDrumkitsDir() + sSourceFolder;
-		if ( !Drumkit::install( sDestPath, sTargetDir, &sInstalledDir, nullptr, false ) ) {
+		QString sTargetDir = Filesystem::userDrumkitsDir() +
+							 deriveSourceFolder( artifact.sourceUrl );
+		if ( !Drumkit::install(
+				 sDestPath, sTargetDir, &sInstalledDir, nullptr, false
+			 ) ) {
 			ERRORLOG( QString( "Unable to install bundled drumkit [%1] to [%2]" )
 					  .arg( sDestPath ).arg( sTargetDir ));
 			return false;
@@ -660,6 +658,39 @@ void OnlineImporter::downloadArtifactsAsync(
 void OnlineImporter::abort()
 {
 	m_bAborted = true;
+}
+
+QString OnlineImporter::artifactToTargetPath(
+	const OnlineArtifact& artifact,
+	QString* pTargetDir
+) const
+{
+	// Determine destination path within a per-source subfolder
+	QString sSourceFolder = deriveSourceFolder( artifact.sourceUrl );
+	QString sDestDir;
+	QString sSuffix;
+	switch ( artifact.type ) {
+		case OnlineArtifact::Type::Pattern:
+			sDestDir = Filesystem::userPatternsDir() + sSourceFolder;
+			sSuffix = ".h2pattern";
+			break;
+		case OnlineArtifact::Type::Song:
+			sDestDir = Filesystem::userSongsDir() + sSourceFolder;
+			sSuffix = ".h2song";
+			break;
+		case OnlineArtifact::Type::Drumkit:
+			// Only bundled drumkits can be downloaded. We do so into a
+			// temporary file and extract the kit right away.
+			sDestDir = Filesystem::cacheDir();
+			sSuffix = ".h2drumkit";
+			break;
+	}
+
+	if ( pTargetDir != nullptr ) {
+		*pTargetDir = sDestDir;
+	}
+
+	return sDestDir + "/" + artifact.sName + sSuffix;
 }
 
 QString OnlineArtifact::toQString( const QString& sPrefix, bool bShort ) const {
