@@ -45,7 +45,16 @@ namespace H2Core
 OnlineImporter::OnlineImporter( QObject* pParent )
 	: QObject( pParent )
 	, m_bAborted( false )
+	, m_pAsyncNAM( new QNetworkAccessManager( this ) )
+	, m_pAsyncReply( nullptr )
+	, m_pAsyncTimeout( new QTimer( this ) )
+	, m_nAsyncIndex( 0 )
+	, m_nAsyncSuccess( 0 )
+	, m_nAsyncFail( 0 )
 {
+	m_pAsyncTimeout->setSingleShot( true );
+	connect( m_pAsyncTimeout, &QTimer::timeout,
+			 this, &OnlineImporter::onAsyncTimeout );
 }
 
 OnlineImporter::~OnlineImporter()
@@ -550,7 +559,14 @@ bool OnlineImporter::downloadArtifactBlocking( const OnlineArtifact& artifact,
 	if ( data.isEmpty() ) {
 		return false;
 	}
+	return installDownloadedArtifact( artifact, data, pError );
+}
 
+bool OnlineImporter::installDownloadedArtifact(
+	const OnlineArtifact& artifact,
+	const QByteArray& data,
+	QString* pError )
+{
 	// Verify hash
 	if ( !verifyHash( data, artifact.sHash ) ) {
 		const QString sErr =
@@ -592,8 +608,13 @@ bool OnlineImporter::downloadArtifactBlocking( const OnlineArtifact& artifact,
 		if ( !Drumkit::install(
 				 sDestPath, sTargetDir, &sInstalledDir, nullptr, false
 			 ) ) {
-			ERRORLOG( QString( "Unable to install bundled drumkit [%1] to [%2]" )
-					  .arg( sDestPath ).arg( sTargetDir ));
+			const QString sErr =
+				QString( "Unable to install bundled drumkit [%1] to [%2]" )
+					.arg( sDestPath ).arg( sTargetDir );
+			ERRORLOG( sErr );
+			if ( pError != nullptr ) {
+				*pError = sErr;
+			}
 			return false;
 		}
 		Filesystem::rm( sDestPath );
@@ -608,49 +629,161 @@ bool OnlineImporter::downloadArtifactBlocking( const OnlineArtifact& artifact,
 void OnlineImporter::downloadArtifactsAsync(
 	const QVector<OnlineArtifact>& artifacts )
 {
-	m_bAborted = false;
-
-	if ( artifacts.isEmpty() ) {
-		emit batchFinished( 0, 0 );
-		EventQueue::get_instance()->pushEvent(
-			Event::Type::OnlineImportProgress, nProgressComplete );
+	if ( m_pAsyncReply != nullptr ||
+		 m_nAsyncIndex < m_asyncQueue.size() ) {
+		WARNINGLOG( "Async batch already in progress; ignoring new request" );
 		return;
 	}
 
-	int nSuccess = 0;
-	int nFail = 0;
-	const int nTotal = artifacts.size();
+	m_bAborted = false;
+	m_asyncQueue = artifacts;
+	m_nAsyncIndex = 0;
+	m_nAsyncSuccess = 0;
+	m_nAsyncFail = 0;
 
-	for ( int ii = 0; ii < nTotal; ++ii ) {
-		if ( m_bAborted ) {
-			INFOLOG( "Batch download aborted by user" );
-			break;
-		}
-
-		const auto& artifact = artifacts[ii];
-		QString sError;
-		const bool bOk = downloadArtifactBlocking( artifact, &sError );
-
-		if ( bOk ) {
-			++nSuccess;
-			emit downloadFinished( artifact.sName, true, QString() );
-		}
-		else {
-			++nFail;
-			emit downloadFinished( artifact.sName, false, sError );
-			EventQueue::get_instance()->pushEvent(
-				Event::Type::OnlineImportProgress, nProgressError );
-		}
-
-		// Report overall progress as percentage (0–100)
-		const int nPercent =
-			static_cast<int>( ( ( ii + 1 ) * 100 ) / nTotal );
-		emit downloadProgress( ii + 1, nTotal );
-		EventQueue::get_instance()->pushEvent(
-			Event::Type::OnlineImportProgress, nPercent );
+	if ( m_asyncQueue.isEmpty() ) {
+		finishAsyncBatch();
+		return;
 	}
 
-	emit batchFinished( nSuccess, nFail );
+	startNextAsyncDownload();
+}
+
+void OnlineImporter::startNextAsyncDownload()
+{
+	if ( m_bAborted || m_nAsyncIndex >= m_asyncQueue.size() ) {
+		finishAsyncBatch();
+		return;
+	}
+
+	const auto& artifact = m_asyncQueue[m_nAsyncIndex];
+
+	QNetworkRequest request( artifact.url );
+	request.setRawHeader( "User-Agent", "Hydrogen" );
+	request.setAttribute( QNetworkRequest::RedirectPolicyAttribute,
+						  QNetworkRequest::NoLessSafeRedirectPolicy );
+	request.setMaximumRedirectsAllowed( 10 );
+
+	m_pAsyncReply = m_pAsyncNAM->get( request );
+	connect( m_pAsyncReply, &QNetworkReply::finished,
+			 this, &OnlineImporter::onAsyncReplyFinished );
+	// Forward per-request byte progress, but scaled so it represents the
+	// current artifact's slice of the overall batch (see onAsyncBytesProgress).
+	connect( m_pAsyncReply, &QNetworkReply::downloadProgress,
+			 this, &OnlineImporter::onAsyncBytesProgress );
+
+	// Emit a progress tick at the start of each artifact so the bar advances
+	// even before any bytes arrive (e.g. during DNS / TLS handshake).
+	emit downloadProgress( static_cast<qint64>( m_nAsyncIndex ) * 100,
+						   static_cast<qint64>( m_asyncQueue.size() ) * 100 );
+
+	m_pAsyncTimeout->start( nDefaultTimeoutMs );
+}
+
+void OnlineImporter::onAsyncBytesProgress( qint64 bytesReceived,
+                                            qint64 bytesTotal )
+{
+	if ( m_asyncQueue.isEmpty() ) {
+		return;
+	}
+	// Each artifact contributes 100 units to overall progress. Within the
+	// current artifact, byte progress contributes 0..100 of those units when
+	// the total is known; otherwise the slice stays at its lower bound.
+	int nWithinArtifact = 0;
+	if ( bytesTotal > 0 ) {
+		nWithinArtifact = static_cast<int>(
+			( bytesReceived * 100 ) / bytesTotal );
+		if ( nWithinArtifact > 100 ) {
+			nWithinArtifact = 100;
+		}
+	}
+	const qint64 nProgress =
+		static_cast<qint64>( m_nAsyncIndex ) * 100 + nWithinArtifact;
+	const qint64 nLimit = static_cast<qint64>( m_asyncQueue.size() ) * 100;
+	emit downloadProgress( nProgress, nLimit );
+}
+
+void OnlineImporter::onAsyncReplyFinished()
+{
+	m_pAsyncTimeout->stop();
+
+	QNetworkReply* pReply = m_pAsyncReply;
+	if ( pReply == nullptr ) {
+		// Spurious or post-cleanup signal — ignore.
+		return;
+	}
+	m_pAsyncReply = nullptr;
+
+	if ( m_bAborted ) {
+		INFOLOG( "Async batch aborted by user" );
+		pReply->deleteLater();
+		finishAsyncBatch();
+		return;
+	}
+
+	const auto& artifact = m_asyncQueue[m_nAsyncIndex];
+
+	bool bOk = false;
+	QString sError;
+
+	if ( pReply->error() != QNetworkReply::NoError ) {
+		sError = QString( "Download of '%1' failed: %2" )
+					 .arg( artifact.url.toString() )
+					 .arg( pReply->errorString() );
+		ERRORLOG( sError );
+	}
+	else {
+		const QByteArray data = pReply->readAll();
+		bOk = installDownloadedArtifact( artifact, data, &sError );
+	}
+	pReply->deleteLater();
+
+	if ( bOk ) {
+		++m_nAsyncSuccess;
+		emit downloadFinished( artifact.sName, true, QString() );
+	}
+	else {
+		++m_nAsyncFail;
+		emit downloadFinished( artifact.sName, false, sError );
+		EventQueue::get_instance()->pushEvent(
+			Event::Type::OnlineImportProgress, nProgressError );
+	}
+
+	++m_nAsyncIndex;
+
+	// Snap progress to the artifact boundary — covers both the success path
+	// (QNAM's final (total, total) tick may not arrive) and the failure path
+	// (no progress signal at all). Bytes within the next artifact will refine
+	// from this point.
+	emit downloadProgress(
+		static_cast<qint64>( m_nAsyncIndex ) * 100,
+		static_cast<qint64>( m_asyncQueue.size() ) * 100 );
+
+	// Report overall batch progress as percentage (0–100) on the EventQueue.
+	const int nPercent = static_cast<int>(
+		( m_nAsyncIndex * 100 ) / m_asyncQueue.size() );
+	EventQueue::get_instance()->pushEvent(
+		Event::Type::OnlineImportProgress, nPercent );
+
+	startNextAsyncDownload();
+}
+
+void OnlineImporter::onAsyncTimeout()
+{
+	if ( m_pAsyncReply != nullptr ) {
+		WARNINGLOG( QString( "Async download timed out after %1ms" )
+						.arg( nDefaultTimeoutMs ) );
+		// Aborting the reply triggers QNetworkReply::finished with
+		// OperationCanceledError; onAsyncReplyFinished handles the rest.
+		m_pAsyncReply->abort();
+	}
+}
+
+void OnlineImporter::finishAsyncBatch()
+{
+	m_nAsyncIndex = 0;
+	m_asyncQueue.clear();
+	emit batchFinished( m_nAsyncSuccess, m_nAsyncFail );
 	EventQueue::get_instance()->pushEvent(
 		Event::Type::OnlineImportProgress, nProgressComplete );
 }
@@ -658,6 +791,28 @@ void OnlineImporter::downloadArtifactsAsync(
 void OnlineImporter::abort()
 {
 	m_bAborted = true;
+
+	QNetworkReply* pReply = m_pAsyncReply;
+	if ( pReply == nullptr ) {
+		// No request in flight. Either the batch already finished, or we
+		// were called re-entrantly from inside onAsyncReplyFinished — in
+		// that case startNextAsyncDownload() will observe m_bAborted and
+		// finish the batch for us. Either way, do not emit batchFinished
+		// here to avoid a double emission.
+		return;
+	}
+
+	// Disconnect first so the reply's finished/downloadProgress signals do
+	// not re-enter our slots from inside QNetworkReply::abort() — that path
+	// has caused crashes when our slot tears down state while Qt's network
+	// code is still unwinding. Finish the batch synchronously below instead.
+	m_pAsyncReply = nullptr;
+	m_pAsyncTimeout->stop();
+	pReply->disconnect( this );
+	pReply->abort();
+	pReply->deleteLater();
+
+	finishAsyncBatch();
 }
 
 QString OnlineImporter::artifactToTargetPath(

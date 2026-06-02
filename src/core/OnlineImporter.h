@@ -31,6 +31,10 @@
 #include <QUrl>
 #include <QVector>
 
+class QNetworkAccessManager;
+class QNetworkReply;
+class QTimer;
+
 namespace H2Core {
 
 /** Describes a single downloadable artifact from an online index. */
@@ -116,11 +120,14 @@ struct OnlineIndex {
  *   the main GUI thread. They spin a local QEventLoop which causes reentrancy
  *   and will deadlock or corrupt state when invoked on the GUI thread. Use
  *   them only from worker threads, CLI contexts, or tests.
- * - downloadArtifactsAsync() is safe to call from any thread, including the
- *   GUI thread; it is fully asynchronous and communicates results via signals.
+ * - downloadArtifactsAsync() is safe to call from the GUI thread. It drives a
+ *   single QNetworkAccessManager via signals/slots — no nested event loop is
+ *   spun — and communicates results via downloadProgress(),
+ *   downloadFinished(), and batchFinished() signals.
  *
  * Internally uses QNetworkAccessManager paired with a local QEventLoop for
- * synchronous operations.
+ * synchronous operations; the async path uses a member QNetworkAccessManager
+ * with a timeout QTimer and chains artifacts in onAsyncReplyFinished().
  *
  * \ingroup docCore
  */
@@ -197,6 +204,11 @@ public:
 	/**
 	 * Begins asynchronous download and installation of all \a artifacts.
 	 *
+	 * Returns immediately. Artifacts are downloaded one at a time via
+	 * QNetworkAccessManager; the next download starts from the finished
+	 * slot of the previous one. If a batch is already in progress, the
+	 * call is logged and ignored.
+	 *
 	 * Progress and completion are reported via downloadProgress(),
 	 * downloadFinished(), and batchFinished() signals.
 	 */
@@ -235,10 +247,39 @@ signals:
 	                       const QString& sError );
 	void batchFinished( int nSuccessCount, int nFailCount );
 
+private slots:
+	/** Async chain entry: handles QNetworkReply::finished for the current
+	 * artifact, then advances the queue. */
+	void onAsyncReplyFinished();
+	/** Aborts the current async reply when the per-request timer fires. */
+	void onAsyncTimeout();
+	/** Receives QNetworkReply::downloadProgress for the current artifact and
+	 * emits OnlineImporter::downloadProgress scaled to the whole batch. */
+	void onAsyncBytesProgress( qint64 bytesReceived, qint64 bytesTotal );
+
 private:
 	bool m_bAborted;
 	/** Optional override paths for local status resolution (used in tests). */
 	QMap<int, QString> m_localSearchPaths;
+
+	// --- Async batch state (only valid while a batch is in progress) ---
+	QNetworkAccessManager* m_pAsyncNAM;
+	QNetworkReply* m_pAsyncReply;
+	QTimer* m_pAsyncTimeout;
+	QVector<OnlineArtifact> m_asyncQueue;
+	int m_nAsyncIndex;
+	int m_nAsyncSuccess;
+	int m_nAsyncFail;
+
+	/** Starts the next download in the async queue, or finishes the batch. */
+	void startNextAsyncDownload();
+	/** Emits batchFinished and pushes the completion event. */
+	void finishAsyncBatch();
+	/** Verifies hash, writes \a data to the target path, and installs drumkits.
+	 * Returns true on success; on failure writes a description into \a pError. */
+	bool installDownloadedArtifact( const OnlineArtifact& artifact,
+	                                const QByteArray& data,
+	                                QString* pError );
 
 	QString artifactToTargetPath( const OnlineArtifact& artifact, QString* pTargetDir ) const;
 

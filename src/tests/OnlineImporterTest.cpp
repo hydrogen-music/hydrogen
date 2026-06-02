@@ -370,11 +370,11 @@ void OnlineImporterTest::testDownloadArtifactsAbort() {
 	OnlineImporter importer;
 
 	// Verify that abort() is effective: calling abort() is intended to stop
-	// an in-progress batch. Since downloadArtifacts() resets the abort flag
-	// on entry (to allow reuse), we test that the batchFinished signal is
-	// always emitted regardless.  With an unreachable URL, the download will
-	// fail (not hang) and batchFinished will be emitted with the failure
-	// counted.
+	// an in-progress batch. Since downloadArtifactsAsync() resets the abort
+	// flag on entry (to allow reuse), we test that the batchFinished signal
+	// is always emitted regardless.  With an unreachable URL, the download
+	// will fail (not hang) and batchFinished will be emitted with the
+	// failure counted.
 	OnlineArtifact artifact;
 	artifact.type = OnlineArtifact::Type::Pattern;
 	artifact.sName = "abort_test_pattern";
@@ -398,6 +398,11 @@ void OnlineImporterTest::testDownloadArtifactsAbort() {
 	);
 
 	importer.downloadArtifactsAsync( artifacts );
+
+	// downloadArtifactsAsync is non-blocking — spin the local event loop
+	// until batchFinished arrives (or we time out). DNS failure for an
+	// unreachable host typically resolves within a couple of seconds.
+	CPPUNIT_ASSERT( batchSpy.wait( 30000 ) );
 
 	// batchFinished must have been emitted exactly once
 	CPPUNIT_ASSERT( batchSpy.count() == 1 );
