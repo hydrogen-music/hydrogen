@@ -1199,6 +1199,10 @@ void SoundLibraryTree::addNodes(
 	const QString& sBasePath
 )
 {
+	if ( infos.empty() ) {
+		return;
+	}
+
 	QString sIconPath( Skin::getSvgImagePath() );
 	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
@@ -1215,119 +1219,96 @@ void SoundLibraryTree::addNodes(
 	);
 	dirFont.setItalic( true );
 
-	// Let's be sure to write platform-independent code.
-	auto splitCleanly = []( const QString& sPath ) {
-		QString sCleanedPath( sPath );
-		sCleanedPath.replace( "\\", QDir::separator() );
-		sCleanedPath.replace( "/", QDir::separator() );
-		return sCleanedPath.split( QDir::separator() );
+	// Path used to place an artifact within the tree. For patterns and songs
+	// this is the artifact file itself. A drumkit, on the other hand, is
+	// identified by its `drumkit.xml` file but represented as the folder
+	// containing it (and all its samples). QFileInfo normalizes to absolute,
+	// '/'-separated paths regardless of the platform.
+	auto entityPath = [&]( const std::shared_ptr<SoundLibraryInfo>& pInfo ) {
+		if ( m_type == SoundLibraryInfo::Type::Drumkit ) {
+			return QFileInfo(
+					   Filesystem::drumkitDirFromPath( pInfo->getPath() )
+				   ).absoluteFilePath();
+		}
+		return QFileInfo( pInfo->getPath() ).absoluteFilePath();
 	};
 
-	QString sCurrentDir( sBasePath );
-	// Normalize: strip trailing separators to avoid double-separator issues
-	// when building recursive paths (e.g., "songs//My Songs").
-	while ( sCurrentDir.endsWith( QDir::separator() ) ) {
-		sCurrentDir.chop( 1 );
-	}
-	// During the initial call of this function we have to figure out the
-	// common demoniator of all supplied path as the root of this tree
-	// section.
-	if ( sBasePath.isEmpty() ) {
-		QString sCommonPart = infos[0]->getPath();
+	// Determine the base directory all artifacts are arranged beneath. Qt
+	// reports relative paths using '/' on every platform, so the resulting
+	// relative paths can be split on '/' safely.
+	QDir baseDir( sBasePath );
+	auto allWithin = [&]( const QDir& dir ) {
 		for ( const auto& ppInfo : infos ) {
-			while ( !ppInfo->getPath().contains( sCommonPart ) ) {
-				auto commonParts = splitCleanly( sCommonPart );
-				if ( commonParts.length() < 2 ) {
-					break;
-				}
+			const QString sRel = dir.relativeFilePath( entityPath( ppInfo ) );
+			if ( sRel.isEmpty() || sRel == QLatin1String( "." ) ||
+				 sRel == QLatin1String( ".." ) ||
+				 sRel.startsWith( QLatin1String( "../" ) ) ) {
+				return false;
+			}
+		}
+		return true;
+	};
+
+	if ( sBasePath.isEmpty() || !allWithin( baseDir ) ) {
+		// No (usable) base path was provided - e.g. for the session context.
+		// Derive it as the longest common ancestor directory of all artifacts.
+		// This also guards against a mismatch between the supplied base path
+		// and the actual artifact locations.
+		QStringList commonParts =
+			QFileInfo( entityPath( infos.front() ) ).absolutePath().split(
+				QLatin1Char( '/' ) );
+		for ( const auto& ppInfo : infos ) {
+			const QStringList parts =
+				QFileInfo( entityPath( ppInfo ) ).absolutePath().split(
+					QLatin1Char( '/' ) );
+			int nCommon = 0;
+			while ( nCommon < commonParts.size() && nCommon < parts.size() &&
+					commonParts.at( nCommon ) == parts.at( nCommon ) ) {
+				++nCommon;
+			}
+			while ( commonParts.size() > nCommon ) {
 				commonParts.removeLast();
-				sCommonPart = commonParts.join( QDir::separator() );
 			}
 		}
-		sCurrentDir = sCommonPart;
-	}
-	else {
-		// Verify that the provided base path actually prefixes all file paths
-		// at a path boundary. If not (e.g. mismatched data directories), fall
-		// back to computing the common denominator to avoid infinite recursion.
-		QString sPrefixCheck = sCurrentDir + QDir::separator();
-		bool bPrefixOk = true;
-		for ( const auto& ppInfo : infos ) {
-			if ( !ppInfo->getPath().startsWith( sPrefixCheck ) ) {
-				bPrefixOk = false;
-				break;
-			}
-		}
-		if ( !bPrefixOk ) {
-			QString sCommonPart = infos[0]->getPath();
-			for ( const auto& ppInfo : infos ) {
-				while ( !ppInfo->getPath().contains( sCommonPart ) ) {
-					auto commonParts = splitCleanly( sCommonPart );
-					if ( commonParts.length() < 2 ) {
-						break;
-					}
-					commonParts.removeLast();
-					sCommonPart = commonParts.join( QDir::separator() );
-				}
-			}
-			sCurrentDir = sCommonPart;
-		}
+		baseDir = QDir( commonParts.join( QLatin1Char( '/' ) ) );
 	}
 
-	// Split content into subfolders and files. We store them in maps using
-	// their path relative to the current folder to harness automatic
-	// alphanumeric ordering.
-	std::map<QString, std::vector<std::shared_ptr<SoundLibraryInfo>>> dirInfos;
-	std::map<QString, std::shared_ptr<SoundLibraryInfo>> fileInfos;
+	// Build an in-memory representation of the tree. Decomposing the relative
+	// path into its components is bounded by the (finite) path depth, which
+	// rules out infinite recursion by construction.
+	PathNode root;
 	for ( const auto& ppInfo : infos ) {
-		QString sPath = ppInfo->getPath();
-		// Strip sCurrentDir as a path prefix (not substring) to avoid
-		// removing occurrences that appear elsewhere in the path.
-		// Also handle the edge case where sCurrentDir exactly equals the
-		// file path (can happen in the fallback common-denominator path
-		// when there's only one file).
-		if ( sPath == sCurrentDir ) {
-			sPath.clear();
+		const QString sRel = baseDir.relativeFilePath( entityPath( ppInfo ) );
+		QStringList components = sRel.split( QLatin1Char( '/' ), Qt::SkipEmptyParts );
+		if ( components.isEmpty() || components.contains( QLatin1String( ".." ) ) ) {
+			// Artifact is not actually located beneath the base directory.
+			// This should not happen after the resolution above; place it at
+			// the top level using its own name as a last resort.
+			components =
+				QStringList{ QFileInfo( entityPath( ppInfo ) ).fileName() };
 		}
-		else {
-			QString sPrefixCheck = sCurrentDir + QDir::separator();
-			if ( sPath.startsWith( sPrefixCheck ) ) {
-				sPath.remove( 0, sPrefixCheck.length() );
-			}
+
+		// All but the last component denote (nested) folders; the last one is
+		// the artifact itself.
+		PathNode* pNode = &root;
+		for ( int ii = 0; ii < components.size() - 1; ++ii ) {
+			pNode = &pNode->folders[ components.at( ii ) ];
 		}
-		if ( sPath.startsWith( "/" ) || sPath.startsWith( "\\" ) ) {
-			sPath.remove( 0, 1 );
-		}
-		if ( sPath.contains( "/" ) || sPath.contains( "\\" ) ) {
-			auto ppathSplit = splitCleanly( sPath );
-			if ( ppathSplit.first().isEmpty() ) {
-				// We deal with an absolute path and the leading `/` causes the
-				// first element to be empty.
-				ppathSplit.removeFirst();
-			}
-			// The folder containing the drumkit files will be treated as
-			// the drumkit itself.
-			const int nMinLength =
-				m_type == SoundLibraryInfo::Type::Drumkit ? 2 : 1;
-			if ( ppathSplit.length() <= nMinLength ) {
-				fileInfos[sPath] = ppInfo;
-				continue;
-			}
-			const QString sFolderName = ppathSplit.first();
-			if ( dirInfos.find( sFolderName ) != dirInfos.end() ) {
-				dirInfos.at( sFolderName ).push_back( ppInfo );
-			}
-			else {
-				std::vector<std::shared_ptr<SoundLibraryInfo>> infos{ ppInfo };
-				dirInfos[sFolderName] = std::move( infos );
-			}
-		}
-		else {
-			fileInfos[sPath] = ppInfo;
-		}
+		pNode->leaves[ components.last() ] = ppInfo;
 	}
 
-	for ( const auto& [ssFolderName, iinfos] : dirInfos ) {
+	addPathNode( pParent, root, sIconPath, dirFont );
+}
+
+void SoundLibraryTree::addPathNode(
+	QTreeWidgetItem* pParent,
+	const PathNode& node,
+	const QString& sIconPath,
+	const QFont& dirFont
+)
+{
+	// Subfolders first, in alphabetical order (kept sorted by std::map).
+	for ( const auto& [ ssFolderName, childNode ] : node.folders ) {
 		auto pDirItem = new QTreeWidgetItem( pParent );
 		pDirItem->setText( 0, ssFolderName );
 		pDirItem->setFont( 0, dirFont );
@@ -1335,16 +1316,11 @@ void SoundLibraryTree::addNodes(
 		pDirItem->setToolTip( 0, ssFolderName );
 		pDirItem->setExpanded( false );
 		pDirItem->setFlags( pDirItem->flags() & ~Qt::ItemIsSelectable );
-		addNodes(
-			pDirItem, iinfos,
-			QString( "%1%2%3" )
-				.arg( sCurrentDir )
-				.arg( QDir::separator() )
-				.arg( ssFolderName )
-		);
+		addPathNode( pDirItem, childNode, sIconPath, dirFont );
 	}
 
-	for ( const auto& [ssPath, ppInfo] : fileInfos ) {
+	// Files afterwards, also in alphabetical order.
+	for ( const auto& [ ssLeafName, ppInfo ] : node.leaves ) {
 		auto pFileItem = new QTreeWidgetItem( pParent );
 		QString sDisplayLabel = ppInfo->getLabel();
 		if ( sDisplayLabel.isEmpty() ) {
