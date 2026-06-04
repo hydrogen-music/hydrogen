@@ -6,6 +6,29 @@ file(GLOB_RECURSE hydrogen_SOURCES *.cpp *.cc *.c)
 list(APPEND hydrogen_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 add_library( hydrogen-core-${VERSION} ${H2CORE_LIBRARY_TYPE} ${hydrogen_SOURCES})
+
+# Symbol visibility for the core library (see H2CORE_API in core/Globals.h).
+# QObject subclasses that emit signals (e.g. OnlineImporter) must be exported
+# from / imported into consumers, otherwise new-style QObject::connect() fails
+# at runtime on Windows with "signal not found" because the call-site signal
+# pointer (an import thunk) does not compare equal to the one in the
+# moc-generated metacall code inside the DLL.
+if(H2CORE_LIBRARY_TYPE STREQUAL "SHARED")
+    target_compile_definitions(hydrogen-core-${VERSION} PRIVATE BUILDING_H2CORE)
+    if(WIN32)
+        # MinGW disables its automatic export-all-symbols behaviour as soon as a
+        # single __declspec(dllexport) (i.e. H2CORE_API) is present. The rest of
+        # the core API relies on that auto-export, so request it back explicitly.
+        # See https://sourceware.org/binutils/docs/ld/WIN32.html
+        set_property(TARGET hydrogen-core-${VERSION} APPEND_STRING
+            PROPERTY LINK_FLAGS " -Wl,--export-all-symbols")
+    endif()
+else()
+    # Static build: export/import attributes must be no-ops. Propagate to
+    # every consumer of the core target.
+    target_compile_definitions(hydrogen-core-${VERSION} PUBLIC H2CORE_STATIC)
+endif()
+
 include_directories( include
     ${CMAKE_SOURCE_DIR}/src                     # regular headers
     ${CMAKE_SOURCE_DIR}/include                 # regular headers

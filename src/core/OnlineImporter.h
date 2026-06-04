@@ -131,7 +131,7 @@ struct OnlineIndex {
  *
  * \ingroup docCore
  */
-class OnlineImporter : public QObject, public H2Core::Object<OnlineImporter> {
+class H2CORE_API OnlineImporter : public QObject, public H2Core::Object<OnlineImporter> {
 	H2_OBJECT(OnlineImporter)
 	Q_OBJECT
 

@@ -22,10 +22,35 @@
 #ifndef H2C_GLOBALS_H
 #define H2C_GLOBALS_H
 
+#include <QtGlobal>
+
 /** \addtogroup docConfiguration
  * \addtogroup docCore
  * @{
  */
+
+/**
+ * Symbol visibility macro for the Hydrogen core library.
+ *
+ * When core is built as a shared library, classes used across the library
+ * boundary must be marked for export/import. This matters in particular for
+ * QObject subclasses that emit signals: the new-style (pointer-to-member)
+ * QObject::connect() resolves a signal by comparing the function pointer taken
+ * at the call site against the one baked into the moc-generated metacall code.
+ * On Windows those two pointers only compare equal when the class is properly
+ * dllexport'ed (in core) / dllimport'ed (in consumers); otherwise the call-site
+ * pointer is an import thunk and the comparison fails at runtime with
+ * "QObject::connect: signal not found". Q_DECL_EXPORT/Q_DECL_IMPORT are no-ops
+ * for a static build and resolve to visibility attributes on ELF platforms, so
+ * this is safe and correct on every supported toolchain (Qt >= 5.15).
+ */
+#if defined(H2CORE_STATIC)
+#  define H2CORE_API
+#elif defined(BUILDING_H2CORE)
+#  define H2CORE_API Q_DECL_EXPORT
+#else
+#  define H2CORE_API Q_DECL_IMPORT
+#endif
 
 namespace H2Core {
 
