@@ -120,9 +120,7 @@ MainToolBar::MainToolBar( QWidget* pParent )
 		pLine->setObjectName( "MainToolBarSeparator" );
 		pContainerLayout->addWidget( pLine );
 
-		addWidget( pContainer );
-
-		return pContainer;
+		return addWidget( pContainer );
 	};
 
 	auto createLearnableButton = [&]( const QString& sText, bool bCheckable ) {
