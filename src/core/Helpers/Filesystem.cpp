@@ -789,8 +789,6 @@ QStringList Filesystem::drumkit_list( const QString& path )
 	foreach ( const QString& dk, possible ) {
 		if ( drumkit_valid( path + dk ) ) {
 			ok << dk;
-		} else {
-			ERRORLOG( QString( "drumkit %1 is not usable" ).arg( dk ) );
 		}
 	}
 	return ok;
