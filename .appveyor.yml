@@ -49,9 +49,9 @@ environment:
       job_group: 'Linux'
       appveyor_build_worker_image: Ubuntu2204
 
-    - job_name: 'Ubuntu 18.04 (AppImage)'
+    - job_name: 'Ubuntu 20.04 (AppImage)'
       job_group: 'Linux (AppImage)'
-      appveyor_build_worker_image: Ubuntu
+      appveyor_build_worker_image: Ubuntu2004
 
     - job_name: 'OS X'
       job_group: 'Mac OS X'
@@ -133,7 +133,7 @@ for:
 
         sudo python3 ./treestate.py scan /usr usr.json
         sudo apt-get update
-        sudo apt-get install -y clang qt6-base-dev qt6-tools-dev qt6-l10n-tools qt6-tools-dev-tools libarchive-dev libsndfile1-dev libasound2-dev libqt6svg6-dev
+        sudo apt-get install -y clang qt6-base-dev qt6-tools-dev qt6-l10n-tools qt6-tools-dev-tools libarchive-dev libsndfile1-dev libasound2-dev libqt6svg6-dev libtool
         sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils libxml2-utils
 
         # Install a recent PortMidi version
@@ -251,7 +251,7 @@ for:
          exit 0
       fi
 
-      cache_tag=usr_cache_appimage_beaver # this can be modified to rebuild deps
+      cache_tag=usr_cache_appimage_qt6 # this can be modified to rebuild deps
 
       ## Since we use a different Linux image we, unfortunately, have
       ## to use a separate cache.
@@ -321,8 +321,11 @@ for:
 
       ls $HOME/Qt/
 
-      export PATH=$HOME/Qt/5.15.2/gcc_64/bin:$PATH
-      export Qt5Widgets_DIR=$HOME/Qt/5.15.2/gcc_64/lib/cmake/Qt5Widgets
+      export QT_DIR=${HOME}/Qt/5.15.2/gcc_64
+
+      ls ${QT_DIR}
+
+      export PATH=${QT_DIR}/bin:$PATH
       export CXXFLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
 
       CPUS=$(nproc)
@@ -330,6 +333,7 @@ for:
       mkdir build || exit 1
       cd build || exit 1
       cmake -DWANT_LRDF=1 \
+            -DWANT_QT6=0 \
             -DWANT_RUBBERBAND=1 \
             -DWANT_PORTMIDI=1 \
             -DWANT_PORTAUDIO=1 \
@@ -338,7 +342,7 @@ for:
             -DDISPLAY_VERSION_PIPELINE=${DISPLAY_VERSION} \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_INSTALL_PREFIX=/usr \
-            -DCMAKE_PREFIX_PATH=$HOME/Qt/5.15.2/gcc_64 .. || exit 1
+            -DCMAKE_PREFIX_PATH=${QT_DIR} .. || exit 1
       make -j $CPUS || exit 1
 
       ccache -s || exit 1
@@ -367,8 +371,8 @@ for:
       ## Add custom OpenSSL libraries. They are used as fallback by Qt
       ## and are only dl_opened in case no matching version was found
       ## on system level.
-      cp /usr/lib/x86_64-linux-gnu/libssl.so.3 AppDir/usr/lib || exit 1
-      cp /usr/lib/x86_64-linux-gnu/libcrypto.so.3 AppDir/usr/lib || exit 1
+      cp /usr/lib/x86_64-linux-gnu/libssl3.so AppDir/usr/lib || exit 1
+      cp /usr/lib/x86_64-linux-gnu/libcrypto.so AppDir/usr/lib || exit 1
 
       ## Copy the version compiled above to shadow the system library. Else
       ## `linuxdeploy` will ship the system one which is too old to support MP3,
@@ -377,7 +381,7 @@ for:
 
       find /usr -name "*libportmidi*"
       cp /usr/local/lib/libportmidi.so.2 AppDir/usr/lib || exit 1
-      LD_LIBRARY_PATH=AppDir/usr/lib/x86_64-linux-gnu/:AppDir/usr/lib:$HOME/Qt/5.15.2/gcc_64/lib ./linuxdeploy-x86_64.AppImage \
+      LD_LIBRARY_PATH=AppDir/usr/lib/x86_64-linux-gnu/:AppDir/usr/lib:${QT_DIR}/lib ./linuxdeploy-x86_64.AppImage \
         --appdir AppDir \
         --executable AppDir/usr/bin/hydrogen \
         --library AppDir/usr/lib/libsndfile.so.1 \
