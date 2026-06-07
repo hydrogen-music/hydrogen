@@ -508,7 +508,7 @@ bool Drumkit::saveSamples( const QString& sDrumkitFolder, bool bSilent ) const
 						insertPosition = original_dst.lastIndexOf( "." );
 					}
 
-					ppLayer->getSample()->setFileName( dst );
+					ppLayer->getSample()->setFilePath( dst );
 
 					if ( !Filesystem::fileCopy( src, dst, bSilent ) ) {
 						return false;
