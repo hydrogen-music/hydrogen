@@ -450,3 +450,56 @@ void DrumkitTest::testInstrumentMove()
 
 	___INFOLOG( "passed" );
 }
+
+void DrumkitTest::testSave()
+{
+	___INFOLOG( "" );
+
+	auto pSong = Song::getEmptySong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	auto pDrumkit = std::make_shared<Drumkit>(pSong->getDrumkit());
+	CPPUNIT_ASSERT( pDrumkit != nullptr );
+	CPPUNIT_ASSERT( pDrumkit->getInstruments()->size() > 0 );
+	CPPUNIT_ASSERT( pDrumkit->getName() == "GMRockKit" );
+    // Reassign copy to ensure it is properly saved to disk later on.
+    pSong->setDrumkit( pDrumkit );
+
+	// Emulate a downloaded kit
+	const QString sDownloadedDrumkitPath(
+		Filesystem::userDrumkitsDir() + "url/downloadedKit/drumkit.xml"
+	);
+	const QString sDownloadedDrumkitName( "downloadedKit" );
+	const QString sDownloadedDrumkitDir(
+		Filesystem::drumkitDirFromPath( sDownloadedDrumkitPath ) );
+	auto pDownloadedDrumkit = std::make_shared<Drumkit>( pDrumkit );
+	CPPUNIT_ASSERT( pDownloadedDrumkit != nullptr );
+	CPPUNIT_ASSERT( pDownloadedDrumkit->getInstruments()->size() > 0 );
+	pDownloadedDrumkit->setName( sDownloadedDrumkitName );
+	pDownloadedDrumkit->setPath( sDownloadedDrumkitPath );
+	CPPUNIT_ASSERT( pDownloadedDrumkit->save( sDownloadedDrumkitPath ) );
+	for ( const auto& ppInstrument : *pDownloadedDrumkit->getInstruments() ) {
+		if ( ppInstrument == nullptr ) {
+			continue;
+		}
+		CPPUNIT_ASSERT(
+			ppInstrument->getDrumkitPath() == sDownloadedDrumkitPath
+		);
+		CPPUNIT_ASSERT(
+			ppInstrument->getDrumkitName() == sDownloadedDrumkitName
+		);
+		for ( const auto& ppComponent : *ppInstrument ) {
+			if ( ppComponent == nullptr ) {
+				continue;
+			}
+			for ( const auto& ppLayer : *ppComponent ) {
+				if ( ppLayer == nullptr || ppLayer->getSample() == nullptr ) {
+					continue;
+				}
+				CPPUNIT_ASSERT( ppLayer->getSample()->getFilePath().contains( sDownloadedDrumkitDir ) );
+			}
+		}
+	}
+
+	___INFOLOG( "passed" );
+}
