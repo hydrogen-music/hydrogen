@@ -241,7 +241,7 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 		// Instead of making the *::loadFrom() functions more complex by
 		// passing the license down to each sample, we will make the
 		// drumkit assign its license to each sample in here.
-		pDrumkit->propagateLicense();
+		pDrumkit->propagateMetadata( sDrumkitPath );
 	}
 
 	// Sanity checks
@@ -409,7 +409,7 @@ bool Drumkit::save( const QString& sPath, bool bSilent )
 	// same license as the overall drumkit and are associated to
 	// it. (Not important for saving itself but for consistency and
 	// using the drumkit later on).
-	propagateLicense();
+	propagateMetadata( sDrumkitPath );
 
 	// Save drumkit.xml
 	XMLDoc doc;
@@ -679,12 +679,10 @@ void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument,
 	}
 }
 
-void Drumkit::propagateLicense(){
-
+void Drumkit::propagateMetadata( const QString& sPath ){
 	for ( const auto& ppInstrument : *m_pInstruments ) {
 		if ( ppInstrument != nullptr ) {
-
-			ppInstrument->setDrumkitPath( m_sPath );
+			ppInstrument->setDrumkitPath( sPath );
 			ppInstrument->setDrumkitName( m_sName );
 			for ( const auto& ppInstrumentComponent : *ppInstrument->getComponents() ) {
 				if ( ppInstrumentComponent != nullptr ) {
