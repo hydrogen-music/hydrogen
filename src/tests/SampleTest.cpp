@@ -71,7 +71,7 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 
 	// Import an instrument from another drumkit (installed)
 	const QString sAnotherDrumkitPath(
-		Filesystem::systemDrumkitsDir() + "/TR808EmulationKit/drumkit.xml"
+		Filesystem::systemDrumkitsDir() + "TR808EmulationKit/drumkit.xml"
 	);
 	auto pAnotherDrumkit =
 		std::make_shared<Drumkit>(Hydrogen::get_instance()->getSoundLibraryDatabase()->getDrumkit(
@@ -88,6 +88,31 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 	);
 
 	pDrumkit->addInstrument( pAnotherInstrument, -1 );
+	CPPUNIT_ASSERT( !pDrumkit->hasMissingSamples() );
+
+	// Emulate a downloaded kit
+	const QString sDownloadedDrumkitPath(
+		Filesystem::userDrumkitsDir() + "url/downloadedKit/drumkit.xml"
+	);
+	const QString sDownloadedDrumkitName( "downloadedKit" );
+	const QString sDownloadedDrumkitDir(
+		Filesystem::drumkitDirFromPath( sDownloadedDrumkitPath ) );
+	auto pDownloadedDrumkit = std::make_shared<Drumkit>( pAnotherDrumkit );
+	CPPUNIT_ASSERT( pDownloadedDrumkit != nullptr );
+	CPPUNIT_ASSERT( pDownloadedDrumkit->getInstruments()->size() > 0 );
+	pDownloadedDrumkit->setName( sDownloadedDrumkitName );
+	pDownloadedDrumkit->setPath( sDownloadedDrumkitPath );
+	CPPUNIT_ASSERT( pDownloadedDrumkit->save( sDownloadedDrumkitPath ) );
+
+	auto pDownloadedInstrument = pDownloadedDrumkit->getInstruments()->get( 0 );
+	CPPUNIT_ASSERT( pDownloadedInstrument != nullptr );
+	CPPUNIT_ASSERT( pDownloadedInstrument->getComponent( 0 ) != nullptr );
+	CPPUNIT_ASSERT(
+		pDownloadedInstrument->getComponent( 0 )->getLayer( 0 ) != nullptr
+	);
+	pDownloadedInstrument->setName( "downloadedInstrument" );
+
+	pDrumkit->addInstrument( pDownloadedInstrument, -1 );
 	CPPUNIT_ASSERT( !pDrumkit->hasMissingSamples() );
 
 	// Import an arbitrary sample.
@@ -138,12 +163,13 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 
 	const int nSampleNumber = pDrumkit->summarizeContent().size();
 
-	// Save the drumkit to disk and reload it. If everything worked, all samples
-	// can be reloaded.
+	// Save a copy of the drumkit to disk and reload it. If everything worked,
+	// all samples can be reloaded. Be sure to do this using a _copy_.
 	QTemporaryDir tmpDir( "storing-sample-test-kit" );
 	const QString sTmpDrumkitPath =
 		Filesystem::drumkitPathFromDir( tmpDir.path() );
-	pDrumkit->save( sTmpDrumkitPath, false );
+	auto pDrumkitCopy = std::make_shared<Drumkit>(pDrumkit);
+	pDrumkitCopy->save( sTmpDrumkitPath, false );
 
 	auto pDrumkitReloaded =
 		Drumkit::load( sTmpDrumkitPath, false, nullptr, false );
@@ -153,18 +179,31 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 		pDrumkitReloaded->summarizeContent().size() == nSampleNumber
 	);
 
-	// Now let's do the same for the overall song and load it back as the
-	// current drumkit.
+	// Now let's do the same for the song itself.
 	const QString sTmpSongPath =
 		Filesystem::tmpFilePath( "storing-samples-test-song" );
 	CPPUNIT_ASSERT( pSong->save( sTmpSongPath, false, false ) );
-
 	auto pSongReloaded = Song::load( sTmpSongPath, false );
 	CPPUNIT_ASSERT( pSongReloaded != nullptr );
-	CPPUNIT_ASSERT( pSongReloaded->getDrumkit() != nullptr );
-	CPPUNIT_ASSERT( !pSongReloaded->getDrumkit()->hasMissingSamples() );
+	auto pSongKitReloaded = pSongReloaded->getDrumkit();
+	CPPUNIT_ASSERT( pSongKitReloaded != nullptr );
+	CPPUNIT_ASSERT( !pSongKitReloaded->hasMissingSamples() );
 	CPPUNIT_ASSERT(
-		pSongReloaded->getDrumkit()->summarizeContent().size() == nSampleNumber
+		pSongKitReloaded->summarizeContent().size() == nSampleNumber
+	);
+	QStringList drumkitPaths;
+	for ( const auto& ppInstrument : *pSongKitReloaded->getInstruments() ) {
+		CPPUNIT_ASSERT( ppInstrument != nullptr );
+		if ( ! drumkitPaths.contains( ppInstrument->getDrumkitPath() ) ) {
+			drumkitPaths << ppInstrument->getDrumkitPath();
+		}
+	}
+	// 4? Because there is also the empty path for the "unregistered sample"
+	CPPUNIT_ASSERT( drumkitPaths.size() == 4 );
+
+	Filesystem::rm( sTmpSongPath, false, true );
+	Filesystem::rm(
+		Filesystem::drumkitDirFromPath( sDownloadedDrumkitPath ), true, true
 	);
 
 	___INFOLOG( "passed" );

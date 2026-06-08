@@ -143,13 +143,13 @@ class MainToolBar : public QToolBar,
 	BpmTap* m_pBpmTap;
 
 	QAction* m_pRubberBandAction;
-	QWidget* m_pRubberBandSeparator;
+	QAction* m_pRubberBandSeparator;
 
 	QAction* m_pJackTransportAction;
 	QAction* m_pJackTimebaseAction;
 	MidiLearnableToolButton* m_pJackTimebaseButton;
 	MidiControlDialog* m_pMidiControlDialog;
-	QWidget* m_pJackSeparator;
+	QAction* m_pJackSeparator;
 
 	MidiControlButton* m_pMidiControlButton;
 

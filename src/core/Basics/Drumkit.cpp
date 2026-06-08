@@ -241,7 +241,7 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 		// Instead of making the *::loadFrom() functions more complex by
 		// passing the license down to each sample, we will make the
 		// drumkit assign its license to each sample in here.
-		pDrumkit->propagateLicense();
+		pDrumkit->propagateMetadata( sDrumkitPath );
 	}
 
 	// Sanity checks
@@ -409,7 +409,7 @@ bool Drumkit::save( const QString& sPath, bool bSilent )
 	// same license as the overall drumkit and are associated to
 	// it. (Not important for saving itself but for consistency and
 	// using the drumkit later on).
-	propagateLicense();
+	propagateMetadata( sDrumkitPath );
 
 	// Save drumkit.xml
 	XMLDoc doc;
@@ -493,26 +493,18 @@ bool Drumkit::saveSamples( const QString& sDrumkitFolder, bool bSilent ) const
 				if ( ppLayer == nullptr || ppLayer->getSample() == nullptr ) {
 					continue;
 				}
-				const QString src = ppLayer->getSample()->getFilePath();
-				const QString dst =
+				const QString sSource = ppLayer->getSample()->getFilePath();
+				const QString sDestination =
 					sDrumkitFolder + "/" + ppLayer->getSample()->getFileName();
 
-				if ( src != dst ) {
-					QString original_dst = dst;
-
-					// If the destination path does not have an extension and
-					// there is a dot in the path, hell will break loose.
-					// QFileInfo maybe?
-					int insertPosition = original_dst.length();
-					if ( original_dst.lastIndexOf( "." ) > 0 ) {
-						insertPosition = original_dst.lastIndexOf( "." );
-					}
-
-					ppLayer->getSample()->setFileName( dst );
-
-					if ( !Filesystem::fileCopy( src, dst, bSilent ) ) {
+				if ( sSource != sDestination ) {
+					if ( !Filesystem::fileCopy(
+							 sSource, sDestination, /*bOverwrite*/ true, bSilent
+						 ) ) {
 						return false;
 					}
+
+					ppLayer->getSample()->setFilePath( sDestination );
 				}
 			}
 		}
@@ -679,12 +671,10 @@ void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument,
 	}
 }
 
-void Drumkit::propagateLicense(){
-
+void Drumkit::propagateMetadata( const QString& sPath ){
 	for ( const auto& ppInstrument : *m_pInstruments ) {
 		if ( ppInstrument != nullptr ) {
-
-			ppInstrument->setDrumkitPath( m_sPath );
+			ppInstrument->setDrumkitPath( sPath );
 			ppInstrument->setDrumkitName( m_sName );
 			for ( const auto& ppInstrumentComponent : *ppInstrument->getComponents() ) {
 				if ( ppInstrumentComponent != nullptr ) {

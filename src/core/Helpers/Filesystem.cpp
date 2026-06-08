@@ -1052,47 +1052,22 @@ QString Filesystem::prepareSamplePath(
 	const QString& sDrumkitPath
 )
 {
-	// Check whether the provided absolute sample path is located within a known
-	// drumkit directory.
-	int nIndexMatch = -1;
-	const QStringList drumkitFolders =
-		Hydrogen::get_instance()->getSoundLibraryDatabase()->getDrumkitFolders(
-		);
-
-	QString sSamplePathCleaned( sSamplePath );
-	QString sDrumkitDirCleaned = Filesystem::drumkitDirFromPath( sDrumkitPath );
-#ifdef WIN32
-	// Qt uses posix separators `/` internally but things can easily mix up
-	// (maybe due to our code) and we end up with something like
-	// C:\projects\hydrogen/data/\drumkits/GMRockKit/Kick-Softest.wav .
-	// We have to ensure to work on a single separator.
-	sSamplePathCleaned = QString( sSamplePathCleaned ).replace( "\\", "/" );
-	sDrumkitDirCleaned = QString( sDrumkitDirCleaned ).replace( "\\", "/" );
-#endif
-
-	// When composing paths by combining different elements, two file separators
-	// can be used in a row. This is no problem in file access itself but would
-	// mess up our index-based approach in here.
-	sSamplePathCleaned = QString( sSamplePathCleaned ).replace( "//", "/" );
-	sDrumkitDirCleaned = QString( sDrumkitDirCleaned ).replace( "//", "/" );
+	// Normalize paths using QFileInfo. This way we neither have to deal with
+	// duplicated separators nor with platform-dependent quirks.
+	const QString sSamplePathCleaned =
+		QFileInfo( sSamplePath ).absoluteFilePath();
+	const QString sDrumkitDirCleaned =
+		QFileInfo( Filesystem::drumkitDirFromPath( sDrumkitPath ) )
+			.absoluteFilePath();
 
 	// When storing just the file name, the sample will be loaded by
 	// concatenating the drumkit sPath associated with an instrument and the
 	// sample file name. Thus, we have to make sure to just string paths belong
 	// to that very drumkit.
 	if ( sSamplePathCleaned.startsWith( sDrumkitDirCleaned ) ) {
-		for ( const auto& ssFolder : drumkitFolders ) {
-			if ( sSamplePathCleaned.startsWith( ssFolder ) ) {
-				nIndexMatch =
-					sSamplePathCleaned.indexOf( "/", ssFolder.size() ) + 1;
-				break;
-			}
-		}
-	}
-
-	if ( nIndexMatch >= 0 ) {
-		// Sample is located in a drumkit folder. Just return basename.
-		QString sShortenedPath =
+		const int nIndexMatch =
+			sSamplePathCleaned.indexOf( "/", sDrumkitDirCleaned.size() ) + 1;
+		const QString sShortenedPath =
 			sSamplePathCleaned.right( sSamplePathCleaned.size() - nIndexMatch );
 
 		return std::move( sShortenedPath );

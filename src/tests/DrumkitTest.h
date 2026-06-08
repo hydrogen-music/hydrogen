@@ -32,6 +32,7 @@ class DrumkitTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testIsValidIndex );
 	CPPUNIT_TEST( testLayerHandling );
 	CPPUNIT_TEST( testInstrumentMove );
+	CPPUNIT_TEST( testSave );
 	CPPUNIT_TEST_SUITE_END();
 
    public:
@@ -40,6 +41,7 @@ class DrumkitTest : public CppUnit::TestCase {
 	void testIsValidIndex();
 	void testLayerHandling();
 	void testInstrumentMove();
+	void testSave();
 };
 
 #endif

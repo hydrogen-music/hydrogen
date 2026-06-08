@@ -387,10 +387,10 @@ class Drumkit : public H2Core::Object<Drumkit>
 		void upgrade( bool bSilent = false );
 
 	/**
-	 * Assign the license stored in #m_license to all samples
-	 * contained in the kit.
+	 * Assign #m_license, #m_sPath, and #m_sName to all samples contained in the
+	 * kit.
 	 */
-	void propagateLicense();
+	void propagateMetadata( const QString& sPath );
 
 		/** Used to indicate changes in the underlying XSD file. */
 		static constexpr int nCurrentFormatVersion = 2;
