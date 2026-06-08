@@ -493,26 +493,18 @@ bool Drumkit::saveSamples( const QString& sDrumkitFolder, bool bSilent ) const
 				if ( ppLayer == nullptr || ppLayer->getSample() == nullptr ) {
 					continue;
 				}
-				const QString src = ppLayer->getSample()->getFilePath();
-				const QString dst =
+				const QString sSource = ppLayer->getSample()->getFilePath();
+				const QString sDestination =
 					sDrumkitFolder + "/" + ppLayer->getSample()->getFileName();
 
-				if ( src != dst ) {
-					QString original_dst = dst;
-
-					// If the destination path does not have an extension and
-					// there is a dot in the path, hell will break loose.
-					// QFileInfo maybe?
-					int insertPosition = original_dst.length();
-					if ( original_dst.lastIndexOf( "." ) > 0 ) {
-						insertPosition = original_dst.lastIndexOf( "." );
-					}
-
-					ppLayer->getSample()->setFilePath( dst );
-
-					if ( !Filesystem::fileCopy( src, dst, bSilent ) ) {
+				if ( sSource != sDestination ) {
+					if ( !Filesystem::fileCopy(
+							 sSource, sDestination, /*bOverwrite*/ true, bSilent
+						 ) ) {
 						return false;
 					}
+
+					ppLayer->getSample()->setFilePath( sDestination );
 				}
 			}
 		}
