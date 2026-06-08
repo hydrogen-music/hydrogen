@@ -94,6 +94,9 @@ bool PatternInfo::load( const QString& sPath )
 				m_tags << sCategory;
 			}
 		}
+		m_nVersion = patternNode.read_int(
+			"userVersion", 0, false, false, true
+		);
 	}
 	else {
 		ERRORLOG(

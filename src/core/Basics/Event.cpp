@@ -32,6 +32,8 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "ActionModeChanged";
 	case Event::Type::AudioDriverChanged:
 		return "AudioDriverChanged";
+	case Event::Type::AudioExportProgress:
+		return "AudioExportProgress";
 	case Event::Type::BbtChanged:
 		return "BbtChanged";
 	case Event::Type::BeatCounter:
@@ -78,6 +80,8 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "NextShot";
 	case Event::Type::NoteRender:
 		return "NoteRender";
+	case Event::Type::OnlineImportProgress:
+		return "OnlineImportProgress";
 	case Event::Type::PatternChanged:
 		return "PatternChanged";
 	case Event::Type::PatternEditorLocked:
@@ -92,8 +96,6 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "PlaylistChanged";
 	case Event::Type::PlaylistLoadSong:
 		return "PlaylistLoadSong";
-	case Event::Type::Progress:
-		return "Progress";
 	case Event::Type::Quit:
 		return "Quit";
 	case Event::Type::RecordModeChanged:

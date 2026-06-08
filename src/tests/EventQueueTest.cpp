@@ -58,12 +58,12 @@ void EventQueueTest::testPushPop() {
 	// and then do it again.
 	for ( int pass = 0; pass < 2; pass++) {
 		for ( int i = 0; i < EventQueue::nMaxEvents; i++ ) {
-			pEventQueue->pushEvent( Event::Type::Progress, i );
+			pEventQueue->pushEvent( Event::Type::AudioExportProgress, i );
 		}
 		for ( int i = 0; i < EventQueue::nMaxEvents; i++ ) {
 			pEvent = pEventQueue->popEvent();
 			CPPUNIT_ASSERT( pEvent != nullptr );
-			CPPUNIT_ASSERT( pEvent->getType() == Event::Type::Progress &&
+			CPPUNIT_ASSERT( pEvent->getType() == Event::Type::AudioExportProgress &&
 							pEvent->getValue() == i );
 		}
 
@@ -81,14 +81,14 @@ void EventQueueTest::testOverflow() {
 
 	// Overfill queue
 	for ( int i = 0; i < EventQueue::nMaxEvents + 100; i++) {
-		pEventQueue->pushEvent( Event::Type::Progress, i );
+		pEventQueue->pushEvent( Event::Type::AudioExportProgress, i );
 	}
 	// Check that the queue contains the most recent EventQueue::nMaxEvents
 	// events
 	for ( int i = 0; i < EventQueue::nMaxEvents; i++) {
 		pEvent = pEventQueue->popEvent();
 		CPPUNIT_ASSERT( pEvent != nullptr );
-		CPPUNIT_ASSERT( pEvent->getType() == Event::Type::Progress &&
+		CPPUNIT_ASSERT( pEvent->getType() == Event::Type::AudioExportProgress &&
 						pEvent->getValue() == i + 100);
 	}
 	pEvent = pEventQueue->popEvent();
@@ -153,7 +153,7 @@ void EventQueueTest::testEventDrop() {
 	const int nEvents = 20;
 	for ( int ii = 0; ii < nEvents; ii++ ) {
 		if ( ii % 2 == 0 ) {
-			pEventQueue->pushEvent( Event::Type::Progress, ii );
+			pEventQueue->pushEvent( Event::Type::AudioExportProgress, ii );
 		}
 		else {
 			pEventQueue->pushEvent( Event::Type::TempoChanged, ii );
@@ -164,7 +164,7 @@ void EventQueueTest::testEventDrop() {
 
 	for ( int ii = 0; ii < nEvents / 2; ii++) {
 		pEvent = pEventQueue->popEvent();
-		CPPUNIT_ASSERT( pEvent->getType() == Event::Type::Progress );
+		CPPUNIT_ASSERT( pEvent->getType() == Event::Type::AudioExportProgress );
 	}
 
 	pEvent = pEventQueue->popEvent();

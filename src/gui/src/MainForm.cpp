@@ -53,24 +53,24 @@
 #include "AudioEngineInfoForm.h"
 #include "CommonStrings.h"
 #include "Director.h"
+#include "DrumkitPropertiesDialog.h"
 #include "ExportMidiDialog.h"
 #include "ExportSongDialog.h"
 #include "HydrogenApp.h"
-#include "Rack/ComponentEditor/ComponentEditor.h"
-#include "Rack/Rack.h"
 #include "LadspaFXProperties.h"
+#include "MainToolBar/MainToolBar.h"
 #include "Mixer/Mixer.h"
+#include "OnlineImportDialog/OnlineImportDialog.h"
 #include "PatternEditor/PatternEditorPanel.h"
 #include "PatternPropertiesDialog.h"
 #include "PlaylistEditor/PlaylistEditor.h"
-#include "MainToolBar/MainToolBar.h"
+#include "Rack/ComponentEditor/ComponentEditor.h"
+#include "Rack/Rack.h"
+#include "Rack/SoundLibrary/DrumkitOpenDialog.h"
 #include "Skin.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
 #include "SongPropertiesDialog.h"
-#include "Rack/SoundLibrary/SoundLibraryOnlineImportDialog.h"
-#include "Rack/SoundLibrary/DrumkitOpenDialog.h"
-#include "DrumkitPropertiesDialog.h"
 #include "UndoActions.h"
 #include "Widgets/FileDialog.h"
 #include "Widgets/InfoBar.h"
@@ -426,6 +426,11 @@ void MainForm::createMenuBar()
 		tr( "&Duplicate" ), this, SLOT( action_pattern_duplicate() ) );
 	// pActionDuplicatePattern->setShortcut(
 	// 	pShortcuts->getKeySequence( Shortcuts::Action::DuplicatePattern ) );
+
+	m_pPatternMenu->addSeparator();				// -----
+
+	m_pPatternMenu->addAction(
+		tr( "On&line Import" ), this, SLOT( action_pattern_onlineImport() ) );
 
 	// DRUMKITS MENU
 	m_pDrumkitMenu = pMenubar->addMenu( tr( "Drum&kit" ) );
@@ -1975,7 +1980,13 @@ void MainForm::loadDrumkit( const QString& sFileName, bool bLoad ) {
 
 void MainForm::action_drumkit_onlineImport()
 {
-	SoundLibraryOnlineImportDialog dialog( this );
+	OnlineImportDialog dialog( this, H2Core::OnlineArtifact::Type::Drumkit );
+	dialog.exec();
+}
+
+void MainForm::action_pattern_onlineImport()
+{
+	OnlineImportDialog dialog( this, H2Core::OnlineArtifact::Type::Pattern );
 	dialog.exec();
 }
 

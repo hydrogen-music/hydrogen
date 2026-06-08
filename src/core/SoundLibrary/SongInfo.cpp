@@ -65,6 +65,7 @@ bool SongInfo::load( const QString& sPath )
 			}
 			m_tags = tags;
 		}
+		m_nVersion = rootNode.read_int( "userVersion", 0, false, false, true );
 	}
 	else {
 		ERRORLOG(

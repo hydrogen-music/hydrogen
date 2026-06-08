@@ -81,6 +81,7 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo> {
 	 const QStringList& getTags() const { return m_tags; }
 	 const QString& getLabel() const { return m_sLabel; }
 	 void setLabel( const QString& sLabel ) { m_sLabel = sLabel; }
+	 int getVersion() const { return m_nVersion; }
 
 	 /** Formatted string version for debugging purposes.
 	  * \param sPrefix String prefix which will be added in front of
@@ -111,6 +112,9 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo> {
 	 QString m_sLabel;
 
 	 Filesystem::Context m_context;
+	 /** User-set revision number for the artifact.  Zero indicates no
+	  * version was set or the file predates versioning support. */
+	 int m_nVersion;
 };
 };	// namespace H2Core
 

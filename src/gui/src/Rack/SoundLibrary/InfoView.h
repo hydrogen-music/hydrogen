@@ -60,6 +60,7 @@ class InfoView : public QWidget,
 	QLabel* m_pLicenseLabel;
 	QLabel* m_pPathLabel;
 	QLabel* m_pTagsLabel;
+	QLabel* m_pVersionLabel;
 
 	QLabel* m_pNameText;
 	QLabel* m_pAuthorText;
@@ -67,6 +68,7 @@ class InfoView : public QWidget,
 	QLabel* m_pLicenseText;
 	QLabel* m_pPathText;
 	QLabel* m_pTagsText;
+	QLabel* m_pVersionText;
 
 	QMenu* m_pMenu;
 

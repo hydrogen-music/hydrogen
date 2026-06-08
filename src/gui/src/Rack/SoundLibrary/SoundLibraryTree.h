@@ -23,6 +23,7 @@
 #ifndef SOUND_LIBRARY_TREE_H
 #define SOUND_LIBRARY_TREE_H
 
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -81,14 +82,36 @@ class SoundLibraryTree : public QTreeWidget,
 	) const override;
 
    private:
+	/** Intermediate, filesystem-backed representation of the artifact tree
+	 * built in addNodes(). Each node holds its child folders and the artifacts
+	 * (leaves) located directly within it. Using std::map keeps both sorted
+	 * alphabetically, which is the order they are inserted into the tree. */
+	struct PathNode {
+		std::map<QString, PathNode> folders;
+		std::map<QString, std::shared_ptr<H2Core::SoundLibraryInfo>> leaves;
+	};
+
 	/** Items in the tree are arranged alpha-numerically with subfolders shown
-	 * first followed by files within the folder. This function will be called
-	 * recursively in order to account for nested folders in the user data
-	 * directory. */
+	 * first followed by files within the folder.
+	 *
+	 * All artifact paths are interpreted using Qt's filesystem abstraction
+	 * (QDir/QFileInfo), which uses '/' as separator on all platforms. Each
+	 * artifact is placed relative to @a sBasePath; artifacts contained in
+	 * subfolders of arbitrary depth get dedicated folder nodes created for
+	 * them. */
 	void addNodes(
 		QTreeWidgetItem* pParent,
 		std::vector<std::shared_ptr<H2Core::SoundLibraryInfo>> infos,
 		const QString& sBasePath
+	);
+	/** Recursively emits @a node and all its children as QTreeWidgetItems
+	 * below @a pParent. Recursion is bounded by the (finite) depth of the
+	 * already-built @a node, so it can not recurse indefinitely. */
+	void addPathNode(
+		QTreeWidgetItem* pParent,
+		const PathNode& node,
+		const QString& sIconPath,
+		const QFont& dirFont
 	);
 	void recursivelyUpdateFont( QTreeWidgetItem* pItem );
 

@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- New online import dialog with table view, search filtering, multi-select, and
+  per-artifact metadata display. Replaces the legacy online import dialog.
 - PortMidi driver does open a input/output port which can be discovered and
   connected to by other applications when port was set to "None" in the
   Preferences (not supported on Windows).
@@ -55,6 +57,9 @@ All notable changes to this project will be documented in this file.
   files as well.
 - CLI options:
   - `kitToDrumkitMap`: to extract a .h2map file from a drumkit.
+  - `--online-import <url>`: to download all artifacts from an online index.
+  - `--online-import-type <type>`:  to filter by `pattern`, `song`, `drumkit`,
+	or `all`.
 - Patterns are now independent of Drumkits and the latter can switched without
   the need to adjust the patterns. Mapping between the two will be done using
   "instrument types".

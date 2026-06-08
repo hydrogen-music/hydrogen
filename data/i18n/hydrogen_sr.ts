@@ -971,7 +971,9 @@ Shown in table headers when referring to a license of an object.</extracomment>
     </message>
     <message>
         <source>Notes</source>
-        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to * fill in notes about the particular artifact.</extracomment>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to * fill in notes about the particular artifact.
+----------
+Label for the number of musical notes contained in a pattern, * shown in the Online Import detail panel. Not to be confused * with the &apos;Notes&apos; label for text annotations in property * dialogs.</extracomment>
         <translation>Примедбе:</translation>
     </message>
     <message>
@@ -1609,6 +1611,121 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Size</source>
+        <extracomment>Table header shown in the Online Import dialog for the file * size column.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <extracomment>Table header shown in the Online Import dialog for the * installation status column.</extracomment>
+        <translation>Статус</translation>
+    </message>
+    <message>
+        <source>Installed</source>
+        <extracomment>Status label shown in the Online Import dialog for artifacts * already installed locally.</extracomment>
+        <translation>Инсталирано</translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <extracomment>Status label shown in the Online Import dialog for artifacts * that have been locally modified since installation.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Update</source>
+        <extracomment>Status label shown in the Online Import dialog when a newer * version of an installed artifact is available online.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search...</source>
+        <extracomment>Placeholder text shown in search input fields.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sources</source>
+        <extracomment>Label for the source repository filter button in the Online * Import dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <extracomment>Title of the detail panel group box in the Online Import * dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <extracomment>Text displayed on a Close button of a dialog.</extracomment>
+        <translation>Затвори</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <extracomment>Text displayed on a Download button in the Online Import * dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Download (%1)</source>
+        <extracomment>Text displayed on the Download button in the Online Import * dialog when one or more items are selected. %1 is the number * of selected items.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Download Error</source>
+        <extracomment>Title of the error dialog shown when one or more downloads * fail in the Online Import dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>One or more downloads failed.</source>
+        <extracomment>Message shown in the error dialog when one or more downloads * fail in the Online Import dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <extracomment>Label for the format version field in the Online Import * detail panel.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <extracomment>Label for the hash value field in the Online Import detail * panel.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instruments</source>
+        <extracomment>Label for the instrument count shown in the Online Import * detail panel for drumkits and patterns.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Components</source>
+        <extracomment>Label for the component count shown in the Online Import * detail panel for drumkits.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samples</source>
+        <extracomment>Label for the sample count shown in the Online Import detail * panel for drumkits.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <extracomment>Label for the description field in the Online Import detail * panel.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manage Sources</source>
+        <extracomment>Window title of the dialog for managing online import sources.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Check All</source>
+        <extracomment>Button label in the sources dialog to check the connectivity * status of all sources.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid URL</source>
+        <extracomment>Title of the warning dialog shown when a source URL is invalid.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The entered URL is not valid.</source>
+        <extracomment>Message shown when a source URL is invalid.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -1684,20 +1801,6 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Dialog</source>
         <translation>Прозорче</translation>
-    </message>
-</context>
-<context>
-    <name>Download</name>
-    <message>
-        <source>Importing item failed: %1</source>
-        <translation>Није успео увоз ставке: %1</translation>
-    </message>
-</context>
-<context>
-    <name>DownloadWidget</name>
-    <message>
-        <source>(%1/%2 KiB) - ETA %3</source>
-        <translation>(%1/%2 КиБ) — још %3</translation>
     </message>
 </context>
 <context>
@@ -5809,146 +5912,6 @@ Are you sure?</source>
     <message>
         <source>Export song from Session</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryOnlineImportDialog</name>
-    <message>
-        <source>Sound Library import</source>
-        <translation>Увоз гарнитура бубњева</translation>
-    </message>
-    <message>
-        <source>Sound library</source>
-        <translation>Бубњеви</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>Статус</translation>
-    </message>
-    <message>
-        <source>Updating SoundLibrary list...</source>
-        <translation>Освежавам списак гарнитура бубњева...</translation>
-    </message>
-    <message>
-        <source>Installed</source>
-        <translation>Инсталирано</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation>Аутор: %1</translation>
-    </message>
-    <message>
-        <source>Drumkit License: %1</source>
-        <translation>Лиценца за бубњеве: %1</translation>
-    </message>
-    <message>
-        <source>Image License: %1</source>
-        <translation>Лиценца за слику: %1</translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation>Преузимам гарнитуру бубњева...</translation>
-    </message>
-    <message>
-        <source>Drumkits
-
-- %1
-
-imported into %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Download failed for</source>
-        <extracomment>Shown in a dialog in case a download of an online resource did fail. * A list of names does follow in a new line.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryOnlineImportDialog_UI</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Прозорче</translation>
-    </message>
-    <message>
-        <source>Update list</source>
-        <translation>Обнови списак</translation>
-    </message>
-    <message>
-        <source>Edit server list</source>
-        <translation>Уреди списак сервера</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation>1</translation>
-    </message>
-    <message>
-        <source>Sound Library Name</source>
-        <translation>Назив бубњева</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation>СловнаОзнака</translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Аутор...</translation>
-    </message>
-    <message>
-        <source>Drumkit License...</source>
-        <translation>Лиценца за бубњеве...</translation>
-    </message>
-    <message>
-        <source>Image License...</source>
-        <translation>Лиценца за слику...</translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Преузми и постави</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Затвори</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryPanel</name>
-    <message>
-        <source>Search...</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryRepositoryDialog</name>
-    <message>
-        <source>Edit server list</source>
-        <translation>Уреди списак сервера</translation>
-    </message>
-    <message>
-        <source>Edit repository settings</source>
-        <translation>Уреди подешавања складишта</translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>Адреса</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryRepositoryDialog_UI</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Прозорче</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Обриши</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Додај</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Затвори</translation>
     </message>
 </context>
 <context>

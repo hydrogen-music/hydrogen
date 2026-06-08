@@ -935,6 +935,77 @@ CommonStrings::CommonStrings(){
 	m_sOptionAlways = tr( "Always" );
 	/*: Presented as an option to never e.g. perform an action. */
 	m_sOptionNever = tr( "Never" );
+
+	/*: Table header shown in the Online Import dialog for the file
+	 *  size column. */
+	m_sSizeLabel = tr( "Size" );
+	/*: Table header shown in the Online Import dialog for the
+	 *  installation status column. */
+	m_sStatusLabel = tr( "Status" );
+	/*: Status label shown in the Online Import dialog for artifacts
+	 *  already installed locally. */
+	m_sOnlineInstalledStatus = tr( "Installed" );
+	/*: Status label shown in the Online Import dialog for artifacts
+	 *  that have been locally modified since installation. */
+	m_sOnlineModifiedStatus = tr( "Modified" );
+	/*: Status label shown in the Online Import dialog when a newer
+	 *  version of an installed artifact is available online. */
+	m_sOnlineUpdateStatus = tr( "Update" );
+	/*: Placeholder text shown in search input fields. */
+	m_sSearchPlaceholder = tr( "Search..." );
+	/*: Label for the source repository filter button in the Online
+	 *  Import dialog. */
+	m_sSourcesLabel = tr( "Sources" );
+	/*: Window title of the dialog for managing online import sources. */
+	m_sManageSourcesTitle = tr( "Manage Sources" );
+	/*: Button label in the sources dialog to check the connectivity
+	 *  status of all sources. */
+	m_sCheckSourcesButton = tr( "Check All" );
+	/*: Title of the warning dialog shown when a source URL is invalid. */
+	m_sInvalidUrl = tr( "Invalid URL" );
+	/*: Message shown when a source URL is invalid. */
+	m_sInvalidUrlMessage = tr( "The entered URL is not valid." );
+	/*: Title of the detail panel group box in the Online Import
+	 *  dialog. */
+	m_sDetailsLabel = tr( "Details" );
+	/*: Text displayed on a Close button of a dialog. */
+	m_sButtonClose = tr( "Close" );
+	/*: Text displayed on a Download button in the Online Import
+	 *  dialog. */
+	m_sButtonDownload = tr( "Download" );
+	/*: Text displayed on the Download button in the Online Import
+	 *  dialog when one or more items are selected. %1 is the number
+	 *  of selected items. */
+	m_sButtonDownloadN = tr( "Download (%1)" );
+	/*: Title of the error dialog shown when one or more downloads
+	 *  fail in the Online Import dialog. */
+	m_sDownloadError = tr( "Download Error" );
+	/*: Message shown in the error dialog when one or more downloads
+	 *  fail in the Online Import dialog. */
+	m_sDownloadFailed = tr( "One or more downloads failed." );
+	/*: Label for the format version field in the Online Import
+	 *  detail panel. */
+	m_sFormatLabel = tr( "Format" );
+	/*: Label for the hash value field in the Online Import detail
+	 *  panel. */
+	m_sHashLabel = tr( "Hash" );
+	/*: Label for the instrument count shown in the Online Import
+	 *  detail panel for drumkits and patterns. */
+	m_sInstrumentsLabel = tr( "Instruments" );
+	/*: Label for the component count shown in the Online Import
+	 *  detail panel for drumkits. */
+	m_sComponentsLabel = tr( "Components" );
+	/*: Label for the sample count shown in the Online Import detail
+	 *  panel for drumkits. */
+	m_sSamplesLabel = tr( "Samples" );
+	/*: Label for the description field in the Online Import detail
+	 *  panel. */
+	m_sDescriptionLabel = tr( "Description" );
+	/*: Label for the number of musical notes contained in a pattern,
+	 *  shown in the Online Import detail panel. Not to be confused
+	 *  with the 'Notes' label for text annotations in property
+	 *  dialogs. */
+	m_sNoteCountLabel = tr( "Notes" );
 }
 
 CommonStrings::~CommonStrings(){}

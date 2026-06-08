@@ -239,8 +239,6 @@ class Preferences : public H2Core::Object<Preferences> {
 	int m_nBeatCounterDriftCompensation;
 	int m_nBeatCounterStartOffset;
 
-	QStringList m_serverList;
-
 	//___ audio engine properties ___
 	AudioDriver m_audioDriver;
 	/** If set to true, samples of the metronome will be added to
@@ -396,6 +394,9 @@ class Preferences : public H2Core::Object<Preferences> {
 
 	const QStringList& getCustomSoundLibraryDirs() const;
 	void setCustomSoundLibraryDirs( const QStringList& folders );
+
+	const QStringList& getOnlineRepos() const;
+	void setOnlineRepos( const QStringList& repos );
 
 	bool getHearNewNotes() const;
 	void setHearNewNotes( bool value );
@@ -559,6 +560,8 @@ class Preferences : public H2Core::Object<Preferences> {
 	void setSoundLibraryShowPath( bool bShow );
 	bool getSoundLibraryShowTags() const;
 	void setSoundLibraryShowTags( bool bShow );
+	bool getSoundLibraryShowVersion() const;
+	void setSoundLibraryShowVersion( bool bShow );
 	int getSoundLibraryLastTab() const;
 	void setSoundLibraryLastTab( int nTab );
 	int getRackLastTab() const;
@@ -621,6 +624,7 @@ class Preferences : public H2Core::Object<Preferences> {
 	QString m_sLastPlaylistPath;
 
 	QStringList m_customSoundLibraryDirs;
+	QStringList m_onlineRepos;
 
 	bool m_bHearNewNotes;
 	int m_nPunchInPos;
@@ -726,6 +730,7 @@ class Preferences : public H2Core::Object<Preferences> {
 	bool m_bSoundLibraryShowLicense;
 	bool m_bSoundLibraryShowPath;
 	bool m_bSoundLibraryShowTags;
+	bool m_bSoundLibraryShowVersion;
 	int m_nSoundLibraryLastTab;
 	int m_nRackLastTab;
 
@@ -942,6 +947,14 @@ inline void Preferences::setSoundLibraryShowTags( bool bShow )
 {
 	m_bSoundLibraryShowTags = bShow;
 }
+inline bool Preferences::getSoundLibraryShowVersion() const
+{
+	return m_bSoundLibraryShowVersion;
+}
+inline void Preferences::setSoundLibraryShowVersion( bool bShow )
+{
+	m_bSoundLibraryShowVersion = bShow;
+}
 inline int Preferences::getSoundLibraryLastTab() const
 {
 	return m_nSoundLibraryLastTab;
@@ -1104,6 +1117,15 @@ inline void Preferences::setCustomSoundLibraryDirs( const QStringList& folders )
 inline const QStringList& Preferences::getCustomSoundLibraryDirs() const
 {
 	return m_customSoundLibraryDirs;
+}
+
+inline void Preferences::setOnlineRepos( const QStringList& repos )
+{
+	m_onlineRepos = repos;
+}
+inline const QStringList& Preferences::getOnlineRepos() const
+{
+	return m_onlineRepos;
 }
 
 inline void Preferences::setHearNewNotes( bool value )

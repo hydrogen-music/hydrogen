@@ -24,19 +24,14 @@
 #ifndef LED_H
 #define LED_H
 
-#include <chrono>
-
 #include <core/Object.h>
-#include <core/Preferences/Preferences.h>
 
 #include <QtGui>
 #include <QtWidgets>
 #include <QSvgRenderer>
 
-#include "../EventListener.h"
-
 /**
- * LED identicating a user selection.
+ * LED identifying a user selection.
  */
 /** \ingroup docGUI docWidgets*/
 class LED : public QWidget, public H2Core::Object<LED>
@@ -47,16 +42,16 @@ class LED : public QWidget, public H2Core::Object<LED>
 public:
 	LED( QWidget *pParent, const QSize& size );
 	virtual ~LED();
-	
+
 	LED(const LED&) = delete;
 	LED& operator=( const LED& rhs ) = delete;
- 
+
 	bool getActivated() const;
 	void setActivated( bool bActivated );
 
 protected:
 	QSvgRenderer* m_background;
-	
+
 	bool m_bActivated;
 	virtual void paintEvent( QPaintEvent* ev) override;
 
@@ -65,4 +60,5 @@ protected:
 inline bool LED::getActivated() const {
 	return m_bActivated;
 }
+
 #endif

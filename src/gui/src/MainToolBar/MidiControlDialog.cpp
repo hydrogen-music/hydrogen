@@ -1056,8 +1056,12 @@ void MidiControlDialog::updateInstrumentTableRow(
 	auto pInputNoteSpinBox =
 		static_cast<LCDSpinBox*>(m_pInstrumentTable->cellWidget( nRow, 1 ) );
 	if ( pInputChannelSpinBox != nullptr && pInputNoteSpinBox != nullptr ) {
-		pInputChannelSpinBox->disconnect();
-		pInputNoteSpinBox->disconnect();
+		disconnect( pInputChannelSpinBox,
+					 QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
+					 nullptr, nullptr );
+		disconnect( pInputNoteSpinBox,
+					 QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
+					 nullptr, nullptr );
 		if ( !inputMapping.isNull() ) {
 			pInputChannelSpinBox->setValue(
 				static_cast<int>( inputMapping.channel ),
@@ -1165,7 +1169,9 @@ void MidiControlDialog::updateInstrumentTableRow(
 	auto pOutputNoteSpinBox =
 		static_cast<LCDSpinBox*>(m_pInstrumentTable->cellWidget( nRow, 3 ) );
 	if ( pOutputNoteSpinBox != nullptr ) {
-		pOutputNoteSpinBox->disconnect();
+		disconnect( pOutputNoteSpinBox,
+					 QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
+					 nullptr, nullptr );
 		if ( !outputMapping.isNull() ) {
 			pOutputNoteSpinBox->setValue(
 				static_cast<int>( outputMapping.note ), Event::Trigger::Suppress
@@ -1236,7 +1242,9 @@ void MidiControlDialog::updateInstrumentTableRow(
 	auto pOutputChannelSpinBox =
 		static_cast<LCDSpinBox*>( m_pInstrumentTable->cellWidget( nRow, 4 ) );
 	if ( pOutputChannelSpinBox != nullptr ) {
-		pOutputChannelSpinBox->disconnect();
+		disconnect( pOutputChannelSpinBox,
+					 QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
+					 nullptr, nullptr );
 		if ( !outputMapping.isNull() ) {
 			pOutputChannelSpinBox->setValue(
 				static_cast<int>( outputMapping.channel ),

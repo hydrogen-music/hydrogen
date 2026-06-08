@@ -715,6 +715,31 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getOptionAlways() const { return m_sOptionAlways; }
 	const QString& getOptionNever() const { return m_sOptionNever; }
 
+	const QString& getSizeLabel() const { return m_sSizeLabel; }
+	const QString& getStatusLabel() const { return m_sStatusLabel; }
+	const QString& getOnlineInstalledStatus() const { return m_sOnlineInstalledStatus; }
+	const QString& getOnlineModifiedStatus() const { return m_sOnlineModifiedStatus; }
+	const QString& getOnlineUpdateStatus() const { return m_sOnlineUpdateStatus; }
+	const QString& getSearchPlaceholder() const { return m_sSearchPlaceholder; }
+	const QString& getSourcesLabel() const { return m_sSourcesLabel; }
+	const QString& getManageSourcesTitle() const { return m_sManageSourcesTitle; }
+	const QString& getCheckSourcesButton() const { return m_sCheckSourcesButton; }
+	const QString& getInvalidUrl() const { return m_sInvalidUrl; }
+	const QString& getInvalidUrlMessage() const { return m_sInvalidUrlMessage; }
+	const QString& getDetailsLabel() const { return m_sDetailsLabel; }
+	const QString& getButtonClose() const { return m_sButtonClose; }
+	const QString& getButtonDownload() const { return m_sButtonDownload; }
+	const QString& getButtonDownloadN() const { return m_sButtonDownloadN; }
+	const QString& getDownloadError() const { return m_sDownloadError; }
+	const QString& getDownloadFailed() const { return m_sDownloadFailed; }
+	const QString& getFormatLabel() const { return m_sFormatLabel; }
+	const QString& getHashLabel() const { return m_sHashLabel; }
+	const QString& getInstrumentsLabel() const { return m_sInstrumentsLabel; }
+	const QString& getComponentsLabel() const { return m_sComponentsLabel; }
+	const QString& getSamplesLabel() const { return m_sSamplesLabel; }
+	const QString& getDescriptionLabel() const { return m_sDescriptionLabel; }
+	const QString& getNoteCountLabel() const { return m_sNoteCountLabel; }
+
    private:
 	QString m_sSmallSoloButton;
 	QString m_sSmallMuteButton;
@@ -1019,5 +1044,29 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 
 	QString m_sOptionAlways;
 	QString m_sOptionNever;
+	QString m_sSizeLabel;
+	QString m_sStatusLabel;
+	QString m_sOnlineInstalledStatus;
+	QString m_sOnlineModifiedStatus;
+	QString m_sOnlineUpdateStatus;
+	QString m_sSearchPlaceholder;
+	QString m_sSourcesLabel;
+	QString m_sManageSourcesTitle;
+	QString m_sCheckSourcesButton;
+	QString m_sInvalidUrl;
+	QString m_sInvalidUrlMessage;
+	QString m_sDetailsLabel;
+	QString m_sButtonClose;
+	QString m_sButtonDownload;
+	QString m_sButtonDownloadN;
+	QString m_sDownloadError;
+	QString m_sDownloadFailed;
+	QString m_sFormatLabel;
+	QString m_sHashLabel;
+	QString m_sInstrumentsLabel;
+	QString m_sComponentsLabel;
+	QString m_sSamplesLabel;
+	QString m_sDescriptionLabel;
+	QString m_sNoteCountLabel;
 };
 #endif

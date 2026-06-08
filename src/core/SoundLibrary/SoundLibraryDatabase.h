@@ -56,9 +56,9 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	SoundLibraryDatabase();
 	~SoundLibraryDatabase();
 
-	std::vector<std::shared_ptr<SoundLibraryInfo>> getDrumkitInfos() const;
-	std::vector<std::shared_ptr<SoundLibraryInfo>> getPatternInfos() const;
-	std::vector<std::shared_ptr<SoundLibraryInfo>> getSongInfos() const;
+	const std::vector<std::shared_ptr<SoundLibraryInfo>>& getDrumkitInfos() const;
+	const std::vector<std::shared_ptr<SoundLibraryInfo>>& getPatternInfos() const;
+	const std::vector<std::shared_ptr<SoundLibraryInfo>>& getSongInfos() const;
 
 	void update();
 
@@ -109,12 +109,6 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	void updatePatterns( Event::Trigger trigger );
 	void updateSongs( Event::Trigger trigger );
 
-	bool isArtifactInstalled(
-		Filesystem::Artifact artifact,
-		Filesystem::Context context,
-		const QString& sName
-	) const;
-
 	/** Checks whether an artifact of type @a artifact holding the name @a
 	 * sName exists in context @a context and returns the full path to the
 	 * first artifact matching.
@@ -163,17 +157,17 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	 * system and user drumkti folder. */
 	QStringList m_customDrumkitFolders;
 };
-inline std::vector<std::shared_ptr<SoundLibraryInfo>>
+inline const std::vector<std::shared_ptr<SoundLibraryInfo>>&
 SoundLibraryDatabase::getDrumkitInfos() const
 {
 	return m_drumkitInfos;
-};
-inline std::vector<std::shared_ptr<SoundLibraryInfo>>
+}
+inline const std::vector<std::shared_ptr<SoundLibraryInfo>>&
 SoundLibraryDatabase::getPatternInfos() const
 {
 	return m_patternInfos;
-};
-inline std::vector<std::shared_ptr<SoundLibraryInfo>>
+}
+inline const std::vector<std::shared_ptr<SoundLibraryInfo>>&
 SoundLibraryDatabase::getSongInfos() const
 {
 	return m_songInfos;

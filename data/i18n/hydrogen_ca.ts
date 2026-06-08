@@ -972,7 +972,9 @@ Shown in table headers when referring to a license of an object.</extracomment>
     </message>
     <message>
         <source>Notes</source>
-        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to * fill in notes about the particular artifact.</extracomment>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to * fill in notes about the particular artifact.
+----------
+Label for the number of musical notes contained in a pattern, * shown in the Online Import detail panel. Not to be confused * with the &apos;Notes&apos; label for text annotations in property * dialogs.</extracomment>
         <translation>Notes</translation>
     </message>
     <message>
@@ -1610,6 +1612,121 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Size</source>
+        <extracomment>Table header shown in the Online Import dialog for the file * size column.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <extracomment>Table header shown in the Online Import dialog for the * installation status column.</extracomment>
+        <translation>Estat</translation>
+    </message>
+    <message>
+        <source>Installed</source>
+        <extracomment>Status label shown in the Online Import dialog for artifacts * already installed locally.</extracomment>
+        <translation>Instalació completa</translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <extracomment>Status label shown in the Online Import dialog for artifacts * that have been locally modified since installation.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Update</source>
+        <extracomment>Status label shown in the Online Import dialog when a newer * version of an installed artifact is available online.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search...</source>
+        <extracomment>Placeholder text shown in search input fields.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sources</source>
+        <extracomment>Label for the source repository filter button in the Online * Import dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <extracomment>Title of the detail panel group box in the Online Import * dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <extracomment>Text displayed on a Close button of a dialog.</extracomment>
+        <translation>Tancar</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <extracomment>Text displayed on a Download button in the Online Import * dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Download (%1)</source>
+        <extracomment>Text displayed on the Download button in the Online Import * dialog when one or more items are selected. %1 is the number * of selected items.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Download Error</source>
+        <extracomment>Title of the error dialog shown when one or more downloads * fail in the Online Import dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>One or more downloads failed.</source>
+        <extracomment>Message shown in the error dialog when one or more downloads * fail in the Online Import dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <extracomment>Label for the format version field in the Online Import * detail panel.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <extracomment>Label for the hash value field in the Online Import detail * panel.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instruments</source>
+        <extracomment>Label for the instrument count shown in the Online Import * detail panel for drumkits and patterns.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Components</source>
+        <extracomment>Label for the component count shown in the Online Import * detail panel for drumkits.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samples</source>
+        <extracomment>Label for the sample count shown in the Online Import detail * panel for drumkits.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <extracomment>Label for the description field in the Online Import detail * panel.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manage Sources</source>
+        <extracomment>Window title of the dialog for managing online import sources.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Check All</source>
+        <extracomment>Button label in the sources dialog to check the connectivity * status of all sources.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid URL</source>
+        <extracomment>Title of the warning dialog shown when a source URL is invalid.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The entered URL is not valid.</source>
+        <extracomment>Message shown when a source URL is invalid.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -1684,21 +1801,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     <name>Director_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Download</name>
-    <message>
-        <source>Importing item failed: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>DownloadWidget</name>
-    <message>
-        <source>(%1/%2 KiB) - ETA %3</source>
-        <translation>(%1/%2 KiB) - T.E. %3</translation>
+        <translation>Quadre de diàleg</translation>
     </message>
 </context>
 <context>
@@ -1761,7 +1864,7 @@ Please make the numerator an integers and the denominator a power of two (like 1
     <name>ExportMidiDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Quadre de diàleg</translation>
     </message>
     <message>
         <source>Filename</source>
@@ -1856,7 +1959,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Quadre de diàleg</translation>
     </message>
     <message>
         <source>Export directory:</source>
@@ -5789,146 +5892,6 @@ N&apos;estàs segur?</translation>
     </message>
 </context>
 <context>
-    <name>SoundLibraryOnlineImportDialog</name>
-    <message>
-        <source>Sound Library import</source>
-        <translation>Importació de llibreria de sò</translation>
-    </message>
-    <message>
-        <source>Sound library</source>
-        <translation>Llibreria de sò</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>Estat</translation>
-    </message>
-    <message>
-        <source>Updating SoundLibrary list...</source>
-        <translation>Actualitzant llista de llibreries de sò...</translation>
-    </message>
-    <message>
-        <source>Installed</source>
-        <translation>Instalació completa</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation>Autor: %1</translation>
-    </message>
-    <message>
-        <source>Drumkit License: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Image License: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation>Descarregant llibreria de sò...</translation>
-    </message>
-    <message>
-        <source>Drumkits
-
-- %1
-
-imported into %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Download failed for</source>
-        <extracomment>Shown in a dialog in case a download of an online resource did fail. * A list of names does follow in a new line.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryOnlineImportDialog_UI</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Diàleg</translation>
-    </message>
-    <message>
-        <source>Update list</source>
-        <translation>Actualitzar llista</translation>
-    </message>
-    <message>
-        <source>Edit server list</source>
-        <translation>Editar llista de servidors</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation>1</translation>
-    </message>
-    <message>
-        <source>Sound Library Name</source>
-        <translation>Nom de la llibreria de sò</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Autor...</translation>
-    </message>
-    <message>
-        <source>Drumkit License...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Image License...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Descarregar i instalar</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Tancar</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryPanel</name>
-    <message>
-        <source>Search...</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryRepositoryDialog</name>
-    <message>
-        <source>Edit repository settings</source>
-        <translation>Editar configuració de repositoris</translation>
-    </message>
-    <message>
-        <source>Edit server list</source>
-        <translation>Editar llista de servidors</translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryRepositoryDialog_UI</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Diàleg</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Afegir</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Eliminar</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Tancar</translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryTree</name>
     <message>
         <source>is a read-only and can&apos;t be deleted.</source>
@@ -5970,7 +5933,7 @@ Are you sure?
     <name>VirtualPatternDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Quadre de diàleg</translation>
     </message>
     <message>
         <source>OK</source>

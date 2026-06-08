@@ -85,6 +85,7 @@ void DrumkitInfo::assignFrom( std::shared_ptr<Drumkit> pDrumkit )
 	m_sInfo = pDrumkit->getInfo();
 	m_license = pDrumkit->getLicense();
 	m_tags = pDrumkit->getTags();
+	m_nVersion = pDrumkit->getVersion();
 
 	m_instrumentInfos.clear();
 	for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {

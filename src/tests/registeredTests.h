@@ -45,6 +45,7 @@
 #include "MimeTest.h"
 #include "NetworkTest.h"
 #include "NoteTest.h"
+#include "OnlineImporterTest.h"
 #include "OscServerTest.h"
 #include "PatternTest.h"
 #include "SampleTest.h"
@@ -80,6 +81,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( MidiExportTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MidiNoteTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( NetworkTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( NoteTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( OnlineImporterTest );
 #ifdef H2CORE_HAVE_OSC
 CPPUNIT_TEST_SUITE_REGISTRATION( OscServerTest );
 #endif

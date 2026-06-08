@@ -136,6 +136,7 @@ Preferences::Preferences()
 	  m_sLastSongPath( "" ),
 	  m_sLastPlaylistPath( "" ),
 	  m_customSoundLibraryDirs( QStringList() ),
+	  m_onlineRepos( QStringList() ),
 	  m_bHearNewNotes( true ),
 	  m_bQuantizeEvents( true ),
 	  m_recentFiles( QStringList() ),
@@ -200,6 +201,7 @@ Preferences::Preferences()
 	  m_bSoundLibraryShowLicense( false ),
 	  m_bSoundLibraryShowPath( false ),
 	  m_bSoundLibraryShowTags( true ),
+	  m_bSoundLibraryShowVersion( false ),
 	  m_nSoundLibraryLastTab( 0 ),
 	  m_nRackLastTab( 0 ),
 	  m_bShowExportSongLicenseWarning( true ),
@@ -216,9 +218,9 @@ Preferences::Preferences()
 	  m_pMidiInstrumentMap( std::make_shared<MidiInstrumentMap>() ),
 	  m_bLoadingSuccessful( false )
 {
-	m_serverList.push_back(
-		QString( "http://hydrogen-music.org/feeds/drumkit_list.php" )
-	);
+	m_onlineRepos << "https://raw.githubusercontent.com/hydrogen-music/"
+					 "Song-and-pattern-repository/refs/heads/main/index.json"
+				  << "http://hydrogen-music.org/feeds/index.json";
 
 	//___ MIDI Driver properties
 #if defined( H2CORE_HAVE_ALSA )
@@ -334,6 +336,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	  m_sLastSongPath( pOther->m_sLastSongPath ),
 	  m_sLastPlaylistPath( pOther->m_sLastPlaylistPath ),
 	  m_customSoundLibraryDirs( pOther->m_customSoundLibraryDirs ),
+	  m_onlineRepos( pOther->m_onlineRepos ),
 	  m_bHearNewNotes( pOther->m_bHearNewNotes ),
 	  m_nPunchInPos( pOther->m_nPunchInPos ),
 	  m_nPunchOutPos( pOther->m_nPunchOutPos ),
@@ -407,6 +410,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	  m_bSoundLibraryShowLicense( pOther->m_bSoundLibraryShowLicense ),
 	  m_bSoundLibraryShowPath( pOther->m_bSoundLibraryShowPath ),
 	  m_bSoundLibraryShowTags( pOther->m_bSoundLibraryShowTags ),
+	  m_bSoundLibraryShowVersion( pOther->m_bSoundLibraryShowVersion ),
 	  m_nSoundLibraryLastTab( pOther->m_nSoundLibraryLastTab ),
 	  m_nRackLastTab( pOther->m_nRackLastTab ),
 	  m_bShowExportSongLicenseWarning( pOther->m_bShowExportSongLicenseWarning
@@ -426,8 +430,8 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	  m_pMidiInstrumentMap( pOther->m_pMidiInstrumentMap ),
 	  m_bLoadingSuccessful( pOther->m_bLoadingSuccessful )
 {
-	for ( const auto& ssServer : pOther->m_serverList ) {
-		m_serverList.push_back( ssServer );
+	for ( const auto& ssRepo : pOther->m_onlineRepos ) {
+		m_onlineRepos << ssRepo;
 	}
 	for ( const auto& ssFile : pOther->m_recentFiles ) {
 		m_recentFiles.push_back( ssFile );
@@ -567,22 +571,17 @@ Preferences::load( const QString& sPath, const bool bSilent )
 		WARNINGLOG( "<recentlyUsedEffects> node not found" );
 	}
 
-	// Use the default server defined in the constructor and add additional
-	// ones.
-	const XMLNode serverListNode = rootNode.firstChildElement( "serverList" );
-	if ( !serverListNode.isNull() ) {
-		QDomElement serverElement =
-			serverListNode.firstChildElement( "server" );
-		while ( !serverElement.isNull() && !serverElement.text().isEmpty() ) {
-			if ( !pPref->m_serverList.contains( serverElement.text() ) ) {
-				pPref->m_serverList.push_back( serverElement.text() );
+	const XMLNode onlineReposNode = rootNode.firstChildElement( "onlineRepos" );
+	if ( !onlineReposNode.isNull() ) {
+		QDomElement repoElement =
+			onlineReposNode.firstChildElement( "repo" );
+		while ( !repoElement.isNull() && !repoElement.text().isEmpty() ) {
+			if ( !pPref->m_onlineRepos.contains( repoElement.text() ) ) {
+				pPref->m_onlineRepos.push_back( repoElement.text() );
 			}
 
-			serverElement = serverElement.nextSiblingElement( "server" );
+			repoElement = repoElement.nextSiblingElement( "repo" );
 		}
-	}
-	else {
-		WARNINGLOG( "<serverList> node not found" );
 	}
 
 	/////////////// AUDIO ENGINE //////////////
@@ -1179,6 +1178,10 @@ Preferences::load( const QString& sPath, const bool bSilent )
 			"soundLibraryShowTags",
 			pPref->m_bSoundLibraryShowTags, true, false, bSilent
 		);
+		pPref->m_bSoundLibraryShowVersion = guiNode.read_bool(
+			"soundLibraryShowVersion",
+			pPref->m_bSoundLibraryShowVersion, true, false, bSilent
+		);
 		pPref->m_nSoundLibraryLastTab = guiNode.read_int(
 			"soundLibraryLastTab",
 			pPref->m_nSoundLibraryLastTab, true, false, bSilent
@@ -1491,9 +1494,9 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 		}
 	}
 
-	XMLNode serverListNode = rootNode.createNode( "serverList" );
-	for ( const auto& ssServer : m_serverList ) {
-		serverListNode.write_string( "server", ssServer );
+	XMLNode onlineReposNode = rootNode.createNode( "onlineRepos" );
+	for ( const auto& sRepo : m_onlineRepos ) {
+		onlineReposNode.write_string( "repo", sRepo );
 	}
 
 	//---- AUDIO ENGINE ----
@@ -1852,6 +1855,7 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 		);
 		guiNode.write_bool( "soundLibraryShowPath", m_bSoundLibraryShowPath );
 		guiNode.write_bool( "soundLibraryShowTags", m_bSoundLibraryShowTags );
+		guiNode.write_bool( "soundLibraryShowVersion", m_bSoundLibraryShowVersion );
 		guiNode.write_int( "soundLibraryLastTab", m_nSoundLibraryLastTab );
 		guiNode.write_int( "rackLastTab", m_nRackLastTab );
 
@@ -2243,10 +2247,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_nBeatCounterStartOffset ) )
-				.append( QString( "%1%2m_serverList: %3\n" )
+				.append( QString( "%1%2m_onlineRepos: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( m_serverList.join( ',' ) ) )
+							 .arg( m_onlineRepos.join( ',' ) ) )
 				.append( QString( "%1%2m_audioDriver: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -2698,6 +2702,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( sPrefix )
 						 .arg( s )
 						 .arg( m_bSoundLibraryShowTags ) )
+			.append( QString( "%1%2m_bSoundLibraryShowVersion: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_bSoundLibraryShowVersion ) )
 			.append( QString( "%1%2m_nSoundLibraryLastTab: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
@@ -2766,8 +2774,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( m_nBeatCounterDriftCompensation ) )
 				.append( QString( ", m_nBeatCounterStartOffset: %1" )
 							 .arg( m_nBeatCounterStartOffset ) )
-				.append( QString( ", m_serverList: %1" )
-							 .arg( m_serverList.join( ',' ) ) )
+				.append( QString( ", m_onlineRepos: %1" )
+							 .arg( m_onlineRepos.join( ',' ) ) )
 				.append( QString( ", m_audioDriver: %1" )
 							 .arg( audioDriverToQString( m_audioDriver ) ) )
 				.append(
@@ -3004,6 +3012,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( m_bSoundLibraryShowPath ) )
 			.append( QString( ", m_bSoundLibraryShowTags: %1" )
 						 .arg( m_bSoundLibraryShowTags ) )
+			.append( QString( ", m_bSoundLibraryShowVersion: %1" )
+						 .arg( m_bSoundLibraryShowVersion ) )
 			.append( QString( ", m_nSoundLibraryLastTab: %1" )
 						 .arg( m_nSoundLibraryLastTab ) )
 			.append( QString( ", m_nRackLastTab: %1" )

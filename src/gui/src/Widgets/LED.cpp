@@ -21,13 +21,8 @@
  */
 
 #include "LED.h"
-#include "../Skin.h"
 
-#include "../HydrogenApp.h"
-#include <core/Globals.h>
-#include <core/Preferences/Preferences.h>
-#include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/Transport.h>
+#include "../Skin.h"
 
 LED::LED( QWidget *pParent, const QSize& size )
  : QWidget( pParent )

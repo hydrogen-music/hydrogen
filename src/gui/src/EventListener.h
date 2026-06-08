@@ -33,6 +33,7 @@ class EventListener
 	public:
 		virtual void actionModeChangeEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void audioDriverChangedEvent(){}
+		virtual void audioExportProgressEvent( int nValue ) { UNUSED( nValue ); }
 		virtual void bbtChangedEvent(){}
 		virtual void beatCounterEvent() {}
 		virtual void drumkitLoadedEvent(){}
@@ -62,6 +63,7 @@ class EventListener
 		virtual void nextPatternsChangedEvent(){}
 		virtual void nextShotEvent(){}
 		virtual void noteRenderEvent( int nInstrument ) { UNUSED( nInstrument ); }
+		virtual void onlineImportProgressEvent( int nValue ) { UNUSED( nValue ); }
 		virtual void patternChangedEvent() {}
 		virtual void patternEditorLockedEvent(){}
 		virtual void patternIsModifiedEvent() {}
@@ -69,7 +71,6 @@ class EventListener
 		virtual void playingPatternsChangedEvent() {}
 		virtual void playlistChangedEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void playlistLoadSongEvent(){}
-		virtual void progressEvent( int nValue ) { UNUSED( nValue ); }
 		virtual void quitEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void recordingModeChangedEvent(){}
 		virtual void relocationEvent(){}
