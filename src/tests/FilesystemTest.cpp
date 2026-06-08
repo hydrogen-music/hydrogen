@@ -346,16 +346,18 @@ void FilesystemTest::testIsPathValid() {
 
 void FilesystemTest::testSamplePathHandling() {
 	___INFOLOG( "" );
-	const QString& sSystemKitPath(
-		QString( "%1/sampleKit" ).arg( Filesystem::systemDrumkitsDir() )
+	const QString sSystemKitDir(
+		QString( "%1sampleKit" ).arg( Filesystem::systemDrumkitsDir() )
 	);
-	const QString& sUserKitPath(
+	const QString sUserKitDir(
 		QString( "%1/sampleKit" ).arg( Filesystem::userDrumkitsDir() )
 	);
+	const QString sSystemKitPath = Filesystem::drumkitPathFromDir( sSystemKitDir );
+	const QString sUserKitPath = Filesystem::drumkitPathFromDir( sUserKitDir );
 	const auto sPathInSystemKit = QString( "%1/sample.wav" )
-		.arg( sSystemKitPath );
+		.arg( sSystemKitDir );
 	const auto sPathInUserKit = QString( "%1/sample.wav" )
-		.arg( sUserKitPath );
+		.arg( sUserKitDir );
 	const auto sAbsolutePath( "/path/to/sample.wav" );
 	const auto sRelativePath( "../../sample.wav" );
 	const QString sFileName( "sample.wav" );
