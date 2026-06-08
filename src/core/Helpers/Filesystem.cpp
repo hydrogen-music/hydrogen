@@ -957,22 +957,13 @@ QString Filesystem::prepareSamplePath(
 		Hydrogen::get_instance()->getSoundLibraryDatabase()->getDrumkitFolders(
 		);
 
-	QString sSamplePathCleaned( sSamplePath );
-	QString sDrumkitDirCleaned = Filesystem::drumkitDirFromPath( sDrumkitPath );
-#ifdef WIN32
-	// Qt uses posix separators `/` internally but things can easily mix up
-	// (maybe due to our code) and we end up with something like
-	// C:\projects\hydrogen/data/\drumkits/GMRockKit/Kick-Softest.wav .
-	// We have to ensure to work on a single separator.
-	sSamplePathCleaned = QString( sSamplePathCleaned ).replace( "\\", "/" );
-	sDrumkitDirCleaned = QString( sDrumkitDirCleaned ).replace( "\\", "/" );
-#endif
-
-	// When composing paths by combining different elements, two file separators
-	// can be used in a row. This is no problem in file access itself but would
-	// mess up our index-based approach in here.
-	sSamplePathCleaned = QString( sSamplePathCleaned ).replace( "//", "/" );
-	sDrumkitDirCleaned = QString( sDrumkitDirCleaned ).replace( "//", "/" );
+	// Normalize paths using QFileInfo. This way we neither have to deal with
+	// duplicated separators nor with platform-dependent quirks.
+	const QString sSamplePathCleaned =
+		QFileInfo( sSamplePath ).absoluteFilePath();
+	const QString sDrumkitDirCleaned =
+		QFileInfo( Filesystem::drumkitDirFromPath( sDrumkitPath ) )
+			.absoluteFilePath();
 
 	// When storing just the file name, the sample will be loaded by
 	// concatenating the drumkit sPath associated with an instrument and the
