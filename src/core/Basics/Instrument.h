@@ -233,11 +233,6 @@ class Instrument : public H2Core::Object<Instrument> {
 	/** get the right peak of the instrument */
 	float getPeak_R() const;
 
-	/** set the fx level of the instrument */
-	void setFxLevel( float level, int index );
-	/** get the fx level of the instrument */
-	float getFxLevel( int index ) const;
-
 	/** set the random pitch factor of the instrument */
 	void setRandomPitchFactor( float val );
 	/** get the random pitch factor of the instrument */
@@ -426,7 +421,6 @@ class Instrument : public H2Core::Object<Instrument> {
 	/** List of short string representations of notes for which this
 	 * instrument was enqueued. */
 	QStringList m_enqueuedBy;
-	float m_fxLevel[MAX_FX];	  ///< Ladspa FX level array
 	int m_nHihatGrp;			  ///< the instrument is part of a hihat
 	Midi::Parameter m_lowerCc;
 	Midi::Parameter m_higherCc;
@@ -595,16 +589,6 @@ inline void Instrument::setPeak_R( float val )
 inline float Instrument::getPeak_R() const
 {
 	return m_fPeak_R;
-}
-
-inline void Instrument::setFxLevel( float level, int index )
-{
-	m_fxLevel[index] = level;
-}
-
-inline float Instrument::getFxLevel( int index ) const
-{
-	return m_fxLevel[index];
 }
 
 inline void Instrument::setRandomPitchFactor( float val )

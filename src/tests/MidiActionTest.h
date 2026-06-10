@@ -49,8 +49,6 @@ class MidiActionTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testBpmIncreaseAction );
 	CPPUNIT_TEST( testClearPatternAction );
 	CPPUNIT_TEST( testClearSelectedInstrumentAction );
-	CPPUNIT_TEST( testEffectLevelAbsoluteAction );
-	CPPUNIT_TEST( testEffectLevelRelativeAction );
 	CPPUNIT_TEST( testFilterCutoffLevelAbsoluteAction );
 	CPPUNIT_TEST( testGainLevelAbsoluteAction );
 	CPPUNIT_TEST( testHumanizationSwingAbsoluteAction );
@@ -118,8 +116,6 @@ class MidiActionTest : public CppUnit::TestCase {
 	void testBpmIncreaseAction();
 	void testClearPatternAction();
 	void testClearSelectedInstrumentAction();
-	void testEffectLevelAbsoluteAction();
-	void testEffectLevelRelativeAction();
 	void testFilterCutoffLevelAbsoluteAction();
 	void testGainLevelAbsoluteAction();
 	void testHumanizationSwingAbsoluteAction();

@@ -88,12 +88,6 @@ MidiActionManager::MidiActionManager() : m_nTickIntervalIndex( 0 )
 		std::make_pair( MidiAction::Type::CountInStopToggle,
 					   std::make_pair( &MidiActionManager::countInStopToggle, 0 ) ));
 	m_midiActionMap.insert(
-		std::make_pair( MidiAction::Type::EffectLevelAbsolute,
-					   std::make_pair( &MidiActionManager::effectLevelAbsolute, 2 ) ));
-	m_midiActionMap.insert(
-		std::make_pair( MidiAction::Type::EffectLevelRelative,
-					   std::make_pair( &MidiActionManager::effectLevelRelative, 2 ) ));
-	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::FilterCutoffLevelAbsolute,
 					   std::make_pair( &MidiActionManager::filterCutoffLevelAbsolute, 1 ) ));
 	m_midiActionMap.insert(
@@ -702,82 +696,6 @@ bool MidiActionManager::selectInstrument( std::shared_ptr<MidiAction> pAction ) 
 
 	pHydrogen->setSelectedInstrumentNumber( nInstrumentNumber );
 	return true;
-}
-
-bool MidiActionManager::effectLevelAbsolute( std::shared_ptr<MidiAction> pAction) {
-	auto pHydrogen = Hydrogen::get_instance();
-
-	auto pSong = pHydrogen->getSong();
-
-	// Preventive measure to avoid bad things.
-	if ( pSong == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return false;
-	}
-
-	bool ok;
-	const int nLine =
-		pAction->getInstrument() == MidiAction::nCurrentSelectionParameter
-			? pHydrogen->getSelectedInstrumentNumber()
-			: pAction->getInstrument();
-	const int nFxValue = pAction->getValue();
-	const int nFxId = pAction->getFx();
-
-	auto pInstrList = pSong->getDrumkit()->getInstruments();
-
-	auto pInstr = pInstrList->get( nLine );
-	if ( pInstr == nullptr) {
-		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
-		return false;
-	}
-
-	float fValue = 0;
-	if ( nFxValue != 0 ) {
-		fValue = static_cast<float>( nFxValue ) /
-				 static_cast<float>( Midi::ParameterMaximum );
-	}
-
-	return CoreActionController::setStripEffectLevel( nLine, nFxId, fValue, true );
-}
-
-bool MidiActionManager::effectLevelRelative( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
-
-	auto pSong = pHydrogen->getSong();
-
-	// Preventive measure to avoid bad things.
-	if ( pSong == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return false;
-	}
-
-	bool ok;
-	const int nLine =
-		pAction->getInstrument() == MidiAction::nCurrentSelectionParameter
-			? pHydrogen->getSelectedInstrumentNumber()
-			: pAction->getInstrument();
-	const int nFxValue = pAction->getValue();
-	const int nFxId = pAction->getFx();
-
-	auto pInstrList = pSong->getDrumkit()->getInstruments();
-
-	auto pInstr = pInstrList->get( nLine );
-	if ( pInstr == nullptr) {
-		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
-		return false;
-	}
-
-	float fValue = 0;
-	if ( nFxValue != 0 ) {
-		if ( nFxValue == 1 && pInstr->getFxLevel( nFxId ) <= 0.95 ) {
-			fValue = pInstr->getFxLevel( nFxId ) + 0.05;
-		}
-		else if ( pInstr->getFxLevel( nFxId ) >= 0.05 ) {
-			fValue = pInstr->getFxLevel( nFxId ) - 0.05;
-		}
-	}
-
-	return CoreActionController::setStripEffectLevel( nLine, nFxId, fValue, true );
 }
 
 //sets the volume of a master output to a given level (percentage)

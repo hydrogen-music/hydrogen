@@ -371,11 +371,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>FX</source>
-        <extracomment>Text displayed on the button to enable the LADSPA effect strips. Its size is designed to hold two characters.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Peak</source>
         <extracomment>Text displayed on the button to show the instrument peaks. Its size is designed to hold four characters.</extracomment>
         <translation type="unfinished"></translation>
@@ -562,11 +557,6 @@ Name of note property adjustable in NotePropertiesRuler, using * humanization in
     <message>
         <source>Master</source>
         <extracomment>Text displayed as the title of the Master Mixer Strip. Designed to hold six characters but flexible.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Return</source>
-        <extracomment>Text displayed below the rotary in the FX Mixerline. Designed to hold six characters but flexible.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -777,16 +767,6 @@ Are you sure?</source>
     <message>
         <source>Layer Number</source>
         <extracomment>Label shown in the input capture dialog for querying a layer number of the specified instrument component.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>FX Level</source>
-        <extracomment>Label shown in the input capture dialog for querying a FX level of the specified FX.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>FX Number</source>
-        <extracomment>Label shown in the input capture dialog for querying a FX number of the specified instrument.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2353,246 +2333,6 @@ Overwrite the existing file?</source>
     </message>
 </context>
 <context>
-    <name>LadspaFXLine</name>
-    <message>
-        <source>FX bypass</source>
-        <translation>Заобиђи ефекат</translation>
-    </message>
-    <message>
-        <source>Edit FX parameters</source>
-        <translation>Уреди особине ефекта</translation>
-    </message>
-    <message>
-        <source>Ladspa FX name</source>
-        <translation>Назив ЛАДСПА ефекта</translation>
-    </message>
-    <message>
-        <source>Effect return</source>
-        <translation>Утицај ефекта</translation>
-    </message>
-    <message>
-        <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation>У овом издању програма нису доступи ЛАДСПА-ефекти.</translation>
-    </message>
-    <message>
-        <source>Set volume [%1] of FX</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No plugin</source>
-        <translation>Нема ефеката</translation>
-    </message>
-</context>
-<context>
-    <name>LadspaFXProperties</name>
-    <message>
-        <source>Select FX</source>
-        <translation>Одабери ефекат</translation>
-    </message>
-    <message>
-        <source>[%1] LADSPA FX Properties</source>
-        <translation>[%1] Особине ЛАДСПА ефекта</translation>
-    </message>
-    <message>
-        <source>LADSPA FX %1 Properties</source>
-        <translation>ЛАДСПА ефекат %1 — особине</translation>
-    </message>
-    <message>
-        <source>No plugin</source>
-        <translation>Нема ефеката</translation>
-    </message>
-    <message>
-        <source>Activate</source>
-        <translation>Покрени</translation>
-    </message>
-    <message>
-        <source>Deactivate</source>
-        <translation>Заустави</translation>
-    </message>
-    <message>
-        <source>Remove FX</source>
-        <translation>Уклони ефекат</translation>
-    </message>
-    <message>
-        <source>Input control param. value</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Output control param. value</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>LadspaFXSelector</name>
-    <message>
-        <source>Groups</source>
-        <translation>Групе</translation>
-    </message>
-    <message>
-        <source>Stereo</source>
-        <translation>Стерео</translation>
-    </message>
-    <message>
-        <source>Mono</source>
-        <translation>Моно</translation>
-    </message>
-    <message>
-        <source>Not supported</source>
-        <translation>Неподржано</translation>
-    </message>
-    <message>
-        <source>Select LADSPA FX</source>
-        <translation>Одабери ЛАДСПА ефекат</translation>
-    </message>
-    <message>
-        <source>Recently Used</source>
-        <translation>Скоро коришћено</translation>
-    </message>
-    <message>
-        <source>Alphabetic List</source>
-        <translation>По азбучном реду</translation>
-    </message>
-    <message>
-        <source>Categorized</source>
-        <translation>Разврстано</translation>
-    </message>
-</context>
-<context>
-    <name>LadspaFXSelector_UI</name>
-    <message>
-        <source>&amp;OK</source>
-        <translation>&amp;У реду</translation>
-    </message>
-    <message>
-        <source>Alt+O</source>
-        <translation>Алт+У</translation>
-    </message>
-    <message>
-        <source>Form1</source>
-        <translation>Формулар1</translation>
-    </message>
-    <message>
-        <source>Alt+C</source>
-        <translation>Алт+П</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Поништи</translation>
-    </message>
-    <message>
-        <source>### fx label</source>
-        <translation>### ознака еф.</translation>
-    </message>
-    <message>
-        <source>### fx type</source>
-        <translation>### врста еф.</translation>
-    </message>
-    <message>
-        <source>### fx ID</source>
-        <translation>### ИД еф.</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation>1</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Name:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Назив:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>### fx name
-1</source>
-        <translation>### назив ефекта
-1</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Label:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Ознака:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Type:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Врста:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ИД:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Maker:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Творац:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>### FX maker
-1
-2</source>
-        <translation>### творац ефекта
-1
-2</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Copyright:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Ауторска права:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>### copyright
-1
-2
-3</source>
-        <translation>### Ауторска права
-1
-2
-3</translation>
-    </message>
-</context>
-<context>
     <name>LayerPreview</name>
     <message>
         <source>Dec. = %1
@@ -3389,10 +3129,6 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
 <context>
     <name>Mixer</name>
     <message>
-        <source>Show FX panel</source>
-        <translation>Прикажи пано са ефектима</translation>
-    </message>
-    <message>
         <source>Show instrument peaks</source>
         <translation>Прикажи вршне вредности за инструмете</translation>
     </message>
@@ -3415,10 +3151,6 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
 </context>
 <context>
     <name>MixerLine</name>
-    <message>
-        <source>FX %1 send</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Volume</source>
         <translation type="unfinished"></translation>
@@ -5323,10 +5055,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Set instrument layer gain</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set instrument FX aux level</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

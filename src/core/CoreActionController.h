@@ -93,13 +93,6 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	setStripIsSoloed( int nStrip, bool isSoloed, bool bSelectStrip );
 	static bool toggleStripIsSoloed( int nStrip );
 
-	static bool setStripEffectLevel(
-		int nLine,
-		int nEffect,
-		float fValue,
-		bool bSelectStrip
-	);
-
 	static bool initExternalControlInterfaces();
 
 	// -----------------------------------------------------------

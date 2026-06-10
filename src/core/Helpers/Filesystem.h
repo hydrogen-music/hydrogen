@@ -163,9 +163,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	/** returns user data path */
 	static const QString& userDataPath();
 
-	/** returns user ladspa paths */
-	static const QStringList& ladspaPaths();
-
 	/** returns system config path */
 	static QString systemConfigPath();
 	/** @return user config path. This is either
@@ -228,8 +225,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static QString userPatternsDir();
 	/** returns system patterns path */
 	static QString systemPatternsDir();
-	/** returns user plugins path */
-	static QString userPluginsDir();
 	/** returns system drumkits path */
 	static QString systemDrumkitsDir();
 	/** returns user drumkits path */
@@ -549,7 +544,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static QString m_sUserConfigPath;  ///< the path to the user config file
 	static QString m_sUserDataPath;	   ///< the path to the user files
 	static QString m_sUserLogPath;	   ///< the path to the log file
-	static QStringList m_ladspaPaths;  ///< paths to laspa plugins
 	static std::vector<AudioFormat> m_supportedAudioFormats;
 	static bool m_bLogPathInitialized;
 };

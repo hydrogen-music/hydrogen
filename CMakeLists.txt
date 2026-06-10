@@ -89,7 +89,6 @@ endif()
 option(WANT_QT6             "Compile using Qt6 instead of Qt5 " OFF)
 
 option(WANT_LIBARCHIVE      "Enable use of libarchive instead of libtar" ON)
-option(WANT_LADSPA          "Enable use of LADSPA plugins" ON)
 
 if(APPLE)
 	option(WANT_OSC  "Enable OSC support" OFF)
@@ -112,7 +111,6 @@ else()
 endif()
 option(WANT_JACK         "Include JACK (Jack Audio Connection Kit) support" ON)
 option(WANT_PULSEAUDIO   "Include PulseAudio support" ON)
-option(WANT_LRDF         "Include LRDF (Lightweight Resource Description Framework with special support for LADSPA plugins) support" OFF)
 option(WANT_RUBBERBAND   "Include RubberBand (Audio Time Stretcher Library) support" OFF)
 if(APPLE)
     option(WANT_COREAUDIO   "Include CoreAudio support" ON)
@@ -255,7 +253,6 @@ else()
 endif()
 set(H2_USR_PATH ".hydrogen")
 
-set(MAX_FX          4    CACHE STRING "Maximum number of effects")
 set(MAX_BUFFER_SIZE 8192 CACHE STRING "Maximum size of buffer")
 
 #
@@ -263,7 +260,6 @@ set(MAX_BUFFER_SIZE 8192 CACHE STRING "Maximum size of buffer")
 #
 include(CompileHelper)
 include(FindHelper)
-include(FindLadspa)
 include(CheckIncludeFiles)
 include(CheckLibraryExists)
 include(FindZLIB)
@@ -294,7 +290,6 @@ if( WANT_LIBARCHIVE AND LIBARCHIVE_FOUND)
 endif()
 find_helper(LIBSNDFILE sndfile sndfile.h sndfile)
 find_helper(ALSA alsa alsa/asoundlib.h asound )
-find_ladspa(LADSPA ladspa.h noise)
 
 find_helper(OSC liblo lo/lo.h lo)
 
@@ -324,7 +319,6 @@ if ("${PC_PORTMIDI_VERSION}" STREQUAL "" AND WANT_PORTMIDI AND PORTMIDI_FOUND)
 endif()
 
 find_helper(PULSEAUDIO libpulse pulse/pulseaudio.h pulse)
-find_helper(LRDF lrdf lrdf.h lrdf)
 
 find_helper(RUBBERBAND rubberband rubberband/RubberBandStretcher.h rubberband)
 find_helper(CPPUNIT cppunit cppunit/TestCase.h cppunit)
@@ -354,7 +348,7 @@ endif(DOXYGEN_FOUND)
 #
 # COMPUTE H2CORE_HAVE_xxx xxx_STATUS_REPORT
 #
-set(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK OSC COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LRDF RUBBERBAND CPPUNIT )
+set(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE ALSA OSS JACK OSC COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO RUBBERBAND CPPUNIT )
 foreach( _pkg ${STATUS_LIST})
     compute_pkgs_flags(${_pkg})
 endforeach()
@@ -463,7 +457,7 @@ color_message("* ${purple}libsndfile${reset}                   : ${LIBSNDFILE_ST
 *                                ${LIBSNDFILE_MSG}
 * ${purple}libtar${reset}                       : ${LIBTAR_STATUS}
 * ${purple}libarchive${reset}                   : ${LIBARCHIVE_STATUS}
-* ${purple}ladspa${reset}                       : ${LADSPA_STATUS}\n"
+* ${purple}libarchive${reset}                   : ${LIBARCHIVE_STATUS}\n"
 )
 
 color_message("${cyan}Supported audio interfaces${reset}
@@ -481,7 +475,6 @@ color_message("${cyan}Supported audio interfaces${reset}
 
 color_message("${cyan}Useful extensions${reset}
 -----------------------------------------
-* ${purple}LRDF${reset}                         : ${LRDF_STATUS}
 * ${purple}RUBBERBAND${reset}                   : ${RUBBERBAND_STATUS}
 *                                ${LIBRUBBERBAND_MSG}\n"
 )

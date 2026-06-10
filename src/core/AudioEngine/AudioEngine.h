@@ -301,9 +301,6 @@ public:
 	void stopMidiDriver( Event::Trigger trigger );
 	std::shared_ptr<MidiBaseDriver> getMidiDriver() const;
 
-	void			setupLadspaFX();
-
-
 	std::shared_ptr<Instrument> getMetronomeInstrument() const;
 		
 	
@@ -630,14 +627,9 @@ private:
 
 	QString getDriverNames() const;
 
-	Sampler* 			m_pSampler;
+		Sampler* 			m_pSampler;
 	std::shared_ptr<AudioDriver> m_pAudioDriver;
 	std::shared_ptr<MidiBaseDriver> m_pMidiDriver;
-
-#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
-	float				m_fFXPeak_L[MAX_FX];
-	float				m_fFXPeak_R[MAX_FX];
-	#endif
 
 	//Master peak (left channel)
 	float				m_fMasterPeak_L;
@@ -687,9 +679,6 @@ private:
 	float				m_fProcessTime;
 		/** In milliseconds. */
 	float				m_fMaxProcessTime;
-		/** In milliseconds. */
-	float				m_fLadspaTime;
-
 	std::shared_ptr<Transport> m_pPlayhead;
 	std::shared_ptr<Transport> m_pQueuing;
 

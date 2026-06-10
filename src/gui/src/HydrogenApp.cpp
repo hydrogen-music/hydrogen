@@ -31,7 +31,6 @@
 #include <core/Basics/PatternList.h>
 #include <core/config.h>
 #include <core/EventQueue.h>
-#include <core/FX/LadspaFX.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
@@ -45,7 +44,6 @@
 #include "Rack/ComponentEditor/ComponentEditor.h"
 #include "Rack/InstrumentEditor.h"
 #include "Rack/Rack.h"
-#include "LadspaFXProperties.h"
 #include "MainForm.h"
 #include "Mixer/Mixer.h"
 #include "PatternEditor/PatternEditorPanel.h"
@@ -230,12 +228,6 @@ HydrogenApp::~HydrogenApp()
 		delete m_pSplitter;
 	}
 
-	#ifdef H2CORE_HAVE_LADSPA
-	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
-		delete m_pLadspaFXProperties[nFX];
-	}
-	#endif
-
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	if ( pHydrogen != nullptr ) {
 		delete pHydrogen;
@@ -368,16 +360,6 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	m_pMixer->updateMixer();
 
-#ifdef H2CORE_HAVE_LADSPA
-	// LADSPA FX
-	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
-		m_pLadspaFXProperties[nFX] = new LadspaFXProperties( nullptr, nFX );
-		m_pLadspaFXProperties[nFX]->hide();
-		WindowProperties prop = pPref->getLadspaProperties(nFX);
-		setWindowProperties( m_pLadspaFXProperties[ nFX ], prop, SetWidth + SetHeight );
-	}
-#endif
-
 	if( layout == InterfaceTheme::Layout::Tabbed ){
 		m_pTab->setCurrentIndex( pPref->getLastOpenTab() );
 		QObject::connect(m_pTab, SIGNAL(currentChanged(int)),this,SLOT(currentTabChanged(int)));
@@ -462,15 +444,6 @@ void HydrogenApp::currentTabChanged(int index)
 {
 	Preferences::get_instance()->setLastOpenTab( index );
 	m_pMainToolBar->updateActions();
-}
-
-void HydrogenApp::closeFXProperties()
-{
-#ifdef H2CORE_HAVE_LADSPA
-	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
-		m_pLadspaFXProperties[nFX]->close();
-	}
-#endif
 }
 
 QString HydrogenApp::findAutoSaveFile( const Filesystem::Artifact& type,
@@ -1028,10 +1001,6 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->drumkitLoadedEvent();
 				break;
 
-			case Event::Type::EffectChanged:
-				ppEventListener->effectChangedEvent();
-				break;
-
 			case Event::Type::Error:
 				ppEventListener->errorEvent( pEvent->getValue() );
 				break;
@@ -1424,15 +1393,6 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 		WindowProperties directorProp = pPref->getDirectorProperties();
 		setWindowProperties( m_pDirector, directorProp, SetAll );
 
-#ifdef H2CORE_HAVE_LADSPA
-		// LADSPA FX
-		for (uint nFX = 0; nFX < MAX_FX; nFX++) {
-			m_pLadspaFXProperties[nFX]->hide();
-			WindowProperties prop = pPref->getLadspaProperties(nFX);
-			setWindowProperties( m_pLadspaFXProperties[ nFX ], prop, SetX + SetY );
-		}
-#endif
-
 		m_pMainToolBar->updateActions();
 
 		// Update all parts of the GUI wired to the PreferencesDialog.
@@ -1469,7 +1429,6 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 	
 	if ( nValue == 0 ) {
 		// Cleanup
-		closeFXProperties();
 		m_pUndoStack->clear();
 
 		// Update GUI components

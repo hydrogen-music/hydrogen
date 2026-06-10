@@ -41,7 +41,6 @@ namespace H2Core {
 class ADSR;
 class AutomationPath;
 class Drumkit;
-class Effects;
 class GridPoint;
 class Instrument;
 class Note;
@@ -271,9 +270,6 @@ class Song : public H2Core::Object<Song>,
 	std::shared_ptr<Timeline> getTimeline() const;
 	void setTimeline( std::shared_ptr<Timeline> pTimeline );
 
-	std::shared_ptr<Effects> getEffects() const;
-	void setEffects( std::shared_ptr<Effects> pEffects );
-
 	std::vector<std::shared_ptr<Note>> getAllNotes() const;
 
 	const QString& getLastLoadedDrumkitPath() const;
@@ -405,8 +401,6 @@ class Song : public H2Core::Object<Song>,
 
 	std::shared_ptr<Timeline> m_pTimeline;
 
-	std::shared_ptr<Effects> m_pEffects;
-
 	/** Unique identifier of the drumkit last loaded.
 	 *
 	 * It is assigned to the song's current drumkit on load in order to properly
@@ -452,15 +446,6 @@ inline void Song::setTimeline( std::shared_ptr<Timeline> pTimeline )
 {
 	m_pTimeline = pTimeline;
 }
-inline std::shared_ptr<Effects> Song::getEffects() const
-{
-	return m_pEffects;
-}
-inline void Song::setEffects( std::shared_ptr<Effects> pEffects )
-{
-	m_pEffects = pEffects;
-}
-
 inline bool Song::getIsMuted() const
 {
 	return m_bIsMuted;

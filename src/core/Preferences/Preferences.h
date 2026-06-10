@@ -414,9 +414,6 @@ class Preferences : public H2Core::Object<Preferences> {
 	const QStringList& getRecentFiles() const;
 	void setRecentFiles( const QStringList& recentFiles );
 
-	const QStringList& getRecentFX() const;
-	void setMostRecentFX( const QString& );
-
 	/** @return #m_nMaxBars.*/
 	int getMaxBars() const;
 	/** @param bars Sets #m_nMaxBars.*/
@@ -440,9 +437,6 @@ class Preferences : public H2Core::Object<Preferences> {
 
 	bool getPatternEditorAlwaysShowTypeLabels() const;
 	void setPatternEditorAlwaysShowTypeLabels( bool bNew );
-
-	bool isFXTabVisible() const;
-	void setFXTabVisible( bool value );
 
 	bool getHideKeyboardCursor() const;
 	void setHideKeyboardCursor( bool b );
@@ -485,9 +479,6 @@ class Preferences : public H2Core::Object<Preferences> {
 
 	const WindowProperties& getAudioEngineInfoProperties() const;
 	void setAudioEngineInfoProperties( const WindowProperties& prop );
-
-	const WindowProperties& getLadspaProperties( unsigned nFX ) const;
-	void setLadspaProperties( unsigned nFX, const WindowProperties& prop );
 
 	const WindowProperties& getPlaylistEditorProperties() const;
 	void setPlaylistEditorProperties( const WindowProperties& prop );
@@ -631,7 +622,6 @@ class Preferences : public H2Core::Object<Preferences> {
 	int m_nPunchOutPos;
 	bool m_bQuantizeEvents;
 
-	QStringList m_recentFX;
 	QStringList m_recentFiles;
 
 	/** Maximum number of bars shown in the Song Editor at
@@ -674,7 +664,6 @@ class Preferences : public H2Core::Object<Preferences> {
 	bool m_bPatternEditorUsingTriplets;
 	bool m_bPatternEditorAlwaysShowTypeLabels;
 
-	bool m_bIsFXTabVisible;
 	bool m_bHideKeyboardCursor;
 	bool m_bShowPlaybackTrack;
 	int m_nLastOpenTab;
@@ -689,7 +678,6 @@ class Preferences : public H2Core::Object<Preferences> {
 	WindowProperties m_songEditorProperties;
 	WindowProperties m_rackProperties;
 	WindowProperties m_audioEngineInfoProperties;
-	WindowProperties m_ladspaProperties[MAX_FX];
 	WindowProperties m_playlistEditorProperties;
 	WindowProperties m_directorProperties;
 
@@ -1190,11 +1178,6 @@ inline const QStringList& Preferences::getRecentFiles() const
 	return m_recentFiles;
 }
 
-inline const QStringList& Preferences::getRecentFX() const
-{
-	return m_recentFX;
-}
-
 inline bool Preferences::getJackEnforceInstrumentName() const
 {
 	return m_bJackEnforceInstrumentName;
@@ -1238,15 +1221,6 @@ inline bool Preferences::getPatternEditorAlwaysShowTypeLabels() const
 inline void Preferences::setPatternEditorAlwaysShowTypeLabels( bool bNew )
 {
 	m_bPatternEditorAlwaysShowTypeLabels = bNew;
-}
-
-inline bool Preferences::isFXTabVisible() const
-{
-	return m_bIsFXTabVisible;
-}
-inline void Preferences::setFXTabVisible( bool value )
-{
-	m_bIsFXTabVisible = value;
 }
 
 inline bool Preferences::getShowAutomationArea() const
@@ -1348,17 +1322,6 @@ inline void Preferences::setAudioEngineInfoProperties(
 )
 {
 	m_audioEngineInfoProperties = prop;
-}
-
-inline const WindowProperties& Preferences::getLadspaProperties( unsigned nFX
-) const
-{
-	return m_ladspaProperties[nFX];
-}
-inline void
-Preferences::setLadspaProperties( unsigned nFX, const WindowProperties& prop )
-{
-	m_ladspaProperties[nFX] = prop;
 }
 
 inline const WindowProperties& Preferences::getPlaylistEditorProperties() const

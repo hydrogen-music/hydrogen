@@ -52,13 +52,9 @@ public:
 		/** The arc features a point at its upmost position. If set
 		 * by the user, it shows a green color. If another value is
 		 * used, a grey and smaller dot will be displayed instead.*/
-		Center,
-		/** No arc will be drawn*/
-		Small
+		Center
 	};
 
-		static constexpr int nWidthSmall = 18;
-		static constexpr int nHeightSmall = 18;
 		static constexpr int nWidth = 44;
 		static constexpr int nHeight = 26;
 

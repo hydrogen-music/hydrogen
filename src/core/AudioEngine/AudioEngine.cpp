@@ -37,7 +37,6 @@
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/EventQueue.h>
-#include <core/FX/Effects.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Random.h>
 #include <core/Helpers/Time.h>
@@ -83,7 +82,6 @@ AudioEngine::AudioEngine()
 	  m_fMasterPeak_R( 0.0f ),
 	  m_nextState( State::Ready ),
 	  m_fProcessTime( 0.0f ),
-	  m_fLadspaTime( 0.0f ),
 	  m_fMaxProcessTime( 0.0f ),
 	  m_fNextBpm( 120 ),
 	  m_pLocker( { nullptr, 0, nullptr, false } ),
@@ -343,13 +341,6 @@ void AudioEngine::reset( bool bWithJackBroadcast, Event::Trigger trigger ) {
 	
 	m_fMasterPeak_L = 0.0f;
 	m_fMasterPeak_R = 0.0f;
-
-#ifdef H2CORE_HAVE_LADSPA
-	for ( int ii = 0; ii < MAX_FX; ++ii ) {
-		m_fFXPeak_L[ ii ] = 0;
-		m_fFXPeak_R[ ii ] = 0;
-	}
-#endif
 
 	m_fLastTickEnd = 0;
 	m_nLoopsDone = 0;
@@ -968,24 +959,6 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 #endif
 
 	m_MutexOutputPointer.unlock();
-
-#ifdef H2CORE_HAVE_LADSPA
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( ( getState() == State::Ready || getState() == State::CountIn ||
-		   getState() == State::Playing || getState() == State::Testing ) &&
-		 pSong != nullptr ) {
-		const auto pEffects = pSong->getEffects();
-		for ( unsigned i = 0; i < MAX_FX; ++i ) {	// clear FX buffers
-			const auto pFX = pEffects->getLadspaFX( i );
-			if ( pFX != nullptr ) {
-				assert( pFX->m_pBuffer_L );
-				assert( pFX->m_pBuffer_R );
-				memset( pFX->m_pBuffer_L, 0, nFrames * sizeof( float ) );
-				memset( pFX->m_pBuffer_R, 0, nFrames * sizeof( float ) );
-			}
-		}
-	}
-#endif
 }
 
 std::shared_ptr<AudioDriver> AudioEngine::createAudioDriver(
@@ -1139,8 +1112,6 @@ std::shared_ptr<AudioDriver> AudioEngine::createAudioDriver(
 		);
 	}
 #endif
-
-	setupLadspaFX();
 
 	if ( pSong != nullptr ) {
 		handleDriverChange();
@@ -1527,30 +1498,6 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 		}
 	}
 	return fBpm;
-}
-
-void AudioEngine::setupLadspaFX()
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-
-#ifdef H2CORE_HAVE_LADSPA
-	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-		auto pFX = pSong->getEffects()->getLadspaFX( nFX );
-		if ( pFX == nullptr ) {
-			return;
-		}
-
-		pFX->deactivate();
-
-		pFX->connectAudioPorts( pFX->m_pBuffer_L, pFX->m_pBuffer_R,
-								pFX->m_pBuffer_L, pFX->m_pBuffer_R );
-		pFX->activate();
-	}
-#endif
 }
 
 void AudioEngine::raiseError( unsigned nErrorCode )
@@ -1970,7 +1917,6 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 					   .arg( ( pAudioEngine->m_fProcessTime - pAudioEngine->m_fMaxProcessTime ) )
 					   .arg( pAudioEngine->m_fProcessTime )
 					   .arg( pAudioEngine->m_fMaxProcessTime ) );
-		___WARNINGLOG( QString( "Ladspa process time = %1" ).arg( fLadspaTime ) );
 		___WARNINGLOG( "------------" );
 		___WARNINGLOG( "" );
 		
@@ -2003,45 +1949,6 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 		pBuffer_L[ i ] += out_L[ i ];
 		pBuffer_R[ i ] += out_R[ i ];
 	}
-
-#ifdef H2CORE_HAVE_LADSPA
-	const auto ladspaStartTimePoint = Clock::now();
-
-	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-		auto pFX = pSong->getEffects()->getLadspaFX( nFX );
-		if ( pFX != nullptr && pFX->isEnabled() ) {
-			pFX->processFX( nFrames );
-
-			float *buf_L, *buf_R;
-			if ( pFX->getPluginType() == LadspaFX::STEREO_FX ) {
-				buf_L = pFX->m_pBuffer_L;
-				buf_R = pFX->m_pBuffer_R;
-			} else { // MONO FX
-				buf_L = pFX->m_pBuffer_L;
-				buf_R = buf_L;
-			}
-
-			for ( unsigned i = 0; i < nFrames; ++i ) {
-				pBuffer_L[ i ] += buf_L[ i ];
-				pBuffer_R[ i ] += buf_R[ i ];
-				if ( buf_L[ i ] > m_fFXPeak_L[nFX] ) {
-					m_fFXPeak_L[nFX] = buf_L[ i ];
-				}
-
-				if ( buf_R[ i ] > m_fFXPeak_R[nFX] ) {
-					m_fFXPeak_R[nFX] = buf_R[ i ];
-				}
-			}
-		}
-	}
-
-	const auto ladspaEndTimePoint = Clock::now();
-	m_fLadspaTime =
-		std::chrono::duration_cast< std::chrono::milliseconds >(
-			ladspaEndTimePoint - ladspaStartTimePoint).count();
-#else
-	m_fLadspaTime = 0.0;
-#endif
 
 	float fPeak_L = m_fMasterPeak_L, fPeak_R = m_fMasterPeak_R;
 	for ( unsigned i = 0; i < nFrames; ++i ) {
@@ -2095,10 +2002,6 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	if ( getState() != State::Prepared ) {
 		AE_ERRORLOG( QString( "Error the audio engine is not in State::Prepared but [%1]" )
 				  .arg( AudioEngine::StateToQString( getState() ) ) );
-	}
-
-	if ( m_pAudioDriver != nullptr ) {
-		setupLadspaFX();
 	}
 
 	float fNextBpm;
@@ -3369,17 +3272,6 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_pMidiDriver: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_pMidiDriver == nullptr ? "nullptr" :
 						   m_pMidiDriver->toQString( sPrefix + s, bShort ) ) );
-#ifdef H2CORE_HAVE_LADSPA
-		sOutput.append( QString( "%1%2m_fFXPeak_L: [" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& ii : m_fFXPeak_L ) {
-			sOutput.append( QString( " %1" ).arg( ii ) );
-		}
-		sOutput.append( QString( "]\n%1%2m_fFXPeak_R: [" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& ii : m_fFXPeak_R ) {
-			sOutput.append( QString( " %1" ).arg( ii ) );
-		}
-		sOutput.append( QString( " ]\n" ) );
-#endif
 		sOutput.append( QString( "%1%2m_fMasterPeak_L: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_fMasterPeak_L ) )
 			.append( QString( "%1%2m_fMasterPeak_R: %3\n" ).arg( sPrefix ).arg( s )
@@ -3404,8 +3296,6 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_fProcessTime ) )
 			.append( QString( "%1%2m_fMaxProcessTime: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_fMaxProcessTime ) )
-			.append( QString( "%1%2m_fLadspaTime: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_fLadspaTime ) )
 			.append( QString( "%1%2m_pPlayhead:\n").arg( sPrefix ).arg( s ) );
 		if ( m_pPlayhead != nullptr ) {
 			sOutput.append( QString( "%1" )
@@ -3469,17 +3359,6 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_pMidiDriver: %1" )
 					 .arg( m_pMidiDriver == nullptr ? "nullptr" :
 						   m_pMidiDriver->toQString( "", bShort ) ) );
-#ifdef H2CORE_HAVE_LADSPA
-		sOutput.append( ", m_fFXPeak_L: [" );
-		for ( const auto& ii : m_fFXPeak_L ) {
-			sOutput.append( QString( " %1" ).arg( ii ) );
-		}
-		sOutput.append( "], m_fFXPeak_R: [" );
-		for ( const auto& ii : m_fFXPeak_R ) {
-			sOutput.append( QString( " %1" ).arg( ii ) );
-		}
-		sOutput.append( "]" );
-#endif
 		sOutput.append( QString( ", m_fMasterPeak_L: %1" )
 					 .arg( m_fMasterPeak_L ) )
 			.append( QString( ", m_fMasterPeak_R: %1" )
@@ -3504,8 +3383,6 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_fProcessTime ) )
 			.append( QString( ", m_fMaxProcessTime: %1" )
 					 .arg( m_fMaxProcessTime ) )
-			.append( QString( ", m_fLadspaTime: %1" )
-					 .arg( m_fLadspaTime ) )
 			.append( ", m_pPlayhead: ");
 		if ( m_pPlayhead != nullptr ) {
 			sOutput.append( QString( "%1" )

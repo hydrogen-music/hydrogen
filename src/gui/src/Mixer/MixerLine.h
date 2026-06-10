@@ -100,7 +100,6 @@ private:
 	Button *				m_pPlaySampleBtn;
 	LED*				m_pTriggerSampleLED;
 	LED*				m_pSelectionLED;
-	std::vector<Rotary*> m_fxRotaries;
 
 	LCDDisplay *			m_pPeakLCD;
 };

@@ -50,8 +50,6 @@
 #include <core/Basics/Sample.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
-#include <core/FX/Effects.h>
-#include <core/FX/LadspaFX.h>
 #include <core/H2Exception.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/TimeHelper.h>
@@ -272,10 +270,6 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 
 	renamePerTrackJackAudioPorts( pSong, m_pSong != nullptr ? m_pSong->getDrumkit() : nullptr );
 
-	// In order to allow functions like audioEngine_setupLadspaFX() to
-	// load the settings of the new song, like whether the LADSPA FX
-	// are activated, m_pSong has to be set prior to the call of
-	// AudioEngine::setSong().
 	m_pSong = pSong;
 	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
 		pSong->getDrumkit()->loadSamples();
@@ -801,19 +795,6 @@ void Hydrogen::onTapTempoAccelEvent( TimePoint start ) {
 	++m_nTapTempoEventsAveraged;
 
 	CoreActionController::setBpm( m_fTapTempoAverageBpm );
-}
-
-void Hydrogen::restartLadspaFX()
-{
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-	
-	if ( pAudioEngine->getAudioDriver() ) {
-		pAudioEngine->lock( RIGHT_HERE );
-		pAudioEngine->setupLadspaFX();
-		pAudioEngine->unlock();
-	} else {
-		ERRORLOG( "m_pAudioDriver = NULL" );
-	}
 }
 
 void Hydrogen::updateSelectedPattern( bool bNeedsLock ) {

@@ -63,7 +63,6 @@ class Footer;
 class InfoBar;
 class InstrumentEditor;
 class Rack;
-class LadspaFXProperties;
 class MainToolBar;
 class Mixer;
 class PatternEditorPanel;
@@ -163,12 +162,8 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 	void showStatusBarMessage( const QString& sMessage, const QString& sCaller = "" );
 		void updateWindowTitle();
 
-#ifdef H2CORE_HAVE_LADSPA
-		LadspaFXProperties* getLadspaFXProperties( int nFX) {	return m_pLadspaFXProperties[nFX];	}
-#endif
 		void addEventListener( EventListener* pListener );
 		void removeEventListener( EventListener* pListener );
-		void closeFXProperties();
 
 		void cleanupTemporaryFiles();
 
@@ -227,10 +222,6 @@ signals:
 		void updateEventListeners();
 
 		static HydrogenApp *		m_pInstance;	///< HydrogenApp instance
-
-#ifdef H2CORE_HAVE_LADSPA
-		LadspaFXProperties *		m_pLadspaFXProperties[MAX_FX];
-#endif
 
 		/** Used for accessibility reasons to show scroll bars in case Hydrogen
 		 * has to be shrunk below its minimum size - magnified using the Qt

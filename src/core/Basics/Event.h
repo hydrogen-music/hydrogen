@@ -75,7 +75,6 @@ public:
 			DrumkitIsModified,
 			/** A the current drumkit was replaced by a new one. */
 			DrumkitLoaded,
-			EffectChanged,
 			Error,
 			GridCellToggled,
 			/** An instrument layer was added, replaced, delete, or edited using

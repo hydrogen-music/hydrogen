@@ -42,8 +42,6 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "DrumkitIsModified";
 	case Event::Type::DrumkitLoaded:
 		return "DrumkitLoaded";
-	case Event::Type::EffectChanged:
-		return "EffectChanged";
 	case Event::Type::Error:
 		return "Error";
 	case Event::Type::GridCellToggled:

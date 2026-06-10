@@ -140,7 +140,6 @@ Preferences::Preferences()
 	  m_bHearNewNotes( true ),
 	  m_bQuantizeEvents( true ),
 	  m_recentFiles( QStringList() ),
-	  m_recentFX( QStringList() ),
 	  m_nMaxBars( 400 ),
 	  m_midiFeedbackChannel( Midi::ChannelMinimum ),
 	  m_bMidiClockInputHandling( false ),
@@ -153,7 +152,6 @@ Preferences::Preferences()
 	  m_nPatternEditorGridResolution( 8 ),
 	  m_bPatternEditorUsingTriplets( false ),
 	  m_bPatternEditorAlwaysShowTypeLabels( false ),
-	  m_bIsFXTabVisible( true ),
 	  m_bHideKeyboardCursor( false ),
 	  m_bShowPlaybackTrack( true ),
 	  m_nLastOpenTab( 0 ),
@@ -280,9 +278,6 @@ Preferences::Preferences()
 
 	unsetPunchArea();
 
-	for ( int ii = 0; ii < MAX_FX; ++ii ) {
-		m_ladspaProperties[ii].set( 2, 20, 0, 0, false );
-	}
 }
 
 Preferences::Preferences( std::shared_ptr<Preferences> pOther )
@@ -358,7 +353,6 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	  m_bPatternEditorAlwaysShowTypeLabels(
 		  pOther->m_bPatternEditorAlwaysShowTypeLabels
 	  ),
-	  m_bIsFXTabVisible( pOther->m_bIsFXTabVisible ),
 	  m_bHideKeyboardCursor( pOther->m_bHideKeyboardCursor ),
 	  m_bShowPlaybackTrack( pOther->m_bShowPlaybackTrack ),
 	  m_nLastOpenTab( pOther->m_nLastOpenTab ),
@@ -435,14 +429,6 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	}
 	for ( const auto& ssFile : pOther->m_recentFiles ) {
 		m_recentFiles.push_back( ssFile );
-	}
-	for ( const auto& ssFX : pOther->m_recentFX ) {
-		m_recentFX.push_back( ssFX );
-	}
-
-	for ( int ii = 0; ii < MAX_FX; ++ii ) {
-		m_ladspaProperties[ii] =
-			WindowProperties( pOther->m_ladspaProperties[ii] );
 	}
 }
 
@@ -556,19 +542,6 @@ Preferences::load( const QString& sPath, const bool bSilent )
 	}
 	else {
 		WARNINGLOG( "<recentUsedSongs> node not found" );
-	}
-
-	const XMLNode recentFXNode =
-		rootNode.firstChildElement( "recentlyUsedEffects" );
-	if ( !recentFXNode.isNull() ) {
-		QDomElement fxElement = recentFXNode.firstChildElement( "FX" );
-		while ( !fxElement.isNull() && !fxElement.text().isEmpty() ) {
-			pPref->m_recentFX.push_back( fxElement.text() );
-			fxElement = fxElement.nextSiblingElement( "FX" );
-		}
-	}
-	else {
-		WARNINGLOG( "<recentlyUsedEffects> node not found" );
 	}
 
 	const XMLNode onlineReposNode = rootNode.firstChildElement( "onlineRepos" );
@@ -935,9 +908,6 @@ Preferences::load( const QString& sPath, const bool bSilent )
 			"showInstrumentPeaks", pPref->m_bShowInstrumentPeaks, false, false,
 			bSilent
 		);
-		pPref->m_bIsFXTabVisible = guiNode.read_bool(
-			"isFXTabVisible", pPref->m_bIsFXTabVisible, false, false, bSilent
-		);
 		pPref->m_bShowAutomationArea = guiNode.read_bool(
 			"showAutomationArea", pPref->m_bShowAutomationArea, false, false,
 			bSilent
@@ -1239,20 +1209,6 @@ Preferences::load( const QString& sPath, const bool bSilent )
 			bSilent
 		);
 
-		for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
-			auto ladspaPropertiesNode = guiNode.firstChildElement(
-				QString( "ladspaFX_properties%1" ).arg( nFX )
-			);
-			if ( !ladspaPropertiesNode.isNull() ) {
-				pPref->setLadspaProperties(
-					nFX, WindowProperties::loadFrom(
-							 ladspaPropertiesNode,
-							 pPref->m_ladspaProperties[nFX], bSilent
-						 )
-				);
-			}
-		}
-
 		const XMLNode colorThemeNode =
 			guiNode.firstChildElement( "colorTheme" );
 		if ( !colorThemeNode.isNull() ) {
@@ -1479,18 +1435,6 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 		}
 		for ( unsigned i = 0; i < nSongs; i++ ) {
 			recentUsedSongsNode.write_string( "song", m_recentFiles[i] );
-		}
-	}
-
-	XMLNode recentFXNode = rootNode.createNode( "recentlyUsedEffects" );
-	{
-		int nFX = 0;
-		QString FXname;
-		foreach ( FXname, m_recentFX ) {
-			recentFXNode.write_string( "FX", FXname );
-			if ( ++nFX > 10 ) {
-				break;
-            }
 		}
 	}
 
@@ -1722,7 +1666,6 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 		guiNode.write_int( "songEditorGridHeight", m_nSongEditorGridHeight );
 		guiNode.write_int( "songEditorGridWidth", m_nSongEditorGridWidth );
 		guiNode.write_bool( "showInstrumentPeaks", m_bShowInstrumentPeaks );
-		guiNode.write_bool( "isFXTabVisible", m_bIsFXTabVisible );
 		guiNode.write_bool( "showAutomationArea", m_bShowAutomationArea );
 		guiNode.write_bool( "showPlaybackTrack", m_bShowPlaybackTrack );
 
@@ -1750,13 +1693,6 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 		auto directorPropertiesNode =
 			guiNode.createNode( "director_properties" );
 		m_directorProperties.saveTo( directorPropertiesNode );
-		for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
-			auto ladspaPropertiesNode = guiNode.createNode(
-				QString( "ladspaFX_properties%1" ).arg( nFX )
-			);
-			m_ladspaProperties[nFX].saveTo( ladspaPropertiesNode );
-		}
-
 		// last used file dialog folders
 		guiNode.write_string(
 			"lastExportPatternAsDirectory", m_sLastExportPatternAsDirectory
@@ -2197,17 +2133,6 @@ std::vector<Preferences::AudioDriver> Preferences::getSupportedAudioDrivers()
 	return drivers;
 }
 
-void Preferences::setMostRecentFX( const QString& FX_name )
-{
-	int pos = m_recentFX.indexOf( FX_name );
-
-	if ( pos != -1 ) {
-		m_recentFX.removeAt( pos );
-	}
-
-	m_recentFX.push_front( FX_name );
-}
-
 QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 {
 	QString s = Base::sPrintIndention;
@@ -2461,11 +2386,7 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_recentFiles.join( ',' ) ) )
-				.append( QString( "%1%2m_recentFX: %3\n" )
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( m_recentFX.join( ',' ) ) )
-				.append( QString( "%1%2m_nMaxBars: %3\n" )
+			.append( QString( "%1%2m_nMaxBars: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_nMaxBars ) )
@@ -2496,11 +2417,7 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 						.arg( s )
 						.arg( m_bPatternEditorAlwaysShowTypeLabels )
 				)
-				.append( QString( "%1%2m_bIsFXTabVisible: %3\n" )
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( m_bIsFXTabVisible ) )
-				.append( QString( "%1%2m_bHideKeyboardCursor: %3\n" )
+			.append( QString( "%1%2m_bHideKeyboardCursor: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_bHideKeyboardCursor ) )
@@ -2562,15 +2479,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( m_audioEngineInfoProperties.toQString(
 								 s, bShort
 							 ) ) );
-		for ( int ii = 0; ii < MAX_FX; ++ii ) {
-			sOutput.append(
-				QString( "%1%2m_ladspaProperties[%3]: %4\n" )
-					.arg( sPrefix )
-					.arg( s )
-					.arg( ii )
-					.arg( m_ladspaProperties[ii].toQString( s, bShort ) )
-			);
-		}
 		sOutput
 			.append( QString( "%1%2m_playlistEditorProperties: %3\n" )
 						 .arg( sPrefix )
@@ -2883,9 +2791,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( m_bQuantizeEvents ) )
 				.append( QString( ", m_recentFiles: %1" )
 							 .arg( m_recentFiles.join( ',' ) ) )
-				.append(
-					QString( ", m_recentFX: %1" ).arg( m_recentFX.join( ',' ) )
-				)
 				.append( QString( ", m_nMaxBars: %1" ).arg( m_nMaxBars ) )
 				.append( QString( ", m_bSearchForRubberbandOnLoad: %1" )
 							 .arg( m_bSearchForRubberbandOnLoad ) )
@@ -2899,8 +2804,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( m_bPatternEditorUsingTriplets ) )
 				.append( QString( ", m_bPatternEditorAlwaysShowTypeLabels: %1" )
 							 .arg( m_bPatternEditorAlwaysShowTypeLabels ) )
-				.append( QString( ", m_bIsFXTabVisible: %1" )
-							 .arg( m_bIsFXTabVisible ) )
 				.append( QString( ", m_bHideKeyboardCursor: %1" )
 							 .arg( m_bHideKeyboardCursor ) )
 				.append( QString( ", m_bShowPlaybackTrack: %1" )
@@ -2936,14 +2839,7 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( m_audioEngineInfoProperties.toQString(
 								 "", bShort
 							 ) ) );
-		for ( int ii = 0; ii < MAX_FX; ++ii ) {
-			sOutput.append(
-				QString( ", m_ladspaProperties[%1]: %2" )
-					.arg( ii )
-					.arg( m_ladspaProperties[ii].toQString( "", bShort ) )
-			);
-		}
-		sOutput
+	sOutput
 			.append(
 				QString( ", m_playlistEditorProperties: %1" )
 					.arg( m_playlistEditorProperties.toQString( "", bShort ) )

@@ -49,10 +49,6 @@ QString MidiAction::typeToQString( const Type& type )
 			return "COUNT_IN_PAUSE_TOGGLE";
 		case Type::CountInStopToggle:
 			return "COUNT_IN_STOP_TOGGLE";
-		case Type::EffectLevelAbsolute:
-			return "EFFECT_LEVEL_ABSOLUTE";
-		case Type::EffectLevelRelative:
-			return "EFFECT_LEVEL_RELATIVE";
 		case Type::FilterCutoffLevelAbsolute:
 			return "FILTER_CUTOFF_LEVEL_ABSOLUTE";
 		case Type::GainLevelAbsolute:
@@ -192,12 +188,6 @@ MidiAction::Type MidiAction::parseType( const QString& sType )
 	}
 	else if ( s == "count_in_stop_toggle" ) {
 		return Type::CountInStopToggle;
-	}
-	else if ( s == "effect_level_absolute" ) {
-		return Type::EffectLevelAbsolute;
-	}
-	else if ( s == "effect_level_relative" ) {
-		return Type::EffectLevelRelative;
 	}
 	else if ( s == "filter_cutoff_level_absolute" ) {
 		return Type::FilterCutoffLevelAbsolute;
@@ -372,14 +362,7 @@ MidiAction::Requires MidiAction::requiresFromType( const Type& type )
 		requires = static_cast<Requires>( requires | RequiresFactor );
 	}
 
-	if ( type == Type::EffectLevelAbsolute ||
-		 type == Type::EffectLevelRelative ) {
-		requires = static_cast<Requires>( requires | RequiresFx );
-	}
-
-	if ( type == Type::EffectLevelAbsolute ||
-		 type == Type::EffectLevelRelative ||
-		 type == Type::FilterCutoffLevelAbsolute ||
+	if ( type == Type::FilterCutoffLevelAbsolute ||
 		 type == Type::GainLevelAbsolute || type == Type::InstrumentPitch ||
 		 type == Type::PanAbsolute || type == Type::PanAbsoluteSym ||
 		 type == Type::PanRelative || type == Type::PitchLevelAbsolute ||
@@ -413,7 +396,6 @@ MidiAction::MidiAction( Type type, TimePoint timePoint )
 	  m_nValue( 0 ),
 	  m_nComponent( MidiAction::nInvalidParameter ),
 	  m_fFactor( MidiAction::fInvalidParameter ),
-	  m_nFx( MidiAction::nInvalidParameter ),
 	  m_nInstrument( MidiAction::nInvalidParameter ),
 	  m_nLayer( MidiAction::nInvalidParameter ),
 	  m_nPattern( MidiAction::nInvalidParameter ),
@@ -437,7 +419,6 @@ MidiAction::MidiAction( const std::shared_ptr<MidiAction> pOther )
 		m_requires = pOther->m_requires;
 		m_nComponent = pOther->m_nComponent;
 		m_fFactor = pOther->m_fFactor;
-		m_nFx = pOther->m_nFx;
 		m_nInstrument = pOther->m_nInstrument;
 		m_nLayer = pOther->m_nLayer;
 		m_nPattern = pOther->m_nPattern;
@@ -474,9 +455,7 @@ std::shared_ptr<MidiAction> MidiAction::fromQStrings(
 )
 {
 	auto pMidiAction = std::make_shared<MidiAction>( type );
-	if ( type == Type::EffectLevelAbsolute ||
-		 type == Type::EffectLevelRelative ||
-		 type == Type::FilterCutoffLevelAbsolute ||
+	if ( type == Type::FilterCutoffLevelAbsolute ||
 		 type == Type::GainLevelAbsolute || type == Type::InstrumentPitch ||
 		 type == Type::PanAbsolute || type == Type::PanAbsoluteSym ||
 		 type == Type::PanRelative || type == Type::PitchLevelAbsolute ||
@@ -493,11 +472,6 @@ std::shared_ptr<MidiAction> MidiAction::fromQStrings(
 	if ( type == Type::BpmDecr || type == Type::BpmIncr ||
 		 type == Type::BpmCcRelative || type == Type::BpmFineCcRelative ) {
 		pMidiAction->setFactor( sParameter1.toFloat() );
-	}
-
-	if ( type == Type::EffectLevelAbsolute ||
-		 type == Type::EffectLevelRelative ) {
-		pMidiAction->setFx( sParameter2.toInt() );
 	}
 
 	if ( type == Type::GainLevelAbsolute || type == Type::PitchLevelAbsolute ) {
@@ -530,9 +504,7 @@ void MidiAction::toQStrings(
 		return;
 	}
 
-	if ( m_type == Type::EffectLevelAbsolute ||
-		 m_type == Type::EffectLevelRelative ||
-		 m_type == Type::FilterCutoffLevelAbsolute ||
+	if ( m_type == Type::FilterCutoffLevelAbsolute ||
 		 m_type == Type::GainLevelAbsolute || m_type == Type::InstrumentPitch ||
 		 m_type == Type::PanAbsolute || m_type == Type::PanAbsoluteSym ||
 		 m_type == Type::PanRelative || m_type == Type::PitchLevelAbsolute ||
@@ -550,11 +522,6 @@ void MidiAction::toQStrings(
 	if ( m_type == Type::BpmDecr || m_type == Type::BpmIncr ||
 		 m_type == Type::BpmCcRelative || m_type == Type::BpmFineCcRelative ) {
 		*pParameter1 = QString::number( getFactor() );
-	}
-
-	if ( m_type == Type::EffectLevelAbsolute ||
-		 m_type == Type::EffectLevelRelative ) {
-		*pParameter2 = QString::number( getFx() );
 	}
 
 	if ( m_type == Type::GainLevelAbsolute ||
@@ -646,32 +613,6 @@ void MidiAction::setFactor( float newFactor )
 	}
 
 	m_fFactor = newFactor;
-}
-
-int MidiAction::getFx() const
-{
-	if ( !( m_requires & MidiAction::RequiresFx ) ) {
-		ERRORLOG( QString( "Midi action [%1] does not support the Fx parameter"
-		)
-					  .arg( toQString() ) );
-		assert( false );
-		return MidiAction::nInvalidParameter;
-	}
-
-	return m_nFx;
-}
-
-void MidiAction::setFx( int newFx )
-{
-	if ( !( m_requires & MidiAction::RequiresFx ) ) {
-		ERRORLOG( QString( "Midi action [%1] does not support the Fx parameter"
-		)
-					  .arg( toQString() ) );
-		assert( false );
-		return;
-	}
-
-	m_nFx = std::max( 0, newFx );
 }
 
 int MidiAction::getInstrument() const
@@ -802,7 +743,7 @@ bool MidiAction::isEquivalentTo( const std::shared_ptr<MidiAction> pOther
 
 	return (
 		m_type == pOther->m_type && m_nComponent == pOther->m_nComponent &&
-		m_fFactor == pOther->m_fFactor && m_nFx == pOther->m_nFx &&
+		m_fFactor == pOther->m_fFactor &&
 		m_nLayer == pOther->m_nLayer && m_nPattern == pOther->m_nPattern &&
 		m_nSong == pOther->m_nSong && m_nValue == pOther->m_nValue
 	);
@@ -820,9 +761,6 @@ QString MidiAction::toQString( const QString& sPrefix, bool bShort ) const
 	}
 	if ( m_requires & MidiAction::RequiresFactor ) {
 		requires << "Factor";
-	}
-	if ( m_requires & MidiAction::RequiresFx ) {
-		requires << "Fx";
 	}
 	if ( m_requires & MidiAction::RequiresInstrument ) {
 		requires << "Instrument";
@@ -860,15 +798,11 @@ QString MidiAction::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_nComponent ) )
-				.append( QString( "%1%2m_fFactor: %3\n" )
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( m_fFactor ) )
-				.append( QString( "%1%2m_nFx: %3\n" )
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( m_nFx ) )
-				.append( QString( "%1%2m_nInstrument: %3\n" )
+			.append( QString( "%1%2m_fFactor: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_fFactor ) )
+			.append( QString( "%1%2m_nInstrument: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_nInstrument ) )
@@ -901,7 +835,6 @@ QString MidiAction::toQString( const QString& sPrefix, bool bShort ) const
 				)
 				.append( QString( ", m_nComponent: %1" ).arg( m_nComponent ) )
 				.append( QString( ", m_fFactor: %1" ).arg( m_fFactor ) )
-				.append( QString( ", m_nFx: %1" ).arg( m_nFx ) )
 				.append( QString( ", m_nInstrument: %1" ).arg( m_nInstrument ) )
 				.append( QString( ", m_nLayer: %1" ).arg( m_nLayer ) )
 				.append( QString( ", m_nPattern: %1" ).arg( m_nPattern ) )

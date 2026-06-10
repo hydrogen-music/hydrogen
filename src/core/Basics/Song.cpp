@@ -39,7 +39,6 @@
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Sample.h>
 #include <core/EventQueue.h>
-#include <core/FX/Effects.h>
 #include <core/Globals.h>
 #include <core/Helpers/Legacy.h>
 #include <core/Hydrogen.h>
@@ -97,7 +96,6 @@ Song::Song(
 	  m_sLastLoadedDrumkitPath( "" ),
 	  m_pDrumkit( std::make_shared<Drumkit>() ),
 	  m_pTimeline( std::make_shared<Timeline>() ),
-	  m_pEffects( std::make_shared<Effects>() ),
 	  m_bWasAskedAboutMissingSamples( false )
 {
 	if ( m_sName.isEmpty() ) {
@@ -693,63 +691,6 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
 		WARNINGLOG( "'patternSequence' node not found. Aborting." );
 	}
 
-	// LADSPA FX
-	XMLNode ladspaNode = rootNode.firstChildElement( "ladspa" );
-	if ( !ladspaNode.isNull() ) {
-		int nFX = 0;
-		XMLNode fxNode = ladspaNode.firstChildElement( "fx" );
-		while ( !fxNode.isNull() ) {
-			QString sName =
-				fxNode.read_string( "name", "", false, false, bSilent );
-
-			if ( sName != "no plugin" ) {
-#ifdef H2CORE_HAVE_LADSPA
-				// TODO The upload must be handled by the engine, as only it
-				// knows the exact sample rate.
-				auto pFX = LadspaFX::load(
-					fxNode.read_string( "filename", "", false, false, bSilent ),
-					sName, 44100
-				);
-				pSong->getEffects()->setLadspaFX( pFX, nFX );
-				if ( pFX != nullptr ) {
-					pFX->setEnabled( fxNode.read_bool(
-						"enabled", false, false, false, bSilent
-					) );
-					pFX->setVolume( fxNode.read_float(
-						"volume", 1.0, false, false, bSilent
-					) );
-					XMLNode inputControlNode =
-						fxNode.firstChildElement( "inputControlPort" );
-					while ( !inputControlNode.isNull() ) {
-						QString sName = inputControlNode.read_string(
-							"name", "", false, false, bSilent
-						);
-						float fValue = inputControlNode.read_float(
-							"value", 0.0, false, false, bSilent
-						);
-
-						for ( unsigned nPort = 0;
-							  nPort < pFX->inputControlPorts.size(); nPort++ ) {
-							auto pPort = pFX->inputControlPorts[nPort];
-							if ( QString( pPort->sName ) == sName ) {
-								pPort->fControlValue = fValue;
-							}
-						}
-						inputControlNode = inputControlNode.nextSiblingElement(
-							"inputControlPort"
-						);
-					}
-				}
-#endif
-			}
-			nFX++;
-			fxNode = fxNode.nextSiblingElement( "fx" );
-		}
-	}
-	else if ( !bSilent ) {
-		WARNINGLOG( "'ladspa' node not found" );
-	}
-
 	auto pTimeline = std::make_shared<Timeline>();
 	XMLNode bpmTimeLineNode = rootNode.firstChildElement( "BPMTimeLine" );
 	if ( !bpmTimeLineNode.isNull() ) {
@@ -1045,51 +986,6 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples, bool bSilent )
 					}
 				}
 			}
-		}
-	}
-
-	XMLNode ladspaFxNode = rootNode.createNode( "ladspa" );
-	for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
-		XMLNode fxNode = ladspaFxNode.createNode( "fx" );
-
-#ifdef H2CORE_HAVE_LADSPA
-		auto pFX = m_pEffects->getLadspaFX( nFX );
-		if ( pFX != nullptr ) {
-			fxNode.write_string( "name", pFX->getPluginLabel() );
-			fxNode.write_string( "filename", pFX->getLibraryPath() );
-			fxNode.write_bool( "enabled", pFX->isEnabled() );
-			fxNode.write_float( "volume", pFX->getVolume() );
-
-			for ( unsigned nControl = 0;
-				  nControl < pFX->inputControlPorts.size(); nControl++ ) {
-				auto pControlPort = pFX->inputControlPorts[nControl];
-				XMLNode controlPortNode =
-					fxNode.createNode( "inputControlPort" );
-				controlPortNode.write_string( "name", pControlPort->sName );
-				controlPortNode.write_string(
-					"value", QString( "%1" ).arg( pControlPort->fControlValue )
-				);
-			}
-			for ( unsigned nControl = 0;
-				  nControl < pFX->outputControlPorts.size(); nControl++ ) {
-				auto pControlPort = pFX->inputControlPorts[nControl];
-				XMLNode controlPortNode =
-					fxNode.createNode( "outputControlPort" );
-				controlPortNode.write_string( "name", pControlPort->sName );
-				controlPortNode.write_string(
-					"value", QString( "%1" ).arg( pControlPort->fControlValue )
-				);
-			}
-		}
-#else
-		if ( false ) {
-		}
-#endif
-		else {
-			fxNode.write_string( "name", QString( "no plugin" ) );
-			fxNode.write_string( "filename", QString( "-" ) );
-			fxNode.write_bool( "enabled", false );
-			fxNode.write_float( "volume", 0.0 );
 		}
 	}
 

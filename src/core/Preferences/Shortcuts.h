@@ -132,8 +132,6 @@ public:
 		FirstWithManyArgs		 	= 300,
 		LayerPitch				 	= 301,
 		LayerGain				 	= 302,
-		
-		StripEffectLevel		 	= 303,
 
 		LastWithManyArgs		 	= 399,
 

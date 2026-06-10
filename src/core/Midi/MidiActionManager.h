@@ -143,8 +143,6 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool countIn( std::shared_ptr<MidiAction> );
 		bool countInPauseToggle( std::shared_ptr<MidiAction> );
 		bool countInStopToggle( std::shared_ptr<MidiAction> );
-		bool effectLevelAbsolute( std::shared_ptr<MidiAction> );
-		bool effectLevelRelative( std::shared_ptr<MidiAction> );
 		bool filterCutoffLevelAbsolute( std::shared_ptr<MidiAction> );
 		bool gainLevelAbsolute( std::shared_ptr<MidiAction> );
 		bool humanizationSwingAbsolute( std::shared_ptr<MidiAction> );

@@ -493,37 +493,6 @@ bool CoreActionController::setStripPanSym(
 	return true;
 }
 
-bool CoreActionController::setStripEffectLevel(
-	int nStrip,
-	int nEffect,
-	float fValue,
-	bool bSelectStrip
-)
-{
-	auto pHydrogen = Hydrogen::get_instance();
-	ASSERT_HYDROGEN
-	auto pInstr = getStrip( nStrip );
-	if ( pInstr == nullptr || nEffect < 0 || nEffect >= MAX_FX ) {
-		return false;
-	}
-
-	if ( bSelectStrip ) {
-		pHydrogen->setSelectedInstrumentNumber( nStrip );
-	}
-
-	if ( pInstr->getFxLevel( nEffect ) != fValue ) {
-		pInstr->setFxLevel( fValue, nEffect );
-
-		EventQueue::get_instance()->pushEvent(
-			Event::Type::InstrumentParametersChanged, nStrip
-		);
-
-		pHydrogen->setDrumkitModified( true );
-	}
-
-	return true;
-}
-
 bool CoreActionController::sendMasterVolumeFeedback()
 {
 	auto pHydrogen = Hydrogen::get_instance();

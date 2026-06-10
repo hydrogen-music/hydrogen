@@ -371,11 +371,6 @@
         <translation>LdT</translation>
     </message>
     <message>
-        <source>FX</source>
-        <extracomment>Text displayed on the button to enable the LADSPA effect strips. Its size is designed to hold two characters.</extracomment>
-        <translation>FX</translation>
-    </message>
-    <message>
         <source>Peak</source>
         <extracomment>Text displayed on the button to show the instrument peaks. Its size is designed to hold four characters.</extracomment>
         <translation>Pic</translation>
@@ -563,11 +558,6 @@ Name of note property adjustable in NotePropertiesRuler, using * humanization in
         <source>Master</source>
         <extracomment>Text displayed as the title of the Master Mixer Strip. Designed to hold six characters but flexible.</extracomment>
         <translation>Général</translation>
-    </message>
-    <message>
-        <source>Return</source>
-        <extracomment>Text displayed below the rotary in the FX Mixerline. Designed to hold six characters but flexible.</extracomment>
-        <translation>Retour</translation>
     </message>
     <message>
         <source>Range</source>
@@ -779,16 +769,6 @@ Are you sure?</source>
         <source>Layer Number</source>
         <extracomment>Label shown in the input capture dialog for querying a layer number of the specified instrument component.</extracomment>
         <translation>Numéro de la couche</translation>
-    </message>
-    <message>
-        <source>FX Level</source>
-        <extracomment>Label shown in the input capture dialog for querying a FX level of the specified FX.</extracomment>
-        <translation>Niveau d&apos;effet</translation>
-    </message>
-    <message>
-        <source>FX Number</source>
-        <extracomment>Label shown in the input capture dialog for querying a FX number of the specified instrument.</extracomment>
-        <translation>Numéro d&apos;effet</translation>
     </message>
     <message>
         <source>Pan</source>
@@ -2356,246 +2336,6 @@ Overwrite the existing file?</source>
     </message>
 </context>
 <context>
-    <name>LadspaFXLine</name>
-    <message>
-        <source>FX bypass</source>
-        <translation>Court-circuiter l&apos;effet</translation>
-    </message>
-    <message>
-        <source>Edit FX parameters</source>
-        <translation>Modifier les paramètres d&apos;effet</translation>
-    </message>
-    <message>
-        <source>Ladspa FX name</source>
-        <translation>Nom de l&apos;effet LADSPA</translation>
-    </message>
-    <message>
-        <source>Effect return</source>
-        <translation>Retour de l&apos;effet</translation>
-    </message>
-    <message>
-        <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation>Les effets LADSPA ne sont pas disponibles dans cette version d&apos;Hydrogen.</translation>
-    </message>
-    <message>
-        <source>Set volume [%1] of FX</source>
-        <translation>Régler le volume [%1] de l&apos;effet</translation>
-    </message>
-    <message>
-        <source>No plugin</source>
-        <translation>Pas de greffon</translation>
-    </message>
-</context>
-<context>
-    <name>LadspaFXProperties</name>
-    <message>
-        <source>Select FX</source>
-        <translation>Choisir l&apos;effet</translation>
-    </message>
-    <message>
-        <source>[%1] LADSPA FX Properties</source>
-        <translation>[%1] Propriétés de l&apos;effet LADSPA</translation>
-    </message>
-    <message>
-        <source>LADSPA FX %1 Properties</source>
-        <translation>Propriétés de l&apos;effet LADSPA %1</translation>
-    </message>
-    <message>
-        <source>No plugin</source>
-        <translation>Pas de greffon</translation>
-    </message>
-    <message>
-        <source>Activate</source>
-        <translation>Activer</translation>
-    </message>
-    <message>
-        <source>Deactivate</source>
-        <translation>Désactiver</translation>
-    </message>
-    <message>
-        <source>Remove FX</source>
-        <translation>Retirer l&apos;effet</translation>
-    </message>
-    <message>
-        <source>Input control param. value</source>
-        <translation>Valeur du paramètre de contrôle d&apos;entrée</translation>
-    </message>
-    <message>
-        <source>Output control param. value</source>
-        <translation>Valeur du paramètre de contrôle de sortie</translation>
-    </message>
-</context>
-<context>
-    <name>LadspaFXSelector</name>
-    <message>
-        <source>Groups</source>
-        <translation>Groupes</translation>
-    </message>
-    <message>
-        <source>Stereo</source>
-        <translation>Stéréo</translation>
-    </message>
-    <message>
-        <source>Mono</source>
-        <translation>Mono</translation>
-    </message>
-    <message>
-        <source>Not supported</source>
-        <translation>Non supporté</translation>
-    </message>
-    <message>
-        <source>Select LADSPA FX</source>
-        <translation>Choisir un effet LADSPA</translation>
-    </message>
-    <message>
-        <source>Recently Used</source>
-        <translation>Utilisé récemment</translation>
-    </message>
-    <message>
-        <source>Alphabetic List</source>
-        <translation>Liste en ordre alphabétique</translation>
-    </message>
-    <message>
-        <source>Categorized</source>
-        <translation>Par catégorie</translation>
-    </message>
-</context>
-<context>
-    <name>LadspaFXSelector_UI</name>
-    <message>
-        <source>Form1</source>
-        <translation>Form1</translation>
-    </message>
-    <message>
-        <source>### fx label</source>
-        <translation>### étiquette de l&apos;effet</translation>
-    </message>
-    <message>
-        <source>### fx type</source>
-        <translation>### type d&apos;effet</translation>
-    </message>
-    <message>
-        <source>### fx ID</source>
-        <translation>### ID de l&apos;effet</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Annuler</translation>
-    </message>
-    <message>
-        <source>Alt+C</source>
-        <translation>Alt+C</translation>
-    </message>
-    <message>
-        <source>&amp;OK</source>
-        <translation>&amp;OK</translation>
-    </message>
-    <message>
-        <source>Alt+O</source>
-        <translation>Alt+O</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation>1</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Name:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Nom:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>### fx name
-1</source>
-        <translation>### nom de l&apos;effet
-1</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Label:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Étiquette:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Type:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Type:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Maker:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Auteur:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>### FX maker
-1
-2</source>
-        <translation>### Créateur de l&apos;effet
-1
-2</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Copyright:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Copyright:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>### copyright
-1
-2
-3</source>
-        <translation>### copyright
-1
-2
-3</translation>
-    </message>
-</context>
-<context>
     <name>LayerPreview</name>
     <message>
         <source>Dec. = %1
@@ -3399,10 +3139,6 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
 <context>
     <name>Mixer</name>
     <message>
-        <source>Show FX panel</source>
-        <translation>Montrer les effets</translation>
-    </message>
-    <message>
         <source>Show instrument peaks</source>
         <translation>Montrer les niveaux</translation>
     </message>
@@ -3425,10 +3161,6 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
 </context>
 <context>
     <name>MixerLine</name>
-    <message>
-        <source>FX %1 send</source>
-        <translation>effet %1 envoi</translation>
-    </message>
     <message>
         <source>Volume</source>
         <translation>Volume</translation>
@@ -5334,10 +5066,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <message>
         <source>Set instrument layer gain</source>
         <translation>Régler le gain de la couche d&apos;instrument</translation>
-    </message>
-    <message>
-        <source>Set instrument FX aux level</source>
-        <translation>Régler le niveau auxiliaire d&apos;effet</translation>
     </message>
     <message>
         <source>Create empty song</source>

@@ -65,7 +65,7 @@ show_interactive_menu(){
 				;;
 			4)	#Clean CMake Files
 				cd $HYDROGEN_BUILD
-				rm -r CMakeCache.txt CMakeFiles cmake_install.cmake CPackConfig.cmake _CPack_Packages CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile src try uninstall.cmake
+				rm -r CMakeCache.txt CMakeFiles cmake_install.cmake CPackConfig.cmake _CPack_Packages CPackSourceConfig.cmake install_manifest.txt Makefile src try uninstall.cmake
 				rm ../mxe ../gcc
 				;;
 
@@ -161,7 +161,7 @@ cleanbuild(){
 	fi
 	if [ -f CMakeCache.txt ]; then
 		rm -rf _CPack_Packages CMakeFiles try src extralibs
-		rm -f CMakeCache.txt CPackConfig.cmake cmake_install.cmake CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile uninstall.cmake
+		rm -f CMakeCache.txt CPackConfig.cmake cmake_install.cmake CPackSourceConfig.cmake install_manifest.txt Makefile uninstall.cmake
 	fi
 }
 
@@ -202,7 +202,7 @@ build_hydrogen(){
 	if [ -e ../CMakeCache.txt ]; then
 		echo "Previous build detected. We will now remove the caches so the project will build properly."
 		rm -rf _CPack_Packages CMakeFiles try
-		rm -f CMakeCache.txt CPackConfig.cmake cmake_install.cmake CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile uninstall.cmake
+		rm -f CMakeCache.txt CPackConfig.cmake cmake_install.cmake CPackSourceConfig.cmake install_manifest.txt Makefile uninstall.cmake
 	fi
 
 	PATH=/opt/mxe/usr/bin:$PATH;
@@ -237,18 +237,6 @@ build_hydrogen(){
 		fi
 
 		cd ..
-		if [ ! -e plugins ]; then
-			mkdir plugins
-			cd plugins
-			if [ ! -e ladspaplugs ]; then
-				mkdir ladspaplugs
-			fi
-			cd ladspaplugs
-			if [ ! -e "LADSPA_plugins-win-0.4.15.exe" ]; then
-				wget http://sourceforge.net/projects/audacity/files/audacity/2.0.5/LADSPA_plugins-win-0.4.15.exe
-			fi
-			cd ..
-		fi
 	fi
 
 	cd $HYDROGEN_BUILD
@@ -273,7 +261,7 @@ build_hydrogen(){
 usage(){
 	echo -e "\nManual mode:\t\tcross_compile.sh [-f] [-d SOURCE_DIR] [-c] -b i686|x86_64"
 	echo -e "Interactive mode:\tcross_compile.sh -i"
-	echo -e "Usage: \n\t-i:\tUse interactive mode \n\t-b:\tBuild hydrogen. Valid values: i686 or x86_64 \n\t-f:\tFat build (includes Jack and Ladspa installers). Only useful in combination with -b \n\t-c:\tClean the CMake files from the windows directory. Used if building fails, or compiling a different version.\n\t-r:\tBuild release packages. This will build both the 32 bit and 64 bit installers for releases."
+	echo -e "Usage: \n\t-i:\tUse interactive mode \n\t-b:\tBuild hydrogen. Valid values: i686 or x86_64 \n\t-f:\tFat build (includes Jack installers). Only useful in combination with -b \n\t-c:\tClean the CMake files from the windows directory. Used if building fails, or compiling a different version.\n\t-r:\tBuild release packages. This will build both the 32 bit and 64 bit installers for releases."
 }
 
 fatbuild=false

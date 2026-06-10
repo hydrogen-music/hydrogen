@@ -1115,8 +1115,8 @@ void XmlTest::testSamplePathsWritten() {
 	// drumkit (containing the samples) and 2. convert this part of the DOM back
 	// into a string and perform a line-by-line search for the elements
 	// containing sample paths. This way we ensure no other filenames, like the
-	// ones for the LADSPA effects, will leak into our check and, at the same
-	// time, be resilient to changes in the drumkit structure.
+	// ones formerly used for the LADSPA effects, will leak into our check and,
+	// at the same time, be resilient to changes in the drumkit structure.
 	const QString sSamplePathElement( "<filename>" );
 	const QString sSamplePathClosingElement( "</filename>" );
 

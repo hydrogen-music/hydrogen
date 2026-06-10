@@ -276,7 +276,6 @@ public:
 
 	void			onTapTempoAccelEvent( TimePoint start = TimePoint() );
 
-	void			restartLadspaFX();
 	/** \return #m_nSelectedPatternNumber*/
 	int				getSelectedPatternNumber() const;
 	/**

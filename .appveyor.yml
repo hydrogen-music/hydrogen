@@ -171,9 +171,7 @@ for:
       echo "Building with $CPUS cpus"
       mkdir build || exit 1
       cd build || exit 1
-      cmake -DWANT_LRDF=1 \
-            -DWANT_LRDF=1 \
-            -DWANT_JACK:BOOL=OFF \
+      cmake -DWANT_JACK:BOOL=OFF \
             -DWANT_QT6:BOOL=ON \
             -DWANT_PORTMIDI=1 \
             -DWANT_PORTAUDIO=1 \
@@ -329,8 +327,7 @@ for:
       echo "Building with $CPUS cpus"
       mkdir build || exit 1
       cd build || exit 1
-      cmake -DWANT_LRDF=1 \
-            -DWANT_RUBBERBAND=1 \
+      cmake -DWANT_RUBBERBAND=1 \
             -DWANT_PORTMIDI=1 \
             -DWANT_PORTAUDIO=1 \
             -DWANT_APPIMAGE=1 \
@@ -496,8 +493,7 @@ for:
       (
           mkdir build &&                                                        \
               cd build &&                                                       \
-              cmake -DWANT_LRDF=1                                               \
-                    -DDISPLAY_VERSION_PIPELINE=${DISPLAY_VERSION}               \
+              cmake -DDISPLAY_VERSION_PIPELINE=${DISPLAY_VERSION}               \
                     -DWANT_RUBBERBAND=1 .. &&                                   \
               make -j $CPUS
       ) || exit 1

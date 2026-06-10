@@ -64,10 +64,6 @@
 
 
 /**
- * Maximum number of effects. Set by __cmake__ to 4 (currently).
- */
-#define MAX_FX          	@MAX_FX@
-/**
  * Maximum buffer size. Set by __cmake__ to 8192 (currently).
  */
 #define MAX_BUFFER_SIZE 	@MAX_BUFFER_SIZE@
@@ -119,12 +115,6 @@
 /** Specifies whether the pulse/pulseaudio.h header could be found in
     the pulse library. */
 #define H2CORE_HAVE_PULSEAUDIO
-/** Specifies whether the lrdf.h header could be found in the lrdf
-    library. */
-#define H2CORE_HAVE_LRDF
-/** Specifies whether the ladspa.h header could be found in the noise
-    library. */
-#define H2CORE_HAVE_LADSPA
 /** Specifies whether the rubberband/RubberBandStretcher.h header
     could be found in the rubberband library. */
 #define H2CORE_HAVE_RUBBERBAND

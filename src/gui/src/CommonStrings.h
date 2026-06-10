@@ -63,7 +63,6 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	}
 	const QString& getTimelineButton() const { return m_sTimelineButton; }
 	const QString& getTimelineBigButton() const { return m_sTimelineBigButton; }
-	const QString& getFXButton() const { return m_sFXButton; }
 	const QString& getPeakButton() const { return m_sPeakButton; }
 	const QString& getInstrumentButton() const { return m_sInstrumentButton; }
 	const QString& getSelectModeButton() const { return m_sSelectModeButton; }
@@ -130,7 +129,6 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getTimingLabel() const { return m_sTimingLabel; }
 	const QString& getVelocityLabel() const { return m_sVelocityLabel; }
 	const QString& getMasterLabel() const { return m_sMasterLabel; }
-	const QString& getReturnLabel() const { return m_sReturnLabel; }
 	const QString& getDriverRestartButton() const
 	{
 		return m_sDriverRestartButton;
@@ -362,14 +360,6 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		return m_sInputCaptureComponent;
 	}
 	const QString& getInputCaptureLayer() const { return m_sInputCaptureLayer; }
-	const QString& getInputCaptureFXLevel() const
-	{
-		return m_sInputCaptureFXLevel;
-	}
-	const QString& getInputCaptureFXNumber() const
-	{
-		return m_sInputCaptureFXNumber;
-	}
 	const QString& getInputCaptureFilterCutoff() const
 	{
 		return m_sInputCaptureFilterCutoff;
@@ -751,7 +741,6 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sPlaybackTrackButton;
 	QString m_sTimelineButton;
 	QString m_sTimelineBigButton;
-	QString m_sFXButton;
 	QString m_sPeakButton;
 	QString m_sInstrumentButton;
 	QString m_sSelectModeButton;
@@ -794,7 +783,6 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sTimingLabel;
 	QString m_sVelocityLabel;
 	QString m_sMasterLabel;
-	QString m_sReturnLabel;
 	QString m_sDriverRestartButton;
 	QString m_sAllLabel;
 	QString m_sCurrentlySelectedLabel;
@@ -901,8 +889,6 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sInputCaptureInstrument;
 	QString m_sInputCaptureComponent;
 	QString m_sInputCaptureLayer;
-	QString m_sInputCaptureFXLevel;
-	QString m_sInputCaptureFXNumber;
 	QString m_sInputCaptureFilterCutoff;
 	QString m_sInputCaptureTag;
 

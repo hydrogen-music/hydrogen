@@ -154,33 +154,9 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 		}
 	});
 
-	// FX send
-	int nnRow = 0;
-	for ( int ii = 0; ii < MAX_FX; ii++ ) {
-		auto pRotary = new Rotary(
-			this, Rotary::Type::Small, tr( "FX %1 send" ).arg( ii + 1 ), false );
-		pRotary->setModifierTarget( Modifier::Song );
-		pRotary->setObjectName( "FXRotary" );
-		if ( (ii % 2) == 0 ) {
-			pRotary->move( 9, 63 + (20 * nnRow) );
-		}
-		else {
-			pRotary->move( 30, 63 + (20 * nnRow) );
-			nnRow++;
-		}
-		connect( pRotary, &Rotary::valueChanged, [=]() {
-			const int nLine = retrieveLineNumber();
-			if ( nLine != -1 ) {
-				CoreActionController::setStripEffectLevel(
-					nLine, ii, pRotary->getValue(), true );
-			}
-		});
-		m_fxRotaries.push_back( pRotary );
-	}
-
 	// instrument name widget
 	m_pNameWidget = new InstrumentNameWidget( this );
-	m_pNameWidget->move( 6, 128 );
+	m_pNameWidget->move( 6, 91 );
 	connect( m_pNameWidget, &InstrumentNameWidget::clicked, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
@@ -190,11 +166,11 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 
 	// m_pFader
 	m_pFader = new Fader(
-		this, QSize( 23, 117 ), Fader::Type::Vertical, tr( "Volume" ), false,
+		this, QSize( 23, 154 ), Fader::Type::Vertical, tr( "Volume" ), false,
 		false, 0.0, 1.5
 	);
 	m_pFader->setModifierTarget( Modifier::Drumkit );
-	m_pFader->move( 23, 128 );
+	m_pFader->move( 23, 91 );
 	connect( m_pFader, &Fader::valueChanged, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
@@ -204,7 +180,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	});
 
 	m_pPeakLCD = new LCDDisplay( this, QSize( 41, 19 ), false, false );
-	m_pPeakLCD->move( 8, 105 );
+	m_pPeakLCD->move( 8, 68 );
 	m_pPeakLCD->setText( "0.00" );
 	m_pPeakLCD->setToolTip( tr( "Peak" ) );
 	QPalette lcdPalette;
@@ -240,9 +216,6 @@ void MixerLine::updateLine() {
 		m_pSoloBtn->setChecked( false );
 		m_pSoloBtn->setIsActive( false );
 		m_pPlaySampleBtn->setIsActive( false );
-		for ( auto& ppFxRotary : m_fxRotaries ) {
-			ppFxRotary->setIsActive( false );
-		}
 
 		return;
 	}
@@ -252,9 +225,6 @@ void MixerLine::updateLine() {
 		m_pMuteBtn->setIsActive( true );
 		m_pSoloBtn->setIsActive( true );
 		m_pPlaySampleBtn->setIsActive( true );
-		for ( auto& ppFxRotary : m_fxRotaries ) {
-			ppFxRotary->setIsActive( true );
-		}
 	}
 
 	m_pNameWidget->setText( m_pInstrument->getName() );
@@ -264,11 +234,6 @@ void MixerLine::updateLine() {
 						Event::Trigger::Suppress );
 	m_pMuteBtn->setChecked( m_pInstrument->isMuted() );
 	m_pSoloBtn->setChecked( m_pInstrument->isSoloed() );
-	for ( int ii = 0; ii < m_fxRotaries.size(); ++ii ) {
-		auto ppFxRotary = m_fxRotaries[ ii ];
-		ppFxRotary->setValue( m_pInstrument->getFxLevel( ii ), false,
-							  Event::Trigger::Suppress );
-	}
 
 	updateSelected();
 }
@@ -392,9 +357,6 @@ void MixerLine::updateActions() {
 		m_pSoloBtn->setMidiAction( nullptr );
 		m_pPanRotary->setMidiAction( nullptr );
 		m_pFader->setMidiAction( nullptr );
-		for ( auto& ppFxRotary : m_fxRotaries ) {
-			ppFxRotary->setMidiAction( nullptr );
-		}
 
 		return;
 	}
@@ -416,19 +378,6 @@ void MixerLine::updateActions() {
 	pAction->setInstrument( nInstrument );
 	pAction->setValue( 0 );
 	m_pPanRotary->setMidiAction( pAction );
-
-	// FX send
-	for ( int ii = 0; ii < m_fxRotaries.size(); ii++ ) {
-		auto ppFxRotary = m_fxRotaries[ii];
-		ppFxRotary->setObjectName( "FXRotary" );
-
-		pAction =
-			std::make_shared<MidiAction>( MidiAction::Type::EffectLevelAbsolute
-			);
-		pAction->setInstrument( nInstrument );
-		pAction->setFx( ii );
-		ppFxRotary->setMidiAction( pAction );
-	}
 
 	pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::StripVolumeAbsolute );

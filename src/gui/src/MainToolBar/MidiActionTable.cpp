@@ -565,12 +565,6 @@ void MidiActionTable::updateRowContent(
 				pMidiAction->getComponent(), Event::Trigger::Suppress
 			);
 		}
-		else if ( required & MidiAction::RequiresFx ) {
-			pActionParameterSpinBox2->m_pSpinBox->setValue(
-				pMidiAction->getFx(), Event::Trigger::Suppress
-			);
-		}
-
 		if ( required & MidiAction::RequiresLayer ) {
 			pActionParameterSpinBox3->m_pSpinBox->setValue(
 				pMidiAction->getLayer(), Event::Trigger::Suppress
@@ -617,11 +611,6 @@ void MidiActionTable::updateRowContent(
 				QIcon( sIconPath + "component-editor.svg" )
 			);
 		}
-		else if ( required & MidiAction::RequiresFx ) {
-			pActionParameterSpinBox2->m_pButton->setIcon( QIcon() );
-			pActionParameterSpinBox2->m_pButton->setText( "Fx" );
-		}
-
 		if ( required & MidiAction::RequiresLayer ) {
 			pActionParameterSpinBox3->m_pButton->setIcon(
 				QIcon( sIconPath + "sample-editor.svg" )
@@ -760,10 +749,6 @@ void MidiActionTable::writeBackRow( int nRow )
 				pActionParameterSpinBox2->m_pSpinBox->value()
 			);
 		}
-		else if ( required & MidiAction::RequiresFx ) {
-			pMidiAction->setFx( pActionParameterSpinBox2->m_pSpinBox->value() );
-		}
-
 		if ( required & MidiAction::RequiresLayer ) {
 			pMidiAction->setLayer( pActionParameterSpinBox3->m_pSpinBox->value()
 			);

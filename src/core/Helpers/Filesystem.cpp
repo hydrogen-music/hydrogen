@@ -58,7 +58,6 @@
 #define IMG "img/"
 #define PATTERNS "patterns/"
 #define PLAYLISTS "playlists/"
-#define PLUGINS "plugins/"
 #define REPOSITORIES "repositories/"
 #define SCRIPTS "scripts/"
 #define SONGS "songs/"
@@ -135,8 +134,6 @@ QString Filesystem::m_sUserLogPath =
 #endif
 
 bool Filesystem::m_bLogPathInitialized = false;
-
-QStringList Filesystem::m_ladspaPaths;
 
 QString Filesystem::m_sPreferencesOverwritePath = "";
 
@@ -431,49 +428,6 @@ bool Filesystem::bootstrap(
 		);
 	}
 
-	char* ladspaPath = getenv( "LADSPA_PATH" );
-	if ( ladspaPath ) {
-		INFOLOG( "Found LADSPA_PATH environment variable" );
-		QString sLadspaPath = QString::fromLocal8Bit( ladspaPath );
-		int pos;
-		while ( ( pos = sLadspaPath.indexOf( ":" ) ) != -1 ) {
-			QString sPath = sLadspaPath.left( pos );
-			m_ladspaPaths << QFileInfo( sPath ).canonicalFilePath();
-			sLadspaPath = sLadspaPath.mid( pos + 1, sLadspaPath.length() );
-		}
-		m_ladspaPaths << QFileInfo( sLadspaPath ).canonicalFilePath();
-	}
-	else {
-#ifdef Q_OS_MACX
-		m_ladspaPaths << QFileInfo(
-							 QCoreApplication::applicationDirPath(),
-							 "/../Resources/plugins"
-		)
-							 .canonicalFilePath();
-		m_ladspaPaths << QFileInfo( "/Library/Audio/Plug-Ins/LADSPA/" )
-							 .canonicalFilePath();
-		m_ladspaPaths << QFileInfo(
-							 QDir::homePath(), "/Library/Audio/Plug-Ins/LADSPA"
-		)
-							 .canonicalFilePath();
-#else
-		m_ladspaPaths << QFileInfo( "/usr/lib/ladspa" ).canonicalFilePath();
-		m_ladspaPaths
-			<< QFileInfo( "/usr/local/lib/ladspa" ).canonicalFilePath();
-		m_ladspaPaths << QFileInfo( "/usr/lib64/ladspa" ).canonicalFilePath();
-		m_ladspaPaths
-			<< QFileInfo( "/usr/local/lib64/ladspa" ).canonicalFilePath();
-#endif
-	}
-	m_ladspaPaths.sort();
-	m_ladspaPaths.removeDuplicates();
-	if ( !m_ladspaPaths.isEmpty() && m_ladspaPaths.at( 0 ).isEmpty() ) {
-		m_ladspaPaths.removeFirst();
-	}
-	// we want this first
-	m_ladspaPaths << Filesystem::userPluginsDir();
-	m_ladspaPaths.removeDuplicates();
-
 	bool ret = checkSystemPaths();
 	ret &= checkUserPaths();
 	info();
@@ -762,7 +716,7 @@ bool Filesystem::checkUserPaths()
 	QStringList pathsUsable = { tmpDir(),			m_sUserDataPath,
 								cacheDir(),			repositoriesCacheDir(),
 								userDrumkitsDir(),	userPatternsDir(),
-								userPlaylistsDir(), userPluginsDir(),
+								userPlaylistsDir(),
 								userScriptsDir(),	userSongsDir(),
 								userThemesDir() };
 
@@ -795,11 +749,6 @@ const QString& Filesystem::systemDataPath()
 const QString& Filesystem::userDataPath()
 {
 	return m_sUserDataPath;
-}
-
-const QStringList& Filesystem::ladspaPaths()
-{
-	return m_ladspaPaths;
 }
 
 // FILES
@@ -938,10 +887,6 @@ QString Filesystem::systemPatternsDir()
 QString Filesystem::systemSongsDir()
 {
 	return m_sSystemDataPath + SONGS;
-}
-QString Filesystem::userPluginsDir()
-{
-	return m_sUserDataPath + PLUGINS;
 }
 QString Filesystem::systemDrumkitsDir()
 {
@@ -1269,9 +1214,6 @@ void Filesystem::info()
 	);
 	INFOLOG(
 		QString( "Playlist dir               : %1" ).arg( userPlaylistsDir() )
-	);
-	INFOLOG(
-		QString( "Plugins dir                : %1" ).arg( userPluginsDir() )
 	);
 	INFOLOG(
 		QString( "Scripts dir                : %1" ).arg( userScriptsDir() )

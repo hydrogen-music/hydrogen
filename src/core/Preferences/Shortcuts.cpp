@@ -491,10 +491,7 @@ void Shortcuts::createActionInfoMap() {
 					  QT_TRANSLATE_NOOP( "Shortcuts", "Set instrument layer pitch" ) );
 	insertActionInfo( Shortcuts::Action::LayerGain, Category::CommandManyArgs,
 					  QT_TRANSLATE_NOOP( "Shortcuts", "Set instrument layer gain" ) );
-	
-	insertActionInfo( Shortcuts::Action::StripEffectLevel, Category::CommandManyArgs,
-					  QT_TRANSLATE_NOOP( "Shortcuts", "Set instrument FX aux level" ) );
-	
+
 	// MainMenu
 	insertActionInfo( Shortcuts::Action::NewSong, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",

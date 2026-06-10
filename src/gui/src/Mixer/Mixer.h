@@ -35,7 +35,6 @@
 #include "../EventListener.h"
 
 class Button;
-class LadspaFXLine;
 class MasterLine;
 class PixmapWidget;
 
@@ -61,7 +60,6 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object<Mixer>
 
 	public slots:
 		void updatePeaks();
-		void showFXPanelClicked();
 		void showPeaksBtnClicked();
 		void openMixerSettingsDialog();
 		void closeEvent(QCloseEvent *event) override;
@@ -69,10 +67,8 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object<Mixer>
 
 	private:
 		QHBoxLayout *			m_pFaderHBox;
-		std::vector<LadspaFXLine*>	m_ladspaFXLines;
 
 		QScrollArea*			m_pFaderScrollArea;
-		Button *				m_pShowFXPanelBtn;
 		Button *				m_pShowPeaksBtn;
 		Button *				m_pOpenMixerSettingsBtn;
 		MasterLine *		m_pMasterLine;
@@ -80,13 +76,10 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object<Mixer>
 		QWidget *				m_pFaderPanel;
 		std::vector<MixerLine*>	m_mixerLines;
 
-		PixmapWidget *			m_pFXFrame;
-
 		QTimer *				m_pUpdateTimer;
 
 		// Implements EventListener interface
 		virtual void drumkitLoadedEvent() override;
-		virtual void effectChangedEvent() override;
 		virtual void instrumentMuteSoloChangedEvent( int ) override;
 		virtual void instrumentParametersChangedEvent( int ) override;
 		virtual void mixerSettingsChangedEvent() override;

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  * Copyright(c) 2008-2026 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
@@ -41,7 +41,6 @@
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/EventQueue.h>
-#include <core/FX/Effects.h>
 #include <core/Globals.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Time.h>
@@ -1824,35 +1823,6 @@ bool Sampler::renderNote(
 	}
 
 	pSelectedLayerInfo->fSamplePosition += nAvail_bytes * fFrequencyRatio;
-
-#ifdef H2CORE_HAVE_LADSPA
-	if ( !bIsMuted ) {
-		float masterVol = pSong->getVolume();
-		for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-			auto pFX = pSong->getEffects()->getLadspaFX( nFX );
-			float fLevel = pInstrument->getFxLevel( nFX );
-			if ( pFX != nullptr && fLevel != 0.0 ) {
-				fLevel = fLevel * pFX->getVolume();
-
-				float* pBuf_L = pFX->m_pBuffer_L;
-				float* pBuf_R = pFX->m_pBuffer_R;
-
-				float fFXCost_L = fLevel * masterVol;
-				float fFXCost_R = fLevel * masterVol;
-
-				int nBufferPos = nInitialBufferPos;
-				for ( int i = 0; i < nAvail_bytes; ++i ) {
-					fVal_L = buffer_L[nBufferPos];
-					fVal_R = buffer_R[nBufferPos];
-
-					pBuf_L[nBufferPos] += fVal_L * fFXCost_L;
-					pBuf_R[nBufferPos] += fVal_R * fFXCost_R;
-					++nBufferPos;
-				}
-			}
-		}
-	}
-#endif
 
 	if ( bRetValue ) {
 		// Since the last portion of the layers's sample is rendered in this

@@ -57,7 +57,6 @@
 #include "ExportMidiDialog.h"
 #include "ExportSongDialog.h"
 #include "HydrogenApp.h"
-#include "LadspaFXProperties.h"
 #include "MainToolBar/MainToolBar.h"
 #include "Mixer/Mixer.h"
 #include "OnlineImportDialog/OnlineImportDialog.h"
@@ -2163,13 +2162,6 @@ void MainForm::saveWindowProperties() {
 		h2app->getWindowProperties( h2app->getPlaylistEditor() ) );
 	pPreferences->setDirectorProperties(
 		h2app->getWindowProperties( h2app->getDirector() ) );
-
-#ifdef H2CORE_HAVE_LADSPA
-	// save LADSPA FX window properties
-	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
-		pPreferences->setLadspaProperties( nFX, h2app->getWindowProperties( h2app->getLadspaFXProperties( nFX ) ) );
-	}
-#endif
 }
 
 void MainForm::closeAll(){
@@ -3233,54 +3225,6 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				WARNINGLOG( QString( "Action [%1] not properly handled" )
 							.arg( static_cast<int>(action) ) );
 			}
-		}
-		else if ( action == Shortcuts::Action::StripEffectLevel ) {
-			// Core actions with three input arguments
-
-			// Capture new parameter value
-			auto pInputCaptureDialog = new InputCaptureDialog(
-				this, sTitle, pCommonStrings->getInputCaptureFXLevel(),
-				InputCaptureDialog::Type::IntMidi );
-			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
-				return true;
-			}
-			const QString sValue = pInputCaptureDialog->text();
-			delete pInputCaptureDialog;
-
-			// Capture instrument number
-			pInputCaptureDialog = new InputCaptureDialog(
-				this, sTitle, pCommonStrings->getInputCaptureInstrument(),
-				InputCaptureDialog::Type::Int, 0,
-				static_cast<float>(pSong->getDrumkit()->getInstruments()->size()) - 1 );
-			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
-				return true;
-			}
-			const int nInstrument = pInputCaptureDialog->text().toInt();
-			delete pInputCaptureDialog;
-			auto pInstrument = pSong->getDrumkit()->getInstruments()->get( nInstrument );
-			if ( pInstrument == nullptr ) {
-				ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
-						  .arg( nInstrument ) );
-				return true;
-			}
-
-			// Capture FX number
-			pInputCaptureDialog = new InputCaptureDialog(
-				this, sTitle, pCommonStrings->getInputCaptureFXNumber(),
-				InputCaptureDialog::Type::Int, 0, static_cast<float>(MAX_FX) - 1);
-			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
-				return true;
-			}
-			const QString sFX = pInputCaptureDialog->text();
-			delete pInputCaptureDialog;
-			
-			// Deploy action
-			auto pAction = std::make_shared<MidiAction>(
-				MidiAction::Type::EffectLevelAbsolute );
-			pAction->setValue( sValue.toInt() );
-			pAction->setInstrument( nInstrument );
-			pAction->setFx( sFX.toInt() );
-			pMidiActionManager->handleMidiActionSync( pAction );
 		}
 		else if ( action == Shortcuts::Action::LayerPitch ||
 				  action == Shortcuts::Action::LayerGain ) {

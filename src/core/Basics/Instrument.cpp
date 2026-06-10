@@ -98,10 +98,6 @@ Instrument::Instrument(
 		m_pAdsr = std::make_shared<ADSR>();
 	}
 
-	for ( int i = 0; i < MAX_FX; i++ ) {
-		m_fxLevel[i] = 0.0;
-	}
-
 	m_pComponents->push_back( std::make_shared<InstrumentComponent>() );
 }
 
@@ -139,10 +135,6 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	  m_bHasMissingSamples( other->hasMissingSamples() ),
 	  m_pComponents( nullptr )
 {
-	for ( int i = 0; i < MAX_FX; i++ ) {
-		m_fxLevel[i] = other->getFxLevel( i );
-	}
-
 	m_pComponents =
 		std::make_shared<std::vector<std::shared_ptr<InstrumentComponent>>>();
 	for ( const auto& pComponent : *other->getComponents() ) {
@@ -446,15 +438,6 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 		bSilent
 	) ) );
 
-	for ( int i = 0; i < MAX_FX; i++ ) {
-		pInstrument->setFxLevel(
-			node.read_float(
-				QString( "FX%1Level" ).arg( i + 1 ), 0.0, true, true, bSilent
-			),
-			i
-		);
-	}
-
 	// This license will be applied to all samples contained in this
 	// instrument.
 	License instrumentLicense = License();
@@ -654,12 +637,6 @@ void Instrument::saveTo(
 	InstrumentNode.write_int( "isHihat", m_nHihatGrp );
 	InstrumentNode.write_int( "lower_cc", static_cast<int>( m_lowerCc ) );
 	InstrumentNode.write_int( "higher_cc", static_cast<int>( m_higherCc ) );
-
-	for ( int i = 0; i < MAX_FX; i++ ) {
-		InstrumentNode.write_float(
-			QString( "FX%1Level" ).arg( i + 1 ), m_fxLevel[i]
-		);
-	}
 
 	for ( const auto& pComponent : *m_pComponents ) {
 		if ( pComponent != nullptr ) {
@@ -1061,13 +1038,7 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_enqueuedBy.join( "\n" + sPrefix + s + s ) )
-				);
-		sOutput.append( QString( "%1%2m_fxLevel: [ " ).arg( sPrefix ).arg( s )
-		);
-		for ( const auto& ff : m_fxLevel ) {
-			sOutput.append( QString( "%1 " ).arg( ff ) );
-		}
-		sOutput.append( QString( "]\n" ) )
+				)
 			.append( QString( "%1%2m_nHihatGrp: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
@@ -1148,12 +1119,7 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const
 				.append( QString( ", m_nMuteGroup: %1" ).arg( m_nMuteGroup ) )
 				.append( QString( ", m_nQueued: %1" ).arg( m_nQueued ) )
 				.append( QString( ", m_enqueuedBy: [%1]" )
-							 .arg( m_enqueuedBy.join( " ; " ) ) );
-		sOutput.append( QString( ", m_fxLevel: [ " ) );
-		for ( const auto& ff : m_fxLevel ) {
-			sOutput.append( QString( "%1 " ).arg( ff ) );
-		}
-		sOutput.append( QString( "]" ) )
+							 .arg( m_enqueuedBy.join( " ; " ) ) )
 			.append( QString( ", m_nHihatGrp: %1" ).arg( m_nHihatGrp ) )
 			.append( QString( ", m_lowerCc: %1" )
 						 .arg( static_cast<int>( m_lowerCc ) ) )

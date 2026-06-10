@@ -41,7 +41,7 @@ class InstrumentNameWidget : public PixmapWidget,
 
 public:
 		static constexpr int nWidth = 17;
-		static constexpr int nHeight = 116;
+		static constexpr int nHeight = 153;
 
 	explicit InstrumentNameWidget(QWidget* parent);
 	~InstrumentNameWidget();

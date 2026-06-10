@@ -104,9 +104,6 @@ CommonStrings::CommonStrings(){
 	/*: Text displayed on the button to activate the Timeline. Its size
 	  is designed to hold eight characters.*/
 	m_sTimelineBigButton = tr( "Timeline" );
-	/*: Text displayed on the button to enable the LADSPA effect strips. Its size
-	  is designed to hold two characters.*/
-	m_sFXButton = tr( "FX" );
 	/*: Text displayed on the button to show the instrument peaks. Its size
 	  is designed to hold four characters.*/
 	m_sPeakButton = tr( "Peak" );
@@ -277,9 +274,6 @@ CommonStrings::CommonStrings(){
 	/*: Text displayed as the title of the Master Mixer
 	 Strip. Designed to hold six characters but flexible.*/
 	m_sMasterLabel = tr( "Master" );
-	/*: Text displayed below the rotary in the FX Mixerline. Designed
-	  to hold six characters but flexible.*/
-	m_sReturnLabel = tr( "Return" );
 	/*: Text displayed on the buttons used to restart audio or MIDI driver in
 	 *  the Preferences dialog. */
 	m_sDriverRestartButton = tr( "Apply and restart driver" );
@@ -554,12 +548,6 @@ CommonStrings::CommonStrings(){
 	/*: Label shown in the input capture dialog for querying a
 	  layer number of the specified instrument component. */
 	m_sInputCaptureLayer = tr( "Layer Number" );
-	/*: Label shown in the input capture dialog for querying a
-	  FX level of the specified FX. */
-	m_sInputCaptureFXLevel = tr( "FX Level" );
-	/*: Label shown in the input capture dialog for querying a
-	  FX number of the specified instrument. */
-	m_sInputCaptureFXNumber = tr( "FX Number" );
 	/*: Label shown in the input capture dialog for querying a
 	  new filter cutoff value for a specified instrument. */
 	m_sInputCaptureFilterCutoff = tr( "Filter Cutoff" );

@@ -22,7 +22,6 @@
 
 #include "Mixer.h"
 
-#include "LadspaFXLine.h"
 #include "MixerLine.h"
 #include "MasterLine.h"
 
@@ -42,7 +41,6 @@
 #include <core/Basics/Song.h>
 #include <core/Basics/Note.h>
 #include <core/CoreActionController.h>
-#include <core/FX/Effects.h>
 #include <core/Globals.h>
 
 using namespace H2Core;
@@ -57,13 +55,12 @@ Mixer::Mixer( QWidget* pParent )
 	auto pPref = Preferences::get_instance();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	const int nFXFrameWidth = 213;
 	const int nFixedHeight = MasterLine::nHeight;
 
 	const int nScrollBarMarginX = 8;
 	const int nScrollBarMarginY = 6;
 	setMinimumSize(
-		Mixer::nMinimumFaderPanelWidth + nFXFrameWidth + MasterLine::nWidth +
+		Mixer::nMinimumFaderPanelWidth + MasterLine::nWidth +
 		nScrollBarMarginX,
 		nFixedHeight + nScrollBarMarginY );
 
@@ -85,39 +82,6 @@ Mixer::Mixer( QWidget* pParent )
 	m_pFaderScrollArea->setWidget( m_pFaderPanel );
 // ~ fader panel
 
-// fX frame
-#ifdef H2CORE_HAVE_LADSPA
-	std::shared_ptr<Effects> pEffects;
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong != nullptr ) {
-		pEffects = pSong->getEffects();
-	}
-#endif
-	m_pFXFrame = new PixmapWidget( nullptr );
-	m_pFXFrame->setObjectName( "MixerFXRack" );
-	m_pFXFrame->setFixedSize( nFXFrameWidth, nFixedHeight );
-	m_pFXFrame->setPixmap( "/mixerPanel/background_FX.png" );
-	for ( int nnFX = 0; nnFX < MAX_FX; nnFX++ ) {
-#ifdef H2CORE_HAVE_LADSPA
-		auto pFX =
-			pEffects != nullptr ? pEffects->getLadspaFX( nnFX ) : nullptr;
-		auto ppLine = new LadspaFXLine( m_pFXFrame, pFX, nnFX );
-#else
-		auto ppLine = new LadspaFXLine( m_pFXFrame, nullptr, nnFX );
-#endif
-		ppLine->setObjectName( "LadspaFXMixerLine" );
-		ppLine->move( 13, 43 * nnFX + 84 );
-		m_ladspaFXLines.push_back( ppLine );
-	}
-
-	if ( pPref->isFXTabVisible() ) {
-		m_pFXFrame->show();
-	}
-	else {
-		m_pFXFrame->hide();
-	}
-// ~ fX frame
-
 // Master frame
 	m_pMasterLine = new MasterLine( nullptr );
 	m_pMasterLine->setObjectName( "MasterMixerLine" );
@@ -129,19 +93,6 @@ Mixer::Mixer( QWidget* pParent )
 	m_pOpenMixerSettingsBtn->move( 96, 6 );
 	connect( m_pOpenMixerSettingsBtn, SIGNAL( clicked() ), this,
 			 SLOT( openMixerSettingsDialog() ) );
-
-	m_pShowFXPanelBtn = new Button(
-		m_pMasterLine, QSize( 49, 15 ), Button::Type::Toggle, "",
-		pCommonStrings->getFXButton(), QSize(), tr( "Show FX panel" ) );
-	m_pShowFXPanelBtn->setObjectName( "MixerShowFXButton" );
-	m_pShowFXPanelBtn->move( 63, 243 );
-	m_pShowFXPanelBtn->setChecked( pPref->isFXTabVisible() );
-	connect( m_pShowFXPanelBtn, SIGNAL( clicked() ),
-			 this, SLOT( showFXPanelClicked() ));
-
-#ifndef H2CORE_HAVE_LADSPA
-	m_pShowFXPanelBtn->hide();
-#endif
 
 	m_pShowPeaksBtn = new Button(
 		m_pMasterLine, QSize( 49, 15 ), Button::Type::Toggle, "",
@@ -160,14 +111,13 @@ Mixer::Mixer( QWidget* pParent )
 	pLayout->setContentsMargins( 0, 0, 0, 0 );
 
 	pLayout->addWidget( m_pFaderScrollArea );
-	pLayout->addWidget( m_pFXFrame );
 	pLayout->addWidget( m_pMasterLine );
 
 	QWidget* pMainWidget = new QWidget();
 	pMainWidget->setLayout( pLayout );
 	pMainWidget->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 	pMainWidget->setMinimumSize( nMinimumFaderPanelWidth +
-								 nFXFrameWidth + MasterLine::nWidth, nFixedHeight );
+								 MasterLine::nWidth, nFixedHeight );
 	pMainWidget->setMaximumSize( 16777215, nFixedHeight );
 
 	auto pMainScrollArea = new QScrollArea();
@@ -253,21 +203,7 @@ void Mixer::updateMixer()
 		m_pFaderPanel->resize( nNewWidth, height() );
 	}
 
-	m_pMasterLine->updateLine();
-
-#ifdef H2CORE_HAVE_LADSPA
-	// LADSPA
-	for ( int nnFX = 0; nnFX < MAX_FX; nnFX++ ) {
-		auto pFX = pSong->getEffects()->getLadspaFX( nnFX );
-		auto pFxLine = m_ladspaFXLines[ nnFX ];
-		if ( pFxLine->getFX() != pFX ) {
-			pFxLine->setFX( pFX );
-		}
-
-		pFxLine->updateLine();
-	}
-	// ~LADSPA
-#endif
+		m_pMasterLine->updateLine();
 }
 
 void Mixer::closeEvent( QCloseEvent* ev ) {
@@ -307,18 +243,6 @@ void Mixer::resizeEvent( QResizeEvent *ev ) {
 	UNUSED( ev );
 }
 
-void Mixer::showFXPanelClicked() {
-	if ( m_pShowFXPanelBtn->isChecked() ) {
-		m_pFXFrame->show();
-		Preferences::get_instance()->setFXTabVisible( true );
-	} else {
-		m_pFXFrame->hide();
-		Preferences::get_instance()->setFXTabVisible( false );
-	}
-
-	resizeEvent( nullptr ); 	// force an update
-}
-
 void Mixer::showPeaksBtnClicked()
 {
 	auto pPref = Preferences::get_instance();
@@ -344,9 +268,6 @@ void Mixer::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) 
 		for ( auto& ppMixerLine : m_mixerLines ) {
 			ppMixerLine->updateColors();
 		}
-		for ( auto& ppLadspaLine : m_ladspaFXLines ) {
-			ppLadspaLine->updateColors();
-		}
 		m_pMasterLine->updateColors();
 	}
 
@@ -357,10 +278,6 @@ void Mixer::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) 
 
 void Mixer::drumkitLoadedEvent() {
 	resizeFaderPanel();
-	updateMixer();
-}
-
-void Mixer::effectChangedEvent() {
 	updateMixer();
 }
 
@@ -440,17 +357,7 @@ void Mixer::selectedInstrumentChangedEvent() {
 void Mixer::updatePreferencesEvent( int nValue ) {
 	if ( nValue == 1 ) {
 		// new preferences loaded within the core
-		const auto pPref = H2Core::Preferences::get_instance();
-
-		if ( pPref->isFXTabVisible() ) {
-			m_pFXFrame->show();
-		}
-		else {
-			m_pFXFrame->hide();
-		}
-
-		m_pShowFXPanelBtn->setChecked( pPref->isFXTabVisible() );
-		m_pShowPeaksBtn->setChecked( pPref->showInstrumentPeaks() );
+		m_pShowPeaksBtn->setChecked( Preferences::get_instance()->showInstrumentPeaks() );
 	}
 }
 
