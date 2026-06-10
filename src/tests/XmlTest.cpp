@@ -1033,7 +1033,7 @@ void XmlTest::testPreferencesFormatIntegrity() {
 
 void XmlTest::testShippedPreferences() {
 	___INFOLOG( "" );
-	const QString sDefaultConfigFile = H2Core::Filesystem::systemConfigPath();
+	const QString sDefaultConfigFile = H2Core::Filesystem::userConfigPath();
 	const auto pPreferences = H2Core::Preferences::load( sDefaultConfigFile );
 	CPPUNIT_ASSERT( pPreferences != nullptr );
 
