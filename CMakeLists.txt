@@ -123,6 +123,12 @@ option(WANT_APPIMAGE "Build Linux AppImage" OFF)
 option(WANT_CPPUNIT         "Include CppUnit test suite" ON)
 option(WANT_INTEGRATION_TESTS "Include integration tests" OFF)
 
+# Plugin build options
+option(WANT_LV2             "Build LV2 plugin" OFF)
+option(WANT_CLAP            "Build CLAP plugin" OFF)
+option(WANT_VST3            "Build VST3 plugin (via clap-wrapper)" OFF)
+set(H2_PLUGIN_OUTPUT_BUSES 32 CACHE STRING "Number of plugin output buses")
+
 include(Sanitizers)
 include(StatusSupportOptions)
 
@@ -476,16 +482,24 @@ color_message("${cyan}Supported audio interfaces${reset}
 color_message("${cyan}Useful extensions${reset}
 -----------------------------------------
 * ${purple}RUBBERBAND${reset}                   : ${RUBBERBAND_STATUS}
-*                                ${LIBRUBBERBAND_MSG}\n"
+                                 ${LIBRUBBERBAND_MSG}\n"
+)
+
+color_message("${cyan}Plugin build options${reset}
+-----------------------------------------
+* ${purple}LV2 plugin${reset}                   : ${WANT_LV2}
+* ${purple}CLAP plugin${reset}                  : ${WANT_CLAP}
+* ${purple}VST3 plugin (clap-wrapper)${reset}   : ${WANT_VST3}
+* ${purple}Plugin output buses${reset}          : ${H2_PLUGIN_OUTPUT_BUSES}\n"
 )
 
 if(WANT_DEBUG)
     color_message("${cyan}Miscellaneous capabilities${reset}
 -----------------------------------------
-* realtime clock               : ${HAVE_RTCLOCK}
-* working sscanf               : ${HAVE_SSCANF}
-* unit tests                   : ${CPPUNIT_STATUS}
-* clang tidy                   : ${CLANG_TIDY_STATUS}\n"
+* ${purple}realtime clock${reset}               : ${HAVE_RTCLOCK}
+* ${purple}working sscanf${reset}               : ${HAVE_SSCANF}
+* ${purple}unit tests${reset}                   : ${CPPUNIT_STATUS}
+* ${purple}clang tidy${reset}                   : ${CLANG_TIDY_STATUS}\n"
     )
 endif()
 
@@ -527,6 +541,7 @@ add_subdirectory(data/i18n)
 add_subdirectory(src/cli)
 add_subdirectory(src/player)
 add_subdirectory(src/gui)
+add_subdirectory(src/plugin)
 if(EXISTS ${CMAKE_SOURCE_DIR}/data/doc/CMakeLists.txt)
 	add_subdirectory(data/doc)
 else()
