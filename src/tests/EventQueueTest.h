@@ -31,6 +31,8 @@ class EventQueueTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testOverflow );
 	CPPUNIT_TEST( testThreadedAccess );
 	CPPUNIT_TEST( testEventDrop );
+	CPPUNIT_TEST( testIndependentInstances );
+	CPPUNIT_TEST( testProcessCurrent );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -45,6 +47,8 @@ public:
 	void testOverflow();
 	void testThreadedAccess();
 	void testEventDrop();
+	void testIndependentInstances();
+	void testProcessCurrent();
 
 };
 

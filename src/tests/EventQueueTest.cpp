@@ -172,3 +172,52 @@ void EventQueueTest::testEventDrop() {
 
 	___INFOLOG( "passed" );
 }
+
+void EventQueueTest::testIndependentInstances() {
+	___INFOLOG( "" );
+
+	// EventQueue is instance-ownable: several may coexist, fully independent of
+	// the process-current one and of each other. Constructing one no longer
+	// hijacks the process-current pointer (ADR 0015).
+	auto pA = std::make_unique<EventQueue>();
+	auto pB = std::make_unique<EventQueue>();
+	CPPUNIT_ASSERT( pA != pB );
+
+	// An event pushed onto one queue is invisible to the other.
+	pA->pushEvent( Event::Type::Metronome, 1 );
+	CPPUNIT_ASSERT( pB->popEvent() == nullptr );
+
+	auto pEvent = pA->popEvent();
+	CPPUNIT_ASSERT( pEvent != nullptr );
+	CPPUNIT_ASSERT( pEvent->getType() == Event::Type::Metronome &&
+					pEvent->getValue() == 1 );
+	CPPUNIT_ASSERT( pA->popEvent() == nullptr );
+
+	___INFOLOG( "passed" );
+}
+
+void EventQueueTest::testProcessCurrent() {
+	___INFOLOG( "" );
+
+	// Remember the harness's process-current EventQueue; the rest of the suite
+	// relies on it, so it must be restored before returning.
+	EventQueue* pPrevious = EventQueue::get_instance();
+
+	auto pA = std::make_unique<EventQueue>();
+	auto pB = std::make_unique<EventQueue>();
+
+	// get_instance() returns whichever instance was registered as
+	// process-current — the transitional shim unconverted call sites use.
+	EventQueue::setInstance( pA.get() );
+	CPPUNIT_ASSERT( EventQueue::get_instance() == pA.get() );
+
+	EventQueue::setInstance( pB.get() );
+	CPPUNIT_ASSERT( EventQueue::get_instance() == pB.get() );
+
+	// Registering does not own: the previous instance is untouched and still
+	// usable once restored.
+	EventQueue::setInstance( pPrevious );
+	CPPUNIT_ASSERT( EventQueue::get_instance() == pPrevious );
+
+	___INFOLOG( "passed" );
+}

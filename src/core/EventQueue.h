@@ -41,6 +41,11 @@ namespace H2Core
 /** Object handling the communication between the core of Hydrogen and
  * its GUI.
  *
+ * Owned per Hydrogen instance (ADR 0015): any number of EventQueues may
+ * coexist independently. A transitional process-current pointer
+ * (#get_instance() / #setInstance()) keeps unconverted call sites compiling
+ * during the de-singletoning sweep and will be removed once they are gone.
+ *
  * Whenever a specific condition is met or occasion happens within the core part
  * of Hydrogen (its engine), an Event will be added to the EventQueue singleton.
  * The GUI checks the content of this queue on a regular basis using
@@ -61,17 +66,28 @@ public:
 	static constexpr int nMaxEvents = 1024;
 
 	/**
-	* If #__instance equals 0, a new EventQueue singleton will be
-	 * created and stored in it.
+	 * If #__instance is null, a new EventQueue is created and registered as
+	 * the process-current one.
 	 *
 	 * It is called in Hydrogen::create_instance().
 	 */
 	static void create_instance();
-	/**
-	 * Returns a pointer to the current EventQueue singleton
-	 * stored in #__instance.
-	 */
+	/** Transitional accessor (ADR 0015). Returns the process-current
+	 * EventQueue — the instance most recently registered via #setInstance() or
+	 * #create_instance(). Retained so unconverted call sites keep compiling
+	 * during the de-singletoning sweep; will be replaced by
+	 * Hydrogen::getEventQueue() once they are all gone. */
 	static EventQueue* get_instance() { assert(__instance); return __instance; }
+	/** Designate \a pInstance as the process-current EventQueue returned by the
+	 * transitional #get_instance(). The owning Hydrogen instance registers its
+	 * EventQueue here so unconverted #get_instance() call sites resolve to it
+	 * (ADR 0015). Ownership stays with the caller; does not affect any other
+	 * EventQueue instance. */
+	static void setInstance( EventQueue* pInstance );
+
+	/** Constructs an EventQueue without touching the process-current pointer;
+	 * register it explicitly via #setInstance() (or use #create_instance()). */
+	EventQueue();
 	~EventQueue();
 
 	/**
@@ -143,7 +159,13 @@ public:
 	QString toQString( const QString& sPrefix = "", bool bShort = true );
 
 private:
-	EventQueue();
+	/**
+	 * Process-current EventQueue instance (ADR 0015). Initialized to nullptr,
+	 * set via #create_instance() / #setInstance(), and read by the transitional
+	 * #get_instance(). No longer the single source of truth: any number of
+	 * EventQueues may be owned independently (e.g. one per Hydrogen instance);
+	 * this merely tracks which one unconverted call sites see. Not owning.
+	 */
 	static EventQueue *__instance;
 
 	std::deque< std::unique_ptr<Event> >m_eventQueue;

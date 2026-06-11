@@ -32,14 +32,17 @@ EventQueue* EventQueue::__instance = nullptr;
 void EventQueue::create_instance()
 {
 	if ( __instance == nullptr ) {
-		__instance = new EventQueue;
+		setInstance( new EventQueue() );
 	}
+}
+
+void EventQueue::setInstance( EventQueue* pInstance )
+{
+	__instance = pInstance;
 }
 
 
 EventQueue::EventQueue() : m_bSilent( false ) {
-	__instance = this;
-
     std::random_device randomSeed;
 	m_randomEngine = std::default_random_engine( randomSeed() );
 	m_randomDistribution =
