@@ -72,6 +72,8 @@ shrinks every later phase).
 
 ## 3. Phase R — Remove LADSPA/LRDF/effect hosting (prerequisite) — ADR 0024
 
+**Status: ✅ DONE** (2026-06-11)
+
 *Objective:* delete the in-app effect-hosting subsystem before the port begins, so
 no later phase refactors code that is being removed. Net-negative effort.
 
@@ -110,6 +112,8 @@ is added — the recommended order.)*
 ---
 
 ## 4. Phase 0 — Test harness & build scaffolding
+
+**Status: ✅ DONE** (2026-06-11)
 
 *Objective:* be able to specify engine/plugin behaviour in tests before plugins
 exist; stand up the build options without changing the standalone build.
