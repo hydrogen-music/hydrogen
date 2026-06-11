@@ -44,7 +44,12 @@ namespace H2Core {
 class MidiInstrumentMap;
 class MidiEventMap;
 
-/** \brief Manager for User Preferences File (singleton)
+/** \brief Manager for User Preferences File.
+ *
+ * Owned per Hydrogen instance (ADR 0015): any number of Preferences may
+ * coexist independently. A transitional process-current pointer
+ * (#get_instance() / #setInstance()) keeps unconverted call sites compiling
+ * during the de-singletoning sweep and will be removed once they are gone.
  * \ingroup H2CORE docCore docConfiguration */
 class Preferences : public H2Core::Object<Preferences> {
 	H2_OBJECT( Preferences )
@@ -180,17 +185,27 @@ class Preferences : public H2Core::Object<Preferences> {
 	};
 
 	static void create_instance();
+	/** Transitional accessor (ADR 0015). Returns the process-current
+	 * Preferences — the instance most recently registered via #setInstance()
+	 * or #create_instance(). Retained so unconverted call sites keep compiling
+	 * during the de-singletoning sweep; will be replaced by
+	 * Hydrogen::getPreferences() once they are all gone. */
 	static std::shared_ptr<Preferences> get_instance()
 	{
 		assert( __instance );
 		return __instance;
 	}
+	/** Designate \a pInstance as the process-current Preferences returned by
+	 * the transitional #get_instance(). The owning Hydrogen instance registers
+	 * its Preferences here so unconverted #get_instance() call sites resolve to
+	 * it (ADR 0015). Does not affect any other Preferences instance. */
+	static void setInstance( std::shared_ptr<Preferences> pInstance );
 
 	Preferences();
 	Preferences( std::shared_ptr<Preferences> pOther );
 	~Preferences();
 
-	/** Exchange the instance referenced by the current singleton with
+	/** Exchange the process-current instance (see #setInstance()) with
 	 * another one. */
 	void replaceInstance( std::shared_ptr<Preferences> pOther );
 
@@ -589,9 +604,11 @@ class Preferences : public H2Core::Object<Preferences> {
 	bool saveTo( const QString& sPath, const bool bSilent ) const;
 
 	/**
-	 * Object holding the current Preferences singleton. It is
-	 * initialized with NULL, set with create_instance(), and
-	 * accessed with get_instance().
+	 * Process-current Preferences instance (ADR 0015). Initialized to
+	 * nullptr, set via #create_instance() / #setInstance(), and read by the
+	 * transitional #get_instance(). No longer the single source of truth: any
+	 * number of Preferences may be owned independently (e.g. one per Hydrogen
+	 * instance); this merely tracks which one unconverted call sites see.
 	 */
 	static std::shared_ptr<Preferences> __instance;
 

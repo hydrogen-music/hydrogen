@@ -86,9 +86,14 @@ void Preferences::create_instance()
 	}
 }
 
+void Preferences::setInstance( std::shared_ptr<Preferences> pInstance )
+{
+	__instance = pInstance;
+}
+
 void Preferences::replaceInstance( std::shared_ptr<Preferences> pOther )
 {
-	__instance = pOther;
+	setInstance( pOther );
 }
 
 Preferences::Preferences()

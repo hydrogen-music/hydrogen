@@ -49,6 +49,7 @@
 #include "OnlineImporterTest.h"
 #include "OscServerTest.h"
 #include "PatternTest.h"
+#include "PreferencesInstanceTest.h"
 #include "SampleTest.h"
 #include "SoundLibraryTest.h"
 #include "TimeTest.h"
@@ -88,6 +89,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( OnlineImporterTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( OscServerTest );
 #endif
 CPPUNIT_TEST_SUITE_REGISTRATION( PatternTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( PreferencesInstanceTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SampleTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SoundLibraryTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( TimeTest );
