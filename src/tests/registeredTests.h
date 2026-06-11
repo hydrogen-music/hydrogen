@@ -44,6 +44,7 @@
 #include "MidiExportTest.h"
 #include "MidiNoteTest.h"
 #include "MimeTest.h"
+#include "MultiInstanceTest.h"
 #include "NetworkTest.h"
 #include "NoteTest.h"
 #include "OnlineImporterTest.h"
@@ -82,6 +83,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( MidiActionTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MidiDriverTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MidiExportTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MidiNoteTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( MultiInstanceTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( NetworkTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( NoteTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( OnlineImporterTest );

@@ -771,8 +771,8 @@ int main(int argc, char *argv[])
 		pPref = H2Core::Preferences::get_instance();
 
 		pPref->save();
+		// Hydrogen owns its EventQueue and frees it in ~Hydrogen (ADR 0015).
 		delete pHydrogen;
-		delete pQueue;
 		delete pApp;
 
 		// There is no particular need to clean up the Preferences outselves.

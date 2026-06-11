@@ -536,7 +536,8 @@ int main(int argc, char *argv[])
 		delete pSplash;
 		delete pMainForm;
 		delete pQApp;
-		delete H2Core::EventQueue::get_instance();
+		// Hydrogen (deleted via ~HydrogenApp) owns its EventQueue and frees it
+		// in ~Hydrogen (ADR 0015).
 
 		___INFOLOG( "Quitting..." );
 		std::cout << "\nBye..." << std::endl;

@@ -89,7 +89,8 @@ namespace H2Core
 
 Hydrogen* Hydrogen::__instance = nullptr;
 
-Hydrogen::Hydrogen() : m_fBeatCounterBeatLength( 1 )
+Hydrogen::Hydrogen( std::shared_ptr<Preferences> pPref, int nOscPort )
+					 : m_fBeatCounterBeatLength( 1 )
 					 , m_nBeatCounterTotalBeats( 4 )
 					 , m_nBeatCounterEventCount( 1 )
 					 , m_nBeatCounterBeatCount( 1 )
@@ -109,13 +110,22 @@ Hydrogen::Hydrogen() : m_fBeatCounterBeatLength( 1 )
 					 , m_bRecordEnabled( false )
 					 , m_bSessionIsExported( false )
 					 , m_hihatOpenness( Midi::ParameterMaximum )
+					 , m_pPreferences( pPref )
+					 , m_pEventQueue( nullptr )
 {
-	if ( __instance ) {
-		ERRORLOG( "Hydrogen audio engine is already running" );
-		throw H2Exception( "Hydrogen audio engine is already running" );
-	}
+	// Take ownership of the Preferences and EventQueue for this instance and
+	// register them as the process-current ones so unconverted get_instance()
+	// call sites resolve to them during the de-singletoning sweep (ADR 0015).
+	Preferences::setInstance( m_pPreferences );
 
-	auto pPref = Preferences::get_instance();
+	m_pEventQueue = new EventQueue();
+	EventQueue::setInstance( m_pEventQueue );
+
+#ifdef H2CORE_HAVE_OSC
+	NsmClient::create_instance();
+	OscServer::create_instance( nOscPort );
+#endif
+
 	m_nBeatCounterDriftCompensation = pPref->m_nBeatCounterDriftCompensation;
 	m_nBeatCounterStartOffset = pPref->m_nBeatCounterStartOffset;
 	m_beatCounterDiffs.resize( 16 );
@@ -163,24 +173,27 @@ Hydrogen::~Hydrogen()
 
 	delete m_pAudioEngine;
 
+	// This instance owns its EventQueue; tear it down last (after the engine,
+	// which may still emit events during teardown) and clear the transitional
+	// process-current pointer so it never dangles (ADR 0015).
+	EventQueue::setInstance( nullptr );
+	delete m_pEventQueue;
+	m_pEventQueue = nullptr;
+
 	__instance = nullptr;
 }
 
 void Hydrogen::create_instance( int nOscPort )
 {
-	// Create all the other instances that we need
-	// ....and in the right order
+	// Thin standalone helper (ADR 0015): set up the process-current Logger and
+	// Preferences, then construct the single standalone instance. The instance
+	// constructor takes ownership of its Preferences/EventQueue and sets up OSC.
+	// (Logger ownership moves into the instance in T1.6.)
 	Logger::create_instance();
 	Preferences::create_instance();
-	EventQueue::create_instance();
-
-#ifdef H2CORE_HAVE_OSC
-	NsmClient::create_instance();
-	OscServer::create_instance( nOscPort );
-#endif
 
 	if ( __instance == nullptr ) {
-		__instance = new Hydrogen;
+		new Hydrogen( Preferences::get_instance(), nOscPort );
 	}
 }
 

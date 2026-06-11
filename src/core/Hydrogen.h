@@ -41,9 +41,11 @@ namespace H2Core
 	class AudioEngine;
 	class AudioDriver;
 	class Drumkit;
+	class EventQueue;
 	class MidiBaseDriver;
 	class MidiActionManager;
 	class Playlist;
+	class Preferences;
 	class SoundLibraryDatabase;
 	class TimeHelper;
 
@@ -126,19 +128,39 @@ public:
 		static QString GUIStateToQString( const GUIState& state );
 
 	/**
-	 * Creates all the instances used within Hydrogen in the right
-	 * order.
+	 * Standalone helper: loads the process-current Preferences and constructs
+	 * the single Hydrogen instance used by the standalone application.
+	 *
+	 * A thin wrapper around the instance constructor (ADR 0015); plugin hosts
+	 * construct instances directly via #Hydrogen().
 	 */
 	static void		create_instance( int nOscPort );
 	/**
-	 * Returns the current Hydrogen instance #__instance.
+	 * Returns the process-current Hydrogen instance #__instance.
 	 */
 	static Hydrogen*	get_instance(){ return __instance; };
+
+	/**
+	 * Constructs a Hydrogen instance owning the given @a pPref Preferences and
+	 * its own EventQueue (ADR 0015). Multiple instances may coexist in one
+	 * process. The instance registers its Preferences/EventQueue as the
+	 * process-current ones (via their transitional get_instance() shims) and
+	 * becomes the process-current Hydrogen.
+	 *
+	 * @param pPref Preferences owned by this instance.
+	 * @param nOscPort OSC port for this instance, or -1 to disable OSC.
+	 */
+	Hydrogen( std::shared_ptr<Preferences> pPref, int nOscPort );
 
 	/**
 	 * Destructor taking care of most of the clean up.
 	 */
 	~Hydrogen();
+
+	/** \return The Preferences owned by this instance (#m_pPreferences). */
+	std::shared_ptr<Preferences> getPreferences() const { return m_pPreferences; }
+	/** \return The EventQueue owned by this instance (#m_pEventQueue). */
+	EventQueue*		getEventQueue() const { return m_pEventQueue; }
 
 	/*
 	 * return central instance of the audio engine
@@ -450,32 +472,24 @@ public:
 
 private:
 
-	/**
-	 * Constructor, entry point, and initialization of the
-	 * Hydrogen application.
-	 *
-	 * It is called by the main() function after setting up a
-	 * bunch of Qt5 stuff and creating an instance of the Logger
-	 * and Preferences.
-	 *
-	 * Only one Hydrogen object is allowed to exist. If the
-	 * #__instance object is present, the constructor will throw
-	 * an error.
-	 */
-	Hydrogen();
-
 		void killInstruments();
 
 	void			midiNoteOn( std::shared_ptr<Note> pNote );
 
 	/**
-	 * Static reference to the Hydrogen singleton. 
+	 * Process-current Hydrogen instance (ADR 0015).
 	 *
-	 * It is created using the Hydrogen::Hydrogen() constructor,
-	 * initialized with NULL and assigned a new Hydrogen instance
-	 * if still 0 in create_instance().
+	 * Initialized to NULL and set to the most recently constructed instance.
+	 * No longer a true singleton: multiple instances may coexist, each owning
+	 * its own Preferences/EventQueue; this merely tracks the process-current
+	 * one for the transitional #get_instance() shim.
 	 */
 	static Hydrogen* 	__instance;
+
+	/** Preferences owned by this instance (ADR 0015). */
+	std::shared_ptr<Preferences> m_pPreferences;
+	/** EventQueue owned by this instance (ADR 0015). */
+	EventQueue*		m_pEventQueue;
 
 	/**
 	 * Pointer to the current song. It is initialized with NULL in
