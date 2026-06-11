@@ -34,6 +34,7 @@
 #include "CoreActionControllerTest.h"
 #include "DrumkitExportTest.h"
 #include "EventQueueTest.h"
+#include "FakePluginHostTest.h"
 #include "FilesystemTest.h"
 #include "DrumkitTest.h"
 #include "LicenseTest.h"
@@ -70,6 +71,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( CoreActionControllerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitExportTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( EventQueueTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( FakePluginHostTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LicenseTest );
