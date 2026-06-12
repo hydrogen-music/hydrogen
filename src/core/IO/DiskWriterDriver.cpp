@@ -312,14 +312,16 @@ void* diskWriterDriver_thread( void* param )
 				return nullptr;
 			}
 			
-			int ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
+			int ret = pDriver->m_processCallback( nUsedBuffer,
+												  pDriver->getHydrogen() );
 
 			// Only try a reasonable amount of times.
 			int nMutexLockAttempts = 0;
 			
 			// In case the DiskWriter couldn't acquire the lock of the AudioEngine.
 			while( ret == 2 ) {
-				ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
+				ret = pDriver->m_processCallback( nUsedBuffer,
+												  pDriver->getHydrogen() );
 
 				// No need for a sleep() statement in here because the
 				// AudioEngine::tryLockFor() in the processCallback

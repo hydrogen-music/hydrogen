@@ -48,7 +48,7 @@ int portAudioCallback(
 
 	while ( framesPerBuffer > 0 ) {
 		unsigned long nFrames = std::min( (unsigned long) MAX_BUFFER_SIZE, framesPerBuffer );
-		pDriver->m_processCallback( nFrames, nullptr );
+		pDriver->m_processCallback( nFrames, pDriver->getHydrogen() );
 
 		for ( unsigned i = 0; i < nFrames; i++ ) {
 			*out++ = pDriver->m_pOut_L[ i ];

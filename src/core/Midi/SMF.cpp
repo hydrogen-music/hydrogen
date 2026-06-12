@@ -618,7 +618,7 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 						   ( H2Core::nTicksPerQuarter / 4 ) == 0 ) &&
 						 ( static_cast<int>(fNoteTick) %
 						   ( H2Core::nTicksPerQuarter / 2 ) != 0 ) ) {
-						pCopiedNote->swing( pSong );
+						pCopiedNote->swing( pSong, pHydrogen );
 					}
 
 					// Frames introduced due to the humanization. Note that we
@@ -634,10 +634,11 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 					// markers).
 					double fMismatch;
 					const auto nNoteFrame = Transport::computeFrameFromTick(
-						static_cast<double>(fNoteTick), &fMismatch );
+						static_cast<double>(fNoteTick), &fMismatch, 0,
+						pHydrogen );
 					fNoteTick = Transport::computeTickFromFrame(
 						std::max( static_cast<long long>(0),
-								  nNoteFrame + nHumanizeFrames ) );
+								  nNoteFrame + nHumanizeFrames ), 0, pHydrogen );
 				}
 
 				const float fColumnPos = static_cast<float>(nnColumn) +

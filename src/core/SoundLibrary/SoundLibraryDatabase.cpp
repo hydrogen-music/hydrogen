@@ -508,7 +508,7 @@ void SoundLibraryDatabase::updatePatterns( Event::Trigger trigger )
 
 	for ( const auto& ssPath : patternPaths ) {
 		auto pInfo = std::make_shared<PatternInfo>();
-		if ( pInfo->load( ssPath ) ) {
+		if ( pInfo->load( ssPath, m_pHydrogen ) ) {
 			INFOLOG( QString( "Pattern [%1] registered from [%2]" )
 						 .arg( pInfo->getName() )
 						 .arg( ssPath ) );
@@ -549,7 +549,7 @@ void SoundLibraryDatabase::updateSongs( Event::Trigger trigger )
 
 	for ( const auto& ssPath : songPaths ) {
 		auto pInfo = std::make_shared<SongInfo>();
-		if ( pInfo->load( ssPath ) ) {
+		if ( pInfo->load( ssPath, m_pHydrogen ) ) {
 			INFOLOG( QString( "Song [%1] registered from [%2]" )
 						 .arg( pInfo->getName() )
 						 .arg( ssPath ) );

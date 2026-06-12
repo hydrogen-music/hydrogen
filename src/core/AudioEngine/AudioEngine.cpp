@@ -1704,9 +1704,17 @@ void AudioEngine::clearNoteQueues( std::shared_ptr<Instrument> pInstrument )
 	}
 }
 
-int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
+int AudioEngine::audioEngine_process( uint32_t nframes, void* arg )
 {
-	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	// P3 host seam (ADR 0015): the owning Hydrogen is threaded through the
+	// driver's process-callback arg, so each instance's callback drives its own
+	// engine. All drivers that invoke the callback (JACK/ALSA/PortAudio/Pulse/
+	// CoreAudio/OSS/Fake/DiskWriter) now pass their instance; the get_instance()
+	// fallback is defensive only (unforeseen/direct calls) and is removed in T1.5
+	// once real-driver multi-instance testing exists.
+	auto pHydrogen = arg != nullptr ?
+		static_cast<Hydrogen*>( arg ) : Hydrogen::get_instance();
+	AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
 	// For the JACK driver it is very important (#1867) to not do anything while
 	// the JACK client is stopped/closed. Otherwise it will segfault on mutex
 	// locking or message logging.
@@ -1769,10 +1777,6 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		pAudioEngine->unlock();
 		return 0;
 	}
-
-	// Derive from pAudioEngine (established above) rather than re-fetching the
-	// singleton; this collapses onto the single P3 process-callback seam.
-	auto pHydrogen = pAudioEngine->m_pHydrogen;
 
 	// Sync transport with server (in case the current audio driver is
 	// designed that way)
@@ -3123,7 +3127,8 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 								 ( H2Core::nTicksPerQuarter / 4 ) ) == 0 ) &&
 							 ( ( m_pQueuing->getPatternTickPosition() %
 								 ( H2Core::nTicksPerQuarter / 2 ) ) != 0 ) ) {
-							pCopiedNote->swing( m_pHydrogen->getSong() );
+							pCopiedNote->swing( m_pHydrogen->getSong(),
+												m_pHydrogen );
 						}
 						
 						// This must be done _after_ setting the

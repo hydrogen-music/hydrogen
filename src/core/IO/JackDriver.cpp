@@ -1114,7 +1114,7 @@ int JackDriver::init( unsigned bufferSize )
 	   there is work to be done.
 	*/
 	if ( jack_set_process_callback(
-			 m_pClient, this->m_processCallback, nullptr
+			 m_pClient, this->m_processCallback, this->m_pHydrogen
 		 ) != 0 ) {
 		ERRORLOG( "Unable to set process callback" );
 	}

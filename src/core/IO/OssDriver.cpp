@@ -60,7 +60,8 @@ void* ossDriver_processCaller( void* param )
 	sleep( 1 );
 
 	while ( ossDriver_running ) {
-		ossDriver_audioProcessCallback( oss_driver_bufferSize, NULL );
+		ossDriver_audioProcessCallback( oss_driver_bufferSize,
+										ossDriver->getHydrogen() );
 		ossDriver->write();
 	}
 

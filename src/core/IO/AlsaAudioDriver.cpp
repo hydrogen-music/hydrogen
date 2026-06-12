@@ -89,7 +89,7 @@ void* alsaAudioDriver_processCaller( void* param )
 
 	while ( pDriver->m_bIsRunning ) {
 		// prepare the audio data
-		pDriver->m_processCallback( nFrames, nullptr );
+		pDriver->m_processCallback( nFrames, pDriver->getHydrogen() );
 
 		for ( int i = 0; i < nFrames; ++i ) {
 			pBuffer[ i * 2 ] = ( short )( pOut_L[ i ] * 32768.0 );

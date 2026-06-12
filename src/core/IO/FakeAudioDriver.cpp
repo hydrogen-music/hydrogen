@@ -163,7 +163,7 @@ void FakeAudioDriver::processCallback( void* pInstance ) {
 		}
 
 		if ( pDriver->m_processCallback(
-				 pDriver->getBufferSize(), nullptr ) != 0 ) {
+				 pDriver->getBufferSize(), pDriver->getHydrogen() ) != 0 ) {
 			pDriver->m_bActive = false;
 			return;
 		}

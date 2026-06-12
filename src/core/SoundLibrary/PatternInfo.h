@@ -29,6 +29,8 @@
 namespace H2Core
 {
 
+class Hydrogen;
+
 /**
  * @class PatternInfo
  *
@@ -49,7 +51,7 @@ class PatternInfo : public SoundLibraryInfo, public H2Core::Object<PatternInfo> 
 	 * @param sPath Path to a .h2pattern XML file
 	 * @return `true` on success
 	 */
-	bool load( const QString& sPath );
+	bool load( const QString& sPath, Hydrogen* pHydrogen = nullptr );
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true )
 		const override;

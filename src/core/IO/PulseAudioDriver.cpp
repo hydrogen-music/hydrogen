@@ -254,7 +254,7 @@ void PulseAudioDriver::stream_write_callback(pa_stream* stream, size_t bytes, vo
 	while (num_samples)
 	{
 		int n = std::min(self->m_buffer_size, num_samples);
-		self->m_callback(n, nullptr);
+		self->m_callback(n, self->getHydrogen());
 		for (int i = 0; i < n; ++i)
 		{
 			*out++ = FLOAT_TO_SHORT(self->m_outL[i]);

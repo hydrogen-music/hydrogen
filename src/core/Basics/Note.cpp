@@ -575,7 +575,7 @@ void Note::humanize( std::shared_ptr<Song> pSong )
 	}
 }
 
-void Note::swing( std::shared_ptr<Song> pSong )
+void Note::swing( std::shared_ptr<Song> pSong, Hydrogen* pHydrogen )
 {
 	if ( pSong != nullptr && pSong->getSwingFactor() > 0 ) {
 		// If the Timeline is activated, the tick size may change at
@@ -586,10 +586,11 @@ void Note::swing( std::shared_ptr<Song> pSong )
 		setHumanizeDelay(
 			m_nHumanizeDelay +
 			( Transport::computeFrameFromTick(
-				  m_nPosition + H2Core::nTicksPerQuarter / 8., &fTickMismatch
+				  m_nPosition + H2Core::nTicksPerQuarter / 8., &fTickMismatch,
+				  0, pHydrogen
 			  ) -
 			  Transport::computeFrameFromTick(
-				  m_nPosition, &fTickMismatch
+				  m_nPosition, &fTickMismatch, 0, pHydrogen
 			  ) ) *
 				pSong->getSwingFactor()
 		);

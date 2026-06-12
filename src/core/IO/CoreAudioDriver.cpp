@@ -50,7 +50,7 @@ static OSStatus renderProc(
 	assert( ioData->mNumberBuffers > 0 && ioData->mNumberBuffers <= 2 );
 	pDriver->m_pOut_L =  static_cast< float *>( ioData->mBuffers[ 0 ].mData );
 	pDriver->m_pOut_R =  static_cast< float *>( ioData->mBuffers[ 1 ].mData );
-	pDriver->mProcessCallback( inNumberFrames, NULL );
+	pDriver->mProcessCallback( inNumberFrames, pDriver->getHydrogen() );
 	pDriver->m_pOut_L = nullptr;
 	pDriver->m_pOut_R = nullptr;
 	return noErr;

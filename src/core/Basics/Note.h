@@ -597,7 +597,7 @@ class Note : public H2Core::Object<Note> {
 	 * As the value applied is deterministic, it will not be handled
 	 * in humanice() but separately.
 	 */
-	void swing( std::shared_ptr<Song> pSong );
+	void swing( std::shared_ptr<Song> pSong, Hydrogen* pHydrogen );
 
 	/** Returns a short but expressive string using which the particular
 	 * note instance can be identified.
