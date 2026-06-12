@@ -38,6 +38,7 @@
 #include "FilesystemTest.h"
 #include "DrumkitTest.h"
 #include "LicenseTest.h"
+#include "LoggerInstanceTest.h"
 #include "MemoryLeakageTest.h"
 #include "MidiActionTest.h"
 #include "MidiDriverTest.h"
@@ -77,6 +78,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( FakePluginHostTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LicenseTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( LoggerInstanceTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MemoryLeakageTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MimeTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MidiActionTest );

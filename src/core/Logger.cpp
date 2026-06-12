@@ -46,10 +46,9 @@ namespace H2Core {
 
 unsigned Logger::__bit_msk = 0;
 Logger* Logger::__instance=nullptr;
+thread_local Logger* Logger::__pCurrent = nullptr;
 const char* Logger::__levels[] = { "None", "Error", "Warning", "Info", "Debug", "Constructors", "Locks" };
 thread_local QString *Logger::pCrashContext = nullptr;
-
-pthread_t loggerThread;
 
 void* loggerThread_func( void* param ) {
 	if ( param == nullptr ) {
@@ -94,33 +93,39 @@ void* loggerThread_func( void* param ) {
 		bUseLogFile = false;
 	}
 	Logger::queue_t* queue = &pLogger->__msg_queue;
-	Logger::queue_t::iterator it, last;
-
-	while ( pLogger->__running ) {
+	// Drain loop. Uses a predicate around pthread_cond_wait() to avoid lost
+	// wakeups, and — crucially for short-lived per-instance loggers (ADR 0015,
+	// T1.6) — always performs a final drain once __running is cleared, so
+	// messages queued just before destruction are flushed before the file is
+	// closed (the dtor joins this thread).
+	bool bDraining = true;
+	while ( bDraining ) {
 		pthread_mutex_lock( &pLogger->__mutex );
-		pthread_cond_wait( &pLogger->__messages_available, &pLogger->__mutex );
+		while ( pLogger->__running && queue->empty() ) {
+			pthread_cond_wait( &pLogger->__messages_available, &pLogger->__mutex );
+		}
+		// Stop once shutdown has been requested and nothing is left to write.
+		bDraining = pLogger->__running || ! queue->empty();
+		// Detach the pending messages under the lock, then write them out
+		// without holding it.
+		Logger::queue_t pending;
+		pending.swap( *queue );
 		pthread_mutex_unlock( &pLogger->__mutex );
-		if ( !queue->empty() ) {
-			for ( it = last = queue->begin() ; it != queue->end() ; ++it ) {
-				last = it;
-				if ( pLogger->m_bUseStdout ) {
-					stdoutStream << *it;
-					stdoutStream.flush();
-				}
-				if ( bUseLogFile ) {
-					logFileStream << *it;
-					logFileStream.flush();
-				}
+
+		for ( const auto& sEntry : pending ) {
+			if ( pLogger->m_bUseStdout ) {
+				stdoutStream << sEntry;
+				stdoutStream.flush();
 			}
-			// remove all in front of last
-			pthread_mutex_lock( &pLogger->__mutex );
-			queue->erase( queue->begin(), last );
-			queue->pop_front();
-			pthread_mutex_unlock( &pLogger->__mutex );
+			if ( bUseLogFile ) {
+				logFileStream << sEntry;
+				logFileStream.flush();
+			}
 		}
 	}
 	if ( bUseLogFile ) {
 		logFileStream << "Stop logger";
+		logFileStream.flush();
 	}
 	logFile.close();
 #ifdef WIN32
@@ -167,6 +172,16 @@ Logger* Logger::create_instance( const QString& sLogFilePath, bool bUseStdout,
 	return __instance;
 }
 
+std::shared_ptr<Logger> Logger::createInstanceLogger(
+	const QString& sLogFilePath, bool bUseStdout, bool bLogTimestamps,
+	bool bLogColors ) {
+	// Standalone, owner-managed logger (own queue/thread/file). Deliberately
+	// does NOT touch __instance — the process default stays as the unscoped
+	// fallback (ADR 0015, T1.6).
+	return std::shared_ptr<Logger>(
+		new Logger( sLogFilePath, bUseStdout, bLogTimestamps, bLogColors ) );
+}
+
 Logger::Logger( const QString& sLogFilePath, bool bUseStdout,
 				bool bLogTimestamps, bool bLogColors )
 	: __running( true )
@@ -174,7 +189,6 @@ Logger::Logger( const QString& sLogFilePath, bool bUseStdout,
 	, m_bUseStdout( bUseStdout )
 	, m_bLogTimestamps( bLogTimestamps )
 	, m_bLogColors( bLogColors ) {
-	__instance = this;
 
 	m_prefixList << "" << "(E) " << "(W) " << "(I) " << "(D) " << "(C)" << "(L) ";
 
@@ -204,7 +218,7 @@ Logger::Logger( const QString& sLogFilePath, bool bUseStdout,
 	pthread_attr_init( &attr );
 	pthread_mutex_init( &__mutex, nullptr );
 	pthread_cond_init( &__messages_available, nullptr );
-	pthread_create( &loggerThread, &attr, loggerThread_func, this );
+	pthread_create( &m_loggerThread, &attr, loggerThread_func, this );
 
 	if ( should_log( Info ) ) {
 		log( Info, "Logger", "Logger", QString( "Starting Hydrogen version [%1]" )
@@ -217,7 +231,7 @@ Logger::Logger( const QString& sLogFilePath, bool bUseStdout,
 Logger::~Logger() {
 	__running = false;
 	pthread_cond_broadcast ( &__messages_available );
-	pthread_join( loggerThread, nullptr );
+	pthread_join( m_loggerThread, nullptr );
 }
 
 void Logger::log( unsigned level, const QString& sClassName, const char* func_name,

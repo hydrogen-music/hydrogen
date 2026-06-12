@@ -52,6 +52,11 @@
 #include <core/EventQueue.h>
 #include <core/H2Exception.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Logger.h>
+
+#include <atomic>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QFileInfo>
 #include <core/Helpers/TimeHelper.h>
 #include <core/IO/AlsaAudioDriver.h>
 #include <core/IO/AlsaMidiDriver.h>
@@ -120,6 +125,28 @@ Hydrogen::Hydrogen( std::shared_ptr<Preferences> pPref, int nOscPort )
 
 	m_pEventQueue = new EventQueue( this );
 	EventQueue::setInstance( m_pEventQueue );
+
+	// Per-instance Logger (ADR 0015, T1.6): its own queue/worker/log file, with
+	// a path made unique per process+instance (pid + counter). Mirrors the
+	// process-default logger's stdout/colour settings so console verbosity is
+	// unchanged; the default logger remains the unscoped/static fallback. The
+	// instance entry points (e.g. the audio process callback) wrap work in a
+	// Logger::Scope( getLogger() ) so logging routes here.
+	static std::atomic<int> nInstanceCounter { 0 };
+	const QFileInfo defaultLogInfo( Filesystem::logFilePath() );
+	const QString sInstanceLogPath = defaultLogInfo.absolutePath() + "/" +
+		defaultLogInfo.completeBaseName() +
+		QString( "_%1_%2." ).arg( QCoreApplication::applicationPid() )
+							 .arg( nInstanceCounter++ ) +
+		defaultLogInfo.suffix();
+	// No Scope is active during construction, so currentLogger() resolves to the
+	// process-default logger — read its settings to mirror console verbosity.
+	const auto pDefaultLogger = Logger::currentLogger();
+	m_pLogger = Logger::createInstanceLogger(
+		sInstanceLogPath,
+		pDefaultLogger != nullptr ? pDefaultLogger->getUseStdout() : false,
+		false,
+		pDefaultLogger != nullptr ? pDefaultLogger->getLogColors() : true );
 
 #ifdef H2CORE_HAVE_OSC
 	NsmClient::create_instance( this );

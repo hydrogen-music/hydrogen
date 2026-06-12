@@ -1714,6 +1714,9 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* arg )
 	// once real-driver multi-instance testing exists.
 	auto pHydrogen = arg != nullptr ?
 		static_cast<Hydrogen*>( arg ) : Hydrogen::get_instance();
+	// T1.6 (ADR 0015): route all logging emitted during this instance's audio
+	// callback to its own per-instance Logger for the duration of the cycle.
+	Logger::Scope loggerScope( pHydrogen->getLogger() );
 	AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
 	// For the JACK driver it is very important (#1867) to not do anything while
 	// the JACK client is stopped/closed. Otherwise it will segfault on mutex

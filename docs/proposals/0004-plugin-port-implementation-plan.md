@@ -185,6 +185,18 @@ cleanly (even if targets are stubs).
   * **`SoundLibraryDatabase` stays per-instance** (already a `Hydrogen` leaf — do
     *not* promote it to a singleton; that would leak library state between
     instances).
+  * **Status: ✅ DONE** (2026-06-12) — `src/core` production sweep complete,
+    full suite green throughout; **637 → ~51** `get_instance()`. Hubs/controllers/
+    engine/drivers carry an owning `m_pHydrogen` back-pointer; pure-data leaves
+    take the specific dependency as a parameter; the static deserialization/load
+    tree, `Transport` frame↔tick math, and `Filesystem` context helpers are
+    threaded. The audio **process callback** now receives its owning `Hydrogen`
+    through the driver's `void*` arg (all drivers that invoke it pass their
+    instance), so each instance's callback drives its own engine — a defensive
+    `get_instance()` fallback remains for unforeseen/direct calls, dropped in
+    T1.5. The remaining `src/core` `get_instance()` are the **transitional shims
+    (removed in T1.5)**, the per-method `AudioEngineTests` seams (await the
+    test-instance strategy), and the cosmetic `AE_*LOG` driver-name prefix.
 * **T1.5** Remove the transitional shims once the sweep is complete; the build
   failing on a lingering `get_instance()` is the proof it is gone.
 * **T1.6 Per-instance `Logger`** via an **ambient context, resolved at log time,
@@ -201,6 +213,19 @@ cleanly (even if targets are stubs).
   *Tests first:* `LoggerInstanceTest` — within distinct context scopes two
   instances log to two distinct files with no cross-writing; an unscoped log call
   hits the fallback; teardown of one instance flushes only its own queue.
+  * **Status: ✅ DONE** (2026-06-12) — `Logger` is instance-ownable
+    (`Logger::createInstanceLogger()`: own queue, worker thread, and per-instance
+    file `hydrogen_<pid>_<counter>.log`; does not touch the singleton); `Hydrogen`
+    owns one via `getLogger()`, mirroring the default logger's stdout/colours. The
+    ambient context is `Logger::currentLogger()` + an RAII `Logger::Scope`
+    (thread-local), with the bootstrap logger as the process-default fallback; the
+    log macros (`Object.h`) resolve through it at log time — no `Base` data member,
+    no ctor churn. `Logger::Scope` is set at the audio `process()` entry point
+    (instance reached via the callback arg); the remaining entry-point scopes
+    (command dispatch, GUI workers) land with Phase 2. `LoggerInstanceTest` passes
+    (3 cases), and **`Logger::get_instance()` is eliminated from `src/core`**. Also
+    fixed a latent worker-loop race that skipped draining a short-lived logger's
+    queue on teardown.
 
 **Risk control:** land T1.1–T1.6 incrementally, suite green at each commit. The
 shim lets the refactor proceed file-by-file. T1.6 is well-contained by the

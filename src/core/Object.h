@@ -228,10 +228,14 @@ template<typename T> atomic_obj_cpt_t Object<T>::counters;
 			const char* class_name() const override { return _class_name(); }
 
 // LOG MACROS
-#define __LOG_METHOD(   lvl, msg )  if( __logger->should_log( (lvl) ) )                 { __logger->log( (lvl), _class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
-#define __LOG_CLASS(    lvl, msg )  if( logger()->should_log( (lvl) ) )                 { logger()->log( (lvl), _class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
+// ADR 0015 / T1.6: log macros resolve the logger through the ambient context
+// (Logger::currentLogger()) at log time — the active per-instance Scope, or the
+// process default when none is set — instead of the static Base::__logger /
+// Logger::get_instance() singleton.
+#define __LOG_METHOD(   lvl, msg )  if( H2Core::Logger::currentLogger()->should_log( (lvl) ) ) { H2Core::Logger::currentLogger()->log( (lvl), _class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
+#define __LOG_CLASS(    lvl, msg )  if( H2Core::Logger::currentLogger()->should_log( (lvl) ) ) { H2Core::Logger::currentLogger()->log( (lvl), _class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
 #define __LOG_OBJ(      lvl, msg )  if( __object->logger()->should_log( (lvl) ) )       { __object->logger()->log( (lvl), 0, __PRETTY_FUNCTION__, QString( "%1" ).arg( msg ) ); }
-#define __LOG_STATIC(   lvl, msg )  if( H2Core::Logger::get_instance()->should_log( (lvl) ) )   { H2Core::Logger::get_instance()->log( (lvl), 0, __PRETTY_FUNCTION__, QString( "%1" ).arg( msg ) ); }
+#define __LOG_STATIC(   lvl, msg )  if( H2Core::Logger::currentLogger()->should_log( (lvl) ) ) { H2Core::Logger::currentLogger()->log( (lvl), 0, __PRETTY_FUNCTION__, QString( "%1" ).arg( msg ) ); }
 #define __LOG( logger,  lvl, msg )  if( (logger)->should_log( (lvl) ) )                 { (logger)->log( (lvl), 0, 0, QString( "%1" ).arg( msg ) ); }
 
 // Object instance method logging macros

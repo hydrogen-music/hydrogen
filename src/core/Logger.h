@@ -75,6 +75,17 @@ class Logger {
 									bool bLogColors = true );
 
 		/**
+		 * Creates a standalone, per-instance #Logger (ADR 0015, T1.6) owned by
+		 * the caller (e.g. a #Hydrogen instance) — its own queue, worker thread
+		 * and log file. Unlike #create_instance() this does **not** touch the
+		 * process-default #__instance, so multiple instances can coexist. */
+		static std::shared_ptr<Logger> createInstanceLogger(
+			const QString& sLogFilePath,
+			bool bUseStdout = true,
+			bool bLogTimestamps = false,
+			bool bLogColors = true );
+
+		/**
 		 * Returns a pointer to the current H2Core::Logger
 		 * singleton stored in #__instance.
 		 */
@@ -88,6 +99,37 @@ class Logger {
 		static bool isAvailable() {
 			return __instance == nullptr ? false : true;
 		}
+
+		/**
+		 * Ambient-context logger resolution (ADR 0015, T1.6).
+		 *
+		 * Returns the #Logger of the innermost active #Scope on the current
+		 * thread, or — when no scope is active (static/early-startup/unscoped
+		 * contexts) — the process-default logger (#__instance, set at
+		 * bootstrap). The log macros resolve through this **at log time**, so a
+		 * wrong or absent context can only misroute a log line to the default,
+		 * never change behaviour. */
+		static Logger* currentLogger() {
+			return __pCurrent != nullptr ? __pCurrent : __instance;
+		}
+
+		/**
+		 * RAII guard pushing @a pLogger as the current-thread logger for the
+		 * lifetime of the scope (restoring the previous one on destruction).
+		 * Set at the per-instance entry points (audio process callback, command
+		 * dispatch, song/kit load, per-instance workers). */
+		class Scope {
+		public:
+			explicit Scope( Logger* pLogger )
+				: m_pPrevious( Logger::__pCurrent ) {
+				Logger::__pCurrent = pLogger;
+			}
+			~Scope() { Logger::__pCurrent = m_pPrevious; }
+			Scope( const Scope& ) = delete;
+			Scope& operator=( const Scope& ) = delete;
+		private:
+			Logger* m_pPrevious;
+		};
 
 		/**
 		 * return true if the level is set in the bitmask
@@ -146,6 +188,9 @@ class Logger {
 		/** @} */
 
 		bool getLogColors() const;
+		/** Whether this logger also writes to stdout. Used so a per-instance
+		 * logger can mirror the process default's verbosity (ADR 0015, T1.6). */
+		bool getUseStdout() const { return m_bUseStdout; }
 
 		/** Helper class to preserve and restore recursive crash context strings using an RAAI pattern */
 		class CrashContext {
@@ -165,12 +210,18 @@ class Logger {
 		 * get_instance().
 		 */
 		static Logger* __instance;
+		/** Thread-local current-context logger for #currentLogger()/#Scope
+		 * (ADR 0015, T1.6). nullptr ⇒ fall back to the process default. */
+		static thread_local Logger* __pCurrent;
 		bool __running;                 ///< set to true when the logger thread is running
 		pthread_mutex_t __mutex;        ///< lock for adding or removing elements only
 		queue_t __msg_queue;            ///< the message queue
 		static unsigned __bit_msk;      ///< the bitmask of log_level_t
 		static const char* __levels[];  ///< levels strings
 		pthread_cond_t __messages_available;
+		/** Worker thread servicing this logger's queue. Per-instance (ADR 0015,
+		 * T1.6) so multiple loggers each drain their own queue/file. */
+		pthread_t m_loggerThread;
 	QString m_sLogFilePath;
 
 		QStringList m_prefixList;

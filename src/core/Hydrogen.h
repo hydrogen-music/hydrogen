@@ -162,6 +162,10 @@ public:
 	std::shared_ptr<Preferences> getPreferences() const { return m_pPreferences; }
 	/** \return The EventQueue owned by this instance (#m_pEventQueue). */
 	EventQueue*		getEventQueue() const { return m_pEventQueue; }
+	/** \return The per-instance Logger owned by this instance (ADR 0015, T1.6).
+	 * Used with Logger::Scope at the instance entry points so logging routes to
+	 * this instance's own log file. */
+	Logger*			getLogger() const { return m_pLogger.get(); }
 
 	/*
 	 * return central instance of the audio engine
@@ -490,6 +494,9 @@ private:
 	 */
 	static Hydrogen* 	__instance;
 
+	/** Per-instance Logger owned by this instance (ADR 0015, T1.6) — own queue,
+	 * worker thread and log file. */
+	std::shared_ptr<Logger> m_pLogger;
 	/** Preferences owned by this instance (ADR 0015). */
 	std::shared_ptr<Preferences> m_pPreferences;
 	/** EventQueue owned by this instance (ADR 0015). */
