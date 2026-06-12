@@ -109,7 +109,8 @@ std::shared_ptr<Drumkit> Drumkit::getEmptyDrumkit() {
 std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath,
 										bool bUpgrade,
 										bool* pLegacyFormatEncountered,
-										bool bSilent )
+										bool bSilent,
+										Hydrogen* pHydrogen )
 {
 	// Fail-safe for backward compatibility.
 	const auto sDrumkitPathCleaned =
@@ -131,7 +132,8 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath,
 
 	bool bLegacyFormatEncountered = false;
 	auto pDrumkit = Drumkit::loadFrom(
-		root, sDrumkitPathCleaned, "", false, &bLegacyFormatEncountered, bSilent
+		root, sDrumkitPathCleaned, "", false, &bLegacyFormatEncountered, bSilent,
+		pHydrogen
 	);
 
 	if ( pLegacyFormatEncountered != nullptr ) {
@@ -145,7 +147,8 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath,
 		return nullptr;
 	}
 
-	pDrumkit->setContext( Filesystem::DetermineContext( pDrumkit->getPath() ) );
+	pDrumkit->setContext(
+		Filesystem::DetermineContext( pDrumkit->getPath(), pHydrogen ) );
 
 	if ( bLegacyFormatEncountered && bUpgrade ) {
 		pDrumkit->upgrade( bSilent );
@@ -159,7 +162,8 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 											const QString& sSongPath,
 											bool bSongKit,
 											bool* pLegacyFormatEncountered,
-											bool bSilent )
+											bool bSilent,
+											Hydrogen* pHydrogen )
 {
 	auto pDrumkit = std::make_shared<Drumkit>();
 
@@ -217,7 +221,7 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 
 	auto pInstrumentList = InstrumentList::loadFrom(
 		node, sDrumkitPath, sDrumkitName, sSongPath, pDrumkit->getLicense(),
-		bSongKit, pLegacyFormatEncountered, false );
+		bSongKit, pLegacyFormatEncountered, false, pHydrogen );
 	// Required to assure backward compatibility.
 	if ( pInstrumentList == nullptr ) {
 		WARNINGLOG( "instrument list could not be loaded. Using empty one." );
@@ -331,9 +335,9 @@ void Drumkit::upgrade( bool bSilent ) {
 	save( "", bSilent );
 }
 
-void Drumkit::loadSamples( float fBpm ) {
+void Drumkit::loadSamples( float fBpm, Preferences* pPreferences ) {
 	INFOLOG( QString( "Loading drumkit %1 instrument samples" ).arg( m_sName ) );
-	m_pInstruments->loadSamples( fBpm );
+	m_pInstruments->loadSamples( fBpm, pPreferences );
 }
 
 void Drumkit::unloadSamples() {
@@ -1246,9 +1250,9 @@ const QString& Drumkit::getPath() const {
 	return m_sPath;
 }
 
-void Drumkit::recalculateRubberband( float fBpm )
+void Drumkit::recalculateRubberband( float fBpm, Hydrogen* pHydrogen )
 {
-	if ( !Preferences::get_instance()->getRubberBandBatchMode() ) {
+	if ( !pHydrogen->getPreferences()->getRubberBandBatchMode() ) {
 		return;
 	}
 
@@ -1276,8 +1280,7 @@ void Drumkit::recalculateRubberband( float fBpm )
 				}
 
 				ppInstrument->setSample(
-					ppComponent, ppLayer, pNewSample, Event::Trigger::Suppress
-				);
+					ppComponent, ppLayer, pNewSample, Event::Trigger::Suppress, pHydrogen );
 			}
 		}
 	}

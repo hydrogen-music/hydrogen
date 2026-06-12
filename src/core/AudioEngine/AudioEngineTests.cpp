@@ -58,11 +58,11 @@ void AudioEngineTests::testFrameToTickConversion() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
 	
-	CoreActionController::activateTimeline( true );
-	CoreActionController::addTempoMarker( 0, 120 );
-	CoreActionController::addTempoMarker( 3, 100 );
-	CoreActionController::addTempoMarker( 5, 40 );
-	CoreActionController::addTempoMarker( 7, 200 );
+	pHydrogen->getCoreActionController()->activateTimeline( true );
+	pHydrogen->getCoreActionController()->addTempoMarker( 0, 120 );
+	pHydrogen->getCoreActionController()->addTempoMarker( 3, 100 );
+	pHydrogen->getCoreActionController()->addTempoMarker( 5, 40 );
+	pHydrogen->getCoreActionController()->addTempoMarker( 7, 200 );
 
 	auto checkFrame = []( long long nFrame, double fTolerance ) {
 		const double fTick = Transport::computeTickFromFrame( nFrame );
@@ -108,13 +108,13 @@ void AudioEngineTests::testFrameToTickConversion() {
 void AudioEngineTests::testTransportProcessing() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = pHydrogen->getPreferences();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getPlayhead();
 	auto pQueuingPos = pAE->m_pQueuing;
 	
-	CoreActionController::activateTimeline( false );
-	CoreActionController::activateLoopMode( true );
+	pHydrogen->getCoreActionController()->activateTimeline( false );
+	pHydrogen->getCoreActionController()->activateLoopMode( true );
 
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
@@ -178,7 +178,7 @@ void AudioEngineTests::testTransportProcessing() {
 
 	// Check whether all frames are covered when running playback in song mode
 	// without looping.
-	CoreActionController::activateLoopMode( false );
+	pHydrogen->getCoreActionController()->activateLoopMode( false );
 
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
@@ -215,7 +215,7 @@ void AudioEngineTests::testTransportProcessing() {
 
 	// Check whether all frames are covered when running playback in song mode
 	// without looping.
-	CoreActionController::activateLoopMode( true );
+	pHydrogen->getCoreActionController()->activateLoopMode( true );
 
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
@@ -258,7 +258,7 @@ void AudioEngineTests::testTransportProcessing() {
 	pAE->unlock();
 
 	// Check consistency of playback in PatternMode
-	CoreActionController::activateSongMode( false );
+	pHydrogen->getCoreActionController()->activateSongMode( false );
 
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
@@ -292,19 +292,19 @@ void AudioEngineTests::testTransportProcessing() {
 	
 	pAE->setState( AudioEngine::State::Ready );
 	pAE->unlock();
-	CoreActionController::activateSongMode( true );
+	pHydrogen->getCoreActionController()->activateSongMode( true );
 }
 
 void AudioEngineTests::testTransportProcessingTimeline() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pTimeline = pSong->getTimeline();
-	auto pPref = Preferences::get_instance();
+	auto pPref = pHydrogen->getPreferences();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getPlayhead();
 	auto pQueuingPos = pAE->m_pQueuing;
 	
-	CoreActionController::activateLoopMode( true );
+	pHydrogen->getCoreActionController()->activateLoopMode( true );
 
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
@@ -314,7 +314,7 @@ void AudioEngineTests::testTransportProcessingTimeline() {
 		pSong->setIsTimelineActivated( bEnabled );
 
 		if ( bEnabled ) {
-			pTimeline->activate();
+			pTimeline->activate( pHydrogen );
 		} else {
 			pTimeline->deactivate();
 		}
@@ -400,7 +400,7 @@ void AudioEngineTests::testTransportProcessingTimeline() {
 		}
 		else {
 			activateTimeline( true );
-			fBpm = AudioEngine::getBpmAtColumn( pTransportPos->getColumn() );
+			fBpm = pAE->getBpmAtColumn( pTransportPos->getColumn() );
 			
 			sContext = "timeline";
 		}
@@ -430,12 +430,12 @@ void AudioEngineTests::testTransportProcessingTimeline() {
 void AudioEngineTests::testLoopMode() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = pHydrogen->getPreferences();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getPlayhead();
 	
-	CoreActionController::activateLoopMode( true );
-	CoreActionController::activateSongMode( true );
+	pHydrogen->getCoreActionController()->activateLoopMode( true );
+	pHydrogen->getCoreActionController()->activateSongMode( true );
 
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
@@ -495,7 +495,7 @@ void AudioEngineTests::testLoopMode() {
 			 fSongSizeInTicks * ( nLoops - 1 ) ) {
 			pAE->setState( AudioEngine::State::Ready );
 			pAE->unlock();
-			CoreActionController::activateLoopMode( false );
+			pHydrogen->getCoreActionController()->activateLoopMode( false );
 			pAE->lock( RIGHT_HERE );
 			pAE->setState( AudioEngine::State::Testing );
 		}
@@ -533,8 +533,9 @@ int AudioEngineTests::processTransport( const QString& sContext,
 										 long* nLastQueuingTick,
 										 double* fLastTickIntervalEnd,
 										 bool bCheckLookahead ) {
-	auto pSong = Hydrogen::get_instance()->getSong();
-	auto pAE = Hydrogen::get_instance()->getAudioEngine();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getPlayhead();
 	auto pQueuingPos = pAE->m_pQueuing;
 
@@ -636,7 +637,7 @@ int AudioEngineTests::processTransport( const QString& sContext,
 void AudioEngineTests::testTransportRelocation() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = pHydrogen->getPreferences();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getPlayhead();
 
@@ -703,8 +704,8 @@ void AudioEngineTests::testSongSizeChange() {
 	pAE->setState( AudioEngine::State::Ready );
 	pAE->unlock();
 	
-	CoreActionController::activateLoopMode( true );
-	CoreActionController::locateToColumn( nTestColumn );
+	pHydrogen->getCoreActionController()->activateLoopMode( true );
+	pHydrogen->getCoreActionController()->locateToColumn( nTestColumn );
 	
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
@@ -734,18 +735,18 @@ void AudioEngineTests::testSongSizeChange() {
 
 	pAE->setState( AudioEngine::State::Ready );
 	pAE->unlock();
-	CoreActionController::activateLoopMode( false );
+	pHydrogen->getCoreActionController()->activateLoopMode( false );
 }
 
 void AudioEngineTests::testSongSizeChangeInLoopMode() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = pHydrogen->getPreferences();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getPlayhead();
 	
-	CoreActionController::activateTimeline( false );
-	CoreActionController::activateLoopMode( true );
+	pHydrogen->getCoreActionController()->activateTimeline( false );
+	pHydrogen->getCoreActionController()->activateLoopMode( true );
 
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
@@ -803,7 +804,7 @@ void AudioEngineTests::testSongSizeChangeInLoopMode() {
 
 		pAE->setState( AudioEngine::State::Ready );
 		pAE->unlock();
-		CoreActionController::toggleGridCell( GridPoint( nNewColumn, 0 ) );
+		pHydrogen->getCoreActionController()->toggleGridCell( GridPoint( nNewColumn, 0 ) );
 		pAE->lock( RIGHT_HERE );
 		pAE->setState( AudioEngine::State::Testing );
 
@@ -811,7 +812,7 @@ void AudioEngineTests::testSongSizeChangeInLoopMode() {
 
 		pAE->setState( AudioEngine::State::Ready );
 		pAE->unlock();
-		CoreActionController::toggleGridCell( GridPoint( nNewColumn, 0 ) );
+		pHydrogen->getCoreActionController()->toggleGridCell( GridPoint( nNewColumn, 0 ) );
 		pAE->lock( RIGHT_HERE );
 		pAE->setState( AudioEngine::State::Testing );
 
@@ -825,15 +826,15 @@ void AudioEngineTests::testSongSizeChangeInLoopMode() {
 void AudioEngineTests::testNoteEnqueuing() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = pHydrogen->getPreferences();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pSampler = pAE->getSampler();
 	auto pTransportPos = pAE->getPlayhead();
 	auto pQueuingPos = pAE->m_pQueuing;
 
-	CoreActionController::activateTimeline( false );
-	CoreActionController::activateLoopMode( false );
-	CoreActionController::activateSongMode( true );
+	pHydrogen->getCoreActionController()->activateTimeline( false );
+	pHydrogen->getCoreActionController()->activateLoopMode( false );
+	pHydrogen->getCoreActionController()->activateSongMode( true );
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
 
@@ -973,7 +974,7 @@ void AudioEngineTests::testNoteEnqueuing() {
 	// Perform the test in pattern mode
 	//////////////////////////////////////////////////////////////////
 
-	CoreActionController::activateSongMode( false );
+	pHydrogen->getCoreActionController()->activateSongMode( false );
 	pHydrogen->setPatternMode( Song::PatternMode::Selected );
 	pHydrogen->setSelectedPatternNumber( 4 );
 
@@ -1050,8 +1051,8 @@ void AudioEngineTests::testNoteEnqueuing() {
 	// first time transport was wrapped to the beginning again. This
 	// occurred just in song mode.
 	
-	CoreActionController::activateLoopMode( true );
-	CoreActionController::activateSongMode( true );
+	pHydrogen->getCoreActionController()->activateLoopMode( true );
+	pHydrogen->getCoreActionController()->activateSongMode( true );
 
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
@@ -1093,7 +1094,7 @@ void AudioEngineTests::testNoteEnqueuing() {
 			 pSong->getLoopMode() == Song::LoopMode::Enabled ) {
 			pAE->setState( AudioEngine::State::Ready );
 			pAE->unlock();
-			CoreActionController::activateLoopMode( false );
+			pHydrogen->getCoreActionController()->activateLoopMode( false );
 			pAE->lock( RIGHT_HERE );
 			pAE->setState( AudioEngine::State::Testing );
 		}
@@ -1114,7 +1115,7 @@ void AudioEngineTests::testNoteEnqueuingTimeline() {
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pSampler = pAE->getSampler();
 	auto pTransportPos = pAE->getPlayhead();
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = pHydrogen->getPreferences();
 
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
@@ -1220,10 +1221,10 @@ void AudioEngineTests::testHumanization() {
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pSampler = pAE->getSampler();
 	auto pTransportPos = pAE->getPlayhead();
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = pHydrogen->getPreferences();
 
-	CoreActionController::activateLoopMode( false );
-	CoreActionController::activateSongMode( true );
+	pHydrogen->getCoreActionController()->activateLoopMode( false );
+	pHydrogen->getCoreActionController()->activateSongMode( true );
 
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
@@ -1322,8 +1323,8 @@ void AudioEngineTests::testHumanization() {
 	// customizations reach the Sampler.
 	pAE->setState( AudioEngine::State::Ready );
 	pAE->unlock();
-	CoreActionController::toggleGridCell( GridPoint( 0, 0 ) );
-	CoreActionController::toggleGridCell( GridPoint( 0, 1 ) );
+	pHydrogen->getCoreActionController()->toggleGridCell( GridPoint( 0, 0 ) );
+	pHydrogen->getCoreActionController()->toggleGridCell( GridPoint( 0, 1 ) );
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
 
@@ -1390,8 +1391,8 @@ void AudioEngineTests::testHumanization() {
 	// Switch back to pattern 1
 	pAE->setState( AudioEngine::State::Ready );
 	pAE->unlock();
-	CoreActionController::toggleGridCell( GridPoint( 0, 1 ) );
-	CoreActionController::toggleGridCell( GridPoint( 0, 0 ) );
+	pHydrogen->getCoreActionController()->toggleGridCell( GridPoint( 0, 1 ) );
+	pHydrogen->getCoreActionController()->toggleGridCell( GridPoint( 0, 0 ) );
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
 
@@ -1537,10 +1538,10 @@ void AudioEngineTests::testMuteGroups() {
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pSampler = pAE->getSampler();
 	auto pTransportPos = pAE->getPlayhead();
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = pHydrogen->getPreferences();
 
-	CoreActionController::activateLoopMode( false );
-	CoreActionController::activateSongMode( true );
+	pHydrogen->getCoreActionController()->activateLoopMode( false );
+	pHydrogen->getCoreActionController()->activateSongMode( true );
 
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
@@ -1637,10 +1638,10 @@ void AudioEngineTests::testNoteOff() {
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pSampler = pAE->getSampler();
 	auto pTransportPos = pAE->getPlayhead();
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = pHydrogen->getPreferences();
 
-	CoreActionController::activateLoopMode( false );
-	CoreActionController::activateSongMode( true );
+	pHydrogen->getCoreActionController()->activateLoopMode( false );
+	pHydrogen->getCoreActionController()->activateSongMode( true );
 
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
@@ -1938,7 +1939,8 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 }
 
 std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
-	auto pAE = Hydrogen::get_instance()->getAudioEngine();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAE = pHydrogen->getAudioEngine();
 	std::vector<std::shared_ptr<Note>> originalNotes;
 	std::vector<std::shared_ptr<Note>> copiedNotes;
 	for ( ; ! pAE->m_songNoteQueue.empty(); pAE->m_songNoteQueue.pop() ) {
@@ -1994,7 +1996,7 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 
 		pAE->setState( AudioEngine::State::Ready );
 		pAE->unlock();
-		CoreActionController::toggleGridCell(
+		pHydrogen->getCoreActionController()->toggleGridCell(
 			GridPoint( nToggleColumn, nToggleRow ) );
 		pAE->lock( RIGHT_HERE );
 		pAE->setState( AudioEngine::State::Testing );
@@ -2135,7 +2137,7 @@ void AudioEngineTests::resetSampler( const QString& sContext ) {
 	auto pSong = pHydrogen->getSong();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pSampler = pAE->getSampler();
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = pHydrogen->getPreferences();
 
 	// Larger number to account for both small buffer sizes and long
 	// samples.
@@ -2235,7 +2237,7 @@ void AudioEngineTests::testTransportProcessingJack() {
 
 	// Check whether all frames are covered when running playback in song mode
 	// without looping.
-	CoreActionController::activateLoopMode( false );
+	pHydrogen->getCoreActionController()->activateLoopMode( false );
 
 	pAE->lock( RIGHT_HERE );
 	pAE->reset( true );
@@ -2316,8 +2318,8 @@ void AudioEngineTests::testTransportProcessingOffsetsJack() {
 
 	// Check whether all frames are covered when running playback in song mode
 	// without looping.
-	CoreActionController::activateLoopMode( false );
-	CoreActionController::activateTimeline( false );
+	pHydrogen->getCoreActionController()->activateLoopMode( false );
+	pHydrogen->getCoreActionController()->activateTimeline( false );
 
     std::random_device randomSeed;
     std::default_random_engine randomEngine( randomSeed() );
@@ -2370,7 +2372,7 @@ void AudioEngineTests::testTransportProcessingOffsetsJack() {
 		// song size. It should never change during regular playback (which is
 		// covered by a separate test).
 		const auto nOldSongSize = pAE->m_fSongSizeInTicks;
-		CoreActionController::toggleGridCell(
+		pHydrogen->getCoreActionController()->toggleGridCell(
 			GridPoint( nToggleColumn, nToggleRow ) );
 		if ( nOldSongSize == pAE->m_fSongSizeInTicks ) {
 			throwException( "[testTransportProcessingOffsetsJack] song size did not change." );
@@ -2412,7 +2414,7 @@ void AudioEngineTests::testTransportProcessingOffsetsJack() {
 	// Ensure the additional grid cell we activate/deactivate is set to its
 	// original state.
 	if ( pAE->m_fSongSizeInTicks != fOriginalSongSize ) {
-		CoreActionController::toggleGridCell(
+		pHydrogen->getCoreActionController()->toggleGridCell(
 			GridPoint( nToggleColumn, nToggleRow ) );
 	}
 
@@ -2596,7 +2598,7 @@ void AudioEngineTests::testTransportRelocationJack() {
 void AudioEngineTests::testTransportRelocationOffsetsJack() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	auto pPref = Preferences::get_instance();
+	auto pPref = pHydrogen->getPreferences();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getPlayhead();
 
@@ -2608,7 +2610,7 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 		return;
 	}
 
-	CoreActionController::activateTimeline( false );
+	pHydrogen->getCoreActionController()->activateTimeline( false );
 
 	pAE->lock( RIGHT_HERE );
 	pAE->stop();
@@ -2712,7 +2714,7 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 		// song size. It should never change during regular playback (which is
 		// covered by a separate test).
 		const auto nOldSongSize = pAE->m_fSongSizeInTicks;
-		CoreActionController::toggleGridCell(
+		pHydrogen->getCoreActionController()->toggleGridCell(
 			GridPoint( nToggleColumn, nToggleRow ) );
 		if ( nOldSongSize == pAE->m_fSongSizeInTicks ) {
 			throwException( "[testTransportRelocationOffsetsJack] song size did not change." );
@@ -2824,7 +2826,7 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 	// Ensure the additional grid cell we activate/deactivate is set to its
 	// original state.
 	if ( pAE->m_fSongSizeInTicks != fOriginalSongSize ) {
-		CoreActionController::toggleGridCell(
+		pHydrogen->getCoreActionController()->toggleGridCell(
 			GridPoint( nToggleColumn, nToggleRow ) );
 	}
 
@@ -2837,7 +2839,7 @@ std::shared_ptr<JackDriver> AudioEngineTests::startJackDriver()
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = pHydrogen->getPreferences();
 
 	if ( pAudioEngine->getState() == AudioEngine::State::Testing ) {
 		throwException( "[startJackDriver] Engine must not be locked and in state testing yet!" );
@@ -2847,7 +2849,7 @@ std::shared_ptr<JackDriver> AudioEngineTests::startJackDriver()
 
 	// Start a modified version of the JACK audio driver.
 	auto pDriver = std::make_shared<JackDriver>(
-		jackTestProcessCallback, JackDriver::Mode::Audio
+		pHydrogen, jackTestProcessCallback, JackDriver::Mode::Audio
 	);
 	if ( pDriver == nullptr ) {
 		throwException( "[startJackDriver] Unable to create JackDriver" );
@@ -2899,7 +2901,7 @@ std::shared_ptr<JackDriver> AudioEngineTests::startJackDriver()
 		pAudioEngine->unlock();
 	}
 
-	EventQueue::get_instance()->pushEvent( Event::Type::AudioDriverChanged, 0 );
+	pHydrogen->getEventQueue()->pushEvent( Event::Type::AudioDriverChanged, 0 );
 
 	INFOLOG( "DONE Starting custom JACK driver." );
 
@@ -3020,7 +3022,8 @@ void AudioEngineTests::waitForRelocation(
 
 int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 
-	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pHydrogen = Hydrogen::get_instance();
+	AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
 	auto pDriver =
 		std::dynamic_pointer_cast<JackDriver>( pAudioEngine->m_pAudioDriver );
 	if ( pDriver == nullptr ) {
@@ -3081,7 +3084,6 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 		return 0;
 	}
 
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		AudioEngineTests::throwException(
@@ -3097,7 +3099,7 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 	// Sync transport with server (in case the current audio driver is
 	// designed that way)
 #ifdef H2CORE_HAVE_JACK
-	if ( Hydrogen::get_instance()->hasJackTransport() ) {
+	if ( pHydrogen->hasJackTransport() ) {
 		pDriver->updateTransport();
 
 #ifdef HAVE_INTEGRATION_TESTS
@@ -3126,7 +3128,7 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 			testPos.frame = pTransportPos->getFrame();
 			testPos.tick = pTransportPos->getDoubleTick();
 		}
-		JackDriver::transportToBBT( *pTransportPos, &testPos );
+		pDriver->transportToBBT( *pTransportPos, &testPos );
 
 		if ( ! JackDriver::isBBTValid( testPos ) ) {
 			AudioEngineTests::throwException( QString(
@@ -3135,7 +3137,7 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 				.arg( pTransportPos->toQString() ) );
 		}
 
-		const auto fTick = JackDriver::bbtToTick( testPos );
+		const auto fTick = pDriver->bbtToTick( testPos );
 		if ( pTransportPos->getDoubleTick() <
 			 pAudioEngine->m_fSongSizeInTicks &&
 			 std::abs( fTick - pTransportPos->getTick() ) > 1e-5 ) {

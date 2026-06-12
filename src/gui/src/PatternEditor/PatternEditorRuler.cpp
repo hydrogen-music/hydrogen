@@ -216,11 +216,11 @@ void PatternEditorRuler::mousePressEvent( QMouseEvent* ev ) {
 			  static_cast<float>(m_pPatternEditorPanel->getResolution()) ) );
 
 		if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
-			H2Core::CoreActionController::activateSongMode( false );
+			H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false );
 			pHydrogen->setSongModified( true );
 		}
 
-		H2Core::CoreActionController::locateToTick( nNewTick );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToTick( nNewTick );
 	}
 }
 

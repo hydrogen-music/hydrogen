@@ -42,6 +42,7 @@ class ADSR;
 class AutomationPath;
 class Drumkit;
 class GridPoint;
+class Hydrogen;
 class Instrument;
 class Note;
 class Pattern;
@@ -142,7 +143,8 @@ class Song : public H2Core::Object<Song>,
 	);
 
 	static std::shared_ptr<Song>
-	load( const QString& sPath, bool bSilent = false );
+	load( const QString& sPath, bool bSilent = false,
+		  Hydrogen* pHydrogen = nullptr );
 	/** Writes the song as .h2song to disk.
 	 *
 	 * @param sPath Absolute path to write the song to.
@@ -293,7 +295,8 @@ class Song : public H2Core::Object<Song>,
 	static std::shared_ptr<Song> loadFrom(
 		const XMLNode& pNode,
 		const QString& sFileName,
-		bool bSilent = false
+		bool bSilent = false,
+		Hydrogen* pHydrogen = nullptr
 	);
 	void saveTo(
 		XMLNode& pNode,

@@ -34,6 +34,7 @@
 namespace H2Core {
 
 class Drumkit;
+class Hydrogen;
 class Note;
 class XMLNode;
 
@@ -128,9 +129,11 @@ public:
 	static std::shared_ptr<MidiInstrumentMap> loadFrom( const XMLNode& node, bool bSilent = false );
 
 	std::vector< std::shared_ptr<Instrument> > mapInput(
-		Midi::Note note, Midi::Channel channel, std::shared_ptr<Drumkit> pDrumkit ) const;
+		Midi::Note note, Midi::Channel channel, std::shared_ptr<Drumkit> pDrumkit,
+		Hydrogen* pHydrogen ) const;
 	NoteRef getInputMapping( std::shared_ptr<Instrument> pInstrument,
-							std::shared_ptr<Drumkit> pDrumkit ) const;
+							std::shared_ptr<Drumkit> pDrumkit,
+							Hydrogen* pHydrogen ) const;
 	NoteRef getOutputMapping( std::shared_ptr<Note> pNote,
 							 std::shared_ptr<Instrument> pInstrument = nullptr ) const;
 
@@ -173,7 +176,8 @@ public:
 	 * we can save all the logic for keeping a cache data structure up to date
 	 * and do not have to worry about storing shared pointers to instruments
 	 * which might not be accessible otherwise anymore. */
-	std::map<NoteRef, std::shared_ptr<Instrument>> createFallbackMap() const;
+	std::map<NoteRef, std::shared_ptr<Instrument>> createFallbackMap(
+		Hydrogen* pHydrogen ) const;
 
 	Input m_input;
 	Output m_output;

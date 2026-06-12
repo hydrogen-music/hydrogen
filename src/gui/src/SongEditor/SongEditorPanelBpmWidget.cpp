@@ -55,7 +55,7 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int nColum
 	bpmSpinBox->setType( LCDSpinBox::Type::Double );
 	bpmSpinBox->setMinimum( MIN_BPM );
 	bpmSpinBox->setMaximum( MAX_BPM );
-	bpmSpinBox->setValue( pSong->getTimeline()->getTempoAtColumn( m_nColumn ) );
+	bpmSpinBox->setValue( pSong->getTimeline()->getTempoAtColumn( m_nColumn, H2Core::Hydrogen::get_instance() ) );
 	bpmSpinBox->setToolTip( bTempoMarkerPresent ?
 								tr( "Alter tempo of selected tempo marker" ) :
 								tr( "Set tempo of new tempo marker" ) );
@@ -122,7 +122,7 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 		return;
 	}
 	
-	float fOldBpm = pTimeline->getTempoAtColumn( m_nColumn );
+	float fOldBpm = pTimeline->getTempoAtColumn( m_nColumn, H2Core::Hydrogen::get_instance() );
 
 	auto pAction = new SE_editTimelineAction(
 		m_nColumn, nNewColumn, fOldBpm, bpmSpinBox->value(),
@@ -137,7 +137,7 @@ void SongEditorPanelBpmWidget::on_deleteBtn_clicked()
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	auto pTimeline = pHydrogen->getSong()->getTimeline();
 
-	float fBpm = pTimeline->getTempoAtColumn( m_nColumn );
+	float fBpm = pTimeline->getTempoAtColumn( m_nColumn, H2Core::Hydrogen::get_instance() );
 
 	auto pAction = new SE_deleteTimelineAction( m_nColumn, fBpm );
 	HydrogenApp::get_instance()->pushUndoCommand( pAction );

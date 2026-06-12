@@ -141,7 +141,7 @@ void SongEditor::addOrRemovePatternCellAction( const GridPoint& gridPoint,
 	if ( ( action == Editor::Action::Toggle ) ||
 		 ( ( action == Editor::Action::Add ) && ! bGridPointActive ) ||
 		 ( ( action == Editor::Action::Delete ) && bGridPointActive ) ) {
-		CoreActionController::toggleGridCell( gridPoint );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->toggleGridCell( gridPoint );
 		// Immediate update of all grid cells to allow retrieving the added one
 		// to the selection and to get the hovered cells straight.
 		updateGridCells();

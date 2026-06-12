@@ -133,8 +133,13 @@ void Legacy::loadComponentNames( std::shared_ptr<InstrumentList> pInstrumentList
 }
 
 std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
-	const XMLNode& node, const QString& sSongPath, bool bSilent )
+	const XMLNode& node, const QString& sSongPath, bool bSilent,
+	Hydrogen* pHydrogen )
 {
+	// T1.5: make pHydrogen required and drop this fallback (ADR 0015).
+	if ( pHydrogen == nullptr ) {
+		pHydrogen = Hydrogen::get_instance();
+	}
 
 	// These old kits contain only an instrument list and former
 	// DrumkitComponent and rely on sample loading per-instrument. How the kit
@@ -159,7 +164,8 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 													 license, // per-instrument licenses
 													 true, // allow composition
 													 nullptr,
-													 bSilent );
+													 bSilent,
+													 pHydrogen );
 	if ( pInstrumentList == nullptr ) {
 		return nullptr;
 	}
@@ -223,7 +229,7 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 	// SoundLibraryDatabase in case it was a custom one (e.g. loaded via OSC or
 	// from a different system data folder due to a different install prefix).
 	auto pSoundLibraryDatabase =
-		Hydrogen::get_instance()->getSoundLibraryDatabase();
+		pHydrogen->getSoundLibraryDatabase();
 
 	std::shared_ptr<Drumkit> pDrumkit = nullptr;
 	if ( sLastLoadedDrumkitPath.contains( "/" ) ||
@@ -274,7 +280,8 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 	const QString& sDrumkitPath,
 	const QString& sSongPath,
 	const License& drumkitLicense,
-	bool bSilent )
+	bool bSilent,
+	Hydrogen* pHydrogen )
 {
 	if ( ! bSilent ) {
 		WARNINGLOG( "Using back compatibility code to load instrument component" );
@@ -287,7 +294,8 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 		XMLNode layerNode = node.firstChildElement( "layer" );
 		while ( ! layerNode.isNull() ) {
 			auto pLayer = InstrumentLayer::loadFrom(
-				layerNode, sDrumkitPath, sSongPath, drumkitLicense, bSilent );
+				layerNode, sDrumkitPath, sSongPath, drumkitLicense, bSilent,
+				pHydrogen );
 			if ( pLayer != nullptr ) {
 				pCompo->addLayer( pLayer, -1 );
 			}

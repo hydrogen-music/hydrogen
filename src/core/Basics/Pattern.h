@@ -36,6 +36,7 @@
 namespace H2Core {
 
 class Drumkit;
+class Hydrogen;
 class XMLNode;
 class InstrumentList;
 class PatternList;
@@ -80,7 +81,8 @@ class Pattern : public H2Core::Object<Pattern> {
 	 *   be logged.
 	 */
 	static std::shared_ptr<Pattern>
-	load( const QString& sPatternPath, bool bSilent = false );
+	load( const QString& sPatternPath, bool bSilent = false,
+		  Hydrogen* pHydrogen = nullptr );
 	/**
 	 * load a pattern from an XMLNode
 	 * \param node the XMLDode to read from
@@ -97,7 +99,8 @@ class Pattern : public H2Core::Object<Pattern> {
 		const XMLNode& node,
 		const QString& sDrumkitName,
 		std::shared_ptr<Drumkit> pDrumkit = nullptr,
-		bool bSilent = false
+		bool bSilent = false,
+		Hydrogen* pHydrogen = nullptr
 	);
 	/**
 	 * save a pattern into an xml file
@@ -105,7 +108,8 @@ class Pattern : public H2Core::Object<Pattern> {
 	 * \param bSilent whever to log info and debug messages.
 	 * \return true on success
 	 */
-	bool save( const QString& sPatternPath, bool bSilent = false ) const;
+	bool save( const QString& sPatternPath, Hydrogen* pHydrogen,
+			   bool bSilent = false ) const;
 
 	/** Stores a serialized version of the instance to the XML note @a
 	 * pNote.
@@ -227,10 +231,11 @@ class Pattern : public H2Core::Object<Pattern> {
 	 */
 	void purgeInstrument(
 		std::shared_ptr<Instrument> pInstr,
+		Hydrogen* pHydrogen,
 		bool bRequiredLock = true
 	);
 	/** Erase all notes. */
-	void clear( bool bRequiredLock = true );
+	void clear( Hydrogen* pHydrogen, bool bRequiredLock = true );
 
 	///< return true if m_virtualPatterns is empty
 	bool virtualPatternsEmpty() const;
@@ -281,6 +286,7 @@ class Pattern : public H2Core::Object<Pattern> {
 	bool isVirtual() const;
 
 	void applyMissingTypes(
+		Hydrogen* pHydrogen,
 		std::shared_ptr<Drumkit> pDrumkit = nullptr,
 		bool bSilent = false
 	);

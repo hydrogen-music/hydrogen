@@ -36,6 +36,7 @@ namespace H2Core
 {
 
 class Drumkit;
+class Hydrogen;
 class InstrumentList;
 class Pattern;
 class XMLNode;
@@ -69,7 +70,8 @@ class XMLNode;
 	static std::shared_ptr<PatternList> loadFrom( const XMLNode& pNode,
 												  const QString& sDrumkitName,
 												  std::shared_ptr<Drumkit> pDrumkit = nullptr,
-												  bool bSilent = false );
+												  bool bSilent = false,
+												  Hydrogen* pHydrogen = nullptr );
 
 	/** Stores a serialized version of the instance to the XML note @a
 	 * pNote.

@@ -38,7 +38,8 @@
 
 namespace H2Core {
 
-SoundLibraryDatabase::SoundLibraryDatabase()
+SoundLibraryDatabase::SoundLibraryDatabase( Hydrogen* pHydrogen )
+	: m_pHydrogen( pHydrogen )
 {
 	update();
 }
@@ -153,7 +154,7 @@ void SoundLibraryDatabase::update()
 	updateSongs( Event::Trigger::Suppress );
 	updateDrumkits( Event::Trigger::Suppress );
 
-	EventQueue::get_instance()->pushEvent(
+	m_pHydrogen->getEventQueue()->pushEvent(
 		Event::Type::SoundLibraryChanged, 0
 	);
 }
@@ -165,10 +166,12 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 
 	QStringList drumkitPaths;
 	drumkitPaths << Filesystem::listContent(
-		Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::System
+		Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::System,
+		"", m_pHydrogen
 	);
 	drumkitPaths << Filesystem::listContent(
-		Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::User
+		Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::User,
+		"", m_pHydrogen
 	);
 
 #ifdef H2CORE_HAVE_APPIMAGE
@@ -199,10 +202,12 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 	// Either of the two session contexts does the job.
 	drumkitPaths << Filesystem::listContent(
 		Filesystem::Artifact::DrumkitExtracted,
-		Filesystem::Context::SessionReadOnly
+		Filesystem::Context::SessionReadOnly,
+		"", m_pHydrogen
 	);
 	drumkitPaths << Filesystem::listContent(
-		Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::Custom
+		Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::Custom,
+		"", m_pHydrogen
 	);
 
 	// custom drumkits added by the user
@@ -213,7 +218,8 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 	}
 
 	for ( const auto& sDrumkitPath : drumkitPaths ) {
-		auto pDrumkit = Drumkit::load( sDrumkitPath );
+		auto pDrumkit = Drumkit::load( sDrumkitPath, true, nullptr, false,
+									   m_pHydrogen );
 		if ( pDrumkit != nullptr ) {
 			if ( m_drumkitDatabase.find( sDrumkitPath ) !=
 				 m_drumkitDatabase.end() ) {
@@ -243,7 +249,7 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 	}
 
 	if ( trigger != Event::Trigger::Suppress ) {
-		EventQueue::get_instance()->pushEvent(
+		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::SoundLibraryChanged, 0
 		);
 	}
@@ -266,7 +272,8 @@ SoundLibraryDatabase::getDrumkit( const QString& sDrumkitPath, bool bUpgrade )
 			sDrumkitPath,
 			true,	  // upgrade
 			nullptr,  // do not check for legacy format
-			false	  // bSilent
+			false,	  // bSilent
+			m_pHydrogen
 		);
 		if ( pDrumkit == nullptr ) {
 			return nullptr;
@@ -286,7 +293,7 @@ SoundLibraryDatabase::getDrumkit( const QString& sDrumkitPath, bool bUpgrade )
 					 .arg( pDrumkit->getName() )
 					 .arg( sDrumkitPath ) );
 
-		EventQueue::get_instance()->pushEvent(
+		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::SoundLibraryChanged, 0
 		);
 
@@ -298,7 +305,7 @@ SoundLibraryDatabase::getDrumkit( const QString& sDrumkitPath, bool bUpgrade )
 
 std::shared_ptr<Drumkit> SoundLibraryDatabase::getPreviousDrumkit() const
 {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
@@ -324,7 +331,7 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getPreviousDrumkit() const
 
 std::shared_ptr<Drumkit> SoundLibraryDatabase::getNextDrumkit() const
 {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
@@ -487,13 +494,16 @@ void SoundLibraryDatabase::updatePatterns( Event::Trigger trigger )
 
 	QStringList patternPaths;
 	patternPaths << Filesystem::listContent(
-		Filesystem::Artifact::Pattern, Filesystem::Context::System
+		Filesystem::Artifact::Pattern, Filesystem::Context::System,
+		"", m_pHydrogen
 	);
 	patternPaths << Filesystem::listContent(
-		Filesystem::Artifact::Pattern, Filesystem::Context::User
+		Filesystem::Artifact::Pattern, Filesystem::Context::User,
+		"", m_pHydrogen
 	);
 	patternPaths << Filesystem::listContent(
-		Filesystem::Artifact::Pattern, Filesystem::Context::Custom
+		Filesystem::Artifact::Pattern, Filesystem::Context::Custom,
+		"", m_pHydrogen
 	);
 
 	for ( const auto& ssPath : patternPaths ) {
@@ -513,7 +523,7 @@ void SoundLibraryDatabase::updatePatterns( Event::Trigger trigger )
 	}
 
 	if ( trigger != Event::Trigger::Suppress ) {
-		EventQueue::get_instance()->pushEvent(
+		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::SoundLibraryChanged, 0
 		);
 	}
@@ -525,13 +535,16 @@ void SoundLibraryDatabase::updateSongs( Event::Trigger trigger )
 
 	QStringList songPaths;
 	songPaths << Filesystem::listContent(
-		Filesystem::Artifact::Song, Filesystem::Context::System
+		Filesystem::Artifact::Song, Filesystem::Context::System,
+		"", m_pHydrogen
 	);
 	songPaths << Filesystem::listContent(
-		Filesystem::Artifact::Song, Filesystem::Context::User
+		Filesystem::Artifact::Song, Filesystem::Context::User,
+		"", m_pHydrogen
 	);
 	songPaths << Filesystem::listContent(
-		Filesystem::Artifact::Song, Filesystem::Context::Custom
+		Filesystem::Artifact::Song, Filesystem::Context::Custom,
+		"", m_pHydrogen
 	);
 
 	for ( const auto& ssPath : songPaths ) {
@@ -551,7 +564,7 @@ void SoundLibraryDatabase::updateSongs( Event::Trigger trigger )
 	}
 
 	if ( trigger != Event::Trigger::Suppress ) {
-		EventQueue::get_instance()->pushEvent(
+		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::SoundLibraryChanged, 0
 		);
 	}

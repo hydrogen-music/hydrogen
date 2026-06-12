@@ -45,7 +45,7 @@ public:
 	float* m_pOut_L;
 	float* m_pOut_R;
 
-	PortAudioDriver( audioProcessCallback processCallback );
+	PortAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback );
 	virtual ~PortAudioDriver();
 
 	virtual int init( unsigned nBufferSize ) override;
@@ -57,9 +57,9 @@ public:
 	virtual float* getOut_L() override;
 	virtual float* getOut_R() override;
 
-	static QStringList getDevices();
-	static QStringList getDevices( const QString& HostAPI );
-	static QStringList getHostAPIs();
+	QStringList getDevices() override;
+	QStringList getDevices( const QString& HostAPI );
+	QStringList getHostAPIs();
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 private:
@@ -67,8 +67,7 @@ private:
 	unsigned m_nSampleRate;
 	QString m_sDevice;
 
-	static bool m_bInitialised;
-
+	bool m_bInitialised;
 };
 
 };
@@ -82,7 +81,7 @@ class PortAudioDriver : public NullDriver
 {
 	H2_OBJECT(PortAudioDriver)
 public:
-	PortAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
+	PortAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback ) : NullDriver( pHydrogen, processCallback ) {}
 };
 
 };

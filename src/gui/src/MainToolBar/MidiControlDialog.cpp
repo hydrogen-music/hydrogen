@@ -203,7 +203,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	m_pInputMidiClockCheckBox->setText( tr( "Handle MIDI Clock input" ) );
 	pInputCheckboxLayout->addWidget( m_pInputMidiClockCheckBox );
 	connect( m_pInputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
-		CoreActionController::setMidiClockInputHandling(
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->setMidiClockInputHandling(
 			m_pInputMidiClockCheckBox->isChecked() );
 	} );
 
@@ -287,7 +287,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	m_pOutputMidiClockCheckBox->setText( tr( "Send MIDI Clock messages" ) );
 	pOutputCheckboxLayout->addWidget( m_pOutputMidiClockCheckBox );
 	connect( m_pOutputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
-		CoreActionController::setMidiClockOutputSend(
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->setMidiClockOutputSend(
 			m_pOutputMidiClockCheckBox->isChecked() );
 	} );
 
@@ -1049,8 +1049,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 												  pInstrument->getId() );
 	m_instrumentMap[ instrumentHandle ] = pInstrument;
 	const auto inputMapping =
-		pMidiInstrumentMap->getInputMapping( pInstrument,
-											 pSong->getDrumkit() );
+		pMidiInstrumentMap->getInputMapping( pInstrument, pSong->getDrumkit(), H2Core::Hydrogen::get_instance() );
 	auto pInputChannelSpinBox =
 		static_cast<LCDSpinBox*>(m_pInstrumentTable->cellWidget( nRow, 0 ));
 	auto pInputNoteSpinBox =
@@ -1195,7 +1194,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 				auto pInstrument = m_instrumentMap.at( instrumentHandle );
 				if ( pInstrument != nullptr ) {
 					long nEventId = Event::nInvalidId;
-					CoreActionController::setInstrumentMidiOutNote(
+					H2Core::Hydrogen::get_instance()->getCoreActionController()->setInstrumentMidiOutNote(
 						pSong->getDrumkit()->getInstruments()->index(
 							pInstrument
 						),
@@ -1222,9 +1221,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 				const auto instrumentHandle = std::make_pair(
 					pInstrument->getType(), pInstrument->getId()
 				);
-				const auto inputMapping = pMidiInstrumentMap->getInputMapping(
-					pInstrument, pSong->getDrumkit()
-				);
+				const auto inputMapping = pMidiInstrumentMap->getInputMapping( pInstrument, pSong->getDrumkit(), H2Core::Hydrogen::get_instance() );
 				if ( !inputMapping.isNull() ) {
 					pInputNoteSpinBox->setValue(
 						static_cast<int>( inputMapping.note ),
@@ -1276,7 +1273,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 				auto pInstrument = m_instrumentMap.at( instrumentHandle );
 				if ( pInstrument != nullptr ) {
 					long nEventId = Event::nInvalidId;
-					CoreActionController::setInstrumentMidiOutChannel(
+					H2Core::Hydrogen::get_instance()->getCoreActionController()->setInstrumentMidiOutChannel(
 						pSong->getDrumkit()->getInstruments()->index(
 							pInstrument
 						),
@@ -1302,9 +1299,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 				const auto instrumentHandle = std::make_pair(
 					pInstrument->getType(), pInstrument->getId()
 				);
-				const auto inputMapping = pMidiInstrumentMap->getInputMapping(
-					pInstrument, pSong->getDrumkit()
-				);
+				const auto inputMapping = pMidiInstrumentMap->getInputMapping( pInstrument, pSong->getDrumkit(), H2Core::Hydrogen::get_instance() );
 				if ( !inputMapping.isNull() ) {
 					pInputChannelSpinBox->setValue(
 						static_cast<int>( inputMapping.channel ),

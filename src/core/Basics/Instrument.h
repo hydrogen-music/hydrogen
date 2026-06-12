@@ -36,6 +36,8 @@
 namespace H2Core {
 
 class ADSR;
+class Hydrogen;
+class Preferences;
 class InstrumentLayer;
 class InstrumentComponent;
 class Note;
@@ -80,14 +82,15 @@ class Instrument : public H2Core::Object<Instrument> {
 	/** destructor */
 	~Instrument();
 
-	static std::shared_ptr<Instrument> from( std::shared_ptr<Sample> pSample );
+	static std::shared_ptr<Instrument> from( std::shared_ptr<Sample> pSample,
+											 Hydrogen* pHydrogen = nullptr );
 
 	/**
 	 * Calls the InstrumentLayer::loadSample() member
 	 * function of all layers of each component of the
 	 * Instrument.
 	 */
-	void loadSamples( float fBpm = 120 );
+	void loadSamples( float fBpm = 120, Preferences* pPreferences = nullptr );
 	/**
 	 * Calls the InstrumentLayer::unloadSample() member
 	 * function of all layers of each component of the
@@ -114,8 +117,7 @@ class Instrument : public H2Core::Object<Instrument> {
 		XMLNode& node,
 		bool bSongKit,
 		bool bKeepMissingSamples,
-		bool bSilent
-	);
+		bool bSilent );
 
 	/**
 	 * load an instrument from an XMLNode
@@ -152,7 +154,8 @@ class Instrument : public H2Core::Object<Instrument> {
 		const License& license = License(),
 		bool bSongKit = false,
 		bool* pLegacyFormatEncountered = nullptr,
-		bool bSilent = false
+		bool bSilent = false,
+		Hydrogen* pHydrogen = nullptr
 	);
 
 	///< set the name of the instrument
@@ -306,8 +309,7 @@ class Instrument : public H2Core::Object<Instrument> {
 		std::shared_ptr<InstrumentComponent> pComponent,
 		std::shared_ptr<InstrumentLayer> pLayer,
 		int nIndex,
-		Event::Trigger trigger
-	);
+		Event::Trigger trigger, Hydrogen* pHydrogen );
 	/** Move the layer found in @a nOldIndex to a new position of @a
 	 * nNewIndex. */
 	void moveLayer(
@@ -320,13 +322,11 @@ class Instrument : public H2Core::Object<Instrument> {
 		std::shared_ptr<InstrumentComponent> pComponent,
 		std::shared_ptr<InstrumentLayer> pLayer,
 		int nIndex,
-		Event::Trigger trigger
-	);
+		Event::Trigger trigger, Hydrogen* pHydrogen );
 	void removeLayer(
 		std::shared_ptr<InstrumentComponent> pComponent,
 		int nIndex,
-		Event::Trigger trigger
-	);
+		Event::Trigger trigger, Hydrogen* pHydrogen );
 	/** Whether the instrument contains at least one non-missing
 	 * sample */
 	bool hasSamples() const;
@@ -334,8 +334,7 @@ class Instrument : public H2Core::Object<Instrument> {
 		std::shared_ptr<InstrumentComponent> pComponent,
 		std::shared_ptr<InstrumentLayer> pLayer,
 		std::shared_ptr<Sample> pSample,
-		Event::Trigger trigger
-	);
+		Event::Trigger trigger, Hydrogen* pHydrogen );
 
 	long long getLongestSampleFrames() const;
 
@@ -358,7 +357,7 @@ class Instrument : public H2Core::Object<Instrument> {
 		const override;
 
    private:
-	void checkForMissingSamples( Event::Trigger trigger );
+	void checkForMissingSamples( Event::Trigger trigger, Hydrogen* pHydrogen );
 
 	/** Identifier of an instrument, which should be unique. It is set by
 	 * setId() and accessed via getId().*/

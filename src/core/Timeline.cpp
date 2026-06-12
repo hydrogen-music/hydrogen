@@ -39,8 +39,8 @@ Timeline::~Timeline() {
 	m_tags.clear();
 }
 
-void Timeline::activate() {
-	setDefaultBpm( Hydrogen::get_instance()->getSong()->getBpm() );
+void Timeline::activate( Hydrogen* pHydrogen ) {
+	setDefaultBpm( pHydrogen->getSong()->getBpm() );
 }
 
 void Timeline::deactivate() {
@@ -131,8 +131,7 @@ void Timeline::deleteTempoMarker( int nColumn ) {
 	updateTempoMarkers();
 }
 
-float Timeline::getTempoAtColumn( int nColumn ) const {
-	auto pHydrogen = Hydrogen::get_instance();
+float Timeline::getTempoAtColumn( int nColumn, Hydrogen* pHydrogen ) const {
 		
 	if ( m_tempoMarkers.size() == 0 ) {
 		return m_fDefaultBpm;
@@ -174,11 +173,11 @@ bool Timeline::hasColumnTempoMarker( int nColumn ) const {
 	return false;
 }
 
-std::shared_ptr<const Timeline::TempoMarker> Timeline::getTempoMarkerAtColumn( int nColumn ) const {
+std::shared_ptr<const Timeline::TempoMarker> Timeline::getTempoMarkerAtColumn( int nColumn, Hydrogen* pHydrogen ) const {
 	if ( isFirstTempoMarkerSpecial() && nColumn == 0 ) {
 
 		std::shared_ptr<TempoMarker> pTempoMarker = std::make_shared<TempoMarker>(
-			0, Hydrogen::get_instance()->getSong()->getBpm() );
+			0, pHydrogen->getSong()->getBpm() );
 		return pTempoMarker;
 	}
 	

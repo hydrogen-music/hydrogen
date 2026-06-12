@@ -52,10 +52,10 @@ InstrumentList::~InstrumentList()
 {
 }
 
-void InstrumentList::loadSamples( float fBpm )
+void InstrumentList::loadSamples( float fBpm, Preferences* pPreferences )
 {
 	for( int i=0; i<m_pInstruments.size(); i++ ) {
-		m_pInstruments[i]->loadSamples( fBpm );
+		m_pInstruments[i]->loadSamples( fBpm, pPreferences );
 	}
 }
 
@@ -74,7 +74,8 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 	const License& license,
 	bool bSongKit,
 	bool* pLegacyFormatEncountered,
-	bool bSilent )
+	bool bSilent,
+	Hydrogen* pHydrogen )
 {
 
 	XMLNode instrumentListNode = node.firstChildElement( "instrumentList" );
@@ -90,7 +91,7 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 		nCount++;
 		auto pInstrument = Instrument::loadFrom(
 			instrumentNode, sDrumkitPath, sDrumkitName, sSongPath,
-			license, bSongKit, pLegacyFormatEncountered, bSilent );
+			license, bSongKit, pLegacyFormatEncountered, bSilent, pHydrogen );
 		if ( pInstrument != nullptr ) {
 			pInstrumentList->add( pInstrument );
 		}

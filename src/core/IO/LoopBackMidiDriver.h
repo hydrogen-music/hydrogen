@@ -50,7 +50,7 @@ class LoopBackMidiDriver : public Object<LoopBackMidiDriver>
 	static constexpr int nBacklogSize = 1000;
 
 	public:
-		LoopBackMidiDriver();
+		LoopBackMidiDriver( Hydrogen* pHydrogen );
 		virtual ~LoopBackMidiDriver();
 
 		void close() override;

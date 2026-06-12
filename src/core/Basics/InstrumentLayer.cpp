@@ -100,10 +100,10 @@ void InstrumentLayer::setPitchOffset( float fValue )
 	m_fPitchOffset = std::clamp( fValue, Instrument::fPitchOffsetMinimum, Instrument::fPitchOffsetMaximum );
 }
 
-void InstrumentLayer::loadSample( float fBpm )
+void InstrumentLayer::loadSample( float fBpm, Preferences* pPreferences )
 {
 	if ( m_pSample != nullptr ) {
-		m_pSample->load( fBpm );
+		m_pSample->load( fBpm, pPreferences );
 	}
 }
 
@@ -119,10 +119,14 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 	const QString& sDrumkitPath,
 	const QString& sSongPath,
 	const License& drumkitLicense,
-	bool bSilent )
+	bool bSilent,
+	Hydrogen* pHydrogen )
 {
-	auto pHydrogen = Hydrogen::get_instance();
-	
+	// T1.5: make pHydrogen required and drop this fallback (ADR 0015).
+	if ( pHydrogen == nullptr ) {
+		pHydrogen = Hydrogen::get_instance();
+	}
+
 	const QString sFileName =
 		node.read_string( "filename", "", false, false, bSilent );
 
@@ -224,7 +228,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 			rubberband.fSemitonesToShift = node.read_float( "rubberPitch", 0.0, false, false, bSilent );
 
 			// Check whether the rubberband executable is present.
-			if ( ! Filesystem::fileExists( Preferences::get_instance()->
+			if ( ! Filesystem::fileExists( pHydrogen->getPreferences()->
 											m_sRubberBandCLIexecutable ) ) {
 				rubberband.bUse = false;
 			}

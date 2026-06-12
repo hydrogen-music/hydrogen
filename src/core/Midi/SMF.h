@@ -37,6 +37,8 @@ namespace H2Core
 {
 
 class Pattern;
+class Hydrogen;
+class Preferences;
 class Song;
 
 typedef std::vector< std::shared_ptr<SMFEvent> > EventList;
@@ -168,7 +170,7 @@ public:
 	SMFWriter( SMFHeader::Format format, bool bOmitCopyright = false );
 	virtual ~SMFWriter();
 	void save( const QString& sFileName, std::shared_ptr<Song> pSong,
-			   bool bUseHumanization );
+			   bool bUseHumanization, H2Core::Hydrogen* pHydrogen );
 		const std::vector<SMFTimeSignatureFailure>& getTimeSignatureFailures() const;
 
 protected:

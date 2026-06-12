@@ -218,7 +218,8 @@ bool Song::isPatternActive( const GridPoint& gridPoint ) const
 }
 
 /// Load a song from file
-std::shared_ptr<Song> Song::load( const QString& sInputPath, bool bSilent )
+std::shared_ptr<Song> Song::load( const QString& sInputPath, bool bSilent,
+								  Hydrogen* pHydrogen )
 {
 	QString sPath = Filesystem::absolutePath( sInputPath, bSilent );
 	if ( sPath.isEmpty() ) {
@@ -256,7 +257,7 @@ std::shared_ptr<Song> Song::load( const QString& sInputPath, bool bSilent )
 		}
 	}
 
-	auto pSong = Song::loadFrom( songNode, sPath, bSilent );
+	auto pSong = Song::loadFrom( songNode, sPath, bSilent, pHydrogen );
 	if ( pSong != nullptr ) {
 		pSong->setPath( sPath );
 	}
@@ -265,9 +266,14 @@ std::shared_ptr<Song> Song::load( const QString& sInputPath, bool bSilent )
 }
 
 std::shared_ptr<Song>
-Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
+Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent,
+				Hydrogen* pHydrogen )
 {
-	auto pPreferences = Preferences::get_instance();
+	// T1.5: make pHydrogen required and drop this fallback (ADR 0015).
+	if ( pHydrogen == nullptr ) {
+		pHydrogen = Hydrogen::get_instance();
+	}
+	auto pPreferences = pHydrogen->getPreferences();
 	auto pSong = std::make_shared<Song>();
 
 	pSong->setBpm(
@@ -356,7 +362,7 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
 			// track.
 			pPlaybackTrackInstrument = Instrument::loadFrom(
 				playbackTrackInstrumentNode, "", "", sSongPath,
-				pSong->getLicense(), true, nullptr, bSilent
+				pSong->getLicense(), true, nullptr, bSilent, pHydrogen
 			);
 		}
 	}
@@ -402,7 +408,7 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
 	if ( pPlaybackTrackInstrument != nullptr ) {
 		pPlaybackTrackInstrument->setName( "PlaybackTrack" );
 		pPlaybackTrackInstrument->setId( Instrument::PlaybackTrackId );
-		pPlaybackTrackInstrument->loadSamples();
+		pPlaybackTrackInstrument->loadSamples( 120, pPreferences.get() );
 	}
 
 	pSong->setPlaybackTrackInstrument( pPlaybackTrackInstrument );
@@ -508,14 +514,15 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
 	if ( !drumkitNode.isNull() ) {
 		// Current format (>= 2.0) storing a proper Drumkit
 		pDrumkit = Drumkit::loadFrom(
-			drumkitNode, "", sSongPath, true, nullptr, bSilent
+			drumkitNode, "", sSongPath, true, nullptr, bSilent, pHydrogen
 		);
 		bCurrentDrumkitLoaded = true;
 	}
 	else {
 		// Older format (< 2.0) storing only selected elements
 		pDrumkit =
-			Legacy::loadEmbeddedSongDrumkit( rootNode, sSongPath, bSilent );
+			Legacy::loadEmbeddedSongDrumkit( rootNode, sSongPath, bSilent,
+											 pHydrogen );
 	}
 
 	if ( pDrumkit == nullptr ) {
@@ -539,7 +546,7 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
 	// Pattern list
 	auto pPatternList = PatternList::loadFrom(
 		rootNode, pDrumkit->getExportName(),
-		bCurrentDrumkitLoaded ? pDrumkit : nullptr, bSilent
+		bCurrentDrumkitLoaded ? pDrumkit : nullptr, bSilent, pHydrogen
 	);
 	if ( pPatternList != nullptr ) {
 		pPatternList->mapToDrumkit( pDrumkit, nullptr );

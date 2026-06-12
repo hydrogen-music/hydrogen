@@ -292,7 +292,7 @@ void OnlineImportSourcesDialog::checkAllSourceStatus()
 		}
 
 		QString sError;
-		OnlineImporter importer;
+		OnlineImporter importer( H2Core::Hydrogen::get_instance() );
 		const auto index =
 			importer.fetchAndParseIndex( QUrl( sUrl ), 5000, &sError );
 		if ( sError.isEmpty() && !index.sVersion.isEmpty() ) {

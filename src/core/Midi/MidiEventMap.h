@@ -35,6 +35,7 @@
 
 namespace H2Core {
 
+class Hydrogen;
 class XMLNode;
 
 /** \ingroup docCore docMIDI */
@@ -46,7 +47,8 @@ public:
 	~MidiEventMap();
 
 	static std::shared_ptr<MidiEventMap> loadFrom( const H2Core::XMLNode& node,
-											  bool bSilent = false );
+											  bool bSilent = false,
+											  Hydrogen* pHydrogen = nullptr );
 	void saveTo( H2Core::XMLNode& node, bool bSilent = false ) const;
 	
 	void reset();  ///< Reinitializes the object.
@@ -55,7 +57,8 @@ public:
 		const MidiEvent::Type&,
 		Midi::Parameter parameter,
 		std::shared_ptr<MidiAction> pAction,
-        Event::Trigger trigger
+        Event::Trigger trigger,
+		Hydrogen* pHydrogen
 	);
 
 	const std::vector<std::shared_ptr<MidiEvent>>& getMidiEvents() const;
@@ -73,7 +76,8 @@ public:
 
 	std::vector<Midi::Parameter> findCCParameters( MidiAction::Type type );
 	std::vector<Midi::Parameter>
-	findCCParameters( MidiAction::Type type, int nInstrument );
+	findCCParameters( MidiAction::Type type, int nInstrument,
+					  Hydrogen* pHydrogen );
 
 	/**
 	 * @returns a list of all MIDI events registered to a particular
@@ -86,7 +90,8 @@ public:
 	void removeRegisteredEvent(
 		const MidiEvent::Type&,
 		Midi::Parameter parameter,
-		std::shared_ptr<MidiAction> pAction
+		std::shared_ptr<MidiAction> pAction,
+		Hydrogen* pHydrogen
 	);
 
 	/** Formatted string version for debugging purposes.

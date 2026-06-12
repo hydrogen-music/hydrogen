@@ -22,6 +22,8 @@
 
 #include <core/IO/OssDriver.h>
 
+#include <core/Hydrogen.h>
+
 // check if OSS support is enabled
 #if defined(H2CORE_HAVE_OSS) || _DOXYGEN_
 
@@ -67,8 +69,8 @@ void* ossDriver_processCaller( void* param )
 }
 
 
-OssDriver::OssDriver( audioProcessCallback processCallback )
-		: AudioDriver()
+OssDriver::OssDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback )
+		: AudioDriver( pHydrogen )
 {
 	audioBuffer = NULL;
 	ossDriver_running = false;
@@ -115,7 +117,7 @@ int OssDriver::connect()
 {
 	INFOLOG( "connect" );
 
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = m_pHydrogen->getPreferences();
 
 	// initialize OSS
 	int bits = 16;
@@ -274,7 +276,7 @@ unsigned OssDriver::getBufferSize()
 
 unsigned OssDriver::getSampleRate()
 {
-	return Preferences::get_instance()->m_nSampleRate;
+	return m_pHydrogen->getPreferences()->m_nSampleRate;
 }
 
 

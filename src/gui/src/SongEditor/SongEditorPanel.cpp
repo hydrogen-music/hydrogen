@@ -337,7 +337,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		if ( pSong == nullptr ) {
 			return;
 		}
-		CoreActionController::activateTimeline( !pSong->getIsTimelineActivated()
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->activateTimeline( !pSong->getIsTimelineActivated()
 		);
 		updateTimeline();
 

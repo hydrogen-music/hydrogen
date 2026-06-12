@@ -29,6 +29,7 @@
 
 namespace H2Core {
 
+class Hydrogen;
 class Drumkit;
 class Playlist;
 class Pattern;
@@ -69,7 +70,8 @@ class Legacy : public H2Core::Object<Legacy> {
 	 * */
 	static std::shared_ptr<Drumkit> loadEmbeddedSongDrumkit( const XMLNode& pRootNode,
 															 const QString& sSongPath = "",
-															 bool bSilent = false );
+															 bool bSilent = false,
+															 Hydrogen* pHydrogen = nullptr );
 
 	/** Backward compatibility code to load an #InstrumentComponent
 	 *	from an #Instrument which itself did not contain one yet.
@@ -91,7 +93,8 @@ class Legacy : public H2Core::Object<Legacy> {
 																		 const QString& sDrumkitPath,
 																		 const QString& sSongPath = "",
 																		 const License& drumkitLicense = License(),
-																		 bool bSilent = false );
+																		 bool bSilent = false,
+																		 Hydrogen* pHydrogen = nullptr );
 		/**
 		 * load playlist from a file
 		 * \param pl_path is a path to an xml file

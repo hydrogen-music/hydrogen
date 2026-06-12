@@ -125,8 +125,7 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 		);
 		pInstrument->addLayer(
 			pComponent, std::make_shared<InstrumentLayer>( pSample ), -1,
-			Event::Trigger::Suppress
-		);
+			Event::Trigger::Suppress, nullptr );
 		pDrumkit->addInstrument( pInstrument );
 		CPPUNIT_ASSERT( !pDrumkit->hasMissingSamples() );
 	}
@@ -139,8 +138,7 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 		auto pComponent = pInstrument->getComponent( 0 );
 		pInstrument->addLayer(
 			pComponent, pAnotherInstrument->getComponent( 0 )->getLayer( 0 ), -1,
-			Event::Trigger::Suppress
-		);
+			Event::Trigger::Suppress, nullptr );
 		pDrumkit->addInstrument( pInstrument );
 		CPPUNIT_ASSERT( !pDrumkit->hasMissingSamples() );
 	}
@@ -155,8 +153,7 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 			std::make_shared<Sample>( H2TEST_FILE( "/drumkits/baseKit/crash.wav" ) );
 		pInstrument->addLayer(
 			pComponent, std::make_shared<InstrumentLayer>( pSample ), -1,
-			Event::Trigger::Suppress
-		);
+			Event::Trigger::Suppress, nullptr );
 		pDrumkit->addInstrument( pInstrument );
 		CPPUNIT_ASSERT( !pDrumkit->hasMissingSamples() );
 	}

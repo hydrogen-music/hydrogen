@@ -38,6 +38,8 @@
 namespace H2Core
 {
 
+class Hydrogen;
+class Preferences;
 class XMLDoc;
 class XMLNode;
 
@@ -78,7 +80,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		static std::shared_ptr<Drumkit> load( const QString& sDrumkitPath,
 											  bool bUpgrade = true,
 											  bool* pLegacyFormatEncountered = nullptr,
-											  bool bSilent = false );
+											  bool bSilent = false,
+											  Hydrogen* pHydrogen = nullptr );
 
 		/**
 		 * load a drumkit from an XMLNode
@@ -109,7 +112,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 												  const QString& sSongPath,
 												  bool bSongKit = false,
 												  bool* pLegacyFormatEncountered = nullptr,
-												  bool bSilent = false );
+												  bool bSilent = false,
+												  Hydrogen* pHydrogen = nullptr );
 
 		/*
 		 * save the drumkit within the given XMLNode
@@ -152,7 +156,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** Calls the InstrumentList::loadSamples() member
 		 * function of #m_pInstruments.
 		 */
-		void loadSamples( float fBpm = 120 );
+		void loadSamples( float fBpm = 120, Preferences* pPreferences = nullptr );
 		/** Calls the InstrumentList::unloadSamples() member
 		 * function of #m_pInstruments.
 		 */
@@ -222,7 +226,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 
 		/** Add an instrument to the kit.
          *
-         * Be sure to use #CoreActionController::addInstrument() when adding an
+         * Be sure to use #H2Core::Hydrogen::get_instance()->getCoreActionController()->addInstrument() when adding an
          * instrument to the drumkit of the current song. */
 		void addInstrument( std::shared_ptr<Instrument> pInstrument,
 							int nIndex = -1 );
@@ -288,7 +292,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		* This function requires the calling function to lock the
 		* #AudioEngine first.
 		*/
-		void recalculateRubberband( float fBpm );
+		void recalculateRubberband( float fBpm, Hydrogen* pHydrogen );
 
 		/** Returns all types of the contained instruments. */
 		std::set<Instrument::Type> getAllTypes() const;

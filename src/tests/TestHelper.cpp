@@ -255,9 +255,9 @@ void TestHelper::exportMIDI( const QString& sSongFile, const QString& sFileName,
 
 	auto pSong = H2Core::Song::load( sSongFile );
 	CPPUNIT_ASSERT( pSong != nullptr );
-	H2Core::CoreActionController::setSong( pSong );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong );
 
-	pWriter->save( sFileName, pSong, bUseHumanization );
+	pWriter->save( sFileName, pSong, bUseHumanization, H2Core::Hydrogen::get_instance() );
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	double t = std::chrono::duration<double>( t1 - t0 ).count();

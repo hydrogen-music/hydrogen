@@ -56,7 +56,8 @@ MidiEventMap::~MidiEventMap()
 }
 
 std::shared_ptr<MidiEventMap>
-MidiEventMap::loadFrom( const H2Core::XMLNode& node, bool bSilent )
+MidiEventMap::loadFrom( const H2Core::XMLNode& node, bool bSilent,
+						Hydrogen* pHydrogen )
 {
 	auto pMidiEventMap = std::make_shared<MidiEventMap>();
 
@@ -123,8 +124,11 @@ MidiEventMap::loadFrom( const H2Core::XMLNode& node, bool bSilent )
 			auto pAction = MidiAction::fromQStrings(
 				actionType, sParameter1, sParameter2, sParameter3
 			);
+			// Event::Trigger::Suppress never dereferences pHydrogen, so a null
+			// pHydrogen is safe here (ADR 0015).
 			pMidiEventMap->registerEvent(
-				eventType, parameter, pAction, Event::Trigger::Suppress
+				eventType, parameter, pAction, Event::Trigger::Suppress,
+				pHydrogen
 			);
 		}
 		else {
@@ -246,7 +250,8 @@ void MidiEventMap::registerEvent(
 	const MidiEvent::Type& type,
 	Midi::Parameter parameter,
 	std::shared_ptr<MidiAction> pAction,
-    Event::Trigger trigger
+    Event::Trigger trigger,
+	Hydrogen* pHydrogen
 )
 {
 	if ( pAction == nullptr || pAction->isNull() ||
@@ -288,7 +293,6 @@ void MidiEventMap::registerEvent(
 		m_events.push_back( pEvent );
 	}
 
-	const auto pHydrogen = Hydrogen::get_instance();
 	if ( pHydrogen == nullptr ) {
         // The MidiEventMap is loaded during startup. We skip sending event,
         // since the EventQueue is not ready yet.
@@ -296,7 +300,7 @@ void MidiEventMap::registerEvent(
 	}
 
 	if ( trigger != Event::Trigger::Suppress ) {
-		const auto nId = EventQueue::get_instance()->pushEvent(
+		const auto nId = pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::MidiEventMapChanged, 0
 		);
 	}
@@ -393,7 +397,7 @@ std::vector<Midi::Parameter> MidiEventMap::findCCParameters(
 }
 
 std::vector<Midi::Parameter>
-MidiEventMap::findCCParameters( MidiAction::Type type, int nInstrument )
+MidiEventMap::findCCParameters( MidiAction::Type type, int nInstrument , Hydrogen* pHydrogen )
 {
 	QMutexLocker mx( &__mutex );
 	std::vector<Midi::Parameter> values;
@@ -408,7 +412,7 @@ MidiEventMap::findCCParameters( MidiAction::Type type, int nInstrument )
 			   ( ppEvent->getMidiAction()->getInstrument() ==
 					 MidiAction::nCurrentSelectionParameter &&
 				 nInstrument ==
-					 Hydrogen::get_instance()->getSelectedInstrumentNumber() )
+					 pHydrogen->getSelectedInstrumentNumber() )
 			 ) ) {
 			values.push_back( ppEvent->getParameter() );
 		}
@@ -438,7 +442,8 @@ MidiEventMap::getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction
 void MidiEventMap::removeRegisteredEvent(
 	const MidiEvent::Type& type,
 	Midi::Parameter parameter,
-	std::shared_ptr<MidiAction> pAction
+	std::shared_ptr<MidiAction> pAction,
+	Hydrogen* pHydrogen
 )
 {
 	if ( pAction == nullptr ) {
@@ -464,7 +469,7 @@ void MidiEventMap::removeRegisteredEvent(
 	}
 
 	if ( bModified ) {
-		const auto nId = EventQueue::get_instance()->pushEvent(
+		const auto nId = pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::MidiEventMapChanged, 0
 		);
 	}

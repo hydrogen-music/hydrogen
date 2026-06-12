@@ -34,6 +34,8 @@
 namespace H2Core
 {
 
+class Hydrogen;
+class Preferences;
 class XMLNode;
 
 /**
@@ -154,7 +156,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		/** Calls the Instrument::loadSamples() member
 		 * function of all Instruments in #m_pInstruments.
 		 */
-		void loadSamples( float fBpm = 120 );
+		void loadSamples( float fBpm = 120, Preferences* pPreferences = nullptr );
 		/** Calls the Instrument::unloadSamples() member
 		 * function of all Instruments in #m_pInstruments.
 		 */
@@ -211,7 +213,8 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		const License& license = License(),
 		bool bSongKit = false,
 		bool* pLegacyFormatEncountered = nullptr,
-		bool bSilent = false );
+		bool bSilent = false,
+		Hydrogen* pHydrogen = nullptr );
 	/**
 	 * Returns vector of lists containing instrument name, component
 	 * name, file name, the license of all associated samples.

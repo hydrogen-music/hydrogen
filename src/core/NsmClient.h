@@ -30,6 +30,9 @@
 
 #include "core/Nsm.h"
 
+namespace H2Core {
+	class Hydrogen;
+}
 
 /**
 * @class NsmClient
@@ -68,6 +71,13 @@ class NsmClient : public H2Core::Object<NsmClient>
 		 * get_instance().
 		 */
 		static NsmClient* __instance;
+		/**
+		 * Owning Hydrogen instance (ADR 0015). Static because NsmClient is a
+		 * process singleton (session management is disabled in plugin mode),
+		 * so its static NSM callbacks and instance methods reach the engine
+		 * through this one back-pointer. Set by #create_instance().
+		 */
+		static H2Core::Hydrogen* m_pHydrogen;
 		/** Destructor*/
 		~NsmClient();
 		/** Thread the NSM client will run in.*/
@@ -79,7 +89,7 @@ class NsmClient : public H2Core::Object<NsmClient>
 		 * It is called in
 		 * H2Core::Hydrogen::create_instance().
 		 */
-		static void create_instance();
+		static void create_instance( H2Core::Hydrogen* pHydrogen );
 		/**
 		 * \return a pointer to the current NsmClient
 		 * singleton stored in #__instance.

@@ -54,10 +54,14 @@ std::shared_ptr<DrumkitInfo> DrumkitInfo::from(
 	return pInfo;
 }
 
-bool DrumkitInfo::load( const QString& sPath )
+bool DrumkitInfo::load( const QString& sPath, Hydrogen* pHydrogen )
 {
+	// T1.5: make pHydrogen required and drop this fallback (ADR 0015).
+	if ( pHydrogen == nullptr ) {
+		pHydrogen = Hydrogen::get_instance();
+	}
 	const auto pDrumkit =
-		Hydrogen::get_instance()->getSoundLibraryDatabase()->getDrumkit(
+		pHydrogen->getSoundLibraryDatabase()->getDrumkit(
 			sPath, false
 		);
 	if ( pDrumkit == nullptr ) {

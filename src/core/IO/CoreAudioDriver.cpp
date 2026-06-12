@@ -29,6 +29,8 @@
 
 #include <core/IO/CoreAudioDriver.h>
 
+#include <core/Hydrogen.h>
+
 #if defined(H2CORE_HAVE_COREAUDIO) || _DOXYGEN_
 
 #include "CoreServices/CoreServices.h"
@@ -209,7 +211,7 @@ QStringList CoreAudioDriver::getDevices()
 
 AudioDeviceID CoreAudioDriver::preferredOutputDevice()
 {
-	QString sPreferredDeviceName = Preferences::get_instance()->m_sCoreAudioDevice;
+	QString sPreferredDeviceName = m_pHydrogen->getPreferences()->m_sCoreAudioDevice;
 
 	if ( sPreferredDeviceName.isNull()
 		 || QString::compare( sPreferredDeviceName, "default", Qt::CaseInsensitive ) == 0 ) {
@@ -316,15 +318,15 @@ void CoreAudioDriver::printStreamInfo(void)
 }
 
 
-CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
-		: H2Core::AudioDriver()
+CoreAudioDriver::CoreAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback )
+		: H2Core::AudioDriver( pHydrogen )
 		, H2Core::Object<CoreAudioDriver>()
 		, m_bIsRunning( false )
 		, mProcessCallback( processCallback )
 		, m_pOut_L( NULL )
 		, m_pOut_R( NULL )
 {
-	m_nSampleRate = Preferences::get_instance()->m_nSampleRate;
+	m_nSampleRate = m_pHydrogen->getPreferences()->m_nSampleRate;
 
 	//Get the default playback device and store it in m_outputDevice
 	m_outputDevice = preferredOutputDevice();

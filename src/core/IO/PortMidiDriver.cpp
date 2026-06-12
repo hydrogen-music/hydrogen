@@ -139,8 +139,11 @@ void* PortMidiDriver_thread( void* param )
 	return nullptr;
 }
 
-PortMidiDriver::PortMidiDriver()
-		: MidiBaseDriver()
+PortMidiDriver::PortMidiDriver( Hydrogen* pHydrogen )
+		// Virtual bases must be initialized by the most-derived class (ADR 0015).
+		: MidiInput( pHydrogen )
+		, MidiOutput( pHydrogen )
+		, MidiBaseDriver( pHydrogen )
 		, m_bRunning( false )
 		, m_pMidiIn( nullptr )
 		, m_pMidiOut( nullptr )
@@ -194,8 +197,8 @@ void PortMidiDriver::open()
 
 	int nDeviceId = -1;
 	int nOutDeviceId = -1;
-	QString sMidiPortName = Preferences::get_instance()->m_sMidiPortName;
-	QString sMidiOutputPortName = Preferences::get_instance()->m_sMidiOutputPortName;
+	QString sMidiPortName = MidiInput::m_pHydrogen->getPreferences()->m_sMidiPortName;
+	QString sMidiOutputPortName = MidiInput::m_pHydrogen->getPreferences()->m_sMidiOutputPortName;
 	int nDevices = Pm_CountDevices();
 
 	// Find named devices

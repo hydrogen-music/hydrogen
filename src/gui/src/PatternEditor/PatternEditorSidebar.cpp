@@ -1266,7 +1266,7 @@ void SidebarRow::muteClicked()
 			return;
 		}
 
-		H2Core::CoreActionController::setStripIsMuted(
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->setStripIsMuted(
 			nRow, !pInstr->isMuted(), false
 		);
 	}
@@ -1291,7 +1291,7 @@ void SidebarRow::soloClicked()
 			return;
 		}
 
-		H2Core::CoreActionController::setStripIsSoloed(
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->setStripIsSoloed(
 			nRow, !pInstr->isSoloed(), false
 		);
 	}

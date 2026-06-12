@@ -68,7 +68,7 @@ MasterLine::MasterLine( QWidget* pParent )
 	m_pFader->setModifierTarget( Modifier::Song );
 	m_pFader->move( 24, 75 );
 	connect( m_pFader, &Fader::valueChanged, [&]() {
-		CoreActionController::setMasterVolume( m_pFader->getValue() );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->setMasterVolume( m_pFader->getValue() );
 		HydrogenApp::get_instance()->showStatusBarMessage(
 			tr( "Set master volume [%1]" ).arg( m_pFader->getValue(), 0, 'f', 2 ),
 			QString( "%1:faderChanged" ).arg( class_name() ) );
@@ -95,7 +95,7 @@ MasterLine::MasterLine( QWidget* pParent )
 	) );
 	m_pHumanizeVelocityRotary->move( 66, 88 );
 	connect( m_pHumanizeVelocityRotary, &Rotary::valueChanged, [&]() {
-		CoreActionController::setHumanizeVelocity(
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->setHumanizeVelocity(
 			m_pHumanizeVelocityRotary->getValue() );
 		HydrogenApp::get_instance()->showStatusBarMessage(
 			tr( "Set humanize vel. param [%1]" )
@@ -111,7 +111,7 @@ MasterLine::MasterLine( QWidget* pParent )
 	) );
 	m_pHumanizeTimeRotary->move( 66, 125 );
 	connect( m_pHumanizeTimeRotary, &Rotary::valueChanged, [&]() {
-		CoreActionController::setHumanizeTime(
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->setHumanizeTime(
 			m_pHumanizeTimeRotary->getValue() );
 		HydrogenApp::get_instance()->showStatusBarMessage(
 			tr( "Set humanize time param [%1]" )
@@ -128,7 +128,7 @@ MasterLine::MasterLine( QWidget* pParent )
 	) );
 	m_pSwingRotary->move( 66, 162 );
 	connect( m_pSwingRotary, &Rotary::valueChanged, [&]() {
-		CoreActionController::setSwing( m_pSwingRotary->getValue() );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->setSwing( m_pSwingRotary->getValue() );
 		HydrogenApp::get_instance()->showStatusBarMessage(
 			tr( "Set swing factor [%1]")
 			.arg( m_pSwingRotary->getValue(), 0, 'f', 2 ),
@@ -146,7 +146,7 @@ MasterLine::MasterLine( QWidget* pParent )
 		std::make_shared<MidiAction>( MidiAction::Type::MuteToggle )
 	);
 	connect( m_pMuteBtn, &QPushButton::clicked, [&]() {
-		CoreActionController::setMasterIsMuted( m_pMuteBtn->isChecked() );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->setMasterIsMuted( m_pMuteBtn->isChecked() );
 	});
 
 	m_pMasterLbl = new ClickableLabel(

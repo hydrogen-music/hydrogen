@@ -33,6 +33,8 @@
 
 namespace H2Core {
 
+class Hydrogen;
+
 class XMLNode;
 
 class Shortcuts : public H2Core::Object<Shortcuts> {
@@ -267,7 +269,7 @@ public:
 	~Shortcuts();
 
 	void saveTo( XMLNode& node ) const;
-	static std::shared_ptr<Shortcuts> loadFrom( const XMLNode& node, bool bSilent = false );
+	static std::shared_ptr<Shortcuts> loadFrom( const XMLNode& node, H2Core::Hydrogen* pHydrogen, bool bSilent = false );
 
 	/**
 	 * Creates the default key bindings as fallback when upgrading

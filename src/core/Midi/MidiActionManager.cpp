@@ -42,7 +42,9 @@
 
 namespace H2Core {
 
-MidiActionManager::MidiActionManager() : m_nTickIntervalIndex( 0 )
+MidiActionManager::MidiActionManager( Hydrogen* pHydrogen )
+									   : m_pHydrogen( pHydrogen )
+									   , m_nTickIntervalIndex( 0 )
 									   , m_bMidiClockReady( false )
 									   , m_bPendingStart( false )
 									   , m_bWorkerShutdown( false )
@@ -270,7 +272,7 @@ MidiActionManager::~MidiActionManager() {
 }
 
 bool MidiActionManager::play( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	// Preventive measure to avoid bad things.
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -286,7 +288,7 @@ bool MidiActionManager::play( std::shared_ptr<MidiAction> pAction ) {
 }
 
 bool MidiActionManager::pause( std::shared_ptr<MidiAction>  ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	// Preventive measure to avoid bad things.
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -299,7 +301,7 @@ bool MidiActionManager::pause( std::shared_ptr<MidiAction>  ) {
 }
 
 bool MidiActionManager::stop( std::shared_ptr<MidiAction>  ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	// Preventive measure to avoid bad things.
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -308,11 +310,11 @@ bool MidiActionManager::stop( std::shared_ptr<MidiAction>  ) {
 	}
 
 	pHydrogen->sequencerStop();
-	return CoreActionController::locateToColumn( 0 );
+	return m_pHydrogen->getCoreActionController()->locateToColumn( 0 );
 }
 
 bool MidiActionManager::playPauseToggle( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	if ( pHydrogen->getSong() == nullptr ) {
 		return false;
 	}
@@ -336,7 +338,7 @@ bool MidiActionManager::playPauseToggle( std::shared_ptr<MidiAction> pAction ) {
 }
 
 bool MidiActionManager::playStopToggle( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	if ( pHydrogen->getSong() == nullptr ) {
 		return false;
 	}
@@ -349,7 +351,7 @@ bool MidiActionManager::playStopToggle( std::shared_ptr<MidiAction> pAction ) {
 
 	case AudioEngine::State::Playing:
 		pHydrogen->sequencerStop();
-		CoreActionController::locateToColumn( 0 );
+		m_pHydrogen->getCoreActionController()->locateToColumn( 0 );
 		break;
 
 	default:
@@ -362,7 +364,7 @@ bool MidiActionManager::playStopToggle( std::shared_ptr<MidiAction> pAction ) {
 
 //mutes the master, not a single strip
 bool MidiActionManager::mute( std::shared_ptr<MidiAction>  ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	// Preventive measure to avoid bad things.
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -370,11 +372,11 @@ bool MidiActionManager::mute( std::shared_ptr<MidiAction>  ) {
 		return false;
 	}
 
-	return CoreActionController::setMasterIsMuted( true );
+	return m_pHydrogen->getCoreActionController()->setMasterIsMuted( true );
 }
 
 bool MidiActionManager::unmute( std::shared_ptr<MidiAction>  ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	// Preventive measure to avoid bad things.
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -382,11 +384,11 @@ bool MidiActionManager::unmute( std::shared_ptr<MidiAction>  ) {
 		return false;
 	}
 
-	return CoreActionController::setMasterIsMuted( false );
+	return m_pHydrogen->getCoreActionController()->setMasterIsMuted( false );
 }
 
 bool MidiActionManager::muteToggle( std::shared_ptr<MidiAction>  ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	// Preventive measure to avoid bad things.
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -394,11 +396,11 @@ bool MidiActionManager::muteToggle( std::shared_ptr<MidiAction>  ) {
 		return false;
 	}
 
-	return CoreActionController::setMasterIsMuted( !pHydrogen->getSong()->getIsMuted() );
+	return m_pHydrogen->getCoreActionController()->setMasterIsMuted( !pHydrogen->getSong()->getIsMuted() );
 }
 
 bool MidiActionManager::stripMuteToggle( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	auto pSong = pHydrogen->getSong();
 
@@ -422,12 +424,12 @@ bool MidiActionManager::stripMuteToggle( std::shared_ptr<MidiAction> pAction ) {
 		return false;
 	}
 
-	return CoreActionController::setStripIsMuted(
+	return m_pHydrogen->getCoreActionController()->setStripIsMuted(
 		nLine, !pInstr->isMuted(), false );
 }
 
 bool MidiActionManager::stripSoloToggle( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	auto pSong = pHydrogen->getSong();
 
@@ -451,7 +453,7 @@ bool MidiActionManager::stripSoloToggle( std::shared_ptr<MidiAction> pAction ) {
 		return false;
 	}
 
-	return CoreActionController::setStripIsSoloed(
+	return m_pHydrogen->getCoreActionController()->setStripIsSoloed(
 		nLine, !pInstr->isSoloed(), false );
 }
 
@@ -460,7 +462,7 @@ bool MidiActionManager::beatcounter( std::shared_ptr<MidiAction> pAction ) {
 		return false;
 	}
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	// Preventive measure to avoid bad things.
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -476,7 +478,7 @@ bool MidiActionManager::tapTempo( std::shared_ptr<MidiAction> pAction ) {
 		return false;
 	}
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	// Preventive measure to avoid bad things.
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -489,7 +491,7 @@ bool MidiActionManager::tapTempo( std::shared_ptr<MidiAction> pAction ) {
 }
 
 bool MidiActionManager::timingClockTick( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	// Preventive measure to avoid bad things.
@@ -571,7 +573,7 @@ bool MidiActionManager::selectNextPattern( std::shared_ptr<MidiAction> pAction )
 
 
 bool MidiActionManager::selectNextPatternRelative( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	bool ok;
 	return nextPatternSelection( pHydrogen->getSelectedPatternNumber() +
@@ -584,7 +586,7 @@ bool MidiActionManager::selectNextPatternCcAbsolute( std::shared_ptr<MidiAction>
 }
 
 bool MidiActionManager::nextPatternSelection( int nPatternNumber ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	auto pSong = pHydrogen->getSong();
 
 	// Preventive measure to avoid bad things.
@@ -622,7 +624,7 @@ bool MidiActionManager::selectOnlyNextPatternCcAbsolute( std::shared_ptr<MidiAct
 }
 
 bool MidiActionManager::onlyNextPatternSelection( int nPatternNumber ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	auto pSong = pHydrogen->getSong();
 
 	// Preventive measure to avoid bad things.
@@ -654,7 +656,7 @@ bool MidiActionManager::onlyNextPatternSelection( int nPatternNumber ) {
 }
 
 bool MidiActionManager::selectAndPlayPattern( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	// Preventive measure to avoid bad things.
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -675,7 +677,7 @@ bool MidiActionManager::selectAndPlayPattern( std::shared_ptr<MidiAction> pActio
 }
 
 bool MidiActionManager::selectInstrument( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	auto pSong = pHydrogen->getSong();
 
@@ -700,7 +702,7 @@ bool MidiActionManager::selectInstrument( std::shared_ptr<MidiAction> pAction ) 
 
 //sets the volume of a master output to a given level (percentage)
 bool MidiActionManager::masterVolumeAbsolute( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	auto pSong = pHydrogen->getSong();
 
@@ -724,7 +726,7 @@ bool MidiActionManager::masterVolumeAbsolute( std::shared_ptr<MidiAction> pActio
 
 //increments/decrements the volume of the whole song
 bool MidiActionManager::masterVolumeRelative( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	auto pSong = pHydrogen->getSong();
 
@@ -752,7 +754,7 @@ bool MidiActionManager::masterVolumeRelative( std::shared_ptr<MidiAction> pActio
 
 //sets the volume of a mixer strip to a given level (percentage)
 bool MidiActionManager::stripVolumeAbsolute( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	auto pSong = pHydrogen->getSong();
 
@@ -784,14 +786,14 @@ bool MidiActionManager::stripVolumeAbsolute( std::shared_ptr<MidiAction> pAction
 	}
 
 	pHydrogen->setSelectedInstrumentNumber(nLine);
-	EventQueue::get_instance()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
+	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
 
 	return true;
 }
 
 //increments/decrements the volume of one mixer strip
 bool MidiActionManager::stripVolumeRelative( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	auto pSong = pHydrogen->getSong();
 
@@ -830,14 +832,14 @@ bool MidiActionManager::stripVolumeRelative( std::shared_ptr<MidiAction> pAction
 	}
 
 	pHydrogen->setSelectedInstrumentNumber( nLine );
-	EventQueue::get_instance()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
+	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
 
 	return true;
 }
 
 // sets the absolute panning of a given mixer channel
 bool MidiActionManager::panAbsolute( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	auto pSong = pHydrogen->getSong();
 
@@ -868,14 +870,14 @@ bool MidiActionManager::panAbsolute( std::shared_ptr<MidiAction> pAction ) {
 
 	pHydrogen->setSelectedInstrumentNumber(nLine);
 
-	EventQueue::get_instance()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
+	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
 
 	return true;
 }
 
 // sets the absolute panning of a given mixer channel
 bool MidiActionManager::panAbsoluteSym( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	auto pSong = pHydrogen->getSong();
 
@@ -905,7 +907,7 @@ bool MidiActionManager::panAbsoluteSym( std::shared_ptr<MidiAction> pAction ) {
 	);
 
 	pHydrogen->setSelectedInstrumentNumber( nLine );
-	EventQueue::get_instance()->pushEvent(
+	m_pHydrogen->getEventQueue()->pushEvent(
 		Event::Type::InstrumentParametersChanged, nLine
 	);
 
@@ -916,7 +918,7 @@ bool MidiActionManager::panAbsoluteSym( std::shared_ptr<MidiAction> pAction ) {
 // changes the panning of a given mixer channel
 // this is useful if the panning is set by a rotary control knob
 bool MidiActionManager::panRelative( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	auto pSong = pHydrogen->getSong();
 
@@ -951,13 +953,13 @@ bool MidiActionManager::panRelative( std::shared_ptr<MidiAction> pAction ) {
 	}
 
 	pHydrogen->setSelectedInstrumentNumber(nLine);
-	EventQueue::get_instance()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
+	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
 
 	return true;
 }
 
 bool MidiActionManager::gainLevelAbsolute( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	auto pSong = pHydrogen->getSong();
 
@@ -1003,7 +1005,7 @@ bool MidiActionManager::gainLevelAbsolute( std::shared_ptr<MidiAction> pAction )
 	}
 
 	pHydrogen->setSelectedInstrumentNumber( nLine );
-	EventQueue::get_instance()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
+	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
 
 	return true;
 }
@@ -1014,7 +1016,7 @@ bool MidiActionManager::humanizationSwingAbsolute(
 {
 	bool ok;
 	const int nValue = pAction->getValue();
-	CoreActionController::setSwing(
+	m_pHydrogen->getCoreActionController()->setSwing(
 		nValue != 0 ? ( static_cast<float>( nValue ) /
 						static_cast<float>( Midi::ParameterMaximum ) )
 					: 0.0
@@ -1026,13 +1028,13 @@ bool MidiActionManager::humanizationSwingRelative(
 	std::shared_ptr<MidiAction> pAction
 )
 {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return false;
 	}
 	bool ok;
 	const int nValue = pAction->getValue();
-	CoreActionController::setSwing(
+	m_pHydrogen->getCoreActionController()->setSwing(
 		pSong->getSwingFactor() + ( nValue == 1 ? 0.05 : -0.05 )
 	);
 	return true;
@@ -1044,7 +1046,7 @@ bool MidiActionManager::humanizationTimingAbsolute(
 {
 	bool ok;
 	const int nValue = pAction->getValue();
-	CoreActionController::setHumanizeTime(
+	m_pHydrogen->getCoreActionController()->setHumanizeTime(
 		nValue != 0 ? ( static_cast<float>( nValue ) /
 						static_cast<float>( Midi::ParameterMaximum ) )
 					: 0.0
@@ -1056,13 +1058,13 @@ bool MidiActionManager::humanizationTimingRelative(
 	std::shared_ptr<MidiAction> pAction
 )
 {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return false;
 	}
 	bool ok;
 	const int nValue = pAction->getValue();
-	CoreActionController::setHumanizeTime(
+	m_pHydrogen->getCoreActionController()->setHumanizeTime(
 		pSong->getHumanizeTimeValue() + ( nValue == 1 ? 0.05 : -0.05 )
 	);
 	return true;
@@ -1074,7 +1076,7 @@ bool MidiActionManager::humanizationVelocityAbsolute(
 {
 	bool ok;
 	const int nValue = pAction->getValue();
-	CoreActionController::setHumanizeVelocity(
+	m_pHydrogen->getCoreActionController()->setHumanizeVelocity(
 		nValue != 0 ? ( static_cast<float>( nValue ) /
 						static_cast<float>( Midi::ParameterMaximum ) )
 					: 0.0
@@ -1086,13 +1088,13 @@ bool MidiActionManager::humanizationVelocityRelative(
 	std::shared_ptr<MidiAction> pAction
 )
 {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return false;
 	}
 	bool ok;
 	const int nValue = pAction->getValue();
-	CoreActionController::setHumanizeVelocity(
+	m_pHydrogen->getCoreActionController()->setHumanizeVelocity(
 		pSong->getHumanizeVelocityValue() + ( nValue == 1 ? 0.05 : -0.05 )
 	);
 	return true;
@@ -1101,7 +1103,7 @@ bool MidiActionManager::humanizationVelocityRelative(
 bool MidiActionManager::pitchLevelAbsolute( std::shared_ptr<MidiAction> pAction
 )
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	auto pSong = pHydrogen->getSong();
 
@@ -1149,7 +1151,7 @@ bool MidiActionManager::pitchLevelAbsolute( std::shared_ptr<MidiAction> pAction
 	}
 
 	pHydrogen->setSelectedInstrumentNumber( nLine );
-	EventQueue::get_instance()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
+	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
 
 	return true;
 }
@@ -1160,7 +1162,7 @@ bool MidiActionManager::instrumentPitch( std::shared_ptr<MidiAction> pAction ) {
 	float fPitch;
 	const int nInstrument =
 		pAction->getInstrument() == MidiAction::nCurrentSelectionParameter
-			? Hydrogen::get_instance()->getSelectedInstrumentNumber()
+			? m_pHydrogen->getSelectedInstrumentNumber()
 			: pAction->getInstrument();
 	const int nPitchMidi = pAction->getValue();
 	if ( nPitchMidi != 0 ) {
@@ -1170,11 +1172,11 @@ bool MidiActionManager::instrumentPitch( std::shared_ptr<MidiAction> pAction ) {
 		fPitch = Instrument::fPitchOffsetMinimum;
 	}
 
-	return CoreActionController::setInstrumentPitch( nInstrument, fPitch );
+	return m_pHydrogen->getCoreActionController()->setInstrumentPitch( nInstrument, fPitch );
 }
 
 bool MidiActionManager::filterCutoffLevelAbsolute( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	auto pSong = pHydrogen->getSong();
 
@@ -1207,7 +1209,7 @@ bool MidiActionManager::filterCutoffLevelAbsolute( std::shared_ptr<MidiAction> p
 	}
 
 	pHydrogen->setSelectedInstrumentNumber( nLine );
-	EventQueue::get_instance()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
+	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::InstrumentParametersChanged, nLine );
 
 	return true;
 }
@@ -1218,7 +1220,7 @@ bool MidiActionManager::filterCutoffLevelAbsolute( std::shared_ptr<MidiAction> p
  * this is useful if the bpm is set by a rotary control knob
  */
 bool MidiActionManager::bpmCcRelative( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	// Preventive measure to avoid bad things.
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -1226,7 +1228,7 @@ bool MidiActionManager::bpmCcRelative( std::shared_ptr<MidiAction> pAction ) {
 		return false;
 	}
 	if ( pHydrogen->getTempoSource() != Hydrogen::Tempo::Song ) {
-		EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, -1 );
+		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::TempoChanged, -1 );
 		return true;
 	}
 
@@ -1246,17 +1248,17 @@ bool MidiActionManager::bpmCcRelative( std::shared_ptr<MidiAction> pAction ) {
 
 	if ( m_nLastBpmChangeCCParameter >= nCcParameter &&
 		 fBpm - fFactor > MIN_BPM ) {
-		CoreActionController::setBpm( fBpm - 1*fFactor );
+		m_pHydrogen->getCoreActionController()->setBpm( fBpm - 1*fFactor );
 	}
 
 	if ( m_nLastBpmChangeCCParameter < nCcParameter
 		 && fBpm + fFactor < MAX_BPM ) {
-		CoreActionController::setBpm( fBpm + 1*fFactor );
+		m_pHydrogen->getCoreActionController()->setBpm( fBpm + 1*fFactor );
 	}
 
 	m_nLastBpmChangeCCParameter = nCcParameter;
 
-	EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, -1 );
+	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::TempoChanged, -1 );
 
 	return true;
 }
@@ -1266,7 +1268,7 @@ bool MidiActionManager::bpmCcRelative( std::shared_ptr<MidiAction> pAction ) {
  * this is useful if the bpm is set by a rotary control knob
  */
 bool MidiActionManager::bpmFineCcRelative( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	// Preventive measure to avoid bad things.
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -1274,7 +1276,7 @@ bool MidiActionManager::bpmFineCcRelative( std::shared_ptr<MidiAction> pAction )
 		return false;
 	}
 	if ( pHydrogen->getTempoSource() != Hydrogen::Tempo::Song ) {
-		EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, -1 );
+		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::TempoChanged, -1 );
 		return true;
 	}
 
@@ -1293,22 +1295,22 @@ bool MidiActionManager::bpmFineCcRelative( std::shared_ptr<MidiAction> pAction )
 
 	if ( m_nLastBpmChangeCCParameter >= nCcParameter &&
 		 fBpm - fFactor > MIN_BPM ) {
-		CoreActionController::setBpm( fBpm - 0.01*fFactor );
+		m_pHydrogen->getCoreActionController()->setBpm( fBpm - 0.01*fFactor );
 	}
 	if ( m_nLastBpmChangeCCParameter < nCcParameter
 		 && fBpm + fFactor < MAX_BPM ) {
-		CoreActionController::setBpm( fBpm + 0.01*fFactor );
+		m_pHydrogen->getCoreActionController()->setBpm( fBpm + 0.01*fFactor );
 	}
 
 	m_nLastBpmChangeCCParameter = nCcParameter;
 
-	EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, -1 );
+	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::TempoChanged, -1 );
 
 	return true;
 }
 
 bool MidiActionManager::bpmIncrease( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	// Preventive measure to avoid bad things.
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -1316,7 +1318,7 @@ bool MidiActionManager::bpmIncrease( std::shared_ptr<MidiAction> pAction ) {
 		return false;
 	}
 	if ( pHydrogen->getTempoSource() != Hydrogen::Tempo::Song ) {
-		EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, -1 );
+		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::TempoChanged, -1 );
 		return true;
 	}
 
@@ -1325,15 +1327,15 @@ bool MidiActionManager::bpmIncrease( std::shared_ptr<MidiAction> pAction ) {
 
 	const float fFactor = pAction->getFactor();
 
-	CoreActionController::setBpm( fBpm + 1 * fFactor );
+	m_pHydrogen->getCoreActionController()->setBpm( fBpm + 1 * fFactor );
 
-	EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, -1 );
+	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::TempoChanged, -1 );
 
 	return true;
 }
 
 bool MidiActionManager::bpmDecrease( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	// Preventive measure to avoid bad things.
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -1341,7 +1343,7 @@ bool MidiActionManager::bpmDecrease( std::shared_ptr<MidiAction> pAction ) {
 		return false;
 	}
 	if ( pHydrogen->getTempoSource() != Hydrogen::Tempo::Song ) {
-		EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, -1 );
+		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::TempoChanged, -1 );
 		return true;
 	}
 
@@ -1350,15 +1352,15 @@ bool MidiActionManager::bpmDecrease( std::shared_ptr<MidiAction> pAction ) {
 
 	const float fFactor = pAction->getFactor();
 
-	CoreActionController::setBpm( fBpm - 1 * fFactor );
+	m_pHydrogen->getCoreActionController()->setBpm( fBpm - 1 * fFactor );
 
-	EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, -1 );
+	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::TempoChanged, -1 );
 
 	return true;
 }
 
 bool MidiActionManager::nextBar( std::shared_ptr<MidiAction>  ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	const auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -1370,7 +1372,7 @@ bool MidiActionManager::nextBar( std::shared_ptr<MidiAction>  ) {
 
 	if ( pSong->getMode() == Song::Mode::Pattern ) {
 		// Restart transport at the beginning of the pattern
-		CoreActionController::locateToColumn( 0 );
+		m_pHydrogen->getCoreActionController()->locateToColumn( 0 );
 		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
 			pAudioEngine->lock( RIGHT_HERE );
 			pAudioEngine->updatePlayingPatterns( Event::Trigger::Default );
@@ -1385,7 +1387,7 @@ bool MidiActionManager::nextBar( std::shared_ptr<MidiAction>  ) {
 			if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {
 				// Transport exceeds length of the song and is wrapped
 				// to the beginning again.
-				CoreActionController::locateToColumn( 0 );
+				m_pHydrogen->getCoreActionController()->locateToColumn( 0 );
 			}
 			else {
 				// With loop mode disabled this command won't have any
@@ -1393,7 +1395,7 @@ bool MidiActionManager::nextBar( std::shared_ptr<MidiAction>  ) {
 			}
 		}
 		else {
-			CoreActionController::locateToColumn( nNewColumn );
+			m_pHydrogen->getCoreActionController()->locateToColumn( nNewColumn );
 		}
 	}
 
@@ -1402,7 +1404,7 @@ bool MidiActionManager::nextBar( std::shared_ptr<MidiAction>  ) {
 
 
 bool MidiActionManager::previousBar( std::shared_ptr<MidiAction>  ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	const auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -1413,7 +1415,7 @@ bool MidiActionManager::previousBar( std::shared_ptr<MidiAction>  ) {
 	if ( pSong->getMode() == Song::Mode::Pattern ) {
 		// Restart transport at the beginning of the pattern. Does not
 		// trigger activation of pending stacked patterns.
-		CoreActionController::locateToColumn( 0 );
+		m_pHydrogen->getCoreActionController()->locateToColumn( 0 );
 	}
 	else {
 		int nNewColumn = pHydrogen->getAudioEngine()->
@@ -1423,22 +1425,22 @@ bool MidiActionManager::previousBar( std::shared_ptr<MidiAction>  ) {
 			if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {
 				// In case the song is looped, assume periodic
 				// boundary conditions and move to the last column.
-				CoreActionController::locateToColumn(
+				m_pHydrogen->getCoreActionController()->locateToColumn(
 					pSong->getPatternGroupVector()->size() - 1 );
 			}
 			else {
-				CoreActionController::locateToColumn( 0 );
+				m_pHydrogen->getCoreActionController()->locateToColumn( 0 );
 			}
 		}
 		else {
-			CoreActionController::locateToColumn( nNewColumn );
+			m_pHydrogen->getCoreActionController()->locateToColumn( nNewColumn );
 		}
 	}
 	return true;
 }
 
 bool MidiActionManager::setSongFromPlaylist( int nSongNumber ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	auto pPlaylist = pHydrogen->getPlaylist();
 	if ( pPlaylist == nullptr ) {
@@ -1448,16 +1450,16 @@ bool MidiActionManager::setSongFromPlaylist( int nSongNumber ) {
 
 	if ( nSongNumber >= 0 && nSongNumber <= pPlaylist->size() - 1 ) {
 		if ( pPlaylist->getActiveSongNumber() != nSongNumber ) {
-			auto pSong = CoreActionController::loadSong(
+			auto pSong = m_pHydrogen->getCoreActionController()->loadSong(
 				pPlaylist->getSongFileNameByNumber( nSongNumber ) );
 
 			if ( pSong == nullptr ||
-				 ! CoreActionController::setSong( pSong ) ) {
+				 ! m_pHydrogen->getCoreActionController()->setSong( pSong ) ) {
 				ERRORLOG( QString( "Unable to set song [%1] of playlist" )
 						  .arg( nSongNumber ) );
 				return false;
 			}
-			CoreActionController::activatePlaylistSong( nSongNumber );
+			m_pHydrogen->getCoreActionController()->activatePlaylistSong( nSongNumber );
 		}
 	} else {
 		// Preventive measure to avoid bad things.
@@ -1481,21 +1483,21 @@ bool MidiActionManager::playlistSong( std::shared_ptr<MidiAction> pAction ) {
 }
 
 bool MidiActionManager::playlistNextSong( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	int songnumber = pHydrogen->getPlaylist()->getActiveSongNumber();
 	return setSongFromPlaylist( ++songnumber );
 }
 
 bool MidiActionManager::playlistPreviousSong( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	int songnumber = pHydrogen->getPlaylist()->getActiveSongNumber();
 	return setSongFromPlaylist( --songnumber );
 }
 
 bool MidiActionManager::recordReady( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	// Preventive measure to avoid bad things.
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -1504,25 +1506,25 @@ bool MidiActionManager::recordReady( std::shared_ptr<MidiAction> pAction ) {
 	}
 
 	if ( pHydrogen->getAudioEngine()->getState() != AudioEngine::State::Playing ) {
-		return CoreActionController::toggleRecordMode();
+		return m_pHydrogen->getCoreActionController()->toggleRecordMode();
 	}
 	return true;
 }
 
 bool MidiActionManager::recordStrobeToggle( std::shared_ptr<MidiAction>  ) {
-	return CoreActionController::toggleRecordMode();
+	return m_pHydrogen->getCoreActionController()->toggleRecordMode();
 }
 
 bool MidiActionManager::recordStrobe( std::shared_ptr<MidiAction>  ) {
-	return CoreActionController::activateRecordMode( true );
+	return m_pHydrogen->getCoreActionController()->activateRecordMode( true );
 }
 
 bool MidiActionManager::recordExit( std::shared_ptr<MidiAction> ) {
-	return CoreActionController::activateRecordMode( false );
+	return m_pHydrogen->getCoreActionController()->activateRecordMode( false );
 }
 
 bool MidiActionManager::toggleMetronome( std::shared_ptr<MidiAction> ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	// Preventive measure to avoid bad things.
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -1532,36 +1534,36 @@ bool MidiActionManager::toggleMetronome( std::shared_ptr<MidiAction> ) {
 
 	// Use the wrapper in CAC over a plain setting of the parameter in
 	// order to send MIDI feedback
-	CoreActionController::setMetronomeIsActive(
-		! Preferences::get_instance()->m_bUseMetronome );
+	m_pHydrogen->getCoreActionController()->setMetronomeIsActive(
+		! m_pHydrogen->getPreferences()->m_bUseMetronome );
 
 	return true;
 }
 
 bool MidiActionManager::undoAction( std::shared_ptr<MidiAction> ) {
-	EventQueue::get_instance()->pushEvent( Event::Type::UndoRedo, 0);// 0 = undo
+	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UndoRedo, 0);// 0 = undo
 	return true;
 }
 
 bool MidiActionManager::redoAction( std::shared_ptr<MidiAction> ) {
-	EventQueue::get_instance()->pushEvent( Event::Type::UndoRedo, 1);// 1 = redo
+	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UndoRedo, 1);// 1 = redo
 	return true;
 }
 
 bool MidiActionManager::loadNextDrumkit( std::shared_ptr<MidiAction> ) {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	// Pass copy to allow kit in the SoundLibraryDatabase to stay in a pristine
 	// shape.
-	return CoreActionController::setDrumkit(
+	return m_pHydrogen->getCoreActionController()->setDrumkit(
 		std::make_shared<Drumkit>(
 			pHydrogen->getSoundLibraryDatabase()->getNextDrumkit() ) );
 }
 
 bool MidiActionManager::loadPrevDrumkit( std::shared_ptr<MidiAction> ) {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	// Pass copy to allow kit in the SoundLibraryDatabase to stay in a pristine
 	// shape.
-	return CoreActionController::setDrumkit(
+	return m_pHydrogen->getCoreActionController()->setDrumkit(
 		std::make_shared<Drumkit>(
 			pHydrogen->getSoundLibraryDatabase()->getPreviousDrumkit() ) );
 }
@@ -1584,7 +1586,7 @@ int MidiActionManager::getParameterNumber( const MidiAction::Type& type ) const 
 }
 
 bool MidiActionManager::clearSelectedInstrument( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -1598,11 +1600,11 @@ bool MidiActionManager::clearSelectedInstrument( std::shared_ptr<MidiAction> pAc
 		return false;
 	}
 
-	return CoreActionController::clearInstrumentInPattern( nInstr );
+	return m_pHydrogen->getCoreActionController()->clearInstrumentInPattern( nInstr );
 }
 
 bool MidiActionManager::clearPattern( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -1618,23 +1620,23 @@ bool MidiActionManager::clearPattern( std::shared_ptr<MidiAction> pAction ) {
 		return false;
 	}
 
-	pPattern->clear( true );
+	pPattern->clear( m_pHydrogen, true );
 
-	EventQueue::get_instance()->pushEvent( Event::Type::PatternChanged, 0 );
+	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::PatternChanged, 0 );
 
 	return true;
 }
 
 bool MidiActionManager::countIn( std::shared_ptr<MidiAction> ) {
-	return CoreActionController::startCountIn();
+	return m_pHydrogen->getCoreActionController()->startCountIn();
 }
 
 bool MidiActionManager::countInPauseToggle( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	switch ( pAudioEngine->getState() ) {
 	case AudioEngine::State::Ready:
-		CoreActionController::startCountIn();
+		m_pHydrogen->getCoreActionController()->startCountIn();
 		break;
 
 	case AudioEngine::State::CountIn:
@@ -1654,11 +1656,11 @@ bool MidiActionManager::countInPauseToggle( std::shared_ptr<MidiAction> pAction 
 }
 
 bool MidiActionManager::countInStopToggle( std::shared_ptr<MidiAction> pAction ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	switch ( pAudioEngine->getState() ) {
 	case AudioEngine::State::Ready:
-		CoreActionController::startCountIn();
+		m_pHydrogen->getCoreActionController()->startCountIn();
 		break;
 
 	case AudioEngine::State::CountIn:
@@ -1666,7 +1668,7 @@ bool MidiActionManager::countInStopToggle( std::shared_ptr<MidiAction> pAction )
 		break;
 
 	case AudioEngine::State::Playing:
-		CoreActionController::locateToColumn( 0 );
+		m_pHydrogen->getCoreActionController()->locateToColumn( 0 );
 		pHydrogen->sequencerStop();
 		break;
 
@@ -1695,7 +1697,7 @@ bool MidiActionManager::handleMidiActionsAsync( const std::vector<std::shared_pt
 
 bool MidiActionManager::handleMidiActionAsync( const std::shared_ptr<MidiAction> pAction ) {
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	if ( pAction == nullptr || m_pWorkerThread == nullptr ) {
 		return false;
 	}
@@ -1727,7 +1729,7 @@ bool MidiActionManager::handleMidiActionAsync( const std::shared_ptr<MidiAction>
 
 bool MidiActionManager::handleMidiActionSync( const std::shared_ptr<MidiAction> pAction ) {
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	/*
 		return false if Midiaction is null
 		(for example if no MidiAction exists for an event)

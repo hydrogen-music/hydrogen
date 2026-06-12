@@ -47,7 +47,7 @@ public:
 	audioProcessCallback m_processCallback;
 	int m_nXRuns;
 
-	AlsaAudioDriver( audioProcessCallback processCallback );
+	AlsaAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback );
 	~AlsaAudioDriver();
 
 	virtual int init( unsigned nBufferSize ) override;
@@ -57,7 +57,7 @@ public:
 	virtual unsigned getSampleRate() override;
 	virtual float* getOut_L() override;
 	virtual float* getOut_R() override;
-	static QStringList getDevices();
+	static QStringList getAlsaDevices();
 
 	virtual int getXRuns() const override { return m_nXRuns; }
 
@@ -76,7 +76,7 @@ class AlsaAudioDriver : public NullDriver
 {
 	H2_OBJECT(AlsaAudioDriver)
 public:
-	AlsaAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
+	AlsaAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback ) : NullDriver( pHydrogen, processCallback ) {}
 
 };
 

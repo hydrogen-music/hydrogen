@@ -43,7 +43,7 @@ class PulseAudioDriver : public Object<PulseAudioDriver>, public AudioDriver
 {
 	H2_OBJECT(PulseAudioDriver)
 public:
-	PulseAudioDriver(audioProcessCallback processCallback);
+	PulseAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback );
 	~PulseAudioDriver();
 
 	virtual int init( unsigned nBufferSize ) override;
@@ -95,7 +95,7 @@ namespace H2Core {
 	{
 		H2_OBJECT(PulseAudioDriver)
 	public:
-		PulseAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
+		PulseAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback ) : NullDriver( pHydrogen, processCallback ) {}
 
 	};
 }

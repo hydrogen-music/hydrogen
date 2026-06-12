@@ -96,7 +96,7 @@ static double compute_pitch_scale( const Sample::Rubberband& rb )
 
 #if defined( H2CORE_HAVE_RUBBERBAND ) || _DOXYGEN_
 static RubberBand::RubberBandStretcher::Options compute_rubberband_options(
-	const Sample::Rubberband& r
+	const Sample::Rubberband& r, Preferences* pPreferences
 );
 #endif
 
@@ -212,8 +212,13 @@ Sample::load( const QString& sFilePath, const License& license )
 	return pSample;
 }
 
-bool Sample::load( float fBpm )
+bool Sample::load( float fBpm, Preferences* pPreferences )
 {
+	// T1.5: make pPreferences required and drop this fallback (ADR 0015).
+	if ( pPreferences == nullptr ) {
+		pPreferences = Preferences::get_instance().get();
+	}
+
 	// Will contain a bunch of metadata about the loaded sample.
 	SF_INFO sound_info = { 0 };
 
@@ -314,9 +319,9 @@ bool Sample::load( float fBpm )
 	applyVelocity();
 	applyPan();
 #ifdef H2CORE_HAVE_RUBBERBAND
-	applyRubberband( fBpm );
+	applyRubberband( fBpm, pPreferences );
 #else
-	if ( !execRubberbandCli( fBpm ) ) {
+	if ( !execRubberbandCli( fBpm, pPreferences ) ) {
 		WARNINGLOG( "Unable to apply rubberband" );
 	}
 #endif
@@ -554,7 +559,7 @@ void Sample::applyPan()
 	m_bIsModified = true;
 }
 
-void Sample::applyRubberband( float fBpm )
+void Sample::applyRubberband( float fBpm, Preferences* pPreferences )
 {
 	// TODO see Rubberband declaration in sample.h
 #ifdef H2CORE_HAVE_RUBBERBAND
@@ -567,7 +572,7 @@ void Sample::applyRubberband( float fBpm )
 	double output_duration = 60.0 / fBpm * m_rubberband.fLengthInBeats;
 	double time_ratio = output_duration / getSampleDuration();
 	RubberBand::RubberBandStretcher::Options options =
-		compute_rubberband_options( m_rubberband );
+		compute_rubberband_options( m_rubberband, pPreferences );
 	double pitch_scale = compute_pitch_scale( m_rubberband );
 	// output buffer
 	//
@@ -600,7 +605,7 @@ void Sample::applyRubberband( float fBpm )
 	// Hydrogen is told to apply Rubber Band to samples on-the-fly
 	// when encountering tempo changes, we will use Rubber Band's
 	// real-time processing mode.
-	if ( !Preferences::get_instance()->getRubberBandBatchMode() ) {
+	if ( !pPreferences->getRubberBandBatchMode() ) {
 		ibuf[0] = m_data_L;
 		ibuf[1] = m_data_R;
 		rubber.study( ibuf, m_nFrames, true );
@@ -616,7 +621,7 @@ void Sample::applyRubberband( float fBpm )
 	long long nRequired = 0;
 
 	while ( nProcessed < m_nFrames ) {
-		if ( !Preferences::get_instance()->getRubberBandBatchMode() ) {
+		if ( !pPreferences->getRubberBandBatchMode() ) {
 			// Ask Rubber Band how many samples it requires to produce
 			// further output.
 			nRequired = rubber.getSamplesRequired();
@@ -751,7 +756,7 @@ void Sample::applyRubberband( float fBpm )
 #endif
 }
 
-bool Sample::execRubberbandCli( float fBpm )
+bool Sample::execRubberbandCli( float fBpm, Preferences* pPreferences )
 {
 	if ( !m_rubberband.bUse ) {
 		// Default behavior
@@ -760,7 +765,7 @@ bool Sample::execRubberbandCli( float fBpm )
 
 	// set the path to rubberband-cli
 	const auto sProgram =
-		Preferences::get_instance()->m_sRubberBandCLIexecutable;
+		pPreferences->m_sRubberBandCLIexecutable;
 	// test the path. if test fails return NULL
 	if ( !Filesystem::fileExists( sProgram, false ) ) {
 		ERRORLOG(
@@ -1308,7 +1313,7 @@ QString Sample::sndfileFormatToQString( int nFormat )
 
 #ifdef H2CORE_HAVE_RUBBERBAND
 static RubberBand::RubberBandStretcher::Options compute_rubberband_options(
-	const Sample::Rubberband& rb
+	const Sample::Rubberband& rb, Preferences* pPreferences
 )
 {
 	// default settings
@@ -1385,7 +1390,7 @@ static RubberBand::RubberBandStretcher::Options compute_rubberband_options(
 			break;
 	};
 
-	if ( Preferences::get_instance()->getRubberBandBatchMode() ) {
+	if ( pPreferences->getRubberBandBatchMode() ) {
 		options |= RubberBand::RubberBandStretcher::OptionProcessRealTime;
 	}
 	else {

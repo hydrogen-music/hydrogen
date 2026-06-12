@@ -21,6 +21,8 @@
 
 #include "EventQueueTest.h"
 
+#include <core/Hydrogen.h>
+
 #include <pthread.h>
 
 using namespace H2Core;
@@ -179,8 +181,8 @@ void EventQueueTest::testIndependentInstances() {
 	// EventQueue is instance-ownable: several may coexist, fully independent of
 	// the process-current one and of each other. Constructing one no longer
 	// hijacks the process-current pointer (ADR 0015).
-	auto pA = std::make_unique<EventQueue>();
-	auto pB = std::make_unique<EventQueue>();
+	auto pA = std::make_unique<EventQueue>( Hydrogen::get_instance() );
+	auto pB = std::make_unique<EventQueue>( Hydrogen::get_instance() );
 	CPPUNIT_ASSERT( pA != pB );
 
 	// An event pushed onto one queue is invisible to the other.
@@ -203,8 +205,8 @@ void EventQueueTest::testProcessCurrent() {
 	// relies on it, so it must be restored before returning.
 	EventQueue* pPrevious = EventQueue::get_instance();
 
-	auto pA = std::make_unique<EventQueue>();
-	auto pB = std::make_unique<EventQueue>();
+	auto pA = std::make_unique<EventQueue>( Hydrogen::get_instance() );
+	auto pB = std::make_unique<EventQueue>( Hydrogen::get_instance() );
 
 	// get_instance() returns whichever instance was registered as
 	// process-current — the transitional shim unconverted call sites use.

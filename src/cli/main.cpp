@@ -97,7 +97,7 @@ bool convertKitToDrumkitMap( const QString& sKit,
 							 const QString& sOutFileName ) {
 	bool bCompressed, bLegacyFormatEncountered;
 	QString sKitFolder, sTmpFolder;
-	const auto pKit = CoreActionController::retrieveDrumkit(
+	const auto pKit = H2Core::Hydrogen::get_instance()->getCoreActionController()->retrieveDrumkit(
 		sKit, &bCompressed, &sKitFolder, &sTmpFolder, &bLegacyFormatEncountered );
 
 	if ( pKit == nullptr ) {
@@ -419,7 +419,7 @@ int main(int argc, char *argv[])
 					bFilterAll = false;
 				}
 
-				OnlineImporter importer;
+				OnlineImporter importer( H2Core::Hydrogen::get_instance() );
 				auto indices = importer.fetchAllIndices( sOnlineImportUrls );
 
 				// Collect artifacts, optionally filtering by type
@@ -515,7 +515,7 @@ int main(int argc, char *argv[])
 				return 1;
 			}
 
-			if ( ! CoreActionController::setPlaylist( pPlaylist ) ) {
+			if ( ! H2Core::Hydrogen::get_instance()->getCoreActionController()->setPlaylist( pPlaylist ) ) {
 				___ERRORLOG( QString( "Unable to set playlist loaded from [%1]" )
 							 .arg( sPlaylistFileName ) );
 				return 1;
@@ -523,10 +523,10 @@ int main(int argc, char *argv[])
 
 			/* Load first song */
 			auto sSongPath = pPlaylist->getSongFileNameByNumber( 0 );
-			pSong = CoreActionController::loadSong( sSongPath );
+			pSong = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong( sSongPath );
 
-			if ( pSong != nullptr && CoreActionController::setSong( pSong ) ) {
-				CoreActionController::activatePlaylistSong( 0 );
+			if ( pSong != nullptr && H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong ) ) {
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->activatePlaylistSong( 0 );
 			}
 
 			show_playlist( pPlaylist->getActiveSongNumber() );
@@ -535,13 +535,13 @@ int main(int argc, char *argv[])
 		// Load song - if wasn't already loaded with playlist
 		if ( pSong == nullptr ) {
 			if ( ! sSongFileName.isEmpty() ) {
-				pSong = CoreActionController::loadSong( sSongFileName, "" );
+				pSong = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong( sSongFileName, "" );
 			}
 			else {
 				/* Try load last song */
 				const QString sSongPath = pPref->getLastSongPath();
 				if ( ! sSongPath.isEmpty() ) {
-					pSong = CoreActionController::loadSong( sSongPath, "" );
+					pSong = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong( sSongPath, "" );
 				}
 			}
 
@@ -554,7 +554,7 @@ int main(int argc, char *argv[])
 				pHydrogen->setSong( pSong );
 			}
 			else {
-				CoreActionController::setSong( pSong );
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong );
 			}
 		}
 
@@ -565,7 +565,7 @@ int main(int argc, char *argv[])
 				Filesystem::Context::User, sDrumkitNameToLoad, true
 			) );
 			if ( pDrumkit != nullptr ) {
-				CoreActionController::setDrumkit( pDrumkit );
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit( pDrumkit );
 			}
 			else {
 				___ERRORLOG( QString( "Unable to retrieve drumkit called [%1]" )
@@ -619,7 +619,7 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! sDrumkitToValidate.isEmpty() ) {
-			if ( ! H2Core::CoreActionController::validateDrumkit(
+			if ( ! H2Core::Hydrogen::get_instance()->getCoreActionController()->validateDrumkit(
 					 sDrumkitToValidate, false ) ) {
 				nReturnCode = 1;
 
@@ -635,7 +635,7 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! sDrumkitToLegacyValidate.isEmpty() ) {
-			if ( ! H2Core::CoreActionController::validateDrumkit(
+			if ( ! H2Core::Hydrogen::get_instance()->getCoreActionController()->validateDrumkit(
 					 sDrumkitToLegacyValidate, true ) ) {
 				nReturnCode = 1;
 
@@ -651,7 +651,7 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! sDrumkitToExtract.isEmpty() ) {
-			if ( ! H2Core::CoreActionController::extractDrumkit(
+			if ( ! H2Core::Hydrogen::get_instance()->getCoreActionController()->extractDrumkit(
 					 sDrumkitToExtract, sTarget ) ) {
 				nReturnCode = 1;
 
@@ -680,7 +680,7 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! sDrumkitToUpgrade.isEmpty() ) {
-			if ( ! H2Core::CoreActionController::upgradeDrumkit(
+			if ( ! H2Core::Hydrogen::get_instance()->getCoreActionController()->upgradeDrumkit(
 					 sDrumkitToUpgrade, sTarget ) ) {
 				nReturnCode = 1;
 

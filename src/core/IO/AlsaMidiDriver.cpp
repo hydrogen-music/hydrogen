@@ -94,7 +94,7 @@ void* alsaMidiDriver_thread( void* param )
 	int m_local_addr_outport = outPortId;	
 	int m_local_addr_client = clientId;
 
-	QString sPortName = Preferences::get_instance()->m_sMidiPortName;
+	QString sPortName = pDriver->getHydrogen()->getPreferences()->m_sMidiPortName;
 	int m_dest_addr_port = -1;
 	int m_dest_addr_client = -1;
 	pDriver->getPortInfo( sPortName, m_dest_addr_client, m_dest_addr_port );
@@ -126,7 +126,7 @@ void* alsaMidiDriver_thread( void* param )
 	__INFOLOG( QString( "Midi input port at %1:%2" ).arg( clientId ).arg( portId ) );
 	
 	//Connect output port to predefined output
-	sPortName = Preferences::get_instance()->m_sMidiOutputPortName;
+	sPortName = pDriver->getHydrogen()->getPreferences()->m_sMidiOutputPortName;
 	m_dest_addr_port = -1;
 	m_dest_addr_client = -1;
 	pDriver->getPortInfo( sPortName, m_dest_addr_client, m_dest_addr_port );
@@ -179,7 +179,11 @@ void* alsaMidiDriver_thread( void* param )
 
 
 
-AlsaMidiDriver::AlsaMidiDriver() : MidiBaseDriver() {
+AlsaMidiDriver::AlsaMidiDriver( Hydrogen* pHydrogen )
+	// Virtual bases must be initialized by the most-derived class (ADR 0015).
+	: MidiInput( pHydrogen ),
+	  MidiOutput( pHydrogen ),
+	  MidiBaseDriver( pHydrogen ) {
 }
 
 AlsaMidiDriver::~AlsaMidiDriver() {
@@ -202,7 +206,7 @@ void AlsaMidiDriver::close() {
 }
 
 void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle ) {
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = MidiInput::m_pHydrogen->getAudioEngine();
 	if ( pAudioEngine->getState() != AudioEngine::State::Ready &&
 		 pAudioEngine->getState() != AudioEngine::State::CountIn &&
 		 pAudioEngine->getState() != AudioEngine::State::Playing ) {

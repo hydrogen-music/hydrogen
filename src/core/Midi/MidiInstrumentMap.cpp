@@ -286,7 +286,8 @@ MidiInstrumentMap::loadFrom( const XMLNode& node, bool bSilent )
 std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 	Midi::Note note,
 	Midi::Channel channel,
-	std::shared_ptr<Drumkit> pDrumkit ) const
+	std::shared_ptr<Drumkit> pDrumkit,
+	Hydrogen* pHydrogen ) const
 {
 	std::vector< std::shared_ptr<Instrument> > instruments;
 
@@ -358,7 +359,7 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 			}
 		}
 
-		const auto fallbackMap = createFallbackMap();
+		const auto fallbackMap = createFallbackMap( pHydrogen );
 		for ( const auto& [nnoteRef, ppInstrument] : fallbackMap ) {
 			if ( nnoteRef.note == note &&
 				 ( nnoteRef.channel == channel ||
@@ -373,7 +374,7 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 
 	case Input::SelectedInstrument: {
 		auto pInstrument = pDrumkit->getInstruments()->get(
-			Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+			pHydrogen->getSelectedInstrumentNumber() );
 		if ( pInstrument != nullptr ) {
 			const auto channelMapped = getMappedChannel( pInstrument );
 			if ( channelMapped == channel ||
@@ -415,7 +416,8 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 
 MidiInstrumentMap::NoteRef MidiInstrumentMap::getInputMapping(
 	std::shared_ptr<Instrument> pInstrument,
-	std::shared_ptr<Drumkit> pDrumkit ) const
+	std::shared_ptr<Drumkit> pDrumkit,
+	Hydrogen* pHydrogen ) const
 {
 	if ( pInstrument == nullptr || pDrumkit == nullptr ) {
 		ERRORLOG( "Invalid input" );
@@ -470,7 +472,7 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getInputMapping(
 	}
 
 	case Input::SelectedInstrument: {
-		if ( Hydrogen::get_instance()->getSelectedInstrumentNumber() ==
+		if ( pHydrogen->getSelectedInstrumentNumber() ==
 			 pDrumkit->getInstruments()->index( pInstrument ) ) {
 			noteRef.channel = channelUsed;
 			// The note information is not handled by the UI
@@ -591,11 +593,11 @@ void MidiInstrumentMap::insertCustomInputMapping(
 }
 
 std::map<MidiInstrumentMap::NoteRef, std::shared_ptr<Instrument>>
-MidiInstrumentMap::createFallbackMap() const
+MidiInstrumentMap::createFallbackMap( Hydrogen* pHydrogen ) const
 {
 	std::map<NoteRef, std::shared_ptr<Instrument>> fallbackMap;
 
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return fallbackMap;
 	}

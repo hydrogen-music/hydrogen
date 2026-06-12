@@ -219,7 +219,7 @@ void ExportMidiDialog::on_okBtn_clicked()
 
 	pPref->setMidiExportUseHumanization( humanizationCheckBox->isChecked() );
 	
-	pSmfWriter->save( sFileName, pSong, humanizationCheckBox->isChecked() );
+	pSmfWriter->save( sFileName, pSong, humanizationCheckBox->isChecked(), H2Core::Hydrogen::get_instance() );
 
 	// Check whether same time signature were off.
 	const auto timeSignatureFailures = pSmfWriter->getTimeSignatureFailures();

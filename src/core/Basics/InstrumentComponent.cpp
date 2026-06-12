@@ -148,7 +148,8 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 	const QString& sDrumkitPath,
 	const QString& sSongPath,
 	const License& drumkitLicense,
-	bool bSilent )
+	bool bSilent,
+	Hydrogen* pHydrogen )
 {
 	auto pInstrumentComponent = std::make_shared<InstrumentComponent>();
 	pInstrumentComponent->m_sName = node.read_string(
@@ -178,7 +179,8 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 	XMLNode layer_node = node.firstChildElement( "layer" );
 	while ( ! layer_node.isNull() ) {
 		auto pLayer = InstrumentLayer::loadFrom(
-			layer_node, sDrumkitPath, sSongPath, drumkitLicense, bSilent );
+			layer_node, sDrumkitPath, sSongPath, drumkitLicense, bSilent,
+			pHydrogen );
 		if ( pLayer != nullptr ) {
 			pInstrumentComponent->addLayer( pLayer, -1 );
 		}

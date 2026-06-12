@@ -22,6 +22,8 @@
 
 #include <core/IO/MidiOutput.h>
 
+#include <core/Hydrogen.h>
+
 #include <core/IO/MidiBaseDriver.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Preferences.h>
@@ -31,7 +33,7 @@
 namespace H2Core
 {
 
-MidiOutput::MidiOutput() {
+MidiOutput::MidiOutput( Hydrogen* pHydrogen ) : m_pHydrogen( pHydrogen ) {
 }
 
 MidiOutput::~MidiOutput() {
@@ -56,7 +58,7 @@ std::shared_ptr<MidiOutput::HandledOutput> MidiOutput::sendMessage(
 		break;
 
 	case MidiMessage::Type::NoteOff:
-		if ( Preferences::get_instance()->getMidiSendNoteOff() !=
+		if ( m_pHydrogen->getPreferences()->getMidiSendNoteOff() !=
 			 Preferences::MidiSendNoteOff::Never ) {
 			sendNoteOffMessage( msg );
 		}

@@ -102,7 +102,7 @@ font-size: 21px;" );
 			if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 				return;
 			}
-			CoreActionController::setInstrumentMidiOutChannel(
+			H2Core::Hydrogen::get_instance()->getCoreActionController()->setInstrumentMidiOutChannel(
 				pSong->getDrumkit()->getInstruments()->index( pInstrument ),
 				Midi::channelFromInt( static_cast<int>( fValue ) ), nullptr
 			);
@@ -136,7 +136,7 @@ font-size: 21px;" );
 			if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 				return;
 			}
-			CoreActionController::setInstrumentMidiOutNote(
+			H2Core::Hydrogen::get_instance()->getCoreActionController()->setInstrumentMidiOutNote(
 				pSong->getDrumkit()->getInstruments()->index( pInstrument ),
 				Midi::noteFromIntClamp( static_cast<int>( fValue ) ), nullptr
 			);

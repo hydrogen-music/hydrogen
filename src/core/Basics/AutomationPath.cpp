@@ -77,10 +77,10 @@ float AutomationPath::get_value(float x) const noexcept
  * \param x X coordinate
  * \param y Y coordinate
  **/
-void AutomationPath::add_point(float x, float y)
+void AutomationPath::add_point(float x, float y, Hydrogen* pHydrogen)
 {
 	_points[x] = y;
-	Hydrogen::get_instance()->setSongModified( true );
+	pHydrogen->setSongModified( true );
 }
 
 
@@ -173,11 +173,11 @@ AutomationPath::iterator AutomationPath::find(float x)
  * \param x Destination X coordinate
  * \param y Destination Y coordinate
  **/
-AutomationPath::iterator AutomationPath::move(iterator &in, float x, float y)
+AutomationPath::iterator AutomationPath::move(iterator &in, float x, float y, Hydrogen* pHydrogen)
 {
 	_points.erase(in);
 	auto rv = _points.insert(std::make_pair(x,y));
-	Hydrogen::get_instance()->setSongModified( true );
+	pHydrogen->setSongModified( true );
 	return rv.first;
 }
 
@@ -186,13 +186,13 @@ AutomationPath::iterator AutomationPath::move(iterator &in, float x, float y)
  * \brief Remove point from path
  * \param x Point location
  **/
-void AutomationPath::remove_point(float x)
+void AutomationPath::remove_point(float x, Hydrogen* pHydrogen)
 {
 	auto it = find(x);
 	if (it != _points.end()) {
 		_points.erase(it);
 	}
-	Hydrogen::get_instance()->setSongModified( true );
+	pHydrogen->setSongModified( true );
 }
 
 } //namespace H2Core

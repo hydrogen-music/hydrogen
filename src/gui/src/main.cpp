@@ -474,7 +474,7 @@ int main(int argc, char *argv[])
 				H2Core::Filesystem::Context::User, sDrumkitNameToLoad, true
 			) );
 			if ( pDrumkit != nullptr ) {
-				H2Core::CoreActionController::setDrumkit( pDrumkit );
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit( pDrumkit );
 			}
 			else {
 				___ERRORLOG( QString( "Unable to retrieve drumkit called [%1]" )

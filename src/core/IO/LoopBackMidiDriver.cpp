@@ -24,7 +24,11 @@
 
 namespace H2Core {
 
-LoopBackMidiDriver::LoopBackMidiDriver() : MidiBaseDriver()
+LoopBackMidiDriver::LoopBackMidiDriver( Hydrogen* pHydrogen )
+	// Virtual bases must be initialized by the most-derived class (ADR 0015).
+										 : MidiInput( pHydrogen )
+										 , MidiOutput( pHydrogen )
+										 , MidiBaseDriver( pHydrogen )
 										 , m_bActive( false )
 {
 }

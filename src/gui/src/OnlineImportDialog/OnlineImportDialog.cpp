@@ -325,7 +325,7 @@ OnlineImportDialog::OnlineImportDialog(
 		OnlineImportDialog::nMinimumWidth, OnlineImportDialog::nMinimumHeight
 	);
 
-	m_pImporter = new OnlineImporter( this );
+	m_pImporter = new OnlineImporter( H2Core::Hydrogen::get_instance(), this );
 	connect( m_pImporter, &OnlineImporter::batchFinished, [&]() {
 		setDownloadingState( false );
 

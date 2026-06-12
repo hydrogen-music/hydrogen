@@ -91,7 +91,7 @@ void MidiNoteTest::testMidiInstrumentInputMapping()
 
 	auto pHydrogen = Hydrogen::get_instance();
 
-	auto pNewPreferences = CoreActionController::loadPreferences(
+	auto pNewPreferences = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadPreferences(
 		H2TEST_FILE( "preferences/midi-instrument-mapping.conf" )
 	);
 	CPPUNIT_ASSERT( pNewPreferences != nullptr );
@@ -101,7 +101,7 @@ void MidiNoteTest::testMidiInstrumentInputMapping()
 		/* bUpgrade */ true, /* pLegacy */ nullptr, /*bSilent*/ false
 	);
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
-	CPPUNIT_ASSERT( CoreActionController::setDrumkit( pNewDrumkit ) );
+	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit( pNewDrumkit ) );
 
 	auto pMidiInstrumentMap = pNewPreferences->getMidiInstrumentMap();
 	auto pInstrumentList = pNewDrumkit->getInstruments();
@@ -110,7 +110,7 @@ void MidiNoteTest::testMidiInstrumentInputMapping()
 	for ( const auto& ppInstrument : *pInstrumentList ) {
 		CPPUNIT_ASSERT( ppInstrument != nullptr );
 		CPPUNIT_ASSERT( pMidiInstrumentMap
-							->getInputMapping( ppInstrument, pNewDrumkit )
+							->getInputMapping( ppInstrument, pNewDrumkit, H2Core::Hydrogen::get_instance() )
 							.isNull() );
 	}
 	for ( int nnNote = static_cast<int>( Midi::NoteMinimum );
@@ -122,8 +122,7 @@ void MidiNoteTest::testMidiInstrumentInputMapping()
 				pMidiInstrumentMap
 					->mapInput(
 						Midi::noteFromInt( nnNote ),
-						Midi::channelFromInt( nnChannel ), pNewDrumkit
-					)
+						Midi::channelFromInt( nnChannel ), pNewDrumkit, H2Core::Hydrogen::get_instance() )
 					.size() == 0
 			);
 		}
@@ -133,7 +132,7 @@ void MidiNoteTest::testMidiInstrumentInputMapping()
 	for ( const auto& ppInstrument : *pInstrumentList ) {
 		CPPUNIT_ASSERT( ppInstrument != nullptr );
 		const auto noteRef =
-			pMidiInstrumentMap->getInputMapping( ppInstrument, pNewDrumkit );
+			pMidiInstrumentMap->getInputMapping( ppInstrument, pNewDrumkit, H2Core::Hydrogen::get_instance() );
 		CPPUNIT_ASSERT( noteRef.note == ppInstrument->getMidiOutNote() );
 		CPPUNIT_ASSERT( noteRef.channel == ppInstrument->getMidiOutChannel() );
 	}
@@ -146,8 +145,7 @@ void MidiNoteTest::testMidiInstrumentInputMapping()
 				  ++nnChannel ) {
 				const auto mapped = pMidiInstrumentMap->mapInput(
 					Midi::noteFromInt( nnNote ),
-					Midi::channelFromInt( nnChannel ), pNewDrumkit
-				);
+					Midi::channelFromInt( nnChannel ), pNewDrumkit, H2Core::Hydrogen::get_instance() );
 				if ( mapped.size() > 0 ) {
 					CPPUNIT_ASSERT( mapped.size() == 1 );
 					CPPUNIT_ASSERT( mapped[0] != nullptr );
@@ -172,7 +170,7 @@ void MidiNoteTest::testMidiInstrumentInputMapping()
 	for ( const auto& ppInstrument : *pInstrumentList ) {
 		CPPUNIT_ASSERT( ppInstrument != nullptr );
 		const auto noteRef =
-			pMidiInstrumentMap->getInputMapping( ppInstrument, pNewDrumkit );
+			pMidiInstrumentMap->getInputMapping( ppInstrument, pNewDrumkit, H2Core::Hydrogen::get_instance() );
 		CPPUNIT_ASSERT(
 			customMappings.find( ppInstrument->getType() ) !=
 			customMappings.end()
@@ -190,8 +188,7 @@ void MidiNoteTest::testMidiInstrumentInputMapping()
 				  ++nnChannel ) {
 				const auto mapped = pMidiInstrumentMap->mapInput(
 					Midi::noteFromInt( nnNote ),
-					Midi::channelFromInt( nnChannel ), pNewDrumkit
-				);
+					Midi::channelFromInt( nnChannel ), pNewDrumkit, H2Core::Hydrogen::get_instance() );
 				if ( mapped.size() > 0 ) {
 					CPPUNIT_ASSERT( mapped.size() == 1 );
 					CPPUNIT_ASSERT( mapped[0] != nullptr );
@@ -222,7 +219,7 @@ void MidiNoteTest::testMidiInstrumentInputMapping()
 	for ( const auto& ppInstrument : *pInstrumentList ) {
 		CPPUNIT_ASSERT( ppInstrument != nullptr );
 		const auto noteRef =
-			pMidiInstrumentMap->getInputMapping( ppInstrument, pNewDrumkit );
+			pMidiInstrumentMap->getInputMapping( ppInstrument, pNewDrumkit, H2Core::Hydrogen::get_instance() );
 		if ( ppInstrument == pSelectedInstrument ) {
 			CPPUNIT_ASSERT( noteRef.note == ppInstrument->getMidiOutNote() );
 			CPPUNIT_ASSERT(
@@ -241,8 +238,7 @@ void MidiNoteTest::testMidiInstrumentInputMapping()
 				  ++nnChannel ) {
 				const auto mapped = pMidiInstrumentMap->mapInput(
 					Midi::noteFromInt( nnNote ),
-					Midi::channelFromInt( nnChannel ), pNewDrumkit
-				);
+					Midi::channelFromInt( nnChannel ), pNewDrumkit, H2Core::Hydrogen::get_instance() );
 				if ( mapped.size() > 0 ) {
 					CPPUNIT_ASSERT( mapped.size() == 1 );
 					CPPUNIT_ASSERT( mapped[0] != nullptr );
@@ -260,7 +256,7 @@ void MidiNoteTest::testMidiInstrumentInputMapping()
 	for ( const auto& ppInstrument : *pInstrumentList ) {
 		CPPUNIT_ASSERT( ppInstrument != nullptr );
 		const auto noteRef =
-			pMidiInstrumentMap->getInputMapping( ppInstrument, pNewDrumkit );
+			pMidiInstrumentMap->getInputMapping( ppInstrument, pNewDrumkit, H2Core::Hydrogen::get_instance() );
 		CPPUNIT_ASSERT(
 			noteRef.note == Midi::noteFromInt(
 								pInstrumentList->index( ppInstrument ) +
@@ -278,8 +274,7 @@ void MidiNoteTest::testMidiInstrumentInputMapping()
 				  ++nnChannel ) {
 				const auto mapped = pMidiInstrumentMap->mapInput(
 					Midi::noteFromInt( nnNote ),
-					Midi::channelFromInt( nnChannel ), pNewDrumkit
-				);
+					Midi::channelFromInt( nnChannel ), pNewDrumkit, H2Core::Hydrogen::get_instance() );
 				if ( mapped.size() > 0 ) {
 					CPPUNIT_ASSERT( mapped.size() == 1 );
 					CPPUNIT_ASSERT( mapped[0] != nullptr );
@@ -312,30 +307,26 @@ void MidiNoteTest::testMidiInstrumentInputMapping()
 		// Sanity tests
 		{
 			const auto instrumentsMapped =
-				pMidiInstrumentMap->mapInput( note, channel, pNewDrumkit );
+				pMidiInstrumentMap->mapInput( note, channel, pNewDrumkit, H2Core::Hydrogen::get_instance() );
 			CPPUNIT_ASSERT( instrumentsMapped.size() == 1 );
 			CPPUNIT_ASSERT( instrumentsMapped[0] == pInstrument );
 		}
 		{
 			const auto instrumentsMapped = pMidiInstrumentMap->mapInput(
 				note,
-				Midi::channelFromIntClamp( static_cast<int>( channel ) + 1 ),
-				pNewDrumkit
-			);
+				Midi::channelFromIntClamp( static_cast<int>( channel ) + 1 ), pNewDrumkit, H2Core::Hydrogen::get_instance() );
 			CPPUNIT_ASSERT( instrumentsMapped.size() == 0 );
 		}
 		// Disable overwrite
 		{
 			const auto instrumentsMapped = pMidiInstrumentMap->mapInput(
-				note, Midi::ChannelOff, pNewDrumkit
-			);
+				note, Midi::ChannelOff, pNewDrumkit, H2Core::Hydrogen::get_instance() );
 			CPPUNIT_ASSERT( instrumentsMapped.size() == 0 );
 		}
 		// Enable overwrite
 		{
 			const auto instrumentsMapped = pMidiInstrumentMap->mapInput(
-				note, Midi::ChannelAll, pNewDrumkit
-			);
+				note, Midi::ChannelAll, pNewDrumkit, H2Core::Hydrogen::get_instance() );
 			CPPUNIT_ASSERT( instrumentsMapped.size() == 1 );
 			CPPUNIT_ASSERT( instrumentsMapped[0] == pInstrument );
 		}
@@ -350,7 +341,7 @@ void MidiNoteTest::testMidiInstrumentOutputMapping()
 
 	auto pHydrogen = Hydrogen::get_instance();
 
-	auto pNewPreferences = CoreActionController::loadPreferences(
+	auto pNewPreferences = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadPreferences(
 		H2TEST_FILE( "preferences/midi-instrument-mapping.conf" )
 	);
 	CPPUNIT_ASSERT( pNewPreferences != nullptr );
@@ -360,7 +351,7 @@ void MidiNoteTest::testMidiInstrumentOutputMapping()
 		/* bUpgrade */ true, /* pLegacy */ nullptr, /*bSilent*/ false
 	);
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
-	CPPUNIT_ASSERT( CoreActionController::setDrumkit( pNewDrumkit ) );
+	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit( pNewDrumkit ) );
 
 	auto pMidiInstrumentMap = pNewPreferences->getMidiInstrumentMap();
 	auto pInstrumentList = pNewDrumkit->getInstruments();
@@ -422,7 +413,7 @@ void MidiNoteTest::testMidiInstrumentGlobalMapping()
 
 	auto pHydrogen = Hydrogen::get_instance();
 
-	auto pNewPreferences = CoreActionController::loadPreferences(
+	auto pNewPreferences = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadPreferences(
 		H2TEST_FILE( "preferences/midi-instrument-mapping.conf" )
 	);
 	CPPUNIT_ASSERT( pNewPreferences != nullptr );
@@ -432,7 +423,7 @@ void MidiNoteTest::testMidiInstrumentGlobalMapping()
 		/* bUpgrade */ true, /* pLegacy */ nullptr, /*bSilent*/ false
 	);
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
-	CPPUNIT_ASSERT( CoreActionController::setDrumkit( pNewDrumkit ) );
+	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit( pNewDrumkit ) );
 
 	auto pMidiInstrumentMap = pNewPreferences->getMidiInstrumentMap();
 	auto pInstrumentList = pNewDrumkit->getInstruments();
@@ -468,8 +459,7 @@ void MidiNoteTest::testMidiInstrumentGlobalMapping()
 		for ( const auto& ppInstrument : *pInstrumentList ) {
 			CPPUNIT_ASSERT( ppInstrument != nullptr );
 			const auto noteRef = pMidiInstrumentMap->getInputMapping(
-				ppInstrument, pNewDrumkit
-			);
+				ppInstrument, pNewDrumkit, H2Core::Hydrogen::get_instance() );
 			CPPUNIT_ASSERT( noteRef.note == ppInstrument->getMidiOutNote() );
 			if ( bGlobal ) {
 				CPPUNIT_ASSERT( noteRef.channel == channel );
@@ -489,8 +479,7 @@ void MidiNoteTest::testMidiInstrumentGlobalMapping()
 					  ++nnChannel ) {
 					const auto mapped = pMidiInstrumentMap->mapInput(
 						Midi::noteFromInt( nnNote ),
-						Midi::channelFromInt( nnChannel ), pNewDrumkit
-					);
+						Midi::channelFromInt( nnChannel ), pNewDrumkit, H2Core::Hydrogen::get_instance() );
 					if ( mapped.size() > 0 ) {
 						CPPUNIT_ASSERT( mapped.size() == 1 );
 						CPPUNIT_ASSERT( mapped[0] != nullptr );
@@ -557,7 +546,7 @@ void MidiNoteTest::testSendNoteOff()
 			pAudioEngine->getRealtimeFrame() +
 			pAudioEngine->getAudioDriver()->getBufferSize()
 		) );
-		pCopiedNote->computeNoteStart();
+		pCopiedNote->computeNoteStart( H2Core::Hydrogen::get_instance() );
 		const bool bReturn = pSampler->noteOn( pCopiedNote );
 		pAudioEngine->unlock();
 

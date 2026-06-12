@@ -142,7 +142,7 @@ int main(int argc, char** argv){
 				break;
 
 			case 'b':
-				H2Core::CoreActionController::locateToColumn( 0 );
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( 0 );
 				break;
 
 			case 'f':

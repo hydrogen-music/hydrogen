@@ -53,6 +53,7 @@
 #include "core/SoundLibrary/SoundLibraryDatabase.h"
 
 OscServer * OscServer::__instance = nullptr;
+H2Core::Hydrogen* OscServer::m_pHydrogen = nullptr;
 
 
 QString OscServer::qPrettyPrint( const lo_type& type, void* data )
@@ -182,7 +183,7 @@ int OscServer::generic_handler(const char *	path,
 							   lo_message	data,
 							   void *		user_data)
 {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 	auto pSong = pHydrogen->getSong();
 
@@ -249,7 +250,7 @@ int OscServer::generic_handler(const char *	path,
 		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 			INFOLOG( QString( "processing message as changing pan of strip [%1] in absolute numbers" )
 					 .arg( nStrip ) );
-			H2Core::CoreActionController::setStripPan(
+			m_pHydrogen->getCoreActionController()->setStripPan(
 				nStrip, argv[0]->f, false );
 			bMessageProcessed = true;
 		}
@@ -271,7 +272,7 @@ int OscServer::generic_handler(const char *	path,
 		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 			INFOLOG( QString( "processing message as changing pan of strip [%1] in symmetric, absolute numbers" )
 					 .arg( nStrip ) );
-			H2Core::CoreActionController::setStripPanSym(
+			m_pHydrogen->getCoreActionController()->setStripPanSym(
 				nStrip, argv[0]->f, false );
 			bMessageProcessed = true;
 		}
@@ -340,7 +341,7 @@ int OscServer::generic_handler(const char *	path,
 		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 			INFOLOG( QString( "processing message as toggling mute of strip [%1]" )
 					 .arg( nStrip ) );
-			H2Core::CoreActionController::toggleStripIsMuted( nStrip );
+			m_pHydrogen->getCoreActionController()->toggleStripIsMuted( nStrip );
 			bMessageProcessed = true;
 		}
 		else {
@@ -361,7 +362,7 @@ int OscServer::generic_handler(const char *	path,
 		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 			INFOLOG( QString( "processing message as toggling solo of strip [%1]" )
 					 .arg( nStrip ) );
-			H2Core::CoreActionController::toggleStripIsSoloed( nStrip );
+			m_pHydrogen->getCoreActionController()->toggleStripIsSoloed( nStrip );
 			bMessageProcessed = true;
 		}
 		else {
@@ -385,7 +386,7 @@ int OscServer::generic_handler(const char *	path,
 OscServer::OscServer( int nOscPort ) : m_bInitialized( false )
 									 , m_nTemporaryPort( nOscPort )
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = m_pHydrogen->getPreferences();
 	
 	if ( pPref->getOscServerEnabled() ) {
 		int nPort;
@@ -414,7 +415,7 @@ OscServer::OscServer( int nOscPort ) : m_bInitialized( false )
 
 			m_nTemporaryPort = nTmpPort;
 			
-			H2Core::EventQueue::get_instance()->pushEvent(
+			m_pHydrogen->getEventQueue()->pushEvent(
 				H2Core::Event::Type::Error, H2Core::Hydrogen::OSC_CANNOT_CONNECT_TO_PORT );
 		}
 	}
@@ -434,8 +435,11 @@ OscServer::~OscServer(){
 	__instance = nullptr;
 }
 
-void OscServer::create_instance( int nOscPort )
+void OscServer::create_instance( H2Core::Hydrogen* pHydrogen, int nOscPort )
 {
+	// Set the (static) back-pointer before construction so the OscServer ctor
+	// and all static handlers can reach the engine (ADR 0015).
+	m_pHydrogen = pHydrogen;
 	if( __instance == nullptr ) {
 		__instance = new OscServer( nOscPort );
 	}
@@ -449,7 +453,7 @@ void OscServer::PLAY_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::Play ) );
 }
 
@@ -458,7 +462,7 @@ void OscServer::PLAY_STOP_TOGGLE_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::PlayStopToggle ) );
 }
 
@@ -467,7 +471,7 @@ void OscServer::PLAY_PAUSE_TOGGLE_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::PlayPauseToggle ) );
 }
 
@@ -476,7 +480,7 @@ void OscServer::STOP_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::Stop ) );
 }
 
@@ -485,7 +489,7 @@ void OscServer::PAUSE_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::Pause ) );
 }
 
@@ -494,7 +498,7 @@ void OscServer::RECORD_READY_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::RecordReady ) );
 }
 
@@ -503,7 +507,7 @@ void OscServer::RECORD_STROBE_TOGGLE_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::RecordStrobeToggle ) );
 }
 
@@ -512,7 +516,7 @@ void OscServer::RECORD_STROBE_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::RecordStrobe ) );
 }
 
@@ -521,7 +525,7 @@ void OscServer::RECORD_EXIT_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::RecordExit ) );
 }
 
@@ -530,7 +534,7 @@ void OscServer::MUTE_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::Mute ) );
 }
 
@@ -539,7 +543,7 @@ void OscServer::UNMUTE_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::Unmute ) );
 }
 
@@ -548,7 +552,7 @@ void OscServer::MUTE_TOGGLE_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::MuteToggle ) );
 }
 
@@ -557,7 +561,7 @@ void OscServer::NEXT_BAR_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::NextBar ) );
 }
 
@@ -566,14 +570,14 @@ void OscServer::PREVIOUS_BAR_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::PreviousBar ) );
 }
 
 void OscServer::BPM_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	H2Core::CoreActionController::setBpm( argv[0]->f );
+	m_pHydrogen->getCoreActionController()->setBpm( argv[0]->f );
 }
 
 void OscServer::BPM_INCR_Handler(lo_arg **argv,int i)
@@ -583,7 +587,7 @@ void OscServer::BPM_INCR_Handler(lo_arg **argv,int i)
 	pAction->setFactor( argv[0]->f );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
 void OscServer::BPM_DECR_Handler(lo_arg **argv,int i)
@@ -593,13 +597,13 @@ void OscServer::BPM_DECR_Handler(lo_arg **argv,int i)
 	pAction->setFactor( argv[0]->f );
 	
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
 void OscServer::MASTER_VOLUME_ABSOLUTE_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	H2Core::CoreActionController::setMasterVolume( argv[0]->f );
+	m_pHydrogen->getCoreActionController()->setMasterVolume( argv[0]->f );
 }
 
 void OscServer::MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
@@ -610,7 +614,7 @@ void OscServer::MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
 	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
 void OscServer::HUMANIZATION_SWING_ABSOLUTE_Handler( lo_arg** argv, int i )
@@ -622,7 +626,7 @@ void OscServer::HUMANIZATION_SWING_ABSOLUTE_Handler( lo_arg** argv, int i )
 	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()
+	m_pHydrogen
 		->getMidiActionManager()
 		->handleMidiActionAsync( pAction );
 }
@@ -637,7 +641,7 @@ void OscServer::HUMANIZATION_SWING_RELATIVE_Handler( lo_arg** argv, int i )
 	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()
+	m_pHydrogen
 		->getMidiActionManager()
 		->handleMidiActionAsync( pAction );
 }
@@ -651,7 +655,7 @@ void OscServer::HUMANIZATION_TIMING_ABSOLUTE_Handler( lo_arg** argv, int i )
 	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()
+	m_pHydrogen
 		->getMidiActionManager()
 		->handleMidiActionAsync( pAction );
 }
@@ -666,7 +670,7 @@ void OscServer::HUMANIZATION_TIMING_RELATIVE_Handler( lo_arg** argv, int i )
 	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()
+	m_pHydrogen
 		->getMidiActionManager()
 		->handleMidiActionAsync( pAction );
 }
@@ -680,7 +684,7 @@ void OscServer::HUMANIZATION_VELOCITY_ABSOLUTE_Handler( lo_arg** argv, int i )
 	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()
+	m_pHydrogen
 		->getMidiActionManager()
 		->handleMidiActionAsync( pAction );
 }
@@ -695,7 +699,7 @@ void OscServer::HUMANIZATION_VELOCITY_RELATIVE_Handler( lo_arg** argv, int i )
 	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()
+	m_pHydrogen
 		->getMidiActionManager()
 		->handleMidiActionAsync( pAction );
 }
@@ -703,7 +707,7 @@ void OscServer::HUMANIZATION_VELOCITY_RELATIVE_Handler( lo_arg** argv, int i )
 void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2)
 {
 	INFOLOG( "processing message" );
-	H2Core::CoreActionController::setStripVolume( param1, param2, false );
+	m_pHydrogen->getCoreActionController()->setStripVolume( param1, param2, false );
 }
 
 void OscServer::STRIP_VOLUME_RELATIVE_Handler( int nValue, int nInstrument )
@@ -715,7 +719,7 @@ void OscServer::STRIP_VOLUME_RELATIVE_Handler( int nValue, int nInstrument )
 	pAction->setInstrument( nInstrument );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
 void OscServer::SELECT_NEXT_PATTERN_Handler(lo_arg **argv,int i)
@@ -726,7 +730,7 @@ void OscServer::SELECT_NEXT_PATTERN_Handler(lo_arg **argv,int i)
 	pAction->setPattern(  static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
 void OscServer::SELECT_ONLY_NEXT_PATTERN_Handler(lo_arg **argv,int i)
@@ -737,7 +741,7 @@ void OscServer::SELECT_ONLY_NEXT_PATTERN_Handler(lo_arg **argv,int i)
 	pAction->setPattern(  static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
 void OscServer::SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv,int i)
@@ -748,7 +752,7 @@ void OscServer::SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv,int i)
 	pAction->setPattern(  static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
 void OscServer::FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( int nValue, int nInstrument )
@@ -760,7 +764,7 @@ void OscServer::FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( int nValue, int nInstrumen
 	pAction->setValue( nValue );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
 
@@ -768,7 +772,7 @@ void OscServer::INSTRUMENT_PITCH_Handler( lo_arg** argv, int )
 {
 	INFOLOG( "processing message" );
 
-	H2Core::CoreActionController::setInstrumentPitch(
+	m_pHydrogen->getCoreActionController()->setInstrumentPitch(
 		static_cast<int>( argv[0]->f ), argv[1]->f );
 }
 
@@ -777,7 +781,7 @@ void OscServer::BEATCOUNTER_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::BeatCounter ) );
 }
 
@@ -786,7 +790,7 @@ void OscServer::TAP_TEMPO_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::TapTempo ) );
 }
 
@@ -798,7 +802,7 @@ void OscServer::PLAYLIST_SONG_Handler(lo_arg **argv,int i)
 	pAction->setSong( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
 void OscServer::PLAYLIST_NEXT_SONG_Handler(lo_arg **argv,int i)
@@ -806,7 +810,7 @@ void OscServer::PLAYLIST_NEXT_SONG_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::PlaylistNextSong ) );
 }
 
@@ -815,7 +819,7 @@ void OscServer::PLAYLIST_PREV_SONG_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::PlaylistPrevSong ) );
 }
 
@@ -824,7 +828,7 @@ void OscServer::TOGGLE_METRONOME_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::ToggleMetronome ) );
 }
 
@@ -836,7 +840,7 @@ void OscServer::SELECT_INSTRUMENT_Handler(lo_arg **argv,int i)
 	pAction->setValue( static_cast<int>( argv[0]->f ) );
 
 	// Null song handling done in MidiActionManager.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
 void OscServer::UNDO_ACTION_Handler(lo_arg **argv,int i)
@@ -845,7 +849,7 @@ void OscServer::UNDO_ACTION_Handler(lo_arg **argv,int i)
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::UndoAction );
 
 	// This one does also work the current song being nullptr.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
 void OscServer::REDO_ACTION_Handler(lo_arg **argv,int i)
@@ -854,7 +858,7 @@ void OscServer::REDO_ACTION_Handler(lo_arg **argv,int i)
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::RedoAction );
 
 	// This one does also work the current song being nullptr.
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
 // -------------------------------------------------------------------
@@ -862,7 +866,7 @@ void OscServer::REDO_ACTION_Handler(lo_arg **argv,int i)
 
 void OscServer::NEW_SONG_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	const auto sPath = QString::fromUtf8( &argv[0]->s );
 	if ( ! H2Core::Filesystem::isPathValid(
 			 H2Core::Filesystem::Artifact::Song, sPath ) ||
@@ -872,16 +876,17 @@ void OscServer::NEW_SONG_Handler(lo_arg **argv, int argc) {
 		return;
 	}
 
-	auto pSong = H2Core::Song::getEmptySong();
+	auto pSong = H2Core::Song::getEmptySong(
+		m_pHydrogen->getSoundLibraryDatabase() );
 	pSong->setPath( sPath );
-	H2Core::CoreActionController::setSong( pSong );
+	m_pHydrogen->getCoreActionController()->setSong( pSong );
 }
 
 void OscServer::OPEN_SONG_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pSong = H2Core::CoreActionController::loadSong(
+	auto pSong = m_pHydrogen->getCoreActionController()->loadSong(
 		QString::fromUtf8( &argv[0]->s ) );
-	H2Core::CoreActionController::setSong( pSong );
+	m_pHydrogen->getCoreActionController()->setSong( pSong );
 }
 
 void OscServer::SAVE_SONG_Handler(lo_arg **argv, int argc) {
@@ -890,7 +895,7 @@ void OscServer::SAVE_SONG_Handler(lo_arg **argv, int argc) {
 	// Discarding missing samples and their corresponding instrument layer is an
 	// operation with information loss. This is only allowed to be performed
 	// explicitly via the GUI.
-	H2Core::CoreActionController::saveSong( /* bKeepMissingSamples */ true );
+	m_pHydrogen->getCoreActionController()->saveSong( /* bKeepMissingSamples */ true );
 }
 
 void OscServer::SAVE_SONG_AS_Handler(lo_arg **argv, int argc) {
@@ -899,18 +904,18 @@ void OscServer::SAVE_SONG_AS_Handler(lo_arg **argv, int argc) {
 	// Discarding missing samples and their corresponding instrument layer is an
 	// operation with information loss. This is only allowed to be performed
 	// explicitly via the GUI.
-	H2Core::CoreActionController::saveSongAs( QString::fromUtf8( &argv[0]->s ),
+	m_pHydrogen->getCoreActionController()->saveSongAs( QString::fromUtf8( &argv[0]->s ),
 											  /* bKeepMissingSamples */ true );
 }
 
 void OscServer::SAVE_PREFERENCES_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	H2Core::CoreActionController::savePreferences();
+	m_pHydrogen->getCoreActionController()->savePreferences();
 }
 
 void OscServer::QUIT_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	H2Core::CoreActionController::quit();
+	m_pHydrogen->getCoreActionController()->quit();
 }
 
 // -------------------------------------------------------------------
@@ -918,81 +923,81 @@ void OscServer::QUIT_Handler(lo_arg **argv, int argc) {
 void OscServer::TIMELINE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 	if ( argv[0]->f != 0 ) {
-		H2Core::CoreActionController::activateTimeline( true );
+		m_pHydrogen->getCoreActionController()->activateTimeline( true );
 	} else {
-		H2Core::CoreActionController::activateTimeline( false );
+		m_pHydrogen->getCoreActionController()->activateTimeline( false );
 	}
 }
 
 void OscServer::TIMELINE_ADD_MARKER_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	H2Core::CoreActionController::addTempoMarker(
+	m_pHydrogen->getCoreActionController()->addTempoMarker(
 		static_cast<int>(std::round( argv[0]->f )), argv[1]->f);
 }
 
 void OscServer::TIMELINE_DELETE_MARKER_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	H2Core::CoreActionController::deleteTempoMarker(
+	m_pHydrogen->getCoreActionController()->deleteTempoMarker(
 		static_cast<int>( std::round( argv[0]->f ) ) );
 }
 
 void OscServer::JACK_TRANSPORT_ACTIVATION_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 	if ( argv[0]->f != 0 ) {
-		H2Core::CoreActionController::activateJackTransport( true );
+		m_pHydrogen->getCoreActionController()->activateJackTransport( true );
 	} else {
-		H2Core::CoreActionController::activateJackTransport( false );
+		m_pHydrogen->getCoreActionController()->activateJackTransport( false );
 	}
 }
 
 void OscServer::JACK_TIMEBASE_MASTER_ACTIVATION_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 	if ( argv[0]->f != 0 ) {
-		H2Core::CoreActionController::activateJackTimebaseControl( true );
+		m_pHydrogen->getCoreActionController()->activateJackTimebaseControl( true );
 	} else {
-		H2Core::CoreActionController::activateJackTimebaseControl( false );
+		m_pHydrogen->getCoreActionController()->activateJackTimebaseControl( false );
 	}
 }
 
 void OscServer::SONG_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 	if ( argv[0]->f != 0 ) {
-		H2Core::CoreActionController::activateSongMode( true );
+		m_pHydrogen->getCoreActionController()->activateSongMode( true );
 	} else {
-		H2Core::CoreActionController::activateSongMode( false );
+		m_pHydrogen->getCoreActionController()->activateSongMode( false );
 	}
 }
 
 void OscServer::LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 	if ( argv[0]->f != 0 ) {
-		H2Core::CoreActionController::activateLoopMode( true );
+		m_pHydrogen->getCoreActionController()->activateLoopMode( true );
 	} else {
-		H2Core::CoreActionController::activateLoopMode( false );
+		m_pHydrogen->getCoreActionController()->activateLoopMode( false );
 	}
 }
 
 void OscServer::RELOCATE_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	H2Core::CoreActionController::locateToColumn(
+	m_pHydrogen->getCoreActionController()->locateToColumn(
 		static_cast<int>(std::round( argv[0]->f ) ) );
 }
 
 void OscServer::NEW_PATTERN_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	H2Core::CoreActionController::newPattern( QString::fromUtf8( &argv[0]->s ) );
+	m_pHydrogen->getCoreActionController()->newPattern( QString::fromUtf8( &argv[0]->s ) );
 }
 
 void OscServer::OPEN_PATTERN_Handler( lo_arg** argv, int argc )
 {
 	INFOLOG( "processing message" );
 
-	const auto pSong = H2Core::Hydrogen::get_instance()->getSong();
+	const auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
 
-	const auto pPattern = H2Core::CoreActionController::loadPattern(
+	const auto pPattern = m_pHydrogen->getCoreActionController()->loadPattern(
 		QString::fromUtf8( &argv[0]->s )
 	);
 	if ( pPattern == nullptr ) {
@@ -1000,7 +1005,7 @@ void OscServer::OPEN_PATTERN_Handler( lo_arg** argv, int argc )
 					  .arg( QString::fromUtf8( &argv[0]->s ) ) );
 		return;
 	}
-	H2Core::CoreActionController::setPattern(
+	m_pHydrogen->getCoreActionController()->setPattern(
 		pPattern, pSong->getPatternList()->size(), false
 	);
 }
@@ -1008,27 +1013,27 @@ void OscServer::OPEN_PATTERN_Handler( lo_arg** argv, int argc )
 void OscServer::REMOVE_PATTERN_Handler( lo_arg** argv, int argc )
 {
 	INFOLOG( "processing message" );
-	H2Core::CoreActionController::removePattern(
+	m_pHydrogen->getCoreActionController()->removePattern(
 		static_cast<int>(std::round( argv[0]->f )) );
 }
 
 void OscServer::CLEAR_SELECTED_INSTRUMENT_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	const int nInstr = pHydrogen->getSelectedInstrumentNumber();
 	if ( nInstr == -1 ) {
 		WARNINGLOG( "No instrument selected" );
 		return;
 	}
 
-	H2Core::CoreActionController::clearInstrumentInPattern( nInstr );
+	m_pHydrogen->getCoreActionController()->clearInstrumentInPattern( nInstr );
 }
 
 void OscServer::CLEAR_INSTRUMENT_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	H2Core::CoreActionController::clearInstrumentInPattern(
+	m_pHydrogen->getCoreActionController()->clearInstrumentInPattern(
 		static_cast<int>(std::round( argv[0]->f )) );
 }
 
@@ -1036,27 +1041,27 @@ void OscServer::CLEAR_PATTERN_Handler( lo_arg **argv, int i )
 {
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::ClearPattern );
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
 void OscServer::COUNT_IN_Handler( lo_arg **argv, int i ) {
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::CountIn );
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
 void OscServer::COUNT_IN_PAUSE_TOGGLE_Handler( lo_arg **argv, int i ) {
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::CountInPauseToggle );
-		H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
+		m_pHydrogen->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
 void OscServer::COUNT_IN_STOP_TOGGLE_Handler( lo_arg **argv, int i ) {
 	INFOLOG( "processing message" );
 	auto pAction = std::make_shared<MidiAction>(
 		MidiAction::Type::CountInStopToggle );
-		H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync( pAction );
+		m_pHydrogen->getMidiActionManager()->handleMidiActionAsync( pAction );
 }
 
 void OscServer::NOTE_ON_Handler( lo_arg **argv, int i )
@@ -1086,7 +1091,7 @@ void OscServer::NOTE_ON_Handler( lo_arg **argv, int i )
 	INFOLOG( QString( "processing message with note: [%1] and velocity: [%2]" )
 			 .arg( nNote ).arg( fVelocity ) );
 
-	H2Core::CoreActionController::handleNote(
+	m_pHydrogen->getCoreActionController()->handleNote(
 		H2Core::Midi::noteFromInt( nNote ), H2Core::Midi::ChannelAll, fVelocity,
 		false
 	);
@@ -1106,14 +1111,14 @@ void OscServer::NOTE_OFF_Handler( lo_arg** argv, int i )
 
 	INFOLOG( QString( "processing message with note: [%1]" ).arg( nNote ) );
 
-	H2Core::CoreActionController::handleNote(
+	m_pHydrogen->getCoreActionController()->handleNote(
 		H2Core::Midi::noteFromInt( nNote ), H2Core::Midi::ChannelAll, 0.0, true
 	);
 }
 
 void OscServer::SONG_EDITOR_TOGGLE_GRID_CELL_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	H2Core::CoreActionController::toggleGridCell(
+	m_pHydrogen->getCoreActionController()->toggleGridCell(
 		H2Core::GridPoint( static_cast<int>(std::round( argv[0]->f )),
 						   static_cast<int>(std::round( argv[1]->f )) ) );
 }
@@ -1123,7 +1128,7 @@ void OscServer::LOAD_DRUMKIT_Handler(lo_arg **argv, int argc) {
 
 	const QString sDrumkitName = QString::fromUtf8( &argv[0]->s );
 
-	auto pDB = H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase();
+	auto pDB = m_pHydrogen->getSoundLibraryDatabase();
 	auto pDrumkit = pDB->getDrumkit( pDB->findArtifact(
 		H2Core::Filesystem::Artifact::DrumkitExtracted,
 		H2Core::Filesystem::Context::User, sDrumkitName, true
@@ -1134,20 +1139,20 @@ void OscServer::LOAD_DRUMKIT_Handler(lo_arg **argv, int argc) {
 		return;
 	}
 
-	H2Core::CoreActionController::setDrumkit( pDrumkit );
+	m_pHydrogen->getCoreActionController()->setDrumkit( pDrumkit );
 }
 
 void OscServer::LOAD_NEXT_DRUMKIT_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::LoadNextDrumkit ) );
 }
 
 void OscServer::LOAD_PREV_DRUMKIT_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 
-	H2Core::Hydrogen::get_instance()->getMidiActionManager()->handleMidiActionAsync(
+	m_pHydrogen->getMidiActionManager()->handleMidiActionAsync(
 		std::make_shared<MidiAction>( MidiAction::Type::LoadPrevDrumkit ) );
 }
 
@@ -1158,7 +1163,7 @@ void OscServer::UPGRADE_DRUMKIT_Handler(lo_arg **argv, int argc) {
 		sNewPath = QString::fromUtf8( &argv[1]->s );
 	}
 	
-	H2Core::CoreActionController::upgradeDrumkit(
+	m_pHydrogen->getCoreActionController()->upgradeDrumkit(
 		QString::fromUtf8( &argv[0]->s ), sNewPath );
 }
 
@@ -1170,7 +1175,7 @@ void OscServer::VALIDATE_DRUMKIT_Handler(lo_arg **argv, int argc) {
 		bValidateLegacyKits = argv[1]->f == 0 ? false : true;
 	}
 	
-	H2Core::CoreActionController::validateDrumkit(
+	m_pHydrogen->getCoreActionController()->validateDrumkit(
 		QString::fromUtf8( &argv[0]->s ), bValidateLegacyKits );
 }
 
@@ -1181,36 +1186,37 @@ void OscServer::EXTRACT_DRUMKIT_Handler(lo_arg **argv, int argc) {
 		sTargetDir = QString::fromUtf8( &argv[1]->s );
 	}
 	
-	H2Core::CoreActionController::extractDrumkit(
+	m_pHydrogen->getCoreActionController()->extractDrumkit(
 		QString::fromUtf8( &argv[0]->s ), sTargetDir );
 }
 
 void OscServer::NEW_PLAYLIST_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 	auto pPlaylist = std::make_shared<H2Core::Playlist>();
-	H2Core::CoreActionController::setPlaylist( pPlaylist );
+	m_pHydrogen->getCoreActionController()->setPlaylist( pPlaylist );
 }
 
 void OscServer::OPEN_PLAYLIST_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pPlaylist = H2Core::Playlist::load( QString::fromUtf8( &argv[0]->s ) );
+	auto pPlaylist = H2Core::Playlist::load( QString::fromUtf8( &argv[0]->s ),
+											 m_pHydrogen );
 	if ( pPlaylist == nullptr ) {
 		ERRORLOG( QString( "Unable to load Playlist [%1]" )
 				  .arg( QString::fromUtf8( &argv[0]->s ) ) );
 		return;
 	}
 
-	H2Core::CoreActionController::setPlaylist( pPlaylist );
+	m_pHydrogen->getCoreActionController()->setPlaylist( pPlaylist );
 }
 
 void OscServer::SAVE_PLAYLIST_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	H2Core::CoreActionController::savePlaylist();
+	m_pHydrogen->getCoreActionController()->savePlaylist();
 }
 
 void OscServer::SAVE_PLAYLIST_AS_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	H2Core::CoreActionController::savePlaylistAs( QString::fromUtf8( &argv[0]->s ) );
+	m_pHydrogen->getCoreActionController()->savePlaylistAs( QString::fromUtf8( &argv[0]->s ) );
 }
 
 void OscServer::PLAYLIST_ADD_SONG_Handler(lo_arg **argv, int argc) {
@@ -1218,12 +1224,12 @@ void OscServer::PLAYLIST_ADD_SONG_Handler(lo_arg **argv, int argc) {
 	auto pEntry = std::make_shared<H2Core::PlaylistEntry>();
 	pEntry->setSongPath( QString::fromUtf8( &argv[0]->s ) );
 	// Append at the end
-	H2Core::CoreActionController::addToPlaylist( pEntry, -1 );
+	m_pHydrogen->getCoreActionController()->addToPlaylist( pEntry, -1 );
 }
 
 void OscServer::PLAYLIST_ADD_CURRENT_SONG_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set" );
 		return;
@@ -1231,12 +1237,12 @@ void OscServer::PLAYLIST_ADD_CURRENT_SONG_Handler(lo_arg **argv, int argc) {
 	auto pEntry = std::make_shared<H2Core::PlaylistEntry>();
 	pEntry->setSongPath( pSong->getPath() );
 	// Append at the end
-	H2Core::CoreActionController::addToPlaylist( pEntry, -1 );
+	m_pHydrogen->getCoreActionController()->addToPlaylist( pEntry, -1 );
 }
 
 void OscServer::PLAYLIST_REMOVE_SONG_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
+	auto pPlaylist = m_pHydrogen->getPlaylist();
 	if ( pPlaylist == nullptr ) {
 		ERRORLOG( "invalid playlist" );
 		return;
@@ -1249,7 +1255,7 @@ void OscServer::PLAYLIST_REMOVE_SONG_Handler(lo_arg **argv, int argc) {
 		return;
 	}
 	auto pEntry = pPlaylist->get( nIndex );
-	H2Core::CoreActionController::removeFromPlaylist( pEntry, nIndex );
+	m_pHydrogen->getCoreActionController()->removeFromPlaylist( pEntry, nIndex );
 }
 
 // -------------------------------------------------------------------
@@ -1288,7 +1294,7 @@ void OscServer::sendFeedbackMessage(
 	int nInstrumentIndex
 )
 {
-	if ( !H2Core::Preferences::get_instance()->getOscFeedbackEnabled() ) {
+	if ( !m_pHydrogen->getPreferences()->getOscFeedbackEnabled() ) {
 		return;
 	}
 
@@ -1424,7 +1430,7 @@ bool OscServer::init()
 					 .arg( lo_address_get_port( address ) )
 					 .arg( lo_address_get_protocol( address ) ) );
 										
-			H2Core::CoreActionController::initExternalControlInterfaces();
+			m_pHydrogen->getCoreActionController()->initExternalControlInterfaces();
 		}
 									
 		// Returning 1 means that the
@@ -1625,7 +1631,7 @@ bool OscServer::start() {
 	m_pServerThread->start();
 
 	int nOscPortUsed;
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = m_pHydrogen->getPreferences();
 	if ( m_nTemporaryPort != -1 ) {
 		nOscPortUsed = m_nTemporaryPort;
 	} else {

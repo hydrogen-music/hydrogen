@@ -302,7 +302,7 @@ void SoundLibraryPanel::switchDrumkit(
 
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 
-	H2Core::CoreActionController::setDrumkit( pNewDrumkit );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit( pNewDrumkit );
 
 	QApplication::restoreOverrideCursor();
 }

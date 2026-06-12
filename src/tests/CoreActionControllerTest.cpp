@@ -40,8 +40,8 @@ void CoreActionControllerTest::testCountIn() {
 	auto pSongSizeChanged = Song::load(
 		QString( H2TEST_FILE( "song/AE_songSizeChanged.h2song" ) ) );
 	ASSERT_SONG( pSongSizeChanged );
-	CoreActionController::setSong( pSongSizeChanged );
-	CoreActionController::activateSongMode( true );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSongSizeChanged );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true );
 
 	// Move to different columns in song mode and start the count in. Since
 	// patterns of different length are present in those columns, we should see
@@ -51,9 +51,9 @@ void CoreActionControllerTest::testCountIn() {
 		auto pHydrogen = Hydrogen::get_instance();
 		auto pAudioEngine = pHydrogen->getAudioEngine();
 
-		CPPUNIT_ASSERT( CoreActionController::locateToColumn( nColumn ) );
-		CPPUNIT_ASSERT( CoreActionController::startCountIn() );
-		CPPUNIT_ASSERT( CoreActionController::setBpm( MAX_BPM ) );
+		CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( nColumn ) );
+		CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->startCountIn() );
+		CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setBpm( MAX_BPM ) );
 
 		// Right away the AudioEngine should be in State::CountIn.
 		pAudioEngine->lock( RIGHT_HERE );
@@ -112,14 +112,14 @@ void CoreActionControllerTest::testSessionManagement() {
 
 		auto pSong = H2Core::Song::getEmptySong();
 		pSong->setPath( fileProper.fileName() );
-		CPPUNIT_ASSERT( H2Core::CoreActionController::setSong( pSong ) );
+		CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong ) );
 		ASSERT_PATH( sFilePath, pHydrogen->getSong()->getPath() );
 	
 		// -----------------------------------------------------------
-		// Test CoreActionController::saveSong()
+		// Test H2Core::Hydrogen::get_instance()->getCoreActionController()->saveSong()
 		// -----------------------------------------------------------
 		
-		CPPUNIT_ASSERT( H2Core::CoreActionController::saveSong( true ) );
+		CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->saveSong( true ) );
 
 		// -----------------------------------------------------------
 	
@@ -130,48 +130,48 @@ void CoreActionControllerTest::testSessionManagement() {
 	sFilePath2 = QString( "%1_new.h2song" ).arg( sFileNameImproper );
 	pSong = H2Core::Song::getEmptySong();
 	pSong->setPath( sFilePath2 );
-	CPPUNIT_ASSERT( H2Core::CoreActionController::setSong( pSong ) );
+	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong ) );
 	ASSERT_PATH( sFilePath2, pHydrogen->getSong()->getPath() );
 
 	// ---------------------------------------------------------------
-	// Test CoreActionController::loadSong() and ::setSong();
+	// Test H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong() and ::setSong();
 	// ---------------------------------------------------------------
 
 	// Attempt to load a non-existing song.
-	pSong = H2Core::CoreActionController::loadSong( sFileNameImproper );
+	pSong = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong( sFileNameImproper );
 	CPPUNIT_ASSERT( pSong == nullptr );
-	CPPUNIT_ASSERT( ! H2Core::CoreActionController::setSong( pSong ) );
+	CPPUNIT_ASSERT( ! H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong ) );
 	
 	// The previous action should have not affected the current song.
 	ASSERT_PATH( sFilePath2, pHydrogen->getSong()->getPath() );
 	CPPUNIT_ASSERT( pSong != pHydrogen->getSong() );
 	
 	// Load the first song (which was saved).
-	pSong = H2Core::CoreActionController::loadSong( sFilePath );
+	pSong = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong( sFilePath );
 	CPPUNIT_ASSERT( pSong != nullptr );
-	CPPUNIT_ASSERT( H2Core::CoreActionController::setSong( pSong ) );
+	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong ) );
 	ASSERT_PATH( sFilePath, pHydrogen->getSong()->getPath() );
 	CPPUNIT_ASSERT( pSong == pHydrogen->getSong() );
 
 	// Attempt to load the second song. This will fail since it should not be
 	// present on disk.
-	CPPUNIT_ASSERT( H2Core::CoreActionController::loadSong( sFilePath2 ) ==
+	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong( sFilePath2 ) ==
 					nullptr );
 	
 	// ---------------------------------------------------------------
-	// Test CoreActionController::saveSongAs()
+	// Test H2Core::Hydrogen::get_instance()->getCoreActionController()->saveSongAs()
 	// ---------------------------------------------------------------
 	
 	// But we can, instead, make a copy of the current song by saving
 	// it to sFilePath2.
-	CPPUNIT_ASSERT( H2Core::CoreActionController::saveSongAs( sFilePath2, true ) );
+	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->saveSongAs( sFilePath2, true ) );
 	
 	// Check if everything worked out.
-	pSong = H2Core::CoreActionController::loadSong( sFilePath );
-	CPPUNIT_ASSERT( H2Core::CoreActionController::setSong( pSong ) );
+	pSong = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong( sFilePath );
+	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong ) );
 	ASSERT_PATH( sFilePath, pHydrogen->getSong()->getPath() );
-	pSong = H2Core::CoreActionController::loadSong( sFilePath2 );
-	CPPUNIT_ASSERT( H2Core::CoreActionController::setSong( pSong ) );
+	pSong = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong( sFilePath2 );
+	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong ) );
 	ASSERT_PATH( sFilePath2, pHydrogen->getSong()->getPath() );
 
 	// ---------------------------------------------------------------

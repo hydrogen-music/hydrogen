@@ -45,7 +45,7 @@ public:
 	PmStream *m_pMidiOut;
 	bool m_bRunning;
 
-	PortMidiDriver();
+	PortMidiDriver( Hydrogen* pHydrogen );
 	virtual ~PortMidiDriver();
 
 	void close() override;

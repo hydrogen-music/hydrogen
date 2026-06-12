@@ -67,14 +67,14 @@ void Shortcuts::saveTo( XMLNode& node ) const {
 	}
 }
 
-std::shared_ptr<Shortcuts> Shortcuts::loadFrom( const XMLNode& node, bool bSilent ) {
+std::shared_ptr<Shortcuts> Shortcuts::loadFrom( const XMLNode& node, Hydrogen* pHydrogen, bool bSilent ) {
 	auto pShortcuts = std::make_shared<Shortcuts>();
 	pShortcuts->createActionInfoMap();
 	
 	XMLNode shortcutsNode = node.firstChildElement( "shortcuts" );
 	if ( shortcutsNode.isNull() ) {
-		if ( Hydrogen::get_instance() == nullptr ||
-			 Hydrogen::get_instance()->getGUIState() != H2Core::Hydrogen::GUIState::ready ) {
+		if ( pHydrogen == nullptr ||
+			 pHydrogen->getGUIState() != H2Core::Hydrogen::GUIState::ready ) {
 			// No shortcuts found. We need to create the default ones. But
 			// it is essential that we do not do this right away. If no
 			// QApplication is present, Qt will segfault when attempting

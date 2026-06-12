@@ -255,14 +255,14 @@ bool Note::isPartiallyRendered() const
 	return false;
 }
 
-void Note::computeNoteStart()
+void Note::computeNoteStart( Hydrogen* pHydrogen )
 {
-	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	double fTickMismatch;
 	m_nNoteStart =
-		Transport::computeFrameFromTick( m_nPosition, &fTickMismatch );
+		Transport::computeFrameFromTick( m_nPosition, &fTickMismatch, 0,
+										 pHydrogen );
 
 	m_nNoteStart += std::clamp(
 		m_nHumanizeDelay, -1 * AudioEngine::nMaxTimeHumanize,
@@ -300,7 +300,8 @@ bool Note::layersAlreadySelected() const
 
 void Note::selectLayers( const std::map<
 						 std::shared_ptr<InstrumentComponent>,
-						 std::shared_ptr<InstrumentLayer> >& lastUsedLayers )
+						 std::shared_ptr<InstrumentLayer> >& lastUsedLayers,
+						 std::shared_ptr<Song> pSong )
 {
 	std::shared_ptr<Sample> pSample;
 
@@ -314,7 +315,6 @@ void Note::selectLayers( const std::map<
 		std::vector<std::shared_ptr<InstrumentLayer> > possibleLayersVector;
 		int nLayersEncountered = 0;
 		const bool bLayersSoloed = pComponent->isAnyLayerSoloed();
-		auto pSong = Hydrogen::get_instance()->getSong();
 
 		for ( const auto& ppLayer : pComponent->getLayers() ) {
 			if ( ppLayer == nullptr || ppLayer->getIsMuted() ||
@@ -540,12 +540,11 @@ void Note::mapToInstrument( std::shared_ptr<Instrument> pInstrument )
 	m_selectedLayerInfoMap.clear();
 }
 
-void Note::humanize()
+void Note::humanize( std::shared_ptr<Song> pSong )
 {
 	// Due to the nature of the Gaussian distribution, the factors
 	// will also scale the standard deviations of the generated random
 	// variables.
-	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong != nullptr ) {
 		const float fRandomVelocityFactor = pSong->getHumanizeVelocityValue();
 		if ( fRandomVelocityFactor != 0 ) {
@@ -576,9 +575,8 @@ void Note::humanize()
 	}
 }
 
-void Note::swing()
+void Note::swing( std::shared_ptr<Song> pSong )
 {
-	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong != nullptr && pSong->getSwingFactor() > 0 ) {
 		// If the Timeline is activated, the tick size may change at
 		// any point. Therefore, the length in frames of a 16-th note

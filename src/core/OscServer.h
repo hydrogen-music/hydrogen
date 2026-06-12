@@ -38,6 +38,9 @@ namespace lo
 	class ServerThread;
 }
 
+namespace H2Core {
+	class Hydrogen;
+}
 class MidiAction;
 
 /**
@@ -96,12 +99,20 @@ class OscServer : public H2Core::Object<OscServer>
 		 */
 		static OscServer* __instance;
 		/**
+		 * Owning Hydrogen instance (ADR 0015). Static because OscServer is a
+		 * process singleton (OSC is disabled in multi-instance/plugin mode per
+		 * ADR 0026), so its many static OSC handler callbacks and its instance
+		 * methods alike reach the engine through this one back-pointer. Set by
+		 * #create_instance().
+		 */
+		static H2Core::Hydrogen* m_pHydrogen;
+		/**
 		 * Destructor freeing all addresses in #m_pClientRegistry and
 		 * setting #__instance to nullptr.
 		 */
 		~OscServer();
 	
-		static void create_instance( int nOscPort );
+		static void create_instance( H2Core::Hydrogen* pHydrogen, int nOscPort );
 		/**
 		 * Returns a pointer to the current OscServer
 		 * singleton stored in #__instance.
@@ -185,7 +196,7 @@ class OscServer : public H2Core::Object<OscServer>
 		bool stop();
 		/**
 		 * Function called by
-		 * H2Core::CoreActionController::initExternalControlInterfaces()
+		 * H2Core::Hydrogen::get_instance()->getCoreActionController()->initExternalControlInterfaces()
 		 * to inform all clients about the current state of Hydrogen
 		 * using OSC messages send by Hydrogen itself.
 		 *
@@ -387,7 +398,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * message.*/
 		static void MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv, int i);
 		/**
-		 * Calls H2Core::CoreActionController::setMasterVolume() with
+		 * Calls H2Core::Hydrogen::get_instance()->getCoreActionController()->setMasterVolume() with
 		 * the first argument in @a argv.
 		 *
 		 * \param argv Pointer to a vector of arguments passed
@@ -483,13 +494,13 @@ class OscServer : public H2Core::Object<OscServer>
 		static void
 		STRIP_VOLUME_RELATIVE_Handler( int nValue, int nInstrument );
 		/**
-		 * Calls H2Core::CoreActionController::setStripVolume() with
+		 * Calls H2Core::Hydrogen::get_instance()->getCoreActionController()->setStripVolume() with
 		 * both @a param1 and @a param2.
 		 *
 		 * \param param1 Passed as first argument to
-		 * H2Core::CoreActionController::setStripVolume().
+		 * H2Core::Hydrogen::get_instance()->getCoreActionController()->setStripVolume().
 		 * \param param2 Passed as second argument to
-		 * H2Core::CoreActionController::setStripVolume().*/
+		 * H2Core::Hydrogen::get_instance()->getCoreActionController()->setStripVolume().*/
 		static void STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2);
 		/**
 		 * Creates an MidiAction of type @b SELECT_NEXT_PATTERN and
@@ -643,7 +654,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 */
 		static void OPEN_SONG_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::saveSong().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->saveSong().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -651,7 +662,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * message.*/
 		static void SAVE_SONG_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::saveSongAs().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->saveSongAs().
 		 *
 		 * The handler expects the user to provide an absolute path to
 		 * a .h2song file. If another file already exists with the
@@ -662,7 +673,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * message.*/
 		static void SAVE_SONG_AS_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::savePreferences().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->savePreferences().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -670,7 +681,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * message.*/
 		static void SAVE_PREFERENCES_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::quit().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->quit().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -678,7 +689,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * message.*/
 		static void QUIT_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::activateTimeline().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->activateTimeline().
 		 *
 		 * \param argv The "f" field does contain the value supplied
 		 * by the user. If it is 0, the Timeline will be
@@ -687,7 +698,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * message.*/
 		static void TIMELINE_ACTIVATION_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::addTempoMarker().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker().
 		 *
 		 * \param argv The first field "f" does contain the bar at
 		 * which to place the new Timeline::TempoMarker while the
@@ -696,7 +707,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * message.*/
 		static void TIMELINE_ADD_MARKER_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::deleteTempoMarker().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->deleteTempoMarker().
 		 *
 		 * \param argv The first field "f" does contain the bar at
 		 * which to delete a Timeline::TempoMarker.
@@ -704,7 +715,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * message.*/
 		static void TIMELINE_DELETE_MARKER_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::activatedJackTransport().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->activatedJackTransport().
 		 *
 		 * \param argv The "f" field does contain the value supplied
 		 * by the user. If it is 0, the Jack transport will be
@@ -713,7 +724,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * message.*/
 		static void JACK_TRANSPORT_ACTIVATION_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::activateJackTimebaseControl().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->activateJackTimebaseControl().
 		 *
 		 * \param argv The "f" field does contain the value supplied by the
 		 *   user. If it is `0`, Hydrogen will drop JACK Timebase control. Else,
@@ -722,7 +733,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 *   message.*/
 		static void JACK_TIMEBASE_MASTER_ACTIVATION_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::activateSongMode().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode().
 		 *
 		 * \param argv The "f" field does contain the value supplied
 		 * by the user. If it is 0, Pattern mode of the playback will
@@ -731,7 +742,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * message.*/
 		static void SONG_MODE_ACTIVATION_Handler(lo_arg **argv, int argc);
 	/**
-		 * Triggers CoreActionController::activateLoopMode().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->activateLoopMode().
 		 *
 		 * \param argv The "f" field does contain the value supplied
 		 * by the user. If it is 0, loop mode will
@@ -765,7 +776,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 */
 		static void OPEN_PATTERN_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::removePattern().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->removePattern().
 		 *
 		 * The handler expects the user to provide the pattern number
 		 * (row the pattern resides in within the SongEditor).
@@ -821,7 +832,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void NOTE_OFF_Handler(lo_arg **argv, int argc);
 
 		/**
-		 * Triggers CoreActionController::songEditorToggleGridCell().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->songEditorToggleGridCell().
 		 *
 		 * The handler expects the user to provide the pattern number
 		 * (row the pattern resides in within the SongEditor).
@@ -832,7 +843,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 */
 		static void SONG_EDITOR_TOGGLE_GRID_CELL_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::setDrumkit().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit().
 		 *
 		 * The handler expects the user to provide the drumkit name. 
 		 * (row the pattern resides in within the SongEditor). The
@@ -848,7 +859,7 @@ class OscServer : public H2Core::Object<OscServer>
 		static void LOAD_PREV_DRUMKIT_Handler( lo_arg **argv, int argc );
 
 		/**
-		 * Triggers CoreActionController::upgradeDrumkit().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->upgradeDrumkit().
 		 *
 		 * The handler expects the user to provide as first argument
 		 * the absolute path to a folder containing a drumkit, the
@@ -864,7 +875,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 */
 	static void UPGRADE_DRUMKIT_Handler( lo_arg **argv, int argc );
 		/**
-		 * Triggers CoreActionController::validateDrumkit().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->validateDrumkit().
 		 *
 		 * The handler expects the user to provide the absolute path
 		 * to a folder containing a drumkit, the absolute path to a
@@ -875,7 +886,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 */
 	static void VALIDATE_DRUMKIT_Handler( lo_arg **argv, int argc );
 		/**
-		 * Triggers CoreActionController::extractDrumkit().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->extractDrumkit().
 		 *
 		 * The handler expects the user to provide as first argument
 		 * the absolute path to a compressed drumkit ( *.h2drumkit). The

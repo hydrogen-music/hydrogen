@@ -474,7 +474,7 @@ void SoundLibraryTree::actionAdd()
 		else if ( m_type == SoundLibraryInfo::Type::Pattern ) {
 			const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 			const auto pPattern =
-				H2Core::CoreActionController::loadPattern( it->second->getPath() );
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->loadPattern( it->second->getPath() );
 			if ( pPattern == nullptr ) {
 				QMessageBox::critical(
 					this, "Hydrogen", pCommonStrings->getPatternLoadError()
@@ -578,7 +578,7 @@ void SoundLibraryTree::actionProperties()
 			this, pPattern, -1, PatternPropertiesDialog::Action::None
 		);
 		if ( dialog.exec() == QDialog::Accepted ) {
-			pPattern->save( pPattern->getPath() );
+			pPattern->save( pPattern->getPath(), H2Core::Hydrogen::get_instance() );
 			pDB->updatePatterns( Event::Trigger::Default );
 		}
 	}
@@ -659,7 +659,7 @@ void SoundLibraryTree::actionDuplicate()
 			)
 		);
 		if ( dialog.exec() == QDialog::Accepted ) {
-			if ( pPattern->save( pPattern->getPath() ) ) {
+			if ( pPattern->save( pPattern->getPath(), H2Core::Hydrogen::get_instance() ) ) {
 				pDB->updatePatterns( Event::Trigger::Default );
 			}
 			else {

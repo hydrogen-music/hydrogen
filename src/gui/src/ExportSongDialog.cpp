@@ -760,7 +760,7 @@ void ExportSongDialog::closeExport() {
 	if ( pPref->getRubberBandBatchMode() ){
 		pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 		pSong->getDrumkit()->recalculateRubberband(
-			pHydrogen->getAudioEngine()->getPlayhead()->getBpm() );
+			pHydrogen->getAudioEngine()->getPlayhead()->getBpm(), pHydrogen );
 		pHydrogen->getAudioEngine()->unlock();
 	}
 	pPref->setRubberBandBatchMode( m_bOldRubberbandBatchMode );

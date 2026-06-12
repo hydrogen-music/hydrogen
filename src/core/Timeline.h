@@ -30,6 +30,8 @@
 namespace H2Core
 {
 
+class Hydrogen;
+
 /**
  * Timeline class storing and handling all TempoMarkers and Tags.
  *
@@ -108,7 +110,7 @@ public:
 	/** 
 	 * Registers the current playback tempo to m_fDefaultBpm.
 	 */
-	void activate();
+	void activate( Hydrogen* pHydrogen );
 	/**
 	 * Convencience function in order to create a symmetric pair with activate
 	 */
@@ -152,10 +154,10 @@ public:
 	 * @param nColumn Position of the Timeline to query for a 
 	 *   tempo marker.
 	 */
-	float		getTempoAtColumn( int nColumn ) const;
+	float		getTempoAtColumn( int nColumn, Hydrogen* pHydrogen ) const;
 
 	bool hasColumnTempoMarker( int nColumn ) const;
-	std::shared_ptr<const Timeline::TempoMarker> getTempoMarkerAtColumn( int nColumn ) const;
+	std::shared_ptr<const Timeline::TempoMarker> getTempoMarkerAtColumn( int nColumn, Hydrogen* pHydrogen ) const;
 	/**
 	 * @return std::vector<std::shared_ptr<const TempoMarker>>
 	 * Provides read-only access to m_tempoMarker.

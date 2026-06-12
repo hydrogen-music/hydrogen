@@ -135,7 +135,7 @@ void PatternTest::testPurgeInstrument()
 	CPPUNIT_ASSERT( notes.size() == 1 );
 	notes.clear();
 
-	pPattern->purgeInstrument( pInstrument );
+	pPattern->purgeInstrument( pInstrument, H2Core::Hydrogen::get_instance() );
 	CPPUNIT_ASSERT(
 		pPattern->findNote(
 			1, pInstrument->getId(), pInstrument->getType(), Note::KeyMinimum,

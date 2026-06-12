@@ -41,6 +41,8 @@
 
 namespace H2Core {
 
+class Hydrogen;
+
 /**
 * @class MidiActionManager
 *
@@ -65,7 +67,10 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		static constexpr int nMidiClockIntervals = 10;
 		static constexpr int nActionQueueMaxSize = 200;
 
-		MidiActionManager();
+		/** @param pHydrogen Owning Hydrogen instance; stored as the back-pointer
+		 * through which this manager reaches its per-instance context
+		 * (ADR 0015). */
+		MidiActionManager( Hydrogen* pHydrogen );
 		~MidiActionManager();
 
 		/**
@@ -119,6 +124,9 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		void resetTimingClockTicks();
 
 	private:
+		/** Back-pointer to the owning Hydrogen instance (ADR 0015). */
+		Hydrogen* m_pHydrogen;
+
 
 		/** Holds all Actions which Hydrogen is able to interpret. */
 		std::set<MidiAction::Type> m_midiActions;

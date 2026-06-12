@@ -63,7 +63,7 @@ public:
 	float* m_pOut_L;
 	float* m_pOut_R;
 
-	CoreAudioDriver( audioProcessCallback processCallback );
+	CoreAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback );
 	virtual ~CoreAudioDriver();
 
 	virtual int init( unsigned nBufferSize ) override;
@@ -77,7 +77,7 @@ public:
 	virtual float* getOut_L() override;
 	virtual float* getOut_R() override;
 
-	static QStringList getDevices();
+	virtual QStringList getDevices();
 
 	virtual int getLatency() override;
 
@@ -106,7 +106,7 @@ class CoreAudioDriver : public Object<CoreAudioDriver>, public NullDriver
 {
 	H2_OBJECT(CoreAudioDriver)
 public:
-	CoreAudioDriver( audioProcessCallback processCallback ) : NullDriver ( processCallback ) {}
+	CoreAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback ) : NullDriver( pHydrogen, processCallback ) {}
 
 };
 

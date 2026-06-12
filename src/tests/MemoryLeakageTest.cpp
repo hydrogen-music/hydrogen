@@ -34,6 +34,7 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Playlist.h>
+#include <core/Hydrogen.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
@@ -194,7 +195,7 @@ void MemoryLeakageTest::testConstructors()
 	}
 
 	{
-		auto pSampler = new H2Core::Sampler();
+		auto pSampler = new H2Core::Sampler( H2Core::Hydrogen::get_instance() );
 		delete pSampler;
 		CPPUNIT_ASSERT(
 			nAliveReference == H2Core::Base::getAliveObjectCount()
@@ -532,12 +533,12 @@ void MemoryLeakageTest::testLoading()
 		CPPUNIT_ASSERT( pDrumkit2 != nullptr );
 		pDrumkit2->loadSamples();
 
-		H2Core::CoreActionController::setDrumkit( pDrumkit );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit( pDrumkit );
 		int nLoaded = H2Core::Base::getAliveObjectCount();
-		H2Core::CoreActionController::setDrumkit( pDrumkit );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit( pDrumkit );
 		CPPUNIT_ASSERT( nLoaded == H2Core::Base::getAliveObjectCount() );
-		H2Core::CoreActionController::setDrumkit( pDrumkit2 );
-		H2Core::CoreActionController::setDrumkit( pDrumkit );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit( pDrumkit2 );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit( pDrumkit );
 		CPPUNIT_ASSERT( nLoaded == H2Core::Base::getAliveObjectCount() );
 	}
 	___INFOLOG( "passed" );

@@ -218,7 +218,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 			if ( nIndex <= m_tabPatternMap.size() &&
 				 m_tabPatternMap[ nIndex ] != m_tabPatternMap[nIndex] ) {
 				m_bPatternSelectedViaTab = true;
-				CoreActionController::selectPattern( m_tabPatternMap[nIndex] );
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->selectPattern( m_tabPatternMap[nIndex] );
 			}
 		}
 	} );

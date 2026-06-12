@@ -29,6 +29,7 @@
 #include <QPixmap>
 #include <QFontDatabase>
 #include <QTreeWidgetItemIterator>
+#include <memory>
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
@@ -67,22 +68,32 @@ void DeviceComboBox::showPopup()
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 	if ( m_driver == Preferences::AudioDriver::PortAudio ) {
 #ifdef H2CORE_HAVE_PORTAUDIO
-		// Get device list for PortAudio based on current value of the API combo box
-		for ( QString s : PortAudioDriver::getDevices( m_sHostAPI ) ) {
-			addItem( s );
+		auto pDriver = std::dynamic_pointer_cast<PortAudioDriver>(
+			Hydrogen::get_instance()->getAudioEngine()->getAudioDriver()
+		);
+		if ( pDriver != nullptr ) {
+			// Get device list for PortAudio based on current value of the API
+			// combo box
+			for ( QString s : pDriver->getDevices( m_sHostAPI ) ) {
+				addItem( s );
+			}
 		}
 #endif
 	}
 	else if ( m_driver == Preferences::AudioDriver::CoreAudio ) {
 #ifdef H2CORE_HAVE_COREAUDIO
-		for ( QString s : CoreAudioDriver::getDevices() ) {
-			addItem( s );
+		auto pDriver =
+			Hydrogen::get_instance()->getAudioEngine()->getAudioDriver();
+		if ( pDriver != nullptr ) {
+			for ( QString s : pDriver->getDevices() ) {
+				addItem( s );
+			}
 		}
 #endif
 	}
 	else if ( m_driver == Preferences::AudioDriver::Alsa ) {
 #ifdef H2CORE_HAVE_ALSA
-		for ( QString s : AlsaAudioDriver::getDevices() ) {
+		for ( QString s : AlsaAudioDriver::getAlsaDevices() ) {
 			addItem( s );
 		}
 #endif
@@ -110,13 +121,17 @@ void HostAPIComboBox::showPopup()
 	clear();
 #ifdef H2CORE_HAVE_PORTAUDIO
 	QApplication::setOverrideCursor( Qt::WaitCursor );
-	addItems( PortAudioDriver::getHostAPIs() );
+	auto pDriver = std::dynamic_pointer_cast<PortAudioDriver>(
+		Hydrogen::get_instance()->getAudioEngine()->getAudioDriver()
+	);
+	if ( pDriver != nullptr ) {
+		addItems( pDriver->getHostAPIs() );
+	}
 	QApplication::restoreOverrideCursor();
 #endif
 
 	LCDCombo::showPopup();
 }
-
 
 IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidgetItem* pParent,
 								  const QString& sLabel )
@@ -1654,11 +1669,11 @@ void PreferencesDialog::onRejected() {
 		return;
 	}
 
-	auto pOldPref = CoreActionController::loadPreferences(
+	auto pOldPref = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadPreferences(
 		Filesystem::userConfigPath() );
 	if ( pOldPref == nullptr ) {
 		WARNINGLOG( "Unable to load user-level preferences. Falling back to system one." );
-		pOldPref = CoreActionController::loadPreferences(
+		pOldPref = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadPreferences(
 			Filesystem::systemConfigPath() );
 	}
 	if ( pOldPref == nullptr ) {

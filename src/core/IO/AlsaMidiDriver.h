@@ -45,7 +45,7 @@ class AlsaMidiDriver : public Object<AlsaMidiDriver>,
 {
 	H2_OBJECT(AlsaMidiDriver)
 public:
-	AlsaMidiDriver();
+	AlsaMidiDriver( Hydrogen* pHydrogen );
 	virtual ~AlsaMidiDriver();
 
 	void close() override;

@@ -103,7 +103,7 @@ std::shared_ptr<Pattern> Pattern::from( std::shared_ptr<SoundLibraryInfo> pInfo
 }
 
 std::shared_ptr<Pattern>
-Pattern::load( const QString& sPatternPath, bool bSilent )
+Pattern::load( const QString& sPatternPath, bool bSilent, Hydrogen* pHydrogen )
 {
 	if ( !bSilent ) {
 		INFOLOG( QString( "Load pattern %1" ).arg( sPatternPath ) );
@@ -138,7 +138,8 @@ Pattern::load( const QString& sPatternPath, bool bSilent )
 	const QString sDrumkitName =
 		rootNode.read_string( "drumkit_name", "", false, false, bSilent );
 
-	auto pPattern = loadFrom( patternNode, sDrumkitName, nullptr, bSilent );
+	auto pPattern = loadFrom( patternNode, sDrumkitName, nullptr, bSilent,
+							  pHydrogen );
 	if ( pPattern != nullptr ) {
 		pPattern->setPath( sPatternPath );
 	}
@@ -150,9 +151,14 @@ std::shared_ptr<Pattern> Pattern::loadFrom(
 	const XMLNode& node,
 	const QString& sDrumkitName,
 	std::shared_ptr<Drumkit> pDrumkit,
-	bool bSilent
+	bool bSilent,
+	Hydrogen* pHydrogen
 )
 {
+	// T1.5: make pHydrogen required and drop this fallback (ADR 0015).
+	if ( pHydrogen == nullptr ) {
+		pHydrogen = Hydrogen::get_instance();
+	}
 	auto pPattern = std::make_shared<Pattern>();
 	QString sName = node.read_string( "name", "", false, false );
 	if ( sName.isEmpty() ) {
@@ -239,14 +245,14 @@ std::shared_ptr<Pattern> Pattern::loadFrom(
 		}
 	}
 
-	pPattern->applyMissingTypes( pDrumkit, bSilent );
+	pPattern->applyMissingTypes( pHydrogen, pDrumkit, bSilent );
 
 	return pPattern;
 }
 
-bool Pattern::save( const QString& sPatternPath, bool bSilent ) const
+bool Pattern::save( const QString& sPatternPath, Hydrogen* pHydrogen, bool bSilent ) const
 {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return false;
 	}
@@ -396,6 +402,7 @@ bool Pattern::references( std::shared_ptr<Instrument> pInstrument ) const
 
 void Pattern::purgeInstrument(
 	std::shared_ptr<Instrument> pInstrument,
+	Hydrogen* pHydrogen,
 	bool bRequiresLock
 )
 {
@@ -409,7 +416,7 @@ void Pattern::purgeInstrument(
 		assert( pNote );
 		if ( pNote != nullptr && pNote->getInstrument() == pInstrument ) {
 			if ( !bLocked && bRequiresLock ) {
-				Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
+				pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 				bLocked = true;
 			}
 			m_notes.erase( it++ );
@@ -419,13 +426,13 @@ void Pattern::purgeInstrument(
 		}
 	}
 	if ( bLocked ) {
-		Hydrogen::get_instance()->getAudioEngine()->unlock();
+		pHydrogen->getAudioEngine()->unlock();
 	}
 }
 
-void Pattern::clear( bool bRequiresLock )
+void Pattern::clear( Hydrogen* pHydrogen, bool bRequiresLock )
 {
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	if ( bRequiresLock ) {
 		pAudioEngine->lock( RIGHT_HERE );
 	}
@@ -500,6 +507,7 @@ bool Pattern::isVirtual() const
 }
 
 void Pattern::applyMissingTypes(
+	Hydrogen* pHydrogen,
 	std::shared_ptr<Drumkit> pDrumkit,
 	bool bSilent
 )
@@ -535,7 +543,7 @@ void Pattern::applyMissingTypes(
 			// different priority. In each context, we just take the first
 			// match.
 			const auto pDB =
-				Hydrogen::get_instance()->getSoundLibraryDatabase();
+				pHydrogen->getSoundLibraryDatabase();
 
 			// Kits explicitly loaded by user via our API have highest priority.
 			for ( const auto& [_, ppDrumkit] : pDB->getDrumkitDatabase() ) {

@@ -27,8 +27,8 @@
 namespace H2Core
 {
 
-NullDriver::NullDriver( audioProcessCallback processCallback )
-		: AudioDriver()
+NullDriver::NullDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback )
+		: AudioDriver( pHydrogen )
 {
 	UNUSED( processCallback );
 //	

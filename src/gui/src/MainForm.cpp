@@ -770,7 +770,7 @@ bool MainForm::action_file_save_as()
 	}
 
 	const bool bUnderSessionManagement = pHydrogen->isUnderSessionManagement();
-	if ( !CoreActionController::saveSongAs(
+	if ( !H2Core::Hydrogen::get_instance()->getCoreActionController()->saveSongAs(
 			 pSong->getPath(), bKeepMissingSamples
 		 ) ) {
 		ERRORLOG( "Unable to save song" );
@@ -849,7 +849,7 @@ bool MainForm::action_file_save( bool bTriggerMessage )
 		return false;
 	}
 
-	if ( ! H2Core::CoreActionController::saveSong( bKeepMissingSamples ) ) {
+	if ( ! H2Core::Hydrogen::get_instance()->getCoreActionController()->saveSong( bKeepMissingSamples ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "Could not save song." ) );
 		return false;
 	}
@@ -1309,7 +1309,7 @@ void MainForm::action_pattern_save( int nPatternRow )
 		return;
 	}
 
-	if ( !pPattern->save( pPattern->getPath() ) ) {
+	if ( !pPattern->save( pPattern->getPath(), H2Core::Hydrogen::get_instance() ) ) {
 		QMessageBox::warning(
 			this, "Hydrogen",
 			QString( "%1\n\n%2" )
@@ -1403,7 +1403,7 @@ void MainForm::action_pattern_save_as( int nPatternRow )
 		return;
 	}
 
-	if ( pPattern->save( pPattern->getPath() ) ) {
+	if ( pPattern->save( pPattern->getPath(), H2Core::Hydrogen::get_instance() ) ) {
 		// Done in the GUI instead of Pattern::save() itself because this only
 		// concerns patterns of the current song. We have to change the is
 		// modified state on the original pattern and not the copy we did in
@@ -2665,7 +2665,7 @@ void MainForm::onAutoSaveTimer()
 			m_sPreviousAutoSavePlaylistFile = sAutoSavePath;
 		}
 
-		pPlaylist->saveAs( sAutoSavePath );
+		pPlaylist->saveAs( sAutoSavePath, H2Core::Hydrogen::get_instance()->getPreferences() );
 
 		pPlaylist->setPath( sOldPath );
 		pPlaylist->setIsModified( true );
@@ -2820,7 +2820,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 	if ( pObject->inherits( "SongEditorPanel" ) ) {
 			
 		if ( pHydrogen->getMode() != Song::Mode::Song ) {
-			H2Core::CoreActionController::activateSongMode( true );
+			H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true );
 		}
 
 		const int nCursorColumn = pHydrogenApp->getSongEditorPanel()->
@@ -2839,7 +2839,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 			return;
 		}
 		
-		if ( ! H2Core::CoreActionController::locateToColumn( nCursorColumn ) ) {
+		if ( ! H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( nCursorColumn ) ) {
 			// Cursor is at a position it is not allowed to locate to.
 			return;
 		}
@@ -2849,7 +2849,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		// NotePropertiesRuler.
 			
 		if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
-			H2Core::CoreActionController::activateSongMode( false );
+			H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false );
 		}
 
 		// To provide a similar behaviour as when pressing
@@ -2857,7 +2857,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		// the song.
 		const int nCursorColumn = pHydrogenApp->getPatternEditorPanel()->getCursorColumn();
 		
-		if ( ! H2Core::CoreActionController::locateToTick( nCursorColumn ) ) {
+		if ( ! H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToTick( nCursorColumn ) ) {
 			// Cursor is at a position it is not allowed to locate to.
 			return;
 		}
@@ -2949,7 +2949,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			 static_cast<int>(action) <= static_cast<int>(Shortcuts::Action::VK_59_B3) ) {
 			// Virtual keyboard
 
-			CoreActionController::handleNote(
+			H2Core::Hydrogen::get_instance()->getCoreActionController()->handleNote(
 				Midi::noteFromIntClamp(
 					static_cast<int>( action ) -
 					static_cast<int>( Shortcuts::Action::VK_36_C2 ) +
@@ -3056,10 +3056,10 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 
 			switch ( action ) {
 			case Shortcuts::Action::BPM:
-				H2Core::CoreActionController::setBpm( sArg.toFloat() );
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->setBpm( sArg.toFloat() );
 				break;
 			case Shortcuts::Action::JumpToBar:
-				H2Core::CoreActionController::locateToColumn( sArg.toInt() );
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( sArg.toInt() );
 				break;
 			case Shortcuts::Action::SelectInstrument:
 			case Shortcuts::Action::MasterVolume: {
@@ -3108,10 +3108,10 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			}
 
 			case Shortcuts::Action::TimelineDeleteMarker:
-				H2Core::CoreActionController::deleteTempoMarker( sArg.toInt() );
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->deleteTempoMarker( sArg.toInt() );
 				break;
 			case Shortcuts::Action::TimelineDeleteTag:
-				H2Core::CoreActionController::deleteTag( sArg.toInt() );
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->deleteTag( sArg.toInt() );
 				break;
 			default:
 				WARNINGLOG( QString( "Action [%1] not properly handled" )
@@ -3211,14 +3211,14 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			}
 
 			case Shortcuts::Action::TimelineAddMarker:
-				H2Core::CoreActionController::addTempoMarker(
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker(
 					sArg1.toInt(), sArg2.toFloat() );
 				break;
 			case Shortcuts::Action::TimelineAddTag:
-				H2Core::CoreActionController::addTag( sArg1.toInt(), sArg2 );
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->addTag( sArg1.toInt(), sArg2 );
 				break;
 			case Shortcuts::Action::ToggleGridCell:
-				H2Core::CoreActionController::toggleGridCell(
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->toggleGridCell(
 					GridPoint( sArg1.toInt(), sArg2.toInt() ) );
 				break;
 			default:
@@ -3383,7 +3383,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 
 			case Shortcuts::Action::JumpToStart:
-				H2Core::CoreActionController::locateToColumn( 0 );
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( 0 );
 				break;
 			case Shortcuts::Action::JumpBarForward:
 				pAction = std::make_shared<MidiAction>(
@@ -3433,23 +3433,23 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 
 			case Shortcuts::Action::TimelineToggle:
-				H2Core::CoreActionController::toggleTimeline();
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->toggleTimeline();
 				break;
 			case Shortcuts::Action::MetronomeToggle:
 				pAction = std::make_shared<MidiAction>(
 					MidiAction::Type::ToggleMetronome );
 				break;
 			case Shortcuts::Action::JackTransportToggle:
-				H2Core::CoreActionController::toggleJackTransport();
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->toggleJackTransport();
 				break;
 			case Shortcuts::Action::JackTimebaseToggle:
-				H2Core::CoreActionController::toggleJackTimebaseControl();
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->toggleJackTimebaseControl();
 				break;
 			case Shortcuts::Action::SongModeToggle:
-				H2Core::CoreActionController::toggleSongMode();
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->toggleSongMode();
 				break;
 			case Shortcuts::Action::LoopModeToggle:
-				H2Core::CoreActionController::toggleLoopMode();
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->toggleLoopMode();
 				break;
 
 			case Shortcuts::Action::LoadNextDrumkit:

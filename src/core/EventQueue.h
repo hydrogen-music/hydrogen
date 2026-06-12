@@ -38,6 +38,8 @@
 namespace H2Core
 {
 
+class Hydrogen;
+
 /** Object handling the communication between the core of Hydrogen and
  * its GUI.
  *
@@ -87,7 +89,7 @@ public:
 
 	/** Constructs an EventQueue without touching the process-current pointer;
 	 * register it explicitly via #setInstance() (or use #create_instance()). */
-	EventQueue();
+	EventQueue( Hydrogen* pHydrogen = nullptr );
 	~EventQueue();
 
 	/**
@@ -167,6 +169,10 @@ private:
 	 * this merely tracks which one unconverted call sites see. Not owning.
 	 */
 	static EventQueue *__instance;
+
+	/** Owning Hydrogen instance (ADR 0015); nullptr for queues created without
+	 * one (then pushes during such contexts are dropped, as before). */
+	Hydrogen* m_pHydrogen;
 
 	std::deque< std::unique_ptr<Event> >m_eventQueue;
 

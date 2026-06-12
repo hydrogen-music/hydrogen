@@ -40,6 +40,7 @@ namespace H2Core
 {
 	class AudioEngine;
 	class AudioDriver;
+	class CoreActionController;
 	class Drumkit;
 	class EventQueue;
 	class MidiBaseDriver;
@@ -167,6 +168,9 @@ public:
 	 */
 	AudioEngine*		getAudioEngine() const;
 		std::shared_ptr<MidiActionManager> getMidiActionManager() const;
+	std::shared_ptr<CoreActionController> getCoreActionController() const {
+		return m_pCoreActionController;
+	}
 	std::shared_ptr<SoundLibraryDatabase> getSoundLibraryDatabase() const {
 		return m_pSoundLibraryDatabase;
 	}
@@ -552,7 +556,7 @@ private:
 	int				m_nSelectedPatternNumber;
 	/**
 	 * Indicates whether NSM session is saved or exported when entering
-	 * the CoreActionController::saveSong() function.
+	 * the H2Core::Hydrogen::get_instance()->getCoreActionController()->saveSong() function.
 	 */
 	bool			m_bSessionIsExported;
 
@@ -570,6 +574,7 @@ private:
 	 */
 	AudioEngine*	m_pAudioEngine;
 		std::shared_ptr<MidiActionManager> m_pMidiActionManager;
+	std::shared_ptr<CoreActionController> m_pCoreActionController;
 
 	std::shared_ptr<SoundLibraryDatabase> m_pSoundLibraryDatabase;
 

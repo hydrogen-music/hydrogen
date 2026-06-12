@@ -37,6 +37,7 @@ namespace H2Core
 {
 
 class Note;
+class Preferences;
 
 /** \ingroup docCore docMIDI */
 class MidiMessage
@@ -103,7 +104,8 @@ class MidiMessage
 
 		static MidiMessage from( const MidiMessage& msg );
 		static MidiMessage from( const ControlChange& controlChange );
-		static MidiMessage from( std::shared_ptr<Note> pNote );
+		static MidiMessage from( std::shared_ptr<Note> pNote,
+								 std::shared_ptr<Preferences> pPreferences );
 		static MidiMessage from( const NoteOff& noteOff );
 
 		const TimePoint& getTimePoint() const;

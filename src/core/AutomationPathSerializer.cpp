@@ -21,6 +21,8 @@
  */
 #include <core/AutomationPathSerializer.h>
 
+#include <core/Hydrogen.h>
+
 namespace H2Core
 {
 
@@ -41,7 +43,7 @@ void AutomationPathSerializer::read_automation_path(const QDomNode &node,
 			float y = point.attribute("y").toFloat(&hasY);
 
 			if (hasX && hasY) {
-				path.add_point(x, y);
+				path.add_point(x, y, Hydrogen::get_instance());
 			}
 
 		}

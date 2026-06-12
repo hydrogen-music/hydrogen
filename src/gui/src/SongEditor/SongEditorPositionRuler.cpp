@@ -331,7 +331,7 @@ void SongEditorPositionRuler::showToolTip( const QPoint& pos, const QPoint& glob
 		 m_hoveredRow == HoveredRow::TempoMarker &&
 		 pos.x() < columnToX( 1 ) ) { // first tempo marker 
 			const QString sBpm =
-				pTimeline->getTempoMarkerAtColumn( nColumn )->getPrettyString( -1 );
+				pTimeline->getTempoMarkerAtColumn( nColumn, H2Core::Hydrogen::get_instance() )->getPrettyString( -1 );
 		QToolTip::showText( globalPos, QString( "%1: %2" )
 							.arg( tr( "The tempo set in the BPM widget will be used as a default for the beginning of the song. Left-click to overwrite it." ) )
 							.arg( sBpm ), this );
@@ -340,7 +340,7 @@ void SongEditorPositionRuler::showToolTip( const QPoint& pos, const QPoint& glob
 	else if ( m_hoveredRow == HoveredRow::TempoMarker ) {
 		if ( pTimeline->hasColumnTempoMarker( nColumn ) ) {
 			const QString sBpm =
-				pTimeline->getTempoMarkerAtColumn( nColumn )->getPrettyString( -1 );
+				pTimeline->getTempoMarkerAtColumn( nColumn, H2Core::Hydrogen::get_instance() )->getPrettyString( -1 );
 			QToolTip::showText( globalPos, sBpm, this );
 		}
 	}
@@ -401,11 +401,11 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 			}
 
 			if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
-				CoreActionController::activateSongMode( true );
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true );
 				pHydrogen->setSongModified( true );
 			}
 
-			CoreActionController::locateToColumn( nColumn );
+			H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( nColumn );
 			update();
 		}
 		else if ( pEv->position().y() > 22 - 1 - m_nTagHeight ) {
@@ -510,7 +510,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		}
 	}
 	if ( nCurrentTempoMarkerColumn != -1 ) {
-		auto pTempoMarker = pTimeline->getTempoMarkerAtColumn( nCurrentTempoMarkerColumn );
+		auto pTempoMarker = pTimeline->getTempoMarkerAtColumn( nCurrentTempoMarkerColumn, H2Core::Hydrogen::get_instance() );
 		if ( pTempoMarker != nullptr ) {
 			// Reset the region and overwrite the marker's versio
 			// using normal weight.
@@ -602,7 +602,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 			 ( pTimeline->isFirstTempoMarkerSpecial() &&
 			   nColumn == 0 ) ) {
 
-			auto pTempoMarker = pTimeline->getTempoMarkerAtColumn( nColumn );
+			auto pTempoMarker = pTimeline->getTempoMarkerAtColumn( nColumn, H2Core::Hydrogen::get_instance() );
 			if ( pTempoMarker != nullptr ) {
 
 				const bool bEmphasize = pTempoMarker->nColumn == nCurrentTempoMarkerColumn;

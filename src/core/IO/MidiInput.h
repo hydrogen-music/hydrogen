@@ -36,6 +36,7 @@
 namespace H2Core
 {
 
+class Hydrogen;
 class Instrument;
 
 /**
@@ -59,7 +60,12 @@ public:
 			QString toQString() const;
 		};
 
-	MidiInput();
+	/** @param pHydrogen Owning Hydrogen instance; stored as the back-pointer
+	 * through which this MIDI base reaches its per-instance context
+	 * (ADR 0015). As a virtual base it carries the canonical back-pointer for
+	 * the whole MIDI-driver hierarchy; MidiBaseDriver and derived classes reach
+	 * it via MidiInput::m_pHydrogen. */
+	MidiInput( Hydrogen* pHydrogen );
 	virtual ~MidiInput();
 
 		/** Checks whether input part of the MIDI driver was properly set up and
@@ -85,6 +91,11 @@ protected:
 		const MidiMessage& msg, std::shared_ptr<HandledInput> handledInput );
 	void handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke,
 							   std::shared_ptr<HandledInput> handledInput );
+
+	/** Back-pointer to the owning Hydrogen instance (ADR 0015). Canonical for
+	 * the MIDI-driver hierarchy; access from MidiBaseDriver/derived as
+	 * MidiInput::m_pHydrogen to disambiguate from MidiOutput's copy. */
+	Hydrogen* m_pHydrogen;
 };
 
 };

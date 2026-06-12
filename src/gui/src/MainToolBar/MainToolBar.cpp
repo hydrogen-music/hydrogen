@@ -287,7 +287,7 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	m_pSongLoopButton->setObjectName( "MainToolBarLoopButton" );
 	connect( m_pSongLoopButton, &QToolButton::clicked, [=]( bool bChecked ) {
 		auto pHydrogenApp = HydrogenApp::get_instance();
-		CoreActionController::activateLoopMode( m_pSongLoopButton->isChecked()
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->activateLoopMode( m_pSongLoopButton->isChecked()
 		);
 		if ( m_pSongLoopButton->isChecked() ) {
 			pHydrogenApp->showStatusBarMessage( tr( "Loop song = On" ) );
@@ -305,7 +305,7 @@ MainToolBar::MainToolBar( QWidget* pParent )
 		createLearnableButton( tr( "Switch metronome on/off" ), true );
 	m_pMetronomeButton->setObjectName( "MetronomeButton" );
 	connect( m_pMetronomeButton, &QToolButton::clicked, []( bool bChecked ) {
-		CoreActionController::setMetronomeIsActive( bChecked );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->setMetronomeIsActive( bChecked );
 	} );
 	m_pMetronomeButton->setMidiAction(
 		std::make_shared<MidiAction>( MidiAction::Type::ToggleMetronome )
@@ -717,12 +717,12 @@ void MainToolBar::recBtnClicked()
 	if ( Hydrogen::get_instance()->getAudioEngine()->getState() !=
 		 H2Core::AudioEngine::State::Playing ) {
 		if ( m_pRecButton->isChecked() ) {
-			CoreActionController::activateRecordMode( true );
+			H2Core::Hydrogen::get_instance()->getCoreActionController()->activateRecordMode( true );
 			( HydrogenApp::get_instance() )
 				->showStatusBarMessage( tr( "Record midi events = On" ) );
 		}
 		else {
-			CoreActionController::activateRecordMode( false );
+			H2Core::Hydrogen::get_instance()->getCoreActionController()->activateRecordMode( false );
 			( HydrogenApp::get_instance() )
 				->showStatusBarMessage( tr( "Record midi events = Off" ) );
 		}
@@ -754,7 +754,7 @@ void MainToolBar::playBtnClicked()
 	if ( pHydrogen->getAudioEngine()->getState() !=
 		 AudioEngine::State::Playing ) {
 		if ( pPref->getCountIn() ) {
-			CoreActionController::startCountIn();
+			H2Core::Hydrogen::get_instance()->getCoreActionController()->startCountIn();
 			pHydrogenApp->showStatusBarMessage( tr( "Counting in" ) );
 		}
 		else {
@@ -789,7 +789,7 @@ void MainToolBar::stopBtnClicked()
 	}
 
 	pHydrogen->sequencerStop();
-	CoreActionController::locateToColumn( 0 );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( 0 );
 	( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Stopped." ) );
 }
 
@@ -818,7 +818,7 @@ void MainToolBar::activateSongMode( bool bActivate )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
-	CoreActionController::activateSongMode( bActivate );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( bActivate );
 	// Immediate update and prevent buttons from being inchecked when clicked
 	// twice.
 	updateSongMode();
@@ -864,8 +864,7 @@ void MainToolBar::rubberbandButtonToggle()
 				// change in the audio engine.
 				pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 				pDrumkit->recalculateRubberband(
-					pHydrogen->getAudioEngine()->getPlayhead()->getBpm()
-				);
+					pHydrogen->getAudioEngine()->getPlayhead()->getBpm(), pHydrogen );
 				pHydrogen->getAudioEngine()->unlock();
 			}
 		}
@@ -904,11 +903,11 @@ void MainToolBar::jackTransportBtnClicked()
 	const auto pPref = Preferences::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	if ( pPref->m_nJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
-		CoreActionController::activateJackTransport( false );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->activateJackTransport( false );
 		pHydrogenApp->showStatusBarMessage( tr( "JACK transport mode = Off" ) );
 	}
 	else {
-		CoreActionController::activateJackTransport( true );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->activateJackTransport( true );
 		pHydrogenApp->showStatusBarMessage( tr( "JACK transport mode = On" ) );
 	}
 }
@@ -928,10 +927,10 @@ void MainToolBar::jackTimebaseBtnClicked()
 
 	if ( pPref->m_bJackTimebaseMode ==
 		 Preferences::USE_JACK_TIMEBASE_CONTROL ) {
-		CoreActionController::activateJackTimebaseControl( false );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->activateJackTimebaseControl( false );
 	}
 	else {
-		CoreActionController::activateJackTimebaseControl( true );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->activateJackTimebaseControl( true );
 	}
 #endif
 }
@@ -949,7 +948,7 @@ void MainToolBar::fastForwardBtnClicked()
 			pHydrogen->getAudioEngine()->getPlayhead()->getColumn();
 		if ( nCurrentColumn < pSong->getPatternGroupVector()->size() - 1 ) {
 			// Not within the last column
-			CoreActionController::locateToColumn(
+			H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn(
 				std::max( nCurrentColumn, 0 ) + 1
 			);
 		}
@@ -957,7 +956,7 @@ void MainToolBar::fastForwardBtnClicked()
 			// Last one. If looping is enabled, we jump to the first column. If
 			// not, we "reach" the end of the song by stopping.
 			if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {
-				CoreActionController::locateToColumn( 0 );
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( 0 );
 			}
 			else {
 				stopBtnClicked();
@@ -991,7 +990,7 @@ void MainToolBar::rewindBtnClicked()
 				nNewColumn = 0;
 			}
 		}
-		CoreActionController::locateToColumn( nNewColumn );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( nNewColumn );
 	}
 }
 

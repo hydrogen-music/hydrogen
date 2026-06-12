@@ -150,7 +150,8 @@ void MidiActionTable::insertRow(
 	if ( eventType != MidiEvent::Type::Null && pMidiAction != nullptr &&
 		 pMidiAction->getType() != MidiAction::Type::Null ) {
 		H2Core::Preferences::get_instance()->getMidiEventMap()->registerEvent(
-			eventType, eventParameter, pMidiAction, Event::Trigger::Default
+			eventType, eventParameter, pMidiAction, Event::Trigger::Default,
+			H2Core::Hydrogen::get_instance()
 		);
 	}
 
@@ -191,7 +192,8 @@ void MidiActionTable::removeRow( int nRow )
 		H2Core::Preferences::get_instance()
 			->getMidiEventMap()
 			->removeRegisteredEvent(
-				row.eventType, row.eventParameter, row.pMidiAction
+				row.eventType, row.eventParameter, row.pMidiAction,
+				H2Core::Hydrogen::get_instance()
 			);
 	}
 
@@ -230,7 +232,8 @@ void MidiActionTable::replaceRow(
 		H2Core::Preferences::get_instance()
 			->getMidiEventMap()
 			->removeRegisteredEvent(
-				row.eventType, row.eventParameter, row.pMidiAction
+				row.eventType, row.eventParameter, row.pMidiAction,
+				H2Core::Hydrogen::get_instance()
 			);
 	}
 
@@ -238,7 +241,8 @@ void MidiActionTable::replaceRow(
 	if ( eventType != MidiEvent::Type::Null && pMidiAction != nullptr &&
 		 pMidiAction->getType() != MidiAction::Type::Null ) {
 		H2Core::Preferences::get_instance()->getMidiEventMap()->registerEvent(
-			eventType, eventParameter, pMidiAction, Event::Trigger::Default
+			eventType, eventParameter, pMidiAction, Event::Trigger::Default,
+			H2Core::Hydrogen::get_instance()
 		);
 	}
 

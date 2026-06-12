@@ -363,7 +363,7 @@ void SongEditorPatternList::patternPopup_replace()
 	pPref->setLastOpenPatternDirectory( fd.directory().absolutePath() );
 	const QString sNewPatternPath = fd.selectedFiles().first();
 	const auto pNewPattern =
-		CoreActionController::loadPattern( sNewPatternPath );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->loadPattern( sNewPatternPath );
 	if ( pNewPattern == nullptr ) {
 		QMessageBox::critical(
 			this, "Hydrogen", pCommonStrings->getPatternLoadError()
@@ -655,7 +655,7 @@ void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 		int nInsertPos = nTargetPattern;
 		for ( int ii = 1; ii < tokens.size(); ++ii ) {
 			auto pNewPattern =
-				CoreActionController::loadPattern( tokens.at( ii ) );
+				H2Core::Hydrogen::get_instance()->getCoreActionController()->loadPattern( tokens.at( ii ) );
 			if ( pNewPattern == nullptr ) {
 				ERRORLOG(
 					QString( "Unable to obtain new pattern based on [%1]" )
@@ -782,7 +782,7 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent* ev )
 		pHydrogen->toggleNextPattern( nRow );
 	}
 	else {
-		CoreActionController::selectPattern( nRow );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->selectPattern( nRow );
 
 		// Notify the user why nothing just happened by highlighting the pattern
 		// locked button in the SongEditorPanel.

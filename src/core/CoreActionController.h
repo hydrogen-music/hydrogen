@@ -34,6 +34,7 @@
 namespace H2Core {
 class Drumkit;
 class GridPoint;
+class Hydrogen;
 class Instrument;
 class Pattern;
 class Playlist;
@@ -46,14 +47,16 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	H2_OBJECT( CoreActionController )
 
    public:
-	static bool setMasterVolume( float masterVolumeValue );
+		/** @param pHydrogen Owning Hydrogen instance (ADR 0015). */
+		CoreActionController( Hydrogen* pHydrogen );
+	bool setMasterVolume( float masterVolumeValue );
 	/**
 	 * \param nStrip Instrument which to set the volume for.
 	 * \param fVolumeValue New volume.
 	 * \param bSelectStrip Whether the corresponding instrument
 	 * should be selected.
 	 */
-	static bool
+	bool
 	setStripVolume( int nStrip, float fVolumeValue, bool bSelectStrip );
 	/**
 	 * \param nStrip Instrument which to set the pan for.
@@ -61,39 +64,39 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * \param bSelectStrip Whether the corresponding instrument
 	 * should be selected.
 	 */
-	static bool setStripPan( int nStrip, float fValue, bool bSelectStrip );
+	bool setStripPan( int nStrip, float fValue, bool bSelectStrip );
 	/**
 	 * \param nStrip Instrument which to set the pan for.
 	 * \param fValue New pan. range in [-1;1] => symmetric respect to 0
 	 * \param bSelectStrip Whether the corresponding instrument
 	 * should be selected.
 	 */
-	static bool setStripPanSym( int nStrip, float fValue, bool bSelectStrip );
-	static bool setInstrumentPitch( int nInstrument, float fValue );
-	static bool setInstrumentMidiOutNote(
+	bool setStripPanSym( int nStrip, float fValue, bool bSelectStrip );
+	bool setInstrumentPitch( int nInstrument, float fValue );
+	bool setInstrumentMidiOutNote(
 		int nInstrument,
 		Midi::Note note,
 		long* pEventId
 	);
-	static bool setInstrumentMidiOutChannel(
+	bool setInstrumentMidiOutChannel(
 		int nInstrument,
 		Midi::Channel channel,
 		long* pEventId
 	);
-	static bool setMetronomeIsActive( bool isActive );
-	static bool setMasterIsMuted( bool isMuted );
-	static bool setHumanizeTime( float fValue );
-	static bool setHumanizeVelocity( float fValue );
-	static bool setSwing( float fValue );
+	bool setMetronomeIsActive( bool isActive );
+	bool setMasterIsMuted( bool isMuted );
+	bool setHumanizeTime( float fValue );
+	bool setHumanizeVelocity( float fValue );
+	bool setSwing( float fValue );
 
-	static bool setStripIsMuted( int nStrip, bool isMuted, bool bSelectStrip );
-	static bool toggleStripIsMuted( int nStrip );
+	bool setStripIsMuted( int nStrip, bool isMuted, bool bSelectStrip );
+	bool toggleStripIsMuted( int nStrip );
 
-	static bool
+	bool
 	setStripIsSoloed( int nStrip, bool isSoloed, bool bSelectStrip );
-	static bool toggleStripIsSoloed( int nStrip );
+	bool toggleStripIsSoloed( int nStrip );
 
-	static bool initExternalControlInterfaces();
+	bool initExternalControlInterfaces();
 
 	// -----------------------------------------------------------
 	// Actions required for session management.
@@ -114,7 +117,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *    having to do some string magic to retrieve the original name.
 	 * \return nullptr on failure
 	 */
-	static std::shared_ptr<Song>
+	std::shared_ptr<Song>
 	loadSong( const QString& sSongPath, const QString& sRecoverSongPath = "" );
 	/**
 	 * Sets a #H2Core::Song to be used by Hydrogen.
@@ -125,7 +128,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * \param pSong Pointer to the #H2Core::Song to set.
 	 * \return true on success
 	 */
-	static bool setSong( std::shared_ptr<Song> pSong );
+	bool setSong( std::shared_ptr<Song> pSong );
 	/**
 	 * Saves the current #H2Core::Song.
 	 *
@@ -134,7 +137,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * \return true on success
 	 */
-	static bool saveSong( bool bKeepMissingSamples );
+	bool saveSong( bool bKeepMissingSamples );
 	/**
 	 * Saves the current #H2Core::Song to the path provided in @a sNewFileName.
 	 *
@@ -150,19 +153,19 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *   should be kept or discarded.
 	 * \return true on success
 	 */
-	static bool
+	bool
 	saveSongAs( const QString& sNewFileName, bool bKeepMissingSamples );
 	/**
 	 * Loads an instance of #H2Core::Preferences from the corresponding XML
 	 * file. */
-	static std::shared_ptr<Preferences> loadPreferences( const QString& sPath );
+	std::shared_ptr<Preferences> loadPreferences( const QString& sPath );
 	/**
 	 * Replaces the current #H2Core::Preferences singleton with the provided
 	 * instance. */
-	static bool setPreferences( std::shared_ptr<Preferences> pPreferences );
+	bool setPreferences( std::shared_ptr<Preferences> pPreferences );
 	/**
 	 * Saves the current state of the #H2Core::Preferences. */
-	static bool savePreferences();
+	bool savePreferences();
 	/**
 	 * Triggers the shutdown of Hydrogen.
 	 *
@@ -174,7 +177,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * \return true on success
 	 */
-	static bool quit();
+	bool quit();
 
 	// -----------------------------------------------------------
 	// Further OSC commands
@@ -191,8 +194,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool activateTimeline( bool bActivate );
-	static bool toggleTimeline();
+	bool activateTimeline( bool bActivate );
+	bool toggleTimeline();
 	/**
 	 * Adds a tempo marker to the Timeline.
 	 *
@@ -201,7 +204,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool addTempoMarker( int nPosition, float fBpm );
+	bool addTempoMarker( int nPosition, float fBpm );
 	/**
 	 * Delete a tempo marker from the Timeline.
 	 *
@@ -212,7 +215,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool deleteTempoMarker( int nPosition );
+	bool deleteTempoMarker( int nPosition );
 	/**
 	 * Adds a tag to the Timeline.
 	 *
@@ -221,7 +224,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool addTag( int nPosition, const QString& sText );
+	bool addTag( int nPosition, const QString& sText );
 	/**
 	 * Delete a tag from the Timeline.
 	 *
@@ -232,7 +235,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool deleteTag( int nPosition );
+	bool deleteTag( int nPosition );
 	/**
 	 * (De)activates the usage of Jack transport.
 	 *
@@ -244,8 +247,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool activateJackTransport( bool bActivate );
-	static bool toggleJackTransport();
+	bool activateJackTransport( bool bActivate );
+	bool toggleJackTransport();
 	/**
 	 * (Un)registers Hydrogen as JACK Timebase constroller.
 	 *
@@ -257,8 +260,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool activateJackTimebaseControl( bool bActivate );
-	static bool toggleJackTimebaseControl();
+	bool activateJackTimebaseControl( bool bActivate );
+	bool toggleJackTimebaseControl();
 
 	/**
 	 * Switches between Song and Pattern mode of playback.
@@ -268,8 +271,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool activateSongMode( bool bActivate );
-	static bool toggleSongMode();
+	bool activateSongMode( bool bActivate );
+	bool toggleSongMode();
 	/**
 	 * (De)activates loop mode of playback.
 	 *
@@ -277,10 +280,10 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool activateLoopMode( bool bActivate );
-	static bool toggleLoopMode();
-	static bool activateRecordMode( bool bActivate );
-	static bool toggleRecordMode();
+	bool activateLoopMode( bool bActivate );
+	bool toggleLoopMode();
+	bool activateRecordMode( bool bActivate );
+	bool toggleRecordMode();
 
 	/**
 	 * Sets Drumkit @a pDrumkit as the one used in the current #Song.
@@ -292,7 +295,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * \param pDrumkit Full-fledged #H2Core::Drumkit to load.
 	 */
-	static bool setDrumkit( std::shared_ptr<Drumkit> pDrumkit );
+	bool setDrumkit( std::shared_ptr<Drumkit> pDrumkit );
 	/**
 	 * Upgrades the drumkit found at absolute path @a sDrumkitDirOrXml.
 	 *
@@ -300,7 +303,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * place and a backup file will be created in order to not
 	 * overwrite the existing state.
 	 */
-	static bool upgradeDrumkit(
+	bool upgradeDrumkit(
 		const QString& sDrumkitDirOrXml,
 		const QString& sNewDir = ""
 	);
@@ -316,7 +319,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * @param bCheckLegacyVersions Whether just the current XSD
 	 *   definition or also all previous versions should be checked.
 	 */
-	static bool validateDrumkit(
+	bool validateDrumkit(
 		const QString& sDrumkitDirOrXml,
 		bool bCheckLegacyVersions = false
 	);
@@ -345,7 +348,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *   filepath of extracted kit had to be altered in order to not run into
 	 *   UTF-8 issues.
 	 */
-	static bool extractDrumkit(
+	bool extractDrumkit(
 		const QString& sDrumkitBundledPath,
 		const QString& sTargetDir = "",
 		QString* pInstalledDir = nullptr,
@@ -356,7 +359,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * In case @a nIndex is `-1` @a pInstrument will be appended to the
 	 * instrument list.*/
-	static bool addInstrument(
+	bool addInstrument(
 		std::shared_ptr<Instrument> pInstrument,
 		int nIndex,
 		long* pEventId
@@ -365,20 +368,20 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * instrument death row. This way it is guarantueed that its samples
 	 * stay loaded until the last #H2Core::Note is done rendering it.
 	 * Afterwards, its samples will be unloaded. */
-	static bool
+	bool
 	removeInstrument( std::shared_ptr<Instrument> pInstrument, long* pEventId );
 	/** Replaces @a pOldInstrument by @a pNewInstrument in the current
 	 * drumkit without clearing notes, changing the selected instrument
 	 * number, etc. */
-	static bool replaceInstrument(
+	bool replaceInstrument(
 		std::shared_ptr<Instrument> pNewInstrument,
 		std::shared_ptr<Instrument> pOldInstrument
 	);
-	static bool replaceDrumkitInstrument(
+	bool replaceDrumkitInstrument(
 		std::shared_ptr<Instrument> pNewInstrument,
 		std::shared_ptr<Instrument> pOldInstrument
 	);
-	static bool replacePlaybackTrackInstrument(
+	bool replacePlaybackTrackInstrument(
 		std::shared_ptr<Instrument> pNewInstrument,
 		std::shared_ptr<Instrument> pOldInstrument
 	);
@@ -388,9 +391,9 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * Note that both @a nSourceIndex and @a nTargetIndex are the position
 	 * within the instrument list and _not_ the ID of the instrument (which
 	 * stays the same during the move action). */
-	static bool moveInstrument( int nSourceIndex, int nTargetIndex );
+	bool moveInstrument( int nSourceIndex, int nTargetIndex );
 
-	static bool renameComponent( int nComponentId, const QString& sNewName );
+	bool renameComponent( int nComponentId, const QString& sNewName );
 
 	/** Relocates transport to the beginning of a particular
 	 * column/Pattern group.
@@ -400,7 +403,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool locateToColumn( int nPatternGroup );
+	bool locateToColumn( int nPatternGroup );
 	/** Relocates transport to a particular tick.
 	 *
 	 * @param nTick Destination
@@ -409,7 +412,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool locateToTick( long nTick, bool bWithJackBroadcast = true );
+	bool locateToTick( long nTick, bool bWithJackBroadcast = true );
 
 	/** Creates an empty pattern and adds it to the pattern list.
 	 *
@@ -417,11 +420,11 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool newPattern( const QString& sPatternName );
+	bool newPattern( const QString& sPatternName );
 	/**
 	 * Loads an instance of #H2Core::Pattern from the corresponding XML
 	 * file. */
-	static std::shared_ptr<Pattern> loadPattern( const QString& sPath );
+	std::shared_ptr<Pattern> loadPattern( const QString& sPath );
 	/** Opens a pattern to the current pattern list.
 	 *
 	 * @param pPattern pattern to be added.
@@ -432,7 +435,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool setPattern(
+	bool setPattern(
 		std::shared_ptr<Pattern> pPattern,
 		int nPatternNumber,
 		bool bReplace
@@ -444,14 +447,14 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool selectPattern( int nPatternNumber );
+	bool selectPattern( int nPatternNumber );
 	/** Removes a pattern from the pattern list.
 	 *
 	 * @param nPatternNumber Specifies the position/row of the pattern.
 	 *
 	 * @return bool true on success
 	 */
-	static bool removePattern( int nPatternNumber );
+	bool removePattern( int nPatternNumber );
 	/** Deletes all notes for instrument @a pInstrument in a specified
 	 * pattern.
 	 *
@@ -461,9 +464,9 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *   currently selected pattern will be used instead.
 	 *
 	 * @return bool true on success. */
-	static bool
+	bool
 	clearInstrumentInPattern( int nInstrumentNumber, int nPatternNumber = -1 );
-	static bool setPatternProperties(
+	bool setPatternProperties(
 		const QString& sNewPatternPath,
 		const int nNewVersion,
 		const QString& sNewPatternName,
@@ -474,7 +477,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		int nPatternIndex
 	);
 
-	static bool setSongProperties(
+	bool setSongProperties(
 		const QString& sNewPath,
 		const int nNewVersion,
 		const QString& sNewName,
@@ -490,7 +493,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool toggleGridCell( const GridPoint& gridPoint );
+	bool toggleGridCell( const GridPoint& gridPoint );
 
 	/** Handle an incoming note event, e.g. a MIDI or OSC Note-On or
 	 * Note-Off as well as virtual keyboard stroke.
@@ -506,7 +509,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *   instruments the note was mapped to.
 	 *
 	 * @return bool true on success */
-	static bool handleNote(
+	bool handleNote(
 		Midi::Note note,
 		Midi::Channel channel,
 		float fVelocity,
@@ -538,7 +541,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *   XML elements requires legacy format support and left untouched
 	 *   otherwise.
 	 */
-	static std::shared_ptr<Drumkit> retrieveDrumkit(
+	std::shared_ptr<Drumkit> retrieveDrumkit(
 		const QString& sDrumkitDirOrXml,
 		bool* bIsCompressed,
 		QString* sDrumkitDir,
@@ -550,12 +553,12 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * Set's song-level tempo of the #AudioEngine and stores the value
 	 * in the current #Song.
 	 */
-	static bool setBpm( float fBpm );
+	bool setBpm( float fBpm );
 
 	/** Makes the metronome count for the length of the largest pattern in
 	 * the current row (song mode)/largest active pattern (pattern mode)
 	 * before starting playback. */
-	static bool startCountIn();
+	bool startCountIn();
 
 	/**
 	 * Opens the #H2Core::Playlist specified in @a sPath.
@@ -573,25 +576,25 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *    having to do some string magic to retrieve the original name.
 	 * \return nullptr on failure
 	 */
-	static std::shared_ptr<Playlist>
+	std::shared_ptr<Playlist>
 	loadPlaylist( const QString& sPath, const QString& sRecoverPath = "" );
 	/** Replaces the current #Playlist with @a Playlist. */
-	static bool setPlaylist( std::shared_ptr<Playlist> pPlaylist );
+	bool setPlaylist( std::shared_ptr<Playlist> pPlaylist );
 	/** Saves changes of the current #Playlist to disk. */
-	static bool savePlaylist();
+	bool savePlaylist();
 	/** Saves the current #Playlist to @a sPath.*/
-	static bool savePlaylistAs( const QString& sPath );
+	bool savePlaylistAs( const QString& sPath );
 	/** Adds a new song/ entry to the current playlist.
 	 *
 	 * If @a nIndex is set to a value of -1, @a pEntry will be appended at
 	 * the end of the playlist. */
-	static bool
+	bool
 	addToPlaylist( std::shared_ptr<PlaylistEntry> pEntry, int nIndex = -1 );
 	/** Removes a song from the current playlist.
 	 *
 	 * If @a nIndex is set to a value of -1, the first occurrance of @a
 	 * pEntry will be deleted. */
-	static bool removeFromPlaylist(
+	bool removeFromPlaylist(
 		std::shared_ptr<PlaylistEntry> pEntry,
 		int nIndex = -1
 	);
@@ -600,29 +603,32 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * Song loading was split off to allow the GUI to show error dialogs in
 	 * case something went wrong. */
-	static bool activatePlaylistSong( int nSongNumber );
+	bool activatePlaylistSong( int nSongNumber );
 
 	/** Enable or disable tempo control using MIDI clock. */
-	static bool setMidiClockInputHandling( bool bHandle );
+	bool setMidiClockInputHandling( bool bHandle );
 
 	/** Enable or disable sending MIDI clock messages. */
-	static bool setMidiClockOutputSend( bool bHandle );
+	bool setMidiClockOutputSend( bool bHandle );
 
    private:
-	static bool sendMasterVolumeFeedback();
-	static bool sendStripVolumeFeedback( int nStrip );
-	static bool sendMetronomeIsActiveFeedback();
-	static bool sendMasterIsMutedFeedback();
-	static bool sendStripIsMutedFeedback( int nStrip );
-	static bool sendStripIsSoloedFeedback( int nStrip );
-	static bool sendStripPanFeedback( int nStrip );
-	static bool sendStripPanSymFeedback( int nStrip );
+	/** Back-pointer to the owning Hydrogen instance (ADR 0015). */
+	Hydrogen* m_pHydrogen;
 
-	static bool handleOutgoingControlChanges(
+	bool sendMasterVolumeFeedback();
+	bool sendStripVolumeFeedback( int nStrip );
+	bool sendMetronomeIsActiveFeedback();
+	bool sendMasterIsMutedFeedback();
+	bool sendStripIsMutedFeedback( int nStrip );
+	bool sendStripIsSoloedFeedback( int nStrip );
+	bool sendStripPanFeedback( int nStrip );
+	bool sendStripPanSymFeedback( int nStrip );
+
+	bool handleOutgoingControlChanges(
 		const std::vector<Midi::Parameter>& params,
 		Midi::Parameter nValue
 	);
-	static std::shared_ptr<Instrument> getStrip( int nStrip );
+	std::shared_ptr<Instrument> getStrip( int nStrip );
 
 	// -----------------------------------------------------------
 	// Actions required for session management.
@@ -636,7 +642,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * \param sFileName New song to be added on top of the list.
 	 */
-	static void insertRecentFile( const QString& sFileName );
+	void insertRecentFile( const QString& sFileName );
 };
 
 }  // namespace H2Core

@@ -54,8 +54,10 @@ namespace H2Core {
 
 class XMLNode;
 class ADSR;
+class Hydrogen;
 class InstrumentLayer;
 class InstrumentList;
+class Song;
 
 /** Auxiliary variables storing the rendering state of a #H2Core::Note within
  * the #H2Core::Sampler */
@@ -431,7 +433,8 @@ class Note : public H2Core::Object<Note> {
 	 * used last for all encountered components is provided. */
 	void selectLayers( const std::map<
 					   std::shared_ptr<InstrumentComponent>,
-					   std::shared_ptr<InstrumentLayer> >& lastUsedLayers );
+					   std::shared_ptr<InstrumentLayer> >& lastUsedLayers,
+					   std::shared_ptr<Song> pSong );
 
 	std::map<
 		std::shared_ptr<InstrumentComponent>,
@@ -580,13 +583,13 @@ class Note : public H2Core::Object<Note> {
 	 * enabled, the #m_nNoteStart gets invalidated and this function
 	 * needs to be rerun.
 	 */
-	void computeNoteStart();
+	void computeNoteStart( Hydrogen* pHydrogen );
 
 	/**
 	 * Add random contributions to #m_fPitchHumanization, #m_nHumanizeDelay, and
 	 * #m_fVelocity.
 	 */
-	void humanize();
+	void humanize( std::shared_ptr<Song> pSong );
 
 	/**
 	 * Add swing contribution to #m_nHumanizeDelay.
@@ -594,7 +597,7 @@ class Note : public H2Core::Object<Note> {
 	 * As the value applied is deterministic, it will not be handled
 	 * in humanice() but separately.
 	 */
-	void swing();
+	void swing( std::shared_ptr<Song> pSong );
 
 	/** Returns a short but expressive string using which the particular
 	 * note instance can be identified.

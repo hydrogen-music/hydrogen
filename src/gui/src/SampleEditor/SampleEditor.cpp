@@ -711,8 +711,7 @@ font-weight: bold; "
 			return;
 		}
 		pNewInstrument->setSample(
-			pNewComponent, pNewLayer, pNewSample, Event::Trigger::Suppress
-		);
+			pNewComponent, pNewLayer, pNewSample, Event::Trigger::Suppress, H2Core::Hydrogen::get_instance() );
 
 		SE_replaceInstrumentAction::Type type;
 		if ( m_pInstrument->getId() == Instrument::PlaybackTrackId ) {
@@ -1538,8 +1537,7 @@ void SampleEditor::updateSample()
 	m_pPreviewInstrument->setSample(
 		m_pPreviewInstrument->getComponents()->front(),
 		m_pPreviewInstrument->getComponents()->front()->getLayer( 0 ),
-		pEditSample, Event::Trigger::Suppress
-	);
+		pEditSample, Event::Trigger::Suppress, H2Core::Hydrogen::get_instance() );
 	m_pSample = pEditSample;
 
 	pAudioEngine->unlock();
@@ -1563,8 +1561,7 @@ void SampleEditor::reloadLayer()
 	m_pPreviewInstrument->setSample(
 		m_pPreviewInstrument->getComponents()->front(),
 		m_pPreviewInstrument->getComponents()->front()->getLayer( 0 ),
-		m_pSample, Event::Trigger::Suppress
-	);
+		m_pSample, Event::Trigger::Suppress, H2Core::Hydrogen::get_instance() );
 
 	pAudioEngine->unlock();
 

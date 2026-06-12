@@ -163,7 +163,9 @@ public:
 	 */
 	static constexpr int nMaxTimeHumanize = 2000;
 
-	AudioEngine();
+	/** @param pHydrogen Owning Hydrogen instance; stored as the back-pointer
+	 * through which this engine reaches its per-instance context (ADR 0015). */
+	AudioEngine( Hydrogen* pHydrogen );
 
 	~AudioEngine();
 
@@ -374,7 +376,7 @@ public:
 	void setNextBpm( float fNextBpm );
 	float getNextBpm() const;
 
-	static float 	getBpmAtColumn( int nColumn );
+	float 	getBpmAtColumn( int nColumn );
 
 	/**
 	 * Function to be called every time the length of the current song
@@ -627,6 +629,8 @@ private:
 
 	QString getDriverNames() const;
 
+	/** Back-pointer to the owning Hydrogen instance (ADR 0015). */
+	Hydrogen*			m_pHydrogen;
 		Sampler* 			m_pSampler;
 	std::shared_ptr<AudioDriver> m_pAudioDriver;
 	std::shared_ptr<MidiBaseDriver> m_pMidiDriver;

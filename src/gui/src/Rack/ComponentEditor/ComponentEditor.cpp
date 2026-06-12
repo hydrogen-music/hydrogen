@@ -304,8 +304,7 @@ void ComponentEditor::addComponent() {
 			std::make_shared<H2Core::InstrumentLayer>( pNewSample );
 
 		pNewInstrument->addLayer(
-			pNewComponent, pNewLayer, -1, Event::Trigger::Default
-		);
+			pNewComponent, pNewLayer, -1, Event::Trigger::Default, H2Core::Hydrogen::get_instance() );
 
 		if ( bRenameInstrument || bRenameComponent ) {
 			sLastCleanedFileName = ssPath.section( '/', -1 );

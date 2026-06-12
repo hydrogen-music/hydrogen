@@ -65,7 +65,7 @@ class OssDriver : public Object<OssDriver>, public AudioDriver
 {
 	H2_OBJECT(OssDriver)
 public:
-	OssDriver( audioProcessCallback processCallback );
+	OssDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback );
 	~OssDriver();
 
 	int init( unsigned bufferSize );
@@ -99,7 +99,7 @@ class OssDriver : public Object<OssDriver>, public NullDriver
 {
 	H2_OBJECT(OssDriver)
 public:
-	OssDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
+	OssDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback ) : NullDriver( pHydrogen, processCallback ) {}
 
 };
 

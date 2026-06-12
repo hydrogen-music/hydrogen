@@ -117,7 +117,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	connect( m_pMuteBtn, &QPushButton::clicked, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
-			CoreActionController::setStripIsMuted(
+			H2Core::Hydrogen::get_instance()->getCoreActionController()->setStripIsMuted(
 				nLine, m_pMuteBtn->isChecked(), true );
 		}
 	});
@@ -134,7 +134,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	connect( m_pSoloBtn, &QPushButton::clicked, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
-			CoreActionController::setStripIsSoloed(
+			H2Core::Hydrogen::get_instance()->getCoreActionController()->setStripIsSoloed(
 				nLine, m_pSoloBtn->isChecked(), true );
 		}
 	});
@@ -149,7 +149,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	connect( m_pPanRotary, &Rotary::valueChanged, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
-			CoreActionController::setStripPanSym(
+			H2Core::Hydrogen::get_instance()->getCoreActionController()->setStripPanSym(
 				nLine, m_pPanRotary->getValue(), true );
 		}
 	});
@@ -174,7 +174,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	connect( m_pFader, &Fader::valueChanged, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
-			CoreActionController::setStripVolume(
+			H2Core::Hydrogen::get_instance()->getCoreActionController()->setStripVolume(
 				nLine, m_pFader->getValue(), true );
 		}
 	});

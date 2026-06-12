@@ -22,6 +22,8 @@
 
 #include <core/IO/AlsaAudioDriver.h>
 
+#include <core/Hydrogen.h>
+
 #if defined(H2CORE_HAVE_ALSA) || _DOXYGEN_
 
 #include <pthread.h>
@@ -112,7 +114,7 @@ void* alsaAudioDriver_processCaller( void* param )
 							 .arg( snd_strerror( err ) ) );
 			}
 			pDriver->m_nXRuns++;
-			EventQueue::get_instance()->pushEvent( Event::Type::Xrun, 0 );
+			pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::Xrun, 0 );
 		} else {
 
 			// Playback stream is ready, let's write out the audio
@@ -129,7 +131,7 @@ void* alsaAudioDriver_processCaller( void* param )
 						___ERRORLOG( QString( "Unable to write playback stream again: %1" )
 									 .arg( snd_strerror( err ) ) );
 						pDriver->m_nXRuns++;
-						EventQueue::get_instance()->pushEvent( Event::Type::Xrun, 0 );
+						pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::Xrun, 0 );
 						if ( ( err = snd_pcm_recover( pDriver->m_pPlayback_handle, err, 0 ) ) < 0 ) {
 							__ERRORLOG( QString( "Can't recover from XRUN: %1" )
 										.arg( snd_strerror( err ) ) );
@@ -139,7 +141,7 @@ void* alsaAudioDriver_processCaller( void* param )
 					__ERRORLOG( QString( "Can't recover from XRUN: %1" )
 								.arg( snd_strerror( err ) ) );
 					pDriver->m_nXRuns++;
-					EventQueue::get_instance()->pushEvent( Event::Type::Xrun, 0 );
+					pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::Xrun, 0 );
 				}
 			}
 		}
@@ -149,7 +151,7 @@ void* alsaAudioDriver_processCaller( void* param )
 
 
 /// Use the name hints to build a list of potential device names.
-QStringList AlsaAudioDriver::getDevices()
+QStringList AlsaAudioDriver::getAlsaDevices()
 {
 	QStringList result;
 	void **pHints, **pHint;
@@ -186,8 +188,8 @@ QStringList AlsaAudioDriver::getDevices()
 	return result;
 }
 
-AlsaAudioDriver::AlsaAudioDriver( audioProcessCallback processCallback )
-		: AudioDriver()
+AlsaAudioDriver::AlsaAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback )
+		: AudioDriver( pHydrogen )
 		, m_bIsRunning( false )
 		, m_pOut_L( nullptr )
 		, m_pOut_R( nullptr )
@@ -196,8 +198,8 @@ AlsaAudioDriver::AlsaAudioDriver( audioProcessCallback processCallback )
 		, m_pPlayback_handle( nullptr )
 		, m_processCallback( processCallback )
 {
-	m_nSampleRate = Preferences::get_instance()->m_nSampleRate;
-	m_sAlsaAudioDevice = Preferences::get_instance()->m_sAlsaAudioDevice;
+	m_nSampleRate = m_pHydrogen->getPreferences()->m_nSampleRate;
+	m_sAlsaAudioDevice = m_pHydrogen->getPreferences()->m_sAlsaAudioDevice;
 }
 
 AlsaAudioDriver::~AlsaAudioDriver()

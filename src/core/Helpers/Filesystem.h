@@ -30,6 +30,8 @@
 
 namespace H2Core {
 
+class Hydrogen;
+
 /**
  * Filesystem is a thin layer over QDir, QFile and QFileInfo
  */
@@ -75,7 +77,8 @@ class Filesystem : public H2Core::Object<Filesystem> {
 		Custom = 5,
 	};
 	static QString ContextToQString( const Context& context );
-	static Context DetermineContext( const QString& sPath );
+	static Context DetermineContext( const QString& sPath,
+									 Hydrogen* pHydrogen = nullptr );
 
 	/** Indicates what type of file - .h2song, .h2playlist, .h2pattern,
 	 * drumkit.xml, .h2drumkit - a function as to handle. This covers files
@@ -260,7 +263,8 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static QStringList listContent(
 		Artifact artifact,
 		Context context,
-		const QString& sUserDirOverwrite = ""
+		const QString& sUserDirOverwrite = "",
+		Hydrogen* pHydrogen = nullptr
 	);
 
 	/* DRUMKIT */
@@ -511,7 +515,8 @@ class Filesystem : public H2Core::Object<Filesystem> {
 		const int nFilePermission,
 		bool bSilent
 	);
-	static QStringList targetDirs( Artifact artifact, Context context );
+	static QStringList targetDirs( Artifact artifact, Context context,
+								   Hydrogen* pHydrogen = nullptr );
 	static QString targetFilter( Artifact artifact );
 
 	static Logger* m_pLogger;  ///< a pointer to the logger

@@ -55,7 +55,7 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioDriver
 		float*					m_pOut_R;
 		bool					 m_bIsRunning;
 
-		DiskWriterDriver( audioProcessCallback processCallback );
+		DiskWriterDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback );
 		~DiskWriterDriver();
 
 		virtual int init( unsigned nBufferSize ) override;

@@ -38,7 +38,7 @@ class NullDriver : public Object<NullDriver>, public AudioDriver
 {
 	H2_OBJECT(NullDriver)
 public:
-	NullDriver( audioProcessCallback processCallback );
+	NullDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback );
 	~NullDriver();
 
 	int init( unsigned nBufferSize ) override; 

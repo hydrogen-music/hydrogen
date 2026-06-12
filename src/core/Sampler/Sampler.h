@@ -36,6 +36,7 @@
 
 namespace H2Core {
 
+class Hydrogen;
 class Instrument;
 class InstrumentComponent;
 class InstrumentLayer;
@@ -167,7 +168,9 @@ class Sampler : public H2Core::Object<Sampler> {
 	 * It is called by AudioEngine::AudioEngine() and stored in
 	 * AudioEngine::m_pSampler.
 	 */
-	Sampler();
+	/** @param pHydrogen Owning Hydrogen instance; stored as the back-pointer
+	 * through which the sampler reaches its per-instance context (ADR 0015). */
+	Sampler( Hydrogen* pHydrogen );
 	~Sampler();
 
 	void process( uint32_t nFrames );
@@ -247,6 +250,9 @@ class Sampler : public H2Core::Object<Sampler> {
 		const override;
 
    private:
+	/** Back-pointer to the owning Hydrogen instance (ADR 0015). */
+	Hydrogen* m_pHydrogen;
+
 	/** function to direct the computation to the selected pan law function
 	 */
 	float panLaw( float fPan, std::shared_ptr<Song> pSong );

@@ -64,7 +64,7 @@ void TransportTest::testFrameToTickConversion() {
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
 								   .arg( Filesystem::demosDir() ) );
 	ASSERT_SONG( pSongDemo );
-	H2Core::CoreActionController::setSong( pSongDemo );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSongDemo );
 
 	const std::vector<int> indices{ 0, 5, 7, 12 };
 	for ( const int ii : indices ) {
@@ -79,7 +79,7 @@ void TransportTest::testTransportProcessing() {
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
 								   .arg( Filesystem::demosDir() ) );
 	ASSERT_SONG( pSongDemo );
-	H2Core::CoreActionController::setSong( pSongDemo );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSongDemo );
 
 	const std::vector<int> indices{ 1, 9, 14 };
 	for ( const int ii : indices ) {
@@ -94,7 +94,7 @@ void TransportTest::testTransportProcessingTimeline() {
 	auto pSongTransportProcessingTimeline =
 		Song::load( QString( H2TEST_FILE( "song/AE_transportProcessingTimeline.h2song" ) ) );
 	ASSERT_SONG( pSongTransportProcessingTimeline );
-	H2Core::CoreActionController::
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->
 		setSong( pSongTransportProcessingTimeline );
 
 	const std::vector<int> indices{ 2, 9, 10 };
@@ -110,18 +110,18 @@ void TransportTest::testTransportRelocation() {
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
 								   .arg( Filesystem::demosDir() ) );
 	ASSERT_SONG( pSongDemo );
-	H2Core::CoreActionController::setSong( pSongDemo );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSongDemo );
 	
-	H2Core::CoreActionController::activateTimeline( true );
-	H2Core::CoreActionController::addTempoMarker( 0, 120 );
-	H2Core::CoreActionController::addTempoMarker( 1, 100 );
-	H2Core::CoreActionController::addTempoMarker( 2, 20 );
-	H2Core::CoreActionController::addTempoMarker( 3, 13.4 );
-	H2Core::CoreActionController::addTempoMarker( 4, 383.2 );
-	H2Core::CoreActionController::addTempoMarker( 5, 64.38372 );
-	H2Core::CoreActionController::addTempoMarker( 6, 96.3 );
-	H2Core::CoreActionController::addTempoMarker( 7, 240.46 );
-	H2Core::CoreActionController::addTempoMarker( 8, 200.1 );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateTimeline( true );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker( 0, 120 );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker( 1, 100 );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker( 2, 20 );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker( 3, 13.4 );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker( 4, 383.2 );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker( 5, 64.38372 );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker( 6, 96.3 );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker( 7, 240.46 );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker( 8, 200.1 );
 	
 	const std::vector<int> indices{ 0, 5, 6 };
 	for ( const int ii : indices ) {
@@ -129,7 +129,7 @@ void TransportTest::testTransportRelocation() {
 		perform( &AudioEngineTests::testTransportRelocation );
 	}
 
-	H2Core::CoreActionController::activateTimeline( false );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateTimeline( false );
 	___INFOLOG( "passed" );
 }
 
@@ -141,7 +141,7 @@ void TransportTest::testLoopMode() {
 	auto pSong = H2Core::Song::load( sSongFile );
 	ASSERT_SONG( pSong );
 
-	H2Core::CoreActionController::setSong( pSong );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong );
 	
 	const std::vector<int> indices{ 0, 1, 12 };
 	for ( const int ii : indices ) {
@@ -156,7 +156,7 @@ void TransportTest::testSongSizeChange() {
 	auto pSongSizeChanged =
 		Song::load( QString( H2TEST_FILE( "song/AE_songSizeChanged.h2song" ) ) );
 	ASSERT_SONG( pSongSizeChanged );
-	H2Core::CoreActionController::setSong( pSongSizeChanged );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSongSizeChanged );
 
 	// Depending on buffer size and sample rate transport might be
 	// loop when toggling a pattern at the end of the song. If there
@@ -165,7 +165,7 @@ void TransportTest::testSongSizeChange() {
 	// different tickSize than its first part. This is itself no
 	// problem but it would make the test much more complex as we test
 	// against those calculated intervals to remain constant.
-	H2Core::CoreActionController::activateTimeline( false );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateTimeline( false );
 
 	const std::vector<int> indices{ 0, 1, 2, 3 };
 	for ( const int ii : indices ) {
@@ -178,7 +178,7 @@ void TransportTest::testSongSizeChange() {
 		}
 	}
 	
-	H2Core::CoreActionController::activateLoopMode( false );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateLoopMode( false );
 	___INFOLOG( "passed" );
 }		
 
@@ -187,7 +187,7 @@ void TransportTest::testSongSizeChangeInLoopMode() {
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
 								   .arg( Filesystem::demosDir() ) );
 	ASSERT_SONG( pSongDemo );
-	H2Core::CoreActionController::setSong( pSongDemo );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSongDemo );
 
 	const std::vector<int> indices{ 0, 5, 7, 13 };
 	for ( const int ii : indices ) {
@@ -229,7 +229,7 @@ void TransportTest::testSampleConsistency() {
 	const auto pDrumkit = H2Core::Drumkit::load(
 		sDrumkitPath, false, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
-	H2Core::CoreActionController::setDrumkit( pDrumkit );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit( pDrumkit );
 
 	TestHelper::exportSong( sOutFile );
 	
@@ -246,7 +246,7 @@ void TransportTest::testNoteEnqueuing() {
 		Song::load( QString( H2TEST_FILE( "song/AE_noteEnqueuing.h2song" ) ) );
 	ASSERT_SONG( pSongNoteEnqueuing );
 
-	H2Core::CoreActionController::setSong( pSongNoteEnqueuing );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSongNoteEnqueuing );
 
 	// This test is quite time consuming.
 	std::vector<int> indices{ 1, 9, 12 };
@@ -263,7 +263,7 @@ void TransportTest::testNoteEnqueuingTimeline() {
 	auto pSong = Song::load( QString( H2TEST_FILE( "song/AE_noteEnqueuingTimeline.h2song" ) ) );
 	ASSERT_SONG( pSong );
 
-	H2Core::CoreActionController::setSong( pSong );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong );
 
 	// This test is quite time consuming.
 	std::vector<int> indices{ 0, 5, 7 };
@@ -282,7 +282,7 @@ void TransportTest::testHumanization() {
 	auto pSongHumanization =
 		Song::load( QString( H2TEST_FILE( "song/AE_humanization.h2song" ) ) );
 	ASSERT_SONG( pSongHumanization );
-	H2Core::CoreActionController::setSong( pSongHumanization );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSongHumanization );
 
 	// This test is quite time consuming.
 	std::vector<int> indices{ 1, 10 };
@@ -300,7 +300,7 @@ void TransportTest::testMuteGroups() {
 	auto pSongMuteGroups =
 		Song::load( QString( H2TEST_FILE( "song/AE_muteGroups.h2song" ) ) );
 	CPPUNIT_ASSERT( pSongMuteGroups != nullptr );
-	H2Core::CoreActionController::setSong( pSongMuteGroups );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSongMuteGroups );
 
 	std::vector<int> indices{ 1, 3, 10 };
 	for ( auto ii : indices ) {
@@ -317,7 +317,7 @@ void TransportTest::testNoteOff() {
 	auto pSongNoteOff =
 		Song::load( QString( H2TEST_FILE( "song/AE_noteOff.h2song" ) ) );
 	CPPUNIT_ASSERT( pSongNoteOff != nullptr );
-	H2Core::CoreActionController::setSong( pSongNoteOff );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSongNoteOff );
 
 	std::vector<int> indices{ 1, 3, 10 };
 	for ( auto ii : indices ) {

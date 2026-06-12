@@ -40,7 +40,7 @@ class FakeAudioDriver : Object<FakeAudioDriver>, public AudioDriver
 {
 	H2_OBJECT(FakeAudioDriver)
 public:
-	FakeAudioDriver( audioProcessCallback processCallback );
+	FakeAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback );
 	~FakeAudioDriver();
 
 	virtual int init( unsigned nBufferSize ) override;

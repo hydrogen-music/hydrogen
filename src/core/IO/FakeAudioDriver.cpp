@@ -28,8 +28,8 @@
 
 namespace H2Core {
 
-FakeAudioDriver::FakeAudioDriver( audioProcessCallback processCallback )
-		: AudioDriver()
+FakeAudioDriver::FakeAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback )
+		: AudioDriver( pHydrogen )
 		, m_processCallback( processCallback )
 		, m_pOut_L( nullptr )
 		, m_pOut_R( nullptr )
@@ -45,7 +45,7 @@ FakeAudioDriver::~FakeAudioDriver() {
 int FakeAudioDriver::init( unsigned nBufferSize ) {
 
 	m_nBufferSize = nBufferSize;
-	m_nSampleRate = Preferences::get_instance()->m_nSampleRate;
+	m_nSampleRate = m_pHydrogen->getPreferences()->m_nSampleRate;
 	m_pOut_L = new float[ nBufferSize ];
 	m_pOut_R = new float[ nBufferSize ];
 
@@ -143,7 +143,7 @@ void FakeAudioDriver::processCallback( void* pInstance ) {
 		return;
 	}
 
-	const auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	const auto pAudioEngine = pDriver->getHydrogen()->getAudioEngine();
 
 	while ( pDriver->m_bActive ) {
 		// process...

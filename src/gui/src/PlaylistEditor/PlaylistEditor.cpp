@@ -110,7 +110,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	// Rewind button
 	m_pRwdButton = new MidiLearnableToolButton( m_pToolBar, "" );
 	connect( m_pRwdButton, &QToolButton::clicked, [=]() {
-		CoreActionController::locateToColumn( std::max(
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( std::max(
 			Hydrogen::get_instance()
 					->getAudioEngine()
 					->getPlayhead()
@@ -145,7 +145,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	);
 	connect( m_pStopButton, &QToolButton::clicked, [=](){
 		Hydrogen::get_instance()->sequencerStop();
-		CoreActionController::locateToColumn( 0 );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( 0 );
 	});
 	m_pStopButton->setMidiAction(
 		std::make_shared<MidiAction>( MidiAction::Type::Stop ) );
@@ -157,7 +157,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 		PlaylistEditor::nButtonWidth, PlaylistEditor::nButtonHeight
 	);
 	connect( m_pFfwdButton, &QToolButton::clicked, [=](){
-		CoreActionController::locateToColumn(
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn(
 			Hydrogen::get_instance()->getAudioEngine()->getPlayhead()->
 			getColumn() + 1 );
 	});
@@ -498,7 +498,7 @@ void PlaylistEditor::openPlaylist() {
 	const auto sRecoverFileName = HydrogenApp::findAutoSaveFile(
 		Filesystem::Artifact::Playlist, sFilePath );
 
-	auto pPlaylist = CoreActionController::loadPlaylist(
+	auto pPlaylist = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadPlaylist(
 		sFilePath, sRecoverFileName );
 	if ( pPlaylist == nullptr ) {
 		QMessageBox msgBox;
@@ -652,7 +652,7 @@ bool PlaylistEditor::savePlaylistAs() {
 
 	const QString sFileName = fd.selectedFiles().first();
 
-	if ( ! CoreActionController::savePlaylistAs( sFileName ) ) {
+	if ( ! H2Core::Hydrogen::get_instance()->getCoreActionController()->savePlaylistAs( sFileName ) ) {
 		QMessageBox::critical( nullptr, "Hydrogen",
 							   pCommonStrings->getPlaylistSaveFailure() );
 		return false;
@@ -688,7 +688,7 @@ bool PlaylistEditor::savePlaylist()
 		return savePlaylistAs();
 	}
 
-	if ( ! CoreActionController::savePlaylist() ) {
+	if ( ! H2Core::Hydrogen::get_instance()->getCoreActionController()->savePlaylist() ) {
 		QMessageBox::critical( this, "Hydrogen",
 							   pCommonStrings->getPlaylistSaveFailure() );
 		return false;
@@ -947,7 +947,7 @@ void PlaylistEditor::playButtonClicked()
 			m_pPlayButton->setChecked(false);
 			return;
 		}
-		CoreActionController::activatePlaylistSong( nIndex );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->activatePlaylistSong( nIndex );
 	}
 
 	if ( m_pPlayButton->isChecked() ) {
@@ -1320,7 +1320,7 @@ void PlaylistTableWidget::loadCurrentRow() {
 	// optional functionality. Therefore, we trigger the event in here
 	// directly (to tell the remainder of H2 that the loaded song is
 	// associated to a playlist).
-	CoreActionController::activatePlaylistSong( nIndex );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->activatePlaylistSong( nIndex );
 }
 
 

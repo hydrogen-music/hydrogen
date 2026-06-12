@@ -32,6 +32,8 @@
 
 namespace H2Core {
 
+class Preferences;
+
 /**
  * A container for a sample, being able to apply modifications on it
  */
@@ -235,7 +237,7 @@ class Sample : public H2Core::Object<Sample> {
 	 *
 	 * \fn load()
 	 */
-	bool load( float fBpm = 120 );
+	bool load( float fBpm = 120, Preferences* pPreferences = nullptr );
 	/**
 	 * Flush the current content of the left and right
 	 * channel and the current metadata.
@@ -319,12 +321,12 @@ class Sample : public H2Core::Object<Sample> {
 	 * apply #m_rubberband transformation to the sample
 	 * \param fBpm tempo the Rubberband transformation will target
 	 */
-	void applyRubberband( float fBpm );
+	void applyRubberband( float fBpm, Preferences* pPreferences );
 	/**
 	 * call rubberband cli to modify the sample using #m_rubberband
 	 * \param fBpm tempo the Rubberband transformation will target
 	 */
-	bool execRubberbandCli( float fBpm );
+	bool execRubberbandCli( float fBpm, Preferences* pPreferences );
 
 	/** Convenience variable not written to disk. */
 	bool m_bIsLoaded;

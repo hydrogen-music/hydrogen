@@ -22,6 +22,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <core/Basics/AutomationPath.h>
+#include <core/Hydrogen.h>
 
 using namespace H2Core;
 
@@ -141,7 +142,7 @@ class AutomationPathTest : public CppUnit::TestCase {
 	___INFOLOG( "" );
 		AutomationPath p(0.0f, 1.0f, 1.0f);
 
-		p.add_point(1.0f, 0.5f);
+		p.add_point(1.0f, 0.5f, H2Core::Hydrogen::get_instance());
 
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(
 				0.5,
@@ -158,8 +159,8 @@ class AutomationPathTest : public CppUnit::TestCase {
 	___INFOLOG( "" );
 		AutomationPath p(0.0f, 1.0f, 1.0f);
 
-		p.add_point(1.0f, 0.5f);
-		p.add_point(2.0f, 0.7f);
+		p.add_point(1.0f, 0.5f, H2Core::Hydrogen::get_instance());
+		p.add_point(2.0f, 0.7f, H2Core::Hydrogen::get_instance());
 
 		CPPUNIT_ASSERT(! p.empty());
 
@@ -178,8 +179,8 @@ class AutomationPathTest : public CppUnit::TestCase {
 	___INFOLOG( "" );
 		AutomationPath p(0.0f, 1.0f, 1.0f);
 
-		p.add_point(1.0f, 0.4f);
-		p.add_point(2.0f, 0.6f);
+		p.add_point(1.0f, 0.4f, H2Core::Hydrogen::get_instance());
+		p.add_point(2.0f, 0.6f, H2Core::Hydrogen::get_instance());
 
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(
 				0.6,
@@ -195,8 +196,8 @@ class AutomationPathTest : public CppUnit::TestCase {
 	___INFOLOG( "" );
 		AutomationPath p(0.0f, 1.0f, 1.0f);
 
-		p.add_point(1.0f, 0.2f);
-		p.add_point(2.0f, 0.4f);
+		p.add_point(1.0f, 0.2f, H2Core::Hydrogen::get_instance());
+		p.add_point(2.0f, 0.4f, H2Core::Hydrogen::get_instance());
 
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(
 				0.3,
@@ -222,12 +223,12 @@ class AutomationPathTest : public CppUnit::TestCase {
 	{
 	___INFOLOG( "" );
 		AutomationPath p1(-4.0f, 3.0f, 1.5f);
-		p1.add_point(1.0f, 0.0f);
-		p1.add_point(2.0f, 2.0f);
+		p1.add_point(1.0f, 0.0f, H2Core::Hydrogen::get_instance());
+		p1.add_point(2.0f, 2.0f, H2Core::Hydrogen::get_instance());
 
 		AutomationPath p2(-4.0f, 3.0f, 1.5f);
-		p2.add_point(1.0f, 0.0f);
-		p2.add_point(2.0f, 2.0f);
+		p2.add_point(1.0f, 0.0f, H2Core::Hydrogen::get_instance());
+		p2.add_point(2.0f, 2.0f, H2Core::Hydrogen::get_instance());
 
 		CPPUNIT_ASSERT(p1 == p2);
 		CPPUNIT_ASSERT(!(p1 != p2));
@@ -249,10 +250,10 @@ class AutomationPathTest : public CppUnit::TestCase {
 	{
 	___INFOLOG( "" );
 		AutomationPath p1(-2.0f, 2.0f, 1.0f);
-		p1.add_point(1.0f, 0.0f);
+		p1.add_point(1.0f, 0.0f, H2Core::Hydrogen::get_instance());
 
 		AutomationPath p2(-2.0f, 2.0f, 1.0f);
-		p2.add_point(2.0f, 2.0f);
+		p2.add_point(2.0f, 2.0f, H2Core::Hydrogen::get_instance());
 
 		CPPUNIT_ASSERT(p1 != p2);
 		CPPUNIT_ASSERT(!(p1 == p2));
@@ -264,9 +265,9 @@ class AutomationPathTest : public CppUnit::TestCase {
 	___INFOLOG( "" );
 		typedef std::pair<const float,float> pair;
 		AutomationPath p(0.0f, 4.0f, 1.0f);
-		p.add_point(0.0f, 0.0f);
-		p.add_point(1.0f, 2.0f);
-		p.add_point(2.0f, 4.0f);
+		p.add_point(0.0f, 0.0f, H2Core::Hydrogen::get_instance());
+		p.add_point(1.0f, 2.0f, H2Core::Hydrogen::get_instance());
+		p.add_point(2.0f, 4.0f, H2Core::Hydrogen::get_instance());
 
 		auto i = p.begin();
 		CPPUNIT_ASSERT(i != p.end());
@@ -303,7 +304,7 @@ class AutomationPathTest : public CppUnit::TestCase {
 	{
 	___INFOLOG( "" );
 		AutomationPath p(0.0f, 1.0f, 1.0f);
-		p.add_point(4.0f, 0.5f);
+		p.add_point(4.0f, 0.5f, H2Core::Hydrogen::get_instance());
 
 		auto iter = p.find(4.0f);
 		CPPUNIT_ASSERT(iter == p.begin());
@@ -321,7 +322,7 @@ class AutomationPathTest : public CppUnit::TestCase {
 	{
 	___INFOLOG( "" );
 		AutomationPath p(0.0f, 1.0f, 1.0f);
-		p.add_point(2.0f, 0.2f);
+		p.add_point(2.0f, 0.2f, H2Core::Hydrogen::get_instance());
 
 		auto iter = p.find(1.3f);
 		CPPUNIT_ASSERT(iter == p.end());
@@ -337,10 +338,10 @@ class AutomationPathTest : public CppUnit::TestCase {
 	___INFOLOG( "" );
 		typedef std::pair<const float,float> pair;
 		AutomationPath p(0.0f, 1.0f, 1.0f);
-		p.add_point(5.0f, 0.5f);
+		p.add_point(5.0f, 0.5f, H2Core::Hydrogen::get_instance());
 
 		auto in = p.begin();
-		auto out = p.move(in, 6.0f, 1.0f);
+		auto out = p.move(in, 6.0f, 1.0f, H2Core::Hydrogen::get_instance());
 
 		CPPUNIT_ASSERT(out == p.begin());
 		CPPUNIT_ASSERT_EQUAL(
@@ -355,9 +356,9 @@ class AutomationPathTest : public CppUnit::TestCase {
 	{
 	___INFOLOG( "" );
 		AutomationPath p(1.0f, 1.0f, 1.0f);
-		p.add_point(0.0f, 0.0f);
+		p.add_point(0.0f, 0.0f, H2Core::Hydrogen::get_instance());
 
-		p.remove_point(0.0f);
+		p.remove_point(0.0f, H2Core::Hydrogen::get_instance());
 
 		CPPUNIT_ASSERT(p.empty());
 		CPPUNIT_ASSERT(p.find(0.0f) == p.end());

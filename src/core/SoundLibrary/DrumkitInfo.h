@@ -33,6 +33,7 @@ namespace H2Core
 {
 
 class Drumkit;
+class Hydrogen;
 class InstrumentInfo;
 
 /**
@@ -63,7 +64,7 @@ class DrumkitInfo : public SoundLibraryInfo,
 	 *
 	 * @return `true` on success
 	 */
-	bool load( const QString& sPath );
+	bool load( const QString& sPath, Hydrogen* pHydrogen = nullptr );
 
 	const std::vector<std::shared_ptr<InstrumentInfo>>& getInstrumentInfos(
 	) const;

@@ -34,9 +34,9 @@
 
 namespace H2Core {
 
-MidiBaseDriver::MidiBaseDriver()
-	: MidiInput(),
-	  MidiOutput(),
+MidiBaseDriver::MidiBaseDriver( Hydrogen* pHydrogen )
+	: MidiInput( pHydrogen ),
+	  MidiOutput( pHydrogen ),
 	  m_bSendClockTick( false ),
 	  m_bNotifyOnNextTick( false ),
 	  m_interval( 20.0 ),
@@ -48,8 +48,8 @@ MidiBaseDriver::MidiBaseDriver()
       m_bInputActive( false ),
       m_bOutputActive( false )
 {
-	if ( Preferences::get_instance()->getMidiClockOutputSend() ) {
-		startMidiClockStream( Hydrogen::get_instance()
+	if ( MidiInput::m_pHydrogen->getPreferences()->getMidiClockOutputSend() ) {
+		startMidiClockStream( MidiInput::m_pHydrogen
 								  ->getAudioEngine()
 								  ->getPlayhead()
 								  ->getBpm() );
@@ -192,7 +192,7 @@ MidiBaseDriver::getHandledOutputs()
 
 void MidiBaseDriver::sendAllNotesOff()
 {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = MidiInput::m_pHydrogen->getPreferences();
 	if ( pPref->getMidiSendNoteOff() == Preferences::MidiSendNoteOff::Never ) {
 		return;
 	}
@@ -248,7 +248,7 @@ void MidiBaseDriver::sendAllNotesOff()
 	// "All Notes Off" Channel Mode Message
 	MidiMessage::ControlChange allNotesOff = {
 		Midi::parameterFromIntClamp( 123 ), Midi::ParameterMinimum,
-		Preferences::get_instance()->getMidiFeedbackChannel()
+		MidiInput::m_pHydrogen->getPreferences()->getMidiFeedbackChannel()
 	};
 	enqueueOutputMessage( MidiMessage::from( allNotesOff ) );
 }
@@ -311,8 +311,8 @@ void MidiBaseDriver::midiClockStream( void* pInstance )
 		return;
 	}
 
-	auto pHydrogen = Hydrogen::get_instance();
-	const auto pPref = Preferences::get_instance();
+	auto pHydrogen = pMidiDriver->getHydrogen();
+	const auto pPref = pMidiDriver->getHydrogen()->getPreferences();
 
 	while ( pMidiDriver->m_bSendClockTick ) {
 		auto start = Clock::now();
@@ -438,7 +438,7 @@ std::shared_ptr<MidiInput::HandledInput> MidiBaseDriver::handleMessage(
 			m_handledInputs.pop_front();
 		}
 
-		EventQueue::get_instance()->pushEvent( Event::Type::MidiInput, 0 );
+		MidiInput::m_pHydrogen->getEventQueue()->pushEvent( Event::Type::MidiInput, 0 );
 	}
 
 	return pHandledInput;
@@ -502,7 +502,7 @@ std::shared_ptr<MidiOutput::HandledOutput> MidiBaseDriver::sendMessage(
 			m_handledOutputs.pop_front();
 		}
 
-		EventQueue::get_instance()->pushEvent( Event::Type::MidiOutput, 0 );
+		MidiInput::m_pHydrogen->getEventQueue()->pushEvent( Event::Type::MidiOutput, 0 );
 	}
 
 	return pHandledOutput;

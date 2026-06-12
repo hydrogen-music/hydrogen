@@ -202,14 +202,15 @@ MidiMessage MidiMessage::from( const ControlChange& controlChange ) {
 	return msg;
 }
 
-MidiMessage MidiMessage::from( std::shared_ptr<Note> pNote ) {
+MidiMessage MidiMessage::from( std::shared_ptr<Note> pNote,
+							   std::shared_ptr<Preferences> pPreferences ) {
 	MidiMessage msg;
 
 	// In case we do not have a valid note or MIDI output was turned off for the
 	// instrument associated to the provided note, we do not assign a valid type
 	// and the message will be dropped.
 	if ( pNote != nullptr && pNote->getInstrument() != nullptr ) {
-		const auto noteRef = Preferences::get_instance()
+		const auto noteRef = pPreferences
 								 ->getMidiInstrumentMap()
 								 ->getOutputMapping( pNote );
 		if ( noteRef.channel == Midi::ChannelOff ||

@@ -118,23 +118,24 @@ Hydrogen::Hydrogen( std::shared_ptr<Preferences> pPref, int nOscPort )
 	// call sites resolve to them during the de-singletoning sweep (ADR 0015).
 	Preferences::setInstance( m_pPreferences );
 
-	m_pEventQueue = new EventQueue();
+	m_pEventQueue = new EventQueue( this );
 	EventQueue::setInstance( m_pEventQueue );
 
 #ifdef H2CORE_HAVE_OSC
-	NsmClient::create_instance();
-	OscServer::create_instance( nOscPort );
+	NsmClient::create_instance( this );
+	OscServer::create_instance( this, nOscPort );
 #endif
 
 	m_nBeatCounterDriftCompensation = pPref->m_nBeatCounterDriftCompensation;
 	m_nBeatCounterStartOffset = pPref->m_nBeatCounterStartOffset;
 	m_beatCounterDiffs.resize( 16 );
 
-	m_pSoundLibraryDatabase = std::make_shared<SoundLibraryDatabase>();
+	m_pSoundLibraryDatabase = std::make_shared<SoundLibraryDatabase>( this );
 	m_pSong = Song::getEmptySong( m_pSoundLibraryDatabase );
 
-	m_pAudioEngine = new AudioEngine();
-	m_pMidiActionManager = std::make_shared<MidiActionManager>();
+	m_pAudioEngine = new AudioEngine( this );
+	m_pMidiActionManager = std::make_shared<MidiActionManager>( this );
+	m_pCoreActionController = std::make_shared<CoreActionController>( this );
 	m_pPlaylist = std::make_shared<Playlist>();
 	m_pTimeHelper = std::make_shared<TimeHelper>();
 
@@ -193,6 +194,10 @@ void Hydrogen::create_instance( int nOscPort )
 	Preferences::create_instance();
 
 	if ( __instance == nullptr ) {
+		// Bootstrap: this static helper has no instance yet, so it reads the
+		// just-loaded process-current Preferences via the transitional shim to
+		// seed the first instance (ADR 0015 / T1.5 will rework the standalone
+		// entry point once the shim is removed).
 		new Hydrogen( Preferences::get_instance(), nOscPort );
 	}
 }
@@ -207,7 +212,7 @@ void Hydrogen::sequencerPlay()
 void Hydrogen::sequencerStop()
 {
 	m_pAudioEngine->stop();
-	CoreActionController::activateRecordMode( false );
+	m_pCoreActionController->activateRecordMode( false );
 
 	// Delete redundant instruments still alive after switching the
 	// drumkit to a smaller one.
@@ -230,16 +235,17 @@ void Hydrogen::loadPlaybackTrack( const QString& sFileName )
 		return;
 	}
 
-	const auto pInstrument = Instrument::from( pSample );
+	const auto pInstrument = Instrument::from( pSample, this );
 	if ( pInstrument != nullptr ) {
 		pInstrument->setName( "PlaybackTrack" );
 		pInstrument->setId( Instrument::PlaybackTrackId );
-		pInstrument->loadSamples( m_pAudioEngine->getPlayhead()->getBpm() );
+		pInstrument->loadSamples( m_pAudioEngine->getPlayhead()->getBpm(),
+								  getPreferences().get() );
 	}
 
 	m_pSong->setPlaybackTrackInstrument( pInstrument );
 
-	EventQueue::get_instance()->pushEvent(
+	m_pEventQueue->pushEvent(
 		Event::Type::PlaybackTrackChanged, 0
 	);
 }
@@ -285,7 +291,7 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 
 	m_pSong = pSong;
 	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
-		pSong->getDrumkit()->loadSamples();
+		pSong->getDrumkit()->loadSamples( 120, getPreferences().get() );
 	}
 
 	// Ensure the selected instrument is within the range of new
@@ -304,7 +310,7 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 
 	// Push current state of Hydrogen to attached control interfaces,
 	// like OSC clients.
-	CoreActionController::initExternalControlInterfaces();
+	m_pCoreActionController->initExternalControlInterfaces();
 }
 
 void Hydrogen::midiNoteOn( std::shared_ptr<Note> pNote )
@@ -321,7 +327,7 @@ bool Hydrogen::addRealtimeNote(
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	auto pSampler = pAudioEngine->getSampler();
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = m_pPreferences;
 	unsigned int nRealColumn = 0;
 	unsigned res = pPref->getPatternEditorGridResolution();
 	int nBase = pPref->isPatternEditorUsingTriplets() ? 3 : 4;
@@ -488,7 +494,7 @@ bool Hydrogen::addRealtimeNote(
 			}
 
 			if ( bPatternModified && ! pCurrentPattern->getIsModified() ) {
-				EventQueue::get_instance()->pushEvent(
+				m_pEventQueue->pushEvent(
 					Event::Type::PatternChanged, -1
 				);
 				setPatternModified( true, nCurrentPatternNumber );
@@ -512,7 +518,7 @@ bool Hydrogen::addRealtimeNote(
 				noteAction.key = Note::KeyDefault;
 			}
 
-			EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
+			m_pEventQueue->m_addMidiNoteVector.push_back(noteAction);
 
 			m_nLastRecordedMIDINoteTick = nTickInPattern;
 		}
@@ -566,7 +572,7 @@ void Hydrogen::toggleNextPattern( int nPatternNumber ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
 		m_pAudioEngine->toggleNextPattern( nPatternNumber );
 		m_pAudioEngine->unlock();
-		EventQueue::get_instance()->pushEvent( Event::Type::NextPatternsChanged, 0 );
+		m_pEventQueue->pushEvent( Event::Type::NextPatternsChanged, 0 );
 
 	} else {
 		ERRORLOG( "can't set next pattern in song mode" );
@@ -578,7 +584,7 @@ bool Hydrogen::flushAndAddNextPattern( int nPatternNumber ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
 		m_pAudioEngine->flushAndAddNextPattern( nPatternNumber );
 		m_pAudioEngine->unlock();
-		EventQueue::get_instance()->pushEvent( Event::Type::NextPatternsChanged, 0 );
+		m_pEventQueue->pushEvent( Event::Type::NextPatternsChanged, 0 );
 
 		return true;
 
@@ -611,7 +617,7 @@ void Hydrogen::restartAudioDriver() {
 	m_pAudioEngine->stopAudioDriver( Event::Trigger::Suppress );
 	m_pAudioEngine->startAudioDriver( Event::Trigger::Default );
 
-	if ( bCombinedDriver && Preferences::get_instance()->m_audioDriver !=
+	if ( bCombinedDriver && m_pPreferences->m_audioDriver !=
 		 Preferences::AudioDriver::Jack ) {
 		// We stopped a combined MIDI and audio driver. But the user shows to
 		// use separate ones instead. We have to ensure the audio driver is
@@ -643,7 +649,7 @@ void Hydrogen::restartMidiDriver() {
 	m_pAudioEngine->stopMidiDriver( Event::Trigger::Suppress );
 	m_pAudioEngine->startMidiDriver( Event::Trigger::Default );
 
-	if ( bCombinedDriver && Preferences::get_instance()->m_midiDriver !=
+	if ( bCombinedDriver && m_pPreferences->m_midiDriver !=
 		 Preferences::MidiDriver::Jack ) {
 		// We stopped a combined MIDI and audio driver. But the user shows to
 		// use separate ones instead. We have to ensure the audio driver is
@@ -703,7 +709,7 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth,
 void Hydrogen::startExportSong( const QString& sFileName)
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
-	CoreActionController::locateToTick( 0 );
+	m_pCoreActionController->locateToTick( 0 );
 	pAudioEngine->play();
 	pAudioEngine->getSampler()->stopPlayingNotes();
 
@@ -717,7 +723,7 @@ void Hydrogen::stopExportSong()
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	pAudioEngine->getSampler()->stopPlayingNotes();
-	CoreActionController::locateToTick( 0 );
+	m_pCoreActionController->locateToTick( 0 );
 }
 
 void Hydrogen::stopExportSession()
@@ -807,7 +813,7 @@ void Hydrogen::onTapTempoAccelEvent( TimePoint start ) {
 
 	++m_nTapTempoEventsAveraged;
 
-	CoreActionController::setBpm( m_fTapTempoAverageBpm );
+	m_pCoreActionController->setBpm( m_fTapTempoAverageBpm );
 }
 
 void Hydrogen::updateSelectedPattern( bool bNeedsLock ) {
@@ -827,7 +833,7 @@ void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock,
 {
 	if ( nPat == m_nSelectedPatternNumber ) {
 		if ( trigger == Event::Trigger::Force ) {
-			EventQueue::get_instance()->pushEvent(
+			m_pEventQueue->pushEvent(
 				Event::Type::SelectedPatternChanged, -1 );
 		}
 		return;
@@ -851,7 +857,7 @@ void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock,
 	}
 
 	if ( trigger != Event::Trigger::Suppress ) {
-		EventQueue::get_instance()->pushEvent( Event::Type::SelectedPatternChanged, -1 );
+		m_pEventQueue->pushEvent( Event::Type::SelectedPatternChanged, -1 );
 	}
 }
 
@@ -862,7 +868,7 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument,
 	// another type-only row might be selected in the GUI.
 	if ( m_nSelectedInstrumentNumber == nInstrument ) {
 		if ( trigger == Event::Trigger::Force ) {
-			EventQueue::get_instance()->pushEvent(
+			m_pEventQueue->pushEvent(
 				Event::Type::SelectedInstrumentChanged, -1 );
 		}
 		return;
@@ -878,7 +884,7 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument,
 	}
 
 	if ( trigger != Event::Trigger::Suppress ) {
-		EventQueue::get_instance()->pushEvent(
+		m_pEventQueue->pushEvent(
 			Event::Type::SelectedInstrumentChanged, -1 );
 	}
 }
@@ -891,7 +897,7 @@ void Hydrogen::renamePerTrackJackAudioPorts( std::shared_ptr<Song> pSong,
 		return;
 	}
 	
-	if ( Preferences::get_instance()->m_bJackTrackOuts == true &&
+	if ( m_pPreferences->m_bJackTrackOuts == true &&
 		hasJackDriver() ) {
 
 		// When restarting the audio driver after loading a new song under
@@ -910,14 +916,14 @@ void Hydrogen::renamePerTrackJackAudioPorts( std::shared_ptr<Song> pSong,
 void Hydrogen::setBeatCounterTotalBeats( int nBeatsToCount ) {
 	if ( m_nBeatCounterTotalBeats != nBeatsToCount ) {
 		m_nBeatCounterTotalBeats = nBeatsToCount;
-		EventQueue::get_instance()->pushEvent( Event::Type::BeatCounter, 0 );
+		m_pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
 	}
 }
 
 void Hydrogen::setBeatCounterBeatLength( float fBeatLength ) {
 	if ( m_fBeatCounterBeatLength != fBeatLength ) {
 		m_fBeatCounterBeatLength = fBeatLength;
-		EventQueue::get_instance()->pushEvent( Event::Type::BeatCounter, 0 );
+		m_pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
 	}
 }
 
@@ -927,7 +933,7 @@ bool Hydrogen::handleBeatCounter( TimePoint start )
 		return false;
 	}
 
-	auto pEventQueue = EventQueue::get_instance();
+	auto pEventQueue = m_pEventQueue;
 
 	auto now = start;
 	if ( now == TimePoint() ) {
@@ -987,7 +993,7 @@ bool Hydrogen::handleBeatCounter( TimePoint start )
 		const float fBeatCountBpm =
 			static_cast<float>(std::floor( 60 / fAverageTime * 100 ) / 100);
 			
-		if ( CoreActionController::setBpm( fBeatCountBpm ) ) {
+		if ( m_pCoreActionController->setBpm( fBeatCountBpm ) ) {
 			bTempoSet = true;
 		}
 
@@ -1002,7 +1008,7 @@ bool Hydrogen::handleBeatCounter( TimePoint start )
 	// experience visual delays in the BpmTap.
 	pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
 
-	if ( bTempoSet && Preferences::get_instance()->m_beatCounter ==
+	if ( bTempoSet && m_pPreferences->m_beatCounter ==
 		 Preferences::BeatCounter::TapAndPlay &&
 		 m_pAudioEngine->getState() != AudioEngine::State::Playing ) {
 		const int nSampleRate =
@@ -1030,13 +1036,13 @@ bool Hydrogen::handleBeatCounter( TimePoint start )
 }
 
 void Hydrogen::updateBeatCounterSettings() {
-	const auto pPreferences = Preferences::get_instance();
+	const auto pPreferences = m_pPreferences;
 
 	m_nBeatCounterDriftCompensation =
 		pPreferences->m_nBeatCounterDriftCompensation;
 	m_nBeatCounterStartOffset = pPreferences->m_nBeatCounterStartOffset;
 
-	EventQueue::get_instance()->pushEvent( Event::Type::BeatCounter, 0 );
+	m_pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
 }
 
 void Hydrogen::releaseJackTimebaseControl()
@@ -1151,7 +1157,7 @@ bool Hydrogen::hasJackTransport() const
 		if ( std::dynamic_pointer_cast<JackDriver>(
 				 m_pAudioEngine->getAudioDriver()
 			 ) != nullptr &&
-			 Preferences::get_instance()->m_nJackTransportMode ==
+			 m_pPreferences->m_nJackTransportMode ==
 				 Preferences::USE_JACK_TRANSPORT ) {
 			return true;
 		}
@@ -1198,7 +1204,7 @@ bool Hydrogen::isUnderSessionManagement() const
 bool Hydrogen::isTimelineEnabled() const {
 	if ( m_pSong != nullptr && m_pSong->getIsTimelineActivated() &&
 		 getMode() == Song::Mode::Song &&
-		 ! Preferences::get_instance()->getMidiClockInputHandling() &&
+		 ! m_pPreferences->getMidiClockInputHandling() &&
 		 getJackTimebaseState() != JackDriver::Timebase::Listener ) {
 		return true;
 	}
@@ -1225,7 +1231,7 @@ void Hydrogen::setIsPatternEditorLocked( bool bValue ) {
 
 		updateSelectedPattern();
 			
-		EventQueue::get_instance()->pushEvent( Event::Type::PatternEditorLocked,
+		m_pEventQueue->pushEvent( Event::Type::PatternEditorLocked,
 												bValue );
 	}
 }
@@ -1242,12 +1248,12 @@ void Hydrogen::setMode( const Song::Mode& mode, Event::Trigger trigger ) {
 	if ( m_pSong != nullptr && mode != m_pSong->getMode() ) {
 		m_pSong->setMode( mode );
 		if ( trigger != Event::Trigger::Suppress ) {
-			EventQueue::get_instance()->pushEvent(
+			m_pEventQueue->pushEvent(
 				Event::Type::SongModeActivation, ( mode == Song::Mode::Song) ? 1 : 0 );
 		}
 	}
 	else if ( trigger == Event::Trigger::Force ) {
-		EventQueue::get_instance()->pushEvent(
+		m_pEventQueue->pushEvent(
 			Event::Type::SongModeActivation, ( mode == Song::Mode::Song) ? 1 : 0 );
 
 	}
@@ -1263,7 +1269,7 @@ Song::ActionMode Hydrogen::getActionMode() const {
 void Hydrogen::setActionMode( const Song::ActionMode& mode ) {
 	if ( m_pSong != nullptr ) {
 		m_pSong->setActionMode( mode );
-		EventQueue::get_instance()->pushEvent( Event::Type::ActionModeChanged,
+		m_pEventQueue->pushEvent( Event::Type::ActionModeChanged,
 												( mode == Song::ActionMode::drawMode ) ? 1 : 0 );
 	}
 }
@@ -1297,7 +1303,7 @@ void Hydrogen::setPatternMode( const Song::PatternMode& mode )
 		}
 
 		m_pAudioEngine->unlock();
-		EventQueue::get_instance()->pushEvent( Event::Type::StackedModeActivation,
+		m_pEventQueue->pushEvent( Event::Type::StackedModeActivation,
 												( mode == Song::PatternMode::Selected ) ? 1 : 0 );
 	}
 }
@@ -1306,7 +1312,7 @@ Hydrogen::Tempo Hydrogen::getTempoSource() const {
 	if ( getJackTimebaseState() == JackDriver::Timebase::Listener ) {
 		return Tempo::Jack;
 	}
-	else if ( Preferences::get_instance()->getMidiClockInputHandling() ) {
+	else if ( m_pPreferences->getMidiClockInputHandling() ) {
 		return Tempo::Midi;
 	}
 	else if ( getMode() == Song::Mode::Song &&
@@ -1338,9 +1344,9 @@ void Hydrogen::recreateOscServer() {
 	// preferences dialog and pressing Ok/apply. We want the specified port to
 	// be set and overwrite a potential value the user might have provided as
 	// CLI argument.
-	OscServer::create_instance( -1 );
+	OscServer::create_instance( this, -1 );
 	
-	if ( Preferences::get_instance()->getOscServerEnabled() ) {
+	if ( m_pPreferences->getOscServerEnabled() ) {
 		toggleOscServer( true );
 	}
 #endif
@@ -1362,7 +1368,7 @@ void Hydrogen::setDrumkitModified( bool bIsModified )
 
 	m_pSong->getDrumkit()->setIsModified( bIsModified );
 
-	EventQueue::get_instance()->pushEvent( Event::Type::DrumkitIsModified, -1 );
+	m_pEventQueue->pushEvent( Event::Type::DrumkitIsModified, -1 );
 }
 
 void Hydrogen::setPatternModified( bool bIsModified, int nIndex )
@@ -1386,7 +1392,7 @@ void Hydrogen::setPatternModified( bool bIsModified, int nIndex )
 
 	pPattern->setIsModified( bIsModified );
 
-	EventQueue::get_instance()->pushEvent(
+	m_pEventQueue->pushEvent(
 		Event::Type::PatternIsModified, nIndex
 	);
 }
@@ -1399,7 +1405,7 @@ void Hydrogen::setSongModified( bool bIsModified )
 
 	m_pSong->setIsModified( bIsModified );
 
-	EventQueue::get_instance()->pushEvent( Event::Type::SongIsModified, -1 );
+	m_pEventQueue->pushEvent( Event::Type::SongIsModified, -1 );
 
 #ifdef H2CORE_HAVE_OSC
 	if ( isUnderSessionManagement() ) {
@@ -1422,7 +1428,7 @@ void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
         return;
     }
 
-	auto pPref = Preferences::get_instance();
+	auto pPref = m_pPreferences;
 	auto pAudioEngine = getAudioEngine();
 
 	if ( bEnabled != getSong()->getIsTimelineActivated() ) {
@@ -1431,7 +1437,7 @@ void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
 		m_pSong->setIsTimelineActivated( bEnabled );
 
 		if ( bEnabled ) {
-			m_pSong->getTimeline()->activate();
+			m_pSong->getTimeline()->activate( this );
 		}
 		else {
 			m_pSong->getTimeline()->deactivate();
@@ -1440,7 +1446,7 @@ void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
 		pAudioEngine->handleTimelineChange();
 		pAudioEngine->unlock();
 
-		EventQueue::get_instance()->pushEvent(
+		m_pEventQueue->pushEvent(
 			Event::Type::TimelineActivation, static_cast<int>( bEnabled )
 		);
 	}
@@ -1616,7 +1622,7 @@ void Hydrogen::updateVirtualPatterns( Event::Trigger trigger ) {
 	m_pAudioEngine->unlock();
 
 	if ( trigger != Event::Trigger::Suppress ) {
-		EventQueue::get_instance()->pushEvent(
+		m_pEventQueue->pushEvent(
 			Event::Type::PatternChanged, 0
 		);
 	}

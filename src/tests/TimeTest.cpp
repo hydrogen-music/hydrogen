@@ -45,21 +45,21 @@ void TimeTest::setUp(){
 
 	// We need a song that has at least the maximum pattern group
 	// number provided in testElapsedTime(). An empty one won't do it.
-	auto pSong = H2Core::CoreActionController::loadSong(
+	auto pSong = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong(
 		QString( "%1/GM_kit_demo3.h2song" ).arg( Filesystem::demosDir() ) );
-	H2Core::CoreActionController::setSong( pSong );
-	H2Core::CoreActionController::saveSongAs( m_sValidPath, true );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->saveSongAs( m_sValidPath, true );
 	
-	H2Core::CoreActionController::activateTimeline( true );
-	H2Core::CoreActionController::addTempoMarker( 0, 120 );
-	H2Core::CoreActionController::addTempoMarker( 3, 100 );
-	H2Core::CoreActionController::addTempoMarker( 5, 40 );
-	H2Core::CoreActionController::addTempoMarker( 7, 200 );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateTimeline( true );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker( 0, 120 );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker( 3, 100 );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker( 5, 40 );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker( 7, 200 );
 }
 
 void TimeTest::tearDown(){
 
-	H2Core::CoreActionController::activateTimeline( false );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateTimeline( false );
 	
 	// Delete all temporary files
 	if ( QFile::exists( m_sValidPath ) ) {
@@ -125,6 +125,6 @@ void TimeTest::testHighResolutionSleep(){
 }
 
 float TimeTest::locateAndLookupTime( int nPatternPos ){
-	H2Core::CoreActionController::locateToColumn( nPatternPos );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( nPatternPos );
 	return Hydrogen::get_instance()->getAudioEngine()->getElapsedTime();
 }

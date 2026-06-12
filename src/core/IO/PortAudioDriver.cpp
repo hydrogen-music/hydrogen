@@ -21,6 +21,8 @@
  */
 
 #include <core/IO/PortAudioDriver.h>
+
+#include <core/Hydrogen.h>
 #if defined(H2CORE_HAVE_PORTAUDIO) || _DOXYGEN_
 
 #include <iostream>
@@ -57,21 +59,20 @@ int portAudioCallback(
 	return 0;
 }
 
-
-bool PortAudioDriver::m_bInitialised = false;
-
-
-PortAudioDriver::PortAudioDriver( audioProcessCallback processCallback )
-		: AudioDriver()
-		, m_processCallback( processCallback )
-		, m_pOut_L( nullptr )
-		, m_pOut_R( nullptr )
-		, m_pStream( nullptr )
+PortAudioDriver::PortAudioDriver(
+	Hydrogen* pHydrogen,
+	audioProcessCallback processCallback
+)
+	: AudioDriver( pHydrogen ),
+	  m_processCallback( processCallback ),
+	  m_pOut_L( nullptr ),
+	  m_pOut_R( nullptr ),
+	  m_pStream( nullptr ),
+	  m_bInitialised( false )
 {
-	m_nSampleRate = Preferences::get_instance()->m_nSampleRate;
-	m_sDevice = Preferences::get_instance()->m_sPortAudioDevice;
+	m_nSampleRate = m_pHydrogen->getPreferences()->m_nSampleRate;
+	m_sDevice = m_pHydrogen->getPreferences()->m_sPortAudioDevice;
 }
-
 
 PortAudioDriver::~PortAudioDriver() {
 }
@@ -145,7 +146,7 @@ QStringList PortAudioDriver::getDevices( const QString& sHostAPI ) {
 }
 
 QStringList PortAudioDriver::getDevices() {
-	return getDevices( Preferences::get_instance()->m_sPortAudioHostAPI );
+	return getDevices( m_pHydrogen->getPreferences()->m_sPortAudioHostAPI );
 }
 
 //
@@ -156,7 +157,7 @@ QStringList PortAudioDriver::getDevices() {
 int PortAudioDriver::connect()
 {
 	bool bUseDefaultStream = true;
-	const auto pPreferences = Preferences::get_instance();
+	const auto pPreferences = m_pHydrogen->getPreferences();
 	INFOLOG( "[connect]" );
 
 	m_pOut_L = new float[ MAX_BUFFER_SIZE ];

@@ -32,6 +32,8 @@
 namespace H2Core
 {
 
+	class Hydrogen;
+	class Preferences;
 	class XMLNode;
 	class Sample;
 
@@ -103,7 +105,7 @@ namespace H2Core
 		 * Calls the #H2Core::Sample::load()
 		 * member function of #m_pSample.
 		 */
-		void loadSample( float fBpm = 120 );
+		void loadSample( float fBpm = 120, Preferences* pPreferences = nullptr );
 		/*
 		 * unload sample and replace it with an empty one
 		 */
@@ -155,7 +157,8 @@ namespace H2Core
 														  const QString& sDrumkitPath,
 														  const QString& sSongPath = "",
 														  const License& drumkitLicense = License(),
-														  bool bSilent = false );
+														  bool bSilent = false,
+														  Hydrogen* pHydrogen = nullptr );
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -170,8 +173,8 @@ namespace H2Core
 			std::shared_ptr<InstrumentComponent> pComponent,
 			std::shared_ptr<InstrumentLayer> pLayer,
 			std::shared_ptr<Sample> pSample,
-			Event::Trigger trigger
-		);
+			Event::Trigger trigger,
+			Hydrogen* pHydrogen );
 
 	   private:
 		/** set the sample of the layer */

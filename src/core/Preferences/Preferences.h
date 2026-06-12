@@ -321,7 +321,7 @@ class Preferences : public H2Core::Object<Preferences> {
 	 *
 	 * If set to true, the current state of Hydrogen will be sent to
 	 * \e all known OSC clients using
-	 * CoreActionController::initExternalControlInterfaces() and
+	 * H2Core::Hydrogen::get_instance()->getCoreActionController()->initExternalControlInterfaces() and
 	 * OscServer::handleAction() via OSC messages each time it gets
 	 * updated.
 	 */

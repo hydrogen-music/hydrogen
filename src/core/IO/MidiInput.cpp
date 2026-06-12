@@ -40,7 +40,7 @@
 namespace H2Core
 {
 
-MidiInput::MidiInput() {
+MidiInput::MidiInput( Hydrogen* pHydrogen ) : m_pHydrogen( pHydrogen ) {
 }
 
 MidiInput::~MidiInput() {
@@ -50,7 +50,7 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 	const MidiMessage& msg )
 {
 	const auto timePoint = msg.getTimePoint();
-	auto pPref = Preferences::get_instance();
+	auto pPref = m_pHydrogen->getPreferences();
 
 	auto pHandledInput = std::make_shared<HandledInput>();
 	pHandledInput->timePoint = timePoint;
@@ -89,7 +89,7 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 		}
 	}
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 	if ( ! pHydrogen->getSong() ) {
@@ -125,7 +125,7 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 	case MidiMessage::Type::Start:
 		// Start from position 0
 		if ( pPref->getMidiTransportInputHandling() ) {
-			CoreActionController::locateToColumn( 0 );
+			m_pHydrogen->getCoreActionController()->locateToColumn( 0 );
 			// According to the MIDI Spec 1.0 v4.2.1 Start and Continue indicate
 			// that transport is about to start. But the actual start is done on
 			// the next MIDI clock tick.
@@ -182,7 +182,7 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 		if ( pPref->getMidiTransportInputHandling() ) {
 			// A song position provided via MIDI has the lowest resolution of a
 			// 1/16 note / 6 MIDI clocks. 24 MIDI clocks make a quarter.
-			CoreActionController::locateToTick(
+			m_pHydrogen->getCoreActionController()->locateToTick(
 				static_cast<int>( msg.getData1() ) * 6 *
 					H2Core::nTicksPerQuarter / 24,
 				true
@@ -274,9 +274,9 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 void MidiInput::handleControlChangeMessage(
 	const MidiMessage& msg, std::shared_ptr<HandledInput> pHandledInput )
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
-	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	const auto pMidiEventMap = m_pHydrogen->getPreferences()->getMidiEventMap();
 
 	for ( const auto& ppAction :
 		  pMidiEventMap->getCCActions( msg.getData1() ) ) {
@@ -301,9 +301,9 @@ void MidiInput::handleProgramChangeMessage(
 	std::shared_ptr<HandledInput> pHandledInput
 )
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
-	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	const auto pMidiEventMap = m_pHydrogen->getPreferences()->getMidiEventMap();
 
 	for ( const auto& ppAction : pMidiEventMap->getPCActions() ) {
 		if ( ppAction != nullptr && !ppAction->isNull() ) {
@@ -330,9 +330,9 @@ void MidiInput::handleNoteOnMessage(
 		return;
 	}
 
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = m_pHydrogen->getPreferences();
 	const auto pMidiEventMap = pPref->getMidiEventMap();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 
 	pHydrogen->setLastMidiEvent( MidiEvent::Type::Note );
@@ -356,7 +356,7 @@ void MidiInput::handleNoteOnMessage(
 	}
 
 	QStringList mappedInstruments;
-	CoreActionController::handleNote(
+	m_pHydrogen->getCoreActionController()->handleNote(
 		note, msg.getChannel(), fVelocity, false, &mappedInstruments );
 
 	pHandledInput->mappedInstruments = mappedInstruments;
@@ -378,12 +378,12 @@ void MidiInput::handlePolyphonicKeyPressureMessage(
 void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke,
 									  std::shared_ptr<HandledInput> pHandledInput )
 {
-	if ( !CymbalChoke && Preferences::get_instance()->m_bMidiNoteOffIgnore ) {
+	if ( !CymbalChoke && m_pHydrogen->getPreferences()->m_bMidiNoteOffIgnore ) {
 		return;
 	}
 
 	QStringList mappedInstruments;
-	CoreActionController::handleNote(
+	m_pHydrogen->getCoreActionController()->handleNote(
 		static_cast<Midi::Note>( msg.getData1() ), msg.getChannel(), 0.0, true,
 		&mappedInstruments
 	);
@@ -417,9 +417,9 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg,
 		240	127	id	6	68	6	1	hr	mn	sc	fr	ff	247
 	*/
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
-	const auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	const auto pMidiEventMap = m_pHydrogen->getPreferences()->getMidiEventMap();
 
 	const auto sysexData = msg.getSysexData();
 

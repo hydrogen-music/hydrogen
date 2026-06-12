@@ -263,7 +263,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	}
 	// trigger a relocation to sync the transport position of the
 	// editors in the panel.
-	H2Core::CoreActionController::locateToColumn( 0 );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( 0 );
 
 	WindowProperties songEditorProp = pPref->getSongEditorProperties();
 	setWindowProperties( m_pSongEditorPanel, songEditorProp, SetWidth + SetHeight );
@@ -566,20 +566,20 @@ bool HydrogenApp::openFile( const Filesystem::Artifact& type, const QString& sFi
 		if ( sFileName.isEmpty() && sRecoverFileName.isEmpty() ) {
 			pSong = Song::getEmptySong();
 		} else {
-			pSong = CoreActionController::loadSong( sPath, sRecoverFileName );
+			pSong = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong( sPath, sRecoverFileName );
 		}
 
-		bRet = CoreActionController::setSong( pSong );
+		bRet = H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong );
 	}
 	else {
 		std::shared_ptr<Playlist> pPlaylist;
 		if ( sFileName.isEmpty() && sRecoverFileName.isEmpty() ) {
 			pPlaylist = std::make_shared<Playlist>();
 		} else {
-			pPlaylist = CoreActionController::loadPlaylist( sPath, sRecoverFileName );
+			pPlaylist = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadPlaylist( sPath, sRecoverFileName );
 		}
 
-		bRet = CoreActionController::setPlaylist( pPlaylist );
+		bRet = H2Core::Hydrogen::get_instance()->getCoreActionController()->setPlaylist( pPlaylist );
 	}
 
 	if ( ! bRet ) {
@@ -598,7 +598,7 @@ bool HydrogenApp::openFile( const Filesystem::Artifact& type, const QString& sFi
 
 bool HydrogenApp::openSong( std::shared_ptr<Song> pSong ) {
 
-	if ( ! CoreActionController::setSong( pSong ) ) {
+	if ( ! H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong ) ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
 		// HydrogenApp was instantiated.

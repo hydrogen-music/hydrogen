@@ -56,9 +56,10 @@
 
 namespace H2Core {
 
-Sampler::Sampler()
+Sampler::Sampler( Hydrogen* pHydrogen )
 	: m_pMainOut_L( nullptr ),
 	  m_pMainOut_R( nullptr ),
+	  m_pHydrogen( pHydrogen ),
 	  m_pPreviewInstrument( nullptr ),
 	  m_interpolateMode( Interpolation::InterpolateMode::Linear )
 {
@@ -67,7 +68,8 @@ Sampler::Sampler()
 
 	// instrument used in file preview
 	m_pDefaultPreviewInstrument =
-		Instrument::from( Sample::load( Filesystem::emptySamplePath() ) );
+		Instrument::from( Sample::load( Filesystem::emptySamplePath() ),
+						  m_pHydrogen );
 	if ( m_pDefaultPreviewInstrument != nullptr ) {
 		m_pDefaultPreviewInstrument->setId( Instrument::EmptyId );
 		m_pDefaultPreviewInstrument->setVolume( 0.8 );
@@ -88,7 +90,7 @@ Sampler::~Sampler()
 
 void Sampler::process( uint32_t nFrames )
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song" );
@@ -99,7 +101,7 @@ void Sampler::process( uint32_t nFrames )
 	memset( m_pMainOut_R, 0, nFrames * sizeof( float ) );
 
 	// Max notes limit
-	int nMaxNotes = Preferences::get_instance()->m_nMaxNotes;
+	int nMaxNotes = m_pHydrogen->getPreferences()->m_nMaxNotes;
 	while ( (int) m_playingNotesQueue.size() > nMaxNotes ) {
 		auto pOldNote = m_playingNotesQueue[0];
 		m_playingNotesQueue.erase( m_playingNotesQueue.begin() );
@@ -127,7 +129,7 @@ void Sampler::process( uint32_t nFrames )
 
 #if SAMPLER_DEBUG
 			const auto nCurrentFrame =
-				Hydrogen::get_instance()->getAudioEngine()->getCurrentFrame();
+				m_pHydrogen->getAudioEngine()->getCurrentFrame();
 			INFOLOG( QString( "nCurrentFrame: [%1], Rendering done "
 							  "for [%2]" )
 						 .arg( nCurrentFrame )
@@ -167,9 +169,9 @@ void Sampler::process( uint32_t nFrames )
 	auto sendNote = [&]( std::shared_ptr<Note> pNote ) {
 		return pNote != nullptr && pNote->getInstrument() != nullptr &&
 			   pNote->getMidiNoteOffOffsetFrame() != -1 &&
-			   ( Preferences::get_instance()->getMidiSendNoteOff() ==
+			   ( m_pHydrogen->getPreferences()->getMidiSendNoteOff() ==
 					 Preferences::MidiSendNoteOff::Always ||
-				 ( Preferences::get_instance()->getMidiSendNoteOff() ==
+				 ( m_pHydrogen->getPreferences()->getMidiSendNoteOff() ==
 					   Preferences::MidiSendNoteOff::OnCustomLengths &&
 				   pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) );
 	};
@@ -177,7 +179,7 @@ void Sampler::process( uint32_t nFrames )
 	// NoteOffs to be send immediately,
 	if ( m_queuedNoteOffs.size() > 0 ) {
 		const auto pMidiInstrumentMap =
-			Preferences::get_instance()->getMidiInstrumentMap();
+			m_pHydrogen->getPreferences()->getMidiInstrumentMap();
 		auto pMidiDriver = pHydrogen->getMidiDriver();
 		if ( pMidiDriver != nullptr ) {
 			const long long nCurrentFrame =
@@ -246,7 +248,7 @@ void Sampler::process( uint32_t nFrames )
 	// NoteOffs to be send on a given time.
 	if ( m_scheduledNoteOffQueue.size() > 0 ) {
 		const auto pMidiInstrumentMap =
-			Preferences::get_instance()->getMidiInstrumentMap();
+			m_pHydrogen->getPreferences()->getMidiInstrumentMap();
 		auto pMidiDriver = pHydrogen->getMidiDriver();
 		while ( !m_scheduledNoteOffQueue.empty() ) {
 			if ( pMidiDriver == nullptr ) {
@@ -350,7 +352,7 @@ bool Sampler::noteOn( std::shared_ptr<Note> pNote )
 	// the drumkit.
 	const int nMuteGrp = pInstr->getMuteGroup();
 	if ( nMuteGrp != -1 ) {
-		const auto pSong = Hydrogen::get_instance()->getSong();
+		const auto pSong = m_pHydrogen->getSong();
 
 		// remove all notes using the same mute group
 		for ( const auto& pOtherNote :
@@ -380,7 +382,7 @@ bool Sampler::noteOn( std::shared_ptr<Note> pNote )
 	if ( pNote->getNoteOff() ) {
 #if SAMPLER_DEBUG
 		const auto nCurrentFrame =
-			Hydrogen::get_instance()->getAudioEngine()->getCurrentFrame();
+			m_pHydrogen->getAudioEngine()->getCurrentFrame();
 		INFOLOG( QString( "nCurrentFrame: [%1], Receiving a stop-note [%2]" )
 					 .arg( nCurrentFrame )
 					 .arg( pNote->toQString() ) );
@@ -397,7 +399,7 @@ bool Sampler::noteOn( std::shared_ptr<Note> pNote )
 	else {
 #if SAMPLER_DEBUG
 		const auto nCurrentFrame =
-			Hydrogen::get_instance()->getAudioEngine()->getCurrentFrame();
+			m_pHydrogen->getAudioEngine()->getCurrentFrame();
 		INFOLOG( QString( "nCurrentFrame: [%1], Receiving note [%2]" )
 					 .arg( nCurrentFrame )
 					 .arg( pNote->toQString() ) );
@@ -663,7 +665,7 @@ void Sampler::handleTimelineOrTempoChange()
 			continue;
 		}
 
-		ppNote->computeNoteStart();
+		ppNote->computeNoteStart( m_pHydrogen );
 
 		// For notes of custom length we have to rescale the amount of the
 		// sample still left for rendering to properly adopt the tempo change.
@@ -696,11 +698,11 @@ void Sampler::handleTimelineOrTempoChange()
 				const long long nNewNoteLength =
 					Transport::computeFrameFromTick(
 						ppNote->getPosition() + ppNote->getLength(),
-						&fTickMismatch, pSample->getSampleRate()
+						&fTickMismatch, pSample->getSampleRate(), m_pHydrogen
 					) -
 					Transport::computeFrameFromTick(
 						ppNote->getPosition(), &fTickMismatch,
-						pSample->getSampleRate()
+						pSample->getSampleRate(), m_pHydrogen
 					);
 
 				// The ratio between the old and new note length determines the
@@ -738,7 +740,7 @@ void Sampler::handleSongSizeChange()
 	}
 
 	const long nTickOffset =
-		static_cast<long>( std::floor( Hydrogen::get_instance()
+		static_cast<long>( std::floor( m_pHydrogen
 										   ->getAudioEngine()
 										   ->getPlayhead()
 										   ->getTickOffsetSongSize() ) );
@@ -758,7 +760,7 @@ void Sampler::handleSongSizeChange()
 		ppNote->setPosition( std::max(
 			ppNote->getPosition() + nTickOffset, static_cast<long>( 0 )
 		) );
-		ppNote->computeNoteStart();
+		ppNote->computeNoteStart( m_pHydrogen );
 
 #if SAMPLER_DEBUG
 		DEBUGLOG( QString( "new note: %1" ).arg( ppNote->toQString( "", true ) )
@@ -771,7 +773,7 @@ void Sampler::handleSongSizeChange()
 
 bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song" );
@@ -860,7 +862,7 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 	float fNotePan_L = 0;
 	float fNotePan_R = 0;
 	if ( pHydrogen->hasJackDriver() &&
-		 Preferences::get_instance()->m_JackTrackOutputMode ==
+		 m_pHydrogen->getPreferences()->m_JackTrackOutputMode ==
 			 Preferences::JackTrackOutputMode::preFader ) {
 		fNotePan_L = panLaw( pNote->getPan(), pSong );
 		fNotePan_R = panLaw( -1 * pNote->getPan(), pSong );
@@ -872,7 +874,7 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 	// SampleEditor - we use those. If not, we will select them right here
 	// according to the sample selected algorithms.
 	if ( !pNote->layersAlreadySelected() ) {
-		pNote->selectLayers( m_lastUsedLayersMap );
+		pNote->selectLayers( m_lastUsedLayersMap, m_pHydrogen->getSong() );
 
 		// Note that manually selected layers bypassing this if clause are not
 		// incorporated into the round robin layer selection on purpose.
@@ -1018,7 +1020,8 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 	}
 
 	if ( bSendMidiNoteOn && pHydrogen->getMidiDriver() != nullptr ) {
-		auto noteOnMessage = MidiMessage::from( pNote );
+		auto noteOnMessage = MidiMessage::from(
+			pNote, pHydrogen->getPreferences() );
 		noteOnMessage.setFrameOffset( nInitialBufferPos );
 
 		if ( noteOnMessage.getChannel() != Midi::ChannelInvalid &&
@@ -1026,9 +1029,9 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 			// Due to historical reasons Hydrogen is sending a MIDI Note-Off
 			// messages right before a Note-On one.
 			if ( pInstr->isStopNotes() &&
-				 ( Preferences::get_instance()->getMidiSendNoteOff() ==
+				 ( m_pHydrogen->getPreferences()->getMidiSendNoteOff() ==
 					   Preferences::MidiSendNoteOff::Always ||
-				   ( Preferences::get_instance()->getMidiSendNoteOff() ==
+				   ( m_pHydrogen->getPreferences()->getMidiSendNoteOff() ==
 						 Preferences::MidiSendNoteOff::OnCustomLengths &&
 					 pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) ) ) {
 				auto noteOffMessage = MidiMessage::from( noteOnMessage );
@@ -1311,7 +1314,7 @@ void resample(
 
 void Sampler::processMidiEvents()
 {
-	auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
+	auto pMidiDriver = m_pHydrogen->getMidiDriver();
 	if ( pMidiDriver == nullptr ) {
 		return;
 	}
@@ -1370,7 +1373,7 @@ void Sampler::processMidiEvents()
 
 bool Sampler::processPlaybackTrack( int nBufferSize )
 {
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Hydrogen* pHydrogen = m_pHydrogen;
 	auto pAudioDriver = pHydrogen->getAudioDriver();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
@@ -1396,7 +1399,7 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 	if ( pCompo == nullptr || pCompo->getLayer( 0 ) == nullptr ||
 		 pCompo->getLayer( 0 )->getSample() == nullptr ) {
 		ERRORLOG( "Invalid playback instrument" );
-		EventQueue::get_instance()->pushEvent(
+		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::Error, Hydrogen::ErrorMessages::PLAYBACK_TRACK_INVALID
 		);
 
@@ -1444,7 +1447,7 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 	float* pTrackOutL = nullptr;
 	float* pTrackOutR = nullptr;
 
-	if ( Preferences::get_instance()->m_bJackTrackOuts ) {
+	if ( m_pHydrogen->getPreferences()->m_bJackTrackOuts ) {
 		auto pJackDriver = std::dynamic_pointer_cast<JackDriver>( pAudioDriver );
 		if ( pJackDriver != nullptr ) {
 			pTrackOutL = pJackDriver->getTrackBuffer(
@@ -1532,7 +1535,7 @@ bool Sampler::renderNote(
 		return true;
     }
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	auto pAudioDriver = pHydrogen->getAudioDriver();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pAudioDriver == nullptr ) {
@@ -1562,7 +1565,7 @@ bool Sampler::renderNote(
 	if ( bIsMuted ) {
 		fGainTrack_L = 0.0;
 		fGainTrack_R = 0.0;
-		if ( Preferences::get_instance()->m_JackTrackOutputMode ==
+		if ( m_pHydrogen->getPreferences()->m_JackTrackOutputMode ==
 			 Preferences::JackTrackOutputMode::postFader ) {
 			fGainJackTrack_L = 0.0;
 			fGainJackTrack_R = 0.0;
@@ -1581,7 +1584,7 @@ bool Sampler::renderNote(
 
 		fGainTrack_L = fMonoGain * fPan_L;
 		fGainTrack_R = fMonoGain * fPan_R;
-		if ( Preferences::get_instance()->m_JackTrackOutputMode ==
+		if ( m_pHydrogen->getPreferences()->m_JackTrackOutputMode ==
 			 Preferences::JackTrackOutputMode::postFader ) {
 			fGainJackTrack_R = fGainTrack_R * 2;
 			fGainJackTrack_L = fGainTrack_L * 2;
@@ -1589,7 +1592,7 @@ bool Sampler::renderNote(
 	}
 
 	// direct track outputs only use velocity
-	if ( Preferences::get_instance()->m_JackTrackOutputMode ==
+	if ( m_pHydrogen->getPreferences()->m_JackTrackOutputMode ==
 		 Preferences::JackTrackOutputMode::preFader ) {
 		if ( pInstrument->getApplyVelocity() ) {
 			fGainJackTrack_L *= pNote->getVelocity();
@@ -1671,11 +1674,11 @@ bool Sampler::renderNote(
 			pSelectedLayerInfo->nNoteLength =
 				(Transport::computeFrameFromTick(
 					pNote->getPosition() + pNote->getLength(), &fTickMismatch,
-					pSample->getSampleRate()
+					pSample->getSampleRate(), m_pHydrogen
 				) -
 				Transport::computeFrameFromTick(
 					pNote->getPosition(), &fTickMismatch,
-					pSample->getSampleRate()
+					pSample->getSampleRate(), m_pHydrogen
 				)) * fFrequencyRatio;
 		}
 
@@ -1722,7 +1725,7 @@ bool Sampler::renderNote(
 	float* pTrackOutL = nullptr;
 	float* pTrackOutR = nullptr;
 
-	if ( Preferences::get_instance()->m_bJackTrackOuts ) {
+	if ( m_pHydrogen->getPreferences()->m_bJackTrackOuts ) {
 		auto pJackDriver = std::dynamic_pointer_cast<JackDriver>( pAudioDriver );
 		if ( pJackDriver != nullptr ) {
 			pTrackOutL = pJackDriver->getTrackBuffer(
@@ -1897,7 +1900,7 @@ void Sampler::previewInstrument(
 		return;
 	}
 
-	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
+	m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
 	stopPlayingNotes( m_pPreviewInstrument );
 
@@ -1905,12 +1908,12 @@ void Sampler::previewInstrument(
 	pInstr->setIsPreviewInstrument( true );
 	noteOn( pNote );
 
-	Hydrogen::get_instance()->getAudioEngine()->unlock();
+	m_pHydrogen->getAudioEngine()->unlock();
 }
 
 void Sampler::previewSample( std::shared_ptr<Sample> pSample, int nLength )
 {
-	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
+	m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
 	stopPlayingNotes( m_pPreviewInstrument );
 
@@ -1923,7 +1926,7 @@ void Sampler::previewSample( std::shared_ptr<Sample> pSample, int nLength )
 	if ( m_pPreviewInstrument == nullptr ||
 		 m_pPreviewInstrument->getComponent( 0 ) == nullptr ||
 		 m_pPreviewInstrument->getComponent( 0 )->getLayer( 0 ) == nullptr ) {
-		Hydrogen::get_instance()->getAudioEngine()->unlock();
+		m_pHydrogen->getAudioEngine()->unlock();
 		ERRORLOG( "Invalid preview instrument" );
 		return;
 	}
@@ -1932,7 +1935,7 @@ void Sampler::previewSample( std::shared_ptr<Sample> pSample, int nLength )
 	const auto pLayer = pComponent->getLayer( 0 );
 
 	m_pPreviewInstrument->setSample(
-		pComponent, pLayer, pSample, Event::Trigger::Suppress
+		pComponent, pLayer, pSample, Event::Trigger::Suppress, m_pHydrogen
 	);
 
 	auto pPreviewNote = std::make_shared<Note>(
@@ -1941,7 +1944,7 @@ void Sampler::previewSample( std::shared_ptr<Sample> pSample, int nLength )
 
 	noteOn( pPreviewNote );
 
-	Hydrogen::get_instance()->getAudioEngine()->unlock();
+	m_pHydrogen->getAudioEngine()->unlock();
 }
 
 bool Sampler::isInstrumentPlaying( std::shared_ptr<Instrument> pInstrument

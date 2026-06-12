@@ -33,6 +33,8 @@
 namespace H2Core
 {
 
+class Hydrogen;
+
 /** \ingroup docCore docDataStructure docAutomation*/
 class AutomationPath : public Object<AutomationPath>
 {
@@ -61,8 +63,8 @@ class AutomationPath : public Object<AutomationPath>
 
 	float get_value(float x) const noexcept;
 
-	void add_point(float x, float y);
-	void remove_point(float x);
+	void add_point(float x, float y, Hydrogen* pHydrogen);
+	void remove_point(float x, Hydrogen* pHydrogen);
 
 	friend bool operator==(const AutomationPath &lhs, const AutomationPath &rhs);
 	friend bool operator!=(const AutomationPath &lhs, const AutomationPath &rhs);
@@ -73,7 +75,7 @@ class AutomationPath : public Object<AutomationPath>
 	const_iterator end() const { return _points.end(); }
 
 	iterator find(float x);
-	iterator move(iterator &in, float x, float y);
+	iterator move(iterator &in, float x, float y, Hydrogen* pHydrogen);
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of

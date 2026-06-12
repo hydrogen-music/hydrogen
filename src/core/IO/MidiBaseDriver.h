@@ -54,8 +54,16 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 	static constexpr int nBacklogSize = 200;
 	static constexpr int nAllNotesOffThresholdInSeconds = 15;
 
-	MidiBaseDriver();
+	/** @param pHydrogen Owning Hydrogen instance (ADR 0015), forwarded to the
+	 * MidiInput/MidiOutput virtual bases. */
+	MidiBaseDriver( Hydrogen* pHydrogen );
 	virtual ~MidiBaseDriver();
+
+	/** Owning Hydrogen instance (ADR 0015). Public accessor for the static C
+	 * callbacks and free-function threads that reach the driver via a void*
+	 * instance pointer and so cannot use the protected MidiInput::m_pHydrogen
+	 * directly. */
+	Hydrogen* getHydrogen() const { return MidiInput::m_pHydrogen; }
 
 	virtual void close() = 0;
 	virtual std::vector<QString> getExternalPortList( const PortType& portType

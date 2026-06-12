@@ -56,9 +56,9 @@ void* diskWriterDriver_thread( void* param )
 
 	DiskWriterDriver *pDriver = ( DiskWriterDriver* )param;
 
-	EventQueue::get_instance()->pushEvent( Event::Type::AudioExportProgress, 0 );
+	pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, 0 );
 
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = pDriver->getHydrogen()->getAudioEngine();
 	
 	___INFOLOG( "DiskWriterDriver thread started" );
 
@@ -121,7 +121,7 @@ void* diskWriterDriver_thread( void* param )
 					.arg( pDriver->m_sFileName ).arg( sf_version_string() ) );
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
-		EventQueue::get_instance()->pushEvent( Event::Type::AudioExportProgress, 100 );
+		pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, 100 );
 		pthread_exit( nullptr );
 		return nullptr;
 
@@ -163,7 +163,7 @@ void* diskWriterDriver_thread( void* param )
 					.arg( sf_version_string() ) );
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
-		EventQueue::get_instance()->pushEvent( Event::Type::AudioExportProgress, 100 );
+		pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, 100 );
 		pthread_exit( nullptr );
 		return nullptr;
 	}
@@ -194,7 +194,7 @@ void* diskWriterDriver_thread( void* param )
 					.arg( sf_strerror( pSndfile ) ) );
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
-		EventQueue::get_instance()->pushEvent( Event::Type::AudioExportProgress, 100 );
+		pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, 100 );
 		pthread_exit( nullptr );
 		return nullptr;
 	}
@@ -232,7 +232,7 @@ void* diskWriterDriver_thread( void* param )
 	float *pData_L = pDriver->m_pOut_L;
 	float *pData_R = pDriver->m_pOut_R;
 
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Hydrogen* pHydrogen = pDriver->getHydrogen();
 	auto pSong = pHydrogen->getSong();
 	auto pSampler = pHydrogen->getAudioEngine()->getSampler();
 
@@ -268,7 +268,8 @@ void* diskWriterDriver_thread( void* param )
 			nPatternSize = 4 * H2Core::nTicksPerQuarter;
 		}
 
-		fBpm = AudioEngine::getBpmAtColumn( patternPosition );
+		fBpm = pDriver->getHydrogen()->getAudioEngine()->getBpmAtColumn(
+			patternPosition );
 		fTicksize = AudioEngine::computeTickSize( pDriver->m_nSampleRate, fBpm );
 		
 		//here we have the pattern length in frames dependent from bpm and samplerate
@@ -305,7 +306,7 @@ void* diskWriterDriver_thread( void* param )
 			// acquire the lock).
 			if ( ! pDriver->m_bIsRunning ) {
 				___ERRORLOG( "Driver was stop before export was completed." );
-				EventQueue::get_instance()->pushEvent( Event::Type::AudioExportProgress, -1 );
+				pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, -1 );
 				pDriver->m_bWritingFailed = true;
 				tearDown();
 				return nullptr;
@@ -327,7 +328,7 @@ void* diskWriterDriver_thread( void* param )
 				if ( nMutexLockAttempts > 30 ) {
 					___ERRORLOG( "Too many attempts to lock the AudioEngine. Aborting." );
 					
-					EventQueue::get_instance()->pushEvent( Event::Type::AudioExportProgress, -1 );
+					pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, -1 );
 					pDriver->m_bWritingFailed = true;
 					tearDown();
 					return nullptr;
@@ -396,7 +397,7 @@ void* diskWriterDriver_thread( void* param )
 							.arg( nBufferWriteLength )
 							.arg( sf_strerror( nullptr ) ) );
 
-				EventQueue::get_instance()->pushEvent( Event::Type::AudioExportProgress, -1 );
+				pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, -1 );
 				pDriver->m_bWritingFailed = true;
 				tearDown();
 				return nullptr;
@@ -414,12 +415,12 @@ void* diskWriterDriver_thread( void* param )
 		int nPercent = static_cast<int>( ( float )(patternPosition +1) /
 										 ( float )nColumns * 100.0 );
 		if ( nPercent < 100 ) {
-			EventQueue::get_instance()->pushEvent( Event::Type::AudioExportProgress, nPercent );
+			pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, nPercent );
 		}
 	}
 
 	// Explicitly mark export as finished.
-	EventQueue::get_instance()->pushEvent( Event::Type::AudioExportProgress, 100 );
+	pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, 100 );
 	
 	tearDown();
 
@@ -428,8 +429,8 @@ void* diskWriterDriver_thread( void* param )
 
 
 
-DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback )
-		: AudioDriver()
+DiskWriterDriver::DiskWriterDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback )
+		: AudioDriver( pHydrogen )
 		, m_nSampleRate( 4800 )
 		, m_nSampleDepth( 32 )
 		, m_processCallback( processCallback )

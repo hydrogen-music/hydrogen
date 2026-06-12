@@ -137,7 +137,7 @@ JackDriver::InstrumentPorts::InstrumentPorts( const InstrumentPorts& other )
 
 double JackDriver::bbtToTick( const jack_position_t& pos )
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	Song::LoopMode loopMode = Song::LoopMode::Enabled;
 	long nSongSizeInTicks = 0;
@@ -273,7 +273,7 @@ void JackDriver::transportToBBT(
 		static_cast<float>( H2Core::nTicksPerQuarter ) * 4 / fDenumerator;
 
 	pJackPosition->frame_rate = static_cast<jack_nframes_t>(
-		Hydrogen::get_instance()->getAudioDriver()->getSampleRate()
+		m_pHydrogen->getAudioDriver()->getSampleRate()
 	);
 	pJackPosition->ticks_per_beat = fTicksPerBeat;
 	pJackPosition->valid = JackPositionBBT;
@@ -344,8 +344,16 @@ QString JackDriver::JackTransportPosToQString( const jack_position_t& pos )
 long JackDriver::m_nIntegrationLastRelocationFrame = -1;
 #endif
 
-JackDriver::JackDriver( JackProcessCallback processCallback, Mode mode )
-	: AudioDriver(),
+JackDriver::JackDriver( Hydrogen* pHydrogen, JackProcessCallback processCallback,
+						Mode mode )
+	// Virtual MIDI bases must be initialized by the most-derived class (this is
+	// also a MidiBaseDriver). JackDriver keeps its own m_pHydrogen, which hides
+	// the inherited MidiInput/MidiOutput copies for JackDriver's own code.
+	: MidiInput( pHydrogen ),
+	  MidiOutput( pHydrogen ),
+	  MidiBaseDriver( pHydrogen ),
+	  AudioDriver( pHydrogen ),
+	  m_pHydrogen( pHydrogen ),
 	  m_pClient( nullptr ),
 	  m_mode( mode ),
 	  m_sClientName( "Hydrogen" ),
@@ -372,7 +380,7 @@ JackDriver::JackDriver( JackProcessCallback processCallback, Mode mode )
 	J_DEBUGLOG( "" );
 #endif
 
-	auto pPreferences = Preferences::get_instance();
+	auto pPreferences = m_pHydrogen->getPreferences();
 
 	m_bConnectDefaults = pPreferences->m_bJackConnectDefaults;
 
@@ -451,7 +459,7 @@ void JackDriver::deactivate()
 
 void JackDriver::locateTransport( long long nFrame )
 {
-	const auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	const auto pAudioEngine = m_pHydrogen->getAudioEngine();
 
 	if ( m_pClient != nullptr ) {
 		if ( m_timebaseState == Timebase::Controller ) {
@@ -540,7 +548,7 @@ void JackDriver::stopTransport()
 		// transport has stopped during the next processing cycle. This would
 		// make transport restarting for song + disabled loop mode once the end
 		// of the song is reached and process notes for one additional cycle.
-		Hydrogen::get_instance()->getAudioEngine()->setNextState(
+		m_pHydrogen->getAudioEngine()->setNextState(
 			AudioEngine::State::Ready
 		);
 	}
@@ -551,16 +559,16 @@ void JackDriver::stopTransport()
 
 void JackDriver::updateTransport()
 {
-	if ( Preferences::get_instance()->m_nJackTransportMode !=
+	if ( m_pHydrogen->getPreferences()->m_nJackTransportMode !=
 		 Preferences::USE_JACK_TRANSPORT ) {
 		return;
 	}
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	const bool bTimebaseEnabled =
-		Preferences::get_instance()->m_bJackTimebaseEnabled;
+		m_pHydrogen->getPreferences()->m_bJackTimebaseEnabled;
 
 #ifdef HAVE_INTEGRATION_TESTS
 	const int nPreviousXruns = m_nJackServerXRuns;
@@ -657,7 +665,7 @@ void JackDriver::updateTransport()
 #endif
 
 				m_nTimebaseFrameOffset = 0;
-				EventQueue::get_instance()->pushEvent(
+				m_pHydrogen->getEventQueue()->pushEvent(
 					Event::Type::JackTimebaseStateChanged,
 					static_cast<int>( m_timebaseState )
 				);
@@ -677,7 +685,7 @@ void JackDriver::updateTransport()
 
 					m_timebaseState = Timebase::Listener;
 					m_nTimebaseFrameOffset = 0;
-					EventQueue::get_instance()->pushEvent(
+					m_pHydrogen->getEventQueue()->pushEvent(
 						Event::Type::JackTimebaseStateChanged,
 						static_cast<int>( m_timebaseState )
 					);
@@ -706,7 +714,7 @@ void JackDriver::updateTransport()
 						);
 #endif
 						m_timebaseState = Timebase::None;
-						EventQueue::get_instance()->pushEvent(
+						m_pHydrogen->getEventQueue()->pushEvent(
 							Event::Type::JackTimebaseStateChanged,
 							static_cast<int>( m_timebaseState )
 						);
@@ -803,7 +811,7 @@ float JackDriver::getTimebaseControllerBpm() const
 
 JackDriver::Timebase JackDriver::getTimebaseState() const
 {
-	if ( Preferences::get_instance()->m_bJackTimebaseEnabled ) {
+	if ( m_pHydrogen->getPreferences()->m_bJackTimebaseEnabled ) {
 		return m_timebaseState;
 	}
 	return Timebase::None;
@@ -816,7 +824,7 @@ void JackDriver::initTimebaseControl()
 		return;
 	}
 
-	if ( !Preferences::get_instance()->m_bJackTimebaseEnabled ) {
+	if ( !m_pHydrogen->getPreferences()->m_bJackTimebaseEnabled ) {
 		ERRORLOG(
 			"This function should not have been called with JACK Timebase "
 			"disabled in the Preferences"
@@ -824,7 +832,7 @@ void JackDriver::initTimebaseControl()
 		return;
 	}
 
-	auto pPreferences = Preferences::get_instance();
+	auto pPreferences = m_pHydrogen->getPreferences();
 	if ( pPreferences->m_bJackTimebaseMode ==
 		 Preferences::USE_JACK_TIMEBASE_CONTROL ) {
 		int nReturnValue = jack_set_timebase_callback(
@@ -847,7 +855,7 @@ void JackDriver::initTimebaseControl()
 #endif
 
 			m_timebaseState = Timebase::Controller;
-			EventQueue::get_instance()->pushEvent(
+			m_pHydrogen->getEventQueue()->pushEvent(
 				Event::Type::JackTimebaseStateChanged,
 				static_cast<int>( m_timebaseState )
 			);
@@ -868,7 +876,7 @@ void JackDriver::releaseTimebaseControl()
 		return;
 	}
 
-	if ( !Preferences::get_instance()->m_bJackTimebaseEnabled ) {
+	if ( !m_pHydrogen->getPreferences()->m_bJackTimebaseEnabled ) {
 		ERRORLOG(
 			"This function should not have been called with JACK timebase "
 			"disabled in the Preferences"
@@ -897,7 +905,7 @@ void JackDriver::releaseTimebaseControl()
 					.arg( TimebaseToQString( m_timebaseState ) ) );
 #endif
 
-	EventQueue::get_instance()->pushEvent(
+	m_pHydrogen->getEventQueue()->pushEvent(
 		Event::Type::JackTimebaseStateChanged,
 		static_cast<int>( m_timebaseState )
 	);
@@ -905,7 +913,7 @@ void JackDriver::releaseTimebaseControl()
 
 void JackDriver::relocateUsingBBT()
 {
-	if ( !Preferences::get_instance()->m_bJackTimebaseEnabled ) {
+	if ( !m_pHydrogen->getPreferences()->m_bJackTimebaseEnabled ) {
 		ERRORLOG(
 			"This function should not have been called with JACK timebase "
 			"disabled in the Preferences"
@@ -920,7 +928,7 @@ void JackDriver::relocateUsingBBT()
 		return;
 	}
 
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Hydrogen* pHydrogen = m_pHydrogen;
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
@@ -964,7 +972,7 @@ void JackDriver::relocateUsingBBT()
 		pAudioEngine->locate( fNewTick, false );
 	}
 
-	EventQueue::get_instance()->pushEvent( Event::Type::Relocation, 0 );
+	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::Relocation, 0 );
 
 	m_nTimebaseFrameOffset = pAudioEngine->getPlayhead()->getFrame() -
 							 m_JackTransportPos.frame;
@@ -979,7 +987,7 @@ const jack_position_t& JackDriver::getJackPosition() const
 
 int JackDriver::init( unsigned bufferSize )
 {
-	auto pPreferences = Preferences::get_instance();
+	auto pPreferences = m_pHydrogen->getPreferences();
 
 	if ( m_pClient != nullptr ) {
 		ERRORLOG( "Client already initialized!" );
@@ -1196,7 +1204,7 @@ int JackDriver::init( unsigned bufferSize )
 		}
 	}
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	if ( ( m_mode == Mode::Audio || m_mode == Mode::Combined ) &&
 		 ( m_pAudioOutputPort1 == nullptr || m_pAudioOutputPort2 == nullptr
 		 ) ) {
@@ -1243,7 +1251,7 @@ int JackDriver::connect()
 	// ready to start processing audio. It returns 0 on success
 	// and a non-zero error code otherwise.
 	if ( jack_activate( m_pClient ) ) {
-		Hydrogen::get_instance()->getAudioEngine()->raiseError(
+		m_pHydrogen->getAudioEngine()->raiseError(
 			Hydrogen::JACK_CANNOT_ACTIVATE_CLIENT
 		);
 		return 1;
@@ -1293,7 +1301,7 @@ int JackDriver::connect()
 			jack_get_ports( m_pClient, nullptr, nullptr, JackPortIsInput );
 		if ( !portnames || !portnames[0] || !portnames[1] ) {
 			ERRORLOG( "Couldn't locate two Jack input ports" );
-			Hydrogen::get_instance()->getAudioEngine()->raiseError(
+			m_pHydrogen->getAudioEngine()->raiseError(
 				Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT
 			);
 			return 2;
@@ -1305,7 +1313,7 @@ int JackDriver::connect()
 				 m_pClient, jack_port_name( m_pAudioOutputPort2 ), portnames[1]
 			 ) != 0 ) {
 			ERRORLOG( "Couldn't connect to first pair of Jack input ports" );
-			Hydrogen::get_instance()->getAudioEngine()->raiseError(
+			m_pHydrogen->getAudioEngine()->raiseError(
 				Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT
 			);
 			return 2;
@@ -1330,7 +1338,7 @@ void JackDriver::disconnect()
 		int nReturnCode = jack_client_close( pOldClient );
 		if ( nReturnCode != 0 ) {
 			ERRORLOG( "Error in jack_client_close" );
-			Hydrogen::get_instance()->getAudioEngine()->raiseError(
+			m_pHydrogen->getAudioEngine()->raiseError(
 				Hydrogen::JACK_CANNOT_CLOSE_CLIENT
 			);
 		}
@@ -1376,7 +1384,7 @@ int JackDriver::jackDriverBufferSize( jack_nframes_t nframes, void* pInstance )
 	___INFOLOG( QString( "new JACK buffer size: [%1]" )
 				   .arg( QString::number( static_cast<int>( nframes ) ) ) );
 	pJackDriver->m_jackServerBufferSize = nframes;
-	Preferences::get_instance()->m_nBufferSize =
+	pJackDriver->m_pHydrogen->getPreferences()->m_nBufferSize =
 		static_cast<unsigned>( nframes );
 
 	return 0;
@@ -1393,7 +1401,7 @@ int JackDriver::jackDriverSampleRate( jack_nframes_t nframes, void* pInstance )
 	___INFOLOG( QString( "New JACK sample rate: [%1]/sec" )
 				   .arg( QString::number( static_cast<int>( nframes ) ) ) );
 	pJackDriver->m_jackServerSampleRate = nframes;
-	Preferences::get_instance()->m_nSampleRate =
+	pJackDriver->m_pHydrogen->getPreferences()->m_nSampleRate =
 		static_cast<unsigned>( nframes );
 
 	return 0;
@@ -1420,7 +1428,7 @@ int JackDriver::jackXRunCallback( void* pInstance )
 	// position.
 	JackDriver::m_nIntegrationLastRelocationFrame = -1;
 #endif
-	EventQueue::get_instance()->pushEvent( Event::Type::Xrun, 0 );
+	pJackDriver->m_pHydrogen->getEventQueue()->pushEvent( Event::Type::Xrun, 0 );
 	return 0;
 }
 
@@ -1444,7 +1452,7 @@ void JackDriver::cleanUpPerTrackAudioPorts()
 void JackDriver::clearPerTrackAudioBuffers( uint32_t nFrames )
 {
 	if ( m_pClient != nullptr &&
-		 Preferences::get_instance()->m_bJackTrackOuts ) {
+		 m_pHydrogen->getPreferences()->m_bJackTrackOuts ) {
 		for ( auto& [iid, _] : m_audioPortMapStatic ) {
 			auto pLeft = getTrackBuffer( iid, Channel::Left );
 			if ( pLeft != nullptr ) {
@@ -1524,7 +1532,7 @@ void JackDriver::createPerTrackAudioPorts(
 	std::shared_ptr<Drumkit> pOldDrumkit
 )
 {
-	if ( Preferences::get_instance()->m_bJackTrackOuts == false ) {
+	if ( m_pHydrogen->getPreferences()->m_bJackTrackOuts == false ) {
 		return;
 	}
 
@@ -1566,7 +1574,7 @@ void JackDriver::createPerTrackAudioPorts(
 	bool bError = false;
 	// These ports have to be created only once per Hydrogen session.
 	if ( m_audioPortMapStatic.size() == 0 ) {
-		const auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+		const auto pAudioEngine = m_pHydrogen->getAudioEngine();
 		auto pMetronome = pAudioEngine->getMetronomeInstrument();
 
 		auto ports = createPorts( "Metronome", "Metronome", &bError );
@@ -1688,7 +1696,7 @@ void JackDriver::createPerTrackAudioPorts(
 
 		QString sNameBase;
 		if ( !pInstrument->getType().isEmpty() &&
-			 !Preferences::get_instance()->getJackEnforceInstrumentName() ) {
+			 !m_pHydrogen->getPreferences()->getJackEnforceInstrumentName() ) {
 			// We want to use the type information as port name because it
 			// allows us to switch between kits while reusing existing ports.
 			//
@@ -1819,7 +1827,7 @@ void JackDriver::createPerTrackAudioPorts(
 		// Just raise a single error because in the current design there will be
 		// a new error popup dialog with just a small default message for each
 		// new one.
-		Hydrogen::get_instance()->getAudioEngine()->raiseError(
+		m_pHydrogen->getAudioEngine()->raiseError(
 			Hydrogen::JACK_ERROR_IN_PORT_REGISTER
 		);
 	}
@@ -2103,7 +2111,7 @@ void JackDriver::JackTimebaseCallback(
 		return;
 	}
 
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = pDriver->m_pHydrogen->getAudioEngine();
 	std::shared_ptr<Transport> pPos = nullptr;
 
 	pAudioEngine->lock( RIGHT_HERE );
@@ -2130,12 +2138,14 @@ void JackDriver::JackTimebaseCallback(
 			pPos = std::make_shared<Transport>(
 				Transport::Type::JackTimebaseCallback
 			);
+			// JackTimebaseCallback is a static JACK callback: no instance
+			// available, so computeTickFromFrame falls back to get_instance.
 			const auto fTick =
 				Transport::computeTickFromFrame( nFrame );
 			pAudioEngine->updateTransport( fTick, nFrame, pPos );
 		}
 
-		transportToBBT( *pPos, pJackPosition );
+		pDriver->transportToBBT( *pPos, pJackPosition );
 	};
 
 	// In the face of heavy load - can be triggered by enabling JackDriver,
@@ -2167,7 +2177,7 @@ void JackDriver::JackTimebaseCallback(
 
 		pDriver->m_timebaseState = Timebase::Controller;
 
-		EventQueue::get_instance()->pushEvent(
+		pDriver->m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::JackTimebaseStateChanged,
 			static_cast<int>( pDriver->m_timebaseState )
 		);
@@ -2199,7 +2209,7 @@ void JackDriver::jackDriverShutdown( void* pInstance )
 		std::scoped_lock lock{ pJackDriver->m_midiMutex };
 		pJackDriver->m_pClient = nullptr;
 	}
-	Hydrogen::get_instance()->getAudioEngine()->raiseError(
+	pJackDriver->m_pHydrogen->getAudioEngine()->raiseError(
 		Hydrogen::JACK_SERVER_SHUTDOWN
 	);
 }
@@ -2281,7 +2291,7 @@ QString JackDriver::JackTransportStateToQString( const jack_transport_state_t& t
 
 void JackDriver::printState() const
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	J_DEBUGLOG(
 		QString( "m_JackTransportState: %1,\n m_JackTransportPos: "

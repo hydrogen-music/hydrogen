@@ -156,7 +156,8 @@ Instrument::~Instrument()
 	}
 }
 
-std::shared_ptr<Instrument> Instrument::from( std::shared_ptr<Sample> pSample )
+std::shared_ptr<Instrument> Instrument::from( std::shared_ptr<Sample> pSample,
+											  Hydrogen* pHydrogen )
 {
 	if ( pSample == nullptr ) {
 		return nullptr;
@@ -166,8 +167,11 @@ std::shared_ptr<Instrument> Instrument::from( std::shared_ptr<Sample> pSample )
 	auto pLayer = std::make_shared<InstrumentLayer>( pSample );
 	auto pComponent = pInstrument->getComponent( 0 );
 	if ( pComponent != nullptr ) {
+		// Event::Trigger::Suppress never dereferences pHydrogen, so passing a
+		// null pHydrogen is safe here (ADR 0015).
 		pInstrument->addLayer(
-			pComponent, pLayer, -1, Event::Trigger::Suppress
+			pComponent, pLayer, -1, Event::Trigger::Suppress,
+			pHydrogen
 		);
 	}
 	else {
@@ -185,9 +189,15 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 	const License& license,
 	bool bSongKit,
 	bool* pLegacyFormatEncountered,
-	bool bSilent
+	bool bSilent,
+	Hydrogen* pHydrogen
 )
 {
+	// T1.5: make pHydrogen required and drop this fallback (ADR 0015).
+	if ( pHydrogen == nullptr ) {
+		pHydrogen = Hydrogen::get_instance();
+	}
+
 	// We use -22 instead of Instrument::EmptyId (-1) to allow for loading
 	// empty instruments as well (e.g. during unit tests or as part of
 	// dummy kits)
@@ -243,8 +253,6 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 					Filesystem::sanitizeDrumkitPath( sInstrumentDrumkitPath );
 			}
 		}
-
-		auto pHydrogen = Hydrogen::get_instance();
 
 		// Both empty drumkit path and name indicate that the instrument was
 		// added as a new one to the drumkit instead of importing it from
@@ -449,7 +457,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 		// the drumkit is not present yet, the License will be loaded
 		// directly.
 		auto pSoundLibraryDatabase =
-			Hydrogen::get_instance()->getSoundLibraryDatabase();
+			pHydrogen->getSoundLibraryDatabase();
 		if ( pSoundLibraryDatabase != nullptr &&
 			 !pInstrument->getDrumkitPath().isEmpty() ) {
 			// It is important to _not_ load the drumkit into the
@@ -472,7 +480,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 		while ( !componentNode.isNull() ) {
 			auto ppComponent = InstrumentComponent::loadFrom(
 				componentNode, pInstrument->getDrumkitPath(), sSongPath,
-				instrumentLicense, bSilent
+				instrumentLicense, bSilent, pHydrogen
 			);
 			if ( ppComponent != nullptr ) {
 				componentsLoaded.push_back( ppComponent );
@@ -485,7 +493,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 		// back compatibility code
 		auto pCompo = Legacy::loadInstrumentComponent(
 			node, pInstrument->getDrumkitPath(), sSongPath, instrumentLicense,
-			bSilent
+			bSilent, pHydrogen
 		);
 		if ( pCompo == nullptr ) {
 			ERRORLOG(
@@ -543,12 +551,13 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 		);
 	}
 
-	pInstrument->checkForMissingSamples( Event::Trigger::Suppress );
+	pInstrument->checkForMissingSamples(
+		Event::Trigger::Suppress, pHydrogen );
 
 	return pInstrument;
 }
 
-void Instrument::loadSamples( float fBpm )
+void Instrument::loadSamples( float fBpm, Preferences* pPreferences )
 {
 	for ( auto& ppComponent : *m_pComponents ) {
 		if ( ppComponent == nullptr ) {
@@ -556,7 +565,7 @@ void Instrument::loadSamples( float fBpm )
 		}
 		for ( auto& ppLayer : *ppComponent ) {
 			if ( ppLayer != nullptr ) {
-				ppLayer->loadSample( fBpm );
+				ppLayer->loadSample( fBpm, pPreferences );
 			}
 		}
 	}
@@ -580,8 +589,7 @@ void Instrument::saveTo(
 	XMLNode& node,
 	bool bSongKit,
 	bool bKeepMissingSamples,
-	bool bSilent
-)
+	bool bSilent )
 {
 	XMLNode InstrumentNode = node.createNode( "instrument" );
 	InstrumentNode.write_int( "id", static_cast<int>( m_id ) );
@@ -652,7 +660,9 @@ void Instrument::saveTo(
 
 	// Instrument layers with missing samples will be discarded during saving.
 	if ( m_bHasMissingSamples ) {
-		checkForMissingSamples( Event::Trigger::Suppress );
+		// Suppress trigger ⇒ checkForMissingSamples never dereferences the
+		// instance pointer, so saveTo need not thread one (ADR 0015).
+		checkForMissingSamples( Event::Trigger::Suppress, nullptr );
 	}
 }
 
@@ -756,8 +766,8 @@ void Instrument::addLayer(
 	std::shared_ptr<InstrumentComponent> pComponent,
 	std::shared_ptr<InstrumentLayer> pLayer,
 	int nIndex,
-	Event::Trigger trigger
-)
+	Event::Trigger trigger,
+	Hydrogen* pHydrogen )
 {
 	if ( pComponent == nullptr ) {
 		// The provided layer is allowed to be nullptr. This will be used to
@@ -772,7 +782,7 @@ void Instrument::addLayer(
 		}
 	}
 
-	checkForMissingSamples( trigger );
+	checkForMissingSamples( trigger, pHydrogen );
 }
 
 void Instrument::moveLayer(
@@ -798,8 +808,8 @@ void Instrument::setLayer(
 	std::shared_ptr<InstrumentComponent> pComponent,
 	std::shared_ptr<InstrumentLayer> pLayer,
 	int nIndex,
-	Event::Trigger trigger
-)
+	Event::Trigger trigger,
+	Hydrogen* pHydrogen )
 {
 	if ( pComponent == nullptr || pLayer == nullptr ) {
 		ERRORLOG( "Invalid input" );
@@ -812,14 +822,14 @@ void Instrument::setLayer(
 		}
 	}
 
-	checkForMissingSamples( trigger );
+	checkForMissingSamples( trigger, pHydrogen );
 }
 
 void Instrument::removeLayer(
 	std::shared_ptr<InstrumentComponent> pComponent,
 	int nIndex,
-	Event::Trigger trigger
-)
+	Event::Trigger trigger,
+	Hydrogen* pHydrogen )
 {
 	if ( pComponent == nullptr ) {
 		ERRORLOG( "Invalid input" );
@@ -832,7 +842,7 @@ void Instrument::removeLayer(
 		}
 	}
 
-	checkForMissingSamples( trigger );
+	checkForMissingSamples( trigger, pHydrogen );
 }
 
 bool Instrument::hasSamples() const
@@ -850,8 +860,8 @@ void Instrument::setSample(
 	std::shared_ptr<InstrumentComponent> pComponent,
 	std::shared_ptr<InstrumentLayer> pLayer,
 	std::shared_ptr<Sample> pSample,
-	Event::Trigger trigger
-)
+	Event::Trigger trigger,
+	Hydrogen* pHydrogen )
 {
 	if ( pComponent == nullptr || pLayer == nullptr || pSample == nullptr ) {
 		ERRORLOG( "Invalid input" );
@@ -868,7 +878,7 @@ void Instrument::setSample(
 		}
 	}
 
-	checkForMissingSamples( trigger );
+	checkForMissingSamples( trigger, pHydrogen );
 }
 
 long long Instrument::getLongestSampleFrames() const
@@ -891,7 +901,7 @@ long long Instrument::getLongestSampleFrames() const
 	return nLongestFrames;
 }
 
-void Instrument::checkForMissingSamples( Event::Trigger trigger )
+void Instrument::checkForMissingSamples( Event::Trigger trigger, Hydrogen* pHydrogen )
 {
 	const bool bPreviousValue = m_bHasMissingSamples;
 
@@ -919,7 +929,7 @@ void Instrument::checkForMissingSamples( Event::Trigger trigger )
 
 	if ( m_bHasMissingSamples != bPreviousValue &&
 		 trigger != Event::Trigger::Suppress ) {
-		EventQueue::get_instance()->pushEvent(
+		pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentLayerChanged, static_cast<int>( m_id )
 		);
 	}

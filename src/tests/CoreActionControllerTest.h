@@ -35,9 +35,9 @@ public:
 
 		void testCountIn();
 	
-	// Tests the CoreActionController::loadSong(),
-	// CoreActionController::setSong(),
-	// CoreActionController::saveSong()
-	// CoreActionController::saveSongAs() methods.
+	// Tests the H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong(),
+	// H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong(),
+	// H2Core::Hydrogen::get_instance()->getCoreActionController()->saveSong()
+	// H2Core::Hydrogen::get_instance()->getCoreActionController()->saveSongAs() methods.
 	void testSessionManagement();
 };

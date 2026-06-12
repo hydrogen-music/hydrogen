@@ -40,6 +40,7 @@
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/Hydrogen.h>
 #include <core/Version.h>
 
 #include <QDir>
@@ -244,7 +245,7 @@ Preferences::Preferences()
 #ifdef H2CORE_HAVE_ALSA
 	// Ensure the device read from the local preferences does
 	// exist. If not, we try to replace it with a valid one.
-	QStringList alsaDevices = AlsaAudioDriver::getDevices();
+	QStringList alsaDevices = AlsaAudioDriver::getAlsaDevices();
 	if ( alsaDevices.size() == 0 || alsaDevices.contains( "hw:0" ) ) {
 		m_sAlsaAudioDevice = "hw:0";
 	}
@@ -1353,7 +1354,7 @@ Preferences::load( const QString& sPath, const bool bSilent )
 		std::make_shared<Theme>( pColorTheme, pInterfaceTheme, pFontTheme );
 
 	// Shortcuts
-	pPref->m_pShortcuts = Shortcuts::loadFrom( rootNode, bSilent );
+	pPref->m_pShortcuts = Shortcuts::loadFrom( rootNode, Hydrogen::get_instance(), bSilent );
 
 	return pPref;
 }

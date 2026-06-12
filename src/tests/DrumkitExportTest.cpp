@@ -70,9 +70,9 @@ void DrumkitExportTest::setUp() {
 	}
 
 	auto pSong =
-		CoreActionController::loadSong( H2TEST_FILE( "functional/test.h2song" )
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong( H2TEST_FILE( "functional/test.h2song" )
 		);
-	CoreActionController::setSong( pSong );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong );
 }
 
 void DrumkitExportTest::tearDown()
@@ -103,9 +103,9 @@ void DrumkitExportTest::tearDown()
 
 	// Discard all changes to the test song.
 	auto pSong =
-		CoreActionController::loadSong( H2TEST_FILE( "functional/test.h2song" )
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong( H2TEST_FILE( "functional/test.h2song" )
 		);
-	CoreActionController::setSong( pSong );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong );
 }
 
 void DrumkitExportTest::testDrumkitExportAndImport() {
@@ -118,13 +118,13 @@ void DrumkitExportTest::testDrumkitExportAndImport() {
 					 .arg( Filesystem::sDrumkitSuffix ) );
 
 	// Check validity of test kit
-	CPPUNIT_ASSERT( CoreActionController::validateDrumkit(
+	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->validateDrumkit(
 						sTestKitPath, false ) );
 
 	// Import test kit into Hydrogen.
 	QString sInstalledDir;
 	CPPUNIT_ASSERT(
-		CoreActionController::extractDrumkit( sTestKitPath, "", &sInstalledDir )
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->extractDrumkit( sTestKitPath, "", &sInstalledDir )
 	);
 
 	// Check whether import worked, the UTF-8 path and name was read properly,
@@ -152,7 +152,7 @@ void DrumkitExportTest::testDrumkitExportAndImport() {
 		.arg( Filesystem::sDrumkitSuffix );
 	QTemporaryDir exportValidation( H2Core::Filesystem::tmpDir() + "-XXXXXX" );
 	exportValidation.setAutoRemove( false );
-	CPPUNIT_ASSERT( CoreActionController::extractDrumkit(
+	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->extractDrumkit(
 						sExportPath, exportValidation.path() ) );
 
 	H2TEST_ASSERT_DIRS_EQUAL(
@@ -179,11 +179,11 @@ void DrumkitExportTest::testDrumkitExportAndImportSampleFormats() {
 					 .arg( Filesystem::sDrumkitSuffix ) );
 
 	// Check validity of test kit
-	CPPUNIT_ASSERT( CoreActionController::validateDrumkit(
+	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->validateDrumkit(
 						sTestKitPath, false ) );
 
 	// Import test kit into Hydrogen.
-	CPPUNIT_ASSERT( CoreActionController::extractDrumkit( sTestKitPath ) );
+	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->extractDrumkit( sTestKitPath ) );
 
 	// Check whether import worked, the UTF-8 path and name was read properly,
 	// and all samples are present.
@@ -208,7 +208,7 @@ void DrumkitExportTest::testDrumkitExportAndImportSampleFormats() {
 		.arg( Filesystem::sDrumkitSuffix );
 	QTemporaryDir exportValidation( H2Core::Filesystem::tmpDir() + "-XXXXXX" );
 	exportValidation.setAutoRemove( false );
-	CPPUNIT_ASSERT( CoreActionController::extractDrumkit(
+	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->extractDrumkit(
 						sExportPath, exportValidation.path() ) );
 
 	H2TEST_ASSERT_DIRS_EQUAL(
@@ -235,13 +235,13 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 					 .arg( Filesystem::sDrumkitSuffix ) );
 
 	// Check validity of test kit
-	CPPUNIT_ASSERT( CoreActionController::validateDrumkit(
+	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->validateDrumkit(
 						sTestKitPath, false ) );
 
 	// Import test kit into Hydrogen.
 	QString sInstalledDir;
 	bool bEncodingIssuesDetected;
-	CPPUNIT_ASSERT( CoreActionController::extractDrumkit(
+	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->extractDrumkit(
 						sTestKitPath, "", &sInstalledDir,
 						&bEncodingIssuesDetected ) );
 
@@ -281,7 +281,7 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 
 	QTemporaryDir exportValidation( H2Core::Filesystem::tmpDir() + "-XXXXXX" );
 	exportValidation.setAutoRemove( false );
-	CPPUNIT_ASSERT( CoreActionController::extractDrumkit(
+	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->extractDrumkit(
 						sExportPath, exportValidation.path() ) );
 
 	QDir exportDir( exportValidation.path() );

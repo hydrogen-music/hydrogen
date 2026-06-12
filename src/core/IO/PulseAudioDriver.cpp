@@ -22,6 +22,8 @@
 
 #include <core/IO/PulseAudioDriver.h>
 
+#include <core/Hydrogen.h>
+
 #if defined(H2CORE_HAVE_PULSEAUDIO) || _DOXYGEN_
 
 #include <fcntl.h>
@@ -31,8 +33,8 @@
 namespace H2Core
 {
 
-PulseAudioDriver::PulseAudioDriver(audioProcessCallback processCallback)
-	:	AudioDriver(),
+PulseAudioDriver::PulseAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback )
+	:	AudioDriver( pHydrogen ),
 		m_callback(processCallback),
 		m_main_loop(nullptr),
 		m_ctx(nullptr),
@@ -60,7 +62,7 @@ int PulseAudioDriver::init( unsigned nBufferSize )
 	delete []m_outL;
 	delete []m_outR;
 	m_buffer_size = nBufferSize;
-	m_sample_rate = Preferences::get_instance()->m_nSampleRate;
+	m_sample_rate = m_pHydrogen->getPreferences()->m_nSampleRate;
 	m_outL = new float[m_buffer_size];
 	m_outR = new float[m_buffer_size];
 	return 0;

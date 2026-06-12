@@ -373,8 +373,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
 		auto pNewLayer = std::make_shared<InstrumentLayer>( pLayer );
 		pNewInstrument->addLayer(
-			pNewComponent, pNewLayer, m_nSelectedLayer, Event::Trigger::Suppress
-		);
+			pNewComponent, pNewLayer, m_nSelectedLayer, Event::Trigger::Suppress, H2Core::Hydrogen::get_instance() );
 
 		pHydrogenApp->pushUndoCommand( new SE_replaceInstrumentAction(
 			pNewInstrument, pInstrument,
@@ -1107,8 +1106,7 @@ void ComponentView::replaceLayer( int nLayer, const QString& sInputSamplePath )
 	}
 
 	pNewInstrument->setSample(
-		pNewComponent, pNewLayer, pNewSample, Event::Trigger::Default
-	);
+		pNewComponent, pNewLayer, pNewSample, Event::Trigger::Default, H2Core::Hydrogen::get_instance() );
 
 	auto sCleanedFileName = sNewSamplePath.section( '/', -1 );
 	sCleanedFileName.replace( "." + sCleanedFileName.section( '.', -1 ), "" );
@@ -1228,8 +1226,7 @@ void ComponentView::setLayers(
 			std::make_shared<H2Core::InstrumentLayer>( pNewSample );
 
 		pNewInstrument->addLayer(
-			pNewComponent, pNewLayer, m_nSelectedLayer, Event::Trigger::Default
-		);
+			pNewComponent, pNewLayer, m_nSelectedLayer, Event::Trigger::Default, H2Core::Hydrogen::get_instance() );
 
 		if ( bRenameInstrument || bRenameComponent ) {
 			sLastCleanedFileName = ssPath.section( '/', -1 );
@@ -1411,8 +1408,7 @@ void ComponentView::removeLayerButtonClicked() {
 		pLayer->getSample()->getFileName() : "nullptr";
 
 	pNewInstrument->removeLayer(
-		pNewComponent, m_nSelectedLayer, Event::Trigger::Default
-	);
+		pNewComponent, m_nSelectedLayer, Event::Trigger::Default, H2Core::Hydrogen::get_instance() );
 
 	pHydrogenApp->pushUndoCommand( new SE_replaceInstrumentAction(
 		pNewInstrument, pInstrument,

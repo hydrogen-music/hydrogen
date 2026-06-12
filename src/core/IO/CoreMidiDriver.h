@@ -45,7 +45,7 @@ class CoreMidiDriver : public Object<CoreMidiDriver>,
 {
 	H2_OBJECT(CoreMidiDriver)
 public:
-	CoreMidiDriver();
+	CoreMidiDriver( Hydrogen* pHydrogen );
 	~CoreMidiDriver();
 
 	bool m_bRunning;

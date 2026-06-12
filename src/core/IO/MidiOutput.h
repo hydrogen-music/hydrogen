@@ -33,6 +33,7 @@
 
 namespace H2Core {
 
+class Hydrogen;
 class MidiMessage;
 
 /**
@@ -54,7 +55,10 @@ class MidiOutput : public virtual Object<MidiOutput>
 			QString toQString() const;
 		};
 
-		MidiOutput();
+		/** @param pHydrogen Owning Hydrogen instance; stored as the back-pointer
+		 * (ADR 0015). MidiBaseDriver/derived reach the canonical pointer via
+		 * MidiInput::m_pHydrogen; this copy serves MidiOutput's own methods. */
+		MidiOutput( Hydrogen* pHydrogen );
 		virtual ~MidiOutput();
 
 		/** Checks whether output part of the MIDI driver was properly set up
@@ -75,6 +79,9 @@ class MidiOutput : public virtual Object<MidiOutput>
 	virtual void sendNoteOffMessage( const MidiMessage& msg ) {};
 	virtual void sendNoteOnMessage( const MidiMessage& msg ) {};
 	virtual void sendSystemRealTimeMessage( const MidiMessage& msg ) {};
+
+	/** Back-pointer to the owning Hydrogen instance (ADR 0015). */
+	Hydrogen* m_pHydrogen;
 };
 
 };

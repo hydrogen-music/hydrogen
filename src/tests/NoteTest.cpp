@@ -62,7 +62,7 @@ void NoteTest::testComparison() {
 		notes2.push_back( std::make_shared<H2Core::Note>( ppNote ) );
 
 		auto pNoteStart = std::make_shared<H2Core::Note>( ppNote );
-		pNoteStart->computeNoteStart();
+		pNoteStart->computeNoteStart( H2Core::Hydrogen::get_instance() );
 		notes3.push_back( pNoteStart );
 	}
 

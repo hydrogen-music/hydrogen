@@ -29,6 +29,8 @@
 namespace H2Core
 {
 
+class Hydrogen;
+
 typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
 /** Base class for all our audio drivers.
@@ -38,8 +40,15 @@ class AudioDriver : public H2Core::Object<AudioDriver>
 {
 	H2_OBJECT(AudioDriver)
 public:
-	AudioDriver() = default;
+	/** @param pHydrogen Owning Hydrogen instance; stored as the back-pointer
+	 * shared by all audio drivers (ADR 0015). */
+	AudioDriver( Hydrogen* pHydrogen ) : m_pHydrogen( pHydrogen ) {}
 	virtual ~AudioDriver() { }
+
+	/** Owning Hydrogen instance (ADR 0015). Public accessor for the static
+	 * callbacks and free-function threads that reach a driver via a void*
+	 * instance pointer. */
+	Hydrogen* getHydrogen() const { return m_pHydrogen; }
 
 	virtual int init( unsigned nBufferSize ) = 0;
 	virtual int connect() = 0;
@@ -62,7 +71,11 @@ public:
 	virtual float* getOut_L() = 0;
 	virtual float* getOut_R() = 0;
 
-	static QStringList getDevices() { return QStringList(); }
+	virtual QStringList getDevices() { return QStringList(); }
+
+protected:
+	/** Back-pointer to the owning Hydrogen instance (ADR 0015). */
+	Hydrogen* m_pHydrogen;
 };
 
 };

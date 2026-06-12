@@ -242,7 +242,9 @@ public:
 		};
 		static QString TypeToQString( Event::Type type );
 
-		Event( Event::Type type, int nValue );
+		/** @param nId Unique id, supplied by the owning EventQueue (ADR 0015);
+		 * defaults to #nInvalidId for events created without a queue. */
+		Event( Event::Type type, int nValue, long nId = nInvalidId );
 		~Event();
 
 		Event::Type getType() const;

@@ -102,8 +102,8 @@ void tearDown() {
 void startTestJackDriver( lo_arg **argv, int argc ) {
 	___INFOLOG("");
 
-	CoreActionController::activateLoopMode( false );
-	CoreActionController::locateToTick( 0 );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateLoopMode( false );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToTick( 0 );
 
 #ifdef H2CORE_HAVE_JACK
 	AudioEngineTests::startJackDriver();

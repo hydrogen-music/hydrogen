@@ -37,6 +37,7 @@
 namespace H2Core
 {
 
+class Hydrogen;
 class InstrumentLayer;
 class XMLNode;
 
@@ -69,7 +70,8 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 			const QString& sDrumkitPath,
 			const QString& sSongPath = "",
 			const License& drumkitLicense = License(),
-			bool bSilent = false
+			bool bSilent = false,
+			Hydrogen* pHydrogen = nullptr
 		);
 
 		void				setName( const QString& sName );
@@ -121,14 +123,15 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 			const QString& sDrumkitPath,
 			const QString& sSongPath,
 			const License& drumkitLicense,
-			bool bSilent
+			bool bSilent,
+			Hydrogen* pHydrogen
 		);
 		friend void Instrument::addLayer(
 			std::shared_ptr<InstrumentComponent> pComponent,
 			std::shared_ptr<InstrumentLayer> pLayer,
 			int nIndex,
-			Event::Trigger trigger
-		);
+			Event::Trigger trigger,
+			Hydrogen* pHydrogen );
 		friend void Instrument::moveLayer(
 			std::shared_ptr<InstrumentComponent> pComponent,
 			int nOldIndex,
@@ -139,13 +142,13 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 			std::shared_ptr<InstrumentComponent> pComponent,
 			std::shared_ptr<InstrumentLayer> pLayer,
 			int nIndex,
-			Event::Trigger trigger
-		);
+			Event::Trigger trigger,
+			Hydrogen* pHydrogen );
 		friend void Instrument::removeLayer(
 			std::shared_ptr<InstrumentComponent> pComponent,
 			int nIndex,
-			Event::Trigger trigger
-		);
+			Event::Trigger trigger,
+			Hydrogen* pHydrogen );
 
 	   private:
 		/** An @a nIndex of -1 will cause the method to append the new layer at

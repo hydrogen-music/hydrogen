@@ -158,21 +158,20 @@ void DrumkitTest::testLayerHandling()
 	// Check layer adding and removal
 
 	// Illegal indices should not add layer
-	pInstrument->addLayer( pComponent, pLayer1, -2, Event::Trigger::Suppress );
+	pInstrument->addLayer( pComponent, pLayer1, -2, Event::Trigger::Suppress, nullptr );
 	CPPUNIT_ASSERT( pComponent->getLayers().size() == 0 );
 	pInstrument->addLayer(
 		pComponent, pLayer1, pComponent->getLayers().size() + 1,
-		Event::Trigger::Suppress
-	);
+		Event::Trigger::Suppress, nullptr );
 	CPPUNIT_ASSERT( pComponent->getLayers().size() == 0 );
 
-	pInstrument->addLayer( pComponent, pLayer1, 0, Event::Trigger::Suppress );
+	pInstrument->addLayer( pComponent, pLayer1, 0, Event::Trigger::Suppress, nullptr );
 	CPPUNIT_ASSERT( pComponent->getLayers().size() == 1 );
 	CPPUNIT_ASSERT(
 		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName1
 	);
 
-	pInstrument->addLayer( pComponent, pLayer2, 0, Event::Trigger::Suppress );
+	pInstrument->addLayer( pComponent, pLayer2, 0, Event::Trigger::Suppress, nullptr );
 	CPPUNIT_ASSERT( pComponent->getLayers().size() == 2 );
 	CPPUNIT_ASSERT(
 		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName2
@@ -181,7 +180,7 @@ void DrumkitTest::testLayerHandling()
 		pComponent->getLayer( 1 )->getSample()->getFileName() == sFileName1
 	);
 
-	pInstrument->addLayer( pComponent, pLayer2, -1, Event::Trigger::Suppress );
+	pInstrument->addLayer( pComponent, pLayer2, -1, Event::Trigger::Suppress, nullptr );
 	CPPUNIT_ASSERT( pComponent->getLayers().size() == 3 );
 	CPPUNIT_ASSERT(
 		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName2
@@ -194,14 +193,13 @@ void DrumkitTest::testLayerHandling()
 	);
 
 	// Only valid indices should remove layers
-	pInstrument->removeLayer( pComponent, -1, Event::Trigger::Suppress );
+	pInstrument->removeLayer( pComponent, -1, Event::Trigger::Suppress, nullptr );
 	CPPUNIT_ASSERT( pComponent->getLayers().size() == 3 );
 	pInstrument->removeLayer(
-		pComponent, pComponent->getLayers().size(), Event::Trigger::Suppress
-	);
+		pComponent, pComponent->getLayers().size(), Event::Trigger::Suppress, nullptr );
 	CPPUNIT_ASSERT( pComponent->getLayers().size() == 3 );
 
-	pInstrument->removeLayer( pComponent, 1, Event::Trigger::Suppress );
+	pInstrument->removeLayer( pComponent, 1, Event::Trigger::Suppress, nullptr );
 	CPPUNIT_ASSERT( pComponent->getLayers().size() == 2 );
 	CPPUNIT_ASSERT(
 		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName2
@@ -209,16 +207,16 @@ void DrumkitTest::testLayerHandling()
 	CPPUNIT_ASSERT(
 		pComponent->getLayer( 1 )->getSample()->getFileName() == sFileName2
 	);
-	pInstrument->removeLayer( pComponent, 0, Event::Trigger::Suppress );
-	pInstrument->removeLayer( pComponent, 0, Event::Trigger::Suppress );
+	pInstrument->removeLayer( pComponent, 0, Event::Trigger::Suppress, nullptr );
+	pInstrument->removeLayer( pComponent, 0, Event::Trigger::Suppress, nullptr );
 	CPPUNIT_ASSERT( pComponent->getLayers().size() == 0 );
 
 	// Removing without layers should not be harmful.
-	pInstrument->removeLayer( pComponent, 0, Event::Trigger::Suppress );
+	pInstrument->removeLayer( pComponent, 0, Event::Trigger::Suppress, nullptr );
 
 	////////////////////////////////////////////////////////////////////////////
 	// set layer and sample
-	pInstrument->addLayer( pComponent, pLayer1, 0, Event::Trigger::Suppress );
+	pInstrument->addLayer( pComponent, pLayer1, 0, Event::Trigger::Suppress, nullptr );
 	CPPUNIT_ASSERT( pComponent->getLayers().size() == 1 );
 	CPPUNIT_ASSERT(
 		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName1
@@ -226,8 +224,7 @@ void DrumkitTest::testLayerHandling()
 
 	auto pLayer2Copy = std::make_shared<InstrumentLayer>( pLayer2 );
 	pInstrument->setLayer(
-		pComponent, pLayer2Copy, 0, Event::Trigger::Suppress
-	);
+		pComponent, pLayer2Copy, 0, Event::Trigger::Suppress, nullptr );
 	CPPUNIT_ASSERT( pComponent->getLayers().size() == 1 );
 	CPPUNIT_ASSERT(
 		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName2
@@ -235,22 +232,20 @@ void DrumkitTest::testLayerHandling()
 
 	// Using the wrong layer
 	pInstrument->setSample(
-		pComponent, pLayer1, pSample1, Event::Trigger::Suppress
-	);
+		pComponent, pLayer1, pSample1, Event::Trigger::Suppress, nullptr );
 	CPPUNIT_ASSERT( pComponent->getLayers().size() == 1 );
 	CPPUNIT_ASSERT(
 		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName2
 	);
 
 	pInstrument->setSample(
-		pComponent, pLayer2Copy, pSample1, Event::Trigger::Suppress
-	);
+		pComponent, pLayer2Copy, pSample1, Event::Trigger::Suppress, nullptr );
 	CPPUNIT_ASSERT( pComponent->getLayers().size() == 1 );
 	CPPUNIT_ASSERT(
 		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName1
 	);
 
-	pInstrument->removeLayer( pComponent, 0, Event::Trigger::Suppress );
+	pInstrument->removeLayer( pComponent, 0, Event::Trigger::Suppress, nullptr );
 	CPPUNIT_ASSERT( pComponent->getLayers().size() == 0 );
 
 	////////////////////////////////////////////////////////////////////////////
@@ -261,14 +256,14 @@ void DrumkitTest::testLayerHandling()
 	);
 	auto pLayer3 = std::make_shared<InstrumentLayer>( pSample3 );
 
-	pInstrument->addLayer( pComponent, pLayer1, -1, Event::Trigger::Suppress );
-	pInstrument->addLayer( pComponent, pLayer1, -1, Event::Trigger::Suppress );
-	pInstrument->addLayer( pComponent, pLayer2, -1, Event::Trigger::Suppress );
-	pInstrument->addLayer( pComponent, pLayer1, -1, Event::Trigger::Suppress );
-	pInstrument->addLayer( pComponent, pLayer1, -1, Event::Trigger::Suppress );
-	pInstrument->addLayer( pComponent, pLayer1, -1, Event::Trigger::Suppress );
-	pInstrument->addLayer( pComponent, pLayer3, -1, Event::Trigger::Suppress );
-	pInstrument->addLayer( pComponent, pLayer1, -1, Event::Trigger::Suppress );
+	pInstrument->addLayer( pComponent, pLayer1, -1, Event::Trigger::Suppress, nullptr );
+	pInstrument->addLayer( pComponent, pLayer1, -1, Event::Trigger::Suppress, nullptr );
+	pInstrument->addLayer( pComponent, pLayer2, -1, Event::Trigger::Suppress, nullptr );
+	pInstrument->addLayer( pComponent, pLayer1, -1, Event::Trigger::Suppress, nullptr );
+	pInstrument->addLayer( pComponent, pLayer1, -1, Event::Trigger::Suppress, nullptr );
+	pInstrument->addLayer( pComponent, pLayer1, -1, Event::Trigger::Suppress, nullptr );
+	pInstrument->addLayer( pComponent, pLayer3, -1, Event::Trigger::Suppress, nullptr );
+	pInstrument->addLayer( pComponent, pLayer1, -1, Event::Trigger::Suppress, nullptr );
 	CPPUNIT_ASSERT( pComponent->getLayers().size() == 8 );
 	CPPUNIT_ASSERT(
 		pComponent->getLayer( 0 )->getSample()->getFileName() == sFileName1

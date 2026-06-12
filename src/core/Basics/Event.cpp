@@ -137,16 +137,9 @@ QString Event::TypeToQString( Event::Type type ) {
 	return QString( "Unknown event: [%1]" ).arg( static_cast<int>(type));
 }
 
-Event::Event( Event::Type type, int nValue ) : m_type( type )
-											 , m_nValue( nValue ) {
-	auto pEventQueue = EventQueue::get_instance();
-	if ( pEventQueue != nullptr ) {
-		// This should always be true
-		m_nId = pEventQueue->createEventId();
-	}
-	else {
-		m_nId = Event::nInvalidId;
-	}
+Event::Event( Event::Type type, int nValue, long nId ) : m_type( type )
+											 , m_nValue( nValue )
+											 , m_nId( nId ) {
 }
 
 Event::~Event() {

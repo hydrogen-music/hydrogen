@@ -47,13 +47,16 @@ namespace H2Core
  *
  */
 
+class Hydrogen;
 class SoundLibraryInfo;
 
 /** \ingroup docGUI*/
 class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	H2_OBJECT( SoundLibraryDatabase )
    public:
-	SoundLibraryDatabase();
+	/** @param pHydrogen Owning Hydrogen instance; stored as the back-pointer
+	 * through which the database reaches its per-instance context (ADR 0015). */
+	SoundLibraryDatabase( Hydrogen* pHydrogen );
 	~SoundLibraryDatabase();
 
 	const std::vector<std::shared_ptr<SoundLibraryInfo>>& getDrumkitInfos() const;
@@ -134,6 +137,9 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 		const override;
 
    private:
+	/** Back-pointer to the owning Hydrogen instance (ADR 0015). */
+	Hydrogen* m_pHydrogen;
+
 	void registerUniqueLabel(
 		std::shared_ptr<SoundLibraryInfo> pInfo
 	);

@@ -42,8 +42,13 @@ void Playlist::clear()
 	m_entries.clear();
 }
 
-std::shared_ptr<Playlist> Playlist::load( const QString& sPath )
+std::shared_ptr<Playlist> Playlist::load( const QString& sPath,
+										  Hydrogen* pHydrogen )
 {
+	// T1.5: make pHydrogen required and drop this fallback (ADR 0015).
+	if ( pHydrogen == nullptr ) {
+		pHydrogen = Hydrogen::get_instance();
+	}
 	XMLDoc doc;
 	doc.read( sPath );
 
@@ -68,7 +73,7 @@ std::shared_ptr<Playlist> Playlist::load( const QString& sPath )
 		}
 
 		WARNINGLOG( QString( "Upgrading playlist [%1]" ).arg( sPath ) );
-		pPlaylist->saveAs( sPath, true );
+		pPlaylist->saveAs( sPath, pHydrogen->getPreferences(), true );
 		return pPlaylist;
 	}
 
@@ -132,7 +137,7 @@ std::shared_ptr<Playlist> Playlist::load( const QString& sPath )
 	return pPlaylist;
 }
 
-bool Playlist::saveAs( const QString& sTargetPath, bool bSilent ) {
+bool Playlist::saveAs( const QString& sTargetPath, std::shared_ptr<Preferences> pPreferences, bool bSilent ) {
 	if ( ! bSilent  ) {
 		INFOLOG( QString( "Saving playlist [%1] as [%2]" )
 				 .arg( m_sPath ).arg( sTargetPath ) );
@@ -140,10 +145,10 @@ bool Playlist::saveAs( const QString& sTargetPath, bool bSilent ) {
 
 	setPath( sTargetPath );
 
-	return save( true );
+	return save( pPreferences, true );
 }
 
-bool Playlist::save( bool bSilent ) const {
+bool Playlist::save( std::shared_ptr<Preferences> pPreferences, bool bSilent ) const {
 	if ( m_sPath.isEmpty() ) {
 		ERRORLOG( "No filepath provided!" );
 		return false;
@@ -158,11 +163,11 @@ bool Playlist::save( bool bSilent ) const {
 
 	root.write_int( "formatVersion", nCurrentFormatVersion );
 
-	saveTo( root );
+	saveTo( root, pPreferences );
 	return doc.write( m_sPath );
 }
 
-void Playlist::saveTo( XMLNode& node ) const
+void Playlist::saveTo( XMLNode& node, std::shared_ptr<Preferences> pPreferences ) const
 {
 	QFileInfo fileInfo( m_sPath );
 
@@ -171,7 +176,7 @@ void Playlist::saveTo( XMLNode& node ) const
 	for ( const auto& pEntry : m_entries ) {
 		QString sSongPath = pEntry->getSongPath();
 		QString sScriptPath = pEntry->getScriptPath();
-		if ( Preferences::get_instance()->getUseRelativeFileNamesForPlaylists() ) {
+		if ( pPreferences->getUseRelativeFileNamesForPlaylists() ) {
 			if ( ! sSongPath.isEmpty() ) {
 				sSongPath = fileInfo.absoluteDir().relativeFilePath( sSongPath );
 			}

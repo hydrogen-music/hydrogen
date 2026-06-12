@@ -32,6 +32,9 @@
 namespace H2Core
 {
 
+class Hydrogen;
+class Preferences;
+
 class PlaylistEntry : public H2Core::Object<PlaylistEntry> {
 	H2_OBJECT(PlaylistEntry)
 
@@ -117,9 +120,10 @@ class Playlist : public H2Core::Object<Playlist>
 		bool getIsModified() const;
 		void setIsModified( bool IsModified );
 
-		static std::shared_ptr<Playlist> load( const QString& sPath );
-		bool saveAs( const QString& sTargetPath, bool bSilent = false );
-		bool save( bool bSilent = false ) const;
+		static std::shared_ptr<Playlist> load( const QString& sPath,
+											   Hydrogen* pHydrogen = nullptr );
+		bool saveAs( const QString& sTargetPath, std::shared_ptr<Preferences> pPreferences, bool bSilent = false );
+		bool save( std::shared_ptr<Preferences> pPreferences, bool bSilent = false ) const;
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -133,7 +137,7 @@ class Playlist : public H2Core::Object<Playlist>
 	private:
 
 		static std::shared_ptr<Playlist> load_from( const XMLNode& root, const QString& sPath );
-		void saveTo( XMLNode& node ) const;
+		void saveTo( XMLNode& node, std::shared_ptr<Preferences> pPreferences ) const;
 
 		void execScript( int index ) const;
 
