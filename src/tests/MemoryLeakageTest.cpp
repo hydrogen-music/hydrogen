@@ -195,7 +195,7 @@ void MemoryLeakageTest::testConstructors()
 	}
 
 	{
-		auto pSampler = new H2Core::Sampler( H2Core::Hydrogen::get_instance() );
+		auto pSampler = new H2Core::Sampler( pTestHydrogen() );
 		delete pSampler;
 		CPPUNIT_ASSERT(
 			nAliveReference == H2Core::Base::getAliveObjectCount()
@@ -204,7 +204,7 @@ void MemoryLeakageTest::testConstructors()
 
 	// Test copy constructors using real-live instead of new objects.
 	auto pDrumkitProper = H2Core::Drumkit::load(
-		H2Core::Hydrogen::get_instance()
+		pTestHydrogen()
 			->getSoundLibraryDatabase()
 			->findArtifact(
 				H2Core::Filesystem::Artifact::DrumkitExtracted,
@@ -339,7 +339,7 @@ void MemoryLeakageTest::testLoading()
 	auto mapSnapshot = H2Core::Base::getObjectMap();
 	int nAliveReference = H2Core::Base::getAliveObjectCount();
 
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 
 	QString sDrumkitPath = pHydrogen->getSoundLibraryDatabase()->findArtifact(
 		H2Core::Filesystem::Artifact::DrumkitExtracted,
@@ -533,12 +533,12 @@ void MemoryLeakageTest::testLoading()
 		CPPUNIT_ASSERT( pDrumkit2 != nullptr );
 		pDrumkit2->loadSamples();
 
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit( pDrumkit );
+		pTestHydrogen()->getCoreActionController()->setDrumkit( pDrumkit );
 		int nLoaded = H2Core::Base::getAliveObjectCount();
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit( pDrumkit );
+		pTestHydrogen()->getCoreActionController()->setDrumkit( pDrumkit );
 		CPPUNIT_ASSERT( nLoaded == H2Core::Base::getAliveObjectCount() );
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit( pDrumkit2 );
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit( pDrumkit );
+		pTestHydrogen()->getCoreActionController()->setDrumkit( pDrumkit2 );
+		pTestHydrogen()->getCoreActionController()->setDrumkit( pDrumkit );
 		CPPUNIT_ASSERT( nLoaded == H2Core::Base::getAliveObjectCount() );
 	}
 	___INFOLOG( "passed" );

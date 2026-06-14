@@ -47,7 +47,7 @@ void OnlineImporterTest::testParseValidIndex() {
 	CPPUNIT_ASSERT( f.open( QIODevice::ReadOnly ) );
 	const QByteArray data = f.readAll();
 
-	OnlineImporter importer( H2Core::Hydrogen::get_instance() );
+	OnlineImporter importer( pTestHydrogen() );
 	const auto index = importer.parseIndex( data, QUrl( "https://example.com/index.json" ) );
 
 	CPPUNIT_ASSERT( index.sVersion == "0.1.0" );
@@ -94,7 +94,7 @@ void OnlineImporterTest::testParseMalformedEntry() {
 		]
 	})";
 
-	OnlineImporter importer( H2Core::Hydrogen::get_instance() );
+	OnlineImporter importer( pTestHydrogen() );
 	const auto index = importer.parseIndex( data, QUrl( "https://example.com/index.json" ) );
 
 	// Malformed entry (missing "url") should be skipped.
@@ -109,7 +109,7 @@ void OnlineImporterTest::testParseEmptyIndex() {
 
 	const QByteArray data = "{}";
 
-	OnlineImporter importer( H2Core::Hydrogen::get_instance() );
+	OnlineImporter importer( pTestHydrogen() );
 	const auto index = importer.parseIndex( data, QUrl( "https://example.com/index.json" ) );
 
 	CPPUNIT_ASSERT( index.patterns.empty() );
@@ -130,7 +130,7 @@ void OnlineImporterTest::testTopLevelHashValidation() {
 		"patterns": []
 	})";
 
-	OnlineImporter importer( H2Core::Hydrogen::get_instance() );
+	OnlineImporter importer( pTestHydrogen() );
 	const auto index = importer.parseIndex( data, QUrl( "https://example.com/index.json" ) );
 
 	// Parse result is still valid — wrong hash is only a warning.
@@ -170,7 +170,7 @@ void OnlineImporterTest::testCountMismatchWarning() {
 		]
 	})";
 
-	OnlineImporter importer( H2Core::Hydrogen::get_instance() );
+	OnlineImporter importer( pTestHydrogen() );
 	const auto index = importer.parseIndex( data, QUrl( "https://example.com/index.json" ) );
 
 	// Actual data wins — 2 patterns parsed, count mismatch is only a warning.
@@ -212,7 +212,7 @@ void OnlineImporterTest::testResolveLocalStatusNotInstalled() {
 	artifact.type = OnlineArtifact::Type::Pattern;
 	artifact.sHash = "deadbeef";
 
-	OnlineImporter importer( H2Core::Hydrogen::get_instance() );
+	OnlineImporter importer( pTestHydrogen() );
 	importer.resolveLocalStatus( artifact );
 
 	CPPUNIT_ASSERT( artifact.localStatus == OnlineArtifact::LocalStatus::NotInstalled );
@@ -252,7 +252,7 @@ void OnlineImporterTest::testResolveLocalStatusInstalled() {
 	artifact.type = OnlineArtifact::Type::Pattern;
 	artifact.sHash = hash;
 
-	OnlineImporter importer( H2Core::Hydrogen::get_instance() );
+	OnlineImporter importer( pTestHydrogen() );
 	importer.setLocalSearchPath( OnlineArtifact::Type::Pattern, tempDir.path() );
 	importer.resolveLocalStatus( artifact );
 
@@ -260,11 +260,11 @@ void OnlineImporterTest::testResolveLocalStatusInstalled() {
 
 	// Install a drumkit first
 	QString sInstalledDir;
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->extractDrumkit(
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->extractDrumkit(
 		H2TEST_FILE( "drumkits/testKit.h2drumkit" ), "", &sInstalledDir
 	) );
 
-	auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
+	auto pDB = pTestHydrogen()->getSoundLibraryDatabase();
 	pDB->updateDrumkits( Event::Trigger::Default );
 
 	OnlineArtifact drumkitArtifact;
@@ -311,7 +311,7 @@ void OnlineImporterTest::testResolveLocalStatusModified() {
 	artifact.sHash = differentHash;
 	artifact.nVersion = 1;
 
-	OnlineImporter importer( H2Core::Hydrogen::get_instance() );
+	OnlineImporter importer( pTestHydrogen() );
 	importer.setLocalSearchPath( OnlineArtifact::Type::Pattern, tempDir.path() );
 	importer.resolveLocalStatus( artifact );
 
@@ -319,11 +319,11 @@ void OnlineImporterTest::testResolveLocalStatusModified() {
 
 	// Install a drumkit first
 	QString sInstalledDir;
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->extractDrumkit(
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->extractDrumkit(
 		H2TEST_FILE( "drumkits/testKit.h2drumkit" ), "", &sInstalledDir
 	) );
 
-	auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
+	auto pDB = pTestHydrogen()->getSoundLibraryDatabase();
 	pDB->updateDrumkits( Event::Trigger::Default );
 
 	OnlineArtifact drumkitArtifact;
@@ -348,7 +348,7 @@ void OnlineImporterTest::testResolveLocalStatusModified() {
 void OnlineImporterTest::testDownloadArtifactsEmptyList() {
 	___INFOLOG( "" );
 
-	OnlineImporter importer( H2Core::Hydrogen::get_instance() );
+	OnlineImporter importer( pTestHydrogen() );
 	QSignalSpy batchSpy( &importer, SIGNAL( batchFinished( int, int ) ) );
 
 	CPPUNIT_ASSERT( batchSpy.isValid() );
@@ -367,7 +367,7 @@ void OnlineImporterTest::testDownloadArtifactsEmptyList() {
 void OnlineImporterTest::testDownloadArtifactsAbort() {
 	___INFOLOG( "" );
 
-	OnlineImporter importer( H2Core::Hydrogen::get_instance() );
+	OnlineImporter importer( pTestHydrogen() );
 
 	// Verify that abort() is effective: calling abort() is intended to stop
 	// an in-progress batch. Since downloadArtifactsAsync() resets the abort
@@ -441,7 +441,7 @@ void OnlineImporterTest::testDownloadBlockingSuccess() {
 		} );
 	} );
 
-	OnlineImporter importer( H2Core::Hydrogen::get_instance() );
+	OnlineImporter importer( pTestHydrogen() );
 	QString sError;
 	const QUrl url( QString( "http://127.0.0.1:%1/test.h2pattern" ).arg( nPort ) );
 	const QByteArray data = importer.downloadBlocking( url, 5000, &sError );
@@ -487,7 +487,7 @@ void OnlineImporterTest::testDownloadBlockingHashMismatch() {
 	artifact.url = QUrl( QString( "http://127.0.0.1:%1/test.h2pattern" ).arg( nPort ) );
 	artifact.sHash = sWrongHash;
 
-	OnlineImporter importer( H2Core::Hydrogen::get_instance() );
+	OnlineImporter importer( pTestHydrogen() );
 	QString sError;
 	const bool bResult = importer.downloadArtifactBlocking( artifact, &sError );
 

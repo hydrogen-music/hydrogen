@@ -54,16 +54,16 @@ using namespace H2Core;
 
 void MidiActionTest::setUp()
 {
-	auto pPref = Preferences::get_instance();
+	auto pPref = pTestPreferences();
 	pPref->m_midiActionChannel = Midi::ChannelAll;
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true );
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateTimeline( false );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( true );
+	pTestHydrogen()->getCoreActionController()->activateTimeline( false );
 }
 
 void MidiActionTest::tearDown()
 {
-	Preferences::get_instance()->getMidiEventMap()->reset();
+	pTestPreferences()->getMidiEventMap()->reset();
 }
 
 #ifndef Q_OS_MACX
@@ -72,11 +72,11 @@ void MidiActionTest::testBeatCounterAction()
 	___INFOLOG( "" );
 
 	auto pTestHelper = TestHelper::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pTimeHelper = pHydrogen->getTimeHelper();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pPref = Preferences::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pPref = pTestPreferences();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto beatCounterPara = Midi::parameterFromInt( 0 );
@@ -84,7 +84,7 @@ void MidiActionTest::testBeatCounterAction()
 		MidiEvent::Type::CC, beatCounterPara,
 		std::make_shared<MidiAction>( MidiAction::Type::BeatCounter ),
 		Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 	pPref->m_bpmTap = Preferences::BpmTap::BeatCounter;
 	pPref->m_beatCounter = Preferences::BeatCounter::Tap;
 	pPref->m_nBeatCounterDriftCompensation = 0;
@@ -155,10 +155,10 @@ void MidiActionTest::testBpmCcRelativeAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPlayhead = pAudioEngine->getPlayhead();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
@@ -174,7 +174,7 @@ void MidiActionTest::testBpmCcRelativeAction()
 
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	pAudioEngine->lock( RIGHT_HERE );
 	const auto fOldBpm = 120;
@@ -206,10 +206,10 @@ void MidiActionTest::testBpmDecreaseAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPlayhead = pAudioEngine->getPlayhead();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
@@ -226,7 +226,7 @@ void MidiActionTest::testBpmDecreaseAction()
 
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	pAudioEngine->lock( RIGHT_HERE );
 	const auto fOldBpm = 130;
@@ -258,10 +258,10 @@ void MidiActionTest::testBpmFineCcRelativeAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPlayhead = pAudioEngine->getPlayhead();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
@@ -277,7 +277,7 @@ void MidiActionTest::testBpmFineCcRelativeAction()
 
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	pAudioEngine->lock( RIGHT_HERE );
 	const auto fOldBpm = 140;
@@ -309,10 +309,10 @@ void MidiActionTest::testBpmIncreaseAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPlayhead = pAudioEngine->getPlayhead();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
@@ -329,7 +329,7 @@ void MidiActionTest::testBpmIncreaseAction()
 
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	pAudioEngine->lock( RIGHT_HERE );
 	const auto fOldBpm = 150;
@@ -361,8 +361,8 @@ void MidiActionTest::testClearPatternAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -370,7 +370,7 @@ void MidiActionTest::testClearPatternAction()
 		MidiEvent::Type::CC, parameter,
 		std::make_shared<MidiAction>( MidiAction::Type::ClearPattern ),
 		Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	const int nPatternNumber = pHydrogen->getSelectedPatternNumber();
 	sendMessage( MidiMessage(
@@ -412,8 +412,8 @@ void MidiActionTest::testClearSelectedInstrumentAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -423,12 +423,12 @@ void MidiActionTest::testClearSelectedInstrumentAction()
 		std::make_shared<MidiAction>( MidiAction::Type::ClearSelectedInstrument
 		),
 		Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameterClearPattern,
 		std::make_shared<MidiAction>( MidiAction::Type::ClearPattern ),
 		Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	// We reset the whole pattern to have a clean canvas.
 	sendMessage( MidiMessage(
@@ -480,8 +480,8 @@ void MidiActionTest::testHumanizationSwingAbsoluteAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -492,7 +492,7 @@ void MidiActionTest::testHumanizationSwingAbsoluteAction()
 	pAction->setValue( nValue );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -522,8 +522,8 @@ void MidiActionTest::testHumanizationSwingRelativeAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -534,7 +534,7 @@ void MidiActionTest::testHumanizationSwingRelativeAction()
 	pAction->setValue( nValue );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -563,8 +563,8 @@ void MidiActionTest::testHumanizationTimingAbsoluteAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -575,7 +575,7 @@ void MidiActionTest::testHumanizationTimingAbsoluteAction()
 	pAction->setValue( nValue );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -606,8 +606,8 @@ void MidiActionTest::testHumanizationTimingRelativeAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -618,7 +618,7 @@ void MidiActionTest::testHumanizationTimingRelativeAction()
 	pAction->setValue( nValue );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -647,8 +647,8 @@ void MidiActionTest::testHumanizationVelocityAbsoluteAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -659,7 +659,7 @@ void MidiActionTest::testHumanizationVelocityAbsoluteAction()
 	pAction->setValue( nValue );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -690,8 +690,8 @@ void MidiActionTest::testHumanizationVelocityRelativeAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -702,7 +702,7 @@ void MidiActionTest::testHumanizationVelocityRelativeAction()
 	pAction->setValue( nValue );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -732,8 +732,8 @@ void MidiActionTest::testFilterCutoffLevelAbsoluteAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -746,7 +746,7 @@ void MidiActionTest::testFilterCutoffLevelAbsoluteAction()
 	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -781,8 +781,8 @@ void MidiActionTest::testGainLevelAbsoluteAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -798,7 +798,7 @@ void MidiActionTest::testGainLevelAbsoluteAction()
 	pAction->setLayer( nLayerId );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -837,8 +837,8 @@ void MidiActionTest::testInstrumentPitchAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -850,7 +850,7 @@ void MidiActionTest::testInstrumentPitchAction()
 	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -883,8 +883,8 @@ void MidiActionTest::testLoadNextDrumkitAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -892,7 +892,7 @@ void MidiActionTest::testLoadNextDrumkitAction()
 		std::make_shared<MidiAction>( MidiAction::Type::LoadNextDrumkit );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -907,7 +907,7 @@ void MidiActionTest::testLoadNextDrumkitAction()
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
 	CPPUNIT_ASSERT( pNewDrumkit != pOldDrumkit );
 
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit( pOldDrumkit ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setDrumkit( pOldDrumkit ) );
 
 	___INFOLOG( "done" );
 }
@@ -916,8 +916,8 @@ void MidiActionTest::testLoadPrevDrumkitAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -925,7 +925,7 @@ void MidiActionTest::testLoadPrevDrumkitAction()
 		std::make_shared<MidiAction>( MidiAction::Type::LoadPrevDrumkit );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -940,7 +940,7 @@ void MidiActionTest::testLoadPrevDrumkitAction()
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
 	CPPUNIT_ASSERT( pNewDrumkit != pOldDrumkit );
 
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit( pOldDrumkit ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setDrumkit( pOldDrumkit ) );
 
 	___INFOLOG( "done" );
 }
@@ -949,8 +949,8 @@ void MidiActionTest::testMasterVolumeAbsoluteAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -960,7 +960,7 @@ void MidiActionTest::testMasterVolumeAbsoluteAction()
 	pAction->setValue( static_cast<int>( volumeValue ) );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -988,8 +988,8 @@ void MidiActionTest::testMasterVolumeRelativeAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -999,7 +999,7 @@ void MidiActionTest::testMasterVolumeRelativeAction()
 	pAction->setValue( static_cast<int>( volumeValue ) );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -1027,15 +1027,15 @@ void MidiActionTest::testMuteAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::Mute );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -1057,15 +1057,15 @@ void MidiActionTest::testMuteToggleAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::MuteToggle );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -1091,25 +1091,25 @@ void MidiActionTest::testNextBarAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::NextBar );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	const auto pPreviousSong = pHydrogen->getSong();
 	const auto pNewSong = Song::getEmptySong();
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pNewSong ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setSong( pNewSong ) );
 
 	const int nPatternNumber = 0;
 	const int nColumn = 5;
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true ) );
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->toggleGridCell(
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->activateSongMode( true ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->toggleGridCell(
 		GridPoint( nColumn, nPatternNumber )
 	) );
 	auto pSong = pHydrogen->getSong();
@@ -1121,7 +1121,7 @@ void MidiActionTest::testNextBarAction()
 	CPPUNIT_ASSERT( pPatternGroupVector->size() == nColumn + 1 );
 
 	const int nOldValue = 2;
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( nOldValue ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->locateToColumn( nOldValue ) );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum,
@@ -1137,10 +1137,10 @@ void MidiActionTest::testNextBarAction()
 					.arg( nOldValue ) );
 	CPPUNIT_ASSERT( nNewValue == nOldValue + 1 );
 
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->toggleGridCell(
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->toggleGridCell(
 		GridPoint( nColumn, nPatternNumber )
 	) );
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pPreviousSong ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setSong( pPreviousSong ) );
 
 	___INFOLOG( "done" );
 }
@@ -1149,8 +1149,8 @@ void MidiActionTest::testPanAbsoluteAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -1162,7 +1162,7 @@ void MidiActionTest::testPanAbsoluteAction()
 	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -1194,8 +1194,8 @@ void MidiActionTest::testPanAbsoluteSymAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -1207,7 +1207,7 @@ void MidiActionTest::testPanAbsoluteSymAction()
 	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -1237,8 +1237,8 @@ void MidiActionTest::testPanRelativeAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -1250,7 +1250,7 @@ void MidiActionTest::testPanRelativeAction()
 	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -1280,10 +1280,10 @@ void MidiActionTest::testPauseAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPlayhead = pAudioEngine->getPlayhead();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
@@ -1291,13 +1291,13 @@ void MidiActionTest::testPauseAction()
 	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( false );
 
 	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::Pause );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	pAudioEngine->play();
 	TestHelper::waitForAudioDriver();
@@ -1312,7 +1312,7 @@ void MidiActionTest::testPauseAction()
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 	CPPUNIT_ASSERT( pPlayhead->getFrame() != 0 );
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( true );
 
 	___INFOLOG( "done" );
 }
@@ -1321,8 +1321,8 @@ void MidiActionTest::testPitchLevelAbsoluteAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -1338,7 +1338,7 @@ void MidiActionTest::testPitchLevelAbsoluteAction()
 	pAction->setLayer( nLayerId );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -1377,9 +1377,9 @@ void MidiActionTest::testPlayAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
@@ -1387,13 +1387,13 @@ void MidiActionTest::testPlayAction()
 	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( false );
 
 	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::Play );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	pAudioEngine->stop();
 	TestHelper::waitForAudioDriver();
@@ -1408,7 +1408,7 @@ void MidiActionTest::testPlayAction()
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
 
 	pAudioEngine->stop();
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( true );
 
 	___INFOLOG( "done" );
 }
@@ -1417,27 +1417,27 @@ void MidiActionTest::testPlaylistNextSongAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pPreviousSong = pHydrogen->getSong();
 	auto pPreviousPlaylist = pHydrogen->getPlaylist();
 
-	auto pPlaylist = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadPlaylist(
+	auto pPlaylist = pTestHydrogen()->getCoreActionController()->loadPlaylist(
 		H2TEST_FILE( "/playlist/test.h2playlist" )
 	);
 	CPPUNIT_ASSERT( pPlaylist != nullptr );
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setPlaylist( pPlaylist ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setPlaylist( pPlaylist ) );
 	const int nOldSongNumber = 0;
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong(
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->loadSong(
 		pPlaylist->getSongFileNameByNumber( nOldSongNumber )
 	) );
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->activatePlaylistSong( nOldSongNumber )
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->activatePlaylistSong( nOldSongNumber )
 	);
 
 	auto pOldSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pOldSong != nullptr );
 	const auto sOldSongName = pOldSong->getName();
 
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -1445,7 +1445,7 @@ void MidiActionTest::testPlaylistNextSongAction()
 		std::make_shared<MidiAction>( MidiAction::Type::PlaylistNextSong );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum,
@@ -1458,8 +1458,8 @@ void MidiActionTest::testPlaylistNextSongAction()
 	const auto sNewSongName = pNewSong->getName();
 	CPPUNIT_ASSERT( sNewSongName != sOldSongName );
 
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setPlaylist( pPreviousPlaylist ) );
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pPreviousSong ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setPlaylist( pPreviousPlaylist ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setSong( pPreviousSong ) );
 
 	___INFOLOG( "done" );
 }
@@ -1468,27 +1468,27 @@ void MidiActionTest::testPlaylistPrevSongAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pPreviousSong = pHydrogen->getSong();
 	auto pPreviousPlaylist = pHydrogen->getPlaylist();
 
-	auto pPlaylist = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadPlaylist(
+	auto pPlaylist = pTestHydrogen()->getCoreActionController()->loadPlaylist(
 		H2TEST_FILE( "/playlist/test.h2playlist" )
 	);
 	CPPUNIT_ASSERT( pPlaylist != nullptr );
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setPlaylist( pPlaylist ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setPlaylist( pPlaylist ) );
 	const int nOldSongNumber = 1;
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong(
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->loadSong(
 		pPlaylist->getSongFileNameByNumber( nOldSongNumber )
 	) );
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->activatePlaylistSong( nOldSongNumber )
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->activatePlaylistSong( nOldSongNumber )
 	);
 
 	auto pOldSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pOldSong != nullptr );
 	const auto sOldSongName = pOldSong->getName();
 
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -1496,7 +1496,7 @@ void MidiActionTest::testPlaylistPrevSongAction()
 		std::make_shared<MidiAction>( MidiAction::Type::PlaylistPrevSong );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum,
@@ -1509,8 +1509,8 @@ void MidiActionTest::testPlaylistPrevSongAction()
 	const auto sNewSongName = pNewSong->getName();
 	CPPUNIT_ASSERT( sNewSongName != sOldSongName );
 
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setPlaylist( pPreviousPlaylist ) );
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pPreviousSong ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setPlaylist( pPreviousPlaylist ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setSong( pPreviousSong ) );
 
 	___INFOLOG( "done" );
 }
@@ -1519,28 +1519,28 @@ void MidiActionTest::testPlaylistSongAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pPreviousSong = pHydrogen->getSong();
 	auto pPreviousPlaylist = pHydrogen->getPlaylist();
 
-	auto pPlaylist = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadPlaylist(
+	auto pPlaylist = pTestHydrogen()->getCoreActionController()->loadPlaylist(
 		H2TEST_FILE( "/playlist/test.h2playlist" )
 	);
 	CPPUNIT_ASSERT( pPlaylist != nullptr );
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setPlaylist( pPlaylist ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setPlaylist( pPlaylist ) );
 	const int nOldSongNumber = 0;
 	const int nNewSongNumber = 1;
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong(
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->loadSong(
 		pPlaylist->getSongFileNameByNumber( nOldSongNumber )
 	) );
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->activatePlaylistSong( nOldSongNumber )
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->activatePlaylistSong( nOldSongNumber )
 	);
 
 	auto pOldSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pOldSong != nullptr );
 	const auto sOldSongName = pOldSong->getName();
 
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameterOldSong = Midi::parameterFromInt( 1 );
@@ -1550,7 +1550,7 @@ void MidiActionTest::testPlaylistSongAction()
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameterOldSong, pActionOldSong,
 		Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	const auto parameterNewSong = Midi::parameterFromInt( 2 );
 	auto pActionNewSong =
@@ -1559,7 +1559,7 @@ void MidiActionTest::testPlaylistSongAction()
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameterNewSong, pActionNewSong,
 		Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameterNewSong,
@@ -1591,8 +1591,8 @@ void MidiActionTest::testPlaylistSongAction()
 	CPPUNIT_ASSERT( sNewSongNameRevert != sNewSongName );
 	CPPUNIT_ASSERT( sNewSongNameRevert != sOldSongName );
 
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setPlaylist( pPreviousPlaylist ) );
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pPreviousSong ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setPlaylist( pPreviousPlaylist ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setSong( pPreviousSong ) );
 
 	___INFOLOG( "done" );
 }
@@ -1601,10 +1601,10 @@ void MidiActionTest::testPlayPauseToggleAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPlayhead = pAudioEngine->getPlayhead();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
@@ -1612,14 +1612,14 @@ void MidiActionTest::testPlayPauseToggleAction()
 	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( false );
 
 	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::PlayPauseToggle );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	pAudioEngine->stop();
 	TestHelper::waitForAudioDriver();
@@ -1641,7 +1641,7 @@ void MidiActionTest::testPlayPauseToggleAction()
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 	CPPUNIT_ASSERT( pPlayhead->getFrame() != 0 );
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( true );
 
 	___INFOLOG( "done" );
 }
@@ -1650,10 +1650,10 @@ void MidiActionTest::testPlayStopToggleAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPlayhead = pAudioEngine->getPlayhead();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
@@ -1661,14 +1661,14 @@ void MidiActionTest::testPlayStopToggleAction()
 	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( false );
 
 	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction =
 		std::make_shared<MidiAction>( MidiAction::Type::PlayStopToggle );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	pAudioEngine->stop();
 	TestHelper::waitForAudioDriver();
@@ -1690,7 +1690,7 @@ void MidiActionTest::testPlayStopToggleAction()
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 	CPPUNIT_ASSERT( pPlayhead->getFrame() == 0 );
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( true );
 
 	___INFOLOG( "done" );
 }
@@ -1699,9 +1699,9 @@ void MidiActionTest::testPreviousBarAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -1709,16 +1709,16 @@ void MidiActionTest::testPreviousBarAction()
 		std::make_shared<MidiAction>( MidiAction::Type::PreviousBar );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	const auto pPreviousSong = pHydrogen->getSong();
 	const auto pNewSong = Song::getEmptySong();
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pNewSong ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setSong( pNewSong ) );
 
 	const int nPatternNumber = 0;
 	const int nColumn = 4;
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true ) );
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->toggleGridCell(
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->activateSongMode( true ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->toggleGridCell(
 		GridPoint( nColumn, nPatternNumber )
 	) );
 	auto pSong = pHydrogen->getSong();
@@ -1730,7 +1730,7 @@ void MidiActionTest::testPreviousBarAction()
 	CPPUNIT_ASSERT( pPatternGroupVector->size() == ( nColumn + 1 ) );
 
 	const int nOldValue = 2;
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( nOldValue ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->locateToColumn( nOldValue ) );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum,
@@ -1746,10 +1746,10 @@ void MidiActionTest::testPreviousBarAction()
 					.arg( nOldValue ) );
 	CPPUNIT_ASSERT( nNewValue == nOldValue - 1 );
 
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->toggleGridCell(
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->toggleGridCell(
 		GridPoint( nColumn, nPatternNumber )
 	) );
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pPreviousSong ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setSong( pPreviousSong ) );
 
 	___INFOLOG( "done" );
 }
@@ -1758,8 +1758,8 @@ void MidiActionTest::testRecordExitAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	pHydrogen->setRecordEnabled( true );
@@ -1768,7 +1768,7 @@ void MidiActionTest::testRecordExitAction()
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::RecordExit );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum,
@@ -1783,9 +1783,9 @@ void MidiActionTest::testRecordReadyAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
@@ -1800,7 +1800,7 @@ void MidiActionTest::testRecordReadyAction()
 		std::make_shared<MidiAction>( MidiAction::Type::RecordReady );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum,
@@ -1836,8 +1836,8 @@ void MidiActionTest::testRecordStrobeAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	pHydrogen->setRecordEnabled( false );
@@ -1847,7 +1847,7 @@ void MidiActionTest::testRecordStrobeAction()
 		std::make_shared<MidiAction>( MidiAction::Type::RecordStrobe );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum,
@@ -1864,8 +1864,8 @@ void MidiActionTest::testRecordStrobeToggleAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	pHydrogen->setRecordEnabled( false );
@@ -1875,7 +1875,7 @@ void MidiActionTest::testRecordStrobeToggleAction()
 		std::make_shared<MidiAction>( MidiAction::Type::RecordStrobeToggle );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum,
@@ -1896,9 +1896,9 @@ void MidiActionTest::testRedoAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pEventQueue = EventQueue::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pEventQueue = pTestEventQueue();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	pHydrogen->setRecordEnabled( false );
@@ -1907,7 +1907,7 @@ void MidiActionTest::testRedoAction()
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::RedoAction );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum,
@@ -1936,10 +1936,10 @@ void MidiActionTest::testSelectAndPlayPatternAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPlayhead = pAudioEngine->getPlayhead();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
@@ -1947,7 +1947,7 @@ void MidiActionTest::testSelectAndPlayPatternAction()
 	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( false );
 	pHydrogen->setPatternMode( Song::PatternMode::Selected );
 
 	const int nOldSelectedPatternNumber = 2;
@@ -1960,7 +1960,7 @@ void MidiActionTest::testSelectAndPlayPatternAction()
 	pAction->setPattern( nPatternNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	pHydrogen->sequencerStop();
 	TestHelper::waitForAudioDriver();
@@ -1978,7 +1978,7 @@ void MidiActionTest::testSelectAndPlayPatternAction()
 
 	pHydrogen->sequencerStop();
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( true );
 
 	___INFOLOG( "done" );
 }
@@ -1987,11 +1987,11 @@ void MidiActionTest::testSelectInstrumentAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( false );
 	pHydrogen->setPatternMode( Song::PatternMode::Selected );
 
 	const int nOldSelectedInstrumentNumber = 2;
@@ -2003,7 +2003,7 @@ void MidiActionTest::testSelectInstrumentAction()
 		std::make_shared<MidiAction>( MidiAction::Type::SelectInstrument );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter,
@@ -2013,7 +2013,7 @@ void MidiActionTest::testSelectInstrumentAction()
 		pHydrogen->getSelectedInstrumentNumber() == nInstrumentNumber
 	);
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( true );
 
 	___INFOLOG( "done" );
 }
@@ -2022,11 +2022,11 @@ void MidiActionTest::testSelectNextPatternAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( false );
 	pHydrogen->setPatternMode( Song::PatternMode::Selected );
 
 	const int nOldSelectedPatternNumber = 2;
@@ -2039,7 +2039,7 @@ void MidiActionTest::testSelectNextPatternAction()
 	pAction->setPattern( nPatternNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum,
@@ -2047,7 +2047,7 @@ void MidiActionTest::testSelectNextPatternAction()
 	) );
 	CPPUNIT_ASSERT( pHydrogen->getSelectedPatternNumber() == nPatternNumber );
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( true );
 
 	___INFOLOG( "done" );
 }
@@ -2056,11 +2056,11 @@ void MidiActionTest::testSelectNextPatternCcAbsoluteAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( false );
 	pHydrogen->setPatternMode( Song::PatternMode::Selected );
 
 	const int nOldSelectedPatternNumber = 2;
@@ -2073,7 +2073,7 @@ void MidiActionTest::testSelectNextPatternCcAbsoluteAction()
 	);
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter,
@@ -2081,7 +2081,7 @@ void MidiActionTest::testSelectNextPatternCcAbsoluteAction()
 	) );
 	CPPUNIT_ASSERT( pHydrogen->getSelectedPatternNumber() == nPatternNumber );
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( true );
 
 	___INFOLOG( "done" );
 }
@@ -2090,11 +2090,11 @@ void MidiActionTest::testSelectNextPatternRelativeAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( false );
 	pHydrogen->setPatternMode( Song::PatternMode::Selected );
 
 	const int nOldSelectedPatternNumber = 2;
@@ -2108,7 +2108,7 @@ void MidiActionTest::testSelectNextPatternRelativeAction()
 	pAction->setPattern( nPatternNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum,
@@ -2119,7 +2119,7 @@ void MidiActionTest::testSelectNextPatternRelativeAction()
 		nOldSelectedPatternNumber + nPatternNumber
 	);
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( true );
 
 	___INFOLOG( "done" );
 }
@@ -2128,11 +2128,11 @@ void MidiActionTest::testSelectOnlyNextPatternAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( false );
 	pHydrogen->setPatternMode( Song::PatternMode::Selected );
 
 	const int nOldSelectedPatternNumber = 2;
@@ -2145,7 +2145,7 @@ void MidiActionTest::testSelectOnlyNextPatternAction()
 	pAction->setPattern( nPatternNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum,
@@ -2153,7 +2153,7 @@ void MidiActionTest::testSelectOnlyNextPatternAction()
 	) );
 	CPPUNIT_ASSERT( pHydrogen->getSelectedPatternNumber() == nPatternNumber );
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( true );
 
 	___INFOLOG( "done" );
 }
@@ -2162,11 +2162,11 @@ void MidiActionTest::testSelectOnlyNextPatternCcAbsoluteAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( false );
 	pHydrogen->setPatternMode( Song::PatternMode::Selected );
 
 	const int nOldSelectedPatternNumber = 2;
@@ -2179,7 +2179,7 @@ void MidiActionTest::testSelectOnlyNextPatternCcAbsoluteAction()
 	);
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter,
@@ -2187,7 +2187,7 @@ void MidiActionTest::testSelectOnlyNextPatternCcAbsoluteAction()
 	) );
 	CPPUNIT_ASSERT( pHydrogen->getSelectedPatternNumber() == nPatternNumber );
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( true );
 
 	___INFOLOG( "done" );
 }
@@ -2196,10 +2196,10 @@ void MidiActionTest::testStopAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPlayhead = pAudioEngine->getPlayhead();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
@@ -2207,13 +2207,13 @@ void MidiActionTest::testStopAction()
 	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( false );
 
 	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::Stop );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	pAudioEngine->play();
 	TestHelper::waitForAudioDriver();
@@ -2228,7 +2228,7 @@ void MidiActionTest::testStopAction()
 	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
 	CPPUNIT_ASSERT( pPlayhead->getFrame() == 0 );
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true );
+	pTestHydrogen()->getCoreActionController()->activateSongMode( true );
 
 	___INFOLOG( "done" );
 }
@@ -2237,8 +2237,8 @@ void MidiActionTest::testStripMuteToggleAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -2248,7 +2248,7 @@ void MidiActionTest::testStripMuteToggleAction()
 	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -2278,8 +2278,8 @@ void MidiActionTest::testStripSoloToggleAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -2289,7 +2289,7 @@ void MidiActionTest::testStripSoloToggleAction()
 	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -2319,8 +2319,8 @@ void MidiActionTest::testStripVolumeAbsoluteAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -2332,7 +2332,7 @@ void MidiActionTest::testStripVolumeAbsoluteAction()
 	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -2362,8 +2362,8 @@ void MidiActionTest::testStripVolumeRelativeAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
@@ -2375,7 +2375,7 @@ void MidiActionTest::testStripVolumeRelativeAction()
 	pAction->setInstrument( nInstrumentNumber );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -2406,11 +2406,11 @@ void MidiActionTest::testTapTempoAction()
 	___INFOLOG( "" );
 
 	auto pTestHelper = TestHelper::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPlayhead = pAudioEngine->getPlayhead();
-	auto pPref = Preferences::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pPref = pTestPreferences();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::ParameterMinimum;
@@ -2418,7 +2418,7 @@ void MidiActionTest::testTapTempoAction()
 		MidiEvent::Type::CC, parameter,
 		std::make_shared<MidiAction>( MidiAction::Type::TapTempo ),
 		Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 	pPref->m_bpmTap = Preferences::BpmTap::TapTempo;
 	pPref->m_beatCounter = Preferences::BeatCounter::Tap;
 
@@ -2486,7 +2486,7 @@ void MidiActionTest::testToggleMetronomeAction()
 {
 	___INFOLOG( "" );
 
-	auto pPref = Preferences::get_instance();
+	auto pPref = pTestPreferences();
 	auto pMidiEventMap = pPref->getMidiEventMap();
 	pMidiEventMap->reset();
 
@@ -2495,7 +2495,7 @@ void MidiActionTest::testToggleMetronomeAction()
 		std::make_shared<MidiAction>( MidiAction::Type::ToggleMetronome );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	const bool bOldValue = false;
 	pPref->m_bUseMetronome = bOldValue;
@@ -2519,9 +2519,9 @@ void MidiActionTest::testUndoAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pEventQueue = EventQueue::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pEventQueue = pTestEventQueue();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	pHydrogen->setRecordEnabled( false );
@@ -2530,7 +2530,7 @@ void MidiActionTest::testUndoAction()
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::UndoAction );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	sendMessage( MidiMessage(
 		MidiMessage::Type::ControlChange, parameter, Midi::ParameterMinimum,
@@ -2559,15 +2559,15 @@ void MidiActionTest::testUnmuteAction()
 {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiEventMap = Preferences::get_instance()->getMidiEventMap();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
 	const auto parameter = Midi::parameterFromInt( 1 );
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::Unmute );
 	pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, parameter, pAction, Event::Trigger::Suppress,
-		H2Core::Hydrogen::get_instance() );
+		pTestHydrogen() );
 
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
@@ -2587,7 +2587,7 @@ void MidiActionTest::testUnmuteAction()
 
 void MidiActionTest::sendMessage( const MidiMessage& msg )
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );

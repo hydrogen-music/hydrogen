@@ -74,7 +74,7 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 		Filesystem::systemDrumkitsDir() + "TR808EmulationKit/drumkit.xml"
 	);
 	auto pAnotherDrumkit =
-		std::make_shared<Drumkit>(Hydrogen::get_instance()->getSoundLibraryDatabase()->getDrumkit(
+		std::make_shared<Drumkit>(pTestHydrogen()->getSoundLibraryDatabase()->getDrumkit(
 			sAnotherDrumkitPath, false
 		));
 	CPPUNIT_ASSERT( pAnotherDrumkit != nullptr );

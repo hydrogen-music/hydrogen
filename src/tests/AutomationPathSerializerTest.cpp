@@ -21,6 +21,7 @@
  */
 
 #include <cppunit/extensions/HelperMacros.h>
+#include "TestHelper.h"
 
 #include <QDomDocument>
 
@@ -52,8 +53,8 @@ class AutomationPathSerializerTest : public CppUnit::TestCase {
 		reader.read_automation_path(doc.documentElement(), path);
 
 		AutomationPath expect(-10, 10, 0);
-		expect.add_point(2, 4, H2Core::Hydrogen::get_instance());
-		expect.add_point(4, -2, H2Core::Hydrogen::get_instance());
+		expect.add_point(2, 4, pTestHydrogen());
+		expect.add_point(4, -2, pTestHydrogen());
 
 		CPPUNIT_ASSERT_EQUAL(expect, path);
 		CPPUNIT_ASSERT_EQUAL(4.0f, path.get_value(2.0f));
@@ -66,10 +67,10 @@ class AutomationPathSerializerTest : public CppUnit::TestCase {
 	{
 	___INFOLOG( "" );
 		AutomationPath path(-1, 1, 0);
-		path.add_point(0.0f, 0.0f, H2Core::Hydrogen::get_instance());
-		path.add_point(1.0f, 1.0f, H2Core::Hydrogen::get_instance());
-		path.add_point(2.0f, 0.0f, H2Core::Hydrogen::get_instance());
-		path.add_point(3.0f,-1.0f, H2Core::Hydrogen::get_instance());
+		path.add_point(0.0f, 0.0f, pTestHydrogen());
+		path.add_point(1.0f, 1.0f, pTestHydrogen());
+		path.add_point(2.0f, 0.0f, pTestHydrogen());
+		path.add_point(3.0f,-1.0f, pTestHydrogen());
 
 		AutomationPathSerializer writer;
 		QDomDocument doc;
@@ -94,9 +95,9 @@ class AutomationPathSerializerTest : public CppUnit::TestCase {
 	{
 	___INFOLOG( "" );
 		AutomationPath p1(0, 10, 0);
-		p1.add_point(0.0f, 4.0f, H2Core::Hydrogen::get_instance());
-		p1.add_point(1.0f, 8.0f, H2Core::Hydrogen::get_instance());
-		p1.add_point(3.0f, 6.0f, H2Core::Hydrogen::get_instance());
+		p1.add_point(0.0f, 4.0f, pTestHydrogen());
+		p1.add_point(1.0f, 8.0f, pTestHydrogen());
+		p1.add_point(3.0f, 6.0f, pTestHydrogen());
 
 		QDomDocument doc;
 		QDomElement node = doc.createElement("path");

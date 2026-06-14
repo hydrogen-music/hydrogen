@@ -25,19 +25,34 @@
 
 #include <QString>
 #include <cassert>
+#include <memory>
 
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Song.h>
 #include <core/Midi/SMF.h>
+
+namespace H2Core {
+	class Hydrogen;
+	class Preferences;
+	class EventQueue;
+}
 
 class TestHelper {
 	static TestHelper*	m_pInstance;
 	QString m_sDataDir;
 	QString m_sTestDataDir;
 	bool m_bAppveyor;
-	
+	/** The process-current Hydrogen instance the suite runs against (ADR 0015,
+	 * T1.5 test-instance fixture). Held here so tests reach it without the
+	 * Hydrogen::get_instance() shim. */
+	H2Core::Hydrogen* m_pHydrogen = nullptr;
+
 	public:
 		TestHelper();
+
+		/** Set/get the suite's Hydrogen instance (set once by the harness). */
+		void setHydrogen( H2Core::Hydrogen* pHydrogen ) { m_pHydrogen = pHydrogen; }
+		H2Core::Hydrogen* getHydrogen() const { return m_pHydrogen; }
 
 	bool isAppveyor() const;
 		QString getDataDir() const;
@@ -136,6 +151,17 @@ inline QString TestHelper::getTestFile(const QString& file) const
 {
 	return m_sTestDataDir + file; 
 }
+
+/** @name Test-instance accessors (ADR 0015, T1.5 fixture)
+ * Resolve the suite's engine instance held by TestHelper, replacing the
+ * transitional Hydrogen/Preferences/EventQueue::get_instance() shims in tests.
+ * Use these only in tests that run against the harness singleton — tests that
+ * construct their own Hydrogen must keep their explicit instance.
+ * @{ */
+H2Core::Hydrogen* pTestHydrogen();
+std::shared_ptr<H2Core::Preferences> pTestPreferences();
+H2Core::EventQueue* pTestEventQueue();
+/** @} */
 
 #define H2TEST_FILE(name) TestHelper::get_instance()->getTestFile(name)
 #define ASSERT_SONG(pSong) {                                                    \

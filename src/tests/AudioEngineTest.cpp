@@ -40,8 +40,8 @@ void AudioEngineTest::testMidiNoteOrdering()
 {
 	___INFOLOG( "" );
 
-	auto pPref = Preferences::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pPref = pTestPreferences();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pAudioDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
 		pAudioEngine->getAudioDriver()
@@ -55,7 +55,7 @@ void AudioEngineTest::testMidiNoteOrdering()
 
 	auto pSong = Song::load( H2TEST_FILE( "song/midi-note-ordering.h2song" ) );
 	CPPUNIT_ASSERT( pSong != nullptr && pSong->getDrumkit() != nullptr );
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setSong( pSong ) );
 
     // Ensure the playback stops after playing a single pattern.
     CPPUNIT_ASSERT( pSong->getPatternGroupVector()->size() == 1 );
@@ -84,8 +84,8 @@ void AudioEngineTest::testMidiNoteOrdering()
 
 	const auto bOldSongMode = pSong->getMode();
 	const auto bOldLoopMode = pSong->getLoopMode();
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true ) );
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->activateLoopMode( false ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->activateSongMode( true ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->activateLoopMode( false ) );
 
 	pLoopBackDriver->clearBacklogMessages();
 
@@ -162,8 +162,8 @@ void AudioEngineTest::testMidiNoteOrdering()
 	}
 
 	// Clean up
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( bOldSongMode == Song::Mode::Song ) );
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->activateLoopMode( bOldLoopMode == Song::LoopMode::Enabled ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->activateSongMode( bOldSongMode == Song::Mode::Song ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->activateLoopMode( bOldLoopMode == Song::LoopMode::Enabled ) );
 
 	pPref->getMidiInstrumentMap()->setInput( oldInputMapping );
 	pPref->getMidiInstrumentMap()->setOutput( oldOutputMapping );
@@ -182,8 +182,8 @@ void AudioEngineTest::testNotePickup()
 {
 	___INFOLOG( "" );
 
-	auto pPref = Preferences::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pPref = pTestPreferences();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pAudioDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
 		pAudioEngine->getAudioDriver()
@@ -197,7 +197,7 @@ void AudioEngineTest::testNotePickup()
 
 	auto pSong = Song::load( H2TEST_FILE( "song/AE_loopMode.h2song" ) );
 	CPPUNIT_ASSERT( pSong != nullptr );
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setSong( pSong ) );
 
     // Ensure the playback stops after playing a single pattern and that MIDI
     // Note-On events are sent for each encountered note.
@@ -227,8 +227,8 @@ void AudioEngineTest::testNotePickup()
 
 	const auto bOldSongMode = pSong->getMode();
 	const auto bOldLoopMode = pSong->getLoopMode();
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true ) );
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->activateLoopMode( false ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->activateSongMode( true ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->activateLoopMode( false ) );
 
 	pMidiDriver->clearBacklogMessages();
 
@@ -275,8 +275,8 @@ void AudioEngineTest::testNotePickup()
     CPPUNIT_ASSERT( nNoteOnMessage == pSong->getAllNotes().size() );
 
 	// Clean up
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( bOldSongMode == Song::Mode::Song ) );
-	CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->activateLoopMode( bOldLoopMode == Song::LoopMode::Enabled ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->activateSongMode( bOldSongMode == Song::Mode::Song ) );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->activateLoopMode( bOldLoopMode == Song::LoopMode::Enabled ) );
 
 	pPref->getMidiInstrumentMap()->setInput( oldInputMapping );
 	pPref->getMidiInstrumentMap()->setOutput( oldOutputMapping );

@@ -135,7 +135,7 @@ public:
 	 * A thin wrapper around the instance constructor (ADR 0015); plugin hosts
 	 * construct instances directly via #Hydrogen().
 	 */
-	static void		create_instance( int nOscPort );
+	static Hydrogen*	create_instance( int nOscPort );
 	/**
 	 * Returns the process-current Hydrogen instance #__instance.
 	 */

@@ -38,7 +38,7 @@ using namespace H2Core;
 void PatternTest::testCustomLegacyImport()
 {
 	___INFOLOG( "" );
-	auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
+	auto pDB = pTestHydrogen()->getSoundLibraryDatabase();
 
 	// Try to import the legcay pattern without loading the kit into the DB
 	// first.
@@ -135,7 +135,7 @@ void PatternTest::testPurgeInstrument()
 	CPPUNIT_ASSERT( notes.size() == 1 );
 	notes.clear();
 
-	pPattern->purgeInstrument( pInstrument, H2Core::Hydrogen::get_instance() );
+	pPattern->purgeInstrument( pInstrument, pTestHydrogen() );
 	CPPUNIT_ASSERT(
 		pPattern->findNote(
 			1, pInstrument->getId(), pInstrument->getType(), Note::KeyMinimum,

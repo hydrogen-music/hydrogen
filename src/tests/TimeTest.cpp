@@ -45,21 +45,21 @@ void TimeTest::setUp(){
 
 	// We need a song that has at least the maximum pattern group
 	// number provided in testElapsedTime(). An empty one won't do it.
-	auto pSong = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong(
+	auto pSong = pTestHydrogen()->getCoreActionController()->loadSong(
 		QString( "%1/GM_kit_demo3.h2song" ).arg( Filesystem::demosDir() ) );
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong );
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->saveSongAs( m_sValidPath, true );
+	pTestHydrogen()->getCoreActionController()->setSong( pSong );
+	pTestHydrogen()->getCoreActionController()->saveSongAs( m_sValidPath, true );
 	
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateTimeline( true );
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker( 0, 120 );
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker( 3, 100 );
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker( 5, 40 );
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker( 7, 200 );
+	pTestHydrogen()->getCoreActionController()->activateTimeline( true );
+	pTestHydrogen()->getCoreActionController()->addTempoMarker( 0, 120 );
+	pTestHydrogen()->getCoreActionController()->addTempoMarker( 3, 100 );
+	pTestHydrogen()->getCoreActionController()->addTempoMarker( 5, 40 );
+	pTestHydrogen()->getCoreActionController()->addTempoMarker( 7, 200 );
 }
 
 void TimeTest::tearDown(){
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateTimeline( false );
+	pTestHydrogen()->getCoreActionController()->activateTimeline( false );
 	
 	// Delete all temporary files
 	if ( QFile::exists( m_sValidPath ) ) {
@@ -89,7 +89,7 @@ void TimeTest::testHighResolutionSleep(){
 	___INFOLOG( "" );
 
 	auto pTestHelper = TestHelper::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 
 	const float fTolerance = 1;
 	std::vector<int> durationsMs{ 2, 10, 65, 234 };
@@ -125,6 +125,6 @@ void TimeTest::testHighResolutionSleep(){
 }
 
 float TimeTest::locateAndLookupTime( int nPatternPos ){
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( nPatternPos );
-	return Hydrogen::get_instance()->getAudioEngine()->getElapsedTime();
+	pTestHydrogen()->getCoreActionController()->locateToColumn( nPatternPos );
+	return pTestHydrogen()->getAudioEngine()->getElapsedTime();
 }

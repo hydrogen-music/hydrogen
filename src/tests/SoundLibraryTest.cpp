@@ -21,6 +21,7 @@
  */
 
 #include "SoundLibraryTest.h"
+#include "TestHelper.h"
 
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
@@ -32,7 +33,7 @@
 void SoundLibraryTest::testContextValidity() {
 	___INFOLOG( "" );
 
-	auto pDB = H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase();
+	auto pDB = pTestHydrogen()->getSoundLibraryDatabase();
 	for ( const auto& [ _, ppDrumkit ]: pDB->getDrumkitDatabase() ) {
 		CPPUNIT_ASSERT( ppDrumkit != nullptr );
 		CPPUNIT_ASSERT(
@@ -46,7 +47,7 @@ void SoundLibraryTest::testContextValidity() {
 void SoundLibraryTest::testKitRetrievalCopy() {
 	___INFOLOG( "" );
 
-	auto pDB = H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase();
+	auto pDB = pTestHydrogen()->getSoundLibraryDatabase();
 
 	const float fNewGainValue = 1.23456;
 
@@ -75,7 +76,7 @@ void SoundLibraryTest::testKitRetrievalCopy() {
 void SoundLibraryTest::testKitRetrievalDirect() {
 	___INFOLOG( "" );
 
-	auto pDB = H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase();
+	auto pDB = pTestHydrogen()->getSoundLibraryDatabase();
 
 	const float fNewGainValue = 1.23456;
 

@@ -77,12 +77,14 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
 
 	// Use a dedicated OSC port to not cause conflicts with (JACK) integration
 	// tests running in a different shell.
-	H2Core::Hydrogen::create_instance( 4563 );
-	H2Core::Hydrogen::get_instance()->setGUIState(
-		H2Core::Hydrogen::GUIState::headless );
+	auto pHydrogen = H2Core::Hydrogen::create_instance( 4563 );
+	pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::headless );
 	// Prevent the EventQueue from flooding the log since we will push
 	// more events in a short period of time than it is able to handle.
-	EventQueue::get_instance()->setSilent( true );
+	pHydrogen->getEventQueue()->setSilent( true );
+	// Hand the suite's instance to the test fixture so tests reach it via
+	// pTestHydrogen()/… instead of the get_instance() shim (ADR 0015, T1.5).
+	TestHelper::get_instance()->setHydrogen( pHydrogen );
 }
 
 #ifdef HAVE_EXECINFO_H

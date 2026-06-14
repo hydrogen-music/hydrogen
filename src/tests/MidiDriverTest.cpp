@@ -38,7 +38,7 @@
 #include <core/Midi/MidiMessage.h>
 
 void MidiDriverTest::setUp() {
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = pTestPreferences();
 	m_previousDriver = pPref->m_midiDriver;
 	pPref->m_midiDriver = H2Core::Preferences::MidiDriver::LoopBack;
 
@@ -47,19 +47,19 @@ void MidiDriverTest::setUp() {
 	// tempo changes but want to do it ourselves in here.
 	pPref->setMidiClockOutputSend( false );
 
-	auto pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = pTestHydrogen()->getAudioEngine();
 	pAudioEngine->stopMidiDriver( H2Core::Event::Trigger::Suppress );
 	pAudioEngine->startMidiDriver( H2Core::Event::Trigger::Suppress );
 }
 
 void MidiDriverTest::tearDown() {
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = pTestPreferences();
 	pPref->m_midiDriver = m_previousDriver;
 
 	pPref->setMidiClockInputHandling( false );
 	pPref->setMidiClockOutputSend( false );
 
-	auto pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = pTestHydrogen()->getAudioEngine();
 	pAudioEngine->stopMidiDriver( H2Core::Event::Trigger::Suppress );
 	pAudioEngine->startMidiDriver( H2Core::Event::Trigger::Suppress );
 }
@@ -67,7 +67,7 @@ void MidiDriverTest::tearDown() {
 void MidiDriverTest::testLoopBackMidiDriver() {
 	___INFOLOG("");
 
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );
@@ -137,7 +137,7 @@ void MidiDriverTest::testMidiClock() {
 	___INFOLOG("");
 
 	auto pTestHelper = TestHelper::get_instance();
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPlayhead = pAudioEngine->getPlayhead();
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
@@ -207,7 +207,7 @@ void MidiDriverTest::testMidiClockDrift() {
 	___INFOLOG("");
 
 	auto pTestHelper = TestHelper::get_instance();
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pTimeHelper = pHydrogen->getTimeHelper();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPlayhead = pAudioEngine->getPlayhead();

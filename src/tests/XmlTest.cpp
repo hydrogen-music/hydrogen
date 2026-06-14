@@ -54,8 +54,8 @@ using namespace H2Core;
 void XmlTest::setUp() {
 	// Test for possible side effects by comparing serializations
 	m_sPrefPre =
-		H2Core::Preferences::get_instance()->toQString( "", true );
-	m_sHydrogenPre = H2Core::Hydrogen::get_instance()->toQString( "", true );
+		pTestPreferences()->toQString( "", true );
+	m_sHydrogenPre = pTestHydrogen()->toQString( "", true );
 }
 
 void XmlTest::tearDown() {
@@ -79,9 +79,9 @@ void XmlTest::tearDown() {
 	}
 
 	CPPUNIT_ASSERT( m_sPrefPre ==
-					H2Core::Preferences::get_instance()->toQString( "", true ) );
+					pTestPreferences()->toQString( "", true ) );
 	// CPPUNIT_ASSERT( m_sHydrogenPre ==
-	//  				H2Core::Hydrogen::get_instance()->toQString( "", true ) );
+	//  				pTestHydrogen()->toQString( "", true ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -321,7 +321,7 @@ void XmlTest::testDrumkit_invalidADSRValues()
 void XmlTest::testDrumkitUpgrade() {
 	___INFOLOG( "" );
 
-	// `H2Core::Hydrogen::get_instance()->getCoreActionController()->validateDrumkit()` will be called on invalid kits
+	// `pTestHydrogen()->getCoreActionController()->validateDrumkit()` will be called on invalid kits
 	// in this unit test. This will cause the routine to _not_ clean up
 	// extracted artifacts. We have to do ourselves. Else they will pile up in
 	// the tmp folder.
@@ -343,7 +343,7 @@ void XmlTest::testDrumkitUpgrade() {
 
 		sDrumkitDir = H2TEST_FILE( "drumkits/legacyKits" ) + "/" + ssFile;
 
-		CPPUNIT_ASSERT( ! H2Core::Hydrogen::get_instance()->getCoreActionController()->validateDrumkit(
+		CPPUNIT_ASSERT( ! pTestHydrogen()->getCoreActionController()->validateDrumkit(
 							sDrumkitDir, false ) );
 
 		// The number of files within the drumkit has to be constant.
@@ -352,7 +352,7 @@ void XmlTest::testDrumkitUpgrade() {
 									   QTime::currentTime().toString( "hh-mm-ss-zzz" ) +
 									   "-XXXXXX" );
 		contentOriginal.setAutoRemove( false );
-		CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->extractDrumkit(
+		CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->extractDrumkit(
 							sDrumkitDir, contentOriginal.path() ) );
 		QDir contentDirOriginal( contentOriginal.path() );
 		int nFilesOriginal = contentDirOriginal.entryList(
@@ -366,7 +366,7 @@ void XmlTest::testDrumkitUpgrade() {
 									QTime::currentTime().toString( "hh-mm-ss-zzz" ) +
 									"-XXXXXX" );
 		firstUpgrade.setAutoRemove( false );
-		CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->upgradeDrumkit(
+		CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->upgradeDrumkit(
 							sDrumkitDir, firstUpgrade.path() ) );
 		// The upgrade should have yielded a single .h2drumkit file.
 		QDir upgradeFolder( firstUpgrade.path() );
@@ -376,13 +376,13 @@ void XmlTest::testDrumkitUpgrade() {
 		QString sUpgradedKit( firstUpgrade.path() + "/" +
 							  upgradeFolder.entryList( QDir::AllEntries |
 													   QDir::NoDotAndDotDot )[ 0 ] );
-		CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->validateDrumkit(
+		CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->validateDrumkit(
 							sUpgradedKit, false ) );
 
 		// Check whether the drumkit call be loaded properly.
 		bool b, e;
 		QString s1, s2;
-		auto pDrumkit = H2Core::Hydrogen::get_instance()->getCoreActionController()->retrieveDrumkit(
+		auto pDrumkit = pTestHydrogen()->getCoreActionController()->retrieveDrumkit(
 			firstUpgrade.path() + "/" + ssFile, &b, &s1, &s2, &e );
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
 		if ( pDrumkit->getName() == "Boss DR-110" ) {
@@ -412,7 +412,7 @@ void XmlTest::testDrumkitUpgrade() {
 									QTime::currentTime().toString( "hh-mm-ss-zzz" ) +
 									"-XXXXXX" );
 		contentUpgraded.setAutoRemove( false );
-		CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->extractDrumkit(
+		CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->extractDrumkit(
 							sUpgradedKit, contentUpgraded.path() ) );
 		QDir contentDirUpgraded( contentUpgraded.path() );
 		int nFilesUpgraded =
@@ -441,7 +441,7 @@ void XmlTest::testDrumkitUpgrade() {
 									QTime::currentTime().toString( "hh-mm-ss-zzz" ) +
 									 "-XXXXXX" );
 		secondUpgrade.setAutoRemove( false );
-		CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->upgradeDrumkit(
+		CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->upgradeDrumkit(
 							sUpgradedKit, secondUpgrade.path() ) );
 		upgradeFolder = QDir( secondUpgrade.path() );
 		CPPUNIT_ASSERT( upgradeFolder.entryList( QDir::AllEntries |
@@ -456,7 +456,7 @@ void XmlTest::testDrumkitUpgrade() {
 										 QTime::currentTime().toString( "hh-mm-ss-zzz" ) +
 										 "-XXXXXX" );
 		contentValidation.setAutoRemove( false );
-		CPPUNIT_ASSERT( H2Core::Hydrogen::get_instance()->getCoreActionController()->extractDrumkit(
+		CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->extractDrumkit(
 							sUpgradedKit, contentValidation.path() ) );
 
 		// Compare the extracted folders. Attention: in the toplevel
@@ -643,7 +643,7 @@ void XmlTest::testPatternFormatIntegrity() {
 
 	const QString sTmpPattern =
 		H2Core::Filesystem::tmpFilePath( "pattern-format-integrity.h2pattern" );
-	CPPUNIT_ASSERT( pPattern->save( sTmpPattern, H2Core::Hydrogen::get_instance(), true ) );
+	CPPUNIT_ASSERT( pPattern->save( sTmpPattern, pTestHydrogen(), true ) );
 
 	H2TEST_ASSERT_XML_FILES_EQUAL( sTestFile, sTmpPattern );
 
@@ -674,7 +674,7 @@ void XmlTest::testPattern()
 	CPPUNIT_ASSERT( pPatternLoaded->getTags()[ 0 ] == "Example" );
 	CPPUNIT_ASSERT( pPatternLoaded->getTags()[ 1 ] == "Pattern" );
 
-	CPPUNIT_ASSERT( pPatternLoaded->save( sPatternPath, H2Core::Hydrogen::get_instance(), true ) );
+	CPPUNIT_ASSERT( pPatternLoaded->save( sPatternPath, pTestHydrogen(), true ) );
 
 	H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/pattern.h2pattern" ),
 								   sPatternPath );
@@ -686,7 +686,7 @@ void XmlTest::testPattern()
 	const QString sEmptyPatternPath =
 		H2Core::Filesystem::tmpDir() + "empty.h2pattern";
 	auto pPatternNew = std::make_shared<H2Core::Pattern>();
-	CPPUNIT_ASSERT( pPatternNew->save( sPatternPath, H2Core::Hydrogen::get_instance(), true ) );
+	CPPUNIT_ASSERT( pPatternNew->save( sPatternPath, pTestHydrogen(), true ) );
 	CPPUNIT_ASSERT( doc.read( sPatternPath ) );
 	H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/empty.h2pattern" ),
 								   sPatternPath );
@@ -742,7 +742,7 @@ void XmlTest::testPatternInstrumentTypes()
 	const auto pPatternWithoutTypes = H2Core::Pattern::load(
 		H2TEST_FILE( "pattern/pattern-without-types.h2pattern") );
 	CPPUNIT_ASSERT( pPatternWithoutTypes != nullptr );
-	CPPUNIT_ASSERT( pPatternWithoutTypes->save( sTmpWithoutTypes, H2Core::Hydrogen::get_instance() ) );
+	CPPUNIT_ASSERT( pPatternWithoutTypes->save( sTmpWithoutTypes, pTestHydrogen() ) );
 	H2TEST_ASSERT_XML_FILES_EQUAL(
 		H2TEST_FILE( "pattern/pattern.h2pattern" ), sTmpWithoutTypes );
 
@@ -775,7 +775,7 @@ void XmlTest::testPlaylistFormatIntegrity() {
 	// test artifact within the same folder as the original playlist.
 	const QString sTmpPlaylist =
 		H2TEST_FILE( "/playlist/tmp-duplicate-test.h2playlist" );
-	CPPUNIT_ASSERT( pPlaylist->saveAs( sTmpPlaylist, H2Core::Hydrogen::get_instance()->getPreferences(), false ) );
+	CPPUNIT_ASSERT( pPlaylist->saveAs( sTmpPlaylist, pTestHydrogen()->getPreferences(), false ) );
 
 	H2TEST_ASSERT_XML_FILES_EQUAL( sTestFile, sTmpPlaylist );
 
@@ -801,7 +801,7 @@ void XmlTest::testPlaylist()
 	H2Core::XMLDoc doc;
 
 	CPPUNIT_ASSERT( pPlaylist != nullptr );
-	CPPUNIT_ASSERT( pPlaylist->saveAs( sTmpPath, H2Core::Hydrogen::get_instance()->getPreferences() ) );
+	CPPUNIT_ASSERT( pPlaylist->saveAs( sTmpPath, pTestHydrogen()->getPreferences() ) );
 	CPPUNIT_ASSERT( doc.read( sTmpPath ) );
 	const auto pPlaylistLoaded = H2Core::Playlist::load( sTmpPath );
 	CPPUNIT_ASSERT( pPlaylistLoaded != nullptr );
@@ -816,7 +816,7 @@ void XmlTest::testPlaylist()
 	auto pPlaylistEmpty = std::make_shared<H2Core::Playlist>();
 	H2Core::XMLDoc docEmpty;
 
-	CPPUNIT_ASSERT( pPlaylistEmpty->saveAs( sTmpPathEmpty, H2Core::Hydrogen::get_instance()->getPreferences() ) );
+	CPPUNIT_ASSERT( pPlaylistEmpty->saveAs( sTmpPathEmpty, pTestHydrogen()->getPreferences() ) );
 	const auto pPlaylistEmptyLoaded = H2Core::Playlist::load( sTmpPathEmpty );
 	CPPUNIT_ASSERT( pPlaylistEmptyLoaded != nullptr );
 
@@ -996,7 +996,7 @@ void XmlTest::testSongLegacy() {
 void XmlTest::testSongLoadFromInfo() {
 	___INFOLOG( "" );
 
-	auto pCurrentSong = Hydrogen::get_instance()->getSong();
+	auto pCurrentSong = pTestHydrogen()->getSong();
 	CPPUNIT_ASSERT( pCurrentSong );
 
 	auto pInfo = std::make_shared<SongInfo>();
@@ -1106,7 +1106,7 @@ void XmlTest::testSamplePathPortability() {
 void XmlTest::testSamplePathsWritten() {
 	___INFOLOG( "" );
 
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	const auto sBaseKit = QString( "%1/GMRockKit/drumkit.xml" )
 		.arg( H2Core::Filesystem::systemDrumkitsDir() );
 
@@ -1279,7 +1279,7 @@ void XmlTest::testWriteToNonExistingDir() {
 		QString( "%1/non/existing/sub/folder/test.h2pattern" ).arg( sTmpDir );
 
 	auto pPattern = std::make_shared<Pattern>();
-	CPPUNIT_ASSERT( pPattern->save( sTmpPath, H2Core::Hydrogen::get_instance() ) );
+	CPPUNIT_ASSERT( pPattern->save( sTmpPath, pTestHydrogen() ) );
 
 	CPPUNIT_ASSERT( ! Filesystem::rm( sTmpDir ) );
 

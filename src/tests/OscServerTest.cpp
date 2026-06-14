@@ -48,7 +48,7 @@ using namespace H2Core;
 	}
 
 void OscServerTest::setUp(){
-	m_pHydrogen = Hydrogen::get_instance();
+	m_pHydrogen = pTestHydrogen();
 	
 	// Create, set up, and start a dummy OSC server.
 	m_pServerThread = new lo::ServerThread( 7362 );

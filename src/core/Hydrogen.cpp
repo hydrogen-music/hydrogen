@@ -211,7 +211,7 @@ Hydrogen::~Hydrogen()
 	__instance = nullptr;
 }
 
-void Hydrogen::create_instance( int nOscPort )
+Hydrogen* Hydrogen::create_instance( int nOscPort )
 {
 	// Thin standalone helper (ADR 0015): set up the process-current Logger and
 	// Preferences, then construct the single standalone instance. The instance
@@ -227,6 +227,10 @@ void Hydrogen::create_instance( int nOscPort )
 		// entry point once the shim is removed).
 		new Hydrogen( Preferences::get_instance(), nOscPort );
 	}
+	// Return the constructed instance so callers (e.g. the standalone entry
+	// point or the test harness) can hold the pointer directly instead of
+	// re-reading the get_instance() shim (ADR 0015, toward T1.5).
+	return __instance;
 }
 
 /// Start the internal sequencer

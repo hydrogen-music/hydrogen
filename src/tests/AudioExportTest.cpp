@@ -89,7 +89,7 @@ void AudioExportTest::testExportVelocityAutomationAudio() {
 
 void AudioExportTest::testFormats() {
 	___INFOLOG( "" );
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pSampler = pHydrogen->getAudioEngine()->getSampler();
 
 	const QString sSong = H2TEST_FILE( "song/AE_sampleConsistency.h2song" );

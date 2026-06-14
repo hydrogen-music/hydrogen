@@ -62,7 +62,7 @@ void NoteTest::testComparison() {
 		notes2.push_back( std::make_shared<H2Core::Note>( ppNote ) );
 
 		auto pNoteStart = std::make_shared<H2Core::Note>( ppNote );
-		pNoteStart->computeNoteStart( H2Core::Hydrogen::get_instance() );
+		pNoteStart->computeNoteStart( pTestHydrogen() );
 		notes3.push_back( pNoteStart );
 	}
 
@@ -106,7 +106,7 @@ void NoteTest::testComparison() {
 void NoteTest::testMappingLegacyDrumkit() {
 	___INFOLOG( "" );
 
-	const auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
+	const auto pDB = pTestHydrogen()->getSoundLibraryDatabase();
 	auto pDrumkit = pDB->getDrumkit( pDB->findArtifact(
 		H2Core::Filesystem::Artifact::DrumkitExtracted,
 		H2Core::Filesystem::Context::System, "GMRockKit"
@@ -247,7 +247,7 @@ void NoteTest::testMappingLegacyDrumkit() {
 void NoteTest::testMappingValidDrumkits() {
 	___INFOLOG( "" );
 
-	const auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
+	const auto pDB = pTestHydrogen()->getSoundLibraryDatabase();
 	auto pDrumkit = pDB->getDrumkit( pDB->findArtifact(
 		H2Core::Filesystem::Artifact::DrumkitExtracted,
 		H2Core::Filesystem::Context::System, "GMRockKit"

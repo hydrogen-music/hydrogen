@@ -20,13 +20,14 @@
  */
 
 #include "AudioDriverTest.h"
+#include "TestHelper.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Event.h>
 #include <core/Hydrogen.h>
 
 void AudioDriverTest::setUp() {
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = pTestPreferences();
 	m_nPrevBufferSize = pPref->m_nBufferSize;
 	m_prevAudioDriver = pPref->m_audioDriver;
 }
@@ -34,7 +35,7 @@ void AudioDriverTest::setUp() {
 void AudioDriverTest::testDriverSwitching() {
 	___INFOLOG("");
 
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	// Attempting to start up our JACK driver takes some time. In case it fails,
@@ -102,10 +103,10 @@ void AudioDriverTest::testDriverSwitching() {
 }
 
 void AudioDriverTest::tearDown() {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = pTestPreferences();
 	pPref->m_nBufferSize = m_nPrevBufferSize;
 	pPref->m_audioDriver = m_prevAudioDriver;
 

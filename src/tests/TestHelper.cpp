@@ -331,3 +331,17 @@ void TestHelper::waitForMidiActionManagerWorkerThread() {
 	}
 	CPPUNIT_ASSERT( nnTry < nMaxTries );
 }
+
+// --- Test-instance accessors (ADR 0015, T1.5 fixture) ---
+
+H2Core::Hydrogen* pTestHydrogen() {
+	return TestHelper::get_instance()->getHydrogen();
+}
+
+std::shared_ptr<H2Core::Preferences> pTestPreferences() {
+	return TestHelper::get_instance()->getHydrogen()->getPreferences();
+}
+
+H2Core::EventQueue* pTestEventQueue() {
+	return TestHelper::get_instance()->getHydrogen()->getEventQueue();
+}

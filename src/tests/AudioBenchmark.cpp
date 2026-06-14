@@ -49,8 +49,8 @@ bool AudioBenchmark::bEnabled = false;
 
 static long long exportCurrentSong( const QString &sFileName, int nSampleRate )
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	EventQueue *pQueue = EventQueue::get_instance();
+	Hydrogen *pHydrogen = pTestHydrogen();
+	EventQueue *pQueue = pTestEventQueue();
 	auto pSong = pHydrogen->getSong();
 
 	if( !pSong ) {
@@ -154,7 +154,7 @@ double AudioBenchmark::timeExport( int nSampleRate,
 								   double fReference,
 								   double *pfRMS ) {
 	auto outFile = Filesystem::tmpFilePath("test.wav");
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = pTestHydrogen();
 	int nIterations = 32;
 	std::vector< clock_t > times;
 	long long nFrames = 0, nFramesNew;
@@ -212,7 +212,7 @@ void AudioBenchmark::audioBenchmark(void)
 	}
 
 	___INFOLOG( "" );
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = pTestHydrogen();
 
 	out << "Benchmark ADSR method:" << Qt::endl;
 	timeADSR();
