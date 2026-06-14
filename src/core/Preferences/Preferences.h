@@ -184,7 +184,7 @@ class Preferences : public H2Core::Object<Preferences> {
 		Never = 2
 	};
 
-	static void create_instance();
+	static std::shared_ptr<Preferences> create_instance();
 	/** Transitional accessor (ADR 0015). Returns the process-current
 	 * Preferences — the instance most recently registered via #setInstance()
 	 * or #create_instance(). Retained so unconverted call sites keep compiling

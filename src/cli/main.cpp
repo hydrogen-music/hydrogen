@@ -75,10 +75,10 @@ void signal_handler ( int signum )
 	}
 }
 
-void show_playlist (uint active )
+void show_playlist (uint active, H2Core::Hydrogen* pHydrogen )
 {
 	/* Display playlist members */
-	auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
+	auto pPlaylist = pHydrogen->getPlaylist();
 	if ( pPlaylist->size() > 0) {
 		for ( uint i = 0; i < pPlaylist->size(); ++i ) {
 			std::cout << ( i + 1 ) << "." <<
@@ -94,10 +94,11 @@ void show_playlist (uint active )
 }
 
 bool convertKitToDrumkitMap( const QString& sKit,
-							 const QString& sOutFileName ) {
+							 const QString& sOutFileName,
+							 H2Core::Hydrogen* pHydrogen ) {
 	bool bCompressed, bLegacyFormatEncountered;
 	QString sKitFolder, sTmpFolder;
-	const auto pKit = H2Core::Hydrogen::get_instance()->getCoreActionController()->retrieveDrumkit(
+	const auto pKit = pHydrogen->getCoreActionController()->retrieveDrumkit(
 		sKit, &bCompressed, &sKitFolder, &sTmpFolder, &bLegacyFormatEncountered );
 
 	if ( pKit == nullptr ) {
@@ -366,8 +367,7 @@ int main(int argc, char *argv[])
 		Base::bootstrap( pLogger, pLogger->should_log( Logger::Debug ) );
 		H2Core::Filesystem::bootstrap(
 			pLogger, sSysDataPath, sUsrDataPath, sConfigFilePath, sLogFile );
-		Preferences::create_instance();
-		auto pPref = Preferences::get_instance();
+		auto pPref = Preferences::create_instance();
 #ifdef H2CORE_HAVE_OSC
 		pPref->setOscServerEnabled( true );
 #endif
@@ -419,7 +419,10 @@ int main(int argc, char *argv[])
 					bFilterAll = false;
 				}
 
-				OnlineImporter importer( H2Core::Hydrogen::get_instance() );
+				// No Hydrogen instance exists yet in the online-import path (it
+			// exits before create_instance below); the importer uses path
+			// overrides for local-status resolution.
+			OnlineImporter importer( nullptr );
 				auto indices = importer.fetchAllIndices( sOnlineImportUrls );
 
 				// Collect artifacts, optionally filtering by type
@@ -498,8 +501,7 @@ int main(int argc, char *argv[])
 				Preferences::parseAudioDriver( sSelectedDriver );
 		}
 
-		Hydrogen::create_instance( nOscPort );
-		Hydrogen *pHydrogen = Hydrogen::get_instance();
+		Hydrogen* pHydrogen = Hydrogen::create_instance( nOscPort );
 
 		// Tell the core that we are done initializing the most basic parts.
 		pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::headless );
@@ -515,7 +517,7 @@ int main(int argc, char *argv[])
 				return 1;
 			}
 
-			if ( ! H2Core::Hydrogen::get_instance()->getCoreActionController()->setPlaylist( pPlaylist ) ) {
+			if ( ! pHydrogen->getCoreActionController()->setPlaylist( pPlaylist ) ) {
 				___ERRORLOG( QString( "Unable to set playlist loaded from [%1]" )
 							 .arg( sPlaylistFileName ) );
 				return 1;
@@ -523,25 +525,25 @@ int main(int argc, char *argv[])
 
 			/* Load first song */
 			auto sSongPath = pPlaylist->getSongFileNameByNumber( 0 );
-			pSong = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong( sSongPath );
+			pSong = pHydrogen->getCoreActionController()->loadSong( sSongPath );
 
-			if ( pSong != nullptr && H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong ) ) {
-				H2Core::Hydrogen::get_instance()->getCoreActionController()->activatePlaylistSong( 0 );
+			if ( pSong != nullptr && pHydrogen->getCoreActionController()->setSong( pSong ) ) {
+				pHydrogen->getCoreActionController()->activatePlaylistSong( 0 );
 			}
 
-			show_playlist( pPlaylist->getActiveSongNumber() );
+			show_playlist( pPlaylist->getActiveSongNumber(), pHydrogen );
 		}
 
 		// Load song - if wasn't already loaded with playlist
 		if ( pSong == nullptr ) {
 			if ( ! sSongFileName.isEmpty() ) {
-				pSong = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong( sSongFileName, "" );
+				pSong = pHydrogen->getCoreActionController()->loadSong( sSongFileName, "" );
 			}
 			else {
 				/* Try load last song */
 				const QString sSongPath = pPref->getLastSongPath();
 				if ( ! sSongPath.isEmpty() ) {
-					pSong = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong( sSongPath, "" );
+					pSong = pHydrogen->getCoreActionController()->loadSong( sSongPath, "" );
 				}
 			}
 
@@ -554,18 +556,18 @@ int main(int argc, char *argv[])
 				pHydrogen->setSong( pSong );
 			}
 			else {
-				H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong );
+				pHydrogen->getCoreActionController()->setSong( pSong );
 			}
 		}
 
 		if ( !sDrumkitNameToLoad.isEmpty() ) {
-			auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
+			auto pDB = pHydrogen->getSoundLibraryDatabase();
 			auto pDrumkit = pDB->getDrumkit( pDB->findArtifact(
 				Filesystem::Artifact::DrumkitExtracted,
 				Filesystem::Context::User, sDrumkitNameToLoad, true
 			) );
 			if ( pDrumkit != nullptr ) {
-				H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit( pDrumkit );
+				pHydrogen->getCoreActionController()->setDrumkit( pDrumkit );
 			}
 			else {
 				___ERRORLOG( QString( "Unable to retrieve drumkit called [%1]" )
@@ -594,7 +596,7 @@ int main(int argc, char *argv[])
 					pSampler->setInterpolateMode( Interpolation::InterpolateMode::Linear );
 		}
 
-		EventQueue *pQueue = EventQueue::get_instance();
+		EventQueue *pQueue = pHydrogen->getEventQueue();
 
 		signal(SIGINT, signal_handler);
 
@@ -619,7 +621,7 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! sDrumkitToValidate.isEmpty() ) {
-			if ( ! H2Core::Hydrogen::get_instance()->getCoreActionController()->validateDrumkit(
+			if ( ! pHydrogen->getCoreActionController()->validateDrumkit(
 					 sDrumkitToValidate, false ) ) {
 				nReturnCode = 1;
 
@@ -635,7 +637,7 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! sDrumkitToLegacyValidate.isEmpty() ) {
-			if ( ! H2Core::Hydrogen::get_instance()->getCoreActionController()->validateDrumkit(
+			if ( ! pHydrogen->getCoreActionController()->validateDrumkit(
 					 sDrumkitToLegacyValidate, true ) ) {
 				nReturnCode = 1;
 
@@ -651,7 +653,7 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! sDrumkitToExtract.isEmpty() ) {
-			if ( ! H2Core::Hydrogen::get_instance()->getCoreActionController()->extractDrumkit(
+			if ( ! pHydrogen->getCoreActionController()->extractDrumkit(
 					 sDrumkitToExtract, sTarget ) ) {
 				nReturnCode = 1;
 
@@ -680,7 +682,7 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! sDrumkitToUpgrade.isEmpty() ) {
-			if ( ! H2Core::Hydrogen::get_instance()->getCoreActionController()->upgradeDrumkit(
+			if ( ! pHydrogen->getCoreActionController()->upgradeDrumkit(
 					 sDrumkitToUpgrade, sTarget ) ) {
 				nReturnCode = 1;
 
@@ -702,7 +704,8 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! sKitToDrumkitMap.isEmpty() ) {
-			if ( ! convertKitToDrumkitMap( sKitToDrumkitMap, sOutFileName ) ) {
+			if ( ! convertKitToDrumkitMap( sKitToDrumkitMap, sOutFileName,
+										   pHydrogen ) ) {
 				nReturnCode = 1;
 			} else {
 				nReturnCode = 0;
@@ -768,7 +771,7 @@ int main(int argc, char *argv[])
 
 		pSong = nullptr;
 
-		pPref = H2Core::Preferences::get_instance();
+		pPref = pHydrogen->getPreferences();
 
 		pPref->save();
 		// Hydrogen owns its EventQueue and frees it in ~Hydrogen (ADR 0015).
@@ -782,7 +785,7 @@ int main(int argc, char *argv[])
 		pPref = nullptr;
 
 		___INFOLOG( "Quitting..." );
-		delete Logger::get_instance();
+		delete pLogger;
 
 		if (H2Core::Base::count_active()) {
 			H2Core::Base::write_objects_map_to_cerr();

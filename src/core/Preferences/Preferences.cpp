@@ -50,7 +50,7 @@ namespace H2Core {
 
 std::shared_ptr<Preferences> Preferences::__instance = nullptr;
 
-void Preferences::create_instance()
+std::shared_ptr<Preferences> Preferences::create_instance()
 {
 	if ( __instance == nullptr ) {
 		// User-level configs
@@ -85,6 +85,9 @@ void Preferences::create_instance()
 			}
 		}
 	}
+	// Return the process-current instance so callers can hold it directly
+	// instead of re-reading the get_instance() shim (ADR 0015, toward T1.5).
+	return __instance;
 }
 
 void Preferences::setInstance( std::shared_ptr<Preferences> pInstance )
