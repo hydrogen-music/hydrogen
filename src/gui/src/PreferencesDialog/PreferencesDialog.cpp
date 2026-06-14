@@ -2403,10 +2403,34 @@ void PreferencesDialog::updateAppearanceTab( const std::shared_ptr<H2Core::Theme
 		}
 	}
 
-	// Fonts
-	applicationFontComboBox->setCurrentFont( QFont( pTheme->getFontTheme()->m_sApplicationFontFamily ) );
-	level2FontComboBox->setCurrentFont( QFont( pTheme->getFontTheme()->m_sLevel2FontFamily ) );
-	level3FontComboBox->setCurrentFont( QFont( pTheme->getFontTheme()->m_sLevel3FontFamily ) );
+	// Fonts - use QFontDatabase to validate font families before setting them
+	// to prevent crashes in fontconfig when invalid font names are used
+	QString sApplicationFont = pTheme->getFontTheme()->m_sApplicationFontFamily;
+	QString sLevel2Font = pTheme->getFontTheme()->m_sLevel2FontFamily;
+	QString sLevel3Font = pTheme->getFontTheme()->m_sLevel3FontFamily;
+
+	// Validate font families and fall back to system defaults if invalid
+	QFontDatabase fontDatabase;
+	if ( !fontDatabase.families().contains( sApplicationFont ) ) {
+		WARNINGLOG( QString( "Application font family '%1' not found, falling back to default" )
+					.arg( sApplicationFont ) );
+		sApplicationFont = QFont().family();
+	}
+	if ( !fontDatabase.families().contains( sLevel2Font ) ) {
+		WARNINGLOG( QString( "Level2 font family '%1' not found, falling back to default" )
+					.arg( sLevel2Font ) );
+		sLevel2Font = QFont().family();
+	}
+	if ( !fontDatabase.families().contains( sLevel3Font ) ) {
+		WARNINGLOG( QString( "Level3 font family '%1' not found, falling back to default" )
+					.arg( sLevel3Font ) );
+		sLevel3Font = QFont().family();
+	}
+
+	applicationFontComboBox->setCurrentFont( QFont( sApplicationFont ) );
+	level2FontComboBox->setCurrentFont( QFont( sLevel2Font ) );
+	level3FontComboBox->setCurrentFont( QFont( sLevel3Font ) );
+
 	switch( pTheme->getFontTheme()->m_fontSize ) {
 	case FontTheme::FontSize::Small:
 		fontSizeComboBox->setCurrentIndex( 0 );

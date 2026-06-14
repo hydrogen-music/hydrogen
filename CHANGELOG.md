@@ -38,6 +38,8 @@ All notable changes to this project will be documented in this file.
 - Fix linker error on OpenBSD by @rrrapha.
 - Fixed performance issue when using JACK audio with rubberband.
 - Parameter loss in the MIDI table within the preferences (#2328).
+- Fix segfault when opening the Preferences dialog due to a missing font or a
+  corrupt font database (#2343).
 
 ## [1.2.6] - 2025-07-29
 
