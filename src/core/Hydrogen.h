@@ -36,6 +36,12 @@
 #include <chrono>
 #include <memory>
 
+// OscServer and NsmClient live in the GLOBAL namespace (not H2Core), so they
+// must be forward-declared there — declaring them inside namespace H2Core would
+// create distinct, never-defined H2Core::OscServer / H2Core::NsmClient types.
+class OscServer;
+class NsmClient;
+
 namespace H2Core
 {
 	class AudioEngine;
@@ -162,6 +168,12 @@ public:
 	}
 	/** \return The EventQueue owned by this instance (#m_pEventQueue). */
 	EventQueue*		getEventQueue() const { return m_pEventQueue; }
+#ifdef H2CORE_HAVE_OSC
+	/** \return The OSC server owned by this instance (ADR 0015). */
+	OscServer*		getOscServer() const { return m_pOscServer; }
+	/** \return The NSM client owned by this instance (ADR 0015). */
+	NsmClient*		getNsmClient() const { return m_pNsmClient; }
+#endif
 	/** \return The per-instance Logger owned by this instance (ADR 0015, T1.6).
 	 * Used with Logger::Scope at the instance entry points so logging routes to
 	 * this instance's own log file. */
@@ -491,6 +503,14 @@ private:
 	std::shared_ptr<Preferences> m_pPreferences;
 	/** EventQueue owned by this instance (ADR 0015). */
 	EventQueue*		m_pEventQueue;
+
+#ifdef H2CORE_HAVE_OSC
+	/** OSC server owned by this instance (ADR 0015). Always constructed; only
+	 * binds a port when OSC is enabled in this instance's Preferences. */
+	OscServer*		m_pOscServer;
+	/** NSM client owned by this instance (ADR 0015). */
+	NsmClient*		m_pNsmClient;
+#endif
 
 	/**
 	 * Pointer to the current song. It is initialized with NULL in

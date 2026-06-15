@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
 		signal(SIGINT, signal_handler);
 
 #ifdef H2CORE_HAVE_OSC
-		auto pOscServer = OscServer::get_instance();
+		auto pOscServer = g_pHydrogen->getOscServer();
 		pOscServer->getServerThread()->add_method(
 			"/h2JackTimebase/StartTestJackDriver", "", startTestJackDriver );
 		pOscServer->getServerThread()->add_method(

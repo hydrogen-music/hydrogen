@@ -52,8 +52,6 @@
 #include "core/Midi/MidiMessage.h"
 #include "core/SoundLibrary/SoundLibraryDatabase.h"
 
-OscServer * OscServer::__instance = nullptr;
-H2Core::Hydrogen* OscServer::m_pHydrogen = nullptr;
 
 
 QString OscServer::qPrettyPrint( const lo_type& type, void* data )
@@ -183,7 +181,8 @@ int OscServer::generic_handler(const char *	path,
 							   lo_message	data,
 							   void *		user_data)
 {
-	auto pHydrogen = m_pHydrogen;
+	auto pServer = static_cast<OscServer*>( user_data );
+	auto pHydrogen = pServer->m_pHydrogen;
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 	auto pSong = pHydrogen->getSong();
 
@@ -208,7 +207,7 @@ int OscServer::generic_handler(const char *	path,
 	if ( rxStripVolMatch.hasMatch() && argc == 1 ) {
 		const int nStrip = rxStripVolMatch.captured( 1 ).toInt() -1;
 		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
-			STRIP_VOLUME_ABSOLUTE_Handler( nStrip , argv[0]->f );
+			pServer->STRIP_VOLUME_ABSOLUTE_Handler( nStrip , argv[0]->f );
 			bMessageProcessed = true;
 		}
 		else {
@@ -227,7 +226,7 @@ int OscServer::generic_handler(const char *	path,
 	if ( rxStripVolRelMatch.hasMatch() && argc == 1 ) {
 		const int nStrip = rxStripVolRelMatch.captured( 1 ).toInt() - 1;
 		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
-			STRIP_VOLUME_RELATIVE_Handler(
+			pServer->STRIP_VOLUME_RELATIVE_Handler(
 				static_cast<int>( argv[0]->f ), nStrip
 			);
 			bMessageProcessed = true;
@@ -250,7 +249,7 @@ int OscServer::generic_handler(const char *	path,
 		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 			INFOLOG( QString( "processing message as changing pan of strip [%1] in absolute numbers" )
 					 .arg( nStrip ) );
-			m_pHydrogen->getCoreActionController()->setStripPan(
+			pHydrogen->getCoreActionController()->setStripPan(
 				nStrip, argv[0]->f, false );
 			bMessageProcessed = true;
 		}
@@ -272,7 +271,7 @@ int OscServer::generic_handler(const char *	path,
 		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 			INFOLOG( QString( "processing message as changing pan of strip [%1] in symmetric, absolute numbers" )
 					 .arg( nStrip ) );
-			m_pHydrogen->getCoreActionController()->setStripPanSym(
+			pHydrogen->getCoreActionController()->setStripPanSym(
 				nStrip, argv[0]->f, false );
 			bMessageProcessed = true;
 		}
@@ -318,7 +317,7 @@ int OscServer::generic_handler(const char *	path,
 	if ( rxStripFilterCutoffAbsMatch.hasMatch() && argc == 1 ) {
 		const int nStrip = rxStripFilterCutoffAbsMatch.captured( 1 ).toInt() - 1;
 		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
-			FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler(
+			pServer->FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler(
 				static_cast<int>( argv[0]->f ), nStrip
 			);
 			bMessageProcessed = true;
@@ -341,7 +340,7 @@ int OscServer::generic_handler(const char *	path,
 		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 			INFOLOG( QString( "processing message as toggling mute of strip [%1]" )
 					 .arg( nStrip ) );
-			m_pHydrogen->getCoreActionController()->toggleStripIsMuted( nStrip );
+			pHydrogen->getCoreActionController()->toggleStripIsMuted( nStrip );
 			bMessageProcessed = true;
 		}
 		else {
@@ -362,7 +361,7 @@ int OscServer::generic_handler(const char *	path,
 		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 			INFOLOG( QString( "processing message as toggling solo of strip [%1]" )
 					 .arg( nStrip ) );
-			m_pHydrogen->getCoreActionController()->toggleStripIsSoloed( nStrip );
+			pHydrogen->getCoreActionController()->toggleStripIsSoloed( nStrip );
 			bMessageProcessed = true;
 		}
 		else {
@@ -383,7 +382,9 @@ int OscServer::generic_handler(const char *	path,
 
 
 
-OscServer::OscServer( int nOscPort ) : m_bInitialized( false )
+OscServer::OscServer( H2Core::Hydrogen* pHydrogen, int nOscPort )
+									 : m_pHydrogen( pHydrogen )
+									 , m_bInitialized( false )
 									 , m_nTemporaryPort( nOscPort )
 {
 	auto pPref = m_pHydrogen->getPreferences();
@@ -431,18 +432,18 @@ OscServer::~OscServer(){
 	}
 
 	delete m_pServerThread;
-	
-	__instance = nullptr;
 }
 
-void OscServer::create_instance( H2Core::Hydrogen* pHydrogen, int nOscPort )
-{
-	// Set the (static) back-pointer before construction so the OscServer ctor
-	// and all static handlers can reach the engine (ADR 0015).
-	m_pHydrogen = pHydrogen;
-	if( __instance == nullptr ) {
-		__instance = new OscServer( nOscPort );
-	}
+void OscServer::addMethod( const char* path, const char* types,
+						   void ( OscServer::*handler )( lo_arg**, int ) ) {
+	// Bind the per-message member callback to this instance so it reaches this
+	// OscServer's owning Hydrogen (ADR 0015). This is the single place the liblo
+	// callable glue lives.
+	m_pServerThread->add_method(
+		path, types,
+		[this, handler]( lo_arg** argv, int argc ) {
+			( this->*handler )( argv, argc );
+		} );
 }
 
 // -------------------------------------------------------------------
@@ -1441,174 +1442,143 @@ bool OscServer::init()
 
 	m_pServerThread->add_method(nullptr, nullptr, incomingMessageLogging, nullptr);
 
-	m_pServerThread->add_method("/Hydrogen/PLAY", "", PLAY_Handler);
-	m_pServerThread->add_method("/Hydrogen/PLAY", "f", PLAY_Handler);
-	m_pServerThread->add_method("/Hydrogen/PLAY_STOP_TOGGLE", "", PLAY_STOP_TOGGLE_Handler);
-	m_pServerThread->add_method("/Hydrogen/PLAY_STOP_TOGGLE", "f", PLAY_STOP_TOGGLE_Handler);
-	m_pServerThread->add_method("/Hydrogen/PLAY_PAUSE_TOGGLE", "", PLAY_PAUSE_TOGGLE_Handler);
-	m_pServerThread->add_method("/Hydrogen/PLAY_PAUSE_TOGGLE", "f", PLAY_PAUSE_TOGGLE_Handler);
-	m_pServerThread->add_method("/Hydrogen/STOP", "", STOP_Handler);
-	m_pServerThread->add_method("/Hydrogen/STOP", "f", STOP_Handler);
-	m_pServerThread->add_method("/Hydrogen/PAUSE", "", PAUSE_Handler);
-	m_pServerThread->add_method("/Hydrogen/PAUSE", "f", PAUSE_Handler);
+	addMethod("/Hydrogen/PLAY", "", &OscServer::PLAY_Handler);
+	addMethod("/Hydrogen/PLAY", "f", &OscServer::PLAY_Handler);
+	addMethod("/Hydrogen/PLAY_STOP_TOGGLE", "", &OscServer::PLAY_STOP_TOGGLE_Handler);
+	addMethod("/Hydrogen/PLAY_STOP_TOGGLE", "f", &OscServer::PLAY_STOP_TOGGLE_Handler);
+	addMethod("/Hydrogen/PLAY_PAUSE_TOGGLE", "", &OscServer::PLAY_PAUSE_TOGGLE_Handler);
+	addMethod("/Hydrogen/PLAY_PAUSE_TOGGLE", "f", &OscServer::PLAY_PAUSE_TOGGLE_Handler);
+	addMethod("/Hydrogen/STOP", "", &OscServer::STOP_Handler);
+	addMethod("/Hydrogen/STOP", "f", &OscServer::STOP_Handler);
+	addMethod("/Hydrogen/PAUSE", "", &OscServer::PAUSE_Handler);
+	addMethod("/Hydrogen/PAUSE", "f", &OscServer::PAUSE_Handler);
 	
-	m_pServerThread->add_method("/Hydrogen/RECORD_READY", "", RECORD_READY_Handler);
-	m_pServerThread->add_method("/Hydrogen/RECORD_READY", "f", RECORD_READY_Handler);
-	m_pServerThread->add_method("/Hydrogen/RECORD_STROBE_TOGGLE", "", RECORD_STROBE_TOGGLE_Handler);
-	m_pServerThread->add_method("/Hydrogen/RECORD_STROBE_TOGGLE", "f", RECORD_STROBE_TOGGLE_Handler);
-	m_pServerThread->add_method("/Hydrogen/RECORD_STROBE", "", RECORD_STROBE_Handler);
-	m_pServerThread->add_method("/Hydrogen/RECORD_STROBE", "f", RECORD_STROBE_Handler);
-	m_pServerThread->add_method("/Hydrogen/RECORD_EXIT", "", RECORD_EXIT_Handler);
-	m_pServerThread->add_method("/Hydrogen/RECORD_EXIT", "f", RECORD_EXIT_Handler);
+	addMethod("/Hydrogen/RECORD_READY", "", &OscServer::RECORD_READY_Handler);
+	addMethod("/Hydrogen/RECORD_READY", "f", &OscServer::RECORD_READY_Handler);
+	addMethod("/Hydrogen/RECORD_STROBE_TOGGLE", "", &OscServer::RECORD_STROBE_TOGGLE_Handler);
+	addMethod("/Hydrogen/RECORD_STROBE_TOGGLE", "f", &OscServer::RECORD_STROBE_TOGGLE_Handler);
+	addMethod("/Hydrogen/RECORD_STROBE", "", &OscServer::RECORD_STROBE_Handler);
+	addMethod("/Hydrogen/RECORD_STROBE", "f", &OscServer::RECORD_STROBE_Handler);
+	addMethod("/Hydrogen/RECORD_EXIT", "", &OscServer::RECORD_EXIT_Handler);
+	addMethod("/Hydrogen/RECORD_EXIT", "f", &OscServer::RECORD_EXIT_Handler);
 	
-	m_pServerThread->add_method("/Hydrogen/MUTE", "", MUTE_Handler);
-	m_pServerThread->add_method("/Hydrogen/MUTE", "f", MUTE_Handler);
-	m_pServerThread->add_method("/Hydrogen/UNMUTE", "", UNMUTE_Handler);
-	m_pServerThread->add_method("/Hydrogen/UNMUTE", "f", UNMUTE_Handler);
-	m_pServerThread->add_method("/Hydrogen/MUTE_TOGGLE", "", MUTE_TOGGLE_Handler);
-	m_pServerThread->add_method("/Hydrogen/MUTE_TOGGLE", "f", MUTE_TOGGLE_Handler);
+	addMethod("/Hydrogen/MUTE", "", &OscServer::MUTE_Handler);
+	addMethod("/Hydrogen/MUTE", "f", &OscServer::MUTE_Handler);
+	addMethod("/Hydrogen/UNMUTE", "", &OscServer::UNMUTE_Handler);
+	addMethod("/Hydrogen/UNMUTE", "f", &OscServer::UNMUTE_Handler);
+	addMethod("/Hydrogen/MUTE_TOGGLE", "", &OscServer::MUTE_TOGGLE_Handler);
+	addMethod("/Hydrogen/MUTE_TOGGLE", "f", &OscServer::MUTE_TOGGLE_Handler);
 
-	m_pServerThread->add_method("/Hydrogen/INSTRUMENT_PITCH", "ff",
-								INSTRUMENT_PITCH_Handler);
+	addMethod("/Hydrogen/INSTRUMENT_PITCH", "ff", &OscServer::INSTRUMENT_PITCH_Handler);
 	
-	m_pServerThread->add_method("/Hydrogen/NEXT_BAR", "", NEXT_BAR_Handler);
-	m_pServerThread->add_method("/Hydrogen/NEXT_BAR", "f", NEXT_BAR_Handler);
-	m_pServerThread->add_method("/Hydrogen/PREVIOUS_BAR", "", PREVIOUS_BAR_Handler);
-	m_pServerThread->add_method("/Hydrogen/PREVIOUS_BAR", "f", PREVIOUS_BAR_Handler);
+	addMethod("/Hydrogen/NEXT_BAR", "", &OscServer::NEXT_BAR_Handler);
+	addMethod("/Hydrogen/NEXT_BAR", "f", &OscServer::NEXT_BAR_Handler);
+	addMethod("/Hydrogen/PREVIOUS_BAR", "", &OscServer::PREVIOUS_BAR_Handler);
+	addMethod("/Hydrogen/PREVIOUS_BAR", "f", &OscServer::PREVIOUS_BAR_Handler);
 	
-	m_pServerThread->add_method("/Hydrogen/BPM", "f", BPM_Handler);
-	m_pServerThread->add_method("/Hydrogen/BPM_DECR", "f", BPM_DECR_Handler);
-	m_pServerThread->add_method("/Hydrogen/BPM_INCR", "f", BPM_INCR_Handler);
+	addMethod("/Hydrogen/BPM", "f", &OscServer::BPM_Handler);
+	addMethod("/Hydrogen/BPM_DECR", "f", &OscServer::BPM_DECR_Handler);
+	addMethod("/Hydrogen/BPM_INCR", "f", &OscServer::BPM_INCR_Handler);
 
-	m_pServerThread->add_method(
-		"/Hydrogen/MASTER_VOLUME_ABSOLUTE", "f", MASTER_VOLUME_ABSOLUTE_Handler
-	);
-	m_pServerThread->add_method(
-		"/Hydrogen/MASTER_VOLUME_RELATIVE", "f", MASTER_VOLUME_RELATIVE_Handler
-	);
-	m_pServerThread->add_method(
-		"/Hydrogen/HUMANIZATION_SWING_ABSOLUTE", "f",
-		HUMANIZATION_SWING_ABSOLUTE_Handler
-	);
-	m_pServerThread->add_method(
-		"/Hydrogen/HUMANIZATION_SWING_RELATIVE", "f",
-		HUMANIZATION_SWING_RELATIVE_Handler
-	);
-	m_pServerThread->add_method(
-		"/Hydrogen/HUMANIZATION_TIMING_ABSOLUTE", "f",
-		HUMANIZATION_TIMING_ABSOLUTE_Handler
-	);
-	m_pServerThread->add_method(
-		"/Hydrogen/HUMANIZATION_TIMING_RELATIVE", "f",
-		HUMANIZATION_TIMING_RELATIVE_Handler
-	);
-	m_pServerThread->add_method(
-		"/Hydrogen/HUMANIZATION_VELOCITY_ABSOLUTE", "f",
-		HUMANIZATION_VELOCITY_ABSOLUTE_Handler
-	);
-	m_pServerThread->add_method(
-		"/Hydrogen/HUMANIZATION_VELOCITY_RELATIVE", "f",
-		HUMANIZATION_VELOCITY_RELATIVE_Handler
-	);
+	addMethod("/Hydrogen/MASTER_VOLUME_ABSOLUTE", "f", &OscServer::MASTER_VOLUME_ABSOLUTE_Handler);
+	addMethod("/Hydrogen/MASTER_VOLUME_RELATIVE", "f", &OscServer::MASTER_VOLUME_RELATIVE_Handler);
+	addMethod("/Hydrogen/HUMANIZATION_SWING_ABSOLUTE", "f", &OscServer::HUMANIZATION_SWING_ABSOLUTE_Handler);
+	addMethod("/Hydrogen/HUMANIZATION_SWING_RELATIVE", "f", &OscServer::HUMANIZATION_SWING_RELATIVE_Handler);
+	addMethod("/Hydrogen/HUMANIZATION_TIMING_ABSOLUTE", "f", &OscServer::HUMANIZATION_TIMING_ABSOLUTE_Handler);
+	addMethod("/Hydrogen/HUMANIZATION_TIMING_RELATIVE", "f", &OscServer::HUMANIZATION_TIMING_RELATIVE_Handler);
+	addMethod("/Hydrogen/HUMANIZATION_VELOCITY_ABSOLUTE", "f", &OscServer::HUMANIZATION_VELOCITY_ABSOLUTE_Handler);
+	addMethod("/Hydrogen/HUMANIZATION_VELOCITY_RELATIVE", "f", &OscServer::HUMANIZATION_VELOCITY_RELATIVE_Handler);
 
-	m_pServerThread->add_method("/Hydrogen/SELECT_NEXT_PATTERN", "f", SELECT_NEXT_PATTERN_Handler);
-	m_pServerThread->add_method("/Hydrogen/SELECT_ONLY_NEXT_PATTERN", "f", SELECT_ONLY_NEXT_PATTERN_Handler);
-	m_pServerThread->add_method("/Hydrogen/SELECT_AND_PLAY_PATTERN", "f", SELECT_AND_PLAY_PATTERN_Handler);
+	addMethod("/Hydrogen/SELECT_NEXT_PATTERN", "f", &OscServer::SELECT_NEXT_PATTERN_Handler);
+	addMethod("/Hydrogen/SELECT_ONLY_NEXT_PATTERN", "f", &OscServer::SELECT_ONLY_NEXT_PATTERN_Handler);
+	addMethod("/Hydrogen/SELECT_AND_PLAY_PATTERN", "f", &OscServer::SELECT_AND_PLAY_PATTERN_Handler);
 	
-	m_pServerThread->add_method("/Hydrogen/BEATCOUNTER", "", BEATCOUNTER_Handler);
-	m_pServerThread->add_method("/Hydrogen/BEATCOUNTER", "f", BEATCOUNTER_Handler);
+	addMethod("/Hydrogen/BEATCOUNTER", "", &OscServer::BEATCOUNTER_Handler);
+	addMethod("/Hydrogen/BEATCOUNTER", "f", &OscServer::BEATCOUNTER_Handler);
 	
-	m_pServerThread->add_method("/Hydrogen/TAP_TEMPO", "", TAP_TEMPO_Handler);
-	m_pServerThread->add_method("/Hydrogen/TAP_TEMPO", "f", TAP_TEMPO_Handler);
+	addMethod("/Hydrogen/TAP_TEMPO", "", &OscServer::TAP_TEMPO_Handler);
+	addMethod("/Hydrogen/TAP_TEMPO", "f", &OscServer::TAP_TEMPO_Handler);
 	
-	m_pServerThread->add_method("/Hydrogen/PLAYLIST_SONG", "f", PLAYLIST_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/PLAYLIST_NEXT_SONG", "", PLAYLIST_NEXT_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/PLAYLIST_NEXT_SONG", "f", PLAYLIST_NEXT_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/PLAYLIST_PREV_SONG", "", PLAYLIST_PREV_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/PLAYLIST_PREV_SONG", "f", PLAYLIST_PREV_SONG_Handler);
+	addMethod("/Hydrogen/PLAYLIST_SONG", "f", &OscServer::PLAYLIST_SONG_Handler);
+	addMethod("/Hydrogen/PLAYLIST_NEXT_SONG", "", &OscServer::PLAYLIST_NEXT_SONG_Handler);
+	addMethod("/Hydrogen/PLAYLIST_NEXT_SONG", "f", &OscServer::PLAYLIST_NEXT_SONG_Handler);
+	addMethod("/Hydrogen/PLAYLIST_PREV_SONG", "", &OscServer::PLAYLIST_PREV_SONG_Handler);
+	addMethod("/Hydrogen/PLAYLIST_PREV_SONG", "f", &OscServer::PLAYLIST_PREV_SONG_Handler);
 	
-	m_pServerThread->add_method("/Hydrogen/TOGGLE_METRONOME", "", TOGGLE_METRONOME_Handler);
-	m_pServerThread->add_method("/Hydrogen/TOGGLE_METRONOME", "f", TOGGLE_METRONOME_Handler);
+	addMethod("/Hydrogen/TOGGLE_METRONOME", "", &OscServer::TOGGLE_METRONOME_Handler);
+	addMethod("/Hydrogen/TOGGLE_METRONOME", "f", &OscServer::TOGGLE_METRONOME_Handler);
 	
-	m_pServerThread->add_method("/Hydrogen/SELECT_INSTRUMENT", "f", SELECT_INSTRUMENT_Handler);
+	addMethod("/Hydrogen/SELECT_INSTRUMENT", "f", &OscServer::SELECT_INSTRUMENT_Handler);
 	
-	m_pServerThread->add_method("/Hydrogen/UNDO_ACTION", "", UNDO_ACTION_Handler);
-	m_pServerThread->add_method("/Hydrogen/UNDO_ACTION", "f", UNDO_ACTION_Handler);
-	m_pServerThread->add_method("/Hydrogen/REDO_ACTION", "", REDO_ACTION_Handler);
-	m_pServerThread->add_method("/Hydrogen/REDO_ACTION", "f", REDO_ACTION_Handler);
+	addMethod("/Hydrogen/UNDO_ACTION", "", &OscServer::UNDO_ACTION_Handler);
+	addMethod("/Hydrogen/UNDO_ACTION", "f", &OscServer::UNDO_ACTION_Handler);
+	addMethod("/Hydrogen/REDO_ACTION", "", &OscServer::REDO_ACTION_Handler);
+	addMethod("/Hydrogen/REDO_ACTION", "f", &OscServer::REDO_ACTION_Handler);
 
-	m_pServerThread->add_method("/Hydrogen/NEW_SONG", "s", NEW_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/OPEN_SONG", "s", OPEN_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/SAVE_SONG", "", SAVE_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/SAVE_SONG", "f", SAVE_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/SAVE_SONG_AS", "s", SAVE_SONG_AS_Handler);
-	m_pServerThread->add_method("/Hydrogen/SAVE_PREFERENCES", "", SAVE_PREFERENCES_Handler);
-	m_pServerThread->add_method("/Hydrogen/SAVE_PREFERENCES", "f", SAVE_PREFERENCES_Handler);
-	m_pServerThread->add_method("/Hydrogen/QUIT", "", QUIT_Handler);
-	m_pServerThread->add_method("/Hydrogen/QUIT", "f", QUIT_Handler);
+	addMethod("/Hydrogen/NEW_SONG", "s", &OscServer::NEW_SONG_Handler);
+	addMethod("/Hydrogen/OPEN_SONG", "s", &OscServer::OPEN_SONG_Handler);
+	addMethod("/Hydrogen/SAVE_SONG", "", &OscServer::SAVE_SONG_Handler);
+	addMethod("/Hydrogen/SAVE_SONG", "f", &OscServer::SAVE_SONG_Handler);
+	addMethod("/Hydrogen/SAVE_SONG_AS", "s", &OscServer::SAVE_SONG_AS_Handler);
+	addMethod("/Hydrogen/SAVE_PREFERENCES", "", &OscServer::SAVE_PREFERENCES_Handler);
+	addMethod("/Hydrogen/SAVE_PREFERENCES", "f", &OscServer::SAVE_PREFERENCES_Handler);
+	addMethod("/Hydrogen/QUIT", "", &OscServer::QUIT_Handler);
+	addMethod("/Hydrogen/QUIT", "f", &OscServer::QUIT_Handler);
 
-	m_pServerThread->add_method("/Hydrogen/TIMELINE_ACTIVATION", "f", TIMELINE_ACTIVATION_Handler);
-	m_pServerThread->add_method("/Hydrogen/TIMELINE_ADD_MARKER", "ff", TIMELINE_ADD_MARKER_Handler);
-	m_pServerThread->add_method("/Hydrogen/TIMELINE_DELETE_MARKER", "f", TIMELINE_DELETE_MARKER_Handler);
+	addMethod("/Hydrogen/TIMELINE_ACTIVATION", "f", &OscServer::TIMELINE_ACTIVATION_Handler);
+	addMethod("/Hydrogen/TIMELINE_ADD_MARKER", "ff", &OscServer::TIMELINE_ADD_MARKER_Handler);
+	addMethod("/Hydrogen/TIMELINE_DELETE_MARKER", "f", &OscServer::TIMELINE_DELETE_MARKER_Handler);
 
-	m_pServerThread->add_method("/Hydrogen/JACK_TRANSPORT_ACTIVATION", "f", JACK_TRANSPORT_ACTIVATION_Handler);
-	m_pServerThread->add_method("/Hydrogen/JACK_TIMEBASE_MASTER_ACTIVATION", "f", JACK_TIMEBASE_MASTER_ACTIVATION_Handler);
-	m_pServerThread->add_method("/Hydrogen/SONG_MODE_ACTIVATION", "f", SONG_MODE_ACTIVATION_Handler);
-	m_pServerThread->add_method("/Hydrogen/LOOP_MODE_ACTIVATION", "f", LOOP_MODE_ACTIVATION_Handler);
-	m_pServerThread->add_method("/Hydrogen/RELOCATE", "f", RELOCATE_Handler);
-	m_pServerThread->add_method("/Hydrogen/NEW_PATTERN", "s", NEW_PATTERN_Handler);
-	m_pServerThread->add_method("/Hydrogen/OPEN_PATTERN", "s", OPEN_PATTERN_Handler);
-	m_pServerThread->add_method("/Hydrogen/REMOVE_PATTERN", "f", REMOVE_PATTERN_Handler);
-	m_pServerThread->add_method("/Hydrogen/CLEAR_INSTRUMENT", "f", CLEAR_INSTRUMENT_Handler);
-	m_pServerThread->add_method("/Hydrogen/CLEAR_SELECTED_INSTRUMENT", "",
-								CLEAR_SELECTED_INSTRUMENT_Handler);
-	m_pServerThread->add_method("/Hydrogen/CLEAR_SELECTED_INSTRUMENT", "f",
-								CLEAR_SELECTED_INSTRUMENT_Handler);
-	m_pServerThread->add_method("/Hydrogen/CLEAR_PATTERN", "", CLEAR_PATTERN_Handler);
-	m_pServerThread->add_method("/Hydrogen/CLEAR_PATTERN", "f", CLEAR_PATTERN_Handler);
-	m_pServerThread->add_method("/Hydrogen/COUNT_IN", "", COUNT_IN_Handler);
-	m_pServerThread->add_method("/Hydrogen/COUNT_IN", "f", COUNT_IN_Handler);
-	m_pServerThread->add_method("/Hydrogen/COUNT_IN_PAUSE_TOGGLE", "",
-								COUNT_IN_PAUSE_TOGGLE_Handler);
-	m_pServerThread->add_method("/Hydrogen/COUNT_IN_PAUSE_TOGGLE", "f",
-								COUNT_IN_PAUSE_TOGGLE_Handler);
-	m_pServerThread->add_method("/Hydrogen/COUNT_IN_STOP_TOGGLE", "",
-								COUNT_IN_STOP_TOGGLE_Handler);
-	m_pServerThread->add_method("/Hydrogen/COUNT_IN_STOP_TOGGLE", "f",
-								COUNT_IN_STOP_TOGGLE_Handler);
+	addMethod("/Hydrogen/JACK_TRANSPORT_ACTIVATION", "f", &OscServer::JACK_TRANSPORT_ACTIVATION_Handler);
+	addMethod("/Hydrogen/JACK_TIMEBASE_MASTER_ACTIVATION", "f", &OscServer::JACK_TIMEBASE_MASTER_ACTIVATION_Handler);
+	addMethod("/Hydrogen/SONG_MODE_ACTIVATION", "f", &OscServer::SONG_MODE_ACTIVATION_Handler);
+	addMethod("/Hydrogen/LOOP_MODE_ACTIVATION", "f", &OscServer::LOOP_MODE_ACTIVATION_Handler);
+	addMethod("/Hydrogen/RELOCATE", "f", &OscServer::RELOCATE_Handler);
+	addMethod("/Hydrogen/NEW_PATTERN", "s", &OscServer::NEW_PATTERN_Handler);
+	addMethod("/Hydrogen/OPEN_PATTERN", "s", &OscServer::OPEN_PATTERN_Handler);
+	addMethod("/Hydrogen/REMOVE_PATTERN", "f", &OscServer::REMOVE_PATTERN_Handler);
+	addMethod("/Hydrogen/CLEAR_INSTRUMENT", "f", &OscServer::CLEAR_INSTRUMENT_Handler);
+	addMethod("/Hydrogen/CLEAR_SELECTED_INSTRUMENT", "", &OscServer::CLEAR_SELECTED_INSTRUMENT_Handler);
+	addMethod("/Hydrogen/CLEAR_SELECTED_INSTRUMENT", "f", &OscServer::CLEAR_SELECTED_INSTRUMENT_Handler);
+	addMethod("/Hydrogen/CLEAR_PATTERN", "", &OscServer::CLEAR_PATTERN_Handler);
+	addMethod("/Hydrogen/CLEAR_PATTERN", "f", &OscServer::CLEAR_PATTERN_Handler);
+	addMethod("/Hydrogen/COUNT_IN", "", &OscServer::COUNT_IN_Handler);
+	addMethod("/Hydrogen/COUNT_IN", "f", &OscServer::COUNT_IN_Handler);
+	addMethod("/Hydrogen/COUNT_IN_PAUSE_TOGGLE", "", &OscServer::COUNT_IN_PAUSE_TOGGLE_Handler);
+	addMethod("/Hydrogen/COUNT_IN_PAUSE_TOGGLE", "f", &OscServer::COUNT_IN_PAUSE_TOGGLE_Handler);
+	addMethod("/Hydrogen/COUNT_IN_STOP_TOGGLE", "", &OscServer::COUNT_IN_STOP_TOGGLE_Handler);
+	addMethod("/Hydrogen/COUNT_IN_STOP_TOGGLE", "f", &OscServer::COUNT_IN_STOP_TOGGLE_Handler);
 
-	m_pServerThread->add_method("/Hydrogen/NOTE_ON", "ff", NOTE_ON_Handler);
-	m_pServerThread->add_method("/Hydrogen/NOTE_OFF", "f", NOTE_OFF_Handler);
+	addMethod("/Hydrogen/NOTE_ON", "ff", &OscServer::NOTE_ON_Handler);
+	addMethod("/Hydrogen/NOTE_OFF", "f", &OscServer::NOTE_OFF_Handler);
 
-	m_pServerThread->add_method("/Hydrogen/SONG_EDITOR_TOGGLE_GRID_CELL", "ff", SONG_EDITOR_TOGGLE_GRID_CELL_Handler);
-	m_pServerThread->add_method("/Hydrogen/LOAD_DRUMKIT", "s", LOAD_DRUMKIT_Handler);
-	m_pServerThread->add_method("/Hydrogen/LOAD_PREV_DRUMKIT", "", LOAD_PREV_DRUMKIT_Handler);
-	m_pServerThread->add_method("/Hydrogen/LOAD_PREV_DRUMKIT", "f", LOAD_PREV_DRUMKIT_Handler);
-	m_pServerThread->add_method("/Hydrogen/LOAD_NEXT_DRUMKIT", "", LOAD_NEXT_DRUMKIT_Handler);
-	m_pServerThread->add_method("/Hydrogen/LOAD_NEXT_DRUMKIT", "f", LOAD_NEXT_DRUMKIT_Handler);
-	m_pServerThread->add_method("/Hydrogen/UPGRADE_DRUMKIT", "s", UPGRADE_DRUMKIT_Handler);
-	m_pServerThread->add_method("/Hydrogen/UPGRADE_DRUMKIT", "ss", UPGRADE_DRUMKIT_Handler);
-	m_pServerThread->add_method("/Hydrogen/VALIDATE_DRUMKIT", "s", VALIDATE_DRUMKIT_Handler);
-	m_pServerThread->add_method("/Hydrogen/VALIDATE_DRUMKIT", "sf", VALIDATE_DRUMKIT_Handler);
-	m_pServerThread->add_method("/Hydrogen/EXTRACT_DRUMKIT", "s", EXTRACT_DRUMKIT_Handler);
-	m_pServerThread->add_method("/Hydrogen/EXTRACT_DRUMKIT", "ss", EXTRACT_DRUMKIT_Handler);
+	addMethod("/Hydrogen/SONG_EDITOR_TOGGLE_GRID_CELL", "ff", &OscServer::SONG_EDITOR_TOGGLE_GRID_CELL_Handler);
+	addMethod("/Hydrogen/LOAD_DRUMKIT", "s", &OscServer::LOAD_DRUMKIT_Handler);
+	addMethod("/Hydrogen/LOAD_PREV_DRUMKIT", "", &OscServer::LOAD_PREV_DRUMKIT_Handler);
+	addMethod("/Hydrogen/LOAD_PREV_DRUMKIT", "f", &OscServer::LOAD_PREV_DRUMKIT_Handler);
+	addMethod("/Hydrogen/LOAD_NEXT_DRUMKIT", "", &OscServer::LOAD_NEXT_DRUMKIT_Handler);
+	addMethod("/Hydrogen/LOAD_NEXT_DRUMKIT", "f", &OscServer::LOAD_NEXT_DRUMKIT_Handler);
+	addMethod("/Hydrogen/UPGRADE_DRUMKIT", "s", &OscServer::UPGRADE_DRUMKIT_Handler);
+	addMethod("/Hydrogen/UPGRADE_DRUMKIT", "ss", &OscServer::UPGRADE_DRUMKIT_Handler);
+	addMethod("/Hydrogen/VALIDATE_DRUMKIT", "s", &OscServer::VALIDATE_DRUMKIT_Handler);
+	addMethod("/Hydrogen/VALIDATE_DRUMKIT", "sf", &OscServer::VALIDATE_DRUMKIT_Handler);
+	addMethod("/Hydrogen/EXTRACT_DRUMKIT", "s", &OscServer::EXTRACT_DRUMKIT_Handler);
+	addMethod("/Hydrogen/EXTRACT_DRUMKIT", "ss", &OscServer::EXTRACT_DRUMKIT_Handler);
 
-	m_pServerThread->add_method("/Hydrogen/NEW_PLAYLIST", "", NEW_PLAYLIST_Handler);
-	m_pServerThread->add_method("/Hydrogen/NEW_PLAYLIST", "f", NEW_PLAYLIST_Handler);
-	m_pServerThread->add_method("/Hydrogen/OPEN_PLAYLIST", "s", OPEN_PLAYLIST_Handler);
-	m_pServerThread->add_method("/Hydrogen/SAVE_PLAYLIST", "", SAVE_PLAYLIST_Handler);
-	m_pServerThread->add_method("/Hydrogen/SAVE_PLAYLIST", "f", SAVE_PLAYLIST_Handler);
-	m_pServerThread->add_method("/Hydrogen/SAVE_PLAYLIST_AS", "s", SAVE_PLAYLIST_AS_Handler);
-	m_pServerThread->add_method("/Hydrogen/PLAYLIST_ADD_SONG", "s",
-								PLAYLIST_ADD_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/PLAYLIST_ADD_CURRENT_SONG", "",
-								PLAYLIST_ADD_CURRENT_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/PLAYLIST_ADD_CURRENT_SONG", "f",
-								PLAYLIST_ADD_CURRENT_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/PLAYLIST_REMOVE_SONG", "f",
-								PLAYLIST_REMOVE_SONG_Handler);
+	addMethod("/Hydrogen/NEW_PLAYLIST", "", &OscServer::NEW_PLAYLIST_Handler);
+	addMethod("/Hydrogen/NEW_PLAYLIST", "f", &OscServer::NEW_PLAYLIST_Handler);
+	addMethod("/Hydrogen/OPEN_PLAYLIST", "s", &OscServer::OPEN_PLAYLIST_Handler);
+	addMethod("/Hydrogen/SAVE_PLAYLIST", "", &OscServer::SAVE_PLAYLIST_Handler);
+	addMethod("/Hydrogen/SAVE_PLAYLIST", "f", &OscServer::SAVE_PLAYLIST_Handler);
+	addMethod("/Hydrogen/SAVE_PLAYLIST_AS", "s", &OscServer::SAVE_PLAYLIST_AS_Handler);
+	addMethod("/Hydrogen/PLAYLIST_ADD_SONG", "s", &OscServer::PLAYLIST_ADD_SONG_Handler);
+	addMethod("/Hydrogen/PLAYLIST_ADD_CURRENT_SONG", "", &OscServer::PLAYLIST_ADD_CURRENT_SONG_Handler);
+	addMethod("/Hydrogen/PLAYLIST_ADD_CURRENT_SONG", "f", &OscServer::PLAYLIST_ADD_CURRENT_SONG_Handler);
+	addMethod("/Hydrogen/PLAYLIST_REMOVE_SONG", "f", &OscServer::PLAYLIST_REMOVE_SONG_Handler);
 
-	m_pServerThread->add_method(nullptr, nullptr, generic_handler, nullptr);
+	// generic_handler is a static liblo C-callback; it reaches its owning
+	// OscServer (and thus Hydrogen) through the user_data we bind here (ADR 0015).
+	m_pServerThread->add_method(nullptr, nullptr, generic_handler, this);
 
 	m_bInitialized = true;
 	

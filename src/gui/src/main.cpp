@@ -440,7 +440,7 @@ int main(int argc, char *argv[])
 		HydrogenApp::setBootstrap( pHydrogen, pPref );
 
 #ifdef H2CORE_HAVE_OSC
-		auto pNsmClient = NsmClient::get_instance();
+		auto pNsmClient = pHydrogen->getNsmClient();
 		if ( pNsmClient != nullptr ) {
 			// We provide the process name as argument.
 			pNsmClient->createInitialClient( QString( argv[0] ) );
@@ -514,14 +514,14 @@ int main(int argc, char *argv[])
 			// in order to emphasis that an initial song save is
 			// required to generate the song file and link the
 			// associated drumkit in the session folder.
-			if ( NsmClient::get_instance() != nullptr &&
-				 NsmClient::get_instance()->getIsNewSession() ) {
+			if ( pHydrogen->getNsmClient() != nullptr &&
+				 pHydrogen->getNsmClient()->getIsNewSession() ) {
 				
-				NsmClient::get_instance()->sendDirtyState( true );
+				pHydrogen->getNsmClient()->sendDirtyState( true );
 				pHydrogen->setSongModified( true );
 			}
 			else {
-				NsmClient::get_instance()->sendDirtyState( false );
+				pHydrogen->getNsmClient()->sendDirtyState( false );
 				pHydrogen->setSongModified( false );
 			}
 #else

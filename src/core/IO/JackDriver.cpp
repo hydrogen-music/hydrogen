@@ -995,7 +995,7 @@ int JackDriver::init( unsigned bufferSize )
 	}
 
 #ifdef H2CORE_HAVE_OSC
-	const QString sNsmClientId = NsmClient::get_instance()->getClientId();
+	const QString sNsmClientId = m_pHydrogen->getNsmClient()->getClientId();
 
 	if ( !sNsmClientId.isEmpty() ) {
 		m_sClientName = sNsmClientId;

@@ -510,7 +510,7 @@ bool CoreActionController::sendMasterVolumeFeedback()
 
 #ifdef H2CORE_HAVE_OSC
 	if ( m_pHydrogen->getPreferences()->getOscFeedbackEnabled() ) {
-		OscServer::get_instance()->sendFeedbackMessage(
+		m_pHydrogen->getOscServer()->sendFeedbackMessage(
 			MidiAction::Type::MasterVolumeAbsolute, fMasterVolume, -1
 		);
 	}
@@ -540,7 +540,7 @@ bool CoreActionController::sendStripVolumeFeedback( int nStrip )
 
 #ifdef H2CORE_HAVE_OSC
 		if ( m_pHydrogen->getPreferences()->getOscFeedbackEnabled() ) {
-			OscServer::get_instance()->sendFeedbackMessage(
+			m_pHydrogen->getOscServer()->sendFeedbackMessage(
 				MidiAction::Type::StripVolumeAbsolute, fStripVolume, nStrip + 1
 			);
 		}
@@ -571,7 +571,7 @@ bool CoreActionController::sendMetronomeIsActiveFeedback()
 
 #ifdef H2CORE_HAVE_OSC
 	if ( pPref->getOscFeedbackEnabled() ) {
-		OscServer::get_instance()->sendFeedbackMessage(
+		m_pHydrogen->getOscServer()->sendFeedbackMessage(
 			MidiAction::Type::ToggleMetronome,
 			static_cast<float>( pPref->m_bUseMetronome ), -1
 		);
@@ -603,7 +603,7 @@ bool CoreActionController::sendMasterIsMutedFeedback()
 
 #ifdef H2CORE_HAVE_OSC
 	if ( m_pHydrogen->getPreferences()->getOscFeedbackEnabled() ) {
-		OscServer::get_instance()->sendFeedbackMessage(
+		m_pHydrogen->getOscServer()->sendFeedbackMessage(
 			MidiAction::Type::MuteToggle,
 			static_cast<int>( pSong->getIsMuted() ), -1
 		);
@@ -631,7 +631,7 @@ bool CoreActionController::sendStripIsMutedFeedback( int nStrip )
 	if ( pInstr != nullptr ) {
 #ifdef H2CORE_HAVE_OSC
 		if ( m_pHydrogen->getPreferences()->getOscFeedbackEnabled() ) {
-			OscServer::get_instance()->sendFeedbackMessage(
+			m_pHydrogen->getOscServer()->sendFeedbackMessage(
 				MidiAction::Type::StripMuteToggle,
 				static_cast<float>( pInstr->isMuted() ), nStrip + 1
 			);
@@ -663,7 +663,7 @@ bool CoreActionController::sendStripIsSoloedFeedback( int nStrip )
 	if ( pInstr != nullptr ) {
 #ifdef H2CORE_HAVE_OSC
 		if ( m_pHydrogen->getPreferences()->getOscFeedbackEnabled() ) {
-			OscServer::get_instance()->sendFeedbackMessage(
+			m_pHydrogen->getOscServer()->sendFeedbackMessage(
 				MidiAction::Type::StripSoloToggle,
 				static_cast<float>( pInstr->isSoloed() ), nStrip + 1
 			);
@@ -694,7 +694,7 @@ bool CoreActionController::sendStripPanFeedback( int nStrip )
 	if ( pInstr != nullptr ) {
 #ifdef H2CORE_HAVE_OSC
 		if ( m_pHydrogen->getPreferences()->getOscFeedbackEnabled() ) {
-			OscServer::get_instance()->sendFeedbackMessage(
+			m_pHydrogen->getOscServer()->sendFeedbackMessage(
 				MidiAction::Type::PanAbsolute,
 				pInstr->getPanWithRangeFrom0To1(), nStrip + 1
 			);

@@ -54,18 +54,26 @@ void OscServerTest::setUp(){
 	m_pServerThread = new lo::ServerThread( 7362 );
 	CPPUNIT_ASSERT( m_pServerThread->is_valid() );
 	
-	m_pServerThread->add_method( nullptr, nullptr, 
-								 OscServer::generic_handler, nullptr);
-	m_pServerThread->add_method("/Hydrogen/NEW_SONG", "s", 
-								OscServer::NEW_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/OPEN_SONG", "s", 
-								OscServer::OPEN_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/SAVE_SONG", "", 
-								OscServer::SAVE_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/SAVE_SONG_AS", "s", 
-								OscServer::SAVE_SONG_AS_Handler);
-	m_pServerThread->add_method("/Hydrogen/QUIT", "", 
-								OscServer::QUIT_Handler);
+	// The OSC handlers are per-instance members now (ADR 0015); bind them to the
+	// test instance's OscServer (generic_handler receives it as liblo user_data).
+	auto* pOscServer = pTestHydrogen()->getOscServer();
+	m_pServerThread->add_method( nullptr, nullptr,
+								 OscServer::generic_handler, pOscServer);
+	m_pServerThread->add_method("/Hydrogen/NEW_SONG", "s",
+								[pOscServer]( lo_arg** argv, int argc ) {
+									pOscServer->NEW_SONG_Handler( argv, argc ); });
+	m_pServerThread->add_method("/Hydrogen/OPEN_SONG", "s",
+								[pOscServer]( lo_arg** argv, int argc ) {
+									pOscServer->OPEN_SONG_Handler( argv, argc ); });
+	m_pServerThread->add_method("/Hydrogen/SAVE_SONG", "",
+								[pOscServer]( lo_arg** argv, int argc ) {
+									pOscServer->SAVE_SONG_Handler( argv, argc ); });
+	m_pServerThread->add_method("/Hydrogen/SAVE_SONG_AS", "s",
+								[pOscServer]( lo_arg** argv, int argc ) {
+									pOscServer->SAVE_SONG_AS_Handler( argv, argc ); });
+	m_pServerThread->add_method("/Hydrogen/QUIT", "",
+								[pOscServer]( lo_arg** argv, int argc ) {
+									pOscServer->QUIT_Handler( argv, argc ); });
 	
 	m_pServerThread->start();
 

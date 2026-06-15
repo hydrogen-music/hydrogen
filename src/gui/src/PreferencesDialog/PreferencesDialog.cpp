@@ -427,7 +427,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	incomingOscPortSpinBox->setValue( pPref->getOscServerPort() );
 
 #ifdef H2CORE_HAVE_OSC
-	if ( OscServer::get_instance()->getTemporaryPort() != -1 ) {
+	if ( HydrogenApp::pHydrogen()->getOscServer()->getTemporaryPort() != -1 ) {
 		oscTemporaryPortLabel->show();
 		oscTemporaryPortLabel->setText( QString( "<b><i><font color=" )
 										.append( m_sColorRed )
@@ -437,7 +437,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		oscTemporaryPort->show();
 		oscTemporaryPort->setEnabled( false );
 		oscTemporaryPort->setText(
-			QString::number( OscServer::get_instance()->getTemporaryPort() ) );
+			QString::number( HydrogenApp::pHydrogen()->getOscServer()->getTemporaryPort() ) );
 	} else {
 #else
 	{
@@ -2030,7 +2030,7 @@ void PreferencesDialog::toggleOscCheckBox(bool toggled)
 		incomingOscPortSpinBox->show();
 		incomingOscPortLabel->show();
 #ifdef H2CORE_HAVE_OSC
-		if ( OscServer::get_instance()->getTemporaryPort() != -1 ) {
+		if ( HydrogenApp::pHydrogen()->getOscServer()->getTemporaryPort() != -1 ) {
 			oscTemporaryPortLabel->show();
 			oscTemporaryPort->show();
 		}

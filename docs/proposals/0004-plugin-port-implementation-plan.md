@@ -146,6 +146,24 @@ cleanly (even if targets are stubs).
 *Objective:* multiple `Hydrogen` instances coexist in one process.
 *This is the critical path and the largest single block.*
 
+**Status: ✅ DONE** (2026-06-15) — all of T1.1–T1.6 landed and the Phase-1
+"Done when" gate is met: `MultiInstanceTest`, `PluginLifecycleTest`, and
+`LoggerInstanceTest` pass; full suite green (`OK (227 tests)` + the GUI startup
+smoke test); no `Hydrogen/Preferences/EventQueue/Logger::get_instance()` remain
+in `src/core` except the documented process-default logger fallback. The
+standalone app builds, runs, and tears down leak-free. **`OscServer` and
+`NsmClient` were also converted from process-global singletons to per-instance
+members owned by `Hydrogen`** (back-pointer + `getOscServer()`/`getNsmClient()`,
+created in the ctor / freed in the dtor): the static liblo callbacks reach their
+owning instance via the registration binding (a `this`-capturing `addMethod`
+helper) and liblo `user_data` (the catch-all `generic_handler`, the NSM
+open/save callbacks). Two live instances therefore each own an independent OSC
+server / NSM client; only one binds an OSC port at a time, which is a runtime
+config concern (port/`getOscServerEnabled`), not a shared-ownership one. This
+brings forward the OSC/NSM part of ADR 0026; the remaining plugin-mode feature
+disablement stays Phase 3. `MultiInstanceTest` constructs two real instances and
+asserts independent song/tempo/`Preferences`/`EventQueue`.
+
 **Tests first (the spec)**
 * `MultiInstanceTest` — construct two `Hydrogen` instances with the target API
   (`Hydrogen(std::shared_ptr<Preferences>, oscPort)`, `getAudioEngine()`,

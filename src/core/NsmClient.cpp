@@ -38,13 +38,12 @@
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 
-NsmClient * NsmClient::__instance = nullptr;
-H2Core::Hydrogen* NsmClient::m_pHydrogen = nullptr;
 bool NsmClient::bNsmShutdown = false;
 
 
-NsmClient::NsmClient()
-	: m_pNsm( nullptr ),
+NsmClient::NsmClient( H2Core::Hydrogen* pHydrogen )
+	: m_pHydrogen( pHydrogen ),
+	  m_pNsm( nullptr ),
 	  m_bUnderSessionManagement( false ),
 	  m_NsmThread( 0 ),
 	  m_sSessionFolderPath( "" ),
@@ -54,17 +53,6 @@ NsmClient::NsmClient()
 
 NsmClient::~NsmClient()
 {
-	__instance = nullptr;
-}
-
-void NsmClient::create_instance( H2Core::Hydrogen* pHydrogen )
-{
-	// Set the (static) back-pointer before construction so NSM callbacks and
-	// instance methods can reach the engine (ADR 0015).
-	m_pHydrogen = pHydrogen;
-	if( __instance == nullptr ) {
-		__instance = new NsmClient;
-	}
 }
 
 int NsmClient::OpenCallback( const char *name,
@@ -73,9 +61,11 @@ int NsmClient::OpenCallback( const char *name,
 							 char **outMsg,
 							 void *userData ) {
 
-	auto pHydrogen = m_pHydrogen;
-	auto pPref = m_pHydrogen->getPreferences();
-	auto pNsmClient = NsmClient::get_instance();
+	// Static NSM callback: reach this NsmClient (and its owning Hydrogen)
+	// through the user_data bound at registration (ADR 0015).
+	auto pNsmClient = static_cast<NsmClient*>( userData );
+	auto pHydrogen = pNsmClient->m_pHydrogen;
+	auto pPref = pHydrogen->getPreferences();
 
 	if ( !name ) {
 		NsmClient::printError( "No `name` supplied in NSM open callback!" );
@@ -99,7 +89,7 @@ int NsmClient::OpenCallback( const char *name,
 		}
 	}
 
-	NsmClient::copyPreferences( name );
+	pNsmClient->copyPreferences( name );
 
 	pNsmClient->setSessionFolderPath( name );
 	
@@ -130,7 +120,7 @@ int NsmClient::OpenCallback( const char *name,
 	bool bEmptySongOpened = false;
 	std::shared_ptr<H2Core::Song> pSong = nullptr;
 	if ( songFileInfo.exists() ) {
-		pSong = H2Core::Song::load( sSongPath, false, m_pHydrogen );
+		pSong = H2Core::Song::load( sSongPath, false, pHydrogen );
 		if ( pSong == nullptr ) {
 			NsmClient::printError( QString( "Unable to open existing Song [%1]." )
 								   .arg( sSongPath ) );
@@ -139,7 +129,7 @@ int NsmClient::OpenCallback( const char *name,
 	}
 	else {
 
-		pSong = H2Core::Song::getEmptySong( m_pHydrogen );
+		pSong = H2Core::Song::getEmptySong( pHydrogen );
 		if ( pSong == nullptr ) {
 			NsmClient::printError( "Unable to open new Song." );
 			return ERR_LAUNCH_FAILED;
@@ -154,7 +144,7 @@ int NsmClient::OpenCallback( const char *name,
 		pNsmClient->setIsNewSession( true );
 	}
 
-	if ( ! m_pHydrogen->getCoreActionController()->setSong( pSong ) ) {
+	if ( ! pHydrogen->getCoreActionController()->setSong( pSong ) ) {
 			NsmClient::printError( "Unable to handle opening action!" );
 			return ERR_LAUNCH_FAILED;
 	}
@@ -249,14 +239,16 @@ void NsmClient::printMessage( const QString& msg ) {
 }
 
 int NsmClient::SaveCallback( char** outMsg, void* userData ) {
+	// Static NSM callback: reach the owning Hydrogen via user_data (ADR 0015).
+	auto pHydrogen = static_cast<NsmClient*>( userData )->m_pHydrogen;
 	// Discarding missing samples and their corresponding instrument layer is an
 	// operation with information loss. This is only allowed to be performed
 	// explicitly via the GUI.
-	if ( ! m_pHydrogen->getCoreActionController()->saveSong( /* bKeepMissingSamples */ true ) ) {
+	if ( ! pHydrogen->getCoreActionController()->saveSong( /* bKeepMissingSamples */ true ) ) {
 		NsmClient::printError( "Unable to save Song!" );
 		return ERR_GENERAL;
 	}
-	if ( ! m_pHydrogen->getCoreActionController()->savePreferences() ) {
+	if ( ! pHydrogen->getCoreActionController()->savePreferences() ) {
 		NsmClient::printError( "Unable to save Preferences!" );
 		return ERR_GENERAL;
 	}
@@ -303,8 +295,8 @@ void NsmClient::createInitialClient( const QString& sProcessName ) {
 
 		if ( pNsm )
 		{
-			nsm_set_open_callback( pNsm, NsmClient::OpenCallback, (void*) nullptr );
-			nsm_set_save_callback( pNsm, NsmClient::SaveCallback, (void*) nullptr );
+			nsm_set_open_callback( pNsm, NsmClient::OpenCallback, (void*) this );
+			nsm_set_save_callback( pNsm, NsmClient::SaveCallback, (void*) this );
 
 			if ( nsm_init( pNsm, nsm_url ) == 0 )
 			{

@@ -143,8 +143,11 @@ Hydrogen::Hydrogen( std::shared_ptr<Preferences> pPref, int nOscPort )
 		pDefaultLogger != nullptr ? pDefaultLogger->getLogColors() : true );
 
 #ifdef H2CORE_HAVE_OSC
-	NsmClient::create_instance( this );
-	OscServer::create_instance( this, nOscPort );
+	// OSC server + NSM client are owned per-instance (ADR 0015). The OscServer
+	// only binds a port when OSC is enabled in this instance's Preferences, so
+	// multiple instances coexist (disabled ones never touch the network).
+	m_pNsmClient = new NsmClient( this );
+	m_pOscServer = new OscServer( this, nOscPort );
 #endif
 
 	m_nBeatCounterDriftCompensation = pPref->m_nBeatCounterDriftCompensation;
@@ -173,14 +176,15 @@ Hydrogen::~Hydrogen()
 	INFOLOG( "[~Hydrogen]" );
 
 #ifdef H2CORE_HAVE_OSC
-	NsmClient* pNsmClient = NsmClient::get_instance();
-	if( pNsmClient ) {
-		pNsmClient->shutdown();
-		delete pNsmClient;
+	// This instance owns its OSC server and NSM client (ADR 0015).
+	if ( m_pNsmClient != nullptr ) {
+		m_pNsmClient->shutdown();
+		delete m_pNsmClient;
+		m_pNsmClient = nullptr;
 	}
-	OscServer* pOscServer = OscServer::get_instance();
-	if( pOscServer ) {
-		delete pOscServer;
+	if ( m_pOscServer != nullptr ) {
+		delete m_pOscServer;
+		m_pOscServer = nullptr;
 	}
 #endif
 
@@ -276,7 +280,7 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 		if ( isUnderSessionManagement() ) {
 #ifdef H2CORE_HAVE_OSC
 			if ( pCurrentSong->getPath().contains(
-					 NsmClient::get_instance()->getSessionFolderPath() ) ) {
+					 m_pNsmClient->getSessionFolderPath() ) ) {
 				// When under session management Hydrogen is only allowed to
 				// replace the content of the session song but not to write to a
 				// different location.
@@ -1193,8 +1197,8 @@ JackDriver::Timebase Hydrogen::getJackTimebaseState() const
 bool Hydrogen::isUnderSessionManagement() const
 {
 #ifdef H2CORE_HAVE_OSC
-	if ( NsmClient::get_instance() != nullptr ) {
-		if ( NsmClient::get_instance()->getUnderSessionManagement() ) {
+	if ( m_pNsmClient != nullptr ) {
+		if ( m_pNsmClient->getUnderSessionManagement() ) {
 			return true;
 		} else {
 			return false;
@@ -1332,26 +1336,25 @@ Hydrogen::Tempo Hydrogen::getTempoSource() const {
 void Hydrogen::toggleOscServer( bool bEnable ) {
 #ifdef H2CORE_HAVE_OSC
 	if ( bEnable ) {
-		OscServer::get_instance()->start();
+		m_pOscServer->start();
 	} else {
-		OscServer::get_instance()->stop();
+		m_pOscServer->stop();
 	}
 #endif
 }
 
 void Hydrogen::recreateOscServer() {
 #ifdef H2CORE_HAVE_OSC
-	OscServer* pOscServer = OscServer::get_instance();
-	if( pOscServer ) {
-		delete pOscServer;
+	if ( m_pOscServer != nullptr ) {
+		delete m_pOscServer;
 	}
 
 	// This function is called in response to altering the OSC port in the
 	// preferences dialog and pressing Ok/apply. We want the specified port to
 	// be set and overwrite a potential value the user might have provided as
 	// CLI argument.
-	OscServer::create_instance( this, -1 );
-	
+	m_pOscServer = new OscServer( this, -1 );
+
 	if ( m_pPreferences->getOscServerEnabled() ) {
 		toggleOscServer( true );
 	}
@@ -1417,7 +1420,7 @@ void Hydrogen::setSongModified( bool bIsModified )
 	if ( isUnderSessionManagement() ) {
 		// If Hydrogen is under session management (NSM), tell the
 		// NSM server that the Song was modified.
-		NsmClient::get_instance()->sendDirtyState( bIsModified );
+		m_pNsmClient->sendDirtyState( bIsModified );
 	}
 #endif
 }

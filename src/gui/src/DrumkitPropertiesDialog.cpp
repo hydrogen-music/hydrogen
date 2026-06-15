@@ -1258,7 +1258,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		 m_pDrumkit->getContext() == Filesystem::Context::Song ) {
 		m_pDrumkit->setPath(
 			QDir(
-				NsmClient::get_instance()->getSessionFolderPath() +
+				HydrogenApp::pHydrogen()->getNsmClient()->getSessionFolderPath() +
 				QDir::separator() + m_pDrumkit->getName()
 			)
 				.absoluteFilePath( Filesystem::drumkitXml() )
