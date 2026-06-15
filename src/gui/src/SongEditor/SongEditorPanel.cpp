@@ -1197,7 +1197,7 @@ void SongEditorPanel::faderChanged( WidgetWithInput *pRef )
 
 void SongEditorPanel::automationPathPointAdded(float x, float y)
 {
-	H2Core::AutomationPath *pPath = m_pAutomationPathView->getAutomationPath();
+	auto pPath = m_pAutomationPathView->getAutomationPath();
 	auto pUndoAction = new SE_automationPathAddPointAction(pPath, x, y);
 	HydrogenApp::get_instance()->pushUndoCommand( pUndoAction );
 }
@@ -1205,7 +1205,7 @@ void SongEditorPanel::automationPathPointAdded(float x, float y)
 
 void SongEditorPanel::automationPathPointRemoved(float x, float y)
 {
-	H2Core::AutomationPath *pPath = m_pAutomationPathView->getAutomationPath();
+	auto pPath = m_pAutomationPathView->getAutomationPath();
 	auto pUndoAction = new SE_automationPathRemovePointAction(pPath, x, y);
 	HydrogenApp::get_instance()->pushUndoCommand( pUndoAction );
 }
@@ -1213,7 +1213,7 @@ void SongEditorPanel::automationPathPointRemoved(float x, float y)
 
 void SongEditorPanel::automationPathPointMoved(float ox, float oy, float tx, float ty)
 {
-	H2Core::AutomationPath *pPath = m_pAutomationPathView->getAutomationPath();
+	auto pPath = m_pAutomationPathView->getAutomationPath();
 	auto pUndoAction = new SE_automationPathMovePointAction(pPath, ox, oy, tx, ty);
 	HydrogenApp::get_instance()->pushUndoCommand( pUndoAction );
 }

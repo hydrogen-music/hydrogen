@@ -36,28 +36,18 @@ class AutomationPathView :  public QWidget,  public H2Core::Object<AutomationPat
 	Q_OBJECT
 	H2_OBJECT(AutomationPathView)
 
-	void createBackground();
-
-	H2Core::AutomationPath *_path;
-	int m_nGridWidth;   /** < Width of song grid cell size - in order to properly align AutomationPathView and SongEditor */
-	int m_nMarginHeight;/** < Height of top and bottom margins */
-	int m_nMaxPatternSequence;
-
-	bool m_bIsHolding; /** < Whether any points are being dragged */
-	bool m_bPointAdded;/** < Whether a new point was added during mouse move */
-	float m_fOriginX;  /** < Original position of selected point */
-	float m_fOriginY;  /** < Original position of selected point */
-	H2Core::AutomationPath::iterator _selectedPoint; /** < Point that is being dragged */
-
-	float m_fTick;
-	QPixmap* m_pBackgroundPixmap;
-
 public:
 	AutomationPathView(QWidget *parent = nullptr);
 	~AutomationPathView();
 
-	H2Core::AutomationPath *getAutomationPath() const noexcept { return _path; }
-	void setAutomationPath(H2Core::AutomationPath *path, bool bUpdate = true);
+	std::shared_ptr<H2Core::AutomationPath> getAutomationPath() const noexcept
+	{
+		return m_pPath;
+	}
+	void setAutomationPath(
+		std::shared_ptr<H2Core::AutomationPath> pPath,
+		bool bUpdate = true
+	);
 
 	int  getGridWidth() const noexcept { return m_nGridWidth; }
 	void setGridWidth(int width);
@@ -91,6 +81,25 @@ signals:
 	void pointAdded(float x, float y);
 	void pointRemoved(float x, float y);
 	void pointMoved(float ox, float oy, float tx, float ty);
+
+private:
+	void createBackground();
+
+	std::shared_ptr<H2Core::AutomationPath> m_pPath;
+	int m_nGridWidth;   /** < Width of song grid cell size - in order to properly align AutomationPathView and SongEditor */
+	int m_nMarginHeight;/** < Height of top and bottom margins */
+	int m_nMaxPatternSequence;
+
+	bool m_bIsHolding; /** < Whether any points are being dragged */
+	bool m_bPointAdded;/** < Whether a new point was added during mouse move */
+	float m_fOriginX;  /** < Original position of selected point */
+	float m_fOriginY;  /** < Original position of selected point */
+	H2Core::AutomationPath::iterator _selectedPoint; /** < Point that is being dragged */
+
+	float m_fTick;
+	QPixmap* m_pBackgroundPixmap;
+
+
 };
 
 #endif

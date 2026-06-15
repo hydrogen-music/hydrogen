@@ -46,7 +46,7 @@ AutomationPathView::AutomationPathView(QWidget *parent)
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &AutomationPathView::onPreferencesChanged );
 	
-	_path = nullptr;
+	m_pPath = nullptr;
 	autoResize();
 
 	qreal pixelRatio = devicePixelRatio();
@@ -70,16 +70,18 @@ void AutomationPathView::onPreferencesChanged( const H2Core::Preferences::Change
 	}
 }
 
-
-void AutomationPathView::setAutomationPath( AutomationPath *path, bool bUpdate )
+void AutomationPathView::setAutomationPath(
+	std::shared_ptr<AutomationPath> pPath,
+	bool bUpdate
+)
 {
-	if ( path == _path ) {
+	if ( pPath == m_pPath ) {
 		return;
 	}
-	_path = path;
+	m_pPath = pPath;
 
-	if( _path ) {
-		_selectedPoint = path->end();
+	if ( m_pPath != nullptr ) {
+		_selectedPoint = pPath->end();
 	}
 
 	if ( bUpdate ) {
@@ -93,7 +95,7 @@ void AutomationPathView::updateAutomationPath()
 {
 	auto pSong = HydrogenApp::pHydrogen()->getSong();
 	if ( pSong != nullptr ) {
-		setAutomationPath( pSong->getVelocityAutomationPath(), false );
+		setAutomationPath( pSong->getAutomationPath(), false );
 	} else {
 		setAutomationPath( nullptr, false );
 	}
@@ -129,7 +131,7 @@ QPoint AutomationPathView::translatePoint(const std::pair<float,float> &p) const
 
 	return QPoint(
 		SongEditor::nMargin + p.first * m_nGridWidth,
-		m_nMarginHeight + contentHeight * ((_path->getMax()-p.second)/(_path->getMax()-_path->getMin()))
+		m_nMarginHeight + contentHeight * ((m_pPath->getMax()-p.second)/(m_pPath->getMax()-m_pPath->getMin()))
 	);
 }
 
@@ -159,7 +161,7 @@ std::pair<const float, float> AutomationPathView::locate(QMouseEvent *event) con
 	float x = (pEv->position().x() - SongEditor::nMargin) / (float)m_nGridWidth;
 	float y = ((contentHeight - pEv->position().y() + m_nMarginHeight)/
 			   (float)contentHeight)
-		* (_path->getMax() - _path->getMin()) + _path->getMin();
+		* (m_pPath->getMax() - m_pPath->getMin()) + m_pPath->getMin();
 
 	return std::pair<const float,float>(x,y);
 }
@@ -250,28 +252,28 @@ void AutomationPathView::createBackground() {
 	painter.drawLine(0, m_nMarginHeight, width(), m_nMarginHeight);
 	painter.drawLine(0, height()-m_nMarginHeight, width(), height()-m_nMarginHeight);
 
-	if (!_path) {
+	if (!m_pPath) {
 		return;
 	}
 
 	/* Paint default */
-	QPoint def = translatePoint(0, _path->getDefault());
+	QPoint def = translatePoint(0, m_pPath->getDefault());
 	painter.drawLine(0, def.y(), width(), def.y());
 
 	QPen linePen( automationLineColor );
 	linePen.setWidth(2);
 	painter.setPen(linePen);
 
-	if (_path->empty()) {
-		QPoint p = translatePoint(0,_path->getDefault());
+	if (m_pPath->empty()) {
+		QPoint p = translatePoint(0,m_pPath->getDefault());
 
 		painter.drawLine(0, p.y(), width(), p.y());
 	} else {
-		std::pair<float, float> firstPoint = *_path->begin();
+		std::pair<float, float> firstPoint = *m_pPath->begin();
 		QPoint lastPoint = translatePoint(0,firstPoint.second);
 		lastPoint.setX(0);
 		
-		for ( const auto& point : *_path) {
+		for ( const auto& point : *m_pPath) {
 			QPoint current = translatePoint(point);
 			painter.drawLine(lastPoint, current);
 			lastPoint = current;
@@ -286,7 +288,7 @@ void AutomationPathView::createBackground() {
 	painter.setPen(circlePen);
 	painter.setBrush(QBrush( pColorTheme->m_windowColor ));
 
-	for ( const auto& point : *_path) {
+	for ( const auto& point : *m_pPath) {
 
 		QPoint center = translatePoint(point);
 		painter.drawEllipse(center, 3, 3);
@@ -306,7 +308,7 @@ void AutomationPathView::mousePressEvent(QMouseEvent *event)
 {
 	updateAutomationPath();
 
-	if (! checkBounds(event) || !_path) {
+	if (! checkBounds(event) || !m_pPath) {
 		return;
 	}
 
@@ -314,14 +316,14 @@ void AutomationPathView::mousePressEvent(QMouseEvent *event)
 	float x = p.first;
 	float y = p.second;
 
-	_selectedPoint = _path->find(x);
-	if (_selectedPoint == _path->end()) {
-		_path->addPoint(x, y, HydrogenApp::pHydrogen());
-		_selectedPoint = _path->find(x);
+	_selectedPoint = m_pPath->find(x);
+	if (_selectedPoint == m_pPath->end()) {
+		m_pPath->addPoint(x, y, HydrogenApp::pHydrogen());
+		_selectedPoint = m_pPath->find(x);
 
 		m_bPointAdded = true;
 	} else {
-		_selectedPoint = _path->move(_selectedPoint, x, y, HydrogenApp::pHydrogen());
+		_selectedPoint = m_pPath->move(_selectedPoint, x, y, HydrogenApp::pHydrogen());
 		m_fOriginX = x;
 		m_fOriginY = y;
 		m_bPointAdded = false;
@@ -347,7 +349,7 @@ void AutomationPathView::mouseReleaseEvent(QMouseEvent *event)
 	updateAutomationPath();
 	m_bIsHolding = false;
 
-	if (! checkBounds(event) || !_path) {
+	if (! checkBounds(event) || !m_pPath) {
 		return;
 	}
 
@@ -372,7 +374,7 @@ void AutomationPathView::mouseReleaseEvent(QMouseEvent *event)
 void AutomationPathView::mouseMoveEvent(QMouseEvent *event)
 {
 	updateAutomationPath();
-	if (! checkBounds(event) || !_path) {
+	if (! checkBounds(event) || !m_pPath) {
 		return;
 	}
 
@@ -380,8 +382,8 @@ void AutomationPathView::mouseMoveEvent(QMouseEvent *event)
 	float x = p.first;
 	float y = p.second;
 
-	if ( m_bIsHolding && _path && _selectedPoint != _path->end() ) {
-		_selectedPoint = _path->move(_selectedPoint, x, y, HydrogenApp::pHydrogen());
+	if ( m_bIsHolding && m_pPath && _selectedPoint != m_pPath->end() ) {
+		_selectedPoint = m_pPath->move(_selectedPoint, x, y, HydrogenApp::pHydrogen());
 		HydrogenApp::pHydrogen()->setSongModified( true );
 	}
 
@@ -399,11 +401,11 @@ void AutomationPathView::keyPressEvent(QKeyEvent *event)
 {
 	updateAutomationPath();
 	if ( event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace ) {
-		if ( _path && _selectedPoint != _path->end() ) {
+		if ( m_pPath && _selectedPoint != m_pPath->end() ) {
 			float x = _selectedPoint->first;
 			float y = _selectedPoint->second;
-			_path->removePoint(_selectedPoint->first, HydrogenApp::pHydrogen());
-			_selectedPoint = _path->end();
+			m_pPath->removePoint(_selectedPoint->first, HydrogenApp::pHydrogen());
+			_selectedPoint = m_pPath->end();
 			
 			HydrogenApp::pHydrogen()->setSongModified( true );
 

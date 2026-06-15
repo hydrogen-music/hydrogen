@@ -517,7 +517,7 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 	addEvent( std::make_shared<SMFTimeSignatureMetaEvent>(
 				  nLastNumerator, nLastDenominator , 0 ), nullptr );
 
-	AutomationPath* pAutomationPath = pSong->getVelocityAutomationPath();
+	auto pAutomationPath = pSong->getAutomationPath();
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	int nTick = 0;

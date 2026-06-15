@@ -251,7 +251,7 @@ class Song : public H2Core::Object<Song>,
 	bool getIsModified() const;
 	void setIsModified( bool bIsModified );
 
-	AutomationPath* getVelocityAutomationPath() const;
+	std::shared_ptr<AutomationPath> getAutomationPath() const;
 
 	int getLatestRoundRobin( float fStartVelocity ) const;
 	void setLatestRoundRobin( float fStartVelocity, int nLatestRoundRobin );
@@ -384,7 +384,8 @@ class Song : public H2Core::Object<Song>,
 
 	std::shared_ptr<Instrument> m_pPlaybackTrackInstrument;
 
-	AutomationPath* m_pVelocityAutomationPath;
+	std::shared_ptr<AutomationPath> m_pAutomationPath;
+
 	///< license of the song
 	License m_license;
 
@@ -661,9 +662,9 @@ inline void Song::setMode( const Song::Mode& mode )
 	m_mode = mode;
 }
 
-inline AutomationPath* Song::getVelocityAutomationPath() const
+inline std::shared_ptr<AutomationPath> Song::getAutomationPath() const
 {
-	return m_pVelocityAutomationPath;
+	return m_pAutomationPath;
 }
 
 inline int Song::getLatestRoundRobin( float fStartVelocity ) const

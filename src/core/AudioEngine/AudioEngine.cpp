@@ -2975,7 +2975,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 	const long nTickStart = static_cast<long>(coarseGrainTick( fTickStartComp ));
 	const long nTickEnd = static_cast<long>(coarseGrainTick( fTickEndComp ));
 
-	AutomationPath* pAutomationPath = pSong->getVelocityAutomationPath();
+	auto pAutomationPath = pSong->getAutomationPath();
 
 	// computeTickInterval() is always called regardless whether
 	// transport is rolling or not. But we only mark the lookahead

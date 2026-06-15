@@ -87,7 +87,6 @@ Song::Song(
 	  m_fSwingFactor( 0.0 ),
 	  m_bIsModified( false ),
 	  m_mode( Mode::Pattern ),
-	  m_pVelocityAutomationPath( nullptr ),
 	  m_license( License( "", sAuthor ) ),
 	  m_actionMode( ActionMode::selectMode ),
 	  m_bIsPatternEditorLocked( false ),
@@ -102,7 +101,7 @@ Song::Song(
 		m_sName = Song::sDefaultName;
 	}
 
-	m_pVelocityAutomationPath = new AutomationPath( 0.0f, 1.5f, 1.0f );
+	m_pAutomationPath = std::make_shared<AutomationPath>( 0.0f, 1.5f, 1.0f );
 }
 
 Song::~Song()
@@ -112,8 +111,6 @@ Song::~Song()
 	 * the audio engine. Following the current design, the caller has to care
 	 * for the lock.
 	 */
-
-	delete m_pVelocityAutomationPath;
 }
 
 std::shared_ptr<Song> Song::from( std::shared_ptr<SoundLibraryInfo> pInfo,
@@ -758,16 +755,18 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent,
 			);
 
 			// Select automation path to be read based on "adjust" attribute
-			AutomationPath* pPath = nullptr;
-			if ( sAdjust == "velocity" ) {
-				pPath = pSong->getVelocityAutomationPath();
+			if ( sAdjust != "velocity" ) {
+				continue;
 			}
 
-			if ( pPath ) {
-				pathSerializer.read_automation_path( pathNode, *pPath, pHydrogen );
-			}
+			auto pPath = std::make_shared<AutomationPath>( 0.0f, 1.5f, 1.0f );
+			pathSerializer.read_automation_path( pathNode, *pPath, pHydrogen );
+			pSong->m_pAutomationPath = pPath;
 
 			pathNode = pathNode.nextSiblingElement( "path" );
+
+			// For now there is only the velocity adjustment.
+			break;
 		}
 	}
 
@@ -1021,7 +1020,7 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples, bool bSilent )
 
 	// Automation Paths
 	XMLNode automationPathsNode = rootNode.createNode( "automationPaths" );
-	AutomationPath* pPath = getVelocityAutomationPath();
+	auto pPath = getAutomationPath();
 	if ( pPath != nullptr ) {
 		XMLNode pathNode = automationPathsNode.createNode( "path" );
 		pathNode.write_attribute( "adjust", "velocity" );
@@ -1402,7 +1401,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const
 								   )
 						 ) )
 			.append( QString( "%1" ).arg(
-				m_pVelocityAutomationPath->toQString( sPrefix + s, bShort )
+				m_pAutomationPath->toQString( sPrefix + s, bShort )
 			) )
 			.append( QString( "%1%2m_license: %3\n" )
 						 .arg( sPrefix )
@@ -1504,8 +1503,8 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const
 									   "", bShort
 								   )
 						 ) )
-			.append( QString( ", m_pVelocityAutomationPath: %1" )
-						 .arg( m_pVelocityAutomationPath->toQString( sPrefix ) )
+			.append( QString( ", m_pAutomationPath: %1" )
+						 .arg( m_pAutomationPath->toQString( sPrefix ) )
 			)
 			.append( QString( ", m_license: %1" )
 						 .arg( m_license.toQString( sPrefix, bShort ) ) )

@@ -1260,119 +1260,119 @@ class SE_renameComponentAction : public QUndoCommand {
 class SE_automationPathAddPointAction : public QUndoCommand {
    public:
 	SE_automationPathAddPointAction(
-		H2Core::AutomationPath* path,
-		float x,
-		float y
+		std::shared_ptr<H2Core::AutomationPath> pPath,
+		float fX,
+		float fY
 	)
 	{
 		setText( QObject::tr( "Add point" ) );
-		__path = path;
-		__x = x;
-		__y = y;
+		m_pPath = pPath;
+		m_fX = fX;
+		m_fY = fY;
 	}
 
 	virtual void undo()
 	{
-		__path->removePoint( __x , HydrogenApp::pHydrogen());
+		m_pPath->removePoint( m_fX , HydrogenApp::pHydrogen());
 
-		HydrogenApp* h2app = HydrogenApp::get_instance();
+		auto h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();
 	}
 
 	virtual void redo()
 	{
-		__path->addPoint( __x, __y , HydrogenApp::pHydrogen());
+		m_pPath->addPoint( m_fX, m_fY , HydrogenApp::pHydrogen());
 
-		HydrogenApp* h2app = HydrogenApp::get_instance();
+		auto h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();
 	}
 
    private:
-	H2Core::AutomationPath* __path;
-	float __x;
-	float __y;
+	std::shared_ptr<H2Core::AutomationPath> m_pPath;
+	float m_fX;
+	float m_fY;
 };
 
 /** \ingroup docGUI*/
 class SE_automationPathRemovePointAction : public QUndoCommand {
    public:
 	SE_automationPathRemovePointAction(
-		H2Core::AutomationPath* path,
-		float x,
-		float y
+		std::shared_ptr<H2Core::AutomationPath> path,
+		float fX,
+		float fY
 	)
 	{
 		setText( QObject::tr( "Remove point" ) );
-		__path = path;
-		__x = x;
-		__y = y;
+		m_pPath = path;
+		m_fX = fX;
+		m_fY = fY;
 	}
 
 	virtual void redo()
 	{
-		__path->removePoint( __x , HydrogenApp::pHydrogen());
+		m_pPath->removePoint( m_fX , HydrogenApp::pHydrogen());
 
-		HydrogenApp* h2app = HydrogenApp::get_instance();
+		auto h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();
 	}
 
 	virtual void undo()
 	{
-		__path->addPoint( __x, __y , HydrogenApp::pHydrogen());
+		m_pPath->addPoint( m_fX, m_fY , HydrogenApp::pHydrogen());
 
-		HydrogenApp* h2app = HydrogenApp::get_instance();
+		auto h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();
 	}
 
    private:
-	H2Core::AutomationPath* __path;
-	float __x;
-	float __y;
+	std::shared_ptr<H2Core::AutomationPath> m_pPath;
+	float m_fX;
+	float m_fY;
 };
 
 /** \ingroup docGUI*/
 class SE_automationPathMovePointAction : public QUndoCommand {
    public:
 	SE_automationPathMovePointAction(
-		H2Core::AutomationPath* path,
-		float ox,
-		float oy,
-		float tx,
-		float ty
+		std::shared_ptr<H2Core::AutomationPath> path,
+		float fOldX,
+		float fOldY,
+		float fNewX,
+		float fNewY
 	)
 	{
 		setText( QObject::tr( "Move point" ) );
-		__path = path;
-		__ox = ox;
-		__oy = oy;
-		__tx = tx;
-		__ty = ty;
+		m_pPath = path;
+		m_fOldX = fOldX;
+		m_fOldY = fOldY;
+		m_fNewX = fNewX;
+		m_fNewY = fNewY;
 	}
 
 	virtual void redo()
 	{
-		__path->removePoint( __ox , HydrogenApp::pHydrogen());
-		__path->addPoint( __tx, __ty , HydrogenApp::pHydrogen());
+		m_pPath->removePoint( m_fOldX , HydrogenApp::pHydrogen());
+		m_pPath->addPoint( m_fNewX, m_fNewY , HydrogenApp::pHydrogen());
 
-		HydrogenApp* h2app = HydrogenApp::get_instance();
+		auto h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();
 	}
 
 	virtual void undo()
 	{
-		__path->removePoint( __tx , HydrogenApp::pHydrogen());
-		__path->addPoint( __ox, __oy , HydrogenApp::pHydrogen());
+		m_pPath->removePoint( m_fNewX , HydrogenApp::pHydrogen());
+		m_pPath->addPoint( m_fOldX, m_fOldY , HydrogenApp::pHydrogen());
 
-		HydrogenApp* h2app = HydrogenApp::get_instance();
+		auto h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();
 	}
 
    private:
-	H2Core::AutomationPath* __path;
-	float __ox;
-	float __oy;
-	float __tx;
-	float __ty;
+	std::shared_ptr<H2Core::AutomationPath> m_pPath;
+	float m_fOldX;
+	float m_fOldY;
+	float m_fNewX;
+	float m_fNewY;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
