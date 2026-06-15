@@ -100,3 +100,21 @@ endif()
 add_dependencies(hydrogen hydrogen-core-${VERSION})
 
 install(TARGETS hydrogen RUNTIME DESTINATION ${H2_BIN_PATH} BUNDLE DESTINATION ${H2_BIN_PATH})
+
+# GUI startup smoke test (ADR 0015/0016): launch the full GUI headless (Qt
+# offscreen platform), let it construct MainForm/HydrogenApp and tear down via
+# --quit-after-startup, and require a clean (zero) exit. Catches startup/teardown
+# crashes such as a not-yet-ready HydrogenApp being dereferenced during
+# construction. --quit-after-startup also selects the no-op Fake audio driver
+# (no hardware needed) and suppresses the development-build warning dialog. HOME
+# points at a throwaway dir so no user config interferes.
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/gui-startup-test-home)
+add_test(
+	NAME GuiStartup
+	COMMAND hydrogen --nosplash --child --quit-after-startup
+			-P ${CMAKE_SOURCE_DIR}/data
+)
+set_tests_properties( GuiStartup PROPERTIES
+	ENVIRONMENT "QT_QPA_PLATFORM=offscreen;HOME=${CMAKE_BINARY_DIR}/gui-startup-test-home"
+	TIMEOUT 120
+)

@@ -533,6 +533,10 @@ endif()
 #
 # SET BUILD INFORMATION
 #
+# Enable CTest so integration tests (e.g. the GUI startup smoke test in
+# src/gui) can be registered with add_test() and run via `ctest`.
+enable_testing()
+
 add_subdirectory(src/core)
 if(H2CORE_HAVE_CPPUNIT)
     add_subdirectory(src/tests)

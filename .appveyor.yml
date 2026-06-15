@@ -197,6 +197,12 @@ for:
           exit $res
       fi
 
+      # GUI startup smoke test: launch the full GUI headless (Qt offscreen) and
+      # require a clean startup + teardown (catches construction/teardown
+      # crashes). The test is registered via CTest in src/gui/CMakeLists.txt.
+      echo "GUI startup smoke test"
+      ctest --output-on-failure -R GuiStartup || exit 1
+
       echo "Validating desktop file."
       desktop-file-validate ../linux/org.hydrogenmusic.Hydrogen.desktop || exit 1
 
@@ -522,6 +528,16 @@ for:
           # The tests failed. Upload all output to ease debugging.
           appveyor PushArtifact testOutput.log
       fi
+
+      # GUI startup smoke test: launch the full GUI headless (Qt offscreen) and
+      # require a clean startup + teardown. Registered via CTest in
+      # src/gui/CMakeLists.txt.
+      if [ "$res" == "0" ]; then
+          echo "GUI startup smoke test"
+          ctest --output-on-failure -R GuiStartup
+          res=$?
+      fi
+
       echo "=== Build cache usage is " $( du -h $cdir | tail -1 ) "==="
       ( exit $res )
 
@@ -695,6 +711,14 @@ for:
           mkdir %INSTDIR%
           FOR %%F IN (Hydrogen-*.exe) DO %%F /S /D=%INSTDIR%
           %PYTHON% -m pytest %APPVEYOR_BUILD_FOLDER%\windows\ci\test_installation.py --junitxml=test_installation.xml
+
+          REM *** GUI startup smoke test on the installed build: launch the full
+          REM     GUI and require a clean startup + teardown (--quit-after-startup
+          REM     also selects the Fake audio driver and suppresses the
+          REM     development-build warning). Catches construction/teardown
+          REM     crashes. The installed tree carries all Qt DLLs + plugins. ***
+          %INSTDIR%\hydrogen.exe --nosplash --child --quit-after-startup -P %APPVEYOR_BUILD_FOLDER%\data
+          if %ERRORLEVEL% NEQ 0 exit /b 1
 
           ccache -s
 

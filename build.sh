@@ -190,6 +190,11 @@ function cmake_exec() {
 function cmake_tests() {
     cmake_init
     echo -e " * execute tests\n" && $BUILD_DIR/src/tests/tests || exit 1
+    # GUI startup smoke test (ADR 0015/0016): registered with CTest in
+    # src/gui/CMakeLists.txt. Run it via ctest from the build dir so a broken
+    # GUI startup/teardown fails `build.sh t` just like a failing unit test.
+    echo -e "\n * execute GUI startup smoke test\n" && \
+        ( cd $BUILD_DIR && ctest --output-on-failure -R GuiStartup ) || exit 1
 }
 
 function cmake_integration_tests() {
