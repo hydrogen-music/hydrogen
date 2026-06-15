@@ -90,6 +90,12 @@ class Parser {
 		bool getNoReporter() const {
 			return m_bNoReporter; }
 
+		/** When set, the GUI quits immediately after it finished starting up
+		 * (used by the startup smoke test to verify construction + teardown do
+		 * not crash; ADR 0015/0016). */
+		bool getQuitAfterStartup() const {
+			return m_bQuitAfterStartup; }
+
 	private:
 		QString  m_sAudioDriver;
 		QString  m_sPlaylistFileName;
@@ -113,6 +119,8 @@ class Parser {
 		QString  m_sShotList;
 
 		bool     m_bNoReporter;
+
+		bool     m_bQuitAfterStartup;
 };
 
 #endif

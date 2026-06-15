@@ -421,6 +421,15 @@ int main(int argc, char *argv[])
 		pSplash->show();
 #endif
 
+		// Non-interactive startup smoke test (ADR 0015/0016): use the no-op Fake
+		// audio driver and suppress the development-build warning, so the engine
+		// starts cleanly and no modal dialog blocks the headless run before the
+		// scheduled quit.
+		if ( parser.getQuitAfterStartup() ) {
+			pPref->m_audioDriver = H2Core::Preferences::AudioDriver::Fake;
+			pPref->setShowDevelWarning( false );
+		}
+
 		// Hydrogen here to honor all preferences.
 		H2Core::Hydrogen::create_instance( parser.getOscPort() );
 		auto pHydrogen = H2Core::Hydrogen::get_instance();
@@ -521,6 +530,14 @@ int main(int argc, char *argv[])
 		// reference in order to not prevent cleanup to the old instance in case
 		// it is replaced while Hydrogen is running.
 		pPref = nullptr;
+
+		// Startup smoke test (ADR 0015/0016): once the GUI has fully constructed
+		// and shown, schedule an immediate quit so the event loop runs one pass
+		// and then exits cleanly through the normal teardown below. A crash
+		// during construction or teardown surfaces as a non-zero exit code.
+		if ( parser.getQuitAfterStartup() ) {
+			QTimer::singleShot( 0, pQApp, &QApplication::quit );
+		}
 
 		pQApp->exec();
 

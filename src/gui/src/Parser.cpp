@@ -113,6 +113,11 @@ bool Parser::parse( int argc, char* argv[] ) {
 	QCommandLineOption noReporterOption(
 		QStringList() << "child", "Child process (no crash reporter)");
 
+	QCommandLineOption quitAfterStartupOption(
+		QStringList() << "quit-after-startup",
+		"Quit immediately after startup (startup smoke test)" );
+	quitAfterStartupOption.setFlags( QCommandLineOption::HiddenFromHelp );
+
 	parser.addHelpOption();
 	parser.addVersionOption();
 
@@ -141,6 +146,8 @@ bool Parser::parse( int argc, char* argv[] ) {
 	parser.addOption( shotListOption );
 
 	parser.addOption( noReporterOption );
+
+	parser.addOption( quitAfterStartupOption );
 
 	parser.addPositionalArgument( "file", "Song, playlist or Drumkit file" );
 
@@ -204,6 +211,8 @@ bool Parser::parse( int argc, char* argv[] ) {
 	m_sShotList = parser.value( shotListOption );
 
 	m_bNoReporter = parser.isSet( noReporterOption );
+
+	m_bQuitAfterStartup = parser.isSet( quitAfterStartupOption );
 
 	// Operating system GUIs typically pass documents to open as simple
 	// positional arguments to the process command line. Handling this here
