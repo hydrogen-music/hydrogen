@@ -36,47 +36,46 @@ namespace H2Core
 class Hydrogen;
 
 /** \ingroup docCore docDataStructure docAutomation*/
-class AutomationPath : public Object<AutomationPath>
-{
-	H2_OBJECT(AutomationPath)
+class AutomationPath : public Object<AutomationPath> {
+	H2_OBJECT( AutomationPath )
 
-	public:
-	typedef std::map<float,float>::iterator iterator;
-	typedef std::map<float,float>::const_iterator const_iterator;
+   public:
+	typedef std::map<float, float>::iterator iterator;
+	typedef std::map<float, float>::const_iterator const_iterator;
 
-	private:
-	
+   private:
 	float _min;
 	float _max;
 	float _def;
 
-	std::map<float,float> _points;
+	std::map<float, float> _points;
 
-	public:
-	
-	AutomationPath(float min, float max, float def);
+   public:
+	AutomationPath( float min, float max, float def );
 
 	bool empty() const noexcept { return _points.empty(); }
 	float get_min() const noexcept { return _min; }
 	float get_max() const noexcept { return _max; }
 	float get_default() const noexcept { return _def; }
 
-	float get_value(float x) const noexcept;
+	float get_value( float x ) const noexcept;
 
-	void add_point(float x, float y, Hydrogen* pHydrogen);
-	void remove_point(float x, Hydrogen* pHydrogen);
+	void add_point( float x, float y, Hydrogen* pHydrogen );
+	void remove_point( float x, Hydrogen* pHydrogen );
 
-	friend bool operator==(const AutomationPath &lhs, const AutomationPath &rhs);
-	friend bool operator!=(const AutomationPath &lhs, const AutomationPath &rhs);
+	friend bool
+	operator==( const AutomationPath& lhs, const AutomationPath& rhs );
+	friend bool
+	operator!=( const AutomationPath& lhs, const AutomationPath& rhs );
 
 	iterator begin() { return _points.begin(); }
 	iterator end() { return _points.end(); }
 	const_iterator begin() const { return _points.begin(); }
 	const_iterator end() const { return _points.end(); }
 
-	iterator find(float x);
-	iterator move(iterator &in, float x, float y, Hydrogen* pHydrogen);
-	
+	iterator find( float x );
+	iterator move( iterator& in, float x, float y, Hydrogen* pHydrogen );
+
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
 	 * every new line
@@ -85,8 +84,9 @@ class AutomationPath : public Object<AutomationPath>
 	 * displayed without line breaks.
 	 *
 	 * \return String presentation of current object.*/
-	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+	QString toQString( const QString& sPrefix = "", bool bShort = true )
+		const override;
 };
-};
+};	// namespace H2Core
 
 #endif
