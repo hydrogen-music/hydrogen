@@ -36,7 +36,6 @@
 
 namespace H2Core {
 	class Hydrogen;
-}
 
 /**
 * @class NsmClient
@@ -267,27 +266,29 @@ class NsmClient : public H2Core::Object<NsmClient>
 	static bool bNsmShutdown;
 };
 
-inline bool NsmClient::getUnderSessionManagement() const {
+} // namespace H2Core
+
+inline bool H2Core::NsmClient::getUnderSessionManagement() const {
 	return m_bUnderSessionManagement;
 }
 
-inline const QString& NsmClient::getSessionFolderPath() const {
+inline const QString& H2Core::NsmClient::getSessionFolderPath() const {
 	return m_sSessionFolderPath;
 }
-inline void NsmClient::setSessionFolderPath( const QString& sPath ) {
+inline void H2Core::NsmClient::setSessionFolderPath( const QString& sPath ) {
 	m_sSessionFolderPath = sPath;
 }
 
-inline bool NsmClient::getIsNewSession() const {
+inline bool H2Core::NsmClient::getIsNewSession() const {
 	return m_bIsNewSession;
 }
-inline void NsmClient::setIsNewSession( bool bNew ) {
+inline void H2Core::NsmClient::setIsNewSession( bool bNew ) {
 	m_bIsNewSession = bNew;
 }
-inline const QString& NsmClient::getClientId() const {
+inline const QString& H2Core::NsmClient::getClientId() const {
 	return m_sClientId;
 }
-inline void NsmClient::setClientId( const QString& sId ) {
+inline void H2Core::NsmClient::setClientId( const QString& sId ) {
 	m_sClientId = sId;
 }
 #endif /* H2CORE_HAVE_OSC */

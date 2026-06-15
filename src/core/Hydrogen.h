@@ -36,12 +36,6 @@
 #include <chrono>
 #include <memory>
 
-// OscServer and NsmClient live in the GLOBAL namespace (not H2Core), so they
-// must be forward-declared there — declaring them inside namespace H2Core would
-// create distinct, never-defined H2Core::OscServer / H2Core::NsmClient types.
-class OscServer;
-class NsmClient;
-
 namespace H2Core
 {
 	class AudioEngine;
@@ -51,6 +45,8 @@ namespace H2Core
 	class EventQueue;
 	class MidiBaseDriver;
 	class MidiActionManager;
+	class NsmClient;
+	class OscServer;
 	class Playlist;
 	class Preferences;
 	class SoundLibraryDatabase;

@@ -52,7 +52,7 @@
 #include "core/Midi/MidiMessage.h"
 #include "core/SoundLibrary/SoundLibraryDatabase.h"
 
-
+namespace H2Core {
 
 QString OscServer::qPrettyPrint( const lo_type& type, void* data )
 {
@@ -1624,6 +1624,8 @@ bool OscServer::stop() {
 
 	return true;
 }
+
+} // namespace H2Core
 
 #endif /* H2CORE_HAVE_OSC */
 

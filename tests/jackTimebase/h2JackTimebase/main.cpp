@@ -306,7 +306,7 @@ int main(int argc, char *argv[])
 		pOscServer->getServerThread()->add_method(
 			"/h2JackTimebase/TransportTests", "", runTransportTests );
 		pOscServer->getServerThread()->add_method(
-			nullptr, nullptr, OscServer::generic_handler, nullptr );
+			nullptr, nullptr, H2Core::OscServer::generic_handler, nullptr );
 #endif
 
 		while ( ! bQuit ) {

@@ -38,6 +38,8 @@
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 
+namespace H2Core {
+
 bool NsmClient::bNsmShutdown = false;
 
 
@@ -63,7 +65,7 @@ int NsmClient::OpenCallback( const char *name,
 
 	// Static NSM callback: reach this NsmClient (and its owning Hydrogen)
 	// through the user_data bound at registration (ADR 0015).
-	auto pNsmClient = static_cast<NsmClient*>( userData );
+	auto pNsmClient = static_cast<H2Core::NsmClient*>( userData );
 	auto pHydrogen = pNsmClient->m_pHydrogen;
 	auto pPref = pHydrogen->getPreferences();
 
@@ -240,7 +242,7 @@ void NsmClient::printMessage( const QString& msg ) {
 
 int NsmClient::SaveCallback( char** outMsg, void* userData ) {
 	// Static NSM callback: reach the owning Hydrogen via user_data (ADR 0015).
-	auto pHydrogen = static_cast<NsmClient*>( userData )->m_pHydrogen;
+	auto pHydrogen = static_cast<H2Core::NsmClient*>( userData )->m_pHydrogen;
 	// Discarding missing samples and their corresponding instrument layer is an
 	// operation with information loss. This is only allowed to be performed
 	// explicitly via the GUI.
@@ -361,6 +363,8 @@ void NsmClient::sendDirtyState( const bool bIsDirty ) {
 		}
 	}
 }
+
+} // namespace H2Core
 
 #endif /* H2CORE_HAVE_OSC */
 

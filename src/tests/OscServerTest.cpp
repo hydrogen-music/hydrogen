@@ -58,7 +58,7 @@ void OscServerTest::setUp(){
 	// test instance's OscServer (generic_handler receives it as liblo user_data).
 	auto* pOscServer = pTestHydrogen()->getOscServer();
 	m_pServerThread->add_method( nullptr, nullptr,
-								 OscServer::generic_handler, pOscServer);
+								 H2Core::OscServer::generic_handler, pOscServer);
 	m_pServerThread->add_method("/Hydrogen/NEW_SONG", "s",
 								[pOscServer]( lo_arg** argv, int argc ) {
 									pOscServer->NEW_SONG_Handler( argv, argc ); });

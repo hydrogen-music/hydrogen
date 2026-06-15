@@ -42,10 +42,10 @@ namespace lo
 	class ServerThread;
 }
 
+class MidiAction;
+
 namespace H2Core {
 	class Hydrogen;
-}
-class MidiAction;
 
 /**
 * @class OscServer
@@ -977,10 +977,12 @@ class OscServer : public H2Core::Object<OscServer>
 		int					m_nTemporaryPort;
 };
 
-inline lo::ServerThread* OscServer::getServerThread() const {
+} // namespace H2Core
+
+inline lo::ServerThread* H2Core::OscServer::getServerThread() const {
 	return m_pServerThread;
 }
-inline int OscServer::getTemporaryPort() const {
+inline int H2Core::OscServer::getTemporaryPort() const {
 	return m_nTemporaryPort;
 }
 
