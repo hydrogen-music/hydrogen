@@ -71,7 +71,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	connect( m_pPlaySampleBtn, &Button::clicked, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
-			auto pHydrogen = Hydrogen::get_instance();
+			auto pHydrogen = HydrogenApp::pHydrogen();
 			pHydrogen->setSelectedInstrumentNumber( nLine );
 
 			auto pNote = std::make_shared<Note>( m_pInstrument, 0, 1.0 );
@@ -81,7 +81,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	connect( m_pPlaySampleBtn, &Button::rightClicked, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
-			auto pHydrogen = Hydrogen::get_instance();
+			auto pHydrogen = HydrogenApp::pHydrogen();
 			pHydrogen->setSelectedInstrumentNumber( nLine );
 
 			auto pNote = std::make_shared<Note>( m_pInstrument, 0, 0.0 );
@@ -101,7 +101,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	m_pSelectionLED->setObjectName( "SelectionLED" );
 
 	// Pick a background color which works nicely with our mute color.
-	const auto buttonBackgroundColor = H2Core::Preferences::get_instance()
+	const auto buttonBackgroundColor = HydrogenApp::pPreferences()
 										   ->getColorTheme()
 										   ->m_widgetColor.darker( 130 );
 
@@ -117,7 +117,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	connect( m_pMuteBtn, &QPushButton::clicked, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
-			H2Core::Hydrogen::get_instance()->getCoreActionController()->setStripIsMuted(
+			HydrogenApp::pHydrogen()->getCoreActionController()->setStripIsMuted(
 				nLine, m_pMuteBtn->isChecked(), true );
 		}
 	});
@@ -134,7 +134,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	connect( m_pSoloBtn, &QPushButton::clicked, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
-			H2Core::Hydrogen::get_instance()->getCoreActionController()->setStripIsSoloed(
+			HydrogenApp::pHydrogen()->getCoreActionController()->setStripIsSoloed(
 				nLine, m_pSoloBtn->isChecked(), true );
 		}
 	});
@@ -149,7 +149,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	connect( m_pPanRotary, &Rotary::valueChanged, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
-			H2Core::Hydrogen::get_instance()->getCoreActionController()->setStripPanSym(
+			HydrogenApp::pHydrogen()->getCoreActionController()->setStripPanSym(
 				nLine, m_pPanRotary->getValue(), true );
 		}
 	});
@@ -160,7 +160,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	connect( m_pNameWidget, &InstrumentNameWidget::clicked, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
-			Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
+			HydrogenApp::pHydrogen()->setSelectedInstrumentNumber( nLine );
 		}
 	});
 
@@ -174,7 +174,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	connect( m_pFader, &Fader::valueChanged, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
-			H2Core::Hydrogen::get_instance()->getCoreActionController()->setStripVolume(
+			HydrogenApp::pHydrogen()->getCoreActionController()->setStripVolume(
 				nLine, m_pFader->getValue(), true );
 		}
 	});
@@ -196,7 +196,7 @@ MixerLine::~MixerLine() {
 }
 
 void MixerLine::updateColors() {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	m_pMuteBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
 	m_pMuteBtn->setCheckedBackgroundTextColor(
@@ -243,7 +243,7 @@ void MixerLine::updatePeaks()
 	if ( m_pInstrument == nullptr ) {
 		return;
 	}
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	const float fFallOffSpeed =
 		pPref->getInterfaceTheme()->m_fMixerFalloffSpeed;
 
@@ -324,7 +324,7 @@ void MixerLine::updatePeaks()
 
 void MixerLine::updateSelected() {
 	m_pSelectionLED->setActivated(
-		Hydrogen::get_instance()->getSelectedInstrument() == m_pInstrument );
+		HydrogenApp::pHydrogen()->getSelectedInstrument() == m_pInstrument );
 }
 
 void MixerLine::setInstrument( std::shared_ptr<H2Core::Instrument> pInstrument ) {
@@ -339,7 +339,7 @@ void MixerLine::triggerSampleLED() {
 }
 
 int MixerLine::retrieveLineNumber() const {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ||
 		 m_pInstrument == nullptr ) {
@@ -350,7 +350,7 @@ int MixerLine::retrieveLineNumber() const {
 }
 
 void MixerLine::updateActions() {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pHydrogen()->getSong();
 	if ( m_pInstrument == nullptr || pSong == nullptr ||
 		 pSong->getDrumkit() == nullptr ) {
 		m_pMuteBtn->setMidiAction( nullptr );

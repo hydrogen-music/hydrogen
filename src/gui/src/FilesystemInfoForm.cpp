@@ -24,6 +24,7 @@
 
 #include "FilesystemInfoForm.h"
 #include "ui_FilesystemInfoForm_UI.h"
+#include "HydrogenApp.h"
 #include "Skin.h"
 
 #include "core/Helpers/Filesystem.h"
@@ -36,7 +37,7 @@ FilesystemInfoForm::FilesystemInfoForm( QWidget *parent ) :
 {
 	ui->setupUi(this);
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	QString sIconPath( Skin::getSvgImagePath() );
 	if ( pPref->getInterfaceTheme()->m_iconColor ==
 		 H2Core::InterfaceTheme::IconColor::White ) {

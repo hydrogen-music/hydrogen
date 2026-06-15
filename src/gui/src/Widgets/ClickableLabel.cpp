@@ -45,7 +45,7 @@ ClickableLabel::ClickableLabel( QWidget *pParent, const QSize& size,
 		resize( size );
 	}
 	
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+	const auto pFontTheme = HydrogenApp::pPreferences()->getFontTheme();
 
 	updateFont( pFontTheme->m_sLevel3FontFamily, pFontTheme->m_fontSize );
 	updateStyleSheet();
@@ -65,7 +65,7 @@ void ClickableLabel::setColor( const QColor& newColor )
 
 void ClickableLabel::updateStyleSheet() {
 
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	QColor textColor;
 	if ( m_color.isValid() ) {
@@ -103,7 +103,7 @@ void ClickableLabel::paintEvent( QPaintEvent *ev ) {
 		return;
 	}
 
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	if ( m_bEntered || hasFocus() ) {
 		QPainter painter(this);
@@ -216,7 +216,7 @@ void ClickableLabel::updateFont( const QString& sFontFamily,
 }
 
 void ClickableLabel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+	const auto pFontTheme = HydrogenApp::pPreferences()->getFontTheme();
 
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
@@ -230,7 +230,7 @@ void ClickableLabel::setText( const QString& sNewText ) {
 		return;
 	}
 
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+	const auto pFontTheme = HydrogenApp::pPreferences()->getFontTheme();
 
 	QLabel::setText( sNewText );
 	updateFont( pFontTheme->m_sLevel3FontFamily, pFontTheme->m_fontSize );

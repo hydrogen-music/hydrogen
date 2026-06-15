@@ -59,7 +59,7 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 	  m_nSelectedPattern( nSelectedPattern ),
 	  m_action( action )
 {
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	if ( action & Action::Duplicate ) {
@@ -247,7 +247,7 @@ QWidget#PatternPropsFormContainer {				\
 		if ( ( action & Action::ModifyViaUndo ) &&
 			 ( action & Action::Duplicate ) ) {
 			auto pPatternList =
-				Hydrogen::get_instance()->getSong()->getPatternList();
+				HydrogenApp::pHydrogen()->getSong()->getPatternList();
 			m_pPatternNameTxt->setText(
 				pPatternList->findUnusedPatternName( pPattern->getName() )
 			);
@@ -481,7 +481,7 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 		// Within the current song we need to take extra care for the current
 		// song to have an unique name.
 		auto pPatternList =
-			Hydrogen::get_instance()->getSong()->getPatternList();
+			HydrogenApp::pHydrogen()->getSong()->getPatternList();
 		sPattName = pPatternList->findUnusedPatternName(
 			sPattName, m_nSelectedPattern
 		);

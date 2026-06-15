@@ -76,12 +76,12 @@ Director::Director ( QWidget* pParent )
 	
 	setWindowTitle ( tr ( "Director" ) );
 
-	auto pPos = H2Core::Hydrogen::get_instance()->getAudioEngine()
+	auto pPos = HydrogenApp::pHydrogen()->getAudioEngine()
 		->getPlayhead();
 	
 	m_nBar = pPos->getBar();
 	m_nBeat = pPos->getBeat();
-	m_Color = Preferences::get_instance()->getColorTheme()->m_accentColor;
+	m_Color = HydrogenApp::pPreferences()->getColorTheme()->m_accentColor;
 	m_Color.setAlpha( 0 );
 	m_nFlashingArea = width() * 5/100;
 
@@ -116,7 +116,7 @@ void Director::tempoChangedEvent( int ) {
 
 void Director::updateSongEvent( int nValue ) {
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
@@ -152,8 +152,8 @@ void Director::timelineUpdateEvent( int nValue ) {
 
 void Director::updateBBT()
 {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
-	auto pPos = Hydrogen::get_instance()->getAudioEngine()->getPlayhead();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
+	auto pPos = HydrogenApp::pHydrogen()->getAudioEngine()->getPlayhead();
 
 	// 1000 ms / bpm / 60s
 	m_pTimer->start( static_cast<int>( 1000 / ( pPos->getBpm() / 60 )) / 2 );
@@ -174,7 +174,7 @@ void Director::updateBBT()
 }
 
 bool Director::updateTags() {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return false;
@@ -227,7 +227,7 @@ void Director::updateMetronomBackground()
 
 void Director::updateFontSize( FontUpdate update ) {
 	const QString sFontFamily =
-		H2Core::Preferences::get_instance()->getFontTheme()->m_sApplicationFontFamily;
+		HydrogenApp::pPreferences()->getFontTheme()->m_sApplicationFontFamily;
 
 	// Reduce the pixelsize of the font till it fits the width of its
 	// enclosing rectangle.
@@ -284,7 +284,7 @@ void Director::paintEvent( QPaintEvent* ev )
 {
 	QPainter painter(this);
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 	const QString sFontFamily = pPref->getFontTheme()->m_sApplicationFontFamily;
 

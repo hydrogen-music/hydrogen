@@ -122,14 +122,14 @@ class SE_deletePatternAction : public QUndoCommand {
 	}
 	virtual void undo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->setPattern(
+		HydrogenApp::pHydrogen()->getCoreActionController()->setPattern(
 			std::make_shared<H2Core::Pattern>( m_pPattern ), m_nPatternPosition,
 			false
 		);
 	}
 	virtual void redo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->removePattern( m_nPatternPosition );
+		HydrogenApp::pHydrogen()->getCoreActionController()->removePattern( m_nPatternPosition );
 	}
 
    private:
@@ -177,7 +177,7 @@ class SE_modifyPatternPropertiesAction : public QUndoCommand {
 	}
 	virtual void undo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->setPatternProperties(
+		HydrogenApp::pHydrogen()->getCoreActionController()->setPatternProperties(
 			m_sOldPatternPath, m_nOldVersion, __oldPatternName, m_sOldAuthor,
 			__oldPatternInfo, m_oldLicense, m_oldTags, __patternNr
 		);
@@ -185,7 +185,7 @@ class SE_modifyPatternPropertiesAction : public QUndoCommand {
 
 	virtual void redo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->setPatternProperties(
+		HydrogenApp::pHydrogen()->getCoreActionController()->setPatternProperties(
 			m_sNewPatternPath, m_nNewVersion, __newPatternName, m_sNewAuthor,
 			__newPatternInfo, m_newLicense, m_newTags, __patternNr
 		);
@@ -248,7 +248,7 @@ class SE_modifySongPropertiesAction : public QUndoCommand {
 	}
 	virtual void undo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->setSongProperties(
+		HydrogenApp::pHydrogen()->getCoreActionController()->setSongProperties(
 			m_sOldPath, m_nOldVersion, m_sOldName, m_sOldAuthor,
 			m_sOldNotes, m_oldLicense, m_oldTags
 		);
@@ -256,7 +256,7 @@ class SE_modifySongPropertiesAction : public QUndoCommand {
 
 	virtual void redo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->setSongProperties(
+		HydrogenApp::pHydrogen()->getCoreActionController()->setSongProperties(
 			m_sNewPatternPath, m_nNewVersion, m_sNewName, m_sNewAuthor,
 			m_sNewNotes, m_newLicense, m_newTags
 		);
@@ -343,18 +343,18 @@ class SE_insertPatternAction : public QUndoCommand {
 	virtual void undo()
 	{
 		if ( m_type == Type::Replace ) {
-			H2Core::Hydrogen::get_instance()->getCoreActionController()->setPattern(
+			HydrogenApp::pHydrogen()->getCoreActionController()->setPattern(
 				std::make_shared<H2Core::Pattern>( m_pOldPattern ),
 				m_nPatternPosition, m_type == Type::Replace
 			);
 		}
 		else {
-			H2Core::Hydrogen::get_instance()->getCoreActionController()->removePattern( m_nPatternPosition );
+			HydrogenApp::pHydrogen()->getCoreActionController()->removePattern( m_nPatternPosition );
 		}
 	}
 	virtual void redo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->setPattern(
+		HydrogenApp::pHydrogen()->getCoreActionController()->setPattern(
 			std::make_shared<H2Core::Pattern>( m_pNewPattern ),
 			m_nPatternPosition, m_type == Type::Replace
 		);
@@ -442,14 +442,14 @@ class SE_editTimelineAction : public QUndoCommand {
 	{
 		if ( m_bTempoMarkerPresent ) {
 			if ( m_nOldColumn != m_nNewColumn ) {
-				H2Core::Hydrogen::get_instance()->getCoreActionController()->deleteTempoMarker( m_nNewColumn );
+				HydrogenApp::pHydrogen()->getCoreActionController()->deleteTempoMarker( m_nNewColumn );
 			}
-			H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker(
+			HydrogenApp::pHydrogen()->getCoreActionController()->addTempoMarker(
 				m_nOldColumn, m_fOldBpm
 			);
 		}
 		else {
-			H2Core::Hydrogen::get_instance()->getCoreActionController()->deleteTempoMarker( m_nNewColumn );
+			HydrogenApp::pHydrogen()->getCoreActionController()->deleteTempoMarker( m_nNewColumn );
 		}
 		HydrogenApp::get_instance()
 			->getSongEditorPanel()
@@ -460,9 +460,9 @@ class SE_editTimelineAction : public QUndoCommand {
 	virtual void redo()
 	{
 		if ( m_nOldColumn != m_nNewColumn ) {
-			H2Core::Hydrogen::get_instance()->getCoreActionController()->deleteTempoMarker( m_nOldColumn );
+			HydrogenApp::pHydrogen()->getCoreActionController()->deleteTempoMarker( m_nOldColumn );
 		}
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker( m_nNewColumn, m_fNewBpm );
+		HydrogenApp::pHydrogen()->getCoreActionController()->addTempoMarker( m_nNewColumn, m_fNewBpm );
 		HydrogenApp::get_instance()
 			->getSongEditorPanel()
 			->getSongEditorPositionRuler()
@@ -488,7 +488,7 @@ class SE_deleteTimelineAction : public QUndoCommand {
 	}
 	virtual void undo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker( m_nColumn, m_fBpm );
+		HydrogenApp::pHydrogen()->getCoreActionController()->addTempoMarker( m_nColumn, m_fBpm );
 		HydrogenApp::get_instance()
 			->getSongEditorPanel()
 			->getSongEditorPositionRuler()
@@ -497,7 +497,7 @@ class SE_deleteTimelineAction : public QUndoCommand {
 
 	virtual void redo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->deleteTempoMarker( m_nColumn );
+		HydrogenApp::pHydrogen()->getCoreActionController()->deleteTempoMarker( m_nColumn );
 		HydrogenApp::get_instance()
 			->getSongEditorPanel()
 			->getSongEditorPositionRuler()
@@ -526,20 +526,20 @@ class SE_editTagAction : public QUndoCommand {
 	virtual void undo()
 	{
 		if ( !m_sOldText.isEmpty() ) {
-			H2Core::Hydrogen::get_instance()->getCoreActionController()->addTag( m_nPosition, m_sOldText );
+			HydrogenApp::pHydrogen()->getCoreActionController()->addTag( m_nPosition, m_sOldText );
 		}
 		else {
-			H2Core::Hydrogen::get_instance()->getCoreActionController()->deleteTag( m_nPosition );
+			HydrogenApp::pHydrogen()->getCoreActionController()->deleteTag( m_nPosition );
 		}
 	}
 
 	virtual void redo()
 	{
 		if ( !m_sText.isEmpty() ) {
-			H2Core::Hydrogen::get_instance()->getCoreActionController()->addTag( m_nPosition, m_sText );
+			HydrogenApp::pHydrogen()->getCoreActionController()->addTag( m_nPosition, m_sText );
 		}
 		else {
-			H2Core::Hydrogen::get_instance()->getCoreActionController()->deleteTag( m_nPosition );
+			HydrogenApp::pHydrogen()->getCoreActionController()->deleteTag( m_nPosition );
 		}
 	}
 
@@ -560,9 +560,9 @@ class SE_tempoChangeAction : public QUndoCommand {
 		m_fNewBpm = fNewBpm;
 		m_fOldBpm = fOldBpm;
 	}
-	virtual void undo() { H2Core::Hydrogen::get_instance()->getCoreActionController()->setBpm( m_fOldBpm ); }
+	virtual void undo() { HydrogenApp::pHydrogen()->getCoreActionController()->setBpm( m_fOldBpm ); }
 
-	virtual void redo() { H2Core::Hydrogen::get_instance()->getCoreActionController()->setBpm( m_fNewBpm ); }
+	virtual void redo() { HydrogenApp::pHydrogen()->getCoreActionController()->setBpm( m_fNewBpm ); }
 
    private:
 	float m_fNewBpm;
@@ -870,13 +870,13 @@ class SE_moveInstrumentAction : public QUndoCommand {
 	}
 	virtual void undo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->moveInstrument(
+		HydrogenApp::pHydrogen()->getCoreActionController()->moveInstrument(
 			m_nTargetIndex, m_nSourceIndex
 		);
 	}
 	virtual void redo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->moveInstrument(
+		HydrogenApp::pHydrogen()->getCoreActionController()->moveInstrument(
 			m_nSourceIndex, m_nTargetIndex
 		);
 	}
@@ -999,13 +999,13 @@ class SE_addInstrumentAction : public QUndoCommand {
 
 	virtual void undo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->removeInstrument(
+		HydrogenApp::pHydrogen()->getCoreActionController()->removeInstrument(
 			m_pInstrument, m_pEventId
 		);
 	}
 	virtual void redo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->addInstrument(
+		HydrogenApp::pHydrogen()->getCoreActionController()->addInstrument(
 			m_pInstrument, m_nIndex, m_pEventId
 		);
 	}
@@ -1036,13 +1036,13 @@ class SE_deleteInstrumentAction : public QUndoCommand {
 
 	virtual void undo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->addInstrument(
+		HydrogenApp::pHydrogen()->getCoreActionController()->addInstrument(
 			m_pInstrument, m_nIndex, nullptr
 		);
 	}
 	virtual void redo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->removeInstrument(
+		HydrogenApp::pHydrogen()->getCoreActionController()->removeInstrument(
 			m_pInstrument, nullptr
 		);
 	}
@@ -1207,11 +1207,11 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 	}
 	virtual void undo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->replaceInstrument( m_pOld, m_pNew );
+		HydrogenApp::pHydrogen()->getCoreActionController()->replaceInstrument( m_pOld, m_pNew );
 	}
 	virtual void redo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->replaceInstrument( m_pNew, m_pOld );
+		HydrogenApp::pHydrogen()->getCoreActionController()->replaceInstrument( m_pNew, m_pOld );
 	}
 
    private:
@@ -1239,13 +1239,13 @@ class SE_renameComponentAction : public QUndoCommand {
 	}
 	virtual void undo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->renameComponent(
+		HydrogenApp::pHydrogen()->getCoreActionController()->renameComponent(
 			m_nComponentId, m_sOldName
 		);
 	}
 	virtual void redo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->renameComponent(
+		HydrogenApp::pHydrogen()->getCoreActionController()->renameComponent(
 			m_nComponentId, m_sNewName
 		);
 	}
@@ -1273,7 +1273,7 @@ class SE_automationPathAddPointAction : public QUndoCommand {
 
 	virtual void undo()
 	{
-		__path->remove_point( __x , H2Core::Hydrogen::get_instance());
+		__path->remove_point( __x , HydrogenApp::pHydrogen());
 
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();
@@ -1281,7 +1281,7 @@ class SE_automationPathAddPointAction : public QUndoCommand {
 
 	virtual void redo()
 	{
-		__path->add_point( __x, __y , H2Core::Hydrogen::get_instance());
+		__path->add_point( __x, __y , HydrogenApp::pHydrogen());
 
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();
@@ -1310,7 +1310,7 @@ class SE_automationPathRemovePointAction : public QUndoCommand {
 
 	virtual void redo()
 	{
-		__path->remove_point( __x , H2Core::Hydrogen::get_instance());
+		__path->remove_point( __x , HydrogenApp::pHydrogen());
 
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();
@@ -1318,7 +1318,7 @@ class SE_automationPathRemovePointAction : public QUndoCommand {
 
 	virtual void undo()
 	{
-		__path->add_point( __x, __y , H2Core::Hydrogen::get_instance());
+		__path->add_point( __x, __y , HydrogenApp::pHydrogen());
 
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();
@@ -1351,8 +1351,8 @@ class SE_automationPathMovePointAction : public QUndoCommand {
 
 	virtual void redo()
 	{
-		__path->remove_point( __ox , H2Core::Hydrogen::get_instance());
-		__path->add_point( __tx, __ty , H2Core::Hydrogen::get_instance());
+		__path->remove_point( __ox , HydrogenApp::pHydrogen());
+		__path->add_point( __tx, __ty , HydrogenApp::pHydrogen());
 
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();
@@ -1360,8 +1360,8 @@ class SE_automationPathMovePointAction : public QUndoCommand {
 
 	virtual void undo()
 	{
-		__path->remove_point( __tx , H2Core::Hydrogen::get_instance());
-		__path->add_point( __ox, __oy , H2Core::Hydrogen::get_instance());
+		__path->remove_point( __tx , HydrogenApp::pHydrogen());
+		__path->add_point( __ox, __oy , HydrogenApp::pHydrogen());
 
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();
@@ -1390,12 +1390,12 @@ class SE_addEntryToPlaylistAction : public QUndoCommand {
 
 	virtual void redo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->addToPlaylist( m_pEntry, m_nIndex );
+		HydrogenApp::pHydrogen()->getCoreActionController()->addToPlaylist( m_pEntry, m_nIndex );
 	}
 
 	virtual void undo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->removeFromPlaylist( m_pEntry, m_nIndex );
+		HydrogenApp::pHydrogen()->getCoreActionController()->removeFromPlaylist( m_pEntry, m_nIndex );
 	}
 
    private:
@@ -1416,12 +1416,12 @@ class SE_removeEntryFromPlaylistAction : public QUndoCommand {
 
 	virtual void redo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->removeFromPlaylist( m_pEntry, m_nIndex );
+		HydrogenApp::pHydrogen()->getCoreActionController()->removeFromPlaylist( m_pEntry, m_nIndex );
 	}
 
 	virtual void undo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->addToPlaylist( m_pEntry, m_nIndex );
+		HydrogenApp::pHydrogen()->getCoreActionController()->addToPlaylist( m_pEntry, m_nIndex );
 	}
 
    private:
@@ -1436,12 +1436,12 @@ class SE_replacePlaylistAction : public QUndoCommand {
 	{
 		setText( QObject::tr( "Replace playlist" ) );
 
-		m_pOldPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
+		m_pOldPlaylist = HydrogenApp::pHydrogen()->getPlaylist();
 	}
 
 	virtual void redo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->setPlaylist( m_pNewPlaylist );
+		HydrogenApp::pHydrogen()->getCoreActionController()->setPlaylist( m_pNewPlaylist );
 		HydrogenApp::get_instance()
 			->getMainForm()
 			->setPreviousAutoSavePlaylistFile( "" );
@@ -1449,7 +1449,7 @@ class SE_replacePlaylistAction : public QUndoCommand {
 
 	virtual void undo()
 	{
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->setPlaylist( m_pOldPlaylist );
+		HydrogenApp::pHydrogen()->getCoreActionController()->setPlaylist( m_pOldPlaylist );
 		HydrogenApp::get_instance()
 			->getMainForm()
 			->setPreviousAutoSavePlaylistFile( "" );

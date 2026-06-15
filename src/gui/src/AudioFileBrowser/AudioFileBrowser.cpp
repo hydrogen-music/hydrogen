@@ -116,7 +116,7 @@ AudioFileBrowser::AudioFileBrowser(
 	m_pWaveDisplay->setLayer( nullptr );
 
 	playSamplescheckBox->setChecked(
-		Preferences::get_instance()->m_bPlaySamplesOnClicking
+		HydrogenApp::pPreferences()->m_bPlaySamplesOnClicking
 	);
 	// get the kde or gnome environment variable for mouse double or single
 	// clicking
@@ -418,7 +418,7 @@ void AudioFileBrowser::on_openBTN_clicked()
 
 void AudioFileBrowser::on_playSamplescheckBox_clicked()
 {
-	Preferences::get_instance()->m_bPlaySamplesOnClicking =
+	HydrogenApp::pPreferences()->m_bPlaySamplesOnClicking =
 		playSamplescheckBox->isChecked();
 }
 
@@ -539,7 +539,7 @@ void AudioFileBrowser::startPlayback()
 
 	// Reset playhead and other widgets and perform one UI refresh before
 	// starting the actual rendering.
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pHydrogen()->getAudioEngine();
 
 	// Render sample
 	pAudioEngine->getSampler()->previewInstrument(
@@ -567,7 +567,7 @@ void AudioFileBrowser::stopPlayback()
 	m_pWaveDisplay->setRenderPlayhead( false );
 	m_pWaveDisplay->setPlayheadPosition( 0 );
 
-	auto pSampler = Hydrogen::get_instance()->getAudioEngine()->getSampler();
+	auto pSampler = HydrogenApp::pHydrogen()->getAudioEngine()->getSampler();
 	pSampler->releasePlayingNotes( m_pPreviewInstrument );
 
 	updateIcons();
@@ -579,7 +579,7 @@ void AudioFileBrowser::updateTransport()
 		stopPlayback();
 		return;
 	}
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pHydrogen()->getAudioEngine();
 
 	const auto nRealtimeFrame = pAudioEngine->getRealtimeFrame();
 	if ( nRealtimeFrame == m_nLastRealtimeFrame ) {
@@ -616,7 +616,7 @@ void AudioFileBrowser::updateTransport()
 void AudioFileBrowser::updateIcons()
 {
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+	if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	}
@@ -624,7 +624,7 @@ void AudioFileBrowser::updateIcons()
 		sIconPath.append( "/icons/black/" );
 	}
 	const auto pColorTheme =
-		H2Core::Preferences::get_instance()->getColorTheme();
+		HydrogenApp::pPreferences()->getColorTheme();
 
 	const QColor colorBackgroundInactive =
 		Skin::makeBackgroundColorInactive( pColorTheme->m_widgetColor );

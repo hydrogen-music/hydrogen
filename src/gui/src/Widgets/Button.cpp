@@ -48,7 +48,7 @@ Button::Button( QWidget *pParent, const QSize& size, const Type& type,
 	, m_nBorderRadius( nBorderRadius )
 	, m_bUseCustomBackgroundColors( false )
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	m_checkedBackgroundColor = pPref->getColorTheme()->m_accentColor;
 	m_checkedBackgroundTextColor = pPref->getColorTheme()->m_accentTextColor;
 
@@ -91,7 +91,7 @@ void Button::setIsActive( bool bIsActive ) {
 
 
 void Button::updateIcon() {
-	if ( H2Core::Preferences::get_instance()->
+	if ( HydrogenApp::pPreferences()->
 		 getInterfaceTheme()->m_iconColor ==
 		 H2Core::InterfaceTheme::IconColor::White ) {
 		setIcon( QIcon( Skin::getSvgImagePath() + "/icons/white/" + m_sIcon ) );
@@ -137,7 +137,7 @@ QPushButton {									\
 		return;
 	}
 
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	
 	const QColor backgroundColor = pColorTheme->m_widgetColor;
 	const QColor backgroundHoverColor = backgroundColor.lighter( Skin::nToolButtonHoveredScaling );
@@ -283,7 +283,7 @@ void Button::setType( const Type& type ) {
 
 void Button::updateFont() {
 
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+	const auto pFontTheme = HydrogenApp::pPreferences()->getFontTheme();
 	
 	float fScalingFactor = 1.0;
     switch ( pFontTheme->m_fontSize ) {

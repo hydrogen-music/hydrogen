@@ -37,7 +37,7 @@ PatternFillDialog::PatternFillDialog( QWidget* pParent, FillRange* pFillRange)
 {
 	setWindowTitle( tr( "Fill with selected pattern" ) );
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	const QSize buttonSize( 70, 24 );

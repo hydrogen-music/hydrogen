@@ -45,7 +45,7 @@ InfoView::InfoView( QWidget* pParent ) : QWidget( pParent )
 	setMinimumHeight( 30 );
 	setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred ) );
 
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	auto pContainer = new QWidget( this );
@@ -90,7 +90,7 @@ InfoView::InfoView( QWidget* pParent ) : QWidget( pParent )
 		addRow( pCommonStrings->getNameDialog(), &m_pNameLabel, &m_pNameText );
 	pNameAction->setChecked( pPref->getSoundLibraryShowName() );
 	connect( pNameAction, &QAction::toggled, this, [&]( bool bChecked ) {
-		Preferences::get_instance()->setSoundLibraryShowName( bChecked );
+		HydrogenApp::pPreferences()->setSoundLibraryShowName( bChecked );
 		updateVisibility();
 	} );
 	auto pAuthorAction = addRow(
@@ -98,14 +98,14 @@ InfoView::InfoView( QWidget* pParent ) : QWidget( pParent )
 	);
 	pAuthorAction->setChecked( pPref->getSoundLibraryShowAuthor() );
 	connect( pAuthorAction, &QAction::toggled, this, [&]( bool bChecked ) {
-		Preferences::get_instance()->setSoundLibraryShowAuthor( bChecked );
+		HydrogenApp::pPreferences()->setSoundLibraryShowAuthor( bChecked );
 		updateVisibility();
 	} );
 	auto pInfoAction =
 		addRow( pCommonStrings->getNotesDialog(), &m_pInfoLabel, &m_pInfoText );
 	pInfoAction->setChecked( pPref->getSoundLibraryShowInfo() );
 	connect( pInfoAction, &QAction::toggled, this, [&]( bool bChecked ) {
-		Preferences::get_instance()->setSoundLibraryShowInfo( bChecked );
+		HydrogenApp::pPreferences()->setSoundLibraryShowInfo( bChecked );
 		updateVisibility();
 	} );
 	auto pLicenseAction = addRow(
@@ -113,20 +113,20 @@ InfoView::InfoView( QWidget* pParent ) : QWidget( pParent )
 	);
 	pLicenseAction->setChecked( pPref->getSoundLibraryShowLicense() );
 	connect( pLicenseAction, &QAction::toggled, this, [&]( bool bChecked ) {
-		Preferences::get_instance()->setSoundLibraryShowLicense( bChecked );
+		HydrogenApp::pPreferences()->setSoundLibraryShowLicense( bChecked );
 		updateVisibility();
 	} );
 	auto pPathAction = addRow( "Path", &m_pPathLabel, &m_pPathText );
 	pPathAction->setChecked( pPref->getSoundLibraryShowPath() );
 	connect( pPathAction, &QAction::toggled, this, [&]( bool bChecked ) {
-		Preferences::get_instance()->setSoundLibraryShowPath( bChecked );
+		HydrogenApp::pPreferences()->setSoundLibraryShowPath( bChecked );
 		updateVisibility();
 	} );
 	auto pTagsAction =
 		addRow( pCommonStrings->getTagsLabel(), &m_pTagsLabel, &m_pTagsText );
 	pTagsAction->setChecked( pPref->getSoundLibraryShowTags() );
 	connect( pTagsAction, &QAction::toggled, this, [&]( bool bChecked ) {
-		Preferences::get_instance()->setSoundLibraryShowTags( bChecked );
+		HydrogenApp::pPreferences()->setSoundLibraryShowTags( bChecked );
 		updateVisibility();
 	} );
 	auto pVersionAction = addRow(
@@ -134,7 +134,7 @@ InfoView::InfoView( QWidget* pParent ) : QWidget( pParent )
 	);
 	pVersionAction->setChecked( pPref->getSoundLibraryShowVersion() );
 	connect( pVersionAction, &QAction::toggled, this, [&]( bool bChecked ) {
-		Preferences::get_instance()->setSoundLibraryShowVersion( bChecked );
+		HydrogenApp::pPreferences()->setSoundLibraryShowVersion( bChecked );
 		updateVisibility();
 	} );
 
@@ -202,7 +202,7 @@ void InfoView::updateContent( std::shared_ptr<H2Core::SoundLibraryInfo> pInfo )
 
 void InfoView::updateStyleSheet()
 {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	const auto borderColor = pColorTheme->m_windowColor.darker( 140 );
 	const auto separatorColor = pColorTheme->m_windowColor;
@@ -236,7 +236,7 @@ QLabel {						     \
 
 void InfoView::updateVisibility()
 {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	m_pNameLabel->setVisible( pPref->getSoundLibraryShowName() );
 	m_pNameText->setVisible( pPref->getSoundLibraryShowName() );

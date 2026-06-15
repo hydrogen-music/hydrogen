@@ -58,9 +58,9 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
  , m_nColumn( 0 )
 {
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 
 	setAttribute(Qt::WA_OpaquePaintEvent);
@@ -114,11 +114,11 @@ void SongEditorPositionRuler::setGridWidth( int width )
 
 void SongEditorPositionRuler::createBackground()
 {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 	const auto pFontTheme = pPref->getFontTheme();
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
@@ -258,7 +258,7 @@ void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 {
 	auto pEv = static_cast<MouseEvent*>( ev );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
@@ -291,7 +291,7 @@ void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 	}
 	else if ( ev->buttons() & Qt::RightButton ) {
 		// Right-click+drag
-		auto pPref = Preferences::get_instance();
+		auto pPref = HydrogenApp::pPreferences();
 		
 		if ( nColumn > pSong->getPatternGroupVector()->size() ) {
 			pPref->setPunchOutPos(-1);
@@ -316,7 +316,7 @@ bool SongEditorPositionRuler::event( QEvent* ev ) {
 }
 
 void SongEditorPositionRuler::showToolTip( const QPoint& pos, const QPoint& globalPos ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
     auto pSong = pHydrogen->getSong();
     if ( pSong == nullptr ) {
         return;
@@ -331,7 +331,7 @@ void SongEditorPositionRuler::showToolTip( const QPoint& pos, const QPoint& glob
 		 m_hoveredRow == HoveredRow::TempoMarker &&
 		 pos.x() < columnToX( 1 ) ) { // first tempo marker 
 			const QString sBpm =
-				pTimeline->getTempoMarkerAtColumn( nColumn, H2Core::Hydrogen::get_instance() )->getPrettyString( -1 );
+				pTimeline->getTempoMarkerAtColumn( nColumn, HydrogenApp::pHydrogen() )->getPrettyString( -1 );
 		QToolTip::showText( globalPos, QString( "%1: %2" )
 							.arg( tr( "The tempo set in the BPM widget will be used as a default for the beginning of the song. Left-click to overwrite it." ) )
 							.arg( sBpm ), this );
@@ -340,7 +340,7 @@ void SongEditorPositionRuler::showToolTip( const QPoint& pos, const QPoint& glob
 	else if ( m_hoveredRow == HoveredRow::TempoMarker ) {
 		if ( pTimeline->hasColumnTempoMarker( nColumn ) ) {
 			const QString sBpm =
-				pTimeline->getTempoMarkerAtColumn( nColumn, H2Core::Hydrogen::get_instance() )->getPrettyString( -1 );
+				pTimeline->getTempoMarkerAtColumn( nColumn, HydrogenApp::pHydrogen() )->getPrettyString( -1 );
 			QToolTip::showText( globalPos, sBpm, this );
 		}
 	}
@@ -361,7 +361,7 @@ void SongEditorPositionRuler::showTagWidget( int nColumn )
 
 void SongEditorPositionRuler::showBpmWidget( int nColumn )
 {
-    auto pSong = Hydrogen::get_instance()->getSong();
+    auto pSong = HydrogenApp::pHydrogen()->getSong();
     if ( pSong == nullptr ) {
         return;
     }
@@ -383,7 +383,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 {
 	auto pEv = static_cast<MouseEvent*>( ev );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
@@ -401,11 +401,11 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 			}
 
 			if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
-				H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true );
+				HydrogenApp::pHydrogen()->getCoreActionController()->activateSongMode( true );
 				pHydrogen->setSongModified( true );
 			}
 
-			H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( nColumn );
+			HydrogenApp::pHydrogen()->getCoreActionController()->locateToColumn( nColumn );
 			update();
 		}
 		else if ( pEv->position().y() > 22 - 1 - m_nTagHeight ) {
@@ -419,7 +419,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		showTagWidget( nColumn );
 	}
 	else if (ev->button() == Qt::RightButton && pEv->position().y() >= 26) {
-		auto pPref = Preferences::get_instance();
+		auto pPref = HydrogenApp::pPreferences();
 		if ( nColumn >= pSong->getPatternGroupVector()->size() ) {
 			pPref->unsetPunchArea();
 			return;
@@ -451,13 +451,13 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pSongEditorPanel = pHydrogenApp->getSongEditorPanel();
 	auto pSongEditor = pSongEditorPanel->getSongEditor();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
     if ( pSong == nullptr ) {
         return;
     }
 	auto pTimeline = pSong->getTimeline();
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 	const auto pFontTheme = pPref->getFontTheme();
 	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
@@ -510,7 +510,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		}
 	}
 	if ( nCurrentTempoMarkerColumn != -1 ) {
-		auto pTempoMarker = pTimeline->getTempoMarkerAtColumn( nCurrentTempoMarkerColumn, H2Core::Hydrogen::get_instance() );
+		auto pTempoMarker = pTimeline->getTempoMarkerAtColumn( nCurrentTempoMarkerColumn, HydrogenApp::pHydrogen() );
 		if ( pTempoMarker != nullptr ) {
 			// Reset the region and overwrite the marker's versio
 			// using normal weight.
@@ -602,7 +602,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 			 ( pTimeline->isFirstTempoMarkerSpecial() &&
 			   nColumn == 0 ) ) {
 
-			auto pTempoMarker = pTimeline->getTempoMarkerAtColumn( nColumn, H2Core::Hydrogen::get_instance() );
+			auto pTempoMarker = pTimeline->getTempoMarkerAtColumn( nColumn, HydrogenApp::pHydrogen() );
 			if ( pTempoMarker != nullptr ) {
 
 				const bool bEmphasize = pTempoMarker->nColumn == nCurrentTempoMarkerColumn;
@@ -720,13 +720,13 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 QRect SongEditorPositionRuler::calcTempoMarkerRect( std::shared_ptr<const Timeline::TempoMarker> pTempoMarker, bool bEmphasize ) const {
 	assert( pTempoMarker );
 
-    auto pSong = Hydrogen::get_instance()->getSong();
+    auto pSong = HydrogenApp::pHydrogen()->getSong();
     if ( pSong == nullptr ) {
         return QRect();
     }
 
 	auto pTimeline = pSong->getTimeline();
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	auto weight = QFont::Normal;
 	if ( bEmphasize ) {
 		weight = QFont::Bold;
@@ -759,8 +759,8 @@ QRect SongEditorPositionRuler::calcTempoMarkerRect( std::shared_ptr<const Timeli
 void SongEditorPositionRuler::drawTempoMarker( std::shared_ptr<const Timeline::TempoMarker> pTempoMarker, bool bEmphasize, QPainter& painter ) {
 	assert( pTempoMarker );
 
-	const auto pPref = Preferences::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
@@ -825,14 +825,14 @@ void SongEditorPositionRuler::updateEditor() {
 
 void SongEditorPositionRuler::updatePosition()
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	const auto pTimeline = pSong->getTimeline();
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 	
 	pAudioEngine->lock( RIGHT_HERE );
@@ -907,7 +907,7 @@ void SongEditorPositionRuler::updatePosition()
 }
 
 void SongEditorPositionRuler::updateSongSize() {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pHydrogen()->getSong();
 	if ( pSong == nullptr ) {
 		m_nActiveColumns = 0;
 	}

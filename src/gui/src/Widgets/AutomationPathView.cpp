@@ -42,7 +42,7 @@ AutomationPathView::AutomationPathView(QWidget *parent)
 	  m_fTick( 0 )
 {
 	setFocusPolicy( Qt::ClickFocus );
-	m_nMaxPatternSequence = Preferences::get_instance()->getMaxBars();
+	m_nMaxPatternSequence = HydrogenApp::pPreferences()->getMaxBars();
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &AutomationPathView::onPreferencesChanged );
 	
@@ -91,7 +91,7 @@ void AutomationPathView::setAutomationPath( AutomationPath *path, bool bUpdate )
 // Make sure we have the current automation path
 void AutomationPathView::updateAutomationPath()
 {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pHydrogen()->getSong();
 	if ( pSong != nullptr ) {
 		setAutomationPath( pSong->getVelocityAutomationPath(), false );
 	} else {
@@ -213,7 +213,7 @@ void AutomationPathView::paintEvent(QPaintEvent *ev)
 
 void AutomationPathView::createBackground() {
 	
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	updateAutomationPath();
 
 	QColor backgroundColor =
@@ -316,17 +316,17 @@ void AutomationPathView::mousePressEvent(QMouseEvent *event)
 
 	_selectedPoint = _path->find(x);
 	if (_selectedPoint == _path->end()) {
-		_path->add_point(x, y, H2Core::Hydrogen::get_instance());
+		_path->add_point(x, y, HydrogenApp::pHydrogen());
 		_selectedPoint = _path->find(x);
 
 		m_bPointAdded = true;
 	} else {
-		_selectedPoint = _path->move(_selectedPoint, x, y, H2Core::Hydrogen::get_instance());
+		_selectedPoint = _path->move(_selectedPoint, x, y, HydrogenApp::pHydrogen());
 		m_fOriginX = x;
 		m_fOriginY = y;
 		m_bPointAdded = false;
 	}
-	H2Core::Hydrogen::get_instance()->setSongModified( true );
+	HydrogenApp::pHydrogen()->setSongModified( true );
 
 	createBackground();
 	update();
@@ -381,8 +381,8 @@ void AutomationPathView::mouseMoveEvent(QMouseEvent *event)
 	float y = p.second;
 
 	if ( m_bIsHolding && _path && _selectedPoint != _path->end() ) {
-		_selectedPoint = _path->move(_selectedPoint, x, y, H2Core::Hydrogen::get_instance());
-		H2Core::Hydrogen::get_instance()->setSongModified( true );
+		_selectedPoint = _path->move(_selectedPoint, x, y, HydrogenApp::pHydrogen());
+		HydrogenApp::pHydrogen()->setSongModified( true );
 	}
 
 	createBackground();
@@ -402,10 +402,10 @@ void AutomationPathView::keyPressEvent(QKeyEvent *event)
 		if ( _path && _selectedPoint != _path->end() ) {
 			float x = _selectedPoint->first;
 			float y = _selectedPoint->second;
-			_path->remove_point(_selectedPoint->first, H2Core::Hydrogen::get_instance());
+			_path->remove_point(_selectedPoint->first, HydrogenApp::pHydrogen());
 			_selectedPoint = _path->end();
 			
-			H2Core::Hydrogen::get_instance()->setSongModified( true );
+			HydrogenApp::pHydrogen()->setSongModified( true );
 
 			emit pointRemoved( x, y );
 			createBackground();

@@ -101,7 +101,7 @@ MidiSenseWidget::MidiSenseWidget(
 		updateLabels();
 	} );
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( H2Core::Preferences::get_instance()
+	if ( HydrogenApp::pPreferences()
 			 ->getInterfaceTheme()
 			 ->m_iconColor == H2Core::InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
@@ -117,7 +117,7 @@ MidiSenseWidget::MidiSenseWidget(
 	m_pTextLabel->setAlignment( Qt::AlignCenter );
 	pContainerLayout->addWidget( m_pTextLabel );
 
-	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
+	H2Core::Hydrogen* pHydrogen = HydrogenApp::pHydrogen();
 	pHydrogen->setLastMidiEvent( H2Core::MidiEvent::Type::Null );
 	pHydrogen->setLastMidiEventParameter( H2Core::Midi::ParameterInvalid );
 
@@ -146,7 +146,7 @@ MidiSenseWidget::~MidiSenseWidget()
 
 void MidiSenseWidget::updateMidi()
 {
-	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
+	H2Core::Hydrogen* pHydrogen = HydrogenApp::pHydrogen();
 	if ( pHydrogen->getLastMidiEvent() != H2Core::MidiEvent::Type::Null ) {
 		m_lastMidiEvent = pHydrogen->getLastMidiEvent();
 		m_lastMidiEventParameter = pHydrogen->getLastMidiEventParameter();
@@ -154,7 +154,7 @@ void MidiSenseWidget::updateMidi()
 		if ( m_bDirectWrite ) {
 			// write the Midiaction / parameter combination to the midiMap
 			auto pMidiEventMap =
-				H2Core::Preferences::get_instance()->getMidiEventMap();
+				HydrogenApp::pPreferences()->getMidiEventMap();
 
 			assert( m_pAction );
 
@@ -181,7 +181,7 @@ void MidiSenseWidget::updateLabels()
 		// Bindings
 		QStringList bindings;
 		for ( const auto& [eevent, pparam] :
-			  H2Core::Preferences::get_instance()
+			  HydrogenApp::pPreferences()
 				  ->getMidiEventMap()
 				  ->getRegisteredMidiEvents( m_pAction ) ) {
 			if ( eevent == H2Core::MidiEvent::Type::Note ||
@@ -236,7 +236,7 @@ void MidiSenseWidget::updateLabels()
 void MidiSenseWidget::updateStyleSheet()
 {
 	const auto pColorTheme =
-		H2Core::Preferences::get_instance()->getColorTheme();
+		HydrogenApp::pPreferences()->getColorTheme();
 
 	const auto backgroundColor = pColorTheme->m_windowColor;
 	const auto textColor = pColorTheme->m_windowTextColor;

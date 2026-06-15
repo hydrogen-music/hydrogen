@@ -23,6 +23,7 @@
 #include <cstring>
 
 #include "MixerSettingsDialog.h"
+#include "../HydrogenApp.h"
 
 #include <QObject>
 #include <QMessageBox>
@@ -45,7 +46,7 @@ MixerSettingsDialog::MixerSettingsDialog(QWidget* parent)
 
 	setMinimumSize( width(), height() );
 
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = HydrogenApp::pHydrogen()->getSong();
 	
 	/* insert the items here so they work consistently no matter of their order in the menu (except the headings)
 	 */
@@ -124,7 +125,7 @@ void MixerSettingsDialog::on_cancelBtn_clicked()
 
 
 void MixerSettingsDialog::on_okBtn_clicked() {
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = HydrogenApp::pHydrogen()->getSong();
 	bool bOk;
 	
 	// Pan Law settings
@@ -147,7 +148,7 @@ void MixerSettingsDialog::on_okBtn_clicked() {
 	*/
 	pSong->setPanLawKNorm( - 6.0206 / fdBCenterCompensation );
 
-	Hydrogen::get_instance()->setSongModified( true );
+	HydrogenApp::pHydrogen()->setSongModified( true );
 
 	accept();
 }

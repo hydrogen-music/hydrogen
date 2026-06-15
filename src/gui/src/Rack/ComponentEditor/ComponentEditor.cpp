@@ -111,7 +111,7 @@ void ComponentEditor::updateComponents() {
 		return false;
 	};
 
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
 	if ( pInstrument == nullptr || pInstrument->getComponents()->size() == 0 ) {
 		// No components at all
 		for ( auto& ppComponentView : m_componentViews ) {
@@ -177,7 +177,7 @@ void ComponentEditor::drumkitLoadedEvent() {
 
 void ComponentEditor::instrumentLayerChangedEvent( int nId )
 {
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
 	if ( pInstrument != nullptr &&
 		 pInstrument->getId() == static_cast<Instrument::Id>( nId ) ) {
 		updateComponents();
@@ -188,8 +188,8 @@ void ComponentEditor::instrumentParametersChangedEvent(
 	int nInstrumentNumber
 )
 {
-	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	const auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
 
 	// Check if either this particular line or all lines should be updated.
 	if ( pSong != nullptr && pSong->getDrumkit() != nullptr &&
@@ -219,7 +219,7 @@ void ComponentEditor::updateSongEvent( int nValue ) {
 
 void ComponentEditor::updateStyleSheet() {
 	setStyleSheet( QString( "QWidget#ComponentEditor {background-color: %1;}" )
-				   .arg( H2Core::Preferences::get_instance()->
+				   .arg( HydrogenApp::pPreferences()->
 						 getColorTheme()->m_windowColor.name() ) );
 
 	for ( auto& ppComponentView : m_componentViews ) {
@@ -244,13 +244,13 @@ void ComponentEditor::setVisible( bool bVisible )
 }
 
 void ComponentEditor::addComponent() {
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
 		return;
 	}
 
 	// Get initial set of layers for the new component.
-	QString sPath = Preferences::get_instance()->getLastOpenLayerDirectory();
+	QString sPath = HydrogenApp::pPreferences()->getLastOpenLayerDirectory();
 	const QString sFileName = "";
 	if ( !Filesystem::dirReadable( sPath, false ) ) {
 		sPath = QDir::homePath();
@@ -266,7 +266,7 @@ void ComponentEditor::addComponent() {
 		selectedFiles = pFileBrowser->getSelectedFiles();
 
 		if ( sPath != pFileBrowser->getSelectedDirectory() ) {
-			Preferences::get_instance()->setLastOpenLayerDirectory(
+			HydrogenApp::pPreferences()->setLastOpenLayerDirectory(
 				pFileBrowser->getSelectedDirectory()
 			);
 		}
@@ -304,7 +304,7 @@ void ComponentEditor::addComponent() {
 			std::make_shared<H2Core::InstrumentLayer>( pNewSample );
 
 		pNewInstrument->addLayer(
-			pNewComponent, pNewLayer, -1, Event::Trigger::Default, H2Core::Hydrogen::get_instance() );
+			pNewComponent, pNewLayer, -1, Event::Trigger::Default, HydrogenApp::pHydrogen() );
 
 		if ( bRenameInstrument || bRenameComponent ) {
 			sLastCleanedFileName = ssPath.section( '/', -1 );
@@ -356,7 +356,7 @@ void ComponentEditor::onPreferencesChanged(
 	const H2Core::Preferences::Changes& changes
 )
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		updateColors();
@@ -385,13 +385,13 @@ void ComponentEditor::updateSize() {
     m_pComponentsWidget->resize( width(), nNewHeight );
 
 	int nMaxHeight;
-	if ( Hydrogen::get_instance()->getGUIState() ==
+	if ( HydrogenApp::pHydrogen()->getGUIState() ==
 		 Hydrogen::GUIState::ready ) {
         const auto pRack = HydrogenApp::get_instance()->getRack();
         nMaxHeight = pRack->height() - pRack->tabBar()->height();
 	}
 	else {
-        nMaxHeight = Preferences::get_instance()->getRackProperties().height - 30;
+        nMaxHeight = HydrogenApp::pPreferences()->getRackProperties().height - 30;
 	}
 
 	resize( width(), std::min( nNewHeight, nMaxHeight ) );

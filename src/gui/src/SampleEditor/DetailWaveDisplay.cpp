@@ -21,6 +21,7 @@
  */
 
 #include "DetailWaveDisplay.h"
+#include "../HydrogenApp.h"
 
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/Sample.h>
@@ -53,7 +54,7 @@ void DetailWaveDisplay::paintEvent( QPaintEvent* ev )
 		return;
 	}
 
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	drawPeakData();
 
@@ -95,7 +96,7 @@ void DetailWaveDisplay::drawPeakData()
 		)
 	);
 
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
 	QColor backgroundColor;

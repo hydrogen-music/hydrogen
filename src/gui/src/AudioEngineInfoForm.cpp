@@ -90,8 +90,8 @@ void AudioEngineInfoForm::hideEvent ( QHideEvent* )
 
 void AudioEngineInfoForm::updateInfo()
 {
-	const auto pPref = Preferences::get_instance();
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
+	Hydrogen *pHydrogen = HydrogenApp::pHydrogen();
 	AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();;
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
@@ -216,7 +216,7 @@ void AudioEngineInfoForm::updateInfo()
 void AudioEngineInfoForm::updateAudioEngineState() {
 	engineStateLbl->setText(
 		AudioEngine::StateToQString(
-			H2Core::Hydrogen::get_instance()->getAudioEngine()->getState() ) );
+			HydrogenApp::pHydrogen()->getAudioEngine()->getState() ) );
 }
 
 

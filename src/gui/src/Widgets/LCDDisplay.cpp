@@ -51,7 +51,7 @@ LCDDisplay::LCDDisplay( QWidget * pParent, const QSize& size, bool bFixedFont,
 	int nStepSize = 2;
 
 	m_fontPointSizes.resize( 3 );
-	switch ( H2Core::Preferences::get_instance()->getFontTheme()->m_fontSize ) {
+	switch ( HydrogenApp::pPreferences()->getFontTheme()->m_fontSize ) {
 	case H2Core::FontTheme::FontSize::Small:
 		m_fontPointSizes[ 0 ] = currentFont.pointSize();
 		break;
@@ -108,7 +108,7 @@ void LCDDisplay::updateFont() {
 		return;
 	}
 
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+	const auto pFontTheme = HydrogenApp::pPreferences()->getFontTheme();
 
 	int nIndex = 1;
 	if ( pFontTheme->m_fontSize == H2Core::FontTheme::FontSize::Small ) {
@@ -124,7 +124,7 @@ void LCDDisplay::updateFont() {
 }
 
 void LCDDisplay::updateStyleSheet() {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	QColor textColor, textColorActive;
 	if ( m_bUseRedFont ) {
@@ -176,7 +176,7 @@ void LCDDisplay::onPreferencesChanged( const H2Core::Preferences::Changes& chang
 }
 
 void LCDDisplay::paintEvent( QPaintEvent *ev ) {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	QLineEdit::paintEvent( ev );
 	updateFont();

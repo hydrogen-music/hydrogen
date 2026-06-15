@@ -69,7 +69,7 @@ void DeviceComboBox::showPopup()
 	if ( m_driver == Preferences::AudioDriver::PortAudio ) {
 #ifdef H2CORE_HAVE_PORTAUDIO
 		auto pDriver = std::dynamic_pointer_cast<PortAudioDriver>(
-			Hydrogen::get_instance()->getAudioEngine()->getAudioDriver()
+			HydrogenApp::pHydrogen()->getAudioEngine()->getAudioDriver()
 		);
 		if ( pDriver != nullptr ) {
 			// Get device list for PortAudio based on current value of the API
@@ -83,7 +83,7 @@ void DeviceComboBox::showPopup()
 	else if ( m_driver == Preferences::AudioDriver::CoreAudio ) {
 #ifdef H2CORE_HAVE_COREAUDIO
 		auto pDriver =
-			Hydrogen::get_instance()->getAudioEngine()->getAudioDriver();
+			HydrogenApp::pHydrogen()->getAudioEngine()->getAudioDriver();
 		if ( pDriver != nullptr ) {
 			for ( QString s : pDriver->getDevices() ) {
 				addItem( s );
@@ -122,7 +122,7 @@ void HostAPIComboBox::showPopup()
 #ifdef H2CORE_HAVE_PORTAUDIO
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 	auto pDriver = std::dynamic_pointer_cast<PortAudioDriver>(
-		Hydrogen::get_instance()->getAudioEngine()->getAudioDriver()
+		HydrogenApp::pHydrogen()->getAudioEngine()->getAudioDriver()
 	);
 	if ( pDriver != nullptr ) {
 		addItems( pDriver->getHostAPIs() );
@@ -167,8 +167,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	, m_changes( H2Core::Preferences::Changes::None )
 	, m_bShortcutsChanged( false )
 	, m_selectedCategory( H2Core::Shortcuts::Category::All )
-	, m_pCurrentTheme( std::make_shared<Theme>(H2Core::Preferences::get_instance()->getTheme()) )
-	, m_pPreviousTheme( std::make_shared<Theme>(H2Core::Preferences::get_instance()->getTheme()) )
+	, m_pCurrentTheme( std::make_shared<Theme>(HydrogenApp::pPreferences()->getTheme()) )
+	, m_pPreviousTheme( std::make_shared<Theme>(HydrogenApp::pPreferences()->getTheme()) )
 	, m_bAudioDriverRestartRequired( false )
 	, m_bMidiDriverRestartRequired( false )
 {
@@ -183,10 +183,10 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	connect( this, &PreferencesDialog::rejected, this, &PreferencesDialog::onRejected );
 
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 
 	///////
 	// General tab
@@ -731,8 +731,8 @@ void PreferencesDialog::on_cancelBtn_clicked() {
 }
 
 void PreferencesDialog::writeAudioDriverPreferences() {
-	auto pPref = Preferences::get_instance();
-	auto pAudioDriver = Hydrogen::get_instance()->getAudioDriver();
+	auto pPref = HydrogenApp::pPreferences();
+	auto pAudioDriver = HydrogenApp::pHydrogen()->getAudioDriver();
 
 	bool bAudioOptionAltered = false;
 	const auto prevAudioDriver = pPref->m_audioDriver;
@@ -879,7 +879,7 @@ void PreferencesDialog::writeAudioDriverPreferences() {
 }
 
 void PreferencesDialog::writeMidiDriverPreferences() {
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 
 	bool bMidiOptionAltered = false;
 	if ( m_pMidiDriverComboBox->currentText() !=
@@ -920,8 +920,8 @@ void PreferencesDialog::on_okBtn_clicked()
 {
 	auto pH2App = HydrogenApp::get_instance();
 	auto pCommonStrings = pH2App->getCommonStrings();
-	auto pPref = Preferences::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 
 	//////////////////////////////////////////////////////////////////
 	// Audio tab
@@ -961,19 +961,19 @@ void PreferencesDialog::on_okBtn_clicked()
 		 resampleComboBox->currentIndex() ) {
 		switch ( resampleComboBox->currentIndex() ){
 		case 0:
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
+			HydrogenApp::pHydrogen()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
 			break;
 		case 1:
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
+			HydrogenApp::pHydrogen()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
 			break;
 		case 2:
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
+			HydrogenApp::pHydrogen()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
 			break;
 		case 3:
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
+			HydrogenApp::pHydrogen()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
 			break;
 		case 4:
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
+			HydrogenApp::pHydrogen()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
 			break;
 		}
 		bAudioOptionAltered = true;
@@ -1138,9 +1138,9 @@ void PreferencesDialog::portaudioHostAPIComboBoxActivated( int index )
 
 void PreferencesDialog::updateAudioDriverInfo()
 {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pAudioDriver = Hydrogen::get_instance()->getAudioDriver();
+	auto pAudioDriver = HydrogenApp::pHydrogen()->getAudioDriver();
 
 	// Reset info text
 	updateAudioDriverInfoLabel();
@@ -1251,7 +1251,7 @@ void PreferencesDialog::updateAudioDriverInfo()
 void PreferencesDialog::updateAudioDriverInfoLabel() {
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pAudioDriver = Hydrogen::get_instance()->getAudioDriver();
+	auto pAudioDriver = HydrogenApp::pHydrogen()->getAudioDriver();
 	QString sInfo;
 
 	if ( driverComboBox->currentText() ==
@@ -1378,9 +1378,9 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 }
 
 void PreferencesDialog::updateMidiDriverInfo() {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 
 	const auto nMidiIndex = m_pMidiDriverComboBox->findText(
 		Preferences::midiDriverToQString( pPref->m_midiDriver ) );
@@ -1449,7 +1449,7 @@ void PreferencesDialog::updateMidiDriverInfo() {
 }
 
 void PreferencesDialog::setAudioDriverInfoOss() {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	
 	m_pAudioDeviceTxt->show();
 	audioDeviceLbl->show();
@@ -1475,7 +1475,7 @@ void PreferencesDialog::setAudioDriverInfoOss() {
 }
 
 void PreferencesDialog::setAudioDriverInfoAlsa() {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	m_pAudioDeviceTxt->show();
 	audioDeviceLbl->show();
@@ -1515,7 +1515,7 @@ void PreferencesDialog::setAudioDriverInfoJack() {
 	enableTimebaseCheckBox->setEnabled( true );
 	trackOutsCheckBox->setEnabled( true );
 	enforceInstrumentNameCheckBox->setEnabled(
-		Preferences::get_instance()->m_bJackTrackOuts );
+		HydrogenApp::pPreferences()->m_bJackTrackOuts );
 	enforceInstrumentNameCheckBox->hide();
 	trackOutputComboBox->show();
 	trackOutputLbl->show();
@@ -1534,7 +1534,7 @@ void PreferencesDialog::setAudioDriverInfoJack() {
 }
 
 void PreferencesDialog::setAudioDriverInfoCoreAudio() {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	m_pAudioDeviceTxt->show();
 	audioDeviceLbl->show();
@@ -1560,7 +1560,7 @@ void PreferencesDialog::setAudioDriverInfoCoreAudio() {
 }
 
 void PreferencesDialog::setAudioDriverInfoPortAudio() {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	m_pAudioDeviceTxt->show();
 	audioDeviceLbl->show();
@@ -1581,7 +1581,7 @@ void PreferencesDialog::setAudioDriverInfoPortAudio() {
 	latencyTargetSpinBox->show();
 	latencyValueLabel->show();
 
-	const auto pAudioDriver = H2Core::Hydrogen::get_instance()->getAudioDriver();
+	const auto pAudioDriver = HydrogenApp::pHydrogen()->getAudioDriver();
 	int nLatency;
 	if ( pAudioDriver == nullptr ) {
 		ERRORLOG( "AudioDriver is not ready!" );
@@ -1622,7 +1622,7 @@ void PreferencesDialog::setAudioDriverInfoPulseAudio() {
 }
 
 void PreferencesDialog::onApplicationFontComboBoxActivated( int ) {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	const auto font = applicationFontComboBox->currentFont();
 	m_pCurrentTheme->m_pFont->m_sApplicationFontFamily = font.family();
@@ -1636,7 +1636,7 @@ void PreferencesDialog::onApplicationFontComboBoxActivated( int ) {
 }
 
 void PreferencesDialog::onLevel2FontComboBoxActivated( int ) {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	const auto font = level2FontComboBox->currentFont();
 	m_pCurrentTheme->m_pFont->m_sLevel2FontFamily = font.family();
@@ -1650,7 +1650,7 @@ void PreferencesDialog::onLevel2FontComboBoxActivated( int ) {
 }
 
 void PreferencesDialog::onLevel3FontComboBoxActivated( int ) {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	const auto font = level3FontComboBox->currentFont();
 	m_pCurrentTheme->m_pFont->m_sLevel3FontFamily = font.family();
@@ -1669,11 +1669,11 @@ void PreferencesDialog::onRejected() {
 		return;
 	}
 
-	auto pOldPref = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadPreferences(
+	auto pOldPref = HydrogenApp::pHydrogen()->getCoreActionController()->loadPreferences(
 		Filesystem::userConfigPath() );
 	if ( pOldPref == nullptr ) {
 		WARNINGLOG( "Unable to load user-level preferences. Falling back to system one." );
-		pOldPref = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadPreferences(
+		pOldPref = HydrogenApp::pHydrogen()->getCoreActionController()->loadPreferences(
 			Filesystem::systemConfigPath() );
 	}
 	if ( pOldPref == nullptr ) {
@@ -1681,8 +1681,8 @@ void PreferencesDialog::onRejected() {
 		return;
 	}
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pCurrentPref = Preferences::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
+	auto pCurrentPref = HydrogenApp::pPreferences();
 
 	if ( ( m_changes & Preferences::Changes::Font ) ||
 		 ( m_changes & Preferences::Changes::Colors ) ||
@@ -1753,7 +1753,7 @@ void PreferencesDialog::onRejected() {
 }
 
 void PreferencesDialog::onFontSizeChanged( int nIndex ) {
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 
 	switch ( nIndex ) {
 	case 0:
@@ -1791,7 +1791,7 @@ void PreferencesDialog::onUILayoutChanged( int nIndex ) {
 	}
 	m_pCurrentTheme->m_pInterface->m_layout =
 		static_cast<InterfaceTheme::Layout>(nIndex);
-	Preferences::get_instance()->getThemeWritable()->m_pInterface->m_layout =
+	HydrogenApp::pPreferences()->getThemeWritable()->m_pInterface->m_layout =
 		static_cast<InterfaceTheme::Layout>(nIndex);
 
 	m_changes =
@@ -1812,7 +1812,7 @@ void PreferencesDialog::uiScalingPolicyComboBoxCurrentIndexChanged( int nIndex )
 	}
 	m_pCurrentTheme->m_pInterface->m_uiScalingPolicy =
 		static_cast<InterfaceTheme::ScalingPolicy>(nIndex);
-	Preferences::get_instance()->getThemeWritable()->m_pInterface->m_uiScalingPolicy =
+	HydrogenApp::pPreferences()->getThemeWritable()->m_pInterface->m_uiScalingPolicy =
 		static_cast<InterfaceTheme::ScalingPolicy>(nIndex);
 
 	m_changes =
@@ -1825,7 +1825,7 @@ void PreferencesDialog::uiScalingPolicyComboBoxCurrentIndexChanged( int nIndex )
 void PreferencesDialog::onIconColorChanged( int nIndex ) {
 	m_pCurrentTheme->m_pInterface->m_iconColor =
 		static_cast<InterfaceTheme::IconColor>(nIndex);
-	H2Core::Preferences::get_instance()->getThemeWritable()->m_pInterface->m_iconColor =
+	HydrogenApp::pPreferences()->getThemeWritable()->m_pInterface->m_iconColor =
 		static_cast<InterfaceTheme::IconColor>(nIndex);
 
 	m_changes =
@@ -1836,7 +1836,7 @@ void PreferencesDialog::onIconColorChanged( int nIndex ) {
 }
 
 void PreferencesDialog::onColorNumberChanged( int nIndex ) {
-	Preferences::get_instance()->getThemeWritable()->m_pInterface->m_nVisiblePatternColors =
+	HydrogenApp::pPreferences()->getThemeWritable()->m_pInterface->m_nVisiblePatternColors =
 		nIndex;
 	m_pCurrentTheme->m_pInterface->m_nVisiblePatternColors = nIndex;
 	for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
@@ -1862,7 +1862,7 @@ void PreferencesDialog::onColorSelectionClicked() {
 		colors[ ii ] = m_colorSelectionButtons[ ii ]->getColor();
 	}
 	m_pCurrentTheme->m_pInterface->m_patternColors = colors;
-	Preferences::get_instance()->getThemeWritable()->m_pInterface->m_patternColors =
+	HydrogenApp::pPreferences()->getThemeWritable()->m_pInterface->m_patternColors =
 		colors;
 
 	m_changes =
@@ -1875,7 +1875,7 @@ void PreferencesDialog::onColorSelectionClicked() {
 void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
 	m_pCurrentTheme->m_pInterface->m_coloringMethod =
 		static_cast<H2Core::InterfaceTheme::ColoringMethod>(nIndex);
-	Preferences::get_instance()->getThemeWritable()->m_pInterface->m_coloringMethod =
+	HydrogenApp::pPreferences()->getThemeWritable()->m_pInterface->m_coloringMethod =
 		static_cast<H2Core::InterfaceTheme::ColoringMethod>(nIndex);
 
 	if ( nIndex == 0 ) {
@@ -1905,7 +1905,7 @@ void PreferencesDialog::onIndicateNotePlaybackChanged( int ) {
 	const bool bNew = indicateNotePlaybackComboBox->currentIndex() == 0 ?
 		true : false;
 	m_pCurrentTheme->m_pInterface->m_bIndicateNotePlayback = bNew;
-	Preferences::get_instance()->
+	HydrogenApp::pPreferences()->
 		getThemeWritable()->m_pInterface->m_bIndicateNotePlayback = bNew;
 
 	m_changes = static_cast<H2Core::Preferences::Changes>(
@@ -1919,7 +1919,7 @@ void PreferencesDialog::onIndicateEffectiveNoteLengthChanged( int ) {
 	const bool bNew = indicateEffectiveNoteLengthComboBox->currentIndex() == 0 ?
 		true : false;
 	m_pCurrentTheme->m_pInterface->m_bIndicateEffectiveNoteLength = bNew;
-	Preferences::get_instance()->
+	HydrogenApp::pPreferences()->
 		getThemeWritable()->m_pInterface->m_bIndicateEffectiveNoteLength = bNew;
 
 	m_changes = static_cast<H2Core::Preferences::Changes>(
@@ -1930,7 +1930,7 @@ void PreferencesDialog::onIndicateEffectiveNoteLengthChanged( int ) {
 }
 
 void PreferencesDialog::mixerFalloffComboBoxCurrentIndexChanged( int nIndex ) {
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	
 	if ( nIndex == 0 ) {
 		m_pCurrentTheme->m_pInterface->m_fMixerFalloffSpeed =
@@ -1964,7 +1964,7 @@ void PreferencesDialog::on_restartAudioDriverBtn_clicked()
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 
 	writeAudioDriverPreferences();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	pHydrogen->restartAudioDriver();
 
 	QApplication::restoreOverrideCursor();
@@ -1986,7 +1986,7 @@ void PreferencesDialog::on_restartMidiDriverButton_clicked()
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 	
 	writeMidiDriverPreferences();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	pHydrogen->restartMidiDriver();
 
 	QApplication::restoreOverrideCursor();
@@ -2004,7 +2004,7 @@ void PreferencesDialog::styleComboBoxActivated( int index )
 
 		// Instant visual feedback.
 		HydrogenApp::get_instance()->getMainForm()->m_pQApp->setStyle( sStyle );
-		Preferences::get_instance()->getThemeWritable()->m_pInterface->m_sQTStyle =
+		HydrogenApp::pPreferences()->getThemeWritable()->m_pInterface->m_sQTStyle =
 			sStyle;
 
 		m_pCurrentTheme->m_pInterface->m_sQTStyle = sStyle;
@@ -2390,7 +2390,7 @@ void PreferencesDialog::applyCurrentColor() {
 
 	setColorById( m_nCurrentId, *m_pCurrentColor, m_pCurrentTheme->m_pColor );
 
-	H2Core::Preferences::get_instance()->getThemeWritable()->m_pColor =
+	HydrogenApp::pPreferences()->getThemeWritable()->m_pColor =
 		m_pCurrentTheme->m_pColor;
 
 	m_changes =
@@ -2532,7 +2532,7 @@ void PreferencesDialog::vsliderChanged( int nValue ) {
 }
 
 void PreferencesDialog::importTheme() {
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	QString sPath = pPref->getLastImportThemeDirectory();
 	if ( ! H2Core::Filesystem::dirReadable( sPath, false ) ){
 		sPath = Filesystem::systemThemesDir();
@@ -2587,7 +2587,7 @@ void PreferencesDialog::importTheme() {
 }
 
 void PreferencesDialog::exportTheme() {
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	QString sPath = pPref->getLastExportThemeDirectory();
 	if ( ! H2Core::Filesystem::dirWritable( sPath, false ) ){
 		sPath = Filesystem::userThemesDir();
@@ -2625,7 +2625,7 @@ void PreferencesDialog::exportTheme() {
 
 void PreferencesDialog::resetTheme() {
 	m_pCurrentTheme = std::make_shared<Theme>(m_pPreviousTheme);
-	H2Core::Preferences::get_instance()->setTheme( m_pCurrentTheme );
+	HydrogenApp::pPreferences()->setTheme( m_pCurrentTheme );
 	updateAppearanceTab( m_pCurrentTheme );
 	
 	auto changes = static_cast<Preferences::Changes>(

@@ -85,7 +85,7 @@ KeyOctaveLabel::~KeyOctaveLabel()
 
 void KeyOctaveLabel::updateColors()
 {
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 
 	if ( m_type == Type::Key ) {
 		QColor backgroundColor;
@@ -109,7 +109,7 @@ void KeyOctaveLabel::updateColors()
 
 void KeyOctaveLabel::updateFont()
 {
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 
 	int nMargin;
 	switch ( pPref->getFontTheme()->m_fontSize ) {
@@ -136,7 +136,7 @@ void KeyOctaveLabel::paintEvent( QPaintEvent* pEvent )
 	auto p = QPainter( this );
 
 	if ( m_type == Type::Key ) {
-		const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+		const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 		p.fillRect( QRect( 0, 0, width(), height() ), m_backgroundColor );
 
@@ -164,7 +164,7 @@ NotePropertiesRuler::NotePropertiesRuler(
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	m_property = property;
 
-	m_fGridWidth = ( Preferences::get_instance() )->getPatternEditorGridWidth();
+	m_fGridWidth = ( HydrogenApp::pPreferences() )->getPatternEditorGridWidth();
 	m_nEditorWidth = PatternEditor::nMargin +
 					 m_fGridWidth * 4 * 4 * H2Core::nTicksPerQuarter;
 
@@ -995,7 +995,7 @@ void NotePropertiesRuler::mouseDrawUpdate( QMouseEvent* ev )
 	}
 
 	if ( bValueChanged ) {
-		Hydrogen::get_instance()->setPatternModified(
+		HydrogenApp::pHydrogen()->setPatternModified(
 			true, m_pPatternEditorPanel->getPatternNumber()
 		);
 		if ( m_property == PatternEditor::Property::Velocity ) {
@@ -1134,7 +1134,7 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 	}
 
 	if ( bValueChanged ) {
-		Hydrogen::get_instance()->setPatternModified(
+		HydrogenApp::pHydrogen()->setPatternModified(
 			true, m_pPatternEditorPanel->getPatternNumber()
 		);
 	}
@@ -1214,7 +1214,7 @@ void NotePropertiesRuler::applyCursorDelta( float fDelta, bool bKey )
 			updateEditor( Editor::Update::Content );
 		}
 
-		Hydrogen::get_instance()->setPatternModified(
+		HydrogenApp::pHydrogen()->setPatternModified(
 			true, m_pPatternEditorPanel->getPatternNumber()
 		);
 	}
@@ -1222,7 +1222,7 @@ void NotePropertiesRuler::applyCursorDelta( float fDelta, bool bKey )
 
 void NotePropertiesRuler::addUndoAction( const QString& sUndoContext )
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		// No pattern selected.
@@ -1349,7 +1349,7 @@ void NotePropertiesRuler::drawDefaultBackground(
 	int nIncrement
 )
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
 	QColor lineColor( pColorTheme->m_patternEditor_line5Color );
@@ -1362,7 +1362,7 @@ void NotePropertiesRuler::drawDefaultBackground(
 
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
-	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
+	if ( HydrogenApp::pHydrogen()->getMode() == Song::Mode::Pattern ) {
 		backgroundInactiveColor =
 			pColorTheme->m_windowColor.lighter( Skin::nEditorActiveScaling );
 	}
@@ -1708,7 +1708,7 @@ void NotePropertiesRuler::sortAndDrawNotes(
 
 void NotePropertiesRuler::createBackground()
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 
@@ -1725,7 +1725,7 @@ void NotePropertiesRuler::createBackground()
 
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
-	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
+	if ( HydrogenApp::pHydrogen()->getMode() == Song::Mode::Pattern ) {
 		backgroundInactiveColor =
 			pColorTheme->m_windowColor.lighter( Skin::nEditorActiveScaling );
 	}

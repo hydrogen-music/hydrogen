@@ -174,7 +174,7 @@ void LayerPreview::dropEvent( QDropEvent* event )
 		const int nStartLayer = LayerPreview::yToLayer( m_dragStartPoint.y() );
 
 		const auto pInstrument =
-			Hydrogen::get_instance()->getSelectedInstrument();
+			HydrogenApp::pHydrogen()->getSelectedInstrument();
 		const auto pComponent = m_pComponentView->getComponent();
 		if ( pInstrument == nullptr || pComponent == nullptr ) {
 			return;
@@ -224,7 +224,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 		return gradient;
 	};
 
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 	const auto pFontTheme = pPref->getFontTheme();
 
@@ -604,7 +604,7 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
 		return;
 	}
 
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
 		// What is displayed in the component editor _is_ the selected
 		// instrument. In case it is nullptr, we are working on inconsistent
@@ -638,7 +638,7 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
 			// based on the current sample selection algorithm.
 			pNote->setSelectedLayerInfo( nullptr, pComponent );
 
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(
+			HydrogenApp::pHydrogen()->getAudioEngine()->getSampler()->noteOn(
 				pNote
 			);
 		}
@@ -679,7 +679,7 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
 				std::make_shared<Note>( pInstrument, nPosition, fVelocity );
 			pNote->setSelectedLayerInfo( pSelectedLayerInfo, pComponent );
 
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(
+			HydrogenApp::pHydrogen()->getAudioEngine()->getSampler()->noteOn(
 				pNote
 			);
 		}
@@ -850,7 +850,7 @@ void LayerPreview::mouseMoveEvent( QMouseEvent* ev )
 
 			if ( bChanged ) {
 				update();
-				Hydrogen::get_instance()->setDrumkitModified( true );
+				HydrogenApp::pHydrogen()->setDrumkitModified( true );
 			}
 			break;
 		}
@@ -900,7 +900,7 @@ void LayerPreview::showLayerEndVelocity( const std::shared_ptr<InstrumentLayer> 
 
 int LayerPreview::getPointSizeButton() const
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	
 	int nPointSize;
 	

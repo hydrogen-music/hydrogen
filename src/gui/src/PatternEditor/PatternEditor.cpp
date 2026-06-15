@@ -68,7 +68,7 @@ PatternEditor::PatternEditor( QWidget *pParent )
 {
 	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	m_fGridWidth = pPref->getPatternEditorGridWidth();
 	m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * 4 * 4 *
@@ -137,7 +137,7 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 										   bool bIsMappedToDrumkit,
 										   Editor::ActionModifier modifier )
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		ERRORLOG( "No song set yet" );
@@ -296,7 +296,7 @@ void PatternEditor::deselectAndOverwriteNotes(
 
 	// Iterate over all the notes in 'selected' and 'overwrite' by erasing any *other* notes occupying the
 	// same position.
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 
 	bool bPatternModified = false;
 
@@ -346,7 +346,7 @@ void PatternEditor::undoDeselectAndOverwriteNotes(
 		return;
 	}
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	// Restore previously-overwritten notes, and select notes that were selected before.
 	m_selection.clearSelection( /* bCheck=*/false );
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
@@ -392,7 +392,7 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 {
 	auto pPatternEditorPanel =
 		HydrogenApp::get_instance()->getPatternEditorPanel();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
@@ -976,7 +976,7 @@ void PatternEditor::paintEvent( QPaintEvent* ev ) {
 
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	const qreal pixelRatio = devicePixelRatio();
 	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
@@ -1040,7 +1040,7 @@ bool PatternEditor::checkDeselectElements(
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	//	Hydrogen *pH = Hydrogen::get_instance();
+	//	Hydrogen *pH = HydrogenApp::pHydrogen();
 	std::set< std::shared_ptr<Note> > duplicates;
 	for ( const auto& ppNote : elements ) {
 		if ( duplicates.find( ppNote ) != duplicates.end() ) {
@@ -1058,7 +1058,7 @@ bool PatternEditor::checkDeselectElements(
 		}
 	}
 	if ( !duplicates.empty() ) {
-		auto pPref = Preferences::get_instance();
+		auto pPref = HydrogenApp::pPreferences();
 		bool bOk = true;
 
 		if ( pPref->getShowNoteOverwriteWarning() ) {
@@ -2331,7 +2331,7 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 
 	const auto gridPoint = pointToGridPoint( pEv->position().toPoint(), true );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
 	int nLen = gridPoint.getColumn() - m_nDragStartColumn;
@@ -2612,7 +2612,7 @@ void PatternEditor::updateModifiers( QInputEvent *ev ) {
 }
 
 bool PatternEditor::updateWidth() {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 
 	int nEditorWidth, nActiveWidth;
@@ -2666,7 +2666,7 @@ bool PatternEditor::updateWidth() {
 /// Align selected (or all) notes to the current grid
 ///
 void PatternEditor::alignToGrid() {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		// No pattern selected.
@@ -2804,7 +2804,7 @@ void PatternEditor::alignToGrid() {
 }
 
 void PatternEditor::randomizeVelocity() {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		// No pattern selected. Nothing to be randomized.
@@ -2912,7 +2912,7 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 								NoteStyle noteStyle ) const
 {
 	const auto pColorTheme =
-		H2Core::Preferences::get_instance()->getColorTheme();
+		HydrogenApp::pPreferences()->getColorTheme();
 
 	const auto backgroundPenStyle = Qt::DotLine;
 	const auto backgroundBrushStyle = Qt::Dense4Pattern;
@@ -3057,7 +3057,7 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 QColor PatternEditor::computeNoteColor( float fVelocity ) {
 	float fRed, fGreen, fBlue;
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
 	QColor fullColor = pColorTheme->m_patternEditor_noteVelocityFullColor;
@@ -3105,7 +3105,7 @@ QColor PatternEditor::computeNoteColor( float fVelocity ) {
 }
 
 void PatternEditor::drawBorders( QPainter& p ) {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
 	const QColor borderColor( pColorTheme->m_patternEditor_lineColor );
@@ -3137,7 +3137,7 @@ void PatternEditor::drawFocus( QPainter& p ) {
 		return;
 	}
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	QColor color = pPref->getColorTheme()->m_highlightColor;
 
@@ -3223,7 +3223,7 @@ void PatternEditor::drawFocus( QPainter& p ) {
 //! Draw lines for note grid.
 void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) const
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 	const std::vector<QColor> colorsActive = {
 		QColor( pColorTheme->m_patternEditor_line1Color ),
@@ -3608,7 +3608,7 @@ void PatternEditor::drawPattern() {
 	if ( pPattern == nullptr ) {
 		return;
 	}
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const QFont font( pPref->getFontTheme()->m_sApplicationFontFamily,
 					  getPointSize( pPref->getFontTheme()->m_fontSize ) );
 	const QColor textColor(
@@ -3757,7 +3757,7 @@ int PatternEditor::calculateEffectiveNoteLength(
 	}
 
 	// Check for the closest note off or note of the same mute group.
-	if ( Preferences::get_instance()->
+	if ( HydrogenApp::pPreferences()->
 		 getInterfaceTheme()->m_bIndicateEffectiveNoteLength ) {
 
 		const auto pInstrument = pNote->getInstrument();
@@ -3813,7 +3813,7 @@ int PatternEditor::calculateEffectiveNoteLength(
 		const long long nEffectiveFrames =
 			static_cast<int>( Transport::computeFrame(
 				static_cast<double>( nEffectiveLength ),
-				Hydrogen::get_instance()
+				HydrogenApp::pHydrogen()
 					->getAudioEngine()
 					->getPlayhead()
 					->getTickSize()
@@ -3828,7 +3828,7 @@ int PatternEditor::calculateEffectiveNoteLength(
 }
 
 bool PatternEditor::checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) const {
-	if ( ! Preferences::get_instance()->
+	if ( ! HydrogenApp::pPreferences()->
 		 getInterfaceTheme()->m_bIndicateNotePlayback ) {
 		return true;
 	}
@@ -3837,7 +3837,7 @@ bool PatternEditor::checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) con
 		return false;
 	}
 
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pHydrogen()->getSong();
 	// If the note is part of a mute group, only the bottom most note at the
 	// same position within the group will be rendered.
 	if ( pNote->getInstrument()->getMuteGroup() != -1 &&

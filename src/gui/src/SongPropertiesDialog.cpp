@@ -59,9 +59,9 @@ SongPropertiesDialog::SongPropertiesDialog(
 )
 	: QDialog( parent ), m_pSong( pSong ), m_action( action )
 {
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 
 	setMinimumSize( 757, 876 );
 
@@ -397,7 +397,7 @@ SongPropertiesDialog::~SongPropertiesDialog() {
 
 void SongPropertiesDialog::updatePatternLicenseTable() {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	m_pLicensesTable->setColumnCount( 4 );
 	m_pLicensesTable->setHorizontalHeaderLabels(
@@ -495,7 +495,7 @@ void SongPropertiesDialog::on_cancelBtn_clicked()
 void SongPropertiesDialog::on_okBtn_clicked()
 {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	const int nVersion = m_pVersionSpinBox->value();
 	const QString sAuthor = m_pAuthorTxt->text();
 	const QString sSongName = m_pSongNameTxt->text();

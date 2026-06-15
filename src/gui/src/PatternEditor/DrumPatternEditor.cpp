@@ -21,6 +21,7 @@
  */
 
 #include "DrumPatternEditor.h"
+#include "../HydrogenApp.h"
 
 #include "PatternEditorPanel.h"
 #include "../Skin.h"
@@ -50,7 +51,7 @@ DrumPatternEditor::DrumPatternEditor( QWidget* parent )
 	m_type = Editor::Type::Grid;
 	m_instance = Editor::Instance::DrumPattern;
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	m_nGridHeight = pPref->getPatternEditorGridHeight();
 	m_nEditorHeight = m_pPatternEditorPanel->getRowNumberDB() * m_nGridHeight;
@@ -194,7 +195,7 @@ void DrumPatternEditor::selectAll()
 }
 
 void DrumPatternEditor::createBackground() {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
 	QColor lineColor( pColorTheme->m_patternEditor_lineColor );
@@ -216,7 +217,7 @@ void DrumPatternEditor::createBackground() {
 
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
-	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
+	if ( HydrogenApp::pHydrogen()->getMode() == Song::Mode::Pattern ) {
 		backgroundInactiveColor =
 			pColorTheme->m_windowColor.lighter(
 				Skin::nEditorActiveScaling );

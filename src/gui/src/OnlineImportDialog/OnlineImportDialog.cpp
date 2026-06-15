@@ -325,11 +325,11 @@ OnlineImportDialog::OnlineImportDialog(
 		OnlineImportDialog::nMinimumWidth, OnlineImportDialog::nMinimumHeight
 	);
 
-	m_pImporter = new OnlineImporter( H2Core::Hydrogen::get_instance(), this );
+	m_pImporter = new OnlineImporter( HydrogenApp::pHydrogen(), this );
 	connect( m_pImporter, &OnlineImporter::batchFinished, [&]() {
 		setDownloadingState( false );
 
-		auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
+		auto pDB = HydrogenApp::pHydrogen()->getSoundLibraryDatabase();
 
 		// Re-resolve statuses to reflect newly installed items
 		switch ( m_pTypeCombo->currentIndex() ) {
@@ -604,7 +604,7 @@ void OnlineImportDialog::populateSourceMenu()
 
 	m_pSourceMenu->clear();
 
-	const auto repos = Preferences::get_instance()->getOnlineRepos();
+	const auto repos = HydrogenApp::pPreferences()->getOnlineRepos();
 	for ( const auto& sUrl : repos ) {
 		QAction* pAction = m_pSourceMenu->addAction( sUrl );
 		pAction->setCheckable( true );
@@ -647,7 +647,7 @@ void OnlineImportDialog::onEditSources()
 	}
 
 	const QStringList repos = dialog.getSources();
-	Preferences::get_instance()->setOnlineRepos( repos );
+	HydrogenApp::pPreferences()->setOnlineRepos( repos );
 
 	// Reload indices and refresh source menu
 	loadIndices();
@@ -664,7 +664,7 @@ void OnlineImportDialog::loadIndices()
 	m_allSongs.clear();
 	m_allDrumkits.clear();
 
-	const auto repos = Preferences::get_instance()->getOnlineRepos();
+	const auto repos = HydrogenApp::pPreferences()->getOnlineRepos();
 	auto indices = m_pImporter->fetchAllIndices( repos );
 
 	for ( auto& index : indices ) {
@@ -905,7 +905,7 @@ void OnlineImportDialog::updateDetailPanel( const OnlineArtifact* pArtifact )
 
 void OnlineImportDialog::updateStyleSheet()
 {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	const auto borderColor = pColorTheme->m_windowColor.darker( 140 );
 	const auto separatorColor = pColorTheme->m_windowColor;

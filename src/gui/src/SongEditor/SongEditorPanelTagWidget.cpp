@@ -39,7 +39,7 @@ SongEditorPanelTagWidget::SongEditorPanelTagWidget( QWidget* pParent, int nBeat 
 	: QDialog( pParent )
 	, m_nTimelinePosition( nBeat )
 {
-	m_nMaxRows = Preferences::get_instance()->getMaxBars();
+	m_nMaxRows = HydrogenApp::pPreferences()->getMaxBars();
 	setupUi( this );
 	
 	setWindowTitle( tr( "Tag" ) );
@@ -51,7 +51,7 @@ SongEditorPanelTagWidget::~SongEditorPanelTagWidget() {
 
 void SongEditorPanelTagWidget::createTheTagTableWidget()
 {
-	auto pTimeline = Hydrogen::get_instance()->getSong()->getTimeline();
+	auto pTimeline = HydrogenApp::pHydrogen()->getSong()->getTimeline();
 
 	m_oldTags.resize( m_nMaxRows );
 	
@@ -103,7 +103,7 @@ void SongEditorPanelTagWidget::on_okBtn_clicked()
 		tagTableWidget->closePersistentEditor( pCurrentItem );
 	}
 	
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Hydrogen* pHydrogen = HydrogenApp::pHydrogen();
 	auto pTimeline = pHydrogen->getSong()->getTimeline();
 	auto tagVector = pTimeline->getAllTags();
 

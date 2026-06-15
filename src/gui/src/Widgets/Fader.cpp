@@ -184,7 +184,7 @@ void Fader::mousePressEvent(QMouseEvent *ev)
 
 void Fader::paintEvent( QPaintEvent *ev)
 {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	QPainter painter(this);
 	

@@ -85,7 +85,7 @@ Rotary::~ Rotary() {
 
 void Rotary::paintEvent( QPaintEvent* ev )
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
 	ev->accept();

@@ -90,8 +90,8 @@ void LCDCombo::showPopup() {
 }
 
 void LCDCombo::updateStyleSheet() {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
+	const auto pFontTheme = HydrogenApp::pPreferences()->getFontTheme();
 
 	QColor widgetColor = pColorTheme->m_widgetColor;
 	QColor widgetTextColor = pColorTheme->m_widgetTextColor;
@@ -134,7 +134,7 @@ void LCDCombo::onPreferencesChanged( const H2Core::Preferences::Changes& changes
 }
 
 void LCDCombo::paintEvent( QPaintEvent *ev ) {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	QComboBox::paintEvent( ev );
 

@@ -71,6 +71,11 @@ class SampleEditor;
 class SongEditorPanel;
 class SoundLibraryPanel;
 
+namespace H2Core {
+	class Hydrogen;
+	class EventQueue;
+}
+
 /** \ingroup docGUI*/
 class HydrogenApp :  public QObject, public EventListener,  public H2Core::Object<HydrogenApp>
 {
@@ -88,6 +93,27 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 
 		/// Returns the instance of HydrogenApp class
 		static HydrogenApp* get_instance();
+
+		/** @name Engine accessors (ADR 0015/0016)
+		 * The GUI reaches its engine instance through HydrogenApp instead of the
+		 * Hydrogen/Preferences/EventQueue::get_instance() singletons. In
+		 * standalone this is the local engine; ADR 0016 later swaps it for an
+		 * IPC proxy in editor mode. @{ */
+		H2Core::Hydrogen* getHydrogen() const { return m_pHydrogen; }
+		std::shared_ptr<H2Core::Preferences> getPreferences() const;
+		H2Core::EventQueue* getEventQueue() const;
+
+		/** Null-safe static engine accessors used throughout the GUI. Before
+		 * HydrogenApp has been constructed (early startup: MainForm and the
+		 * widgets HydrogenApp itself builds run before its instance pointer is
+		 * set) these fall back to the process-current engine, so construction
+		 * never dereferences a not-yet-ready app. Once the app exists they return
+		 * its held instance. (T1.5 drops the fallback once the GUI is built after
+		 * the engine handle is injected.) */
+		static H2Core::Hydrogen* pHydrogen();
+		static std::shared_ptr<H2Core::Preferences> pPreferences();
+		static H2Core::EventQueue* pEventQueue();
+		/** @} */
 
 		virtual ~HydrogenApp();
 
@@ -320,6 +346,10 @@ signals:
 		 * former one will be ended cleanly. */
 		void handleUndoContext( const QString& sContext, const QString& sText );
 		QUndoStack*			m_pUndoStack;
+		/** The engine instance this GUI drives (ADR 0015/0016). Set at
+		 * construction; reached by the GUI via getHydrogen()/getPreferences()/
+		 * getEventQueue() instead of the get_instance() shims. */
+		H2Core::Hydrogen*	m_pHydrogen;
 		/** If non-empty, indicates that there is currently an additional undo
 		 * macro layer enclosing all new undo macros and commands. See
 		 * handleUndoContext(). */
@@ -389,7 +419,7 @@ inline bool HydrogenApp::hideKeyboardCursor()
 inline void HydrogenApp::setHideKeyboardCursor( bool bHidden )
 {
 	if ( bHidden && ! m_bHideKeyboardCursor ) {
-		if ( H2Core::Preferences::get_instance()->getHideKeyboardCursor() ) {
+		if ( getPreferences()->getHideKeyboardCursor() ) {
 			m_bHideKeyboardCursor = true;
 		}
 	} else {

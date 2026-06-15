@@ -59,7 +59,7 @@ SoundLibraryPanel::SoundLibraryPanel(
 	setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding ) );
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	// DRUMKIT TREE (tab 0)
 	if ( m_pOpenType == nullptr ||
@@ -277,7 +277,7 @@ void SoundLibraryPanel::onTabChanged( int nIndex )
 	UNUSED( nIndex );
 	getCurrentTree()->updateInfo();
 	filterTree( getCurrentTree(), m_pSearchField->text() );
-	Preferences::get_instance()->setSoundLibraryLastTab( nIndex );
+	HydrogenApp::pPreferences()->setSoundLibraryLastTab( nIndex );
 }
 
 void SoundLibraryPanel::onSearchTextChanged( const QString& sText )
@@ -287,7 +287,7 @@ void SoundLibraryPanel::onSearchTextChanged( const QString& sText )
 
 void SoundLibraryPanel::onRescanClicked()
 {
-	H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
+	HydrogenApp::pHydrogen()->getSoundLibraryDatabase()->update();
 }
 
 void SoundLibraryPanel::switchDrumkit(
@@ -302,7 +302,7 @@ void SoundLibraryPanel::switchDrumkit(
 
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit( pNewDrumkit );
+	HydrogenApp::pHydrogen()->getCoreActionController()->setDrumkit( pNewDrumkit );
 
 	QApplication::restoreOverrideCursor();
 }
@@ -380,7 +380,7 @@ void SoundLibraryPanel::onPreferencesChanged(
 void SoundLibraryPanel::updateIcons()
 {
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+	if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	} else {
@@ -398,7 +398,7 @@ void SoundLibraryPanel::updateIcons()
 
 void SoundLibraryPanel::updateStyleSheet()
 {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	const auto backgroundColor = pColorTheme->m_baseColor;
 	const QColor textColor = Skin::moreBlackThanWhite( backgroundColor )

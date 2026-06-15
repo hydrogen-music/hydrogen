@@ -101,9 +101,9 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 
 	HydrogenApp::get_instance()->addEventListener( this );
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pHydrogen = HydrogenApp::pHydrogen();
 	const auto pSong = pHydrogen->getSong();
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	browseBtn->setFixedFontSize( 13 );
 	browseBtn->setSize( QSize( 80, 26 ) );
@@ -253,7 +253,7 @@ ExportSongDialog::~ExportSongDialog()
 
 QString ExportSongDialog::createDefaultFileName()
 {
-	const auto pSong = Hydrogen::get_instance()->getSong();
+	const auto pSong = HydrogenApp::pHydrogen()->getSong();
 	if ( pSong == nullptr ) {
 		return "";
 	}
@@ -272,7 +272,7 @@ QString ExportSongDialog::createDefaultFileName()
 
 void ExportSongDialog::on_browseBtn_clicked()
 {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	QString sPath = pPref->getLastExportSongDirectory();
 	if ( ! Filesystem::dirWritable( sPath, false ) ){
@@ -367,7 +367,7 @@ bool ExportSongDialog::validateUserInput()
 
 void ExportSongDialog::on_okBtn_clicked()
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	const auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
@@ -381,7 +381,7 @@ void ExportSongDialog::on_okBtn_clicked()
 		return;
 	}
 
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 
 	// extracting dirname from export box
 	QString sFileName = exportNameTxt->text();
@@ -594,7 +594,7 @@ void ExportSongDialog::on_okBtn_clicked()
 
 bool ExportSongDialog::instrumentHasNotes( int nInstrumentIndex )
 {
-	const auto pSong = Hydrogen::get_instance()->getSong();
+	const auto pSong = HydrogenApp::pHydrogen()->getSong();
 	if ( pSong == nullptr && pSong->getDrumkit() == nullptr ) {
 		return false;
 	}
@@ -622,7 +622,7 @@ bool ExportSongDialog::instrumentHasNotes( int nInstrumentIndex )
 
 QString ExportSongDialog::findUniqueExportFileNameForInstrument( std::shared_ptr<Instrument> pInstrument )
 {
-	const auto pSong = Hydrogen::get_instance()->getSong();
+	const auto pSong = HydrogenApp::pHydrogen()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return "";
 	}
@@ -651,7 +651,7 @@ QString ExportSongDialog::findUniqueExportFileNameForInstrument( std::shared_ptr
 
 void ExportSongDialog::exportTracks()
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	const auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
@@ -745,8 +745,8 @@ void ExportSongDialog::on_closeBtn_clicked()
 	closeExport();
 }
 void ExportSongDialog::closeExport() {
-	auto pPref = Preferences::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	const auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
@@ -874,10 +874,10 @@ void ExportSongDialog::audioExportProgressEvent( int nValue )
 
 		m_bExporting = false;
 
-		const auto pSong = Hydrogen::get_instance()->getSong();
+		const auto pSong = HydrogenApp::pHydrogen()->getSong();
 		// Check whether an error occured during export.
 		const auto pDriver = std::dynamic_pointer_cast<DiskWriterDriver>(
-			Hydrogen::get_instance()->getAudioEngine()->getAudioDriver()
+			HydrogenApp::pHydrogen()->getAudioEngine()->getAudioDriver()
 		);
 		if ( pDriver != nullptr && pDriver->m_bWritingFailed ) {
 			m_nInstrument = 0;
@@ -919,12 +919,12 @@ void ExportSongDialog::audioExportProgressEvent( int nValue )
 
 void ExportSongDialog::toggleRubberbandBatchMode(bool toggled)
 {
-	Preferences::get_instance()->setRubberBandBatchMode(toggled);
+	HydrogenApp::pPreferences()->setRubberBandBatchMode(toggled);
 }
 
 void ExportSongDialog::toggleTimeLineBPMMode(bool toggled)
 {
-	Hydrogen::get_instance()->setIsTimelineActivated( toggled );
+	HydrogenApp::pHydrogen()->setIsTimelineActivated( toggled );
 }
 
 void ExportSongDialog::resampleComboBoIndexChanged(int index )
@@ -934,7 +934,7 @@ void ExportSongDialog::resampleComboBoIndexChanged(int index )
 
 void ExportSongDialog::setResamplerMode(int index)
 {
-	auto pSampler = Hydrogen::get_instance()->getAudioEngine()->getSampler();
+	auto pSampler = HydrogenApp::pHydrogen()->getAudioEngine()->getSampler();
 	switch ( index ){
 	case 0:
 		pSampler->setInterpolateMode( Interpolation::InterpolateMode::Linear );
@@ -956,7 +956,7 @@ void ExportSongDialog::setResamplerMode(int index)
 
 bool ExportSongDialog::checkUseOfRubberband()
 {
-	const auto pSong = Hydrogen::get_instance()->getSong();
+	const auto pSong = HydrogenApp::pHydrogen()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return false;
 	}

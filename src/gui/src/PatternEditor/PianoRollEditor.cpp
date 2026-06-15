@@ -57,7 +57,7 @@ PitchLabel::PitchLabel( QWidget* pParent, const QString& sText, int nHeight )
 	setIndent( 2 );
 
 	updateFont();
-	setBackgroundColor( H2Core::Preferences::get_instance()->getColorTheme()->
+	setBackgroundColor( HydrogenApp::pPreferences()->getColorTheme()->
 		m_patternEditor_backgroundColor );
 	updateStyleSheet();
 }
@@ -77,7 +77,7 @@ void PitchLabel::setBackgroundColor( const QColor& backgroundColor ) {
 
 
 void PitchLabel::updateStyleSheet() {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	QColor textColor;
 	if ( m_bSelected ) {
@@ -130,7 +130,7 @@ void PitchLabel::mousePressEvent( QMouseEvent* pEvent ) {
 
 void PitchLabel::paintEvent( QPaintEvent* ev )
 {
-    const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+    const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	auto p = QPainter( this );
 
@@ -161,7 +161,7 @@ void PitchLabel::paintEvent( QPaintEvent* ev )
 
 void PitchLabel::updateFont() {
 
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+	const auto pFontTheme = HydrogenApp::pPreferences()->getFontTheme();
 
 	float fScalingFactor = 1.0;
     switch ( pFontTheme->m_fontSize ) {
@@ -453,7 +453,7 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent )
 	m_type = Editor::Type::Grid;
 	m_instance = Editor::Instance::PianoRoll;
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	QFont font( pPref->getFontTheme()->m_sApplicationFontFamily,
 				getPointSize( pPref->getFontTheme()->m_fontSize ) );
 	setFont( font );
@@ -606,7 +606,7 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 
 void PianoRollEditor::createBackground()
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
 	auto pPattern = m_pPatternEditorPanel->getPattern();
@@ -624,7 +624,7 @@ void PianoRollEditor::createBackground()
 		pColorTheme->m_windowTextColor.darker( 170 ) );
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
-	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
+	if ( HydrogenApp::pHydrogen()->getMode() == Song::Mode::Pattern ) {
 		backgroundInactiveColor = pColorTheme->m_windowColor.lighter(
 			Skin::nEditorActiveScaling );
 	}

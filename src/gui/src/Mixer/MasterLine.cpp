@@ -58,7 +58,7 @@ MasterLine::MasterLine( QWidget* pParent )
 	// Background image
 	setPixmap( "/mixerPanel/masterMixerline_background.png" );
 
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	m_pFader = new Fader(
@@ -68,7 +68,7 @@ MasterLine::MasterLine( QWidget* pParent )
 	m_pFader->setModifierTarget( Modifier::Song );
 	m_pFader->move( 24, 75 );
 	connect( m_pFader, &Fader::valueChanged, [&]() {
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->setMasterVolume( m_pFader->getValue() );
+		HydrogenApp::pHydrogen()->getCoreActionController()->setMasterVolume( m_pFader->getValue() );
 		HydrogenApp::get_instance()->showStatusBarMessage(
 			tr( "Set master volume [%1]" ).arg( m_pFader->getValue(), 0, 'f', 2 ),
 			QString( "%1:faderChanged" ).arg( class_name() ) );
@@ -95,7 +95,7 @@ MasterLine::MasterLine( QWidget* pParent )
 	) );
 	m_pHumanizeVelocityRotary->move( 66, 88 );
 	connect( m_pHumanizeVelocityRotary, &Rotary::valueChanged, [&]() {
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->setHumanizeVelocity(
+		HydrogenApp::pHydrogen()->getCoreActionController()->setHumanizeVelocity(
 			m_pHumanizeVelocityRotary->getValue() );
 		HydrogenApp::get_instance()->showStatusBarMessage(
 			tr( "Set humanize vel. param [%1]" )
@@ -111,7 +111,7 @@ MasterLine::MasterLine( QWidget* pParent )
 	) );
 	m_pHumanizeTimeRotary->move( 66, 125 );
 	connect( m_pHumanizeTimeRotary, &Rotary::valueChanged, [&]() {
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->setHumanizeTime(
+		HydrogenApp::pHydrogen()->getCoreActionController()->setHumanizeTime(
 			m_pHumanizeTimeRotary->getValue() );
 		HydrogenApp::get_instance()->showStatusBarMessage(
 			tr( "Set humanize time param [%1]" )
@@ -128,7 +128,7 @@ MasterLine::MasterLine( QWidget* pParent )
 	) );
 	m_pSwingRotary->move( 66, 162 );
 	connect( m_pSwingRotary, &Rotary::valueChanged, [&]() {
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->setSwing( m_pSwingRotary->getValue() );
+		HydrogenApp::pHydrogen()->getCoreActionController()->setSwing( m_pSwingRotary->getValue() );
 		HydrogenApp::get_instance()->showStatusBarMessage(
 			tr( "Set swing factor [%1]")
 			.arg( m_pSwingRotary->getValue(), 0, 'f', 2 ),
@@ -146,7 +146,7 @@ MasterLine::MasterLine( QWidget* pParent )
 		std::make_shared<MidiAction>( MidiAction::Type::MuteToggle )
 	);
 	connect( m_pMuteBtn, &QPushButton::clicked, [&]() {
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->setMasterIsMuted( m_pMuteBtn->isChecked() );
+		HydrogenApp::pHydrogen()->getCoreActionController()->setMasterIsMuted( m_pMuteBtn->isChecked() );
 	});
 
 	m_pMasterLbl = new ClickableLabel(
@@ -177,7 +177,7 @@ MasterLine::~MasterLine() {
 }
 
 void MasterLine::updateColors() {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	m_pMuteBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
 	m_pMuteBtn->setCheckedBackgroundTextColor(
@@ -185,7 +185,7 @@ void MasterLine::updateColors() {
 }
 
 void MasterLine::updateLine() {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pHydrogen()->getSong();
 	if ( pSong == nullptr ) {
 		m_pFader->setIsActive( false );
 		m_pHumanizeTimeRotary->setIsActive( false );
@@ -215,10 +215,10 @@ void MasterLine::updateLine() {
 }
 
 void MasterLine::updatePeaks() {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const float fFallOffSpeed =
 		pPref->getInterfaceTheme()->m_fMixerFalloffSpeed;
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	float fNewPeak_L = pAudioEngine->getMasterPeak_L();

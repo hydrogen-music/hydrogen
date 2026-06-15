@@ -64,7 +64,7 @@ void PlaybackTrackWaveDisplay::dropEvent( QDropEvent* event )
 		// someone dragged a file from an external tool.
 		// check if is a supported sample, and then try to load it
 		if ( sText.startsWith( "file://" ) ) {
-			Hydrogen::get_instance()->loadPlaybackTrack(
+			HydrogenApp::pHydrogen()->loadPlaybackTrack(
 				urlList.at( 0 ).toLocalFile()
 			);
 			HydrogenApp* pH2App = HydrogenApp::get_instance();
@@ -93,7 +93,7 @@ void PlaybackTrackWaveDisplay::updatePeakData()
 		m_peakDataMin.resize( width() );
 	}
 
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pHydrogen()->getSong();
 	if ( m_pLayer == nullptr || m_pLayer->getSample() == nullptr ||
 		 pSong == nullptr ) {
 		for ( int ii = 0; ii < m_peakData.size(); ++ii ) {
@@ -109,7 +109,7 @@ void PlaybackTrackWaveDisplay::updatePeakData()
 	auto pH2App = HydrogenApp::get_instance();
 	const auto nSongLengthInTicks = pSong->lengthInTicks();
 	const auto pColumns = pSong->getPatternGroupVector();
-	const auto nMaxBars = Preferences::get_instance()->getMaxBars();
+	const auto nMaxBars = HydrogenApp::pPreferences()->getMaxBars();
 	auto pSampleData = m_pLayer->getSample()->getData_L();
 	const long long nSampleLength = m_pLayer->getSample()->getFrames();
 	const float fGain = height() / 2.0 * m_pLayer->getGain();
@@ -118,7 +118,7 @@ void PlaybackTrackWaveDisplay::updatePeakData()
 	// this within the increment.
 	const float fStep =
 		static_cast<float>( m_pLayer->getSample()->getSampleRate() ) /
-		static_cast<float>( Hydrogen::get_instance()
+		static_cast<float>( HydrogenApp::pHydrogen()
 								->getAudioEngine()
 								->getAudioDriver()
 								->getSampleRate() );

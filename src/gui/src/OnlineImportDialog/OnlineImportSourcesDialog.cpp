@@ -50,7 +50,7 @@ OnlineImportSourcesDialog::OnlineImportSourcesDialog( QWidget* pParent )
 	setWindowTitle( pCommonStrings->getManageSourcesTitle() );
 	setMinimumWidth( OnlineImportSourcesDialog::nMinimumWidth );
 
-	const auto repos = Preferences::get_instance()->getOnlineRepos();
+	const auto repos = HydrogenApp::pPreferences()->getOnlineRepos();
 	for ( const auto& sUrl : repos ) {
 		m_sources << sUrl;
 	}
@@ -140,7 +140,7 @@ void OnlineImportSourcesDialog::populateTable()
 	// Bottom row: "+" add button in the right column (same column as bin
 	// buttons)
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+	if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	}
@@ -223,7 +223,7 @@ void OnlineImportSourcesDialog::addRow( const QString& sUrl )
 
 	// Remove button in right column
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+	if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	}
@@ -292,7 +292,7 @@ void OnlineImportSourcesDialog::checkAllSourceStatus()
 		}
 
 		QString sError;
-		OnlineImporter importer( H2Core::Hydrogen::get_instance() );
+		OnlineImporter importer( HydrogenApp::pHydrogen() );
 		const auto index =
 			importer.fetchAndParseIndex( QUrl( sUrl ), 5000, &sError );
 		if ( sError.isEmpty() && !index.sVersion.isEmpty() ) {
@@ -310,7 +310,7 @@ void OnlineImportSourcesDialog::checkAllSourceStatus()
 void OnlineImportSourcesDialog::updateStyleSheet()
 {
 	const QColor backgroundColor =
-		Preferences::get_instance()->getColorTheme()->m_midLightColor;
+		HydrogenApp::pPreferences()->getColorTheme()->m_midLightColor;
 
 	m_pTable->setStyleSheet(
 		QString( "                \

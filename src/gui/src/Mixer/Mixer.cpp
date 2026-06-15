@@ -52,7 +52,7 @@ Mixer::Mixer( QWidget* pParent )
 {
 	setWindowTitle( tr( "Mixer" ) );
 
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	const int nFixedHeight = MasterLine::nHeight;
@@ -156,7 +156,7 @@ void Mixer::updateMixer()
 		return;
 	}
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
@@ -245,7 +245,7 @@ void Mixer::resizeEvent( QResizeEvent *ev ) {
 
 void Mixer::showPeaksBtnClicked()
 {
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 
 	if ( m_pShowPeaksBtn->isChecked() ) {
 		pPref->setInstrumentPeaks( true );
@@ -262,7 +262,7 @@ void Mixer::openMixerSettingsDialog() {
 }
 
 void Mixer::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		for ( auto& ppMixerLine : m_mixerLines ) {
@@ -282,7 +282,7 @@ void Mixer::drumkitLoadedEvent() {
 }
 
 void Mixer::instrumentMuteSoloChangedEvent( int nInstrumentIndex ) {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pHydrogen()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -305,7 +305,7 @@ void Mixer::instrumentMuteSoloChangedEvent( int nInstrumentIndex ) {
 }
 
 void Mixer::instrumentParametersChangedEvent( int nInstrumentIndex ) {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pHydrogen()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -331,7 +331,7 @@ void Mixer::mixerSettingsChangedEvent() {
 }
 
 void Mixer::noteRenderEvent( int nInstrumentIndex ) {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pHydrogen()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -357,7 +357,7 @@ void Mixer::selectedInstrumentChangedEvent() {
 void Mixer::updatePreferencesEvent( int nValue ) {
 	if ( nValue == 1 ) {
 		// new preferences loaded within the core
-		m_pShowPeaksBtn->setChecked( Preferences::get_instance()->showInstrumentPeaks() );
+		m_pShowPeaksBtn->setChecked( HydrogenApp::pPreferences()->showInstrumentPeaks() );
 	}
 }
 
@@ -369,7 +369,7 @@ void Mixer::updateSongEvent( int ) {
 void Mixer::resizeFaderPanel() {
 	int nWidth = Mixer::nMinimumFaderPanelWidth;
 
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pHydrogen()->getSong();
 	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
 		nWidth = std::max( pSong->getDrumkit()->getInstruments()->size() *
 						   MixerLine::nWidth,

@@ -21,6 +21,7 @@
  */
 
 #include "ColoredButton.h"
+#include "../HydrogenApp.h"
 
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
@@ -51,7 +52,7 @@ ColoredButton::ColoredButton(
 	m_nModifierTarget = Modifier::None;
 
 	const auto pColorTheme =
-		H2Core::Preferences::get_instance()->getColorTheme();
+		HydrogenApp::pPreferences()->getColorTheme();
 	m_defaultBackgroundColor = pColorTheme->m_widgetColor;
 
 	setFixedFontSize(
@@ -104,7 +105,7 @@ void ColoredButton::paintEvent( QPaintEvent* pEvent )
 	}
 
 	QColor outlineColor;
-	if ( H2Core::Preferences::get_instance()
+	if ( HydrogenApp::pPreferences()
 			 ->getInterfaceTheme()
 			 ->m_iconColor == H2Core::InterfaceTheme::IconColor::White ) {
 		outlineColor = textColor.lighter( 235 );
@@ -148,7 +149,7 @@ void ColoredButton::resizeEvent( QResizeEvent* pEvent )
 
 void ColoredButton::updateStyleSheet()
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
     const auto pColorTheme = pPref->getColorTheme();
 	QColor borderColor;
 	if ( pPref->getInterfaceTheme()->m_iconColor ==

@@ -35,7 +35,7 @@ Footer::Footer( QWidget* pParent) : QWidget( pParent )
 								  , m_nXRuns( 0 )
 								  , m_bCpuLoadWarning( false )
 {
-	const auto pSong = Hydrogen::get_instance()->getSong();
+	const auto pSong = HydrogenApp::pHydrogen()->getSong();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	setFixedHeight( Footer::nHeight );
@@ -124,7 +124,7 @@ void Footer::XRunEvent() {
 
 void Footer::showStatusBarMessage( const QString& sMessage,
 										  const QString& sCaller ) {
-	if ( H2Core::Hydrogen::get_instance()->getGUIState() ==
+	if ( HydrogenApp::pHydrogen()->getGUIState() ==
 		 H2Core::Hydrogen::GUIState::ready ) {
 		m_pStatusMessageDisplay->showMessage( sMessage, sCaller );
 	}
@@ -142,7 +142,7 @@ void Footer::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 }
 
 void Footer::updateCpuLoad() {
-	auto pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pHydrogen()->getAudioEngine();
 	int nPercentage = 0;
 	if ( pAudioEngine->getMaxProcessTime() != 0.0 ) {
 		nPercentage = std::clamp(
@@ -167,7 +167,7 @@ void Footer::updateCpuLoad() {
 
 void Footer::updateCpuLoadLabelWidth() {
 	const int nMargin = 4 * getPointSize(
-		H2Core::Preferences::get_instance()->getFontTheme()->m_fontSize );
+		HydrogenApp::pPreferences()->getFontTheme()->m_fontSize );
 	const QString sText{ "CPU: 100%" };
 
 	m_pCpuGroup->setFixedWidth(
@@ -175,7 +175,7 @@ void Footer::updateCpuLoadLabelWidth() {
 }
 
 void Footer::updateFont() {
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+	const auto pFontTheme = HydrogenApp::pPreferences()->getFontTheme();
 
 	QFont newFont = font();
 	newFont.setFamily( pFontTheme->m_sLevel3FontFamily );
@@ -184,7 +184,7 @@ void Footer::updateFont() {
 }
 
 void Footer::updateStyleSheet() {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	const QColor colorText = pColorTheme->m_windowTextColor;
 	const QColor colorFooter = pColorTheme->m_baseColor;

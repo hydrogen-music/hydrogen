@@ -109,7 +109,7 @@ void SampleEnvelope::drawPoint(
 	}
 
 	if ( style == Style::Hovered || style == Style::Selected ) {
-		const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+		const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 		QColor highlightColor = pColorTheme->m_selectionHighlightColor;
 		if ( style == Style::Hovered ) {
 			if ( Skin::moreBlackThanWhite( highlightColor ) ) {
@@ -163,7 +163,7 @@ void SampleEnvelope::paintEvent( QPaintEvent* ev )
 		return;
 	}
 
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	QColor velocityColor( pColorTheme->m_sampleEditor_velocityEnvelopeColor );
 	QColor panColor( pColorTheme->m_sampleEditor_panEnvelopeColor );
 	const QColor selectionColor = pColorTheme->m_selectionHighlightColor;

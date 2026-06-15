@@ -38,6 +38,7 @@
 #include <core/Preferences/Preferences.h>
 
 #include "Compatibility/MouseEvent.h"
+#include "HydrogenApp.h"
 #include "Widgets/EditorDefs.h"
 
 namespace H2Core {
@@ -553,7 +554,7 @@ public:
 	//! Paint selection-related elements (ie lasso)
 	void paintSelection( QPainter *painter ) {
 		if ( m_selectionState == MouseLasso || m_selectionState == KeyboardLasso ) {
-			QPen pen( H2Core::Preferences::get_instance()->getColorTheme()->
+			QPen pen( HydrogenApp::pPreferences()->getColorTheme()->
 					  m_selectionHighlightColor );
 			pen.setStyle( Qt::DotLine );
 			pen.setWidth(2);

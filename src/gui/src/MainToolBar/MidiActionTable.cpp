@@ -49,7 +49,7 @@ MidiActionTable::MidiActionTable( QWidget* pParent ) : QTableWidget( pParent )
 	m_availableActions << "";
 
 	const auto pActionHandler =
-		Hydrogen::get_instance()->getMidiActionManager();
+		HydrogenApp::pHydrogen()->getMidiActionManager();
 	for ( const auto& ttype : pActionHandler->getMidiActions() ) {
 		m_availableActions << MidiAction::typeToQString( ttype );
 	}
@@ -117,7 +117,7 @@ void MidiActionTable::resetTable()
 	// Initialize all data with the ones found in data structure loaded from
 	// disk. Afterwards, #m_tableData will serve as our single source of truth.
 	const auto midiEvents =
-		Preferences::get_instance()->getMidiEventMap()->getMidiEvents();
+		HydrogenApp::pPreferences()->getMidiEventMap()->getMidiEvents();
 
 	m_tableRows.clear();
 	for ( const auto& ppEvent : midiEvents ) {
@@ -149,9 +149,9 @@ void MidiActionTable::insertRow(
 {
 	if ( eventType != MidiEvent::Type::Null && pMidiAction != nullptr &&
 		 pMidiAction->getType() != MidiAction::Type::Null ) {
-		H2Core::Preferences::get_instance()->getMidiEventMap()->registerEvent(
+		HydrogenApp::pPreferences()->getMidiEventMap()->registerEvent(
 			eventType, eventParameter, pMidiAction, Event::Trigger::Default,
-			H2Core::Hydrogen::get_instance()
+			HydrogenApp::pHydrogen()
 		);
 	}
 
@@ -189,11 +189,11 @@ void MidiActionTable::removeRow( int nRow )
 	const auto row = m_tableRows[nRow];
 	if ( row.eventType != MidiEvent::Type::Null && row.pMidiAction != nullptr &&
 		 row.pMidiAction->getType() != MidiAction::Type::Null ) {
-		H2Core::Preferences::get_instance()
+		HydrogenApp::pPreferences()
 			->getMidiEventMap()
 			->removeRegisteredEvent(
 				row.eventType, row.eventParameter, row.pMidiAction,
-				H2Core::Hydrogen::get_instance()
+				HydrogenApp::pHydrogen()
 			);
 	}
 
@@ -229,20 +229,20 @@ void MidiActionTable::replaceRow(
 	const auto row = m_tableRows[nRow];
 	if ( row.eventType != MidiEvent::Type::Null && row.pMidiAction != nullptr &&
 		 row.pMidiAction->getType() != MidiAction::Type::Null ) {
-		H2Core::Preferences::get_instance()
+		HydrogenApp::pPreferences()
 			->getMidiEventMap()
 			->removeRegisteredEvent(
 				row.eventType, row.eventParameter, row.pMidiAction,
-				H2Core::Hydrogen::get_instance()
+				HydrogenApp::pHydrogen()
 			);
 	}
 
 	// Add new one
 	if ( eventType != MidiEvent::Type::Null && pMidiAction != nullptr &&
 		 pMidiAction->getType() != MidiAction::Type::Null ) {
-		H2Core::Preferences::get_instance()->getMidiEventMap()->registerEvent(
+		HydrogenApp::pPreferences()->getMidiEventMap()->registerEvent(
 			eventType, eventParameter, pMidiAction, Event::Trigger::Default,
-			H2Core::Hydrogen::get_instance()
+			HydrogenApp::pHydrogen()
 		);
 	}
 
@@ -324,13 +324,13 @@ void MidiActionTable::midiSensePressed( int nRow )
 
 void MidiActionTable::appendEmptyRow()
 {
-	auto pMidiActionManager = Hydrogen::get_instance()->getMidiActionManager();
+	auto pMidiActionManager = HydrogenApp::pHydrogen()->getMidiActionManager();
 
 	const int nNewRow = rowCount();
 	setRowCount( rowCount() + 1 );
 
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+	if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	}
@@ -514,7 +514,7 @@ void MidiActionTable::updateRowContent(
 	if ( pActionParameterSpinBox1 != nullptr &&
 		 pActionParameterSpinBox2 != nullptr &&
 		 pActionParameterSpinBox3 != nullptr ) {
-		const int nActionParameters = Hydrogen::get_instance()
+		const int nActionParameters = HydrogenApp::pHydrogen()
 										  ->getMidiActionManager()
 										  ->getParameterNumber( actionType );
 		pActionParameterSpinBox1->setVisible( nActionParameters >= 1 );
@@ -576,7 +576,7 @@ void MidiActionTable::updateRowContent(
 		}
 
 		QString sIconPath( Skin::getSvgImagePath() );
-		if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+		if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 			 InterfaceTheme::IconColor::White ) {
 			sIconPath.append( "/icons/white/" );
 		}
@@ -653,7 +653,7 @@ void MidiActionTable::updateRowVisibility( int nRow )
 		dynamic_cast<SpinBoxWithIcon*>( cellWidget( nRow, 6 ) );
 
 	const int nActionParameters =
-		Hydrogen::get_instance()->getMidiActionManager()->getParameterNumber(
+		HydrogenApp::pHydrogen()->getMidiActionManager()->getParameterNumber(
 			actionType
 		);
 	if ( pActionParameterSpinBox1 != nullptr &&

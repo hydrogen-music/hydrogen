@@ -54,7 +54,7 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 	//infoLog( "INIT" );
 
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
 
@@ -73,7 +73,7 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 	m_pTimer = new QTimer(this);
 	connect(m_pTimer, &QTimer::timeout, [=]() {
-		if ( H2Core::Hydrogen::get_instance()->getAudioEngine()->getState() ==
+		if ( HydrogenApp::pHydrogen()->getAudioEngine()->getState() ==
 			 H2Core::AudioEngine::State::Playing ) {
 			updatePosition();
 		}
@@ -98,7 +98,7 @@ PatternEditorRuler::~PatternEditorRuler() {
 
 void PatternEditorRuler::updatePosition( bool bForce ) {
 	
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	
@@ -200,7 +200,7 @@ void PatternEditorRuler::mousePressEvent( QMouseEvent* ev ) {
 
 	if ( ev->button() == Qt::LeftButton &&
 		 pEv->position().x() < m_nWidthActive ) {
-		auto pHydrogen = Hydrogen::get_instance();
+		auto pHydrogen = HydrogenApp::pHydrogen();
 
 		float fTripletFactor;
 		if ( m_pPatternEditorPanel->isUsingTriplets() ) {
@@ -216,11 +216,11 @@ void PatternEditorRuler::mousePressEvent( QMouseEvent* ev ) {
 			  static_cast<float>(m_pPatternEditorPanel->getResolution()) ) );
 
 		if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
-			H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false );
+			HydrogenApp::pHydrogen()->getCoreActionController()->activateSongMode( false );
 			pHydrogen->setSongModified( true );
 		}
 
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToTick( nNewTick );
+		HydrogenApp::pHydrogen()->getCoreActionController()->locateToTick( nNewTick );
 	}
 }
 
@@ -258,7 +258,7 @@ void PatternEditorRuler::mouseMoveEvent( QMouseEvent* ev ) {
 
 void PatternEditorRuler::updateEditor( bool bRedrawAll )
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = HydrogenApp::pHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	//Do not redraw anything if Export is active.
@@ -285,7 +285,7 @@ void PatternEditorRuler::invalidateBackground()
 
 void PatternEditorRuler::createBackground()
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
 	// Resize pixmap if pixel ratio has changed
@@ -356,7 +356,7 @@ void PatternEditorRuler::createBackground()
 
 void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
@@ -436,7 +436,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 bool PatternEditorRuler::updateActiveRange() {
 	
-	auto pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pHydrogen()->getAudioEngine();
 	int nTicksInPattern = 4 * H2Core::nTicksPerQuarter;
 
 	auto pPlayingPatterns = pAudioEngine->getPlayingPatterns();

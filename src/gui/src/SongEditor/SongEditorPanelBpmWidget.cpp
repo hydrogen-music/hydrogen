@@ -47,7 +47,7 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int nColum
 	adjustSize();
 	setFixedSize( width(), height() );
 
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pHydrogen()->getSong();
     if ( pSong == nullptr ) {
         reject();
     }
@@ -55,7 +55,7 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int nColum
 	bpmSpinBox->setType( LCDSpinBox::Type::Double );
 	bpmSpinBox->setMinimum( MIN_BPM );
 	bpmSpinBox->setMaximum( MAX_BPM );
-	bpmSpinBox->setValue( pSong->getTimeline()->getTempoAtColumn( m_nColumn, H2Core::Hydrogen::get_instance() ) );
+	bpmSpinBox->setValue( pSong->getTimeline()->getTempoAtColumn( m_nColumn, HydrogenApp::pHydrogen() ) );
 	bpmSpinBox->setToolTip( bTempoMarkerPresent ?
 								tr( "Alter tempo of selected tempo marker" ) :
 								tr( "Set tempo of new tempo marker" ) );
@@ -65,7 +65,7 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int nColum
 
 	columnSpinBox->setType( LCDSpinBox::Type::Int );
 	columnSpinBox->setMinimum( 1 );
-	columnSpinBox->setMaximum( Preferences::get_instance()->getMaxBars() );
+	columnSpinBox->setMaximum( HydrogenApp::pPreferences()->getMaxBars() );
 	columnSpinBox->setValue( m_nColumn + 1 );
 	columnSpinBox->setToolTip( bTempoMarkerPresent ?
 								tr( "Move tempo marker to different column" ) :
@@ -111,7 +111,7 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 		return;
 	}
 
-	auto pTimeline = Hydrogen::get_instance()->getSong()->getTimeline();
+	auto pTimeline = HydrogenApp::pHydrogen()->getSong()->getTimeline();
 	int nNewColumn = columnSpinBox->text().toInt() - 1;
 	if ( ! ( m_bTempoMarkerPresent && nNewColumn == m_nColumn ) &&
 		 pTimeline->hasColumnTempoMarker( nNewColumn ) ) {
@@ -122,7 +122,7 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 		return;
 	}
 	
-	float fOldBpm = pTimeline->getTempoAtColumn( m_nColumn, H2Core::Hydrogen::get_instance() );
+	float fOldBpm = pTimeline->getTempoAtColumn( m_nColumn, HydrogenApp::pHydrogen() );
 
 	auto pAction = new SE_editTimelineAction(
 		m_nColumn, nNewColumn, fOldBpm, bpmSpinBox->value(),
@@ -134,10 +134,10 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 
 void SongEditorPanelBpmWidget::on_deleteBtn_clicked()
 {
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Hydrogen* pHydrogen = HydrogenApp::pHydrogen();
 	auto pTimeline = pHydrogen->getSong()->getTimeline();
 
-	float fBpm = pTimeline->getTempoAtColumn( m_nColumn, H2Core::Hydrogen::get_instance() );
+	float fBpm = pTimeline->getTempoAtColumn( m_nColumn, HydrogenApp::pHydrogen() );
 
 	auto pAction = new SE_deleteTimelineAction( m_nColumn, fBpm );
 	HydrogenApp::get_instance()->pushUndoCommand( pAction );

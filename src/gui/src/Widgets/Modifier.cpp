@@ -49,7 +49,7 @@ void Modifier::modify()
 		return;
 	}
 
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	switch ( m_nModifierTarget ) {
 		case Drumkit:
 			pHydrogen->setDrumkitModified( true );

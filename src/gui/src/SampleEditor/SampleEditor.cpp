@@ -132,7 +132,7 @@ SampleEditor::SampleEditor(
 	);
 
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto separatorColor =
 		pPref->getColorTheme()->m_windowColor.darker( 135 );
 
@@ -683,7 +683,7 @@ font-weight: bold; "
 
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		const auto pCommonStrings = pHydrogenApp->getCommonStrings();
-		auto pHydrogen = H2Core::Hydrogen::get_instance();
+		auto pHydrogen = HydrogenApp::pHydrogen();
 		auto pAudioEngine = pHydrogen->getAudioEngine();
 
 		auto pNewSample = std::make_shared<Sample>(
@@ -711,7 +711,7 @@ font-weight: bold; "
 			return;
 		}
 		pNewInstrument->setSample(
-			pNewComponent, pNewLayer, pNewSample, Event::Trigger::Suppress, H2Core::Hydrogen::get_instance() );
+			pNewComponent, pNewLayer, pNewSample, Event::Trigger::Suppress, HydrogenApp::pHydrogen() );
 
 		SE_replaceInstrumentAction::Type type;
 		if ( m_pInstrument->getId() == Instrument::PlaybackTrackId ) {
@@ -1091,7 +1091,7 @@ void SampleEditor::drumkitLoadedEvent()
 	// Most likely the user has undone an "apply to sample" action. Pick our
 	// sample from the new drumkit and register the new instrument (which should
 	// have the same ID as the former one).
-	const auto pSong = Hydrogen::get_instance()->getSong();
+	const auto pSong = HydrogenApp::pHydrogen()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -1254,7 +1254,7 @@ void SampleEditor::startPlayback( Playback playback )
 
 	// Reset playhead and other widgets and perform one UI refresh before
 	// starting the actual rendering.
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pHydrogen()->getAudioEngine();
 	m_playback = playback;
 	m_previousState = pAudioEngine->getState();
 	m_selectedSlider = Slider::None;
@@ -1312,7 +1312,7 @@ void SampleEditor::stopPlayback()
 		m_pTargetSection->update();
 	}
 
-	auto pSampler = Hydrogen::get_instance()->getAudioEngine()->getSampler();
+	auto pSampler = HydrogenApp::pHydrogen()->getAudioEngine()->getSampler();
 	pSampler->releasePlayingNotes( m_pPreviewInstrument );
 	pSampler->releasePlayingNotes( m_pPreviewInstrumentOriginal );
 
@@ -1338,7 +1338,7 @@ void SampleEditor::updateTransport()
 		stopPlayback();
 		return;
 	}
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pHydrogen()->getAudioEngine();
 
 	if ( m_previousState != pAudioEngine->getState() ) {
 		WARNINGLOG(
@@ -1513,7 +1513,7 @@ void SampleEditor::updateSample()
 		return;
 	}
 
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pHydrogen()->getAudioEngine();
 	auto pEditSample = std::make_shared<Sample>(
 		m_pSample->getFilePath(), m_pSample->getLicense()
 	);
@@ -1537,7 +1537,7 @@ void SampleEditor::updateSample()
 	m_pPreviewInstrument->setSample(
 		m_pPreviewInstrument->getComponents()->front(),
 		m_pPreviewInstrument->getComponents()->front()->getLayer( 0 ),
-		pEditSample, Event::Trigger::Suppress, H2Core::Hydrogen::get_instance() );
+		pEditSample, Event::Trigger::Suppress, HydrogenApp::pHydrogen() );
 	m_pSample = pEditSample;
 
 	pAudioEngine->unlock();
@@ -1552,7 +1552,7 @@ void SampleEditor::updateSample()
 
 void SampleEditor::reloadLayer()
 {
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pHydrogen()->getAudioEngine();
 	pAudioEngine->lock( RIGHT_HERE );
 
 	m_pSample = std::make_shared<Sample>( m_pLayer->getSample() );
@@ -1561,7 +1561,7 @@ void SampleEditor::reloadLayer()
 	m_pPreviewInstrument->setSample(
 		m_pPreviewInstrument->getComponents()->front(),
 		m_pPreviewInstrument->getComponents()->front()->getLayer( 0 ),
-		m_pSample, Event::Trigger::Suppress, H2Core::Hydrogen::get_instance() );
+		m_pSample, Event::Trigger::Suppress, HydrogenApp::pHydrogen() );
 
 	pAudioEngine->unlock();
 
@@ -1663,7 +1663,7 @@ void SampleEditor::reloadLayer()
 
 void SampleEditor::checkRubberbandSettings()
 {
-	const double fSampleRate = static_cast<double>( Hydrogen::get_instance()
+	const double fSampleRate = static_cast<double>( HydrogenApp::pHydrogen()
 														->getAudioEngine()
 														->getAudioDriver()
 														->getSampleRate() );
@@ -1718,7 +1718,7 @@ void SampleEditor::checkRubberbandSettings()
 
 void SampleEditor::updateStyleSheet()
 {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	const QColor colorBackground = pColorTheme->m_sampleEditor_backgroundColor;
 	const QColor colorFont = pColorTheme->m_sampleEditor_textColor;
 

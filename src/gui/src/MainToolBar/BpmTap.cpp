@@ -77,13 +77,13 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	m_pTapTempoAction->setText(
 		pCommonStrings->getTapTempoToolTip() );
 	connect( m_pTapTempoAction, &QAction::triggered, [=](){
-		auto pPref = Preferences::get_instance();
+		auto pPref = HydrogenApp::pPreferences();
 		if ( pPref->m_bpmTap != Preferences::BpmTap::TapTempo ) {
 			pPref->m_bpmTap = Preferences::BpmTap::TapTempo;
 			auto pHydrogenApp = HydrogenApp::get_instance();
 			pHydrogenApp->showStatusBarMessage(
 				pHydrogenApp->getCommonStrings()->getTapTempoToolTip() );
-			Hydrogen::get_instance()->updateBeatCounterSettings();
+			HydrogenApp::pHydrogen()->updateBeatCounterSettings();
 		}
 	} );
 
@@ -91,7 +91,7 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	m_pBeatCounterTapAction->setText(
 		pCommonStrings->getBeatCounterTapToolTip() );
 	connect( m_pBeatCounterTapAction, &QAction::triggered, [=](){
-		auto pPref = Preferences::get_instance();
+		auto pPref = HydrogenApp::pPreferences();
 		bool bChange = false;
 		if ( pPref->m_bpmTap != Preferences::BpmTap::BeatCounter ) {
 			pPref->m_bpmTap = Preferences::BpmTap::BeatCounter;
@@ -105,7 +105,7 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 			auto pHydrogenApp = HydrogenApp::get_instance();
 			pHydrogenApp->showStatusBarMessage(
 				pHydrogenApp->getCommonStrings()->getBeatCounterTapToolTip() );
-			Hydrogen::get_instance()->updateBeatCounterSettings();
+			HydrogenApp::pHydrogen()->updateBeatCounterSettings();
 		}
 	} );
 
@@ -113,7 +113,7 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	m_pBeatCounterTapAndPlayAction->setText(
 		pCommonStrings->getBeatCounterTapAndPlayToolTip() );
 	connect( m_pBeatCounterTapAndPlayAction, &QAction::triggered, [=](){
-		auto pPref = Preferences::get_instance();
+		auto pPref = HydrogenApp::pPreferences();
 		bool bChange = false;
 		if ( pPref->m_bpmTap != Preferences::BpmTap::BeatCounter ) {
 			pPref->m_bpmTap = Preferences::BpmTap::BeatCounter;
@@ -127,7 +127,7 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 			auto pHydrogenApp = HydrogenApp::get_instance();
 			pHydrogenApp->showStatusBarMessage(
 				pHydrogenApp->getCommonStrings()->getBeatCounterTapAndPlayToolTip() );
-			Hydrogen::get_instance()->updateBeatCounterSettings();
+			HydrogenApp::pHydrogen()->updateBeatCounterSettings();
 		}
 	} );
 
@@ -144,11 +144,11 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	m_pTapButton->setBaseToolTip( tr( "Set BPM / Set BPM and play" ) );
 	m_pTapButton->setObjectName( "BpmTapTapButton" );
 	connect( m_pTapButton, &QToolButton::clicked, [&]() {
-		if ( Preferences::get_instance()->m_bpmTap ==
+		if ( HydrogenApp::pPreferences()->m_bpmTap ==
 			 Preferences::BpmTap::TapTempo ) {
-			Hydrogen::get_instance()->onTapTempoAccelEvent();
+			HydrogenApp::pHydrogen()->onTapTempoAccelEvent();
 		} else {
-			Hydrogen::get_instance()->handleBeatCounter();
+			HydrogenApp::pHydrogen()->handleBeatCounter();
 		}
 		// For instantaneous update.
 		updateBpmTap();
@@ -180,7 +180,7 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	m_pBeatLengthUpBtn->setIconSize( smallIconSize );
 	m_pBeatLengthUpBtn->setFocusPolicy( Qt::ClickFocus );
 	connect( m_pBeatLengthUpBtn, &QToolButton::clicked, [&]() {
-		auto pHydrogen = Hydrogen::get_instance();
+		auto pHydrogen = HydrogenApp::pHydrogen();
 		float fBeatLength = pHydrogen->getBeatCounterBeatLength() * 2;
 		if ( fBeatLength < 1 ) {
 			fBeatLength = 8;
@@ -195,7 +195,7 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	m_pBeatLengthDownBtn->setIconSize( smallIconSize );
 	m_pBeatLengthDownBtn->setFocusPolicy( Qt::ClickFocus );
 	connect( m_pBeatLengthDownBtn, &QToolButton::clicked, [&](){
-		auto pHydrogen = Hydrogen::get_instance();
+		auto pHydrogen = HydrogenApp::pHydrogen();
 		float fBeatLength = pHydrogen->getBeatCounterBeatLength() * 8;
 		if ( fBeatLength > 8 ) {
 			fBeatLength = 1;
@@ -247,7 +247,7 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	m_pTotalBeatsUpBtn->setIconSize( smallIconSize );
 	m_pTotalBeatsUpBtn->setFocusPolicy( Qt::ClickFocus );
 	connect( m_pTotalBeatsUpBtn, &QToolButton::clicked, [&]() {
-		auto pHydrogen = Hydrogen::get_instance();
+		auto pHydrogen = HydrogenApp::pHydrogen();
 		int nBeatsToCount = pHydrogen->getBeatCounterTotalBeats();
 		nBeatsToCount++;
 		if ( nBeatsToCount > 16 ) {
@@ -263,7 +263,7 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	m_pTotalBeatsDownBtn->setIconSize( smallIconSize );
 	m_pTotalBeatsDownBtn->setFocusPolicy( Qt::ClickFocus );
 	connect( m_pTotalBeatsDownBtn, &QToolButton::clicked, [&]() {
-		auto pHydrogen = Hydrogen::get_instance();
+		auto pHydrogen = HydrogenApp::pHydrogen();
 		int nBeatsToCount = pHydrogen->getBeatCounterTotalBeats();
 		nBeatsToCount--;
 		if ( nBeatsToCount < 2 ) {
@@ -286,8 +286,8 @@ BpmTap::~BpmTap(){
 
 void BpmTap::updateBpmTap() {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	const auto pPref = Preferences::get_instance();
-	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
+	const auto pHydrogen = HydrogenApp::pHydrogen();
 
 	auto toSuperScript = []( int nNumber ) {
 		const QString sNumber = QString::number( nNumber );
@@ -412,7 +412,7 @@ void BpmTap::updateBpmTap() {
 void BpmTap::updateIcons() {
 	QColor color;
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+	if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 		color = Qt::white;
@@ -437,7 +437,7 @@ void BpmTap::updateIcons() {
 void BpmTap::updateStyleSheet() {
 
 	const auto pColorTheme =
-		H2Core::Preferences::get_instance()->getColorTheme();
+		HydrogenApp::pPreferences()->getColorTheme();
 
 	const QColor colorText = pColorTheme->m_windowTextColor;
 	const QColor colorLabel = pColorTheme->m_windowColor;

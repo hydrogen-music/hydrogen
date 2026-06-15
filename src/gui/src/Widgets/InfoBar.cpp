@@ -50,7 +50,7 @@ InfoBar::InfoBar( QWidget *parent )
 void InfoBar::updateStyleSheet(){
 
 	setStyleSheet( QString( "background: %1;" ) .arg(
-					   H2Core::Preferences::get_instance()->
+					   HydrogenApp::pPreferences()->
 					   getColorTheme()->m_highlightColor.name() ) );
 }
 

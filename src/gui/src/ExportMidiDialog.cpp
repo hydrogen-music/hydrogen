@@ -62,7 +62,7 @@ ExportMidiDialog::ExportMidiDialog( QWidget* parent )
 		sLastFileName = createDefaultFileName();
 	}
 
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	QDir lastExportDir = QDir( pPref->getLastExportMidiDirectory() );
 
@@ -86,7 +86,7 @@ ExportMidiDialog::~ExportMidiDialog()
 
 QString ExportMidiDialog::createDefaultFileName()
 {
-	const auto pSong = Hydrogen::get_instance()->getSong();
+	const auto pSong = HydrogenApp::pHydrogen()->getSong();
 	if ( pSong == nullptr ) {
 		return "";
 	}
@@ -106,7 +106,7 @@ QString ExportMidiDialog::createDefaultFileName()
 
 void ExportMidiDialog::on_browseBtn_clicked()
 {
-	QString sPath = Preferences::get_instance()->getLastExportMidiDirectory();
+	QString sPath = HydrogenApp::pPreferences()->getLastExportMidiDirectory();
 	if ( ! Filesystem::dirWritable( sPath, false ) ){
 		sPath = Filesystem::userDataPath();
 	}
@@ -159,7 +159,7 @@ bool ExportMidiDialog::validateUserInput( )
 
 void ExportMidiDialog::on_okBtn_clicked()
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	const auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
@@ -171,7 +171,7 @@ void ExportMidiDialog::on_okBtn_clicked()
 	
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	pPref->setMidiExportMode( exportTypeCombo->currentIndex() );
 
 	// extracting dirname from export box
@@ -219,7 +219,7 @@ void ExportMidiDialog::on_okBtn_clicked()
 
 	pPref->setMidiExportUseHumanization( humanizationCheckBox->isChecked() );
 	
-	pSmfWriter->save( sFileName, pSong, humanizationCheckBox->isChecked(), H2Core::Hydrogen::get_instance() );
+	pSmfWriter->save( sFileName, pSong, humanizationCheckBox->isChecked(), HydrogenApp::pHydrogen() );
 
 	// Check whether same time signature were off.
 	const auto timeSignatureFailures = pSmfWriter->getTimeSignatureFailures();

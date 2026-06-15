@@ -63,7 +63,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
     auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pCommonStrings = pHydrogenApp->getCommonStrings();
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
 
 	setObjectName( "ComponentProperties" );
 
@@ -133,7 +133,7 @@ ComponentView::ComponentView( QWidget* pParent,
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
-		auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+		auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
 		if ( pInstrument == nullptr || m_pComponent == nullptr ) {
 			return;
 		}
@@ -208,7 +208,7 @@ ComponentView::ComponentView( QWidget* pParent,
 		createButton( pCommonStrings->getActionDuplicateComponent(), false );
 	connect( m_pDuplicateComponentButton, &QToolButton::clicked, [=]() {
 		const auto pInstrument =
-			Hydrogen::get_instance()->getSelectedInstrument();
+			HydrogenApp::pHydrogen()->getSelectedInstrument();
 		if ( pInstrument == nullptr || m_pComponent == nullptr ) {
 			return;
 		}
@@ -350,7 +350,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	);
 	connect( m_pDuplicateLayerButton, &QToolButton::clicked, [=]() {
 		auto pHydrogenApp = HydrogenApp::get_instance();
-		auto pHydrogen = Hydrogen::get_instance();
+		auto pHydrogen = HydrogenApp::pHydrogen();
 		const auto pInstrument = pHydrogen->getSelectedInstrument();
 		if ( m_pComponent == nullptr || pInstrument == nullptr ) {
 			return;
@@ -373,7 +373,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
 		auto pNewLayer = std::make_shared<InstrumentLayer>( pLayer );
 		pNewInstrument->addLayer(
-			pNewComponent, pNewLayer, m_nSelectedLayer, Event::Trigger::Suppress, H2Core::Hydrogen::get_instance() );
+			pNewComponent, pNewLayer, m_nSelectedLayer, Event::Trigger::Suppress, HydrogenApp::pHydrogen() );
 
 		pHydrogenApp->pushUndoCommand( new SE_replaceInstrumentAction(
 			pNewInstrument, pInstrument,
@@ -648,7 +648,7 @@ ComponentView::~ComponentView() {
 }
 
 void ComponentView::updateColors() {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	m_pComponentMuteBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
 	m_pComponentMuteBtn->setCheckedBackgroundTextColor(
@@ -667,14 +667,14 @@ void ComponentView::updateColors() {
 
 void ComponentView::updateIcons() {
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+	if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	} else {
 		sIconPath.append( "/icons/black/" );
 	}
 
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	const QColor headerInactiveColor = Skin::makeBackgroundColorInactive(pColorTheme->m_componentEditor_componentColor);
 	const QColor layerInactiveColor = Skin::makeBackgroundColorInactive(pColorTheme->m_componentEditor_layerColor);
 
@@ -711,10 +711,10 @@ void ComponentView::updateIcons() {
 }
 
 void ComponentView::updateStyleSheet() {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	QColor iconColor;
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+	if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		iconColor = Qt::white;
 	} else {
@@ -996,7 +996,7 @@ void ComponentView::collapse() {
 
 void ComponentView::deleteComponent() {
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
 
 	if ( pInstrument->getComponents()->size() <= 1 ) {
 		ERRORLOG( "There is just a single component remaining. This one can not be deleted." );
@@ -1025,7 +1025,7 @@ void ComponentView::deleteComponent() {
 void ComponentView::replaceLayer( int nLayer, const QString& sInputSamplePath )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	const auto pInstrument = pHydrogen->getSelectedInstrument();
 	if ( m_pComponent == nullptr || pInstrument == nullptr ) {
 		return;
@@ -1071,7 +1071,7 @@ void ComponentView::replaceLayer( int nLayer, const QString& sInputSamplePath )
 			selectedFiles = pFileBrowser->getSelectedFiles();
 
 			if ( sDir != pFileBrowser->getSelectedDirectory() ) {
-				Preferences::get_instance()->setLastOpenLayerDirectory(
+				HydrogenApp::pPreferences()->setLastOpenLayerDirectory(
 					pFileBrowser->getSelectedDirectory()
 				);
 			}
@@ -1106,7 +1106,7 @@ void ComponentView::replaceLayer( int nLayer, const QString& sInputSamplePath )
 	}
 
 	pNewInstrument->setSample(
-		pNewComponent, pNewLayer, pNewSample, Event::Trigger::Default, H2Core::Hydrogen::get_instance() );
+		pNewComponent, pNewLayer, pNewSample, Event::Trigger::Default, HydrogenApp::pHydrogen() );
 
 	auto sCleanedFileName = sNewSamplePath.section( '/', -1 );
 	sCleanedFileName.replace( "." + sCleanedFileName.section( '.', -1 ), "" );
@@ -1167,7 +1167,7 @@ void ComponentView::setComponent(
 	m_pLayerPreview->updatePreview();
 
 	// if there is just a single component left, we must not allow deleting it.
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
 		return;
 	}
@@ -1187,7 +1187,7 @@ void ComponentView::setLayers(
         return;
 	}
 
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
 	QString sLastCleanedFileName;
 
 	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
@@ -1226,7 +1226,7 @@ void ComponentView::setLayers(
 			std::make_shared<H2Core::InstrumentLayer>( pNewSample );
 
 		pNewInstrument->addLayer(
-			pNewComponent, pNewLayer, m_nSelectedLayer, Event::Trigger::Default, H2Core::Hydrogen::get_instance() );
+			pNewComponent, pNewLayer, m_nSelectedLayer, Event::Trigger::Default, HydrogenApp::pHydrogen() );
 
 		if ( bRenameInstrument || bRenameComponent ) {
 			sLastCleanedFileName = ssPath.section( '/', -1 );
@@ -1369,7 +1369,7 @@ void ComponentView::showSampleEditor() {
 	if ( m_pComponent == nullptr ) {
 		return;
 	}
-	auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
 		return;
 	}
@@ -1390,7 +1390,7 @@ void ComponentView::removeLayerButtonClicked() {
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
 	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
 	auto pNewComponent = pNewInstrument->getComponent(
 		pInstrument->index( m_pComponent ) );
@@ -1408,7 +1408,7 @@ void ComponentView::removeLayerButtonClicked() {
 		pLayer->getSample()->getFileName() : "nullptr";
 
 	pNewInstrument->removeLayer(
-		pNewComponent, m_nSelectedLayer, Event::Trigger::Default, H2Core::Hydrogen::get_instance() );
+		pNewComponent, m_nSelectedLayer, Event::Trigger::Default, HydrogenApp::pHydrogen() );
 
 	pHydrogenApp->pushUndoCommand( new SE_replaceInstrumentAction(
 		pNewInstrument, pInstrument,
@@ -1425,7 +1425,7 @@ void ComponentView::addNewLayer()
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
 	QString sPath =
-		Preferences::get_instance()->getLastOpenLayerDirectory();
+		HydrogenApp::pPreferences()->getLastOpenLayerDirectory();
 	const QString sFileName = "";
 	if ( !Filesystem::dirReadable( sPath, false ) ) {
 		sPath = QDir::homePath();
@@ -1441,7 +1441,7 @@ void ComponentView::addNewLayer()
 		selectedFiles = pFileBrowser->getSelectedFiles();
 
 		if ( sPath != pFileBrowser->getSelectedDirectory() ) {
-			Preferences::get_instance()->setLastOpenLayerDirectory(
+			HydrogenApp::pPreferences()->setLastOpenLayerDirectory(
 				pFileBrowser->getSelectedDirectory()
 			);
 		}

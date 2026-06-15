@@ -221,7 +221,7 @@ QItemSelectionModel::SelectionFlags SoundLibraryTree::selectionCommand(
 
 void SoundLibraryTree::updateFont()
 {
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+	const auto pFontTheme = HydrogenApp::pPreferences()->getFontTheme();
 	QFont boldFont(
 		pFontTheme->m_sApplicationFontFamily,
 		getPointSize( pFontTheme->m_fontSize )
@@ -277,9 +277,9 @@ void SoundLibraryTree::updateRegistry()
 	m_pSystemItem = nullptr;
 	m_pUserItem = nullptr;
 
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pFontTheme = pPref->getFontTheme();
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
@@ -429,32 +429,32 @@ void SoundLibraryTree::addDirToLibrary( const QString& sDirPath )
 	if ( sDirPath.isEmpty() ) {
 		return;
 	}
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 
 	auto customDirs = pPref->getCustomSoundLibraryDirs();
 	customDirs << sDirPath;
 	pPref->setCustomSoundLibraryDirs( customDirs );
 
-	Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
+	HydrogenApp::pHydrogen()->getSoundLibraryDatabase()->update();
 }
 void SoundLibraryTree::removeDirFromLibrary( const QString& sDirPath )
 {
 	if ( sDirPath.isEmpty() ) {
 		return;
 	}
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 
 	auto customDirs = pPref->getCustomSoundLibraryDirs();
 	customDirs.removeAll( sDirPath );
 	pPref->setCustomSoundLibraryDirs( customDirs );
 
-	Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
+	HydrogenApp::pHydrogen()->getSoundLibraryDatabase()->update();
 }
 
 void SoundLibraryTree::actionAdd()
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	if ( pHydrogen->getSong() == nullptr ) {
 		return;
 	}
@@ -474,7 +474,7 @@ void SoundLibraryTree::actionAdd()
 		else if ( m_type == SoundLibraryInfo::Type::Pattern ) {
 			const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 			const auto pPattern =
-				H2Core::Hydrogen::get_instance()->getCoreActionController()->loadPattern( it->second->getPath() );
+				HydrogenApp::pHydrogen()->getCoreActionController()->loadPattern( it->second->getPath() );
 			if ( pPattern == nullptr ) {
 				QMessageBox::critical(
 					this, "Hydrogen", pCommonStrings->getPatternLoadError()
@@ -500,7 +500,7 @@ void SoundLibraryTree::actionAdd()
 
 void SoundLibraryTree::actionLoad()
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto it = m_registry.find( currentItem() );
 	if ( it == m_registry.end() || it->second == nullptr ) {
 		return;
@@ -537,7 +537,7 @@ void SoundLibraryTree::actionLoad()
 
 void SoundLibraryTree::actionProperties()
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto it = m_registry.find( currentItem() );
 	if ( it == m_registry.end() || it->second == nullptr ) {
 		return;
@@ -578,7 +578,7 @@ void SoundLibraryTree::actionProperties()
 			this, pPattern, -1, PatternPropertiesDialog::Action::None
 		);
 		if ( dialog.exec() == QDialog::Accepted ) {
-			pPattern->save( pPattern->getPath(), H2Core::Hydrogen::get_instance() );
+			pPattern->save( pPattern->getPath(), HydrogenApp::pHydrogen() );
 			pDB->updatePatterns( Event::Trigger::Default );
 		}
 	}
@@ -602,7 +602,7 @@ void SoundLibraryTree::actionProperties()
 }
 void SoundLibraryTree::actionDuplicate()
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto it = m_registry.find( currentItem() );
 	if ( it == m_registry.end() || it->second == nullptr ) {
@@ -659,7 +659,7 @@ void SoundLibraryTree::actionDuplicate()
 			)
 		);
 		if ( dialog.exec() == QDialog::Accepted ) {
-			if ( pPattern->save( pPattern->getPath(), H2Core::Hydrogen::get_instance() ) ) {
+			if ( pPattern->save( pPattern->getPath(), HydrogenApp::pHydrogen() ) ) {
 				pDB->updatePatterns( Event::Trigger::Default );
 			}
 			else {
@@ -694,7 +694,7 @@ void SoundLibraryTree::actionDuplicate()
 
 void SoundLibraryTree::actionDelete()
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 
 	// Collect all deletable items from the selection.
 	struct DeleteCandidate {
@@ -835,17 +835,17 @@ void SoundLibraryTree::actionDelete()
 
 	switch ( m_type ) {
 		case SoundLibraryInfo::Type::Drumkit:
-			Hydrogen::get_instance()->getSoundLibraryDatabase()->updateDrumkits(
+			HydrogenApp::pHydrogen()->getSoundLibraryDatabase()->updateDrumkits(
 				Event::Trigger::Default
 			);
 			break;
 		case SoundLibraryInfo::Type::Pattern:
-			Hydrogen::get_instance()->getSoundLibraryDatabase()->updatePatterns(
+			HydrogenApp::pHydrogen()->getSoundLibraryDatabase()->updatePatterns(
 				Event::Trigger::Default
 			);
 			break;
 		default:
-			Hydrogen::get_instance()->getSoundLibraryDatabase()->updateSongs(
+			HydrogenApp::pHydrogen()->getSoundLibraryDatabase()->updateSongs(
 				Event::Trigger::Default
 			);
 	}
@@ -861,7 +861,7 @@ void SoundLibraryTree::actionDelete()
 
 void SoundLibraryTree::actionExport()
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto it = m_registry.find( currentItem() );
 	if ( it == m_registry.end() || it->second == nullptr ) {
 		return;
@@ -884,7 +884,7 @@ void SoundLibraryTree::actionExport()
 }
 void SoundLibraryTree::actionImport()
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto it = m_registry.find( currentItem() );
 	if ( it == m_registry.end() || it->second == nullptr ) {
 		return;
@@ -918,7 +918,7 @@ void SoundLibraryTree::actionOnlineImport()
 
 void SoundLibraryTree::actionAddFolder()
 {
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	FileDialog fd( this );
 
@@ -953,7 +953,7 @@ void SoundLibraryTree::actionRemoveFolder()
 
 void SoundLibraryTree::recursivelyUpdateFont( QTreeWidgetItem* pItem )
 {
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+	const auto pFontTheme = HydrogenApp::pPreferences()->getFontTheme();
 	const QFont font(
 		pFontTheme->m_sLevel2FontFamily, getPointSize( pFontTheme->m_fontSize )
 	);
@@ -1060,7 +1060,7 @@ void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
 			auto it = m_registry.find( currentItem() );
 			if ( it != m_registry.end() && it->second != nullptr &&
 				 it->second->getType() == SoundLibraryInfo::Type::Instrument ) {
-				auto pHydrogen = Hydrogen::get_instance();
+				auto pHydrogen = HydrogenApp::pHydrogen();
 				auto pInstrumentInfo =
 					std::dynamic_pointer_cast<InstrumentInfo>( it->second );
 				if ( pInstrumentInfo == nullptr ) {
@@ -1204,7 +1204,7 @@ void SoundLibraryTree::addNodes(
 	}
 
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+	if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	}
@@ -1212,7 +1212,7 @@ void SoundLibraryTree::addNodes(
 		sIconPath.append( "/icons/black/" );
 	}
 
-	const auto pFontTheme = Preferences::get_instance()->getFontTheme();
+	const auto pFontTheme = HydrogenApp::pPreferences()->getFontTheme();
 	QFont dirFont(
 		pFontTheme->m_sApplicationFontFamily,
 		getPointSize( pFontTheme->m_fontSize )

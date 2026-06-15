@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
 		H2Core::Filesystem::bootstrap(
 			pLogger, parser.getSysDataPath(), parser.getUsrDataPath(),
 			parser.getConfigFilePath(), parser.getLogFile() );
-		H2Core::Preferences::create_instance();
+		auto pPref = H2Core::Preferences::create_instance();
 		// See below for H2Core::Hydrogen.
 
 		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
@@ -252,7 +252,7 @@ int main(int argc, char *argv[])
 		___INFOLOG( QString( "System encoding: [%1]" ).arg( sEncoding ) );
 		___INFOLOG( "Using data path: " + H2Core::Filesystem::systemDataPath() );
 
-		auto pPref = H2Core::Preferences::get_instance();
+		// pPref obtained above from create_instance().
 
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0)
 		/* Apply user-specified rounding policy. This is mostly to handle non-integral factors on Windows. */
@@ -431,8 +431,7 @@ int main(int argc, char *argv[])
 		}
 
 		// Hydrogen here to honor all preferences.
-		H2Core::Hydrogen::create_instance( parser.getOscPort() );
-		auto pHydrogen = H2Core::Hydrogen::get_instance();
+		auto pHydrogen = H2Core::Hydrogen::create_instance( parser.getOscPort() );
 		
 #ifdef H2CORE_HAVE_OSC
 		auto pNsmClient = NsmClient::get_instance();
@@ -477,13 +476,13 @@ int main(int argc, char *argv[])
 		const QString sDrumkitNameToLoad = parser.getDrumkitToLoad();
 		if ( !sDrumkitNameToLoad.isEmpty() ) {
 			auto pDB =
-				H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase();
+				pHydrogen->getSoundLibraryDatabase();
 			auto pDrumkit = pDB->getDrumkit( pDB->findArtifact(
 				H2Core::Filesystem::Artifact::DrumkitExtracted,
 				H2Core::Filesystem::Context::User, sDrumkitNameToLoad, true
 			) );
 			if ( pDrumkit != nullptr ) {
-				H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit( pDrumkit );
+				pHydrogen->getCoreActionController()->setDrumkit( pDrumkit );
 			}
 			else {
 				___ERRORLOG( QString( "Unable to retrieve drumkit called [%1]" )
@@ -547,7 +546,7 @@ int main(int argc, char *argv[])
 		// When cancelling the PreferencesDialog, Hydrogen will revert to the
 		// previous state of Preferences by reading the user-level hydrogen.conf
 		// file again and creating a new instance.
-		pPref = H2Core::Preferences::get_instance();
+		pPref = pHydrogen->getPreferences();
 
 		pPref->save();
 		delete pSplash;

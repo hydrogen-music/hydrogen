@@ -57,7 +57,7 @@ void MidiLearnable::setBaseToolTip( const QString& sNewTip ) {
 
 void MidiLearnable::midiMapChangedEvent() {
 	if ( m_pMidiAction != nullptr ) {
-		m_registeredMidiEvents = H2Core::Preferences::get_instance()->
+		m_registeredMidiEvents = HydrogenApp::pPreferences()->
 			getMidiEventMap()->getRegisteredMidiEvents( m_pMidiAction );
 		updateToolTip();
 	}

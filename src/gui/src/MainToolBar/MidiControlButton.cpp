@@ -106,10 +106,10 @@ void MidiControlButton::flashMidiOutputIcon() {
 }
 
 void MidiControlButton::updateActivation() {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	// No MIDI driver or device -> turn off
-	auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
+	auto pMidiDriver = HydrogenApp::pHydrogen()->getMidiDriver();
 	if ( pMidiDriver != nullptr ) {
 		m_bMidiInputEnabled = pMidiDriver->isInputActive();
 		m_bMidiOutputEnabled = pMidiDriver->isOutputActive();
@@ -129,7 +129,7 @@ void MidiControlButton::updateActivation() {
 
 void MidiControlButton::updateIcons() {
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+	if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	} else {
@@ -158,9 +158,9 @@ void MidiControlButton::paintEvent( QPaintEvent* pEvent ) {
 	QToolButton::paintEvent( pEvent );
 
 	const auto highlightColor =
-		H2Core::Preferences::get_instance()->getColorTheme()->m_highlightColor;
+		HydrogenApp::pPreferences()->getColorTheme()->m_highlightColor;
 	const auto disabledColor =
-		H2Core::Preferences::get_instance()->getColorTheme()->m_lightColor;
+		HydrogenApp::pPreferences()->getColorTheme()->m_lightColor;
 
 	QPainter painter( this );
 

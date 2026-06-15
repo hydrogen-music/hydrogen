@@ -388,7 +388,7 @@ void LCDSpinBox::mouseReleaseEvent( QMouseEvent* ev ) {
 }
 
 void LCDSpinBox::paintEvent( QPaintEvent *ev ) {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	QDoubleSpinBox::paintEvent( ev );
 
@@ -433,7 +433,7 @@ void LCDSpinBox::leaveEvent( QEvent* ev ) {
 }
 
 void LCDSpinBox::updateStyleSheet() {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	QColor spinBoxColor = pColorTheme->m_spinBoxColor;
 	QColor spinBoxTextColor = pColorTheme->m_spinBoxTextColor;

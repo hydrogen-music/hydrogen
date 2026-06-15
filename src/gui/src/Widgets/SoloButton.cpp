@@ -46,7 +46,7 @@ SoloButton::SoloButton(
 		setText( pCommonStrings->getSmallSoloButton() );
 	}
 
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	setBaseColor( pColorTheme->m_soloColor );
 	setBaseTextColor( pColorTheme->m_soloTextColor );
 }
@@ -62,7 +62,7 @@ void SoloButton::onPreferencesChanged(
 	Button::onPreferencesChanged( changes );
 
 	if ( changes & ( H2Core::Preferences::Changes::Colors ) ) {
-		const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+		const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 		setBaseColor( pColorTheme->m_soloColor );
 		setBaseTextColor( pColorTheme->m_soloTextColor );
 	}

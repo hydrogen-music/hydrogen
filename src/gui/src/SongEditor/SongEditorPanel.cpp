@@ -60,12 +60,12 @@ using namespace H2Core;
 
 
 SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	const bool bShowPlaybackTrack = pPref->getShowPlaybackTrack();
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 
 	assert( pSong );
@@ -151,8 +151,8 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		"SongEditorPlaybackTrackEditButton"
 	);
 	connect( m_pLoadPlaybackTrackButton, &QToolButton::clicked, [=]() {
-		auto pPref = Preferences::get_instance();
-		auto pHydrogen = Hydrogen::get_instance();
+		auto pPref = HydrogenApp::pPreferences();
+		auto pHydrogen = HydrogenApp::pHydrogen();
 		auto pSong = pHydrogen->getSong();
 		if ( pSong == nullptr ) {
 			return;
@@ -209,8 +209,8 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		"SongEditorPlaybackTrackDeleteButton"
 	);
 	connect( m_pDeletePlaybackTrackButton, &QToolButton::clicked, [=]() {
-		auto pPref = Preferences::get_instance();
-		auto pHydrogen = Hydrogen::get_instance();
+		auto pPref = HydrogenApp::pPreferences();
+		auto pHydrogen = HydrogenApp::pHydrogen();
 		auto pSong = pHydrogen->getSong();
 		if ( pSong == nullptr ) {
 			return;
@@ -227,7 +227,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		false
 	);
 	connect( m_pEditPlaybackTrackButton, &QToolButton::clicked, [=]() {
-		auto pSong = Hydrogen::get_instance()->getSong();
+		auto pSong = HydrogenApp::pHydrogen()->getSong();
 		if ( pSong == nullptr ) {
 			return;
 		}
@@ -265,7 +265,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	connect(
 		m_pMutePlaybackTrackButton, &QPushButton::clicked,
 		[=]( bool bChecked ) {
-			auto pSong = Hydrogen::get_instance()->getSong();
+			auto pSong = HydrogenApp::pHydrogen()->getSong();
 			if ( pSong == nullptr ) {
 				return;
 			}
@@ -333,11 +333,11 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	m_pEnableTimelineButton->setObjectName( "TimelineBtn" );
 	m_pEnableTimelineButton->setChecked( pSong->getIsTimelineActivated() );
 	connect( m_pEnableTimelineButton, &QToolButton::clicked, [=]() {
-		auto pSong = Hydrogen::get_instance()->getSong();
+		auto pSong = HydrogenApp::pHydrogen()->getSong();
 		if ( pSong == nullptr ) {
 			return;
 		}
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->activateTimeline( !pSong->getIsTimelineActivated()
+		HydrogenApp::pHydrogen()->getCoreActionController()->activateTimeline( !pSong->getIsTimelineActivated()
 		);
 		updateTimeline();
 
@@ -350,7 +350,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 						: pCommonStrings->getStatusOff()
 				);
 		HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
-		Hydrogen::get_instance()->setSongModified( true );
+		HydrogenApp::pHydrogen()->setSongModified( true );
 	} );
 
     m_pTimelineToolBar->addSeparator();
@@ -420,7 +420,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		SongEditorPanel::nButtonWidth, SongEditorPanel::nButtonMainHeight
 	);
 	connect( m_pSinglePatternModeButton, &QToolButton::clicked, [=]() {
-		Hydrogen::get_instance()->setPatternMode( Song::PatternMode::Selected );
+		HydrogenApp::pHydrogen()->setPatternMode( Song::PatternMode::Selected );
 	});
 	pPatternModeGroup->addButton( m_pSinglePatternModeButton );
 	m_pSongEditorToolBar->addWidget( m_pSinglePatternModeButton );
@@ -432,7 +432,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		SongEditorPanel::nButtonWidth, SongEditorPanel::nButtonMainHeight
 	);
 	connect( m_pStackedPatternModeButton, &QToolButton::clicked, [=]() {
-		Hydrogen::get_instance()->setPatternMode( Song::PatternMode::Stacked );
+		HydrogenApp::pHydrogen()->setPatternMode( Song::PatternMode::Stacked );
 	});
 	pPatternModeGroup->addButton( m_pStackedPatternModeButton );
 	m_pSongEditorToolBar->addWidget( m_pStackedPatternModeButton );
@@ -447,7 +447,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	);
 	m_pPatternEditorLockedButton->setObjectName( "PatternEditorLockedButton" );
 	connect( m_pPatternEditorLockedButton, &QToolButton::clicked, [=](){
-		auto pHydrogen = Hydrogen::get_instance();
+		auto pHydrogen = HydrogenApp::pHydrogen();
 		pHydrogen->setIsPatternEditorLocked(
 			! pHydrogen->isPatternEditorLocked() );
 	});
@@ -644,11 +644,11 @@ SongEditorPanel::~SongEditorPanel() {
 
 void SongEditorPanel::updatePlayHeadPosition()
 {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
-	if ( Preferences::get_instance()->m_bFollowPlayhead &&
+	if ( HydrogenApp::pPreferences()->m_bFollowPlayhead &&
 		 pHydrogen->getMode() == Song::Mode::Song ) {
 		if ( pAudioEngine->getState() != H2Core::AudioEngine::State::Playing ) {
 			return;
@@ -685,18 +685,18 @@ void SongEditorPanel::highlightPatternEditorLocked() {
 	m_pPatternEditorLockedButton->setStyleSheet( QString( "\
 #PatternEditorLockedButton {\
     background-color: %1;\
-}" ).arg( Preferences::get_instance()->getColorTheme()->m_buttonRedColor.name() ) );
+}" ).arg( HydrogenApp::pPreferences()->getColorTheme()->m_buttonRedColor.name() ) );
 
 	m_pHighlightLockedTimer->start( 250 );
 }
 
 void SongEditorPanel::updatePlaybackFaderPeaks()
 {
-    auto pSong = Hydrogen::get_instance()->getSong();
+    auto pSong = HydrogenApp::pHydrogen()->getSong();
     if ( pSong == nullptr || pSong->getPlaybackTrackInstrument() == nullptr ) {
         return;
     }
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	auto pInstrument = pSong->getPlaybackTrackInstrument();
 
 	
@@ -760,7 +760,7 @@ void SongEditorPanel::hScrollTo( int value )
 
 void SongEditorPanel::ensureCursorIsVisible() {
 	const int nSelectedPattern =
-		Hydrogen::get_instance()->getSelectedPatternNumber();
+		HydrogenApp::pHydrogen()->getSelectedPatternNumber();
 
 	// Make sure currently selected pattern is visible.
 	if ( nSelectedPattern != -1 ) {
@@ -782,7 +782,7 @@ void SongEditorPanel::updateEditors( Editor::Update update )
 }
 
 void SongEditorPanel::updateAutomationPathVisibility() {
-	if ( Preferences::get_instance()->getShowAutomationArea() ) {
+	if ( HydrogenApp::pPreferences()->getShowAutomationArea() ) {
 		m_pAutomationPathScrollView->show();
 		m_pAutomationCombo->show();
 	}
@@ -799,10 +799,10 @@ void SongEditorPanel::updateAutomationPathVisibility() {
 
 void SongEditorPanel::updatePlaybackTrack()
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 
-	if ( !Preferences::get_instance()->getShowPlaybackTrack() ) {
+	if ( !HydrogenApp::pPreferences()->getShowPlaybackTrack() ) {
 		return;
 	}
 
@@ -851,7 +851,7 @@ void SongEditorPanel::updatePlaybackTrack()
 ///
 void SongEditorPanel::addNewPattern()
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
@@ -887,7 +887,7 @@ void SongEditorPanel::addNewPattern()
 
 void SongEditorPanel::clearSequence()
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
@@ -968,7 +968,7 @@ void SongEditorPanel::nextPatternsChangedEvent() {
 void SongEditorPanel::patternEditorLockedEvent() {
 	updatePatternEditorLocked();
 
-	if ( Hydrogen::get_instance()->isPatternEditorLocked() ) {
+	if ( HydrogenApp::pHydrogen()->isPatternEditorLocked() ) {
 		m_pPatternList->updateEditor();
 	}
 }
@@ -989,7 +989,7 @@ void SongEditorPanel::playingPatternsChangedEvent() {
 	// Triggered every time the column of the SongEditor grid
 	// changed. Either by rolling transport or by relocation.
 	// In Song mode, we may scroll to change position in the Song Editor.
-	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
+	if ( HydrogenApp::pHydrogen()->getMode() == Song::Mode::Song ) {
 
 		// Scroll vertically to keep currently playing patterns in view
 		int nPatternInView = -1;
@@ -1002,7 +1002,7 @@ void SongEditorPanel::playingPatternsChangedEvent() {
 }
 
 void SongEditorPanel::relocationEvent() {
-	if ( Hydrogen::get_instance()->isPatternEditorLocked() ) {
+	if ( HydrogenApp::pHydrogen()->isPatternEditorLocked() ) {
 		m_pSongEditor->updateEditor( Editor::Update::Background );
 		m_pPatternList->updateEditor();
 	}
@@ -1042,13 +1042,13 @@ void SongEditorPanel::stateChangedEvent( const H2Core::AudioEngine::State& ) {
 	// The lock button is highlighted when transport is rolling.
 	updatePatternEditorLocked();
 
-	if ( Hydrogen::get_instance()->isPatternEditorLocked() ) {
+	if ( HydrogenApp::pHydrogen()->isPatternEditorLocked() ) {
 		m_pPatternList->updateEditor();
 	}
 }
 
 void SongEditorPanel::tempoChangedEvent( int nValue ) {
-    auto pSong = Hydrogen::get_instance()->getSong();
+    auto pSong = HydrogenApp::pHydrogen()->getSong();
     if ( pSong == nullptr ) {
         return;
     }
@@ -1082,7 +1082,7 @@ void SongEditorPanel::timelineUpdateEvent( int nValue ) {
 void SongEditorPanel::updatePreferencesEvent( int nValue ) {
 	if ( nValue == 1 ) {
 		// new preferences loaded within the core
-		const auto pPref = H2Core::Preferences::get_instance();
+		const auto pPref = HydrogenApp::pPreferences();
 		auto pSongEditorPanel = HydrogenApp::get_instance()->getSongEditorPanel();
 		if ( pPref->getShowAutomationArea() !=
 			 pSongEditorPanel->getAutomationPathView()->isVisible() ) {
@@ -1129,7 +1129,7 @@ void SongEditorPanel::showPlaybackTrack( bool bVisible )
 	m_pPlaybackTrackSidebar->setVisible( bVisible );
 	m_pPlaybackTrackScrollView->setVisible( bVisible );
 
-	Preferences::get_instance()->setShowPlaybackTrack( bVisible );
+	HydrogenApp::pPreferences()->setShowPlaybackTrack( bVisible );
 
 	updatePlaybackTrack();
 
@@ -1139,7 +1139,7 @@ void SongEditorPanel::showPlaybackTrack( bool bVisible )
 
 void SongEditorPanel::zoomInBtnClicked()
 {
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 
 	unsigned width = m_pSongEditor->getGridWidth();
 	--width;
@@ -1156,7 +1156,7 @@ void SongEditorPanel::zoomInBtnClicked()
 
 void SongEditorPanel::zoomOutBtnClicked()
 {
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 
 	unsigned width = m_pSongEditor->getGridWidth();
 	++width;
@@ -1173,7 +1173,7 @@ void SongEditorPanel::zoomOutBtnClicked()
 
 void SongEditorPanel::faderChanged( WidgetWithInput *pRef )
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 
 	if ( pSong == nullptr || pSong->getPlaybackTrackInstrument() == nullptr ) {
@@ -1219,7 +1219,7 @@ void SongEditorPanel::automationPathPointMoved(float ox, float oy, float tx, flo
 }
 
 void SongEditorPanel::toggleAutomationAreaVisibility() {
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	
 	if ( ! pPref->getShowAutomationArea() )	{
 		pPref->setShowAutomationArea( true );
@@ -1233,7 +1233,7 @@ void SongEditorPanel::toggleAutomationAreaVisibility() {
 
 void SongEditorPanel::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		updateStyleSheet();
 	}
@@ -1272,14 +1272,14 @@ void SongEditorPanel::resizeEvent( QResizeEvent *ev )
 
 void SongEditorPanel::updateIcons() {
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+	if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	}
 	else {
 		sIconPath.append( "/icons/black/" );
 	}
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	const QColor colorSongEditorToolBarDisabled =
 		Skin::makeBackgroundColorInactive(
 			pColorTheme->m_songEditor_alternateRowColor.darker(
@@ -1310,7 +1310,7 @@ void SongEditorPanel::updateIcons() {
 		colorPlaybackTrackToolBarDisabled
 	);
 
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pHydrogen()->getSong();
 	const bool bTimelineEnabled =
 		pSong != nullptr ? pSong->getIsTimelineActivated() : false;
 
@@ -1361,7 +1361,7 @@ void SongEditorPanel::updateJacktimebaseState()
 void SongEditorPanel::updatePatternEditorLocked()
 {
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+	if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	}
@@ -1369,7 +1369,7 @@ void SongEditorPanel::updatePatternEditorLocked()
 		sIconPath.append( "/icons/black/" );
 	}
 
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	const QColor colorSongEditorToolBarDisabled =
 		Skin::makeBackgroundColorInactive(
 			pColorTheme->m_songEditor_alternateRowColor.darker(
@@ -1377,7 +1377,7 @@ void SongEditorPanel::updatePatternEditorLocked()
 			)
 		);
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
 		m_pPatternEditorLockedButton->setEnabled( true );
 	}
@@ -1406,7 +1406,7 @@ void SongEditorPanel::updatePatternEditorLocked()
 }
 
 void SongEditorPanel::updatePatternMode() {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 
 	// We access the raw variable in the song class since we do not
 	// care whether Hydrogen is in song or pattern mode in here.
@@ -1428,13 +1428,13 @@ void SongEditorPanel::updatePatternMode() {
 }
 
 void SongEditorPanel::updateStyleSheet() {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	const QColor colorSongEditorToolBar =
 		pColorTheme->m_songEditor_alternateRowColor.darker(
 			SongEditorPositionRuler::nScalingRuler
 		);
 
-	const auto pSong = Hydrogen::get_instance()->getSong();
+	const auto pSong = HydrogenApp::pHydrogen()->getSong();
 
 	QColor colorPlaybackTrackToolBar;
 	if ( pSong != nullptr && pSong->getPlaybackTrackInstrument() != nullptr &&
@@ -1454,7 +1454,7 @@ void SongEditorPanel::updateStyleSheet() {
 		);
 
 	QColor backgroundInactiveColor;
-	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
+	if ( HydrogenApp::pHydrogen()->getMode() == Song::Mode::Song ) {
 		backgroundInactiveColor = pColorTheme->m_windowColor.lighter(
 		 	Skin::nEditorActiveScaling );
 	}
@@ -1522,7 +1522,7 @@ QWidget#SongEditorToolBarContainer {\
 }
 
 void SongEditorPanel::updateTimeline() {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
@@ -1569,7 +1569,7 @@ void SongEditorPanel::updateTimeline() {
 
 void SongEditorPanel::updateWidth()
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const int nNewWidth = SongEditor::nMargin +
 						  pPref->getMaxBars() * m_pSongEditor->getGridWidth();
 	m_pSongEditor->setFixedWidth( nNewWidth );

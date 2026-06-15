@@ -87,6 +87,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, QUndoStack* pUndoStack )
  , m_bufferedChanges( H2Core::Preferences::Changes::None )
  , m_pMainScrollArea( new QScrollArea )
  , m_pUndoStack( pUndoStack )
+ , m_pHydrogen( H2Core::Hydrogen::get_instance() )
 {
 	m_pInstance = this;
 
@@ -106,7 +107,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, QUndoStack* pUndoStack )
 
 	updateWindowTitle();
 
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = m_pHydrogen->getPreferences();
 
 	setupSinglePanedInterface();
 
@@ -228,20 +229,47 @@ HydrogenApp::~HydrogenApp()
 		delete m_pSplitter;
 	}
 
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen != nullptr ) {
-		delete pHydrogen;
+	if ( m_pHydrogen != nullptr ) {
+		delete m_pHydrogen;
 	}
 
 	m_pInstance = nullptr;
 
 }
 
+std::shared_ptr<H2Core::Preferences> HydrogenApp::getPreferences() const {
+	return m_pHydrogen->getPreferences();
+}
+
+H2Core::EventQueue* HydrogenApp::getEventQueue() const {
+	return m_pHydrogen->getEventQueue();
+}
+
+H2Core::Hydrogen* HydrogenApp::pHydrogen() {
+	// Fall back to the process-current engine while HydrogenApp is still being
+	// constructed (ADR 0015/0016, T1.5 transitional).
+	return m_pInstance != nullptr ? m_pInstance->m_pHydrogen
+								   : H2Core::Hydrogen::get_instance();
+}
+
+std::shared_ptr<H2Core::Preferences> HydrogenApp::pPreferences() {
+	// Preferences exists independently of (and earlier than) the engine — the
+	// GUI touches it during early startup (e.g. Skin::setPalette) before
+	// Hydrogen is created. Fall back to the Preferences singleton directly, not
+	// through pHydrogen() (ADR 0015/0016, T1.5 transitional).
+	return m_pInstance != nullptr ? m_pInstance->m_pHydrogen->getPreferences()
+								   : H2Core::Preferences::get_instance();
+}
+
+H2Core::EventQueue* HydrogenApp::pEventQueue() {
+	return pHydrogen()->getEventQueue();
+}
+
 
 
 void HydrogenApp::setupSinglePanedInterface()
 {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = m_pHydrogen->getPreferences();
 	InterfaceTheme::Layout layout = pPref->getInterfaceTheme()->m_layout;
 
 	// MAINFORM
@@ -263,7 +291,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	}
 	// trigger a relocation to sync the transport position of the
 	// editors in the panel.
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( 0 );
+	m_pHydrogen->getCoreActionController()->locateToColumn( 0 );
 
 	WindowProperties songEditorProp = pPref->getSongEditorProperties();
 	setWindowProperties( m_pSongEditorPanel, songEditorProp, SetWidth + SetHeight );
@@ -442,7 +470,7 @@ void HydrogenApp::handleUndoContext( const QString& sContext,
 
 void HydrogenApp::currentTabChanged(int index)
 {
-	Preferences::get_instance()->setLastOpenTab( index );
+	m_pHydrogen->getPreferences()->setLastOpenTab( index );
 	m_pMainToolBar->updateActions();
 }
 
@@ -566,20 +594,20 @@ bool HydrogenApp::openFile( const Filesystem::Artifact& type, const QString& sFi
 		if ( sFileName.isEmpty() && sRecoverFileName.isEmpty() ) {
 			pSong = Song::getEmptySong();
 		} else {
-			pSong = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong( sPath, sRecoverFileName );
+			pSong = pHydrogen()->getCoreActionController()->loadSong( sPath, sRecoverFileName );
 		}
 
-		bRet = H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong );
+		bRet = pHydrogen()->getCoreActionController()->setSong( pSong );
 	}
 	else {
 		std::shared_ptr<Playlist> pPlaylist;
 		if ( sFileName.isEmpty() && sRecoverFileName.isEmpty() ) {
 			pPlaylist = std::make_shared<Playlist>();
 		} else {
-			pPlaylist = H2Core::Hydrogen::get_instance()->getCoreActionController()->loadPlaylist( sPath, sRecoverFileName );
+			pPlaylist = pHydrogen()->getCoreActionController()->loadPlaylist( sPath, sRecoverFileName );
 		}
 
-		bRet = H2Core::Hydrogen::get_instance()->getCoreActionController()->setPlaylist( pPlaylist );
+		bRet = pHydrogen()->getCoreActionController()->setPlaylist( pPlaylist );
 	}
 
 	if ( ! bRet ) {
@@ -598,7 +626,7 @@ bool HydrogenApp::openFile( const Filesystem::Artifact& type, const QString& sFi
 
 bool HydrogenApp::openSong( std::shared_ptr<Song> pSong ) {
 
-	if ( ! H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong ) ) {
+	if ( ! pHydrogen()->getCoreActionController()->setSong( pSong ) ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
 		// HydrogenApp was instantiated.
@@ -617,7 +645,7 @@ bool HydrogenApp::openSong( std::shared_ptr<Song> pSong ) {
 bool HydrogenApp::handleUnsavedChanges( const H2Core::Filesystem::Artifact& type )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pHydrogenApp->getHydrogen();
 	auto pSong = pHydrogen->getSong();
 	auto pPlaylist = pHydrogen->getPlaylist();
 
@@ -721,7 +749,7 @@ void HydrogenApp::showMixer(bool show)
 		 *   otherwise open mixer window
 		 */
 
-	auto layout = Preferences::get_instance()->getInterfaceTheme()->m_layout;
+	auto layout = m_pHydrogen->getPreferences()->getInterfaceTheme()->m_layout;
 
 	if ( layout == InterfaceTheme::Layout::Tabbed ) {
 		m_pTab->setCurrentIndex( 2 );
@@ -740,7 +768,7 @@ void HydrogenApp::showRack(bool show)
 		 *   Switch to pattern editor/instrument tab in tabbed mode,
 		 *   otherwise hide instrument panel
 		 */
-	auto layout = Preferences::get_instance()->getInterfaceTheme()->m_layout;
+	auto layout = m_pHydrogen->getPreferences()->getInterfaceTheme()->m_layout;
 
 	if ( layout == InterfaceTheme::Layout::Tabbed ) {
 		m_pTab->setCurrentIndex( 1 );
@@ -770,7 +798,7 @@ void HydrogenApp::showStatusBarMessage( const QString& sMessage, const QString& 
 }
 
 void HydrogenApp::XRunEvent() {
-	const auto pAudioDriver = Hydrogen::get_instance()->getAudioDriver();
+	const auto pAudioDriver = m_pHydrogen->getAudioDriver();
 	if ( pAudioDriver == nullptr ) {
 		ERRORLOG( "AudioDriver is not ready!" );
 		return;
@@ -782,7 +810,7 @@ void HydrogenApp::XRunEvent() {
 
 void HydrogenApp::updateWindowTitle()
 {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "invalid song" );
 		assert(pSong);
@@ -861,7 +889,7 @@ void HydrogenApp::showPlaylistEditor()
 
 void HydrogenApp::showDirector()
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	if ( m_pDirector->isVisible() ) {
 		m_pDirector->hide();
@@ -934,13 +962,13 @@ void HydrogenApp::songIsModifiedEvent()
 void HydrogenApp::playlistLoadSongEvent() {
 	showStatusBarMessage(
 		tr( "Playlist: Set song No. %1" )
-		.arg( Hydrogen::get_instance()->getPlaylist()->getActiveSongNumber() + 1 ) );
+		.arg( m_pHydrogen->getPlaylist()->getActiveSongNumber() + 1 ) );
 }
 
 void HydrogenApp::onEventQueueTimer()
 {
 	// use the timer to do schedule instrument slaughter;
-	EventQueue *pQueue = EventQueue::get_instance();
+	EventQueue *pQueue = m_pHydrogen->getEventQueue();
 
 	while ( true ) {
 		auto pEvent = pQueue->popEvent();
@@ -1188,7 +1216,7 @@ void HydrogenApp::onEventQueueTimer()
 
 	// midi notes
 	while( !pQueue->m_addMidiNoteVector.empty() ){
-		auto pSong = Hydrogen::get_instance()->getSong();
+		auto pSong = m_pHydrogen->getSong();
 		if ( pSong == nullptr ) {
 			return;
 		}
@@ -1359,7 +1387,7 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 		// these changes in the GUI - its format, colors, fonts,
 		// selections etc.
 		// But we won't change the layout!
-		const auto pPref = Preferences::get_instance();
+		const auto pPref = m_pHydrogen->getPreferences();
 		auto layout = pPref->getInterfaceTheme()->m_layout;
 
 		WindowProperties audioEngineInfoProp = pPref->getAudioEngineInfoProperties();
@@ -1421,7 +1449,7 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 
 void HydrogenApp::updateSongEvent( int nValue ) {
 
-	auto pHydrogen = Hydrogen::get_instance();	
+	auto pHydrogen = m_pHydrogen;
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
@@ -1476,7 +1504,7 @@ void HydrogenApp::propagatePreferences() {
 
 bool HydrogenApp::checkDrumkitLicense( std::shared_ptr<H2Core::Drumkit> pDrumkit ) {
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = pPreferences();
 
 	if ( ! pPref->m_bShowExportDrumkitLicenseWarning &&
 		 ! pPref->m_bShowExportDrumkitCopyleftWarning &&
@@ -1598,8 +1626,8 @@ bool HydrogenApp::checkDrumkitLicense( std::shared_ptr<H2Core::Drumkit> pDrumkit
 
 void HydrogenApp::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	if ( changes & H2Core::Preferences::Changes::AudioTab ) {
-		H2Core::Hydrogen::get_instance()->getAudioEngine()->
+		m_pHydrogen->getAudioEngine()->
 			getMetronomeInstrument()->setVolume(
-				Preferences::get_instance()->m_fMetronomeVolume );
+				m_pHydrogen->getPreferences()->m_fMetronomeVolume );
 	}
 }
