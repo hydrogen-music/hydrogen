@@ -69,8 +69,8 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
 	
 	/* Use fake audio driver */
 	auto pPref = H2Core::Preferences::create_instance();
-	pPref->m_audioDriver = Preferences::AudioDriver::Fake;
-	pPref->m_midiDriver = Preferences::MidiDriver::LoopBack;
+	pPref->m_audioDriver = H2Core::Preferences::AudioDriver::Fake;
+	pPref->m_midiDriver = H2Core::Preferences::MidiDriver::LoopBack;
 	pPref->m_nBufferSize = 1024;
 	pPref->setUseRelativeFileNamesForPlaylists( true );
 
@@ -202,7 +202,7 @@ int main( int argc, char **argv)
 	// Hydrogen owns its Preferences and EventQueue and frees them in ~Hydrogen
 	// (ADR 0015).
 	delete pTestHydrogen();
-    delete Logger::get_instance();
+    delete H2Core::Logger::get_instance();
 
 	return wasSuccessful ? 0 : 1;
 }

@@ -31,6 +31,39 @@ AutomationPath::AutomationPath( float fMin, float fMax, float fDef )
 {
 }
 
+std::shared_ptr<AutomationPath>
+AutomationPath::loadFrom( const XMLNode& node, bool bSilent )
+{
+	auto pPath = std::make_shared<AutomationPath>();
+
+	auto point = node.firstChildElement();
+	while ( !point.isNull() ) {
+		if ( point.tagName() == "point" ) {
+			bool hasX = false;
+			bool hasY = false;
+			float x = point.attribute( "x" ).toFloat( &hasX );
+			float y = point.attribute( "y" ).toFloat( &hasY );
+
+			if ( hasX && hasY ) {
+				pPath->addPoint( x, y, nullptr );
+			}
+		}
+		point = point.nextSiblingElement();
+	}
+
+	return pPath;
+}
+
+void AutomationPath::saveTo( XMLNode& node, bool bSilent ) const
+{
+	for ( const auto& point : m_points ) {
+		auto element = node.ownerDocument().createElement( "point" );
+		element.setAttribute( "x", point.first );
+		element.setAttribute( "y", point.second );
+		node.appendChild( element );
+	}
+}
+
 /**
  * \brief Get value at given location
  * \param x Location
@@ -74,7 +107,9 @@ float AutomationPath::getValue( float x ) const noexcept
 void AutomationPath::addPoint( float x, float y, Hydrogen* pHydrogen )
 {
 	m_points[x] = y;
-	pHydrogen->setSongModified( true );
+	if ( pHydrogen != nullptr ) {
+		pHydrogen->setSongModified( true );
+	}
 }
 
 /**

@@ -27,7 +27,6 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
-#include <core/AutomationPathSerializer.h>
 #include <core/Basics/AutomationPath.h>
 #include <core/Basics/GridPoint.h>
 #include <core/Basics/Instrument.h>
@@ -101,7 +100,7 @@ Song::Song(
 		m_sName = Song::sDefaultName;
 	}
 
-	m_pAutomationPath = std::make_shared<AutomationPath>( 0.0f, 1.5f, 1.0f );
+	m_pAutomationPath = std::make_shared<AutomationPath>();
 }
 
 Song::~Song()
@@ -746,8 +745,6 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent,
 	XMLNode automationPathsNode =
 		rootNode.firstChildElement( "automationPaths" );
 	if ( !automationPathsNode.isNull() ) {
-		AutomationPathSerializer pathSerializer;
-
 		XMLNode pathNode = automationPathsNode.firstChildElement( "path" );
 		while ( !pathNode.isNull() ) {
 			QString sAdjust = pathNode.read_attribute(
@@ -759,9 +756,8 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent,
 				continue;
 			}
 
-			auto pPath = std::make_shared<AutomationPath>( 0.0f, 1.5f, 1.0f );
-			pathSerializer.read_automation_path( pathNode, *pPath, pHydrogen );
-			pSong->m_pAutomationPath = pPath;
+			pSong->m_pAutomationPath =
+				AutomationPath::loadFrom( pathNode, bSilent );
 
 			pathNode = pathNode.nextSiblingElement( "path" );
 
@@ -1024,9 +1020,7 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples, bool bSilent )
 	if ( pPath != nullptr ) {
 		XMLNode pathNode = automationPathsNode.createNode( "path" );
 		pathNode.write_attribute( "adjust", "velocity" );
-
-		AutomationPathSerializer serializer;
-		serializer.write_automation_path( pathNode, *pPath );
+		pPath->saveTo( pathNode, bSilent );
 	}
 }
 
