@@ -79,17 +79,17 @@ class AutomationPathTest : public CppUnit::TestCase {
 
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(
 				0.2,
-				static_cast<double>(p.get_min()),
+				static_cast<double>(p.getMin()),
 				delta);
 
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(
 				0.8,
-				static_cast<double>(p.get_max()),
+				static_cast<double>(p.getMax()),
 				delta);
 
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(
 				0.6,
-				static_cast<double>(p.get_default()),
+				static_cast<double>(p.getDefault()),
 				delta);
 	___INFOLOG( "passed" );
 	}
@@ -104,22 +104,22 @@ class AutomationPathTest : public CppUnit::TestCase {
 
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(
 				0.0,
-				static_cast<double>(p1.get_value(0.0f)),
+				static_cast<double>(p1.getValue(0.0f)),
 				delta);
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(
 				0.0,
-				static_cast<double>(p1.get_value(2.0f)),
+				static_cast<double>(p1.getValue(2.0f)),
 				delta);
 
 		AutomationPath p2(0.0f, 1.0f, 0.3f);
 
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(
 				0.3,
-				static_cast<double>(p2.get_value(0.0f)),
+				static_cast<double>(p2.getValue(0.0f)),
 				delta);
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(
 				0.3,
-				static_cast<double>(p2.get_value(5.0f)),
+				static_cast<double>(p2.getValue(5.0f)),
 				delta);
 
 		
@@ -127,11 +127,11 @@ class AutomationPathTest : public CppUnit::TestCase {
 
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(
 				1.0,
-				static_cast<double>(p3.get_value(0.0f)),
+				static_cast<double>(p3.getValue(0.0f)),
 				delta);
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(
 				1.0,
-				static_cast<double>(p3.get_value(7.0f)),
+				static_cast<double>(p3.getValue(7.0f)),
 				delta);
 	___INFOLOG( "passed" );
 	}
@@ -143,11 +143,11 @@ class AutomationPathTest : public CppUnit::TestCase {
 	___INFOLOG( "" );
 		AutomationPath p(0.0f, 1.0f, 1.0f);
 
-		p.add_point(1.0f, 0.5f, pTestHydrogen());
+		p.addPoint(1.0f, 0.5f, pTestHydrogen());
 
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(
 				0.5,
-				static_cast<double>(p.get_value(1.0f)),
+				static_cast<double>(p.getValue(1.0f)),
 				delta);
 	___INFOLOG( "passed" );
 	}
@@ -160,14 +160,14 @@ class AutomationPathTest : public CppUnit::TestCase {
 	___INFOLOG( "" );
 		AutomationPath p(0.0f, 1.0f, 1.0f);
 
-		p.add_point(1.0f, 0.5f, pTestHydrogen());
-		p.add_point(2.0f, 0.7f, pTestHydrogen());
+		p.addPoint(1.0f, 0.5f, pTestHydrogen());
+		p.addPoint(2.0f, 0.7f, pTestHydrogen());
 
 		CPPUNIT_ASSERT(! p.empty());
 
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(
 				0.5,
-				static_cast<double>(p.get_value(0.0f)),
+				static_cast<double>(p.getValue(0.0f)),
 				delta);
 	___INFOLOG( "passed" );
 	}
@@ -180,12 +180,12 @@ class AutomationPathTest : public CppUnit::TestCase {
 	___INFOLOG( "" );
 		AutomationPath p(0.0f, 1.0f, 1.0f);
 
-		p.add_point(1.0f, 0.4f, pTestHydrogen());
-		p.add_point(2.0f, 0.6f, pTestHydrogen());
+		p.addPoint(1.0f, 0.4f, pTestHydrogen());
+		p.addPoint(2.0f, 0.6f, pTestHydrogen());
 
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(
 				0.6,
-				static_cast<double>(p.get_value(3.0f)),
+				static_cast<double>(p.getValue(3.0f)),
 				delta);
 	___INFOLOG( "passed" );
 	}
@@ -197,12 +197,12 @@ class AutomationPathTest : public CppUnit::TestCase {
 	___INFOLOG( "" );
 		AutomationPath p(0.0f, 1.0f, 1.0f);
 
-		p.add_point(1.0f, 0.2f, pTestHydrogen());
-		p.add_point(2.0f, 0.4f, pTestHydrogen());
+		p.addPoint(1.0f, 0.2f, pTestHydrogen());
+		p.addPoint(2.0f, 0.4f, pTestHydrogen());
 
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(
 				0.3,
-				static_cast<double>(p.get_value(1.5f)),
+				static_cast<double>(p.getValue(1.5f)),
 				delta);
 	___INFOLOG( "passed" );
 	}
@@ -224,12 +224,12 @@ class AutomationPathTest : public CppUnit::TestCase {
 	{
 	___INFOLOG( "" );
 		AutomationPath p1(-4.0f, 3.0f, 1.5f);
-		p1.add_point(1.0f, 0.0f, pTestHydrogen());
-		p1.add_point(2.0f, 2.0f, pTestHydrogen());
+		p1.addPoint(1.0f, 0.0f, pTestHydrogen());
+		p1.addPoint(2.0f, 2.0f, pTestHydrogen());
 
 		AutomationPath p2(-4.0f, 3.0f, 1.5f);
-		p2.add_point(1.0f, 0.0f, pTestHydrogen());
-		p2.add_point(2.0f, 2.0f, pTestHydrogen());
+		p2.addPoint(1.0f, 0.0f, pTestHydrogen());
+		p2.addPoint(2.0f, 2.0f, pTestHydrogen());
 
 		CPPUNIT_ASSERT(p1 == p2);
 		CPPUNIT_ASSERT(!(p1 != p2));
@@ -251,10 +251,10 @@ class AutomationPathTest : public CppUnit::TestCase {
 	{
 	___INFOLOG( "" );
 		AutomationPath p1(-2.0f, 2.0f, 1.0f);
-		p1.add_point(1.0f, 0.0f, pTestHydrogen());
+		p1.addPoint(1.0f, 0.0f, pTestHydrogen());
 
 		AutomationPath p2(-2.0f, 2.0f, 1.0f);
-		p2.add_point(2.0f, 2.0f, pTestHydrogen());
+		p2.addPoint(2.0f, 2.0f, pTestHydrogen());
 
 		CPPUNIT_ASSERT(p1 != p2);
 		CPPUNIT_ASSERT(!(p1 == p2));
@@ -266,9 +266,9 @@ class AutomationPathTest : public CppUnit::TestCase {
 	___INFOLOG( "" );
 		typedef std::pair<const float,float> pair;
 		AutomationPath p(0.0f, 4.0f, 1.0f);
-		p.add_point(0.0f, 0.0f, pTestHydrogen());
-		p.add_point(1.0f, 2.0f, pTestHydrogen());
-		p.add_point(2.0f, 4.0f, pTestHydrogen());
+		p.addPoint(0.0f, 0.0f, pTestHydrogen());
+		p.addPoint(1.0f, 2.0f, pTestHydrogen());
+		p.addPoint(2.0f, 4.0f, pTestHydrogen());
 
 		auto i = p.begin();
 		CPPUNIT_ASSERT(i != p.end());
@@ -305,7 +305,7 @@ class AutomationPathTest : public CppUnit::TestCase {
 	{
 	___INFOLOG( "" );
 		AutomationPath p(0.0f, 1.0f, 1.0f);
-		p.add_point(4.0f, 0.5f, pTestHydrogen());
+		p.addPoint(4.0f, 0.5f, pTestHydrogen());
 
 		auto iter = p.find(4.0f);
 		CPPUNIT_ASSERT(iter == p.begin());
@@ -323,7 +323,7 @@ class AutomationPathTest : public CppUnit::TestCase {
 	{
 	___INFOLOG( "" );
 		AutomationPath p(0.0f, 1.0f, 1.0f);
-		p.add_point(2.0f, 0.2f, pTestHydrogen());
+		p.addPoint(2.0f, 0.2f, pTestHydrogen());
 
 		auto iter = p.find(1.3f);
 		CPPUNIT_ASSERT(iter == p.end());
@@ -339,7 +339,7 @@ class AutomationPathTest : public CppUnit::TestCase {
 	___INFOLOG( "" );
 		typedef std::pair<const float,float> pair;
 		AutomationPath p(0.0f, 1.0f, 1.0f);
-		p.add_point(5.0f, 0.5f, pTestHydrogen());
+		p.addPoint(5.0f, 0.5f, pTestHydrogen());
 
 		auto in = p.begin();
 		auto out = p.move(in, 6.0f, 1.0f, pTestHydrogen());
@@ -357,15 +357,15 @@ class AutomationPathTest : public CppUnit::TestCase {
 	{
 	___INFOLOG( "" );
 		AutomationPath p(1.0f, 1.0f, 1.0f);
-		p.add_point(0.0f, 0.0f, pTestHydrogen());
+		p.addPoint(0.0f, 0.0f, pTestHydrogen());
 
-		p.remove_point(0.0f, pTestHydrogen());
+		p.removePoint(0.0f, pTestHydrogen());
 
 		CPPUNIT_ASSERT(p.empty());
 		CPPUNIT_ASSERT(p.find(0.0f) == p.end());
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(
 				1.0,
-				static_cast<double>(p.get_value(0.0f)),
+				static_cast<double>(p.getValue(0.0f)),
 				delta);
 
 	___INFOLOG( "passed" );

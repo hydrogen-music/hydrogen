@@ -44,7 +44,7 @@ void AutomationPathSerializer::read_automation_path(const QDomNode &node,
 			float y = point.attribute("y").toFloat(&hasY);
 
 			if (hasX && hasY) {
-				path.add_point(x, y, pHydrogen);
+				path.addPoint(x, y, pHydrogen);
 			}
 
 		}

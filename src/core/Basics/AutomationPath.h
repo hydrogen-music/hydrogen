@@ -43,35 +43,28 @@ class AutomationPath : public Object<AutomationPath> {
 	typedef std::map<float, float>::iterator iterator;
 	typedef std::map<float, float>::const_iterator const_iterator;
 
-   private:
-	float _min;
-	float _max;
-	float _def;
-
-	std::map<float, float> _points;
-
    public:
 	AutomationPath( float min, float max, float def );
 
-	bool empty() const noexcept { return _points.empty(); }
-	float get_min() const noexcept { return _min; }
-	float get_max() const noexcept { return _max; }
-	float get_default() const noexcept { return _def; }
+	bool empty() const noexcept { return m_points.empty(); }
+	float getMin() const noexcept { return m_fMin; }
+	float getMax() const noexcept { return m_fMax; }
+	float getDefault() const noexcept { return m_fDef; }
 
-	float get_value( float x ) const noexcept;
+	float getValue( float x ) const noexcept;
 
-	void add_point( float x, float y, Hydrogen* pHydrogen );
-	void remove_point( float x, Hydrogen* pHydrogen );
+	void addPoint( float x, float y, Hydrogen* pHydrogen );
+	void removePoint( float x, Hydrogen* pHydrogen );
 
 	friend bool
 	operator==( const AutomationPath& lhs, const AutomationPath& rhs );
 	friend bool
 	operator!=( const AutomationPath& lhs, const AutomationPath& rhs );
 
-	iterator begin() { return _points.begin(); }
-	iterator end() { return _points.end(); }
-	const_iterator begin() const { return _points.begin(); }
-	const_iterator end() const { return _points.end(); }
+	iterator begin() { return m_points.begin(); }
+	iterator end() { return m_points.end(); }
+	const_iterator begin() const { return m_points.begin(); }
+	const_iterator end() const { return m_points.end(); }
 
 	iterator find( float x );
 	iterator move( iterator& in, float x, float y, Hydrogen* pHydrogen );
@@ -86,6 +79,13 @@ class AutomationPath : public Object<AutomationPath> {
 	 * \return String presentation of current object.*/
 	QString toQString( const QString& sPrefix = "", bool bShort = true )
 		const override;
+
+   private:
+	float m_fMin;
+	float m_fMax;
+	float m_fDef;
+
+	std::map<float, float> m_points;
 };
 };	// namespace H2Core
 

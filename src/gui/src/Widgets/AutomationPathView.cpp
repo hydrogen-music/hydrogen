@@ -129,7 +129,7 @@ QPoint AutomationPathView::translatePoint(const std::pair<float,float> &p) const
 
 	return QPoint(
 		SongEditor::nMargin + p.first * m_nGridWidth,
-		m_nMarginHeight + contentHeight * ((_path->get_max()-p.second)/(_path->get_max()-_path->get_min()))
+		m_nMarginHeight + contentHeight * ((_path->getMax()-p.second)/(_path->getMax()-_path->getMin()))
 	);
 }
 
@@ -159,7 +159,7 @@ std::pair<const float, float> AutomationPathView::locate(QMouseEvent *event) con
 	float x = (pEv->position().x() - SongEditor::nMargin) / (float)m_nGridWidth;
 	float y = ((contentHeight - pEv->position().y() + m_nMarginHeight)/
 			   (float)contentHeight)
-		* (_path->get_max() - _path->get_min()) + _path->get_min();
+		* (_path->getMax() - _path->getMin()) + _path->getMin();
 
 	return std::pair<const float,float>(x,y);
 }
@@ -255,7 +255,7 @@ void AutomationPathView::createBackground() {
 	}
 
 	/* Paint default */
-	QPoint def = translatePoint(0, _path->get_default());
+	QPoint def = translatePoint(0, _path->getDefault());
 	painter.drawLine(0, def.y(), width(), def.y());
 
 	QPen linePen( automationLineColor );
@@ -263,7 +263,7 @@ void AutomationPathView::createBackground() {
 	painter.setPen(linePen);
 
 	if (_path->empty()) {
-		QPoint p = translatePoint(0,_path->get_default());
+		QPoint p = translatePoint(0,_path->getDefault());
 
 		painter.drawLine(0, p.y(), width(), p.y());
 	} else {
@@ -316,7 +316,7 @@ void AutomationPathView::mousePressEvent(QMouseEvent *event)
 
 	_selectedPoint = _path->find(x);
 	if (_selectedPoint == _path->end()) {
-		_path->add_point(x, y, HydrogenApp::pHydrogen());
+		_path->addPoint(x, y, HydrogenApp::pHydrogen());
 		_selectedPoint = _path->find(x);
 
 		m_bPointAdded = true;
@@ -402,7 +402,7 @@ void AutomationPathView::keyPressEvent(QKeyEvent *event)
 		if ( _path && _selectedPoint != _path->end() ) {
 			float x = _selectedPoint->first;
 			float y = _selectedPoint->second;
-			_path->remove_point(_selectedPoint->first, HydrogenApp::pHydrogen());
+			_path->removePoint(_selectedPoint->first, HydrogenApp::pHydrogen());
 			_selectedPoint = _path->end();
 			
 			HydrogenApp::pHydrogen()->setSongModified( true );

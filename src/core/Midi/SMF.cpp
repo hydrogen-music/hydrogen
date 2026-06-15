@@ -646,7 +646,7 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 					(fNoteTick - static_cast<float>(nTick)) /
 					static_cast<float>(nColumnLength);
 				const float fVelocityAdjustment =
-					pAutomationPath->get_value( fColumnPos );
+					pAutomationPath->getValue( fColumnPos );
 				const auto velocity =
 					Midi::parameterFromIntClamp( static_cast<int>(
 						static_cast<float>( Midi::ParameterMaximum ) *

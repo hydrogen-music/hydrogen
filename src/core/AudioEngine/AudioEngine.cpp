@@ -3155,7 +3155,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 								static_cast<float>(m_pQueuing->getPatternSize());
 
 							pCopiedNote->setVelocity( pCopiedNote->getVelocity() *
-													   pAutomationPath->get_value( fPos ) );
+													   pAutomationPath->getValue( fPos ) );
 						}
 
 #if AUDIO_ENGINE_DEBUG

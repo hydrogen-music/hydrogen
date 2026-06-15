@@ -1273,7 +1273,7 @@ class SE_automationPathAddPointAction : public QUndoCommand {
 
 	virtual void undo()
 	{
-		__path->remove_point( __x , HydrogenApp::pHydrogen());
+		__path->removePoint( __x , HydrogenApp::pHydrogen());
 
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();
@@ -1281,7 +1281,7 @@ class SE_automationPathAddPointAction : public QUndoCommand {
 
 	virtual void redo()
 	{
-		__path->add_point( __x, __y , HydrogenApp::pHydrogen());
+		__path->addPoint( __x, __y , HydrogenApp::pHydrogen());
 
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();
@@ -1310,7 +1310,7 @@ class SE_automationPathRemovePointAction : public QUndoCommand {
 
 	virtual void redo()
 	{
-		__path->remove_point( __x , HydrogenApp::pHydrogen());
+		__path->removePoint( __x , HydrogenApp::pHydrogen());
 
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();
@@ -1318,7 +1318,7 @@ class SE_automationPathRemovePointAction : public QUndoCommand {
 
 	virtual void undo()
 	{
-		__path->add_point( __x, __y , HydrogenApp::pHydrogen());
+		__path->addPoint( __x, __y , HydrogenApp::pHydrogen());
 
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();
@@ -1351,8 +1351,8 @@ class SE_automationPathMovePointAction : public QUndoCommand {
 
 	virtual void redo()
 	{
-		__path->remove_point( __ox , HydrogenApp::pHydrogen());
-		__path->add_point( __tx, __ty , HydrogenApp::pHydrogen());
+		__path->removePoint( __ox , HydrogenApp::pHydrogen());
+		__path->addPoint( __tx, __ty , HydrogenApp::pHydrogen());
 
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();
@@ -1360,8 +1360,8 @@ class SE_automationPathMovePointAction : public QUndoCommand {
 
 	virtual void undo()
 	{
-		__path->remove_point( __tx , HydrogenApp::pHydrogen());
-		__path->add_point( __ox, __oy , HydrogenApp::pHydrogen());
+		__path->removePoint( __tx , HydrogenApp::pHydrogen());
+		__path->addPoint( __ox, __oy , HydrogenApp::pHydrogen());
 
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->update();

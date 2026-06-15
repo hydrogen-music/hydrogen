@@ -26,8 +26,8 @@
 
 namespace H2Core {
 
-AutomationPath::AutomationPath( float min, float max, float def )
-	: Object(), _min( min ), _max( max ), _def( def )
+AutomationPath::AutomationPath( float fMin, float fMax, float fDef )
+	: Object(), m_fMin( fMin ), m_fMax( fMax ), m_fDef( fDef )
 {
 }
 
@@ -37,23 +37,23 @@ AutomationPath::AutomationPath( float min, float max, float def )
  *
  * If location is between points, value is computed
  **/
-float AutomationPath::get_value( float x ) const noexcept
+float AutomationPath::getValue( float x ) const noexcept
 {
-	if ( _points.empty() ) {
-		return _def;
+	if ( m_points.empty() ) {
+		return m_fDef;
 	}
 
-	auto f = _points.begin();
+	auto f = m_points.begin();
 	if ( x <= f->first ) {
 		return f->second;
 	}
 
-	auto l = _points.rbegin();
+	auto l = m_points.rbegin();
 	if ( x >= l->first ) {
 		return l->second;
 	}
 
-	auto i = _points.lower_bound( x );
+	auto i = m_points.lower_bound( x );
 	auto p1 = *i;
 	auto p0 = *( --i );
 	float x1 = p0.first;
@@ -71,9 +71,9 @@ float AutomationPath::get_value( float x ) const noexcept
  * \param x X coordinate
  * \param y Y coordinate
  **/
-void AutomationPath::add_point( float x, float y, Hydrogen* pHydrogen )
+void AutomationPath::addPoint( float x, float y, Hydrogen* pHydrogen )
 {
-	_points[x] = y;
+	m_points[x] = y;
 	pHydrogen->setSongModified( true );
 }
 
@@ -85,8 +85,8 @@ void AutomationPath::add_point( float x, float y, Hydrogen* pHydrogen )
  */
 bool operator==( const AutomationPath& lhs, const AutomationPath& rhs )
 {
-	return lhs._min == rhs._min && lhs._max == rhs._max &&
-		   lhs._def == rhs._def && lhs._points == rhs._points;
+	return lhs.m_fMin == rhs.m_fMin && lhs.m_fMax == rhs.m_fMax &&
+		   lhs.m_fDef == rhs.m_fDef && lhs.m_points == rhs.m_points;
 }
 
 bool operator!=( const AutomationPath& lhs, const AutomationPath& rhs )
@@ -102,20 +102,20 @@ QString AutomationPath::toQString( const QString& sPrefix, bool bShort ) const
 		sOutput =
 			QString( "%1[AutomationPath]\n" )
 				.arg( sPrefix )
-				.append( QString( "%1%2min: %3\n" )
+				.append( QString( "%1%2m_fMin: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( _min ) )
-				.append( QString( "%1%2max: %3\n" )
+							 .arg( m_fMin ) )
+				.append( QString( "%1%2m_fMax: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( _max ) )
-				.append( QString( "%1%2def: %3\n" )
+							 .arg( m_fMax ) )
+				.append( QString( "%1%2m_fDef: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( _def ) )
-				.append( QString( "%1%2points:\n" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& pp : _points ) {
+							 .arg( m_fDef ) )
+				.append( QString( "%1%2m_points:\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& pp : m_points ) {
 			sOutput.append( QString( "%1%2%3 : %4\n" )
 								.arg( sPrefix )
 								.arg( s )
@@ -125,11 +125,11 @@ QString AutomationPath::toQString( const QString& sPrefix, bool bShort ) const
 	}
 	else {
 		sOutput = QString( "[AutomationPath]" )
-					  .append( QString( " min: %1" ).arg( _min ) )
-					  .append( QString( ", max: %1" ).arg( _max ) )
-					  .append( QString( ", def: %1" ).arg( _def ) )
-					  .append( QString( ", [points: " ) );
-		for ( const auto& pp : _points ) {
+					  .append( QString( " m_fMin: %1" ).arg( m_fMin ) )
+					  .append( QString( ", m_fMax: %1" ).arg( m_fMax ) )
+					  .append( QString( ", m_fDef: %1" ).arg( m_fDef ) )
+					  .append( QString( ", m_points: [" ) );
+		for ( const auto& pp : m_points ) {
 			sOutput.append(
 				QString( "(%1: %4) " ).arg( pp.first ).arg( pp.second )
 			);
@@ -150,13 +150,13 @@ AutomationPath::iterator AutomationPath::find( float x )
 {
 	const float limit = 0.5f;
 
-	if ( _points.empty() ) {
-		return _points.end();
+	if ( m_points.empty() ) {
+		return m_points.end();
 	}
 
-	auto i = _points.lower_bound( x );
+	auto i = m_points.lower_bound( x );
 
-	if ( i != _points.end() ) {
+	if ( i != m_points.end() ) {
 		if ( i->first - x <= limit ) {
 			return i;
 		}
@@ -164,14 +164,14 @@ AutomationPath::iterator AutomationPath::find( float x )
 
 	/* If there is a point before, check whether
 	 * it is a close match */
-	if ( i != _points.begin() ) {
+	if ( i != m_points.begin() ) {
 		--i;
 		if ( x - i->first <= limit ) {
 			return i;
 		}
 	}
 
-	return _points.end();
+	return m_points.end();
 }
 
 /**
@@ -183,8 +183,8 @@ AutomationPath::iterator AutomationPath::find( float x )
 AutomationPath::iterator
 AutomationPath::move( iterator& in, float x, float y, Hydrogen* pHydrogen )
 {
-	_points.erase( in );
-	auto rv = _points.insert( std::make_pair( x, y ) );
+	m_points.erase( in );
+	auto rv = m_points.insert( std::make_pair( x, y ) );
 	pHydrogen->setSongModified( true );
 	return rv.first;
 }
@@ -193,11 +193,11 @@ AutomationPath::move( iterator& in, float x, float y, Hydrogen* pHydrogen )
  * \brief Remove point from path
  * \param x Point location
  **/
-void AutomationPath::remove_point( float x, Hydrogen* pHydrogen )
+void AutomationPath::removePoint( float x, Hydrogen* pHydrogen )
 {
 	auto it = find( x );
-	if ( it != _points.end() ) {
-		_points.erase( it );
+	if ( it != m_points.end() ) {
+		m_points.erase( it );
 	}
 	pHydrogen->setSongModified( true );
 }
