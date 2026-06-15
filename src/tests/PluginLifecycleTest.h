@@ -20,20 +20,18 @@
  *
  */
 
-#ifndef MULTI_INSTANCE_TEST_H
-#define MULTI_INSTANCE_TEST_H
+#ifndef PLUGIN_LIFECYCLE_TEST_H
+#define PLUGIN_LIFECYCLE_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class MultiInstanceTest : public CppUnit::TestFixture {
-	CPPUNIT_TEST_SUITE( MultiInstanceTest );
-	CPPUNIT_TEST( testInstanceOwnsContext );
-	CPPUNIT_TEST( testTwoIndependentInstances );
+class PluginLifecycleTest : public CppUnit::TestFixture {
+	CPPUNIT_TEST_SUITE( PluginLifecycleTest );
+	CPPUNIT_TEST( testRepeatedLifecycle );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
-	void testInstanceOwnsContext();
-	void testTwoIndependentInstances();
+	void testRepeatedLifecycle();
 };
 
 #endif
