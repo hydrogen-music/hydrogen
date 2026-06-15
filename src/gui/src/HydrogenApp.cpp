@@ -72,6 +72,8 @@ QString HydrogenApp::sMimeSeparator = "::";
 QString HydrogenApp::sMimeSubSeparator = ":";
 
 HydrogenApp* HydrogenApp::m_pInstance = nullptr;
+H2Core::Hydrogen* HydrogenApp::m_pBootstrapHydrogen = nullptr;
+std::shared_ptr<H2Core::Preferences> HydrogenApp::m_pBootstrapPreferences = nullptr;
 
 HydrogenApp::HydrogenApp( MainForm *pMainForm, QUndoStack* pUndoStack )
  : m_pMainForm( pMainForm )
@@ -87,7 +89,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, QUndoStack* pUndoStack )
  , m_bufferedChanges( H2Core::Preferences::Changes::None )
  , m_pMainScrollArea( new QScrollArea )
  , m_pUndoStack( pUndoStack )
- , m_pHydrogen( H2Core::Hydrogen::get_instance() )
+ , m_pHydrogen( m_pBootstrapHydrogen )
 {
 	m_pInstance = this;
 
@@ -235,6 +237,11 @@ HydrogenApp::~HydrogenApp()
 
 	m_pInstance = nullptr;
 
+	// Release the early-startup bootstrap handles. The shared_ptr must be reset
+	// or it would keep the whole Preferences graph alive past teardown (ADR
+	// 0015/0016); the raw engine pointer would otherwise dangle.
+	m_pBootstrapHydrogen = nullptr;
+	m_pBootstrapPreferences = nullptr;
 }
 
 std::shared_ptr<H2Core::Preferences> HydrogenApp::getPreferences() const {
@@ -245,20 +252,26 @@ H2Core::EventQueue* HydrogenApp::getEventQueue() const {
 	return m_pHydrogen->getEventQueue();
 }
 
+void HydrogenApp::setBootstrap( H2Core::Hydrogen* pHydrogen,
+							   std::shared_ptr<H2Core::Preferences> pPreferences ) {
+	m_pBootstrapHydrogen = pHydrogen;
+	m_pBootstrapPreferences = pPreferences;
+}
+
 H2Core::Hydrogen* HydrogenApp::pHydrogen() {
-	// Fall back to the process-current engine while HydrogenApp is still being
-	// constructed (ADR 0015/0016, T1.5 transitional).
+	// Fall back to the bootstrap handle while HydrogenApp is still being
+	// constructed (ADR 0015/0016).
 	return m_pInstance != nullptr ? m_pInstance->m_pHydrogen
-								   : H2Core::Hydrogen::get_instance();
+								   : m_pBootstrapHydrogen;
 }
 
 std::shared_ptr<H2Core::Preferences> HydrogenApp::pPreferences() {
 	// Preferences exists independently of (and earlier than) the engine — the
 	// GUI touches it during early startup (e.g. Skin::setPalette) before
-	// Hydrogen is created. Fall back to the Preferences singleton directly, not
-	// through pHydrogen() (ADR 0015/0016, T1.5 transitional).
+	// Hydrogen is created. Fall back to the bootstrap Preferences directly, not
+	// through pHydrogen() (ADR 0015/0016).
 	return m_pInstance != nullptr ? m_pInstance->m_pHydrogen->getPreferences()
-								   : H2Core::Preferences::get_instance();
+								   : m_pBootstrapPreferences;
 }
 
 H2Core::EventQueue* HydrogenApp::pEventQueue() {
@@ -592,7 +605,7 @@ bool HydrogenApp::openFile( const Filesystem::Artifact& type, const QString& sFi
 	if ( type == Filesystem::Artifact::Song ) {
 		std::shared_ptr<Song> pSong;
 		if ( sFileName.isEmpty() && sRecoverFileName.isEmpty() ) {
-			pSong = Song::getEmptySong();
+			pSong = Song::getEmptySong( HydrogenApp::pHydrogen() );
 		} else {
 			pSong = pHydrogen()->getCoreActionController()->loadSong( sPath, sRecoverFileName );
 		}

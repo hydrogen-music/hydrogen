@@ -83,14 +83,14 @@ class Instrument : public H2Core::Object<Instrument> {
 	~Instrument();
 
 	static std::shared_ptr<Instrument> from( std::shared_ptr<Sample> pSample,
-											 Hydrogen* pHydrogen = nullptr );
+											 Hydrogen* pHydrogen );
 
 	/**
 	 * Calls the InstrumentLayer::loadSample() member
 	 * function of all layers of each component of the
 	 * Instrument.
 	 */
-	void loadSamples( float fBpm = 120, Preferences* pPreferences = nullptr );
+	void loadSamples( float fBpm, Preferences* pPreferences );
 	/**
 	 * Calls the InstrumentLayer::unloadSample() member
 	 * function of all layers of each component of the
@@ -148,14 +148,14 @@ class Instrument : public H2Core::Object<Instrument> {
 	 */
 	static std::shared_ptr<Instrument> loadFrom(
 		const XMLNode& pNode,
-		const QString& sDrumkitPath = "",
-		const QString& sDrumkitName = "",
-		const QString& sSongPath = "",
-		const License& license = License(),
-		bool bSongKit = false,
-		bool* pLegacyFormatEncountered = nullptr,
-		bool bSilent = false,
-		Hydrogen* pHydrogen = nullptr
+		const QString& sDrumkitPath,
+		const QString& sDrumkitName,
+		const QString& sSongPath,
+		const License& license,
+		bool bSongKit,
+		bool* pLegacyFormatEncountered,
+		bool bSilent,
+		Hydrogen* pHydrogen
 	);
 
 	///< set the name of the instrument

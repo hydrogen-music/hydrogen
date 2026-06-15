@@ -601,7 +601,8 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 				// Humanization
 				if ( bUseHumanization ) {
 					const auto nLeadLagFactor = AudioEngine::getLeadLagInFrames(
-						static_cast<double>( pCopiedNote->getPosition() ) );
+						static_cast<double>( pCopiedNote->getPosition() ),
+						pHydrogen );
 					pCopiedNote->setHumanizeDelay(
 						pCopiedNote->getHumanizeDelay() +
 						static_cast<int>(

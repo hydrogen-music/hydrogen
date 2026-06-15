@@ -91,7 +91,7 @@ void XmlTest::testDrumkitFormatIntegrity() {
 	const QString sTestKitPath =
 		H2TEST_FILE( "/drumkits/format-integrity/drumkit.xml" );
 	const auto pDrumkit =
-		H2Core::Drumkit::load( sTestKitPath, false, nullptr, true );
+		H2Core::Drumkit::load( sTestKitPath, false, nullptr, true , pTestHydrogen() );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 
 	const QString sTmpDrumkitXml =
@@ -131,7 +131,7 @@ void XmlTest::testDrumkit()
 
 	// load without samples
 	pDrumkitLoaded =
-		H2Core::Drumkit::load( sBaseKitPath, false, nullptr, true );
+		H2Core::Drumkit::load( sBaseKitPath, false, nullptr, true , pTestHydrogen() );
 	CPPUNIT_ASSERT( pDrumkitLoaded != nullptr );
 	CPPUNIT_ASSERT( pDrumkitLoaded->areSamplesLoaded()==false );
 	CPPUNIT_ASSERT( checkSampleData( pDrumkitLoaded, false ) );
@@ -159,7 +159,7 @@ void XmlTest::testDrumkit()
 	
 	// load with samples
 	pDrumkitLoaded =
-		H2Core::Drumkit::load( sBaseKitPath, false, nullptr, true );
+		H2Core::Drumkit::load( sBaseKitPath, false, nullptr, true , pTestHydrogen() );
 	CPPUNIT_ASSERT( pDrumkitLoaded != nullptr );
 
 	pDrumkitLoaded->loadSamples();
@@ -193,7 +193,7 @@ void XmlTest::testDrumkit()
 	
 	// load file
 	pDrumkitReloaded = H2Core::Drumkit::load(
-		sDrumkitPath, false, nullptr, true );
+		sDrumkitPath, false, nullptr, true , pTestHydrogen() );
 	CPPUNIT_ASSERT( pDrumkitReloaded!=nullptr );
 
 	info.refresh();
@@ -215,7 +215,7 @@ void XmlTest::testDrumkit()
 	CPPUNIT_ASSERT( pDrumkitNew->save( sDrumkitPath ) );
 	CPPUNIT_ASSERT( doc.read( sDrumkitPath ) );
 	pDrumkitReloaded = H2Core::Drumkit::load(
-		sDrumkitPath, false, nullptr, true );
+		sDrumkitPath, false, nullptr, true , pTestHydrogen() );
 	CPPUNIT_ASSERT( pDrumkitReloaded != nullptr );
 
 	// Cleanup
@@ -237,7 +237,7 @@ void XmlTest::testDrumkitLegacy()
 			H2Core::Filesystem::drumkitPathFromDir( legacyDir.filePath( ssDir )
 			),
 			false, nullptr, false
-		);
+		, pTestHydrogen() );
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
 		CPPUNIT_ASSERT( pDrumkit->getInstruments() != nullptr );
 		for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {
@@ -252,7 +252,7 @@ void XmlTest::testDrumkitLegacy()
 	const auto pDrumkit = H2Core::Drumkit::load(
 		H2TEST_FILE( "drumkits/legacyKits/kit-1.2.3/drumkit.xml" ), false,
 		nullptr, false
-	);
+	, pTestHydrogen() );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( pDrumkit->getInstruments()->get( 0 ) != nullptr );
 	const auto pInstrument = pDrumkit->getInstruments()->get( 0 );
@@ -279,7 +279,7 @@ void XmlTest::testDrumkitLegacyEncoding()
 			H2Core::Filesystem::drumkitPathFromDir( legacyDir.filePath( ssDir )
 			),
 			false, nullptr, false
-		);
+		, pTestHydrogen() );
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
 		CPPUNIT_ASSERT( pDrumkit->getInstruments() != nullptr );
 	}
@@ -297,7 +297,7 @@ void XmlTest::testDrumkit_invalidADSRValues()
 	//1. Check, if the drumkit has been loaded
 	pDrumkit = H2Core::Drumkit::load(
 		H2TEST_FILE( "drumkits/invAdsrKit/drumkit.xml" ), true, nullptr, true
-	);
+	, pTestHydrogen() );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 
 	//2. Make sure that the instruments of the drumkit have been loaded correctly (see GH issue #839)
@@ -500,10 +500,10 @@ void XmlTest::testDrumkitInstrumentTypeUniqueness()
 	const QString sDuplicatePath =
 		H2TEST_FILE( "drumkits/instrument-type-ref-duplicate/drumkit.xml" );
 	const auto pDrumkitRef =
-		H2Core::Drumkit::load( sRefPath, false, nullptr, true );
+		H2Core::Drumkit::load( sRefPath, false, nullptr, true , pTestHydrogen() );
 	CPPUNIT_ASSERT( pDrumkitRef != nullptr );
 	const auto pDrumkitDuplicates =
-		H2Core::Drumkit::load( sDuplicatePath, false, nullptr, true );
+		H2Core::Drumkit::load( sDuplicatePath, false, nullptr, true , pTestHydrogen() );
 	CPPUNIT_ASSERT( pDrumkitDuplicates != nullptr );
 
 	H2TEST_ASSERT_DRUMKIT_FILES_UNEQUAL( sRefPath, sDuplicatePath );
@@ -533,7 +533,7 @@ void XmlTest::testShippedDrumkits()
 
 	// Since there are also optional elements in our XML files, we load,
 	// save, and compare all shipped kit to ensure they are cutting edge.
-	for ( const auto& ssPath : H2Core::Filesystem::listContent( H2Core::Filesystem::Artifact::DrumkitExtracted, H2Core::Filesystem::Context::System ) ) {
+	for ( const auto& ssPath : H2Core::Filesystem::listContent( H2Core::Filesystem::Artifact::DrumkitExtracted, H2Core::Filesystem::Context::System, "", pTestHydrogen() ) ) {
 		___INFOLOG( ssPath );
 
 		// Since kits are upgraded during startup of Hydrogen, all shipped kits
@@ -548,7 +548,7 @@ void XmlTest::testShippedDrumkits()
 		}
 
 		const auto pDrumkit =
-			H2Core::Drumkit::load( ssPath, false, nullptr, true );
+			H2Core::Drumkit::load( ssPath, false, nullptr, true , pTestHydrogen() );
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
 
 		const QString sTmpDrumkitXml = H2Core::Filesystem::tmpFilePath(
@@ -638,7 +638,7 @@ void XmlTest::testShippedDrumkitMaps()
 void XmlTest::testPatternFormatIntegrity() {
 	___INFOLOG( "" );
 	const QString sTestFile = H2TEST_FILE( "/pattern/pattern.h2pattern" );
-	const auto pPattern = H2Core::Pattern::load( sTestFile );
+	const auto pPattern = H2Core::Pattern::load( sTestFile, false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pPattern != nullptr );
 
 	const QString sTmpPattern =
@@ -662,13 +662,13 @@ void XmlTest::testPattern()
 	H2Core::XMLDoc doc;
 
 	auto pDrumkit = H2Core::Drumkit::load(
-		H2TEST_FILE( "/drumkits/baseKit/drumkit.xml" ), false, nullptr, true );
+		H2TEST_FILE( "/drumkits/baseKit/drumkit.xml" ), false, nullptr, true , pTestHydrogen() );
 	CPPUNIT_ASSERT( pDrumkit!=nullptr );
 	auto pInstrumentList = pDrumkit->getInstruments();
 	CPPUNIT_ASSERT( pInstrumentList->size()==4 );
 
 	auto pPatternLoaded = H2Core::Pattern::load(
-		H2TEST_FILE( "/pattern/pattern.h2pattern" ) );
+		H2TEST_FILE( "/pattern/pattern.h2pattern" ), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pPatternLoaded != nullptr );
 	CPPUNIT_ASSERT( pPatternLoaded->getTags().size() == 2 );
 	CPPUNIT_ASSERT( pPatternLoaded->getTags()[ 0 ] == "Example" );
@@ -702,15 +702,13 @@ void XmlTest::testPatternLegacy() {
 	___INFOLOG( "" );
 
 	auto pPatternOld = H2Core::Pattern::load(
-		H2TEST_FILE( "pattern/legacy/pattern-1.X.X.h2pattern" )
-	);
+		H2TEST_FILE( "pattern/legacy/pattern-1.X.X.h2pattern" ), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pPatternOld );
 	CPPUNIT_ASSERT( pPatternOld->getTags().size() == 1 );
 	CPPUNIT_ASSERT( pPatternOld->getTags().front() == "Legacy" );
 
 	auto pPatternOldest = H2Core::Pattern::load(
-		H2TEST_FILE( "pattern/legacy/legacy_pattern.h2pattern" )
-	);
+		H2TEST_FILE( "pattern/legacy/legacy_pattern.h2pattern" ), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pPatternOldest );
 
 	___INFOLOG( "passed" );
@@ -734,13 +732,13 @@ void XmlTest::testPatternInstrumentTypes()
 
 	// Check whether the reference pattern is valid.
 	const auto pPatternRef = H2Core::Pattern::load(
-		H2TEST_FILE( "pattern/pattern.h2pattern") );
+		H2TEST_FILE( "pattern/pattern.h2pattern"), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pPatternRef != nullptr );
 
 	// The version of the reference without any type information should be
 	// filled with those obtained from the shipped .h2map file.
 	const auto pPatternWithoutTypes = H2Core::Pattern::load(
-		H2TEST_FILE( "pattern/pattern-without-types.h2pattern") );
+		H2TEST_FILE( "pattern/pattern-without-types.h2pattern"), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pPatternWithoutTypes != nullptr );
 	CPPUNIT_ASSERT( pPatternWithoutTypes->save( sTmpWithoutTypes, pTestHydrogen() ) );
 	H2TEST_ASSERT_XML_FILES_EQUAL(
@@ -768,7 +766,7 @@ void XmlTest::checkTestPatterns()
 void XmlTest::testPlaylistFormatIntegrity() {
 	___INFOLOG( "" );
 	const QString sTestFile = H2TEST_FILE( "/playlist/test.h2playlist" );
-	const auto pPlaylist = H2Core::Playlist::load( sTestFile );
+	const auto pPlaylist = H2Core::Playlist::load( sTestFile, pTestHydrogen() );
 	CPPUNIT_ASSERT( pPlaylist != nullptr );
 
 	// As we are using relative paths to the song files, we have to create the
@@ -797,13 +795,13 @@ void XmlTest::testPlaylist()
 
 	// Test constructor
 	auto pPlaylist = H2Core::Playlist::load(
-		H2TEST_FILE( "playlist/test.h2playlist" ) );
+		H2TEST_FILE( "playlist/test.h2playlist" ), pTestHydrogen() );
 	H2Core::XMLDoc doc;
 
 	CPPUNIT_ASSERT( pPlaylist != nullptr );
 	CPPUNIT_ASSERT( pPlaylist->saveAs( sTmpPath, pTestHydrogen()->getPreferences() ) );
 	CPPUNIT_ASSERT( doc.read( sTmpPath ) );
-	const auto pPlaylistLoaded = H2Core::Playlist::load( sTmpPath );
+	const auto pPlaylistLoaded = H2Core::Playlist::load( sTmpPath, pTestHydrogen() );
 	CPPUNIT_ASSERT( pPlaylistLoaded != nullptr );
 
 	// TODO Fails since it does not seem to be clear what relative does actually
@@ -817,7 +815,7 @@ void XmlTest::testPlaylist()
 	H2Core::XMLDoc docEmpty;
 
 	CPPUNIT_ASSERT( pPlaylistEmpty->saveAs( sTmpPathEmpty, pTestHydrogen()->getPreferences() ) );
-	const auto pPlaylistEmptyLoaded = H2Core::Playlist::load( sTmpPathEmpty );
+	const auto pPlaylistEmptyLoaded = H2Core::Playlist::load( sTmpPathEmpty, pTestHydrogen() );
 	CPPUNIT_ASSERT( pPlaylistEmptyLoaded != nullptr );
 
 	H2TEST_ASSERT_XML_FILES_EQUAL(
@@ -833,7 +831,7 @@ void XmlTest::testPlaylist()
 void XmlTest::testSongFormatIntegrity() {
 	___INFOLOG( "" );
 	const QString sTestFile = H2TEST_FILE( "song/current.h2song" );
-	const auto pSong = H2Core::Song::load( sTestFile );
+	const auto pSong = H2Core::Song::load( sTestFile, false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pSong != nullptr );
 
 	const QString sTmpSong =
@@ -860,15 +858,15 @@ void XmlTest::testSong()
 	// Test constructor
 	const auto pSongConstructor = std::make_shared<H2Core::Song>();
 	CPPUNIT_ASSERT( pSongConstructor->save( sTmpPathConstructor, false, false ) );
-	CPPUNIT_ASSERT( H2Core::Song::load( sTmpPathConstructor ) != nullptr );
+	CPPUNIT_ASSERT( H2Core::Song::load( sTmpPathConstructor, false, pTestHydrogen() ) != nullptr );
 
 	H2TEST_ASSERT_H2SONG_FILES_EQUAL(
 		sTmpPathConstructor, H2TEST_FILE( "song/constructor.h2song" ));
 
 	// Test empty song (which is using the default kit)
-	const auto pSongEmpty = H2Core::Song::getEmptySong();
+	const auto pSongEmpty = H2Core::Song::getEmptySong( pTestHydrogen() );
 	CPPUNIT_ASSERT( pSongEmpty->save( sTmpPathEmpty, false, false ) );
-	CPPUNIT_ASSERT( H2Core::Song::load( sTmpPathEmpty ) != nullptr );
+	CPPUNIT_ASSERT( H2Core::Song::load( sTmpPathEmpty, false, pTestHydrogen() ) != nullptr );
 
 	H2TEST_ASSERT_H2SONG_FILES_EQUAL(
 		sTmpPathEmpty, H2TEST_FILE( "song/empty.h2song" ));
@@ -919,7 +917,7 @@ void XmlTest::testSongLegacy() {
 
 	for ( const auto& ssSong : testSongs ) {
 		___INFOLOG(ssSong);
-		auto pSong = H2Core::Song::load( ssSong, false );
+		auto pSong = H2Core::Song::load( ssSong, false, pTestHydrogen() );
 		CPPUNIT_ASSERT( pSong != nullptr && pSong->getDrumkit() );
 		CPPUNIT_ASSERT( pSong->getDrumkit()->getInstruments() != nullptr );
 		CPPUNIT_ASSERT( pSong->getDrumkit()->getInstruments()->size() > 0 );
@@ -939,7 +937,7 @@ void XmlTest::testSongLegacy() {
 
 	for ( const auto& ssSong : testSongs ) {
 		___INFOLOG(ssSong);
-		auto pSong = H2Core::Song::load( ssSong, false );
+		auto pSong = H2Core::Song::load( ssSong, false, pTestHydrogen() );
 		CPPUNIT_ASSERT( pSong != nullptr );
 		CPPUNIT_ASSERT( pSong->hasMissingSamples() );
 	}
@@ -949,7 +947,7 @@ void XmlTest::testSongLegacy() {
 	// with identical file names from two different kit. We have to check that
 	// both of them are properly loaded.
 	auto pSongLegacy = H2Core::Song::load(
-		H2TEST_FILE( "song/legacy/test_song_0.9.6.h2song" ), false );
+		H2TEST_FILE( "song/legacy/test_song_0.9.6.h2song" ), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pSongLegacy != nullptr && pSongLegacy->getDrumkit() != nullptr );
 	CPPUNIT_ASSERT( pSongLegacy->getDrumkit()->getInstruments() != nullptr );
 	CPPUNIT_ASSERT( pSongLegacy->getDrumkit()->getInstruments()->size() > 0 );
@@ -1000,13 +998,13 @@ void XmlTest::testSongLoadFromInfo() {
 	CPPUNIT_ASSERT( pCurrentSong );
 
 	auto pInfo = std::make_shared<SongInfo>();
-	CPPUNIT_ASSERT( pInfo->load( H2TEST_FILE( "song/current.h2song" ) ) );
+	CPPUNIT_ASSERT( pInfo->load( H2TEST_FILE( "song/current.h2song" ), pTestHydrogen() ) );
 
 	if ( pCurrentSong->getIsModified() ) {
 		pCurrentSong->setIsModified( false );
 	}
 
-	auto pAnotherSong = Song::from( pInfo );
+	auto pAnotherSong = Song::from( pInfo, pTestHydrogen() );
 
 	CPPUNIT_ASSERT( ! pCurrentSong->getIsModified() );
 	___INFOLOG( "passed" );
@@ -1017,7 +1015,8 @@ void XmlTest::testSongLoadFromInfo() {
 void XmlTest::testPreferencesFormatIntegrity() {
 	___INFOLOG( "" );
 	const QString sTestFile = H2TEST_FILE( "preferences/current.conf" );
-	const auto pPreferences = H2Core::Preferences::load( sTestFile );
+	const auto pPreferences =
+		H2Core::Preferences::load( sTestFile, false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pPreferences != nullptr );
 
 	const QString sTmpPreferences =
@@ -1034,7 +1033,8 @@ void XmlTest::testPreferencesFormatIntegrity() {
 void XmlTest::testShippedPreferences() {
 	___INFOLOG( "" );
 	const QString sDefaultConfigFile = H2Core::Filesystem::systemConfigPath();
-	const auto pPreferences = H2Core::Preferences::load( sDefaultConfigFile );
+	const auto pPreferences =
+		H2Core::Preferences::load( sDefaultConfigFile, false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pPreferences != nullptr );
 
 	const QString sTmpPreferences =
@@ -1096,7 +1096,7 @@ void XmlTest::testSamplePathPortability() {
 	___INFOLOG( "" );
 
 	auto pSong = H2Core::Song::load(
-		H2TEST_FILE( "/song/sample-path-portability.h2song" ) );
+		H2TEST_FILE( "/song/sample-path-portability.h2song" ), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pSong != nullptr );
 	CPPUNIT_ASSERT( ! pSong->hasMissingSamples() );
 
@@ -1167,7 +1167,7 @@ void XmlTest::testSamplePathsWritten() {
 	////////////////////////////////////////////////////////////////////////////
 
 	// Create a new song and save it to disk.
-	auto pSong = H2Core::Song::getEmptySong();
+	auto pSong = H2Core::Song::getEmptySong( pTestHydrogen() );
 	CPPUNIT_ASSERT( pSong != nullptr );
 
 	pSong->setDrumkit( pNewKit );
@@ -1210,7 +1210,7 @@ void XmlTest::testSamplePathsWritten() {
 	// Create a new song, manually add a sample, and save it to disk.
 
 	// Create a new song and save it to disk.
-	auto pSongCustom = H2Core::Song::getEmptySong();
+	auto pSongCustom = H2Core::Song::getEmptySong( pTestHydrogen() );
 	CPPUNIT_ASSERT( pSongCustom != nullptr );
 	pSongCustom->setDrumkit( pNewKit );
 

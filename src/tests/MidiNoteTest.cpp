@@ -62,8 +62,7 @@ void MidiNoteTest::testLoadNewSong()
 	 * that loading that song does not change that mapping */
 
 	auto pSong =
-		H2Core::Song::load( H2TEST_FILE( "song/legacy/test_song_0.9.7.h2song" )
-		);
+		H2Core::Song::load( H2TEST_FILE( "song/legacy/test_song_0.9.7.h2song" ), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pSong != nullptr );
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
@@ -99,7 +98,7 @@ void MidiNoteTest::testMidiInstrumentInputMapping()
 	const auto pNewDrumkit = Drumkit::load(
 		H2TEST_FILE( "drumkits/midi-instrument-mapping/drumkit.xml" ),
 		/* bUpgrade */ true, /* pLegacy */ nullptr, /*bSilent*/ false
-	);
+	, pTestHydrogen() );
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
 	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setDrumkit( pNewDrumkit ) );
 
@@ -349,7 +348,7 @@ void MidiNoteTest::testMidiInstrumentOutputMapping()
 	const auto pNewDrumkit = Drumkit::load(
 		H2TEST_FILE( "drumkits/midi-instrument-mapping/drumkit.xml" ),
 		/* bUpgrade */ true, /* pLegacy */ nullptr, /*bSilent*/ false
-	);
+	, pTestHydrogen() );
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
 	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setDrumkit( pNewDrumkit ) );
 
@@ -421,7 +420,7 @@ void MidiNoteTest::testMidiInstrumentGlobalMapping()
 	const auto pNewDrumkit = Drumkit::load(
 		H2TEST_FILE( "drumkits/midi-instrument-mapping/drumkit.xml" ),
 		/* bUpgrade */ true, /* pLegacy */ nullptr, /*bSilent*/ false
-	);
+	, pTestHydrogen() );
 	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
 	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setDrumkit( pNewDrumkit ) );
 
@@ -544,7 +543,8 @@ void MidiNoteTest::testSendNoteOff()
 		pAudioEngine->lock( RIGHT_HERE );
 		pCopiedNote->setPosition( Transport::computeTickFromFrame(
 			pAudioEngine->getRealtimeFrame() +
-			pAudioEngine->getAudioDriver()->getBufferSize()
+			pAudioEngine->getAudioDriver()->getBufferSize(),
+			0, pTestHydrogen()
 		) );
 		pCopiedNote->computeNoteStart( pTestHydrogen() );
 		const bool bReturn = pSampler->noteOn( pCopiedNote );
@@ -560,7 +560,7 @@ void MidiNoteTest::testSendNoteOff()
 	};
 
 	const auto pSong =
-		Song::load( H2TEST_FILE( "song/midi-send-note-off.h2song" ), false );
+		Song::load( H2TEST_FILE( "song/midi-send-note-off.h2song" ), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pSong != nullptr && pSong->getDrumkit() != nullptr );
 
 	// Ensure no other notes are playing/ringing out.
@@ -624,7 +624,8 @@ void MidiNoteTest::testSendNoteOff()
 	pInstrumentWithSample->loadSamples( pTestHydrogen()
 											->getAudioEngine()
 											->getPlayhead()
-											->getBpm() );
+											->getBpm(),
+										pTestHydrogen()->getPreferences().get() );
 
 	auto pNoteWithSample = std::make_shared<Note>( pInstrumentWithSample );
 	auto pNoteWithSampleCustomLength =

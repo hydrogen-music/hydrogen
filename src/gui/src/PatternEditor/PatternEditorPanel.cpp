@@ -3151,7 +3151,8 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns(
 	}
 
 	const auto pPatternList =
-		PatternList::loadFrom( rootNode, "", pSong->getDrumkit() );
+		PatternList::loadFrom( rootNode, "", pSong->getDrumkit(), false,
+							   HydrogenApp::pHydrogen() );
 	if ( pPatternList == nullptr ) {
 		ERRORLOG( QString( "Unable to deserialized pattern list [%1]" )
 					  .arg( sSerialized ) );

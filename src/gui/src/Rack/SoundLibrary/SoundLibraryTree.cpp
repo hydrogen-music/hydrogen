@@ -566,7 +566,7 @@ void SoundLibraryTree::actionProperties()
 		dialog.exec();
 	}
 	else if ( m_type == SoundLibraryInfo::Type::Pattern ) {
-		auto pPattern = Pattern::from( it->second );
+		auto pPattern = Pattern::from( it->second, HydrogenApp::pHydrogen() );
 		if ( pPattern == nullptr ) {
 			ERRORLOG( QString( "Unable to retrieve pattern [%1] at [%2]" )
 						  .arg( it->second->getLabel() )
@@ -583,7 +583,7 @@ void SoundLibraryTree::actionProperties()
 		}
 	}
 	else {
-		auto pSong = Song::from( it->second );
+		auto pSong = Song::from( it->second, HydrogenApp::pHydrogen() );
 		if ( pSong == nullptr ) {
 			ERRORLOG( QString( "Unable to retrieve song [%1] at [%2]" )
 						  .arg( it->second->getLabel() )
@@ -643,7 +643,7 @@ void SoundLibraryTree::actionDuplicate()
 		dialog.exec();
 	}
 	else if ( m_type == SoundLibraryInfo::Type::Pattern ) {
-		auto pPattern = Pattern::from( it->second );
+		auto pPattern = Pattern::from( it->second, HydrogenApp::pHydrogen() );
 		if ( pPattern == nullptr ) {
 			ERRORLOG( QString( "Unable to retrieve pattern [%1] at [%2]" )
 						  .arg( it->second->getLabel() )
@@ -670,7 +670,7 @@ void SoundLibraryTree::actionDuplicate()
 		}
 	}
 	else {
-		auto pSong = Song::from( it->second );
+		auto pSong = Song::from( it->second, HydrogenApp::pHydrogen() );
 		if ( pSong == nullptr ) {
 			ERRORLOG( QString( "Unable to retrieve song [%1] at [%2]" )
 						  .arg( it->second->getLabel() )
@@ -1097,8 +1097,7 @@ void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
 				auto pPreviewInstrument =
 					std::make_shared<Instrument>( pTargetInstrument );
 				pPreviewInstrument->loadSamples(
-					pHydrogen->getAudioEngine()->getPlayhead()->getBpm()
-				);
+					pHydrogen->getAudioEngine()->getPlayhead()->getBpm(), pHydrogen->getPreferences().get() );
 				pPreviewInstrument->setIsPreviewInstrument( true );
 				pPreviewInstrument->setId( Instrument::EmptyId );
 

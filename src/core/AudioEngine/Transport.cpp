@@ -144,10 +144,7 @@ void Transport::setBpm( float fNewBpm )
 
 	m_fBpm = fNewBpm;
 
-	// T1.5: make m_pHydrogen always set (test transports lack one) and drop this
-	// fallback (ADR 0015).
-	auto pHydrogen =
-		m_pHydrogen != nullptr ? m_pHydrogen : Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	if ( pHydrogen->getPreferences()->getRubberBandBatchMode() &&
 		 m_type == Type::Playhead ) {
 		auto pSong = pHydrogen->getSong();
@@ -298,10 +295,7 @@ long long Transport::computeFrameFromTick(
 	Hydrogen* pHydrogen
 )
 {
-	// T1.5: make pHydrogen required and drop this fallback (ADR 0015).
-	if ( pHydrogen == nullptr ) {
-		pHydrogen = Hydrogen::get_instance();
-	}
+	assert( pHydrogen != nullptr );
 	const auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return 0;
@@ -609,10 +603,7 @@ double
 Transport::computeTickFromFrame( const long long nFrame, int nSampleRate,
 								 Hydrogen* pHydrogen )
 {
-	// T1.5: make pHydrogen required and drop this fallback (ADR 0015).
-	if ( pHydrogen == nullptr ) {
-		pHydrogen = Hydrogen::get_instance();
-	}
+	assert( pHydrogen != nullptr );
 
 	if ( nFrame < 0 ) {
 		ERRORLOG(

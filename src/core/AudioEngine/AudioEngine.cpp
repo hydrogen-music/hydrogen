@@ -59,23 +59,25 @@
 namespace H2Core
 {
 
-// T1.4 residual (ADR 0015): these logging macros are expanded in both instance
-// methods and the *static* method audioEngine_process(), so they cannot use the
-// per-instance back-pointer (m_pHydrogen) or the non-static getDriverNames().
-// They therefore stay on the transitional Hydrogen::get_instance() shim, as does
-// the single remaining get_instance() seam at the top of audioEngine_process().
-// Clearing these (a prerequisite for removing the shims in T1.5) requires
-// threading the owning AudioEngine through the static process callback's arg —
-// done with the host-transport seam (P3).
+// ADR 0015 (T1.5): these logging macros are expanded only within AudioEngine
+// member functions, so the owning engine's driver names are reached via
+// getDriverNames() on `this` — no process-wide singleton required. (The static
+// audioEngine_process() does not use them; it logs through its pAudioEngine.)
 #define AE_INFOLOG(x) INFOLOG( QString( "[%1] %2" ) \
-	.arg( Hydrogen::get_instance()->getAudioEngine()->getDriverNames() ).arg( x ) );
+	.arg( getDriverNames() ).arg( x ) );
 #define AE_WARNINGLOG(x) WARNINGLOG( QString( "[%1] %2" ) \
-	.arg( Hydrogen::get_instance()->getAudioEngine()->getDriverNames() ).arg( x ) );
+	.arg( getDriverNames() ).arg( x ) );
 #define AE_ERRORLOG(x) ERRORLOG( QString( "[%1] %2" ) \
-	.arg( Hydrogen::get_instance()->getAudioEngine()->getDriverNames() ).arg( x ) );
+	.arg( getDriverNames() ).arg( x ) );
 #define AE_DEBUGLOG(x) if ( __logger->should_log( Logger::Debug ) ) { \
 		__logger->log( Logger::Debug, _class_name(), __FUNCTION__, \
 					   QString( "%1" ).arg( x ), "\033[34;1m" ); }
+
+thread_local AudioEngine* AudioEngine::tls_pLockedEngine = nullptr;
+
+AudioEngine* AudioEngine::lockedEngineForThread() {
+	return tls_pLockedEngine;
+}
 
 AudioEngine::AudioEngine( Hydrogen* pHydrogen )
 	: m_pHydrogen( pHydrogen ),
@@ -184,6 +186,7 @@ void AudioEngine::lock( const char* file, unsigned int line, const char* functio
 	m_pLocker.function = function;
 	m_pLocker.isLocked = true;
 	m_LockingThread = std::this_thread::get_id();
+	tls_pLockedEngine = this;
 
 #ifdef H2CORE_HAVE_DEBUG
 	if ( __logger->should_log( Logger::Locks ) ) {
@@ -217,6 +220,7 @@ bool AudioEngine::tryLock( const char* file, unsigned int line, const char* func
 	m_pLocker.function = function;
 	m_pLocker.isLocked = true;
 	m_LockingThread = std::this_thread::get_id();
+	tls_pLockedEngine = this;
 
 #ifdef H2CORE_HAVE_DEBUG
 	if ( __logger->should_log( Logger::Locks ) ) {
@@ -257,6 +261,7 @@ bool AudioEngine::tryLockFor( const std::chrono::microseconds& duration, const c
 	m_pLocker.function = function;
 	m_pLocker.isLocked = true;
 	m_LockingThread = std::this_thread::get_id();
+	tls_pLockedEngine = this;
 
 #ifdef H2CORE_HAVE_DEBUG
 	if ( __logger->should_log( Logger::Locks ) ) {
@@ -276,6 +281,7 @@ void AudioEngine::unlock()
 	m_pLocker.isLocked = false;
 
 	m_LockingThread = std::thread::id();
+	tls_pLockedEngine = nullptr;
 	m_EngineMutex.unlock();
 
 #ifdef H2CORE_HAVE_DEBUG
@@ -910,7 +916,7 @@ void AudioEngine::calculateTransportOffsetOnBpmChange(
 	if ( m_bLookaheadApplied ) {
 			// if ( m_fLastTickEnd != 0 ) {
 		const long long nNewLookahead = AudioEngine::getLeadLagInFrames(
-			pPos->getDoubleTick() ) + AudioEngine::nMaxTimeHumanize + 1;
+			pPos->getDoubleTick(), m_pHydrogen ) + AudioEngine::nMaxTimeHumanize + 1;
 		const double fNewTickEnd = Transport::computeTickFromFrame(
 			nNewFrame + nNewLookahead, 0, m_pHydrogen ) +
 			pPos->getTickMismatch();
@@ -1708,12 +1714,10 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* arg )
 {
 	// P3 host seam (ADR 0015): the owning Hydrogen is threaded through the
 	// driver's process-callback arg, so each instance's callback drives its own
-	// engine. All drivers that invoke the callback (JACK/ALSA/PortAudio/Pulse/
-	// CoreAudio/OSS/Fake/DiskWriter) now pass their instance; the get_instance()
-	// fallback is defensive only (unforeseen/direct calls) and is removed in T1.5
-	// once real-driver multi-instance testing exists.
-	auto pHydrogen = arg != nullptr ?
-		static_cast<Hydrogen*>( arg ) : Hydrogen::get_instance();
+	// engine. Every driver that invokes the callback (JACK/ALSA/PortAudio/Pulse/
+	// CoreAudio/OSS/Fake/DiskWriter) passes its instance.
+	assert( arg != nullptr );
+	auto pHydrogen = static_cast<Hydrogen*>( arg );
 	// T1.6 (ADR 0015): route all logging emitted during this instance's audio
 	// callback to its own per-instance Logger for the duration of the cycle.
 	Logger::Scope loggerScope( pHydrogen->getLogger() );
@@ -2741,7 +2745,7 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
     long long nFrameStart = getCurrentFrame();
 
 	long long nLeadLagFactor = AudioEngine::getLeadLagInFrames(
-		pPos->getDoubleTick() );
+		pPos->getDoubleTick(), m_pHydrogen );
 
 	// Timeline disabled: 
 	// Due to rounding errors in tick<->frame conversions the leadlag
@@ -3235,14 +3239,12 @@ double AudioEngine::getLeadLagInTicks() {
 	return 5;
 }
 
-long long AudioEngine::getLeadLagInFrames( double fTick ) {
+long long AudioEngine::getLeadLagInFrames( double fTick, Hydrogen* pHydrogen ) {
 	double fTmp;
-	// getLeadLagInFrames is static (AudioEngine static residual, P3): no
-	// instance available, so computeFrameFromTick falls back to get_instance.
 	const long long nFrameStart = Transport::computeFrameFromTick(
-		fTick, &fTmp );
+		fTick, &fTmp, 0, pHydrogen );
 	const long long nFrameEnd = Transport::computeFrameFromTick(
-		fTick + AudioEngine::getLeadLagInTicks(), &fTmp );
+		fTick + AudioEngine::getLeadLagInTicks(), &fTmp, 0, pHydrogen );
 
 #if AUDIO_ENGINE_DEBUG
 	AE_DEBUGLOG( QString( "nFrameStart: %1, nFrameEnd: %2, diff: %3, fTick: %4" )
@@ -3597,11 +3599,17 @@ void AudioEngineLocking::assertAudioEngineLocked( const QString& sClass,
 {
 #ifndef NDEBUG
 		if ( m_bNeedsLock ) {
-			// AudioEngineLocking is a standalone locking mixin (not part of the
-			// AudioEngine class), so it has no Hydrogen back-pointer and stays on
-			// the transitional shim (ADR 0015 / T1.4 residual).
-			H2Core::Hydrogen::get_instance()->getAudioEngine()->
-				assertLocked( sClass, sFunction, sMsg );
+			// AudioEngineLocking is a standalone locking mixin with no back-pointer
+			// to an engine. Rather than reach for a process-wide singleton, consult
+			// the AudioEngine the calling thread has locked (ADR 0015): if it holds
+			// none, the data structure is being touched without the required lock.
+			AudioEngine* pEngine = AudioEngine::lockedEngineForThread();
+			if ( pEngine != nullptr ) {
+				pEngine->assertLocked( sClass, sFunction, sMsg );
+			}
+			else {
+				assert( false );
+			}
 		}
 #endif
 }

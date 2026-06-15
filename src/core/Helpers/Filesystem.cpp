@@ -159,10 +159,6 @@ static bool isEnvironmentVariableSet( const QString& sEnvironmentVariable )
 Filesystem::Context Filesystem::DetermineContext( const QString& sPath,
 												  Hydrogen* pHydrogen )
 {
-	// T1.5: make pHydrogen required and drop this fallback (ADR 0015).
-	if ( pHydrogen == nullptr ) {
-		pHydrogen = Hydrogen::get_instance();
-	}
 	if ( !sPath.isEmpty() ) {
 		const QString sAbsolutePath = Filesystem::absolutePath( sPath );
 		if ( sAbsolutePath.contains( m_sSystemDataPath ) ) {
@@ -1510,10 +1506,6 @@ QString Filesystem::appendNumberOrIncrement( const QString& sString )
 QStringList Filesystem::targetDirs( Artifact artifact, Context context,
 									Hydrogen* pHydrogen )
 {
-	// T1.5: make pHydrogen required and drop this fallback (ADR 0015).
-	if ( pHydrogen == nullptr ) {
-		pHydrogen = Hydrogen::get_instance();
-	}
 	QStringList results;
 
 	if ( context == Context::Song ) {

@@ -204,8 +204,9 @@ Sample::load( const QString& sFilePath, const License& license )
 	pSample = std::make_shared<Sample>( sFilePath, license );
 
 	// Samples loaded this way have no loops, rubberband, or envelopes
-	// set. Therefore, we do not have to pass a tempo in here.
-	if ( !pSample->load() ) {
+	// set. Therefore, we do not have to pass a tempo or Preferences in here
+	// (the latter is only consulted on the rubberband path; ADR 0015).
+	if ( !pSample->load( 120, nullptr ) ) {
 		return nullptr;
 	}
 
@@ -214,10 +215,6 @@ Sample::load( const QString& sFilePath, const License& license )
 
 bool Sample::load( float fBpm, Preferences* pPreferences )
 {
-	// T1.5: make pPreferences required and drop this fallback (ADR 0015).
-	if ( pPreferences == nullptr ) {
-		pPreferences = Preferences::get_instance().get();
-	}
 
 	// Will contain a bunch of metadata about the loaded sample.
 	SF_INFO sound_info = { 0 };

@@ -450,7 +450,7 @@ void DrumkitTest::testSave()
 {
 	___INFOLOG( "" );
 
-	auto pSong = Song::getEmptySong();
+	auto pSong = Song::getEmptySong( pTestHydrogen() );
 	CPPUNIT_ASSERT( pSong != nullptr );
 
 	auto pDrumkit = std::make_shared<Drumkit>(pSong->getDrumkit());

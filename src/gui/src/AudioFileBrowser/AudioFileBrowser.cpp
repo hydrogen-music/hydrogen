@@ -299,7 +299,7 @@ void AudioFileBrowser::browseTree(
 	if ( isFileSupported( path2 ) ) {
 		filelineedit->setText( fleTxt );
 		m_pSample = Sample::load( path2 );
-		m_pPreviewInstrument = Instrument::from( m_pSample );
+		m_pPreviewInstrument = Instrument::from( m_pSample, HydrogenApp::pHydrogen() );
 
 		if ( m_pSample != nullptr && m_pPreviewInstrument != nullptr &&
 			 m_pPreviewInstrument->getComponent( 0 ) != nullptr &&

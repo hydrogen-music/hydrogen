@@ -199,6 +199,25 @@ cleanly (even if targets are stubs).
     test-instance strategy), and the cosmetic `AE_*LOG` driver-name prefix.
 * **T1.5** Remove the transitional shims once the sweep is complete; the build
   failing on a lingering `get_instance()` is the proof it is gone.
+  * **Status: ✅ DONE** (2026-06-15) — the `Hydrogen` / `Preferences` /
+    `EventQueue` registry (`__instance` + `get_instance()` + `setInstance()` +
+    `replaceInstance()` + the registering `create_instance()`) is deleted;
+    whole-tree `get_instance()` for those three is **0**. The de-singletoning
+    was finished in coordinated groups: static-audio math now threads the
+    instance (`Transport::compute*`, `getLeadLagInFrames`, Jack timebase);
+    `AE_*LOG`/`assertLocked` route through `this`/a thread-local locked-engine;
+    `audioEngine_process` takes the owning `Hydrogen` via its callback arg (P3);
+    the load tree (`Song`/`Drumkit`/`Instrument`/`InstrumentLayer`/`Sample`/
+    `Pattern`/`Playlist`/`Legacy`/`Filesystem`/`getEmptySong`/`from`/the
+    `*Info` loaders) makes the instance a required parameter; `AudioEngineTests`
+    takes a harness-injected fixture pointer; `Preferences::load`/`Shortcuts`
+    thread it; the standalone factory is now `Hydrogen::create_instance(nOscPort,
+    pPreferences)` returning a caller-owned instance; the GUI injects the engine
+    + preferences via `HydrogenApp::setBootstrap()` (single-instance, GUI-local,
+    not a core singleton). The instance-mechanism tests that exercised the shim
+    (`EventQueueTest::testProcessCurrent`, `PreferencesInstanceTest::
+    testProcessCurrent`) were removed; the independence/ownership tests remain.
+    Green via `build.sh t`: `OK (225 tests)` + `GuiStartup` passed.
 * **T1.6 Per-instance `Logger`** via an **ambient context, resolved at log time,
   logging-only** ([ADR 0015](/docs/decisions/0015-per-instance-engine-context.md)).
   Make `Logger` instance-ownable (owned by `Hydrogen`), each with its own queue,

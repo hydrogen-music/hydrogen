@@ -85,7 +85,7 @@ QStringList TestHelper::findDrumkitBackupFiles( const QString& sPath ) const {
 }
 
 void TestHelper::varyAudioDriverConfig( int nIndex ) {
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = pTestPreferences();
 	
 	switch( nIndex ) {
 	case 0:
@@ -156,7 +156,7 @@ void TestHelper::varyAudioDriverConfig( int nIndex ) {
 	___INFOLOG( QString( "New bufferSize: %1, new sampleRate: %2" )
 				.arg( pPref->m_nBufferSize ).arg( pPref->m_nSampleRate ) );
 
-	H2Core::Hydrogen::get_instance()->restartAudioDriver();
+	pTestHydrogen()->restartAudioDriver();
 }
 
 void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
@@ -169,8 +169,8 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 
 	auto t0 = std::chrono::high_resolution_clock::now();
 
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pSong = H2Core::Song::load( sSongFile );
+	auto pHydrogen = pTestHydrogen();
+	auto pSong = H2Core::Song::load( sSongFile, false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pSong != nullptr );
 		
 	pHydrogen->setSong( pSong );
@@ -214,7 +214,7 @@ void TestHelper::exportSong( const QString& sFileName )
 {
 	auto t0 = std::chrono::high_resolution_clock::now();
 
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pSong = pHydrogen->getSong();
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
@@ -253,11 +253,11 @@ void TestHelper::exportMIDI( const QString& sSongFile, const QString& sFileName,
 {
 	auto t0 = std::chrono::high_resolution_clock::now();
 
-	auto pSong = H2Core::Song::load( sSongFile );
+	auto pSong = H2Core::Song::load( sSongFile, false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pSong != nullptr );
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong( pSong );
+	pTestHydrogen()->getCoreActionController()->setSong( pSong );
 
-	pWriter->save( sFileName, pSong, bUseHumanization, H2Core::Hydrogen::get_instance() );
+	pWriter->save( sFileName, pSong, bUseHumanization, pTestHydrogen() );
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	double t = std::chrono::duration<double>( t1 - t0 ).count();
@@ -265,7 +265,7 @@ void TestHelper::exportMIDI( const QString& sSongFile, const QString& sFileName,
 }
 
 void TestHelper::waitForAudioDriver() {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	pAudioEngine->lock( RIGHT_HERE );
@@ -291,7 +291,7 @@ void TestHelper::waitForAudioDriver() {
 }
 
 void TestHelper::waitForMidiDriver() {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );
@@ -314,7 +314,7 @@ void TestHelper::waitForMidiDriver() {
 }
 
 void TestHelper::waitForMidiActionManagerWorkerThread() {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 
 	// Since incoming MIDI events are handled asynchronously, we pause execution

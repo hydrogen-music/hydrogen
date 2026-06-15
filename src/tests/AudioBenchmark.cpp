@@ -221,7 +221,7 @@ void AudioBenchmark::audioBenchmark(void)
 	auto songADSRFile = H2TEST_FILE("functional/test_adsr.h2song");
 
 	/* Load song and prepare */
-	std::shared_ptr<Song> pSong = Song::load( songFile );
+	std::shared_ptr<Song> pSong = Song::load( songFile, false, pTestHydrogen() );
 	ASSERT_SONG( pSong );
 
 	pHydrogen->setSong( pSong );
@@ -241,7 +241,7 @@ void AudioBenchmark::audioBenchmark(void)
 	timeExport( 44101, Interpolation::InterpolateMode::Hermite, fRef );
 
 	out << "Now with ADSR" << Qt::endl;
-	pSong = Song::load( songADSRFile );
+	pSong = Song::load( songADSRFile, false, pTestHydrogen() );
 	ASSERT_SONG( pSong );
 
 	pHydrogen->setSong( pSong );

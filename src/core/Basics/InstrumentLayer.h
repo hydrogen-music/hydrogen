@@ -105,7 +105,7 @@ namespace H2Core
 		 * Calls the #H2Core::Sample::load()
 		 * member function of #m_pSample.
 		 */
-		void loadSample( float fBpm = 120, Preferences* pPreferences = nullptr );
+		void loadSample( float fBpm, Preferences* pPreferences );
 		/*
 		 * unload sample and replace it with an empty one
 		 */
@@ -155,10 +155,10 @@ namespace H2Core
 		 */
 		static std::shared_ptr<InstrumentLayer> loadFrom( const XMLNode& pNode,
 														  const QString& sDrumkitPath,
-														  const QString& sSongPath = "",
-														  const License& drumkitLicense = License(),
-														  bool bSilent = false,
-														  Hydrogen* pHydrogen = nullptr );
+														  const QString& sSongPath,
+														  const License& drumkitLicense,
+														  bool bSilent,
+														  Hydrogen* pHydrogen );
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line

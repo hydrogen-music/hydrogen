@@ -26,33 +26,26 @@
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 
+#include "TestHelper.h"
+
 using namespace H2Core;
 
 void MultiInstanceTest::testInstanceOwnsContext() {
 	___INFOLOG( "" );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	CPPUNIT_ASSERT( pHydrogen != nullptr );
 
-	// T1.3: a Hydrogen instance owns its Preferences and EventQueue and exposes
-	// them through the new per-instance API (ADR 0015).
+	// A Hydrogen instance owns its Preferences and EventQueue and exposes them
+	// through the per-instance API; no process-wide singleton is involved
+	// (ADR 0015).
 	CPPUNIT_ASSERT( pHydrogen->getPreferences() != nullptr );
 	CPPUNIT_ASSERT( pHydrogen->getEventQueue() != nullptr );
 	CPPUNIT_ASSERT( pHydrogen->getAudioEngine() != nullptr );
 
-	// The transitional process-current shims resolve to the instance-owned
-	// objects, so the ~2,000 unconverted get_instance() call sites see this
-	// instance's context until the de-singletoning sweep (T1.4/T1.5) converts
-	// them.
-	CPPUNIT_ASSERT( pHydrogen->getPreferences() == Preferences::get_instance() );
-	CPPUNIT_ASSERT( pHydrogen->getEventQueue() == EventQueue::get_instance() );
-
 	// NOTE: full two-live-instance isolation (independent song/tempo/transport
-	// and EventQueue, mutating one never affecting the other) is the Phase 1
-	// done-gate. It is added to this suite once later T1.x work lands the
-	// supporting lifecycle changes — ~Hydrogen currently resets the global
-	// process-current pointer to null rather than to a previous instance, and
-	// the audio/OSC layers are still process-global.
+	// and EventQueue, mutating one never affecting the other) remains future
+	// work — the audio/OSC layers are still process-global.
 
 	___INFOLOG( "passed" );
 }

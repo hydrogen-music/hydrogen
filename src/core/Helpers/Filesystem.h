@@ -78,7 +78,7 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	};
 	static QString ContextToQString( const Context& context );
 	static Context DetermineContext( const QString& sPath,
-									 Hydrogen* pHydrogen = nullptr );
+									 Hydrogen* pHydrogen );
 
 	/** Indicates what type of file - .h2song, .h2playlist, .h2pattern,
 	 * drumkit.xml, .h2drumkit - a function as to handle. This covers files
@@ -263,8 +263,8 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static QStringList listContent(
 		Artifact artifact,
 		Context context,
-		const QString& sUserDirOverwrite = "",
-		Hydrogen* pHydrogen = nullptr
+		const QString& sUserDirOverwrite,
+		Hydrogen* pHydrogen
 	);
 
 	/* DRUMKIT */
@@ -516,7 +516,7 @@ class Filesystem : public H2Core::Object<Filesystem> {
 		bool bSilent
 	);
 	static QStringList targetDirs( Artifact artifact, Context context,
-								   Hydrogen* pHydrogen = nullptr );
+								   Hydrogen* pHydrogen );
 	static QString targetFilter( Artifact artifact );
 
 	static Logger* m_pLogger;  ///< a pointer to the logger

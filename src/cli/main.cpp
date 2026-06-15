@@ -501,7 +501,7 @@ int main(int argc, char *argv[])
 				Preferences::parseAudioDriver( sSelectedDriver );
 		}
 
-		Hydrogen* pHydrogen = Hydrogen::create_instance( nOscPort );
+		Hydrogen* pHydrogen = Hydrogen::create_instance( nOscPort, pPref );
 
 		// Tell the core that we are done initializing the most basic parts.
 		pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::headless );
@@ -511,7 +511,7 @@ int main(int argc, char *argv[])
 
 		// Load playlist
 		if ( ! sPlaylistFileName.isEmpty() ) {
-			pPlaylist = Playlist::load( sPlaylistFileName );
+			pPlaylist = Playlist::load( sPlaylistFileName, pHydrogen );
 			if ( pPlaylist == nullptr ) {
 				___ERRORLOG( "Error loading the playlist" );
 				return 1;
@@ -550,7 +550,7 @@ int main(int argc, char *argv[])
 			/* Still not loaded */
 			if ( pSong == nullptr ) {
 				___INFOLOG( "Starting with empty song" );
-				pSong = Song::getEmptySong();
+				pSong = Song::getEmptySong( pHydrogen );
 
 				// We avoid setting LastSongFileName in the PPref
 				pHydrogen->setSong( pSong );
@@ -778,10 +778,7 @@ int main(int argc, char *argv[])
 		delete pHydrogen;
 		delete pApp;
 
-		// There is no particular need to clean up the Preferences outselves.
-		// This is just done in order for it to not appear in the objects map
-		// printed below.
-		pPref->replaceInstance( nullptr );
+		// There is no particular need to clean up the Preferences ourselves.
 		pPref = nullptr;
 
 		___INFOLOG( "Quitting..." );

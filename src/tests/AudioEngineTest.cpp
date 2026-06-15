@@ -53,7 +53,7 @@ void AudioEngineTest::testMidiNoteOrdering()
 	CPPUNIT_ASSERT( pAudioDriver != nullptr );
 	CPPUNIT_ASSERT( pLoopBackDriver != nullptr );
 
-	auto pSong = Song::load( H2TEST_FILE( "song/midi-note-ordering.h2song" ) );
+	auto pSong = Song::load( H2TEST_FILE( "song/midi-note-ordering.h2song" ), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pSong != nullptr && pSong->getDrumkit() != nullptr );
 	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setSong( pSong ) );
 
@@ -195,7 +195,7 @@ void AudioEngineTest::testNotePickup()
 	CPPUNIT_ASSERT( pAudioDriver != nullptr );
 	CPPUNIT_ASSERT( pMidiDriver != nullptr );
 
-	auto pSong = Song::load( H2TEST_FILE( "song/AE_loopMode.h2song" ) );
+	auto pSong = Song::load( H2TEST_FILE( "song/AE_loopMode.h2song" ), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pSong != nullptr );
 	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setSong( pSong ) );
 

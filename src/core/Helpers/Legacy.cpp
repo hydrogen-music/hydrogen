@@ -136,10 +136,6 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 	const XMLNode& node, const QString& sSongPath, bool bSilent,
 	Hydrogen* pHydrogen )
 {
-	// T1.5: make pHydrogen required and drop this fallback (ADR 0015).
-	if ( pHydrogen == nullptr ) {
-		pHydrogen = Hydrogen::get_instance();
-	}
 
 	// These old kits contain only an instrument list and former
 	// DrumkitComponent and rely on sample loading per-instrument. How the kit

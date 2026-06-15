@@ -1275,7 +1275,7 @@ void Drumkit::recalculateRubberband( float fBpm, Hydrogen* pHydrogen )
 					continue;
 				}
 				auto pNewSample = std::make_shared<Sample>( ppLayer->getSample() );
-				if ( !pNewSample->load( fBpm ) ) {
+				if ( !pNewSample->load( fBpm, pHydrogen->getPreferences().get() ) ) {
 				  continue;
 				}
 

@@ -623,7 +623,7 @@ void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 		for ( int i = 0; i < urlList.size(); i++ ) {
 			QString patternFilePath = urlList.at( i ).toLocalFile();
 			if ( patternFilePath.endsWith( ".h2pattern" ) ) {
-				auto pPattern = Pattern::load( patternFilePath );
+				auto pPattern = Pattern::load( patternFilePath, false, HydrogenApp::pHydrogen() );
 				if ( pPattern != nullptr ) {
 					auto pNewPattern = pPattern;
 

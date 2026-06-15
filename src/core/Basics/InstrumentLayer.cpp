@@ -122,10 +122,6 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 	bool bSilent,
 	Hydrogen* pHydrogen )
 {
-	// T1.5: make pHydrogen required and drop this fallback (ADR 0015).
-	if ( pHydrogen == nullptr ) {
-		pHydrogen = Hydrogen::get_instance();
-	}
 
 	const QString sFileName =
 		node.read_string( "filename", "", false, false, bSilent );

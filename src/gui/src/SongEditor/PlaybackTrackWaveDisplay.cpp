@@ -154,7 +154,8 @@ void PlaybackTrackWaveDisplay::updatePeakData()
 		}
 		nTotalTicks += nColumnLengthTicks;
 		const long long nNextEndFrame = Transport::computeFrameFromTick(
-			static_cast<double>( nTotalTicks ), &fMismatch
+			static_cast<double>( nTotalTicks ), &fMismatch, 0,
+			HydrogenApp::pHydrogen()
 		);
 
 		const float fIncrement =

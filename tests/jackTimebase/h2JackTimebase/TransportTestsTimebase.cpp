@@ -38,8 +38,6 @@ using namespace H2Core;
 void TransportTestsTimebase::testTransportProcessingJack() {
 	___INFOLOG( "\n\n" );
 #ifdef H2CORE_HAVE_JACK
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pPref = Preferences::get_instance();
 
 	perform( &AudioEngineTests::testTransportProcessingJack );
 #else
@@ -53,8 +51,6 @@ void TransportTestsTimebase::testTransportProcessingJack() {
 void TransportTestsTimebase::testTransportProcessingOffsetsJack() {
 	___INFOLOG( "\n\n" );
 #ifdef H2CORE_HAVE_JACK
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pPref = Preferences::get_instance();
 
 	perform( &AudioEngineTests::testTransportProcessingOffsetsJack );
 #else
@@ -68,8 +64,6 @@ void TransportTestsTimebase::testTransportProcessingOffsetsJack() {
 void TransportTestsTimebase::testTransportRelocationJack() {
 	___INFOLOG( "\n\n" );
 #ifdef H2CORE_HAVE_JACK
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pPref = Preferences::get_instance();
 
 	perform( &AudioEngineTests::testTransportRelocationJack );
 #else
@@ -83,8 +77,6 @@ void TransportTestsTimebase::testTransportRelocationJack() {
 void TransportTestsTimebase::testTransportRelocationOffsetsJack() {
 	___INFOLOG( "\n\n" );
 #ifdef H2CORE_HAVE_JACK
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pPref = Preferences::get_instance();
 
 	perform( &AudioEngineTests::testTransportRelocationOffsetsJack );
 #else

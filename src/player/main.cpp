@@ -77,20 +77,16 @@ int main(int argc, char** argv){
 
 	const QString sFileName = argv[1];
 
-	H2Core::Preferences::create_instance();
-	H2Core::Hydrogen::create_instance( -1 );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pPref = H2Core::Preferences::create_instance();
+	auto pHydrogen = H2Core::Hydrogen::create_instance( -1, pPref );
 
 	// Tell the core that we are done initializing the most basic parts.
 	pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::headless );
 
-	auto pPref = H2Core::Preferences::get_instance();
-	// The Preferences is provided as a shared pointer. We discard our local
-	// reference in order to not prevent cleanup to the old instance in case
-	// it is replaced while Hydrogen is running.
+	// Hydrogen owns its Preferences; drop our local bootstrap reference.
 	pPref = nullptr;
 
-	std::shared_ptr<H2Core::Song>pSong = H2Core::Song::load( sFileName );
+	std::shared_ptr<H2Core::Song>pSong = H2Core::Song::load( sFileName, false, pHydrogen );
 	if (pSong == nullptr) {
 		cout << "Error loading song!" << endl;
 		exit(2);
@@ -113,19 +109,14 @@ int main(int argc, char** argv){
 				cout << endl << "HydrogenPlayer shutdown..." << endl;
 				pHydrogen->sequencerStop();
 
-				pPref = H2Core::Preferences::get_instance();
+				pPref = pHydrogen->getPreferences();
 				pPref->save();
+				pPref = nullptr;
 				pSong = nullptr;
-				// Hydrogen owns its EventQueue and frees it in ~Hydrogen
-				// (ADR 0015).
+				// Hydrogen owns its Preferences and EventQueue and frees them in
+				// ~Hydrogen (ADR 0015).
 				delete pHydrogen;
 				delete H2Core::Logger::get_instance();
-
-				// There is no particular need to clean up the Preferences
-				// outselves. This is just done in order for it to not appear in
-				// the objects map printed below.
-				pPref->replaceInstance( nullptr );
-				pPref = nullptr;
 
 				std::cout << std::endl << std::endl << H2Core::Base::objects_count() << " alive objects" << std::endl << std::endl;
 				H2Core::Base::write_objects_map_to_cerr();
@@ -142,7 +133,7 @@ int main(int argc, char** argv){
 				break;
 
 			case 'b':
-				H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( 0 );
+				pHydrogen->getCoreActionController()->locateToColumn( 0 );
 				break;
 
 			case 'f':

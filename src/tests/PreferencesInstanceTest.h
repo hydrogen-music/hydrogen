@@ -32,21 +32,10 @@
 class PreferencesInstanceTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( PreferencesInstanceTest );
 	CPPUNIT_TEST( testIndependentInstances );
-	CPPUNIT_TEST( testProcessCurrent );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
-	void setUp() override;
-	void tearDown() override;
-
 	void testIndependentInstances();
-	void testProcessCurrent();
-
-private:
-	/** Process-current Preferences set up by the test harness; remembered in
-	 * setUp() and restored in tearDown() since the rest of the suite relies on
-	 * it. */
-	std::shared_ptr<H2Core::Preferences> m_pPrevious;
 };
 
 #endif

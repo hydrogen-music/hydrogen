@@ -50,7 +50,7 @@ class AutomationPathSerializerTest : public CppUnit::TestCase {
 
 		AutomationPath path(-10, 10, 0);
 		AutomationPathSerializer reader;
-		reader.read_automation_path(doc.documentElement(), path);
+		reader.read_automation_path(doc.documentElement(), path, pTestHydrogen());
 
 		AutomationPath expect(-10, 10, 0);
 		expect.add_point(2, 4, pTestHydrogen());
@@ -108,7 +108,7 @@ class AutomationPathSerializerTest : public CppUnit::TestCase {
 		serializer.write_automation_path(node, p1);
 
 		AutomationPath p2(0, 10, 0);
-		serializer.read_automation_path(node, p2);
+		serializer.read_automation_path(node, p2, pTestHydrogen());
 
 		CPPUNIT_ASSERT_EQUAL(p1, p2);
 	___INFOLOG( "passed" );

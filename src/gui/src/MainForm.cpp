@@ -138,7 +138,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFileName,
 		if ( ! openFile( Filesystem::Artifact::Song, sSongFileName,
 						 pPref->getLastSongPath() ) ) {
 			// Fall back to an empty song.
-			HydrogenApp::openSong( H2Core::Song::getEmptySong() );		}
+			HydrogenApp::openSong( H2Core::Song::getEmptySong( HydrogenApp::pHydrogen() ) );		}
 	}
 
 	// We need no fallback for the playlist as a new one corresponds to an empty
@@ -678,7 +678,7 @@ void MainForm::action_file_new()
 		return;
 	}
 	
-	std::shared_ptr<Song> pSong = Song::getEmptySong();
+	std::shared_ptr<Song> pSong = Song::getEmptySong( HydrogenApp::pHydrogen() );
 
 	if ( bUnderSessionManagement ) {
 		// Just a single click will allow the user to discard the
@@ -833,7 +833,7 @@ bool MainForm::action_file_save( bool bTriggerMessage )
 		// name.
 		return action_file_save_as();
 	}
-	else if ( Filesystem::DetermineContext( pSong->getPath() ) ==
+	else if ( Filesystem::DetermineContext( pSong->getPath(), HydrogenApp::pHydrogen() ) ==
 			  Filesystem::Context::System ) {
 		// Although the system-level sound library paths are valid, the user
 		// does not have sufficient permission to write to it. Instead, the
@@ -1125,7 +1125,7 @@ void MainForm::action_pattern_open()
 		pPref->setLastOpenPatternDirectory( fd.directory().absolutePath() );
 
 		for ( const auto& ssPath : fd.selectedFiles() ) {
-			auto pNewPattern = Pattern::load( ssPath );
+			auto pNewPattern = Pattern::load( ssPath, false, HydrogenApp::pHydrogen() );
 			if ( pNewPattern == nullptr ) {
 				QMessageBox::critical(
 					this, "Hydrogen",
@@ -1297,7 +1297,7 @@ void MainForm::action_pattern_save( int nPatternRow )
 		action_pattern_save_as( nPatternRow );
 		return;
 	}
-	else if ( Filesystem::DetermineContext( pPattern->getPath() ) ==
+	else if ( Filesystem::DetermineContext( pPattern->getPath(), HydrogenApp::pHydrogen() ) ==
 			  Filesystem::Context::System ) {
 		// Although the system-level sound library paths are valid, the user
 		// does not have sufficient permission to write to it. Instead, the
@@ -2006,7 +2006,7 @@ void MainForm::action_drumkit_save()
 		action_drumkit_save_as();
 		return;
 	}
-	else if ( Filesystem::DetermineContext( pDrumkit->getPath() ) ==
+	else if ( Filesystem::DetermineContext( pDrumkit->getPath(), HydrogenApp::pHydrogen() ) ==
 			  Filesystem::Context::System ) {
 		// Although the system-level sound library paths are valid, the user
 		// does not have sufficient permission to write to it. Instead, the

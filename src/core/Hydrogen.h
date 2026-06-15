@@ -135,18 +135,13 @@ public:
 	 * A thin wrapper around the instance constructor (ADR 0015); plugin hosts
 	 * construct instances directly via #Hydrogen().
 	 */
-	static Hydrogen*	create_instance( int nOscPort );
-	/**
-	 * Returns the process-current Hydrogen instance #__instance.
-	 */
-	static Hydrogen*	get_instance(){ return __instance; };
+	static Hydrogen*	create_instance( int nOscPort,
+										 std::shared_ptr<Preferences> pPreferences );
 
 	/**
 	 * Constructs a Hydrogen instance owning the given @a pPref Preferences and
 	 * its own EventQueue (ADR 0015). Multiple instances may coexist in one
-	 * process. The instance registers its Preferences/EventQueue as the
-	 * process-current ones (via their transitional get_instance() shims) and
-	 * becomes the process-current Hydrogen.
+	 * process; the caller owns the instance.
 	 *
 	 * @param pPref Preferences owned by this instance.
 	 * @param nOscPort OSC port for this instance, or -1 to disable OSC.
@@ -160,6 +155,11 @@ public:
 
 	/** \return The Preferences owned by this instance (#m_pPreferences). */
 	std::shared_ptr<Preferences> getPreferences() const { return m_pPreferences; }
+	/** Adopts @a pPreferences as the Preferences owned by this instance (ADR
+	 * 0015). Used when a different configuration is loaded at runtime. */
+	void setPreferences( std::shared_ptr<Preferences> pPreferences ) {
+		m_pPreferences = pPreferences;
+	}
 	/** \return The EventQueue owned by this instance (#m_pEventQueue). */
 	EventQueue*		getEventQueue() const { return m_pEventQueue; }
 	/** \return The per-instance Logger owned by this instance (ADR 0015, T1.6).
@@ -483,16 +483,6 @@ private:
 		void killInstruments();
 
 	void			midiNoteOn( std::shared_ptr<Note> pNote );
-
-	/**
-	 * Process-current Hydrogen instance (ADR 0015).
-	 *
-	 * Initialized to NULL and set to the most recently constructed instance.
-	 * No longer a true singleton: multiple instances may coexist, each owning
-	 * its own Preferences/EventQueue; this merely tracks the process-current
-	 * one for the transitional #get_instance() shim.
-	 */
-	static Hydrogen* 	__instance;
 
 	/** Per-instance Logger owned by this instance (ADR 0015, T1.6) — own queue,
 	 * worker thread and log file. */

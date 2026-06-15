@@ -69,9 +69,9 @@ class XMLNode;
 		 */
 	static std::shared_ptr<PatternList> loadFrom( const XMLNode& pNode,
 												  const QString& sDrumkitName,
-												  std::shared_ptr<Drumkit> pDrumkit = nullptr,
-												  bool bSilent = false,
-												  Hydrogen* pHydrogen = nullptr );
+												  std::shared_ptr<Drumkit> pDrumkit,
+												  bool bSilent,
+												  Hydrogen* pHydrogen );
 
 	/** Stores a serialized version of the instance to the XML note @a
 	 * pNote.

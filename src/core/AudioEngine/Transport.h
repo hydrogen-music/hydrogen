@@ -51,7 +51,7 @@ class Transport : public H2Core::Object<Transport> {
 	enum class Type { Playhead, Queuing, JackTimebaseCallback, Test0, Test1 };
 	static QString TypeToQString( const Type& type );
 
-	Transport( Type type, Hydrogen* pHydrogen = nullptr );
+	Transport( Type type, Hydrogen* pHydrogen );
 	Transport( std::shared_ptr<Transport> pOther );
 	~Transport();
 
@@ -97,8 +97,8 @@ class Transport : public H2Core::Object<Transport> {
 	 * @param nSampleRate If set to 0, the sample rate provided by the audio
 	 * driver will be used.
 	 */
-	static double computeTickFromFrame( long long nFrame, int nSampleRate = 0,
-										Hydrogen* pHydrogen = nullptr );
+	static double computeTickFromFrame( long long nFrame, int nSampleRate,
+										Hydrogen* pHydrogen );
 
 	/**
 	 * Calculates frame equivalent of @a fTick.
@@ -122,8 +122,8 @@ class Transport : public H2Core::Object<Transport> {
 	static long long computeFrameFromTick(
 		double fTick,
 		double* fTickMismatch,
-		int nSampleRate = 0,
-		Hydrogen* pHydrogen = nullptr
+		int nSampleRate,
+		Hydrogen* pHydrogen
 	);
 
 	/**

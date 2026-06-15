@@ -68,8 +68,7 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
 	H2Core::Filesystem::info();
 	
 	/* Use fake audio driver */
-	H2Core::Preferences::create_instance();
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = H2Core::Preferences::create_instance();
 	pPref->m_audioDriver = Preferences::AudioDriver::Fake;
 	pPref->m_midiDriver = Preferences::MidiDriver::LoopBack;
 	pPref->m_nBufferSize = 1024;
@@ -77,7 +76,7 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
 
 	// Use a dedicated OSC port to not cause conflicts with (JACK) integration
 	// tests running in a different shell.
-	auto pHydrogen = H2Core::Hydrogen::create_instance( 4563 );
+	auto pHydrogen = H2Core::Hydrogen::create_instance( 4563, pPref );
 	pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::headless );
 	// Prevent the EventQueue from flooding the log since we will push
 	// more events in a short period of time than it is able to handle.
@@ -200,9 +199,9 @@ int main( int argc, char **argv)
 	qDebug().noquote() << QString( "Tests required %1.%2s to complete\n\n" )
 		.arg( durationSeconds.count() ).arg( durationMilliSeconds.count() );
 
-	// Hydrogen owns its EventQueue and frees it in ~Hydrogen (ADR 0015).
-	delete Hydrogen::get_instance();
-    Preferences::get_instance()->replaceInstance( nullptr );
+	// Hydrogen owns its Preferences and EventQueue and frees them in ~Hydrogen
+	// (ADR 0015).
+	delete pTestHydrogen();
     delete Logger::get_instance();
 
 	return wasSuccessful ? 0 : 1;

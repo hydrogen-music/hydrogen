@@ -42,7 +42,15 @@ class AudioEngineTests : public H2Core::Object<AudioEngineTests>
 {
 	H2_OBJECT(AudioEngineTests)
 public:
-	/** 
+	/** Test fixture: the Hydrogen instance under test, set by the harness
+	 *  before any case runs. AudioEngineTests lives in libcore and cannot reach
+	 *  the test-only pTestHydrogen(), so the harness injects it here instead of
+	 *  the cases relying on a process-wide singleton (ADR 0015). */
+	static void setHydrogen( H2Core::Hydrogen* pHydrogen ) {
+		m_pHydrogen = pHydrogen;
+	}
+
+	/**
 	 * Unit test checking for consistency when converting frames to
 	 * ticks and back.
 	 */
@@ -196,6 +204,9 @@ private:
 		long long nFrame
 	);
 #endif
+
+	/** Instance under test; see setHydrogen(). */
+	static H2Core::Hydrogen* m_pHydrogen;
 };
 };
 

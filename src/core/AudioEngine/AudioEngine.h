@@ -251,6 +251,12 @@ public:
 	 */
 	void			assertLocked( const QString& sClass, const char* sFunction,
 								  const QString& sMsg );
+	/** The AudioEngine (if any) currently locked by the calling thread.
+	 *
+	 * Set by lock()/tryLock()/tryLockFor() and cleared by unlock(). Used by
+	 * AudioEngineLocking::assertAudioEngineLocked() (debug only) so the lock
+	 * assertion no longer depends on the process-wide singleton (ADR 0015). */
+	static AudioEngine*	lockedEngineForThread();
 	void			noteOn( std::shared_ptr<Note> pNote );
 
 	/**
@@ -343,7 +349,7 @@ public:
 	 * During the humanization the onset of a Note will be moved
 	 * Note::__lead_lag times the value calculated by this function.
 	 */
-	static long long getLeadLagInFrames( double fTick );
+	static long long getLeadLagInFrames( double fTick, Hydrogen* pHydrogen );
 
 	double getSongSizeInTicks() const;
 
@@ -666,6 +672,10 @@ private:
 	 * Thread ID of the current holder of the AudioEngine lock.
 	 */
 	std::thread::id 	m_LockingThread;
+
+	/** Per-thread back-reference to the AudioEngine this thread has locked, or
+	 *  nullptr when it holds no lock. Backs lockedEngineForThread(). */
+	static thread_local AudioEngine* tls_pLockedEngine;
 
 	/**
 	 * Contains the current or last context in which the audio engine

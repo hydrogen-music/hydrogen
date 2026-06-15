@@ -68,10 +68,10 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		static std::shared_ptr<InstrumentComponent> loadFrom(
 			const XMLNode& pNode,
 			const QString& sDrumkitPath,
-			const QString& sSongPath = "",
-			const License& drumkitLicense = License(),
-			bool bSilent = false,
-			Hydrogen* pHydrogen = nullptr
+			const QString& sSongPath,
+			const License& drumkitLicense,
+			bool bSilent,
+			Hydrogen* pHydrogen
 		);
 
 		void				setName( const QString& sName );

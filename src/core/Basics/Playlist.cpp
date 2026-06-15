@@ -45,10 +45,6 @@ void Playlist::clear()
 std::shared_ptr<Playlist> Playlist::load( const QString& sPath,
 										  Hydrogen* pHydrogen )
 {
-	// T1.5: make pHydrogen required and drop this fallback (ADR 0015).
-	if ( pHydrogen == nullptr ) {
-		pHydrogen = Hydrogen::get_instance();
-	}
 	XMLDoc doc;
 	doc.read( sPath );
 

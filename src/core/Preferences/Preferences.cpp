@@ -48,56 +48,40 @@
 
 namespace H2Core {
 
-std::shared_ptr<Preferences> Preferences::__instance = nullptr;
-
 std::shared_ptr<Preferences> Preferences::create_instance()
 {
-	if ( __instance == nullptr ) {
-		// User-level configs
-		auto pPrefUser = load( Filesystem::userConfigPath() );
-		if ( pPrefUser != nullptr ) {
-			__instance = pPrefUser;
-			__instance->m_bLoadingSuccessful = true;
-		}
-		else {
-			// Fallback to system-level configs (the one we ship)
-			auto pPrefSystem = load( Filesystem::systemConfigPath() );
-			if ( pPrefSystem != nullptr ) {
-				INFOLOG(
-					QString( "Couldn't load user-level configuration from "
-							 "[%1]. Falling back to system-level one in [%2]" )
-						.arg( Filesystem::userConfigPath() )
-						.arg( Filesystem::systemConfigPath() )
-				);
-				__instance = pPrefSystem;
-				__instance->m_bLoadingSuccessful = true;
-			}
-			else {
-				ERRORLOG(
-					QString(
-						"Couldn't load config file from neither [%1] nor [%2]."
-					)
-						.arg( Filesystem::userConfigPath() )
-						.arg( Filesystem::systemConfigPath() )
-				);
-				__instance = std::make_shared<Preferences>();
-				__instance->m_bLoadingSuccessful = false;
-			}
-		}
+	// Loads and returns a freshly-owned Preferences. No process-wide singleton
+	// is involved: the caller (Hydrogen, or the bootstrap in main) owns the
+	// result (ADR 0015). At this early bootstrap point no Hydrogen instance
+	// exists yet; the instance is only consulted by Shortcuts to decide whether
+	// the GUI is ready, and it is not at config-load time.
+	auto pPrefUser = load( Filesystem::userConfigPath(), false, nullptr );
+	if ( pPrefUser != nullptr ) {
+		pPrefUser->m_bLoadingSuccessful = true;
+		return pPrefUser;
 	}
-	// Return the process-current instance so callers can hold it directly
-	// instead of re-reading the get_instance() shim (ADR 0015, toward T1.5).
-	return __instance;
-}
 
-void Preferences::setInstance( std::shared_ptr<Preferences> pInstance )
-{
-	__instance = pInstance;
-}
+	// Fallback to system-level configs (the one we ship)
+	auto pPrefSystem = load( Filesystem::systemConfigPath(), false, nullptr );
+	if ( pPrefSystem != nullptr ) {
+		INFOLOG(
+			QString( "Couldn't load user-level configuration from "
+					 "[%1]. Falling back to system-level one in [%2]" )
+				.arg( Filesystem::userConfigPath() )
+				.arg( Filesystem::systemConfigPath() )
+		);
+		pPrefSystem->m_bLoadingSuccessful = true;
+		return pPrefSystem;
+	}
 
-void Preferences::replaceInstance( std::shared_ptr<Preferences> pOther )
-{
-	setInstance( pOther );
+	ERRORLOG(
+		QString( "Couldn't load config file from neither [%1] nor [%2]." )
+			.arg( Filesystem::userConfigPath() )
+			.arg( Filesystem::systemConfigPath() )
+	);
+	auto pPref = std::make_shared<Preferences>();
+	pPref->m_bLoadingSuccessful = false;
+	return pPref;
 }
 
 Preferences::Preferences()
@@ -446,7 +430,7 @@ Preferences::~Preferences()
 }
 
 std::shared_ptr<Preferences>
-Preferences::load( const QString& sPath, const bool bSilent )
+Preferences::load( const QString& sPath, const bool bSilent, Hydrogen* pHydrogen )
 {
 	if ( !Filesystem::fileReadable( sPath, bSilent ) ) {
 		return nullptr;
@@ -1305,7 +1289,7 @@ Preferences::load( const QString& sPath, const bool bSilent )
 		rootNode.firstChildElement( "midiEventMap" );
 	if ( !midiEventMapNode.isNull() ) {
 		pPref->m_pMidiEventMap =
-			MidiEventMap::loadFrom( midiEventMapNode, bSilent );
+			MidiEventMap::loadFrom( midiEventMapNode, bSilent, pHydrogen );
 	}
 	else {
 		WARNINGLOG( "<midiMap> node not found" );
@@ -1357,7 +1341,7 @@ Preferences::load( const QString& sPath, const bool bSilent )
 		std::make_shared<Theme>( pColorTheme, pInterfaceTheme, pFontTheme );
 
 	// Shortcuts
-	pPref->m_pShortcuts = Shortcuts::loadFrom( rootNode, Hydrogen::get_instance(), bSilent );
+	pPref->m_pShortcuts = Shortcuts::loadFrom( rootNode, pHydrogen, bSilent );
 
 	return pPref;
 }

@@ -27,21 +27,6 @@
 namespace H2Core
 {
 
-EventQueue* EventQueue::__instance = nullptr;
-
-void EventQueue::create_instance()
-{
-	if ( __instance == nullptr ) {
-		setInstance( new EventQueue() );
-	}
-}
-
-void EventQueue::setInstance( EventQueue* pInstance )
-{
-	__instance = pInstance;
-}
-
-
 EventQueue::EventQueue( Hydrogen* pHydrogen ) : m_pHydrogen( pHydrogen ), m_bSilent( false ) {
     std::random_device randomSeed;
 	m_randomEngine = std::default_random_engine( randomSeed() );

@@ -1044,7 +1044,7 @@ std::shared_ptr<Preferences> CoreActionController::loadPreferences(
 	const QString& sPath
 )
 {
-	return Preferences::load( sPath, false );
+	return Preferences::load( sPath, false, m_pHydrogen );
 }
 
 bool CoreActionController::setPreferences(
@@ -1060,7 +1060,7 @@ bool CoreActionController::setPreferences(
 	ASSERT_HYDROGEN
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
-	m_pHydrogen->getPreferences()->replaceInstance( pPreferences );
+	m_pHydrogen->setPreferences( pPreferences );
 
 	pAudioEngine->getMetronomeInstrument()->setVolume(
 		pPreferences->m_fMetronomeVolume

@@ -112,7 +112,7 @@ SampleEditor::SampleEditor(
 	m_pSample = std::make_shared<Sample>( pLayer->getSample() );
 	const auto nFrames = m_pSample->getFrames();
 
-	m_pPreviewInstrument = Instrument::from( m_pSample );
+	m_pPreviewInstrument = Instrument::from( m_pSample, HydrogenApp::pHydrogen() );
 	m_pPreviewInstrument->setId( Instrument::EmptyId );
 	m_pPreviewInstrument->setIsPreviewInstrument( true );
 
@@ -122,7 +122,7 @@ SampleEditor::SampleEditor(
 					  .arg( m_pSample->getFilePath() ) );
 		reject();
 	}
-	m_pPreviewInstrumentOriginal = Instrument::from( m_pSampleOriginal );
+	m_pPreviewInstrumentOriginal = Instrument::from( m_pSampleOriginal, HydrogenApp::pHydrogen() );
 	m_pPreviewInstrumentOriginal->setId( Instrument::EmptyId );
 	m_pPreviewInstrumentOriginal->setIsPreviewInstrument( true );
 
@@ -694,7 +694,7 @@ font-weight: bold; "
 		pNewSample->setVelocityEnvelope( m_velocityEnvelope );
 		pNewSample->setPanEnvelope( m_panEnvelope );
 
-		if ( !pNewSample->load( pAudioEngine->getPlayhead()->getBpm() ) ) {
+		if ( !pNewSample->load( pAudioEngine->getPlayhead()->getBpm(), HydrogenApp::pHydrogen()->getPreferences().get() ) ) {
 			ERRORLOG( "Unable to load modified sample" );
 			return;
 		}
@@ -1523,7 +1523,7 @@ void SampleEditor::updateSample()
 	pEditSample->setPanEnvelope( m_panEnvelope );
 
 	QApplication::setOverrideCursor( Qt::WaitCursor );
-	if ( !pEditSample->load( pAudioEngine->getPlayhead()->getBpm() ) ) {
+	if ( !pEditSample->load( pAudioEngine->getPlayhead()->getBpm(), HydrogenApp::pHydrogen()->getPreferences().get() ) ) {
 		QApplication::restoreOverrideCursor();
 		ERRORLOG( "Unable to load modified sample" );
 		return;

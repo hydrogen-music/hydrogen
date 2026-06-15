@@ -41,6 +41,9 @@ using namespace H2Core;
 
 void TransportTest::setUp(){
 	pTestPreferences()->m_bUseMetronome = false;
+	// AudioEngineTests lives in libcore and cannot reach pTestHydrogen(); inject
+	// the instance under test here (ADR 0015).
+	AudioEngineTests::setHydrogen( pTestHydrogen() );
 }
 
 void TransportTest::tearDown() {
@@ -62,7 +65,7 @@ void TransportTest::tearDown() {
 void TransportTest::testFrameToTickConversion() {
 	___INFOLOG( "" );
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
-								   .arg( Filesystem::demosDir() ) );
+								   .arg( Filesystem::demosDir() ), false, pTestHydrogen() );
 	ASSERT_SONG( pSongDemo );
 	pTestHydrogen()->getCoreActionController()->setSong( pSongDemo );
 
@@ -77,7 +80,7 @@ void TransportTest::testFrameToTickConversion() {
 void TransportTest::testTransportProcessing() {
 	___INFOLOG( "" );
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
-								   .arg( Filesystem::demosDir() ) );
+								   .arg( Filesystem::demosDir() ), false, pTestHydrogen() );
 	ASSERT_SONG( pSongDemo );
 	pTestHydrogen()->getCoreActionController()->setSong( pSongDemo );
 
@@ -92,7 +95,7 @@ void TransportTest::testTransportProcessing() {
 void TransportTest::testTransportProcessingTimeline() {
 	___INFOLOG( "" );
 	auto pSongTransportProcessingTimeline =
-		Song::load( QString( H2TEST_FILE( "song/AE_transportProcessingTimeline.h2song" ) ) );
+		Song::load( QString( H2TEST_FILE( "song/AE_transportProcessingTimeline.h2song" ) ), false, pTestHydrogen() );
 	ASSERT_SONG( pSongTransportProcessingTimeline );
 	pTestHydrogen()->getCoreActionController()->
 		setSong( pSongTransportProcessingTimeline );
@@ -108,7 +111,7 @@ void TransportTest::testTransportProcessingTimeline() {
 void TransportTest::testTransportRelocation() {
 	___INFOLOG( "" );
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
-								   .arg( Filesystem::demosDir() ) );
+								   .arg( Filesystem::demosDir() ), false, pTestHydrogen() );
 	ASSERT_SONG( pSongDemo );
 	pTestHydrogen()->getCoreActionController()->setSong( pSongDemo );
 	
@@ -138,7 +141,7 @@ void TransportTest::testLoopMode() {
 
 	const QString sSongFile = H2TEST_FILE( "song/AE_loopMode.h2song" );
 
-	auto pSong = H2Core::Song::load( sSongFile );
+	auto pSong = H2Core::Song::load( sSongFile, false, pTestHydrogen() );
 	ASSERT_SONG( pSong );
 
 	pTestHydrogen()->getCoreActionController()->setSong( pSong );
@@ -154,7 +157,7 @@ void TransportTest::testLoopMode() {
 void TransportTest::testSongSizeChange() {
 	___INFOLOG( "" );
 	auto pSongSizeChanged =
-		Song::load( QString( H2TEST_FILE( "song/AE_songSizeChanged.h2song" ) ) );
+		Song::load( QString( H2TEST_FILE( "song/AE_songSizeChanged.h2song" ) ), false, pTestHydrogen() );
 	ASSERT_SONG( pSongSizeChanged );
 	pTestHydrogen()->getCoreActionController()->setSong( pSongSizeChanged );
 
@@ -185,7 +188,7 @@ void TransportTest::testSongSizeChange() {
 void TransportTest::testSongSizeChangeInLoopMode() {
 	___INFOLOG( "" );
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
-								   .arg( Filesystem::demosDir() ) );
+								   .arg( Filesystem::demosDir() ), false, pTestHydrogen() );
 	ASSERT_SONG( pSongDemo );
 	pTestHydrogen()->getCoreActionController()->setSong( pSongDemo );
 
@@ -220,14 +223,14 @@ void TransportTest::testSampleConsistency() {
 
 	auto pHydrogen = pTestHydrogen();
 
-	auto pSong = H2Core::Song::load( sSongFile );
+	auto pSong = H2Core::Song::load( sSongFile, false, pTestHydrogen() );
 	ASSERT_SONG( pSong );
 		
 	pHydrogen->setSong( pSong );
 
 	// Apply drumkit containing the long sample to be tested.
 	const auto pDrumkit = H2Core::Drumkit::load(
-		sDrumkitPath, false, nullptr, true );
+		sDrumkitPath, false, nullptr, true , pTestHydrogen() );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	pTestHydrogen()->getCoreActionController()->setDrumkit( pDrumkit );
 
@@ -243,7 +246,7 @@ void TransportTest::testNoteEnqueuing() {
 	auto pHydrogen = pTestHydrogen();
 
 	auto pSongNoteEnqueuing =
-		Song::load( QString( H2TEST_FILE( "song/AE_noteEnqueuing.h2song" ) ) );
+		Song::load( QString( H2TEST_FILE( "song/AE_noteEnqueuing.h2song" ) ), false, pTestHydrogen() );
 	ASSERT_SONG( pSongNoteEnqueuing );
 
 	pTestHydrogen()->getCoreActionController()->setSong( pSongNoteEnqueuing );
@@ -260,7 +263,7 @@ void TransportTest::testNoteEnqueuing() {
 void TransportTest::testNoteEnqueuingTimeline() {
 	___INFOLOG( "" );
 	auto pHydrogen = pTestHydrogen();
-	auto pSong = Song::load( QString( H2TEST_FILE( "song/AE_noteEnqueuingTimeline.h2song" ) ) );
+	auto pSong = Song::load( QString( H2TEST_FILE( "song/AE_noteEnqueuingTimeline.h2song" ) ), false, pTestHydrogen() );
 	ASSERT_SONG( pSong );
 
 	pTestHydrogen()->getCoreActionController()->setSong( pSong );
@@ -280,7 +283,7 @@ void TransportTest::testHumanization() {
 	auto pHydrogen = pTestHydrogen();
 
 	auto pSongHumanization =
-		Song::load( QString( H2TEST_FILE( "song/AE_humanization.h2song" ) ) );
+		Song::load( QString( H2TEST_FILE( "song/AE_humanization.h2song" ) ), false, pTestHydrogen() );
 	ASSERT_SONG( pSongHumanization );
 	pTestHydrogen()->getCoreActionController()->setSong( pSongHumanization );
 
@@ -298,7 +301,7 @@ void TransportTest::testMuteGroups() {
 	auto pHydrogen = pTestHydrogen();
 
 	auto pSongMuteGroups =
-		Song::load( QString( H2TEST_FILE( "song/AE_muteGroups.h2song" ) ) );
+		Song::load( QString( H2TEST_FILE( "song/AE_muteGroups.h2song" ) ), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pSongMuteGroups != nullptr );
 	pTestHydrogen()->getCoreActionController()->setSong( pSongMuteGroups );
 
@@ -315,7 +318,7 @@ void TransportTest::testNoteOff() {
 	auto pHydrogen = pTestHydrogen();
 
 	auto pSongNoteOff =
-		Song::load( QString( H2TEST_FILE( "song/AE_noteOff.h2song" ) ) );
+		Song::load( QString( H2TEST_FILE( "song/AE_noteOff.h2song" ) ), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pSongNoteOff != nullptr );
 	pTestHydrogen()->getCoreActionController()->setSong( pSongNoteOff );
 

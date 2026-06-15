@@ -64,7 +64,7 @@ class DrumkitInfo : public SoundLibraryInfo,
 	 *
 	 * @return `true` on success
 	 */
-	bool load( const QString& sPath, Hydrogen* pHydrogen = nullptr );
+	bool load( const QString& sPath, Hydrogen* pHydrogen );
 
 	const std::vector<std::shared_ptr<InstrumentInfo>>& getInstrumentInfos(
 	) const;

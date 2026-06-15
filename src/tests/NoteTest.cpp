@@ -91,7 +91,7 @@ void NoteTest::testComparison() {
 
 	// Full size example
 	auto pSong = Song::load(
-		H2TEST_FILE( "song/AE_noteEnqueuingTimeline.h2song" ) );
+		H2TEST_FILE( "song/AE_noteEnqueuingTimeline.h2song" ), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pSong != nullptr );
 
 	const auto songNotes = pSong->getAllNotes();
@@ -116,16 +116,16 @@ void NoteTest::testMappingLegacyDrumkit() {
 	auto pDrumkitOther = Drumkit::load(
 		H2TEST_FILE( "drumkits/legacy_GMkit/drumkit.xml" ), false, nullptr,
 		false
-	);
+	, pTestHydrogen() );
 	CPPUNIT_ASSERT( pDrumkitOther != nullptr );
 	CPPUNIT_ASSERT( pDrumkitOther->hasMissingTypes() );
 	CPPUNIT_ASSERT( ! pDrumkitOther->hasMissingSamples() );
 
 	auto pPatternMatchingTypes = Pattern::load(
-		H2TEST_FILE( "pattern/noteTestMatchingTypes.h2pattern" ) );
+		H2TEST_FILE( "pattern/noteTestMatchingTypes.h2pattern" ), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pPatternMatchingTypes != nullptr );
 	auto pPatternTypeMisses = Pattern::load(
-		H2TEST_FILE( "pattern/noteTestTypeMisses.h2pattern" ) );
+		H2TEST_FILE( "pattern/noteTestTypeMisses.h2pattern" ), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pPatternTypeMisses != nullptr );
 
 	// Verify the patterns were created for the primary drumkit.
@@ -262,10 +262,10 @@ void NoteTest::testMappingValidDrumkits() {
 	CPPUNIT_ASSERT( ! pDrumkitOther->hasMissingTypes() );
 
 	auto pPatternMatchingTypes = Pattern::load(
-		H2TEST_FILE( "pattern/noteTestMatchingTypes.h2pattern" ) );
+		H2TEST_FILE( "pattern/noteTestMatchingTypes.h2pattern" ), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pPatternMatchingTypes != nullptr );
 	auto pPatternTypeMisses = Pattern::load(
-		H2TEST_FILE( "pattern/noteTestTypeMisses.h2pattern" ) );
+		H2TEST_FILE( "pattern/noteTestTypeMisses.h2pattern" ), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pPatternTypeMisses != nullptr );
 
 	// Verify the patterns were created for the primary drumkit.

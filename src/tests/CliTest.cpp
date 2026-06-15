@@ -53,12 +53,12 @@ void CliTest::testKitToDrumkitMap() {
 	// We load the kits to ensure they are clean and can be loaded.
 	const auto pDrumkitRef = Drumkit::load(
 		Filesystem::drumkitPathFromDir( sRefFolder ), false, nullptr,
-		true
+		true, pTestHydrogen()
 	);
 	CPPUNIT_ASSERT( pDrumkitRef != nullptr );
 	const auto pDrumkitNoTypes = Drumkit::load(
 		Filesystem::drumkitPathFromDir( sNoTypesFolder ), false,
-		nullptr, true
+		nullptr, true, pTestHydrogen()
 	);
 	CPPUNIT_ASSERT( pDrumkitNoTypes != nullptr );
 

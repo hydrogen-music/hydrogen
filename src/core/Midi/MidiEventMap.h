@@ -47,8 +47,8 @@ public:
 	~MidiEventMap();
 
 	static std::shared_ptr<MidiEventMap> loadFrom( const H2Core::XMLNode& node,
-											  bool bSilent = false,
-											  Hydrogen* pHydrogen = nullptr );
+											  bool bSilent,
+											  Hydrogen* pHydrogen );
 	void saveTo( H2Core::XMLNode& node, bool bSilent = false ) const;
 	
 	void reset();  ///< Reinitializes the object.

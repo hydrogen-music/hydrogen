@@ -92,8 +92,6 @@ namespace H2Core
 //
 //----------------------------------------------------------------------------
 
-Hydrogen* Hydrogen::__instance = nullptr;
-
 Hydrogen::Hydrogen( std::shared_ptr<Preferences> pPref, int nOscPort )
 					 : m_fBeatCounterBeatLength( 1 )
 					 , m_nBeatCounterTotalBeats( 4 )
@@ -118,13 +116,9 @@ Hydrogen::Hydrogen( std::shared_ptr<Preferences> pPref, int nOscPort )
 					 , m_pPreferences( pPref )
 					 , m_pEventQueue( nullptr )
 {
-	// Take ownership of the Preferences and EventQueue for this instance and
-	// register them as the process-current ones so unconverted get_instance()
-	// call sites resolve to them during the de-singletoning sweep (ADR 0015).
-	Preferences::setInstance( m_pPreferences );
-
+	// This instance owns its Preferences and EventQueue (ADR 0015); no
+	// process-wide singleton is involved.
 	m_pEventQueue = new EventQueue( this );
-	EventQueue::setInstance( m_pEventQueue );
 
 	// Per-instance Logger (ADR 0015, T1.6): its own queue/worker/log file, with
 	// a path made unique per process+instance (pid + counter). Mirrors the
@@ -158,16 +152,13 @@ Hydrogen::Hydrogen( std::shared_ptr<Preferences> pPref, int nOscPort )
 	m_beatCounterDiffs.resize( 16 );
 
 	m_pSoundLibraryDatabase = std::make_shared<SoundLibraryDatabase>( this );
-	m_pSong = Song::getEmptySong( m_pSoundLibraryDatabase );
+	m_pSong = Song::getEmptySong( this, m_pSoundLibraryDatabase );
 
 	m_pAudioEngine = new AudioEngine( this );
 	m_pMidiActionManager = std::make_shared<MidiActionManager>( this );
 	m_pCoreActionController = std::make_shared<CoreActionController>( this );
 	m_pPlaylist = std::make_shared<Playlist>();
 	m_pTimeHelper = std::make_shared<TimeHelper>();
-
-	// Prevent double creation caused by calls from MIDI thread
-	__instance = this;
 
 	m_pAudioEngine->startAudioDriver( Event::Trigger::Default );
 	m_pAudioEngine->startMidiDriver( Event::Trigger::Default );
@@ -202,35 +193,19 @@ Hydrogen::~Hydrogen()
 	delete m_pAudioEngine;
 
 	// This instance owns its EventQueue; tear it down last (after the engine,
-	// which may still emit events during teardown) and clear the transitional
-	// process-current pointer so it never dangles (ADR 0015).
-	EventQueue::setInstance( nullptr );
+	// which may still emit events during teardown).
 	delete m_pEventQueue;
 	m_pEventQueue = nullptr;
-
-	__instance = nullptr;
 }
 
-Hydrogen* Hydrogen::create_instance( int nOscPort )
+Hydrogen* Hydrogen::create_instance( int nOscPort,
+									 std::shared_ptr<Preferences> pPreferences )
 {
-	// Thin standalone helper (ADR 0015): set up the process-current Logger and
-	// Preferences, then construct the single standalone instance. The instance
-	// constructor takes ownership of its Preferences/EventQueue and sets up OSC.
-	// (Logger ownership moves into the instance in T1.6.)
+	// Standalone factory (ADR 0015): construct a Hydrogen owning the provided
+	// Preferences. The caller owns the returned instance and is responsible for
+	// deleting it. No process-wide singleton is registered.
 	Logger::create_instance();
-	Preferences::create_instance();
-
-	if ( __instance == nullptr ) {
-		// Bootstrap: this static helper has no instance yet, so it reads the
-		// just-loaded process-current Preferences via the transitional shim to
-		// seed the first instance (ADR 0015 / T1.5 will rework the standalone
-		// entry point once the shim is removed).
-		new Hydrogen( Preferences::get_instance(), nOscPort );
-	}
-	// Return the constructed instance so callers (e.g. the standalone entry
-	// point or the test harness) can hold the pointer directly instead of
-	// re-reading the get_instance() shim (ADR 0015, toward T1.5).
-	return __instance;
+	return new Hydrogen( pPreferences, nOscPort );
 }
 
 /// Start the internal sequencer

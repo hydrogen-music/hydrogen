@@ -32,7 +32,8 @@ AutomationPathSerializer::AutomationPathSerializer()
 }
 
 void AutomationPathSerializer::read_automation_path(const QDomNode &node,
-													AutomationPath &path) const
+													AutomationPath &path,
+													Hydrogen* pHydrogen) const
 {
 	auto point = node.firstChildElement();
 	while (! point.isNull()) {
@@ -43,7 +44,7 @@ void AutomationPathSerializer::read_automation_path(const QDomNode &node,
 			float y = point.attribute("y").toFloat(&hasY);
 
 			if (hasX && hasY) {
-				path.add_point(x, y, Hydrogen::get_instance());
+				path.add_point(x, y, pHydrogen);
 			}
 
 		}

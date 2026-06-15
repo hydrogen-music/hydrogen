@@ -85,14 +85,15 @@ Pattern::~Pattern()
 {
 }
 
-std::shared_ptr<Pattern> Pattern::from( std::shared_ptr<SoundLibraryInfo> pInfo
+std::shared_ptr<Pattern> Pattern::from( std::shared_ptr<SoundLibraryInfo> pInfo,
+										Hydrogen* pHydrogen
 )
 {
 	if ( pInfo == nullptr ) {
 		return nullptr;
 	}
 
-	auto pPattern = Pattern::load( pInfo->getPath() );
+	auto pPattern = Pattern::load( pInfo->getPath(), false, pHydrogen );
 	if ( pPattern == nullptr ) {
 		ERRORLOG( QString( "Unable to load pattern from [%1]" )
 					  .arg( pInfo->toQString() ) );
@@ -155,10 +156,6 @@ std::shared_ptr<Pattern> Pattern::loadFrom(
 	Hydrogen* pHydrogen
 )
 {
-	// T1.5: make pHydrogen required and drop this fallback (ADR 0015).
-	if ( pHydrogen == nullptr ) {
-		pHydrogen = Hydrogen::get_instance();
-	}
 	auto pPattern = std::make_shared<Pattern>();
 	QString sName = node.read_string( "name", "", false, false );
 	if ( sName.isEmpty() ) {

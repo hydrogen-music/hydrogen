@@ -59,7 +59,7 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 {
 	___INFOLOG( "" );
 
-	auto pSong = Song::getEmptySong();
+	auto pSong = Song::getEmptySong( pTestHydrogen() );
 	CPPUNIT_ASSERT( pSong != nullptr );
 
 	auto pDrumkit = std::make_shared<Drumkit>(pSong->getDrumkit());
@@ -169,7 +169,7 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 	pDrumkitCopy->save( sTmpDrumkitPath, false );
 
 	auto pDrumkitReloaded =
-		Drumkit::load( sTmpDrumkitPath, false, nullptr, false );
+		Drumkit::load( sTmpDrumkitPath, false, nullptr, false , pTestHydrogen() );
 	CPPUNIT_ASSERT( pDrumkitReloaded != nullptr );
 	CPPUNIT_ASSERT( !pDrumkitReloaded->hasMissingSamples() );
 	CPPUNIT_ASSERT(
@@ -180,7 +180,7 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 	const QString sTmpSongPath =
 		Filesystem::tmpFilePath( "storing-samples-test-song" );
 	CPPUNIT_ASSERT( pSong->save( sTmpSongPath, false, false ) );
-	auto pSongReloaded = Song::load( sTmpSongPath, false );
+	auto pSongReloaded = Song::load( sTmpSongPath, false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pSongReloaded != nullptr );
 	auto pSongKitReloaded = pSongReloaded->getDrumkit();
 	CPPUNIT_ASSERT( pSongKitReloaded != nullptr );

@@ -876,8 +876,7 @@ void OscServer::NEW_SONG_Handler(lo_arg **argv, int argc) {
 		return;
 	}
 
-	auto pSong = H2Core::Song::getEmptySong(
-		m_pHydrogen->getSoundLibraryDatabase() );
+	auto pSong = H2Core::Song::getEmptySong( m_pHydrogen );
 	pSong->setPath( sPath );
 	m_pHydrogen->getCoreActionController()->setSong( pSong );
 }

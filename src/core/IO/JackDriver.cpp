@@ -2136,12 +2136,10 @@ void JackDriver::JackTimebaseCallback(
 		}
 		else {
 			pPos = std::make_shared<Transport>(
-				Transport::Type::JackTimebaseCallback
+				Transport::Type::JackTimebaseCallback, pDriver->m_pHydrogen
 			);
-			// JackTimebaseCallback is a static JACK callback: no instance
-			// available, so computeTickFromFrame falls back to get_instance.
 			const auto fTick =
-				Transport::computeTickFromFrame( nFrame );
+				Transport::computeTickFromFrame( nFrame, 0, pDriver->m_pHydrogen );
 			pAudioEngine->updateTransport( fTick, nFrame, pPos );
 		}
 

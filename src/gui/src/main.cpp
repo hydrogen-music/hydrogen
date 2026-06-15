@@ -241,6 +241,10 @@ int main(int argc, char *argv[])
 			pLogger, parser.getSysDataPath(), parser.getUsrDataPath(),
 			parser.getConfigFilePath(), parser.getLogFile() );
 		auto pPref = H2Core::Preferences::create_instance();
+		// The GUI touches Preferences during early startup (e.g. Skin::setPalette)
+		// before the engine exists; inject the bootstrap handle so the static
+		// HydrogenApp accessors resolve to it (ADR 0015/0016).
+		HydrogenApp::setBootstrap( nullptr, pPref );
 		// See below for H2Core::Hydrogen.
 
 		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
@@ -431,8 +435,10 @@ int main(int argc, char *argv[])
 		}
 
 		// Hydrogen here to honor all preferences.
-		auto pHydrogen = H2Core::Hydrogen::create_instance( parser.getOscPort() );
-		
+		auto pHydrogen =
+			H2Core::Hydrogen::create_instance( parser.getOscPort(), pPref );
+		HydrogenApp::setBootstrap( pHydrogen, pPref );
+
 #ifdef H2CORE_HAVE_OSC
 		auto pNsmClient = NsmClient::get_instance();
 		if ( pNsmClient != nullptr ) {
@@ -558,10 +564,7 @@ int main(int argc, char *argv[])
 		___INFOLOG( "Quitting..." );
 		std::cout << "\nBye..." << std::endl;
 
-		// There is no particular need to clean up the Preferences outselves.
-		// This is just done in order for it to not appear in the objects map
-		// printed below.
-		pPref->replaceInstance( nullptr );
+		// There is no particular need to clean up the Preferences ourselves.
 		pPref = nullptr;
 
 		delete H2Core::Logger::get_instance();

@@ -67,29 +67,8 @@ public:
 		H2Core::EventQueue::m_eventQueue.*/
 	static constexpr int nMaxEvents = 1024;
 
-	/**
-	 * If #__instance is null, a new EventQueue is created and registered as
-	 * the process-current one.
-	 *
-	 * It is called in Hydrogen::create_instance().
-	 */
-	static void create_instance();
-	/** Transitional accessor (ADR 0015). Returns the process-current
-	 * EventQueue — the instance most recently registered via #setInstance() or
-	 * #create_instance(). Retained so unconverted call sites keep compiling
-	 * during the de-singletoning sweep; will be replaced by
-	 * Hydrogen::getEventQueue() once they are all gone. */
-	static EventQueue* get_instance() { assert(__instance); return __instance; }
-	/** Designate \a pInstance as the process-current EventQueue returned by the
-	 * transitional #get_instance(). The owning Hydrogen instance registers its
-	 * EventQueue here so unconverted #get_instance() call sites resolve to it
-	 * (ADR 0015). Ownership stays with the caller; does not affect any other
-	 * EventQueue instance. */
-	static void setInstance( EventQueue* pInstance );
-
-	/** Constructs an EventQueue without touching the process-current pointer;
-	 * register it explicitly via #setInstance() (or use #create_instance()). */
-	EventQueue( Hydrogen* pHydrogen = nullptr );
+	/** Constructs an EventQueue owned by @a pHydrogen (ADR 0015). */
+	EventQueue( Hydrogen* pHydrogen );
 	~EventQueue();
 
 	/**
@@ -161,17 +140,7 @@ public:
 	QString toQString( const QString& sPrefix = "", bool bShort = true );
 
 private:
-	/**
-	 * Process-current EventQueue instance (ADR 0015). Initialized to nullptr,
-	 * set via #create_instance() / #setInstance(), and read by the transitional
-	 * #get_instance(). No longer the single source of truth: any number of
-	 * EventQueues may be owned independently (e.g. one per Hydrogen instance);
-	 * this merely tracks which one unconverted call sites see. Not owning.
-	 */
-	static EventQueue *__instance;
-
-	/** Owning Hydrogen instance (ADR 0015); nullptr for queues created without
-	 * one (then pushes during such contexts are dropped, as before). */
+	/** Owning Hydrogen instance (ADR 0015). */
 	Hydrogen* m_pHydrogen;
 
 	std::deque< std::unique_ptr<Event> >m_eventQueue;

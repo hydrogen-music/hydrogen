@@ -132,19 +132,23 @@ class Song : public H2Core::Object<Song>,
 
 	/** Creates the default / fallback song.
 	 *
-	 * @param pDB When creating an empty song during startup, the
-	 *   #H2Core::Hydrogen singleton might not be ready yet. This can be
-	 *   compensated by passing the created instance directly instead. */
+	 * @param pHydrogen Owning instance whose SoundLibraryDatabase supplies the
+	 *   default drumkit (ADR 0015).
+	 * @param pDB When creating an empty song during startup the instance's
+	 *   getSoundLibraryDatabase() might not be ready yet; pass the database
+	 *   directly instead. Takes precedence over @a pHydrogen when set. */
 	static std::shared_ptr<Song> getEmptySong(
+		Hydrogen* pHydrogen,
 		std::shared_ptr<SoundLibraryDatabase> pDB = nullptr
 	);
 
-	static std::shared_ptr<Song> from( std::shared_ptr<SoundLibraryInfo> pInfo
+	static std::shared_ptr<Song> from( std::shared_ptr<SoundLibraryInfo> pInfo,
+		Hydrogen* pHydrogen
 	);
 
 	static std::shared_ptr<Song>
-	load( const QString& sPath, bool bSilent = false,
-		  Hydrogen* pHydrogen = nullptr );
+	load( const QString& sPath, bool bSilent,
+		  Hydrogen* pHydrogen );
 	/** Writes the song as .h2song to disk.
 	 *
 	 * @param sPath Absolute path to write the song to.
@@ -295,8 +299,8 @@ class Song : public H2Core::Object<Song>,
 	static std::shared_ptr<Song> loadFrom(
 		const XMLNode& pNode,
 		const QString& sFileName,
-		bool bSilent = false,
-		Hydrogen* pHydrogen = nullptr
+		bool bSilent,
+		Hydrogen* pHydrogen
 	);
 	void saveTo(
 		XMLNode& pNode,

@@ -121,7 +121,7 @@ class Playlist : public H2Core::Object<Playlist>
 		void setIsModified( bool IsModified );
 
 		static std::shared_ptr<Playlist> load( const QString& sPath,
-											   Hydrogen* pHydrogen = nullptr );
+											   Hydrogen* pHydrogen );
 		bool saveAs( const QString& sTargetPath, std::shared_ptr<Preferences> pPreferences, bool bSilent = false );
 		bool save( std::shared_ptr<Preferences> pPreferences, bool bSilent = false ) const;
 		/** Formatted string version for debugging purposes.

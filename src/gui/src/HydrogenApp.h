@@ -106,13 +106,21 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		/** Null-safe static engine accessors used throughout the GUI. Before
 		 * HydrogenApp has been constructed (early startup: MainForm and the
 		 * widgets HydrogenApp itself builds run before its instance pointer is
-		 * set) these fall back to the process-current engine, so construction
-		 * never dereferences a not-yet-ready app. Once the app exists they return
-		 * its held instance. (T1.5 drops the fallback once the GUI is built after
-		 * the engine handle is injected.) */
+		 * set) these fall back to the bootstrap handles injected by main() via
+		 * setBootstrap(), so construction never dereferences a not-yet-ready app.
+		 * Once the app exists they return its held instance. The GUI is
+		 * inherently single-instance, so these bootstrap handles are a GUI-local
+		 * convenience and not a core singleton (ADR 0015/0016). */
 		static H2Core::Hydrogen* pHydrogen();
 		static std::shared_ptr<H2Core::Preferences> pPreferences();
 		static H2Core::EventQueue* pEventQueue();
+
+		/** Injects the engine + preferences handles used by the static accessors
+		 * during early startup, before HydrogenApp exists. main() calls this with
+		 * the loaded Preferences first (engine still null), then again once the
+		 * Hydrogen instance has been created. */
+		static void setBootstrap( H2Core::Hydrogen* pHydrogen,
+								  std::shared_ptr<H2Core::Preferences> pPreferences );
 		/** @} */
 
 		virtual ~HydrogenApp();
@@ -248,6 +256,11 @@ signals:
 		void updateEventListeners();
 
 		static HydrogenApp *		m_pInstance;	///< HydrogenApp instance
+
+		/** Bootstrap handles for the static accessors during early startup (see
+		 * setBootstrap()). GUI-local, single-instance; not a core singleton. */
+		static H2Core::Hydrogen* m_pBootstrapHydrogen;
+		static std::shared_ptr<H2Core::Preferences> m_pBootstrapPreferences;
 
 		/** Used for accessibility reasons to show scroll bars in case Hydrogen
 		 * has to be shrunk below its minimum size - magnified using the Qt

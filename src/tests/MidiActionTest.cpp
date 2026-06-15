@@ -1103,7 +1103,7 @@ void MidiActionTest::testNextBarAction()
 		pTestHydrogen() );
 
 	const auto pPreviousSong = pHydrogen->getSong();
-	const auto pNewSong = Song::getEmptySong();
+	const auto pNewSong = Song::getEmptySong( pTestHydrogen() );
 	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setSong( pNewSong ) );
 
 	const int nPatternNumber = 0;
@@ -1712,7 +1712,7 @@ void MidiActionTest::testPreviousBarAction()
 		pTestHydrogen() );
 
 	const auto pPreviousSong = pHydrogen->getSong();
-	const auto pNewSong = Song::getEmptySong();
+	const auto pNewSong = Song::getEmptySong( pTestHydrogen() );
 	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setSong( pNewSong ) );
 
 	const int nPatternNumber = 0;

@@ -71,7 +71,8 @@ class Pattern : public H2Core::Object<Pattern> {
 	~Pattern();
 
 	static std::shared_ptr<Pattern> from(
-		std::shared_ptr<SoundLibraryInfo> pInfo
+		std::shared_ptr<SoundLibraryInfo> pInfo,
+		Hydrogen* pHydrogen
 	);
 
 	/**
@@ -81,8 +82,8 @@ class Pattern : public H2Core::Object<Pattern> {
 	 *   be logged.
 	 */
 	static std::shared_ptr<Pattern>
-	load( const QString& sPatternPath, bool bSilent = false,
-		  Hydrogen* pHydrogen = nullptr );
+	load( const QString& sPatternPath, bool bSilent,
+		  Hydrogen* pHydrogen );
 	/**
 	 * load a pattern from an XMLNode
 	 * \param node the XMLDode to read from
@@ -98,9 +99,9 @@ class Pattern : public H2Core::Object<Pattern> {
 	static std::shared_ptr<Pattern> loadFrom(
 		const XMLNode& node,
 		const QString& sDrumkitName,
-		std::shared_ptr<Drumkit> pDrumkit = nullptr,
-		bool bSilent = false,
-		Hydrogen* pHydrogen = nullptr
+		std::shared_ptr<Drumkit> pDrumkit,
+		bool bSilent,
+		Hydrogen* pHydrogen
 	);
 	/**
 	 * save a pattern into an xml file

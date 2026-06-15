@@ -40,7 +40,7 @@ public:
 	AutomationPathSerializer();
 
 	void read_automation_path(const QDomNode &node,
-							  AutomationPath &path) const;
+							  AutomationPath &path, Hydrogen* pHydrogen) const;
 	void write_automation_path(QDomNode &node,
 							   const AutomationPath &path) const;
 

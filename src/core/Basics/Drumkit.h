@@ -78,10 +78,10 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
 		static std::shared_ptr<Drumkit> load( const QString& sDrumkitPath,
-											  bool bUpgrade = true,
-											  bool* pLegacyFormatEncountered = nullptr,
-											  bool bSilent = false,
-											  Hydrogen* pHydrogen = nullptr );
+											  bool bUpgrade,
+											  bool* pLegacyFormatEncountered,
+											  bool bSilent,
+											  Hydrogen* pHydrogen );
 
 		/**
 		 * load a drumkit from an XMLNode
@@ -110,10 +110,10 @@ class Drumkit : public H2Core::Object<Drumkit>
 		static std::shared_ptr<Drumkit> loadFrom( const XMLNode& pNode,
 												  const QString& sDrumkitPath,
 												  const QString& sSongPath,
-												  bool bSongKit = false,
-												  bool* pLegacyFormatEncountered = nullptr,
-												  bool bSilent = false,
-												  Hydrogen* pHydrogen = nullptr );
+												  bool bSongKit,
+												  bool* pLegacyFormatEncountered,
+												  bool bSilent,
+												  Hydrogen* pHydrogen );
 
 		/*
 		 * save the drumkit within the given XMLNode

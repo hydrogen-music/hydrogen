@@ -74,6 +74,9 @@ public:
 };
 
 volatile bool bQuit = false;
+// Standalone test process singleton, used by the OSC/signal free functions
+// below (ADR 0015). Not a core singleton.
+Hydrogen* g_pHydrogen = nullptr;
 void signal_handler ( int signum )
 {
 	if ( signum == SIGINT ) {
@@ -84,7 +87,7 @@ void signal_handler ( int signum )
 
 void tearDown() {
 	___INFOLOG( "Shutting down" );
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = g_pHydrogen;
 	if ( pHydrogen->getAudioEngine()->getState() ==
 			 H2Core::AudioEngine::State::Playing ) {
 			pHydrogen->sequencerStop();
@@ -93,7 +96,6 @@ void tearDown() {
 	delete TestHelper::get_instance();
 
 	delete pHydrogen;
-	delete EventQueue::get_instance();
 
 	___INFOLOG( "Quitting..." );
 	delete Logger::get_instance();
@@ -102,8 +104,8 @@ void tearDown() {
 void startTestJackDriver( lo_arg **argv, int argc ) {
 	___INFOLOG("");
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->activateLoopMode( false );
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToTick( 0 );
+	g_pHydrogen->getCoreActionController()->activateLoopMode( false );
+	g_pHydrogen->getCoreActionController()->locateToTick( 0 );
 
 #ifdef H2CORE_HAVE_JACK
 	AudioEngineTests::startJackDriver();
@@ -251,8 +253,7 @@ int main(int argc, char *argv[])
 											sLogFile, true, true );
 		Base::bootstrap( pLogger, pLogger->should_log( Logger::Debug ) );
 		Filesystem::bootstrap( pLogger, "", "", sConfigFilePath, sLogFile );
-		Preferences::create_instance();
-		auto pPref = Preferences::get_instance();
+		auto pPref = Preferences::create_instance();
 		pPref->setOscServerEnabled( true );
 		if ( timebaseState == JackDriver::Timebase::Controller ) {
 			pPref->m_bJackTimebaseMode = Preferences::USE_JACK_TIMEBASE_CONTROL;
@@ -269,18 +270,19 @@ int main(int argc, char *argv[])
 			H2Core::Preferences::USE_JACK_TRANSPORT;
 		pPref->m_nBufferSize = 1024;
 
-		Hydrogen::create_instance( nOscPort );
-		Hydrogen *pHydrogen = Hydrogen::get_instance();
+		Hydrogen *pHydrogen = Hydrogen::create_instance( nOscPort, pPref );
+		g_pHydrogen = pHydrogen;
+		AudioEngineTests::setHydrogen( pHydrogen );
 		std::shared_ptr<Song> pSong = nullptr;
 
 		if ( ! sSongFileName.isEmpty() ) {
-			pSong = Song::load( sSongFileName );
+			pSong = Song::load( sSongFileName, false, pHydrogen );
 		}
 
 		/* Still not loaded */
 		if ( pSong == nullptr ) {
 			___INFOLOG("Starting with empty song");
-			pSong = Song::getEmptySong();
+			pSong = Song::getEmptySong( pHydrogen );
 		}
 		pHydrogen->setSong( pSong );
 
@@ -290,7 +292,7 @@ int main(int argc, char *argv[])
 		}
 		AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
 
-		EventQueue *pQueue = EventQueue::get_instance();
+		EventQueue *pQueue = pHydrogen->getEventQueue();
 		// Surpress errors in case the queue is full
 		pQueue->setSilent( true );
 		TestHelper::createInstance();

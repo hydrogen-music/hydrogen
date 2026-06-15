@@ -193,10 +193,6 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 	Hydrogen* pHydrogen
 )
 {
-	// T1.5: make pHydrogen required and drop this fallback (ADR 0015).
-	if ( pHydrogen == nullptr ) {
-		pHydrogen = Hydrogen::get_instance();
-	}
 
 	// We use -22 instead of Instrument::EmptyId (-1) to allow for loading
 	// empty instruments as well (e.g. during unit tests or as part of

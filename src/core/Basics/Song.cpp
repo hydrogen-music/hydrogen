@@ -116,13 +116,14 @@ Song::~Song()
 	delete m_pVelocityAutomationPath;
 }
 
-std::shared_ptr<Song> Song::from( std::shared_ptr<SoundLibraryInfo> pInfo )
+std::shared_ptr<Song> Song::from( std::shared_ptr<SoundLibraryInfo> pInfo,
+								  Hydrogen* pHydrogen )
 {
 	if ( pInfo == nullptr ) {
 		return nullptr;
 	}
 
-	auto pSong = Song::load( pInfo->getPath() );
+	auto pSong = Song::load( pInfo->getPath(), false, pHydrogen );
 	if ( pSong == nullptr ) {
 		ERRORLOG(
 			QString( "Unable to load song from [%1]" ).arg( pInfo->toQString() )
@@ -269,10 +270,6 @@ std::shared_ptr<Song>
 Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent,
 				Hydrogen* pHydrogen )
 {
-	// T1.5: make pHydrogen required and drop this fallback (ADR 0015).
-	if ( pHydrogen == nullptr ) {
-		pHydrogen = Hydrogen::get_instance();
-	}
 	auto pPreferences = pHydrogen->getPreferences();
 	auto pSong = std::make_shared<Song>();
 
@@ -394,7 +391,7 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent,
 		}
 		if ( !sPlaybackTrack.isEmpty() ) {
 			pPlaybackTrackInstrument =
-				Instrument::from( Sample::load( sPlaybackTrack ) );
+				Instrument::from( Sample::load( sPlaybackTrack ), pHydrogen );
 
 			if ( pPlaybackTrackInstrument != nullptr ) {
 				pPlaybackTrackInstrument->setVolume( rootNode.read_float(
@@ -767,7 +764,7 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent,
 			}
 
 			if ( pPath ) {
-				pathSerializer.read_automation_path( pathNode, *pPath );
+				pathSerializer.read_automation_path( pathNode, *pPath, pHydrogen );
 			}
 
 			pathNode = pathNode.nextSiblingElement( "path" );
@@ -1035,6 +1032,7 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples, bool bSilent )
 }
 
 std::shared_ptr<Song> Song::getEmptySong(
+	Hydrogen* pHydrogen,
 	std::shared_ptr<SoundLibraryDatabase> pDB
 )
 {
@@ -1082,8 +1080,7 @@ std::shared_ptr<Song> Song::getEmptySong(
 		pSoundLibraryDatabase = pDB;
 	}
 	else {
-		pSoundLibraryDatabase =
-			Hydrogen::get_instance()->getSoundLibraryDatabase();
+		pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
 	}
 
 	// Per default we use the GMRockKit shipped with Hydrogen

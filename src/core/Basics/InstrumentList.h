@@ -209,12 +209,12 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		const XMLNode& node,
 		const QString& sDrumkitPath,
 		const QString& sDrumkitName,
-		const QString& sSongPath = "",
-		const License& license = License(),
-		bool bSongKit = false,
-		bool* pLegacyFormatEncountered = nullptr,
-		bool bSilent = false,
-		Hydrogen* pHydrogen = nullptr );
+		const QString& sSongPath,
+		const License& license,
+		bool bSongKit,
+		bool* pLegacyFormatEncountered,
+		bool bSilent,
+		Hydrogen* pHydrogen );
 	/**
 	 * Returns vector of lists containing instrument name, component
 	 * name, file name, the license of all associated samples.

@@ -139,8 +139,7 @@ int NsmClient::OpenCallback( const char *name,
 	}
 	else {
 
-		pSong = H2Core::Song::getEmptySong(
-			m_pHydrogen->getSoundLibraryDatabase() );
+		pSong = H2Core::Song::getEmptySong( m_pHydrogen );
 		if ( pSong == nullptr ) {
 			NsmClient::printError( "Unable to open new Song." );
 			return ERR_LAUNCH_FAILED;

@@ -38,7 +38,7 @@ using namespace H2Core;
 void CoreActionControllerTest::testCountIn() {
 	___INFOLOG( "" );
 	auto pSongSizeChanged = Song::load(
-		QString( H2TEST_FILE( "song/AE_songSizeChanged.h2song" ) ) );
+		QString( H2TEST_FILE( "song/AE_songSizeChanged.h2song" ) ), false, pTestHydrogen() );
 	ASSERT_SONG( pSongSizeChanged );
 	pTestHydrogen()->getCoreActionController()->setSong( pSongSizeChanged );
 	pTestHydrogen()->getCoreActionController()->activateSongMode( true );
@@ -98,7 +98,7 @@ void CoreActionControllerTest::testSessionManagement() {
 	auto sFilePath = Filesystem::tmpDir().append( "test1.h2song" );
 	auto sFilePath2 = Filesystem::tmpDir().append( "test2.h2song" );
 
-	pHydrogen->setSong( Song::getEmptySong() );
+	pHydrogen->setSong( Song::getEmptySong( pTestHydrogen() ) );
 	
 	QTemporaryFile fileWrong;
 	CPPUNIT_ASSERT( fileWrong.open() );
@@ -110,7 +110,7 @@ void CoreActionControllerTest::testSessionManagement() {
 	QFile fileProper( sFilePath );
 	if ( fileProper.open( QIODevice::ReadWrite ) ) {
 
-		auto pSong = H2Core::Song::getEmptySong();
+		auto pSong = H2Core::Song::getEmptySong( pTestHydrogen() );
 		pSong->setPath( fileProper.fileName() );
 		CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setSong( pSong ) );
 		ASSERT_PATH( sFilePath, pHydrogen->getSong()->getPath() );
@@ -128,7 +128,7 @@ void CoreActionControllerTest::testSessionManagement() {
 	// Create a new song with proper a file name but no existing file.
 	std::shared_ptr<H2Core::Song> pSong;
 	sFilePath2 = QString( "%1_new.h2song" ).arg( sFileNameImproper );
-	pSong = H2Core::Song::getEmptySong();
+	pSong = H2Core::Song::getEmptySong( pTestHydrogen() );
 	pSong->setPath( sFilePath2 );
 	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setSong( pSong ) );
 	ASSERT_PATH( sFilePath2, pHydrogen->getSong()->getPath() );
@@ -180,7 +180,7 @@ void CoreActionControllerTest::testSessionManagement() {
 
 	// ---------------------------------------------------------------
 	
-	pHydrogen->setSong( Song::getEmptySong() );
+	pHydrogen->setSong( Song::getEmptySong( pTestHydrogen() ) );
 
 	if ( QFile::exists( sFilePath ) ) {
 		QFile::remove( sFilePath );

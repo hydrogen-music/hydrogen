@@ -21,6 +21,8 @@
 
 #include "EventQueueTest.h"
 
+#include "TestHelper.h"
+
 #include <core/Hydrogen.h>
 
 #include <pthread.h>
@@ -29,7 +31,7 @@ using namespace H2Core;
 
 static void *pushThread(void *p) {
 	int *pInt = (int *)p;
-	auto pEventQueue = EventQueue::get_instance();
+	auto pEventQueue = pTestEventQueue();
 	for ( int i = 0; i < EventQueueTest::nCountsPerThread; i++) {
 		pEventQueue->pushEvent( Event::Type::Metronome, *pInt );
 	}
@@ -37,7 +39,7 @@ static void *pushThread(void *p) {
 }
 
 void EventQueueTest::setUp() {
-	auto pEventQueue = EventQueue::get_instance();
+	auto pEventQueue = pTestEventQueue();
 	pEventQueue->setSilent( false );
 
 	auto pEvent = pEventQueue->popEvent();
@@ -48,12 +50,12 @@ void EventQueueTest::setUp() {
 }
 
 void EventQueueTest::tearDown() {
-	EventQueue::get_instance()->setSilent( true );
+	pTestEventQueue()->setSilent( true );
 }
 	
 void EventQueueTest::testPushPop() {
 	___INFOLOG( "" );
-	auto pEventQueue = EventQueue::get_instance();
+	auto pEventQueue = pTestEventQueue();
 	std::unique_ptr<Event> pEvent;
 
 	// Fill the event queue to the maximum permissible size, drain the queue
@@ -78,7 +80,7 @@ void EventQueueTest::testPushPop() {
 
 void EventQueueTest::testOverflow() {
 	___INFOLOG( "" );
-	auto pEventQueue = EventQueue::get_instance();
+	auto pEventQueue = pTestEventQueue();
 	std::unique_ptr<Event> pEvent;
 
 	// Overfill queue
@@ -100,7 +102,7 @@ void EventQueueTest::testOverflow() {
 
 void EventQueueTest::testThreadedAccess() {
 	___INFOLOG( "" );
-	auto pEventQueue = EventQueue::get_instance();
+	auto pEventQueue = pTestEventQueue();
 
 	pthread_t threads[ EventQueueTest::nThreads ];
 	int counters[ EventQueueTest::nThreads ];
@@ -143,7 +145,7 @@ void EventQueueTest::testThreadedAccess() {
 
 void EventQueueTest::testEventDrop() {
 	___INFOLOG( "" );
-	auto pEventQueue = EventQueue::get_instance();
+	auto pEventQueue = pTestEventQueue();
 	std::unique_ptr<Event> pEvent;
 	// Clear queue of any events from previous tests.
 	do {
@@ -181,8 +183,8 @@ void EventQueueTest::testIndependentInstances() {
 	// EventQueue is instance-ownable: several may coexist, fully independent of
 	// the process-current one and of each other. Constructing one no longer
 	// hijacks the process-current pointer (ADR 0015).
-	auto pA = std::make_unique<EventQueue>( Hydrogen::get_instance() );
-	auto pB = std::make_unique<EventQueue>( Hydrogen::get_instance() );
+	auto pA = std::make_unique<EventQueue>( pTestHydrogen() );
+	auto pB = std::make_unique<EventQueue>( pTestHydrogen() );
 	CPPUNIT_ASSERT( pA != pB );
 
 	// An event pushed onto one queue is invisible to the other.
@@ -194,32 +196,6 @@ void EventQueueTest::testIndependentInstances() {
 	CPPUNIT_ASSERT( pEvent->getType() == Event::Type::Metronome &&
 					pEvent->getValue() == 1 );
 	CPPUNIT_ASSERT( pA->popEvent() == nullptr );
-
-	___INFOLOG( "passed" );
-}
-
-void EventQueueTest::testProcessCurrent() {
-	___INFOLOG( "" );
-
-	// Remember the harness's process-current EventQueue; the rest of the suite
-	// relies on it, so it must be restored before returning.
-	EventQueue* pPrevious = EventQueue::get_instance();
-
-	auto pA = std::make_unique<EventQueue>( Hydrogen::get_instance() );
-	auto pB = std::make_unique<EventQueue>( Hydrogen::get_instance() );
-
-	// get_instance() returns whichever instance was registered as
-	// process-current — the transitional shim unconverted call sites use.
-	EventQueue::setInstance( pA.get() );
-	CPPUNIT_ASSERT( EventQueue::get_instance() == pA.get() );
-
-	EventQueue::setInstance( pB.get() );
-	CPPUNIT_ASSERT( EventQueue::get_instance() == pB.get() );
-
-	// Registering does not own: the previous instance is untouched and still
-	// usable once restored.
-	EventQueue::setInstance( pPrevious );
-	CPPUNIT_ASSERT( EventQueue::get_instance() == pPrevious );
 
 	___INFOLOG( "passed" );
 }

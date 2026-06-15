@@ -237,7 +237,7 @@ class Sample : public H2Core::Object<Sample> {
 	 *
 	 * \fn load()
 	 */
-	bool load( float fBpm = 120, Preferences* pPreferences = nullptr );
+	bool load( float fBpm, Preferences* pPreferences );
 	/**
 	 * Flush the current content of the left and right
 	 * channel and the current metadata.

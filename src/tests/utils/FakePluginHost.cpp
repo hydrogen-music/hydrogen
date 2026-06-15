@@ -22,6 +22,8 @@
 
 #include "FakePluginHost.h"
 
+#include "../TestHelper.h"
+
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
 
@@ -74,7 +76,7 @@ unsigned FakePluginHost::getBlockSize() const {
 
 void FakePluginHost::setPlaying(bool bPlaying) {
 	m_bPlaying = bPlaying;
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	if ( pHydrogen == nullptr ) {
 		return;
 	}
@@ -91,7 +93,7 @@ bool FakePluginHost::isPlaying() const {
 
 void FakePluginHost::setBpm(float fBpm) {
 	m_fBpm = fBpm;
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	if ( pHydrogen != nullptr ) {
 		pHydrogen->getAudioEngine()->setNextBpm( fBpm );
 	}
@@ -116,7 +118,8 @@ int FakePluginHost::process(unsigned nFrames) {
 	m_lastOutputL.assign( m_pOutL, m_pOutL + m_nBlockSize );
 	m_lastOutputR.assign( m_pOutR, m_pOutR + m_nBlockSize );
 
-	int nResult = H2Core::AudioEngine::audioEngine_process( nFrames, nullptr );
+	int nResult =
+		H2Core::AudioEngine::audioEngine_process( nFrames, pTestHydrogen() );
 
 	m_nFramePosition += static_cast<long long>( nFrames );
 
