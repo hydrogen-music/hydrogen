@@ -32,7 +32,9 @@
 #include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
 
-class MidiAction;
+namespace H2Core {
+	class MidiAction;
+}
 
 /** \ingroup docGUI docWidgets docMIDI*/
 class MidiSenseWidget : public QDialog, public H2Core::Object<MidiSenseWidget> {
@@ -43,7 +45,7 @@ class MidiSenseWidget : public QDialog, public H2Core::Object<MidiSenseWidget> {
 	explicit MidiSenseWidget(
 		QWidget*,
 		bool bDirectWrite = false,
-		std::shared_ptr<MidiAction> pAction = nullptr
+		std::shared_ptr<H2Core::MidiAction> pAction = nullptr
 	);
 	~MidiSenseWidget();
 
@@ -68,7 +70,7 @@ class MidiSenseWidget : public QDialog, public H2Core::Object<MidiSenseWidget> {
 	QLabel* m_pTextLabel;
 	QToolButton* m_pClearButton;
 
-	std::shared_ptr<MidiAction> m_pAction;
+	std::shared_ptr<H2Core::MidiAction> m_pAction;
 	bool m_bDirectWrite;
 };
 

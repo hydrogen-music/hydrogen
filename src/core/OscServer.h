@@ -42,9 +42,8 @@ namespace lo
 	class ServerThread;
 }
 
-class MidiAction;
-
 namespace H2Core {
+	class MidiAction;
 	class Hydrogen;
 
 /**

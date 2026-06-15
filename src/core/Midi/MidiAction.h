@@ -31,6 +31,8 @@
 #include <chrono>
 #include <memory>
 
+namespace H2Core {
+
 /**
  * @class MidiAction
  *
@@ -285,28 +287,30 @@ class MidiAction : public H2Core::Object<MidiAction> {
 	TimePoint m_timePoint;
 };
 
-inline int MidiAction::getValue() const
+inline int H2Core::MidiAction::getValue() const
 {
 	return m_nValue;
 }
 
-inline void MidiAction::setValue( int nValue )
+inline void H2Core::MidiAction::setValue( int nValue )
 {
 	m_nValue = nValue;
 }
 
-inline MidiAction::Requires MidiAction::getRequires() const
+inline H2Core::MidiAction::Requires H2Core::MidiAction::getRequires() const
 {
 	return m_requires;
 }
 
-inline const MidiAction::Type& MidiAction::getType() const
+inline const H2Core::MidiAction::Type& H2Core::MidiAction::getType() const
 {
 	return m_type;
 }
-inline const TimePoint& MidiAction::getTimePoint() const
+inline const TimePoint& H2Core::MidiAction::getTimePoint() const
 {
 	return m_timePoint;
 }
+
+} // namespace H2Core
 
 #endif

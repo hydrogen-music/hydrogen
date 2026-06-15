@@ -76,18 +76,18 @@ class MidiActionTable : public QTableWidget,
 		int nRow,
 		H2Core::MidiEvent::Type eventType,
 		H2Core::Midi::Parameter eventParameter,
-		std::shared_ptr<MidiAction> pMidiAction
+		std::shared_ptr<H2Core::MidiAction> pMidiAction
 	);
 	void removeRow( int nRow );
 	void replaceRow(
 		int nRow,
 		H2Core::MidiEvent::Type eventType,
 		H2Core::Midi::Parameter eventParameter,
-		std::shared_ptr<MidiAction> pMidiAction
+		std::shared_ptr<H2Core::MidiAction> pMidiAction
 	);
 	/** @} */
 
-	void removeRegisteredEvents( std::shared_ptr<MidiAction> pMidiAction );
+	void removeRegisteredEvents( std::shared_ptr<H2Core::MidiAction> pMidiAction );
 
    private slots:
 	void midiSensePressed( int );
@@ -97,7 +97,7 @@ class MidiActionTable : public QTableWidget,
 	struct RowContent {
 		H2Core::MidiEvent::Type eventType;
 		H2Core::Midi::Parameter eventParameter;
-		std::shared_ptr<MidiAction> pMidiAction;
+		std::shared_ptr<H2Core::MidiAction> pMidiAction;
 	};
 
 	void appendEmptyRow();
@@ -106,7 +106,7 @@ class MidiActionTable : public QTableWidget,
 		int nRow,
 		H2Core::MidiEvent::Type eventType,
 		H2Core::Midi::Parameter eventParameter,
-		std::shared_ptr<MidiAction> pMidiAction
+		std::shared_ptr<H2Core::MidiAction> pMidiAction
 	);
 	/** We can not use updateRowContent() in paintEvent() because the former
 	 * does trigger a redraw itself. */

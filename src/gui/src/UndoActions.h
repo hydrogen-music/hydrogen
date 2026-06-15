@@ -1468,7 +1468,7 @@ class SE_addOrRemoveMidiEventsAction : public QUndoCommand {
 		int nRow,
 		H2Core::MidiEvent::Type eventType,
 		H2Core::Midi::Parameter eventParameter,
-		std::shared_ptr<MidiAction> pMidiAction,
+		std::shared_ptr<H2Core::MidiAction> pMidiAction,
 		bool bAdd
 	)
 		: m_nRow( nRow ),
@@ -1516,7 +1516,7 @@ class SE_addOrRemoveMidiEventsAction : public QUndoCommand {
 	int m_nRow;
 	H2Core::MidiEvent::Type m_eventType;
 	H2Core::Midi::Parameter m_eventParameter;
-	std::shared_ptr<MidiAction> m_pMidiAction;
+	std::shared_ptr<H2Core::MidiAction> m_pMidiAction;
 	bool m_bAdd;
 };
 
@@ -1528,8 +1528,8 @@ class SE_replaceMidiEventsAction : public QUndoCommand {
 		H2Core::MidiEvent::Type oldEventType,
 		H2Core::Midi::Parameter newEventParameter,
 		H2Core::Midi::Parameter oldEventParameter,
-		std::shared_ptr<MidiAction> pNewMidiAction,
-		std::shared_ptr<MidiAction> pOldMidiAction
+		std::shared_ptr<H2Core::MidiAction> pNewMidiAction,
+		std::shared_ptr<H2Core::MidiAction> pOldMidiAction
 	)
 		: m_nRow( nRow ),
 		  m_newEventType( newEventType ),
@@ -1569,8 +1569,8 @@ class SE_replaceMidiEventsAction : public QUndoCommand {
 	H2Core::MidiEvent::Type m_oldEventType;
 	H2Core::Midi::Parameter m_newEventParameter;
 	H2Core::Midi::Parameter m_oldEventParameter;
-	std::shared_ptr<MidiAction> m_pNewMidiAction;
-	std::shared_ptr<MidiAction> m_pOldMidiAction;
+	std::shared_ptr<H2Core::MidiAction> m_pNewMidiAction;
+	std::shared_ptr<H2Core::MidiAction> m_pOldMidiAction;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

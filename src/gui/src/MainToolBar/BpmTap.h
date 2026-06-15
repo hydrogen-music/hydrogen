@@ -32,8 +32,11 @@
 
 #include "../Widgets/WidgetWithScalableFont.h"
 
-class MidiAction;
 class MidiLearnableToolButton;
+
+namespace H2Core {
+	class MidiAction;
+}
 
 class BpmTap : public QWidget,
 			   protected WidgetWithScalableFont<8, 10, 12>,
@@ -64,8 +67,8 @@ private:
 		QAction* m_pBeatCounterTapAndPlayAction;
 
 		/** Midi actions associated with the particular button states. */
-		std::shared_ptr<MidiAction> m_pTapTempoMidiAction;
-		std::shared_ptr<MidiAction> m_pBeatCounterMidiAction;
+		std::shared_ptr<H2Core::MidiAction> m_pTapTempoMidiAction;
+		std::shared_ptr<H2Core::MidiAction> m_pBeatCounterMidiAction;
 
 		MidiLearnableToolButton* m_pTapButton;
 

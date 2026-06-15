@@ -41,10 +41,13 @@ class ClickableLabel;
 class LCDSpinBox;
 class LCDDisplay;
 class LED;
-class MidiAction;
 class MidiControlButton;
 class MidiControlDialog;
 class MidiLearnableToolButton;
+
+namespace H2Core {
+	class MidiAction;
+}
 
 /** \ingroup docGUI*/
 class MainToolBar : public QToolBar,
@@ -127,8 +130,8 @@ class MainToolBar : public QToolBar,
 	MidiLearnableToolButton* m_pRecButton;
 	MidiLearnableToolButton* m_pPlayButton;
 	QAction* m_pPlayAction;
-	std::shared_ptr<MidiAction> m_pPlayMidiAction;
-	std::shared_ptr<MidiAction> m_pCountInMidiAction;
+	std::shared_ptr<H2Core::MidiAction> m_pPlayMidiAction;
+	std::shared_ptr<H2Core::MidiAction> m_pCountInMidiAction;
 	QAction* m_pCountInAction;
 	MidiLearnableToolButton* m_pStopButton;
 	MidiLearnableToolButton* m_pFfwdButton;

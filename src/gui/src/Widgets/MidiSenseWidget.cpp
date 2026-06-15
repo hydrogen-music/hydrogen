@@ -40,7 +40,7 @@
 MidiSenseWidget::MidiSenseWidget(
 	QWidget* pParent,
 	bool bDirectWrite,
-	std::shared_ptr<MidiAction> pAction
+	std::shared_ptr<H2Core::MidiAction> pAction
 )
 	: QDialog( pParent ),
 	  m_lastMidiEvent( H2Core::MidiEvent::Type::Null ),
@@ -158,7 +158,7 @@ void MidiSenseWidget::updateMidi()
 
 			assert( m_pAction );
 
-			auto pAction = std::make_shared<MidiAction>( m_pAction );
+			auto pAction = std::make_shared<H2Core::MidiAction>( m_pAction );
 			HydrogenApp::get_instance()->pushUndoCommand(
 				new SE_addOrRemoveMidiEventsAction(
 					-1, m_lastMidiEvent, m_lastMidiEventParameter, pAction, true
@@ -175,7 +175,7 @@ void MidiSenseWidget::updateLabels()
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	if ( m_pAction != nullptr ) {
 		m_pActionLabel->setVisible( true );
-		m_pActionLabel->setText( MidiAction::typeToQString( m_pAction->getType()
+		m_pActionLabel->setText( H2Core::MidiAction::typeToQString( m_pAction->getType()
 		) );
 
 		// Bindings

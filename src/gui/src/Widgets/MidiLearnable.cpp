@@ -40,7 +40,7 @@ MidiLearnable::~MidiLearnable() {
 	}
 }
 
-void MidiLearnable::setMidiAction( std::shared_ptr<MidiAction> pMidiAction ){
+void MidiLearnable::setMidiAction( std::shared_ptr<H2Core::MidiAction> pMidiAction ){
 	if ( pMidiAction != m_pMidiAction ) {
 		m_pMidiAction = pMidiAction;
 
@@ -73,7 +73,7 @@ QString MidiLearnable::composeToolTip() const {
 	if ( m_pMidiAction != nullptr ) {
 		sTip.append( QString( "\n\n%1: %2 " )
 					 .arg( pCommonStrings->getMidiToolTipHeading() )
-					 .arg( MidiAction::typeToQString( m_pMidiAction->getType() ) ) );
+					 .arg( H2Core::MidiAction::typeToQString( m_pMidiAction->getType() ) ) );
 		if ( m_registeredMidiEvents.size() > 0 ) {
 			for ( const auto& [event, pparam] : m_registeredMidiEvents ) {
 				if ( event == H2Core::MidiEvent::Type::Note ||

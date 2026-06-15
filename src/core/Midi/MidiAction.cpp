@@ -24,7 +24,7 @@
 
 #include <cassert>
 
-using namespace H2Core;
+namespace H2Core {
 
 QString MidiAction::typeToQString( const Type& type )
 {
@@ -846,3 +846,5 @@ QString MidiAction::toQString( const QString& sPrefix, bool bShort ) const
 
 	return sOutput;
 }
+
+} // namespace H2Core
