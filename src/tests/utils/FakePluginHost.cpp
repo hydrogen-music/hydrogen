@@ -22,47 +22,93 @@
 
 #include "FakePluginHost.h"
 
-#include "../TestHelper.h"
-
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
+#include <core/IO/PluginAudioDriver.h>
+#include <core/IO/PluginMidiDriver.h>
+#include <core/Preferences/Preferences.h>
 
 #include <algorithm>
 #include <cstring>
 
+using namespace H2Core;
+
+// Preferences for a headless, host-driven instance: the plugin audio and MIDI
+// drivers, no OSC. create_instance() returns a freshly-owned object (ADR 0015).
+static std::shared_ptr<Preferences> makeHostPreferences( unsigned nSampleRate,
+														 unsigned nBlockSize ) {
+	auto pPref = Preferences::create_instance();
+	pPref->m_audioDriver = Preferences::AudioDriver::Plugin;
+	pPref->m_midiDriver = Preferences::MidiDriver::Plugin;
+	pPref->m_nBufferSize = nBlockSize;
+	pPref->m_nSampleRate = nSampleRate;
+	pPref->setOscServerEnabled( false );
+	return pPref;
+}
+
 FakePluginHost::FakePluginHost(unsigned nSampleRate, unsigned nBlockSize)
-	: m_nSampleRate( nSampleRate )
+	: m_pHydrogen( nullptr )
+	, m_pDriver( nullptr )
+	, m_pMidiDriver( nullptr )
+	, m_nSampleRate( nSampleRate )
 	, m_nBlockSize( nBlockSize )
 	, m_bPlaying( false )
 	, m_fBpm( 120.0f )
 	, m_nFramePosition( 0 )
 	, m_pOutL( nullptr )
 	, m_pOutR( nullptr ) {
+
+	m_pHydrogen = new Hydrogen( makeHostPreferences( nSampleRate, nBlockSize ), -1 );
+	// Without a GUI the event queue drops events while in the startup state; a
+	// headless instance keeps them so MIDI/transport tests can observe them.
+	m_pHydrogen->setGUIState( Hydrogen::GUIState::headless );
+
+	// The engine created a PluginAudioDriver from the preferences above; grab it
+	// so we can point it at our host-owned buffers each block.
+	m_pDriver = std::dynamic_pointer_cast<PluginAudioDriver>(
+		m_pHydrogen->getAudioDriver() );
+	if ( m_pDriver != nullptr ) {
+		m_pDriver->setSampleRate( m_nSampleRate );
+	}
+
+	// The engine created a PluginMidiDriver from the preferences; grab it so we
+	// can inject host MIDI events each block.
+	m_pMidiDriver = std::dynamic_pointer_cast<PluginMidiDriver>(
+		m_pHydrogen->getMidiDriver() );
+
+	allocateBuffers();
+}
+
+FakePluginHost::~FakePluginHost() {
+	m_pMidiDriver.reset();
+	m_pDriver.reset();
+	delete m_pHydrogen;
+	m_pHydrogen = nullptr;
+
+	delete[] m_pOutL;
+	delete[] m_pOutR;
+}
+
+void FakePluginHost::allocateBuffers() {
+	delete[] m_pOutL;
+	delete[] m_pOutR;
 	m_pOutL = new float[ m_nBlockSize ];
 	m_pOutR = new float[ m_nBlockSize ];
 	std::fill( m_pOutL, m_pOutL + m_nBlockSize, 0.0f );
 	std::fill( m_pOutR, m_pOutR + m_nBlockSize, 0.0f );
 }
 
-FakePluginHost::~FakePluginHost() {
-	delete[] m_pOutL;
-	delete[] m_pOutR;
-}
-
 void FakePluginHost::setSampleRate(unsigned nSampleRate) {
 	m_nSampleRate = nSampleRate;
+	if ( m_pDriver != nullptr ) {
+		m_pDriver->setSampleRate( nSampleRate );
+	}
 }
 
 void FakePluginHost::setBlockSize(unsigned nBlockSize) {
-	// Reallocate buffers if size changed
 	if ( nBlockSize != m_nBlockSize ) {
-		delete[] m_pOutL;
-		delete[] m_pOutR;
 		m_nBlockSize = nBlockSize;
-		m_pOutL = new float[ m_nBlockSize ];
-		m_pOutR = new float[ m_nBlockSize ];
-		std::fill( m_pOutL, m_pOutL + m_nBlockSize, 0.0f );
-		std::fill( m_pOutR, m_pOutR + m_nBlockSize, 0.0f );
+		allocateBuffers();
 	}
 }
 
@@ -76,14 +122,13 @@ unsigned FakePluginHost::getBlockSize() const {
 
 void FakePluginHost::setPlaying(bool bPlaying) {
 	m_bPlaying = bPlaying;
-	auto pHydrogen = pTestHydrogen();
-	if ( pHydrogen == nullptr ) {
+	if ( m_pHydrogen == nullptr ) {
 		return;
 	}
 	if ( bPlaying ) {
-		pHydrogen->sequencerPlay();
+		m_pHydrogen->sequencerPlay();
 	} else {
-		pHydrogen->sequencerStop();
+		m_pHydrogen->sequencerStop();
 	}
 }
 
@@ -93,9 +138,8 @@ bool FakePluginHost::isPlaying() const {
 
 void FakePluginHost::setBpm(float fBpm) {
 	m_fBpm = fBpm;
-	auto pHydrogen = pTestHydrogen();
-	if ( pHydrogen != nullptr ) {
-		pHydrogen->getAudioEngine()->setNextBpm( fBpm );
+	if ( m_pHydrogen != nullptr ) {
+		m_pHydrogen->getAudioEngine()->setNextBpm( fBpm );
 	}
 }
 
@@ -105,8 +149,8 @@ float FakePluginHost::getBpm() const {
 
 void FakePluginHost::setFramePosition(long long nFrame) {
 	m_nFramePosition = nFrame;
-	// Actual injection into AudioEngine's realtime frame will be wired in Phase 3
-	// (plugin host seams). For now we track position locally.
+	// Actual injection into the AudioEngine's realtime frame is wired by the
+	// host-transport follower (T3.3); for now we track position locally.
 }
 
 long long FakePluginHost::getFramePosition() const {
@@ -114,16 +158,32 @@ long long FakePluginHost::getFramePosition() const {
 }
 
 int FakePluginHost::process(unsigned nFrames) {
-	// Save current output before processing
-	m_lastOutputL.assign( m_pOutL, m_pOutL + m_nBlockSize );
-	m_lastOutputR.assign( m_pOutR, m_pOutR + m_nBlockSize );
+	// A real plugin host hands the engine fresh output buffers every block. We
+	// must never ask the engine to render more frames than our buffers hold.
+	if ( nFrames > m_nBlockSize ) {
+		nFrames = m_nBlockSize;
+	}
+
+	// Point the driver at our host-owned buffers for this block; the engine
+	// mixes straight into them via getOut_L()/getOut_R().
+	if ( m_pDriver != nullptr ) {
+		m_pDriver->setHostBuffers( m_pOutL, m_pOutR, nFrames );
+	}
+
+	// Inject queued host MIDI events synchronously before rendering so they take
+	// effect within this block (in sample-offset order).
+	if ( m_pMidiDriver != nullptr ) {
+		m_pMidiDriver->dispatchHostEvents();
+	}
+	m_midiEvents.clear();
 
 	int nResult =
-		H2Core::AudioEngine::audioEngine_process( nFrames, pTestHydrogen() );
+		H2Core::AudioEngine::audioEngine_process( nFrames, m_pHydrogen );
 
 	m_nFramePosition += static_cast<long long>( nFrames );
 
-	// Copy latest output after processing
+	// Snapshot the rendered output (full block; frames beyond nFrames retain
+	// whatever they held, which the caller can ignore).
 	m_lastOutputL.assign( m_pOutL, m_pOutL + m_nBlockSize );
 	m_lastOutputR.assign( m_pOutR, m_pOutR + m_nBlockSize );
 
@@ -151,10 +211,47 @@ void FakePluginHost::reset() {
 	std::fill( m_pOutR, m_pOutR + m_nBlockSize, 0.0f );
 }
 
-void FakePluginHost::addMidiEvent(int nSampleOffset, std::shared_ptr<H2Core::Note> pNote) {
-	m_midiEvents.push_back( { nSampleOffset, std::move(pNote) } );
+void FakePluginHost::addMidiMessage(int nSampleOffset, const H2Core::MidiMessage& msg) {
+	m_midiEvents.push_back( { nSampleOffset, msg } );
+	if ( m_pMidiDriver != nullptr ) {
+		m_pMidiDriver->enqueueHostEvent( msg, nSampleOffset );
+	}
+}
+
+void FakePluginHost::addNoteOn(int nSampleOffset, int nKey, int nVelocity,
+							   int nChannel) {
+	addMidiMessage( nSampleOffset,
+					MidiMessage( MidiMessage::Type::NoteOn,
+								 Midi::parameterFromIntClamp( nKey ),
+								 Midi::parameterFromIntClamp( nVelocity ),
+								 static_cast<Midi::Channel>( nChannel ) ) );
+}
+
+void FakePluginHost::addNoteOff(int nSampleOffset, int nKey, int nChannel) {
+	addMidiMessage( nSampleOffset,
+					MidiMessage( MidiMessage::Type::NoteOff,
+								 Midi::parameterFromIntClamp( nKey ),
+								 Midi::ParameterMinimum,
+								 static_cast<Midi::Channel>( nChannel ) ) );
+}
+
+void FakePluginHost::addControlChange(int nSampleOffset, int nParameter,
+									  int nValue, int nChannel) {
+	addMidiMessage( nSampleOffset,
+					MidiMessage( MidiMessage::Type::ControlChange,
+								 Midi::parameterFromIntClamp( nParameter ),
+								 Midi::parameterFromIntClamp( nValue ),
+								 static_cast<Midi::Channel>( nChannel ) ) );
 }
 
 const std::vector<FakePluginHost::MidiEvent>& FakePluginHost::getMidiEvents() const {
 	return m_midiEvents;
+}
+
+H2Core::Hydrogen* FakePluginHost::getHydrogen() const {
+	return m_pHydrogen;
+}
+
+H2Core::PluginMidiDriver* FakePluginHost::getMidiDriver() const {
+	return m_pMidiDriver.get();
 }

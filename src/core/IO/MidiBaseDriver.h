@@ -119,6 +119,17 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 		return "";
 	}
 
+   protected:
+	/** Handle one input message synchronously on the calling thread, running
+	 * the full input pipeline (note/CC/program handling, handled-input backlog,
+	 * MidiInput event). The async drivers feed their worker thread instead; the
+	 * host-driven PluginMidiDriver has no worker and dispatches its host events
+	 * through here so they take effect within the current process block. */
+	std::shared_ptr<MidiInput::HandledInput> handleInputMessageSync(
+		const MidiMessage& msg ) {
+		return handleMessage( msg );
+	}
+
    private:
 	/** The Core thread running the #AudioEngine and the MIDI drivers does
 	 * fill both #m_handledInputs and #m_handledOutputs. It is accessed,

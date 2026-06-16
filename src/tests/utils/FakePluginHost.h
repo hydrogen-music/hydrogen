@@ -23,17 +23,28 @@
 #ifndef FAKE_PLUGIN_HOST_H
 #define FAKE_PLUGIN_HOST_H
 
-#include <core/Basics/Note.h>
 #include <core/Midi/Midi.h>
+#include <core/Midi/MidiMessage.h>
 
+#include <memory>
 #include <vector>
+
+namespace H2Core {
+	class Hydrogen;
+	class PluginAudioDriver;
+	class PluginMidiDriver;
+}
 
 /**
  * Non-audio test harness for specifying engine/plugin behaviour in tests
  * before real plugins exist.
  *
- * Modelled on FakeAudioDriver but without threading or timing simulation.
- * Drives one engine instance's process callback directly and synchronously.
+ * Owns its own headless engine instance configured with the host-driven
+ * PluginAudioDriver (ADR 0013): no real-time thread, host-owned buffers, the
+ * host drives the process cycle synchronously. Each process() call points the
+ * driver at the host's output buffers and runs audioEngine_process() directly,
+ * so the engine mixes straight into them.
+ *
  * Provides: output buffers, settable transport state, MIDI event list with
  * sample offsets, and configurable sample rate / block size.
  *
@@ -43,10 +54,10 @@
  */
 class FakePluginHost {
 public:
-    /** MIDI event queued for later injection into the engine. */
+    /** A host MIDI event: a message plus its sample offset within a block. */
     struct MidiEvent {
         int nSampleOffset;
-        std::shared_ptr<H2Core::Note> pNote;
+        H2Core::MidiMessage msg;
     };
 
     /**
@@ -95,13 +106,37 @@ public:
 
     // ── MIDI events with sample offsets ────────────────────────────
     /**
-     * Queue a MIDI note for injection at a given sample offset.
-     * (Phase 3 will wire these into the engine's MIDI input queue.)
+     * Queue a host MIDI message for injection at a given sample offset. The
+     * message is handed to the PluginMidiDriver and dispatched (in offset
+     * order) at the start of the next process() block.
      */
-    void addMidiEvent(int nSampleOffset, std::shared_ptr<H2Core::Note> pNote);
+    void addMidiMessage(int nSampleOffset, const H2Core::MidiMessage& msg);
+
+    /** Convenience: queue a Note-On for the given key/velocity. */
+    void addNoteOn(int nSampleOffset, int nKey, int nVelocity,
+                   int nChannel = static_cast<int>( H2Core::Midi::ChannelDefault ));
+    /** Convenience: queue a Note-Off for the given key. */
+    void addNoteOff(int nSampleOffset, int nKey,
+                    int nChannel = static_cast<int>( H2Core::Midi::ChannelDefault ));
+    /** Convenience: queue a Control-Change message. */
+    void addControlChange(int nSampleOffset, int nParameter, int nValue,
+                          int nChannel = static_cast<int>( H2Core::Midi::ChannelDefault ));
+
+    /** Events queued but not yet dispatched by a process() call. */
     const std::vector<MidiEvent>& getMidiEvents() const;
 
+    // ── Engine access (for tests inspecting engine-side state) ─────
+    H2Core::Hydrogen* getHydrogen() const;
+    H2Core::PluginMidiDriver* getMidiDriver() const;
+
 private:
+    /** (Re)allocate the host output buffers to m_nBlockSize frames, zeroed. */
+    void allocateBuffers();
+
+    H2Core::Hydrogen* m_pHydrogen;
+    std::shared_ptr<H2Core::PluginAudioDriver> m_pDriver;
+    std::shared_ptr<H2Core::PluginMidiDriver> m_pMidiDriver;
+
     unsigned m_nSampleRate;
     unsigned m_nBlockSize;
     bool m_bPlaying;

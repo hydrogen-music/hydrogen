@@ -152,12 +152,18 @@ class Preferences : public H2Core::Object<Preferences> {
 		Alsa,
 		PulseAudio,
 		CoreAudio,
-		PortAudio
+		PortAudio,
+		/** Host-driven driver used when Hydrogen runs as a plugin: the host
+		 * supplies the output buffers and drives the process callback (ADR
+		 * 0013). Not user-selectable. */
+		Plugin
 	};
 	static AudioDriver parseAudioDriver( const QString& sDriver );
 	static QString audioDriverToQString( const AudioDriver& driver );
 
-	enum class MidiDriver { Alsa, CoreMidi, Jack, None, PortMidi, LoopBack };
+	/** \c Plugin is host-driven: MIDI events are injected by the plugin host
+	 * (ADR 0013). Not user-selectable. */
+	enum class MidiDriver { Alsa, CoreMidi, Jack, None, PortMidi, LoopBack, Plugin };
 	static MidiDriver parseMidiDriver( const QString& sDriver );
 	static QString midiDriverToQString( const MidiDriver& driver );
 

@@ -48,6 +48,8 @@
 #include <core/IO/MidiBaseDriver.h>
 #include <core/IO/NullDriver.h>
 #include <core/IO/OssDriver.h>
+#include <core/IO/PluginAudioDriver.h>
+#include <core/IO/PluginMidiDriver.h>
 #include <core/IO/PortAudioDriver.h>
 #include <core/IO/PortMidiDriver.h>
 #include <core/IO/PulseAudioDriver.h>
@@ -1052,6 +1054,10 @@ std::shared_ptr<AudioDriver> AudioEngine::createAudioDriver(
 	else if ( driver == Preferences::AudioDriver::Null ) {
 		pAudioDriver = std::make_shared<NullDriver>( m_pHydrogen, m_AudioProcessCallback );
 	}
+	else if ( driver == Preferences::AudioDriver::Plugin ) {
+		pAudioDriver =
+			std::make_shared<PluginAudioDriver>( m_pHydrogen, m_AudioProcessCallback );
+	}
 	else {
 		AE_ERRORLOG( QString( "Unknown driver [%1]" )
 						 .arg( Preferences::audioDriverToQString( driver ) ) );
@@ -1368,6 +1374,11 @@ void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 			// There was a problem. Start over or make the driver creation fail.
 			m_pMidiDriver = nullptr;
 		}
+	}
+	else if ( pPref->m_midiDriver == Preferences::MidiDriver::Plugin ) {
+		// Host-driven MIDI: events are injected per process block (ADR 0013).
+		m_pMidiDriver = std::make_shared<PluginMidiDriver>( m_pHydrogen );
+		m_pMidiDriver->open();
 	}
 
 	this->unlock();

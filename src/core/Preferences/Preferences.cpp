@@ -1921,6 +1921,8 @@ QString Preferences::audioDriverToQString(
 			return "Disk";
 		case AudioDriver::Fake:
 			return "Fake";
+		case AudioDriver::Plugin:
+			return "Plugin";
 		case AudioDriver::Null:
 			return "Null";
 		case AudioDriver::None:
@@ -1973,6 +1975,8 @@ QString Preferences::midiDriverToQString( const Preferences::MidiDriver& driver
 			return "PortMidi";
 		case MidiDriver::LoopBack:
 			return "LoopBack";
+		case MidiDriver::Plugin:
+			return "Plugin";
 		default:
 			return "Unhandled driver type";
 	}

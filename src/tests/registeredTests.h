@@ -52,6 +52,8 @@
 #include "OscServerTest.h"
 #include "PatternTest.h"
 #include "PluginLifecycleTest.h"
+#include "PluginMidiTest.h"
+#include "PluginProcessTest.h"
 #include "PreferencesInstanceTest.h"
 #include "SampleTest.h"
 #include "SoundLibraryTest.h"
@@ -95,6 +97,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION( OscServerTest );
 #endif
 CPPUNIT_TEST_SUITE_REGISTRATION( PatternTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PluginLifecycleTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( PluginMidiTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( PluginProcessTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PreferencesInstanceTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SampleTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SoundLibraryTest );
