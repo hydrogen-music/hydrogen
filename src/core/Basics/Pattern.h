@@ -36,7 +36,6 @@
 namespace H2Core {
 
 class Drumkit;
-class Hydrogen;
 class XMLNode;
 class InstrumentList;
 class PatternList;
@@ -232,17 +231,13 @@ class Pattern : public H2Core::Object<Pattern> {
 	 */
 	bool references( std::shared_ptr<Instrument> pInstr ) const;
 	/**
-	 * delete the notes referencing the given instrument
+	 * delete the notes referencing the given @a pInstr
 	 * The function is thread safe (it locks the audio data while deleting
-	 * notes) \param pInstr the instrument
+	 * notes)
 	 */
-	void purgeInstrument(
-		std::shared_ptr<Instrument> pInstr,
-		Hydrogen* pHydrogen,
-		bool bRequiredLock = true
-	);
+	void purgeInstrument( std::shared_ptr<Instrument> pInstr );
 	/** Erase all notes. */
-	void clear( Hydrogen* pHydrogen, bool bRequiredLock = true );
+	void clear();
 
 	///< return true if m_virtualPatterns is empty
 	bool virtualPatternsEmpty() const;

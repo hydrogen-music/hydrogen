@@ -1620,7 +1620,12 @@ bool MidiActionManager::clearPattern( std::shared_ptr<MidiAction> pAction ) {
 		return false;
 	}
 
-	pPattern->clear( m_pHydrogen, true );
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
+	pAudioEngine->lock( RIGHT_HERE );
+
+	pPattern->clear();
+
+	pAudioEngine->unlock();
 
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::PatternChanged, 0 );
 

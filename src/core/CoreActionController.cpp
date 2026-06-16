@@ -2798,7 +2798,12 @@ bool CoreActionController::clearInstrumentInPattern(
 		return false;
 	}
 
-	pPattern->purgeInstrument( pInstrument, m_pHydrogen, true );
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
+	pAudioEngine->lock( RIGHT_HERE );
+
+	pPattern->purgeInstrument( pInstrument );
+
+	pAudioEngine->unlock();
 
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::PatternChanged, 0 );
 

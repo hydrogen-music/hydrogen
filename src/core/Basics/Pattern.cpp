@@ -24,13 +24,11 @@
 
 #include <cassert>
 
-#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/PatternList.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Legacy.h>
-#include <core/Hydrogen.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/SoundLibrary/SoundLibraryInfo.h>
 
@@ -401,48 +399,27 @@ bool Pattern::references( std::shared_ptr<Instrument> pInstrument ) const
 	return false;
 }
 
-void Pattern::purgeInstrument(
-	std::shared_ptr<Instrument> pInstrument,
-	Hydrogen* pHydrogen,
-	bool bRequiresLock
-)
+void Pattern::purgeInstrument( std::shared_ptr<Instrument> pInstrument )
 {
 	if ( pInstrument == nullptr ) {
 		return;
 	}
 
-	bool bLocked = false;
 	for ( notes_it_t it = m_notes.begin(); it != m_notes.end(); ) {
 		auto pNote = it->second;
 		assert( pNote );
 		if ( pNote != nullptr && pNote->getInstrument() == pInstrument ) {
-			if ( !bLocked && bRequiresLock ) {
-				pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-				bLocked = true;
-			}
 			m_notes.erase( it++ );
 		}
 		else {
 			++it;
 		}
 	}
-	if ( bLocked ) {
-		pHydrogen->getAudioEngine()->unlock();
-	}
 }
 
-void Pattern::clear( Hydrogen* pHydrogen, bool bRequiresLock )
+void Pattern::clear()
 {
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	if ( bRequiresLock ) {
-		pAudioEngine->lock( RIGHT_HERE );
-	}
-
 	m_notes.clear();
-
-	if ( bRequiresLock ) {
-		pAudioEngine->unlock();
-	}
 }
 
 void Pattern::flattenedVirtualPatternsCompute()
