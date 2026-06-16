@@ -29,9 +29,13 @@ class SampleTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( SampleTest );
 	CPPUNIT_TEST( testLoadInvalidSample );
 	CPPUNIT_TEST( testStoringSamplesInCurrentDrumkit );
+	CPPUNIT_TEST( testLoadFromMemory );
 	CPPUNIT_TEST_SUITE_END();
 
 	void testLoadInvalidSample();
+	/** An in-memory decode (libsndfile virtual I/O, ADR 0017/0025) must yield
+	 * the exact same audio data as loading the same file from disk. */
+	void testLoadFromMemory();
 	/** For portability paths to samples within one of Hydrogen's installed
 	 * drumkits will be stripped and only the filename is stored along with the
 	 * name of the drumkit. But for samples imported into the current / the

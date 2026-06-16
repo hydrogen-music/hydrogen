@@ -25,6 +25,9 @@
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 
+#include <algorithm>
+#include <cstring>
+
 namespace H2Core {
 
 PluginAudioDriver::PluginAudioDriver( Hydrogen* pHydrogen,
@@ -102,6 +105,44 @@ void PluginAudioDriver::setHostTransport( bool bRolling, double fBpm,
 const PluginAudioDriver::HostTransport&
 PluginAudioDriver::getHostTransport() const {
 	return m_hostTransport;
+}
+
+void PluginAudioDriver::setBusBuffers( const std::vector<float*>& busOut_L,
+									   const std::vector<float*>& busOut_R ) {
+	m_busOut_L = busOut_L;
+	m_busOut_R = busOut_R;
+}
+
+int PluginAudioDriver::getBusCount() const {
+	return static_cast<int>(
+		std::min( m_busOut_L.size(), m_busOut_R.size() ) );
+}
+
+float* PluginAudioDriver::getBusBuffer_L( int nBus ) const {
+	if ( nBus < 0 || nBus >= static_cast<int>( m_busOut_L.size() ) ) {
+		return nullptr;
+	}
+	return m_busOut_L[ nBus ];
+}
+
+float* PluginAudioDriver::getBusBuffer_R( int nBus ) const {
+	if ( nBus < 0 || nBus >= static_cast<int>( m_busOut_R.size() ) ) {
+		return nullptr;
+	}
+	return m_busOut_R[ nBus ];
+}
+
+void PluginAudioDriver::clearBusBuffers( unsigned nFrames ) {
+	for ( auto pBus : m_busOut_L ) {
+		if ( pBus != nullptr ) {
+			memset( pBus, 0, nFrames * sizeof( float ) );
+		}
+	}
+	for ( auto pBus : m_busOut_R ) {
+		if ( pBus != nullptr ) {
+			memset( pBus, 0, nFrames * sizeof( float ) );
+		}
+	}
 }
 
 QString PluginAudioDriver::toQString( const QString& sPrefix, bool bShort ) const {

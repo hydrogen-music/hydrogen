@@ -50,6 +50,7 @@
 #include "NoteTest.h"
 #include "OnlineImporterTest.h"
 #include "OscServerTest.h"
+#include "OutputBusTest.h"
 #include "PatternTest.h"
 #include "PluginFeatureGateTest.h"
 #include "PluginLifecycleTest.h"
@@ -93,6 +94,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( MultiInstanceTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( NetworkTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( NoteTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( OnlineImporterTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( OutputBusTest );
 #ifdef H2CORE_HAVE_OSC
 CPPUNIT_TEST_SUITE_REGISTRATION( OscServerTest );
 #endif

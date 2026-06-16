@@ -47,6 +47,7 @@
 #include <core/Hydrogen.h>
 #include <core/IO/AudioDriver.h>
 #include <core/IO/JackDriver.h>
+#include <core/IO/PluginAudioDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiInstrumentMap.h>
@@ -861,9 +862,11 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 	// available in the Mixer. The Note pan, however, will be used.
 	float fNotePan_L = 0;
 	float fNotePan_R = 0;
-	if ( pHydrogen->hasJackDriver() &&
-		 m_pHydrogen->getPreferences()->m_JackTrackOutputMode ==
-			 Preferences::JackTrackOutputMode::preFader ) {
+	if ( ( pHydrogen->hasJackDriver() &&
+		   m_pHydrogen->getPreferences()->m_JackTrackOutputMode ==
+			   Preferences::JackTrackOutputMode::preFader ) ||
+		 // Plugin output buses are pre-fader too and use the note pan (ADR 0019).
+		 m_pHydrogen->isUnderPluginHost() ) {
 		fNotePan_L = panLaw( pNote->getPan(), pSong );
 		fNotePan_R = panLaw( -1 * pNote->getPan(), pSong );
 	}
@@ -1738,6 +1741,41 @@ bool Sampler::renderNote(
 	}
 #endif
 
+	// Plugin output buses (ADR 0019): under a plugin host each instrument is
+	// routed (pre-fader) to the bus matching its position in the kit, for the
+	// first N instruments. Surplus instruments (index >= bus count) go to the
+	// master only. The master out still carries the full post-fader sum below.
+	float* pBusOutL = nullptr;
+	float* pBusOutR = nullptr;
+	float fBusGain_L = 0.0f;
+	float fBusGain_R = 0.0f;
+	if ( m_pHydrogen->isUnderPluginHost() ) {
+		auto pPluginDriver =
+			std::dynamic_pointer_cast<PluginAudioDriver>( pAudioDriver );
+		if ( pPluginDriver != nullptr && pSong->getDrumkit() != nullptr ) {
+			const int nBus =
+				pSong->getDrumkit()->getInstruments()->index( pInstrument );
+			if ( nBus >= 0 && nBus < pPluginDriver->getBusCount() ) {
+				pBusOutL = pPluginDriver->getBusBuffer_L( nBus );
+				pBusOutR = pPluginDriver->getBusBuffer_R( nBus );
+
+				// Pre-fader gain: velocity, layer and component gain, and note
+				// pan only - no instrument volume/pan or master volume (those
+				// belong to the master mix). Mirrors the JACK pre-fader path.
+				if ( ! bIsMuted ) {
+					float fG = 1.0f;
+					if ( pInstrument->getApplyVelocity() ) {
+						fG *= pNote->getVelocity();
+					}
+					fG *= fLayerGain;
+					fG *= fComponentGain;
+					fBusGain_L = fG * fNotePan_L;
+					fBusGain_R = fG * fNotePan_R;
+				}
+			}
+		}
+	}
+
 	float buffer_L[nBufferSize];
 	float buffer_R[nBufferSize];
 
@@ -1795,6 +1833,14 @@ bool Sampler::renderNote(
 				pTrackOutR[nBufferPos] += fVal_R * fGainJackTrack_R;
 			}
 #endif
+
+			// Plugin output bus (pre-fader), if this instrument is mapped to one.
+			if ( pBusOutL != nullptr ) {
+				pBusOutL[nBufferPos] += fVal_L * fBusGain_L;
+			}
+			if ( pBusOutR != nullptr ) {
+				pBusOutR[nBufferPos] += fVal_R * fBusGain_R;
+			}
 
 			// The meters and peaks of a instrument strip in the mixer do
 			// represent post-fader values and include the overall track gain.

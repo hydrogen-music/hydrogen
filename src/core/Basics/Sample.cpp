@@ -283,31 +283,139 @@ bool Sample::load( float fBpm, Preferences* pPreferences )
 		);
 	}
 
+	const bool bOk = storeDecodedSamples(
+		buffer, static_cast<long long>( sound_info.frames ),
+		sound_info.channels, sound_info.samplerate, fBpm, pPreferences );
+
+	delete[] buffer;
+
+	return bOk;
+}
+
+namespace {
+// Cursor over an in-memory encoded audio buffer for libsndfile virtual I/O
+// (read-only). Lets loadFromMemory() decode bytes that never touched disk.
+struct MemoryReader {
+	const unsigned char* pData;
+	sf_count_t nSize;
+	sf_count_t nCursor;
+};
+
+sf_count_t memVioGetFilelen( void* pUser ) {
+	return static_cast<MemoryReader*>( pUser )->nSize;
+}
+sf_count_t memVioSeek( sf_count_t nOffset, int nWhence, void* pUser ) {
+	auto* p = static_cast<MemoryReader*>( pUser );
+	switch ( nWhence ) {
+		case SEEK_SET: p->nCursor = nOffset; break;
+		case SEEK_CUR: p->nCursor += nOffset; break;
+		case SEEK_END: p->nCursor = p->nSize + nOffset; break;
+		default: break;
+	}
+	if ( p->nCursor < 0 ) p->nCursor = 0;
+	if ( p->nCursor > p->nSize ) p->nCursor = p->nSize;
+	return p->nCursor;
+}
+sf_count_t memVioRead( void* pPtr, sf_count_t nCount, void* pUser ) {
+	auto* p = static_cast<MemoryReader*>( pUser );
+	const sf_count_t nRemaining = p->nSize - p->nCursor;
+	if ( nCount > nRemaining ) {
+		nCount = nRemaining;
+	}
+	if ( nCount > 0 ) {
+		memcpy( pPtr, p->pData + p->nCursor, static_cast<size_t>( nCount ) );
+		p->nCursor += nCount;
+	}
+	return nCount;
+}
+sf_count_t memVioWrite( const void*, sf_count_t, void* ) {
+	return 0; // read-only
+}
+sf_count_t memVioTell( void* pUser ) {
+	return static_cast<MemoryReader*>( pUser )->nCursor;
+}
+} // namespace
+
+bool Sample::loadFromMemory( const std::vector<unsigned char>& data, float fBpm,
+							 Preferences* pPreferences )
+{
+	if ( data.empty() ) {
+		ERRORLOG( "Empty in-memory sample buffer" );
+		return false;
+	}
+
+	SF_INFO sound_info = { 0 };
+	MemoryReader reader{ data.data(),
+						 static_cast<sf_count_t>( data.size() ), 0 };
+	SF_VIRTUAL_IO vio;
+	vio.get_filelen = memVioGetFilelen;
+	vio.seek = memVioSeek;
+	vio.read = memVioRead;
+	vio.write = memVioWrite;
+	vio.tell = memVioTell;
+
+	SNDFILE* file = sf_open_virtual( &vio, SFM_READ, &sound_info, &reader );
+	if ( file == nullptr ) {
+		ERRORLOG( QString( "Error decoding in-memory sample: %1" )
+					  .arg( sf_strerror( file ) ) );
+		return false;
+	}
+
+	// Same channel/frame handling as the on-disk path.
+	if ( sound_info.channels > SAMPLE_CHANNELS ) {
+		WARNINGLOG( QString( "can't handle %1 channels, only 2 will be used" )
+						.arg( sound_info.channels ) );
+		sound_info.channels = SAMPLE_CHANNELS;
+	}
+	if ( sound_info.frames > ( SF_COUNT_MAX / sound_info.channels ) ) {
+		sound_info.frames = ( SF_COUNT_MAX / sound_info.channels );
+	}
+
+	float* buffer = new float[sound_info.frames * sound_info.channels];
+	sf_count_t count =
+		sf_read_float( file, buffer, sound_info.frames * sound_info.channels );
+	if ( count == 0 ) {
+		WARNINGLOG( "in-memory sample is empty" );
+	}
+	sf_close( file );
+
+	const bool bOk = storeDecodedSamples(
+		buffer, static_cast<long long>( sound_info.frames ),
+		sound_info.channels, sound_info.samplerate, fBpm, pPreferences );
+
+	delete[] buffer;
+
+	return bOk;
+}
+
+bool Sample::storeDecodedSamples( const float* pInterleaved, long long nFrames,
+								  int nChannels, int nSampleRate, float fBpm,
+								  Preferences* pPreferences )
+{
 	// Flush the current content of the left and right channel and
 	// the current metadata.
 	unload();
 
 	// Save the metadata of the loaded file into private members
 	// of the Sample class.
-	m_nFrames = static_cast<long long>(sound_info.frames);
-	m_nSampleRate = sound_info.samplerate;
+	m_nFrames = nFrames;
+	m_nSampleRate = nSampleRate;
 
 	// Split the loaded frames into left and right channel.
 	// If only one channels was present in the underlying data,
 	// duplicate its content.
 	m_data_L = new float[m_nFrames];
 	m_data_R = new float[m_nFrames];
-	if ( sound_info.channels == 1 ) {
-		memcpy( m_data_L, buffer, m_nFrames * sizeof( float ) );
-		memcpy( m_data_R, buffer, m_nFrames * sizeof( float ) );
+	if ( nChannels == 1 ) {
+		memcpy( m_data_L, pInterleaved, m_nFrames * sizeof( float ) );
+		memcpy( m_data_R, pInterleaved, m_nFrames * sizeof( float ) );
 	}
-	else if ( sound_info.channels == SAMPLE_CHANNELS ) {
+	else if ( nChannels == SAMPLE_CHANNELS ) {
 		for ( long long ii = 0; ii < m_nFrames; ii++ ) {
-			m_data_L[ii] = buffer[ii * SAMPLE_CHANNELS];
-			m_data_R[ii] = buffer[ii * SAMPLE_CHANNELS + 1];
+			m_data_L[ii] = pInterleaved[ii * SAMPLE_CHANNELS];
+			m_data_R[ii] = pInterleaved[ii * SAMPLE_CHANNELS + 1];
 		}
 	}
-	delete[] buffer;
 
 	// Apply modifiers (if present/altered).
 	if ( !applyLoops() ) {

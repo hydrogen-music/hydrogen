@@ -27,6 +27,8 @@
 
 #include <inttypes.h>
 
+#include <vector>
+
 namespace H2Core
 {
 
@@ -93,6 +95,22 @@ public:
 	void setHostTransport( bool bRolling, double fBpm, long long nFrame );
 	const HostTransport& getHostTransport() const;
 
+	/**
+	 * Publish the host's per-bus output buffers for this block (ADR 0019). Each
+	 * bus is a stereo pair; the sampler mixes the instrument assigned to a bus
+	 * into it (pre-fader). The master out (getOut_L/R) still carries the full
+	 * post-fader sum. The two vectors must be the same length.
+	 */
+	void setBusBuffers( const std::vector<float*>& busOut_L,
+						const std::vector<float*>& busOut_R );
+	/** Number of output buses the host currently provides. */
+	int getBusCount() const;
+	/** Left/right buffer for bus @a nBus, or nullptr if out of range. */
+	float* getBusBuffer_L( int nBus ) const;
+	float* getBusBuffer_R( int nBus ) const;
+	/** Zero every bus buffer for the first @a nFrames frames. */
+	void clearBusBuffers( unsigned nFrames );
+
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 private:
@@ -102,6 +120,8 @@ private:
 	float* m_pOut_L;
 	float* m_pOut_R;
 	HostTransport m_hostTransport;
+	std::vector<float*> m_busOut_L;
+	std::vector<float*> m_busOut_R;
 };
 
 };

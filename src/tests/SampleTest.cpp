@@ -36,6 +36,10 @@
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <cppunit/TestAssert.h>
 
+#include <QtCore/QFile>
+
+#include <vector>
+
 using namespace H2Core;
 
 void SampleTest::testLoadInvalidSample()
@@ -202,6 +206,52 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 	Filesystem::rm(
 		Filesystem::drumkitDirFromPath( sDownloadedDrumkitPath ), true, true
 	);
+
+	___INFOLOG( "passed" );
+}
+
+void SampleTest::testLoadFromMemory()
+{
+	___INFOLOG( "" );
+
+	const QString sSamplePath = H2TEST_FILE( "drumkits/baseKit/crash.wav" );
+
+	// Reference: the regular on-disk decode.
+	auto pFromFile = Sample::load( sSamplePath );
+	CPPUNIT_ASSERT( pFromFile != nullptr );
+	CPPUNIT_ASSERT( pFromFile->isLoaded() );
+	CPPUNIT_ASSERT( pFromFile->getFrames() > 0 );
+
+	// Read the very same file into memory and decode it from there.
+	QFile file( sSamplePath );
+	CPPUNIT_ASSERT( file.open( QIODevice::ReadOnly ) );
+	const QByteArray raw = file.readAll();
+	file.close();
+	CPPUNIT_ASSERT( raw.size() > 0 );
+
+	std::vector<unsigned char> bytes(
+		reinterpret_cast<const unsigned char*>( raw.constData() ),
+		reinterpret_cast<const unsigned char*>( raw.constData() ) + raw.size() );
+
+	auto pFromMem = std::make_shared<Sample>( sSamplePath );
+	CPPUNIT_ASSERT( pFromMem->loadFromMemory( bytes, 120, nullptr ) );
+	CPPUNIT_ASSERT( pFromMem->isLoaded() );
+
+	// The in-memory decode must be bit-identical to the on-disk one.
+	CPPUNIT_ASSERT_EQUAL( pFromFile->getFrames(), pFromMem->getFrames() );
+	CPPUNIT_ASSERT_EQUAL( pFromFile->getSampleRate(), pFromMem->getSampleRate() );
+
+	const float* pFileL = pFromFile->getData_L();
+	const float* pFileR = pFromFile->getData_R();
+	const float* pMemL = pFromMem->getData_L();
+	const float* pMemR = pFromMem->getData_R();
+	CPPUNIT_ASSERT( pFileL != nullptr && pFileR != nullptr );
+	CPPUNIT_ASSERT( pMemL != nullptr && pMemR != nullptr );
+
+	for ( long long ii = 0; ii < pFromFile->getFrames(); ++ii ) {
+		CPPUNIT_ASSERT_EQUAL( pFileL[ii], pMemL[ii] );
+		CPPUNIT_ASSERT_EQUAL( pFileR[ii], pMemR[ii] );
+	}
 
 	___INFOLOG( "passed" );
 }

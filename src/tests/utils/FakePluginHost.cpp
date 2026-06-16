@@ -23,6 +23,8 @@
 #include "FakePluginHost.h"
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 #include <core/IO/PluginAudioDriver.h>
 #include <core/IO/PluginMidiDriver.h>
@@ -46,7 +48,8 @@ static std::shared_ptr<Preferences> makeHostPreferences( unsigned nSampleRate,
 	return pPref;
 }
 
-FakePluginHost::FakePluginHost(unsigned nSampleRate, unsigned nBlockSize)
+FakePluginHost::FakePluginHost(unsigned nSampleRate, unsigned nBlockSize,
+							   unsigned nBuses)
 	: m_pHydrogen( nullptr )
 	, m_pDriver( nullptr )
 	, m_pMidiDriver( nullptr )
@@ -56,7 +59,8 @@ FakePluginHost::FakePluginHost(unsigned nSampleRate, unsigned nBlockSize)
 	, m_fBpm( 120.0f )
 	, m_nFramePosition( 0 )
 	, m_pOutL( nullptr )
-	, m_pOutR( nullptr ) {
+	, m_pOutR( nullptr )
+	, m_nBuses( nBuses ) {
 
 	m_pHydrogen = new Hydrogen( makeHostPreferences( nSampleRate, nBlockSize ), -1 );
 	// Without a GUI the event queue drops events while in the startup state; a
@@ -76,6 +80,15 @@ FakePluginHost::FakePluginHost(unsigned nSampleRate, unsigned nBlockSize)
 	m_pMidiDriver = std::dynamic_pointer_cast<PluginMidiDriver>(
 		m_pHydrogen->getMidiDriver() );
 
+	// The empty song is set directly in the Hydrogen constructor, which (unlike
+	// setSong()) does not load the kit's samples. Load them so notes actually
+	// render - a real plugin loads its song via setSong().
+	if ( m_pHydrogen->getSong() != nullptr &&
+		 m_pHydrogen->getSong()->getDrumkit() != nullptr ) {
+		m_pHydrogen->getSong()->getDrumkit()->loadSamples(
+			120, m_pHydrogen->getPreferences().get() );
+	}
+
 	allocateBuffers();
 }
 
@@ -87,6 +100,8 @@ FakePluginHost::~FakePluginHost() {
 
 	delete[] m_pOutL;
 	delete[] m_pOutR;
+	for ( auto p : m_busL ) { delete[] p; }
+	for ( auto p : m_busR ) { delete[] p; }
 }
 
 void FakePluginHost::allocateBuffers() {
@@ -96,6 +111,17 @@ void FakePluginHost::allocateBuffers() {
 	m_pOutR = new float[ m_nBlockSize ];
 	std::fill( m_pOutL, m_pOutL + m_nBlockSize, 0.0f );
 	std::fill( m_pOutR, m_pOutR + m_nBlockSize, 0.0f );
+
+	for ( auto p : m_busL ) { delete[] p; }
+	for ( auto p : m_busR ) { delete[] p; }
+	m_busL.assign( m_nBuses, nullptr );
+	m_busR.assign( m_nBuses, nullptr );
+	for ( unsigned ii = 0; ii < m_nBuses; ++ii ) {
+		m_busL[ ii ] = new float[ m_nBlockSize ];
+		m_busR[ ii ] = new float[ m_nBlockSize ];
+		std::fill( m_busL[ ii ], m_busL[ ii ] + m_nBlockSize, 0.0f );
+		std::fill( m_busR[ ii ], m_busR[ ii ] + m_nBlockSize, 0.0f );
+	}
 }
 
 void FakePluginHost::setSampleRate(unsigned nSampleRate) {
@@ -170,6 +196,8 @@ int FakePluginHost::process(unsigned nFrames) {
 		m_pDriver->setHostBuffers( m_pOutL, m_pOutR, nFrames );
 		// Publish the host transport for this block so the engine follows it.
 		m_pDriver->setHostTransport( m_bPlaying, m_fBpm, m_nFramePosition );
+		// Publish the host's output bus buffers (engine zeroes + mixes them).
+		m_pDriver->setBusBuffers( m_busL, m_busR );
 	}
 
 	// Inject queued host MIDI events synchronously before rendering so they take
@@ -201,6 +229,18 @@ float* FakePluginHost::getOutputL() {
 
 float* FakePluginHost::getOutputR() {
 	return m_pOutR;
+}
+
+unsigned FakePluginHost::getBusCount() const {
+	return m_nBuses;
+}
+
+float* FakePluginHost::getBusOutputL(unsigned nBus) {
+	return nBus < m_busL.size() ? m_busL[ nBus ] : nullptr;
+}
+
+float* FakePluginHost::getBusOutputR(unsigned nBus) {
+	return nBus < m_busR.size() ? m_busR[ nBus ] : nullptr;
 }
 
 const std::vector<float>& FakePluginHost::getLastOutputL() const {

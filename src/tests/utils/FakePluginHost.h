@@ -63,8 +63,12 @@ public:
     /**
      * @param nSampleRate  Sample rate in Hz (default 44100)
      * @param nBlockSize   Block size in frames (default 1024)
+     * @param nBuses       Number of stereo plugin output buses (default 0). When
+     *                     > 0 the engine routes the first N instruments to buses
+     *                     1…N (pre-fader); see ADR 0019.
      */
-    FakePluginHost(unsigned nSampleRate = 44100, unsigned nBlockSize = 1024);
+    FakePluginHost(unsigned nSampleRate = 44100, unsigned nBlockSize = 1024,
+                   unsigned nBuses = 0);
     ~FakePluginHost();
 
     // ── Configuration ──────────────────────────────────────────────
@@ -93,6 +97,14 @@ public:
     // ── Output buffer access ───────────────────────────────────────
     float* getOutputL();
     float* getOutputR();
+
+    // ── Plugin output buses (ADR 0019) ─────────────────────────────
+    /** Number of stereo output buses this host provides. */
+    unsigned getBusCount() const;
+    /** Left/right buffer for bus @a nBus (nullptr if out of range). Holds the
+     * most recent block's output after process(). */
+    float* getBusOutputL(unsigned nBus);
+    float* getBusOutputR(unsigned nBus);
 
     /**
      * @return Copy of the output buffers from the most recent process() call.
@@ -147,6 +159,10 @@ private:
     float* m_pOutR;
     std::vector<float> m_lastOutputL;
     std::vector<float> m_lastOutputR;
+
+    unsigned m_nBuses;
+    std::vector<float*> m_busL;
+    std::vector<float*> m_busR;
 
     std::vector<MidiEvent> m_midiEvents;
 };

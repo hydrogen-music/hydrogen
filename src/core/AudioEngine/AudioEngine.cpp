@@ -1017,6 +1017,16 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 	}
 #endif
 
+	// Plugin output buses are host-owned and mixed into additively by the
+	// sampler, so they must be zeroed each block too (ADR 0019).
+	{
+		auto pPluginDriver =
+			std::dynamic_pointer_cast<PluginAudioDriver>( m_pAudioDriver );
+		if ( pPluginDriver != nullptr ) {
+			pPluginDriver->clearBusBuffers( nFrames );
+		}
+	}
+
 	m_MutexOutputPointer.unlock();
 }
 

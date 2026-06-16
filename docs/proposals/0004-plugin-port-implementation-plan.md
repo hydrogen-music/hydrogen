@@ -378,6 +378,12 @@ Three sub-blocks; each is an independent red→green loop. ADRs 0019, 0017, 0020
 0014.
 
 ### 8a. Output buses — ADR 0019
+**Status: ✅ DONE** (2026-06-16) — `OutputBusTest` (4 cases) green; full suite
+`OK (255 tests)`. Host bus buffers live on `PluginAudioDriver`
+(`setBusBuffers`/`getBusBuffer_L/R`/`clearBusBuffers`); the sampler routes each
+instrument pre-fader to the bus matching its kit index (surplus → master only),
+master keeps the full post-fader sum.
+
 **Tests first:** `OutputBusTest` — the **default 1-to-1 mapping** sends the first
 N instruments to buses 1…N (pre-fader); master carries the full sum;
 surplus/unmapped instruments (kits with > N) route to **master only**; nothing is
@@ -398,6 +404,13 @@ instrument name and the rename hook fires on kit change.
   the generated `.ttl`.
 
 ### 8b. State, samples & `.h2project` — ADR 0017 / 0020 / 0025
+**Status: 🚧 IN PROGRESS** — T4b.1 (in-memory `Sample` decode via libsndfile
+virtual I/O) ✅ DONE (2026-06-16): `Sample::loadFromMemory()` shares the decode
+back end with `load()`; `SampleTest::testLoadFromMemory` asserts an in-memory
+decode is bit-identical to the on-disk one. Full suite `OK (256 tests)`.
+Remaining: T4b.2 `.h2project` codec, T4b.3 unified open, T4b.4 standalone menu,
+T4b.5 embed toggle.
+
 **Tests first:** `H2ProjectTest` (song+kit → `.h2project` bundle → reconstructs
 identically, incl. bus mapping); extend `SampleTest` (memory-decoded sample
 bit-identical to file-loaded; content-hash dedup); **unified open** (one endpoint
