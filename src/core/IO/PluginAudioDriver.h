@@ -73,6 +73,26 @@ public:
 	/** Update the sample rate the host runs at (may change between blocks). */
 	void setSampleRate( unsigned nSampleRate );
 
+	/** Transport state the host supplies alongside each process block (ADR
+	 * 0013). The engine follows this instead of free-running / JACK timebase. */
+	struct HostTransport {
+		/** Whether the host transport is rolling this block. */
+		bool bRolling = false;
+		/** Host tempo in BPM. <= 0 means "host provides no tempo this block";
+		 * the engine then keeps its current tempo. */
+		double fBpm = 0.0;
+		/** Host transport frame at the start of this block. A discontinuity
+		 * versus the engine's playhead is treated as a relocate / host loop. */
+		long long nFrame = 0;
+		/** Set once the host has provided transport at least once. Until then
+		 * the engine does not follow (it free-runs from its own state). */
+		bool bValid = false;
+	};
+
+	/** Called by the host before each process block to publish its transport. */
+	void setHostTransport( bool bRolling, double fBpm, long long nFrame );
+	const HostTransport& getHostTransport() const;
+
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 private:
@@ -81,6 +101,7 @@ private:
 	unsigned m_nSampleRate;
 	float* m_pOut_L;
 	float* m_pOut_R;
+	HostTransport m_hostTransport;
 };
 
 };

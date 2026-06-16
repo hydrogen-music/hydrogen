@@ -137,10 +137,10 @@ bool FakePluginHost::isPlaying() const {
 }
 
 void FakePluginHost::setBpm(float fBpm) {
+	// In plugin mode the host owns tempo: it is published on the driver each
+	// block (see process()) and the engine follows it (ADR 0013). We do not
+	// poke setNextBpm() - that path is inert under a plugin host.
 	m_fBpm = fBpm;
-	if ( m_pHydrogen != nullptr ) {
-		m_pHydrogen->getAudioEngine()->setNextBpm( fBpm );
-	}
 }
 
 float FakePluginHost::getBpm() const {
@@ -148,9 +148,9 @@ float FakePluginHost::getBpm() const {
 }
 
 void FakePluginHost::setFramePosition(long long nFrame) {
+	// The new host frame is published on the driver at the next process() call;
+	// the engine's transport follower relocates to it (ADR 0013, T3.3).
 	m_nFramePosition = nFrame;
-	// Actual injection into the AudioEngine's realtime frame is wired by the
-	// host-transport follower (T3.3); for now we track position locally.
 }
 
 long long FakePluginHost::getFramePosition() const {
@@ -168,6 +168,8 @@ int FakePluginHost::process(unsigned nFrames) {
 	// mixes straight into them via getOut_L()/getOut_R().
 	if ( m_pDriver != nullptr ) {
 		m_pDriver->setHostBuffers( m_pOutL, m_pOutR, nFrames );
+		// Publish the host transport for this block so the engine follows it.
+		m_pDriver->setHostTransport( m_bPlaying, m_fBpm, m_nFramePosition );
 	}
 
 	// Inject queued host MIDI events synchronously before rendering so they take
@@ -180,7 +182,10 @@ int FakePluginHost::process(unsigned nFrames) {
 	int nResult =
 		H2Core::AudioEngine::audioEngine_process( nFrames, m_pHydrogen );
 
-	m_nFramePosition += static_cast<long long>( nFrames );
+	// The host clock advances only while rolling, exactly like a real host.
+	if ( m_bPlaying ) {
+		m_nFramePosition += static_cast<long long>( nFrames );
+	}
 
 	// Snapshot the rendered output (full block; frames beyond nFrames retain
 	// whatever they held, which the caller can ignore).

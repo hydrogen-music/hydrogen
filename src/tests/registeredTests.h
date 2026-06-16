@@ -51,6 +51,7 @@
 #include "OnlineImporterTest.h"
 #include "OscServerTest.h"
 #include "PatternTest.h"
+#include "PluginFeatureGateTest.h"
 #include "PluginLifecycleTest.h"
 #include "PluginMidiTest.h"
 #include "PluginProcessTest.h"
@@ -96,6 +97,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( OnlineImporterTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( OscServerTest );
 #endif
 CPPUNIT_TEST_SUITE_REGISTRATION( PatternTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( PluginFeatureGateTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PluginLifecycleTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PluginMidiTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PluginProcessTest );

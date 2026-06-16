@@ -27,13 +27,16 @@
 #include <core/Basics/Drumkit.h>
 #include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Hydrogen.h>
 #include <core/IO/FakeAudioDriver.h>
 #include <core/Preferences/Preferences.h>
 
+#include <cstdlib>
 #include <iostream>
 
 #include "TestHelper.h"
+#include "utils/FakePluginHost.h"
 
 #include "assertions/AudioFile.h"
 
@@ -354,4 +357,159 @@ void TransportTest::perform( std::function<void()> func ) {
 		CppUnit::Message msg( err.what() );
 		throw CppUnit::Exception( msg );
 	}
+}
+
+// ── T3.3: host-transport follower (ADR 0013) ──────────────────────────────
+// These run against a FakePluginHost, which owns its own headless engine driven
+// by the host-driven Plugin audio/MIDI drivers, independent of pTestHydrogen().
+
+void TransportTest::testPluginHostTempo() {
+	___INFOLOG( "" );
+
+	FakePluginHost host( 44100, 256 );
+	auto pPlayhead = host.getHydrogen()->getAudioEngine()->getPlayhead();
+
+	host.setBpm( 156.0f );
+	host.setPlaying( true );
+	host.process( 256 );
+	host.process( 256 );
+
+	// The playhead adopted the host tempo.
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 156.0, pPlayhead->getBpm(), 0.001 );
+
+	// A subsequent host tempo change is followed too.
+	host.setBpm( 92.5f );
+	host.process( 256 );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 92.5, pPlayhead->getBpm(), 0.001 );
+
+	host.setPlaying( false );
+
+	___INFOLOG( "passed" );
+}
+
+void TransportTest::testPluginHostTransportState() {
+	___INFOLOG( "" );
+
+	FakePluginHost host( 44100, 256 );
+	auto pPlayhead = host.getHydrogen()->getAudioEngine()->getPlayhead();
+	host.setBpm( 120.0f );
+
+	// Stopped: processing must not advance the playhead.
+	host.process( 256 );
+	CPPUNIT_ASSERT_EQUAL( (long long)0, pPlayhead->getFrame() );
+
+	// Rolling: the playhead advances by exactly one block per cycle.
+	host.setPlaying( true );
+	host.process( 256 );
+	host.process( 256 );
+	CPPUNIT_ASSERT_EQUAL( (long long)512, pPlayhead->getFrame() );
+
+	// Stopped again: the playhead freezes at its last position.
+	host.setPlaying( false );
+	const long long nFrozen = pPlayhead->getFrame();
+	host.process( 256 );
+	host.process( 256 );
+	CPPUNIT_ASSERT_EQUAL( nFrozen, pPlayhead->getFrame() );
+
+	___INFOLOG( "passed" );
+}
+
+void TransportTest::testPluginHostPositionTracking() {
+	___INFOLOG( "" );
+
+	FakePluginHost host( 44100, 256 );
+	auto pPlayhead = host.getHydrogen()->getAudioEngine()->getPlayhead();
+	host.setBpm( 120.0f );
+	host.setPlaying( true );
+
+	const int nBlocks = 16;
+	for ( int ii = 0; ii < nBlocks; ++ii ) {
+		host.process( 256 );
+	}
+
+	// The engine advanced by exactly nframes per block, matching the host clock.
+	CPPUNIT_ASSERT_EQUAL( (long long)( nBlocks * 256 ), pPlayhead->getFrame() );
+	CPPUNIT_ASSERT_EQUAL( (long long)( nBlocks * 256 ), host.getFramePosition() );
+
+	host.setPlaying( false );
+
+	___INFOLOG( "passed" );
+}
+
+void TransportTest::testPluginHostRelocate() {
+	___INFOLOG( "" );
+
+	FakePluginHost host( 44100, 256 );
+	auto pPlayhead = host.getHydrogen()->getAudioEngine()->getPlayhead();
+	host.setBpm( 120.0f );
+
+	// A relocate while stopped jumps the playhead to the host frame.
+	host.setFramePosition( 88200 ); // 2 s at 44.1 kHz
+	host.process( 256 );
+	CPPUNIT_ASSERT( std::llabs( pPlayhead->getFrame() - 88200 ) <= 1 );
+
+	// And while rolling: jump, then keep rolling contiguously from there.
+	host.setPlaying( true );
+	host.setFramePosition( 44100 );
+	host.process( 256 );
+	CPPUNIT_ASSERT( std::llabs( pPlayhead->getFrame() - ( 44100 + 256 ) ) <= 1 );
+	host.process( 256 );
+	CPPUNIT_ASSERT( std::llabs( pPlayhead->getFrame() - ( 44100 + 512 ) ) <= 1 );
+
+	host.setPlaying( false );
+
+	___INFOLOG( "passed" );
+}
+
+void TransportTest::testPluginHostLoop() {
+	___INFOLOG( "" );
+
+	FakePluginHost host( 44100, 256 );
+	auto pPlayhead = host.getHydrogen()->getAudioEngine()->getPlayhead();
+	host.setBpm( 120.0f );
+	host.setPlaying( true );
+
+	for ( int ii = 0; ii < 4; ++ii ) {
+		host.process( 256 );
+	}
+	CPPUNIT_ASSERT_EQUAL( (long long)1024, pPlayhead->getFrame() );
+
+	// The host loops back to the start of its region (frame jumps backwards).
+	host.setFramePosition( 0 );
+	host.process( 256 );
+	// Followed back and rolling again, no hang, no stop.
+	CPPUNIT_ASSERT_EQUAL( (long long)256, pPlayhead->getFrame() );
+	host.process( 256 );
+	CPPUNIT_ASSERT_EQUAL( (long long)512, pPlayhead->getFrame() );
+
+	host.setPlaying( false );
+
+	___INFOLOG( "passed" );
+}
+
+void TransportTest::testPluginHostTempoWinsOverTimeline() {
+	___INFOLOG( "" );
+
+	FakePluginHost host( 44100, 256 );
+	auto* pHydrogen = host.getHydrogen();
+	auto pCAC = pHydrogen->getCoreActionController();
+	auto pPlayhead = pHydrogen->getAudioEngine()->getPlayhead();
+
+	// Song mode + an active Timeline with a tempo marker that disagrees with the
+	// host. Under a plugin host the host tempo must still win (ADR 0013).
+	pCAC->activateSongMode( true );
+	pCAC->activateTimeline( true );
+	pCAC->addTempoMarker( 0, 90.0f );
+
+	host.setBpm( 150.0f );
+	host.setPlaying( true );
+	host.process( 256 );
+	host.process( 256 );
+
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 150.0, pPlayhead->getBpm(), 0.001 );
+
+	host.setPlaying( false );
+	pCAC->activateTimeline( false );
+
+	___INFOLOG( "passed" );
 }

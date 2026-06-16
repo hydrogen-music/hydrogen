@@ -46,6 +46,13 @@ class TransportTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testNoteOff );
 	CPPUNIT_TEST( testHumanization );
 	CPPUNIT_TEST( testUpdateTransport );
+	// T3.3 — host-transport follower (ADR 0013)
+	CPPUNIT_TEST( testPluginHostTempo );
+	CPPUNIT_TEST( testPluginHostTransportState );
+	CPPUNIT_TEST( testPluginHostPositionTracking );
+	CPPUNIT_TEST( testPluginHostRelocate );
+	CPPUNIT_TEST( testPluginHostLoop );
+	CPPUNIT_TEST( testPluginHostTempoWinsOverTimeline );
 	CPPUNIT_TEST_SUITE_END();
 private:
 	void perform( std::function<void()> func );
@@ -78,4 +85,17 @@ public:
 	void testMuteGroups();
 	void testNoteOff();
 		void testUpdateTransport();
+
+	/** The engine's playhead tempo follows the plugin host's broadcast tempo. */
+	void testPluginHostTempo();
+	/** Host start/stop drives the engine: rolling advances, stopped freezes. */
+	void testPluginHostTransportState();
+	/** While the host rolls contiguously the playhead tracks it frame-accurately. */
+	void testPluginHostPositionTracking();
+	/** A host relocate (frame jump) moves the playhead to the host frame. */
+	void testPluginHostRelocate();
+	/** A host loop (frame wraps backwards) is followed without hang or stop. */
+	void testPluginHostLoop();
+	/** With a Timeline present, the host tempo still wins (ADR 0013). */
+	void testPluginHostTempoWinsOverTimeline();
 };

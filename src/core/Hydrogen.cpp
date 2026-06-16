@@ -166,7 +166,9 @@ Hydrogen::Hydrogen( std::shared_ptr<Preferences> pPref, int nOscPort )
 	m_pAudioEngine->startAudioDriver( Event::Trigger::Default );
 	m_pAudioEngine->startMidiDriver( Event::Trigger::Default );
 
-	if ( pPref->getOscServerEnabled() ) {
+	// The OSC server is disabled when running as a plugin: the host owns control
+	// surfaces and network endpoints (ADR 0026).
+	if ( pPref->getOscServerEnabled() && ! isUnderPluginHost() ) {
 		toggleOscServer( true );
 	}
 }
@@ -1318,7 +1320,16 @@ void Hydrogen::setPatternMode( const Song::PatternMode& mode )
 	}
 }
 
+bool Hydrogen::isUnderPluginHost() const {
+	return m_pPreferences != nullptr &&
+		m_pPreferences->m_audioDriver == Preferences::AudioDriver::Plugin;
+}
+
 Hydrogen::Tempo Hydrogen::getTempoSource() const {
+	if ( isUnderPluginHost() ) {
+		// The host transport owns tempo; it wins over the Timeline (ADR 0013).
+		return Tempo::Plugin;
+	}
 	if ( getJackTimebaseState() == JackDriver::Timebase::Listener ) {
 		return Tempo::Jack;
 	}
@@ -1334,6 +1345,10 @@ Hydrogen::Tempo Hydrogen::getTempoSource() const {
 }
 
 void Hydrogen::toggleOscServer( bool bEnable ) {
+	// No OSC server under a plugin host (ADR 0026): ignore enable requests.
+	if ( isUnderPluginHost() ) {
+		return;
+	}
 #ifdef H2CORE_HAVE_OSC
 	if ( bEnable ) {
 		m_pOscServer->start();

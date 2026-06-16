@@ -568,6 +568,18 @@ private:
 	 */
 	void locateToFrame( const long long nFrame );
 	void incrementPlayhead( uint32_t nFrames );
+
+	/**
+	 * Follow the plugin host's transport for the current process block (ADR
+	 * 0013, T3.3). Reads the HostTransport published on the PluginAudioDriver
+	 * and relocates the playhead to the host's frame whenever it diverges from
+	 * the engine's own position - i.e. on a host relocate or host loop wrap.
+	 * While the host rolls contiguously, incrementPlayhead() already advances
+	 * by exactly nframes (matching the host's per-block advance), so this is a
+	 * no-op. Tempo is followed separately via getBpmAtColumn(). Must be called
+	 * from the process callback with the audio engine already locked.
+	 */
+	void followHostTransport();
 	void updateTransport(
 		double fTick,
 		long long nFrame,

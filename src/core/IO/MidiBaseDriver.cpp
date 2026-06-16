@@ -48,7 +48,9 @@ MidiBaseDriver::MidiBaseDriver( Hydrogen* pHydrogen )
       m_bInputActive( false ),
       m_bOutputActive( false )
 {
-	if ( MidiInput::m_pHydrogen->getPreferences()->getMidiClockOutputSend() ) {
+	if ( MidiInput::m_pHydrogen->getPreferences()->getMidiClockOutputSend() &&
+		 ! MidiInput::m_pHydrogen->isUnderPluginHost() ) {
+		// No MIDI clock out under a plugin host (ADR 0026).
 		startMidiClockStream( MidiInput::m_pHydrogen
 								  ->getAudioEngine()
 								  ->getPlayhead()

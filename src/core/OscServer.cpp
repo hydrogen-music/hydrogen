@@ -388,8 +388,11 @@ OscServer::OscServer( H2Core::Hydrogen* pHydrogen, int nOscPort )
 									 , m_nTemporaryPort( nOscPort )
 {
 	auto pPref = m_pHydrogen->getPreferences();
-	
-	if ( pPref->getOscServerEnabled() ) {
+
+	// No OSC server - and so no bound port - when running as a plugin: the host
+	// owns network endpoints and control surfaces (ADR 0026). The port would
+	// otherwise be bound right here in the constructor.
+	if ( pPref->getOscServerEnabled() && ! m_pHydrogen->isUnderPluginHost() ) {
 		int nPort;
 		// Check whether an alternative value was provided via CLI argument.
 		if ( nOscPort != -1  ) {

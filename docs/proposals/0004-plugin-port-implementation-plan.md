@@ -323,6 +323,14 @@ UI work.
 
 ## 7. Phase 3 — Plugin host seams (audio / MIDI / transport) — ADR 0013
 
+**Status: ✅ DONE** (2026-06-16) — `PluginAudioDriver`, `PluginMidiDriver`, the
+host-transport follower, and the plugin-mode feature gate all landed with their
+test groups (`PluginProcessTest`, `PluginMidiTest`, extended `TransportTest`,
+`PluginFeatureGateTest`). Full CppUnit suite green (`OK (251 tests)`); standalone
+unaffected. T3.4's build-level source exclusion is recorded in
+`src/plugin/CMakeLists.txt` for the Phase-4 plugin target (the features are
+already runtime-inert under a plugin host).
+
 *Objective:* the engine runs from host-provided buffers, MIDI, and transport.
 
 **Tests first**
@@ -369,7 +377,7 @@ platforms; standalone unaffected.
 Three sub-blocks; each is an independent red→green loop. ADRs 0019, 0017, 0020,
 0014.
 
-### 7a. Output buses — ADR 0019
+### 8a. Output buses — ADR 0019
 **Tests first:** `OutputBusTest` — the **default 1-to-1 mapping** sends the first
 N instruments to buses 1…N (pre-fader); master carries the full sum;
 surplus/unmapped instruments (kits with > N) route to **master only**; nothing is
@@ -389,7 +397,7 @@ instrument name and the rename hook fires on kit change.
   `restartComponent(kIoTitlesChanged)`. LV2 keeps build-time `Out 1…N` labels in
   the generated `.ttl`.
 
-### 7b. State, samples & `.h2project` — ADR 0017 / 0020 / 0025
+### 8b. State, samples & `.h2project` — ADR 0017 / 0020 / 0025
 **Tests first:** `H2ProjectTest` (song+kit → `.h2project` bundle → reconstructs
 identically, incl. bus mapping); extend `SampleTest` (memory-decoded sample
 bit-identical to file-loaded; content-hash dedup); **unified open** (one endpoint
@@ -412,7 +420,7 @@ the audio thread.
 * **T4b.5** Plugin "store drumkit samples in plugin state" preference toggle
   (default ON): ON writes a `.h2project` bundle, OFF writes song-only state.
 
-### 7c. Native CLAP + LV2 — ADR 0014
+### 8c. Native CLAP + LV2 — ADR 0014
 **Tests first:** per-format validator smoke step in CI (`clap-validator`,
 `lv2lint`/`lv2_validate`): instantiate, activate, process silence, no crash;
 extend `PluginLifecycleTest`.

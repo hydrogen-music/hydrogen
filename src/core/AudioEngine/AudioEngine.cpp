@@ -547,7 +547,40 @@ void AudioEngine::incrementPlayhead( uint32_t nFrames ) {
 	// done in updateNoteQueue().
 }
 
+void AudioEngine::followHostTransport() {
+	auto pPluginDriver =
+		std::dynamic_pointer_cast<PluginAudioDriver>( m_pAudioDriver );
+	if ( pPluginDriver == nullptr ) {
+		return;
+	}
+
+	const auto& host = pPluginDriver->getHostTransport();
+	if ( ! host.bValid ) {
+		// The host has not published transport yet; free-run from our own state.
+		return;
+	}
+
+	// Follow host relocates and host loops. When the host rolls contiguously its
+	// frame equals the position incrementPlayhead() already advanced us to, so
+	// the common case costs nothing. Any divergence - a relocate while stopped,
+	// a seek, or a loop wrap (frame jumps backwards) - is honoured by jumping to
+	// the host frame. locateToFrame() reuses the existing frame<->tick math,
+	// resyncs the queuing position, and emits the Relocation event.
+	if ( getState() == State::Playing || getState() == State::Ready ) {
+		if ( host.nFrame != m_pPlayhead->getFrame() ) {
+			locateToFrame( host.nFrame );
+		}
+	}
+}
+
 bool AudioEngine::isEndOfSongReached( std::shared_ptr<Transport> pPos ) const {
+	// Under a plugin host transport never ends on its own: the host drives
+	// position and looping, so loop is effectively forced on (ADR 0026). We
+	// never auto-stop at the song end.
+	if ( m_pHydrogen->isUnderPluginHost() ) {
+		return false;
+	}
+
 	const auto pSong = m_pHydrogen->getSong();
 	if ( pSong != nullptr && pSong->getMode() == Song::Mode::Song &&
 		 ( pSong->getLoopMode() == Song::LoopMode::Disabled &&
@@ -845,7 +878,9 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<Transport> pPos,
 			}
 
 			if ( m_pHydrogen->getPreferences()->getMidiClockOutputSend() &&
-				 m_pMidiDriver != nullptr ) {
+				 m_pMidiDriver != nullptr &&
+				 ! m_pHydrogen->isUnderPluginHost() ) {
+				// No MIDI clock out under a plugin host (ADR 0026).
 				m_pMidiDriver->startMidiClockStream( fNewBpm );
 			}
 		}
@@ -1468,6 +1503,21 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 
 	float fBpm = pAudioEngine->getPlayhead()->getBpm();
 
+	if ( pHydrogen->isUnderPluginHost() ) {
+		// Hydrogen runs as a plugin: the host transport broadcasts tempo, which
+		// takes precedence over everything else - including the Timeline (ADR
+		// 0013). Until the host has provided a tempo we keep the current one.
+		auto pPluginDriver = std::dynamic_pointer_cast<PluginAudioDriver>(
+			pAudioEngine->getAudioDriver() );
+		if ( pPluginDriver != nullptr ) {
+			const auto& host = pPluginDriver->getHostTransport();
+			if ( host.bValid && host.fBpm > 0 ) {
+				fBpm = static_cast<float>( host.fBpm );
+			}
+		}
+		return fBpm;
+	}
+
 	if ( pHydrogen->getJackTimebaseState() == JackDriver::Timebase::Listener ) {
 #ifdef H2CORE_HAVE_JACK
 		// Hydrogen is using the BPM broadcasted by the JACK
@@ -1817,6 +1867,13 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* arg )
 		}
 	}
 #endif
+
+	// Follow the plugin host's transport (relocate / loop) before computing this
+	// block's tempo and note queue (ADR 0013, T3.3). No-op unless this instance
+	// runs under a plugin host.
+	if ( pHydrogen->isUnderPluginHost() ) {
+		pAudioEngine->followHostTransport();
+	}
 
 	// Check whether the tempo was changed.
 	pAudioEngine->updateBpmAndTickSize( pAudioEngine->m_pPlayhead );

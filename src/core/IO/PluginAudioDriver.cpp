@@ -91,6 +91,19 @@ void PluginAudioDriver::setSampleRate( unsigned nSampleRate ) {
 	m_nSampleRate = nSampleRate;
 }
 
+void PluginAudioDriver::setHostTransport( bool bRolling, double fBpm,
+										  long long nFrame ) {
+	m_hostTransport.bRolling = bRolling;
+	m_hostTransport.fBpm = fBpm;
+	m_hostTransport.nFrame = nFrame;
+	m_hostTransport.bValid = true;
+}
+
+const PluginAudioDriver::HostTransport&
+PluginAudioDriver::getHostTransport() const {
+	return m_hostTransport;
+}
+
 QString PluginAudioDriver::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;

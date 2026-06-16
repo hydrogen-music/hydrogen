@@ -1685,6 +1685,14 @@ bool MidiActionManager::countInStopToggle( std::shared_ptr<MidiAction> pAction )
 	return true;
 }
 
+// Playlist navigation makes no sense for a plugin instance - the host owns the
+// session - so these MIDI actions are disabled under a plugin host (ADR 0026).
+static bool isPlaylistAction( MidiAction::Type type ) {
+	return type == MidiAction::Type::PlaylistSong ||
+		   type == MidiAction::Type::PlaylistNextSong ||
+		   type == MidiAction::Type::PlaylistPrevSong;
+}
+
 bool MidiActionManager::handleMidiActionsAsync( const std::vector<std::shared_ptr<MidiAction>>& midiActions ) {
 
 	bool bResult = false;
@@ -1704,6 +1712,10 @@ bool MidiActionManager::handleMidiActionAsync( const std::shared_ptr<MidiAction>
 
 	auto pHydrogen = m_pHydrogen;
 	if ( pAction == nullptr || m_pWorkerThread == nullptr ) {
+		return false;
+	}
+
+	if ( pHydrogen->isUnderPluginHost() && isPlaylistAction( pAction->getType() ) ) {
 		return false;
 	}
 
@@ -1740,6 +1752,10 @@ bool MidiActionManager::handleMidiActionSync( const std::shared_ptr<MidiAction> 
 		(for example if no MidiAction exists for an event)
 	*/
 	if ( pAction == nullptr ) {
+		return false;
+	}
+
+	if ( pHydrogen->isUnderPluginHost() && isPlaylistAction( pAction->getType() ) ) {
 		return false;
 	}
 

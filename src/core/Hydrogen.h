@@ -85,7 +85,10 @@ public:
 			case the JACK audio driver is used, JACK Timebase support is
 			activated in the Preferences, and an external Timebase controller is
 			registered to the JACK server.*/
-		Jack = 3
+		Jack = 3,
+		/** Hydrogen runs as a plugin and follows the tempo broadcast by the
+			host transport (ADR 0013). Takes precedence over the Timeline. */
+		Plugin = 4
 	};
 
 	enum ErrorMessages {
@@ -426,7 +429,13 @@ public:
 	void setIsPatternEditorLocked( bool bValue );
 
 	Tempo getTempoSource() const;
-	
+
+	/** \return Whether this instance is driven by a plugin host (ADR 0013):
+	 * audio, MIDI, and transport come from the host rather than from local
+	 * real-time drivers. The single predicate gating plugin-mode behaviour
+	 * (host-transport following here; feature disablement in ADR 0026). */
+	bool isUnderPluginHost() const;
+
 	/**
 	 * \return Whether we hasJackTransport() and there is an external JACK
 	 *   Timebase controller broadcasting tempo information. If so, we disregard
