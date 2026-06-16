@@ -638,7 +638,9 @@ void XmlTest::testShippedDrumkitMaps()
 void XmlTest::testPatternFormatIntegrity() {
 	___INFOLOG( "" );
 	const QString sTestFile = H2TEST_FILE( "/pattern/pattern.h2pattern" );
-	const auto pPattern = H2Core::Pattern::load( sTestFile, false, pTestHydrogen() );
+	const auto pPattern = H2Core::Pattern::load(
+		sTestFile, false, pTestHydrogen()->getSoundLibraryDatabase()
+	);
 	CPPUNIT_ASSERT( pPattern != nullptr );
 
 	const QString sTmpPattern =
@@ -662,13 +664,17 @@ void XmlTest::testPattern()
 	H2Core::XMLDoc doc;
 
 	auto pDrumkit = H2Core::Drumkit::load(
-		H2TEST_FILE( "/drumkits/baseKit/drumkit.xml" ), false, nullptr, true , pTestHydrogen() );
-	CPPUNIT_ASSERT( pDrumkit!=nullptr );
+		H2TEST_FILE( "/drumkits/baseKit/drumkit.xml" ), false, nullptr, true,
+		pTestHydrogen()
+	);
+	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	auto pInstrumentList = pDrumkit->getInstruments();
 	CPPUNIT_ASSERT( pInstrumentList->size()==4 );
 
 	auto pPatternLoaded = H2Core::Pattern::load(
-		H2TEST_FILE( "/pattern/pattern.h2pattern" ), false, pTestHydrogen() );
+		H2TEST_FILE( "/pattern/pattern.h2pattern" ), false,
+		pTestHydrogen()->getSoundLibraryDatabase()
+	);
 	CPPUNIT_ASSERT( pPatternLoaded != nullptr );
 	CPPUNIT_ASSERT( pPatternLoaded->getTags().size() == 2 );
 	CPPUNIT_ASSERT( pPatternLoaded->getTags()[ 0 ] == "Example" );
@@ -702,13 +708,17 @@ void XmlTest::testPatternLegacy() {
 	___INFOLOG( "" );
 
 	auto pPatternOld = H2Core::Pattern::load(
-		H2TEST_FILE( "pattern/legacy/pattern-1.X.X.h2pattern" ), false, pTestHydrogen() );
+		H2TEST_FILE( "pattern/legacy/pattern-1.X.X.h2pattern" ), false,
+		pTestHydrogen()->getSoundLibraryDatabase()
+	);
 	CPPUNIT_ASSERT( pPatternOld );
 	CPPUNIT_ASSERT( pPatternOld->getTags().size() == 1 );
 	CPPUNIT_ASSERT( pPatternOld->getTags().front() == "Legacy" );
 
 	auto pPatternOldest = H2Core::Pattern::load(
-		H2TEST_FILE( "pattern/legacy/legacy_pattern.h2pattern" ), false, pTestHydrogen() );
+		H2TEST_FILE( "pattern/legacy/legacy_pattern.h2pattern" ), false,
+		pTestHydrogen()->getSoundLibraryDatabase()
+	);
 	CPPUNIT_ASSERT( pPatternOldest );
 
 	___INFOLOG( "passed" );
@@ -738,13 +748,17 @@ void XmlTest::testPatternInstrumentTypes()
 
 	// Check whether the reference pattern is valid.
 	const auto pPatternRef = H2Core::Pattern::load(
-		H2TEST_FILE( "pattern/pattern.h2pattern"), false, pTestHydrogen() );
+		H2TEST_FILE( "pattern/pattern.h2pattern" ), false,
+		pTestHydrogen()->getSoundLibraryDatabase()
+	);
 	CPPUNIT_ASSERT( pPatternRef != nullptr );
 
 	// The version of the reference without any type information should be
 	// filled with those obtained from the shipped .h2map file.
 	const auto pPatternWithoutTypes = H2Core::Pattern::load(
-		H2TEST_FILE( "pattern/pattern-without-types.h2pattern"), false, pTestHydrogen() );
+		H2TEST_FILE( "pattern/pattern-without-types.h2pattern" ), false,
+		pTestHydrogen()->getSoundLibraryDatabase()
+	);
 	CPPUNIT_ASSERT( pPatternWithoutTypes != nullptr );
 	CPPUNIT_ASSERT(
 		pPatternWithoutTypes->save( sTmpWithoutTypes, pDrumkit )

@@ -566,7 +566,9 @@ void SoundLibraryTree::actionProperties()
 		dialog.exec();
 	}
 	else if ( m_type == SoundLibraryInfo::Type::Pattern ) {
-		auto pPattern = Pattern::from( it->second, HydrogenApp::pHydrogen() );
+		auto pPattern = Pattern::from(
+			it->second, HydrogenApp::pHydrogen()->getSoundLibraryDatabase()
+		);
 		if ( pPattern == nullptr ) {
 			ERRORLOG( QString( "Unable to retrieve pattern [%1] at [%2]" )
 						  .arg( it->second->getLabel() )
@@ -643,7 +645,9 @@ void SoundLibraryTree::actionDuplicate()
 		dialog.exec();
 	}
 	else if ( m_type == SoundLibraryInfo::Type::Pattern ) {
-		auto pPattern = Pattern::from( it->second, HydrogenApp::pHydrogen() );
+		auto pPattern = Pattern::from(
+			it->second, HydrogenApp::pHydrogen()->getSoundLibraryDatabase()
+		);
 		if ( pPattern == nullptr ) {
 			ERRORLOG( QString( "Unable to retrieve pattern [%1] at [%2]" )
 						  .arg( it->second->getLabel() )

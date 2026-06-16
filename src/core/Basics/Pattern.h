@@ -40,6 +40,7 @@ class Hydrogen;
 class XMLNode;
 class InstrumentList;
 class PatternList;
+class SoundLibraryDatabase;
 class SoundLibraryInfo;
 
 /**
@@ -72,7 +73,7 @@ class Pattern : public H2Core::Object<Pattern> {
 
 	static std::shared_ptr<Pattern> from(
 		std::shared_ptr<SoundLibraryInfo> pInfo,
-		Hydrogen* pHydrogen
+		std::shared_ptr<SoundLibraryDatabase> pDB
 	);
 
 	/**
@@ -83,7 +84,7 @@ class Pattern : public H2Core::Object<Pattern> {
 	 */
 	static std::shared_ptr<Pattern>
 	load( const QString& sPatternPath, bool bSilent,
-		  Hydrogen* pHydrogen );
+		  std::shared_ptr<SoundLibraryDatabase> pDB );
 	/**
 	 * load a pattern from an XMLNode
 	 * \param node the XMLDode to read from
@@ -101,7 +102,7 @@ class Pattern : public H2Core::Object<Pattern> {
 		const QString& sDrumkitName,
 		std::shared_ptr<Drumkit> pDrumkit,
 		bool bSilent,
-		Hydrogen* pHydrogen
+		std::shared_ptr<SoundLibraryDatabase> pDB
 	);
 	/**
 	 * save a pattern into an xml file
@@ -292,7 +293,7 @@ class Pattern : public H2Core::Object<Pattern> {
 	bool isVirtual() const;
 
 	void applyMissingTypes(
-		Hydrogen* pHydrogen,
+		std::shared_ptr<SoundLibraryDatabase> pDB,
 		std::shared_ptr<Drumkit> pDrumkit = nullptr,
 		bool bSilent = false
 	);

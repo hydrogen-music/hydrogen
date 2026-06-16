@@ -1125,7 +1125,9 @@ void MainForm::action_pattern_open()
 		pPref->setLastOpenPatternDirectory( fd.directory().absolutePath() );
 
 		for ( const auto& ssPath : fd.selectedFiles() ) {
-			auto pNewPattern = Pattern::load( ssPath, false, HydrogenApp::pHydrogen() );
+			auto pNewPattern = Pattern::load(
+				ssPath, false, pHydrogen->getSoundLibraryDatabase()
+			);
 			if ( pNewPattern == nullptr ) {
 				QMessageBox::critical(
 					this, "Hydrogen",

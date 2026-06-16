@@ -86,14 +86,14 @@ Pattern::~Pattern()
 }
 
 std::shared_ptr<Pattern> Pattern::from( std::shared_ptr<SoundLibraryInfo> pInfo,
-										Hydrogen* pHydrogen
+										std::shared_ptr<SoundLibraryDatabase> pDB
 )
 {
 	if ( pInfo == nullptr ) {
 		return nullptr;
 	}
 
-	auto pPattern = Pattern::load( pInfo->getPath(), false, pHydrogen );
+	auto pPattern = Pattern::load( pInfo->getPath(), false, pDB );
 	if ( pPattern == nullptr ) {
 		ERRORLOG( QString( "Unable to load pattern from [%1]" )
 					  .arg( pInfo->toQString() ) );
@@ -104,7 +104,7 @@ std::shared_ptr<Pattern> Pattern::from( std::shared_ptr<SoundLibraryInfo> pInfo,
 }
 
 std::shared_ptr<Pattern>
-Pattern::load( const QString& sPatternPath, bool bSilent, Hydrogen* pHydrogen )
+Pattern::load( const QString& sPatternPath, bool bSilent, std::shared_ptr<SoundLibraryDatabase> pDB )
 {
 	if ( !bSilent ) {
 		INFOLOG( QString( "Load pattern %1" ).arg( sPatternPath ) );
@@ -140,7 +140,7 @@ Pattern::load( const QString& sPatternPath, bool bSilent, Hydrogen* pHydrogen )
 		rootNode.read_string( "drumkit_name", "", false, false, bSilent );
 
 	auto pPattern = loadFrom( patternNode, sDrumkitName, nullptr, bSilent,
-							  pHydrogen );
+							  pDB );
 	if ( pPattern != nullptr ) {
 		pPattern->setPath( sPatternPath );
 	}
@@ -153,7 +153,7 @@ std::shared_ptr<Pattern> Pattern::loadFrom(
 	const QString& sDrumkitName,
 	std::shared_ptr<Drumkit> pDrumkit,
 	bool bSilent,
-	Hydrogen* pHydrogen
+	std::shared_ptr<SoundLibraryDatabase> pDB
 )
 {
 	auto pPattern = std::make_shared<Pattern>();
@@ -242,7 +242,7 @@ std::shared_ptr<Pattern> Pattern::loadFrom(
 		}
 	}
 
-	pPattern->applyMissingTypes( pHydrogen, pDrumkit, bSilent );
+	pPattern->applyMissingTypes( pDB, pDrumkit, bSilent );
 
 	return pPattern;
 }
@@ -508,7 +508,7 @@ bool Pattern::isVirtual() const
 }
 
 void Pattern::applyMissingTypes(
-	Hydrogen* pHydrogen,
+	std::shared_ptr<SoundLibraryDatabase> pDB,
 	std::shared_ptr<Drumkit> pDrumkit,
 	bool bSilent
 )
@@ -543,8 +543,6 @@ void Pattern::applyMissingTypes(
 			// over the DB as we search in different drumkit contexts with
 			// different priority. In each context, we just take the first
 			// match.
-			const auto pDB =
-				pHydrogen->getSoundLibraryDatabase();
 
 			// Kits explicitly loaded by user via our API have highest priority.
 			for ( const auto& [_, ppDrumkit] : pDB->getDrumkitDatabase() ) {

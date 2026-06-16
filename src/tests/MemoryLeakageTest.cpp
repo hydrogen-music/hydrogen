@@ -462,10 +462,14 @@ void MemoryLeakageTest::testLoading()
 		);
 		node = doc.firstChildElement( "song" );
 		auto pInstrumentList = H2Core::InstrumentList::loadFrom(
-			node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit", "", H2Core::License(), false, nullptr, false, pTestHydrogen() );
+			node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit", "",
+			H2Core::License(), false, nullptr, false, pTestHydrogen()
+		);
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
-		auto pPattern =
-			H2Core::Pattern::load( H2TEST_FILE( "pattern/pattern.h2pattern" ), false, pTestHydrogen() );
+		auto pPattern = H2Core::Pattern::load(
+			H2TEST_FILE( "pattern/pattern.h2pattern" ), false,
+			pTestHydrogen()->getSoundLibraryDatabase()
+		);
 		CPPUNIT_ASSERT( pPattern != nullptr );
 		pPattern = nullptr;
 		pInstrumentList = nullptr;

@@ -122,10 +122,10 @@ void NoteTest::testMappingLegacyDrumkit() {
 	CPPUNIT_ASSERT( ! pDrumkitOther->hasMissingSamples() );
 
 	auto pPatternMatchingTypes = Pattern::load(
-		H2TEST_FILE( "pattern/noteTestMatchingTypes.h2pattern" ), false, pTestHydrogen() );
+		H2TEST_FILE( "pattern/noteTestMatchingTypes.h2pattern" ), false, pDB );
 	CPPUNIT_ASSERT( pPatternMatchingTypes != nullptr );
 	auto pPatternTypeMisses = Pattern::load(
-		H2TEST_FILE( "pattern/noteTestTypeMisses.h2pattern" ), false, pTestHydrogen() );
+		H2TEST_FILE( "pattern/noteTestTypeMisses.h2pattern" ), false, pDB );
 	CPPUNIT_ASSERT( pPatternTypeMisses != nullptr );
 
 	// Verify the patterns were created for the primary drumkit.
@@ -262,10 +262,10 @@ void NoteTest::testMappingValidDrumkits() {
 	CPPUNIT_ASSERT( ! pDrumkitOther->hasMissingTypes() );
 
 	auto pPatternMatchingTypes = Pattern::load(
-		H2TEST_FILE( "pattern/noteTestMatchingTypes.h2pattern" ), false, pTestHydrogen() );
+		H2TEST_FILE( "pattern/noteTestMatchingTypes.h2pattern" ), false, pDB );
 	CPPUNIT_ASSERT( pPatternMatchingTypes != nullptr );
 	auto pPatternTypeMisses = Pattern::load(
-		H2TEST_FILE( "pattern/noteTestTypeMisses.h2pattern" ), false, pTestHydrogen() );
+		H2TEST_FILE( "pattern/noteTestTypeMisses.h2pattern" ), false, pDB );
 	CPPUNIT_ASSERT( pPatternTypeMisses != nullptr );
 
 	// Verify the patterns were created for the primary drumkit.

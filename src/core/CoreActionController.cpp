@@ -2524,7 +2524,8 @@ std::shared_ptr<Pattern> CoreActionController::loadPattern( const QString& sPath
 		return nullptr;
 	}
 
-	auto pNewPattern = Pattern::load( sPath, false, m_pHydrogen );
+	auto pNewPattern =
+		Pattern::load( sPath, false, m_pHydrogen->getSoundLibraryDatabase() );
 	if ( pNewPattern == nullptr ) {
 		ERRORLOG( QString( "Unable to load pattern [%1]" ).arg( sPath ) );
 		return nullptr;

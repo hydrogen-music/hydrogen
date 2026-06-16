@@ -43,18 +43,23 @@ void PatternTest::testCustomLegacyImport()
 	// Try to import the legcay pattern without loading the kit into the DB
 	// first.
 	auto pPattern = Pattern::load(
-		H2TEST_FILE( "pattern/legacyImport.h2pattern" ), false, pTestHydrogen() );
+		H2TEST_FILE( "pattern/legacyImport.h2pattern" ), false,
+		pTestHydrogen()->getSoundLibraryDatabase()
+	);
 	CPPUNIT_ASSERT( pPattern != nullptr );
 	CPPUNIT_ASSERT( pPattern->getAllTypes().size() == 0 );
 
 	// Now we load our custom kit into the db and try again
 	auto pSampleKit = pDB->getDrumkit(
-		H2TEST_FILE( "drumkits/sampleKit/drumkit.xml" ), false );
+		H2TEST_FILE( "drumkits/sampleKit/drumkit.xml" ), false
+	);
 	CPPUNIT_ASSERT( pSampleKit != nullptr );
 	CPPUNIT_ASSERT( pSampleKit->toDrumkitMap()->getAllTypes().size() > 0 );
 
 	auto pPatternReload = Pattern::load(
-		H2TEST_FILE( "pattern/legacyImport.h2pattern" ), false, pTestHydrogen() );
+		H2TEST_FILE( "pattern/legacyImport.h2pattern" ), false,
+		pTestHydrogen()->getSoundLibraryDatabase()
+	);
 	CPPUNIT_ASSERT( pPatternReload != nullptr );
 	CPPUNIT_ASSERT( pPatternReload->getAllTypes().size() > 0 );
 
@@ -73,7 +78,9 @@ void PatternTest::testPatternPathStorage()
 	CPPUNIT_ASSERT( pSong->getPatternList()->size() == 10 );
 	pSong->getPatternList()->get( 5 )->setPath( sPathNonExisting );
 
-	auto pPattern = Pattern::load( sPath, false, pTestHydrogen() );
+	auto pPattern = Pattern::load(
+		sPath, false, pTestHydrogen()->getSoundLibraryDatabase()
+	);
 	CPPUNIT_ASSERT( pPattern != nullptr );
 	CPPUNIT_ASSERT( !pPattern->getPath().isEmpty() );
 	pSong->getPatternList()->add( pPattern, false );

@@ -36,9 +36,9 @@ namespace H2Core
 {
 
 class Drumkit;
-class Hydrogen;
 class InstrumentList;
 class Pattern;
+class SoundLibraryDatabase;
 class XMLNode;
 
 /**
@@ -67,44 +67,47 @@ class XMLNode;
 		 * be logged.
 		 * \return a new Pattern instance
 		 */
-	static std::shared_ptr<PatternList> loadFrom( const XMLNode& pNode,
-												  const QString& sDrumkitName,
-												  std::shared_ptr<Drumkit> pDrumkit,
-												  bool bSilent,
-												  Hydrogen* pHydrogen );
+		static std::shared_ptr<PatternList> loadFrom(
+			const XMLNode& pNode,
+			const QString& sDrumkitName,
+			std::shared_ptr<Drumkit> pDrumkit,
+			bool bSilent,
+			std::shared_ptr<SoundLibraryDatabase> pDB
+		);
 
-	/** Stores a serialized version of the instance to the XML note @a
-	 * pNote.
-	 *
-	 * @param pNode the XMLNode to feed
-	 * @param id If set to a value other than #Instrument::EmptyId, it
-	 *   is used to filter serialized notes by requiring a matching id.
-	 * @param sType If set to a non-empty value, it is used to filter
-	 *   serialized notess by requiring a matching type.
-	 * @param nPitch If a valid one is provided, one those notes matching
-	 *   this particular pitch will be stored. */
-	void saveTo(
-		XMLNode& pNode,
-		Instrument::Id id = Instrument::EmptyId,
-		const QString& sType = "",
-		Note::Pitch pitch = Note::Pitch::Invalid
-	) const;
+		/** Stores a serialized version of the instance to the XML note @a
+		 * pNote.
+		 *
+		 * @param pNode the XMLNode to feed
+		 * @param id If set to a value other than #Instrument::EmptyId, it
+		 *   is used to filter serialized notes by requiring a matching id.
+		 * @param sType If set to a non-empty value, it is used to filter
+		 *   serialized notess by requiring a matching type.
+		 * @param nPitch If a valid one is provided, one those notes matching
+		 *   this particular pitch will be stored. */
+		void saveTo(
+			XMLNode& pNode,
+			Instrument::Id id = Instrument::EmptyId,
+			const QString& sType = "",
+			Note::Pitch pitch = Note::Pitch::Invalid
+		) const;
 
-	/** returns the numbers of patterns */
-	int size() const;
+		/** returns the numbers of patterns */
+		int size() const;
 
-	/**
-	 * get a pattern from  the list
-	 * \param idx the index to get the pattern from
-	 */
-	std::shared_ptr<Pattern> operator[]( int idx ) const;
-	/**
-	 * add a pattern to the list
-	 * \param pattern a pointer to the pattern to add
-	 * \param bAddVirtuals Whether virtual patterns contained in
-	 * @a pattern should be added too.
-	 */
-	void add( std::shared_ptr<Pattern> pPattern, bool bAddVirtuals = false );
+		/**
+		 * get a pattern from  the list
+		 * \param idx the index to get the pattern from
+		 */
+		std::shared_ptr<Pattern> operator[]( int idx ) const;
+		/**
+		 * add a pattern to the list
+		 * \param pattern a pointer to the pattern to add
+		 * \param bAddVirtuals Whether virtual patterns contained in
+		 * @a pattern should be added too.
+		 */
+		void
+		add( std::shared_ptr<Pattern> pPattern, bool bAddVirtuals = false );
 		/**
 		 * insert a pattern into the list
 		 * \param idx the index to insert the pattern at

@@ -539,7 +539,8 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent,
 	// Pattern list
 	auto pPatternList = PatternList::loadFrom(
 		rootNode, pDrumkit->getExportName(),
-		bCurrentDrumkitLoaded ? pDrumkit : nullptr, bSilent, pHydrogen
+		bCurrentDrumkitLoaded ? pDrumkit : nullptr, bSilent,
+		pHydrogen->getSoundLibraryDatabase()
 	);
 	if ( pPatternList != nullptr ) {
 		pPatternList->mapToDrumkit( pDrumkit, nullptr );
