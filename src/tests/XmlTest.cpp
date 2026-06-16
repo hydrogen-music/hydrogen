@@ -789,7 +789,7 @@ void XmlTest::checkTestPatterns()
 void XmlTest::testPlaylistFormatIntegrity() {
 	___INFOLOG( "" );
 	const QString sTestFile = H2TEST_FILE( "/playlist/test.h2playlist" );
-	const auto pPlaylist = H2Core::Playlist::load( sTestFile, pTestHydrogen() );
+	const auto pPlaylist = H2Core::Playlist::load( sTestFile, pTestHydrogen()->getPreferences() );
 	CPPUNIT_ASSERT( pPlaylist != nullptr );
 
 	// As we are using relative paths to the song files, we have to create the
@@ -818,13 +818,13 @@ void XmlTest::testPlaylist()
 
 	// Test constructor
 	auto pPlaylist = H2Core::Playlist::load(
-		H2TEST_FILE( "playlist/test.h2playlist" ), pTestHydrogen() );
+		H2TEST_FILE( "playlist/test.h2playlist" ), pTestHydrogen()->getPreferences() );
 	H2Core::XMLDoc doc;
 
 	CPPUNIT_ASSERT( pPlaylist != nullptr );
 	CPPUNIT_ASSERT( pPlaylist->saveAs( sTmpPath, pTestHydrogen()->getPreferences() ) );
 	CPPUNIT_ASSERT( doc.read( sTmpPath ) );
-	const auto pPlaylistLoaded = H2Core::Playlist::load( sTmpPath, pTestHydrogen() );
+	const auto pPlaylistLoaded = H2Core::Playlist::load( sTmpPath, pTestHydrogen()->getPreferences() );
 	CPPUNIT_ASSERT( pPlaylistLoaded != nullptr );
 
 	// TODO Fails since it does not seem to be clear what relative does actually
@@ -838,7 +838,7 @@ void XmlTest::testPlaylist()
 	H2Core::XMLDoc docEmpty;
 
 	CPPUNIT_ASSERT( pPlaylistEmpty->saveAs( sTmpPathEmpty, pTestHydrogen()->getPreferences() ) );
-	const auto pPlaylistEmptyLoaded = H2Core::Playlist::load( sTmpPathEmpty, pTestHydrogen() );
+	const auto pPlaylistEmptyLoaded = H2Core::Playlist::load( sTmpPathEmpty, pTestHydrogen()->getPreferences() );
 	CPPUNIT_ASSERT( pPlaylistEmptyLoaded != nullptr );
 
 	H2TEST_ASSERT_XML_FILES_EQUAL(

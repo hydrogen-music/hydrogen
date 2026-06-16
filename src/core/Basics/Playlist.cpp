@@ -21,7 +21,6 @@
  */
 
 #include <core/Preferences/Preferences.h>
-#include <core/Hydrogen.h>
 #include <core/Basics/Playlist.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Legacy.h>
@@ -43,7 +42,7 @@ void Playlist::clear()
 }
 
 std::shared_ptr<Playlist> Playlist::load( const QString& sPath,
-										  Hydrogen* pHydrogen )
+										  std::shared_ptr<Preferences> pPreferences )
 {
 	XMLDoc doc;
 	doc.read( sPath );
@@ -69,7 +68,7 @@ std::shared_ptr<Playlist> Playlist::load( const QString& sPath,
 		}
 
 		WARNINGLOG( QString( "Upgrading playlist [%1]" ).arg( sPath ) );
-		pPlaylist->saveAs( sPath, pHydrogen->getPreferences(), true );
+		pPlaylist->saveAs( sPath, pPreferences, true );
 		return pPlaylist;
 	}
 

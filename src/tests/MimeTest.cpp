@@ -31,7 +31,7 @@ void MimeTest::testPlaylistSerialization(){
 	___INFOLOG( "" );
 
 	const auto pPlaylist =
-		H2Core::Playlist::load( H2TEST_FILE( "/playlist/test.h2playlist" ), pTestHydrogen() );
+		H2Core::Playlist::load( H2TEST_FILE( "/playlist/test.h2playlist" ), pTestPreferences() );
 	CPPUNIT_ASSERT( pPlaylist != nullptr );
 	CPPUNIT_ASSERT( pPlaylist->size() > 0 );
 

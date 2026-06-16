@@ -480,7 +480,7 @@ void MemoryLeakageTest::testLoading()
 
 	{
 		auto pPlaylist =
-			H2Core::Playlist::load( H2TEST_FILE( "playlist/test.h2playlist" ), pTestHydrogen() );
+			H2Core::Playlist::load( H2TEST_FILE( "playlist/test.h2playlist" ), pTestHydrogen()->getPreferences() );
 		CPPUNIT_ASSERT( pPlaylist != nullptr );
 		pPlaylist = nullptr;
 		CPPUNIT_ASSERT(

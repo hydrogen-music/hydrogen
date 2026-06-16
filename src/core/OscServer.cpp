@@ -1199,7 +1199,7 @@ void OscServer::NEW_PLAYLIST_Handler(lo_arg **argv, int argc) {
 void OscServer::OPEN_PLAYLIST_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 	auto pPlaylist = H2Core::Playlist::load( QString::fromUtf8( &argv[0]->s ),
-											 m_pHydrogen );
+											 m_pHydrogen->getPreferences() );
 	if ( pPlaylist == nullptr ) {
 		ERRORLOG( QString( "Unable to load Playlist [%1]" )
 				  .arg( QString::fromUtf8( &argv[0]->s ) ) );

@@ -3157,7 +3157,7 @@ std::shared_ptr<Playlist> CoreActionController::loadPlaylist(
 			 Filesystem::Artifact::Playlist, sRecoverPath, true
 		 ) ) {
 		// Use an autosave file to load the playlist
-		pPlaylist = Playlist::load( sRecoverPath, m_pHydrogen );
+		pPlaylist = Playlist::load( sRecoverPath, m_pHydrogen->getPreferences() );
 		if ( pPlaylist != nullptr ) {
 			pPlaylist->setPath( sPath );
 		}
@@ -3173,7 +3173,7 @@ std::shared_ptr<Playlist> CoreActionController::loadPlaylist(
 	}
 
 	if ( pPlaylist == nullptr ) {
-		pPlaylist = Playlist::load( sPath, m_pHydrogen );
+		pPlaylist = Playlist::load( sPath, m_pHydrogen->getPreferences() );
 	}
 
 	if ( pPlaylist == nullptr ) {

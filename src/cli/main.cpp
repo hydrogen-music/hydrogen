@@ -511,7 +511,7 @@ int main(int argc, char *argv[])
 
 		// Load playlist
 		if ( ! sPlaylistFileName.isEmpty() ) {
-			pPlaylist = Playlist::load( sPlaylistFileName, pHydrogen );
+			pPlaylist = Playlist::load( sPlaylistFileName, pHydrogen->getPreferences() );
 			if ( pPlaylist == nullptr ) {
 				___ERRORLOG( "Error loading the playlist" );
 				return 1;
