@@ -62,19 +62,10 @@ namespace H2Core
 CoreActionController::CoreActionController( Hydrogen* pHydrogen )
 	: m_pHydrogen( pHydrogen ) {}
 
-#define ASSERT_HYDROGEN                                                        \
-	assert( pHydrogen );                                                       \
-	if ( pHydrogen == nullptr ) {                                              \
-		ERRORLOG( "Core not ready yet!" );                                     \
-		return false;                                                          \
-	}
 
 bool CoreActionController::setMasterVolume( float fMasterVolumeValue )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pSong = pHydrogen->getSong();
-
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
@@ -91,22 +82,19 @@ bool CoreActionController::setStripVolume(
 	bool bSelectStrip
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-
 	auto pInstr = getStrip( nStrip );
 	if ( pInstr == nullptr ) {
 		return false;
 	}
 
 	if ( bSelectStrip ) {
-		pHydrogen->setSelectedInstrumentNumber( nStrip );
+		m_pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 
 	if ( pInstr->getVolume() != fVolumeValue ) {
 		pInstr->setVolume( fVolumeValue );
 
-		pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true );
 
 		return sendStripVolumeFeedback( nStrip );
 	}
@@ -243,10 +231,7 @@ bool CoreActionController::setMetronomeIsActive( bool isActive )
 
 bool CoreActionController::setMasterIsMuted( bool bIsMuted )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pSong = pHydrogen->getSong();
-
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
@@ -255,7 +240,7 @@ bool CoreActionController::setMasterIsMuted( bool bIsMuted )
 	if ( pSong->getIsMuted() != bIsMuted ) {
 		pSong->setIsMuted( bIsMuted );
 
-		pHydrogen->setSongModified( true );
+		m_pHydrogen->setSongModified( true );
 
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::MixerSettingsChanged, 0
@@ -269,10 +254,7 @@ bool CoreActionController::setMasterIsMuted( bool bIsMuted )
 
 bool CoreActionController::setHumanizeTime( float fValue )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pSong = pHydrogen->getSong();
-
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
@@ -285,7 +267,7 @@ bool CoreActionController::setHumanizeTime( float fValue )
 			Event::Type::MixerSettingsChanged, 0
 		);
 
-		pHydrogen->setSongModified( true );
+		m_pHydrogen->setSongModified( true );
 	}
 
 	return true;
@@ -293,10 +275,7 @@ bool CoreActionController::setHumanizeTime( float fValue )
 
 bool CoreActionController::setHumanizeVelocity( float fValue )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pSong = pHydrogen->getSong();
-
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
@@ -309,7 +288,7 @@ bool CoreActionController::setHumanizeVelocity( float fValue )
 			Event::Type::MixerSettingsChanged, 0
 		);
 
-		pHydrogen->setSongModified( true );
+		m_pHydrogen->setSongModified( true );
 	}
 
 	return true;
@@ -317,10 +296,7 @@ bool CoreActionController::setHumanizeVelocity( float fValue )
 
 bool CoreActionController::setSwing( float fValue )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pSong = pHydrogen->getSong();
-
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
@@ -333,7 +309,7 @@ bool CoreActionController::setSwing( float fValue )
 			Event::Type::MixerSettingsChanged, 0
 		);
 
-		pHydrogen->setSongModified( true );
+		m_pHydrogen->setSongModified( true );
 	}
 
 	return true;
@@ -341,8 +317,6 @@ bool CoreActionController::setSwing( float fValue )
 
 bool CoreActionController::toggleStripIsMuted( int nStrip )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 	auto pInstr = getStrip( nStrip );
 	if ( pInstr == nullptr ) {
 		return false;
@@ -357,15 +331,13 @@ bool CoreActionController::setStripIsMuted(
 	bool bSelectStrip
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 	auto pInstr = getStrip( nStrip );
 	if ( pInstr == nullptr ) {
 		return false;
 	}
 
 	if ( bSelectStrip ) {
-		pHydrogen->setSelectedInstrumentNumber( nStrip );
+		m_pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 
 	if ( pInstr->isMuted() != bIsMuted ) {
@@ -378,7 +350,7 @@ bool CoreActionController::setStripIsMuted(
 			Event::Type::InstrumentMuteSoloChanged, nStrip
 		);
 
-		pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true );
 
 		return sendStripIsMutedFeedback( nStrip );
 	}
@@ -388,8 +360,6 @@ bool CoreActionController::setStripIsMuted(
 
 bool CoreActionController::toggleStripIsSoloed( int nStrip )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 	auto pInstr = getStrip( nStrip );
 	if ( pInstr == nullptr ) {
 		return false;
@@ -404,15 +374,13 @@ bool CoreActionController::setStripIsSoloed(
 	bool bSelectStrip
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 	auto pInstr = getStrip( nStrip );
 	if ( pInstr == nullptr ) {
 		return false;
 	}
 
 	if ( bSelectStrip ) {
-		pHydrogen->setSelectedInstrumentNumber( nStrip );
+		m_pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 
 	if ( pInstr->isSoloed() != isSoloed ) {
@@ -425,7 +393,7 @@ bool CoreActionController::setStripIsSoloed(
 			Event::Type::InstrumentMuteSoloChanged, nStrip
 		);
 
-		pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true );
 
 		return sendStripIsSoloedFeedback( nStrip );
 	}
@@ -439,15 +407,13 @@ bool CoreActionController::setStripPan(
 	bool bSelectStrip
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 	auto pInstr = getStrip( nStrip );
 	if ( pInstr == nullptr ) {
 		return false;
 	}
 
 	if ( bSelectStrip ) {
-		pHydrogen->setSelectedInstrumentNumber( nStrip );
+		m_pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 
 	if ( pInstr->getPanWithRangeFrom0To1() != fValue ) {
@@ -457,7 +423,7 @@ bool CoreActionController::setStripPan(
 			Event::Type::InstrumentParametersChanged, nStrip
 		);
 
-		pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true );
 
 		return sendStripPanFeedback( nStrip );
 	}
@@ -471,15 +437,13 @@ bool CoreActionController::setStripPanSym(
 	bool bSelectStrip
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 	auto pInstr = getStrip( nStrip );
 	if ( pInstr == nullptr ) {
 		return false;
 	}
 
 	if ( bSelectStrip ) {
-		pHydrogen->setSelectedInstrumentNumber( nStrip );
+		m_pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 
 	if ( pInstr->getPan() != fValue ) {
@@ -489,7 +453,7 @@ bool CoreActionController::setStripPanSym(
 			Event::Type::InstrumentParametersChanged, nStrip
 		);
 
-		pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true );
 
 		return sendStripPanFeedback( nStrip );
 	}
@@ -499,9 +463,7 @@ bool CoreActionController::setStripPanSym(
 
 bool CoreActionController::sendMasterVolumeFeedback()
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pSong = pHydrogen->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
@@ -533,8 +495,6 @@ bool CoreActionController::sendMasterVolumeFeedback()
 
 bool CoreActionController::sendStripVolumeFeedback( int nStrip )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 	auto pInstr = getStrip( nStrip );
 	if ( pInstr != nullptr ) {
 		float fStripVolume = pInstr->getVolume();
@@ -566,8 +526,6 @@ bool CoreActionController::sendStripVolumeFeedback( int nStrip )
 
 bool CoreActionController::sendMetronomeIsActiveFeedback()
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 	const auto pPref = m_pHydrogen->getPreferences();
 
 #ifdef H2CORE_HAVE_OSC
@@ -594,9 +552,7 @@ bool CoreActionController::sendMetronomeIsActiveFeedback()
 
 bool CoreActionController::sendMasterIsMutedFeedback()
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pSong = pHydrogen->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
@@ -626,8 +582,6 @@ bool CoreActionController::sendMasterIsMutedFeedback()
 
 bool CoreActionController::sendStripIsMutedFeedback( int nStrip )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 	auto pInstr = getStrip( nStrip );
 	if ( pInstr != nullptr ) {
 #ifdef H2CORE_HAVE_OSC
@@ -658,8 +612,6 @@ bool CoreActionController::sendStripIsMutedFeedback( int nStrip )
 
 bool CoreActionController::sendStripIsSoloedFeedback( int nStrip )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 	auto pInstr = getStrip( nStrip );
 	if ( pInstr != nullptr ) {
 #ifdef H2CORE_HAVE_OSC
@@ -689,8 +641,6 @@ bool CoreActionController::sendStripIsSoloedFeedback( int nStrip )
 
 bool CoreActionController::sendStripPanFeedback( int nStrip )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 	auto pInstr = getStrip( nStrip );
 	if ( pInstr != nullptr ) {
 #ifdef H2CORE_HAVE_OSC
@@ -723,8 +673,6 @@ bool CoreActionController::handleOutgoingControlChanges(
 	Midi::Parameter value
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 	const auto pPref = m_pHydrogen->getPreferences();
 	if ( pPref->getMidiFeedbackChannel() == Midi::ChannelOff ) {
 		return true;
@@ -732,9 +680,9 @@ bool CoreActionController::handleOutgoingControlChanges(
 	else if ( pPref->getMidiFeedbackChannel() == Midi::ChannelInvalid ) {
 		return false;
 	}
-	auto pMidiDriver = pHydrogen->getMidiDriver();
+	auto pMidiDriver = m_pHydrogen->getMidiDriver();
 
-	if ( pHydrogen->getSong() == nullptr || pMidiDriver == nullptr ) {
+	if ( m_pHydrogen->getSong() == nullptr || pMidiDriver == nullptr ) {
 		return false;
 	}
 
@@ -756,14 +704,7 @@ bool CoreActionController::handleOutgoingControlChanges(
 
 std::shared_ptr<Instrument> CoreActionController::getStrip( int nStrip )
 {
-	auto pHydrogen = m_pHydrogen;
-	assert( pHydrogen );
-	if ( pHydrogen == nullptr ) {
-		ERRORLOG( "Core not ready yet!" );
-		return nullptr;
-	}
-
-	auto pSong = pHydrogen->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return nullptr;
@@ -786,10 +727,7 @@ bool CoreActionController::initExternalControlInterfaces()
 	 */
 
 	// MASTER_VOLUME_ABSOLUTE
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pSong = pHydrogen->getSong();
-
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
@@ -833,13 +771,6 @@ std::shared_ptr<Song> CoreActionController::loadSong(
 	const QString& sRecoverPath
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	assert( pHydrogen );
-	if ( pHydrogen == nullptr ) {
-		ERRORLOG( "Core not ready yet!" );
-		return nullptr;
-	}
-
 	// Check whether the provided path is valid.
 	if ( sPath != Filesystem::emptyPath( Filesystem::Artifact::Song ) &&
 		 !Filesystem::isPathValid( Filesystem::Artifact::Song, sPath, true ) ) {
@@ -882,30 +813,28 @@ std::shared_ptr<Song> CoreActionController::loadSong(
 
 bool CoreActionController::setSong( std::shared_ptr<Song> pSong )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 	if ( pSong == nullptr ) {
 		ERRORLOG( "Invalid song" );
 		return false;
 	}
 
-	if ( pHydrogen->getAudioEngine()->getState() ==
+	if ( m_pHydrogen->getAudioEngine()->getState() ==
 		 AudioEngine::State::Playing ) {
 		// Stops recording, all queued MIDI notes, and the playback of
 		// the audio driver.
-		pHydrogen->sequencerStop();
+		m_pHydrogen->sequencerStop();
 	}
 
 	// Update the Song.
-	pHydrogen->setSong( pSong );
+	m_pHydrogen->setSong( pSong );
 
-	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 	pAudioEngine->lock( RIGHT_HERE );
 	pAudioEngine->getSampler()->clearLastUsedLayers();
 	pAudioEngine->unlock();
 
-	if ( pHydrogen->isUnderSessionManagement() ) {
-		pHydrogen->restartAudioDriver();
+	if ( m_pHydrogen->isUnderSessionManagement() ) {
+		m_pHydrogen->restartAudioDriver();
 	}
 	else {
 		// Add the new loaded song in the "last used song" vector.
@@ -929,7 +858,7 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong )
 
 	// Be sure to not make GUI render its content twice by triggering this
 	// during startup.
-	if ( pHydrogen->getGUIState() == Hydrogen::GUIState::ready ) {
+	if ( m_pHydrogen->getGUIState() == Hydrogen::GUIState::ready ) {
 		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateSong, 0 );
 	}
 
@@ -945,17 +874,14 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong )
 	}
 
 	// As we just set a fresh song, we can mark it not modified
-	pHydrogen->setSongModified( false );
+	m_pHydrogen->setSongModified( false );
 
 	return true;
 }
 
 bool CoreActionController::saveSong( bool bKeepMissingSamples )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pSong = pHydrogen->getSong();
-
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
@@ -979,7 +905,7 @@ bool CoreActionController::saveSong( bool bKeepMissingSamples )
 	}
 
 	// Update the status bar.
-	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
+	if ( m_pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
 		if ( !bKeepMissingSamples && bHadMissingSamples ) {
 			// Some instrument layers might have been discarded. Reload the
 			// entire drumkit.
@@ -998,9 +924,7 @@ bool CoreActionController::saveSongAs(
 	bool bKeepMissingSamples
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pSong = pHydrogen->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
@@ -1032,7 +956,7 @@ bool CoreActionController::saveSongAs(
 	// Update the recentFiles list by replacing the former file name
 	// with the new one.
 	insertRecentFile( sNewPath );
-	if ( !pHydrogen->isUnderSessionManagement() ) {
+	if ( !m_pHydrogen->isUnderSessionManagement() ) {
 		m_pHydrogen->getPreferences()->setLastSongPath( pSong->getPath() );
 	}
 
@@ -1057,9 +981,7 @@ bool CoreActionController::setPreferences(
 		return false;
 	}
 
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 
 	m_pHydrogen->setPreferences( pPreferences );
 
@@ -1067,13 +989,13 @@ bool CoreActionController::setPreferences(
 		pPreferences->m_fMetronomeVolume
 	);
 
-	pHydrogen->restartAudioDriver();
-	pHydrogen->restartMidiDriver();
-	pHydrogen->recreateOscServer();
+	m_pHydrogen->restartAudioDriver();
+	m_pHydrogen->restartMidiDriver();
+	m_pHydrogen->recreateOscServer();
 
 	// If the GUI is active, we have to update it to reflect the
 	// changes in the preferences.
-	if ( pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::ready ) {
+	if ( m_pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::ready ) {
 		m_pHydrogen->getEventQueue()->pushEvent(
 			H2Core::Event::Type::UpdatePreferences, 1
 		);
@@ -1084,10 +1006,8 @@ bool CoreActionController::setPreferences(
 
 bool CoreActionController::savePreferences()
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
-	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
+	if ( m_pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
 		// Update the status bar and let the GUI save the preferences
 		// (after writing its current settings to disk).
 		m_pHydrogen->getEventQueue()->pushEvent(
@@ -1101,8 +1021,6 @@ bool CoreActionController::savePreferences()
 
 bool CoreActionController::quit()
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::Quit, 0 );
 
 	return true;
@@ -1110,9 +1028,7 @@ bool CoreActionController::quit()
 
 bool CoreActionController::toggleTimeline()
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	if ( pHydrogen->isTimelineEnabled() ) {
+	if ( m_pHydrogen->isTimelineEnabled() ) {
 		activateTimeline( false );
 	}
 	else {
@@ -1124,17 +1040,15 @@ bool CoreActionController::toggleTimeline()
 
 bool CoreActionController::activateTimeline( bool bActivate )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( m_pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
 
-	pHydrogen->setIsTimelineActivated( bActivate );
+	m_pHydrogen->setIsTimelineActivated( bActivate );
 
-	const auto tempoSource = pHydrogen->getTempoSource();
+	const auto tempoSource = m_pHydrogen->getTempoSource();
 	if ( tempoSource == Hydrogen::Tempo::Jack ) {
 		WARNINGLOG(
 			QString( "Timeline usage was [%1] in the Preferences. But these "
@@ -1149,7 +1063,7 @@ bool CoreActionController::activateTimeline( bool bActivate )
 							 "MIDI clock handling is enabled." )
 						.arg( bActivate ? "enabled" : "disabled" ) );
 	}
-	else if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
+	else if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
 		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But "
 							 "these changes won't have an effect as long as "
 							 "Pattern Mode is still activated." )
@@ -1161,15 +1075,13 @@ bool CoreActionController::activateTimeline( bool bActivate )
 
 bool CoreActionController::addTempoMarker( int nPosition, float fBpm )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( m_pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
-	auto pTimeline = pHydrogen->getSong()->getTimeline();
+	auto pTimeline = m_pHydrogen->getSong()->getTimeline();
 
 	if ( pTimeline->hasColumnTempoMarker( nPosition ) ) {
 		const auto pPreviousMarker =
@@ -1182,11 +1094,11 @@ bool CoreActionController::addTempoMarker( int nPosition, float fBpm )
 	pAudioEngine->lock( RIGHT_HERE );
 
 	pTimeline->addTempoMarker( nPosition, fBpm );
-	pHydrogen->getAudioEngine()->handleTimelineChange();
+	m_pHydrogen->getAudioEngine()->handleTimelineChange();
 
 	pAudioEngine->unlock();
 
-	pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true );
 
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateTimeline, 0 );
 
@@ -1195,16 +1107,14 @@ bool CoreActionController::addTempoMarker( int nPosition, float fBpm )
 
 bool CoreActionController::deleteTempoMarker( int nPosition )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( m_pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
 
-	if ( !pHydrogen->getSong()->getTimeline()->hasColumnTempoMarker( nPosition
+	if ( !m_pHydrogen->getSong()->getTimeline()->hasColumnTempoMarker( nPosition
 		 ) ) {
 		// Nothing to do
 		return true;
@@ -1212,12 +1122,12 @@ bool CoreActionController::deleteTempoMarker( int nPosition )
 
 	pAudioEngine->lock( RIGHT_HERE );
 
-	pHydrogen->getSong()->getTimeline()->deleteTempoMarker( nPosition );
-	pHydrogen->getAudioEngine()->handleTimelineChange();
+	m_pHydrogen->getSong()->getTimeline()->deleteTempoMarker( nPosition );
+	m_pHydrogen->getAudioEngine()->handleTimelineChange();
 
 	pAudioEngine->unlock();
 
-	pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true );
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateTimeline, 0 );
 
 	return true;
@@ -1225,19 +1135,17 @@ bool CoreActionController::deleteTempoMarker( int nPosition )
 
 bool CoreActionController::addTag( int nPosition, const QString& sText )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( m_pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
-	auto pTimeline = pHydrogen->getSong()->getTimeline();
+	auto pTimeline = m_pHydrogen->getSong()->getTimeline();
 
 	pTimeline->deleteTag( nPosition );
 	pTimeline->addTag( nPosition, sText );
 
-	pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true );
 
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateTimeline, 0 );
 
@@ -1246,18 +1154,16 @@ bool CoreActionController::addTag( int nPosition, const QString& sText )
 
 bool CoreActionController::deleteTag( int nPosition )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( m_pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
 
-	pHydrogen->getSong()->getTimeline()->deleteTag( nPosition );
+	m_pHydrogen->getSong()->getTimeline()->deleteTag( nPosition );
 
-	pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true );
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateTimeline, 0 );
 
 	return true;
@@ -1265,8 +1171,6 @@ bool CoreActionController::deleteTag( int nPosition )
 
 bool CoreActionController::toggleJackTransport()
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 	if ( m_pHydrogen->getPreferences()->m_nJackTransportMode ==
 		 Preferences::USE_JACK_TRANSPORT ) {
 		activateJackTransport( false );
@@ -1280,11 +1184,9 @@ bool CoreActionController::toggleJackTransport()
 
 bool CoreActionController::activateJackTransport( bool bActivate )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
 #ifdef H2CORE_HAVE_JACK
-	if ( !pHydrogen->hasJackDriver() ) {
+	if ( !m_pHydrogen->hasJackDriver() ) {
 		ERRORLOG(
 			"Unable to (de)activate Jack transport. Please select the Jack "
 			"driver first."
@@ -1292,7 +1194,7 @@ bool CoreActionController::activateJackTransport( bool bActivate )
 		return false;
 	}
 
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+	m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 	if ( bActivate ) {
 		m_pHydrogen->getPreferences()->m_nJackTransportMode =
 			Preferences::USE_JACK_TRANSPORT;
@@ -1301,7 +1203,7 @@ bool CoreActionController::activateJackTransport( bool bActivate )
 		m_pHydrogen->getPreferences()->m_nJackTransportMode =
 			Preferences::NO_JACK_TRANSPORT;
 	}
-	pHydrogen->getAudioEngine()->unlock();
+	m_pHydrogen->getAudioEngine()->unlock();
 
 	m_pHydrogen->getEventQueue()->pushEvent(
 		Event::Type::JackTransportActivation, static_cast<int>( bActivate )
@@ -1319,8 +1221,6 @@ bool CoreActionController::activateJackTransport( bool bActivate )
 
 bool CoreActionController::toggleJackTimebaseControl()
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 	if ( m_pHydrogen->getPreferences()->m_bJackTimebaseMode ==
 		 Preferences::USE_JACK_TIMEBASE_CONTROL ) {
 		activateJackTimebaseControl( false );
@@ -1334,11 +1234,9 @@ bool CoreActionController::toggleJackTimebaseControl()
 
 bool CoreActionController::activateJackTimebaseControl( bool bActivate )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
 #ifdef H2CORE_HAVE_JACK
-	if ( !pHydrogen->hasJackDriver() ) {
+	if ( !m_pHydrogen->hasJackDriver() ) {
 		ERRORLOG(
 			"Unable to (de)activate JACK Timebase support. Please select the "
 			"JACK driver first."
@@ -1346,18 +1244,18 @@ bool CoreActionController::activateJackTimebaseControl( bool bActivate )
 		return false;
 	}
 
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+	m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 	if ( bActivate ) {
 		m_pHydrogen->getPreferences()->m_bJackTimebaseMode =
 			Preferences::USE_JACK_TIMEBASE_CONTROL;
-		pHydrogen->initJackTimebaseControl();
+		m_pHydrogen->initJackTimebaseControl();
 	}
 	else {
 		m_pHydrogen->getPreferences()->m_bJackTimebaseMode =
 			Preferences::NO_JACK_TIMEBASE_CONTROL;
-		pHydrogen->releaseJackTimebaseControl();
+		m_pHydrogen->releaseJackTimebaseControl();
 	}
-	pHydrogen->getAudioEngine()->unlock();
+	m_pHydrogen->getAudioEngine()->unlock();
 
 	return true;
 #else
@@ -1371,9 +1269,7 @@ bool CoreActionController::activateJackTimebaseControl( bool bActivate )
 
 bool CoreActionController::toggleSongMode()
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	if ( pHydrogen->getMode() == Song::Mode::Song ) {
+	if ( m_pHydrogen->getMode() == Song::Mode::Song ) {
 		activateSongMode( false );
 	}
 	else {
@@ -1385,35 +1281,33 @@ bool CoreActionController::toggleSongMode()
 
 bool CoreActionController::activateSongMode( bool bActivate )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pSong = pHydrogen->getSong();
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
+	auto pSong = m_pHydrogen->getSong();
 
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
 
-	if ( !( bActivate && pHydrogen->getMode() != Song::Mode::Song ) &&
-		 !( !bActivate && pHydrogen->getMode() != Song::Mode::Pattern ) ) {
+	if ( !( bActivate && m_pHydrogen->getMode() != Song::Mode::Song ) &&
+		 !( !bActivate && m_pHydrogen->getMode() != Song::Mode::Pattern ) ) {
 		// No changes.
 		return true;
 	}
 
-	pHydrogen->sequencerStop();
+	m_pHydrogen->sequencerStop();
 
 	pAudioEngine->lock( RIGHT_HERE );
 
-	if ( bActivate && pHydrogen->getMode() != Song::Mode::Song ) {
-		pHydrogen->setMode( Song::Mode::Song, Event::Trigger::Default );
+	if ( bActivate && m_pHydrogen->getMode() != Song::Mode::Song ) {
+		m_pHydrogen->setMode( Song::Mode::Song, Event::Trigger::Default );
 	}
-	else if ( !bActivate && pHydrogen->getMode() != Song::Mode::Pattern ) {
-		pHydrogen->setMode( Song::Mode::Pattern, Event::Trigger::Default );
+	else if ( !bActivate && m_pHydrogen->getMode() != Song::Mode::Pattern ) {
+		m_pHydrogen->setMode( Song::Mode::Pattern, Event::Trigger::Default );
 	}
 
-	if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
-		pHydrogen->setSelectedPatternNumber(
+	if ( m_pHydrogen->getSelectedPatternNumber() == -1 ) {
+		m_pHydrogen->setSelectedPatternNumber(
 			0, false, Event::Trigger::Suppress
 		);
 	}
@@ -1427,9 +1321,7 @@ bool CoreActionController::activateSongMode( bool bActivate )
 
 bool CoreActionController::toggleLoopMode()
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pSong = pHydrogen->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
@@ -1445,12 +1337,10 @@ bool CoreActionController::toggleLoopMode()
 
 bool CoreActionController::activateLoopMode( bool bActivate )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pSong = pHydrogen->getSong();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pSong = m_pHydrogen->getSong();
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( m_pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
@@ -1489,11 +1379,9 @@ bool CoreActionController::activateLoopMode( bool bActivate )
 
 bool CoreActionController::activateRecordMode( bool bActivate )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
-	if ( pHydrogen->getRecordEnabled() != bActivate ) {
-		pHydrogen->setRecordEnabled( bActivate );
+	if ( m_pHydrogen->getRecordEnabled() != bActivate ) {
+		m_pHydrogen->setRecordEnabled( bActivate );
 
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::RecordModeChanged, static_cast<int>( bActivate )
@@ -1505,10 +1393,8 @@ bool CoreActionController::activateRecordMode( bool bActivate )
 
 bool CoreActionController::toggleRecordMode()
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
-	return activateRecordMode( !pHydrogen->getRecordEnabled() );
+	return activateRecordMode( !m_pHydrogen->getRecordEnabled() );
 }
 
 bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit )
@@ -1518,10 +1404,8 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit )
 		return false;
 	}
 
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pSong = pHydrogen->getSong();
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
@@ -1552,7 +1436,7 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit )
 
 	// Ensure instruments of the new kit aren't already in the death row.
 	for ( const auto& ppInstrument : *pNewDrumkit->getInstruments() ) {
-		pHydrogen->removeInstrumentFromDeathRow( ppInstrument );
+		m_pHydrogen->removeInstrumentFromDeathRow( ppInstrument );
 	}
 
 	// It would be more clean to lock the audio engine _before_ loading
@@ -1570,7 +1454,7 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit )
 	// done. Unloading their samples will be done at a latter point.
 	if ( pPreviousDrumkit != nullptr ) {
 		for ( const auto& ppInstrument : *pPreviousDrumkit->getInstruments() ) {
-			pHydrogen->addInstrumentToDeathRow( ppInstrument );
+			m_pHydrogen->addInstrumentToDeathRow( ppInstrument );
 		}
 	}
 
@@ -1584,11 +1468,11 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit )
 	pSong->setDrumkit( pNewDrumkit );
 	pSong->getPatternList()->mapToDrumkit( pNewDrumkit, pPreviousDrumkit );
 
-	pHydrogen->renamePerTrackJackAudioPorts( pSong, pPreviousDrumkit );
+	m_pHydrogen->renamePerTrackJackAudioPorts( pSong, pPreviousDrumkit );
 
-	if ( pHydrogen->getSelectedInstrumentNumber() >=
+	if ( m_pHydrogen->getSelectedInstrumentNumber() >=
 		 pNewDrumkit->getInstruments()->size() ) {
-		pHydrogen->setSelectedInstrumentNumber(
+		m_pHydrogen->setSelectedInstrumentNumber(
 			std::max( 0, pNewDrumkit->getInstruments()->size() - 1 ),
 			Event::Trigger::Suppress
 		);
@@ -1598,7 +1482,7 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit )
 
 	initExternalControlInterfaces();
 
-	pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true );
 
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::DrumkitLoaded, 0 );
 
@@ -1610,8 +1494,6 @@ bool CoreActionController::upgradeDrumkit(
 	const QString& sNewDir
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 	if ( sNewDir.isEmpty() ) {
 		INFOLOG(
 			QString( "Upgrading kit at [%1] inplace." ).arg( sDrumkitDirOrXml )
@@ -1792,8 +1674,6 @@ bool CoreActionController::validateDrumkit(
 	bool bCheckLegacyVersions
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
 	INFOLOG( QString( "Validating kit [%1]" ).arg( sDrumkitDirOrXml ) );
 
@@ -1891,13 +1771,6 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit(
 	bool* pLegacyFormatEncountered
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	assert( pHydrogen );
-	if ( pHydrogen == nullptr ) {
-		ERRORLOG( "Core not ready yet!" );
-		return nullptr;
-	}
-
 	std::shared_ptr<Drumkit> pDrumkit = nullptr;
 
 	// We do not attempt to retrieve the drumkit from SoundLibrary
@@ -2014,8 +1887,6 @@ bool CoreActionController::extractDrumkit(
 	bool* pEncodingIssuesDetected
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
 	// Ensure variables are always set/initialized.
 	if ( pInstalledDir != nullptr ) {
@@ -2068,7 +1939,7 @@ bool CoreActionController::extractDrumkit(
 	}
 
 	if ( bInstall ) {
-		pHydrogen->getSoundLibraryDatabase()->updateDrumkits(
+		m_pHydrogen->getSoundLibraryDatabase()->updateDrumkits(
 			Event::Trigger::Default
 		);
 	}
@@ -2082,14 +1953,12 @@ bool CoreActionController::addInstrument(
 	long* pEventId
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
 	if ( pEventId != nullptr ) {
 		*pEventId = Event::nInvalidId;
 	}
 
-	auto pSong = pHydrogen->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		ERRORLOG( "Song not ready yet" );
 		return false;
@@ -2098,23 +1967,23 @@ bool CoreActionController::addInstrument(
 		return false;
 	}
 
-	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 	auto pDrumkit = pSong->getDrumkit();
 
 	pAudioEngine->lock( RIGHT_HERE );
 
 	// Ensure instrument isn't already in the death row.
-	pHydrogen->removeInstrumentFromDeathRow( pInstrument );
+	m_pHydrogen->removeInstrumentFromDeathRow( pInstrument );
 	pInstrument->loadSamples( pAudioEngine->getPlayhead()->getBpm(),
 							  m_pHydrogen->getPreferences().get() );
 
 	pDrumkit->addInstrument( pInstrument, nIndex );
-	pHydrogen->renamePerTrackJackAudioPorts( pSong, nullptr );
+	m_pHydrogen->renamePerTrackJackAudioPorts( pSong, nullptr );
 	pSong->getPatternList()->mapToDrumkit( pDrumkit, pDrumkit );
 
 	pAudioEngine->unlock();
 
-	pHydrogen->setDrumkitModified( true );
+	m_pHydrogen->setDrumkitModified( true );
 
 	const auto nId =
 		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::DrumkitLoaded, 0 );
@@ -2130,20 +1999,18 @@ bool CoreActionController::removeInstrument(
 	long* pEventId
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
 	if ( pEventId != nullptr ) {
 		*pEventId = Event::nInvalidId;
 	}
 
-	auto pSong = pHydrogen->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		ERRORLOG( "Song not ready yet" );
 		return false;
 	}
 
-	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 	auto pDrumkit = pSong->getDrumkit();
 
 	const int nInstrumentNumber =
@@ -2170,7 +2037,7 @@ bool CoreActionController::removeInstrument(
 	// that this does not mean the instrument will be destructed. GUI can still
 	// hold a shared pointer as part of an undo/redo Midiaction (that's why it
 	// is so important to unload the samples).
-	pHydrogen->addInstrumentToDeathRow( pInstrument );
+	m_pHydrogen->addInstrumentToDeathRow( pInstrument );
 
 	// Instead of letting all notes associated with this instrument ring till
 	// the end, we discard those for which playback did not started yet and make
@@ -2178,10 +2045,10 @@ bool CoreActionController::removeInstrument(
 	pAudioEngine->clearNoteQueues( pInstrument );
 	pAudioEngine->getSampler()->releasePlayingNotes( pInstrument );
 
-	const int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
+	const int nSelectedInstrument = m_pHydrogen->getSelectedInstrumentNumber();
 	if ( nSelectedInstrument == nInstrumentNumber ||
 		 nSelectedInstrument >= pDrumkit->getInstruments()->size() ) {
-		pHydrogen->setSelectedInstrumentNumber(
+		m_pHydrogen->setSelectedInstrumentNumber(
 			std::clamp(
 				nSelectedInstrument, 0,
 				static_cast<int>( pDrumkit->getInstruments()->size() - 1 )
@@ -2190,12 +2057,12 @@ bool CoreActionController::removeInstrument(
 		);
 	}
 
-	pHydrogen->renamePerTrackJackAudioPorts( pSong, nullptr );
+	m_pHydrogen->renamePerTrackJackAudioPorts( pSong, nullptr );
 	pSong->getPatternList()->mapToDrumkit( pDrumkit, pDrumkit );
 
 	pAudioEngine->unlock();
 
-	pHydrogen->setDrumkitModified( true );
+	m_pHydrogen->setDrumkitModified( true );
 
 	const auto nId =
 		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::DrumkitLoaded, 0 );
@@ -2211,10 +2078,8 @@ bool CoreActionController::replaceInstrument(
 	std::shared_ptr<Instrument> pOldInstrument
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
-	auto pSong = pHydrogen->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		ERRORLOG( "Song not ready yet" );
 		return false;
@@ -2240,16 +2105,14 @@ bool CoreActionController::replaceDrumkitInstrument(
 	std::shared_ptr<Instrument> pOldInstrument
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
-	auto pSong = pHydrogen->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		ERRORLOG( "Song not ready yet" );
 		return false;
 	}
 
-	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 	auto pDrumkit = pSong->getDrumkit();
 	const int nOldInstrumentNumber =
 		pDrumkit->getInstruments()->index( pOldInstrument );
@@ -2264,7 +2127,7 @@ bool CoreActionController::replaceDrumkitInstrument(
 
 	if ( pNewInstrument != nullptr ) {
 		// Ensure instrument isn't already in the death row.
-		pHydrogen->removeInstrumentFromDeathRow( pNewInstrument );
+		m_pHydrogen->removeInstrumentFromDeathRow( pNewInstrument );
 		pNewInstrument->loadSamples( fBpm, m_pHydrogen->getPreferences().get() );
 	}
 
@@ -2278,7 +2141,7 @@ bool CoreActionController::replaceDrumkitInstrument(
 	// that this does not mean the instrument will be destructed. GUI can still
 	// hold a shared pointer as part of an undo/redo Midiaction (that's why it
 	// is so important to unload the samples).
-	pHydrogen->addInstrumentToDeathRow( pOldInstrument );
+	m_pHydrogen->addInstrumentToDeathRow( pOldInstrument );
 
 	// Instead of letting all notes associated with this instrument ring till
 	// the end, we discard those for which playback did not started yet and make
@@ -2287,7 +2150,7 @@ bool CoreActionController::replaceDrumkitInstrument(
 	pAudioEngine->getSampler()->releasePlayingNotes( pOldInstrument );
 
 	pDrumkit->addInstrument( pNewInstrument, nOldInstrumentNumber );
-	pHydrogen->renamePerTrackJackAudioPorts( pSong, nullptr );
+	m_pHydrogen->renamePerTrackJackAudioPorts( pSong, nullptr );
 	pSong->getPatternList()->mapToDrumkit( pDrumkit, pDrumkit );
 
 	// Unloading the samples of the old instrument will be done in the death
@@ -2295,7 +2158,7 @@ bool CoreActionController::replaceDrumkitInstrument(
 
 	pAudioEngine->unlock();
 
-	pHydrogen->setDrumkitModified( true );
+	m_pHydrogen->setDrumkitModified( true );
 
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::DrumkitLoaded, 0 );
 
@@ -2307,23 +2170,21 @@ bool CoreActionController::replacePlaybackTrackInstrument(
 	std::shared_ptr<Instrument> pOldInstrument
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
-	auto pSong = pHydrogen->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "Song not ready yet" );
 		return false;
 	}
 
-	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 	const auto fBpm = pAudioEngine->getPlayhead()->getBpm();
 
 	pAudioEngine->lock( RIGHT_HERE );
 
 	if ( pNewInstrument != nullptr ) {
 		// Ensure instrument isn't already in the death row.
-		pHydrogen->removeInstrumentFromDeathRow( pNewInstrument );
+		m_pHydrogen->removeInstrumentFromDeathRow( pNewInstrument );
 		pNewInstrument->loadSamples( fBpm, m_pHydrogen->getPreferences().get() );
 	}
 
@@ -2331,7 +2192,7 @@ bool CoreActionController::replacePlaybackTrackInstrument(
 
 	// Although Sampler uses a different routine to render the playback track
 	// during playback, Sample preview in the SampleEditor is still Note-based.
-	pHydrogen->addInstrumentToDeathRow( pOldInstrument );
+	m_pHydrogen->addInstrumentToDeathRow( pOldInstrument );
 
 	// Instead of letting all notes associated with this instrument ring till
 	// the end, we discard those for which playback did not started yet and make
@@ -2343,7 +2204,7 @@ bool CoreActionController::replacePlaybackTrackInstrument(
 
 	pAudioEngine->unlock();
 
-	pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true );
 
 	m_pHydrogen->getEventQueue()->pushEvent(
 		Event::Type::PlaybackTrackChanged, 0
@@ -2358,20 +2219,19 @@ bool CoreActionController::moveInstrument( int nSourceIndex, int nTargetIndex )
 		return true;
 	}
 
-	auto pHydrogen = m_pHydrogen;
-	auto pSong = pHydrogen->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return false;
 	}
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+	m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
 	if ( nSourceIndex >= pInstrumentList->size() || nSourceIndex < 0 ) {
 		ERRORLOG( QString( "Source index [%1] out of bound [0,%2)" )
 					  .arg( nSourceIndex )
 					  .arg( pInstrumentList->size() ) );
-		pHydrogen->getAudioEngine()->unlock();
+		m_pHydrogen->getAudioEngine()->unlock();
 		return false;
 	}
 
@@ -2379,16 +2239,16 @@ bool CoreActionController::moveInstrument( int nSourceIndex, int nTargetIndex )
 		ERRORLOG( QString( "Target index [%1] out of bound [0,%2)" )
 					  .arg( nTargetIndex )
 					  .arg( pInstrumentList->size() ) );
-		pHydrogen->getAudioEngine()->unlock();
+		m_pHydrogen->getAudioEngine()->unlock();
 		return false;
 	}
 
 	pInstrumentList->move( nSourceIndex, nTargetIndex );
-	pHydrogen->renamePerTrackJackAudioPorts( pSong, nullptr );
+	m_pHydrogen->renamePerTrackJackAudioPorts( pSong, nullptr );
 
-	pHydrogen->getAudioEngine()->unlock();
+	m_pHydrogen->getAudioEngine()->unlock();
 
-	pHydrogen->setDrumkitModified( true );
+	m_pHydrogen->setDrumkitModified( true );
 
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::DrumkitLoaded, 0 );
 
@@ -2400,10 +2260,8 @@ bool CoreActionController::renameComponent(
 	const QString& sNewName
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
-	const auto pInstrument = pHydrogen->getSelectedInstrument();
+	const auto pInstrument = m_pHydrogen->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
 		return false;
 	}
@@ -2418,7 +2276,7 @@ bool CoreActionController::renameComponent(
 
 	pComponent->setName( sNewName );
 
-	pHydrogen->setDrumkitModified( true );
+	m_pHydrogen->setDrumkitModified( true );
 
 	m_pHydrogen->getEventQueue()->pushEvent(
 		Event::Type::SelectedInstrumentChanged, 0
@@ -2429,8 +2287,6 @@ bool CoreActionController::renameComponent(
 
 bool CoreActionController::locateToColumn( int nColumn )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
 	if ( nColumn < -1 ) {
 		ERRORLOG( QString( "Provided column [%1] too low. Using 0 instead." )
@@ -2438,19 +2294,19 @@ bool CoreActionController::locateToColumn( int nColumn )
 		nColumn = 0;
 	}
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( m_pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
 
-	long nTotalTick = pHydrogen->getTickForColumn( nColumn );
+	long nTotalTick = m_pHydrogen->getTickForColumn( nColumn );
 	if ( nTotalTick < 0 ) {
-		if ( pHydrogen->getMode() == Song::Mode::Song ) {
+		if ( m_pHydrogen->getMode() == Song::Mode::Song ) {
 			ERRORLOG(
 				QString( "Provided column [%1] violates the allowed range "
 						 "[0;%2). No relocation done." )
 					.arg( nColumn )
-					.arg( pHydrogen->getSong()->getPatternGroupVector()->size()
+					.arg( m_pHydrogen->getSong()->getPatternGroupVector()->size()
 					)
 			);
 			return false;
@@ -2467,12 +2323,10 @@ bool CoreActionController::locateToColumn( int nColumn )
 
 bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 	const auto pPref = m_pHydrogen->getPreferences();
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( m_pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
@@ -2485,7 +2339,7 @@ bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast )
 
 	if ( pPref->getMidiTransportOutputSend() &&
 		 pPref->getMidiFeedbackChannel() != Midi::ChannelOff ) {
-		auto pMidiDriver = pHydrogen->getMidiDriver();
+		auto pMidiDriver = m_pHydrogen->getMidiDriver();
 
 		if ( pMidiDriver != nullptr ) {
 			// A song position provided via MIDI has the lowest resolution of a
@@ -2507,9 +2361,7 @@ bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast )
 
 bool CoreActionController::newPattern( const QString& sPatternName )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pPatternList = pHydrogen->getSong()->getPatternList();
+	auto pPatternList = m_pHydrogen->getSong()->getPatternList();
 	auto pPattern = std::make_shared<Pattern>();
 	pPattern->setName( sPatternName );
 
@@ -2519,11 +2371,6 @@ bool CoreActionController::newPattern( const QString& sPatternName )
 std::shared_ptr<Pattern> CoreActionController::loadPattern( const QString& sPath
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	if ( pHydrogen == nullptr ) {
-		return nullptr;
-	}
-
 	auto pNewPattern =
 		Pattern::load( sPath, false, m_pHydrogen->getSoundLibraryDatabase() );
 	if ( pNewPattern == nullptr ) {
@@ -2540,11 +2387,9 @@ bool CoreActionController::setPattern(
 	bool bReplace
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pSong = pHydrogen->getSong();
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
@@ -2598,25 +2443,25 @@ bool CoreActionController::setPattern(
 		}
 	}
 
-	if ( pHydrogen->isPatternEditorLocked() ) {
-		pHydrogen->updateSelectedPattern( false );
+	if ( m_pHydrogen->isPatternEditorLocked() ) {
+		m_pHydrogen->updateSelectedPattern( false );
 	}
 	else {
-		pHydrogen->setSelectedPatternNumber(
+		m_pHydrogen->setSelectedPatternNumber(
 			nPatternPosition, false, Event::Trigger::Default
 		);
 	}
 	pAudioEngine->updatePlayingPatterns( Event::Trigger::Default );
 
-	pHydrogen->updateSongSize();
+	m_pHydrogen->updateSongSize();
 
 	pAudioEngine->unlock();
 
 	if ( bReplace ) {
-		pHydrogen->updateVirtualPatterns( Event::Trigger::Suppress );
+		m_pHydrogen->updateVirtualPatterns( Event::Trigger::Suppress );
 	}
 
-	pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true );
 
 	m_pHydrogen->getEventQueue()->pushEvent(
 		Event::Type::SelectedPatternChanged, 0
@@ -2627,10 +2472,8 @@ bool CoreActionController::setPattern(
 
 bool CoreActionController::selectPattern( int nPatternNumber )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
-	const auto pSong = pHydrogen->getSong();
+	const auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
@@ -2644,11 +2487,11 @@ bool CoreActionController::selectPattern( int nPatternNumber )
 		return false;
 	}
 
-	if ( !( pHydrogen->isPatternEditorLocked() &&
-			pHydrogen->getAudioEngine()->getState() ==
+	if ( !( m_pHydrogen->isPatternEditorLocked() &&
+			m_pHydrogen->getAudioEngine()->getState() ==
 				AudioEngine::State::Playing ) ) {
 		// Event handling will be done in Hydrogen::setSelectedPatternNumber.
-		pHydrogen->setSelectedPatternNumber(
+		m_pHydrogen->setSelectedPatternNumber(
 			nPatternNumber, true, Event::Trigger::Default
 		);
 	}
@@ -2658,10 +2501,8 @@ bool CoreActionController::selectPattern( int nPatternNumber )
 
 bool CoreActionController::removePattern( int nPatternNumber )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pSong = pHydrogen->getSong();
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
+	auto pSong = m_pHydrogen->getSong();
 
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
@@ -2675,7 +2516,7 @@ bool CoreActionController::removePattern( int nPatternNumber )
 	auto pPlayingPatterns = pAudioEngine->getPlayingPatterns();
 	auto pNextPatterns = pAudioEngine->getNextPatterns();
 
-	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
+	int nSelectedPatternNumber = m_pHydrogen->getSelectedPatternNumber();
 	auto pPattern = pPatternList->get( nPatternNumber );
 
 	if ( pPattern == nullptr ) {
@@ -2717,11 +2558,11 @@ bool CoreActionController::removePattern( int nPatternNumber )
 		}
 	}
 
-	if ( pHydrogen->isPatternEditorLocked() ) {
-		pHydrogen->updateSelectedPattern( false );
+	if ( m_pHydrogen->isPatternEditorLocked() ) {
+		m_pHydrogen->updateSelectedPattern( false );
 	}
 	else if ( nPatternNumber == nSelectedPatternNumber ) {
-		pHydrogen->setSelectedPatternNumber(
+		m_pHydrogen->setSelectedPatternNumber(
 			std::max( 0, nPatternNumber - 1 ), false, Event::Trigger::Default
 		);
 	}
@@ -2744,7 +2585,7 @@ bool CoreActionController::removePattern( int nPatternNumber )
 	// Delete the pattern from the list of available patterns.
 	pPatternList->del( pPattern );
 
-	pHydrogen->updateSongSize();
+	m_pHydrogen->updateSongSize();
 
 	pAudioEngine->unlock();
 
@@ -2757,8 +2598,8 @@ bool CoreActionController::removePattern( int nPatternNumber )
 		}
 	}
 
-	pHydrogen->updateVirtualPatterns();
-	pHydrogen->setSongModified( true );
+	m_pHydrogen->updateVirtualPatterns();
+	m_pHydrogen->setSongModified( true );
 
 	return true;
 }
@@ -2768,9 +2609,7 @@ bool CoreActionController::clearInstrumentInPattern(
 	int nPatternNumber
 )
 {
-	Hydrogen* pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pSong = pHydrogen->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
@@ -2781,7 +2620,7 @@ bool CoreActionController::clearInstrumentInPattern(
 		nPattern = nPatternNumber;
 	}
 	else {
-		nPattern = pHydrogen->getSelectedPatternNumber();
+		nPattern = m_pHydrogen->getSelectedPatternNumber();
 	}
 
 	auto pPattern = pSong->getPatternList()->get( nPattern );
@@ -2821,15 +2660,13 @@ bool CoreActionController::setPatternProperties(
 	int nPatternIndex
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( m_pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
 
-	auto pPatternList = pHydrogen->getSong()->getPatternList();
+	auto pPatternList = m_pHydrogen->getSong()->getPatternList();
 	auto pPattern = pPatternList->get( nPatternIndex );
 	if ( pPattern == nullptr ) {
 		ERRORLOG( QString( "Unable to find pattern [%1]" ).arg( nPatternIndex )
@@ -2849,7 +2686,7 @@ bool CoreActionController::setPatternProperties(
 	}
 	pPattern->setTags( newTags );
 
-	pHydrogen->setPatternModified( true, nPatternIndex );
+	m_pHydrogen->setPatternModified( true, nPatternIndex );
 
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::PatternChanged, -1 );
 
@@ -2866,10 +2703,8 @@ bool CoreActionController::setSongProperties(
 	const QStringList& newTags
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
-	auto pSong = pHydrogen->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
@@ -2887,23 +2722,21 @@ bool CoreActionController::setSongProperties(
 	}
 	pSong->setTags( newTags );
 
-	pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true );
 
 	return true;
 }
 
 bool CoreActionController::toggleGridCell( const GridPoint& gridPoint )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( m_pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
 
-	auto pSong = pHydrogen->getSong();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pSong = m_pHydrogen->getSong();
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 	auto pPatternList = pSong->getPatternList();
 	auto pColumns = pSong->getPatternGroupVector();
 
@@ -2965,15 +2798,15 @@ bool CoreActionController::toggleGridCell( const GridPoint& gridPoint )
 		return false;
 	}
 
-	pHydrogen->updateSongSize();
-	pHydrogen->updateSelectedPattern( false );
+	m_pHydrogen->updateSongSize();
+	m_pHydrogen->updateSelectedPattern( false );
 
 	pAudioEngine->unlock();
 
-	pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true );
 
 	// Update the SongEditor.
-	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
+	if ( m_pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::GridCellToggled, 0
 		);
@@ -2992,9 +2825,7 @@ bool CoreActionController::handleNote(
 {
 	const auto pPref = m_pHydrogen->getPreferences();
 	const auto pMidiInstrumentMap = pPref->getMidiInstrumentMap();
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pSong = pHydrogen->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return false;
 	}
@@ -3012,7 +2843,7 @@ bool CoreActionController::handleNote(
 	for ( const auto& ppInstrument : mappedInstruments ) {
 		// Only look to change instrument if the current note is actually of
 		// hihat and hihat openness is outside the instrument selected
-		const auto hihatOpenness = pHydrogen->getHihatOpenness();
+		const auto hihatOpenness = m_pHydrogen->getHihatOpenness();
 		int nCurrentInstrument = pInstrumentList->index( ppInstrument );
 		if ( ppInstrument != nullptr && ppInstrument->getHihatGrp() >= 0 &&
 			 ( hihatOpenness < ppInstrument->getLowerCc() ||
@@ -3031,7 +2862,7 @@ bool CoreActionController::handleNote(
 			}
 		}
 
-		if ( pHydrogen->addRealtimeNote(
+		if ( m_pHydrogen->addRealtimeNote(
 				 nCurrentInstrument, fVelocity, bNoteOff, note
 			 ) ) {
 			instrumentStrings << QString( "%1 (%2)" )
@@ -3078,17 +2909,15 @@ void CoreActionController::insertRecentFile( const QString& sFileName )
 
 bool CoreActionController::setBpm( float fBpm )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pSong = pHydrogen->getSong();
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
+	auto pSong = m_pHydrogen->getSong();
 
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set yet" );
 		return false;
 	}
 
-	if ( pHydrogen->getTempoSource() != Hydrogen::Tempo::Song ) {
+	if ( m_pHydrogen->getTempoSource() != Hydrogen::Tempo::Song ) {
 		return false;
 	}
 
@@ -3108,21 +2937,14 @@ bool CoreActionController::setBpm( float fBpm )
 
 	pAudioEngine->unlock();
 
-	pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true );
 
 	return true;
 }
 
 bool CoreActionController::startCountIn()
 {
-	auto pHydrogen = m_pHydrogen;
-	assert( pHydrogen );
-	if ( pHydrogen == nullptr ) {
-		ERRORLOG( "Core not ready yet!" );
-		return false;
-	}
-
-	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 	pAudioEngine->lock( RIGHT_HERE );
 	pAudioEngine->startCountIn();
 	pAudioEngine->unlock();
@@ -3135,13 +2957,6 @@ std::shared_ptr<Playlist> CoreActionController::loadPlaylist(
 	const QString& sRecoverPath
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	assert( pHydrogen );
-	if ( pHydrogen == nullptr ) {
-		ERRORLOG( "Core not ready yet!" );
-		return nullptr;
-	}
-
 	// Check whether the provided path is valid.
 	if ( sPath != Filesystem::emptyPath( Filesystem::Artifact::Playlist ) &&
 		 !Filesystem::isPathValid(
@@ -3186,13 +3001,11 @@ std::shared_ptr<Playlist> CoreActionController::loadPlaylist(
 
 bool CoreActionController::setPlaylist( std::shared_ptr<Playlist> pPlaylist )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 	if ( pPlaylist == nullptr ) {
 		ERRORLOG( "Invalid playlist" );
 		return false;
 	}
-	pHydrogen->setPlaylist( pPlaylist );
+	m_pHydrogen->setPlaylist( pPlaylist );
 
 	if ( pPlaylist->getPath() ==
 		 Filesystem::emptyPath( Filesystem::Artifact::Playlist ) ) {
@@ -3227,9 +3040,7 @@ bool CoreActionController::setPlaylist( std::shared_ptr<Playlist> pPlaylist )
 
 bool CoreActionController::savePlaylist()
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pPlaylist = pHydrogen->getPlaylist();
+	auto pPlaylist = m_pHydrogen->getPlaylist();
 	if ( pPlaylist == nullptr ) {
 		ERRORLOG( "Invalid current playlist" );
 		return false;
@@ -3245,14 +3056,12 @@ bool CoreActionController::savePlaylist()
 
 bool CoreActionController::savePlaylistAs( const QString& sPath )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pPlaylist = pHydrogen->getPlaylist();
+	auto pPlaylist = m_pHydrogen->getPlaylist();
 	if ( pPlaylist == nullptr ) {
 		ERRORLOG( "Invalid current playlist" );
 		return false;
 	}
-	if ( !pHydrogen->getPlaylist()->saveAs( sPath, pHydrogen->getPreferences() ) ) {
+	if ( !m_pHydrogen->getPlaylist()->saveAs( sPath, m_pHydrogen->getPreferences() ) ) {
 		ERRORLOG( QString( "Unable to save playlist to [%1]" ).arg( sPath ) );
 		return false;
 	}
@@ -3271,12 +3080,10 @@ bool CoreActionController::addToPlaylist(
 	int nIndex
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 	if ( pEntry == nullptr ) {
 		return false;
 	}
-	auto pPlaylist = pHydrogen->getPlaylist();
+	auto pPlaylist = m_pHydrogen->getPlaylist();
 	if ( pPlaylist == nullptr ) {
 		ERRORLOG( "Invalid current playlist" );
 		return false;
@@ -3295,12 +3102,10 @@ bool CoreActionController::removeFromPlaylist(
 	int nIndex
 )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 	if ( pEntry == nullptr ) {
 		return false;
 	}
-	auto pPlaylist = pHydrogen->getPlaylist();
+	auto pPlaylist = m_pHydrogen->getPlaylist();
 	if ( pPlaylist == nullptr ) {
 		ERRORLOG( "Invalid current playlist" );
 		return false;
@@ -3316,9 +3121,7 @@ bool CoreActionController::removeFromPlaylist(
 }
 bool CoreActionController::activatePlaylistSong( int nSongNumber )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
-	auto pPlaylist = pHydrogen->getPlaylist();
+	auto pPlaylist = m_pHydrogen->getPlaylist();
 	if ( pPlaylist == nullptr ) {
 		ERRORLOG( "Invalid current playlist" );
 		return false;
@@ -3339,11 +3142,9 @@ bool CoreActionController::activatePlaylistSong( int nSongNumber )
 
 bool CoreActionController::setMidiClockInputHandling( bool bHandle )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
 	auto pPref = m_pHydrogen->getPreferences();
-	auto pSong = pHydrogen->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return false;
 	}
@@ -3358,9 +3159,9 @@ bool CoreActionController::setMidiClockInputHandling( bool bHandle )
 		H2Core::Event::Type::MidiClockActivation, 0
 	);
 
-	if ( !bHandle && pHydrogen->getTempoSource() == Hydrogen::Tempo::Song ) {
+	if ( !bHandle && m_pHydrogen->getTempoSource() == Hydrogen::Tempo::Song ) {
 		// Restore the previous tempo.
-		auto pAudioEngine = pHydrogen->getAudioEngine();
+		auto pAudioEngine = m_pHydrogen->getAudioEngine();
 		pAudioEngine->lock( RIGHT_HERE );
 		pAudioEngine->setNextBpm( pSong->getBpm() );
 		pAudioEngine->unlock();
@@ -3371,11 +3172,9 @@ bool CoreActionController::setMidiClockInputHandling( bool bHandle )
 
 bool CoreActionController::setMidiClockOutputSend( bool bHandle )
 {
-	auto pHydrogen = m_pHydrogen;
-	ASSERT_HYDROGEN
 
 	auto pPref = m_pHydrogen->getPreferences();
-	auto pSong = pHydrogen->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return false;
 	}
@@ -3388,11 +3187,11 @@ bool CoreActionController::setMidiClockOutputSend( bool bHandle )
 
 	// Jump start sending MIDI clock messages. Else they would only be send on
 	// the next tempo change or start of the audio engine.
-	auto pMidiDriver = pHydrogen->getAudioEngine()->getMidiDriver();
+	auto pMidiDriver = m_pHydrogen->getAudioEngine()->getMidiDriver();
 	if ( pMidiDriver != nullptr ) {
 		if ( bHandle ) {
 			pMidiDriver->startMidiClockStream(
-				pHydrogen->getAudioEngine()->getPlayhead()->getBpm()
+				m_pHydrogen->getAudioEngine()->getPlayhead()->getBpm()
 			);
 		}
 		else {
