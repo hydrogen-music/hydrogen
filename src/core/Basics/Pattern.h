@@ -106,11 +106,16 @@ class Pattern : public H2Core::Object<Pattern> {
 	/**
 	 * save a pattern into an xml file
 	 * \param sPatternPath the path to save the pattern into
+	 * \param pDrumkit In case the #m_sDrumkitName should be overwritten, the
+	 *   corresponding drumkit has to be passed in here.
 	 * \param bSilent whever to log info and debug messages.
 	 * \return true on success
 	 */
-	bool save( const QString& sPatternPath, Hydrogen* pHydrogen,
-			   bool bSilent = false ) const;
+	bool save(
+		const QString& sPatternPath,
+		std::shared_ptr<Drumkit> pDrumkit = nullptr,
+		bool bSilent = false
+	) const;
 
 	/** Stores a serialized version of the instance to the XML note @a
 	 * pNote.

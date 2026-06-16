@@ -578,7 +578,7 @@ void SoundLibraryTree::actionProperties()
 			this, pPattern, -1, PatternPropertiesDialog::Action::None
 		);
 		if ( dialog.exec() == QDialog::Accepted ) {
-			pPattern->save( pPattern->getPath(), HydrogenApp::pHydrogen() );
+			pPattern->save( pPattern->getPath() );
 			pDB->updatePatterns( Event::Trigger::Default );
 		}
 	}
@@ -659,7 +659,7 @@ void SoundLibraryTree::actionDuplicate()
 			)
 		);
 		if ( dialog.exec() == QDialog::Accepted ) {
-			if ( pPattern->save( pPattern->getPath(), HydrogenApp::pHydrogen() ) ) {
+			if ( pPattern->save( pPattern->getPath() ) ) {
 				pDB->updatePatterns( Event::Trigger::Default );
 			}
 			else {

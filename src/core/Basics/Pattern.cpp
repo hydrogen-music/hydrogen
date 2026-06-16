@@ -247,13 +247,12 @@ std::shared_ptr<Pattern> Pattern::loadFrom(
 	return pPattern;
 }
 
-bool Pattern::save( const QString& sPatternPath, Hydrogen* pHydrogen, bool bSilent ) const
+bool Pattern::save(
+	const QString& sPatternPath,
+	std::shared_ptr<Drumkit> pDrumkit,
+	bool bSilent
+) const
 {
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return false;
-	}
-
 	if ( !bSilent ) {
 		INFOLOG( QString( "Saving pattern into [%1]" ).arg( sPatternPath ) );
 	}
@@ -263,7 +262,12 @@ bool Pattern::save( const QString& sPatternPath, Hydrogen* pHydrogen, bool bSile
 
 	// For backward compatibility we will also add the name of the current
 	// drumkit.
-	root.write_string( "drumkit_name", pSong->getDrumkit()->getExportName() );
+	if ( pDrumkit != nullptr ) {
+		root.write_string( "drumkit_name", pDrumkit->getExportName() );
+	}
+	else {
+		root.write_string( "drumkit_name", m_sDrumkitName );
+	}
 	saveTo( root, Instrument::EmptyId, "", Note::Pitch::Invalid, bSilent );
 	return doc.write( sPatternPath );
 }

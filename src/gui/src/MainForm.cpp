@@ -1309,7 +1309,7 @@ void MainForm::action_pattern_save( int nPatternRow )
 		return;
 	}
 
-	if ( !pPattern->save( pPattern->getPath(), HydrogenApp::pHydrogen() ) ) {
+	if ( !pPattern->save( pPattern->getPath(), pSong->getDrumkit() ) ) {
 		QMessageBox::warning(
 			this, "Hydrogen",
 			QString( "%1\n\n%2" )
@@ -1403,7 +1403,7 @@ void MainForm::action_pattern_save_as( int nPatternRow )
 		return;
 	}
 
-	if ( pPattern->save( pPattern->getPath(), HydrogenApp::pHydrogen() ) ) {
+	if ( pPattern->save( pPattern->getPath(), pSong->getDrumkit() ) ) {
 		// Done in the GUI instead of Pattern::save() itself because this only
 		// concerns patterns of the current song. We have to change the is
 		// modified state on the original pattern and not the copy we did in

@@ -643,7 +643,7 @@ void XmlTest::testPatternFormatIntegrity() {
 
 	const QString sTmpPattern =
 		H2Core::Filesystem::tmpFilePath( "pattern-format-integrity.h2pattern" );
-	CPPUNIT_ASSERT( pPattern->save( sTmpPattern, pTestHydrogen(), true ) );
+	CPPUNIT_ASSERT( pPattern->save( sTmpPattern, nullptr, true ) );
 
 	H2TEST_ASSERT_XML_FILES_EQUAL( sTestFile, sTmpPattern );
 
@@ -674,7 +674,7 @@ void XmlTest::testPattern()
 	CPPUNIT_ASSERT( pPatternLoaded->getTags()[ 0 ] == "Example" );
 	CPPUNIT_ASSERT( pPatternLoaded->getTags()[ 1 ] == "Pattern" );
 
-	CPPUNIT_ASSERT( pPatternLoaded->save( sPatternPath, pTestHydrogen(), true ) );
+	CPPUNIT_ASSERT( pPatternLoaded->save( sPatternPath, pDrumkit, true ) );
 
 	H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/pattern.h2pattern" ),
 								   sPatternPath );
@@ -686,7 +686,7 @@ void XmlTest::testPattern()
 	const QString sEmptyPatternPath =
 		H2Core::Filesystem::tmpDir() + "empty.h2pattern";
 	auto pPatternNew = std::make_shared<H2Core::Pattern>();
-	CPPUNIT_ASSERT( pPatternNew->save( sPatternPath, pTestHydrogen(), true ) );
+	CPPUNIT_ASSERT( pPatternNew->save( sPatternPath, pDrumkit, true ) );
 	CPPUNIT_ASSERT( doc.read( sPatternPath ) );
 	H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/empty.h2pattern" ),
 								   sPatternPath );
@@ -718,6 +718,12 @@ void XmlTest::testPatternInstrumentTypes()
 {
 	___INFOLOG( "" );
 
+	auto pDrumkit = H2Core::Drumkit::load(
+		H2TEST_FILE( "/drumkits/baseKit/drumkit.xml" ), false, nullptr, true,
+		pTestHydrogen()
+	);
+	CPPUNIT_ASSERT( pDrumkit != nullptr );
+
 	const QString sTmpWithoutTypes =
 		H2Core::Filesystem::tmpDir() + "pattern-without-types.h2pattern";
 	const QString sTmpMismatch =
@@ -740,9 +746,12 @@ void XmlTest::testPatternInstrumentTypes()
 	const auto pPatternWithoutTypes = H2Core::Pattern::load(
 		H2TEST_FILE( "pattern/pattern-without-types.h2pattern"), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pPatternWithoutTypes != nullptr );
-	CPPUNIT_ASSERT( pPatternWithoutTypes->save( sTmpWithoutTypes, pTestHydrogen() ) );
+	CPPUNIT_ASSERT(
+		pPatternWithoutTypes->save( sTmpWithoutTypes, pDrumkit )
+	);
 	H2TEST_ASSERT_XML_FILES_EQUAL(
-		H2TEST_FILE( "pattern/pattern.h2pattern" ), sTmpWithoutTypes );
+		H2TEST_FILE( "pattern/pattern.h2pattern" ), sTmpWithoutTypes
+	);
 
 	H2Core::Filesystem::rm( sTmpWithoutTypes );
 	H2Core::Filesystem::rm( sTmpMismatch );
@@ -1279,7 +1288,7 @@ void XmlTest::testWriteToNonExistingDir() {
 		QString( "%1/non/existing/sub/folder/test.h2pattern" ).arg( sTmpDir );
 
 	auto pPattern = std::make_shared<Pattern>();
-	CPPUNIT_ASSERT( pPattern->save( sTmpPath, pTestHydrogen() ) );
+	CPPUNIT_ASSERT( pPattern->save( sTmpPath, nullptr ) );
 
 	CPPUNIT_ASSERT( ! Filesystem::rm( sTmpDir ) );
 
