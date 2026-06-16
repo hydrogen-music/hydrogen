@@ -433,8 +433,7 @@ class Note : public H2Core::Object<Note> {
 	 * used last for all encountered components is provided. */
 	void selectLayers( const std::map<
 					   std::shared_ptr<InstrumentComponent>,
-					   std::shared_ptr<InstrumentLayer> >& lastUsedLayers,
-					   std::shared_ptr<Song> pSong );
+					   std::shared_ptr<InstrumentLayer> >& lastUsedLayers );
 
 	std::map<
 		std::shared_ptr<InstrumentComponent>,
@@ -597,7 +596,7 @@ class Note : public H2Core::Object<Note> {
 	 * As the value applied is deterministic, it will not be handled
 	 * in humanice() but separately.
 	 */
-	void swing( std::shared_ptr<Song> pSong, Hydrogen* pHydrogen );
+	void swing( Hydrogen* pHydrogen );
 
 	/** Returns a short but expressive string using which the particular
 	 * note instance can be identified.

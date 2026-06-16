@@ -300,8 +300,7 @@ bool Note::layersAlreadySelected() const
 
 void Note::selectLayers( const std::map<
 						 std::shared_ptr<InstrumentComponent>,
-						 std::shared_ptr<InstrumentLayer> >& lastUsedLayers,
-						 std::shared_ptr<Song> pSong )
+						 std::shared_ptr<InstrumentLayer> >& lastUsedLayers )
 {
 	std::shared_ptr<Sample> pSample;
 
@@ -575,8 +574,9 @@ void Note::humanize( std::shared_ptr<Song> pSong )
 	}
 }
 
-void Note::swing( std::shared_ptr<Song> pSong, Hydrogen* pHydrogen )
+void Note::swing( Hydrogen* pHydrogen )
 {
+	auto pSong = pHydrogen->getSong();
 	if ( pSong != nullptr && pSong->getSwingFactor() > 0 ) {
 		// If the Timeline is activated, the tick size may change at
 		// any point. Therefore, the length in frames of a 16-th note

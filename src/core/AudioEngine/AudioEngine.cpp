@@ -3134,8 +3134,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 								 ( H2Core::nTicksPerQuarter / 4 ) ) == 0 ) &&
 							 ( ( m_pQueuing->getPatternTickPosition() %
 								 ( H2Core::nTicksPerQuarter / 2 ) ) != 0 ) ) {
-							pCopiedNote->swing( m_pHydrogen->getSong(),
-												m_pHydrogen );
+							pCopiedNote->swing( m_pHydrogen );
 						}
 						
 						// This must be done _after_ setting the

@@ -874,7 +874,7 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 	// SampleEditor - we use those. If not, we will select them right here
 	// according to the sample selected algorithms.
 	if ( !pNote->layersAlreadySelected() ) {
-		pNote->selectLayers( m_lastUsedLayersMap, m_pHydrogen->getSong() );
+		pNote->selectLayers( m_lastUsedLayersMap );
 
 		// Note that manually selected layers bypassing this if clause are not
 		// incorporated into the round robin layer selection on purpose.

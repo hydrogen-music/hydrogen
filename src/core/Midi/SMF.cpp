@@ -619,7 +619,7 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 						   ( H2Core::nTicksPerQuarter / 4 ) == 0 ) &&
 						 ( static_cast<int>(fNoteTick) %
 						   ( H2Core::nTicksPerQuarter / 2 ) != 0 ) ) {
-						pCopiedNote->swing( pSong, pHydrogen );
+						pCopiedNote->swing( pHydrogen );
 					}
 
 					// Frames introduced due to the humanization. Note that we
