@@ -54,10 +54,11 @@ public:
 
 	void updatePosition( float fTick );
 	void updateAutomationPath();
+	void updateView();
 
-		static constexpr int m_nMinimumHeight = 64;
+	static constexpr int m_nMinimumHeight = 64;
 
-protected:
+   protected:
 	void paintEvent(QPaintEvent *event) override;
 	void mousePressEvent(QMouseEvent *event) override;
 	void mouseReleaseEvent(QMouseEvent *event) override;

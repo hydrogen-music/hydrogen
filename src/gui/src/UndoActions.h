@@ -1273,18 +1273,22 @@ class SE_automationPathAddPointAction : public QUndoCommand {
 
 	virtual void undo()
 	{
-		m_pPath->removePoint( m_fX , HydrogenApp::pHydrogen());
+		HydrogenApp::pHydrogen()
+			->getCoreActionController()
+			->removeAutomationPoint( m_fX );
 
 		auto h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+		h2app->getSongEditorPanel()->getAutomationPathView()->updateView();
 	}
 
 	virtual void redo()
 	{
-		m_pPath->addPoint( m_fX, m_fY , HydrogenApp::pHydrogen());
+		HydrogenApp::pHydrogen()
+			->getCoreActionController()
+			->addAutomationPoint( m_fX, m_fY );
 
 		auto h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+		h2app->getSongEditorPanel()->getAutomationPathView()->updateView();
 	}
 
    private:
@@ -1310,18 +1314,22 @@ class SE_automationPathRemovePointAction : public QUndoCommand {
 
 	virtual void redo()
 	{
-		m_pPath->removePoint( m_fX , HydrogenApp::pHydrogen());
+		HydrogenApp::pHydrogen()
+			->getCoreActionController()
+			->removeAutomationPoint( m_fX );
 
 		auto h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+		h2app->getSongEditorPanel()->getAutomationPathView()->updateView();
 	}
 
 	virtual void undo()
 	{
-		m_pPath->addPoint( m_fX, m_fY , HydrogenApp::pHydrogen());
+		HydrogenApp::pHydrogen()
+			->getCoreActionController()
+			->addAutomationPoint( m_fX, m_fY );
 
 		auto h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+		h2app->getSongEditorPanel()->getAutomationPathView()->updateView();
 	}
 
    private:
@@ -1351,20 +1359,28 @@ class SE_automationPathMovePointAction : public QUndoCommand {
 
 	virtual void redo()
 	{
-		m_pPath->removePoint( m_fOldX , HydrogenApp::pHydrogen());
-		m_pPath->addPoint( m_fNewX, m_fNewY , HydrogenApp::pHydrogen());
+		HydrogenApp::pHydrogen()
+			->getCoreActionController()
+			->removeAutomationPoint( m_fOldX );
+		HydrogenApp::pHydrogen()
+			->getCoreActionController()
+			->addAutomationPoint( m_fNewX, m_fNewY );
 
 		auto h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+		h2app->getSongEditorPanel()->getAutomationPathView()->updateView();
 	}
 
 	virtual void undo()
 	{
-		m_pPath->removePoint( m_fNewX , HydrogenApp::pHydrogen());
-		m_pPath->addPoint( m_fOldX, m_fOldY , HydrogenApp::pHydrogen());
+		HydrogenApp::pHydrogen()
+			->getCoreActionController()
+			->removeAutomationPoint( m_fNewX );
+		HydrogenApp::pHydrogen()
+			->getCoreActionController()
+			->addAutomationPoint( m_fOldX, m_fOldY );
 
 		auto h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+		h2app->getSongEditorPanel()->getAutomationPathView()->updateView();
 	}
 
    private:

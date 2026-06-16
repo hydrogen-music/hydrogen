@@ -611,6 +611,9 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	/** Enable or disable sending MIDI clock messages. */
 	bool setMidiClockOutputSend( bool bHandle );
 
+	bool addAutomationPoint( float fX, float fY );
+	bool removeAutomationPoint( float fX );
+
    private:
 	/** Back-pointer to the owning Hydrogen instance (ADR 0015). */
 	Hydrogen* m_pHydrogen;

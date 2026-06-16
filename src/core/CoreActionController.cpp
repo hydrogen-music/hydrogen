@@ -26,6 +26,7 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
+#include <core/Basics/AutomationPath.h>
 #include <core/Basics/GridPoint.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -3393,6 +3394,30 @@ bool CoreActionController::setMidiClockOutputSend( bool bHandle )
 		}
 	}
 
+	return true;
+}
+
+bool CoreActionController::addAutomationPoint( float fX, float fY )
+{
+	auto pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getAutomationPath() == nullptr ) {
+		return false;
+	}
+
+	pSong->getAutomationPath()->addPoint( fX, fY, m_pHydrogen );
+	m_pHydrogen->setSongModified( true );
+	return true;
+}
+
+bool CoreActionController::removeAutomationPoint( float fX )
+{
+	auto pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getAutomationPath() == nullptr ) {
+		return false;
+	}
+
+	pSong->getAutomationPath()->removePoint( fX, m_pHydrogen );
+	m_pHydrogen->setSongModified( true );
 	return true;
 }
 }  // namespace H2Core

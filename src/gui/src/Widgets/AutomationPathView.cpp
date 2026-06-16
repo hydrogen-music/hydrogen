@@ -101,6 +101,12 @@ void AutomationPathView::updateAutomationPath()
 	}
 }
 
+void AutomationPathView::updateView()
+{
+	createBackground();
+	update();
+}
+
 void AutomationPathView::setGridWidth( int width )
 {
 	if ( SongEditor::nMinGridWidth <= width &&
@@ -111,7 +117,6 @@ void AutomationPathView::setGridWidth( int width )
 		update();
 	}
 }
-
 
 /**
  * \brief Locate path point on a wdiget surface
@@ -328,7 +333,6 @@ void AutomationPathView::mousePressEvent(QMouseEvent *event)
 		m_fOriginY = y;
 		m_bPointAdded = false;
 	}
-	HydrogenApp::pHydrogen()->setSongModified( true );
 
 	createBackground();
 	update();
