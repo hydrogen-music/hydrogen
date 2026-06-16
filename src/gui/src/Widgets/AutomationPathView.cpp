@@ -323,12 +323,12 @@ void AutomationPathView::mousePressEvent(QMouseEvent *event)
 
 	_selectedPoint = m_pPath->find(x);
 	if (_selectedPoint == m_pPath->end()) {
-		m_pPath->addPoint(x, y, HydrogenApp::pHydrogen());
+		m_pPath->addPoint(x, y);
 		_selectedPoint = m_pPath->find(x);
 
 		m_bPointAdded = true;
 	} else {
-		_selectedPoint = m_pPath->move(_selectedPoint, x, y, HydrogenApp::pHydrogen());
+		_selectedPoint = m_pPath->move(_selectedPoint, x, y);
 		m_fOriginX = x;
 		m_fOriginY = y;
 		m_bPointAdded = false;
@@ -387,7 +387,7 @@ void AutomationPathView::mouseMoveEvent(QMouseEvent *event)
 	float y = p.second;
 
 	if ( m_bIsHolding && m_pPath && _selectedPoint != m_pPath->end() ) {
-		_selectedPoint = m_pPath->move(_selectedPoint, x, y, HydrogenApp::pHydrogen());
+		_selectedPoint = m_pPath->move(_selectedPoint, x, y);
 		HydrogenApp::pHydrogen()->setSongModified( true );
 	}
 
@@ -408,7 +408,7 @@ void AutomationPathView::keyPressEvent(QKeyEvent *event)
 		if ( m_pPath && _selectedPoint != m_pPath->end() ) {
 			float x = _selectedPoint->first;
 			float y = _selectedPoint->second;
-			m_pPath->removePoint(_selectedPoint->first, HydrogenApp::pHydrogen());
+			m_pPath->removePoint(_selectedPoint->first);
 			_selectedPoint = m_pPath->end();
 			
 			HydrogenApp::pHydrogen()->setSongModified( true );

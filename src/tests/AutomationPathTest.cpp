@@ -91,7 +91,7 @@ void AutomationPathTest::testOnePoint()
 	___INFOLOG( "" );
 	AutomationPath p( 0.0f, 1.0f, 1.0f );
 
-	p.addPoint( 1.0f, 0.5f, pTestHydrogen() );
+	p.addPoint( 1.0f, 0.5f );
 
 	CPPUNIT_ASSERT_DOUBLES_EQUAL(
 		0.5, static_cast<double>( p.getValue( 1.0f ) ), delta
@@ -106,8 +106,8 @@ void AutomationPathTest::testValueBeforeFirstPoint()
 	___INFOLOG( "" );
 	AutomationPath p( 0.0f, 1.0f, 1.0f );
 
-	p.addPoint( 1.0f, 0.5f, pTestHydrogen() );
-	p.addPoint( 2.0f, 0.7f, pTestHydrogen() );
+	p.addPoint( 1.0f, 0.5f );
+	p.addPoint( 2.0f, 0.7f );
 
 	CPPUNIT_ASSERT( !p.empty() );
 
@@ -124,8 +124,8 @@ void AutomationPathTest::testValueAfterLastPoint()
 	___INFOLOG( "" );
 	AutomationPath p( 0.0f, 1.0f, 1.0f );
 
-	p.addPoint( 1.0f, 0.4f, pTestHydrogen() );
-	p.addPoint( 2.0f, 0.6f, pTestHydrogen() );
+	p.addPoint( 1.0f, 0.4f );
+	p.addPoint( 2.0f, 0.6f );
 
 	CPPUNIT_ASSERT_DOUBLES_EQUAL(
 		0.6, static_cast<double>( p.getValue( 3.0f ) ), delta
@@ -139,8 +139,8 @@ void AutomationPathTest::testMidpointValue()
 	___INFOLOG( "" );
 	AutomationPath p( 0.0f, 1.0f, 1.0f );
 
-	p.addPoint( 1.0f, 0.2f, pTestHydrogen() );
-	p.addPoint( 2.0f, 0.4f, pTestHydrogen() );
+	p.addPoint( 1.0f, 0.2f );
+	p.addPoint( 2.0f, 0.4f );
 
 	CPPUNIT_ASSERT_DOUBLES_EQUAL(
 		0.3, static_cast<double>( p.getValue( 1.5f ) ), delta
@@ -164,12 +164,12 @@ void AutomationPathTest::testPathsEqual()
 {
 	___INFOLOG( "" );
 	AutomationPath p1( -4.0f, 3.0f, 1.5f );
-	p1.addPoint( 1.0f, 0.0f, pTestHydrogen() );
-	p1.addPoint( 2.0f, 2.0f, pTestHydrogen() );
+	p1.addPoint( 1.0f, 0.0f );
+	p1.addPoint( 2.0f, 2.0f );
 
 	AutomationPath p2( -4.0f, 3.0f, 1.5f );
-	p2.addPoint( 1.0f, 0.0f, pTestHydrogen() );
-	p2.addPoint( 2.0f, 2.0f, pTestHydrogen() );
+	p2.addPoint( 1.0f, 0.0f );
+	p2.addPoint( 2.0f, 2.0f );
 
 	CPPUNIT_ASSERT( p1 == p2 );
 	CPPUNIT_ASSERT( !( p1 != p2 ) );
@@ -191,10 +191,10 @@ void AutomationPathTest::testPathsNotEqual()
 {
 	___INFOLOG( "" );
 	AutomationPath p1( -2.0f, 2.0f, 1.0f );
-	p1.addPoint( 1.0f, 0.0f, pTestHydrogen() );
+	p1.addPoint( 1.0f, 0.0f );
 
 	AutomationPath p2( -2.0f, 2.0f, 1.0f );
-	p2.addPoint( 2.0f, 2.0f, pTestHydrogen() );
+	p2.addPoint( 2.0f, 2.0f );
 
 	CPPUNIT_ASSERT( p1 != p2 );
 	CPPUNIT_ASSERT( !( p1 == p2 ) );
@@ -206,9 +206,9 @@ void AutomationPathTest::testIterator()
 	___INFOLOG( "" );
 	typedef std::pair<const float, float> pair;
 	AutomationPath p( 0.0f, 4.0f, 1.0f );
-	p.addPoint( 0.0f, 0.0f, pTestHydrogen() );
-	p.addPoint( 1.0f, 2.0f, pTestHydrogen() );
-	p.addPoint( 2.0f, 4.0f, pTestHydrogen() );
+	p.addPoint( 0.0f, 0.0f );
+	p.addPoint( 1.0f, 2.0f );
+	p.addPoint( 2.0f, 4.0f );
 
 	auto i = p.begin();
 	CPPUNIT_ASSERT( i != p.end() );
@@ -244,7 +244,7 @@ void AutomationPathTest::testFindPoint()
 {
 	___INFOLOG( "" );
 	AutomationPath p( 0.0f, 1.0f, 1.0f );
-	p.addPoint( 4.0f, 0.5f, pTestHydrogen() );
+	p.addPoint( 4.0f, 0.5f );
 
 	auto iter = p.find( 4.0f );
 	CPPUNIT_ASSERT( iter == p.begin() );
@@ -261,7 +261,7 @@ void AutomationPathTest::testFindNotFound()
 {
 	___INFOLOG( "" );
 	AutomationPath p( 0.0f, 1.0f, 1.0f );
-	p.addPoint( 2.0f, 0.2f, pTestHydrogen() );
+	p.addPoint( 2.0f, 0.2f );
 
 	auto iter = p.find( 1.3f );
 	CPPUNIT_ASSERT( iter == p.end() );
@@ -276,10 +276,10 @@ void AutomationPathTest::testMovePoint()
 	___INFOLOG( "" );
 	typedef std::pair<const float, float> pair;
 	AutomationPath p( 0.0f, 1.0f, 1.0f );
-	p.addPoint( 5.0f, 0.5f, pTestHydrogen() );
+	p.addPoint( 5.0f, 0.5f );
 
 	auto in = p.begin();
-	auto out = p.move( in, 6.0f, 1.0f, pTestHydrogen() );
+	auto out = p.move( in, 6.0f, 1.0f );
 
 	CPPUNIT_ASSERT( out == p.begin() );
 	CPPUNIT_ASSERT_EQUAL( pair( 6.0f, 1.0f ), *out );
@@ -290,9 +290,9 @@ void AutomationPathTest::testRemovePoint()
 {
 	___INFOLOG( "" );
 	AutomationPath p( 1.0f, 1.0f, 1.0f );
-	p.addPoint( 0.0f, 0.0f, pTestHydrogen() );
+	p.addPoint( 0.0f, 0.0f );
 
-	p.removePoint( 0.0f, pTestHydrogen() );
+	p.removePoint( 0.0f );
 
 	CPPUNIT_ASSERT( p.empty() );
 	CPPUNIT_ASSERT( p.find( 0.0f ) == p.end() );
@@ -313,8 +313,8 @@ void AutomationPathTest::testRead()
 	auto pPath = AutomationPath::loadFrom( doc.documentElement(), false );
 
 	auto pExpect = std::make_shared<AutomationPath>();
-	pExpect->addPoint( 0.2, 0.4, pTestHydrogen() );
-	pExpect->addPoint( 0.4, 0.2, pTestHydrogen() );
+	pExpect->addPoint( 0.2, 0.4 );
+	pExpect->addPoint( 0.4, 0.2 );
 
 	CPPUNIT_ASSERT_EQUAL( *pExpect, *pPath );
 	CPPUNIT_ASSERT_EQUAL( 0.4f, pPath->getValue( 0.2f ) );
@@ -326,9 +326,9 @@ void AutomationPathTest::testWrite()
 {
 	___INFOLOG( "" );
 	AutomationPath path;
-	path.addPoint( 0.0f, 0.0f, pTestHydrogen() );
-	path.addPoint( 0.2f, 0.0f, pTestHydrogen() );
-	path.addPoint( 1.0f, 1.0f, pTestHydrogen() );
+	path.addPoint( 0.0f, 0.0f );
+	path.addPoint( 0.2f, 0.0f );
+	path.addPoint( 1.0f, 1.0f );
 
 	QDomDocument doc;
 	XMLNode node = doc.createElement( "path" );
@@ -352,9 +352,9 @@ void AutomationPathTest::testRoundtripReadWrite()
 {
 	___INFOLOG( "" );
 	auto p1 = std::make_shared<AutomationPath>();
-	p1->addPoint( 0.0f, 0.4f, pTestHydrogen() );
-	p1->addPoint( 0.1f, 0.8f, pTestHydrogen() );
-	p1->addPoint( 0.3f, 0.6f, pTestHydrogen() );
+	p1->addPoint( 0.0f, 0.4f );
+	p1->addPoint( 0.1f, 0.8f );
+	p1->addPoint( 0.3f, 0.6f );
 
 	QDomDocument doc;
 	XMLNode node = doc.createElement( "path" );

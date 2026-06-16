@@ -22,7 +22,6 @@
 
 #include <core/Basics/AutomationPath.h>
 #include <core/Basics/Song.h>
-#include <core/Hydrogen.h>
 
 namespace H2Core {
 
@@ -45,7 +44,7 @@ AutomationPath::loadFrom( const XMLNode& node, bool bSilent )
 			float y = point.attribute( "y" ).toFloat( &hasY );
 
 			if ( hasX && hasY ) {
-				pPath->addPoint( x, y, nullptr );
+				pPath->addPoint( x, y );
 			}
 		}
 		point = point.nextSiblingElement();
@@ -104,12 +103,9 @@ float AutomationPath::getValue( float x ) const noexcept
  * \param x X coordinate
  * \param y Y coordinate
  **/
-void AutomationPath::addPoint( float x, float y, Hydrogen* pHydrogen )
+void AutomationPath::addPoint( float x, float y )
 {
 	m_points[x] = y;
-	if ( pHydrogen != nullptr ) {
-		pHydrogen->setSongModified( true );
-	}
 }
 
 /**
@@ -216,11 +212,10 @@ AutomationPath::iterator AutomationPath::find( float x )
  * \param y Destination Y coordinate
  **/
 AutomationPath::iterator
-AutomationPath::move( iterator& in, float x, float y, Hydrogen* pHydrogen )
+AutomationPath::move( iterator& in, float x, float y )
 {
 	m_points.erase( in );
 	auto rv = m_points.insert( std::make_pair( x, y ) );
-	pHydrogen->setSongModified( true );
 	return rv.first;
 }
 
@@ -228,13 +223,12 @@ AutomationPath::move( iterator& in, float x, float y, Hydrogen* pHydrogen )
  * \brief Remove point from path
  * \param x Point location
  **/
-void AutomationPath::removePoint( float x, Hydrogen* pHydrogen )
+void AutomationPath::removePoint( float x )
 {
 	auto it = find( x );
 	if ( it != m_points.end() ) {
 		m_points.erase( it );
 	}
-	pHydrogen->setSongModified( true );
 }
 
 }  // namespace H2Core

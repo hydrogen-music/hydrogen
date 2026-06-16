@@ -3404,7 +3404,7 @@ bool CoreActionController::addAutomationPoint( float fX, float fY )
 		return false;
 	}
 
-	pSong->getAutomationPath()->addPoint( fX, fY, m_pHydrogen );
+	pSong->getAutomationPath()->addPoint( fX, fY );
 	m_pHydrogen->setSongModified( true );
 	return true;
 }
@@ -3416,7 +3416,7 @@ bool CoreActionController::removeAutomationPoint( float fX )
 		return false;
 	}
 
-	pSong->getAutomationPath()->removePoint( fX, m_pHydrogen );
+	pSong->getAutomationPath()->removePoint( fX );
 	m_pHydrogen->setSongModified( true );
 	return true;
 }
