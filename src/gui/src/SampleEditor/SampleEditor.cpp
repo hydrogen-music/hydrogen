@@ -694,7 +694,7 @@ font-weight: bold; "
 		pNewSample->setVelocityEnvelope( m_velocityEnvelope );
 		pNewSample->setPanEnvelope( m_panEnvelope );
 
-		if ( !pNewSample->load( pAudioEngine->getPlayhead()->getBpm(), HydrogenApp::pHydrogen()->getPreferences().get() ) ) {
+		if ( !pNewSample->load( pAudioEngine->getPlayhead()->getBpm(), HydrogenApp::pEngine()->getPreferences().get() ) ) {
 			ERRORLOG( "Unable to load modified sample" );
 			return;
 		}
@@ -1091,7 +1091,7 @@ void SampleEditor::drumkitLoadedEvent()
 	// Most likely the user has undone an "apply to sample" action. Pick our
 	// sample from the new drumkit and register the new instrument (which should
 	// have the same ID as the former one).
-	const auto pSong = HydrogenApp::pHydrogen()->getSong();
+	const auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -1254,7 +1254,7 @@ void SampleEditor::startPlayback( Playback playback )
 
 	// Reset playhead and other widgets and perform one UI refresh before
 	// starting the actual rendering.
-	auto pAudioEngine = HydrogenApp::pHydrogen()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pEngine()->getAudioEngine();
 	m_playback = playback;
 	m_previousState = pAudioEngine->getState();
 	m_selectedSlider = Slider::None;
@@ -1312,7 +1312,7 @@ void SampleEditor::stopPlayback()
 		m_pTargetSection->update();
 	}
 
-	auto pSampler = HydrogenApp::pHydrogen()->getAudioEngine()->getSampler();
+	auto pSampler = HydrogenApp::pEngine()->getAudioEngine()->getSampler();
 	pSampler->releasePlayingNotes( m_pPreviewInstrument );
 	pSampler->releasePlayingNotes( m_pPreviewInstrumentOriginal );
 
@@ -1338,7 +1338,7 @@ void SampleEditor::updateTransport()
 		stopPlayback();
 		return;
 	}
-	auto pAudioEngine = HydrogenApp::pHydrogen()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pEngine()->getAudioEngine();
 
 	if ( m_previousState != pAudioEngine->getState() ) {
 		WARNINGLOG(
@@ -1513,7 +1513,7 @@ void SampleEditor::updateSample()
 		return;
 	}
 
-	auto pAudioEngine = HydrogenApp::pHydrogen()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pEngine()->getAudioEngine();
 	auto pEditSample = std::make_shared<Sample>(
 		m_pSample->getFilePath(), m_pSample->getLicense()
 	);
@@ -1523,7 +1523,7 @@ void SampleEditor::updateSample()
 	pEditSample->setPanEnvelope( m_panEnvelope );
 
 	QApplication::setOverrideCursor( Qt::WaitCursor );
-	if ( !pEditSample->load( pAudioEngine->getPlayhead()->getBpm(), HydrogenApp::pHydrogen()->getPreferences().get() ) ) {
+	if ( !pEditSample->load( pAudioEngine->getPlayhead()->getBpm(), HydrogenApp::pEngine()->getPreferences().get() ) ) {
 		QApplication::restoreOverrideCursor();
 		ERRORLOG( "Unable to load modified sample" );
 		return;
@@ -1552,7 +1552,7 @@ void SampleEditor::updateSample()
 
 void SampleEditor::reloadLayer()
 {
-	auto pAudioEngine = HydrogenApp::pHydrogen()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pEngine()->getAudioEngine();
 	pAudioEngine->lock( RIGHT_HERE );
 
 	m_pSample = std::make_shared<Sample>( m_pLayer->getSample() );

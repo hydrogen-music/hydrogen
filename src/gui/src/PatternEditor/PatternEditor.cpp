@@ -3837,7 +3837,7 @@ bool PatternEditor::checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) con
 		return false;
 	}
 
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	// If the note is part of a mute group, only the bottom most note at the
 	// same position within the group will be rendered.
 	if ( pNote->getInstrument()->getMuteGroup() != -1 &&

@@ -539,7 +539,7 @@ void AudioFileBrowser::startPlayback()
 
 	// Reset playhead and other widgets and perform one UI refresh before
 	// starting the actual rendering.
-	auto pAudioEngine = HydrogenApp::pHydrogen()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pEngine()->getAudioEngine();
 
 	// Render sample
 	pAudioEngine->getSampler()->previewInstrument(
@@ -567,7 +567,7 @@ void AudioFileBrowser::stopPlayback()
 	m_pWaveDisplay->setRenderPlayhead( false );
 	m_pWaveDisplay->setPlayheadPosition( 0 );
 
-	auto pSampler = HydrogenApp::pHydrogen()->getAudioEngine()->getSampler();
+	auto pSampler = HydrogenApp::pEngine()->getAudioEngine()->getSampler();
 	pSampler->releasePlayingNotes( m_pPreviewInstrument );
 
 	updateIcons();
@@ -579,7 +579,7 @@ void AudioFileBrowser::updateTransport()
 		stopPlayback();
 		return;
 	}
-	auto pAudioEngine = HydrogenApp::pHydrogen()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pEngine()->getAudioEngine();
 
 	const auto nRealtimeFrame = pAudioEngine->getRealtimeFrame();
 	if ( nRealtimeFrame == m_nLastRealtimeFrame ) {

@@ -46,7 +46,7 @@ MixerSettingsDialog::MixerSettingsDialog(QWidget* parent)
 
 	setMinimumSize( width(), height() );
 
-	std::shared_ptr<Song> pSong = HydrogenApp::pHydrogen()->getSong();
+	std::shared_ptr<Song> pSong = HydrogenApp::pEngine()->getSong();
 	
 	/* insert the items here so they work consistently no matter of their order in the menu (except the headings)
 	 */
@@ -125,7 +125,7 @@ void MixerSettingsDialog::on_cancelBtn_clicked()
 
 
 void MixerSettingsDialog::on_okBtn_clicked() {
-	std::shared_ptr<Song> pSong = HydrogenApp::pHydrogen()->getSong();
+	std::shared_ptr<Song> pSong = HydrogenApp::pEngine()->getSong();
 	bool bOk;
 	
 	// Pan Law settings
@@ -148,7 +148,7 @@ void MixerSettingsDialog::on_okBtn_clicked() {
 	*/
 	pSong->setPanLawKNorm( - 6.0206 / fdBCenterCompensation );
 
-	HydrogenApp::pHydrogen()->setSongModified( true );
+	HydrogenApp::pEngine()->setSongModified( true );
 
 	accept();
 }

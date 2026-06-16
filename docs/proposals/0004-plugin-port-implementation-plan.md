@@ -280,6 +280,26 @@ remain in `src/core` except the documented process-default logger fallback.
 *Objective:* the existing GUI drives a *specific* engine instance via an injected
 handle — the seam that later lets editor mode swap a local engine for an IPC proxy.
 
+**Status: ✅ DONE** (2026-06-16) — `EngineAccessTest` passes; full suite green
+(`OK (226 tests)`); standalone GUI builds, starts, and tears down unchanged
+(GUI startup smoke test + leak check clean). Delivered: **`IEngineAccess`**
+(`src/core/IEngineAccess.h`) — the surface the GUI reads state and issues commands
+through, mirroring the `Hydrogen` methods the GUI fans out from (commands via
+`CoreActionController`, events via `EventQueue`, live state via getters); and
+**`LocalEngineAccess`** (`src/core/LocalEngineAccess.h`) wrapping a local
+`Hydrogen`. `HydrogenApp` owns the handle (created in `setBootstrap()` once the
+engine exists) and exposes it via `HydrogenApp::pEngine()`. The GUI's **366
+state/command call sites** (`pHydrogen()->…`) now go through `pEngine()->…`
+(`IEngineAccess`). **Scope boundary (deferred to P5/ADR 0016+0018):** ~200 GUI
+sites still pass the concrete `Hydrogen*` to core file-load/utility APIs
+(`Song::load`, `Filesystem::DetermineContext`, `Instrument::from`, …); these are
+direct-engine operations that editor mode routes through IPC commands, so they
+remain on `HydrogenApp::pHydrogen()` — which still returns the GUI's single
+*injected* per-instance engine (P1 removed the global), not a singleton. Since
+the engine is already injected, P2's "GUI drives a specific instance, not a
+global" objective holds for every site; the `IEngineAccess` indirection is what
+P5 needs to swap a local engine for an IPC proxy. **Regression gate cleared.**
+
 **Tests first**
 * Existing GUI-touching tests (`CliTest`, etc.) remain the spec; add
   `EngineAccessTest` — a `LocalEngineAccess` wrapping a `Hydrogen` exposes the

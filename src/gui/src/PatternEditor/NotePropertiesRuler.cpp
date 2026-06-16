@@ -995,7 +995,7 @@ void NotePropertiesRuler::mouseDrawUpdate( QMouseEvent* ev )
 	}
 
 	if ( bValueChanged ) {
-		HydrogenApp::pHydrogen()->setPatternModified(
+		HydrogenApp::pEngine()->setPatternModified(
 			true, m_pPatternEditorPanel->getPatternNumber()
 		);
 		if ( m_property == PatternEditor::Property::Velocity ) {
@@ -1134,7 +1134,7 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 	}
 
 	if ( bValueChanged ) {
-		HydrogenApp::pHydrogen()->setPatternModified(
+		HydrogenApp::pEngine()->setPatternModified(
 			true, m_pPatternEditorPanel->getPatternNumber()
 		);
 	}
@@ -1214,7 +1214,7 @@ void NotePropertiesRuler::applyCursorDelta( float fDelta, bool bKey )
 			updateEditor( Editor::Update::Content );
 		}
 
-		HydrogenApp::pHydrogen()->setPatternModified(
+		HydrogenApp::pEngine()->setPatternModified(
 			true, m_pPatternEditorPanel->getPatternNumber()
 		);
 	}
@@ -1362,7 +1362,7 @@ void NotePropertiesRuler::drawDefaultBackground(
 
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
-	if ( HydrogenApp::pHydrogen()->getMode() == Song::Mode::Pattern ) {
+	if ( HydrogenApp::pEngine()->getMode() == Song::Mode::Pattern ) {
 		backgroundInactiveColor =
 			pColorTheme->m_windowColor.lighter( Skin::nEditorActiveScaling );
 	}
@@ -1725,7 +1725,7 @@ void NotePropertiesRuler::createBackground()
 
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
-	if ( HydrogenApp::pHydrogen()->getMode() == Song::Mode::Pattern ) {
+	if ( HydrogenApp::pEngine()->getMode() == Song::Mode::Pattern ) {
 		backgroundInactiveColor =
 			pColorTheme->m_windowColor.lighter( Skin::nEditorActiveScaling );
 	}

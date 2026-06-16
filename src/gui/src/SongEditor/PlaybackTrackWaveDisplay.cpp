@@ -64,7 +64,7 @@ void PlaybackTrackWaveDisplay::dropEvent( QDropEvent* event )
 		// someone dragged a file from an external tool.
 		// check if is a supported sample, and then try to load it
 		if ( sText.startsWith( "file://" ) ) {
-			HydrogenApp::pHydrogen()->loadPlaybackTrack(
+			HydrogenApp::pEngine()->loadPlaybackTrack(
 				urlList.at( 0 ).toLocalFile()
 			);
 			HydrogenApp* pH2App = HydrogenApp::get_instance();
@@ -93,7 +93,7 @@ void PlaybackTrackWaveDisplay::updatePeakData()
 		m_peakDataMin.resize( width() );
 	}
 
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( m_pLayer == nullptr || m_pLayer->getSample() == nullptr ||
 		 pSong == nullptr ) {
 		for ( int ii = 0; ii < m_peakData.size(); ++ii ) {

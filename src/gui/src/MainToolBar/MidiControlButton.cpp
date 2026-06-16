@@ -109,7 +109,7 @@ void MidiControlButton::updateActivation() {
 	const auto pPref = HydrogenApp::pPreferences();
 
 	// No MIDI driver or device -> turn off
-	auto pMidiDriver = HydrogenApp::pHydrogen()->getMidiDriver();
+	auto pMidiDriver = HydrogenApp::pEngine()->getMidiDriver();
 	if ( pMidiDriver != nullptr ) {
 		m_bMidiInputEnabled = pMidiDriver->isInputActive();
 		m_bMidiOutputEnabled = pMidiDriver->isOutputActive();

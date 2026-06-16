@@ -373,7 +373,7 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 	pTagsLabel->setText( pCommonStrings->getTagsLabel() );
 
 	if ( ( m_action & Action::NsmSession ) &&
-		 !HydrogenApp::pHydrogen()->isUnderSessionManagement() ) {
+		 !HydrogenApp::pEngine()->isUnderSessionManagement() ) {
 		ERRORLOG(
 			"NSM session export request while there is no active NSM session. "
 			"Saving to Sound Library instead."
@@ -403,7 +403,7 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 			// In case the drumkit is not a standalone one but part of a .h2song
 			// file, we show the path to that file instead of Drumkit::m_sPath,
 			// which is still set to the drumkit file loaded into the song.
-			m_pPathEdit->setText( HydrogenApp::pHydrogen()->getSong()->getPath()
+			m_pPathEdit->setText( HydrogenApp::pEngine()->getSong()->getPath()
 			);
 		}
 		else {
@@ -646,7 +646,7 @@ void DrumkitPropertiesDialog::updateLicensesTable()
 {
 	const auto pColorTheme =
 		HydrogenApp::pPreferences()->getColorTheme();
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 
 	if ( m_pDrumkit == nullptr ) {
 		return;
@@ -715,7 +715,7 @@ void DrumkitPropertiesDialog::updateLicensesTable()
 void DrumkitPropertiesDialog::updateTypesTable( bool bWritable )
 {
 	const auto pPref = HydrogenApp::pPreferences();
-	const auto pDatabase = HydrogenApp::pHydrogen()->getSoundLibraryDatabase();
+	const auto pDatabase = HydrogenApp::pEngine()->getSoundLibraryDatabase();
 	m_idToTypeMap.clear();
 
 	if ( m_pDrumkit == nullptr || m_pDrumkit->getInstruments() == nullptr ) {

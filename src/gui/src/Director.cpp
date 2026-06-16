@@ -76,7 +76,7 @@ Director::Director ( QWidget* pParent )
 	
 	setWindowTitle ( tr ( "Director" ) );
 
-	auto pPos = HydrogenApp::pHydrogen()->getAudioEngine()
+	auto pPos = HydrogenApp::pEngine()->getAudioEngine()
 		->getPlayhead();
 	
 	m_nBar = pPos->getBar();
@@ -153,7 +153,7 @@ void Director::timelineUpdateEvent( int nValue ) {
 void Director::updateBBT()
 {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
-	auto pPos = HydrogenApp::pHydrogen()->getAudioEngine()->getPlayhead();
+	auto pPos = HydrogenApp::pEngine()->getAudioEngine()->getPlayhead();
 
 	// 1000 ms / bpm / 60s
 	m_pTimer->start( static_cast<int>( 1000 / ( pPos->getBpm() / 60 )) / 2 );

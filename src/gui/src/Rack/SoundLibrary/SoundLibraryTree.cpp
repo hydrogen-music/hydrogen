@@ -435,7 +435,7 @@ void SoundLibraryTree::addDirToLibrary( const QString& sDirPath )
 	customDirs << sDirPath;
 	pPref->setCustomSoundLibraryDirs( customDirs );
 
-	HydrogenApp::pHydrogen()->getSoundLibraryDatabase()->update();
+	HydrogenApp::pEngine()->getSoundLibraryDatabase()->update();
 }
 void SoundLibraryTree::removeDirFromLibrary( const QString& sDirPath )
 {
@@ -448,7 +448,7 @@ void SoundLibraryTree::removeDirFromLibrary( const QString& sDirPath )
 	customDirs.removeAll( sDirPath );
 	pPref->setCustomSoundLibraryDirs( customDirs );
 
-	HydrogenApp::pHydrogen()->getSoundLibraryDatabase()->update();
+	HydrogenApp::pEngine()->getSoundLibraryDatabase()->update();
 }
 
 void SoundLibraryTree::actionAdd()
@@ -474,7 +474,7 @@ void SoundLibraryTree::actionAdd()
 		else if ( m_type == SoundLibraryInfo::Type::Pattern ) {
 			const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 			const auto pPattern =
-				HydrogenApp::pHydrogen()->getCoreActionController()->loadPattern( it->second->getPath() );
+				HydrogenApp::pEngine()->getCoreActionController()->loadPattern( it->second->getPath() );
 			if ( pPattern == nullptr ) {
 				QMessageBox::critical(
 					this, "Hydrogen", pCommonStrings->getPatternLoadError()
@@ -839,17 +839,17 @@ void SoundLibraryTree::actionDelete()
 
 	switch ( m_type ) {
 		case SoundLibraryInfo::Type::Drumkit:
-			HydrogenApp::pHydrogen()->getSoundLibraryDatabase()->updateDrumkits(
+			HydrogenApp::pEngine()->getSoundLibraryDatabase()->updateDrumkits(
 				Event::Trigger::Default
 			);
 			break;
 		case SoundLibraryInfo::Type::Pattern:
-			HydrogenApp::pHydrogen()->getSoundLibraryDatabase()->updatePatterns(
+			HydrogenApp::pEngine()->getSoundLibraryDatabase()->updatePatterns(
 				Event::Trigger::Default
 			);
 			break;
 		default:
-			HydrogenApp::pHydrogen()->getSoundLibraryDatabase()->updateSongs(
+			HydrogenApp::pEngine()->getSoundLibraryDatabase()->updateSongs(
 				Event::Trigger::Default
 			);
 	}

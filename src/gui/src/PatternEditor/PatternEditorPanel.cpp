@@ -206,8 +206,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 	m_pTabBar->setObjectName( "patternEditorTabBar" );
 	// Select a different pattern
 	connect( m_pTabBar, &QTabBar::tabBarClicked, [&]( int nIndex ) {
-		if ( HydrogenApp::pHydrogen()->isPatternEditorLocked() &&
-			 HydrogenApp::pHydrogen()->getAudioEngine()->getState() ==
+		if ( HydrogenApp::pEngine()->isPatternEditorLocked() &&
+			 HydrogenApp::pEngine()->getAudioEngine()->getState() ==
 				 AudioEngine::State::Playing ) {
 			HydrogenApp::get_instance()
 				->getSongEditorPanel()
@@ -218,16 +218,16 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 			if ( nIndex <= m_tabPatternMap.size() &&
 				 m_tabPatternMap[ nIndex ] != m_tabPatternMap[nIndex] ) {
 				m_bPatternSelectedViaTab = true;
-				HydrogenApp::pHydrogen()->getCoreActionController()->selectPattern( m_tabPatternMap[nIndex] );
+				HydrogenApp::pEngine()->getCoreActionController()->selectPattern( m_tabPatternMap[nIndex] );
 			}
 		}
 	} );
 	// Open the properties dialog for a particular pattern.
 	connect( m_pTabBar, &QTabBar::tabBarDoubleClicked, [&]( int nIndex ) {
 		const int nPattern = m_tabPatternMap[nIndex];
-		if ( HydrogenApp::pHydrogen()->getSong() != nullptr ) {
+		if ( HydrogenApp::pEngine()->getSong() != nullptr ) {
 			const auto pPattern =
-				HydrogenApp::pHydrogen()->getSong()->getPatternList()->get(
+				HydrogenApp::pEngine()->getSong()->getPatternList()->get(
 					nPattern
 				);
 			if ( pPattern != nullptr ) {
@@ -856,7 +856,7 @@ void PatternEditorPanel::createEditors()
 
 void PatternEditorPanel::updateDrumkitLabel()
 {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -1140,10 +1140,10 @@ void PatternEditorPanel::contentsMoving( int dummy )
 void PatternEditorPanel::selectedInstrumentChangedEvent()
 {
 	const int nInstrument =
-		HydrogenApp::pHydrogen()->getSelectedInstrumentNumber();
+		HydrogenApp::pEngine()->getSelectedInstrumentNumber();
 	if ( nInstrument != -1 ) {
 		m_nSelectedRowDB =
-			HydrogenApp::pHydrogen()->getSelectedInstrumentNumber();
+			HydrogenApp::pEngine()->getSelectedInstrumentNumber();
 	}
 
 	ensureCursorIsVisible();
@@ -1632,7 +1632,7 @@ void PatternEditorPanel::stateChangedEvent(
 
 void PatternEditorPanel::relocationEvent()
 {
-	if ( HydrogenApp::pHydrogen()->isPatternEditorLocked() ) {
+	if ( HydrogenApp::pEngine()->isPatternEditorLocked() ) {
 		updatePatternInfo();
 		updateDB();
 		updateEditors( Editor::Update::Content );
@@ -2142,7 +2142,7 @@ void PatternEditorPanel::updateStyleSheet()
 	const QColor colorPatternText = pColorTheme->m_patternEditor_textColor;
 
 	QColor backgroundInactiveColor;
-	if ( HydrogenApp::pHydrogen()->getMode() == Song::Mode::Pattern ) {
+	if ( HydrogenApp::pEngine()->getMode() == Song::Mode::Pattern ) {
 		backgroundInactiveColor =
 			pColorTheme->m_windowColor.lighter( Skin::nEditorActiveScaling );
 	}
@@ -2311,7 +2311,7 @@ void PatternEditorPanel::updateDB()
 {
 	m_db.clear();
 
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		ERRORLOG( "song not ready yet" );
 		return;
@@ -2402,7 +2402,7 @@ void PatternEditorPanel::updateDB()
 	}
 
 	const int nSelectedInstrument =
-		HydrogenApp::pHydrogen()->getSelectedInstrumentNumber();
+		HydrogenApp::pEngine()->getSelectedInstrumentNumber();
 	if ( nSelectedInstrument != -1 ) {
 		m_nSelectedRowDB = nSelectedInstrument;
 	}
@@ -2666,7 +2666,7 @@ void PatternEditorPanel::addOrRemoveNotes(
 		return;
 	}
 
-	const auto pSong = HydrogenApp::pHydrogen()->getSong();
+	const auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -2831,7 +2831,7 @@ void PatternEditorPanel::clearNotesInRow(
 		return;
 	}
 
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -3082,7 +3082,7 @@ void PatternEditorPanel::copyNotesFromRowOfAllPatterns(
 	Note::Pitch pitch
 )
 {
-	const auto pSong = HydrogenApp::pHydrogen()->getSong();
+	const auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		ERRORLOG( "Song not ready" );
 		return;
@@ -3124,7 +3124,7 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns(
 	Note::Pitch pitch
 )
 {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}

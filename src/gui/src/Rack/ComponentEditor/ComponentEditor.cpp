@@ -111,7 +111,7 @@ void ComponentEditor::updateComponents() {
 		return false;
 	};
 
-	const auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
 	if ( pInstrument == nullptr || pInstrument->getComponents()->size() == 0 ) {
 		// No components at all
 		for ( auto& ppComponentView : m_componentViews ) {
@@ -177,7 +177,7 @@ void ComponentEditor::drumkitLoadedEvent() {
 
 void ComponentEditor::instrumentLayerChangedEvent( int nId )
 {
-	const auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
 	if ( pInstrument != nullptr &&
 		 pInstrument->getId() == static_cast<Instrument::Id>( nId ) ) {
 		updateComponents();
@@ -188,8 +188,8 @@ void ComponentEditor::instrumentParametersChangedEvent(
 	int nInstrumentNumber
 )
 {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
-	const auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
+	auto pSong = HydrogenApp::pEngine()->getSong();
+	const auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
 
 	// Check if either this particular line or all lines should be updated.
 	if ( pSong != nullptr && pSong->getDrumkit() != nullptr &&
@@ -244,7 +244,7 @@ void ComponentEditor::setVisible( bool bVisible )
 }
 
 void ComponentEditor::addComponent() {
-	const auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
 		return;
 	}
@@ -385,7 +385,7 @@ void ComponentEditor::updateSize() {
     m_pComponentsWidget->resize( width(), nNewHeight );
 
 	int nMaxHeight;
-	if ( HydrogenApp::pHydrogen()->getGUIState() ==
+	if ( HydrogenApp::pEngine()->getGUIState() ==
 		 Hydrogen::GUIState::ready ) {
         const auto pRack = HydrogenApp::get_instance()->getRack();
         nMaxHeight = pRack->height() - pRack->tabBar()->height();

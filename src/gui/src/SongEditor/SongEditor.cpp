@@ -68,7 +68,7 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView,
 	m_nGridWidth = pPref->getSongEditorGridWidth();
 	m_nGridHeight = pPref->getSongEditorGridHeight();
 
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong != nullptr ) {
 		m_nEditorHeight = pSong->getPatternList()->size() * m_nGridWidth;
 	}
@@ -141,7 +141,7 @@ void SongEditor::addOrRemovePatternCellAction( const GridPoint& gridPoint,
 	if ( ( action == Editor::Action::Toggle ) ||
 		 ( ( action == Editor::Action::Add ) && ! bGridPointActive ) ||
 		 ( ( action == Editor::Action::Delete ) && bGridPointActive ) ) {
-		HydrogenApp::pHydrogen()->getCoreActionController()->toggleGridCell( gridPoint );
+		HydrogenApp::pEngine()->getCoreActionController()->toggleGridCell( gridPoint );
 		// Immediate update of all grid cells to allow retrieving the added one
 		// to the selection and to get the hovered cells straight.
 		updateGridCells();
@@ -352,7 +352,7 @@ void SongEditor::setGridWidth( int nNewWidth ) {
 }
 
 void SongEditor::selectAll() {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -413,7 +413,7 @@ void SongEditor::copy() {
 }
 
 void SongEditor::paste() {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -584,7 +584,7 @@ GridPoint SongEditor::getCursorPosition() const {
 }
 
 void SongEditor::moveCursorDown( QKeyEvent* pEvent, Editor::Step step ) {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -860,7 +860,7 @@ bool SongEditor::updateWidth() {
 
 void SongEditor::selectionMoveEndEvent( QInputEvent *ev )
 {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -1019,7 +1019,7 @@ void SongEditor::drawFocus( QPainter& painter ) {
 	if ( ! m_bEntered && ! hasFocus() ) {
 		return;
 	}
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -1109,7 +1109,7 @@ void SongEditor::createBackground() {
 
 // Update the GridCell representation.
 void SongEditor::updateGridCells() {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -1297,7 +1297,7 @@ void SongEditor::drawPattern( QPainter& painter, std::shared_ptr<GridCell> pCell
 	if ( pCell == nullptr ) {
 		return;
 	}
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}

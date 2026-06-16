@@ -35,7 +35,7 @@ Footer::Footer( QWidget* pParent) : QWidget( pParent )
 								  , m_nXRuns( 0 )
 								  , m_bCpuLoadWarning( false )
 {
-	const auto pSong = HydrogenApp::pHydrogen()->getSong();
+	const auto pSong = HydrogenApp::pEngine()->getSong();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	setFixedHeight( Footer::nHeight );
@@ -124,7 +124,7 @@ void Footer::XRunEvent() {
 
 void Footer::showStatusBarMessage( const QString& sMessage,
 										  const QString& sCaller ) {
-	if ( HydrogenApp::pHydrogen()->getGUIState() ==
+	if ( HydrogenApp::pEngine()->getGUIState() ==
 		 H2Core::Hydrogen::GUIState::ready ) {
 		m_pStatusMessageDisplay->showMessage( sMessage, sCaller );
 	}
@@ -142,7 +142,7 @@ void Footer::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 }
 
 void Footer::updateCpuLoad() {
-	auto pAudioEngine = HydrogenApp::pHydrogen()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pEngine()->getAudioEngine();
 	int nPercentage = 0;
 	if ( pAudioEngine->getMaxProcessTime() != 0.0 ) {
 		nPercentage = std::clamp(

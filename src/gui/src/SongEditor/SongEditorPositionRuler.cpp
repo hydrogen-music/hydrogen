@@ -361,7 +361,7 @@ void SongEditorPositionRuler::showTagWidget( int nColumn )
 
 void SongEditorPositionRuler::showBpmWidget( int nColumn )
 {
-    auto pSong = HydrogenApp::pHydrogen()->getSong();
+    auto pSong = HydrogenApp::pEngine()->getSong();
     if ( pSong == nullptr ) {
         return;
     }
@@ -401,11 +401,11 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 			}
 
 			if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
-				HydrogenApp::pHydrogen()->getCoreActionController()->activateSongMode( true );
+				HydrogenApp::pEngine()->getCoreActionController()->activateSongMode( true );
 				pHydrogen->setSongModified( true );
 			}
 
-			HydrogenApp::pHydrogen()->getCoreActionController()->locateToColumn( nColumn );
+			HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( nColumn );
 			update();
 		}
 		else if ( pEv->position().y() > 22 - 1 - m_nTagHeight ) {
@@ -720,7 +720,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 QRect SongEditorPositionRuler::calcTempoMarkerRect( std::shared_ptr<const Timeline::TempoMarker> pTempoMarker, bool bEmphasize ) const {
 	assert( pTempoMarker );
 
-    auto pSong = HydrogenApp::pHydrogen()->getSong();
+    auto pSong = HydrogenApp::pEngine()->getSong();
     if ( pSong == nullptr ) {
         return QRect();
     }
@@ -907,7 +907,7 @@ void SongEditorPositionRuler::updatePosition()
 }
 
 void SongEditorPositionRuler::updateSongSize() {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		m_nActiveColumns = 0;
 	}

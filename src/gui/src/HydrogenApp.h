@@ -27,6 +27,7 @@
 #include <core/Globals.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
+#include <core/IEngineAccess.h>
 
 #include "EventListener.h"
 #include "MainForm.h"
@@ -74,6 +75,7 @@ class SoundLibraryPanel;
 namespace H2Core {
 	class Hydrogen;
 	class EventQueue;
+	class LocalEngineAccess;
 }
 
 /** \ingroup docGUI*/
@@ -114,6 +116,13 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		static H2Core::Hydrogen* pHydrogen();
 		static std::shared_ptr<H2Core::Preferences> pPreferences();
 		static H2Core::EventQueue* pEventQueue();
+
+		/** The engine-access handle the GUI reads state and issues commands
+		 * through (ADR 0016). Standalone: a #H2Core::LocalEngineAccess over the
+		 * local engine; editor mode (P5): an IPC proxy. The GUI fans out from
+		 * this instead of a concrete #H2Core::Hydrogen so it is agnostic to where
+		 * the engine lives. */
+		static H2Core::IEngineAccess* pEngine();
 
 		/** Injects the engine + preferences handles used by the static accessors
 		 * during early startup, before HydrogenApp exists. main() calls this with
@@ -261,6 +270,10 @@ signals:
 		 * setBootstrap()). GUI-local, single-instance; not a core singleton. */
 		static H2Core::Hydrogen* m_pBootstrapHydrogen;
 		static std::shared_ptr<H2Core::Preferences> m_pBootstrapPreferences;
+		/** GUI-local engine-access handle backing pEngine(); a LocalEngineAccess
+		 * over the (single) GUI engine, created by setBootstrap() once the engine
+		 * exists (ADR 0016). */
+		static std::unique_ptr<H2Core::LocalEngineAccess> m_pEngineAccess;
 
 		/** Used for accessibility reasons to show scroll bars in case Hydrogen
 		 * has to be shrunk below its minimum size - magnified using the Qt

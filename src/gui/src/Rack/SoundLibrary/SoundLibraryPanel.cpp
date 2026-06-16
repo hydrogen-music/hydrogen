@@ -287,7 +287,7 @@ void SoundLibraryPanel::onSearchTextChanged( const QString& sText )
 
 void SoundLibraryPanel::onRescanClicked()
 {
-	HydrogenApp::pHydrogen()->getSoundLibraryDatabase()->update();
+	HydrogenApp::pEngine()->getSoundLibraryDatabase()->update();
 }
 
 void SoundLibraryPanel::switchDrumkit(
@@ -302,7 +302,7 @@ void SoundLibraryPanel::switchDrumkit(
 
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 
-	HydrogenApp::pHydrogen()->getCoreActionController()->setDrumkit( pNewDrumkit );
+	HydrogenApp::pEngine()->getCoreActionController()->setDrumkit( pNewDrumkit );
 
 	QApplication::restoreOverrideCursor();
 }

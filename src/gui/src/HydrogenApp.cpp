@@ -22,6 +22,9 @@
 
 #include "HydrogenApp.h"
 
+#include <core/IEngineAccess.h>
+#include <core/LocalEngineAccess.h>
+
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Event.h>
 #include <core/Basics/Instrument.h>
@@ -74,6 +77,7 @@ QString HydrogenApp::sMimeSubSeparator = ":";
 HydrogenApp* HydrogenApp::m_pInstance = nullptr;
 H2Core::Hydrogen* HydrogenApp::m_pBootstrapHydrogen = nullptr;
 std::shared_ptr<H2Core::Preferences> HydrogenApp::m_pBootstrapPreferences = nullptr;
+std::unique_ptr<H2Core::LocalEngineAccess> HydrogenApp::m_pEngineAccess = nullptr;
 
 HydrogenApp::HydrogenApp( MainForm *pMainForm, QUndoStack* pUndoStack )
  : m_pMainForm( pMainForm )
@@ -242,6 +246,7 @@ HydrogenApp::~HydrogenApp()
 	// 0015/0016); the raw engine pointer would otherwise dangle.
 	m_pBootstrapHydrogen = nullptr;
 	m_pBootstrapPreferences = nullptr;
+	m_pEngineAccess = nullptr;
 }
 
 std::shared_ptr<H2Core::Preferences> HydrogenApp::getPreferences() const {
@@ -256,6 +261,16 @@ void HydrogenApp::setBootstrap( H2Core::Hydrogen* pHydrogen,
 							   std::shared_ptr<H2Core::Preferences> pPreferences ) {
 	m_pBootstrapHydrogen = pHydrogen;
 	m_pBootstrapPreferences = pPreferences;
+	// Once the engine exists, wrap it in the access handle the GUI fans out from
+	// (ADR 0016). The GUI being single-instance, one handle suffices.
+	if ( pHydrogen != nullptr ) {
+		m_pEngineAccess =
+			std::make_unique<H2Core::LocalEngineAccess>( pHydrogen );
+	}
+}
+
+H2Core::IEngineAccess* HydrogenApp::pEngine() {
+	return m_pEngineAccess.get();
 }
 
 H2Core::Hydrogen* HydrogenApp::pHydrogen() {
@@ -275,7 +290,7 @@ std::shared_ptr<H2Core::Preferences> HydrogenApp::pPreferences() {
 }
 
 H2Core::EventQueue* HydrogenApp::pEventQueue() {
-	return pHydrogen()->getEventQueue();
+	return pEngine()->getEventQueue();
 }
 
 
@@ -607,20 +622,20 @@ bool HydrogenApp::openFile( const Filesystem::Artifact& type, const QString& sFi
 		if ( sFileName.isEmpty() && sRecoverFileName.isEmpty() ) {
 			pSong = Song::getEmptySong( HydrogenApp::pHydrogen() );
 		} else {
-			pSong = pHydrogen()->getCoreActionController()->loadSong( sPath, sRecoverFileName );
+			pSong = pEngine()->getCoreActionController()->loadSong( sPath, sRecoverFileName );
 		}
 
-		bRet = pHydrogen()->getCoreActionController()->setSong( pSong );
+		bRet = pEngine()->getCoreActionController()->setSong( pSong );
 	}
 	else {
 		std::shared_ptr<Playlist> pPlaylist;
 		if ( sFileName.isEmpty() && sRecoverFileName.isEmpty() ) {
 			pPlaylist = std::make_shared<Playlist>();
 		} else {
-			pPlaylist = pHydrogen()->getCoreActionController()->loadPlaylist( sPath, sRecoverFileName );
+			pPlaylist = pEngine()->getCoreActionController()->loadPlaylist( sPath, sRecoverFileName );
 		}
 
-		bRet = pHydrogen()->getCoreActionController()->setPlaylist( pPlaylist );
+		bRet = pEngine()->getCoreActionController()->setPlaylist( pPlaylist );
 	}
 
 	if ( ! bRet ) {
@@ -639,7 +654,7 @@ bool HydrogenApp::openFile( const Filesystem::Artifact& type, const QString& sFi
 
 bool HydrogenApp::openSong( std::shared_ptr<Song> pSong ) {
 
-	if ( ! pHydrogen()->getCoreActionController()->setSong( pSong ) ) {
+	if ( ! pEngine()->getCoreActionController()->setSong( pSong ) ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
 		// HydrogenApp was instantiated.

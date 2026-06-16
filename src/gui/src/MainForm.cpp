@@ -277,7 +277,7 @@ void MainForm::createMenuBar()
 	// Then under session management a couple of options will be named
 	// differently and some must be even omitted. 
 	const bool bUnderSessionManagement =
-		HydrogenApp::pHydrogen()->isUnderSessionManagement();
+		HydrogenApp::pEngine()->isUnderSessionManagement();
 	
 	QString sLabelNew, sLabelOpen, sLabelOpenRecent, sLabelSaveAs, sLabelOpenDemo;
 	
@@ -667,7 +667,7 @@ void MainForm::action_file_exit() {
 
 void MainForm::action_file_new()
 {
-	const bool bUnderSessionManagement = HydrogenApp::pHydrogen()->isUnderSessionManagement();
+	const bool bUnderSessionManagement = HydrogenApp::pEngine()->isUnderSessionManagement();
 	
 	Hydrogen * pHydrogen = HydrogenApp::pHydrogen();
 	if ( pHydrogen->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
@@ -770,7 +770,7 @@ bool MainForm::action_file_save_as()
 	}
 
 	const bool bUnderSessionManagement = pHydrogen->isUnderSessionManagement();
-	if ( !HydrogenApp::pHydrogen()->getCoreActionController()->saveSongAs(
+	if ( !HydrogenApp::pEngine()->getCoreActionController()->saveSongAs(
 			 pSong->getPath(), bKeepMissingSamples
 		 ) ) {
 		ERRORLOG( "Unable to save song" );
@@ -849,7 +849,7 @@ bool MainForm::action_file_save( bool bTriggerMessage )
 		return false;
 	}
 
-	if ( ! HydrogenApp::pHydrogen()->getCoreActionController()->saveSong( bKeepMissingSamples ) ) {
+	if ( ! HydrogenApp::pEngine()->getCoreActionController()->saveSong( bKeepMissingSamples ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "Could not save song." ) );
 		return false;
 	}
@@ -916,7 +916,7 @@ void MainForm::action_file_open() {
 	}
 
 	QString sWindowTitle;
-	if ( HydrogenApp::pHydrogen()->isUnderSessionManagement() ) {
+	if ( HydrogenApp::pEngine()->isUnderSessionManagement() ) {
 		sWindowTitle = tr( "Import song into Session" );
 	} else {
 		sWindowTitle = tr( "Open song" );
@@ -928,7 +928,7 @@ void MainForm::action_file_open() {
 void MainForm::action_file_openDemo()
 {
 	QString sWindowTitle;
-	if ( ! HydrogenApp::pHydrogen()->isUnderSessionManagement() ) {
+	if ( ! HydrogenApp::pEngine()->isUnderSessionManagement() ) {
 		sWindowTitle = tr( "Open Demo Song" );
 	} else {
 		sWindowTitle = tr( "Import Demo Song into Session" );
@@ -1460,7 +1460,7 @@ void MainForm::action_drumkit_new()
 
 	pHydrogenApp->pushUndoCommand(
 		new SE_switchDrumkitAction(
-			pNewDrumkit, HydrogenApp::pHydrogen()->getSong()->getDrumkit(),
+			pNewDrumkit, HydrogenApp::pEngine()->getSong()->getDrumkit(),
 			SE_switchDrumkitAction::Type::NewDrumkit ) );
 	pHydrogenApp->showStatusBarMessage( pCommonStrings->getActionNewDrumkit() );
 }
@@ -1468,7 +1468,7 @@ void MainForm::action_drumkit_new()
 void MainForm::action_drumkit_addInstrument(
 	std::shared_ptr<H2Core::Instrument> pInstrument )
 {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -1682,7 +1682,7 @@ void MainForm::action_drumkit_renameInstrument( int nInstrumentIndex,
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -2048,7 +2048,7 @@ void MainForm::action_drumkit_save()
 void MainForm::action_drumkit_save_as()
 {
 	auto pPref = HydrogenApp::pPreferences();
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -2094,7 +2094,7 @@ void MainForm::action_drumkit_save_as()
 
 void MainForm::action_drumkit_save_to_session()
 {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -2128,8 +2128,8 @@ void MainForm::closeEvent( QCloseEvent* ev ) {
 
 void MainForm::action_file_export()
 {
-	if ( HydrogenApp::pHydrogen()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
-		HydrogenApp::pHydrogen()->sequencerStop();
+	if ( HydrogenApp::pEngine()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
+		HydrogenApp::pEngine()->sequencerStop();
 	}
 
 	ExportSongDialog *dialog = new ExportSongDialog(this);
@@ -2334,7 +2334,7 @@ void MainForm::action_file_open_recent(QAction *pAction)
 
 void MainForm::checkMissingSamples()
 {
-	if ( HydrogenApp::pHydrogen()->getSong()->hasMissingSamples() ) {
+	if ( HydrogenApp::pEngine()->getSong()->hasMissingSamples() ) {
 		m_pMissingSamplesInfoBar = h2app->addInfoBar();
 		m_pMissingSamplesInfoBar->setTitle( tr( "Song drumkit samples" ) );
 		m_pMissingSamplesInfoBar->setText( tr( "Some samples used in this song could not be loaded. This may be because it uses an older default drumkit. This might be fixed by opening a new drumkit." ) );
@@ -2349,7 +2349,7 @@ void MainForm::checkMissingSamples()
 
 void MainForm::checkMidiSetup()
 {
-	std::shared_ptr<Song> pSong = HydrogenApp::pHydrogen()->getSong();
+	std::shared_ptr<Song> pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong->getDrumkit()->getInstruments()->hasAllMidiNotesSame() ) {
 		WARNINGLOG( "Incorrect MIDI setup" );
 
@@ -2453,8 +2453,8 @@ void MainForm::action_debug_printObjects()
 
 void MainForm::action_file_export_midi()
 {
-	if ( HydrogenApp::pHydrogen()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
-		HydrogenApp::pHydrogen()->sequencerStop();
+	if ( HydrogenApp::pEngine()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
+		HydrogenApp::pEngine()->sequencerStop();
 	}
 
 	ExportMidiDialog *dialog = new ExportMidiDialog(this);
@@ -2469,9 +2469,9 @@ void MainForm::action_file_export_lilypond()
 {
 	auto pPref = HydrogenApp::pPreferences();
 
-	if ( HydrogenApp::pHydrogen()->getAudioEngine()->getState() ==
+	if ( HydrogenApp::pEngine()->getAudioEngine()->getState() ==
 		 H2Core::AudioEngine::State::Playing ) {
-		HydrogenApp::pHydrogen()->sequencerStop();
+		HydrogenApp::pEngine()->sequencerStop();
 	}
 
 	QMessageBox::information(
@@ -2505,7 +2505,7 @@ void MainForm::action_file_export_lilypond()
 			sFileName += ".ly";
 		}
 
-		std::shared_ptr<Song> pSong = HydrogenApp::pHydrogen()->getSong();
+		std::shared_ptr<Song> pSong = HydrogenApp::pEngine()->getSong();
 
 		LilyPond ly;
 		ly.extractData( *pSong );
@@ -2569,7 +2569,7 @@ void MainForm::errorEvent( int nErrorCode )
 
 void MainForm::action_file_songProperties()
 {
-    auto pSong = HydrogenApp::pHydrogen()->getSong();
+    auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -2667,7 +2667,7 @@ void MainForm::onAutoSaveTimer()
 			m_sPreviousAutoSavePlaylistFile = sAutoSavePath;
 		}
 
-		pPlaylist->saveAs( sAutoSavePath, HydrogenApp::pHydrogen()->getPreferences() );
+		pPlaylist->saveAs( sAutoSavePath, HydrogenApp::pEngine()->getPreferences() );
 
 		pPlaylist->setPath( sOldPath );
 		pPlaylist->setIsModified( true );
@@ -2770,7 +2770,7 @@ void MainForm::undoRedoActionEvent( int nEvent ){
 
 void MainForm::action_drumkit_properties()
 {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -2822,7 +2822,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 	if ( pObject->inherits( "SongEditorPanel" ) ) {
 			
 		if ( pHydrogen->getMode() != Song::Mode::Song ) {
-			HydrogenApp::pHydrogen()->getCoreActionController()->activateSongMode( true );
+			HydrogenApp::pEngine()->getCoreActionController()->activateSongMode( true );
 		}
 
 		const int nCursorColumn = pHydrogenApp->getSongEditorPanel()->
@@ -2841,7 +2841,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 			return;
 		}
 		
-		if ( ! HydrogenApp::pHydrogen()->getCoreActionController()->locateToColumn( nCursorColumn ) ) {
+		if ( ! HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( nCursorColumn ) ) {
 			// Cursor is at a position it is not allowed to locate to.
 			return;
 		}
@@ -2851,7 +2851,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		// NotePropertiesRuler.
 			
 		if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
-			HydrogenApp::pHydrogen()->getCoreActionController()->activateSongMode( false );
+			HydrogenApp::pEngine()->getCoreActionController()->activateSongMode( false );
 		}
 
 		// To provide a similar behaviour as when pressing
@@ -2859,7 +2859,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		// the song.
 		const int nCursorColumn = pHydrogenApp->getPatternEditorPanel()->getCursorColumn();
 		
-		if ( ! HydrogenApp::pHydrogen()->getCoreActionController()->locateToTick( nCursorColumn ) ) {
+		if ( ! HydrogenApp::pEngine()->getCoreActionController()->locateToTick( nCursorColumn ) ) {
 			// Cursor is at a position it is not allowed to locate to.
 			return;
 		}
@@ -2875,7 +2875,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 
 bool MainForm::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit ) {
 
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
@@ -2951,7 +2951,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			 static_cast<int>(action) <= static_cast<int>(Shortcuts::Action::VK_59_B3) ) {
 			// Virtual keyboard
 
-			HydrogenApp::pHydrogen()->getCoreActionController()->handleNote(
+			HydrogenApp::pEngine()->getCoreActionController()->handleNote(
 				Midi::noteFromIntClamp(
 					static_cast<int>( action ) -
 					static_cast<int>( Shortcuts::Action::VK_36_C2 ) +
@@ -3058,10 +3058,10 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 
 			switch ( action ) {
 			case Shortcuts::Action::BPM:
-				HydrogenApp::pHydrogen()->getCoreActionController()->setBpm( sArg.toFloat() );
+				HydrogenApp::pEngine()->getCoreActionController()->setBpm( sArg.toFloat() );
 				break;
 			case Shortcuts::Action::JumpToBar:
-				HydrogenApp::pHydrogen()->getCoreActionController()->locateToColumn( sArg.toInt() );
+				HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( sArg.toInt() );
 				break;
 			case Shortcuts::Action::SelectInstrument:
 			case Shortcuts::Action::MasterVolume: {
@@ -3110,10 +3110,10 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			}
 
 			case Shortcuts::Action::TimelineDeleteMarker:
-				HydrogenApp::pHydrogen()->getCoreActionController()->deleteTempoMarker( sArg.toInt() );
+				HydrogenApp::pEngine()->getCoreActionController()->deleteTempoMarker( sArg.toInt() );
 				break;
 			case Shortcuts::Action::TimelineDeleteTag:
-				HydrogenApp::pHydrogen()->getCoreActionController()->deleteTag( sArg.toInt() );
+				HydrogenApp::pEngine()->getCoreActionController()->deleteTag( sArg.toInt() );
 				break;
 			default:
 				WARNINGLOG( QString( "Action [%1] not properly handled" )
@@ -3213,14 +3213,14 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			}
 
 			case Shortcuts::Action::TimelineAddMarker:
-				HydrogenApp::pHydrogen()->getCoreActionController()->addTempoMarker(
+				HydrogenApp::pEngine()->getCoreActionController()->addTempoMarker(
 					sArg1.toInt(), sArg2.toFloat() );
 				break;
 			case Shortcuts::Action::TimelineAddTag:
-				HydrogenApp::pHydrogen()->getCoreActionController()->addTag( sArg1.toInt(), sArg2 );
+				HydrogenApp::pEngine()->getCoreActionController()->addTag( sArg1.toInt(), sArg2 );
 				break;
 			case Shortcuts::Action::ToggleGridCell:
-				HydrogenApp::pHydrogen()->getCoreActionController()->toggleGridCell(
+				HydrogenApp::pEngine()->getCoreActionController()->toggleGridCell(
 					GridPoint( sArg1.toInt(), sArg2.toInt() ) );
 				break;
 			default:
@@ -3385,7 +3385,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 
 			case Shortcuts::Action::JumpToStart:
-				HydrogenApp::pHydrogen()->getCoreActionController()->locateToColumn( 0 );
+				HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( 0 );
 				break;
 			case Shortcuts::Action::JumpBarForward:
 				pAction = std::make_shared<MidiAction>(
@@ -3435,23 +3435,23 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 
 			case Shortcuts::Action::TimelineToggle:
-				HydrogenApp::pHydrogen()->getCoreActionController()->toggleTimeline();
+				HydrogenApp::pEngine()->getCoreActionController()->toggleTimeline();
 				break;
 			case Shortcuts::Action::MetronomeToggle:
 				pAction = std::make_shared<MidiAction>(
 					MidiAction::Type::ToggleMetronome );
 				break;
 			case Shortcuts::Action::JackTransportToggle:
-				HydrogenApp::pHydrogen()->getCoreActionController()->toggleJackTransport();
+				HydrogenApp::pEngine()->getCoreActionController()->toggleJackTransport();
 				break;
 			case Shortcuts::Action::JackTimebaseToggle:
-				HydrogenApp::pHydrogen()->getCoreActionController()->toggleJackTimebaseControl();
+				HydrogenApp::pEngine()->getCoreActionController()->toggleJackTimebaseControl();
 				break;
 			case Shortcuts::Action::SongModeToggle:
-				HydrogenApp::pHydrogen()->getCoreActionController()->toggleSongMode();
+				HydrogenApp::pEngine()->getCoreActionController()->toggleSongMode();
 				break;
 			case Shortcuts::Action::LoopModeToggle:
-				HydrogenApp::pHydrogen()->getCoreActionController()->toggleLoopMode();
+				HydrogenApp::pEngine()->getCoreActionController()->toggleLoopMode();
 				break;
 
 			case Shortcuts::Action::LoadNextDrumkit:

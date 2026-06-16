@@ -32,6 +32,7 @@
 #include "CliTest.h"
 #include "CoreActionControllerTest.h"
 #include "DrumkitExportTest.h"
+#include "EngineAccessTest.h"
 #include "EventQueueTest.h"
 #include "FakePluginHostTest.h"
 #include "FilesystemTest.h"
@@ -72,6 +73,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathTest );
 #endif
 CPPUNIT_TEST_SUITE_REGISTRATION( CoreActionControllerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitExportTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( EngineAccessTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( EventQueueTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FakePluginHostTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );

@@ -174,7 +174,7 @@ void LayerPreview::dropEvent( QDropEvent* event )
 		const int nStartLayer = LayerPreview::yToLayer( m_dragStartPoint.y() );
 
 		const auto pInstrument =
-			HydrogenApp::pHydrogen()->getSelectedInstrument();
+			HydrogenApp::pEngine()->getSelectedInstrument();
 		const auto pComponent = m_pComponentView->getComponent();
 		if ( pInstrument == nullptr || pComponent == nullptr ) {
 			return;
@@ -604,7 +604,7 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
 		return;
 	}
 
-	const auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
 		// What is displayed in the component editor _is_ the selected
 		// instrument. In case it is nullptr, we are working on inconsistent
@@ -638,7 +638,7 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
 			// based on the current sample selection algorithm.
 			pNote->setSelectedLayerInfo( nullptr, pComponent );
 
-			HydrogenApp::pHydrogen()->getAudioEngine()->getSampler()->noteOn(
+			HydrogenApp::pEngine()->getAudioEngine()->getSampler()->noteOn(
 				pNote
 			);
 		}
@@ -679,7 +679,7 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
 				std::make_shared<Note>( pInstrument, nPosition, fVelocity );
 			pNote->setSelectedLayerInfo( pSelectedLayerInfo, pComponent );
 
-			HydrogenApp::pHydrogen()->getAudioEngine()->getSampler()->noteOn(
+			HydrogenApp::pEngine()->getAudioEngine()->getSampler()->noteOn(
 				pNote
 			);
 		}
@@ -850,7 +850,7 @@ void LayerPreview::mouseMoveEvent( QMouseEvent* ev )
 
 			if ( bChanged ) {
 				update();
-				HydrogenApp::pHydrogen()->setDrumkitModified( true );
+				HydrogenApp::pEngine()->setDrumkitModified( true );
 			}
 			break;
 		}

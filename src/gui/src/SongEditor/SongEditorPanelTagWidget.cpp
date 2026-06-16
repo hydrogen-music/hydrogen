@@ -51,7 +51,7 @@ SongEditorPanelTagWidget::~SongEditorPanelTagWidget() {
 
 void SongEditorPanelTagWidget::createTheTagTableWidget()
 {
-	auto pTimeline = HydrogenApp::pHydrogen()->getSong()->getTimeline();
+	auto pTimeline = HydrogenApp::pEngine()->getSong()->getTimeline();
 
 	m_oldTags.resize( m_nMaxRows );
 	

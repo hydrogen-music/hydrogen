@@ -69,7 +69,7 @@ void DeviceComboBox::showPopup()
 	if ( m_driver == Preferences::AudioDriver::PortAudio ) {
 #ifdef H2CORE_HAVE_PORTAUDIO
 		auto pDriver = std::dynamic_pointer_cast<PortAudioDriver>(
-			HydrogenApp::pHydrogen()->getAudioEngine()->getAudioDriver()
+			HydrogenApp::pEngine()->getAudioEngine()->getAudioDriver()
 		);
 		if ( pDriver != nullptr ) {
 			// Get device list for PortAudio based on current value of the API
@@ -83,7 +83,7 @@ void DeviceComboBox::showPopup()
 	else if ( m_driver == Preferences::AudioDriver::CoreAudio ) {
 #ifdef H2CORE_HAVE_COREAUDIO
 		auto pDriver =
-			HydrogenApp::pHydrogen()->getAudioEngine()->getAudioDriver();
+			HydrogenApp::pEngine()->getAudioEngine()->getAudioDriver();
 		if ( pDriver != nullptr ) {
 			for ( QString s : pDriver->getDevices() ) {
 				addItem( s );
@@ -122,7 +122,7 @@ void HostAPIComboBox::showPopup()
 #ifdef H2CORE_HAVE_PORTAUDIO
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 	auto pDriver = std::dynamic_pointer_cast<PortAudioDriver>(
-		HydrogenApp::pHydrogen()->getAudioEngine()->getAudioDriver()
+		HydrogenApp::pEngine()->getAudioEngine()->getAudioDriver()
 	);
 	if ( pDriver != nullptr ) {
 		addItems( pDriver->getHostAPIs() );
@@ -732,7 +732,7 @@ void PreferencesDialog::on_cancelBtn_clicked() {
 
 void PreferencesDialog::writeAudioDriverPreferences() {
 	auto pPref = HydrogenApp::pPreferences();
-	auto pAudioDriver = HydrogenApp::pHydrogen()->getAudioDriver();
+	auto pAudioDriver = HydrogenApp::pEngine()->getAudioDriver();
 
 	bool bAudioOptionAltered = false;
 	const auto prevAudioDriver = pPref->m_audioDriver;
@@ -961,19 +961,19 @@ void PreferencesDialog::on_okBtn_clicked()
 		 resampleComboBox->currentIndex() ) {
 		switch ( resampleComboBox->currentIndex() ){
 		case 0:
-			HydrogenApp::pHydrogen()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
+			HydrogenApp::pEngine()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
 			break;
 		case 1:
-			HydrogenApp::pHydrogen()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
+			HydrogenApp::pEngine()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
 			break;
 		case 2:
-			HydrogenApp::pHydrogen()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
+			HydrogenApp::pEngine()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
 			break;
 		case 3:
-			HydrogenApp::pHydrogen()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
+			HydrogenApp::pEngine()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
 			break;
 		case 4:
-			HydrogenApp::pHydrogen()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
+			HydrogenApp::pEngine()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
 			break;
 		}
 		bAudioOptionAltered = true;
@@ -1140,7 +1140,7 @@ void PreferencesDialog::updateAudioDriverInfo()
 {
 	const auto pPref = HydrogenApp::pPreferences();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pAudioDriver = HydrogenApp::pHydrogen()->getAudioDriver();
+	auto pAudioDriver = HydrogenApp::pEngine()->getAudioDriver();
 
 	// Reset info text
 	updateAudioDriverInfoLabel();
@@ -1251,7 +1251,7 @@ void PreferencesDialog::updateAudioDriverInfo()
 void PreferencesDialog::updateAudioDriverInfoLabel() {
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pAudioDriver = HydrogenApp::pHydrogen()->getAudioDriver();
+	auto pAudioDriver = HydrogenApp::pEngine()->getAudioDriver();
 	QString sInfo;
 
 	if ( driverComboBox->currentText() ==
@@ -1581,7 +1581,7 @@ void PreferencesDialog::setAudioDriverInfoPortAudio() {
 	latencyTargetSpinBox->show();
 	latencyValueLabel->show();
 
-	const auto pAudioDriver = HydrogenApp::pHydrogen()->getAudioDriver();
+	const auto pAudioDriver = HydrogenApp::pEngine()->getAudioDriver();
 	int nLatency;
 	if ( pAudioDriver == nullptr ) {
 		ERRORLOG( "AudioDriver is not ready!" );
@@ -1669,11 +1669,11 @@ void PreferencesDialog::onRejected() {
 		return;
 	}
 
-	auto pOldPref = HydrogenApp::pHydrogen()->getCoreActionController()->loadPreferences(
+	auto pOldPref = HydrogenApp::pEngine()->getCoreActionController()->loadPreferences(
 		Filesystem::userConfigPath() );
 	if ( pOldPref == nullptr ) {
 		WARNINGLOG( "Unable to load user-level preferences. Falling back to system one." );
-		pOldPref = HydrogenApp::pHydrogen()->getCoreActionController()->loadPreferences(
+		pOldPref = HydrogenApp::pEngine()->getCoreActionController()->loadPreferences(
 			Filesystem::systemConfigPath() );
 	}
 	if ( pOldPref == nullptr ) {

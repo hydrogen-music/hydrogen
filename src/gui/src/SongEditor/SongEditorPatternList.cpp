@@ -189,7 +189,7 @@ SongEditorPatternList::~SongEditorPatternList()
 
 void SongEditorPatternList::inlineEditPatternName( int row )
 {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -215,7 +215,7 @@ void SongEditorPatternList::inlineEditingAccepted()
 		return;
 	}
 
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -363,7 +363,7 @@ void SongEditorPatternList::patternPopup_replace()
 	pPref->setLastOpenPatternDirectory( fd.directory().absolutePath() );
 	const QString sNewPatternPath = fd.selectedFiles().first();
 	const auto pNewPattern =
-		HydrogenApp::pHydrogen()->getCoreActionController()->loadPattern( sNewPatternPath );
+		HydrogenApp::pEngine()->getCoreActionController()->loadPattern( sNewPatternPath );
 	if ( pNewPattern == nullptr ) {
 		QMessageBox::critical(
 			this, "Hydrogen", pCommonStrings->getPatternLoadError()
@@ -406,7 +406,7 @@ void SongEditorPatternList::patternPopup_properties()
 
 void SongEditorPatternList::patternPopup_delete()
 {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -455,7 +455,7 @@ void SongEditorPatternList::patternPopup_duplicate()
 
 void SongEditorPatternList::patternPopup_fill()
 {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -573,7 +573,7 @@ void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 	auto pEv = static_cast<DropEvent*>( pEvent );
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -658,7 +658,7 @@ void SongEditorPatternList::dropEvent( QDropEvent* pEvent )
 		int nInsertPos = nTargetPattern;
 		for ( int ii = 1; ii < tokens.size(); ++ii ) {
 			auto pNewPattern =
-				HydrogenApp::pHydrogen()->getCoreActionController()->loadPattern( tokens.at( ii ) );
+				HydrogenApp::pEngine()->getCoreActionController()->loadPattern( tokens.at( ii ) );
 			if ( pNewPattern == nullptr ) {
 				ERRORLOG(
 					QString( "Unable to obtain new pattern based on [%1]" )
@@ -785,7 +785,7 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent* ev )
 		pHydrogen->toggleNextPattern( nRow );
 	}
 	else {
-		HydrogenApp::pHydrogen()->getCoreActionController()->selectPattern( nRow );
+		HydrogenApp::pEngine()->getCoreActionController()->selectPattern( nRow );
 
 		// Notify the user why nothing just happened by highlighting the pattern
 		// locked button in the SongEditorPanel.

@@ -83,7 +83,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 		m_pPlaylistTable->horizontalHeaderItem( ii )->setFont( font );
 	}
 
-	const auto pPlaylist = HydrogenApp::pHydrogen()->getPlaylist();
+	const auto pPlaylist = HydrogenApp::pEngine()->getPlaylist();
 	setWindowTitle( sWindowTitleBase + QString(" - ") +
 					 pPlaylist->getPath() );
 
@@ -110,7 +110,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	// Rewind button
 	m_pRwdButton = new MidiLearnableToolButton( m_pToolBar, "" );
 	connect( m_pRwdButton, &QToolButton::clicked, [=]() {
-		HydrogenApp::pHydrogen()->getCoreActionController()->locateToColumn( std::max(
+		HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( std::max(
 			HydrogenApp::pHydrogen()
 					->getAudioEngine()
 					->getPlayhead()
@@ -144,8 +144,8 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 		PlaylistEditor::nButtonWidth, PlaylistEditor::nButtonHeight
 	);
 	connect( m_pStopButton, &QToolButton::clicked, [=](){
-		HydrogenApp::pHydrogen()->sequencerStop();
-		HydrogenApp::pHydrogen()->getCoreActionController()->locateToColumn( 0 );
+		HydrogenApp::pEngine()->sequencerStop();
+		HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( 0 );
 	});
 	m_pStopButton->setMidiAction(
 		std::make_shared<MidiAction>( MidiAction::Type::Stop ) );
@@ -157,8 +157,8 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 		PlaylistEditor::nButtonWidth, PlaylistEditor::nButtonHeight
 	);
 	connect( m_pFfwdButton, &QToolButton::clicked, [=](){
-		HydrogenApp::pHydrogen()->getCoreActionController()->locateToColumn(
-			HydrogenApp::pHydrogen()->getAudioEngine()->getPlayhead()->
+		HydrogenApp::pEngine()->getCoreActionController()->locateToColumn(
+			HydrogenApp::pEngine()->getAudioEngine()->getPlayhead()->
 			getColumn() + 1 );
 	});
 	m_pFfwdButton->setMidiAction(
@@ -325,7 +325,7 @@ void PlaylistEditor::updateMenuActivation() {
 		}
 	}
 	else {
-		const auto pPlaylist = HydrogenApp::pHydrogen()->getPlaylist();
+		const auto pPlaylist = HydrogenApp::pEngine()->getPlaylist();
 		if ( pPlaylist == nullptr || pPlaylist->size() == 0 ) {
 			return;
 		}
@@ -405,7 +405,7 @@ void PlaylistEditor::addSong()
 
 void PlaylistEditor::addCurrentSong()
 {
-	const std::shared_ptr<Song> pSong = HydrogenApp::pHydrogen()->getSong();
+	const std::shared_ptr<Song> pSong = HydrogenApp::pEngine()->getSong();
 	const auto sPath = pSong->getPath();
 
 	if ( sPath == "" ) {
@@ -426,7 +426,7 @@ void PlaylistEditor::removeSong() {
 		// No selection
 		return;
 	}
-	const auto pPlaylist = HydrogenApp::pHydrogen()->getPlaylist();
+	const auto pPlaylist = HydrogenApp::pEngine()->getPlaylist();
 	const auto pEntry = pPlaylist->get( nIndex );
 
 	if ( pEntry == nullptr ) {
@@ -498,7 +498,7 @@ void PlaylistEditor::openPlaylist() {
 	const auto sRecoverFileName = HydrogenApp::findAutoSaveFile(
 		Filesystem::Artifact::Playlist, sFilePath );
 
-	auto pPlaylist = HydrogenApp::pHydrogen()->getCoreActionController()->loadPlaylist(
+	auto pPlaylist = HydrogenApp::pEngine()->getCoreActionController()->loadPlaylist(
 		sFilePath, sRecoverFileName );
 	if ( pPlaylist == nullptr ) {
 		QMessageBox msgBox;
@@ -607,7 +607,7 @@ void PlaylistEditor::newScript()
 	QString openfile = pPref->getDefaultEditor() + " " + sFilePath + "&";
 	std::system( openfile.toLatin1() );
 
-	auto pOldEntry = HydrogenApp::pHydrogen()->getPlaylist()->get( nIndex );
+	auto pOldEntry = HydrogenApp::pEngine()->getPlaylist()->get( nIndex );
 
 	auto pNewEntry = std::make_shared<PlaylistEntry>( pOldEntry );
 	pNewEntry->setScriptPath( sFilePath );
@@ -652,7 +652,7 @@ bool PlaylistEditor::savePlaylistAs() {
 
 	const QString sFileName = fd.selectedFiles().first();
 
-	if ( ! HydrogenApp::pHydrogen()->getCoreActionController()->savePlaylistAs( sFileName ) ) {
+	if ( ! HydrogenApp::pEngine()->getCoreActionController()->savePlaylistAs( sFileName ) ) {
 		QMessageBox::critical( nullptr, "Hydrogen",
 							   pCommonStrings->getPlaylistSaveFailure() );
 		return false;
@@ -688,7 +688,7 @@ bool PlaylistEditor::savePlaylist()
 		return savePlaylistAs();
 	}
 
-	if ( ! HydrogenApp::pHydrogen()->getCoreActionController()->savePlaylist() ) {
+	if ( ! HydrogenApp::pEngine()->getCoreActionController()->savePlaylist() ) {
 		QMessageBox::critical( this, "Hydrogen",
 							   pCommonStrings->getPlaylistSaveFailure() );
 		return false;
@@ -733,7 +733,7 @@ void PlaylistEditor::loadScript() {
 
 	pPref->setLastPlaylistScriptDirectory( fd.directory().absolutePath() );
 
-	auto pOldEntry = HydrogenApp::pHydrogen()->getPlaylist()->get( nIndex );
+	auto pOldEntry = HydrogenApp::pEngine()->getPlaylist()->get( nIndex );
 
 	auto pNewEntry = std::make_shared<PlaylistEntry>( pOldEntry );
 	pNewEntry->setScriptPath( sScriptPath );
@@ -757,7 +757,7 @@ void PlaylistEditor::removeScript() {
 		return;
 	}
 
-	auto pOldEntry = HydrogenApp::pHydrogen()->getPlaylist()->get( nIndex );
+	auto pOldEntry = HydrogenApp::pEngine()->getPlaylist()->get( nIndex );
 	if ( pOldEntry->getScriptPath().isEmpty() ) {
 		// Nothing to do
 		return;
@@ -807,7 +807,7 @@ void PlaylistEditor::editScript()
 		}
 	}
 
-	auto pEntry = HydrogenApp::pHydrogen()->getPlaylist()->get( nIndex );
+	auto pEntry = HydrogenApp::pEngine()->getPlaylist()->get( nIndex );
 
 	QString sCommand = pPref->getDefaultEditor() + " " +
 		pEntry->getScriptPath() + " &";
@@ -855,7 +855,7 @@ void PlaylistEditor::moveRow( int nFrom, int nTo ) {
 		return;
 	}
 
-	const auto pEntry = HydrogenApp::pHydrogen()->getPlaylist()->get( nFrom );
+	const auto pEntry = HydrogenApp::pEngine()->getPlaylist()->get( nFrom );
 	if ( pEntry == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve entry [%1]" ).arg( nFrom ));
 		return;
@@ -884,7 +884,7 @@ void PlaylistEditor::on_m_pPlaylistTable_itemClicked( QTableWidgetItem* pItem ) 
 		WARNINGLOG( "No selection while clicking an item? Something is off..." );
 		return;
 	}
-	auto pOldEntry = HydrogenApp::pHydrogen()->getPlaylist()->get( nIndex );
+	auto pOldEntry = HydrogenApp::pEngine()->getPlaylist()->get( nIndex );
 	if ( pOldEntry == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve entry [%1]" ).arg( nIndex ));
 		pItem->setCheckState( Qt::Unchecked );
@@ -947,7 +947,7 @@ void PlaylistEditor::playButtonClicked()
 			m_pPlayButton->setChecked(false);
 			return;
 		}
-		HydrogenApp::pHydrogen()->getCoreActionController()->activatePlaylistSong( nIndex );
+		HydrogenApp::pEngine()->getCoreActionController()->activatePlaylistSong( nIndex );
 	}
 
 	if ( m_pPlayButton->isChecked() ) {
@@ -1076,7 +1076,7 @@ void PlaylistEditor::updateStyleSheet()
 
 void PlaylistEditor::updateWindowTitle() {
 
-	const auto pPlaylist = HydrogenApp::pHydrogen()->getPlaylist();
+	const auto pPlaylist = HydrogenApp::pEngine()->getPlaylist();
 	if ( pPlaylist == nullptr ) {
 		ERRORLOG( "No playlist" );
 		return;
@@ -1185,7 +1185,7 @@ PlaylistTableWidget::PlaylistTableWidget( QWidget* pParent )
 	connect( this, &QTableWidget::itemSelectionChanged,
 			 [=]() { int nRow = currentRow();
 				 const auto pPlaylist =
-					 HydrogenApp::pHydrogen()->getPlaylist();
+					 HydrogenApp::pEngine()->getPlaylist();
 				 if ( nRow == -1 || pPlaylist == nullptr ||
 					  pPlaylist->size() == 0 ) {
 					 m_pLastSelectedEntry = nullptr;
@@ -1240,7 +1240,7 @@ void PlaylistTableWidget::mouseMoveEvent( QMouseEvent* pEvent ) {
         return;
 	}
 
-	const auto pPlaylist = HydrogenApp::pHydrogen()->getPlaylist();
+	const auto pPlaylist = HydrogenApp::pEngine()->getPlaylist();
 	if ( pPlaylist == nullptr || pPlaylist->size() == 0 ) {
 		return;
 	}
@@ -1296,7 +1296,7 @@ void PlaylistTableWidget::dropEvent( QDropEvent* pEvent ) {
 }
 
 void PlaylistTableWidget::loadCurrentRow() {
-	const auto pPlaylist = HydrogenApp::pHydrogen()->getPlaylist();
+	const auto pPlaylist = HydrogenApp::pEngine()->getPlaylist();
 	if ( pPlaylist == nullptr || pPlaylist->size() == 0 ) {
 		return;
 	}
@@ -1320,12 +1320,12 @@ void PlaylistTableWidget::loadCurrentRow() {
 	// optional functionality. Therefore, we trigger the event in here
 	// directly (to tell the remainder of H2 that the loaded song is
 	// associated to a playlist).
-	HydrogenApp::pHydrogen()->getCoreActionController()->activatePlaylistSong( nIndex );
+	HydrogenApp::pEngine()->getCoreActionController()->activatePlaylistSong( nIndex );
 }
 
 
 void PlaylistTableWidget::update() {
-	const auto pPlaylist = HydrogenApp::pHydrogen()->getPlaylist();
+	const auto pPlaylist = HydrogenApp::pEngine()->getPlaylist();
 	if ( pPlaylist == nullptr ) {
 		ERRORLOG( "No playlist" );
 		return;

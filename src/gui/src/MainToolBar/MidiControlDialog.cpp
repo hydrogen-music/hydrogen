@@ -203,7 +203,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	m_pInputMidiClockCheckBox->setText( tr( "Handle MIDI Clock input" ) );
 	pInputCheckboxLayout->addWidget( m_pInputMidiClockCheckBox );
 	connect( m_pInputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
-		HydrogenApp::pHydrogen()->getCoreActionController()->setMidiClockInputHandling(
+		HydrogenApp::pEngine()->getCoreActionController()->setMidiClockInputHandling(
 			m_pInputMidiClockCheckBox->isChecked() );
 	} );
 
@@ -287,7 +287,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	m_pOutputMidiClockCheckBox->setText( tr( "Send MIDI Clock messages" ) );
 	pOutputCheckboxLayout->addWidget( m_pOutputMidiClockCheckBox );
 	connect( m_pOutputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
-		HydrogenApp::pHydrogen()->getCoreActionController()->setMidiClockOutputSend(
+		HydrogenApp::pEngine()->getCoreActionController()->setMidiClockOutputSend(
 			m_pOutputMidiClockCheckBox->isChecked() );
 	} );
 
@@ -730,7 +730,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 
 	m_pInputBinButton = addBinButton( pInputWidget );
 	connect( m_pInputBinButton, &QToolButton::clicked, [&]() {
-		auto pMidiDriver = HydrogenApp::pHydrogen()->getMidiDriver();
+		auto pMidiDriver = HydrogenApp::pEngine()->getMidiDriver();
 		if ( pMidiDriver != nullptr ) {
 			pMidiDriver->clearHandledInput();
 		}
@@ -765,7 +765,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	pOutputLayout->addWidget( m_pMidiOutputTable );
 	m_pOutputBinButton = addBinButton( pOutputWidget );
 	connect( m_pOutputBinButton, &QToolButton::clicked, [&]() {
-		auto pMidiDriver = HydrogenApp::pHydrogen()->getMidiDriver();
+		auto pMidiDriver = HydrogenApp::pEngine()->getMidiDriver();
 		if ( pMidiDriver != nullptr ) {
 			pMidiDriver->clearHandledOutput();
 		}
@@ -931,7 +931,7 @@ void MidiControlDialog::updateIcons() {
 void MidiControlDialog::updateInstrumentTable() {
 	m_instrumentMap.clear();
 
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -1037,7 +1037,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 		return;
 	}
 
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -1187,14 +1187,14 @@ void MidiControlDialog::updateInstrumentTableRow(
 					 m_instrumentMap.end() ) {
 					return;
 				}
-				auto pSong = HydrogenApp::pHydrogen()->getSong();
+				auto pSong = HydrogenApp::pEngine()->getSong();
 				if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 					return;
 				}
 				auto pInstrument = m_instrumentMap.at( instrumentHandle );
 				if ( pInstrument != nullptr ) {
 					long nEventId = Event::nInvalidId;
-					HydrogenApp::pHydrogen()->getCoreActionController()->setInstrumentMidiOutNote(
+					HydrogenApp::pEngine()->getCoreActionController()->setInstrumentMidiOutNote(
 						pSong->getDrumkit()->getInstruments()->index(
 							pInstrument
 						),
@@ -1266,14 +1266,14 @@ void MidiControlDialog::updateInstrumentTableRow(
 					 m_instrumentMap.end() ) {
 					return;
 				}
-				auto pSong = HydrogenApp::pHydrogen()->getSong();
+				auto pSong = HydrogenApp::pEngine()->getSong();
 				if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 					return;
 				}
 				auto pInstrument = m_instrumentMap.at( instrumentHandle );
 				if ( pInstrument != nullptr ) {
 					long nEventId = Event::nInvalidId;
-					HydrogenApp::pHydrogen()->getCoreActionController()->setInstrumentMidiOutChannel(
+					HydrogenApp::pEngine()->getCoreActionController()->setInstrumentMidiOutChannel(
 						pSong->getDrumkit()->getInstruments()->index(
 							pInstrument
 						),
@@ -1329,7 +1329,7 @@ void MidiControlDialog::updateInputTable() {
 	const bool bLastRowPreviouslyVisible =
 		MidiControlDialog::lastRowVisible( m_pMidiInputTable );
 
-	auto pMidiDriver = HydrogenApp::pHydrogen()->getMidiDriver();
+	auto pMidiDriver = HydrogenApp::pEngine()->getMidiDriver();
 
 	std::vector< std::shared_ptr<MidiInput::HandledInput> > handledInputs;
 	if ( pMidiDriver != nullptr ) {
@@ -1528,7 +1528,7 @@ void MidiControlDialog::updateOutputTable() {
 	const bool bLastRowPreviouslyVisible =
 		MidiControlDialog::lastRowVisible( m_pMidiOutputTable );
 
-	auto pMidiDriver = HydrogenApp::pHydrogen()->getMidiDriver();
+	auto pMidiDriver = HydrogenApp::pEngine()->getMidiDriver();
 
 	std::vector< std::shared_ptr<MidiOutput::HandledOutput> > handledOutputs;
 	if ( pMidiDriver != nullptr ) {

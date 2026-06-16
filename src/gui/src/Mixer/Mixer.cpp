@@ -282,7 +282,7 @@ void Mixer::drumkitLoadedEvent() {
 }
 
 void Mixer::instrumentMuteSoloChangedEvent( int nInstrumentIndex ) {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -305,7 +305,7 @@ void Mixer::instrumentMuteSoloChangedEvent( int nInstrumentIndex ) {
 }
 
 void Mixer::instrumentParametersChangedEvent( int nInstrumentIndex ) {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -331,7 +331,7 @@ void Mixer::mixerSettingsChangedEvent() {
 }
 
 void Mixer::noteRenderEvent( int nInstrumentIndex ) {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -369,7 +369,7 @@ void Mixer::updateSongEvent( int ) {
 void Mixer::resizeFaderPanel() {
 	int nWidth = Mixer::nMinimumFaderPanelWidth;
 
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
 		nWidth = std::max( pSong->getDrumkit()->getInstruments()->size() *
 						   MixerLine::nWidth,

@@ -329,7 +329,7 @@ OnlineImportDialog::OnlineImportDialog(
 	connect( m_pImporter, &OnlineImporter::batchFinished, [&]() {
 		setDownloadingState( false );
 
-		auto pDB = HydrogenApp::pHydrogen()->getSoundLibraryDatabase();
+		auto pDB = HydrogenApp::pEngine()->getSoundLibraryDatabase();
 
 		// Re-resolve statuses to reflect newly installed items
 		switch ( m_pTypeCombo->currentIndex() ) {

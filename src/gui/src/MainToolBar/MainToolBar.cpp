@@ -59,7 +59,7 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	: QToolBar( pParent ), m_input( Editor::Input::Select )
 {
 	const auto pPref = HydrogenApp::pPreferences();
-	const auto pSong = HydrogenApp::pHydrogen()->getSong();
+	const auto pSong = HydrogenApp::pEngine()->getSong();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	setFixedHeight( MainToolBar::nHeight );
@@ -287,7 +287,7 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	m_pSongLoopButton->setObjectName( "MainToolBarLoopButton" );
 	connect( m_pSongLoopButton, &QToolButton::clicked, [=]( bool bChecked ) {
 		auto pHydrogenApp = HydrogenApp::get_instance();
-		HydrogenApp::pHydrogen()->getCoreActionController()->activateLoopMode( m_pSongLoopButton->isChecked()
+		HydrogenApp::pEngine()->getCoreActionController()->activateLoopMode( m_pSongLoopButton->isChecked()
 		);
 		if ( m_pSongLoopButton->isChecked() ) {
 			pHydrogenApp->showStatusBarMessage( tr( "Loop song = On" ) );
@@ -305,7 +305,7 @@ MainToolBar::MainToolBar( QWidget* pParent )
 		createLearnableButton( tr( "Switch metronome on/off" ), true );
 	m_pMetronomeButton->setObjectName( "MetronomeButton" );
 	connect( m_pMetronomeButton, &QToolButton::clicked, []( bool bChecked ) {
-		HydrogenApp::pHydrogen()->getCoreActionController()->setMetronomeIsActive( bChecked );
+		HydrogenApp::pEngine()->getCoreActionController()->setMetronomeIsActive( bChecked );
 	} );
 	m_pMetronomeButton->setMidiAction(
 		std::make_shared<MidiAction>( MidiAction::Type::ToggleMetronome )
@@ -561,7 +561,7 @@ void MainToolBar::jackTimebaseStateChangedEvent( int nState )
 	// the event itself.
 	QString sMessage = tr( "JACK Timebase mode" ) + QString( " = " );
 
-	switch ( HydrogenApp::pHydrogen()->getJackTimebaseState() ) {
+	switch ( HydrogenApp::pEngine()->getJackTimebaseState() ) {
 		case JackDriver::Timebase::Controller:
 			sMessage.append( "Controller" );
 			break;
@@ -601,7 +601,7 @@ void MainToolBar::metronomeEvent( int nValue )
 	}
 
 	if ( !pPref->m_bUseMetronome &&
-		 HydrogenApp::pHydrogen()->getAudioEngine()->getState() !=
+		 HydrogenApp::pEngine()->getAudioEngine()->getState() !=
 			 AudioEngine::State::CountIn ) {
 		return;
 	}
@@ -714,15 +714,15 @@ void MainToolBar::updateSongEvent( int nValue )
 /// Toggle record mode
 void MainToolBar::recBtnClicked()
 {
-	if ( HydrogenApp::pHydrogen()->getAudioEngine()->getState() !=
+	if ( HydrogenApp::pEngine()->getAudioEngine()->getState() !=
 		 H2Core::AudioEngine::State::Playing ) {
 		if ( m_pRecButton->isChecked() ) {
-			HydrogenApp::pHydrogen()->getCoreActionController()->activateRecordMode( true );
+			HydrogenApp::pEngine()->getCoreActionController()->activateRecordMode( true );
 			( HydrogenApp::get_instance() )
 				->showStatusBarMessage( tr( "Record midi events = On" ) );
 		}
 		else {
-			HydrogenApp::pHydrogen()->getCoreActionController()->activateRecordMode( false );
+			HydrogenApp::pEngine()->getCoreActionController()->activateRecordMode( false );
 			( HydrogenApp::get_instance() )
 				->showStatusBarMessage( tr( "Record midi events = Off" ) );
 		}
@@ -754,7 +754,7 @@ void MainToolBar::playBtnClicked()
 	if ( pHydrogen->getAudioEngine()->getState() !=
 		 AudioEngine::State::Playing ) {
 		if ( pPref->getCountIn() ) {
-			HydrogenApp::pHydrogen()->getCoreActionController()->startCountIn();
+			HydrogenApp::pEngine()->getCoreActionController()->startCountIn();
 			pHydrogenApp->showStatusBarMessage( tr( "Counting in" ) );
 		}
 		else {
@@ -789,14 +789,14 @@ void MainToolBar::stopBtnClicked()
 	}
 
 	pHydrogen->sequencerStop();
-	HydrogenApp::pHydrogen()->getCoreActionController()->locateToColumn( 0 );
+	HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( 0 );
 	( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Stopped." ) );
 }
 
 void MainToolBar::updateTime()
 {
 	const float fSeconds =
-		HydrogenApp::pHydrogen()->getAudioEngine()->getElapsedTime();
+		HydrogenApp::pEngine()->getAudioEngine()->getElapsedTime();
 
 	const int nMSec = (int) ( ( fSeconds - (int) fSeconds ) * 1000.0 );
 	const int nSeconds = ( (int) fSeconds ) % 60;
@@ -818,7 +818,7 @@ void MainToolBar::activateSongMode( bool bActivate )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
-	HydrogenApp::pHydrogen()->getCoreActionController()->activateSongMode( bActivate );
+	HydrogenApp::pEngine()->getCoreActionController()->activateSongMode( bActivate );
 	// Immediate update and prevent buttons from being inchecked when clicked
 	// twice.
 	updateSongMode();
@@ -892,7 +892,7 @@ void MainToolBar::beatCounterEvent()
 
 void MainToolBar::jackTransportBtnClicked()
 {
-	if ( !HydrogenApp::pHydrogen()->hasJackDriver() ) {
+	if ( !HydrogenApp::pEngine()->hasJackDriver() ) {
 		QMessageBox::warning(
 			this, "Hydrogen",
 			tr( "JACK-transport will work only with JACK driver." )
@@ -903,11 +903,11 @@ void MainToolBar::jackTransportBtnClicked()
 	const auto pPref = HydrogenApp::pPreferences();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	if ( pPref->m_nJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
-		HydrogenApp::pHydrogen()->getCoreActionController()->activateJackTransport( false );
+		HydrogenApp::pEngine()->getCoreActionController()->activateJackTransport( false );
 		pHydrogenApp->showStatusBarMessage( tr( "JACK transport mode = Off" ) );
 	}
 	else {
-		HydrogenApp::pHydrogen()->getCoreActionController()->activateJackTransport( true );
+		HydrogenApp::pEngine()->getCoreActionController()->activateJackTransport( true );
 		pHydrogenApp->showStatusBarMessage( tr( "JACK transport mode = On" ) );
 	}
 }
@@ -915,7 +915,7 @@ void MainToolBar::jackTransportBtnClicked()
 void MainToolBar::jackTimebaseBtnClicked()
 {
 #ifdef H2CORE_HAVE_JACK
-	if ( !HydrogenApp::pHydrogen()->hasJackTransport() ) {
+	if ( !HydrogenApp::pEngine()->hasJackTransport() ) {
 		QMessageBox::warning(
 			this, "Hydrogen",
 			tr( "JACK transport will work only with JACK driver." )
@@ -927,10 +927,10 @@ void MainToolBar::jackTimebaseBtnClicked()
 
 	if ( pPref->m_bJackTimebaseMode ==
 		 Preferences::USE_JACK_TIMEBASE_CONTROL ) {
-		HydrogenApp::pHydrogen()->getCoreActionController()->activateJackTimebaseControl( false );
+		HydrogenApp::pEngine()->getCoreActionController()->activateJackTimebaseControl( false );
 	}
 	else {
-		HydrogenApp::pHydrogen()->getCoreActionController()->activateJackTimebaseControl( true );
+		HydrogenApp::pEngine()->getCoreActionController()->activateJackTimebaseControl( true );
 	}
 #endif
 }
@@ -948,7 +948,7 @@ void MainToolBar::fastForwardBtnClicked()
 			pHydrogen->getAudioEngine()->getPlayhead()->getColumn();
 		if ( nCurrentColumn < pSong->getPatternGroupVector()->size() - 1 ) {
 			// Not within the last column
-			HydrogenApp::pHydrogen()->getCoreActionController()->locateToColumn(
+			HydrogenApp::pEngine()->getCoreActionController()->locateToColumn(
 				std::max( nCurrentColumn, 0 ) + 1
 			);
 		}
@@ -956,7 +956,7 @@ void MainToolBar::fastForwardBtnClicked()
 			// Last one. If looping is enabled, we jump to the first column. If
 			// not, we "reach" the end of the song by stopping.
 			if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {
-				HydrogenApp::pHydrogen()->getCoreActionController()->locateToColumn( 0 );
+				HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( 0 );
 			}
 			else {
 				stopBtnClicked();
@@ -990,7 +990,7 @@ void MainToolBar::rewindBtnClicked()
 				nNewColumn = 0;
 			}
 		}
-		HydrogenApp::pHydrogen()->getCoreActionController()->locateToColumn( nNewColumn );
+		HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( nNewColumn );
 	}
 }
 
@@ -1099,7 +1099,7 @@ void MainToolBar::updateJackTimebase()
 
 void MainToolBar::updateLoopMode()
 {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}

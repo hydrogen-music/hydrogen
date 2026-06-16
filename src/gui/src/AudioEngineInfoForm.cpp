@@ -216,7 +216,7 @@ void AudioEngineInfoForm::updateInfo()
 void AudioEngineInfoForm::updateAudioEngineState() {
 	engineStateLbl->setText(
 		AudioEngine::StateToQString(
-			HydrogenApp::pHydrogen()->getAudioEngine()->getState() ) );
+			HydrogenApp::pEngine()->getAudioEngine()->getState() ) );
 }
 
 

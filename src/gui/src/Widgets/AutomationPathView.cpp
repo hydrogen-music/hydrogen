@@ -93,7 +93,7 @@ void AutomationPathView::setAutomationPath(
 // Make sure we have the current automation path
 void AutomationPathView::updateAutomationPath()
 {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong != nullptr ) {
 		setAutomationPath( pSong->getAutomationPath(), false );
 	} else {
@@ -388,7 +388,7 @@ void AutomationPathView::mouseMoveEvent(QMouseEvent *event)
 
 	if ( m_bIsHolding && m_pPath && _selectedPoint != m_pPath->end() ) {
 		_selectedPoint = m_pPath->move(_selectedPoint, x, y);
-		HydrogenApp::pHydrogen()->setSongModified( true );
+		HydrogenApp::pEngine()->setSongModified( true );
 	}
 
 	createBackground();
@@ -411,7 +411,7 @@ void AutomationPathView::keyPressEvent(QKeyEvent *event)
 			m_pPath->removePoint(_selectedPoint->first);
 			_selectedPoint = m_pPath->end();
 			
-			HydrogenApp::pHydrogen()->setSongModified( true );
+			HydrogenApp::pEngine()->setSongModified( true );
 
 			emit pointRemoved( x, y );
 			createBackground();

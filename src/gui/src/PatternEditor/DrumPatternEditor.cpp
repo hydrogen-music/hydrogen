@@ -217,7 +217,7 @@ void DrumPatternEditor::createBackground() {
 
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
-	if ( HydrogenApp::pHydrogen()->getMode() == Song::Mode::Pattern ) {
+	if ( HydrogenApp::pEngine()->getMode() == Song::Mode::Pattern ) {
 		backgroundInactiveColor =
 			pColorTheme->m_windowColor.lighter(
 				Skin::nEditorActiveScaling );

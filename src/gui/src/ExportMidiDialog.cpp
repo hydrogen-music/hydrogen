@@ -86,7 +86,7 @@ ExportMidiDialog::~ExportMidiDialog()
 
 QString ExportMidiDialog::createDefaultFileName()
 {
-	const auto pSong = HydrogenApp::pHydrogen()->getSong();
+	const auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		return "";
 	}

@@ -513,7 +513,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 			if ( pEvent->button() == Qt::LeftButton &&
 				 !m_pInstrumentNameLbl->isShowingPlusSign() ) {
 				// Play a sound
-				auto pSong = HydrogenApp::pHydrogen()->getSong();
+				auto pSong = HydrogenApp::pEngine()->getSong();
 				if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 					return;
 				}
@@ -566,7 +566,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	connect( m_pInstrumentNameLbl, &SidebarLabel::editRejected, this, [&]() {
 		// Reset the typed instrument name with the one in the current drumkit.
 		if ( m_row.id != Instrument::EmptyId ) {
-			auto pSong = HydrogenApp::pHydrogen()->getSong();
+			auto pSong = HydrogenApp::pEngine()->getSong();
 			if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 				return;
 			}
@@ -637,7 +637,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 
 	auto editDrumkit = [&]() {
 		if ( m_row.bMappedToDrumkit ) {
-			auto pSong = HydrogenApp::pHydrogen()->getSong();
+			auto pSong = HydrogenApp::pEngine()->getSong();
 			if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 				return;
 			}
@@ -1105,7 +1105,7 @@ void SidebarRow::updateStyleSheet()
 
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
-	if ( HydrogenApp::pHydrogen()->getMode() == Song::Mode::Pattern ) {
+	if ( HydrogenApp::pEngine()->getMode() == Song::Mode::Pattern ) {
 		backgroundInactiveColor =
 			pColorTheme->m_windowColor.lighter( Skin::nEditorActiveScaling );
 	}
@@ -1249,7 +1249,7 @@ void SidebarRow::update()
 
 void SidebarRow::muteClicked()
 {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -1266,7 +1266,7 @@ void SidebarRow::muteClicked()
 			return;
 		}
 
-		HydrogenApp::pHydrogen()->getCoreActionController()->setStripIsMuted(
+		HydrogenApp::pEngine()->getCoreActionController()->setStripIsMuted(
 			nRow, !pInstr->isMuted(), false
 		);
 	}
@@ -1274,7 +1274,7 @@ void SidebarRow::muteClicked()
 
 void SidebarRow::soloClicked()
 {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -1291,7 +1291,7 @@ void SidebarRow::soloClicked()
 			return;
 		}
 
-		HydrogenApp::pHydrogen()->getCoreActionController()->setStripIsSoloed(
+		HydrogenApp::pEngine()->getCoreActionController()->setStripIsSoloed(
 			nRow, !pInstr->isSoloed(), false
 		);
 	}
@@ -1620,7 +1620,7 @@ void PatternEditorSidebar::mouseMoveEvent( QMouseEvent* event )
 		return;
 	}
 
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}

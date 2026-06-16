@@ -63,7 +63,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
     auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pCommonStrings = pHydrogenApp->getCommonStrings();
-	const auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
 
 	setObjectName( "ComponentProperties" );
 
@@ -133,7 +133,7 @@ ComponentView::ComponentView( QWidget* pParent,
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
-		auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
+		auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
 		if ( pInstrument == nullptr || m_pComponent == nullptr ) {
 			return;
 		}
@@ -208,7 +208,7 @@ ComponentView::ComponentView( QWidget* pParent,
 		createButton( pCommonStrings->getActionDuplicateComponent(), false );
 	connect( m_pDuplicateComponentButton, &QToolButton::clicked, [=]() {
 		const auto pInstrument =
-			HydrogenApp::pHydrogen()->getSelectedInstrument();
+			HydrogenApp::pEngine()->getSelectedInstrument();
 		if ( pInstrument == nullptr || m_pComponent == nullptr ) {
 			return;
 		}
@@ -996,7 +996,7 @@ void ComponentView::collapse() {
 
 void ComponentView::deleteComponent() {
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	const auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
 
 	if ( pInstrument->getComponents()->size() <= 1 ) {
 		ERRORLOG( "There is just a single component remaining. This one can not be deleted." );
@@ -1167,7 +1167,7 @@ void ComponentView::setComponent(
 	m_pLayerPreview->updatePreview();
 
 	// if there is just a single component left, we must not allow deleting it.
-	const auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
 		return;
 	}
@@ -1187,7 +1187,7 @@ void ComponentView::setLayers(
         return;
 	}
 
-	const auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
 	QString sLastCleanedFileName;
 
 	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
@@ -1369,7 +1369,7 @@ void ComponentView::showSampleEditor() {
 	if ( m_pComponent == nullptr ) {
 		return;
 	}
-	auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
+	auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
 		return;
 	}
@@ -1390,7 +1390,7 @@ void ComponentView::removeLayerButtonClicked() {
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
-	const auto pInstrument = HydrogenApp::pHydrogen()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
 	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
 	auto pNewComponent = pNewInstrument->getComponent(
 		pInstrument->index( m_pComponent ) );

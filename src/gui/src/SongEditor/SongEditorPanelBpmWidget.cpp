@@ -47,7 +47,7 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int nColum
 	adjustSize();
 	setFixedSize( width(), height() );
 
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
     if ( pSong == nullptr ) {
         reject();
     }
@@ -111,7 +111,7 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 		return;
 	}
 
-	auto pTimeline = HydrogenApp::pHydrogen()->getSong()->getTimeline();
+	auto pTimeline = HydrogenApp::pEngine()->getSong()->getTimeline();
 	int nNewColumn = columnSpinBox->text().toInt() - 1;
 	if ( ! ( m_bTempoMarkerPresent && nNewColumn == m_nColumn ) &&
 		 pTimeline->hasColumnTempoMarker( nNewColumn ) ) {

@@ -83,7 +83,7 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 			auto pHydrogenApp = HydrogenApp::get_instance();
 			pHydrogenApp->showStatusBarMessage(
 				pHydrogenApp->getCommonStrings()->getTapTempoToolTip() );
-			HydrogenApp::pHydrogen()->updateBeatCounterSettings();
+			HydrogenApp::pEngine()->updateBeatCounterSettings();
 		}
 	} );
 
@@ -105,7 +105,7 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 			auto pHydrogenApp = HydrogenApp::get_instance();
 			pHydrogenApp->showStatusBarMessage(
 				pHydrogenApp->getCommonStrings()->getBeatCounterTapToolTip() );
-			HydrogenApp::pHydrogen()->updateBeatCounterSettings();
+			HydrogenApp::pEngine()->updateBeatCounterSettings();
 		}
 	} );
 
@@ -127,7 +127,7 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 			auto pHydrogenApp = HydrogenApp::get_instance();
 			pHydrogenApp->showStatusBarMessage(
 				pHydrogenApp->getCommonStrings()->getBeatCounterTapAndPlayToolTip() );
-			HydrogenApp::pHydrogen()->updateBeatCounterSettings();
+			HydrogenApp::pEngine()->updateBeatCounterSettings();
 		}
 	} );
 
@@ -146,9 +146,9 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	connect( m_pTapButton, &QToolButton::clicked, [&]() {
 		if ( HydrogenApp::pPreferences()->m_bpmTap ==
 			 Preferences::BpmTap::TapTempo ) {
-			HydrogenApp::pHydrogen()->onTapTempoAccelEvent();
+			HydrogenApp::pEngine()->onTapTempoAccelEvent();
 		} else {
-			HydrogenApp::pHydrogen()->handleBeatCounter();
+			HydrogenApp::pEngine()->handleBeatCounter();
 		}
 		// For instantaneous update.
 		updateBpmTap();

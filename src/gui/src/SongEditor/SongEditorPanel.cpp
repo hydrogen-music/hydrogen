@@ -227,7 +227,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		false
 	);
 	connect( m_pEditPlaybackTrackButton, &QToolButton::clicked, [=]() {
-		auto pSong = HydrogenApp::pHydrogen()->getSong();
+		auto pSong = HydrogenApp::pEngine()->getSong();
 		if ( pSong == nullptr ) {
 			return;
 		}
@@ -265,7 +265,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	connect(
 		m_pMutePlaybackTrackButton, &QPushButton::clicked,
 		[=]( bool bChecked ) {
-			auto pSong = HydrogenApp::pHydrogen()->getSong();
+			auto pSong = HydrogenApp::pEngine()->getSong();
 			if ( pSong == nullptr ) {
 				return;
 			}
@@ -333,11 +333,11 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	m_pEnableTimelineButton->setObjectName( "TimelineBtn" );
 	m_pEnableTimelineButton->setChecked( pSong->getIsTimelineActivated() );
 	connect( m_pEnableTimelineButton, &QToolButton::clicked, [=]() {
-		auto pSong = HydrogenApp::pHydrogen()->getSong();
+		auto pSong = HydrogenApp::pEngine()->getSong();
 		if ( pSong == nullptr ) {
 			return;
 		}
-		HydrogenApp::pHydrogen()->getCoreActionController()->activateTimeline( !pSong->getIsTimelineActivated()
+		HydrogenApp::pEngine()->getCoreActionController()->activateTimeline( !pSong->getIsTimelineActivated()
 		);
 		updateTimeline();
 
@@ -350,7 +350,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 						: pCommonStrings->getStatusOff()
 				);
 		HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
-		HydrogenApp::pHydrogen()->setSongModified( true );
+		HydrogenApp::pEngine()->setSongModified( true );
 	} );
 
     m_pTimelineToolBar->addSeparator();
@@ -420,7 +420,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		SongEditorPanel::nButtonWidth, SongEditorPanel::nButtonMainHeight
 	);
 	connect( m_pSinglePatternModeButton, &QToolButton::clicked, [=]() {
-		HydrogenApp::pHydrogen()->setPatternMode( Song::PatternMode::Selected );
+		HydrogenApp::pEngine()->setPatternMode( Song::PatternMode::Selected );
 	});
 	pPatternModeGroup->addButton( m_pSinglePatternModeButton );
 	m_pSongEditorToolBar->addWidget( m_pSinglePatternModeButton );
@@ -432,7 +432,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		SongEditorPanel::nButtonWidth, SongEditorPanel::nButtonMainHeight
 	);
 	connect( m_pStackedPatternModeButton, &QToolButton::clicked, [=]() {
-		HydrogenApp::pHydrogen()->setPatternMode( Song::PatternMode::Stacked );
+		HydrogenApp::pEngine()->setPatternMode( Song::PatternMode::Stacked );
 	});
 	pPatternModeGroup->addButton( m_pStackedPatternModeButton );
 	m_pSongEditorToolBar->addWidget( m_pStackedPatternModeButton );
@@ -692,7 +692,7 @@ void SongEditorPanel::highlightPatternEditorLocked() {
 
 void SongEditorPanel::updatePlaybackFaderPeaks()
 {
-    auto pSong = HydrogenApp::pHydrogen()->getSong();
+    auto pSong = HydrogenApp::pEngine()->getSong();
     if ( pSong == nullptr || pSong->getPlaybackTrackInstrument() == nullptr ) {
         return;
     }
@@ -760,7 +760,7 @@ void SongEditorPanel::hScrollTo( int value )
 
 void SongEditorPanel::ensureCursorIsVisible() {
 	const int nSelectedPattern =
-		HydrogenApp::pHydrogen()->getSelectedPatternNumber();
+		HydrogenApp::pEngine()->getSelectedPatternNumber();
 
 	// Make sure currently selected pattern is visible.
 	if ( nSelectedPattern != -1 ) {
@@ -968,7 +968,7 @@ void SongEditorPanel::nextPatternsChangedEvent() {
 void SongEditorPanel::patternEditorLockedEvent() {
 	updatePatternEditorLocked();
 
-	if ( HydrogenApp::pHydrogen()->isPatternEditorLocked() ) {
+	if ( HydrogenApp::pEngine()->isPatternEditorLocked() ) {
 		m_pPatternList->updateEditor();
 	}
 }
@@ -989,7 +989,7 @@ void SongEditorPanel::playingPatternsChangedEvent() {
 	// Triggered every time the column of the SongEditor grid
 	// changed. Either by rolling transport or by relocation.
 	// In Song mode, we may scroll to change position in the Song Editor.
-	if ( HydrogenApp::pHydrogen()->getMode() == Song::Mode::Song ) {
+	if ( HydrogenApp::pEngine()->getMode() == Song::Mode::Song ) {
 
 		// Scroll vertically to keep currently playing patterns in view
 		int nPatternInView = -1;
@@ -1002,7 +1002,7 @@ void SongEditorPanel::playingPatternsChangedEvent() {
 }
 
 void SongEditorPanel::relocationEvent() {
-	if ( HydrogenApp::pHydrogen()->isPatternEditorLocked() ) {
+	if ( HydrogenApp::pEngine()->isPatternEditorLocked() ) {
 		m_pSongEditor->updateEditor( Editor::Update::Background );
 		m_pPatternList->updateEditor();
 	}
@@ -1042,13 +1042,13 @@ void SongEditorPanel::stateChangedEvent( const H2Core::AudioEngine::State& ) {
 	// The lock button is highlighted when transport is rolling.
 	updatePatternEditorLocked();
 
-	if ( HydrogenApp::pHydrogen()->isPatternEditorLocked() ) {
+	if ( HydrogenApp::pEngine()->isPatternEditorLocked() ) {
 		m_pPatternList->updateEditor();
 	}
 }
 
 void SongEditorPanel::tempoChangedEvent( int nValue ) {
-    auto pSong = HydrogenApp::pHydrogen()->getSong();
+    auto pSong = HydrogenApp::pEngine()->getSong();
     if ( pSong == nullptr ) {
         return;
     }
@@ -1310,7 +1310,7 @@ void SongEditorPanel::updateIcons() {
 		colorPlaybackTrackToolBarDisabled
 	);
 
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	const bool bTimelineEnabled =
 		pSong != nullptr ? pSong->getIsTimelineActivated() : false;
 
@@ -1434,7 +1434,7 @@ void SongEditorPanel::updateStyleSheet() {
 			SongEditorPositionRuler::nScalingRuler
 		);
 
-	const auto pSong = HydrogenApp::pHydrogen()->getSong();
+	const auto pSong = HydrogenApp::pEngine()->getSong();
 
 	QColor colorPlaybackTrackToolBar;
 	if ( pSong != nullptr && pSong->getPlaybackTrackInstrument() != nullptr &&
@@ -1454,7 +1454,7 @@ void SongEditorPanel::updateStyleSheet() {
 		);
 
 	QColor backgroundInactiveColor;
-	if ( HydrogenApp::pHydrogen()->getMode() == Song::Mode::Song ) {
+	if ( HydrogenApp::pEngine()->getMode() == Song::Mode::Song ) {
 		backgroundInactiveColor = pColorTheme->m_windowColor.lighter(
 		 	Skin::nEditorActiveScaling );
 	}

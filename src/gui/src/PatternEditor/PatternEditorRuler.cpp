@@ -73,7 +73,7 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 	m_pTimer = new QTimer(this);
 	connect(m_pTimer, &QTimer::timeout, [=]() {
-		if ( HydrogenApp::pHydrogen()->getAudioEngine()->getState() ==
+		if ( HydrogenApp::pEngine()->getAudioEngine()->getState() ==
 			 H2Core::AudioEngine::State::Playing ) {
 			updatePosition();
 		}
@@ -216,11 +216,11 @@ void PatternEditorRuler::mousePressEvent( QMouseEvent* ev ) {
 			  static_cast<float>(m_pPatternEditorPanel->getResolution()) ) );
 
 		if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
-			HydrogenApp::pHydrogen()->getCoreActionController()->activateSongMode( false );
+			HydrogenApp::pEngine()->getCoreActionController()->activateSongMode( false );
 			pHydrogen->setSongModified( true );
 		}
 
-		HydrogenApp::pHydrogen()->getCoreActionController()->locateToTick( nNewTick );
+		HydrogenApp::pEngine()->getCoreActionController()->locateToTick( nNewTick );
 	}
 }
 
@@ -436,7 +436,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 bool PatternEditorRuler::updateActiveRange() {
 	
-	auto pAudioEngine = HydrogenApp::pHydrogen()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pEngine()->getAudioEngine();
 	int nTicksInPattern = 4 * H2Core::nTicksPerQuarter;
 
 	auto pPlayingPatterns = pAudioEngine->getPlayingPatterns();

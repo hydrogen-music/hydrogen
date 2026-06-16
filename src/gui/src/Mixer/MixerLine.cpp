@@ -117,7 +117,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	connect( m_pMuteBtn, &QPushButton::clicked, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
-			HydrogenApp::pHydrogen()->getCoreActionController()->setStripIsMuted(
+			HydrogenApp::pEngine()->getCoreActionController()->setStripIsMuted(
 				nLine, m_pMuteBtn->isChecked(), true );
 		}
 	});
@@ -134,7 +134,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	connect( m_pSoloBtn, &QPushButton::clicked, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
-			HydrogenApp::pHydrogen()->getCoreActionController()->setStripIsSoloed(
+			HydrogenApp::pEngine()->getCoreActionController()->setStripIsSoloed(
 				nLine, m_pSoloBtn->isChecked(), true );
 		}
 	});
@@ -149,7 +149,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	connect( m_pPanRotary, &Rotary::valueChanged, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
-			HydrogenApp::pHydrogen()->getCoreActionController()->setStripPanSym(
+			HydrogenApp::pEngine()->getCoreActionController()->setStripPanSym(
 				nLine, m_pPanRotary->getValue(), true );
 		}
 	});
@@ -160,7 +160,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	connect( m_pNameWidget, &InstrumentNameWidget::clicked, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
-			HydrogenApp::pHydrogen()->setSelectedInstrumentNumber( nLine );
+			HydrogenApp::pEngine()->setSelectedInstrumentNumber( nLine );
 		}
 	});
 
@@ -174,7 +174,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	connect( m_pFader, &Fader::valueChanged, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
-			HydrogenApp::pHydrogen()->getCoreActionController()->setStripVolume(
+			HydrogenApp::pEngine()->getCoreActionController()->setStripVolume(
 				nLine, m_pFader->getValue(), true );
 		}
 	});
@@ -324,7 +324,7 @@ void MixerLine::updatePeaks()
 
 void MixerLine::updateSelected() {
 	m_pSelectionLED->setActivated(
-		HydrogenApp::pHydrogen()->getSelectedInstrument() == m_pInstrument );
+		HydrogenApp::pEngine()->getSelectedInstrument() == m_pInstrument );
 }
 
 void MixerLine::setInstrument( std::shared_ptr<H2Core::Instrument> pInstrument ) {
@@ -350,7 +350,7 @@ int MixerLine::retrieveLineNumber() const {
 }
 
 void MixerLine::updateActions() {
-	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( m_pInstrument == nullptr || pSong == nullptr ||
 		 pSong->getDrumkit() == nullptr ) {
 		m_pMuteBtn->setMidiAction( nullptr );

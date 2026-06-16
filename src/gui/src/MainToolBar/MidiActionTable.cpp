@@ -49,7 +49,7 @@ MidiActionTable::MidiActionTable( QWidget* pParent ) : QTableWidget( pParent )
 	m_availableActions << "";
 
 	const auto pActionHandler =
-		HydrogenApp::pHydrogen()->getMidiActionManager();
+		HydrogenApp::pEngine()->getMidiActionManager();
 	for ( const auto& ttype : pActionHandler->getMidiActions() ) {
 		m_availableActions << MidiAction::typeToQString( ttype );
 	}
@@ -324,7 +324,7 @@ void MidiActionTable::midiSensePressed( int nRow )
 
 void MidiActionTable::appendEmptyRow()
 {
-	auto pMidiActionManager = HydrogenApp::pHydrogen()->getMidiActionManager();
+	auto pMidiActionManager = HydrogenApp::pEngine()->getMidiActionManager();
 
 	const int nNewRow = rowCount();
 	setRowCount( rowCount() + 1 );
@@ -653,7 +653,7 @@ void MidiActionTable::updateRowVisibility( int nRow )
 		dynamic_cast<SpinBoxWithIcon*>( cellWidget( nRow, 6 ) );
 
 	const int nActionParameters =
-		HydrogenApp::pHydrogen()->getMidiActionManager()->getParameterNumber(
+		HydrogenApp::pEngine()->getMidiActionManager()->getParameterNumber(
 			actionType
 		);
 	if ( pActionParameterSpinBox1 != nullptr &&
