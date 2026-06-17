@@ -20,7 +20,7 @@ current persistence model makes that unsafe under multiple instances:
 
 A DAW typically tears down all plugin instances **in parallel** on project/host
 close. With per-instance `Preferences` ([ADR 0015](0015-per-instance-engine-context.md)),
-that means several processes each rewriting the whole `~/.hydrogen` config file at
+that means several processes each rewriting the whole shared user config file at
 the same moment: a last-writer-wins race that corrupts the file or silently
 discards other instances' (and the standalone app's) changes. The same clobbering
 can happen between a plugin instance and a standalone instance running
@@ -107,6 +107,13 @@ not protect against a concurrent standalone instance.
 
 ## More Information
 
+* The "shared user config file" is **not** literally `~/.hydrogen`. Its location
+  is abstracted by `Filesystem::userConfigPath()`: on Linux it is XDG-derived
+  (`$XDG_CONFIG_HOME/hydrogen/hydrogen.conf`, defaulting to
+  `~/.config/hydrogen/hydrogen.conf`), and platform-specific on macOS/Windows;
+  `~/.hydrogen` is only the legacy fallback (used when that directory already
+  exists). The locked merge-write operates on whatever path `userConfigPath()`
+  resolves to — it is path-agnostic.
 * `src/core/Preferences/Preferences.cpp:1405` (`save`),
   `:1410` (`saveTo`); call sites `src/gui/src/main.cpp:534`,
   `src/gui/src/MainForm.cpp:2758`.

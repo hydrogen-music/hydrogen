@@ -94,6 +94,12 @@ duplicate and diverge the general settings we explicitly want shared.
 
 ## More Information
 
+* "`~/.hydrogen`" above is shorthand for the **shared user config**, whose actual
+  location is abstracted by `Filesystem::userConfigPath()`: XDG-derived on Linux
+  (`$XDG_CONFIG_HOME/hydrogen/hydrogen.conf`, default
+  `~/.config/hydrogen/hydrogen.conf`) and platform-specific on macOS/Windows;
+  `~/.hydrogen` is only the legacy fallback. The base layer reads, and base-layer
+  changes are written to, whatever path `userConfigPath()` resolves to.
 * `src/core/Preferences/Preferences.h` — field definitions referenced above.
 * Related: [ADR 0015](0015-per-instance-engine-context.md),
   [ADR 0016](0016-out-of-process-plugin-ui.md),

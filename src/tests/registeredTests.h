@@ -30,6 +30,7 @@
 #include "AudioExportTest.h"
 #include "AutomationPathTest.h"
 #include "CliTest.h"
+#include "ConfigConcurrencyTest.h"
 #include "CoreActionControllerTest.h"
 #include "DrumkitExportTest.h"
 #include "EngineAccessTest.h"
@@ -39,6 +40,7 @@
 #include "DrumkitTest.h"
 #include "H2ProjectTest.h"
 #include "IpcProtocolTest.h"
+#include "PluginConfigTest.h"
 #include "LicenseTest.h"
 #include "LoggerInstanceTest.h"
 #include "MemoryLeakageTest.h"
@@ -78,6 +80,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathTest );
   // For now h2cli is just part of our Linux package.
   CPPUNIT_TEST_SUITE_REGISTRATION( CliTest );
 #endif
+CPPUNIT_TEST_SUITE_REGISTRATION( ConfigConcurrencyTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( CoreActionControllerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitExportTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( EngineAccessTest );
@@ -87,6 +90,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( H2ProjectTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( IpcProtocolTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( PluginConfigTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LicenseTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LoggerInstanceTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MemoryLeakageTest );

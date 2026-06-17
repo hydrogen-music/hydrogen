@@ -25,6 +25,7 @@ target_link_libraries(tests
 	Qt${QT_VERSION_MAJOR}::Core
 	Qt${QT_VERSION_MAJOR}::Test
 	Qt${QT_VERSION_MAJOR}::Network
+	Qt${QT_VERSION_MAJOR}::Xml
 )
 
 if(Backtrace_FOUND)

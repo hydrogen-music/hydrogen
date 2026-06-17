@@ -488,10 +488,18 @@ classification are implemented in `src/core/IPC/` and covered by
 typed args + XML payloads; `hello` handshake versioning; full `Event::Type`
 round-trip; the seqlock'd `PluginTelemetry` POD (`telemetryStore`/`Load`, version
 gate, threaded tear-free check); and `isEngineOriginEvent()` (OnlineImportProgress
-stays editor-internal). Remaining: the live `QLocalSocket` transport + bridge
-thread (T5.1 wiring), T5.2 `IpcEngineAccess`, T5.3/T5.4 editor mode + lifecycle
-(integration `EditorModeTest`), T5.5 layered config (`PluginConfigTest`), T5.6
-concurrency-safe persistence (`ConfigConcurrencyTest`), T5.7 sound-library rescan.
+stays editor-internal). T5.5 (layered config, ADR 0022) and T5.6 (concurrency-safe persistence, ADR
+0023) also landed (2026-06-17), suite `OK (279 tests)`: `PluginConfig`
+(`src/core/Preferences/`) defines the override-field set (single source of
+truth), `applyOverride()` composes base⊕override, and `mergeForWrite()`/`persist()`
+do the locked re-read + field-level 3-way merge + atomic `QSaveFile` write
+(diff-against-baseline, override excluded). Covered by `PluginConfigTest` (4) and
+`ConfigConcurrencyTest` (3, incl. a parallel-thread no-corruption check).
+Remaining: the live `QLocalSocket` transport + bridge thread (T5.1 wiring), T5.2
+`IpcEngineAccess`, T5.3/T5.4 editor mode + lifecycle (integration
+`EditorModeTest`), wiring `PluginConfig` into `Preferences` (baseline retention +
+debounced write-through replacing the snapshot `save()`), T5.7 sound-library
+rescan.
 
 **Tests first**
 * `IpcProtocolTest` (unit): every `CoreActionController` command and every

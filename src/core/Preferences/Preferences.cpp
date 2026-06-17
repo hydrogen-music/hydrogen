@@ -36,6 +36,7 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Helpers/Xml.h>
 #include <core/IO/AlsaAudioDriver.h>
+#include <core/Preferences/PreferencesKeys.h>
 #include <core/Midi/MidiEventMap.h>
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Midi/MidiMessage.h>
@@ -438,7 +439,7 @@ Preferences::load( const QString& sPath, const bool bSilent, Hydrogen* pHydrogen
 
 	XMLDoc doc;
 	doc.read( sPath, false );
-	const XMLNode rootNode = doc.firstChildElement( "hydrogen_preferences" );
+	const XMLNode rootNode = doc.firstChildElement( PreferencesKeys::Root );
 	if ( rootNode.isNull() ) {
 		ERRORLOG( QString( "Preferences file [%1] ill-formatted. "
 						   "<hydrogen_preferences> node not found." )
@@ -524,7 +525,7 @@ Preferences::load( const QString& sPath, const bool bSilent, Hydrogen* pHydrogen
 	}
 
 	const XMLNode recentUsedSongsNode =
-		rootNode.firstChildElement( "recentUsedSongs" );
+		rootNode.firstChildElement( PreferencesKeys::RecentUsedSongs );
 	if ( !recentUsedSongsNode.isNull() ) {
 		QDomElement songElement =
 			recentUsedSongsNode.firstChildElement( "song" );
@@ -554,10 +555,10 @@ Preferences::load( const QString& sPath, const bool bSilent, Hydrogen* pHydrogen
 	bool bAsOutput = false;
 	bool bMidiDiscardNoteAfterAction = false;
 	const XMLNode audioEngineNode =
-		rootNode.firstChildElement( "audio_engine" );
+		rootNode.firstChildElement( PreferencesKeys::AudioEngine );
 	if ( !audioEngineNode.isNull() ) {
 		const QString sAudioDriver = audioEngineNode.read_string(
-			"audio_driver",
+			PreferencesKeys::AudioDriver,
 			Preferences::audioDriverToQString( pPref->m_audioDriver ), false,
 			false, bSilent
 		);
@@ -578,10 +579,10 @@ Preferences::load( const QString& sPath, const bool bSilent, Hydrogen* pHydrogen
 			"maxNotes", pPref->m_nMaxNotes, false, false, bSilent
 		);
 		pPref->m_nBufferSize = audioEngineNode.read_int(
-			"buffer_size", pPref->m_nBufferSize, false, false, bSilent
+			PreferencesKeys::BufferSize, pPref->m_nBufferSize, false, false, bSilent
 		);
 		pPref->m_nSampleRate = audioEngineNode.read_int(
-			"samplerate", pPref->m_nSampleRate, false, false, bSilent
+			PreferencesKeys::SampleRate, pPref->m_nSampleRate, false, false, bSilent
 		);
 		pPref->setCountIn( audioEngineNode.read_bool(
 			"countIn", pPref->getCountIn(), /*inexistent_ok*/ true,
@@ -590,7 +591,7 @@ Preferences::load( const QString& sPath, const bool bSilent, Hydrogen* pHydrogen
 
 		//// OSS DRIVER ////
 		const XMLNode ossDriverNode =
-			audioEngineNode.firstChildElement( "oss_driver" );
+			audioEngineNode.firstChildElement( PreferencesKeys::OssDriver );
 		if ( !ossDriverNode.isNull() ) {
 			pPref->m_sOSSDevice = ossDriverNode.read_string(
 				"ossDevice", pPref->m_sOSSDevice, false, false, bSilent
@@ -602,7 +603,7 @@ Preferences::load( const QString& sPath, const bool bSilent, Hydrogen* pHydrogen
 
 		//// PORTAUDIO DRIVER ////
 		const XMLNode portAudioDriverNode =
-			audioEngineNode.firstChildElement( "portaudio_driver" );
+			audioEngineNode.firstChildElement( PreferencesKeys::PortAudioDriver );
 		if ( !portAudioDriverNode.isNull() ) {
 			pPref->m_sPortAudioDevice = portAudioDriverNode.read_string(
 				"portAudioDevice", pPref->m_sPortAudioDevice, false, true,
@@ -622,7 +623,7 @@ Preferences::load( const QString& sPath, const bool bSilent, Hydrogen* pHydrogen
 
 		//// COREAUDIO DRIVER ////
 		const XMLNode coreAudioDriverNode =
-			audioEngineNode.firstChildElement( "coreaudio_driver" );
+			audioEngineNode.firstChildElement( PreferencesKeys::CoreAudioDriver );
 		if ( !coreAudioDriverNode.isNull() ) {
 			pPref->m_sCoreAudioDevice = coreAudioDriverNode.read_string(
 				"coreAudioDevice", pPref->m_sCoreAudioDevice, false, true,
@@ -635,7 +636,7 @@ Preferences::load( const QString& sPath, const bool bSilent, Hydrogen* pHydrogen
 
 		//// JACK DRIVER ////
 		const XMLNode jackDriverNode =
-			audioEngineNode.firstChildElement( "jack_driver" );
+			audioEngineNode.firstChildElement( PreferencesKeys::JackDriver );
 		if ( !jackDriverNode.isNull() ) {
 			pPref->m_sJackPortName1 = jackDriverNode.read_string(
 				"jack_port_name_1", pPref->m_sJackPortName1, false, false,
@@ -715,7 +716,7 @@ Preferences::load( const QString& sPath, const bool bSilent, Hydrogen* pHydrogen
 
 		/// ALSA AUDIO DRIVER ///
 		const XMLNode alsaAudioDriverNode =
-			audioEngineNode.firstChildElement( "alsa_audio_driver" );
+			audioEngineNode.firstChildElement( PreferencesKeys::AlsaAudioDriver );
 		if ( !alsaAudioDriverNode.isNull() ) {
 			pPref->m_sAlsaAudioDevice = alsaAudioDriverNode.read_string(
 				"alsa_audio_device", pPref->m_sAlsaAudioDevice, false, false,
@@ -728,19 +729,19 @@ Preferences::load( const QString& sPath, const bool bSilent, Hydrogen* pHydrogen
 
 		/// MIDI DRIVER ///
 		const XMLNode midiDriverNode =
-			audioEngineNode.firstChildElement( "midi_driver" );
+			audioEngineNode.firstChildElement( PreferencesKeys::MidiDriver );
 		if ( !midiDriverNode.isNull() ) {
 			const auto sMidiDriver = midiDriverNode.read_string(
-				"driverName",
+				PreferencesKeys::MidiDriverName,
 				Preferences::midiDriverToQString( pPref->m_midiDriver ), false,
 				false, bSilent
 			);
 			pPref->m_midiDriver = Preferences::parseMidiDriver( sMidiDriver );
 			pPref->m_sMidiPortName = midiDriverNode.read_string(
-				"port_name", pPref->m_sMidiPortName, false, false, bSilent
+				PreferencesKeys::MidiPortName, pPref->m_sMidiPortName, false, false, bSilent
 			);
 			pPref->m_sMidiOutputPortName = midiDriverNode.read_string(
-				"output_port_name", pPref->m_sMidiOutputPortName, false, false,
+				PreferencesKeys::MidiOutputPortName, pPref->m_sMidiOutputPortName, false, false,
 				bSilent
 			);
 			// In versions prior to 2.0 there was an inconsistent scheme for
@@ -830,7 +831,7 @@ Preferences::load( const QString& sPath, const bool bSilent, Hydrogen* pHydrogen
 
 		/// OSC ///
 		const XMLNode oscServerNode =
-			audioEngineNode.firstChildElement( "osc_configuration" );
+			audioEngineNode.firstChildElement( PreferencesKeys::OscConfiguration );
 		if ( !oscServerNode.isNull() ) {
 			pPref->m_bOscServerEnabled = oscServerNode.read_bool(
 				"oscEnabled", pPref->m_bOscServerEnabled, false, false, bSilent
@@ -1258,13 +1259,13 @@ Preferences::load( const QString& sPath, const bool bSilent, Hydrogen* pHydrogen
 	}
 
 	/////////////// FILES //////////////
-	const XMLNode filesNode = rootNode.firstChildElement( "files" );
+	const XMLNode filesNode = rootNode.firstChildElement( PreferencesKeys::Files );
 	if ( !filesNode.isNull() ) {
 		pPref->m_sLastSongPath = filesNode.read_string(
-			"lastSongFilename", pPref->m_sLastSongPath, false, true, bSilent
+			PreferencesKeys::LastSongFilename, pPref->m_sLastSongPath, false, true, bSilent
 		);
 		pPref->m_sLastPlaylistPath = filesNode.read_string(
-			"lastPlaylistFilename", pPref->m_sLastPlaylistPath, false, true,
+			PreferencesKeys::LastPlaylistFilename, pPref->m_sLastPlaylistPath, false, true,
 			bSilent
 		);
 		pPref->m_sDefaultEditor = filesNode.read_string(
@@ -1366,7 +1367,7 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 	auto pFontTheme = m_pTheme->m_pFont;
 
 	XMLDoc doc;
-	XMLNode rootNode = doc.set_root( "hydrogen_preferences" );
+	XMLNode rootNode = doc.set_root( PreferencesKeys::Root );
 
 	// hydrogen version
 	rootNode.write_int( "formatVersion", nCurrentFormatVersion );
@@ -1420,7 +1421,7 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 	rootNode.write_string( "path_to_rubberband", rubberBandCLIexecutable );
 
 	// Recent used songs
-	XMLNode recentUsedSongsNode = rootNode.createNode( "recentUsedSongs" );
+	XMLNode recentUsedSongsNode = rootNode.createNode( PreferencesKeys::RecentUsedSongs );
 	{
 		unsigned nSongs = 5;
 		if ( m_recentFiles.size() < 5 ) {
@@ -1437,30 +1438,30 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 	}
 
 	//---- AUDIO ENGINE ----
-	XMLNode audioEngineNode = rootNode.createNode( "audio_engine" );
+	XMLNode audioEngineNode = rootNode.createNode( PreferencesKeys::AudioEngine );
 	{
 		// audio driver
 		audioEngineNode.write_string(
-			"audio_driver", audioDriverToQString( m_audioDriver )
+			PreferencesKeys::AudioDriver, audioDriverToQString( m_audioDriver )
 		);
 
 		// use metronome
 		audioEngineNode.write_bool( "use_metronome", m_bUseMetronome );
 		audioEngineNode.write_float( "metronome_volume", m_fMetronomeVolume );
 		audioEngineNode.write_int( "maxNotes", m_nMaxNotes );
-		audioEngineNode.write_int( "buffer_size", m_nBufferSize );
-		audioEngineNode.write_int( "samplerate", m_nSampleRate );
+		audioEngineNode.write_int( PreferencesKeys::BufferSize, m_nBufferSize );
+		audioEngineNode.write_int( PreferencesKeys::SampleRate, m_nSampleRate );
 		audioEngineNode.write_bool( "countIn", m_bCountIn );
 
 		//// OSS DRIVER ////
-		XMLNode ossDriverNode = audioEngineNode.createNode( "oss_driver" );
+		XMLNode ossDriverNode = audioEngineNode.createNode( PreferencesKeys::OssDriver );
 		{
 			ossDriverNode.write_string( "ossDevice", m_sOSSDevice );
 		}
 
 		//// PORTAUDIO DRIVER ////
 		XMLNode portAudioDriverNode =
-			audioEngineNode.createNode( "portaudio_driver" );
+			audioEngineNode.createNode( PreferencesKeys::PortAudioDriver );
 		{
 			portAudioDriverNode.write_string(
 				"portAudioDevice", m_sPortAudioDevice
@@ -1473,7 +1474,7 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 
 		//// COREAUDIO DRIVER ////
 		XMLNode coreAudioDriverNode =
-			audioEngineNode.createNode( "coreaudio_driver" );
+			audioEngineNode.createNode( PreferencesKeys::CoreAudioDriver );
 		{
 			coreAudioDriverNode.write_string(
 				"coreAudioDevice", m_sCoreAudioDevice
@@ -1481,7 +1482,7 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 		}
 
 		//// JACK DRIVER ////
-		XMLNode jackDriverNode = audioEngineNode.createNode( "jack_driver" );
+		XMLNode jackDriverNode = audioEngineNode.createNode( PreferencesKeys::JackDriver );
 		{
 			jackDriverNode.write_string(
 				"jack_port_name_1", m_sJackPortName1
@@ -1540,7 +1541,7 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 
 		//// ALSA AUDIO DRIVER ////
 		XMLNode alsaAudioDriverNode =
-			audioEngineNode.createNode( "alsa_audio_driver" );
+			audioEngineNode.createNode( PreferencesKeys::AlsaAudioDriver );
 		{
 			alsaAudioDriverNode.write_string(
 				"alsa_audio_device", m_sAlsaAudioDevice
@@ -1548,14 +1549,14 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 		}
 
 		/// MIDI DRIVER ///
-		XMLNode midiDriverNode = audioEngineNode.createNode( "midi_driver" );
+		XMLNode midiDriverNode = audioEngineNode.createNode( PreferencesKeys::MidiDriver );
 		{
 			midiDriverNode.write_string(
-				"driverName", Preferences::midiDriverToQString( m_midiDriver )
+				PreferencesKeys::MidiDriverName, Preferences::midiDriverToQString( m_midiDriver )
 			);
-			midiDriverNode.write_string( "port_name", m_sMidiPortName );
+			midiDriverNode.write_string( PreferencesKeys::MidiPortName, m_sMidiPortName );
 			midiDriverNode.write_string(
-				"output_port_name", m_sMidiOutputPortName
+				PreferencesKeys::MidiOutputPortName, m_sMidiOutputPortName
 			);
 
 			// In versions prior to 2.0 there was an inconsistent scheme for
@@ -1613,7 +1614,7 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 		}
 
 		/// OSC ///
-		XMLNode oscNode = audioEngineNode.createNode( "osc_configuration" );
+		XMLNode oscNode = audioEngineNode.createNode( PreferencesKeys::OscConfiguration );
 		{
 			oscNode.write_int( "oscServerPort", m_nOscServerPort );
 			oscNode.write_bool( "oscEnabled", m_bOscServerEnabled );
@@ -1841,12 +1842,12 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 	}
 
 	//---- FILES ----
-	XMLNode filesNode = rootNode.createNode( "files" );
+	XMLNode filesNode = rootNode.createNode( PreferencesKeys::Files );
 	{
 		// last used song
-		filesNode.write_string( "lastSongFilename", m_sLastSongPath );
+		filesNode.write_string( PreferencesKeys::LastSongFilename, m_sLastSongPath );
 		filesNode.write_string(
-			"lastPlaylistFilename", m_sLastPlaylistPath
+			PreferencesKeys::LastPlaylistFilename, m_sLastPlaylistPath
 		);
 		filesNode.write_string( "defaulteditor", m_sDefaultEditor );
 
