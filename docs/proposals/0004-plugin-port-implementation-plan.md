@@ -480,6 +480,19 @@ validators in CI.
 
 ADRs 0016, 0018, 0022, 0023. Second-largest block.
 
+**Status: 🚧 IN PROGRESS** — T5.1's protocol foundation landed (2026-06-17),
+suite `OK (272 tests)`. The IPC message codec, telemetry block, and event
+classification are implemented in `src/core/IPC/` and covered by
+`IpcProtocolTest` (7 cases): length-prefixed `QDataStream` framing
+(`IpcMessage`/`IpcFrameReader`) with the CoreActionController opcode vocabulary +
+typed args + XML payloads; `hello` handshake versioning; full `Event::Type`
+round-trip; the seqlock'd `PluginTelemetry` POD (`telemetryStore`/`Load`, version
+gate, threaded tear-free check); and `isEngineOriginEvent()` (OnlineImportProgress
+stays editor-internal). Remaining: the live `QLocalSocket` transport + bridge
+thread (T5.1 wiring), T5.2 `IpcEngineAccess`, T5.3/T5.4 editor mode + lifecycle
+(integration `EditorModeTest`), T5.5 layered config (`PluginConfigTest`), T5.6
+concurrency-safe persistence (`ConfigConcurrencyTest`), T5.7 sound-library rescan.
+
 **Tests first**
 * `IpcProtocolTest` (unit): every `CoreActionController` command and every
   `Event::Type` round-trips through the message codec; telemetry shared-memory
