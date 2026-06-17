@@ -149,6 +149,18 @@ class Song : public H2Core::Object<Song>,
 	static std::shared_ptr<Song>
 	load( const QString& sPath, bool bSilent,
 		  Hydrogen* pHydrogen );
+
+	/** Serialize the song to an in-memory `.h2song` XML buffer (no disk I/O).
+	 * Used by the `.h2project` bundle codec (ADR 0025). */
+	QByteArray toXmlBuffer( bool bKeepMissingSamples = true,
+							bool bSilent = false ) const;
+	/** Reconstruct a song from an in-memory `.h2song` XML buffer (no disk I/O).
+	 * Samples are referenced but not loaded - the same as load(). */
+	static std::shared_ptr<Song> fromXmlBuffer( const QByteArray& buffer,
+												const QString& sFileName,
+												bool bSilent,
+												Hydrogen* pHydrogen );
+
 	/** Writes the song as .h2song to disk.
 	 *
 	 * @param sPath Absolute path to write the song to.

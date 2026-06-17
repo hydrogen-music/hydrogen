@@ -404,12 +404,21 @@ instrument name and the rename hook fires on kit change.
   the generated `.ttl`.
 
 ### 8b. State, samples & `.h2project` — ADR 0017 / 0020 / 0025
-**Status: 🚧 IN PROGRESS** — T4b.1 (in-memory `Sample` decode via libsndfile
-virtual I/O) ✅ DONE (2026-06-16): `Sample::loadFromMemory()` shares the decode
-back end with `load()`; `SampleTest::testLoadFromMemory` asserts an in-memory
-decode is bit-identical to the on-disk one. Full suite `OK (256 tests)`.
-Remaining: T4b.2 `.h2project` codec, T4b.3 unified open, T4b.4 standalone menu,
-T4b.5 embed toggle.
+**Status: ✅ DONE (core)** (2026-06-16) — T4b.1/2/3/5 landed and tested; full
+suite `OK (262 tests)`. T4b.4 (standalone *menu* action + Open-dialog filter) is
+the only remainder and is pure GUI wiring on top of the finished codec —
+deferred to a GUI session (not unit-testable here).
+* **T4b.1** `Sample::loadFromMemory()` decodes encoded bytes via libsndfile
+  virtual I/O, sharing the decode back end with `load()`
+  (`SampleTest::testLoadFromMemory`: in-memory decode bit-identical to disk).
+* **T4b.2** `H2Project` codec (`src/core/Helpers/H2Project.{h,cpp}`): in-memory
+  libarchive bundle (song XML + content-hash-deduped sample blobs + an
+  ordinal manifest), built and reconstructed entirely in memory; file
+  save/load too. `H2ProjectTest` (buffer + file round-trip, container detect).
+* **T4b.3** Unified open `H2Project::openSong()` (peeks the container, defers to
+  `Song::load` or `H2Project::load`) + `H2ProjectTest::testUnifiedOpen`.
+* **T4b.5** Plugin embed toggle `H2Project::toState(embed)/fromState()`
+  (ON → portable bundle, OFF → song-only XML) + `PluginStateTest`.
 
 **Tests first:** `H2ProjectTest` (song+kit → `.h2project` bundle → reconstructs
 identically, incl. bus mapping); extend `SampleTest` (memory-decoded sample

@@ -262,6 +262,42 @@ std::shared_ptr<Song> Song::load( const QString& sInputPath, bool bSilent,
 	return pSong;
 }
 
+QByteArray Song::toXmlBuffer( bool bKeepMissingSamples, bool bSilent ) const
+{
+	XMLDoc doc;
+	XMLNode rootNode = doc.set_root( "song" );
+
+	if ( getLicense().getType() == License::GPL ) {
+		doc.appendChild(
+			doc.createComment( License::getGPLLicenseNotice( getAuthor() ) )
+		);
+	}
+
+	saveTo( rootNode, bKeepMissingSamples, bSilent );
+
+	return doc.toByteArray();
+}
+
+std::shared_ptr<Song> Song::fromXmlBuffer( const QByteArray& buffer,
+										   const QString& sFileName,
+										   bool bSilent,
+										   Hydrogen* pHydrogen )
+{
+	XMLDoc doc;
+	if ( ! doc.setContent( buffer ) ) {
+		ERRORLOG( "Unable to parse song XML buffer" );
+		return nullptr;
+	}
+
+	XMLNode songNode = doc.firstChildElement( "song" );
+	if ( songNode.isNull() ) {
+		ERRORLOG( "Error reading song buffer: 'song' node not found" );
+		return nullptr;
+	}
+
+	return Song::loadFrom( songNode, sFileName, bSilent, pHydrogen );
+}
+
 std::shared_ptr<Song>
 Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent,
 				Hydrogen* pHydrogen )

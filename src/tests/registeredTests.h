@@ -37,6 +37,7 @@
 #include "FakePluginHostTest.h"
 #include "FilesystemTest.h"
 #include "DrumkitTest.h"
+#include "H2ProjectTest.h"
 #include "LicenseTest.h"
 #include "LoggerInstanceTest.h"
 #include "MemoryLeakageTest.h"
@@ -82,6 +83,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( EventQueueTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FakePluginHostTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( H2ProjectTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LicenseTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LoggerInstanceTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MemoryLeakageTest );
