@@ -22,16 +22,52 @@
 
 #include "PluginLifecycleTest.h"
 
+#include <cmath>
 #include <memory>
+#include <vector>
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Song.h>
 #include <core/EventQueue.h>
+#include <core/Helpers/H2Project.h>
 #include <core/Hydrogen.h>
+#include <core/Midi/Midi.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
+#include <plugin/HydrogenPlugin.h>
+
 using namespace H2Core;
+
+namespace {
+// Allocate L/R + nBuses stereo buffers of nFrames each, zeroed.
+struct PluginBuffers {
+	std::vector<float> masterL, masterR;
+	std::vector<std::vector<float>> busL, busR;
+	std::vector<float*> busLPtr, busRPtr;
+
+	PluginBuffers( unsigned nFrames, int nBuses )
+		: masterL( nFrames, 0.0f ), masterR( nFrames, 0.0f ) {
+		for ( int ii = 0; ii < nBuses; ++ii ) {
+			busL.emplace_back( nFrames, 0.0f );
+			busR.emplace_back( nFrames, 0.0f );
+		}
+		for ( int ii = 0; ii < nBuses; ++ii ) {
+			busLPtr.push_back( busL[ ii ].data() );
+			busRPtr.push_back( busR[ ii ].data() );
+		}
+	}
+};
+
+bool allFinite( const std::vector<float>& buf, unsigned n ) {
+	for ( unsigned i = 0; i < n; ++i ) {
+		if ( ! std::isfinite( buf[i] ) ) {
+			return false;
+		}
+	}
+	return true;
+}
+} // namespace
 
 // A Preferences configured for a headless, host-less secondary instance: fake
 // audio, no MIDI, no OSC. create_instance() returns a freshly-owned object
@@ -75,6 +111,92 @@ void PluginLifecycleTest::testRepeatedLifecycle() {
 
 		// No residual global state: every object the instance constructed has
 		// been destructed, so we are back to the baseline.
+		CPPUNIT_ASSERT_EQUAL( nBaseline, Base::getAliveObjectCount() );
+	}
+
+	___INFOLOG( "passed" );
+}
+
+void PluginLifecycleTest::testPluginProcess() {
+	___INFOLOG( "" );
+
+	const unsigned nSampleRate = 44100;
+	const unsigned nBlock = 512;
+	const int nBuses = 4;
+
+	HydrogenPlugin plugin( nSampleRate, nBlock, nBuses );
+	plugin.activate( nSampleRate, nBlock );
+	CPPUNIT_ASSERT_EQUAL( nBuses, plugin.getBusCount() );
+
+	PluginBuffers buf( nBlock, nBuses );
+
+	// Idle (not rolling): output stays finite and silent.
+	for ( int b = 0; b < 4; ++b ) {
+		plugin.process( nBlock, buf.masterL.data(), buf.masterR.data(),
+						buf.busLPtr, buf.busRPtr,
+						/*bRolling=*/false, 120.0, 0 );
+		CPPUNIT_ASSERT( allFinite( buf.masterL, nBlock ) );
+		CPPUNIT_ASSERT( allFinite( buf.masterR, nBlock ) );
+	}
+
+	// Rolling + a note: still finite, no NaN/denormals leaking to the host.
+	plugin.noteOn( 36, 100, static_cast<int>( Midi::ChannelDefault ) );
+	long long nFrame = 0;
+	for ( int b = 0; b < 8; ++b ) {
+		plugin.process( nBlock, buf.masterL.data(), buf.masterR.data(),
+						buf.busLPtr, buf.busRPtr,
+						/*bRolling=*/true, 130.0, nFrame );
+		CPPUNIT_ASSERT( allFinite( buf.masterL, nBlock ) );
+		CPPUNIT_ASSERT( allFinite( buf.masterR, nBlock ) );
+		for ( int bus = 0; bus < nBuses; ++bus ) {
+			CPPUNIT_ASSERT( allFinite( buf.busL[ bus ], nBlock ) );
+			CPPUNIT_ASSERT( allFinite( buf.busR[ bus ], nBlock ) );
+		}
+		nFrame += nBlock;
+	}
+
+	plugin.deactivate();
+
+	___INFOLOG( "passed" );
+}
+
+void PluginLifecycleTest::testPluginStateRoundTrip() {
+	___INFOLOG( "" );
+
+	HydrogenPlugin plugin( 44100, 512, 4 );
+
+	// Embedded state is a portable .h2project bundle.
+	const auto state = plugin.saveState( /*bEmbedSamples=*/true );
+	CPPUNIT_ASSERT( ! state.empty() );
+	CPPUNIT_ASSERT( H2Project::looksLikeArchive( state ) );
+
+	// A fresh plugin instance restores it.
+	HydrogenPlugin other( 48000, 256, 2 );
+	CPPUNIT_ASSERT( other.loadState( state ) );
+	CPPUNIT_ASSERT( other.getHydrogen()->getSong() != nullptr );
+
+	// Song-only state round-trips too.
+	const auto songOnly = plugin.saveState( /*bEmbedSamples=*/false );
+	CPPUNIT_ASSERT( ! songOnly.empty() );
+	CPPUNIT_ASSERT( ! H2Project::looksLikeArchive( songOnly ) );
+	CPPUNIT_ASSERT( other.loadState( songOnly ) );
+
+	___INFOLOG( "passed" );
+}
+
+void PluginLifecycleTest::testPluginRepeatedLifecycle() {
+	___INFOLOG( "" );
+
+	// A host instantiates and destroys plugin instances repeatedly within one
+	// process; doing so must leave no residual global state (ADR 0015).
+	const int nBaseline = Base::getAliveObjectCount();
+
+	for ( int ii = 0; ii < 4; ++ii ) {
+		auto* pPlugin = new HydrogenPlugin( 44100, 256, 2 );
+		PluginBuffers buf( 256, 2 );
+		pPlugin->process( 256, buf.masterL.data(), buf.masterR.data(),
+						  buf.busLPtr, buf.busRPtr, false, 120.0, 0 );
+		delete pPlugin;
 		CPPUNIT_ASSERT_EQUAL( nBaseline, Base::getAliveObjectCount() );
 	}
 

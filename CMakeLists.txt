@@ -432,6 +432,84 @@ if(HAVE_TO_TIME_T)
 endif()
 
 #
+# PLUGIN SDKs & HELPER TOOLS
+#
+# The CLAP/LV2/VST3 SDKs are vendored under extern/. Feed compute_pkgs_flags()
+# so the plugin lines in the summary use the very same "used [version] /
+# available but not desired / not found" wording and colours as every other
+# dependency.
+
+# CLAP SDK (header-only).
+if(EXISTS "${CMAKE_SOURCE_DIR}/extern/clap/include/clap/clap.h")
+    set(CLAP_FOUND TRUE)
+    set(CLAP_LIBRARIES "${CMAKE_SOURCE_DIR}/extern/clap")
+    file(READ "${CMAKE_SOURCE_DIR}/extern/clap/include/clap/version.h" _clap_ver_h)
+    string(REGEX MATCH "CLAP_VERSION_MAJOR[ \t]+([0-9]+)" _ "${_clap_ver_h}")
+    set(_clap_major "${CMAKE_MATCH_1}")
+    string(REGEX MATCH "CLAP_VERSION_MINOR[ \t]+([0-9]+)" _ "${_clap_ver_h}")
+    set(_clap_minor "${CMAKE_MATCH_1}")
+    string(REGEX MATCH "CLAP_VERSION_REVISION[ \t]+([0-9]+)" _ "${_clap_ver_h}")
+    set(_clap_rev "${CMAKE_MATCH_1}")
+    set(CLAP_VERSION "${_clap_major}.${_clap_minor}.${_clap_rev}")
+endif()
+compute_pkgs_flags(CLAP)
+
+# LV2 SDK (headers + spec bundles).
+if(EXISTS "${CMAKE_SOURCE_DIR}/extern/lv2/include/lv2/core/lv2.h")
+    set(LV2_FOUND TRUE)
+    set(LV2_LIBRARIES "${CMAKE_SOURCE_DIR}/extern/lv2")
+    if(EXISTS "${CMAKE_SOURCE_DIR}/extern/lv2/meson.build")
+        file(READ "${CMAKE_SOURCE_DIR}/extern/lv2/meson.build" _lv2_meson)
+        string(REGEX MATCH "version:[ \t]*'([0-9.]+)'" _ "${_lv2_meson}")
+        set(LV2_VERSION "${CMAKE_MATCH_1}")
+    endif()
+endif()
+compute_pkgs_flags(LV2)
+
+# VST3 is produced via clap-wrapper (Phase 6); its SDK is not vendored yet.
+if(EXISTS "${CMAKE_SOURCE_DIR}/extern/clap-wrapper/CMakeLists.txt")
+    set(VST3_FOUND TRUE)
+    set(VST3_LIBRARIES "${CMAKE_SOURCE_DIR}/extern/clap-wrapper")
+endif()
+compute_pkgs_flags(VST3)
+
+# Plugin helper tools (conformance validators). Tri-state per the build-summary
+# spec: "used" (present and the matching plugin is enabled) / "available but not
+# needed" (present, plugin disabled) / "not compiled" (absent). Same colours as
+# the dependency states above.
+# @version_flag is the tool's version switch (clap-validator: --version,
+# lv2lint: -v). The version is parsed from either stdout or stderr since tools
+# differ in where they print it.
+macro(PLUGIN_TOOL_STATUS prefix exe needed version_flag)
+    set(_tool_ver "")
+    if(${exe})
+        execute_process(COMMAND "${${exe}}" ${version_flag}
+            OUTPUT_VARIABLE _tool_out OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_VARIABLE _tool_err ERROR_STRIP_TRAILING_WHITESPACE
+            TIMEOUT 5)
+        string(REGEX MATCH "[0-9]+\\.[0-9]+(\\.[0-9]+)?" _tool_match
+            "${_tool_out}${_tool_err}")
+        if(_tool_match)
+            set(_tool_ver "[ ${_tool_match} ] ")
+        endif()
+        if(${needed})
+            set(${prefix}_STATUS "${_escape}[1;32m+ used${_escape}[0m ${_tool_ver}( ${${exe}} )")
+        else()
+            set(${prefix}_STATUS "${_escape}[0;33m| available${_escape}[0m but not needed ${_tool_ver}( ${${exe}} )")
+        endif()
+    else()
+        set(${prefix}_STATUS "${_escape}[1;31m- not compiled${_escape}[0m")
+    endif()
+endmacro()
+
+find_program(CLAP_VALIDATOR_EXE clap-validator
+    PATHS "${CMAKE_SOURCE_DIR}/extern/clap-validator/target/release")
+find_program(LV2LINT_EXE lv2lint
+    PATHS "${CMAKE_SOURCE_DIR}/extern/lv2lint/build")
+plugin_tool_status(CLAP_VALIDATOR CLAP_VALIDATOR_EXE WANT_CLAP --version)
+plugin_tool_status(LV2LINT LV2LINT_EXE WANT_LV2 -v)
+
+#
 # CONFIG PROCESS SUMMARY
 #
 set(reset "${_escape}[0m")
@@ -487,10 +565,12 @@ color_message("${cyan}Useful extensions${reset}
 
 color_message("${cyan}Plugin build options${reset}
 -----------------------------------------
-* ${purple}LV2 plugin${reset}                   : ${WANT_LV2}
-* ${purple}CLAP plugin${reset}                  : ${WANT_CLAP}
-* ${purple}VST3 plugin (clap-wrapper)${reset}   : ${WANT_VST3}
-* ${purple}Plugin output buses${reset}          : ${H2_PLUGIN_OUTPUT_BUSES}\n"
+* ${purple}LV2 plugin${reset}                   : ${LV2_STATUS}
+* ${purple}CLAP plugin${reset}                  : ${CLAP_STATUS}
+* ${purple}VST3 plugin (clap-wrapper)${reset}   : ${VST3_STATUS}
+* ${purple}Plugin output buses${reset}          : ${H2_PLUGIN_OUTPUT_BUSES}
+* ${purple}clap-validator${reset}               : ${CLAP_VALIDATOR_STATUS}
+* ${purple}lv2lint${reset}                      : ${LV2LINT_STATUS}\n"
 )
 
 if(WANT_DEBUG)
@@ -538,6 +618,9 @@ endif()
 enable_testing()
 
 add_subdirectory(src/core)
+# Plugin core (the format-agnostic engine wrapper) is built before the tests so
+# the test binary can link it; the gated CLAP/LV2 targets live here too.
+add_subdirectory(src/plugin)
 if(H2CORE_HAVE_CPPUNIT)
     add_subdirectory(src/tests)
 endif()
@@ -545,7 +628,6 @@ add_subdirectory(data/i18n)
 add_subdirectory(src/cli)
 add_subdirectory(src/player)
 add_subdirectory(src/gui)
-add_subdirectory(src/plugin)
 if(EXISTS ${CMAKE_SOURCE_DIR}/data/doc/CMakeLists.txt)
 	add_subdirectory(data/doc)
 else()

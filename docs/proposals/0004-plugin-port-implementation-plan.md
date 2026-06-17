@@ -443,6 +443,24 @@ the audio thread.
   (default ON): ON writes a `.h2project` bundle, OFF writes song-only state.
 
 ### 8c. Native CLAP + LV2 — ADR 0014
+**Status: ✅ DONE** (2026-06-17) — SDKs vendored under `extern/` (`clap`, `lv2`)
+and both native plugins build and pass conformance:
+* A format-agnostic `HydrogenPlugin` core (`src/plugin/HydrogenPlugin.{h,cpp}`,
+  always built) wraps a headless engine on the Phase-3 seam (host buffers +
+  transport + MIDI), the 8a output buses, and the 8b `.h2project` state codec.
+  Verified in-process by `PluginLifecycleTest` (process silence/notes into
+  master + buses with no NaN; state save/load round-trip; repeated
+  construct/destruct leaves no residual objects) — runs in the normal suite.
+* **CLAP** (`src/plugin/clap/HydrogenClap.cpp`, `WANT_CLAP`): master + N bus
+  audio ports, MIDI note port, transport following, state save/load, no params
+  (ADR 0021). **`clap-validator validate` passes: 11 passed / 0 failed** (10
+  `clap.params` tests skipped by design). Wired as the `clap-validate` CTest.
+* **LV2** (`src/plugin/lv2/HydrogenLv2.cpp`, `WANT_LV2`): same seam; the
+  `hydrogen.ttl` (master + N bus ports + atom MIDI in) is generated from
+  `H2_PLUGIN_OUTPUT_BUSES` at configure time. Verified by an in-process LV2 host
+  (`lv2_smoke`, the `lv2-smoke` CTest); `lv2lint` is wired conditionally for CI
+  where meson/lilv are present.
+
 **Tests first:** per-format validator smoke step in CI (`clap-validator`,
 `lv2lint`/`lv2_validate`): instantiate, activate, process silence, no crash;
 extend `PluginLifecycleTest`.

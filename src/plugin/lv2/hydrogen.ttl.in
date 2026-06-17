@@ -1,0 +1,37 @@
+@prefix atom: <http://lv2plug.in/ns/ext/atom#> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
+@prefix midi: <http://lv2plug.in/ns/ext/midi#> .
+@prefix urid: <http://lv2plug.in/ns/ext/urid#> .
+
+<https://hydrogen-music.org/lv2/hydrogen>
+    a lv2:Plugin , lv2:InstrumentPlugin ;
+    doap:name "Hydrogen" ;
+    # GPL-2.0-or-later (GPLv2+), matching the source headers and the AppStream
+    # <project_license>. The gnu.org gpl-2.0.html URL would mean GPL-2.0-only.
+    doap:license <https://spdx.org/licenses/GPL-2.0-or-later.html> ;
+    # Odd minor version marks this as a development/pre-release build (LV2
+    # convention). Both are required by lv2lint.
+    lv2:minorVersion 1 ;
+    lv2:microVersion 0 ;
+    lv2:project [
+        doap:name "Hydrogen" ;
+        doap:maintainer [
+            a foaf:Person ;
+            foaf:name "The Hydrogen development team" ;
+            foaf:mbox <mailto:hydrogen-devel@lists.sourceforge.net> ;
+            foaf:homepage <https://hydrogen-music.org>
+        ]
+    ] ;
+    lv2:requiredFeature urid:map ;
+    lv2:port [
+        a lv2:InputPort , atom:AtomPort ;
+        atom:bufferType atom:Sequence ;
+        atom:supports midi:MidiEvent ;
+        lv2:index 0 ;
+        lv2:symbol "midi_in" ;
+        lv2:name "MIDI In"
+    ] , [
+@H2_LV2_PORTS@
+    ] .

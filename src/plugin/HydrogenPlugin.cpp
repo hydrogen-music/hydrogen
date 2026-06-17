@@ -1,0 +1,173 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2008-2026 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
+
+#include <plugin/HydrogenPlugin.h>
+
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/Song.h>
+#include <core/CoreActionController.h>
+#include <core/Helpers/H2Project.h>
+#include <core/Hydrogen.h>
+#include <core/IO/PluginAudioDriver.h>
+#include <core/IO/PluginMidiDriver.h>
+#include <core/Midi/Midi.h>
+#include <core/Midi/MidiMessage.h>
+#include <core/Preferences/Preferences.h>
+
+namespace H2Core {
+
+static std::shared_ptr<Preferences> makePluginPreferences( double fSampleRate,
+														   unsigned nMaxBlockSize ) {
+	auto pPref = Preferences::create_instance();
+	pPref->m_audioDriver = Preferences::AudioDriver::Plugin;
+	pPref->m_midiDriver = Preferences::MidiDriver::Plugin;
+	pPref->m_nBufferSize = nMaxBlockSize;
+	pPref->m_nSampleRate = static_cast<int>( fSampleRate );
+	pPref->setOscServerEnabled( false );
+	return pPref;
+}
+
+HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
+								int nBuses )
+	: m_pHydrogen( nullptr )
+	, m_pAudioDriver( nullptr )
+	, m_pMidiDriver( nullptr )
+	, m_nBuses( nBuses ) {
+
+	m_pHydrogen = new Hydrogen(
+		makePluginPreferences( fSampleRate, nMaxBlockSize ), -1 );
+	m_pHydrogen->setGUIState( Hydrogen::GUIState::headless );
+
+	m_pAudioDriver = std::dynamic_pointer_cast<PluginAudioDriver>(
+		m_pHydrogen->getAudioDriver() );
+	m_pMidiDriver = std::dynamic_pointer_cast<PluginMidiDriver>(
+		m_pHydrogen->getMidiDriver() );
+
+	if ( m_pAudioDriver != nullptr ) {
+		m_pAudioDriver->setSampleRate( static_cast<unsigned>( fSampleRate ) );
+	}
+
+	// The empty song is set directly by the Hydrogen ctor, which (unlike
+	// setSong()) does not load the kit's samples; load them so notes render.
+	if ( m_pHydrogen->getSong() != nullptr &&
+		 m_pHydrogen->getSong()->getDrumkit() != nullptr ) {
+		m_pHydrogen->getSong()->getDrumkit()->loadSamples(
+			120, m_pHydrogen->getPreferences().get() );
+	}
+}
+
+HydrogenPlugin::~HydrogenPlugin() {
+	m_pMidiDriver.reset();
+	m_pAudioDriver.reset();
+	delete m_pHydrogen;
+	m_pHydrogen = nullptr;
+}
+
+void HydrogenPlugin::activate( double fSampleRate, unsigned /*nMaxBlockSize*/ ) {
+	if ( m_pAudioDriver != nullptr ) {
+		m_pAudioDriver->setSampleRate( static_cast<unsigned>( fSampleRate ) );
+	}
+}
+
+void HydrogenPlugin::deactivate() {
+}
+
+void HydrogenPlugin::process( uint32_t nFrames, float* pMasterL, float* pMasterR,
+							  const std::vector<float*>& busOut_L,
+							  const std::vector<float*>& busOut_R,
+							  bool bRolling, double fBpm, long long nFrame ) {
+	if ( m_pHydrogen == nullptr || m_pAudioDriver == nullptr ) {
+		return;
+	}
+
+	m_pAudioDriver->setHostBuffers( pMasterL, pMasterR, nFrames );
+	m_pAudioDriver->setHostTransport( bRolling, fBpm, nFrame );
+	m_pAudioDriver->setBusBuffers( busOut_L, busOut_R );
+
+	if ( m_pMidiDriver != nullptr ) {
+		m_pMidiDriver->dispatchHostEvents();
+	}
+
+	AudioEngine::audioEngine_process( nFrames, m_pHydrogen );
+}
+
+void HydrogenPlugin::noteOn( int nKey, int nVelocity, int nChannel,
+							 int nSampleOffset ) {
+	if ( m_pMidiDriver == nullptr ) {
+		return;
+	}
+	m_pMidiDriver->enqueueHostEvent(
+		MidiMessage( MidiMessage::Type::NoteOn,
+					 Midi::parameterFromIntClamp( nKey ),
+					 Midi::parameterFromIntClamp( nVelocity ),
+					 static_cast<Midi::Channel>( nChannel ) ),
+		nSampleOffset );
+}
+
+void HydrogenPlugin::noteOff( int nKey, int nChannel, int nSampleOffset ) {
+	if ( m_pMidiDriver == nullptr ) {
+		return;
+	}
+	m_pMidiDriver->enqueueHostEvent(
+		MidiMessage( MidiMessage::Type::NoteOff,
+					 Midi::parameterFromIntClamp( nKey ),
+					 Midi::ParameterMinimum,
+					 static_cast<Midi::Channel>( nChannel ) ),
+		nSampleOffset );
+}
+
+void HydrogenPlugin::controlChange( int nParameter, int nValue, int nChannel,
+									int nSampleOffset ) {
+	if ( m_pMidiDriver == nullptr ) {
+		return;
+	}
+	m_pMidiDriver->enqueueHostEvent(
+		MidiMessage( MidiMessage::Type::ControlChange,
+					 Midi::parameterFromIntClamp( nParameter ),
+					 Midi::parameterFromIntClamp( nValue ),
+					 static_cast<Midi::Channel>( nChannel ) ),
+		nSampleOffset );
+}
+
+int HydrogenPlugin::getBusCount() const {
+	return m_nBuses;
+}
+
+std::vector<unsigned char> HydrogenPlugin::saveState( bool bEmbedSamples ) {
+	if ( m_pHydrogen == nullptr || m_pHydrogen->getSong() == nullptr ) {
+		return {};
+	}
+	return H2Project::toState( m_pHydrogen->getSong(), bEmbedSamples, true );
+}
+
+bool HydrogenPlugin::loadState( const std::vector<unsigned char>& data ) {
+	if ( m_pHydrogen == nullptr ) {
+		return false;
+	}
+	auto pSong = H2Project::fromState( data, m_pHydrogen, true );
+	if ( pSong == nullptr ) {
+		return false;
+	}
+	return m_pHydrogen->getCoreActionController()->setSong( pSong );
+}
+
+};

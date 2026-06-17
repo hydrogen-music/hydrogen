@@ -1,3 +1,15 @@
 [submodule "data/doc"]
 	path = data/doc
 	url = https://github.com/hydrogen-music/documentation.git
+[submodule "extern/clap"]
+	path = extern/clap
+	url = https://github.com/free-audio/clap.git
+[submodule "extern/clap-validator"]
+	path = extern/clap-validator
+	url = https://github.com/free-audio/clap-validator.git
+[submodule "extern/lv2"]
+	path = extern/lv2
+	url = https://github.com/lv2/lv2.git
+[submodule "extern/lv2lint"]
+	path = extern/lv2lint
+	url = https://git.ventosus.ch/lv2lint

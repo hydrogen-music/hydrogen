@@ -19,6 +19,7 @@ add_executable(tests ${TESTS_SRCS})
 set_property(TARGET tests PROPERTY CXX_STANDARD 17)
 
 target_link_libraries(tests
+	hydrogen-plugin
 	hydrogen-core-${VERSION}
 	${CPPUNIT_LIBRARIES}
 	Qt${QT_VERSION_MAJOR}::Core
@@ -32,4 +33,4 @@ if(Backtrace_FOUND)
 	)
 endif()
 
-add_dependencies(tests hydrogen-core-${VERSION})
+add_dependencies(tests hydrogen-core-${VERSION} hydrogen-plugin)

@@ -30,7 +30,8 @@ CMAKE_OPTIONS="
     -DWANT_ALSA=1 \
     -DWANT_LIBARCHIVE=1 \
     -DWANT_RUBBERBAND=1 \
-    -DWANT_OSS=1 \
+    -DWANT_CLAP=1 \
+    -DWANT_LV2=1 \
     -DWANT_PORTAUDIO=1 \
     -DWANT_PORTMIDI=1 \
     -DWANT_COREAUDIO=1 \
@@ -190,11 +191,13 @@ function cmake_exec() {
 function cmake_tests() {
     cmake_init
     echo -e " * execute tests\n" && $BUILD_DIR/src/tests/tests || exit 1
-    # GUI startup smoke test (ADR 0015/0016): registered with CTest in
-    # src/gui/CMakeLists.txt. Run it via ctest from the build dir so a broken
-    # GUI startup/teardown fails `build.sh t` just like a failing unit test.
-    echo -e "\n * execute GUI startup smoke test\n" && \
-        ( cd $BUILD_DIR && ctest --output-on-failure -R GuiStartup ) || exit 1
+    # Run the full CTest suite registered by the current build. This always
+    # covers the GUI startup smoke test (src/gui, ADR 0015/0016) and, when the
+    # plugins are enabled, the CLAP/LV2 conformance tests (clap-validate,
+    # lv2-smoke, lv2lint - src/plugin). Running the whole suite keeps
+    # `build.sh t` in sync with whatever tests the build registered.
+    echo -e "\n * execute ctest suite\n" && \
+        ( cd $BUILD_DIR && ctest --output-on-failure ) || exit 1
 }
 
 function cmake_integration_tests() {
@@ -214,6 +217,40 @@ function cmake_integration_tests() {
 function cmake_pkg() {
     cmake_init
     echo -e " * execute hydrogen\n" && cd $BUILD_DIR && make package_source && cd .. || exit 1
+}
+
+# Compile the external plugin helper tools required by the CLAP/LV2 conformance
+# tests: clap-validator (Rust/cargo) and lv2lint (meson/ninja). The CLAP and LV2
+# SDKs themselves are header-only and need no build step. Each tool is skipped
+# with a warning when its toolchain is missing, so a partial environment still
+# builds what it can.
+function build_deps() {
+    echo -e " * build external plugin dependencies\n"
+
+    # clap-validator (Rust / cargo).
+    if which cargo &> /dev/null; then
+        echo -e " * \tbuilding clap-validator\n"
+        if ! ( cd extern/clap-validator && cargo build --release ); then
+            # The pinned 'time' crate fails to compile on recent rustc (E0282).
+            # Refresh the lock file to a fixed version and retry.
+            echo -e " * \tretrying clap-validator after refreshing its dependencies\n"
+            ( cd extern/clap-validator && cargo update && cargo build --release ) || exit 1
+        fi
+    else
+        echo -e " * \t\e[1;33mWARNING: 'cargo' not found; skipping clap-validator (install the Rust toolchain).\e[0m\n"
+    fi
+
+    # lv2lint (meson + ninja; also needs liblilv/sord/serd development packages).
+    if which meson &> /dev/null && which ninja &> /dev/null; then
+        echo -e " * \tbuilding lv2lint\n"
+        ( cd extern/lv2lint && \
+          if [ -d build ]; then meson setup --reconfigure build; else meson setup build; fi && \
+          ninja -C build ) || exit 1
+    else
+        echo -e " * \t\e[1;33mWARNING: 'meson'/'ninja' not found; skipping lv2lint (install meson, ninja and liblilv-dev).\e[0m\n"
+    fi
+
+    echo -e " * external plugin dependencies done\n"
 }
 
 function zoop() {
@@ -285,6 +322,7 @@ if [ $# -eq 0 ]; then
     echo "   x[exec]       => execute hydrogen"
     echo "   t[ests]       => execute tests"
     echo "   p[kg]         => build source package"
+    echo "   deps          => compile external plugin tools (clap-validator, lv2lint)"
     echo "   i[ntegration] => execute integration tests"
     echo "   translate     => update all translation files"
 	echo "   appimage      => build an AppImage file"
@@ -325,6 +363,8 @@ for arg in $@; do
             cmd="cmake_tests";;
         p|pkg)
             cmd="cmake_pkg";;
+        deps)
+            cmd="build_deps";;
 		translate)
 			cmd="update_translations";;
         z)

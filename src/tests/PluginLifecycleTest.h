@@ -28,10 +28,22 @@
 class PluginLifecycleTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( PluginLifecycleTest );
 	CPPUNIT_TEST( testRepeatedLifecycle );
+	CPPUNIT_TEST( testPluginProcess );
+	CPPUNIT_TEST( testPluginStateRoundTrip );
+	CPPUNIT_TEST( testPluginRepeatedLifecycle );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
 	void testRepeatedLifecycle();
+	/** The format-agnostic HydrogenPlugin core (which the CLAP/LV2 entries wrap)
+	 * activates, processes silence and notes into host master + bus buffers
+	 * without NaNs, then deactivates (ADR 0014). */
+	void testPluginProcess();
+	/** HydrogenPlugin state save → load round-trips through the `.h2project`
+	 * codec. */
+	void testPluginStateRoundTrip();
+	/** Repeated construct/destroy of HydrogenPlugin leaves no residual objects. */
+	void testPluginRepeatedLifecycle();
 };
 
 #endif
