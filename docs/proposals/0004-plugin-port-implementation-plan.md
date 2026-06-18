@@ -476,9 +476,123 @@ validators in CI.
 
 ---
 
+## 8.4 Phase 4.4 — Object-level instance identity (baseline for the write-surface sweep)
+
+[ADR 0028](/docs/decisions/0028-object-instance-identity.md).
+
+**Status: 🚧 NEW (2026-06-18).** Core objects are identified by raw `shared_ptr`
+pointer comparison across many `Basics` classes (note queue, death row,
+`InstrumentList`/`PatternList`/`Instrument`/`InstrumentComponent` `index`,
+`Playlist::remove`, `Pattern::removeNote`/`references`/`purgeInstrument`).
+Pointers don't cross the process split, and the only value fallback today —
+`Instrument::Id` — is kit-unique (zero-based), so the site already matching
+by `getId()` (`Sampler.cpp:427`) is a **latent bug** (old-kit
+death-row instruments mis-match the new kit during a drumkit switch). Deciding
+*per site* whether a comparison is index-safe or needs a value id is a footgun.
+
+This phase adds **one uniform instance identity on the `Object` base** —
+immutable `m_uuid` + `getUuid()` for every derived class — and routes all
+identity comparisons through it. Backing is a **process-tagged atomic counter**
+(`{epoch, counter}`), **not** `QUuid::createUuid()`: `Note` is an `Object` copied
+on the audio thread (`AudioEngine.cpp:1693,3023,3137,3188`, `Sampler.cpp:1987`),
+and `createUuid()`'s shared synchronised generator is an RT/xrun hazard, whereas
+a wait-free `fetch_add` is RT-safe (~ns; ~16 B/object, <0.1 % of sample PCM).
+Minted on **every construction including copy**, so each object (incl. queued
+note copies and instrument clones) is a distinct identity — exactly pointer
+semantics as a value, which also gives instruments their distinct-clone identity
+for free (death-row correctness) with no per-class special-casing. Runtime-only
+(not serialised → no file-format/`XmlTest` churn; behaviour-preserving since a
+unique id makes `getUuid()==` exactly `ptr==`). Must land **before** the
+write-surface sweep (§8.5) and the undo-action rewrites.
+
+**Tasks:**
+
+* **T4.4a** — add the identity to `Object`/`Base`: a small shared POD id value
+  (`{epoch, counter}`, `operator==`, `qHash`, `toQString`) + `m_uuid`/`getUuid()`;
+  `epoch` seeded once at startup off the RT path, `counter` a wait-free
+  `fetch_add`; minted in **every** constructor incl. copy; immutable thereafter.
+* **T4.4b** — route identity through **one comparator**, don't re-code it at
+  every site. Overload equality on the `Object` pointee (compares `m_uuid`) plus
+  a null-safe `shared_ptr` comparator (`sameObject(a,b)`); the raw `==` identity
+  checks (`Hydrogen.cpp:495,1093`, `Sampler.cpp:364,395,1944`,
+  `AudioEngine.cpp:1754,1775`, death row, note queue) call it, so the rule lives
+  in one place. (`std::shared_ptr::operator==` can't be overloaded, so the
+  comparison moves to the pointee/helper.) Make the list lookups uuid-based
+  **while keeping their positional return** — add `index(const Uuid&)` (and
+  uuid-based `del`/`remove`) to `InstrumentList`/`PatternList`/`Instrument`/
+  `InstrumentComponent`; callers in `CoreActionController`/`MidiInstrumentMap`/
+  `Sampler`/`Drumkit` pass `p->getUuid()`. **`index` returns the same
+  position as before — it is NOT replaced by a differently-returning `find`.**
+  Fix the two latent `getId()` matches (`Sampler.cpp:427`, `Drumkit.cpp:597`) the
+  same way. (The GUI's *positional* `index()` uses are unaffected.)
+* **T4.4c** — tests: id uniqueness + fresh-on-copy; cross-process epoch
+  non-collision; a regression test that two instruments with identical `Id`s do
+  **not** cross-match by id (the death-row / kit-switch hazard); an RT-safety
+  assertion that minting takes no lock (no `QUuid::createUuid()` on the note
+  path).
+
+**Deferred (decide at editor mode):** persisting/transferring the id for
+editor↔engine correspondence (a preserve-on-deserialise path, distinct from the
+mint-on-copy rule); exact epoch width.
+
+**Done when:** full suite + GUI smoke green (behaviour-preserving); no object
+identity decided by raw pointer or bare `Id` in the swept sites; no
+`QUuid::createUuid()` reachable from the audio thread.
+
+---
+
+## 8.5 Phase 4.5 — Single GUI→engine write surface (prerequisite for editor mode)
+
+[ADR 0027](/docs/decisions/0027-coreactioncontroller-single-write-surface.md);
+catalogue in [proposal 0005](0005-gui-engine-write-surface-catalogue.md).
+
+**Status: 🚧 NEW (2026-06-18).** A review of `src/gui/src/`, `src/core/Basics/`
+and `src/core/AudioEngine/` found that the editor-mode premise — the GUI reaches
+the engine only through an injected handle — is only half true. Besides the ~70
+`CoreActionController` (CAC) entry points and the reads routed through
+`IEngineAccess` (Phase 2), the GUI **directly mutates** engine-owned `Basics`
+objects at ~110 sites (note/instrument/component/layer/sample/drumkit/song
+edits), 16 of them taking the `AudioEngine` lock by hand. In editor mode those
+edits hit the editor's local mirror, not the engine — so routing CAC over IPC
+while leaving direct mutation in place yields a GUI that silently drops most
+editing across the split. **This phase makes CAC the single GUI→engine write
+surface and must complete before T5.2-cont/T5.3/T5.4.**
+
+**Tasks** (full catalogue + per-class tables in proposal 0005):
+
+* **T4.5a** — add CAC entry points for bucket B (~30–40 methods): note-property
+  edits, pattern size, the full `Instrument` parameter set + ADSR,
+  `InstrumentComponent`/`InstrumentLayer` edits (via whole-instrument
+  replacement), drumkit properties, pan-law, sequencer/pattern-selection ops.
+  Each entry **owns the `AudioEngine` lock** (absorbing the 16 hand-rolled lock
+  blocks).
+* **T4.5b** — sweep the GUI class by class (PatternEditor → SongEditor →
+  InstrumentEditor → ComponentView/LayerPreview → dialogs), redirecting direct
+  mutations and the undo commands that call GUI widget methods to call *only*
+  CAC; move view-refresh out of the mutation path into `EventQueue`/
+  `EventListener` reactions. Adds missing undo coverage for the ~27 instrument/
+  component/layer edits that are not undoable today.
+* **T4.5c** — reroute bucket C (config: `Sampler::setInterpolateMode`, metronome
+  volume, MIDI table, custom dirs) to the layered config (ADR 0022/0023), and
+  bucket D (display: peak meters → telemetry; export/selection flags stay local).
+* **T4.5d** — CI grep guard failing on any direct mutation of engine-owned
+  `Basics`/`AudioEngine`/`Transport` in `src/gui/src` (the done-when gate).
+
+**Tests first:** per new CAC entry point, a unit test against a local headless
+engine asserting the state change (+ that it is lock-safe); the standalone GUI
+smoke + undo/redo stay green at every class converted.
+
+**Done when:** the CI guard is clean (zero direct mutations remain); full suite +
+GUI smoke green; undo/redo behaviour unchanged or improved. Editor mode then
+resumes as pure CAC-over-IPC.
+
+---
+
 ## 9. Phase 5 — Out-of-process editor, IPC & layered config
 
 ADRs 0016, 0018, 0022, 0023. Second-largest block.
+**Depends on Phase 4.5** (single write surface): the editor-mode command tasks
+below assume CAC is the complete GUI→engine write surface.
 
 **Status: 🚧 IN PROGRESS** — T5.1's protocol foundation landed (2026-06-17),
 suite `OK (272 tests)`. The IPC message codec, telemetry block, and event
