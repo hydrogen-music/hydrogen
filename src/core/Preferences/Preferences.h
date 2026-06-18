@@ -211,6 +211,10 @@ class Preferences : public H2Core::Object<Preferences> {
 	 * using #Filesystem::m_sPreferencesOverwritePath) */
 	bool saveCopyAs( const QString& sPath, const bool bSilent = false ) const;
 
+	/** The XML baseline retained from load (ADR 0023). Empty when this instance
+	 * was never loaded from disk. See #m_baselineXml. */
+	const QByteArray& getBaselineXml() const { return m_baselineXml; }
+
 	static std::vector<AudioDriver> getSupportedAudioDrivers();
 
 	/**
@@ -728,6 +732,15 @@ class Preferences : public H2Core::Object<Preferences> {
 	std::shared_ptr<MidiInstrumentMap> m_pMidiInstrumentMap;
 
 	bool m_bLoadingSuccessful;
+
+	/** The on-disk XML as parsed at load time (ADR 0023): the baseline against
+	 * which saveTo() diffs to find this instance's own changes, so the
+	 * concurrency-safe persist of the shared user config writes only those and
+	 * preserves concurrent edits other processes made to other fields. Empty for
+	 * a never-loaded (freshly created) Preferences, which then falls back to a
+	 * plain snapshot write. Mutable: refreshed by the const saveTo() after each
+	 * successful persist so subsequent diffs are against what we last wrote. */
+	mutable QByteArray m_baselineXml;
 };
 
 inline const QString& Preferences::getLastExportPatternAsDirectory() const

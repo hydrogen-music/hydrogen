@@ -121,6 +121,34 @@ void IpcTransportTest::testCommandReachesEngine() {
 	___INFOLOG( "passed" );
 }
 
+void IpcTransportTest::testRescanCommandReachesEngine() {
+	___INFOLOG( "" );
+
+	IpcServer server;
+	CPPUNIT_ASSERT( server.listen( uniqueServerName() ) );
+	IpcChannel* client = IpcChannel::connectToServer( server.serverName() );
+	CPPUNIT_ASSERT( client != nullptr );
+	IpcChannel* conn = server.waitForChannel();
+	CPPUNIT_ASSERT( conn != nullptr );
+
+	auto* pEngine = makeStandaloneEngine();
+
+	// After an editor-side install, the editor asks the engine to refresh its
+	// SoundLibraryDatabase (ADR 0016) so newly installed kits become loadable.
+	CPPUNIT_ASSERT( client->send( IpcMessage( IpcOpcode::RescanSoundLibrary ) ) );
+	IpcMessage cmd;
+	CPPUNIT_ASSERT( conn->receive( cmd ) );
+	CPPUNIT_ASSERT( cmd.getOpcode() == IpcOpcode::RescanSoundLibrary );
+
+	// The engine dispatches the rescan onto its database.
+	CPPUNIT_ASSERT( IpcEngineBridge::dispatchCommand( cmd, pEngine ) );
+
+	delete pEngine;
+	delete client;
+
+	___INFOLOG( "passed" );
+}
+
 void IpcTransportTest::testEventForwardingOverSocket() {
 	___INFOLOG( "" );
 

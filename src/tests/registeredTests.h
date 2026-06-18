@@ -64,6 +64,7 @@
 #include "PluginProcessTest.h"
 #include "PluginStateTest.h"
 #include "PreferencesInstanceTest.h"
+#include "PreferencesPersistTest.h"
 #include "SampleTest.h"
 #include "SoundLibraryTest.h"
 #include "TimeTest.h"
@@ -118,6 +119,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( PluginMidiTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PluginProcessTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PluginStateTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PreferencesInstanceTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( PreferencesPersistTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SampleTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SoundLibraryTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( TimeTest );

@@ -19,26 +19,30 @@
  *
  */
 
-#ifndef IPC_TRANSPORT_TEST_H
-#define IPC_TRANSPORT_TEST_H
+#ifndef PREFERENCES_PERSIST_TEST_H
+#define PREFERENCES_PERSIST_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class IpcTransportTest : public CppUnit::TestFixture {
-	CPPUNIT_TEST_SUITE( IpcTransportTest );
-	CPPUNIT_TEST( testHelloHandshakeOverSocket );
-	CPPUNIT_TEST( testCommandReachesEngine );
-	CPPUNIT_TEST( testRescanCommandReachesEngine );
-	CPPUNIT_TEST( testEventForwardingOverSocket );
-	CPPUNIT_TEST( testTelemetrySharedMemory );
+#include <QtCore/QString>
+
+/**
+ * T5.6 wiring (ADR 0023): Preferences retains a load baseline and routes
+ * shared-config saves through the concurrency-safe PluginConfig::persist merge.
+ */
+class PreferencesPersistTest : public CppUnit::TestFixture {
+	CPPUNIT_TEST_SUITE( PreferencesPersistTest );
+	CPPUNIT_TEST( testBaselineRetainedOnLoad );
+	CPPUNIT_TEST( testConcurrentBaseEditSurvives );
+	CPPUNIT_TEST( testOverrideFieldNotWritten );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
-	void testHelloHandshakeOverSocket();
-	void testCommandReachesEngine();
-	void testRescanCommandReachesEngine();
-	void testEventForwardingOverSocket();
-	void testTelemetrySharedMemory();
+	void tearDown() override;
+
+	void testBaselineRetainedOnLoad();
+	void testConcurrentBaseEditSurvives();
+	void testOverrideFieldNotWritten();
 };
 
 #endif

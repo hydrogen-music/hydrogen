@@ -70,6 +70,7 @@ void IpcProtocolTest::testCommandRoundTrip() {
 	// large XML payload.
 	std::vector<IpcMessage> commands;
 	commands.push_back( IpcMessage( IpcOpcode::Play ) );
+	commands.push_back( IpcMessage( IpcOpcode::RescanSoundLibrary ) );
 	commands.push_back( IpcMessage( IpcOpcode::SetBpm ).arg( 137.5f ) );
 	commands.push_back( IpcMessage( IpcOpcode::LocateToTick )
 							.arg( static_cast<qlonglong>( 192000 ) ).arg( true ) );

@@ -36,6 +36,7 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Helpers/Xml.h>
 #include <core/IO/AlsaAudioDriver.h>
+#include <core/Preferences/PluginConfig.h>
 #include <core/Preferences/PreferencesKeys.h>
 #include <core/Midi/MidiEventMap.h>
 #include <core/Midi/MidiInstrumentMap.h>
@@ -424,6 +425,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	for ( const auto& ssFile : pOther->m_recentFiles ) {
 		m_recentFiles.push_back( ssFile );
 	}
+	m_baselineXml = pOther->m_baselineXml;
 }
 
 Preferences::~Preferences()
@@ -452,6 +454,11 @@ Preferences::load( const QString& sPath, const bool bSilent, Hydrogen* pHydrogen
 	}
 
 	auto pPref = std::make_shared<Preferences>();
+
+	// Retain the on-disk XML as the baseline for concurrency-safe persistence
+	// (ADR 0023): saveTo() diffs current-vs-baseline to write only this
+	// instance's own changes back to the shared user config.
+	pPref->m_baselineXml = doc.toByteArray();
 
 	//////// GENERAL ///////////
 	auto pInterfaceTheme = std::make_shared<InterfaceTheme>();
@@ -1863,6 +1870,24 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 	m_pMidiInstrumentMap->saveTo( rootNode );
 
 	m_pShortcuts->saveTo( rootNode );
+
+	// On the shared user config path, persist concurrency-safely (ADR 0023):
+	// under a lock, re-read disk and merge only this instance's own base-layer
+	// changes (diff against the retained load baseline) onto it, writing
+	// atomically — so concurrent edits other processes made to other fields
+	// survive and the host/state override subset is never written. Other paths
+	// (saveCopyAs / explicit export) and never-loaded instances get a plain
+	// snapshot write.
+	const QByteArray currentXml = doc.toByteArray();
+	if ( sPath == Filesystem::userConfigPath() && ! m_baselineXml.isEmpty() ) {
+		if ( ! PluginConfig::persist( sPath, m_baselineXml, currentXml ) ) {
+			return false;
+		}
+		// Adopt our just-written base-layer state as the new baseline so the
+		// next save only diffs subsequent changes.
+		m_baselineXml = currentXml;
+		return true;
+	}
 
 	return doc.write( sPath );
 }
