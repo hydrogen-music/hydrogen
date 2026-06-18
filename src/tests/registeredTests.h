@@ -38,8 +38,10 @@
 #include "FakePluginHostTest.h"
 #include "FilesystemTest.h"
 #include "DrumkitTest.h"
+#include "EditorMirrorTest.h"
 #include "H2ProjectTest.h"
 #include "IpcProtocolTest.h"
+#include "IpcTransportTest.h"
 #include "PluginConfigTest.h"
 #include "LicenseTest.h"
 #include "LoggerInstanceTest.h"
@@ -88,8 +90,10 @@ CPPUNIT_TEST_SUITE_REGISTRATION( EventQueueTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FakePluginHostTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( EditorMirrorTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( H2ProjectTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( IpcProtocolTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( IpcTransportTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PluginConfigTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LicenseTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LoggerInstanceTest );
