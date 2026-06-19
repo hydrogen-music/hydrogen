@@ -73,7 +73,15 @@ bool CoreActionController::setMasterVolume( float fMasterVolumeValue )
 		return false;
 	}
 
-	pSong->setVolume( fMasterVolumeValue );
+	if ( pSong->getVolume() != fMasterVolumeValue ) {
+		pSong->setVolume( fMasterVolumeValue );
+
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::MixerSettingsChanged, 0
+		);
+
+		m_pHydrogen->setSongModified( true );
+	}
 
 	return sendMasterVolumeFeedback();
 }
