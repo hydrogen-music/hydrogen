@@ -434,6 +434,15 @@ class Preferences : public H2Core::Object<Preferences> {
 
 	int getPatternEditorGridResolution() const;
 	void setPatternEditorGridResolution( int value );
+	QString			getApplicationFontFamily() const;
+	const QString&	getApplicationFontFamilyRaw() const;
+	void			setApplicationFontFamily( const QString& family );
+	QString			getLevel2FontFamily() const;
+	const QString&	getLevel2FontFamilyRaw() const;
+	void			setLevel2FontFamily( const QString& family );
+	QString			getLevel3FontFamily() const;
+	const QString&	getLevel3FontFamilyRaw() const;
+	void			setLevel3FontFamily( const QString& family );
 
 	bool isPatternEditorUsingTriplets() const;
 	void setPatternEditorUsingTriplets( bool value );
@@ -604,16 +613,11 @@ class Preferences : public H2Core::Object<Preferences> {
 	 */
 	static std::shared_ptr<Preferences> __instance;
 
-	/** Not set in the #PreferencesDialog but by chosing the appropriate
-	 * action in #MainToolBar. */
-	bool m_bCountIn;
-
-	/** Default text editor (used by Playlisteditor) */
-	QString m_sDefaultEditor;
-
-	QString m_sPreferredLanguage;
-
-	bool m_bUseRelativeFileNamesForPlaylists;
+	/**
+	 * Validates a font family name against QFontDatabase.
+	 * Returns the family if available, otherwise the system default.
+	 */
+	static QString			validateFontFamily( const QString& family );
 
 	///< Show development version warning?
 	bool m_bShowDevelWarning;
@@ -1205,8 +1209,47 @@ inline void Preferences::setJackEnforceInstrumentName( bool bEnforce )
 }
 
 // GUI Properties
-inline bool Preferences::showInstrumentPeaks() const
-{
+inline const QString& Preferences::getQTStyle() {
+	return m_pTheme->getInterfaceTheme()->m_sQTStyle;
+}
+inline void Preferences::setQTStyle( const QString& sStyle ) {
+	m_pTheme->getInterfaceTheme()->m_sQTStyle = sStyle;
+}
+inline const QString& Preferences::getApplicationFontFamilyRaw() const {
+	return m_pTheme->getFontTheme()->m_sApplicationFontFamily;
+}
+inline void Preferences::setApplicationFontFamily( const QString& family ) {
+	m_pTheme->getFontTheme()->m_sApplicationFontFamily = family;
+}
+
+inline const QString& Preferences::getLevel2FontFamilyRaw() const {
+	return m_pTheme->getFontTheme()->m_sLevel2FontFamily;
+}
+inline void Preferences::setLevel2FontFamily( const QString& family ) {
+	m_pTheme->getFontTheme()->m_sLevel2FontFamily = family;
+}
+
+inline const QString& Preferences::getLevel3FontFamilyRaw() const {
+	return m_pTheme->getFontTheme()->m_sLevel3FontFamily;
+}
+inline void Preferences::setLevel3FontFamily( const QString& family ) {
+	m_pTheme->getFontTheme()->m_sLevel3FontFamily = family;
+}
+
+inline FontTheme::FontSize Preferences::getFontSize() const {
+	return m_pTheme->getFontTheme()->m_fontSize;
+}
+inline void Preferences::setFontSize( FontTheme::FontSize fontSize ) {
+	m_pTheme->getFontTheme()->m_fontSize = fontSize;
+}
+
+inline float Preferences::getMixerFalloffSpeed() {
+	return m_pTheme->getInterfaceTheme()->m_fMixerFalloffSpeed;
+}
+inline void Preferences::setMixerFalloffSpeed( float value ) {
+	m_pTheme->getInterfaceTheme()->m_fMixerFalloffSpeed = value;
+}
+inline bool Preferences::showInstrumentPeaks() const {
 	return m_bShowInstrumentPeaks;
 }
 inline void Preferences::setInstrumentPeaks( bool value )
