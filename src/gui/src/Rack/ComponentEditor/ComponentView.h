@@ -132,7 +132,17 @@ class ComponentView : public QWidget,
 		void waveDisplayDoubleClicked( QWidget *pRef );
 
 
+	protected:
+		/** Closes the per-property undo context (see the component/layer
+		 * callbacks) so a gesture forms a single undo step once the pointer
+		 * leaves the view. */
+		void leaveEvent( QEvent* ev ) override;
+
 	private:
+		/** Resolve the selected instrument's index and this view's component
+		 * index for the undo commands. Returns false if unavailable. */
+		bool resolveIndices( int& nInstrument, int& nComponent ) const;
+
 		std::shared_ptr<H2Core::InstrumentComponent> m_pComponent;
 		int m_nSelectedLayer;
 

@@ -2081,4 +2081,132 @@ class SE_setInstrumentPropertyAction : public QUndoCommand {
 	float m_fNewValue;
 };
 
+/** Thin undo wrapper for a component-property edit (mute / solo / gain) from the
+ * ComponentView. Routes through the per-parameter CoreActionController component
+ * setters (resolve by instrument+component index, apply, emit
+ * InstrumentParametersChanged, mark the kit modified), so it is undoable and
+ * IPC-routable. A drag coalesces via the undo context
+ * (`component:<instrument>:<component>:<property>`) the caller passes.
+ *
+ * \ingroup docGUI */
+class SE_setComponentPropertyAction : public QUndoCommand {
+   public:
+	enum class Property { IsMuted, IsSoloed, Gain };
+
+	SE_setComponentPropertyAction( int nInstrument, int nComponent,
+								   Property property, float fOldValue,
+								   float fNewValue )
+		: m_nInstrument( nInstrument )
+		, m_nComponent( nComponent )
+		, m_property( property )
+		, m_fOldValue( fOldValue )
+		, m_fNewValue( fNewValue )
+	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		QString sName;
+		switch ( property ) {
+			case Property::IsMuted: sName = pCommonStrings->getActionToggleComponentMute(); break;
+			case Property::IsSoloed: sName = pCommonStrings->getActionToggleComponentSolo(); break;
+			case Property::Gain: sName = pCommonStrings->getActionSetComponentGain(); break;
+		}
+		setText( QString( "%1 [%2:%3]" ).arg( sName ).arg( nInstrument )
+				 .arg( nComponent ) );
+	}
+
+	virtual void redo() override { apply( m_fNewValue ); }
+	virtual void undo() override { apply( m_fOldValue ); }
+
+   private:
+	void apply( float fValue ) {
+		auto pController = HydrogenApp::pEngine()->getCoreActionController();
+		if ( pController == nullptr ) {
+			return;
+		}
+		switch ( m_property ) {
+			case Property::IsMuted:
+				pController->setComponentIsMuted( m_nInstrument, m_nComponent, fValue != 0.0f ); break;
+			case Property::IsSoloed:
+				pController->setComponentIsSoloed( m_nInstrument, m_nComponent, fValue != 0.0f ); break;
+			case Property::Gain:
+				pController->setComponentGain( m_nInstrument, m_nComponent, fValue ); break;
+		}
+	}
+
+	int m_nInstrument;
+	int m_nComponent;
+	Property m_property;
+	float m_fOldValue;
+	float m_fNewValue;
+};
+
+/** Thin undo wrapper for a layer-property edit (mute / solo / gain / pitch /
+ * velocity range) from the ComponentView / LayerPreview. Routes through the
+ * per-parameter CoreActionController layer setters; a drag coalesces via the
+ * undo context (`layer:<instrument>:<component>:<layer>:<property>`).
+ *
+ * \ingroup docGUI */
+class SE_setLayerPropertyAction : public QUndoCommand {
+   public:
+	enum class Property { IsMuted, IsSoloed, Gain, PitchOffset, StartVelocity,
+						  EndVelocity };
+
+	SE_setLayerPropertyAction( int nInstrument, int nComponent, int nLayer,
+							   Property property, float fOldValue,
+							   float fNewValue )
+		: m_nInstrument( nInstrument )
+		, m_nComponent( nComponent )
+		, m_nLayer( nLayer )
+		, m_property( property )
+		, m_fOldValue( fOldValue )
+		, m_fNewValue( fNewValue )
+	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		QString sName;
+		switch ( property ) {
+			case Property::IsMuted: sName = pCommonStrings->getActionToggleLayerMute(); break;
+			case Property::IsSoloed: sName = pCommonStrings->getActionToggleLayerSolo(); break;
+			case Property::Gain: sName = pCommonStrings->getActionSetLayerGain(); break;
+			case Property::PitchOffset: sName = pCommonStrings->getActionSetLayerPitch(); break;
+			case Property::StartVelocity: sName = pCommonStrings->getActionSetLayerVelocityStart(); break;
+			case Property::EndVelocity: sName = pCommonStrings->getActionSetLayerVelocityEnd(); break;
+		}
+		setText( QString( "%1 [%2:%3:%4]" ).arg( sName ).arg( nInstrument )
+				 .arg( nComponent ).arg( nLayer ) );
+	}
+
+	virtual void redo() override { apply( m_fNewValue ); }
+	virtual void undo() override { apply( m_fOldValue ); }
+
+   private:
+	void apply( float fValue ) {
+		auto pController = HydrogenApp::pEngine()->getCoreActionController();
+		if ( pController == nullptr ) {
+			return;
+		}
+		switch ( m_property ) {
+			case Property::IsMuted:
+				pController->setLayerIsMuted( m_nInstrument, m_nComponent, m_nLayer, fValue != 0.0f ); break;
+			case Property::IsSoloed:
+				pController->setLayerIsSoloed( m_nInstrument, m_nComponent, m_nLayer, fValue != 0.0f ); break;
+			case Property::Gain:
+				pController->setLayerGain( m_nInstrument, m_nComponent, m_nLayer, fValue ); break;
+			case Property::PitchOffset:
+				pController->setLayerPitchOffset( m_nInstrument, m_nComponent, m_nLayer, fValue ); break;
+			case Property::StartVelocity:
+				pController->setLayerStartVelocity( m_nInstrument, m_nComponent, m_nLayer, fValue ); break;
+			case Property::EndVelocity:
+				pController->setLayerEndVelocity( m_nInstrument, m_nComponent, m_nLayer, fValue ); break;
+		}
+	}
+
+	int m_nInstrument;
+	int m_nComponent;
+	int m_nLayer;
+	Property m_property;
+	float m_fOldValue;
+	float m_fNewValue;
+};
+
 #endif	// UNDOACTIONS_H

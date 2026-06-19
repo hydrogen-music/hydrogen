@@ -22,11 +22,14 @@
 
 #include "ComponentView.h"
 
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Event.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
 
@@ -50,6 +53,35 @@
 #include "Widgets/ColoredButton.h"
 
 using namespace H2Core;
+
+namespace {
+/** Push an undoable component-property edit, grouped per
+ * (instrument, component, property) so a gesture is one undo step. */
+void pushComponentUndo( int nInstrument, int nComponent,
+						SE_setComponentPropertyAction::Property property,
+						const QString& sProperty, float fOldValue,
+						float fNewValue )
+{
+	HydrogenApp::get_instance()->pushUndoCommand(
+		new SE_setComponentPropertyAction(
+			nInstrument, nComponent, property, fOldValue, fNewValue ),
+		QString( "component:%1:%2:%3" ).arg( nInstrument ).arg( nComponent )
+			.arg( sProperty ) );
+}
+
+/** Push an undoable layer-property edit, grouped per
+ * (instrument, component, layer, property). */
+void pushLayerUndo( int nInstrument, int nComponent, int nLayer,
+					SE_setLayerPropertyAction::Property property,
+					const QString& sProperty, float fOldValue, float fNewValue )
+{
+	HydrogenApp::get_instance()->pushUndoCommand(
+		new SE_setLayerPropertyAction(
+			nInstrument, nComponent, nLayer, property, fOldValue, fNewValue ),
+		QString( "layer:%1:%2:%3:%4" ).arg( nInstrument ).arg( nComponent )
+			.arg( nLayer ).arg( sProperty ) );
+}
+} // namespace
 
 ComponentView::ComponentView( QWidget* pParent,
 							  std::shared_ptr<InstrumentComponent> pComponent )
@@ -272,12 +304,19 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pComponentMuteBtn->setChecked( pComponent->getIsMuted() );
 	m_pComponentMuteBtn->setBorderless( true );
 	m_pComponentMuteBtn->setObjectName( "ComponentMuteButton" );
+	m_pComponentMuteBtn->setBaseToolTip(
+		pCommonStrings->getActionToggleComponentMute() );
 	connect( m_pComponentMuteBtn, &QPushButton::clicked, [&]() {
-		if ( m_pComponent != nullptr ) {
-			m_pComponent->setIsMuted( m_pComponentMuteBtn->isChecked() );
-			// Repaint since we indicate mute for all layers.
-			m_pLayerPreview->update();
+		int nInstrument, nComponent;
+		if ( ! resolveIndices( nInstrument, nComponent ) ) {
+			return;
 		}
+		pushComponentUndo( nInstrument, nComponent,
+			SE_setComponentPropertyAction::Property::IsMuted, "mute",
+			m_pComponent->getIsMuted() ? 1.0f : 0.0f,
+			m_pComponentMuteBtn->isChecked() ? 1.0f : 0.0f );
+		// Repaint since we indicate mute for all layers.
+		m_pLayerPreview->update();
 	} );
 	pComponentButtonContainerLayout->addWidget( m_pComponentMuteBtn );
 
@@ -290,22 +329,34 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pComponentSoloBtn->setChecked( pComponent->getIsSoloed() );
 	m_pComponentSoloBtn->setBorderless( true );
 	m_pComponentSoloBtn->setObjectName( "ComponentSoloButton" );
+	m_pComponentSoloBtn->setBaseToolTip(
+		pCommonStrings->getActionToggleComponentSolo() );
 	connect( m_pComponentSoloBtn, &QPushButton::clicked, [&](){
-		if ( m_pComponent != nullptr ) {
-			m_pComponent->setIsSoloed( m_pComponentSoloBtn->isChecked() );
+		int nInstrument, nComponent;
+		if ( ! resolveIndices( nInstrument, nComponent ) ) {
+			return;
 		}
+		pushComponentUndo( nInstrument, nComponent,
+			SE_setComponentPropertyAction::Property::IsSoloed, "solo",
+			m_pComponent->getIsSoloed() ? 1.0f : 0.0f,
+			m_pComponentSoloBtn->isChecked() ? 1.0f : 0.0f );
 	});
 	pComponentButtonContainerLayout->addWidget( m_pComponentSoloBtn );
 
 	m_pComponentGainRotary = new Rotary(
-		m_pToolBarComponent, Rotary::Type::Normal, tr( "Component volume" ), false,
+		m_pToolBarComponent, Rotary::Type::Normal,
+		pCommonStrings->getActionSetComponentGain(), false,
 		0.0, 5.0 );
 	m_pComponentGainRotary->setModifierTarget( Modifier::Drumkit );
 	m_pComponentGainRotary->setDefaultValue( 1.0 );
 	connect( m_pComponentGainRotary, &Rotary::valueChanged, [&]() {
-		if ( m_pComponent != nullptr ) {
-			m_pComponent->setGain( m_pComponentGainRotary->getValue() );
+		int nInstrument, nComponent;
+		if ( ! resolveIndices( nInstrument, nComponent ) ) {
+			return;
 		}
+		pushComponentUndo( nInstrument, nComponent,
+			SE_setComponentPropertyAction::Property::Gain, "gain",
+			m_pComponent->getGain(), m_pComponentGainRotary->getValue() );
 	});
 	m_pToolBarComponent->addWidget( m_pComponentGainRotary );
 
@@ -420,15 +471,23 @@ ComponentView::ComponentView( QWidget* pParent,
 	);
 	m_pLayerMuteBtn->setModifierTarget( Modifier::Drumkit );
 	m_pLayerMuteBtn->setObjectName( "LayerMuteButton" );
+	m_pLayerMuteBtn->setBaseToolTip(
+		pCommonStrings->getActionToggleLayerMute() );
 	m_pLayerMuteBtn->setBorderless( true );
 	connect( m_pLayerMuteBtn, &QPushButton::clicked, [&]() {
-		if ( m_pComponent != nullptr ) {
-			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
-			if ( pLayer != nullptr ) {
-				pLayer->setIsMuted( m_pLayerMuteBtn->isChecked() );
-				updateView();  // WaveDisplay update
-			}
+		int nInstrument, nComponent;
+		if ( ! resolveIndices( nInstrument, nComponent ) ) {
+			return;
 		}
+		auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
+		if ( pLayer == nullptr ) {
+			return;
+		}
+		pushLayerUndo( nInstrument, nComponent, m_nSelectedLayer,
+			SE_setLayerPropertyAction::Property::IsMuted, "mute",
+			pLayer->getIsMuted() ? 1.0f : 0.0f,
+			m_pLayerMuteBtn->isChecked() ? 1.0f : 0.0f );
+		updateView();  // WaveDisplay update
 	} );
 	pLayerButtonContainerLayout->addWidget( m_pLayerMuteBtn );
 
@@ -440,31 +499,45 @@ ComponentView::ComponentView( QWidget* pParent,
 	);
 	m_pLayerSoloBtn->setModifierTarget( Modifier::Drumkit );
 	m_pLayerSoloBtn->setObjectName( "LayerSoloButton" );
+	m_pLayerSoloBtn->setBaseToolTip(
+		pCommonStrings->getActionToggleLayerSolo() );
 	m_pLayerSoloBtn->setBorderless( true );
 	connect( m_pLayerSoloBtn, &QPushButton::clicked, [&]() {
-		if ( m_pComponent != nullptr ) {
-			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
-			if ( pLayer != nullptr ) {
-				pLayer->setIsSoloed( m_pLayerSoloBtn->isChecked() );
-				updateView();  // WaveDisplay update
-			}
+		int nInstrument, nComponent;
+		if ( ! resolveIndices( nInstrument, nComponent ) ) {
+			return;
 		}
+		auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
+		if ( pLayer == nullptr ) {
+			return;
+		}
+		pushLayerUndo( nInstrument, nComponent, m_nSelectedLayer,
+			SE_setLayerPropertyAction::Property::IsSoloed, "solo",
+			pLayer->getIsSoloed() ? 1.0f : 0.0f,
+			m_pLayerSoloBtn->isChecked() ? 1.0f : 0.0f );
+		updateView();  // WaveDisplay update
 	} );
 	pLayerButtonContainerLayout->addWidget( m_pLayerSoloBtn );
 
 	m_pLayerGainRotary = new Rotary(
-		m_pToolBarLayer, Rotary::Type::Normal, tr( "Layer gain" ), false,
+		m_pToolBarLayer, Rotary::Type::Normal,
+		pCommonStrings->getActionSetLayerGain(), false,
 		0.0, 5.0 );
 	m_pLayerGainRotary->setModifierTarget( Modifier::Drumkit );
 	m_pLayerGainRotary->setDefaultValue( 1.0 );
 	connect( m_pLayerGainRotary, &Rotary::valueChanged, [&]() {
-		if ( m_pComponent != nullptr ) {
-			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
-			if ( pLayer != nullptr ) {
-				pLayer->setGain( m_pLayerGainRotary->getValue() );
-				updateView(); // WaveDisplay update
-			}
+		int nInstrument, nComponent;
+		if ( ! resolveIndices( nInstrument, nComponent ) ) {
+			return;
 		}
+		auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
+		if ( pLayer == nullptr ) {
+			return;
+		}
+		pushLayerUndo( nInstrument, nComponent, m_nSelectedLayer,
+			SE_setLayerPropertyAction::Property::Gain, "gain",
+			pLayer->getGain(), m_pLayerGainRotary->getValue() );
+		updateView(); // WaveDisplay update
 	});
 	m_pToolBarLayer->addWidget( m_pLayerGainRotary );
 
@@ -563,7 +636,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	m_pLayerPitchCoarseRotary = new Rotary(
 		pLayerPropCoarseWidget, Rotary::Type::Center,
-		tr( "Layer pitch (Coarse)" ), true,
+		pCommonStrings->getActionSetLayerPitch(), true,
 		Instrument::fPitchOffsetMinimum + InstrumentEditor::nPitchFineControl,
 		Instrument::fPitchOffsetMaximum - InstrumentEditor::nPitchFineControl
 	);
@@ -571,13 +644,18 @@ ComponentView::ComponentView( QWidget* pParent,
 	connect( m_pLayerPitchCoarseRotary, &Rotary::valueChanged, [&]() {
 		const float fNewPitch = round( m_pLayerPitchCoarseRotary->getValue() ) +
 								m_pLayerPitchFineRotary->getValue() / 100.0;
-		if ( m_pComponent != nullptr ) {
-			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
-			if ( pLayer != nullptr ) {
-				pLayer->setPitchOffset( fNewPitch );
-				updatePitchDisplay();
-			}
+		int nInstrument, nComponent;
+		if ( ! resolveIndices( nInstrument, nComponent ) ) {
+			return;
 		}
+		auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
+		if ( pLayer == nullptr ) {
+			return;
+		}
+		pushLayerUndo( nInstrument, nComponent, m_nSelectedLayer,
+			SE_setLayerPropertyAction::Property::PitchOffset, "pitch",
+			pLayer->getPitchOffset(), fNewPitch );
+		updatePitchDisplay();
 	} );
 	pLayerPropCoarseLayout->addWidget( m_pLayerPitchCoarseRotary );
 	m_pLayerPitchCoarseLbl = new ClickableLabel(
@@ -595,20 +673,26 @@ ComponentView::ComponentView( QWidget* pParent,
 	pLayerPropFineWidget->setLayout( pLayerPropFineLayout );
 
 	m_pLayerPitchFineRotary = new Rotary(
-		pLayerPropFineWidget, Rotary::Type::Center, tr( "Layer pitch (Fine)" ),
+		pLayerPropFineWidget, Rotary::Type::Center,
+		pCommonStrings->getActionSetLayerPitch(),
 		true, -50.0, 50.0
 	);
 	m_pLayerPitchFineRotary->setModifierTarget( Modifier::Drumkit );
 	connect( m_pLayerPitchFineRotary, &Rotary::valueChanged, [&]() {
 		const float fNewPitch = round( m_pLayerPitchCoarseRotary->getValue() ) +
 								m_pLayerPitchFineRotary->getValue() / 100.0;
-		if ( m_pComponent != nullptr ) {
-			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
-			if ( pLayer != nullptr ) {
-				pLayer->setPitchOffset( fNewPitch );
-				updatePitchDisplay();
-			}
+		int nInstrument, nComponent;
+		if ( ! resolveIndices( nInstrument, nComponent ) ) {
+			return;
 		}
+		auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
+		if ( pLayer == nullptr ) {
+			return;
+		}
+		pushLayerUndo( nInstrument, nComponent, m_nSelectedLayer,
+			SE_setLayerPropertyAction::Property::PitchOffset, "pitch",
+			pLayer->getPitchOffset(), fNewPitch );
+		updatePitchDisplay();
 	} );
 	pLayerPropFineLayout->addWidget( m_pLayerPitchFineRotary );
 	m_pLayerPitchFineLbl = new ClickableLabel(
@@ -645,6 +729,26 @@ ComponentView::ComponentView( QWidget* pParent,
 }
 
 ComponentView::~ComponentView() {
+}
+
+bool ComponentView::resolveIndices( int& nInstrument, int& nComponent ) const {
+	auto pSong = HydrogenApp::pEngine()->getSong();
+	auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ||
+		 pInstrument == nullptr || m_pComponent == nullptr ) {
+		return false;
+	}
+	nInstrument = pSong->getDrumkit()->getInstruments()->index( pInstrument );
+	nComponent = pInstrument->index( m_pComponent );
+	return nInstrument != -1 && nComponent != -1;
+}
+
+void ComponentView::leaveEvent( QEvent* ev ) {
+	QWidget::leaveEvent( ev );
+	// Close the per-property undo context opened by the component/layer
+	// callbacks so a gesture collapses into one undo step and Undo/Redo re-enable
+	// once the pointer leaves the view (mirrors Widgets/EditorBase.h).
+	HydrogenApp::get_instance()->endUndoContext();
 }
 
 void ComponentView::updateColors() {
