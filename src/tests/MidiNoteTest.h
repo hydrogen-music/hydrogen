@@ -39,6 +39,7 @@ class MidiNoteTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testMidiInstrumentOutputMapping );
 	CPPUNIT_TEST( testMidiInstrumentGlobalMapping );
 	CPPUNIT_TEST( testSendNoteOff );
+	CPPUNIT_TEST( testMidiOutRoundTrip );
 	CPPUNIT_TEST_SUITE_END();
 
    public:
@@ -48,6 +49,7 @@ class MidiNoteTest : public CppUnit::TestCase {
 	void testMidiInstrumentOutputMapping();
 	void testMidiInstrumentGlobalMapping();
 	void testSendNoteOff();
+	void testMidiOutRoundTrip();
 
    private:
 	void checkInstrumentMidiNote(

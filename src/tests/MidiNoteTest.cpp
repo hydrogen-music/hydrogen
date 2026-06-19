@@ -914,6 +914,39 @@ void MidiNoteTest::testSendNoteOff()
 	___INFOLOG( "passed" );
 }
 
+void MidiNoteTest::testMidiOutRoundTrip() {
+	___INFOLOG( "" );
+
+	// The MIDI-out channel/note undo commands (UndoActions.h) store the value
+	// as `static_cast<int>(channel/note)` and restore it via
+	// channelFromInt()/noteFromIntClamp(). Exact restoration - including the
+	// channel off/all/invalid sentinels - depends on those conversions being a
+	// faithful inverse of static_cast<int> over the values the editor can hold.
+
+	// channelFromInt() round-trips every Channel value, sentinels included.
+	for ( const auto channel : { Midi::ChannelOff, Midi::ChannelAll,
+								  Midi::ChannelInvalid, Midi::ChannelMinimum,
+								  Midi::ChannelDefault, Midi::ChannelMaximum } ) {
+		CPPUNIT_ASSERT(
+			Midi::channelFromInt( static_cast<int>( channel ) ) == channel );
+	}
+	for ( int ii = static_cast<int>( Midi::ChannelMinimum );
+		  ii <= static_cast<int>( Midi::ChannelMaximum ); ++ii ) {
+		CPPUNIT_ASSERT_EQUAL(
+			ii, static_cast<int>( Midi::channelFromInt( ii ) ) );
+	}
+
+	// noteFromIntClamp() round-trips every in-range note (the MIDI-out note spin
+	// box is bounded to [NoteMinimum, NoteMaximum]).
+	for ( int ii = static_cast<int>( Midi::NoteMinimum );
+		  ii <= static_cast<int>( Midi::NoteMaximum ); ++ii ) {
+		CPPUNIT_ASSERT_EQUAL(
+			ii, static_cast<int>( Midi::noteFromIntClamp( ii ) ) );
+	}
+
+	___INFOLOG( "passed" );
+}
+
 void MidiNoteTest::checkInstrumentMidiNote(
 	const QString& sName,
 	Midi::Note note,
