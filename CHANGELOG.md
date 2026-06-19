@@ -22,6 +22,10 @@ All notable changes to this project will be documented in this file.
   tempo changes via keyboard shortcuts, MIDI, or OSC commands as well as
   Beat Counter and Tap Tempo are now discarded.
 - Big update of the `hydrogen` man page.
+- Instead of using the raw font family names of the config file, they are
+  validated first and might trigger a fallback to a safer font. This was done to
+  prevent crashes of `libfontconfig` on Linux (#2343).
+- Default font was changed to "Sans Serif" (#2343).
 
 ### Fixed
 
@@ -38,8 +42,6 @@ All notable changes to this project will be documented in this file.
 - Fix linker error on OpenBSD by @rrrapha.
 - Fixed performance issue when using JACK audio with rubberband.
 - Parameter loss in the MIDI table within the preferences (#2328).
-- Fix segfault when opening the Preferences dialog due to a missing font or a
-  corrupt font database (#2343).
 
 ## [1.2.6] - 2025-07-29
 

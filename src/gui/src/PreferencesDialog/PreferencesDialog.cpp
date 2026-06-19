@@ -2403,33 +2403,12 @@ void PreferencesDialog::updateAppearanceTab( const std::shared_ptr<H2Core::Theme
 		}
 	}
 
-	// Fonts - use QFontDatabase to validate font families before setting them
-	// to prevent crashes in fontconfig when invalid font names are used
-	QString sApplicationFont = pTheme->getFontTheme()->m_sApplicationFontFamily;
-	QString sLevel2Font = pTheme->getFontTheme()->m_sLevel2FontFamily;
-	QString sLevel3Font = pTheme->getFontTheme()->m_sLevel3FontFamily;
-
-	// Validate font families and fall back to system defaults if invalid
-	QFontDatabase fontDatabase;
-	if ( !fontDatabase.families().contains( sApplicationFont ) ) {
-		WARNINGLOG( QString( "Application font family '%1' not found, falling back to default" )
-					.arg( sApplicationFont ) );
-		sApplicationFont = QFont().family();
-	}
-	if ( !fontDatabase.families().contains( sLevel2Font ) ) {
-		WARNINGLOG( QString( "Level2 font family '%1' not found, falling back to default" )
-					.arg( sLevel2Font ) );
-		sLevel2Font = QFont().family();
-	}
-	if ( !fontDatabase.families().contains( sLevel3Font ) ) {
-		WARNINGLOG( QString( "Level3 font family '%1' not found, falling back to default" )
-					.arg( sLevel3Font ) );
-		sLevel3Font = QFont().family();
-	}
-
-	applicationFontComboBox->setCurrentFont( QFont( sApplicationFont ) );
-	level2FontComboBox->setCurrentFont( QFont( sLevel2Font ) );
-	level3FontComboBox->setCurrentFont( QFont( sLevel3Font ) );
+	// Font families are now validated by Preferences::getApplicationFontFamily() et al.
+	// which fall back to the system default if the stored family is not available.
+	auto pPref = Preferences::get_instance();
+	applicationFontComboBox->setCurrentFont( QFont( pPref->getApplicationFontFamily() ) );
+	level2FontComboBox->setCurrentFont( QFont( pPref->getLevel2FontFamily() ) );
+	level3FontComboBox->setCurrentFont( QFont( pPref->getLevel3FontFamily() ) );
 
 	switch( pTheme->getFontTheme()->m_fontSize ) {
 	case FontTheme::FontSize::Small:
