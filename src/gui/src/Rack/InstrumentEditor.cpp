@@ -913,15 +913,17 @@ void InstrumentEditor::updateIcons()
 	}
 }
 
-void InstrumentEditor:: updateStyleSheet() {
+void InstrumentEditor::updateStyleSheet() {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
+
 	setStyleSheet(
 		QString( "\
-QLabel {                     \
-    background: %1           \
+ClickableLabel {                     \
+    background: %1;           \
  }                           \
 %2" )
-			.arg( pColorTheme->m_windowColor.name() )
+		// Color hard-coded to the hue used in the background PNG
+		.arg( QColor( 78, 83, 95 ).name() )
         .arg( Skin::getToolButtonStyle( pColorTheme->m_midLightColor ) )
 	);
 }
