@@ -1976,4 +1976,103 @@ class SE_setMasterPropertyAction : public QUndoCommand {
 	float m_fOldValue;
 	float m_fNewValue;
 };
+
+/** Thin undo wrapper for an instrument-parameter edit from the InstrumentEditor
+ * rotaries (gain, pitch offset, random pitch, filter cutoff/resonance, ADSR).
+ * Routes through the per-parameter #H2Core::CoreActionController setters (which
+ * resolve the instrument by index, apply, and emit InstrumentParametersChanged
+ * so the editor refreshes), so the edit is undoable and IPC-routable. A drag
+ * coalesces into one undo step via the per-instrument-per-property undo context
+ * (`instrument:<index>:<property>`) the caller passes to
+ * HydrogenApp::pushUndoCommand(), closed by HydrogenApp::endUndoContext() when
+ * the pointer leaves the editor.
+ *
+ * \ingroup docGUI */
+class SE_setInstrumentPropertyAction : public QUndoCommand {
+   public:
+	enum class Property { Gain, PitchOffset, RandomPitch, FilterCutoff,
+						  FilterResonance, Attack, Decay, Sustain, Release,
+						  FilterActive, MuteGroup, StopNotes, ApplyVelocity,
+						  HihatGroup, LowerCc, HigherCc };
+
+	SE_setInstrumentPropertyAction( int nInstrument, Property property,
+									float fOldValue, float fNewValue )
+		: m_nInstrument( nInstrument )
+		, m_property( property )
+		, m_fOldValue( fOldValue )
+		, m_fNewValue( fNewValue )
+	{
+		QString sName;
+		switch ( property ) {
+			case Property::Gain: sName = QObject::tr( "Set instrument gain" ); break;
+			case Property::PitchOffset: sName = QObject::tr( "Set instrument pitch" ); break;
+			case Property::RandomPitch: sName = QObject::tr( "Set random pitch" ); break;
+			case Property::FilterCutoff: sName = QObject::tr( "Set filter cutoff" ); break;
+			case Property::FilterResonance: sName = QObject::tr( "Set filter resonance" ); break;
+			case Property::Attack: sName = QObject::tr( "Set attack" ); break;
+			case Property::Decay: sName = QObject::tr( "Set decay" ); break;
+			case Property::Sustain: sName = QObject::tr( "Set sustain" ); break;
+			case Property::Release: sName = QObject::tr( "Set release" ); break;
+			case Property::FilterActive: sName = QObject::tr( "Toggle filter" ); break;
+			case Property::MuteGroup: sName = QObject::tr( "Set mute group" ); break;
+			case Property::StopNotes: sName = QObject::tr( "Toggle stop-notes" ); break;
+			case Property::ApplyVelocity: sName = QObject::tr( "Toggle apply-velocity" ); break;
+			case Property::HihatGroup: sName = QObject::tr( "Set hi-hat group" ); break;
+			case Property::LowerCc: sName = QObject::tr( "Set hi-hat min range" ); break;
+			case Property::HigherCc: sName = QObject::tr( "Set hi-hat max range" ); break;
+		}
+		setText( QString( "%1 [%2]" ).arg( sName ).arg( nInstrument ) );
+	}
+
+	virtual void redo() override { apply( m_fNewValue ); }
+	virtual void undo() override { apply( m_fOldValue ); }
+
+   private:
+	void apply( float fValue ) {
+		auto pController = HydrogenApp::pEngine()->getCoreActionController();
+		if ( pController == nullptr ) {
+			return;
+		}
+		switch ( m_property ) {
+			case Property::Gain:
+				pController->setInstrumentGain( m_nInstrument, fValue ); break;
+			case Property::PitchOffset:
+				pController->setInstrumentPitch( m_nInstrument, fValue ); break;
+			case Property::RandomPitch:
+				pController->setInstrumentRandomPitch( m_nInstrument, fValue ); break;
+			case Property::FilterCutoff:
+				pController->setInstrumentFilterCutoff( m_nInstrument, fValue ); break;
+			case Property::FilterResonance:
+				pController->setInstrumentFilterResonance( m_nInstrument, fValue ); break;
+			case Property::Attack:
+				pController->setInstrumentAttack( m_nInstrument, fValue ); break;
+			case Property::Decay:
+				pController->setInstrumentDecay( m_nInstrument, fValue ); break;
+			case Property::Sustain:
+				pController->setInstrumentSustain( m_nInstrument, fValue ); break;
+			case Property::Release:
+				pController->setInstrumentRelease( m_nInstrument, fValue ); break;
+			case Property::FilterActive:
+				pController->setInstrumentFilterActive( m_nInstrument, fValue != 0.0f ); break;
+			case Property::MuteGroup:
+				pController->setInstrumentMuteGroup( m_nInstrument, static_cast<int>( fValue ) ); break;
+			case Property::StopNotes:
+				pController->setInstrumentStopNotes( m_nInstrument, fValue != 0.0f ); break;
+			case Property::ApplyVelocity:
+				pController->setInstrumentApplyVelocity( m_nInstrument, fValue != 0.0f ); break;
+			case Property::HihatGroup:
+				pController->setInstrumentHihatGroup( m_nInstrument, static_cast<int>( fValue ) ); break;
+			case Property::LowerCc:
+				pController->setInstrumentLowerCc( m_nInstrument, static_cast<int>( fValue ) ); break;
+			case Property::HigherCc:
+				pController->setInstrumentHigherCc( m_nInstrument, static_cast<int>( fValue ) ); break;
+		}
+	}
+
+	int m_nInstrument;
+	Property m_property;
+	float m_fOldValue;
+	float m_fNewValue;
+};
+
 #endif	// UNDOACTIONS_H

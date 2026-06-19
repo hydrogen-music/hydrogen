@@ -74,6 +74,11 @@ class InstrumentEditor : public QWidget,
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes
 		);
 
+	protected:
+		/** Closes the per-parameter undo context (see the rotary callbacks) so a
+		 * gesture forms a single undo step once the pointer leaves the editor. */
+		void leaveEvent( QEvent* ev ) override;
+
 	   private:
 		void updateActivation();
 		void updateIcons();
