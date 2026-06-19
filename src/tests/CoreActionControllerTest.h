@@ -29,12 +29,17 @@ class CoreActionControllerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( CoreActionControllerTest );
 	CPPUNIT_TEST( testCountIn );
 	CPPUNIT_TEST( testSessionManagement );
+	CPPUNIT_TEST( testSetPatternSize );
+	CPPUNIT_TEST( testEditNoteProperty );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
 
 		void testCountIn();
-	
+		/** Bucket-B write-surface entry points (ADR 0027 / T4.5). */
+		void testSetPatternSize();
+		void testEditNoteProperty();
+
 	// Tests the H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong(),
 	// H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong(),
 	// H2Core::Hydrogen::get_instance()->getCoreActionController()->saveSong()

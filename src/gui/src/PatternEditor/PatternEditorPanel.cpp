@@ -1700,39 +1700,25 @@ void PatternEditorPanel::patternSizeChangedAction(
 	int nSelectedPatternNumber
 )
 {
-	auto pHydrogen = HydrogenApp::pHydrogen();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-	auto pPatternList = pSong->getPatternList();
-	std::shared_ptr<H2Core::Pattern> pPattern = nullptr;
-
-	if ( ( nSelectedPatternNumber != -1 ) &&
-		 ( nSelectedPatternNumber < pPatternList->size() ) ) {
-		pPattern = pPatternList->get( nSelectedPatternNumber );
-	}
-
-	if ( pPattern == nullptr ) {
-		ERRORLOG( QString( "Pattern corresponding to pattern number [%1] could "
-						   "not be retrieved" )
-					  .arg( nSelectedPatternNumber ) );
+	// The engine edit (lock, length/denominator, song-size refresh,
+	// PatternChanged event) is owned by CoreActionController (ADR 0027).
+	if ( ! HydrogenApp::pEngine()->getCoreActionController()->setPatternSize(
+			 nLength, static_cast<int>( fDenominator ),
+			 nSelectedPatternNumber ) ) {
 		return;
 	}
 
-	pAudioEngine->lock( RIGHT_HERE );
-	// set length and denominator
-	pPattern->setLength( nLength );
-	pPattern->setDenominator( static_cast<int>( fDenominator ) );
-	pHydrogen->updateSongSize();
-	pAudioEngine->unlock();
+	// GUI-local view state: ensure the cursor stays within the accessible
+	// region of the current pattern (not part of the engine edit).
+	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	std::shared_ptr<H2Core::Pattern> pEdited = nullptr;
+	if ( pSong != nullptr && nSelectedPatternNumber >= 0 &&
+		 nSelectedPatternNumber < pSong->getPatternList()->size() ) {
+		pEdited = pSong->getPatternList()->get( nSelectedPatternNumber );
+	}
 
-	pHydrogen->setPatternModified( true, nSelectedPatternNumber );
-
-	// Ensure the cursor stays within the accessible region of the current
-	// pattern.
-	if ( pPattern == m_pPattern && m_nCursorColumn >= nLength ) {
+	if ( pEdited != nullptr && sameObject( pEdited, m_pPattern ) &&
+		 m_nCursorColumn >= nLength ) {
 		int nNewColumn =
 			std::floor( m_pPattern->getLength() / m_nCursorIncrement ) *
 			m_nCursorIncrement;
@@ -1741,8 +1727,6 @@ void PatternEditorPanel::patternSizeChangedAction(
 		}
 		setCursorColumn( nNewColumn );
 	}
-
-	HydrogenApp::pEventQueue()->pushEvent( Event::Type::PatternChanged, -1 );
 }
 
 void PatternEditorPanel::addInstrument(

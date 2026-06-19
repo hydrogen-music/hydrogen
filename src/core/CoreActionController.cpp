@@ -28,8 +28,11 @@
 #include <core/AudioEngine/Transport.h>
 #include <core/Basics/Adsr.h>
 #include <core/Basics/AutomationPath.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/DrumkitMap.h>
 #include <core/Basics/GridPoint.h>
 #include <core/Basics/Instrument.h>
+#include <core/Basics/Note.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
@@ -3148,6 +3151,179 @@ bool CoreActionController::setPatternProperties(
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::PatternChanged, -1 );
 
 	return true;
+}
+
+bool CoreActionController::setPatternSize( int nLength, int nDenominator,
+										  int nPatternNumber )
+{
+	auto pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	auto pPatternList = pSong->getPatternList();
+	auto pPattern = pPatternList->get( nPatternNumber );
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Unable to find pattern [%1]" ).arg( nPatternNumber ) );
+		return false;
+	}
+
+	// Length and denominator affect playback, so this edit is real-time
+	// sensitive: own the AudioEngine lock here (ADR 0027)
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
+	pAudioEngine->lock( RIGHT_HERE );
+	pPattern->setLength( nLength );
+	pPattern->setDenominator( nDenominator );
+	m_pHydrogen->updateSongSize();
+	pAudioEngine->unlock();
+
+	m_pHydrogen->setPatternModified( true, nPatternNumber );
+	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::PatternChanged, -1 );
+
+	return true;
+}
+
+bool CoreActionController::editNoteProperty(
+	NoteProperty property,
+	int nPatternNumber,
+	int nPosition,
+	int nOldInstrumentId,
+	int nNewInstrumentId,
+	const QString& sOldType,
+	const QString& sNewType,
+	float fVelocity,
+	float fPan,
+	float fLeadLag,
+	float fProbability,
+	int nLength,
+	int nNewKey,
+	int nOldKey,
+	int nNewOctave,
+	int nOldOctave )
+{
+	auto pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	auto pPatternList = pSong->getPatternList();
+	std::shared_ptr<Pattern> pPattern;
+	if ( nPatternNumber != -1 && nPatternNumber < pPatternList->size() ) {
+		pPattern = pPatternList->get( nPatternNumber );
+	}
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Unable to find pattern [%1]" ).arg( nPatternNumber ) );
+		return false;
+	}
+
+	const auto oldId = static_cast<Instrument::Id>( nOldInstrumentId );
+	const auto newId = static_cast<Instrument::Id>( nNewInstrumentId );
+	const auto oldKey = static_cast<Note::Key>( nOldKey );
+	const auto newKey = static_cast<Note::Key>( nNewKey );
+	const auto oldOctave = static_cast<Note::Octave>( nOldOctave );
+	const auto newOctave = static_cast<Note::Octave>( nNewOctave );
+
+	// Note edits touch objects the Sampler/AudioEngine reference live, so this
+	// owns the AudioEngine lock.
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
+	pAudioEngine->lock( RIGHT_HERE );
+
+	auto pNote = pPattern->findNote( nPosition, oldId, sOldType, oldKey, oldOctave );
+	if ( pNote == nullptr && property == NoteProperty::Type ) {
+		// The type of an unmapped note may have been set to one already present
+		// in the drumkit, so its instrument id got remapped and no longer
+		// matches the value the undo/redo action was created with.
+		bool bOk;
+		const auto kitId =
+			pSong->getDrumkit()->toDrumkitMap()->getId( sOldType, &bOk );
+		if ( bOk ) {
+			pNote = pPattern->findNote( nPosition, kitId, sOldType, oldKey,
+										oldOctave );
+		}
+	}
+	else if ( pNote == nullptr && property == NoteProperty::InstrumentId ) {
+		// When adding an instrument to a row of typed-but-unmapped notes, the
+		// redo part is done automatically as part of the mapping to the updated
+		// kit. Only the undo part needs covering here.
+		pAudioEngine->unlock();
+		return false;
+	}
+
+	bool bValueChanged = false;
+	if ( pNote != nullptr ) {
+		switch ( property ) {
+		case NoteProperty::Velocity:
+			if ( pNote->getVelocity() != fVelocity ) {
+				pNote->setVelocity( fVelocity );
+				bValueChanged = true;
+			}
+			break;
+		case NoteProperty::Pan:
+			if ( pNote->getPan() != fPan ) {
+				pNote->setPan( fPan );
+				bValueChanged = true;
+			}
+			break;
+		case NoteProperty::LeadLag:
+			if ( pNote->getLeadLag() != fLeadLag ) {
+				pNote->setLeadLag( fLeadLag );
+				bValueChanged = true;
+			}
+			break;
+		case NoteProperty::KeyOctave:
+			if ( pNote->getKey() != newKey || pNote->getOctave() != newOctave ) {
+				pNote->setKey( newKey );
+				pNote->setOctave( newOctave );
+				bValueChanged = true;
+			}
+			break;
+		case NoteProperty::Probability:
+			if ( pNote->getProbability() != fProbability ) {
+				pNote->setProbability( fProbability );
+				bValueChanged = true;
+			}
+			break;
+		case NoteProperty::Length:
+			if ( pNote->getLength() != nLength ) {
+				pNote->setLength( nLength );
+				bValueChanged = true;
+			}
+			break;
+		case NoteProperty::Type:
+			if ( pNote->getType() != sNewType ||
+				 pNote->getInstrumentId() != newId ) {
+				pNote->setInstrumentId( newId );
+				pNote->setType( sNewType );
+
+				auto pInstrument =
+					pSong->getDrumkit()->mapInstrument( sNewType, newId );
+				pNote->mapToInstrument( pInstrument );
+				bValueChanged = true;
+			}
+			break;
+		case NoteProperty::InstrumentId:
+			if ( pNote->getInstrumentId() != newId ) {
+				pNote->setInstrumentId( newId );
+				bValueChanged = true;
+			}
+			break;
+		default:
+			ERRORLOG( "No property set. No note property adjusted." );
+		}
+	}
+	else {
+		ERRORLOG( "note could not be found" );
+	}
+
+	pAudioEngine->unlock();
+
+	if ( bValueChanged ) {
+		m_pHydrogen->setPatternModified( true, nPatternNumber );
+	}
+
+	return bValueChanged;
 }
 
 bool CoreActionController::setSongProperties(

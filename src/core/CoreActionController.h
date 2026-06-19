@@ -44,6 +44,19 @@ struct PlaylistEntry;
 class Preferences;
 class Song;
 
+/** Identifies which #H2Core::Note property #CoreActionController::editNoteProperty
+ * sets. Values mirror the GUI's PatternEditor::Property so a cast is faithful. */
+enum class NoteProperty {
+	Velocity = 0,
+	Pan = 1,
+	LeadLag = 2,
+	KeyOctave = 3,
+	Probability = 4,
+	Length = 5,
+	Type = 6,
+	InstrumentId = 7
+};
+
 /** \ingroup docCore docAutomation */
 class CoreActionController : public H2Core::Object<CoreActionController> {
 	H2_OBJECT( CoreActionController )
@@ -512,6 +525,39 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		const H2Core::License& newLicense,
 		const QStringList& newTags,
 		int nPatternIndex
+	);
+	/** Sets the length and denominator of a pattern (real-time-sensitive:
+	 * holds the #H2Core::AudioEngine lock and refreshes the song size).
+	 *
+	 * @param nLength New pattern length in ticks.
+	 * @param nDenominator New pattern denominator.
+	 * @param nPatternNumber Position/row of the target pattern.
+	 * @return true on success */
+	bool setPatternSize( int nLength, int nDenominator, int nPatternNumber );
+	/** Edits a single property of one note, addressed by value identity
+	 * (pattern slot + position + instrument id/type + key/octave) so it is
+	 * split-safe. Real-time-sensitive: owns the #H2Core::AudioEngine lock
+	 * (ADR 0027). Instrument ids, key and octave are passed as their underlying
+	 * integers to keep this header light.
+	 *
+	 * @return true if a value actually changed. */
+	bool editNoteProperty(
+		NoteProperty property,
+		int nPatternNumber,
+		int nPosition,
+		int nOldInstrumentId,
+		int nNewInstrumentId,
+		const QString& sOldType,
+		const QString& sNewType,
+		float fVelocity,
+		float fPan,
+		float fLeadLag,
+		float fProbability,
+		int nLength,
+		int nNewKey,
+		int nOldKey,
+		int nNewOctave,
+		int nOldOctave
 	);
 
 	bool setSongProperties(

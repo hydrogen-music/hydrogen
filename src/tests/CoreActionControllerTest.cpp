@@ -25,6 +25,12 @@
 #include "TestHelper.h"
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
@@ -88,6 +94,71 @@ void CoreActionControllerTest::testCountIn() {
 					.arg( nnColumn ).arg( nTicksReal ).arg( nnTicks ) );
 		CPPUNIT_ASSERT( nnTicks == nTicksReal );
 	}
+
+	___INFOLOG( "passed" );
+}
+
+void CoreActionControllerTest::testSetPatternSize() {
+	___INFOLOG( "" );
+	auto pHydrogen = pTestHydrogen();
+	auto pCAC = pHydrogen->getCoreActionController();
+
+	pCAC->setSong( Song::getEmptySong( pHydrogen ) );
+	auto pPatternList = pHydrogen->getSong()->getPatternList();
+	CPPUNIT_ASSERT( pPatternList->size() > 0 );
+	auto pPattern = pPatternList->get( 0 );
+	CPPUNIT_ASSERT( pPattern != nullptr );
+
+	const int nNewLength = 384;
+	const int nNewDenominator = 8;
+	CPPUNIT_ASSERT( pCAC->setPatternSize( nNewLength, nNewDenominator, 0 ) );
+	CPPUNIT_ASSERT_EQUAL( nNewLength, pPattern->getLength() );
+	CPPUNIT_ASSERT_EQUAL( nNewDenominator, pPattern->getDenominator() );
+
+	// An out-of-range pattern index fails gracefully without mutating state.
+	CPPUNIT_ASSERT( ! pCAC->setPatternSize( 192, 4, 999 ) );
+	CPPUNIT_ASSERT_EQUAL( nNewLength, pPattern->getLength() );
+
+	___INFOLOG( "passed" );
+}
+
+void CoreActionControllerTest::testEditNoteProperty() {
+	___INFOLOG( "" );
+	auto pHydrogen = pTestHydrogen();
+	auto pCAC = pHydrogen->getCoreActionController();
+
+	pCAC->setSong( Song::getEmptySong( pHydrogen ) );
+	auto pSong = pHydrogen->getSong();
+	auto pInstrument = pSong->getDrumkit()->getInstruments()->get( 0 );
+	CPPUNIT_ASSERT( pInstrument != nullptr );
+
+	auto pPattern = pSong->getPatternList()->get( 0 );
+	CPPUNIT_ASSERT( pPattern != nullptr );
+
+	auto pNote = std::make_shared<Note>( pInstrument, 0, 0.5f, 0.f, -1 );
+	pPattern->insertNote( pNote );
+
+	const auto nId = static_cast<int>( pInstrument->getId() );
+	const auto& sType = pInstrument->getType();
+	const auto nKey = static_cast<int>( pNote->getKey() );
+	const auto nOctave = static_cast<int>( pNote->getOctave() );
+
+	// A real change is applied and reported.
+	const float fNewVel = 0.9f;
+	CPPUNIT_ASSERT( pCAC->editNoteProperty(
+		NoteProperty::Velocity, 0, 0, nId, nId, sType, sType,
+		fNewVel, 0.f, 0.f, 0.f, -1, nKey, nKey, nOctave, nOctave ) );
+	CPPUNIT_ASSERT_EQUAL( fNewVel, pNote->getVelocity() );
+
+	// Re-applying the same value is a no-op (returns false).
+	CPPUNIT_ASSERT( ! pCAC->editNoteProperty(
+		NoteProperty::Velocity, 0, 0, nId, nId, sType, sType,
+		fNewVel, 0.f, 0.f, 0.f, -1, nKey, nKey, nOctave, nOctave ) );
+
+	// A missing note fails gracefully.
+	CPPUNIT_ASSERT( ! pCAC->editNoteProperty(
+		NoteProperty::Velocity, 0, 4242, nId, nId, sType, sType,
+		0.3f, 0.f, 0.f, 0.f, -1, nKey, nKey, nOctave, nOctave ) );
 
 	___INFOLOG( "passed" );
 }

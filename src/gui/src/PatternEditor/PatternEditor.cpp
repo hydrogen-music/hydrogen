@@ -392,143 +392,70 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 {
 	auto pPatternEditorPanel =
 		HydrogenApp::get_instance()->getPatternEditorPanel();
-	auto pHydrogen = HydrogenApp::pHydrogen();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return;
-	}
-	auto pPatternList = pSong->getPatternList();
-	std::shared_ptr<H2Core::Pattern> pPattern;
 
-	if ( nPatternNumber != -1 &&
-		 nPatternNumber < pPatternList->size() ) {
-		pPattern = pPatternList->get( nPatternNumber );
-	}
-	if ( pPattern == nullptr ) {
-		return;
-	}
+	// The engine edit (lock, find-by-value, mutate, song-modified) is owned by
+	// CoreActionController (ADR 0027); the GUI call site no longer locks or
+	// touches the note directly.
+	const bool bValueChanged =
+		HydrogenApp::pEngine()->getCoreActionController()->editNoteProperty(
+			static_cast<H2Core::NoteProperty>( property ), nPatternNumber,
+			nPosition, static_cast<int>( oldId ), static_cast<int>( newId ),
+			sOldType, sNewType, fVelocity, fPan, fLeadLag, fProbability, nLength,
+			static_cast<int>( newKey ), static_cast<int>( oldKey ),
+			static_cast<int>( newOctave ), static_cast<int>( oldOctave ) );
 
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-
-	// Find the note to edit
-	auto pNote =
-		pPattern->findNote( nPosition, oldId, sOldType, oldKey, oldOctave );
-	if ( pNote == nullptr && property == Property::Type ) {
-		// Maybe the type of an unmapped note was set to one already present in
-		// the drumkit. In this case the instrument id of the note is remapped
-		// and might not correspond to the value used to create the undo/redo
-		// action.
-		//
-		bool bOk;
-		const auto kitId =
-			pSong->getDrumkit()->toDrumkitMap()->getId( sOldType, &bOk );
-		if ( bOk ) {
-			pNote = pPattern->findNote(
-				nPosition, kitId, sOldType, oldKey, oldOctave
-			);
-		}
-	}
-	else if ( pNote == nullptr && property == Property::InstrumentId ) {
-		// When adding an instrument to a row on typed but unmapped notes, the
-		// redo part of the instrument ID is done automatically as part of the
-		// mapping to the updated kit. Only the undo part needs to be covered in
-		// here.
-		pHydrogen->getAudioEngine()->unlock();
+	if ( ! bValueChanged ) {
 		return;
 	}
 
-	bool bValueChanged = false;
-
-	if ( pNote != nullptr ){
-		switch ( property ) {
-		case Property::Velocity:
-			if ( pNote->getVelocity() != fVelocity ) {
-				pNote->setVelocity( fVelocity );
-				bValueChanged = true;
+	// GUI-local reactions to the change (view refresh + selection).
+	if ( property == Property::Type ) {
+		// Changing a type effectively moves the note to another row of the
+		// DrumPatternEditor, which can overlap notes at the same position.
+		// Re-find the (now remapped) note and select it so
+		// checkDeselectElements can resolve the overlap.
+		auto pSong = HydrogenApp::pHydrogen()->getSong();
+		if ( pSong != nullptr ) {
+			auto pPatternList = pSong->getPatternList();
+			std::shared_ptr<H2Core::Pattern> pPattern;
+			if ( nPatternNumber != -1 &&
+				 nPatternNumber < pPatternList->size() ) {
+				pPattern = pPatternList->get( nPatternNumber );
 			}
-			break;
-		case Property::Pan:
-			if ( pNote->getPan() != fPan ) {
-				pNote->setPan( fPan );
-				bValueChanged = true;
+			if ( pPattern != nullptr ) {
+				auto pNote = pPattern->findNote(
+					nPosition, newId, sNewType, oldKey, oldOctave );
+				if ( pNote == nullptr ) {
+					// The type of an unmapped note may have been set to one
+					// already present in the drumkit, so its instrument id got
+					// remapped and no longer matches the value the undo/redo
+					// action was created with.
+					bool bOk;
+					const auto kitId =
+						pSong->getDrumkit()->toDrumkitMap()->getId(
+							sOldType, &bOk
+						);
+					if ( bOk ) {
+						pNote = pPattern->findNote(
+							nPosition, kitId, sOldType, oldKey, oldOctave
+						);
+					}
+				}
+				if ( pNote != nullptr ) {
+					pPatternEditorPanel->getVisibleEditor()
+						->m_selection.addToSelection( pNote );
+				}
 			}
-			break;
-		case Property::LeadLag:
-			if ( pNote->getLeadLag() != fLeadLag ) {
-				pNote->setLeadLag( fLeadLag );
-				bValueChanged = true;
-			}
-			break;
-		case Property::KeyOctave:
-			if ( pNote->getKey() != newKey ||
-				 pNote->getOctave() != newOctave ) {
-				pNote->setKey( newKey );
-				pNote->setOctave( newOctave );
-				bValueChanged = true;
-			}
-			break;
-		case Property::Probability:
-			if ( pNote->getProbability() != fProbability ) {
-				pNote->setProbability( fProbability );
-				bValueChanged = true;
-			}
-			break;
-		case Property::Length:
-			if ( pNote->getLength() != nLength ) {
-				pNote->setLength( nLength );
-				bValueChanged = true;
-			}
-			break;
-		case Property::Type:
-			if ( pNote->getType() != sNewType ||
-				 pNote->getInstrumentId() != newId ) {
-				pNote->setInstrumentId( newId );
-				pNote->setType( sNewType );
-
-				auto pInstrument = pSong->getDrumkit()->mapInstrument(
-					sNewType, newId );
-
-				pNote->mapToInstrument( pInstrument );
-
-				// Changing a type is effectively moving the note to another row
-				// of the DrumPatternEditor. This could result in overlapping
-				// notes at the same position. To guard against this, select all
-				// adjusted notes to harness the checkDeselectElements
-				// capabilities.
-				pPatternEditorPanel->getVisibleEditor()->
-					m_selection.addToSelection( pNote );
-
-				bValueChanged = true;
-			}
-			break;
-		case Property::InstrumentId:
-			if ( pNote->getInstrumentId() != newId ) {
-				pNote->setInstrumentId( newId );
-				bValueChanged = true;
-			}
-			break;
-		case Property::None:
-		default:
-			ERRORLOG("No property set. No note property adjusted.");
 		}
-	} else {
-		ERRORLOG("note could not be found");
 	}
 
-	pHydrogen->getAudioEngine()->unlock();
-
-	if ( bValueChanged ) {
-		pHydrogen->setPatternModified( true, nPatternNumber );
-		std::vector< std::shared_ptr<Note > > notes{ pNote };
-
-		if ( property == Property::Type || property == Property::InstrumentId ) {
-			pPatternEditorPanel->updateDB();
-			pPatternEditorPanel->updateEditors( Editor::Update::Content );
-			pPatternEditorPanel->resizeEvent( nullptr );
-		}
-		else {
-			pPatternEditorPanel->updateEditors( Editor::Update::Content );
-		}
+	if ( property == Property::Type || property == Property::InstrumentId ) {
+		pPatternEditorPanel->updateDB();
+		pPatternEditorPanel->updateEditors( Editor::Update::Content );
+		pPatternEditorPanel->resizeEvent( nullptr );
+	}
+	else {
+		pPatternEditorPanel->updateEditors( Editor::Update::Content );
 	}
 }
 
