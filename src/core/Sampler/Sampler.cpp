@@ -361,7 +361,7 @@ bool Sampler::noteOn( std::shared_ptr<Note> pNote )
 			if ( pOtherNote != nullptr &&
 				 pOtherNote->getInstrument() != nullptr &&
 				 pOtherNote->getAdsr() != nullptr &&
-				 pOtherNote->getInstrument() != pInstr &&
+				 ! sameObject( pOtherNote->getInstrument(), pInstr ) &&
 				 pOtherNote->getInstrument()->getMuteGroup() == nMuteGrp ) {
 				if ( pOtherNote->getPosition() == pNote->getPosition() &&
 					 pSong != nullptr && pSong->getDrumkit() != nullptr &&
@@ -392,7 +392,7 @@ bool Sampler::noteOn( std::shared_ptr<Note> pNote )
 			if ( pOtherNote != nullptr &&
 				 pOtherNote->getInstrument() != nullptr &&
 				 pOtherNote->getAdsr() != nullptr &&
-				 pOtherNote->getInstrument() == pInstr ) {
+				 sameObject( pOtherNote->getInstrument(), pInstr ) ) {
 				pOtherNote->getAdsr()->release();
 			}
 		}
@@ -423,8 +423,12 @@ void Sampler::midiKeyboardNoteOff(
 		return;
 	}
 	for ( const auto& ppNote : m_playingNotesQueue ) {
+		// Match by instance identity, not by Instrument::Id: ids are only
+		// kit-unique, so during a drumkit switch an old-kit note lingering in
+		// the queue could otherwise be mistaken for a new-kit instrument with
+		// the same id (ADR 0028).
 		if ( ppNote != nullptr &&
-			 ppNote->getInstrumentId() == pInstrument->getId() &&
+			 sameObject( ppNote->getInstrument(), pInstrument ) &&
 			 ppNote->getKey() == key && ppNote->getOctave() == octave &&
 			 ppNote->getAdsr() != nullptr ) {
 			ppNote->getAdsr()->release();
@@ -1895,7 +1899,7 @@ void Sampler::stopPlayingNotes( std::shared_ptr<Instrument> pInstr )
 		for ( unsigned i = 0; i < m_playingNotesQueue.size(); ) {
 			auto pNote = m_playingNotesQueue[i];
 			assert( pNote );
-			if ( pNote != nullptr && pNote->getInstrument() == pInstr ) {
+			if ( pNote != nullptr && sameObject( pNote->getInstrument(), pInstr ) ) {
 				pInstr->dequeue( pNote );
 				m_playingNotesQueue.erase( m_playingNotesQueue.begin() + i );
 			}
@@ -1919,7 +1923,8 @@ void Sampler::releasePlayingNotes( std::shared_ptr<Instrument> pInstr )
 	for ( auto ppNote : m_playingNotesQueue ) {
 		if ( ppNote == nullptr || ppNote->getInstrument() == nullptr ||
 			 ( pInstr == nullptr ||
-			   ( pInstr != nullptr && pInstr == ppNote->getInstrument() ) ) ) {
+			   ( pInstr != nullptr &&
+				 sameObject( pInstr, ppNote->getInstrument() ) ) ) ) {
 			ppNote->getAdsr()->release();
 		}
 	}
@@ -1941,7 +1946,7 @@ void Sampler::previewInstrument(
 	}
 
 	if ( pNote->getInstrument() == nullptr ||
-		 pNote->getInstrument() != pInstr ) {
+		 ! sameObject( pNote->getInstrument(), pInstr ) ) {
 		ERRORLOG( "Provided note not associated with the provided instrument" );
 		return;
 	}
@@ -1963,7 +1968,7 @@ void Sampler::previewSample( std::shared_ptr<Sample> pSample, int nLength )
 
 	stopPlayingNotes( m_pPreviewInstrument );
 
-	if ( m_pPreviewInstrument != m_pDefaultPreviewInstrument ) {
+	if ( ! sameObject( m_pPreviewInstrument, m_pDefaultPreviewInstrument ) ) {
 		m_pPreviewInstrument = m_pDefaultPreviewInstrument;
 	}
 

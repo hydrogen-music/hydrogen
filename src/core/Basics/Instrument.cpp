@@ -728,8 +728,14 @@ std::shared_ptr<InstrumentComponent> Instrument::getComponent( int nIdx ) const
 
 int Instrument::index( std::shared_ptr<InstrumentComponent> pComponent ) const
 {
+	return pComponent == nullptr ? -1 : index( pComponent->getUuid() );
+}
+
+int Instrument::index( const Uuid& uuid ) const
+{
 	for ( int ii = 0; ii < m_pComponents->size(); ii++ ) {
-		if ( m_pComponents->at( ii ) == pComponent ) {
+		if ( m_pComponents->at( ii ) != nullptr &&
+			 m_pComponents->at( ii )->getUuid() == uuid ) {
 			return ii;
 		}
 	}
@@ -773,7 +779,7 @@ void Instrument::addLayer(
 	}
 
 	for ( auto& ppComponent : *m_pComponents ) {
-		if ( pComponent == ppComponent ) {
+		if ( sameObject( pComponent, ppComponent ) ) {
 			ppComponent->addLayer( pLayer, nIndex );
 		}
 	}
@@ -794,7 +800,7 @@ void Instrument::moveLayer(
 	}
 
 	for ( auto& ppComponent : *m_pComponents ) {
-		if ( pComponent == ppComponent ) {
+		if ( sameObject( pComponent, ppComponent ) ) {
 			ppComponent->moveLayer( nOldIndex, nNewIndex );
 		}
 	}
@@ -813,7 +819,7 @@ void Instrument::setLayer(
 	}
 
 	for ( auto& ppComponent : *m_pComponents ) {
-		if ( pComponent == ppComponent ) {
+		if ( sameObject( pComponent, ppComponent ) ) {
 			ppComponent->setLayer( pLayer, nIndex );
 		}
 	}
@@ -833,7 +839,7 @@ void Instrument::removeLayer(
 	}
 
 	for ( auto& ppComponent : *m_pComponents ) {
-		if ( pComponent == ppComponent ) {
+		if ( sameObject( pComponent, ppComponent ) ) {
 			ppComponent->removeLayer( nIndex );
 		}
 	}
@@ -865,9 +871,9 @@ void Instrument::setSample(
 	}
 
 	for ( const auto& ppComponent : *m_pComponents ) {
-		if ( pComponent == ppComponent ) {
+		if ( sameObject( pComponent, ppComponent ) ) {
 			for ( auto& ppLayer : *pComponent ) {
-				if ( ppLayer == pLayer ) {
+				if ( sameObject( ppLayer, pLayer ) ) {
 					ppLayer->setSample( pSample );
 				}
 			}

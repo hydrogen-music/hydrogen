@@ -1597,7 +1597,7 @@ void AudioEngineTests::testMuteGroups() {
 			}
 
 			if ( pPlayingInstrument != nullptr &&
-				 ppNote->getInstrument() != pPlayingInstrument &&
+				 ! sameObject( ppNote->getInstrument(), pPlayingInstrument ) &&
 				 ppNote->getAdsr()->getState() != ADSR::State::Release ) {
 				AudioEngineTests::throwException(
 					QString( "[testMuteGroups] wrong instrument ([%1] is playing): [%2]" )

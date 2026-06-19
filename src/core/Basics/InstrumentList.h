@@ -123,11 +123,23 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 */
 		std::shared_ptr<Instrument> del( std::shared_ptr<Instrument> instrument );
 		/**
+		 * remove the instrument with the given identity, does not delete it
+		 * \param uuid identity of the instrument to be removed (ADR 0028)
+		 * \return a pointer to the removed instrument, 0 if not found
+		 */
+		std::shared_ptr<Instrument> del( const Uuid& uuid );
+		/**
 		 * get the index of an instrument within the instruments
 		 * \param instrument a pointer to the instrument to find
 		 * \return -1 if not found
 		 */
 		int index( std::shared_ptr<Instrument> instrument ) const;
+		/**
+		 * get the position of the instrument with the given identity (ADR 0028)
+		 * \param uuid identity of the instrument to find
+		 * \return -1 if not found
+		 */
+		int index( const Uuid& uuid ) const;
 		/**
 		 * find an instrument within the instruments
 		 * \param i the id of the instrument to find

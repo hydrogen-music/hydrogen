@@ -132,11 +132,23 @@ class XMLNode;
 		 */
 		std::shared_ptr<Pattern> del( std::shared_ptr<Pattern> pPattern );
 		/**
+		 * remove the pattern with the given identity, does not delete it
+		 * \param uuid identity of the pattern to be removed (ADR 0028)
+		 * \return a pointer to the removed pattern, 0 if not found
+		 */
+		std::shared_ptr<Pattern> del( const Uuid& uuid );
+		/**
 		 * get the index of the pattern within the patterns
 		 * \param pPattern a pointer to the pattern to find
 		 * \return -1 if not found
 		 */
 		int index( const std::shared_ptr<Pattern> pPattern ) const;
+		/**
+		 * get the position of the pattern with the given identity (ADR 0028)
+		 * \param uuid identity of the pattern to find
+		 * \return -1 if not found
+		 */
+		int index( const Uuid& uuid ) const;
 		/**
 		 * replace the pattern at a given index with a new one
 		 * \param idx the index

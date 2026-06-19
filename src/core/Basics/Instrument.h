@@ -292,6 +292,8 @@ class Instrument : public H2Core::Object<Instrument> {
 	/** Select a component via its index in the corresponding vector. */
 	std::shared_ptr<InstrumentComponent> getComponent( int nIdx ) const;
 	int index( std::shared_ptr<InstrumentComponent> pComponent ) const;
+	/** Position of the component with the given identity (ADR 0028). */
+	int index( const Uuid& uuid ) const;
 	void addComponent( std::shared_ptr<InstrumentComponent> pComponent );
 	void removeComponent( int nIdx );
 

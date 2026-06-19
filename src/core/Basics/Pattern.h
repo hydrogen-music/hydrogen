@@ -572,9 +572,15 @@ inline void Pattern::virtualPatternsAdd( std::shared_ptr<Pattern> pPattern )
 
 inline void Pattern::virtualPatternsDel( std::shared_ptr<Pattern> pPattern )
 {
-	virtual_patterns_cst_it_t it = m_virtualPatterns.find( pPattern );
-	if ( it != m_virtualPatterns.end() )
-		m_virtualPatterns.erase( it );
+	// The set is ordered by pointer, but identity is decided by #Uuid (ADR
+	// 0028); sameObject() short-circuits on the pointer, so this stays cheap.
+	for ( virtual_patterns_cst_it_t it = m_virtualPatterns.begin();
+		  it != m_virtualPatterns.end(); ++it ) {
+		if ( sameObject( *it, pPattern ) ) {
+			m_virtualPatterns.erase( it );
+			return;
+		}
+	}
 }
 
 inline void Pattern::flattenedVirtualPatternsClear()

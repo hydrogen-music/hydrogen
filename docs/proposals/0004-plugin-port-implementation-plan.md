@@ -480,7 +480,26 @@ validators in CI.
 
 [ADR 0028](/docs/decisions/0028-object-instance-identity.md).
 
-**Status: 🚧 NEW (2026-06-18).** Core objects are identified by raw `shared_ptr`
+**Status: ✅ DONE** (2026-06-19) — T4.4a/b/c landed; full CppUnit suite green
+(`OK (299 tests)`, +7 `ObjectUuidTest`) and the ctest gate (GuiStartup +
+CLAP/LV2 conformance) passes. `Object`/`Base` now carries an immutable
+`Uuid m_uuid` (`{epoch, counter}`: epoch a one-off off-RT `random_device` draw
+via a Meyers singleton, counter a wait-free `fetch_add`), minted in every
+constructor incl. copy, preserved under assignment; a `static_assert` pins the
+counter lock-free for the note path. Identity comparisons route through one
+`sameObject(a,b)` helper (death row, note queues in `AudioEngine`/`Sampler`,
+`Hydrogen` MIDI-record, `Pattern::removeNote`/`references`/`purgeInstrument`/
+`virtualPatternsDel`, `InstrumentList::add`/`insert`); `index`/`del` gained
+uuid overloads (positional return unchanged) on `InstrumentList`/`PatternList`/
+`Instrument`/`InstrumentComponent` with the pointer overloads delegating. The
+latent cross-kit `Id` match in `Sampler::midiKeyboardNoteOff` is fixed to use
+identity. **Two ADR-listed sites were left unchanged on inspection — they are
+not pointer-identity:** `Drumkit::addInstrument` (`Drumkit.cpp:597`) is a
+deliberate `Instrument::Id`-*uniqueness* check (uuid would defeat duplicate-id
+detection), and `Playlist::remove` matches by a *value* `operator==`
+(song/script path), not by pointer. (ADR 0028 updated accordingly.)
+
+**Original problem statement.** Core objects are identified by raw `shared_ptr`
 pointer comparison across many `Basics` classes (note queue, death row,
 `InstrumentList`/`PatternList`/`Instrument`/`InstrumentComponent` `index`,
 `Playlist::remove`, `Pattern::removeNote`/`references`/`purgeInstrument`).

@@ -378,7 +378,7 @@ void Pattern::removeNote( std::shared_ptr<Note> pNote )
 	int nPos = pNote->getPosition();
 	for ( notes_it_t it = m_notes.lower_bound( nPos );
 		  it != m_notes.end() && it->first == nPos; ++it ) {
-		if ( it->second == pNote ) {
+		if ( sameObject( it->second, pNote ) ) {
 			m_notes.erase( it );
 			break;
 		}
@@ -392,7 +392,8 @@ bool Pattern::references( std::shared_ptr<Instrument> pInstrument ) const
 	}
 
 	for ( const auto& [_, ppNote] : m_notes ) {
-		if ( ppNote != nullptr && ppNote->getInstrument() == pInstrument ) {
+		if ( ppNote != nullptr &&
+			 sameObject( ppNote->getInstrument(), pInstrument ) ) {
 			return true;
 		}
 	}
@@ -408,7 +409,8 @@ void Pattern::purgeInstrument( std::shared_ptr<Instrument> pInstrument )
 	for ( notes_it_t it = m_notes.begin(); it != m_notes.end(); ) {
 		auto pNote = it->second;
 		assert( pNote );
-		if ( pNote != nullptr && pNote->getInstrument() == pInstrument ) {
+		if ( pNote != nullptr &&
+			 sameObject( pNote->getInstrument(), pInstrument ) ) {
 			m_notes.erase( it++ );
 		}
 		else {

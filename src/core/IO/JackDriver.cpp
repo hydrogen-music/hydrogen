@@ -1617,7 +1617,7 @@ void JackDriver::createPerTrackAudioPorts(
 				if ( ports.sPortNameBase == sName &&
 					 ports.marked == InstrumentPorts::Marked::None &&
 					 ( pInstrumentToExclude == nullptr ||
-					   pInstrumentToExclude != ppInstrument ) ) {
+					   ! sameObject( pInstrumentToExclude, ppInstrument ) ) ) {
 					return true;
 				}
 			}
@@ -1746,7 +1746,7 @@ void JackDriver::createPerTrackAudioPorts(
 					newPorts.push_back( { pMapped, InstrumentPorts( pports ) }
 					);
 
-					if ( pMapped != ppInstrument ) {
+					if ( ! sameObject( pMapped, ppInstrument ) ) {
 						// In case we deal with the same instrument, there is no
 						// need for the death row.
 						pports.marked = InstrumentPorts::Marked::ForRemoval;

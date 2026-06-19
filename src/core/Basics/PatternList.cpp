@@ -157,8 +157,13 @@ std::shared_ptr<Pattern> PatternList::get( int idx ) const
 
 int PatternList::index( const std::shared_ptr<Pattern> pattern ) const
 {
+	return pattern == nullptr ? -1 : index( pattern->getUuid() );
+}
+
+int PatternList::index( const Uuid& uuid ) const
+{
 	for( int i=0; i<m_pPatterns.size(); i++ ) {
-		if ( m_pPatterns[i]==pattern ) {
+		if ( m_pPatterns[i] != nullptr && m_pPatterns[i]->getUuid() == uuid ) {
 			return i;
 		}
 	}
@@ -179,8 +184,14 @@ std::shared_ptr<Pattern> PatternList::del( int idx )
 std::shared_ptr<Pattern> PatternList::del( std::shared_ptr<Pattern> pPattern )
 {
 	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
+	return pPattern == nullptr ? nullptr : del( pPattern->getUuid() );
+}
+
+std::shared_ptr<Pattern> PatternList::del( const Uuid& uuid )
+{
+	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
 	for ( int i = 0; i < m_pPatterns.size(); i++ ) {
-		if ( m_pPatterns[ i ] == pPattern ) {
+		if ( m_pPatterns[ i ] != nullptr && m_pPatterns[ i ]->getUuid() == uuid ) {
 			return del( i );
 		}
 	}

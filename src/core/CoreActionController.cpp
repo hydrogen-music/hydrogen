@@ -1868,7 +1868,7 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit )
 		return false;
 	}
 	auto pPreviousDrumkit = pSong->getDrumkit();
-	if ( pPreviousDrumkit == pNewDrumkit ) {
+	if ( sameObject( pPreviousDrumkit, pNewDrumkit ) ) {
 		return true;
 	}
 

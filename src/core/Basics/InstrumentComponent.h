@@ -80,6 +80,8 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		std::shared_ptr<InstrumentLayer>	operator[]( int ix ) const;
 		std::shared_ptr<InstrumentLayer>	getLayer( int idx ) const;
 		int index( std::shared_ptr<InstrumentLayer> pLayer ) const;
+		/** Position of the layer with the given identity (ADR 0028). */
+		int index( const Uuid& uuid ) const;
 		const std::vector<std::shared_ptr<InstrumentLayer>> getLayers() const;
 
 		void setGain( float gain );

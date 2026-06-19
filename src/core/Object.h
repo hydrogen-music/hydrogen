@@ -30,13 +30,74 @@
 
 #include <atomic>
 #include <chrono>
+#include <cstdint>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <QDebug>
 #include <QtCore>
 #include <unistd.h>
 
 namespace H2Core {
+
+/**
+ * Process-unique, immutable instance identity carried by every #Base
+ * (ADR 0028).
+ *
+ * The value is a pair of a per-process @a epoch (seeded once at startup off the
+ * real-time path) and a monotonically increasing @a counter (advanced by a
+ * wait-free atomic `fetch_add`, hence safe to mint while copying #Note objects
+ * on the audio thread). Two ids are equal iff both fields match; the epoch makes
+ * an id minted by another process (e.g. the out-of-process editor) never
+ * spuriously match a local object. Runtime-only — never serialised.
+ */
+struct Uuid {
+	uint64_t epoch;
+	uint64_t counter;
+
+	Uuid( uint64_t nEpoch = 0, uint64_t nCounter = 0 ) :
+		epoch( nEpoch ), counter( nCounter ) {}
+
+	/** A default-constructed (never-minted) id. */
+	bool isNull() const { return epoch == 0 && counter == 0; }
+
+	bool operator==( const Uuid& other ) const {
+		return epoch == other.epoch && counter == other.counter;
+	}
+	bool operator!=( const Uuid& other ) const { return !( *this == other ); }
+
+	QString toQString() const;
+
+	/** Mints a fresh, globally-unique id. Lock-free / real-time-safe. */
+	static Uuid mint();
+};
+
+inline uint qHash( const Uuid& uuid, uint seed = 0 ) noexcept {
+	return ::qHash( uuid.epoch, seed ) ^ ::qHash( uuid.counter, seed );
+}
+
+/**
+ * The single instance-identity comparator (ADR 0028). Two managed objects are
+ * "the same" iff they are the same pointer or carry the same #Uuid. This is the
+ * one place identity is decided, so no call site has to reason about whether a
+ * raw pointer comparison is safe — and, unlike a bare pointer compare, it stays
+ * meaningful once an id is carried across the editor/engine process split.
+ *
+ * In-process this is exactly `a == b` (every object has a unique id), so routing
+ * the existing pointer-identity checks through it is behaviour-preserving.
+ */
+template <typename T>
+inline bool sameObject( const std::shared_ptr<T>& a,
+						const std::shared_ptr<T>& b ) {
+	if ( a == b ) {
+		// Identical managed pointer, including the both-null case.
+		return true;
+	}
+	if ( a == nullptr || b == nullptr ) {
+		return false;
+	}
+	return a->getUuid() == b->getUuid();
+}
 
 /** an objects class map item type */
 typedef struct atomic_obj_cpt_t {
@@ -60,20 +121,28 @@ typedef std::map<const char*, const atomic_obj_cpt_t*> object_internal_map_t;
 /** \ingroup docCore docDebugging*/
 class Base {
 	public:
-		Base() {
+		Base() : m_uuid( Uuid::mint() ) {
 #ifdef H2CORE_HAVE_DEBUG
 			if ( __count ) {
 				++__objects_count;
 			}
 #endif
 		}
-		Base(const Base &other) {
+		// A copy is a distinct object and therefore mints its own fresh
+		// identity (ADR 0028) — "pointer identity, but as a value".
+		Base(const Base &other) : m_uuid( Uuid::mint() ) {
 #ifdef H2CORE_HAVE_DEBUG
 			if ( __count ) {
 				++__objects_count;
 			}
 #endif
 		}
+		// Assignment transfers data, not identity: an object keeps the id it was
+		// born with. #m_uuid is deliberately left untouched.
+		Base& operator=( const Base& ) { return *this; }
+
+		/** \return the immutable per-instance identity (ADR 0028). */
+		const Uuid& getUuid() const { return m_uuid; }
 		static const char *_class_name() { return "Object"; }        ///< return the class name
 		virtual const char* class_name() const { return _class_name(); }
 		/**
@@ -158,6 +227,8 @@ class Base {
 		static TimePoint m_lastTimePoint;
 	
 	private:
+		/** Immutable per-instance identity, minted at construction (ADR 0028). */
+		Uuid m_uuid;
 		static std::atomic<int> __objects_count;        ///< total objects count
 		static object_internal_map_t __objects_map;      ///< objects classes and instances count structure
 		static pthread_mutex_t __mutex;         ///< yeah this has to be thread safe

@@ -128,7 +128,7 @@ void InstrumentList::saveTo( XMLNode& node, bool bSongKit,
 bool InstrumentList::operator==( std::shared_ptr<InstrumentList> pOther ) const {
 	if ( pOther != nullptr && size() == pOther->size() ) {
 		for ( int ii = 0; ii < size(); ++ii ) {
-			if ( get( ii ).get() != pOther->get( ii ).get() ) {
+			if ( ! sameObject( get( ii ), pOther->get( ii ) ) ) {
 				return false;
 			}
 		}
@@ -142,7 +142,7 @@ bool InstrumentList::operator==( std::shared_ptr<InstrumentList> pOther ) const 
 bool InstrumentList::operator!=( std::shared_ptr<InstrumentList> pOther ) const {
 	if ( pOther != nullptr && size() == pOther->size() ) {
 		for ( int ii = 0; ii < size(); ++ii ) {
-			if ( get( ii ).get() != pOther->get( ii ).get() ) {
+			if ( ! sameObject( get( ii ), pOther->get( ii ) ) ) {
 				return true;
 			}
 		}
@@ -157,7 +157,7 @@ void InstrumentList::add( std::shared_ptr<Instrument> instrument )
 {
 	// do nothing if already in m_pInstruments
 	for( int i=0; i<m_pInstruments.size(); i++ ) {
-		if( m_pInstruments[i]==instrument ) return;
+		if( sameObject( m_pInstruments[i], instrument ) ) return;
 	}
 	m_pInstruments.push_back( instrument );
 }
@@ -166,7 +166,7 @@ void InstrumentList::insert( int idx, std::shared_ptr<Instrument> instrument )
 {
 	// do nothing if already in m_pInstruments
 	for( int i=0; i<m_pInstruments.size(); i++ ) {
-		if( m_pInstruments[i]==instrument ) return;
+		if( sameObject( m_pInstruments[i], instrument ) ) return;
 	}
 	m_pInstruments.insert( m_pInstruments.begin() + idx, instrument );
 }
@@ -204,8 +204,14 @@ std::shared_ptr<Instrument> InstrumentList::get( int idx ) const
 
 int InstrumentList::index( std::shared_ptr<Instrument> instr ) const
 {
+	return instr == nullptr ? -1 : index( instr->getUuid() );
+}
+
+int InstrumentList::index( const Uuid& uuid ) const
+{
 	for( int i=0; i<m_pInstruments.size(); i++ ) {
-		if ( m_pInstruments[i]==instr ) {
+		if ( m_pInstruments[i] != nullptr &&
+			 m_pInstruments[i]->getUuid() == uuid ) {
 			return i;
 		}
 	}
@@ -249,8 +255,15 @@ std::vector< std::shared_ptr<Instrument> > InstrumentList::findByMidiNote(
 
 std::shared_ptr<Instrument> InstrumentList::del( std::shared_ptr<Instrument> instrument )
 {
+	return instrument == nullptr ? nullptr : del( instrument->getUuid() );
+}
+
+std::shared_ptr<Instrument> InstrumentList::del( const Uuid& uuid )
+{
 	for( int i=0; i<m_pInstruments.size(); i++ ) {
-		if( m_pInstruments[i]==instrument ) {
+		if( m_pInstruments[i] != nullptr &&
+			m_pInstruments[i]->getUuid() == uuid ) {
+			auto instrument = m_pInstruments[i];
 			m_pInstruments.erase( m_pInstruments.begin() + i );
 			return instrument;
 		}

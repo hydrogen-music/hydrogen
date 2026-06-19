@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 date: 2026-06-18
 deciders: pm
 ---
@@ -119,6 +119,20 @@ construction.
 * **Open (deferred):** persisting/transferring the id for editor↔engine
   correspondence; the exact epoch width; whether any class caches a peer's id.
   None block the in-process sweep.
+
+## Implementation notes (2026-06-19)
+
+One site listed above as "container location by pointer" turned out **not** to
+be pointer-identity comparisons and were correctly left unchanged:
+
+* **`Playlist::remove`** matches entries by a **value** `operator==`
+  (song path / script path / enabled), not by pointer identity — two distinct
+  `PlaylistEntry` objects describing the same song are intentionally "equal"
+  for removal. Identity (uuid) would change that behaviour.
+
+Otherwise the sweep matches this ADR: a `sameObject(a,b)` helper centralises
+equality, and `index`/`del` gained uuid overloads (positional return preserved).
+The atomic counter is `static_assert`-ed lock-free to guarantee the RT property.
 
 ## More Information
 

@@ -1695,7 +1695,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 				m_pSampler->noteOn( pOffNote );
 			}
 
-			if ( pNoteInstrument == m_pMetronomeInstrument ) {
+			if ( sameObject( pNoteInstrument, m_pMetronomeInstrument ) ) {
 				m_pHydrogen->getEventQueue()->pushEvent(
 					Event::Type::Metronome,
 					pNote->getKey() == Note::KeyDefault ? 1 : 0
@@ -1751,7 +1751,7 @@ void AudioEngine::clearNoteQueues( std::shared_ptr<Instrument> pInstrument )
 		for ( ; ! m_songNoteQueue.empty(); m_songNoteQueue.pop() ) {
 			auto ppNote = m_songNoteQueue.top();
 			if ( ppNote == nullptr || ppNote->getInstrument() == nullptr ||
-				 ppNote->getInstrument() == pInstrument ) {
+				 sameObject( ppNote->getInstrument(), pInstrument ) ) {
 				if ( ppNote->getInstrument() != nullptr ) {
 					ppNote->getInstrument()->dequeue( ppNote );
 				}
@@ -1772,7 +1772,7 @@ void AudioEngine::clearNoteQueues( std::shared_ptr<Instrument> pInstrument )
 		auto ppNote = *it;
 		if ( ppNote == nullptr || ppNote->getInstrument() == nullptr ||
 			 ( pInstrument == nullptr ||
-			   ppNote->getInstrument() == pInstrument ) ) {
+			   sameObject( ppNote->getInstrument(), pInstrument ) ) ) {
 			it = m_midiNoteQueue.erase( it );
 		}
 		else {
@@ -2638,7 +2638,7 @@ void AudioEngine::flushAndAddNextPattern( int nPatternNumber ) {
 		for ( int ii = 0; ii < pPlayingPatterns->size(); ++ii ) {
 
 			auto pPlayingPattern = pPlayingPatterns->get( ii );
-			if ( pPlayingPattern != pRequestedPattern ) {
+			if ( ! sameObject( pPlayingPattern, pRequestedPattern ) ) {
 				pNextPatterns->add( pPlayingPattern );
 			}
 			else if ( pRequestedPattern != nullptr ) {

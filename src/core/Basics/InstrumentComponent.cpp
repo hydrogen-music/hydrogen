@@ -363,8 +363,13 @@ const std::vector<std::shared_ptr<InstrumentLayer>> InstrumentComponent::getLaye
 }
 
 int InstrumentComponent::index( std::shared_ptr<InstrumentLayer> pLayer ) const {
+	return pLayer == nullptr ? -1 : index( pLayer->getUuid() );
+}
+
+int InstrumentComponent::index( const Uuid& uuid ) const {
 	for( int ii = 0; ii < m_layers.size(); ii++ ) {
-		if ( m_layers.at( ii ) == pLayer ) {
+		if ( m_layers.at( ii ) != nullptr &&
+			 m_layers.at( ii )->getUuid() == uuid ) {
 			return ii;
 		}
 	}

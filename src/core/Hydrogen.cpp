@@ -269,7 +269,7 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 	}
 
 	std::shared_ptr<Song> pCurrentSong = getSong();
-	if ( pSong == pCurrentSong ) {
+	if ( sameObject( pSong, pCurrentSong ) ) {
 		return;
 	}
 
@@ -492,7 +492,7 @@ bool Hydrogen::addRealtimeNote(
 					auto pNote = it->second;
 					if ( pNote != nullptr &&
 						 pNote->getPosition() == m_nLastRecordedMIDINoteTick &&
-						 pInstrument == pNote->getInstrument() ) {
+						 sameObject( pInstrument, pNote->getInstrument() ) ) {
 						int nNewNoteLength = nNoteLength;
 						if ( m_nLastRecordedMIDINoteTick + nNoteLength >
 							 nPatternSize ) {
@@ -1090,7 +1090,7 @@ void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr )
 void Hydrogen::removeInstrumentFromDeathRow( std::shared_ptr<Instrument> pInstr ) {
 	for ( auto it = m_instrumentDeathRow.begin();
 		  it != m_instrumentDeathRow.end(); ) {
-        if ( *it == pInstr ) {
+        if ( sameObject( *it, pInstr ) ) {
             it = m_instrumentDeathRow.erase( it );
 		} else {
             ++it;
