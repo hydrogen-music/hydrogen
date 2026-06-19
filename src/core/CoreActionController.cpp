@@ -96,6 +96,10 @@ bool CoreActionController::setStripVolume(
 	if ( pInstr->getVolume() != fVolumeValue ) {
 		pInstr->setVolume( fVolumeValue );
 
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nStrip
+		);
+
 		m_pHydrogen->setDrumkitModified( true );
 
 		return sendStripVolumeFeedback( nStrip );
