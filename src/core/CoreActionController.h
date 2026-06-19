@@ -36,6 +36,8 @@ class Drumkit;
 class GridPoint;
 class Hydrogen;
 class Instrument;
+class InstrumentComponent;
+class InstrumentLayer;
 class Pattern;
 class Playlist;
 struct PlaylistEntry;
@@ -88,6 +90,20 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	bool setInstrumentHihatGroup( int nInstrument, int nHihatGroup );
 	bool setInstrumentLowerCc( int nInstrument, int nCc );
 	bool setInstrumentHigherCc( int nInstrument, int nCc );
+	bool setComponentIsMuted( int nInstrument, int nComponent, bool bIsMuted );
+	bool setComponentIsSoloed( int nInstrument, int nComponent, bool bIsSoloed );
+	bool setComponentGain( int nInstrument, int nComponent, float fGain );
+	bool setLayerIsMuted( int nInstrument, int nComponent, int nLayer,
+						  bool bIsMuted );
+	bool setLayerIsSoloed( int nInstrument, int nComponent, int nLayer,
+						   bool bIsSoloed );
+	bool setLayerGain( int nInstrument, int nComponent, int nLayer, float fGain );
+	bool setLayerPitchOffset( int nInstrument, int nComponent, int nLayer,
+							  float fPitchOffset );
+	bool setLayerStartVelocity( int nInstrument, int nComponent, int nLayer,
+								float fVelocity );
+	bool setLayerEndVelocity( int nInstrument, int nComponent, int nLayer,
+							  float fVelocity );
 	bool setInstrumentMidiOutNote(
 		int nInstrument,
 		Midi::Note note,
@@ -636,6 +652,12 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	/** Resolve an instrument by its position in the current drumkit, logging on
 	 * failure. Shared by the per-parameter instrument setters. */
 	std::shared_ptr<Instrument> resolveInstrument( int nInstrument ) const;
+	/** Resolve a component by index within an instrument, logging on failure. */
+	std::shared_ptr<InstrumentComponent> resolveComponent(
+		int nInstrument, int nComponent ) const;
+	/** Resolve a layer by index within a component, logging on failure. */
+	std::shared_ptr<InstrumentLayer> resolveLayer(
+		int nInstrument, int nComponent, int nLayer ) const;
 
 	bool sendMasterVolumeFeedback();
 	bool sendStripVolumeFeedback( int nStrip );

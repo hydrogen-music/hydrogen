@@ -31,6 +31,7 @@
 #include <core/Basics/GridPoint.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
@@ -135,22 +136,6 @@ bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue )
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 
 	return true;
-}
-
-std::shared_ptr<Instrument> CoreActionController::resolveInstrument(
-	int nInstrument ) const
-{
-	auto pSong = m_pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		ERRORLOG( "no song or drumkit set" );
-		return nullptr;
-	}
-	auto pInstrument = pSong->getDrumkit()->getInstruments()->get( nInstrument );
-	if ( pInstrument == nullptr ) {
-		ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
-				  .arg( nInstrument ) );
-	}
-	return pInstrument;
 }
 
 bool CoreActionController::setInstrumentGain( int nInstrument, float fValue )
@@ -402,6 +387,188 @@ bool CoreActionController::setInstrumentHigherCc( int nInstrument, int nCc )
 			Event::Type::InstrumentParametersChanged, nInstrument );
 		m_pHydrogen->setDrumkitModified( true );
 	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+std::shared_ptr<InstrumentComponent> CoreActionController::resolveComponent(
+	int nInstrument, int nComponent ) const
+{
+	auto pInstrument = resolveInstrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		return nullptr;
+	}
+	auto pComponent = pInstrument->getComponent( nComponent );
+	if ( pComponent == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve component [%1] of instrument [%2]" )
+				  .arg( nComponent ).arg( nInstrument ) );
+	}
+	return pComponent;
+}
+
+std::shared_ptr<InstrumentLayer> CoreActionController::resolveLayer(
+	int nInstrument, int nComponent, int nLayer ) const
+{
+	auto pComponent = resolveComponent( nInstrument, nComponent );
+	if ( pComponent == nullptr ) {
+		return nullptr;
+	}
+	auto pLayer = pComponent->getLayer( nLayer );
+	if ( pLayer == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve layer [%1] of component [%2] of instrument [%3]" )
+				  .arg( nLayer ).arg( nComponent ).arg( nInstrument ) );
+	}
+	return pLayer;
+}
+
+bool CoreActionController::setComponentIsMuted( int nInstrument, int nComponent,
+												bool bIsMuted )
+{
+	auto pComponent = resolveComponent( nInstrument, nComponent );
+	if ( pComponent == nullptr ) {
+		return false;
+	}
+	if ( pComponent->getIsMuted() != bIsMuted ) {
+		pComponent->setIsMuted( bIsMuted );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setComponentIsSoloed( int nInstrument, int nComponent,
+												 bool bIsSoloed )
+{
+	auto pComponent = resolveComponent( nInstrument, nComponent );
+	if ( pComponent == nullptr ) {
+		return false;
+	}
+	if ( pComponent->getIsSoloed() != bIsSoloed ) {
+		pComponent->setIsSoloed( bIsSoloed );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setComponentGain( int nInstrument, int nComponent,
+											 float fGain )
+{
+	auto pComponent = resolveComponent( nInstrument, nComponent );
+	if ( pComponent == nullptr ) {
+		return false;
+	}
+	if ( pComponent->getGain() != fGain ) {
+		pComponent->setGain( fGain );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setLayerIsMuted( int nInstrument, int nComponent,
+											int nLayer, bool bIsMuted )
+{
+	auto pLayer = resolveLayer( nInstrument, nComponent, nLayer );
+	if ( pLayer == nullptr ) {
+		return false;
+	}
+	if ( pLayer->getIsMuted() != bIsMuted ) {
+		pLayer->setIsMuted( bIsMuted );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setLayerIsSoloed( int nInstrument, int nComponent,
+											 int nLayer, bool bIsSoloed )
+{
+	auto pLayer = resolveLayer( nInstrument, nComponent, nLayer );
+	if ( pLayer == nullptr ) {
+		return false;
+	}
+	if ( pLayer->getIsSoloed() != bIsSoloed ) {
+		pLayer->setIsSoloed( bIsSoloed );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setLayerGain( int nInstrument, int nComponent,
+										 int nLayer, float fGain )
+{
+	auto pLayer = resolveLayer( nInstrument, nComponent, nLayer );
+	if ( pLayer == nullptr ) {
+		return false;
+	}
+	if ( pLayer->getGain() != fGain ) {
+		pLayer->setGain( fGain );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setLayerPitchOffset( int nInstrument, int nComponent,
+												int nLayer, float fPitchOffset )
+{
+	auto pLayer = resolveLayer( nInstrument, nComponent, nLayer );
+	if ( pLayer == nullptr ) {
+		return false;
+	}
+	if ( pLayer->getPitchOffset() != fPitchOffset ) {
+		pLayer->setPitchOffset( fPitchOffset );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setLayerStartVelocity( int nInstrument, int nComponent,
+												  int nLayer, float fVelocity )
+{
+	auto pLayer = resolveLayer( nInstrument, nComponent, nLayer );
+	if ( pLayer == nullptr ) {
+		return false;
+	}
+	if ( pLayer->getStartVelocity() != fVelocity ) {
+		pLayer->setStartVelocity( fVelocity );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setLayerEndVelocity( int nInstrument, int nComponent,
+												int nLayer, float fVelocity )
+{
+	auto pLayer = resolveLayer( nInstrument, nComponent, nLayer );
+	if ( pLayer == nullptr ) {
+		return false;
+	}
+	if ( pLayer->getEndVelocity() != fVelocity ) {
+		pLayer->setEndVelocity( fVelocity );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
